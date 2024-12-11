@@ -1030,13 +1030,6 @@ func StringCount(pcStr, pcSubStr)
 
 #--
 
-func StringRepeat(cStr, n)
-	oString = new stzString(cStr)
-	return oString.RepeatedNTimes(n)
-	
-	func @Repeat(cStr, n)
-		return StringRepeat(cStr, n)
-
 func StringNumberOfChars(cStr)
 	oString = new stzString(cStr)
 	return oString.NumberOfChars()
@@ -1290,6 +1283,41 @@ func IsMarquer(cStr)
 
 	func @StringIsAMarquer(cStr)
 		return IsMarquer(cStr)
+
+func RepeatInString(pcSubStr, nTimes)
+	if CheckParams()
+		if NOT isString(pcSubStr)
+			StzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
+
+		if NOT isNumber(nTimes)
+			StzRaise("incorrect param type! nTimes must be a number.")
+		ok
+	ok
+
+	#WARING // don't use Ring + concatenation, becuase it shows performance
+	# issues with large unciode strings (tested with an arabic string, 1M times)
+
+	_oQStrList_ = new QStringList()
+	for i = 1 to nTimes
+		_oQStrList_.append(pcSubStr)
+	next
+
+	cResult = _oQStrList_.join("")
+	return cResult
+
+	#< @FunctionAlternativeForms
+
+	func RepeatInAString(pcSubStr, nTimes)
+		return RepeatInString(pcSubStr, nTimes)
+
+	func @RepeatInString(pcSubStr, nTimes)
+		return RepeatInString(pcSubStr, nTimes)
+
+	func @RepeatInAString(pcSubStr, nTimes)
+		return RepeatInString(pcSubStr, nTimes)
+
+	#>
 
 func BothAreMarquers(pcStr1, pcStr2)
 	if BothAreStrings(pcStr1, pcStr2) and
@@ -89971,9 +89999,9 @@ class stzString from stzObject
 				n2 = n1 + 1
 			ok
 
-			cResult = StringRepeat(cChar, n1) +
+			cResult = RepeatInString(cChar, n1) +
 				  This.String() +
-				  StringRepeat(cChar, n2)
+				  RepeatInString(cChar, n2)
 
 			This.Update( cResult )
 		ok
