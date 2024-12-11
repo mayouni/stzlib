@@ -71,7 +71,7 @@ StzStringQ("h e l l o") {
 
 ## @@(): Clarity Through Readable Representation
 
->`@@(val)` is a Softanza small function, akin to a **pair of glasses** that enhances vision by providing a readable string representation of any value `val`.
+`@@(val)` is a Softanza small function, akin to a **pair of glasses** that enhances vision by providing a readable string representation of any value `val`.
 
 **Example**:
 
