@@ -9575,7 +9575,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*---- #narration EXTENDED FORMS OF REPEATING OBJECTS IN SOFTANZA
-*/
+
 pron()
 
 # Repeating "5" twice in a list
@@ -9588,14 +9588,14 @@ pron()
 ? Q("A").RepeatedInAPair()
 #--> [ "A", "A" ]
 
-# Repeating "5" three times in a list of numbers
+# Repeating char "5" three times in a list of numbers
 
 ? @@( Q("5").RepeatedXT(:InA = :ListOfNumbers, :OfSize = 3) )
 #--> [ 5, 5, 5 ]
 
-# Repeating "5" three times in a string
+# Repeating the number 5 three times in a string
 
-? Q("5").RepeatedXT(:InA = :String, :OfSize = 3)
+? Q(5).RepeatedXT(:InA = :String, :OfSize = 3)
 #--> "555"
 
 # Repeating number 5 three times in a string
@@ -9651,9 +9651,15 @@ pron()
 # ]
 
 ? Q("A").RepeatXTQ(:InA = :Table, :OfSize = [3, 3]).ToStzTable().Show()
+#-->
+# COL1   COL2   COL3
+# ----- ------ -----
+#   A      A      A
+#   A      A      A
+#   A      A      A
 
 proff()
-# Executed in 0.16 second(s).
+# Executed in 0.16 second(s) in Ring 1.22
 
 /*-------------------
 
@@ -9664,6 +9670,19 @@ pron()
 
 proff()
 # Executed in 0.01 second(s).
+
+/*------------------
+*/
+pron()
+
+? Q("h e l l o").RemoveSpacesQ().UppercaseQ().Content() + NL
+#--> "HELLO"
+
+? QH("h e l l o").RemoveSpacesQ().UppercaseQ().History()
+#--> [ "h e l l o", "hello", "HELLO" ]
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.2
 
 /*==================
 
