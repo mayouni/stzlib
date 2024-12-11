@@ -40,7 +40,7 @@ Softanza also simplifies the reverse process:
 
 Here, we create an `StzCharQ` object with the Unicode number and retrieve its content, resulting in the corresponding character.
 
->**NOTE**: Curious about the **script** of this 鶊 character or even its **name**? Try using `? Script("鶊")` and `? Name("鶊")`. You’ll get `han` and vCJK UNIFIED IDEOGRAPH-9D8A`, respectively.
+>**NOTE**: Curious about the **script** of this 鶊 character or even its **name**? Try using `? Script("鶊")` and `? Name("鶊")`. You’ll get `han` and `CJK UNIFIED IDEOGRAPH-9D8A`, respectively.
 
 ## Behind the Scenes: How Softanza Uses Qt
 
@@ -48,13 +48,13 @@ While Softanza presents a clean and simple interface, it's leveraging Qt's power
 
 1. Creating a QChar object:
    ```ring
-   oChar = new QChar(40220) # the char "鴜" coded on 3 bytes
+   oChar = new QChar(40220) # the char "鴜"
    ```
    This step initializes a Qt character object with the given Unicode code point.
 
 2. Creating a QString from the QChar:
    ```ring
-   oStr = new QString2()
+   oStr = new QString2() # the number 2 is an implementation detail related to RingQt
    oStr.append_2(oChar)
    ```
    Here, we create a Qt string object and append our character to it.
@@ -110,4 +110,4 @@ Unlike direct bindings, Softanza’s API remains agnostic to the underlying back
 
 Softanza’s approach to Unicode handling embodies its broader philosophy: leveraging established C and C++ libraries like Qt while providing a more accessible and cohesive interface with complete architectural flexibility.
 
-This strategy ensures developers can harness the power of Qt—or any other backend—without being overwhelmed by complexity.
+This strategy ensures developers can harness the power of Qt—or any other C or C++ backend—without being overwhelmed by complexity.
