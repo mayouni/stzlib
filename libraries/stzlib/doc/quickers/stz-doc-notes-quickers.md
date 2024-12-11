@@ -52,7 +52,7 @@ In Softanza, as a general principle, anything that works for strings will work t
 
 ---
 
-## XT Suffix: Extending Basic Features
+## XT() Function Suffix: Extending Basic Features
 
 The `XT()` suffix, when appended to a Softanza function, signifies an e**XT**ended outcome of the basic feature in question.
 
@@ -69,7 +69,7 @@ As you can see, the **XT** suffix forces the output to be a **string** rather th
 
 ---
 
-## Z and ZZ Suffixes: Positions or Sections, Your Choice
+## Z() and ZZ() Function Suffixes: Positions or Sections, Your Choice
 
 If you try `o1.FindZ()` instead of `o1.FindZZ()` on any Softanza `o1` object, beeing a `stzString` or `stzList`, you'll see that both `Z()` and `ZZ()` return positions, but the first **as numbers** and the second **as sections** (pairs of numbers). Whatever your need, such smart yet powerful Softanza tiny **suffixes**, applied to almost any function, will have you covered!
 
@@ -86,7 +86,7 @@ If you try `o1.FindZ()` instead of `o1.FindZZ()` on any Softanza `o1` object, be
 
 ## Method Chaining: A Tool for Fluid Design Thinking
 
-Method chaining in Softanza enables the fluent design of transformation pipelines by simply appending the method you want to chain with a small `...Q()`.
+**Method chaining** in Softanza enables the fluent design of transformation pipelines by simply appending the method you want to chain with a small `...Q()`.
 
 **Example**:
 ```ring
@@ -94,9 +94,9 @@ Method chaining in Softanza enables the fluent design of transformation pipeline
 #--> "HELLO"
 ```
 
-Fluent chains of `Q()`ed calls generally end with a **passive function form** that returns the final value, rather than an intermediate Softanza object.
+**Fluent chains** of `Q()`**ed** methods calls generally end with a **passive function form** that returns the **final value**, rather than an intermediate Softanza object.
 
-To create the passive version of a function, convert its **active** form (a verb) into its past participle, e.g., `Uppercase` → `Uppercased`. Thus, the chain from the earlier example becomes:
+To create the passive version of a function, convert its active form, which is essentially a **verb**, into its **past participle**, e.g., `Uppercase → Uppercased`. Thus, the chain from the earlier example becomes:
 
 ```ring
 ? Q("h e l l o").RemoveSpacesQ().Uppercased()
