@@ -33286,7 +33286,40 @@ class stzString from stzObject
 	#----------------------------------------------------------------#
 
 	def SubStringsBoundedByCSUZ(pacBounds, pCaseSensitive)
-		return U( This.SubStringsBoundedByCSUZ(pacBounds, pCaseSensitive) )
+		aSections = This.SubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
+		nLen = len(aSections)
+
+		if nLen = 0
+			return []
+		ok
+
+		bCase = @CaseSensitive(pCaseSensitive)
+
+		if bCase = FALSE
+			for i = 1 to nLen
+				aSections[i][1] = lower(aSections[i][1])
+			next
+		ok
+
+		acSeen = []
+		aResult = []
+
+		for i = 1 to nLen
+
+			nPos = ring_find(acSeen, aSections[i][1])
+
+			if nPos = 0
+				aResult + [ aSections[i][1], [ aSections[i][2] ] ]
+				acSeen + aSections[i][1]
+			else
+
+				aResult[nPos][2] + aSections[i][2]
+
+			ok
+
+		next
+
+		return aResult
 
 		#< @FunctionAlternativeForms
 
