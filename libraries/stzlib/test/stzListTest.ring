@@ -4773,7 +4773,7 @@ proff()
 # Executed in almost 0 second(s).
 
 /*----------
-*/
+
 pron()
 
 aList = [ "A", "B", 1, "A", "A", 1, "C", 1:2, "D", "B", "E", '"1"', 1:2 ]
@@ -5396,7 +5396,7 @@ StopProfiler()
 # Executed in almost 0 second(s).
 
 /*------------
-*/
+
 pron()
 
 # Checking that Softanza function does not alter a gloabl
@@ -5406,6 +5406,7 @@ nPos = 20
 paList = [ "A", "B", "C" ]
 
 ? @FindAllCS([ 1, 2, "♥", 4, "♥", 6, "♥" ], "♥", _TRUE_)
+#--> [ 3, 5, 7 ]
 
 ? paList
 #--> [ "A", "B", "C" ]
@@ -5436,11 +5437,11 @@ aList = [ "_", "_", "♥", "_", "_", "♥", "_" ]
 proff()
 
 /*------------
-*/
+
 StartProfiler()
-#                             3              7
+#                             3             6
 o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" ])
-/*
+
 ? o1.FindFirst("♥")
 #--> 3
 
@@ -5452,7 +5453,7 @@ o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" ])
 
 ? o1.FindPrevious("♥", :StartingAt = 6)
 #--> 3
-*/
+
 ? o1.FindNthNext(1, "♥", :StartingAt = 6)
 #--> 0
 
@@ -5463,7 +5464,7 @@ o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" ])
 #--> 3
 
 StopProfiler()
-# Executed in 0.01 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*===== #ring #perf #narration
 
@@ -5961,14 +5962,16 @@ pron()
 #--> -1
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
-/*--------- #internal
-
+/*--------- #INTERNAL #TODO Write a document about it
+*/
 pron()
 
-# This function is used internally by Softanza
+# This function is used internally by Softanza in the stzList class
 
-? @FindNext([ "_", "_", "•", "_", "•", "_", "_" ], "•", 3)
+#                        3         5
+? @FindNext([ "_", "_", "•", "_", "•", "_", "_" ], "•", :StartingAt = 3)
 #--> 5
 
 ? @FindNext([ "_", "_", ["•"], "_", ["•"], "_", "_" ], "•", 3)
@@ -5976,6 +5979,13 @@ pron()
 
 ? @FindNext([ "_", "_", ["•"], "_", ["•"], "_", "_" ], ["•"], 3)
 #--> -1
+
+# The last one returns -1 because Ring can't find lists.
+# to do so, you need to use stzList like this:
+
+o1 = new stzList([ "_", "_", ["•"], "_", ["•"], "_", "_" ])
+? o1.FindNext(["•"], :StartingAt = 3)
+#--> 5
 
 proff()
 # Executed in almost 0 second(s).

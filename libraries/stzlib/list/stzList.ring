@@ -4651,11 +4651,14 @@ func @FindAllCS(paList, pItem, pCaseSensitive)
 
 	_anResult_ = []
 	_nPos_ = -1
-	n = 0
 
 	while _TRUE_
+
+		# Trying to find the item using Ring find()
+
 		try
 			_nPos_ = find(_aList_, _item_)
+
 		catch
 			return -1
 		done
@@ -4665,8 +4668,14 @@ func @FindAllCS(paList, pItem, pCaseSensitive)
 		ok
 
 		_anResult_ + _nPos_
-		_aList_[ _nPos_ ] += (""+ _aList_[ _nPos_ ] + 1)
+
+		# A touch of magic: to allow Ring's find() method
+		# in the try block above to continue searching
+		# through the remaining part of the list, we modify
+		# the item at the position it just found to ensure
+		# it is skipped.
 		
+		_aList_[ _nPos_ ] += (""+ _aList_[ _nPos_ ] + 1)
 	end
 
 	return _anResult_
