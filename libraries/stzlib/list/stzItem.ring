@@ -119,7 +119,7 @@ class stzItem from stzItemCS
 
 		@Item = pItem
 		@aList = paList
-		@pCaseSensitive = TRUE
+		@pCaseSensitive _TRUE_
 
 class stzItemCS
 	@Item
@@ -222,7 +222,7 @@ class stzItemCS
 			return This.SectionsCS(pCaseSensitive)
 
 	def Sections()
-		return This.SectionsCS(:CaseSenstive = TRUE)
+		return This.SectionsCS(:CaseSenstive _TRUE_)
 
 		def PositionsAsSections()
 			return This.Sections()
@@ -340,9 +340,9 @@ class stzItemCS
 		if This.ItemQ().IsLowercased() and
 		   This.ListQ().Contains(This.Item())
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsInLowercase()
@@ -352,9 +352,9 @@ class stzItemCS
 		if This.ItemQ().IsUppercased() and
 		   This.ListQ().Contains(This.Item())
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsInUppercase()

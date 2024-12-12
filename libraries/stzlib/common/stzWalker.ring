@@ -417,9 +417,9 @@ class stzWalker from stzList
 
 	def HasNext()
 		if This.CurrentPosition() < This.LastStep()
-				return TRUE
+				return _TRUE_
 			else
-				return FALSE
+				return _FALSE_
 			ok
 
 		def HasNextStep()
@@ -502,9 +502,9 @@ class stzWalker from stzList
 		ok
 
 		if ring_find( This.Walkables(), n) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -531,11 +531,11 @@ class stzWalker from stzList
 
 		anPos = U(anPos)
 		nLen = len(anPos)
-		bResult = TRUE
+		bResult _TRUE_
 
 		for i = 1 to nLen
 			if ring_find(anWalkables, anPos[i]) = 0
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -557,9 +557,9 @@ class stzWalker from stzList
 		ok
 
 		if ring_find( This.Unwalkables(), n) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -586,11 +586,11 @@ class stzWalker from stzList
 
 		anPos = U(anPos)
 		nLen = len(anPos)
-		bResult = TRUE
+		bResult _TRUE_
 
 		for i = 1 to nLen
 			if ring_reverse(anUnwalkables, anPos[i]) = 0
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next

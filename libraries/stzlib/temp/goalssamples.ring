@@ -123,7 +123,7 @@ load "../stzlib.ring"
 		# The most used suffix in Softanza is CS() suffix for string Case Sensitivity:
 		Q("ring php RING ruby Ring") {
 			? NumberOfOccurrence(:Of = "ring") 		  #--> Gives 1, but...
-			? NumberOfOccurrenceCS(:Of = "ring", :CS = FALSE) #--> Gives 3!
+			? NumberOfOccurrenceCS(:Of = "ring", :CS _FALSE_) #--> Gives 3!
 		}
 
 		# An other use case of suffixes is when you create a box around a string:
@@ -133,7 +133,7 @@ load "../stzlib.ring"
 		#    └───────┘
 
 		# And want to configure the box appearance, so you use the XT suffix like this:
-		? Q("CAIRO").BoxedXT([ :AllCorners = :Round, :EachChar = TRUE ])
+		? Q("CAIRO").BoxedXT([ :AllCorners = :Round, :EachChar _TRUE_ ])
 		#    ╭───┬───┬───┬───┬───╮
 		#--> │ C │ A │ I │ R │ O │
 		#    ╰───┴───┴───┴───┴───╯
@@ -408,8 +408,8 @@ load "../stzlib.ring"
 */	? StzStringQ("HELLO").Size() # and
 	? StzListQ([ "H", "E", "L", "L", "O" ]).Size() # both return 5
 
-	? StzStringQ("hello").FindAllCS("L", :CaseSensitive = FALSE) # and
-	? StzListOfStringsQ([ "h", "e", "l", "l", "o" ]).FindAllCS("L", :CaseSensitive = FALSE)
+	? StzStringQ("hello").FindAllCS("L", :CaseSensitive _FALSE_) # and
+	? StzListOfStringsQ([ "h", "e", "l", "l", "o" ]).FindAllCS("L", :CaseSensitive _FALSE_)
 	# both return [3, 4 ]
 
 	? StzStringQ("hello").Uppercased() #--> returns the uppercased string "HELLO"
@@ -422,7 +422,7 @@ load "../stzlib.ring"
 
 	? Q([]).IsEmpty()	
 
-	# both return TRUE
+	# both return _TRUE_
 
 	#-- 4. Semantic Consistency in Softanza Vocaulary
 /*
@@ -571,7 +571,7 @@ load "../stzlib.ring"
 /*		In the future, every Softanza function will be provided with a ready-to-use
 		RingQt window for manipulating its params, interactively, and including it
 		to your programs. Still, some visually-oriented features already exist:
-*/		? Q("CAIRO").vizFindXT("I", [:Boxed = TRUE, :Rounded = TRUE, :VisualSign = "♥"])
+*/		? Q("CAIRO").vizFindXT("I", [:Boxed _TRUE_, :Rounded _TRUE_, :VisualSign = "♥"])
 			#    ╭───┬───┬───┬───┬───╮
 			#--> │ C │ A │ I │ R │ O │
 			#    ╰───┴───┴─♥─┴───┴───╯
@@ -580,7 +580,7 @@ load "../stzlib.ring"
 */		StzGridQ( [ 5, 5 ] ) { 	
 			SetNode(1, 1, :With = "1") SetNode(5, 1, :With = "2")
 			SetNode(5, 5, :With = "3") SetNode(1, 5, :With = "4")
-			ShowFF([ :CenterChar = "♥", :ShowCenter = TRUE ]) }
+			ShowFF([ :CenterChar = "♥", :ShowCenter _TRUE_ ]) }
 			# 	1 . . . 2
 			# 	. . . . .
 			#-->	. . ♥ . .
@@ -790,7 +790,7 @@ load "../stzlib.ring"
 		Softanza comes with a RingQt-based cache system that you can
 		activate for any object or function, by decorating them by:
 */			func FindNthOccurrence(n, pcSubStr)
-				#< @ActivateCache = TRUE >
+				#< @ActivateCache _TRUE_ >
 
 /*		If your function takes considerable amount of time to perform
 		its job, then it is generally a good idea to make it cachable.

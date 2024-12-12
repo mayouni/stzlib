@@ -404,7 +404,7 @@ func PersianStopWords()
 func StopWordLanguage(pcStopWord)
 	for cLang in StopWordsLanguages()
 		
-		cCode = "bExists = StzListOfStringsQ(" + cLang + "StopWords()).ContainsCS(pcStopWord, :CS = FALSE)"
+		cCode = "bExists = StzListOfStringsQ(" + cLang + "StopWords()).ContainsCS(pcStopWord, :CS _FALSE_)"
 		eval(cCode)
 
 		if bExists

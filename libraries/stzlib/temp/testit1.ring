@@ -142,10 +142,10 @@ o1 = new stzString("
 	were 56 million kilometers at closest approach.
 ")
 
-? o1.ContainsSomeCS(Planets , :CS = FALSE) 	#--> TRUE
+? o1.ContainsSomeCS(Planets , :CS _FALSE_) 	#--> TRUE
 ? o1.ContainsSomeCS(Planets , TRUE) 	#--> FALSE
 
-? @@( o1.FindManyXT(Planets, [ :CS = FALSE, :RemoveEmpty = FALSE ]) ) + NL
+? @@( o1.FindManyXT(Planets, [ :CS _FALSE_, :RemoveEmpty _FALSE_ ]) ) + NL
 #--> [
 #	[ "earth", 	[ 20, 149 ] 	],
 # 	[ "venus", 	[ ] 		],
@@ -157,7 +157,7 @@ o1 = new stzString("
 # 	[ "neptune", 	[ ]		 ]
 #   ]
 
-? @@( o1.FindManyXT(Planets, [ :CS = FALSE, :RemoveEmpty = TRUE ]) ) + NL
+? @@( o1.FindManyXT(Planets, [ :CS _FALSE_, :RemoveEmpty _TRUE_ ]) ) + NL
 #--> [ [ "earth", [ 20, 149 ] ], [ "mars", [ 92, 159 ] ] ]
 
   #-------------------------------------------------------------#
@@ -816,8 +816,8 @@ o1 = new stzString("aaaAAARing")
 ? o1.NumberOfLeadingChars() #--> 3
 ? o1.LeadingChars() #--> aaa
 
-? o1.NumberOfLeadingCharsCS(:CaseSensitive = FALSE) #--> 6
-? o1.LeadingCharsCS(:CS = FALSE) #--> aaaAAA
+? o1.NumberOfLeadingCharsCS(:CaseSensitive _FALSE_) #--> 6
+? o1.LeadingCharsCS(:CS _FALSE_) #--> aaaAAA
 
 /*---------- OK
 
@@ -826,7 +826,7 @@ o1.ReplaceLeadingCharsCS(:With = "O", TRUE)
 ? o1.Content() #--> OOOAAAH RING!
 
 o1 = new stzString("aaaAAAH RING!")
-o1.ReplaceLeadingCharsCS(:With = "O", :CS = FALSE)
+o1.ReplaceLeadingCharsCS(:With = "O", :CS _FALSE_)
 ? o1.Content() #--> OOOOOOH RING!
 
 /*---------- OK
@@ -837,7 +837,7 @@ o1.ReplaceTrailingCharsCS( :With = "O", TRUE)
 #--> "RINGaaaOOO"
 
 o1 = new stzString("RINGaaaAAA")
-o1.ReplaceTrailingCharsCS( :With = "O", :CS = FALSE)
+o1.ReplaceTrailingCharsCS( :With = "O", :CS _FALSE_)
 ? o1.Content()
 #--> "RINGOOOOOO"
 
@@ -855,7 +855,7 @@ o1.RemoveThisTrailingCharCS("a", TRUE)
 ? o1.Content() #--> ♥Ring♥AAA
 
 o1 = new stzString("♥Ring♥AAAaaa")
-o1.RemoveThisTrailingCharCS("a", :CaseSensitive = FALSE)
+o1.RemoveThisTrailingCharCS("a", :CaseSensitive _FALSE_)
 ? o1.Content() #--> ♥Ring♥
 
 /*----------- OK
@@ -865,7 +865,7 @@ o1.RemoveThisLeadingCharCS("a", TRUE)
 ? o1.Content() #--> AAA♥Ring♥
 
 o1 = new stzString("aaaAAA♥Ring♥")
-o1.RemoveThisLeadingCharCS("a", :CaseSensitive = FALSE)
+o1.RemoveThisLeadingCharCS("a", :CaseSensitive _FALSE_)
 ? o1.Content() #--> ♥Ring♥
 
 /*----------- OK
@@ -876,7 +876,7 @@ o1.RemoveTheseLeadingAndTrailingCharsCS( "a", "a", TRUE)
 #--> Gives: "AAAI ♥ Ring!AAA"
 
 o1 = new stzString("aaaAAAI ♥ Ring!AAAaaa")
-o1.RemoveTheseLeadingAndTrailingCharsCS( "a", "a", :CS = FALSE)
+o1.RemoveTheseLeadingAndTrailingCharsCS( "a", "a", :CS _FALSE_)
 ? o1.Content()
 #--> Gives: "I ♥ Ring!"
 
@@ -911,7 +911,7 @@ StzStringQ("   clean code        ") {
 
 # The VizFindXT function accepts these options
 
-# 	:CaseSensitive	= TRUE or FALSE
+# 	:CaseSensitive	_TRUE_ or FALSE
 #	--> TRUE by default (you can use the short form :CS)
 
 #	:PositionChar	= any char indicating the found positions
@@ -926,11 +926,11 @@ StzStringQ("   clean code        ") {
 #	:Spacified	= The string is enlarged by inserting a space after each char
 #	--> FALSE by default
 
-#	:Boxed		= TRUE or FALSE
+#	:Boxed		_TRUE_ or FALSE
 #	--> FALSE by default
 
 #	:BoxOptions	= Any options onforming to IsBoxOptionsNamedParam()
-#	--> Works only if :Boxed = TRUE
+#	--> Works only if :Boxed _TRUE_
 
 
 o1 = new stzString("RINGoriaLAND")
@@ -940,22 +940,22 @@ o1 = new stzString("RINGoriaLAND")
 # 'RINGoriaLAND"
 #  -^----------
 
-? o1.VizFindXT("I", [ :CaseSensitive = FALSE ]) + NL
+? o1.VizFindXT("I", [ :CaseSensitive _FALSE_ ]) + NL
 # 'RINGoriaLAND"
 #  -^----^-----
 
-? o1.VizFindXT("I", [ :CS = FALSE, :Numbered = TRUE ]) + NL
+? o1.VizFindXT("I", [ :CS _FALSE_, :Numbered _TRUE_ ]) + NL
 # 'RINGoriaLAND"
 #  -^----^-----
 #   2    7    
 
-? o1.VizFindXT("I", [ :CS = FALSE, :Numbered = TRUE, :Spacified = TRUE ]) + NL
+? o1.VizFindXT("I", [ :CS _FALSE_, :Numbered _TRUE_, :Spacified _TRUE_ ]) + NL
 # 'R I N G o r i a L A N D"
 #  --^---------^----------
 #    2         7      
 
 ? o1.VizFindXT("I", [
-	:CS = FALSE, :Numbered = TRUE, :Spacified = TRUE,
+	:CS _FALSE_, :Numbered _TRUE_, :Spacified _TRUE_,
 	:BlankSign = ".", :PositionSign = "♥" ])
 
 #-->
@@ -975,7 +975,7 @@ VizFindAsSection()
 /*-------------------- TODO
 
 o1 = new stzString("RINGing")
-? o1.VizFindXT("I", [ :Boxed = TRUE ])
+? o1.VizFindXT("I", [ :Boxed _TRUE_ ])
 
   #----------------------#
  #   BOXING A STRING    #
@@ -1042,9 +1042,9 @@ o1 = new stzListOfStrings([
 	"The answer is blowin' in the wind"
 ])
 
-? o1.NumberOfOccurrenceOfSubStringCS("man", :CS = FALSE) #--> 5
+? o1.NumberOfOccurrenceOfSubStringCS("man", :CS _FALSE_) #--> 5
 
-? @@(o1.FindSubstringCS("man", :CS = FALSE))
+? @@(o1.FindSubstringCS("man", :CS _FALSE_))
 #--> [
 #	"1" = [ 5, 23 ],
 #	"2" = [ 23 ],
@@ -1143,7 +1143,7 @@ o1.BoundSubStringWith("word", "<<", ">>")
 ? o1.Content() #--> Let's bound this <<word>>, this <<word>> and this <<word>>!
 
 o1 = new stzString("Let's bound this <<word>>, this Word and this WORD!")
-o1.BoundSubStringWithCS("word", "<<", ">>", :CS = FALSE)
+o1.BoundSubStringWithCS("word", "<<", ">>", :CS _FALSE_)
 ? o1.Content() #--> Let's bound this <<word>>, this Word and this WORD!
 
 /*------- OK
@@ -1153,7 +1153,7 @@ o1.BoundSubStringsWith([ "word1", "word2", "word3" ], "<<", ">>")
 ? o1.Content() #--> Let's bound this <<word1>>, this <<Word2>> and this <<WORD3>>!
 
 o1 = new stzString("Let's bound this word1, this Word2 and this WORD3!")
-o1.BoundSubStringsWithCS([ "word1", "word2", "word3" ], "<<", ">>", :CS = FALSE)
+o1.BoundSubStringsWithCS([ "word1", "word2", "word3" ], "<<", ">>", :CS _FALSE_)
 ? o1.Content() #--> Let's bound this <<word1>>, this <<Word2>> and this <<WORD3>>!
 
 /*=============================================== Retest after completing SplitXT()
@@ -1261,7 +1261,7 @@ o1 = new stzListOfNumbers([ 2, 7, 18, 10, 25, 4 ])
 pron()
 
 o1 = new stzListOfStrings([ "Jameel", "Fedy", "Badr" ])
-? o1.ContainsBothCS("JAMEEL", "BADR", :CS = FALSE) #--> TRUE
+? o1.ContainsBothCS("JAMEEL", "BADR", :CS _FALSE_) #--> TRUE
 ? o1.ContainsBothCS("JAMEEL", "BADR", TRUE)  #--> FALSE
 
 o1 = new stzListOfNumbers([ 7, 17, 27 ])

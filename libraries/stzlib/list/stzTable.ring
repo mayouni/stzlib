@@ -256,28 +256,28 @@ Class stzTable from stzObject
 
 			cLine1 = acLines[1]
 
-			bColNamesProvided = TRUE
+			bColNamesProvided _TRUE_
 
 			if ring_trim(cLine1) = ""
-				bColNamesProvided = FALSE
+				bColNamesProvided _FALSE_
 
 			else
 
 				acLine1Splits = ring_split(cLine1, ";")
 				nLen1 = len(acLine1Splits)
 
-				bMadeOfStrings = TRUE
+				bMadeOfStrings _TRUE_
 				for i = 1 to nLen1
 					if @IsNumberInString(acLine1Splits[i]) or
 					   @IsListInString(acLine1Splits[i])
 	
-						bMadeOfStrings = FALSE
+						bMadeOfStrings _FALSE_
 						exit
 					ok
 				next
 
 				if NOT bMadeOfStrings 
-					bColNamesProvided = FALSE
+					bColNamesProvided _FALSE_
 				ok
 			ok
 			#NOTE
@@ -372,7 +372,7 @@ Class stzTable from stzObject
 				 "stzTable.Init() method.")
 		ok
 
-		if KeepingHistory() = TRUE
+		if KeepingHistory() _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -395,10 +395,10 @@ Class stzTable from stzObject
 
 	def IsEmpty()
 		if This.CellsQ().AllItemsAreNull()
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 	
 	  #================================================#
@@ -439,10 +439,10 @@ Class stzTable from stzObject
 
 	def HasColumnsNames(pacNames)
 		nLen = len(pacNames)
-		bResult = TRUE
+		bResult _TRUE_
 		for i = 1 to nLen
 			if NOT This.HasColName(pacNames[i])
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -605,9 +605,9 @@ Class stzTable from stzObject
 
 		cName = ring_lower(pcName)
 
-		bResult = FALSE
+		bResult _FALSE_
 		if This.ColNamesQ().Contains(pcName)
-			bResult = TRUE
+			bResult _TRUE_
 		ok
 
 		return bResult
@@ -635,9 +635,9 @@ Class stzTable from stzObject
 		ok
 
 		if n < 1 or n > This.NumberOfCols()
-			return FALSE
+			return _FALSE_
 		else
-			return TRUE
+			return _TRUE_
 		ok
 
 		def IsColumnNumber(n)
@@ -657,9 +657,9 @@ Class stzTable from stzObject
 
 		if ( isString(pCol) and This.IsColName(pCol) ) or
 		   ( isNumber(pCol) and This.IsColNumber(pCol) )
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -732,12 +732,12 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! paCols must be of list of numbers or strings.")
 		ok
 
-		bResult = TRUE
+		bResult _TRUE_
 		nLen = len(paCols)
 
 		for i = 1 to nLen
 			if NOT This.IsColNameOrNumber(paCols[i])
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -3695,9 +3695,9 @@ Class stzTable from stzObject
 	#------------------------------------------------------#
 
 	def FindSubValueCS(pSubValue, pCaseSensitive)
-		bCheckCase = FALSE
+		bCheckCase _FALSE_
 		if @IsStringOrList(pSubValue)
-			bCheckCase = TRUE
+			bCheckCase _TRUE_
 		ok
 
 		aCellsXT = This.CellsAndTheirPositions()
@@ -3714,7 +3714,7 @@ Class stzTable from stzObject
 
 
 			if bCheckCase
-				if bCellIsString = TRUE or bCellIsListOfStrings = TRUE
+				if bCellIsString _TRUE_ or bCellIsListOfStrings _TRUE_
 
 					if oCellValue.ContainsCS(pSubValue, pCaseSensitive)
 						aResult + [ aCellPos, oCellValue.FindAllCS(pSubValue, pCaseSensitive) ]
@@ -4547,10 +4547,10 @@ Class stzTable from stzObject
 
 	def ContainsCellCS(pCellValue, pCaseSensitive)
 		if This.NumberOfOccurrenceCS(:OfCell = pCellValue, pCaseSensitive) > 0
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsValueCS(pCellValue, pCaseSensitive)
@@ -4569,7 +4569,7 @@ Class stzTable from stzObject
 	#-----------------------------------------------#
 
 	def ContainsRowCS(paRow, pCaseSensitive)
-		bResult = FALSE
+		bResult _FALSE_
 
 		if isList(paRow) and len(paRow) = This.NumberOfRows()
 
@@ -4604,12 +4604,12 @@ Class stzTable from stzObject
 		#--> TRUE
 		*/
 
-		bResult = TRUE
+		bResult _TRUE_
 		nLen = len(paRows)
 
 		for i = 1 to nLen
 			if NOT This.ContainsRowCS(paRows[i], pCaseSensitive)
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 
@@ -4645,7 +4645,7 @@ Class stzTable from stzObject
 		#--> TRUE
 		*/
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		if isList(paCol) and len(paCol) = 2 and
 		   isString(paCol[1]) and This.HasColName(paCol[1]) and
@@ -4689,12 +4689,12 @@ Class stzTable from stzObject
 		#--> TRUE
 		*/
 
-		bResult = TRUE
+		bResult _TRUE_
 		nLen = len(paCols)
 
 		for i = 1 to nLen
 			if NOT This.ContainsColCS(paCols[i], pCaseSensitive)
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 
@@ -4731,10 +4731,10 @@ Class stzTable from stzObject
 
 	def ContainsSubValueCS(pSubValue, pCaseSensitive)
 		if This.NumberOfOccurrenceCS(:OfSubValue = pSubValue, pCaseSensitive) > 0
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#-- WITHOUT CASESENSITIVITY
@@ -4750,21 +4750,21 @@ Class stzTable from stzObject
 	#=====================================================#
 
 	def FindInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, pCaseSensitive)
-		bValue = FALSE
-		bSubValue = TRUE
+		bValue _FALSE_
+		bSubValue _TRUE_
 
 		if isList(pCellValueOrSubValue)
 			oTemp = Q(pCellValueOrSubValue)
 
 			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
-				bValue = TRUE
-				bSubValue = FALSE
+				bValue _TRUE_
+				bSubValue _FALSE_
 
 			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
-				bValue = FALSE
-				bSubValue = TRUE
+				bValue _FALSE_
+				bSubValue _TRUE_
 			ok
 		
 		ok
@@ -4825,8 +4825,8 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! paCells must be a list of pairs.")
 		ok
 
-		bValue = FALSE
-		bSubValue = TRUE
+		bValue _FALSE_
+		bSubValue _TRUE_
 
 		if isList(pCellValueOrSubValue)
 
@@ -4834,14 +4834,14 @@ Class stzTable from stzObject
 
 			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
 
-				bValue = TRUE
-				bSubValue = FALSE
+				bValue _TRUE_
+				bSubValue _FALSE_
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
 
 			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
 
-				bValue = FALSE
-				bSubValue = TRUE
+				bValue _FALSE_
+				bSubValue _TRUE_
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
 
 			ok
@@ -5533,9 +5533,9 @@ Class stzTable from stzObject
 
 	def CellsContainValueCS(paCells, pValue, pCaseSensitive)
 		if len( This.FindFirstValueInCellsCS(paCells, pValue, pCaseSensitive) ) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsValueInCellsCS(paCells, pValue, pCaseSensitive)
@@ -5556,9 +5556,9 @@ Class stzTable from stzObject
 	def CellsContainSubValueCS(paCells, pSubValue, pCaseSensitive)
 		aTemp = This.FindFirstSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 		if isList(aTemp) and len(aTemp) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
@@ -5846,8 +5846,8 @@ Class stzTable from stzObject
 	#----------------------------------------------------------------------#
 
 	def CellContainsCS(pCellCol, pCellRow, pCellValueOrSubValue, pCaseSensitive)
-		bValue = FALSE
-		bSubValue = TRUE
+		bValue _FALSE_
+		bSubValue _TRUE_
 
 		if isList(pCellValueOrSubValue)
 
@@ -5855,8 +5855,8 @@ Class stzTable from stzObject
 
 			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
-				bValue = TRUE
-				bSubValue = FALSE
+				bValue _TRUE_
+				bSubValue _FALSE_
 				
 			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
@@ -5867,7 +5867,7 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		if bValue
 			bResult = This.CellContainsValueCS(pCellCol, pCellRow, pCellValueOrSubValue, pCaseSensitive)
@@ -5894,9 +5894,9 @@ Class stzTable from stzObject
 
 	def CellContainsValueCS( pCellCol, pCellRow, pValue, pCaseSensitive)
 		if len( This.FindFirstValueInCellCS(pCellCol, pCellRow, pValue, pCaseSensitive) ) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsValueInCellCS(pCellCol, pCellRow, pValue, pCaseSensitive)
@@ -5918,9 +5918,9 @@ Class stzTable from stzObject
 		nPos = This.FindFirstSubValueInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
 
 		if nPos > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsSubValueInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
@@ -6310,7 +6310,7 @@ Class stzTable from stzObject
 		? o1.ContainsInRow(2, :Value = "Abraham") #--> TRUE
 		
 		? o1.ContainsInRow(2, :SubValue = "AL") #--> FALSE
-		? o1.ContainsInRowCS(2, :SubValue = "AL", :CS = FALSE) #--> TRUE
+		? o1.ContainsInRowCS(2, :SubValue = "AL", :CS _FALSE_) #--> TRUE
 		*/
 
 		return This.ContainsInCellsCS( This.RowAsPositions(pRow), pCellValueOrSubValue, pCaseSensitive)
@@ -6332,10 +6332,10 @@ Class stzTable from stzObject
 
 	def ContainsCellInRowCS(pRow, pCellValue, pCaseSensitive)
 		if This.NumberOfOccurrenceInRowCS(pRow, :OfCell = pCellValue, pCaseSensitive) > 0
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -6364,10 +6364,10 @@ Class stzTable from stzObject
 	
 	def ContainsSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
 		if This.NumberOfOccurrenceInRowCS(pRow, :OfSubValue = pSubValue, pCaseSensitive) > 0
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def RowContainsSubValueCS(pRow, pSubValue, pCaseSensitive)
@@ -6401,7 +6401,7 @@ Class stzTable from stzObject
 		? o1.FindInRows( [ 2, 3 ], :Value = "Ali" )
 		#--> [ [ 1, 2], [2, 3] ]
 
-		? o1.FindInRowsCS(  [ 1, 3 ], :SubValue = "a", :CS = FALSE )
+		? o1.FindInRowsCS(  [ 1, 3 ], :SubValue = "a", :CS _FALSE_ )
 		#--> [
 			[ [1, 1], [1] ],
 			[ [1, 2], [1] ],
@@ -6884,10 +6884,10 @@ Class stzTable from stzObject
 
 	def ContainsCellInRowsCS(panRows, pCellValue, pCaseSensitive)
 		if This.NumberOfOccurrenceInRowsCS(panRows, :OfCell = pCellValue, pCaseSensitive) > 0
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -6927,10 +6927,10 @@ Class stzTable from stzObject
 	
 	def ContainsSubValueInRowsCS(panRows, pSubValue, pCaseSensitive)
 		if This.NumberOfOccurrenceInRowsCS(panRows, :OfSubValue = pSubValue, pCaseSensitive) > 0
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForm
@@ -6974,7 +6974,7 @@ Class stzTable from stzObject
 
 		? o1.FindInCol( :FIRSTNAME, :SubValue = "a" ) #--> [ ]
 
-		? o1.FindInColCS( :LASTNAME, :SubValue = "a", :CS = FALSE )
+		? o1.FindInColCS( :LASTNAME, :SubValue = "a", :CS _FALSE_ )
 		#--> [
 			[ [2, 1], [2]    ],
 			[ [2, 2], [1, 4, 6] ],
@@ -7863,7 +7863,7 @@ Class stzTable from stzObject
 		? o1.ContainsInCol(2, :Value = "Abraham") #--> TRUE
 		
 		? o1.ContainsInCol(2, :SubValue = "AL") #--> FALSE
-		? o1.ContainsInColCS(2, :SubValue = "AL", :CS = FALSE) #--> TRUE
+		? o1.ContainsInColCS(2, :SubValue = "AL", :CS _FALSE_) #--> TRUE
 		*/
 
 		if isList(pCol) and Q(pCol).IsOneOfTheseNamedParams([
@@ -7941,10 +7941,10 @@ Class stzTable from stzObject
 
 	def ContainsCellInColCS(pCol, pCellValue, pCaseSensitive)
 		if This.NumberOfOccurrenceInColCS(pCol, :OfCell = pCellValue, pCaseSensitive) > 0
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -8020,10 +8020,10 @@ Class stzTable from stzObject
 	
 	def ContainsSubValueInColCS(pCol, pSubValue, pCaseSensitive)
 		if This.NumberOfOccurrenceInColCS(pCol, :OfSubValue = pSubValue, pCaseSensitive) > 0
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -8077,7 +8077,7 @@ Class stzTable from stzObject
 		? o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], :Value = "Ali" )
 		#--> [ [ 1, 2], [2, 3] ]
 
-		? o1.FindInColsCS(  [ :FIRSTNAME, :LASTNAME ], :SubValue = "a", :CS = FALSE )
+		? o1.FindInColsCS(  [ :FIRSTNAME, :LASTNAME ], :SubValue = "a", :CS _FALSE_ )
 		#--> [
 			[ [1, 1], [1] ],
 			[ [1, 2], [1] ],
@@ -8087,8 +8087,8 @@ Class stzTable from stzObject
 		     ]
 		*/
 
-		bValue = TRUE
-		bSubValue = FALSE
+		bValue _TRUE_
+		bSubValue _FALSE_
 
 		aCellsPositions = This.ColsToCellsAsPositions(paCols)
 
@@ -9009,10 +9009,10 @@ Class stzTable from stzObject
 
 	def ContainsCellInColsCS(paCols, pCellValue, pCaseSensitive)
 		if This.NumberOfOccurrenceInColsCS(paCols, :OfCell = pCellValue, pCaseSensitive) > 0
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -9088,10 +9088,10 @@ Class stzTable from stzObject
 	
 	def ContainsSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
 		if This.NumberOfOccurrenceInColsCS(paCols, :OfSubValue = pSubValue, pCaseSensitive) > 0
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -9570,7 +9570,7 @@ Class stzTable from stzObject
 		? o1.ContainsInSection(2, :Value = "Abraham") #--> TRUE
 		
 		? o1.ContainsInSection(2, :SubValue = "AL") #--> FALSE
-		? o1.ContainsInSectionCS(2, :SubValue = "AL", :CS = FALSE) #--> TRUE
+		? o1.ContainsInSectionCS(2, :SubValue = "AL", :CS _FALSE_) #--> TRUE
 		*/
 
 		return This.ContainsInCellsCS( This.SectionAsPositions(paSection1, paSection2), pCellValueOrSubValue, pCaseSensitive)
@@ -9592,10 +9592,10 @@ Class stzTable from stzObject
 
 	def ContainsCellInSectionCS(paSection1, paSection2, pCellValue, pCaseSensitive)
 		if This.NumberOfOccurrenceInSectionCS(paSection1, paSection2, :OfCell = pCellValue, pCaseSensitive) > 0
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -9624,10 +9624,10 @@ Class stzTable from stzObject
 	
 	def ContainsSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
 		if This.NumberOfOccurrenceInSectionCS(paSection1, paSection2, :OfSubValue = pSubValue, pCaseSensitive) > 0
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def SectionContainsSubValueCS(paSection1, paSection2, pSubValue, pCaseSensitive)
@@ -11424,7 +11424,7 @@ Class stzTable from stzObject
 		/* ... */
 
 	def ReplaceInSectionByMany(paCellPos1, paCellPos2,  pSubValues, pNewSubValue)
-		This.ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, ;CaseSensitive = TRUE)
+		This.ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, ;CaseSensitive _TRUE_)
 
 	# Add ReplaceInSectionByManyXT() : if all replaced restart at the 1st one
 
@@ -11559,7 +11559,7 @@ Class stzTable from stzObject
 	#======================#
 
 	def Update(paNewTable)
-		if CheckingParams() = TRUE
+		if CheckingParams() _TRUE_
 			if isList(paNewTable) and Q(paNewTable).IsWithOrByOrUsingNamedParam()
 				paNewTable = paNewTable[2]
 			ok
@@ -11573,7 +11573,7 @@ Class stzTable from stzObject
 
 		@aContent = paNewTable
 
-		if KeepingHisto() = TRUE
+		if KeepingHisto() _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -13195,11 +13195,11 @@ Class stzTable from stzObject
 		ok
 
 		nLen = len(pacColNames)
-		bResult = TRUE
+		bResult _TRUE_
 
 		for i = 1 to nLen
 			if NOT This.IsColName(pacColNames[i])
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -13769,11 +13769,11 @@ Class stzTable from stzObject
 			:Separator 	  = "   ",
 			:Alignment 	  = :Right,
 		
-			:UnderLineHeader  = TRUE,
+			:UnderLineHeader  _TRUE_,
 			:UnderLineChar 	  = "-",
 			:IntersectionChar = " ",
 		
-			:ShowRowNumbers   = FALSE
+			:ShowRowNumbers   _FALSE_
 		]
 
 		cResult = This.ToStringXT(aDefaultOptions)
@@ -13794,10 +13794,10 @@ Class stzTable from stzObject
 		? o1.toStringXT([
 			:Separator = " | ",
 			:Alignment = :Left,
-			:UnderLineHeader = TRUE,
+			:UnderLineHeader _TRUE_,
 			:UnderLineChar = "-",
 			:IntersectionChar = " "
-			:ShowRowNumbers = TRUE
+			:ShowRowNumbers _TRUE_
 		])
 
 		*/
@@ -13826,14 +13826,14 @@ Class stzTable from stzObject
 			    paOptions = :UnderLineColumnsNames or
 			    paOptions = :AddLineUnderColumnsNames
 
-				return This.ShowXT([ :UnderLineHeader = TRUE ])
+				return This.ShowXT([ :UnderLineHeader _TRUE_ ])
 
 			but paOptions = :ShowRowNumbers or	#TODO // Add those named params
 			    paOptions = :AddRowNumbers or	# to ShowXT([ ... ])
 			    paOptions = :WithRowNumbers or
 			    paOptions = :RowNumbers
 
-				return This.ToStringXT([ :ShowRowNumbers = TRUE ])
+				return This.ToStringXT([ :ShowRowNumbers _TRUE_ ])
 
 			but paOptions = :AlignedToLeft or
 			    paOptions = :AdjustedToLeft or
@@ -13870,7 +13870,7 @@ Class stzTable from stzObject
 				:Separator = " | ",
 				:UnderLineChar = "-",
 				:IntersectionChar = "+",
-				:ShowRowNumbers = TRUE,
+				:ShowRowNumbers _TRUE_,
 				:Alignment = :Right
 			])
 
@@ -13901,11 +13901,11 @@ Class stzTable from stzObject
 		cSeparator = "   "
 		cAlignment = :Right
 		
-		bUnderlineHeader = TRUE
+		bUnderlineHeader _TRUE_
 		cUnderLineChar = "-"
 		cIntersectionChar = "+"
 
-		bShowRowNumbers = TRUE
+		bShowRowNumbers _TRUE_
 
 		# Reading the options provided by the user
 
@@ -13944,7 +13944,7 @@ Class stzTable from stzObject
 		pUnderLineHeader = aOptions[:UnderLineHeader]
 
 		if isString(pUnderlineHeader) and pUnderLineHeader = NULL
-			bUnderLineHeader = FALSE
+			bUnderLineHeader _FALSE_
 
 		but isNumber(pUnderLineHeader) and ( pUnderLineHeader = 0 or pUnderLineHeader = 1 )
 			bUnderLineHeader = pUnderLineHeader
@@ -13962,10 +13962,10 @@ Class stzTable from stzObject
 		ok
 
 		if cUnderLineChar != NULL
-			bUnderLineHeader = TRUE
+			bUnderLineHeader _TRUE_
 		ok
 
-		if bUnderLineHeader = TRUE and cUnderLineChar = ""
+		if bUnderLineHeader _TRUE_ and cUnderLineChar = ""
 			cUnderLineChar = "-"
 		ok
 
@@ -13978,7 +13978,7 @@ Class stzTable from stzObject
 		ok
 
 		if cInterSectionChar != NULL
-			bUnderLineHeader = TRUE
+			bUnderLineHeader _TRUE_
 			if cUnderLineChar = ""
 				cUnderLineChar = "-"
 			ok
@@ -13999,14 +13999,14 @@ Class stzTable from stzObject
 		pShowRowNumbers = aOptions[:ShowRowNumbers]
 
 		if isString(pShowRowNumbers) and pShowRowNumbers = NULL
-			bShowRowNumbers = FALSE
+			bShowRowNumbers _FALSE_
 
 		but isNumber(pShowRowNumbers)
-			if pShowRowNumbers = TRUE
-				bShowRowNumbers = TRUE
+			if pShowRowNumbers _TRUE_
+				bShowRowNumbers _TRUE_
 
-			else pShowRowNumbers = FALSE
-				bShowRowNumbers = FALSE
+			else pShowRowNumbers _FALSE_
+				bShowRowNumbers _FALSE_
 			ok
 
 		else
@@ -14057,7 +14057,7 @@ Class stzTable from stzObject
 
 		# Constructing the header()
 
-		if bUnderLineHeader = TRUE
+		if bUnderLineHeader _TRUE_
 			acRowNumbers = (0 : (nRows-1)) + "#"
 		else
 			acRowNumbers = (1 : nRows ) + "#"

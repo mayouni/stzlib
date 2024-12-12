@@ -176,9 +176,9 @@ class stzBinaryNumber from stzObject
 
 	def HasFractionalPart()
 		If This.FractionalPart() != NULL
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsFractionalPart()

@@ -29,10 +29,10 @@ Apply this from Mahmoud message:
 func IsRingState(pPointer)
 
 	if isPointer(pPointer) and type(pPointer) = "RINGSTATE"
-		return TRUE
+		return _TRUE_
 
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsRingState(pPointer)
@@ -60,15 +60,15 @@ func AreRingStates(paPointers)
 
 	if NOT ( isList(paPointers) and @ArePointers(paPointers) )
 
-		return FALSE
+		return _FALSE_
 	ok
 
-	bResult = TRUE
+	bResult _TRUE_
 	nLen = len(paPointers)
 
 	for i = 1 to nLen
 		if paPointers[i][2] != "RINGSTATE"
-			bResult = FALSE
+			bResult _FALSE_
 			exit
 		ok
 	next
@@ -163,7 +163,7 @@ class stzRingInstance
 
 		cVar = trim(cVar)
 
-		bResult = TRUE
+		bResult _TRUE_
 		nLen = len(@acCodes)
 
 		for i = 1 to nLen
@@ -171,7 +171,7 @@ class stzRingInstance
 			oQStr.append(@acCodes[i])
 			nFound = oQStr.index(cVar, 0)
 			if nFound < 0
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next

@@ -19,9 +19,9 @@ _cGridSeparator = ":"
 
 func IsGrid(paList)
 	if isList(paList) and IsListOfLists(paList) and AllListsHaveSameSize(paList)
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsGrid(paList)
@@ -101,8 +101,8 @@ class stzGrid from stzObject
 	@nNumberOfVLines
 	@nNumberOfHLines
 
-	@bShowRanks = FALSE
-	@bShowCenter = FALSE
+	@bShowRanks _FALSE_
+	@bShowCenter _FALSE_
 
 	@nOpacity
 	@aLayers
@@ -144,7 +144,7 @@ class stzGrid from stzObject
 	
 		This.SetGrid(p)
 
-		if KeepingHistory() = TRUE
+		if KeepingHistory() _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -295,7 +295,7 @@ class stzGrid from stzObject
 	def Update(paContent)
 		@aContent = paContent
 
-		if KeepingHisto() = TRUE
+		if KeepingHisto() _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -378,9 +378,9 @@ class stzGrid from stzObject
 
 	def HasNVLines(n)
 		if This.NumberOfVlines() = n
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsNVLines(n)
@@ -388,9 +388,9 @@ class stzGrid from stzObject
 
 	def HasNHLines(n)
 		if This.NumberOfHLines() = n
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsNHLines(n)
@@ -398,19 +398,19 @@ class stzGrid from stzObject
 
 	def HasNNodes(n)
 		if This.NumberOfNodes() = n
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsNVNodes(n)
 			return This.HasNVNodes(n)
 		
 	def AllNodesOf_NthVLineAre_Strings(n)
-		bResult = TRUE
+		bResult _TRUE_
 		for node in This.VLine(n)
 			if NOT isString(node)
-				bResult = FALSE
+				bResult _FALSE_
 			ok
 		next
 		return bResult
@@ -534,9 +534,9 @@ class stzGrid from stzObject
 
 	def HasCentralHLine()
 		if StzNumberQ( ""+ This.NumberOfHLines() ).IsOdd()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsCentralHLine()
@@ -556,9 +556,9 @@ class stzGrid from stzObject
 
 	def HasCentralVLine()
 		if StzNumberQ( ""+ NumberOfVLines() ).IsOdd()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsCentralVLine()
@@ -577,9 +577,9 @@ class stzGrid from stzObject
 
 	def HasCentralNode()
 		if This.HasCentralVLine() and This.HasCentralHLine()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsCentralNode()
@@ -587,9 +587,9 @@ class stzGrid from stzObject
 
 	def HasCentralRegion()
 		if NOT This.HasCentralNode()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 
 		ok
 
@@ -765,7 +765,7 @@ class stzGrid from stzObject
 			aPositions + This.CentralNodePosition()
 
 		else
-			// HasCentralRegion = TRUE
+			// HasCentralRegion _TRUE_
 			aPositions = This.CentralRegion() // Should be CentralRegionPositions()
 		ok
 
@@ -941,7 +941,7 @@ class stzGrid from stzObject
 		ok
 
 		cStr = ""
-		if @bShowRanks = TRUE
+		if @bShowRanks _TRUE_
 			cStr = "" +
 			StzCounterQ([
 				:StartAt = 1,
@@ -981,7 +981,7 @@ class stzGrid from stzObject
 		ok
 
 		cStr = ""
-		if @bShowRanks = TRUE
+		if @bShowRanks _TRUE_
 			cStr = "" + This.NumberedVLine(n)[1] + NL
 		ok
 
@@ -1003,7 +1003,7 @@ class stzGrid from stzObject
 
 	def Show()
 
-		if @bShowRanks = TRUE
+		if @bShowRanks _TRUE_
 			aTemp = []
 
 			oCounter = new stzCounter([
@@ -1025,7 +1025,7 @@ class stzGrid from stzObject
 			? cStr
 		ok
 
-		if @bShowCenter = TRUE
+		if @bShowCenter _TRUE_
 			This.SetCenter("+")
 		ok
 
@@ -1228,16 +1228,16 @@ class stzGrid from stzObject
 
 	def IsOpaque()
 		if This.Opacity() = 1
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTransparent()
 		if Opacity() = 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def RemoveLayer(n)
@@ -1389,7 +1389,7 @@ class stzGrid from stzObject
 	#-----------#
 
 	def IsAGrid() # required by stzChainOfTruth
-		return TRUE
+		return _TRUE_
 
 	def StzType()
 		return :stzgrid

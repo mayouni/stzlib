@@ -10,12 +10,12 @@ func IsListOfGrids(paList)
 		ok
 	ok
 
-	bResult = TRUE
+	bResult _TRUE_
 	nLen = len(paList)
 
 	for i = 1 to nLen
 		if NOT IsGrid(paList[i])
-			bResult = FALSE
+			bResult _FALSE_
 			exit
 		ok
 	next i

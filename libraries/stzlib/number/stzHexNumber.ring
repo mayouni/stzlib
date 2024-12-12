@@ -128,7 +128,7 @@ class stzHexNumber from stzObject
 			@cHexNumber = oHexNumber.Content()
 
 		but StringRepresentsNumberInUnicodeHexForm(cNumber)
-			@cHexNumber = StzStringQ(cNumber).RemoveCSQ( "U+", :CS = FALSE ).Content()
+			@cHexNumber = StzStringQ(cNumber).RemoveCSQ( "U+", :CS _FALSE_ ).Content()
 
 		else
 			StzRaise(stzHexNumberError(:CanNotCreateHexNumber))
@@ -293,4 +293,4 @@ class stzHexNumber from stzObject
 	#-----------#
 
 	def IsHexNumber() # required by stzChainOfTruth
-		return TRUE
+		return _TRUE_

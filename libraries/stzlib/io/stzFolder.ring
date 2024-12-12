@@ -46,4 +46,4 @@ class stzFolder from stzObject
 	#-----------#
 
 	def IsFolder() # required by stzChainOfTruth
-		return TRUE
+		return _TRUE_

@@ -623,7 +623,7 @@ pron()
 
 ? isPalindrome([ "M", "A", "D", "A", "M" ])
 #!--> FALSE
-#--> Slhould return TRUE
+#--> Slhould return _TRUE_
 
 # Softanza fixes it:
 
@@ -1317,7 +1317,7 @@ o1 = new stzList([
 	"i", "i", "i"
 ])
 
-# If you deactivate CaseSensitivity with CS = FALSE and
+# If you deactivate CaseSensitivity with CS _FALSE_ and
 # try to partition the list using CharCase(), then
 # Softanza detects it and return the hole list as one part
 
@@ -6447,7 +6447,7 @@ proff()
 pron()
 
 o1 = new stzString("TUNISiiiGAFSAIIIBEJAiiiSFAXIIIGBELLI")
-? @@( o1.SplitCS("iii", :CS = FALSE) )
+? @@( o1.SplitCS("iii", :CS _FALSE_) )
 #--> [ "TUNIS", "GAFSA", "BEJA", "SFAX", "GBELLI" ]
 
 proff()
@@ -7129,7 +7129,7 @@ proff()
 pron()
 
 oStr = new stzString("Welcome to the Ring programming language")
-? oStr.SectionCS( :From = "RING", :To = :LastChar, :CaseSensitive = FALSE )
+? oStr.SectionCS( :From = "RING", :To = :LastChar, :CaseSensitive _FALSE_ )
 #--> Ring programming language
 
 proff()
@@ -7232,7 +7232,7 @@ pron()
 	# In Softanza we say:
 
 	oStr = new stzString("Welcome to Python programming language")
-	oStr.ReplaceCS("PYTHON", :With = "Ring", :CaseSensitive = FALSE)
+	oStr.ReplaceCS("PYTHON", :With = "Ring", :CaseSensitive _FALSE_)
 	? oStr.Content()
 	#--> Welcome to Ring programming language
 

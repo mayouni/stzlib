@@ -82,9 +82,9 @@ func ConstraintNameNumberOfDynamicParts(pcName)
 
 func ConstraintNameContainsDynamicParts(pcName)
 	if ConstraintNameNumberOfDynamicParts(pcName) > 0
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 func GenConstraint(pcConstraintName, pcStzClass)
@@ -150,7 +150,7 @@ func GenConstraint(pcConstraintName, pcStzClass)
 		next
 		
 		oExpressions@_@ = StzListOfStrings( acExpressions@_@ )
-		n = oTemplates.FindFirstCS(cConstraintName@_@, :CaseSensitive = FALSE)
+		n = oTemplates.FindFirstCS(cConstraintName@_@, :CaseSensitive _FALSE_)
 
 		cExpression@_@ = acExpressions@_@[n]
 

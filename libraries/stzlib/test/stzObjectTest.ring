@@ -33,7 +33,7 @@ proff()
 
 pron()
 
-StzNamedObjectQ(:myobj = TrueObject()) {
+StzNamedObjectQ(:myobj _TRUE_Object()) {
 
 	? Name()
 	#--> :myobj
@@ -425,7 +425,7 @@ o1 = new QString2()
 ? IsQtObject(o1)
 #--> TRUE
 
-# Both return TRUE --> Flexible syntax!
+# Both return _TRUE_ --> Flexible syntax!
 
 proff()
 # Executed in 0.04 second(s)

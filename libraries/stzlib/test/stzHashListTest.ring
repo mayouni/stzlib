@@ -201,8 +201,8 @@ o1 = new stzHashList([
 	:Seven	= 7,
 
 	:Ten	= NullObject(),
-	:Eleven	= TrueObject(),
-	:Twelve	= FalseObject(),
+	:Eleven	_TRUE_Object(),
+	:Twelve	_FALSE_Object(),
 
 	:Thirteen = StzNamedNumberQ( :@number = 10 ),
 	:Forteen  = StzNamedStringQ( :@string = "Forteen" ),
@@ -299,8 +299,8 @@ o1 = new stzHashList([
 	:Seven	= 7,
 
 	:Ten	= NullObject(),
-	:Eleven	= TrueObject(),
-	:Twelve	= FalseObject(),
+	:Eleven	_TRUE_Object(),
+	:Twelve	_FALSE_Object(),
 
 	:Thirteen  = StzNamedNumberQ( :@number = 10 ),
 	:Forteen   = StzNamedStringQ( :@string = "Forteen" ),

@@ -31,9 +31,9 @@ func StringArtStyles()
 
 func IsStringArtStyle(str)
 	if find(StringArtStyles(), str) > 0
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 func DefaultStringArtStyle()
@@ -66,12 +66,12 @@ func StringArt(str)
 	oQStr = new QString2()
 	oQStr.append(str)
 
-	bOk = FALSE
+	bOk _FALSE_
 
 	if oQStr.mid(0, 2) = "#{"
 		nLen = oQStr.size()
 		if oQStr.mid(nLen-1, 1) = "}"
-			bOk = TRUE
+			bOk _TRUE_
 		ok
 	ok
 
@@ -93,12 +93,12 @@ func StringArtBoxified(str)
 	oQStrArt = new QString2()
 	oQStrArt.append(str)
 
-	bOk = FALSE
+	bOk _FALSE_
 
 	if oQStrArt.mid(0, 2) = "#{"
 		nLen = oQStrArt.size()
 		if oQStrArt.mid(nLen-1, 1) = "}"
-			bOk = TRUE
+			bOk _TRUE_
 		ok
 	ok
 
@@ -154,12 +154,12 @@ func StringArtPainting(cPaintingName)
 	oQStr.replace_2(" ", "", 0)
 	
 
-	bOk = FALSE
+	bOk _FALSE_
 
 	if oQStr.mid(0, 2) = "#{"
 		nLen = oQStr.size()
 		if oQStr.mid(nLen-1, 1) = "}"
-			bOk = TRUE
+			bOk _TRUE_
 		ok
 	ok
 

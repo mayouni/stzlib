@@ -651,9 +651,9 @@ class stzUnicodeData
 
 	def ContainsCharName(pcCharName)
 		if This.FindCharName(pcCharName) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsName(pcCharName)
@@ -666,14 +666,14 @@ class stzUnicodeData
 
 		pcCharName = Q(pcCharName).Uppercased()
 
-		nPos = @oStzStrUnicodeData.FindFirstCS( pcCharName, :CS = FALSE )
+		nPos = @oStzStrUnicodeData.FindFirstCS( pcCharName, :CS _FALSE_ )
 		return nPos
 
 		def FindcharByName(pcCharName)
 			return This.FindCharName(pcCharName)
 
 	def SearchCharName(pcCharName)
-		return @oStzStrUnicodeData.FindAllCS( pcCharName, :CS = FALSE )
+		return @oStzStrUnicodeData.FindAllCS( pcCharName, :CS _FALSE_ )
 
 		def SearchForCharName(pcCharName)
 			return SearchCharName(pcCharName)
@@ -757,7 +757,7 @@ class stzUnicodeData
 
 		# Defininging start of the char name in n1
 
-		bContinue = TRUE
+		bContinue _TRUE_
 		i = 0
 
 		while bContinue
@@ -766,13 +766,13 @@ class stzUnicodeData
 
 			if c = ";"
 				n1 = n + i + 1
-				bContinue = FALSE
+				bContinue _FALSE_
 			ok
 		end
 
 		# Defininging end of the char name in n2
 		n = n1
-		bContinue = TRUE
+		bContinue _TRUE_
 		i = 0
 
 		while bContinue
@@ -781,7 +781,7 @@ class stzUnicodeData
 
 			if c = ";"
 				n2 = n + i - 1
-				bContinue = FALSE
+				bContinue _FALSE_
 			ok
 		end
 

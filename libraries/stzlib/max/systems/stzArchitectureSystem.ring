@@ -19,17 +19,17 @@ func Arch()
 func Is32Bit()
 	cArch = Arch()
 	if cArch = "x86" or cArch = "arm"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 func Is64Bit()
 	cArch = Arch()
 	if cArch = "x64" or cArch = "arm64"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 func Is32Or54Bit()
@@ -45,41 +45,41 @@ func Is32Or54Bit()
 func IsARM()
 	cArch = GetArch()
 	if cArch = "arm" or cArch = "arm64"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 func IsARM32()
 	cArch = GetArch()
 	if cArch = "arm"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 func IsARM64()
 	cArch = GetArch()
 	if cArch = "arm64"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 func IsX86()
 	cArch = GetArch()
 	if cArch = "x86"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 func IsX64()
 	cArch = GetArch()
 	if cArch = "x64"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 func OperatingSystem()
@@ -126,9 +126,9 @@ func OperatingSystemXT() // returns the OS and its architecture (32 or 64 bits)
 
 func @IsWindows() # Redefines the behaviour of Ring isWindows() returning 32-bit only
 	if OperatingSystem() = "windows"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func StzIsWindows()
@@ -136,25 +136,25 @@ func @IsWindows() # Redefines the behaviour of Ring isWindows() returning 32-bit
 
 func IsWindows32()
 	if @IsWindows() and Is32Bit()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 func IsWindows64()
 	if @IsWindows() and Is64Bit()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 #--
 
 func @IsMSDOS()
 	if OperatingSystem() = "dos"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func StzIsMSDOS()
@@ -162,9 +162,9 @@ func @IsMSDOS()
 
 func IsMSDOS32()
 	if @IsMSDOS() and Is32Bit()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsMOSDOS32()
@@ -172,9 +172,9 @@ func IsMSDOS32()
 
 func IsMSDOS64()
 	if @IsMSDOS() and Is64Bit()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsMSDOS64()
@@ -184,9 +184,9 @@ func IsMSDOS64()
 
 func @IsUnix()
 	if OperatingSystem() = "unix"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func StzUnix()
@@ -194,9 +194,9 @@ func @IsUnix()
 
 func IsUnix32()
 	if @IsUnix() and Is32Bit()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsUnix32()
@@ -204,9 +204,9 @@ func IsUnix32()
 
 func IsUnix64()
 	if IsUnix() and Is64Bit()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsUnix64()
@@ -217,9 +217,9 @@ func IsUnix64()
 
 func @IsLinux()
 	if OperatingSystem() = "linux"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func StzLinux()
@@ -227,9 +227,9 @@ func @IsLinux()
 
 func IsLinux32()
 	if @IsLinux() and Is32Bit()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsLinux32()
@@ -237,9 +237,9 @@ func IsLinux32()
 
 func IsLinux64()
 	if @IsLinux() and Is64Bit()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsLinux64()
@@ -250,9 +250,9 @@ func IsLinux64()
 
 func @IsFreeBSD()
 	if OperatingSystem() = "freebsd"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func StzFreeBSD()
@@ -260,9 +260,9 @@ func @IsFreeBSD()
 
 func IsFreeBSD32()
 	if @IsFreeBSD() and Is32Bit()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsFreeBSD32()
@@ -270,9 +270,9 @@ func IsFreeBSD32()
 
 func IsFreeBSD64()
 	if IsFreeBSD() and Is64Bit()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsFreeBSD64()
@@ -283,9 +283,9 @@ func IsFreeBSD64()
 
 func @IsMacOSX()
 	if OperatingSystem() = "macosx"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -303,9 +303,9 @@ func @IsMacOSX()
 
 func IsMacOSX32()
 	if @IsMacOSX() and Is32Bit()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -320,9 +320,9 @@ func IsMacOSX32()
 
 func IsMacOSX64()
 	if @IsMacOSX() and Is64Bit()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -344,9 +344,9 @@ func IsMacOSX64()
 
 func @IsAndroid()
 	if OperatingSystem() = "android"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func StzIsAndroid()
@@ -354,9 +354,9 @@ func @IsAndroid()
 
 func IsAndroid32()
 	if @IsAndroid() and Is32Bit()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsAndroid32()
@@ -364,9 +364,9 @@ func IsAndroid32()
 		
 func IsAndroid64()
 	if @IsAndroid() and Is64Bit()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsAndroid64()

@@ -3,7 +3,7 @@ load "../stzmax.ring"
 pron()
 
 o1 = new stzText("ring programming, best of programming!")
-? o1.FindAllCS("programming", :CS = FALSE)
+? o1.FindAllCS("programming", :CS _FALSE_)
 #--> [ 6, 27 ]
 
 proff()
@@ -50,7 +50,7 @@ txt = "مودّتي"
 # Bua more explicit result, by replacing the shaddach char by the letter it
 # actually represents:
 
-? @@( TQ(txt).LettersXT([ :ManageArabicShaddah = TRUE ]) )
+? @@( TQ(txt).LettersXT([ :ManageArabicShaddah _TRUE_ ]) )
 #o--> [ "م", "و", "د", "د", "ت", "ي" ]
 
 /*------------------ // Retest after adding ReplaceAllCharsW() in stzString
@@ -352,7 +352,7 @@ o1.ReplaceWord("Tunis", :With = "Cairo")
 // --> ReplaceWordCS
 StzTextQ("mahmoud, ahmed, mohamed, Mahmoud, mahmoud, ahmed.") {
 	ReplaceWordsWithMarquers()
-	//ReplaceWordsCS(["mahmoud"], :With = ["Mansour"], :CS = FALSE)
+	//ReplaceWordsCS(["mahmoud"], :With = ["Mansour"], :CS _FALSE_)
 	//? Content()
 }
 
@@ -370,7 +370,7 @@ StzTextQ("mahmoud, ahmed, mohamed, Mahmoud, mahmoud, ahmed.") {
 /*------------
 
 o1 = new stzText("Ring is not the Ring you ware but the Ring you program with!")
-o1.ReplaceWordsCS( [ :ring ], [ :Watch ], :CS = FALSE )
+o1.ReplaceWordsCS( [ :ring ], [ :Watch ], :CS _FALSE_ )
 ? o1.Content()
 
 /*

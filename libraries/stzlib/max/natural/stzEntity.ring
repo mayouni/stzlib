@@ -5,9 +5,9 @@ func StzEntityQ(pcStr)
 func IsEntity(p)
 	try
 		new stzEntity(p)
-		return TRUE
+		return _TRUE_
 	catch
-		return FALSE
+		return _FALSE_
 	end
 	#TODO : Replace this implementation
 	# Use the code in the init() function inside the class
@@ -94,14 +94,14 @@ class stzEntity
 			StzRaise("Incorrect param type! pcProp must be a string.")
 		ok
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		aPairs = This.Entity()
 		nLen = len(aPairs)
 
 		for i = 1 to nLen
 			if aPairs[i][1] = ring_lower(pcProp)
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -109,10 +109,10 @@ class stzEntity
 		return bResult
 
 	def ContainsValue(pValue)
-		bResult = FALSE
+		bResult _FALSE_
 		for aPair in This.Entity()
 			if AreEqual(aPair[1], pValue)
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next

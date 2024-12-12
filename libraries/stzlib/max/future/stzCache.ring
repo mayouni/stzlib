@@ -31,15 +31,15 @@ func CacheActivate(pcCacheName)
 
 	oTempHashList = new stzHashList(_aStzCaches)
 	n = oTempHashList.FindInKeys(cCompleteCacheFileName)
-	_aStzCaches[n][2] = TRUE
-	return TRUE
+	_aStzCaches[n][2] _TRUE_
+	return _TRUE_
 
 func CacheDeactivate(pcFileName)
 	cCompleteCacheFileName = CacheCompleteFileName(pcCacheName)
 	oTempHashList = new stzHashList(_aStzCaches)
 	n = oTempHashList.FindInKeys(cCompleteCacheFileName)
-	_aStzCaches[n][2] = FALSE
-	return TRUE
+	_aStzCaches[n][2] _FALSE_
+	return _TRUE_
 
 func IsCacheActivated(pcFileName)
 	cCompleteCacheFileName = CacheCompleteFileName(pcCacheName)
@@ -79,7 +79,7 @@ class stzCache from stzObject
 
 	oCacheStorage
 
-	bActivated = FALSE
+	bActivated _FALSE_
 
 	def Content()
 		return cCacheContent
@@ -95,10 +95,10 @@ class stzCache from stzObject
 		return oCacheStorage.StorageType()
 
 	def Activate()
-		bActivated = TRUE
+		bActivated _TRUE_
 
 	def Deactivate()
-		bactivated = FALSE
+		bactivated _FALSE_
 
 	def IsActivated()
 		return bActivated
@@ -131,7 +131,7 @@ class stzCache from stzObject
 				return n
 			ok
 		next
-		return FALSE
+		return _FALSE_
 	
 	func CacheGetCachedResult( pcFunc, pcParamValues)
 		n = CacheFindEntry(pcFunc, pcParamValues)

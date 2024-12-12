@@ -32,7 +32,7 @@ class stzFalseObject from stzObject
 	@cVarName = :@falseobject
 
 	def Content()
-		return FALSE
+		return _FALSE_
 
 		def Value()
 			return Content()
@@ -43,15 +43,15 @@ class stzFalseObject from stzObject
 	#--
 
 	def Where(pcCondition)
-		return FALSE
+		return _FALSE_
 
 		def W(pcCondition)
-			return FALSE
+			return _FALSE_
 
 	#--
 
 	def IsEqualToCS(p, pCaseSensitive)
-		return FALSE
+		return _FALSE_
 
 		#< @FunctionFluentForm
 
@@ -63,13 +63,13 @@ class stzFalseObject from stzObject
 		#< @FunctionAlternativeForms
 
 		def EqualToCS(p, pCaseSensitive)
-			return FALSE
+			return _FALSE_
 
 			def EqualToCSQ(p, pCaseSensitive)
 				return This
 
 		def EqualsCS(p, pCaseSensitive)
-			return FALSE
+			return _FALSE_
 
 			def EqualCSQ(p, pCaseSensitive)
 				return This
@@ -79,7 +79,7 @@ class stzFalseObject from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsEqualTo(p)
-		return FALSE
+		return _FALSE_
 
 		#< @FunctionFluentForm
 
@@ -91,13 +91,13 @@ class stzFalseObject from stzObject
 		#< @FunctionAlternativeForms
 
 		def EqualTo(p)
-			return FALSE
+			return _FALSE_
 
 			def EqualToQ(p)
 				return This
 
 		def Equals(p)
-			return FALSE
+			return _FALSE_
 
 			def EqualQ(p)
 				return This
@@ -105,25 +105,25 @@ class stzFalseObject from stzObject
 		#>
 
 	def IsDividableBy(n)
-		return FALSE
+		return _FALSE_
 
 		def IsDividableByQ(n)
 			return This
 
 		def DividableBy(n)
-			return FALSE
+			return _FALSE_
 
 			def DividableByQ(n)
 				return This
 
 		def IsDivisibleBy(n)
-			return FALSE
+			return _FALSE_
 
 			def IsDivisibleByQ()
 				return This
 
 		def DivisibleBy(n)
-			return FALSE
+			return _FALSE_
 
 			def DivisibleByQ(n)
 				return This

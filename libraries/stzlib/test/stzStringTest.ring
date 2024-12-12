@@ -1101,10 +1101,10 @@ pron()
 
 o1 = new stzList([ "emm", "EMM", "eMm", "EMM" ])
 
-? o1.Find("EMM") # Same as FindCS("EMM", :CS = TRUE)
+? o1.Find("EMM") # Same as FindCS("EMM", :CS _TRUE_)
 #--> [ 2, 4 ]
 
-? o1.FindCS("EMM", :CS = FALSE)
+? o1.FindCS("EMM", :CS _FALSE_)
 #--> [ 1, 2, 3, 4 ]
 
 # In fact, all items are equal when case sensitivity is not considered (set to FALSE)!
@@ -2825,8 +2825,8 @@ o1 = new stzString("aaA...")
 
 ? o1.FindCS("a", :CaseInSensitive) # Or :NotCaseSensitive or :NotCS
 				   # or :IsNotCaseSensitive  or :IsNotCS
-				   # or :CaseSensitive = FALSE
-				   # or :CS = FALSE
+				   # or :CaseSensitive _FALSE_
+				   # or :CS _FALSE_
 				   # or FALSE
 #--> [1, 2, 3]
 
@@ -4849,7 +4849,7 @@ o1 = new stzString(" isNumber( 0+  @item  ) ")
 	" @Current@i ", " @CurrentI ",
 	" @EachPosition ", " @EachI " ],
 
-	:By = " @i ", :CS = FALSE).Content()
+	:By = " @i ", :CS _FALSE_).Content()
 
 #--> " isNumber( 0+  @item  ) "
 
@@ -7103,10 +7103,10 @@ pron()
 
 o1 = new stzString("__a__A__")
 
-? @@( o1.SplitBeforeCS("a", :CS = FALSE) )
+? @@( o1.SplitBeforeCS("a", :CS _FALSE_) )
 #--> [ "__", "a__", "A__" ]
 
-? @@( o1.SplitCS( :Before = "a", :CS = FALSE) )
+? @@( o1.SplitCS( :Before = "a", :CS _FALSE_) )
 #--> [ "__", "a__", "A__" ]
 
 ? @@( o1.Split( :Before = [ "a", "A" ] ) ) + NL
@@ -7165,7 +7165,7 @@ pron()
 
 o1 = new stzString("__a__A__")
 
-? o1.SplitCS("a", :CS = FALSE)
+? o1.SplitCS("a", :CS _FALSE_)
 #--> [ "__", "__", "__" ]
 
 # Splitting at a given substring (without case sensitivity)
@@ -7238,10 +7238,10 @@ pron()
 # Splitting before a given substring with case sensitivity
 
 o1 = new stzString("__a__A__")
-? @@( o1.SplitAfterCS("a", :CS = FALSE) )
+? @@( o1.SplitAfterCS("a", :CS _FALSE_) )
 #--> [ "__a", "__A", "__" ]
 
-? @@( o1.SplitCS( :After = "a", :CS = FALSE) )
+? @@( o1.SplitCS( :After = "a", :CS _FALSE_) )
 #--> [ "__a", "__A", "__" ]
 
 ? @@( o1.Split( :After = [ "a", "A" ] ) )
@@ -7485,7 +7485,7 @@ proff()
 
 pron()
 
-? Q("one").IsEitherCS("ONE", :Or = "TWO", :CS = FALSE)
+? Q("one").IsEitherCS("ONE", :Or = "TWO", :CS _FALSE_)
 #--> TRUE
 
 proff()
@@ -7618,11 +7618,11 @@ o1.RemoveFirstChar()
 ? o1.Content()
 #--> ABC_DE_
 
-o1.RemoveThisFirstCharCS("a", :CS = FALSE)
+o1.RemoveThisFirstCharCS("a", :CS _FALSE_)
 ? o1.Content()
 #--> BC_DE_
 
-o1.RemoveNthChar(:Last) # Works when ChekParams() = TRUE (the default)
+o1.RemoveNthChar(:Last) # Works when ChekParams() _TRUE_ (the default)
 			# Otherwise use o1.RemoveLastChar() or
 			# o1.RemoveNthChar(o1.NumberOfChars())
 ? o1.Content()
@@ -9672,7 +9672,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*------------------
-*/
+
 pron()
 
 ? Q("h e l l o").RemoveSpacesQ().UppercaseQ().Content() + NL
@@ -9682,7 +9682,7 @@ pron()
 #--> [ "h e l l o", "hello", "HELLO" ]
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.2
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*==================
 
@@ -9700,7 +9700,7 @@ o1 = new stzString("ab_cd_ef_gh")
 #--> TRUE
 
 proff()
-# Executed in 0.01 second(s).
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*------------------
 
@@ -9726,7 +9726,7 @@ o1 = new stzString("ab_cd_ef_gh")
 #--> 6
 
 proff()
-# Executed in 0.01 second(s).
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*------------------
 
@@ -10050,10 +10050,10 @@ proff()
 
 	[ 
 	TRUE,
-	:SkipEmptyParts = TRUE,
+	:SkipEmptyParts _TRUE_,
 
-	:IncludeLeadingSep = TRUE,
-	:IncludeTrailingSep = TRUE,
+	:IncludeLeadingSep _TRUE_,
+	:IncludeTrailingSep _TRUE_,
 
 	:ExcludeLeadingSubstrings_FromSplittedParts = [ "_", "**" ],
 	
@@ -10339,7 +10339,7 @@ o1 = new stzString("what a <<nice>>> day!")
 proff()
 # Executed in 0.07 second(s) in Ring 1.22
 
-/*----------------- TODO
+/*----------------- TODO/FUTURE :CharsBeforeW
 
 pron()
 
@@ -10477,7 +10477,7 @@ pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 
-? o1.FindSubStringBoundedByCS("word", [ "<<", ">>" ], :CaseSensitive = FALSE)
+? o1.FindSubStringBoundedByCS("word", [ "<<", ">>" ], :CaseSensitive _FALSE_)
 #--> [ 11, 43 ]
 
 proff()
@@ -10746,7 +10746,7 @@ proff()
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? o1.FindSubStringBoundedByCS("word", [ "<<", ">>" ], :CaseSensitive = FALSE)
+? o1.FindSubStringBoundedByCS("word", [ "<<", ">>" ], :CaseSensitive _FALSE_)
 #--> [ 11, 43 ]
 
 ? o1.FindSubStringBoundedByAsSections("word", [ "<<", ">>" ])
@@ -11115,7 +11115,7 @@ o1 = new stzString("<<Go!>>")
 #--> "Go!"
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*================= #narration
 
@@ -11191,7 +11191,7 @@ proff()
 pron()
 
 o1 = new stzString("**A1****A2***A3")
-o1.RemoveNthOccurrenceCS(:Last, "a", :CaseSensitive = FALSE)
+o1.RemoveNthOccurrenceCS(:Last, "a", :CaseSensitive _FALSE_)
 ? o1.Content()
 #--> **A1****A2***3
 
@@ -11255,7 +11255,7 @@ pron()
 
 o1 = new stzString("Hello <<<Ring>>, the beautiful ((Ring))!")
 ? @@( o1.BoundsOf("Ring") )
-#--> [ ["<<", ">>"], [ "((", "))" ] ]
+#--> [ "<<<", ">>", "((", "))" ]
 
 proff()
 # Executed in 0.02 second(s) in Ring 1.22
@@ -11267,10 +11267,10 @@ pron()
 
 o1 = new stzString("Ring>>, the nice ---Ring---, the beautiful ((Ring")
 ? @@( o1.BoundsOf("Ring") )
-#--> [ [ "---", "---" ] ]
+#--> [ "---", "---" ]
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.22
 # Executed in 0.09 second(s) in ring 1.20
 
 /*---------------
@@ -11278,8 +11278,9 @@ proff()
 pron()
 
 o1 = new stzString("Hello <<<Ring>>, the nice __Ring__ and beautiful ((Ring))!")
+
 ? @@( o1.BoundsOf("Ring") )
-#--> [ [ "<<<", ">>" ], [ "__", "__" ], [ "((", "))" ] ]
+#--> [ "<<<", ">>", "__", "__", "((", "))" ]
 
 ? @@( o1.FirstBoundsOf("Ring") )
 #--> [ "<<<", "__", "((" ]
@@ -11288,7 +11289,7 @@ o1 = new stzString("Hello <<<Ring>>, the nice __Ring__ and beautiful ((Ring))!")
 #--> [ ">>", "__", "))" ]
 
 proff()
-# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.22
 # Executed in 0.08 second(s) in Ring 1.20
 
 /*---------------
@@ -11300,7 +11301,7 @@ o1 = new stzString("<<word>>")
 ? o1.Bounds()
 #--> [ "<<", ">>" ]
 
-? o1.LeftBound()
+? o1.LeftBound() + NL
 #--> "<<"
 
 ? o1.RightBound()
@@ -11338,6 +11339,7 @@ proff()
 pron()
 
 o1 = new stzString("@str = Q(@str).Uppercased()")
+
 ? o1.BeginsWithOneOfTheseCS([ "@str =", :Or = "@str=" ], TRUE)
 #--> TRUE
 
@@ -11349,7 +11351,7 @@ proff()
 pron()
 
 o1 = new stzString("Baba, Mama, and Dada")
-? o1.ContainsOneOfTheseCS([ "Mom", "mama" ], :CaseSensitive = FALSE)
+? o1.ContainsOneOfTheseCS([ "Mom", "mama" ], :CaseSensitive _FALSE_)
 #--> TRUE
 
 proff()
@@ -11376,10 +11378,10 @@ proff()
 pron()
 
 StzStringQ("ring is not the ring you ware but the ring you program with") {
-	? @@( FindAllOccurrencesCS(:Of = "ring", :CS = FALSE) )
+	? @@( FindAllOccurrencesCS(:Of = "ring", :CS _FALSE_) )
 	#--> [ 1, 17, 39 ]
 
-	? @@( FindAsSectionsCS(:Of = "ring", :CS = FALSE) )
+	? @@( FindAsSectionsCS(:Of = "ring", :CS _FALSE_) )
 	#--> [ [ 1, 4 ], [ 17, 20 ], [ 39, 42 ] ]
 
 	? @@( FindOccurrences([1, 3], :Of = "ring") )
@@ -11487,7 +11489,7 @@ pron()
 ? Q("ArabicArabicArabic").IsMultipleOfCS("arabic", TRUE)
 #--> FALSE
 
-? Q("ArabicArabicArabic").IsMultipleOfCS("arabic", :CS = FALSE)
+? Q("ArabicArabicArabic").IsMultipleOfCS("arabic", :CS _FALSE_)
 #--> TRUE
 
 proff()
@@ -12111,7 +12113,7 @@ o1.MarkTheseSubStringsCS( [ "Ring", "Python", "Ruby", "PHP" ], TRUE )
 #--> "#1 can be compared to #2, #3 and #4."
 
 o1 = new stzString("Ring can be compared to Python, Ruby and PHP.")
-o1.MarkSubStringsCS( [ "ring", "python", "ruby", "PHP" ], :CS = FALSE )
+o1.MarkSubStringsCS( [ "ring", "python", "ruby", "PHP" ], :CS _FALSE_ )
 # Or ReplaceSubstringsWithMarquersCS
 
 ? o1.Content()
@@ -12270,20 +12272,28 @@ proff()
 # Executed in 0.24 second(s) in Ring 1.17
 
 /*----------------------
-*
+
 pron()
 
 o1 = new stzString("I Work For Afterward")
+
 ? o1.RemoveCharQ(" ").Content()
 #--> IWorkForAfterward
 
 # Or you can say it more naturally:
+
 ? Q("I Work For Afterward").CharRemoved(" ")
+#--> IWorkForAfterward
 
 # Or even more expressively:
+
 ? Q("I Work For Afterward").WithoutSpaces()
+#--> IWorkForAfterward
+
 # Or if you prefer:
+
 ? Q("I Work For Afterward").SpacesRemoved()
+#--> IWorkForAfterward
 
 proff()
 # Executed in 0.01 second(s) in Ring 1.21
@@ -12334,7 +12344,7 @@ proff()
 
 pron()
 
-? StzStringQ("Arc").IsAnagramOfCS("cra", :CS = FALSE)
+? StzStringQ("Arc").IsAnagramOfCS("cra", :CS _FALSE_)
 #--> TRUE
 
 proff()
@@ -12471,10 +12481,10 @@ StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 
 StzStringQ("eeEEeeTUNISeeEE") {
 
-	? NumberOfLeadingCharsCS(:CaseSensitive = FALSE)
+	? NumberOfLeadingCharsCS(:CaseSensitive _FALSE_)
 	#--> 6
 
-	? LeadingCharsCS(:CaseSensitive = FALSE)
+	? LeadingCharsCS(:CaseSensitive _FALSE_)
 	#--> eeEEee
 
 	? NumberOfLeadingCharsCS(TRUE)
@@ -12483,15 +12493,15 @@ StzStringQ("eeEEeeTUNISeeEE") {
 	? LeadingCharsCS(TRUE)
 	#--> ee
 
-	? LeadingCharIsCS("E", :CaseSensitive = FALSE)	+ NL
+	? LeadingCharIsCS("E", :CaseSensitive _FALSE_)	+ NL
 	#--> TRUE
 
 	#--
 
-	? NumberOfTrailingCharsCS(:CaseSensitive = FALSE) + NL
+	? NumberOfTrailingCharsCS(:CaseSensitive _FALSE_) + NL
 	#--> 4
 
-	? TrailingCharsCS(:CaseSensitive = FALSE)
+	? TrailingCharsCS(:CaseSensitive _FALSE_)
 	#--> EEee
 
 	? NumberOfTrailingCharsCS(TRUE) + NL
@@ -12500,7 +12510,7 @@ StzStringQ("eeEEeeTUNISeeEE") {
 	? TrailingCharsCS(TRUE)
 	#--> EE
 
-	? LeadingCharIsCS("e", :CaseSensitive = FALSE)
+	? LeadingCharIsCS("e", :CaseSensitive _FALSE_)
 	#--> TRUE
 
 }
@@ -12588,7 +12598,7 @@ pron()
 #
 # All these forms are supported by Softanza, but not only them!
 #
-# In fact, both of these standard forms return TRUE
+# In fact, both of these standard forms return _TRUE_
 
 ? StzStringQ("ar_arab_tn").IsLocaleAbbreviation()
 #--> TRUE
@@ -12597,7 +12607,7 @@ pron()
 #--> TRUE
 # (as a side note, Softanza doesn't care of the case, so do not feel any pressure)
 
-# But this one also return TRUE
+# But this one also return _TRUE_
 ? StzStringQ("Arab_TN").IsLocaleAbbreviation()
 #--> TRUE
 # Which corresponds to the non-standard form <script>_<country>.
@@ -12644,7 +12654,8 @@ pron()
 # !--> :turkey NOT :Egypt
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.06 second(s) in Ring 1.22
+# Executed in 0.14 second(s) in Ring 1.17
 
 /*=====================
 
@@ -12655,14 +12666,15 @@ o1 = new stzString("ritekode")
 ? o1.IsEqualTo("ritekode")
 #--> TRUE
 
-? o1.IsEqualToCS("RiteKode", :CS = FALSE)
+? o1.IsEqualToCS("RiteKode", :CS _FALSE_)
 #--> TRUE
 
 ? o1.IsEqualToCS("RiteKode", TRUE)
 #--> FALSE
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.05 second(s) in Ring 1.18
 
 /*--------------------
 
@@ -12701,7 +12713,7 @@ pron()
 ? Q("σίσυφοσ").Capitalcased()
 #--> Σίσυφοσ
 
-? Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", :CS = FALSE)
+? Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", :CS _FALSE_)
 #--> TRUE
 
 ? Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", TRUE)
@@ -13022,7 +13034,7 @@ o1 = new stzString(".....mmMm")
 ? @@( o1.TrailingChar() ) + NL
 #--> ""
 
-? o1.HasTrailingCharsCS(:CaseSensitive = FALSE)
+? o1.HasTrailingCharsCS(:CaseSensitive _FALSE_)
 #--> TRUE
 
 ? o1.TrailingCharCS(FalSE)
@@ -13104,6 +13116,7 @@ o1 = new stzString("12.4560000")
 # You can check if the string contains a trailing part:
 
 ? o1.HasTrailingSubString() # Or HasTrailingChars()
+#--> TRUE
 
 # And even get their number:
 
@@ -13162,7 +13175,7 @@ o1 = new stzString("000012.456")
 
 # You can get theim as a string:
 
-? o1.LeadingSubString()
+? o1.LeadingSubString() # Or LeadingCharsXT()
 #--> "0000"
 
 # or get them as a list of chars:
@@ -13327,7 +13340,7 @@ o1 = new stzString("SOFTANZA IS AWSOME!")
 ? o1.IsEqualTo("softanza is awsome!")
 #--> FALSE
 
-? o1.IsEqualToCS("softanza is awsome!", :CS = FALSE)
+? o1.IsEqualToCS("softanza is awsome!", :CS _FALSE_)
 #--> TRUE
 
 ? o1.IsUppercaseOf("softanza is awsome!")
@@ -14359,7 +14372,7 @@ o1 = new stzString("Abc285XY&من")
 
 ? @@( o1.Parts2Using( 'CharQ(@i).IsLetter()' ) ) + NL
 #--> Gives:
-# [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
+# [ "Abc" _TRUE_, "285" _FALSE_, "XY" _TRUE_, "&" _FALSE_, "من" _TRUE_ ]
 
 ? @@( o1.Parts2Using("CharQ(@i).Orientation()") ) + NL
 #--> Gives:
@@ -14367,7 +14380,7 @@ o1 = new stzString("Abc285XY&من")
 
 ? @@( o1.Parts2Using("CharQ(@i).IsUppercase()") ) + NL
 #--> Gives:
-# [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
+# [ "A" _TRUE_, "bc285" _FALSE_, "XY" _TRUE_, "&من" _FALSE_ ]
 
 ? @@( o1.Parts2Using("CharQ(@i).CharCase()") )
 #--> Gives:
@@ -14504,7 +14517,7 @@ o1 = new stzString("SoftAnza Libraray")
 ? o1.CountCharsWXT('{ @Char = "a" }')
 #--> 3
 
-? o1.CountCharsWXT('{	Q(@Char).IsEqualToCS("a", :CS = FALSE) }')
+? o1.CountCharsWXT('{	Q(@Char).IsEqualToCS("a", :CS _FALSE_) }')
 #--> 4
 
 proff()
@@ -14719,7 +14732,7 @@ pron()
 
 # Or box it char by char like this:
 
-? StzStringQ("SOFTANZA").BoxedXT([ :EachChar = TRUE ])
+? StzStringQ("SOFTANZA").BoxedXT([ :EachChar _TRUE_ ])
 
 #-->
 # ┌───┬───┬───┬───┬───┬───┬───┬───┐
@@ -15284,11 +15297,11 @@ o1.ReplaceTrailingChars(:With = "!")
 #--> Aaaaah TunisiammmmM
 
 o1 = new stzString("Oooooh TunisiammMmmM")
-o1.ReplaceLeadingCharsCS(:With = "O", :CaseSensitive = FALSE)
+o1.ReplaceLeadingCharsCS(:With = "O", :CaseSensitive _FALSE_)
 ? o1.Content()
 #--> Oh TunisiammmmM
 
-o1.ReplaceTrailingCharsCS(:With = "!", :CaseSensitive = FALSE)
+o1.ReplaceTrailingCharsCS(:With = "!", :CaseSensitive _FALSE_)
 ? o1.Content()
 #--> Oh Tunisia!
 
@@ -15310,7 +15323,7 @@ o1 = new stzString("Oooo Tunisia---")
 ? o1.HasLeadingCharsCS(FALSE)
 #--> TRUE
 
-? o1.LeadingCharCS(:CS = FALSE)
+? o1.LeadingCharCS(:CS _FALSE_)
 #--> "O"
 
 ? @@( o1.LeadingChars()	)
@@ -15432,7 +15445,7 @@ proff()
 pron()
 
 StzStringQ("Tunis is the town of my memories.") {
-	ReplaceAllCS("TUNIS", "Niamey", :CS = FALSE )
+	ReplaceAllCS("TUNIS", "Niamey", :CS _FALSE_ )
 	? Content()
 }
 #--> Niamey is the town of my memories
@@ -15496,13 +15509,13 @@ proff()
 pron()
 
 o1 = new stzString("this text is my text not your text, right?!")
-? o1.FindAllCS("text", :CaseSensitive = false)
+? o1.FindAllCS("text", :CaseSensitive _FALSE_)
 #--> [6, 17, 31]
 
 ? o1.FindNthOccurrence(2, "Text")
 #--> 0
 
-? o1.FindNthOccurrenceCS(2, "Text", :CaseSensitive = false)
+? o1.FindNthOccurrenceCS(2, "Text", :CaseSensitive _FALSE_)
 #--> 17
 
 proff()
@@ -15514,7 +15527,7 @@ pron()
 
 o1 = new stzString("This text is my text not your text, right?!")
 
-? o1.ReplaceNthOccurrenceCSQ(2, "TEXT", :With = "narration", :Casesensitive = FALSE).Content()
+? o1.ReplaceNthOccurrenceCSQ(2, "TEXT", :With = "narration", :Casesensitive _FALSE_).Content()
 #--> This text is my narration not your text, right?!
 
 o1 = new stzString("هذا نصّ لا يشبه أيّ نصّ ويا له من نصّ يا صديقي")
@@ -16023,15 +16036,15 @@ proff()
 pron()
 
 o1 = new stzString("reserve")
-? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = False )
+? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive _FALSE_ )
 #--> :Equal
 
 o1 = new stzString("réservé")
-? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = False )
+? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive _FALSE_ )
 #--> :Greater
 
 o1 = new stzString("reserv")
-? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = False )
+? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive _FALSE_ )
 #--> :Less
 
 proff()
@@ -16230,7 +16243,7 @@ o1.InsertSubstringsXT(
 
 		# Add a space after each separator for readability
 
-		:AddSpaceAfterSeparator = TRUE,
+		:AddSpaceAfterSeparator _TRUE_,
 		
 		# Use "and" as the separator before the last item
 
@@ -16238,7 +16251,7 @@ o1.InsertSubstringsXT(
 
 		# Combine the last separator with the main one (", and")
 
-		:AddLastToMainSeparator = TRUE,
+		:AddLastToMainSeparator _TRUE_,
 		
 		# Add spaces around the entire inserted list
 
@@ -17358,7 +17371,7 @@ proff()
 pron()
 
 o1 = new stzListOfChars([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
-? o1.BoxifiedXT([ :Round = TRUE ])
+? o1.BoxifiedXT([ :Round _TRUE_ ])
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───╮
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
@@ -17681,9 +17694,9 @@ pron()
 o1 = new stzListOfChars(@Chars("RINGORIALAND"))
 
 ? o1.BoxifyXT([
-	:Rounded = TRUE,
+	:Rounded _TRUE_,
 	:Hilight = [ ],
-	:Numbered = TRUE
+	:Numbered _TRUE_
 ])
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
@@ -17701,9 +17714,9 @@ pron()
 o1 = new stzListOfChars(@Chars("RINGORIA"))
 
 ? o1.BoxifyXT([
-	:Rounded = TRUE,
+	:Rounded _TRUE_,
 	:Hilight = [ 1, 2, 3, 5 ],
-	:Numbered = TRUE # Shows only the highlited positions
+	:Numbered _TRUE_ # Shows only the highlited positions
 ])
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───╮
@@ -17721,10 +17734,10 @@ pron()
 o1 = new stzListOfChars(@Chars("RINGORIALAND"))
 
 ? o1.BoxifyXT([
-	:Rounded = TRUE,
+	:Rounded _TRUE_,
 	:Hilight = [ 1, 2, 3, 5, 10, 12 ],
-	:Sectioned = TRUE,
-	:Numbered = TRUE
+	:Sectioned _TRUE_,
+	:Numbered _TRUE_
 ])
 
 #-->
@@ -17808,10 +17821,10 @@ pron()
 o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 
 ? o1.BoxifyXT([
-	:Rounded = TRUE,
+	:Rounded _TRUE_,
 	:Hilight = [ 1, 4 ],
-	:Sectioned = TRUE,
-	:Numbered = TRUE ]) + NL
+	:Sectioned _TRUE_,
+	:Numbered _TRUE_ ]) + NL
 #-->
 # ╭───┬───┬───┬───╮
 # │ R │ I │ N │ G │
@@ -17822,10 +17835,10 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 # Force the display of all the positions ~> add an ..XT to :Numbered option
 
 ? o1.BoxifyXT([
-	:Rounded = TRUE,
+	:Rounded _TRUE_,
 	:Hilight = [ 1, 4 ],
-	:Sectioned = TRUE,
-	:NumberedXT = TRUE
+	:Sectioned _TRUE_,
+	:NumberedXT _TRUE_
 ])
 #-->
 # ╭───┬───┬───┬───╮
@@ -17844,9 +17857,9 @@ pron()
 o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 
 ? o1.BoxXT([
-	:Rounded = TRUE,
+	:Rounded _TRUE_,
 	:Hilight = [ 1, 4 ],
-	:NumberedXT = TRUE
+	:NumberedXT _TRUE_
 ]) + NL # OrBoxifyXT()
 #-->
 # ╭───┬───┬───┬───╮
@@ -17854,7 +17867,7 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 # ╰─•─┴───┴───┴─•─╯
 #   1   2   3   4
 
-? o1.BoxifyXT([ :ShowPositions = [ 1, 4 ], :NumberedXT = TRUE ])
+? o1.BoxifyXT([ :ShowPositions = [ 1, 4 ], :NumberedXT _TRUE_ ])
 #-->
 # ┌───┬───┬───┬───┐
 # │ R │ I │ N │ G │
@@ -17868,14 +17881,14 @@ proff()
 
 pron()
 
-? Q("RING").CharsBoxifiedXT([ :Numbered = TRUE ]) + NL
+? Q("RING").CharsBoxifiedXT([ :Numbered _TRUE_ ]) + NL
 #-->
 # ┌───┬───┬───┬───┐
 # │ R │ I │ N │ G │
 # └───┴───┴───┴───┘
 #   1   2   3   4
 
-? Q(Chars("RING")).ToStzListOfChars().BoxifiedXT([ :Numbered = TRUE ])
+? Q(Chars("RING")).ToStzListOfChars().BoxifiedXT([ :Numbered _TRUE_ ])
 #-->
 # ┌───┬───┬───┬───┐
 # │ R │ I │ N │ G │
@@ -17893,9 +17906,9 @@ pron()
 o1 = new stzString("SOFTANZA~RING")
 
 o1.BoxifyCharsXT([
-	:Rounded = TRUE,
+	:Rounded _TRUE_,
 	:Corners = [ :Round, :Rect, :Round, :Rect ],
-	:Numbered = TRUE
+	:Numbered _TRUE_
 ])
 
 ? o1.Content() + NL
@@ -17905,15 +17918,15 @@ o1.BoxifyCharsXT([
 # └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
 #   1   2   3   4   5   6   7   8   9   10  11  12  13
 
-# When you define :Rounded = FALSE, the ouput is not rounded,
+# When you define :Rounded _FALSE_, the ouput is not rounded,
 # even if the :Corners are defined:
 
 o1 = new stzString("SOFTANZA~RING")
 
 o1.BoxifyCharsXT([
-	:Rounded = FALSE,
+	:Rounded _FALSE_,
 	:Corners = [ :Round, :Rect, :Round, :Rect ],
-	:Numbered = TRUE
+	:Numbered _TRUE_
 ])
 
 ? o1.Content()
@@ -18032,12 +18045,12 @@ o1 = new stzString("SOFTANZA")
 # SOFTANZA
 # ----^--^
 
-? o1.VizFindXT("A", [ :Spacified = TRUE  ]) + NL
+? o1.VizFindXT("A", [ :Spacified _TRUE_  ]) + NL
 #-->
 # S O F T A N Z A
 # --------^-----^
 
-? o1.VizFindXT("A", [ :Spacified = TRUE, :PositionSign = Heart() ]) + NL
+? o1.VizFindXT("A", [ :Spacified _TRUE_, :PositionSign = Heart() ]) + NL
 #-->
 # S O F T A N Z A
 # --------♥-----♥
@@ -18065,11 +18078,11 @@ o1 = new stzString("SOFTANZA")
 # ╰───┴───┴───┴───┴─♥─┴───┴───┴─♥─╯
 
 ? o1.VizFindXT( "A", [
-	:Boxed = TRUE,
-	:Rounded = TRUE, 
+	:Boxed _TRUE_,
+	:Rounded _TRUE_, 
 	:AllCorners = :Rounded,
 
-	:Numbered = TRUE,
+	:Numbered _TRUE_,
 
 	:PositionSign = Heart()
 ])
@@ -18090,9 +18103,9 @@ pron()
 o1 = new stzString("SOFTANZA")
 
 ? o1.VizFindBoxedXT("A", [
-	:Dashed = TRUE,
-	:Rounded = TRUE,
-	:Numbered = TRUE,
+	:Dashed _TRUE_,
+	:Rounded _TRUE_,
+	:Numbered _TRUE_,
 ])
 
 #-->
@@ -18110,7 +18123,7 @@ SetPositionSign("↑")
 
 # When you provide one option, enclose it between [ and ]:
 
-? o1.VizFindBoxedXT( "A", [ :Rounded = TRUE ] )
+? o1.VizFindBoxedXT( "A", [ :Rounded _TRUE_ ] )
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───╮
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
@@ -18127,10 +18140,10 @@ o1 = new stzString("SOFTANZA")
 
 ? o1.VizFindBoxedXT("A", [
 	:PositionChar = "↑", # Or :PositionSign or :HilightChar or :HilightSign
-	:Numbered = TRUE,
-	:Solid = TRUE,
+	:Numbered _TRUE_,
+	:Solid _TRUE_,
 
-	:Rounded = TRUE,
+	:Rounded _TRUE_,
 	:Corners = [ :round, :round, :rect, :rect ]
 
 ]) + NL
@@ -18141,11 +18154,11 @@ o1 = new stzString("SOFTANZA")
 #                   5           8 
 
 ? o1.VizFindBoxedXT("A", [
-	:Dashed = TRUE,
-	:Rounded = TRUE,
+	:Dashed _TRUE_,
+	:Rounded _TRUE_,
 
 	:PositionSign = "↑",
-	:Numbered = TRUE
+	:Numbered _TRUE_
 ])
 #-->
 # ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
@@ -18164,8 +18177,8 @@ o1 = new stzString("..STZ..STZ..STZ")
 
 ? o1.ToStzListOfChars().BoxXT([
 	:Hilighted = Q( o1.FindZZ("STZ") ).Flattened(),
-	:Sectioned = TRUE,
-	:Numbered = TRUE
+	:Sectioned _TRUE_,
+	:Numbered _TRUE_
  ])
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
@@ -18260,19 +18273,19 @@ o1 = new stzString("..STZ..StZ..stz")
 
 # The fellowing calls all return  the same result:
 
-? o1.VizFindCSXT("STZ", :CS = FALSE, [ :Numbered = TRUE ]) + NL
+? o1.VizFindCSXT("STZ", :CS _FALSE_, [ :Numbered _TRUE_ ]) + NL
 #-->
 # ..STZ..StZ..stz
 # --^----^----^--
 #   3    8    13 
 
-? o1.VizFindXT("stz", [ :Numbered = TRUE, :CS = FALSE ] ) + NL
+? o1.VizFindXT("stz", [ :Numbered _TRUE_, :CS _FALSE_ ] ) + NL
 #-->
 # ..STZ..StZ..stz
 # --^----^----^--
 #   3    8    13 
 
-? o1.VizFindCSXT("stz", :CS = FALSE, [ :Numbered = TRUE ] )
+? o1.VizFindCSXT("stz", :CS _FALSE_, [ :Numbered _TRUE_ ] )
 #-->
 # ..STZ..StZ..stz
 # --^----^----^--
@@ -18289,7 +18302,7 @@ o1 = new stzString("..STZ..StZ..stz...STZ")
 
 # The order of params is defined by the order of name suffixes:
 
-? o1.VizFindBoxedCSXT("STZ", :CS = FALSE, [ :Numbered = TRUE ])
+? o1.VizFindBoxedCSXT("STZ", :CS _FALSE_, [ :Numbered _TRUE_ ])
 #-->
 # ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
 # │ . │ . │ S │ T │ Z │ . │ . │ S │ t │ Z │ . │ . │ s │ t │ z │ . │ . │ . │ S │ T │ Z │
@@ -18528,7 +18541,7 @@ o1 = new stzString("ringringringring")
 # ringringringring
 # ^---^---^---^---
 
-? o1.vizFindXT("ring", [ :Numbered = TRUE ])
+? o1.vizFindXT("ring", [ :Numbered _TRUE_ ])
 #-->
 # ringringringring
 # ^---^---^---^---
@@ -18567,7 +18580,7 @@ o1 = new stzString("fjringljringdjringg")
 # To gain even more insight, we can add the XT() suffix,
 # providing a numeric guide for each matched position:
 
-? o1.vizFindXT("ring", [ :Numbered = TRUE ]) + NL
+? o1.vizFindXT("ring", [ :Numbered _TRUE_ ]) + NL
 #-->
 # fjringljringdjringg
 # --^-----^-----^----
@@ -18586,7 +18599,7 @@ o1 = new stzString("fjringljringdjringg")
 # fjringljringdjringg
 #   '--'  '--'  '--'
 
-? o1.vizFindXT("ring", [ :Sectioned = TRUE, :Numbered = TRUE ]) + NL
+? o1.vizFindXT("ring", [ :Sectioned _TRUE_, :Numbered _TRUE_ ]) + NL
 #-->
 # fjringljringdjringg
 #   '--'  '--'  '--'
@@ -18596,7 +18609,7 @@ o1 = new stzString("fjringljringdjringg")
 # the results become both visually structured and detailed:
 
 ? o1.vizFindXT("ring", [
-	:Boxed = TRUE, :Rounded = TRUE, :Sectioned = TRUE, :Numbered = TRUE ])
+	:Boxed _TRUE_, :Rounded _TRUE_, :Sectioned _TRUE_, :Numbered _TRUE_ ])
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
 # │ f │ j │ r │ i │ n │ g │ l │ j │ r │ i │ n │ g │ d │ j │ r │ i │ n │ g │ g │
@@ -18869,7 +18882,7 @@ DefineConstraints([
 	:OnStzString = [
 		:MustBeUppercase 	= '{ Q(@str).IsUppercase() }',
 		:MustNotExceed@n@Chars 	= '{ Q(@str).NumberOfChars() <= n }',
-		:MustBeginWithLetter@c@	= '{ Q(@str).BeginsWithCS(c, :CS = FALSE) }'
+		:MustBeginWithLetter@c@	= '{ Q(@str).BeginsWithCS(c, :CS _FALSE_) }'
 	],
 
 	:OnStzNumber = [

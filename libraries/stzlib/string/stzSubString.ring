@@ -242,7 +242,7 @@ class stzSubString from stzSubStringCS
 
 		@cSubStr = pcSubStr
 		@cStr = pcStr
-		@pCaseSensitive = TRUE
+		@pCaseSensitive _TRUE_
 
 class stzSubStringCS
 	@cSubStr
@@ -321,7 +321,7 @@ class stzSubStringCS
 			return This.SectionsCS(pCaseSensitive)
 
 	def Sections()
-		return This.SectionsCS(:CaseSenstive = TRUE)
+		return This.SectionsCS(:CaseSenstive _TRUE_)
 
 		def PositionsAsSections()
 			return This.Sections()
@@ -430,9 +430,9 @@ class stzSubStringCS
 		if This.SubStringQ().IsLowercased() and
 		   This.StringQ().Contains(This.SubString())
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsInLowercase()
@@ -442,9 +442,9 @@ class stzSubStringCS
 		if This.SubStringQ().IsUppercased() and
 		   This.StringQ().Contains(This.SubString())
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsInUppercase()

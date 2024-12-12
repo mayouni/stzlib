@@ -4,7 +4,7 @@ load "../max/stzmax.ring"
 
 pron()
 
-? Q( :CS = FALSE ).IsCaseSensitiveNamedParam()
+? Q( :CS _FALSE_ ).IsCaseSensitiveNamedParam()
 #--> TRUE
 
 proff()

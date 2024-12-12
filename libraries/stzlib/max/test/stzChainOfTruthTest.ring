@@ -13,7 +13,7 @@ ok
 
 /*----------------- ok
 
-# All these return TRUE:
+# All these return _TRUE_:
 
 ? _(1234).IsA(:Number).Which(:IsEven)._
 ? _("ring").IsA(:String).Which(:IsLowercase)._
@@ -31,7 +31,7 @@ ok
 
 /*----------------- ERROR
 
-# All these return TRUE:
+# All these return _TRUE_:
 
 ? _("Ring").IsA(:String).Where('NumberOfChars() = 4')._
 ? _("Ring").IsA(:String).Having('FirstChar() = "R"')._
@@ -46,7 +46,7 @@ ok
 
 /*----------------- ok
 
-# All these return TRUE
+# All these return _TRUE_
 
 ? _("ring").IsA(:String)._
 ? _("f").IsA(:Letter)._
@@ -61,14 +61,14 @@ ok
 ? _([ "Tunis", "Cairo", "Prag" ]).IsA(:ListOfStrings)._	#--> TRUE
 
 o1 = new person { name = "ali" }
-? _(:o1).IsAn(:Object)._ #--> ERRO: should return TRUE
+? _(:o1).IsAn(:Object)._ #--> ERRO: should return _TRUE_
 
 class Person
 	name
 
 /*-----------------
 
-# These return TRUE
+# These return _TRUE_
 
 ? _("ring").IsA(:String).Which(:IsLowercase).Containing(TheLetter("g"))._
 ? _("ring").IsA(:String).Which(:IsLowercase).Containing(TheLetter("g")).Having('FirstChar() = "r"')._
@@ -80,7 +80,7 @@ class Person
 
 /*----------------- ok
 
-# All these return TRUE
+# All these return _TRUE_
 
 ? _(8).Is('DoubleOf(4)')._
 ? _("ring").Is('Lowercase()')._
@@ -88,7 +88,7 @@ class Person
 
 /*----------------- ERRO
 
-# These return TRUE
+# These return _TRUE_
 */
 ? _("ring").Is('Lowercase()').Containing("in")._
 ? _("ring").Is('Lowercase()').Having('NumberOfchars() = 4')._
@@ -103,7 +103,7 @@ class Person
 
 /*-----------------
 
-# All these return TRUE
+# All these return _TRUE_
 
 ? _(8).IsA(:Number).Which('IsDoubleOf(4)')._
 ? _(8).IsA(:Number).Which('IsEven()')._
@@ -112,7 +112,7 @@ class Person
 
 /*----------------- ERROR
 
-# All these return TRUE
+# All these return _TRUE_
 
 ? _(9).IsNot('DoubleOf(4)')._
 ? _(9).IsA(:Number).Which('IsNotEven')._
@@ -126,7 +126,7 @@ class Person
 
 /*----------------- ERROR
 
-# All these return TRUE
+# All these return _TRUE_
 
 # Well, nothing prevents you from saying
 ? _("ring").Containing("i")._
@@ -138,7 +138,7 @@ class Person
 /*----------------- ERROR
 
 
-# All these are semantically equivalent and return TRUE
+# All these are semantically equivalent and return _TRUE_
 
 ? _("ring").ContainingNo("x")._
 ? _("ring").IsContainingNo("x")._
@@ -148,7 +148,7 @@ class Person
 
 /*-----------------
 
-# All these return TRUE
+# All these return _TRUE_
 
 ? _("ring").ContainsNo("x").ContainsNo("y")._
 ? _("ring").ContainsNo("x").Nor("y")._

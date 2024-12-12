@@ -1131,8 +1131,8 @@ o1 = new stzNumber("12500")
 
 o1 = new stzNumber(24)
 ? o1.SubStructQ(12).Content()
-? o1.AddManyXT([ "4.65775", "3", "2" ], :ReturnIntermediateResults = TRUE)
-//? o1.SubStructManyXT([ "12", "10.6532", "3" ], :ReturnIntermediateResults = TRUE )
+? o1.AddManyXT([ "4.65775", "3", "2" ], :ReturnIntermediateResults _TRUE_)
+//? o1.SubStructManyXT([ "12", "10.6532", "3" ], :ReturnIntermediateResults _TRUE_ )
 //? o1.Content()
 /*
 ? o1.ToBinaryFormWithoutPrefix()
@@ -1168,12 +1168,12 @@ o1 = new stzNumber("369900990099")
 o1 = new stzNumber(12590)
 ? o1.ApplyFormatXT([
 	# Precision
-	:RestrictFractionalPart = FALSE,
+	:RestrictFractionalPart _FALSE_,
 	:NumberOfDigitsInFractionalPart = 5,
-	:RoundItWhenRestricted = FALSE,
+	:RoundItWhenRestricted _FALSE_,
 
 	# Round
-	:ApplyRound = TRUE,
+	:ApplyRound _TRUE_,
 	:RoundTo = 5, # !! change this to 2 ans see result
 
 	# Adjustment
@@ -1181,12 +1181,12 @@ o1 = new stzNumber(12590)
 	:FillBlanksWith = " ",
 
 	:AlignTo = :Center, # :Left, :Right
-	:FixPrefixToLeft = TRUE,
-	:FixSuffixToRight = FALSE,
+	:FixPrefixToLeft _TRUE_,
+	:FixSuffixToRight _FALSE_,
 	
 	# Sign
-	:ShowSign = TRUE,
-	:PutNegativeBetweenParentheses = TRUE,
+	:ShowSign _TRUE_,
+	:PutNegativeBetweenParentheses _TRUE_,
 
 	# Prefix, separators, and suffix
 	:Prefix = "$",
@@ -1197,7 +1197,7 @@ o1 = new stzNumber(12590)
 	:Suffix = NULL,
 
 	# Conversion
-	:ToPercentage = FALSE,
+	:ToPercentage _FALSE_,
 	:ToScientificNotation,
 
 	:ToHex,

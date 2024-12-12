@@ -25,16 +25,16 @@ class stzTrueObject from stzObject
 	@cVarName = :@trueobject
 
 	def Content()
-		return TRUE
+		return _TRUE_
 
 		def Value()
 			return Content()
 
 	def Where(pcCondition)
-		return FALSE
+		return _FALSE_
 
 		def W(pcCondition)
-			return FALSE
+			return _FALSE_
 
 	def IsEqualToCSQ(p, pCaseSensitie)
 		return This
@@ -46,13 +46,13 @@ class stzTrueObject from stzObject
 			return This
 
 	def IsEqualToCS(p, pCaseSensitive)
-		return TRUE
+		return _TRUE_
 
 		def IsEqualTo(p)
-			return TRUE
+			return _TRUE_
 
 		def Equals(p)
-			return TRUE
+			return _TRUE_
 
 	def StzType()
 		return :stzTrueObject

@@ -5,5 +5,5 @@ oStr = StzStringQ("salem")
 
 ? IsListOfConstraints(oStr, [
 	:JustFive = '{ @.NumberOfChars() <= 5 }',
-	:OnlyLowercase = '{ @Lowercased() = TRUE }',
-	:NoNumbers = '{ @.ContainsNumbers() = FALSE }' ])
+	:OnlyLowercase = '{ @Lowercased() _TRUE_ }',
+	:NoNumbers = '{ @.ContainsNumbers() _FALSE_ }' ])

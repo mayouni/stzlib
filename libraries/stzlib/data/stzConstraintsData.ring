@@ -46,7 +46,7 @@
 		}',
 
 		:KeysMustBeStzClassNamesPrefixedBy@str@ = '{
-			Q(@hashlist).KeysQ().RemoveFromStartCSQ(@str@, :CS = FALSE).AllItemsAreStzClassNames()	
+			Q(@hashlist).KeysQ().RemoveFromStartCSQ(@str@, :CS _FALSE_).AllItemsAreStzClassNames()	
 		}',
 
 		:ValuesMustBeStrings = '{

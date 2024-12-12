@@ -6,7 +6,7 @@ load "LightGuiLib.ring"
 
 func StkReplaceCS(cStr, cSubStr, cNewSubStr, bCase)
 
-	if bCase = TRUE
+	if bCase _TRUE_
 		return ring_substr2(cStr, cSubStr, cNewSubStr)
 	ok
 
@@ -139,14 +139,14 @@ class stzCoreString from stzCoreObject
 		nSize = @TempQStr.size()
 
 		anResult = []
-		bContinue = TRUE
+		bContinue _TRUE_
 	
 		nPos = 0  # Start from index 0
 	
 	   	while bContinue
 			nPos = @content.indexOf(substr, nPos, bCase)
 			if nPos = -1
-				bContinue = FALSE
+				bContinue _FALSE_
 			else
 				anResult + (nPos + 1)  	# Add 1 to convert to 1-based index
 				nPos = nPos + nSize  	# Move to the next position after the found substring
@@ -177,7 +177,7 @@ class stzCoreString from stzCoreObject
 		nSize = @TempQStr.size()
 
 		nResult = 0
-		bContinue = TRUE
+		bContinue _TRUE_
 	
 		nPos = 0  # Start from index 0
 		nTimes = 0
@@ -185,7 +185,7 @@ class stzCoreString from stzCoreObject
 	   	while bContinue
 			nPos = @content.indexOf(substr, nPos, bCase)
 			if nPos = -1
-				bContinue = FALSE
+				bContinue _FALSE_
 			else
 				nTimes++ 
 				if nTimes = n
@@ -262,14 +262,14 @@ class stzCoreString from stzCoreObject
 
 	def ContainsCS(substr, bCase)
 		if substr = ""
-			return FALSE
+			return _FALSE_
 		ok
 
 		return @content.contains(substr, bCase)
 
 	def Contains(substr)
 		if substr = ""
-			return FALSE
+			return _FALSE_
 		ok
 
 		return @content.contains(substr, true)
@@ -278,14 +278,14 @@ class stzCoreString from stzCoreObject
 
 	def StartsWithCS(substr, bCase)
 		if substr = ""
-			return FALSE
+			return _FALSE_
 		ok
 
 		return @content.startsWith(substr, bCase)
 
 	def StartsWith(substr)
 		if substr = ""
-			return FALSE
+			return _FALSE_
 		ok
 
 		return @content.startsWith(substr, true)
@@ -294,14 +294,14 @@ class stzCoreString from stzCoreObject
 
 	def EndsWithCS(substr, bCase)
 		if substr = ""
-			return FALSE
+			return _FALSE_
 		ok
 
 		return @content.endsWith(substr, bCase)
 
 	def EndsWith(substr)
 		if substr = ""
-			return FALSE
+			return _FALSE_
 		ok
 
 		return @content.endsWith(substr, true)

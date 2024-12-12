@@ -77,13 +77,13 @@ class stzNullObject from stzObject
 			return This
 
 	def IsEqualToCS(p, pCaseSensitive)
-		return FALSE
+		return _FALSE_
 
 		def IsEqualTo(p)
-			return FALSE
+			return _FALSE_
 
 		def Equals(p)
-			return FALSE
+			return _FALSE_
 
 	def StzType()
 		return :stzNullObject

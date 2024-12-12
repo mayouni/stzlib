@@ -29,11 +29,11 @@ func AreChars(pacChars)
 	ok
 
 	nLen = len(pacChars)
-	bResult = TRUE
+	bResult _TRUE_
 
 	for i = 1 to nLen
 		if NOT ( isString(pacChars[i]) and @IsChar(pacChars[i]) )
-			bResult = FALSE
+			bResult _FALSE_
 			exit
 		ok
 	next
@@ -56,9 +56,9 @@ func AreBothChars(p1, p2)
 
 func AreBothAsciiChars(p1, p2)
 	if IsAsciiChar(p1) and IsAsciiChar(p2)
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func BothAreAsciiChars(p1, p2)
@@ -80,11 +80,11 @@ func AreLetters(pacLetters)
 	ok
 
 	nLen = len(pacLetters)
-	bResult = TRUE
+	bResult _TRUE_
 
 	for i = 1 to nLen
 		if NOT ( isString(pacLetters[i]) and @IsLetter(pacLetters[i]) )
-			bResult = FALSE
+			bResult _FALSE_
 			exit
 		ok
 	next
@@ -328,7 +328,7 @@ class stzListOfChars from stzListOfStrings
 			StzRaise(stzListOfCharsError(:CanNotCreateListOfChars))
 		ok
 
-		if KeepingHistory() = TRUE
+		if KeepingHistory() _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -366,7 +366,7 @@ class stzListOfChars from stzListOfStrings
 	#--
 
 	def Update(paOtherListOfChars)
-		if CheckingParams() = TRUE
+		if CheckingParams() _TRUE_
 			if isList(paOtherListOfChars) and Q(paOtherListOfChars).IsWithOrByOrUsingNamedParam()
 				paOtherListOfChars = paOtherListOfChars[2]
 			ok
@@ -380,7 +380,7 @@ class stzListOfChars from stzListOfStrings
 		@cString = Q(paOtherListOfChars).Concatenated()
 		@aStzChars = Q(paOtherListOfChars).ToListOfStzChars()
 
-		if KeepingHisto() = TRUE
+		if KeepingHisto() _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -436,7 +436,7 @@ class stzListOfChars from stzListOfStrings
 
 	def IsArabic()
 
-		bResult = TRUE
+		bResult _TRUE_
 
 		// We should check only the letters
 		// (exclude symbols, marks, punctuations...)
@@ -446,7 +446,7 @@ class stzListOfChars from stzListOfStrings
 
 		for i = 1 to nLen
 			if NOT aoStzChars[i].isArabicLetter()
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -455,7 +455,7 @@ class stzListOfChars from stzListOfStrings
 
 	def IsLatin()
 
-		bResult = TRUE
+		bResult _TRUE_
 
 		// We should check only the letters
 		// (exclude symbols, marks, punctuations...)
@@ -465,7 +465,7 @@ class stzListOfChars from stzListOfStrings
 
 		for i = 1 to nLen
 			if NOT aoStzChars[i].isLatinLetter()
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -474,7 +474,7 @@ class stzListOfChars from stzListOfStrings
 
 	def ScriptIs(cScript)
 
-		bResult = TRUE
+		bResult _TRUE_
 
 		// We should check only the letters
 		// (exclude symbols, marks, punctuations...)
@@ -485,7 +485,7 @@ class stzListOfChars from stzListOfStrings
 		for i = 1 to nLen
 			cCode = 'bResult = aoStzChars[i].Is' + cScript + 'letter()'
 			eval(cCode)
-			if bResult = FALSE
+			if bResult _FALSE_
 				exit
 			ok
 		next
@@ -617,7 +617,7 @@ class stzListOfChars from stzListOfStrings
 		#>
 
 	def BoxRound()
-		return This.BoxedXT([ :Rounded = TRUE, :AllCorners = :Round ])
+		return This.BoxedXT([ :Rounded _TRUE_, :AllCorners = :Round ])
 
 		#< @FunctionAlternativeForms
 
@@ -634,7 +634,7 @@ class stzListOfChars from stzListOfStrings
 
 
 	def BoxRoundDash()
-		return This.BoxedXT([ :Rounded = TRUE, :Line = :Dashed, :AllCorners = :Round ])
+		return This.BoxedXT([ :Rounded _TRUE_, :Line = :Dashed, :AllCorners = :Round ])
 
 		#< @FunctionAlternativeForms
 
@@ -705,12 +705,12 @@ class stzListOfChars from stzListOfStrings
 			ok
 
 			if isNumber(paBoxOptions[ :Solid ]) and
-			   paBoxOptions[ :Solid ] = TRUE
+			   paBoxOptions[ :Solid ] _TRUE_
 
 					cLine = :Solid
 
 			but isNumber(paBoxOptions[ :Dashed ]) and
-			    paBoxOptions[ :Dashed ] = TRUE
+			    paBoxOptions[ :Dashed ] _TRUE_
 
 					cLine = :Dashed
 			ok
@@ -721,11 +721,11 @@ class stzListOfChars from stzListOfStrings
 
 			if isNumber(paBoxOptions[ :Rounded ])
 
-				if paBoxOptions[ :Rounded ] = TRUE
-					bRounded = TRUE
+				if paBoxOptions[ :Rounded ] _TRUE_
+					bRounded _TRUE_
 
-				but paBoxOptions[ :Rounded ] = FALSE
-					bRounded = FALSE
+				but paBoxOptions[ :Rounded ] _FALSE_
+					bRounded _FALSE_
 
 				ok
 			ok
@@ -738,7 +738,7 @@ class stzListOfChars from stzListOfStrings
 			   paBoxOptions[ :AllCorners ] = :Rounded
 
 				if isString(bRounded) and bRounded = NULL
-					bRounded = TRUE
+					bRounded _TRUE_
 				ok
 
 				cAllCorners = :Round
@@ -749,7 +749,7 @@ class stzListOfChars from stzListOfStrings
 			if cAllCorners = :Rectangular or cAllCorners = :Rect
 
 				if isString(bRounded) and bRounded = NULL
-					bRounded = FALSE
+					bRounded _FALSE_
 				ok
 
 				 # By default
@@ -758,7 +758,7 @@ class stzListOfChars from stzListOfStrings
 			but cAllCorners = :Round or cAllCorners = :Rounded
 
 				if isString(bRounded) and bRounded = NULL
-					bRounded = TRUE
+					bRounded _TRUE_
 				ok
 
 				aCorners = [ :Round, :Round, :Round, :Round ]
@@ -769,14 +769,14 @@ class stzListOfChars from stzListOfStrings
 			   StzListQ( paBoxOptions[:Corners] ).IsMadeOfSome([ :Rectangular, :Round ])
 	
 				if isString(bRounded) and bRounded = NULL
-					bRounded = TRUE
+					bRounded _TRUE_
 				ok
 
 				aCorners = paBoxOptions[:Corners]
 
 			ok
 
-			if bRounded = TRUE and
+			if bRounded _TRUE_ and
 			   ring_find(aCorners, :round) = 0
 
 				aCorners = [ :round, :round, :round, :round ]
@@ -784,7 +784,7 @@ class stzListOfChars from stzListOfStrings
 
 			if len(aCorners) = 0 and bRounded = NULL
 				if isString(bRounded) and bRounded = NULL
-					bRounded = FALSE
+					bRounded _FALSE_
 				ok
 			ok
 
@@ -850,67 +850,67 @@ class stzListOfChars from stzListOfStrings
 
 			# Reading the numbering option
 
-			bNumbered = FALSE
+			bNumbered _FALSE_
 
 			if (paBoxOptions[ :Numbered ] != NULL and
-			   paBoxOptions[ :Numbered ] = TRUE) or
+			   paBoxOptions[ :Numbered ] _TRUE_) or
 
 			   (paBoxOptions[ :Numbers ] != NULL and
-			   paBoxOptions[ :Numbers ] = TRUE) or
+			   paBoxOptions[ :Numbers ] _TRUE_) or
 
 			   (paBoxOptions[ :ShowPositions ] != NULL and
-			   paBoxOptions[ :ShowPositions ] = TRUE)
+			   paBoxOptions[ :ShowPositions ] _TRUE_)
 
-				bNumbered = TRUE
+				bNumbered _TRUE_
 			ok
 
 			# Reading the numbering option
 
-			bNumbered = FALSE
+			bNumbered _FALSE_
 
 			if (paBoxOptions[ :Numbered ] != NULL and
-			   paBoxOptions[ :Numbered ] = TRUE) or
+			   paBoxOptions[ :Numbered ] _TRUE_) or
 
 			   (paBoxOptions[ :Numbers ] != NULL and
-			   paBoxOptions[ :Numbers ] = TRUE) or
+			   paBoxOptions[ :Numbers ] _TRUE_) or
 
 			   (paBoxOptions[ :ShowPositions ] != NULL and
-			   paBoxOptions[ :ShowPositions ] = TRUE)
+			   paBoxOptions[ :ShowPositions ] _TRUE_)
 
-				bNumbered = TRUE
+				bNumbered _TRUE_
 			ok
 
 			#---
 
-			bNumberedXT = FALSE
+			bNumberedXT _FALSE_
 
 			if (paBoxOptions[ :NumberedXT ] != NULL and
-			   paBoxOptions[ :NumberedXT ] = TRUE) or
+			   paBoxOptions[ :NumberedXT ] _TRUE_) or
 
 			   (paBoxOptions[ :NumbersXT ] != NULL and
-			   paBoxOptions[ :NumbersXT ] = TRUE) or
+			   paBoxOptions[ :NumbersXT ] _TRUE_) or
 
 			   (paBoxOptions[ :ShowPositionsXT ] != NULL and
-			   paBoxOptions[ :ShowPositionsXT ] = TRUE) or
+			   paBoxOptions[ :ShowPositionsXT ] _TRUE_) or
 
 			   (paBoxOptions[ :ShowAllPositions ] != NULL and
-			   paBoxOptions[ :ShowAllPositions ] = TRUE) or
+			   paBoxOptions[ :ShowAllPositions ] _TRUE_) or
 
 			   (paBoxOptions[ :AllPositions ] != NULL and
-			   paBoxOptions[ :AllPositions ] = TRUE)
+			   paBoxOptions[ :AllPositions ] _TRUE_)
 
-				bNumberedXT = TRUE
-				bNumbered = FALSE
+				bNumberedXT _TRUE_
+				bNumbered _FALSE_
 			ok
 
 			# Reading the sectioned option
 
-			bSectioned = FALSE
+			bSectioned _FALSE_
 
 			if paBoxOptions[:Sectioned] != NULL and
-			   paBoxOptions[:Sectioned] = TRUE
+			   paBoxOptions[:Sectioned] _TRUE_
 
-				bSectioned = TRUE
+				bSectioned _TRUE_
 			ok
 
 			# Composing the boxed list of strings
@@ -931,7 +931,7 @@ class stzListOfChars from stzListOfStrings
 			cCorner3 = "┘"
 			cCorner4 = "└"
 
-			if bRounded = TRUE
+			if bRounded _TRUE_
 				
 				if  aCorners[1] = :Round
 					cCorner1 = "╭"
@@ -1038,7 +1038,7 @@ class stzListOfChars from stzListOfStrings
 
 			nLenSections = len(aSections)
 
-			if bSectioned = TRUE
+			if bSectioned _TRUE_
 	
 				acSegments = []
 	
@@ -1279,14 +1279,14 @@ class stzListOfChars from stzListOfStrings
 	#-----------#
 
 	def AllCharsAreNumbers()
-		bResult = TRUE
+		bResult _TRUE_
 
 		aoStzChars = This.ToListOfStzChars()
 		nLen = len(aoStzChars)
 
 		for i = 1 to nLen
 			if NOT aoStzChars[i].IsNumber()
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -1294,14 +1294,14 @@ class stzListOfChars from stzListOfStrings
 		return bResult
 
 	def AllCharsAreLetters()
-		bResult = TRUE
+		bResult _TRUE_
 
 		aoStzChars = This.ToListOfStzChars()
 		nLen = len(aoStzChars)
 
 		for i = 1 to nLen
 			if NOT aoStzChars[i].IsLetter()
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
