@@ -22,9 +22,9 @@ func StzListOfListsQ(paList)
 func ItemExists(pItem, paList)
 	oTempList = new stzList(paList)
 	if oTempList.Contains(pItem) 
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 func AllListsHaveSameSize(paListOfLists)
@@ -39,11 +39,11 @@ func AllListsHaveSameSize(paListOfLists)
 
 	nLen = len(paListOfLists)	
 	nSize = len(paListOfLists[1])
-	bResult = TRUE
+	bResult _TRUE_
 
 	for i = 2 to nLen
 		if len(paListOfLists[i]) != nSize
-			bResult = FALSE
+			bResult _FALSE_
 			exit
 		ok
 	next
@@ -244,12 +244,12 @@ class stzListOfLists from stzList
 				StzRaise("Can't create the object! You must provide a list.")
 			ok
 	
-			bOk = TRUE
+			bOk _TRUE_
 			nLen = len(paList)
 	
 			for i = 1 to nLen
 				if NOT isList(paList[i])
-					bOk = FALSE
+					bOk _FALSE_
 				ok
 			next
 	
@@ -265,7 +265,7 @@ class stzListOfLists from stzList
 			@aContent = paList
 		ok
 
-		if KeepingHistory() = TRUE
+		if KeepingHistory() _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -296,7 +296,7 @@ class stzListOfLists from stzList
 	#-------------------------------#
 
 	def Update(paList)
-		if CheckingParams() = TRUE
+		if CheckingParams() _TRUE_
 			if isList(paList) and Q(paList).IsWithOrByOrUsingNamedParam()
 				paList = paList[2]
 			ok
@@ -308,7 +308,7 @@ class stzListOfLists from stzList
 
 		@aContent = paList
 
-		if KeepingHisto() = TRUE
+		if KeepingHisto() _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -663,15 +663,15 @@ class stzListOfLists from stzList
 			StzRaise("Can't check inner lists! Because the list is empty.")
 
 		but nLen = 1
-			return TRUE
+			return _TRUE_
 		ok
 
 		nLenList = len(aContent[1])
-		bResult = TRUE
+		bResult _TRUE_
 
 		for i = 2 to nLen
 			if len( aContent[i] ) != nLenList
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -2105,7 +2105,7 @@ class stzListOfLists from stzList
 
 		aLists = @aContent
 
-		if pCaseSensitive = FALSE
+		if pCaseSensitive _FALSE_
 			aLists = This.Lowercased()
 		ok
 
@@ -2194,7 +2194,7 @@ class stzListOfLists from stzList
 
 		aLists = @aContent
 
-		if pCaseSensitive = FALSE
+		if pCaseSensitive _FALSE_
 			aLists = This.Lowercased()
 		ok
 
@@ -2322,14 +2322,14 @@ class stzListOfLists from stzList
 	#========================================================#
 
 	def ContainsItemCS(pItem, pCaseSensitive)
-		bResult = FALSE
+		bResult _FALSE_
 		aListOfLists = This.ListOfLists()
 		nLen = len(aListOfLists)
 
 		for i = 1 to nLen
 			oStzList = new stzList( aListOfLists[i] )
 			if oStzList.ContainsCS(pItem, pCaseSensitive)
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -2368,13 +2368,13 @@ class stzListOfLists from stzList
 	#------------------------------------------------#
 
 	def EachListContainsCS(pItem, pCaseSensitive)
-		bResult = TRUE
+		bResult _TRUE_
 		aLists = This.Content()
 		nLen = len(aLists)
 
 		for i = 1 to nLen
 			if NOT Q(aLists[i]).ContainsCS(pItem, pCaseSensitive)
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -2463,11 +2463,11 @@ class stzListOfLists from stzList
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		nResult = TRUE
+		nResult _TRUE_
 
 		for i = 1 to nLen
 			if len(aContent[i]) != n
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -2647,7 +2647,7 @@ class stzListOfLists from stzList
 
 		aLists = @aContent
 
-		if pCaseSensitive = FALSE
+		if pCaseSensitive _FALSE_
 			aLists = This.Lowercased()
 		ok
 
@@ -2671,11 +2671,11 @@ class stzListOfLists from stzList
 	
 		for i = 1 to nLenItems
 
-			bExistsInAllLists = TRUE
+			bExistsInAllLists _TRUE_
 			for j = 1 to nLenLists
 
 				if ring_find(aLists[j], aItems[i]) = 0
-					bExistsInAllLists = FALSE
+					bExistsInAllLists _FALSE_
 					exit
 				ok
 			next
@@ -4303,11 +4303,11 @@ class stzListOfLists from stzList
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult = TRUE
+		bResult _TRUE_
 
 		for i = 1 to nLen
 			if NOT (isList(aContent[i]) and len(aContent[i]) = 2)
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -4361,7 +4361,7 @@ class stzListOfLists from stzList
 
 	func AreContiguous()
 
-		bResult = TRUE
+		bResult _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
@@ -4374,7 +4374,7 @@ class stzListOfLists from stzList
 				if @IsListOfNumbers(aList)
 					for j = 2 to nLenList
 						if NOT aList[j] = aList[j-1] + 1
-							bResult = FALSE
+							bResult _FALSE_
 							exit
 						ok
 					next
@@ -4382,14 +4382,14 @@ class stzListOfLists from stzList
 				but @IsListOfChars(aList)
 					for j = 2 to nLenList
 						if NOT ascii(aList[j]) = ascii(aList[j-1]) + 1
-							bResult = FALSE
+							bResult _FALSE_
 							exit
 						ok
 					next
 				ok
 			ok
 
-			if bResult = FALSE
+			if bResult _FALSE_
 				exit
 			ok
 

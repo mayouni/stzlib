@@ -103,7 +103,7 @@ func StzCharClass()
 
 func IsAsciiChar(c)
 	if NOT isString(c)
-		return FALSE
+		return _FALSE_
 	ok
 
 	return StzCharQ(c).IsAscii()
@@ -124,27 +124,27 @@ func IsAsciiChar(c)
 func IsChar(pStrOrNbr)
 	if isString(pStrOrNbr)
 		if isNumber(Unicode(pStrOrNbr))
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	but isNumber(pStrOrNbr)
 
 		cStringified = ""+ pStrOrNbr
 		if ring_substr1(cStringified, ".") > 0
-			return FALSE
+			return _FALSE_
 		ok
 
 		n = 0+ cStringified
 		if n < 0 or n > 9
-			return FALSE
+			return _FALSE_
 		ok
 
-		return TRUE
+		return _TRUE_
 
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsChar(pcStr)
@@ -161,7 +161,7 @@ func IsChar(pStrOrNbr)
 
 func IsLetter(pcStr)
 	if NOT isString(pcStr)
-		return FALSE
+		return _FALSE_
 	ok
 
 	oStzChar = new stzChar(pcStr)
@@ -461,14 +461,14 @@ func StzIsVowel(cCharOrStr) # A more general alternative of Ring isVowel()
 		ok
 	ok
 
-	bResult = TRUE
+	bResult _TRUE_
 
 	acChars = StzStringQ(cCharOrStr).Chars()
 	nLen = len(acChars)
 
 	for i = 1 to nLen
 		if NOT ring_isvowel( acChars[i] )
-			bResult = FALSE
+			bResult _FALSE_
 			exit
 		ok
 	next
@@ -496,11 +496,11 @@ func StzIsVowel(p) # Can be char, a string or a list of chars or strings
 	ok
 
 	nLen = len(p)
-	bResult = TRUE
+	bResult _TRUE_
 
 	for i = 1 to nLen
 		if NOT StzIsVowel(p[i])
-			bResult = FALSE
+			bResult _FALSE_
 			exit
 		ok
 	next
@@ -568,7 +568,7 @@ class stzChar from stzObject
 			StzRaise(stzCharError(:CanNotCreateCharObjectForThisType))
 		ok
 
-		if KeepingHistory() = TRUE
+		if KeepingHistory() _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -606,7 +606,7 @@ class stzChar from stzObject
 		return @oQChar
 
 	def IsEmpty()
-		return FALSE	# stzChar can never host an empty char
+		return _FALSE_	# stzChar can never host an empty char
 
 	def Copy()
 		oCopy = new stzChar( This.Content() )
@@ -615,12 +615,12 @@ class stzChar from stzObject
 	#---
 
 	def IsAString()
-		return TRUE
+		return _TRUE_
 
 	#---
 
 	def Update(pChar)
-		if CheckingParams() = TRUE
+		if CheckingParams() _TRUE_
 			if isList(pChar) and Q(pChar).IsWithOrByOrUsingNamedParam()
 				pChar = pChar[2]
 			ok
@@ -640,7 +640,7 @@ class stzChar from stzObject
 			StzRaise("Can't update the char!")
 		ok
 
-		if KeepingHisto() = TRUE
+		if KeepingHisto() _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -716,9 +716,9 @@ class stzChar from stzObject
 		# Read not in Name() function below
 
 		if This.Name() != "@CantRetriveTheName"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def Name()
@@ -747,11 +747,11 @@ class stzChar from stzObject
 
 	def NameIs(pcName)
 		if NOT isString(pcName)
-			return FALSE
+			return _FALSE_
 		ok
 
 		cName = This.Name()
-		return StzStringQ(pcName).IsEqualToCS( cName, :CS = FALSE )
+		return StzStringQ(pcName).IsEqualToCS( cName, :CS _FALSE_ )
 
 	def AsciiCode()
 		try
@@ -849,9 +849,9 @@ class stzChar from stzObject
 
 	def IsVowel()
 		if ring_find( Vowels(), This.Content() ) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsAVowel()
@@ -862,24 +862,24 @@ class stzChar from stzObject
 
 	def IsLeftToRight()
 		if This.UnicodeDirectionNumber() = "0"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsRightToLeft()
 		if This.UnicodeDirectionNumber() = "13"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsArabicFraction()
 		oList = new stzList(ArabicFractionsUnicodes())
 		if oList.Contains(This.Unicode())
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsEuropeanDigit()
@@ -887,16 +887,16 @@ class stzChar from stzObject
 
 	def IsEuropeanNumberSeparator()
 		if This.UnicodeDirectionNumber() = "3"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsEuropeanNumberTerminator()
 		if This.UnicodeDirectionNumber() = "4"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsIndianDigit()
@@ -907,45 +907,45 @@ class stzChar from stzObject
 
 		for cDigit in IndianDigits()
 			if cDigit = This.Content()
-				return TRUE
+				return _TRUE_
 			ok
 		end
-		return FALSE
+		return _FALSE_
 
 	def IsCommonNumberSeparator()
 		if This.UnicodeDirectionNumber() = "6"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsParagraphSeparator()
 		if This.UnicodeDirectionNumber() = "7"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsSectionSeparator()
 		if This.UnicodeDirectionNumber() = "8"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsWhitespace()
 		if This.UnicodeDirectionNumber() = "9"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOrientationNeutral()
 		if This.UnicodeDirectionNumber() = "10" or
 		   This.IsANumber()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForm
@@ -959,18 +959,18 @@ class stzChar from stzObject
 	// allows embedded text to interact with surrounding content
 	def IsLeftToRightEmbedding()
 		if This.UnicodeDirectionNumber() = "11"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	// Overrides the bidirectional algorithm to display Chars in
 	// memory order, progressing from left to right
 	def IsLeftToRightOverride()
 		if This.UnicodeDirectionNumber() = "12"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsLeftToRightIsolate()
@@ -981,16 +981,16 @@ class stzChar from stzObject
 
 	def IsRightToLeftArabic()
 		if This.UnicodeDirectionNumber() = "13"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsRightToLeftEmbedding()
 		if This.UnicodeDirectionNumber() = "14"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	/*
@@ -1004,30 +1004,30 @@ class stzChar from stzObject
 	*/
 	def IsRightToLeftOverride()
 		if This.UnicodeDirectionNumber() = "15"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsPopDirectionalFormat()
 		if This.UnicodeDirectionNumber() = "16"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsNonSpacingMark()
 		if This.UnicodeDirectionNumber() = "17"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsBoundaryNeutral()
 		if This.UnicodeDirectionNumber() = "18"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	  #----------------------#
@@ -1064,10 +1064,10 @@ class stzChar from stzObject
 
 	def IsLetter()
 		oTempStr = new stzString( This.UnicodeCategory() )
-		if oTempStr.ContainsCS("letter", :CS = FALSE) or This.IsArabicShaddah() 
-			return TRUE
+		if oTempStr.ContainsCS("letter", :CS _FALSE_) or This.IsArabicShaddah() 
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsALetter()
@@ -1081,9 +1081,9 @@ class stzChar from stzObject
 
 	def IsLetterOrSpaceOrChar(c)
 		if This.IsLetter() or This.IsSpace() or This.Content() = "c"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTheLetter(c)
@@ -1091,9 +1091,9 @@ class stzChar from stzObject
 
 	def IsLetterOrNumber()
 		if This.IsLetter() or This.IsANumber()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForm
@@ -1114,9 +1114,9 @@ class stzChar from stzObject
 	def IsLetterOrSpace()
 
 		if This.IsLetter() or This.IsSpace()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForm
@@ -1128,9 +1128,9 @@ class stzChar from stzObject
 
 	def IsLetterOrSpaceOrThisChar(pcChar)
 		if This.IsLetter() or This.IsSpace() or This.Content() = pcChar
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForm
@@ -1143,9 +1143,9 @@ class stzChar from stzObject
 	def IsEuropean()
 		if This.IsEuropeanNumber() or This.IsEuropeanNumberSeparator() or
 		   This.IsEuropeanNumberTerminator()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 		
 	def IsSpace()
@@ -1156,9 +1156,9 @@ class stzChar from stzObject
 		This.IsRomanNumber() or
 		This.IsMandarinNumber() or
 		This.IsIndianNumber()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsNotNumber()
@@ -1167,9 +1167,9 @@ class stzChar from stzObject
 	def IsDigit()
 		oTempStr = new stzString( This.UnicodeCategory() )
 		if oTempStr.Contains("decimaldigit")
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		/*
@@ -1203,16 +1203,16 @@ class stzChar from stzObject
 	def IsIndianNumber()
 		for c in IndianDigits()
 			if c = This.Content()
-				return TRUE
+				return _TRUE_
 			ok
 		next
-		return FALSE
+		return _FALSE_
 
 	def IsRomanNumber()
 		if Q(This.Content()).ExistsIn( RomanNumbers() )
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMandarinNumber()
@@ -1222,10 +1222,10 @@ class stzChar from stzObject
 	def IsAscii()
 		try
 			ascii( This.Content() )
-			return TRUE
+			return _TRUE_
 
 		catch
-			return FALSE
+			return _FALSE_
 		done
 
 	def IsAsciiLetter()
@@ -1234,16 +1234,16 @@ class stzChar from stzObject
 	def IsPunctuation()
 		/*
 		oTempStr = new stzString( This.UnicodeCategory() )
-		if oTempStr.ContainsCS("punctuation", :CaseSensitive = FALSE)
-			return TRUE
+		if oTempStr.ContainsCS("punctuation", :CaseSensitive _FALSE_)
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		--> A faster solution hereafter...
 		*/
 
-		bResult = This.CharTypeQ().ContainsCS("punctuation", :CaseSensitive = FALSE)
+		bResult = This.CharTypeQ().ContainsCS("punctuation", :CaseSensitive _FALSE_)
 		return bResult
 
 		def IsPunct()
@@ -1259,10 +1259,10 @@ class stzChar from stzObject
 
 	def IsSymbol()
 		oTempStr = new stzString( This.UnicodeCategory() )
-		if oTempStr.ContainsCS("symbol", :CaseSensitive = FALSE)
-			return TRUE
+		if oTempStr.ContainsCS("symbol", :CaseSensitive _FALSE_)
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#TODO // A quicker solution would be possible if we create a global
@@ -1278,10 +1278,10 @@ class stzChar from stzObject
 	
 	def IsMark()
 		oTempStr = new stzString( This.UnicodeCategory() )
-		if oTempStr.ContainsCS("mark", :CaseSensitive = FALSE)
-			return TRUE
+		if oTempStr.ContainsCS("mark", :CaseSensitive _FALSE_)
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#TODO // A quicker solution would be possible if we create a global
@@ -1294,10 +1294,10 @@ class stzChar from stzObject
 
 	def IsSeparator() # In the UNICODE sense!
 		oTempStr = new stzString( This.UnicodeCategory() )
-		if oTempStr.ContainsCS("separator", :CaseSensitive = FALSE)
-			return TRUE
+		if oTempStr.ContainsCS("separator", :CaseSensitive _FALSE_)
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#TODO // A quicker solution would be possible if we create a global
@@ -1325,24 +1325,24 @@ class stzChar from stzObject
 		ok
 
 		if ring_find(pacChars, This.Char()) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 
 	def IsWordSeparator()
 		if ring_find( WordSeparators(), This.Char() ) >  0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsSentenceSeparator()
 		if ring_find( SentenceSeparators(), This.Char() ) >  0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsLineSeparator()
@@ -1563,9 +1563,9 @@ class stzChar from stzObject
 
 	def IsLocaleSeparator()
 		if This.Content() = "-" or This.Content() = "_"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	  #--------------------------------#
@@ -1675,1114 +1675,1114 @@ class stzChar from stzObject
 			
 	def IsUnknownScript()
 		if This.ScriptCode() = 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsInheritedScript()
 		if This.ScriptCode() = 1
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsCommonScript()
 		if This.ScriptCode() = 2
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsLatinScript()
 		if This.ScriptCode() = 3
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsGreekScript()
 		if This.ScriptCode() = 4
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsCyrillicScript()
 		if This.ScriptCode() = 5
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsArmenianScript()
 		if This.ScriptCode() = 6
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsHebrewScript()
 		if This.ScriptCode() = 7
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsArabicScript()
 		if This.ScriptCode() = 8
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsSyriacScript()
 		if This.ScriptCode() = 9
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsThaanaScript()
 		if This.ScriptCode() = 10
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsDevanagariScript()
 		if This.ScriptCode() = 11
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsBengaliScript()
 		if This.ScriptCode() = 12
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsGurmukhiScript()
 		if This.ScriptCode() = 13
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsGujaratiScript()
 		if This.ScriptCode() = 14
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOriyaScript()
 		if This.ScriptCode() = 15
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTamilScript()
 		if This.ScriptCode() = 16
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTeluguScript()
 		if This.ScriptCode() = 17
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsKannadaScript()
 		if This.ScriptCode() = 18
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMalayalamScript()
 		if This.ScriptCode() = 19
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsSinhalaScript()
 		if This.ScriptCode() = 20
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsThaiScript()
 		if This.ScriptCode() = 21
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsLaoScript()
 		if This.ScriptCode() = 22
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTibetanScript()
 		if This.ScriptCode() = 23
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMyanmarScript()
 		if This.ScriptCode() = 24
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsGeorgianScript()
 		if This.ScriptCode() = 25
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsHangulScript()
 		if This.ScriptCode() = 26
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsEthiopicScript()
 		if This.ScriptCode() = 27
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsCherokeeScript()
 		if This.ScriptCode() = 28
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsCanadianAboriginalScript()
 		if This.ScriptCode() = 29
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOghamScript()
 		if This.ScriptCode() = 30
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsRunicScript()
 		if This.ScriptCode() = 31
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsKhmerScript()
 		if This.ScriptCode() = 32
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMongolianScript()
 		if This.ScriptCode() = 33
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsHiraganaScript()
 		if This.ScriptCode() = 34
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsKatakanaScript()
 		if This.ScriptCode() = 35
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsBopomofoScript()
 		if This.ScriptCode() = 36
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsHanScript()
 		if This.ScriptCode() = 37
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsYiScript()
 		if This.ScriptCode() = 38
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOldItalicScript()
 		if This.ScriptCode() = 39
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsGothicScript()
 		if This.ScriptCode() = 40
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsDeseretScript()
 		if This.ScriptCode() = 41
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTagalogScript()
 		if This.ScriptCode() = 42
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsHanunooScript()
 		if This.ScriptCode() = 43
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsBuhidScript()
 		if This.ScriptCode() = 44
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTagbanwaScript()
 		if This.ScriptCode() = 45
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsCopticScript()
 		if This.ScriptCode() = 46
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsLimbuScript()
 		if This.ScriptCode() = 47
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTaiLeScript()
 		if This.ScriptCode() = 48
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsLinearBScript()
 		if This.ScriptCode() = 49
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsUgariticScript()
 		if This.ScriptCode() = 50
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsShavianScript()
 		if This.ScriptCode() = 51
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOsmanyaScript()
 		if This.ScriptCode() = 52
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsCypriotScript()
 		if This.ScriptCode() = 53
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsBrailleScript()
 		if This.ScriptCode() = 54
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsBugineseScript()
 		if This.ScriptCode() = 55
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsNewTaiLueScript()
 		if This.ScriptCode() = 56
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsGlagoliticScript()
 		if This.ScriptCode() = 57
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTifinaghScript()
 		if This.ScriptCode() = 58
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsSylotiNagriScript()
 		if This.ScriptCode() = 59
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOldPersianScript()
 		if This.ScriptCode() = 60
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsKharoshthiScript()
 		if This.ScriptCode() = 61
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsBalineseScript()
 		if This.ScriptCode() = 62
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsCuneiformScript()
 		if This.ScriptCode() = 63
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsPhoenicianScript()
 		if This.ScriptCode() = 64
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsPhagsPaScript()
 		if This.ScriptCode() = 65
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsNkoScript()
 		if This.ScriptCode() = 66
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsSundaneseScript()
 		if This.ScriptCode() = 67
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsLepchaScript()
 		if This.ScriptCode() = 68
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOlChikiScript()
 		if This.ScriptCode() = 69
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsVaiScript()
 		if This.ScriptCode() = 70
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsSaurashtraScript()
 		if This.ScriptCode() = 71
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsKayahLiScript()
 		if This.ScriptCode() = 72
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsRejangScript()
 		if This.ScriptCode() = 73
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsLycianScript()
 		if This.ScriptCode() = 74
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsCarianScript()
 		if This.ScriptCode() = 75
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsLydianScript()
 		if This.ScriptCode() = 76
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsChamScript()
 		if This.ScriptCode() = 77
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def TaiThamScript()
 		if This.ScriptCode() = 78
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTaiVietScript()
 		if This.ScriptCode() = 79
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsAvestanScript()
 		if This.ScriptCode() = 80
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsEgyptianHieroglyphsScript()
 		if This.ScriptCode() = 81
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsSamaritanScript()
 		if This.ScriptCode() = 82
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsLisuScript()
 		if This.ScriptCode() = 83
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsBamumScript()
 		if This.ScriptCode() = 84
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsJavaneseScript()
 		if This.ScriptCode() = 85
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMeeteiMayekScript()
 		if This.ScriptCode() = 86
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsImperialAramaicScript()
 		if This.ScriptCode() = 87
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOldSouthArabianScript()
 		if This.ScriptCode() = 88
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsInscriptionalParthianScript()
 		if This.ScriptCode() = 89
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 	def IsInscriptionalPahlaviScript()
 		if This.ScriptCode() = 90
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOldTurkicScript()
 		if This.ScriptCode() = 91
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsKaithiScript()
 		if This.ScriptCode() = 92
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsBatakScript()
 		if This.ScriptCode() = 93
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsBrahmiScript()
 		if This.ScriptCode() = 94
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMandaicScript()
 		if This.ScriptCode() = 95
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsChakmaScript()
 		if This.ScriptCode() = 96
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMeroiticCursiveScript()
 		if This.ScriptCode() = 97
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMeroiticHieroglyphsScript()
 		if This.ScriptCode() = 98
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMiaoScript()
 		if This.ScriptCode() = 99
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsSharadaScript()
 		if This.ScriptCode() = 100
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsSoraSompengScript()
 		if This.ScriptCode() = 101
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTakriScript()
 		if This.ScriptCode() = 102
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsCaucasianAlbanianScript()
 		if This.ScriptCode() = 103
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsBassaVahScript()
 		if This.ScriptCode() = 104
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsDuployanScript()
 		if This.ScriptCode() = 105
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsElbasanScript()
 		if This.ScriptCode() = 106
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsGranthaScript()
 		if This.ScriptCode() = 107
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsPahawhHmongScript()
 		if This.ScriptCode() = 108
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsKhojkiScript()
 		if This.ScriptCode() = 109
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsLinearAScript()
 		if This.ScriptCode() = 110
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMahajaniScript()
 		if This.ScriptCode() = 111
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsManichaeanScript()
 		if This.ScriptCode() = 112
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMendeKikakuiScript()
 		if This.ScriptCode() = 113
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsModiScript()
 		if This.ScriptCode() = 114
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMroScript()
 		if This.ScriptCode() = 115
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOldNorthArabianScript()
 		if This.ScriptCode() = 116
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsNabataeanScript()
 		if This.ScriptCode() = 117
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsPalmyreneScript()
 		if This.ScriptCode() = 118
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsPauCinHauScript()
 		if This.ScriptCode() = 119
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOldPermicScript()
 		if This.ScriptCode() = 120
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsPsalterPahlaviScript()
 		if This.ScriptCode() = 121
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsSiddhamScript()
 		if This.ScriptCode() = 122
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsKhudawadiScript()
 		if This.ScriptCode() = 123
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTirhutaScript()
 		if This.ScriptCode() = 124
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsWarangCitiScript()
 		if This.ScriptCode() = 125
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsAhomScript()
 		if This.ScriptCode() = 126
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsAnatolianHieroglyphsScript()
 		if This.ScriptCode() = 127
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsHatranScript()
 		if This.ScriptCode() = 128
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMultaniScript()
 		if This.ScriptCode() = 129
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOldHungarianScript()
 		if This.ScriptCode() = 130
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsSignWritingScript()
 		if This.ScriptCode() = 131
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsAdlamScript()
 		if This.ScriptCode() = 132
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsBhaiksukiScript()
 		if This.ScriptCode() = 133
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMarchenScript()
 		if This.ScriptCode() = 134
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsNewaScript()
 		if This.ScriptCode() = 135
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOsageScript()
 		if This.ScriptCode() = 136
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTangutScript()
 		if This.ScriptCode() = 137
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMasaramGondiScript()
 		if This.ScriptCode() = 138
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsNushuScript()
 		if This.ScriptCode() = 139
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsSoyomboScript()
 		if This.ScriptCode() = 140
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsZanabazarSquareScript()
 		if This.ScriptCode() = 141
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsDograScript()
 		if This.ScriptCode() = 142
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsGunjalaGondiScript()
 		if This.ScriptCode() = 143
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsHanifiRohingyaScript()
 		if This.ScriptCode() = 144
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMakasarScript()
 		if This.ScriptCode() = 145
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsMedefaidrinScript()
 		if This.ScriptCode() = 146
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOldSogdianScript()
 		if This.ScriptCode() = 147
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsSogdianScript()
 		if This.ScriptCode() = 148
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsElymaicScript()
 		if This.ScriptCode() = 149
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsNandinagariScript()
 		if This.ScriptCode() = 150
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsNyiakengPuachueHmongScript()
 		if This.ScriptCode() = 151
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsWanchoScript()
 		if This.ScriptCode() = 152
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsChorasmianScript()
 		if This.ScriptCode() = 153
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsDivesAkuruScript()
 		if This.ScriptCode() = 154
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsKhitanSmallScriptScript()
 		if This.ScriptCode() = 155
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsYezidiScript()
 		if This.ScriptCode() = 156
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTurnedChar()
 		if ring_find(TurnedChars(), This.Content()) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsArabicShaddah()
 		if This.Unicode() = 1617
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsArabic7arakah()
@@ -2972,9 +2972,9 @@ class stzChar from stzObject
 		n = ring_find(InvertedChars(), cChar)
 
 		if n > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -2998,7 +2998,7 @@ class stzChar from stzObject
 	#====================#
 
 	def IsChar()
-		return TRUE
+		return _TRUE_
 
 	def IsCharOf(pcString)
 		return StzStringQ(pcString).Contains(This.Content())
@@ -3017,7 +3017,7 @@ class stzChar from stzObject
 		return StzStringQ(This.Content()).DownTo(pcOtherChar)
 
 	def IsStzChar()
-		return TRUE
+		return _TRUE_
 
 	def stzType()
 		return :stzChar

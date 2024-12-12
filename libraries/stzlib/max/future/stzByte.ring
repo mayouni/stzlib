@@ -8,9 +8,9 @@ func StzByteQ(aByte)
 func IsListOfBits(paList)
 	oList = new stzListOfNumbers(paList)
 	if oList.IsListOfBits()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsListOfBits()

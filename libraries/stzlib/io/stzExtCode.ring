@@ -16,14 +16,14 @@
 _aTempVars = []
 _aVars = []	# the list of all temp vars and their values
 
-_bVarReset = FALSE
+_bVarReset _FALSE_
 _var = []	# Current temp var and its value
 _oldVar = []	# A copy of the temp var before it is changed
 
 console = new console
 None = NULL
 
-_b = false 	# Used for ternary operators in C
+_b _FALSE_ 	# Used for ternary operators in C
 _bv = null	# Idem
 
 say = new say	# Raku / Perl language
@@ -398,8 +398,8 @@ func Length(p)
 # Used for ternary operator in Python
 
 func _if(pExpressionOrBoolean)
-	_bVarReset = FALSE
-	bTemp = TRUE
+	_bVarReset _FALSE_
+	bTemp _TRUE_
 
 	if isString(pExpressionOrBoolean)
 		cCode = 'bTemp = (' + pExpressionOrBoolean + ')'
@@ -409,8 +409,8 @@ func _if(pExpressionOrBoolean)
 		bTemp = pExpressionOrBoolean
 	ok
 
-	if bTemp = FALSE
-		_bVarReset = TRUE
+	if bTemp _FALSE_
+		_bVarReset _TRUE_
 	ok
 
 	func if_(pExpressionOrBoolean)
@@ -431,7 +431,7 @@ func _else(value)
 	nLen = len(aValues)
 	acTempVarsNames = TempVarsNames()
 
-	if _bVarReset = TRUE
+	if _bVarReset _TRUE_
 		for i = 1 to nLen
 			setV([ acTempVarsNames[i], aValues[i] ])
 		next
@@ -447,7 +447,7 @@ func b(e)
 
 func bv(val1, val2)
 	nLen = len(_aVars)
-	if _b = true
+	if _b _TRUE_
 		_aVars[nLen][2] = val1
 	else
 		_aVars[nLen][2] = val2
@@ -455,13 +455,13 @@ func bv(val1, val2)
 
 func bt(val)
 	nLen = len(_aVars)
-	if _b = true
+	if _b _TRUE_
 		_aVars[nLen][2] = val
 	ok
 
 func bf(val)
 	nLen = len(_aVars)
-	if _b = false
+	if _b _FALSE_
 		_aVars[nLen][2] = val
 	ok
 
@@ -977,7 +977,7 @@ func WHERE_(pcCondition) #NOTE: Where() is used in an other place
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-		if NOT Q(pcCondition).ContainsOneOfTheseCS(_oIntermediateTable.ColsNames(), :CS = FALSE)
+		if NOT Q(pcCondition).ContainsOneOfTheseCS(_oIntermediateTable.ColsNames(), :CS _FALSE_)
 			StzRaise("Incorrect param type! The pcCondition must contain columns names of the stzTable object managed by the SQL statement.")
 		ok
 	ok

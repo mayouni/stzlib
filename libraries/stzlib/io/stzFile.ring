@@ -202,9 +202,9 @@ class stzFile from stzObject
 	def Close()
 		try
 			oQFile.close()
-			return TRUE
+			return _TRUE_
 		catch
-			return FALSE
+			return _FALSE_
 		done
 
 	  #---------------#

@@ -264,9 +264,9 @@ class XString from BaseString
 		try
 			result = This.Xf(FuncOrFuncAndParams)
 			This.UpdateWith(result)
-			return TRUE
+			return _TRUE_
 		catch
-			return FALSE
+			return _FALSE_
 		done
 
 	def Xf(FuncOrFuncAndParams)

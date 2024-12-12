@@ -104,10 +104,10 @@ In Softanza, as a general principle, anything that works for strings will work t
 **Example**:
 
 ```ring
-? @@( StzStringQ("ABRACADABRA").**FindDuplicates()** )
+? @@( StzStringQ("ABRACADABRA").FindDuplicates() )
 #--> [ 4, 6, 8, 9, 10, 11 ]
 
-? @@( StzListQ(@Chars("ABRACADABRA")).**FindDuplicates()** )
+? @@( StzListQ(@Chars("ABRACADABRA")).FindDuplicates() )
 #--> [ 4, 6, 8, 9, 10, 11 ]
 ```
 
@@ -120,8 +120,8 @@ The `XT()` suffix, when appended to a Softanza function, signifies an e**XT**end
 **Example**:
 ```ring
 o1 = new stzString("text with something at the right")
-? o1.NRightChars(5)     #--> the **list of chars** [ "r", "i", "g", "h", "t" ]
-? o1.NRightChars**XT**(5)   #--> the **string** "right"
+? o1.NRightChars(5)     #--> the list of chars [ "r", "i", "g", "h", "t" ]
+? o1.NRightCharsXT(5)   #--> the **string "right"
 ```
 
 As you can see, the **XT** suffix forces the output to be a **string** rather than a **list** of characters, which is the basic output.
@@ -136,10 +136,12 @@ If you try `o1.FindZ()` instead of `o1.FindZZ()` on any Softanza `o1` object, be
 
 **Example**:
 ```ring
-? Q("Programming in Softanza is prog**ramm**ing by heart!").FindZ("ramm") # Or simply Find() without Z
+o1 = new stzString("Programming in Softanza is programming by heart!")
+
+? o1.FindZ("ramm") # Or simply Find() without Z
 #--> [ 5, 32 ]
 
-? Q("Programming in Softanza is programming by heart!").FindZZ("ramm") # Or FindAsSections()
+? o1.FindZZ("ramm") # Or FindAsSections()
 #--> [ [ 5, 8 ], [ 32, 35 ] ]
 ```
 
@@ -147,7 +149,7 @@ If you try `o1.FindZ()` instead of `o1.FindZZ()` on any Softanza `o1` object, be
 
 ## Method Chaining: A Tool for Fluid Design Thinking
 
-**Method chaining** in Softanza enables the fluent design of transformation pipelines by simply appending the method you want to chain with a small `...Q()`.
+Method chaining in Softanza enables the fluent design of transformation pipelines by simply appending the method you want to chain with a small `...Q()`.
 
 **Example**:
 ```ring

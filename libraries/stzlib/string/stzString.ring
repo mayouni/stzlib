@@ -126,9 +126,9 @@ func @IsAlnum(cStr)
 
 func IsNullString(cStr)
 	if isString(cStr) and cStr != NULL
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -246,9 +246,9 @@ func StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	but isList(pStrOrList)
 		nPos = @FindFirstCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 		if nPos > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 	else
 		StzRaise("Can't proceed! pStrOrList must be a string or list.")
@@ -268,25 +268,25 @@ func StzContains(pStrOrList, pSubStrOrItem)
 func StringContainsCS(pcStr, pcSubStr, pCaseSensitive)
 	if pcStr = "" or
 	   pcSubStr = ""
-		return FALSE
+		return _FALSE_
 	ok
 
 	bCase = CaseSensitive(pCaseSensitive)
 
-	if bCase = TRUE
+	if bCase _TRUE_
 		if ring_substr1(pcStr, pcSubStr) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 	else
 		cStrLow = lower(pcStr)
 		cSubStrLow = lower(pcSubStr)
 
 		if ring_substr1(cStrLow, cSubStrLow) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	ok
@@ -665,9 +665,9 @@ func StringTitlecased(cStr)
 
 func IsSorted(pcStrOrList)
 	if IsSortedString(pcStrOrList) or IsSortedList(pcStrOrList)
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsSorted(pcStrOrList)
@@ -675,9 +675,9 @@ func IsSorted(pcStrOrList)
 
 func IsSortedInAscending(pcStrOrList)
 	if IsSortedStringInAscending(pcStrOrList) or IsSortedListInAscending(pcStrOrList)
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -697,9 +697,9 @@ func IsSortedInAscending(pcStrOrList)
 
 func IsSortedInDescending(pcStrOrList)
 	if IsSortedStringInDescending(pcStrOrList) or IsSortedListInDescending(pcStrOrList)
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -719,9 +719,9 @@ func IsSortedInDescending(pcStrOrList)
 
 func IsSortedString(pcStr)
 	if IsSortedStringInAscending(pcStr) or IsSortedStringInDescending(pcStr)
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -741,7 +741,7 @@ func IsSortedString(pcStr)
 
 func IsSortedStringInAscending(pcStr)
 	if NOT isString(pcStr)
-		return FALSE
+		return _FALSE_
 	ok
 
 	return StzStringQ(pcStr).IsSortedInAscending()
@@ -786,7 +786,7 @@ func IsSortedStringInAscending(pcStr)
 func IsSortedStringInDescending(pcStr)
 
 	if NOT isString(pcStr)
-		return FALSE
+		return _FALSE_
 	ok
 
 	return StzStringQ(pcStr).IsSortedInDescending()
@@ -996,7 +996,7 @@ func StringCountCS(pcStr, pcSubStr, pCaseSensitive)
 	_cTempStr_ = pcStr
 	_cSubStr_ = pcSubStr
 
-	if bCase = FALSE
+	if bCase _FALSE_
 		_cTempStr_ = ring_lower(_cTempStr_)
 		_cSubStr_  = ring_lower(_cSubStr_)
 	ok
@@ -1143,13 +1143,13 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 		if ring_find([
 			:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive) > 0
 
-			pCaseSensitive = TRUE
+			pCaseSensitive _TRUE_
 			
 		but ring_find([
 			:CaseInSensitive, :NotCaseSensitive, :NotCS,
 			:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive) > 0
 
-			pCaseSensitive = FALSE
+			pCaseSensitive _FALSE_
 		ok
 
 	ok
@@ -1160,16 +1160,16 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 
 	# Doing the job
 
-	bResult = TRUE
+	bResult _TRUE_
 	nLen = len(pacStr)
 
-	if pCaseSensitive = TRUE
+	if pCaseSensitive _TRUE_
 		
 		cFirstStr = StzStringQ(pacStr[1]).Lowercased()
 		
 		for i = 2 to nLen
 			if StzStringQ(pacStr[i]).Lowercased() != cFirstStr
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok 
 		next
@@ -1181,7 +1181,7 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 		
 		for i = 1 to nLen
 			if pacStr[i] != cFirstStr
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -1323,9 +1323,9 @@ func BothAreMarquers(pcStr1, pcStr2)
 	if BothAreStrings(pcStr1, pcStr2) and
 	   Q(pcStr1).IsMarquer() and Q(pcStr2).IsMarquer()
 
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @BothAreMarquers(pcStr1, pcStr2)
@@ -1364,7 +1364,7 @@ func IsRealInString(str)
 func @IsPalindrome(p)
 	if isList(p)
 		if len(p) < 2
-			return FALSE
+			return _FALSE_
 		ok
 
 		return StzListQ(p).IsPalindrome()
@@ -1372,7 +1372,7 @@ func @IsPalindrome(p)
 	but isString(p)
 		oStr = new stzString(p)
 		if oStr.NumberOfChars() < 2
-			return FALSE
+			return _FALSE_
 		ok
 
 		return StzStringQ(p).IsPalindrome()
@@ -1481,7 +1481,7 @@ class stzString from stzObject
 		@oQString = new QString2()
 		@oQString.append(pcStr)
 
-		if KeepingHistory() = TRUE
+		if KeepingHistory() _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -1510,7 +1510,7 @@ class stzString from stzObject
 
 		StzStringQ(cCondition) {
 
-			ReplaceCS("@string", @str, :CS = FALSE)
+			ReplaceCS("@string", @str, :CS _FALSE_)
 			Simplify()
 			RemoveTheseBounds("{", "}")
 
@@ -1520,7 +1520,7 @@ class stzString from stzObject
 		cCode  = 'bResult = ""+ (' + cCondition + ')'
 		eval(cCode)
 
-		if bResult = FALSE
+		if bResult _FALSE_
 			stzRaise([
 				:Where = "stzString.ring > VerifyCondition()",
 				:What  = "Execution is cancelled by Softanza",
@@ -1531,11 +1531,11 @@ class stzString from stzObject
 		ok
 
 	def VerifyConstraints()
-		bResult = TRUE
+		bResult _TRUE_
 
 		for aPair in This.Constraints()
 			cConstraintName = aPair[1]
-			This.VerifyConstraint(cConstraintName) = FALSE
+			This.VerifyConstraint(cConstraintName) _FALSE_
 			
 		next
 
@@ -1601,14 +1601,14 @@ class stzString from stzObject
 
 	def IsPalindromeCS(pCaseSensitive)
 		if This.NumberOfChars() < 2
-			return FALSE
+			return _FALSE_
 		ok
 
 		cReversed = This.Reversed()
-		if This.IsEqualtToCS( cReversed, pCaseSensitive) = TRUE
-			return TRUE
+		if This.IsEqualtToCS( cReversed, pCaseSensitive) _TRUE_
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 
@@ -2912,9 +2912,9 @@ class stzString from stzObject
 		ok
 
 		if This.Lowercased() = This.String()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 
@@ -3254,9 +3254,9 @@ class stzString from stzObject
 		ok
 
 		if This.Uppercased() = This.String()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionFluentForm
@@ -3357,9 +3357,9 @@ class stzString from stzObject
 	def IsUppercaseInLocale(pLocale)
 
 		if This.UppercasedInLocale(pLocale) = This.String()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForm
@@ -4249,9 +4249,9 @@ class stzString from stzObject
 		ok
 
 		if This.CapitalCased() = This.String()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 		
 		#< @FunctionAlternativeForms
@@ -4425,9 +4425,9 @@ class stzString from stzObject
 		ok
 
 		if This.TitleCased() = This.String()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -4501,9 +4501,9 @@ class stzString from stzObject
 		ok
 
 		if This.Copy().CaseFolded() = This.Content()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		return bResult
@@ -4526,10 +4526,10 @@ class stzString from stzObject
 	def IsWord()
 
 		if This.IsEmpty() or This.IsNumberInString()
-			return FALSE
+			return _FALSE_
 		ok
 
-		bResult = TRUE
+		bResult _TRUE_
 
 		for i = 1 to This.NumberOfChars()
 			c = This.NthChar(i)
@@ -4543,7 +4543,7 @@ class stzString from stzObject
 			   oChar.IsNotArabic7arakah() and
 			   c != ArabicTamdeed()
 
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 
@@ -4597,13 +4597,13 @@ class stzString from stzObject
 				if ring_find([
 					:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive) > 0
 	
-					pCaseSensitive = TRUE
+					pCaseSensitive _TRUE_
 				
 				but ring_find([
 					:CaseInSensitive, :NotCaseSensitive, :NotCS,
 					:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive) > 0
 	
-					pCaseSensitive = FALSE
+					pCaseSensitive _FALSE_
 				ok
 	
 			ok
@@ -4617,7 +4617,7 @@ class stzString from stzObject
 
 		nResult = 0
 
-		if pCaseSensitive = TRUE
+		if pCaseSensitive _TRUE_
 			n = This.NumberOfChars()
 			nResult = n * (n + 1) / 2
 	
@@ -4674,7 +4674,7 @@ class stzString from stzObject
 
 		cContent = This.Content()
 
-		if IsCaseSensitive(pCaseSensitive) = FALSE
+		if IsCaseSensitive(pCaseSensitive) _FALSE_
 			cContent = ring_lower(cContent)
 		ok
 
@@ -4686,7 +4686,7 @@ class stzString from stzObject
 
 				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
 
-				if pCaseSensitive = TRUE
+				if pCaseSensitive _TRUE_
 					acResult + cSubStr
 
 				else
@@ -4760,7 +4760,7 @@ class stzString from stzObject
 
 		cContent = This.Content()
 
-		if IsCaseSensitive(pCaseSensitive) = FALSE
+		if IsCaseSensitive(pCaseSensitive) _FALSE_
 			cContent = ring_lower(cContent)
 		ok
 
@@ -4882,7 +4882,7 @@ class stzString from stzObject
 
 		cContent = This.Content()
 
-		if IsCaseSensitive(pCaseSensitive) = FALSE
+		if IsCaseSensitive(pCaseSensitive) _FALSE_
 			cContent = ring_lower(cContent)
 		ok
 
@@ -4893,7 +4893,7 @@ class stzString from stzObject
 			for j = i to nLen
 
 				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
-				if pCaseSensitive = TRUE
+				if pCaseSensitive _TRUE_
 					if ring_find(anResult, i) = 0
 						anResult + i
 					ok
@@ -5071,7 +5071,7 @@ class stzString from stzObject
 
 		cContent = This.Content()
 
-		if IsCaseSensitive(pCaseSensitive) = FALSE
+		if IsCaseSensitive(pCaseSensitive) _FALSE_
 			cContent = ring_lower(cContent)
 		ok
 
@@ -5082,7 +5082,7 @@ class stzString from stzObject
 			for j = i to nLen
 
 				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
-				if pCaseSensitive = TRUE
+				if pCaseSensitive _TRUE_
 					aResult + [ i, j ]
 					acSubStr + cSubStr
 				else
@@ -5167,14 +5167,14 @@ class stzString from stzObject
 		bChar = oCond.ContainsCS("@char", FALSE)
 		bSubStr = oCond.ContainsCS("@substring", FALSE)
 
-		if bChar = TRUE and bSubStr = TRUE
+		if bChar _TRUE_ and bSubStr _TRUE_
 			StzRaise("Incorrect syntax! pcCondition must contains @char or @substring keywor but not both.")
 		ok
 		
-		if bChar = TRUE and bSubStr = FALSE
+		if bChar _TRUE_ and bSubStr _FALSE_
 			return This.FindCharsWCS(pcCondition, pCaseSensitive)
 
-		but bSubStr = TRUE and bChar = FALSE and bPos = FALSE
+		but bSubStr _TRUE_ and bChar _FALSE_ and bPos _FALSE_
 			return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
 
 		else
@@ -5210,14 +5210,14 @@ class stzString from stzObject
 		bChar = oCond.ContainsCS("@char", FALSE)
 		bSubStr = oCond.ContainsCS("@substring", FALSE)
 
-		if bChar = TRUE and bSubStr = TRUE
+		if bChar _TRUE_ and bSubStr _TRUE_
 			StzRaise("Incorrect syntax! pcCondition must contains @char or @substring keywor but not both.")
 		ok
 		
-		if bChar = TRUE and bSubStr = FALSE
+		if bChar _TRUE_ and bSubStr _FALSE_
 			return This.FindCharsWCSZZ(pcCondition, pCaseSensitive)
 
-		but bSubStr = TRUE and bChar = FALSE and bPos = FALSE
+		but bSubStr _TRUE_ and bChar _FALSE_ and bPos _FALSE_
 			return This.FindSubStringsWCSZZ(pcCondition, pCaseSensitive)
 
 		else
@@ -5245,14 +5245,14 @@ class stzString from stzObject
 		bChar = oCond.ContainsCS("@char", FALSE)
 		bSubStr = oCond.ContainsCS("@substring", FALSE)
 
-		if bChar = TRUE and bSubStr = TRUE
+		if bChar _TRUE_ and bSubStr _TRUE_
 			StzRaise("Incorrect syntax! pcCondition must contains @char or @substring keyword but not both.")
 		ok
 		
-		if bChar = TRUE and bSubStr = FALSE
+		if bChar _TRUE_ and bSubStr _FALSE_
 			return This.FindCharsWCSXT(pcCondition, pCaseSensitive)
 
-		but bSubStr = TRUE and bChar = FALSE and bPos = FALSE
+		but bSubStr _TRUE_ and bChar _FALSE_ and bPos _FALSE_
 			return This.FindSubStringsWCSXT(pcCondition, pCaseSensitive)
 
 		else
@@ -5280,14 +5280,14 @@ class stzString from stzObject
 		bChar = oCond.ContainsCS("@char", FALSE)
 		bSubStr = oCond.ContainsCS("@substring", FALSE)
 
-		if bChar = TRUE and bSubStr = TRUE
+		if bChar _TRUE_ and bSubStr _TRUE_
 			StzRaise("Incorrect syntax! pcCondition must contains @char or @substring keywor but not both.")
 		ok
 		
-		if bChar = TRUE and bSubStr = FALSE
+		if bChar _TRUE_ and bSubStr _FALSE_
 			return This.FindCharsWCSXTZZ(pcCondition, pCaseSensitive)
 
-		but bSubStr = TRUE and bChar = FALSE
+		but bSubStr _TRUE_ and bChar _FALSE_
 			return This.FindSubStringsWCSXTZZ(pcCondition, pCaseSensitive)
 
 		else
@@ -5594,7 +5594,7 @@ class stzString from stzObject
 
 		cContent = This.Content()
 
-		if IsCaseSensitive(pCaseSensitive) = FALSE
+		if IsCaseSensitive(pCaseSensitive) _FALSE_
 			cContent = ring_lower(cContent)
 		ok
 
@@ -5772,7 +5772,7 @@ class stzString from stzObject
 
 		cContent = This.Content()
 
-		if IsCaseSensitive(pCaseSensitive) = FALSE
+		if IsCaseSensitive(pCaseSensitive) _FALSE_
 			cContent = ring_lower(cContent)
 		ok
 
@@ -5953,7 +5953,7 @@ class stzString from stzObject
 
 		cContent = This.Content()
 
-		if IsCaseSensitive(pCaseSensitive) = FALSE
+		if IsCaseSensitive(pCaseSensitive) _FALSE_
 			cContent = ring_lower(cContent)
 		ok
 
@@ -6007,7 +6007,7 @@ class stzString from stzObject
 
 		cContent = This.Content()
 
-		if IsCaseSensitive(pCaseSensitive) = FALSE
+		if IsCaseSensitive(pCaseSensitive) _FALSE_
 			cContent = ring_lower(cContent)
 		ok
 
@@ -7148,12 +7148,12 @@ class stzString from stzObject
 		nLen = len(acDigits)
 
 		cContent = This.Content()
-		bResult = FALSE
+		bResult _FALSE_
 
 		for i = 1 to nLen
 			n = This.FindFirst(acDigits[i])
 			if n > 0
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -7191,9 +7191,9 @@ class stzString from stzObject
 
 	def ContainsMarquers()
 		if This.NumberOfMarquers() > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	  #---------------------------------------#
@@ -7205,18 +7205,18 @@ class stzString from stzObject
 		nLen = This.NumberOfChars()
 
 		if nLen < 2
-			return FALSE
+			return _FALSE_
 		ok
 
 		if NOT This.FirstChar() = "#"
-			return FALSE
+			return _FALSE_
 		ok
 
 		if NOT This.SectionQ(2, nLen).IsNumberInString()
-			return FALSE
+			return _FALSE_
 		ok
  
-		return TRUE
+		return _TRUE_
 
 		def IsAMarquer()
 			return This.IsMarquer()
@@ -8247,7 +8247,7 @@ class stzString from stzObject
 	#--
 
 	def SortMarquersInAscending()
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+		#< @MotherFunction = This.ReplaceSection() > @QtBased _TRUE_ #>
 
 		/* Example
 
@@ -8306,7 +8306,7 @@ class stzString from stzObject
 			return This.StringWithMaquersSortedInAscending()
 
 	def SortMarquersInDescending()
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+		#< @MotherFunction = This.ReplaceSection() > @QtBased _TRUE_ #>
 
 		/* Example
 
@@ -9341,9 +9341,9 @@ class stzString from stzObject
 	def ContainsDuplicatedSubStringsCS(pCaseSensitive)
 
 		if This.NumberOfDuplicatesCS(pCaseSensitive) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsDuplicatesCS(pCaseSensitive)
@@ -9382,9 +9382,9 @@ class stzString from stzObject
 
 	def ContainsDuplicatedNTimesCS(n, pcSubStr, pCaseSensitive)
 		if This.NumberOfDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive) = n
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def SubStringIsDuplicatedNTimesCS(n, pcSubStr, pCaseSensitive)
@@ -11983,10 +11983,10 @@ class stzString from stzObject
 		if cUPPER = "NUMBER" or cUPPER = "STRING" or cUPPER = "LIST" or
 		   cUPPER = "OBJECT" or cUPPER = "COBJECT"
 
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsARingType()
@@ -14094,7 +14094,7 @@ class stzString from stzObject
 		oStr = new stzString(cStr)
 		oStzPlusStr = new stzString("stz" + cStr)
 
-		if oStr.BeginsWithCS("stz", :CS = FALSE)
+		if oStr.BeginsWithCS("stz", :CS _FALSE_)
 			acStzClasses = StzClassesXT()
 			nLen = len(acStzClasses)
 
@@ -14181,10 +14181,10 @@ class stzString from stzObject
 
 		oList = new stzList( acTheseMethods )
 
-		if oList.ContainsCS( "is" + This.String(), :CS = FALSE )
+		if oList.ContainsCS( "is" + This.String(), :CS _FALSE_ )
 			cMethod = "is" + This.String()
 
-		but oList.ContainsCS( "is" + This.LastCharRemoved(), :CS = FALSE )
+		but oList.ContainsCS( "is" + This.LastCharRemoved(), :CS _FALSE_ )
 			cMethod = "is" + This.LastCharRemoved()
 
 		else
@@ -14209,9 +14209,9 @@ class stzString from stzObject
 		n = ring_find( StzClasses(), This.Lowercased() )
 
 		if n > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsStzType()
@@ -14237,12 +14237,12 @@ class stzString from stzObject
 
 		if QR( StzTypesXT(), :stzListOfPairs ).
 		   SecondItemsQ().
-		   ContainsCS( This.Content(), :CaseSensitive = FALSE )
+		   ContainsCS( This.Content(), :CaseSensitive _FALSE_ )
 
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForm
@@ -14292,9 +14292,9 @@ class stzString from stzObject
 	def IsStzClassNameXT()
 		
 		if This.IsStzClassName() or This.IsStzClassNameInPluralForm()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -14325,9 +14325,9 @@ class stzString from stzObject
 		if Q(cType).IsAStzType() and
 		   PluralOfThisStzType(cType) = This.String()
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -14595,7 +14595,7 @@ class stzString from stzObject
 			ok
 	
 			aSection = paPositionOrSection
-			bReturnSections = FALSE
+			bReturnSections _FALSE_
 	
 			if isList(paHarvest) and
 			   Q(paHarvest).IsOneOfTheseNamedParams([
@@ -14618,8 +14618,8 @@ class stzString from stzObject
 					:YieldSections, :AndYieldSections,
 					:AndThenYieldSections, :ThenYieldSections ])
 	
-				if Q(paHarvest[1]).ContainsCS(:Section, :CS = FALSE)
-					bReturnSections = TRUE
+				if Q(paHarvest[1]).ContainsCS(:Section, :CS _FALSE_)
+					bReturnSections _TRUE_
 				ok
 	
 				paHarvest = paHarvest[2]
@@ -15001,10 +15001,10 @@ class stzString from stzObject
 		if This.BeginsWithCS(cBound1, pCaseSensitive) and
 		   This.EndsWithCS(cBound2, pCaseSensitive)
 
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	#-- WITHOUT CASESENSITIVITY
@@ -15052,7 +15052,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pIn must be a string or list.")
 		ok
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		if isString(pIn)
 
@@ -15210,9 +15210,9 @@ class stzString from stzObject
 
 	def IsFirstBoundOfCS(pcOtherStr, pCaseSensitive)
 		if Q(pcOtherStr).FirstBoundsCS().IsEqualToCS(This.String(), pCaseSensitive)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsFirstBoundOf(pcOtherStr)
@@ -15222,9 +15222,9 @@ class stzString from stzObject
 
 	def IsLastBoundOfCS(pcOtherStr, pCaseSensitive)
 		if Q(pcOtherStr).LastBoundsCS().IsEqualToCS(This.String(), pCaseSensitive)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsSecondBoundOfCS(pcOtherStr, pCaseSensitive)
@@ -15240,9 +15240,9 @@ class stzString from stzObject
 
 	def IsLeftBoundOfCS(pcOtherStr, pCaseSensitive)
 		if Q(pcOtherStr).LeftBoundsCS().IsEqualToCS(This.String(), pCaseSensitive)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsLeftBound(pcOtherStr)
@@ -15252,9 +15252,9 @@ class stzString from stzObject
 
 	def IsRightBoundOfCS(pcOtherStr, pCaseSensitive)
 		if Q(pcOtherStr).RightBoundsCS().IsEqualToCS(This.String(), pCaseSensitive)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsRightBoundOf(pcOtherStr)
@@ -15826,7 +15826,7 @@ class stzString from stzObject
 
 		*/
 
-		if CheckingParams() = TRUE
+		if CheckingParams() _TRUE_
 			if isList(pacBounds)
 				if len(pacBounds) != 2
 					pacBounds = Q(pacBounds).Pairified()
@@ -15846,7 +15846,7 @@ class stzString from stzObject
 
 		if IsListOfPairs(pacBounds)
 			nLen = len(pacBounds)
-			bResult = TRUE
+			bResult _TRUE_
 
 			for i = 1 to nLen
 				bResult = This.SubStringIsBoundedByCS(pcSubStr, pacBounds[i], pCaseSensitive)
@@ -15861,7 +15861,7 @@ class stzString from stzObject
 		aSections = This.FindSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
 		nLen = len(aSections)
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		for i = 1 to nLen
 
@@ -15870,7 +15870,7 @@ class stzString from stzObject
 			if Q(acEffectiveBounds[1]).IsEqualToCS(pacBounds[1], pCaseSensitive) and
 			   Q(acEffectiveBounds[2]).IsEqualToCS(pacBounds[2], pCaseSensitive)
 
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -15898,12 +15898,12 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pacPairsOfBounds must be a list.")
 		ok
 
-		bResult = TRUE
+		bResult _TRUE_
 		
 		nLen = len(pacPairsOfBounds)
 		for i = 1 to nLen
 			if NOT This.SubStringIsBoundedByCS(pcSubStr, pacPairsOfBounds[i], pCaseSensitive)
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -15969,9 +15969,9 @@ class stzString from stzObject
 	def SubStringIsBeforePositionCS(pcSubStr, n, pCaseSensitive)
 		nPos = This.FindFirstCS(pcSubStr, pCaseSensitive)
 		if nPos < n
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def SubStringComesBeforePositionCS(pcSubStr, n, pCaseSensitive)
@@ -15994,9 +15994,9 @@ class stzString from stzObject
 		nOtherPos = This.FindFirstCS(pcOtherSubStr, pCaseSensitive)
 
 		if nPos < nOtherPos
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def SubStringComesBeforeSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
@@ -16066,9 +16066,9 @@ class stzString from stzObject
 	def SubStringIsAfterPositionCS(pcSubStr, n, pCaseSensitive)
 		nPos = This.FindFirstCS(pcSubStr, pCaseSensitive)
 		if nPos > n
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def SubStringComesAfterPositionCS(pcSubStr, n, pCaseSensitive)
@@ -16091,9 +16091,9 @@ class stzString from stzObject
 		nOtherPos = This.FindFirstCS(pcOtherSubStr, pCaseSensitive)
 
 		if nPos > nOtherPos
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def SubStringComesAfterSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
@@ -16614,9 +16614,9 @@ class stzString from stzObject
 
 	def IsBoundedCS(pCaseSensitive)
 		if This.NumberOfChars() > 2
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def HasBoundsCS(pCaseSensitive)
@@ -20232,10 +20232,10 @@ class stzString from stzObject
 
 	def ContainsBoundsOfCS(pcSubStr, pCaseSensitive)
 		if len( This.BoundsOfCS(pcSubStr, pCaseSensitive) ) > 0
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def SubStringIsBoundedCS(pcSubStr, pCaseSensitive)
@@ -23191,16 +23191,16 @@ class stzString from stzObject
 		if (NOT This.ContainsCS(pacBounds[1])) or
 		   (NOT This.ContainsCS(pacBounds[2]))
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		n1 = This.FindFirstCS(pacBounds[1])
 		n2 = This.FindFirstCS(pacBounds[2])
 
 		if n1 < n2
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	#-- WITHOUT CASESENSITIVITY
@@ -23230,7 +23230,7 @@ class stzString from stzObject
 
 		cResult = ""
 	
-		bContinue = TRUE
+		bContinue _TRUE_
 		cFirstChar = This.FirstChar()
 		i = 1
 
@@ -23238,13 +23238,13 @@ class stzString from stzObject
 			i++
 
 			if i > nLen
-				bContinue = FALSE
+				bContinue _FALSE_
 			ok
 
 			cCurrentChar = This.Char(i)
 
 			if NOT Q(cCurrentChar).IsEqualToCS(cFirstChar, pCaseSensitive)
-				bContinue = FALSE
+				bContinue _FALSE_
 			ok
 
 		end
@@ -23469,7 +23469,7 @@ class stzString from stzObject
 
 		acResult = []
 	
-		bContinue = TRUE
+		bContinue _TRUE_
 		cFirstChar = This.FirstChar()
 		i = 1
 
@@ -23477,13 +23477,13 @@ class stzString from stzObject
 			i++
 
 			if i > nLen
-				bContinue = FALSE
+				bContinue _FALSE_
 			ok
 
 			cCurrentChar = This.Char(i)
 
 			if NOT Q(cCurrentChar).IsEqualToCS(cFirstChar, pCaseSensitive)
-				bContinue = FALSE
+				bContinue _FALSE_
 			ok
 
 		end
@@ -23752,9 +23752,9 @@ class stzString from stzObject
 		if This.HasRepeatedLeadingCharsCS(pCaseSensitive) and
 		   This.FirstCharQ().IsEqualToCS(c, pCaseSensitive)
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -23788,10 +23788,10 @@ class stzString from stzObject
 
 	def HasRepeatedLeadingCharsCS(pCaseSensitive)
 		if This.LeadingSubStringCS(pCaseSensitive) != NULL
-			return TRUE
+			return _TRUE_
 		else
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -24812,7 +24812,7 @@ class stzString from stzObject
 		nLen = This.NumberOfChars()
 
 		if nLen < 2
-			return FALSE
+			return _FALSE_
 		ok
 
 		cLastChar = QStringObject().mid(nLen-1, 1)
@@ -24821,9 +24821,9 @@ class stzString from stzObject
 		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive) and
 		   StzStringQ(c).IsEqualToCS(cLastChar, pCaseSensitive)
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -24860,16 +24860,16 @@ class stzString from stzObject
 		nLen = This.NumberOfChars()
 
 		if nLen < 2
-			return FALSE
+			return _FALSE_
 		ok
 
 		cLastChar = QStringObject().mid(nLen-1, 1)
 		cBeforeLastChar = QStringObject().mid(nLen-2, 1)
 
 		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 
 		ok
 
@@ -25988,9 +25988,9 @@ class stzString from stzObject
 		if This.HasRepeatedLeadingCharsCS(pCaseSensitive) and
 		   This.HasRepeatedTrailingCharsCS(pCaseSensitive)
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -26309,7 +26309,7 @@ class stzString from stzObject
 	#==========================================#
 
 	def ReplaceEachRepeatedLeadingCharCS(cNewSubStr, pCaseSensitive)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+		#< @MotherFunction = This.ReplaceSection() > @QtBased _TRUE_ #>
 
 		/* Example:
 
@@ -26318,7 +26318,7 @@ class stzString from stzObject
 		--> Gives: "OOOAAAH RING!"
 
 		StzStringQ("aaaAVAR").
-		ReplaceEachLeadingCharCS( :With = "O", :CS = FALSE)
+		ReplaceEachLeadingCharCS( :With = "O", :CS _FALSE_)
 		--> Gives: "OOOOOOH RING!"
 
 		*/
@@ -26426,7 +26426,7 @@ class stzString from stzObject
 	#----------------------------------#
 
 	def ReplaceEachRepeatedTrailingCharCS(cNewSubStr, pCaseSensitive)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+		#< @MotherFunction = This.ReplaceSection() > @QtBased _TRUE_ #>
 
 		/* Example:
 
@@ -26435,7 +26435,7 @@ class stzString from stzObject
 		--> Gives: "RINGaaaOOO"
 
 		StzStringQ("RINGaaaAAA").
-		ReplaceEachRepeatedTrailingCharCS( :With = "O", :CS = FALSE)
+		ReplaceEachRepeatedTrailingCharCS( :With = "O", :CS _FALSE_)
 		--> Gives: "RINGOOOOOO"
 
 		*/
@@ -27077,7 +27077,7 @@ class stzString from stzObject
 	#---------------------------------------------#
 
 	def ReplaceThisRepeatedLeadingCharCS(c, cNewSubStr, pCaseSensitive)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+		#< @MotherFunction = This.ReplaceSection() > @QtBased _TRUE_ #>
 
 		if NOT This.HasRepeatedLeadingCharsCS(pCaseSensitive)
 			return
@@ -27258,7 +27258,7 @@ class stzString from stzObject
 	#----------------------------------------------#
 
 	def ReplaceThisRepeatedTrailingCharCS(c, cNewSubStr, pCaseSensitive)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+		#< @MotherFunction = This.ReplaceSection() > @QtBased _TRUE_ #>
 
 		if isList(cNewSubStr) and StzListQ(cNewSubStr).IsWithOrByNamedParam()
 			cNewSubStr = cNewSubStr[2]
@@ -27608,7 +27608,7 @@ class stzString from stzObject
 			return NULL
 		ok
 
-		bInside = TRUE
+		bInside _TRUE_
 		cResult = ""
 		i = nStart - 1
 
@@ -27618,7 +27618,7 @@ class stzString from stzObject
 			if i = This.NumberOfChars() or
 			   This.CharAtQ(i).IsLineSeparator()
 			   
-				bInside = FALSE
+				bInside _FALSE_
 
 			else
 				cResult += This.NthChar(i)
@@ -27665,7 +27665,7 @@ class stzString from stzObject
 
 		# Computing the rest of the line
 
-		bInside = TRUE
+		bInside _TRUE_
 		cResult = ""
 		i = nStart + 1
 
@@ -27674,7 +27674,7 @@ class stzString from stzObject
 					 
 			if i = 0 or This.CharAtQ(i).IsLineSeparator()
 
-				bInside = FALSE
+				bInside _FALSE_
 			
 			else
 				cResult += This.NthChar(i)
@@ -27705,9 +27705,9 @@ class stzString from stzObject
 		anPos = This.FindSubStringBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		if len(anPos) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -27730,9 +27730,9 @@ class stzString from stzObject
 		anPos = This.FindSubStringBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
 
 		if len(anPos) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
@@ -27847,7 +27847,7 @@ class stzString from stzObject
 		# Looping over the sections and checking wether their bounds
 		# correspond to cBound1 and cBound2
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		cBound1 = cBound1
 		cBound2 = cBound2
@@ -27863,7 +27863,7 @@ class stzString from stzObject
 
 			if acBounds[1] = cBound1 and acBounds[2] = cBound2
 
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 
 			ok
@@ -28269,7 +28269,7 @@ class stzString from stzObject
 		#                            |  13           26       |
 		#                            V  |            |        V
 		o1 = new stzString("bla bla [[  word bla bla word bla ]] no word bla")
-		? o1.FindSubStringBetweenCS("word", "[[", "]]", :CaseSensitive = FALSE)
+		? o1.FindSubStringBetweenCS("word", "[[", "]]", :CaseSensitive _FALSE_)
 		#--> [ 13, 26 ]
 
 		EXAMPLE 2:
@@ -28278,7 +28278,7 @@ class stzString from stzObject
 		#                            |  13       xx     29       |
 		#                            V  |        !!     |        V
 		o1 = new stzString("bla bla [[  word bla [[ bla word bla ]] no word bla")
-		? o1.FindSubStringBetweenCS("word", "[[", "]]", :CaseSensitive = FALSE)
+		? o1.FindSubStringBetweenCS("word", "[[", "]]", :CaseSensitive _FALSE_)
 		#--> [ 13, 29 ]
 
 		EXAMPLE 3:
@@ -29089,7 +29089,7 @@ class stzString from stzObject
 		cBounded = cBound1 + pcSubStr + cBound2
 		nLenBounded = Q(cBounded).NumberOfChars()
 		nStart = pnStartingAt
-		bContinue = TRUE
+		bContinue _TRUE_
 		nTimes = 0
 
 		nResult = 0
@@ -29104,14 +29104,14 @@ class stzString from stzObject
 
 				if nTimes = n
 					nResult = nPos + nLenBounded
-					bContinue = FALSE
+					bContinue _FALSE_
 
 				else
 					nStart = nPos + nLenBounded
 				ok
 
 			else
-				bContinue = FALSE
+				bContinue _FALSE_
 			ok
 		end
 
@@ -29385,7 +29385,7 @@ class stzString from stzObject
 		nLenBound1= Q(cBound1).NumberOfChars()
 
 		nStart = pnStartingAt
-		bContinue = TRUE
+		bContinue _TRUE_
 		nTimes = 0
 
 		nResult = 0
@@ -29400,14 +29400,14 @@ class stzString from stzObject
 
 				if nTimes = n
 					nResult = nPos + nLenBound1
-					bContinue = FALSE
+					bContinue _FALSE_
 
 				else
 					nStart = nPos
 				ok
 
 			else
-				bContinue = FALSE
+				bContinue _FALSE_
 			ok
 		end
 
@@ -32685,18 +32685,18 @@ class stzString from stzObject
 
 		n1 = This.FindFirstCS(acBounds[1], pCaseSensitive)
 		if n1 = 0
-			return FALSE
+			return _FALSE_
 		ok
 
 		n2 = This.FindFirstCS(acBounds[2], pCaseSensitive)
 		if n2 = 0
-			return FALSE
+			return _FALSE_
 		ok
 
 		if n2 > n1
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -33323,7 +33323,7 @@ class stzString from stzObject
 
 		bCase = @CaseSensitive(pCaseSensitive)
 
-		if bCase = FALSE
+		if bCase _FALSE_
 			for i = 1 to nLen
 				aSections[i][1] = lower(aSections[i][1])
 			next
@@ -33411,7 +33411,7 @@ class stzString from stzObject
 
 		bCase = @CaseSensitive(pCaseSensitive)
 
-		if bCase = FALSE
+		if bCase _FALSE_
 			for i = 1 to nLen
 				aSections[i][1] = lower(aSections[i][1])
 			next
@@ -33732,7 +33732,7 @@ class stzString from stzObject
 
 		bCaseSensitive = @CaseSensitive(pCaseSensitive)
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			for i = 1 to nLen
 				acSubStr[i] = ring_lower(acSubStr[i])
 			next
@@ -33812,7 +33812,7 @@ class stzString from stzObject
 
 		bCaseSensitive = @CaseSensitive(pCaseSensitive)
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			for i = 1 to nLen
 				acSubStr[i] = ring_lower(acSubStr[i])
 			next
@@ -36874,7 +36874,7 @@ class stzString from stzObject
 						:Param = "pCaseSensitive",
 						:Type = "BOOLEAN",
 						:Description = "If the first param is a string, apply or not case sensitivity",
-						:Default = TRUE
+						:Default _TRUE_
 					]
 				]
 			]
@@ -36890,7 +36890,7 @@ class stzString from stzObject
 		#< @FunctionExampleForm
 
 		def expRangeCS(pCaseSensitive)
-			return 	'StzStringQ("The Ring programming language").RangeCS("ring", 11, :CS = FALSE)' + NL +
+			return 	'StzStringQ("The Ring programming language").RangeCS("ring", 11, :CS _FALSE_)' + NL +
 				'--> "Ring programming"'
 
 		#>
@@ -39638,10 +39638,10 @@ class stzString from stzObject
 			:ClosingChar = ")", 
 		
 			:MainSeparator = ",",
-			:AddSpaceAfterSeparator = TRUE,
+			:AddSpaceAfterSeparator _TRUE_,
 			
 			:LastSeparator = "and",
-			:AddLastToMainSeparator = TRUE,
+			:AddLastToMainSeparator _TRUE_,
 			
 			:SpaceOption = :optEnsureLeadingSpace + :optEnsureTrailingSpace
 			])
@@ -39657,10 +39657,10 @@ class stzString from stzObject
 		cClosingChar = ")"
 			
 		cMainSeparator = ","
-		bAddSpaceAfterSeparator = TRUE
+		bAddSpaceAfterSeparator _TRUE_
 					
 		cLastSeparator = NULL
-		bAddLastToMainSeparator = FALSE
+		bAddLastToMainSeparator _FALSE_
 			
 		cSpaceOption = :AddLeadingSpace + :AddTrailingSpace
 	
@@ -39734,7 +39734,7 @@ class stzString from stzObject
 				cSubStr += cMainSeparator
 	
 				# Add space after separator if required
-				if bAddSpaceAfterSeparator = TRUE
+				if bAddSpaceAfterSeparator _TRUE_
 						cSubstr += " "
 				ok	
 	
@@ -39745,11 +39745,11 @@ class stzString from stzObject
 	
 			but i = len(aSubStr) - 1
 	
-				if bAddLastToMainSeparator = TRUE
+				if bAddLastToMainSeparator _TRUE_
 					cSubStr += cMainSeparator
 				ok
 	
-				if bAddSpaceAfterSeparator = TRUE
+				if bAddSpaceAfterSeparator _TRUE_
 					cSubstr += " "
 				ok
 	
@@ -39757,7 +39757,7 @@ class stzString from stzObject
 					cSubStr += cLastSeparator
 				ok
 	
-				if bAddSpaceAfterSeparator = TRUE
+				if bAddSpaceAfterSeparator _TRUE_
 					cSubstr += " "
 				ok
 			ok		
@@ -39908,10 +39908,10 @@ class stzString from stzObject
 
 			#--
 
-			bWellFormed = FALSE
+			bWellFormed _FALSE_
 	
 			if isString(pcNewSubStr)
-				bWellFormed = TRUE
+				bWellFormed _TRUE_
 			ok
 	
 			# Checking the correctness of pCaseSensitive param
@@ -42913,7 +42913,7 @@ class stzString from stzObject
 		# preparing the list of chars
 
 		bCase = CaseSensitive(pCaseSensitive)
-		if bCase = TRUE
+		if bCase _TRUE_
 			acChars = This.Chars()
 
 		else
@@ -43048,7 +43048,7 @@ class stzString from stzObject
 	#==============================================================#
 
 	def ReplaceCharAtPosition(n, pcNewSubStr)
-		#< @MotherFunction = ReplaceSection() > @QtBased = TRUE #>
+		#< @MotherFunction = ReplaceSection() > @QtBased _TRUE_ #>
 
 		This.ReplaceSection(n, n, pcNewSubStr)
 
@@ -43124,7 +43124,7 @@ class stzString from stzObject
 		#>
 
 	def CharReplacedAtPosition(n, pcNewSubStr)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+		#< @MotherFunction = This.ReplaceSection() > @QtBased _TRUE_ #>
 
 		cResult = This.Copy().ReplaceCharAtPositionQ(n, pcNewSubStr).Content()
 		return cResult
@@ -43157,7 +43157,7 @@ class stzString from stzObject
 	#-------------------------------------------------------------#
 
 	def ReplaceCharsAtPositions(panPos, pcNewSubStr)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+		#< @MotherFunction = This.ReplaceSection() > @QtBased _TRUE_ #>
 
 		if NOT isList(panPos) and IsListOfNumbers(panPos)
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
@@ -43497,7 +43497,7 @@ class stzString from stzObject
 	#====================================================#
 
 	def ReplaceNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+		#< @MotherFunction = This.ReplaceSection() > @QtBased _TRUE_ #>
 
 		if CheckingParams()
 
@@ -44005,7 +44005,7 @@ class stzString from stzObject
 	#========================#
 
 	def ReplaceNthChar(n, pSubStr)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+		#< @MotherFunction = This.ReplaceSection() > @QtBased _TRUE_ #>
 
 		if n = :LastChar or n = :EndOfString or n = :Last
 			n = This.NumberOfChars()
@@ -44287,9 +44287,9 @@ class stzString from stzObject
 		*/
 
 		if This.NumberOfMarkers() > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	  #=============================================#
@@ -44300,9 +44300,9 @@ class stzString from stzObject
 
 		try
 			eval(This.Copy().Content())
-			return TRUE
+			return _TRUE_
 		catch
-			return FALSE
+			return _FALSE_
 		done
 
 		def IsEvaluableRingCode()
@@ -44324,7 +44324,7 @@ class stzString from stzObject
 			This.Execute()
 
 	def ExecuteAndReturn()
-		if This.StartsWithCS("return ", :CS = FALSE)
+		if This.StartsWithCS("return ", :CS _FALSE_)
 			eval(This.String())
 		else
 			cCode = "return " + This.String()
@@ -44407,7 +44407,7 @@ class stzString from stzObject
 	def Update(pcNewStr)
 		#< QtBased | Uses QString.clear() and QString.append() >
 
-		if CheckingParams() = TRUE
+		if CheckingParams() _TRUE_
 			if isList(pcNewStr) and Q(pcNewStr).IsWithOrByOrUsingNamedParam()
 				pcNewStr = pcNewStr[2]
 			ok
@@ -44416,7 +44416,7 @@ class stzString from stzObject
 		QStringObject().clear()
 		QStringObject().append(pcNewStr)
 
-		if KeepingHisto() = TRUE
+		if KeepingHisto() _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -44516,9 +44516,9 @@ class stzString from stzObject
 	def ContainsOnlySpaces() #NOTE # this is different from ContainsSpaces()
 		
 		if This.Trimmed() = ""
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -44538,11 +44538,11 @@ class stzString from stzObject
 		aoChars = This.CharsQ().ToListOfStzChars() #NOTE # this is different from ToStzListOfChars()
 		nLen = len(aoChars)
 
-		bResult = TRUE
+		bResult _TRUE_
 
 		for i = 1 to nLen
 			if NOT aoChars[i].IsLetter()
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -44573,9 +44573,9 @@ class stzString from stzObject
 
 	def ContainsLettersAndNumbers()
 		if This.ContainsLetters() or This.ContainsNumbers()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsNumbersAndLetters()
@@ -44589,9 +44589,9 @@ class stzString from stzObject
 
 	def ContainsOnlyLettersOrNumbers()
 		if This.ContainsOnlyLetters() or This.ContainsOnlyNumbers()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsOnlyNumbersOrLetters()
@@ -44607,11 +44607,11 @@ class stzString from stzObject
 		aoChars = This.CharsQ().ToListOfStzChars()
 		nLen = len(aoChars)
 
-		bResult = TRUE
+		bResult _TRUE_
 
 		for i = 1 to nLen
 			if NOT aoChars[i].IsLetterOrNumber()
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -44661,13 +44661,13 @@ class stzString from stzObject
 			if ring_find([
 				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive)
 
-				pCaseSensitive = TRUE
+				pCaseSensitive _TRUE_
 			
 			but ring_find([
 				:CaseInSensitive, :NotCaseSensitive, :NotCS,
 				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive)
 
-				pCaseSensitive = FALSE
+				pCaseSensitive _FALSE_
 			ok
 
 		ok
@@ -44696,11 +44696,11 @@ class stzString from stzObject
 	#----------------------------------------------------------------#
 
 	def BeginsWithOneOfTheseCS(paSubStr, pCaseSensitive)
-		bResult = FALSE
+		bResult _FALSE_
 
 		for cSubStr in paSubStr
 			if This.BeginsWithCS(cSubStr, pCaseSensitive)
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -44756,13 +44756,13 @@ class stzString from stzObject
 			if ring_find([
 				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive)
 
-				pCaseSensitive = TRUE
+				pCaseSensitive _TRUE_
 			
 			but ring_find([
 				:CaseInSensitive, :NotCaseSensitive, :NotCS,
 				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive)
 
-				pCaseSensitive = FALSE
+				pCaseSensitive _FALSE_
 			ok
 
 		ok
@@ -44791,11 +44791,11 @@ class stzString from stzObject
 	#--------------------------------------------------------------#
 
 	def EndsWithOneOfTheseCS(paSubStr, pCaseSensitive)
-		bResult = FALSE
+		bResult _FALSE_
 
 		for cSubStr in paSubStr
 			if This.EndsWithCS(cSubStr, pCaseSensitive)
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -46103,13 +46103,13 @@ class stzString from stzObject
 				if ring_find([
 					:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive)
 	
-					pCaseSensitive = TRUE
+					pCaseSensitive _TRUE_
 				
 				but ring_find([
 					:CaseInSensitive, :NotCaseSensitive, :NotCS,
 					:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive)
 	
-					pCaseSensitive = FALSE
+					pCaseSensitive _FALSE_
 				ok
 	
 			ok
@@ -46704,7 +46704,7 @@ class stzString from stzObject
 		? o1.FindNthXT(2, "word", :Between = ["<<", ">>"])
 		#--> 43
 		
-		? o1.FindNthCSXT(2, "WORD", :Between = ["<<", ">>"], :CS = FALSE)
+		? o1.FindNthCSXT(2, "WORD", :Between = ["<<", ">>"], :CS _FALSE_)
 		#--> 43
 
 		? o1.FindNthXT(2, "word", :StartingAt = 5)
@@ -46880,13 +46880,13 @@ class stzString from stzObject
 			if ring_find([
 				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive)
 
-				pCaseSensitive = TRUE
+				pCaseSensitive _TRUE_
 			
 			but ring_find([
 				:CaseInSensitive, :NotCaseSensitive, :NotCS,
 				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive)
 
-				pCaseSensitive = FALSE
+				pCaseSensitive _FALSE_
 			ok
 
 		ok
@@ -47847,7 +47847,7 @@ class stzString from stzObject
 
 	def FindTheseOccurrencesDCS(panOccurr, pcSubStr, pcDirection, pCaseSensitive)
 
-		if CheckingParams() = TRUE
+		if CheckingParams() _TRUE_
 			if NOT ( isList(panOccurr) and Q(panOccurr).IsListOfNumbers() )
 				StzRaise("Incorrect param type! pabOccurr must be a list of numbers.")
 			ok
@@ -48442,13 +48442,13 @@ class stzString from stzObject
 				if ring_find([
 					:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive)
 	
-					pCaseSensitive = TRUE
+					pCaseSensitive _TRUE_
 				
 				but ring_find([
 					:CaseInSensitive, :NotCaseSensitive, :NotCS,
 					:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive)
 	
-					pCaseSensitive = FALSE
+					pCaseSensitive _FALSE_
 				ok
 	
 			ok
@@ -48461,7 +48461,7 @@ class stzString from stzObject
 
 		# Early check
 
-		if This.ContainsCS(pcSubStr, pCaseSensitive) = FALSE
+		if This.ContainsCS(pcSubStr, pCaseSensitive) _FALSE_
 			return 0
 		ok
 
@@ -48784,13 +48784,13 @@ class stzString from stzObject
 				if ring_find([
 					:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive)
 	
-					pCaseSensitive = TRUE
+					pCaseSensitive _TRUE_
 				
 				but ring_find([
 					:CaseInSensitive, :NotCaseSensitive, :NotCS,
 					:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive)
 	
-					pCaseSensitive = FALSE
+					pCaseSensitive _FALSE_
 				ok
 	
 			ok
@@ -48811,7 +48811,7 @@ class stzString from stzObject
 
 		anResult = []
 
-		bContinue = TRUE
+		bContinue _TRUE_
 		nPos = 0
 
 		while bContinue
@@ -48819,7 +48819,7 @@ class stzString from stzObject
 			nPos = This.QStringObject().indexOf(pcSubStr, nPos, pCaseSensitive) + 1
 
 			if nPos = 0
-				bContinue = FALSE
+				bContinue _FALSE_
 			else
 				anResult + nPos
 			ok
@@ -49667,24 +49667,24 @@ class stzString from stzObject
 		bSubString = oCond.ContainsCS("@substring", FALSE)
 		bI@ = oCond.ContainsCS("@i", FALSE)
 
-		if NOT ( bChar = TRUE or bSubString = TRUE or bI@ = TRUE )
+		if NOT ( bChar _TRUE_ or bSubString _TRUE_ or bI@ _TRUE_ )
 			StzRaise("Incorrect syntax! pcCondition must contain @char or @substring or @i keyword.")
 
-		but (bChar = TRUE and bSubString = TRUE) or
-		    (bChar = TRUE and bI@ = TRUE) or
-		    (bSubString = TRUE and bI@ = TRUE)
+		but (bChar _TRUE_ and bSubString _TRUE_) or
+		    (bChar _TRUE_ and bI@ _TRUE_) or
+		    (bSubString _TRUE_ and bI@ _TRUE_)
 
 			StzRaise("Incorrect syntax! pcCondition must contain @char or @substring or @i keyword but not all of them.")
 
 		ok
 
-		if bI@ = TRUE
+		if bI@ _TRUE_
 			return This.FindNthCharsWCS(n, pCondition, pCaseSensitive)
 
-		but bChar = TRUE
+		but bChar _TRUE_
 			return This.FindNthCharWCSXT(n, pcCondition, pCaseSensitive)
 
-		but bSubString = TRUE
+		but bSubString _TRUE_
 			return This.FindNthSubStringWCSXT(n, pcCondition, pCaseSensitive)
 
 		ok
@@ -49708,18 +49708,18 @@ class stzString from stzObject
 		bChar = oCond.ContainsCS("@char", FALSE)
 		bSubString = oCond.ContainsCS("@substring", FALSE)
 
-		if NOT ( bChar = TRUE or bSubString = TRUE )
+		if NOT ( bChar _TRUE_ or bSubString _TRUE_ )
 			StzRaise("Incorrect syntax! pcCondition must contain @char or @substring keyword.")
 
-		but bChar = TRUE and bSubString = TRUE
+		but bChar _TRUE_ and bSubString _TRUE_
 			StzRaise("Incorrect syntax! pcCondition must contain @char or @substring keyword but not both.")
 
 		ok
 
-		if bChar = TRUE and bSubString = FALSE
+		if bChar _TRUE_ and bSubString _FALSE_
 			return This.FindNthCharWCSXT(n, pcCondition, pCaseSensitive)
 
-		but bSubString = TRUE and bChar = FALSE
+		but bSubString _TRUE_ and bChar _FALSE_
 			return This.FindNthSubStringWCSXT(n, pcCondition, pCaseSensitive)
 
 		ok
@@ -54416,7 +54416,7 @@ class stzString from stzObject
 
 		# STEP 2: Reading params values
 
-		bCaseSensitive = TRUE
+		bCaseSensitive _TRUE_
 		if ( isString(paOptions[:CaseSensitive]) and paOptions[:CaseSensitive] != NULL ) or
 		   ( isNumber(paOptions[:CaseSensitive]) and (paOptions[:CaseSensitive] = 0 or paOptions[:CaseSensitive] = 1)  )
 
@@ -54437,7 +54437,7 @@ class stzString from stzObject
 			cBlankSign = paOptions[:BlankSign]
 		ok
 
-		bNumbered = FALSE
+		bNumbered _FALSE_
 		if ( isString(paOptions[:Numbered]) and paOptions[:Numbered] != NULL ) or
 		   ( isNumber(paOptions[:Numbered]) and ( paOptions[:Numbered] = 0 or paOptions[:Numbered] = 1 )  )
 
@@ -54449,14 +54449,14 @@ class stzString from stzObject
 			bNumbered = paOptions[:Number]
 		ok
 
-		bSpacified = FALSE
+		bSpacified _FALSE_
 		if ( isString(paOptions[:Spacified]) and paOptions[:Spacified] != NULL ) or
 		   ( isNumber(paOptions[:Spacified]) and ( paOptions[:Spacified] = 0 or paOptions[:Spacified] = 1 )  )
 
 			bSpacified = paOptions[:Spacified]
 		ok
 
-		bSectioned = FALSE
+		bSectioned _FALSE_
 		if ( isString(paOptions[:Sectioned]) and paOptions[:Sectioned] != NULL ) or
 		   ( isNumber(paOptions[:Sectioned]) and ( paOptions[:Sectioned] = 0 or paOptions[:Sectioned] = 1 )  )
 
@@ -54465,48 +54465,48 @@ class stzString from stzObject
 
 		# STEP 3: Checking the correctness of the provided values
 
-		bCorrect = TRUE
+		bCorrect _TRUE_
 		acWhy = [] # Will host the reasons of the errors
 
 		If NOT ( isNumber(bCaseSensitive) and (bCaseSensitive = 0 or bCaseSensitive = 1) )
 
-			bCorrect = FALSE
+			bCorrect _FALSE_
 			acWhy + ":CaseSensitive option must be a boolean"
 		ok
 
 		if NOT ( isString(cPositionSign) and @IsChar(cPositionSign) )
 
-			bCorrect = FALSE
+			bCorrect _FALSE_
 			acWhy + ":PositionSign option must be a char"
 		ok
 
 		if NOT ( isString(cBlankSign) and @IsChar(cBlankSign) )
 
-			bCorrect = FALSE
+			bCorrect _FALSE_
 			acWhy + ":BlankSign option must be char"
 		ok
 
 		if NOT cPositionSign != cBlankSign
 
-			bCorrect = FALSE
+			bCorrect _FALSE_
 			acWhy + ":PositionSign and :BlankSign options must be different"
 		ok
 
 		If NOT ( isNumber(bNumbered) and (bNumbered = 0 or bNumbered = 1) )
 
-			bCorrect = FALSE
+			bCorrect _FALSE_
 			acWhy + ":Numbered option must be a boalean"
 		ok
 
 		If NOT ( isNumber(bSpacified) and (bSpacified = 0 or bSpacified = 1) )
 
-			bCorrect = FALSE
+			bCorrect _FALSE_
 			acWhy + ":Spacified option must be a boalean"
 		ok
 
 		If NOT ( isNumber(bSectioned) and (bSectioned = 0 or bSectioned = 1) )
 
-			bCorrect = FALSE
+			bCorrect _FALSE_
 			acWhy + ":Sectioned option must be a boalean"
 		ok
 
@@ -54665,7 +54665,7 @@ class stzString from stzObject
 	#===========================================#
 
 	def VizFindBoxedCS(pcSubStr, pCaseSensitive)
-		return This.VizFindBoxedCSXT(pcSubStr, [ :Boxed = TRUE ], CaseSensitive(pCaseSensitive))
+		return This.VizFindBoxedCSXT(pcSubStr, [ :Boxed _TRUE_ ], CaseSensitive(pCaseSensitive))
 
 		def VizFindBoxifiedCS(pcSubStr, pCaseSensitive)
 			return This.VizFindBoxedCS(pcSubStr, pCaseSensitive)
@@ -54683,7 +54683,7 @@ class stzString from stzObject
 	#-------------------------------------------#
 
 	def VizFindBoxedRoundedCS(pcSubStr, pCaseSensitive)
-		return This.VizFindBoxedCSXT(pcSubStr, [ :Boxed = TRUE, :Rounded = TRUE ], CaseSensitive(pCaseSensitive))
+		return This.VizFindBoxedCSXT(pcSubStr, [ :Boxed _TRUE_, :Rounded _TRUE_ ], CaseSensitive(pCaseSensitive))
 
 		def VizFindBoxifiedRoundedCS(pcSubStr, pCaseSensitive)
 			return This.VizFindBoxedRoundedCS(pcSubStr, pCaseSensitive)
@@ -54734,7 +54734,7 @@ class stzString from stzObject
 	def VizFindCSXTZZ(pcSubStr, pCaseSensitive, paOptions)
 
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
-		return This.vizFindXT(pcSubStr, [ :Sectioned = TRUE, :Numbered = TRUE, :CaseSensitive = bCaseSensitive ])
+		return This.vizFindXT(pcSubStr, [ :Sectioned _TRUE_, :Numbered _TRUE_, :CaseSensitive = bCaseSensitive ])
 
 
 	#-- WITHOUT CASESENSitiviTY
@@ -54777,7 +54777,7 @@ class stzString from stzObject
 	#-------------------------------------------------#
 
 	def VizFindBoxedRoundedCSZZ(pcSubStr, pCaseSensitive)
-		return This.VizFindCSXTZZ(pcSubStr, [ :Boxed = TRUE, :Rounded = TRUE ], pCaseSensitive)
+		return This.VizFindCSXTZZ(pcSubStr, [ :Boxed _TRUE_, :Rounded _TRUE_ ], pCaseSensitive)
 
 		def VizFindBoxifiedRoundedCSZZ(pcSubStr, pCaseSensitive)
 			return This.VizFindBoxedRoundedCS(pcSubStr, pCaseSensitive)
@@ -54795,7 +54795,7 @@ class stzString from stzObject
 	#----------------------------------------------------#
 
 	def VizFindBoxedCSXTZZ(pcSubstr, pCaseSensitive, paOptions)
-		return This.VizFindCSXTZZ(pcSubStr, pCaseSensitive, [ :Boxed = TRUE ])
+		return This.VizFindCSXTZZ(pcSubStr, pCaseSensitive, [ :Boxed _TRUE_ ])
 
 		#< @FunctionAlternativeForm
 
@@ -54949,15 +54949,15 @@ class stzString from stzObject
 
 		cContent = This.Content()
 
-		if IsCaseSensitive(pCaseSensitive) = FALSE
+		if IsCaseSensitive(pCaseSensitive) _FALSE_
 			pcOtherStr = lower(pcOtherStr)
 			cContent = This.Lowercased()
 		ok
 
 		if pcOtherStr = cContent
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionFluentForm
@@ -55091,13 +55091,13 @@ class stzString from stzObject
 			if ring_find([
 				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive) > 0
 
-				pCaseSensitive = TRUE
+				pCaseSensitive _TRUE_
 			
 			but ring_find([
 				:CaseInSensitive, :NotCaseSensitive, :NotCS,
 				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive) > 0
 
-				pCaseSensitive = FALSE
+				pCaseSensitive _FALSE_
 			ok
 
 		ok
@@ -55210,11 +55210,11 @@ class stzString from stzObject
 		ok
 
 		nLen = len(pacSubStr)
-		bResult = TRUE
+		bResult _TRUE_
 
 		for i = 1 to nLen
 			if This.ContainsSubStringCS(pacSubStr[i], pCaseSensitive)
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -55451,7 +55451,7 @@ class stzString from stzObject
 		      (isString(p2) and p2 = ""    ) or
 		      (isNumber(p2) and p2 = 0     )    )
 	
-			return FALSE
+			return _FALSE_
 		ok
 	
 		if ( (isList(p1)   and len(p1) = 0) or
@@ -55459,7 +55459,7 @@ class stzString from stzObject
 		     (isNumber(p1) and p1 = 0     )    ) and
 		   isString(p2) and p2 = :Chars
 	
-			return FALSE
+			return _FALSE_
 		ok
 	
 		# Direct string comparison
@@ -55481,9 +55481,9 @@ class stzString from stzObject
 	
 				but oP2.IsAtPositionNamedParam() and isNumber(p2[2])
 					if ring_find(This.FindCS(p1, pCaseSensitive), p2[2]) > 0
-						return TRUE
+						return _TRUE_
 					else
-						return FALSE
+						return _FALSE_
 					ok
 				ok
 		ok
@@ -55675,12 +55675,12 @@ class stzString from stzObject
 	#==============================================#
 
 	def ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
-		bResult = FALSE
+		bResult _FALSE_
 		nLen = len(paSubStr)
 
 		for i = 1 to nLen
 			if This.ContainsCS( paSubStr[i],  pCaseSensitive)
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -55817,9 +55817,9 @@ class stzString from stzObject
 		b2 = This.ContainsCS(pcSubStr2, pCaseSensitive)
 
 		if (b1 = 1 and b2 = 0) or (b1 = 0 and b2 = 1)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	#-- WITHOUT CASESENSITIVITY
@@ -55840,7 +55840,7 @@ class stzString from stzObject
 
 		if EarlyCheck()
 			if len(pacSubStr) = 0
-				return FALSE
+				return _FALSE_
 			ok
 		ok
 
@@ -55857,9 +55857,9 @@ class stzString from stzObject
 		nZeros = Q(anOccurr).HowMany(0)
 
 		if nOnes = 1 and nZeros = nLen - 1
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	#-- WTIHOUT CASESENSITIVITY
@@ -56153,9 +56153,9 @@ class stzString from stzObject
 		ok
 
 		if This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) = n
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsExactlyNOccurrencesCS(n, pcSubStr, pCaseSensitive)
@@ -56175,9 +56175,9 @@ class stzString from stzObject
 
 	def ContainsMoreThenNOccurrencesCS(n, pcSubStr, pCaseSensitive)
 		if This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) > n
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	#-- WITHOUT CASESENSITIVITY
@@ -56191,9 +56191,9 @@ class stzString from stzObject
 
 	def ContainsLessThenNOccurrencesCS(n, pcSubStr, pCaseSensitive)
 		if This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) < n
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	#-- WITHOUT CASESENSITIVITY
@@ -56411,8 +56411,8 @@ class stzString from stzObject
 
 		# ? Q("^^♥^^").ContainsAt(2, "♥")
 
-		bResult = FALSE
-		bContinue = TRUE
+		bResult _FALSE_
+		bContinue _TRUE_
 		i = 1
 
 		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
@@ -56476,12 +56476,12 @@ class stzString from stzObject
 			return This.ContainsSubStringsAtPositionsCS(panPos, pcSubStr, pCaseSensitive)
 		ok
 
-		bResult = TRUE
+		bResult _TRUE_
 		nLen = len(panPos)
 
 		for i = 1 to nLen
 			if NOT This.ContainsSubStringAtPositionCS(panPos[i], pcSubStr, pCaseSensitive)
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -56533,14 +56533,14 @@ class stzString from stzObject
 			stzRaise("Incorrect values! panPos and pacSubStr lists must have same number of items.")
 		ok
 
-		bResult = TRUE
+		bResult _TRUE_
 
 		#TODO // change for in with for loop --> better performance
 		i = 0
 		for n in panPos
 			i++
 			if NOT This.ContainsSubStringAtPosition(n, pacSubStr[i])
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -56587,7 +56587,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		nLen = len(pacSubStr)
 		n = 0
@@ -56595,7 +56595,7 @@ class stzString from stzObject
 			if This.ContainsCS(pacSubStr[i], pCaseSensitive)
 				n++
 				if n > 1
-					bResult = TRUE
+					bResult _TRUE_
 					exit
 				ok
 			ok
@@ -56665,10 +56665,10 @@ class stzString from stzObject
 
 	def ContainsNTimesTheChar(n, pcChar)
 		if NOT IsChar(pcChar)
-			return FALSE
+			return _FALSE_
 		ok
 		
-		return This.ContainsNTimesCS(n, pcChar, :CaseSensitive = FALSE)
+		return This.ContainsNTimesCS(n, pcChar, :CaseSensitive _FALSE_)
 
 	  #-------------------------------------------------#
 	 #    CONTAINING ONE OCCURRENCE OF A SUBSTRING     #
@@ -56718,9 +56718,9 @@ class stzString from stzObject
 			ok
 		ok
 
-		bResult = FALSE
+		bResult _FALSE_
 
-		bContinue = TRUE
+		bContinue _TRUE_
 		i = 0
 		nPos = 0
 
@@ -56729,12 +56729,12 @@ class stzString from stzObject
 			nPos = This.FindFirstSTCS(pcSubStr, nPos + 1, pCaseSensitive)
 
 			if nPos = 0
-				bContinue = FALSE
+				bContinue _FALSE_
 			else
 				i++
 				if i > n
-					bResult   = TRUE
-					bContinue = FALSE
+					bResult   _TRUE_
+					bContinue _FALSE_
 				ok
 			ok
 		end
@@ -56778,12 +56778,12 @@ class stzString from stzObject
 	#TODO : Unify alternative namings with ContainsMay() in stzList
 
 	def ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
-		bResult = TRUE
+		bResult _TRUE_
 		nLen = len(pacSubStr)
 
 		for i = 1 to nLen
 			if NOT This.ContainsCS(pacSubStr[i], pCaseSensitive)
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -56975,20 +56975,20 @@ class stzString from stzObject
 		if Q(pcLetter).IsAChar() and
 		   StzCharQ(pcLetter).IsLetter()
 
-		  	return This.ContainsCS( pcLetter, :CS = FALSE )
+		  	return This.ContainsCS( pcLetter, :CS _FALSE_ )
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def ContainsLetters()
 		aoChars = This.TolistOfStzChars()
 		nLen = len(aoChars)
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		for i = 1 to nLen
 			if aoChars[i].IsLetter()
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -57022,11 +57022,11 @@ class stzString from stzObject
 		aoChars = This.TolistOfStzChars()
 		nLen = len(aoChars)
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		for i = 1 to nLen
 			if aoChars[i].IsArabicLetter()
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -57043,11 +57043,11 @@ class stzString from stzObject
 		aoChars = This.TolistOfStzChars()
 		nLen = len(aoChars)
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		for i = 1 to nLen
 			if aoChars[i].IsLatinLetter()
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -57064,11 +57064,11 @@ class stzString from stzObject
 		aoChars = This.TolistOfStzChars()
 		nLen = len(aoChars)
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		for i = 1 to nLen
 			if aoChars[i].IsLetterInScript(pcScript)
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -61885,22 +61885,22 @@ class stzString from stzObject
 		bSubStr = oCondition.ContainsCS("@substring", FALSE)
 		bPos = oCondition.ContainsCS("@position", FALSE)
 
-		if bChars = FALSE and bSubStr = FALSE and bPos = FALSE
+		if bChars _FALSE_ and bSubStr _FALSE_ and bPos _FALSE_
 			StzRaise("Syntax error! pcCondition must contains @char or @substring or @position keyword.")
 		ok
 
-		if bChars = TRUE and
-		   bSubStr = FALSE and bPos = FALSE and bSection = FALSE
+		if bChars _TRUE_ and
+		   bSubStr _FALSE_ and bPos _FALSE_ and bSection _FALSE_
 
 			return This.SplitAtCharsWCS(pcCondition, pCaseSensitive)
 
-		but bSubStr = TRUE and
-		    bChars = FALSE and bPos = FALSEand bSection = FALSE
+		but bSubStr _TRUE_ and
+		    bChars _FALSE_ and bPos _FALSE_and bSection _FALSE_
 
 			return This.SplitAtSubStringsWCS(pcCondition, pCaseSensitive)
 
-		but bPos= TRUE and
-		    bChars = FALSE and bSubStr = FALSE and bSection = FALSE
+		but bPos_TRUE_ and
+		    bChars _FALSE_ and bSubStr _FALSE_ and bSection _FALSE_
 
 			return This.SplitAtPositionsWCS(pcCondition, pCaseSensitive)
 
@@ -61995,13 +61995,13 @@ class stzString from stzObject
 		bSubStr = oCondition.ContainsCS("@substring", FALSE)
 		bPosition = oCondition.ContainsCS("@position", FALSE)
 
-		if bChars = TRUE and ( bSubStr = FALSE and bPosition = FALSE )
+		if bChars _TRUE_ and ( bSubStr _FALSE_ and bPosition _FALSE_ )
 			return This.SplitAtCharsWCSXT(pcCondition, pCaseSensitive)
 
-		but bSubStr = TRUE and ( bChars = FALSE and bPosition = FALSE )
+		but bSubStr _TRUE_ and ( bChars _FALSE_ and bPosition _FALSE_ )
 			return This.SplitAtSubStringsWCSXT(pcCondition, pCaseSensitive)
 
-		but bPosition = TRUE and ( bChars = FALSE and bSubStr = FALSE )
+		but bPosition _TRUE_ and ( bChars _FALSE_ and bSubStr _FALSE_ )
 			return This.SplitAtPositionsWCSXT(pcCondition, pCaseSensitive)
 
 		else
@@ -63386,22 +63386,22 @@ class stzString from stzObject
 		bSubStr = oCondition.ContainsCS("@substring", FALSE)
 		bPos = oCondition.ContainsCS("@position", FALSE)
 
-		if bChars = FALSE and bSubStr = FALSE and bPos = FALSE
+		if bChars _FALSE_ and bSubStr _FALSE_ and bPos _FALSE_
 			StzRaise("Syntax error! pcCondition must contains @char or @substring or @position keyword.")
 		ok
 
-		if bChars = TRUE and
-		   bSubStr = FALSE and bPos = FALSE
+		if bChars _TRUE_ and
+		   bSubStr _FALSE_ and bPos _FALSE_
 
 			return This.SplitAroundCharsWCS(pcCondition, pCaseSensitive)
 
-		but bSubStr = TRUE and
-		    bChars = FALSE and bPos = FALSE
+		but bSubStr _TRUE_ and
+		    bChars _FALSE_ and bPos _FALSE_
 
 			return This.SplitAroundSubStringsWCS(pcCondition, pCaseSensitive)
 
-		but bPos = TRUE and
-		    bChars = FALSE and bSubStr = FALSE
+		but bPos _TRUE_ and
+		    bChars _FALSE_ and bSubStr _FALSE_
 
 			return This.SplitAroundPositionsWCS(pcCondition, pCaseSensitive)
 
@@ -63536,22 +63536,22 @@ class stzString from stzObject
 		bSubStr = oCondition.ContainsCS("@substring", FALSE)
 		bPos = oCondition.ContainsCS("@position", FALSE)
 
-		if bChars = FALSE and bSubStr = FALSE and bPos = FALSE
+		if bChars _FALSE_ and bSubStr _FALSE_ and bPos _FALSE_
 			StzRaise("Syntax error! pcCondition must contains @char or @substring or @position keyword.")
 		ok
 
-		if bChars = TRUE and
-		   bSubStr = FALSE and bPos = FALSE and bSection = FALSE
+		if bChars _TRUE_ and
+		   bSubStr _FALSE_ and bPos _FALSE_ and bSection _FALSE_
 
 			return This.SplitBeforeCharsWCS(pcCondition, pCaseSensitive)
 
-		but bSubStr = TRUE and
-		    bChars = FALSE and bPos = FALSEand bSection = FALSE
+		but bSubStr _TRUE_ and
+		    bChars _FALSE_ and bPos _FALSE_and bSection _FALSE_
 
 			return This.SplitBeforeSubStringsWCS(pcCondition, pCaseSensitive)
 
-		but bPos= TRUE and
-		    bChars = FALSE and bSubStr = FALSE and bSection = FALSE
+		but bPos_TRUE_ and
+		    bChars _FALSE_ and bSubStr _FALSE_ and bSection _FALSE_
 
 			return This.SplitBeforePositionsWCS(pcCondition, pCaseSensitive)
 
@@ -63575,13 +63575,13 @@ class stzString from stzObject
 		bSubStr = oCondition.ContainsCS("@substring", FALSE)
 		bPosition = oCondition.ContainsCS("@position", FALSE)
 
-		if bChars = TRUE and ( bSubStr = FALSE and bPosition = FALSE )
+		if bChars _TRUE_ and ( bSubStr _FALSE_ and bPosition _FALSE_ )
 			return This.SplitBeforeCharsWCSXT(pcCondition, pCaseSensitive)
 
-		but bSubStr = TRUE and ( bChars = FALSE and bPosition = FALSE )
+		but bSubStr _TRUE_ and ( bChars _FALSE_ and bPosition _FALSE_ )
 			return This.SplitBeforeSubStringsWCSXT(pcCondition, pCaseSensitive)
 
-		but bPosition = TRUE and ( bChars = FALSE and bSubStr = FALSE )
+		but bPosition _TRUE_ and ( bChars _FALSE_ and bSubStr _FALSE_ )
 			return This.SplitBeforePositionsWCSXT(pcCondition, pCaseSensitive)
 
 		else
@@ -63712,22 +63712,22 @@ class stzString from stzObject
 		bSubStr = oCondition.ContainsCS("@substring", FALSE)
 		bPos = oCondition.ContainsCS("@position", FALSE)
 
-		if bChars = FALSE and bSubStr = FALSE and bPos = FALSE
+		if bChars _FALSE_ and bSubStr _FALSE_ and bPos _FALSE_
 			StzRaise("Syntax error! pcCondition must contains @char or @substring or @position keyword.")
 		ok
 
-		if bChars = TRUE and
-		   bSubStr = FALSE and bPos = FALSE and bSection = FALSE
+		if bChars _TRUE_ and
+		   bSubStr _FALSE_ and bPos _FALSE_ and bSection _FALSE_
 
 			return This.SplitAfterCharsWCS(pcCondition, pCaseSensitive)
 
-		but bSubStr = TRUE and
-		    bChars = FALSE and bPos = FALSEand bSection = FALSE
+		but bSubStr _TRUE_ and
+		    bChars _FALSE_ and bPos _FALSE_and bSection _FALSE_
 
 			return This.SplitAfterSubStringsWCS(pcCondition, pCaseSensitive)
 
-		but bPos= TRUE and
-		    bChars = FALSE and bSubStr = FALSE and bSection = FALSE
+		but bPos_TRUE_ and
+		    bChars _FALSE_ and bSubStr _FALSE_ and bSection _FALSE_
 
 			return This.SplitAfterPositionsWCS(pcCondition, pCaseSensitive)
 
@@ -63751,13 +63751,13 @@ class stzString from stzObject
 		bSubStr = oCondition.ContainsCS("@substring", FALSE)
 		bPosition = oCondition.ContainsCS("@position", FALSE)
 
-		if bChars = TRUE and ( bSubStr = FALSE and bPosition = FALSE )
+		if bChars _TRUE_ and ( bSubStr _FALSE_ and bPosition _FALSE_ )
 			return This.SplitAfterCharsWCSXT(pcCondition, pCaseSensitive)
 
-		but bSubStr = TRUE and ( bChars = FALSE and bPosition = FALSE )
+		but bSubStr _TRUE_ and ( bChars _FALSE_ and bPosition _FALSE_ )
 			return This.SplitAfterSubStringsWCSXT(pcCondition, pCaseSensitive)
 
-		but bPosition = TRUE and ( bChars = FALSE and bSubStr = FALSE )
+		but bPosition _TRUE_ and ( bChars _FALSE_ and bSubStr _FALSE_ )
 			return This.SplitAfterPositionsWCSXT(pcCondition, pCaseSensitive)
 
 		else
@@ -77246,7 +77246,7 @@ class stzString from stzObject
 		# Getting the list of chars of the string and
 		# preparing it for case sensitivity
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
@@ -77374,7 +77374,7 @@ class stzString from stzObject
 		# Getting the list of chars and preparing
 		# them for case sensitivity
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
@@ -77434,7 +77434,7 @@ class stzString from stzObject
 		# Getting the list of chars and preparing
 		# it for case sensitivity
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
@@ -77499,7 +77499,7 @@ class stzString from stzObject
 		# Getting the list of chars and preparing it
 		# for case sensitivity
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
@@ -77569,7 +77569,7 @@ class stzString from stzObject
 		# Getting the list of chars and preparing
 		# it for case sensitivity
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
@@ -77743,13 +77743,13 @@ class stzString from stzObject
 		o1 = new stzString("Abc285XY&من")
 		
 		? o1.PartsUsing( 'Q(@char).IsLetter()' )
-		#--> [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
+		#--> [ "Abc" _TRUE_, "285" _FALSE_, "XY" _TRUE_, "&" _FALSE_, "من" _TRUE_ ]
 		
 		? o1.PartsUsing('Q(@char).Orientation()' )
 		#--> [ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
 		
 		? o1.PartsUsing( 'Q(@char).IsUppercase()' )
-		#--> [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
+		#--> [ "A" _TRUE_, "bc285" _FALSE_, "XY" _TRUE_, "&من" _FALSE_ ]
 		
 		? o1.PartsUsing( 'Q(@char).CharCase()' )
 		#--> [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
@@ -77855,7 +77855,7 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = FALSE and
+		if bCaseSensitive _FALSE_ and
 			StzStringQ(pcPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
@@ -77867,7 +77867,7 @@ class stzString from stzObject
 		# Getting the list of chars and preparing
 		# it for case sensitivity
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
@@ -77951,7 +77951,7 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = FALSE and
+		if bCaseSensitive _FALSE_ and
 			StzStringQ(pcPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
@@ -77963,7 +77963,7 @@ class stzString from stzObject
 		# Getting the list of chars and preparing
 		# it for case sensitivity
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
@@ -78048,7 +78048,7 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = FALSE and
+		if bCaseSensitive _FALSE_ and
 			StzStringQ(pcPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
@@ -78060,7 +78060,7 @@ class stzString from stzObject
 		# Getting the list of chars and preparing
 		# it for case sensitivity
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
@@ -78145,7 +78145,7 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = FALSE and
+		if bCaseSensitive _FALSE_ and
 			StzStringQ(pcPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
@@ -78157,7 +78157,7 @@ class stzString from stzObject
 		# Getting the list of chars and preparing
 		# it for case sensitivity
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
@@ -78241,7 +78241,7 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = FALSE and
+		if bCaseSensitive _FALSE_ and
 			StzStringQ(pcPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
@@ -78253,7 +78253,7 @@ class stzString from stzObject
 		# Getting the list of chars and preparing
 		# it for case sensitivity
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
@@ -78345,7 +78345,7 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = FALSE and
+		if bCaseSensitive _FALSE_ and
 			StzStringQ(pcPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
@@ -78357,7 +78357,7 @@ class stzString from stzObject
 		# Getting the list of chars and preparing
 		# it for case sensitivity
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
@@ -78449,7 +78449,7 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = FALSE and
+		if bCaseSensitive _FALSE_ and
 			StzStringQ(pcPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
@@ -78461,7 +78461,7 @@ class stzString from stzObject
 		# Getting the list of chars and preparing
 		# it for case sensitivity
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
@@ -78553,7 +78553,7 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = FALSE and
+		if bCaseSensitive _FALSE_ and
 			StzStringQ(pcPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
@@ -78565,7 +78565,7 @@ class stzString from stzObject
 		# Getting the list of chars and preparing
 		# it for case sensitivity
 
-		if bCaseSensitive = FALSE
+		if bCaseSensitive _FALSE_
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
@@ -79066,9 +79066,9 @@ class stzString from stzObject
 
 		oTemp = new stzString(pcOtherStr)
 		if oTemp.CharsSortingOrder() = This.CharsSortingOrder()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def HasSameCharsOrderAs(pcOtherStr)
@@ -79084,9 +79084,9 @@ class stzString from stzObject
 	def CharsAreSorted()
 		if This.CharsAreSortedInAscending() or
 		   This.CharsAreSortedInDescending()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsSorted()
@@ -79098,9 +79098,9 @@ class stzString from stzObject
 
 	def CharsAreSortedInAscending()
 		if @IsListSortedInAscending(This.Chars())
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -79122,9 +79122,9 @@ class stzString from stzObject
 
 	def CharsAreSortedInDescending()
 		if @IsListSortedInDescending(This.Chars())
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -79424,13 +79424,13 @@ class stzString from stzObject
 			if ring_find([
 				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive) > 0
 
-				pCaseSensitive = TRUE
+				pCaseSensitive _TRUE_
 			
 			but ring_find([
 				:CaseInSensitive, :NotCaseSensitive, :NotCS,
 				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive) > 0
 
-				pCaseSensitive = FALSE
+				pCaseSensitive _FALSE_
 			ok
 
 		ok
@@ -79539,10 +79539,10 @@ class stzString from stzObject
 		if This.IsEqualToCS(pcOtherStr, pCaseSensitive) and
 		   This.HasSameSortingOrderAs(pcOtherStr)
 
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsStrictlyEqualWithCS(pcOtherStr, pCaseSensitive)
@@ -79599,10 +79599,10 @@ class stzString from stzObject
 	#------------------------------------------------------------------#
 
 	def IsEqualToOneOfTheseCS(pacOtherStr, pCaseSensitive)
-		bResult = TRUE
+		bResult _TRUE_
 		for str in pacOtherStr
 			if NOT This.IsEqualToCS(str, pCaseSensitive)
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -79649,9 +79649,9 @@ class stzString from stzObject
 		bEqualToStr2 = This.IsEqualToCS(pcStr2, pCaseSensitive)
 
 		if NOT bEqualToStr1 and NOT bEqualToStr2
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsNeitherEqualToCS(pcStr1, pcStr2, pCaseSensitive)
@@ -79684,9 +79684,9 @@ class stzString from stzObject
 		ok
 
 		if This.NumberOfChars() < StzStringQ(pcOtherStr).NumberOfChars()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -79731,9 +79731,9 @@ class stzString from stzObject
 		ok
 
 		if This.NumberOfChars() > StzStringQ(pcOtherStr).NumberOfChars()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -79767,17 +79767,17 @@ class stzString from stzObject
 		cOtherStr = lower(pcOtherStr)
 
 		if cThisStr = cOtherStr
-			return TRUE
+			return _TRUE_
 		ok
 
 		nDif = abs(This.NumberOfChars() - StzStringQ(cOtherStr).NumberOfChars())
 		n = nDif / This.NumberOfChars()
 		
 		if n <= QuietEqualityRatio() # 0.09 by default, can be changed with SetQuietEqualityRatio(n)
-			return TRUE
+			return _TRUE_
 		ok
 
-		return FALSE
+		return _FALSE_
 
 		def IsQuietEqual(pcOtherStr)
 			return This.IsQuietEqualTo(pcOtherStr)
@@ -79794,16 +79794,16 @@ class stzString from stzObject
 
 	def IsMultipleOfCS(pcSubStr, pCaseSensitive)
 		if NOT isString(pcSubStr)
-			return FALSE
+			return _FALSE_
 		ok
 
 		_oCopy_ = This.Copy()
 		_oCopy_.RemoveCS(pcSubStr, pCaseSensitive)
 
 		if _oCopy_.Content() = ""
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	#-- WIHTOUT CASESENSITIVITY
@@ -79817,22 +79817,22 @@ class stzString from stzObject
 
 	def IsNTimesMultipleOfCS(n, pcSubStr, pCaseSensitive)
 		if NOT isString(pcSubStr)
-			return FALSE
+			return _FALSE_
 		ok
 
 		_oCopy_ = This.Copy()
 		nOccurr = _oCopy_.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
 		if nOccurr != n
-			return FALSE
+			return _FALSE_
 		ok
 
 		_oCopy_.RemoveCS(pcSubStr, pCaseSensitive)
 
 		if _oCopy_.Content() = ""
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsNTimesMultipleOf(n, pcSubStr)
@@ -79844,7 +79844,7 @@ class stzString from stzObject
 
 	def IsSplitterOfCS(pcOtherStr, pCaseSensitive)
 		if Not isString(pcOtherStr)
-			return FALSE
+			return _FALSE_
 		ok
 
 		bResult = StzStringQ(pcOtherStr).NumberOfOccurrenceCS( This.String(), pCaseSensitive ) > 1
@@ -79860,7 +79860,7 @@ class stzString from stzObject
 
 	def IsSplittableUsingCS(pcSubStr)
 		if Not isString(pcOtherStr)
-			return FALSE
+			return _FALSE_
 		ok
 
 		return Q(pcSubStr).IsSplitterOfCS( This.String(), pCaseSensitive )
@@ -81916,7 +81916,7 @@ class stzString from stzObject
 	
 	// Removes a portion of the string defined by its start and end positions
 	def RemoveSection(n1, n2)
-		#< @QtBased = TRUE #>
+		#< @QtBased _TRUE_ #>
 
 		if CheckingParams()
 
@@ -82918,7 +82918,7 @@ class stzString from stzObject
 
 	def SwapSections( panSection1, panSection2 )
 
-		if CheckingParam() = TRUE
+		if CheckingParam() _TRUE_
 			if isList(panSection2) and Q(panSection2).IsWithOrAndNamedParams()
 				panSection2 = panSection2[2]
 			ok
@@ -82951,7 +82951,7 @@ class stzString from stzObject
 	#-----------------------------------#
 
 	def SwapManyPairsOfSections(paPairsOfSections)
-		if CheckingParam() = TRUE
+		if CheckingParam() _TRUE_
 			if NOT ( isList(paPairsOfSections) and Q(paPairsOfSections).IsListOfPairsOfSections() )
 				StzRaise("Incorrect param type! paPairsOfSections must be a list of pairs of sections, each section being a pair of numbers.")
 			ok
@@ -83661,7 +83661,7 @@ class stzString from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def RemoveLeftOccurrence(pcSubStr)
-		This.RemoveLeftOccurrenceCS(pcSubStr, :CaseSensitive = FALSE)
+		This.RemoveLeftOccurrenceCS(pcSubStr, :CaseSensitive _FALSE_)
 
 		def RemoveLeftOccurrenceQ(pcSubStr)
 			This.RemoveLeftOccurrence(pcSubStr)
@@ -85957,7 +85957,7 @@ class stzString from stzObject
 			return
 		ok
 
-		if IsCaseSensitive(pCaseSensitive) = FALSE
+		if IsCaseSensitive(pCaseSensitive) _FALSE_
 			c = ring_lower(c)
 			for i = 1 to nLen
 				acChars[i] = ring_lower(acChars[i])
@@ -86209,7 +86209,7 @@ class stzString from stzObject
 			return
 		ok
 
-		if IsCaseSensitive(pCaseSensitive) = FALSE
+		if IsCaseSensitive(pCaseSensitive) _FALSE_
 			c = ring_lower(c)
 			for i = 1 to nLen
 				acChars[i] = ring_lower(acChars[i])
@@ -88441,9 +88441,9 @@ class stzString from stzObject
 
 	def IsSpacified()
 		if This.IsEqualTo(This.Spacified())
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionFutureForm
@@ -88970,7 +88970,7 @@ class stzString from stzObject
 		return This.FindNthOccurrenceCS(cSubStr, pCaseSensitive)
 	
 	def PositionBefore(cSubStr)
-		return This.PositionBeforeCS(cSubStr, :CaseSensitive = FALSE)
+		return This.PositionBeforeCS(cSubStr, :CaseSensitive _FALSE_)
 
 	def PositionBeforeNthOccurrence(n, cSubStr)
 		return This.PositionBeforeNthOccurrenceCS(n, cSubStr, pCaseSensitive)
@@ -89071,10 +89071,10 @@ class stzString from stzObject
 
 	def ContainsMiddleSubstring()
 		if This.NumberOfCharsQ().IsOdd()
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def HasMiddleSubstring()
@@ -89096,9 +89096,9 @@ class stzString from stzObject
 		ok
 
 		if This.MiddleSubstring() = pcSubStr
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def HasSubstringInTheCenter(pcSubStr)
@@ -89259,9 +89259,9 @@ class stzString from stzObject
 	// Verifies if the string is left-to-right (like english)
 	def IsLeftToRight()
 		IF NOT This.IsRightToLeft()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 
 		ok
 
@@ -89269,12 +89269,12 @@ class stzString from stzObject
 	def ContainsHybridOrientation()
 		aStzChars = This.ToListOfStzChars()
 
-		bIsHybrid = FALSE
+		bIsHybrid _FALSE_
 		cFlag = aStzChars[1].Orientation()
 
 		for i=2 to len(aStzChars)
 			if aStzChars[i].Orientation() != cFlag
-				bIsHybrid = TRUE
+				bIsHybrid _TRUE_
 				exit
 			ok
 		next
@@ -89452,14 +89452,14 @@ class stzString from stzObject
 			return IsLetterOrSpaceOrChar(pcChar)
 
 	def IsLetterOrSpaceOrChars(pacChar)
-		bResult = FALSE
+		bResult _FALSE_
 
 		if This.IsLetter() or This.IsSpace() or
 		   ring_find(pacChars, This.Content()) > 0
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsLetterOrSpaceOrOneOfTheseChars(pacChar)
@@ -90866,13 +90866,13 @@ class stzString from stzObject
 			This.IsLanguageName()
 
 	def IsLanguageNumber()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
-		bResult = FALSE
+		bResult _FALSE_
 		#TODO // Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if aLanguageInfo[1] = This.String()
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -90883,13 +90883,13 @@ class stzString from stzObject
 			return This.IsLanguageNumber()
 
 	def IsShortLanguageAbbreviation()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
-		bResult = FALSE
+		bResult _FALSE_
 		#TODO // Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[3]) = lower(This.String())
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -90897,13 +90897,13 @@ class stzString from stzObject
 		return bResult
 
 	def IsLongLanguageAbbreviation()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
-		bResult = FALSE
+		bResult _FALSE_
 		#TODO // Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[4]) = lower(This.String())
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -90917,15 +90917,15 @@ class stzString from stzObject
 
 		but the following is mutch more efficient: */
 
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
-		bResult = FALSE
+		bResult _FALSE_
 		#TODO // Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 
 			if lower(aLanguageInfo[3]) = lower(This.String()) OR
 			   lower(aLanguageInfo[4]) = lower(This.String())
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -90933,13 +90933,13 @@ class stzString from stzObject
 		return bResult
 
 	def IsLanguageShortAbbreviation()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
-		bResult = FALSE
+		bResult _FALSE_
 		#TODO // Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[3]) = lower(This.String())
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -90947,13 +90947,13 @@ class stzString from stzObject
 		return bResult
 
 	def IsLanguageLongAbbreviation()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
-		bResult = FALSE
+		bResult _FALSE_
 		#TODO // Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[4]) = lower(This.String())
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -90979,13 +90979,13 @@ class stzString from stzObject
 
 	def IsLanguageName() # In english
 
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
-		bResult = FALSE
+		bResult _FALSE_
 		#TODO // Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[2]) = lower(This.String())
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -90997,16 +90997,16 @@ class stzString from stzObject
 
 	def IsLanguageNameOrAbbreviation()
 		if This.IsLanguageName() or This.IsLanguageAbbreviation()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsLanguageAbbreviationOrNames()
 			return This.IsLanguageNameOrAbbreviation()
 
 	def IsNativeLanguageName() # Locale-specific
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
 		stzRaise(stzStringError(:UnsupportedFeatureInThisVersion)) #TODO
 
@@ -91017,16 +91017,16 @@ class stzString from stzObject
 			This.IsCountryPhoneCode()
 
 	def IsCountryAbbreviation()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
 		cAbbr = This.String()
-		bResult = FALSE
+		bResult _FALSE_
 		#TODO // Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if UPPER(aCountryInfo[3]) = UPPER(cAbbr) OR
 			   UPPER(aCountryInfo[4]) = UPPER(cAbbr)
 
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -91034,14 +91034,14 @@ class stzString from stzObject
 		return bResult
 
 	def IsCountryName()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
 		cName = This.String()
-		bResult = FALSE
+		bResult _FALSE_
 		#TODO // Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if lower(aCountryInfo[2]) = lower(cName)
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -91052,20 +91052,20 @@ class stzString from stzObject
 			return NOT This.IsCountryName()
 
 	def IsNativeCountryName() # Locale-specific
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
 		stzRaise(stzString(:UnsupportedFeatureInThisVersion))
 
 	def IsCountryPhoneCode()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
 		cPhoneCode = This.String()
-		bResult = FALSE
+		bResult _FALSE_
 
 		#TODO // Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if aCountryInfo[5] = cPhoneCode
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -91073,15 +91073,15 @@ class stzString from stzObject
 		return bResult
 
 	def IsCountryNumber()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
 		cNumber = This.String()
-		bResult = FALSE
+		bResult _FALSE_
 
 		#TODO // Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if lower(aCountryInfo[1]) = lower(cNumber)
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -91092,16 +91092,16 @@ class stzString from stzObject
 			return This.IsCountryNumber()
 
 	def IsShortCountryAbbreviation()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
 		cAbbr = This.String()
-		bResult = FALSE
+		bResult _FALSE_
 
 		#TODO // Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if UPPER(aCountryInfo[3]) = UPPER(cAbbr)
 
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -91112,15 +91112,15 @@ class stzString from stzObject
 			return This.IsShortCountryAbbreviation()
 
 	def IsLongCountryAbbreviation()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
 		cAbbr = This.String()
-		bResult = FALSE
+		bResult _FALSE_
 
 		#TODO // Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if UPPER(aCountryInfo[4]) = UPPER(cAbbr)
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -91136,7 +91136,7 @@ class stzString from stzObject
 		[ TRUE, :Short ] or [ :TRUE, :Long ] or [ FALSE, NULL ]
 		*/
 
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
 		bAbbr = This.IsCountryAbbreviation()
 		ctype = :Nothing
@@ -91156,15 +91156,15 @@ class stzString from stzObject
 
 	# Script abbreviation can't be short or long, it is always 4 chars long!
 	def IsScriptAbbreviation()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
 		cAbbr = This.String()
-		bResult = FALSE
+		bResult _FALSE_
 
 		#TODO // Replace for/in with for --> better performance
 		for aScriptInfo in LocaleScriptsXT()
 			if lower(aScriptInfo[3]) = lower(cAbbr)
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -91172,15 +91172,15 @@ class stzString from stzObject
 		return bResult
 
 	def IsScriptName()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
 		cScript = This.String()
-		bResult = FALSE
+		bResult _FALSE_
 
 		#TODO // Replace for/in with for --> better performance
 		for aScriptInfo in LocaleScriptsXT()
 			if lower(aScriptInfo[2]) = lower(cScript)
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -91194,15 +91194,15 @@ class stzString from stzObject
 			return NOT This.IsScriptName()
 
 	def IsScriptNumber()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
 		cScript = This.String()
-		bResult = FALSE
+		bResult _FALSE_
 
 		#TODO // Replace for/in with for --> better performance
 		for aScriptInfo in LocaleScriptsXT()
 			if lower(aScriptInfo[1]) = lower(cScript)
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -91215,7 +91215,7 @@ class stzString from stzObject
 	def IsLocaleAbbreviation()
 		cThisString = ", " + This.Copy().ReplaceQ("_", "-").Content() + ","
 		oLocalesInString = StzStringQ( ", " + LocaleAbbreviationsHostedInString() + "," )
-		bResult = oLocalesInString.ContainsCS( cThisString, :CaseSensitive = FALSE )
+		bResult = oLocalesInString.ContainsCS( cThisString, :CaseSensitive _FALSE_ )
 
 		return bResult
 	
@@ -91244,14 +91244,14 @@ class stzString from stzObject
 		return This.Content() = "_" or This.Content() = "-"
 
 	def IsCurrencyName()
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		#TODO // Replace for/in with for --> better performance
 		for aCurrencyInfo in CurrenciesXT()
 			if lower(aCurrencyInfo[1]) = This.Lowercased()
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -91259,10 +91259,10 @@ class stzString from stzObject
 		return bResult	
 
 	def IsCurrencySymbol()	#TODO
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 		
 	def IsBp64LocaleAbbreviation() # Like "ar-TN" for example
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
 		stzRaise(:UnsupportedFeatureInThisVersion)
 
@@ -91271,14 +91271,14 @@ class stzString from stzObject
 		return This.IsDayNameIn(:English)
 
 	def IsDayNameIn(pcLanguageName)
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
 		return This.LowercaseQ().IsOnOfThese(NamesOfDaysIn(pcLanguageName))
 
 	def IsNativeDayNameInLocale(pLocale) # Locale-specific
-		if This.IsEmpty() { return FALSE }
+		if This.IsEmpty() { return _FALSE_ }
 
-		return This.IsEqualToCS(StzLocaleQ(pLocale).NativeDayName(), :CaseSensitive = FALSE)
+		return This.IsEqualToCS(StzLocaleQ(pLocale).NativeDayName(), :CaseSensitive _FALSE_)
 
 	def IsMonthName() # In english
 		stzRaise(:UnsupportedFeatureInThisVersion)
@@ -91313,13 +91313,13 @@ class stzString from stzObject
 		ok
 
 	def RepresentsDigit()
-		bResult = FALSE
+		bResult _FALSE_
 
 		if This.IsANumberInString()
 
 			n = 0+ This.Content()
 			if 0 <= n and n <= 9
-				bResult = TRUE
+				bResult _TRUE_
 			ok
 
 		ok
@@ -91349,9 +91349,9 @@ class stzString from stzObject
 		if This.RepresentsNumberInString() or
 		   This.RepresentsListInString()
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlaternativeForms
@@ -91378,11 +91378,11 @@ class stzString from stzObject
 		   oCopy.RepresentsNumberInHexForm() //or
 		   //oCopy.RepresentsNumberInScientificNotation()
 			
-			return TRUE
+			return _TRUE_
 
 		else
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -91448,9 +91448,9 @@ class stzString from stzObject
 		if This.RepresentsNumber() and
 		   (This.FirstChar() = "+" or This.FirstChar() = "-")
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -91476,9 +91476,9 @@ class stzString from stzObject
 		if This.RepresentsNumber() and
 		   NOT (This.FirstChar() = "+" or This.FirstChar() = "-")
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -91505,10 +91505,10 @@ class stzString from stzObject
 		if This.RepresentsCalculableInteger() or
 		   This.RepresentsCalculableRealNumber()
 
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 				 
 		/* INFO
@@ -91544,9 +91544,9 @@ class stzString from stzObject
 
 		if This.RepresentsNumber() and This.ContainsNo(".")
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -91572,9 +91572,9 @@ class stzString from stzObject
 		if This.RepresentsInteger() and
 		   (This.FirstChar() = "+" or This.FirstChar() = "-")
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -91600,9 +91600,9 @@ class stzString from stzObject
 		if This.RepresentsInteger() and
 		   NOT (This.FirstChar() = "+" or This.FirstChar() = "-")
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -91647,13 +91647,13 @@ class stzString from stzObject
 			# integer is calculable precisely by Ring or not
 
 			if nNumberOfDigits <= nMaxNumberOfDigits
-				return TRUE
+				return _TRUE_
 			else
-				return FALSE
+				return _FALSE_
 			ok
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -91679,9 +91679,9 @@ class stzString from stzObject
 		if This.RepresentsRealNumber() and
 		   (This.FirstChar() = "+" or This.FirstChar() = "-")
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -91707,9 +91707,9 @@ class stzString from stzObject
 		if This.RepresentsRealNumber() and
 		   NOT (This.FirstChar() = "+" or This.FirstChar() = "-")
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -91767,13 +91767,13 @@ class stzString from stzObject
 			# number is calculable precisely by Ring or not
 
 			if nNumberOfDigits <= nMaxNumberOfDigits
-				return TRUE
+				return _TRUE_
 			else
-				return FALSE
+				return _FALSE_
 			ok
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -91800,7 +91800,7 @@ class stzString from stzObject
 		# Rule 1: String shouldn't be null
 
 		if This.Content() = ""
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 2: String shouldn't be just one of these chars
@@ -91810,7 +91810,7 @@ class stzString from stzObject
 		    This.Content() = "." or This.Content() = "_" or
 		    This.Content() = " ")
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 3: String shouldn't contain more then once these chars
@@ -91819,25 +91819,25 @@ class stzString from stzObject
 		   This.NumberOfOccurrence("+") > 1 or
 		   This.NumberOfOccurrence(".") > 1
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 4: If "-" sign exits, then it should prefix the string
 
 		if This.Contains("-") and This.FirstChar() != "-"
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 5: If "+" sign exits, then it should prefix the string
 
 		if This.Contains("+") and This.FirstChar() != "+"
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 6: If "." separator exists, then it shouldn't be at the end
 
 		if This.Contains(".") and This.LastChar() = "."
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Now, let's check the chars correspond to digits, signs or separators
@@ -91850,14 +91850,14 @@ class stzString from stzObject
 			c = acChars[i]
 
 			if NOT ring_find(acPossibleChars, c)
-				return FALSE
+				return _FALSE_
 			ok
 
 		next
 
 		# At this level, we can be sure the string is a decimal number
 
-		return TRUE
+		return _TRUE_
 
 		#< @FunctionAlternativeForms
 
@@ -91894,18 +91894,18 @@ class stzString from stzObject
 		# Rule 1: String shouldn't be null or formed of just spaces
 
 		if This.IsEmpty()
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 2: String must contains 0s or 1s
 
 		if This.ContainsNo("0") and This.ContainsNo("1")
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 3: String should be prefixed with a binary prefix
 
-		bTemp = FALSE
+		bTemp _FALSE_
 
 		#TODO // Replace for/in with for --> better performance
 
@@ -91917,13 +91917,13 @@ class stzString from stzObject
 			oCopy = This.Copy()
 			oCopy.RemoveFromLeftQ("-").RemoveFromLeftQ("+")
 
-			if oCopy.StartsWithCS(cBinPrefix, :CaseSensitive = FALSE)
-				bTemp = TRUE
+			if oCopy.StartsWithCS(cBinPrefix, :CaseSensitive _FALSE_)
+				bTemp _TRUE_
 				exit
 			ok
 		next
-		if bTemp = FALSE
-			return FALSE
+		if bTemp _FALSE_
+			return _FALSE_
 		ok
 
 		# Rule 4: String shouldn't be just one of these chars
@@ -91932,7 +91932,7 @@ class stzString from stzObject
 		   (This.Content() = "+" or This.Content() = "-" or
 		    This.Content() = "." or This.Content() = "_")
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 5: String shouldn't contain more then once these chars
@@ -91941,25 +91941,25 @@ class stzString from stzObject
 		   This.NumberOfOccurrence("+") > 1 or
 		   This.NumberOfOccurrence(".") > 1
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 6: If "-" sign exits, then it should prefix the string
 
 		if This.Contains("-") and This.FirstChar() != "-"
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 7: If "+" sign exits, then it should prefix the string
 
 		if This.Contains("+") and This.FirstChar() != "+"
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 8: If "." separator exists, then it shouldn't be at the end
 
 		if This.Contains(".") and This.LastChar() = "."
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Now, let's check the chars correspond to digits, signs or separators
@@ -91972,14 +91972,14 @@ class stzString from stzObject
 			c = acChars[i]
 
 			if NOT ring_find(acPossibleChars, c)
-				return FALSE
+				return _FALSE_
 			ok
 
 		next
 
 		# At this level, we can be sure the string is a decimal number
 
-		return TRUE
+		return _TRUE_
 
 		#< @FunctionAlternativeForms
 
@@ -92014,18 +92014,18 @@ class stzString from stzObject
 		# Rule 1: String shouldn't be null or formed of just spaces
 
 		if This.IsEmpty()
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 2: String must not contain just a hex prefix
 
-		if This.IsEqualToOneOfTheseCS(HexPrefixes(), :CS = FALSE)
-			return FALSE
+		if This.IsEqualToOneOfTheseCS(HexPrefixes(), :CS _FALSE_)
+			return _FALSE_
 		ok
 
 		# Rule 3: String should be prefixed with a hex prefix
 
-		bTemp = FALSE
+		bTemp _FALSE_
 
 		acHexPrefixes = HexPrefixes()
 		nLen = len(acHexPrefixes)
@@ -92036,13 +92036,13 @@ class stzString from stzObject
 			oCopy.RemoveFromLeft("-")
 			oCopy.RemoveFromLeft("+")
 
-			if oCopy.StartsWithCS(cHexPrefix, :CaseSensitive = FALSE)
-				bTemp = TRUE
+			if oCopy.StartsWithCS(cHexPrefix, :CaseSensitive _FALSE_)
+				bTemp _TRUE_
 				exit
 			ok
 		next
-		if bTemp = FALSE
-			return FALSE
+		if bTemp _FALSE_
+			return _FALSE_
 		ok
 
 		# Rule 4: String shouldn't be formed of these chars alone
@@ -92051,7 +92051,7 @@ class stzString from stzObject
 		   (This.Content() = "+" or This.Content() = "-" or
 		    This.Content() = "." or This.Content() = "_" )
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 5: String shouldn't contain more then once these chars
@@ -92060,25 +92060,25 @@ class stzString from stzObject
 		   This.NumberOfOccurrence("+") > 1 or
 		   This.NumberOfOccurrence(".") > 1
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 6: If "-" sign exits, then it should prefix the string
 
 		if This.Contains("-") and This.FirstChar() != "-"
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 7: If "+" sign exits, then it should prefix the string
 
 		if This.Contains("+") and This.FirstChar() != "+"
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 8: If "." separator exists, then it shouldn't be at the end
 
 		if This.Contains(".") and This.LastChar() = "."
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Now, let's check that chars correspond to digits, signs or separators
@@ -92091,14 +92091,14 @@ class stzString from stzObject
 			c = acChars[i]
 
 			if NOT ring_find(acPossibleChars, c)
-				return FALSE
+				return _FALSE_
 			ok
 
 		next
 
 		# At this level, we can be sure the string is a hex number
 
-		return TRUE
+		return _TRUE_
 
 		#< @FunctionAlternativeForms
 
@@ -92131,19 +92131,19 @@ class stzString from stzObject
 
 		nLen = This.NumberOfChars()
 		if NOT nLen > 2
-			return FALSE
+			return _FALSE_
 		ok
 
 		if NOT This.SectionQ(1, 2).Uppercased() = "U+"
-			return FALSE
+			return _FALSE_
 		ok
 	
 		cNumber = This.Section(3, nLen)
 	
 		if StzStringQ( HexPrefix() + cNumber ).RepresentsNumberInHexForm()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -92179,18 +92179,18 @@ class stzString from stzObject
 		# Rule 1: String shouldn't be null or formed of just spaces
 
 		if This.IsEmpty()
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 2: String must not contain only an octal prefix
 
-		if This.IsEqualToOneOfTheseCS(OctalPrefixes(), :CS = FALSE)
-			return FALSE
+		if This.IsEqualToOneOfTheseCS(OctalPrefixes(), :CS _FALSE_)
+			return _FALSE_
 		ok
 
 		# Rule 4: String should be prefixed with an octal prefix
 
-		bTemp = FALSE
+		bTemp _FALSE_
 
 		acOctalPrefixes = OctalPrefixes()
 		nLen = len(acOctalPrefixes)
@@ -92200,13 +92200,13 @@ class stzString from stzObject
 			oCopy = This.Copy()
 			oCopy.RemoveFromLeftQ("-").RemoveFromLeftQ("+")
 
-			if oCopy.StartsWithCS(cOctalPrefix, :CaseSensitive = FALSE)
-				bTemp = TRUE
+			if oCopy.StartsWithCS(cOctalPrefix, :CaseSensitive _FALSE_)
+				bTemp _TRUE_
 				exit
 			ok
 		next
-		if bTemp = FALSE
-			return FALSE
+		if bTemp _FALSE_
+			return _FALSE_
 		ok
 
 		# Rule 5: String shouldn't be formed of these chars alone
@@ -92215,7 +92215,7 @@ class stzString from stzObject
 		   (This.Content() = "+" or This.Content() = "-" or
 		    This.Content() = "." or This.Content() = "_" )
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 6: String shouldn't contain more then once these chars
@@ -92224,25 +92224,25 @@ class stzString from stzObject
 		   This.NumberOfOccurrence("+") > 1 or
 		   This.NumberOfOccurrence(".") > 1
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 7: If "-" sign exits, then it should prefix the string
 
 		if This.Contains("-") and This.FirstChar() != "-"
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 8: If "+" sign exits, then it should prefix the string
 
 		if This.Contains("+") and This.FirstChar() != "+"
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Rule 9: If "." separator exists, then it shouldn't be at the end
 
 		if This.Contains(".") and This.LastChar() = "."
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Now, let's check that the chars correspond to digits, signs or separators
@@ -92255,14 +92255,14 @@ class stzString from stzObject
 			c = acChars[i]
 
 			if NOT ring_find(acPossibleChars, c)
-				return FALSE
+				return _FALSE_
 			ok
 
 		next
 
 		# At this level, we can be sure the string is a decimal number
 
-		return TRUE
+		return _TRUE_
 
 		#< @FunctionAlternativeForms
 
@@ -92366,7 +92366,7 @@ class stzString from stzObject
 		nLen = _oQCopy_.size()
 		acResult = []
 
-		if bCaseSensitive = TRUE
+		if bCaseSensitive _TRUE_
 			for i = 1 to nLen
 				acResult + _oQCopy_.mid(i-1, 1)
 			next
@@ -92556,9 +92556,9 @@ class stzString from stzObject
 
 	def IsAFunction()
 		if ring_find( functions(), This.Lowercased() ) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
  
 		def IsAFunctionName()
@@ -92584,9 +92584,9 @@ class stzString from stzObject
 
 	def IsAClass()
 		if ring_find( classes(), This.Lowercased() ) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsAClassName()
@@ -92604,7 +92604,7 @@ class stzString from stzObject
 
 	def IsAnAttributeOfClass(pcClass)
 		acTheseAttributes = Stz( Q(pcClass).FirstNCharsRemeoved(3), :Attributes )
-		bResult = This.ExistsInCS( acTheseAttributes, :CS = FALSE )
+		bResult = This.ExistsInCS( acTheseAttributes, :CS _FALSE_ )
 		return bResult
 
 		def IsAnAttributeInClass(pcClass)
@@ -92634,7 +92634,7 @@ class stzString from stzObject
 
 	def IsAMethodOfClass(pcClass)
 		acTheseMethods = Stz( Q(pcClass).FirstNCharsRemeoved(3), :Methods )
-		bResult = This.ExistsInCS( acTheseMethods, :CS = FALSE )
+		bResult = This.ExistsInCS( acTheseMethods, :CS _FALSE_ )
 		return bResult
 
 		def IsAMethodInClass(pcClass)
@@ -92666,16 +92666,16 @@ class stzString from stzObject
 		# EarlyCheck
 
 		if This.IsEmpty() or NOT This.ContainsNumbers()
-			return FALSE
+			return _FALSE_
 		ok
 
 		# Doing the job
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		try
 			if isNumber( 0+ This.Content() )
-				bResult = TRUE
+				bResult _TRUE_
 			ok
 		catch
 			// Do nothing
@@ -92753,7 +92753,7 @@ class stzString from stzObject
 			:FromRight2Left,
 			:RTL, :R2L,
 			:FromRTL, :FromR2L
-			], :CS = FALSE)
+			], :CS _FALSE_)
 
 			acDescriptors = oDesc.Reversed()
 		ok
@@ -92791,12 +92791,12 @@ class stzString from stzObject
 
 			cCode = 'bOk = oaStzChars[i].' + cMethod + '()'
 
-			bResult = TRUE
+			bResult _TRUE_
 
 			for i = 1 to nLen
 				eval(cCode)
 				if NOT bOk
-					bResult = FALSE
+					bResult _FALSE_
 					exit
 				ok
 			next
@@ -92806,11 +92806,11 @@ class stzString from stzObject
 		else
 
 			cType = Q(acDescriptors[1]).InfereType()
-			if Q(cType).StartsWithCS("stz", :CS = FALSE)
+			if Q(cType).StartsWithCS("stz", :CS _FALSE_)
 				cType = Q(cType).FirstNCharsRemoved(3)
 			ok
 
-			bResult = TRUE
+			bResult _TRUE_
 	
 			for i = 2 to len(acDescriptors)
 
@@ -92825,8 +92825,8 @@ class stzString from stzObject
 					bOk = This.Check( :That = 'Stz' + cType + 'Q(@item).' + cMethod + "()" )
 				ok
 
-				if bOk = FALSE
-					bResult = FALSE
+				if bOk _FALSE_
+					bResult _FALSE_
 					exit
 				ok
 			next
@@ -93174,10 +93174,10 @@ class stzString from stzObject
 
 	def IsChar()
 		if This.NumberOfChars() = 1
-			return TRUE
+			return _TRUE_
 		else
 				
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsAChar()
@@ -93197,15 +93197,15 @@ class stzString from stzObject
 
 	def IsAsciiChar()
 		if This.Unicode() <= 255
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		if oCopy.IsEmpty()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsAnAsciiChar()
@@ -93225,7 +93225,7 @@ class stzString from stzObject
 		if isString(c) and  @IsChar(c)
 			return This.IsMadeOfCS([ c ], pCaseSensitive)
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	#-- WITHOUT CASESENSITIVITY
@@ -93255,12 +93255,12 @@ class stzString from stzObject
 		next
 
 		if oCopy.IsEmpty()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
-		return FALSE
+		return _FALSE_
 
 		#< @FunctionAlternativeForms
 
@@ -93311,9 +93311,9 @@ class stzString from stzObject
 
 	def IsCharInComputableForm()
 		if This.IsChar() and This.IsInComputableForm()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsAsciiCharInString()
@@ -93322,7 +93322,7 @@ class stzString from stzObject
 		   This.IsBoundedBy('"', '"'))
 			return StzStringQ(This.Char(2)).IsAsciiChar()
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	  #----------------------------#
@@ -93870,7 +93870,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		if bCase = TRUE
+		if bCase _TRUE_
 
 			return QStringObject().size()
 		else
@@ -93888,9 +93888,9 @@ class stzString from stzObject
 
 		def NumberOfcharsCSB(pCaseSensitive)
 			if This.NumberOfCharsCS(pCaseSensitive) = LastValue()
-				return TRUE
+				return _TRUE_
 			else
-				return FALSE
+				return _FALSE_
 			ok
 
 			def NumberOfCharCSBQ(pCaseSensitive)
@@ -94085,9 +94085,9 @@ class stzString from stzObject
 
 		def NumberOfcharsB()
 			if This.NumberOfChars() = LastValue()
-				return TRUE
+				return _TRUE_
 			else
-				return FALSE
+				return _FALSE_
 			ok
 
 			def NumberOfCharBQ()
@@ -94292,13 +94292,13 @@ class stzString from stzObject
 
 		def NumberOfLettersB()
 			if This.NumberOfLetters() = LastValue()
-				return TRUE
+				return _TRUE_
 			else
-				return FALSE
+				return _FALSE_
 			ok
 
 		def NumberOfLettersBQ()
-			if This.NumberOfLettersB() = TRUE
+			if This.NumberOfLettersB() _TRUE_
 				return This
 			else
 				return AFalseObject()
@@ -94372,9 +94372,9 @@ class stzString from stzObject
 
 	def IsLetter()
 		if This.IsChar() and StzCharQ(This.Content()).IsLetter()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 		
 		#< @FunctionAlternativeForms
@@ -94406,9 +94406,9 @@ class stzString from stzObject
 
 	def IsLetterOf(pcOtherStr)
 		if This.IsLetter() and Q(pcOtherStr).ContainsLetter(This.Content())
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsALetterOf(pcOtherStr)
@@ -94472,13 +94472,13 @@ class stzString from stzObject
 
 		def LettersNB() # Used for natural-coding and chains of truth
 			if This.NumberOfLetters() = LastValue()
-				return TRUE
+				return _TRUE_
 			else
-				return FALSE
+				return _FALSE_
 			ok
 
 			def LettersNBQ()
-				if This.LettersNB() = TRUE
+				if This.LettersNB() _TRUE_
 					return This
 				else
 					return AFalseObject()
@@ -94557,9 +94557,9 @@ class stzString from stzObject
 		   (This.IsBoundedBy("'", "'") or
 		    This.IsBoundedBy('"', '"'))
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 	
 		def IsWellFormed()
@@ -94606,16 +94606,16 @@ class stzString from stzObject
 
 		for i = 1 to nLen
 			if NOT This.ContainsCS(acSubStr[i], pCaseSensitive)
-				return FALSE
+				return _FALSE_
 			ok
 
 			_oCopy_.RemoveAllCS(acSubStr[i], pCaseSensitive)
 		next
 
 		if _oCopy_.IsEmpty()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -94898,7 +94898,7 @@ class stzString from stzObject
 
 	def BoxEachChar()
 
-		This.BoxXT([ :Line = :Solid, :EachChar = TRUE ])
+		This.BoxXT([ :Line = :Solid, :EachChar _TRUE_ ])
 
 		#< @FunctionFluentForm
 
@@ -94947,7 +94947,7 @@ class stzString from stzObject
 	#--
 
 	def BoxRoundEachChar()
-		This.BoxXT( [ :AllCorners = :Round, :EachChar = TRUE ])
+		This.BoxXT( [ :AllCorners = :Round, :EachChar _TRUE_ ])
 
 		#< @FunctionFluentForm
 
@@ -95115,7 +95115,7 @@ class stzString from stzObject
 		# without being constrained by providing them in
 		# the hashlist form:
 		# 
-		# 	BoxXT([ :Solid = TRUE, :Dashed = TRUE, ... ])
+		# 	BoxXT([ :Solid _TRUE_, :Dashed _TRUE_, ... ])
 		# 
 		# ~> More concise syntax!
 
@@ -95145,10 +95145,10 @@ class stzString from stzObject
 
 			# Reading if the box should be numbered
 
-			bNumbered = FALSE # By default
+			bNumbered _FALSE_ # By default
 
-			if paBoxOptions[ :Numbered ] = TRUE
-				bNumbered = TRUE
+			if paBoxOptions[ :Numbered ] _TRUE_
+				bNumbered _TRUE_
 			ok
 
 			# Reading if the box is rounded
@@ -95157,11 +95157,11 @@ class stzString from stzObject
 
 			if isNumber(paBoxOptions[ :Rounded ])
 
-				if paBoxOptions[ :Rounded ] = TRUE
-					bRounded = TRUE
+				if paBoxOptions[ :Rounded ] _TRUE_
+					bRounded _TRUE_
 
-				but paBoxOptions[ :Rounded ] = FALSE
-					bRounded = FALSE
+				but paBoxOptions[ :Rounded ] _FALSE_
+					bRounded _FALSE_
 
 				ok
 			ok
@@ -95174,7 +95174,7 @@ class stzString from stzObject
 			   paBoxOptions[ :AllCorners ] = :Rounded
 
 				if isString(bRounded) and bRounded = NULL
-					bRounded = TRUE
+					bRounded _TRUE_
 				ok
 
 				cAllCorners = :Round
@@ -95186,7 +95186,7 @@ class stzString from stzObject
 			   cAllCorners = :Rect
 
 				if isString(bRounded) and bRounded = NULL
-					bRounded = FALSE
+					bRounded _FALSE_
 				ok
 
 				 # By default
@@ -95196,7 +95196,7 @@ class stzString from stzObject
 			    cAllCorners = :Rounded
 
 				if isString(bRounded) and bRsound = NULL
-					bRounded = TRUE
+					bRounded _TRUE_
 				ok
 
 				aCorners = [ :Round, :Round, :Round, :Round ]
@@ -95207,7 +95207,7 @@ class stzString from stzObject
 			   StzListQ( paBoxOptions[:Corners] ).IsMadeOfSome([ :Rectangular, :Round ])
 	
 				if isString(bRounded) and bRound = NULL
-					bRounded = TRUE
+					bRounded _TRUE_
 				ok
 
 				aCorners = paBoxOptions[:Corners]
@@ -95216,11 +95216,11 @@ class stzString from stzObject
 
 			if len(aCorners) = 0 and bRounded = NULL
 				if isString(bRounded) and bRounded = NULL
-					bRounded = FALSE
+					bRounded _FALSE_
 				ok
 			ok
 
-			if bRounded = TRUE and
+			if bRounded _TRUE_ and
 			   ring_find(aCorners, :round) = 0
 
 				aCorners = [ :round, :round, :round, :round ]
@@ -95229,7 +95229,7 @@ class stzString from stzObject
 			# If the boxing happens at the char level, delegate it
 			# to the stzListOfChars class
 
-			if paBoxOptions[ :EachChar ] = TRUE
+			if paBoxOptions[ :EachChar ] _TRUE_
 				cResult = This.ToStzListOfChars().BoxedXT(paBoxOptions)
 				This.UpdateWith(cResult)
 				return
@@ -95238,7 +95238,7 @@ class stzString from stzObject
 			# If the boxing happens at the word level, delegate it
 			# to the stzListOfStrings class
 
-			if paBoxOptions[ :EachWord ] = TRUE
+			if paBoxOptions[ :EachWord ] _TRUE_
 				return This.ToListOfStringsQ().Boxed(paBoxOptions)
 			ok
 
@@ -95279,7 +95279,7 @@ class stzString from stzObject
 			cCorner3 = "┘"
 			cCorner4 = "└"
 
-			if bRounded = TRUE
+			if bRounded _TRUE_
 
 				if  aCorners[1] = :Round
 					cCorner1 = "╭"
@@ -95353,13 +95353,13 @@ class stzString from stzObject
 			stzRaise("Incorrect param! paList must be a list.")
 		ok
 
-		bResult = FALSE
+		bResult _FALSE_
 		nLen = len(paList)
 
 		for i = 1 to nLen
 			item = paList[i]
 			if isString(item) and Q(item).IsEqualToCS( This.String(), pCaseSensitive )
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -95876,9 +95876,9 @@ class stzString from stzObject
 	def IsReverseOf(pcOtherStr)
 
 		if This.Reversed() = pcOtherStr
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -95945,12 +95945,12 @@ class stzString from stzObject
 		aoChars = This.ToListOfStzChars()
 		nLen = len(aoChars)
 
-		bResult = TRUE
+		bResult _TRUE_
 
 
 		for i = 1 to nLen
 			if NOT aoChars[i].IsTurned()
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -96415,10 +96415,10 @@ class stzString from stzObject
 		# A list can not be written with less then 2 chars
 
 		if oCopy.NumberOfChars() < 2
-			return FALSE
+			return _FALSE_
 		ok
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		# Case 1 : The list is in normal [_,_,_] form
 
@@ -96442,7 +96442,7 @@ class stzString from stzObject
 				n = oCopy.FindFirst(":")
 				if NOT ( n > 1 and n < oCopy.NumberOfChars() )
 
-					bResult = FALSE
+					bResult _FALSE_
 
 				ok
 
@@ -96537,13 +96537,13 @@ class stzString from stzObject
 
 	def IsListInNormalForm()
 		if NOT This.IsListInString()
-			return FALSE
+			return _FALSE_
 		ok
 
 		if This.TrimQ().IsBoundedBy([ "[","]" ])
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def RepresentsListInNormalForm()
@@ -96553,9 +96553,9 @@ class stzString from stzObject
 		if This.IsListInString() and
 		  ( NOT This.IsListInNormalForm() )
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def RepresentsListInShortForm()
@@ -96581,9 +96581,9 @@ class stzString from stzObject
 		if This.IsContiguousListInString() and
 		   This.IsListInNormalForm()
 		  
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsContinuousListInNormalForm()
@@ -96594,9 +96594,9 @@ class stzString from stzObject
 		if This.IsContiguousListInString() and
 		   This.IsListInShortForm()
 		   
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsContinuousListInShortForm()
@@ -97019,11 +97019,11 @@ class stzString from stzObject
 		aoChars = U( This.ToListOfStzChars() )
 		nLen = len(aoChars)
 
-		bResult = TRUE
+		bResult _TRUE_
 
 		for i = 1 to nLen
 			if NOT aoChars[i].IsPunct()
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 		next
@@ -97500,9 +97500,9 @@ class stzString from stzObject
 		   This.LastChar() = ")" // and #TODO // complete this and remove "Almost" from the function name!
 		   //This.SectionQ(1,  This.FindFirst("(") - 1).ContainsOnly(:CompterCodeChars)
 		
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< FunctionAlternativeForms >
@@ -97526,37 +97526,37 @@ class stzString from stzObject
 	#-----------------
 
 	def IsStzString()
-		return TRUE
+		return _TRUE_
 
 	def StzType()
 		return :stzString
 
 	def IsANumber()
-		return FALSE
+		return _FALSE_
 
 		def IsNotANumber()
-			return TRUE
+			return _TRUE_
 
 	def IsAString()
-		return TRUE
+		return _TRUE_
 
 		def IsNotAString()
-			return FALSE
+			return _FALSE_
 
 	def IsAList()
-		return FALSE
+		return _FALSE_
 
 		def IsNotAList()
-			return TRUE
+			return _TRUE_
 
 	def IsAnObject()
-		return TRUE
+		return _TRUE_
 
 		def IsAObject()
-			return TRUE
+			return _TRUE_
 
 		def IsNotAnObject()
-			return FALSE
+			return _FALSE_
 
 	  #=====================================================#
 	 #  CHECKING IF THE STRING STARTS WITH A GIVEN NUMBER  #
@@ -97572,7 +97572,7 @@ class stzString from stzObject
 
 		if isString(n)
 			if n = ""
-				return FALSE
+				return _FALSE_
 			ok
 			cNumber = n
 
@@ -97583,9 +97583,9 @@ class stzString from stzObject
 		nLen = StzStringQ(cNumber).NumberOfChars()
 
 		if This.FirstNCharsAsString(nLen) = cNumber
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -97640,7 +97640,7 @@ class stzString from stzObject
 
 		nLen = This.NumberOfChars()
 		if nLen = 0
-			return FALSE
+			return _FALSE_
 		ok
 
 		cFirst = This.Char(1)
@@ -97650,9 +97650,9 @@ class stzString from stzObject
 
 		oChar = new stzChar(cFirst)
 		if oChar.IsANumber()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -97697,7 +97697,7 @@ class stzString from stzObject
 		*/
 
 		cResult = ""
-		bContinue = TRUE
+		bContinue _TRUE_
 
 		acChars = This.Chars()
 		nLen = len(acChars)
@@ -97707,14 +97707,14 @@ class stzString from stzObject
 			i++
 
 			if i = 0
-				bContinue = FALSE
+				bContinue _FALSE_
 
 			else
 
 				if NOT ( @IsNumberInString(acChars[i]) or
 					 ring_find([ "+", "-", "." ], acChars[i]) > 0 )
 
-					bContinue = FALSE
+					bContinue _FALSE_
 
 				ok
 
@@ -97748,7 +97748,7 @@ class stzString from stzObject
 
 		if isString(n)
 			if n = ""
-				return FALSE
+				return _FALSE_
 			ok
 			cNumber = n
 
@@ -97759,9 +97759,9 @@ class stzString from stzObject
 		nLen = StzStringQ(cNumber).NumberOfChars()
 
 		if This.LastNCharsAsString(nLen) = cNumber
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -97847,7 +97847,7 @@ class stzString from stzObject
 		*/
 
 		cResult = ""
-		bContinue = TRUE
+		bContinue _TRUE_
 
 		acChars = This.Chars()
 		nLen = len(acChars)
@@ -97857,14 +97857,14 @@ class stzString from stzObject
 			i--
 
 			if i = 0
-				bContinue = FALSE
+				bContinue _FALSE_
 
 			else
 
 				if NOT ( @IsNumberInString(acChars[i]) or
 					 ring_find([ "+", "-", "." ], acChars[i]) > 0 )
 
-					bContinue = FALSE
+					bContinue _FALSE_
 
 				ok
 
@@ -97901,7 +97901,7 @@ class stzString from stzObject
 		acChars = This.Chars()
 		nLen = len(acChars)
 		cCurrentNum = ""
-		bInNumber = FALSE
+		bInNumber _FALSE_
     
 		nLenCurrentNum = 0
 		nLenTemp = 0
@@ -97917,7 +97917,7 @@ class stzString from stzObject
 				(acChars[i] = "-" and nLenCurrentNum = 0)
             
 				cCurrentNum += acChars[i]
-				bInNumber = TRUE
+				bInNumber _TRUE_
             
 			else
 				if bInNumber
@@ -97931,7 +97931,7 @@ class stzString from stzObject
 					ok
 
 					cCurrentNum = ""
-					bInNumber = FALSE
+					bInNumber _FALSE_
 				ok
 			ok
 		next
@@ -99143,18 +99143,18 @@ class stzString from stzObject
 
 	def SubStringsAreWordsCS(acSubStr, pCaseSensitive) #TODO // check for performance!
 
-		if CheckingParams() = TRUE
+		if CheckingParams() _TRUE_
 			if NOT (isList(acSubStr) and Q(acSubStr).IsLIstOfStrings())
 				StzRaise("Incorrect param type! acSubStr must be a list pf strings.")
 			ok
 		ok
 
-		bResult = TRUE
+		bResult _TRUE_
 
 		nLen = len(acSubStr)
 		for i = 1 to nLen
 			if NOT This.SubStringIsWordCS(acSubStr[i], pCaseSensitive)
-				bResult = FALSE
+				bResult _FALSE_
 				exit
 			ok
 
@@ -99325,7 +99325,7 @@ class stzString from stzObject
 		# The two params must be strings
 
 		if NOT (isString(pcSubStr) and isString(pcOtherSubStr))
-			return FALSE
+			return _FALSE_
 		ok
 
 		# The two substrings must exist in the string
@@ -99333,7 +99333,7 @@ class stzString from stzObject
 		if NOT (This.ContainsCS(pcSubStr, pCaseSensitive) and
 			This.ContainsCS(pcOtherSubStr, pCaseSensitive) )
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		bResult =  This.BoundsOfCSQ(pcOtherSubStr, pCaseSensitive).
@@ -99355,7 +99355,7 @@ class stzString from stzObject
 		# The two params must be strings
 
 		if NOT (isString(pcSubStr) and isString(pcOtherSubStr))
-			return FALSE
+			return _FALSE_
 		ok
 
 		# The two substrings must exist in the string
@@ -99363,7 +99363,7 @@ class stzString from stzObject
 		if NOT (This.ContainsCS(pcSubStr, pCaseSensitive) and
 			This.ContainsCS(pcOtherSubStr, pCaseSensitive) )
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		bResult =  Q( This.FirstBoundsOfCS(pcOtherSubStr, pCaseSensitive) ).
@@ -99384,7 +99384,7 @@ class stzString from stzObject
 		# The two params must be strings
 
 		if NOT (isString(pcSubStr) and isString(pcOtherSubStr))
-			return FALSE
+			return _FALSE_
 		ok
 
 		# The two substrings must exist in the string
@@ -99392,7 +99392,7 @@ class stzString from stzObject
 		if NOT (This.ContainsCS(pcSubStr, pCaseSensitive) and
 			This.ContainsCS(pcOtherSubStr, pCaseSensitive) )
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		bResult =  Q( This.LastBoundsOfCS(pcOtherSubStr, pCaseSensitive) ).
@@ -99413,7 +99413,7 @@ class stzString from stzObject
 		# The two params must be strings
 
 		if NOT (isString(pcSubStr) and isString(pcOtherSubStr))
-			return FALSE
+			return _FALSE_
 		ok
 
 		# The two substrings must exist in the string
@@ -99421,7 +99421,7 @@ class stzString from stzObject
 		if NOT (This.ContainsCS(pcSubStr, pCaseSensitive) and
 			This.ContainsCS(pcOtherSubStr, pCaseSensitive) )
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		bResult =  Q( This.LeftBoundsOfCS(pcOtherSubStr, pCaseSensitive) ).
@@ -99442,7 +99442,7 @@ class stzString from stzObject
 		# The two params must be strings
 
 		if NOT (isString(pcSubStr) and isString(pcOtherSubStr))
-			return FALSE
+			return _FALSE_
 		ok
 
 		# The two substrings must exist in the string
@@ -99450,7 +99450,7 @@ class stzString from stzObject
 		if NOT (This.ContainsCS(pcSubStr, pCaseSensitive) and
 			This.ContainsCS(pcOtherSubStr, pCaseSensitive) )
 
-			return FALSE
+			return _FALSE_
 		ok
 
 		bResult =  Q( This.RightBoundsOfCS(pcOtherSubStr, pCaseSensitive) ).
@@ -99491,7 +99491,7 @@ class stzString from stzObject
 		_cStr_ = This.Content()
 		_cOther_ = pcOtherStr
 
-		if bCase = FALSE
+		if bCase _FALSE_
 			_cStr_ = lower(_cStr_)
 			_cOther_ = lower(pcOtherStr)
 		ok
@@ -99499,9 +99499,9 @@ class stzString from stzObject
 		_cInversed_ = ring_reverse(_cOther_)
 
 		if _cStr_ = _cInversed_
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsAnagramOf(pcOtherStr)
@@ -99566,7 +99566,7 @@ class stzString from stzObject
 			return This.IsArabicScript()
 
 	def IsText()
-		return TRUE
+		return _TRUE_
 
 	def ToStzCCode()
 		return new stzCCode(This.String())
@@ -99826,9 +99826,9 @@ class stzString from stzObject
 
 		anPos = This.FindCS(pcSubStr, pCaseSensitive)
 		if ring_find(anPos, n)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionFluentForm
@@ -100118,9 +100118,9 @@ class stzString from stzObject
 
 		def VowelsB()
 			if This.VowelsQ().IsEqualTo(LastValue())
-				return TRUE
+				return _TRUE_
 			else
-				return FALSE
+				return _FALSE_
 			ok
 
 		def VowelsBQ()
@@ -100185,9 +100185,9 @@ class stzString from stzObject
 
 	def VowelNB()
 		if This.NumberOfVowels() = LastValue()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def VowelNBQ()

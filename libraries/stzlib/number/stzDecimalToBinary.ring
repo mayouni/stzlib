@@ -87,7 +87,7 @@ class stzDecimalToBinary from stzObject
 			ok
 
 			aTemp = []
-			bAgain = TRUE
+			bAgain _TRUE_
 	
 			# Divide by 2 until reaching 0 as a result
 	
@@ -96,7 +96,7 @@ class stzDecimalToBinary from stzObject
 				# If the result is 0 then stop the division
 	
 				if floor(n/2) = 0
-					bAgain = FALSE
+					bAgain _FALSE_
 				ok
 	
 				# Save the remainder
@@ -128,13 +128,13 @@ class stzDecimalToBinary from stzObject
 		cBinary = ""
 
 		nPrecision = 0
-		bAgain = TRUE
+		bAgain _TRUE_
 
 		while bAgain
 			
 			nPrecision++
 			if nPrecision > 19
-				bAgain = FALSE
+				bAgain _FALSE_
 
 			else
 				nDouble = n * 2 // Check if This should to be done using stzNumber
@@ -142,7 +142,7 @@ class stzDecimalToBinary from stzObject
 				oTempNumber = new stzNumber(nDouble)
 	
 				if NOT oTempNumber.HasFractionalPart()
-					bAgain = FALSE
+					bAgain _FALSE_
 				ok
 	
 				aTemp + oTempNumber.IntegerPart()

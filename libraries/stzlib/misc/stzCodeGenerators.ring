@@ -24,9 +24,9 @@ func GenerateCodeFor(pcFunction)
 
 		func IsStzNumber(pObject)
 			if isObject(pObject) and classname(pObject) = "stznumber"
-				return TRUE
+				return _TRUE_
 			else
-				return FALSE
+				return _FALSE_
 			ok
 
 		NOTE:
@@ -46,9 +46,9 @@ func GenerateCodeFor(pcFunction)
 			cCode +=
 			'func IsStz' + type + '(pObject)' + NL +
 			'	if isObject(pObject) and classname(pObject) = "' + cStzType + '"' + NL +
-			'		return TRUE' + NL +
+			'		return _TRUE_' + NL +
 			'	else' + NL +
-			'		return FALSE' + NL +
+			'		return _FALSE_' + NL +
 			'	ok' + NL + NL
 
 		next

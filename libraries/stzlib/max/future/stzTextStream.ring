@@ -61,7 +61,7 @@ class stzTextStream from stzObject
 			StzRaise(stzTextStreamError(:UnsupportedStatus))
 		off
 
-		return TRUE
+		return _TRUE_
 
 	def SetLocale(pcLocale)
 		return oQTextStream.setLocale(pcLocale)
@@ -150,19 +150,19 @@ class stzTextStream from stzObject
 	PRIVATE
 
 	def SetSourceOfStreamTo(pcSource)
-		bIsSetFromFile = FALSE
-		bIsSetFromSocket = FALSE
-		bIsSetFromProcess = FALSE
+		bIsSetFromFile _FALSE_
+		bIsSetFromSocket _FALSE_
+		bIsSetFromProcess _FALSE_
 	
 		switch pcSource
 		on :File
 			cSourceOfStream = :File
-			bSetFromFile = TRUE
+			bSetFromFile _TRUE_
 		on :Socket
 			cSourceOfStream = :Socket
-			bSetFromSocket = TRUE
+			bSetFromSocket _TRUE_
 		on :Process
 			cSourceOfStream = :Process
-			bSetFromProcess = TRUE
+			bSetFromProcess _TRUE_
 		off
 	

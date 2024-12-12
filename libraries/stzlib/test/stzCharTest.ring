@@ -1,7 +1,7 @@
 load "../max/stzmax.ring"
 
 /*-----
-
+*/
 pron()
 
 ? StzCharQ("⚝").Name()

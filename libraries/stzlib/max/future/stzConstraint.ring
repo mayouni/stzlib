@@ -37,7 +37,7 @@ func StzConstraintQ(pObject, pConstraint)
 
 func IsConstraint(pObject, pcConstraint)
 	if NOT isObject(pObject)
-		return FALSE
+		return _FALSE_
 	ok
 
 	if isString(pcConstraint)
@@ -54,12 +54,12 @@ func IsConstraint(pObject, pcConstraint)
 
 		try
 			eval(cCode)
-			return TRUE
+			return _TRUE_
 		catch
-			return FALSE
+			return _FALSE_
 		done
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsConstraint(pObject, pcConstraint)
@@ -111,7 +111,7 @@ class stzConstraint from stzObject
 
 		try
 			eval(This.Expression())
-			return TRUE
+			return _TRUE_
 		catch
-			return FALSE
+			return _FALSE_
 		done

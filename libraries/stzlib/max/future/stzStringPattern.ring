@@ -1,7 +1,7 @@
 
 
 func IsStringPattern(pcString)
-	return TRUE // TODO
+	return _TRUE_ // TODO
 
 	func @IsStringPattern(pcStr)
 		return IsStringPattern(pcStr)

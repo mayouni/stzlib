@@ -171,7 +171,7 @@ pron()
 ? StzListOfCharsQ("A":"E").BoxedXT([
 	:AllCorners = :Round,
 	:Hilighted = [ 1, 2, 5, 3, 7 ],
-	:Numbered = TRUE
+	:Numbered _TRUE_
 ])
 #-->
 # ╭───┬───┬───┬───┬───╮

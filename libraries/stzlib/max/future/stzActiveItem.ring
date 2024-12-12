@@ -18,9 +18,9 @@ oLetters {
 	
 	func IsActiveItem(pItem)
 		if isObject(pItem) and classname(pItem) = lower("stzActiveItem")
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 	
 		func @IsActiveItem(pItem)

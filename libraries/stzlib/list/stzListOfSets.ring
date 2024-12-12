@@ -18,7 +18,7 @@ class stzListOfSets from stzListOfLists
 			StzRaise(stzListOfSetsError(:CanNotCreateListOfSets))
 		ok
 
-		if KeepingHistory() = TRUE
+		if KeepingHistory() _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 

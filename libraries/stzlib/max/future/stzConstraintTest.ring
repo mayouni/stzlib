@@ -42,7 +42,7 @@ o1 = new stzConstraint(oStr, '{
 
 /*
 o1 = new stzRule( oStr, '{
-	if NOT IsStzString(@) return FALSE ok
+	if NOT IsStzString(@) return _FALSE_ ok
 	if NOT @.IsLowercase() @.ApplyLowercase() ok
 	if NOT @.NumberOfChars() = 30 @.SetNumberOfChars(30) ok
 	if @.ContainsNumbers() @.RemoveNumbers() ok

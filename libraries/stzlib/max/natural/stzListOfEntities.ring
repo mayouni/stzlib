@@ -9,12 +9,12 @@ func IsListOfEntities(paList)
 		ok
 	ok
 
-	bResult = TRUE
+	bResult _TRUE_
 	nLen = len(paList)
 
 	for i = 1 to nLen
 		if NOT IsEntity(paList[i])
-			bResult = FALSE
+			bResult _FALSE_
 			exit
 		ok
 	next i
@@ -136,11 +136,11 @@ class stzListOfEntities from stzList
 		return This.FindEntityByName(pcName) > 0
 
 	def ContainsName(pcName)
-		bResult = FALSE
+		bResult _FALSE_
 
 		for aEntity in This.Entities()
 			if aEntity[:name] = StzStringQ(pcName).Lowercased()
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next
@@ -148,11 +148,11 @@ class stzListOfEntities from stzList
 		return bResult
 
 	def ContainsType(pcType)
-		bResult = FALSE
+		bResult _FALSE_
 
 		for aEntity in This.Entities()
 			if aEntity[:type] = StzStringQ(pcType).Lowercased()
-				bResult = TRUE
+				bResult _TRUE_
 				exit
 			ok
 		next

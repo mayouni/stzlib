@@ -39,8 +39,7 @@ o1 = new stzlist([ "me", "and", "all", "the", "others" ])
 #--> TRUE
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.21
-# Executed in 0.02 second(s) in Ring 1.20
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*----
 
@@ -72,7 +71,6 @@ o1 = new stzList([ "ring", "qt", "softanza", "pyhton", "kandaji", "csharp", "zai
 o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji", "zai" ], :By = [ "♥", "♥♥" ])
 
 ? @@( o1.Content() )
-# ♥ qt ♥♥ pyhton ♥ csharp ♥♥
 #--> [ "♥", "qt", "♥♥", "pyhton", "♥", "csharp", "♥♥" ]
 
 proff()
@@ -1937,7 +1935,7 @@ pron()
 
 ? IsChar("🌞")
 #!--> FALSE
-#~> Should return TRUE!
+#~> Should return _TRUE_!
 
 ? StzCharQ("🌞").Content()
 #!--> Can not create char object!
@@ -2732,7 +2730,7 @@ o1 = new stzList([ "A", "B", "B", "B", "b", "C", "B", "C", "C", "c", "A" ])
 ? @@( o1.FindThisDupSecutiveItem("B") )
 #--> [ 3, 4 ]
 
-? @@( o1.FindThisDupSecutiveItemCS("B", :CS = FALSE) )
+? @@( o1.FindThisDupSecutiveItemCS("B", :CS _FALSE_) )
 #--> [ 3, 4, 5 ]
 
 ? @@( o1.DupSecutiveItemCSZ("B", FALSE) )
@@ -3336,10 +3334,10 @@ pron()
 aList = 1: 100_000
 nLen = len(aList)
 
-bResult = TRUE
+bResult _TRUE_
 for i = 1 to nLen
 	if NOT isNumber(aList[i])
-		bResult = FALSE
+		bResult _FALSE_
 		exit
 	ok
 next
@@ -3992,7 +3990,7 @@ o1 = new stzList([ 1, 2, "ring", 4, 5, "RING", 7, "Ring" ])
 
 ? o1.FindWCS('{
 	isString(This[@i]) and This[@i] = "ring"
-}', :CS = FALSE)
+}', :CS _FALSE_)
 #--> [ 3, 6, 8 ]
 
 proff()
@@ -4852,7 +4850,7 @@ proff()
 pron()
 
 o1 = new stzList([ "A", "B", "A", "A", "C", "D", "B", "E", "a" , "b"])
-? @@( o1.DuplicatesCSZ(:CaseSensitive = FALSE) )
+? @@( o1.DuplicatesCSZ(:CaseSensitive _FALSE_) )
 #--> [ [ "A", [ 3, 4, 9 ] ], [ "B", [ 7, 10 ] ] ]
 
 proff()
@@ -5397,11 +5395,51 @@ StopProfiler()
 # Executed in almost 0 second(s).
 
 /*------------
+*/
+pron()
 
+# Checking that Softanza function does not alter a gloabl
+# svariable et in the calling program
+
+nPos = 20
+paList = [ "A", "B", "C" ]
+
+? @FindAllCS([ 1, 2, "♥", 4, "♥", 6, "♥" ], "♥", TRUE)
+
+? paList
+#--> [ "A", "B", "C" ]
+
+? nPos
+#--> 20
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*------------
+
+pron()
+
+#REMINDER // functions used internally to accelerate finding in stzLis
+#~> Limited to finding only number and strings
+#~> To find other types, use stzList
+
+#                    3              6
+aList = [ "_", "_", "♥", "_", "_", "♥", "_" ]
+
+? @FindNthST(aList, 1, "♥", :StartingAt = 6)
+#--> 6
+
+? @FindNextNthST(aList, 1, "♥", :StartingAt = 6)
+#--> 0
+
+proff()
+
+/*------------
+*/
 StartProfiler()
-
+#                             3              7
 o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" ])
-
+/*
 ? o1.FindFirst("♥")
 #--> 3
 
@@ -5413,8 +5451,11 @@ o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" ])
 
 ? o1.FindPrevious("♥", :StartingAt = 6)
 #--> 3
+*/
+? o1.FindNthNext(1, "♥", :StartingAt = 6)
+#--> 0
 
-? o1.FindNthNext(1, "♥", :StartingAt = 3)
+? o1.FindNthNext(1, "♥", :StartingAt = 5)
 #--> 6
 
 ? o1.FindNthPrevious(2, "♥", :StartingAt = 7)
@@ -5490,10 +5531,10 @@ StartProfiler()
 # Finding 2nd oprevious occurrence of "♥" in the list starting at position 120_000
 
 	? @FindNthPrevious(aLargeListOfStr, 2, "♥", :StartingAt = 120_000)
-	#--> 1003
+	#--> 100003
 
 proff()
-# Executed in 0.78 second(s).
+# Executed in 0.76 second(s) in Ring 1.22
 
 /*------------
 
@@ -5952,10 +5993,10 @@ o1 = new stzList([ "_", "_", "•", "_", "•", "_", "_" ])
 #--> 5
 
 ? o1.FindNextNth(2, "•", :StartingAt = 3)
-#--> 0
+#--> 5
 
 ? o1.FindPrevious("•", :StartingAt = 5)
-#--> 3
+#--> 5
 
 ? o1.FindPreviousNth(2, "•", :StartingAt = 7)
 #--> 3
@@ -5964,7 +6005,7 @@ o1 = new stzList([ "_", "_", "•", "_", "•", "_", "_" ])
 #--> 0
 
 StopProfiler()
-# Executed in 0.01 second(s)
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*-----------
 
@@ -6000,7 +6041,7 @@ o1 = new stzString("---456---")
 #--> 3
 
 StopProfiler()
-# Executed in 0.01 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*-----------
 
@@ -6017,7 +6058,7 @@ o1 = new stzString("[••[•[••]•[•]]••[••]]")
 #--> 2
 
 ? o1.DistanceTo( :NextNth = [ 2, "[" ], :StartingAt = 1 )
-#--> 2
+#--> 4
 
 #~> XT form : bounds are counted in the distance
 
@@ -6030,7 +6071,7 @@ o1 = new stzString("[••[•[••]•[•]]••[••]]")
 #--> 4
 
 ? o1.DistanceToSTXT( :NextNth = [2, "["], :StartingAt = 1 )
-#--> 4
+#--> 6
 
 ? NL + "--" + NL
 
@@ -6047,7 +6088,7 @@ o1 = new stzString("[••[•[••]•[•]]••[••]]")
 #--> 4
 
 StopProfiler()
-# Executed in 0.03 second(s)
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*-----------
 
@@ -6062,9 +6103,9 @@ o1 = new stzString("[••[•[••]•[•]]••[••]]")
 #--> [ [ 7, 8 ], [ 12, 12 ], [ 18, 19 ], [ 5, 13 ], [ 2, 20 ] ]
 
 StopProfiler()
-# Executed in 0.01 second(s).
+# Executed in 0.02 second(s) in Ring 1.22
 
-/*============ #ring A draft for a code using inside Softanza
+/*============ #ring A draft for a code used inside Softanza
 
 StartProfiler()
 
@@ -6153,7 +6194,7 @@ aList2  = [          9,    14, 15,    21, 22, 23     ]
 aList = Q(aList1).MergeWithQ(aList2).Sorted()
 
 aSections = []
-bContinue = TRUE
+bContinue _TRUE_
 
 while TRUE
 
@@ -6184,7 +6225,7 @@ StopProfiler()
 
 StartProfiler()
 
- #                  ...4.6...v...4.v.v..1.v..
+#                   ...4.6...v...4.v.v..1.v..
 o1 = new stzString("---[ [===]---[=] ]--[=]--")
 #                   ...^.^...0...^.6.8..^.3..
 
@@ -6203,7 +6244,7 @@ o1 = new stzString("---[ [===]---[=] ]--[=]--")
 #--> [ "===", "=", "=", " [===]---[=] " ]
 
 StopProfiler()
-# Executed in 0.02 second(s).
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*-----------
 
@@ -6240,7 +6281,7 @@ o1 = new stzString("[••[•[••]•[••]]••[••]]")
 # ]
 
 StopProfiler()
-# Executed in 0.03 second(s).
+# Executed in 0.08 second(s) in Ring 1.22
 
 /*-----------
 
@@ -6279,7 +6320,7 @@ o1 = new stzString("---[ [===]---[=] ]--[=]--")
 # ]
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*-----------
 
@@ -6564,7 +6605,7 @@ o1.RemoveFirst("_")
 ? @@( o1.Content() )
 #--> [ "B", "C", "D", "E" ]
 
-o1.RemoveThisFirstItemCS("b", :CS = FALSE)
+o1.RemoveThisFirstItemCS("b", :CS _FALSE_)
 ? @@( o1.Content() )
 #--> [ "C", "D", "E" ]
 
@@ -6947,8 +6988,10 @@ pron()
 proff()
 # Executed in 0.28 second(s).
 
-/*============= #TODO check error
-*
+/*============= #TODO check after adding Perform() function
+
+pron()
+
 # Transforming the list structure so it becomes
 # a list of pairs of numbers. To do so, the numbers
 # are duplicated inside a list of two items.
@@ -6961,6 +7004,8 @@ o1.PerformW(
 
 ? @@(o1.Content())
 #--> [ [ 0, 0 ], [ 2, 2 ], [ 0, 0 ], [ 3, 3 ], [ 1, 2 ] ]
+
+proff()
 
 /*------------------
 
@@ -7270,7 +7315,7 @@ proff()
 pron()
 
 ? Q([ "I", "B", "M" ]).HasSameContent( :As = [ "B", "M", "I" ] )
-? Q([ "I", "B", "M" ]).HasSameContentCS( :As = [ "b", "m", "i" ], :CS = FALSE )
+? Q([ "I", "B", "M" ]).HasSameContentCS( :As = [ "b", "m", "i" ], :CS _FALSE_ )
 
 proff()
 # Executed in almost 0 second(s).
@@ -7332,13 +7377,13 @@ o1 = new stzList([ "arem", "mohsen", "AREM" ])
 ? o1.FindAll("arem")
 #--> [ 1 ]
 
-? o1.FindAllCS("arem", :CS = FALSE)
+? o1.FindAllCS("arem", :CS _FALSE_)
 #--> [1, 3]
 
 ? o1.FindNth(2, "arem")
 #--> 0
 
-? o1.FindNthCS(2, "arem", :CS = FALSE)
+? o1.FindNthCS(2, "arem", :CS _FALSE_)
 #--> 3
 
 proff()
@@ -7862,7 +7907,7 @@ o1 = new stzListOfStrings([ "A", "B", "1", "C", "2", "3", "D", "4", "5" ])
 ? o1.FindFirstCS("b", TRUE)
 #--> 0
 
-? o1.FindFirstCS("b", :CS = FALSE)
+? o1.FindFirstCS("b", :CS _FALSE_)
 #--> 2
 
 proff()
@@ -8124,7 +8169,7 @@ pron()
 #--> [ "ONE", "TWO", "THREE" ]
 
 ? @@( ( Q([ "ONE", "TWO", "THREE" ]) * Q(2) ).Content() )
-#--> [ "ONE", "TWO", "THREE", "ONE", "TWO", "THREE" ]
+#--> [ [ "ONE", "TWO", "THREE" ], [ "ONE", "TWO", "THREE" ] ]
 
 proff()
 # Executed in 0.03 second(s).
@@ -9895,7 +9940,7 @@ proff()
 
 pron()
 
-# All these return TRUE
+# All these return _TRUE_
 
 ? StzListQ([ :DefaultLocale ]).IsLocaleList()
 #--> TRUE
@@ -9916,13 +9961,13 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.02 second(s).
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*-----------------------
 
 pron()
 
-# All these return TRUE
+# All these return _TRUE_
 
 ? Q( 1:5 ).IsListOf(:Numbers)
 #--> TRUE
@@ -9952,7 +9997,7 @@ proff()
 
 pron()
 
-# All these return TRUE
+# All these return _TRUE_
 
 oNumber1 = StzNumberQ(7)
 oNumber2 = StzNumberQ(12)
@@ -10199,8 +10244,8 @@ proff()
 
 pron()
 
-oTrue  = TrueObject()
-oFalse = FalseObject()
+oTrue  _TRUE_Object()
+oFalse _FALSE_Object()
 oNull  = NullObject()
 
 o1 = new stzList([ "Ring", "PHP", oTrue, oTrue, "Python", oNull, oFalse, "Julia", oNull ])
@@ -10732,8 +10777,8 @@ proff()
 pron()
 
 
-obj1 = TrueObject()
-obj2 = FalseObject()
+obj1 _TRUE_Object()
+obj2 _FALSE_Object()
 
 o1 = new stzList([ "a", 1, 3, "b", ["A1", "A2"], obj1, "c", 3, [ "B1", "B2" ], obj2 ])
 
@@ -10823,8 +10868,8 @@ proff()
 
 pron()
 
-oTrueObj = TrueObject()
-oFalseObj = FalseObject()
+oTrueObj _TRUE_Object()
+oFalseObj _FALSE_Object()
 
 o1 = new stzList([
 	"_", 3, "_" , oTrueObj, 6, "*",
@@ -11249,8 +11294,8 @@ proff()
 
 pron()
 
-obj1 = TrueObject()
-obj2 = FalseObject()
+obj1 _TRUE_Object()
+obj2 _FALSE_Object()
 
 o1 = new stzList([ 5, [ :me, :you ], 4, "tunis", obj2, 3, 7, [ :them, :others ], "cairo", obj1  ])
 o1.SortInAscending()
@@ -11275,8 +11320,8 @@ proff()
 
 pron()
 
-obj1 = TrueObject()
-obj2 = FalseObject()
+obj1 _TRUE_Object()
+obj2 _FALSE_Object()
 
 o1 = new stzList([ "_", 3, "_" , obj1, "*", 6, [ "L1", "L1" ], 12, obj2, [ "L2", "L2" ], 24, "*" ])
 o1.SortInAscending()
@@ -11920,7 +11965,7 @@ proff()
 
 pron()
 
-# All these return TRUE
+# All these return _TRUE_
 
 o1 = new stzList([ "a", "a", "A", "A", "a", "A" ])
 
@@ -11979,7 +12024,7 @@ pron()
 # In the following example, we check if the entire list ["a", "b", "c"] exists
 # as a single item within the list ["a", "b", "c", "x", "z"].
 
-# Although you might expect this to return TRUE, it actually returns FALSE.
+# Although you might expect this to return _TRUE_, it actually returns FALSE.
 ? Q(["a", "b", "c"]).ExistsIn(["a", "b", "c", "x", "z"])
 #--> FALSE
 

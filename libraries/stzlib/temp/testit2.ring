@@ -4,7 +4,7 @@ QmlApp() {
 	# Setting the window size
     	width = 400
     	height = 400
-    	visible = true
+    	visible _TRUE_
 
 	# Creating a button
 
@@ -40,11 +40,11 @@ load "../stzlib.ring"
 
 	o1 = new stzString("lorem__ipsum__lorem")
 	? o1. ContainsSubStringBoundedBy("ipsum", "__") 		#--> TRUE
-	? o1.ContainsSubStringBoundedByCS("IPSUM", "__", :CS = FALSE) 	#--> TRUE
+	? o1.ContainsSubStringBoundedByCS("IPSUM", "__", :CS _FALSE_) 	#--> TRUE
 
 	o1 = new stzString("lore_mmmipsuMmM_lorem")
-	? o1.ContainsSubStringBoundedByCS("ipsu", "mmm", :CS = FALSE)	#--> TRUE
-	? o1.ContainsSubStringBoundedByCS("IPSU", "mmm", :CS = FALSE)	#--> TRUE
+	? o1.ContainsSubStringBoundedByCS("ipsu", "mmm", :CS _FALSE_)	#--> TRUE
+	? o1.ContainsSubStringBoundedByCS("IPSU", "mmm", :CS _FALSE_)	#--> TRUE
 	
 /*------- CONTAINING A SUBSTRING AT A GIVEN POSITION INSIDE THE STRING
 
@@ -117,7 +117,7 @@ load "../stzlib.ring"
 	o1 = new stzString("123x567x901")
 
 	o1.RemoveSubStringAtXT(5, "567",
-		[ :RemoveThisSubStringBefore = "X", :RemoveThisSubStringAfter = "X", :CS = FALSE ] )
+		[ :RemoveThisSubStringBefore = "X", :RemoveThisSubStringAfter = "X", :CS _FALSE_ ] )
 
 	? o1.Content() #--> 123901
 
@@ -127,7 +127,7 @@ load "../stzlib.ring"
 	o1 = new stzString("123xyz567xYZ901")
 
 	o1.RemoveSubStringAtXT(7, "567",
-		[ :RemoveThisBound = "XyZ", :CS = FALSE ] )
+		[ :RemoveThisBound = "XyZ", :CS _FALSE_ ] )
 
 	? o1.Content() #--> 123901
 
@@ -184,7 +184,7 @@ pron()
 	#-- CS
 
 	o1 = new stzList([ "ring", "Ring", "RING" ])
-	o1.ReplaceCS(:ring, :By@ = 'upper("ring")', :CaseSensitive = FALSE)
+	o1.ReplaceCS(:ring, :By@ = 'upper("ring")', :CaseSensitive _FALSE_)
 	? o1.Content() #--> [ "RING", "RING", "RING" ]
 
 proff()
@@ -199,7 +199,7 @@ pron()
 	#-- CS
 
 	o1 = new stzList([ "Tunis", "CAIRO", "Bagdad" ])
-	o1.ReplaceManyCS([ :tunis, :cairo, :bagdad ], :With = "♥", :CS = FALSE)
+	o1.ReplaceManyCS([ :tunis, :cairo, :bagdad ], :With = "♥", :CS _FALSE_)
 	? @@( o1.Content() ) #--> [ "♥", "♥", "♥" ]
 proff()
 # Executed in 0.02 second(s)
@@ -212,7 +212,7 @@ pron()
 	o1.ReplaceMany([ "Tunis", "Cairo", "Bagdad" ], :With = "♥")
 	? @@( o1.Content() ) #--> [ "Tunis", "CAIRO", "Bagdad" ]
 
-	o1.ReplaceManyCS([ "Tunis", "Cairo", "Bagdad" ], :With = "♥", :CS = FALSE)
+	o1.ReplaceManyCS([ "Tunis", "Cairo", "Bagdad" ], :With = "♥", :CS _FALSE_)
 	? @@( o1.Content() ) #--> [ "♥", "♥", "♥" ]
 
 proff()

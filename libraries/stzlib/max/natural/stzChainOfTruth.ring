@@ -33,7 +33,7 @@ func TheLetter(c)
 	if isString(c) and @IsChar(c) and StzCharQ(c).IsLetter()
 		return c
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 
@@ -42,14 +42,14 @@ class stzChainOfTruth from stzObject
 	@pValue
 
 	# These attributes hold the state of the chain
-	@bSouldContinue = TRUE	#TODO // is it really useful?
-	@bShouldReturnTRUE = FALSE
-	@bShouldReturnFALSE = FALSE
+	@bSouldContinue _TRUE_	#TODO // is it really useful?
+	@bShouldReturnTRUE _FALSE_
+	@bShouldReturnFALSE _FALSE_
 
 	# This attribute helps in managing the functions
 	# containing NOT in their semantics and that negates
 	# the logic of the rest of the chain
-	@bNegateNext = FALSE
+	@bNegateNext _FALSE_
 
 	# This attribute manages the functions that support
 	# nor/neighter semantics
@@ -116,45 +116,45 @@ class stzChainOfTruth from stzObject
 		return @cNeightherFunction
 
 	def ShouldContinue()
-		if @bSouldContinue = TRUE
-			return TRUE
+		if @bSouldContinue _TRUE_
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 	
 	def ShouldReturnTRUE()
-		if @bShouldReturnTRUE = TRUE 
-			return TRUE
+		if @bShouldReturnTRUE _TRUE_ 
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def ShouldReturnFALSE()
-		if @bShouldReturnFALSE = TRUE
-			return TRUE
+		if @bShouldReturnFALSE _TRUE_
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def SetChainToReturn(p) # TRUE, FALSE, :CONTINUE
 		switch p
 		on :CONTINUE
-			@bSouldContinue = TRUE
-		   	@bShouldReturnTRUE = FALSE
-		   	@bShouldReturnFALSE = FALSE
+			@bSouldContinue _TRUE_
+		   	@bShouldReturnTRUE _FALSE_
+		   	@bShouldReturnFALSE _FALSE_
 
 		on TRUE
-			@bSouldContinue = FALSE
-		   	@bShouldReturnTRUE = TRUE
-		   	@bShouldReturnFALSE = FALSE
+			@bSouldContinue _FALSE_
+		   	@bShouldReturnTRUE _TRUE_
+		   	@bShouldReturnFALSE _FALSE_
 			
 		on FALSE
-			@bSouldContinue = FALSE
-		   	@bShouldReturnTRUE = FALSE
-		   	@bShouldReturnFALSE = TRUE
+			@bSouldContinue _FALSE_
+		   	@bShouldReturnTRUE _FALSE_
+		   	@bShouldReturnFALSE _TRUE_
 
 		off
 
@@ -182,34 +182,34 @@ class stzChainOfTruth from stzObject
 			return This
 		ok
 
-		@bNegateNext = FALSE
+		@bNegateNext _FALSE_
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		# Case of equality
 		if BothAreEqual(pThing, This.Value())
 
-			bResult = TRUE
+			bResult _TRUE_
 
 		but BothAreStrings( pThing, This.Value() ) and
 		    StzStringQ(pThing).Lowercased() = StzStringQ(This.Value()).Lowercased()
-			bResult = TRUE
+			bResult _TRUE_
 
 		# Case of a string
 		but isString(pThing)
 
 			# Case of the 4 native ring types
 			if pThing = :Number and This._Type() = "NUMBER"
-				bResult = TRUE
+				bResult _TRUE_
 	
 			but pThing = :String and This._Type() = "STRING"
-				bResult = TRUE
+				bResult _TRUE_
 	
 			but pThing = :List and This._Type() = "LIST"
-				bResult = TRUE
+				bResult _TRUE_
 	
 			but pThing = :Object and This._Type() = "OBJECT"
-				bResult = TRUE
+				bResult _TRUE_
 
 			# Case of a stz object method
 			but StzStringQ("is" + pThing).ExistsIn( methods(This.StzObject()) )
@@ -231,7 +231,7 @@ class stzChainOfTruth from stzObject
 				try
 					eval(cCode)
 				catch
-					bResult = FALSE
+					bResult _FALSE_
 				done
 			ok
 
@@ -240,20 +240,20 @@ class stzChainOfTruth from stzObject
 			# Example:
 			# ? _(["A","B","C"]).Is([ :AListOfStrings, :AListOfChars, :AListOfLetters ]).AtTheSameTime._
 
-			bIsListOfMethods = TRUE
+			bIsListOfMethods _TRUE_
 			for str in pThing
 				if NOT StzStringQ("is" + str).ExistsIn( methods(This.StzObject()) )
-					bIsListOfMethods = FALSE
+					bIsListOfMethods _FALSE_
 					exit
 				ok
 			next
 
 			if bIsListOfMethods
-				bResult = TRUE
+				bResult _TRUE_
 				for str in pThing
 
 					if NOT _(This.Value()).Is(str)._
-						bResult = FALSE
+						bResult _FALSE_
 						exit
 					ok
 				next
@@ -302,7 +302,7 @@ class stzChainOfTruth from stzObject
 
 			_("H").IsA('LetterOf("HUSSEIN")')._
 
-			--> Should return TRUE, because H is one of the
+			--> Should return _TRUE_, because H is one of the
 			letters of the string HUSSEIN: There is at least
 			one other letter in addition to H, so IsA('Letter')
 			becomes semantically relevant.)
@@ -320,7 +320,7 @@ class stzChainOfTruth from stzObject
 				return This
 			ok
 	
-			@bNegateNext = FALSE
+			@bNegateNext _FALSE_
 
 			# Avoiding that the method name be the same as isNumber(),
 			# isString(), isList() or isObject() which are preserved
@@ -363,7 +363,7 @@ class stzChainOfTruth from stzObject
 				eval(cCode)
 	
 
-			if bResult = TRUE and bPass
+			if bResult _TRUE_ and bPass
 				This.SetChainToReturn(TRUE)
 			else
 				This.SetChainToReturn(FALSE)
@@ -448,7 +448,7 @@ class stzChainOfTruth from stzObject
 			bResult = NOT bResult
 		ok
 
-		if bResult = TRUE
+		if bResult _TRUE_
 			This.SetChainToReturn(TRUE)
 		else
 			This.SetChainToReturn(FALSE)
@@ -494,9 +494,9 @@ class stzChainOfTruth from stzObject
 		cCondition = StzStringQ(pcCondition).Simplified()
 
 		cCode = "if This.StzObject()." + cCondition + NL +
-			"	" + "bResult = TRUE" + NL +
+			"	" + "bResult _TRUE_" + NL +
 			"else" + NL +
-			"	bResult = FALSE" + NL +
+			"	bResult _FALSE_" + NL +
 			"ok"
 
 		try
@@ -509,7 +509,7 @@ class stzChainOfTruth from stzObject
 			bResult = NOT bResult
 		ok
 
-		if bResult = TRUE
+		if bResult _TRUE_
 			This.SetChainToReturn(TRUE)
 		else
 			This.SetChainToReturn(FALSE)
@@ -712,10 +712,10 @@ class stzChainOfTruth from stzObject
 
 	def get_()
 		if This.ShouldReturnTRUE()
-			return TRUE
+			return _TRUE_
 			
 		but This.ShouldReturnFALSE()
-			return FALSE
+			return _FALSE_
 
 		else
 			return This.Value()
@@ -782,9 +782,9 @@ class stzChainOfTruth from stzObject
 		cLast2Chars = StzStringQ(pvtFunctionName(pcFunctionCall)).NLastCharsQ(2).Lowercased()
 
 		if cLast2Chars = "in" or cLast2Chars = "of"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def pvtFunctionParamType( pcFunctionCall )

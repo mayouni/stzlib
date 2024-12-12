@@ -874,13 +874,13 @@ proff()
 
 pron()
 
-? IsCaseSensitive(:CS = FALSE)
+? IsCaseSensitive(:CS _FALSE_)
 #--> FALSE
 
-? IsCaseSensitive(:CS = TRUE)
+? IsCaseSensitive(:CS _TRUE_)
 #--> TRUE
 
-? @@( CaseSensitive(:CS = FALSE) )
+? @@( CaseSensitive(:CS _FALSE_) )
 #--> FALSE
 
 proff()
@@ -906,10 +906,10 @@ pron()
 ? @Bounds("_")
 #--> [ "_", "_" ]
 
-? @CaseSensitive(:CaseSensitive = TRUE)
+? @CaseSensitive(:CaseSensitive _TRUE_)
 #--> TRUE
 
-? @@( @CaseSensitive(:CS = FALSE) )
+? @@( @CaseSensitive(:CS _FALSE_) )
 #--> FALSE
 
 ? @CaseSensitive(TRUE)

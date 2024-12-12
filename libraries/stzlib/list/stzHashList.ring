@@ -168,7 +168,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			StzRaise("Unsupported form of the input of the hashlist!")
 		off
 
-		if KeepingHistory() = TRUE
+		if KeepingHistory() _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -367,7 +367,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			off
 
 	def ValuesAreListsOfSameSize()
-		bResult = TRUE
+		bResult _TRUE_
 		for i = 2 to This.NumberOfValues()
 
 		next
@@ -671,7 +671,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#---------------------------#
 
 	def Update(paNewHashList)
-		if CheckingParams() = TRUE
+		if CheckingParams() _TRUE_
 			if isList(paNewHashList) and Q(paNewHashList).IsWithOrByOrUsingNamedParam()
 				paNewHashList = paNewHashList[2]
 			ok
@@ -683,7 +683,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		@aContent = paNewHashList
 
-		if KeepingHisto() = TRUE
+		if KeepingHisto() _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 	
@@ -1138,9 +1138,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def HasKey(pcKey)
 		if isString(pcKey) and This.FindKey(pcKey) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsKey(pcKey)
@@ -1151,9 +1151,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		if oKeys.IsListOfStrings() and
 		   oKeys.IsEqualTo(This.Keys())
 
-			return TRUE
+			return _TRUE_
 		else
-			return FALSe
+			return _FALSE_
 		ok
 
 		def ContainsKeys(pacKeys)
@@ -1191,9 +1191,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ContainsPair(paPair)
 		if FindPair(paPair) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	  #-----------------------------------------------------#
@@ -1202,9 +1202,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ContainsValueCS(pValue, pCaseSensitive)
 		if len( This.FindValueCS(pValue, pCaseSensitive) ) > 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -2130,7 +2130,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult = FALSE
+		bResult _FALSE_
 
 		for i = 1 to nLen
 
@@ -2138,7 +2138,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 				oStzList = new stzList(aContent[i][2])
 				if oStzList.Contains(pItem)
-					bResult = TRUE
+					bResult _TRUE_
 					exit
 				ok
 			ok
@@ -2723,7 +2723,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-----------------------------------------------------#
 
 	def ContainsClass(pcClass)
-		bResult = This.ContainsValueCS(pcClass, :CaseSensitive = FALSE)
+		bResult = This.ContainsValueCS(pcClass, :CaseSensitive _FALSE_)
 		return bResult
 
 		#< @FunctionAlternativeForms
@@ -2758,7 +2758,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-------------------------------------------------------#
 
 	def ContainsClasses(pacClasses)
-		bResult = This.ContainsValuesCS(pacClasses, :CaseSensitive = FALSE)
+		bResult = This.ContainsValuesCS(pacClasses, :CaseSensitive _FALSE_)
 		return bResult
 
 		#< @FunctionAlternativeForms
@@ -4053,7 +4053,7 @@ this: lefttoright
 		return :stzHashList
 
 	def IsHashList() # required by stzChainOfTruth
-		return TRUE
+		return _TRUE_
 
 	def ToCode()
 		aPairs = This.Content()

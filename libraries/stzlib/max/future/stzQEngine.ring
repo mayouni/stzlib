@@ -39,9 +39,9 @@
 		def AllItemsAre_OfTheSameType()
 			aTemp = oQuery.SelectWhere( :CurrentItem, :HasSameTypeAs, :FirstItem )
 			if len(aTemp) = This.NumberOfItems()
-				return TRUE
+				return _TRUE_
 			else
-				return FALSE
+				return _FALSE_
 			ok
 
 							def ContainsOnlyItems_OfTheSameType()	# IsPureList()

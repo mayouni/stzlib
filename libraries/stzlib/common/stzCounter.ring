@@ -1,6 +1,6 @@
 func IsCounterNamedParamList(paParams)
 	if NOT isList(paParams)
-		return FALSE
+		return _FALSE_
 	ok
 
 	nLen = len(paParams)
@@ -8,9 +8,9 @@ func IsCounterNamedParamList(paParams)
 	   IsHashList(paParams) and
 	   StzHashListQ(paParams).KeysQ().IsMadeOfSome([ :StartAt, :AfterYouSkip, :RestartAt, :Step ])
 	
-			return TRUE
+			return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	func @IsCounterNamedParamList(paParams)

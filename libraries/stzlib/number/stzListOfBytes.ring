@@ -48,9 +48,9 @@ func StzListOfBytesQ(p)
 
 func IsListOfBytes(p)
 	if isString(p) or @IsStzString(p) or @IsStzListOfBytes(p) or @IsQByteArray(p)
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -535,8 +535,8 @@ class stzListOfBytes from stzList
 		@oQByteArray = new QByteArray()
 		@oQByteArray.append(cResult)
 
-		// If everything goes well, then return TRUE
-		return TRUE
+		// If everything goes well, then return _TRUE_
+		return _TRUE_
 			
 	// *** Returns a hex encoded string from the content of the list of bytes
 	// The hex encoding uses the numbers 0-9 and the letters a-f
@@ -747,7 +747,7 @@ class stzListOfBytes from stzList
 	#--
 
 	def Update(pcStr)
-		if CheckingParams() = TRUE
+		if CheckingParams() _TRUE_
 			if isList(pcStr) and Q(pcStr).IsWithOrByOrUsingNamedParam()
 				pcStr = pcStr[2]
 			ok
@@ -756,7 +756,7 @@ class stzListOfBytes from stzList
 		@oQByteArray = new QByteArray()
 		@oQByteArray.append(cResult)
 
-		if KeepingHisto() = TRUE
+		if KeepingHisto() _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 

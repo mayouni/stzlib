@@ -153,9 +153,9 @@ func IsBoolean(n)
 	if isNumber(n) and
 	   (n = 0 or n = 1)
 
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -496,9 +496,9 @@ func StringRepresentsSignedNumber(cNumber)
 
 /*func IsInteger(n)
 	if isNumber(n) and Q(n).IsInteger()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -516,9 +516,9 @@ func StringRepresentsSignedNumber(cNumber)
 
 func IsReal(n)
 	if isNumber(n) and Q(n).IsReal()
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -554,9 +554,9 @@ func IsBit(n)
 	ok
 
 	if n = 0 or n = 1
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 
 	ok
 
@@ -1252,23 +1252,23 @@ func DecimalToHexUnicode(n)
 
 func BothArePositive(n1, n2)
 	if BothAreNumbers(n1, n2) and n1 > 0 and n2 > 0
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 func BothAreNegative(n1, n2)
 	if BothAreNumbers(n1, n2) and n1 < 0 and n2 < 0
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 func BothAreZeros(n1, n2)
 	if BothAreNumbers(n1, n2) and n1 = 0 and n2 = 0
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 func IsDecimalNumber(n)
@@ -1285,9 +1285,9 @@ func IsDecimalNumber(n)
 
 func IsStzNumber(pObject)
 	if isObject(pObject) and classname(pObject) = "stznumber"
-		return TRUE
+		return _TRUE_
 	else
-		return FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -1376,7 +1376,7 @@ func MostSquareLikeFactors(n)
 
 func isWeiferich(p)
 	if not isPrime(p)
-		return False
+		return _FALSE_
 	ok
 
 	q = 1
@@ -1388,9 +1388,9 @@ func isWeiferich(p)
 	end
 
 	if q = 1
-		return True
+		return _TRUE_
 	else
-		return False
+		return _FALSE_
 	ok
 
 	func @isWeiferich(p)
@@ -1659,11 +1659,11 @@ class stzNumber from stzObject
 		if This.IsInteger()
 			nTemp = This.NumericValue()
 			if nTemp >= 0 and nTemp <= 9
-				return TRUE
+				return _TRUE_
 			ok
 		ok
 
-		return TRUE
+		return _TRUE_
 
 		def IsAChar()
 			return This.IsChar()
@@ -1673,7 +1673,7 @@ class stzNumber from stzObject
 	#-------------------------#
 
 	def Update(pNumber)
-		if CheckingParams() = TRUE
+		if CheckingParams() _TRUE_
 
 			if isList(pNumber) and Q(pNumber).IsWithOrByOrUsingNamedParam()
 				pNumber = pNumber[2]
@@ -1706,7 +1706,7 @@ class stzNumber from stzObject
 			@nRound = StzCurrentRound()
 		ok
 
-		if KeepingHisto() = TRUE
+		if KeepingHisto() _TRUE_
 			This.AddHistoricValue(This.Value())  # From the parent stzObject
 		ok
 
@@ -1782,9 +1782,9 @@ class stzNumber from stzObject
 	def IsADigit()
 		n = This.NumericValue()
 		if 0 <= n and n <= 9
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsDigit()
@@ -1812,13 +1812,13 @@ class stzNumber from stzObject
 		ok
 
 		if This.NumericValue() = 0
-			return FALSE
+			return _FALSE_
 		ok
 
 		if This.NumericValue() % n = 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsAMultipleOf(n)
@@ -1844,9 +1844,9 @@ class stzNumber from stzObject
 		ok
 
 		If This.NumericValue() = DoubleOf(n)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsADoubleOf(n)
@@ -1872,9 +1872,9 @@ class stzNumber from stzObject
 		ok
 
 		If This.NumericValue() = TripleOf(n)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsAtripleOf(n)
@@ -1900,9 +1900,9 @@ class stzNumber from stzObject
 		ok
 
 		If This.NumericValue() = QuadrupleOf(n)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsAQuadrupleOf(n)
@@ -1928,9 +1928,9 @@ class stzNumber from stzObject
 		ok
 
 		If This.NumericValue() = QuintupleOf(n)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsAQuintupleOf(n)
@@ -1956,9 +1956,9 @@ class stzNumber from stzObject
 		ok
 
 		If This.NumericValue() = SextupleOf(n)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsASextupleOf(n)
@@ -1985,9 +1985,9 @@ class stzNumber from stzObject
 		ok
 
 		If This.NumericValue() = OctupleOf(n)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsAnOctupleOf(n)
@@ -2013,9 +2013,9 @@ class stzNumber from stzObject
 		ok
 
 		If This.NumericValue() = Nonuple(n)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsANonupleOf(n)
@@ -2041,9 +2041,9 @@ class stzNumber from stzObject
 		ok
 
 		If This.NumericValue() = Decuple(n)
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsADecupleOf(n)
@@ -2087,9 +2087,9 @@ class stzNumber from stzObject
 		ok
  
 		if This.NumericValue() >= n1 and This.NumericValue() <= n2
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	  #------------#
@@ -2098,30 +2098,30 @@ class stzNumber from stzObject
 
 	def IsInteger()
 		if NOT This.HasFractionalPart()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsPositiveInteger()
 		if This.IsInteger() and This.IsPositive()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsNegativeInteger()
 		if This.IsInteger() and This.IsNegative()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsReal()
 		if This.HasFractionalPart()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsRealNumber()
@@ -2129,23 +2129,23 @@ class stzNumber from stzObject
 
 	def IsBigNumber()
 		if This.NumberOfDigits() > This.MaxNumberOfDigits()
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOneDigit()
 		if This.IsInteger() and len(This.Content()) = 1
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsOdd()
 		if OddOrEven(This.NumericValue()) = :Odd
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForm
@@ -2167,9 +2167,9 @@ class stzNumber from stzObject
 
 	def IsEven()
 		if OddOrEven(This.NumericValue()) = :Even
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForm
@@ -2218,7 +2218,7 @@ class stzNumber from stzObject
 		if This.IsInteger() and This.IsGreaterThan(1)
 			return ring_isPrime( This.NumericValue() )
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsAPrimeNumber()
@@ -2235,23 +2235,23 @@ class stzNumber from stzObject
 
 	def IsBoolean()
 		if This.Number() = 1 or This.Number() = 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsTrue()
 		if This.Number() = 1
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsFalse()
 		if This.Number() = 0
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 		
 	  #----------------------------------#
@@ -2260,39 +2260,39 @@ class stzNumber from stzObject
 
 	def IsZero()
 		if This.Content() = "0"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsNegative()
 		if This.Sign() = "-"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok	
 		 
 	def IsStrictlyNegative()
 		if This.IsNegative() or This.IsZero()
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsPositive()
 		if This.IsNotSigned() or This.Sign() = "+"
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def IsStrictlyPositive()
 		if This.IsPositive() or This.IsZero()
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	  #------------#
@@ -2333,19 +2333,19 @@ class stzNumber from stzObject
 
 	def IsSigned()
 		if This.Sign() != NULL
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsNotSigned()
 			return NOT IsSigned()
 
 	def IsUnsigned()
-		if This.IsSigned() = TRUE
-			return FALSE
+		if This.IsSigned() _TRUE_
+			return _FALSE_
 		else
-			return TRUE
+			return _TRUE_
 		ok
 
 	def HasSign()
@@ -2483,9 +2483,9 @@ class stzNumber from stzObject
 		bEqualToN2 = This.IsEqualTo(n2)
 
 		if NOT bEqualToN1 and NOT bEqualToN2
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def IsNeitherEqualTo(n1, n2)
@@ -2662,10 +2662,10 @@ class stzNumber from stzObject
 
 		n = This.NumericValue()
 
-		bResult = TRUE
+		bResult _TRUE_
 
 		if NOT ( n1 < n and n < n2 )
-			bResult  = FALSE
+			bResult  _FALSE_
 		ok
 
 		return bResult
@@ -2687,10 +2687,10 @@ class stzNumber from stzObject
 
 		n = This.NumericValue()
 
-		bResult = TRUE
+		bResult _TRUE_
 
 		if NOT ( n1 <= n and n <= n2 )
-			bResult  = FALSE
+			bResult  _FALSE_
 		ok
 
 		return bResult
@@ -2820,9 +2820,9 @@ class stzNumber from stzObject
 
 	def HasFractionalPart()
 		if This.ToStzString().Contains(".")
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		#< @FunctionAlternativeForms
@@ -3248,9 +3248,9 @@ class stzNumber from stzObject
 		nOtherRound = oOtherNumber.NumberOfDigits()
 
 		if nRound > nOtherRound
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def RoundIsLessThanRoundOf(pOtherNumber)
@@ -3260,9 +3260,9 @@ class stzNumber from stzObject
 		nOtherRound = oOtherNumber.NumberOfDigits()
 
 		if nRound < nOtherRound
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 	
 	def RoundIsSameAsRoundOf(pOtherNumber)
@@ -3272,9 +3272,9 @@ class stzNumber from stzObject
 		nOtherRound = oOtherNumber.NumberOfDigits()
 
 		if nRound = nOtherRound
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 	def CompareRoundsWith(pOtherNumber)
@@ -3312,7 +3312,7 @@ class stzNumber from stzObject
 		#>
 
 	def AddMany(paOtherNumbers)
-		This.AddManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
+		This.AddManyXT(paOtherNumbers, :ReturnIntermediateResults _FALSE_)
 
 		#< @FunctionFluentForm
 
@@ -3351,7 +3351,7 @@ class stzNumber from stzObject
 		#>
 	
 	def AddManyWithIntermediateResults(paOtherNumbers)
-		return This.AddManyXT(paOtherNumbers, :ReturnIntermediateResults = TRUE)
+		return This.AddManyXT(paOtherNumbers, :ReturnIntermediateResults _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -3378,12 +3378,12 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		bReturnIntermediateResults = FALSE
+		bReturnIntermediateResults _FALSE_
 
 		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
-		   paReturnIntermediateResults[2] = TRUE
+		   paReturnIntermediateResults[2] _TRUE_
 
-			bReturnIntermediateResults = TRUE
+			bReturnIntermediateResults _TRUE_
 		ok
 
 		nLen = len(paOtherNumbers)
@@ -3484,7 +3484,7 @@ class stzNumber from stzObject
 	def SubStructMany(paOtherNumbers)
 		#TODO // Add "These" as alternative of "Many"
 
-		This.SubStructManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
+		This.SubStructManyXT(paOtherNumbers, :ReturnIntermediateResults _FALSE_)
 
 		#< @FunctionFluentForm
 
@@ -3536,11 +3536,11 @@ class stzNumber from stzObject
 			ok
 		ok
 	
-		bReturnIntermediateResults = FALSE
+		bReturnIntermediateResults _FALSE_
 		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
-		   paReturnIntermediateResults[2] = TRUE
+		   paReturnIntermediateResults[2] _TRUE_
 
-			bReturnIntermediateResults = TRUE
+			bReturnIntermediateResults _TRUE_
 		ok
 	
 		nLen = len(paOtherNumbers)
@@ -3558,7 +3558,7 @@ class stzNumber from stzObject
 		#< @FunctionFluentForm
 
 		def SubStructManyXTQ(paOtherNumbers, paReturnIntermediateResults)
-			if paReturnIntermediateResults[1] = FALSE
+			if paReturnIntermediateResults[1] _FALSE_
 				This.SubStructManyXT(paOtherNumbers, paReturnIntermediateResults)
 				return This
 
@@ -3637,7 +3637,7 @@ class stzNumber from stzObject
 	def MultiplyByMany(paOtherNumbers)
 		#TODO // Add "These" as alternative of "Many"
 
-		This.MultiplyByManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
+		This.MultiplyByManyXT(paOtherNumbers, :ReturnIntermediateResults _FALSE_)
 
 		#< @FunctionFluentForm
 
@@ -3662,12 +3662,12 @@ class stzNumber from stzObject
 
 		aIntermediateResults = []
 	
-		bReturnIntermediateResults = FALSE
+		bReturnIntermediateResults _FALSE_
 	
 		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
-		   paReturnIntermediateResults[2] = TRUE
+		   paReturnIntermediateResults[2] _TRUE_
 	
-			bReturnIntermediateResults = TRUE
+			bReturnIntermediateResults _TRUE_
 		ok
 	
 		nLen = len(paOtherNumbers)
@@ -3735,7 +3735,7 @@ class stzNumber from stzObject
 	def DivideByMany(paOtherNumbers)
 		#TODO // Add "These" as alternative of "Many"
 
-		This.DivideByManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
+		This.DivideByManyXT(paOtherNumbers, :ReturnIntermediateResults _FALSE_)
 
 		#< @FunctionFluentForm
 
@@ -3760,12 +3760,12 @@ class stzNumber from stzObject
 
 		aIntermediateResults = []
 	
-		bReturnIntermediateResults = FALSE
+		bReturnIntermediateResults _FALSE_
 	
 		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
-		   paReturnIntermediateResults[2] = TRUE
+		   paReturnIntermediateResults[2] _TRUE_
 	
-			bReturnIntermediateResults = TRUE
+			bReturnIntermediateResults _TRUE_
 		ok
 	
 		nLen = len(paOtherNumbers)
@@ -4278,13 +4278,13 @@ class stzNumber from stzObject
 
 		# Doing the job under that round
 
-		bInteger = FALSE
+		bInteger _FALSE_
 		if This.IsInteger() and Q(pOtherNumber).IsInteger()
-			bInteger = TRUE
+			bInteger _TRUE_
 		ok
 
 		aResult = []
-		bContinue = TRUE
+		bContinue _TRUE_
 		i = 0
 		while bContinue
 			i++
@@ -4296,7 +4296,7 @@ class stzNumber from stzObject
 			if n <= nOtherNumber
 				aResult + n
 			else
-				bContinue = FALSE
+				bContinue _FALSE_
 			ok
 		end
 
@@ -4398,10 +4398,10 @@ class stzNumber from stzObject
 		n = StzNumberQ(n).NumericValue()
 
 		oTempList = new stzList( This.Factors() )
-		bResult = FALSE
+		bResult _FALSE_
 
 		if oTempList.Contains(n)
-			bResult = TRUE
+			bResult _TRUE_
 		ok
 
 		# Resetting the current round
@@ -4534,9 +4534,9 @@ class stzNumber from stzObject
 		cOctal = ""
 		n = This.IntegerPartValue()
 
-		bAgain = TRUE
+		bAgain _TRUE_
 		while bAgain
-			if floor(n / 8) = 0 bAgain = FALSE ok
+			if floor(n / 8) = 0 bAgain _FALSE_ ok
 			aTemp + (n % 8)
 			
 			n = floor(n/8)
@@ -4793,9 +4793,9 @@ class stzNumber from stzObject
 		if len(oNumber.IntegerPart()) > 0 and
 		   oNumber.NumericValue() != 0
 
-				return TRUE
+				return _TRUE_
 		else
-				return FALSE
+				return _FALSE_
 		ok
 
 		def ContainsHundreds()
@@ -4821,10 +4821,10 @@ class stzNumber from stzObject
 		oNumber = new stzNumber(This.Content())
 			
 		if len(oNumber.IntegerPart()) > 3
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsThousands()
@@ -4850,10 +4850,10 @@ class stzNumber from stzObject
 		oNumber = new stzNumber(This.Content())
 			
 		if len(oNumber.IntegerPart()) > 6
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsMillions()
@@ -4879,9 +4879,9 @@ class stzNumber from stzObject
 		oNumber = new stzNumber(This.Content())
 			
 		if len(oNumber.IntegerPart()) > 9
-			return TRUE
+			return _TRUE_
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsBillions()
@@ -4907,10 +4907,10 @@ class stzNumber from stzObject
 		oNumber = new stzNumber(This.Content())
 			
 		if len(oNumber.IntegerPart()) > 12
-			return TRUE
+			return _TRUE_
 
 		else
-			return FALSE
+			return _FALSE_
 		ok
 
 		def ContainsTrillions()
@@ -4946,7 +4946,7 @@ class stzNumber from stzObject
 	#-----------------------#
 
 	def ContainsDigits()
-		return TRUE
+		return _TRUE_
 
 	def Contains(pcDigit)
 		return StzStringQ(This.Content()).Contains(pcDigit)
@@ -5358,27 +5358,27 @@ class stzNumber from stzObject
 		# Setting default configs
 
 			# Precision
-			bRestrictFractionalPart = FALSE
+			bRestrictFractionalPart _FALSE_
 			nNumberOfDigitsInFractionalPart = 0
-			bRoundItWhenRestricted = FALSE
+			bRoundItWhenRestricted _FALSE_
 			
 			# Round
-			bApplyRound = FALSE
+			bApplyRound _FALSE_
 			nRoundTo = 0
 			
 			# Alignment
-			bApplyAlignment = FALSE
+			bApplyAlignment _FALSE_
 
 			nWidth = 0
 			cFillBlanksWith = " "
 			
 			cAlignTo = :Left
-			bFixPrefixToLeft = FALSE
-			bFixSuffixToRight = FALSE
+			bFixPrefixToLeft _FALSE_
+			bFixSuffixToRight _FALSE_
 				
 			# Sign
-			bShowSign = TRUE
-			bPutNegativeBetweenParentheses = FALSE
+			bShowSign _TRUE_
+			bPutNegativeBetweenParentheses _FALSE_
 			
 			# Prefix, separators, and suffix
 			cPrefix = ""
@@ -5390,16 +5390,16 @@ class stzNumber from stzObject
 			cSuffix = NULL
 			
 			# Conversion
-			bToPercentage = FALSE
-			bToScientificNotation = FALSE
+			bToPercentage _FALSE_
+			bToScientificNotation _FALSE_
 			
-			bToHex = FALSE
-			bToBinary = FALSE
-			bToOctal = FALSE
+			bToHex _FALSE_
+			bToBinary _FALSE_
+			bToOctal _FALSE_
 			nToBase = 10
 			
-			bToIndian = FALSE
-			bToRoman = FALSE
+			bToIndian _FALSE_
+			bToRoman _FALSE_
 
 		# Reading provided configs
 
@@ -5523,7 +5523,7 @@ class stzNumber from stzObject
 
 		# Managing precision by computing the fractional part
 
-		if bRestrictFractionalPart = FALSE
+		if bRestrictFractionalPart _FALSE_
 			cFractionalPart = This.FractionalPartWithoutDotZero()
 		else
 			cCurrentFractionalPart = This.FractionalPartWithoutDotZero()
@@ -5533,7 +5533,7 @@ class stzNumber from stzObject
 				cFractionalPart += cCurrentFractionalPart[i]
 			next
 
-			if bRoundItWhenRestricted = TRUE
+			if bRoundItWhenRestricted _TRUE_
 
 				# Memorise the active round
 				nCurrentRound = GetActiveRound()
@@ -5665,7 +5665,7 @@ class stzNumber from stzObject
 		return cFormattedNumber
 
 		oNumber = This
-		if bPercent = TRUE
+		if bPercent _TRUE_
 			cNumber = oNumber.InPercentage()
 			oNumber = new stzNumber(cNumber)
 		ok
@@ -5711,7 +5711,7 @@ class stzNumber from stzObject
 			cNumber += cFractionalSep + oNumber.FractionalPartWithoutDotZero()
 		ok
 
-		if bPercent = TRUE
+		if bPercent _TRUE_
 			cNumber += "%"
 		ok
 
@@ -5903,7 +5903,7 @@ class stzNumber from stzObject
 	#--------------------------------#
 
 	def IsStzNumber()
-		return TRUE
+		return _TRUE_
 
 	def stzType()
 		return :stzNumber
@@ -5911,7 +5911,7 @@ class stzNumber from stzObject
 	#--- ITEM
 	
 	def IsItem()
-		return TRUE
+		return _TRUE_
 	
 	def IsItemOf(paList)
 		return StzListQ(paList).Contains(This.NumericValue())
@@ -5928,7 +5928,7 @@ class stzNumber from stzObject
 	#--- MEMEBER
 
 	def IsMember()
-		return TRUE
+		return _TRUE_
 	
 	def IsMemberOf(paList)
 		return StzListQ(paList).Contains(This.Content())
@@ -5945,31 +5945,31 @@ class stzNumber from stzObject
 	#--- NUMBER
 	
 	def IsANumber()
-		return TRUE
+		return _TRUE_
 
 		def IsNotANumber()
-			return FALSE
+			return _FALSE_
 
 	def IsAString()
-		return FALSE
+		return _FALSE_
 
 		def IsNotAString()
-			return TRUE
+			return _TRUE_
 
 	def IsAList()
-		return FALSE
+		return _FALSE_
 
 		def IsNotAList()
-			return TRUE
+			return _TRUE_
 
 	def IsAnObject()
-		return TRUE
+		return _TRUE_
 
 		def IsAObject()
-			return TRUE
+			return _TRUE_
 
 		def IsNotAnObject()
-			return TRUE
+			return _TRUE_
 
 	def IsNumberOf(paList)
 		return This.IsItemOf(paList)
@@ -5992,34 +5992,34 @@ class stzNumber from stzObject
 	#--- STRING
 	
 	def IsLetter()
-		return FALSE
+		return _FALSE_
 	
 	def IsALetter()
-		return FALSE
+		return _FALSE_
 	
 	def IsLetterOf(pStrOrListOfChars)
-		return FALSE
+		return _FALSE_
 	
 		def IsALetterOf(pcStr)
-			return FALSE
+			return _FALSE_
 		
 	def IsLetterIn(pcStr)
-		return FALSE
+		return _FALSE_
 	
 		def IsALetterIn(pcStr)
-			return FALSE
+			return _FALSE_
 	
 	def IsCharOf(pStrOrListOfChars)
-		return FALSE
+		return _FALSE_
 	
 		def IsACharOf(pcStr)
-			return FALSE
+			return _FALSE_
 	
 	def IsCharIn(pcStr)
-		return FALSE
+		return _FALSE_
 	
 		def IsACharIn(pcStr)
-			return FALSE
+			return _FALSE_
 	
 	  #------------------------------------------#
 	 #   STRINGIFY(), TOSTRING(), AND TOCODE()  #
@@ -6115,7 +6115,7 @@ class stzNumber from stzObject
 			return This.ClassName()
 
 	def IsNamedObject()
-		return FALSE
+		return _FALSE_
 
 	def HowMany(n)
 		if isNumber(n)

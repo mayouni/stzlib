@@ -76,7 +76,7 @@ class stzCCode
 	#--------------------------------------#
 
 	def Update(cNewCode)
-		if CheckingParams() = TRUE
+		if CheckingParams() _TRUE_
 			if isList(cNewCode) and Q(cNewCode).IsWithOrByOrUsingNamedParam()
 				cNewCode = cNewCode[2]
 			ok
@@ -227,7 +227,7 @@ class stzCCode
 				"@PreviousSplit",
 				"@PreviousObject"
 				
-		], :CaseSensitive = FALSE)
+		], :CaseSensitive _FALSE_)
 
 		oResult = StzStringQ(" " + cCode + " ")
 

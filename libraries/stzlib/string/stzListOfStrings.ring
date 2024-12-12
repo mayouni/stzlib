@@ -120,7 +120,7 @@ class stzListOfStrings from stzList
 			done
 		ok
 
-		if KeepingHistory() = TRUE
+		if KeepingHistory() _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -355,7 +355,7 @@ class stzListOfStrings from stzList
 	
 		ok
 
-		if KeepingHistory() = TRUE
+		if KeepingHistory() _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -693,7 +693,7 @@ class stzListOfStrings from stzList
 
 			aResult = []
 
-			if paBoxOptions[ :EachChar ] = TRUE
+			if paBoxOptions[ :EachChar ] _TRUE_
 
 				for str in This.ListOfStrings()
 					aResult + StzListOfCharsQ(str).BoxXT(paBoxOptions)
@@ -1549,7 +1549,7 @@ class stzListOfStrings from stzList
 	#------------#
 
 	def IsStzListOfStrings()
-		return TRUE
+		return _TRUE_
 
 	def stzType()
 		return :stzListOfStrings

@@ -1274,14 +1274,14 @@ pron()
 
 # In Python we can use ternary operator like this:
 	'
-	something = true // or false
+	something _TRUE_ // or false
 	value = "foo" if something else "bar"
 	'
 
 # As you might imagine, its equivalent in pure Ring is:
-	something = true // or false
+	something _TRUE_ // or false
 	
-	if something = true
+	if something _TRUE_
 		value = "foo"
 	else
 		value = "bar"
@@ -1292,14 +1292,14 @@ pron()
 # To to that, we just need to decorate the Python code with vr(), vl(),
 # _if() and _else() functions:
 
-bSomething = TRUE
+bSomething _TRUE_
 vr([ :value ]) '=' vl([ "foo" ]) _if(bSomething) _else([ "bar" ])
 ? v(:value)
 #--> foo
 
 # And if we turn bSomething to FALSE:
 #ERR #todo check it
-	bSomething = FALSE
+	bSomething _FALSE_
 	vr([ :value ]) '=' vl([ "foo" ]) _if(bSomething) _else([ "bar" ])
 	? v(:value)
 	#--> bar
@@ -1336,13 +1336,13 @@ proff()
 
 pron()
 
-bPositive = TRUE
+bPositive _TRUE_
 Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 ? @@( v([ :x, :y, :z ]) )
 #--> [ 1, 2, 3 ]
 
 #ERR #TODO check it
-	bPositive = FALSE
+	bPositive _FALSE_
 	Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 	? @@( v([ :x, :y, :z ]) )
 	#--> [ -1, -2, -3 ]
@@ -1355,7 +1355,7 @@ proff()
 
 	pron()
 	
-	bPositive = FALSE
+	bPositive _FALSE_
 	V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10 ])
 	
 	? v([:x, :y])
@@ -1367,7 +1367,7 @@ proff()
 
 	pron()
 	
-	bPositive = FALSE
+	bPositive _FALSE_
 	V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10, -20 ])
 	
 	? v([:x, :y])
@@ -1379,7 +1379,7 @@ proff()
 
 pron()
 
-bPositive = TRUE
+bPositive _TRUE_
 Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 ? @@( v([ :x, :y, :z ]) )
 #--> [ 1, 2, 3 ]

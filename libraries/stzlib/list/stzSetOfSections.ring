@@ -2,11 +2,11 @@
 
 func IsSetOfSections(paSections)
 	if NOT isList(paSections)
-		return FALSE
+		return _FALSE_
 	ok
 
 	if NOT IsSet(paSections)
-		return FALSE
+		return _FALSE_
 	ok
 
 	return StzListQ(paSections).IsListOfSections()
@@ -26,7 +26,7 @@ class stzSetOfSections from stzListOfSections
 
 		@aContent = paSections
 
-		if KeepingHistory() = TRUE
+		if KeepingHistory() _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -50,7 +50,7 @@ class stzSetOfSections from stzListOfSections
 
 		@aContent = paNewSections
 
-		if KeepingHisto() = TRUE
+		if KeepingHisto() _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
