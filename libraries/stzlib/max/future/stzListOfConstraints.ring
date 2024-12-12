@@ -12,12 +12,12 @@ func IsListOfConstraints(pObject, paConstraints)
 		return _FALSE_
 	ok
 
-	bResult _TRUE_
+	bResult = _TRUE_
 
 	for aConstraint in paConstraints
 		cConstraint = aConstraint[2]
 		if NOT IsConstraint(pObject, cConstraint)
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next
@@ -32,11 +32,11 @@ func IsListOfNamedConstraints(pObject, paConstraints)
 		return _FALSE_
 	ok
 
-	bResult _TRUE_
+	bResult = _TRUE_
 
 	for aPair in paConstraints
 		if NOT IsNamedConstaint(pObject, aPair)
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next

@@ -26,7 +26,7 @@ class stzSetOfSections from stzListOfSections
 
 		@aContent = paSections
 
-		if KeepingHistory() _TRUE_
+		if KeepingHistory() = _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -50,7 +50,7 @@ class stzSetOfSections from stzListOfSections
 
 		@aContent = paNewSections
 
-		if KeepingHisto() _TRUE_
+		if KeepingHisto() = _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 

@@ -603,18 +603,18 @@ Dotless LETTERS
 			StzStringQ("اِ").RemoveDiacritic()
 			--> returns only Alif as a result ("ا")
 	
-		Because the Kasrah is recognized as a diacritic that is replaced with NULL.
+		Because the Kasrah is recognized as a diacritic that is replaced with _NULL_.
 	
 		Clearly, there is a need to add a stzLetter class and use it to manage
 		those situations where many chars collaborate in defining only one letter.
 		But, for the mean time, stzString should (TODO) also be able to recognize "اِ"
 		as beeign one letter:
 	
-			StzStringQ("اِ").IsLetter() --> TRUE
+			StzStringQ("اِ").IsLetter() --> _TRUE_
 	
 		and as beeing a diacritic:
 	
-			StzStringQ("اِ").IsDiacritic() --> TRUE
+			StzStringQ("اِ").IsDiacritic() --> _TRUE_
 	*/
 
 	_anArabicHamzahKat3iahUnicodes = 1571:1574 + 1569
@@ -1259,23 +1259,23 @@ Dotless LETTERS
 		[ 1573, 1569, "Arabic Hamza Kat3ia under Aleef", "إ --> ء" ],
 		[ 1574, 1569, "Arabic Hamza Kat3ia ontop of Waw", "ئ --> ء" ],
 	
-		[ 1611, NULL, "Arabic Tinween of Fat7ah", "عََ --> ع" ],
-		[ 1612, NULL, "Arabic Tinween of Dhammah", "عُُ --> ع" ],
-		[ 1613, NULL, "Arabic Tinween of Kasrah", "عِِ --> ع" ],
+		[ 1611, _NULL_, "Arabic Tinween of Fat7ah", "عََ --> ع" ],
+		[ 1612, _NULL_, "Arabic Tinween of Dhammah", "عُُ --> ع" ],
+		[ 1613, _NULL_, "Arabic Tinween of Kasrah", "عِِ --> ع" ],
 	
-		[ 1614, NULL, "Arabic Fat7ah", "عَ --> ع" ],
-		[ 1615, NULL, "Arabic Dhammah", "عُ --> ع" ],
-		[ 1616, NULL, "Arabic Kasrah", "عِ --> ع" ],
-		[ 1618, NULL, "Arabic Sukoon", "عْ --> ع" ],
+		[ 1614, _NULL_, "Arabic Fat7ah", "عَ --> ع" ],
+		[ 1615, _NULL_, "Arabic Dhammah", "عُ --> ع" ],
+		[ 1616, _NULL_, "Arabic Kasrah", "عِ --> ع" ],
+		[ 1618, _NULL_, "Arabic Sukoon", "عْ --> ع" ],
 	
-		[ 1617, NULL, "Arabic Shaddah", "عّ --> ع" ],
+		[ 1617, _NULL_, "Arabic Shaddah", "عّ --> ع" ],
 	
-		[ 1648, NULL, "Arabic small Alif Mamdoodah", "لٰكن --> لكن" ],
+		[ 1648, _NULL_, "Arabic small Alif Mamdoodah", "لٰكن --> لكن" ],
 	
 		[ 1649, 1575, "Arabic Hamzah Wasliah Madhmoomah", "ٱ --> ا" ],
 		# The case of Arabic Hamzah Wasliah Maksoorah "اِ" is managed automatically
 		# by the fact that these are two chars (Hamzah + Kasrah), and that
-		# Kasrah is recognized as a diacritic and replaced by NULL.
+		# Kasrah is recognized as a diacritic and replaced by _NULL_.
 	
 		[ 1570, 1575, "Arabic ََAlif Mamdoodah", "آ --> ا" ]
 		
@@ -1503,18 +1503,18 @@ Dotless LETTERS
 		Try this code in Ring:
 
 		# Ring code	Output		Unicodes
-		? "۰" = "٠"	# FALSE		01776	01632
-		? "۱" = "١"	# FALSE		01777	01633
-		? "۲" = "٢"	# FALSE		01778	01634
-		? "۳" = "٣"	# FALSE		01779	01635
+		? "۰" = "٠"	# _FALSE_		01776	01632
+		? "۱" = "١"	# _FALSE_		01777	01633
+		? "۲" = "٢"	# _FALSE_		01778	01634
+		? "۳" = "٣"	# _FALSE_		01779	01635
 		
-		? "٤" = "٤"	# TRUE		01636	01636
-		? "٥" = "٥"	# TRUE		01637	01637
-		? "٦" = "٦"	# TRUE		01638	01638
-		? "٧" = "٧"	# TRUE		01639	01639
+		? "٤" = "٤"	# _TRUE_		01636	01636
+		? "٥" = "٥"	# _TRUE_		01637	01637
+		? "٦" = "٦"	# _TRUE_		01638	01638
+		? "٧" = "٧"	# _TRUE_		01639	01639
 		
-		? "۸" = "٨"	# FALSE		01784	01640	
-		? "۹" = "٩"	# FALSE		01785	01641
+		? "۸" = "٨"	# _FALSE_		01784	01640	
+		? "۹" = "٩"	# _FALSE_		01785	01641
 
 		The point is that Unicode assigns unique code to Chars and
 		not to their visual glyfs. To give a clear example:
@@ -2565,7 +2565,7 @@ Dotless LETTERS
 	
 		cResult = _aCardsXT[pcCard]
 	
-		if cResult = NULL
+		if cResult = _NULL_
 			StzRaise("Incorrect param value!")
 		ok 
 	
@@ -2583,7 +2583,7 @@ Dotless LETTERS
 			
 			cCard = _aCardsXT[acCards[i]]
 
-			if cCard != NULL
+			if cCard != _NULL_
 				acResult + cCard
 			ok
 		next
@@ -2602,7 +2602,7 @@ Dotless LETTERS
 			
 			cCard = _aCardsXT[acCards[i]]
 
-			if cCard != NULL
+			if cCard != _NULL_
 				acResult + [ acCards[i], cCard ]
 			ok
 		next

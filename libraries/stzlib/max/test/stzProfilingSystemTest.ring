@@ -17,10 +17,10 @@ load "../stzmax.ring"
 
 /*----
 
-? MSize([ "NULL", "@noname", "20", 2, "number" ])
+? MSize([ "_NULL_", "@noname", "20", 2, "number" ])
 #--> 510 (MB)
 
-? MSizeXT([ "NULL", "@noname", "20", 2, "number" ])
+? MSizeXT([ "_NULL_", "@noname", "20", 2, "number" ])
 #--> [
 #	[ "RING_64BIT_LIST_STRUCTURE_SIZE", 	  80 ],
 # 	[ "RING_64BIT_ITEM_STRUCTURE_SIZE * 5",  120 ],
@@ -250,7 +250,7 @@ pron()
 ? len("両")
 #--> 3
 
-# The char occupies 3 bytes in memory, which is true. But actually, Ring
+# The char occupies 3 bytes in memory, which is _TRUE_. But actually, Ring
 # allocates some additional bytes to manage it internally...
 
 ? SizeInBytes("両") # Or MemorySize() or just MSize()

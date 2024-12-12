@@ -97,7 +97,7 @@ pron()
 ? @@( ( Q(1:3) + Q(4) ).Content() )
 #--> [ 1, 2, 3, 4 ]
 
-? ( Q(1:3) + Q(4) ).ToStzListOfNumbers().Sum() + NULL
+? ( Q(1:3) + Q(4) ).ToStzListOfNumbers().Sum() + _NULL_
 #--> 10
 
 ? StzType( QQ(1:3) )
@@ -597,19 +597,19 @@ proff()
 pron()
 
 ? isPalindrome("MADAM") # Ring function
-#--> TRUE
+#--> _TRUE_
 
 ? isPalindrome("باب")
-#!--> FALSE
-# Should be TRUE
+#!--> _FALSE_
+# Should be _TRUE_
 
 # Softanza fixes it:
 
 ? @IsPalindrome("MADAM")
-#--> TRUE
+#--> _TRUE_
 
 ? @IsPalindrome("باب")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -619,19 +619,19 @@ proff()
 pron()
 
 ? isPalindrome("MADAM") # ring function working only for strings
-#--> TRUE
+#--> _TRUE_
 
 ? isPalindrome([ "M", "A", "D", "A", "M" ])
-#!--> FALSE
+#!--> _FALSE_
 #--> Slhould return _TRUE_
 
 # Softanza fixes it:
 
 ? @IsPalindrome("MADAM")
-#--> TRUE
+#--> _TRUE_
 
 ? @IsPalindrome([ "M", "A", "D", "A", "M" ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -642,14 +642,14 @@ pron()
 
 
 ? Q("madam").IsPalindrome()
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "M", "A", "D", "A", "M" ]).IsPalindrome()
 
 #--
 
 ? Q("باب").IsPalindrome()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -672,13 +672,13 @@ pron()
 
 
 ? ispunct("?")
-#--> TRUE
+#--> _TRUE_
 
 ? isPunct("!?,;a")
 
 ? isPunct("※")
-#!--> FALSE
-# Should be TRUE
+#!--> _FALSE_
+# Should be _TRUE_
 
 ? Name("※") # A punctuation char in Unicode
 #--> REFERENCE MARK
@@ -692,10 +692,10 @@ pron()
 # Softanza can check it:
 
 ? @IsPunct("※")
-#--> TRUE
+#--> _TRUE_
 
 ? @IsPunct(";:'※!?")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.08 second(s)
@@ -757,7 +757,7 @@ pron()
 
 o1 = new stzString("A man a plan a canal Panama. Able was I ere I saw Elba. Do geese see God? Madam, in Eden, I'm Adam.")
 
-? o1.WordsQ().YieldWXT('@item', :Where = 'Q(@item).IsPalindromeCS(FALSE)')
+? o1.WordsQ().YieldWXT('@item', :Where = 'Q(@item).IsPalindromeCS(_FALSE_)')
 #--> [ "ere", "madam" ])
 
 proff()
@@ -771,17 +771,17 @@ pron()
 
 o1 = new stzString("123 ABCDEF")
 	? o1.ContainsLetters() # Coudd contains non letters
-	#--> TRUE
+	#--> _TRUE_
 	
 	? o1.ContainsOnlyLetters() # same as IsAlphabetic()
-	#--> FALSE
+	#--> _FALSE_
 
 o2 = new stzString("ABCDEF")
 	? o2.ContainsLetters()
-	#--> TRUE
+	#--> _TRUE_
 	
 	? o2.ContainsOnlyLetters()
-	#--> TRUE
+	#--> _TRUE_
 
 #TODO add sample on ContainsNumbersAndLetters() vs ContainsNumbersOrLetters()
 
@@ -793,10 +793,10 @@ proff()
 pron()
 
 ? isAlpha("Ring")
-#--> TRUE
+#--> _TRUE_
 
 ? isAlnum("Ring120")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 
@@ -808,20 +808,20 @@ pron()
 # and can not manage Unicode non-ascii strings
 
 ? isAlpha("محمود")
-#!--> FALSE
-#~> Should be TRUE
+#!--> _FALSE_
+#~> Should be _TRUE_
 	
 ? isAlnum("محمود2024")
-#!--> FALSE
-#~> Should be TRUE
+#!--> _FALSE_
+#~> Should be _TRUE_
 
 # Softanza quivalent functions fix the issue:
 
 ? @IsAlpha("محمود") # or @IsAlphabetical()
-#--> TRUE
+#--> _TRUE_
 
 ? @IsAlnum("محمود2024") # or @IsAlphanum()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s)
@@ -860,10 +860,10 @@ pron()
 #--> undefined
 
 ? Q("ˇ").IsLetter()
-#--> TRUE
+#--> _TRUE_
 
 ? @IsAlpha("ˇringˇ")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.10 second(s)
@@ -873,7 +873,7 @@ pron()
 
 o1 = new stzString("The quick brown fox")
 
-? @@(  o1.SubStringsWCSXTZZ('len(@SubString) = 5 and Q(@SubString).IsAlphabetic()', TRUE) )
+? @@(  o1.SubStringsWCSXTZZ('len(@SubString) = 5 and Q(@SubString).IsAlphabetic()', _TRUE_) )
 #--> [ [ "quick", [ 5, 9 ] ], [ "brown", [ 11, 15 ] ] ]
 
 proff()
@@ -951,11 +951,11 @@ pron()
 o1 = new stzList([ "A", "b", 2, "C", 3, "♥" ])
 
 ? o1.ContainsW(' isNumber(This[@i]) ')
-#--> TRUE
+#--> _TRUE_
 # Executed in 0.06 second(s)
 
 ? o1.ContainsWXT(' isNumber(@CurrentItem) ')
-#--> TRUE
+#--> _TRUE_
 # Executed in 0.10 second(s)
 
 proff()
@@ -975,7 +975,7 @@ proff()
 pron()
 
 ? Q("984332").IsMadeOfNumbers()
-#--> TRUE
+#--> _TRUE_
 
 ? Q("").IsMadeOfNumbers()
 
@@ -1025,7 +1025,7 @@ proff()
 
 pron()
 
-# Pair starting with the keystring not found, a NULL is returned
+# Pair starting with the keystring not found, a _NULL_ is returned
 aList = [ "python", "ring", "ruby"]
 ? @@( aList[ "ring" ] )
 #--> ""
@@ -1138,10 +1138,10 @@ proff()
 pron()
 
 ? Q([]).IsListOfLists()
-#--> FALSE
+#--> _FALSE_
 
 ? Q([ 1:3, 4:7, 8:10 ]).IsListOfLists()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -1167,7 +1167,7 @@ o1 = new stzList([
 #	[ "i", "i", "i" ]
 # ]
 
-? @@NL( o1.PartsCS(FALSE) )
+? @@NL( o1.PartsCS(_FALSE_) )
 #--> [
 #	[ "m", "m", "m", "M", "M", "M" ],
 #	[ "a", "a", "A", "A", "A" ],
@@ -1195,10 +1195,10 @@ o1 = new stzList([
 ? @@( o1.FindPartsAsSections() ) + NL
 #--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 8 ], [ 9, 11 ], [ 12, 14 ] ]
 
-? @@( o1.FindPartsCS(FALSE) ) + NL
+? @@( o1.FindPartsCS(_FALSE_) ) + NL
 #--> [ 1, 7, 12 ]
 
-? @@( o1.FindPartsAsSectionsCS(FALSE) )
+? @@( o1.FindPartsAsSectionsCS(_FALSE_) )
 #--> [ [ 1, 6 ], [ 7, 11 ], [ 12, 14 ] ]
 
 proff()
@@ -1225,7 +1225,7 @@ o1 = new stzList([
 #	[ [ "i", "i", "i" ], 12 ]
 # ]
 
-? @@NL( o1.PartsCSZ(FALSE) ) + NL
+? @@NL( o1.PartsCSZ(_FALSE_) ) + NL
 #--> [
 #	[ [ "m", "m", "m", "M", "M", "M" ], 1 ],
 #	[ [ "a", "a", "A", "A", "A" ], 7 ],
@@ -1241,7 +1241,7 @@ o1 = new stzList([
 #	[ [ "i", "i", "i" ], [ 12, 14 ] ]
 # ]
 
-? @@NL( o1.PartsCSZZ(FALSE) ) + NL
+? @@NL( o1.PartsCSZZ(_FALSE_) ) + NL
 #--> [
 #	[ [ "m", "m", "m", "M", "M", "M" ], [ 1, 6 ] ],
 #	[ [ "a", "a", "A", "A", "A" ], [ 7, 11 ] ],
@@ -1317,22 +1317,22 @@ o1 = new stzList([
 	"i", "i", "i"
 ])
 
-# If you deactivate CaseSensitivity with CS _FALSE_ and
+# If you deactivate CaseSensitivity with CS = _FALSE_ and
 # try to partition the list using CharCase(), then
 # Softanza detects it and return the hole list as one part
 
-? @@( o1.FindPartsUsingCS('Q(@item).CharCase()', FALSE) )
+? @@( o1.FindPartsUsingCS('Q(@item).CharCase()', _FALSE_) )
 #--> [ 1 ]
 
-? @@( o1.FindPartsAsSectionsUsingCS('Q(@item).CharCase()',FALSE) )
+? @@( o1.FindPartsAsSectionsUsingCS('Q(@item).CharCase()', _FALSE_) )
 #--> [ [ 1, 14 ] ]
 
-? @@( o1.PartsUsingCS('Q(@item).CharCase()', FALSE) ) + NL
+? @@( o1.PartsUsingCS('Q(@item).CharCase()', _FALSE_) ) + NL
 #--> [
 #	[ [ "m", "m", "m", "M", "M", "M", "a", "a", "A", "A", "A", "i", "i", "i" ] ]
 # ]
 
-? @@( o1.PartsUsingCSZZ('Q(@item).CharCase()', FALSE) ) + NL
+? @@( o1.PartsUsingCSZZ('Q(@item).CharCase()', _FALSE_) ) + NL
 #--> [
 #	[
 #	[ "m", "m", "m", "M", "M", "M", "a", "a", "A", "A", "A", "i", "i", "i" ],
@@ -1352,13 +1352,13 @@ o1 = new stzString("mmmMMMaaAAAiii")
 ? @@( o1.FindParts() ) + NL
 # [ 1, 4, 7, 9, 12 ]
 
-? @@( o1.FindPartsCS(FALSE) ) + NL
+? @@( o1.FindPartsCS(_FALSE_) ) + NL
 # [ 1, 7, 12 ]
 
 ? @@( o1.FindPartsAsSections() ) + NL
 #--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 8 ], [ 9, 11 ], [ 12, 14 ] ]
 
-? @@( o1.FindPartsAsSectionsCS(FALSE) )
+? @@( o1.FindPartsAsSectionsCS(_FALSE_) )
 #--> [ [ 1, 6 ], [ 7, 11 ], [ 12, 14 ] ]
 
 proff()
@@ -1373,7 +1373,7 @@ o1 = new stzString("mmmMMMaaAAAiii")
 ? @@( o1.Parts() )
 #--> [ "mmm", "MMM", "aa", "AAA", "iii" ]
 
-? @@( o1.PartsCS(FALSE) )
+? @@( o1.PartsCS(_FALSE_) )
 #--> [ "mmmmmm", "aaaaa", "iii" ]
 
 proff()
@@ -1394,7 +1394,7 @@ o1 = new stzString("mmmMMMaaAAAiii")
 #	[ "iii", 12 ]
 # ]
 
-? @@NL( o1.PartsCSZ(FALSE) ) + NL
+? @@NL( o1.PartsCSZ(_FALSE_) ) + NL
 #--> [
 #	[ "mmmmmm", 1 ],
 #	[ "aaaaa", 7 ],
@@ -1410,7 +1410,7 @@ o1 = new stzString("mmmMMMaaAAAiii")
 #	[ "iii", [ 12, 14 ] ]
 # ]
 
-? @@NL( o1.PartsCSZZ(FALSE) )
+? @@NL( o1.PartsCSZZ(_FALSE_) )
 #--> [
 #	[ "mmmmmm", [ 1, 6 ] ],
 #	[ "aaaaa", [ 7, 11 ] ],
@@ -1429,13 +1429,13 @@ o1 = new stzString("mmmMMMaaAAAiii")
 ? @@( o1.FindPartsUsing('Q(@Char).CharCase()') ) + NL
 # [ 1, 4, 7, 9, 12 ]
 
-? @@( o1.FindPartsUsingCS('Q(@Char).CharCase()', FALSE) ) + NL
+? @@( o1.FindPartsUsingCS('Q(@Char).CharCase()', _FALSE_) ) + NL
 # [ 1 ]
 
 ? @@( o1.FindPartsAsSectionsUsing('Q(@Char).CharCase()') ) + NL
 #--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 8 ], [ 9, 11 ], [ 12, 14 ] ]
 
-? @@( o1.FindPartsAsSectionsUsingCS('Q(@Char).CharCase()', FALSE) )
+? @@( o1.FindPartsAsSectionsUsingCS('Q(@Char).CharCase()', _FALSE_) )
 #--> [ [ 1, 14 ] ]
 
 proff()
@@ -1450,7 +1450,7 @@ o1 = new stzString("mmmMMMaaAAAiii")
 ? @@( o1.PartsUsing('Q(@Char).CharCase()') ) + NL
 #--> [ "mmm", "MMM", "aa", "AAA", "iii" ]
 
-? @@( o1.PartsUsingCS('Q(@Char).CharCase()', FALSE) ) + NL
+? @@( o1.PartsUsingCS('Q(@Char).CharCase()', _FALSE_) ) + NL
 #--> [ [ "mmmMMMaaAAAiii" ] ]
 
 ? @@NL( o1.PartsUsingXT('Q(@Char).CharCase()') ) + NL
@@ -1462,7 +1462,7 @@ o1 = new stzString("mmmMMMaaAAAiii")
 #	[ "iii", "lowercase" ]
 # ]
 
-? @@( o1.PartsUsingCSXT('Q(@Char).CharCase()', FALSE) )
+? @@( o1.PartsUsingCSXT('Q(@Char).CharCase()', _FALSE_) )
 #--> [ [ "mmmMMMaaAAAiii", "" ] ]
 
 proff()
@@ -1483,7 +1483,7 @@ o1 = new stzString("mmmMMMaaAAAiii")
 #	[ "iii", 12 ]
 # ]
 
-? @@( o1.PartsUsingCSZ('Q(@Char).CharCase()', FALSE) ) + NL
+? @@( o1.PartsUsingCSZ('Q(@Char).CharCase()', _FALSE_) ) + NL
 #--> [[ "mmmMMMaaAAAiii", 1 ] ]
 
 ? @@NL( o1.PartsUsingZZ('Q(@Char).CharCase()') ) + NL
@@ -1495,7 +1495,7 @@ o1 = new stzString("mmmMMMaaAAAiii")
 #	[ "iii", [ 12, 14 ] ]
 # ]
 
-? @@NL( o1.PartsUsingCSZZ('Q(@Char).CharCase()', FALSE) )
+? @@NL( o1.PartsUsingCSZZ('Q(@Char).CharCase()', _FALSE_) )
 #--> [ [ "mmmMMMaaAAAiii", [ 1, 14 ] ] ]
 
 proff()
@@ -1512,11 +1512,11 @@ o1 = new stzString("Abc285XY&من")
 
 ? @@NL( o1.PartsUsingXT( 'Q(@char).IsLetter()' ) ) + NL
 #--> [
-#	[ "Abc", TRUE ],
-#	[ "285", FALSE ],
-#	[ "XY", TRUE ],
-#	[ "&", FALSE ],
-#o	[ "من", TRUE ]
+#	[ "Abc", _TRUE_ ],
+#	[ "285", _FALSE_ ],
+#	[ "XY", _TRUE_ ],
+#	[ "&", _FALSE_ ],
+#o	[ "من", _TRUE_ ]
 # ]
 
 ? @@( o1.PartsUsing('Q(@char).Orientation()' ) ) + NL
@@ -1527,11 +1527,11 @@ o1 = new stzString("Abc285XY&من")
 
 ? @@( o1.PartsUsingXT( 'Q(@char).IsUppercase()' ) ) + NL
 #--> [
-#	[ "A", TRUE ],
-#	[ "bc", FALSE ],
-#	[ "285", NULL ],
-#	[ "XY", TRUE],
-#o	[ "&من", NULL ]
+#	[ "A", _TRUE_ ],
+#	[ "bc", _FALSE_ ],
+#	[ "285", _NULL_ ],
+#	[ "XY", _TRUE_],
+#o	[ "&من", _NULL_ ]
 # ]
 
 ? @@( o1.PartsUsing( 'Q(@char).CharCase()' ) ) + NL
@@ -1541,9 +1541,9 @@ o1 = new stzString("Abc285XY&من")
 #--> [
 #	[ "A", "uppercase" ],
 #	[ "bc", "lowercase" ],
-#	[ "285", NULL ],
+#	[ "285", _NULL_ ],
 #	[ "XY", "uppercase" ],
-#o	[ "&من", NULL ]
+#o	[ "&من", _NULL_ ]
 # ]
 
 proff()
@@ -1574,19 +1574,19 @@ proff()
 pron()
 
 ? @@( Q("285").IsLowercase() )
-#--> NULL
+#--> _NULL_
 
 ? Q("a285").IsLowercase()
-#--> TRUE
+#--> _TRUE_
 
 ? @@( Q("@&#!").IsUppercase() )
-#--> NULL
+#--> _NULL_
 
 ? Q("@&#!ABC").IsUppercase()
-#--> TRUE
+#--> _TRUE_
 
 ? @@( Q("محمود").IsLowercase() )
-#--> NULL
+#--> _NULL_
 
 proff()
 # Executed in 0.05 second(s)
@@ -1619,10 +1619,10 @@ o1 = new stzString("ring")
 #--> "n"
 
 ? @@( o1.NthChar(0) )
-#--> NULL
+#--> _NULL_
 
 ? @@( o1.NthChar(77) )
-#--> NULL
+#--> _NULL_
 
 ? @@( o1.Chars() )
 #--> [ "r", "i", "n", "g" ]
@@ -1638,7 +1638,7 @@ o1 = new stzString("mmmMMMaaAAAiii")
 ? @@( o1.Chars() )
 #--> [ "m", "m", "m", "M", "M", "M", "a", "a", "A", "A", "A", "i", "i", "i" ]
 
-? @@( o1.CharsCS(false) )
+? @@( o1.CharsCS(_FALSE_) )
 #--> [ "m", "a", "i" ]
 
 ? @@( o1.CharsU() ) # Or UniqueChars() or CharsWithoutDupplication()
@@ -2405,7 +2405,7 @@ pron()
 
 # This function is used internally by ListsSortOn()
 
-? @@NL( ListStringifyXT([ 370, 120, 1:3, 493, 5:8, 45, NULL ]) )
+? @@NL( ListStringifyXT([ 370, 120, 1:3, 493, 5:8, 45, _NULL_ ]) )
 #--> [
 #	'"370."',
 #	'"120."',
@@ -2461,13 +2461,13 @@ proff()
 pron()
 
 aLists = [
-	[ 370,	"Dog", 	"white", TRUE ],
+	[ 370,	"Dog", 	"white", _TRUE_ ],
 	[ 120,	"Fox", 	"blue",	FALSE ],
 	[ 1:3,	"Charlie", "white" ],
 	[ 493, "Baker" ],
 	[ 5:8, "Easy" ],
 	[ 45,	"Alpha", "green" ],
-	[ NULL, "King" ],
+	[ _NULL_, "King" ],
 	[ 0,	"Zero"  ],
 	[ [ ], "EmptyL" ]
 ]
@@ -2499,14 +2499,14 @@ aLists = [
 	[ "Baker",	493 				],
 	[ "Easy", 	5:8 				],
 	[ "Alpha",	 45,	"green" 		],
-	[ "King",	NULL				],
+	[ "King",	_NULL_				],
 	[ "Zero",	0 ],
 	[ "EmptyL",	[ ] ]
 ]
 
 ? @@SP( SortListsOn(aLists, 2) )
 #--> [
-#	[ "King", "" ], #Note that NULL figures always on top of the sort
+#	[ "King", "" ], #Note that _NULL_ figures always on top of the sort
 #	[ "Zero", 0 ],
 #	[ "Alpha", 45, "green" ],
 #	[ "Fox", 120, "blue", 0 ],
@@ -2530,7 +2530,7 @@ aList = [
 ]
 
 ? IsRingSortableOn(aList, 2)
-#--> FALSE
+#--> _FALSE_
 
 # If you try you get an error
 
@@ -2553,7 +2553,7 @@ aList = [
 ]
 
 ? IsRingSortable(aList)
-#--> FALSE
+#--> _FALSE_
 
 ? @@NL( @Sort(aList) )
 #--> [
@@ -2576,7 +2576,7 @@ aList = [
 ]
 
 ? IsRingSortableOn(aList, 1)
-#--> FALSE
+#--> _FALSE_
 
 ? @@NL( @SortOn(aList, 1 ) )
 #--> [
@@ -2612,12 +2612,12 @@ proff()
 
 pron()
 
-aList = [ "charlie", NULL, 17, 10, 4:7, [], "fox", 1:3, "aplha" ]
+aList = [ "charlie", _NULL_, 17, 10, 4:7, [], "fox", 1:3, "aplha" ]
 
 # The list can't be sorted by Ring because it contains an []
 
 ? IsRingSortable(aList)
-#--> FALSE
+#--> _FALSE_
 
 # Softanza can sort it and places the [] before all other lists
 
@@ -2652,7 +2652,7 @@ proff()
 pron()
 
 ? @IsHashList([ [ "uppercase", [ ] ] ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.01 second(s)
@@ -2715,21 +2715,21 @@ proff()
 pron()
 
 ? Q([ "str1", [ "str2", "str3" ], "str4" ]).IsListOfStringsOrPairsOfStrings()
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "str1", "str2", "str3", "str4" ]).IsListOfStringsOrPairsOfStrings()
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ [ "str1", "str2" ], [ "str3", "str4" ] ]).IsListOfStringsOrPairsOfStrings()
-#--> TRUE
+#--> _TRUE_
 
 ? NL
 
 ? IsListOfStringsOrPairsOfStrings([ "str1", [ "str2", "str3" ], "str4" ])
-#--> TRUE
+#--> _TRUE_
 
 ? IsListOfStringsOrPairsOfStrings([ "str1", "str2", "str3", "str4" ])
-#--> TRUE
+#--> _TRUE_
 
 ? IsListOfStringsOrPairsOfStrings([ [ "str1", "str2" ], [ "str3", "str4" ] ])
 
@@ -2905,11 +2905,11 @@ pron()
 
 #     2    7
 ? Q("^^♥♥♥^^").ContainsSubStringBetween("♥♥♥", :Position = 2, :AndPosition = 7)
-#--> TRUE
+#--> _TRUE_
 
 #     2   6
 ? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :BetweenPositions = [ 2, :And = 6])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.03 second(s)
@@ -2919,10 +2919,10 @@ proff()
 pron()
 
 ? Q("^^♥♥♥^^").ContainsInSection("♥♥♥", 3, 5)
-#--> TRUE
+#--> _TRUE_
 
 ? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :InSection = [3, 5])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -2932,10 +2932,10 @@ proff()
 pron()
 
 ? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", "^^", "^^")
-#--> TRUE
+#--> _TRUE_
 
 ? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", :SubString = "^^", :AndSubString = "^^")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s) in Ring 1.20
@@ -2948,7 +2948,7 @@ pron()
 ? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :Between = [ "^^", "^^" ] )
 
 ? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :BetweenSubStrings = [ "^^", :And = "^^" ] )
-#--> TRUE
+#--> _TRUE_
 
 proff()
 #--> Executed in 0.02 second(s) in Ring 1.20
@@ -2991,16 +2991,16 @@ StartProfiler()
 		
 	o1 = new stzString("♥")
 	? o1.IsBoundedByXT("-", :In = "...-♥-...") # You can use :Inside instead of :In
-	#--> TRUE
+	#--> _TRUE_
 	
 	? o1.IsBoundedByXT(["/", "\"], :InSide = "__/♥\__")
-	#--> TRUE
+	#--> _TRUE_
 		
 	? o1.IsBetweenXT(["/", "\"], :InSide = "__/♥\__")
-	#--> TRUE
+	#--> _TRUE_
 	
 	? o1.IsBetweenXT(["/", :And = "\"], :InSide = "__/♥\__")
-	#--> TRUE
+	#--> _TRUE_
 	
 StopProfiler()
 # Executed in 0.12 second(s)
@@ -3032,16 +3032,16 @@ StopProfiler()
 StartProfiler()
 	
 	? Q("\__♥__/").Contains("♥")
-	#--> TRUE
+	#--> _TRUE_
 	
 	? Q("\__♥__/").ContainsMany("_") # Or .ContainsMoreThenOne("_")
-	#--> TRUE
+	#--> _TRUE_
 	
 	? Q("\__♥__/").ContainsThese(["_","♥"])
-	#--> TRUE
+	#--> _TRUE_
 	
 	? Q("\__♥__/").IsMadeOf(["\", "_", "♥", "/" ])
-	#--> TRUE
+	#--> _TRUE_
 	
 StopProfiler()
 # Executed in 0.02 second(s)
@@ -3051,19 +3051,19 @@ StopProfiler()
 StartProfiler()
 
 	? Q("__♥__").ContainsXT("♥", "_")
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q("__♥__♥__").ContainsXT(2, "♥")
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q("__♥__").ContainsXT("♥", [])
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q("__-♥-__").ContainsXT(["_", "-", "♥"], [])
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q("__♥__").ContainsXT([], "♥")
-	#--> TRUE
+	#--> _TRUE_
 
 StopProfiler()
 # Executed in 0.02 second(s)
@@ -3073,22 +3073,22 @@ StopProfiler()
 pron()
 
 	? Q("_-♥-_").ContainsXT("♥", :BoundedBy = "-")
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q("_/♥\_").ContainsXT("♥", :BoundedBy = ["/", :And = "\"])
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q("__-♥-__-•-__").ContainsXT(["♥", "•"], :BoundedBy = "-")
-	#--> TRUE
+	#--> _TRUE_
 	
 	? Q("__/♥\__/•\__").ContainsXT(["♥", "•"], :BoundedBy = ["/", :And = "\"])
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q("__/♥\__/^^^\__").ContainsXT( [], :BoundedBy = ["/", :And = "\"] )
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q("__/♥\__/^^\__").ContainsXT( [], :BoundedBy = ["/", "\"] )	
-	#--> TRUE
+	#--> _TRUE_
 
 proff()
 # Executed in 0.05 second(s)
@@ -3097,34 +3097,34 @@ proff()
 
 StartProfiler()
 
-	? Q("").ContainsXT(:Chars, []) # You can use NULL or FALSE instead of []
-	#--> FALSE
-	? Q("").ContainsXT([], :Chars) # You can use NULL or FALSE instead of []
-	#--> FALSE
+	? Q("").ContainsXT(:Chars, []) # You can use _NULL_ or _FALSE_ instead of []
+	#--> _FALSE_
+	? Q("").ContainsXT([], :Chars) # You can use _NULL_ or _FALSE_ instead of []
+	#--> _FALSE_
 
 	? Q("__-♥-__").ContainsXT(:Chars, ["_", "-"])
-	#--> TRUE
+	#--> _TRUE_
 	? Q("__-♥-__").ContainsXT(:TheseChars, ["♥", "-"])
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q("__-♥-__").ContainsXT(:SomeOfTheseChars, ["_", "-", "_"])
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q("__-♥-__").ContainsXT(:OneOfTheseChars, ["A", "♥", "B"])
-	#--> TRUE
+	#--> _TRUE_
 	? Q("__-♥-__").ContainsXT(:NoneOfTheseChars, ["A", "*", "B"])
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q("__---_^_").ContainsXT(:CharsWhere, 'Q(@Char).IsEither("A", :Or = "^")' )
-	#--> TRUE
+	#--> _TRUE_
 	? Q("__---__").ContainsXT(:CharsW, 'Q(@Char).IsEither("_", :Or = "-")')
-	#--> TRUE
+	#--> _TRUE_
 	? Q("__---__").ContainsXT(:Chars, :Where = 'Q(@Char).IsEither("_", :Or = "-")')
-	#--> TRUE
+	#--> _TRUE_
 	? Q("__---__").ContainsXT(:Chars, Where(' Q(@Char).IsEither("_", :Or = "-") ') )
-	#--> TRUE
+	#--> _TRUE_
 	? Q("__---__").ContainsXT(:Chars, W('Q(@Char).IsEither("_", :Or = "-")'))
-	#--> TRUE
+	#--> _TRUE_
 
 StopProfiler()
 # Executed in 0.46 second(s)
@@ -3136,24 +3136,24 @@ StartProfiler()
 Pron()
 
 	? Q("_softanza_loves_ring_").ContainsXT(:SubStrings, ["softanza", "ring"])
-	#--> TRUE
+	#--> _TRUE_
 	? Q("_softanza_loves_ring_").ContainsXT(:TheseSubStrings, ["softanza", "ring"])
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q("_softanza_loves_ring_").ContainsXT(:SomeOfTheseSubStrings, ["ring", "php", "softanza"])
-	#--> TRUE
+	#--> _TRUE_
 	? Q("_softanza_loves_ring_").ContainsXT(:SomeOfThese, ["ring", "php", "softanza"])
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q("_softanza_loves_ring_").ContainsXT(:OneOfTheseSubStrings, ["python", "php", "ring"])
-	#--> TRUE
+	#--> _TRUE_
 	? Q("_softanza_loves_ring_").ContainsXT(:OneOfThese, ["python", "php", "ring"])
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q("_softanza_loves_ring_").ContainsXT(:NoneOfTheseSubStrings, ["python", "php", "ruby"])
-	#--> TRUE
+	#--> _TRUE_
 	? Q("_softanza_loves_ring_").ContainsXT(:NoneOfThese, ["python", "php", "ruby"])
-	#--> TRUE
+	#--> _TRUE_
 Proff()
 # Executed in 0.04 second(s)
 
@@ -3167,15 +3167,15 @@ Proff()
 StartProfiler()
 
 	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsWhere, 'Q(@SubString).IsUppercase()')
-	#--> TRUE
+	#--> _TRUE_
 	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsW, 'Q(@SubString).IsUppercase()')
-	#--> TRUE
+	#--> _TRUE_
 	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsW, :Where = 'Q(@SubString).IsUppercase()')
-	#--> TRUE
+	#--> _TRUE_
 	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsW, Where('Q(@SubString).IsUppercase()') )
-	#--> TRUE
+	#--> _TRUE_
 	? Q("_softanza_LOVES_ring_").ContainsXT(:SubStringsW, W('Q(@SubString).IsUppercase()') )
-	#--> TRUE
+	#--> _TRUE_
 
 StopProfiler()
 # Executed in 12.75 second(s)
@@ -3538,7 +3538,7 @@ pron()
 
 o1 = new stzList([ [ ], [ 5, 7 ] ])
 ? o1.IsListOfPairsOfNumbers()
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.01 second(s)
@@ -3664,7 +3664,7 @@ o1 = new stzString("word>>>")
 #--> [ "w", ">" ]
 
 ? o1.ContainsBounds() # Or ? o1.IsBounded()
-#--> TRUE
+#--> _TRUE_
 
 # When the string contains some leading and trailing repeated chars,
 # then they are considered to be the bounds of that string
@@ -4026,7 +4026,7 @@ pron()
 
 o1 = new stzListOfPairs([ [1,3], [4, 7], [8, 9] ])
 ? o1.IsSortedInAscending()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.03 second(s)
@@ -4038,7 +4038,7 @@ pron()
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 
 ? o1.IsSortedInAscending()
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.03 second(s)
@@ -4049,11 +4049,11 @@ pron()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 ? o1.IsSortedInDescending()
-#--> FALSE
+#--> _FALSE_
 
 o1 = new stzListOfPairs([ [9,8], [7,4], [3,1] ])
 ? o1.IsSortedInDescending()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.03 second(s)
@@ -4141,13 +4141,13 @@ pron()
 
 o1 = new stzList([ [ "ONE", "TWO" ], [ "THREE", "FOUR" ], [ "FIVE", "SIX" ] ])
 ? o1.IsListOfLists()
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsListOfPairs()
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsListOfPairsOfStrings()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s) on Ring 1.21
@@ -4159,13 +4159,13 @@ pron()
 
 o1 = new stzList([ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ])
 ? o1.IsListOfLists()
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsListOfPairs()
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsListOfPairsOfNumbers()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -4225,7 +4225,7 @@ pron()
 o1 = new stzString("<<<word>>>")
 
 ? o1.ContainsLeadingChars()
-#--> TRUE
+#--> _TRUE_
 
 ? o1.NumberOfLeadingChars()
 #--> 3
@@ -4239,7 +4239,7 @@ o1 = new stzString("<<<word>>>")
 #--
 
 ? o1.ContainsTrailingChars()
-#--> TRUE
+#--> _TRUE_
 
 ? o1.NumberOfTrailingChars()
 #--> 3
@@ -4460,13 +4460,13 @@ pron()
 o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 		
 ? o1.SubStringIsBoundedBy("♥♥", "aa")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.SubStringIsBoundedBy("♥♥", "bb")
-#--> TRUE
+#--> _TRUE_
 	
 ? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] )
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.54 second(s)
@@ -4510,7 +4510,7 @@ proff()
 
 pron()
 
-o1 = new stzList([ 1, "hi", [], NULL ])
+o1 = new stzList([ 1, "hi", [], _NULL_ ])
 o1.Listify()
 ? @@( o1.Content() )
 #--> [ [ 1 ], [ "hi" ], [ ], [ "" ] ]
@@ -4597,13 +4597,13 @@ pron()
 o1 = new stzString("<<word>> and __word__")
 
 ? o1.SubStringIsBoundedBy("word", ["<<", ">>"])
-#--> TRUE
+#--> _TRUE_
 
 ? o1.SubStringIsBoundedBy("word", "__")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.SubStringIsBoundedByMany("word", [ ["<<", ">>"], "__" ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.12 second(s)
@@ -4614,7 +4614,7 @@ pron()
 
 o1 = new stzString("<<word>> and __word__")
 ? o1.SubStringQ( "word" ).IsBoundedBy(["<<", ">>"])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.03 second(s) in Ring 1.20
@@ -4626,11 +4626,11 @@ pron()
 
 	o1 = new stzList([ "<<", ">>" ])
 	? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
-	#--> TRUE
+	#--> _TRUE_
 
 	o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
 	? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
-	#--> TRUE
+	#--> _TRUE_
 
 proff()
 # Executed in 0.10 second(s)
@@ -4641,7 +4641,7 @@ pron()
 
 o1 = new stzList([ "<<", ">>" ])
 ? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s)
@@ -4652,7 +4652,7 @@ pron()
 
 o1 = new stzList([ [ "<<", ">>" ], ["__", "__" ], [ "@", "@" ] ])
 ? o1.AreBoundsOf("word", :In = "<<word>> __word__ @word@")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.11 second(s)
@@ -4663,7 +4663,7 @@ pron()
 
 o1 = new stzList([ [ "<<", ">>" ], ["__", "__" ], [ "@", "@" ] ])
 ? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.11 second(s)
@@ -4673,16 +4673,16 @@ proff()
 pron()
 
 ? Q("_").IsBoundOf( "world", :In = "hello _world_ and <world>" )
-#--> TRUE
+#--> _TRUE_
 
 ? Q("<").IsBoundOf( "world", :In = "hello _world_ and <world>" )
-#--> FALSE
+#--> _FALSE_
 
 ? Q([ "<", ">" ]).AreBoundsOf( "world", :In = "hello _world_ and <world>" )
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ ["<",">"], ["_","_"] ]).AreBoundsOf( "world", :In = "hello _world_ and <world>" )
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.10 second(s)
@@ -4694,14 +4694,14 @@ pron()
 o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 
 ? o1.SubStringIsBoundedBy("♥♥", "aa")
-#--> TRUE
+#--> _TRUE_
 ? o1.SubStringIsBoundedBy("♥♥", "bb")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] )
-#--> TRUE
+#--> _TRUE_
 ? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], [ "bb","bbb" ] ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.14 second(s)
@@ -4967,10 +4967,10 @@ pron()
 o1 = new stzString("ONE")
 
 ? o1.Occurs( :Before = "TWO", :In = "***ONE***TWO***THREE")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.Occurs( :After = "TWO", :In = "***ONE***TWO***THREE")
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -4982,10 +4982,10 @@ pron()
 o1 = new stzString("ONE")
 
 ? o1.Occurs( :Before = "TWO", :In = [ "***", "ONE", "***", "TWO", "***", "THREE" ])
-#--> TRUE
+#--> _TRUE_
 
 ? o1.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***", "THREE" ])
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.03 second(s)
@@ -4996,19 +4996,19 @@ pron()
 
 o1 = new stzNumber(10)
 ? o1.Occures( :Before = "TEN", :In = [ 2, "TWO", 10, "TEN" ] ) # NOTE: OccurEs is misspelled!
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzList(1:3)
 ? o1.Occurs( :Before = 1:7, :In = [ 1:2, "TWO", 1:3, 1:7, "THREE" ] )
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzObject(ANullObject())
-? o1.Comes( :Before = "NULL", :In = [ 1, 2, ANullObject(), "NULL" ] )
-#--> TRUE
+? o1.Comes( :Before = "_NULL_", :In = [ 1, 2, ANullObject(), "_NULL_" ] )
+#--> _TRUE_
 
 o1 = new stzString("one")
 ? o1.Happens( :Before = "two", :In = [ "one", "two", "three" ] )
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.06 second(s)
@@ -5018,10 +5018,10 @@ proff()
 pron()
 
 ? Q("*").OccursNTimes(3, :In = "a*b*c*d")
-#--> TRUE
+#--> _TRUE_
 
 ? Q("*").OccursNTimes(3, :In = [ "a", "*", "b", "*", "c", "*", "d" ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.06 second(s)
@@ -5031,31 +5031,31 @@ proff()
 pron()
 
 ? Q("*").OccursForTheFirstTime( :In = "a*b*c*d", :AtPosition = 2 )
-#--> TRUE
+#--> _TRUE_
 
 ? Q("*").OccursForTheLastTime( :In = "a*b*c*d", :AtPosition = 6 )
-#--> TRUE
+#--> _TRUE_
 
-? Q("*").OccursForTheLastTime( :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 6 ) #--> TRUE
-#--> TRUE
+? Q("*").OccursForTheLastTime( :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 6 ) #--> _TRUE_
+#--> _TRUE_
 
 ? Q("*").OccursForTheNthTime( 1, :In = "a*b*c*d", :AtPosition = 2 )
-#--> TRUE
+#--> _TRUE_
 
 ? Q("*").OccursForTheNthTime( 2, :In = "a*b*c*d", :AtPosition = 4 )
-#--> TRUE
+#--> _TRUE_
 
 ? Q("*").OccursForTheNthTime( 3, :In = "a*b*c*d", :AtPosition = 6 )
-#--> TRUE
+#--> _TRUE_
 
 ? Q("*").OccursForTheNthTime( 1, :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 2 )
-#--> TRUE
+#--> _TRUE_
 
 ? Q("*").OccursForTheNthTime( 2, :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 4 )
-#--> TRUE
+#--> _TRUE_
 
 ? Q("*").OccursForTheNthTime( 3, :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 6 )
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.06 second(s)
@@ -5067,22 +5067,22 @@ pron()
 aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
 
 ? Q("shirt").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 1 )
-#--> TRUE
+#--> _TRUE_
 
 ? Q("shoes").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 2 )
-#--> TRUE
+#--> _TRUE_
 
 ? Q("shirt").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 3 )
-#--> FALSE
+#--> _FALSE_
 
 ? Q("bag").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 4 )
-#--> TRUE
+#--> _TRUE_
 
 ? Q("hat").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 5 )
-#--> TRUE
+#--> _TRUE_
 
 ? Q("shoes").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 6 )
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.04 second(s)
@@ -5215,10 +5215,10 @@ proff()
 pron()
 
 ? Q("-♥-").IsBoundedBy("-")
-#--> TRUE
+#--> _TRUE_
 
 ? Q("♥").IsBoundedByIB("-", :In = "... -♥- ...")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s)
@@ -6264,7 +6264,7 @@ proff()
 
 pron()
 
-? Q(0).IsMultipleOf(3) #--> FALSE
+? Q(0).IsMultipleOf(3) #--> _FALSE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -6297,7 +6297,7 @@ proff()
 pron()
 
 ? Q("12_500").IsNumberInString()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -6447,7 +6447,7 @@ proff()
 pron()
 
 o1 = new stzString("TUNISiiiGAFSAIIIBEJAiiiSFAXIIIGBELLI")
-? @@( o1.SplitCS("iii", :CS _FALSE_) )
+? @@( o1.SplitCS("iii", :CS = _FALSE_) )
 #--> [ "TUNIS", "GAFSA", "BEJA", "SFAX", "GBELLI" ]
 
 proff()
@@ -6462,7 +6462,7 @@ o1 = new stzString("TUNIS tunis GAFSA gafsa NABEUL nabeul BEJA beja")
 ? @@( o1.Words() ) + NL
 #--> [ "TUNIS", "tunis", "GAFSA", "gafsa", "NABEUL", "nabeul", "BEJA", "beja" ]
 
-? @@( o1.WordsCS(FALSE) ) + NL
+? @@( o1.WordsCS(_FALSE_) ) + NL
 #--< [ "TUNIS", "GAFSA", "NABEUL", "BEJA" ]
 
 proff()
@@ -6758,7 +6758,7 @@ proff()
 pron()
 
 ? @IsListOfPairsOfNumbers([ [ 1, 2 ], [ 8, 10 ], [ 16, 17 ], [ 23, 25 ] ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -6867,7 +6867,7 @@ aList = [
 # the standard Ring function sort(aList, nCol)
 
 ? IsRingSortable(aList)
-#--> TRUE
+#--> _TRUE_
 
 # Hence, Ring will sort it correctly:
 
@@ -6891,7 +6891,7 @@ aList = [
 # native sort() function in Ring
 
 ? IsRingSortable(aList)
-#--> FALSE
+#--> _FALSE_
 
 # Consequently, attempting to sort it usng Ring sort() function
 # triggers an error:
@@ -6958,13 +6958,13 @@ aList = [
 # sorted (accurately) by Ring:
 
 ? IsRingSortableOn(aList, 2)
-#--> FALSE
+#--> _FALSE_
 
 # Note that using IsRingSortable() without the On()
 # suffix yields a different result:
 
 ? IsRingSortable(aList)
-#--> TRUE
+#--> _TRUE_
 
 # This is because the first column comprises only
 # strings without duplicates:
@@ -7129,7 +7129,7 @@ proff()
 pron()
 
 oStr = new stzString("Welcome to the Ring programming language")
-? oStr.SectionCS( :From = "RING", :To = :LastChar, :CaseSensitive _FALSE_ )
+? oStr.SectionCS( :From = "RING", :To = :LastChar, :CaseSensitive = _FALSE_ )
 #--> Ring programming language
 
 proff()
@@ -7232,12 +7232,12 @@ pron()
 	# In Softanza we say:
 
 	oStr = new stzString("Welcome to Python programming language")
-	oStr.ReplaceCS("PYTHON", :With = "Ring", :CaseSensitive _FALSE_)
+	oStr.ReplaceCS("PYTHON", :With = "Ring", :CaseSensitive = _FALSE_)
 	? oStr.Content()
 	#--> Welcome to Ring programming language
 
 	oStr = new stzString("Welcome to Python programming language")
-	oStr.ReplaceCS("PYTHON", :With = "Ring", TRUE)
+	oStr.ReplaceCS("PYTHON", :With = "Ring", _TRUE_)
 	? oStr.Content() + NL
 	#--> Welcome to Python programming language
 
@@ -7299,19 +7299,19 @@ proff()
 pron()
 
 ? IsRingSortable("ring")
-#--> TRUE
+#--> _TRUE_
 
 ? IsRingSortable(1:3)
-#--> TRUE
+#--> _TRUE_
 
 ? IsRingSortable("A":"C")
-#--> TRUE
+#--> _TRUE_
 
 ? IsRingSortable([ "Q", "t", 6 ])
-#--> TRUE
+#--> _TRUE_
 
 ? IsRingSortable([ "A", 1:3 ])
-#--> FALSE
+#--> _FALSE_
 
 aList = [
 	[ "mahmoud", 15000],
@@ -7321,7 +7321,7 @@ aList = [
 	[ "ibrahim", 11000 ]
 ]
 ? IsRingSortable(aList)
-#--> TRUE
+#--> _TRUE_
 
 aList = [
 	[ "mahmoud", 	15000],
@@ -7331,7 +7331,7 @@ aList = [
 	[ "ibrahim", 	[], 	11000 ]
 ]
 ? IsRingSortableOn(aList, 2)
-#--> FALSE
+#--> _FALSE_
 
 aList = [
 	[ "mahmoud", 15000],
@@ -7342,7 +7342,7 @@ aList = [
 	[ "ibrahim" , 11000 ]
 ]
 ? IsRingSortable(aList)
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.03 second(s)
@@ -7357,7 +7357,7 @@ aList = [
 	[ "sam",  8 ]
 ]
 ? IsRingSortableOn(aList, 2)
-#--> TRUE
+#--> _TRUE_
 
 aList = [
 	"kim",
@@ -7366,7 +7366,7 @@ aList = [
 	[ "sam",  8 ]
 ]
 ? IsRingSortableOn(aList, 2)
-#--> FALSE
+#--> _FALSE_
 
 aList = [
 	[ "ali", 12 	],
@@ -7374,7 +7374,7 @@ aList = [
 	[ "sam",  8 	]
 ]
 ? IsRingSortableOn(aList, 2)
-#--> TRUE
+#--> _TRUE_
 
 aList = [
 	[ "ali", 12 	],
@@ -7382,7 +7382,7 @@ aList = [
 	[ "sam",  8 	]
 ]
 ? IsRingSortableOn(aList, 3) # column 2 should contain 3 items
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.02 second(s)

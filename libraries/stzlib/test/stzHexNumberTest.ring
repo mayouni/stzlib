@@ -37,11 +37,11 @@ pron()
 
 o1 = new stzListOfNumbers([ 2, 3, 5 ])
 ? o1.ArePrimes()
-#-->  TRUE
+#-->  _TRUE_
 
 o1 = new stzListOfNumbers([ 2, 4, 5 ])
 ? o1.ArePrimes()
-#-->  FALSE
+#-->  _FALSE_
 
 proff()
 # Executed in 0.02 second(s) in Ring 1.21
@@ -163,7 +163,7 @@ pron()
 #--> [ "x", "0x", "U+" ]
 
 ? StzStringQ("x167A").RepresentsNumberInHexForm()
-#--> TRUE
+#--> _TRUE_
 
 ? HexToDecimal("x167A")
 #--> 5754
@@ -209,10 +209,10 @@ proff()
 pron()
 
 ? IsUnicodeHex("U+214B")
-#--> TRUE
+#--> _TRUE_
 
 ? StringRepresentsNumberInHexform("xE82")
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzHexNumber("xE82")
 ? o1.Content()

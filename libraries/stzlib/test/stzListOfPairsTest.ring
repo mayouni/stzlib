@@ -4,8 +4,8 @@ load "../max/stzmax.ring"
 
 pron()
 
-? Q( :CS _FALSE_ ).IsCaseSensitiveNamedParam()
-#--> TRUE
+? Q( :CS = _FALSE_ ).IsCaseSensitiveNamedParam()
+#--> _TRUE_
 
 proff()
 #--> Executed in 0.02 second(s)
@@ -379,20 +379,20 @@ proff()
 pron()
 
 ? IsHybridList([ 10, [ "B", "C", "D" ], [ 12 ] ])
-#--> TRUE
+#--> _TRUE_
 
 ? IsHybridList([ "A", [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ])
-#--> TRUE
+#--> _TRUE_
 
 ? IsHybridList([ "B":"D", [12] ])
-#--> FALSE
+#--> _FALSE_
 
 ? IsListOfHybridLists([
 	[ 10, [ "B", "C", "D" ], [ 12 ] ],
 	[ "B":"D", [12] ],
 	[ "A", [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ]
 ])
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -410,7 +410,7 @@ aLists = [
 ]
 
 ? IsListOfHybridLists(aLists)
-#--> FALSE
+#--> _FALSE_
 
 ? @@( Types(aLists) )
 #--> [ "LIST", "LIST", "LIST" ]
@@ -425,10 +425,10 @@ pron()
 aList = [ 10:12, 3:5, "A":"C", [5] ]
 
 ? IsHybridList(aList)
-#--> FALSE
+#--> _FALSE_
 
 ? IsPureList(aList)
-#--> TRUE
+#--> _TRUE_
 
 ? @@( Types(alist) )
 #--> [ "LIST", "LIST", "LIST", "LIST" ]
@@ -441,7 +441,7 @@ proff()
 pron()
 
 ? IsHybridList([ 7, 2, [ "B":"D", 10, 8 ] ])
-#--> TRUE
+#--> _TRUE_
 
 ? Types([ 7, 2, [ "B":"D", 10, 8 ] ])
 #--> [ "NUMBER", "NUMBER", "LIST" ])
@@ -810,16 +810,16 @@ s
 pron()
 
 ? Q("--♥-♥--").ContainsXT( 2, "♥")
-#--> TRUE
+#--> _TRUE_
 
 ? Q("--♥-♥--").ContainsXT( :Exactly = 2, "♥") # Or ContainsExactly(2, "♥")
-#--> TRUE
+#--> _TRUE_
 
 ? Q("--♥-♥--").ContainsXT( :MoreThen = 1, "♥") # Or ContainsMoreThen(1, "♥")
-#--> TRUE
+#--> _TRUE_
 
 ? Q("--♥-♥--").ContainsXT( :LessThen = 3, "♥") # ContainsLessThen(3, "♥")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.01 second(s) in Ring 1.21s
@@ -948,7 +948,7 @@ proff()
 StartProfiler()
 
 ? Q([ [ 18, 22 ], [ 8, 12], [ 3, 5] ]).IsListOfPairs()
-#-->  tRUE
+#-->  _TRUE_
 
 StopProfiler()
 # Executed in 0.01 second(s)
@@ -1005,7 +1005,7 @@ pron()
 
 o1 = new stzListOfPairs([ ["A", "B"], ["C", "♥"], ["E", "F"] ])
 ? o1.ContainsInAllPairs("♥") # Or ContainsInside()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.03 second(s)
@@ -1033,13 +1033,13 @@ o1 = new stzListOfPairs([
 ])
 
 ? o1.IsListOfSections()
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsSortedListOfSections()
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsListOfSectionsSortedInAscending()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.06 second(s)
@@ -1053,13 +1053,13 @@ o1 = new stzListOfPairs([
 ])
 
 ? o1.IsListOfSections()
- #--> TRUE
+ #--> _TRUE_
 
 ? o1.IsSortedListOfSections() 
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsListOfSectionsSortedInDescending()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.06 second(s)

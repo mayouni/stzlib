@@ -3,7 +3,7 @@
 func StzTrueObjectQ()
 	return new stzTrueObject
 
-	func TrueObject()
+	func _TRUE_Object()
 		return new stzTrueObject
 
 	func ATrueObject()
@@ -12,10 +12,10 @@ func StzTrueObjectQ()
 	func StzTrueQ()
 		return new stzTrueObject
 
-	func True()
+	func _TRUE_()
 		return new stzTrueObject
 
-	func TrueQ()
+	func _TRUE_Q()
 		return new stzTrueObject
 
 class stzTrue from stzTrueObject

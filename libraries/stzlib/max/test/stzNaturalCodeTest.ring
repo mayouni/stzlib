@@ -86,16 +86,16 @@ pron()
 SetLastValue(3)
 
 ? Q("AnnIE").VowelNB() # ~> N: Number, B: Binary
-#--> TRUE
+#--> _TRUE_
 
 SetLastValue(2)
 
 ? Q("AnnIE").VowelNB()
-#--> FALSE
+#--> _FALSE_
 
 SetLastValue(["A", "I", "E"])
 ? Q("AnnIE").VowelsB()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.03 second(s) on Ring 1.21
@@ -117,47 +117,47 @@ proff()
 pron()
 
 ? Q("ring").IsAString()
-#--> TRUE
+#--> _TRUE_
 
 ? Q("ring").IsStzString()
-#--> TRUE
+#--> _TRUE_
 
 //? Q("ring").IsAXT([ :Lowercase, :Latin, :String ])
-#--> TRUE
+#--> _TRUE_
 
 //? Q("ring").IsAXT([ :String ])
-#--> TRUE
+#--> _TRUE_
 
 ? Q("ring").IsA(:String)
-#--> TRUE
+#--> _TRUE_
 
 //? QM("ring").IsAXTQ([ :Lowercase, :Latin, :String ]).WhichQ().HasAQ().LengthQ().EqualTo(4)
-#--> TRUE
+#--> _TRUE_
 
 //? TheStringQM("ring").IsAQ([ :Lowercase, :Latin, :String ]).WithAQ().LengthQ().Of(4)
-#--> TRUE
+#--> _TRUE_
 
 //? TheWordQM("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WithAQ().LengthQ().OfXT(4, :Letters)
-#--> TRUE
+#--> _TRUE_
 
 //? TheWordQM("ring").IsAQ([ :Lowercase, :Latin, :Word ]).
 //  WithQ().ALengthQ().OfQ(4)._Q(:Letters).AndQ().OnlyQM(1).VowelNB()
-#--> TRUE
+#--> _TRUE_
 
 ? TheWordQ("ring").HasNQ(4).LettersNB()
-#--> TRUE
+#--> _TRUE_
 
 ? TheWordQ("ring").HasNQ(4).LowercaseBQ().LettersNB()
-#--> TRUE
+#--> _TRUE_
 
 ? TheWordQ("ring").HasNQ(4).LettersNBQ().ThatAreQ().InLowercase()
-#--> TRUE
+#--> _TRUE_
 
 //? Q("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WhichQ().HasTheNumberQ(4).AsAQ().NumberOfCharsB()
-#--> TRUE
+#--> _TRUE_
 
 ? Q("ring").IsTheQ([ :Lowercase, :string ]).WhichIsQ().TheQ().ReverseOfB("gnir")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.06 second(s)
@@ -167,13 +167,13 @@ proff()
 pron()
 
 ? Q([ -1200, -10200, -820, -10 ]).AreQ(:numbers).ThatQ().AreNegative()
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ -1200, -10200, -820, -10 ]).AreQ(:numbers).WhichQ().CanBeDividedBy(10)
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ -1200, -10200, -820, -10 ]).AreQ(:numbers).ThatQ().AreNegativeQ().AndQ().DividableBy(10)
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.03 second(s)
@@ -184,8 +184,8 @@ pron()
 
 # Two misspelled forms of InLowercase()
 
-? Q("ring").IsAQ(:String).InLowarcase() #--> TRUE
-? Q("ring").IsAQ(:String).InLowercase() #--> TRUE
+? Q("ring").IsAQ(:String).InLowarcase() #--> _TRUE_
+? Q("ring").IsAQ(:String).InLowercase() #--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -194,10 +194,10 @@ proff()
 
 pron()
 
-? Q("ring").IsAQ(:String).InLowercase() 		#--> TRUE
-? Q("ring").IsAQ(:String).WhichIs().InLowercase()	#--> TRUE
-? Q("ring").IsAQ(:String).Which().IsInLowercase()	#--> TRUE
-? Q("ring").IsAQ(:String).Which().IsLowercase()		#--> TRUE
+? Q("ring").IsAQ(:String).InLowercase() 		#--> _TRUE_
+? Q("ring").IsAQ(:String).WhichIs().InLowercase()	#--> _TRUE_
+? Q("ring").IsAQ(:String).Which().IsInLowercase()	#--> _TRUE_
+? Q("ring").IsAQ(:String).Which().IsLowercase()		#--> _TRUE_
 
 proff()
 # Executed in 0.06 second(s)
@@ -232,18 +232,18 @@ proff()
 pron()
 
 ? Q([ "Ring", :and = "Ruby" ]).AreBothQ(:strings).HavingQ().TheirQ().FirstCharQ().EqualTo("R")
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "Ring", :and = "ruby" ]).AreTwoQ(:strings).HavingQ().TheirQ().FirstCharCSQ(WhatEverCaseItHas).EqualTo(TheLetter("R"))
-#-> TRUE
+#-> _TRUE_
 
 ? Q([ "Ring", :and = "Bing" ]).
   AreBothQ(:strings).HavingMQ().TheirQ().FirstCharsQ().InUppercaseQ().AndQ().TheirQM().LastCharQ().EqualTo("g")
-#-> TRUE
+#-> _TRUE_
 
 ? Q([ "Ring", :and = "Bing" ]).
   AreBothQ(:strings).HavingMQ().TheirQ().FirstCharsQ().InUppercaseQ().AndQ().TheirQM().LastCharQ().EqualTo("g")
-#-> TRUE
+#-> _TRUE_
 
 proff()
 # Executed in 0.07 second(s)
@@ -259,7 +259,7 @@ proff()
 	HavingQ().TheQ().FirstCharQ().EqualToQ("r").
 	AndQM().TheQ().Lastchar() = "g"
 
-	#--> TRUE
+	#--> _TRUE_
 
  ? QM("RING").IsAQ(:String).
 	InUppercaseQ().
@@ -267,7 +267,7 @@ proff()
 	HavingQ().ItsQ().FirstCharQ().EqualToQ("R").
 	AndQM().ItsQ().Lastchar() = "G"
 
-	#--> TRUE
+	#--> _TRUE_
 
  proff()
  # Executed in 0.05 second(s)

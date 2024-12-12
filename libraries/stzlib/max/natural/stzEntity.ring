@@ -49,7 +49,7 @@ class stzEntity
 
 				else
 				# but when it is provided, it must be a valid word
-				# (if it is NULL string then it is set to 'undefined'
+				# (if it is _NULL_ string then it is set to 'undefined'
 
 					if isString(aEntity[:type]) and aEntity[:type] = ""
 						aEntity[:type] = 'undefined'
@@ -94,14 +94,14 @@ class stzEntity
 			StzRaise("Incorrect param type! pcProp must be a string.")
 		ok
 
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		aPairs = This.Entity()
 		nLen = len(aPairs)
 
 		for i = 1 to nLen
 			if aPairs[i][1] = ring_lower(pcProp)
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -109,10 +109,10 @@ class stzEntity
 		return bResult
 
 	def ContainsValue(pValue)
-		bResult _FALSE_
+		bResult = _FALSE_
 		for aPair in This.Entity()
 			if AreEqual(aPair[1], pValue)
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next

@@ -104,7 +104,7 @@ class stzDynamicList from stzObject
 
 		if IsActiveItem(pItem)
 			pItem.SetPosition( len(aContent) )
-			if pItem.OnItemAdded != NULL
+			if pItem.OnItemAdded != _NULL_
 				eval(pItem.OnItemAdded)
 			ok
 		ok
@@ -112,7 +112,7 @@ class stzDynamicList from stzObject
 	def ReplaceItem(n, pValue)
 
 		if IsActiveItem(aContent[n])
-			if aContent[n].OnItemUpdated != NULL
+			if aContent[n].OnItemUpdated != _NULL_
 				eval(aContent[n].OnItemUpdated)
 			ok
 		ok
@@ -165,11 +165,11 @@ class stzActiveItem from stzObject
 	Content
 	nPosition
 
-	OnItemAdded 	= NULL	// '? "@" + pItem.Content() + " is added"'
+	OnItemAdded 	= _NULL_	// '? "@" + pItem.Content() + " is added"'
 
-	OnItemRemoved 	= NULL
-	OnItemUpdated 	= NULL
-	OnItemInserted 	= NULL
+	OnItemRemoved 	= _NULL_
+	OnItemUpdated 	= _NULL_
+	OnItemInserted 	= _NULL_
 
 	def init(pItem)	# pItem can be anything. pContainer can be List or String.
 		Content = pItem

@@ -14,7 +14,7 @@ class stzNaturalCode from stzString
 		return @cCode
 
 	def IsWellFormed()
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		# Check for mistakes
 
@@ -34,7 +34,7 @@ class stzNaturalCode from stzString
 
 
 
-		//if StzStringQ( This.Code() ).ContainsCS("until(", :CS _FALSE_) OR
+		//if StzStringQ( This.Code() ).ContainsCS("until(", _FALSE_) OR
 		   
 
 	def EndPoint()

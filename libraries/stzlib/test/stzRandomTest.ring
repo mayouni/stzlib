@@ -396,8 +396,8 @@ pron()
 # If you write this to ask Ring to generate a random number (version 1.19)
 
 ? @@( random(9_999_999_999) )
-#--> NULL
-# The result will be a NULL string.
+#--> _NULL_
+# The result will be a _NULL_ string.
 
 # In Softanza, using the alternative StzRandom() function, an error
 # messageis raised:
@@ -495,7 +495,7 @@ proff()
 
 pron()
 
-? random(-10) # Standard Ring function returning NULL
+? random(-10) # Standard Ring function returning _NULL_
 #--> ""
 
 ? StzRandom(-10) + NL

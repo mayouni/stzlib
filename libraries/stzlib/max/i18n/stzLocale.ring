@@ -255,19 +255,19 @@ class stzLocale from stzObject
 			cScriptName  = pLocale[ :Script   ]
 			cCountryName = pLocale[ :Country  ]
 
-			cLangAbbr    = NULL
-			cScriptAbbr  = NULL
-			cCountryAbbr = NULL
+			cLangAbbr    = _NULL_
+			cScriptAbbr  = _NULL_
+			cCountryAbbr = _NULL_
 		
-			if cLangName != NULL and StzStringQ(cLangName).IsLanguageName()
+			if cLangName != _NULL_ and StzStringQ(cLangName).IsLanguageName()
 				cLangAbbr = StzLanguageQ(cLangName).Abbreviation()
 			ok
 	
-			if cScriptName != NULL and StzStringQ(cScriptName).IsScriptName()
+			if cScriptName != _NULL_ and StzStringQ(cScriptName).IsScriptName()
 				cScriptAbbr = StzScriptQ(cScriptName).Abbreviation()
 			ok
 	
-			if cCountryName != NULL and StzStringQ(cCountryName).IsCountryName()
+			if cCountryName != _NULL_ and StzStringQ(cCountryName).IsCountryName()
 				cCountryAbbr = StzCountryQ(cCountryName).Abbreviation()
 			ok
 	
@@ -276,24 +276,24 @@ class stzLocale from stzObject
 			if AllOfTheseAreNotNull([ cLangAbbr, cScriptAbbr, cCountryAbbr ])
 				cAbbr = cLangAbbr + "-" + cScriptAbbr + "-" + cCountryAbbr
 	
-			but cLangAbbr != NULL and BothAreNull(cScriptAbbr, cCountryAbbr)
+			but cLangAbbr != _NULL_ and BothAreNull(cScriptAbbr, cCountryAbbr)
 				cAbbr = cLangAbbr
 	
-			but cScriptAbbr != NULL and BothAreNull(cLangAbbr, cCountryAbbr)
+			but cScriptAbbr != _NULL_ and BothAreNull(cLangAbbr, cCountryAbbr)
 				cLangAbbr = StzScriptQ(cScriptAbbr).DefaultLanguageAbbreviation()
 				cAbbr = cLangAbbr + "-" + cScriptAbbr
 	
-			but cCountryAbbr != NULL and BothAreNull(cLangAbbr, cScriptAbbr)
+			but cCountryAbbr != _NULL_ and BothAreNull(cLangAbbr, cScriptAbbr)
 				cLangAbbr = StzCountryQ(cCountryAbbr).LanguageAbbreviation()
 				cAbbr = cLangAbbr + "-" + cCountryAbbr
 	
-			but BothAreNotNull(cLangAbbr, cScriptAbbr) and cCountryAbbr = NULL
+			but BothAreNotNull(cLangAbbr, cScriptAbbr) and cCountryAbbr = _NULL_
 				cAbbr = cLangAbbr + "-" + cScriptAbbr
 	
-			but BothAreNotNull(cLangAbbr, cCountryAbbr) and cScriptAbbr = NULL
+			but BothAreNotNull(cLangAbbr, cCountryAbbr) and cScriptAbbr = _NULL_
 				cAbbr = cLangAbbr + "-" + cCountryAbbr
 	
-			but cLangAbbr = NULL and BothAreNotNull(cScriptAbbr, cCountryAbbr)
+			but cLangAbbr = _NULL_ and BothAreNotNull(cScriptAbbr, cCountryAbbr)
 				cLangAbbr = StzCountryQ(cCountryAbbr).LanguageAbbreviation()
 				cAbbr = cLangAbbr + "-" + cScriptAbbr + "-" + cCountryAbbr
 	
@@ -421,8 +421,8 @@ class stzLocale from stzObject
 
 		--> generates the following:
 
-			@cLangAbbreviation	= NULL
-			@cScriptAbbreviation	= NULL
+			@cLangAbbreviation	= _NULL_
+			@cScriptAbbreviation	= _NULL_
 			@cCountryAbbreviation	= "TN"
 
 		In this particular case, when you need to retrieve the language
@@ -433,8 +433,8 @@ class stzLocale from stzObject
 
 		*/
 		
-		if @cLangAbbreviation = NULL
-			if @cCountryAbbreviation != NULL
+		if @cLangAbbreviation = _NULL_
+			if @cCountryAbbreviation != _NULL_
 				for aCountryInfo in LocaleCountriesXT()
 					if lower(aCountryInfo[3]) = lower( @cCountryAbbreviation )
 						@cLangAbbreviation = aCountryInfo[6]
@@ -442,7 +442,7 @@ class stzLocale from stzObject
 					ok
 				next
 
-			but @cScriptAbbreviation != NULL
+			but @cScriptAbbreviation != _NULL_
 				for aScriptInfo in LocaleScriptsXT()
 					if lower(aScriptInfo[3]) = lower( @cScriptAbbreviation )
 						@cLangAbbreviation = aScriptInfo[4]
@@ -605,7 +605,7 @@ class stzLocale from stzObject
 	def ToTimeAsString(cTime, cFormat)
 		/*
 		cTime string should contain a time string conforming to the locale
-		otherwise the method returns NULL
+		otherwise the method returns _NULL_
 
 		To see what cFormat should contain, read the comments for the
 		stzTime.ToString() method in stzTime class.

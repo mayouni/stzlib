@@ -277,11 +277,11 @@ o1 = new stzTable([
 	:Separator 	  = "   ",
 	:Alignment 	  = :Right,
 		
-	:UnderLineHeader  _TRUE_,
+	:UnderLineHeader  = _TRUE_,
 	:UnderLineChar 	  = "-",
 	:IntersectionChar = " ",
 		
-	:ShowRowNumbers   _FALSE_
+	:ShowRowNumbers   = _FALSE_
 ])
 
 #--> COL1   COL2   COL3       COL4
@@ -336,7 +336,7 @@ o1 = new stzTable([
 # and you do not specify any other option, all
 # those options are deactivated
 
-? o1.ShowXT([ :UnderlineHeader _FALSE_ ])
+? o1.ShowXT([ :UnderlineHeader = _FALSE_ ])
 #--> COL1   COL2   COL3       COL4
 #       I      ♥   Ring   Language
 #       1      2      3          4
@@ -346,7 +346,7 @@ o1 = new stzTable([
 # only the header is underlined using the
 # default char "-"
 
-? o1.ShowXT([ :UnderLineHeader _TRUE_ ])
+? o1.ShowXT([ :UnderLineHeader = _TRUE_ ])
 #--> COL1   COL2   COL3       COL4
 #    -----------------------------
 #       I      ♥   Ring   Language
@@ -376,7 +376,7 @@ o1 = new stzTable([
 	[ "Language", 	4, 	44, 	444 ]
 ])
 
-o1.ShowXT([ :UnderLineHeader _TRUE_, :InterSectionChar = "+" ])
+o1.ShowXT([ :UnderLineHeader = _TRUE_, :InterSectionChar = "+" ])
 
 #-->     COL1 | COL2 | COL3 | COL4
 #    ---------+------+------+-----
@@ -435,7 +435,7 @@ o1 = new stzTable([
 	[ "Language", 4 ]
 ])
 
-o1.ShowXT([ :UnderlineHeader _FALSE_ ])
+o1.ShowXT([ :UnderlineHeader = _FALSE_ ])
 #-->
 # I   ♥   RING   LANGUAGE
 # 1   2      3          4
@@ -817,11 +817,11 @@ o1 = new stzTable([
 	:Separator 	  = " | ",
 	:Alignment 	  = :Center,
 
-	:UnderLineHeader  _TRUE_,
+	:UnderLineHeader  = _TRUE_,
 	:UnderLineChar 	  = "-",
 	:IntersectionChar = "+",
 
-	:ShowRowNumbers   _TRUE_
+	:ShowRowNumbers   = _TRUE_
 ])
 
 #--> # | COL1 | COL2 | COL3
@@ -859,7 +859,7 @@ pron()
 
 o1 = new stzTable([])
 ? IsStzObject(o1)
-#--> TRUE
+#--> _TRUE_
 
 o1.@([
 	:COL2 = :INT,
@@ -880,7 +880,7 @@ StartProfiler()
 
 o1 = new stzList([ "ONE", "two", "THREE", 1, 2 ])
 ? o1.ContainsCS("TwO", :CS=FALSE)
-#--> TRUE
+#--> _TRUE_
 
 StopProfiler()
 #--> Executed in 0.02 second(s)
@@ -1126,7 +1126,7 @@ pron()
 	[ "COL2", [ "a", "b", "c" ] ],
 	[ "COL3", [ "1", "2", "3" ] ]
 ]).IsHashList()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -1751,22 +1751,22 @@ o1 = new stzTable([
 ])
 
 ? o1.ContainsCol( :NAME = [ "Imed", "Hatem", "Karim" ] )
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ContainsCols([
 	:NAME = [ "Imed", "Hatem", "Karim" ],
 	:AGE  = [ 52, 46, 48 ]
 ])
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ContainsRow([ 20, "Hatem", 46 ])
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ContainsRows([
 	[ 20, "Hatem", 46 ],
 	[ 30, "Karim", 48 ]
 ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.05 second(s) in Ring 1.20
@@ -1885,7 +1885,7 @@ o1 = new stzTable([
 #--> 3
 
 ? o1.HasCol(:NAME) + NL
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ColNames()
 #--> [ "id", "name", "age" ]
@@ -1990,15 +1990,15 @@ pron()
 o1 = new stzTable([
 	[ :ID,	:NAME 	],
 	#---------------#
-	[ NULL,	NULL 	],
-	[ NULL,	NULL 	],
-	[ NULL,	NULL 	]
+	[ _NULL_,	_NULL_ 	],
+	[ _NULL_,	_NULL_ 	],
+	[ _NULL_,	_NULL_ 	]
 ])
 
-// A table is empty when all its cells are NULL
+// A table is empty when all its cells are _NULL_
 
 ? o1.IsEmpty()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -2261,19 +2261,19 @@ o1 = new stzTable([
 #--> [ "id", "name", "age" ]
 
 ? o1.IsColName(:name)
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsColNumber(3)
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsColNameOrNumber(:age)
-#--> TRUE
+#--> _TRUE_
 
 ? o1.AreColNamesOrNumbers([ :name, :age ])
-#--> TRUE
+#--> _TRUE_
 
 ? o1.AreColID([ :name, :age ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.03 second(s)
@@ -2371,7 +2371,7 @@ proff()
 pron()
 
 ? Q(["", "", ""]).AllItemsAreNull()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -2389,20 +2389,20 @@ o1 = new stzTable([
 ])
 
 ? o1.IsEmpty()
-#--> FALSE
+#--> _FALSE_
 
 o1.Erase()
 
 ? o1.IsEmpty()
-#--> TRUE
+#--> _TRUE_
 
 o1.Show()
 #-->
 #  ID    EMPLOYEE  SALARY
 #  --- ---------- -------
-#  NULL  NULL	     NULL
-#  NULL  NULL	     NULL
-#  NULL  NULL	     NULL
+#  _NULL_  _NULL_	     _NULL_
+#  _NULL_  _NULL_	     _NULL_
+#  _NULL_  _NULL_	     _NULL_
 
 proff()
 # Executed in 0.09 second(s) in Ring 1.20
@@ -2457,7 +2457,7 @@ o1 = new stzTable([
 o1.EraseCell(2, 3)
 
 ? @@( o1.Cell(2, 3) )
-#--> NULL
+#--> _NULL_
 
 proff()
 # Executed in 0.03 second(s) in Ring 1.20
@@ -2523,7 +2523,7 @@ o1 = new stzTable([
 ? o1.Col(:First)
 #--> [ "001", "002", "003" ]
 
-? o1.Col(:Last) # Works when CheckParams() _TRUE_, otherwise use LastCol()
+? o1.Col(:Last) # Works when CheckParams() = _TRUE_, otherwise use LastCol()
 #--> [ 12499.20, 10890.10, 12740.30 ]
 
 proff()
@@ -2545,7 +2545,7 @@ o1 = new stzTable([
 ? o1.Row(:First)
 #--> [ "001", "Salem", 12499.20 ]
 
-? o1.Row(:Last) # Works when CheckParams() _TRUE_, otherwise use LAstRow()
+? o1.Row(:Last) # Works when CheckParams() = _TRUE_, otherwise use LAstRow()
 #--> [ "003", "Sonia", 12740.30 ]
 
 proff()
@@ -2595,7 +2595,7 @@ o1 = new stzTable([
 ? @@( o1.FindInCol(:EMPLOYEE, "So") ) + NL
 #--> [ [ 2, 3 ] ]
 
-? @@( o1.FindInColCS(:EMPLOYEE, "So", :CS _FALSE_) ) + NL
+? @@( o1.FindInColCS(:EMPLOYEE, "So", :CS = _FALSE_) ) + NL
 #--> [ [ 2, 3 ], [ 2, 6 ] ]
 
 ? @@NL( o1.FindInCol(:EMPLOYEE, :SubValue = "So") ) + NL
@@ -2605,7 +2605,7 @@ o1 = new stzTable([
 #	[ [ 2, 4 ], [ 4, 7 ] 	]
 # ]
 
-? @@NL( o1.FindInColCS(:EMPLOYEE, :SubValue = "So", :CS _FALSE_) )
+? @@NL( o1.FindInColCS(:EMPLOYEE, :SubValue = "So", :CS = _FALSE_) )
 #--> [
 # 	[ [ 2, 2 ], [ 1 ] 	],
 #	[ [ 2, 3 ], [ 1 ] 	],
@@ -2818,7 +2818,7 @@ o1 = new stzTable([
 ? @@( o1.FindInCol( :FIRSTNAME, :SubValue = "a" ) ) + NL
 #--> [ ]
 
-? @@NL( o1.FindInColCS( :LASTNAME, :SubValue = "a", :CS _FALSE_ ) )
+? @@NL( o1.FindInColCS( :LASTNAME, :SubValue = "a", :CS = _FALSE_ ) )
 #--> [
 #	[ [ 2, 1 ], [ 2 ]      ],
 #	[ [ 2, 2 ], [ 1, 4, 6] ],
@@ -2932,7 +2932,7 @@ o1 = new stzTable([
 #	[ [ 1, 4 ], [ 1 ] ]
 # ]
 
-? @@NL( o1.FindInColCS( :LASTNAME, :SubValue = "A", :CS _FALSE_ ) )
+? @@NL( o1.FindInColCS( :LASTNAME, :SubValue = "A", :CS = _FALSE_ ) )
 #-->[
 #	[ [ 2, 1 ], [ 2 ] ],
 #	[ [ 2, 2 ], [ 1, 4, 6 ] ],
@@ -2976,7 +2976,7 @@ o1 = new stzTable([
 ])
 
 ? o1.CellQ(:NAME, 2).Conttains("io") // #NOTE: A misspelled form of Contains()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s) in Ring 1.20
@@ -2995,10 +2995,10 @@ o1 = new stzTable([
 
 
 ? o1.CellContainsSubValue(:NAME, 2, "io")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.CellXT(:NAME, 2, :ContainsSubValue, "io")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s) in Ring 1.20
@@ -3142,19 +3142,19 @@ o1 = new stzTable([
 ])
 
 ? o1.ColContains(2, "Ali")
-#--> FALSE
+#--> _FALSE_
 
 ? o1.ColContains(2, :SubValue = "Ali")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ColsContain([ :FIRSTNAME, :JOB ], "Ali")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ColsContain([ :LASTNAME, :JOB ], "Ali")
-#--> FALSE
+#--> _FALSE_
 
 ? o1.ColsContain([ :LASTNAME, :JOB ], :SubValue = "Ali")
-#--> TRUE
+#--> _TRUE_
 
 ? @@( o1.FindInCols([ :LASTNAME, :JOB ], :SubValue = "Ali") )
 # [ [ [ 2, 3 ], [ 1, 4 ] ] ]
@@ -3217,19 +3217,19 @@ o1 = new stzTable([
 ])
 
 ? o1.RowContains(3, "Ali")
-#--> FALSE
+#--> _FALSE_
 
 ? o1.RowContains(3, :SubValue = "Ali")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.RowsContain([ 1, 3 ], "Ali")
-#--> FALSE
+#--> _FALSE_
 
 ? o1.RowsContain([ 1, 2 ], "Ali")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.RowsContain([ 1, 3 ], :SubValue = "Ali") + NL
-#--> TRUE
+#--> _TRUE_
 
 ? @@NL( o1.FindInRows([ 1, 3 ], :SubValue = "Ali") )
 #--> [
@@ -3394,13 +3394,13 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? @@( o1.FindInSectionCS([1, 1], [3, 2], "red", TRUE) )
+? @@( o1.FindInSectionCS([1, 1], [3, 2], "red", _TRUE_) )
 #--> [ ]
 
-? @@( o1.FindInSectionCS([1, 1], [3, 2], "Red", TRUE) )
+? @@( o1.FindInSectionCS([1, 1], [3, 2], "Red", _TRUE_) )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
-? @@( o1.FindInSectionCS([1, 1], [3, 2], "red", :CS _FALSE_) )
+? @@( o1.FindInSectionCS([1, 1], [3, 2], "red", :CS = _FALSE_) )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
 proff()
@@ -3441,7 +3441,7 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? @@( o1.FindNthInSectionCS(2, :From = :FirstCell, :To = [3, 3], "red", :CS _FALSE_) )
+? @@( o1.FindNthInSectionCS(2, :From = :FirstCell, :To = [3, 3], "red", :CS = _FALSE_) )
 #--> [2, 2]
 
 ? @@( o1.FindFirstInSection(:From = :FirstCell, :To = [3, 3], "Red") )
@@ -3502,10 +3502,10 @@ o1 = new stzTable([
 ])
 
 ? o1.SectionContains( [1, 2], [3, 2], "Red" )
-#--> TRUE
+#--> _TRUE_
 
 ? o1.SectionContains( [1, 2], [3, 2], :SubValue = "ed" )
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s)
@@ -3814,10 +3814,10 @@ o1 = new stzTable([
 #--> [ "White", "Red", "Green", "Gray" ]
 
 ? @@( o1.HasColName(:PALETTE2) )
-#--> TRUE
+#--> _TRUE_
 
-? o1.HasColNames([ :PALETTE1, :PALETTE3 ]) #--> TRUE
-#--> TRUE
+? o1.HasColNames([ :PALETTE1, :PALETTE3 ]) #--> _TRUE_
+#--> _TRUE_
 
 ? @@( o1.ColNames() )
 #--> [ "palette1", "palette2", "palette3" ]
@@ -3861,7 +3861,7 @@ o1.AddCol( :PALETTE4 = [ "Magenta", "Blue", "White", "Red" ])
 #--> [ "palette1", "palette2", "palette3", "palette4" ]
 
 ? o1.HasColName(:PALETTE4)
-#--> TRUE
+#--> _TRUE_
 
 ? @@( o1.Col(:PALETTE4) )
 #--> [ "Magenta", "Blue", "White", "Red" ]
@@ -4036,7 +4036,7 @@ o1.RemoveCol(1)
 #--> [ "" ]
 
 ? o1.IsEmpty()
-#--> TRUE
+#--> _TRUE_
 
 o1.Show()
 #--> COL1
@@ -4258,7 +4258,7 @@ o1 = new stzTable([
 	[ 30,	"Ben",		25982	]
 ])
 
-o1.AddCol( :TEMPO = [ NULL, NULL, NULL ])
+o1.AddCol( :TEMPO = [ _NULL_, _NULL_, _NULL_ ])
 
 ? o1.LastColName()
 #--> "tempo"
@@ -4379,7 +4379,7 @@ o1 = new stzListOfLists([
 ? @@( o1.FindInLists("Ali") )
 #--> [ [ 1, 2 ], [ 4, 3 ] ]
 
-? @@( o1.FindInListsCS("ali", :CS _FALSE_) )
+? @@( o1.FindInListsCS("ali", :CS = _FALSE_) )
 #--> [ [ 1, 2 ], [ 4, 2 ], [ 4, 3 ] ]
 
 proff()
@@ -4398,7 +4398,7 @@ o1 = new stzListOfLists([
 ? @@( o1.FindInLists("Ali") )
 #--> [ [ 2, 1 ], [ 3, 4 ] ]
 
-? @@( o1.FindInListsCS("ali", :CS _FALSE_) )
+? @@( o1.FindInListsCS("ali", :CS = _FALSE_) )
 #--> [ [ 2, 1 ], [ 2, 4 ], [ 3, 4 ] ]
 
 proff()
@@ -4418,16 +4418,16 @@ o1 = new stzTable([
 ])
 
 ? o1.Contains( :Cell = "Ali" ) # same as ? o1.ContainsCell("Ali")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.Contains( :SubValue = "a" ) # same as ? o1.ContainsSubValue("a")
-#--> TRUE
+#--> _TRUE_
 
-? @@( o1.FindCellCS("Ali", FALSE) ) + NL
+? @@( o1.FindCellCS("Ali", _FALSE_) ) + NL
 #--> [ [ 2, 1 ], [ 2, 4 ], [ 3, 4 ] ]
 #--> One occurrence of "Ali" in the cell [2, 1]
 
-? @@NL( o1.FindSubValueCS("a", :CaseSensitive _FALSE_) )
+? @@NL( o1.FindSubValueCS("a", :CaseSensitive = _FALSE_) )
 #--> [
 #	[ [ 2, 1 ], [ 1 ] ],
 #	[ [ 2, 2 ], [ 2, 5 ] ],
@@ -4457,14 +4457,14 @@ o1 = new stzTable([
 ? @@( o1.FindNth(1, :Cell = "Ali") ) # Same as ? @@( o1.FindFirst( :Cell = "Ali" ) )
 #--> [2, 1]
 
-? @@( o1.FindNthCS(3, :SubValue = "A", :CS _FALSE_) )
+? @@( o1.FindNthCS(3, :SubValue = "A", :CS = _FALSE_) )
 #--> [ [ 2, 3 ], 2 ]
 #--> 3rd occurrence of "A" (or "a") found in the cell [2, 3] ("Hania") in position 2
 
-? @@( o1.FindFirstCS(:SubValue = "A", :CS _FALSE_) )
+? @@( o1.FindFirstCS(:SubValue = "A", :CS = _FALSE_) )
 #--> [ [ 2, 1 ], 1 ]
 
-? @@( o1.FindLastCS(:SubValue = "A", :CS _FALSE_) )
+? @@( o1.FindLastCS(:SubValue = "A", :CS = _FALSE_) )
 #--> [ [ 2, 3 ], 5 ]
 
 proff()
@@ -4524,7 +4524,7 @@ o1 = new stzTable([
 ? o1.Count( :SubValue = "a" )
 #--> 3
 
-? o1.CountCS( :SubValue = "A", :CaseSensitive _FALSE_ )
+? o1.CountCS( :SubValue = "A", :CaseSensitive = _FALSE_ )
 #--> 4
 
 proff()
@@ -4569,7 +4569,7 @@ o1 = new stzTable([
 #	--> 2 occurrences in cell [2, 2] ("Dania"), in the 2nd and 5th chars.
 #	--> 1 occurrence in cell [2, 3] ("Han"), in position 2.
 
-? @@NL( o1.FindSubValueCS("a", :CaseSensitive _FALSE_) ) + NL
+? @@NL( o1.FindSubValueCS("a", :CaseSensitive = _FALSE_) ) + NL
 #--> [
 #	[ [ 2, 1 ], [ 1 ] ],
 #	[ [ 2, 2 ], [ 2, 5 ] ],
@@ -4577,7 +4577,7 @@ o1 = new stzTable([
 #	[ [ 2, 4 ], [ 1 ] ]
 #    ]
 
-? o1.CountCS( :SubValue = "a", :CS_FALSE_ )
+? o1.CountCS( :SubValue = "a", :CS= _FALSE_ )
 #--> 5
 	#--> five occurrences of "A" (or "a"):
 	# 	- one occurrence in the cell [2, 1] ("Ali") at the 1st char
@@ -4689,7 +4689,7 @@ o1 = new stzTable([
 ? @@( o1.FindNthInCells( 3, [ [2,1], [2,4], [3,4] ], :Value = "ali" ) )
 #--> []	// In fact, there is no a 3rd occurrence of 'ali" (in lowercase) in the table!
 
-? @@( o1.FindNthInCellsCS( 3, [ [2,1], [2,4], [3,4] ], :Value = "ali", :CS _FALSE_ ) )
+? @@( o1.FindNthInCellsCS( 3, [ [2,1], [2,4], [3,4] ], :Value = "ali", :CS = _FALSE_ ) )
 #--> [2, 4]
 
 proff()
@@ -4738,12 +4738,12 @@ aMyCells = [ [2,1], [2,3], [2,4] ]
 
 # How many subvalue "A" whatever case it has?
 
-? o1.CountInCellsCS( aMyCells, :SubValue = "A", :CS _FALSE_ )
+? o1.CountInCellsCS( aMyCells, :SubValue = "A", :CS = _FALSE_ )
 #--> 3
 
 # And where do they exist exactly?
 
-? @@NL( o1.FindInCellsCS( aMyCells, :SubValue = "A", :CS _FALSE_ ) )
+? @@NL( o1.FindInCellsCS( aMyCells, :SubValue = "A", :CS = _FALSE_ ) )
 #--> [
 #	[ [ 2, 1 ], [ 1 ] ],
 #	[ [ 2, 3 ], [ 2 ] ],
@@ -4770,15 +4770,15 @@ o1 = new stzTable([
 ])
 
 ? o1.CellsContain( [ [2,1], [2,3], [2,4] ], :Cell = "Ali" ) 
-#--> TRUE
+#--> _TRUE_
 
 ? o1.CellsContain( [ [2,1], [2,3], [2,4] ], :SubValue = "a" ) // Same as ? o1.CellsContainSubValue("a")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.CountInCells( [ [2,1], [2,3], [2,4] ], :Cell = "Ali" )
 #--> 2
 
-? o1.CountInCellsCS( [ [2,1], [2,3], [2,4] ], :SubValue = "a", :CS _FALSE_ )
+? o1.CountInCellsCS( [ [2,1], [2,3], [2,4] ], :SubValue = "a", :CS = _FALSE_ )
 #--> 3
 
 proff()
@@ -4858,7 +4858,7 @@ o1 = new stzTable([
 #	[ [2, 2], [4, 6] ]
 #    ]
 
-? @@( o1.FindInRowCS( 2, :SubValue = "a", :CS _FALSE_ ) )
+? @@( o1.FindInRowCS( 2, :SubValue = "a", :CS = _FALSE_ ) )
 #--> [
 #	[ [1, 2], [1]    ],
 #	[ [2, 2], [1, 4, 6] ],
@@ -4962,16 +4962,16 @@ o1 = new stzTable([
 
 
 ? o1.ContainsInRow(2, "Abraham")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.RowContains(2, "Abraham")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ContainsInRow(2, :SubValue = "AL")
-#--> FALSE
+#--> _FALSE_
 
-? o1.ContainsInRowCS(2, :SubValue = "AL", :CS _FALSE_)
-#--> TRUE
+? o1.ContainsInRowCS(2, :SubValue = "AL", :CS = _FALSE_)
+#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s)
@@ -5001,7 +5001,7 @@ o1 = new stzTable([
 #	[ [ 2, 2 ], [ 4, 6 ] ]
 #    ]
 
-? @@NL( o1.FindInColCS(:LASTNAME, :SubValue = "a", :CS _FALSE_ ) )
+? @@NL( o1.FindInColCS(:LASTNAME, :SubValue = "a", :CS = _FALSE_ ) )
 #--> [
 #	[ [ 2, 1 ], [ 2 ] 	],
 #	[ [ 2, 2 ], [ 1, 4, 6 ] ],
@@ -5112,16 +5112,16 @@ o1 = new stzTable([
 ])
 
 ? o1.ContainsInCol(2, "Abraham")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ColContains(2, "Abraham")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ContainsInCol(2, :SubValue = "AL")
-#--> FALSE
+#--> _FALSE_
 
-? o1.ContainsInColCS(2, :SubValue = "AL", :CS _FALSE_)
-#--> TRUE
+? o1.ContainsInColCS(2, :SubValue = "AL", :CS = _FALSE_)
+#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s)
@@ -5844,7 +5844,7 @@ pron()
 o1 = new stzTable([])
 
 ? o1.IsEmpty()
-#--> TRUE
+#--> _TRUE_
 
 ? o1.NumberOfCols()
 #--> 1

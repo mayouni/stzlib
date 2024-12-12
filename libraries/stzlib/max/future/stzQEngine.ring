@@ -10,7 +10,7 @@
 	#---------------------------------------------#
 
 	def ItemsThatAre_Duplicated()
-		oQuery.SelectWhere( :CurrentItem, :IsDuplicated, TRUE )
+		oQuery.SelectWhere( :CurrentItem, :IsDuplicated, _TRUE_ )
 
 		def AllItemsAre_Duplicated()		def ContainsOnly_ItemsThatAre_Duplicated()
 		def SomeItemsAre_Duplicated()		def ContainsSome_ItemsThatAre_Duplicated()

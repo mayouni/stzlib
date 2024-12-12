@@ -487,7 +487,7 @@ class stzListOfBytes from stzList
 		// And setting it to % by default
 		oTempChar = new stzChar(pcPercentAsciiChar)
 		if oTempChar.IsAsciiChar()
-			if pcPercentAsciiCaract = NULL
+			if pcPercentAsciiCaract = _NULL_
 				pcPercentAsciiChar = "%"
 			ok
 		else
@@ -517,7 +517,7 @@ class stzListOfBytes from stzList
 		// And setting it to % by default
 		oTempChar = new stzChar(pcPercentAsciiChar)
 		if oTempChar.IsAsciiChar()
-			if pcPercentAsciiChar = NULL
+			if pcPercentAsciiChar = _NULL_
 				pcPercentAsciiChar = "%"
 			ok
 		else
@@ -747,7 +747,7 @@ class stzListOfBytes from stzList
 	#--
 
 	def Update(pcStr)
-		if CheckingParams() _TRUE_
+		if CheckingParams() = _TRUE_
 			if isList(pcStr) and Q(pcStr).IsWithOrByOrUsingNamedParam()
 				pcStr = pcStr[2]
 			ok
@@ -756,7 +756,7 @@ class stzListOfBytes from stzList
 		@oQByteArray = new QByteArray()
 		@oQByteArray.append(cResult)
 
-		if KeepingHisto() _TRUE_
+		if KeepingHisto() = _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 

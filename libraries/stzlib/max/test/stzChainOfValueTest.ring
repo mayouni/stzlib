@@ -32,7 +32,7 @@ OnlyWhen(:v).Is("12").DoThis('{ ? "Done! Only because you requested it." }')
 /*---------------
 
 # Of course, when values are different, this will never execute:
-SometimesWhen(:v).Is("3").DoThis('{ ? "Done! Because I am lucky ;)" }') #--> NULL
+SometimesWhen(:v).Is("3").DoThis('{ ? "Done! Because I am lucky ;)" }') #--> _NULL_
 SometimesWhen(:v).Is("3").ChainStatus() #--> :Stopped
 ? SometimesWhen(:v).Is("3").WhyChainStopped() # Because equality will never happen,
 # since values are actually different!
@@ -57,7 +57,7 @@ Until(:v).Is("11000").DoThis('{ v += "0" ? v }') #--> Infinite loop (stackoverfl
 # We've seen the use of Until(), what if we try Since() instead...
 
 # First thing to note is that Since() requires a StopValue() to stop
-? Since(:v).Is("12").RequiresStopValue() #--> TRUE
+? Since(:v).Is("12").RequiresStopValue() #--> _TRUE_
 
 # Therefore, if we provide a code in DoThis(), it's not executed:
 ? Since(:v).Is("12").DoThis('{ v += "0" ? v }').CodeStatus() #--> :NotYetExecuted

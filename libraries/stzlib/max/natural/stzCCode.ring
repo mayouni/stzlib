@@ -76,7 +76,7 @@ class stzCCode
 	#--------------------------------------#
 
 	def Update(cNewCode)
-		if CheckingParams() _TRUE_
+		if CheckingParams() = _TRUE_
 			if isList(cNewCode) and Q(cNewCode).IsWithOrByOrUsingNamedParam()
 				cNewCode = cNewCode[2]
 			ok
@@ -227,7 +227,7 @@ class stzCCode
 				"@PreviousSplit",
 				"@PreviousObject"
 				
-		], :CaseSensitive _FALSE_)
+		], _FALSE_)
 
 		oResult = StzStringQ(" " + cCode + " ")
 
@@ -246,14 +246,14 @@ class stzCCode
 				
 				" @objects ","@allObjects" ],
 
-				" This.Content() ", FALSE)
+				" This.Content() ", _FALSE_)
 
 		oResult.ReplaceManyCS([
 				" @position ", " @CurrentPosition ",
 				" @Current@i ", " @CurrentI ",
 				" @EachPosition ", " @EachI " ],
 
-				" @i ", FALSE)
+				" @i ", _FALSE_)
 
 		oResult.ReplaceManyCS([				
 				" @item ", " @EachItem ", " @CurrentItem ",
@@ -272,14 +272,14 @@ class stzCCode
 
 				" @object ", " @EachObject ", " @CurrentObject " ],
 
-				" This[@i] ", FALSE )
+				" This[@i] ", _FALSE_ )
 			
-		oResult.ReplaceCS(" -@Number ", " - This[@i] ", FALSE)
+		oResult.ReplaceCS(" -@Number ", " - This[@i] ", _FALSE_)
 
 		oResult.ReplaceManyCS([
 				" @NextPosition ", " @NextI "],
 
-				" @i + 1 ", FALSE)
+				" @i + 1 ", _FALSE_)
 			
 		oResult.ReplaceManyCS([
 				" @NextItem ",
@@ -291,12 +291,12 @@ class stzCCode
 				" @NextSplit ",
 				" @NextObject " ],
 
-				" This[@i + 1] ", FALSE)
+				" This[@i + 1] ", _FALSE_)
 
 		oResult.ReplaceManyCS([
 				" @PreviousPosition ", " @PreviousI "],
 
-				" @i - 1 ", FALSE)
+				" @i - 1 ", _FALSE_)
 
 		oResult.ReplaceManyCS([
 				" @PreviousItem ",
@@ -310,7 +310,7 @@ class stzCCode
 				" @PreviousObject "
 				],
 
-				" This[@i - 1] ", FALSE)
+				" This[@i - 1] ", _FALSE_)
 
 		cResult = oResult.Trimmed()
 
@@ -353,7 +353,7 @@ class stzCCode
 		# to understand them and apply them, you must use the ..XT()
 		# alternative of this function instead (ExecutableSectionXT())
 
-		if NOT _oCode_.Copy().RemoveSpacesQ().ContainsOneOfTheseCS([ "@i", "This[@i]" ], FALSE)
+		if NOT _oCode_.Copy().RemoveSpacesQ().ContainsOneOfTheseCS([ "@i", "This[@i]" ], _FALSE_)
 			StzRaise("Can't proceed! The conditional code provided does not contain @i or This[@i] keywords.")
 		ok
 

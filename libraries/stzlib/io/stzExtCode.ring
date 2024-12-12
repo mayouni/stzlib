@@ -16,14 +16,14 @@
 _aTempVars = []
 _aVars = []	# the list of all temp vars and their values
 
-_bVarReset _FALSE_
+_bVarReset = _FALSE_
 _var = []	# Current temp var and its value
 _oldVar = []	# A copy of the temp var before it is changed
 
 console = new console
-None = NULL
+None = _NULL_
 
-_b _FALSE_ 	# Used for ternary operators in C
+_b = _FALSE_ 	# Used for ternary operators in C
 _bv = null	# Idem
 
 say = new say	# Raku / Perl language
@@ -119,7 +119,7 @@ func TempVar()
 
 func TempVal()
 	if len(_var) = 0
-		return NULL
+		return _NULL_
 	else
 		return _var[2]
 	ok
@@ -291,12 +291,12 @@ func Vr(pacVars)
 
 	for i = 1 to nLen
 
-		_aTempVars + [ pacVars[i], NULL ]
+		_aTempVars + [ pacVars[i], _NULL_ ]
 
 		oHash = StzHashListQ(_aVars)
 		n = oHash.FindKey(pacVars[i])
 		if n = 0
-			_aVars + [ pacVars[i], NULL ]
+			_aVars + [ pacVars[i], _NULL_ ]
 
 		else
 			_aVars[n][2] = []
@@ -398,8 +398,8 @@ func Length(p)
 # Used for ternary operator in Python
 
 func _if(pExpressionOrBoolean)
-	_bVarReset _FALSE_
-	bTemp _TRUE_
+	_bVarReset = _FALSE_
+	bTemp = _TRUE_
 
 	if isString(pExpressionOrBoolean)
 		cCode = 'bTemp = (' + pExpressionOrBoolean + ')'
@@ -409,8 +409,8 @@ func _if(pExpressionOrBoolean)
 		bTemp = pExpressionOrBoolean
 	ok
 
-	if bTemp _FALSE_
-		_bVarReset _TRUE_
+	if bTemp = _FALSE_
+		_bVarReset = _TRUE_
 	ok
 
 	func if_(pExpressionOrBoolean)
@@ -431,7 +431,7 @@ func _else(value)
 	nLen = len(aValues)
 	acTempVarsNames = TempVarsNames()
 
-	if _bVarReset _TRUE_
+	if _bVarReset = _TRUE_
 		for i = 1 to nLen
 			setV([ acTempVarsNames[i], aValues[i] ])
 		next
@@ -447,7 +447,7 @@ func b(e)
 
 func bv(val1, val2)
 	nLen = len(_aVars)
-	if _b _TRUE_
+	if _b = _TRUE_
 		_aVars[nLen][2] = val1
 	else
 		_aVars[nLen][2] = val2
@@ -455,13 +455,13 @@ func bv(val1, val2)
 
 func bt(val)
 	nLen = len(_aVars)
-	if _b _TRUE_
+	if _b = _TRUE_
 		_aVars[nLen][2] = val
 	ok
 
 func bf(val)
 	nLen = len(_aVars)
-	if _b _FALSE_
+	if _b = _FALSE_
 		_aVars[nLen][2] = val
 	ok
 
@@ -535,12 +535,12 @@ func range0(p)
 			acNumbers = oStr.SplitAt(":")
 			nLen = len(acNumbers)
 	
-			if acNumbers[2] = NULL
+			if acNumbers[2] = _NULL_
 				StzRaise("Incorrect syntax! The second parameter must not be empty.")
 			ok
 	
 			n1 = 0
-			if acNumbers[1] != NULL
+			if acNumbers[1] != _NULL_
 				n1 = 0+ acNumbers[1] + 1
 			ok
 	
@@ -628,12 +628,12 @@ func range1(p)
 			acNumbers = oStr.SplitAt(":")
 			nLen = len(acNumbers)
 	
-			if acNumbers[2] = NULL
+			if acNumbers[2] = _NULL_
 				StzRaise("Incorrect syntax! The second parameter must not be empty.")
 			ok
 	
 			n1 = 1
-			if acNumbers[1] != NULL
+			if acNumbers[1] != _NULL_
 				n1 = 0+ acNumbers[1]
 			ok
 	
@@ -927,7 +927,7 @@ func FROM_(pcTableName)
 		# Check if the pcTableName exists as a named variable
 		# and containing a stzTable object as a value
 
-		if isString(v(pcTableName)) and v(pcTableName) = NULL
+		if isString(v(pcTableName)) and v(pcTableName) = _NULL_
 			StzRaise("Incorrect type! The stzTable object managed by the SQL statement is not defined as a global named variable.")
 		ok
 
@@ -977,7 +977,7 @@ func WHERE_(pcCondition) #NOTE: Where() is used in an other place
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-		if NOT Q(pcCondition).ContainsOneOfTheseCS(_oIntermediateTable.ColsNames(), :CS _FALSE_)
+		if NOT Q(pcCondition).ContainsOneOfTheseCS(_oIntermediateTable.ColsNames(), _FALSE_)
 			StzRaise("Incorrect param type! The pcCondition must contain columns names of the stzTable object managed by the SQL statement.")
 		ok
 	ok

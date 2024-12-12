@@ -232,7 +232,7 @@ class stzFile from stzObject
 			if the file exists
 				Open it for reading only
 			else
-				return NULL
+				return _NULL_
 			ok
 			*/
 			return "r"
@@ -262,7 +262,7 @@ class stzFile from stzObject
 			if the file exists
 				Open it for reading and writing
 			else
-				return NULL
+				return _NULL_
 			ok
 			*/
 			return "r+"

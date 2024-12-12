@@ -100,7 +100,7 @@ func GenConstraint(pcConstraintName, pcStzClass)
 
 		cResult = Constraints()["on" + pcStzClass][ pcConstraintName ]
 
-		if StzStringQ(cResult).WithoutSpaces() = NULL
+		if StzStringQ(cResult).WithoutSpaces() = _NULL_
 			StzRaise("Undefined constraint!")
 		ok
 
@@ -150,7 +150,7 @@ func GenConstraint(pcConstraintName, pcStzClass)
 		next
 		
 		oExpressions@_@ = StzListOfStrings( acExpressions@_@ )
-		n = oTemplates.FindFirstCS(cConstraintName@_@, :CaseSensitive _FALSE_)
+		n = oTemplates.FindFirstCS(cConstraintName@_@, :CaseSensitive = _FALSE_)
 
 		cExpression@_@ = acExpressions@_@[n]
 

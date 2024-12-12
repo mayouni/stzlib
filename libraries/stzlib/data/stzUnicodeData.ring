@@ -666,14 +666,14 @@ class stzUnicodeData
 
 		pcCharName = Q(pcCharName).Uppercased()
 
-		nPos = @oStzStrUnicodeData.FindFirstCS( pcCharName, :CS _FALSE_ )
+		nPos = @oStzStrUnicodeData.FindFirstCS( pcCharName, _FALSE_ )
 		return nPos
 
 		def FindcharByName(pcCharName)
 			return This.FindCharName(pcCharName)
 
 	def SearchCharName(pcCharName)
-		return @oStzStrUnicodeData.FindAllCS( pcCharName, :CS _FALSE_ )
+		return @oStzStrUnicodeData.FindAllCS( pcCharName, _FALSE_ )
 
 		def SearchForCharName(pcCharName)
 			return SearchCharName(pcCharName)
@@ -734,7 +734,7 @@ class stzUnicodeData
 		cHex = StzHexNumberQ(pcHex).WithoutPrefix()
 
 		if cHex = ""
-			return NULL
+			return _NULL_
 		ok
 
 		switch len(cHex)
@@ -750,14 +750,14 @@ class stzUnicodeData
 		n = @oStzStrUnicodeData.FindFirst(NL + cHex + ";")
 		
 		if n = 0
-			return NULL
+			return _NULL_
 		ok
 
 		n++	# To compensate the NL
 
 		# Defininging start of the char name in n1
 
-		bContinue _TRUE_
+		bContinue = _TRUE_
 		i = 0
 
 		while bContinue
@@ -766,13 +766,13 @@ class stzUnicodeData
 
 			if c = ";"
 				n1 = n + i + 1
-				bContinue _FALSE_
+				bContinue = _FALSE_
 			ok
 		end
 
 		# Defininging end of the char name in n2
 		n = n1
-		bContinue _TRUE_
+		bContinue = _TRUE_
 		i = 0
 
 		while bContinue
@@ -781,7 +781,7 @@ class stzUnicodeData
 
 			if c = ";"
 				n2 = n + i - 1
-				bContinue _FALSE_
+				bContinue = _FALSE_
 			ok
 		end
 
@@ -813,7 +813,7 @@ class stzUnicodeData
 			if ring_substr1(acLines[i], cPartOfName) > 0
 				cHex = ""
 				n = 1
-				while TRUE
+				while _TRUE_
 					if acLines[i][n] = ";"
 						exit
 					else

@@ -42,10 +42,10 @@ proff()
 pron()
 
 ? Q(169).IsPrime()
-#--> FALSE
+#--> _FALSE_
 
 ? Q(17).IsPrime()
-#--> TRUE
+#--> _TRUE_
 
 ? @@( Q(54).Divirdos() ) + NL	# Misspelled, but works!
 #--> [ 1, 2, 3, 6, 9, 18, 27, 54 ]
@@ -144,7 +144,7 @@ aHash = [ :1 = "One", :2 = "Two", :3 = "Three" ]
 #--> [ [ "1", "One" ], [ "2", "Two" ], [ "3", "Three" ] ]
 
 ? isString(aHash[1][1]) # "1"
-#--> TRUE
+#--> _TRUE_
 
 ? @@( aHash[1] )
 #--> [ "1", "One" ]
@@ -406,10 +406,10 @@ proff()
 pron()
 
 ? Q(12).IsZawji()	# or IsEven()
-#--> TRUE
+#--> _TRUE_
 
 ? Q(13).IsFardi()	# or IsOdd()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -762,7 +762,7 @@ proff()
 pron()
 
 ? Q(2).IsBetween(1, 3)
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s)
@@ -910,10 +910,10 @@ pron()
 o1 = new stzNumber("12.872")
 
 ? o1.IsEqual(12.872)
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsBetween(12, "13")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.06 second(s)
@@ -936,13 +936,13 @@ proff()
 pron()
 
 ? Q(5.12).IsEqualTo(5.1200000000000001)
-#--> TRUE
+#--> _TRUE_
 
 # Because the current round on the program is 2, as defined by default in Ring.
 # When Ring rounds the long number provide to 2, it will become 5.12
 
 ? Q(5.12).IsEqualTo("5.1200000000000001")
-#--> TRUE
+#--> _TRUE_
 
 ? Q(5.12).IsEqualTo([ 5.1200000000000001, :Round = 16 ])
 
@@ -1080,16 +1080,16 @@ pron()
 Q(14) {
 
 	? IsDividableBy(2)
-	#--> TRUE
+	#--> _TRUE_
 
 	? IsDividableBy("2")
-	#--> TRUE
+	#--> _TRUE_
 
 	? IsDividableBy("2.00")
-	#--> TRUE
+	#--> _TRUE_
 
 	? IsDividableBy("2.001")
-	#--> FALSE
+	#--> _FALSE_
 }
 
 proff()
@@ -1131,8 +1131,8 @@ o1 = new stzNumber("12500")
 
 o1 = new stzNumber(24)
 ? o1.SubStructQ(12).Content()
-? o1.AddManyXT([ "4.65775", "3", "2" ], :ReturnIntermediateResults _TRUE_)
-//? o1.SubStructManyXT([ "12", "10.6532", "3" ], :ReturnIntermediateResults _TRUE_ )
+? o1.AddManyXT([ "4.65775", "3", "2" ], :ReturnIntermediateResults = _TRUE_)
+//? o1.SubStructManyXT([ "12", "10.6532", "3" ], :ReturnIntermediateResults = _TRUE_ )
 //? o1.Content()
 /*
 ? o1.ToBinaryFormWithoutPrefix()
@@ -1168,12 +1168,12 @@ o1 = new stzNumber("369900990099")
 o1 = new stzNumber(12590)
 ? o1.ApplyFormatXT([
 	# Precision
-	:RestrictFractionalPart _FALSE_,
+	:RestrictFractionalPart = _FALSE_,
 	:NumberOfDigitsInFractionalPart = 5,
-	:RoundItWhenRestricted _FALSE_,
+	:RoundItWhenRestricted = _FALSE_,
 
 	# Round
-	:ApplyRound _TRUE_,
+	:ApplyRound = _TRUE_,
 	:RoundTo = 5, # !! change this to 2 ans see result
 
 	# Adjustment
@@ -1181,12 +1181,12 @@ o1 = new stzNumber(12590)
 	:FillBlanksWith = " ",
 
 	:AlignTo = :Center, # :Left, :Right
-	:FixPrefixToLeft _TRUE_,
-	:FixSuffixToRight _FALSE_,
+	:FixPrefixToLeft = _TRUE_,
+	:FixSuffixToRight = _FALSE_,
 	
 	# Sign
-	:ShowSign _TRUE_,
-	:PutNegativeBetweenParentheses _TRUE_,
+	:ShowSign = _TRUE_,
+	:PutNegativeBetweenParentheses = _TRUE_,
 
 	# Prefix, separators, and suffix
 	:Prefix = "$",
@@ -1194,10 +1194,10 @@ o1 = new stzNumber(12590)
 	:ThousandsSeparator = ".",
 	:FractionalSeparator = ",",
 
-	:Suffix = NULL,
+	:Suffix = _NULL_,
 
 	# Conversion
-	:ToPercentage _FALSE_,
+	:ToPercentage = _FALSE_,
 	:ToScientificNotation,
 
 	:ToHex,

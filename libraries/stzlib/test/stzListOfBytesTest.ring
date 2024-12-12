@@ -168,7 +168,7 @@ proff()
 pron()
 
 ? Q("abc").ContainsNo(".")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.03 second(s)
@@ -178,10 +178,10 @@ proff()
 pron()
 
 ? Q("12500.89").RepresentsNumber()
-#--> TRUE
+#--> _TRUE_
 
 ? Q("12500").RepresentsInteger()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.01 second(s) in Ring 1.21

@@ -531,11 +531,11 @@ class stzWalker from stzList
 
 		anPos = U(anPos)
 		nLen = len(anPos)
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if ring_find(anWalkables, anPos[i]) = 0
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -586,11 +586,11 @@ class stzWalker from stzList
 
 		anPos = U(anPos)
 		nLen = len(anPos)
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if ring_reverse(anUnwalkables, anPos[i]) = 0
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next

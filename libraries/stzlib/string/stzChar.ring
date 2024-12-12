@@ -461,14 +461,14 @@ func StzIsVowel(cCharOrStr) # A more general alternative of Ring isVowel()
 		ok
 	ok
 
-	bResult _TRUE_
+	bResult = _TRUE_
 
 	acChars = StzStringQ(cCharOrStr).Chars()
 	nLen = len(acChars)
 
 	for i = 1 to nLen
 		if NOT ring_isvowel( acChars[i] )
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next
@@ -496,11 +496,11 @@ func StzIsVowel(p) # Can be char, a string or a list of chars or strings
 	ok
 
 	nLen = len(p)
-	bResult _TRUE_
+	bResult = _TRUE_
 
 	for i = 1 to nLen
 		if NOT StzIsVowel(p[i])
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next
@@ -568,7 +568,7 @@ class stzChar from stzObject
 			StzRaise(stzCharError(:CanNotCreateCharObjectForThisType))
 		ok
 
-		if KeepingHistory() _TRUE_
+		if KeepingHistory() = _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -620,7 +620,7 @@ class stzChar from stzObject
 	#---
 
 	def Update(pChar)
-		if CheckingParams() _TRUE_
+		if CheckingParams() = _TRUE_
 			if isList(pChar) and Q(pChar).IsWithOrByOrUsingNamedParam()
 				pChar = pChar[2]
 			ok
@@ -640,7 +640,7 @@ class stzChar from stzObject
 			StzRaise("Can't update the char!")
 		ok
 
-		if KeepingHisto() _TRUE_
+		if KeepingHisto() = _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -751,7 +751,7 @@ class stzChar from stzObject
 		ok
 
 		cName = This.Name()
-		return StzStringQ(pcName).IsEqualToCS( cName, :CS _FALSE_ )
+		return StzStringQ(pcName).IsEqualToCS( cName,  _FALSE_ )
 
 	def AsciiCode()
 		try
@@ -1064,7 +1064,7 @@ class stzChar from stzObject
 
 	def IsLetter()
 		oTempStr = new stzString( This.UnicodeCategory() )
-		if oTempStr.ContainsCS("letter", :CS _FALSE_) or This.IsArabicShaddah() 
+		if oTempStr.ContainsCS("letter",  _FALSE_) or This.IsArabicShaddah() 
 			return _TRUE_
 		else
 			return _FALSE_
@@ -1151,7 +1151,7 @@ class stzChar from stzObject
 	def IsSpace()
 		return @oQChar.isSpace()
 
-	def IsUnicodeNumber()	# Returns TRUE for "㊱". For normal numbers, use IsDecimalDigit().
+	def IsUnicodeNumber()	# Returns _TRUE_ for "㊱". For normal numbers, use IsDecimalDigit().
 		if @oQChar.isANumber() or
 		This.IsRomanNumber() or
 		This.IsMandarinNumber() or
@@ -1178,14 +1178,14 @@ class stzChar from stzObject
 		So, for the Char "㊱", we have:
 	
 		o1 = new stzChar("㊱")
-		? o1.IsANumber()	# -> TRUE
-		? o1.IsDecimalDigit()	# -> FALSE
+		? o1.IsANumber()	# -> _TRUE_
+		? o1.IsDecimalDigit()	# -> _FALSE_
 	
 		While, for the Char "3", we have:
 	
 		o1 = new stzChar("3")
-		? o1.IsANumber()	# -> TRUE
-		? o1.IsDeciamlDigit()	# -> TRUE
+		? o1.IsANumber()	# -> _TRUE_
+		? o1.IsDeciamlDigit()	# -> _TRUE_
 		*/
 	
 	def IsArabicNumber()
@@ -1234,7 +1234,7 @@ class stzChar from stzObject
 	def IsPunctuation()
 		/*
 		oTempStr = new stzString( This.UnicodeCategory() )
-		if oTempStr.ContainsCS("punctuation", :CaseSensitive _FALSE_)
+		if oTempStr.ContainsCS("punctuation", _FALSE_)
 			return _TRUE_
 		else
 			return _FALSE_
@@ -1243,7 +1243,7 @@ class stzChar from stzObject
 		--> A faster solution hereafter...
 		*/
 
-		bResult = This.CharTypeQ().ContainsCS("punctuation", :CaseSensitive _FALSE_)
+		bResult = This.CharTypeQ().ContainsCS("punctuation", _FALSE_)
 		return bResult
 
 		def IsPunct()
@@ -1259,7 +1259,7 @@ class stzChar from stzObject
 
 	def IsSymbol()
 		oTempStr = new stzString( This.UnicodeCategory() )
-		if oTempStr.ContainsCS("symbol", :CaseSensitive _FALSE_)
+		if oTempStr.ContainsCS("symbol", _FALSE_)
 			return _TRUE_
 		else
 			return _FALSE_
@@ -1278,7 +1278,7 @@ class stzChar from stzObject
 	
 	def IsMark()
 		oTempStr = new stzString( This.UnicodeCategory() )
-		if oTempStr.ContainsCS("mark", :CaseSensitive _FALSE_)
+		if oTempStr.ContainsCS("mark", _FALSE_)
 			return _TRUE_
 		else
 			return _FALSE_
@@ -1294,7 +1294,7 @@ class stzChar from stzObject
 
 	def IsSeparator() # In the UNICODE sense!
 		oTempStr = new stzString( This.UnicodeCategory() )
-		if oTempStr.ContainsCS("separator", :CaseSensitive _FALSE_)
+		if oTempStr.ContainsCS("separator", _FALSE_)
 			return _TRUE_
 		else
 			return _FALSE_

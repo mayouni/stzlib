@@ -63,12 +63,12 @@ func AreRingStates(paPointers)
 		return _FALSE_
 	ok
 
-	bResult _TRUE_
+	bResult = _TRUE_
 	nLen = len(paPointers)
 
 	for i = 1 to nLen
 		if paPointers[i][2] != "RINGSTATE"
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next
@@ -163,7 +163,7 @@ class stzRingInstance
 
 		cVar = trim(cVar)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@acCodes)
 
 		for i = 1 to nLen
@@ -171,7 +171,7 @@ class stzRingInstance
 			oQStr.append(@acCodes[i])
 			nFound = oQStr.index(cVar, 0)
 			if nFound < 0
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next

@@ -286,7 +286,7 @@ class XString from BaseString
 
 		# Getting the name of the plugin file name
 
-		if _aPlugins[cFuncName] = NULL
+		if _aPlugins[cFuncName] = _NULL_
 			raise("Inexistant function name!")
 		ok
 
@@ -322,11 +322,11 @@ class XString from BaseString
 			ok
 
 			time = ring_state_findvar(pState, '@plugin_time')[3]
-			@aCalls + [ cFuncName, aParams, TRUE, result, time ]
+			@aCalls + [ cFuncName, aParams, _TRUE_, result, time ]
 
 		catch
 			error = cCatchError
-			@aCalls + [ cFuncName, aParams, FALSE, error, 0 ]
+			@aCalls + [ cFuncName, aParams, _FALSE_, error, 0 ]
 		done
 
 		# Removing the state from memory
@@ -386,11 +386,11 @@ class XString from BaseString
 
 			# Recording the plugin
 			time = ring_state_findvar(pState, '@plugin_time')[3]
-			@aCalls + [ cFuncName, aParams, TRUE, result, time ]
+			@aCalls + [ cFuncName, aParams, _TRUE_, result, time ]
 
 		catch
 			error = cCatchError
-			@aCalls + [ cFuncName, aParams, FALSE, error, 0 ]
+			@aCalls + [ cFuncName, aParams, _FALSE_, error, 0 ]
 
 			? NL+ '!!!' + error + '!!!'
 		done

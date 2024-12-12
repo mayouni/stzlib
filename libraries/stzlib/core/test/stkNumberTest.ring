@@ -16,10 +16,10 @@ load "../number/stkSciNumber.ring"
 # To avoid this, use the two functions provided by Softanza, IsEven() and IsOdd():
 
 ? IsEven(4)
-#--> TRUE
+#--> _TRUE_
 
 ? IsOdd(7)
-#--> TRUE
+#--> _TRUE_
 
 /*== Flexible initialisation
 
@@ -177,12 +177,12 @@ o1 = new stkNumber("12.4")
 #--> '12.4'
 
 ? o1.@bShowPositive
-#--> FALSE
+#--> _FALSE_
 
 o1.ShowPositive()
 
 ? o1.@bShowPositive
-#--> TRUE
+#--> _TRUE_
 
 ? o1.SValue()
 #--> '+12.4'
@@ -190,7 +190,7 @@ o1.ShowPositive()
 o1.HidePositive()
 
 ? o1.@bShowPositive
-#--> FALSE
+#--> _FALSE_
 
 ? o1.SValue()
 #--> '12.4'
@@ -498,7 +498,7 @@ o1 = new stkNumber(-234.87663637188362538)
 /*-----------
 
 ? IsInt(12) # Or IsInteger(12)
-#--> TRUE
+#--> _TRUE_
 
 ? Round(12)
 #--> 0

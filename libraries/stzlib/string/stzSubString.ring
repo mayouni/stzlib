@@ -84,7 +84,7 @@ func ASubStringCS(pcStr, pCaseSensitive)
 	return oResult
 
 func ASubString(pcStr)
-	return ASubStringCS(pcStr, TRUE)
+	return ASubStringCS(pcStr, _TRUE_)
 
 #--
 
@@ -102,7 +102,7 @@ func SomeSubStringsCS(pcStr, pCaseSensitive)
 	return oResult
 
 func SomeSubStrings(pcStr)
-	return SomeSubStringsCS(pcStr, TRUE)
+	return SomeSubStringsCS(pcStr, _TRUE_)
 
 #== Word
 
@@ -242,7 +242,7 @@ class stzSubString from stzSubStringCS
 
 		@cSubStr = pcSubStr
 		@cStr = pcStr
-		@pCaseSensitive _TRUE_
+		@pCaseSensitive = _TRUE_
 
 class stzSubStringCS
 	@cSubStr
@@ -297,7 +297,7 @@ class stzSubStringCS
 		nResult = This.StringQ().NumberOfOccurrenceCS(This.SubString(), pCaseSensitive)
 
 	def NumberOfOccurrence()
-		return This.NumberOfOccurrenceCS(TRUE)
+		return This.NumberOfOccurrenceCS(_TRUE_)
 
 	#--
 
@@ -306,7 +306,7 @@ class stzSubStringCS
 		return anResult
 
 	def Positions()
-		return This.PositionsCS(TRUE)
+		return This.PositionsCS(_TRUE_)
 
 		def Occurrences()
 			return This.Positions()
@@ -321,7 +321,7 @@ class stzSubStringCS
 			return This.SectionsCS(pCaseSensitive)
 
 	def Sections()
-		return This.SectionsCS(:CaseSenstive _TRUE_)
+		return This.SectionsCS(:CaseSenstive = _TRUE_)
 
 		def PositionsAsSections()
 			return This.Sections()
@@ -348,10 +348,10 @@ class stzSubStringCS
 			return new stzOccurrencesCS(anOccurrences, This.SubString(), This.String(), pCaseSensitive)
 
 	def OccurrencesXT(anOccurrences)
-		return This.OccurrencesCSXT(anOccurrences, TRUE)
+		return This.OccurrencesCSXT(anOccurrences, _TRUE_)
 
 		def OccurrencesXTQ(anOccurrences)
-			return This.OccurrencesCSXTQ(anOccurrences, TRUE)
+			return This.OccurrencesCSXTQ(anOccurrences, _TRUE_)
 
 	#--
 
@@ -360,21 +360,21 @@ class stzSubStringCS
 		return nResult
 
 	def NthPosition(n)
-		return This.NthPositionCS(n, TRUE)
+		return This.NthPositionCS(n, _TRUE_)
 
 	def FirstPositionCS(pCaseSensitive)
 		nResult = This.StringQ().FindFirstCS(This.SubString(), pCaseSensitive)
 		return nResult
 
 	def FirstPosition()
-		return This.FirstPositionCS(TRUE)
+		return This.FirstPositionCS(_TRUE_)
 
 	def LastPositionCS(pCaseSensitive)
 		nResult = This.StringQ().FindLastCS(This.SubString(), pCaseSensitive)
 		return nResult
 
 	def LastPosition()
-		return This.LastPositionCS(TRUE)
+		return This.LastPositionCS(_TRUE_)
 
 	#--
 
@@ -383,7 +383,7 @@ class stzSubStringCS
 		return bResult
 
 	def IsBoundedBy(pacBounds)
-		return This.IsBoundedByCS(pacBounds, TRUE)
+		return This.IsBoundedByCS(pacBounds, _TRUE_)
 
 	#--
 
@@ -392,7 +392,7 @@ class stzSubStringCS
 		return bResult
 
 	def BoundedBy(pacBounds)
-		return This.BoundedByCS(pacBounds, TRUE)
+		return This.BoundedByCS(pacBounds, _TRUE_)
 
 	#--
 
@@ -407,7 +407,7 @@ class stzSubStringCS
 			return This.ReplacedWithCS(pcOtherSubStr, pCaseSensitive)
 
 	def ReplacedWith(pcOtherSubStr)
-		return This.ReplacedWithCs(pcOtherSubStr, TRUE)
+		return This.ReplacedWithCs(pcOtherSubStr, _TRUE_)
 
 		def Replaced(pcOtherSubStr)
 			return This.ReplacedWith(pcOtherSubStr)
@@ -422,7 +422,7 @@ class stzSubStringCS
 		return cResult
 
 	def Removed()
-		return This.RemovedCS(TRUE)
+		return This.RemovedCS(_TRUE_)
 
 	#--
 
@@ -456,7 +456,7 @@ class stzSubStringCS
 		return cResult
 
 	def Uppercased()
-		return This.UppercasedCS(TRUE)
+		return This.UppercasedCS(_TRUE_)
 
 	#--
 
@@ -465,7 +465,7 @@ class stzSubStringCS
 		return cResult
 
 	def UppercasedInLocale()
-		return This.UppercasedInLocaleCS(pLocale, TRUE)
+		return This.UppercasedInLocaleCS(pLocale, _TRUE_)
 
 	#--
 
@@ -474,7 +474,7 @@ class stzSubStringCS
 		return cResult
 
 	def Lowercased()
-		return This.LowercasedCS(TRUE)
+		return This.LowercasedCS(_TRUE_)
 
 	#--
 
@@ -483,7 +483,7 @@ class stzSubStringCS
 		return cResult
 
 	def LowercasedInLocale()
-		return This.LowercasedInLocaleCS(pLocale, TRUE)
+		return This.LowercasedInLocaleCS(pLocale, _TRUE_)
 
 	#--
 
@@ -508,7 +508,7 @@ class stzSubStringCS
 			return This.InstertedBeforeCS(p, pCaseSensitive)
 
 	def InsertedBefore(p)
-		return This.InsertedBeforeCS(p, TRUE)
+		return This.InsertedBeforeCS(p, _TRUE_)
 
 		def InsertedBAt(p)
 			return This.InsertedBefore(p)
@@ -542,7 +542,7 @@ class stzSubStringCS
 		return cResult
 
 	def InsertedBeforeSubString(pcSubStr)
-		return This.InsertedBeforeSubStringCS(pcSubStr, TRUE)
+		return This.InsertedBeforeSubStringCS(pcSubStr, _TRUE_)
 
 	#--
 
@@ -554,7 +554,7 @@ class stzSubStringCS
 			return This.InsertedBeforeSubStringsCS(pacSubStr, pCaseSensitive)
 
 	def InsertedBeforeSubStrings(pacSubStr)
-		return This.InsertedBeforeSubStringsCS(pacSubStr, TRUE)
+		return This.InsertedBeforeSubStringsCS(pacSubStr, _TRUE_)
 
 		def InsertedBeforeManySubStrings(pacSubStr)
 			return This.InsertedBeforeSubStrings(pacSubStr)
@@ -573,7 +573,7 @@ class stzSubStringCS
 		return cResult
 
 	def InsertedAfter(p)
-		return This.InsertedAfterCS(p, TRUE)
+		return This.InsertedAfterCS(p, _TRUE_)
 
 	#--
 
@@ -595,7 +595,7 @@ class stzSubStringCS
 		return cResult
 
 	def InsertedAfterSubString(pcSubStr)
-		return This.InsertedAfterSubStringCS(pcSubStr, TRUE)
+		return This.InsertedAfterSubStringCS(pcSubStr, _TRUE_)
 
 	#--
 
@@ -607,7 +607,7 @@ class stzSubStringCS
 			return This.InsertedAfterSubStringsCS(pacSubStr, pCaseSensitive)
 
 	def InsertedAfterSubStrings(pacSubStr)
-		return This.InsertedAfterSubStringsCS(pacSubStr, TRUE)
+		return This.InsertedAfterSubStringsCS(pacSubStr, _TRUE_)
 
 		def InsertedAfterManySubStrings(pacSubStr)
 			return This.InsertedAfterSubStrings(pacSubStr)
@@ -626,7 +626,7 @@ class stzSubStringCS
 			return This.IsBeforeCS(p, pCaseSensitive)
 
 	def IsBefore(p)
-		return This.IsBeforeCS(p, TRUE)
+		return This.IsBeforeCS(p, _TRUE_)
 
 		def ComesBefore(p)
 			return This.IsBefore(p)
@@ -641,7 +641,7 @@ class stzSubStringCS
 			return This.IsBeforePositionCS(n, pCaseSensitive)
 
 	def IsBeforePosition(n)
-		return This.IsBeforePositionCS(n, TRUE)
+		return This.IsBeforePositionCS(n, _TRUE_)
 
 		def ComesBeforePosition(n)
 			return This.IsBeforePosition(n)
@@ -656,7 +656,7 @@ class stzSubStringCS
 			return This.IsBeforeSubStringCS(pcSubStr, pCaseSensitive)
 
 	def IsBeforeSubString(pcSubStr)
-		return This.IsBeforeSubStringCS(pcSubStr, TRUE)
+		return This.IsBeforeSubStringCS(pcSubStr, _TRUE_)
 
 		def ComesBeforeSubString(pcSubStr)
 			return This.IsBeforeSubString(pcSubStr)
@@ -671,7 +671,7 @@ class stzSubStringCS
 			return This.IsAfterCS(p, pCaseSensitive)
 
 	def IsAfter(p)
-		return This.IsAfterCS(p, TRUE)
+		return This.IsAfterCS(p, _TRUE_)
 
 		def ComesAfter(p)
 			return This.IsAfter(p)
@@ -686,7 +686,7 @@ class stzSubStringCS
 			return This.IsAfterPositionCS(n, pCaseSensitive)
 
 	def IsAfterPosition(n)
-		return This.IsAfterPositionCS(n, TRUE)
+		return This.IsAfterPositionCS(n, _TRUE_)
 
 		def ComesAfterPosition(n)
 			return This.IsAfterPosition(n)
@@ -701,7 +701,7 @@ class stzSubStringCS
 			return This.IsAfterSubStringCS(pcSubStr, pCaseSensitive)
 
 	def IsAfterSubString(pcSubStr)
-		return This.IsAfterSubStringCS(pcSubStr, TRUE)
+		return This.IsAfterSubStringCS(pcSubStr, _TRUE_)
 
 		def ComesAfterSubString(pcSubStr)
 			return This.IsAfterSubString(pcSubStr)
@@ -724,7 +724,7 @@ class stzSubStringCS
 			return This.IsBetweenPositionsCS(n1, n2, pCaseSensitive)
 
 	def IsBetweenPositions(n1, n2)
-		return This.IsBetweenPositionsCS(n1, n2, TRUE)
+		return This.IsBetweenPositionsCS(n1, n2, _TRUE_)
 
 		def ComesBetweenPositions(n1, n2)
 			return This.IsBetweenPositions(n1, n2)
@@ -736,7 +736,7 @@ class stzSubStringCS
 		return bResult
 
 	def IsBetween(pcBound1, pcBound2)
-		return This.IsBetweenCS(pcBound1, pcBound2, TRUE)
+		return This.IsBetweenCS(pcBound1, pcBound2, _TRUE_)
 
 	#--
 
@@ -748,7 +748,7 @@ class stzSubStringCS
 			return This.IsBetweenSubStringsCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 	def IsBetweenSubStrings(pcSubStr1, pcSubStr2)
-		return This.IsBetweenSubStringsCS(pcSubStr1, pcSubStr2, TRUE)
+		return This.IsBetweenSubStringsCS(pcSubStr1, pcSubStr2, _TRUE_)
 
 		def ComesBetweenSubStrings(pcSubStr1, pcSubStr2)
 			return This.IsBetweenSubStrings(pcSubStr1, pcSubStr2)

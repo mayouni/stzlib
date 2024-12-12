@@ -39,11 +39,11 @@ func AllListsHaveSameSize(paListOfLists)
 
 	nLen = len(paListOfLists)	
 	nSize = len(paListOfLists[1])
-	bResult _TRUE_
+	bResult = _TRUE_
 
 	for i = 2 to nLen
 		if len(paListOfLists[i]) != nSize
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next
@@ -122,7 +122,7 @@ func Association(paLists)
 
 		if anLen[i] < nMax
 			for j = anLen[i] + 1 to nMax
-				paLists[i] + NULL
+				paLists[i] + _NULL_
 			next
 		ok
 	next
@@ -183,7 +183,7 @@ func CommonItemsCS(paLists, pCaseSensitive)
 		return CommonItemsCS(paList, pCaseSensitive)
 
 func CommonItems(paLists)
-	return CommonItemsCS(paLists, TRUE)
+	return CommonItemsCS(paLists, _TRUE_)
 
 	func Intersection(paLists)
 		return CommonItems(paLists)
@@ -244,12 +244,12 @@ class stzListOfLists from stzList
 				StzRaise("Can't create the object! You must provide a list.")
 			ok
 	
-			bOk _TRUE_
+			bOk = _TRUE_
 			nLen = len(paList)
 	
 			for i = 1 to nLen
 				if NOT isList(paList[i])
-					bOk _FALSE_
+					bOk = _FALSE_
 				ok
 			next
 	
@@ -265,7 +265,7 @@ class stzListOfLists from stzList
 			@aContent = paList
 		ok
 
-		if KeepingHistory() _TRUE_
+		if KeepingHistory() = _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -296,7 +296,7 @@ class stzListOfLists from stzList
 	#-------------------------------#
 
 	def Update(paList)
-		if CheckingParams() _TRUE_
+		if CheckingParams() = _TRUE_
 			if isList(paList) and Q(paList).IsWithOrByOrUsingNamedParam()
 				paList = paList[2]
 			ok
@@ -308,7 +308,7 @@ class stzListOfLists from stzList
 
 		@aContent = paList
 
-		if KeepingHisto() _TRUE_
+		if KeepingHisto() = _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -451,7 +451,7 @@ class stzListOfLists from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInLists(pItem)
-		return This.FindInListsCS(pItem, TRUE)
+		return This.FindInListsCS(pItem, _TRUE_)
 	
 		#< @FunctionAlternativeForms
 
@@ -667,11 +667,11 @@ class stzListOfLists from stzList
 		ok
 
 		nLenList = len(aContent[1])
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 2 to nLen
 			if len( aContent[i] ) != nLenList
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1110,7 +1110,7 @@ class stzListOfLists from stzList
 	def FindSmallestList()
 		nLen = This.NumberOfLists()
 		if nLen = 0
-			return NULL
+			return _NULL_
 
 		but nLen = 1
 			return This.NthList(1)
@@ -1143,7 +1143,7 @@ class stzListOfLists from stzList
 
 		nLen = This.NumberOfLists()
 		if nLen = 0
-			return NULL
+			return _NULL_
 
 		but nLen = 1
 			return This.NthList(1)
@@ -1214,7 +1214,7 @@ class stzListOfLists from stzList
 	def FindLargestList()
 		nLen = This.NumberOfLists()
 		if nLen = 0
-			return NULL
+			return _NULL_
 
 		but nLen = 1
 			return This.NthList(1)
@@ -1243,7 +1243,7 @@ class stzListOfLists from stzList
 		
 		nLen = This.NumberOfLists()
 		if nLen = 0
-			return NULL
+			return _NULL_
 
 		but nLen = 1
 			return This.NthList(1)
@@ -1499,11 +1499,11 @@ class stzListOfLists from stzList
 		#>
 
 	  #------------------------------------------------------------------------------------#
-	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION WITH A NULL VALUE  #
+	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION WITH A _NULL_ VALUE  #
 	#------------------------------------------------------------------------------------#
 
 	def ExtendTo(n)
-		This.ExtendToXT(n, NULL)
+		This.ExtendToXT(n, _NULL_)
 
 		#< @FunctionFluentForm
 
@@ -2100,12 +2100,12 @@ class stzListOfLists from stzList
 		ok
 
 		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			StzRaise("Incorrect param type! pCaseSensitive must be TRUE or FALSE.")
+			StzRaise("Incorrect param type! pCaseSensitive must be _TRUE_ or _FALSE_.")
 		ok
 
 		aLists = @aContent
 
-		if pCaseSensitive _FALSE_
+		if pCaseSensitive = _FALSE_
 			aLists = This.Lowercased()
 		ok
 
@@ -2168,7 +2168,7 @@ class stzListOfLists from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def Index()
-		return This.IndexCS(TRUE)
+		return This.IndexCS(_TRUE_)
 
 		def IndexQ()
 			return This.IndexQR(:stzList)
@@ -2189,12 +2189,12 @@ class stzListOfLists from stzList
 		ok
 
 		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			StzRaise("Incorrect param type! pCaseSensitive must be TRUE or FALSE.")
+			StzRaise("Incorrect param type! pCaseSensitive must be _TRUE_ or _FALSE_.")
 		ok
 
 		aLists = @aContent
 
-		if pCaseSensitive _FALSE_
+		if pCaseSensitive = _FALSE_
 			aLists = This.Lowercased()
 		ok
 
@@ -2257,7 +2257,7 @@ class stzListOfLists from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def IndexXT()
-		return This.IndexCSXT(TRUE)
+		return This.IndexCSXT(_TRUE_)
 
 		def IndexXTQ()
 			return This.IndexXTQR(:stzList)
@@ -2322,14 +2322,14 @@ class stzListOfLists from stzList
 	#========================================================#
 
 	def ContainsItemCS(pItem, pCaseSensitive)
-		bResult _FALSE_
+		bResult = _FALSE_
 		aListOfLists = This.ListOfLists()
 		nLen = len(aListOfLists)
 
 		for i = 1 to nLen
 			oStzList = new stzList( aListOfLists[i] )
 			if oStzList.ContainsCS(pItem, pCaseSensitive)
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -2361,20 +2361,20 @@ class stzListOfLists from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ListsContainingItem(pItem)
-		return This.ListsContainingItemCS(pItem, TRUE)
+		return This.ListsContainingItemCS(pItem, _TRUE_)
 
 	  #------------------------------------------------#
 	 #  CHECKING IF A GIVEN ITEM EXISTS IN ALL LISTS  #
 	#------------------------------------------------#
 
 	def EachListContainsCS(pItem, pCaseSensitive)
-		bResult _TRUE_
+		bResult = _TRUE_
 		aLists = This.Content()
 		nLen = len(aLists)
 
 		for i = 1 to nLen
 			if NOT Q(aLists[i]).ContainsCS(pItem, pCaseSensitive)
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -2403,7 +2403,7 @@ class stzListOfLists from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def EachListContains(pItem)
-		return This.EachListContainsCS(pItem, TRUE)
+		return This.EachListContainsCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -2463,11 +2463,11 @@ class stzListOfLists from stzList
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		nResult _TRUE_
+		nResult = _TRUE_
 
 		for i = 1 to nLen
 			if len(aContent[i]) != n
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -2605,7 +2605,7 @@ class stzListOfLists from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def AllListsAreEqual()
-		return This.AllListsAreEqualCS(TRUE)
+		return This.AllListsAreEqualCS(_TRUE_)
 
 		def AllListsAreMadeOfSameItems()
 			return This.AllListsAreEqual()
@@ -2642,12 +2642,12 @@ class stzListOfLists from stzList
 		ok
 
 		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			StzRaise("Incorrect param type! pCaseSensitive must be TRUE or FALSE.")
+			StzRaise("Incorrect param type! pCaseSensitive must be _TRUE_ or _FALSE_.")
 		ok
 
 		aLists = @aContent
 
-		if pCaseSensitive _FALSE_
+		if pCaseSensitive = _FALSE_
 			aLists = This.Lowercased()
 		ok
 
@@ -2671,11 +2671,11 @@ class stzListOfLists from stzList
 	
 		for i = 1 to nLenItems
 
-			bExistsInAllLists _TRUE_
+			bExistsInAllLists = _TRUE_
 			for j = 1 to nLenLists
 
 				if ring_find(aLists[j], aItems[i]) = 0
-					bExistsInAllLists _FALSE_
+					bExistsInAllLists = _FALSE_
 					exit
 				ok
 			next
@@ -2692,7 +2692,7 @@ class stzListOfLists from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def CommonItems()
-		return This.CommonItemsCS(TRUE)
+		return This.CommonItemsCS(_TRUE_)
 
 		def Intersection()
 			return This.CommonItems()
@@ -2737,7 +2737,7 @@ class stzListOfLists from stzList
 
 		#>
 
-	def NthcolumnXT(n) # Adds NULL if size of innerlist < n
+	def NthcolumnXT(n) # Adds _NULL_ if size of innerlist < n
 		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
@@ -2765,7 +2765,7 @@ class stzListOfLists from stzList
 			if nLenList >= n
 				aResult + @aContent[i][n]
 			else
-				aResult + NULL
+				aResult + _NULL_
 			ok
 		next
 
@@ -3680,7 +3680,7 @@ class stzListOfLists from stzList
 				StzRaise("Incorrect param type! pcExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(pcExpr).ContainsCS("@item", FALSE)
+			if NOT StzStringQ(pcExpr).ContainsCS("@item", _FALSE_)
 				StzRaise("Syntax error! pcExpr must contain the keword @item.")
 			ok
 		ok
@@ -3912,7 +3912,7 @@ class stzListOfLists from stzList
 		for i = 1 to nLen
 			nLenList = len(aContent[i])
 
-			item = NULL
+			item = _NULL_
 			if i <= nLenCol
 				item = paColData[i]
 			ok
@@ -4177,7 +4177,7 @@ class stzListOfLists from stzList
 		for i = 1 to nLen
 			nLenList = len(aContent[i])
 
-			item = NULL
+			item = _NULL_
 			if i <= nLenCol
 				item = paColData[i]
 			ok
@@ -4303,11 +4303,11 @@ class stzListOfLists from stzList
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT (isList(aContent[i]) and len(aContent[i]) = 2)
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -4361,7 +4361,7 @@ class stzListOfLists from stzList
 
 	func AreContiguous()
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
@@ -4374,7 +4374,7 @@ class stzListOfLists from stzList
 				if @IsListOfNumbers(aList)
 					for j = 2 to nLenList
 						if NOT aList[j] = aList[j-1] + 1
-							bResult _FALSE_
+							bResult = _FALSE_
 							exit
 						ok
 					next
@@ -4382,14 +4382,14 @@ class stzListOfLists from stzList
 				but @IsListOfChars(aList)
 					for j = 2 to nLenList
 						if NOT ascii(aList[j]) = ascii(aList[j-1]) + 1
-							bResult _FALSE_
+							bResult = _FALSE_
 							exit
 						ok
 					next
 				ok
 			ok
 
-			if bResult _FALSE_
+			if bResult = _FALSE_
 				exit
 			ok
 
@@ -4453,7 +4453,7 @@ class stzListOfLists from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubList(paItems)
-		return This.FindSubListCS(paItems, TRUE)
+		return This.FindSubListCS(paItems, _TRUE_)
 
 		def FindContiguousItems(paItems)
 			return This.FindSubList(paItems)

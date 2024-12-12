@@ -362,7 +362,7 @@ func SortListsOn(paLists, n)
 
 	# In all other cases:
 
-	# Adjust the lists to the largest size using NULLs
+	# Adjust the lists to the largest size using _NULL_s
 
 	oLoL = new stzListOfLists(paLists)
 	oLoL.Adjust()
@@ -1072,12 +1072,12 @@ func IsListOfStrings(paList)
 		return _FALSE_
 	ok
 
-	bResult _TRUE_
+	bResult = _TRUE_
 	nLen = len(paList)
 
 	for i = 1 to nLen
 		if NOT isString(paList[i])
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next
@@ -1129,12 +1129,12 @@ func IsListOfLists(paList)
 		return _FALSE_
 	ok
 
-	bResult _TRUE_
+	bResult = _TRUE_
 	nLen = len(paList)
 
 	for i = 1 to nLen
 		if NOT isList(paList[i])
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next
@@ -1219,12 +1219,12 @@ func IsListOfObjects(paList)
 		return _FALSE_
 	ok
 
-	bResult _TRUE_
+	bResult = _TRUE_
 	nLen = len(paList)
 
 	for i = 1 to nLen
 		if NOT isObject(paList[i])
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next
@@ -3557,11 +3557,11 @@ func IsListOfStringsOrPairsOfStrings(paList)
 		return _FALSE_
 	ok
 
-	bResult _TRUE_
+	bResult = _TRUE_
 
 	for i = 1 to nLen
 		if NOT ( isString(paList[i]) or @IsPairOfStrings(paList[i]) )
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next
@@ -3864,7 +3864,7 @@ func AreBothEqualCS(p1, p2, pCaseSensitive)
 	ok
 
 	if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-		StzRaise("Incorrect param! pCaseSensitive must be TRUE or FALSE.")
+		StzRaise("Incorrect param! pCaseSensitive must be _TRUE_ or _FALSE_.")
 	ok
 
 	if isNumber(p1)
@@ -3872,7 +3872,7 @@ func AreBothEqualCS(p1, p2, pCaseSensitive)
 
 	but isString(p1)
 
-		if pCaseSensitive _FALSE_
+		if pCaseSensitive = _FALSE_
 			p1 = lower(p1)
 			p2 = lower(p2)
 		ok
@@ -3912,7 +3912,7 @@ func AreBothEqualCS(p1, p2, pCaseSensitive)
 #-- WITHOUT CASESENSITIVITY
 
 func AreBothEqual(p1, p2)
-	return AreBothEqualCS(p1, p2, TRUE)
+	return AreBothEqualCS(p1, p2, _TRUE_)
 
 	#< @FunctionAlternativeForms
 
@@ -3975,7 +3975,7 @@ func AreEqualCS(paValues, pCaseSensitive)
 	ok
 
 	if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-		StzRaise("Incorrect param! pCaseSensitive must be TRUE or FALSE.")
+		StzRaise("Incorrect param! pCaseSensitive must be _TRUE_ or _FALSE_.")
 	ok
 
 	# Early checks
@@ -3989,13 +3989,13 @@ func AreEqualCS(paValues, pCaseSensitive)
 
 	# Doing the job
 
-	bResult _TRUE_
+	bResult = _TRUE_
 
 	if IsNumber(paValues[1])
 
 		for i = 2 to nLen
 			if paValues[i] != paValues[1]
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -4003,7 +4003,7 @@ func AreEqualCS(paValues, pCaseSensitive)
 		return bResult
 
 	but isString(paValues[1])
-		if pCaseSensitive _FALSE_
+		if pCaseSensitive = _FALSE_
 			for i = 1 to nLen
 				paValues[i] = lower(paValues[i])
 			next
@@ -4011,7 +4011,7 @@ func AreEqualCS(paValues, pCaseSensitive)
 
 		for i = 2 to nLen
 			if paValues[i] != paValues[1]
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -4026,7 +4026,7 @@ func AreEqualCS(paValues, pCaseSensitive)
 		for i = 2 to nLen
 
 			if NOT Q(paValues[i]).IsEqualToCS(paValues[1], pCaseSensitive)
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -4082,7 +4082,7 @@ func AreEqualCS(paValues, pCaseSensitive)
 #-- WITHOUT CASESENSITIVITY
 
 func AreEqual(paValues)
-	return AreEqualCS(paValues, TRUE)
+	return AreEqualCS(paValues, _TRUE_)
 
 	#< @FunctionAlternativeForm
 
@@ -4141,10 +4141,10 @@ func HaveSameType(paItems)
 
 	# Case nLen >= 2
 
-	bResult _TRUE_
+	bResult = _TRUE_
 	for i = 2 to nLen
 		if ring_type( paItems[1] ) != ring_type( paItems[i] )
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next
@@ -4176,11 +4176,11 @@ func HaveSameContent(paItems)
 		return _TRUE_
 	ok
 
-	bResult _TRUE_
+	bResult = _TRUE_
 	for i = 2 to len(paItems)
 		bOk = Q( @@( paItems[i] ) ).IsEqualTo( @@( paItems[1] ) )
 		if NOT bOk
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next
@@ -4388,10 +4388,10 @@ func AllTheseAreNull(paList)
 		return AllTheseAreNull(paList)
 
 func AllOfTheseAreNotNull(paList)
-	bResult _TRUE_
+	bResult = _TRUE_
 	for item in paList
 		if isString(item) and isNull(item)
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next
@@ -4428,10 +4428,10 @@ func BothAreNotNull(p1, p2)
 		return BothAreNotNull(p1, p2)
 
 func NoOneOfTheseIsAString(paList)
-	bResult _TRUE_
+	bResult = _TRUE_
 	for item in paList
 		if isString(item)
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next
@@ -4564,7 +4564,7 @@ func StzListContainsCS(paList, pItem, pCaseSensitive)
 		return StzListContainsCS(paList, pItem, pCaseSensitive)
 
 func StzListContains(paList, pItem)
-	return StzListContainsCS(paList, pItem, TRUE)
+	return StzListContainsCS(paList, pItem, _TRUE_)
 
 	func ListContains(paList, pItem)
 		return StzListContains(paList, pItem)
@@ -4620,7 +4620,7 @@ func @FindAllCS(paList, pItem, pCaseSensitive)
 		ok
 
 		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 	ok
 
@@ -4633,7 +4633,7 @@ func @FindAllCS(paList, pItem, pCaseSensitive)
 
 	_item_ = pItem
 
-	if pCaseSensitive _FALSE_ 
+	if pCaseSensitive = _FALSE_ 
 		if isString(_item_)
 			pItem = lower(_item_)
 		ok
@@ -4653,7 +4653,7 @@ func @FindAllCS(paList, pItem, pCaseSensitive)
 	_nPos_ = -1
 	n = 0
 
-	while TRUE
+	while _TRUE_
 		try
 			_nPos_ = find(_aList_, _item_)
 		catch
@@ -4675,7 +4675,7 @@ func @FindAllCS(paList, pItem, pCaseSensitive)
 		return @FindAllCS(aList, pItem, pCaseSensitive)
 
 func @FindAll(aList, pItem)
-	return @FindAllCS(aList, pItem, TRUE)
+	return @FindAllCS(aList, pItem, _TRUE_)
 
 	func FindAll(aList, pItem)
 		return @FindAll(aList, pItem)
@@ -4697,7 +4697,7 @@ func @FindFirstCS(aList, pStrOrNbr, pCaseSensitive)
 	#>
 
 func @FindFirst(aList, pStrOrNbr)
-	return @FindFirstCS(aList, pStrOrNbr, TRUE)
+	return @FindFirstCS(aList, pStrOrNbr, _TRUE_)
 
 	#< @FunctionAlternativeForms
 
@@ -4723,7 +4723,7 @@ func @FindLastCS(aList, pStrOrNbr, pCaseSensitive)
 	#>
 
 func @FindLast(aList, pStrOrNbr)
-	return @FindLastCS(aList, pStrOrNbr, TRUE)
+	return @FindLastCS(aList, pStrOrNbr, _TRUE_)
 
 	#< @FunctionAlternativeForms
 
@@ -4777,11 +4777,11 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 		ok
 
 		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 	ok
 
-	if pCaseSensitive _FALSE_ 
+	if pCaseSensitive = _FALSE_ 
 
 		if isString(pItem)
 			pItem = lower(pItem)
@@ -4797,7 +4797,7 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 	nPos = -1
 	n = 0
 
-	while TRUE
+	while _TRUE_
 		try
 			nPos = find(_aListCopy_, pItem)
 		catch
@@ -4824,7 +4824,7 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 		return @FindNthOccurrenceCS(aList, nth, pItem, pCaseSensitive)
 
 func @FindNthOccurrence(aList, nth, pItem)
-	return @FindNthOccurrenceCS(aList, nth, pItem, TRUE)
+	return @FindNthOccurrenceCS(aList, nth, pItem, _TRUE_)
 
 	func @FindNth(aList, nth, pItem)
 		return @FindNthOccurrence(aList, nth, pItem)
@@ -4859,11 +4859,11 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 		ok
 
 		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 	ok
 
-	if pCaseSensitive _FALSE_ 
+	if pCaseSensitive = _FALSE_ 
 		if isString(pItem)
 			pItem = lower(pItem)
 		ok
@@ -4881,7 +4881,7 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 	nPos = -1
 	n = 0
 
-	while TRUE
+	while _TRUE_
 		try
 			nPos = find(aContent, pItem)
 		catch
@@ -4931,7 +4931,7 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 #-- CS
 
 func @FindNthST(aList, nth, pItem, nStart)
-	return @FindNthSTCS(aList, nth, pItem, nStart, TRUE)
+	return @FindNthSTCS(aList, nth, pItem, nStart, _TRUE_)
 
 	#< @FunctionAlternativeForms
 
@@ -4955,7 +4955,7 @@ func @FindNthST(aList, nth, pItem, nStart)
 
 func FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
 
-	if CheckingParams() _TRUE_
+	if CheckingParams() = _TRUE_
 		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
 			nStart = nStart[2]
 		ok
@@ -5003,7 +5003,7 @@ func FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
 #-- CS
 
 func FindNthNext(aList, nth, pItem, nStart)
-	return FindNthNextCS(aList, nth, pItem, nStart, TRUE)
+	return FindNthNextCS(aList, nth, pItem, nStart, _TRUE_)
 
 	#< @FunctionAlternativeForms
 
@@ -5057,7 +5057,7 @@ func @FindNextCS(aList, pItem, nStart, pCaseSensitive)
 		return @FindNextCS(aList, pItem, nStart, pCaseSensitive)
 
 func @FindNext(aList, pItem, nStart)
-	return @FindNextCS(aList, pItem, nStart, TRUE)
+	return @FindNextCS(aList, pItem, nStart, _TRUE_)
 
 	func FindNext(aList, pItem, nStart)
 		return @FindNext(aList, pItem, nStart)
@@ -5128,7 +5128,7 @@ func IsRingSortable(pListOrString)
 
 			# Assuming the current column is Ring sortable
 
-			bColSortable _TRUE_
+			bColSortable = _TRUE_
 
 			# the column must contain only numbers and strings
 			# and should not contain dupplicated items
@@ -5141,13 +5141,13 @@ func IsRingSortable(pListOrString)
 			for j = 1 to nLenCol
 
 				if NOT ( isString(aCol[j]) or isNumber(aCol[j]) )
-					bColSortable _FALSE_
+					bColSortable = _FALSE_
 					exit
 				else
 					if ring_find(aSeen, aCol[j]) = 0
 						aSeen + aCol[j]
 					else
-						bColSortable _FALSE_
+						bColSortable = _FALSE_
 						exit
 					ok
 				ok
@@ -5410,7 +5410,7 @@ class stzList from stzObject
 
 		@aContent = paList
 
-		if KeepingHistory() _TRUE_
+		if KeepingHistory() = _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -5437,16 +5437,16 @@ class stzList from stzObject
 		ok
 	
 		if NOT (pCaseSensitive = 0 or pCaseSensitive = 1)
-			StzRaise("Incorrect param type! pCaseSensitive must be 1 (TRUE) or 0 (FALSE).")
+			StzRaise("Incorrect param type! pCaseSensitive must be 1 (_TRUE_) or 0 (_FALSE_).")
 		ok
 
 		aResult = []
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 			aResult = @aContent
 
 		else
-			aResult = This.WithoutDuplicationCS(FALSE)
+			aResult = This.WithoutDuplicationCS(_FALSE_)
 		
 		ok
 
@@ -5508,7 +5508,7 @@ class stzList from stzObject
 	#--------------------------------------------------------#
 
 	def ContentCSU(pCaseSensitive)
-		return This.WithoutDuplicationCS(FALSE)
+		return This.WithoutDuplicationCS(_FALSE_)
 
 
 		#< @FunctionAlternativeForm
@@ -6690,7 +6690,7 @@ class stzList from stzObject
 	*/
 
 	def Update(paNewList)
-		if CheckingParams() _TRUE_
+		if CheckingParams() = _TRUE_
 			if isList(paNewList) and Q(paNewList).IsWithOrByOrUsingNamedParam()
 				paNewList = paNewList[2]
 			ok
@@ -6702,7 +6702,7 @@ class stzList from stzObject
 
 		@aContent = paNewList
 
-		if KeepingHisto() _TRUE_
+		if KeepingHisto() = _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -6865,7 +6865,7 @@ class stzList from stzObject
 			This.InsertAt(n, pItem)
 
 		else
-			This.ExtendToPositionXT(n - 1, :With = NULL)
+			This.ExtendToPositionXT(n - 1, :With = _NULL_)
 			This.Add(pItem)
 		ok
 
@@ -7391,7 +7391,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def MoveItem(pItem, n)
-		return This.MoveItemCS(pItem, n, TRUE)
+		return This.MoveItemCS(pItem, n, _TRUE_)
 
 		def MoveItemQ(pItem, n)
 			This.MoveItem(pItem, n)
@@ -7618,7 +7618,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAllOccurrences(pItem, pNewItem)
-		This.ReplaceAllOccurrencesCS(pItem, pNewItem, TRUE)
+		This.ReplaceAllOccurrencesCS(pItem, pNewItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -7854,7 +7854,7 @@ class stzList from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def ReplaceMany(paItems, pNewItem)
-		This.ReplaceManyCS( paItems, pNewItem, TRUE )
+		This.ReplaceManyCS( paItems, pNewItem, _TRUE_ )
 
 		#< @FunctionFluentFormn
 
@@ -8006,7 +8006,7 @@ class stzList from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def ReplaceManyBy(paItems, pNewItem)
-		This.ReplaceManyByCS( paItems, pNewItem, TRUE )
+		This.ReplaceManyByCS( paItems, pNewItem, _TRUE_ )
 
 		#< @FunctionFluentFormn
 
@@ -8159,12 +8159,12 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceByMany(pItem, paNewItems)
-		This.ReplaceByManyCS(pItem, paNewItems, TRUE)
+		This.ReplaceByManyCS(pItem, paNewItems, _TRUE_)
 
 		#< @FunctionFluentForm
 
 		def ReplaceByManyQ(pItem, paNewItems)
-			return This.ReplaceByManyCSQ(pItem, paNewItems, TRUE)
+			return This.ReplaceByManyCSQ(pItem, paNewItems, _TRUE_)
 
 		#>
 
@@ -8199,7 +8199,7 @@ class stzList from stzObject
 	#< @FunctionPassiveForms
 
 	def ReplacedByMany(pItem, paNewItems)
-		return This.ReplacedByManyCS(pItem, paNewItems, TRUE)
+		return This.ReplacedByManyCS(pItem, paNewItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -8351,12 +8351,12 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceByManyXT(pItem, paNewItems)
-		This.ReplaceByManyCSXT(pItem, paNewItems, TRUE)
+		This.ReplaceByManyCSXT(pItem, paNewItems, _TRUE_)
 
 		#< @FunctionFluentForm
 
 		def ReplaceByManyXTQ(pItem, paNewItems)
-			return This.ReplaceByManyCSXTQ(pItem, paNewItems, TRUE)
+			return This.ReplaceByManyCSXTQ(pItem, paNewItems, _TRUE_)
 
 		#>
 
@@ -8554,7 +8554,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceManyByMany(paItems, paNewItems)
-		This.ReplaceManyByManyCS(paItems, paNewItems, TRUE)
+		This.ReplaceManyByManyCS(paItems, paNewItems, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -8755,7 +8755,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceManyByManyXT(paItems, paNewItems)
-		This.ReplaceManyByManyCSXT(paItems, paNewItems, TRUE)
+		This.ReplaceManyByManyCSXT(paItems, paNewItems, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -8877,7 +8877,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAnyAt(pPos, pNewItem)
-		This.ReplaceAnyAtCS(pPos, pNewItem, TRUE)
+		This.ReplaceAnyAtCS(pPos, pNewItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -9002,7 +9002,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAnyItemAtPositionN(n, pNewItem)
-		return This.ReplaceAnyItemAtPositionNCS(n, pNewItem, TRUE)
+		return This.ReplaceAnyItemAtPositionNCS(n, pNewItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -9177,7 +9177,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAnyItemAtPositions(panPos, pNewItem)
-		return This.ReplaceAnyItemAtPositionsCS(panPos, pNewItem, TRUE)
+		return This.ReplaceAnyItemAtPositionsCS(panPos, pNewItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -9309,7 +9309,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisItemAt(n, pItem, pNewItem)
-		This.ReplaceThisItemAtCS(n, pItem, pNewItem, TRUE)
+		This.ReplaceThisItemAtCS(n, pItem, pNewItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -9338,7 +9338,7 @@ class stzList from stzObject
 	#-- @FunctionPassiveForm
 
 	def ThisItemReplacedAt(n, pItem, pNewItem)
-		return This.ThisItemReplacedAtCS(n, pItem, pNewItem, TRUE)
+		return This.ThisItemReplacedAtCS(n, pItem, pNewItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -9470,12 +9470,12 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisItemAtPosition(n, pItem, pNewItem)
-		This.ReplaceThisItemAtPositionCS(n, pItem, pNewItem, TRUE)
+		This.ReplaceThisItemAtPositionCS(n, pItem, pNewItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
 		def ReplaceThisItemAtPositionQ(n, pItem, pNewItem)
-			return This.ReplaceThisItemAtPositionCSQ(n, pItem, pNewItem, TRUE)
+			return This.ReplaceThisItemAtPositionCSQ(n, pItem, pNewItem, _TRUE_)
 
 		#>
 
@@ -9524,7 +9524,7 @@ class stzList from stzObject
 	#< @FunctionPassiveForms
 
 	def ThisItemAtPositionNReplaced(n, pItem, pNewItem)
-		cResult = This.Copy().ReplaceThisItemAtPositionNCSQ(n, pItem, pNewItem, TRUE).Content()
+		cResult = This.Copy().ReplaceThisItemAtPositionNCSQ(n, pItem, pNewItem, _TRUE_).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -9637,7 +9637,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisItemAtPositions(panPos, pItem, pNewItem)
-		This.ReplaceThisItemAtPositionsCS(panPos, pItem, pNewItem, TRUE)
+		This.ReplaceThisItemAtPositionsCS(panPos, pItem, pNewItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -9737,7 +9737,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceTheseItemsAtPositions(panPos, paItems, pNewItem)
-		This.ReplaceTheseItemsAtPositionsCS(panPos, paItems, pNewItem, TRUE)
+		This.ReplaceTheseItemsAtPositionsCS(panPos, paItems, pNewItem, _TRUE_)
 
 	def TheseItemsAtPositionsReplaced(panPos, paItems, pNewItem)
 		cResult = This.Copy().ReplaceTheseItemsAtPositionsQ(panPos, paItems, pNewItem).Content()
@@ -9871,7 +9871,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceTheseItemsAtPositionsByMany(panPos, paItems, pNewItem)
-		This.ReplaceTheseItemsAtPositionsByManyCS(panPos, paItems, pNewItem, TRUE)
+		This.ReplaceTheseItemsAtPositionsByManyCS(panPos, paItems, pNewItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -10036,7 +10036,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisItemAtPositionsByMany(panPos, pItem, paNewItems)
-		ReplaceThisItemAtPositionsByManyCS(panPos, pItem, paNewItems, TRUE)
+		ReplaceThisItemAtPositionsByManyCS(panPos, pItem, paNewItems, _TRUE_)
 	
 		#< @FunctionFluentForm
 
@@ -10211,7 +10211,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceTheseItemsAtPositionsByManyXT(panPos, paItems, pNewItem)
-		This.ReplaceTheseItemsAtPositionsByManyCSXT(panPos, paItems, pNewItem, TRUE)
+		This.ReplaceTheseItemsAtPositionsByManyCSXT(panPos, paItems, pNewItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -10408,7 +10408,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAnyItemsAtPositionsByManyXT(panPos, paNewItems)
-		This.ReplaceAnyItemsAtPositionsByManyCSXT(panPos, paNewItems, TRUE)
+		This.ReplaceAnyItemsAtPositionsByManyCSXT(panPos, paNewItems, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -10599,7 +10599,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceItemAtPositionsByMany(panPos, pItem, paNewItems)
-		This.ReplaceItemAtPositionsByManyCS(panPos, pItem, paNewItems, TRUE)
+		This.ReplaceItemAtPositionsByManyCS(panPos, pItem, paNewItems, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -10849,7 +10849,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
-		This.ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, TRUE)
+		This.ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -10945,7 +10945,7 @@ class stzList from stzObject
 	#-- @FunctionPassiveForm
 
 	def AnyItemAtPositionsReplacedByMany(panPos, paNewItems)
-		return This.AnyItemAtPositionsReplacedByManyCS(panPos, paNewItems, TRUE)
+		return This.AnyItemAtPositionsReplacedByManyCS(panPos, paNewItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -11148,7 +11148,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceItemAtPositionsByManyXT(panPos, pItem, paNewItems)
-		This.ReplaceItemAtPositionsByManyCSXT(panPos, pItem, paNewItems, TRUE)
+		This.ReplaceItemAtPositionsByManyCSXT(panPos, pItem, paNewItems, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -11360,7 +11360,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
-		This.ReplaceAnyItemAtPositionsByManyCSXT(panPos, paNewItems, TRUE)
+		This.ReplaceAnyItemAtPositionsByManyCSXT(panPos, paNewItems, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -11464,7 +11464,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceOccurrences(panOccurr, pItem, pNewItem)
-		This.ReplaceOccurrencesCS(panOccurr, pItem, pNewItem, TRUE)
+		This.ReplaceOccurrencesCS(panOccurr, pItem, pNewItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -11529,7 +11529,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceOccurrencesByMany(panOccurr, pItem, paNewItems)
-		this.ReplaceOccurrencesByManyCS(panOccurr, pItem, paNewItems, TRUE)
+		this.ReplaceOccurrencesByManyCS(panOccurr, pItem, paNewItems, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -11602,7 +11602,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceOccurrencesByManyXT(panOccurr, pItem, paNewItems)
-		this.ReplaceOccurrencesByManyCSXT(panOccurr, pItem, paNewItems, TRUE)
+		this.ReplaceOccurrencesByManyCSXT(panOccurr, pItem, paNewItems, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -11722,7 +11722,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceItem@(pItem, pDynamicItem)
-		This.ReplaceItemCS@(pItem, pDynamicItem, TRUE)
+		This.ReplaceItemCS@(pItem, pDynamicItem, _TRUE_)
 
 		def ReplaceItem@Q(pItem, pDynamicItem)
 			This.ReplaceItem@(pItem, pDynamicItem)
@@ -11802,7 +11802,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextOccurrences(pItem, pOtherItem, pnStartingAt)
-		This.ReplaceNextOccurrencesCS(pItem, pOtherItem, pnStartingAt, TRUE)
+		This.ReplaceNextOccurrencesCS(pItem, pOtherItem, pnStartingAt, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -11911,7 +11911,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousOccurrences(pItem, pOtherItem, pnStartingAt)
-		This.ReplacePreviousOccurrencesCS(pItem, pOtherItem, pnStartingAt, TRUE)
+		This.ReplacePreviousOccurrencesCS(pItem, pOtherItem, pnStartingAt, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -12007,7 +12007,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNthOccurrence(n, pItem, pOtherItem)
-		This.ReplaceNthOccurrenceCS(n, pItem, pOtherItem, TRUE)
+		This.ReplaceNthOccurrenceCS(n, pItem, pOtherItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -12096,7 +12096,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceFirstOccurrence(pItem, pOtherItem)
-		This.ReplaceFirstOccurrenceCS(pItem, pOtherItem, TRUE)
+		This.ReplaceFirstOccurrenceCS(pItem, pOtherItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -12346,7 +12346,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
-		This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, TRUE)
+		This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -12434,7 +12434,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextOccurrence(pItem, pNewItem, pnStartingAt)
-		This.ReplaceNextNthOccurrenceCS(1, pItem, pNewItem, pnStartingAt, TRUE)
+		This.ReplaceNextNthOccurrenceCS(1, pItem, pNewItem, pnStartingAt, _TRUE_)
 
 		def ReplaceNextOccurrenceQ(pItem, pNewItem, pnStartingAt)
 			This.ReplaceNextOccurrence(pItem, pNewItem, pnStartingAt)
@@ -12524,7 +12524,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
-		This.ReplaceNextNthOccurrencesSTCS(panList, pItem, pNewItem, pnStartingAt, TRUE)
+		This.ReplaceNextNthOccurrencesSTCS(panList, pItem, pNewItem, pnStartingAt, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -12551,7 +12551,7 @@ class stzList from stzObject
 		#>
 
 	def NextNthOccurrencesReplacedST(panList, pItem, pNewItem, pnStartingAt)
-		return This.NextNthOccurrencesReplacedSTCS(panList, pItem, pNewItem, pnStartingAt, TRUE)
+		return This.NextNthOccurrencesReplacedSTCS(panList, pItem, pNewItem, pnStartingAt, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -12647,7 +12647,7 @@ class stzList from stzObject
 	def NthPreviousOccurrenceReplacedCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
 		aResult =  This.Copy().
-				ReplaceNthPreviousOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, TRUE).
+				ReplaceNthPreviousOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, _TRUE_).
 				Content()
 
 		return aResult
@@ -12668,7 +12668,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousNthOccurrence(n, pItem, pNewItem, pnStartingAt)
-		This.ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, TRUE)
+		This.ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, _TRUE_)
 
 		#< @FunctionFuentForm
 
@@ -12739,7 +12739,7 @@ class stzList from stzObject
 	def PreviousOccurrenceReplacedCS(pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
 		aResult =  This.Copy().
-				ReplacePreviousOccurrenceCSQ(pItem, pNewItem, pnStartingAt, TRUE).
+				ReplacePreviousOccurrenceCSQ(pItem, pNewItem, pnStartingAt, _TRUE_).
 				Content()
 		return aResult
 
@@ -12749,7 +12749,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousOccurrence(pItem, pNewItem, pnStartingAt)
-		This.ReplacePreviousOccurrenceCS(pItem, pNewItem, pnStartingAt, TRUE)
+		This.ReplacePreviousOccurrenceCS(pItem, pNewItem, pnStartingAt, _TRUE_)
 
 		def ReplacePreviousOccurrenceQ(pItem, pNewItem, pnStartingAt)
 			This.ReplacePreviousOccurrence(pItem, pNewItem, pnStartingAt)
@@ -12826,7 +12826,7 @@ class stzList from stzObject
 
 	def PreviousNthOccurrencesReplacedCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 		aResult =  This.
-			   ReplacePreviousNthOccurrencesCSQ(panList, pItem, pNewItem, pnStartingAt, TRUE).
+			   ReplacePreviousNthOccurrencesCSQ(panList, pItem, pNewItem, pnStartingAt, _TRUE_).
 			   Content()
 
 		return aResult
@@ -12849,7 +12849,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
-		This.ReplacePreviousNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, TRUE)
+		This.ReplacePreviousNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -13011,7 +13011,7 @@ class stzList from stzObject
 	#----------------------------------------------#
 
 	def ReplaceManySections(paSections, pNewItem)
-		if CheckingParams() _TRUE_
+		if CheckingParams() = _TRUE_
 			if NOT ( isList(paSections) and @IsListOfPairsOfNumbers(paSections) )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
@@ -13098,7 +13098,7 @@ class stzList from stzObject
 	#----------------------------------------------------------#
 
 	def ReplaceEachItemInManySections(paSections, pNewItem)
-		if CheckingParams() _TRUE_
+		if CheckingParams() = _TRUE_
 			if NOT (isList(paSections) and @IsListOfPairsOfNumbers(paSections))
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
@@ -13395,7 +13395,7 @@ class stzList from stzObject
 			if i <= len(paOtherListOfItems)
 				item = paOtherListOfItems[i]
 			else
-				item = NULL
+				item = _NULL_
 			ok
 
 			_oCopy_.ReplaceAt(n, item)
@@ -13571,7 +13571,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepReplace(pItem, pByValue)
-		This.DeepReplaceCS(pItem, pByValue, TRUE)
+		This.DeepReplaceCS(pItem, pByValue, _TRUE_)
 
 		def DeepReplaceQ(pItem, pByValue)
 			This.DeepReplace(pItem, pByValue)
@@ -13605,13 +13605,13 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Trim()
-		This.TrimCS(TRUE)
+		This.TrimCS(_TRUE_)
 
 		def TrimQ()
-			return This.TrimCSQ(TRUE)
+			return This.TrimCSQ(_TRUE_)
 
 	def Trimmed()
-		return This.TrimmedCS(TRUE)
+		return This.TrimmedCS(_TRUE_)
 
 	  #---------------------------------------------------------------#
 	 #  TRIMMING THE LIST FROM START (REMOVING LEADING EMPTY ITEMS)  #
@@ -13630,7 +13630,7 @@ class stzList from stzObject
 
 		i = 0
 
-		while TRUE
+		while _TRUE_
 			i++
 			if i = nLen
 				exit
@@ -13703,7 +13703,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def TrimLeft()
-		This.TrimLeftCS(TRUE)
+		This.TrimLeftCS(_TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -13761,7 +13761,7 @@ class stzList from stzObject
 
 		i = 0
 
-		while TRUE
+		while _TRUE_
 			i++
 			if i = nLen
 				exit
@@ -13836,7 +13836,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def TrimRight()
-		This.TrimRightCS(TRUE)
+		This.TrimRightCS(_TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -13940,7 +13940,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveAll(pItem)
-		This.RemoveAllCS(pItem, TRUE)
+		This.RemoveAllCS(pItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -14143,7 +14143,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveMany(paItems)
-		This.RemoveManyCS(paItems, TRUE)
+		This.RemoveManyCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -14246,7 +14246,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveItemsOtherThan(paItems)
-		return This.RemoveItemsOtherThanCS(paItems, TRUE)
+		return This.RemoveItemsOtherThanCS(paItems, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -14336,7 +14336,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNthOccurrence(n, pItem)
-		This.RemoveNthOccurrenceCS(n, pItem, TRUE)
+		This.RemoveNthOccurrenceCS(n, pItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -14435,7 +14435,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFirstOccurrence(pItem)
-		This.RemoveFirstOccurrenceCS(pItem, TRUE)
+		This.RemoveFirstOccurrenceCS(pItem, _TRUE_)
 
 
 		#< @FunctionFluentForm
@@ -14631,7 +14631,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNextNthOccurrence(n, pItem, pnStartingAt)
-		This.RemoveNextNthOccurrenceCS(n, pItem, pnStartingAt, TRUE)
+		This.RemoveNextNthOccurrenceCS(n, pItem, pnStartingAt, _TRUE_)
 
 		#< @FuntionFluentForm
 
@@ -14888,7 +14888,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNextNthOccurrences(panList, pItem, pnStartingAt)
-		This.RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, TRUE)
+		This.RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -15029,7 +15029,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
-		This.RemovePreviousNthOccurrenceCS(n, pItem, pnStartingAt, TRUE)
+		This.RemovePreviousNthOccurrenceCS(n, pItem, pnStartingAt, _TRUE_)
 
 		def RemovePreviousNthOccurrenceQ(n, pItem, pnStartingAt)
 			This.RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
@@ -15080,7 +15080,7 @@ class stzList from stzObject
 	# WITHOUT CASESENSITIVITY
 
 	def RemovePreviousOccurrence(pItem, pnStartingAt)
-		This.RemovePreviousOccurrenceCS(pItem, pnStartingAt, TRUE)
+		This.RemovePreviousOccurrenceCS(pItem, pnStartingAt, _TRUE_)
 
 		def RemovePreviousOccurrenceQ(pItem, pnStartingAt)
 			This.RemovePreviousOccurrence(pItem, pnStartingAt)
@@ -15187,7 +15187,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
-		This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, TRUE)
+		This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -15511,16 +15511,16 @@ class stzList from stzObject
 
 	def RemoveThisNthItemCS(n, pItem, pCaseSensitive)
 		NthItem = This.NthItem(n)
-		bItemExists _FALSE_
+		bItemExists = _FALSE_
 
 		if isString( pItem )
 			if Q(NthItem).IsEqualToCS(pItem, pCaseSensitive)
-				bItemExists _TRUE_
+				bItemExists = _TRUE_
 			ok
 
 		else
 			if Q(NthItem).IsEqualTo(pItem)
-				bItemExists _TRUE_
+				bItemExists = _TRUE_
 			ok
 		ok
 
@@ -15544,7 +15544,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisNthItem(n, pItem)
-		This.RemoveThisNthItemCS(n, pItem, TRUE)
+		This.RemoveThisNthItemCS(n, pItem, _TRUE_)
 			
 		def RemoveThisNthItemQ(n, pItem)
 			This.RemoveThisNthItemCS(n, pItem)
@@ -15576,7 +15576,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisFirstItem(pItem)
-		This.RemoveThisNthItemCS(1, pItem, TRUE)
+		This.RemoveThisNthItemCS(1, pItem, _TRUE_)
 
 		def RemoveThisFirstItemQ(pItem)
 			This.RemoveThisFirstItem(pItem)
@@ -15602,7 +15602,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisLastItem(pItem)
-		This.RemoveThisNthItemCS(1, pItem, TRUE)
+		This.RemoveThisNthItemCS(1, pItem, _TRUE_)
 
 		def RemoveThisLastItemQ(pItem)
 			This.RemoveThisLastItem(pItem)
@@ -15827,7 +15827,7 @@ class stzList from stzObject
 
 		# Checking params correctness
 
-		if CheckingParams() _TRUE_
+		if CheckingParams() = _TRUE_
 			if isList(n1) and
 				( Q(n1).IsFromNamedParam() or Q(n1).IsFromNamedParam()  or
 				  Q(n1).IsFromPositionNamedParam() )
@@ -16025,7 +16025,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveAnyItemFromStart(c)
-		This.RemoveAnyItemFromStartCS(c, TRUE)
+		This.RemoveAnyItemFromStartCS(c, _TRUE_)
 		return This
 
 		def RemoveAnyItemFromStartQ(c)
@@ -16033,7 +16033,7 @@ class stzList from stzObject
 			return This
 
 	def AnyItemFromStartRemoved(c)
-		return This.AnyItemFromStartRemovedCS(c, TRUE)
+		return This.AnyItemFromStartRemovedCS(c, _TRUE_)
 
 	  #---------------------------------#
 	 #   REMOVING ANY ITEM FROM END    #
@@ -16073,7 +16073,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveAnyItemFromEnd(c)
-		This.RemoveAnyItemFromEndCS(c, TRUE)
+		This.RemoveAnyItemFromEndCS(c, _TRUE_)
 		return This
 
 		def RemoveAnyItemFromEndQ(c)
@@ -16081,7 +16081,7 @@ class stzList from stzObject
 			return This
 
 	def AnyItemFromEndRemoved(c)
-		return This.AnyItemFromEndRemovedCS(c, TRUE)
+		return This.AnyItemFromEndRemovedCS(c, _TRUE_)
 
 	  #========================================#
 	 #    SWAPPING TWO SECTIONS OF THE LIST   # 
@@ -16212,7 +16212,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIviTY
 
 	def RemoveW(pCondition)
-		This.RemoveWCS(pCondition, TRUE)
+		This.RemoveWCS(pCondition, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -16303,7 +16303,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIviTY
 
 	def RemoveWXT(pCondition)
-		This.RemoveWCSXT(pCondition, TRUE)
+		This.RemoveWCSXT(pCondition, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -16362,7 +16362,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Extract(pItem)
-		return This.ExtractCS(pItem, TRUE)
+		return This.ExtractCS(pItem, _TRUE_)
 
 		def Pop(pItem)
 			return This.Extract(pItem)
@@ -16416,7 +16416,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractMany(paItems)
-		return This.ExtractManyCS(paItems, TRUE)
+		return This.ExtractManyCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -16637,7 +16637,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractNthOccurrence(n, pItem)
-		return This.ExtractNthOccurrenceCS(n, pItem, TRUE)
+		return This.ExtractNthOccurrenceCS(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeFroms
 
@@ -16712,7 +16712,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractFirst(pItem)
-		return This.ExtractFirstCS(pItem, TRUE)
+		return This.ExtractFirstCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -16787,7 +16787,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractLast(pItem)
-		return This.ExtractLastCS(pItem, TRUE)
+		return This.ExtractLastCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -16987,7 +16987,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractNextST(item, pnStartingAt)
-		return This.ExtractNextSTCS(item, pnStartingAt, TRUE)
+		return This.ExtractNextSTCS(item, pnStartingAt, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -17170,7 +17170,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractPreviousST(item, pnStartingAt)
-		return This.ExtractPreviousSTCS(item, pnStartingAt, TRUE)
+		return This.ExtractPreviousSTCS(item, pnStartingAt, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -17268,19 +17268,19 @@ class stzList from stzObject
 
 		o1 = new stzList([ "<<", ">>" ])
 		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
-		#--> TRUE
+		#--> _TRUE_
 
 		EXAMPLE 2
 
 		o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
 		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
-		#--> TRUE
+		#--> _TRUE_
 
 		*/
 
 		# Checking the params
 
-		if CheckingParams() _TRUE_
+		if CheckingParams() = _TRUE_
 
 			if NOT isString(pcSubStr)
 				StzRaise("Incorrect param type! pcSubStr must be a string.")
@@ -17306,14 +17306,14 @@ class stzList from stzObject
 		nLen = len(aContent)
 
 		oSubStr = new stzString(pcSubStr)
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		if This.IsListOfPairs()
-			bResult _TRUE_
+			bResult = _TRUE_
 
 			for i = 1 to nLen
 				bResult = oSubStr.IsBoundedByIn(aContent[i], pIn)
-				if bResult _FALSE_
+				if bResult = _FALSE_
 					exit
 				ok
 			next
@@ -17329,7 +17329,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AreBoundsOf(pItem, pIn)
-		return This.AreBoundsOfCS(pItem, pIn, TRUE)
+		return This.AreBoundsOfCS(pItem, pIn, _TRUE_)
 
 		def AreBoundsOfXT(pItem, pIn)
 			return This.AreBoundsOf(pItem, pIn)
@@ -17357,7 +17357,7 @@ class stzList from stzObject
 		ok
 
 	def IsBoundedBy(paBounds)
-		return This.IsBoundedByCS(paBounds, TRUE)
+		return This.IsBoundedByCS(paBounds, _TRUE_)
 
 	  #--------------------------------------------#
 	 #  GETTING BOUNDS OF THE LIST UP TO N ITEMS  #
@@ -17462,7 +17462,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Bounds(pItem, pUpTo)
-		return This.BoundsCS(pItem, pUpTo, TRUE)
+		return This.BoundsCS(pItem, pUpTo, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -17517,7 +17517,7 @@ class stzList from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def RemoveTheseBounds(pBound1, pBound2)
-		This.RemoveTheseBoundsCS(pBound1, pBound2, TRUE)
+		This.RemoveTheseBoundsCS(pBound1, pBound2, _TRUE_)
 
 		def RemoveTheseBoundsQ(pBound1, pBound2)
 			This.RemoveTheseBounds(pBound1, pBound2)
@@ -17549,7 +17549,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveManyBounds(paPairsOfBounds)
-		This.RemoveManyBoundsCS(paPairsOfBounds, TRUE)
+		This.RemoveManyBoundsCS(paPairsOfBounds, _TRUE_)
 
 		def RemoveManyBoundsQ(paPairsOfBounds)
 			This.RemoveManyBounds(paPairsOfBounds)
@@ -17575,7 +17575,7 @@ class stzList from stzObject
 		return aResult
 
 	  #--------------------------------------#
-	 #  CHECKING IF ALL THE ITEMS ARE NULL  #
+	 #  CHECKING IF ALL THE ITEMS ARE _NULL_  #
 	#--------------------------------------#
 
 	def AllItemsAreNull()
@@ -17586,7 +17586,7 @@ class stzList from stzObject
 			if NOT isString(@aContent[i])
 				return _FALSE_
 			ok
-			if @aContent[i] != NULL
+			if @aContent[i] != _NULL_
 				return _FALSE_
 			ok
 		next
@@ -17622,7 +17622,7 @@ class stzList from stzObject
 		#>
 
 	def IsUniform()
-		return This.IsUniformCS(TRUE)
+		return This.IsUniformCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -17766,11 +17766,11 @@ class stzList from stzObject
 		ok
 
 		nLen1 = len(aContent[1])
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 2 to nLen
 			if len(aContent[i]) != nLen1
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -17791,14 +17791,14 @@ class stzList from stzObject
 		When stzGrid class is fully tested we can use this code:	
 		
 		oTempGrid = new stzGrid( This.List() )
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		if oTempGrid.NumberOfVLines() = 2
 
 			aFirstVLine = oTempGrid.VLine(1)
 
 			if @IsSet(aFirstVLine) and ListItemsAreAllStrings(aFirstVLine)
-				bResult _TRUE_
+				bResult = _TRUE_
 			ok
 		ok
 		return bResult
@@ -17807,7 +17807,7 @@ class stzList from stzObject
 		# All items are list of 2 items, where the 1st beeing string
 		#TODO // The strings in the 1st column (keys of the hashlist) must be unique
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		aTempKeys = []
 
 		nLen = This.NumberOfItems()
@@ -17818,11 +17818,11 @@ class stzList from stzObject
 			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
 				 isString(aContent[i][1]) )
 
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			else
 				if ring_find(aTempKeys, aContent[i][1]) > 0
-					bResult _FALSE_
+					bResult = _FALSE_
 					exit
 				ok
 
@@ -17861,17 +17861,17 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		if This.AllItemsAreLists()
-			bSame _TRUE_
+			bSame = _TRUE_
 			for i = 2 to This.NumberOfItems()
 				if len(Item(i)) != len(Item(i-1))
-					bSame _FALSE_
+					bSame = _FALSE_
 				ok
 			next
 			if bSame
-				bResult _TRUE_
+				bResult = _TRUE_
 			ok
 		ok
 
@@ -17956,11 +17956,11 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsHybridList(aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -18025,11 +18025,11 @@ class stzList from stzObject
 
 		aoStzLists = This.ToStzlists()
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT aoStzLists.IsHybridList()
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -18095,11 +18095,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsNumber(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -18164,11 +18164,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfNumbers(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -18233,11 +18233,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsDecimalNumber(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -18302,11 +18302,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfDecimalNumbers(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -18371,11 +18371,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsBinaryNumber(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -18440,11 +18440,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfBinaryNumbers(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -18509,11 +18509,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsOctalNumber(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -18578,11 +18578,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfOctalNumbers(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -18647,11 +18647,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsHexNumber(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -18716,11 +18716,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfHexNumbers(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -18784,11 +18784,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsQBytesListObject(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -18900,11 +18900,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsString(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -18969,11 +18969,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT ( isString(@aContent[i]) or @IsPairOfStrings(@aContent[i]) )
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -19038,11 +19038,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStrings(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -19107,11 +19107,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT isList(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -19176,11 +19176,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfLists(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -19245,11 +19245,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsObject(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -19315,11 +19315,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfObjects(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -19384,11 +19384,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsChar(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -19453,11 +19453,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfChars(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -19522,11 +19522,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsPair(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -19591,11 +19591,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfPairs(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -19660,11 +19660,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsSet(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -19729,11 +19729,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfSets(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -19798,11 +19798,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsHashList(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -19867,11 +19867,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfHashLists(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -19936,11 +19936,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsGrid(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20005,11 +20005,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfGrids(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20074,11 +20074,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsTable(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20143,11 +20143,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfTables(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20212,11 +20212,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsTree(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20281,11 +20281,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfTrees(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20350,11 +20350,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzNumber(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20419,11 +20419,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzNumbers(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20488,11 +20488,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzDecimalNumber(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20557,11 +20557,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzDecimalNumbers(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20626,11 +20626,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzBinaryNumber(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20695,11 +20695,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzBinaryNumbers(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20764,11 +20764,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzOctalNumber(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20833,11 +20833,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzOctalNumbers(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20902,11 +20902,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzHexNumber(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -20971,11 +20971,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzHexNumbers(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -21039,11 +21039,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzListOfBytes(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -21108,11 +21108,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzString(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -21177,11 +21177,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzStrings(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -21246,11 +21246,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzList(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -21315,11 +21315,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzLists(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -21384,11 +21384,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzObject(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -21453,11 +21453,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzObjects(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -21522,11 +21522,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzChar(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -21591,11 +21591,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzChars(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -21660,11 +21660,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzPair(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -21729,11 +21729,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzPairs(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -21798,11 +21798,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzSet(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -21867,11 +21867,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzSets(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -21936,11 +21936,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzHashList(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -22005,11 +22005,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzHashLists(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -22074,11 +22074,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzGrid(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -22143,11 +22143,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzGrids(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -22212,11 +22212,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzTable(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -22281,11 +22281,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzTables(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -22350,11 +22350,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzTree(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -22419,11 +22419,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzTrees(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -22486,11 +22486,11 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsNumberInString(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -22612,10 +22612,10 @@ class stzList from stzObject
 		#>
 
 	def IsListOfNumbersAndStrings()
-		bResult _TRUE_
+		bResult = _TRUE_
 		for item in This.List()
 			if NOT (isString(item) or isNumber(item))
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -22713,12 +22713,12 @@ class stzList from stzObject
 			return This.IsListOfNumbersOrListOfStrings()
 
 	def IsListOfStringsAndPairsOfStrings()
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for item in This.List()
 			if NOT 	( isString(item) or
 					( isList(item) and Q(item).IsPairOfStrings() ) )
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -22747,12 +22747,12 @@ class stzList from stzObject
 		#>
 
 	def IsListOfNumbersAndPairsOfNumbers()
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for item in This.List()
 			if NOT 	( isNumber(item) or
 					( isList(item) and Q(item).IsPairOfNumbers() ) )
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -22781,12 +22781,12 @@ class stzList from stzObject
 		#>
 
 	def IsListOfListsAndPairsOfLists()
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for item in This.List()
 			if NOT 	( isList(item) or
 					( isList(item) and Q(item).IsPairOfLists() ) )
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -22815,12 +22815,12 @@ class stzList from stzObject
 		#>
 
 	def IsListOfObjectsAndPairsOfObjects()
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for item in This.List()
 			if NOT 	( isNumber(item) or
 					( isObject(item) and Q(item).IsPairOfObjects() ) )
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -22875,7 +22875,7 @@ class stzList from stzObject
 		Coud be solved nicely like this:
 
 			if This.IsListOfPairs() and
-			   Check('Q(@EachItem).IsPairOfStrings()' ) _TRUE_
+			   Check('Q(@EachItem).IsPairOfStrings()' ) = _TRUE_
 	
 				return _TRUE_
 			else
@@ -22888,14 +22888,14 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 
 			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
 				 isString(aContent[i][1]) and isString(aContent[i][2]) )
 
-					bResult _FALSE_
+					bResult = _FALSE_
 					exit
 			ok
 		next
@@ -22987,14 +22987,14 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 
 			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
 				 isNumber(aContent[i][1]) and isNumber(aContent[i][2]) )
 
-					bResult _FALSE_
+					bResult = _FALSE_
 					exit
 			ok
 		next
@@ -23078,11 +23078,11 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT (isList(aContent[i]) and Q(aContent[i]).IsPairOfSections())
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -23199,14 +23199,14 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 
 			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
 				 isList(aContent[i][1]) and isList(aContent[i][2]) )
 
-					bResult _FALSE_
+					bResult = _FALSE_
 					exit
 			ok
 		next
@@ -23271,14 +23271,14 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 
 			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
 				 isObject(aContent[i][1]) and isObject(aContent[i][2]) )
 
-					bResult _FALSE_
+					bResult = _FALSE_
 					exit
 			ok
 		next
@@ -23493,16 +23493,16 @@ class stzList from stzObject
 		aContent = This.Content()
 		nlen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT isList(aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 
 			if NOT len(aContent[i]) = 0
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -23537,14 +23537,14 @@ class stzList from stzObject
 		return _FALSE_
 
 	def IsListOfNamedObjects()
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		aContent = This.Content()
 		nLen = len(aContent)
 
 		for i = 1 to nLen
 			if NOT ( isList(aContent[i]) and Q(aContent[i]).IsNamedObject() )
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24227,7 +24227,7 @@ class stzList from stzObject
 	def IsListOf(pcType)
 		/* EXAMPLES
 
-			Q([ 1, 2, 3 ]).IsListOf(:Number)	#--> TRUE
+			Q([ 1, 2, 3 ]).IsListOf(:Number)	#--> _TRUE_
 
 			pcType should be a string containing the name of:
 				- a string containing one of the 4 Ring types (given by RingTypes() )
@@ -24262,7 +24262,7 @@ class stzList from stzObject
 		ok
 		cCode2 = 'bOk = ( ring_type(item) = "' + upper(pcType) + '" )'
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		aList = This.List()
 		nLen = len(aList)
 
@@ -24277,7 +24277,7 @@ class stzList from stzObject
 			ok
 
 			if NOT bOk
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24331,12 +24331,12 @@ class stzList from stzObject
 	#=====
 
 	def IsListOfPairsOfStzObjects()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfStzObjects(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24347,12 +24347,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStzObjects()
 
 	def IsListOfPairsOfStzNumbers()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfStzNumbers(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24363,12 +24363,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStzNumbers()
 
 	def IsListOfPairsOfStzStrings()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfStzStrings(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24379,12 +24379,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStzStrings()
 
 	def IsListOfPairsOfStzLists()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfStzLists(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24395,12 +24395,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStzLists()
 
 	def IsListOfPairsOfNumberAndString()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfNumberAndString(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24411,12 +24411,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfNumberAndString()
 
 	def IsListOfPairsOfStringAndNumber()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfStringAndNumber(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24427,12 +24427,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStringAndNumber()
 
 	def IsListOfPairsOfNumberAndList()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfNumberAndlist(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24443,12 +24443,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfNumberAndList()
 
 	def IsListOfPairsOfListAndNumber()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfListAndNumber(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24459,12 +24459,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfListAndNumber()
 
 	def IsListOfPairsOfNumberAndObject()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfNumberAndObject(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24475,12 +24475,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfNumberAndObject()
 
 	def IsListOfPairsOfObjectAndNumber()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfObjectAndNumber(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24491,12 +24491,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfObjectAndNumber()
 
 	def IsListOfPairsOfStringAndList()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfStringAndList(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24507,12 +24507,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStringAndList()
 
 	def IsListOfPairsOfListAndString()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfListAndString(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24523,12 +24523,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfListAndString()
 
 	def IsListOfPairsOfStringAndObject()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfStringAndObject(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24539,12 +24539,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStringAndObject()
 
 	def IsListOfPairsOfObjectAndString()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOdObjectAndString(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24555,12 +24555,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfObjectAndString()
 
 	def IsListOfPairsOfListAndObject()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPAirOfListAndObject(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24571,12 +24571,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfListAndObject()
 
 	def IsListOfPairsOfObjectAndList()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPAirOfObjectAndList(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24587,12 +24587,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfObjectAndList()
 
 	def IsListOfPairsOfChars()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPAirOfChars(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24622,12 +24622,12 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		if This.ItemsHaveSameType()
 			if This.ItemsAreAllNumbers() or This.ItemsAreAllStrings()
 				for i = 2 to nLen		
 					if aContent[i] != aContent[i-1]
-						bResult _FALSE_
+						bResult = _FALSE_
 						exit
 					ok
 				next
@@ -24636,7 +24636,7 @@ class stzList from stzObject
 				for i = 2 to nLen
 					oTempList = new stzList(aContent[i])
 					if oTempList.IsEqualTo(aContent[i-1])
-						bResult _FALSE_
+						bResult = _FALSE_
 						exit
 					ok
 				next
@@ -24648,7 +24648,7 @@ class stzList from stzObject
 				StzRaise("Unsupported type!")
 			ok
 		else
-			bResult _FALSE_
+			bResult = _FALSE_
 		ok
 
 		return bResult
@@ -24680,24 +24680,24 @@ class stzList from stzObject
 		oFirstItem = Q(aContent[1])
 
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		for i = 2 to nLen
 
 			if isNumber(aContent[i])
 				if NOT aContent[i] = aContent[1]
-					bResult _FALSE_
+					bResult = _FALSE_
 					exit
 				ok
 
 			but isString(aContent[i]) or isList(aContent[i])
 				if NOT oFirstItem.IsEqualToCS(aContent[i], pCaseSensitive)
-					bResult _FALSE_
+					bResult = _FALSE_
 					exit
 				ok
 
 			else // isObject(aContent[i])
 				if NOT oFirstItem.IsEqualTo(aContent[i])
-					bResult _FALSE_
+					bResult = _FALSE_
 					exit
 				ok
 			ok
@@ -24730,7 +24730,7 @@ class stzList from stzObject
 	#-- CASESENSITIVITY
 
 	def ItemsAreAllEqual()
-		return This.ItemsAreAllEqualCS(TRUE)
+		return This.ItemsAreAllEqualCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -24790,7 +24790,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsAreEqualTo(pItem)
-		return This.ItemsAreEqualToCS(pItem, TRUE)
+		return This.ItemsAreEqualToCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -24837,12 +24837,12 @@ class stzList from stzObject
 			return _TRUE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 2 to nLen
 
 			if NOT ( isList(aContent[i]) and len(aContent[i]) = nLen )
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 
@@ -24894,7 +24894,7 @@ class stzList from stzObject
 	#-----------------------------------------------------------------#
 
 	def ContainsOnlyValidRingCodes()
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		if NOT This.IsListOfStrings()
 			return _FALSE_
@@ -24906,7 +24906,7 @@ class stzList from stzObject
 		for i = 1 to nLen
 
 			if NOT Q(aContent[i]).IsValidRingCode()
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24927,7 +24927,7 @@ class stzList from stzObject
 	#---------------------------------------------------------------------#
 
 	def ContainsOnlyStzClassNames()
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		if NOT This.IsListOfStrings()
 			return _FALSE_
@@ -24939,7 +24939,7 @@ class stzList from stzObject
 		for i = 1 to nLen
 
 			if NOT Q(aContent[i]).IsStzClassName()
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -24981,11 +24981,11 @@ class stzList from stzObject
 		aWalkers = This.Walkers()
 		nLenWalkers = len(aWalkers)
 
-		bNewName _TRUE_
+		bNewName = _TRUE_
 
 		for i = 1 to nLenWalkers
 			if aWalkers[i][1] = pcName
-				bNewName _FALSE_
+				bNewName = _FALSE_
 				exit
 			ok
 		next
@@ -25574,12 +25574,12 @@ class stzList from stzObject
 		WalkUntil("isNumber(@item) and @item > 20") #--> 1:9
 		*/
 
-		bWalkBefore _FALSE_
+		bWalkBefore = _FALSE_
 
 		# Checking the params
 
 		if isList(pcCondition) and Q(pcCondition).IsBeforeNamedParam()
-			bWalkBefore _TRUE_
+			bWalkBefore = _TRUE_
 			pcCondition = pcCondition[2]
 		ok
 
@@ -25627,7 +25627,7 @@ class stzList from stzObject
 
 		cCode = 'bOk = ( ' +  StzCCodeQ(pcCondition).Transpiled() + ' )'
 
-		bFound _FALSE_
+		bFound = _FALSE_
 		aList = This.Content()
 		nLen = This.NumberOfItems()
 
@@ -25648,7 +25648,7 @@ class stzList from stzObject
 			eval(cCode)
 
 			if bOk
-				if bWalkBefore _FALSE_
+				if bWalkBefore = _FALSE_
 					anPos + @i
 				ok
 
@@ -26881,7 +26881,7 @@ class stzList from stzObject
 
 		nLen = len(@aContent)
 		if nLen = 0
-			return NULL
+			return _NULL_
 		but nLen = 1
 			return @aContent[1]
 		ok
@@ -27010,14 +27010,14 @@ class stzList from stzObject
 
 		def IsEqualToCSQ(paOtherList)
 
-			bResult _FALSE_
+			bResult = _FALSE_
 
 			if isList(paOtherList)
 				bResult = This.IsEqualToCS(paOtherList, pCaseSensitive)
 				
 			ok
 
-			if bResult _TRUE_
+			if bResult = _TRUE_
 				return This
 			else
 				return new stzFalsObject
@@ -27056,10 +27056,10 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsEqualTo(paOtherList)
-		return This.IsEqualToCS(paOtherList, TRUE)
+		return This.IsEqualToCS(paOtherList, _TRUE_)
 
 		def IsEqualToQ(paOtherList)
-			return This.IsEqualToCSQ(paOtherList, TRUE)
+			return This.IsEqualToCSQ(paOtherList, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -27138,7 +27138,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsStrictlyEqualTo(paOtherList)
-		return This.IsStrictlyEqualToCS(paOtherList, TRUE)
+		return This.IsStrictlyEqualToCS(paOtherList, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -27230,7 +27230,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIIVITY
 
 	def IsNeither(paList1, paList2)
-		return This.IsNeitherCS(paList1, paList2, TRUE)
+		return This.IsNeitherCS(paList1, paList2, _TRUE_)
 
 		def IsNeitherEqualTo(paList1, paList2)
 			return This.IsNeither(paList1, paList2)
@@ -27278,10 +27278,10 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		for i = 1 to nLen
 			if NOT (isNumber(aContent[i]) or isString(aContent[i]))
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -27360,14 +27360,14 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bGotANumber _FALSE_
-		bGotAString _FALSE_
+		bGotANumber = _FALSE_
+		bGotAString = _FALSE_
 
 		for i = 1 to nLen
 			if isNumber(aContent[i])
-				bGotANumber _TRUE_
+				bGotANumber = _TRUE_
 			but isString(aContent[i])
-				bGotAString _TRUE_
+				bGotAString = _TRUE_
 			ok
 
 			if isNumber(aContent[i]) and bGotANumber
@@ -27497,10 +27497,10 @@ class stzList from stzObject
 
 		aContent = This.Content()
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		for i = 1 to nLen
 			if Q(aContent[i]).IsDifferentFrom( paOtherList[ nLenOtherList - i + 1 ] )
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next i
@@ -27778,7 +27778,7 @@ class stzList from stzObject
 
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
-		if bCaseSensitive _FALSE_
+		if bCaseSensitive = _FALSE_
 			acList1 = This.StringifyQ().SortQ().Lowercased()
 			acList2 = StzListQ(paOtherList).StringifyQ().SortQ().Lowercased()
 
@@ -27787,11 +27787,11 @@ class stzList from stzObject
 			acList2 = StzListQ(paOtherList).StringifyQ().Sorted()
 		ok
 
-		bresult _TRUE_
+		bresult = _TRUE_
 
 		for i = 1 to nLen1
 			if NOT acList1[i] = acList2[i]
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -27804,7 +27804,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasSameContent(paOtherList)
-		return This.HasSameContentCS(paOtherList, TRUE)
+		return This.HasSameContentCS(paOtherList, _TRUE_)
 
 		def HasSameContentAs(paOtherList)
 			return This.HasSameContent(paOtherList)
@@ -27817,16 +27817,16 @@ class stzList from stzObject
 
 		nLen = len(@aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT isList(item)
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 
 			if StzListQ(item).IsContiguous()
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -28233,7 +28233,7 @@ class stzList from stzObject
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
 		oExpr = new stzString(pcExpr)
-		if NOT oExpr.ContainsOneOfTheseCS([ "@i", "@item" ], FALSE)
+		if NOT oExpr.ContainsOneOfTheseCS([ "@i", "@item" ], _FALSE_)
 			StzRaise("Cant't proceed! The classifier must contain the keyword @i or @item or both.")
 		ok
 
@@ -28295,15 +28295,15 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ClassifyBy(pcExpr)
-		return This.ClassifyByCS(pcExpr, TRUE)
+		return This.ClassifyByCS(pcExpr, _TRUE_)
 
 		#< @FunctionFluentForms
 
 		def ClassifyByQ(pcExpr)
-			return This.ClassifyByCSQ(pcExpr, TRUE)
+			return This.ClassifyByCSQ(pcExpr, _TRUE_)
 
 		def ClassifyByQR(pcExpr, pcReturnType)
-			return This.ClassifyByCSQR(pcExpr, TRUE, pcReturnType)
+			return This.ClassifyByCSQR(pcExpr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -28330,7 +28330,7 @@ class stzList from stzObject
 
 		# Stringifying the list and reparing it case sensitivity
 
-		if bCaseSensitive _FALSE_
+		if bCaseSensitive = _FALSE_
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -28411,7 +28411,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESESENSITIVITY
 
 	def Parts()
-		return This.PartsCS(TRUE)
+		return This.PartsCS(_TRUE_)
 
 		#< @FunctionFluentForms
 
@@ -28457,7 +28457,7 @@ class stzList from stzObject
 
 		# Stringifying the list and reparing it case sensitivity
 
-		if bCaseSensitive _FALSE_
+		if bCaseSensitive = _FALSE_
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -28495,7 +28495,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESESENSITIVITY
 
 	def FindParts()
-		return This.FindPartsCS(TRUE)
+		return This.FindPartsCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -28516,7 +28516,7 @@ class stzList from stzObject
 
 		# Stringifying the list and reparing it case sensitivity
 
-		if bCaseSensitive _FALSE_
+		if bCaseSensitive = _FALSE_
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -28559,7 +28559,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESESENSITIVITY
 
 	def FindPartsAsSections()
-		return This.FindPartsAsSectionsCS(TRUE)
+		return This.FindPartsAsSectionsCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -28580,7 +28580,7 @@ class stzList from stzObject
 
 		# Stringifying the list and reparing it case sensitivity
 
-		if bCaseSensitive _FALSE_
+		if bCaseSensitive = _FALSE_
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -28628,7 +28628,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESESENSITIVITY
 
 	def PartsZ()
-		return This.PartsCSZ(TRUE)
+		return This.PartsCSZ(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -28649,7 +28649,7 @@ class stzList from stzObject
 
 		# Stringifying the list and reparing it case sensitivity
 
-		if bCaseSensitive _FALSE_
+		if bCaseSensitive = _FALSE_
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -28697,7 +28697,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESESENSITIVITY
 
 	def PartsZZ()
-		return This.PartsCSZZ(TRUE)
+		return This.PartsCSZZ(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -28731,15 +28731,15 @@ class stzList from stzObject
 	Uses the Kase() method in stzString as a PartitionExpr.	
 
 	And because this method returns a string equal to :Uppercase or
-	:Lowercase or NULL, then the classification done will return:
+	:Lowercase or _NULL_, then the classification done will return:
 
 	[
 		[ "TUNIS" ] = :Uppercase,
-		[ " " ] = NULL,
+		[ " " ] = _NULL_,
 		[ "gafsa" ] = :Lowercase,
-		[ " " ] = NULL,
+		[ " " ] = _NULL_,
 		[ "NABEUL" ] = :Uppercase,
-		[ " " ] = NULL,
+		[ " " ] = _NULL_,
 		[ "beja" ] = :Lowercase
 	]
 
@@ -28753,10 +28753,10 @@ class stzList from stzObject
 		
 		? o1.PartsUsing( 'Q(@item).IsLetter()' )
 		#--> [
-		#	[ "A", "b", "c" ] _TRUE_,
-		#	["28", "5" ] _FALSE_,
-		# 	[ "X", "Y" ] _TRUE_,
-		#o	[ "&", "من" ] _FALSE_
+		#	[ "A", "b", "c" ] = _TRUE_,
+		#	["28", "5" ] = _FALSE_,
+		# 	[ "X", "Y" ] = _TRUE_,
+		#o	[ "&", "من" ] = _FALSE_
 		# ]
 		
 		? o1.PartsUsing('Q(@item).Orientation()' )
@@ -28767,19 +28767,19 @@ class stzList from stzObject
 		
 		? o1.PartsUsing( 'Q(@item).IsUppercase()' )
 		#--> [
-		# 	[ "A" ]  _TRUE_,
-		#	[ "b", "c", "28", "5" ] _FALSE_,
-		#	[ "X", Y" ] _TRUE_,
-		#o	[ "&", "من" _FALSE_
+		# 	[ "A" ]  = _TRUE_,
+		#	[ "b", "c", "28", "5" ] = _FALSE_,
+		#	[ "X", Y" ] = _TRUE_,
+		#o	[ "&", "من" = _FALSE_
 		# ]
 		
 		? o1.PartsUsing( 'Q(@item).Kase()' )
 		#--> [
 		#	[ "A" ] = :Uppercase,
 		#	[ "b", "c" ] = :Lowercase,
-		#	[ "28", "5" ] = NULL,
+		#	[ "28", "5" ] = _NULL_,
 		#	[ "X", "Y" ] = :Uppercase,
-		#o	[ "&", "من" ] = NULL
+		#o	[ "&", "من" ] = _NULL_
 		# ]
 
 		*/
@@ -28789,7 +28789,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", FALSE)
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", _FALSE_)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -28808,18 +28808,18 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive _FALSE_ and
+		if bCaseSensitive = _FALSE_ and
 			StzStringQ(paPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], FALSE)
+				"islowercase", "lower(", "upper(" ], _FALSE_)
 
 				return [ [ @aContent ] ]
 		ok
 
 		# Preparing the data for case sensitivity
 
-		if bCaseSensitive _FALSE_
+		if bCaseSensitive = _FALSE_
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -28907,7 +28907,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESESENSITIVITY
 
 	def PartsUsing(paPartitionExpr)
-		return This.PartsUsingCS(paPartitionExpr, TRUE)
+		return This.PartsUsingCS(paPartitionExpr, _TRUE_)
 
 		#< @FunctionFluentForms
 
@@ -28915,7 +28915,7 @@ class stzList from stzObject
 			return This.PartsUsingQR(paPartitionExpr, :stzList)
 
 		def PartsUsingQR(paPartitionExpr, pcReturnType)
-			return This.PartsUsingCSQR(paPartitionExpr, TRUE, pcReturnType)
+			return This.PartsUsingCSQR(paPartitionExpr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -28954,10 +28954,10 @@ class stzList from stzObject
 		
 		? o1.PartsUsingXT( 'Q(@item).IsLetter()' )
 		#--> [
-		#	[ "A", "b", "c" ] _TRUE_,
-		#	["28", "5" ] _FALSE_,
-		# 	[ "X", "Y" ] _TRUE_,
-		#o	[ "&", "من" ] _FALSE_
+		#	[ "A", "b", "c" ] = _TRUE_,
+		#	["28", "5" ] = _FALSE_,
+		# 	[ "X", "Y" ] = _TRUE_,
+		#o	[ "&", "من" ] = _FALSE_
 		# ]
 		
 		? o1.PartsUsingXT('Q(@item).Orientation()' )
@@ -28968,19 +28968,19 @@ class stzList from stzObject
 		
 		? o1.PartsUsingXT( 'Q(@item).IsUppercase()' )
 		#--> [
-		# 	[ "A" ]  _TRUE_,
-		#	[ "b", "c", "28", "5" ] _FALSE_,
-		#	[ "X", Y" ] _TRUE_,
-		#o	[ "&", "من" _FALSE_
+		# 	[ "A" ]  = _TRUE_,
+		#	[ "b", "c", "28", "5" ] = _FALSE_,
+		#	[ "X", Y" ] = _TRUE_,
+		#o	[ "&", "من" = _FALSE_
 		# ]
 		
 		? o1.PartsUsingXT( 'Q(@item).Kase()' )
 		#--> [
 		#	[ "A" ] = :Uppercase,
 		#	[ "b", "c" ] = :Lowercase,
-		#	[ "28", "5" ] = NULL,
+		#	[ "28", "5" ] = _NULL_,
 		#	[ "X", "Y" ] = :Uppercase,
-		#o	[ "&", "من" ] = NULL
+		#o	[ "&", "من" ] = _NULL_
 		# ]
 
 		*/
@@ -28990,7 +28990,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", FALSE)
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", _FALSE_)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -29000,7 +29000,7 @@ class stzList from stzObject
 		nLen = len(@aContent)
 
 		if nLen < 2
-			return [ [ @aContent, NULL ] ]
+			return [ [ @aContent, _NULL_ ] ]
 		ok
 
 		# Getting the boolean behind pCaseSensitive
@@ -29009,18 +29009,18 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive _FALSE_ and
+		if bCaseSensitive = _FALSE_ and
 			StzStringQ(paPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], FALSE)
+				"islowercase", "lower(", "upper(" ], _FALSE_)
 
-				return [ [ @aContent, NULL ] ]
+				return [ [ @aContent, _NULL_ ] ]
 		ok
 
 		# Preparing the data for case sensitivity
 
-		if bCaseSensitive _FALSE_
+		if bCaseSensitive = _FALSE_
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -29108,7 +29108,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESESENSITIVITY
 
 	def PartsUsingXT(paPartitionExpr)
-		return This.PartsUsingCSXT(paPartitionExpr, TRUE)
+		return This.PartsUsingCSXT(paPartitionExpr, _TRUE_)
 
 		#< @FunctionFluentForms
 
@@ -29116,7 +29116,7 @@ class stzList from stzObject
 			return This.PartsUsingXTQR(paPartitionExpr, :stzList)
 
 		def PartsUsingXTQR(paPartitionExpr, pcReturnType)
-			return This.PartsUsingCSXTQR(paPartitionExpr, TRUE, pcReturnType)
+			return This.PartsUsingCSXTQR(paPartitionExpr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -29152,7 +29152,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", FALSE)
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", _FALSE_)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -29171,18 +29171,18 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive _FALSE_ and
+		if bCaseSensitive = _FALSE_ and
 			StzStringQ(paPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], FALSE)
+				"islowercase", "lower(", "upper(" ], _FALSE_)
 
 				return [ 1 ]
 		ok
 
 		# Preparing the data for case sensitivity
 
-		if bCaseSensitive _FALSE_
+		if bCaseSensitive = _FALSE_
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -29223,7 +29223,7 @@ class stzList from stzObject
 			return This.FindPartsUsingCS(paPartitionExpr, pCaseSensitive)
 
 	def FindPartsUsing(paPartitionExpr)
-		return This.FindPartsUsingCS(paPartitionExpr, TRUE)
+		return This.FindPartsUsingCS(paPartitionExpr, _TRUE_)
 
 		def FindPartsUsingZ(paPartitionExpr)
 			return This.FindPartsUsing(paPartitionExpr)
@@ -29238,7 +29238,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", FALSE)
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", _FALSE_)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -29257,18 +29257,18 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive _FALSE_ and
+		if bCaseSensitive = _FALSE_ and
 			StzStringQ(paPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], FALSE)
+				"islowercase", "lower(", "upper(" ], _FALSE_)
 
 				return [ [ 1, nLen ] ]
 		ok
 
 		# Preparing the data for case sensitivity
 
-		if bCaseSensitive _FALSE_
+		if bCaseSensitive = _FALSE_
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -29310,7 +29310,7 @@ class stzList from stzObject
 			return This.FindPartsAsSectionsUsingCS(paPartitionExpr, pCaseSensitive)
 
 	def FindPartsAsSectionsUsing(paPartitionExpr)
-		return This.FindPartsAsSectionsUsingCS(paPartitionExpr, TRUE)
+		return This.FindPartsAsSectionsUsingCS(paPartitionExpr, _TRUE_)
 
 		def FindPartsUsingZZ(paPartitionExpr)
 			return This.FindPartsAsSectionsUsing(paPartitionExpr)
@@ -29325,7 +29325,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", FALSE)
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", _FALSE_)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -29344,18 +29344,18 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive _FALSE_ and
+		if bCaseSensitive = _FALSE_ and
 			StzStringQ(paPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], FALSE)
+				"islowercase", "lower(", "upper(" ], _FALSE_)
 
 				return [ [ @aContent ] ]
 		ok
 
 		# Preparing the data for case sensitivity
 
-		if bCaseSensitive _FALSE_
+		if bCaseSensitive = _FALSE_
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -29404,7 +29404,7 @@ class stzList from stzObject
 			return This.PartsUsingCSZ(paPartitionExpr, pCaseSensitive)
 
 	def PartsUsingZ(paPartitionExpr)
-		return This.PartsUsingCSZ(paPartitionExpr, TRUE)
+		return This.PartsUsingCSZ(paPartitionExpr, _TRUE_)
 
 		def PartsAndTheirPositionsUsing(paPartitionExpr)
 			return This.PartsUsingZ(paPartitionExpr)
@@ -29419,7 +29419,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", FALSE)
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", _FALSE_)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -29438,18 +29438,18 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive _FALSE_ and
+		if bCaseSensitive = _FALSE_ and
 			StzStringQ(paPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], FALSE)
+				"islowercase", "lower(", "upper(" ], _FALSE_)
 
 				return [ [ @aContent, [1, nLen] ] ]
 		ok
 
 		# Preparing the data for case sensitivity
 
-		if bCaseSensitive _FALSE_
+		if bCaseSensitive = _FALSE_
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -29498,7 +29498,7 @@ class stzList from stzObject
 			return This.PartsUsingCSZZ(paPartitionExpr, pCaseSensitive)
 
 	def PartsUsingZZ(paPartitionExpr)
-		return This.PartsUsingCSZZ(paPartitionExpr, TRUE)
+		return This.PartsUsingCSZZ(paPartitionExpr, _TRUE_)
 
 		def PartsAndTheirSectionsUsing(paPartitionExpr)
 			return This.PartsUsingZZ(paPartitionExpr)
@@ -29508,7 +29508,7 @@ class stzList from stzObject
 	#=====================================================#
 
 	def IsContiguous()
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		if This.IsListOfNumbers()
 
@@ -29734,7 +29734,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSameItemsAs(paOtherList)
-		return This.ContainsSameItemsAsCS(paOtherList, TRUE)
+		return This.ContainsSameItemsAsCS(paOtherList, _TRUE_)
 
 	   #---------------------------------------------------------#
 	  #  GETTING THE LIST OF ITEMS WHICH ARE DIFFERENT BETWEEN  #
@@ -29753,7 +29753,7 @@ class stzList from stzObject
 		acList = []
 		acOtherList = []
 
-		if bCaseSensitive _TRUE_
+		if bCaseSensitive = _TRUE_
 			acList = This.Stringified()
 			acOtherList = StzListQ(paOtherList).Stringified()
 
@@ -29794,10 +29794,10 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DifferentItemsWith(paOtherList)
-		return This.DifferentItemsWithCS(paOtherList, TRUE)
+		return This.DifferentItemsWithCS(paOtherList, _TRUE_)
 
 		def DifferentItemsWithQ(paOtherList)
-			return This.DifferentItemsWithCSQ(paOtherList, TRUE)
+			return This.DifferentItemsWithCSQ(paOtherList, _TRUE_)
 
 		def DifferenceWith(paOtherList)
 			return This.DifferentItemsWith(paOtherList)
@@ -29837,10 +29837,10 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DifferentItemsWithXT(paOtherList)
-		return This.DifferentItemsWithCSXT(paOtherList, TRUE)
+		return This.DifferentItemsWithCSXT(paOtherList, _TRUE_)
 
 		def DifferentItemsWithXTQ(paOtherList)
-			return This.DifferentItemsWithCSXTQ(paOtherList, TRUE)
+			return This.DifferentItemsWithCSXTQ(paOtherList, _TRUE_)
 
 		def DifferenceWithXT(paOtherList)
 			return This.DifferentItemsWithXT(paOtherList)
@@ -29879,7 +29879,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def OverItemsComparedTo(paOtherList)
-		return This.OverItemsComparedToCS(paOtherList, TRUE)
+		return This.OverItemsComparedToCS(paOtherList, _TRUE_)
 
 		def OverItemsComparedToQ(paOtherList)
 			return new stzList( This.OverItemsComparedTo(paOtherList) )
@@ -29908,7 +29908,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LackingItemsComparedTo(paOtherList)
-		return This.LackingItemsComparedToCS(paOtherList, TRUE)
+		return This.LackingItemsComparedToCS(paOtherList, _TRUE_)
 
 		def LackingItemsComparedToQ(paOtherList)
 			return new stzList( This.LackingItemsComparedTo(paOtherList) )	
@@ -29936,7 +29936,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasSameNumberOfItemsAs(paOtherList)
-		return This.HasSameNumberOfItemsAsCS(paOtherList, TRUE)
+		return This.HasSameNumberOfItemsAsCS(paOtherList, _TRUE_)
 
 		def HasSameWidthAs(paOtherList)
 			return HasSameNumberOfItemsAs(paOtherList)
@@ -30040,7 +30040,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def CommonItemsWith(paOtherList)
-		return This.CommonItemsWithCS(paOtherList, TRUE)
+		return This.CommonItemsWithCS(paOtherList, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -30128,7 +30128,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfCommonItemsWith(paItems)
-		return This.NumberOfCommonItemsWithCS(paItems, TRUE)
+		return This.NumberOfCommonItemsWithCS(paItems, _TRUE_)
 
 		def SizeOfIntersectionWith(paItems)
 			return NumberOfCommonItemsWith(paItems)
@@ -30161,7 +30161,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfDifferentItemsWith(paItems)
-		return This.NumberOfDifferentItemsWithCS(paItems, TRUE)
+		return This.NumberOfDifferentItemsWithCS(paItems, _TRUE_)
 
 		def CountDifferentItemsWith(paItem)
 			return This.NumberOfDifferentItemsWith(paItems)
@@ -30226,14 +30226,14 @@ class stzList from stzObject
 
 		aSorted = @SortList(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			cItem   = @@(aContent[i])
 			cSorted = @@(aSorted[i])
 
 			if cItem != cSorted
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -30255,14 +30255,14 @@ class stzList from stzObject
 
 		aSorted = ring_reverse( @SortList(aContent) )
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			cItem   = @@(aContent[i])
 			cSorted = @@(aSorted[i])
 
 			if cItem != cSorted
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -30564,7 +30564,7 @@ class stzList from stzObject
 
 		*/
 
-		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@item", :CS _FALSE_))
+		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@item", _FALSE_))
 			StzRaise("Incorrect param! pcExpr must be a string containing @item keyword.")
 		ok
 
@@ -30679,7 +30679,7 @@ class stzList from stzObject
 		aContent = This.Content()
 
 		for i = 1 to nLen
-			otherItem = NULL
+			otherItem = _NULL_
 			if i <= nLenOtherList
 				otherItem = paOtherList[i]
 			ok
@@ -30734,7 +30734,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasRepeatedLeadingItems()
-		return This.HasRepeatedLeadingItemsCS(TRUE)
+		return This.HasRepeatedLeadingItemsCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -30795,7 +30795,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasRepeatedTrailingItems()
-		return This.HasRepeatedTrailingItemsCS(TRUE)
+		return This.HasRepeatedTrailingItemsCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -30841,7 +30841,7 @@ class stzList from stzObject
 		bCase = @CaseSensitive(pCaseSensitive)
 		acList = ""
 
-		if bCase _TRUE_
+		if bCase = _TRUE_
 			acList = This.Stringified()
 		else
 			acList.StringifyQ().Lowercased()
@@ -30890,7 +30890,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedLeadingItems()
-		return This.RepeatedLeadingItemsCS(TRUE)
+		return This.RepeatedLeadingItemsCS(_TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -30953,7 +30953,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedLeadingItem()
-		return This.RepeatedLeadingItem(TRUE)
+		return This.RepeatedLeadingItem(_TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -31027,7 +31027,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfRepeatedLeadingItems()
-		return This.NumberOfRepeatedLeadingItemsCS(TRUE)
+		return This.NumberOfRepeatedLeadingItemsCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -31073,11 +31073,11 @@ class stzList from stzObject
 	def RepeatedLeadingItemIsCS(pItem, pCaseSensitive)
 
 		aLead = This.RepeatedLeadingItemsCS(pCaseSensitive)
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		if len(aLead) > 0
 			if Q(aLead[1]).IsEqualToCS(pItem, pCaseSensitive)
-				bResult _TRUE_
+				bResult = _TRUE_
 			ok
 		ok
 
@@ -31096,7 +31096,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedLeadingItemIs(pItem)
-		return This.RepeatedLeadingItemIs(pItem, TRUE)
+		return This.RepeatedLeadingItemIs(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -31148,7 +31148,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedTrailingItem()
-		return This.RepeatedTrailingItemCS(TRUE)
+		return This.RepeatedTrailingItemCS(_TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -31206,7 +31206,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedTrailingItems()
-		return This.RepeatedTrailingItemsCS(TRUE)
+		return This.RepeatedTrailingItemsCS(_TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -31279,7 +31279,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfRepeatedTrailingItems()
-		return This.NumberOfRepeatedTrailingItemsCS(TRUE)
+		return This.NumberOfRepeatedTrailingItemsCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -31325,11 +31325,11 @@ class stzList from stzObject
 	def RepeatedTrailingItemIsCS(pItem, pCaseSensitive)
 
 		aLead = This.RepeatedTrailingItemsCS(pCaseSensitive)
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		if len(aLead) > 0
 			if Q(aLead[1]).IsEqualToCS(pItem, pCaseSensitive)
-				bResult _TRUE_
+				bResult = _TRUE_
 			ok
 		ok
 
@@ -31348,7 +31348,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedTrailingItemIs(pItem)
-		return This.RepeatedTrailingItemIsCS(pItem, TRUE)
+		return This.RepeatedTrailingItemIsCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -31406,7 +31406,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedLEadingItems()
-		This.RemoveRepeatedLeadingItemsCS(TRUE)
+		This.RemoveRepeatedLeadingItemsCS(_TRUE_)
 
 		def RemoveRepeatedLeadingItemsQ()
 			This.RemoveRepeatedLeadingItems()
@@ -31498,7 +31498,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedLeadingItem(pItem)
-		This.RemoveRepeatedLeadingItemCS(pItem, TRUE)
+		This.RemoveRepeatedLeadingItemCS(pItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -31594,7 +31594,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedTrailingItems()
-		This.RemoveRepeatedTrailingItemsCS(TRUE)
+		This.RemoveRepeatedTrailingItemsCS(_TRUE_)
 
 		def RemoveRepeatedTrailingItemsQ()
 			This.RemoveRepeatedTrailingItems()
@@ -31684,7 +31684,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedTrailingItem(pItem)
-		This.RemoveRepeatedTrailingItemCS(pItem, TRUE)
+		This.RemoveRepeatedTrailingItemCS(pItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -31914,7 +31914,7 @@ class stzList from stzObject
 	#-- WTIHOUT CASESENSITIVITY
 
 	def RemoveRepeatedLeadingAndTrailingItems()
-		This.RemoveRepeatedLeadingAndTrailingItemsCS(TRUE)
+		This.RemoveRepeatedLeadingAndTrailingItemsCS(_TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -32157,7 +32157,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisRepeatedLeadingItem(pItem, pNewItem)
-		This.ReplaceThisRepeatedLeadingItemCS(pItem, pNewItem, TRUE)
+		This.ReplaceThisRepeatedLeadingItemCS(pItem, pNewItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -32277,7 +32277,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceRepeatedTrailingItem(pItem)
-		This.ReplaceRepeatedTralingItemCS(pItem, TRUE)
+		This.ReplaceRepeatedTralingItemCS(pItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -32390,7 +32390,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisRepeatedTrailingItem(pItem, pNewItem)
-		This.ReplaceThisRepeatedTrailingItemCS(pItem, pNewItem, TRUE)
+		This.ReplaceThisRepeatedTrailingItemCS(pItem, pNewItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -32482,7 +32482,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
-		This.ReplaceRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, TRUE)
+		This.ReplaceRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -32597,7 +32597,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceRepeatedLeadingAndTrailingItems(pNewItem)
-		This.ReplaceRepeatedLeadingAndTrailingItemsCS(pNewItem, TRUE)
+		This.ReplaceRepeatedLeadingAndTrailingItemsCS(pNewItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -32679,12 +32679,12 @@ class stzList from stzObject
 					nLen = len(acNumbers)
 
 					n1 = 1
-					if acNumbers[1] != NULL
+					if acNumbers[1] != _NULL_
 						n1 = 0+ acNumbers[1]
 					ok
 
 					n2 = This.NumberOfItems()
-					if acNumbers[2] != NULL
+					if acNumbers[2] != _NULL_
 						n2 = 0+ acNumbers[2]
 					ok
 
@@ -32774,13 +32774,13 @@ class stzList from stzObject
 				if _bTheseQ
 
 					aResult = This.ManyAdded(pValue)
-					bTheseQ _FALSE_
+					bTheseQ = _FALSE_
 					return new stzList(aResult)
 
 				but _bThese
 
 					aResult = This.ManyAdded(pValue)
-					_bThese _FALSE_ # Resets the global flag
+					_bThese = _FALSE_ # Resets the global flag
 					return aResult
 
 				else
@@ -32792,22 +32792,22 @@ class stzList from stzObject
 
 				if _bAsObject
 					aResult = This.ItemAdded(pValue)
-					_bAsObject _FALSE_
+					_bAsObject = _FALSE_
 					return aResult
 
 				but _bAsObjectQ
 					aResult = This.ItemAdded(pValue)
-					_bAsObjectQ _FALSE_
+					_bAsObjectQ = _FALSE_
 					return new stzList(aResult)
 
 				but _bTheseQ
 					aResult = This.ManyAdded(pValue.Content())
-					_bTheseQ _FALSE_ # Resets the global flag
+					_bTheseQ = _FALSE_ # Resets the global flag
 					return new stzList(aResult)
 
 				but _bThese
 					aResult = This.Copy().ManyAdded(pValue.Content())
-					_bThese _FALSE_ # Resets the global flag
+					_bThese = _FALSE_ # Resets the global flag
 					return aResult
 				else
 
@@ -32832,14 +32832,14 @@ class stzList from stzObject
 
 				if _bTheseQ
 					aResult = This.ManyRemoved(pValue)
-					bTheseQ _FALSE_
+					bTheseQ = _FALSE_
 
 					return new stzList(aResult)
 
 				but _bThese
 
 					aResult = This.ManyRemoved(pValue)
-					_bThese _FALSE_ # Resets the global flag
+					_bThese = _FALSE_ # Resets the global flag
 
 					return aResult
 
@@ -32853,25 +32853,25 @@ class stzList from stzObject
 				if _bAsObject
 
 					aResult = This.ItemRemoved(pValue)
-					_bAsObject _FALSE_
+					_bAsObject = _FALSE_
 
 					return aResult
 
 				but _bAsObjectQ
 					aResult = This.ItemRemoved(pValue)
-					_bAsObjectQ _FALSE_
+					_bAsObjectQ = _FALSE_
 
 					return new stzList(aResult)
 
 				but _bTheseQ
 					aResult = This.ManyRemoved(pValue.Content())
-					_bTheseQ _FALSE_ # Resets the global flag
+					_bTheseQ = _FALSE_ # Resets the global flag
 
 					return new stzList(aResult)
 
 				but _bThese
 					aResult = This.Copy().ManyRemoved(pValue.Content())
-					_bThese _FALSE_ # Resets the global flag
+					_bThese = _FALSE_ # Resets the global flag
 
 					return aResult
 				else
@@ -32907,13 +32907,13 @@ class stzList from stzObject
 
 				if _bTheseQ
 					aResult = This.ManyMultipliedBy(pValue)
-					bTheseQ _FALSE_
+					bTheseQ = _FALSE_
 					return new stzList(aResult)
 
 				but _bThese
 
 					aResult = This.ManyMultipliedBy(pValue)
-					_bThese _FALSE_ # Resets the global flag
+					_bThese = _FALSE_ # Resets the global flag
 					return aResult
 
 				else
@@ -32925,22 +32925,22 @@ class stzList from stzObject
 
 				if _bAsObject
 					aResult = This.ItemMultipliedBy(pValue)
-					_bAsObject _FALSE_
+					_bAsObject = _FALSE_
 					return aResult
 
 				but _bAsObjectQ
 					aResult = This.ItemMultipliedBy(pValue)
-					_bAsObjectQ _FALSE_
+					_bAsObjectQ = _FALSE_
 					return new stzList(aResult)
 
 				but _bTheseQ
 					aResult = This.ManyMultipliedBy(pValue.Content())
-					_bTheseQ _FALSE_ # Resets the global flag
+					_bTheseQ = _FALSE_ # Resets the global flag
 					return new stzList(aResult)
 
 				but _bThese
 					aResult = This.Copy().ManyMultipliedBy(pValue.Content())
-					_bThese _FALSE_ # Resets the global flag
+					_bThese = _FALSE_ # Resets the global flag
 					return aResult
 				else
 
@@ -33834,7 +33834,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrence(pItem)
-		return This.NumberOfOccurrenceCS(pItem, TRUE)
+		return This.NumberOfOccurrenceCS(pItem, _TRUE_)
 
 		#< @FucntionAlternativeForms
 
@@ -33984,7 +33984,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceST(pItem, pnStartingAt)
-		return This.NumberOfOccurrenceSTCS(pItem, pnStartingAt, TRUE)
+		return This.NumberOfOccurrenceSTCS(pItem, pnStartingAt, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -34096,7 +34096,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsOccurringNTimes(n)
-		return This.ItemsOccurringNTimesCS(n, TRUE)
+		return This.ItemsOccurringNTimesCS(n, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -34211,7 +34211,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsOccurringExactlyNTimes(n)
-		return This.ItemsOccurringExactlyNTimesCS(n, TRUE)
+		return This.ItemsOccurringExactlyNTimesCS(n, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -34320,7 +34320,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsOccurringMoreThanNTimes(n)
-		return This.ItemsOccurringMoreThanNTimesCS(n, TRUE)
+		return This.ItemsOccurringMoreThanNTimesCS(n, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -34409,7 +34409,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsOccurringLessThanNTimes(n)
-		return This.ItemsOccurringLessThanNTimesCS(n, TRUE)
+		return This.ItemsOccurringLessThanNTimesCS(n, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -34482,7 +34482,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsOccurringNTimesOrLess(n)
-		return This.ItemsOccurringNTimesOrLessCS(n, TRUE)
+		return This.ItemsOccurringNTimesOrLessCS(n, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -34510,15 +34510,15 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
 
 		aList = @aContent
 
-		if pCaseSensitive _FALSE_
+		if pCaseSensitive = _FALSE_
 			aList = This.Lowercased()
 		ok
 
@@ -34575,7 +34575,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsAndTheirNumberOfOccurrence()
-		return This.ItemsAndTheirNumberOfOccurrenceCS(TRUE)
+		return This.ItemsAndTheirNumberOfOccurrenceCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -34622,15 +34622,15 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
 
 		aList = @aContent
 
-		if pCaseSensitive _FALSE_
+		if pCaseSensitive = _FALSE_
 			aList = This.Lowercased()
 		ok
 
@@ -34706,7 +34706,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def FindItems()
-		return This.FindItemsCS(TRUE)
+		return This.FindItemsCS(_TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -34755,15 +34755,15 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
 
 		aList = @aContent
 
-		if pCaseSensitive _FALSE_
+		if pCaseSensitive = _FALSE_
 			aList = This.Lowercased()
 		ok
 
@@ -34829,7 +34829,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfItems()
-		return This.NumberOfOccurrenceOfItemsCS(TRUE)
+		return This.NumberOfOccurrenceOfItemsCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -34905,7 +34905,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearest(pItem, pToPositionSectionOrItem)
-		return This.FindNearestCS(pItem, pToPositionSectionOrItem, TRUE)
+		return This.FindNearestCS(pItem, pToPositionSectionOrItem, _TRUE_)
 
 	  #-----------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO A GIVEN POSITION  #
@@ -34955,7 +34955,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToPosition(pItem, pnPos)
-		return This.FindNearestToPositionCS(pItem, pnPos, TRUE)
+		return This.FindNearestToPositionCS(pItem, pnPos, _TRUE_)
 	
 	  #------------------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCES OF AN ITEM TO A GIVEN POSITION -- XT  #
@@ -34980,7 +34980,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToPositionXT(pItem, pnPos)
-		return This.FindNearestToPositionCSXT(pItem, pnPos, TRUE)
+		return This.FindNearestToPositionCSXT(pItem, pnPos, _TRUE_)
 
 	  #----------------------------------------------------------------#
 	 #  FINDING NEAREST OCCURRENCE OF AN ITEM TO THE GIVEN POSITIONS  #
@@ -35034,7 +35034,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToPositions(pItem, panPos)
-		return This.FindNearestToPositionsCS(pItem, panPos, TRUE)
+		return This.FindNearestToPositionsCS(pItem, panPos, _TRUE_)
 
 	  #----------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO A GIVEN SECTION  #
@@ -35099,7 +35099,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToSection(pItem, n1, n2)
-		return This.FindNearestToSectionCS(pItem, n1, n2, TRUE)
+		return This.FindNearestToSectionCS(pItem, n1, n2, _TRUE_)
 
 	  #---------------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO A GIVEN SECTION -- XT #
@@ -35157,7 +35157,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToSectionXT(pItem, n1, n2)
-		return This.FindNearestToSectionCSXT(pItem, n1, n2, TRUE)
+		return This.FindNearestToSectionCSXT(pItem, n1, n2, _TRUE_)
 
 	  #-------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO THE SECTIONS  #
@@ -35206,7 +35206,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToSections(pItem, paSections)
-		return This.FindNearestToSectionsCS(pItem, paSections, TRUE)
+		return This.FindNearestToSectionsCS(pItem, paSections, _TRUE_)
 
 	  #-------------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO A GIVEN OTHER ITEM  #
@@ -35228,7 +35228,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToItem(pItem, pcOtherSubStr)
-		return This.FindNearestToItemCS(pItem, pcOtherSubStr, TRUE)
+		return This.FindNearestToItemCS(pItem, pcOtherSubStr, _TRUE_)
 
 	  #------------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO GIVEN OTHER ITEMS  #
@@ -35249,7 +35249,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToItems(pItem, pacOtherItems)
-		return This.FindNearestToItemsCS(pItem, pcOtherSubStr, TRUE)
+		return This.FindNearestToItemsCS(pItem, pcOtherSubStr, _TRUE_)
 
 	  #==================================================#
 	 #  CHECKING IF AN ITEM IS DUPPLICATED IN THE LIST  #
@@ -35284,7 +35284,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemIsDuplicated(pItem)
-		return This.ItemIsDuplicatedCS(pItem, TRUE)
+		return This.ItemIsDuplicatedCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -35306,11 +35306,11 @@ class stzList from stzObject
 		ok
 
 		nLen = len(paItems)
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT This.ItemIsDuplicatedCS(pItem, pCaseSensitive)
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -35323,7 +35323,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsAreDuplicated(paItems)
-		return This.ItemsAreDuplicatedCS(paItems, TRUE)
+		return This.ItemsAreDuplicatedCS(paItems, _TRUE_)
 		
 		def ItemsAreDuplicates(paItems)
 			return This.ItemsAreDuplicated(paItems)
@@ -35344,8 +35344,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
@@ -35367,7 +35367,7 @@ class stzList from stzObject
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 
@@ -35392,7 +35392,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -35421,7 +35421,7 @@ class stzList from stzObject
 
 		# Checking if an item is a duplicate
 
-		bResult _FALSE_
+		bResult = _FALSE_
 		acSeen = []
 
 		for i = 1 to nLen
@@ -35430,7 +35430,7 @@ class stzList from stzObject
 			if n = 0
 				acSeen + acStr[i]
 			else
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 
@@ -35454,7 +35454,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicates()
-		return This.ContainsDuplicatesCS(TRUE)
+		return This.ContainsDuplicatesCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -35483,7 +35483,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemIsDuplicatedNTimes(n, pItem)
-		return This.ItemIsDuplicatedNTimesCS(n, pItem, TRUE)
+		return This.ItemIsDuplicatedNTimesCS(n, pItem, _TRUE_)
 
 	  #----------------------------------------------------#
 	 #  CHECKING IF ALL ITEMS IN THE LIST ARE DUPLICATED  #
@@ -35497,8 +35497,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
@@ -35520,7 +35520,7 @@ class stzList from stzObject
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 
@@ -35545,7 +35545,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -35573,7 +35573,7 @@ class stzList from stzObject
 
 		# Checking if an item is a duplicate
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		acSeen = []
 		acNonDuplicated = []
 
@@ -35594,7 +35594,7 @@ class stzList from stzObject
 		next
 
 		if len(acNonDuplicated) > 0
-			bResult _FALSE_
+			bResult = _FALSE_
 		ok
 
 		return bResult
@@ -35602,7 +35602,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AllItemsAreDuplicated()
-		return This.AllItemsAreDuplicatedCS(TRUE)
+		return This.AllItemsAreDuplicatedCS(_TRUE_)
 
 	  #-------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS A SET (CONTAINS NO DUPLICATIONS AT ALL)  #
@@ -35618,8 +35618,8 @@ class stzList from stzObject
 				pCaseSensitive = pCaseSensitive[2]
 			ok
 	
-			if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-				StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+			if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+				StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 			ok
 
 		ok
@@ -35644,7 +35644,7 @@ class stzList from stzObject
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 
@@ -35669,7 +35669,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -35698,7 +35698,7 @@ class stzList from stzObject
 
 		# Checking if an item is a duplicate
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		acSeen = []
 		acNonDuplicated = []
 
@@ -35711,7 +35711,7 @@ class stzList from stzObject
 			else
 				nPos = ring_find( acNonDuplicated, acStr[i] )
 				if nPos > 0
-					bResult _FALSE_
+					bResult = _FALSE_
 					exit
 				ok
 	
@@ -35767,7 +35767,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNoDuplicates()
-		return This.ContainsNoDuplicatesCS(TRUE)
+		return This.ContainsNoDuplicatesCS(_TRUE_)
 
 		#< @FunctionAlterativeForms
 
@@ -35867,7 +35867,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfDuplicates()
-		return This.NumberOfDuplicatesCS(TRUE)
+		return This.NumberOfDuplicatesCS(_TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -35924,8 +35924,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
@@ -35947,7 +35947,7 @@ class stzList from stzObject
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 	
@@ -35971,7 +35971,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -36055,7 +36055,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesZ()
-		return This.DuplicatesCSZ(TRUE)
+		return This.DuplicatesCSZ(_TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -36096,8 +36096,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
@@ -36119,7 +36119,7 @@ class stzList from stzObject
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 	
@@ -36144,7 +36144,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -36208,7 +36208,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicates()
-		return This.FindDuplicatesCS(TRUE)
+		return This.FindDuplicatesCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -36236,8 +36236,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
@@ -36259,7 +36259,7 @@ class stzList from stzObject
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 	
@@ -36283,7 +36283,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -36363,7 +36363,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesXTZ()
-		return This.DuplicatesCSXTZ(TRUE)
+		return This.DuplicatesCSXTZ(_TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -36400,8 +36400,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
@@ -36423,7 +36423,7 @@ class stzList from stzObject
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 	
@@ -36447,7 +36447,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -36516,7 +36516,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesXT()
-		return This.FindDuplicatesCSXT(TRUE)
+		return This.FindDuplicatesCSXT(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -36545,8 +36545,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
@@ -36568,7 +36568,7 @@ class stzList from stzObject
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 	
@@ -36592,7 +36592,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -36704,7 +36704,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstDuplicates()
-		return This.FindFirstDuplicatesCS(TRUE)
+		return This.FindFirstDuplicatesCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -36819,7 +36819,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDupOrigins()
-		This.RemoveDupOriginsCS(TRUE)
+		This.RemoveDupOriginsCS(_TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -36879,8 +36879,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
@@ -36902,7 +36902,7 @@ class stzList from stzObject
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 	
@@ -36926,7 +36926,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -37037,7 +37037,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Duplicates()
-		return This.DuplicatesCS(TRUE)
+		return This.DuplicatesCS(_TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -37137,7 +37137,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesOfItem(pItem)
-		return This.FindDuplicatesOfItemCS(pItem, TRUE)
+		return This.FindDuplicatesOfItemCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -37191,8 +37191,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
@@ -37244,7 +37244,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNonDuplicatedItems()
-		return This.ContainsItemsThatAreNotDuplicatedCS(TRUE)
+		return This.ContainsItemsThatAreNotDuplicatedCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -37295,8 +37295,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
@@ -37319,7 +37319,7 @@ class stzList from stzObject
 		# and get relatively better performance on larger lists (up to 30K items)
 
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 
@@ -37343,7 +37343,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -37420,7 +37420,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NonDuplicatedItems()
-		return This.NonDuplicatedItemsCS(TRUE)
+		return This.NonDuplicatedItemsCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -37477,7 +37477,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfNonDuplicatedItems()
-		return This.NumberOfNonDuplicatedItemsCS(TRUE)
+		return This.NumberOfNonDuplicatedItemsCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -37525,8 +37525,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
@@ -37549,7 +37549,7 @@ class stzList from stzObject
 		# and get relatively better performance on larger lists (up to 30K items)
 
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 
@@ -37574,7 +37574,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -37643,7 +37643,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNonDuplicatedItems()
-		return This.FindNonDuplicatedItemsCS(TRUE)
+		return This.FindNonDuplicatedItemsCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -37695,7 +37695,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NonDuplicatedItemsAndTheirPositions()
-		return This.NonDuplicatedItemsAndTheirPositionsCS(TRUE)
+		return This.NonDuplicatedItemsAndTheirPositionsCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -37857,7 +37857,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicates()
-		This.RemoveDuplicatesCS(TRUE)
+		This.RemoveDuplicatesCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -38118,7 +38118,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicatesOfItem(pItem)
-		This.RemoveDuplicatesOfItemCS(pItem, TRUE)
+		This.RemoveDuplicatesOfItemCS(pItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -38145,7 +38145,7 @@ class stzList from stzObject
 				return This
 
 		def RemoveDuplicatesOf(pItem)
-			This.RemoveDuplicatesOfCS(pItem, TRUE)
+			This.RemoveDuplicatesOfCS(pItem, _TRUE_)
 
 			def RemoveDuplicatesOfQ(pItem)
 				This.RemoveDuplicatesOf(pItem)
@@ -38168,7 +38168,7 @@ class stzList from stzObject
 		#>
 
 	def DuplicatesOfItemRemoved(pItem)
-		return This.DuplicatesOfItemRemovedCS(pItem, TRUE)
+		return This.DuplicatesOfItemRemovedCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -38328,7 +38328,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicatesOfItems(paItems)
-		This.RemoveDuplicatesOfItemsCS(paItems, TRUE)
+		This.RemoveDuplicatesOfItemsCS(paItems, _TRUE_)
 
 		#< @FuntionFluentForm
 
@@ -38395,7 +38395,7 @@ class stzList from stzObject
 		#>
 
 	def DuplicatesOfItemsRemoved(paItems)
-		return This.DuplicatesOfItemsRemovedCS(paItems, TRUE)
+		return This.DuplicatesOfItemsRemovedCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -38486,7 +38486,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNonDuplicates()
-		This.RemoveNonDuplicatesCS(TRUE)
+		This.RemoveNonDuplicatesCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -38549,16 +38549,16 @@ class stzList from stzObject
 		ok
 
 		bCaseSensitive = @CaseSensitive(pCaseSensitive)
-		bResult _FALSE_
+		bResult = _FALSE_
 
-		if bCaseSensitive _TRUE_
+		if bCaseSensitive = _TRUE_
 
 			cLast = Q(aContent[1]).Stringified()
 	
 			for i = 2 to nLen
 				cItem = Q(aContent[i]).Stringified()
 				if cLast = cItem
-					bResult _TRUE_
+					bResult = _TRUE_
 					exit
 				ok
 				cLast = cItem
@@ -38566,14 +38566,14 @@ class stzList from stzObject
 	
 			return bResult
 
-		else // bCaseSensitive _FALSE_
+		else // bCaseSensitive = _FALSE_
 
 			cLast = Q(aContent[1]).StringifyQ().Lowercased()
 
 			for i = 2 to nLen
 				cItem = Q(aContent[i]).StringifyQ().Lowercased()
 				if cLast = cItem
-					bResult _TRUE_
+					bResult = _TRUE_
 					exit
 				ok
 				cLast = cItem
@@ -38588,7 +38588,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDupSecutiveItems()
-		return This.ContainsDupSecutiveItemsCS(TRUE)
+		return This.ContainsDupSecutiveItemsCS(_TRUE_)
 
 		def ContainsDuplicatedConSecutiveItems()
 			return This.ContainsDupSecutiveItems()
@@ -38609,7 +38609,7 @@ class stzList from stzObject
 		bCaseSensitive = @CaseSensitive(pCaseSensitive)
 		acItems = []
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 
@@ -38634,7 +38634,7 @@ class stzList from stzObject
 				acItems + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -38681,7 +38681,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDupSecutiveItems()
-		return This.FindDupSecutiveItemsCS(TRUE)
+		return This.FindDupSecutiveItemsCS(_TRUE_)
 
 		def FindDuplicatedConsecutiveItems()
 			return This.FindDupSecutiveItems()
@@ -38702,7 +38702,7 @@ class stzList from stzObject
 		bCaseSensitive = @CaseSensitive(pCaseSensitive)
 		acItems = []
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 
@@ -38727,7 +38727,7 @@ class stzList from stzObject
 				acItems + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -38779,7 +38779,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DupSecutiveItems()
-		return This.DupSecutiveItemsCS(TRUE)
+		return This.DupSecutiveItemsCS(_TRUE_)
 
 		def DuplicatedConsecutiveItems()
 			return This.DupSecutiveItems()
@@ -38800,7 +38800,7 @@ class stzList from stzObject
 		bCaseSensitive = @CaseSensitive(pCaseSensitive)
 		acItems = []
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 
@@ -38825,7 +38825,7 @@ class stzList from stzObject
 				acItems + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -38879,7 +38879,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DupSecutiveItemsZ()
-		return This.DupSecutiveItemsCSZ(TRUE)
+		return This.DupSecutiveItemsCSZ(_TRUE_)
 
 		def DuplicatedConsecutiveItemsZ()
 			return This.DupSecutiveItemsZ()
@@ -38912,7 +38912,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDupSecutiveItems()
-		This.RemoveDupSecutiveItemsCS(TRUE)
+		This.RemoveDupSecutiveItemsCS(_TRUE_)
 
 		def RemoveDupSecutiveItemsQ()
 			This.RemoveDupSecutiveItems()
@@ -38945,16 +38945,16 @@ class stzList from stzObject
 		ok
 
 		bCaseSensitive = @CaseSensitive(pCaseSensitive)
-		bResult _FALSE_
+		bResult = _FALSE_
 
-		if bCaseSensitive _TRUE_
+		if bCaseSensitive = _TRUE_
 
 			cLast = Q(aContent[1]).Stringified()
 	
 			for i = 2 to nLen
 				cItem = Q(aContent[i]).Stringified()
 				if cLast = cItem
-					bResult _TRUE_
+					bResult = _TRUE_
 					exit
 				ok
 				cLast = cItem
@@ -38962,14 +38962,14 @@ class stzList from stzObject
 	
 			return bResult
 
-		else // bCaseSensitive _FALSE_
+		else // bCaseSensitive = _FALSE_
 
 			cLast = Q(aContent[1]).StringifyQ().Lowercased()
 
 			for i = 2 to nLen
 				cItem = Q(aContent[i]).StringifyQ().Lowercased()
 				if cLast = cItem
-					bResult _TRUE_
+					bResult = _TRUE_
 					exit
 				ok
 				cLast = cItem
@@ -38994,7 +38994,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDupSecutiveOrigins()
-		return This.FindDupSecutiveOriginsCS(TRUE)
+		return This.FindDupSecutiveOriginsCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -39025,7 +39025,7 @@ class stzList from stzObject
 		bCaseSensitive = @CaseSensitive(pCaseSensitive)
 		acItems = []
 
-		if pCaseSensitive _TRUE_
+		if pCaseSensitive = _TRUE_
 
 			for i = 1 to nLen
 
@@ -39050,7 +39050,7 @@ class stzList from stzObject
 				acItems + cItem
 			next
 
-		else // pCaseSensitive _FALSE_
+		else // pCaseSensitive = _FALSE_
 
 			for i = 1 to nLen
 	
@@ -39080,7 +39080,7 @@ class stzList from stzObject
 		# Doing the job
 
 		cItem = @@(pItem)
-		if bCaseSensitive _FALSE_
+		if bCaseSensitive = _FALSE_
 			cItem = ring_lower(cItem)
 		ok
 
@@ -39115,7 +39115,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDupSecutiveItem(pItem)
-		return This.FindDupSecutiveItemCS(pItem, TRUE)
+		return This.FindDupSecutiveItemCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -39156,7 +39156,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DupSecutiveItemZ(pItem)
-		return This.DupSecutiveItemCSZ(pItem, TRUE)
+		return This.DupSecutiveItemCSZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -39228,7 +39228,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDupSecutiveItem(pItem)
-		This.RemoveDupSecutiveItemCS(pItem, TRUE)
+		This.RemoveDupSecutiveItemCS(pItem, _TRUE_)
 
 		#< @FunctionFlunetForm
 
@@ -39325,7 +39325,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Contains(pItem)
-		return This.ContainsCS(pItem, TRUE)
+		return This.ContainsCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -39396,12 +39396,12 @@ class stzList from stzObject
 		
 		# Evaluating the code against the items
 
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		for @i = 1 to nLen
 			eval(cCode)
 			if bOk
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -39448,12 +39448,12 @@ class stzList from stzObject
 
 		# Evaluating the code against the list items
 
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		for @i = 1 to nLen
 			eval(cCode)
 			if bOk
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -39510,7 +39510,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsContainedIn(p)
-		return This.IsContainedInCS(p, TRUE)
+		return This.IsContainedInCS(p, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -39538,7 +39538,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsBoth(pItem1, pItem2)
-		return This.ContainsBothCS(pItem1, pItem2, TRUE)
+		return This.ContainsBothCS(pItem1, pItem2, _TRUE_)
 
 	  #-----------------------------------------------------------#
 	 #    CONTAINING ONE GIVEN ITEM OR AN OTHER (BUT NOT BOTH)   #
@@ -39565,7 +39565,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsEither(pItem1, pItem2)
-		return This.ContainsEitherCS(pItem1, pItem2, TRUE)
+		return This.ContainsEitherCS(pItem1, pItem2, _TRUE_)
 
 	  #--------------------------------------------------------------------#
 	 #  CHECKING IF EACH ONE OF THE GIVEN ITEMS EXISTS IN THE GIVEN LIST  #
@@ -39599,7 +39599,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVI
 
 	def EachItemExistsIn(paOtherList)
-		return This.EachItemExistsInCS(paOtherList, TRUE)
+		return This.EachItemExistsInCS(paOtherList, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -39637,7 +39637,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsOneOfThese(paOtherList)
-		return This.IsOneOfTheseCS(paOtherList, TRUE)
+		return This.IsOneOfTheseCS(paOtherList, _TRUE_)
 
 		def IsNotOneOfThese(paOtherList)
 			return NOT This.IsOneOfThese(paOtherList)
@@ -39655,14 +39655,14 @@ class stzList from stzObject
 		paItems = U(paItems)
 		aContent = paItems
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		nLen = len(aContent)
 
 		for i = 1 to nLen
 
 			if NOT This.ContainsCS(aContent[i], pCaseSensitive)
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		end
@@ -39705,7 +39705,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsMany(paItems)
-		return This.ContainsManyCS(paItems, TRUE)
+		return This.ContainsManyCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -39745,11 +39745,11 @@ class stzList from stzObject
 
 	def ContainsSomeCS(paItems, pCaseSensitive)
 		paItems = U(paItems)
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		for item in paItems
 			if This.ContainsCS(item, pCaseSensitive)
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -39775,7 +39775,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSome(paItems)
-		return This.ContainsSomeCS(paItems, TRUE)
+		return This.ContainsSomeCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -39802,11 +39802,11 @@ class stzList from stzObject
 		aItems = Q(paItems).WithoutDupplication()
 		nLen = len(paItems)
 
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		for i = 1 to nLen
 			if This.ContainsCS( paItems[i],  pCaseSensitive)
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -39863,7 +39863,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsOneOfThese(paItems)
-		return This.ContainsOneOfTheseCS(paItems, TRUE)
+		return This.ContainsOneOfTheseCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -39950,7 +39950,7 @@ class stzList from stzObject
 	#-- WTIHOUT CASESENSITIVITY
 
 	def ContainsOnlyOneOfThese(paItems)
-		return This.ContainsOnlyOneOfTheseCS(paItems, TRUE)
+		return This.ContainsOnlyOneOfTheseCS(paItems, _TRUE_)
 
 	  #---------------------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS N OF THE PROVIDED ITEMS  #
@@ -39958,13 +39958,13 @@ class stzList from stzObject
 
 	def ContainsNCS(n, paItems, pCaseSensitive)
 		paItems = U(paItems)
-		bResult _FALSE_
+		bResult = _FALSE_
 		m = 0
 		for pItem in paItems
 			if This.ContainsCS(pItem, pCaseSensitive)
 				m++
 				if n = m
-					bResult _TRUE_
+					bResult = _TRUE_
 					exit
 				ok
 			ok
@@ -40000,7 +40000,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsN(n, paItems)
-		return This.ContainsNCS(n, paItems, TRUE)
+		return This.ContainsNCS(n, paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -40079,30 +40079,30 @@ class stzList from stzObject
 
 		o1 = new stzList([ "ee♥ee", "b♥bbb", "ccc♥", "♥♥" ])
 		? o1.EachContains("♥")
-		#--> TRUE
+		#--> _TRUE_
 		
 		EXAMPLE 2
 
 		o1 = new stzList([ ["ee","♥","ee"], ["♥", "bb"], "ccc♥", "♥♥" ])
 		? o1.EachContains("♥")
-		#--> TRUE
+		#--> _TRUE_
 		
 		EXAMPLE 3
 
 		o1 = new stzList([ "a♥a" ])
 		? o1.EachContains("♥")
-		#--> TRUE
+		#--> _TRUE_
 		
 		EXAMPLE 4
 
 		o1 = new stzList([ 0, "a♥a" ])
 		? o1.EachContains("♥")
-		#--> FALSE
+		#--> _FALSE_
 
 		*/
 
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		aContent = This.Content()
 		nLen = len(aContent)
@@ -40110,12 +40110,12 @@ class stzList from stzObject
 		for i = 1 to nLen
 
 			if NOT ( isList(aContent[i]) or isString(aContent[i]) )
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 
 			else
 				bResult = Q(aContent[i]).ContainsCS(pItem, pCaseSensitive)
-				if bResult _FALSE_
+				if bResult = _FALSE_
 					exit
 				ok
 			ok
@@ -40133,7 +40133,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def EachContains(pItem)
-		return This.EachContainsCS(pItem, TRUE)
+		return This.EachContainsCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -40148,7 +40148,7 @@ class stzList from stzObject
 
 	def EachContainsTheseCS(paItems, pCaseSensitive)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		aContent = This.Content()
 		nLen = len(aContent)
@@ -40156,13 +40156,13 @@ class stzList from stzObject
 		for i = 1 to nLen
 
 			if NOT ( isList(aContent[i]) or isString(aContent[i]) )
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 
 			else
 
 				bResult = Q(aContent[i]).ContainsTheseCS(paItems, pCaseSensitive)
-				if bResult _FALSE_
+				if bResult = _FALSE_
 					exit
 				ok
 			ok
@@ -40190,7 +40190,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def EachContainsThese(paItems)
-		return This.EachContainsTheseCS(paItems, TRUE)
+		return This.EachContainsTheseCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -40213,11 +40213,11 @@ class stzList from stzObject
 	#=========================================#
 
 	def ContainsNumbers()
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		for item in This.List()
 			if isNumber(item)
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -40232,11 +40232,11 @@ class stzList from stzObject
 	#-----------------------------------------#
 
 	def ContainsStrings()
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		for item in This.List()
 			if isString(item)
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -40251,11 +40251,11 @@ class stzList from stzObject
 	#---------------------------------------#
 
 	def ContainsLists()
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		for item in This.List()
 			if isList(item)
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -40735,11 +40735,11 @@ class stzList from stzObject
 	def ContainsOneOrMoreLists()
 		nlen = len(@aContent)
 
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		for i = 1 to nLen
 			if isList(@aContent[i])
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -40972,23 +40972,23 @@ class stzList from stzObject
 
 		oListInString = StzStringQ( list2code(This.Content()) )
 
-		bInsideList _FALSE_
+		bInsideList = _FALSE_
 		for i = 2 to oListInString.NumberOfChars() - 1
 
 			c = oListInString[i]
 
 			if c = "["
-				bInsideList _TRUE_
+				bInsideList = _TRUE_
 				n1 = i
 			ok
 
-			if c = "]" and bInsideList _TRUE_
+			if c = "]" and bInsideList = _TRUE_
 				n2 = i
 				cCode = oListInString.Section(n1, n2)
 				eval("aTempList = " + cCode)
 
 				aResult + aTempList
-				bInsideList _FALSE_
+				bInsideList = _FALSE_
 			ok
 			
 		next
@@ -41546,7 +41546,7 @@ class stzList from stzObject
 	
 			# Managing case sensitivity
 	
-			if pCaseSensitive _FALSE_
+			if pCaseSensitive = _FALSE_
 				cItem = ring_lower(cItem)
 	
 				for i = 1 to nLen
@@ -41696,7 +41696,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllOccurrences(pItem)
-		aResult = This.FindAllOccurrencesCS(pItem, TRUE)
+		aResult = This.FindAllOccurrencesCS(pItem, _TRUE_)
 		return aResult
 
 		#< @FunctionFluentForm
@@ -41705,7 +41705,7 @@ class stzList from stzObject
 			return This.FindAllOccurrencesQR(pItem, :stzList)
 
 		def FindAllOccurrencesQR(pItem, pcReturnType)
-			return This.FindAllOccurrencesCSQR(pItem, TRUE, pcReturnType)
+			return This.FindAllOccurrencesCSQR(pItem, _TRUE_, pcReturnType)
 		#>
 
 		#< @FunctionAlternativeForms
@@ -41802,7 +41802,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AntiFind(pItem)
-		return This.AntiFindCS(pItem, TRUE)
+		return This.AntiFindCS(pItem, _TRUE_)
 
 	  #--------------------------------------------------#
 	 #  FINDING SECTIONS WHERE THE ITEM DOES NOT EXIST  #
@@ -41819,7 +41819,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AntiFindAsSections(pItem)
-		return This.AntiFindAsSectionsCS(pItem, TRUE)
+		return This.AntiFindAsSectionsCS(pItem, _TRUE_)
 
 		def AntiFindZZ(pItem)
 			return This.AntiFindAsSections(pItem)
@@ -41985,7 +41985,7 @@ class stzList from stzObject
 	
 			# Managing case sensitivity
 	
-			if pCaseSensitive _FALSE_
+			if pCaseSensitive = _FALSE_
 				cItem = ring_lower(cItem)
 	
 				for i = 1 to nLen
@@ -42034,7 +42034,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthOccurrence(n, pItem) 
-		return This.FindNthOccurrenceCS(n, pItem, TRUE) 
+		return This.FindNthOccurrenceCS(n, pItem, _TRUE_) 
 
 		#< @FunctionAlternativeForms
 
@@ -42117,7 +42117,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstOccurrence(pItem)
-		return This.FindFirstOccurrenceCS(pItem, TRUE)
+		return This.FindFirstOccurrenceCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -42190,7 +42190,7 @@ class stzList from stzObject
 
 	def FindLastOccurrence(pItem)
 
-		return This.FindLastOccurrenceCS(pItem, TRUE)
+		return This.FindLastOccurrenceCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -42252,7 +42252,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseOccurrences(panOccurr, pItem)
-		return This.FindTheseOccurrencesCS(panOccurr, pItem, TRUE)
+		return This.FindTheseOccurrencesCS(panOccurr, pItem, _TRUE_)
 
 		def FindOccurrences(panOccurr, pItem)
 			return This.FindTheseOccurrences(panOccurr, pItem)
@@ -42328,7 +42328,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindMany(paItems)
-		return This.FindManyCS(paItems, TRUE)
+		return This.FindManyCS(paItems, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -42336,7 +42336,7 @@ class stzList from stzObject
 			return new stzList(This.FindMany(paItems))
 
 		def FindManyQR(paItems, pcReturnType)
-			return This.FindManyCSQR(paItems, TRUE, pcReturnType)
+			return This.FindManyCSQR(paItems, _TRUE_, pcReturnType)
 
 		#>
 
@@ -42396,7 +42396,7 @@ class stzList from stzObject
 	#-- CASESENSITIVITY
 
 	def TheseItemsZ(paItems)
-		return This.TheseItemsCSZ(paItems, TRUE)
+		return This.TheseItemsCSZ(paItems, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -42624,7 +42624,7 @@ class stzList from stzObject
 			return This.FindAllExceptFirstQR(pItem, :stzList)
 
 		def FindAllExceptFirstQR(pItem, pcReturnType)
-			return This.FindAllExceptFirstCSQR(pItem, TRUE, pcReturnType)
+			return This.FindAllExceptFirstCSQR(pItem, _TRUE_, pcReturnType)
 
 		#
 
@@ -42636,7 +42636,7 @@ class stzList from stzObject
 			#< @FunctionFluentForm
 	
 			def FindExceptFirstQR(pItem, pcReturnType)
-				return This.FindExceptFirstCSQR(pItem, TRUE, pcReturType)
+				return This.FindExceptFirstCSQR(pItem, _TRUE_, pcReturType)
 	
 			def FindExceptFirstQ(pItem)
 				return This.FindAllExceptFirstQR(pItem, :stzList)
@@ -42772,7 +42772,7 @@ class stzList from stzObject
 				return This.FindAllExceptLastQR(pItem, :stzListOfNumbers)
 
 			def FindExceptLastQR(pItem, pcReturnType)
-				return This.FindExceptLastCSQR(pItem, TRUE, pcReturnType)
+				return This.FindExceptLastCSQR(pItem, _TRUE_, pcReturnType)
 		
 			#>
 
@@ -42849,7 +42849,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubList(paItems)
-		return This.FindSubListCS(paItems, TRUE)
+		return This.FindSubListCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -42892,7 +42892,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSubList(paSubList)
-		return This.ContainsSubListCS(paSubList, TRUE)
+		return This.ContainsSubListCS(paSubList, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -42924,20 +42924,20 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContains(pItem)
-		return This.DeepContainsCS(pItem, TRUE)
+		return This.DeepContainsCS(pItem, _TRUE_)
 
 	  #-----------------------------------------------------------------------------#
 	 #  CHECKING IF THE PROVIDED ITEMS ARE ALL CONTAINED IN THE LIST AT ANY LEVEL  #
 	#-----------------------------------------------------------------------------#
 
 	def DeepContainsManyCS(paItems, pCaseSensitive)
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(paItems)
 
 		for i = 1 to nLen
 
 			if NOT This.DeepContainsCS(paItems[i], pCaseSensitive)
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 
@@ -42967,7 +42967,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContainsMany(paItems)
-		return This.DeepContainsManyCS(paItems, TRUE)
+		return This.DeepContainsManyCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -43003,18 +43003,18 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContainsBoth(pItem1, pItem2)
-		return This.DeepContainsBothCS(pItem1, pItem2, TRUE)
+		return This.DeepContainsBothCS(pItem1, pItem2, _TRUE_)
 
 	  #--------------------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS AT LEAST ONE OF THE PROVIDED ITEMS AT ANY LEVEL  #
 	#--------------------------------------------------------------------------------#
 
 	def DeepContainsOneOfTheseCS(paItems, pCaseSensitive)
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		for i = 1 to len(paItems)
 			if This.DeepContainsCS(paItems[i], pCaseSensitive)
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -43024,21 +43024,21 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContainsOneOfThese(paItems)
-		return This.DeepContainsOneOfTheseCS(paItems, TRUE)
+		return This.DeepContainsOneOfTheseCS(paItems, _TRUE_)
 
 	  #--------------------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS AT LEAST N OF THE PROVIDED ITEMS AT ANY LEVEL  #
 	#--------------------------------------------------------------------------------#
 
 	def DeepContainsNOfTheseCS(n, paItems, pCaseSensitive)
-		bResult _FALSE_
+		bResult = _FALSE_
 		v = 0
 
 		for i = 1 to len(paItems)
 			if This.DeepContainsCS(paItems[i], pCaseSensitive)
 				v++
 				if v = n
-					bResult _TRUE_
+					bResult = _TRUE_
 					exit
 				ok
 			ok
@@ -43053,7 +43053,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContainsNOfThese(n, paItems)
-		return This.DeepContainsNOfTheseCS(n, paItems, TRUE)
+		return This.DeepContainsNOfTheseCS(n, paItems, _TRUE_)
 
 		def DeepContainsNItemsOfThese(n, paItems)
 			return This.DeepContainsNOfThese(n, paItems)
@@ -43120,7 +43120,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepFind(pItem)
-		return This.DeepFindCS(pItem, TRUE)
+		return This.DeepFindCS(pItem, _TRUE_)
 
 	  #-----------------------------------------------------#
 	 #  FINDING THE LIST ITEMS IN AN OTHER LIST OR ITEM  #
@@ -43175,7 +43175,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindIn(pOtherListOrStr)
-		return FindInCS(pOtherListOrStr, TRUE)
+		return FindInCS(pOtherListOrStr, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -43205,7 +43205,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInList(paOtherList)
-		return This.FindInListCS(paOtherList, TRUE)
+		return This.FindInListCS(paOtherList, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -43235,7 +43235,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInString(pcStr)
-		return This.FindInStringCS(pcStr, TRUE)
+		return This.FindInStringCS(pcStr, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -43302,7 +43302,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def VizFindAllOccurrences(pItem)
-		return This.VizFindAllOccurrencesCS(pItem, TRUE)
+		return This.VizFindAllOccurrencesCS(pItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -43531,7 +43531,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthNextOccurrence( n, pItem, nStart )
-		return This.FindNthNextOccurrenceCS( n, pItem, nStart, TRUE )
+		return This.FindNthNextOccurrenceCS( n, pItem, nStart, _TRUE_ )
 
 		#< @FunctionAlternativeForms
 
@@ -43644,7 +43644,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthPreviousOccurrence(n, pItem, nStart)
-		return This.FindNthPreviousOccurrenceCS(n, pItem, nStart, TRUE)
+		return This.FindNthPreviousOccurrenceCS(n, pItem, nStart, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -43757,7 +43757,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNextOccurrence(pItem, nStart)
-		nResult = This.FindNextOccurrenceCS(pItem, nStart, TRUE)
+		nResult = This.FindNextOccurrenceCS(pItem, nStart, _TRUE_)
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -43831,7 +43831,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindPreviousOccurrence(pItem, pnStartingAt)
-		return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, TRUE)
+		return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -43923,7 +43923,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNextOccurrences(pItem, pnStartingAt)
-		return This.FindNextOccurrencesCS(pItem, pnStartingAt, TRUE)
+		return This.FindNextOccurrencesCS(pItem, pnStartingAt, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -43992,7 +43992,7 @@ class stzList from stzObject
 		#>
 
 	def FindPreviousOccurrences(pcSubStr, pnStartingAt)
-		return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, TRUE)
+		return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -44044,7 +44044,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNextNthOccurrences(panPos, pItem, pnStartingAt)
-		return This.FindNextNthOccurrencesCS(panPos, pItem, pnStartingAt, TRUE)
+		return This.FindNextNthOccurrencesCS(panPos, pItem, pnStartingAt, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -44096,7 +44096,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindPreviousNthOccurrences(panPos, pItem, pnStartingAt)
-		return This.FindPreviousNthOccurrencesCS(panPos, pItem, pnStartingAt, TRUE)
+		return This.FindPreviousNthOccurrencesCS(panPos, pItem, pnStartingAt, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -44190,13 +44190,13 @@ class stzList from stzObject
 
 		# 4) ~>  Preparing the list for casesensitivity
 
-		if @CaseSensitive(pCaseSensitive) _TRUE_
+		if @CaseSensitive(pCaseSensitive) = _TRUE_
 			_oCopy_ = This.Copy()
 		else
 			_oCopy_ = This.Copy().LowercaseQ()
 		ok
 
-		cCode = StzStringQ(cCode).ReplaceCSQ("This", "_oCopy_", FALSE).Content()
+		cCode = StzStringQ(cCode).ReplaceCSQ("This", "_oCopy_", _FALSE_).Content()
 
 		# 5) ~>  Doing the job
 
@@ -44265,7 +44265,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllItemsW(pcCondition)
-		return This.FindAllItemsWCS(pcCondition, TRUE)
+		return This.FindAllItemsWCS(pcCondition, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -44390,13 +44390,13 @@ class stzList from stzObject
 
 		# 4) ~>  Preparing the list for casesensitivity
 
-		if @CaseSensitive(pCaseSensitive) _TRUE_
+		if @CaseSensitive(pCaseSensitive) = _TRUE_
 			_oCopy_ = This.Copy()
 		else
 			_oCopy_ = This.Copy().LowercaseQ()
 		ok
 
-		cCode = @ReplaceCS(cCode, "This", "_oCopy_", FALSE)
+		cCode = @ReplaceCS(cCode, "This", "_oCopy_", _FALSE_)
 		# 5) ~>  Doing the job
 
 		anResult = []
@@ -44465,7 +44465,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllItemsWXT(pcCondition)
-		return This.FindAllItemsWCSXT(pcCondition, TRUE)
+		return This.FindAllItemsWCSXT(pcCondition, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -44908,7 +44908,7 @@ class stzList from stzObject
 		return bResult
 
 	def ItemsHave(pcCondition)
-		return This.ItemsHaveCS(pcCondition, TRUE)
+		return This.ItemsHaveCS(pcCondition, _TRUE_)
 
 	#-- XTendedForm
 
@@ -44917,7 +44917,7 @@ class stzList from stzObject
 		return bResult
 
 	def ItemsHaveXT(pcCondition)
-		return This.ItemsHaveCSXT(pcCondition, TRUE)
+		return This.ItemsHaveCSXT(pcCondition, _TRUE_)
 
 	  #===============================================#
 	 #   GETTING ITEMS VERIFYING A GIVEN CONDITION   #
@@ -45384,7 +45384,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AllItemsExcept(pItem)
-		return This.AllItemsExceptCS(pItem, TRUE)
+		return This.AllItemsExceptCS(pItem, _TRUE_)
 
 	  #================================================================================#
 	 #   GETTING UNIQUE ITEMS VERIFYING A GIVEN CONDITION ALONG WITH THEIR POSITIONS  #
@@ -46903,10 +46903,10 @@ class stzList from stzObject
 
 
 	def ListsHaveSameNumberOfItems()
-		bResult _TRUE_
+		bResult = _TRUE_
 		for i=2 to len( This.Sublists() )
 			if len( This.Sublists()[i] ) != len( This.Sublists()[i-1] )
-				bResult _FALSE_
+				bResult = _FALSE_
 			ok
 		next
 		return bResult
@@ -46915,10 +46915,10 @@ class stzList from stzObject
 			return This.ListsHaveSameNumberOfItems()
 
 	def ListsAtAnyLevelHaveSameNumberOfItems()
-		bResult _TRUE_
+		bResult = _TRUE_
 		for i=2 to len( This.listsAtAnyLevel() )
 			if len( This.listsAtAnyLevel()[i] ) != len( This.listsAtAnyLevel()[i-1] )
-				bResult _FALSE_
+				bResult = _FALSE_
 			ok
 		next
 		return bResult
@@ -48427,7 +48427,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Section(n1, n2)
-		return This.SectionCS(n1, n2, TRUE)
+		return This.SectionCS(n1, n2, _TRUE_)
 
 		def SectionQ(n1, n2)
 			return new stzList(This.Section(n1, n2))
@@ -48462,7 +48462,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def SectionZ(n1, n2)
-		return This.SectionCSZ(n1, n2, TRUE)
+		return This.SectionCSZ(n1, n2, _TRUE_)
 
 		def SliceZ(n1, n2)
 			return SectionZ(n1, n2)
@@ -48503,7 +48503,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def SectionZZ(n1, n2)
-		return This.SectionCSZZ(n1, n2, TRUE)
+		return This.SectionCSZZ(n1, n2, _TRUE_)
 
 		def SliceZZ(n1, n2)
 			return SectionZZ(n1, n2)
@@ -48574,7 +48574,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIIVTY
 
 	def SectionXT(n1, n2)
-		return This.SectionCSXT(n1, n2, TRUE)
+		return This.SectionCSXT(n1, n2, _TRUE_)
 
 		def SliceXT(n1, n2)
 			return This.SectionXT(n1, n2)
@@ -48603,7 +48603,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIIVTY
 
 	def SectionXTZ(n1, n2)
-		return This.SectionCSXTZ(n1, n2, TRUE)
+		return This.SectionCSXTZ(n1, n2, _TRUE_)
 
 		def SliceXTZ(n1, n2)
 			return This.SectionXTZ(n1, n2)
@@ -48644,7 +48644,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIIVTY
 
 	def SectionXTZZ(n1, n2)
-		return This.SectionCSXTZZ(n1, n2, TRUE)
+		return This.SectionCSXTZZ(n1, n2, _TRUE_)
 
 		def SliceXTZZ(n1, n2)
 			return This.SectionXTZZ(n1, n2)
@@ -48775,7 +48775,7 @@ class stzList from stzObject
 	#-- WTHOUT CASESENSITIVITY
 
 	def SectionsBetween(pItem1, pItem2)
-		return This.SectionsBetweenCS(pItem1, pItem2, TRUE)
+		return This.SectionsBetweenCS(pItem1, pItem2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -48827,7 +48827,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SectionsOfSameItems()
-		return This.SectionsOfSameItemsCS(TRUE)
+		return This.SectionsOfSameItemsCS(_TRUE_)
 
 	   #--------------------------------------------------------------#
 	  #   FINDING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS AND   #
@@ -48869,12 +48869,12 @@ class stzList from stzObject
 		n1 = 1
 
 		i = 0
-		bLastPair _FALSE_
+		bLastPair = _FALSE_
 
 		for i = 1 to nLen
 
 			if i = nLen
-				bLastPair _TRUE_
+				bLastPair = _TRUE_
 			ok
 
 			aPair = aSorted[i]
@@ -49017,12 +49017,12 @@ class stzList from stzObject
 		n1 = 1
 
 		i = 0
-		bLastPair _FALSE_
+		bLastPair = _FALSE_
 
 		for i = 1 to nLen
 
 			if i = nLen
-				bLastPair _TRUE_
+				bLastPair = _TRUE_
 			ok
 
 			aPair = aSorted[i]
@@ -49205,7 +49205,7 @@ class stzList from stzObject
 		ok
 
 		if pnStart = 0 or pnRange = 0
-			return NULL
+			return _NULL_
 		ok
 
 		aResult = []
@@ -49393,11 +49393,11 @@ class stzList from stzObject
 		nLen = len(@aContent)
 		aoStzStr = This.ToListOfStzStrings()
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT aoStzStr[i].IsLanguageAbbreviation()
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -49507,21 +49507,21 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		if cLanguage = NULL and cScript = NULL and cCountry = NULL
+		if cLanguage = _NULL_ and cScript = _NULL_ and cCountry = _NULL_
 			return _FALSE_
 		ok
 
-		if cLanguage != NULL and
+		if cLanguage != _NULL_ and
 		   NOT StzStringQ(cLanguage).IsLanguageIdentifier()
 			return _FALSE_
 		ok
 
-		if cScript != NULL and
+		if cScript != _NULL_ and
 		   NOT StzStringQ(cScript).IsScriptIdentifier()
 			return _FALSE_
 		ok
 
-		if cCountry != NULL and
+		if cCountry != _NULL_ and
 		   NOT StzStringQ(cCountry).IsCountryIdentifier()
 			return _FALSE_
 		ok
@@ -49768,7 +49768,7 @@ class stzList from stzObject
 	  #-------------------------------------------------------#
 	 #  GETTING THE SOFTANZA TYPES OF EACH ITEM IN THE LIST  #
 	#-------------------------------------------------------#
-	# For non softanza objects a NULL is returned
+	# For non softanza objects a _NULL_ is returned
 
 	def StzTypes()
 		aContent = This.Content()
@@ -49779,7 +49779,7 @@ class stzList from stzObject
 			if isObject(aContent[i]) and aContent[i].IsStzObject()
 				aResult + aContent[i].StzType()
 			else
-				aResult + NULL
+				aResult + _NULL_
 			ok
 		next
 
@@ -49831,12 +49831,12 @@ class stzList from stzObject
 			return _TRUE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		aContent = This.Content()
 
 		for i = 1 to nLenItems
 			if NOT Q(aContent[i]).IsEqualToCS(paItems[i], pCaseSensitive)
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -49874,7 +49874,7 @@ class stzList from stzObject
 			return _TRUE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		
 		aLastItems = This.NLastItems( nLenItems )
 		nLenLastItems = len(aLastItems)
@@ -49883,7 +49883,7 @@ class stzList from stzObject
 		for i = 1 to nLenLastItems
 
 			if NOT Q(aContent[i]).IsEqualToCS(aLastItems[i], pCaseSensitive)
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -49896,7 +49896,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def EndsWith(paItems)
-		return This.EndsWithCS(paItems, TRUE)
+		return This.EndsWithCS(paItems, _TRUE_)
 
 		def FinishesWith(paItems)
 			return This.EndsWith(paItems)
@@ -50414,7 +50414,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindXT(p1, p2)
-		return This.FindCSXT(p1, p2, TRUE)
+		return This.FindCSXT(p1, p2, _TRUE_)
 
 	  #=====================================================#
 	 #  FINDING OCCURRENCES OF AN ITEM IN A GIVEN SECTION  #
@@ -50486,7 +50486,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInSection(pItem, n1, n2)
-		return This.FindInSectionCS(pItem, n1, n2, TRUE)
+		return This.FindInSectionCS(pItem, n1, n2, _TRUE_)
 		
 		#< @FunctionAlternativeForm
 
@@ -50551,7 +50551,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInSections(pItem, paSections)
-		return This.FindInSectionsCS(pItem, paSections, TRUE)
+		return This.FindInSectionsCS(pItem, paSections, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -50643,7 +50643,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInSection(n, pItem, n1, n2)
-		return This.FindNthInSectionCS(n, pItem, n1, n2, TRUE)
+		return This.FindNthInSectionCS(n, pItem, n1, n2, _TRUE_)
 		
 		#< @FunctionAlternativeForm
 
@@ -50699,7 +50699,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInSections(n, pItem, paSections)
-		return This.FindNthInSectionsCS(n, pItem, paSections, TRUE)
+		return This.FindNthInSectionsCS(n, pItem, paSections, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -50744,7 +50744,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInSection(pItem, n1, n2)
-		return This.FindFirstInSectionCS(pItem, n1, n2, TRUE)
+		return This.FindFirstInSectionCS(pItem, n1, n2, _TRUE_)
 		
 		#< @FunctionAlternativeForm
 
@@ -50818,7 +50818,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInSections(pItem, paSections)
-		return This.FindFirstInSectionsCS(pItem, paSections, TRUE)
+		return This.FindFirstInSectionsCS(pItem, paSections, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -50871,7 +50871,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInSection(pItem, n1, n2)
-		return This.FindLastInSectionCS(pItem, n1, n2, TRUE)
+		return This.FindLastInSectionCS(pItem, n1, n2, _TRUE_)
 		
 		#< @FunctionAlternativeForm
 
@@ -50917,7 +50917,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInSections(pItem, paSections)
-		return This.FindLastInSectionsCS(pItem, paSections, TRUE)
+		return This.FindLastInSectionsCS(pItem, paSections, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -50973,7 +50973,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindBefore(pItem, pPosOrItem)
-		return This.FindBeforeCS(pItem, pPosOrItem, TRUE)
+		return This.FindBeforeCS(pItem, pPosOrItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -51035,7 +51035,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindBeforePosition(pItem, pnPos)
-		return This.FindBeforePositionCS(pItem, pnPos, TRUE)
+		return This.FindBeforePositionCS(pItem, pnPos, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -51101,7 +51101,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindBeforeItem(pItem, pcOtherSubStr)
-		return This.FindBeforeItemCS(pItem, pcOtherSubStr, TRUE)
+		return This.FindBeforeItemCS(pItem, pcOtherSubStr, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -51160,7 +51160,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAfter(pItem, pPosOrItem)
-		return This.FindAfterCS(pItem, pPosOrItem, TRUE)
+		return This.FindAfterCS(pItem, pPosOrItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -51220,7 +51220,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAfterPosition(pItem, pnPos)
-		return This.FindAfterPositionCS(pItem, pnPos, TRUE)
+		return This.FindAfterPositionCS(pItem, pnPos, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -51285,7 +51285,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAfterItem(pItem, pcOtherSubStr)
-		return This.FindAfterItemCS(pItem, pcOtherSubStr, TRUE)
+		return This.FindAfterItemCS(pItem, pcOtherSubStr, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -51364,7 +51364,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceInSections(pItem, paSections)
-		return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, TRUE)
+		return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, _TRUE_)
 
 		#< @FunctionalternativeForms
 
@@ -51539,7 +51539,7 @@ class stzList from stzObject
 
 	def TheseObjectsZ(paoObjects)
 
-		if CheckingParams() _TRUE_
+		if CheckingParams() = _TRUE_
 			if NOT ( isList(paoObjects) and Q(paoObjects).EachItemIsEitherA(:String, :Or, :Object) )
 				StzRaise("Incorrect param type! paoObjects must be a list of strings and objects.")
 			ok
@@ -51954,11 +51954,11 @@ class stzList from stzObject
 		   	acContent = This.ToListOfStzStrings()
 			nLen = len(acContent)
 
-			bResult _TRUE_
+			bResult = _TRUE_
 
 			for i = 1 to nLen
-				if acContent[i].IsUppercase() _FALSE_
-					bResult _FALSE_
+				if acContent[i].IsUppercase() = _FALSE_
+					bResult = _FALSE_
 					exit
 				ok
 			next
@@ -52023,11 +52023,11 @@ class stzList from stzObject
 		   	acContent = This.ToListOfStzStrings()
 			nLen = len(acContent)
 
-			bResult _TRUE_
+			bResult = _TRUE_
 
 			for i = 1 to nLen
-				if acContent[i].IsLowercase() _FALSE_
-					bResult _FALSE_
+				if acContent[i].IsLowercase() = _FALSE_
+					bResult = _FALSE_
 					exit
 				ok
 			next
@@ -52336,8 +52336,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT (pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_)
-			StzRaise("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT (pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_)
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
@@ -52362,9 +52362,9 @@ class stzList from stzObject
 				oQStr = new QString2()
 				oQStr.append(item)
 
-				bExtend _FALSE_
+				bExtend = _FALSE_
 				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
-					bExtend _TRUE_
+					bExtend = _TRUE_
 				ok
 
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
@@ -52384,9 +52384,9 @@ class stzList from stzObject
 				oQStr = new QString2()
 				oQStr.append(item)
 
-				bExtend _FALSE_
+				bExtend = _FALSE_
 				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
-					bExtend _TRUE_
+					bExtend = _TRUE_
 				ok
 
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
@@ -52436,7 +52436,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringifyAndReplaceXT(pcSubStr, pcOtherSubStr)
-		This.StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, TRUE)
+		This.StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -52497,7 +52497,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringifyAndReplace(pcSubStr, pcOtherSubStr)
-		This.StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, TRUE)
+		This.StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -52557,8 +52557,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT (pCaseSensitive _TRUE_ or pCaseSensitive _FALSE_)
-			StzRaise("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		if NOT (pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_)
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
@@ -52585,9 +52585,9 @@ class stzList from stzObject
 				oQStr.append(item)
 
 
-				bExtend _FALSE_
+				bExtend = _FALSE_
 				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
-					bExtend _TRUE_
+					bExtend = _TRUE_
 				ok
 
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
@@ -52607,9 +52607,9 @@ class stzList from stzObject
 				oQStr = new QString2()
 				oQStr.append(item)
 
-				bExtend _FALSE_
+				bExtend = _FALSE_
 				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
-					bExtend _TRUE_
+					bExtend = _TRUE_
 				ok
 
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
@@ -52661,7 +52661,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringifyLowercaseAndReplaceXT(pcSubStr, pcOtherSubStr)
-		This.StringifyLowercaseAndReplaceCSXT(pcSubStr, pcOtherSubStr, TRUE)
+		This.StringifyLowercaseAndReplaceCSXT(pcSubStr, pcOtherSubStr, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -52723,7 +52723,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringifyLowercaseAndReplace(pcSubStr, pcOtherSubStr)
-		This.StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, TRUE)
+		This.StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -52792,7 +52792,7 @@ class stzList from stzObject
 	#---------------------------------------------#
 
 	def ContainsCCode()
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		aTempList = This.List()
 		nLen = len(aTempList)
@@ -52807,7 +52807,7 @@ class stzList from stzObject
 
 			if isString(item) and
 			   Q(item).TrimQ().IsBoundedBy(["{","}"])
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -52829,13 +52829,13 @@ class stzList from stzObject
 
 		o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
 		? o1.EachItemIsEitherA( :Number, :Or, :String )
-		#--> TRUE
+		#--> _TRUE_
 
 		SYNTAX 2
 
 		o1 = new stzList([ 6, -2, 9, 5, -10 ])
 		? o1.EachItemIsEither(:Positive, :Or = :Negative, :Number )
-		#--> TRUE
+		#--> _TRUE_
 
 		*/
 
@@ -52927,14 +52927,14 @@ class stzList from stzObject
 
 		nLen = This.NumberOfItems()
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for @i = 1 to nLen
 			@item = @aContent[@i]
 			eval(cCode)
 
 			if NOT bOk
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -52999,7 +52999,7 @@ class stzList from stzObject
 		#>
 
 	  #------------------------------------------------------------------#
-	 #  CHECKING IF A CHAIN OF TYPES IS TRUE AGAINST THE LIST OF ITEMS  #
+	 #  CHECKING IF A CHAIN OF TYPES IS _TRUE_ AGAINST THE LIST OF ITEMS  #
 	#==================================================================#
 
 	def Are(p)
@@ -53071,14 +53071,14 @@ class stzList from stzObject
 
 			cType = @InfereType(p[1])
 
-			bResult _TRUE_
+			bResult = _TRUE_
 			nLen = len(@aContent)
 
 			for i = 1 to nLen
 				cCode = 'bOk = is' + cType + '(' + @@(@aContent[i]) + ')'
 				eval(cCode)
 				if NOT bOk
-					bResult _FALSE_
+					bResult = _FALSE_
 					return bResult
 				ok
 			next
@@ -53099,7 +53099,7 @@ class stzList from stzObject
 			aContent = This.Content()
 			nLenList = len(aContent)
 
-			bResult _TRUE_
+			bResult = _TRUE_
 
 			for i = 1 to nLenList
 				@item = aContent[i]
@@ -53121,7 +53121,7 @@ class stzList from stzObject
 
 					eval(cCode)
 					if NOT bOk
-						bResult _FALSE_
+						bResult = _FALSE_
 						exit 2
 					ok
 				next j
@@ -54026,7 +54026,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomItemAfter(pItem)
-		return This.RandomItemAfterCS(pItem, TRUE)
+		return This.RandomItemAfterCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -54085,7 +54085,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomItemAfterZ(pItem)
-		return This.RandomItemAfterCSZ(pItem, TRUE)
+		return This.RandomItemAfterCSZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -54197,7 +54197,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomItemBefore(pItem)
-		return This.RandomItemBeforeCS(pItem, TRUE)
+		return This.RandomItemBeforeCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -54256,7 +54256,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomItemBeforeZ(pItem)
-		return This.RandomItemBeforeCSZ(pItem, TRUE)
+		return This.RandomItemBeforeCSZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -54317,7 +54317,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIIVTY
 
 	def RandomItemExcept(pItem)
-		return This.RandomItemExceptCS(pItem, TRUE)
+		return This.RandomItemExceptCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -54382,7 +54382,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIIVTY
 
 	def RandomItemExceptZ(pItem)
-		return This.RandomItemExceptCSZ(pItem, TRUE)
+		return This.RandomItemExceptCSZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -54907,7 +54907,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AnItemOtherThan(pItem)
-		return This.AnItemOtherThanCS(pItem, TRUE)
+		return This.AnItemOtherThanCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -55058,7 +55058,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AnItemOtherThanZ(pItem)
-		return This.AnItemOtherThanCSZ(pItem, TRUE)
+		return This.AnItemOtherThanCSZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -55197,7 +55197,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AnyRandomItemOtherThanMany(paItems)
-		return This.AnyRandomItemOtherThanManyCS(paItems, TRUE)
+		return This.AnyRandomItemOtherThanManyCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -55329,7 +55329,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AnyRandomItemOtherThanManyZ(paItems)
-		return This.AnyRandomItemOtherThanManyCSZ(paItems, TRUE)
+		return This.AnyRandomItemOtherThanManyCSZ(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -55442,7 +55442,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsOtherThanS(pItem)
-		return This.NRandomItemsOtherThanCS(pItem, TRUE)
+		return This.NRandomItemsOtherThanCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -55536,7 +55536,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsOtherThanZ(pItem)
-		return This.NRandomItemsOtherThanCSZ(pItem, TRUE)
+		return This.NRandomItemsOtherThanCSZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -55625,7 +55625,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SomeRandomItemsOtherThanpItem(pItem)
-		return This.SomeRandomItemsOtherThanCS(pItem, TRUE)
+		return This.SomeRandomItemsOtherThanCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -55686,7 +55686,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SomeRandomItemsOtherThanZ(pItem)
-		return This.SomeRandomItemsOtherThanCSZ(pItem, TRUE)
+		return This.SomeRandomItemsOtherThanCSZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -55732,7 +55732,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsOtherThanMany(paItems)
-		return This.NRandomItemsOtherThanManyCS(paItems, TRUE)
+		return This.NRandomItemsOtherThanManyCS(paItems, _TRUE_)
 
 	  #---------------------------------------------------------------------#
 	 #  GETTING N RANDOM ITEMS OTHER THAN MANY GIVEN ITEMS  -- Z/EXTENDED  #
@@ -55745,7 +55745,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsOtherThanManyZ(paItems)
-		return This.NRandomItemsOtherThanManyCSZ(paItems, TRUE)
+		return This.NRandomItemsOtherThanManyCSZ(paItems, _TRUE_)
 
 	#-- U/EXTENDED FORM
 
@@ -56310,7 +56310,7 @@ class stzList from stzObject
 	#----------------------------------------------------------------------#
 
 	def RandomizeSections(panSections)
-		if CheckingParams() _TRUE_ # Generalise this all over the library
+		if CheckingParams() = _TRUE_ # Generalise this all over the library
 			if NOT ( isList(panSections) and @IsListOfPairsOfNumbers(panSections) )
 				StzRaise("Incorrect param type! panSections must be a list of pairs of numbers.")
 			ok
@@ -56438,7 +56438,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomizeBetween(p1, p2)
-		This.RandomizeBetweenCS(p1, p2, TRUE)
+		This.RandomizeBetweenCS(p1, p2, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -56514,7 +56514,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomizeBetweenItems(p1, p2)
-		This.RandomizeBetweenItemsCS(p1, p2, TRUE)
+		This.RandomizeBetweenItemsCS(p1, p2, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -56597,7 +56597,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomizeNotBetween(p1, p2)
-		This.RandomizeNotBetweenCS(p1, p2, TRUE)
+		This.RandomizeNotBetweenCS(p1, p2, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -56673,7 +56673,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomizeNotBetweenItems(p1, p2)
-		This.RandomizeNotBetweenItemsCS(p1, p2, TRUE)
+		This.RandomizeNotBetweenItemsCS(p1, p2, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -56991,7 +56991,7 @@ class stzList from stzObject
 
 		o1 = new stzList([ :StartingAt, 5 ])
 		? o1.IsAPairQ().Where('{ isString(@pair[1]) and isNumber(@pair[2]) }')
-		#--> TRUE
+		#--> _TRUE_
 
 		*/
 
@@ -57002,7 +57002,7 @@ class stzList from stzObject
 		cCondition = StzStringQ(pcCondition).
 				TrimQ().
 				RemoveTheseBoundsQ("{","}").
-				ReplaceManyCSQ([ "@list", "@pair" ], "This", :CS _FALSE_).
+				ReplaceManyCSQ([ "@list", "@pair" ], "This", _FALSE_).
 				Content()
 
 		cCode = 'bOk = (' + cCondition + ')'
@@ -57062,12 +57062,12 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		for i = 1 to nLen
 			item = aContent[i]
 			if isList(item) and Q(item).IsPair()
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -57177,10 +57177,10 @@ class stzList from stzObject
 
 				nLenTemp = len(aContent[i])
 				if nLenTemp = 0
-					aPair + NULL + NULL
+					aPair + _NULL_ + _NULL_
 
 				but nLenTemp = 1
-					aPair + aContent[i][1] + NULL
+					aPair + aContent[i][1] + _NULL_
 
 				but nLenTemp = 2
 					aPair = aContent[i]
@@ -57190,7 +57190,7 @@ class stzList from stzObject
 				ok
 			
 			else
-				aPair + aContent[i] + NULL
+				aPair + aContent[i] + _NULL_
 			ok
 
 			aResult + aPair
@@ -57214,12 +57214,12 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		for i = 1 to nLen
 			item = aContent[i]
 			if isList(item) and Q(item).IsSingle()
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -57335,7 +57335,7 @@ class stzList from stzObject
 
 				nLenTemp = len(aContent[i])
 				if nLenTemp = 0
-					aSingle + NULL
+					aSingle + _NULL_
 
 				else
 					aSingle + aContent[i][1]
@@ -57411,7 +57411,7 @@ class stzList from stzObject
 				aList + aContent[i]
 				if n > 1
 					for j = 1 to n-1
-						aList + NULL
+						aList + _NULL_
 					next
 				ok
 			else
@@ -57424,7 +57424,7 @@ class stzList from stzObject
 				but n > nLenList
 					aList = aContent[i]
 					for j = 1 to n - nLenList
-						aList + NULL
+						aList + _NULL_
 					next
 
 				but n < nLenList
@@ -57829,7 +57829,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Split(pItemOrPos)
-		return This.SplitCS(pItemOrPos, TRUE)
+		return This.SplitCS(pItemOrPos, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -57931,7 +57931,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitAt(pItem)
-		This.SplitAtCS(pItem, TRUE)
+		This.SplitAtCS(pItem, _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -58072,7 +58072,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitAtAsSections(pItem)
-		return This.SplitAtAsSectionsCS(pItem, TRUE)
+		return This.SplitAtAsSectionsCS(pItem, _TRUE_)
 
 		def SplitAtAsSectionsQ(pItem)
 			This.SplitAtAsSections(pItem)
@@ -60034,7 +60034,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsXT(pItem)
-		return This.FindSplitsCSXT(pItem, TRUE)
+		return This.FindSplitsCSXT(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -60099,7 +60099,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAt(pItem)
-		return This.FindSplitsAtCS(pItem, TRUE)
+		return This.FindSplitsAtCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -60236,25 +60236,25 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtItem(pItem)
-		return This.FindSplitsAtItemCS(pItem, TRUE)
+		return This.FindSplitsAtItemCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
 		def FindSplits(pItem)
-			return This.FindSplitsCS(pItem, TRUE)
+			return This.FindSplitsCS(pItem, _TRUE_)
 
 		def FindSplitsAtThisItem(pItem)
-			return This.FindSplitsAtThisItemCS(pItem, TRUE)
+			return This.FindSplitsAtThisItemCS(pItem, _TRUE_)
 		#--
 
 		def FindSplitsAtItemZ(pItem)
-			return This.FindSplitsAtItemCS(pItem, TRUE)
+			return This.FindSplitsAtItemCS(pItem, _TRUE_)
 
 		def FindSplitsZ(pItem)
-			return This.FindSplitsCS(pItem, TRUE)
+			return This.FindSplitsCS(pItem, _TRUE_)
 
 		def FindSplitsAtThisItemZ(pItem)
-			return This.FindSplitsAtThisItemCS(pItem, TRUE)
+			return This.FindSplitsAtThisItemCS(pItem, _TRUE_)
 
 		#>
 
@@ -60296,7 +60296,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtItems(paItems)
-		return This.FindSplitsAtItemsCS(paItems, TRUE)
+		return This.FindSplitsAtItemsCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -60351,7 +60351,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSection(n1, n2)
-		return This.FindSplitsAtSectionCS(n1, n2, TRUE)
+		return This.FindSplitsAtSectionCS(n1, n2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -60400,7 +60400,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSectionIB(n1, n2)
-		return This.FindSplitsAtSectionCSIB(n1, n2, TRUE)
+		return This.FindSplitsAtSectionCSIB(n1, n2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -60457,7 +60457,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSections(paSections)
-		return This.FindSplitsAtSectionsCS(paSections, TRUE)
+		return This.FindSplitsAtSectionsCS(paSections, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -60514,7 +60514,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSectionsIB(paSections)
-		return This.FindSplitsAtSectionsCSIB(paSections, TRUE)
+		return This.FindSplitsAtSectionsCSIB(paSections, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -60586,7 +60586,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBefore(pItem)
-		return This.FindSplitsBeforeCS(pItem, TRUE)
+		return This.FindSplitsBeforeCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -60634,7 +60634,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforePosition(n)
-		return This.FindSplitsBeforePositionCS(n, TRUE)
+		return This.FindSplitsBeforePositionCS(n, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -60697,7 +60697,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforePositions(anPos)
-		return This.FindSplitsBeforePositionsCS(anPos, TRUE)
+		return This.FindSplitsBeforePositionsCS(anPos, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -60756,7 +60756,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeItem(pItem)
-		return This.FindSplitsBeforeItemCS(pItem, TRUE)
+		return This.FindSplitsBeforeItemCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -60815,7 +60815,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeItems(paItems)
-		return This.FindSplitsBeforeItemsCS(paItems, TRUE)
+		return This.FindSplitsBeforeItemsCS(paItems, _TRUE_)
 	
 		#< @FunctionAlternativeForms
 
@@ -61022,7 +61022,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfter(pItem)
-		return This.FindSplitsAfterCS(pItem, TRUE)
+		return This.FindSplitsAfterCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -61117,7 +61117,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterItem(pItem)
-		return This.FindSplitsAfterItemCS(pItem, TRUE)
+		return This.FindSplitsAfterItemCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -61168,7 +61168,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterItems(paItems)
-		return This.FindSplitsAfterItemsCS(paItems, TRUE)
+		return This.FindSplitsAfterItemsCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -61317,7 +61317,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetween(pItem1, pItem2)
-		return This.FindSplitsBetweenCS(pItem1, pItem2, TRUE)
+		return This.FindSplitsBetweenCS(pItem1, pItem2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -61362,7 +61362,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenIB(pItem1, pItem2)
-		return This.FindSplitsBetweenCSIB(pItem1, pItem2, TRUE)
+		return This.FindSplitsBetweenCSIB(pItem1, pItem2, _TRUE_)
 
 
 		#< @FunctionAlternativeForm
@@ -61443,7 +61443,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenItems(paItems)
-		return This.FindSplitsBetweenItemsCS(paItems, TRUE)
+		return This.FindSplitsBetweenItemsCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -61848,7 +61848,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsXTZZ(pItem)
-		return This.FindSplitsCSXTZZ(pItem, TRUE)
+		return This.FindSplitsCSXTZZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -61913,7 +61913,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtZZ(pItem)
-		return This.FindSplitsAtCSZZ(pItem, TRUE)
+		return This.FindSplitsAtCSZZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -61954,7 +61954,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtPositionZZ(n)
-		return This.FindSplitsAtPositionCSZZ(n, TRUE)
+		return This.FindSplitsAtPositionCSZZ(n, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -62008,7 +62008,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtPositionsZZ(anPos)
-		return This.FindSplitsAtPositionsCSZZ(anPos, TRUE)
+		return This.FindSplitsAtPositionsCSZZ(anPos, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -62085,25 +62085,25 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtItemZZ(pItem)
-		return This.FindSplitsAtItemCSZZ(pItem, TRUE)
+		return This.FindSplitsAtItemCSZZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
 		def FindSplitsZZ(pItem)
-			return This.FindSplitsCSZZ(pItem, TRUE)
+			return This.FindSplitsCSZZ(pItem, _TRUE_)
 
 		def FindSplitsAtThisItemZZ(pItem)
-			return This.FindSplitsAtThisItemCSZZ(pItem, TRUE)
+			return This.FindSplitsAtThisItemCSZZ(pItem, _TRUE_)
 		#--
 
 		def FindSplitsAtItemAsSectionsZZ(pItem)
-			return This.FindSplitsAtItemAsSectionsCSZZ(pItem, TRUE)
+			return This.FindSplitsAtItemAsSectionsCSZZ(pItem, _TRUE_)
 
 		def FindSplitsAsSections(pItem)
-			return This.FindSplitsAsSectionsCS(pItem, TRUE)
+			return This.FindSplitsAsSectionsCS(pItem, _TRUE_)
 
 		def FindSplitsAtThisItemAsSections(pItem)
-			return This.FindSplitsAtThisItemAsSectionsCS(pItem, TRUE)
+			return This.FindSplitsAtThisItemAsSectionsCS(pItem, _TRUE_)
 
 		#>
 
@@ -62145,7 +62145,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtItemsZZ(paItems)
-		return This.FindSplitsAtItemsCSZZ(paItems, TRUE)
+		return This.FindSplitsAtItemsCSZZ(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -62200,7 +62200,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSectionZZ(n1, n2)
-		return This.FindSplitsAtSectionCSZZ(n1, n2, TRUE)
+		return This.FindSplitsAtSectionCSZZ(n1, n2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -62255,7 +62255,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSectionIBZZ(n1, n2)
-		return This.FindSplitsAtSectionCSIBZZ(n1, n2, TRUE)
+		return This.FindSplitsAtSectionCSIBZZ(n1, n2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -62384,7 +62384,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeZZ(pItem)
-		return This.FindSplitsBeforeCSZZ(pItem, TRUE)
+		return This.FindSplitsBeforeCSZZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -62433,7 +62433,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforePositionZZ(n)
-		return This.FindSplitsBeforePositionCSZZ(n, TRUE)
+		return This.FindSplitsBeforePositionCSZZ(n, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -62496,7 +62496,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforePositionsZZ(anPos)
-		return This.FindSplitsBeforePositionsCSZZ(anPos, TRUE)
+		return This.FindSplitsBeforePositionsCSZZ(anPos, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -62552,7 +62552,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeItemZZ(pItem)
-		return This.FindSplitsBeforeItemCSZZ(pItem, TRUE)
+		return This.FindSplitsBeforeItemCSZZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -62608,7 +62608,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeItemsZZ(paItems)
-		return This.FindSplitsBeforeItemsCSZZ(paItems, TRUE)
+		return This.FindSplitsBeforeItemsCSZZ(paItems, _TRUE_)
 	
 		#< @FunctionAlternativeForms
 
@@ -62671,7 +62671,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSectionZZ(n1, n2)
-		return This.FindSplitsBeforeSectionCSZZ(n1, n2, TRUE)
+		return This.FindSplitsBeforeSectionCSZZ(n1, n2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -62728,7 +62728,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSectionIBZZ(n1, n2)
-		return This.FindSplitsBeforeSectionCSIBZZ(n1, n2, TRUE)
+		return This.FindSplitsBeforeSectionCSIBZZ(n1, n2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -62788,7 +62788,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSectionsZZ(paSections)
-		return This.FindSplitsBeforeSectionsCSZZ(paSections, TRUE)
+		return This.FindSplitsBeforeSectionsCSZZ(paSections, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -62855,7 +62855,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSectionsIBZZ(paSections)
-		return This.FindSplitsBeforeSectionsCSIBZZ(paSections, TRUE)
+		return This.FindSplitsBeforeSectionsCSIBZZ(paSections, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -62943,7 +62943,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterZZ(pItem)
-		return This.FindSplitsAfterCSZZ(pItem, TRUE)
+		return This.FindSplitsAfterCSZZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -62988,7 +62988,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterPositionZZ(n)
-		return This.FindSplitsAfterPositionCSZZ(n, TRUE)
+		return This.FindSplitsAfterPositionCSZZ(n, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -63046,7 +63046,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterPositionsZZ(anPos)
-		return This.FindSplitsAfterPositionsCSZZ(anPos, TRUE)
+		return This.FindSplitsAfterPositionsCSZZ(anPos, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -63102,7 +63102,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterItemZZ(pItem)
-		return This.FindSplitsAfterItemCSZZ(pItem, TRUE)
+		return This.FindSplitsAfterItemCSZZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -63158,7 +63158,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterItemsZZ(paItems)
-		return This.FindSplitsAfterItemsCSZZ(paItems, TRUE)
+		return This.FindSplitsAfterItemsCSZZ(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -63220,7 +63220,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterSectionZZ(n1, n2)
-		return This.FindSplitsAfterSectionCSZZ(n1, n2, TRUE)
+		return This.FindSplitsAfterSectionCSZZ(n1, n2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -63276,7 +63276,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterSectionIBZZ(n1, n2)
-		return This.FindSplitsAfterSectionCSIBZZ(n1, n2, TRUE)
+		return This.FindSplitsAfterSectionCSIBZZ(n1, n2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -63333,7 +63333,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterSectionsZZ(paSections)
-		return This.FindSplitsAfterSectionsCSZZ(paSections, TRUE)
+		return This.FindSplitsAfterSectionsCSZZ(paSections, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -63391,7 +63391,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESNSITIVITY
 
 	def FindSplitsAfterSectionsIBZZ(paSections)
-		return This.FindSplitsAfterSectionsCSIBZZ(paSections, TRUE)
+		return This.FindSplitsAfterSectionsCSIBZZ(paSections, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -63446,7 +63446,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenZZ(pItem1, pItem2)
-		return This.FindSplitsBetweenCS(pItem1, pItem2, TRUE)
+		return This.FindSplitsBetweenCS(pItem1, pItem2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -63492,7 +63492,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenIBZZ(pItem1, pItem2)
-		return This.FindSplitsBetweenCSIBZZ(pItem1, pItem2, TRUE)
+		return This.FindSplitsBetweenCSIBZZ(pItem1, pItem2, _TRUE_)
 
 
 		#< @FunctionAlternativeForm
@@ -63527,7 +63527,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenPositionsZZ(n1, n2)
-		return This.FindSplitsAtSectionCSZZ(n1, n2, TRUE)
+		return This.FindSplitsAtSectionCSZZ(n1, n2, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -63569,7 +63569,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenPositionsIBZZ(n1, n2)
-		return This.FindSplitsAtSectionCSIBZZ(n1, n2, TRUE)
+		return This.FindSplitsAtSectionCSIBZZ(n1, n2, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -63617,7 +63617,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenItemsZZ(paItems)
-		return This.FindSplitsBetweenItemsCSZZ(paItems, TRUE)
+		return This.FindSplitsBetweenItemsCSZZ(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -63659,7 +63659,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsToNPartsZZ(n)
-		return This.FindSplitsToNPartsCSZZ(n, TRUE)
+		return This.FindSplitsToNPartsCSZZ(n, _TRUE_)
 
 		def FindSplitsToNPartsAsSections(n)
 			return This.FindSplitsToNPartsZZ(n)
@@ -63702,7 +63702,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsToPartsOfNItemsZZ(n)
-		return This.FindSplitsToPartsOfNItemsCSZZ(n, TRUE)
+		return This.FindSplitsToPartsOfNItemsCSZZ(n, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -63749,7 +63749,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY()
 
 	def FindSplitsToPartsOfNItemsXTZZ(n)
-		return This.FindSplitsToPartsOfNItemsCSXTZZ(n, TRUE)
+		return This.FindSplitsToPartsOfNItemsCSXTZZ(n, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -63799,7 +63799,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsWZZ(pcCondition)
-		return This.FindSplitsWCSZZ(pcCondition, TRUE)
+		return This.FindSplitsWCSZZ(pcCondition, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -63834,7 +63834,7 @@ class stzList from stzObject
 
 		pcCondition = StzStringQ(pcCondition).TrimQ().TheseBoundsRemoved( "{","}" )
 
-		if Q(pcCondition).ContainsCS("@Item", :CS _FALSE_)
+		if Q(pcCondition).ContainsCS("@Item", _FALSE_)
 
 			aSections = This.FindItemsAsSectionsWCS(pcCondition, pCaseSensitive)
 			aResult = This.FindSplitsAtSectionsCSZZ(aSections, pCaseSensitive)
@@ -63865,7 +63865,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtWZZ(pcCondition)
-		return This.FindSplitsAtWCSZZ(pcCondition, TRUE)
+		return This.FindSplitsAtWCSZZ(pcCondition, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -63896,7 +63896,7 @@ class stzList from stzObject
 
 		oCondition = new stzString(pcCondition)
 
-		if oCondition.ContainsCS("@Item",  :CaseSensitive _FALSE_)
+		if oCondition.ContainsCS("@Item",  _FALSE_)
 			anPos = This.FindItemsWCS(pcCondition, pCaseSensitive)
 
 		else
@@ -63917,7 +63917,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeWZZ(pcCondition)
-		return This.FindSplitsBeforeWCSZZ(pcCondition, TRUE)
+		return This.FindSplitsBeforeWCSZZ(pcCondition, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -63947,7 +63947,7 @@ class stzList from stzObject
 
 		oCondition = new stzString(pcCondition)
 
-		if oCondition.ContainsCS("@Item",  :CaseSensitive _FALSE_)
+		if oCondition.ContainsCS("@Item",  _FALSE_)
 			anPos = This.FindItemsWCS(pcCondition, pCaseSensitive)
 
 		else
@@ -63968,7 +63968,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterWZZ(pcCondition)
-		return This.FindSplitsAfterWCSZZ(pcCondition, TRUE)
+		return This.FindSplitsAfterWCSZZ(pcCondition, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -64118,7 +64118,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitXT(n, pItem)
-		return This.FindNthSplitCSXT(n, pItem, TRUE)
+		return This.FindNthSplitCSXT(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -64183,7 +64183,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAt(n, pItem)
-		return This.FindNthSplitAtCS(n, pItem, TRUE)
+		return This.FindNthSplitAtCS(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -64371,25 +64371,25 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtItem(n, pItem)
-		return This.FindNthSplitAtItemCS(n, pItem, TRUE)
+		return This.FindNthSplitAtItemCS(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
 		def FindNthSplit(n, pItem)
-			return This.FindNthSplitCS(n, pItem, TRUE)
+			return This.FindNthSplitCS(n, pItem, _TRUE_)
 
 		def FindNthSplitAtThisItem(n, pItem)
-			return This.FindNthSplitAtThisItemCS(n, pItem, TRUE)
+			return This.FindNthSplitAtThisItemCS(n, pItem, _TRUE_)
 		#--
 
 		def FindNthSplitAtItemZ(n, pItem)
-			return This.FindNthSplitAtItemCS(n, pItem, TRUE)
+			return This.FindNthSplitAtItemCS(n, pItem, _TRUE_)
 
 		def FindNthSplitZ(n, pItem)
-			return This.FindNthSplitCS(n, pItem, TRUE)
+			return This.FindNthSplitCS(n, pItem, _TRUE_)
 
 		def FindNthSplitAtThisItemZ(pItem)
-			return This.FindNthSplitAtThisItemCS(n, pItem, TRUE)
+			return This.FindNthSplitAtThisItemCS(n, pItem, _TRUE_)
 
 		#>
 
@@ -64454,7 +64454,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtItems(n, paItems)
-		return This.FindNthSplitAtItemsCS(n, paItems, TRUE)
+		return This.FindNthSplitAtItemsCS(n, paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -64632,7 +64632,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBefore(n, pItem)
-		return This.FindNthSplitBeforeCS(n, pItem, TRUE)
+		return This.FindNthSplitBeforeCS(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -64741,7 +64741,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeItem(n, pItem)
-		return This.FindNthSplitBeforeItemCS(n, pItem, TRUE)
+		return This.FindNthSplitBeforeItemCS(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -64796,7 +64796,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeItems(n, paItems)
-		return This.FindNthSplitBeforeItemsCS(n, paItems, TRUE)
+		return This.FindNthSplitBeforeItemsCS(n, paItems, _TRUE_)
 	
 		#< @FunctionAlternativeForms
 
@@ -65004,7 +65004,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfter(n, pItem)
-		return This.FindNthSplitAfterCS(n, pItem, TRUE)
+		return This.FindNthSplitAfterCS(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -65099,7 +65099,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterItem(n, pItem)
-		return This.FindNthSplitAfterItemCS(n, pItem, TRUE)
+		return This.FindNthSplitAfterItemCS(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -65150,7 +65150,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterItems(n, paItems)
-		return This.FindNthSplitAfterItemsCS(n, paItems, TRUE)
+		return This.FindNthSplitAfterItemsCS(n, paItems, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -65314,7 +65314,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetween(n, pItem1, pItem2)
-		return This.FindNthSplitBetweenCS(n, pItem1, pItem2, TRUE)
+		return This.FindNthSplitBetweenCS(n, pItem1, pItem2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -65359,7 +65359,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenIB(n, pItem1, pItem2)
-		return This.FindNthSplitBetweenCSIB(n, pItem1, pItem2, TRUE)
+		return This.FindNthSplitBetweenCSIB(n, pItem1, pItem2, _TRUE_)
 
 
 		#< @FunctionAlternativeForm
@@ -65440,7 +65440,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenItems(n, paItems)
-		return This.FindNthSplitBetweenItemsCS(n, paItems, TRUE)
+		return This.FindNthSplitBetweenItemsCS(n, paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -65826,7 +65826,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitXTZZ(n, pItem)
-		return This.FindNthSplitCSXTXT(n, pItem, TRUE)
+		return This.FindNthSplitCSXTXT(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -65889,7 +65889,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtZZ(n, pItem)
-		return This.FindNthSplitAtCSZZ(n, pItem, TRUE)
+		return This.FindNthSplitAtCSZZ(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -66013,25 +66013,25 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtItemZZ(pItem)
-		return This.FindNthSplitAtItemCSZZ(n, pItem, TRUE)
+		return This.FindNthSplitAtItemCSZZ(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
 		def FindNthSplitZZ(pItem)
-			return This.FindNthSplitAtItemZZ(n, pItem, TRUE)
+			return This.FindNthSplitAtItemZZ(n, pItem, _TRUE_)
 
 		def FindNthSplitAtThisItemZZ(pItem)
-			return This.FindNthSplitAtItemZZ(n, pItem, TRUE)
+			return This.FindNthSplitAtItemZZ(n, pItem, _TRUE_)
 		#--
 
 		def FindNthSplitAtItemAsSectionZZ(pItem)
-			return This.FindNthSplitAtItemZZ(n, pItem, TRUE)
+			return This.FindNthSplitAtItemZZ(n, pItem, _TRUE_)
 
 		def FindNthSplitAsSection(pItem)
-			return This.FindNthSplitAtItemZZ(n, pItem, TRUE)
+			return This.FindNthSplitAtItemZZ(n, pItem, _TRUE_)
 
 		def FindNthSplitAtThisItemAsSection(pItem)
-			return This.FindNthSplitAtItemZZ(n, pItem, TRUE)
+			return This.FindNthSplitAtItemZZ(n, pItem, _TRUE_)
 
 		#>
 
@@ -66073,7 +66073,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtItemsZZ(n, paItems)
-		return This.FindNthSplitAtItemsCSZZ(n, paItems, TRUE)
+		return This.FindNthSplitAtItemsCSZZ(n, paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -66236,7 +66236,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeZZ(n, pItem)
-		return This.FindNthSplitBeforeCSZZ(n, pItem, TRUE)
+		return This.FindNthSplitBeforeCSZZ(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -66349,7 +66349,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeItemZZ(n, pItem)
-		return This.FindNthSplitBeforeItemCSZZ(n, pItem, TRUE)
+		return This.FindNthSplitBeforeItemCSZZ(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -66408,7 +66408,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeItemsZZ(n, paItems)
-		return This.FindNthSplitBeforeItemsCSZZ(n, paItems, TRUE)
+		return This.FindNthSplitBeforeItemsCSZZ(n, paItems, _TRUE_)
 	
 		#< @FunctionAlternativeForms
 
@@ -66615,7 +66615,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterZZ(n, pItem)
-		return This.FindNthSplitAfterCSZZ(n, pItem, TRUE)
+		return This.FindNthSplitAfterCSZZ(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -66710,7 +66710,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterItemZZ(n, pItem)
-		return This.FindNthSplitAfterItemCSZZ(n, pItem, TRUE)
+		return This.FindNthSplitAfterItemCSZZ(n, pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -66764,7 +66764,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterItemsZZ(n, paItems)
-		return This.FindNthSplitAfterItemsCSZZ(n, paItems, TRUE)
+		return This.FindNthSplitAfterItemsCSZZ(n, paItems, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -66935,7 +66935,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenZZ(n, pItem1, pItem2)
-		return This.FindNthSplitBetweenCS(n, pItem1, pItem2, TRUE)
+		return This.FindNthSplitBetweenCS(n, pItem1, pItem2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -66988,7 +66988,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenIBZZ(n, pItem1, pItem2)
-		return This.FindNthSplitBetweenCSIBZZ(n, pItem1, pItem2, TRUE)
+		return This.FindNthSplitBetweenCSIBZZ(n, pItem1, pItem2, _TRUE_)
 
 
 		#< @FunctionAlternativeForm
@@ -67069,7 +67069,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenItemsZZ(n, paItems)
-		return This.FindNthSplitBetweenItemsCSZZ(n, paItems, TRUE)
+		return This.FindNthSplitBetweenItemsCSZZ(n, paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -67414,7 +67414,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitXT(pItem)
-		return This.FindLastSplitCSXT(pItem, TRUE)
+		return This.FindLastSplitCSXT(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -67479,7 +67479,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAt(pItem)
-		return This.FindLastSplitAtCS(pItem, TRUE)
+		return This.FindLastSplitAtCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -67613,25 +67613,25 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtItem(pItem)
-		return This.FindLastSplitAtItemCS(pItem, TRUE)
+		return This.FindLastSplitAtItemCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
 		def FindLastSplit(pItem)
-			return This.FindLastSplitCS(pItem, TRUE)
+			return This.FindLastSplitCS(pItem, _TRUE_)
 
 		def FindLastSplitAtThisItem(pItem)
-			return This.FindLastSplitAtThisItemCS(pItem, TRUE)
+			return This.FindLastSplitAtThisItemCS(pItem, _TRUE_)
 		#--
 
 		def FindLastSplitAtItemZ(pItem)
-			return This.FindLastSplitAtItemCS(pItem, TRUE)
+			return This.FindLastSplitAtItemCS(pItem, _TRUE_)
 
 		def FindLastSplitZ(pItem)
-			return This.FindLastSplitCS(pItem, TRUE)
+			return This.FindLastSplitCS(pItem, _TRUE_)
 
 		def FindLastSplitAtThisItemZ(pItem)
-			return This.FindLastSplitAtThisItemCS(pItem, TRUE)
+			return This.FindLastSplitAtThisItemCS(pItem, _TRUE_)
 
 		#>
 
@@ -67673,7 +67673,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtItems(paItems)
-		return This.FindLastSplitAtItemsCS(paItems, TRUE)
+		return This.FindLastSplitAtItemsCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -67867,7 +67867,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBefore(pItem)
-		return This.FindLastSplitBeforeCS(pItem, TRUE)
+		return This.FindLastSplitBeforeCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -67980,7 +67980,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeItem(pItem)
-		return This.FindLastSplitBeforeItemCS(pItem, TRUE)
+		return This.FindLastSplitBeforeItemCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -68039,7 +68039,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeItems(paItems)
-		return This.FindLastSplitBeforeItemsCS(paItems, TRUE)
+		return This.FindLastSplitBeforeItemsCS(paItems, _TRUE_)
 	
 		#< @FunctionAlternativeForms
 
@@ -68247,7 +68247,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfter(pItem)
-		return This.FindLastSplitAfterCS(pItem, TRUE)
+		return This.FindLastSplitAfterCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -68345,7 +68345,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterItem(pItem)
-		return This.FindLastSplitAfterItemCS(pItem, TRUE)
+		return This.FindLastSplitAfterItemCS(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -68399,7 +68399,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterItems(paItems)
-		return This.FindLastSplitAfterItemsCS(paItems, TRUE)
+		return This.FindLastSplitAfterItemsCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -68571,7 +68571,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetween(pItem1, pItem2)
-		return This.FindLastSplitBetweenCS(pItem1, pItem2, TRUE)
+		return This.FindLastSplitBetweenCS(pItem1, pItem2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -68624,7 +68624,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenIB(pItem1, pItem2)
-		return This.FindLastSplitBetweenCSIB(pItem1, pItem2, TRUE)
+		return This.FindLastSplitBetweenCSIB(pItem1, pItem2, _TRUE_)
 
 
 		#< @FunctionAlternativeForm
@@ -68705,7 +68705,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenItems(paItems)
-		return This.FindLastSplitBetweenItemsCS(paItems, TRUE)
+		return This.FindLastSplitBetweenItemsCS(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -69091,7 +69091,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitXTZZ(pItem)
-		return This.FindLastSplitCSXTZZ(pItem, TRUE)
+		return This.FindLastSplitCSXTZZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -69156,7 +69156,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtZZ(pItem)
-		return This.FindLastSplitAtCSZZ(pItem, TRUE)
+		return This.FindLastSplitAtCSZZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -69280,25 +69280,25 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtItemZZ(pItem)
-		return This.FindLastSplitAtItemCSZZ(pItem, TRUE)
+		return This.FindLastSplitAtItemCSZZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
 		def FindLastSplitZZ(pItem)
-			return This.FindLastSplitAtItemZZ(pItem, TRUE)
+			return This.FindLastSplitAtItemZZ(pItem, _TRUE_)
 
 		def FindLastSplitAtThisItemZZ(pItem)
-			return This.FindLastSplitAtItemZZ(pItem, TRUE)
+			return This.FindLastSplitAtItemZZ(pItem, _TRUE_)
 		#--
 
 		def FindLastSplitAtItemAsSectionZZ(pItem)
-			return This.FindLastSplitAtItemZZ(pItem, TRUE)
+			return This.FindLastSplitAtItemZZ(pItem, _TRUE_)
 
 		def FindLastSplitAsSection(pItem)
-			return This.FindLastSplitAtItemZZ(pItem, TRUE)
+			return This.FindLastSplitAtItemZZ(pItem, _TRUE_)
 
 		def FindLastSplitAtThisItemAsSection(pItem)
-			return This.FindLastSplitAtItemZZ(pItem, TRUE)
+			return This.FindLastSplitAtItemZZ(pItem, _TRUE_)
 
 		#>
 
@@ -69340,7 +69340,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtItemsZZ(paItems)
-		return This.FindLastSplitAtItemsCSZZ(paItems, TRUE)
+		return This.FindLastSplitAtItemsCSZZ(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -69503,7 +69503,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeZZ(pItem)
-		return This.FindLastSplitBeforeCSZZ(pItem, TRUE)
+		return This.FindLastSplitBeforeCSZZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -69616,7 +69616,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeItemZZ(pItem)
-		return This.FindLastSplitBeforeItemCSZZ(pItem, TRUE)
+		return This.FindLastSplitBeforeItemCSZZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -69675,7 +69675,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeItemsZZ(paItems)
-		return This.FindLastSplitBeforeItemsCSZZ(paItems, TRUE)
+		return This.FindLastSplitBeforeItemsCSZZ(paItems, _TRUE_)
 	
 		#< @FunctionAlternativeForms
 
@@ -69883,7 +69883,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterZZ(pItem)
-		return This.FindLastSplitAfterCSZZ(pItem, TRUE)
+		return This.FindLastSplitAfterCSZZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -69978,7 +69978,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterItemZZ(pItem)
-		return This.FindLastSplitAfterItemCSZZ(pItem, TRUE)
+		return This.FindLastSplitAfterItemCSZZ(pItem, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -70032,7 +70032,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterItemsZZ(paItems)
-		return This.FindLastSplitAfterItemsCSZZ(paItems, TRUE)
+		return This.FindLastSplitAfterItemsCSZZ(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -70203,7 +70203,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenZZ(pItem1, pItem2)
-		return This.FindLastSplitBetweenCS(pItem1, pItem2, TRUE)
+		return This.FindLastSplitBetweenCS(pItem1, pItem2, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -70256,7 +70256,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenIBZZ(pItem1, pItem2)
-		return This.FindLastSplitBetweenCSIBZZ(pItem1, pItem2, TRUE)
+		return This.FindLastSplitBetweenCSIBZZ(pItem1, pItem2, _TRUE_)
 
 
 		#< @FunctionAlternativeForm
@@ -70337,7 +70337,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenItemsZZ(paItems)
-		return This.FindLastSplitBetweenItemsCSZZ(paItems, TRUE)
+		return This.FindLastSplitBetweenItemsCSZZ(paItems, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -70688,7 +70688,7 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-		if This.IsEqualtToCS( ring_reverse(This.Content()), pCaseSensitive) _TRUE_
+		if This.IsEqualtToCS( ring_reverse(This.Content()), pCaseSensitive) = _TRUE_
 			return _TRUE_
 		else
 			return _FALSE_
@@ -70707,7 +70707,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsPalindrome()
-		return This.IsPalindromeCS(TRUE)
+		return This.IsPalindromeCS(_TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -71611,13 +71611,13 @@ class stzList from stzObject
 		ok
 
 		nLen = len(pacParamNames)
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		for i = 1 to nLen
 			cCode = 'bFound = This.Is' + pacParamNames[i] + 'NamedParam()'
 			eval(cCode)
 			if bFound
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -71632,7 +71632,7 @@ class stzList from stzObject
 		#>
 
 	def IsRemoveAtOptionsNamedParam()
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		if This.IsHashList() and
 
@@ -71648,55 +71648,55 @@ class stzList from stzObject
 
 			if This.ToStzHashList().
 				KeysQR(:stzListOfStrings).
-				ContainsBothCS(:CaseSensitive, :CS, :CS _FALSE_)
+				ContainsBothCS(:CaseSensitive, :CS, _FALSE_)
 
 				StzRaise("Incorrect format! :CaseSensitive and :CS can not be used both in the same time")
 			ok
 
 			if This.ToStzHashList().
 				KeysQR(:stzListOfStrings).
-				ContainsBothCS(:RemoveThisBound, :RemoveThisBoundingSubString, :CS _FALSE_)
+				ContainsBothCS(:RemoveThisBound, :RemoveThisBoundingSubString, _FALSE_)
 
 				StzRaise("Incorrect format! :RemoveThisBound and :RemoveThisBoundingSubString can not be used both in the same time")
 			ok
 
-			bOk1 _FALSE_
+			bOk1 = _FALSE_
 			nRemoveNCharsBefore = This.Content()[ :RemoveNCharsBefore ]
 			cType = ring_type(nRemoveNCharsBefore)
-		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsBefore = NULL )
-				bOk1 _TRUE_
+		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsBefore = _NULL_ )
+				bOk1 = _TRUE_
 			ok
 
-			bOk2 _FALSE_
+			bOk2 = _FALSE_
 			nRemoveNCharsAfter = This.Content()[ :RemoveNCharsAfter ]
 			cType = ring_type(nRemoveNCharsAfter)
-		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsAfter = NULL )
-				bOk2 _TRUE_
+		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsAfter = _NULL_ )
+				bOk2 = _TRUE_
 			ok
 
-			bOk3 _FALSE_
+			bOk3 = _FALSE_
 			cRemoveSubStringBefore = This.Content()[ :RemoveSubStringBefore ]
 			cType = ring_type(cRemoveSubStringBefore)
 		   	if cType = "STRING"
-				bOk3 _TRUE_
+				bOk3 = _TRUE_
 			ok
 
-			bOk4 _FALSE_
+			bOk4 = _FALSE_
 			cRemoveSubStringAfter = This.Content()[ :RemoveSubStringAfter ]
 			cType = ring_type(cRemoveSubStringAfter)
 		   	if cType = "STRING"
-				bOk4 _TRUE_
+				bOk4 = _TRUE_
 			ok
 
-			bOk5 _FALSE_
+			bOk5 = _FALSE_
 			cRemoveThisBound = This.Content()[ :cRemoveThisBound ]
 			cType = ring_type(cRemoveThisBound)
 		   	if cType = "STRING"
-				bOk5 _TRUE_
+				bOk5 = _TRUE_
 			ok
 
 			if bOk1 and bOk2 and bOk3 and bOk4 and bOk5
-				bResult _TRUE_
+				bResult = _TRUE_
 			ok
 		ok
 
@@ -71715,10 +71715,10 @@ class stzList from stzObject
 			:Width = 17,
 			:TextAdjustedTo = :Center # or :Left or :Right or :Justified,
 			
-			:EachChar _FALSE_ # TRUE,
+			:EachChar = _FALSE_ # _TRUE_,
 			:Hilighted = [ 1, 3 ] # Hilight the 1st and 3rd chars,
 
-			:Numbered _TRUE_
+			:Numbered = _TRUE_
 		])
 		*/
 
@@ -71807,7 +71807,7 @@ class stzList from stzObject
 			:OnStzString = [
 				:MustBeUppercase 	= '{ Q(@str).IsUppercase() }',
 				:MustNotExceed@n@Chars 	= '{ Q(@str).NumberOfChars() <= n }',
-				:MustBeginWithLetter@c@	= '{ Q(@str).BeginsWithCS(c, :CS _FALSE_) }'
+				:MustBeginWithLetter@c@	= '{ Q(@str).BeginsWithCS(c, _FALSE_) }'
 			],
 		
 			:OnStzNumber = [
@@ -79215,7 +79215,7 @@ class stzList from stzObject
 		if This.NumberOfItems() <= 4 and
 		   This.IsHashList() and
 		   This.ToStzHashList().KeysQ().IsMadeOfSome([ :Where, :What, :Why, :Todo ]) and
-		   This.ToStzHashList().ValuesQ().CheckWXT("isString(@item) and @item != NULL")
+		   This.ToStzHashList().ValuesQ().CheckWXT("isString(@item) and @item != _NULL_")
 
 			return _TRUE_
 
@@ -79315,7 +79315,7 @@ class stzList from stzObject
 
 	def IsReturningNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:Returning, :CS _FALSE_)
+		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:Returning, _FALSE_)
 
 			return _TRUE_
 
@@ -79325,7 +79325,7 @@ class stzList from stzObject
 
 	def IsAndReturnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:AndReturn, :CS _FALSE_)
+		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:AndReturn, _FALSE_)
 
 			return _TRUE_
 
@@ -79335,7 +79335,7 @@ class stzList from stzObject
 
 	def IsAndReturningNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:AndReturning, :CS _FALSE_)
+		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:AndReturning, _FALSE_)
 
 			return _TRUE_
 
@@ -79345,7 +79345,7 @@ class stzList from stzObject
 
 	def IsReturnNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:ReturnNth, :CS _FALSE_)
+		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:ReturnNth, _FALSE_)
 
 			return _TRUE_
 
@@ -79355,7 +79355,7 @@ class stzList from stzObject
 
 	def IsReturningNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:ReturningNth, :CS _FALSE_)
+		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:ReturningNth, _FALSE_)
 
 			return _TRUE_
 
@@ -79365,7 +79365,7 @@ class stzList from stzObject
 
 	def IsAndReturnNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:AndReturnNth, :CS _FALSE_)
+		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:AndReturnNth, _FALSE_)
 
 			return _TRUE_
 
@@ -79375,7 +79375,7 @@ class stzList from stzObject
 
 	def IsAndReturningNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:AndReturningNth, :CS _FALSE_)
+		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:AndReturningNth, _FALSE_)
 
 			return _TRUE_
 

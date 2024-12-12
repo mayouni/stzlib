@@ -8,7 +8,7 @@ func StzNaturalQ()
 
 class stzNatural
 	
-	nothing 	= "NULL"
+	nothing 	= "_NULL_"
 
 	stzString 	= "StzStringQ(@)"
 	append 		= "Append(@)"
@@ -20,7 +20,7 @@ class stzNatural
 	spacify 	= "Spacify()"s
 	box 		= "Box()"
 	box@ 		= "BoxXT(@)"
-	rounded 	= [ "rounded", true ]
+	rounded 	= [ "rounded", _TRUE_ ]
 
 	#--
 
@@ -42,7 +42,7 @@ class stzNatural
 	@aUndefined = []
 
 	def braceExprEval value
-		if NOT( isString(value) and (value = NULL or value = "__@Ignore__") )
+		if NOT( isString(value) and (value = _NULL_ or value = "__@Ignore__") )
 			@aValues + value
 		ok
 
@@ -104,8 +104,8 @@ class stzNatural
 				cParams = ""
 				for j = 1 to nLen@
 
-					if aValues[i+j] = "NULL"
-						cParam = "NULL"
+					if aValues[i+j] = "_NULL_"
+						cParam = "_NULL_"
 					else
 						cParam = @@(aValues[i+j])
 					ok

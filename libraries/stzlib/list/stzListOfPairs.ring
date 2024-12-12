@@ -249,11 +249,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if Q(aContent[i][1]).IsEqualTo(aContent[i][2])
-				bResult _FALSE_
+				bResult = _FALSE_
 			ok
 		next
 		return bResult
@@ -707,7 +707,7 @@ class stzListOfPairs from stzListOfLists
  
 	def SortBy(pcExpr)
 
-		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@pair", :CS _FALSE_))
+		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@pair", _FALSE_))
 			StzRaise("Incorrect param! pcExpr must be a string containing @pair keyword.")
 		ok
 
@@ -941,11 +941,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)	
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsListOfNumbers(aContent[i])
-				bIsMadeOfNumbers _FALSE_
+				bIsMadeOfNumbers = _FALSE_
 				exit
 			ok
 		next
@@ -965,12 +965,12 @@ class stzListOfPairs from stzListOfLists
 
 	def IsListOfSectionsSortedInAscending()
 
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		If This.IsListOfSections() and
 		   This.ToStzList().MergeQ().IsSortedInAscending()
 
-				bResult _TRUE_
+				bResult = _TRUE_
 
 		ok
 
@@ -978,13 +978,13 @@ class stzListOfPairs from stzListOfLists
 
 	def IsListOfSectionsSortedInDescending()
 
-		bResult _FALSE_
+		bResult = _FALSE_
 		aSwapped = This.Swapped()
 
 		If This.IsListOfSections() and
 		   StzListQ(aSwapped).MergeQ().IsSortedInDescending()
 
-				bResult _TRUE_
+				bResult = _TRUE_
 
 		ok
 
@@ -998,11 +998,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _FALSE_
+		bResult = _FALSE_
 		
 		for i = 1 to nLen
 			if StzListQ(aContent[i]).Contains(pItem)
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -1046,7 +1046,7 @@ class stzListOfPairs from stzListOfLists
 		ok
 
 	def AreAnagrams()
-		return This.AreAnagramsCS(TRUE)
+		return This.AreAnagramsCS(_TRUE_)
 
 	  #===============================================#
 	 #  CHECKING IF THE FIRST ITEMS ARE ALL NUMBERS  #
@@ -1056,11 +1056,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT isNumber(aContent[i][1])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1084,11 +1084,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT isString(aContent[i][1])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1112,11 +1112,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsChar(aContent[i][1])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1140,11 +1140,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT isList(aContent[i][1])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1168,11 +1168,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT isObject(aContent[i][1])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1196,11 +1196,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzObject(aContent[i][1])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1224,11 +1224,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzChar(aContent[i][1])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1252,11 +1252,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzString(aContent[i][1])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1280,11 +1280,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzNumber(aContent[i][1])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1308,11 +1308,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzList(aContent[i][1])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1336,11 +1336,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzHashList(aContent[i][1])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1364,11 +1364,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT isNumber(aContent[i][2])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1392,11 +1392,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT isString(aContent[i][2])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1420,11 +1420,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsChar(aContent[i][2])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1448,11 +1448,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT isList(aContent[i][2])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1476,11 +1476,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT isObject(aContent[i][2])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1504,11 +1504,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzObject(aContent[i][2])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1532,11 +1532,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzChar(aContent[i][2])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1560,11 +1560,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzString(aContent[i][2])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1588,11 +1588,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzNumber(aContent[i][2])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1616,11 +1616,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzList(aContent[i][2])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1644,11 +1644,11 @@ class stzListOfPairs from stzListOfLists
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT @IsStzHashList(aContent[i][2])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next

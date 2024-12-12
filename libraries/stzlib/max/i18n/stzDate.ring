@@ -33,11 +33,11 @@ Here is an abstract:
 	is typically mid-year (you can’t even assume that two days in the
 	same month have the same year!).
 
-Also, read about these false assumptions about dates and think of avoiding them
+Also, read about these _FALSE_ assumptions about dates and think of avoiding them
 in softanza (taken from JavaDoc here:
 https://bit.ly/2S9y7dU
 
-	These false assumptions cause  bugs in multi-calendar system code:
+	These _FALSE_ assumptions cause  bugs in multi-calendar system code:
 
 	Code that queries the day-of-month and assumes that the value will
 	never be more than 31 is invalid. Some calendar systems have more
