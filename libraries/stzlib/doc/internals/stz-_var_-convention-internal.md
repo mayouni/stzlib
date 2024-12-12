@@ -1,5 +1,5 @@
 # The _var_ Convention: Solving Global Variable Collisions in Softanza
-![Softanza Codebase Integrity, by Microsot Image AI](../stz-_var_-convention-internal.jpg)
+![Softanza Codebase Integrity, by Microsot Image AI](../images/stz-_var_-convention-internal.jpg)
 
 Softanza functions and methods provide powerful tools for developers using the Ring programming language. However, a subtle yet significant issue can arise when local variables used within Softanza code share the **same name** as global variables in the calling program. This can lead to **unexpected modifications** of global variables, causing confusion and hard-to-diagnose bugs.
 
