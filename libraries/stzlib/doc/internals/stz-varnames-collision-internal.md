@@ -1,5 +1,5 @@
-# Safe Softanza Code: Preventing Global Variable Collisions
-
+# Safe Softanza Codebase : Preventing Global Variable Collisions
+![Safe Softanza Codebase, by Microsot Image AI](../images/stz-varnames-collision.jpg)
 
 Softanza functions and methods provide powerful tools for developers using the Ring programming language. However, a subtle yet significant issue can arise when local variables used within Softanza code share the same name as global variables in the calling program. This can lead to unexpected modifications of global variables, causing confusion and hard-to-diagnose bugs.
 
@@ -110,6 +110,8 @@ Doing so may inadvertently overwrite Softanza’s internal constants or variable
 ## Future Enhancements
 
 Softanza is extending this principle to other constants, such as `NULL`, to further enhance safety and reliability for Softanza-based programs.
+
+---
 
 ## Conclusion
 
