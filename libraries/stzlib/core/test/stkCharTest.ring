@@ -66,10 +66,10 @@ o1 = new stkChar("ض")
 # simply to do it in pure Qt:
 
 ? o1.Qt().isLetter()
-#--> TRUE
+#--> _TRUE_
 
 ? o1.Qt().IsLetterOrNumber()
-#--> TRUE
+#--> _TRUE_
 
 /*---
 
@@ -102,43 +102,43 @@ o1 = new stkChar("mansour")
 */
 o1 = new stkChar("r")
 ? o1.Qt().isLower()
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stkChar(1617)
 ? o1.Qt().isMark() # Arabic shaddah
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stkChar(65534)
 ? o1.Qt().isNonCharacter()
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stkChar("")
 ? o1.Qt().isNull()
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stkChar("9")
 ? o1.Qt().isNumber()
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stkChar("M")
 ? o1.Qt().isPrint()
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stkChar(65534)
 ? o1.Qt().isPrint()
-#--> FALSE
+#--> _FALSE_
 
 o1 = new stkChar(";")
 ? o1.Qt().isPunct()
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stkChar(" ")
 ? o1.Qt().isSpace()
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stkChar("T")
 ? o1.Qt().isUpper()
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stkChar("༺")
 ? o1.Mirrored()
@@ -160,5 +160,5 @@ o1 = new stkChar("༺")
 
 o1 = new stkChar("5")
 ? o1.Qt().isdigit()
-#--> TRUE
+#--> _TRUE_
 

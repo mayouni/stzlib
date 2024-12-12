@@ -101,8 +101,8 @@ class stzGrid from stzObject
 	@nNumberOfVLines
 	@nNumberOfHLines
 
-	@bShowRanks _FALSE_
-	@bShowCenter _FALSE_
+	@bShowRanks = _FALSE_
+	@bShowCenter = _FALSE_
 
 	@nOpacity
 	@aLayers
@@ -144,7 +144,7 @@ class stzGrid from stzObject
 	
 		This.SetGrid(p)
 
-		if KeepingHistory() _TRUE_
+		if KeepingHistory() = _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -295,7 +295,7 @@ class stzGrid from stzObject
 	def Update(paContent)
 		@aContent = paContent
 
-		if KeepingHisto() _TRUE_
+		if KeepingHisto() = _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -407,10 +407,10 @@ class stzGrid from stzObject
 			return This.HasNVNodes(n)
 		
 	def AllNodesOf_NthVLineAre_Strings(n)
-		bResult _TRUE_
+		bResult = _TRUE_
 		for node in This.VLine(n)
 			if NOT isString(node)
-				bResult _FALSE_
+				bResult = _FALSE_
 			ok
 		next
 		return bResult
@@ -713,7 +713,7 @@ class stzGrid from stzObject
 			if nVLine <= len(paHLine)
 				cHLine = paHLine[nVLine]
 			else
-				cHLine = NULL
+				cHLine = _NULL_
 			ok
 			This.SetNode(nVLine, nHLine, cHLine)
 		next
@@ -732,7 +732,7 @@ class stzGrid from stzObject
 			if nHLine <= len(paVLine)
 				cVLine = paVLine[nHLine]
 			else
-				cVLine = NULL
+				cVLine = _NULL_
 			ok
 			This.SetNode(nVLine, nHLine, cVLine)
 		next
@@ -765,7 +765,7 @@ class stzGrid from stzObject
 			aPositions + This.CentralNodePosition()
 
 		else
-			// HasCentralRegion _TRUE_
+			// HasCentralRegion = _TRUE_
 			aPositions = This.CentralRegion() // Should be CentralRegionPositions()
 		ok
 
@@ -941,7 +941,7 @@ class stzGrid from stzObject
 		ok
 
 		cStr = ""
-		if @bShowRanks _TRUE_
+		if @bShowRanks = _TRUE_
 			cStr = "" +
 			StzCounterQ([
 				:StartAt = 1,
@@ -981,7 +981,7 @@ class stzGrid from stzObject
 		ok
 
 		cStr = ""
-		if @bShowRanks _TRUE_
+		if @bShowRanks = _TRUE_
 			cStr = "" + This.NumberedVLine(n)[1] + NL
 		ok
 
@@ -1003,7 +1003,7 @@ class stzGrid from stzObject
 
 	def Show()
 
-		if @bShowRanks _TRUE_
+		if @bShowRanks = _TRUE_
 			aTemp = []
 
 			oCounter = new stzCounter([
@@ -1025,7 +1025,7 @@ class stzGrid from stzObject
 			? cStr
 		ok
 
-		if @bShowCenter _TRUE_
+		if @bShowCenter = _TRUE_
 			This.SetCenter("+")
 		ok
 

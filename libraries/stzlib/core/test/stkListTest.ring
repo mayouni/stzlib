@@ -98,10 +98,10 @@ o1.InsertAt(2, "programming ")
 o1 = new stkList([ "بسم", "الله", "الرّحمان", "الرّحيم" ])
 
 ? o1.StartsWith("بسم")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.EndsWith("الرّحيم") + NL
-#--> TRUE
+#--> _TRUE_
 
 /*---
 

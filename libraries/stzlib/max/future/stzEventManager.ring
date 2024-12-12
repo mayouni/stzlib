@@ -31,7 +31,7 @@ class stzEventManager from stzObject
 
 	def PerformEvent()
 		while NumberOfEvents() > 0
-			if aEvents[1][3] != NULL
+			if aEvents[1][3] != _NULL_
 				eval( aEvents[1][3]+"()" )
 			ok
 		end

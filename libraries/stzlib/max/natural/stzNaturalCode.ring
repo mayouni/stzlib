@@ -5,11 +5,11 @@
 
 _aFuture = [] # Stores future actions in natural-coding
 
-WhatEverCaseItHas _FALSE_ # Used in natural-coding
+WhatEverCaseItHas = _FALSE_ # Used in natural-coding
 
 _oMainObject = ANullObject() # Used for chains of truth
-_MainValue = NULL
-_LastValue = NULL
+_MainValue = _NULL_
+_LastValue = _NULL_
 
 # Glossary of Softanza actions
 

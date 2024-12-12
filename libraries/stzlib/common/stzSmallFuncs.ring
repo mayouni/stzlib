@@ -34,7 +34,7 @@ func QH(p)
 	#~> // Use a copy on which the loop is used and then update
 	# the main object in on UpdateWith() call
 
-	SetKeepingHistoryTo(TRUE)
+	SetKeepingHistoryTo(_TRUE_)
 	return Q(p)
 
 #--
@@ -54,7 +54,7 @@ func StzW(cType, paMethodAndFilter)
 
 	aTempList = Stz(cType, paMethodAndFilter[1])
 	cCondition = Q(paMethodAndFilter[2][2]).
-			ReplaceCSQ("@Method", "@Item", :CS=FALSE).
+			ReplaceCSQ("@Method", "@Item", _FALSE_).
 			Content()
 	
 	aResult = QR(aTempList, :stzListOfStrings).StringsW(ccondition)
@@ -136,19 +136,19 @@ func QQ(p)
 
 	? QQ("19")		# stzNumber
 	#--> Note that this is a number in string:
-	? Q("19").IsNumberInString() #--> TRUE
+	? Q("19").IsNumberInString() #--> _TRUE_
 
 	EXAMPLE 2
 
 	? QQ("[1, 2, 3]")	#--> stzListOfNumbers
 	#--> Note that this is a list in string:
-	? Q("[1, 2, 3]").IsListOfNumbersInString() #--> TRUE
+	? Q("[1, 2, 3]").IsListOfNumbersInString() #--> _TRUE_
 
 	EXAMPLE 3
 
 	? QQ(' [ "one", "two", "three" ] ')	#--> stzListOfStrings
 	#--> Note that this is a list of strings in a string:
-	? Q(' [ "one", "two", "three" ] ').IsListOfStringsInString #--> TRUE
+	? Q(' [ "one", "two", "three" ] ').IsListOfStringsInString #--> _TRUE_
 
 	*/
 
@@ -332,7 +332,7 @@ func L(p)
 	but isNumber(p)
 		aResult = []
 		for i = 1 to p
-			aResult + NULL
+			aResult + _NULL_
 		next
 
 		return aResult

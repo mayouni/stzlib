@@ -8,23 +8,23 @@ pron()
 #--> @nullobject
 
 ? Q(NullObject()).IsNamedObject()
-#--> TRUE
+#--> _TRUE_
 
 #--
 
-? TrueObject().Name()
+? _TRUE_Object().Name()
 #--> @trueobject
 
 ? Q(TrueObject()).IsNamedObject()
-#--> TRUE
+#--> _TRUE_
 
 #--
 
-? FalseObject().Name()
+? _FALSE_Object().Name()
 #--> @falseobject
 
 ? Q(FalseObject()).IsNamedObject()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s)
@@ -33,7 +33,7 @@ proff()
 
 pron()
 
-StzNamedObjectQ(:myobj _TRUE_Object()) {
+StzNamedObjectQ(:myobj = _TRUE_Object()) {
 
 	? Name()
 	#--> :myobj
@@ -90,16 +90,16 @@ pron()
 # The first checks for VALUES while the second checks for TYPES:
 
 o1 = new stzNumber(5)
-? o1.IsEither(5, :Or = 12)		#--> TRUE
-? o1.IsEitherA(:Number, :Or = :String)	#--> TRUE
+? o1.IsEither(5, :Or = 12)		#--> _TRUE_
+? o1.IsEitherA(:Number, :Or = :String)	#--> _TRUE_
 
 o1 = new stzList(1:3)
-? o1.IsEither(1:3, :Or = 2:7) 		#--> TRUE
-? o1.IsEitherA(:List, :Or = :String)	#--> TRUE
+? o1.IsEither(1:3, :Or = 2:7) 		#--> _TRUE_
+? o1.IsEitherA(:List, :Or = :String)	#--> _TRUE_
 
 o1 = new stzString("ring")
-? o1.IsEither("ring", :or = "ruby")	#--> TRUE
-? o1.IsEitherA(:String, :Or = :List)	#--> TRUE
+? o1.IsEither("ring", :or = "ruby")	#--> _TRUE_
+? o1.IsEitherA(:String, :Or = :List)	#--> _TRUE_
 
 proff()
 # Executed in 0.06 second(s)
@@ -197,7 +197,7 @@ proff()
 pron()
 
 ? Q(StzTypesXT()).IsHashList()
-#--> TRUE
+#--> _TRUE_
 
 ? StzHashListQ(StzTypesXT()).FindValue('stzchars')
 #--> 17
@@ -237,60 +237,60 @@ proff()
 pron()
 
 ? Q("2").IsA([ :Number, :String, :List ])
-#--> FALSE
+#--> _FALSE_
 
 ? Q([10, 20]).IsA([ :List, :Pair, :ListOfNumbers, :PairOfNumbers ])
-#--> TRUE
+#--> _TRUE_
 
 ? Q("str").IsAList()
-#--> FALSE
+#--> _FALSE_
 
 ? Q("str").IsANumber()
-#--> FALSE
+#--> _FALSE_
 
 ? Q("str").IsAString()
-#--> TRUE
+#--> _TRUE_
 
 ? Q("5").IsNumberInString()
-#--> TRUE
+#--> _TRUE_
 
 ? Q("str").IsA(:String)
-#--> TRUE
+#--> _TRUE_
 
 ? Q("str").IsA(:StzString)
-#--> TRUE
+#--> _TRUE_
 
 ? Q("str").IsAn(:Object)
-#--> TRUE
+#--> _TRUE_
 
 ? Q("2").IsAString()
-#--> TRUE
+#--> _TRUE_
 
 ? Q("2").IsA(:String)
-#--> TRUE
+#--> _TRUE_
 
 ? Q("2").IsAXT([ :NumberInString ])
-#--> TRUE
+#--> _TRUE_
 
 ? Q("2").IsA(:NumberInString)
-#--> TRUE
+#--> _TRUE_
 
 ? Q("2").Is(:NumberInString)
-#--> TRUE
+#--> _TRUE_
 
 ? Q("2").Is(:NumberInString)
-#--> TRUE
+#--> _TRUE_
 
-#--> TRUE
+#--> _TRUE_
 
 ? Q("2").IsEitherA(:Number, :Or = :String)
-#--> TRUE
+#--> _TRUE_
 
 ? Q("2").IsOneOfThese([ 3, "2", 5 ])
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ 10, 20, 30 ]).IsA(:ListOfNumbers)
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.10 second(s) in Ring 1.21
@@ -301,7 +301,7 @@ pron()
 
 o1 = new stzList([ 6, -2, 9, 5, -10 ])
 ? o1.EachItemIsEitherA(:Positive, :Or = :Negative, :Number)
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s)
@@ -321,7 +321,7 @@ pron()
 o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
 
 ? o1.EachItemIsEitherA( :Number, :Or, :String )
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.14 second(s)
@@ -346,7 +346,7 @@ pron()
 
 o1 = new stzList([ 120, "1250", 54, "452" ])
 ? o1.EachItemIsEither( :Number, :Or, :NumberInString )
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s)
@@ -365,13 +365,13 @@ proff()
 pron()
 
 ? Q([10, 20, 30 ]).IsA(:ListOfNumbers)
-#--> TRUE
+#--> _TRUE_
 
 ? Q([10, 20, 30 ]).Is(:ListOfNumbers)
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "1", "2", "3" ]).EachItemIsA([ :String, :NumberInString, :Char ])
-#--> TRUE
+#--> _TRUE_
 
 
 proff()
@@ -384,10 +384,10 @@ pron()
 o1 = new stzNumber(12500)
 
 ? o1.Is(:StzNumber)
-#--> TRUE
+#--> _TRUE_
 
 ? o1.Is(:String)
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.03 second(s)
@@ -398,7 +398,7 @@ pron()
 
 o1 = new stzString("hello")
 ? o1.Is(:StzString)
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.03 second(s)
@@ -420,10 +420,10 @@ pron()
 
 o1 = new QString2()
 ? IsQObject(o1)
-#--> TRUE
+#--> _TRUE_
 
 ? IsQtObject(o1)
-#--> TRUE
+#--> _TRUE_
 
 # Both return _TRUE_ --> Flexible syntax!
 

@@ -32,11 +32,11 @@ pron()
 
 o1 = new stzList([ "me", "you", "all", "the", "others" ])
 ? o1.ContainsEither("me", :or = "you")
-#--> FALSE
+#--> _FALSE_
 
 o1 = new stzlist([ "me", "and", "all", "the", "others" ])
 ? o1.ContainsEither("me", :or = "you")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s) in Ring 1.22
@@ -47,17 +47,17 @@ pron()
 
 o1 = new stzList([ "me", "you", "all", "the", "others" ])
 	? o1.ContainsOneOfThese([ "me", "you" ])
-	#--> TRUE
+	#--> _TRUE_
 	
 	? o1.ContainsOnlyOneOfThese([ "me", "you" ])
-	#--> FALSE
+	#--> _FALSE_
 
 o1 = new stzlist([ "me", "and", "all", "the", "others" ])
 	? o1.ContainsOnlyOneOfThese([ "me", "you" ])
-	#--> TRUE
+	#--> _TRUE_
 
 	? o1.ContainsOneOfThese([ "me", "you" ])
-	#--> TRUE
+	#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s) in Ring 1.21
@@ -151,7 +151,7 @@ pron()
 
 aLarge = 1 : 300_000
 
-aList = [ "A" : "Z", [ 10 : 12, [ "_", "_"] ], [ NullObject(), TrueObject() ] ]
+aList = [ "A" : "Z", [ 10 : 12, [ "_", "_"] ], [ NullObject(), _TRUE_Object() ] ]
 for j = 1 to 20_000
 	for i = 1 to len(aList)
 		aLarge + aList[i]
@@ -281,7 +281,7 @@ aMyList = [ "Hi", o1, "how", 1:3, o2, "are", o3, "you?", 1:3, o3, 99 ]
 # Now let's find the o3 named object:
 
 	? o3.IsNamedObject()
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q(aMyList).Find(o3)
 	#--> [ 7, 10 ]
@@ -289,7 +289,7 @@ aMyList = [ "Hi", o1, "how", 1:3, o2, "are", o3, "you?", 1:3, o3, 99 ]
 # Of course, Softanza can't find an object if it is not named!
 
 	? o2.IsNamedObject()
-	#--> FALSE
+	#--> _FALSE_
 	
 	//? Q(aMyList).Find(o2)
 	#--> ERROR: Line 689 Can't find an unnamed object!
@@ -396,7 +396,7 @@ proff()
 pron()
 
 o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
-? @@( o1.IndexCS(FALSE) )
+? @@( o1.IndexCS(_FALSE_) )
 #--> [
 #	[ "a", [ 1, 3 ] ],
 #	[ "b", [ 2, 6, 7 ] ],
@@ -429,7 +429,7 @@ proff()
 pron()
 
 o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
-? o1.ItemsOccuringNTimesCS(3, FALSE) #NOTE this is a misspelled form (one r instead of 2)
+? o1.ItemsOccuringNTimesCS(3, _FALSE_) #NOTE this is a misspelled form (one r instead of 2)
 #--> [ "b" ]
 
 proff()
@@ -461,7 +461,7 @@ proff()
 pron()
 
 o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
-? o1.ItemsOccuringNTimesCS(3, FALSE) #NOTE this is a misspelled form (one r instead of 2)
+? o1.ItemsOccuringNTimesCS(3, _FALSE_) #NOTE this is a misspelled form (one r instead of 2)
 #--> [ "b" ]
 
 proff()
@@ -1104,13 +1104,13 @@ proff()
 pron()
 
 ? Q("2.8").IsRealInString()
-#--> TRUE
+#--> _TRUE_
 
 ? Q("3.2").IsRealInString()
-#--> TRUE
+#--> _TRUE_
 
 ? BothAreRealsInStrings("2.8", "3.2")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 
@@ -1156,31 +1156,31 @@ proff()
 pron()
 
 ? Q(1:3).IsNeither(5:8, :Nor = 10:12)
-#--> TRUE
+#--> _TRUE_
 
 ? Q(1:3).IsNeither(2:4, :Nor = 1:3)
-#--> FALSE
+#--> _FALSE_
 
 #--
 
 ? Q("Ring").IsNeither("Python", :Nor = "Ruby")
-#--> TRUE
+#--> _TRUE_
 
 ? Q("Ring").IsNeither("Python", :Nor = "Ring")
-#--> FALSE
+#--> _FALSE_
 
 #--
 
 ? Q(5).IsNeither( 5 + 2, :Nor = 5 - 2 )
-#--> TRUE
+#--> _TRUE_
 
 ? Q(5).IsNeither( 5, :Nor = 15 )
-#--> FALSE
+#--> _FALSE_
 
 #--
 
 ? Q("str").IsNeither( :ANumber, :Nor = :List )
-#--> TRUE
+#--> _TRUE_
 
 ? Q(12).IsNeither( :List, :Nor = :Object )
 
@@ -1192,7 +1192,7 @@ proff()
 pron()
 
 ? Q([ "by", [ "2", "5", "6" ] ]).IsByNamedParam()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 #--> Executed in 0.03 second(s)
@@ -1412,7 +1412,7 @@ pron()
 # you can say :
 
 ? BothAreNumbers(5, -12)
-#--> TRUE
+#--> _TRUE_
 
 # When it makes sense, those functions are also provided as
 # methods in a given class. So, BothAreNumbers() can also be
@@ -1420,7 +1420,7 @@ pron()
 # like this:
 
 ? Q([ 5, -12 ]).BothAreNumbers() # Q() elevates the list to a stzList object
-#--> TRUE
+#--> _TRUE_
 
 #NOTE that the name of the function stays the same, but its signature
 # is different. In fact, they are two different things: the first one
@@ -1438,7 +1438,7 @@ pron()
 Q([ 5, -12 ]) { 		# We are inside a stzList object
 
 	? BothAreNumbers()	# This will work.
-	#--> TRUE
+	#--> _TRUE_
 
 	? BothAreNumbers(9, -9)	# This will raise an error!
 	#--> ERROR: Calling function with extra number of parameters!
@@ -1450,10 +1450,10 @@ Q([ 5, -12 ]) { 		# We are inside a stzList object
 Q([ 5, -12 ]) { 		# We are inside a stzList object
 
 	? BothAreNumbers()	# This will work.
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q([ 9, -9 ]).BothAreNumbers()	# This will work! Creates an other stzList object
-	#--> TRUE
+	#--> _TRUE_
 }
 
 # This is correct! But Softanza wants to avoid mental distruption (the
@@ -1464,11 +1464,11 @@ Q([ 5, -12 ]) { 		# We are inside a stzList object
 Q([ 5, -12 ]) { 		# We are inside a stzList object
 
 	? BothAreNumbers()	# This will work.
-	#--> TRUE
+	#--> _TRUE_
 
 	? @BothAreNumbers(9,-9)	# works, without beaking your train of thoughts!
 				# by calling an alternative name of the global function
-	#--> TRUE
+	#--> _TRUE_
 }
 
 # GENRAL RULE: Every time you have a global function in Softanza that is also
@@ -1637,7 +1637,7 @@ proff()
 pron()
 
 ? Q([ [], [] ]).AllItemsAreEmptyLists()
-#--> TRUE
+#--> _TRUE_
 
 ? @@( Association([ [], [] ]) )
 #--> Error: Can't associate empty lists!
@@ -1809,7 +1809,7 @@ proff()
 
 pron()
 
-o1 = new stzList([ 0, "", [], 1, 2, 3, [], NULL, 0 ])
+o1 = new stzList([ 0, "", [], 1, 2, 3, [], _NULL_, 0 ])
 
 o1.Trim()
 
@@ -1823,7 +1823,7 @@ proff()
 
 pron()
 
-o1 = new stzList([ 0, "", [], 1, 2, 3, [], NULL, 0 ])
+o1 = new stzList([ 0, "", [], 1, 2, 3, [], _NULL_, 0 ])
 
 o1.TrimLeft()
 o1.TrimRight()
@@ -1845,10 +1845,10 @@ pron()
 oQStr = new QString2()
 oQStr.append("I talk in Ring language!")
 
-? oQStr.contains("ring", FALSE)
-#--> TRUE
+? oQStr.contains("ring", _FALSE_)
+#--> _TRUE_
 
-oQStr.replace_2("ring", "RING", FALSE)
+oQStr.replace_2("ring", "RING", _FALSE_)
 ? oQStr.mid(0, oQStr.size())
 #--> I talk in RING language!
 
@@ -1934,7 +1934,7 @@ proff()
 pron()
 
 ? IsChar("🌞")
-#!--> FALSE
+#!--> _FALSE_
 #~> Should return _TRUE_!
 
 ? StzCharQ("🌞").Content()
@@ -1948,7 +1948,7 @@ proff()
 pron()
 
 ? isNumber([ "'" ])
-#--> FALSE
+#--> _FALSE_
 
 ? @@( "🌞" )
 #--> "🌞"
@@ -1990,7 +1990,7 @@ StartProfiler()
 o1 = new stzList([ "1", "🌞", "1", [ "2", "♥", "2", "🌞"], "1", [ "2", ["3", "🌞"] ] ])
 
 ? o1.DeepContains("🌞")
-#--> TRUE
+#--> _TRUE_
 
 ? @@( o1.DeepFind("🌞") )
 #--> [ [ 1, 2 ], [ 2, 4 ], [ 3, 2 ] ]
@@ -2057,11 +2057,11 @@ o1 = new stzList([ 1, 1:5, "hi!", StzNullObjectQ(), [ "a", "b" ] ])
 
 ? @@( o1.NListified(3) )
 #--> [
-#	[ 1, NULL, NULL ],
+#	[ 1, _NULL_, _NULL_ ],
 #	[ 1, 2, 3 ],
-#	[ "hi!", NULL, NULL ],
-#	[ @noname, NULL, NULL ],
-#	[ "a", "b", NULL ]
+#	[ "hi!", _NULL_, _NULL_ ],
+#	[ @noname, _NULL_, _NULL_ ],
+#	[ "a", "b", _NULL_ ]
 # ]
 
 proff()
@@ -2072,12 +2072,12 @@ proff()
 pron()
 
 ? Q(['alone']).IsSingle()
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzList([ 1, ['alone1'], 3, ['alone2'], 5, ['alone2'], 7:9 ])
 
 ? o1.ContainsSingles()
-#--> TRUE
+#--> _TRUE_
 
 ? @@( o1.FindSingles() )
 #--> [ 2, 4, 6 ]
@@ -2106,7 +2106,7 @@ pron()
 
 o1 = new stzList([ 1, 2, [ "a", "b" ], 4, [ "c", "d"], [ "a", "b" ] ])
 ? o1.ContainsPairs()
-#--> TRUE
+#--> _TRUE_
 
 ? @@( o1.FindPairs() )
 #--> [ 3, 5, 6 ]
@@ -2125,8 +2125,8 @@ o1 = new stzList([ 1, 2, [ "a", "b" ], 4, [ "c", "d"], [ "a", "b" ] ])
 
 ? @@( o1.Pairified() )
 #--> [
-#	[ 1, NULL ], [ 2, NULL ], [ "a", "b" ],
-#	[ 4, NULL ], [ "c", "d" ], [ "a", "b" ]
+#	[ 1, _NULL_ ], [ 2, _NULL_ ], [ "a", "b" ],
+#	[ 4, _NULL_ ], [ "c", "d" ], [ "a", "b" ]
 # ]
 
 proff()
@@ -2137,11 +2137,11 @@ proff()
 pron()
 
 ? Q([ "a", "♥", "*" ]).ContainsThese([ "♥", "*"])
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzList([ [ "a", "♥", "*" ], [ "♥", "*"], [ "a", "b", "♥", "*" ] ])
 ? o1.EachContainsThese([ "♥", "*" ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s) in Ring 1.21
@@ -2152,19 +2152,19 @@ pron()
 
 o1 = new stzList([ "ee♥ee", "b♥bbb", "ccc♥", "♥♥" ])
 ? o1.EachContains("♥")
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzList([ ["ee","♥","ee"], ["♥", "bb"], "ccc♥", "♥♥" ])
 ? o1.EachContains("♥")
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzList([ "a♥a" ])
 ? o1.EachContains("♥")
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzList([ 0, "a♥a" ])
 ? o1.EachContains("♥")
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.04 second(s)
@@ -2184,28 +2184,28 @@ proff()
 pron()
 
 ? IsChar(12.5)
-#--> FALSE
+#--> _FALSE_
 
 ? IsChar(-7)
-#--> FALSE
+#--> _FALSE_
 
 ? IsChar(14)
-#--> FALSE
+#--> _FALSE_
 
 ? IsChar(6)
-#--> TRUE
+#--> _TRUE_
 
 ? IsChar("A")
-#--> TRUE
+#--> _TRUE_
 
 ? IsChar("م")
-#--> TRUE
+#--> _TRUE_
 
 ? IsChar("♥")
-#--> TRUE
+#--> _TRUE_
 
 ? IsChar("Hi")
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.02 second(s) in Ring 1.21
@@ -2215,10 +2215,10 @@ proff()
 pron()
 
 ? Q([ "a", "b", "c" ]).IsListOfChars()
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ 1, 2, 3 ]).IsListOfChars()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.01 second(s) in Ring 1.21
@@ -2419,7 +2419,7 @@ aBigList = 1 : 30_000 +
 o1 = new stzList(aBigList)
 
 ? o1.ContainsDuplicates()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 3.15 second(s) in Ring 1.21
@@ -2438,7 +2438,7 @@ pron()
 	o1 = new stzList(alist)
 	
 	? o1.AllItemsAreDuplicated()
-	#--> TRUE
+	#--> _TRUE_
 
 proff()
 # Executed in 1.82 second(s) in Ring 1.21
@@ -2450,11 +2450,11 @@ pron()
 
 	o1 = new stzList([ "A", "B", "2", 1:3, "C", 2 ])
 	? o1.NoItemsAreDuplicated()
-	#--> TRUE
+	#--> _TRUE_
 
 	o1 = new stzList("A":"E")
 	? o1.NoItemsAreDuplicated()
-	#--> TRUE
+	#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.21
@@ -2466,7 +2466,7 @@ pron()
 
 o1 = new stzList([ "2", 2 ])
 ? o1.ContainsDuplicates()
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.21
@@ -2481,7 +2481,7 @@ pron()
 	o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
 
 	? o1.ContainsDuplicates() # Or ContainsDuplications() or ContainsduplicatedItems()
-	#--> TRUE
+	#--> _TRUE_
 
 	? o1.NumberOfDuplicates() # Or o1.NumberOfDuplicatedItems()
 	#--> 4
@@ -2520,16 +2520,16 @@ pron()
 	# What about items that are not duplicated:
 
 	? o1.ContainsItemsNonDuplicated()
-	#--> TRUE
+	#--> _TRUE_
 
 	? o1.ContainsAtLeastOneNonDuplicatedItem()
-	#--> TRUE
+	#--> _TRUE_
 
 	? o1. ContainsNoDuplications()
-	#--> FALSE
+	#--> _FALSE_
 
 	? o1.ContainsNonDuplicatedItems()
-	#--> TRUE
+	#--> _TRUE_
 
 	? o1.NumberOfNonDuplicatedItems()
 	#--> 2
@@ -2669,7 +2669,7 @@ pron()
 
 o1 = new stzList([ "A", "B", "C" ])
 ? o1.ContainsDupSecutiveItems()
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.01 second(s).
@@ -2683,12 +2683,12 @@ pron()
 o1 = new stzList([ "A", "B", "B", "B", "b", "C", "B", "C", "C", "c", "A" ])
 #                             ^    ^    ^                   ^    ^
 ? o1.ContainsDupSecutiveItems()
-#--> TRUE
+#--> _TRUE_
 
 ? o1.FindDupSecutiveItems()
 #--> [ 3, 4, 9 ]
 
-? o1.FindDupSecutiveItemsCS(FALSE)
+? o1.FindDupSecutiveItemsCS(_FALSE_)
 #--> [ 3, 4, 5, 9, 10 ]
 
 ? o1.Duplicates()
@@ -2700,10 +2700,10 @@ o1 = new stzList([ "A", "B", "B", "B", "b", "C", "B", "C", "C", "c", "A" ])
 ? @@( o1.DupSecutiveItemsZ() ) + NL
 #--> [ [ "B", [ 3, 4 ] ], [ "C", [ 9 ] ] ]
 
-? @@( o1.DupSecutiveItemsCSZ(FALSE) ) + NL
+? @@( o1.DupSecutiveItemsCSZ(_FALSE_) ) + NL
 #--> [ [ "B", [ 3, 4, 5 ] ], [ "C", [ 9, 10 ] ] ]
 
-o1.RemoveDupSecutiveItemsCS(FALSE)
+o1.RemoveDupSecutiveItemsCS(_FALSE_)
 ? @@( o1.Content() ) + nl
 #--> [ "A", "B", "C", "B", "C", "A" ]
 
@@ -2730,13 +2730,13 @@ o1 = new stzList([ "A", "B", "B", "B", "b", "C", "B", "C", "C", "c", "A" ])
 ? @@( o1.FindThisDupSecutiveItem("B") )
 #--> [ 3, 4 ]
 
-? @@( o1.FindThisDupSecutiveItemCS("B", :CS _FALSE_) )
+? @@( o1.FindThisDupSecutiveItemCS("B", :CS = _FALSE_) )
 #--> [ 3, 4, 5 ]
 
-? @@( o1.DupSecutiveItemCSZ("B", FALSE) )
+? @@( o1.DupSecutiveItemCSZ("B", _FALSE_) )
 #--> [ "B", [ 3, 4, 5 ] ]
 
-o1.RemoveDupSecutiveItemCS("B", FALSE)
+o1.RemoveDupSecutiveItemCS("B", _FALSE_)
 ? @@( o1.Content() )
 #--> [ "A", "B", "C", "B", "C", "C", "c", "A" ]
 
@@ -3334,10 +3334,10 @@ pron()
 aList = 1: 100_000
 nLen = len(aList)
 
-bResult _TRUE_
+bResult = _TRUE_
 for i = 1 to nLen
 	if NOT isNumber(aList[i])
-		bResult _FALSE_
+		bResult = _FALSE_
 		exit
 	ok
 next
@@ -3353,7 +3353,7 @@ pron()
 
 o1 = new stzList(1: 100_000)
 ? o1.IsListOfNumbers()
-#--> TRUE
+#--> _TRUE_
 
 ? o1.FindFirst(67_000)
 #--> 67000
@@ -3474,10 +3474,10 @@ pron()
 o1 = new stzList([ 14, 10, 14, 14, 20 ])
 
 ? QR([2, 4], :stzPairOfNumbers).BothAreBetween(1, o1.NumberOfItems())
-#--> TRUE
+#--> _TRUE_
 
 ? QR([0, 4], :stzPairOfNumbers).BothAreBetween(1, o1.NumberOfItems())
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.05 second(s)
@@ -3523,7 +3523,7 @@ pron()
 o1 = new stzList(1:299_000 + 120000)
 
 ? o1.Contains(120000)
-#--> TRUE
+#--> _TRUE_
 # Executed in 0.84 second(s)
 
 ? o1.NumberOfOccurrence(120000)
@@ -3588,7 +3588,7 @@ for i = 1 to 299_000
 next
 
 ? ElapsedTime()
-#--> Extecuted in 0.14 second(s)
+#--> Extecuted in 0.08 second(s) in seconds
 
 o1 = new stzList( aLarge + 10 + 20 + [ "+", "-" ] )
 ? len( o1.OnlyStrings() )
@@ -3596,7 +3596,8 @@ o1 = new stzList( aLarge + 10 + 20 + [ "+", "-" ] )
 # Executed in 2 second(s)
 
 proff()
-# Executed in 2.25 second(s)
+# Executed in 0.61 second(s) in Ring 1.22
+# Executed in 2.25 second(s) in Ring 1.18
 
 /*-----------------
 
@@ -3737,19 +3738,19 @@ pron()
 
 o1 = new stzList([ 12, 88 ])
 ? o1.BothAreNumbers()
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzList([ "hi", "ring" ])
 ? o1.BothAreStrings()
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzList([ :name = "Dan", :job = "Programmer" ])
 ? o1.BothAreLists()
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzList([ o1, o1 ])
 ? o1.BothAreObjects()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.05 second(s)
@@ -3990,7 +3991,7 @@ o1 = new stzList([ 1, 2, "ring", 4, 5, "RING", 7, "Ring" ])
 
 ? o1.FindWCS('{
 	isString(This[@i]) and This[@i] = "ring"
-}', :CS _FALSE_)
+}', :CS = _FALSE_)
 #--> [ 3, 6, 8 ]
 
 proff()
@@ -4309,19 +4310,19 @@ StopProfiler()
 StartProfiler()
 
 ? Q([ "ONE", "ONE", "ONE" ]).ItemsHaveXT('{ len(@item) = 3 }')
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "One", "Two", "Three" ]).Are(:Strings)
-#--> TRUE
+#--> _TRUE_
 
 ? Q(1:5).ItemsAre(:Numbers)
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "A":"C", "D":"F", "G":"I" ]).ItemsAre(:Lists)
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "A":"C", "D":"F", "G":"I" ]).ItemsAre(:ListsOfStrings)
-#--> TRUE
+#--> _TRUE_
 
 StopProfiler()
 # Executed in 0.24 second(s) in Ring 1.19
@@ -4334,11 +4335,11 @@ pron()
 o1 = new stzList([
 	[ "A", "B", "C" ],
 	[ 1, 2, 3 ],
-	[ NULL, NULL, [] ]
+	[ _NULL_, _NULL_, [] ]
 ])
 
 ? o1.IsMadeOfUniformLists() # Or more precisely: IsMadeOfUnisizeLists()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -4348,13 +4349,13 @@ proff()
 StartProfiler()
 
 	? Q([ "♥", "♥", "♥" ]).IsMadeOfItem("♥")
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q([ 12, 12, 12 ]).AllItemsAre(12)
-	#--> TRUE
+	#--> _TRUE_
 
 	? Q([ 1:3, 1:3, 1:3 ]).ContainsOnly(1:3)
-	#--> TRUE
+	#--> _TRUE_
 
 StopProfiler()
 # Executed in almost 0 second(s) in Ring 1.21
@@ -4367,7 +4368,7 @@ pron()
 o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
 
 ? o1.ContainsDuplicates()
-#--> TRUE
+#--> _TRUE_
 
 ? @@( o1.FindDuplicates() )
 #--> [ 3, 4, 6, 9 ]
@@ -4454,7 +4455,7 @@ o1 = new stzList(aList)
 # ]
 
 ? o1.ContainsDuplicates()
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.01 second(s) in Ring 1.21
@@ -4476,7 +4477,7 @@ aLarge + "in" + "out" + "IN" + "OUT"
 
 o1 = new stzList(aLarge)
 ? o1.ContainsDuplicates()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 5.11 second(s) in Ring 1.21
@@ -4496,7 +4497,7 @@ aLarge + "in" + "out" + "IN" + "OUT"
 
 o1 = new stzList(aLarge)
 ? o1.ContainsDuplicates()
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 4.89 second(s).
@@ -4516,10 +4517,10 @@ aLarge = [ 10, 20, "One", "ONE", [ :Tunis, :Paris ], 30, "two" ]
 	aLarge + "in" + "out" + "IN" + "OUT"
 
 o1 = new stzList(aLarge)
-? o1.ContainsDuplicatesCS(FALSE)
-#--> TRUE
+? o1.ContainsDuplicatesCS(_FALSE_)
+#--> _TRUE_
 
-? o1.NumberOfDuplicationsCS(FALSE)
+? o1.NumberOfDuplicationsCS(_FALSE_)
 #--> 3
 
 proff()
@@ -4552,7 +4553,7 @@ pron()
 o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
 
 ? o1.ContainsDuplicates()
-#--> TRUE
+#--> _TRUE_
 # Executed in 0.03 second(s)
 
 ? o1.HowManyDuplicates()
@@ -4772,7 +4773,7 @@ proff()
 # Executed in almost 0 second(s).
 
 /*----------
-
+*/
 pron()
 
 aList = [ "A", "B", 1, "A", "A", 1, "C", 1:2, "D", "B", "E", '"1"', 1:2 ]
@@ -4850,7 +4851,7 @@ proff()
 pron()
 
 o1 = new stzList([ "A", "B", "A", "A", "C", "D", "B", "E", "a" , "b"])
-? @@( o1.DuplicatesCSZ(:CaseSensitive _FALSE_) )
+? @@( o1.DuplicatesCSZ(:CaseSensitive = _FALSE_) )
 #--> [ [ "A", [ 3, 4, 9 ] ], [ "B", [ 7, 10 ] ] ]
 
 proff()
@@ -4871,7 +4872,7 @@ o1 = new stzList(
 )
 
 //? o1.ContainsDuplicates()
-#--> TRUE
+#--> _TRUE_
 
 ? @@( o1.FindDuplicates() )
 #--> [
@@ -4909,7 +4910,7 @@ o1 = new stzList([ 5, 7, 5, 5, 4, 7, 1 ])
 //o1 = new stzListOfStrings([ "5", "7", "5", "5", "4", "7", "1" ])
 
 ? o1.ContainsDuplicates()
-#--> TRUE
+#--> _TRUE_
 # Executed in 0.03 second(s)
 
 ? o1.HowManyDuplicates() + NL
@@ -5010,10 +5011,10 @@ pron()
 o1 = new stzList([ "a", "ab", "abnA", "abAb" ])
 
 ? o1.Contains("n")
-#--> FALSE
+#--> _FALSE_
 
 ? o1.FindFirst("n")
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -5024,13 +5025,13 @@ pron()
 
 o1 = new stzList([ "a", "ab", 1:3, "abA", "abAb", 1:3 ])
 
-? o1.ContainsCS("ab", TRUE)
-#--> TRUE
+? o1.ContainsCS("ab", _TRUE_)
+#--> _TRUE_
 
-? o1.FindFirstCS("AB", FALSE)
+? o1.FindFirstCS("AB", _FALSE_)
 #--> 2
 
-? o1.FindLastCS("ABA", FALSE)
+? o1.FindLastCS("ABA", _FALSE_)
 #--> 4
 
 ? o1.FindFirst(1:3)
@@ -5404,7 +5405,7 @@ pron()
 nPos = 20
 paList = [ "A", "B", "C" ]
 
-? @FindAllCS([ 1, 2, "♥", 4, "♥", 6, "♥" ], "♥", TRUE)
+? @FindAllCS([ 1, 2, "♥", 4, "♥", 6, "♥" ], "♥", _TRUE_)
 
 ? paList
 #--> [ "A", "B", "C" ]
@@ -6194,9 +6195,9 @@ aList2  = [          9,    14, 15,    21, 22, 23     ]
 aList = Q(aList1).MergeWithQ(aList2).Sorted()
 
 aSections = []
-bContinue _TRUE_
+bContinue = _TRUE_
 
-while TRUE
+while _TRUE_
 
 	for i = 2 to len(aList)
 	
@@ -6554,19 +6555,19 @@ StartProfiler()
 o1 = new stzList([ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "🌞"] ] ])
 
 ? o1.DeepContains("🌞")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.DeepContainsMany([ "1", "♥", "3", "🌞" ]) # Or DeepContainsThese()
-#--> TRUE
+#--> _TRUE_
 
 ? o1.DeepContainsBoth("♥", :And = "🌞")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.DeepContainsOneOfThese(["_", "🌞", "0" ])
-#--> TRUE
+#--> _TRUE_
 
 ? o1.DeepContainsNOfThese(2, ["_", "🌞", "0", "♥" ])
-#--> TRUE
+#--> _TRUE_
 
 StopProfiler()
 # Executed in 0.02 second(s).
@@ -6605,11 +6606,11 @@ o1.RemoveFirst("_")
 ? @@( o1.Content() )
 #--> [ "B", "C", "D", "E" ]
 
-o1.RemoveThisFirstItemCS("b", :CS _FALSE_)
+o1.RemoveThisFirstItemCS("b", :CS = _FALSE_)
 ? @@( o1.Content() )
 #--> [ "C", "D", "E" ]
 
-o1.RemoveNthItem(:Last) # CheckParams() should be TRUE, otherwise :Last raises an error
+o1.RemoveNthItem(:Last) # CheckParams() should be _TRUE_, otherwise :Last raises an error
 			# You can use o1.RemoveNthItem(o1.NumberOfItems()) or
 			# o1.RemoveLastItem() instead
 ? @@( o1.Content() )
@@ -6883,10 +6884,10 @@ proff()
 pron()
 
 ? Q([ "ring", "php", "python" ]).Are([ :Lowercase, :Strings ])
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "ABC", "DEF", "GHI" ]).Are([ :Uppercase, :Strings ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.11 second(s).
@@ -6896,7 +6897,7 @@ proff()
 pron()
 
 ? TQ("واحد").IsArabic()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s).
@@ -6906,13 +6907,13 @@ proff()
 pron()
 
 ? Q([ "واحد", "اثنان", "ثلاثة" ]).Are(:Strings)
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "واحد", "اثنان", "ثلاثة" ]).Are([ :Arabic, :Strings ])
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "واحد", "اثنان", "ثلاثة" ]).Are([ :ArabicScript, :RightToLeft, :Texts ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.26 second(s).
@@ -6922,7 +6923,7 @@ proff()
 pron()
 
 ? Q([ "你好", "亲", "朋友们" ]).Are([ :HanScript, :Texts ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 
@@ -6941,16 +6942,16 @@ proff()
 pron()
 
 ? Q([ "ONE", "TWO", "THREE" ]).Are(:Strings)
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "ONE", "TWO", "THREE" ]).Are([ :Strings ])
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "ONE", "TWO", "THREE" ]).Are([ :Uppercase, :Strings ])
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "ONE", "TWO", "THREE" ]).Are([ :Uppercase, :Latin, :Strings ])
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "ONE", "TWO", "THREE" ]).Are([ :Uppercase, :Strings ])
 
@@ -6971,19 +6972,19 @@ proff()
 pron()
 
 ? Q([ 1, 2, 3 ]).Are(:Numbers)
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ -2, -4, -8 ]).Are([ :Even, :Negative, :Numbers ])
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ 2, 4, 8 ]).Are([ :Even, :Numbers ])
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ 2, 4, 8 ]).Are([ :Even, :Positive, :Numbers ])
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "(",";", ")" ]).Are([ :Punctuation, :Chars ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.28 second(s).
@@ -7023,10 +7024,10 @@ proff()
 pron()
 
 # In Ring, you can't check two equal listq for equality,
-# and if you do, you get FALSE as result:
+# and if you do, you get _FALSE_ as result:
 
 ? [ 1, 2 ] = [ 1, 2 ]
-#--> FALSE
+#--> _FALSE_
 
 # That's because Ring compares lists by reference not
 # by value. When you create two separate lists [ 1, 2 ],
@@ -7037,13 +7038,13 @@ pron()
 # lists to strings using lis2str like this:
 
 ? list2str([ 1, 2 ]) = list2str([ 1, 2 ])
-#--> TRUE
+#--> _TRUE_
 
 # Softanza provides a more direct and elegant solution by
 # simply using the Q() small function with the first list:
 
 ? Q([ 1, 2 ]) = [ 1, 2 ]
-#--> TRUE
+#--> _TRUE_
 
 # Hence, the first [ 1, 2 ] is elevated to a stzList, and
 # the = operator is used to call internally the IsEqual()
@@ -7081,7 +7082,7 @@ pron()
 
 o1 = new stzList([ 0, 2, 0, 3, [1,2] ])
 ? o1.IsListOfNumbersAndPairsOfNumbers()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -7315,7 +7316,7 @@ proff()
 pron()
 
 ? Q([ "I", "B", "M" ]).HasSameContent( :As = [ "B", "M", "I" ] )
-? Q([ "I", "B", "M" ]).HasSameContentCS( :As = [ "b", "m", "i" ], :CS _FALSE_ )
+? Q([ "I", "B", "M" ]).HasSameContentCS( :As = [ "b", "m", "i" ], :CS = _FALSE_ )
 
 proff()
 # Executed in almost 0 second(s).
@@ -7325,21 +7326,21 @@ proff()
 pron()
 
 ? Q("SFTANZA").IsLargerThan("RING")
-#--> TRUE
+#--> _TRUE_
 
 # or if you want to be precise:
 ? Q("SFTANZA").HasMoreChars(:Than = "RING")
-#--> TRUE
+#--> _TRUE_
 
 #--
 
 ? Q("RING").IsSmaller(:Than = "SFTANZA")
-#--> TRUE
+#--> _TRUE_
 
 # or if you want to precise:
 
 ? Q("RING").HasLessChars(:Than = "SFTANZA")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.01 second(s).
@@ -7349,21 +7350,21 @@ proff()
 pron()
 
 ? Q([1, 2, 3, 4, 5]).IsLarger(:Than = [8, 9])
-#--> TRUE
+#--> _TRUE_
 
 # or if you want to precise:
 
 ? Q([1, 2, 3, 4, 5]).HasMoreItems(:Than = [8, 9])
-#--> TRUE
+#--> _TRUE_
 
 #--
 
 ? Q([8, 9]).IsSmaller(:Than = [1, 2, 3, 4, 5])
-#--> TRUE
+#--> _TRUE_
 
 # or if you want to precise:
 ? Q([8, 9]).HasLessItems(:Than = [1, 2, 3, 4, 5])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -7377,13 +7378,13 @@ o1 = new stzList([ "arem", "mohsen", "AREM" ])
 ? o1.FindAll("arem")
 #--> [ 1 ]
 
-? o1.FindAllCS("arem", :CS _FALSE_)
+? o1.FindAllCS("arem", :CS = _FALSE_)
 #--> [1, 3]
 
 ? o1.FindNth(2, "arem")
 #--> 0
 
-? o1.FindNthCS(2, "arem", :CS _FALSE_)
+? o1.FindNthCS(2, "arem", :CS = _FALSE_)
 #--> 3
 
 proff()
@@ -7479,16 +7480,16 @@ pron()
 o1 = new stzList([ 1, 2 ])
 
 ? o1.IsEqualTo([ 1, 2 ])
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsEqualTo([ 2, 1 ])
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsStrictlyEqualTo([ 2, 1 ])
-#--> FALSE
+#--> _FALSE_
 
 ? o1.IsStrictlyEqualTo([ 1, 2 ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s).
@@ -7542,7 +7543,7 @@ o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
 #--> [1, 3, 4]
 
 ? o1.Contains(7:10)
-#--> TRUE	
+#--> _TRUE_	
 
 proff()
 # Executed in 0.02 second(s).
@@ -7565,16 +7566,16 @@ proff()
 pron()
 
 ? Q(' [ "A", "B", 3 ] ').IsListInString()
-#--> TRUE
+#--> _TRUE_
 
 ? Q(' 1 : 3 ').IsListInString()
-#--> TRUE
+#--> _TRUE_
 
 ? Q(' "A" : "C" ').IsListInString()
-#--> TRUE
+#--> _TRUE_
 
 ? Q(' "ا" : "ج" ').IsListInString()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.07 second(s).
@@ -7793,10 +7794,10 @@ proff()
 pron()
 
 ? StzStringQ(:stzList).IsStzClassName()
-#--> TRUE
+#--> _TRUE_
 
 ? StzListQ( :ReturnedAs = :stzList ).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.01 second(s).
@@ -7806,10 +7807,10 @@ proff()
 pron()
 
 ? StzListQ([]).IsListOfStrings()
-#--> FALSE
+#--> _FALSE_
 
 ? StzListQ([]).IsListOfNumbers()
-#--> FALSE
+#--> _FALSE_
 
 proff()
 
@@ -7820,19 +7821,19 @@ pron()
 # In Ring, this is how we can declare a hashlist using the :key = value syntax
 
 ? StzListQ([ :name = "Mansour", :age = 45 ]).IsHashList()
-#--> TRUE
+#--> _TRUE_
 
 # Which is equivalent to the fellowing normal list declaration:
 
 ? StzListQ([ [ "name", "Mansour"], [ "age", 45] ]).IsHashList()
-#--> TRUE
+#--> _TRUE_
 
 # But, becareful when using a normal string with =, it won't lead to a hashlist
 
 ? StzListQ([ "name" = "Mansour", "age" = 45 ]).IsHashList() + NL
-#--> FALSE
+#--> _FALSE_
 
-# In fact, what we wrote are two FALSE expressions, since "name" is different
+# In fact, what we wrote are two _FALSE_ expressions, since "name" is different
 # from "Mansour" and "age" is different from 45:
 
 ? @@( [ "name" = "Mansour", "age" = 45 ] )
@@ -7904,10 +7905,10 @@ pron()
 
 o1 = new stzListOfStrings([ "A", "B", "1", "C", "2", "3", "D", "4", "5" ])
 
-? o1.FindFirstCS("b", TRUE)
+? o1.FindFirstCS("b", _TRUE_)
 #--> 0
 
-? o1.FindFirstCS("b", :CS _FALSE_)
+? o1.FindFirstCS("b", :CS = _FALSE_)
 #--> 2
 
 proff()
@@ -7920,16 +7921,16 @@ pron()
 o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
 
 ? o1.Contains("a")
-#--> FALSE
+#--> _FALSE_
 
 ? o1.Contains("A")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ContainsNo("C")
-#--> FALSE
+#--> _FALSE_
 
 ? o1.ContainsNo("X")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s).
@@ -8122,19 +8123,19 @@ pron()
 # in the code below:
 
 	? Q("str") = "str"
-	#--> TRUE
+	#--> _TRUE_
 	
 	? Q("str") = Q("str") = "str"
-	#--> TRUE
+	#--> _TRUE_
 	
 	? Q(2+5) = 7
-	#--> TRUE
+	#--> _TRUE_
 	
 	? Q(2+5) = Q(3+4) = 7
-	#--> TRUE
+	#--> _TRUE_
 	
 	? Q(2+5) = Q(3+4) = Q(9-2) = 7
-	#--> TRUE
+	#--> _TRUE_
 	
 	? Q(1:3) = Q(3:1) = [3, 1, 2]
 
@@ -8157,10 +8158,10 @@ proff()
 
 pron()
 
-? ( Q([ "ONE", "TWO", "THREE" ]) * TrueObject() ).Content()
+? ( Q([ "ONE", "TWO", "THREE" ]) * _TRUE_Object() ).Content()
 #                                  \_____ ____/
 #					 V
-#        A stzTrueObject holding the value TRUE ~> 1
+#        A stzTrueObject holding the value _TRUE_ ~> 1
 #  \__________________________ __________________________/
 #                             V
 #       It's like if we wrote the fellowing expression:
@@ -8205,10 +8206,10 @@ pron()
 o1 = new stzList([ 1, 2, 3 ])
 
 ? @IsStzObject(o1)
-#--> TRUE
+#--> _TRUE_
 
 ? @IsStzList(o1)
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s).
@@ -8604,12 +8605,12 @@ pron()
 StzListQ([ "by", "except"]) { 
 
 	? IsMadeOfOneOrMoreOfThese([ :by, :except, :stopwords ])
-	#--> TRUE
+	#--> _TRUE_
 
 	# Same as:
 
 	? IsMadeOfSome([ :by, :except, :stopwords ])
-	#--> TRUE
+	#--> _TRUE_
 }
 
 proff()
@@ -8619,11 +8620,11 @@ proff()
 
 pron()
 
-? IsBoolean(FALSE)
-#--> TRUE
+? IsBoolean(_FALSE_)
+#--> _TRUE_
 
-? Q(TRUE).IsBoolean()
-#--> TRUE
+? Q(_TRUE_).IsBoolean()
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -8634,7 +8635,7 @@ pron()
 
 o1 = new stzList([ "by", "except", "stopwords" ])
 ? o1.IsMadeOfThese([ :by, :except, :stopwords ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.01 second(s).
@@ -8659,16 +8660,16 @@ proff()
 pron()
 
 ? StzListQ([ "q", "r", [ 2, 1 ] ]).Contains([ 2, 1 ])
-#--> TRUE
+#--> _TRUE_
 
 ? StzListQ([ "q", "r", [ 2, 1] ]).HasSameContentAs([ "r", [ 2, 1], "q" ])
-#--> TRUE
+#--> _TRUE_
 
 ? StzListQ([ "q", "r", [ 2, 1] ]).HasSameSortingOrderAs([ "r", [ 2, 1], "q" ])
-#--> FALSE
+#--> _FALSE_
 
 ? StzListQ([ "q", "r", [ 2, 1] ]).IsEqualTo([ "q", "r", [2, 1] ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s).
@@ -8677,17 +8678,17 @@ proff()
 
 pron()
 
-? StzListQ([]).Contains(NULL)
-#--> FALSE
+? StzListQ([]).Contains(_NULL_)
+#--> _FALSE_
 
-? StzListQ([NULL]).Contains(NULL)
-#--> TRUE
+? StzListQ([_NULL_]).Contains(_NULL_)
+#--> _TRUE_
 
 ? StzListQ([]).IsListOfStrings()
-#--> FALSE
+#--> _FALSE_
 
-? StzListQ([ NULL, NULL, NULL]).IsListOfStrings()
-#--> TRUE
+? StzListQ([ _NULL_, _NULL_, _NULL_]).IsListOfStrings()
+#--> _TRUE_
 
 proff()
 # Executed in 0.01 second(s).
@@ -8708,10 +8709,10 @@ proff()
 pron()
 
 ? IsListOfStrings([ "baba", "ommi", "jeddy" ])
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ "baba", "ommi", "jeddy" ]).IsListOfStrings()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -9103,12 +9104,12 @@ pron()
 
 o1 = new stzList([ "a", "b", "c" ])
 
-? o1.IsStrictlyEqualTo([ "a", "b", "c" ])	#--> TRUE
+? o1.IsStrictlyEqualTo([ "a", "b", "c" ])	#--> _TRUE_
 
 # Because
-? o1.HasSameTypeAs([ "a", "b", "c" ])		#--> TRUE
-? o1.HasSameContentAs([ "a", "b", "c" ])	#--> TRUE
-? o1.HasSameSortingOrderAs([ "a", "b", "c" ])	#--> TRUE
+? o1.HasSameTypeAs([ "a", "b", "c" ])		#--> _TRUE_
+? o1.HasSameContentAs([ "a", "b", "c" ])	#--> _TRUE_
+? o1.HasSameSortingOrderAs([ "a", "b", "c" ])	#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s).
@@ -9169,13 +9170,13 @@ pron()
 
 o1 = new stzList([ "a", "b", "c" ])
 
-? o1.IsEqualTo([ "c", "b", "a" ])		#--> TRUE
+? o1.IsEqualTo([ "c", "b", "a" ])		#--> _TRUE_
 
-? o1.IsStrictlyEqualTo([ "c", "b", "a" ])	#--> FALSE
+? o1.IsStrictlyEqualTo([ "c", "b", "a" ])	#--> _FALSE_
 # Because
-? o1.HasSameTypeAs([ "c", "b", "a" ])		#--> TRUE
-? o1.HasSameContentAs([ "c", "b", "a" ])	#--> TRUE
-? o1.HasSameSortingOrderAs([ "c", "b", "a" ])	#--> FALSE
+? o1.HasSameTypeAs([ "c", "b", "a" ])		#--> _TRUE_
+? o1.HasSameContentAs([ "c", "b", "a" ])	#--> _TRUE_
+? o1.HasSameSortingOrderAs([ "c", "b", "a" ])	#--> _FALSE_
 
 proff()
 # Executed in 0.05 second(s).
@@ -9185,12 +9186,12 @@ proff()
 pron()
 
 o1 = new stzList([ "a", "b", "c" ])
-? o1.IsStrictlyEqualTo([ "a", "b" ])	#--> FALSE
+? o1.IsStrictlyEqualTo([ "a", "b" ])	#--> _FALSE_
 
 # Because
-? o1.HasSameTypeAs([ "a", "b" ])	#--> TRUE
-? o1.IsEqualTo([ "a", "b" ])		#--> FALSE
-? o1.HasSameSortingOrderAs([ "a", "b" ])#--> TRUE
+? o1.HasSameTypeAs([ "a", "b" ])	#--> _TRUE_
+? o1.IsEqualTo([ "a", "b" ])		#--> _FALSE_
+? o1.HasSameSortingOrderAs([ "a", "b" ])#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -9295,10 +9296,10 @@ pron()
 
 oList = new stzList([ [1],[1],[1],[1] ])
 ? oList.ItemsHaveSameType()
-#--> TRUE
+#--> _TRUE_
 
 ? oList.ItemsAreEmptyLists()
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -9310,7 +9311,7 @@ pron()
 o1 = new stzList(1:5)
 o1.AddItemAt(8, 9)
 ? @@( o1.Content() )
-#--> [ 1, 2, 3, 4, 5, NULL, NULL, 9 ]
+#--> [ 1, 2, 3, 4, 5, _NULL_, _NULL_, 9 ]
 
 proff()
 # Executed in almost 0 second(s).
@@ -9322,7 +9323,7 @@ pron()
 o1 = new stzList("A":"E")
 o1.AddItemAt(8, "X")
 ? @@( o1.Content() )
-#--> [ "A", "B", "C", "D", "E", NULL, NULL, "X" ]
+#--> [ "A", "B", "C", "D", "E", _NULL_, _NULL_, "X" ]
 
 proff()
 # Executed in almost 0 second(s).
@@ -9354,13 +9355,13 @@ pron()
 #--> 2
 
 ? Q(2).IsOneOfThese([ 3, 2, 5 ])
-#--> TRUE
+#--> _TRUE_
 
 ? Q("2").IsOneOfThese([ 3, 2, 5 ])
-#--> FALSE
+#--> _FALSE_
 
 ? Q([2]).IsOneOfThese([ 3, 2, 5 ])
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.03 second(s).
@@ -9455,7 +9456,7 @@ StartProfiler()
 
 o1 = new stzList([ "Word1", "كلمة 2", "Word3", "كلمة 4", "Word5", "كلمة 6" ])
 ? o1.CheckOnWXT([1, 3, 5], :That = 'Q(@item).IsLeftToRight()' )
-#--> TRUE
+#--> _TRUE_
 
 StopProfiler()
 #--> Executed in 0.03 second.
@@ -9909,7 +9910,7 @@ pron()
 StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 
 	? HasLeadingItems()
-	#--> TRUE
+	#--> _TRUE_
 	? NumberOfLeadingItems() + NL
 	#--> 3
 
@@ -9917,7 +9918,7 @@ StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 	#--> [ "*", "*", "*" ]
 	
 	? HasTrailingItems()
-	#--> TRUE
+	#--> _TRUE_
 
 	? NumberOfTrailingItems() + NL
 	#--> 2
@@ -9943,22 +9944,22 @@ pron()
 # All these return _TRUE_
 
 ? StzListQ([ :DefaultLocale ]).IsLocaleList()
-#--> TRUE
+#--> _TRUE_
 
 ? StzListQ([ :SystemLocale ]).IsLocaleList()
-#--> TRUE
+#--> _TRUE_
 
 ? StzListQ([ :CLocale ]).IsLocaleList()
-#--> TRUE
+#--> _TRUE_
 
 ? StzListQ([ :Language = :Arabic, :Script = :Arabic, :Country = :Tunisia ]).IsLocaleList()
-#--> TRUE
+#--> _TRUE_
 
 ? StzListQ([ :Language = :Arabic, :Country = :Tunisia ]).IsLocaleList()
-#--> TRUE
+#--> _TRUE_
 
 ? StzListQ([ :Country = :Tunisia ]).IsLocaleList()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.04 second(s) in Ring 1.22
@@ -9970,25 +9971,25 @@ pron()
 # All these return _TRUE_
 
 ? Q( 1:5 ).IsListOf(:Numbers)
-#--> TRUE
+#--> _TRUE_
 
 ? Q( "A":"E" ).IsListOf(:Strings)
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ 1:5, "A":"E" ]).IsListOf(:Lists)
-#--> TRUE
+#--> _TRUE_
 
 ? Q( [ 1:5, 6:10, 11:15 ] ).IsListOf(:ListOfNumbers)
-#--> TRUE
+#--> _TRUE_
 
 ? Q( [ 1:5, 6:10, 11:15 ] ).IsListOf(:ListsOfNumbers) // #NOTE the support of plural form
-#--> TRUE
+#--> _TRUE_
 
 ? Q( [ "A":"E", "a":"e" ] ).IsListOf(:ListOfStrings)
-#--> TRUE
+#--> _TRUE_
 
 ? Q( [ "A":"E", "a":"e" ] ).IsListOf(:ListsOfStrings) //#NOTE the support of plural form
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.09 second(s).
@@ -10004,20 +10005,20 @@ oNumber2 = StzNumberQ(12)
 oNumber3 = StzNumberQ(24)
 
 ? Q([ oNumber1, oNumber2, oNumber3 ]).IsListOf(:StzNumbers)
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ [oNumber1, oNumber2], [oNumber2, oNumber3] ]).IsListOf(:ListsOfStzNumbers)
-#--> TRUE
+#--> _TRUE_
 
 oString1 = StzStringQ("Win")
 oString2 = StzStringQ("Loose")
 oString3 = StzStringQ("Don't care!")
 
 ? Q([ oString1, oString2, oString3 ]).IsListOf(:StzStrings)
-#--> TRUE
+#--> _TRUE_
 
 ? Q([ [oString1, oString2], [oString2, oString3] ]).IsListOf(:ListsOfStzStrings)
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.06 second(s).
@@ -10054,13 +10055,13 @@ pron()
 o1 = new stzList(1:3)
 
 ? o1.HasSameContentAs(3:1)
-#--> TRUE
+#--> _TRUE_
 
 ? o1.HasSameNumberOfItemsAs(3:1)
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsEqualTo(3:1) + NL
-#--> TRUE
+#--> _TRUE_
 
 # While two lists are STRICTLY equal when they have
 # same number of items, have same content, and same sorting order
@@ -10072,10 +10073,10 @@ o1 = new stzList(1:3)
 # but it is not STRICTLY equal to it
 
 ? Q(1:3).IsEqualTo(3:1)
-#--> TRUE
+#--> _TRUE_
 
 ? Q(1:3).IsStrictlyEqualTo(3:1)
-#--> FALSE
+#--> _FALSE_
 
 # In fact, the two lists don't have the same sorting order!
 
@@ -10088,7 +10089,7 @@ o1 = new stzList(1:3)
 # Hence, 1:3 is STRICTLY equal only to itself
 
 ? Q(1:3).IsStrictlyEqualTo(1:3)
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.01 second(s).
@@ -10103,7 +10104,7 @@ pron()
 o1 = new stzList([ "f","a","y","e","d" ])
 
 ? o1.IsQuietEqualTo([ "a","l", "f", "a","y","e","d" ])
-#--> FALSE
+#--> _FALSE_
 
 # By default, the approximation facor is 0.09
 
@@ -10114,10 +10115,10 @@ o1 = new stzList([ "f","a","y","e","d" ])
 
 SetQuietEqualityRatio(0.41)
 
-# Now the equality becomes TRUE
+# Now the equality becomes _TRUE_
 
 ? o1.IsQuietEqualTo([ "a","l", "f", "a","y","e","d" ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -10146,19 +10147,19 @@ pron()
 #--> :Ascending
 
 ? Q(1:3).HasSameSortingOrderAs(3:1)
-#--> FALSE
+#--> _FALSE_
 
 ? Q(1:3).HasSameSortingOrderAs(1:3)
-#--> TRUE
+#--> _TRUE_
 
 ? Q(1:3).HasSameSortingOrderAs(1:5) + NL
-#--> TRUE
+#--> _TRUE_
 
 # For conciseness, you can call these functions directly,
 # without objects instanciation:
 
 ? HaveSameSortingOrder(1:3, 1:7)
-#--> TRUE
+#--> _TRUE_
 
 ? SortingOrders([ 1:3, 1:7 ])
 #--> [ "ascending", "ascending" ]
@@ -10244,13 +10245,13 @@ proff()
 
 pron()
 
-oTrue  _TRUE_Object()
-oFalse _FALSE_Object()
+oTrue  = _TRUE_Object()
+oFalse = _FALSE_Object()
 oNull  = NullObject()
 
 o1 = new stzList([ "Ring", "PHP", oTrue, oTrue, "Python", oNull, oFalse, "Julia", oNull ])
 
-? @@( o1.FindAll(oTrue) )
+? @@( o1.FindAll(o_TRUE_) )
 #--> [ 3, 4 ]
 
 ? @@( o1.FindAll(oFalse) )
@@ -10327,7 +10328,7 @@ pron()
 
 oStr = new stzString("|<--Scope of Life-->|")
 ? oStr.IsBoundedBy([ "|<--", "-->|" ])
-#--> TRUE
+#--> _TRUE_
 
 # And then we can delete these bounds:
 ? oStr.TheseBoundsRemoved( "|<--", "-->|" )
@@ -10337,7 +10338,7 @@ oStr = new stzString("|<--Scope of Life-->|")
 
 oList = new stzList([ "|<--", "Scope", "of", "Life", "-->|" ])
 ? oList.IsBoundedBy([ "|<--", "-->|" ])
-#--> TRUE
+#--> _TRUE_
 
 # And we can remove all these bounds, exactly like we did for strings:
 ? oList.TheseBoundsRemoved( "|<--", "-->|" )
@@ -10353,7 +10354,7 @@ pron()
 o1 = new stzList([ "{", "A", "B", "C", "}" ])
 
 ? o1.IsBoundedBy([ "{", "}" ]) + NL
-#--> TRUE
+#--> _TRUE_
 
 o1.RemoveTheseBounds("{", "}")
 ? o1.Content()
@@ -10396,10 +10397,10 @@ pron()
 o1 = new stzList([ "1", "2", "A", "B", "C", "3", "4" ])
 
 ? o1.ContainsEach([ "A", "B", "C" ])
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ContainsEachOneOfThese([ "A", "B", "C" ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s).
@@ -10411,7 +10412,7 @@ pron()
 o1 = new stzList([ "A", "B", "C" ])
 
 ? o1.EachItemExistsIn([ "1", "2", "A", "B", "C", "3", "4" ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s).
@@ -10425,7 +10426,7 @@ pron()
 	[ :name = "selmen", :job = "manager", :age = 45 ],
 	[ :name = "mahran", :job = "manager", :age = 45 ]
 ]) + NL
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzListOfHashLists([
 	[ :name = "mansour", :job = "programmer", :age = 45 ],
@@ -10777,8 +10778,8 @@ proff()
 pron()
 
 
-obj1 _TRUE_Object()
-obj2 _FALSE_Object()
+obj1 = _TRUE_Object()
+obj2 = _FALSE_Object()
 
 o1 = new stzList([ "a", 1, 3, "b", ["A1", "A2"], obj1, "c", 3, [ "B1", "B2" ], obj2 ])
 
@@ -10794,10 +10795,10 @@ o1 = new stzList([ "a", 1, 3, "b", ["A1", "A2"], obj1, "c", 3, [ "B1", "B2" ], o
 ? o1.OnlyObjects()
 #--> The two objects o1 and o2 printed in the console:
 #
-# @oobject: NULL
+# @oobject: _NULL_
 # @cvarname: @trueobject
 #
-# @oobject: NULL
+# @oobject: _NULL_
 # @cvarname: @falseobject
 
 proff()
@@ -10868,8 +10869,8 @@ proff()
 
 pron()
 
-oTrueObj _TRUE_Object()
-oFalseObj _FALSE_Object()
+oTrueObj = _TRUE_Object()
+oFalseObj = _FALSE_Object()
 
 o1 = new stzList([
 	"_", 3, "_" , oTrueObj, 6, "*",
@@ -11294,8 +11295,8 @@ proff()
 
 pron()
 
-obj1 _TRUE_Object()
-obj2 _FALSE_Object()
+obj1 = _TRUE_Object()
+obj2 = _FALSE_Object()
 
 o1 = new stzList([ 5, [ :me, :you ], 4, "tunis", obj2, 3, 7, [ :them, :others ], "cairo", obj1  ])
 o1.SortInAscending()
@@ -11311,7 +11312,7 @@ pron()
 
 o1 = new stzList([ 3, 6, 9, 12, "a", "b", [ "List0" ], [ "List1" ] ])
 ? o1.IsSortedInAscending()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s).
@@ -11320,8 +11321,8 @@ proff()
 
 pron()
 
-obj1 _TRUE_Object()
-obj2 _FALSE_Object()
+obj1 = _TRUE_Object()
+obj2 = _FALSE_Object()
 
 o1 = new stzList([ "_", 3, "_" , obj1, "*", 6, [ "L1", "L1" ], 12, obj2, [ "L2", "L2" ], 24, "*" ])
 o1.SortInAscending()
@@ -11560,13 +11561,13 @@ o1 = new stzList([
 ])
 
 ? o1.ContainsMany([ "medianet", "st2i" ])
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ContainsEach([ "ifes", "haica"])
- #--> TRUE
+ #--> _TRUE_
 
 ? o1.ContainsBoth("ifes", "haica")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -11637,10 +11638,10 @@ pron()
 o1 = new stzList([ "A", "B", "C" ])
 
 ? o1.ContainsNo("v")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ContainsNoObjects()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -11652,10 +11653,10 @@ pron()
 o1 = new stzList( [ "A", "B", [ 1, "v", 2 ], "X" ] )
 
 ? o1.ContainsNo("v")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ContainsNoObjects()
-#--> TRUE
+#--> _TRUE_
 
 ? @@( o1.Flattened() ) # can also be written: o1.FlattenQ().Content()
 #--> [ "A", "B", 1, "v", 2, "X" ]
@@ -11704,7 +11705,7 @@ proff()
 pron()
 
 ? Q(5).IsBetween(2, 7)
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.21
@@ -11882,7 +11883,7 @@ pron()
 # A Softanza NullObject is a named object
 
 ? NullObject().IsNamedObject()
-#--> TRUE
+#--> _TRUE_
 
 ? NullObject().VarName()
 #--> @nullobject
@@ -11890,7 +11891,7 @@ pron()
 # It can't equal anything, even itself!
 
 ? NullObject().IsEqualTo(NullObject())
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -11908,16 +11909,16 @@ obj2 = new stzString(:second = "Python")
 obj3 = new stzString(:first  = "basic")
 
 ? AreNamedObjects([ obj1, obj2, obj3 ])
-#--> TRUE
+#--> _TRUE_
 
 ? ObjectsNames([ obj1, obj2, obj3 ])
 #--> [ :first, :second, :first ]
 
 ? AreEqual([ obj1, obj2 ]) # Or AreEqualObjects()
-#--> FALSE
+#--> _FALSE_
 
 ? AreEqual([ obj1, obj3 ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.03 second(s).
@@ -11927,13 +11928,13 @@ proff()
 pron()
 
 ? AreEqual([ 1:3, 1:3, 1:3, 1:3 ])
-#--> TRUE
+#--> _TRUE_
 
 ? AreEqual([ ["A", 1:5], 1:3, 1:3, 1:3 ])
-#--> FALSE
+#--> _FALSE_
 
 ? AreEqual([ NullObject(), NullObject(), NullObject() ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s).
@@ -11954,8 +11955,8 @@ proff()
 
 pron()
 
-? AreEqualCS([ "a", "a", "A", "A", "a", "A" ], FALSE)
-#--> TRUE
+? AreEqualCS([ "a", "a", "A", "A", "a", "A" ], _FALSE_)
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -11970,18 +11971,18 @@ pron()
 o1 = new stzList([ "a", "a", "A", "A", "a", "A" ])
 
 ? o1.ItemsAreEqualTo("a")
-#--> FALSE
+#--> _FALSE_
 
-? o1.ItemsAreEqualToCS("a", FALSE)
-#--> TRUE
+? o1.ItemsAreEqualToCS("a", _FALSE_)
+#--> _TRUE_
 
 # You can also say:
 
 ? o1.ContainsOnly("a")
-#--> FALSE
+#--> _FALSE_
 
-? o1.ContainsOnlyCS("A", FALSE)
-#--> TRUE
+? o1.ContainsOnlyCS("A", _FALSE_)
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -12024,29 +12025,29 @@ pron()
 # In the following example, we check if the entire list ["a", "b", "c"] exists
 # as a single item within the list ["a", "b", "c", "x", "z"].
 
-# Although you might expect this to return _TRUE_, it actually returns FALSE.
+# Although you might expect this to return _TRUE_, it actually returns _FALSE_.
 ? Q(["a", "b", "c"]).ExistsIn(["a", "b", "c", "x", "z"])
-#--> FALSE
+#--> _FALSE_
 
-# The result is FALSE because there are no occurrences of ["a", "b", "c"] as a 
+# The result is _FALSE_ because there are no occurrences of ["a", "b", "c"] as a 
 # single list element within the larger list.
 ? @@(Q(["a", "b", "c", "x", "z"]).FindAll(["a", "b", "c"]))
 #--> []
 
 # However, if we modify the list to include ["a", "b", "c"] as an item:
 ? Q(["a", "b", "c"]).ExistsIn(["a", "b", "c", "x", "z", ["a", "b", "c"]])
-#--> TRUE
+#--> _TRUE_
 
-# This returns TRUE because the last element of the second list is now an item of
+# This returns _TRUE_ because the last element of the second list is now an item of
 # type list that matches ["a", "b", "c"], satisfying the ExistsIn() condition.
 
 # Now, let's restart from the beginning with a different method: ExistIn(),
 # which omits the "s" at the end. This method uses a different semantic approach.
 
 ? Q(["a", "b", "c"]).ExistIn(["a", "b", "c", "x", "z"])
-#--> TRUE
+#--> _TRUE_
 
-# Here, the result is TRUE because ExistIn() implies checking if the sequence
+# Here, the result is _TRUE_ because ExistIn() implies checking if the sequence
 # ["a", "b", "c"] exists within the list as a sub-sequence, rather than as a 
 # single item. This method accounts for multiple consecutive items rather than 
 # a single item, as with ExistsIn().
@@ -12061,10 +12062,10 @@ pron()
 o1 = new stzList([ "a", "b", "c", "a", "a", "b", "c" ])
 
 ? o1.IsMadeOf([ "a", "b", "c" ])
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsMadeOfSome([ "a", "b", "c", "x", "z" ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s).
@@ -12075,7 +12076,7 @@ pron()
 
 o1 = new stzList([ :monday, :monday, :monday ])
 ? o1.IsMadeOfOneOfThese([ :sunday, :monday, :saturday, :wednesday, :thirsday, :friday, :saturday ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.01 second(s).
@@ -12085,10 +12086,10 @@ proff()
 pron()
 
 ? IsHashList([ :Language = "arabic", :Country = "tn", :Script = "arabic" ])
-#--> TRUE
+#--> _TRUE_
 
 ? StzListQ([ :Language = "arabic", :Country = "tn", :Script = "arabic" ]).IsHashList()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -12098,7 +12099,7 @@ proff()
 pron()
 
 ? Q([ :ar, :en, :fr ]).AreLanguageAbbreviations()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.01 second(s).
@@ -12110,14 +12111,14 @@ pron()
 o1 = new stzList([ :Language = "arabic", :Country = "tn", :Script = "arabic" ])
 
 ? o1.IsLocaleList() + NL
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzList([ :Language = "ar", :Country = "TN", :script = "arabic" ])
 ? o1.IsLocaleList() + NL
-#--> TRUE
+#--> _TRUE_
 
 ? StringIsScriptName("latin")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.03 second(s).
@@ -12128,11 +12129,11 @@ pron()
 
 o1 = new stzList([ :english = "house", :french = "maison", :arabic = "منزل" ])
 ? o1.IsMultilingualString()
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzList([ :en = "house", :fr = "maison", :ar = "منزل" ])
 ? o1.IsMultilingualString()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s).
@@ -12144,34 +12145,34 @@ pron()
 o1 = new stzList([ "green", "red", "blue" ])
 
 ? o1.ContainsOneOfThese(["red", "t", "cv"]) + NL
-#--> TRUE
+#--> _TRUE_
 
 #---
 
 ? o1.IsContainedIn([ "green", "red", "blue", "magenta", "gray" ]) # Same as ExistsIn()
-#--> FALSE
+#--> _FALSE_
 
 ? o1.AreContainedIn([ "green", "red", "blue", "magenta", "gray" ]) + NL # Same as ExistIn() (without "s")
-#--> TRUE
+#--> _TRUE_
 
 #---
 
 ? o1.Contains([ "red", "blue" ])
-#--> FALSE
+#--> _FALSE_
 
 ? o1.ContainsThese([ "red", "blue" ]) + NL
-#--> TRUE
+#--> _TRUE_
 
 #---
 
 ? o1.ContainsOneOfThese([ "yelloW", "GREEN", "magenta" ])
-#--> FALSE
+#--> _FALSE_
 
-? o1.ContainsOneOfTheseCS([ "yelloW", "GREEN", "magenta" ], FALSE)
-#--> TRUE
+? o1.ContainsOneOfTheseCS([ "yelloW", "GREEN", "magenta" ], _FALSE_)
+#--> _TRUE_
 
 ? o1.ContainsNoOneOfThese([ "yellow", "magenta", "gray" ]) + NL
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.05 second(s).
@@ -12204,10 +12205,10 @@ pron()
 o1 = new stzList([ "green", "red" ])
 
 ? o1.IsIncludedIn([ "green", "red", "blue" ])
-#--> FALSE
+#--> _FALSE_
 
 ? o1.AreIncludedIn([ "green", "red", "blue" ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s).
@@ -12225,10 +12226,10 @@ o1 = new stzList([ "green", "red" ])
 # []
 
 ? o1.ContainsSameItemsAs([ "red", "green" ])
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ContainsSameItemsAs([ "a", "b", "c", "f" ])
-#--> FALSE
+#--> _FALSE_
 
 proff()
 #--> Executed in 0.02 second(s).
@@ -12296,7 +12297,7 @@ aList = [ :name = "mansour", :job = "programmer", :name = "xe" ]
 o1 = new stzList(aList)
 
 ? o1.IsHashList()
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -12307,7 +12308,7 @@ pron()
 
 o1 = new stzList([ "a", "c", 12 ])
 ? o1.HasSameContentAs([ "a", 12, "c" ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -12342,7 +12343,7 @@ pron()
 
 o1 = new stzList([ 1, 2, 3, 6 ])
 ? o1.IsReverseOf([ 6, 3, 2, 1 ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -12353,13 +12354,13 @@ pron()
 o1 = new stzList([ 1, 2, 3 ])
 
 ? o1.IsEqualTo([ 3, 1, 2 ])
-#--> TRUE
+#--> _TRUE_
 
 ? o1.IsStrictlyEqualTo([ 3, 1, 2 ])
-#--> FALSE
+#--> _FALSE_
 
 ? o1.IsStrictlyEqualTo([ 1, 2, 3 ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.01 second(s).
@@ -12370,7 +12371,7 @@ pron()
 
 o1 = new stzList([ 2, 1, 3 ])
 ? o1.ItemsHaveSameOrderAs([ 2, 1, 3, 6 ])
-#-- TRUE
+#-- _TRUE_
 
 proff()
 # Executed in almost 0 second(s).
@@ -12470,7 +12471,7 @@ pron()
 
 o1 = new stzList("a":"t")
 ? o1.Contains("x")
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.03 second(s).

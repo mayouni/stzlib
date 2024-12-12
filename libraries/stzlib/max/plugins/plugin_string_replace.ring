@@ -12,7 +12,7 @@ t0 = clock()
 @plugin_max_size  = 0
 @pluging_max_loop = 0
 
-@pluging_partial_result _FALSE_
+@pluging_partial_result = _FALSE_
 
 @plugin_result = pluginFunc(@plugin_value, @plugin_param)
 #--> Embedding Ring in Ring!
@@ -21,7 +21,7 @@ t0 = clock()
 
 func pluginFunc(value, aParams)
 
-	while TRUE
+	while _TRUE_
 
 		# Function logic
 

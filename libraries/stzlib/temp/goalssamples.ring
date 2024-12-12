@@ -33,18 +33,18 @@ load "../stzlib.ring"
 	
 		MyAfricanNations = [ "Tunisia", "Egypt", "Niger", "Togo", "Ghana" ]
 		
-		? Q("Niger").IsOneOf(MyAfricanNations)			  #--> TRUE
-		? Q("France").IsOneOf(MyAfricanNations)			  #--> FALSE
+		? Q("Niger").IsOneOf(MyAfricanNations)			  #--> _TRUE_
+		? Q("France").IsOneOf(MyAfricanNations)			  #--> _FALSE_
 		
-		? Q(MyAfricanNations).Contains("Egypt")			  #--> TRUE
-		? Q(MyAfricanNations).ContainsBoth("Egypt", "Tunisia")	  #--> TRUE
+		? Q(MyAfricanNations).Contains("Egypt")			  #--> _TRUE_
+		? Q(MyAfricanNations).ContainsBoth("Egypt", "Tunisia")	  #--> _TRUE_
 		
 		NorthAfricanNations = [
 		   "Egypt", "Libya", "Tunisia", "Algeria", "Morroco", "Mauritania" ]
 		
-		? Q(MyAfricanNations).ContainsAll(NorthAfricanNations)	  #--> FALSE
-		? Q(MyAfricanNations).ContainsSome(NorthAfricanNations)	  #--> TRUE
-		? Q(MyAfricanNations).ContainsN(2, NorthAfricanNations)	  #--> TRUE
+		? Q(MyAfricanNations).ContainsAll(NorthAfricanNations)	  #--> _FALSE_
+		? Q(MyAfricanNations).ContainsSome(NorthAfricanNations)	  #--> _TRUE_
+		? Q(MyAfricanNations).ContainsN(2, NorthAfricanNations)	  #--> _TRUE_
 
 	#-- Feature 3: Named Params
 
@@ -123,7 +123,7 @@ load "../stzlib.ring"
 		# The most used suffix in Softanza is CS() suffix for string Case Sensitivity:
 		Q("ring php RING ruby Ring") {
 			? NumberOfOccurrence(:Of = "ring") 		  #--> Gives 1, but...
-			? NumberOfOccurrenceCS(:Of = "ring", :CS _FALSE_) #--> Gives 3!
+			? NumberOfOccurrenceCS(:Of = "ring", :CS = _FALSE_) #--> Gives 3!
 		}
 
 		# An other use case of suffixes is when you create a box around a string:
@@ -133,7 +133,7 @@ load "../stzlib.ring"
 		#    └───────┘
 
 		# And want to configure the box appearance, so you use the XT suffix like this:
-		? Q("CAIRO").BoxedXT([ :AllCorners = :Round, :EachChar _TRUE_ ])
+		? Q("CAIRO").BoxedXT([ :AllCorners = :Round, :EachChar = _TRUE_ ])
 		#    ╭───┬───┬───┬───┬───╮
 		#--> │ C │ A │ I │ R │ O │
 		#    ╰───┴───┴───┴───┴───╯
@@ -408,8 +408,8 @@ load "../stzlib.ring"
 */	? StzStringQ("HELLO").Size() # and
 	? StzListQ([ "H", "E", "L", "L", "O" ]).Size() # both return 5
 
-	? StzStringQ("hello").FindAllCS("L", :CaseSensitive _FALSE_) # and
-	? StzListOfStringsQ([ "h", "e", "l", "l", "o" ]).FindAllCS("L", :CaseSensitive _FALSE_)
+	? StzStringQ("hello").FindAllCS("L", :CaseSensitive = _FALSE_) # and
+	? StzListOfStringsQ([ "h", "e", "l", "l", "o" ]).FindAllCS("L", :CaseSensitive = _FALSE_)
 	# both return [3, 4 ]
 
 	? StzStringQ("hello").Uppercased() #--> returns the uppercased string "HELLO"
@@ -476,7 +476,7 @@ load "../stzlib.ring"
 	#-- 2. Checker Metaphor
 
 /*		A Checker walks on a list, evaluates a given expression on each item, and tells
-		us wether each evaluation leads to TRUE or FALSE:
+		us wether each evaluation leads to _TRUE_ or _FALSE_:
 */		o1 = new stzList([ :Water, :Cofee, :Sugar, :Tea, :Milk, :Honey ])
 		? o1.Check( :That = 'len(@item) = 5' ) #--> [ 1, 1, 1, 0, 0, 1 ]
 
@@ -490,13 +490,13 @@ load "../stzlib.ring"
 /*		#--> [ 0, 1, 0, 1 ]. In fact, :Water conains no "o", :Cofee contains an "o",
 		:Sugar contains no "o", and also :Honey contains an "o"!
 	
-		Checker can carry on the values of TRUE and FALSE using an AND or OR operator:
+		Checker can carry on the values of _TRUE_ and _FALSE_ using an AND or OR operator:
 */		o1.CheckXT( :That = 'Q(@item).Contains("o")', [ :CarryUsing = :AND ] ) #--> Leads
-/*		internally to { FALSE AND TRUE AND FALSE AND TRUE } --> FALSE.
+/*		internally to { _FALSE_ AND _TRUE_ AND _FALSE_ AND _TRUE_ } --> _FALSE_.
 		Moreover, nothing prevents us from defining any combination of :AND and :OR sutch as:
 */		o1.CheckXT( :That = 'Q(@item).Contains("o")', [ :UsingWalker = :WalkerFive,
 			    :CarryUsing@ = '(@1 OR @2) AND (@3 OR @4)' ] )
-		#--> Leads internally to { (FALSE OR TRUE) AND ( FALSE OR TRUE ) } --> TRUE
+		#--> Leads internally to { (FALSE OR _TRUE_) AND ( _FALSE_ OR _TRUE_ ) } --> _TRUE_
 	
 	#-- 3. Yielder Metaphor
 /*
@@ -571,7 +571,7 @@ load "../stzlib.ring"
 /*		In the future, every Softanza function will be provided with a ready-to-use
 		RingQt window for manipulating its params, interactively, and including it
 		to your programs. Still, some visually-oriented features already exist:
-*/		? Q("CAIRO").vizFindXT("I", [:Boxed _TRUE_, :Rounded _TRUE_, :VisualSign = "♥"])
+*/		? Q("CAIRO").vizFindXT("I", [:Boxed = _TRUE_, :Rounded = _TRUE_, :VisualSign = "♥"])
 			#    ╭───┬───┬───┬───┬───╮
 			#--> │ C │ A │ I │ R │ O │
 			#    ╰───┴───┴─♥─┴───┴───╯
@@ -580,7 +580,7 @@ load "../stzlib.ring"
 */		StzGridQ( [ 5, 5 ] ) { 	
 			SetNode(1, 1, :With = "1") SetNode(5, 1, :With = "2")
 			SetNode(5, 5, :With = "3") SetNode(1, 5, :With = "4")
-			ShowFF([ :CenterChar = "♥", :ShowCenter _TRUE_ ]) }
+			ShowFF([ :CenterChar = "♥", :ShowCenter = _TRUE_ ]) }
 			# 	1 . . . 2
 			# 	. . . . .
 			#-->	. . ♥ . .
@@ -622,12 +622,12 @@ load "../stzlib.ring"
 
 /*		Also you can say:
 
-*/		? _(8).IsA(:Number).ThatIs('DoubleOf(4)')._			#--> TRUE
-		? _("ring").IsA(:String).ThatIs('Lowercase()')._		#--> TRUE
+*/		? _(8).IsA(:Number).ThatIs('DoubleOf(4)')._			#--> _TRUE_
+		? _("ring").IsA(:String).ThatIs('Lowercase()')._		#--> _TRUE_
 
-		? _("ring").Is('Lowercase()').Containing("in")._		#--> TRUE
-		? _("ring").Is('Lowercase()').Having('NumberOfchars() = 4')._	#--> TRUE
-		? _("ring").IsNotA(:String).That('Contains("x")')._		#--> TRUE
+		? _("ring").Is('Lowercase()').Containing("in")._		#--> _TRUE_
+		? _("ring").Is('Lowercase()').Having('NumberOfchars() = 4')._	#--> _TRUE_
+		? _("ring").IsNotA(:String).That('Contains("x")')._		#--> _TRUE_
 	
 /*		And you can replace the classic style of doing loops by this more natural style:
 
@@ -790,7 +790,7 @@ load "../stzlib.ring"
 		Softanza comes with a RingQt-based cache system that you can
 		activate for any object or function, by decorating them by:
 */			func FindNthOccurrence(n, pcSubStr)
-				#< @ActivateCache _TRUE_ >
+				#< @ActivateCache = _TRUE_ >
 
 /*		If your function takes considerable amount of time to perform
 		its job, then it is generally a good idea to make it cachable.

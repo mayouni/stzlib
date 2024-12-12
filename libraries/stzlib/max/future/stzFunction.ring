@@ -107,7 +107,7 @@ class stzFunction from stzObject
 	cReturn
 	cFuncOrDef = "func"
 
-	bStartedUp _FALSE_
+	bStartedUp = _FALSE_
 
 	def Name()
 		return cName
@@ -168,7 +168,7 @@ class stzFunction from stzObject
 
 	def Startup()
 		eval( DesignCode() )
-		bStartedUp _TRUE_
+		bStartedUp = _TRUE_
 
 	def IsStartedUp()
 		return bStartedUp

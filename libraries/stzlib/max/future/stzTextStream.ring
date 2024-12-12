@@ -150,19 +150,19 @@ class stzTextStream from stzObject
 	PRIVATE
 
 	def SetSourceOfStreamTo(pcSource)
-		bIsSetFromFile _FALSE_
-		bIsSetFromSocket _FALSE_
-		bIsSetFromProcess _FALSE_
+		bIsSetFromFile = _FALSE_
+		bIsSetFromSocket = _FALSE_
+		bIsSetFromProcess = _FALSE_
 	
 		switch pcSource
 		on :File
 			cSourceOfStream = :File
-			bSetFromFile _TRUE_
+			bSetFromFile = _TRUE_
 		on :Socket
 			cSourceOfStream = :Socket
-			bSetFromSocket _TRUE_
+			bSetFromSocket = _TRUE_
 		on :Process
 			cSourceOfStream = :Process
-			bSetFromProcess _TRUE_
+			bSetFromProcess = _TRUE_
 		off
 	

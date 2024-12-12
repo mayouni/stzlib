@@ -49,7 +49,7 @@ pron()
 	[ "karim", 	20 , "hi" ],
 	[ "salem", 	67 ]
 ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.21
@@ -218,7 +218,7 @@ aLists = [
 
 # As you can see, the list is sorted with two notable modifications:
 # all the lists are adjusted to the lengh of the largest list
-# using NULLs, and if the nth column contains lists then those
+# using _NULL_s, and if the nth column contains lists then those
 # lists are stringified.
 
 # These modifications are made to make it possible the use of
@@ -283,7 +283,7 @@ o1 = new stzListOfLists([
 #	[ ]
 # ]
 
-# ColXT adds NULLs to lines corresponding to inner lists
+# ColXT adds _NULL_s to lines corresponding to inner lists
 # with smaller size then n
 
 ? @@SP( o1.ColXT(3) )
@@ -356,7 +356,7 @@ pron()
 
 o1 = new stzListOfLists([ [ 2, 3, 4 ], [ 6, 7, 8 ], [ 11, 12, 13 ] ])
 ? o1.AreContiguous()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s) in Ring 1.21
@@ -368,7 +368,7 @@ pron()
 o1 = new stzList([ 1, 2, 3, 4, "|", 2, 3, 4, 5, "|", 2, 3, 4, 5 ])
 
 ? @@( AreContiguous( o1.FindManyQ([ 2, 3, 4 ]) / 3 ) ) + NL
-#--> TRUE
+#--> _TRUE_
 
 ? @@( o1.FindMany([ 2, 3, 4 ]) ) + NL
 #--> [ 2, 3, 4, 6, 7, 8, 11, 12, 13 ]
@@ -377,7 +377,7 @@ o1 = new stzList([ 1, 2, 3, 4, "|", 2, 3, 4, 5, "|", 2, 3, 4, 5 ])
 #--> [ [ 2, 3, 4 ], [ 6, 7, 8 ], [ 11, 12, 13 ] ]
 
 ? AreContiguous( [ [ 2, 3, 4 ], [ 6, 7, 8 ], [ 11, 12, 13 ] ] )
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.05 second(s) in Ring 1.21
@@ -401,13 +401,13 @@ proff()
 pron()
 
 ? Q([ "mohannad", 100, 	"loves", "ring" ]).ContainsMany([ "amer", 34 ])
-#--> FALSE
+#--> _FALSE_
 
-? Q([ "mohannad", 100, 	"loves", "ring" ]).ContainsCS("amer", true)
-#--> FALSE
+? Q([ "mohannad", 100, 	"loves", "ring" ]).ContainsCS("amer", _TRUE_)
+#--> _FALSE_
 
 ? Q([ "mohannad", 100, 	"loves", "ring" ]).ContainsSubList([ "loves", "ring" ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.06 second(s) in Ring 1.21
@@ -484,7 +484,7 @@ o1 = new stzListOfLists([
 # ]
 
 ? o1.ContainsSubList([ "amer", 34 ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.11 second(s) in Ring 1.21
@@ -628,10 +628,10 @@ pron()
 
 o1 = new stzListOfLists([ 1:3, 1:3, 1:3 ])
 ? o1.IsMadeOfSameList()
-#--> TRUE
+#--> _TRUE_
 
 ? StzListOfListsQ([ 1:3, 1:2, 1:3 ]).AllListsAreEqual()
-#--> FALSE
+#--> _FALSE_
 
 #TODO : Add to stzList
 #	AllNumbersAreEqual()
@@ -857,7 +857,7 @@ o1 = new stzListOfLists([ # or stzLists()
 ])
  
 ? o1.IsHomolog() # or o1.IsHomologuous() or o1.ListsHaveSameSize()
-#--> FALSE
+#--> _FALSE_
 
 ? o1.SizeOfLargestList()
 #--> 4
@@ -872,7 +872,7 @@ o1.Extend()
 # ]
 
 ? o1.IsHomolog()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.07 second(s)
@@ -1050,10 +1050,10 @@ o1 = new stzLists([
 ])
 
 ? o1.IsHomolog()
-#--> FALSE
+#--> _FALSE_
 
 o1.ExtendTo(4)
-# By default, the items are extended using the NULL char
+# By default, the items are extended using the _NULL_ char
 # Use ExtendToXT(n, char) to specify your own (next example)
 
 ? @@( o1.Content() )
@@ -1064,7 +1064,7 @@ o1.ExtendTo(4)
 # ]
 
 ? o1.IsHomolog()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 #--> Executed in 0.05 second(s)
@@ -1092,7 +1092,7 @@ o1.ExtendToXT(4, :Using = AHeart())
 # ]
 
 ? o1.IsHomolog()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.06 second(s)
@@ -1112,7 +1112,7 @@ o1 = new stzLists([
 ])
 
 ? o1.IsHomolog()
-#--> FALSE
+#--> _FALSE_
 
 o1.ExtendToXT(3, :Using = AHeart())
 # Only the 1st and 3d lists are extended
@@ -1125,7 +1125,7 @@ o1.ExtendToXT(3, :Using = AHeart())
 # ]
 
 ? o1.IsHomolog()
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.06 second(s)
@@ -1145,7 +1145,7 @@ o1 = new stzLists([
 ])
 
 ? o1.IsHomolog()
-#--> FALSE
+#--> _FALSE_
 
 o1.ExtendToXT(5, :Using = AHeart())
 # Only the 1st and 3d lists are extended
@@ -1158,7 +1158,7 @@ o1.ExtendToXT(5, :Using = AHeart())
 # ]
 
 ? o1.IsHomolog()
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.06 second(s)
@@ -1262,14 +1262,14 @@ o1 = new stzList([
 ])
 
 ? o1.EachItemIsA(:ListOfNumbers)
-#--> TRUE
+#--> _TRUE_
 
 o1 = new stzList([ "A":"C", "E":"D", "G": "Y" ])
 ? o1.EachItemIs(:ListOfStrings)
-#--> TRUE
+#--> _TRUE_
 
 ? o1.EachItemIs(:ListOfChars)
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.37 second(s)
@@ -1364,7 +1364,7 @@ o1 = new stzString("[4, 5, 6, 7, 8]")
 #--> []
 
 ? o1.ContainsLeadingAndTrailingChars()
-#--> FALSE
+#--> _FALSE_
 
 ? o1.FirstAndLastChars()
 #--> [ "[", "]" ]

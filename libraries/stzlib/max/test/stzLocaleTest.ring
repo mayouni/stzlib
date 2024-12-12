@@ -66,7 +66,7 @@ StzLocaleQ("en-PW") {
 	? LanguageName()	#--> english
 }
 
-/*--------------- ERROR: returns NULL!
+/*--------------- ERROR: returns _NULL_!
 
 StzLocaleQ([ :Country = :palau ]) {
 	? CountryName()	# !--> palau
@@ -134,7 +134,7 @@ proff()
 
 pron()
 
-? StzLocaleQ("sm-WS").CountryName() #--> NULL! (see why)
+? StzLocaleQ("sm-WS").CountryName() #--> _NULL_! (see why)
 
 proff()
 
@@ -169,15 +169,15 @@ oQLocale = new QLocale("cmn-CN")
 
 --> This induces stzLocale in error:
 
-? StzLocaleQ("cmn_CN").CountryName()	# returns NULL but should return China!
+? StzLocaleQ("cmn_CN").CountryName()	# returns _NULL_ but should return China!
 
 --> TODO: Verify this bug for all the other locales (see next code)
 
 /*----------------
 *
 // Check the name of China in country names!
-? StzLocaleQ([ :Language = :Chinese ]).CountryName() #--> NULL ! Todo: Why?
-? StzLocaleQ([ :Country = :China ]).CountryName() #--> NULL ! Todo: Why?
+? StzLocaleQ([ :Language = :Chinese ]).CountryName() #--> _NULL_ ! Todo: Why?
+? StzLocaleQ([ :Country = :China ]).CountryName() #--> _NULL_ ! Todo: Why?
 ? StzCountryQ(:China).Language() #--> Chinese
 
 /*---------------------- #todo check it
@@ -286,7 +286,7 @@ StzLocaleQ([ :Script = :Latin, :Country = :Russia ]) {
 
 /*-----------------------
 
-? Q("ar_arab_tn").ContainsNTimes(2,"_")	#--> TRUE
+? Q("ar_arab_tn").ContainsNTimes(2,"_")	#--> _TRUE_
 
 /*-----------------------
 
@@ -362,11 +362,11 @@ o1 = new stzLocale("ar-TN")
 
 /*-------------
 
-? StringIsLanguageAbbreviation("")	#--> FALSE
+? StringIsLanguageAbbreviation("")	#--> _FALSE_
 
 /*-------------
 
-? StzListQ([ :Country = :Tunisia ]).IsLocaleList()	#--> TRUE
+? StzListQ([ :Country = :Tunisia ]).IsLocaleList()	#--> _TRUE_
 ? StzLocaleQ([ :Country = :Tunisia ]).Abbreviation()	#--> ar_TN
 
 
@@ -425,13 +425,13 @@ StzLocaleQ([ :Country = :Qatar ]) {
 
 /*-------------
 
-? StzStringQ(:Ar).IsLanguageAbbreviation()	#--> TRUE
+? StzStringQ(:Ar).IsLanguageAbbreviation()	#--> _TRUE_
 
 /*-------------
 
 ? StzLocaleQ("ar_eg").CountryPhoneCode()	#--> "+20"
 
-/*------------- ///// RETURNS NULL --> FIX //////
+/*------------- ///// RETURNS _NULL_ --> FIX //////
 
 StzLocaleQ("tn") {
 	? Abbreviation()

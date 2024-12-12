@@ -1302,7 +1302,7 @@ func FirstNPrimesWXT(n, pcCondition)
 
 	ok
 
-	if StzStringQ(pcCondition).ContainsCS("@prime", FALSE) _FALSE_
+	if StzStringQ(pcCondition).ContainsCS("@prime", _FALSE_) = _FALSE_
 		StzRaise("Incorrect syntax! pcCondition must be a string containg Ring conditional code.")
 	ok
 
@@ -1315,7 +1315,7 @@ func FirstNPrimesWXT(n, pcCondition)
 	@prime = 0
 	j = 0
 
-	while TRUE
+	while _TRUE_
 		j++
 		if j > nMax
 			StzRaise("Can't proceed! Maximum Ring number exceeded.")
@@ -1356,22 +1356,22 @@ func PrimesUnder(n)
 func PrimesUnderIB(n)
 	if n < 2 return [] ok
     
-	# Create a list of boolean values, initially all set to true
+	# Create a list of boolean values, initially all set to _TRUE_
 	# Index i represents whether number i is prime
 	sieve = list(n+1)
 	for i = 1 to n+1
-		sieve[i] _TRUE_
+		sieve[i] = _TRUE_
 	next
     
 	# 0 and 1 are not prime
-	sieve[1] _FALSE_
+	sieve[1] = _FALSE_
     
 	# Implement Sieve of Eratosthenes
 	for i = 2 to floor(sqrt(n))
 		if sieve[i]
 			# Mark all multiples of i as non-prime
 			for j = i * i to n step i
-				sieve[j] _FALSE_
+				sieve[j] = _FALSE_
 			next
 		ok
 	next
@@ -1426,7 +1426,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Can't create a stzListOfNumbers object!")
 		ok
 
-		if KeepingHistory() _TRUE_
+		if KeepingHistory() = _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -2497,11 +2497,11 @@ class stzListOfNumbers from stzList
 			nLen = len(anSorted)
 			
 			if nLen = 0
-				return NULL
+				return _NULL_
 
 			but nLen = 1
 				if anSorted[1] = n
-					return NULL
+					return _NULL_
 
 				else
 					return anSorted[1]
@@ -2524,7 +2524,7 @@ class stzListOfNumbers from stzList
 					ok
 
 				else
-					return NULL
+					return _NULL_
 				ok
 
 			ok
@@ -2538,11 +2538,11 @@ class stzListOfNumbers from stzList
 			nLen = len(anSorted)
 
 			if nLen = 0
-				return NULL
+				return _NULL_
 
 			but nLen = 1
 				if anSorted[1] = n
-					return NULL
+					return _NULL_
 
 				else
 					return anSorted[1]
@@ -2565,7 +2565,7 @@ class stzListOfNumbers from stzList
 					ok
 
 				else
-					return NULL
+					return _NULL_
 				ok
 
 			ok		
@@ -2633,11 +2633,11 @@ class stzListOfNumbers from stzList
 		# (even if duplicated, like in [ 2, 2, 2 ])
 
 		if nLen = 0
-			return NULL
+			return _NULL_
 
 		but nLen = 1
 			if anSorted[1] = n
-				return NULL
+				return _NULL_
 			else
 				return anSorted[1]
 			ok
@@ -2754,11 +2754,11 @@ class stzListOfNumbers from stzList
 		# (even if duplicated, like in [ 2, 2, 2 ])
 
 		if nLen = 0
-			return NULL
+			return _NULL_
 
 		but nLen = 1
 			if anSorted[1] = n
-				return NULL
+				return _NULL_
 			else
 				return anSorted[1]
 			ok
@@ -3019,23 +3019,23 @@ class stzListOfNumbers from stzList
 		nLen = len(anSorted)
 			
 		if nLen = 0
-			return [ NULL, NULL ]
+			return [ _NULL_, _NULL_ ]
 		ok
 
 		nPos = ring_find( anSorted, n )
 
 		if nPos = 0
-			return [ NULL, NULL ]
+			return [ _NULL_, _NULL_ ]
 		ok
 
 		n1 = anSorted[1]
 		n2 = anSorted[nLen]
 
 		if nPos = 1
-			n1 = NULL
+			n1 = _NULL_
 
 		but nPos = nLen
-			n2 = NULL
+			n2 = _NULL_
 		ok
 
 		anResult = [ n1, n2 ]
@@ -4246,7 +4246,7 @@ class stzListOfNumbers from stzList
 
 	def Update(panNewListOfNumbers)
 
-		if CheckingParams() _TRUE_
+		if CheckingParams() = _TRUE_
 			if isList(panNewListOfNumbers) and Q(panNewListOfNumbers).IsWithOrByOrUsingNamedParam()
 				panNewListOfNumbers = panNewListOfNumbers[2]
 			ok
@@ -4261,7 +4261,7 @@ class stzListOfNumbers from stzList
 
 		@aContent = panNewListOfNumbers
 
-		if KeepingHisto() _TRUE_
+		if KeepingHisto() = _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -4487,18 +4487,18 @@ class stzListOfNumbers from stzList
 		n1 = aContent[1]
 		n2 = aContent[2]
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		if n1 < n2
 			for i = 3 to nLen
 				if aContent[i] != aContent[i-1] + 1
-					bResult _FALSE_
+					bResult = _FALSE_
 					exit
 				ok
 			next
 		else // n1 > n2
 			for i = 3 to nLen
 				if aContent[i] != aContent[i-1] - 1
-					bResult _FALSE_
+					bResult = _FALSE_
 					exit
 				ok
 			next
@@ -7314,11 +7314,11 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT (0+ anContent[i]) < 0
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -7343,11 +7343,11 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT (0+ anContent[i]) > 0
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -7372,11 +7372,11 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT ( (0+ anContent[i]) % n = 0 )
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -7749,7 +7749,7 @@ class stzListOfNumbers from stzList
  
 	def SortBy(pcExpr)
 
-		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@number", :CS _FALSE_))
+		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@number", _FALSE_))
 			StzRaise("Incorrect param! pcExpr must be a string containing @number keyword.")
 		ok
 
@@ -7997,12 +7997,12 @@ class stzListOfNumbers from stzList
 	#------------------------------------------#
 
 	def ArePrimes()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT ring_isprime(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -8014,12 +8014,12 @@ class stzListOfNumbers from stzList
 	#---------------------------------------------#
 
 	def AreWeiferich()
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsWeiferich(@aContent[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next

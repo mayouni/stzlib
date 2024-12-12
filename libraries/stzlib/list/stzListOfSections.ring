@@ -21,7 +21,7 @@ class stzListOfSections from stzLists
 
 		@aContent = paSections
 
-		if KeepingHistory() _TRUE_
+		if KeepingHistory() = _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -44,7 +44,7 @@ class stzListOfSections from stzLists
 
 		@aContent = paNewSections
 
-		if KeepingHisto() _TRUE_
+		if KeepingHisto() = _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -290,7 +290,7 @@ class stzListOfSections from stzLists
 	#------------------------------#
 
 	func pvtIsInclusive(aSection1, aSection2)
-		# Returns TRUE if one section includes the other	
+		# Returns _TRUE_ if one section includes the other	
 	
 		# Check if section1 includes section2
 		if aSection1[1] <= aSection2[1] and aSection1[2] >= aSection2[2]
@@ -325,7 +325,7 @@ class stzListOfSections from stzLists
 		return n2
 
 	def pvtDoOverlap(aSection1, aSection2)
-		# Returns TRUE if one section overlaps the other	
+		# Returns _TRUE_ if one section overlaps the other	
 	
 		# Check if section1 overlaps section2
 		if ( aSection2[1] >= aSection1[1] and aSection2[1] <= aSection1[2] ) or

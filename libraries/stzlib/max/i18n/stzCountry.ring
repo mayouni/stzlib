@@ -283,7 +283,7 @@ _aLocaleCountriesXT = [
 	[ "243",	:Serbia, 			"RS", 			"SRB", 			"+381", 	:serbian, 		:Serbian_dinar, 			"Para", 		100,		"🇷🇸"		],
 	[ "244", 	:Saint_Barthelemy, 		"BL", 			"BLM", 			"+590", 	:french, 		:Euro, 					"Cent", 		100,		"🇧🇱"		], # Same phone code as :Saint_Martin
 	[ "245", 	:Saint_Martin, 			"MF", 			"MAF", 			"+590", 	:dutch, 		:Netherlands_Antillean_guilder, 	"Cent", 		100,		"🇲🇫"		],
-	//[ "246", 	:Latin_America, 		NULL, 			NULL, 			NULL, 		:spanish, 		NULL,					NULL,			NULL,		NULL		], # Exists in Qt but removed because it isn't a country
+	//[ "246", 	:Latin_America, 		_NULL_, 			_NULL_, 			_NULL_, 		:spanish, 		_NULL_,					_NULL_,			_NULL_,		_NULL_		], # Exists in Qt but removed because it isn't a country
 	[ "247", 	:Ascension_Island, 		"AC", 			"ASC", 			"+247", 	:english, 		:Saint_Helena_pound, 			"Penny", 		100,		"🇦🇨" 		],
 	[ "248", 	:Aland_Islands, 		"AX", 			"ALA", 			"+358", 	:swedish, 		:Euro, 					"Cent", 		100,		"🇦🇽"		],
 	[ "249", 	:Diego_Garcia, 			"DG", 			"DGA", 			"+246", 	:french, 		:United_States_dollar, 			"Cent", 		100,		"🇩🇬"		],
@@ -296,13 +296,13 @@ _aLocaleCountriesXT = [
 	[ "255", 	:Bonaire, 			"BQ", 			"BES", 			"+599", 	:papiamento, 		:United_States_dollar, 			"Cent" , 		100,		""		], # dutch is the official language
 	[ "256", 	:Sint_Maarten, 			"SX", 			"SXM", 			"+590", 	:french, 		:Netherlands_Antillean_guilder, 	"Cent" , 		100,		"🇸🇽"		],
 	[ "257", 	:Kosovo, 			"XK", 			"XKX", 			"+383", 	:albanian, 		:Euro, 					"Cent", 		100,		"🇽🇰"		],
-	//[ "258", 	:European_Union, 		"EU", 			"???",			NULL,		:english, 		:Euro, 					"Cent", 		100,		"🇪🇺"		], # Exists in Qt but removed because it isn't a country
+	//[ "258", 	:European_Union, 		"EU", 			"???",			_NULL_,		:english, 		:Euro, 					"Cent", 		100,		"🇪🇺"		], # Exists in Qt but removed because it isn't a country
 	[ "259", 	:Outlying_Oceania, 		"UM", 			"UMI", 			"???",		:malay, 		:Australian_dollar, 			"Cent", 		100,		""		],
-	[ "260",	:Scottland,			"SC",			"SCT",			"+44",		:scottish_gaelic,	:Pound,					"Penny", 		100,		NULL		], # Emoji flag unavailable for this country
-	[ NULL,		:England,			"EN",			"ENG",			"+44",		:english,		:Pound,					"Penny", 		100,		NULL		], # Idem. Doesn't exist in Qt (and Unicode) but we add it because some people consider it a country
-	[ NULL,		:Wales,				"WLS",			"WS",			"+44",		:welsh,			:Pound,					"Penny", 		100,		NULL		], # Idem
-	[ NuLL,		:Norther_Ireland,		"NIR",			"NI",			"+44",		:irish,			:Pound,					"Penny",		100,		NULL		]  # Check: norther or northern?
-	//[ NULL,	:United_nations,		NULL,			NULL,			NULL,		NULL,			NULL,					NULL,			NULL,		"🇺🇳"		]  # Exists in Qt but removed because it isn't a country
+	[ "260",	:Scottland,			"SC",			"SCT",			"+44",		:scottish_gaelic,	:Pound,					"Penny", 		100,		_NULL_		], # Emoji flag unavailable for this country
+	[ _NULL_,		:England,			"EN",			"ENG",			"+44",		:english,		:Pound,					"Penny", 		100,		_NULL_		], # Idem. Doesn't exist in Qt (and Unicode) but we add it because some people consider it a country
+	[ _NULL_,		:Wales,				"WLS",			"WS",			"+44",		:welsh,			:Pound,					"Penny", 		100,		_NULL_		], # Idem
+	[ NuLL,		:Norther_Ireland,		"NIR",			"NI",			"+44",		:irish,			:Pound,					"Penny",		100,		_NULL_		]  # Check: norther or northern?
+	//[ _NULL_,	:United_nations,		_NULL_,			_NULL_,			_NULL_,		_NULL_,			_NULL_,					_NULL_,			_NULL_,		"🇺🇳"		]  # Exists in Qt but removed because it isn't a country
 
 ]
 

@@ -20,7 +20,7 @@ class RingAppServer
     # Configuration
     cHost = "localhost"
     nPort = 8080
-    lDebug _FALSE_
+    lDebug = _FALSE_
     
     func init cHostOrPort
         # Allow init with just port number

@@ -550,13 +550,13 @@ o1 = new stzListOfNumbers([ 2, 7, 18, 18, 10, 25, 4 ])
 #--> [ 7, 18 ]
 
 ? @@( o1.Neighbors(25) )
-#--> [18, NULL ]
+#--> [18, _NULL_ ]
 
 ? @@( o1.Neighbors(2) )
-#--> [ NULL, 4 ]
+#--> [ _NULL_, 4 ]
 
 ? @@( o1.Neighbors(88) )
-#--> [ 25, NULL ]
+#--> [ 25, _NULL_ ]
 
 ? @@( o1.FarthestNighbors(10) ) # Misspelled form of FarthestNeighbors()
 				# You can use the short form FNeighbors()
@@ -626,16 +626,16 @@ pron()
 o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
 
 ? @@( o1.NeighborsOf(5) )
-#--> [ NULL, NULL ]
+#--> [ _NULL_, _NULL_ ]
 
 ? @@( o1.Neighbors(11) )
 #--> [ 6, 18 ]
 
 ? @@( o1.Neighbors(1) )
-#--> [ NULL, 4 ]
+#--> [ _NULL_, 4 ]
 
 ? @@( o1.Neighbors(22) )
-#--> [ 18, NULL ]
+#--> [ 18, _NULL_ ]
 
 proff()
 # Executed in 0.10 second(s)
@@ -647,16 +647,16 @@ pron()
 o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
 
 ? @@( o1.FarthestNeighborsOf(5) ) # or FNeighborsOf(5)
-#--> [ NULL, NULL ]
+#--> [ _NULL_, _NULL_ ]
 
 ? @@( o1.FNeighbors(11) )
 #--> [ 1, 18 ]
 
 ? @@( o1.FNeighbors(1) )
-#--> [ NULL, 18 ]
+#--> [ _NULL_, 18 ]
 
 ? @@( o1.FNeighbors(18) )
-#--> [ 1, NULL ]
+#--> [ 1, _NULL_ ]
 
 proff()
 # Executed in 0.10 second(s)
@@ -674,13 +674,13 @@ o1 = new stzListOfNumbers([ 2, 4, 7, 10, 12, 15, 18, 25 ])
 #--> 25
 
 ? @@( o1.FarthestXT( :To = 2, :Before) )
-#--> NULL
+#--> _NULL_
 
 ? @@( o1.FarthestToXT(17, :ComingAfterIt) )
-#--> NULL
+#--> _NULL_
 
 ? @@( o1.FarthestToXT(25, :ComingAfterIt) )
-#--> NULL
+#--> _NULL_
 
 proff()
 # Executed in 0.30 second(s)
@@ -698,13 +698,13 @@ o1 = new stzListOfNumbers([ 2, 4, 7, 10, 12, 15, 18, 25 ])
 #--> 25
 
 ? @@( o1.NearestXT( :To = 2, :Before) )
-#--> NULL
+#--> _NULL_
 
 ? @@( o1.NearestToXT(17, :ComingAfterIt) )
-#--> NULL
+#--> _NULL_
 
 ? @@( o1.NearestToXT(25, :ComingAfterIt) )
-#--> NULL
+#--> _NULL_
 
 proff()
 # Executed in 0.30 second(s)
@@ -782,16 +782,16 @@ proff()
 pron()
 
 ? StzListOfNumbersQ( 12:22 ).IsContiguous()
-#--> TRUE
+#--> _TRUE_
 
 ? StzListOfNumbersQ( 17:8 ).IsContiguous()
-#--> TRUE
+#--> _TRUE_
 
 ? StzListOfNumbersQ([10, 12, 18]).IsContiguous()
-#--> FALSE
+#--> _FALSE_
 
 ? StzListOfNumbersQ([10, 11, 10]).IsContiguous()
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.03 second(s)
@@ -1277,7 +1277,7 @@ pron()
 o1 = new stzListOfNumbers(1:8)
 
 ? o1.ContainsADividableNumberBy(2) + NL
-#--> TRUE
+#--> _TRUE_
 
 ? @@( o1.DividableNumbersBy(2) )
 #--> [ 2, 4, 6, 8 ]

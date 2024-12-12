@@ -6,7 +6,7 @@ pron()
 
 o1 = new stzString("Ring programming language!")
 ? o1.ContainsSubStringBetween("ram", "prog", "ing")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.02 second(s)
@@ -130,7 +130,7 @@ pron()
 o1 = new stzString("I love the <<Ring>> programming <<language>>!")
 
 ? o1.ContainsSubStringBetween("Ring", "love", "program")
-#--> TRUE
+#--> _TRUE_
 
 ? o1.Between("love", "program") + NL
 #--> " the <<Ring>> "
@@ -138,7 +138,7 @@ o1 = new stzString("I love the <<Ring>> programming <<language>>!")
 #--
 
 ? o1.ContainsSubStringBoundedBy("Ring", [ "<<", ">>" ])
-#--> TRUE
+#--> _TRUE_
 
 
 ? @@( o1.FindTheseBoundsZZ("<<", ">>") )
@@ -196,7 +196,7 @@ pron()
 o1 = new stzString("Ring programming language")
 
 ? o1.ContainsSubStringBoundedByST("ramm", ["prog", "ing"], 5)
-#--> TRUE
+#--> _TRUE_
 
 
 proff()
@@ -239,12 +239,12 @@ pron()
 o1 = new stzString("THE START <<ring>> ring <<ring>> THE E<<ring>>ND")
 
 ? o1.ContainsNOccurrencesOfSubStringBetween(3, "ring", "START", "END")
-#--> FALSE
+#--> _FALSE_
 
 # Becase there is no "END" substring in the string
 
 ? o1.ContainsNOccurrencesOfSubStringBetween(3, "ring", "SMART", "THE")
-#--> FALSE
+#--> _FALSE_
 
 # Because there is no "SMART" substring in the string.
 
@@ -258,13 +258,13 @@ pron()
 o1 = new stzString("...<<ring>>...<<ring>>...<<ring>>...")
 
 ? o1.ContainsNOccurrenceOfSubStringBoundedBy(2, "ring", [ "<<", ">>" ])
-#--> FALSE
+#--> _FALSE_
 
 ? o1.NumberOfOccurrenceOfSubStringBoundedBy("ring", [ "<<", ">>" ])
 #--> 3
 
 ? o1.ContainsNOccurrenceofSubStringBoundedBy(3, "ring", [ "<<", ">>" ])
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.06 second(s)
@@ -276,10 +276,10 @@ pron()
 o1 = new stzString("THE START <<ring>> ring <<ring>> THE E<<ring>>ND")
 
 ? o1.ContainsNOccurrencesOfSubStringboundedBy(3, "ring", [ "<<", ">>" ])
-#--> TRUE
+#--> _TRUE_
 
 ? o1.ContainsNOccurrencesOfSubStringBoundedByS(3, "ring", [ "<<", ">>" ], :StartingAt = 5)
-#--> TRUE
+#--> _TRUE_
 
 #--
 
@@ -287,7 +287,7 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> THE E<<ring>>ND")
 #--> 1
 
 ? o1.ContainsNOccurrencesOfSubStringBoundedByS(1, "ring", [ "<<", ">>" ], :StartingAt = 34)
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.09 second(s)
@@ -874,14 +874,14 @@ proff()
 
 pron()
 
-? IsCaseSensitive(:CS _FALSE_)
-#--> FALSE
+? IsCaseSensitive(:CS = _FALSE_)
+#--> _FALSE_
 
-? IsCaseSensitive(:CS _TRUE_)
-#--> TRUE
+? IsCaseSensitive(:CS = _TRUE_)
+#--> _TRUE_
 
-? @@( CaseSensitive(:CS _FALSE_) )
-#--> FALSE
+? @@( CaseSensitive(:CS = _FALSE_) )
+#--> _FALSE_
 
 proff()
 
@@ -897,7 +897,7 @@ pron()
 # the solution without hassel.
 
 # @Bounds() returns alway a pair of strings,
-# @CaseSensitive() returns always TRUE or FALSE, and
+# @CaseSensitive() returns always _TRUE_ or _FALSE_, and
 # @Direction returns :Forward or :Backward.
 
 ? @Bounds(["<<", ">>"])
@@ -906,17 +906,17 @@ pron()
 ? @Bounds("_")
 #--> [ "_", "_" ]
 
-? @CaseSensitive(:CaseSensitive _TRUE_)
-#--> TRUE
+? @CaseSensitive(:CaseSensitive = _TRUE_)
+#--> _TRUE_
 
-? @@( @CaseSensitive(:CS _FALSE_) )
-#--> FALSE
+? @@( @CaseSensitive(:CS = _FALSE_) )
+#--> _FALSE_
 
-? @CaseSensitive(TRUE)
-#--> TRUE
+? @CaseSensitive(_TRUE_)
+#--> _TRUE_
 
-? @CaseSensitive(FALSE)
-#--> FALSE
+? @CaseSensitive(_FALSE_)
+#--> _FALSE_
 
 ? @Direction(:Direction = :Forward)
 #--> "forward"

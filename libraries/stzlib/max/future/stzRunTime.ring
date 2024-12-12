@@ -247,9 +247,9 @@ class stzRunTime
 
 	def Booleans()
 
-	def Trues()
+	def _TRUE_s()
 
-	def Falses()
+	def _FALSE_s()
 
 	def BinaryNumbers()
 

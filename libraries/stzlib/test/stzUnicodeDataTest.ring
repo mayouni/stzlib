@@ -195,7 +195,7 @@ StzUnicodeDataQ() {
 	#--
 
 	? ContainsCharName("LATIN LETTER SMALL CAPITAL G")
-	#--> TRUE
+	#--> _TRUE_
 
 	? CharByName("LATIN LETTER SMALL CAPITAL G")
 	#--> ɢ

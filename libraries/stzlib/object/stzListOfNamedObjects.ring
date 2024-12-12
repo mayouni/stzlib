@@ -8,12 +8,12 @@ func IsListOfNamedObjects(paList)
 		ok
 	ok
 
-	bResult _TRUE_
+	bResult = _TRUE_
 	nLen = len(paList)
 
 	for i = 1 to nLen
 		if NOT IsNamedObject(paList[i])
-			bResult _FALSE_
+			bResult = _FALSE_
 			exit
 		ok
 	next i

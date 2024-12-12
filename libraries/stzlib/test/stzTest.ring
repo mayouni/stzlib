@@ -50,7 +50,7 @@ class stzTest
 		This.Run()
 
 		cRes = ""
-		if WithoutSapces(@Description) != NULL
+		if WithoutSapces(@Description) != _NULL_
 			cRes = @Description + " : "
 		ok
 
@@ -69,7 +69,7 @@ class stzTest
 
 		cRes = ""
 
-		if WithoutSapces(@Description) != NULL
+		if WithoutSapces(@Description) != _NULL_
 		#NOTE: WithoutSapces() is misspelled but Softanza recognizes it!
 
 			cRes = @Description + " : " + NL

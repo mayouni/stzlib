@@ -4,16 +4,16 @@
 func StzFalseObjectQ()
 	return new stzFalseObject
 
-	func FalseObject()
+	func _FALSE_Object()
 		return new stzFalseObject
 
 	func AFalseObject()
 		return new stzFalseObject
 
-	func False()
+	func _FALSE_()
 		return new stzFalseObject
 
-	func FalseQ()
+	func _FALSE_Q()
 		return new stzFalseObject
 
 	func StzFalseQ()

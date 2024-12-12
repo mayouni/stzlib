@@ -10,20 +10,20 @@ o1 {
 class stzList from stzObject
 	aContent = []
 
-	evtOnItemAdded 		= NULL
-	evtOnItemRemoved 	= NULL
-	evtOnItemUpdated 	= NULL
-	evtOnItemInserted 	= NULL
-	evtOnItemCopied 	= NULL
+	evtOnItemAdded 		= _NULL_
+	evtOnItemRemoved 	= _NULL_
+	evtOnItemUpdated 	= _NULL_
+	evtOnItemInserted 	= _NULL_
+	evtOnItemCopied 	= _NULL_
 
-	evtListInitiated	= NULL
-	evtListBecomingEmpty	= NULL
+	evtListInitiated	= _NULL_
+	evtListBecomingEmpty	= _NULL_
 
 	def init(paList)
 		aContent = paList
 
 	def AddItem(pItem)
-		if evtOnItemAdded != NULL
+		if evtOnItemAdded != _NULL_
 			eval(evtOnItemAdded)
 		ok
 		

@@ -29,7 +29,7 @@ class stzPair from stzList
 			@aContent + item
 		next
 
-		if KeepingHistory() _TRUE_
+		if KeepingHistory() = _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -54,7 +54,7 @@ class stzPair from stzList
 
 		@aContent = paPair
 
-		if KeepingHisto() _TRUE_
+		if KeepingHisto() = _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 

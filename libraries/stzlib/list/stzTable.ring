@@ -101,7 +101,7 @@ Class stzTable from stzObject
 
 			aRow = []
 			for i = 1 to nRows
-				aRow + NULL
+				aRow + _NULL_
 			next
 
 			for i = 1 to nCols
@@ -256,28 +256,28 @@ Class stzTable from stzObject
 
 			cLine1 = acLines[1]
 
-			bColNamesProvided _TRUE_
+			bColNamesProvided = _TRUE_
 
 			if ring_trim(cLine1) = ""
-				bColNamesProvided _FALSE_
+				bColNamesProvided = _FALSE_
 
 			else
 
 				acLine1Splits = ring_split(cLine1, ";")
 				nLen1 = len(acLine1Splits)
 
-				bMadeOfStrings _TRUE_
+				bMadeOfStrings = _TRUE_
 				for i = 1 to nLen1
 					if @IsNumberInString(acLine1Splits[i]) or
 					   @IsListInString(acLine1Splits[i])
 	
-						bMadeOfStrings _FALSE_
+						bMadeOfStrings = _FALSE_
 						exit
 					ok
 				next
 
 				if NOT bMadeOfStrings 
-					bColNamesProvided _FALSE_
+					bColNamesProvided = _FALSE_
 				ok
 			ok
 			#NOTE
@@ -372,7 +372,7 @@ Class stzTable from stzObject
 				 "stzTable.Init() method.")
 		ok
 
-		if KeepingHistory() _TRUE_
+		if KeepingHistory() = _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -439,10 +439,10 @@ Class stzTable from stzObject
 
 	def HasColumnsNames(pacNames)
 		nLen = len(pacNames)
-		bResult _TRUE_
+		bResult = _TRUE_
 		for i = 1 to nLen
 			if NOT This.HasColName(pacNames[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -605,9 +605,9 @@ Class stzTable from stzObject
 
 		cName = ring_lower(pcName)
 
-		bResult _FALSE_
+		bResult = _FALSE_
 		if This.ColNamesQ().Contains(pcName)
-			bResult _TRUE_
+			bResult = _TRUE_
 		ok
 
 		return bResult
@@ -732,12 +732,12 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! paCols must be of list of numbers or strings.")
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(paCols)
 
 		for i = 1 to nLen
 			if NOT This.IsColNameOrNumber(paCols[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -920,7 +920,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindColByValue(paColData)
-		return This.FindColByValueCS(paColData, TRUE)
+		return This.FindColByValueCS(paColData, _TRUE_)
 
 		def FindColumnByValue(paColData)
 			return This.FindColByValue(paColData)
@@ -985,7 +985,7 @@ Class stzTable from stzObject
 	#-- WTIHOUT CASESENSITIVITY
 
 	def FindColsByValue(paManyColData)
-		return This.FindColsByValueCS(paManyColData, TRUE)
+		return This.FindColsByValueCS(paManyColData, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -1137,7 +1137,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindColsByValueExcept(paCols)
-		return This.FindColsByValueExceptCS(paCols, TRUE)
+		return This.FindColsByValueExceptCS(paCols, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -1169,7 +1169,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRow(paRow)
-		return This.FindRowCS(paRow, TRUE)
+		return This.FindRowCS(paRow, _TRUE_)
 
 	  #----------------------------------#
 	 #  FINDINING NTH ROW BY ITS VALUE  #
@@ -1185,7 +1185,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthRow(paRow)
-		return This.FindNthRowCS(paRow, TRUE)
+		return This.FindNthRowCS(paRow, _TRUE_)
 
 		def FindNthOccurrenceOfRow(paRow)
 			return This.FindNthRow(paRow)
@@ -1204,7 +1204,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRows(paRows)
-		return This.FindRowsCS(paRows, TRUE)
+		return This.FindRowsCS(paRows, _TRUE_)
 
 		def FindManyRows(paRows)
 			return This.FindRows(paRows)
@@ -1237,7 +1237,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRowsExcept(paRows)
-		return This.FindRowsExceptCS(paRows, TRUE)
+		return This.FindRowsExceptCS(paRows, _TRUE_)
 
 		def FindAllRowsExcept(paRows)
 			return This.FindRowsExcept(paRows)
@@ -1278,7 +1278,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRowsExceptThese(paRows)
-		return This.FindRowsExceptTheseCS(paRows, TRUE)
+		return This.FindRowsExceptTheseCS(paRows, _TRUE_)
 
 		def FindAllRowsExceptThese(paRows)
 			return This.FindRowsExceptThese(paRows)
@@ -1322,7 +1322,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRowsExceptAt(panRowNumbers)
-		return This.FindRowsExceptAtCS(panRowNumbers, TRUE)
+		return This.FindRowsExceptAtCS(panRowNumbers, _TRUE_)
 
 		def FindAllRowsExceptAt(panRowNumbers)
 			return This.FindRowsExceptAt(panRowNumbers)
@@ -2563,7 +2563,7 @@ Class stzTable from stzObject
 		])
 
 		This.CellXT( :NNAME, 2, :ContainsSubValue,  "io")
-		#--> TRUE
+		#--> _TRUE_
 
 		*/
 
@@ -2586,7 +2586,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def CellXT(pCellCol, pCellRow, pExpr, pValueORSubValue)
-		return This.CellCSXT(pCellCol, pCellRow, pExpr, pValueORSubValue, TRUE)
+		return This.CellCSXT(pCellCol, pCellRow, pExpr, pValueORSubValue, _TRUE_)
 
 	  #----------------------------------------------------------------------------#
 	 #  GETIING GIVEN CELLS VALUES BY THEIR POSITIONS (COLUMN, ROW) IN THE TABLE  #
@@ -3555,7 +3555,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAll(pCellValueOrSubValue)
-		return This.FindAllCS(pCellValueOrSubValue, TRUE)
+		return This.FindAllCS(pCellValueOrSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -3602,7 +3602,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindCell(pValue)
-		return This.FindCellCS(pValue, TRUE)
+		return This.FindCellCS(pValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -3664,7 +3664,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindCells(paValues)
-		return This.FindCellsCS(paValues, TRUE)
+		return This.FindCellsCS(paValues, _TRUE_)
 
 		def FindValues(paValues)
 			return This.FindCells(paValues)
@@ -3688,16 +3688,16 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindCellsExcept(paValues)
-		return This.FindCellsExceptCS(paValues, TRUE)
+		return This.FindCellsExceptCS(paValues, _TRUE_)
 
 	  #------------------------------------------------------#
 	 #  FINDING POSITIONS OF A GIVEN SUBVALUE IN THE TABLE  #
 	#------------------------------------------------------#
 
 	def FindSubValueCS(pSubValue, pCaseSensitive)
-		bCheckCase _FALSE_
+		bCheckCase = _FALSE_
 		if @IsStringOrList(pSubValue)
-			bCheckCase _TRUE_
+			bCheckCase = _TRUE_
 		ok
 
 		aCellsXT = This.CellsAndTheirPositions()
@@ -3714,7 +3714,7 @@ Class stzTable from stzObject
 
 
 			if bCheckCase
-				if bCellIsString _TRUE_ or bCellIsListOfStrings _TRUE_
+				if bCellIsString = _TRUE_ or bCellIsListOfStrings = _TRUE_
 
 					if oCellValue.ContainsCS(pSubValue, pCaseSensitive)
 						aResult + [ aCellPos, oCellValue.FindAllCS(pSubValue, pCaseSensitive) ]
@@ -3740,7 +3740,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubValue(pSubValue)
-		return This.FindSubValueCS(pSubValue, TRUE)
+		return This.FindSubValueCS(pSubValue, _TRUE_)
 
 		#< @FuntionAlternativeForm
 
@@ -3759,7 +3759,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubValues(paSubValues)
-		return This.FindSubValuesCS(paSubValues, TRUE)
+		return This.FindSubValuesCS(paSubValues, _TRUE_)
 
 	  #-----------------------------------------------#
 	 #  FINFING ALL SUBVALUES EXCEPT THOSE PROVIDED  #
@@ -3771,7 +3771,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubValuesExcept(paSubValues)
-		return This.FindSubValuesExceptCS(paSubValues, TRUE)
+		return This.FindSubValuesExceptCS(paSubValues, _TRUE_)
 
 	  #---------------------------------------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN THE TABLE  #
@@ -3812,7 +3812,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNth(n, pCellValueOrSubValue)
-		return This.FindNthCS(n, pCellValueOrSubValue, TRUE)
+		return This.FindNthCS(n, pCellValueOrSubValue, _TRUE_)
 	
 		def FindNthOccurrence(n, pCellValueOrSubValue)
 			return This.FindNth(n, pCellValueOrSubValue)	
@@ -3865,7 +3865,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthCell(n, pValue)
-		return This.FindNthCellCS(n, pValue, TRUE)
+		return This.FindNthCellCS(n, pValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -3927,7 +3927,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSubValue(n, pSubValue)
-		return This.FindNthSubValueCS(n, pSubValue, TRUE)
+		return This.FindNthSubValueCS(n, pSubValue, _TRUE_)
 
 		def FindNthOccurrenceOfSubValue(n, pSubValueValue)
 			return This.FindNthSubValue(n, pSubValue)
@@ -3970,7 +3970,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirst(pCellValueOrSubValue)
-		return This.FindFirstCS(pCellValueOrSubValue, TRUE)
+		return This.FindFirstCS(pCellValueOrSubValue, _TRUE_)
 	
 		def FindFirstOccurrence(pCellValueOrSubValue)
 			return This.FindFirst(pCellValueOrSubValue)	
@@ -4004,7 +4004,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstCell(pValue)
-		return This.FindFirstCellCS(pValue, TRUE)
+		return This.FindFirstCellCS(pValue, _TRUE_)
 
 		def FindFirstOccurrenceOfCell(pCellValue)
 			return This.FindFirstCell(pCellValue)
@@ -4028,7 +4028,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSubValue(pSubValue)
-		return This.FindFirstSubValueCS(pSubValue, TRUE)
+		return This.FindFirstSubValueCS(pSubValue, _TRUE_)
 
 		def FindFirstOccurrenceOfSubValue(pSubValueValue)
 			return This.FindFirstSubValue(pSubValue)
@@ -4071,7 +4071,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLast(pCellValue)
-		return This.FindLastCS(pCellValue, TRUE)
+		return This.FindLastCS(pCellValue, _TRUE_)
 	
 		def FindLastOccurrence(pCellValue)
 			return This.FindLast(pCellValue)	
@@ -4095,7 +4095,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastCell(pValue)
-		return This.FindLastCellCS(pValue, TRUE)
+		return This.FindLastCellCS(pValue, _TRUE_)
 
 		def FindLastOccurrenceOfCell(pCellValue)
 			return This.FindLastCell(pCellValue)
@@ -4119,7 +4119,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindLastSubValue(pSubValue)
-			return This.FindLastSubValueCS(pSubValue, TRUE)
+			return This.FindLastSubValueCS(pSubValue, _TRUE_)
 
 			def FindLastOccurrenceOfSubValue(pSubValueValue)
 				return This.FindLastSubValue(pSubValue)
@@ -4177,7 +4177,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrence(pValue)
-		return This.NumberOfOccurrenceCS(pValue, TRUE)
+		return This.NumberOfOccurrenceCS(pValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -4270,7 +4270,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfCell(pCellValue)
-		return This.NumberOfOccurrenceOfCellCS(pCellValue, TRUE)
+		return This.NumberOfOccurrenceOfCellCS(pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -4387,7 +4387,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfSubValue(pSubValue)
-		return This.NumberOfOccurrenceOfSubValueCS(pSubValue, TRUE)
+		return This.NumberOfOccurrenceOfSubValueCS(pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -4490,7 +4490,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceXT(pInCellsOrColOrRow, pValueOrSubValue)
-		return This.NumberOfOccurrenceCSXT(pInCellsOrColOrRow, pValueOrSubValue, TRUE)
+		return This.NumberOfOccurrenceCSXT(pInCellsOrColOrRow, pValueOrSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -4519,8 +4519,8 @@ Class stzTable from stzObject
 			:AGE  = [    35,    58,    23 ]
 		])
 
-		? o1.Contains( :Cell = "Ali" ) #--> TRUE
-		? o1.Contains( :SubValue = "a" ) #--> TRUE
+		? o1.Contains( :Cell = "Ali" ) #--> _TRUE_
+		? o1.Contains( :SubValue = "a" ) #--> _TRUE_
 		*/
 
 		if isList(pCellValueOrSubValue)
@@ -4543,7 +4543,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 	
 		def Contains(pCellValueOrSubValue)
-			return This.ContainsCS(pCellValueOrSubValue, TRUE)
+			return This.ContainsCS(pCellValueOrSubValue, _TRUE_)
 
 	def ContainsCellCS(pCellValue, pCaseSensitive)
 		if This.NumberOfOccurrenceCS(:OfCell = pCellValue, pCaseSensitive) > 0
@@ -4559,7 +4559,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def ContainsCell(pCellValue)
-			return This.ContainsCellCS(pCellValue, TRUE)
+			return This.ContainsCellCS(pCellValue, _TRUE_)
 
 			def ContainsValue(pCellValue)
 				return This.ContainsCell(pCellValue)
@@ -4569,7 +4569,7 @@ Class stzTable from stzObject
 	#-----------------------------------------------#
 
 	def ContainsRowCS(paRow, pCaseSensitive)
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		if isList(paRow) and len(paRow) = This.NumberOfRows()
 
@@ -4581,7 +4581,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsRow(paRow)
-		return This.ContainsRowCS(paRow, TRUE)
+		return This.ContainsRowCS(paRow, _TRUE_)
 
 	  #-------------------------------------------------#
 	 #  CHECKING IF THE TABLE CONTAINS THE GIVEN ROWS  #
@@ -4601,15 +4601,15 @@ Class stzTable from stzObject
 			[ 30, "Karim", 48 ]
 		])
 
-		#--> TRUE
+		#--> _TRUE_
 		*/
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(paRows)
 
 		for i = 1 to nLen
 			if NOT This.ContainsRowCS(paRows[i], pCaseSensitive)
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 
@@ -4623,7 +4623,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsRows(paRows)
-		return This.ContainsRowsCS(paRows, TRUE)
+		return This.ContainsRowsCS(paRows, _TRUE_)
 
 		def ContainsTheseRows(paRows)
 			return This.ContainsRows(paRows)
@@ -4642,10 +4642,10 @@ Class stzTable from stzObject
 		])
 
 		? o1.ContainsCol( :NAME = [ "Imed", "Hatem", "Karim" ] )
-		#--> TRUE
+		#--> _TRUE_
 		*/
 
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		if isList(paCol) and len(paCol) = 2 and
 		   isString(paCol[1]) and This.HasColName(paCol[1]) and
@@ -4663,7 +4663,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsCol(paCol)
-		return This.ContainsColCS(paCol, TRUE)
+		return This.ContainsColCS(paCol, _TRUE_)
 
 		def ContainsColumn(paCol)
 			return This.ContainsCol(paCol)
@@ -4686,15 +4686,15 @@ Class stzTable from stzObject
 			:AGE  = [ 52, 46, 48 ]
 		])
 
-		#--> TRUE
+		#--> _TRUE_
 		*/
 
-		bResult _TRUE_
+		bResult = _TRUE_
 		nLen = len(paCols)
 
 		for i = 1 to nLen
 			if NOT This.ContainsColCS(paCols[i], pCaseSensitive)
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 
@@ -4714,7 +4714,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsCols(paCols)
-		return This.ContainsColsCS(paCols, TRUE)
+		return This.ContainsColsCS(paCols, _TRUE_)
 
 		def containsTheseCols(paCols)
 			return This.ContainsCols(paCols)
@@ -4740,7 +4740,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSubValue(pSubValue)
-		return This.ContainsSubValueCS(pSubValue, TRUE)
+		return This.ContainsSubValueCS(pSubValue, _TRUE_)
 
 
 	/// WORKING ON SOME CELLS //////////////////////////////////////////////////
@@ -4750,21 +4750,21 @@ Class stzTable from stzObject
 	#=====================================================#
 
 	def FindInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, pCaseSensitive)
-		bValue _FALSE_
-		bSubValue _TRUE_
+		bValue = _FALSE_
+		bSubValue = _TRUE_
 
 		if isList(pCellValueOrSubValue)
 			oTemp = Q(pCellValueOrSubValue)
 
 			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
-				bValue _TRUE_
-				bSubValue _FALSE_
+				bValue = _TRUE_
+				bSubValue = _FALSE_
 
 			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
-				bValue _FALSE_
-				bSubValue _TRUE_
+				bValue = _FALSE_
+				bSubValue = _TRUE_
 			ok
 		
 		ok
@@ -4790,7 +4790,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInCell(pCellCol, pCellRow, pCellValueOrSubValue)
-		return This.FindInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, TRUE)
+		return This.FindInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, _TRUE_)
 
 	  #---------------------------------------------#
 	 #  FINDING A GIVEN VALUE INSIDE A GIVEN CELL  #
@@ -4802,7 +4802,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindValueInCell(pCellCol, pCellRow, pValue)
-		return This.FindValueInCellCS(pCellCol, pCellRow, pValue, TRUE)
+		return This.FindValueInCellCS(pCellCol, pCellRow, pValue, _TRUE_)
 
 	  #------------------------------------------------#
 	 #  FINDING A GIVEN SUBVALUE INSIDE A GIVEN CELL  #
@@ -4814,7 +4814,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubValueInCell(pCellCol, pCellRow, pSubValue)
-		return This.FindSubValueInCellCS(pCellCol, pCellRow, pSubValue, TRUE)
+		return This.FindSubValueInCellCS(pCellCol, pCellRow, pSubValue, _TRUE_)
 
 	  #------------------------------------------------------------------------------------------------#
 	 #  FINDING POSITIONS OF A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN A GIVEN NUMBER OF CELLS  #
@@ -4825,8 +4825,8 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! paCells must be a list of pairs.")
 		ok
 
-		bValue _FALSE_
-		bSubValue _TRUE_
+		bValue = _FALSE_
+		bSubValue = _TRUE_
 
 		if isList(pCellValueOrSubValue)
 
@@ -4834,14 +4834,14 @@ Class stzTable from stzObject
 
 			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
 
-				bValue _TRUE_
-				bSubValue _FALSE_
+				bValue = _TRUE_
+				bSubValue = _FALSE_
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
 
 			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
 
-				bValue _FALSE_
-				bSubValue _TRUE_
+				bValue = _FALSE_
+				bSubValue = _TRUE_
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
 
 			ok
@@ -4914,7 +4914,7 @@ Class stzTable from stzObject
 
 	def FindAllInCells(paCells, pCellValueOrSubValue)
 
-		return This.FindAllInCellsCS(paCells, pCellValueOrSubValue, TRUE)
+		return This.FindAllInCellsCS(paCells, pCellValueOrSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -4983,7 +4983,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindValueInCells(pValue)
-		return This.FindValueInCellsCS(pValue, TRUE)
+		return This.FindValueInCellsCS(pValue, _TRUE_)
 			
 		def OccurrencesOfValueInCells(paCells, pCellValue)
 			return This.FindValueInCells(paCells, pCellValue)
@@ -5044,7 +5044,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubValueInCells(paCells, pSubValue)
-		return This.FindSubValueInCellsCS(paCells, pSubValue, TRUE)
+		return This.FindSubValueInCellsCS(paCells, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -5089,7 +5089,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInCells(n, paCells, pCellValueOrSubValue)
-		return This.FindNthInCellsCS(n, paCells, pCellValueOrSubValue, TRUE)
+		return This.FindNthInCellsCS(n, paCells, pCellValueOrSubValue, _TRUE_)
 	
 		def FindNthOccurrenceInCells(n, paCells, pCellValueOrSubValue)
 			return This.FindNthInCells(n, paCells, pCellValueOrSubValue)	
@@ -5131,7 +5131,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthValueInCells(n, paCells, pValue)
-		return This.FindNthCellCS(n, pValue, TRUE)
+		return This.FindNthCellCS(n, pValue, _TRUE_)
 
 		def FindNthOccurrenceOfValueInCells(n, paCells, pCellValue)
 			return This.FindNthValueInCells(n, paCells, pValue)
@@ -5185,7 +5185,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSubValueInCells(n, paCells, pSubValue)
-		return This.FindNthSubValueInCellsCS(n, paCells, pSubValue, TRUE)
+		return This.FindNthSubValueInCellsCS(n, paCells, pSubValue, _TRUE_)
 
 		def FindNthOccurrenceOfSubValueInCells(n, paCells, pSubValueValue)
 			return This.FindNthSubValueInCells(n, paCells, pSubValue)
@@ -5223,7 +5223,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInCells(paCells, pCellValueOrSubValue)
-		return This.FindFirstInCellsCS(paCells, pCellValueOrSubValue, TRUE)
+		return This.FindFirstInCellsCS(paCells, pCellValueOrSubValue, _TRUE_)
 	
 		def FindFirstOccurrenceInCells(paCells, pCellValueOrSubValue)
 			return This.FindFirstInCells(paCells, pCellValueOrSubValue)	
@@ -5241,7 +5241,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstValueInCells(paCells, pValue)
-		return This.FindFirstValueInCellCS(paCells, pValue, TRUE)
+		return This.FindFirstValueInCellCS(paCells, pValue, _TRUE_)
 
 		def FindFirstOccurrenceOfValueInCells(paCells, pCellValue)
 			return This.FindFirstValueInCells(paCells, pValue)
@@ -5259,7 +5259,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSubValueInCells(paCells, pSubValue)
-		return This.FindFirstSubValueInCellsCS(paCells, pSubValue, TRUE)
+		return This.FindFirstSubValueInCellsCS(paCells, pSubValue, _TRUE_)
 
 		def FindFirstOccurrenceOfSubValueInCells(paCells, pSubValueValue)
 			return This.FindFirstSubValueInCells(paCells, pSubValue)
@@ -5297,7 +5297,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInCells(paCells, pCellValueOrSubValue)
-		return This.FindLastInCellsCS(paCells, pCellValueOrSubValue, TRUE)
+		return This.FindLastInCellsCS(paCells, pCellValueOrSubValue, _TRUE_)
 	
 		def FindLastOccurrenceInCells(paCells, pCellValueOrSubValue)
 				return This.FindLastInCells(paCells, pCellValueOrSubValue)	
@@ -5315,7 +5315,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastValueInCells(paCells, pValue)
-		return This.FindLastValueInCellCS(paCells, pValue, TRUE)
+		return This.FindLastValueInCellCS(paCells, pValue, _TRUE_)
 
 		def FindLastOccurrenceOfValueInCells(paCells, pCellValue)
 			return This.FindLastValueInCells(paCells, pValue)
@@ -5333,7 +5333,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSubValueInCells(paCells, pSubValue)
-		return This.FindLastSubValueInCellsCS(paCells, pSubValue, TRUE)
+		return This.FindLastSubValueInCellsCS(paCells, pSubValue, _TRUE_)
 
 		def FindLasttOccurrenceOfSubValueInCells(paCells, pSubValueValue)
 			return This.FindLastSubValueInCells(paCells, pSubValue)
@@ -5375,7 +5375,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 	
 	def NumberOfOccurrencesInCells(paCells, pCellValueOrSubValue)
-		return NumberOfOccurrencesInCellsCS(paCells, pCellValueOrSubValue, TRUE)
+		return NumberOfOccurrencesInCellsCS(paCells, pCellValueOrSubValue, _TRUE_)
 	
 		#< @FunctionAlternativeForms
 
@@ -5416,7 +5416,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrencesOfValueInCells(paCells, pCellValue)
-		return This.NumberOfOccurrencesOfValueInCellsCS(paCells, pCellValue, TRUE)
+		return This.NumberOfOccurrencesOfValueInCellsCS(paCells, pCellValue, _TRUE_)
 
 		#--
 
@@ -5472,7 +5472,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrencesOfSubValueInCells(paCells, pSubValue)
-		return This.NumberOfOccurrencesOfValueInCellsCS(paCells, pSubValue, TRUE)
+		return This.NumberOfOccurrencesOfValueInCellsCS(paCells, pSubValue, _TRUE_)
 
 	#--
 
@@ -5522,7 +5522,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def CellsContain(paCells, pCellValueOrSubValue)
-		return This.CellsContainCS(paCells, pCellValueOrSubValue, TRUE)
+		return This.CellsContainCS(paCells, pCellValueOrSubValue, _TRUE_)
 
 		def ContainsInCells(paCells, pCellValueOrSubValue)
 			return This.CellsContain(paCells, pCellValueOrSubValue)
@@ -5544,7 +5544,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def CellsContainValue(paCells, pValue)
-		return This.CellsContainValueCS(paCells, pValue, TRUE)
+		return This.CellsContainValueCS(paCells, pValue, _TRUE_)
 
 		def ContainsValueInCells(paCells, pValue)
 			return This.CellsContainValue(paCells, pValue)
@@ -5567,7 +5567,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def CellsContainSubValue(paCells, pSubValue)
-		return This.CellsContainSubValueCS(paCells, pSubValue, TRUE)
+		return This.CellsContainSubValueCS(paCells, pSubValue, _TRUE_)
 
 		def ContainsSubValueInCells(paCells, pSubValue)
 			return This.CellsContainSubValue(paCells, pSubValue)
@@ -5604,7 +5604,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInCell(n, pCellCol, pCellRow, pSubValue)
-		return This.FindNthInCellCS(n, pCellCol, pCellRow, pSubValue, TRUE)
+		return This.FindNthInCellCS(n, pCellCol, pCellRow, pSubValue, _TRUE_)
 	
 		#< @FunctionAlternativeForm
 
@@ -5642,7 +5642,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInCell(pCellCol, pCellRow, pSubValue)
-		return This.FindFirstInCellCS(pCellCol, pCellRow, pSubValue, TRUE)
+		return This.FindFirstInCellCS(pCellCol, pCellRow, pSubValue, _TRUE_)
 	
 		#< @FunctionAlternativeForm
 
@@ -5680,7 +5680,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInCell(pCellCol, pCellRow, pSubValue)
-		return This.FindLastInCellCS(pCellCol, pCellRow, pSubValue, TRUE)
+		return This.FindLastInCellCS(pCellCol, pCellRow, pSubValue, _TRUE_)
 	
 		#< @FunctionAlternativeForm
 
@@ -5732,7 +5732,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 	
 	def NumberOfOccurrencesInCell(pCellCol, pCellRow, pCellValueOrSubValue)
-		return NumberOfOccurrencesInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, TRUE)
+		return NumberOfOccurrencesInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, _TRUE_)
 	
 		#< @FunctionAlternativeForms
 
@@ -5773,7 +5773,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrencesOfValueInCell(pCellCol, pCellRow, pCellValue)
-		return This.NumberOfOccurrencesOfValueInCellCS(pCellCol, pCellRow, pCellValue, TRUE)
+		return This.NumberOfOccurrencesOfValueInCellCS(pCellCol, pCellRow, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -5821,7 +5821,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrencesOfSubValueInCell(pCellCol, pCellRow, pSubValue)
-		return This.NumberOfOccurrencesOfValueInCellCS(pCellCol, pCellRow, pSubValue, TRUE)
+		return This.NumberOfOccurrencesOfValueInCellCS(pCellCol, pCellRow, pSubValue, _TRUE_)
 
 	#--
 
@@ -5846,8 +5846,8 @@ Class stzTable from stzObject
 	#----------------------------------------------------------------------#
 
 	def CellContainsCS(pCellCol, pCellRow, pCellValueOrSubValue, pCaseSensitive)
-		bValue _FALSE_
-		bSubValue _TRUE_
+		bValue = _FALSE_
+		bSubValue = _TRUE_
 
 		if isList(pCellValueOrSubValue)
 
@@ -5855,8 +5855,8 @@ Class stzTable from stzObject
 
 			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
-				bValue _TRUE_
-				bSubValue _FALSE_
+				bValue = _TRUE_
+				bSubValue = _FALSE_
 				
 			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
@@ -5867,7 +5867,7 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		if bValue
 			bResult = This.CellContainsValueCS(pCellCol, pCellRow, pCellValueOrSubValue, pCaseSensitive)
@@ -5883,7 +5883,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def CellContains(pCellCol, pCellRow, pCellValueOrSubValue)
-		return This.CellContainsCS(pCellCol, pCellRow, pCellValueOrSubValue, TRUE)
+		return This.CellContainsCS(pCellCol, pCellRow, pCellValueOrSubValue, _TRUE_)
 
 		def ContainsInCell(pCellCol, pCellRow, pCellValueOrSubValue)
 			return This.CellContains( pCellCol, pCellRow, pCellValueOrSubValue)
@@ -5905,7 +5905,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def CellContainValue(pCellCol, pCellRow, pValue)
-		return This.CellContainValueCS(pCellCol, pCellRow, pValue, TRUE)
+		return This.CellContainValueCS(pCellCol, pCellRow, pValue, _TRUE_)
 
 		def ContainsValueInCell(pCellCol, pCellRow, pValue)
 			return This.CellContainValue( pCellCol, pCellRow, pValue)
@@ -5929,7 +5929,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def CellContainsSubValue(pCellCol, pCellRow, pSubValue)
-		return This.CellContainsSubValueCS(pCellCol, pCellRow, pSubValue, TRUE)
+		return This.CellContainsSubValueCS(pCellCol, pCellRow, pSubValue, _TRUE_)
 
 		def ContainsSubValueInCell(pCellCol, pCellRow, pSubValue)
 			return This.CellContainsSubValue(pCellCol, pCellRow, pSubValue)
@@ -5983,7 +5983,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindInRow(pRow, pCellValueOrSubValue)
-			return This.FindInRowCS(pRow, pCellValueOrSubValue, TRUE)
+			return This.FindInRowCS(pRow, pCellValueOrSubValue, _TRUE_)
 
 	def FindValueInRowCS(pRow, pCellValue, pCaseSensitive)
 		return This.FindValueInCellsCS( This.RowAsPositions(pRow), pCellValue, pCaseSensitive)
@@ -5991,7 +5991,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindValueInRow(pRow, pCellValue)
-			return This.FindValueInRowCS(pRow, pSubValue, TRUE)
+			return This.FindValueInRowCS(pRow, pSubValue, _TRUE_)
 
 	def FindSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
 		return This.FindSubValueInCellsCS( This.RowAsPositions(pRow), pSubValue, pCaseSensitive)
@@ -5999,7 +5999,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindSubValueInRow(pRow, pSubValue)
-			return This.FindValueInRowCS(pRow, pSubValue, TRUE)
+			return This.FindValueInRowCS(pRow, pSubValue, _TRUE_)
 
 	  #=========================================================================================#
 	 #  FINDING NTH POSITION OF A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN THE GIVEN ROW  #
@@ -6022,7 +6022,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindNthInRow(n, pRow, pCellValueOrSubValue)
-			return This.FindNthInRowCS(n, pRow, pCellValueOrSubValue, TRUE)
+			return This.FindNthInRowCS(n, pRow, pCellValueOrSubValue, _TRUE_)
 		
 			def FindNthOccurrenceInRow(n, pRow, pCellValueOrSubValue)
 				return This.FindNthInRow(n, pRow, pCellValueOrSubValue)
@@ -6033,7 +6033,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindNthValueInRow(n, pRow, pCellValue)
-			return This.FindNthValueInRowCS(n, pRow, pCellValue, TRUE)
+			return This.FindNthValueInRowCS(n, pRow, pCellValue, _TRUE_)
 
 			def FindNthOccurrenceOfValueInRow(n, pRow, pCellValue)
 				return This.FindNthValueInRow(n, pRow, pCellValue)
@@ -6047,7 +6047,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindNthSubValueInRow(n, pRow, pSubValue)
-			return This.FindNthSubValueInRowCS(n, pRow, pSubValue, TRUE)
+			return This.FindNthSubValueInRowCS(n, pRow, pSubValue, _TRUE_)
 
 			def FindNthOccurrenceOfSubValueInRow(n, pRow, pSubValue)
 				return This.FindNthSubValueInRow(n, pRow, pSubValue)
@@ -6065,7 +6065,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindFirstInRow(pRow, pCellValueOrSubValue)
-			return This.FindFirstInRowCS(pRow, pCellValueOrSubValue, TRUE)
+			return This.FindFirstInRowCS(pRow, pCellValueOrSubValue, _TRUE_)
 		
 			def FindFirstOccurrenceInRow( pRow, pCellValueOrSubValue)
 				return This.FindFirstInRow(pRow, pCellValueOrSubValue)
@@ -6079,7 +6079,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindFirstValueInRow(pRow, pCellValue)
-			return This.FindFirstValueInRowCS(pRow, pCellValue, TRUE)
+			return This.FindFirstValueInRowCS(pRow, pCellValue, _TRUE_)
 
 			def FindFirstOccurrenceOfValueInRow(pRow, pCellValue)
 				return This.FindFirstValueInRow(pRow, pCellValue)
@@ -6093,7 +6093,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindFirstSubValueInRow(pRow, pSubValue)
-			return This.FindFirstSubValueInRowCS(pRow, pSubValue, TRUE)
+			return This.FindFirstSubValueInRowCS(pRow, pSubValue, _TRUE_)
 
 			def FindFirstOccurrenceOfSubValueInRow(pRow, pSubValue)
 				return This.FindFirstSubValueInRow(pRow, pSubValue)
@@ -6111,7 +6111,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindLastInRow(pRow, pCellValueOrSubValue)
-			return This.FindLastInRowCS(pRow, pCellValueOrSubValue, TRUE)
+			return This.FindLastInRowCS(pRow, pCellValueOrSubValue, _TRUE_)
 		
 			def FindLastOccurrenceInRow( pRow, pCellValueOrSubValue)
 				return This.FindLastInRow(pRow, pCellValueOrSubValue)
@@ -6125,13 +6125,13 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindLastValueInRow(pRow, pCellValue)
-			return This.FindLastValueInRowCS(pRow, pCellValue, TRUE)
+			return This.FindLastValueInRowCS(pRow, pCellValue, _TRUE_)
 
 			def FindLastOccurrenceOfValueInRow(pRow, pCellValue)
 				return This.FindLastValueInRow(pRow, pCellValue)
 
 	def FindLastSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
-		return This.FindLastSubValueInRowCS(pRow, pSubValue, TRUE)
+		return This.FindLastSubValueInRowCS(pRow, pSubValue, _TRUE_)
 
 		def FindLastOccurrenceOfSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
 			return This.FindLastSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
@@ -6139,7 +6139,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindLastSubValueInRow(pRow, pSubValue)
-			return This.FindLastSubValueInRowCS(pRow, pSubValue, TRUE)
+			return This.FindLastSubValueInRowCS(pRow, pSubValue, _TRUE_)
 
 			def FindLastOccurrenceOfSubValueInRow(pRow, pSubValue)
 				return This.FindLastSubValueInRow(pRow, pSubValue)
@@ -6174,7 +6174,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def NumberOfOccurrenceInRow(pRow, pValue)
-			return This.NumberOfOccurrenceInRowCS(pRow, pValue, TRUE)
+			return This.NumberOfOccurrenceInRowCS(pRow, pValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -6228,7 +6228,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def NumberOfOccurrenceOfCellInRow(pRow, pCellValue)
-			return This.NumberOfOccurrenceOfCellInRowCS(pRow, pCellValue, TRUE)
+			return This.NumberOfOccurrenceOfCellInRowCS(pRow, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -6282,7 +6282,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def NumberOfOccurrenceOfSubValueInRow(pRow, pSubValue)
-			return This.NumberOfOccurrenceOfSubValueInRowCS(pRow, pSubValue, TRUE)
+			return This.NumberOfOccurrenceOfSubValueInRowCS(pRow, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -6307,10 +6307,10 @@ Class stzTable from stzObject
 			[ "Ali",	"Ali"     ]
 		])
 		
-		? o1.ContainsInRow(2, :Value = "Abraham") #--> TRUE
+		? o1.ContainsInRow(2, :Value = "Abraham") #--> _TRUE_
 		
-		? o1.ContainsInRow(2, :SubValue = "AL") #--> FALSE
-		? o1.ContainsInRowCS(2, :SubValue = "AL", :CS _FALSE_) #--> TRUE
+		? o1.ContainsInRow(2, :SubValue = "AL") #--> _FALSE_
+		? o1.ContainsInRowCS(2, :SubValue = "AL", _FALSE_) #--> _TRUE_
 		*/
 
 		return This.ContainsInCellsCS( This.RowAsPositions(pRow), pCellValueOrSubValue, pCaseSensitive)
@@ -6325,7 +6325,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 	
 		def ContainsInRow(pRow, pCellValueOrSubValue)
-			return This.ContainsInRowCS(pRow, pCellValueOrSubValue, TRUE)
+			return This.ContainsInRowCS(pRow, pCellValueOrSubValue, _TRUE_)
 
 			def RowContains(pRow, pCellValueOrSubValue)
 				return This.ContainsInRow(pRow, pCellValueOrSubValue)
@@ -6354,7 +6354,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def ContainsCellInRow(pRow, pCellValue)
-			return This.ContainsCellInRowCS(pRow, pCellValue, TRUE)
+			return This.ContainsCellInRowCS(pRow, pCellValue, _TRUE_)
 
 			def RowContainsCell(pRow, pCellValue)
 				return This.ContainsCellInRow(pRow, pCellValue)
@@ -6376,7 +6376,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def ContainsSubValueInRow(pRow, pSubValue)
-			return This.ContainsSubValueInRowCS(pRow, pSubValue, TRUE)
+			return This.ContainsSubValueInRowCS(pRow, pSubValue, _TRUE_)
 
 			def RowContainsSubValue(pRow, pSubValue)
 				return This.ContainsSubValueInRow(pRow, pSubValue)
@@ -6401,7 +6401,7 @@ Class stzTable from stzObject
 		? o1.FindInRows( [ 2, 3 ], :Value = "Ali" )
 		#--> [ [ 1, 2], [2, 3] ]
 
-		? o1.FindInRowsCS(  [ 1, 3 ], :SubValue = "a", :CS _FALSE_ )
+		? o1.FindInRowsCS(  [ 1, 3 ], :SubValue = "a", _FALSE_ )
 		#--> [
 			[ [1, 1], [1] ],
 			[ [1, 2], [1] ],
@@ -6431,7 +6431,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInRows(panRows, pCellValueOrSubValue)
-		return This.FindInRowsCS(panRows, pCellValueOrSubValue, TRUE)
+		return This.FindInRowsCS(panRows, pCellValueOrSubValue, _TRUE_)
 
 	  #------------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A CELL VALUE IN THE GIVEN ROWS  #
@@ -6443,7 +6443,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindValueInRows(panRows, pCellValue)
-		return This.FindValueInRowsCS(panRows, pSubValue, TRUE)
+		return This.FindValueInRowsCS(panRows, pSubValue, _TRUE_)
 
 	  #----------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A SUBVALUE IN THE GIVEN ROWS  #
@@ -6455,7 +6455,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubValueInRows(panRows, pSubValue)
-		return This.FindValueInRowsCS(panRows, pSubValue, TRUE)
+		return This.FindValueInRowsCS(panRows, pSubValue, _TRUE_)
 
 	  #==========================================================================================#
 	 #  FINDING NTH POSITION OF A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN THE GIVEN ROWS  #
@@ -6480,7 +6480,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInRows(n, panRows, pCellValueOrSubValue)
-		return This.FindNthInRowsCS(n, panRows, pCellValueOrSubValue, TRUE)
+		return This.FindNthInRowsCS(n, panRows, pCellValueOrSubValue, _TRUE_)
 		
 		#< @FunctionAlternativeForm
 
@@ -6514,7 +6514,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthValueInRows(n, panRows, pCellValue)
-		return This.FindNthValueInRowsCS(n, panRows, pCellValue, TRUE)
+		return This.FindNthValueInRowsCS(n, panRows, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -6547,7 +6547,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSubValueInRows(n, panRows, pSubValue)
-		return This.FindNthSubValueInRowsCS(n, panRows, pSubValue, TRUE)
+		return This.FindNthSubValueInRowsCS(n, panRows, pSubValue, _TRUE_)
 
 		#< @FuntionAlternativeForm
 
@@ -6573,7 +6573,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInRows(panRows, pCellValueOrSubValue)
-		return This.FindFirstInRowsCS(panRows, pCellValueOrSubValue, TRUE)
+		return This.FindFirstInRowsCS(panRows, pCellValueOrSubValue, _TRUE_)
 		
 		#< @FunctionAlternativeForm
 
@@ -6599,7 +6599,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstValueInRows(panRows, pCellValue)
-		return This.FindFirstValueInRowsCS(panRows, pCellValue, TRUE)
+		return This.FindFirstValueInRowsCS(panRows, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -6613,7 +6613,7 @@ Class stzTable from stzObject
 	#------------------------------------------------------------------#
 
 	def FindFirstSubValueInRowsCS(panRows, pSubValue, pCaseSensitive)
-		return This.FindFirstSubValueInRowsCS(panRows, pSubValue, TRUE)
+		return This.FindFirstSubValueInRowsCS(panRows, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -6625,7 +6625,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSubValueInRows(panRows, pSubValue)
-		return This.FindFirstSubValueInRowsCS(panRows, pSubValue, TRUE)
+		return This.FindFirstSubValueInRowsCS(panRows, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -6651,7 +6651,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInRows(panRows, pCellValueOrSubValue)
-		return This.FindLastInRowsCS(panRows, pCellValueOrSubValue, TRUE)
+		return This.FindLastInRowsCS(panRows, pCellValueOrSubValue, _TRUE_)
 		
 		#< @FunctionAlternativeForm
 
@@ -6677,7 +6677,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastValueInRows(panRows, pCellValue)
-		return This.FindLastValueInRowsCS(panRows, pCellValue, TRUE)
+		return This.FindLastValueInRowsCS(panRows, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -6691,7 +6691,7 @@ Class stzTable from stzObject
 	#-----------------------------------------------------------------#
 
 	def FindLastSubValueInRowsCS(panRows, pSubValue, pCaseSensitive)
-		return This.FindLastSubValueInRowsCS(panRows, pSubValue, TRUE)
+		return This.FindLastSubValueInRowsCS(panRows, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -6703,7 +6703,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSubValueInRows(panRows, pSubValue)
-		return This.FindLastSubValueInRowsCS(panRows, pSubValue, TRUE)
+		return This.FindLastSubValueInRowsCS(panRows, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -6732,7 +6732,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceInRows(panRows, pValueOrSubValue)
-		return This.NumberOfOccurrenceInRowsCS(panRows, pValueOrSubValue, TRUE)
+		return This.NumberOfOccurrenceInRowsCS(panRows, pValueOrSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -6775,7 +6775,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfCellInRows(panRows, pCellValue)
-		return This.NumberOfOccurrenceOfCellInRowsCS(panRows, pCellValue, TRUE)
+		return This.NumberOfOccurrenceOfCellInRowsCS(panRows, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -6819,7 +6819,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfSubValueInRows(panRows, pSubValue)
-		return This.NumberOfOccurrenceOfSubValueInRowsCS(panRows, pSubValue, TRUE)
+		return This.NumberOfOccurrenceOfSubValueInRowsCS(panRows, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -6869,7 +6869,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 	
 	def ContainsInRows(panRows, pCellValueOrSubValue)
-		return This.ContainsInRowsCS(panRows, pCellValueOrSubValue, TRUE)
+		return This.ContainsInRowsCS(panRows, pCellValueOrSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -6906,7 +6906,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsCellInRows(panRows, pCellValue)
-		return This.ContainsCellInRowsCS(panRows, pCellValue, TRUE)
+		return This.ContainsCellInRowsCS(panRows, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -6943,7 +6943,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSubValueInRows(panRows, pSubValue)
-		return This.ContainsSubValueInRowsCS(panRows, pSubValue, TRUE)
+		return This.ContainsSubValueInRowsCS(panRows, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForm
 		
@@ -6974,7 +6974,7 @@ Class stzTable from stzObject
 
 		? o1.FindInCol( :FIRSTNAME, :SubValue = "a" ) #--> [ ]
 
-		? o1.FindInColCS( :LASTNAME, :SubValue = "a", :CS _FALSE_ )
+		? o1.FindInColCS( :LASTNAME, :SubValue = "a", _FALSE_ )
 		#--> [
 			[ [2, 1], [2]    ],
 			[ [2, 2], [1, 4, 6] ],
@@ -7003,7 +7003,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInCol(pCol, pCellValueOrSubValue)
-		return This.FindInColCS(pCol, pCellValueOrSubValue, TRUE)
+		return This.FindInColCS(pCol, pCellValueOrSubValue, _TRUE_)
 
 		def FindInColumn(pCol, pCellValueOrSubValue)
 			return This.FindInCol(pCol, pCellValueOrSubValue)
@@ -7021,7 +7021,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindValueInCol(pCol, pCellValue)
-		return This.FindValueInColCS(pCol, pSubValue, TRUE)
+		return This.FindValueInColCS(pCol, pSubValue, _TRUE_)
 
 		def FindValueInColumn(pCol, pCellValue)
 			return This.FindValueInCol(pCol, pCellValue)
@@ -7039,7 +7039,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubValueInCol(pCol, pSubValue)
-		return This.FindValueInColCS(pCol, pSubValue, TRUE)
+		return This.FindValueInColCS(pCol, pSubValue, _TRUE_)
 
 		def FindSubValueInColumn(pCol, pSubValue)
 			return This.FindSubValueInCol(pCol, pSubValue)
@@ -7073,7 +7073,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInCol(n, pCol, pCellValueOrSubValue)
-		return This.FindNthInColCS(n, pCol, pCellValueOrSubValue, TRUE)
+		return This.FindNthInColCS(n, pCol, pCellValueOrSubValue, _TRUE_)
 		
 		#< @FunctionAlternativeForms
 
@@ -7121,7 +7121,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthValueInCol(n, pCol, pCellValue)
-		return This.FindNthValueInColCS(n, pCol, pCellValue, TRUE)
+		return This.FindNthValueInColCS(n, pCol, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -7166,7 +7166,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSubValueInCol(n, pCol, pSubValue)
-		return This.FindNthSubValueInColCS(n, pCol, pSubValue, TRUE)
+		return This.FindNthSubValueInColCS(n, pCol, pSubValue, _TRUE_)
 
 		#< @FuntionAlternativeForms
 
@@ -7204,7 +7204,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInCol(pCol, pCellValueOrSubValue)
-		return This.FindFirstInColCS(pCol, pCellValueOrSubValue, TRUE)
+		return This.FindFirstInColCS(pCol, pCellValueOrSubValue, _TRUE_)
 		
 		#< @FunctionAlternativeForms
 
@@ -7242,7 +7242,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstValueInCol(pCol, pCellValue)
-		return This.FindFirstValueInColCS(pCol, pCellValue, TRUE)
+		return This.FindFirstValueInColCS(pCol, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -7262,7 +7262,7 @@ Class stzTable from stzObject
 	#------------------------------------------------------#
 
 	def FindFirstSubValueInColCS(pCol, pSubValue, pCaseSensitive)
-		return This.FindFirstSubValueInColCS(pCol, pSubValue, TRUE)
+		return This.FindFirstSubValueInColCS(pCol, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -7274,7 +7274,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSubValueInCol(pCol, pSubValue)
-		return This.FindFirstSubValueInColCS(pCol, pSubValue, TRUE)
+		return This.FindFirstSubValueInColCS(pCol, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -7312,7 +7312,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInCol(pCol, pCellValueOrSubValue)
-		return This.FindLastInColCS(pCol, pCellValueOrSubValue, TRUE)
+		return This.FindLastInColCS(pCol, pCellValueOrSubValue, _TRUE_)
 		
 		#< @FunctionAlternativeForms
 
@@ -7350,7 +7350,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastValueInCol(pCol, pCellValue)
-		return This.FindLastValueInColCS(pCol, pCellValue, TRUE)
+		return This.FindLastValueInColCS(pCol, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -7370,7 +7370,7 @@ Class stzTable from stzObject
 	#-------------------------------------#
 
 	def FindLastSubValueInColCS(pCol, pSubValue, pCaseSensitive)
-		return This.FindLastSubValueInColCS(pCol, pSubValue, TRUE)
+		return This.FindLastSubValueInColCS(pCol, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -7388,7 +7388,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSubValueInCol(pCol, pSubValue)
-		return This.FindLastSubValueInColCS(pCol, pSubValue, TRUE)
+		return This.FindLastSubValueInColCS(pCol, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -7456,7 +7456,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceInCol(pCol, pCellValueOrSubValue)
-		return This.NumberOfOccurrenceInColCS(pCol, pCellValueOrSubValue, TRUE)
+		return This.NumberOfOccurrenceInColCS(pCol, pCellValueOrSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -7616,7 +7616,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfCellInCol(pCol, pCellValue)
-		return This.NumberOfOccurrenceOfCellInColCS(pCol, pCellValue, TRUE)
+		return This.NumberOfOccurrenceOfCellInColCS(pCol, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -7794,7 +7794,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfSubValueInCol(pCol, pSubValue)
-		return This.NumberOfOccurrenceOfSubValueInColCS(pCol, pSubValue, TRUE)
+		return This.NumberOfOccurrenceOfSubValueInColCS(pCol, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -7860,10 +7860,10 @@ Class stzTable from stzObject
 			[ "Ali",	"Ali"     ]
 		])
 		
-		? o1.ContainsInCol(2, :Value = "Abraham") #--> TRUE
+		? o1.ContainsInCol(2, :Value = "Abraham") #--> _TRUE_
 		
-		? o1.ContainsInCol(2, :SubValue = "AL") #--> FALSE
-		? o1.ContainsInColCS(2, :SubValue = "AL", :CS _FALSE_) #--> TRUE
+		? o1.ContainsInCol(2, :SubValue = "AL") #--> _FALSE_
+		? o1.ContainsInColCS(2, :SubValue = "AL", _FALSE_) #--> _TRUE_
 		*/
 
 		if isList(pCol) and Q(pCol).IsOneOfTheseNamedParams([
@@ -7920,7 +7920,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 	
 	def ContainsInCol(pCol, pCellValueOrSubValue)
-		return This.ContainsInColCS(pCol, pCellValueOrSubValue, TRUE)
+		return This.ContainsInColCS(pCol, pCellValueOrSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -7981,7 +7981,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsCellInCol(pCol, pCellValue)
-		return This.ContainsCellInColCS(pCol, pCellValue, TRUE)
+		return This.ContainsCellInColCS(pCol, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -8042,7 +8042,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSubValueInCol(pCol, pSubValue)
-		return This.ContainsSubValueInColCS(pCol, pSubValue, TRUE)
+		return This.ContainsSubValueInColCS(pCol, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -8077,7 +8077,7 @@ Class stzTable from stzObject
 		? o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], :Value = "Ali" )
 		#--> [ [ 1, 2], [2, 3] ]
 
-		? o1.FindInColsCS(  [ :FIRSTNAME, :LASTNAME ], :SubValue = "a", :CS _FALSE_ )
+		? o1.FindInColsCS(  [ :FIRSTNAME, :LASTNAME ], :SubValue = "a", _FALSE_ )
 		#--> [
 			[ [1, 1], [1] ],
 			[ [1, 2], [1] ],
@@ -8087,8 +8087,8 @@ Class stzTable from stzObject
 		     ]
 		*/
 
-		bValue _TRUE_
-		bSubValue _FALSE_
+		bValue = _TRUE_
+		bSubValue = _FALSE_
 
 		aCellsPositions = This.ColsToCellsAsPositions(paCols)
 
@@ -8109,7 +8109,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInCols(paCols, pCellValueOrSubValue)
-		return This.FindInColsCS(paCols, pCellValueOrSubValue, TRUE)
+		return This.FindInColsCS(paCols, pCellValueOrSubValue, _TRUE_)
 
 		def FindInColumns(paCols, pCellValueOrSubValue)
 			return This.FindInCols(paCols, pCellValueOrSubValue)
@@ -8127,7 +8127,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindValueInCols(paCols, pCellValue)
-		return This.FindValueInColsCS(paCols, pSubValue, TRUE)
+		return This.FindValueInColsCS(paCols, pSubValue, _TRUE_)
 
 		def FindValueInColumns(paCols, pCellValue)
 			return This.FindValueInCols(paCols, pCellValue)
@@ -8145,7 +8145,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubValueInCols(paCols, pSubValue)
-		return This.FindValueInColsCS(paCols, pSubValue, TRUE)
+		return This.FindValueInColsCS(paCols, pSubValue, _TRUE_)
 
 		def FindSubValueInColumns(paCols, pSubValue)
 			return This.FindSubValueInCols(paCols, pSubValue)
@@ -8179,7 +8179,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInCols(n, paCols, pCellValueOrSubValue)
-		return This.FindNthInColsCS(n, paCols, pCellValueOrSubValue, TRUE)
+		return This.FindNthInColsCS(n, paCols, pCellValueOrSubValue, _TRUE_)
 		
 		#< @FunctionAlternativeForms
 
@@ -8227,7 +8227,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthValueInCols(n, paCols, pCellValue)
-		return This.FindNthValueInColsCS(n, paCols, pCellValue, TRUE)
+		return This.FindNthValueInColsCS(n, paCols, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -8272,7 +8272,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSubValueInCols(n, paCols, pSubValue)
-		return This.FindNthSubValueInColsCS(n, paCols, pSubValue, TRUE)
+		return This.FindNthSubValueInColsCS(n, paCols, pSubValue, _TRUE_)
 
 		#< @FuntionAlternativeForms
 
@@ -8310,7 +8310,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInCols(paCols, pCellValueOrSubValue)
-		return This.FindFirstInColsCS(paCols, pCellValueOrSubValue, TRUE)
+		return This.FindFirstInColsCS(paCols, pCellValueOrSubValue, _TRUE_)
 		
 		#< @FunctionAlternativeForms
 
@@ -8348,7 +8348,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstValueInCols(paCols, pCellValue)
-		return This.FindFirstValueInColsCS(paCols, pCellValue, TRUE)
+		return This.FindFirstValueInColsCS(paCols, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -8368,7 +8368,7 @@ Class stzTable from stzObject
 	#---------------------------------------------------------------------#
 
 	def FindFirstSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
-		return This.FindFirstSubValueInColsCS(paCols, pSubValue, TRUE)
+		return This.FindFirstSubValueInColsCS(paCols, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -8380,7 +8380,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSubValueInCols(paCols, pSubValue)
-		return This.FindFirstSubValueInColsCS(paCols, pSubValue, TRUE)
+		return This.FindFirstSubValueInColsCS(paCols, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -8418,7 +8418,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInCols(paCols, pCellValueOrSubValue)
-		return This.FindLastInColsCS(paCols, pCellValueOrSubValue, TRUE)
+		return This.FindLastInColsCS(paCols, pCellValueOrSubValue, _TRUE_)
 		
 		#< @FunctionAlternativeForms
 
@@ -8456,7 +8456,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastValueInCols(paCols, pCellValue)
-		return This.FindLastValueInColsCS(paCols, pCellValue, TRUE)
+		return This.FindLastValueInColsCS(paCols, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -8476,7 +8476,7 @@ Class stzTable from stzObject
 	#--------------------------------------------------------------------#
 
 	def FindLastSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
-		return This.FindLastSubValueInColsCS(paCols, pSubValue, TRUE)
+		return This.FindLastSubValueInColsCS(paCols, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -8494,7 +8494,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSubValueInCols(paCols, pSubValue)
-		return This.FindLastSubValueInColsCS(paCols, pSubValue, TRUE)
+		return This.FindLastSubValueInColsCS(paCols, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -8552,7 +8552,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceInCols(paCols, pValueOrSubValue)
-		return This.NumberOfOccurrenceInColsCS(paCols, pValueOrSubValue, TRUE)
+		return This.NumberOfOccurrenceInColsCS(paCols, pValueOrSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -8712,7 +8712,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfCellInCols(paCols, pCellValue)
-		return This.NumberOfOccurrenceOfCellInColsCS(paCols, pCellValue, TRUE)
+		return This.NumberOfOccurrenceOfCellInColsCS(paCols, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -8890,7 +8890,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfSubValueInCols(paCols, pSubValue)
-		return This.NumberOfOccurrenceOfSubValueInColsCS(paCols, pSubValue, TRUE)
+		return This.NumberOfOccurrenceOfSubValueInColsCS(paCols, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -8988,7 +8988,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 	
 	def ContainsInCols(paCols, pCellValueOrSubValue)
-		return This.ContainsInColsCS(paCols, pCellValueOrSubValue, TRUE)
+		return This.ContainsInColsCS(paCols, pCellValueOrSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -9049,7 +9049,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsCellInCols(paCols, pCellValue)
-		return This.ContainsCellInColsCS(paCols, pCellValue, TRUE)
+		return This.ContainsCellInColsCS(paCols, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -9110,7 +9110,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSubValueInCols(paCols, pSubValue)
-		return This.ContainsSubValueInColsCS(paCols, pSubValue, TRUE)
+		return This.ContainsSubValueInColsCS(paCols, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 	
@@ -9171,7 +9171,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindInSection(paSection1, paSection2, pCellValueOrSubValue)
-			return This.FindInSectionCS(paSection1, paSection2, pCellValueOrSubValue, TRUE)
+			return This.FindInSectionCS(paSection1, paSection2, pCellValueOrSubValue, _TRUE_)
 
 	def FindValueInSectionCS(paSection1, paSection2, pCellValue, pCaseSensitive)
 		return This.FindValueInCellsCS( This.SectionAsPositions(paSection1, paSection2), pCellValue, pCaseSensitive)
@@ -9179,7 +9179,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindValueInSection(paSection1, paSection2, pCellValue)
-			return This.FindValueInSectionCS(paSection1, paSection2, pSubValue, TRUE)
+			return This.FindValueInSectionCS(paSection1, paSection2, pSubValue, _TRUE_)
 
 	def FindSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
 		return This.FindSubValueInCellsCS( This.SectionAsPositions(paSection1, paSection2), pSubValue, pCaseSensitive)
@@ -9187,7 +9187,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindSubValueInSection(paSection1, paSection2, pSubValue)
-			return This.FindValueInSectionCS(paSection1, paSection2, pSubValue, TRUE)
+			return This.FindValueInSectionCS(paSection1, paSection2, pSubValue, _TRUE_)
 
 	  #=============================================================================================#
 	 #  FINDING NTH POSITION OF A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN THE GIVEN SECTION  #
@@ -9206,7 +9206,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindNthInSection(n, paSection1, paSection2, pCellValueOrSubValue)
-			return This.FindNthInSectionCS(n, paSection1, paSection2, pCellValueOrSubValue, TRUE)
+			return This.FindNthInSectionCS(n, paSection1, paSection2, pCellValueOrSubValue, _TRUE_)
 		
 			def FindNthOccurrenceInSection(n, paSection1, paSection2, pCellValueOrSubValue)
 				return This.FindNthInSection(n, paSection1, paSection2, pCellValueOrSubValue)
@@ -9217,7 +9217,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindNthValueInSection(n, paSection1, paSection2, pCellValue)
-			return This.FindNthValueInSectionCS(n, paSection1, paSection2, pCellValue, TRUE)
+			return This.FindNthValueInSectionCS(n, paSection1, paSection2, pCellValue, _TRUE_)
 
 			def FindNthOccurrenceOfValueInSection(n, paSection1, paSection2, pCellValue)
 				return This.FindNthValueInSection(n, paSection1, paSection2, pCellValue)
@@ -9231,7 +9231,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindNthSubValueInSection(n, paSection1, paSection2, pSubValue)
-			return This.FindNthSubValueInSectionCS(n, paSection1, paSection2, pSubValue, TRUE)
+			return This.FindNthSubValueInSectionCS(n, paSection1, paSection2, pSubValue, _TRUE_)
 
 			def FindNthOccurrenceOfSubValueInSection(n, paSection1, paSection2, pSubValue)
 				return This.FindNthSubValueInSection(n, paSection1, paSection2, pSubValue)
@@ -9249,7 +9249,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindFirstInSection(paSection1, paSection2, pCellValueOrSubValue)
-			return This.FindFirstInSectionCS(paSection1, paSection2, pCellValueOrSubValue, TRUE)
+			return This.FindFirstInSectionCS(paSection1, paSection2, pCellValueOrSubValue, _TRUE_)
 		
 			def FindFirstOccurrenceInSection( paSection1, paSection2, pCellValueOrSubValue)
 				return This.FindFirstInSection(paSection1, paSection2, pCellValueOrSubValue)
@@ -9263,13 +9263,13 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindFirstValueInSection(paSection1, paSection2, pCellValue)
-			return This.FindFirstValueInSectionCS(paSection1, paSection2, pCellValue, TRUE)
+			return This.FindFirstValueInSectionCS(paSection1, paSection2, pCellValue, _TRUE_)
 
 			def FindFirstOccurrenceOfValueInSection(paSection1, paSection2, pCellValue)
 				return This.FindFirstValueInSection(paSection1, paSection2, pCellValue)
 
 	def FindFirstSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
-		return This.FindFirstSubValueInSectionCS(paSection1, paSection2, pSubValue, TRUE)
+		return This.FindFirstSubValueInSectionCS(paSection1, paSection2, pSubValue, _TRUE_)
 
 		def FindFirstOccurrenceOfSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
 			return This.FindFirstSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
@@ -9277,7 +9277,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindFirstSubValueInSection(paSection1, paSection2, pSubValue)
-			return This.FindFirstSubValueInSectionCS(paSection1, paSection2, pSubValue, TRUE)
+			return This.FindFirstSubValueInSectionCS(paSection1, paSection2, pSubValue, _TRUE_)
 
 			def FindFirstOccurrenceOfSubValueInSection(paSection1, paSection2, pSubValue)
 				return This.FindFirstSubValueInSection(paSection1, paSection2, pSubValue)
@@ -9295,7 +9295,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindLastInSection(paSection1, paSection2, pCellValueOrSubValue)
-			return This.FindLastInSectionCS(paSection1, paSection2, pCellValueOrSubValue, TRUE)
+			return This.FindLastInSectionCS(paSection1, paSection2, pCellValueOrSubValue, _TRUE_)
 		
 			def FindLastOccurrenceInSection( paSection1, paSection2, pCellValueOrSubValue)
 				return This.FindLastInSection(paSection1, paSection2, pCellValueOrSubValue)
@@ -9309,13 +9309,13 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindLastValueInSection(paSection1, paSection2, pCellValue)
-			return This.FindLastValueInSectionCS(paSection1, paSection2, pCellValue, TRUE)
+			return This.FindLastValueInSectionCS(paSection1, paSection2, pCellValue, _TRUE_)
 
 			def FindLastOccurrenceOfValueInSection(paSection1, paSection2, pCellValue)
 				return This.FindLastValueInSection(paSection1, paSection2, pCellValue)
 
 	def FindLastSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
-		return This.FindLastSubValueInSectionCS(paSection1, paSection2, pSubValue, TRUE)
+		return This.FindLastSubValueInSectionCS(paSection1, paSection2, pSubValue, _TRUE_)
 
 		def FindLastOccurrenceOfSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
 			return This.FindLastSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
@@ -9323,7 +9323,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindLastSubValueInSection(paSection1, paSection2, pSubValue)
-			return This.FindLastSubValueInSectionCS(paSection1, paSection2, pSubValue, TRUE)
+			return This.FindLastSubValueInSectionCS(paSection1, paSection2, pSubValue, _TRUE_)
 
 			def FindLastOccurrenceOfSubValueInSection(paSection1, paSection2, pSubValue)
 				return This.FindLastSubValueInSection(paSection1, paSection2, pSubValue)
@@ -9364,7 +9364,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def NumberOfOccurrenceInSection(paSection1, paSection2, pValue)
-			return This.NumberOfOccurrenceInSectionCS(paSection1, paSection2, pValue, TRUE)
+			return This.NumberOfOccurrenceInSectionCS(paSection1, paSection2, pValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -9450,7 +9450,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def NumberOfOccurrenceOfCellInSection(paSection1, paSection2, pCellValue)
-			return This.NumberOfOccurrenceOfCellInSectionCS(paSection1, paSection2, pCellValue, TRUE)
+			return This.NumberOfOccurrenceOfCellInSectionCS(paSection1, paSection2, pCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -9536,7 +9536,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def NumberOfOccurrenceOfSubValueInSection(paSection1, paSection2, pSubValue)
-			return This.NumberOfOccurrenceOfSubValueInSectionCS(paSection1, paSection2, pSubValue, TRUE)
+			return This.NumberOfOccurrenceOfSubValueInSectionCS(paSection1, paSection2, pSubValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -9567,10 +9567,10 @@ Class stzTable from stzObject
 			[ "Ali",	"Ali"     ]
 		])
 		
-		? o1.ContainsInSection(2, :Value = "Abraham") #--> TRUE
+		? o1.ContainsInSection(2, :Value = "Abraham") #--> _TRUE_
 		
-		? o1.ContainsInSection(2, :SubValue = "AL") #--> FALSE
-		? o1.ContainsInSectionCS(2, :SubValue = "AL", :CS _FALSE_) #--> TRUE
+		? o1.ContainsInSection(2, :SubValue = "AL") #--> _FALSE_
+		? o1.ContainsInSectionCS(2, :SubValue = "AL", _FALSE_) #--> _TRUE_
 		*/
 
 		return This.ContainsInCellsCS( This.SectionAsPositions(paSection1, paSection2), pCellValueOrSubValue, pCaseSensitive)
@@ -9585,7 +9585,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 	
 		def ContainsInSection(paSection1, paSection2, pCellValueOrSubValue)
-			return This.ContainsInSectionCS(paSection1, paSection2, pCellValueOrSubValue, TRUE)
+			return This.ContainsInSectionCS(paSection1, paSection2, pCellValueOrSubValue, _TRUE_)
 
 			def SectionContains(paSection1, paSection2, pCellValueOrSubValue)
 				return This.ContainsInSection(paSection1, paSection2, pCellValueOrSubValue)
@@ -9614,7 +9614,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def ContainsCellInSection(paSection1, paSection2, pCellValue)
-			return This.ContainsCellInSectionCS(paSection1, paSection2, pCellValue, TRUE)
+			return This.ContainsCellInSectionCS(paSection1, paSection2, pCellValue, _TRUE_)
 
 			def SectionContainsCell(paSection1, paSection2, pCellValue)
 				return This.ContainsCellInSection(paSection1, paSection2, pCellValue)
@@ -9636,7 +9636,7 @@ Class stzTable from stzObject
 		#-- WITHOUT CASESENSITIVITY
 
 		def ContainsSubValueInSection(paSection1, paSection2, pSubValue)
-			return This.ContainsSubValueInSectionCS(paSection1, paSection2, pSubValue, TRUE)
+			return This.ContainsSubValueInSectionCS(paSection1, paSection2, pSubValue, _TRUE_)
 
 			def SectionContainsSubValue(paSection1, paSection2, pSubValue)
 				return This.ContainsSubValueInSection(paSection1, paSection2, pSubValue)
@@ -10354,7 +10354,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIIVTY
 
 	def ReplaceCellByValue(pCellValue, pNewCellValue)
-		This.ReplaceCellByValueCS(pCellValue, pNewCellValue, TRUE)
+		This.ReplaceCellByValueCS(pCellValue, pNewCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -10396,7 +10396,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceManyCellsByValue(paCellsValues, pNewCellValue)
-		This.ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, TRUE)
+		This.ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -10438,7 +10438,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceManyCellsByValueByMany(paCellsValues, pNewCellValue)
-		This.ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, TRUE)
+		This.ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -10478,7 +10478,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceManyCellsByValueByManyXT(paCellsValues, pNewCellValue)
-		This.ReplaceManyCellsByValueByManyCSXT(paCellsValues, pNewCellValue, TRUE)
+		This.ReplaceManyCellsByValueByManyCSXT(paCellsValues, pNewCellValue, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -11319,7 +11319,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAll(pCellValue, pNewCellValue)
-		This.ReplaceAllCS(pCellValue, pNewCellValue, TRUE)
+		This.ReplaceAllCS(pCellValue, pNewCellValue, _TRUE_)
 
 		#< @FunctionAlternatives
 
@@ -11356,7 +11356,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNth(n, pValue, pNewCellValue)
-		This.ReplaceNthCS(n, pValue, pNewCellValue, TRUE)
+		This.ReplaceNthCS(n, pValue, pNewCellValue, _TRUE_)
 
 	  #-----------------------------------------------------#
 	 #  REPLACING FIRST OCCURRENCE OF A CELL IN THE TABLE  #
@@ -11368,7 +11368,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceFirst(pValue, pNewCellValue)
-		This.ReplaceFirstCS(pValue, pNewCellValue, TRUE)
+		This.ReplaceFirstCS(pValue, pNewCellValue, _TRUE_)
 
 	  #-----------------------------------------------------#
 	 #  REPLACING FIRST OCCURRENCE OF A CELL IN THE TABLE  #
@@ -11380,7 +11380,7 @@ Class stzTable from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceLast(pValue, pNewCellValue)
-		This.ReplaceLastCS(pValue, pNewCellValue, TRUE)
+		This.ReplaceLastCS(pValue, pNewCellValue, _TRUE_)
 
 	  #====================================#
 	 #  REPLACING SUBVALUES INSIDE CELLS  #
@@ -11390,7 +11390,7 @@ Class stzTable from stzObject
 		/* ... */
 
 	def ReplaceInCell(pnCol, pnRow, pSubValue, pNewSubValue)
-		This.ReplaceInCellCS(pnCol, pnRow, pSubValue, pNewSubValue, TRUE)
+		This.ReplaceInCellCS(pnCol, pnRow, pSubValue, pNewSubValue, _TRUE_)
 
 	#--
 
@@ -11398,7 +11398,7 @@ Class stzTable from stzObject
 		/* ... */
 
 	def ReplaceInCells(paCellsPos, pSubValue, pNewSubValue)
-		This.ReplaceInCellsCS(paCellsPos, pSubValue, pNewSubValue, TRUE)
+		This.ReplaceInCellsCS(paCellsPos, pSubValue, pNewSubValue, _TRUE_)
 
 	#--
 
@@ -11406,7 +11406,7 @@ Class stzTable from stzObject
 		/* ... */
 
 	def ReplaceInCellsByMany(paCellsPos, pSubValues, pNewSubValue)
-		This.ReplaceInCellsByManyCS(paCellsPos, pSubValues, pNewSubValue, TRUE)
+		This.ReplaceInCellsByManyCS(paCellsPos, pSubValues, pNewSubValue, _TRUE_)
 
 	# Add ReplaceInCellsByManyXT() : if all repalaced restart at the 1st one
 
@@ -11416,7 +11416,7 @@ Class stzTable from stzObject
 		/* ... */
 
 	def ReplaceInSection(paCellPos1, paCellPos2,  pSubValue, pNewSubValue)
-		This.ReplaceInSectionCS(paCellPos1, paCellPos2,  pSubValue, pNewSubValue, TRUE)
+		This.ReplaceInSectionCS(paCellPos1, paCellPos2,  pSubValue, pNewSubValue, _TRUE_)
 
 	#--
 
@@ -11424,7 +11424,7 @@ Class stzTable from stzObject
 		/* ... */
 
 	def ReplaceInSectionByMany(paCellPos1, paCellPos2,  pSubValues, pNewSubValue)
-		This.ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, ;CaseSensitive _TRUE_)
+		This.ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, ;CaseSensitive = _TRUE_)
 
 	# Add ReplaceInSectionByManyXT() : if all replaced restart at the 1st one
 
@@ -11434,7 +11434,7 @@ Class stzTable from stzObject
 		/* ... */
 
 	ReplaceInSections(aSections, pSubValue)
-		This.ReplaceInSectionsCS(aSections, pSubValue, TRUE)
+		This.ReplaceInSectionsCS(aSections, pSubValue, _TRUE_)
 
 	#--
 
@@ -11442,7 +11442,7 @@ Class stzTable from stzObject
 		/* ... */
 
 	ReplaceInSectionsByMany(aSections, paSubValues)
-		This.ReplaceInSectionsByManyCS(aSections, paSubValues, TRUE)
+		This.ReplaceInSectionsByManyCS(aSections, paSubValues, _TRUE_)
 
 	#-- Add ReplaceInSectionsByManyXT() : if all replaced restrat at 1st one
 
@@ -11474,7 +11474,7 @@ Class stzTable from stzObject
 
 		if nLen < nRows
 			for i = nLen+1 to nRows
-				paColNameAndData[2] + NULL
+				paColNameAndData[2] + _NULL_
 			next
 
 		but nLen > nRows
@@ -11559,7 +11559,7 @@ Class stzTable from stzObject
 	#======================#
 
 	def Update(paNewTable)
-		if CheckingParams() _TRUE_
+		if CheckingParams() = _TRUE_
 			if isList(paNewTable) and Q(paNewTable).IsWithOrByOrUsingNamedParam()
 				paNewTable = paNewTable[2]
 			ok
@@ -11573,7 +11573,7 @@ Class stzTable from stzObject
 
 		@aContent = paNewTable
 
-		if KeepingHisto() _TRUE_
+		if KeepingHisto() = _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -11700,7 +11700,7 @@ Class stzTable from stzObject
 
 	def RemoveNthCol(n)
 		if This.NumberOfCols() = 1
-			This.UpdateWith( [ [ :COL1, [ NULL ] ] ] )
+			This.UpdateWith( [ [ :COL1, [ _NULL_ ] ] ] )
 			return
 		ok
 
@@ -11722,7 +11722,7 @@ Class stzTable from stzObject
 		nCol = This.ColToColNumber(pColNameOrNumber)
 
 		if This.NumberOfCols() = 1 and nCol = 1
-			This.UpdateWith( [ [ :COL1, [ NULL ] ] ] )
+			This.UpdateWith( [ [ :COL1, [ _NULL_ ] ] ] )
 			return
 		ok
 
@@ -11778,7 +11778,7 @@ Class stzTable from stzObject
 		next
 
 		if len(aContent) = 0
-			aContent = [ :COL1 = [ NULL ] ]
+			aContent = [ :COL1 = [ _NULL_ ] ]
 		ok
 
 		This.UpdateWith(aContent)
@@ -11877,7 +11877,7 @@ Class stzTable from stzObject
 	#=============================================#
 
 	def RemoveAll()
-		This.UpdateWith([ :COL1 = [ NULL ] ])
+		This.UpdateWith([ :COL1 = [ _NULL_ ] ])
 
 		def RemoveAllCols()
 			This.RemoveAll()
@@ -12056,7 +12056,7 @@ Class stzTable from stzObject
 		for i = 1 to nLen
 			nLenLine = len(aContent[i][2])
 			for j = 1 to nLenLine
-				aContent[i][2][j] = NULL
+				aContent[i][2][j] = _NULL_
 			next
 		next
 
@@ -12120,7 +12120,7 @@ Class stzTable from stzObject
 		aContent = This.Content()
 
 		nCol = This.ColToColNumber(pCol)
-		aContent[nCol][2][pnRow] = NULL
+		aContent[nCol][2][pnRow] = _NULL_
 
 		This.UpdateWith(aContent)
 
@@ -12139,7 +12139,7 @@ Class stzTable from stzObject
 		for i = 1 to nLen
 			nCol = paCellsPos[i][1]
 			nRow = paCellsPos[i][2]
-			aContent[nCol][2][nRow] = NULL
+			aContent[nCol][2][nRow] = _NULL_
 		next
 
 		This.UpdateWith(aContent)
@@ -12298,7 +12298,7 @@ Class stzTable from stzObject
 		nRowData = len(parowData)
 		nMin = Min([nRowData , nCols ])
 
-		# Filling the missing cells by NULL
+		# Filling the missing cells by _NULL_
 
 		if nRowData < nCols
 			for i = nRowData+1 to nCols
@@ -13195,11 +13195,11 @@ Class stzTable from stzObject
 		ok
 
 		nLen = len(pacColNames)
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			if NOT This.IsColName(pacColNames[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -13559,7 +13559,7 @@ Class stzTable from stzObject
 
 		nCol = This.ColToColNumber(pCol)
 		oLoL = new stzListOfLists( This.Rows() )
-		pcExpr = StzStringQ(pcExpr).ReplaceCSQ("@cell", "@item", FALSE).Content()
+		pcExpr = StzStringQ(pcExpr).ReplaceCSQ("@cell", "@item", _FALSE_).Content()
 
 		oLoL.SortOnBy(nCol, pcExpr)
 
@@ -13671,7 +13671,7 @@ Class stzTable from stzObject
 		nCol = This.ColToColNumber(pCol)
 
 		oLoL = new stzListOfLists( This.Rows() )
-		pcExpr = StzStringQ(pcExpr).ReplaceCSQ("@cell", "@item", FALSE).Content()
+		pcExpr = StzStringQ(pcExpr).ReplaceCSQ("@cell", "@item", _FALSE_).Content()
 		oLoL.SortOnByDown(nCol, pcExpr)
 
 		aRowsSorted = oLol.Content()
@@ -13769,11 +13769,11 @@ Class stzTable from stzObject
 			:Separator 	  = "   ",
 			:Alignment 	  = :Right,
 		
-			:UnderLineHeader  _TRUE_,
+			:UnderLineHeader  = _TRUE_,
 			:UnderLineChar 	  = "-",
 			:IntersectionChar = " ",
 		
-			:ShowRowNumbers   _FALSE_
+			:ShowRowNumbers   = _FALSE_
 		]
 
 		cResult = This.ToStringXT(aDefaultOptions)
@@ -13794,17 +13794,17 @@ Class stzTable from stzObject
 		? o1.toStringXT([
 			:Separator = " | ",
 			:Alignment = :Left,
-			:UnderLineHeader _TRUE_,
+			:UnderLineHeader = _TRUE_,
 			:UnderLineChar = "-",
 			:IntersectionChar = " "
-			:ShowRowNumbers _TRUE_
+			:ShowRowNumbers = _TRUE_
 		])
 
 		*/
 
 		# Accelerating access using just one option provided in a string
 		# inclunding when no option is provided at all
-		#--> ShowXT(NULL) or ShowXT([])
+		#--> ShowXT(_NULL_) or ShowXT([])
 
 		if isString(paOptions)
 			if isNull(paOptions)
@@ -13826,14 +13826,14 @@ Class stzTable from stzObject
 			    paOptions = :UnderLineColumnsNames or
 			    paOptions = :AddLineUnderColumnsNames
 
-				return This.ShowXT([ :UnderLineHeader _TRUE_ ])
+				return This.ShowXT([ :UnderLineHeader = _TRUE_ ])
 
 			but paOptions = :ShowRowNumbers or	#TODO // Add those named params
 			    paOptions = :AddRowNumbers or	# to ShowXT([ ... ])
 			    paOptions = :WithRowNumbers or
 			    paOptions = :RowNumbers
 
-				return This.ToStringXT([ :ShowRowNumbers _TRUE_ ])
+				return This.ToStringXT([ :ShowRowNumbers = _TRUE_ ])
 
 			but paOptions = :AlignedToLeft or
 			    paOptions = :AdjustedToLeft or
@@ -13870,7 +13870,7 @@ Class stzTable from stzObject
 				:Separator = " | ",
 				:UnderLineChar = "-",
 				:IntersectionChar = "+",
-				:ShowRowNumbers _TRUE_,
+				:ShowRowNumbers = _TRUE_,
 				:Alignment = :Right
 			])
 
@@ -13885,7 +13885,7 @@ Class stzTable from stzObject
 			if isString(paOptions[i]) and
 			   ( paOptions[i] = :UnderLineHeader or paOptions[i] = :ShowRowNumbers )
 
-				aOptions + [ paOptions[i], TRUE ]
+				aOptions + [ paOptions[i], _TRUE_ ]
 					
 			else
 				aOptions + paOptions[i]
@@ -13901,24 +13901,24 @@ Class stzTable from stzObject
 		cSeparator = "   "
 		cAlignment = :Right
 		
-		bUnderlineHeader _TRUE_
+		bUnderlineHeader = _TRUE_
 		cUnderLineChar = "-"
 		cIntersectionChar = "+"
 
-		bShowRowNumbers _TRUE_
+		bShowRowNumbers = _TRUE_
 
 		# Reading the options provided by the user
 
 		pSeparator = aOptions[:Separator]
 
-		if pSeparator != NULL and isString(pSeparator)
+		if pSeparator != _NULL_ and isString(pSeparator)
 			if pSeparator = :Default
 				cSeparator = "   "
 			else
 				cSeparator = pSeparator
 			ok
 
-		but pSeparator = NULL
+		but pSeparator = _NULL_
 			pSeparator = " | "
 		ok
 
@@ -13926,7 +13926,7 @@ Class stzTable from stzObject
 
 		pAlignment = aOptions[:Alignment]
 
-		if pAlignment != NULL and isString(pAlignment)
+		if pAlignment != _NULL_ and isString(pAlignment)
 
 			if ( pAlignment = :Right or pAlignment = :Left or pAlignment = :Center)
 				cAlignment = pAlignment
@@ -13935,7 +13935,7 @@ Class stzTable from stzObject
 				cAlignment = :Right
 			ok
 
-		but pAlignment = NULL
+		but pAlignment = _NULL_
 			pAlignment = :Right
 		ok
 
@@ -13943,8 +13943,8 @@ Class stzTable from stzObject
 
 		pUnderLineHeader = aOptions[:UnderLineHeader]
 
-		if isString(pUnderlineHeader) and pUnderLineHeader = NULL
-			bUnderLineHeader _FALSE_
+		if isString(pUnderlineHeader) and pUnderLineHeader = _NULL_
+			bUnderLineHeader = _FALSE_
 
 		but isNumber(pUnderLineHeader) and ( pUnderLineHeader = 0 or pUnderLineHeader = 1 )
 			bUnderLineHeader = pUnderLineHeader
@@ -13961,11 +13961,11 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! You must provide a string in :UnderLineChar = ...")
 		ok
 
-		if cUnderLineChar != NULL
-			bUnderLineHeader _TRUE_
+		if cUnderLineChar != _NULL_
+			bUnderLineHeader = _TRUE_
 		ok
 
-		if bUnderLineHeader _TRUE_ and cUnderLineChar = ""
+		if bUnderLineHeader = _TRUE_ and cUnderLineChar = ""
 			cUnderLineChar = "-"
 		ok
 
@@ -13977,8 +13977,8 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! You must provide a string in :InterSectionChar = ...")
 		ok
 
-		if cInterSectionChar != NULL
-			bUnderLineHeader _TRUE_
+		if cInterSectionChar != _NULL_
+			bUnderLineHeader = _TRUE_
 			if cUnderLineChar = ""
 				cUnderLineChar = "-"
 			ok
@@ -13998,19 +13998,19 @@ Class stzTable from stzObject
 
 		pShowRowNumbers = aOptions[:ShowRowNumbers]
 
-		if isString(pShowRowNumbers) and pShowRowNumbers = NULL
-			bShowRowNumbers _FALSE_
+		if isString(pShowRowNumbers) and pShowRowNumbers = _NULL_
+			bShowRowNumbers = _FALSE_
 
 		but isNumber(pShowRowNumbers)
-			if pShowRowNumbers _TRUE_
-				bShowRowNumbers _TRUE_
+			if pShowRowNumbers = _TRUE_
+				bShowRowNumbers = _TRUE_
 
-			else pShowRowNumbers _FALSE_
-				bShowRowNumbers _FALSE_
+			else pShowRowNumbers = _FALSE_
+				bShowRowNumbers = _FALSE_
 			ok
 
 		else
-			StzRaise("Incorrect param type! bShowRowNumbers must be TRUE or FALSE.")
+			StzRaise("Incorrect param type! bShowRowNumbers must be _TRUE_ or _FALSE_.")
 		ok
 
 		# Doing the job
@@ -14057,7 +14057,7 @@ Class stzTable from stzObject
 
 		# Constructing the header()
 
-		if bUnderLineHeader _TRUE_
+		if bUnderLineHeader = _TRUE_
 			acRowNumbers = (0 : (nRows-1)) + "#"
 		else
 			acRowNumbers = (1 : nRows ) + "#"
@@ -14547,12 +14547,12 @@ Class stzTable from stzObject
 
 		if Q(paColNames).IsListOfStrings()
 			for i = 1 to nLen
-				acColNames + [ paColNames[i], [NULL] ]
+				acColNames + [ paColNames[i], [_NULL_] ]
 			next
 
 		else // IsHashList()
 			for i = 1 to nLen
-				acColNames + [ paColNames[i][1], [NULL] ]
+				acColNames + [ paColNames[i][1], [_NULL_] ]
 			next
 		ok
 
@@ -14590,7 +14590,7 @@ Class stzTable from stzObject
 
 		oForumla = new stzString(pcFormula)
 		for i = 1 to nCols
-			oForumla.ReplaceCS( ('@(:'+ This.ColName(i)+')'), 'This.Cell(' + i + ', i)', FAlSE)
+			oForumla.ReplaceCS( ('@(:'+ This.ColName(i)+')'), 'This.Cell(' + i + ', i)', _FALSE_)
 		next
 
 		pcFormula = oForumla.Content()
@@ -14698,7 +14698,7 @@ Class stzTable from stzObject
 		acCodes = []
 		for i = 1 to nMin
 			cColName = This.ColName(i)
-			aoForumlas[i].ReplaceCS( ('@(:'+ cColName +')'), 'This.Col(:' + cColName + ')', FAlSE)
+			aoForumlas[i].ReplaceCS( ('@(:'+ cColName +')'), 'This.Col(:' + cColName + ')', _FALSE_)
 			cCode =  aoForumlas[i].Content()
 			if cCode != ""
 				cCode = 'value = ' + cCode

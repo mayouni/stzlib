@@ -155,7 +155,7 @@ class stzBinaryNumber from stzObject
 		ok
 
 	def FractionalPart()
-		cResult = NULL
+		cResult = _NULL_
 		oTempStr = new stzString(This.BinaryNumber())
 		n = oTempStr.FindFirstOccurrence(".")
 
@@ -175,7 +175,7 @@ class stzBinaryNumber from stzObject
 		return cResult
 
 	def HasFractionalPart()
-		If This.FractionalPart() != NULL
+		If This.FractionalPart() != _NULL_
 			return _TRUE_
 		else
 			return _FALSE_

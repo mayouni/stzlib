@@ -5,41 +5,41 @@ load "../max/stzmax.ring"
 pron()
 
 ? SubStringQ([ "♥♥", :In = "--♥♥--**--" ]).ComesBeforeSubString("**")
-#--> TRUE
+#--> _TRUE_
 
 ? SubStringQ("♥♥").InQ("--♥♥--**--").ComesBeforeSubString("**")
-#--> TRUE
+#--> _TRUE_
 
 ? Q("--♥♥--**--").SubStringQ("♥♥").ComesBeforeSubString("**")
-#--> TRUE
+#--> _TRUE_
 
 #--
 
 ? SubStringQ([ "**", :In = "--♥♥--**--" ]).ComesAfterSubString("♥♥")
-#--> TRUE
+#--> _TRUE_
 
 ? SubStringQ("**").InQ("--♥♥--**--").ComesAfterSubString("♥♥")
-#--> TRUE
+#--> _TRUE_
 
 ? Q("--♥♥--**--").SubStringQ("**").ComesAfterSubString("♥♥")
-#--> TRUE
+#--> _TRUE_
 
 #--
 
 ? SubStringQ("--").InQ("--♥♥--**--").ComesBetween("♥♥", :And = "**")
-#--> TRUE
+#--> _TRUE_
 
 ? SubStringQ("--").InQ("--♥♥--**--").ComesBetween("**", :And = "♥♥")
-#--> TRUE
+#--> _TRUE_
 
 ? SubStringQ([ "--", :In = "--♥♥--**--" ]).ComesBetweenSubStrings("♥♥", :And = "**")
-#--> TRUE
+#--> _TRUE_
 
 ? SubStringQ([ "--", :In = "--♥♥--**--" ]).ComesBetweenSubStrings("**", :And = "♥♥")
-#--> TRUE
+#--> _TRUE_
 
 ? Q("--♥♥--**--").SubStringQ("--").ComesbetweenSubStrings("♥♥", :And = "**")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 
@@ -65,7 +65,7 @@ Show( v[@1, @2] )
 /*=============
 */
 //? Q("Ring").InQ("I love RING!").IsInUppercase()
-#--> TRUE
+#--> _TRUE_
  
 ? The("PYTHON").SubStringInQ("ring PYTHON ruby").Lowercased()
 #--> ring python ruby
@@ -77,13 +77,13 @@ Show( v[@1, @2] )
 #--> I ♥ Ring!
  
 ? Only("human").InQ([ "THE", "human", "LIFE" ]).IsInLowercase()
-#--> TRUE
+#--> _TRUE_
  
 ? Q("human").InQ([ "THE", "human", "LIFE" ]).Uppercased()
 #--> [ "THE", "HUMAN", "LIFE" ]
 
 ? ItemsQ(["THE", "LIFE"]).InListQ([ "THE", "human", "LIFE" ]).AreBothInUppercase()
-#--> TRUE 
+#--> _TRUE_ 
 
 /*-------------
 
@@ -133,7 +133,7 @@ pron()
 #--> [ "I", "love", "Ring" ]
 
 ? Q("I love Ring").SubStringIsAWord("Ring")
-#--> TRUE
+#--> _TRUE_
 
 proff()
 
@@ -142,10 +142,10 @@ proff()
 pron()
 
 ? Q("human").InQ("THE human LIFE").IsInLowercase()
-#--> TRUE
+#--> _TRUE_
 
 ? Q("HUMAN").InQ("the HUMAN life").IsInUppercase()
-#--> TRUE
+#--> _TRUE_
 
 ? The("PYTHON").SubStringInQ("ring PYTHON ruby").Lowercased()
 #--> ring python ruby
@@ -167,13 +167,13 @@ proff()
 pron()
 
 ? Only("human").InQ([ "THE", "human", "LIFE" ]).IsInLowercase()
-#--> TRUE
+#--> _TRUE_
 
 ? Q("human").InQ([ "THE", "human", "LIFE" ]).Uppercased()
 #--> [ "THE", "HUMAN", "LIFE" ]
 
 ? Only("human").InQ([ "THE", "human", "LIFE" ]).IsInLowercase() # stzOnlyItem.ring
-#--> TRUE
+#--> _TRUE_
 
 ? Every(:String).InQ([ 10, "human", 20, "human", 30, "HUMAN" ]).IsInLowercase() # stzEveryItem.ring
 
@@ -206,7 +206,7 @@ o1 = new stzString("ring")
 #--> ring
 
 ? @@( o1.SubStringIn("bla bla bla") )
-#--> NULL
+#--> _NULL_
 
 ? o1.SubstringInQ("I LOVE THE ring LANGUAGE!").Uppercased()
 #--> I LOVE THE RING LANGUAGE!
@@ -224,7 +224,7 @@ o1 = new stzString("I LOVE THE ring LANGUAGE!")
 #--> ring
 
 ? @@( o1.SubString("python") )
-#--> NULL
+#--> _NULL_
 
 ? o1.SubStringQ("ring").Uppercased()
 #--> I LOVE THE RING LANGUAGE!
@@ -244,7 +244,7 @@ o1 = new stzSubString("ring", :in = "I LOVE THE ring LANGUAGE!")
 #--> I LOVE THE ring LANGUAGE!
 
 ? o1.CaseSensitive()
-#--> TRUE
+#--> _TRUE_
 
 ? o1.Uppercased()
 #--> I LOVE THE RING LANGUAGE!

@@ -128,7 +128,7 @@ class stzHexNumber from stzObject
 			@cHexNumber = oHexNumber.Content()
 
 		but StringRepresentsNumberInUnicodeHexForm(cNumber)
-			@cHexNumber = StzStringQ(cNumber).RemoveCSQ( "U+", :CS _FALSE_ ).Content()
+			@cHexNumber = StzStringQ(cNumber).RemoveCSQ( "U+", _FALSE_ ).Content()
 
 		else
 			StzRaise(stzHexNumberError(:CanNotCreateHexNumber))
@@ -215,7 +215,7 @@ class stzHexNumber from stzObject
 		# Combining them to get the decimal form of the hex number
 
 		cDecimalForm = cIntegerPart
-		if cFractionalPart != NULL
+		if cFractionalPart != _NULL_
 			cDecimalForm += "." + cFractionalPart
 		ok
 

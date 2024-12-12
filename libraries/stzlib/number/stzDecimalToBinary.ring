@@ -70,13 +70,13 @@ class stzDecimalToBinary from stzObject
 
 	def IntegerPartToBinaryForm()
 		
-		cBinary = NULL
+		cBinary = _NULL_
 
 		if This.ToStzNumber().NumericValue() = 0
-			cBinary = NULL
+			cBinary = _NULL_
 
 		else
-			cBinary = NULL
+			cBinary = _NULL_
 
 			# Take the number corresponding to the integer part
 			n = This.ToStzNumber().IntegerPartValue()
@@ -87,7 +87,7 @@ class stzDecimalToBinary from stzObject
 			ok
 
 			aTemp = []
-			bAgain _TRUE_
+			bAgain = _TRUE_
 	
 			# Divide by 2 until reaching 0 as a result
 	
@@ -96,7 +96,7 @@ class stzDecimalToBinary from stzObject
 				# If the result is 0 then stop the division
 	
 				if floor(n/2) = 0
-					bAgain _FALSE_
+					bAgain = _FALSE_
 				ok
 	
 				# Save the remainder
@@ -128,13 +128,13 @@ class stzDecimalToBinary from stzObject
 		cBinary = ""
 
 		nPrecision = 0
-		bAgain _TRUE_
+		bAgain = _TRUE_
 
 		while bAgain
 			
 			nPrecision++
 			if nPrecision > 19
-				bAgain _FALSE_
+				bAgain = _FALSE_
 
 			else
 				nDouble = n * 2 // Check if This should to be done using stzNumber
@@ -142,7 +142,7 @@ class stzDecimalToBinary from stzObject
 				oTempNumber = new stzNumber(nDouble)
 	
 				if NOT oTempNumber.HasFractionalPart()
-					bAgain _FALSE_
+					bAgain = _FALSE_
 				ok
 	
 				aTemp + oTempNumber.IntegerPart()

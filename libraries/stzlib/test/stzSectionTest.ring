@@ -7,7 +7,7 @@ load "../max/stzmax.ring"
 pron()
 
 ? IsSection(:From = :Start, :To = :End, 10)
-#--> TRUE
+#--> _TRUE_
 
 ? Section(:From = :Start, :To = :End, 10)
 #--> [ 1, 5 ]

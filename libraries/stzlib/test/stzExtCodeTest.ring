@@ -7,19 +7,19 @@ pron()
 Q([ 1, 2, "three", 4, "five" ]) {
 
 	? IsMadeOfNumbersOrStrings()
-	#--> TRUE
+	#--> _TRUE_
 
 	? IsMadeOfNumbersAndStrings()
-	#--> TRUE
+	#--> _TRUE_
 }
 
 Q([ 1, 2, 3, 4, 5 ]) {
 
 	? IsMadeOfNumbersOrStrings()
-	#--> TRUE
+	#--> _TRUE_
 
 	? IsMadeOfNumbersAndStrings()
-	#--> FALSE
+	#--> _FALSE_
 
 }
 
@@ -144,7 +144,7 @@ pron()
 
 	v(:persons).Show() + NL
 	#--> :ID    :NAME   :SCORE
-	#     NULL   NULL    NULL
+	#     _NULL_   _NULL_    _NULL_
 
 # SQL code to insert data into the table
 
@@ -446,8 +446,8 @@ pron()
 	#--> No
 
 	# b ~> boolean condition
-	# bf ~> false case
-	# bt ~> true case
+	# bf ~> _FALSE_ case
+	# bt ~> _TRUE_ case
 
 proff()
 # Executed in 0.01 second(s).
@@ -469,9 +469,9 @@ pron()
 
 o1 = new stzList([ 2, 4, 8 ])
 ? o1.EachItemIsA(:Number)
-#--> TRUE
+#--> _TRUE_
 ? o1.EachItemIsA([ :Positive, :Even, :Number ]) # ItemsAreEither, AllItemsAreEither...
-#--> TRUE
+#--> _TRUE_
 
 proff()
 # Executed in 0.05 second(s) in Ring 1.21
@@ -487,7 +487,7 @@ o1 = new stzString(:nation = "Niger")
 #--> stzstring
 
 ? ObjectIsNamed(o1)
-#--> TRUE
+#--> _TRUE_
 
 ? ObjectName(o1)
 #--> nation
@@ -497,7 +497,7 @@ o1 = new stzString(:nation = "Niger")
 o1 = new stzString("Niger")
 
 ? ObjectIsNamed(o1)
-#--> FALSE
+#--> _FALSE_
 
 ? ObjectName(o1)
 #--> @noname
@@ -633,25 +633,25 @@ o1 = new stzList([ "one", greeting, 12, greeting, Q("two"), hello, 10 , Q(10) ])
 
 ? o1.NamedObjects()
 #--> 
-#	@oobject: NULL
+#	@oobject: _NULL_
 #	@cvarname: greeting
 #	...
 #
-#	@oobject: NULL
+#	@oobject: _NULL_
 #	@cvarname: greeting
 #	...
 #
-#	@oobject: NULL
+#	@oobject: _NULL_
 #	@cvarname: hello
 #	...
 
 ? o1.UnamedObjects()
 #--> 
-#	@oobject: NULL
+#	@oobject: _NULL_
 #	@cvarname: greeting
 #	...
 #
-#	@oobject: NULL
+#	@oobject: _NULL_
 #	@cvarname: hello
 #	...
 
@@ -688,7 +688,7 @@ proff()
 pron()
 
 ? @@( Q("::2").SplitAt(":") )
-#--> [ NULL, NULL, "2" ]
+#--> [ _NULL_, _NULL_, "2" ]
 
 proff()
 # Executed in 0.01 second(s).
@@ -758,7 +758,7 @@ pron()
 	#--> []
 	
 	? range0Q([0, 3]) = range0(3)
-	#--> TRUE
+	#--> _TRUE_
 
 # range(n1, n2, step): n1 <= x < n2 (increasing by step)
 
@@ -777,12 +777,12 @@ pron()
 # range(start, stop, 1) is equivalent to range(start, stop)
 
 	? range0Q([ 3, 10, 1 ]) = range0([ 3, 10 ])
-	#--> TRUE
+	#--> _TRUE_
 
 # range(0, stop, 1) is equivalent to range(0, stop) and range(stop)
 
 	? range0Q([ 0, 10, 1 ]) = range0Q([ 0, 10 ]) = range0(10)
-	#--> TRUE
+	#--> _TRUE_
 
 proff()
 # Executed in 0.01 second(s).
@@ -1185,7 +1185,7 @@ Vr([ :name1, :name2, :name3 ]) '=' Vl([ "Hussein", "Haneen" ])
 #--> [ :say = null, :name1 = "Hussein", :name2 = "Haneen", :name3 = "" ])
 
 ? @@( v(:name3) )
-#--> NULL
+#--> _NULL_
 
 proff()
 # Executed in 0.02 second(s) in Ring 1.21
@@ -1239,9 +1239,9 @@ proff()
 pron()
 
 ? @@( tempval() )
-#--> NULL
+#--> _NULL_
 ? @@( oldval() )
-#--> NULL
+#--> _NULL_
 
 vr([ :name ]) '=' vl([ "mansour" ])
 
@@ -1274,14 +1274,14 @@ pron()
 
 # In Python we can use ternary operator like this:
 	'
-	something _TRUE_ // or false
+	something = _TRUE_ // or _FALSE_
 	value = "foo" if something else "bar"
 	'
 
 # As you might imagine, its equivalent in pure Ring is:
-	something _TRUE_ // or false
+	something = _TRUE_ // or _FALSE_
 	
-	if something _TRUE_
+	if something = _TRUE_
 		value = "foo"
 	else
 		value = "bar"
@@ -1292,14 +1292,14 @@ pron()
 # To to that, we just need to decorate the Python code with vr(), vl(),
 # _if() and _else() functions:
 
-bSomething _TRUE_
+bSomething = _TRUE_
 vr([ :value ]) '=' vl([ "foo" ]) _if(bSomething) _else([ "bar" ])
 ? v(:value)
 #--> foo
 
-# And if we turn bSomething to FALSE:
+# And if we turn bSomething to _FALSE_:
 #ERR #todo check it
-	bSomething _FALSE_
+	bSomething = _FALSE_
 	vr([ :value ]) '=' vl([ "foo" ]) _if(bSomething) _else([ "bar" ])
 	? v(:value)
 	#--> bar
@@ -1336,13 +1336,13 @@ proff()
 
 pron()
 
-bPositive _TRUE_
+bPositive = _TRUE_
 Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 ? @@( v([ :x, :y, :z ]) )
 #--> [ 1, 2, 3 ]
 
 #ERR #TODO check it
-	bPositive _FALSE_
+	bPositive = _FALSE_
 	Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 	? @@( v([ :x, :y, :z ]) )
 	#--> [ -1, -2, -3 ]
@@ -1355,7 +1355,7 @@ proff()
 
 	pron()
 	
-	bPositive _FALSE_
+	bPositive = _FALSE_
 	V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10 ])
 	
 	? v([:x, :y])
@@ -1367,7 +1367,7 @@ proff()
 
 	pron()
 	
-	bPositive _FALSE_
+	bPositive = _FALSE_
 	V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10, -20 ])
 	
 	? v([:x, :y])
@@ -1379,7 +1379,7 @@ proff()
 
 pron()
 
-bPositive _TRUE_
+bPositive = _TRUE_
 Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 ? @@( v([ :x, :y, :z ]) )
 #--> [ 1, 2, 3 ]

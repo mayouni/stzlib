@@ -78,7 +78,7 @@
 	- we can serialize the state of the object at a given time, or many times, in a string
 	or text file or binary file or database
 
-	- we can tell it to be instanciated only once using bIsSingleton _TRUE_
+	- we can tell it to be instanciated only once using bIsSingleton = _TRUE_
 
 	- we can define its job in the program by defining its type using cObjectJob
 
@@ -251,11 +251,11 @@ func IsPluralOfRingType(cPlural)
 	acRingTypesPlurals = RingTypesPlurals()
 	nLen = len(acRingTypesPlurals)
 
-	bResult _FALSE_
+	bResult = _FALSE_
 
 	for i = 1 to nLen
 		if acRingTypesPlurals[i] = cPlural
-			bResult _TRUE_
+			bResult = _TRUE_
 			exit
 		ok
 	next
@@ -618,12 +618,12 @@ func AreEqualObjects(paObjects)
 
 func AreNamedObjects(paObjects) 
 	if isList(paObjects) and IsListOfObjects(paObjects)
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		nLen = len(paObjects)
 		for i = 1 to nLen
 			if NOT IsNamedObject(paObjects[i])
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -1647,7 +1647,7 @@ class stzObject
 			StzRaise("Type error: you must provide an object or an object varname inside a string!")
 		ok
 
-		if KeepingHistory() _TRUE_
+		if KeepingHistory() = _TRUE_
 			@aHisto + This.Content()
 		ok
 
@@ -1991,11 +1991,11 @@ class stzObject
 		/* EXAMPLE
 
 		? Q("2").IsOneOfTheseTypes([ :Number, :String, :List ])
-		#--> TRUE
+		#--> _TRUE_
 
 		# can also be written use :Or = ...
 		? Q("2").IsOneOfTheseTypes([ :Number, :Or = :String, :Or = :List ])
-		#--> TRUE
+		#--> _TRUE_
 		*/
 
 		if NOT isList(paTypes)
@@ -2008,7 +2008,7 @@ class stzObject
 			ok
 		next
 
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		for cType in paTypes
 
@@ -2019,7 +2019,7 @@ class stzObject
 			ok
 
 			if (This.IsA(cType) or This.Is(cType))
-				bResult _TRUE_
+				bResult = _TRUE_
 				exit
 			ok
 		next
@@ -2040,11 +2040,11 @@ class stzObject
 			ok
 		next
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for cType in paTypes
 			if NOT (This.IsA(cType) or This.Is(cType))
-				bResult _FALSE_
+				bResult = _FALSE_
 				exit
 			ok
 		next
@@ -2128,13 +2128,13 @@ class stzObject
 			return _FALSE_
 		ok
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		for i = 1 to nLen
 			cCode = 'bResult = @is' + pacStr[i] + '(' + @@(this.Content()) + ')'
 
 			eval(cCode)
-			if bResult _FALSE_
+			if bResult = _FALSE_
 				exit
 			ok
 		next
@@ -2144,7 +2144,7 @@ class stzObject
 		#-- @fluentForm
 
 		def IsAXTQ(pcType)
-			if this.IsAXT(pcType) _TRUE_
+			if this.IsAXT(pcType) = _TRUE_
 
 				content = This.Content()
 		
@@ -2200,7 +2200,7 @@ class stzObject
 		/* Example
 
 		? Q([ :name = "mio", :age = 12 ]).IsA(:HashList)
-		--> TRUE
+		--> _TRUE_
 
 		? Q("ring").IsA([ :Lowercase, :Latin, :String ])
 
@@ -2220,7 +2220,7 @@ class stzObject
 				return This.IsAXTQ(pcType)
 			ok
 	
-			if This.IsA(pcType) _TRUE_
+			if This.IsA(pcType) = _TRUE_
 
 				if pcType = "number" or pcType = "stznumber"
 					return This.ToStzNumber()
@@ -2377,7 +2377,7 @@ class stzObject
 		return This.IsA(pcType)
 
 		def IsQ(pcType)
-			if This.Is(pcType) _TRUE_
+			if This.Is(pcType) = _TRUE_
 
 				if pcType = "number" or pcType = "stznumber" or
 				   pcType = "anumber" or pcType = "astznumber"
@@ -2423,7 +2423,7 @@ class stzObject
 
 		? Q([ 10, 20, 30 ]).Are(:Numbers)
 
-		--> TRUE
+		--> _TRUE_
 		*/
  
 		if NOT This.IsAList()
@@ -2441,7 +2441,7 @@ class stzObject
 		#< @FunctionAlternativeForms
 
 		def AreQ(pcType)
-			if This.Are(pcType) _TRUE_
+			if This.Are(pcType) = _TRUE_
 
 				if pcType = "numbers" or pcType = "stznumbers"
 					return This.ToStzListOfNumbers()
@@ -3599,16 +3599,16 @@ class stzObject
 			return This.OfCSQ(n, pCaseSensitive)
 
 	def Of(n)
-		return This.OfCS(n, TRUE)
+		return This.OfCS(n, _TRUE_)
 
 		def OfM(n)
-			return This.OfCSM(n, TRUE)
+			return This.OfCSM(n, _TRUE_)
 
 		def OfMM(n)
-			return This.OfCSMM(n, TRUE)
+			return This.OfCSMM(n, _TRUE_)
 
 		def OfQ(n)
-			return This.OfCSQ(n, TRUE)
+			return This.OfCSQ(n, _TRUE_)
 
 		def OfQM(n)
 			return MainObject()
@@ -3643,22 +3643,22 @@ class stzObject
 			return This.OfCS(n, pCaseSensitive)
 
 	def OfXT(n, cIgnored)
-		return This.OfCS(n, TRUE)
+		return This.OfCS(n, _TRUE_)
 
 		def OfXTM(n, cIgnored)
-			return This.OfCSM(n, TRUE)
+			return This.OfCSM(n, _TRUE_)
 
 		def OfXTMM(n, cIgnored)
-			return This.OfCSMM(n, TRUE)
+			return This.OfCSMM(n, _TRUE_)
 
 		def OfXTQ(n, cIgnored)
-			return This.OfCSQ(n, TRUE)
+			return This.OfCSQ(n, _TRUE_)
 
 		def OfXTQM(n, cIgnored)
-			return This.OfCSXTQM(n, TRUE)
+			return This.OfCSXTQM(n, _TRUE_)
 
 		def OfXTMQ(n, cIgnored)
-			return This.OfCSXTMQ(n, TRUE)
+			return This.OfCSXTMQ(n, _TRUE_)
 
 	#==
 
@@ -3682,7 +3682,7 @@ class stzObject
 			return This.OfCSB(n, pCaseSensitive)
 
 		def OfCSBQ(n, pCaseSensitive)
-			if This.OfCSB(n, pCaseSensitive) _TRUE_
+			if This.OfCSB(n, pCaseSensitive) = _TRUE_
 				return This
 			else
 				return AFalseObject()
@@ -3703,13 +3703,13 @@ class stzObject
 			return MainObject()
 
 		def OfMB(n)
-			return This.OfCSMB(n, TRUE)
+			return This.OfCSMB(n, _TRUE_)
 
 		def OfBQ(n)
-			return This.OfCSBQ(n, TRUE)
+			return This.OfCSBQ(n, _TRUE_)
 
 		def OfBQM(n)
-			return This.OfCSBQM(n, TRUE)
+			return This.OfCSBQM(n, _TRUE_)
 
 		def OfBQMM(n)
 			return MainObject()
@@ -3738,19 +3738,19 @@ class stzObject
 			return MainObject()
 
 	def OfXTBM(n)
-		return This.OfXTCSB(n, cIgnored, TRUE)
+		return This.OfXTCSB(n, cIgnored, _TRUE_)
 
 		def OfXTBMM(n)
 			return MainObject()
 
 		def OfXTMB(n)
-			return This.OfXTCSMB(n, TRUE)
+			return This.OfXTCSMB(n, _TRUE_)
 
 		def OfXTBQ(n)
-			return This.OfXTCSBQ(n, TRUE)
+			return This.OfXTCSBQ(n, _TRUE_)
 
 		def OfXTBQM(n)
-			return This.OfXTCSBQM(n, TRUE)
+			return This.OfXTCSBQM(n, _TRUE_)
 
 		def OfXTBQMM(n)
 			return MainObject()
@@ -4079,7 +4079,7 @@ class stzObject
 					:InAString, :InAList, :InAPair, :InAListOfNumbers, :InAListOfStrings,
 					:InAListOfLists, :InAListOfPairs, :InAGrid, :InATable, :InAStzTable
 
-				], :CS _FALSE_) )
+				], _FALSE_) )
 
 			StzRaise("Incorrect param! pIn must be a string representing one of" +
 				 "these Softanza types: :String, :List, :Pair, :ListOfNumbers, :ListOfStrings, " +
@@ -4314,13 +4314,12 @@ class stzObject
 			Trimmed()
 		
 		if NOT Q(cCode).StartsWithOneOfTheseCS([
-			"@number =", "@number +=", "@number=", "@number+=" ],
-			:CaseSensitive _FALSE_ )
+			"@number =", "@number +=", "@number=", "@number+=" ], _FALSE_ )
 
 			StzRaise("Syntax error! pcCode must start with '@number =' or '@number +='.")
 		ok
 
-		if Q(cCode).StartsWithEitherCS( "@number=", :Or = "@number =", :CS _FALSE_ )
+		if Q(cCode).StartsWithEitherCS( "@number=", :Or = "@number =", _FALSE_ )
 			# EXAMPLE
 			# ? Q([ "a", "b", "c" ]).ToNumberW('{ @number = len(@list) }')
 			#--> 3
@@ -4462,7 +4461,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstNOccurrences(n, pStrOrItem)
-		return This.FindFirstNOccurrencesCS(n, pStrOrItem, TRUE)
+		return This.FindFirstNOccurrencesCS(n, pStrOrItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -4572,7 +4571,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstNOccurrencesST(n, pcStr, pnStartingAt)
-		return This.FindFirstNOccurrencesSTCS(n, pcStr, pnStartingAt, TRUE)
+		return This.FindFirstNOccurrencesSTCS(n, pcStr, pnStartingAt, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -4664,7 +4663,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastNOccurrences(n, pStrOrItem)
-		return This.FindLastNOccurrencesCS(n, pStrOrItem, TRUE)
+		return This.FindLastNOccurrencesCS(n, pStrOrItem, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -4772,7 +4771,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastNOccurrencesST(n, pcStr, pnStartingAt)
-		return This.FindLastNOccurrencesSTCS(n, pcStr, pnStartingAt, TRUE)
+		return This.FindLastNOccurrencesSTCS(n, pcStr, pnStartingAt, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -4915,8 +4914,8 @@ class stzObject
 
 		#TODO // Add other Stz types
 
-		bOfType1 _FALSE_
-		bOfType2 _FALSE_
+		bOfType1 = _FALSE_
+		bOfType2 = _FALSE_
 
 		if pcType1 = :String or pcType1 = :AString
 			bOfTyep1 = This.IsStzString()
@@ -4984,13 +4983,13 @@ class stzObject
 
 		o1 = new stzString("ONE")
 
-		? o1.Occurs( :Before = "TWO", :In = "***ONE***TWO***")	#--> TRUE
-		? o1.Occurs( :After = "TWO", :In = "***ONE***TWO***")	#--> FALSE
+		? o1.Occurs( :Before = "TWO", :In = "***ONE***TWO***")	#--> _TRUE_
+		? o1.Occurs( :After = "TWO", :In = "***ONE***TWO***")	#--> _FALSE_
 
 		? o1.Occurs( :Before = "two", :In = [ "***", "ONE", "***", "TWO", "***" ])
-		#--> TRUE
+		#--> _TRUE_
 		? o1.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***" ])
-		#--> FALSE
+		#--> _FALSE_
 
 		*/
 		cBeforeOrAfter = ""
@@ -5025,7 +5024,7 @@ class stzObject
 				nOther = oListStr.FindFirstCS( pcBeforeOrAfter, bCaseSensitive )
 			else
 
-				if bCaseSensitive _TRUE_
+				if bCaseSensitive = _TRUE_
 					oList = new stzList(pIn)
 	
 					nThis  = oList.FindFirst( This.Content() )
@@ -5043,7 +5042,7 @@ class stzObject
 
 		ok
 
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		if cTemp = :After
 			bResult = nThis > nOther
@@ -5075,7 +5074,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVTY
 
 	def Occurs(pcBeforeOrAfter, pIn)
-		return This.OccursCS(pcBeforeOrAfter, pIn, TRUE)
+		return This.OccursCS(pcBeforeOrAfter, pIn, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
@@ -5105,7 +5104,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVTY
 
 	def OccursBefore(pcSubStr, pIn)
-		return This.OccursBeforeCS( pcSubStr, pIn, TRUE )
+		return This.OccursBeforeCS( pcSubStr, pIn, _TRUE_ )
 
 	   #----------------------------------------------#
 	  #   CHECKING IF OBJECT OCCURES َAFTER A GIVEN   #
@@ -5118,7 +5117,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVTY
 
 	def OccursAfter(pcSubStr, pIn)
-		return This.OccursAfterCS( pcSubStr, pIn, TRUE )
+		return This.OccursAfterCS( pcSubStr, pIn, _TRUE_ )
 
 	   #---------------------------------------------------------#
 	  #   CHECKING IF OBJECT OCCURES BETWEEN TWO GIVEN VALUES   #
@@ -5138,7 +5137,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVTY
 
 	def OccursBetween( pValue1, pValue2, pIn )
-		return This.OccursBetweenCS( pValue1, pValue2, pIn, TRUE )
+		return This.OccursBetweenCS( pValue1, pValue2, pIn, _TRUE_ )
 
 	  #-------------------------------------------------------------------#
 	 #   CHECKING IF OBJECT OCCURES N TIMES IN AN OTHER STRING OR LIST   #
@@ -5168,7 +5167,7 @@ class stzObject
 				nOccurrence  = oListStr.NumberOfOccurrenceCS( This.Content(), bCaseSensitive )
 
 			else
-				if bCaseSensitive _TRUE_
+				if bCaseSensitive = _TRUE_
 					oList = new stzList(pIn)
 					nOccurrence  = oList.NumberOfOccurrence( This.Content() )
 		
@@ -5184,10 +5183,10 @@ class stzObject
 
 		ok
 
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		if nOccurrence = n
-			bResult _TRUE_
+			bResult = _TRUE_
 		ok
 
 		return bResult
@@ -5195,7 +5194,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def OccursNTimes( n, pIn )
-		return This.OccursNTimesCS( n, pIn, TRUE )
+		return This.OccursNTimesCS( n, pIn, _TRUE_ )
 
 	   #----------------------------------------------------#
 	  #  CHECKING IF STRING OCCURS FOR THE NTH TIME,       #
@@ -5206,10 +5205,10 @@ class stzObject
 		/* EXAMPLE
 
 		? Q("*").OccursForTheNthTime( 1, :In = "a*b*c*d", :AtPosition = 2 )
-		#--> TRUE
+		#--> _TRUE_
 
 		? Q("*").OccursForTheNthTime( 3, :In = "a*b*c*d", :AtPosition = 6 )
-		#--> TRUE
+		#--> _TRUE_
 
 		*/
 
@@ -5243,7 +5242,7 @@ class stzObject
 				nNthOccurrence  = oListStr.NthOccurrenceCS( n, This.String(), bCaseSensitive )
 
 			else
-				if bCaseSensitive _TRUE_
+				if bCaseSensitive = _TRUE_
 					oList = new stzList(pIn)
 					nNthOccurrence  = oList.NthOccurrence( n, This.String() )
 		
@@ -5276,7 +5275,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def OccursForTheNthTime(n, pIn, pnAt)
-		return This.OccursForTheNthTimeCS(n, pIn, pnAt, TRUE)
+		return This.OccursForTheNthTimeCS(n, pIn, pnAt, _TRUE_)
 
 		#< @FunctionAlternativeForm
 
@@ -5299,7 +5298,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def OccursForTheFirstTime(pIn, pnAt)
-		return This.OccursForTheFirstTimeCS(pIn, pnAt, TRUE)
+		return This.OccursForTheFirstTimeCS(pIn, pnAt, _TRUE_)
 
 		def OccursForTheFirstTimeAt(pIn, pnAt)
 			return This.OccursForTheFirstTime(pIn, pnAt)
@@ -5326,7 +5325,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def OccursForTheLastTime(pIn, pnAt)
-		return This.OccursForTheLastTimeCS(pIn, pnAt, TRUE)
+		return This.OccursForTheLastTimeCS(pIn, pnAt, _TRUE_)
 
 		def OccursForTheLastTimeAt(pIn, pnAt)
 			return This.OccursForTheLastTime(pIn, pnAt)

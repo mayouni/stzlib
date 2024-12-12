@@ -67,7 +67,7 @@ _aLocaleScriptsXT = [
 	[ "40" , 	:Bopomofo, 		"Bopo", 		:literary_chinese 		], # or maybe :mandarin_chinese ?
 	[ "41" , 	:Brahmi, 		"Brah", 		:sanskrit 			],
 	[ "42" , 	:Buginese, 		"Bugi", 		:buginese 			],
-	[ "43" , 	:Buhid , 		"Buhd", 		NULL 				], # ! note that the default language here is :buhid
+	[ "43" , 	:Buhid , 		"Buhd", 		_NULL_ 				], # ! note that the default language here is :buhid
 					 							  	   # but we didn't include it because Qt unicode
 					  							  	   # don't support it
 	[ "44" , 	:Canadian_Aboriginal, 	"Cans", 		:cree 				], # or :inuktitut or :cree or :ojibwa

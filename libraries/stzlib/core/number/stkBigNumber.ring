@@ -53,7 +53,7 @@ class stkBigNumber
 	@cFracPart
 	@nPrecision
 
-	@bSpacify _FALSE_
+	@bSpacify = _FALSE_
 	@nSpace = 3
 	@cSpace = "_"
 
@@ -63,10 +63,10 @@ class stkBigNumber
 
     	def init(cValue)
 
-		bSpacify _FALSE_
+		bSpacify = _FALSE_
 
 		if ring_substr1(cValue, "_") > 0
-			bSpacify _TRUE_
+			bSpacify = _TRUE_
 		ok
 
 		This.Update(cValue, bSpacify)
@@ -83,7 +83,7 @@ class stkBigNumber
 
 	func Update(cNumberInStr, bSpacify)
 
-		@bNegative _FALSE_
+		@bNegative = _FALSE_
 
 		# The object is set using a string
 
@@ -98,7 +98,7 @@ class stkBigNumber
 		# If the new number is spacified then store that info and unspaicify it
 
 		if ring_substr1(cNumberInStr, "_") > 0
-			@bSpacify _TRUE_
+			@bSpacify = _TRUE_
 			cNumberInStr = ring_substr2(cNumberInStr, "_", "")
 		ok
 
@@ -111,7 +111,7 @@ class stkBigNumber
 		# If the new number is negative, then remove the negative sign
 
 		if left(cNumberInStr, 1) = "-"
-			@bNegative _TRUE_
+			@bNegative = _TRUE_
 	       		cNumberInStr = ring_substr2(cNumberInStr, "-", "")
 	        ok
 
@@ -170,7 +170,7 @@ class stkBigNumber
 	def IntPart()
 		cResult = ""
 
-		if @bSpacify _TRUE_
+		if @bSpacify = _TRUE_
 			cResult += This.IntPartSpacified()
 		else
 			cResult += @cIntPart
@@ -550,10 +550,10 @@ class stkBigNumber
 	#==========================================#
 
 	def Spacify()
-		@bSpacify _TRUE_
+		@bSpacify = _TRUE_
 
 	def Unspacify()
-		@bSpacify _FALSE_
+		@bSpacify = _FALSE_
 
 	def IntPartSpacified()
 		
@@ -623,9 +623,9 @@ class stkBigNumber
 
 		# Checking spacification
 
-		bSpace _FALSE_
+		bSpace = _FALSE_
 		if @bSpacify or ring_substr1(cOtherNumber, "_") > 0
-			bSpace _TRUE_
+			bSpace = _TRUE_
 			cOtherNumber = ring_substr2(cOtherNumber, "_", "")
 		ok
 
@@ -663,9 +663,9 @@ class stkBigNumber
 		cInt2  = cOtherNumber
 		cFrac2 = ""
 
-		bHasFrac _FALSE_
+		bHasFrac = _FALSE_
 		if nDot2 > 0
-			bHasFrac _TRUE_
+			bHasFrac = _TRUE_
 			cInt2  = left(cOtherNumber, nDot2 - 1)
 			cFrac2 = right(cOtherNumber, nLenOtherNumber - nDot2)
 			cFrac2 = ring_substr2(cFrac2, ".", "") # to be safe
@@ -905,9 +905,9 @@ pvtAddOne(cNumber) # Must ba an int
 
 		str = trim(str)
 
-		bNegative _FALSE_
+		bNegative = _FALSE_
 		if left(str, 1) = "-"
-			bNegative _TRUE_
+			bNegative = _TRUE_
 		ok
 
 		cResult = ""
@@ -1132,7 +1132,7 @@ pvtAddOne(cNumber) # Must ba an int
 
     	def pvtTrimLeadingZeros(s)
 
-	        while TRUE
+	        while _TRUE_
 
 			if NOT (left(s, 1) = "0" and len(s) > 1)
 				exit
@@ -1147,7 +1147,7 @@ pvtAddOne(cNumber) # Must ba an int
 
 	def pvtTrimTrailingZeros(s)
 	
-		while TRUE
+		while _TRUE_
 
 			nLen = len(s)
 

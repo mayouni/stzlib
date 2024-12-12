@@ -22,7 +22,7 @@ ok
 
 /*----------------- ok
 
-# All these are FALSE:
+# All these are _FALSE_:
 
 ? _(1234).IsA(:String).Which(:IsEven)._
 ? _("ring").IsA(:Number).Which(:IsUppercase)._
@@ -40,7 +40,7 @@ ok
 
 /*----------------- ok
 */
-# This returns FALSE:
+# This returns _FALSE_:
 /*
 ? _(1854).IsA(:String).Containing('in')._
 
@@ -53,12 +53,12 @@ ok
 
 /*------------------- ok!
 
-? _([]).IsA(:List)._	#--> TRUE
-? _(12).IsA(:Number)._	#--> TRUE
+? _([]).IsA(:List)._	#--> _TRUE_
+? _(12).IsA(:Number)._	#--> _TRUE_
 
-? _("g").IsA(:Letter)._	#--> TRUE
-? _([ :name = "mio", :age = 12 ]).IsA(:HashList)._	#--> TRUE
-? _([ "Tunis", "Cairo", "Prag" ]).IsA(:ListOfStrings)._	#--> TRUE
+? _("g").IsA(:Letter)._	#--> _TRUE_
+? _([ :name = "mio", :age = 12 ]).IsA(:HashList)._	#--> _TRUE_
+? _([ "Tunis", "Cairo", "Prag" ]).IsA(:ListOfStrings)._	#--> _TRUE_
 
 o1 = new person { name = "ali" }
 ? _(:o1).IsAn(:Object)._ #--> ERRO: should return _TRUE_
@@ -99,7 +99,7 @@ class Person
 
 /*----------------- ok
 
-? _("ring").Is(:Lowercase).Is(:Even)._ #--> FALSE
+? _("ring").Is(:Lowercase).Is(:Even)._ #--> _FALSE_
 
 /*-----------------
 
@@ -120,9 +120,9 @@ class Person
 
 /*----------------- ERROR
 
-? _("ring").IsNotA(:String)._	#--> FALSE
-? _("ring").IsNotA(:String).Which('Contains("x")')._	#--> TRUE
-? _("ring").IsNotA(:String).Which('Contains("i")')._	#--> FALSE
+? _("ring").IsNotA(:String)._	#--> _FALSE_
+? _("ring").IsNotA(:String).Which('Contains("x")')._	#--> _TRUE_
+? _("ring").IsNotA(:String).Which('Contains("i")')._	#--> _FALSE_
 
 /*----------------- ERROR
 
@@ -156,8 +156,8 @@ class Person
 
 /*-----------------
 
-? _([]).IsNotA(:String)._	#--> FALSE
-? _([]).IsNot(:AString)._	#--> FALSE
+? _([]).IsNotA(:String)._	#--> _FALSE_
+? _([]).IsNot(:AString)._	#--> _FALSE_
 
 /*-----------------
 

@@ -17,7 +17,7 @@
 
 	The string must must contain a number in decimal form.
 
-	If the string is NULL then the number is "0".
+	If the string is _NULL_ then the number is "0".
 
 	Of course, the number must be calculable precisely by Ring 
 	(read NOTE hereafter).
@@ -1116,7 +1116,7 @@ func GetMicroStructure(pNumber)
 
 func ZeroIfEmpty(pcStr)
 	if isEmpty(pcStr)
-		return NULL
+		return _NULL_
 	ok
 
 func Derivative(pFunction)
@@ -1463,7 +1463,7 @@ class stzNumber from stzObject
 			ok
 
 			# Case where the string provided is empty
-			if pNumber = NULL
+			if pNumber = _NULL_
 				@cContent = "0"
 				@nRound = StzCurrentRound()
 
@@ -1673,7 +1673,7 @@ class stzNumber from stzObject
 	#-------------------------#
 
 	def Update(pNumber)
-		if CheckingParams() _TRUE_
+		if CheckingParams() = _TRUE_
 
 			if isList(pNumber) and Q(pNumber).IsWithOrByOrUsingNamedParam()
 				pNumber = pNumber[2]
@@ -1706,7 +1706,7 @@ class stzNumber from stzObject
 			@nRound = StzCurrentRound()
 		ok
 
-		if KeepingHisto() _TRUE_
+		if KeepingHisto() = _TRUE_
 			This.AddHistoricValue(This.Value())  # From the parent stzObject
 		ok
 
@@ -2255,7 +2255,7 @@ class stzNumber from stzObject
 		ok
 		
 	  #----------------------------------#
-	 #    NULL, POSITIVE OR NEGATIVE    #
+	 #    _NULL_, POSITIVE OR NEGATIVE    #
 	#----------------------------------#
 
 	def IsZero()
@@ -2332,7 +2332,7 @@ class stzNumber from stzObject
 		return cResult
 
 	def IsSigned()
-		if This.Sign() != NULL
+		if This.Sign() != _NULL_
 			return _TRUE_
 		else
 			return _FALSE_
@@ -2342,7 +2342,7 @@ class stzNumber from stzObject
 			return NOT IsSigned()
 
 	def IsUnsigned()
-		if This.IsSigned() _TRUE_
+		if This.IsSigned() = _TRUE_
 			return _FALSE_
 		else
 			return _TRUE_
@@ -2662,10 +2662,10 @@ class stzNumber from stzObject
 
 		n = This.NumericValue()
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		if NOT ( n1 < n and n < n2 )
-			bResult  _FALSE_
+			bResult  = _FALSE_
 		ok
 
 		return bResult
@@ -2687,10 +2687,10 @@ class stzNumber from stzObject
 
 		n = This.NumericValue()
 
-		bResult _TRUE_
+		bResult = _TRUE_
 
 		if NOT ( n1 <= n and n <= n2 )
-			bResult  _FALSE_
+			bResult  = _FALSE_
 		ok
 
 		return bResult
@@ -2809,7 +2809,7 @@ class stzNumber from stzObject
 				return This.IntegerPartWithoutSignQ()
 
 	def NumberOfDigitsInIntegerPart()
-		if This.Sign() = NULL
+		if This.Sign() = _NULL_
 			return len(This.IntegerPart())
 		else
 			return len(This.IntegerPart()) - 1
@@ -3229,10 +3229,10 @@ class stzNumber from stzObject
 	#---
 
 	def RoundUp()
-		return This.pvtCalculate( "floor", NULL )
+		return This.pvtCalculate( "floor", _NULL_ )
 
 	def RoundDown()
-		return This.pvtCalculate( "ceil", NULL )
+		return This.pvtCalculate( "ceil", _NULL_ )
 			
 	def RoundToSameRoundAs(pOtherNumber)
 		oOtherNumber = new stzNumber(pOtherNumber)
@@ -3312,7 +3312,7 @@ class stzNumber from stzObject
 		#>
 
 	def AddMany(paOtherNumbers)
-		This.AddManyXT(paOtherNumbers, :ReturnIntermediateResults _FALSE_)
+		This.AddManyXT(paOtherNumbers, :ReturnIntermediateResults = _FALSE_)
 
 		#< @FunctionFluentForm
 
@@ -3351,7 +3351,7 @@ class stzNumber from stzObject
 		#>
 	
 	def AddManyWithIntermediateResults(paOtherNumbers)
-		return This.AddManyXT(paOtherNumbers, :ReturnIntermediateResults _TRUE_)
+		return This.AddManyXT(paOtherNumbers, :ReturnIntermediateResults = _TRUE_)
 
 		#< @FunctionFluentForm
 
@@ -3378,12 +3378,12 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		bReturnIntermediateResults _FALSE_
+		bReturnIntermediateResults = _FALSE_
 
 		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
-		   paReturnIntermediateResults[2] _TRUE_
+		   paReturnIntermediateResults[2] = _TRUE_
 
-			bReturnIntermediateResults _TRUE_
+			bReturnIntermediateResults = _TRUE_
 		ok
 
 		nLen = len(paOtherNumbers)
@@ -3484,7 +3484,7 @@ class stzNumber from stzObject
 	def SubStructMany(paOtherNumbers)
 		#TODO // Add "These" as alternative of "Many"
 
-		This.SubStructManyXT(paOtherNumbers, :ReturnIntermediateResults _FALSE_)
+		This.SubStructManyXT(paOtherNumbers, :ReturnIntermediateResults = _FALSE_)
 
 		#< @FunctionFluentForm
 
@@ -3536,11 +3536,11 @@ class stzNumber from stzObject
 			ok
 		ok
 	
-		bReturnIntermediateResults _FALSE_
+		bReturnIntermediateResults = _FALSE_
 		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
-		   paReturnIntermediateResults[2] _TRUE_
+		   paReturnIntermediateResults[2] = _TRUE_
 
-			bReturnIntermediateResults _TRUE_
+			bReturnIntermediateResults = _TRUE_
 		ok
 	
 		nLen = len(paOtherNumbers)
@@ -3558,7 +3558,7 @@ class stzNumber from stzObject
 		#< @FunctionFluentForm
 
 		def SubStructManyXTQ(paOtherNumbers, paReturnIntermediateResults)
-			if paReturnIntermediateResults[1] _FALSE_
+			if paReturnIntermediateResults[1] = _FALSE_
 				This.SubStructManyXT(paOtherNumbers, paReturnIntermediateResults)
 				return This
 
@@ -3637,7 +3637,7 @@ class stzNumber from stzObject
 	def MultiplyByMany(paOtherNumbers)
 		#TODO // Add "These" as alternative of "Many"
 
-		This.MultiplyByManyXT(paOtherNumbers, :ReturnIntermediateResults _FALSE_)
+		This.MultiplyByManyXT(paOtherNumbers, :ReturnIntermediateResults = _FALSE_)
 
 		#< @FunctionFluentForm
 
@@ -3662,12 +3662,12 @@ class stzNumber from stzObject
 
 		aIntermediateResults = []
 	
-		bReturnIntermediateResults _FALSE_
+		bReturnIntermediateResults = _FALSE_
 	
 		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
-		   paReturnIntermediateResults[2] _TRUE_
+		   paReturnIntermediateResults[2] = _TRUE_
 	
-			bReturnIntermediateResults _TRUE_
+			bReturnIntermediateResults = _TRUE_
 		ok
 	
 		nLen = len(paOtherNumbers)
@@ -3735,7 +3735,7 @@ class stzNumber from stzObject
 	def DivideByMany(paOtherNumbers)
 		#TODO // Add "These" as alternative of "Many"
 
-		This.DivideByManyXT(paOtherNumbers, :ReturnIntermediateResults _FALSE_)
+		This.DivideByManyXT(paOtherNumbers, :ReturnIntermediateResults = _FALSE_)
 
 		#< @FunctionFluentForm
 
@@ -3760,12 +3760,12 @@ class stzNumber from stzObject
 
 		aIntermediateResults = []
 	
-		bReturnIntermediateResults _FALSE_
+		bReturnIntermediateResults = _FALSE_
 	
 		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
-		   paReturnIntermediateResults[2] _TRUE_
+		   paReturnIntermediateResults[2] = _TRUE_
 	
-			bReturnIntermediateResults _TRUE_
+			bReturnIntermediateResults = _TRUE_
 		ok
 	
 		nLen = len(paOtherNumbers)
@@ -3803,7 +3803,7 @@ class stzNumber from stzObject
 	# SINE
 
 	def Sine()
-		return This.pvtCalculate( "sin", NULL )
+		return This.pvtCalculate( "sin", _NULL_ )
 
 		def SineQ()
 			return new stzNumber(This.Sine())
@@ -3811,7 +3811,7 @@ class stzNumber from stzObject
 	# COSINE
 
 	def Cosine()
-		return This.pvtCalculate( "cos", NULL )
+		return This.pvtCalculate( "cos", _NULL_ )
 
 		def CosineQ()
 			return new stzNumber(This.Cosine())
@@ -3819,7 +3819,7 @@ class stzNumber from stzObject
 	# TANGENT
 
 	def Tangent()
-		return This.pvtCalculate( "tan", NULL )
+		return This.pvtCalculate( "tan", _NULL_ )
 		
 		def TangentQ()
 			return new stzNumber(This.Tangent())
@@ -3827,7 +3827,7 @@ class stzNumber from stzObject
 	# COTANGENT
 
 	def Cotangent()
-		return This.pvtCalculate( "cotan", NULL )
+		return This.pvtCalculate( "cotan", _NULL_ )
 
 		def CotangentQ()
 			return new stzNumber(This.Cotangent())
@@ -3835,7 +3835,7 @@ class stzNumber from stzObject
 	# ARCSINE
 
 	def ArcSine()
-		return This.pvtCalculate( "asin", NULL )
+		return This.pvtCalculate( "asin", _NULL_ )
 	
 		def ArcSineQ()
 			return new stzNumber(This.ArcSine())
@@ -3843,7 +3843,7 @@ class stzNumber from stzObject
 	# ARCCOSINE
 
 	def ArcCosine()
-		return This.pvtCalculate( "acos", NULL )
+		return This.pvtCalculate( "acos", _NULL_ )
 
 		def ArcCosineQ()
 			return new stzNumber(This.ArcCosine())
@@ -3851,7 +3851,7 @@ class stzNumber from stzObject
 	# ARCTANGENT
 
 	def ArcTangent()
-		return This.pvtCalculate( "atan", NULL )
+		return This.pvtCalculate( "atan", _NULL_ )
 
 		def ArcTangentQ()
 			return new stzNumber(This.ArcTangent())
@@ -3859,7 +3859,7 @@ class stzNumber from stzObject
 	# ARCTANGENT2
 
 	def ArcTangent2()
-		return This.pvtCalculate( "atan2", NULL )
+		return This.pvtCalculate( "atan2", _NULL_ )
 
 		def ArcTangent2Q()
 			return new stzNumber(This.ArcTangent2())
@@ -3867,7 +3867,7 @@ class stzNumber from stzObject
 	# SINH
 
 	def HyperbolicSine()
-		return This.pvtCalculate( "sinh", NULL )
+		return This.pvtCalculate( "sinh", _NULL_ )
 
 		def HyperbolicSineQ()
 			return new stzNumber(This.HyperbolicSine())
@@ -3875,7 +3875,7 @@ class stzNumber from stzObject
 	# COSH
 
 	def HyperbolicCosine()
-		return This.pvtCalculate( "cosh", NULL )
+		return This.pvtCalculate( "cosh", _NULL_ )
 
 		def HyperbolicCosineQ()
 			return new stzNumber(This.HyperbolicCosine())
@@ -3883,7 +3883,7 @@ class stzNumber from stzObject
 	# TANH
 
 	def HyperbolicTangent()
-		return This.pvtCalculate( "tanh", NULL )
+		return This.pvtCalculate( "tanh", _NULL_ )
 
 		def HyperbolicTangentQ()
 				return new stzNumber(This.HyperbolicTangent())
@@ -3891,7 +3891,7 @@ class stzNumber from stzObject
 	# EXP
 
 	def Exponential()
-		return This.pvtCalculate( "exp", NULL )
+		return This.pvtCalculate( "exp", _NULL_ )
 
 		def ExponentialQ()
 			return new stzNumber(This.Exponential())
@@ -3899,7 +3899,7 @@ class stzNumber from stzObject
 	# LOG
 
 	def NaturalLogarithm()
-		return This.pvtCalculate( "log", NULL )
+		return This.pvtCalculate( "log", _NULL_ )
 
 		def NaturalLogarithmQ()
 			return new stzNumber(This.NaturalLogarithmQ())
@@ -3907,7 +3907,7 @@ class stzNumber from stzObject
 	# LOG10
 
 	def CommonLogarithm()
-		return This.pvtCalculate( "log10", NULL )
+		return This.pvtCalculate( "log10", _NULL_ )
 
 		def CommonLogarithmQ()
 			return new stzNumber(This.CommonLogarithm())
@@ -3943,7 +3943,7 @@ class stzNumber from stzObject
 	# SQRT
 
 	def SquareRoot()
-		return This.pvtCalculate( "sqrt", NULL )
+		return This.pvtCalculate( "sqrt", _NULL_ )
 
 		def SquareRootQ()
 			return new stzNumber(This.SquareRoot())
@@ -3951,7 +3951,7 @@ class stzNumber from stzObject
 	# FACT
 
 	def Factorial()
-		return This.pvtCalculate( "fact", NULL )
+		return This.pvtCalculate( "fact", _NULL_ )
 
 		def FactorialQ()
 				return new stzNumber(This.Factorial())
@@ -3964,7 +3964,7 @@ class stzNumber from stzObject
 	# SIGMOID
 
 	def Sigmoid()
-		return This.pvtCalculate( "sigmoid", NULL )
+		return This.pvtCalculate( "sigmoid", _NULL_ )
 
 		def SigmoidQ()
 			return new stzNumber(This.Sigmoid())
@@ -3980,7 +3980,7 @@ class stzNumber from stzObject
 	# DERIVATIVE SIGMOID
 
 	def DerivativeSigmoid()
-		return This.pvtCalculate( "DerivativeSigmoid", NULL )
+		return This.pvtCalculate( "DerivativeSigmoid", _NULL_ )
 
 		def DerivativeSigmoidQ()
 			return new stzNumber(This.DerivativeSigmoid())
@@ -4025,7 +4025,7 @@ class stzNumber from stzObject
 	# INVERSE
 
 	def Inverse()
-		return This.pvtCalculate( "inverse", NULL )
+		return This.pvtCalculate( "inverse", _NULL_ )
 
 		def InverseQ()
 			return new stzNumber(This.Inverse())
@@ -4278,13 +4278,13 @@ class stzNumber from stzObject
 
 		# Doing the job under that round
 
-		bInteger _FALSE_
+		bInteger = _FALSE_
 		if This.IsInteger() and Q(pOtherNumber).IsInteger()
-			bInteger _TRUE_
+			bInteger = _TRUE_
 		ok
 
 		aResult = []
-		bContinue _TRUE_
+		bContinue = _TRUE_
 		i = 0
 		while bContinue
 			i++
@@ -4296,7 +4296,7 @@ class stzNumber from stzObject
 			if n <= nOtherNumber
 				aResult + n
 			else
-				bContinue _FALSE_
+				bContinue = _FALSE_
 			ok
 		end
 
@@ -4398,10 +4398,10 @@ class stzNumber from stzObject
 		n = StzNumberQ(n).NumericValue()
 
 		oTempList = new stzList( This.Factors() )
-		bResult _FALSE_
+		bResult = _FALSE_
 
 		if oTempList.Contains(n)
-			bResult _TRUE_
+			bResult = _TRUE_
 		ok
 
 		# Resetting the current round
@@ -4534,9 +4534,9 @@ class stzNumber from stzObject
 		cOctal = ""
 		n = This.IntegerPartValue()
 
-		bAgain _TRUE_
+		bAgain = _TRUE_
 		while bAgain
-			if floor(n / 8) = 0 bAgain _FALSE_ ok
+			if floor(n / 8) = 0 bAgain = _FALSE_ ok
 			aTemp + (n % 8)
 			
 			n = floor(n/8)
@@ -5358,27 +5358,27 @@ class stzNumber from stzObject
 		# Setting default configs
 
 			# Precision
-			bRestrictFractionalPart _FALSE_
+			bRestrictFractionalPart = _FALSE_
 			nNumberOfDigitsInFractionalPart = 0
-			bRoundItWhenRestricted _FALSE_
+			bRoundItWhenRestricted = _FALSE_
 			
 			# Round
-			bApplyRound _FALSE_
+			bApplyRound = _FALSE_
 			nRoundTo = 0
 			
 			# Alignment
-			bApplyAlignment _FALSE_
+			bApplyAlignment = _FALSE_
 
 			nWidth = 0
 			cFillBlanksWith = " "
 			
 			cAlignTo = :Left
-			bFixPrefixToLeft _FALSE_
-			bFixSuffixToRight _FALSE_
+			bFixPrefixToLeft = _FALSE_
+			bFixSuffixToRight = _FALSE_
 				
 			# Sign
-			bShowSign _TRUE_
-			bPutNegativeBetweenParentheses _FALSE_
+			bShowSign = _TRUE_
+			bPutNegativeBetweenParentheses = _FALSE_
 			
 			# Prefix, separators, and suffix
 			cPrefix = ""
@@ -5387,53 +5387,53 @@ class stzNumber from stzObject
 
 			cFractionalSeparator = ","
 			
-			cSuffix = NULL
+			cSuffix = _NULL_
 			
 			# Conversion
-			bToPercentage _FALSE_
-			bToScientificNotation _FALSE_
+			bToPercentage = _FALSE_
+			bToScientificNotation = _FALSE_
 			
-			bToHex _FALSE_
-			bToBinary _FALSE_
-			bToOctal _FALSE_
+			bToHex = _FALSE_
+			bToBinary = _FALSE_
+			bToOctal = _FALSE_
 			nToBase = 10
 			
-			bToIndian _FALSE_
-			bToRoman _FALSE_
+			bToIndian = _FALSE_
+			bToRoman = _FALSE_
 
 		# Reading provided configs
 
 			# Precision
 
-			if paFormat[ :RestrictFractionalPart ] != NULL
+			if paFormat[ :RestrictFractionalPart ] != _NULL_
 				bRestrictFractionalPart = paFormat[ :RestrictFractionalPart ]
 			ok
 
-			if paFormat[ :NumberOfDigitsInFractionalPart ] != NULL
+			if paFormat[ :NumberOfDigitsInFractionalPart ] != _NULL_
 				nNumberOfDigitsInFractionalPart = paFormat[ :NumberOfDigitsInFractionalPart ]
 			ok
 
-			if paFormat[ :RoundItWhenRestricted ] != NULL
+			if paFormat[ :RoundItWhenRestricted ] != _NULL_
 				bRoundItWhenRestricted = paFormat[ :RoundItWhenRestricted ]
 			ok
 		
 			# Round
 
-			if paFormat[ :ApplyRound ] != NULL
+			if paFormat[ :ApplyRound ] != _NULL_
 				bApplyRound = paFormat[ :ApplyRound ]
 			ok
 
-			if paFormat[ :RoundTo ] != NULL
+			if paFormat[ :RoundTo ] != _NULL_
 				nRoundTo = paFormat[ :RoundTo ]
 			ok
 			
 			# Alignment
 				
-			if paFormat[ :ApplyAlignment ] != NULL
+			if paFormat[ :ApplyAlignment ] != _NULL_
 				bApplyAlignment = paFormat[ :ApplyAlignment ]
 			ok
 
-			if paFormat[ :Width ] != NULL
+			if paFormat[ :Width ] != _NULL_
 				nWidth = paFormat[ :Width ]
 			ok
 
@@ -5523,7 +5523,7 @@ class stzNumber from stzObject
 
 		# Managing precision by computing the fractional part
 
-		if bRestrictFractionalPart _FALSE_
+		if bRestrictFractionalPart = _FALSE_
 			cFractionalPart = This.FractionalPartWithoutDotZero()
 		else
 			cCurrentFractionalPart = This.FractionalPartWithoutDotZero()
@@ -5533,7 +5533,7 @@ class stzNumber from stzObject
 				cFractionalPart += cCurrentFractionalPart[i]
 			next
 
-			if bRoundItWhenRestricted _TRUE_
+			if bRoundItWhenRestricted = _TRUE_
 
 				# Memorise the active round
 				nCurrentRound = GetActiveRound()
@@ -5559,7 +5559,7 @@ class stzNumber from stzObject
 
 		# Managing Sign
 			
-		if bShowSign and This.Sign() = NULL
+		if bShowSign and This.Sign() = _NULL_
 			cFormattedNumber += "+"
 		ok
 
@@ -5574,7 +5574,7 @@ class stzNumber from stzObject
 
 		# Managing prefix
 
-		if cPrefix != NULL
+		if cPrefix != _NULL_
 			cFormattedNumber += cPrefix
 		ok
 
@@ -5631,7 +5631,7 @@ class stzNumber from stzObject
 		else
 			oTempNumber = new stzNumber(This.RoundTo(nRound))
 
-			if oTempNumber.FractionalPartWithoutDotZero() != NULL
+			if oTempNumber.FractionalPartWithoutDotZero() != _NULL_
 
 				cFormattedNumber += cFractionalSep
 
@@ -5653,7 +5653,7 @@ class stzNumber from stzObject
 
 		# Managing suffix
 
-		if cSuffix != NULL
+		if cSuffix != _NULL_
 			cFormattedNumber += cSuffix
 		ok
 
@@ -5665,7 +5665,7 @@ class stzNumber from stzObject
 		return cFormattedNumber
 
 		oNumber = This
-		if bPercent _TRUE_
+		if bPercent = _TRUE_
 			cNumber = oNumber.InPercentage()
 			oNumber = new stzNumber(cNumber)
 		ok
@@ -5711,7 +5711,7 @@ class stzNumber from stzObject
 			cNumber += cFractionalSep + oNumber.FractionalPartWithoutDotZero()
 		ok
 
-		if bPercent _TRUE_
+		if bPercent = _TRUE_
 			cNumber += "%"
 		ok
 

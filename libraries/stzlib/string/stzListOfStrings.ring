@@ -120,7 +120,7 @@ class stzListOfStrings from stzList
 			done
 		ok
 
-		if KeepingHistory() _TRUE_
+		if KeepingHistory() = _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -355,7 +355,7 @@ class stzListOfStrings from stzList
 	
 		ok
 
-		if KeepingHistory() _TRUE_
+		if KeepingHistory() = _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -549,7 +549,7 @@ class stzListOfStrings from stzList
 		ok
 
 		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (_TRUE_ or _FALSE_).")
 		ok
 
 		# Doing the job
@@ -586,7 +586,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def Filter(pcSubStr)
-		return This.FilterCS(pcSubStr, TRUE)
+		return This.FilterCS(pcSubStr, _TRUE_)
 
 		#< @FunctionfluentForm
 
@@ -693,7 +693,7 @@ class stzListOfStrings from stzList
 
 			aResult = []
 
-			if paBoxOptions[ :EachChar ] _TRUE_
+			if paBoxOptions[ :EachChar ] = _TRUE_
 
 				for str in This.ListOfStrings()
 					aResult + StzListOfCharsQ(str).BoxXT(paBoxOptions)
@@ -1717,7 +1717,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStrongs()
-		return This.SubStrongsCS(TRUE)
+		return This.SubStrongsCS(_TRUE_)
 
 	  #-----------------------------------------------#
 	 #  GETTING THE LIST OF SUBSTREACKS IN THE LIST  #
@@ -1759,7 +1759,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStrinks()
-		return This.SubStrinksCS(TRUE)
+		return This.SubStrinksCS(_TRUE_)
 
 	  #-----------------------------------#
 	 #  SUBSTRONGS AND THEIR SubStrinkS  #TODO
@@ -1774,7 +1774,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStrongsAndTheirSubStrinks()
-		return This.SubStrongsAndTheirSubStrinksCS(TRUE)
+		return This.SubStrongsAndTheirSubStrinksCS(_TRUE_)
 
 		def SubStrongsAndSubStrinks()
 			return This.SubStrongsAndTheirSubStrinks()
@@ -1792,7 +1792,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStrinksAndTheirSubStrongs()
-		return This.SubStrinksAndTheirSubStrongsCS(TRUE)
+		return This.SubStrinksAndTheirSubStrongsCS(_TRUE_)
 
 		def SubStrinksAndSubStrongs()
 			return This.SubStrinksAndTheirSubStrongs()
@@ -1859,7 +1859,7 @@ class stzListOfStrings from stzList
 
 		for i = 2 to nLen
 			if NOT acContent[i].FirstCharQ().IsEqualToCS(cResult, pCaseSensitive)
-				return NULL
+				return _NULL_
 			ok 
 		next
 
@@ -1877,10 +1877,10 @@ class stzListOfStrings from stzList
 			return @MainObject()
 
 	def FirstChar()
-		return This.FirstCharCS(TRUE)
+		return This.FirstCharCS(_TRUE_)
 
 		def FirstCharQ()
-			return This.FirstCharCSQ(TRUE)
+			return This.FirstCharCSQ(_TRUE_)
 
 		def FirstCharQM()
 			return @MainObject()
@@ -1903,7 +1903,7 @@ class stzListOfStrings from stzList
 
 		for i = 2 to nLen
 			if NOT acContent[i].LastCharQ().IsEqualToCS(cResult, pCaseSensitive)
-				return NULL
+				return _NULL_
 			ok 
 		next
 
@@ -1921,10 +1921,10 @@ class stzListOfStrings from stzList
 			return @MainObject()
 
 	def LastChar()
-		return This.LastCharCS(TRUE)
+		return This.LastCharCS(_TRUE_)
 
 		def LastCharQ()
-			return This.LastCharCSQ(TRUE)
+			return This.LastCharCSQ(_TRUE_)
 
 		def LastCharQM()
 			return @MainObject()

@@ -4,7 +4,7 @@ _aLocaleLanguagesXT = [
 	#     1		 2				3		       4		      5
 	#  QtNumber 	Name 			ShortAbbreviation 	LongAbbreviation 	DefaultCountry
 
-	[ "1", 		:c, 			"c", 			"c", 			NULL 				],
+	[ "1", 		:c, 			"c", 			"c", 			_NULL_ 				],
 	[ "2", 		:abkhazian, 		"ab", 			"abk", 			:abkhazia			],
 	#NOTE that Abkhazia is not figuring in the official ISO list of countries
 	[ "3", 		:oromo, 		"om", 			"orm", 			:ethiopia 			],
@@ -57,7 +57,7 @@ _aLocaleLanguagesXT = [
 	[ "50", 	:hungarian, 		"hu", 			"hun", 			:hungary 			],
 	[ "51", 	:icelandic, 		"is", 			"ice", 			:iceland 			],
 	[ "52", 	:indonesian, 		"id", 			"ind", 			:world 				],
-	[ "53", 	:interlingua, 		"ia", 			"ina", 			NULL 				],
+	[ "53", 	:interlingua, 		"ia", 			"ina", 			_NULL_ 				],
 	[ "54", 	:interlingue, 		"ie", 			"ile", 			:norway				],
 	[ "55", 	:inuktitut, 		"iu", 			"iku", 			:canada 			],
 	[ "56", 	:inupiak, 		"ipk", 			"ipk", 			:united_states 			],
@@ -137,7 +137,7 @@ _aLocaleLanguagesXT = [
 	[ "130", 	:urdu, 			"ur", 			"urd", 			:pakistan 			],
 	[ "131", 	:uzbek, 		"uz", 			"uzb", 			:uzbekistan 			],
 	[ "132", 	:vietnamese, 		"vi", 			"vie", 			:vietnam 			],
-	[ "133", 	:volapuk, 		"vo", 			"vol", 			NULL 				],
+	[ "133", 	:volapuk, 		"vo", 			"vol", 			_NULL_ 				],
 	[ "134", 	:welsh, 		"cy", 			"wel", 			:united_kingdom 		],
 	[ "135", 	:wolof, 		"wo", 			"wol", 			:senegal 			],
 	[ "136", 	:xhosa, 		"xh", 			"xho", 			:south_africa 			],
@@ -328,7 +328,7 @@ _aLocaleLanguagesXT = [
 	[ "358", 	:osage, 		"osa", 			"osa", 			:united_states_of_america 	],
 
 	[ "360", 	:ido, 			"io", 			"ido",			:finland 			],
-	[ "361", 	:lojban, 		"jbo", 			"jbo", 			NULL 				],
+	[ "361", 	:lojban, 		"jbo", 			"jbo", 			_NULL_ 				],
 	[ "362", 	:sicilian, 		"scn", 			"scn", 			:italy 				],
 	[ "363", 	:southern_kurdish, 	"sdh", 			"sdh", 			:iran 				], # :Northern_Kurdish (kmr)
 	[ "364", 	:western_balochi, 	"bgn", 			"bgn", 			:pakistan 			],

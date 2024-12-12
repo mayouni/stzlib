@@ -10,7 +10,7 @@ class stkNumber
 	@content
 	@nRound
 
-	@bSpacify _FALSE_
+	@bSpacify = _FALSE_
 	@nSpaceStep = 3
 	@cSpaceChar = "_"
 
@@ -31,9 +31,9 @@ class stkNumber
 		else # the number is provided in a string
 			if ring_substr1(pNumber, '_') > 0
 
-				@bSpacify _TRUE_
+				@bSpacify = _TRUE_
 			else
-				@bSpacify _FALSE_
+				@bSpacify = _FALSE_
 			ok
 
 			@content = @Val(pNumber)
@@ -79,15 +79,15 @@ class stkNumber
 			@content = @Val(pNumber)
 
 			if ring_substr1(pNumber, '_') > 0
-				@bSpacify _TRUE_
+				@bSpacify = _TRUE_
 			else
-				@bSpacify _FALSE_
+				@bSpacify = _FALSE_
 			ok
 		ok
 
 		@nRound = @Round(pNumber)
 
-		if KeepingHisto() _TRUE_
+		if KeepingHisto() = _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -294,14 +294,14 @@ class stkNumber
 	#----------------------------------------------------#
 
 	def Spacify()
-		@bSpacify _TRUE_
+		@bSpacify = _TRUE_
 
 	def Unspacify()
-		@bSpacify _FALSE_
+		@bSpacify = _FALSE_
 
 	def UnSpacified()
 		bTemp = @bSpacify
-		@bSpacify _FALSE_
+		@bSpacify = _FALSE_
 		cResult This.SValue()
 		@bSpacify = bTemp
 

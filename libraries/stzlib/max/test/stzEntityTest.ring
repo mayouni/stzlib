@@ -3,7 +3,7 @@ load "../stzmax.ring"
 
 /*---------------
 */
-# If type is provided NULL then it is auttmatically set to "undefined"
+# If type is provided _NULL_ then it is auttmatically set to "undefined"
 
 o1 = new stzEntity([ :name = "Avionav", :type = "" ])
 ? o1.content()

@@ -4,7 +4,7 @@ load "../appserver/stzAppServer.ring"
 oApp = new RingAppServer(8888)
 
 # Enable debug mode
-oApp.setDebug(true)
+oApp.setDebug(_TRUE_)
 
 # Add middleware for logging
 oApp.use('

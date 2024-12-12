@@ -82,7 +82,7 @@ proff()
 
 ? Q("CAIRO").vizFindBoxedXT("I", [])
 
-//? Q("CAIRO").vizFindXT("I", [ :Boxed _TRUE_, :PositionChar = "♥"])
+//? Q("CAIRO").vizFindXT("I", [ :Boxed = _TRUE_, :PositionChar = "♥"])
 #-->
 #    ╭───┬───┬───┬───┬───╮
 #--> │ C │ A │ I │ R │ O │

@@ -64,7 +64,7 @@ class stzListInString from stzString
 			
 			if oStzStr.IsBoundedBy('"') or
 			   oStzStr.IsBoundedBy("'") or
-			   oStzStr.IsBoundedBy([ ':', NULL ])
+			   oStzStr.IsBoundedBy([ ':', _NULL_ ])
 				aResult + [
 
 					oStzStr.RemoveTheseBoundsQ('"', '"').
@@ -123,7 +123,7 @@ class stzListInString from stzString
 			
 			if NOT ( oStzStr.IsBoundedBy('"') or
 			   oStzStr.IsBoundedBy("'") or
-			   oStzStr.IsBoundedBy([ ':', NULL ]) or
+			   oStzStr.IsBoundedBy([ ':', _NULL_ ]) or
 			   oStzStr.IsNumberInString() )
 	
 				# The item is a variable name

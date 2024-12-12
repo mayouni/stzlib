@@ -18,16 +18,16 @@ pron()
 
 pState1 = ring_state_init()
 pState2 = ring_state_init()
-pNotAState = NULL
+pNotAState = _NULL_
 
 ? isPointer(pstate1)
-#--> TRUE
+#--> _TRUE_
 
 ? isPointer(pState2)
-#--> TRUE
+#--> _TRUE_
 
 ? isPointer(pNotAState)
-#--> FALSE
+#--> _FALSE_
 
 ? type(pState1)
 #--> RINGSTATE
@@ -40,19 +40,19 @@ pNotAState = NULL
 
 
 ? IsRingState(pState1)
-#--> TRUE
+#--> _TRUE_
 
 ? IsRingState(pState2) # A Softanza function
-#--> TRUE
+#--> _TRUE_
 
 ? IsRingState(pNotAState)
-#--> FALSE
+#--> _FALSE_
 
 ? AreRingStates([ pState1, pState2 ]) # A Softanza function
-#--> TRUE
+#--> _TRUE_
 
 ? AreRingStates([ pState1, pState2, pNotAState ])
-#--> FALSE
+#--> _FALSE_
 
 proff()
 # Executed in 0.01 second(s)
