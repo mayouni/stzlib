@@ -135,15 +135,13 @@ Programmers **should avoid** using global variable names enclosed in double unde
 
 ```ring
 # Avoid this:
-global _nPos_ = 42
+_nPos_ = 42
 ```
 
-Doing so may inadvertently overwrite Softanza’s internal variables.
+Doing so may let Softanza internal functions inadvertently overwrite the variable.
 
 ---
 
 ## Conclusion
 
 By adopting the protected **`_var_`** variable naming convention and standardizing critical constants (namely `TRUE`, `FALSE` and `NULL`), Softanza ensures greater **safety, reliability, and compatibility** for all programs. These measures protect both novice and expert users from unintended side effects, allowing them to focus on building robust applications **with confidence**.
-
-
