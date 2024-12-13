@@ -27,11 +27,10 @@ o1 = new stzString("Softanza")
 proff()
 
 /*--- #perf managing a big text
-
+*/
 pron()
 
 cBigText = read("../test/bigtext.txt")
-# Takes 0.12 seconds
 
 oBig = new stzString(cBigText)
 
@@ -42,7 +41,7 @@ oBig = new stzString(cBigText)
 #--> 128457
 
 ? oBig.SizeInBytes() + NL
-#--> 435
+#--> 491
 
 ? oBig.FindCS("madrid", _FALSE_)
 #--> [
@@ -59,10 +58,18 @@ oBig = new stzString(cBigText)
 oBig.ReplaceCS("madrid", "Gaza", _FALSE_)
 
 proff()
-# Executed in 0.94s second(s) in Ring 1.21
+# Executed in 2.05 second(s) in Ring 1.22
+
+/*====
+*/
+pron()
+
+? Q("...Tunis").StartsWithXT( @3(".") )
+
+proff()
 
 /*==== #narration Code formatting - Unproper Indentation
-
+*/
 pron()
 
 # Let's take this code snippet and try to identify
@@ -75,6 +82,10 @@ if n = 5 {
 	DoSomethingElse() # Bad indentation here
 }'
 
+
+oCode = new stzString(cCode)
+? @@( oCode.BoundedByZZ([ "{", "}" ]) )
+/*
 # Putting the string in an stzString object and trimming it
 
 oCode = new stzString(cCode)
@@ -135,9 +146,9 @@ oLines = oSection.SplitQ(NL)
 
 # Finally, we have the answer: the indentation is lacking on
 # line 3 of our section of code.
-
+*/
 proff()
-# Executed in 0.12 second(s).
+# Executed in 0.10 second(s) in Ring 1.22
 
 
 /*--- #narration XML/HTML tag analysis

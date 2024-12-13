@@ -425,14 +425,17 @@ class stzListOfChars from stzListOfStrings
 	#--
 
 	def ToListOfStzChars()
-		aResult = []
 
-		for i = 1 to This.NumberOfChars()
-			oTempchar = new stzChar( This.NthChar(i) )
-			aResult + oTempChar
-		next i
+		_acContent_ = This.Content()
+		_nLen_ = len(_acContent_)
+		_aResult_ = []
 
-		return aResult
+		for @i = 1 to _nLen_
+			_oTempchar_ = new stzChar( _acContent_[@i] )
+			_aResult_ + _oTempChar_
+		next
+
+		return _aResult_
 
 	def IsArabic()
 

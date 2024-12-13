@@ -544,17 +544,11 @@ class stzListOfStrings from stzList
 
 		# Resolving pCaseSensitive value
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (_TRUE_ or _FALSE_).")
-		ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		# Doing the job
 			 
-		oQList = This.QStringListObject().filter(pcSubStr, pCaseSensitive)
+		oQList = This.QStringListObject().filter(pcSubStr, _bCase_)
 		bResult = QStringListContent(oQList)
 
 		return bResult

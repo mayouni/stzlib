@@ -333,11 +333,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def Values()
-		aResult = []
-		for i = 1 to This.NumberOfPairs()
-			aResult + This.Content()[i][2]
+
+		_aContent_ = This.Content()
+		_aResult_ = []
+		_nLen_ = This.NumberOfPairs()
+
+		for @i = 1 to nLen_
+			_aResult_ + _aContent_[@i][2]
 		next
-		return aResult
+
+		return _aResult_
 
 		def ValuesQ()
 			return This.ValuesQR(:stzList)
@@ -367,12 +372,25 @@ class stzHashList from stzList # Also called stzAssociativeList
 			off
 
 	def ValuesAreListsOfSameSize()
-		bResult = _TRUE_
-		for i = 2 to This.NumberOfValues()
 
+		_aContent_ = This.Content()
+		_nLen_ = This.NumberOfValues()
+
+		if _nLen = 1
+			return _TRUE_
+		ok
+
+		_nSize_ = len(_aContent_[1][2])
+		_bResult_ = _TRUE_
+
+		for @i = 2 to _nLen_
+			if len(_aContent[@i][2]) != _nSize
+				_bResult_ = _FALSE_
+				exit
+			ok
 		next
 
-		return bResult
+		return _bResult_
 
 	def ValuesAndKeys()
 		aValues = This.Values()
@@ -851,12 +869,19 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-----------------------------#
 
 	def ReverseKeysAndValues()
-		aKeys = This.Keys()
-		aValues = This.Values()
-		for i=1 to This.NumberOfPairs()
-			This.UpdateNthKey(i,""+ aValues[i] )
-			This.UpdateNthValue(i, aKeys[i])
+
+		_aKeys_ = This.Keys()
+		_aValues_ = This.Values()
+		_nLen_ = This.NumberOfPairs()
+
+		_oCopy_ = This.Copy()
+
+		for @i = 1 to _nLen_
+			_oCopy_.UpdatenthKey( @i, ""+ _aValues_[@i] )
+			_ocopy_.UpdateNthValue( @i, _aKeys[@i] )
 		next
+
+		This.UpdateWith( _oCopy_.Content() )
 
 		def ReverseKeysAndValuesQ()
 			This.ReverseKeysAndValues()

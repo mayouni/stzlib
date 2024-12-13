@@ -499,6 +499,201 @@ func AttributesValues(pObject) # Compliments Ring attributes() function
 	func @AttributesValues(pObject)
 		return AttributesValues(pObject)
 
+#====== REPEATING A VALUE N TIMES
+
+func @N(n, item)
+	# EXAMPLE
+	# ? @N(3 ,"A")	#--> [ "A", "A", "A" ]
+
+	if CheckParams()
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+	ok
+
+	if $bInsideAStzStringObject = _TRUE_
+		return @NXT(n, item, :InAString)
+
+	else
+		return @NXT(n, item, :InAList)
+	ok
+
+	#< @FunctionSpecificForms
+
+	func @1(val)
+		return @N(1, val)
+
+		func One(val)
+			return @N(1, val)
+
+	func @2(val)
+		return @N(2, val)
+
+		func Two(val)
+			return @N(2, val)
+
+	func @3(val)
+		return @N(3, val)
+
+		func Three(val)
+			return @N(3, val)
+
+	func @4(val)
+		return @N(4, val)
+	
+		func Four(val)
+			return @N(4, val)
+
+	func @5(val)
+		return @N(5, val)
+
+		func Five(val)
+			return @N(5, val)
+
+	func @6(val)
+		return @N(6, val)
+
+		func Six(val)
+			return @N(6, val)
+
+	func @7(val)
+		return @N(7, val)
+
+		func Seven(val)
+			return @N(7, val)
+
+	func @8(val)
+		return @N(8, val)
+
+		func Eight(val)
+			return @N(8, val)
+
+	func @9(val)
+		return @N(9, val)
+
+		func Nine(val)
+			return @N(9, val)
+
+	func @10(val)
+		return @N(10, val)
+
+		func Ten(val)
+			return @N(10, val)
+
+	#>
+
+func @NXT(n, pStrOrItem, pcInStrOrList)
+	# EXAMPLES
+	# ? @NXT(3 ,"A", :InAString)	#--> "AAA"
+	# ? @NXT(3, "A", :InAList)	#--> [ "A", "A", "A" ]
+
+	if CheckParams()
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if NOT isString(pcInStrOrList)
+			StzRaise("Incorrect param type! pcInStrOrList must be a string.")
+		ok
+	ok
+
+	if pcInStrOrList = :InList or pcInStrOrList = :InAList or
+	   pcInStrOrList = :AsList or pcInStrOrList = :AsAList or
+	   pcInStrOrList = :List
+
+		_aResult_ = []
+	
+		for @i = 1 to n
+			_aResult_ + pStrOrItem
+		next
+	
+		return _aResult_
+
+	but pcInStrOrList = :InString or pcInStrOrList = :InAString or
+	    pcInStrOrList = :AsString or pcInStrOrList = :AsAString or
+	    pcInStrOrList = :String
+
+		# Using Qt for concatenation because Ring is not performant
+		# in concatenation large unicode strings (tested with 1M
+		# arabic string)
+
+		_@oQStrList_ = new QStringList()
+
+		for @i = 1 to n
+			_@oQStrList_.append(pStrOrItem)
+		next
+
+		_cResult_ = _@oQStrList_.join("")
+		return _cResult_
+
+	else
+		StzRaise("Incorrect syntax! pcInStrOrList must be a string equal to :InString or :InList.")
+	ok
+
+	#< @FunctionSpecificForms
+
+	func @1XT(pStrOrItem, pcInStrOrList)
+		return @NXT(1, pStrOrItem, pcInStrOrList)
+
+		func OneXT(pStrOrItem, pcInStrOrList)
+			return @N(1, pStrOrItem, pcInStrOrList)
+
+	func @2XT(pStrOrItem, pcInStrOrList)
+		return @NXT(2, pStrOrItem, pcInStrOrList)
+
+		func TwoXT(pStrOrItem, pcInStrOrList)
+			return @NXT(2, pStrOrItem, pcInStrOrList)
+
+	func @3XT(pStrOrItem, pcInStrOrList)
+		return @NXT(3, pStrOrItem, pcInStrOrList)
+
+		func ThreeXT(pStrOrItem, pcInStrOrList)
+			return @NXT(3, pStrOrItem, pcInStrOrList)
+
+	func @4XT(pStrOrItem, pcInStrOrList)
+		return @NXT(4, pStrOrItem, pcInStrOrList)
+	
+		func FourXT(pStrOrItem, pcInStrOrList)
+			return @NXT(4, pStrOrItem, pcInStrOrList)
+
+	func @5XT(pStrOrItem, pcInStrOrList)
+		return @NXT(5, pStrOrItem, pcInStrOrList)
+
+		func FiveXT(pStrOrItem, pcInStrOrList)
+			return @NXT(5, pStrOrItem, pcInStrOrList)
+
+	func @6XT(pStrOrItem, pcInStrOrList)
+		return @NXT(6, pStrOrItem, pcInStrOrList)
+
+		func SixXT(pStrOrItem, pcInStrOrList)
+			return @NXT(6, pStrOrItem, pcInStrOrList)
+
+	func @7XT(pStrOrItem, pcInStrOrList)
+		return @NXT(7, pStrOrItem, pcInStrOrList)
+
+		func SevenXT(pStrOrItem, pcInStrOrList)
+			return @NXT(7, pStrOrItem, pcInStrOrList)
+
+	func @8XT(pStrOrItem, pcInStrOrList)
+		return @NXT(8, pStrOrItem, pcInStrOrList)
+
+		func EightXT(pStrOrItem, pcInStrOrList)
+			return @NXT(8, pStrOrItem, pcInStrOrList)
+
+	func @9XT(pStrOrItem, pcInStrOrList)
+		return @NXT(9, pStrOrItem, pcInStrOrList)
+
+		func NineXT(pStrOrItem, pcInStrOrList)
+			return @NXT(9, pStrOrItem, pcInStrOrList)
+
+	func @10XT(pStrOrItem, pcInStrOrList)
+		return @NXT(10, pStrOrItem, pcInStrOrList)
+
+		func TenXT(pStrOrItem, pcInStrOrList)
+			return @NXT(10, pStrOrItem, pcInStrOrList)
+
+	#>
+
 #====== FUNCTIONS USEDS WITH OPERATORS OVERLOADED ON STZLIST
 
 func Obj(pObject)
@@ -3993,139 +4188,6 @@ func AreSameObject(pcVarName1, pcVarName2) #TODO
 
 	func @AreSameObject(pcVarName1, pcVarName2)
 		return AreSameObject(pcVarName1, pcVarName2)
-
-# REPEATING A THING N TIME
-
-func One(pThing)
-	if isList(pThing)
-		return ARandomItemIn(pThing)
-	else
-		return pThing
-	ok
-
-	func @One(pThing)
-		return One(pThing)
-
-	func @1(pThing)
-		return One(pThing)
-
-func Two(pThing)
-	if isList(pThing)
-		return NRandomItemsInU(2, pThing)
-	else
-		return Q(pThing).RepeatedNTimes(2)
-	ok
-
-	func @Two(pThing)
-		return Two(pThing)
-
-	func @2(pThing)
-		return Two(pThing)
-
-func Three(pThing)
-	if isList(pThing)
-		return NRandomItemsInU(3, pThing)
-	else
-		return Q(pThing).RepeatedNTimes(3)
-	ok
-
-	func @Three(pThing)
-		return Three(pThing)
-
-	func @3(pThing)
-		return Three(pThing)
-
-func Four(pThing)
-	if isList(pThing)
-		return NRandomItemsInU(4, pThing)
-	else
-		return Q(pThing).RepeatedNTimes(4)
-	ok
-
-	func @Four(pThing)
-		return Four(pThing)
-
-	func @4(pThing)
-		return Four(pThing)
-
-func Five(pThing)
-	if isList(pThing)
-		return NRandomItemsInU(5, pThing)
-	else
-		return Q(pThing).RepeatedNTimes(5)
-	ok
-
-	func @Five(pThing)
-		return Five(pThing)
-
-	func @5(pThing)
-		return Five(pThing)
-
-func Six(pThing)
-	if isList(pThing)
-		return NRandomItemsInU(6, pThing)
-	else
-		return Q(pThing).RepeatedNTimes(6)
-	ok
-
-	func @Six(pThing)
-		return Six(pThing)
-
-	func @6(pThing)
-		return Six(pThing)
-
-func Seven(pThing)
-	if isList(pThing)
-		return NRandomItemsInU(7, pThing)
-	else
-		return Q(pThing).RepeatedNTimes(7)
-	ok
-
-	func @Seven(pThing)
-		return Seven(pThing)
-
-	func @7(pThing)
-		return Seven(pThing)
-
-func Eight(pThing)
-	if isList(pThing)
-		return NRandomItemsInU(8, pThing)
-	else
-		return Q(pThing).RepeatedNTimes(8)
-	ok
-
-	func @Eight(pThing)
-		return Eight(pThing)
-
-	func @8(pThing)
-		return Eight(pThing)
-
-func Nine(pThing)
-	if isList(pThing)
-		return NRandomItemsInU(9, pThing)
-	else
-		return Q(pThing).RepeatedNTimes(9)
-	ok
-
-	func @Nine(pThing)
-		return Nine(pThing)
-
-	func @9(pThing)
-		return Nine(pThing)
-
-func Ten(pThing)
-	if isList(pThing)
-		return NRandomItemsInU(10, pThing)
-	else
-		return Q(pThing).RepeatedNTimes(10)
-	ok
-
-	func @Ten(pThing)
-		return Ten(pThing)
-
-	func @10(pThing)
-		return Ten(pThing)
-
 # OTHER STAFF
 
 func IsStzType(pcStr)

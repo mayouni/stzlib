@@ -423,11 +423,15 @@ class stzGrid from stzObject
 	#-----------------------------------------#
 	
 	def VLine(n)
-		aResult = []
-		for i = 1 to This.NumberOfHLines()
-			aResult + This.HLine(i)[n]
-		next i
-		return aResult
+
+		_aResult_ = []
+		_nLen_ = This.NumberOfHLines()
+
+		for @i = 1 to _nLen_
+			_aResult_ + This.HLine(@i)[n]
+		next
+
+		return _aResult_
 
 	def FirstVLine()
 		return This.VLine(1)
@@ -436,12 +440,14 @@ class stzGrid from stzObject
 		return This.VLine( This.NumberOfVLines() )
 
 	def VLines()
-		aResult = []
-		for i = 1 to This.NumberOfVLines()
-			aResult + This.VLine(i)
+		_aResult_ = []
+		_nLen_ = This.NumberOfVLines()
+
+		for @i = 1 to _nLen_
+			_aResult_ + This.VLine(@i)
 		next
 
-		return aResult
+		return _aResult_
 
 	def HLine(n)
 		return This.Content()[n]
@@ -453,13 +459,15 @@ class stzGrid from stzObject
 		return This.HLine( This.NumberOfHLines() )
 
 	def HLines()
-		aResult = []
 
-		for i = 1 to This.NumberOfHLines()
-			aResult + This.HLine(i)
+		_aResult_ = []
+		_nLen_ = This.NumberOfHLines()
+
+		for @i = 1 to NumberOfHLines()
+			_aResult_ + This.HLine(@i)
 		next
 
-		return aResult
+		return _aResult_
 
 	def NodeAtPosition(nVLine, nHLine)
 		return This.HLine(nHLine)[nVLine]
@@ -500,32 +508,36 @@ class stzGrid from stzObject
 	#----------------------------------------#
 
 	def NumberedVLines(pnVLine)
-		n = StzCounterQ([ :StartAt = 1, :WhenYouReach = 10, :RestartAt = 0 ]).CountTo(pnVLine)
+		_n_ = StzCounterQ([ :StartAt = 1, :WhenYouReach = 10, :RestartAt = 0 ]).CountTo(pnVLine)
 
 		/* TODO: Replace with this when stzList is up!
 		oTempList = new stzList( VLine(n) )
 		return oTempList.InsertInStart(n) */
 
-		aResult = [ n ]
-		for i = 1 to This.NumberOfHLines()
-			aResult + This.VLine(pnVLine)[i]
+		_aResult_ = [ _n_ ]
+		_nLen_ = This.NumberOfHLines()
+
+		for @i = 1 to _nLen_
+			_aResult_ + This.VLine(pnVLine)[@i]
 		next
 
-		return aResult
+		return _aResult_
 
 	def NumberedHLines(pnHLine)
-		n = StzCounterQ([ :StartAt = 1, :WhenYouReach = 10, :RestartAt = 0 ]).CountTo(pnHLine)
+		_n_ = StzCounterQ([ :StartAt = 1, :WhenYouReach = 10, :RestartAt = 0 ]).CountTo(pnHLine)
 
 		/* Replace with this when stzList is up!
 		oTempList = new stzList( HLine(n) )
 		return oTempList.InsertInStart(n) */
 
-		aResult = [ n ]
-		for i = 1 to This.NumberOfVLines()
-			aResult + This.HLine(pnHLine)[i]
+		_aResult_ = [ _n_ ]
+		_nLen_ = This.NumberOfVLines()
+
+		for @i = 1 to 
+			_aResult_ + This.HLine(pnHLine)[@i]
 		next
 
-		return aResult
+		return _aResult_
 
 
 	  #--------------------------------------#
@@ -627,6 +639,7 @@ class stzGrid from stzObject
 		return This.NumberOfNodesPerHLine() * (nHLine - 1) + nVLine
 
 	def Center()
+
 		if This.HasCentralNode()
 			return This.CentralNode()
 		else
@@ -634,30 +647,51 @@ class stzGrid from stzObject
 		ok
 
 	def Diagonal()
-		if This.NumberOfVLines() = This.NumberOfHLines()
-			aResult = []
-			for i=1 to This.NumberOfVLines()
-				aResult + This.NodeAtPosition(i,i)
+
+		_nVLen_ = This.NumberOfVLines()
+		_nHLen_ = This.NumberOfHLines()
+
+		if _nVLen_ = _nHLen_
+
+			_aResult_ = []
+
+			for @i = 1 to _nVLen_
+				_aResult_ + This.NodeAtPosition(@i, @i)
 			next
-			return aResult
+
+			return _aResult_
 		ok
 
 	def Diagonal1()
-		if This.NumberOfVLines() = This.NumberOfHLines()
+
+		_nVLen_ = This.NumberOfVLines()
+		_nHLen_ = This.NumberOfHLines()
+
+		if _nVLen_ = _nHLen_
+
 			aResult = []
-			for i=1 to This.NumberOfVLines()
-				aResult + This.NodeAtPosition(i,i)
+
+			for @i = 1 to _nVLen_
+				_aResult_ + This.NodeAtPosition(@i, @i)
 			next
-			return aResult
+
+			return _aResult_
 		ok
 
 	def Diagonal2()
-		if This.NumberOfVLines() = This.NumberOfHLines()
-			aResult = []
-			for i = 1 to This.NumberOfHLines()
-				aResult + This.NodeAtPosition( This.NumberOfHLines()-i+1, i )
+
+		_nVLen_ = This.NumberOfVLines()
+		_nHLen_ = This.NumberOfHLines()
+
+		if _nVLen_ = _nHLen_
+
+			_aResult_ = []
+
+			for @i = 1 to _nHLen_
+				_aResult_ + This.NodeAtPosition( _nHLen_ - i + 1, i )
 			next
-			return aResult
+
+			return _aResult_
 		ok
 
 	  #-----------------------------------------#
@@ -727,14 +761,21 @@ class stzGrid from stzObject
 	def SetHLineEndingAt(nHLine, nEnd, paHLine)
 		// TODO
 
-	def SetVLine(nVLine, paVLine)
-		for nHLine = 1 to This.NumberOfHLines()
-			if nHLine <= len(paVLine)
-				cVLine = paVLine[nHLine]
+	def SetVLine(pnVLine, paVLine)
+
+		_nLenPaVLine_ = len(paVLine)
+		_nLenHLine_ = This.NumberOfHLines()
+		_cVLine_ = ""
+
+		for @i = 1 to _nLenHLine_
+
+			if @i <= _nLenPaVLine_
+				_cVLine_ = paVLine[@i]
 			else
-				cVLine = _NULL_
+				_cVLine_ = _NULL_
 			ok
-			This.SetNode(nVLine, nHLine, cVLine)
+
+			This.SetNode(pnVLine, @i, _cVLine_)
 		next
 	
 	def SetVLineSection(nVLine, nStart, nEnd, paVLine)
@@ -786,11 +827,16 @@ class stzGrid from stzObject
 			C 3 G		E F G
 		*/
 
-		aVLines = This.VLines()
+		_aVLines_ = This.VLines()
+		_nLenHLine_ = This.NumberOfHLines()
 
-		for i = 1 to This.NumberOfHLines()
-			This.SetHLine(i, aVLines[i])
+		_oCopy_ = This.Copy()
+
+		for @i = 1 to _nLenHLine_
+			_oCopy_.SetHLine(@i, _aVLines_[@i])
 		next
+
+		This.UpdateWith( _oCopy_.Content() )
 
 	def SwapLinesQ()
 		This.SwapLines()
@@ -973,26 +1019,40 @@ class stzGrid from stzObject
 		#>
 
 	def ShowVLine(n)
-		if n = :FirstOne
-			n = 1
-		but n = :LastOne
-			n = This.NumberOfVLines()
+		if CheckParams()
+			if isString(n)
+				if n = :FirstOne
+					n = 1
+				but n = :LastOne
+					n = This.NumberOfVLines()
+				ok
+			ok
 
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
 		ok
 
-		cStr = ""
-		if @bShowRanks = _TRUE_
-			cStr = "" + This.NumberedVLine(n)[1] + NL
+		# Doing the job
+
+		_cStr_ = ""
+
+		if This.@bShowRanks = _TRUE_
+			_cStr_ = "" + This.NumberedVLine(n)[1] + NL
 		ok
 
-		for i = 1 to This.NumberOfHLines()
-			cStr += @@( This.VLine(n)[i] )
+		_nLenHLines_ = This.NumberOfHLines()
 
-			if i < This.NumberOfHLines()
-				cStr += NL
+		for @i = 1 to _nLenHLines_
+
+			_cStr_ += @@( This.VLine(n)[@i] )
+
+			if @i < _nLenHLines_
+				_cStr_ += NL
 			ok
 		next
-		? cStr
+
+		? _cStr_
 
 		#< @FuntionMisspelledForm
 
@@ -1025,13 +1085,16 @@ class stzGrid from stzObject
 			? cStr
 		ok
 
-		if @bShowCenter = _TRUE_
+		if This.@bShowCenter = _TRUE_
 			This.SetCenter("+")
 		ok
 
-		for j = 1 to This.NumberOfHLines()
-			This.ShowHLine(j)
+		_nLenHLines_ = This.NumberOfHLines()
+
+		for @j = 1 to _nLenHLines_
+			This.ShowHLine(@j)
 		next
+
 		? ""
 		
 		#< @FuntionMisspelledForm
@@ -1260,13 +1323,20 @@ class stzGrid from stzObject
 	#------------------------------------------#
 
 	def ReplaceAll(pcValue)
-		if isList(pcValue) and Q(pcValue).IsWithOrByNamedParam()
-			pcValue = pcValue[2]
+		if CheckParams()
+			if isList(pcValue) and Q(pcValue).IsWithOrByNamedParam()
+				pcValue = pcValue[2]
+			ok
 		ok
 
-		for h = 1 to This.NumberOfHLines()
-			for v = 1 to this.NumberOfVLines()
-				This.Content()[h][v] = pcValue
+		_aContent_ = This.Content()
+		_nLenHLines_ = This.NumberOfHLines()
+		_nLenVLines_ = This.NumberOfVLines()
+
+		for @h = 1 to _nLenHLines_
+
+			for @v = 1 to _nLenVLines_
+				_aContent_[@h][@v] = pcValue
 			next
 		next
 

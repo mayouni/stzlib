@@ -14180,11 +14180,18 @@ Class stzTable from stzObject
 		ok
 
 		if cFill = :With or cFill = :WithCell
-			for i = 1 to This.NumberOfCols()
-				for v = 1 to This.NumberOfRows()
-					This.ReplaceCell(i, v, pValue)
-				next v
-			next i
+
+			_nLenCol_ = This.NumberOfCols()
+			_nLenRow_ = This.NumberOfRows()
+			_oCopy_ = This.Copy()
+
+			for @i = 1 to _nLenCol_
+				for @v = 1 to _nLenRow_
+					_oCopy_.ReplaceCell(@i, @v, pValue)
+				next
+			next
+
+			This.UpdateWith( _oCopy_.Content() )
 
 		but ring_find([
 			:WithCol, :WithColumn, :UsingCol, :UsingColumn ], cFill) > 0
