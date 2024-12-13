@@ -101,12 +101,15 @@ class stzListOfBytes from stzList
 
 	// Returns the text represented by the list of bytes content
 	def Content()
-		aResult = []
-		for i = 1 to This.NumberOfBytes()
-			aResult + This.Section( i, i)
+
+		_aResult_ = []
+		_nLen_ = This.NumberOfBytes()
+
+		for @i = 1 to _nLen_
+			_aResult_ + This.Section(@i, @i)
 		next
 
-		return aResult
+		return _aResult_
 
 		def Value()
 			return Content()

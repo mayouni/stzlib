@@ -140,6 +140,8 @@ _nPos_ = 42
 
 Doing so may let Softanza internal functions inadvertently overwrite the variable.
 
+>**TODO**: Following the same logic, all **`i`** counters in `for` loops should be replaced with **`@i`**, which is less cumbersome than using the `_var_` convention.
+
 ---
 
 ## Conclusion

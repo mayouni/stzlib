@@ -265,6 +265,12 @@ func StzContains(pStrOrList, pSubStrOrItem)
 
 #--
 
+# A Ring-based implementation (#NOTE Internally, stzString uses Qt)
+# This is made as altenartive to show how Softanza enhances Ring
+
+#~> Solves the problem where substr() function in Ring returns 1
+# if we are searching for an empty string!
+
 func StringContainsCS(pcStr, pcSubStr, pCaseSensitive)
 	if pcStr = "" or
 	   pcSubStr = ""
@@ -1124,46 +1130,27 @@ func BothStringsAreEqual(pcStr1, pcStr2)
 	return BothStringsAreEqualCS(pcStr1, pcStr2, _TRUE_)
 
 func StringsAreEqualCS(pacStr, pCaseSensitive)
-	if NOT @IsListOfStrings(pacStr)
-		stzRaise("Incorrect param type! pacStr must b a list of strings!")
-	ok
 
-	if NOT len(pacStr) > 1
-		stzRaise("You must provide at least two strings pacStr!")
+	if CheckParams()
+		if NOT @IsListOfStrings(pacStr)
+			stzRaise("Incorrect param type! pacStr must b a list of strings!")
+		ok
+	
+		if NOT len(pacStr) > 1
+			stzRaise("You must provide at least two strings pacStr!")
+		ok
 	ok
 
 	# Resolving pCaseSensitive
 
-	if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-		pCaseSensitive = pCaseSensitive[2]
-	ok
-
-	if isString(pCaseSensitive)
-
-		if ring_find([
-			:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive) > 0
-
-			pCaseSensitive = _TRUE_
-			
-		but ring_find([
-			:CaseInSensitive, :NotCaseSensitive, :NotCS,
-			:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive) > 0
-
-			pCaseSensitive = _FALSE_
-		ok
-
-	ok
-
-	if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-		stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (_TRUE_ or _FALSE_).")
-	ok
+	_bCase_ = @CaseSensitive(pCaseSensitive)
 
 	# Doing the job
 
 	bResult = _TRUE_
 	nLen = len(pacStr)
 
-	if pCaseSensitive = _TRUE_
+	if _bCase_ = _TRUE_
 		
 		cFirstStr = StzStringQ(pacStr[1]).Lowercased()
 		
@@ -4529,27 +4516,29 @@ class stzString from stzObject
 			return _FALSE_
 		ok
 
-		bResult = _TRUE_
+		_acChars_ = This.Chars()
+		_nLen_ = len(_acChars_)
+		_bResult_ = _TRUE_
 
-		for i = 1 to This.NumberOfChars()
-			c = This.NthChar(i)
-			oChar = new stzChar(c)
+		for i = 1 to _nLen_
+			_c_ = _acChars[@i]
+			_oChar_ = new stzChar(_c_)
 
-			if oChar.IsNotLetter() and
-			   oChar.IsNotNumber() and
-			   c != HyphenShort() and
-			   c != HyphenLong() and
-			   c != Underscore() and
-			   oChar.IsNotArabic7arakah() and
-			   c != ArabicTamdeed()
+			if _oChar_.IsNotLetter() and
+			   _oChar_.IsNotNumber() and
+			   _c_ != HyphenShort() and
+			   _c_ != HyphenLong() and
+			   _c_ != Underscore() and
+			   _oChar_.IsNotArabic7arakah() and
+			   _c_ != ArabicTamdeed()
 
-				bResult = _FALSE_
+				_bResult_ = _FALSE_
 				exit
 			ok
 
 		next
 
-		return bResult
+		return _bResult_
 
 	def IsArabicWord()
 		bResult = This.ToStzText().IsArabicWord()
@@ -4586,43 +4575,19 @@ class stzString from stzObject
 
 		# Resolving pCaseSensitive
 
-		if CheckingParams()
-
-			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-				pCaseSensitive = pCaseSensitive[2]
-			ok
-	
-			if isString(pCaseSensitive)
-
-				if ring_find([
-					:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive) > 0
-	
-					pCaseSensitive = _TRUE_
-				
-				but ring_find([
-					:CaseInSensitive, :NotCaseSensitive, :NotCS,
-					:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive) > 0
-	
-					pCaseSensitive = _FALSE_
-				ok
-	
-			ok
-	
-			if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-				stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (_TRUE_ or _FALSE_).")
-			ok
-		ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		# Doing the job
 
 		nResult = 0
 
-		if pCaseSensitive = _TRUE_
+		if _bCase_ = _TRUE_
 			n = This.NumberOfChars()
 			nResult = n * (n + 1) / 2
 	
 		else
 			#TODO (Future)// Think of a numeric solution
+
 			acSubStrCS = This.SubStringsCS(_FALSE_)
 			nResult = len(acSubStrCS)
 		ok
@@ -23897,18 +23862,20 @@ class stzString from stzObject
 
 	def FindRepeatedLeadingCharsCS(pCaseSensitive)
 
-		nLen = QStringObject().size()
+		_nLen_ = This.NumberOfChars()
 
-		if nLen < 2
+		if _nLen_ < 2
 			return []
 		ok
 
-		n = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
-		if n = 0
+		_n_ = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+		if _n_ = 0
 			return []
 		ok
 
-		return 1:n
+		_anResult_ = 1:n
+
+		return _anResult_
 
 		#< @FunctionALternativeForm
 
@@ -24587,19 +24554,21 @@ class stzString from stzObject
 
 	def RepeatedTrailingCharCS(pCaseSensitive)
 
-		nLen = This.NumberOfChars()
-		if nLen < 2
+		_nLen_ = This.NumberOfChars()
+
+		if _nLen_ < 2
 			return ""
 		ok
 
-		cLastChar = QStringObject().mid(nLen-1, 1)
-		cBeforeLastChar = QStringObject().mid(nLen-2, 1)
+		_cLastChar_ = This.QStringObject().mid(_nLen_ - 1, 1)
+		_cBeforeLastChar_ = This.QStringObject().mid(_nLen_ -2, 1)
 
-		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
-			return cLastChar
+		if StzStringQ(_cLastChar_).IsEqualToCS(_cBeforeLastChar_, pCaseSensitive)
+			return _cLastChar_
 		else
 			return ""
 		ok
+
 
 		#< @FunctionFleuntForms
 
@@ -24717,31 +24686,34 @@ class stzString from stzObject
 
 	def NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
 
-		nLen = This.NumberOfChars()
+		_nLen_ = This.NumberOfChars()
 
-		if nLen < 2
+		if _nLen_ < 2
 			return 0
 		ok
 
-		cLastChar = QStringObject().mid(nLen-1, 1)
-		cBeforeLastChar = QStringObject().mid(nLen-2, 1)
+		_cLastChar_ = This.QStringObject().mid(_nLen_ -1, 1)
+		_cBeforeLastChar_ = This.QStringObject().mid(_nLen_ -2, 1)
 
-		if NOT StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
+		if NOT StzStringQ(_cLastChar_).IsEqualToCS(_cBeforeLastChar_, pCaseSensitive)
 			return 0
 		ok
 
-		n = 0
+		_n_ = 0
 
-		for i = nLen to 1 step - 1
-			cChar = QStringObject().mid(i-1, 1)
-			if NOT StzStringQ(cChar).IsEqualToCS(cLastChar, pCaseSensitive)
+		for @i = _nLen_ to 1 step - 1
+
+			_cChar_ = This.QStringObject().mid(@i-1, 1)
+
+			if NOT StzStringQ(_cChar_).IsEqualToCS(_cLastChar_, pCaseSensitive)
 				exit
 			else
-				n++
+				_n_++
 			ok
 		next
 
-		return n
+		return _n_
+
 
 		#< @FunctionAlternativeForms
 
@@ -24809,22 +24781,24 @@ class stzString from stzObject
 	#----------------------------------------------------------------------#
 
 	def RepeatedTrailingCharIsCS(c, pCaseSensitive)
-		nLen = This.NumberOfChars()
 
-		if nLen < 2
+		_nLen_ = This.NumberOfChars()
+
+		if _nLen_ < 2
 			return _FALSE_
 		ok
 
-		cLastChar = QStringObject().mid(nLen-1, 1)
-		cBeforeLastChar = QStringObject().mid(nLen-2, 1)
+		_cLastChar_ = This.QStringObject().mid( _nLen_ - 1, 1)
+		_cBeforeLastChar_ = This.QStringObject().mid( _nLen_ - 2, 1)
 
-		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive) and
-		   StzStringQ(c).IsEqualToCS(cLastChar, pCaseSensitive)
+		if StzStringQ(_cLastChar_).IsEqualToCS(_cBeforeLastChar_, pCaseSensitive) and
+		   StzStringQ(_c_).IsEqualToCS(_cLastChar_, pCaseSensitive)
 
 			return _TRUE_
 		else
 			return _FALSE_
 		ok
+
 
 		#< @FunctionAlternativeForms
 
@@ -24863,8 +24837,8 @@ class stzString from stzObject
 			return _FALSE_
 		ok
 
-		cLastChar = QStringObject().mid(nLen-1, 1)
-		cBeforeLastChar = QStringObject().mid(nLen-2, 1)
+		cLastChar = This.QStringObject().mid(nLen-1, 1)
+		cBeforeLastChar = this.QStringObject().mid(nLen-2, 1)
 
 		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
 			return _TRUE_
@@ -38603,6 +38577,13 @@ class stzString from stzObject
 
 	def InsertBeforeEveryNChars(n, pcSubStr)
 		if CheckingParams()
+
+			if isString(n) and isNumber(pcSubStr)
+				nTemp = n
+				n = pcSubStr
+				pcSubStr = nTemp
+			ok
+
 			if NOT isNumber(n)
 				stzRaise("Incorrect param! n must be a number.")
 			ok
@@ -38612,20 +38593,25 @@ class stzString from stzObject
 			ok
 		ok
 
-		nLen = StzStringQ(pcSubStr)
-		anPos = []
+		# Doing the job
+
+		_nLen_ = StzSubStringQ(pcsubStr).NumberOfChars()
+		_nLenStr_ = This.NumberOfChars()
+		_anPos_ = []
 
 		if n = 1
-			anPos + 1
+			_anPos_ + 1
 
 		else
 		
-			for i = (nLen + 1) to This.NumberOfChars() step n
-				anPos + ( i - 1 )
+			for @i = (_nLen_ + 1) to _nLenStr_ step n
+
+				_anPos_ + ( @i - 1 )
 			next
 		ok
 
-		This.InsertBeforeThesePositions(anPos, pcSubStr)
+		This.InsertBeforeThesePositions(_anPos_, pcSubStr)
+
 
 		#< @FunctionFluentForm
 
@@ -38658,6 +38644,12 @@ class stzString from stzObject
 
 		if CheckingParams()
 
+			if isString(n) and isNumber(pcSubStr)
+				nTemp = n
+				n = pcSubStr
+				pcSubStr = nTemp
+			ok
+
 			if NOT isNumber(n)
 				stzRaise("Incorrect param! n must be a number.")
 			ok
@@ -38668,16 +38660,20 @@ class stzString from stzObject
 
 		ok
 
-		nLen = StzStringQ(pcSubStr).NumberOfChars()
-		anPos = []
+		# Doing the job
+
+		_nLen_ = StzStringQ(pcSubStr).NumberOfChars()
+		_nLenStr_ = This.NumberOfChars()
+		_anPos_ = []
 
 		if n > 1
-			for i = 1 to This.NumberOfChars() - nLen - 1 step n
-				anPos + ( i + 1 )
+			for @i = 1 to _nLenStr_ - _nLen_ - 1 step n
+				_anPos_ + ( @i + 1 )
 			next
 		ok
 
-		This.InsertAfterThesePositions(anPos, pcSubStr)
+		This.InsertAfterThesePositions(_anPos_, pcSubStr)
+
 
 		#< @FunctionFluentForm
 
@@ -44169,9 +44165,9 @@ class stzString from stzObject
 	def ThisLastCharReplaced(c, pcSubStr)
 		return This.Copy().ReplaceThisLastCharQ(c, pcSubStr).Content()
 
-	  #--------------------------#
-	 #    REPLACING ALL CHARS   # 
-	#--------------------------#
+	  #------------------------------------------------#
+	 #    REPLACING ALL CHARS WITH A GIVEN SUBSTRING  # 
+	#------------------------------------------------#
 
 	def ReplaceAllChars(pcSubStr)
 
@@ -44181,12 +44177,15 @@ class stzString from stzObject
 			ok
 		ok
 
-		cResult = ""
-		for i = 1 to This.NumberOfChars()
-			cResult += pcSubStr
+		_cResult_ = ""
+		_nLen_ = This.NumberOfChars()
+
+		for @i = 1 to _nLen_
+			_cResult_ += pcSubStr
 		next
 
-		This.Update( cResult )
+		This.UpdateWith( _cResult_ )
+
 
 		#< @FunctionFluentForm
 
@@ -44196,9 +44195,22 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def ReplaceChars(pcSubStr)
+			This.ReplaceAllChars(pcSubStr)
+
+			def ReplaceCharsQ(pcSubStr)
+				return This.ReplaceAllCharsQ(pcSubStr)
+		#>
+
+
 	def AllCharsReplaced(pcSubStr)
 		cResult = This.Copy().ReplaceAllCharsQ(pcSubStr).Content()
 		return cResult
+
+		def CharsReplaced(pcSubStr)
+			return This.AllCharsReplaced(pcSubStr)
 
 	  #================================#
 	 #    INTERPOLATING THE STRING    # 
@@ -44650,34 +44662,27 @@ class stzString from stzObject
 	def StartsWithCS(pcSubStr, pCaseSensitive)
 		#< QtBased | Uses QString.startsWith() >
 
+		if CheckParams()
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param! pcSubStr must be a string.")
+			ok
+		ok
+
+		# Early check
+
+		if pcSubstr = ""
+			return _FALSE_
+		ok
+
 		# Resolving pCaseSensitive
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		if isString(pCaseSensitive)
+		# Doing the job
 
-			if ring_find([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive)
+		_bResult_ = This.QStringObject().startsWith(pcSubStr, _bCase_)
 
-				pCaseSensitive = _TRUE_
-			
-			but ring_find([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive)
-
-				pCaseSensitive = _FALSE_
-			ok
-
-		ok
-
-		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (_TRUE_ or _FALSE_).")
-		ok
-
-		bResult = QStringObject().startsWith(pcSubStr, pCaseSensitive)
-		return bResult
+		return _bResult_
 
 
 		def BeginsWithCS(pcSubStr, pCaseSensitive)
@@ -44695,17 +44700,24 @@ class stzString from stzObject
 	 #  CHECKS IF THE STRING STARTS WITH ONE OF THE GIVEN SUBSTRINGS  #
 	#----------------------------------------------------------------#
 
-	def BeginsWithOneOfTheseCS(paSubStr, pCaseSensitive)
-		bResult = _FALSE_
+	def BeginsWithOneOfTheseCS(pacSubStr, pCaseSensitive)
+		if CheckParams()
+			if NOT ( isList(pacSubStr) and @IsListofSubStrings(pacSubStr) )
+				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+			ok
+		ok
 
-		for cSubStr in paSubStr
-			if This.BeginsWithCS(cSubStr, pCaseSensitive)
-				bResult = _TRUE_
+		_nLen_ = len(pacSubStr)
+		_bResult_ = _FALSE_
+
+		for @i = 1 to _nLen_
+			if This.BeginsWithCS(pacSubStr[i], pCaseSensitive)
+				_bResult_ = _TRUE_
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def StartsWithOneOfTheseCS(paSubStr, pCaseSensitive)
 			return This.BeginsWithOneOfTheseCS(paSubStr, pCaseSensitive)
@@ -44745,34 +44757,26 @@ class stzString from stzObject
 	def EndsWithCS(pcSubStr, pCaseSensitive)
 		#< QtBased | Uses oQString.endsWith() >
 
+		if CheckParams()
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param! pcSubStr must be a string.")
+			ok
+		ok
+
+		# Early check
+
+		if pcSubstr = ""
+			return _FALSE_
+		ok
+
 		# Resolving pCaseSensitive
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		if isString(pCaseSensitive)
+		# Doing the job
 
-			if ring_find([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive)
-
-				pCaseSensitive = _TRUE_
-			
-			but ring_find([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive)
-
-				pCaseSensitive = _FALSE_
-			ok
-
-		ok
-
-		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (_TRUE_ or _FALSE_).")
-		ok
-
-		bResult = QStringObject().endsWith(pcSubStr, pCaseSensitive)
-		return bResult
+		_bResult_ = This.QStringObject().endsWith(pcSubStr, _bCase_)
+		return _bResult_
 
 
 		def FinishsWithCS(pcSubStr, pCaseSensitive)
@@ -46091,39 +46095,16 @@ class stzString from stzObject
 			if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0)
 				StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
 			ok
-
-			# Resolving pCaseSensitive
-
-			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-				pCaseSensitive = pCaseSensitive[2]
-			ok
-	
-			if isString(pCaseSensitive)
-
-				if ring_find([
-					:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive)
-	
-					pCaseSensitive = _TRUE_
-				
-				but ring_find([
-					:CaseInSensitive, :NotCaseSensitive, :NotCS,
-					:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive)
-	
-					pCaseSensitive = _FALSE_
-				ok
-	
-			ok
-	
-			if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-				stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (_TRUE_ or _FALSE_).")
-			ok
-
 		ok
+
+		# Resolving pCaseSensitive
+
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 		
 		# Doing the job
 		
-		nResult = This.QStringObject().indexOf(pcSubStr, pnStartingAt - 1, pCaseSensitive) + 1
-		return nResult
+		_nResult_ = This.QStringObject().indexOf(pcSubStr, pnStartingAt - 1, _bCase_) + 1
+		return _nResult_
 
 
 		def FindFirstSTCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
@@ -46865,39 +46846,29 @@ class stzString from stzObject
 	def FindFirstCS(pcSubStr, pCaseSensitive)
 		#< QtBased | Uses QString.IndexOf() >
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
-			pcSubStr = pcSubStr[2]
+		
+		if CheckParams()
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+		ok
+
+		# Early check
+
+		if pcSubStr = ""
+			return 0
 		ok
 
 		# Resolving pCaseSensitive
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		if isString(pCaseSensitive)
+		# Doing the job (using Qt)
 
-			if ring_find([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive)
+		nResult = This.QStringObject().indexOf(pcSubStr, 0, _bCase_) + 1
 
-				pCaseSensitive = _TRUE_
-			
-			but ring_find([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive)
+		#NOTE // If nothing is found, Qt returns -1. With the addition of +1, we get 0.
 
-				pCaseSensitive = _FALSE_
-			ok
-
-		ok
-
-		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (_TRUE_ or _FALSE_).")
-		ok
-
-		# Doing the job
-
-		nResult = This.QStringObject().indexOf(pcSubStr, 0, pCaseSensitive) + 1
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -48431,43 +48402,25 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! nStart must be a number.")
 			ok
 
-			# Resolving pCaseSensitive param
-
-			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-				pCaseSensitive = pCaseSensitive[2]
-			ok
-	
-			if isString(pCaseSensitive)
-
-				if ring_find([
-					:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive)
-	
-					pCaseSensitive = _TRUE_
-				
-				but ring_find([
-					:CaseInSensitive, :NotCaseSensitive, :NotCS,
-					:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive)
-	
-					pCaseSensitive = _FALSE_
-				ok
-	
-			ok
-	
-			if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-				stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (_TRUE_ or _FALSE_).")
-			ok
-
 		ok
 
-		# Early check
+		# Resolving pCaseSensitive param
 
-		if This.ContainsCS(pcSubStr, pCaseSensitive) = _FALSE_
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+
+		# Early checks
+
+		if pcSubStr = ""
+			return  0
+		ok
+
+		if This.ContainsCS(pcSubStr, _bCase_) = _FALSE_
 			return 0
 		ok
 
 		# Doing the job (Qt-side)
 
-		nResult = QStringObject().indexof(pcSubStr, nStart, pCaseSensitive) + 1
+		nResult = This.QStringObject().indexof(pcSubStr, nStart, _bCase_) + 1
 
 		return nResult
 		
@@ -48750,8 +48703,6 @@ class stzString from stzObject
 	def FindCS(pcSubStr, pCaseSensitive)
 		#< QtBased | Uses QString.IndexOf() >
 
-		# Resolving the pcSubStr param
-
 		if CheckingParams()
 
 			if isList(pcSubStr) and @IsListOfStrings(pcSubStr)
@@ -48768,37 +48719,22 @@ class stzString from stzObject
 			if NOT isString(pcSubStr)
 				stzRaise("Incorrect param type! pcSubStr must be a string.")
 			ok
-	
-			if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
-				return []
-			ok
-	
-			# Resolving pCaseSensitive
-	
-			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-				pCaseSensitive = pCaseSensitive[2]
-			ok
-	
-			if isString(pCaseSensitive)
 
-				if ring_find([
-					:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive)
-	
-					pCaseSensitive = _TRUE_
-				
-				but ring_find([
-					:CaseInSensitive, :NotCaseSensitive, :NotCS,
-					:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive)
-	
-					pCaseSensitive = _FALSE_
-				ok
-	
-			ok
-	
-			if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-				stzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (_TRUE_ or _FALSE_).")
-			ok
 		ok
+
+		# Early check
+
+		if pcSubStr = ""
+			return []
+		ok
+
+		if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+			return []
+		ok
+
+		# Resolving pCaseSensitive
+
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		# Doing the job
 
@@ -48812,16 +48748,16 @@ class stzString from stzObject
 		anResult = []
 
 		bContinue = _TRUE_
-		nPos = 0
+		_nPos_ = 0
 
 		while bContinue
 			
-			nPos = This.QStringObject().indexOf(pcSubStr, nPos, pCaseSensitive) + 1
+			_nPos_ = This.QStringObject().indexOf(pcSubStr, _nPos_, pCaseSensitive) + 1
 
-			if nPos = 0
+			if _nPos_ = 0
 				bContinue = _FALSE_
 			else
-				anResult + nPos
+				anResult + _nPos_
 			ok
 		end
 
@@ -55087,43 +55023,19 @@ class stzString from stzObject
 				   ring_type(pcSubStr) + ".")
 		ok
 
+		# Early check
+
+		if pcSubStr = ""
+			return 0
+		ok
+
 		# Resolving pCaseSensitive param
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		if isString(pCaseSensitive)
-			if ring_find([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive) > 0
+		# Doing the job (Qt-side)
 
-				pCaseSensitive = _TRUE_
-			
-			but ring_find([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive) > 0
-
-				pCaseSensitive = _FALSE_
-			ok
-
-		ok
-
-		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			stzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (_TRUE_ or _FALSE_).")
-		ok
-
-		# Doing the job (Qt-side) #~> CANCELLED due to a RingQt error (should return -1 as in Qt)
-
-			#UPDATE // The error comes from Qt itself! Read this discussion with Mahmoud:
-			# Link: https://groups.google.com/g/ring-lang/c/BbdsAsylurA
-	
-			// nPos = This.QStringObject().indexOf(pcSubStr, 0, pCaseSensitive)
-
-			#INFO // It is decided to use Allegro instead of Qt in unicode strings
-
-		# Using a Ring-based solution instead
-
-		bResult = @StringContainsCS(This.Content(), pcSubStr, pCaseSensitive)
+		bResult = This.QStringObject().indexOf(pcSubStr, 0, _bCase_) + 1
 		return bResult
 
 		#< @FunctionAlternativeForm
@@ -79421,33 +79333,11 @@ class stzString from stzObject
 
 		# Resolving pCaseSensitive
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if isString(pCaseSensitive)
-
-			if ring_find([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive) > 0
-
-				pCaseSensitive = _TRUE_
-			
-			but ring_find([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive) > 0
-
-				pCaseSensitive = _FALSE_
-			ok
-
-		ok
-
-		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (_TRUE_ or _FALSE_).")
-		ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		# Doing the job
 
-		nQtValue = QStringObject().compare(pcOtherStr, pCaseSensitive)
+		nQtValue = This.QStringObject().compare(pcOtherStr, _bCase_)
 
 		if nQtValue = 0
 			return :equal
@@ -79461,13 +79351,15 @@ class stzString from stzObject
 		return This.CompareWithCS(pcOtherStr, _TRUE_)
 
 	def UnicodeCompareWithInSystemLocale(pcOtherStr)
-		nQtResult = QStringObject().localeAwareCompare(pcOtherStr)
+		_nQtResult_ = This.QStringObject().localeAwareCompare(pcOtherStr)
 
-		if nQtResult = 0
+		if _nQtResult_ = 0
 			return :equal
-		but nQtResult < 0
+
+		but _nQtResult_ < 0
 			return :less
-		but nQtResult > 0
+
+		but _nQtResult_ > 0
 			return :greater
 		ok
 		/*
@@ -82449,11 +82341,11 @@ class stzString from stzObject
 
 		# Doing the job
 
-		nQtStart = n1 - 1
-		nQtRange = n2 - n1 + 1
+		_nQtStart_ = n1 - 1
+		_nQtRange_ = n2 - n1 + 1
 
-		cResult = QStringObject().replace(nQtStart, nQtRange, pcNewSubStr)
-		This.Update(cResult)
+		_cResult_ = This.QStringObject().replace( _nQtStart_, _nQtRange_, pcNewSubStr)
+		This.UpdateWith( _cResult_ )
 
 		#< @FunctionFluentForm
 
@@ -89259,7 +89151,7 @@ class stzString from stzObject
 
 	// Verifies if the string is right-to-left (like arabic) : SEE Orientation()
 	def IsRightToleft()
-		bResult = QStringObject().isRightToleft()
+		bResult = This.QStringObject().isRightToleft()
 		return bResult
 
 	// Verifies if the string is left-to-right (like english)
@@ -90265,29 +90157,30 @@ class stzString from stzObject
 		--> {a fishy string?}
 		*/
 
-		result = ""
-		i = 1
+		_cResult_ = ""
+		@i = 1
 
-		acChars = This.Chars()
-		nLen = len(acChars)
+		_acChars_ = This.Chars()
+		_nLen _= len( _acChars_ )
 
-		while i <= nLen
+		while @i <= _nLen_
 
-			if acChars[i] = "%" and i + 2 <= nLen
+			if _acChars_[i] = "%" and (@i + 2) <= _nLen_
 
-				hexStr = QStringObject().mid(i, 2)
-				charCode = @Unicode(hex2str(hexStr))
-				result = result + Char(charCode) + " "
-				i = i + 3
+				_cHexStr_ = This.QStringObject().mid(@i, 2)
+				_nCharCode_ = @Unicode( hex2str(_hexStr_) )
+
+				_cResult_ += ( @Char(_nCharCode_) + " " )
+				@i += 3
 
 		        else
 
-				result = result + QStringObject().mid(i-1, 1)
-		            	i = i + 1
+				_cResult_ += This.QStringObject().mid(@i-1, 1)
+		            	@i = @i + 1
 		        end
 		end
 
-		This.UpdateWith( result )
+		This.UpdateWith( _cResult_ )
 
 		def UrlDecodeQ()
 			This.UrlDecode()
@@ -90480,12 +90373,15 @@ class stzString from stzObject
 	// Returns a list of unicodes of all the Chars in the string
 
 	def Unicodes()
-		aResult = []
-		for i = 1 to This.NumberOfChars()
-			aResult + This.UnicodeOfCharN(i)
+
+		_nLen_ = This.NumberOfChars()
+		_anResult_ = []
+		
+		for @i = 1 to _nLen_
+			_anResult_ + This.UnicodeOfCharN(@i)
 		next
 
-		return aResult
+		return _anResult_
 
 		#< @FunctionFluentForms
 
@@ -90643,13 +90539,18 @@ class stzString from stzObject
 	#-------------------------------------------------#
 
 	// Returns a list of hexunicodes of all the Chars in the string
+
 	def HexUnicodes()
-		acResult = []
-		for i = 1 to This.NumberOfChars()
-			acResult + This.HexUnicodeOfCharN(i)
+
+		_nLen_ = This.NumberOfChars()
+		_acResult_ = []
+
+		for @i = 1 to _nLen_
+			_acResult_ + This.HexUnicodeOfCharN(@i)
 		next
 
-		return acResult
+		return _acResult_
+
 
 		#< @FunctionFluentForms
 
@@ -93872,13 +93773,13 @@ class stzString from stzObject
 
 		# Resolving pCaseSensitive
 
-		bCase = @CaseSensitive(pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		# Doing the job
 
-		if bCase = _TRUE_
+		if _bCase_ = _TRUE_
 
-			return QStringObject().size()
+			return This.QStringObject().size()
 		else
 			return len( This.UniqueChars() )
 		ok
@@ -94709,39 +94610,42 @@ class stzString from stzObject
 		
 		but ring_type(pValue) = "STRING"
 
-			if pValue = _NULL_ { return _NULL_ }
+			if pValue = ""
+				return ""
+			ok
 
-			cResult = _NULL_
-			cTemp = _NULL_
+			_cResult_ = ""
+			_cTemp_ = ""
+			_nLen_ = this.NumberOfChars()
 
-			for i = 1 to This.NumberOfChars()
-				cTemp = QStringObject().mid(i-1,1) + pValue
-				cResult += cTemp
+			for @i = 1 to _nLen_
+				_cTemp_ = This.QStringObject().mid(@i-1,1) + pValue
+				_cResult_ += _cTemp_
 			next
 		
 		but ring_type(pValue) = "LIST"
-			aValue = pValue // just for expressivity
-			nLenValue = len(aValue)
-			nLen = This.NumberOfChars()
 
-			cResult = ""
-			cTemp = ""
+			_nLenValue_ = len(pValue)
+			_nLen_ = This.NumberOfChars()
+
+			_cResult_ = ""
+			_cTemp_ = ""
 				
-			for i = 1 to nLen
+			for @i = 1 to nLen
 				
-				for v = 1 to nLenValue
-					cTemp = QStringObject().mid(i-1,1) + aValue[v]
-					cResult += cTemp 
+				for @v = 1 to _nLenValue_
+					_cTemp_ = This.QStringObject().mid(i-1,1) + pValue[@v]
+					_cResult_ += _cTemp _
 				next
 										
-				cResult += " "
+				_cResult_ += " "
 
 			next
 
-			cResult = StzStringQ(cResult).RemovedFromEnd(" ")
+			_cResult_ = StzStringQ(_cResult_).RemovedFromEnd(" ")
 		ok
 
-		This.Update( cResult )
+		This.UpdateWith( _cResult_ )
 
 		#< @FunctionFluentForm
 
@@ -97434,26 +97338,32 @@ class stzString from stzObject
 
 			if ring_type(pValue) = "NUMBER"
 
-				cResult = ""
-				aParts = []
-		
-				nParts = ceil( This.NumberOfChars() / pValue )
-				for i=1 to This.NumberOfChars() step nParts
-					cTemp = QStringObject().mid(i-1, nParts)
-					aParts + cTemp	
+				_cResult_ = ""
+				_aParts_ = []
+				_nLen_ = This.NumberOfChars()
+
+				_nParts_ = ceil( _nLen_ / pValue )
+
+				for @i = 1 to _nLen_ step _nParts_
+					_cTemp_ = This.QStringObject().mid(@i-1, _nParts_)
+					_aParts_ + _cTemp_	
 				next
-		
-				if len(aParts) < pValue
-					for i = len(aParts) to pValue-1
-						aParts + "_"
+
+				_nLenParts_ = len(_aParts_)
+
+				if _nLenParts_ < pValue
+					for @i = _nLenParts_ to pValue-1
+						_aParts_ + "_"
 					next
 				ok
-		
-				if aParts[ len(aParts) ] != "_"
-					return aParts[ len(aParts) ]
+
+				_nLenParts_ = len(_aParts_)
+
+				if _aParts[ _nLenParts_ ] != "_"
+					return _aParts_[ _nLenParts_ ]
 				ok
 
-				return cResult
+				return _cResult_
 
 			but @IsStzNumber(pValue)
 				cResult = This % pValue.NumericValue()

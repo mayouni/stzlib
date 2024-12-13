@@ -7493,9 +7493,14 @@ class stzList from stzObject
 
 	def ReplaceAllItems(pNewItem)
 
-		for i = 1 to This.NumberOfItems()
-			This.ReplaceAt(i, pNewItem)
+		_nLen_ = This.NumberOfItems()
+		_aContent_ = This.Content()
+
+		for @i = 1 to _nLen_
+			_aContent[@i] = pNewItem
 		next
+
+		This.UpdateWith(_aContent_)
 
 		#< @FunctionFluentForm
 
@@ -17866,25 +17871,31 @@ class stzList from stzObject
 			return This.IsHashListOrListOfStrings()
 
 	def IsListOfListsOfSameSize()
-		if This.NumberOfItems() = 0
+
+		_nLen_ = This.NumberOfItems()
+
+		if _nLen_ = 0
 			return _FALSE_
 		ok
 
-		bResult = _FALSE_
+		_bResult_ = _FALSE_
 
 		if This.AllItemsAreLists()
-			bSame = _TRUE_
-			for i = 2 to This.NumberOfItems()
-				if len(Item(i)) != len(Item(i-1))
-					bSame = _FALSE_
+
+			_bSame_ = _TRUE_
+
+			for @i = 2 to _nLen_
+				if len(@aContent[@i]) != len(@aContent[i-1])
+					_bSame_ = _FALSE_
 				ok
 			next
-			if bSame
-				bResult = _TRUE_
+
+			if _bSame_ = _TRUE_
+				_bResult_ = _TRUE_
 			ok
 		ok
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionAlternativeForms
 
@@ -25086,53 +25097,55 @@ class stzList from stzObject
 
 	def WalkNItemsForwardXT(n, pReturn)
 
-		# Checking params
+		if CheckParams()
 
-		if NOT isNumber(n)
-			StzRaise("Incorrect param! n must be a number.")
-		ok
-
-		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
-
-			pReturn = pReturn[2]
-		ok
-
-		if NOT ( isString(pReturn) and
-
-			 ring_find([
-				:WalkedPositions, :WalkedItems,
-				:LastPosition, :LastWalkedPosition,
-				:LastItem, :LastWalkedItem,
-				:Default
-			], pReturn) > 0 )
-
-			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
-				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
+			if NOT isNumber(n)
+				StzRaise("Incorrect param! n must be a number.")
+			ok
+	
+			if isList(pReturn) and
+			   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+	
+				pReturn = pReturn[2]
+			ok
+	
+			if NOT ( isString(pReturn) and
+	
+				 ring_find([
+					:WalkedPositions, :WalkedItems,
+					:LastPosition, :LastWalkedPosition,
+					:LastItem, :LastWalkedItem,
+					:Default
+				], pReturn) > 0 )
+	
+				StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
+					 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
+			ok
 		ok
 
 		# Doing the job
 
-		anPos = []
+		_anPos_ = []
+		_nLen_ = This.NumberOfItems()
 
-		for i = 1 to This.NumberOfItems() step n
-			anPos + i
+		for @i = 1 to _nLen_ step n
+			_anPos_ + @i
 		next
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
+			return This.ItemsAt(_anPos_)
 
 		but pReturn = :WalkedPositions
-			return anPos
+			return _anPos_
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
+			return This.ItemAt(len(_anPos_))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
+			return _anPos_[len(_anPos_)]
 
 		else
-			return anPos
+			return _anPos_
 		end
 
 		#< @FunctionAlterntives
@@ -46297,15 +46310,20 @@ class stzList from stzObject
 	#=================================================#
 
 	def LowercaseStrings()
-		aContent = This.Content()
 
-		for i = 1 to This.NumberOfItems()
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-			if isString(aContent[i])
-				cStrLow = ring_lower(aContent[i])
-				This.ReplaceAt(i, cStrLow)
+		for @i = 1 to _nLen_
+
+			if isString(_aContent_[@i])
+				_aContent_[@i] = ring_lower(_aContent_[@i])
 			ok
+
 		next
+
+		This.UpdateWith(_aContent_)
+
 
 		def LowercaseStringsQ()
 			This.LowercaseStrings()

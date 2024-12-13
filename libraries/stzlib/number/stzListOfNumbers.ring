@@ -3307,19 +3307,22 @@ class stzListOfNumbers from stzList
 	def MeanByCoefficient(paList)
 		// [ 16, 18, 20, 17 ]
 		// [  4,  2,  2,  1 ]
-		i = 0
+		@i = 0
+		_anContent_ = This.Content()
 
-		aProduct = []
-		for i=1 to This.NumberOfNumbers()
-			aProduct + This.ListOfNumbers()[i] * paList[i]
+		_aProduct_ = []
+		_nLen_ = This.NumberOfNumbers()
+
+		for @i = 1 to _nLen_
+			_aProduct_ + _anContent_[@i] * paList[@i]
 		next
 
-		oTempList = new steListOfNumbers(aProduct)
-		oCoefList = new steListOfNumbers(paList)
+		_oTempList_ = new steListOfNumbers(_aProduct_)
+		_oCoefList_ = new steListOfNumbers(_paList_)
 
-		nResult = oTempList.Sum() / oCoefList.Sum()
+		_nResult_ = _oTempList_.Sum() / _oCoefList_.Sum()
 
-		return nResult
+		return _nResult_
 
 	  #---------------------------------------#
 	 #     CONTAINING DIVIDABLE NUMBER BY    #
