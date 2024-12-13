@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*-----------------
 
-pron()
+profon
 
 o1 = new stzPairOfLists(1:5, "A":"C")
 ? @@( o1.Alternate() )
@@ -13,7 +13,7 @@ proff()
 
 /*-----------------
 */
-pron()
+profon
 
 o1 = new stzPairOfLists( [ :Ring, :Python, :Ruby ], [ 2016, 1991, 1996 ] )
 ? @@( o1.Associate() )

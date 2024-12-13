@@ -1,6 +1,6 @@
 load "../max/stzmax.ring"
 
-pron()
+profon
 
 pState1 = ring_state_init()
 pState2 = ring_state_init()

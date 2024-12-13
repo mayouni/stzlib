@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*-----------
 
-pron()
+profon
 
 ? Q(1:5).IsEqualTo(5:1)
 #--> _TRUE_
@@ -28,7 +28,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzSplitter(10)
 ? @@( o1.SplitAtSection(3, 5) )
@@ -42,7 +42,7 @@ proff()
 
 /*====================
 
-pron()
+profon
 
 o1 = new stzSplitter(10)
 
@@ -76,7 +76,7 @@ proff()
 
 /*====================
 
-pron()
+profon
 
 o1 = new stzSplitter(10)
 
@@ -112,7 +112,7 @@ proff()
 
 /*====================
 
-pron()
+profon
 
 o1 = new stzSplitter(10)
 
@@ -149,7 +149,7 @@ proff()
 
 /*====================
 
-pron()
+profon
 
 o1 = new stzSplitter(10)
 
@@ -169,7 +169,7 @@ proff()
 
 /*=============
 
-pron()
+profon
 
 o1 = new stzSplitter(10)
 
@@ -204,7 +204,7 @@ proff()
 
 /*==================
 
-pron()
+profon
 
 # Softanza is designed with Programmer Experience in mind.
 
@@ -261,7 +261,7 @@ proff()
 
 /*==================
 */
-pron()
+profon
 
 # Used internally by Softanza, but could be useful...
 

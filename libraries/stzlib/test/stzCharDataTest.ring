@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*---
 
-pron()
+profon
 
 # Softanza knows all the 54 invisible chars available in Unicode:
 ? len( InvisibleUnicodes() )

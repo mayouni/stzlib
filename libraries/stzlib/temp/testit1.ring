@@ -3,7 +3,7 @@ load "../stzlib.ring"
 
 /*------
 
-pron()
+profon
 	o1 = new stzList([ "A", "B", "C", "D", "E" ])
 	? o1.ContainsSome([ "B", "D", "V" ]) #--> _TRUE_
 
@@ -15,7 +15,7 @@ proff()
 
 /*------
 
-pron()
+profon
 
 	o1 = new stzList([ "from", 1, "to", 10, "step", 2 ])
 
@@ -30,7 +30,7 @@ proff()
 
 /*------
 
-pron()
+profon
 
 	o1 = new stzList([ "FROM", 1, "TO", 10, "STEP", 2 ])
  
@@ -45,7 +45,7 @@ proff()
 
 /*------
 
-pron()
+profon
 
 	o1 = new stzList([ "from", 1, "to", 10, "step", 2 ])
 
@@ -60,7 +60,7 @@ proff()
 
 /*------
 
-pron()
+profon
 
 	o1 = new stzString("e28c98")
 	o1.InsertEveryNChars(2, " ")
@@ -71,7 +71,7 @@ proff()
 
 /*=====
 */
-pron()
+profon
 
 	o1 = new stzString("ring programming language")
 	? o1.Walk(:From = 6, :To = 16, :Step = 2, :Return = :WalkedChars)
@@ -90,7 +90,7 @@ proff()
 
 /*------
 
-pron()
+profon
 
 	? Q("⌘").CharName()		#--> PLACE OF INTEREST SIGN
 	? Q("⌘").ToHex()		#--> e28c98
@@ -102,7 +102,7 @@ proff()
 
 /*------
 */
-pron()
+profon
 
 	SetHilightChar(Heart())
 
@@ -1258,7 +1258,7 @@ o1 = new stzListOfNumbers([ 2, 7, 18, 10, 25, 4 ])
 
 /*---- OK
 */
-pron()
+profon
 
 o1 = new stzListOfStrings([ "Jameel", "Fedy", "Badr" ])
 ? o1.ContainsBothCS("JAMEEL", "BADR", :CS = _FALSE_) #--> _TRUE_

@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*--------------
 
-pron()
+profon
 
 ? NullObject().Name()
 #--> @nullobject
@@ -31,7 +31,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 StzNamedObjectQ(:myobj = _TRUE_Object()) {
 
@@ -47,7 +47,7 @@ StzNamedObjectQ(:myobj = _TRUE_Object()) {
 
 /*==============
 
-pron()
+profon
 
 ? @@( StzNullObjectQ() )
 #--> @noname
@@ -64,7 +64,7 @@ proff()
 
 /*==================
 
-pron()
+profon
 
 ? fabs(-5) #--> 5	Ring function
 ? Abs(-5)  #--> 5	Softanza function
@@ -74,7 +74,7 @@ proff()
 
 /*------------------
 
-pron()
+profon
 
 ? StzNumberQ("-5.23456").Absolute()
 #--> "5.23456"
@@ -84,7 +84,7 @@ proff()
 
 /*==================
 
-pron()
+profon
 
 # There is a difference in Softanza between IsEither() and IsEitherA().
 # The first checks for VALUES while the second checks for TYPES:
@@ -106,7 +106,7 @@ proff()
 
 /*================== ToNumber() and ToNumberW()
 
-pron()
+profon
 
 ? Q(5).ToNumber()
 #--> 5
@@ -169,7 +169,7 @@ StopProfiler()
 
 /*------------------
 
-pron()
+profon
 
 ? Q([ "a", "b", "c" ]).ToNumberW('{ @number = len(@list) }') # Or ToNumberXT()
 #--> 3
@@ -194,7 +194,7 @@ proff()
 
 /*=================
 
-pron()
+profon
 
 ? Q(StzTypesXT()).IsHashList()
 #--> _TRUE_
@@ -207,7 +207,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 ? PluralOfThisStzType(:stzchar)
 #--> "stzchars"
@@ -223,7 +223,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 ? RingTypes()
 ? StzTypes()
@@ -234,7 +234,7 @@ proff()
 
 /*-----------------
 */
-pron()
+profon
 
 ? Q("2").IsA([ :Number, :String, :List ])
 #--> _FALSE_
@@ -297,7 +297,7 @@ proff()
 
 /*=======
 
-pron()
+profon
 
 o1 = new stzList([ 6, -2, 9, 5, -10 ])
 ? o1.EachItemIsEitherA(:Positive, :Or = :Negative, :Number)
@@ -308,7 +308,7 @@ proff()
 
 /*------ #TODO
 
-pron()
+profon
 
 ? Q(["a", 3, "c"]).IsAQ(:list).Of([ :Numbers, :and = :strings ])
 
@@ -316,7 +316,7 @@ proff()
 
 /*------
 
-pron()
+profon
 
 o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
 
@@ -328,7 +328,7 @@ proff()
 
 /*------ #TODO
 
-pron()
+profon
 
 o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
 
@@ -342,7 +342,7 @@ proff()
 
 /*------
 
-pron()
+profon
 
 o1 = new stzList([ 120, "1250", 54, "452" ])
 ? o1.EachItemIsEither( :Number, :Or, :NumberInString )
@@ -353,7 +353,7 @@ proff()
 
 /*------ #TODO
 
-pron()
+profon
 
 o1 = new stzList([ 2, 4, 8, "-129", 10, "-100.45" ])
 ? o1.EachItemIsEither([ :Positive, :Even, :Number ], :Or, [ :Negative, :NumberInString ] )
@@ -362,7 +362,7 @@ proff()
 
 /*------------
 
-pron()
+profon
 
 ? Q([10, 20, 30 ]).IsA(:ListOfNumbers)
 #--> _TRUE_
@@ -379,7 +379,7 @@ proff()
 
 /*--------------------
 
-pron()
+profon
 
 o1 = new stzNumber(12500)
 
@@ -394,7 +394,7 @@ proff()
 
 /*--------------------
 
-pron()
+profon
 
 o1 = new stzString("hello")
 ? o1.Is(:StzString)
@@ -405,7 +405,7 @@ proff()
 
 /*--------------------
 
-pron()
+profon
 
 o1 = new stzGrid([ [1,2,3], [4,5,6], [7,8,9] ])
 ? o1.Is(:StzGrid) # from stzObject based on the name of the class
@@ -416,7 +416,7 @@ proff()
 
 /*----------------
 
-pron()
+profon
 
 o1 = new QString2()
 ? IsQObject(o1)
@@ -432,7 +432,7 @@ proff()
 
 /*----------------
 
-pron()
+profon
 
 ? HowManyStzClasses()
 #--> 60

@@ -43,7 +43,7 @@ func MergeContiguousSections(sections)
 
 /*---
 
-pron()
+profon
 
 # Given the string: "abracadabra", replace programatically:
 #
@@ -75,7 +75,7 @@ proff()
 
 /*---
 
-pron()
+profon
 
 Q("abracadabra") {
 	ReplaceManyNthSubStrings([
@@ -95,7 +95,7 @@ proff()
 
 /*---
 
-pron()
+profon
 
 Naturally() {
 	Given the string "abracadabra" replace programatically

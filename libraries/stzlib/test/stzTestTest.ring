@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*--------------
 
-pron()
+profon
 
 StzTestQ() {
 
@@ -31,7 +31,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 StzTestQ() {
 

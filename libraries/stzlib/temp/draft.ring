@@ -2,7 +2,7 @@ load "../stzmax.ring"
 
 /*==========
 
-pron()
+profon
 
 o1 = new stzString("   irum epsum     elo  n   ")
 
@@ -17,7 +17,7 @@ proff()
 
 /*------- #narration Simplify VS RemoveOverSpaces
 
-pron()
+profon
 
 # Simplify: string is trimmed and redundant spaces are removed
 # ~> QtBased
@@ -41,7 +41,7 @@ proff()
 
 /*-------
 
-pron()
+profon
 
 o1 = new stzString("   irum epsum     elo  n   ")
 o1.ReplaceOverSpaces(:With = "~")
@@ -53,7 +53,7 @@ proff()
 
 /*=======
 
-pron()
+profon
 
 o1 = new stzString("CAIRO")
 o1.BoxEachChar()
@@ -68,7 +68,7 @@ proff()
 
 /*------
 */
-pron()
+profon
 
 o1 = new stzString("CAIRO")
 o1.BoxEachCharXT(:rounded)

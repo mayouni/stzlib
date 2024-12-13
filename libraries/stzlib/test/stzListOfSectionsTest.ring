@@ -3,7 +3,7 @@ load "../max/stzmax.ring"
 
 /*----
 
-pron()
+profon
 
 o1 = new stzListOfSections([
 	[ 1, 4], [6, 8], [9, 10], [12, 13], [13, 15]
@@ -18,7 +18,7 @@ proff()
 
 /*------------------
 
-pron()
+profon
 
 aSections = [ [ 4, 5 ], [ 8, 9 ], [ 10, 11 ], [ 14, 15 ], [ 16, 17 ], [ 18, 19 ], [ 22, 23 ] ]
 

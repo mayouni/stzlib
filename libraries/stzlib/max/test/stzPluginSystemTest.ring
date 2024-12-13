@@ -55,7 +55,7 @@ _aPlugins = LoadPlugins()
 #	[ "reverse", 		"plugin_string_reverse.ring" ]
 # ]
 
-pron()
+profon
 
 	o1 = new XString("Hello Ring in Ring!")
 	
