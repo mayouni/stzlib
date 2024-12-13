@@ -61,7 +61,6 @@ proff()
 # Executed in 2.05 second(s) in Ring 1.22
 
 /*==== #todo Write a #narration
-*/
 
 pron()
 
@@ -114,10 +113,6 @@ if n = 5 {
 	DoSomethingElse() # Bad indentation here
 }'
 
-
-oCode = new stzString(cCode)
-? @@( oCode.BoundedByZZ([ "{", "}" ]) )
-/*
 # Putting the string in an stzString object and trimming it
 
 oCode = new stzString(cCode)
