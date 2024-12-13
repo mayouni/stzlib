@@ -24,7 +24,7 @@ load "stzlib.ring"
 ? @NXT(3, ".", :InAList)
 #--> [ ".", ".", "." ]
 
-? @NXT(3, ".", :InAString) + NL
+? @NXT(3, ".", :InAString)
 #--> ...
 ```
 
@@ -49,7 +49,7 @@ And for brevity’s sake, Softanza offers the charmingly compact `@3(".")`:
 
 ## The Power of Intuitive Queries: `StartsWith()`, `EndsWith()`, and Beyond
 
-Softanza makes querying strings feel almost conversational:
+Softanza makes querying strings and lists feel almost conversational:
 
 ```ring
 ? Q([ ".", ".", ".", "Tunis" ]).StartsWith( @3(".") )
@@ -67,7 +67,7 @@ Here, the `StartsWith()` method works across different data structures, whether 
 The same logic applies to ending patterns, as seen with `EndsWithXT()`:
 
 ```ring
-? Q("..Tunis..").EndsWithXT( @2(".") )
+? Q("Tunis..").EndsWithXT( @2(".") )
 #--> TRUE
 ```
 >**NOTE**: `StartsWith()` and `EndsWith()` are just two examples among hundreds of powerful methods offered by Softanza for comprehensive string checking.
@@ -88,7 +88,7 @@ This design is particularly well-suited for validating complex conditions in dat
 
 ## Use Cases
 
-- **Dynamic String Validation**: Check if a user’s input repeats specific characters, such as ensuring a password starts with three dots (`"..."`) or ends with two underscores (`"__"`).
+- **Dynamic String Validation**: Check if a user’s input repeats specific characters, such as ensuring an entry starts with three dots (`"..."`) or ends with two underscores (`"__"`).
 
 - **Log Analysis**: Identify logs with repetitive patterns, such as entries beginning with three stars (`"***"`) to indicate priority events.
 
