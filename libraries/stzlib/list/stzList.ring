@@ -42096,7 +42096,9 @@ class stzList from stzObject
 	#---------------------------------------------------#
 
 	def FindFirstOccurrenceCS(pItem, pCaseSensitive)
+
 		return This.FindNthOccurrenceCS(1, pItem, pCaseSensitive)
+
 
 		#< @FunctionAlternativeForms
 
@@ -42931,17 +42933,27 @@ class stzList from stzObject
 	#======================================================#
 
 	def DeepContainsCS(pItem, pCaseSensitive)
-		
-		cList = @@( This.List() )
 
-		cItem = @@(pItem)
-		if isString(pItem)
-			cItem = Q(cItem).FirstAndLastCharsRemoved()
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+
+		if _bCase_ = _FALSE_
+			_cList_ = @@Q( This.Content() ).Lowercased()
+			_cItem_ = @@Q(pItem).Lowercased()
+
+		else
+			_cList_ = @@(This.content())
+			_cItem_ = @@(pItem)
 		ok
 
-		bResult = Q(cList).ContainsCS(cItem, pCaseSensitive)
+		if _cItem_ = ""
+			return 0
+		ok
 
-		return bResult
+		_oQStr_ = new QString2()
+		_oQStr_.append(_cList_)
+		_bResult_ = _oQStr_.contains(_cItem_, _bCase_)
+
+		return _bResult_
 
 	#-- WITHOUT CASESENSITIVITY
 
