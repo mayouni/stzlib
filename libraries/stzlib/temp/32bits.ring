@@ -1,6 +1,6 @@
 load "../stzlib.ring"
 
-profon
+profon()
 
 nNum1 = 0
 nNum2 = 1
@@ -30,7 +30,7 @@ ok
 proff()
 
 /*	
-profon
+profon()
 
 nNum1 = -909929
 nNum2 = 0
@@ -58,7 +58,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 ? Round(2.398)
 #--> 2.40
@@ -81,7 +81,7 @@ proff()
 
 /*-----
 
-profon
+profon()
 
 ? Q(2.5).RoundedToXT(3)
 #--> '2.500'

@@ -2,7 +2,7 @@ load "../stzmax.ring"
 
 /*======
 
-profon
+profon()
 
 AddFuture(:Uppercase)
 AddFuture(:Remove)
@@ -15,7 +15,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 oStr = new stzString("ring")
 
@@ -37,7 +37,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 ? BeforeQ("ringo").IsUppercasedFQ().
 	RemoveFFQ("o").
@@ -61,7 +61,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 ? Q("AnnIE").NumberOfVowels() # same as ? Q("AnnIE").VowelN()
 #--> 3
@@ -81,7 +81,7 @@ proff()
 
 /*----
 
-profon
+profon()
 
 SetLastValue(3)
 
@@ -103,7 +103,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 QM("hi")
 ? MainObject().Content()
@@ -114,7 +114,7 @@ proff()
 
 /*======= #natural-coding #semantic-eloquence
 
-profon
+profon()
 
 ? Q("ring").IsAString()
 #--> _TRUE_
@@ -164,7 +164,7 @@ proff()
 
 /*-----------
 
-profon
+profon()
 
 ? Q([ -1200, -10200, -820, -10 ]).AreQ(:numbers).ThatQ().AreNegative()
 #--> _TRUE_
@@ -180,7 +180,7 @@ proff()
 
 /*-----------
 
-profon
+profon()
 
 # Two misspelled forms of InLowercase()
 
@@ -192,7 +192,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 ? Q("ring").IsAQ(:String).InLowercase() 		#--> _TRUE_
 ? Q("ring").IsAQ(:String).WhichIs().InLowercase()	#--> _TRUE_
@@ -204,7 +204,7 @@ proff()
 
 /*======
 
-profon
+profon()
 
 ? PluralToStzType("stzstrings")
 #--> stzstring
@@ -214,7 +214,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfStrings([ "Ring", "Ruby" ])
 ? o1.FirstChar()
@@ -229,7 +229,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 ? Q([ "Ring", :and = "Ruby" ]).AreBothQ(:strings).HavingQ().TheirQ().FirstCharQ().EqualTo("R")
 #--> _TRUE_
@@ -251,7 +251,7 @@ proff()
 /*------
 */
 
- profon
+ profon()
 
  ? QM("ring").IsAQ(:String).
 	InLowercaseQ().

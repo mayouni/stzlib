@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*-------------- #TODO adjust lines under titles
 
-profon
+profon()
 
 o1 = new stzHashList([
 	:name = 	[ "foued", "karima", "wissal" ],
@@ -21,7 +21,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 StzNamedHashListQ(:myhash = [ :x = 10, :y = 20 ]) {
 
@@ -38,7 +38,7 @@ proff()
 
 /*-------------
 
-profon
+profon()
 
 ? NullObject().Name()
 #--> @nullobject
@@ -63,7 +63,7 @@ proff()
 
 /*==============
 
-profon
+profon()
 
 o1 = new stzHashList([
 	:one   = "here",
@@ -82,7 +82,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 o1 = new stzHashList([
 	:one   = [ "here" ],
@@ -123,7 +123,7 @@ proff()
 
 /*------------- TODO
 
-profon
+profon()
 
 o1 = new stzHashList([
 	:One	= :can,
@@ -140,7 +140,7 @@ proff()
 
 /*---------------- FINDING ITEMS INSIDE VALUES THAT ARE LISTS
 
-profon
+profon()
 
 o1 = new stzHashList([
 	:One	= :NONE,
@@ -170,7 +170,7 @@ proff()
 
 /*-----------
 
-profon
+profon()
 
 o1 = new stzHashList([
 	:One	= :NONE,
@@ -188,7 +188,7 @@ proff()
 
 /*-----------
 
-profon
+profon()
 
 o1 = new stzHashList([
 	:Zero	= 0,
@@ -286,7 +286,7 @@ proff()
 
 /*-----------
 */
-profon
+profon()
 
 o1 = new stzHashList([
 	:Zero	= 0,
@@ -341,7 +341,7 @@ proff()
 
 /*-----------
 
-profon
+profon()
 
 o1 = new stzHashList([
 	:One	= :NONE,
@@ -368,7 +368,7 @@ proff()
 
 /*-----------
 
-profon
+profon()
 
 o1 = new stzHashList([
 	:One	= :NONE,
@@ -397,7 +397,7 @@ proff()
 
 /*-----------
 
-profon
+profon()
 
 o1 = new stzHashList([
 	:one	= Q(1),
@@ -426,7 +426,7 @@ proff()
 
 /*=============
 
-profon
+profon()
 
 o1 = new stzHashList([
 	:one	= "will not be classified",
@@ -459,7 +459,7 @@ proff()
 
 /*-------------
 
-profon
+profon()
 
 o1 = new stzHashList([
 	:one 	= :red,
@@ -564,7 +564,7 @@ proff()
 
 /*---------------- #narration
 
-profon
+profon()
 
 # While working with stzHashLists, there may be a special need where you
 # want to find a given item inside values that are of type list.
@@ -628,7 +628,7 @@ proff()
 
 /*==================
 
-profon
+profon()
 
 o1 = new stzHashList([
 	:egypt		= :africa,
@@ -663,7 +663,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 # The keys of a hashlist must be unique. Otherwise you won't be able to
 # create the hashlist objectS
@@ -675,7 +675,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 # You need to pay attention to the syntax you use in creating a stzHashList
 # Hence, the follwing syntax is incorrect:
@@ -698,7 +698,7 @@ proff()
 
 /*--------------- 
 
-profon
+profon()
 
 o1 = new stzHashList([
 	:math = 18,
@@ -721,7 +721,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 o1 = new stzHashList([ :math = 18, :stats = 16, :history = 14 ])
 
@@ -736,7 +736,7 @@ proff()
 
 /*--------------
 */
-profon
+profon()
 
 o1 = new stzHashList([ [ "NAME", "Mansour"] , [ "AGE" , 45 ] ])
 ? @@( o1.Content() ) # Keys are automatically lowercased
@@ -748,7 +748,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 o1 = new stzHashList([ :name = "mansour", :age = 45, :job = "programmer" ])
 
@@ -767,7 +767,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 o1 = new stzHashList([ :name = "Hussein", :age = 1, :grandftaher = "Hussein" ])
 o1.RemovePairsByValue("Hussein")
@@ -778,7 +778,7 @@ proff()
 
 /*-------------
 
-profon
+profon()
 
 o1 = new stzHashList([ :name = "Hussein", :age = 1, :grandftaher = "Hussein" ])
 o1.AddPair( :grandmother = "Arem" )

@@ -2,7 +2,7 @@ load "../stzmax.ring"
 
 /*----
 
-profon
+profon()
 
 ? @@(5)
 #--> 5
@@ -21,7 +21,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 ? @@SF("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 #--> ABC...XYZ
@@ -40,7 +40,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 ? @@SF(1:8)
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8 ]
@@ -58,7 +58,7 @@ proff()
 
 /*----
 
-profon
+profon()
 
 ? @@([ 1:3, 4:6, 7:9 ]) + NL
 #--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]
@@ -82,7 +82,7 @@ proff()
 
 /*====
 
-profon
+profon()
 
 ? MinValueForComputableShortFormXT() # Or MinSF()
 #--> 10
@@ -97,7 +97,7 @@ proff()
 
 /*----
 
-profon
+profon()
 
 ? Show(5) # Or ComputableForm(pValue) or @Show(pValue)
 #--> 5
@@ -116,7 +116,7 @@ proff()
 
 /*----
 
-profon
+profon()
 
 ? ShowShort(1:8) # Or @@SF(paList) or @@S(paList) or ShortForm(paList)
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8 ]
@@ -131,7 +131,7 @@ proff()
 
 /*----
 
-profon
+profon()
 
 ? ShowShort("A":"Z")
 #--> [ "A", "B", "C", "...", "X", "Y", "Z" ]
@@ -150,7 +150,7 @@ proff()
 
 /*------
 */
-profon
+profon()
 
 ? ComputableForm([ 1:3, 4:6, 7:9 ]) + NL # OR CF() or @@()
 #--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]

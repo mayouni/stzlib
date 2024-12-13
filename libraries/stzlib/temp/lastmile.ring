@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*======
 
-profon
+profon()
 
 o1 = new stzString("Ring programming language!")
 ? o1.ContainsSubStringBetween("ram", "prog", "ing")
@@ -13,7 +13,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 #                       5     11             26        36    42      50
 o1 = new stzString("The <<Ring>> programming <<language>> is >>Waooo!<<")
 ? o1.FindTheseBounds("<<", ">>")
@@ -24,7 +24,7 @@ proff()
 
 /*---- #narration #generated #ai #gemini
 
-profon
+profon()
 
 # The FindTheseBounds(cBound1, cBound2) function helps you locate
 # substrings within a larger string that are marked by specific
@@ -88,7 +88,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 o1 = new stzString("bla bal <<<hi>>> bla bla <<<there!>>>")
 
@@ -123,7 +123,7 @@ proff()
 
 /*======
 
-profon
+profon()
 #                         +------.--.--+
 #                         |      :  :  |
 #                         V      :  :  V
@@ -163,7 +163,7 @@ proff()
 
 /*======
 
-profon
+profon()
 
 o1 = new stzString("I love the <<Ring>> programming <<language>>: <<Ring>> is nice!")
 
@@ -191,7 +191,7 @@ proff()
 
 #--
 
-profon
+profon()
 #                                      20
 o1 = new stzString("Ring programming language")
 
@@ -204,7 +204,7 @@ proff()
 
 /*===
 
-profon
+profon()
 
 o1 = new stzString("THE START <<ring>> ring <<ring>> THE END")
 
@@ -222,7 +222,7 @@ proff()
 
 /*===
 
-profon
+profon()
 
 o1 = new stzString("THE START <<ring>> ring <<ring>> THE E<<ring>>ND")
 
@@ -234,7 +234,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 o1 = new stzString("THE START <<ring>> ring <<ring>> THE E<<ring>>ND")
 
@@ -253,7 +253,7 @@ proff()
 
 /*---------- #todo #narration
 
-profon
+profon()
 
 o1 = new stzString("...<<ring>>...<<ring>>...<<ring>>...")
 
@@ -271,7 +271,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString("THE START <<ring>> ring <<ring>> THE E<<ring>>ND")
 
@@ -294,7 +294,7 @@ proff()
 
 /*===
 
-profon
+profon()
 
 o1 = new stzString("THE START <<ring>> ring <<ring>> _ring_ THE END")
 
@@ -322,7 +322,7 @@ proff()
 
 /*---
 
-profon
+profon()
 #                             11            25
 #                             v             v
 o1 = new stzString("THE START <<ring>> ring <<ring>> _ring_ THE END")
@@ -335,7 +335,7 @@ proff()
 
 /*---
 
-profon
+profon()
 #                       5       13     20     27
 #                       v       v      v      v
 o1 = new stzString("THE START <<ring>> ring <<ring>> _ring_ THE END")
@@ -351,7 +351,7 @@ proff()
 
 /*---
 
-profon
+profon()
 #                       5                            34     41
 #                       v                            v      v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END")
@@ -367,7 +367,7 @@ proff()
 
 /*===
 
-profon
+profon()
 #                       5              20     27
 #                       v              v      v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END")
@@ -389,7 +389,7 @@ proff()
 
 /*-----
 
-profon
+profon()
 #                       5              20     27
 #                       v              v      v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END")
@@ -411,7 +411,7 @@ proff()
 
 /*--- #ring
 
-profon
+profon()
 
 ? ring_reverse("START")
 #--> TRATS
@@ -424,7 +424,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 #                       5       13     20     27       36         47
 #                       v       v      v      v        v          v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
@@ -440,7 +440,7 @@ proff()
 
 /*===
 
-profon
+profon()
 #                       5       13     20     27       36         47
 #                       v       v      v      v        v          v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
@@ -472,7 +472,7 @@ proff()
 
 /*---
 
-profon
+profon()
 #                       5       13     20     27       36         47
 #                       v       v      v      v        v          v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
@@ -504,7 +504,7 @@ proff()
 
 /*----
 
-profon
+profon()
 #                       5     11     18     25
 #                       v     v      v      v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
@@ -534,7 +534,7 @@ proff()
 
 /*====
 
-profon
+profon()
 #                       5       13     20     27       36         47
 #                       v       v      v      v        v          v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
@@ -556,7 +556,7 @@ proff()
 
 /*---
 
-profon
+profon()
 #                       5       13     20     27       36         47
 #                       v       v      v      v        v          v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
@@ -575,7 +575,7 @@ proff()
 
 /*----
 
-profon
+profon()
 #                       5     11     18     25
 #                       v     v      v      v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
@@ -605,7 +605,7 @@ proff()
 
 /*=========
 
-profon
+profon()
 
 ? Direction(:forward)
 #--> "forward"
@@ -624,7 +624,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 #                       5       13     20     27       36         47
 #                       v       v      v      v        v          v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
@@ -657,7 +657,7 @@ proff()
 
 /*------
 
-profon
+profon()
 #                       5       13     20     27       36         47
 #                       v       v      v      v        v          v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
@@ -690,7 +690,7 @@ proff()
 
 /*=============
 
-profon
+profon()
 #                       5     11            25
 #                       v     v             v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
@@ -723,7 +723,7 @@ proff()
 
 /*------
 
-profon
+profon()
 #                       5     11    18      25     32
 #                       v     v     v       v      v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
@@ -756,7 +756,7 @@ proff()
 
 /*======
 
-profon
+profon()
 #                       5       13     20     27       36         47
 #                       v       v      v      v        v          v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
@@ -769,7 +769,7 @@ proff()
 
 /*---
 
-profon
+profon()
 #                       5       13     20     27       36         47
 #                       v       v      v      v        v          v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
@@ -805,7 +805,7 @@ proff()
 
 /*----
 
-profon
+profon()
 #                       5     11     18     25     32
 #                       v     v      v      v      v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
@@ -836,7 +836,7 @@ proff()
 #===============
 
 
-profon
+profon()
 
 o1 = new stzString("...<<ring>> ... <<ruby>> ... <<php>> ...")
 
@@ -854,7 +854,7 @@ proff()
 
 /*-----
 
-profon
+profon()
 
 #                       5  8
 #                       v--v
@@ -872,7 +872,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 ? IsCaseSensitive(:CS = _FALSE_)
 #--> _FALSE_
@@ -887,7 +887,7 @@ proff()
 
 /*---- #narration
 
-profon
+profon()
 
 # ~> Like @Direction() or @CaseSensitive() functions,
 # @Bounds() function helps in checking the pacBounds
@@ -935,7 +935,7 @@ proff()
 
 /*===== #todo add #narration #visuality : FindBounded VS DeepFindBounded
 
-profon
+profon()
 #                               15  16
 # BOUNDED BY >>         5   9    \  /    23 25
 #                       v---v     vv      v-v
@@ -957,7 +957,7 @@ proff()
 
 /*------
 */
-profon
+profon()
 #                              15   16
 #                         7 9    \  /
 #                       v v v     vv v    v v
@@ -985,7 +985,7 @@ proff()
 
 /*------
 */
-profon
+profon()
 #                                   19  20
 #                        6  9 11     \  /        30 32
 #                        v  v v       vv  v      v v
@@ -1018,7 +1018,7 @@ proff()
 
 /*===----
 
-profon
+profon()
 #                                      
 #                      4 6   10 14 17 19 22  26
 #                      v v   v   v  v v  v   v
@@ -1041,7 +1041,7 @@ proff()
 
 /*------
 
-profon
+profon()
 #                                      
 #                      4   8       16  20     27  31 34      42
 #                      v   v       v   v      v   v  v       v

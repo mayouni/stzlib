@@ -1,6 +1,6 @@
 load "../max/stzmax.ring"
 
-profon
+profon()
 
 # Getting a char by its unicode codepoint
 ? StzChar(65014) #--> ﷶ
@@ -18,7 +18,7 @@ proff()
 
 /*----
 
-profon
+profon()
 
 ? MaxUnicode()
 #--> 1_114_112
@@ -45,7 +45,7 @@ proff()
 /*------ #narration
 
 */
-profon
+profon()
 
 # Setting the Some() function to return 3 items (by default it returns 5)
 
@@ -117,7 +117,7 @@ ProfilerOff()
 
 /*-----------------
 
-profon
+profon()
 
 ? Some( UnicodeBlocks() ) # By default, Some() function returns 10 items
 
@@ -142,7 +142,7 @@ proff()
 
 /*-----------------
 
-profon
+profon()
 
 ? StzUnicodeDataQ().CharUnicodeByName("CHECK MARK")
 
@@ -151,7 +151,7 @@ proff()
 
 /*-----------------
 
-profon
+profon()
 
 ? StzCharQ(610).Content()
 #--> ɢ
@@ -173,7 +173,7 @@ proff()
 
 /*-----------------
 */
-profon
+profon()
 
 StzUnicodeDataQ() {
 

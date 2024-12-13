@@ -1,6 +1,6 @@
 load "../stzmax.ring"
 
-profon
+profon()
 
 o1 = new stzText("ring programming, best of programming!")
 ? o1.FindAllCS("programming", _FALSE_)
@@ -10,7 +10,7 @@ proff()
 
 /*--------------- Chars() VS Letters()
 
-profon
+profon()
 
 str = "Пи++е́тو**שָׁ ب d ("
 ? @@( SQ(str).Chars() ) # Uses stzString

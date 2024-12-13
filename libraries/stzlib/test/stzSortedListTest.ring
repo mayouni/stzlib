@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*--
 */
-profon
+profon()
 
 o1 = new stzSortedList([ 2, 1, 4, 3 ])
 ? o1.Content()
@@ -13,7 +13,7 @@ proff()
 
 #--
 
-profon
+profon()
 
 o1 = new stzSortedList([ 2, 1, 4, 6 ])
 o1.Add(5)
@@ -25,7 +25,7 @@ proff()
 
 #--
 
-profon
+profon()
 
 o1 = new stzSortedList([ 2, 1, 4, 6 ])
 o1 + 5

@@ -9,7 +9,7 @@ load "../max/stzmax.ring"
 
 # Let's take an example of the SubStrings() function:
 
-profon
+profon()
 
 Q("Ali 12500 Tony 24800 Claude 12340") {
 
@@ -40,7 +40,7 @@ proff()
 
 /*-----
 
-profon
+profon()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
@@ -55,7 +55,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 o1 = new stzString("--<<one>>---<<two>>---")
 ? @@( o1.FindAnyBoundedByAsSections([ "<<", ">>" ]) )
@@ -67,7 +67,7 @@ proff()
 
 /*-----
 
-profon
+profon()
 
 Q("Hello MAX!") {
 
@@ -86,7 +86,7 @@ proff()
 
 /*====
 
-profon
+profon()
 
 ? @@( Q(1:3) + 4 )
 #--> [ 1, 2, 3, 4 ]
@@ -114,7 +114,7 @@ proff()
 
 /*----
 
-profon
+profon()
 
 # Q() elevates 1:3 to a StzList object.me()
 
@@ -169,7 +169,7 @@ proff()
 
 /*---- #narration Using Q() * n , Q() * Q(n), QQ() * n, and QQ() * Q(n)
 
-profon
+profon()
 
 # Q() elevates 1:3 to a StzList object
 # The * operator duplicates the list 3 times
@@ -220,7 +220,7 @@ proff()
 
 /*---- #narration semantics of Q() / n
 
-profon
+profon()
 
 # Q() elevates 1:9 to a stzList. Divided by 3, the list
 # is actually splitted into 3 parts
@@ -258,7 +258,7 @@ proff()
 
 /*====
 
-profon
+profon()
 
 o1 = new stzList(1:8)
 ? o1.Cumulate() # Or Reduce()
@@ -290,7 +290,7 @@ proff()
 
 /*----
 
-profon
+profon()
 
 o1 = new stzGrid( "A" : "M" )
 
@@ -308,7 +308,7 @@ proff()
 
 /*----- #TODO fix error
 
-profon
+profon()
 
 ? MostSquareLikeFactors(12)
 #--> [ 3, 4 ]
@@ -341,7 +341,7 @@ proff()
 
 /*=======
 
-profon
+profon()
 
 #                   ...4...8...2..
 o1 = new stzString("---*---*---*---")
@@ -362,7 +362,7 @@ proff()
 
 /*==== CONDITIONAL SPLITTING ON CHARS AND SUBSTRINGS
 
-profon
+profon()
 
 o1 = new stzString( "MMMiAAiNN" )
 
@@ -383,7 +383,7 @@ proff()
 
 /*-----
 
-profon
+profon()
 
 o1 = new stzString( "MMMiAAiNN" )
 
@@ -404,7 +404,7 @@ proff()
 
 /*-----
 
-profon
+profon()
 
 o1 = new stzString( "MMMiAAiNN" )
 
@@ -425,7 +425,7 @@ proff()
 
 /*====
 
-profon
+profon()
 
 o1 = new stzString( "IIIiiiMMMmmmAAAee" )
 
@@ -445,7 +445,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzString( "IIIiiiMMMmmmAAAee" )
 
@@ -476,7 +476,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzString( "IIIiiiMMMmmmAAAee" )
 
@@ -500,7 +500,7 @@ proff()
 
 /*------
 
-profon
+profon()
                    
 #                     ✁|   ✁|
 o1 = new stzString( "ABCabcEFGijHI" )
@@ -523,7 +523,7 @@ proff()
 
 /*-----
 
-profon
+profon()
                    
 #                        ✁|  ✁|
 o1 = new stzString( "ABCabcEFGijHI" )
@@ -546,7 +546,7 @@ proff()
 
 /*======= #ring-sort #arabic
 
-profon
+profon()
 
 aList = [ "جمل", "أخ", "ذهب", "بيت", "أب" ]
 
@@ -559,7 +559,7 @@ proff()
 
 /*---- #ring
 
-profon
+profon()
 
 ? @@( reverse([ "M", "A", "D", "A", "M" ]) )
 #--> [ "M", "A", "D", "A", "M" ]
@@ -572,7 +572,7 @@ proff()
 
 /*---- #ring #fix
 
-profon
+profon()
 
 ? reverse("MADAM") # Ring function
 #--> MADAM
@@ -594,7 +594,7 @@ proff()
 
 /*---- #ring fix
 
-profon
+profon()
 
 ? isPalindrome("MADAM") # Ring function
 #--> _TRUE_
@@ -616,7 +616,7 @@ proff()
 
 /*---- #ring fix
 
-profon
+profon()
 
 ? isPalindrome("MADAM") # ring function working only for strings
 #--> _TRUE_
@@ -638,7 +638,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 
 ? Q("madam").IsPalindrome()
@@ -656,7 +656,7 @@ proff()
 
 /*----
 
-profon
+profon()
 
 o1 = new stzString("Ri**ng program*ming lan*guage")
 o1.RemoveCharsAt([ 3, 4, 15, 24 ])
@@ -668,7 +668,7 @@ proff()
 
 /*---- #ring-fix
 
-profon
+profon()
 
 
 ? ispunct("?")
@@ -702,7 +702,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 ? WordsIdentificationMode()
 #--> :Quick
@@ -741,7 +741,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 o1 = new stzText("A man a plan a canal Panama. Able was I ere I saw Elba. Do geese see God? Madam, in Eden, I'm Adam.")
 
@@ -753,7 +753,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzString("A man a plan a canal Panama. Able was I ere I saw Elba. Do geese see God? Madam, in Eden, I'm Adam.")
 
@@ -765,7 +765,7 @@ proff()
 
 /*--- #narration #semantic-precision
 
-profon
+profon()
 
 # In Softanza ContainsLetters() is different from ContainsOnlyLetters()
 
@@ -790,7 +790,7 @@ proff()
 
 /*-- # ring
 
-profon
+profon()
 
 ? isAlpha("Ring")
 #--> _TRUE_
@@ -802,7 +802,7 @@ proff()
 
 /*====== #ring #fix #stz-complements-ring
 
-profon
+profon()
 
 # these Ring standard functions are wrappers of C functions
 # and can not manage Unicode non-ascii strings
@@ -828,7 +828,7 @@ proff()
 
 /*=========
 
-profon
+profon()
 
 ? Language("محمود")
 #--> arabic
@@ -845,7 +845,7 @@ proff()
 
 /*-----
 
-profon
+profon()
 
 ? Unicode("ˇ")
 #--> 711
@@ -869,7 +869,7 @@ proff()
 # Executed in 0.10 second(s)
 /*======
 
-profon
+profon()
 
 o1 = new stzString("The quick brown fox")
 
@@ -881,7 +881,7 @@ proff()
 
 /*======
 
-profon
+profon()
 
 o1 = new stzList([
 	"",
@@ -898,7 +898,7 @@ proff()
 
 /*=======
 
-profon
+profon()
 
 o1 = new stzString("
 ABCDEF
@@ -922,7 +922,7 @@ proff()
 
 /*-------
 
-profon
+profon()
 
 o1 = new stzString("
 ABCDEF
@@ -946,7 +946,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 o1 = new stzList([ "A", "b", 2, "C", 3, "♥" ])
 
@@ -963,7 +963,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 o1 = new stzString("---3--")
 ? o1.ContainsNumbers()
@@ -972,7 +972,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 
 ? Q("984332").IsMadeOfNumbers()
 #--> _TRUE_
@@ -983,7 +983,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 #  FIND >>              5  8   13  16   21  26
 #                       v--v    v--v    v----v
@@ -1002,7 +1002,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 o1 = new stzString("---<<ring>>---<<ruby>>---<<python>>---")
 
@@ -1014,7 +1014,7 @@ proff()
 #--> Executed in 0.10 second(s)
 
 /*==== #ring
-profon
+profon()
 
 aList = [ "python", [ "ring", "good", "thing" ],"ruby"]
 ? aList[ "ring" ]
@@ -1023,7 +1023,7 @@ proff()
 
 /*------ #ring
 
-profon
+profon()
 
 # Pair starting with the keystring not found, a _NULL_ is returned
 aList = [ "python", "ring", "ruby"]
@@ -1060,7 +1060,7 @@ proff()
 
 /*=======
 
-profon
+profon()
 
 	@ForEach( :Item, :In = [ "a", "b", "c" ] ) { X('
 		? v(:Item)
@@ -1092,7 +1092,7 @@ proff()
 
 /*========== #narration
 
-profon
+profon()
 
 # The function Size() has a generic meaning in Softanza.
 # Hence, it can be used with all types of objects.
@@ -1135,7 +1135,7 @@ proff()
 
 /*==========
 
-profon
+profon()
 
 ? Q([]).IsListOfLists()
 #--> _FALSE_
@@ -1148,7 +1148,7 @@ proff()
 
 /*========== PARTS ON STZLISTS
 
-profon
+profon()
 
 o1 = new stzList([
 	"m", "m", "m",
@@ -1179,7 +1179,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 o1 = new stzList([
 	"m", "m", "m",
@@ -1206,7 +1206,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 o1 = new stzList([
 	"m", "m", "m",
@@ -1253,7 +1253,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 o1 = new stzList([
 	"m", "m", "m",
@@ -1286,7 +1286,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 o1 = new stzList([
 	"m", "m", "m",
@@ -1307,7 +1307,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 o1 = new stzList([
 	"m", "m", "m",
@@ -1345,7 +1345,7 @@ proff()
 
 /*======== PARTS ON STZSTRING
 
-profon
+profon()
 
 o1 = new stzString("mmmMMMaaAAAiii")
 
@@ -1366,7 +1366,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 
 o1 = new stzString("mmmMMMaaAAAiii")
 
@@ -1381,7 +1381,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 
 o1 = new stzString("mmmMMMaaAAAiii")
 
@@ -1422,7 +1422,7 @@ proff()
 
 /*===-----
 
-profon
+profon()
 
 o1 = new stzString("mmmMMMaaAAAiii")
 
@@ -1443,7 +1443,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 
 o1 = new stzString("mmmMMMaaAAAiii")
 
@@ -1470,7 +1470,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 
 o1 = new stzString("mmmMMMaaAAAiii")
 
@@ -1503,7 +1503,7 @@ proff()
 
 /*=======
 
-profon
+profon()
 
 o1 = new stzString("Abc285XY&من")
 		
@@ -1551,7 +1551,7 @@ proff()
 
 /*----- #perf #todo #error
 
-profon
+profon()
 
 cLargeStr = ""
 for i = 1 to 1_000
@@ -1571,7 +1571,7 @@ proff()
 
 /*========
 
-profon
+profon()
 
 ? @@( Q("285").IsLowercase() )
 #--> _NULL_
@@ -1593,7 +1593,7 @@ proff()
 
 /*-----
 
-profon
+profon()
 
 ? Q("mmm").CharsCase() # Or StringCase() or Kase() (Case() is reserved!)
 #--> lowercase
@@ -1612,7 +1612,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 o1 = new stzString("ring")
 ? o1.NthChar(3)
@@ -1632,7 +1632,7 @@ proff()
 
 /*-----
 
-profon
+profon()
 
 o1 = new stzString("mmmMMMaaAAAiii")
 ? @@( o1.Chars() )
@@ -1649,7 +1649,7 @@ proff()
 
 /*----- #perf
 
-profon
+profon()
 
 cLargeStr = ""
 for i = 1 to 100_000
@@ -1667,7 +1667,7 @@ proff()
 
 /*----- #perf
 
-profon
+profon()
 
 cLargeStr = ""
 for i = 1 to 100_000
@@ -1685,7 +1685,7 @@ proff()
 
 /*=======================
 
-profon
+profon()
 
 o1 = new stzString("abc")
 ? o1.CharCase() # Same as StringCase()
@@ -1696,7 +1696,7 @@ proff()
 
 /*============
 
-profon
+profon()
 
 o1 = new stzList([ "Hello", "there!", ANullObject(), Q("9") ])
 
@@ -1710,7 +1710,7 @@ proff()
 
 /*=========== CLASSIFYING A LIST
 
-profon
+profon()
 
 o1 = new stzList([
 	:Arabic,
@@ -1755,7 +1755,7 @@ proff()
 
 /*====== #ring
 
-profon
+profon()
 
 aList = [ "m", "mmm", "mm" ]
 swap(aList, 2, 3)
@@ -1766,7 +1766,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -1787,7 +1787,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -1809,7 +1809,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -1831,7 +1831,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -1853,7 +1853,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzList([ ".", ".", "*", ".", ".", "." ])
 o1.Move(3, 5)
@@ -1864,7 +1864,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzList([ "one", "four", "two", "three", "five" ])
 
@@ -1878,7 +1878,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 aList = [ "one", "four", "two", "three", "five" ]
 Move(aList, 2, 4) # Move() is a Softanza function
@@ -1890,7 +1890,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -1912,7 +1912,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -1934,7 +1934,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -1956,7 +1956,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -1978,7 +1978,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -2000,7 +2000,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -2022,7 +2022,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -2044,7 +2044,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -2066,7 +2066,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -2088,7 +2088,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -2104,7 +2104,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "A", 1, 11 ],
@@ -2126,7 +2126,7 @@ proff()
 
 /*======
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ :Arabic, "arb1", "A100" ],
@@ -2164,7 +2164,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "arb1", :Arabic, "A100" ],
@@ -2203,7 +2203,7 @@ proff()
 
 /*========
 
-profon
+profon()
 
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
 aClasses = o1.ClassifyBy(' Q(@item).HowMany(0) ')
@@ -2241,7 +2241,7 @@ proff()
 
 /*-----------
 
-profon
+profon()
 
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
 ? @@NL( o1.ClassifyByQR(' Q(@item).HowMany(0) ', :stzListOflists).SortedOn(1) )
@@ -2257,7 +2257,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 ? CountryAbbreviation(:libya)
 #--> "LY"
@@ -2273,7 +2273,7 @@ proff()
 
 /*==----
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "adel",  "TN", "tunis" ],
@@ -2298,7 +2298,7 @@ proff()
 
 /*==----
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ "+216", "tunis", "sfax", "gabes" ],
@@ -2320,7 +2320,7 @@ proff()
 
 /*====== #ring
 
-profon
+profon()
 
 # Some Ring standard functions make the action in place and does not
 # return anything. Others do the action and return the result.
@@ -2344,7 +2344,7 @@ proff()
 
 /*====== #ring
 
-profon
+profon()
 
 # ring_insert() corrects the behaviour of the standard insert()
 # function, since the standard function, as is, meanse actually
@@ -2365,7 +2365,7 @@ proff()
 
 /*======
 
-profon
+profon()
 
 ? @@SP( SortLists([
 	[ "Dog", 	370 ],
@@ -2387,7 +2387,7 @@ proff()
 
 #------
 
-profon
+profon()
 
 ? @@SP( SortListsBySize([ 1:7, 1:3, 1:5 ]) )
 #--> [
@@ -2401,7 +2401,7 @@ proff()
 
 #------
 
-profon
+profon()
 
 # This function is used internally by ListsSortOn()
 
@@ -2421,7 +2421,7 @@ proff()
 
 /*-----
 
-profon
+profon()
 		o1 = new stzListOfLists([
 			[ 1 ],
 			[ "one", "two" ],
@@ -2439,7 +2439,7 @@ proff()
 
 /*----
 
-profon
+profon()
 
 o1 = new stzListOfLists([])
 ? @@( o1.Content() ) + NL
@@ -2458,7 +2458,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 aLists = [
 	[ 370,	"Dog", 	"white", _TRUE_ ],
@@ -2490,7 +2490,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 aLists = [
 	[ "Dog", 	370,	"white",	TRUE	],
@@ -2521,7 +2521,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 aList = [
 	[ 4, 5, 6, 7 ],
@@ -2541,7 +2541,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 
 # If the list of lists contains an empty list,
 # then it can't be sorted by Ring
@@ -2567,7 +2567,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 
 aList = [
 	[ 4, 5, 6, 7 ],
@@ -2590,7 +2590,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 
 aList = [
 	[ 4, 5, 6, 7 ],
@@ -2610,7 +2610,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 aList = [ "charlie", _NULL_, 17, 10, 4:7, [], "fox", 1:3, "aplha" ]
 
@@ -2639,7 +2639,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 ? SortBy([ "a", "abcde", "abc", "ab", "abcd" ], 'len(@item)')
 #--> [ "a", "ab", "abc", "abcd", "abcde" ]
@@ -2649,7 +2649,7 @@ proff()
 
 /*===
 
-profon
+profon()
 
 ? @IsHashList([ [ "uppercase", [ ] ] ])
 #--> _TRUE_
@@ -2659,7 +2659,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 aList = [ [1,2,3], [4,5,6], 7:9 ]
 
@@ -2672,7 +2672,7 @@ proff()
 
 /*=========
 
-profon
+profon()
 
 o1 = new stzString("the last mile")
 
@@ -2687,7 +2687,7 @@ proff()
 
 #=====
 
-profon
+profon()
 
 o1 = new stzString("the last mile")
 
@@ -2700,7 +2700,7 @@ proff()
 
 #---
 
-profon
+profon()
 
 o1 = new stzString("the last mile now")
 o1.BoundSections([ [5, 8], [15, 17] ], "_")
@@ -2712,7 +2712,7 @@ proff()
 
 /*--
 
-profon
+profon()
 
 ? Q([ "str1", [ "str2", "str3" ], "str4" ]).IsListOfStringsOrPairsOfStrings()
 #--> _TRUE_
@@ -2738,7 +2738,7 @@ proff()
 
 /*===========
 
-profon
+profon()
 
 o1 = new stzString("the last softanza mile now")
 
@@ -2755,7 +2755,7 @@ proff()
 
 #---
 
-profon
+profon()
 
 o1 = new stzString("its the last mile now")
 o1.Bound("last", :By = [ "<<", :and = ">>" ]) # or BoundSubString() or InsertAroundSubString()
@@ -2771,7 +2771,7 @@ proff()
 
 /*-----------------
 
-profon
+profon()
 
 o1 = new stzString("IbelieveinRingfutureandengageforit!")
 
@@ -2787,7 +2787,7 @@ proff()
 
 /*========
 
-profon
+profon()
 
 o1 = new stzHashList([
 	[ "#1", [ 12, 66 ] ],
@@ -2809,7 +2809,7 @@ proff()
 
 /*========
 
-profon
+profon()
 
 o1 = new stzString("{{ring}}")
 ? o1.Bounds()
@@ -2829,7 +2829,7 @@ proff()
 
 /*------------
 
-profon
+profon()
 
 o1 = new stzList([ "A", "B", "A", "A", "B", "B", "C" ])
 
@@ -2844,7 +2844,7 @@ proff()
 
 /*------------
 
-profon
+profon()
 
 o1 = new stzString("ABCAAB")
 
@@ -2867,7 +2867,7 @@ proff()
 
 /*-------- TODO: erronous char name
 
-profon
+profon()
 
 ? StzCharQ(63).Content()
 #--> ?
@@ -2883,7 +2883,7 @@ proff()
 
 /*================
 
-profon
+profon()
 
 o1 = new stzString("---,---;---[---]---:---")
 
@@ -2901,7 +2901,7 @@ proff()
 
 /*================
 
-profon
+profon()
 
 #     2    7
 ? Q("^^♥♥♥^^").ContainsSubStringBetween("♥♥♥", :Position = 2, :AndPosition = 7)
@@ -2916,7 +2916,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 ? Q("^^♥♥♥^^").ContainsInSection("♥♥♥", 3, 5)
 #--> _TRUE_
@@ -2929,7 +2929,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 ? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", "^^", "^^")
 #--> _TRUE_
@@ -2943,7 +2943,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 ? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :Between = [ "^^", "^^" ] )
 
@@ -3070,7 +3070,7 @@ StopProfiler()
 
 /*----------
 
-profon
+profon()
 
 	? Q("_-♥-_").ContainsXT("♥", :BoundedBy = "-")
 	#--> _TRUE_
@@ -3133,7 +3133,7 @@ StopProfiler()
 
 StartProfiler()
 	
-profon
+profon()
 
 	? Q("_softanza_loves_ring_").ContainsXT(:SubStrings, ["softanza", "ring"])
 	#--> _TRUE_
@@ -3396,7 +3396,7 @@ StopProfiler()
 
 #=======
 
-profon
+profon()
 
 o1 = new stzList(1:8)
 ? @@( o1.SplitToListsOfNItems(2) )
@@ -3407,7 +3407,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 
 o1 = new stzList([ [ 1, 3 ], [ 8, 10 ], [ 12, 13 ], [ 18, 19 ], [ 21, 21 ], [ 26, 26 ] ])
 ? @@SP( o1.SplitToListsOfNItems(2) )
@@ -3422,7 +3422,7 @@ proff()
 
 /*========
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>>")
 
@@ -3496,7 +3496,7 @@ proff()
 
 /*============
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>>")
 o1.RemoveSections([ [8,10], [1,3] ])
@@ -3508,7 +3508,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>>")
 o1.RemoveSections([])
@@ -3520,7 +3520,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzString("word>>>")
 ? o1.FindLeadingChars()
@@ -3534,7 +3534,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzList([ [ ], [ 5, 7 ] ])
 ? o1.IsListOfPairsOfNumbers()
@@ -3545,7 +3545,7 @@ proff()
 
 /*--------- TODO/FUTURE: add _ for more readable numbers
 
-profon
+profon()
 
 ? @@(1587345327)
 #--> '1_587_345_327'
@@ -3558,7 +3558,7 @@ proff()
 
 /*--------- #perf
 
-profon	
+profon()	
 
 o1 = new stzList( 1 : 1_000_000 )
 o1.RemoveSection(5, 999_996)
@@ -3570,7 +3570,7 @@ proff()
 
 /*--------- #perf
 
-profon	
+profon()	
 
 o1 = new stzList( 1 : 1_000_000 )
 o1.RemoveSection(1, 1_000_000)
@@ -3582,7 +3582,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzList([ "w", "o", "r", "d", ">", ">", ">" ])
 o1.RemoveSection(1, 4)
@@ -3594,7 +3594,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzList([ "<", "<", "w", "o", "r", "d", ">", ">", ">" ])
 
@@ -3607,7 +3607,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzString("word>>>")
 o1.RemoveSections([ [ ], [ 5, 7 ] ])
@@ -3619,7 +3619,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzString("word>>>")
 o1.RemoveSection(5, 7)
@@ -3631,7 +3631,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzString("<<<word")
 o1.RemoveSections([ [ 1, 3 ], [ ] ])
@@ -3643,7 +3643,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzString("<<<word")
 o1.RemoveSection(1, 3)
@@ -3655,7 +3655,7 @@ proff()
 
 /*===== #narration
 */
-profon
+profon()
 
 # Each string is bounded by default by its first and last chars
 
@@ -3686,7 +3686,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>>")
 
@@ -3707,7 +3707,7 @@ proff()
 
 /*--------
 */
-profon
+profon()
 
 o1 = new stzString("ring")
 ? o1.Bounds()
@@ -3738,7 +3738,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>>")
 o1.RemoveFirstBound()
@@ -3750,7 +3750,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>>")
 o1.RemoveLastBound() # Or o1.RemoveSecondBound()
@@ -3762,7 +3762,7 @@ proff()
 
 /*--------
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>> <<word>> <word>")
 
@@ -3777,7 +3777,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzString("[word] <word> (word)")
 
@@ -3793,7 +3793,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>> <<word>> <word>")
 o1.RemoveBoundsOf("word")
@@ -3805,7 +3805,7 @@ proff()
 
 /*---------
 */
-profon
+profon()
 
 o1 = new stzString("<<<word>>> <<word>> <word>")
 
@@ -3819,7 +3819,7 @@ proff()
 
 /*---------
 */
-profon
+profon()
 
 o1 = new stzString("<<<word>>> <<word>> <word>")
 
@@ -3832,7 +3832,7 @@ proff()
 
 /*========= SWAPPING TWO SECTIONS
 
-profon
+profon()
 
 o1 = new stzString(">>>word<<<")
 o1.SwapSections([1, 3], [8, 10]) # or o1.SwapSections([8, 10], [1, 3])
@@ -3844,7 +3844,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzList([ ">", ">", ">", "w", "o", "r", "d", "<", "<", "<" ])
 o1.SwapSections([1, 3], [8, 10]) # or o1.SwapSections([8, 10], [1, 3])
@@ -3856,7 +3856,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 #                   12345678901234567
 o1 = new stzString("...>>>word<<<....")
 
@@ -3875,7 +3875,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzString(">>>word<<< >>word<< >word<")
 o1.SwapBoundsOf("word")
@@ -3887,7 +3887,7 @@ proff()
 
 /*=========
 
-profon
+profon()
 
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
 
@@ -3911,7 +3911,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzString("123 ABC 901 DEF")
 o1.ReplaceSections([ [1, 3], [9, 11] ], "***")
@@ -3923,7 +3923,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzString("12345 ABC 1234 DEF")
 
@@ -3941,7 +3941,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 
@@ -3956,7 +3956,7 @@ proff()
 
 /*=============
 
-profon
+profon()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [9, 8] ])
 o1.SortInAscending()
@@ -3968,7 +3968,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 o1.SortInDescending()
@@ -3980,7 +3980,7 @@ proff()
 
 /*---------------- #perf
 
-profon
+profon()
 
 # Let's construct a list of pairs of 20_000 items
 # Softanza takes 30 seconds to sort it
@@ -4001,7 +4001,7 @@ proff()
 
 /*---------------- #perf
 
-profon
+profon()
 
 # Softanza check if a list of lists made of 20_000 items
 # is sorted or not in 29 second(s)
@@ -4022,7 +4022,7 @@ proff()
 
 /*-----------------
 
-profon
+profon()
 
 o1 = new stzListOfPairs([ [1,3], [4, 7], [8, 9] ])
 ? o1.IsSortedInAscending()
@@ -4033,7 +4033,7 @@ proff()
 
 /*-----------------
 
-profon
+profon()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 
@@ -4045,7 +4045,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 ? o1.IsSortedInDescending()
@@ -4060,7 +4060,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 ? o1.FindPair([3, 1])
@@ -4071,7 +4071,7 @@ proff()
 
 /*======================
 
-profon
+profon()
 
 o1 = new stzList("A":"J")
 
@@ -4095,7 +4095,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzString("ABCDEFGHIJ")
 ? @@( o1.Sections( [ [3,5], [7,8] ] ) )
@@ -4118,7 +4118,7 @@ proff()
 
 /*=================
 
-profon
+profon()
 
 ? @@( SectionToRange(3, 4) )
 #--> [3, 2]
@@ -4137,7 +4137,7 @@ proff()
 
 /*=================
 
-profon
+profon()
 
 o1 = new stzList([ [ "ONE", "TWO" ], [ "THREE", "FOUR" ], [ "FIVE", "SIX" ] ])
 ? o1.IsListOfLists()
@@ -4155,7 +4155,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzList([ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ])
 ? o1.IsListOfLists()
@@ -4172,7 +4172,7 @@ proff()
 
 /*=================
 
-profon
+profon()
 
 o1 = new stzString("AB♥CD♥EF♥GH")
 
@@ -4190,7 +4190,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzString("AB♥♥C♥♥D♥♥E")
 
@@ -4205,7 +4205,7 @@ proff()
 
 /*=================
 
-profon
+profon()
 
 o1 = new stzString("ABCDE")
 ? @@( o1.SubStrings() )
@@ -4220,7 +4220,7 @@ proff()
 
 /*================ REPEATED LEADING AND TRAILING CHARS
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>>")
 
@@ -4255,7 +4255,7 @@ proff()
 
 /*================ WORKING WITH BOUNDS OF THE STRING
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>>")
 
@@ -4273,7 +4273,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>>")
 
@@ -4315,7 +4315,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>>")
 
@@ -4337,7 +4337,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>>")
 
@@ -4377,7 +4377,7 @@ proff()
 
 /*================ WORKING WITH BOUNDS INSIDE THE STRING
 
-profon
+profon()
 
 o1 = new stzString(">>word<<")
 o1.SwapBounds()
@@ -4389,7 +4389,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
 ? @@( o1.FindSubStringBoundsAsSections("word") ) # Or FindSubStringBoundsZZ()
@@ -4403,7 +4403,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
 
@@ -4428,7 +4428,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
 
@@ -4443,7 +4443,7 @@ proff()
 
 /*=============
 
-profon
+profon()
 
 o1 = new stzString("123♥^♥789")
 
@@ -4455,7 +4455,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 		
@@ -4473,7 +4473,7 @@ proff()
 
 /*================
 
-profon
+profon()
 
 o1 = new stzList([ Q(4), Q("Ring"), Q(1:3) ])
 ? @@( o1.StzTypes() )
@@ -4484,7 +4484,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 o1 = new stzList([ 6, "hi!", 1:3 ])
 o1.Objectify()
@@ -4496,7 +4496,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 o1 = new stzList([ 5, "12", 1:3, "Ring" ])
 o1.Numberify()
@@ -4508,7 +4508,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 o1 = new stzList([ 1, "hi", [], _NULL_ ])
 o1.Listify()
@@ -4523,7 +4523,7 @@ proff()
 # Personal note :This sample has been porposed by Teeba (my daughther). She helped me
 # identify the [] case and solve it.
 
-profon
+profon()
 #			vv
 o1 = new stzList([ 957, [], [ 1:3, 4:5, 9:12 ], "Hussein", ["Haneen"] ])
 o1.Pairify()
@@ -4541,7 +4541,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzList([ [ "<<", ">>" ], "__", [ "--", "--", "--" ] ])
 o1.Pairify() # transform all items to pairs
@@ -4557,7 +4557,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 o1 = new stzList(["<<", ">>"])
 o1.Pairify()
@@ -4570,7 +4570,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 o1 = new stzList([ ["<<", ">>"] ])
 o1.Pairify()
@@ -4582,7 +4582,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 ? @@( Q([ ["<<", ">>"], "__" ]).Pairified() )
 #--> [ [ "<<", ">>" ], [ "__", "" ] ]
@@ -4592,7 +4592,7 @@ proff()
 
 /*==============
 
-profon
+profon()
 
 o1 = new stzString("<<word>> and __word__")
 
@@ -4610,7 +4610,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzString("<<word>> and __word__")
 ? o1.SubStringQ( "word" ).IsBoundedBy(["<<", ">>"])
@@ -4622,7 +4622,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 	o1 = new stzList([ "<<", ">>" ])
 	? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
@@ -4637,7 +4637,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzList([ "<<", ">>" ])
 ? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
@@ -4648,7 +4648,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzList([ [ "<<", ">>" ], ["__", "__" ], [ "@", "@" ] ])
 ? o1.AreBoundsOf("word", :In = "<<word>> __word__ @word@")
@@ -4659,7 +4659,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzList([ [ "<<", ">>" ], ["__", "__" ], [ "@", "@" ] ])
 ? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
@@ -4670,7 +4670,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 ? Q("_").IsBoundOf( "world", :In = "hello _world_ and <world>" )
 #--> _TRUE_
@@ -4689,7 +4689,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 
@@ -4708,7 +4708,7 @@ proff()
 
 /*================= POSSIBLE SUBSTRINGS IN THE STRING
 
-profon
+profon()
 
 o1 = Q("ABAAC")
 ? @@NL( o1.SubStrings() ) + NL
@@ -4757,7 +4757,7 @@ proff()
 
 /*=================
 
-profon
+profon()
 
 ? Q([ "abc", 120, "cdef", 14, "opjn", 988 ]).ToString()
 
@@ -4774,7 +4774,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 ? Q(["abc","cdef","opjn"]).ToString() + NL # Q() creates a stzList object
 #-->
@@ -4787,7 +4787,7 @@ proff()
 
 /*=================
 
-profon
+profon()
 
 o1 = new stzList(["A", "AA", "B", "BB", "C", "CC", "CC" ])
 ? o1.ItemsW('len(@item) = 2')
@@ -4801,7 +4801,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzListOfStrings([
 	"A", "v", "♥", "c",
@@ -4825,7 +4825,7 @@ proff()
 
 /*================ #TODO check it!
 
-profon
+profon()
 
 ? Q("#1 : #3").ToList()
 #--> Sould produce [ "#1", "#2", "#3" ])
@@ -4834,7 +4834,7 @@ proff()
 
 /*-----------
 
-profon
+profon()
 
 o1 = new stzString("Av♥♥c♥♥")
 ? @@NL( o1.SubStringsU() )
@@ -4876,7 +4876,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzString("Av♥♥c♥♥")
 
@@ -4891,7 +4891,7 @@ proff()
 
 /*===============
 
-profon
+profon()
 
 o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
 ? o1.SubstringsBoundedBy([ "<<", ">>" ])
@@ -4906,7 +4906,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
 
@@ -4927,7 +4927,7 @@ proff()
 
 /*================
 
-profon
+profon()
 
 o1 = new stzString("blabla bla <<word>> bla bla <<word>>")
 ? @@( o1.FindAsSections("word") ) # Or FindSubStringAsSections() or FindZZ()
@@ -4938,7 +4938,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
 ? @@( o1.FindAnyBoundedBy([ "<<", ">>" ]) ) + NL
@@ -4952,7 +4952,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 ? Q(" this code:   txt1  = ").Simplified()
 #--> "this code: txt1 ="
@@ -4962,7 +4962,7 @@ proff()
 
 /*==============
 
-profon
+profon()
 
 o1 = new stzString("ONE")
 
@@ -4977,7 +4977,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzString("ONE")
 
@@ -4992,7 +4992,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzNumber(10)
 ? o1.Occures( :Before = "TEN", :In = [ 2, "TWO", 10, "TEN" ] ) # NOTE: OccurEs is misspelled!
@@ -5015,7 +5015,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 ? Q("*").OccursNTimes(3, :In = "a*b*c*d")
 #--> _TRUE_
@@ -5028,7 +5028,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 ? Q("*").OccursForTheFirstTime( :In = "a*b*c*d", :AtPosition = 2 )
 #--> _TRUE_
@@ -5062,7 +5062,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
 
@@ -5089,7 +5089,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
 
@@ -5103,7 +5103,7 @@ proff()
 
 /*================ #narration #todo check after including yieldw()
 
-profon
+profon()
 
   # Suppose a customer added all these items to his shopping cart in an
   # ecommerce website:
@@ -5140,7 +5140,7 @@ proff()
 
 /*=========
 
-profon
+profon()
 
 ? ComputableForm('len    var1 = "    value "  and var2 =  " 12   " ') + NL
 #--> 'len var1 = "    value " and var2 = " 12   "'
@@ -5153,7 +5153,7 @@ proff()
 
 /*=================
 
-profon
+profon()
 
 o1 = new stzString("Av♥♥c♥♥")
 
@@ -5174,7 +5174,7 @@ proff()
 
 /*-------------
 
-profon
+profon()
 
 o1 = new stzString("Av♥♥c♥♥")
 ? @@( o1.SubStringsWXTZZ('{
@@ -5188,7 +5188,7 @@ proff()
 
 /*=================
 
-profon
+profon()
 
 o1 = new stzString("I love ")
 o1.AddSubString("Ring")
@@ -5200,7 +5200,7 @@ proff()
 
 #-----------------
 
-profon
+profon()
 
 o1 = new stzString("Ring")
 o1.ExtendToNCharsXT(10, :Using = ".")
@@ -5212,7 +5212,7 @@ proff()
 
 /*=================
 
-profon
+profon()
 
 ? Q("-♥-").IsBoundedBy("-")
 #--> _TRUE_
@@ -5225,7 +5225,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 ? StzCharQ(1049).Content() + NL
 #--> Й
@@ -5253,7 +5253,7 @@ proff()
 /*-------------- #TODO // Use the normal way (ExecutableSection) and check for perf
 #todo check after including yield() function
 
-profon
+profon()
 
 ? @@( Q("℺℻ℚ").Yield('[ @char, Q(@char).Unicode(), Q(@char).CharName() ]') )
 #--> [
@@ -5267,7 +5267,7 @@ proff()
 
 /*==============
 $
-profon
+profon()
 
 # What are the unique letters in this sentence?
 # "sun is hot but fun"
@@ -5287,7 +5287,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 ? len("طيبة")
 #--> 8
@@ -5303,7 +5303,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = Q("TAYOUBAAOOAA")
 ? o1.LastAndFirstChars()
@@ -5315,7 +5315,7 @@ proff()
 /*========================= #AI #claude-ai #narration ...WXT() vs ...W()
 # Narraion enhanced by ClaudeAI, both from structural and linsguistic stand points.
 
-profon
+profon()
 
 # This narration demonstrates an advanced feature of SoftanzaLib 
 # called Conditional Code. We will explain what Conditional Code is,
@@ -5503,7 +5503,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzList("A":"E")
 ? @@( o1 / 3 )
@@ -5514,7 +5514,7 @@ proff()
 
 /*------- #ring
 
-profon
+profon()
 
 aList = []
 for i = 1 to 5
@@ -5528,7 +5528,7 @@ proff()
 
 /*=======
 
-profon
+profon()
 
 o1 = new stzSplitter(12)
 
@@ -5576,7 +5576,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzSplitter(12)
 
@@ -5590,7 +5590,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzSplitter(10)
 ? @@(o1.SplitToNParts(3) ) + NL
@@ -5622,7 +5622,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzString("ABCDEFGHIJ")
 
@@ -5665,7 +5665,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzString("ABCDEFGHIJ")
 ? @@( o1 / 89 )
@@ -5675,7 +5675,7 @@ proff()
 
 /*=============
 
-profon
+profon()
 
 o1 = Q("AB♥♥C♥♥D♥♥")
 ? o1.FindCharsW(' @Char = "♥" ')
@@ -5699,7 +5699,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 @T = Q("TAYOUBA")
 ? @T.Section( :From = "A", :To = "B" )
@@ -5713,7 +5713,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzString("SOFTANZA")
 
@@ -5729,7 +5729,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzList([ "T","A","Y","T","O", "A", "U", "B", "T", "A" ])
 ? @@( o1.Section(:From = "A", :To = "T") ) + NL
@@ -5750,7 +5750,7 @@ proff()
 
 /*---------------- #TODO/FUTURE: Implement these functions
 
-profon
+profon()
 
 o1 = new StzListOfLists([ [ "_", "♥", "_" ], [ "_", "_", "_" ],  [ "_", "♥", "_" ] ])
 ? o1.ContainsInEachList("♥")
@@ -5767,7 +5767,7 @@ proff()
 
 /*---------------- #todo/future: add these functions
 
-profon
+profon()
 
 o1 = new StzListOfLists([ [ "_", "♥", "_" ], [ "_", "_", "_" ],  [ "_", "♥", "_" ] ])
 
@@ -5785,7 +5785,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 ? 3Hearts() #--> ♥♥♥
 ? 5Stars()  #--> ★★★★★
@@ -5795,7 +5795,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzList([ "__", "ring", "__", "ring", "__", "ring" ])
 
@@ -5813,7 +5813,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 ? o1.FindNthOccurrence(3, "ring")
@@ -5824,7 +5824,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 
@@ -5839,7 +5839,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 
@@ -5856,7 +5856,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 ? o1.FindTheseOccurrences([1, 4], "ring")
@@ -5871,7 +5871,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 o1.RemoveOccurrences([ :First, :Last ], :Of = "ring" )
@@ -5883,7 +5883,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 o1.ReplaceOccurrences([ :First, :And = :Last ], :Of = "ring", :With = 3Hearts() )
@@ -5895,7 +5895,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 o1.ReplaceFirstNOccurrences(2, :Of = "ring", :With = 2Stars() )
@@ -5907,7 +5907,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 o1.ReplaceLastNOccurrences(2, :Of = "ring", :With = 2Stars() )
@@ -5919,7 +5919,7 @@ proff()
 
 /*==============
 
-profon
+profon()
 
 o1 = new stzString("ring __ ring __ ring __ ring")
 
@@ -5934,7 +5934,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString("ring __ ring __ ring __ ring")
 ? o1.SubStringOccurrenceByPosition(9, "ring")
@@ -5948,7 +5948,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString("ring __ ring __ ring __ ring")
 anPos = o1.FindFirstNOccurrences(3, "ring")
@@ -5965,7 +5965,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString("ring __ ring __ ring __ ring")
 o1.ReplaceFirstNOccurrences(3, "ring", Heart())
@@ -5977,7 +5977,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString("ring __ ring __ ring __ ring")
 o1.RemoveSubStringAtPosition(1, "ring")
@@ -5989,7 +5989,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString("ring __ ring __ ring __ ring")
 anPos = o1.FindFirstNOccurrences(3, "ring")
@@ -6005,7 +6005,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString("ring __ ring __ ring __ ring")
 ? o1.FindOccurrences([ 2, 3 ], "ring")
@@ -6031,7 +6031,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString("ring __ ring __ ring __ ring")
 
@@ -6046,7 +6046,7 @@ proff()
 
 /*========
 
-profon
+profon()
 
 o1 = new stzHashList([ [ "hussein", 3 ], [ "haneen", 1 ], [ "teeba", 3 ] ])
 ? o1.ValuesQR(:stzListOfNumbers).Sum()
@@ -6057,7 +6057,7 @@ proff()
 
 /*----
 
-profon
+profon()
 
 ? sum(1:10)
 #--> 55
@@ -6067,7 +6067,7 @@ proff()
 
 /*================ #narration
 
-profon
+profon()
 
 # In Softanza, you can divide the content of a string into 3 parts
 cLetters = "ABCDEFG"
@@ -6089,7 +6089,7 @@ proff()
 
 /*====================
 
-profon
+profon()
 
 o1 = new stzSplitter(10)
 
@@ -6101,7 +6101,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzString("1234567890")
 
@@ -6113,7 +6113,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzString("1234567890")
 
@@ -6149,7 +6149,7 @@ proff()
 
 /*------
 
-profon
+profon()
 
 o1 = new stzList(1:10)
 
@@ -6191,7 +6191,7 @@ proff()
 
 /*================
 
-profon
+profon()
 
 o1 = new stzString("ONE_TWO")
 ? @@( o1.SplitAt(4) )	# or SplitAtPosition(4)
@@ -6206,7 +6206,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("ONE_TWO")
 ? @@( o1.SplitBefore(4) ) # or SplitBeforePosition(4)
@@ -6221,7 +6221,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("ONE_TWO")
 ? @@( o1.SplitAfter(4) ) # or SplitAfterPosition(4)
@@ -6236,7 +6236,7 @@ proff()
 
 /*==================
 
-profon
+profon()
 
 o1 = new stzString("ABCDE")
 ? @@( o1.SplitToNParts(5) ) + NL
@@ -6262,7 +6262,7 @@ proff()
 
 /*===================
 
-profon
+profon()
 
 ? Q(0).IsMultipleOf(3) #--> _FALSE_
 
@@ -6271,7 +6271,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("123456789012")
 ? @@( o1.SplitAtCharWXT( 'Q(0+@char).IsMultipleOf(3)' ) ) + NL
@@ -6294,7 +6294,7 @@ proff()
 
 /*==================)
 
-profon
+profon()
 
 ? Q("12_500").IsNumberInString()
 #--> _TRUE_
@@ -6304,7 +6304,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("one = 12_500 two = 17_500 three = 88")
 ? o1.Numbers()
@@ -6315,7 +6315,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 ? StringToNumber(5) # or ToNumber()
 #--> 5
@@ -6331,7 +6331,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 ? Numberify(5)
 #--> 5
@@ -6350,7 +6350,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("12_500")
 ? o1.ToNumber()
@@ -6361,7 +6361,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("__3__6__9__")
 
@@ -6379,7 +6379,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("__3__6__9__")
 
@@ -6397,7 +6397,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzList([ "__", 3, "__", 6, "__", 9, "__" ])
 
@@ -6415,7 +6415,7 @@ proff()
 
 /*==================
 
-profon
+profon()
 
 o1 = new stzList([ "a", "abcade", "abc", "ab", "b", "aaa", "abcdaaa" ])
 
@@ -6432,7 +6432,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
 o1.SortByDown('len(@item)')
@@ -6444,7 +6444,7 @@ proff()
 
 /*==================
 
-profon
+profon()
 
 o1 = new stzString("TUNISiiiGAFSAIIIBEJAiiiSFAXIIIGBELLI")
 ? @@( o1.SplitCS("iii", :CS = _FALSE_) )
@@ -6455,7 +6455,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("TUNIS tunis GAFSA gafsa NABEUL nabeul BEJA beja")
 
@@ -6473,7 +6473,7 @@ proff()
 #NOTE: read this discussion with Mahmoud
 # https://groups.google.com/g/ring-lang/c/bwWg4Qy6_e4
 
-profon
+profon()
 
 # Ring provides a powerful function for sorting a list of lists
 # based on a given column. Here is an example:
@@ -6540,7 +6540,7 @@ proff()
 
 /*------------
 
-profon
+profon()
 
 aList = [ "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bcd" ]
 ? SortOn(aList, 2)
@@ -6550,7 +6550,7 @@ proff()
 
 /*------------
 
-profon
+profon()
 
 ? @@SP(
 	StzListQ([ "D", "B", "A", "C", "B", "B" ]).ItemsZ()
@@ -6568,7 +6568,7 @@ proff()
 
 /*------------
 
-profon
+profon()
 
 myObjName = StzNamedObjectQ(:myobjname = ANullObject())
 
@@ -6604,7 +6604,7 @@ proff()
 
 /*==========
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ 1 ],
@@ -6625,7 +6625,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzListOfLists([
 	[ 1 ],
@@ -6646,7 +6646,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 aList = [
 	[ "a", 1, "_" ],
@@ -6708,7 +6708,7 @@ proff()
 
 /*------------
 
-profon
+profon()
 
 o1 = new stzList([ "f", "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bcd" ])
 ? o1.SortedBy(' Q(@item).NumberOfChars() ')
@@ -6733,7 +6733,7 @@ proff()
 
 /*----------- #ring
 
-profon
+profon()
 
 
 ? @@NL( ring_sort2([
@@ -6755,7 +6755,7 @@ proff()
 
 /*------------
 
-profon
+profon()
 
 ? @IsListOfPairsOfNumbers([ [ 1, 2 ], [ 8, 10 ], [ 16, 17 ], [ 23, 25 ] ])
 #--> _TRUE_
@@ -6765,7 +6765,7 @@ proff()
 
 /*------------ #ring
 
-profon
+profon()
 
 ? @@( ring_sort([]) )
 #--> []
@@ -6778,7 +6778,7 @@ proff()
 
 /*------------
 
-profon
+profon()
 
 ? @@( SortBy([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ], ' Q(@item).HowMany(0) ') )
 #--> [
@@ -6797,7 +6797,7 @@ proff()
 
 /*------------
 
-profon
+profon()
 
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
 
@@ -6818,7 +6818,7 @@ proff()
 
 /*------------
 
-profon
+profon()
 
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
 
@@ -6830,7 +6830,7 @@ proff()
 
 /*------------
 
-profon
+profon()
 
 o1 = new stzList([ 1:3, "tunis", [], 1:2, "t", "" ])
 ? @@( o1.SortedBy(' Q(@item).Size() ') )
@@ -6842,7 +6842,7 @@ proff()
 
 /*---------------- #ring sort multi-list #narration #chatgpt
 
-profon
+profon()
 
 # The Ring sort() function can sort multi-lists (lists of lists)
 # based on a specified column (using sort(aList, n)), subject to
@@ -6993,7 +6993,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 aList = [
 	[ "a", 1 ],
@@ -7027,7 +7027,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzString("abcd")
 acSubStrings = o1.SubStrings()
@@ -7077,7 +7077,7 @@ proff()
 
 /*================
 
-profon
+profon()
 
 o1 = new stzString( "ABCabcEFGijHI" )
 
@@ -7111,7 +7111,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzString( "ABCabcEFGijHI" )
 ? o1.SplitAtSubStringWXT( 'Q(@SubString).IsLowercase()' )
@@ -7126,7 +7126,7 @@ proff()
 
 #===========
 
-profon
+profon()
 
 oStr = new stzString("Welcome to the Ring programming language")
 ? oStr.SectionCS( :From = "RING", :To = :LastChar, :CaseSensitive = _FALSE_ )
@@ -7137,7 +7137,7 @@ proff()
 
 /*-----------
 
-profon
+profon()
 
 oStr = new stzString("Welcome to the Ring programming language")
 ? oStr.Section(:From = "Ring", :To = "language")
@@ -7148,7 +7148,7 @@ proff()
 
 /*----------- #narration
 
-profon
+profon()
 
 # Softanza makes programming in Ring even more expressive.
 
@@ -7258,7 +7258,7 @@ proff()
 # Performance of stzString (using QString2 in background,
 # and not QString ) is astonishing!
 
-profon
+profon()
 
 # Let's compose a large string
 
@@ -7296,7 +7296,7 @@ proff()
 
 /*=======
 
-profon
+profon()
 
 ? IsRingSortable("ring")
 #--> _TRUE_
@@ -7349,7 +7349,7 @@ proff()
 
 /*-------
 
-profon
+profon()
 
 aList = [
 	[ "ali", 12 ],
@@ -7389,7 +7389,7 @@ proff()
 
 /*-------
 
-profon
+profon()
 
 aList = [ ["mahmoud", 15000] , ["ahmed", 14000 ] , ["samir", 16000 ] , ["mohammed", 12000 ] , ["ibrahim",11000 ] ]
 
@@ -7419,7 +7419,7 @@ proff()
 
 /*====== #todo check perf #update done!
 
-profon
+profon()
 
 aList = []
 for i = 1 to 1_900_000
@@ -7436,7 +7436,7 @@ proff()
 
 /*====== #todo check perf #update done!
 
-profon
+profon()
 
 # Constructing the large list
 
@@ -7494,7 +7494,7 @@ proff()
 # TODO: do the necessary to adopt it in all relevant places in the library.
 # UpDATE done!
 
-profon
+profon()
 
 # Concatenating a large list of numbers and strings (1.9M items)
 # takes about 10 seconds in Ring 1.19
@@ -7543,7 +7543,7 @@ proff()
 
 #UPDATE done!
 
-profon
+profon()
 
 # Initializing the large list of strings
 
@@ -7570,7 +7570,7 @@ proff()
 
 /*--------- #perf
 
-profon
+profon()
 
 	aList = []
 	for i = 1 to 1_900_000
@@ -7590,7 +7590,7 @@ proff()
 
 /*--------- #perf
 
-profon
+profon()
 
 	aList = []
 	for i = 1 to 1_900_000
@@ -7610,7 +7610,7 @@ proff()
 
 /*--------- #perf
 
-profon
+profon()
 
 	aList = []
 	for i = 1 to 1_900_000
@@ -7630,7 +7630,7 @@ proff()
 
 /*======
 
-profon
+profon()
 
 # 		         6       4
 o1 = new stzString("...<<*>>...<<*>>...")
@@ -7645,7 +7645,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString('..."*"..."*"...')
 ? o1.FindXT( "*", :BoundedBy = '"' )
@@ -7656,7 +7656,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString('..."*"..."*"...')
 
@@ -7671,7 +7671,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString("~*~~*--*-")
 
@@ -7695,7 +7695,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString("~*~~*--")
 ? o1.FindXT( "*", :BeforePosition = 6)
@@ -7706,7 +7706,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString("~--*~~*~~")
 
@@ -7721,7 +7721,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzList([ "~", "*", "~", "~", "*", "--", "*", "-" ])
 
@@ -7745,7 +7745,7 @@ proff()
 
 /*======
 
-profon
+profon()
 
 #                   1    6   0 2  15     22
 o1 = new stzString("♥....♥...YOU..♥......♥")
@@ -7767,7 +7767,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 #                   1    6   0 2  15    21  25
 o1 = new stzString("♥....♥...YOU..♥.....YOU.♥")
@@ -7780,7 +7780,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 #                   1    6   0 2  15    21  25
 o1 = new stzString("♥....♥...YOU..♥.....YOU.♥")
@@ -7814,7 +7814,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 #                                14           27
 o1 = new stzString("♥♥♥....♥♥♥...YOU..♥♥♥.....YOU.♥♥♥")
 
@@ -7847,7 +7847,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 #                                14           27
 o1 = new stzString("♥♥♥....♥♥♥...YOU..♥♥♥.....YOU.♥♥♥")
@@ -7863,7 +7863,7 @@ proff()
 
 #=========
 
-profon
+profon()
 
 o1 = new stzList([
 	"♥", ".", ".", ".", "♥", ".", ".", "YOU", ".", "♥" ,".", ".", ".", "♥"
@@ -7886,7 +7886,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzList([
 	"♥", ".", ".", ".", "♥", ".", ".", "YOU", ".", "♥" ,".", ".", ".", "♥"
@@ -7901,7 +7901,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzList([
 	"♥", ".", ".", ".", "♥", ".", ".", "YOU", ".", "♥" ,".", ".", ".", "♥"
@@ -7922,7 +7922,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzList([
 	"♥", ".", ".", ".", "♥", ".", ".", "YOU", ".", "♥" ,".", ".", ".", "♥"
@@ -7952,7 +7952,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 o1 = new stzList([
 	"♥", ".", ".", "ME", "♥", ".", ".", "YOU", ".", "♥" ,".", "ME", ".", "♥"
@@ -7965,7 +7965,7 @@ proff()
 
 /*---------
 
-profon
+profon()
 
 #                                14           27
 o1 = new stzString("♥♥♥....♥♥♥...YOU..♥♥♥.....YOU.♥♥♥")
@@ -7981,7 +7981,7 @@ proff()
 
 /*----
 
-profon
+profon()
 
 o1 = new stzString("...*...*...*...")
 ? o1.FindXT( "*", :InSection = [5, 10] )
@@ -7992,7 +7992,7 @@ proff()
 
 /*-----------
 
-profon
+profon()
 
 o1 = new stzString("...<<*>>...<<*>>...<<*>>...")
 
@@ -8007,7 +8007,7 @@ proff()
 
 /*======== #TODO/FUTURE: add the :3rd syntax to these functions
 
-profon
+profon()
 
 o1 = new stzString("...<<*>>...<<*>>...<<*>>...")
 

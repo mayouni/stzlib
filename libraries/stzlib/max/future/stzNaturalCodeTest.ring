@@ -1,6 +1,6 @@
 load "../stzlib.ring"
 
-profon
+profon()
 
 # Let's consider this natural language sentence:
 

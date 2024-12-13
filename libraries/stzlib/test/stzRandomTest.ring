@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*====
 
-profon
+profon()
 
 o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
 o1.Randomize()
@@ -15,7 +15,7 @@ proff()
 
 /*====
 
-profon
+profon()
 
 o1 = new stzList([ "A", "B", 30, 40, 50, 60, "A", "B", "C" ])
 o1.RandomizeNumbers()
@@ -28,7 +28,7 @@ proff()
 
 #--
 
-profon
+profon()
 
 o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
 o1.RandomizeStrings()
@@ -40,7 +40,7 @@ proff()
 
 #--
 
-profon
+profon()
 
 o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
 
@@ -55,7 +55,7 @@ proff()
 
 /*--
 
-profon
+profon()
 
 o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
 o1.RandomizeSection(5, 8)
@@ -69,7 +69,7 @@ proff()
 
 /*--
 
-profon
+profon()
 
 o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", 8, 9, 10, "D" ])
 
@@ -84,7 +84,7 @@ proff()
 
 /*--
 
-profon
+profon()
 
 o1 = new stzList([ 1, 2, "A", "B", "C", 6, 7, "D", "E", "F", "G" ])
 
@@ -99,7 +99,7 @@ proff()
 
 /*--
 
-profon
+profon()
 
 o1 = new stzList([ "A", "B", 1:3, 4:5, 6:8, "C", 9:10, 11:12 ])
 o1.RandomiseLists() # Or ShuffleLists()
@@ -112,7 +112,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*----
-profon
+profon()
 
 Q("123456789") {
 
@@ -145,7 +145,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 Q([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ]) {
 
@@ -198,7 +198,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]) {
 
@@ -213,7 +213,7 @@ proff()
 
 /*----
 
-profon
+profon()
 
 Q("SOFTANZA") {
 
@@ -254,7 +254,7 @@ proff()
 
 /*-------
 
-profon
+profon()
 
 Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]) {
 
@@ -295,7 +295,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 ? Some( NumbersIn( -5 : 5 ) )
 #--> [ -1, -4, -5, 3 ]
@@ -317,7 +317,7 @@ proff()
 
 /*-----
 
-profon
+profon()
 
 ? SomeXT( NumbersIn( -5 : 5 ), 20/100 )
 #--> [ -5, 0, 4 ]
@@ -332,7 +332,7 @@ proff()
 
 /*-----
 */
-profon
+profon()
 
 TheAnnualGain = 20500
 ? NPercentOf( 10, TheAnnualGain )
@@ -342,7 +342,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 ? ARandomItemIn("A":"E")
 #--> B
@@ -358,7 +358,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 ? NRandomNumbersIn(3, 1:10)
 #--> [ 1, 1, 1 ]
@@ -371,7 +371,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 ? 9_999_999_999 + 1
 #--> 10_000_000_000
@@ -391,7 +391,7 @@ proff()
 # Ring in some corner areas, by taking as an example the generation of
 # random numbers. I Hope you will find it interesting...
 
-profon
+profon()
 
 # If you write this to ask Ring to generate a random number (version 1.19)
 
@@ -452,7 +452,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 ? ARandomNumberLessThan(10)
 #--> 2
@@ -483,7 +483,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 ? -5:1
 #--> [ -5, -4, -3, -2, -1, 0, 1 ]
@@ -493,7 +493,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 ? random(-10) # Standard Ring function returning _NULL_
 #--> ""
@@ -512,7 +512,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 # Ring random() can't deal with 0 as a paramter:
 
@@ -534,7 +534,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 # Softanza can generate random real numbers in the range 0 to 1
 
@@ -572,7 +572,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 ? ARandomNumberBetween(1, 2)
 #--> 1.34

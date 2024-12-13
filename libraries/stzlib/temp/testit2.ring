@@ -137,7 +137,7 @@ load "../stzlib.ring"
 
 /*------- FINDING A SUBSTRING INSIDE THE LIST OF STRINGS
 
-profon
+profon()
 	o1 = new stzListOfStrings([
 		"What's your name please?",
 		"Mabrooka!",
@@ -175,7 +175,7 @@ proff()
 
 /*------- REPLACING ALL OCCURRENCES OF A STRING
 */
-profon
+profon()
 
 	o1 = new stzList([ "A", "*", "B", "*", "C" ])
 	o1.ReplaceAllOccurrences(:of = "*", :With = "♥")
@@ -191,7 +191,7 @@ proff()
 
 /*------- REPLACING MANY STRINGS AT THE SAME TIME
 */
-profon
+profon()
 	o1 = new stzList([ "blabla1", "One", "blabla2", "Two", "blabla3", "Three" ])
 	o1.ReplaceMany([ "blabla1", "blabla2", "blabla3" ], :with = "♥" )
 	? @@( o1.Content() ) #--> [ "♥", "One", "♥", "Two", "♥", "Three" ]
@@ -206,7 +206,7 @@ proff()
 
 /*------- REPLACING MANY STRINGS AT THE SAME TIME
 */
-profon
+profon()
 
 	o1 = new stzList([ "TUNIS", "CAIRO", "bagdad" ])
 	o1.ReplaceMany([ "Tunis", "Cairo", "Bagdad" ], :With = "♥")
@@ -219,7 +219,7 @@ proff()
 
 /*------- REPLACING MANY STRINGS BY MANY OTHERS (ONE BY ONE)
 */
-profon
+profon()
 	o1 = new stzList([ :tunis, "ALGERIA", :cairo, "LIBYA", :bagdad ])
 	
 	o1.ReplaceManyByMany([ :tunis,   :cairo, :bagdad ],

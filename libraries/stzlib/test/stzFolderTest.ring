@@ -1,6 +1,6 @@
 load "../max/stzmax.ring"
 
-profon
+profon()
 
 o1 = new stzFolder("level1")
 ? o1.absolutePath()
