@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*---
 
-profon
+profon()
 
 ? @@( FirstNPrimes(5) )
 #--> [ 2, 3, 5, 7, 11 ]
@@ -12,7 +12,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 ? @@( Q("134").Digits() )
 #--> [ "1", "3", "4" ]
@@ -22,7 +22,7 @@ proff()
 
 /*---
 
-profon
+profon()
 o1 = new stzList([ "12", "25", "38" ])
 o1.Numberify() # Or Numbrify()
 ? @@( o1.Content() )
@@ -33,7 +33,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 2, 3, 5 ])
 ? o1.ArePrimes()
@@ -48,7 +48,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 ? @@(FirstNPrimes(25))
 #--> [
@@ -62,7 +62,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 ? Q(1245).Digits()
 #--> [ 1, 2, 4, 5 ]
@@ -75,7 +75,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 ? NextPrimeAfter(12)
 #--> 13
@@ -98,7 +98,7 @@ proff()
 # or the SPDS problem statement form RosettaCode. Here we
 # rpovide a cleaner and more efficient solution:
 
-profon
+profon()
 
 ? NFirstPrimesW(25, :Where = '{ 
 	Q(@prime).DigitsQR(:stzListOfNumbers).ArePrimes()
@@ -116,7 +116,7 @@ proff()
 
 /*---
 
-profon
+profon()
 
 # Problem statement (from RosettaCode)
 
@@ -157,7 +157,7 @@ proff()
 /*------
 
 
-profon
+profon()
 
 ? HexPrefixes()
 #--> [ "x", "0x", "U+" ]
@@ -173,7 +173,7 @@ proff()
 
 /*-------
 */
-profon
+profon()
 
 StzHexNumberQ("x167A") {
 
@@ -206,7 +206,7 @@ proff()
 
 /*---------------------
 
-profon
+profon()
 
 ? IsUnicodeHex("U+214B")
 #--> _TRUE_
@@ -223,7 +223,7 @@ proff()
 
 /*---------------------
 
-profon
+profon()
 
 o1 = new stzHexNumber("")
 

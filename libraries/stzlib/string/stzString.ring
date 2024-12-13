@@ -48350,6 +48350,14 @@ class stzString from stzObject
 
 		if EarlyChecks()
 
+			if nStart = 1
+				return 0
+			ok
+
+			if nStart < 0 or nStart > nLen
+				return 0
+			ok
+
 			if pcSubStr = ""
 				return 0
 			ok
@@ -48358,19 +48366,18 @@ class stzString from stzObject
 				return 0
 			ok
 	
-			if nStart = 1
+			if This.SectionQ(1, nStart - 1).
+				NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) < n
+
 				return 0
 			ok
 
-			if nStart < 0 or nStart > nLen
-				return 0
-			ok
-	
 		ok
 
 		# Full check (only occurrences of pcSubStr are parsed, not every char)
 
-		nPos = nStart
+		bCase = @CaseSensitive(pCaseSensitive)
+		nPos = nStart - 1
 		nFound = 0
 		i = 0
 
@@ -48380,7 +48387,7 @@ class stzString from stzObject
 				exit
 			ok
 
-			nPos = This.FindPreviousCS(pcSubStr, :StartingAt = nPos, pCaseSensitive)
+			nPos = This.FindPreviousCS(pcSubStr, nPos, bCase)
 
 			if nPos = 0
 				exit
@@ -48731,13 +48738,12 @@ class stzString from stzObject
 	
 				return 0
 			ok
-
 		ok
 
-		nResult = This.SectionQ(1, pnStartingAt - 1).
+		_nResult_ = This.SectionQ(1, pnStartingAt - 1).
 				FindLastCS(pcSubStr, pCaseSensitive)
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForm
 

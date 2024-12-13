@@ -2,7 +2,7 @@ load "../stzmax.ring"
 
 /*--------
 
-profon
+profon()
 
 ? StzCCodeQ(' This[@i] = This[@i+1] ').ExecutableSection()
 #--> [ 1, -1 ]
@@ -12,7 +12,7 @@ proff()
 
 /*-------- #narration BETWEEN vs BOUNDEDBY
 
-profon
+profon()
 #                         7  10
 # BETWEEN ~>           xxx[--v----------------]xxx
 o1 = new stzString("___<<<ring>>>___<<<softanza>>>___")
@@ -38,7 +38,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString('{ This[@i] = This[@i + 1] + 5 }')
 ? @@( o1.FindSubStringsBoundedByIBZZ([ "[", "]" ]) )
@@ -59,7 +59,7 @@ proff()
 
 /*----------
 
-profon
+profon()
 
 o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
 ? o1.NumbersAfter("@i")

@@ -43614,16 +43614,91 @@ class stzList from stzObject
 	#----------------------------------------------#
 
 	def FindNthPreviousOccurrenceCS(n, pItem, nStart, pCaseSensitive)
+
 		if CheckingParams()
-			if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
+
+			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+				pItem = pItem[2]
+			ok
+	
+			if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
 				nStart = nStart[2]
 			ok
+	
+			if isString(nStart) and ( nStart = :Last Or nStart = :LastItem )
+				nStart = This.NumberOfItem()
+			ok
+	
+			if isString(n)
+	
+				if n = :First Or n= :FirstOccurrence
+					n = 1
+	
+				but n = :Last Or n = :LastOccurrence
+					n = This.SectionQ(1, nStart).NumberOfOccurrenceCS(pItem, pCaseSensitive)
+				ok
+			ok
+	
+			if NOT ( isNumber(n) and isNumber(nStart) )
+				StzRaise("Incorrect param type! n and nStart must be numbers.")
+			ok
+
 		ok
 
-		nLen = len(@aContent)
-		nResult = nLen - This.Copy().ReverseQ().FindNthNextOccurrenceCS(n, pItem, nLen - nStart + 1, pCaseSensitive) + 1
-		return nResult
+		# Early checks (gains performance for large lists)
 
+		nLen = This.NumberOfItems()
+
+		if EarlyChecks()
+	
+			if nStart = 1
+				return 0
+			ok
+
+			if nStart < 0 or nStart > nLen
+				return 0
+			ok
+
+			if NOT This.ContainsCS(pItem, pCaseSensitive)
+				return 0
+			ok
+	
+			if This.SectionQ(1, nStart - 1).
+				NumberOfOccurrenceCS(pItem, pCaseSensitive) < n
+
+				return  0
+			ok
+
+		ok
+
+		# Full check (only occurrences of pItem are parsed, not every item)
+
+		bCase = @CaseSensitive(pCaseSensitive)
+		nPos = nStart - 1
+		nFound = 0
+		i = 0
+
+		while _TRUE_
+			i++
+			if i > nLen
+				exit
+			ok
+
+			nPos = This.FindPreviousCS(pItem, nPos, bCase)
+
+			if nPos = 0
+				exit
+			else
+				nFound++
+				if nFound = n
+					return nPos
+				ok
+			ok
+		end
+
+		return 0
+
+		
 		#< @FunctionAlternativeForms
 
 		def FindPreviousNthOccurrenceCS( n, pItem, nStart, pCaseSensitive )
@@ -43818,7 +43893,29 @@ class stzList from stzObject
 
 		*/
 
-		nResult = This.FindNthPreviousOccurrenceCS(1, pItem, pnStartingAt, pCaseSensitive)
+		if CheckingParams()
+
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if NOT isNumber(pnStartingAt)
+				StzRaise("Incorrect param type! pnStartingAt must be a number.")
+			ok
+
+		ok
+
+		if EarlyCheck()
+
+			if NOT This.ContainsCS(pItem, pCaseSensitive)
+				return 0
+			ok
+
+		ok
+
+		nResult = This.SectionQ(1, pnStartingAt - 1).
+			  FindLastCS(pItem, pCaseSensitive)
+
 		return nResult
 
 		#< @FunctionAlternativeForms

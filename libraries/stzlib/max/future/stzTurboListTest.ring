@@ -2,7 +2,7 @@ load "../stzlib.ring"
 
 /*-------
 
-profon
+profon()
 
 ? @@( Q([ [ 1 ], [ 2 ], [ 3, 5, 8 ], [ 4 ], [ 6 ], [ 7 ], [ 9 ]  ]).flattened() )
 
@@ -11,7 +11,7 @@ proff()
 
 /*-------
 
-profon
+profon()
 
 ? Q(1:9).IsContiguous()
 
@@ -20,7 +20,7 @@ proff()
 
 /*-------
 
-profon
+profon()
 
 o1 = new stzTurbolist([
 	[  "1",   "2",      "*",      "4",   "6",   "7",   "9"   ],

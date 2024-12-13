@@ -3,7 +3,7 @@ load "../max/stzmax.ring"
 
 /*-------------------
 */
-profon
+profon()
 
 decimals(10)
 
@@ -25,7 +25,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 // Creating a binary number from a decimal form
 
@@ -41,7 +41,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 // Creating a binary number from a hex form
 o1 = new stzBinaryNumber("")
@@ -56,7 +56,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 // Creating a binary number from an octal form
 o1 = new stzBinaryNumber("")
@@ -69,7 +69,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 // Converting a binary number to a decimal form
 o1 = new stzBinaryNumber("0b1010111")

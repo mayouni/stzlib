@@ -1,6 +1,6 @@
 load "../max/stzmax.ring"
 
-profon
+profon()
 
 ? AWord() + NL
 #--> "square"

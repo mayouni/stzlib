@@ -2,7 +2,7 @@ load "../stzmax.ring"
 
 /*------------------- #TODO check correctness
 
-profon
+profon()
 
 ? StzCountryQ(:Iran).Languages()
 #--> [ :northern_luri, :southern_kurdish ]
@@ -20,7 +20,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 ? @@NL( CountriesAndTheirDefaultLanguages() )
 #--> [
@@ -292,7 +292,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 ? CountriesforWhichDefaultLanguageIs(:english)
 #--> [
@@ -315,7 +315,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 # You can create a country by specifying one of these information:
 # name, short or long abbreviation, phone code, or even its default language!
@@ -345,7 +345,7 @@ proff()
 
 /*-------------------
 */
-profon
+profon()
 
 # More conveniently, all the information Softanza knwows about the
 # country Egypt are accessible directly like this:

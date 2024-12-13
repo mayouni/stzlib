@@ -1,6 +1,6 @@
 load "../max/stzmax.ring"
 
-profon
+profon()
 
 # Uses stkStringArt, part of SoftanzaCore, in the background
 #NOTE // All tests in ../core/string/stkRingArtTest.ring are usable here in the SoftanzaPrime level by chaing "stz" by "stk"

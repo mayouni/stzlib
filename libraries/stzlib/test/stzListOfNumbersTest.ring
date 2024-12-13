@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*=====
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 2.07, 0.39, 0.12])
 
@@ -17,7 +17,7 @@ proff()
 
 /*-----
 
-profon
+profon()
 
 o1 = new stzPairOfNumbers([ 2.07, 0.39 ])
 
@@ -32,7 +32,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 # Multiple calculation
 
@@ -67,7 +67,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([
 	370, 4120.34, 493.12, 45, 370, 12.1, 7
@@ -100,7 +100,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 ? Min([ 2, 4 ])
 #--> 2
@@ -113,7 +113,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 ? @@( Association([ [ 1, 2, 3 ] , [ 1, 3, 8 ] ]) )
 #--> [ [ 1, 1 ], [ 2, 3 ], [ 3, 8 ] ]
@@ -123,7 +123,7 @@ proff()
 
 /*====
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 2, 7, 3, 10, 5, 4, 9, 1, 6, 8 ])
 
@@ -145,7 +145,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 ? NZeros(5)
 #--> [ 0, 0, 0, 0, 0 ]
@@ -155,7 +155,7 @@ proff()
 
 /*=====
 
-profon
+profon()
 
 o1 = new stzNumber("1234567.1234567")
 
@@ -177,7 +177,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 ? QQ(1:3).StzType()
 #--> StzListOfNumbers
@@ -186,7 +186,7 @@ proff()
 
 /*================= #todo write a #narration
 
-profon
+profon()
 
 ? Q([ 1, 2, 3, 4, 5]) - [1, 3 , 5]
 #--> [ 1, 2, 3, 4, 5 ]
@@ -216,7 +216,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 ? Q([1, "*", 2, "*", 3 ]) - "*"
 #--> [ 1, 2, 3 ]
@@ -233,7 +233,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 ? Q([1, 2, 3 ]) + 4
 #--> [ 1, 2, 3, 4 ]
@@ -250,7 +250,7 @@ proff()
 
 /*----------------
  
-profon
+profon()
 
 ? @@( Q([1, 2, 3 ]) * 4 )
 #--> [ 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3 ]
@@ -267,7 +267,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 ? @@( Q(["A", "B" ]) * 3 )
 #--> [ [ "A", "B" ], [ "A", "B" ], [ "A", "B" ] ]
@@ -284,7 +284,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzList(["one", "two", "three", "four", "five", "six" ])
 
@@ -299,7 +299,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 ? @@( Q(["one", "two", "three", "four", "five", "six" ]) / 3 ) + NL
 #--> [ [ "one", "two" ], [ "three", "four" ], [ "five", "six" ] ]
@@ -316,7 +316,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 ? @@( Q([4, 44, 444 ]) / 3 )
 #--> [ [ 4 ], [ 44 ], [ 444 ] ]
@@ -333,7 +333,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzList([ "A", "B" ])
 
@@ -352,7 +352,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 ? Q(["A", 1, "B", 2, "C", 3 ]) / 3
 #--> [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ]
@@ -370,7 +370,7 @@ proff()
 
 /*===============
 
-profon
+profon()
 
 ? Q([1, 2, "*", 3 ]) + "*"
 #--> [ 1, 2, 3 ]
@@ -383,7 +383,7 @@ proff()
 
 /*================
 
-profon
+profon()
 
 ? Q("Ringggg") - "ggg"
 #--> Ring
@@ -395,7 +395,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 ? Q("Rin") + "g"
 #--> Ring
@@ -407,7 +407,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers(1:5)
 ? o1.NumbersGreaterThan(3)
@@ -424,7 +424,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 ? 3RandomNumbersIn(1:10)
 #--> [10, 9, 10]
@@ -433,7 +433,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 ? NRandomNumbersIn(3, 1:10)
 #--> [10, 10, 10]
@@ -442,7 +442,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 ? QQ(1:10).NRandomNumbers(3)
 #--> [9, 10, 10]
@@ -454,7 +454,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 ? QQ(1:100_000).NRandomNumbers(3)
 #--> [100_000, 100_000, 100_000]
@@ -466,7 +466,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 ? QQ(1:7).AnyNumberBeforePosition(5)
 #--> 3
@@ -481,7 +481,7 @@ proff()
 
 /*---------------
 */
-profon
+profon()
 
 ? QQ([ 12, 4, 35, 102, 22, 98, 5 ]).AnyNumberBefore(22)
 #--> 102
@@ -496,7 +496,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 ? QQ(1:7).AnyNumberAfterPosition(5)
 #--> 7
@@ -511,7 +511,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 ? QQ([ 12, 4, 35, 102, 22, 98, 5 ]).AnyNumberBefore(22)
 #--> 102
@@ -525,7 +525,7 @@ proff()
 # Executed in 0.03 second(s)
 /*---------------
 
-profon
+profon()
 
 ? QQ(1:7).AnyNumberBeforeOrAfter(3)
 
@@ -533,7 +533,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers(1: 10)
 ? o1.ANumberOtherThan(5)
@@ -542,7 +542,7 @@ proff()
 
 /*===============
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 2, 7, 18, 18, 10, 25, 4 ])
 
@@ -567,7 +567,7 @@ proff()
 
 /*-------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 2, 7, 18, 18, 10, 12, 25, 4 ])
 
@@ -594,7 +594,7 @@ proff()
 
 /*-------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 4, 8, 10, 16, 18 ])
 
@@ -621,7 +621,7 @@ proff()
 
 /*-----------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
 
@@ -642,7 +642,7 @@ proff()
 
 /*-----------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
 
@@ -663,7 +663,7 @@ proff()
 
 /*-------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 2, 4, 7, 10, 12, 15, 18, 25 ])
 
@@ -687,7 +687,7 @@ proff()
 
 /*-------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 2, 4, 7, 10, 12, 15, 18, 25 ])
 
@@ -711,7 +711,7 @@ proff()
 
 /*===========
 
-profon
+profon()
 
 ? Min([1, 10])
 #--> 1
@@ -766,7 +766,7 @@ StopProfiler()
 
 /*===============
 
-profon
+profon()
 
 ? StzListOfNumbersQ( 12:22 ).SortingOrder()
 #--> :Ascending
@@ -779,7 +779,7 @@ proff()
 
 /*==============
 
-profon
+profon()
 
 ? StzListOfNumbersQ( 12:22 ).IsContiguous()
 #--> _TRUE_
@@ -798,7 +798,7 @@ proff()
 
 /*========
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ])
 
@@ -812,7 +812,7 @@ proff()
 
 /*========
 
-profon
+profon()
 
 ? StzListOfNumbersQ( 1:5 ).Reversed()
 #--> 5:1
@@ -822,7 +822,7 @@ proff()
 
 /*========
 
-profon
+profon()
 
 StzListOfNumbersQ([ 2, 10, 7, 4, 19, 7, 19 ]) {
 
@@ -857,7 +857,7 @@ proff()
 
 /*==================
 
-profon
+profon()
 
 ? StzListOfNumbersQ([ 1, 2, 3 ]).AddedToEach(5)
 #--> [6, 7, 8]
@@ -866,7 +866,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-----------------
-profon
+profon()
 
 StzListOfNumbersQ([ 1, 2, 3 ]) {
 
@@ -891,7 +891,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 8, 10, 14 ])
 
@@ -905,7 +905,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 StzListOfNumbersQ([ 2, 4, 8 , 10 , 12 ]) {
 
@@ -932,7 +932,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 o1 = new stzString("helloringprogrammer!")
 o1.SpacifySubStringUsing("ring", "_")
@@ -944,7 +944,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 o1 = new stzString("whatisyournameplease?")
 o1.SpacifySubStringsUsing(["is", "your", "name"], "_")
@@ -957,7 +957,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 o1 = new stzString("whatisyournameplease?")
 
@@ -970,7 +970,7 @@ proff()
 
 /*=================
 
-profon
+profon()
 
 o1 = new stzCCode('{ Q(This[@i]).IsDividableBy(4) and This[@i] <= 20 }')
 ? o1.ExecutableSection()
@@ -981,7 +981,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 4, 7, 36, 9, 20 ])
 
@@ -993,7 +993,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 o1 = new stzList("A":"E")
 o1.Update([])
@@ -1006,7 +1006,7 @@ proff()
 
 /*======================
 
-profon
+profon()
 
 o1 = new stzString("---ring---ring--ring--")
 ? @@( o1.FindInSections("ring", [ [3, 8], [10, 15], [16, 21] ]) )
@@ -1020,7 +1020,7 @@ proff()
 
 /*--------------------
 
-profon
+profon()
 
 o1 = new stzString("---ring---ruby--python--python--")
 ? @@( o1.FindInSection("ring", 4, 7) )
@@ -1037,7 +1037,7 @@ proff()
 
 /*--------------------
 
-profon
+profon()
 
 o1 = new stzString("iloveringprogramminglanguage!!")
 
@@ -1054,7 +1054,7 @@ proff()
 
 /*--------------------
 
-profon
+profon()
 
 o1 = new stzString("iloveringprogramminglanguage!!")
 
@@ -1069,7 +1069,7 @@ proff()
 
 /*--------------------
 
-profon
+profon()
 
 o1 = new stzListOfStrings([ "i", "ring", "language" ])
 o1.SortByInDescending('Q(@string).NumberOfChars()')
@@ -1082,7 +1082,7 @@ proff()
 
 /*--------------------
 
-profon
+profon()
 
 o1 = new stzString("iloveringprogramminglanguage!!")
 ? @@( o1.FindManyZZ([ "i", "love", "ring", "programming" ]) )
@@ -1094,7 +1094,7 @@ proff()
 
 /*--------------------
 
-profon
+profon()
 
 o1 = new stzString("weloveringlanguage!")
 o1.AddXT(" ", :AfterThese = Q([ "we", "love", "ring", "language" ]).Reversed())
@@ -1105,7 +1105,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("we loveringlanguage!")
 o1.AddXT([ " ", " " ], :Around = "ring")
@@ -1117,7 +1117,7 @@ proff()
 
 /*------------------
 
-profon
+profon()
 
 o1 = new stzString("weloveringlanguage!")
 
@@ -1131,7 +1131,7 @@ proff()
 
 /*--------------------
 
-profon
+profon()
 
 o1 = new stzString("iloveringprogramminglanguage")
 ? o1.TheseSubStringsSpacified([ "php", "ruby" ]) # Nothing happens because these substrings
@@ -1143,7 +1143,7 @@ proff()
 
 /*--------------------
 
-profon
+profon()
 
 o1 = new stzString("iloveringprogramminglanguage")
 ? o1.TheseSubStringsSpacified([ "php", "ruby", "programming" ]) # Only "programming" is spacified
@@ -1156,7 +1156,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 4, 7, 36, 9, 20 ])
 o1.AddToEachW( 1, :Where = '{ Q(This[@i]).IsDividableBy(4) and This[@i] <= 20 }' )
@@ -1169,7 +1169,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 4, 14, 24, 34 ])
 o1.SubStructFromEachW( 10, :Where = '{ @number > 20 }' )
@@ -1181,7 +1181,7 @@ proff()
 
 /*-------------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 5, 15, 25, 35 ])
 o1.DivideEachByW( 5, :Where = '{ @number > 20 }' )
@@ -1193,7 +1193,7 @@ proff()
 
 /*======
 
-profon
+profon()
 
 ?  MultiplicationsYieldingN(9)
 #--> [ [ 1, 9 ], [ 3, 3 ], [ 9, 1 ] ]
@@ -1206,7 +1206,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers([ 12, 10, 98, 3, 23, 98, 7 ])
 
@@ -1227,7 +1227,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers(1:8)
 o1.AddToEveryNumber(2)
@@ -1239,7 +1239,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers(1:8)
 o1.SubStructFromEach(2)
@@ -1251,7 +1251,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers(1:8)
 
@@ -1272,7 +1272,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers(1:8)
 
@@ -1287,7 +1287,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 # CLIPPING THE NUMBERS IN THE LIST
 # Limits the values of the list by adjusting the numbers outside
@@ -1306,7 +1306,7 @@ proff()
 
 /*--------------
 
-profon
+profon()
 
 o1 = new stzListOfNumbers(1:8)
 o1.ReplaceSectionWith(3, 5, 2)

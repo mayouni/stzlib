@@ -2,7 +2,7 @@ load "../stzmax.ring"
 
 /*-------------
 
-profon
+profon()
 
 oQLocale = new QLocale("C")
 ? oQLocale.toLower("RING")
@@ -23,7 +23,7 @@ SetDefaultLocale("ar-TN")
 
 /*---------------
 
-profon
+profon()
 
 StzLocaleQ([ :Country = :Tunisia ]) {
 	? Abbreviation()	#--> ar_TN
@@ -35,7 +35,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 StzCountryQ(:palau) {
 	? Name()		#--> palau
@@ -88,7 +88,7 @@ StzLocaleQ("ps-AF") {
 
 /*----------------
 
-profon
+profon()
 
 o1 = new stzString("chinese yuan")
 ? o1.Capitalised()
@@ -98,7 +98,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 StzLocaleQ("zh-CN") {		
 	? CountryName()			#--> china
@@ -112,7 +112,7 @@ proff()
 
 /*---------------
 
-profon
+profon()
 
 StzCountryQ("china") {
 	? country()			#--> china
@@ -132,7 +132,7 @@ proff()
 
 /*----------------
 
-profon
+profon()
 
 ? StzLocaleQ("sm-WS").CountryName() #--> _NULL_! (see why)
 
@@ -182,7 +182,7 @@ oQLocale = new QLocale("cmn-CN")
 
 /*---------------------- #todo check it
 */
-profon
+profon()
 # All these return the abbreviation ru_RU
 
 ? StzLocaleQ([ :Language = :Russian, :Script = :Latin, :Country = :Russia ]).Abbreviation()
@@ -197,7 +197,7 @@ proff()
 
 /*----------------------
 
-profon
+profon()
 
 StzLocaleQ([ :Country = :Iran ]) {
 	? Abbreviation()			 #--> fa_IR
@@ -321,7 +321,7 @@ StzLocaleQ([ :Script = :Latin, :Country = :Russia ]) {
 
 /*-----------------------
 
-profon
+profon()
 
 ? NamesOfMonthsIn(:Japanese) # Or ...In(:Japan)
 #--> [ "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月" ]
@@ -372,7 +372,7 @@ o1 = new stzLocale("ar-TN")
 
 /*-------------//// functional error //// (Is it an error really?)
 
-profon
+profon()
 
 StzLocaleQ([ :Language = :French ]) {
 	? Country()
@@ -387,7 +387,7 @@ proff()
 
 /*-------------//// TODO: Check error ////
 */
-profon
+profon()
 
 StzLocaleQ([ :Language = :English ]) {
 	? Country()
