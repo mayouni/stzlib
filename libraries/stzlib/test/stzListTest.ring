@@ -6023,7 +6023,6 @@ StopProfiler()
 
 /*-----------
 
-*/
 StartProfiler()
 #                   1    2    3    4    5    6    7
 o1 = new stzList([ "_", "_", "•", "_", "•", "_", "_" ])
@@ -6092,10 +6091,10 @@ StopProfiler()
 /*-----------
 
 StartProfiler()
+
 #                   1..4.6..9.1.34..7..0
 o1 = new stzString("[••[•[••]•[•]]••[••]]")
 
-#--
 
 ? o1.DistanceTo("[", :StartingAt = 1)
 #--> 2
@@ -6134,7 +6133,7 @@ o1 = new stzString("[••[•[••]•[•]]••[••]]")
 #--> 4
 
 StopProfiler()
-# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 2.68 second(s) in Ring 1.22
 
 /*-----------
 
@@ -6584,24 +6583,31 @@ o1 = new stzList(
 
 ? o1.NumberOfLevels()
 #--> 5
-# Executed in 0.04s
 
 ? @@( o1.DeepFind("♥") )
 #--> [ [ 2, 2 ], [ 3, 2 ], [ 5, 2 ], [ 5, 2 ], [ 4, 3 ] ]
-# Executed in 0.07s
 
 StopProfiler()
-#--> Executed in 0.07 second(s)
+# Executed in 0.09 second(s) in Ring 1.22
 
 /*==============
-
+*/
 StartProfiler()
 
-o1 = new stzList([ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "🌞"] ] ])
+o1 = new stzList([ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "🌞"] ] , "3" ])
+
+? o1.FindFirst("3")
+#--> 6
+
+? o1.FindNth(3, "1")
+#--> 4
+
+? o1.Contains([ "2", "♥", "2"])
+#--> TRUE
 
 ? o1.DeepContains("🌞")
-#--> _TRUE_
-
+#--> TRUE
+/*
 ? o1.DeepContainsMany([ "1", "♥", "3", "🌞" ]) # Or DeepContainsThese()
 #--> _TRUE_
 
@@ -6613,7 +6619,7 @@ o1 = new stzList([ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "🌞"] ] ])
 
 ? o1.DeepContainsNOfThese(2, ["_", "🌞", "0", "♥" ])
 #--> _TRUE_
-
+*/
 StopProfiler()
 # Executed in 0.02 second(s).
 
