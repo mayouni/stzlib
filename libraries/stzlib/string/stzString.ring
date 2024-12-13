@@ -44684,17 +44684,40 @@ class stzString from stzObject
 
 		return _bResult_
 
+		#< @FunctionFluentForm
+
+		def StartsWithCSQ(pcSubStr, pCaseSensitive)
+
+			if This.StartsWithCS(pcSubStr, pCaseSensitive) = _TRUE_
+				return This
+			else
+				return AFalseObject()
+			ok
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def BeginsWithCS(pcSubStr, pCaseSensitive)
 			return This.StartsWithCS(pcSubStr, pCaseSensitive)
+
+			def BeginsWithCSQ(pcSubStr, pCaseSensitive)
+				return This.StartsWithCSQ(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def StartsWith(pcSubStr)
 		return This.StartsWithCS(pcSubStr, _TRUE_)
 
+		def StartsWithQ(pcSubStr)
+			return This.StartsWithCS(pcSubStr, _TRUE_)
+
 		def BeginsWith(pcSubStr)
 			return This.StartsWith(pcSubStr)
+
+			def BeginsWithQ(pcSubStr)
+				return This.StartsWithQ(pcSubStr)
 
 	  #---------------------------------------------------------------#
 	 #  CHEHCKING IF THE STRING STARTS WITH A GIVEN SUBSTRING -- XT  #
@@ -44719,17 +44742,40 @@ class stzString from stzObject
 		_bResult_ = This.StartsWithCS( @Concat(pacSubStr), pCaseSensitive)
 		return _bResult_
 
+		#< @FunctionFluentForm
+
+		def StartsWithCSXTQ(pacSubStr, pCaseSensitive)
+			if This.StartsWithCSXT(pacSubStr, pCaseSensitive) = _TRUE_
+				return This
+			else
+				return AFalseObject()
+			ok
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def BeginsWithCSXT(pacSubStr, pCaseSensitive)
 			return This.StartsWithCSXT(pcSubStr, pCaseSensitive)
+
+			def BeginsWithCSXTQ(pacSubStr, pCaseSensitive)
+				return This.StartsWithCSXTQ(pacSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def StartsWithXT(pacSubStr)
 		return This.StartsWithCSXT(pacSubStr, _TRUE_)
 
+		def StartsWithXTQ(pacSubStr)
+			return This.StartsWithCSXTQ(pacSubStr, _TRUE_)
+
 		def BeginsWithXT(pacSubStr)
 			return This.StartsWithXT(pacSubStr)
+
+			def BeginsXTQ(pacSubStr)
+				return This.StartsWithXTQ(pacSubStr)
 
 	  #----------------------------------------------------------------#
 	 #  CHECKS IF THE STRING STARTS WITH ONE OF THE GIVEN SUBSTRINGS  #
@@ -44787,7 +44833,7 @@ class stzString from stzObject
 
 	  #----------------------------------------------------------#
 	 #  CHECKS IF THE STRING ENDS WITH A GIVEN GIVEN SUBSTRING  #
-	#----------------------------------------------------------#
+	#==========================================================#
 
 	def EndsWithCS(pcSubStr, pCaseSensitive)
 		#< QtBased | Uses oQString.endsWith() >
@@ -44814,16 +44860,88 @@ class stzString from stzObject
 		return _bResult_
 
 
+		#< @FunctionFluentForm
+
+		def EndsWithCSQ(pcSubStr, pCaseSensitive)
+			if This.EndsWithCS(pcSubStr, pCaseSensitive) = _TRUE_
+				return This
+			else
+				return AFalseObject()
+			ok
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def FinishsWithCS(pcSubStr, pCaseSensitive)
-				return This.EndsWithCS(pcSubStr, pCaseSensitive)
+			return This.EndsWithCS(pcSubStr, pCaseSensitive)
+
+			def FinishesWithCSQ(pcSubStr, pCaseSensitive)
+				return This.EndsWithCSQ(pcSubStr, pCaseSensitive)
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def EndsWith(pcSubStr)
 		return QStringObject().endsWith(pcSubStr, 0)
 
+		def EndsWithQ(pcSubStr)
+			return  This.EndsWithCSQ(pcSubStr, _TRUE_)
+
 		def FinishsWith(pcSubStr)
 			return This.EndsWith()
+
+			def FinishesWithQ(pcSubStr)
+				return This.EndsWithQ(pcSubStr)
+
+	  #-------------------------------------------------------------#
+	 #  CHEHCKING IF THE STRING ENDS WITH A GIVEN SUBSTRING -- XT  #
+	#-------------------------------------------------------------#
+	# ~> Enables the param to be a list of chars not a substring
+
+	def EndsWithCSXT(pacSubStr, pCaseSensitive)
+
+		if CheckParams()
+
+			if isString( pacSubStr )
+				return This.StartsWithCS(pacSubStr, pCaseSensitive)
+			ok
+
+			if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
+				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+			ok
+		ok
+
+		# Doing the job
+
+		_bResult_ = This.EndsWithCS( @Concat(pacSubStr), pCaseSensitive)
+		return _bResult_
+
+		def EndsWithCSXTQ(pacSubStr, pCaseSensitive)
+			if This.EndsWithCSXT(pcSubStr, pCaseSensitive) = _TRUE_
+				return This
+			else
+				return AFalseObject()
+			ok
+
+		def FinishesWithCSXT(pacSubStr, pCaseSensitive)
+			return This.EndsWithCSXT(pcSubStr, pCaseSensitive)
+
+			def FinishesWithCSXTQ(pacSubStr, pCaseSensitive)
+				return This.EndsWithCSXTQ(pacSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def EndsWithXT(pacSubStr)
+		return This.EndsWithCSXT(pacSubStr, _TRUE_)
+
+		def EndsWithXTQ(pacSubStr)
+			return This.EndsWithCSXTQ(pacSubStr, _TRUE_)
+
+		def FinishesWithXT(pacSubStr)
+			return This.EndsWithXT(pacSubStr)
+
+			def FinishesWithXTQ(pacSubStr)
+				return This.EndsWithXTQ(pacSubStr)
 
 	  #--------------------------------------------------------------#
 	 #  CHECKS IF THE STRING ENDS WITH ONE OF THE GIVEN SUBSTRINGS  #

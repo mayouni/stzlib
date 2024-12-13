@@ -49876,7 +49876,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def StartsWith(paItems)
-		return This.StartsWithCS(paItems, oCaseSensitive)
+		return This.StartsWithCS(paItems, _TRUE_)
 
 		def BeginsWith(paItems)
 			return This.StartsWith()
