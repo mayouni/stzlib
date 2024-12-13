@@ -4,7 +4,7 @@ load "gamelib.ring"
 
 /*-----
 
-pron()
+profon
 
 # Qt String is not performant for appending a large
 # number of strings (takes a lot of time to append
@@ -39,7 +39,7 @@ proff()
 
 /*------------
 
-pron()
+profon
 
 list = []
 for i = 1 to 1_000_000
@@ -51,7 +51,7 @@ proff()
 
 /*------------
 
-pron()
+profon
 
 str = ""
 for i = 1 to 1_000_000
@@ -65,7 +65,7 @@ proff()
 
 /*=========== RingAllegro #TODO use it instead of Qt in Softanza
 
-pron()
+profon
 
 # Creating a string
 

@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*======== Some small functions #perf (Ring 1.19 quicker than 1.20)
 */
-pron()
+profon
 
 # Returning a number in the form of string using S() abbreviation
 

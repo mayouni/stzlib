@@ -132,11 +132,8 @@ func ElapsedTimeXT(pIn)
 	func ElpasedTimeXT(pIn)
 		return ElapsedTimeXT(pIn)
 
-func Pron()
+func Profon()
 	_time0 = clock()
-
-	func Profon()
-		_time0 = clock()
 
 	func StartProfiler()
 		_time0 = clock()

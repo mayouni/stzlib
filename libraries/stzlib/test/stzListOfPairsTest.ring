@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*-----
 
-pron()
+profon
 
 ? Q( :CS = _FALSE_ ).IsCaseSensitiveNamedParam()
 #--> _TRUE_
@@ -12,7 +12,7 @@ proff()
 
 /*------ #ring
 
-pron()
+profon
 
 # Ring can sort  columns made of only numbers or only strings
 ? @@NL( ring_sort2([
@@ -30,7 +30,7 @@ proff()
 
 /*------
 
-pron()
+profon
 
 # Softanza can sort lists of pairs containing columns with
 # heteregenious data (not only strings or only numbers like
@@ -63,7 +63,7 @@ Alpha, Baker, Charlie, Dog, Easy, Fox, George, Harry, Igloo, Jack, King, Larry
 
 /*------
 
-pron()
+profon
 
 aLists = [
 	[ "Dog", 	370 ],
@@ -99,7 +99,7 @@ proff()
 
 /*---------------
 
-pron()
+profon
 
 aLists = [
 	"A":"C", 1:3, [ 5, "E", 7 ], [1]
@@ -124,7 +124,7 @@ proff()
 
 /*---------------
 
-pron()
+profon
 
 aLists = [
 	[ "Dog", 	370,	"white",	TRUE	],
@@ -161,7 +161,7 @@ proff()
 
 /*---------------
 
-pron()
+profon
 
 aLists = [
 	[ 5, 6, 7, 8 ], [ 1, 2, 3 ], [ 4 ]
@@ -175,7 +175,7 @@ proff()
 
 /*---------------
 
-pron()
+profon
 
 ? @@( SortListsBySize([ [ 1, 2, 3 ], [ 5, 6, 7, 8 ], [ 1 ] ]) )
 # [ [ 1 ], [ 1, 2, 3 ], [ 5, 6, 7, 8 ] ]
@@ -185,7 +185,7 @@ proff()
 
 /*---------------
 
-pron()
+profon
 
 aLists = [
 	[ "Dog", 	370,	"white",	TRUE	],
@@ -213,7 +213,7 @@ proff()
 
 /*---------------
 
-pron()
+profon
 
 o1 = new stzListOfStrings([ "130", "12500", "17" ])
 
@@ -234,7 +234,7 @@ proff()
 
 /*---------------
 
-pron()
+profon
 
 # SortOn(list, nthCol) stringifies the nth column and then
 # sorts the lists based on it
@@ -275,7 +275,7 @@ proff()
 
 /*---------------
 
-pron()
+profon
 
 aLists = [
 	[ "Dog", 	370,	"white",	TRUE	],
@@ -303,7 +303,7 @@ proff()
 
 /*======= SortLists()
 
-pron()
+profon
 
 # If the list is made of lists of numbers or lists of strings,
 # then the lists are sorted by size
@@ -327,7 +327,7 @@ proff()
 
 /*---------------
 
-pron()
+profon
 
 # If the list is made of lists of numbers and strings, then the
 # lists of numbers are sorted first, and then the lists of strings
@@ -351,7 +351,7 @@ proff()
 
 /*---------------
 
-pron()
+profon
 
 # If the list is made of lists of lists
 
@@ -376,7 +376,7 @@ proff()
 
 /*-------------------
 
-pron()
+profon
 
 ? IsHybridList([ 10, [ "B", "C", "D" ], [ 12 ] ])
 #--> _TRUE_
@@ -399,7 +399,7 @@ proff()
 
 /*-------------------
 
-pron()
+profon
 
 aLists = [
 	[ 10:12, 3:5, "A":"C", [5] ],
@@ -420,7 +420,7 @@ proff()
 
 /*-------------------
 
-pron()
+profon
 
 aList = [ 10:12, 3:5, "A":"C", [5] ]
 
@@ -438,7 +438,7 @@ proff()
 
 /*-------------------
 
-pron()
+profon
 
 ? IsHybridList([ 7, 2, [ "B":"D", 10, 8 ] ])
 #--> _TRUE_
@@ -451,7 +451,7 @@ proff()
 
 /*-------------------
 
-pron()
+profon
 
 aLists = [
 	[ 10:12, 	3:5, 		"A":"C", 		[5] 		], 	
@@ -475,7 +475,7 @@ proff()
 
 /*-------
 
-pron()
+profon
 
 o1 = new stzListOfpairs([
 	[ "mahmoud", 	15000 ],
@@ -508,7 +508,7 @@ proff()
 
 /*-------
 
-pron()
+profon
 
 ? Min([ 4, 4 ])
 #--> 4
@@ -517,7 +517,7 @@ proff()
 
 /*-------
 
-pron()
+profon
 
 o1 = new stzListOfPairs([
 	[ 4, 4 ], [ 4, 5 ], [ 4, 6 ], [ 5, 5 ], [ 5, 6 ], [ 6, 6 ],
@@ -534,7 +534,7 @@ proff()
 
 /*-------
 
-pron()
+profon
 
 o1 = new stzListOfPairs([
 	[ 4, 4 ], [ 4, 5 ], [ 4, 6 ], [ 5, 5 ], [ 5, 6 ], [ 6, 6 ],
@@ -551,7 +551,7 @@ proff()
 
 /*===-----
 
-pron()
+profon
 
 o1 = new stzListOfPairs([
 	[ 8, 11  ], # Each section overlaps with the next
@@ -571,7 +571,7 @@ proff()
 
 /*-----
 
-pron()
+profon
 
 o1 = new stzListOfPairs([
 	# Inclusive sections
@@ -593,7 +593,7 @@ proff()
 
 /*----- #narration
 
-pron()
+profon
 
 # In the following example, we want to remove consecutive
 # duplicated programming language names and obtain the final result:
@@ -668,7 +668,7 @@ proff()
 
 /*-----
 
-pron()
+profon
 
 # Meeting time slots (in 24-hour format)
 aSlots = [
@@ -689,7 +689,7 @@ proff()
 
 /*=====
  
-pron()
+profon
 
 o1 = new stzListOfPairs([
 	[ "name", "foued" ],
@@ -709,7 +709,7 @@ proff()
 
 /*-------
 
-pron()
+profon
 
 o1 = new stzListOfPairs([ [1.0, 2.0], [16.0, 17.34], [23.0, 25], [8.20, 10.0] ])
 
@@ -723,7 +723,7 @@ proff()
 
 /*-----
 
-pron()
+profon
 
 o1 = new stzListOfPairs([ [1,2], [8, 10], [16, 17], [23, 25] ])
 
@@ -738,7 +738,7 @@ proff()
 
 /*------------ TODO: check it!
 
-pron()
+profon
 
 o1 = new stzListOfPairs([ ["01","02"], ["16", "17"], ["23", "25"], ["08", "10"] ])
 
@@ -753,7 +753,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzList([
 	'[ 6, 1 ]', '[ 6, 3 ]', '[ 6, 9 ]', '[ 5, 3 ]'
@@ -765,7 +765,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzListOfPairs([
 	[ 6, 1 ], [ 6, 3 ], [ 6, 9 ], [ 5, 3 ]
@@ -779,7 +779,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzListOfPairs([
 	[ 6, 1 ], [ 3, 7 ], [ 2, 5 ], [ 4, 1 ]
@@ -793,7 +793,7 @@ proff()
 
 /*----------- #TODO // check it!
 
-pron()
+profon
 
 o1 = new stzListOfPairs([
 	[ 2, 1 ], [ 2, 3 ], [ 2, 5 ], [ 4, 1 ], [ 2, 4 ]
@@ -807,7 +807,7 @@ proff()
 
 /*===========
 s
-pron()
+profon
 
 ? Q("--♥-♥--").ContainsXT( 2, "♥")
 #--> _TRUE_
@@ -827,7 +827,7 @@ proff()
 
 /*------------
 
-pron()
+profon
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 o1.Sort() # Or SortInAscending()
@@ -841,7 +841,7 @@ proff()
 
 /*------------
 
-pron()
+profon
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 o1.SortInDescending()
@@ -853,7 +853,7 @@ proff()
 
 /*======
 
-pron()
+profon
 
 o1 = new stzList([ "ring", "php", "ring", "ring", "_" ])
 ? o1.Find("ring")
@@ -864,7 +864,7 @@ proff()
 
 /*------------
 
-pron()
+profon
 
 o1 = new stzListOfPairs([
 	[ "♥", "_"],
@@ -885,7 +885,7 @@ proff()
 
 /*===================
 
-pron()
+profon
 
 ? StzCCodeQ('[ @CurrentItem, @NextItem]').Transpiled()
 #--> [  @CurrentItem, This[@i + 1] ]
@@ -895,7 +895,7 @@ proff()
 
 /*----------------- ERR
 
-pron()
+profon
 
 #                  1  2 3  4 5 6  7
 o1 = new stzList([ 1, 3,4, 7,8,9, 12 ])
@@ -934,7 +934,7 @@ StopProfiler()
 
 /*-----------------
 
-pron()
+profon
 
 o1 = new stzListOfPairs([ [ 9, 10 ], [ 1, 2 ], [ 6, 6 ] ])
 o1.SortInAscending()
@@ -965,7 +965,7 @@ StopProfiler()
 
 /*-----------------
 
-pron()
+profon
 
 o1 = new stzListOfPairs([
 	1:2, 1:2, [9,9], 1:2, 1:2, [9,9], 1:2, 1:2, [9,9]
@@ -1001,7 +1001,7 @@ proff()
 
 /*------
 
-pron()
+profon
 
 o1 = new stzListOfPairs([ ["A", "B"], ["C", "♥"], ["E", "F"] ])
 ? o1.ContainsInAllPairs("♥") # Or ContainsInside()
@@ -1012,7 +1012,7 @@ proff()
 
 /*------
 
-pron()
+profon
 
 o1 = new stzListOfPairs([
 	[ 18, 22 ], [ 8, 12], [ 3, 5]
@@ -1026,7 +1026,7 @@ proff()
 
 /*------ #todo check perf
 
-pron()
+profon
 
 o1 = new stzListOfPairs([
 	[ 3, 5], [ 8, 12], [ 18, 22 ]
@@ -1046,7 +1046,7 @@ proff()
 
 /*------  #todo check perf
 
-pron()
+profon
 
 o1 = new stzListOfPairs([
 	[ 18, 22 ], [ 8, 12], [ 3, 5]
@@ -1066,7 +1066,7 @@ proff()
 
 /*------------
 
-pron()
+profon
 
 o1 = new stzListOfPairs([
 	[ 3, 5], [8, 12], [20, 23]

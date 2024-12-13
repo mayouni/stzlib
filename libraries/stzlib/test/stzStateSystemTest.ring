@@ -4,7 +4,7 @@ load "../max/stzmax.ring"
 
 /*--- #ring-states Softanza functions
 */
-pron()
+profon
 
 	#WARNING// This code works as expected and even executes
 	# the final proff() function correctly, but it returns
@@ -59,7 +59,7 @@ proff()
 
 /*=========== #ring Testing the use of Ring states
 
-pron()
+profon
 # Creating VM states (Ring Instances in Softanza terms)
 
 	pState1 = ring_state_init()
@@ -133,7 +133,7 @@ proff()
 # And let's make some erros in some of these codes, and see how
 # the program will resist and continue its path until ruling them all!
 
-pron()
+profon
 
 	? "PROGRAM STARTED >>>"
 

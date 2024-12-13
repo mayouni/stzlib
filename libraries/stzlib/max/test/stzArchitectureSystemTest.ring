@@ -1,6 +1,6 @@
 load "../stzmax.ring"
 
-pron()
+profon
 
 ? Arch()
 #--> "x64"

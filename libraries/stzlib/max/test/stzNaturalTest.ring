@@ -3,7 +3,7 @@ load "../stzmax.ring"
 
 /*---
 */
-pron()
+profon
 
 Naturally() {
 
@@ -27,7 +27,7 @@ proff()
 
 /*---
 */
-pron()
+profon
 
 Naturally() {
 	Given the stzstring "abracadabra" replace programatically

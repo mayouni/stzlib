@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*----
 
-pron()
+profon
 
 ? Q(120602061.1).HowMany(0)
 #--> 4
@@ -26,7 +26,7 @@ proff()
 
 /*======
 */
-pron()
+profon
 
 ? @@( Q(462).PrimeDividors() ) + NL
 #--> [ 2, 3, 7, 11 ]
@@ -39,7 +39,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 ? Q(169).IsPrime()
 #--> _FALSE_
@@ -64,7 +64,7 @@ proff()
 
 /*------
 
-pron()
+profon
 
 # In number theory, a Wieferich prime is a prime number p
 # such that p2 evenly divides 2(p − 1) − 1.
@@ -87,7 +87,7 @@ proff()
 
 /*--------
 
-pron()
+profon
 
 ? PrimesUnder(19)
 #--> [ 2, 3, 5, 7, 11, 13, 17 ]
@@ -100,7 +100,7 @@ proff()
 
 /*------- #ring
 
-pron()
+profon
 
 for i = 1 to 5000
 	if isWeiferich(i)
@@ -114,7 +114,7 @@ proff()
 
 /*----- #ring + softanza
 
-pron()
+profon
 
 anPrimes = PrimesUnder(5000)
 nLen = len(anPrimes)
@@ -136,7 +136,7 @@ proff()
 
 /*--- @ring
 
-pron()
+profon
 
 aHash = [ :1 = "One", :2 = "Two", :3 = "Three" ]
 
@@ -157,7 +157,7 @@ proff()
 
 /*================
 
-pron()
+profon
 
 n1 = 6405
 n2 = 10
@@ -179,7 +179,7 @@ proff()
 
 /*================
 
-pron()
+profon
 
 o1 = new stzNumber(3200)
 
@@ -197,7 +197,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 o1 = new stzNumber(12500)
 
@@ -215,7 +215,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 o1 = new stzNumber(12)
 
@@ -233,7 +233,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 o1 = new stzNumber(12)
 
@@ -260,7 +260,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 o1 = new stzNumber(3000)
 
@@ -278,7 +278,7 @@ proff()
 
 /*================
 
-pron()
+profon
 
 StzNamedNumberQ(:myage = 47) {
 
@@ -298,7 +298,7 @@ proff()
 
 /*=================
 
-pron()
+profon
 
 ? RandomNumberGreaterThan(12)
 #--> 999_999_999_999_995
@@ -312,7 +312,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 ? RandomNumberLessThan(12)
 #--> 10
@@ -326,7 +326,7 @@ proff()
 
 /*------------------
 
-pron()
+profon
 
 ? NRandomNumbersGreaterThan(3, 150_000)
 #--> [
@@ -339,7 +339,7 @@ proff()
 
 /*------------------
 
-pron()
+profon
 
 ? NRandomNumbersLessThan(3, 17_000)
 #--> [ 16_997, 16_998, 16_998 ]
@@ -352,7 +352,7 @@ proff()
 
 /*------------------
 
-pron()
+profon
 
 ? ARandomNumber( :Between = 5, :And = 10 )
 #--> 5
@@ -365,7 +365,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 ? ARandomNumber( :Between = 1, :And = 5 ) # To include bounds (1 and 5) use ...XT()
 #--> 2
@@ -378,7 +378,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 ? 3RandomNumbers( :Between = 1, :And = 5 )
 #--> [ 4, 3, 3 ]
@@ -390,7 +390,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 ? OddOrEven(5)
 #--> :Odd
@@ -403,7 +403,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 ? Q(12).IsZawji()	# or IsEven()
 #--> _TRUE_
@@ -416,7 +416,7 @@ proff()
 
 /*===========
 
-pron()
+profon
 
 #TODO : Fix the point at the end of the result
 
@@ -428,7 +428,7 @@ proff()
 
 /*=============
 
-pron()
+profon
 
 ? LCM(25, 42) # or LeastCommonMultiple(:Of = 25, :And = 42)
 #--> Executed in 0.03 second(s)
@@ -441,7 +441,7 @@ proff()
 
 /*-------- FIX
 
-pron()
+profon
 
 //? StzListOfListsQ([ [ "a", "b", "c" ], [ 1, "b", 2, "c" ] ]).CommonItems()
 #--> [ "b", "c" ]
@@ -454,7 +454,7 @@ proff()
 
 /*--------
 
-pron()
+profon
 
 ? Q(25).MultiplesUntilQR(1080, :stzListOfNumbers).
 	LeastCommonNumber(:With = Q(42).MultiplesUntil(1080) )
@@ -517,7 +517,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 ? @@( Q(25).MultiplesUnder(1080) ) + NL
 #--> [
@@ -546,7 +546,7 @@ proff()
 
 /*----------------
 
-pron()
+profon
 
 # Least common multiplier between 25 and 42
 ? Q(25).LCM(42)
@@ -573,7 +573,7 @@ proff()
 
 /*---------------
 
-pron()
+profon
 
 ? Q(11) + [2, 3] # same as 11 + 2 + 3
 #--> 16
@@ -593,7 +593,7 @@ proff()
 
 /*===================
 
-pron()
+profon
 
 o1 = new stzNumber(11)
 o1.MultiplyBy(3)
@@ -611,7 +611,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 o1 = new stzNumber(11)
 ? o1.RepeatedNTimes(3)
@@ -630,7 +630,7 @@ proff()
 
 /*------------------
 
-pron()
+profon
 
 o1 = new stzNumber(11)
 o1.MultiplyByMany([2, 3])
@@ -642,7 +642,7 @@ proff()
 # Executed in 0.12 second(s) in Ring 1.17
 /*------------------
 
-pron()
+profon
 
 o1 = new stzNumber(5)
 
@@ -673,7 +673,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 ? Q(5).RepeatXT( :InAPair, @ )
 #--> [5, 5]
@@ -686,7 +686,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 o1 = new stzNumber("5")
 ? ring_type(o1.Number())
@@ -697,7 +697,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 ? Q("Ring").RepeatedInAPairQ().Types()
 #--> [ "STRING", "STRING" ]
@@ -718,7 +718,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 ? @@( CircledNumbers() )
 #--> [ "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⓪" ]
@@ -740,7 +740,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 ? Q(10) ^ 3
 #--> 1000
@@ -750,7 +750,7 @@ proff()
 
 /*--------------------
 
-pron()
+profon
 
 ? type(Round(81.8))
 #--> 82
@@ -759,7 +759,7 @@ proff()
 
 /*--------------------
 
-pron()
+profon
 
 ? Q(2).IsBetween(1, 3)
 #--> _TRUE_
@@ -769,7 +769,7 @@ proff()
 
 /*=============== ici
 
-pron()
+profon
 
 ? Round(81.8)
 #--> 82
@@ -785,7 +785,7 @@ proff()
 
 /*--------------------
 
-pron()
+profon
 
 decimals(3)
 ? 81.8
@@ -806,7 +806,7 @@ proff()
 
 /*--------------------
 
-pron()
+profon
 
 	? DefaultRound()
 	#--> 2
@@ -841,7 +841,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 ? CurrentRound() # Currrent round on the program
 #--> 2
@@ -862,7 +862,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 StzDecimals(3) # Change the program round and memorises it
 
@@ -882,7 +882,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 o1 = new stzNumber([ 55993400908134, :Round = 5 ])
 ? o1.Round()
@@ -905,7 +905,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 o1 = new stzNumber("12.872")
 
@@ -920,7 +920,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 ? StzNumberQ(1).UpTo(7)
 #--> 1:7
@@ -933,7 +933,7 @@ proff()
 
 /*----------------------- TODO: FIX
 */
-pron()
+profon
 
 ? Q(5.12).IsEqualTo(5.1200000000000001)
 #--> _TRUE_
@@ -956,7 +956,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 o1 = new stzNumber("123")
 ? o1.Content()
@@ -974,7 +974,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 o1 = new stzNumber(-123)
 o1.RoundTo(3)
@@ -986,7 +986,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 ? MaxNumberInRing()
 #--> 999999999999999
@@ -999,7 +999,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 o1 = new stzNumber("23500.124")
 
@@ -1018,7 +1018,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 o1 = new stzNumber("123") 
 o1.RoundTo(:Max)
@@ -1034,7 +1034,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 o1 = new stzNumber("123.")
 ? o1.RoundedTo(:Max)
@@ -1045,7 +1045,7 @@ proff()
 
 /*-----------------------
 
-pron()
+profon
 
 o1 = new stzNumber("12.456")
 
@@ -1075,7 +1075,7 @@ proff()
 
 /*=================
 
-pron()
+profon
 
 Q(14) {
 

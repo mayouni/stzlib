@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*------- #ring
 
-pron()
+profon
 
 ? @@( ring_trim("    ") )
 #--> ""
@@ -12,7 +12,7 @@ proff()
 
 /*=============== #narration 5 ways to create a stzTable
 
-pron()
+profon
 
 # A table can be created in 6 different ways:
 
@@ -32,7 +32,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 # WAY 2 : Creating an empty table with 3 columns and 3 rows
 
@@ -48,7 +48,7 @@ proff()
 
 /*---------------
 */
-pron()
+profon
 
 # WAY 3: Creating a table by provding a list of lists, formatted as you
 # would find it in the real world (the first line is for column names!)
@@ -77,7 +77,7 @@ proff()
 
 /*---------------
 
-pron()
+profon
 
 # WAY 4: Creating a table by provding just the rows, without
 # column names (they are added automatically by softanza):
@@ -104,7 +104,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 # WAY 5: Creating a table by providing a hashtable where
 # the column names are keys and rows are values
@@ -136,7 +136,7 @@ proff()
 # director: "myTable.csv" and "myHybridTable.txt"
 # check them before you test the code.
 
-pron()
+profon
 
 # You can crate a table from an external data file.
 # The file can be in CSV format or any other text file.
@@ -172,7 +172,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 #NOTE
 # This example uses two files that exist in the default
@@ -216,7 +216,7 @@ proff()
 
 /*=================
 
-pron()
+profon
 
 StzTableQ([
 	[ :M, :FUNCTION 	, :OBJECT ],
@@ -245,7 +245,7 @@ proff()
 
 /*--------------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ 10,	"Karim",	52   	],
@@ -264,7 +264,7 @@ proff()
 
 /*--------------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	:COL1 = [ "I", 1 ],
@@ -294,7 +294,7 @@ proff()
 
 /*-------------------- #narration
 
-pron()
+profon
 
 o1 = new stzTable([
 	:COL1 = [ "I", 1 ],
@@ -367,7 +367,7 @@ proff()
 
 /*--------------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ "I", 		1, 	11, 	111 ],
@@ -390,7 +390,7 @@ proff()
 
 /*--------------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	:col1 = [ "I", 1 ],
@@ -411,7 +411,7 @@ proff()
 
 /*--------------------
 
-pron()
+profon
 
 o1 = new stzTable([ [ 10, "ten" ], [ 20, "twenty" ] ])
 o1.Show()
@@ -426,7 +426,7 @@ proff()
 
 /*--------------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ "I", 1 ],
@@ -445,7 +445,7 @@ proff()
 
 /*--------------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ "I", 1 ],
@@ -462,7 +462,7 @@ proff()
 
 /*------
 
-pron()
+profon
 
 o1 = new stzList([ "A", "B", "C", "D", "E" ])
 ? @@( o1.FindMany([ "A", "B", "A", "B", "B" ]) )
@@ -477,7 +477,7 @@ proff()
 
 /*=============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NAME, :AGE, :SCORE ],
@@ -523,7 +523,7 @@ proff()
 
 /*-------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NAME, :AGE, :SCORE ],
@@ -546,7 +546,7 @@ proff()
 
 /*-------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NAME, :AGE, :SCORE ],
@@ -567,7 +567,7 @@ proff()
 
 /*=============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :COL1,    :COL2,    :COL3,	:COL4 ],
@@ -615,7 +615,7 @@ proff()
 
 /*=============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :COL1,    :COL2,    :COL3 ],
@@ -651,7 +651,7 @@ proff()
 
 /*-------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :COL1,    :COL2,    :COL3 ],
@@ -676,7 +676,7 @@ proff()
 
 /*-------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :COL1,    :COL2,    :COL3 ],
@@ -704,7 +704,7 @@ proff()
 
 /*-------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :COL1,    :COL2,    :COL3 ],
@@ -732,7 +732,7 @@ proff()
 
 /*-------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :COL1,    :COL2,    :COL3 ],
@@ -775,7 +775,7 @@ proff()
 
 /*============ A Softanza #narration showing one of the uses of the XT()
 
-pron()
+profon
 
 # You create a table with this structure:
 
@@ -837,7 +837,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([3, 4])
 ? o1.Show()
@@ -853,7 +853,7 @@ proff()
 
 /*==========
 
-pron()
+profon
 
 # Special syntax to enable the SQL syntax in Ring
 
@@ -927,7 +927,7 @@ StopProfiler()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ "NAME", "AGE", "RANGE" ],
@@ -995,7 +995,7 @@ StopProfiler()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([3, 3])
 
@@ -1023,7 +1023,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([2, 3])
 
@@ -1066,7 +1066,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([3, 3])
 
@@ -1093,7 +1093,7 @@ proff()
 
 /*----------------
 
-pron()
+profon
 
 o1 = new stzTable([3, 3])
 
@@ -1119,7 +1119,7 @@ proff()
 
 /*----------------
 
-pron()
+profon
 
 ? Q([
 	[ "COL1", [ "A", "B", "C" ] ],
@@ -1133,7 +1133,7 @@ proff()
 
 /*----------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ "COL1", [ "A", "B", "C" ] ],
@@ -1155,7 +1155,7 @@ proff()
 
 /*----------------
 
-pron()
+profon
 
 ? @@NL( StzTableQ([ 3, 3 ]).Filled(:With = "A") )
 #--> [
@@ -1170,7 +1170,7 @@ proff()
 
 /*----------------
 
-pron()
+profon
 
 o1 = StzTableQ([ 3, 3 ]) { Fill(:With = "A") }
 o1.Show()
@@ -1186,7 +1186,7 @@ proff()
 
 /*----------------
 
-pron()
+profon
 
 o1 = new stzTable([3, 3])
 
@@ -1223,7 +1223,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1247,7 +1247,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1278,7 +1278,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1308,7 +1308,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1333,7 +1333,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1369,7 +1369,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1396,7 +1396,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1414,7 +1414,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1439,7 +1439,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1458,7 +1458,7 @@ proff()
 
 /*=============== #narration #flexibility
 
-pron()
+profon
 
 # Softanza is so flexible! Let's see it in action, for example,
 # in using ReplaceCol(). Suppose you have a table like this:
@@ -1573,7 +1573,7 @@ StopProfiler()
 
 /*--------
 
-pron()
+profon
 
 o1 = new stzListOfLists([
 	[ 10, "Abdelkarim", 52 ],
@@ -1643,7 +1643,7 @@ StopProfiler()
 
 /*-------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[  "COL1",   "COL2" ],
@@ -1685,7 +1685,7 @@ proff()
 
 /*===========
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1713,7 +1713,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[  "COL1",   "COL2" ],
@@ -1741,7 +1741,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1774,7 +1774,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1807,7 +1807,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1872,7 +1872,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1898,7 +1898,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1923,7 +1923,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1946,7 +1946,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -1963,7 +1963,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME 	],
@@ -1985,7 +1985,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME 	],
@@ -2005,7 +2005,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2023,7 +2023,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2044,7 +2044,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2070,7 +2070,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2102,7 +2102,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2134,7 +2134,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2155,7 +2155,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2180,7 +2180,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2202,7 +2202,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2225,7 +2225,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2247,7 +2247,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2280,7 +2280,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2326,7 +2326,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2349,7 +2349,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2368,7 +2368,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 ? Q(["", "", ""]).AllItemsAreNull()
 #--> _TRUE_
@@ -2378,7 +2378,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE, :SALARY ],
@@ -2410,7 +2410,7 @@ proff()
 
 /*-------------- #ring #bug?
 
-pron()
+profon
 
 aList = [ "Aaa", "Bbb", "Ccc" ]
 ? @@( aList["emm"] )
@@ -2425,7 +2425,7 @@ proff()
 
 /*-------------- #ring
 
-pron()
+profon
 
 str = "ring"
 str[1] = "R"
@@ -2441,7 +2441,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE, :SALARY ],
@@ -2465,7 +2465,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE, :SALARY ],
@@ -2488,7 +2488,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE, :SALARY ],
@@ -2509,7 +2509,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE, :SALARY ],
@@ -2532,7 +2532,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE, :SALARY ],
@@ -2553,7 +2553,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE, :SALARY ],
@@ -2576,7 +2576,7 @@ proff()
 
 /*-------------- #todo write a #narration
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	   :EMPLOYEE, 	:SALARY   ],
@@ -2620,7 +2620,7 @@ proff()
 
 /*===================
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE, :SALARY ],
@@ -2648,7 +2648,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE, :SALARY ],
@@ -2675,7 +2675,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE, :SALARY ],
@@ -2696,7 +2696,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE, :SALARY ],
@@ -2723,7 +2723,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE, :SALARY ],
@@ -2752,7 +2752,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2774,7 +2774,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
@@ -2803,7 +2803,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME ],
@@ -2831,7 +2831,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME ],
@@ -2856,7 +2856,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME ],
@@ -2878,7 +2878,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME ],
@@ -2911,7 +2911,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME ],
@@ -2946,7 +2946,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME ],
@@ -2966,7 +2966,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NAME,	:AGE ],
@@ -2984,7 +2984,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NAME,	:AGE ],
@@ -3006,7 +3006,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME ],
@@ -3047,7 +3047,7 @@ proff()
 
 /*=====================
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
@@ -3079,7 +3079,7 @@ proff()
 
 /*----------------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
@@ -3109,7 +3109,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
@@ -3131,7 +3131,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
@@ -3165,7 +3165,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
@@ -3206,7 +3206,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
@@ -3242,7 +3242,7 @@ proff()
 
 /*===================
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
@@ -3270,7 +3270,7 @@ proff()
 
 /*--------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3296,7 +3296,7 @@ proff()
 
 /*===============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3335,7 +3335,7 @@ proff()
 
 /*==========
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3353,7 +3353,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3383,7 +3383,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3408,7 +3408,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
@@ -3430,7 +3430,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3456,7 +3456,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3490,7 +3490,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3512,7 +3512,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzListOfStrings([ "Red", "PALETTE" ])
 ? o1.AdjustedToRight()
@@ -3526,7 +3526,7 @@ proff()
 
 /*----------------
 
-pron()
+profon
 
 o1 = new stzListOfStrings([ ":PALETTE1", "Red", "Blue", "Blue", "White" ])
 ? o1.AlignedToRight()
@@ -3543,7 +3543,7 @@ proff()
 
 /*===============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3591,7 +3591,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3648,7 +3648,7 @@ proff()
 
 /*=============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3674,7 +3674,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3703,7 +3703,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
@@ -3741,7 +3741,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
@@ -3769,7 +3769,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
@@ -3799,7 +3799,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3827,7 +3827,7 @@ proff()
 
 /*==========
 
-pron()
+profon
 
 o1 = new stzTable([
 	:ID 	  = [ 10,	20,		30	],
@@ -3844,7 +3844,7 @@ proff()
 
 /*==========
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3876,7 +3876,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3901,7 +3901,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3925,7 +3925,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -3968,7 +3968,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -4009,7 +4009,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	:COL1 = [ "to", "be", "removed" ]
@@ -4048,7 +4048,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 o1 = new stzTable([])
 o1.Show()
@@ -4067,7 +4067,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -4091,7 +4091,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -4136,7 +4136,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
@@ -4175,7 +4175,7 @@ proff()
 
 /*==========
 
-pron()
+profon
 
 o1 = new stzTable([
 	:ID 	  = [ 10,	20,		30	],
@@ -4192,7 +4192,7 @@ proff()
 
 /*==========
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
@@ -4211,7 +4211,7 @@ proff()
 
 /*---------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
@@ -4230,7 +4230,7 @@ proff()
 
 /*---------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
@@ -4249,7 +4249,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
@@ -4271,7 +4271,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
@@ -4309,7 +4309,7 @@ proff()
 
 /*==========
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY,	:JOB 	],
@@ -4346,7 +4346,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
@@ -4367,7 +4367,7 @@ proff()
 
 /*================
 
-pron()
+profon
 
 o1 = new stzListOfLists([
 	[ 10,	"Ali",		35000	],
@@ -4387,7 +4387,7 @@ proff()
 
 /*---------
 
-pron()
+profon
 
 o1 = new stzListOfLists([
 	[ 10, 20, 30, 40 ],
@@ -4406,7 +4406,7 @@ proff()
 
 /*---------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
@@ -4445,7 +4445,7 @@ proff()
 
 /*-------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
@@ -4473,7 +4473,7 @@ proff()
 
 /*-------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
@@ -4512,7 +4512,7 @@ proff()
 
 /*-------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
@@ -4532,7 +4532,7 @@ proff()
 
 /*-------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	 :EMPLOYEE,    	:SALARY	],
@@ -4591,7 +4591,7 @@ proff()
 
 /*=============
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	 :EMPLOYEE,    	:SALARY	],
@@ -4614,7 +4614,7 @@ proff()
 /*===============
 
 // Finding all occurrence of a value, or subvalue, in a given list of cells
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	 :EMPLOYEE,    	:SALARY	],
@@ -4645,7 +4645,7 @@ proff()
 
 // Finding nth occurrence of a value, or subvalue, in a given list of cells
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
@@ -4677,7 +4677,7 @@ proff()
 
 /*-------------
 
-pron()
+profon
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
 	[ 10,	"Ali",		35000	],
@@ -4697,7 +4697,7 @@ proff()
 
 /*------------- #narration
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :ID,	 :EMPLOYEE,    	:SALARY	],
@@ -4756,7 +4756,7 @@ proff()
 
 /*-------------
 
-pron()
+profon
 
 // Checking if a given value, or subvalue, exists in a given list of cells
 
@@ -4787,7 +4787,7 @@ proff()
 
 /*------------- #narration
 
-pron()
+profon
 
 # Softanza can find the values of a cell in a stzTable object,
 # but also it can find parts of those values.
@@ -4836,7 +4836,7 @@ proff()
 
 /*#================= ROW: FindInRow(), CountInRow(), ContainsInRow()
 
-pron()
+profon
 
 // Finding all occurrences of a value, or subvalue, in a row
 
@@ -4871,7 +4871,7 @@ proff()
 
 // Finding nth occurrence of a value in a row
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME ],
@@ -4903,7 +4903,7 @@ proff()
 
 #-----------
 
-pron()
+profon
 
 // Finding nth occurrence of a subvalue in a row
 
@@ -4927,7 +4927,7 @@ proff()
 
 #-----------
 
-pron()
+profon
 
 // Counting the number of occurrences of a value, or subvalue, in a row
 
@@ -4949,7 +4949,7 @@ proff()
 
 #-----------
 
-pron()
+profon
 
 // Checking if a given value, or subvalue, exists in a row
 
@@ -4978,7 +4978,7 @@ proff()
 
 #================= COL: FindInCol(), CountInCol(), ContainsInCol()
 
-pron()
+profon
 
 // Finding all occurrences of a value, or subvalue, in a column
 
@@ -5014,7 +5014,7 @@ proff()
 
 /*------------
 
-pron()
+profon
 
 // Finding nth occurrence of a value in a Col
 
@@ -5048,7 +5048,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 // Finding nth occurrence of a subvalue in a Col
 
@@ -5077,7 +5077,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 // Counting the number of occurrences of a value, or subvalue, in a Col
 
@@ -5100,7 +5100,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 // Checking if a given value, or subvalue, exists in a Col
 
@@ -5128,7 +5128,7 @@ proff()
 
 /*=================
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME ],
@@ -5150,7 +5150,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE ],
@@ -5172,7 +5172,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE ],
@@ -5199,7 +5199,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 o1 = new stzList([ "A", "B", "C" ])
 
@@ -5212,7 +5212,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE ],
@@ -5244,7 +5244,7 @@ proff()
 
 /*-----------------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE ],
@@ -5268,7 +5268,7 @@ proff()
 
 /*============= #TODO write a #narration
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE   ],
@@ -5334,7 +5334,7 @@ proff()
 
 /*---------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NATION,	:CONTINENT   ],
@@ -5361,7 +5361,7 @@ proff()
 
 /*----------------- #TODO write a #narration
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE,	:CAPITAL,	:CONTINENT   ],
@@ -5410,7 +5410,7 @@ proff()
 
 /*---------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE,	:CAPITAL,	:CONTINENT   ],
@@ -5449,7 +5449,7 @@ proff()
 
 /*---------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE,	:CAPITAL,	:CONTINENT   ],
@@ -5486,7 +5486,7 @@ proff()
 
 /*---------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE,	:CAPITAL,	:CONTINENT   ],
@@ -5523,7 +5523,7 @@ proff()
 
 /*---------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE,	:CAPITAL,	:CONTINENT   ],
@@ -5560,7 +5560,7 @@ proff()
 
 /*---------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE,	:CAPITAL,	:CONTINENT   ],
@@ -5616,7 +5616,7 @@ proff()
 
 /*=========
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ "NATION", "LANGUAGE", "CAPITAL", "CONTINENT" ],
@@ -5639,7 +5639,7 @@ proff()
 
 /*---------
 
-pron()
+profon
 
 ? Q(:FromFile = "mytable.csv").IsFromFileNamedParam()
 
@@ -5648,7 +5648,7 @@ proff()
 
 /*----------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NAME, :HOBBIES		],
@@ -5669,7 +5669,7 @@ proff()
 
 #============
 
-pron()
+profon
 
 o1 = new stzTable([
 
@@ -5701,7 +5701,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 o1 = new stzTable([
 
@@ -5736,7 +5736,7 @@ proff()
 
 /*-----------
 
-pron()
+profon
 
 # Income in million dollars per year
 # Population in million people
@@ -5809,7 +5809,7 @@ proff()
 
 /*---------
 
-pron()
+profon
 
 o1 = new stzTable([
 	[ :NAME,	:AGE,	:JOB ],
@@ -5839,7 +5839,7 @@ proff()
 
 #=================
 
-pron()
+profon
 
 o1 = new stzTable([])
 
@@ -5875,7 +5875,7 @@ proff()
 
 /*==============
 
-pron()
+profon
 
 ? @@( @SortListsOn(1, [ [ 2, 2 ], [ 2, 4 ] ] ) ) # You can put the list before and it worlks!
 #--> [ [ 2, 2 ], [ 2, 4 ] ]
@@ -5924,7 +5924,7 @@ proff()
 
 /*---------- #narration
 
-pron()
+profon
 
 # If the column of sort is uniform (made of same item),
 # Softanza looks backward to the columns coming before.
@@ -5959,7 +5959,7 @@ proff()
 
 /*---------
 
-pron()
+profon
 
 o1 = new stzTable([
 
@@ -5990,7 +5990,7 @@ proff()
 
 /*========= EXCEL-Like functions
 */
-pron()
+profon
 
 o1 = new stzTable([
 

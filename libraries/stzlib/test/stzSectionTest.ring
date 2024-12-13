@@ -4,7 +4,7 @@ load "../max/stzmax.ring"
 
 /*----
 
-pron()
+profon
 
 ? IsSection(:From = :Start, :To = :End, 10)
 #--> _TRUE_
