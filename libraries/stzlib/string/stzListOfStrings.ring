@@ -40,25 +40,27 @@ func Concatenate(acListOfStr)
 
 	#>
 
-func ConcatenateXT(acListOfStr, cSep)
+func ConcatenateXT(pacListOfStr, pcSep)
 	if CheckingParams()
-		if NOT ( isList(acListOfStr) and IsListOfStrings(acListOfStr) )
-			StzRaise("Incorrect param type! acListOfStr must be a list of strings.")
+		if NOT ( isList(pacListOfStr) and IsListOfStrings(pacListOfStr) )
+			StzRaise("Incorrect param type! pacListOfStr must be a list of strings.")
 		ok
 
-		if NOT isString(cSep)
-			StzRaise("Incorrect param type! cSep must be a string.")
+		if NOT isString(pcSep)
+			StzRaise("Incorrect param type! cpSep must be a string.")
 		ok
 	ok
 
-	nLen = len(acListOfStr)
-	oQStrList = new QStringList()
-	for i = 1 to 1_000_000
-		oQStrList.append(acListOfStr[i])
+	_nLen_ = len(pacListOfStr)
+
+	_oQStrList_ = new QStringList()
+	for @i = 1 to _nLen_
+		_oQStrList_.append(pacListOfStr[@i])
 	next
 	
-	cResult = oQStrList.join(cSep)
-	return cResult
+	_cResult_ = _oQStrList_.join(pcSep)
+
+	return _cResult_
 
 	#< @FunctionAlternativeForms
 

@@ -44696,6 +44696,41 @@ class stzString from stzObject
 		def BeginsWith(pcSubStr)
 			return This.StartsWith(pcSubStr)
 
+	  #---------------------------------------------------------------#
+	 #  CHEHCKING IF THE STRING STARTS WITH A GIVEN SUBSTRING -- XT  #
+	#---------------------------------------------------------------#
+	# ~> Enables the param to be a list of chars not a substring
+
+	def StartsWithCSXT(pacSubStr, pCaseSensitive)
+
+		if CheckParams()
+
+			if isString( pacSubStr )
+				return This.StartsWithCS(pacSubStr, pCaseSensitive)
+			ok
+
+			if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
+				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+			ok
+		ok
+
+		# Doing the job
+
+		_bResult_ = This.StartsWithCS( @Concat(pacSubStr), pCaseSensitive)
+		return _bResult_
+
+
+		def BeginsWithCSXT(pacSubStr, pCaseSensitive)
+			return This.StartsWithCSXT(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def StartsWithXT(pacSubStr)
+		return This.StartsWithCSXT(pacSubStr, _TRUE_)
+
+		def BeginsWithXT(pacSubStr)
+			return This.StartsWithXT(pacSubStr)
+
 	  #----------------------------------------------------------------#
 	 #  CHECKS IF THE STRING STARTS WITH ONE OF THE GIVEN SUBSTRINGS  #
 	#----------------------------------------------------------------#

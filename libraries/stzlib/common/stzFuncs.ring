@@ -511,12 +511,7 @@ func @N(n, item)
 		ok
 	ok
 
-	if $bInsideAStzStringObject = _TRUE_
-		return @NXT(n, item, :InAString)
-
-	else
-		return @NXT(n, item, :InAList)
-	ok
+	return @NXT(n, item, :InAList)
 
 	#< @FunctionSpecificForms
 

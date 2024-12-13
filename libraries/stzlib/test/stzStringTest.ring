@@ -27,7 +27,7 @@ o1 = new stzString("Softanza")
 proff()
 
 /*--- #perf managing a big text
-*/
+
 pron()
 
 cBigText = read("../test/bigtext.txt")
@@ -65,6 +65,7 @@ proff()
 pron()
 
 ? Q("...Tunis").StartsWithXT( @3(".") )
+#--> TRUE
 
 proff()
 
