@@ -60,14 +60,45 @@ oBig.ReplaceCS("madrid", "Gaza", _FALSE_)
 proff()
 # Executed in 2.05 second(s) in Ring 1.22
 
-/*====
+/*==== #todo Write a #narration
 */
+
 pron()
+
+? @N(3, ".")
+#--> [ ".", ".", "." ]
+
+? @NXT(3, ".", :InAList)
+#--> [ ".", ".", "." ]
+
+? @NXT(3, ".", :InAString) + NL
+#--> ...
+
+? Three(".")
+#--> [ ".", ".", "." ]
+
+? @3(".")
+#--> [ ".", ".", "." ]
+
+#--
+
+? Q([ ".", ".", ".", "Tunis" ]).StartsWith( @3(".") )
+#--> TRUE
+
+? Q("...Tunis").StartsWith("...")
+#--> TRUE
 
 ? Q("...Tunis").StartsWithXT( @3(".") )
 #--> TRUE
 
+? Q("..Tunis..").EndsWithXT( @2(".") )
+#--> TRUE
+
+? Q("...Tunis..").StartsWithXTQ( @3(".") ).AndQ().EndsWithXT( @2(".") )
+#--> TRUE
+
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*==== #narration Code formatting - Unproper Indentation
 */
