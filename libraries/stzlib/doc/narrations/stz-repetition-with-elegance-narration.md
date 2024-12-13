@@ -7,7 +7,7 @@ In the hands of a painter, repetition is not mundane—it’s an art form. Each 
 
 ## Introduction
 
-Softanza’s dynamic repetition functions, such as **`@N()`**, **`@NXT()`**, and **`@3()`**, transform repetitive tasks into graceful brushstrokes of logic, enabling developers to create expressive and efficient solutions with minimal effort.
+Softanza’s dynamic repetition functions, such as `@N()`, `@NXT()`, and `@3()`, transform repetitive tasks into graceful brushstrokes of logic, enabling developers to create expressive and efficient solutions with minimal effort.
 
 This article delves into these tools, exploring how Softanza empowers developers to shape repetitive sequences with the precision and beauty of an artist, while maintaining the practical utility required for real-world applications.
 
