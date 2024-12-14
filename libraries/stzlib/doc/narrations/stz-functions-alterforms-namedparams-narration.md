@@ -1,6 +1,6 @@
-## Writability vs. Readability: Why Not Both?  
+## Writability vs. Readability — Softanza Asks: Why NOT Both?  
 ![Softanza is Both Writable and Readable, by Microsoft Image AI](../images/stz-functions-alterforms-namedparams.jpg)
-*An Arabic scholar writing his scientific discovery in a beautiful, readable, and artistic calligraphic style*
+*An Arabic scholar writing his scientific discovery in a beautiful, readable, and artistic calligraphic style.*
 
 Imagine this: you’re solving a problem, and your ideas are flowing. Your code should keep pace, feeling as intuitive and expressive as your thoughts. That’s the essence of the Softanza dual **writability** and **readability** promise.
 
