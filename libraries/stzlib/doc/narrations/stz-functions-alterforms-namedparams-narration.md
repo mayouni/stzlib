@@ -2,7 +2,7 @@
 ![Softanza is Both Writable and Readable, by Microsoft Image AI](../images/stz-functions-alterforms-namedparams.jpg)
 *An Arabic scholar **writing** his scientific discovery in a beautiful, **readable**, and artistic calligraphic style.*
 
-Imagine this: you’re solving a problem, and your ideas are flowing. Your code should keep pace, feeling as intuitive and expressive as your thoughts. That’s the essence of the Softanza dual **writability** and **readability** promise.
+**Imagine this**: you’re solving a problem, and your ideas are flowing. Your code should keep pace, feeling as intuitive and expressive as your thoughts. That’s the essence of the Softanza dual **writability** and **readability** promise.
 
 ---
 
@@ -13,7 +13,7 @@ Softanza is designed with a promise: your code should flow as naturally as your 
 1. **Writability**: Code that is effortless to craft.
 2. **Readability**: Code that explains itself and is instantly clear, even months later.
 
-This harmony is achieved through many standout features in Softanza. This article illuminates two of them: **Function Alternative Forms** and **Named Parameters**. Let’s see how they come together in action.
+This harmony is achieved through many standout features in Softanza. This article illuminates two of them: `@FunctionAlternativeForms` and `@FunctionNamedParams`. Let’s see how they come together in action.
 
 
 ## The Problem: Swapping Items in a List  
@@ -40,7 +40,7 @@ o1.SwapItems( :AtPositions = 1, :And = 3 )
 #--> ["C", "B", "A"]
 ```
 
-## Function Alternative Forms: Freedom in Expression
+## @FunctionAlternativeForms: Freedom in Expression
 
 Flexibility in Softanza isn't just a buzzword—it's a core principle brought to life. One of its most practical manifestations is this: programming should never feel like a spelling test! Thanks to Function Alternative Forms, it doesn’t have to.
 
@@ -62,7 +62,7 @@ o1.FindNextNth(elm)
 Whether you write `Nth` before `Next` or the other way around, both forms are equally valid, ensureing a seamless and intuitive writing experience.  
 
 
-## Enhanced Clarity with Named Parameters  
+## Enhanced Clarity with @FunctionNamedParams 
 
 Now, let’s return to the example of swapping items. What if you want your code to go beyond functionality and actively explain itself? That’s where **Named Parameters** come in.  
 
@@ -81,10 +81,10 @@ Softanza comes preloaded with thousands of named parameters, each carefully desi
 
 Softanza’s focus on **Function Alternative Forms** and **Named Parameters** ensures that you don’t have to compromise between ease of writing and clarity for readers. Here’s how:  
 
-- **Function Alternative Forms** empower you to write code in the way that feels most natural to you, without being constrained by rigid naming conventions.  
-- **Named Parameters** add semantic richness, making your code as readable as a well-written sentence.  
+- **@FunctionAlternativeForms** empower you to write code in the way that feels most natural to you, without being constrained by rigid naming conventions.  
+- **@FunctionNamedParams** add semantic richness, making your code as readable as a well-written sentence.  
 
 
 ## Conclusion
 
-Together, these features make Softanza thinking-oriented programming framework that adapts to your needs, whether you’re focused on rapid prototyping or long-term maintainability.
+Together, these features make Softanza such a thoughtful programming framework that adapts to your needs, whether you're focused on rapid prototyping or long-term maintainability.
