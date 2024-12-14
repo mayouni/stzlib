@@ -6591,7 +6591,7 @@ StopProfiler()
 # Executed in 0.09 second(s) in Ring 1.22
 
 /*==============
-*/
+
 StartProfiler()
 
 o1 = new stzList([ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "🌞"] ] , "3" ])
@@ -6607,21 +6607,21 @@ o1 = new stzList([ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "🌞"] ] , "
 
 ? o1.DeepContains("🌞")
 #--> TRUE
-/*
+
 ? o1.DeepContainsMany([ "1", "♥", "3", "🌞" ]) # Or DeepContainsThese()
-#--> _TRUE_
+#--> TRUE
 
 ? o1.DeepContainsBoth("♥", :And = "🌞")
-#--> _TRUE_
+#--> TRUE
 
 ? o1.DeepContainsOneOfThese(["_", "🌞", "0" ])
-#--> _TRUE_
+#--> TRUE
 
 ? o1.DeepContainsNOfThese(2, ["_", "🌞", "0", "♥" ])
-#--> _TRUE_
-*/
+#--> TRUE
+
 StopProfiler()
-# Executed in 0.02 second(s).
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*==============
 
@@ -7305,7 +7305,7 @@ proff()
 # Executed in 0.06 second(s).
 
 /*--------------- #narration Writablilty VS Readablility VS Both of them!
-
+*/
 profon()
 
 # Softanza coding style is designed with a double promise in mind:
