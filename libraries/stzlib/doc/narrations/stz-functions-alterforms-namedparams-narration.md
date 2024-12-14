@@ -8,7 +8,7 @@
 
 ## Introduction
 
-Softanza is designed with a promise: your code should flow as naturally as your thoughts, balancing ease of writing with clarity for readers. This dual commitment shapes two guiding principles:
+I designed Softanza to let my code flow as naturally as my thoughts, balancing ease of writing with clarity of reading. This dual commitment shapes two guiding principles:
 
 1. **Writability**: Code that is effortless to craft.
 2. **Readability**: Code that explains itself and is instantly clear, even months later.
