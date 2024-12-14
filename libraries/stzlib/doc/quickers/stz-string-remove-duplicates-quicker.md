@@ -4,7 +4,7 @@ Today, my wife, who manages a singing club, sent me a lengthy classic tunsian so
 
 While the song itself isn't particularly long, it includes many repetitive phrases, and she wanted to remove those duplicates.
 
-Here is the original full text I put in a stzString object:
+Here is the original full text I put in a `stzString` object:
 
 ```ring
 load "stzlib.ring"
@@ -67,12 +67,11 @@ o1 = new stzString("خلي يقولوا آش يهم
 آش يهم، آش يهم، آش يهم آش يهم" )
 ```
 
-I instructed Softanza to extract the text into individual lines and then remove any duplicates:
+I instructed Softanza to extract the text into individual **lines** and then **remove** any duplicates:
 
 ```ring
 ? o1.LinesQ().RemoveDuplicatesQ().Content()
 #-->
-# 
 # خلي يقولوا آش يهم
 # من اللي يشكر ولا يذم
 # آش يهم، آش يهم، آش يهم
