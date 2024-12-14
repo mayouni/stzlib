@@ -7305,7 +7305,6 @@ proff()
 # Executed in 0.06 second(s).
 
 /*------------- #narration REMOVING DUPLICATES
-*/
 
 profon()
 
@@ -7378,7 +7377,7 @@ o1 = new stzString("خلي يقولوا آش يهم
 # Then I used Softanza to extract the text into individual
 # lines and then remove any duplicates.
 
-# As short and easy as this:
+# As quick as this:
 
 ? o1.LinesQ().RemoveDuplicatesQ().Content()
 #-->
@@ -7525,7 +7524,7 @@ profon()
 
 o1 = new stzList([ "arem", "mohsen", "AREM" ])
 
-? o1.FindAll("arem")
+? @@( o1.FindAll("arem") ) + NL
 #--> [ 1 ]
 
 ? o1.FindAllCS("arem", :CS = _FALSE_)
@@ -7588,7 +7587,7 @@ o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 #--> ERROR: Line 2453 Indexes out of range! n1 and n2 must be inside the list.
 
 proff()
-# Executed in 0.13 second(s).
+# Executed in 0.12 second(s) in Ring 1.22
 
 /*=======================
 
@@ -7706,7 +7705,7 @@ o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
 
 o1.Removeduplicates()
 ? @@( o1.Content() )
-#--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ] ]
+#--> Executed in almost 0 second(s) in Ring 1.22
 
 proff()
 # Executed in almost 0 second(s).
@@ -8268,6 +8267,7 @@ proff()
 profon()
 
 #WARNING
+
 # At a given point I decided to support = as an overloaded operator
 # on Softanza objects so we can make equality check on them like
 # in the code below:
@@ -8323,17 +8323,17 @@ profon()
 #--> [ [ "ONE", "TWO", "THREE" ], [ "ONE", "TWO", "THREE" ] ]
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*-----------------
 
 profon()
 
-? @stztype( Q( "X":"Z" ) )
+? @StzType( Q( "X":"Z" ) )
 #-- stzlist
 
 proff()
-# Executed in 0.02 second(s).
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*-----------------
 

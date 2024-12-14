@@ -40,7 +40,7 @@ func DefaultStringArtStyle()
 	return $DEFAULT_STR_ART_STYLE
 
 	func StringArtStyle()
-		return return $DEFAULT_STR_ART_STYLE
+		return $DEFAULT_STR_ART_STYLE
 
 func SetDefaultStringArtStyle(cStyle)
 	bFound = find(StringArtStyles(), lower(cStyle))
