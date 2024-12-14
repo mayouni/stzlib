@@ -48,7 +48,7 @@ This output makes it easier to process each block of over spaces individually.
 
 Softanza provides multiple methods for removing spaces, each tailored to specific use cases:
 
-### 1. Using **`RemoveSpaces()`**
+### 1. Using RemoveSpaces()
 
 This method removes all spaces from the string, leaving no whitespace behind.
 
@@ -59,20 +59,11 @@ o1.RemoveSpaces()
 #--> "irumepsumelon"
 ```
 
+### 2 . Using Trim()
+
 It is ideal for applications requiring tightly packed text or data.
 
-### 2. Using **`RemoveOverSpaces()`**
-
-This method targets redundant spaces but retains meaningful ones, including leading and trailing spaces.
-
-```ring
-o1 = new stzString("   irum epsum     elo  n   ")
-o1.RemoveOverSpaces()
-? @@( o1.Content() )
-#--> " irum epsum elo "
-```
-
-### 3. Using **`Simplify()`**
+### 3. Using Simplify()
 
 The Simplify() method trims the string and replaces consecutive spaces with a single space, providing a cleaned and standardized result.
 
@@ -81,6 +72,17 @@ o1 = new stzString("   irum epsum     elo  n   ")
 o1.Simplify()
 ? @@( o1.Content() )
 #--> "irum epsum elo n"
+```
+
+### 4. What's different with RemoveOverSpaces()?
+
+This method targets redundant spaces **but retains meaningful ones**, including leading and trailing spaces.
+
+```ring
+o1 = new stzString("   irum epsum     elo  n   ")
+o1.RemoveOverSpaces()
+? @@( o1.Content() )
+#--> " irum epsum elo "
 ```
 
 ## Replacing Over Spaces
@@ -97,14 +99,13 @@ o1.ReplaceOverSpaces(:With = "~")
 This functionality is especially helpful for visualizing or marking excessive whitespace for debugging or further processing.
 
 
-## Simplify, RemoveSpaces, and RemoveOverSpaces: A Comparison
+## Simplify, RemoveSpaces, Trim and RemoveOverSpaces: A Comparison
 
-| Feature                | **Simplify()**                       | **RemoveSpaces()**                 | **RemoveOverSpaces()**            |
+| Feature                | **Simplify()**                       | **RemoveSpaces()**                 | **Trim()				| **RemoveOverSpaces()**            |
 |------------------------|---------------------------------------|-------------------------------------|------------------------------------|
-| **Trims spaces**       | Yes                                  | No                                  | No                                 |
-| **Reduces spaces**     | Replaces sequences of spaces with a single space | Removes all spaces                  | Removes only redundant spaces       |
-| **Use case**           | Standardizing text for display       | Compacting text for data storage    | Reducing noise while preserving structure |
-
+| **Trims spaces**       | Yes                                  | No                                  | Yes				| No                                 |
+| **Reduces spaces**     | Replaces sequences of spaces with a single space | Removes all spaces                  | Remove spaces left and right of the string	| Removes only redundant spaces       |
+| **Use case**           | Standardizing text for display       | Compacting text for data storage    | …			| Reducing noise while preserving structure |
 
 
 ## The Importance of Managing Over Spaces
@@ -120,4 +121,4 @@ Softanza empowers developers to not only clean up strings but also understand an
 
 ## Conclusion: A Framework for Intelligent String Management
 
-Softanza's comprehensive string management tools provide precise control over spaces, from complete removal with `RemoveSpaces()` to selective cleanup with `RemoveOverSpaces()` and `Simplify()`. These methods enable developers to handle whitespace effectively across varied scenarios, reinforcing Softanza's position as a robust library for modern programming in the Ring language.
+Softanza's comprehensive string management tools provide precise control over spaces, from complete removal with `RemoveSpaces()` to selective cleanup with `RemoveOverSpaces()`, Trim() and `Simplify()`. These methods enable developers to handle whitespace effectively across varied scenarios, reinforcing Softanza's position as a robust library for modern programming in the Ring language.
