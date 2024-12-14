@@ -101,11 +101,14 @@ This functionality is especially helpful for visualizing or marking excessive wh
 
 ## Simplify, RemoveSpaces, Trim and RemoveOverSpaces: A Comparison
 
-| Feature                | **Simplify()**                       | **RemoveSpaces()**                 | **Trim()				| **RemoveOverSpaces()**            |
-|------------------------|---------------------------------------|-------------------------------------|------------------------------------|
-| **Trims spaces**       | Yes                                  | No                                  | Yes				| No                                 |
-| **Reduces spaces**     | Replaces sequences of spaces with a single space | Removes all spaces                  | Remove spaces left and right of the string	| Removes only redundant spaces       |
-| **Use case**           | Standardizing text for display       | Compacting text for data storage    | …			| Reducing noise while preserving structure |
+ Feature                  | **Trim()**                           | **Simplify()**                     | **RemoveSpaces()**                 | **RemoveOverSpaces()**            |
+|--------------------------|---------------------------------------|-------------------------------------|-------------------------------------|-----------------------------------|
+| **Trims spaces**          | Yes                                   | Yes                                 | No                                  | No                                |
+| **Reduces inner spaces**  | No                                    | Yes (to a single space)             | No                                  | Removes redundant spaces          |
+| **Finds spaces**          | No                                    | No                                  | No                                  | No                                |
+| **Replaces spaces**       | No                                    | No                                  | No                                  | No                                |
+| **Use case**              | Cleaning leading and trailing spaces | Standardizing text for readability  | Compacting text for data storage   | Balancing cleanup with structure  |
+
 
 
 ## The Importance of Managing Over Spaces
