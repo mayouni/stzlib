@@ -39,7 +39,11 @@ o1.SwapItems( :AtPositions = 1, :And = 3 )
 #--> ["C", "B", "A"]
 ```
 
-This flexibility is possible because of **Function Alternative Names**. Every function in Softanza is paired with its `@FunctionAlternativeForm` designed to suit different thinking styles. Whether you prefer `Swap` or `SwapItems`, the meaning is clear. Softanza ensures that your choice of expression aligns with your mental model, without penalizing you for spelling it differently.  
+## Function Alternative Forms: Freedom in Expression
+
+Flexibility in Softanza isn't just a buzzword—it's a core principle brought to life. One of its most practical manifestations is this: programming should never feel like a spelling test! Thanks to Function Alternative Forms, it doesn’t have to.
+
+In Softanza, every function comes with its own set of `@FunctionAlternativeForms`, designed to match a variety of thinking styles. Whether you choose `Swap` or `SwapItems`, the meaning remains crystal clear. Softanza allows you to express your ideas in the way that best aligns with your mental model, without penalizing you for spelling it one way or another.
 
 This philosophy extends to countless other functions. For example:  
 
@@ -54,7 +58,7 @@ o1.FindNextNth(elm)
 ```  
 
 
-Whether you write `Nth` before `Next` or the other way around, both forms are equally valid. This flexibility in naming ensures a seamless and intuitive writing experience.  
+Whether you write `Nth` before `Next` or the other way around, both forms are equally valid, ensureing a seamless and intuitive writing experience.  
 
 
 ## Enhanced Clarity with Named Parameters  
