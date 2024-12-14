@@ -254,7 +254,7 @@ class stkBigNumber
 			return @nFullPrecision
 
 		def InitialRound()
-			return return @nFullPrecision
+			return @nFullPrecision
 
 	  #-------------------------------------------------#
 	 #  RESTORING THE INITIAL VALUE OF THE BIG NUMBER  #

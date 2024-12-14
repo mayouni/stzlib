@@ -54503,7 +54503,7 @@ class stzString from stzObject
 			stzRaise("Incorrect options! :CaseSensitive and its short form :CS must not be used both.")
 		ok
 
-		# Unfyiing the :CaseSensitive / :CS keyword
+		# Unifying the :CaseSensitive / :CS keyword
 
 		if n > 0
 			paOptions[n][1] = :CaseSensitive
