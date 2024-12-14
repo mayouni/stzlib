@@ -17,7 +17,7 @@ Softanza provides several methods in its `stzString` class to identify and handl
 
 Softanza introduces two methods to locate over spaces: 
 
-### 1. **`FindOverSpaces()`**
+### 1. Using **`FindOverSpaces()`**
 
 This method returns the positions of all over spaces as a flat list of indices. For example:
 ```ring
@@ -27,7 +27,7 @@ o1 = new stzString("   irum epsum     elo  n   ")
 ```
 Here, indices `[2, 3]` mark leading over spaces, `[15, 16, 17, 18]` identify internal redundant spaces, and `[23, 26, 27]` correspond to trailing over spaces.
 
-### 2. **`FindOverSpacesZZ()`**
+### 2. Using **`FindOverSpacesZZ()`**
 
 This variant groups consecutive over spaces into sections, providing a structured output for better readability:
 
@@ -43,7 +43,7 @@ This output makes it easier to process each block of over spaces individually.
 
 Softanza offers flexible methods to clean up redundant spaces without altering the string's overall structure unnecessarily:
 
-### 1. **`Simplify()`**
+### 1. Using **`Simplify()`**
 
 The `Simplify()` method trims the string and replaces multiple consecutive spaces with a single space:
 ```ring
@@ -54,7 +54,7 @@ o1.Simplify()
 ```
 This is ideal for cleaning up text comprehensively.
 
-### 2. **`RemoveOverSpaces()`**
+### 2. Using **`RemoveOverSpaces()`**
 
 In contrast, `RemoveOverSpaces()` targets redundant internal spaces but preserves leading and trailing spaces:
 
