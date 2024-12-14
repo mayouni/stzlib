@@ -90,3 +90,5 @@ I instructed Softanza to extract the text into individual **lines** and then **r
 ```
 
 As quick as this!
+
+>**NOTE**: Softanza offers a variety of functions for managing duplicates, all of which work seamlessly with both strings and lists.
