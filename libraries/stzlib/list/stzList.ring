@@ -34523,7 +34523,9 @@ class stzList from stzObject
 
 		#>
 
-	#============
+	  #------------------------------------------------------------------#
+	 #  GETTING THE ITEMS WITH THEIR NUMBER OF OCCURRENCES IN THE LIST  #
+	#------------------------------------------------------------------#
 
 	def ItemsAndTheirNumberOfOccurrenceCS(pCaseSensitive)
 		# Checking params
@@ -35354,7 +35356,7 @@ class stzList from stzObject
 	 #   CHECKING IF THE LIST CONTAINS DUPLICATED ITEMS   #
 	#----------------------------------------------------#
 
-	#WARNING: As implemented currently, duplication is performed
+	#WARNING// As implemented currently, duplication is performed
 	# in a reasonable performance when the size of the list does
 	# not exceed 30K items!
 
@@ -36103,8 +36105,8 @@ class stzList from stzObject
 	#----------------------------------#
 
 	#NOTE 1 // The first occurrence of an item is not considered as a duplicate
-	# 	   --> If you want to get also the first occurrence then you can
-	# 		use FindDuplicatesXT() #TODO
+	#  --> If you want to get also the first occurrence then you can
+	#  use FindDuplicatesXT() #TODO
 
 	#NOTE 2 // We use a part of the code of DuplicatesZ(). There is a duplication
 	# but this is better for performance then calling DuplicatesZ(), because it
@@ -39503,21 +39505,6 @@ class stzList from stzObject
 			return _FALSE_
 		ok
 
-/*
-		switch ring_type(p)
-		on "LIST"	
-			bResult = Q(p).ContainsManyCS( This.List(), pCaseSensitive )
-
-		on "STRING"
-			cListStringified = StzListQ(This.Content()).Stringified()
-			bResult = StzStringQ(p).ContainsCS(cListStringified, pCaseSensitive)
-
-		other
-			# For now, number and object type are not concerned
-			StzRaise("Unsupported type!")
-		off
-*/
-		return bResult
 
 		#< @FunctionAlternativeForm
 
@@ -40254,19 +40241,110 @@ class stzList from stzObject
 	#-----------------------------------------#
 
 	def ContainsStrings()
-		bResult = _FALSE_
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		for item in This.List()
-			if isString(item)
-				bResult = _TRUE_
+		_bResult_ = _TRUE_
+
+		for @i = 1 to _nLen_
+
+			if NOT isString(_aContent_[@i])
+				_bResult_ = _FALSE_
 				exit
 			ok
+
 		next
 
-		return bResult
+		return _bResult_
 
 		def ContainsNoStrings()
 			return NOT This.ContainsStrings()
+
+	#--
+
+	def FindEmptyStrings()
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+
+		_anResult_ = []
+
+		for @i = 1 to _nLen_
+
+			if isString(_aContent_[@i]) and _aContent_[@i] = ""
+				_anResult_ + @i
+			ok
+
+		next
+
+		return _anResult_
+
+	def NumberOfEmptyStrings()
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+
+		_nResult_ = 0
+
+		for @i = 1 to _nLen_
+
+			if isString(_aContent_[@i]) and _aContent_[@i] = ""
+				_nResult_++
+			ok
+
+		next
+
+		return _nResult_
+
+		def CountEmptyStrings()
+			return This.NumberOfEmptyStrings()
+
+		def HowManyEmptyStrings()
+			return This.NumberOfEmptyStrings()
+
+	def ContainsEmptyStrings()
+
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+
+		_bResult_ = _FALSE_
+
+		for @i = 1 to _nLen_
+
+			if isString(_aContent_[@i]) and _aContent_[@i] = ""
+				_bResult_ = _TRUE_
+				exit
+			ok
+
+		next
+
+		return _bResult_
+
+	#--
+
+	def RemoveEmptyStrings()
+		_anPos_ = This.FindEmptyStrings()
+		This.RemoveItemsAtPositions(_anPos_)
+
+		def RemoveEmptyStringsQ()
+			This.RemoveEmptyStrings()
+			return This
+
+	def EmptyStringsRemoved()
+		_aResult_ = This.Copy().RempveEmptyStringsQ().Content()
+		return _aResult_
+
+	#--
+
+	def ReplaceEmptyStrings(pItem)
+		_anPos_ = This.FindEmptyStrings()
+		This.ReplaceItemsAtPositions(_anPos_, pItem)
+
+		def ReplaceEmptyStringsQ(pItem)
+			This.ReplaceEmptyStrings(pItem)
+			return This
+
+	def EmptyStringsReplaced(pItem)
+		_aResult_ = This.ReplaceEmptyStringsQ(pItem).Content()
+		return _aResult_
 
 	  #---------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS LISTS  #
