@@ -20,17 +20,32 @@ While written in Ring, Softanza isn’t limited to it. Its high-level abstractio
 
 ## 2. A Programming Framework for Computational Thinking
 
-Softanza is designed to be a non-restrictive framework that cultivates computational thinking. It doesn't force a specific software architecture or complex machinery of tools. You simply load it and write pure Ring code. As a framework for computational thinking, it addresses three key pillars of any thinking process: the Data Model, the Mental Model, and the Expression Model.
+Softanza is designed to be a non-restrictive framework that cultivates computational thinking. It doesn't force a specific software architecture or complex machinery of tools. You simply load it and write pure Ring code.
 
-### A Data Model to Describe your Application World
+As a framework for computational thinking, it addresses three key pillars of any thinking process: the Semantic Model, the Learnning Model, and the Expression Model, all backed by a ritch algorithmic foundation that has a direct function to nerely any need.
+
+![Softanza Computational Thinking Architecture](../images/stz-computational-thinking-architecture.jpg)
+*Softanza Computational Thinking Architecture*
+
+### Ring as a Comptational Infrastucture of the Softanza Framewrok
+
+### An One-Stop Foundation for all your Algorithmic Needs
+
+It's like .NET for c# programmers that let them stay home while devloping any kind of application, or the Wolfram Language that has a function for any imaginable computational need, or the Qt frmaeowrk for C++ programmers...
+
+- A comprehensiove type system that extends the native Ring Type System (number, string, list, object) with extended versions (stzNumber, stzString, stzList, and their parent stzObject)
+- A set of specific variations of each type (stzHexNumber, stzBigNumber... ; stzListOfNumbers, stzListOfLists... ; stzTable, stzHashList, stzGrid...)
+- thousand s of methods covering a wide range of alogrothmic needs
+
+### A Semantics Model to Describe your Application World
 
 This refers to the semantics of the world your code addresses, represented through an extensive set of data structures, carefully designed as feature-rich Softanza objects.
 
-### A Mental Model to Understand Softanza Programming World
+### A Mental Model to Master Softanza Programming World
 
 This is the minimal understanding needed to master thousands of the library's features, formed of well-defined, easy-to-learn steps.
 
-### An Expression Model to Talk of your World in your Words
+### An Expression Model to Talk of your World in Softanza Words
 
 This defines how you express your thoughts in code using a fluent-oriented, declarative, or near-natural language design.
 
@@ -47,6 +62,8 @@ To support these models, Softanza implements several technical innovations, such
 - An Entity Semantic Framework that abstracts the real world, bringing it directly into code.
 
 - The ability to write pure Ring code that resembles natural language, without requiring additional processing, middleware, or AI. This is a cornerstone of the natural-coding paradigm.
+
+- Hundreds of embedded DSLs for solving the most recurrunt algorithmic problems, all unified in overall external DSL
 
 That said, Softanza is not just about thinking; it's about creating software that enables successful businesses in reasonable time and budget, aligned with today’s technological and economic landscape.
 
