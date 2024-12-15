@@ -43362,10 +43362,10 @@ class stzList from stzObject
 		#>
 
 	  #==================================================================#
-	 #  GETTING NEXT NTH ITEM IN THE LIST STARTING AT A GIVEN POSITION  #
+	 #  FINDING NEXT NTH ITEM IN THE LIST STARTING AT A GIVEN POSITION  #
 	#==================================================================#
 
-	def NextNthItemST(nth, nStart)
+	def FindNextNthItemST(nth, nStart)
 
 		if CheckingParams()
 
@@ -43392,8 +43392,35 @@ class stzList from stzObject
 
 		ok
 
-		result = @aContent[ nth + nStart - 1 ]
-		return result
+		_nResult_ = nth + nStart
+
+		if _nResult_ > This.NumberOfItems() or _nResult_ < 1
+			_nResult_ = 0
+		ok
+
+		return _nResult_
+
+
+		#< @FunctionAlternativeForms
+
+		def FindNextNthItem(nth, nStart)
+			return This.FindNextNthItemST(nth, nStart)
+
+		def FindNthNextItemST(nth, nStart)
+			return This.FindNextNthItemST(nth, nStart)
+
+		def FindNthNextItem(nth, nStart)
+			return This.FindNextNthItemST(nth, nStart)
+
+		#>
+
+	  #------------------------------------------------------------------#
+	 #  GETTING NEXT NTH ITEM IN THE LIST STARTING AT A GIVEN POSITION  #
+	#------------------------------------------------------------------#
+
+	def NextNthItemST(nth, nStart)
+		_nPos_ = This.FindNextNthItemST(nth, nStart)
+		return @aContent[_nPos_]
 
 		#< @FunctionFluentForm
 
@@ -43425,10 +43452,10 @@ class stzList from stzObject
 		#>
 
 	  #----------------------------------------------------------------------#
-	 #  GETTING PREVIOUS NTH ITEM IN THE LIST STARTING AT A GIVEN POSITION  #
-	#----------------------------------------------------------------------#
+	 #  FINDING PREVIOUS NTH ITEM IN THE LIST STARTING AT A GIVEN POSITION  #
+	#======================================================================#
 
-	def PreviousNthItemST(nth, nStart)
+	def FindPreviousNthItemST(nth, nStart)
 
 		if CheckingParams()
 
@@ -43455,8 +43482,37 @@ class stzList from stzObject
 
 		ok
 
-		result = @aContent[ nStart - nth + 1 ]
-		return result
+		_nResult_ = nStart - nth + 1
+
+		if _nResult_ < 1 or _nResult_ > This.NumberOfItems()
+			_nResult_ = 0
+		ok
+
+		return _nResult_
+
+
+		#< @FunctionAlternativeForms
+
+		def FindPreviousNthItem(nth, nStart)
+			return This.FindPreviousNthItemST(nth, nStart)
+
+		def FindNthPreviousItemST(nth, nStart)
+			return This.FindPreviousNthItemST(nth, nStart)
+
+		def FindNthPreviousItem(nth, nStart)
+			return This.FindPreviousNthItemST(nth, nStart)
+
+		#>
+
+	  #----------------------------------------------------------------------#
+	 #  GETTING PREVIOUS NTH ITEM IN THE LIST STARTING AT A GIVEN POSITION  #
+	#----------------------------------------------------------------------#
+
+	def PreviousNthItemST(nth, nStart)
+
+		_nPos_ = This.FindPreviousNthItemST(nth, nStart)
+		return @aContent[_nPos_]
+
 
 		#< @FunctionFluentForm
 
