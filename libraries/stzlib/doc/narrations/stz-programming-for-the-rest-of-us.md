@@ -23,7 +23,6 @@ While written in Ring, Softanza isn’t limited to it. Its high-level abstractio
 Softanza is designed to be a non-restrictive framework that cultivates computational thinking. It doesn't force a specific software architecture or complex machinery of tools. You simply load it and write pure Ring code.
 
 ![Softanza Computational Thinking Architecture](../images/stz-computational-thinking-architecture.jpg)
-
 *Softanza Computational Thinking Architecture*
 
 As a framework for computational thinking, it addresses three key pillars of any thinking process: the Semantic Model, the Learnning Model, and the Expression Model, all backed by a ritch algorithmic foundation that has a direct function to nerely any need.
