@@ -4,6 +4,10 @@
 
 I am Mansour, the designer of Softanza, a framework born out of my mission to simplify programming for everyone—not just seasoned coders, but anyone willing to write code. Let me tell you what Softanza truly is and why I believe it matters.
 
+## Introduction: The Big Picture
+
+![Softanza Computational Thinking Architecture](../images/stz-computational-thinking-architecture.jpg)
+
 At its simplest form, Softanza is a library for the Ring programming language.
 
 ## 1. An Augmentation Library of the Ring Programming Language
@@ -21,8 +25,6 @@ While written in Ring, Softanza isn’t limited to it. Its high-level abstractio
 ## 2. A Programming Framework for Computational Thinking
 
 Softanza is designed to be a non-restrictive framework that cultivates computational thinking. It doesn't force a specific software architecture or complex machinery of tools. You simply load it and write pure Ring code.
-
-<img src="../images/stz-computational-thinking-architecture.jpg" alt="Softanza Computational Thinking Architecture" class="center" />
 
 As a framework for computational thinking, it addresses three key pillars of any thinking process: the Semantic Model, the Learnning Model, and the Expression Model, all backed by a ritch algorithmic foundation that has a direct function to nerely any need.
 
