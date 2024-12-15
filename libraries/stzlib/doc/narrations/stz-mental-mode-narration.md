@@ -17,9 +17,13 @@ This model addresses the challenge of navigating the thousands of features in th
    Start by precisely expressing your problem in natural terms. This will help identify relevant keywords that guide the object selection process.
    
    Example:
-   **Problem:** Exploring empty strings inside a list.
+   
+   **Problem:** Exploring *empty strings* inside a *list*.
 
-   Keywords extracted: "empty strings" (Softanza has functions to handle these directly), "list" (Softanza provides `stzList`), and the combination: checking empty strings within a list (supported by Softanza).
+   **Keywords extracted:**
+   - *"empty strings"*: Softanza has functions to handle these directly,
+   - *"list"*: Softanza provides `stzList`, and
+   - the combination of both: *checking empty strings within a list* is also direclty supported by Softanza.
 
 ### 2. Select the Appropriate Object
 
