@@ -3,7 +3,7 @@ load "../max/stzmax.ring"
 #TODO Add Check() Yield() Perform()
 
 /*-------------------
-*/
+
 profon()
 
 o1 = new stzList([ "A1", "A2", "A3", "A4", "A5", "A6", "A7" ])
@@ -26,6 +26,35 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.21
 
 /*-------------------
+*/
+profon()
+
+o1 = new stzList([ "A", '', "B", '', '', "C" ])
+
+? o1.ContainsEmptyStrings()
+#--> TRUE
+
+? o1.CountEmptyStrings() + NL
+#--> 3
+
+? o1.FindEmptyStrings()
+#--> [ 2, 4, 5 ]
+
+o1.ReplaceEmptyStrings(:With = "~")
+? o1.Content()
+#--> [ "A", '~', "B", '~', '~', "C" ]
+
+#--
+
+o1 = new stzList([ "A", '', "B", '', '', "C" ])
+o1.RemoveEmptyStrings()
+? o1.Content()
+#--> [ "A", "B", "C" ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-------------------///
 
 profon()
 
