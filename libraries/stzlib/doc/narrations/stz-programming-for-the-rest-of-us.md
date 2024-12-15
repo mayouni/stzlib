@@ -1,7 +1,3 @@
-Here's the revised version of your article with the requested adjustments:
-
----
-
 # Softanza: A Programming Environment for the Rest of Us  
 ![A multi-generational family joyfully sitting around a bag of vibrant flowers](../images/stz-programming-for-the-rest-of-us.jpg)  
 *A multi-generational family joyfully sitting around a bag of vibrant flowers.*
