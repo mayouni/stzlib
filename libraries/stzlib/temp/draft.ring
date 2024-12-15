@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 
 /*==========
-*/
+
 profon()
 
 o1 = new stzString("   irum epsum     elo  n   ")
