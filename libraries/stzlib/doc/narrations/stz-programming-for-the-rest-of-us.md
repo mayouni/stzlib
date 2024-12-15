@@ -22,15 +22,15 @@ While written in Ring, Softanza isn’t limited to it. Its high-level abstractio
 
 Softanza is designed to be a non-restrictive framework that cultivates computational thinking. It doesn't force a specific software architecture or complex machinery of tools. You simply load it and write pure Ring code. As a framework for computational thinking, it addresses three key pillars of any thinking process: the Data Model, the Mental Model, and the Expression Model.
 
-### The Data Model
+### A Data Model to Describe your Application World
 
 This refers to the semantics of the world your code addresses, represented through an extensive set of data structures, carefully designed as feature-rich Softanza objects.
 
-### The Mental Model
+### A Mental Model to Understand Softanza Programming World
 
 This is the minimal understanding needed to master thousands of the library's features, formed of well-defined, easy-to-learn steps.
 
-### The Expression Model
+### An Expression Model to Talk of your World in your Words
 
 This defines how you express your thoughts in code using a fluent-oriented, declarative, or near-natural language design.
 
@@ -64,9 +64,9 @@ At its core, Softanza is an accelerative foundation for building modern software
 
 - **Cross-Platform Delivery**: With support for all platforms enabled by Ring, Softanza also provides an API-first delivery model through a dedicated and robust Softanza Application Server.
 
-finally, what truly sets Softanza apart is its ability to turn traditionally peripheral roles into first-class citizens of the software development process, fostering inclusivity and collaboration. It bridges the gap between coders and other contributors, integrating them seamlessly into the programming project.
+Finally, what truly sets Softanza apart is its ability to turn traditionally peripheral roles into first-class citizens of the software development process, fostering inclusivity and collaboration. It bridges the gap between coders and other contributors, integrating them seamlessly into the programming project.
 
-## 4. A Collaborative, Multi-Disciplinary Coding Environment
+## 4. A Collaborative, Multi-Disciplinary Coding Experience
 
 Softanza’s computational thinking perspective empowers a wide range of stakeholders—business analysts, information designers, data analysts, UI and UX designers, educators, and researchers—to contribute meaningfully. Through its "What You Think Is What You Write" approach, Softanza enables each person to express themselves naturally within a shared coding environment.
 
