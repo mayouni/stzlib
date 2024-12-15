@@ -1,6 +1,6 @@
 # A Guided Path to Problem-Solving: The Softanza Mental Model
 ![](../images/stz-mental-model.jpg)
-*A programmer in a futuristic lab uses a holographic interface to explore data step-by-step.*
+*A programmer in a futuristic lab using a holographic interface to explore data step-by-step.*
 
 The **Softanza Mental Model** is a guiding principle for solving problems step-by-step through progressive exploration and manipulation of data.
 
@@ -72,7 +72,7 @@ This model addresses the challenge of navigating the thousands of features in th
 
    Get the items by their positions or directly by calling them by name.
 
-      ```ring
+   ```ring
    ? o1.ItemsAtPositions( o1.FindEmptyStrings() )
    #--> [ "", "", "" ]
 
