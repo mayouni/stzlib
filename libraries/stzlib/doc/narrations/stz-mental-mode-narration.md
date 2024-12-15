@@ -17,7 +17,7 @@ This model addresses the challenge of navigating the thousands of features in th
    Start by precisely expressing your problem in natural terms. This will help identify relevant keywords that guide the object selection process.
    
    Example:
-   
+
    **Problem:** Exploring *empty strings* inside a *list*.
 
    **Keywords extracted:**
@@ -74,36 +74,45 @@ This model addresses the challenge of navigating the thousands of features in th
 
    #### Get items at positions
 
-   Get the items by their positions or directly by calling them by name.
+   Get the items by their positions.
 
    ```ring
    ? o1.ItemsAtPositions( o1.FindEmptyStrings() )
    #--> [ "", "", "" ]
 
+   # Or by calling the dedicated method
+
    ? o1.EmptyStrings()
-   #--> [ "", "", "" ]
    ```
 
-   #### Replace items at position
+   #### Replace items at positions
 
    Replace the identified elements with a specified value.
 
    ```ring
-   o1.ReplaceEmptyStrings(:With = "~")
+   o1.ReplaceItemsAtPositions( o1.FindEmptyStrings(), :With = "~")
    ? o1.Content()
    #--> [ "A", '~', "B", '~', '~', "C" ]
+
+   # Or you can do better by calling directly the dedicated method
+
+    o1.ReplaceEmptyStrings(:With = "~")
    ```
    The empty strings are replaced with `~`, transforming the list.
 
    #### Remove items at positions
 
-   or remove the identified elements altogether.
+   Or remove the identified elements altogether.
 
    ```ring
    o1 = new stzList([ "A", '', "B", '', '', "C" ])
-   o1.RemoveEmptyStrings()
-   ? o1.Content()
+   o1.RemoveItemsAtPositions( o1.FindEmptyStrings() )
    #--> [ "A", "B", "C" ]
+
+   # Or better then this, you can use directly
+
+   o1.RemoveEmptyStrings()
+  
    ```
    The empty strings are eliminated, leaving a cleaner dataset.
 
