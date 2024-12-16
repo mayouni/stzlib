@@ -6,11 +6,17 @@ I am Mansour, the designer of Softanza, a framework born out of my mission to si
 
 ## Introduction: The Big Picture
 
-![Softanza Computational Thinking Architecture](../images/stz-computational-thinking-architecture.jpg)
+To fulfill its mission, the Softanza projects builds on the simplicty and flexibility of Ring language to forge a tower of layered innovations. Each layer adds an incremental useful dimension to the programmer experience and a concrete value propositon to the application.
 
 At its simplest form, Softanza is a library for the Ring programming language.
 
-## 1. An Augmentation Library of the Ring Programming Language
+## 1. Ring as a Comptational Infrastucture of the Softanza Framewrok
+
+Softanza extends the Ring type system while maintaing its simplicty and well-thought design. It leverage unique Ring innovations like declarative and natural language programmin. And benefits from the metal force of its C and C++ extensions.
+
+Embracing Ring as a stretgic tool, means investing in completing it and managing some of its technical aspects in a way that works with Softanza style and goals.
+
+## 2. An Augmentation Library of the Ring Programming Language
 
 Softanza is an augmentation library for Ring, adding critical features that elevate the language to enterprise-grade levels. Its contributions are multi-fold:
 
@@ -20,24 +26,17 @@ Softanza is an augmentation library for Ring, adding critical features that elev
 - **Unified Coherence**: Softanza unifies the semantics of Ring and its extension libraries, shaping them into a coherent and powerful model.
 - **Stress Testing**: By providing a real-world, large-scale codebase, it stress-tests Ring, pushing it to its limits and ensuring reliability.
 
-While written in Ring, Softanza isn’t limited to it. Its high-level abstraction and natural orientation promote it as a framework for humanized computational thinking that scales across languages.
+While written in Ring, Softanza semantics can be adopted to and by any programming langauge. Its high-level abstraction and natural orientation promote it as a framework for humanized computational thinking that scales across languages.
 
-## 2. A Programming Framework for Computational Thinking
+## 3. A Programming Framework for Computational Thinking
 
 Softanza is designed to be a non-restrictive framework that cultivates computational thinking. It doesn't force a specific software architecture or complex machinery of tools. You simply load it and write pure Ring code.
 
-As a framework for computational thinking, it addresses three key pillars of any thinking process: the Semantic Model, the Learnning Model, and the Expression Model, all backed by a ritch algorithmic foundation that has a direct function to nerely any need.
+As a framework for computational thinking, it addresses three key pillars of any thinking process: the Semantic Model, the Mental Model, and the Expression Model, build on top of the Ring language infrastucture.
 
+![Softanza Computational Thinking Architecture](../images/stz-computational-thinking-architecture.jpg)
 
-### Ring as a Comptational Infrastucture of the Softanza Framewrok
-
-### An One-Stop Foundation for all your Algorithmic Needs
-
-It's like .NET for c# programmers that let them stay home while devloping any kind of application, or the Wolfram Language that has a function for any imaginable computational need, or the Qt frmaeowrk for C++ programmers...
-
-- A comprehensiove type system that extends the native Ring Type System (number, string, list, object) with extended versions (stzNumber, stzString, stzList, and their parent stzObject)
-- A set of specific variations of each type (stzHexNumber, stzBigNumber... ; stzListOfNumbers, stzListOfLists... ; stzTable, stzHashList, stzGrid...)
-- thousand s of methods covering a wide range of alogrothmic needs
+Let's describe briefly each model apart.
 
 ### A Semantics Model to Describe your Application World
 
@@ -69,7 +68,7 @@ To support these models, Softanza implements several technical innovations, such
 
 That said, Softanza is not just about thinking; it's about creating software that enables successful businesses in reasonable time and budget, aligned with today’s technological and economic landscape.
 
-## 3. An Accelerative Foundation for Modern Software Platforms
+## 4. An Accelerative Foundation for Modern Software Platforms
 
 At its core, Softanza is an accelerative foundation for building modern software platforms and bringing them to the market economy. It achieves this through:
 
