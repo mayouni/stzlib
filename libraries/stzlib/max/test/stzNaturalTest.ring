@@ -1,9 +1,6 @@
+load "stzlib.ring"
 
-load "../stzmax.ring"
-
-/*---
-*/
-profon()
+ProfilerOn()
 
 Naturally() {
 
@@ -18,11 +15,11 @@ Naturally() {
 
 }
 #-->
-# ╭─────────╮
-# │ R I N G │
-# ╰─────────╯
+# ╭─────────────────╮
+# │ S O F T A N Z A │
+# ╰─────────────────╯
 
-proff()
+ProfilerOff()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*---

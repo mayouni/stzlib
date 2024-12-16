@@ -83,6 +83,7 @@ Naturally() {
 The code instantiates an `stzNatural` object and leverages Ring's natural language innovations to work with words, interpret their meaning, and bind them seamlessly to internal Softanza classes and functions.
 
 Here’s a snapshot of the code running in my Ring Notepad to show it in action:
+
 ![A Natural Code in Pure English with Softanza](../images/stz-naturally-code-sample-01.jpg)
 
 On top of this Ring magic, made possible by the genius of Mahmoud Fayed (Ring Creator), Softanza incorporates findings from the Computational Linguistics R&D efforts conducted by its author (me, Mansour Ayouni). These innovations address three key pillars of any thinking process: the **Semantic** Model, the **Mental** Model, and the **Expression** Model. All of these are built on top of its Ring Foundation library, as illustrated in the following diagram.
