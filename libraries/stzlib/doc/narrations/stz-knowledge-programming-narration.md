@@ -1,4 +1,4 @@
-# Softanza Knowledge-Oriented Porgramming: Crafting the Semantics of Thought
+# Softanza Knowledge Porgramming: Crafting the Semantics of Thought
 ![A Wise and Revered Muslim Scholar Exploring Computer Code in a Traditional Study Room.](../images/stz-knowledge-programming.jpg)
 *A Wise and Revered Muslim Scholar Exploring Computer Code in a Traditional Study Room.*
 
