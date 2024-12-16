@@ -91,6 +91,7 @@ On top of this Ring magic, made possible by the genius of Mahmoud Fayed (Ring Cr
 >NOTE:*The diagram also illustrates all the other layers of the Softanza Project discussed on this page.*
 ![Softanza Project Layers](../images/stz-project-layers.png)
 
+
 Let's describe briefly each model apart.
 
 - **A Learning and Usability Mental Model** to describe the program wolrd
