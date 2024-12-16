@@ -29,6 +29,8 @@ func WorldEntities()
 func _(p)
 	return new stzChainOfTruth(p)
 
+# Useful functions for natural-coding #TODO add others
+
 func TheLetter(c)
 	if isString(c) and @IsChar(c) and StzCharQ(c).IsLetter()
 		return c
@@ -36,6 +38,34 @@ func TheLetter(c)
 		return _FALSE_
 	ok
 
+	func TheLetterQ(c)
+		return new stzChar(TheLetter(c))
+
+func TheLetters(acChars)
+
+	_acChars_ = acChars
+
+	if isList(_acChars_)
+		_nLen_ = len(_acChars_)
+		_last_ = _acChars_[_nLen_]
+
+		if isList(_last_) and len(_last_) = 2 and
+		   isString(_last_[1]) and _last_[1] = :And
+
+			del(_acChars_, _nLen_)
+			_acChars_ + _last_[2]
+		ok
+
+		if @IsListOfLetters(acChars)
+			return _acChars_
+		ok
+
+	else
+		return _FALSE_
+	ok
+
+	func TheLettersQ(acChars)
+		return new stzList(TheLetters(acChars))
 
 class stzChainOfTruth from stzObject
 	# This attribute holds the value provided by the user between ()
