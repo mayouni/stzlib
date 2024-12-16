@@ -1,6 +1,6 @@
 # Softanza: Semantic Modeling and Knwoled-Oriented Programming
-![A man teaching knowledge programming in a cozy, warm room.](../images/stz-knowledge-programming.jpg)
-*A man teaching knowledge programming in a cozy, warm room.*
+![A Muslim scholar studying computer code in a traditional room.](../images/stz-knowledge-programming.jpg)
+*A Muslim scholar studying computer code in a traditional room.*
 
 Imagine a world where information isn't just stored, but intelligently connected. Where concepts aren't static labels, but dynamic, interrelated entities that can be queried, expanded, and understood in context. This is the promise of Softanza's semantic knowledge representation system—a revolutionary approach to how we perceive, define, and interact with information.
 
