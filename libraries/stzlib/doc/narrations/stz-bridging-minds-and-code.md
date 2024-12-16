@@ -30,7 +30,9 @@ Softanza elevates Ring's capabilities through a comprehensive library that addre
 - **Unified Coherence**: Softanza unifies the semantics of Ring and its extension libraries, shaping them into a coherent and powerful model.
 - **Stress Testing**: By providing a real-world, large-scale codebase, it stress-tests Ring, pushing it to its limits and ensuring reliability.
 
-While written in Ring, Softanza syntax and semantics are universal and technology agnostic. Its high-level abstraction and natural orientation promote it as a framework for humanized computational thinking that scales across languages.
+While written in Ring and primarily targeting Ring programmers, Softanza's syntax and semantics are designed to be universal and technology-agnostic. Its high-level abstractions and natural orientation position it as a framework for human-centric computational thinking, capable of scaling seamlessly across programming languages.
+
+Ultimately, Softanza can even be used without requiring any programming language other than natural language! The next section will show you this not just a promise...
 
 > **NOTE**: In particular, a **JavaScript** port of Softanza is currently being developed to provide the same programming experience for web frontends. The SystemLayer of the library (described in Section 4 hereafter) is intended to be partially implemented in **Julia**. A full port is also planned, to align with a larger ecosystem of data-intensive and AI-driven applications.
 
@@ -57,9 +59,35 @@ This code illustrates Softanza's **natural-coding** paradigm, where natural expr
 
 It demonstrates how Softanza’s programming model seamlessly integrates logical assertions with value transformations to forge a realistic human-centered flow of thought in pure Ring code!
 
-To achieve this, Softanza applies findings from the Computational Linguistics R&D effort conducted by its author to address three key pillars of any thinking process: the **Semantic** Model, the **Mental** Model, and the **Expressio**n** Model, all built on top of its Ring Foundation library, as illustrated in the following diagram.
+You can even *talk* to Softanza not in pure Ring but in pure English, as effortlessly and intuitively as this:
 
->NOTE:*The diagram also show all the other layers of the Softanza Project.*
+```ring
+Naturally() {
+
+	Create a stzString object with nothing inside
+
+	Append it with the string "softanza"
+
+	Spacify it Uppercase it and_ Box@ it
+	The box@ must be rounded
+
+	Then show the final result
+
+}
+#-->
+# ╭─────────────────╮
+# │ S O F T A N Z A │
+# ╰─────────────────╯
+```
+
+The code instantiates an `stzNatural` object and leverages Ring's natural language innovations to work with words, interpret their meaning, and bind them seamlessly to internal Softanza classes and functions.
+
+Here’s a snapshot of the code running in my Ring Notepad to show it in action:
+![A Natural Code in Pure English with Softanza](../images/stz-naturally-code-sample-01.jpg)
+
+On top of this Ring magic, made possible by the genius of Mahmoud Fayed (Ring Creator), Softanza incorporates findings from the Computational Linguistics R&D efforts conducted by its author (me, Mansour Ayouni). These innovations address three key pillars of any thinking process: the **Semantic** Model, the **Mental** Model, and the **Expression** Model. All of these are built on top of its Ring Foundation library, as illustrated in the following diagram.
+
+>NOTE:*The diagram also illustrates all the other layers of the Softanza Project discussed on this page.*
 ![Softanza Project Layers](../images/stz-project-layers.png)
 
 Let's describe briefly each model apart.

@@ -16,7 +16,7 @@ proff()
 
 profon()
 
-//load "stzlib.ring"
+load "stzlib.ring"
 
 if Q("SOFTANZA").
 	IsAMQ(:String).WhichIsQ().InUppercaseQ().
@@ -28,6 +28,7 @@ if Q("SOFTANZA").
 ok
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*----------------- ok
 

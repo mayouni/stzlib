@@ -9,7 +9,7 @@ Naturally() {
 
 	Create a stzString object with nothing inside
 
-	Append it with the string "ring"
+	Append it with the string "softanza"
 
 	Spacify it Uppercase it and_ Box@ it
 	The box@ must be rounded
