@@ -40,7 +40,7 @@ Softanza fosters computational thinking without enforcing rigid architectural co
 
 As a framework for computational thinking, it addresses three key pillars of any thinking process: the Semantic Model, the Mental Model, and the Expression Model, built on top of the Ring language infrastructure.
 
-![Softanza Project Layers](../images/stz-project-layers.jpg)
+![Softanza Project Layers](../images/stz-project-layers.png)
 
 Let's describe briefly each model apart.
 
