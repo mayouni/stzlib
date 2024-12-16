@@ -55,13 +55,14 @@ if Q("SOFTANZA").
 
 	? "It's me, Softanza!"
 ok
+
+# When you run it, you get:
+#--> It's me, Softanza!
 ```
 
-This code illustrates Softanza's **natural-coding** paradigm, where natural expressions are integrated directly into computer code. It utilizes a `stzString` object on the surface, while being empowered internally with advanced classes like `stzChainOfTruth` and `stzChainOfValue`.
+This code illustrates Softanza's **natural-coding** paradigm, where *natural* expressions are integrated directly into computer *code*. It utilizes a `stzString` object on the surface, while being empowered internally with advanced classes like `stzChainOfTruth` and `stzChainOfValue`, demonstrating how Softanza’s programming model seamlessly integrates *logical assertions* with *value transformations* to forge a human-centered flow of thought in pure Ring code!
 
-It demonstrates how Softanza’s programming model seamlessly integrates logical assertions with value transformations to forge a realistic human-centered flow of thought in pure Ring code!
-
-You can even *talk* to Softanza not in pure Ring but in pure English, as effortlessly and intuitively as this:
+You can even *talk* to Softanza not in pure Ring but in *pure English*, as effortlessly and intuitively as this:
 
 ```ring
 Naturally() {
@@ -82,38 +83,173 @@ Naturally() {
 # ╰─────────────────╯
 ```
 
-The code instantiates an `stzNatural` object and leverages Ring's natural language innovations to work with words, interpret their meaning, and bind them seamlessly to internal Softanza classes and functions.
+The code instantiates an `stzNatural` object and leverages unique Ring's natural language innovations to work with words, interpret their meaning, and bind them automatically to internal Softanza classes and functions.
 
 Here’s a snapshot of the code running in my Ring Notepad to show it in action:
 
 ![A Natural Code in Pure English with Softanza](../images/stz-naturally-code-sample-01.jpg)
 
-On top of this Ring magic, made possible by the genius of Mahmoud Fayed (Ring Creator), Softanza incorporates findings from the Computational Linguistics R&D efforts conducted by its author (me, Mansour Ayouni). These innovations address three key pillars of any thinking process: the **Semantic** Model, the **Mental** Model, and the **Expression** Model.
+Building on this Ring magic, made possible by the genius of *Mahmoud Fayed* (Ring Creator), Softanza integrates findings from the Computational Linguistics R&D efforts led by its author (me, *Mansour Ayouni*), addressing three key pillars of the thinking process: the **Semantic** Model, the **Mental** Model, and the **Expression** Model.
 
 Let's describe briefly each model apart.
 
-- **A Learning and Usability Mental Model** to describe the program wolrd
 
-This is the minimal understanding needed to master thousands of the library's features, formed of well-defined, easy-to-learn steps.
+### A Knowledge-Based *Semantic Model* to Describe the Program World
 
-- **A Knwoledg-Based Semantic Model** to understand the code of that world
+This refers to the design of a semantic framework that integrates a knowledge dimension directly into your Ring code. In traditional programming, you work with variables, and at best, with objects. In Softanza, you work with real-world entities that capture the meaning and relationships you want them to convey.
 
-This refers to the semantics of the world your code addresses, represented through an extensive set of data structures, carefully designed as feature-rich Softanza objects.
+To achieve this, Softanza introduces a radically intuitive way of classifying objects across multiple dimensions. For example, we define two meanings of "Apple," one as a Fruit and the other as a Company. When we ask Softanza about it, it shows that it is aware of both:
 
-- **A Natural-Oriented Expression Model** to Talk to and about your program world in Your Own Words!
+```ring
+@Q("Apple").IsA(:Fruit)
+@Q("Apple").IsA(:Company)
+? WhatIs(:Apple) #--> [ :Fruit, :Company ]
+```
 
-This defines how you express your thoughts in code using a fluent-oriented, declarative, or near-natural language design.
+Beyond simple classification, Softanza allows for deep semantic definitions of concepts, turning labels into meaningful descriptions.
 
-But wait—Softanza does all this to ultimately empower innovators to meet the market with transformational digital solutions that truly make a difference!
+In fact, if we ask it:
+
+```ring
+? WhatIs(:Fruit) #--> :Undefined
+```
+
+It responds by saying it doesn't know what :Fruit is since it hasn’t been defined. Let's define it:
+
+```ring
+@Q(:Fruit).Is("the means by which flowering plants disseminate seeds")
+? WhatIs(:Fruit) #--> the means by which flowering plants disseminate seeds
+```
+
+Behind the definitions of things, Softanza binds them into meaningful relationships:
+
+```ring
+@Q(:Person).AndQ(:Fruit).CanBeRelatedByQ(:Eats)
+```
+
+At this point, Softanza doesn't care about what a :Person is; it's simply another :Undefined thing that is related to :Fruit by the verb :Eats. It's as if we’re coding the fact that humans eat fruit!
+
+So, if we ask:
+
+```ring
+? What("Steve Jobs").Eats() #--> :Undefined
+```
+
+It won't be able to respond. However, once we define "Steve Jobs" as a :Person:
+
+```ring
+@Q("Steve Jobs").IsA(:Person)
+```
+
+Now, Softanza recognizes "Steve Jobs" as a concept related to :Fruit through the :Eats relation, and will respond correctly:
+
+```ring
+? What("Steve Jobs").Eats() #--> :Fruit
+```
+
+This example shows how Softanza transforms code from mechanical instructions into a semantic dialogue, empowering developers to craft knowledge with unprecedented flexibility and human-like understanding.
+
+Which is empowering and exciting! But does this mean you need to learn all the semantics, functions, and classes of the library? The answer is a resounding NO.
+
+
+### An Intuitive *Mental Model* to Craft Code Inside that World
+
+Softanza is a vast library, but you shouldn’t worry about its size. All you need to know at the most basic level is:
+
+- How to create a Softanza object and store data in it
+- How to find things inside that object and return the result
+- How to perform an action on the positions (or sections of positions) returned
+- You may perform one or more additional actions
+- Finally, you return the result
+
+Let’s see it with some code:
+
+```ring
+# Creating a string inside a stzString object
+o1 = new stzString("You and you")
+
+# Finding the second occurrence of "YOU", regardless of case
+? o1.FindNthCS(2, "YOU", FALSE)
+#--> 9
+
+# Getting it in a section of two positions
+? o1.FindNthAsSectionsCS(2, "YOU", FALSE)
+#--> [ 9, 11 ]
+
+# Now, replace that section with "Me"
+o1.ReplaceSection([ 9, 11 ], :With = "Me")
+
+# Show the result
+? o1.Content()
+#--> You and Me
+```
+
+You’ve done it and learned all of Softanza! Literally, all its classes and functions (a lot!) work this way.
+
+The point I want to emphasize here is that, unlike traditional programming frameworks, where you usually find yourself asking: *What should I do? And what classes and functions should I use?* In Softanza, you *know* what to do, and it’s usually the same steps of (CREATE > FIND > APPLY). And when it comes to the names of functions, you don’t even need to remember them because they are designed to reflect what you should be thinking about in natural language terms!
+
+Often, Softanza simplifies the mental steps even further by reducing them to a single action. For example, the last algorithmic problem we solved in, say, 5 lines of code, can now be done in just one line:
+
+```ring
+o1.ReplaceNthCS(2, "YOU", :With = "You")
+```
+
+That’s it.
+
+It’s about freeing your mind with such a mental model, allowing you to avoid the hassle of learning a large number of functions. This way, you can focus all your energy on solving your computational problem in a natural, intuitive form.
+
+
+### A Natural-Oriented *Expression Model* to Talk to the Program World in Your Own Words!
+
+This defines how you express your thoughts in code using a fluent, declarative, or near-natural language design. It’s not about AI code staff, but rather code that you write consciously, in collaboration with Softanza.
+
+Whatever algorithmic problem you have, you only need to follow these simple steps:
+
+- Select the appropriate Softanza object to hold your data (a `stzString` for text, a `stzList` for collections, a `stzNumber` for numbers, and so on).
+- Type the name of the action you want to apply to the data (hopefully, it will be one of the thousands of functions shipped with Softanza).
+- Continue the flow of actions by applying another action to the same data, or
+- Transform the resulting data into another Softanza object type (for example, from a string to a list), and continue with other actions.
+- Keep doing this until you get the final result.
+
+Here’s a simple example: remove duplicates from "SOOFtiiiZIIii," replace the lowercase characters with "A," and then uppercase and space out the text to get a clean "S O F T A N Z A."
+
+In Softanza, this translates to the following code:
+
+```ring
+? Q("SOOFtiiiZIIii").RemoveDuplicatesQ().ReplaceLowercaseCharsQ(:with = "A").SpacifyQ().Content()
+#--> S O F T A N Z A
+```
+
+Compare the narration of the problem with the code. Aren’t they identical?
+
+Furthermore, you can track the history of changes by adding an `H()` prefix to the small `Q()` function and ending the chain by calling the `History()` method:
+
+```ring
+? QH("SOOFtiiiZIIii").RemoveDuplicatesQ().ReplaceLowercaseCharsQ(:with = "A").SpacifyQ().Content()
+#--> [
+#       "SOOFtiiiNZiiii",
+#       "SOFtiNZi",
+#       "SOFtANZA",
+#       "SOFTANZA",
+#       "S O F T A N Z A"
+# ]
+```
+
+But wait—Softanza does all this to ultimately empower innovators to bring transformational digital solutions to the market that truly make a difference!
+
 
 ## Softanza as a Systemized Foundation for Modern Software Platforms
 
 At its core, Softanza is an accelerative foundation for building modern software platforms and bringing them to the market economy. It achieves this through:
 
 - **Systems-Based Approach**: Softanza champions a systems-based methodology to software engineering, enabling rapid prototyping and reducing time-to-delivery.
+
 - **Simplified Architectural Patterns**: Architectural patterns like knowledge-oriented programming and reactive programming are simplified into a smooth, accessible experience.
+
 - **Performance Meets Accessibility**: Built on high-performance C and C++ solutions, Softanza wraps them in an accessible coding model.
+
 - **Global Software Readiness**: It natively supports Unicode, multilingual programming, and locale-specific functionality.
+
 - **Cross-Platform Delivery**: With support for all platforms enabled by Ring, Softanza also provides an API-first delivery model through a dedicated and robust Softanza Application Server.
 
 ## Softanza as a Collaborative, Multi-Disciplinary Coding Experience
