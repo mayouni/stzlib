@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzmax.ring"
 
 ProfilerOn()
 

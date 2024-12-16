@@ -12,7 +12,9 @@ Softanza can be defined as:
 - A Programming Framework for Computational Thinking
 - A Systemized Foundation for Modern Software Platforms
 
-To fulfill its mission, the Softanza project builds on the simplicity and flexibility of Ring language to forge a tower of layered innovations (see the diagram further down on this page). Each layer adds an incremental useful dimension to the programmer experience and a concrete value proposition to the final software solution.
+To fulfill its mission, the Softanza Project builds on the simplicity and flexibility of Ring language to forge a tower of layered innovations. Each layer adds an incremental useful dimension to the programmer experience and a concrete value proposition to the final software solution.
+
+NOTE: A diagram illustrating all the layers of the Softanza Project solution architecture will be provided at the end of this article.
 
 ## Ring as a Computational Infrastructure of the Softanza Library and Framework
 
@@ -86,13 +88,7 @@ Here’s a snapshot of the code running in my Ring Notepad to show it in action:
 
 ![A Natural Code in Pure English with Softanza](../images/stz-naturally-code-sample-01.jpg)
 
-On top of this Ring magic, made possible by the genius of Mahmoud Fayed (Ring Creator), Softanza incorporates findings from the Computational Linguistics R&D efforts conducted by its author (me, Mansour Ayouni). These innovations address three key pillars of any thinking process: the **Semantic** Model, the **Mental** Model, and the **Expression** Model. All of these are built on top of its Ring Foundation library, as illustrated in the following diagram.
-
->NOTE: *The diagram also illustrates all the other layers of the Softanza Project discussed on this page.*
-
-
-![Softanza Project Layers](../images/stz-project-layers.png)
-
+On top of this Ring magic, made possible by the genius of Mahmoud Fayed (Ring Creator), Softanza incorporates findings from the Computational Linguistics R&D efforts conducted by its author (me, Mansour Ayouni). These innovations address three key pillars of any thinking process: the **Semantic** Model, the **Mental** Model, and the **Expression** Model.
 
 Let's describe briefly each model apart.
 
@@ -135,6 +131,14 @@ In practice, Business Analysts, UX Designers, Educators, Researchers, and Lingui
 - **Educators** and **Researchers** can embed real, executable programs written in near-natural language into their tutorials and research papers, offering hands-on learning experiences for their audiences.
 
 - **Linguists** can model language structures and processes directly in code, bridging the gap between linguistic theory and practical applications in software. 
+
+## Wrapping Up: The Softanza Solution Architecture Diagram
+
+A diagram is worth a thousand words, so here it is:
+
+
+![Softanza Project Layers](../images/stz-project-layers.png)
+*Layers of the Softanza Project Solution Architecture.*
 
 ## Conclusion
 
