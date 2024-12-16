@@ -14,7 +14,7 @@ Softanza can be defined as:
 
 To fulfill its mission, the Softanza project builds on the simplicity and flexibility of Ring language to forge a tower of layered innovations (see the diagram further down on this page). Each layer adds an incremental useful dimension to the programmer experience and a concrete value proposition to the final software solution.
 
-## 1. Ring as a Computational Infrastructure of the Softanza Framework
+## 1. Ring as a Computational Infrastructure of the Softanza Library and Framework
 
 Softanza extends the Ring type system while maintaining its simplicity and well-thought design. It leverages unique Ring innovations like declarative and natural language programming and benefits from the metal force of its C and C++ extensions.
 
@@ -44,15 +44,15 @@ As a framework for computational thinking, it addresses three key pillars of any
 
 Let's describe briefly each model apart.
 
-### A Semantics Model to Describe your Application World
-
-This refers to the semantics of the world your code addresses, represented through an extensive set of data structures, carefully designed as feature-rich Softanza objects.
-
-### A Mental Model to Master Softanza Programming World
+### A Learning and Usability Mental Model to Master Softanza Programming World
 
 This is the minimal understanding needed to master thousands of the library's features, formed of well-defined, easy-to-learn steps.
 
-### An Expression Model to Talk of your World in Softanza Words
+### A Knwoledg-Based Semantic Model to Describe your Application World
+
+This refers to the semantics of the world your code addresses, represented through an extensive set of data structures, carefully designed as feature-rich Softanza objects.
+
+### A Natural-Oriented Expression Model to Talk of Your World in Your Own Words
 
 This defines how you express your thoughts in code using a fluent-oriented, declarative, or near-natural language design.
 
