@@ -274,7 +274,7 @@ In practice, Business Analysts, UX Designers, Educators, Researchers, and Lingui
 A diagram is worth a thousand words, so here it is:
 
 
-![Softanza Project Layers](../images/stz-project-layers.png)
+![Softanza Project Layers](../images/stz-solution-layers.jpg)
 
 *Layers of the Softanza Project Solution Architecture.*
 
