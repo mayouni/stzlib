@@ -1266,12 +1266,12 @@ func IsListOfListsOfObjects(paList)
 
 	#>
 
-func IsListOfChars(paList)
-	if NOT isList(paList)
+func IsListOfChars(pacList)
+	if NOT isList(pacList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfChars()
+	return StzListQ(pacList).IsListOfChars()
 
 	#< @FunctionAlternativeForms
 
@@ -19529,6 +19529,75 @@ class stzList from stzObject
 
 		def AllAreListsOfChars()
 			return This.IsListOfListsOfChars()
+
+		#>
+
+	  #-----------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LETTERS  #
+	#-----------------------------------------------#
+
+	def IsListOfLetters()
+		_nLen_ = len(@aContent)
+		if _nLen_ = 0
+			return _FALSE_
+		ok
+
+		_bResult_ = _TRUE_
+
+		for @i = 1 to _nLen_
+			if NOT @IsLetter(@aContent[@i])
+				_bResult_ = _FALSE_
+				exit
+			ok
+		next
+
+		return _bResult_
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfLetters()
+			return This.IsListOfLetters()
+
+		def ItemsAreLetters()
+			return This.IsListOfLetters()
+
+		def ItemsAreAllLetters()
+			return This.IsListOfLetters()
+
+		def AllItemsAreLetters()
+			return This.IsListOfLetters()
+
+		def ContainsOnlyLetters()
+			return This.IsListOfLetters()
+
+		def ContainsLettersOnly()
+			return This.IsListOfLetters()
+
+		def IsMadeOfLetters()
+			return This.IsListOfLetters()
+
+		def IsMadeOfOnlyLetters()
+			return This.IsListOfLetters()
+
+		def IsMadeOfLettersOnly()
+			return This.IsListOfLetters()
+
+		def IsMadeOnlyOfLetters()
+			return This.IsListOfLetters()
+
+		def IsOnlyMadeOfLetters()
+			return This.IsListOfLetters()
+
+		#--
+
+		def AreLetters()
+			return This.IsListOfLetters()
+
+		def AreAllLetters()
+			return This.IsListOfLetters()
+
+		def AllAreLetters()
+			return This.IsListOfLetters()
 
 		#>
 

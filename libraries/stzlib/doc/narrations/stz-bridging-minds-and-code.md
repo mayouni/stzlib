@@ -18,45 +18,64 @@ To fulfill its mission, the Softanza project builds on the simplicity and flexib
 
 Softanza extends the Ring type system while maintaining its simplicity and well-thought design. It leverages unique Ring innovations like declarative and natural language programming and benefits from the metal force of its C and C++ extensions.
 
-At its simplest form, Softanza is a library for the Ring programming language.
+Theerefore, at its simplest form, Softanza is a library for the Ring programming language.
 
 ## 2. An Augmentation Library of the Ring Programming Language
 
-Softanza elevates Ring's capabilities through a comprehensive library that addresses enterprise-grade development needs. Its contributions are multi-fold:
+Softanza elevates Ring's capabilities through a comprehensive library that addresses modern development needs. Its contributions are multi-fold:
 
 - **Filling the Gaps**: It adds the missing pieces necessary for professional, enterprise-grade applications.
-- **Addressing Pain Points**: Softanza solves most of the usability and performance challenges that programmers encounter with Ring.
+- **Addressing Pain Points**: Softanza addresses the majority of usability and performance challenges encountered while developing the library with Ring.
 - **Unleashing Potential**: It takes Ring's unique features and innovations, putting them into action in ways that make sense for real-world development.
 - **Unified Coherence**: Softanza unifies the semantics of Ring and its extension libraries, shaping them into a coherent and powerful model.
 - **Stress Testing**: By providing a real-world, large-scale codebase, it stress-tests Ring, pushing it to its limits and ensuring reliability.
 
 While written in Ring, Softanza syntax and semantics are universal and technology agnostic. Its high-level abstraction and natural orientation promote it as a framework for humanized computational thinking that scales across languages.
 
+> **NOTE**: In particular, a **JavaScript** port of Softanza is currently being developed to provide the same programming experience for web frontends. The SystemLayer of the library (described in Section 4 hereafter) is intended to be partially implemented in **Julia**. A full port is also planned, to align with a larger ecosystem of data-intensive and AI-driven applications.
+
 ## 3. A Programming Framework for Computational Thinking
 
 Computational thinking is the ability to conceptualize, design, and articulate solutions to complex problems through a programming environment that mirrors natural thought processes. Under the motto "What You Think Is What You Write", Softanza fosters this approach.
 
-Softanza fosters computational thinking without enforcing rigid architectural constraints. Simply load the library, and you can write pure Ring code without external dependencies or complex tools.
+Softanza fosters computational thinking without enforcing rigid technical constraints. Simply load the library, and you can write pure Ring code like this:
 
-As a framework for computational thinking, it addresses three key pillars of any thinking process: the Semantic Model, the Mental Model, and the Expression Model, built on top of the Ring language infrastructure.
+```ring
+load "stzlib.ring"
+
+if Q("SOFTANZA").
+	IsAMQ(:String).WhichIsQ().InUppercaseQ().
+	WhileQ().ContainingQ( TheLetters([ "F", :And = "Z" ]) ).
+	TheLetterQ("A").TwiceQ().
+	AndQ().HavingQ().ItsQM().FirstCharQ().EqualTo("S")
+
+	? "It's me, Softanza!"
+ok
+```
+
+This code illustrates Softanza's **natural-coding** paradigm, where natural expressions are integrated directly into computer code. It utilizes a `stzString` object on the surface, while being empowered internally with advanced classes like `stzChainOfTruth` and `stzChainOfValue`. The code also navigates through intermediary classes such as `stzList` and `stzChar` to evaluate the text "SOFTANZA" based on conditions like uppercase characters, specific letters, and patterns.
+
+It demonstrates how Softanza’s programming model seamlessly integrates logical assertions (via stzChainOfTruth) with value transformations (via stzChainOfValue), while keeping these two computational concerns architecturally separated to provide the linguistic flexibility needed for a human-centered flow of thought.
+
+To achieve this, Softanza addresses three key pillars of any thinking process: the Semantic Model (to describe the program wolrd), the Mental Model (to understand the code of that world), and the Expression Model (to talk to/about that world), on top of its Foundation library, as illusttrated in the fellowing diagram.
 
 ![Softanza Project Layers](../images/stz-project-layers.png)
 
 Let's describe briefly each model apart.
 
-### A Learning and Usability Mental Model to Master Softanza Programming World
+### a. A Learning and Usability Mental Model to Master Softanza Programming World
 
 This is the minimal understanding needed to master thousands of the library's features, formed of well-defined, easy-to-learn steps.
 
-### A Knwoledg-Based Semantic Model to Describe your Application World
+### b. A Knwoledg-Based Semantic Model to Describe your Application World
 
 This refers to the semantics of the world your code addresses, represented through an extensive set of data structures, carefully designed as feature-rich Softanza objects.
 
-### A Natural-Oriented Expression Model to Talk of Your World in Your Own Words
+### c. A Natural-Oriented Expression Model to Talk of Your World in Your Own Words
 
 This defines how you express your thoughts in code using a fluent-oriented, declarative, or near-natural language design.
 
-### How Softanza Implements These Models
+### d. How Softanza Implements These Models
 
 To support these models, Softanza implements several technical innovations, such as:
 

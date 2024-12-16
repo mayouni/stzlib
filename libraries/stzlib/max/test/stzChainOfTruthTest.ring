@@ -1,15 +1,33 @@
 load "../stzmax.ring"
 
 
+/*-----------------
 
-/*----------------- ERROR
+profon()
 
-if _("ring").IsA(:String).Which(:IsLowercase).Containing(TheLetter("g")).Having('FirstChar() = "r"')._
+? Q("Ring").Twice() # Works on any object
+#--> [ "Ring", "Ring" ]
 
-	? "Got it!"
-else
-	? "Sorry. May be next time..."
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*-----------------
+*/
+
+profon()
+
+//load "stzlib.ring"
+
+if Q("SOFTANZA").
+	IsAMQ(:String).WhichIsQ().InUppercaseQ().
+	WhileQ().ContainingQ( TheLetters([ "F", :And = "Z" ]) ).
+	TheLetterQ("A").TwiceQ().
+	AndQ().HavingQ().ItsQM().FirstCharQ().EqualTo("S")
+
+	? "It's me, Softanza!"
 ok
+
+proff()
 
 /*----------------- ok
 

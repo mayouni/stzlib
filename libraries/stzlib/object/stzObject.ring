@@ -1615,7 +1615,7 @@ func ObjectToList(cObjectVarName)
 ///////////////
 
 class stzObject
-	@oObject
+	@content
 
 	@cVarName = :@NoName
 	@aHisto = []
@@ -1624,7 +1624,7 @@ class stzObject
 
 		# Creating an object from an existing object
 		if isObject(pObject)
-			@oObject = pObject
+			@content = pObject
 
 		# Creating an object from the name of an existing object
 		but IsNonNullString(pObject)
@@ -1637,7 +1637,7 @@ class stzObject
 
 			@cVarName = pObject
 
-			cCode = "@oObject = " + pObject
+			cCode = "@content = " + pObject
 			eval(cCode)
 
 		but IsNullString(pObject)
@@ -1652,7 +1652,7 @@ class stzObject
 		ok
 
 	def Content()
-		return @oObject
+		return @content
 
 		def Object()
 			return This.Content()
@@ -1788,7 +1788,7 @@ class stzObject
 		#>
 
 	def Copy()
-		return new stzObject( @oObject )
+		return new stzObject(@content)
 
 	def ObjectClassName() # Depricated, use ClassName()
 		return classname(This)
@@ -2912,6 +2912,8 @@ class stzObject
 		def FromThemQ()
 			return This
 
+	def WhileQ()
+		return This
 
 	def FinallyQ()
 		return This
@@ -4846,6 +4848,16 @@ class stzObject
 	def Stringified()
 		return This.Name()
 		
+
+	def Twice()
+		_aResult_ = [] + This.Content() + This.Content()
+		return _aResult_
+
+		func TwiceQ()
+			return This
+
+	def TheLetterQ(c)
+		return This
 
 	def IfQ(pcCondition)
 		if NOT isString(pcCondition)
