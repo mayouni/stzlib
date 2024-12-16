@@ -1,5 +1,5 @@
 # Softanza: A Programming Environment for the Rest of Us  
-![A multi-generational family joyfully sitting around a bag of vibrant flowers](../images/stz-programming-for-the-rest-of-us.jpg)  
+![A multi-generational family joyfully sitting around a bag of vibrant flowers](../images/stz-for-the-rest-of-us.jpg)  
 *A multi-generational family joyfully sitting around a bag of vibrant flowers.*
 
 I am Mansour, the designer of Softanza, a framework born out of my mission to simplify programming for everyone—not just seasoned coders, but anyone willing to write code. Let me tell you what Softanza truly is and why I believe it matters.
