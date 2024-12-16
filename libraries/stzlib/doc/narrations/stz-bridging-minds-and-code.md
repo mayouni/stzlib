@@ -16,13 +16,13 @@ To fulfill its mission, the Softanza Project builds on the simplicity and flexib
 
 NOTE: A diagram illustrating all the layers of the Softanza Project solution architecture will be provided at the end of this article.
 
-## Ring as a Computational Infrastructure of the Softanza Library and Framework
+## 1. Ring as a Computational Infrastructure of the Softanza Library and Framework
 
 Softanza extends the Ring type system while maintaining its simplicity and well-thought design. It leverages unique Ring innovations like declarative and natural language programming and benefits from the metal force of its C and C++ extensions.
 
 Theerefore, at its simplest form, Softanza is a library for the Ring programming language.
 
-## Softanza as an Augmentation Library of the Ring Programming Language
+## 2. Softanza as an Augmentation Library of the Ring Programming Language
 
 Softanza elevates Ring's capabilities through a comprehensive library that addresses modern development needs. Its contributions are multi-fold:
 
@@ -38,7 +38,7 @@ Ultimately, Softanza can even be used without requiring any programming language
 
 > **NOTE**: In particular, a **JavaScript** port of Softanza is currently being developed to provide the same programming experience for web frontends. The SystemLayer of the library (described in Section 4 hereafter) is intended to be partially implemented in **Julia**. A full port is also planned, to align with a larger ecosystem of data-intensive and AI-driven applications.
 
-## Softanza as a Programming Framework for Computational Thinking
+## 3. Softanza as a Programming Framework for Computational Thinking
 
 Computational thinking is the ability to conceptualize, design, and articulate solutions to complex problems through a programming environment that mirrors natural thought processes. Under the motto "What You Think Is What You Write", Softanza fosters this approach.
 
@@ -199,7 +199,7 @@ That’s it.
 It’s about freeing your mind with such a mental model, allowing you to avoid the hassle of learning a large number of functions. This way, you can focus all your energy on solving your computational problem in a natural, intuitive form.
 
 
-### A Natural-Oriented *Expression Model* to Talk to the Program World in Your Own Words!
+### A Natural-Oriented *Expression Model* to Talk to the World in Your Own Words!
 
 This defines how you express your thoughts in code using a fluent, declarative, or near-natural language design. It’s not about AI code staff, but rather code that you write consciously, in collaboration with Softanza.
 
@@ -238,7 +238,7 @@ Furthermore, you can track the history of changes by adding an `H()` prefix to t
 But wait—Softanza does all this to ultimately empower innovators to bring transformational digital solutions to the market that truly make a difference!
 
 
-## Softanza as a Systemized Foundation for Modern Software Platforms
+## 4. Softanza as a Systemized Foundation for Modern Software Platforms
 
 At its core, Softanza is an accelerative foundation for building modern software platforms and bringing them to the market economy. It achieves this through:
 
@@ -252,7 +252,7 @@ At its core, Softanza is an accelerative foundation for building modern software
 
 - **Cross-Platform Delivery**: With support for all platforms enabled by Ring, Softanza also provides an API-first delivery model through a dedicated and robust Softanza Application Server.
 
-## Softanza as a Collaborative, Multi-Disciplinary Coding Experience
+## 5. Softanza as a Collaborative, Multi-Disciplinary, Humanized Coding Experience
 
 Softanza's computational thinking perspective empowers a wide range of stakeholders—business analysts, information designers, data analysts, UI and UX designers, educators, and researchers—to contribute meaningfully. Through its "What You Think Is What You Write" approach, Softanza enables each person to express themselves naturally within a shared coding environment.
 
@@ -268,12 +268,14 @@ In practice, Business Analysts, UX Designers, Educators, Researchers, and Lingui
 
 - **Linguists** can model language structures and processes directly in code, bridging the gap between linguistic theory and practical applications in software. 
 
+
 ## Wrapping Up: The Softanza Solution Architecture Diagram
 
 A diagram is worth a thousand words, so here it is:
 
 
 ![Softanza Project Layers](../images/stz-project-layers.png)
+
 *Layers of the Softanza Project Solution Architecture.*
 
 ## Conclusion
