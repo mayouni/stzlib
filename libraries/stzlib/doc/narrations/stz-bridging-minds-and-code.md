@@ -59,8 +59,8 @@ It demonstrates how Softanza’s programming model seamlessly integrates logical
 
 To achieve this, Softanza applies findings from the Computational Linguistics R&D effort conducted by its author to address three key pillars of any thinking process: the **Semantic** Model, the **Mental** Model, and the **Expressio**n** Model, all built on top of its Ring Foundation library, as illustrated in the following diagram.
 
+>NOTE:*The diagram also show all the other layers of the Softanza Project.*
 ![Softanza Project Layers](../images/stz-project-layers.png)
-*The diagram also show all the other layers of the Softanza Project.*
 
 Let's describe briefly each model apart.
 
