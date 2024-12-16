@@ -88,7 +88,9 @@ Here’s a snapshot of the code running in my Ring Notepad to show it in action:
 
 On top of this Ring magic, made possible by the genius of Mahmoud Fayed (Ring Creator), Softanza incorporates findings from the Computational Linguistics R&D efforts conducted by its author (me, Mansour Ayouni). These innovations address three key pillars of any thinking process: the **Semantic** Model, the **Mental** Model, and the **Expression** Model. All of these are built on top of its Ring Foundation library, as illustrated in the following diagram.
 
->NOTE:*The diagram also illustrates all the other layers of the Softanza Project discussed on this page.*
+>NOTE: *The diagram also illustrates all the other layers of the Softanza Project discussed on this page.*
+
+
 ![Softanza Project Layers](../images/stz-project-layers.png)
 
 
