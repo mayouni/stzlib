@@ -94,7 +94,7 @@ Building on this Ring magic, made possible by the genius of *Mahmoud Fayed* (Rin
 Let's describe briefly each model apart.
 
 
-### A Knowledge-Based *Semantic Model* to Describe the Program World
+### 3.1. A Knowledge-Based *Semantic Model* to Describe the Program World
 
 This refers to the design of a semantic framework that integrates a knowledge dimension directly into your Ring code. In traditional programming, you work with variables, and at best, with objects. In Softanza, you work with real-world entities that capture the meaning and relationships you want them to convey.
 
@@ -152,7 +152,7 @@ This example shows how Softanza transforms code from mechanical instructions int
 Which is empowering and exciting! But does this mean you need to learn all the semantics, functions, and classes of the library? The answer is a resounding NO.
 
 
-### An Intuitive *Mental Model* to Craft Code Inside that World
+### 3.2. An Intuitive *Mental Model* to Craft Code Inside that World
 
 Softanza is a vast library, but you shouldn’t worry about its size. All you need to know at the most basic level is:
 
@@ -199,7 +199,7 @@ That’s it.
 It’s about freeing your mind with such a mental model, allowing you to avoid the hassle of learning a large number of functions. This way, you can focus all your energy on solving your computational problem in a natural, intuitive form.
 
 
-### A Natural-Oriented *Expression Model* to Talk to the World in Your Own Words!
+### 3.3. A Natural-Oriented *Expression Model* to Talk to the World in Your Own Words!
 
 This defines how you express your thoughts in code using a fluent, declarative, or near-natural language design. It’s not about AI code staff, but rather code that you write consciously, in collaboration with Softanza.
 
