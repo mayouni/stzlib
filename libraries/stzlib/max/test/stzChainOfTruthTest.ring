@@ -1,5 +1,32 @@
 load "../stzmax.ring"
 
+profon()
+
+	_("Apple").IsA(:Fruit)_
+		? WhatIs(:Apple) #--> :Fruit
+		? WhatIs(:Fruit) #--> :Undefined
+
+	_(:Fruit).Is("the means by which flowering plants disseminate their seeds")
+		? WhatIs(:Fruit) #--> the means by which flowering plants disseminate their seeds
+
+	_("Apple").IsA(:Company)_
+		? WhatIs(:Apple) #--> [ :Fruit, :Company ]
+
+	_("Steve Jobs").IsThe(:Owner).Of(:Apple)_
+		? WhoIs("Steve Jobs") #--> _('Steve Jobs").IsThe(:Owner).Of(:Apple)
+		? WhatIs("Steve Jobs") #--> :Undefined
+
+	_(:Owner).IsA(:Person)_
+		? WhatIs("Steve Jobs") #--> :Person
+
+	_(:Person).And(:Fruit).CanBeRelatedBy(:Eats).AndAskedUsing(:What)_
+	_(:Person).And(:Company).CanBeRelatedBy(:WorksAt).AndAskedUsing(:Where)_
+	_("Steve Jobs").Eats(:Apple)_
+	_("Steve Jobs").WorksAt(:Apple)_
+		? What("Steve Jobs").Eats() 	#--> :Apple
+		? Where("Steve Jobs").WorksAt() #--> :Apple
+
+proff()
 
 /*-----------------
 
@@ -12,16 +39,13 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*-----------------
-*/
 
 profon()
-
-load "stzlib.ring"
 
 if Q("SOFTANZA").
 	IsAMQ(:String).WhichIsQ().InUppercaseQ().
 	WhileQ().ContainingQ( TheLetters([ "F", :And = "Z" ]) ).
-	TheLetterQ("A").TwiceQ().
+	TheLetterQ("A").//TwiceQ().
 	AndQ().HavingQ().ItsQM().FirstCharQ().EqualTo("S")
 
 	? "It's me, Softanza!"
@@ -109,7 +133,7 @@ class Person
 
 # These return _TRUE_
 */
-? _("ring").Is('Lowercase()').Containing("in")._
+? Q("ring").IsQ().InLowercaseQ().Containing("in")
 ? _("ring").Is('Lowercase()').Having('NumberOfchars() = 4')._
 
 /*----------------- ERROR
