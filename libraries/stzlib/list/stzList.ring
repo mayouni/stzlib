@@ -5077,6 +5077,9 @@ func @FindNext(aList, pItem, nStart)
 	func @FindNextST(aList, pItem, nStart)
 		return @FindNext(aList, pItem, nStart)
 
+#---- #TODO
+// Add @FindNthPrevious() and @FindPrevious()
+
 #=====
 
 func IsRingSortable(pListOrString)
@@ -5418,10 +5421,6 @@ class stzList from stzObject
 		ok
 
 		@aContent = paList
-
-		if KeepingHistory() = _TRUE_
-			This.AddHistoricValue(This.Content())
-		ok
 
 	  #---------------------#
 	 #     CONSTRAINTS     #
@@ -6713,6 +6712,17 @@ class stzList from stzObject
 
 		if KeepingHisto() = _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
+
+		if KeepingHistoXT() = _TRUE_
+
+			_nExecTime_ = (clock() - _nStartTimeInClocks) / clockspersecond()
+
+			This.AddHistoricValueXT([
+				This.Content(),
+				This.StzType(),
+				_nExecTime_
+			])
 		ok
 
 		#< @FunctionFluentForm
@@ -15631,14 +15641,17 @@ class stzList from stzObject
 
 	def RemoveItemsAtPositions(panPos)
 
+		_anPos_ = panPos
+
 		# Early chekcs
 
-		nLenPos = len(panPos)
-		if nLenPos = 0
+		_nLenPos_ = len(_anPos_)
+		if _nLenPos_ = 0
 			return
 		ok
 
-		if len(@aContent) = 0
+		_aContent_ = This.Content()
+		if len(_aContent_) = 0
 			return
 		ok
 
@@ -15646,17 +15659,17 @@ class stzList from stzObject
 
 		if CheckingParams()
 
-			if NOT isList(panPos)
+			if NOT isList(_anPos_)
 				StzRaise("Incorrect pram! panPos must be a list.")
 			ok
 	
-			for i = 1 to nLenPos
-				if isString(panpos[i])
-					if panPos[i] = :First or panPos[i] = :FirstPosition
-						paPos[i] = 1
+			for @i = 1 to _nLenPos_
+				if isString(_anPos_[@i])
+					if _anPos_[@i] = :First or _anPos_[@i] = :FirstPosition
+						_anPos_[@i] = 1
 	
-					but panPos[i] = :Last or panPos[i] = :LastPosition
-						paPos[i] = This.NumberOfItems()
+					but _anPos_[@i] = :Last or _anPos_[@i] = :LastPosition
+						_anPos_[@i] = This.NumberOfItems()
 					ok
 				ok
 			next
@@ -15665,14 +15678,14 @@ class stzList from stzObject
 
 		# Doing the job
 
-		anPosSorted = ring_sort(panPos)
-		aContent = This.Content()
+		_anPosSorted_ = ring_sort(_anPos_)
+		_aContent_ = This.Content()
 
-		for i = nLenPos to 1 step -1
-			ring_remove(aContent, anPosSorted[i])
+		for @i = _nLenPos_ to 1 step -1
+			ring_remove(_aContent_, _anPosSorted_[@i])
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 		#< @FunctionFluentForm
 
@@ -40338,11 +40351,9 @@ class stzList from stzObject
 		_anResult_ = []
 
 		for @i = 1 to _nLen_
-
-			if isString(_aContent_[@i]) and _aContent_[@i] = ""
+			if isString( _aContent_[@i] ) and _aContent_[@i] = ""
 				_anResult_ + @i
 			ok
-
 		next
 
 		return _anResult_
@@ -40391,7 +40402,10 @@ class stzList from stzObject
 
 	def RemoveEmptyStrings()
 		_anPos_ = This.FindEmptyStrings()
-		This.RemoveItemsAtPositions(_anPos_)
+? _anPos_
+fdef
+		_cResult_ = This.ItemsAtPositionsRemoved(_anPos_)
+		This.UpdateWith(_cResult_)
 
 		def RemoveEmptyStringsQ()
 			This.RemoveEmptyStrings()
@@ -46682,16 +46696,17 @@ class stzList from stzObject
 	#=================================================#
 
 	def UppercaseStrings()
-		aContent = This.Content()
-		nLen = This.NumberOfItems()
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		for i = 1 to nLen
-			
-			if isString(aContent[i])
-				cStrUpp = Q(aContent[i]).Uppercased()
-				This.ReplaceAt(i, cStrUpp)
+		for @i = 1 to _nLen_
+			if isString(_aContent_[@i])
+				_cStrUpp_ = ring_upper(_aContent_[@i])
+				_aContent_[@i] = _cStrUpp_
 			ok
 		next
+
+		This.UpdateWith(_aContent_)
 
 		def UppercaseStringsQ()
 			This.UppercaseStrings()
@@ -57354,67 +57369,149 @@ class stzList from stzObject
 	#-----------------------------------------#
 
 	def Chars()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			item = aContent[i]
-			if isString(item) and StzStringQ(item).IsChar()
-				aResult + item
+		for @i = 1 to _nLen_
+			if isString(_aContent_[@i]) and @IsChar(_aContent_[@i])
+				_aResult_ + _aContent_[@i]
 			ok
 		next
 
-		return aResult
+		return _aResult_
+
+		#< @FunctionFluentForms
+
+		def CharsQ()
+			return new stzList( This.Chars() )
+
+		def CharsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				new stzList(This.Chars())
+
+			on :stzListOfStrings
+				new stzListOfStrings(This.Chars())
+
+			on :stzListOfChars
+				return new stzListOfChars(This.Chars())
+
+			other
+				StzRaise("Unsupported return type!")
+
+			off
+		#>
+
+	  #-------------------------------------------#
+	 #  GETTING THE NUMBER OF CHARS IN THE LIST  #
+	#-------------------------------------------#
 
 	def NumberOfChars()
 		return len(This.Chars())
+
+		def HowManyChars()
+			return This.NumberOfChars()
+
+		def CountChars()
+			return This.NumberOfChars()
 
 	  #-------------------------------------------#
 	 #  GETTING THE LIST OF LETTERS IN THE LIST  #
 	#-------------------------------------------#
 
 	def Letters()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			item = aContent[i]
-			if isString(item) and Q(item).IsLetter()
-				aResult + item
+		for @i = 1 to _nLen_
+			if isString(_aContent_[@i]) and @IsLetter(_aContent_[@i])
+				_aResult_ + _aContent_[@i]
 			ok
 		next
 
-		return aResult
+		return _aResult_
+
+		#< @FunctionFluentForms
+
+		def LetterQ()
+			return new stzList( This.Letters() )
+
+		def LettersQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				new stzList(This.Letters())
+
+			on :stzListOfStrings
+				new stzListOfStrings(This.Letters())
+
+			on stzListOfChars
+				return new stzListOfLetters(This.Letters())
+
+			other
+				StzRaise("Unsupported return type!")
+
+			off
+		#>
+
+	  #---------------------------------------------#
+	 #  GETTING THE NUMBER OF LETTERS IN THE LIST  #
+	#---------------------------------------------#
 
 	def NumberOfLetters()
 		return len(This.Letters())
 
+		def HowManyLetters()
+			return This.NumberOfLetters()
+
+		def CountLetters()
+			return This.NumberOfLetters()
+
 	  #=========================================#
-	 #  GETTING THE LIST OF PAIRS IN THE LIST  #TODO // Add case sensitivity
+	 #  GETTING THE LIST OF PAIRS IN THE LIST  #
 	#=========================================#
 
 	def ContainsPairs()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = _FALSE_
+		_bResult_ = _FALSE_
 
-		for i = 1 to nLen
-			item = aContent[i]
-			if isList(item) and Q(item).IsPair()
-				bResult = _TRUE_
+		for i@ = 1 to _nLen_
+			if isList(_aContent_[@i]) and @IsPair(_aContent_[@i])
+				_bResult_ = _TRUE_
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
+
+		def ContainsParsQ()
+			if This.ContainsPairs() = _TRUE_
+				return This
+			else
+				return AFalseObject()
+			ok
+
+	  #-------------------------------------------#
+	 #  GETTING THE NUMBER OF PAIRS IN THE LIST  #
+	#-------------------------------------------#
 
 	def NumberOfPairs()
 		return len(This.Pairs())
+
+		def HowManyPairs()
+			return This.NumberOfPairs()
+
+		def CountPairs()
+			return This.NumberOfPairs()
+
+	  #---------------------------------#
+	 #  FINDING THE PAIRS IN THE LIST  #
+	#---------------------------------#
 
 	def FindPairs()
 		aContent = This.Content()

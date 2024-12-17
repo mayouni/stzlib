@@ -28,7 +28,15 @@ _FALSE_ = 0 // Avoids the risk of accidental change of _FALSE_ in a Ring program
 _TRUE_ = 1  // Idem for TRUE
 _NULL_ = "" // Idem for NULL
 
-_bKeepHisto = _FALSE_
+_bKeepHisto = _FALSE_ // for keeping objec update history
+_aHisto = []
+
+_bKeepHistoXT = _FALSE_
+_aHistoXT = []
+
+_bKeepTime = _FALSE_ // for keeping object execution time
+_nTimeInSeconds = 0
+_nStartTimeInClocks = 0
 
 _aRingTypes = [ :number, :string, :char, :list, :object, :cobject ]
 
@@ -431,6 +439,14 @@ func KeepingHistory()
 	func KeepingHisto()
 		return KeepingHistory()
 
+func KeepingHistoryXT()
+	return _bKeepHistoXT
+
+	func KeepingHistoXT()
+		return KeepingHistoryXT()
+
+#--
+
 func KeepHistoryON()
 	_bKeepHisto = _TRUE_
 
@@ -442,6 +458,20 @@ func KeepHistoryON()
 
 	func KeepHisto()
 		KeepHistoryON()
+
+func KeepHistoryONXT()
+	_bKeepHistoXT = _TRUE_
+
+	func KeepHistoryXT()
+		KeepHistoryONXT()
+
+	func KeepHistoONXT()
+		KeepHistoryONXT()
+
+	func KeepHistoXT()
+		KeepHistoryONXT()
+
+#--
 
 func KeepHistoryOFF()
 	_bKeepHisto = _FALSE_
@@ -455,16 +485,36 @@ func KeepHistoryOFF()
 	func DontKeepHisto()
 		KeepHistoryOFF()
 
-func SetKeepingHistoryTo(bTrueOrFalse)
-	if NOT (isNumber(bTrueOrFalse) and isNumber(bTrueOrFalse) )
-		StzRaise("Incorrect param type! bTrueOrFalse must be a number.")
-	ok
+func KeepHistoryOFFXT()
+	_bKeepHistoXT = _FALSE_
 
-	if NOT ( bTrueOrFalse = 0 or bTrueOrFalse = 1 )
-		StzRaise("Incorrect param value! bTrueOrFalse must be 0 or 1.")
+	func DontKeepHistoryXT()
+		KeepHistoryOFFXT()
+
+	func KeepHistoOFFXT()
+		KeepHistoryOFFXT()
+
+	func DontKeepHistoXT()
+		KeepHistoryOFFXT()
+#--
+
+func SetKeepingHistoryTo(bTrueOrFalse)
+	if CheckParams()
+
+		if NOT (isNumber(bTrueOrFalse) and isNumber(bTrueOrFalse) )
+			StzRaise("Incorrect param type! bTrueOrFalse must be a number.")
+		ok
+	
+		if NOT ( bTrueOrFalse = _FALSE_ or bTrueOrFalse = _TRUE_ )
+			StzRaise("Incorrect param value! bTrueOrFalse must be 0 or 1.")
+		ok
+
 	ok
 
 	_bKeepHisto = bTrueOrFalse
+
+
+	#< @FunctionAlternativeForms
 
 	func SetKeepHistoryTo(bTrueOrFalse)
 		SetKeepingHistoryTo(bTrueOrFalse)
@@ -477,6 +527,73 @@ func SetKeepingHistoryTo(bTrueOrFalse)
 
 	func SetKeepHistoTo(bTrueOrFalse)
 		SetKeepingHistoryTo(bTrueOrFalse)
+
+	#>
+
+#---
+
+func SetKeepingHistoryToXT(bTrueOrFalse)
+	if CheckParams()
+		if NOT (isNumber(bTrueOrFalse) and isNumber(bTrueOrFalse) )
+			StzRaise("Incorrect param type! bTrueOrFalse must be a number.")
+		ok
+	
+		if NOT ( bTrueOrFalse = _FALSE_ or bTrueOrFalse = _TRUE_ )
+			StzRaise("Incorrect param value! bTrueOrFalse must be 0 or 1.")
+		ok
+	ok
+
+	_bKeepHistoXT = bTrueOrFalse
+
+	#< @FunctionAlternativeForms
+
+	func SetKeepHistoryToXT(bTrueOrFalse)
+		SetKeepingHistoryToXT(bTrueOrFalse)
+
+	func SetKeepingHistoryXT(bTrueOrFalse)
+		SetKeepingHistoryToXT(bTrueOrFalse)
+
+	func SetKeepHistoryXT(bTrueOrFalse)
+		SetKeepingHistoryToXT(bTrueOrFalse)
+
+	func SetKeepHistoToXT(bTrueOrFalse)
+		SetKeepingHistoryToXT(bTrueOrFalse)
+
+	#>
+
+#---
+
+func KeepingTime()
+	return _bKeepTime
+
+	func KeepingExecutionTime()
+		return KeepingTime()
+
+func SetKeepingTimeTo(bTrueOrFalse)
+	if CheckParams()
+		if NOT (isNumber(bTrueOrFalse) and isNumber(bTrueOrFalse) )
+			StzRaise("Incorrect param type! bTrueOrFalse must be a number.")
+		ok
+	
+		if NOT ( bTrueOrFalse = _FALSE_ or bTrueOrFalse = _TRUE_ )
+			StzRaise("Incorrect param value! bTrueOrFalse must be 0 or 1.")
+		ok
+	ok
+
+	_bKeepTime = bTrueOrFalse
+	_nStartTimeInClocks = clock()
+
+	#< @FunctionAlternativeForms
+
+	func SetKeepingTime(bTrueOrFalse)
+		SetKeepingTimeTo(bTrueOrFalse)
+
+	func SetKeepTime(bTrueOrFalse)
+		SetKeepingTimeTo(bTrueOrFalse)
+
+	#>
+
+#===
 
 func AttributesValues(pObject) # Compliments Ring attributes() function
 	if NOT isObject(pObject)

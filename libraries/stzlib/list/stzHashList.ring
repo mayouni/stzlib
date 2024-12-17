@@ -376,7 +376,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_aContent_ = This.Content()
 		_nLen_ = This.NumberOfValues()
 
-		if _nLen = 1
+		if _nLen_ = 1
 			return _TRUE_
 		ok
 
