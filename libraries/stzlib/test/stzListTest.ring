@@ -26,7 +26,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.21
 
 /*-------------------
-*/
+
 profon()
 
 o1 = new stzList([ "A", '', "B", '', '', "C" ])
@@ -774,7 +774,7 @@ o1.ReplaceAnyItemAtPositionsByManyXT([ 3, 5, 7, 9], [ "♥", "♥♥" ])
 #--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥", "csharp", "♥♥" ]
 
 proff()
-#--> Executed in 0.02 second(s)
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*---
 
@@ -2479,6 +2479,7 @@ profon()
 	#--> _TRUE_
 
 proff()
+# Executed in 1.64 second(s) in Ring 1.22
 # Executed in 1.82 second(s) in Ring 1.21
 # Executed in 4.75 second(s) in Ring 1.19
 
@@ -3365,7 +3366,7 @@ profon()
 proff()
 # Executed in 0.02 second(s)
 
-/*-----------------
+/*----------------- #ring #perf
 
 profon()
 
@@ -3383,7 +3384,8 @@ next
 ? bResult
 
 proff()
-# Executed in 0.22 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.22 second(s) in Ring 1.17
 
 /*-----------------
 
@@ -3397,7 +3399,8 @@ o1 = new stzList(1: 100_000)
 #--> 67000
 
 proff()
-#--> Executed in 0.54
+# Executed in 0.34 second(s) in Ring 1.22
+# Executed in 0.54 in Ring 1.19
 
 /*-----------------
 
@@ -5519,7 +5522,7 @@ StartProfiler()
 # choosing the right approach can lead to significant performance gains.
 
 # In this example, we use the @Find... global functions
-# (execution time: 0.78 second(s))
+# (execution time: 0.48 second(s) in Ring 1.22)
 
 # In the following example, we perform the same task
 # using an stzList object (execution time: 12.14 seconds)
@@ -5563,18 +5566,8 @@ StartProfiler()
 	? @FindNthNext(aLargeListOfStr, 2, "♥", :StartingAt = 3)
 	#--> 100006
 
-# Finding previous occurrence of "♥" in the list starting at position 120_000
-
-	? @FindPrevious(aLargeListOfStr, "♥", :StartingAt = 120_000)
-	#--> 100006
-
-# Finding 2nd oprevious occurrence of "♥" in the list starting at position 120_000
-
-	? @FindNthPrevious(aLargeListOfStr, 2, "♥", :StartingAt = 120_000)
-	#--> 100003
-
 proff()
-# Executed in 0.76 second(s) in Ring 1.22
+# Executed in 0.48 second(s) in Ring 1.22
 
 /*------------
 
@@ -5614,14 +5607,9 @@ StartProfiler()
 
 	? o1.FindNthNext(2, "♥", :StartingAt = 3)
 	#--> 100006
-	
-	? o1.FindPrevious("♥", :StartingAt = 120_000)
-	#--> 100006
-
-	? o1.FindNthPrevious(2, "♥", :StartingAt = 120_000)
-	#--> 1003
 
 StopProfiler()
+# Executed in 11.18 second(s) in Ring 1.22
 # Executed in 11.90 second(s) in Ring 1.21
 # Executed in 31.56 second(s) in Ring 1.17
 
@@ -9011,7 +8999,7 @@ StzListQ([ -1 , 2, 3, 4 ]) {
 }
 
 proff()
-# Executed in 0.13 second(s) in Ring 1.21
+# Executed in 0.12 second(s) in Ring 1.21
 
 /*------------------
 

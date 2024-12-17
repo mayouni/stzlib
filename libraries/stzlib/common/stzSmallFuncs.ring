@@ -35,8 +35,19 @@ func QH(p)
 	# the main object in on UpdateWith() call
 
 	SetKeepingHistoryTo(_TRUE_)
+	_aHisto + p
+
 	return Q(p)
 
+func QHH(p)
+	SetKeepingTimeTo(_TRUE_)
+	SetKeepingHistoryToXT(_TRUE_)
+
+	oStzObj = Q(p)
+	_aHistoXT + [ p, oStzObj.stzType(), 0 ]
+
+	return oStzObj
+	
 #--
 
 func StzW(cType, paMethodAndFilter)

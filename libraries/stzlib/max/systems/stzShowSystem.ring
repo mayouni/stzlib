@@ -242,6 +242,12 @@ func ShowShortXT(paList, p)
 
 #------
 
+func NL@@(pValue)
+	return NL + @@(pValue)
+
+func NL@@NL(pValue)
+	return NL + @@NL(pValue)
+
 func ComputableForm(pValue)
 	return ComputableFormXT(pValue, " ", "")
 

@@ -1468,9 +1468,6 @@ class stzString from stzObject
 		@oQString = new QString2()
 		@oQString.append(pcStr)
 
-		if KeepingHistory() = _TRUE_
-			This.AddHistoricValue(This.Content())
-		ok
 
 	  #==========================#
 	 #   CHECKING CONSTRAINTS   #
@@ -44430,6 +44427,18 @@ class stzString from stzObject
 
 		if KeepingHisto() = _TRUE_
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
+
+		if KeepingHistoXT() = _TRUE_
+
+			_nExecTime_ = (clock() - _nStartTimeInClocks) / clockspersecond()
+
+			This.AddHistoricValueXT([
+				This.Content(),
+				This.StzType(),
+				_nExecTime_
+			])
+
 		ok
 
 		//This.VerifyConstraints()

@@ -9631,7 +9631,7 @@ profon()
 proff()
 # Executed in 0.01 second(s).
 
-/*------------------
+/*============
 
 profon()
 
@@ -9643,6 +9643,75 @@ profon()
 
 proff()
 # Executed in 0.01 second(s) in Ring 1.22
+
+/*--------------
+
+profon()
+
+? KeepingTime()
+#--> FALSE
+
+SetKeepingTimeTo(_TRUE_)
+
+? KeepingTime()
+#--> TRUE
+
+proff()
+
+/*--------------
+
+profon()
+
+o1 = new stzList([ "H", " ", "E", " ", "L", " ", "L", " ", "O" ])
+? @@( o1.FindEmptyStrings() )
+#--> []
+
+? o1.FindSpaces()
+#--> [ 2, 4, 6, 8 ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--------------
+*/
+profon()
+
+//? @@NL( QH("hello").UppercaseQ().SpacifyQ().CharsQ().ToStzListOfStrings().JoinQ().History() )
+#--> [
+#	"hello",
+#	"HELLO",
+#	"H E L L O",
+#	[ "H", " ", "E", " ", "L", " ", "L", " ", "O" ],
+#	[ "H", " ", "E", " ", "L", " ", "L", " ", "O" ],
+#	"H E L L O"
+# ]
+
+
+cBig = ""
+for i = 1 to 100
+	cBig += "Hello"
+next
+
+? @@NL(
+	QHH(cBig).
+	UppercaseQ().
+	SpacifyQ().
+	CharsQ().
+	LowercaseQ().
+	RemoveSpacesQ().
+	UppercaseQ().
+	History()
+)
+#--> [
+#	"hello", [ :stzString, 0.1 ]
+#	"HELLO",
+#	"H E L L O",
+#	[ "H", " ", "E", " ", "L", " ", "L", " ", "O" ],
+#	[ "H", " ", "E", " ", "L", " ", "L", " ", "O" ],
+#	"H E L L O"
+# ]
+
+proff()
 
 /*==================
 

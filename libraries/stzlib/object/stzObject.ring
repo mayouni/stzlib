@@ -105,6 +105,9 @@
  //   FUNCTIONS   //
 ///////////////////
 
+# A global attribute that holds the history
+# of the actions made on a chain of actions
+
 func StzObjectQ(pObject)
 	return new stzObject(pObject)
 
@@ -1618,7 +1621,6 @@ class stzObject
 	@content
 
 	@cVarName = :@NoName
-	@aHisto = []
 
 	def init(pObject)
 
@@ -1647,9 +1649,6 @@ class stzObject
 			StzRaise("Type error: you must provide an object or an object varname inside a string!")
 		ok
 
-		if KeepingHistory() = _TRUE_
-			@aHisto + This.Content()
-		ok
 
 	def Content()
 		return @content
@@ -5513,30 +5512,148 @@ class stzObject
 
 	def AddHistoricValue(value)
 
-		@aHisto + value
+		_aHisto + value
 
 		def AddHistValue(value)
-			@aHisto + value
+			AddHistoricValue(value)
 
-		def AffToHistory(value)
-			@aHisto + value
+		def AddToHistory(value)
+			AddHistoricValue(value)
 
 		def AddToHist(value)
-			@aHisto + value
+			AddHistoricValue(value)
 
 	def HistoricValues()
-		aResult = @aHisto
-		@aHisto = []
-		return aResult
+		if _bkeepHistoXT = _TRUE_
+			return This.HistoricValuesXT()
+		ok
 
+		aResult = _aHisto
+		_aHisto = []
+		return aResult
+		
 		def HistValues()
-			return @aHisto
+			return HistoricValues()
 
 		def History()
-			return @aHisto
+			return HistoricValues()
 
 		def Histo()
-			return @aHisto
+			return HistoricValues()
 
 	def CleanHistory()
-		@aHisto = []
+		_aHisto = []
+
+
+	#== XT
+
+	def AddHistoricValueXT(value)
+		_aHistoXT + value
+
+		def AddHistValueXT(value)
+			AddHistoricValueXT(value)
+
+		def AddToHistoryXT(value)
+			AddHistoricValueXT(value)
+
+		def AddToHistXT(value)
+			AddHistoricValueXT(value)
+
+	def HistoricValuesXT()
+		_aResult_ = _aHistoXT
+		_aHistoXT = []
+		return _aResult_
+
+		def HistValuesXT()
+			return HistoricValuesXT()
+
+		def HistoryXT()
+			return HistoricValuesXT()
+
+		def HistoXT()
+			return HistoricValuesXT()
+
+	def CleanHistoryXT()
+		_aHistoXT = []
+
+	  #---------------------------------#
+	 #  TRACING OBJECT EXECUTION TIME  #
+	#---------------------------------#
+
+	def StartTime()
+		return _nStartTimeInClocks // A global variable
+
+		def StartingTime()
+			return This.StartTime()
+
+		def StartTimeInClocks()
+			return This.StartTime()
+
+		def StartingTimeInClocks()
+			return This.StartTime()
+
+
+	def ExecutionTime()
+		if KeepingExecutionTime() = _FALSE_
+			StzRaise("Can't proceed! Keeping object execution time must be turned ON.")
+		ok
+
+? "ici"
+? ">> " + _nStartTimeInClocks
+? ">> " + clock()
+
+		_nResult_ = ( clock() - _nStartTimeInClocks ) / clockspersecond()
+
+		return _nResult_
+
+		#< @FunctionAlternativeForms
+
+		def ExecTime()
+			return This.ExecutionTime()
+
+		def ElapsedTime()
+			return This.ExecutionTime()
+
+		#--
+
+		def ObjectExecutionTime()
+			return This.ExecutionTime()
+
+		def ObjectExecTime()
+			return This.ExecutionTime()
+
+		def ObjectElpasedTime()
+			return This.ExecutionTime()
+
+		#==
+
+		def ExecutionTimeInSeconds()
+			return This.ExecutionTime()
+
+		def ExecTimeInSeconds()
+			return This.ExecutionTime()
+
+		def ElapsedTimeInSeconds()
+			return This.ExecutionTime()
+
+		#--
+
+		def ObjectExecutionTimeInSeconds()
+			return This.ExecutionTime()
+
+		def ObjectExecTimeInSeconds()
+			return This.ExecutionTime()
+
+		def ObjectElpasedTimeInSeconds()
+			return This.ExecutionTime()
+
+		#>
+
+	def AddTimeValue()
+		_aTime + This.ExecutionTime()
+		
+		def AddExecutionTimeValue()
+			This.AddTimeValue()
+
+		def AddExecutionTime()
+			This.AddTimeValue()
