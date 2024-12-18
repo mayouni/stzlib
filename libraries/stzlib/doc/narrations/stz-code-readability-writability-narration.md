@@ -2,7 +2,7 @@
 ![An Arabic scholar **writing** his scientific discovery in a beautiful, **readable**, and artistic calligraphic style. By M.Ayouni, using Microsoft Image AI](../images/stz-functions-alterforms-namedparams.jpg)
 *An Arabic scholar **writing** his scientific discovery in a beautiful, **readable**, and artistic calligraphic style.*
 
-Imagine writing code that flows as naturally as your thoughts, where programming constructs mirror the linguistic patterns of human communication. This is the core philosophy of Softanza, a foundation library for the Ring programming language, yet a computational thinking frameowork that transforms code from a technical syntax into an expressive, intuitive language.
+Imagine writing code that flows as naturally as your thoughts, where programming constructs mirror the linguistic patterns of human communication. This is the core philosophy of Softanza, a foundation library for the Ring programming language, yet a *computational thinking frameowork* that transforms code from a technical syntax into an expressive, intuitive language.
 
 ---
 
@@ -10,7 +10,7 @@ Imagine writing code that flows as naturally as your thoughts, where programming
 
 Softanza introduces a unique approach to programming by treating functions as *linguistic expressions*, offering developers unprecedented flexibility in how they **write** and **read** code.
 
-Through carefully designed features like `@FunctionActiveForm`, `@FunctionPassiveForm`, `@FunctionNegativeForm`, `@FunctionAlternativeForms`, and `@FunctionNamedParams`, Softanza breaks down the traditional barriers between human language and programming logic.
+Through carefully designed features like `@FunctionActiveForm`, `@FunctionPassiveForm`, `@FunctionNegativeForm`, `@FunctionAlternativeForms`, `@FunctionNamedParams`, `@FunctionConditionalForm` and `@FunctionNameAnatomy`, Softanza breaks down the traditional barriers between human language and programming logic.
 
 
 ## Function Active Form: Functions as Direct Actions
@@ -134,6 +134,72 @@ o1.SwapItems( :AtPositions = 1, :And = 3 )
 
 The parameters `:AtPositions` and `:And` make the code's intention immediately clear, reading almost like a natural language sentence.
 
+## Function Conditional Form: The Magic of W()
+
+In Softanza, you can enhance functions with the `W()` suffix (W for *Where*), transforming them into conditional functions. Instead of providing parameters, you pass a condition in a string, making the logic more readable and concise.
+
+For example:
+
+```ring
+o1 = new stzString("SOooooFTAaaannnNZA")
+o1.RemoveWXT('@char.isLowercase()') # remove all lowercase characters
+
+? o1.Content()
+#--> "SOFTANZA"
+```
+
+Here, the condition removes all lowercase characters, making the code clear and expressive.
+
+In contrast, the traditional method involves looping through the string in reverse to avoid position shifts when removing characters:
+
+```ring
+o1 = new stzString("SOooooFTAaaannnNZA")
+for i = o1.Content().Length() - 1 to 0 step -1
+    if o1.Content()[i].isLowercase() then
+        o1.Remove(i)
+end
+
+? o1.Content()
+#--> "SOFTANZA"
+```
+
+While both approaches achieve the same result, the conditional approach in Softanza enhances your code by making it more *readable*, intuitive, and focused on the "what" of your goal, rather than the "how" of the computer's implementation.
+
+Additionally, it is significantly more *writable*, reducing five lines of code to just one!
+
+
+## The Anatomy of Function Names
+
+One common challenge programmers face is inferring the parameters of a function from its name. Typically, this isn’t straightforward, and searching through documentation or the internet becomes necessary.
+
+The problem, in addition to the time it takes, is that it disrupts the programmer’s train of thoughts. Usually, they’re forced to put the problem at hand on hold while crafting test cases to understand the parameters, their types, and how the function behaves—whether it modifies them by reference, returns a value, and so on.
+
+Softanza addresses these issues by designing a clear function name structure, adding short **suffixes** to the core function name (and *prefixes*, though this is outside the scope of this article). These syntactic additions explicitly convey information about the parameters and output.
+
+Let’s look at an example of this approach:
+
+```ring
+o1 = new stzString("SOOooooFFfffTANNnnnZA")
+o1.RemoveMany([ "o", "f", "n" ])
+#--> "SOOFFTANNZA"
+```
+
+In this case, the lowercase `"o"`, `"f"`, and `"n"` characters are removed, but their uppercase counterparts remain. To remove them together while making the function *case-sensitive*, you can use:
+
+```ring
+o1 = new stzString("SOOooooFFfffTANNnnnZA")
+o1.RemoveManyCS([ "o", "f", "n" ], FALSE)
+
+? o1.Content()
+#--> "SOFTANZA"
+```
+
+Here, we’ve added the `CS()` suffix to the `RemoveMany()` function, instructing Softanza to consider case sensitivity based on the *second* parameter.
+
+This naming structure keeps the programmer clear and focused. They use `CS()` only when needed, establishing a common mental and syntactic contract with Softanza for the required parameters
+
+> **NOTE**: Softanza provides many powerful and useful suffixes (and prefixes), which will be explored in a dedicated article.
+
 ## Why It Matters: The Dual Benefits of Writable and Readable Code in Softanza
 
 Softanza's approach offers multiple advantages:
@@ -148,4 +214,4 @@ Softanza's approach offers multiple advantages:
 
 ## Conclusion
 
-Softanza is more than just a library—it's a paradigm shift. By treating code as a form of *communication*, it bridges the gap between human language and programming logic. Developers are no longer bound by rigid syntactical rules but are empowered to express their logic as naturally as they would in real-life conversation.
+Readability and writability are often seen as *conflicting* goals in programming. Softanza’s approach challenges that notion, and demonstrates that they can indeed work together *harmoniously*. Developers are no longer constrained by rigid syntactical rules; instead, they are empowered to express their logic as naturally as they would in real-life conversation, achieving both clarity and efficiency in their code.
