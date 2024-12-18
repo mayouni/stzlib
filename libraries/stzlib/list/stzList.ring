@@ -17898,7 +17898,7 @@ class stzList from stzObject
 			_bSame_ = _TRUE_
 
 			for @i = 2 to _nLen_
-				if len(@aContent[@i]) != len(@aContent[i-1])
+				if len(@aContent[@i]) != len(@aContent[@i-1])
 					_bSame_ = _FALSE_
 				ok
 			next

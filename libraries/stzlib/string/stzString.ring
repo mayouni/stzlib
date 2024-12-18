@@ -95754,15 +95754,16 @@ class stzString from stzObject
 
 	def ReverseCharsOrder()
 
-		cInversed = ""
-		nLen = This.NumberOfChars()
-		acReversed = []
+		_acChars_ = This.Chars()
+		_nLen_ = len(_acChars_)
 
-		for i = nLen to 1 step -1
-			cInversed += This.QStringObject().mid(i-1, 1)
+		_cInversed_ = ""
+
+		for @i = _nLen_ to 1 step -1
+			_cInversed_ += _acChars_[@i]
 		next
 
-		This.Update( cInversed )
+		This.UpdateWith(_cInversed_)
 
 		#< @FunctionFluentForm
 
@@ -95829,8 +95830,8 @@ class stzString from stzObject
 		#>
 
 	def CharsOrderReversed()
-		cResult = This.Copy().ReverseCharsOrderQ().Content()
-		return cResult
+		_cResult_ = This.Copy().ReverseCharsOrderQ().Content()
+		return _cResult_
 
 		#< @FunctionAlternativeForm
 
@@ -95875,18 +95876,18 @@ class stzString from stzObject
 		#--> ƎℲI⅂
 		*/
 
-		#NOTE: Applies to latin script only
+		#NOTE // Applies to latin script only
 
-		cResult = ""
+		_cResult_ = ""
 
-		aoStzChars = This.ToListOfStzChars()
-		nLen = len(aoStzChars)
+		_aoStzChars_ = This.ToListOfStzChars()
+		_nLen_ = len(_aoStzChars_)
 
-		for i = 1 to nLen
-			cResult += aoStzChars[i].Turned()
+		for @i = 1 to _nLen_
+			_cResult_ += _aoStzChars_[@i].Turned()
 		next
 
-		This.UpdateWith(cResult)
+		This.UpdateWith(_cResult_)
 
 		#< @FunctionFluentForm
 
@@ -95938,16 +95939,16 @@ class stzString from stzObject
 	#----------------------#
 
 	def Turn()
-		cResult = This.TurnCharsQ().Reversed()
-		This.UpdateWith(cResult)
+		_cResult_ = This.Copy().TurnCharsQ().Reversed()
+		This.UpdateWith(_cResult_)
 
 		def TurnQ()
 			This.Turn()
 			return This
 
 	def Turned()
-		cResult = This.Copy().TurnQ().Content()
-		return cResult
+		_cResult_ = This.Copy().TurnQ().Content()
+		return _cResult_
 
 	  #----------------------------------------------------------------#
 	 #  CHECKING IF THE STRING IS A REVERSED COPY OF AN OTHER STRING  #
