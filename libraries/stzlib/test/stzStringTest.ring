@@ -9673,6 +9673,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--------------
+
 */
 profon()
 
@@ -9686,20 +9687,17 @@ profon()
 #	"H E L L O"
 # ]
 
-
-cBig = ""
-for i = 1 to 100
-	cBig += "Hello"
-next
-
+decimals(3)
 ? @@NL(
-	QHH(cBig).
+
+	QHH("Ring").
 	UppercaseQ().
 	SpacifyQ().
 	CharsQ().
 	LowercaseQ().
 	RemoveSpacesQ().
 	UppercaseQ().
+	JoinQ().
 	History()
 )
 #--> [

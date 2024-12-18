@@ -11033,7 +11033,9 @@ class stzString from stzObject
 	def RemoveDuplicatesCS(pCaseSensitive)
 
 		aSections = This.FindDuplicatesAsSectionsCS(pCaseSensitive)
-		This.RemoveSections(aSections)
+		_cResult_ = This.Copy().RemoveSections(aSections)
+		This.UpdateWith(_cResult_)
+
 
 		def RemoveDuplicatesCSQ(pCaseSensitive)
 			This.RemoveDuplicatesCS(pCaseSensitive)
@@ -82070,30 +82072,30 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
-		nLen = len(paSections)
-		if nLen = 0
+		_nLen_ = len(paSections)
+		if _nLen_ = 0
 			return
 		ok
 
 		# Merging any inclusive or overlapping sections
 
-		aMerged = StzListOfSectionsQ(paSections).SortQ().Merged()
-		nLen = len(aMerged)
+		_aMerged_ = StzListOfSectionsQ(paSections).SortQ().Merged()
+		_nLen_ = len(_aMerged_)
 
 		# Doing the job
 
-		oCopy = This.Copy()
+		_oCopy_ = This.Copy()
 
 		# NOTE: Sections are not removed directly from the object
 		# to maintain a clean history, which is stored in @aHisto.
 		# Instead, the history is updated only once after all 
 		# sections have been removed, using the UpdateWith() method.
-		
-		for i = nLen to 1 step -1
-			oCopy.RemoveSection(aMerged[i][1], aMerged[i][2])
+
+		for @i = _nLen_ to 1 step -1
+			_oCopy_.RemoveSection(_aMerged_[@i][1], _aMerged_[@i][2])
 		next
 
-		This.UpdateWith(oCopy.Content())
+		This.UpdateWith(_oCopy_.Content())
 
 		#< @FunctionFluentForm
 
