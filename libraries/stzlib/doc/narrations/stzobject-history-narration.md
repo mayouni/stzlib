@@ -76,10 +76,111 @@ Yet an other example around numbers:
 	#--> [ 13000, 11500, 23, 46 ]
 ```
 
->**NOTE 1**: All other Softanza objects—not just `stzString` and `stzNumber`, as demonstrated—are supported and can retain their historic values. This includes `stzList`s, `stzObject`s, `stzTable`s, and more.
+>**NOTE 1**: All other Softanza objects—not just `stzString` and `stzNumber`, as demonstrated—are supported and can retain their historic values. This includes `stzList`, `stzObjects`, `stzTable`, and more.
 
 >**NOTE 2**: `@@(val)` is a Softanza small function, akin to a **pair of glasses** that enhance vision, designed to produce a readable string representation of any value `val`. Specifically, when `val` is a list, it is rendered with brackets ([, ]) and commas (,), like you see in `[ 13000, 11500, 23, 46 ]` above, accurately representing the list structure regardless of its depth.
 
+
+## Cherry on the Cake: More Information with the `QHH()` Small Function
+
+By adding an extra `H` suffix to `QH()`, Softanza reveals all its secrets and informs us not only about the updated values in the chain but also their types and execution times.
+
+To demonstrate this, let’s use a more elaborate example that takes some time to execute.
+
+The chain of actions starts with the word "LIFE" and ends with the word "L ♥ F E":
+
+```ring
+? Q("LIFE").
+	LowercaseQ().
+	SpacifyQ().
+	CharsQ().
+	RemoveSpacesQ().
+	UppercaseQ().
+	JoinQ().
+	SpacifyQ().
+	ReplaceQ("I", :With = AHeart()).
+	Content()
+
+	#--> L ♥ F E
+```
+
+Let’s add the `H()` suffix, as shown previously, to observe the updated values:
+
+```ring
+? @@NL(
+	QH("LIFE").
+	LowercaseQ().
+	SpacifyQ().
+	CharsQ().
+	RemoveSpacesQ().
+	UppercaseQ().
+	JoinQ().
+	SpacifyQ().
+	ReplaceQ("I", :With = AHeart()).
+	History()
+)
+
+#--> [
+#	"LIFE",
+#	"life",
+#	"l i f e",
+#	[ "l", "i", "f", "e" ],
+#	[ "L", "I", "F", "E" ],
+#	"L I F E",
+#	"L ♥ F E"
+# ]
+```
+
+Now, instead of just `H()`, we use a double `HH()` suffix to get more information about the types of intermediate objects updated and the execution time each update takes:
+
+```ring
+decimals(3) # Set precision to 3 decimal places to display execution time accurately
+
+? @@NL(
+	QHH("LIFE").
+	LowercaseQ().
+	SpacifyQ().
+	CharsQ().
+	RemoveSpacesQ().
+	UppercaseQ().
+	JoinQ().
+	SpacifyQ().
+	ReplaceQ("I", :With = AHeart()).
+	History()
+)
+#--> [
+#	[ "LIFE", "stzstring", 	0     ],
+#	[ "life", "stzstring", 	0     ],
+#	[ "l i f e", "stzstring", 	0.001 ],
+
+#	[ [ "l", "i", "f", "e" ], "stzlist", 0.001 ],
+#	[ [ "L", "I", "F", "E" ], "stzlist", 0.001 ],
+
+#	[ "L I F E", "stzstring", 	0.002 ],
+#	[ "L ♥ F E", "stzstring", 	0.002 ]
+# ]
+```
+
+This is what we can infer from the output:
+
+- The process starts with the string "LIFE" in a `stzstring` object, taking no time.
+
+- It is converted to lowercase ("life") within the same `stzstring` object, with no measurable time.
+
+- Spaces are added between the characters, changing the `stzstring` content to "l i f e" in 1 ms.
+
+- The string is split into a list `["l", "i", "f", "e"]`, stored in a `stzlist` object, taking another 1 ms (cumulative time becomes 2 ms).
+
+- The characters are converted to uppercase `["L", "I", "F", "E"]`, updating the `stzlist` content in nearly 0 ms (cumulative time remains 2 ms).
+
+- The list is joined back into "LIFE" in a `stzstring` object. Note that this action doesn’t update the content, as it merely transforms data between types, and thus is not traced.
+
+- Spaces are added again, making the `stzstring` content "L I F E" in nearly 1 ms (cumulative time becomes 3 ms).
+
+- Finally, "I" is replaced with a heart symbol, updating the `stzstring` object to "L ♥ F E" in nearly 0 ms (final cumulative time: 3 ms).
+
+
+>**NOTE**: The `@@NL()` small function generates a readable string representation of the list, displaying each item on a separate line.
 
 ## Key Benefits
 
