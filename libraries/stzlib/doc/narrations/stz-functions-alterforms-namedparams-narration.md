@@ -2,15 +2,15 @@
 ![An Arabic scholar **writing** his scientific discovery in a beautiful, **readable**, and artistic calligraphic style. By M.Ayouni, using Microsoft Image AI](../images/stz-functions-alterforms-namedparams.jpg)
 *An Arabic scholar **writing** his scientific discovery in a beautiful, **readable**, and artistic calligraphic style.*
 
-Imagine writing code that flows as naturally as your thoughts, where programming constructs mirror the linguistic patterns of human communication. This is the core philosophy of Softanza, a foundation library for the Ring programming language that transforms code from a technical syntax into an expressive, intuitive language.
+Imagine writing code that flows as naturally as your thoughts, where programming constructs mirror the linguistic patterns of human communication. This is the core philosophy of Softanza, a foundation library for the Ring programming language, yet a computational thinking frameowork that transforms code from a technical syntax into an expressive, intuitive language.
 
 ---
 
 # Introduction: A New Paradigm in Programming
 
-Softanza introduces a revolutionary approach to programming by treating functions as *linguistic expressions*, offering developers unprecedented flexibility in how they write and read code.
+Softanza introduces a unique approach to programming by treating functions as *linguistic expressions*, offering developers unprecedented flexibility in how they **write** and **read** code.
 
-Through carefully designed features like `@FunctionActiveForm`, `@FunctionPassiveForm`, `@FunctionNegativeForms`, `@FunctionAlternativeForms`, and `@FunctionNamedParams`, Softanza breaks down the traditional barriers between human language and programming logic.
+Through carefully designed features like `@FunctionActiveForms`, `@FunctionPassiveForms`, `@FunctionNegativeForms`, `@FunctionAlternativeForms`, and `@FunctionNamedParams`, Softanza breaks down the traditional barriers between human language and programming logic.
 
 
 ## Function Active Form: Functions as Direct Actions
@@ -41,7 +41,13 @@ o1 = new stzString("RIxxNxG")
 #--> RIxxNxG
 ```
 
-The `Removed()` function creates a new string while preserving the original object—much like describing the result of an action in the *past participle* form without changing the subject.
+The `Removed()` function generates a new string, leaving the original object unchanged. 
+
+This is similar to expressing an action in the *past participle*, where the action has *already* been completed, and the object is now merely being referenced.
+
+For instance, when you say "The object has been *removed*," the action of removal happened in the past, and the word **"removed"** serves as a *descriptor*, drawing attention to the object's *current* state *without* altering its essence.
+
+This analogy emphasizes how the `Removed()` function doesn't modify the original object, just like the *past participle describes an event that has occurred without changing the core subject*.
 
 
 ## Function Negative Form: Intuitive Logical Negations
