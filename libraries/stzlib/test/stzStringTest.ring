@@ -9676,6 +9676,24 @@ proff()
 */
 profon()
 
+# Here is a fluent chain of actions that starts from
+# the word "LIFE" and ends at the word "L ♥ F E"
+
+? Q("LIFE").
+	LowercaseQ().
+	SpacifyQ().
+	CharsQ().
+	RemoveSpacesQ().
+	UppercaseQ().
+	JoinQ().
+	SpacifyQ().
+	ReplaceQ("I", :With = AHeart()).
+	Content() + NL
+	#--> L ♥ F E
+
+# We can see what happened internally interms of updates
+# by adding the H suffix to the Q() while using History()
+
 ? @@NL(
 	QH("LIFE").
 	LowercaseQ().
@@ -9699,6 +9717,10 @@ profon()
 #	"L ♥ F E"
 # ]
 
+# Or we add an HH() suffix if we need more inforamtion
+# about the types of intermediate objects updated
+# and the execution time those update have taken
+
 decimals(3)
 
 ? @@NL(
@@ -9714,17 +9736,22 @@ decimals(3)
 	History()
 )
 #--> [
-#	[ "LIFE", "stzstring", 0 ],
-#	[ "life", "stzstring", 0 ],
-#	[ "l i f e", "stzstring", 0.001 ],
-#	[ [ "l", "i", "f", "e" ], "stzlist", 0.001 ],
-#	[ [ "L", "I", "F", "E" ], "stzlist", 0.001 ],
-#	[ "L I F E", "stzstring", 0.002 ],
-#	[ "L ♥ F E", "stzstring", 0.002 ]
+#	[ "LIFE", 		  "stzstring", 	0     ],
+#	[ "life", 		  "stzstring", 	0     ],
+#	[ "l i f e", 		  "stzstring", 	0.001 ],
+
+#	[ [ "l", "i", "f", "e" ], "stzlist",   	0.001 ],
+#	[ [ "L", "I", "F", "E" ], "stzlist",   	0.001 ],
+
+#	[ "L I F E", 		  "stzstring", 	0.002 ],
+#	[ "L ♥ F E", 		  "stzstring", 	0.002 ]
 # ]
 
+decimals(2)
+
+# NOTE that only the methods that update the objects are traced!
 proff()
-# Executed in 0.032 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22s
 
 /*------------------
 
