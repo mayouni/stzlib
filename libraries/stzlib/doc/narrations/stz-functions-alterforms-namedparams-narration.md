@@ -2,90 +2,116 @@
 ![An Arabic scholar **writing** his scientific discovery in a beautiful, **readable**, and artistic calligraphic style. By M.Ayouni, using Microsoft Image AI](../images/stz-functions-alterforms-namedparams.jpg)
 *An Arabic scholar **writing** his scientific discovery in a beautiful, **readable**, and artistic calligraphic style.*
 
-**Imagine this**: you’re solving a problem, and your ideas are flowing. Your code should keep pace, feeling as intuitive and expressive as your thoughts. That’s the essence of the Softanza dual **writability** and **readability** promise.
+Imagine writing code that flows as naturally as your thoughts, where programming constructs mirror the linguistic patterns of human communication. This is the core philosophy of Softanza, a foundation library for the Ring programming language that transforms code from a technical syntax into an expressive, intuitive language.
 
 ---
 
-## Introduction
+# Introduction: A New Paradigm in Programming
 
-I designed Softanza to let my code flow as naturally as my thoughts, balancing ease of writing with clarity of reading. This dual commitment shapes two guiding principles:
+Softanza introduces a revolutionary approach to programming by treating functions as *linguistic expressions*, offering developers unprecedented flexibility in how they write and read code.
 
-1. **Writability**: Code that is effortless to craft.
-2. **Readability**: Code that explains itself and is instantly clear, even months later.
-
-This harmony is achieved through many standout features in Softanza. This article illuminates two of them: `@FunctionAlternativeForms` and `@FunctionNamedParams`. Let’s see how they come together in action.
+Through carefully designed features like `@FunctionActiveForm`, `@FunctionPassiveForm`, `@FunctionNegativeForms`, `@FunctionAlternativeForms`, and `@FunctionNamedParams`, Softanza breaks down the traditional barriers between human language and programming logic.
 
 
-## The Problem: Swapping Items in a List
+## Function Active Form: Functions as Direct Actions
 
-Suppose you have a list:
+In Softanza, functions are by default expressed in their **active form**, directly acting upon objects *like verbs in a sentence*. Consider a string manipulation example:
+
+```ring
+load "stzlib.ring"
+
+o1 = new stzString("RIxxNxG")
+o1.RemoveAll("x")  # Actively modifies the object
+? o1.Content()
+#--> RING
+```
+
+The `RemoveAll()` function acts directly on the object, mirroring how a verb implies immediate action in natural language.
+
+## Function Passive Form: Transformations Without Side Effects
+
+Sometimes, you want to perform an operation without altering the original object. Softanza's **passive form** provides this capability:
+
+```ring
+o1 = new stzString("RIxxNxG")
+? o1.Removed("x")  # Returns a new transformed string
+#--> RING
+
+? o1.Content()  # Original object remains unchanged
+#--> RIxxNxG
+```
+
+The `Removed()` function creates a new string while preserving the original object—much like describing the result of an action in the *past participle* form without changing the subject.
+
+
+## Function Negative Form: Intuitive Logical Negations
+
+Softanza simplifies logical **negations** by introducing direct negative function forms:
+
+```ring
+# Traditional approach
+? NOT Q("*").IsLetter()
+
+# Softanza's natural approach
+? Q("*").IsNotLetter()
+```
+
+This approach makes logical expressions more readable and closer to natural language.
+
+
+## Flexibility in Expression: Function Alternative Forms
+
+Softanza acknowledges that developers think differently and offers multiple ways to express the same operation:
 
 ```ring
 o1 = new stzList([ "C", "B", "A" ])
-```
 
-You need to swap two items to get a well sorted version of it. Softanza offers you choices in how to express this operation. You can write:
-
-```ring
+# Traditional approach
 o1.Swap(1, 3)
-? o1.Content()
-#--> ["A", "B", "C"]
-```
 
-Or, if you want a more descriptive and natural language-like approach, you can write:
-
-```ring
-o1.SwapItems( :AtPositions = 1, :And = 3 )
-? o1.Content()
-#--> ["C", "B", "A"]
-```
-
-## Function Alternative Forms: Freedom in Expression
-
-Flexibility in Softanza isn't just a buzzword—it's a core principle brought to life. One of its most practical manifestations is this: programming should never feel like a spelling test! Thanks to Function Alternative Forms, it doesn’t have to.
-
-In Softanza, every function comes with its own set of `@FunctionAlternativeForms`, designed to match a variety of thinking styles. Whether you choose `Swap` or `SwapItems`, the meaning remains crystal clear. Softanza allows you to express your ideas in the way that best aligns with your mental model, without penalizing you for spelling it one way or another.
-
-This philosophy extends to countless other functions. For example:
-
-```ring
-o1.FindNthNext(elm)
-```  
-
-can also be written as:
-
-```ring
-o1.FindNextNth(elm)
-```  
-
-
-Whether you write `Nth` before `Next` or the other way around, both forms are equally valid, ensureing a seamless and intuitive writing experience.
-
-
-## Enhanced Clarity with Function Named Params
-
-Now, let’s return to the example of swapping items. What if you want your code to go beyond functionality and actively explain itself? That’s where **Named Parameters** come in.
-
-In the example:
-
-```ring
+# More descriptive approach
 o1.SwapItems( :AtPositions = 1, :And = 3 )
 ```
 
-Named parameters like `:AtPositions` and `:And` convey semantic meaning, turning your code into a clear and self-documenting narrative. They allow you to write in a way that mirrors natural language, making the purpose of your operations unmistakable.
+Both methods achieve the same result, allowing developers to choose the most intuitive expression. However, this flexibility isn't just a decorative feature—it's a solution for semantic precision, where the meaning can change depending on the intent:
 
-Softanza comes preloaded with thousands of named parameters, each carefully designed to enhance clarity and reduce ambiguity. With these, your code doesn’t just solve problems—it tells a story.
+- If the reader lacks context about the data and how it's stored (i.e., they don't know it's a list), using `SwapItems(1, 3)` is preferable, as the word *item* implies the container is a *list*.
+
+- However, since the items are characters, you might want to communicate your specific intent more clearly by using `SwapChars(1, 3)` instead.
+
+- If the reader is already aware of the context, all of this might be unnecessary, and a concise `Swap()` would be the best choice.
 
 
-## Why These Features Matter
+Similarly, function alternative names offer flexibility:
 
-Softanza’s focus on **Function Alternative Forms** and **Named Parameters** ensures that you don’t have to compromise between ease of writing and clarity for readers. Here’s how:
+```ring
+# Both are valid and equivalent
+o1.FindNthNext(element)
+o1.FindNextNth(element)
+```
 
-- `@FunctionAlternativeForms` empower you to write code in the way that feels most natural to you, without being constrained by rigid naming conventions.
+This means you're not penalized by an error message just because you spelled the function name one way or the other!
 
-- `@FunctionNamedParams` add semantic richness, making your code as readable as a well-written sentence.
+## Named Parameters: Code as Narrative
 
+Named parameters transform code from a technical instruction to a readable narrative:
+
+```ring
+# Instead of cryptic method calls
+o1.SwapItems( :AtPositions = 1, :And = 3 )
+```
+
+The parameters `:AtPositions` and `:And` make the code's intention immediately clear, reading almost like a natural language sentence.
+
+## Why This Matters: The Benefits of Natural-Oriented Programming
+
+Softanza's approach offers multiple advantages:
+
+1. **Enhanced Readability**: Code becomes self-documenting and intuitive.
+2. **Reduced Cognitive Load**: Developers can express ideas more naturally.
+3. **Flexibility**: Multiple ways to write the same logic accommodate different thinking styles.
+4. **Reduced Errors**: Clear, descriptive methods minimize misunderstandings.
 
 ## Conclusion
 
-Together, these features make Softanza such a thoughtful programming framework that adapts to your needs, whether you're focused on rapid prototyping or long-term maintainability.
+Softanza is more than a library—it's a paradigm shift. By treating code as a form of communication, it bridges the gap between human language and programming logic. Developers are no longer constrained by rigid syntactical rules but empowered to express their logic as naturally as they would in conversation.
