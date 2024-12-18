@@ -6,7 +6,7 @@ Imagine writing code that flows as naturally as your thoughts, where programming
 
 ---
 
-## Introduction: A New Paradigm in Programming
+## Introduction: Functions As Linguistic Expressions
 
 Softanza introduces a unique approach to programming by treating functions as *linguistic expressions*, offering developers unprecedented flexibility in how they **write** and **read** code.
 
