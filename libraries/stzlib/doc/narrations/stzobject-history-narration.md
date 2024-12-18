@@ -83,11 +83,9 @@ Yet an other example around numbers:
 
 ## Cherry on the Cake: More Information with the `QHH()` Small Function
 
-By adding an extra `H` suffix to `QH()`, Softanza reveals all its secrets and informs us not only about the updated values in the chain but also their types and execution times.
+By adding an extra `H` suffix to `QH()`, Softanza reveals all its secrets and informs us not only about the updated values in the chain but also their **types** and **execution times**.
 
-To demonstrate this, let’s use a more elaborate example that takes some time to execute.
-
-The chain of actions starts with the word "LIFE" and ends with the word "L ♥ F E":
+To demonstrate this, let’s use a more elaborate example that takes some time to execute. Hence, the chain of actions starts with the word "LIFE" and ends with the word `"L ♥ F E"`:
 
 ```ring
 ? Q("LIFE").
@@ -131,7 +129,7 @@ Let’s add the `H()` suffix, as shown previously, to observe the updated values
 # ]
 ```
 
-Now, instead of just `H()`, we use a double `HH()` suffix to get more information about the types of intermediate objects updated and the execution time each update takes:
+Now, instead of just `H()`, we use a double `HH()` suffix to get more information about the types of intermediate objects updated and the execution time **each update** takes:
 
 ```ring
 decimals(3) # Set precision to 3 decimal places to display execution time accurately
@@ -149,48 +147,56 @@ decimals(3) # Set precision to 3 decimal places to display execution time accura
 	History()
 )
 #--> [
-#	[ "LIFE", "stzstring", 	0     ],
-#	[ "life", "stzstring", 	0     ],
-#	[ "l i f e", "stzstring", 	0.001 ],
+#	[ "LIFE", "stzstring", 0 ],
+#	[ "life", "stzstring", 0 ],
+#	[ "l i f e", "stzstring", 0.001 ],
 
 #	[ [ "l", "i", "f", "e" ], "stzlist", 0.001 ],
 #	[ [ "L", "I", "F", "E" ], "stzlist", 0.001 ],
 
-#	[ "L I F E", "stzstring", 	0.002 ],
-#	[ "L ♥ F E", "stzstring", 	0.002 ]
+#	[ "L I F E", "stzstring", 0.002 ],
+#	[ "L ♥ F E", "stzstring", 0.002 ]
 # ]
 ```
 
 This is what we can infer from the output:
 
-- The process starts with the string "LIFE" in a `stzstring` object, taking no time.
+- The process starts with the string `LIFE` in a `stzstring` object, taking no time.
 
-- It is converted to lowercase ("life") within the same `stzstring` object, with no measurable time.
+- It is converted to **lowercase** (`life`) within the same `stzstring` object, with no measurable time.
 
-- Spaces are added between the characters, changing the `stzstring` content to "l i f e" in 1 ms.
+- **Spaces** are added between the characters, changing the `stzstring` content to `"l i f e"` in `1 ms`.
 
-- The string is split into a list `["l", "i", "f", "e"]`, stored in a `stzlist` object, taking another 1 ms (cumulative time becomes 2 ms).
+- The string is transformed into a list of **chars** `[ "l", "i", "f", "e" ]`, stored in a `stzlist` object, taking another `1 ms` (cumulative time becomes `2 ms`).
 
-- The characters are converted to uppercase `["L", "I", "F", "E"]`, updating the `stzlist` content in nearly 0 ms (cumulative time remains 2 ms).
+- The characters are converted to **uppercase **`[ "L", "I", "F", "E" ]`, updating the `stzlist` content in nearly `0 ms` (cumulative time remains `2 ms`).
 
-- The list is joined back into "LIFE" in a `stzstring` object. Note that this action doesn’t update the content, as it merely transforms data between types, and thus is not traced.
+- The list is joined back into `LIFE` in a `stzstring` object. Note that this action **doesn’t update the content**, as it merely transforms data between types, and thus **is not traced**.
 
-- Spaces are added again, making the `stzstring` content "L I F E" in nearly 1 ms (cumulative time becomes 3 ms).
+- **Spaces** are added again, making the `stzstring` content `L I F E` in nearly `1 ms` (cumulative time becomes `3 ms`).
 
-- Finally, "I" is replaced with a heart symbol, updating the `stzstring` object to "L ♥ F E" in nearly 0 ms (final cumulative time: 3 ms).
+- Finally, `I` is **replaced** with a heart symbol, updating the `stzstring` object to `L ♥ F E` in nearly `0 ms` (closing all the executaion time at `3 ms`).
 
 
->**NOTE**: The `@@NL()` small function generates a readable string representation of the list, displaying each item on a separate line.
+>**NOTE**: The `@@NL()` small function generates a readable string representation of the list, just like `@@()`, but with the added distinction of displaying each item on a separate line.
 
 ## Key Benefits
 
-- **Debugging Insight**: Trace exactly how your data transformed
-- **Educational Tool**: Visualize complex manipulation processes
-- **Audit Trail**: Maintain a comprehensive log of object mutations
+The `QH()` and `QHH()` small functions may appear *small*, but they have *big* impacts:
+
+- **Debugging Insight**: Trace exactly how your data transformed, making it easier to pinpoint issues during data processing or model training.
+
+- **Educational Tool**: Visualize complex manipulation processes, helping to understand how data is processed at each stage.
+
+- **Audit Trail**: Maintain a comprehensive log of object mutations, ensuring transparency and compliance in workflows.
+
+- **Data Analytics Pipelines**: Track data transformations through each step, aiding in debugging, model evaluation, and reproducibility.
+
+- **Business Workflows**: Provide visibility into how data flows through business processes, helping to identify inefficiencies and improve decision-making
 
 ---
 
 ## Conclusion
 
-Softanza turns data transformation from a black box into a transparent, narratable journey.
+Thanks to its thoughtful design centered around visibility, clarity, and explainability of code, Softanza transforms data processing from a black box into a transparent, narratable journey.
 
