@@ -40,7 +40,7 @@ o1.SwapItems( :AtPositions = 1, :And = 3 )
 #--> ["C", "B", "A"]
 ```
 
-## @FunctionAlternativeForms: Freedom in Expression
+## Function Alternative Forms: Freedom in Expression
 
 Flexibility in Softanza isn't just a buzzword—it's a core principle brought to life. One of its most practical manifestations is this: programming should never feel like a spelling test! Thanks to Function Alternative Forms, it doesn’t have to.
 
@@ -62,7 +62,7 @@ o1.FindNextNth(elm)
 Whether you write `Nth` before `Next` or the other way around, both forms are equally valid, ensureing a seamless and intuitive writing experience.
 
 
-## Enhanced Clarity with @FunctionNamedParams
+## Enhanced Clarity with Function Named Params
 
 Now, let’s return to the example of swapping items. What if you want your code to go beyond functionality and actively explain itself? That’s where **Named Parameters** come in.
 
@@ -81,8 +81,9 @@ Softanza comes preloaded with thousands of named parameters, each carefully desi
 
 Softanza’s focus on **Function Alternative Forms** and **Named Parameters** ensures that you don’t have to compromise between ease of writing and clarity for readers. Here’s how:
 
-- **@FunctionAlternativeForms** empower you to write code in the way that feels most natural to you, without being constrained by rigid naming conventions.
-- **@FunctionNamedParams** add semantic richness, making your code as readable as a well-written sentence.
+- `@FunctionAlternativeForms` empower you to write code in the way that feels most natural to you, without being constrained by rigid naming conventions.
+
+- `@FunctionNamedParams` add semantic richness, making your code as readable as a well-written sentence.
 
 
 ## Conclusion
