@@ -191,7 +191,7 @@ The point I want to emphasize here is that, unlike traditional programming frame
 Often, Softanza simplifies the mental steps even further by reducing them to a single action. For example, the last algorithmic problem we solved in, say, 5 lines of code, can now be done in just one line:
 
 ```ring
-o1.ReplaceNthCS(2, "YOU", :With = "You")
+o1.ReplaceNthCS(2, "YOU", :With = "Me")
 ```
 
 That’s it.

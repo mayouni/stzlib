@@ -52456,27 +52456,27 @@ fdef
 
 	def Stringify()
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		for i = 1 to nLen
+		for @i = 1 to _nLen_
 
-			if isString(aContent[i])
+			if isString(_aContent_[@i])
 				loop
 
-			but isNumber(aContent[i])
-				aContent[i] = ""+ @aContent[i]
+			but isNumber(_aContent_[@i])
+				_aContent_[@i] = ""+ _aContent_[@i]
 
-			but isList(aContent[i])
-				aContent[i] = @@(aContent[i])
+			but isList(_aContent_[@i])
+				_aContent_[@i] = @@(_aContent_[@i])
 
-			but isObject(aContent[i])
-				aContent[i] = @ObjectVarName(aContent[i])
+			but isObject(_aContent_[@i])
+				_aContent_[@i] = @ObjectVarName(_aContent_[@i])
 			ok
 
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 		#< @FunctionFluentForm
 
@@ -52508,8 +52508,8 @@ fdef
 		#>
 
 	def Stringified()
-		acResult = This.Copy().StringifyQ().Content()
-		return acResult
+		_acResult_ = This.Copy().StringifyQ().Content()
+		return _acResult_
 
 		def ItemsStringified()
 			return This.Stringified()
@@ -52522,24 +52522,24 @@ fdef
 	#--------------------------------------#
 
 	def StringifyLists()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		for i = 1 to nLen
-			if isList(aContent[i])
-				aContent[i] = @@(aContent[i])	
+		for @i = 1 to _nLen_
+			if isList(_aContent_[@i])
+				_aContent_[@i] = @@(_aContent_[@i])	
 			ok
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 		def StringifylistsQ()
 			This.Stringifylists()
 			return This
 
 	def ListsStringified()
-		aResult = This.Copy().StringifyListsQ().Content()
-		return aResult
+		_aResult_ = This.Copy().StringifyListsQ().Content()
+		return _aResult_
 
 	  #----------------------------------------#
 	 #  STRINGIFYING THE OBJECTS IN THE LIST  #
@@ -52547,40 +52547,40 @@ fdef
 
 	def StringifyObjects()
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		for i = 1 to nLen
-			if isObject(aContent[i])
-				aContent[i] = @ObjectVarName(aContent[i])	
+		for i = 1 to _nLen_
+			if isObject(_aContent_[@i])
+				_aContent_[@i] = @ObjectVarName(_aContent_[@i])	
 			ok
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 		def StringifyObjectsQ()
 			This.StringifyObjects()
 			return This
 
 	def ObjectsStringified()
-		aResult = This.Copy().StringifyObjectsQ().Content()
-		return aResult
+		_aResult_ = This.Copy().StringifyObjectsQ().Content()
+		return _aResult_
 
 	  #----------------------------------------------#
 	 #  STRINGIFYING THE NAMED OBJECTS IN THE LIST  #
 	#----------------------------------------------#
 
 	def StringifyNamedObjects()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		for i = 1 to nLen
-			if @IsNamedObject(aContent[i])
-				aContent[i] = @ObjectVarName(aContent[i])	
+		for @i = 1 to _nLen_
+			if @IsNamedObject(_aContent_[@i])
+				_aContent_[@i] = @ObjectVarName(_aContent_[@i])	
 			ok
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 
 		def StringifyNamedObjectsQ()
@@ -52588,8 +52588,8 @@ fdef
 			return This
 
 	def NamedObjectsStringified()
-		aResult = This.Copy().StringifyNamedObjectsQ().Content()
-		return aResult
+		_aResult_ = This.Copy().StringifyNamedObjectsQ().Content()
+		return _aResult_
 
 	  #---------------------------------------------------------------------#
 	 #  Q-STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BECOME QSTRINGS)  #
@@ -53139,11 +53139,108 @@ fdef
 		def ToStringXTQ(pOption)
 			return new stzString( This.ToStringXT(pOption) )
 
-	
-	   #---------------------------------------------#
+	  #-----------------------------------------------------------------#
+	 #  CONCATENATING THE STRING ITEMS AND RETURNING THEM IN A STRING  #
+	#-----------------------------------------------------------------#
+
+	def Concatenate()
+		_cResult_ = This.StringsQ().ToStzListOfStrings().Concatenate()
+		return _cResult_
+
+		#< @FunctionFluentForm
+
+		def ConcatenateQ()
+			return new stzString(This.Concatenate())
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def Concat()
+			This.Concatenate()
+
+			def ConcatQ()
+				return This.ConcatenateQ()
+
+		def Join()
+			This.Concatenate()
+
+			def JoinQ()
+				return This.ConcatenateQ()
+		#--
+
+		def ConcatenateStrings()
+			This.Concatenate()
+
+			def ConcatenateStringsQ()
+				return This.ConcatenateQ()
+
+		def ConcatStrings()
+			This.Concatenate()
+
+			def ConcatStringsQ()
+				return This.ConcatenateQ()
+
+		def JoinStrings()
+			This.Concatenate()
+
+			def JoinStringsQ()
+				return This.ConcatenateQ()
+
+		#>
+
+	def Concatenated()
+		return This.Concatenate()
+
+		def Joined()
+			return This.Concatenate()
+
+		def StringsConcatenated()
+			return This.Concatenate()
+
+		def StringJoined()
+			return This.Concatenated()
+
+	  #--------------------------------------------------------------------#
+	 #  CONCATENATING ALL THE ITEMS AND RETURNING THEM IN A STRING -- XT  #
+	#--------------------------------------------------------------------#
+	# ~> XT: even the non string items are stringifed and concatenated
+
+	def ConcatenateXT()
+		_cResult_ = This.StringifyQ().ToStzListOfStrings().Concatenate()
+		return _cResult_
+
+		#< @FunctionFluentForm
+
+		def ConcatenateXTQ()
+			return new stzString(This.ConcatenateXT())
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ConcatXT()
+			This.ConcatenateXT()
+
+			def ConcatXTQ()
+				return This.ConcatenateXTQ()
+
+		def JoinXT()
+			This.ConcatenateXT()
+
+			def JoinXTQ()
+				return This.ConcatenateXTQ()
+
+		#>
+
+	def ConcatenatedXT()
+		return This.ConcatenateXT()
+
+		def JoinedXT()
+			return This.ConcatenateXT()
+
+	   #=============================================#
 	  #  CHECKS IF THE LIST CONTAINS AT LEAST ONE   #
 	 #  ITEM IN THE FORM OF A CONDITIONAL CODE     #
-	#---------------------------------------------#
+	#=============================================#
 
 	def ContainsCCode()
 		bResult = _FALSE_
