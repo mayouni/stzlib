@@ -9673,43 +9673,89 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--------------
-
 */
 profon()
 
-//? @@NL( QH("hello").UppercaseQ().SpacifyQ().CharsQ().ToStzListOfStrings().JoinQ().History() )
-#--> [
-#	"hello",
-#	"HELLO",
-#	"H E L L O",
-#	[ "H", " ", "E", " ", "L", " ", "L", " ", "O" ],
-#	[ "H", " ", "E", " ", "L", " ", "L", " ", "O" ],
-#	"H E L L O"
-# ]
-
-decimals(3)
 ? @@NL(
-
-	QHH("Ring").
-	UppercaseQ().
+	QH("LIFE").
+	LowercaseQ().
 	SpacifyQ().
 	CharsQ().
-	LowercaseQ().
 	RemoveSpacesQ().
 	UppercaseQ().
 	JoinQ().
+	SpacifyQ().
+	ReplaceQ("I", :With = AHeart()).
+	History()
+) + NL
+#--> [
+#	"LIFE",
+#	"life",
+#	"l i f e",
+#	[ "l", "i", "f", "e" ],
+#	[ "L", "I", "F", "E" ],
+#	[ "L", "I", "F", "E" ],
+#	"L I F E",
+#	"L ♥ F E"
+# ]
+
+decimals(3)
+
+? @@NL(
+	QHH("LIFE").
+	LowercaseQ().
+	SpacifyQ().
+	CharsQ().
+	RemoveSpacesQ().
+	UppercaseQ().
+	JoinQ().
+	SpacifyQ().
+	ReplaceQ("I", :With = AHeart()).
 	History()
 )
 #--> [
-#	"hello", [ :stzString, 0.1 ]
-#	"HELLO",
-#	"H E L L O",
-#	[ "H", " ", "E", " ", "L", " ", "L", " ", "O" ],
-#	[ "H", " ", "E", " ", "L", " ", "L", " ", "O" ],
-#	"H E L L O"
+#	[ "LIFE", "stzstring", 0 ],
+#	[ "life", "stzstring", 0 ],
+#	[ "l i f e", "stzstring", 0.001 ],
+#	[ [ "l", "i", "f", "e" ], "stzlist", 0.001 ],
+#	[ [ "L", "I", "F", "E" ], "stzlist", 0.001 ],
+#	[ "L I F E", "stzstring", 0.002 ],
+#	[ "L ♥ F E", "stzstring", 0.002 ]
 # ]
 
 proff()
+# Executed in 0.032 second(s) in Ring 1.22
+
+/*------------------
+
+profon()
+
+decimals(3)
+
+o1 = new stzTable([
+	[ "VALUE", "TYPE", "TIME" ],
+	#---------------------------#
+	[ "LIFE", "stzstring", 0 ],
+	[ "LIFE", "stzstring", 0.009 ],
+	[ "L I F E", "stzstring", 0.009 ],
+	[ [ "l", "i", "f", "e" ], "stzlist", 0.011 ],
+	[ "LIFE", "stzstring", 0.026 ],
+	[ "⅂IℲƎ", "stzstring", 0.071 ]
+])
+
+o1.Show()
+#-->
+#                  VALUE        TYPE    TIME
+# ----------------------- ----------- ------
+#                   LIFE   stzstring       0
+#                   LIFE   stzstring   0.009
+#                L I F E   stzstring   0.009
+# [ "l", "i", "f", "e" ]     stzlist   0.011
+#                   LIFE   stzstring   0.026
+#                   ⅂IℲƎ   stzstring   0.071
+
+proff()
+# Executed in 0.071 second(s) in Ring 1.22
 
 /*==================
 
