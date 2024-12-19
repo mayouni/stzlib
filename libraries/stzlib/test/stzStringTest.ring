@@ -9682,12 +9682,15 @@ profon()
 ? Q("LIFE").
 	LowercaseQ().
 	SpacifyQ().
+
 	CharsQ().
 	RemoveSpacesQ().
 	UppercaseQ().
+
 	JoinQ().
 	SpacifyQ().
 	ReplaceQ("I", :With = AHeart()).
+
 	Content() + NL
 	#--> L ♥ F E
 
@@ -9698,58 +9701,73 @@ profon()
 	QH("LIFE").
 	LowercaseQ().
 	SpacifyQ().
+
 	CharsQ().
 	RemoveSpacesQ().
 	UppercaseQ().
+
 	JoinQ().
 	SpacifyQ().
 	ReplaceQ("I", :With = AHeart()).
+
 	History()
 ) + NL
 #--> [
 #	"LIFE",
 #	"life",
 #	"l i f e",
+#
 #	[ "l", "i", "f", "e" ],
 #	[ "L", "I", "F", "E" ],
 #	[ "L", "I", "F", "E" ],
+#
 #	"L I F E",
 #	"L ♥ F E"
 # ]
 
 # Or we add an HH() suffix if we need more inforamtion
 # about the types of intermediate objects updated
-# and the execution time those update have taken
-
-decimals(3)
+# the execution time those update have taken, and
+# their size in memory in bytes (inside the Ring VM)
 
 ? @@NL(
 	QHH("LIFE").
 	LowercaseQ().
 	SpacifyQ().
 	CharsQ().
+
 	RemoveSpacesQ().
+//	LoopNTimesQ(100_000). # Just to add time add see it traced
 	UppercaseQ().
 	JoinQ().
+
 	SpacifyQ().
+//	LoopNTimesQ(100_000).
 	ReplaceQ("I", :With = AHeart()).
 	History()
 )
 #--> [
-#	[ "LIFE", 		  "stzstring", 	0     ],
-#	[ "life", 		  "stzstring", 	0     ],
-#	[ "l i f e", 		  "stzstring", 	0.001 ],
-
-#	[ [ "l", "i", "f", "e" ], "stzlist",   	0.001 ],
-#	[ [ "L", "I", "F", "E" ], "stzlist",   	0.001 ],
-
-#	[ "L I F E", 		  "stzstring", 	0.002 ],
-#	[ "L ♥ F E", 		  "stzstring", 	0.002 ]
+#	[ "LIFE", "stzstring", 0, 435 ],
+#	[ "life", "stzstring", 0.02, 435 ],
+#	[ "l i f e", "stzstring", 0.04, 435 ],
+#
+#	[ [ "l", " ", "i", " ", "f", " ", "e" ], "stzlist", 0, 322 ],
+#	[ [ "l", "i", "f", "e" ], "stzlist", 0, 319 ],
+#	[ [ "l", "i", "f", "e" ], "stzlist", 0.01, 319 ],
+#	[ [ "L", "I", "F", "E" ], "stzlist", 0, 319 ],
+#	[ [ "L", "I", "F", "E" ], "stzlist", 0.01, 319 ],
+#	[ [ "L", "I", "F", "E" ], "stzlist", 0, 319 ],
+#
+#	[ "LIFE", "stzstring", 0, 435 ],
+#	[ "L I F E", "stzstring", 0.02, 435 ],
+#
+#	[ [ "with", "♥" ], "stzlist", 0, 322 ],
+#
+#	[ "L ♥ F E", "stzstring", 0.01, 435 ]
 # ]
 
-decimals(2)
-
 # NOTE that only the methods that update the objects are traced!
+
 proff()
 # Executed in 0.03 second(s) in Ring 1.22s
 

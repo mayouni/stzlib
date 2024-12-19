@@ -44,10 +44,22 @@ func QHH(p)
 	SetKeepingHistoryToXT(_TRUE_)
 
 	oStzObj = Q(p)
-	_aHistoXT + [ p, oStzObj.stzType(), 0 ]
+
+	# Adding the first line in the histo
+
+//	_aHistoXT + [ p, oStzObj.stzType(), 0, SizeInBytes(p) ]
 
 	return oStzObj
-	
+
+	func QHHVTS()
+		return QHH()
+
+func QHHVT()
+
+func QHHVS()
+
+func QHHTS()
+
 #--
 
 func StzW(cType, paMethodAndFilter)

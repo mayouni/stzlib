@@ -439,10 +439,28 @@ func KeepingHistory()
 	func KeepingHisto()
 		return KeepingHistory()
 
+	func KeepingObjectHistory()
+		return KeepingHistory()
+
+	func KeepingObjectHisto()
+		return KeepingHistory()
+
+	func KeepingObjHist()
+		return KeepingHistory()
+
 func KeepingHistoryXT()
 	return _bKeepHistoXT
 
 	func KeepingHistoXT()
+		return KeepingHistoryXT()
+
+	func KeepingObjectHistoryXT()
+		return KeepingHistoryXT()
+
+	func KeepingObjectHistoXT()
+		return KeepingHistoryXT()
+
+	func KeepingObjHistXT()
 		return KeepingHistoryXT()
 
 #--
@@ -581,7 +599,7 @@ func SetKeepingTimeTo(bTrueOrFalse)
 	ok
 
 	_bKeepTime = bTrueOrFalse
-	_nStartTimeInClocks = clock()
+
 
 	#< @FunctionAlternativeForms
 
@@ -592,6 +610,12 @@ func SetKeepingTimeTo(bTrueOrFalse)
 		SetKeepingTimeTo(bTrueOrFalse)
 
 	#>
+
+func StartObjectTime()
+	_nStartTimeInClocks = clock()
+
+	func StartObjectTimeInClocks()
+		StartObjectTime()
 
 #===
 

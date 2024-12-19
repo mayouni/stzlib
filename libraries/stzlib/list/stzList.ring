@@ -5422,6 +5422,16 @@ class stzList from stzObject
 
 		@aContent = paList
 
+		# Adding the first entry in the object history
+
+		if KeepingObjectHistory() = _TRUE_
+			_aHisto + This.Content()
+
+		but KeepingObjectHistoryXT() = _TRUE_
+			StartObjectTime()
+			_aHistoXT + [ This.Content(), This.stzType(), 0, This.SizeInBytes() ]
+		ok
+
 	  #---------------------#
 	 #     CONSTRAINTS     #
 	#---------------------#
@@ -6716,12 +6726,11 @@ class stzList from stzObject
 
 		if KeepingHistoXT() = _TRUE_
 
-			_nExecTime_ = (clock() - _nStartTimeInClocks) / clockspersecond()
-
 			This.AddHistoricValueXT([
 				This.Content(),
 				This.StzType(),
-				_nExecTime_
+				This.ExecTime(),
+				This.SizeInBytes()
 			])
 		ok
 

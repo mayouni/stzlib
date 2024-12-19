@@ -10,15 +10,11 @@ In programming, data transformations often happen in the blink of an eye, leavin
 
 ## The Initial Approach: Transformation Without History
 
-First, let's load the library:
-
-```ring
-load "stzlib.ring"
-```
-
 Consider this basic string transformation chain in Softanza:
 
 ```ring
+load "stzlib.ring"
+
 ? Q("1 AA 2 B 3 CCC 4 DD 5 Z").
     RemoveWXTQ('{ Q(@Char).IsNumberInString() }').
     RemoveSpacesQ().
@@ -91,14 +87,16 @@ To demonstrate this, let’s use a more elaborate example that takes some time t
 ? Q("LIFE").
 	LowercaseQ().
 	SpacifyQ().
+
 	CharsQ().
 	RemoveSpacesQ().
 	UppercaseQ().
+
 	JoinQ().
 	SpacifyQ().
 	ReplaceQ("I", :With = AHeart()).
-	Content()
 
+	Content() + NL
 	#--> L ♥ F E
 ```
 
@@ -122,60 +120,72 @@ Let’s add the `H()` suffix, as shown previously, to observe the updated values
 #	"LIFE",
 #	"life",
 #	"l i f e",
+#
 #	[ "l", "i", "f", "e" ],
 #	[ "L", "I", "F", "E" ],
+#	[ "L", "I", "F", "E" ],
+#
 #	"L I F E",
 #	"L ♥ F E"
 # ]
 ```
 
-Now, instead of just `H()`, we use a double `HH()` suffix to get more information about the types of intermediate objects updated and the execution time **each update** takes:
+Now, instead of using just `H()`, we use a double `HH()` suffix to obtain more information about the types of intermediate objects updated, the execution time taken by each update, and their size in megabytes within the Ring VM.
 
 ```ring
-decimals(3) # Set precision to 3 decimal places to display execution time accurately
-
 ? @@NL(
 	QHH("LIFE").
 	LowercaseQ().
 	SpacifyQ().
 	CharsQ().
+
 	RemoveSpacesQ().
+	LoopNTimesQ(100_000). # Just to add time add see it traced
 	UppercaseQ().
 	JoinQ().
+
 	SpacifyQ().
+	LoopNTimesQ(100_000).
 	ReplaceQ("I", :With = AHeart()).
 	History()
 )
+
 #--> [
-#	[ "LIFE", "stzstring", 0 ],
-#	[ "life", "stzstring", 0 ],
-#	[ "l i f e", "stzstring", 0.001 ],
-
-#	[ [ "l", "i", "f", "e" ], "stzlist", 0.001 ],
-#	[ [ "L", "I", "F", "E" ], "stzlist", 0.001 ],
-
-#	[ "L I F E", "stzstring", 0.002 ],
-#	[ "L ♥ F E", "stzstring", 0.002 ]
+#	[ "LIFE", "stzstring", 0, 435 ],
+#	[ "life", "stzstring", 0.02, 435 ],
+#	[ "l i f e", "stzstring", 0.04, 435 ],
+#
+#	[ [ "l", " ", "i", " ", "f", " ", "e" ], "stzlist", 0, 322 ],
+#	[ [ "l", "i", "f", "e" ], "stzlist", 0, 319 ],
+#	[ [ "l", "i", "f", "e" ], "stzlist", 0.01, 319 ],
+#	[ [ "L", "I", "F", "E" ], "stzlist", 0, 319 ],
+#	[ [ "L", "I", "F", "E" ], "stzlist", 0.01, 319 ],
+#	[ [ "L", "I", "F", "E" ], "stzlist", 0, 319 ],
+#
+#	[ "LIFE", "stzstring", 0, 435 ],
+#	[ "L I F E", "stzstring", 0.02, 435 ],
+#
+#	[ [ "with", "♥" ], "stzlist", 0, 322 ],
+#
+#	[ "L ♥ F E", "stzstring", 0.01, 435 ]
 # ]
 ```
 
-This is what we can infer from the output:
+Here's a detailed explanation of what happened in the code execution:
 
-- The process starts with the string `LIFE` in a `stzstring` object, taking no time.
+- Started with `"LIFE"` as a `stzString` object, initial size `435 bytes`
+- Converted to lowercase `"life"`, taking almost `0s`, maintaining same size of `435 bytes`
+- Added spaces between chars `"l i f e"`, taking almost `0s`, maintaining same size of `435 bytes`
 
-- It is converted to **lowercase** (`life`) within the same `stzstring` object, with no measurable time.
+- Transformed to a list of characters `["l", " ", "i", " ", "f", " ", "e"]`, becoming a `stzlist` object, taking `0.02s`, with a size of `322 bytes`
+- Removed spaces from the list `["l", "i", "f", "e"]`, taking `0.02s`, witht a size of `319 bytes`
+- Converted all characters of the list to uppercase `["L", "I", "F", "E"]`, taking `0.03s`, and maintaining the same size of `319 bytes`
 
-- **Spaces** are added between the characters, changing the `stzstring` content to `"l i f e"` in `1 ms`.
+- Joined the list back into a string `"LIFE"`, converting back to `stzstring`, taking almost `0s`, with the size of `435 bytes`
+- Added spaces between characters `"L I F E"`, inside the same `stzString` object, taking almost `0s`, and maintaining the same size of `435 bytes`
+- Replaced the `"I"` in `"LIFE"` with a heart character, taking taking almost `0s`, and maintaining the same size of `435 bytes`
 
-- The string is transformed into a list of **chars** `[ "l", "i", "f", "e" ]`, stored in a `stzlist` object, taking another `1 ms` (cumulative time becomes `2 ms`).
-
-- The characters are converted to **uppercase **`[ "L", "I", "F", "E" ]`, updating the `stzlist` content in nearly `0 ms` (cumulative time remains `2 ms`).
-
-- The list is joined back into `LIFE` in a `stzstring` object. Note that this action **doesn’t update the content**, as it merely transforms data between types, and thus **is not traced**.
-
-- **Spaces** are added again, making the `stzstring` content `L I F E` in nearly `1 ms` (cumulative time becomes `3 ms`).
-
-- Finally, `I` is **replaced** with a heart symbol, updating the `stzstring` object to `L ♥ F E` in nearly `0 ms` (closing all the executaion time at `3 ms`).
+The operations alternated between `stzstring` and `stzlist` objects, with strings opeations beeing faster (due to the use of Qt C++ internally), while lists generally having smaller memory footprints. Most operations completed very quickly, with only a few taking measurable time.
 
 
 >**NOTE**: The `@@NL()` small function generates a readable string representation of the list, just like `@@()`, but with the added distinction of displaying each item on a separate line.
