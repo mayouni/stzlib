@@ -148,6 +148,16 @@ class stzGrid from stzObject
 			This.AddHistoricValue(This.Content())
 		ok
 
+		if KeepingHistoryXT() = _TRUE_
+
+			This.AddHistoricValueXT([
+				This.Content(),
+				This.StzType(),
+				This.ExecTime(),   # From stzList #TODO Check it works
+				This.SizeInBytes()
+			])
+		ok
+
 	  #--------------------#
 	 #  SETTING THE GRID  #
 	#--------------------#

@@ -555,11 +555,11 @@ func ContentSizeInBytes(item)
 # This function is made thanks to Mahmoud's explanation of the internal
 # memory management mode implemented in Ring (see the Google forum)
 
-func SizeInBytes(item)
+func SizeInBytes(p)
 	if Is64Bit()
-		return SizeInBytes64(item)
+		return SizeInBytes64(p)
 	else
-		return SizeInBytes32(item)
+		return SizeInBytes32(p)
 	ok
 
 	#< @FunctionAlternativeForms

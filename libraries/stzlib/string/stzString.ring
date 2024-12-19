@@ -1468,6 +1468,15 @@ class stzString from stzObject
 		@oQString = new QString2()
 		@oQString.append(pcStr)
 
+		# Adding the first entry in the object history
+
+		if KeepingObjectHistory() = _TRUE_
+			_aHisto + This.Content()
+
+		but KeepingObjectHistoryXT() = _TRUE_
+			StartObjectTime()
+			_aHistoXT + [ This.Content(), This.stzType(), 0, This.SizeInBytes() ]
+		ok
 
 	  #==========================#
 	 #   CHECKING CONSTRAINTS   #
@@ -44424,26 +44433,36 @@ class stzString from stzObject
 			ok
 		ok
 
+		# Updating the object content
+
 		QStringObject().clear()
 		QStringObject().append(pcNewStr)
 
+		# Tracing the history of updates
+		#NOTE // Normally, this housld be abstructed in stzObject (#TODO)
+
+
 		if KeepingHisto() = _TRUE_
+			StartObjectTime()
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
 		if KeepingHistoXT() = _TRUE_
 
-			_nExecTime_ = (clock() - _nStartTimeInClocks) / clockspersecond()
-
 			This.AddHistoricValueXT([
 				This.Content(),
 				This.StzType(),
-				_nExecTime_
+				This.ExecTime(),
+				This.SizeInBytes()
 			])
 
 		ok
 
+		# Verifying constraints (#TODO)
+
 		//This.VerifyConstraints()
+
+
 
 		#< @FunctionFluentForm
 

@@ -1649,6 +1649,10 @@ class stzObject
 			StzRaise("Type error: you must provide an object or an object varname inside a string!")
 		ok
 
+		if ObjectKeepingTime() = _TRUE_
+? "inside object"
+			StartObjectTime()
+		ok
 
 	def Content()
 		return @content
@@ -4969,7 +4973,18 @@ class stzObject
 		def @IsNeitheOfType(pcType1, pcType2)
 			return This.IsNeither(pcType1, pcType2)
 
-	#==
+	def LoopNTimes(n)
+		for @i = 1 to n
+			// Do nothing
+		next
+
+		def LoopNTimesQ(n)
+			This.LoopNTimes(n)
+			return This
+
+	  #=============================================#
+	 #  CASTING THE oBJECT INTO AN OTHER STZ TYPE  #
+	#=============================================#
 
 	def ToStzChar()
 		return new stzChar(This.Content())
@@ -5524,7 +5539,7 @@ class stzObject
 			AddHistoricValue(value)
 
 	def HistoricValues()
-		if _bkeepHistoXT = _TRUE_
+		if KeepingObjectHistoryXT() = _TRUE_
 			return This.HistoricValuesXT()
 		ok
 
@@ -5597,10 +5612,6 @@ class stzObject
 		if KeepingExecutionTime() = _FALSE_
 			StzRaise("Can't proceed! Keeping object execution time must be turned ON.")
 		ok
-
-? "ici"
-? ">> " + _nStartTimeInClocks
-? ">> " + clock()
 
 		_nResult_ = ( clock() - _nStartTimeInClocks ) / clockspersecond()
 
