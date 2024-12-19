@@ -10,7 +10,7 @@ Imagine writing code that flows as naturally as your thoughts, where programming
 
 Softanza introduces a unique approach to programming by treating functions as *linguistic expressions*, offering developers unprecedented flexibility in how they **write** and **read** code.
 
-Through carefully designed features like `@FunctionActiveForm`, `@FunctionPassiveForm`, `@FunctionNegativeForm`, `@FunctionAlternativeForms`, `@FunctionNamedParams`, `@FunctionConditionalForm` and `@FunctionNameAnatomy`, Softanza breaks down the traditional barriers between human language and programming logic.
+Through carefully designed features like `@FunctionActiveForm`, `@FunctionPassiveForm`, `@FunctionNegativeForm`, `@FunctionAlternativeForms`, `@FunctionNamedParams`, `@FunctionConditionalForm` and `@FunctionNameSuffixes`, Softanza breaks down the traditional barriers between human language and programming logic.
 
 
 ## Function Active Form: Functions as Direct Actions
@@ -168,7 +168,7 @@ While both approaches achieve the same result, the conditional approach in Softa
 Additionally, it is significantly more *writable*, reducing five lines of code to just one!
 
 
-## The Anatomy of Function Names
+## Function Suffixes: The Anatomy of Function Names
 
 One common challenge programmers face is inferring the parameters of a function from its name. Typically, this isn’t straightforward, and searching through documentation or the internet becomes necessary.
 
