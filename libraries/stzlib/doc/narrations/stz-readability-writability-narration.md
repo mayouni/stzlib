@@ -50,26 +50,24 @@ The `Removed()` function generates a new string while preserving the original ob
 
 This mirrors the role of the *past participle* in language, which conveys a completed action and shifts focus to a new desired state of the subject, leaving its initial value intact.  
 
-Linguistically, invoking `o1.Remove()` is akin to saying, *"Oh, o1! Show me your state with all 'x' remov**ed**."* Here, "removed" acts as a linguistic *descriptor*, not an effective *action*, emphasizing the transformation without altering the original value of `o1`.  
+Invoking `o1.Remove()` is akin to saying, *"Oh, o1! Show me your state with all 'x' remov**ed**."* Here, "removed" acts as a linguistic *descriptor*, not an effective *action*, emphasizing the transformation *output* without altering the *original* value of `o1`.  
 
-## @FunctionPassiveForm as a Terminator of @FluentChainsOfActions  
+**@FunctionPassiveForm as a Terminator of @FluentChainsOfActions**
 
-The true computational potential of the `@FunctionPassiveForm` is revealed when combined with a **fluent chain of actions**, as shown below:  
+The true computational potential of the `@FunctionPassiveForm` feature is revealed when combined with a **Fluent Chain of Actions**, as shown below:  
 
 ```ring  
 ? Q("rixxnxg").UppercaseQ().ReplaceQ("I", :With = AHeart()).SpacifyQ().Removed("x")  
 #--> R♥NG  
 ```  
 
-In this chain, a **copy-on-write mechanism** is applied to the initial `stzString` object created by `Q("RIxxNxG")`. At each step—Uppercasing, Replacing, Spacifying, and Removing—a new copy is generated, ensuring that the original object remains unaltered. This guarantees side-effect-free execution, a critical requirement in many real-world scenarios where maintaining program state integrity is essential.  
+In this chain, a **copy-on-write mechanism** is applied to the initial `stzString` object created by `Q("RIxxNxG")`. At each step—Uppercasing, Replacing, Spacifying, and Removing—a new copy is generated, ensuring that the original object remains unaltered. This guarantees *side-effect-free* execution, a critical requirement in many real-world scenarios where maintaining program state integrity is essential.  
 
 The process happens efficiently, with the Ring VM's garbage collector handling intermediate copies and freeing up memory.  
 
 Importantly, the chain is intentionally interrupted by the `Removed()` function, which serves as a **terminator** in the sequence. Unlike previous steps that return a new `stzString` object, `Removed()` yields a native Ring string, signaling the conclusion of the fluent chain and ensuring a clean final output.  
 
-## Function Negative Form: Intuitive Logical Negations
-
-Here’s the revised and refined version for better clarity and English correctness:  
+## Function Negative Form: Intuitive Logical Negations  
 
 Softanza simplifies logical **negations** by introducing direct negative function forms:  
 
