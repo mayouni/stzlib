@@ -44,8 +44,6 @@ o1 = new stzString("RIxxNxG")
 #--> RIxxNxG
 ```
 
-Here’s a refined version with repetitions eliminated and improved flow:
-
 The `Removed()` function generates a new string while preserving the original object unchanged.
 
 This mirrors the role of the *past participle* in language, which conveys a completed action and shifts focus to a new desired state of the subject, leaving its initial value intact.
