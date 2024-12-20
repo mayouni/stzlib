@@ -63,9 +63,9 @@ The true computational potential of the `@FunctionPassiveForm` feature is reveal
 
 In this chain, a **copy-on-write mechanism** is applied to the initial `stzString` object created by `Q("RIxxNxG")`. At each step—Uppercasing, Replacing, Spacifying, and Removing—a new copy is generated, ensuring that the original object remains unaltered. This guarantees *side-effect-free* execution, a critical requirement in many real-world scenarios where maintaining program state integrity is essential.
 
-The process happens efficiently, with the Ring VM's garbage collector handling intermediate copies and freeing up memory.
+>**NOTE**: Internally, the process happens efficiently, with the Ring VM's garbage collector handling intermediate copies and freeing up memory.
 
-Importantly, the chain is intentionally interrupted by the `Removed()` function, which serves as a **terminator** in the sequence. Unlike previous steps that return a new `stzString` object, `Removed()` yields a native Ring string, signaling the conclusion of the fluent chain and ensuring a clean final output.
+Importantly, the chain is intentionally *interrupted* by the `Removed()` function, which serves as a **terminator** in the sequence. Unlike previous steps that return a new `stzString` object, `Removed()` yields a native Ring string, signaling the conclusion of the fluent chain and ensuring a clean final output.
 
 ## Function Negative Form: Intuitive Logical Negations
 
