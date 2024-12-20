@@ -56,20 +56,24 @@ Similarly, in Softanza function design:
 
 This distinction mirrors linguistic grammar, making code semantics intuitive and state-focused.
 
-**@FunctionPassiveForm as a Terminator of @FluentChainsOfActions**
+## Function Fluent Form: Guiding the Programmer's Train of Thought
 
-The true computational potential of the `@FunctionPassiveForm` feature is revealed when combined with a **Fluent Chains of Actions**, as shown below:
+In Softanza, you can effortlessly *chain* multiple function calls, creating a smooth sequence of data transformations. For instance, consider the following example:
 
 ```ring
 ? Q("rixxnxg").UppercaseQ().ReplaceQ("I", :With = AHeart()).SpacifyQ().Removed("x")
 #--> R♥NG
 ```
 
-In this chain, a **copy-on-write mechanism** is applied to the initial `stzString` object created by `Q("RIxxNxG")`. At each step—Uppercasing, Replacing, Spacifying, and Removing—a new copy is generated, ensuring that the original object remains unaltered. This guarantees *side-effect-free* execution, a critical requirement in many real-world scenarios where maintaining program state integrity is essential.
+Here, the process begins with the string `"rixxnxg"` and concludes with `"R♥NG"`. In between, we apply a series of transformations: converting to uppercase, replacing characters, adding spaces, and removing specific characters.
+
+This chaining is made possible by the *`Q()` suffix*, which allows functions to return objects that can be further processed in a continuous flow. This style of expression is often called a ***Chain of Actions***, and the `Q()` is what makes it ***fluent***.
+
+A key feature of this approach is the famous **copy-on-write mechanism**. Each operation in the chain creates a *new copy* of the string, preserving the original object intact. This ensures that every step remains side-effect-free, crucial for maintaining state integrity in complex applications.
+
+At the end of the chain, the `Removed()` function serves as a **terminator**. Unlike previous functions, it does not return an object that can be further processed but instead returns a native Ring string, marking the end of the chain and delivering the final result.
 
 >**NOTE**: Internally, the process happens efficiently, with the Ring VM's garbage collector handling intermediate copies and freeing up memory.
-
-Importantly, the chain is intentionally *interrupted* by the `Removed()` *passive-form* function, which serves as a **terminator** in the sequence. Unlike previous steps that return a new `stzString` object, `Removed()` yields a native Ring string, signaling the conclusion of the fluent chain and ensuring a clean final output.
 
 ## Function Negative Form: Intuitive Logical Negations
 

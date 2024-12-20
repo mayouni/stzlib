@@ -1874,7 +1874,7 @@ class stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsNotStzNumber()
 			return NOT This.IsStzNumber()
@@ -1899,7 +1899,7 @@ class stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsNotStzString()
 			return NOT This.IsStzString()
@@ -1923,7 +1923,7 @@ class stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsNotStzList()
 			return NOT This.IsStzList()
@@ -1947,7 +1947,7 @@ class stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsNotStzGrid()
 			return NOT This.IsStzGrid()
@@ -1967,7 +1967,7 @@ class stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsNotStzObject()
 			return _FALSE_
@@ -2005,54 +2005,67 @@ class stzObject
 			StzRaise("Incorrect param type! paTypes must be a list.")
 		ok
 
-		for type in paTypes
-			if isList(type) and Q(type).IsOrNamedParam()
-				type = type[2]
+		_aTypes_ = paTypes
+		_nLen_ = len(paTypes)
+
+		for @i = 1 to _nLen_
+			if isList(_aTypes_[@i]) and Q(_aTypes_[@i]).IsOrNamedParam()
+				_aTypes_[@i] = _aTypes_[@i][2]
 			ok
 		next
 
-		bResult = _FALSE_
+		_bResult_ = _FALSE_
 
-		for cType in paTypes
+		for @i = 1 to _nLen_
 
-			if cType = "number" or cType = "string" or cType = "list"
-				cType = "A" + cType
-			but cType = "object"
-				cType = "anobject"
+			_cType_ = _aTypes_[@i]
+
+			if _cType_ = "number" or _cType_ = "string" or _cType_ = "list"
+				_cType_ = "A" + _cType_
+
+			but _cType_ = "object"
+				_cType_ = "anobject"
 			ok
 
-			if (This.IsA(cType) or This.Is(cType))
-				bResult = _TRUE_
+			if (This.IsA(_cType_) or This.Is(_cType_))
+				_bResult_ = _TRUE_
 				exit
 			ok
 		next
 
-		return bResult
-		
+		return _bResult_
+
+		#< @FunctionNegativeForm
+
 		def IsNotOneOfTheseTypes(paTypes)
 			return NOT This.IsOneOfTheseTypes(paTypes)
+		#>
 
 	def IsEachOneOfTheseTypes(paTypes)
 		if NOT isList(paTypes)
 			StzRaise("Incorrect param type! paTypes must be a list.")
 		ok
 
-		for type in paTypes
-			if isList(type) and Q(type).IsOrOrAndNamedParam()
-				type = type[2]
+		_aTypes_ = paTypes
+		_nLen_ = len(_aTypes_)
+
+		for @i = 1 to _nLen_
+			if isList(_aTypes_[@i]) and Q(_aTypes_[@i]).IsOrOrAndNamedParam()
+				_aTypes_[@i] = _aTypes_[@i][2]
 			ok
 		next
 
-		bResult = _TRUE_
+		_bResult_ = _TRUE_
 
-		for cType in paTypes
-			if NOT (This.IsA(cType) or This.Is(cType))
-				bResult = _FALSE_
+		for @i = 1 to _nLen_
+
+			if NOT (This.IsA(_aTypes_[@i]) or This.Is(_aTypes_[@i]))
+				_bResult_ = _FALSE_
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 	def IsNumberOrString()
 		content = This.Content()
@@ -2144,7 +2157,7 @@ class stzObject
 
 		return bResult
 
-		#-- @fluentForm
+		#-- @FunctionluentForm
 
 		def IsAXTQ(pcType)
 			if this.IsAXT(pcType) = _TRUE_
@@ -2168,7 +2181,7 @@ class stzObject
 				return AFalseObject()
 			ok
 
-		#-- @AlternativeForm
+		#-- @FunctionAlternativeForm
 
 		def IsAnXT(pacStr)
 			return This.IsAXT(pacStr)
@@ -2179,7 +2192,7 @@ class stzObject
 			def IsAnXTQR(pacStr, pcReturnType)
 				return This.IsAXTQR(pacStr, pcReturnType)
 
-		#-- @NegativeForm
+		#-- @FunctionNegativeForm
 
 		def IsNotAXT(pacStr)
 			return NOT This.IsAXT(pacStr)

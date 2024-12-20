@@ -8272,7 +8272,7 @@ class stzList from stzObject
 
 		#>
 
-	#< @FunctionPassiveForms
+	#-- @FunctionPassiveForms
 
 	def ReplacedByManyCS(pItem, paNewItems, pCaseSensitive)
 		cResult = This.Copy().ReplaceByManyCSQ(pItem, paNewItems, pCaseSensitive).Content()
@@ -8305,8 +8305,6 @@ class stzList from stzObject
 			return This.ReplacedByManyCS(pItem, paNewItems, pCaseSensitive)
 
 		#>
-
-	#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -8348,7 +8346,7 @@ class stzList from stzObject
 
 		#>
 
-	#< @FunctionPassiveForms
+	#-- @FunctionPassiveForms
 
 	def ReplacedByMany(pItem, paNewItems)
 		return This.ReplacedByManyCS(pItem, paNewItems, _TRUE_)
@@ -8381,7 +8379,7 @@ class stzList from stzObject
 
 		#>
 
-	#>
+
 
 	  #---------------------------------------------------------------------#
 	 #  REPLACING A SUBSTRING BY MANY ITEMS -- EXTENDED (RETURN TO FIRST)  #
@@ -8472,7 +8470,7 @@ class stzList from stzObject
 
 		#>
 
-	#< @FunctionPassiveForms
+	#-- @FunctionPassiveForms
 
 	def ReplacedByManyCSXT(pItem, paNewItems, pCaseSensitive)
 		cResult = This.Copy().ReplaceByManyCSXTQ(pItem, paNewItems, pCaseSensitive).Content()
@@ -8498,7 +8496,7 @@ class stzList from stzObject
 		def ReplacedByThesesItemsCSXT(pITem, paNewItems, pCaseSensitive)
 			return This.ReplacedByManyCSXT(pItem, paNewItems, pCaseSensitive)
 
-	#>
+
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -8570,7 +8568,7 @@ class stzList from stzObject
 
 		#>
 
-	#< @FunctionPassiveForms
+	#-- @FunctionPassiveForms
 
 	def ReplacedByManyXT(pItem, paNewItems)
 		cResult = This.Copy().ReplaceByManyXTQ(pItem, paNewItems).Content()
@@ -8594,7 +8592,7 @@ class stzList from stzObject
 		def ReplacedByThesesItemsXT(pITem, paNewItems)
 			return This.ReplacedByManyXT(pItem, paNewItems)
 
-	#>
+
 
 	  #--------------------------------------------#
 	 #  REPLACING MANY ITEMS BY MANY OTHER ITEMS  #
@@ -8680,7 +8678,7 @@ class stzList from stzObject
 
 		#>
 
-	#< @FunctionPassiveForm
+	#-- @FunctionPassiveForm
 
 	def ManyItemsReplacedByManyCS(paItems, paNewItems, pCaseSensitive)
 		cResult = This.Copy().ReplaceManyByManyCSQ(paItems, paNewItems, pCaseSensitive).Content()
@@ -8701,7 +8699,7 @@ class stzList from stzObject
 		def ItemsReplacedByTheseItemsCS(paItems, paNewItems, pCaseSensitive)
 			return This.ManyItemsReplacedByManyCS(paItems, paNewItems, pCaseSensitive)
 
-	#>
+
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -8754,7 +8752,7 @@ class stzList from stzObject
 
 		#>
 
-	#< @FunctionPassiveForm
+	#-- @FunctionPassiveForm
 
 	def ManyItemsReplacedByMany(paItems, paNewItems)
 		cResult = This.Copy().ReplaceManyByManyQ(paItems, paNewItems).Content()
@@ -8775,7 +8773,7 @@ class stzList from stzObject
 		def ItemsReplacedByTheseItems(paItems, paNewItems)
 			return This.ManyItemsReplacedByManyCS(paItems, paNewItems)
 
-	#>
+
 
 	  #--------------------------------------------------#
 	 #  REPLACING MANY ITEMS BY MANY OTHER ITEMS -- XT  #
@@ -8881,7 +8879,7 @@ class stzList from stzObject
 
 		#>
 
-	#< @FunctionPassiveForm
+	#-- @FunctionPassiveForm
 
 	def ManyItemsReplacedByManyCSXT(paItems, paNewItems, pCaseSensitive)
 		cResult = This.Copy().ReplaceManyByManyCSXTQ(paItems, paNewItems, pCaseSensitive).Content()
@@ -8902,7 +8900,7 @@ class stzList from stzObject
 		def ItemsReplacedByTheseItemsCSXT(paItems, paNewItems, pCaseSensitive)
 			return This.ManyItemsReplacedByManyCSXT(paItems, paNewItems, pCaseSensitive)
 
-	#>
+
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -8955,7 +8953,7 @@ class stzList from stzObject
 
 		#>
 
-	#< @FunctionPassiveForm
+	#-- @FunctionPassiveForm
 
 	def ManyItemsReplacedByManyXT(paItems, paNewItems)
 		cResult = This.Copy().ReplaceManyByManyXTQ(paItems, paNewItems).Content()
@@ -8976,7 +8974,7 @@ class stzList from stzObject
 		def ItemsReplacedByTheseItemsXT(paItems, paNewItems)
 			return This.ManyItemsReplacedByManyCSXT(paItems, paNewItems)
 
-	#>
+
 
 	  #----------------------------------------------------------------------------------#
 	 #  REPLACING ANY ITEM AT GIVEN POSITION (OR POSITIONS) WITH THE NEW ITEM PROVIDED  #
@@ -9213,7 +9211,7 @@ class stzList from stzObject
 
 		#>
 
-	#< @FunctionPassiveForms
+	#-- @FunctionPassiveForms
 
 	def AnyItemAtPositionNReplaced(n, pNewItem)
 		cResult = This.Copy().ReplaceAnyItemAtPositionNQ(n, pNewItem).Content()
@@ -9235,7 +9233,7 @@ class stzList from stzObject
 
 		#>
 
-	#>
+
 
 	  #-----------------------------------------------------------------------#
 	 #  REPLACING ANY ITEMS AT THE GIVEN POSITIONS BY THE NEW ITEM PROVIDED  #
@@ -9306,7 +9304,7 @@ class stzList from stzObject
 
 		#>
 
-	#< @FunctionPassiveForm
+	#-- @FunctionPassiveForm
 
 	def AnyItemAtPositionsReplacedCS(panPos, pNewItem, pCaseSensitive)
 		cResult = This.Copy().ReplaceAnyItemAtPositionsCSQ(panPos, pNewItem, pCaseSensitive).Content()
@@ -9324,7 +9322,7 @@ class stzList from stzObject
 			return This.AnyItemAtPositionsReplacedCS(panPos, pNewItem, pCaseSensitive)
 
 		#>
-	#>
+
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -9578,7 +9576,7 @@ class stzList from stzObject
 
 		#>
 
-	#< @FunctionPassiveForms
+	#-- @FunctionPassiveForms
 
 	def ThisItemAtPositionNReplacedCS(n, pItem, pNewItem, pCaseSensitive)
 		cResult = This.Copy().ReplaceThisItemAtPositionCSQ(n, pItem, pNewItem, pCaseSensitive).Content()
@@ -9616,8 +9614,6 @@ class stzList from stzObject
 			return This.ThisItemAtPositionNReplacedCS(n, pItem, pNewItem, pCaseSensitive)
 
 		#>
-
-	#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -9673,7 +9669,7 @@ class stzList from stzObject
 
 		#>
 
-	#< @FunctionPassiveForms
+	#-- @FunctionPassiveForms
 
 	def ThisItemAtPositionNReplaced(n, pItem, pNewItem)
 		cResult = This.Copy().ReplaceThisItemAtPositionNCSQ(n, pItem, pNewItem, _TRUE_).Content()
@@ -9711,8 +9707,6 @@ class stzList from stzObject
 			return This.ThisItemAtPositionNReplaced(n, pItem, pNewItem)
 
 		#>
-
-	#>
 			
 	  #-----------------------------------------------------------------------------------------#
 	 #   REPLACING A GIVEN ITEM AT THE GIVEN POSITIONS (IF THE ITEM EXIST) BY AN OTHER ITEM    #
@@ -39531,9 +39525,12 @@ class stzList from stzObject
 	
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 	
 		def ContainsNoCS(pItem, pCaseSensitive)
+			return NOT This.ContainsCS(pItem, pCaseSensitive)
+
+		def DoesNotContainCS(pItem, pCaseSensitive)
 			return NOT This.ContainsCS(pItem, pCaseSensitive)
 
 		def ContainsNeitherCS(pItem1, pItem2, pCaseSensitive)
@@ -39571,9 +39568,12 @@ class stzList from stzObject
 	
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 	
 		def ContainsNo(pItem)
+			return NOT This.Contains(pItem)
+
+		def DoesNotContain(pItem)
 			return NOT This.Contains(pItem)
 
 		def ContainsNeither(pItem1, pItem2)
@@ -52566,6 +52566,25 @@ fdef
 
 		#>
 
+		#< @FunctionNegativeForms
+
+		def IsNotLowercase()
+			return NOT This.IsLowercase()
+
+		def IsNotLowercased()
+			return This.IsNotLowercase()
+
+		def IsNotLower()
+			return This.IsNotLowercase()
+
+		def IsNotInLowercase()
+			return This.IsNotLowercase()
+
+		def IsNotInALowercase()
+			return This.IsNotLowercase()
+
+		#>
+
 	  #------------------------------------------------------------#
 	 #  TRANSFORMING THE LIST TO ITS REPRESENTATION IN RING CODE  #
 	#------------------------------------------------------------#
@@ -57636,11 +57655,28 @@ fdef
 	def NumberOfChars()
 		return len(This.Chars())
 
+		#< @FunctionFluentForm
+
+		def NumberOfCharsQ()
+			return new stzNumber( This.NumberOfChars() )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def HowManyChars()
 			return This.NumberOfChars()
 
+			def HowManyCharsQ()
+				return This.NumberOfCharsQ()
+
 		def CountChars()
 			return This.NumberOfChars()
+
+			def CountCharsQ()
+				return This.NumberOfCharsQ()
+
+		#>
 
 	  #-------------------------------------------#
 	 #  GETTING THE LIST OF LETTERS IN THE LIST  #
@@ -57689,11 +57725,28 @@ fdef
 	def NumberOfLetters()
 		return len(This.Letters())
 
+		#< @FunctionFluentForm
+
+		def NumberOfLettersQ()
+			return new stzNumber( This.NumberOfLetters() )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def HowManyLetters()
 			return This.NumberOfLetters()
 
+			def HowManyLettersQ()
+				return This.NumberOfLettersQ()
+
 		def CountLetters()
 			return This.NumberOfLetters()
+
+			def CountLettersQ()
+				return This.NumberOfLettersQ()
+
+		#>
 
 	  #=========================================#
 	 #  GETTING THE LIST OF PAIRS IN THE LIST  #
@@ -57728,11 +57781,28 @@ fdef
 	def NumberOfPairs()
 		return len(This.Pairs())
 
+		#< @FunctionFluentForm
+
+		def NumberOfPairsQ()
+			return new stzNumber( This.NumberOfPairs() )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def HowManyPairs()
 			return This.NumberOfPairs()
 
+			def HowManyPairsQ()
+				return This.NumberOfPairsQ()
+
 		def CountPairs()
 			return This.NumberOfPairs()
+
+			def CountPairsQ()
+				return This.NumberOfPairsQ()
+
+		#>
 
 	  #---------------------------------#
 	 #  FINDING THE PAIRS IN THE LIST  #

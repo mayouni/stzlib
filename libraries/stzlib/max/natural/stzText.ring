@@ -3015,7 +3015,7 @@ class stzText from stzString
 			return _FALSE_
 		ok
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def ContainsNoWord(pcWord)
 			return NOT This.ContainsWord(pcWord)

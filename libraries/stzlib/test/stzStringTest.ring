@@ -9672,7 +9672,7 @@ o1 = new stzList([ "H", " ", "E", " ", "L", " ", "L", " ", "O" ])
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*--------------
+/*===============
 
 profon()
 
@@ -9719,7 +9719,42 @@ o1 = new stzList([ "V", "T", "M", "S" ])
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*--------------
+/*================
+*/
+profon()
+
+o1 = new stzList([ "r", "i", "n", "g" ])
+
+if o1.IsNotAString() and
+   o1.IsNotInLowercase() and
+   o1.DoesNotContain("♥") and
+
+   o1.NumberOfChars() < 5 and
+   o1.NumberOfCharsQ().IsNotEven()
+
+    ? "It's ok!"
+else  
+    ? "Oops!"
+ok
+#--? "Ooops!"
+
+# Let's see the negative conditions one by one
+
+? o1.IsNotAString()
+#--> TRUE
+
+? o1.IsNotInLowercase()
+#--> FALSE
+
+? o1.DoesNotContain("♥")
+
+? o1.NumberOfChars() < 5
+? o1.NumberOfCharsQ().IsNotEven()
+
+pron()
+
+/*=================
+
 */
 profon()
 

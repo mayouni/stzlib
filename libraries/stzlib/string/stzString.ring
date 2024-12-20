@@ -1677,7 +1677,7 @@ class stzString from stzObject
 		def HasSameCharCaseAs(pcOtherStr)
 			return This.HasSameCaseAs(pcOtherStr)
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def HasDifferentCaseAs(pcOtherStr)
 			return NOT This.HasSameCaseAs(pcOtherStr)
@@ -3297,6 +3297,25 @@ class stzString from stzObject
 
 			def IsAnUppercaseQ()
 				return This.IsUppercaseQ()
+
+		#>
+
+		#< @FunctionNegativeForms
+
+		def IsNotUppercase()
+			return NOT This.IsUppercase()
+
+		def IsNotUppercased()
+			return This.IsUppercase()
+
+		def IsNotUpper()
+			return This.IsUppercase()
+
+		def IsNotInUppercase()
+			return This.IsUppercase()
+
+		def IsNotInAnUppercase()
+			return This.IsUppercase()
 
 		#>
 
@@ -55246,10 +55265,31 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def ContainsNoCS(pcSubStr, pCaseSensitive)
 			return NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+
+			def ContainsNoCSQ(pcSubStr, pCaseSensitive)
+				if This.ContainsNoCS(pcSubStr, pCaseSensitive)
+					return This
+				else
+					return AFalseObject()
+				ok
+
+		def DoesNotContainCS(pcSubStr, pCaseSensitive)
+			return NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+
+			def DoesNotContainCSQ(pcSubStr, pCaseSensitive)
+				return This.ContainsNoCSQ(pcSubStr, pCaseSensitive)
+
+		#--
+
+		def ContainingNoCS(pcSubStr, pCaseSensitive)
+			return NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+
+			def ContainingNoCSQ(pcSubStr, pCaseSensitive)
+				return This.ContainsNoCSQ(pcSubStr, pCaseSensitive)
 
 		#>
 
@@ -55287,10 +55327,31 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def ContainsNo(pcSubStr)
 			return NOT This.Contains(pcSubStr)
+
+			def ContainsNoQ(pcSubStr)
+				if This.ContainsNo(pcSubStr)
+					return This
+				else
+					return AFalseObject()
+				ok
+
+		def DoesNotContain(pcSubStr)
+			return NOT This.Contains(pcSubStr)
+
+			def DoesNotContainQ(pcSubStr)
+				return This.ContainsNoQ(pcSubStr)
+
+		#--
+
+		def ContainingNo(pcSubStr)
+			return NOT This.Contains(pcSubStr)
+
+			def ContainingNoQ(pcSubStr)
+				return This.ContainsNoQ(pcSubStr)
 
 		#>
 
@@ -55884,7 +55945,7 @@ class stzString from stzObject
 	def ContainsSpaces()
 		return This.Contains(" ")
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def ContainsNoSpaces()
 			return NOT This.ContainsSpaces()
@@ -56882,7 +56943,7 @@ class stzString from stzObject
 	 #  CHECKING IF THE STRING CONTAINS EACH OF THE GIVEN SUBSTRINGS  #
 	#----------------------------------------------------------------#
 
-	#TODO : Unify alternative namings with ContainsMay() in stzList
+	#TODO // Unify alternative namings with ContainsMay() in stzList
 
 	def ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
 		bResult = _TRUE_
@@ -56950,7 +57011,7 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionPassiveForms
+		#< @FunctionNegativeForms
 
 		def ContainsNoneOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
 			return NOT This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
@@ -57037,7 +57098,7 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def ContainsNoneOfTheseSubStrings(pacSubStr)
 			return NOT This.ContainsTheseSubStrings(pacSubStr)
@@ -57066,7 +57127,7 @@ class stzString from stzObject
 	def ContainsCharsInScript(pcScript)
 		return This.ToStzText().ContainsScript(pcScript)
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def ContainsNocharsInScript(pcScript)
 			return NOT This.ContainsCharsInScript(pcScript)
@@ -57101,7 +57162,7 @@ class stzString from stzObject
 		next
 		return bResult
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def ContainsNoLetters()
 			return NOT This.ContainsNumbers()
@@ -57139,7 +57200,7 @@ class stzString from stzObject
 		next
 		return bResult
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def ContainsNoArabicLetters()
 			return NOT This.ContainsArabicNumbers()
@@ -57160,7 +57221,7 @@ class stzString from stzObject
 		next
 		return bResult
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def ContainsNoLatinLetters()
 			return NOT This.ContainsLatinNumbers()
@@ -57181,7 +57242,7 @@ class stzString from stzObject
 		next
 		return bResult
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def ContainsNoLettersInScript(pcScript)
 			return NOT This.ContainsNumbers(pcScript)
@@ -79578,7 +79639,7 @@ class stzString from stzObject
 		def IsUnicodeEqualWith(pcOtherStr)
 			return This.IsUnicodeEqualTo(pcOtherStr)
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsUnicodeDifferentFrom(pcOtherStr)
 			return NOT This.IsUnicodeEqualTo(pcOtherStr)
@@ -79635,7 +79696,7 @@ class stzString from stzObject
 		def IsStrictlyEqualWithCS(pcOtherStr, pCaseSensitive)
 			return This.IsStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsNotStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
 			return NOT This.IsStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
@@ -79662,7 +79723,7 @@ class stzString from stzObject
 		def IsStrictlyEqualWith(pcOtherStr)
 			return This.IsStrictlyEqualTo(pcOtherStr)
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsNotStrictlyEqualTo(pcOtherStr)
 			return NOT This.IsStrictlyEqualTo(pcOtherStr)
@@ -94486,7 +94547,7 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsNotLetter()
 			return NOT This.IsLetter()
