@@ -5397,6 +5397,125 @@ func IsContiguous(paList)
 	func @IsConsecutive()
 			return IsContiguous()
 
+#== Combinations functions by ClaudeAI #ai
+
+# Helper function to generate combinations recursively
+Func generateCombinationsXT(paList, nLen, nDepth, aCurrent, aResult)
+	if len(aCurrent) = nDepth
+		aResult + aCurrent
+		return
+	ok
+	
+	for i = 1 to nLen
+		aCurrent + paList[i]
+		generateCombinationsXT(paList, nLen, nDepth, aCurrent, aResult)
+		del(aCurrent, len(aCurrent))
+	next
+
+# Function to generate all possible combinations including duplicates and inversions
+
+Func CombinationsXT(paList, n)
+	if CheckParams()
+		if NOT isList(aList)
+			StzRaise("Incorrect param type! aList must be a list.")
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+	ok
+
+	# Early check
+
+	_nLen_ = len(aList)
+	if _nLen_ = 0 or n = 0
+		return []
+
+	but _nLen_ = 1 or n = 1
+		return aList
+	ok
+
+	# doing the job
+
+	if n > _nLen_
+		StzRaise("Can't proceed! n must be lesser than the size of the list.")
+	ok
+
+	_aResult_ = []
+	_aCurrent_ = []
+	
+	if n > 0 and n <= _nLen_
+		generateCombinationsXT(paList, _nLen_, n, _aCurrent_, _aResult_)
+	ok
+	
+	return _aResult_
+
+	func @CombinationsXT(paList, n)
+		return CombinationsXT(paList, n)
+
+# Function to generate combinations without duplicates or inversions
+
+func Combinations(aList, n)
+	if CheckParams()
+		if NOT isList(aList)
+			StzRaise("Incorrect param type! aList must be a list.")
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+	ok
+
+	# Early check
+
+	_nLen_ = len(aList)
+	if _nLen_ = 0 or n = 0
+		return []
+
+	but _nLen_ = 1 or n = 1
+		return aList
+	ok
+
+	# doing the job
+
+	if n > _nLen_
+		StzRaise("Can't proceed! n must be lesser than the size of the list.")
+	ok
+
+	_aList_ = aList
+	_aResult_ = []
+
+	# Main loop for first element
+
+	for @i = 1 to _nLen_ - n + 1
+
+		# Inner loop for remaining elements
+
+		for @j = @i + 1 to _nLen_ - n + 2
+			_aCombination_ = []
+			add(_aCombination_, _aList_[@i])
+
+			# Additional loops for n > 2
+			if n > 2
+				for @k = @j + 1 to _nLen_
+					_aTempComb_ = _aCombination_
+					add(_aTempComb_, _aList_[@j])
+					add(_aTempComb_, _aList_[@k])
+					add(_aResult_, _aTempComb_)
+				next
+			else
+				add(_aCombination_, _aList_[@j])
+				add(_aResult_, _aCombination_)
+			ok
+		next
+	next
+
+	return _aResult_
+
+
+	func @Combinations(aList, n)
+		return Combinations(aList, n)
+
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -53771,7 +53890,7 @@ fdef
 
 		return new stzListOfChars( This.Content() )
 
-	func ToListOfStzChars()
+	def ToListOfStzChars()
 		if NOT This.IsListOfChars()
 			StzRaise("Can't cast the list into a stzListOfChars!")
 		ok
@@ -71125,22 +71244,63 @@ fdef
 	#=====================#
 
 	def NumberOfCombinations()
-		return len(This.Combinations()) // #TODO // solve it mathematically.
+		return len(This.Combinations()) #TODO // solve it mathematically.
 	
+		def HowManyCombinations()
+			return This.NumberOfCombinations()
+
+		def CountCombinations()
+			return This.NumberOfCombinations()
+
 	def Combinations()
+		_aContent_ = This.Content()
+		return @Combinations(_aContent_, 1)
 
-		nLen = len(@aContent)
-		aResult = []
+	#--
 
-		for i = 1 to nLen - 1
-			for j = i+1 to nLen
-				aPair = []
-				aPair + @aContent[i] + @aContent[j]
-				aResult + aPair
-			next
-		next
+	def NumberOfCombinationsN(n)
+		return len(This.CombinationsN(n))
 
-		return aResult
+		def HowManyCombinationsN(n)
+			return This.NumberOfCombinationsN(n)
+
+		def CountCombinationsN(n)
+			return This.NumberOfCombinationsN(n)
+
+	def CombinationsN(n)
+		_aContent_ = This.Content()
+		return @Combinations(_aContent_, n)
+
+	#== XT
+
+	def NumberOfCombinationsXT()
+		return len(This.CombinationsXT()) #TODO // solve it mathematically.
+
+		def HowManyCombinationsXT()
+			return This.NumberOfCombinationsXT()
+
+		def CountCombinationsXT()
+			return This.NumberOfCombinationsXT()
+
+	def CombinationsXT()
+		_aContent_ = This.Content()
+		return @CombinationsXT(_aContent_, 1)
+
+	#--
+
+	def NumberOfCombinationsNXT(n)
+		return len(This.CombinationsNXT(n))
+
+		def HowManyCombinationsNXT(n)
+			return This.NumberOfCombinationsNXT(n)
+
+		def CountCombinationsNXT(n)
+			return This.NumberOfCombinationsNXT(n)
+
+	def CombinationsNXT(n)
+		_aContent_ = This.Content()
+		return @CombinationsXT(_aContent_, n)
+
 
 	  #===========================================#
 	 #  GETTING THE UNICODES CODES OF EACH ITEM  #
@@ -84609,13 +84769,13 @@ fdef
 			return _FALSE_
 		ok
 
-		func IsOfOrInNamedParam()
+		def IsOfOrInNamedParam()
 			return IsInOrOfNamedParam()
 
-		func IsInOrOfNamedParams()
+		def IsInOrOfNamedParams()
 			return IsInOrOfNamedParam()
 
-		func IsOfOrInNamedParams()
+		def IsOfOrInNamedParams()
 			return IsInOrOfNamedParam()
 
 	def IsNameOrNamedNamedParam()

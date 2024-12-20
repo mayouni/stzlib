@@ -9676,6 +9676,34 @@ proff()
 */
 profon()
 
+? @@NL( Combinations([ "A", "B", "C" ], 2) )
+#--> [
+#	[ "A", "A" ],
+#	[ "A", "B" ],
+#	[ "A", "C" ],
+
+#	[ "B", "A" ],
+#	[ "B", "B" ],
+#	[ "B", "C" ],
+
+#	[ "C", "A" ],
+#	[ "C", "B" ],
+#	[ "C", "C" ]
+# ]
+
+proff()
+
+/*----
+
+o1 = new stzList([ "V", "T", "T", "S" ])
+? @@NL( o1.Combinations() )
+
+proff()
+
+/*--------------
+*/
+profon()
+
 # Here is a fluent chain of actions that starts from
 # the word "LIFE" and ends at the word "L ♥ F E"
 
@@ -9737,15 +9765,13 @@ profon()
 	CharsQ().
 
 	RemoveSpacesQ().
-//	LoopNTimesQ(100_000). # Just to add time add see it traced
 	UppercaseQ().
 	JoinQ().
 
 	SpacifyQ().
-//	LoopNTimesQ(100_000).
 	ReplaceQ("I", :With = AHeart()).
 	History()
-)
+) + NL
 #--> [
 #	[ "LIFE", "stzstring", 0, 435 ],
 #	[ "life", "stzstring", 0.02, 435 ],
@@ -9767,6 +9793,21 @@ profon()
 # ]
 
 # NOTE that only the methods that update the objects are traced!
+
+? @@NL (
+	QHHVT("LIFE").
+	LowercaseQ().
+	SpacifyQ().
+	CharsQ().
+
+	RemoveSpacesQ().
+	UppercaseQ().
+	JoinQ().
+
+	SpacifyQ().
+	ReplaceQ("I", :With = AHeart()).
+	History()
+)
 
 proff()
 # Executed in 0.03 second(s) in Ring 1.22s
