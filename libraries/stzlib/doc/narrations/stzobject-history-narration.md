@@ -2,9 +2,7 @@
 ![Tracking Object History in Softanza, by Microsoft Image Create AI](../images/stzobject-history.jpg)
 
 
-## Unveiling the Story Behind Data Mutations
-
-In programming, data transformations often happen in the blink of an eye, leaving no trace of their journey. Softanza challenges this paradigm with a groundbreaking feature that captures the entire lifecycle of object modifications.
+In programming, data transformations often happen inside variables in the blink of an eye, leaving no trace of their journey. Softanza challenges this paradigm with a groundbreaking feature that captures the entire lifecycle of object modifications.
 
 ---
 

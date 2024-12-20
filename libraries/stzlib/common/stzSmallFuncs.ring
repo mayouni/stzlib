@@ -45,27 +45,6 @@ func QHH(p)
 
 	return Q(p)
 
-	func QHHVTS(p)
-		return QHH(p)
-
-func QHHVT(p)
-	SetkeepingTimeTo(_TRUE)
-	SetKeepingHistoryToXT(_TRUE_, :VT)
-
-	return Q(p)
-
-func QHHVS()
-	SetKeepingTimeTo(_TRUE_)
-	SetKeepingHistoryTo(_TRUE_, :VS)
-
-	return Q(p)
-
-func QHHTS()
-	SetKeepingTimeTo(_TRUE_)
-	SetKeepingHistoryTo(_TRUE_, :TS)
-
-	return Q(p)
-
 #--
 
 func StzW(cType, paMethodAndFilter)

@@ -9673,10 +9673,17 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--------------
-*/
+
 profon()
 
 ? @@NL( Combinations([ "A", "B", "C" ], 2) )
+#--> [
+#	[ "A", "B" ],
+#	[ "A", "C" ],
+#	[ "B", "C" ]
+# ]
+
+? NL@@NL( CombinationsXT([ "A", "B", "C" ], 2) )
 #--> [
 #	[ "A", "A" ],
 #	[ "A", "B" ],
@@ -9692,13 +9699,25 @@ profon()
 # ]
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*----
 
-o1 = new stzList([ "V", "T", "T", "S" ])
+profon()
+
+o1 = new stzList([ "V", "T", "M", "S" ])
 ? @@NL( o1.Combinations() )
+#--> [
+#	[ "V", "T" ],
+#	[ "V", "M" ],
+#	[ "V", "S" ],
+#	[ "T", "M" ],
+#	[ "T", "S" ],
+#	[ "M", "S" ]
+# ]
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--------------
 */
@@ -9794,23 +9813,8 @@ profon()
 
 # NOTE that only the methods that update the objects are traced!
 
-? @@NL (
-	QHHVT("LIFE").
-	LowercaseQ().
-	SpacifyQ().
-	CharsQ().
-
-	RemoveSpacesQ().
-	UppercaseQ().
-	JoinQ().
-
-	SpacifyQ().
-	ReplaceQ("I", :With = AHeart()).
-	History()
-)
-
 proff()
-# Executed in 0.03 second(s) in Ring 1.22s
+# Executed in 0.13 second(s) in Ring 1.22s
 
 /*------------------
 
