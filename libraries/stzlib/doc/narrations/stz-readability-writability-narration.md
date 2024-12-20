@@ -170,7 +170,7 @@ This means you won’t be blocked by an error message just because you wrote `Nt
 
 ## Function Named Parameters: Code as Narrative
 
-The @FunctionNamedParams feature illuminates function parameters (the values received between parentheses) with optional self-documenting labels, transforming the code from mere technical instructions into a clear, readable narrative.
+The `@FunctionNamedParams` feature illuminates function parameters (the values received between parentheses) with optional self-documenting labels, transforming the code from mere technical instructions into a clear, readable narrative.
 
 An example:
 
@@ -180,6 +180,10 @@ o1.SwapItems( :AtPositions = 1, :And = 3 )
 ```
 
 The parameters `:AtPositions` and `:And` make the code's intention immediately clear, reading almost like a natural language sentence.
+
+The feature not only improves communication by clarifying the meaning of your code, but also serves as a *productivity tool* by eliminating the need to write separate documentation files to explain its use to other programmers. In fact, the code becomes *self-documenting*, readable, and understandable, as long as a human can read plain, natural language.
+
+>**NOTE**: Softanza provide thousands of named params needed in practice and can be extended easlity to support more of them.
 
 ## Function Conditional Form: The Magic of W()
 
