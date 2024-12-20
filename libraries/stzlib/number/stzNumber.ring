@@ -2158,7 +2158,7 @@ class stzNumber from stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsNotOdd()
 			return NOT This.IsOdd()
@@ -2182,7 +2182,7 @@ class stzNumber from stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsNotEven()
 			return NOT This.IsEven()
@@ -2408,7 +2408,7 @@ class stzNumber from stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsNotEqualTo(pOtherNumber)
 			return NOT This.IsEqualTo(pOtherNumber)
@@ -3303,13 +3303,12 @@ class stzNumber from stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+	#-- @FunctionPassiveForm
 
-		def Added(pOtherNumber)
-			nResult = This.Copy().AddQ(pOtherNumber).NumericValue()
-			return nResult
+	def Added(pOtherNumber)
+		nResult = This.Copy().AddQ(pOtherNumber).NumericValue()
+		return nResult
 
-		#>
 
 	def AddMany(paOtherNumbers)
 		This.AddManyXT(paOtherNumbers, :ReturnIntermediateResults = _FALSE_)
@@ -3333,14 +3332,12 @@ class stzNumber from stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+	#-- @FunctionPassiveForm
 
-		def AddedMany(pOtherNumbers)
-			nResult = This.Copy().AddManyQ(pOtherNumbers).NumbericValue()
-			return nResult
+	def AddedMany(pOtherNumbers)
+		nResult = This.Copy().AddManyQ(pOtherNumbers).NumbericValue()
+		return nResult
 
-			def AddedThese(pOtherNumbers)
-				return This.AddedMany(pOtherNumbers)
 
 		def ManyAdded(pOtherNumbers)
 			return This.AddedMany(pOtherNumbers)

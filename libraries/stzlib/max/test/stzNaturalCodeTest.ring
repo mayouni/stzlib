@@ -35,8 +35,8 @@ ExecuteActions( Future(), :on = oStr )
 proff()
 # Executed in 0.02 second(s)
 
-/*---
-
+/*--- #todo #narration PROGRAMMING THE FUTURE, LITTERALLY, IN SOFTANZA
+*/
 profon()
 
 ? BeforeQ("ringo").IsUppercasedFQ().

@@ -564,7 +564,7 @@ class stzChainOfValue from stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsNotANumber()
 			return NOT This.IsANumber()
@@ -624,7 +624,7 @@ class stzChainOfValue from stzObject
 
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsNotAString()
 			return NOT This.IsAString()
