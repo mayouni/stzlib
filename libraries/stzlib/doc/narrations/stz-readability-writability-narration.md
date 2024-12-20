@@ -219,11 +219,12 @@ While both approaches achieve the same result, the conditional approach in Softa
 Additionally, it is significantly more *writable*, reducing five lines of code to just one!
 
 
-## Function Suffixes: A Clean Approach to Master Parameters from the Function Name
+## Function Suffixes: Master Parameters from the Function Name
 
 Modern programming frequently involves working with functions that have multiple parameters, where the purpose isn't immediately clear from the function names alone. Consider these common scenarios:
 
 ```javascript
+# In Javascript
 arrayUtils.slice(array, 0, 10, false);
 ```
 Developers often ask:
@@ -232,6 +233,8 @@ Developers often ask:
 - What behavior does the boolean flag control?
 
 ```cpp
+# In C++ Qt
+
 QString str = "example";
 int position = str.indexOf("e", 0, 3, 0);
 ```
@@ -242,9 +245,11 @@ Here, similar questions arise:
 
 These examples show how numeric parameters and boolean flags can obscure a function's intent, often requiring developers to consult documentation or experiment with test cases.
 
-From a *writability* perspective, Softanza addresses this challenge by establishing a *mutual contract* between programmers and the system. Programmers explicitly define their intentions through *suffixes*, while Softanza acts as a type system controller, ensuring that the function parameters adheres to the specified structure.
+From a *writability* perspective, Softanza addresses this challenge by establishing a *mutual contract* between programmers and the system. Programmers explicitly define their intentions through *suffixes*, while Softanza acts as a type system controller, ensuring that the function parameters adhere to the specified structure.
 
 From a *readability* perspective, the suffixes immediately convey the nature and behavior of parameters, effectively creating a self-documenting API. This not only improves the clarity of the code but also enhances the developer's understanding without the need for external references.
+
+Let's take the `CS()` suffix as an example of how to add case sensitivity check to a Softanza function.:
 
 ```ring
 // Basic removal of lowercase characters
@@ -253,7 +258,7 @@ str = new stzString("SOOooooFFfffTANNnnnZA")
 str.RemoveMany([ "o", "f", "n" ])
 #--> "SOOFFTANNZA"
 
-// Adding CS suffix for case-sensitive behavior
+// Adding CS suffix for checking case sensitivity
 
 str = new stzString("SOOooooFFfffTANNnnnZA")
 str.RemoveManyCS([ "o", "f", "n" ], FALSE)
@@ -266,7 +271,7 @@ Finally, by allowing the combination of *suffixes* and *named parameters*, Softa
 str.RemoveManyCS([ "o", "f", "n" ], :CaseSensitive = FALSE)
 ```
 
-This system of named parameters and intuitive suffixes provides a smooth Programmer Experience by Design, ensuring that developers focus on solving problems rather than interpreting functions and their parameters.
+This system provides a smooth *Programmer Experience by Design*, ensuring that developers focus on solving problems rather than interpreting functions and their parameters.
 
 > **NOTE**: Softanza includes many other powerful suffixes (and prefixes), which will be explored in a dedicated article.
 
