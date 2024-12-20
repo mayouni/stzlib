@@ -5414,7 +5414,7 @@ Func generateCombinationsXT(paList, nLen, nDepth, aCurrent, aResult)
 
 # Function to generate all possible combinations including duplicates and inversions
 
-Func CombinationsXT(paList, n)
+Func CombinationsXT(aList, n)
 	if CheckParams()
 		if NOT isList(aList)
 			StzRaise("Incorrect param type! aList must be a list.")
@@ -5445,7 +5445,7 @@ Func CombinationsXT(paList, n)
 	_aCurrent_ = []
 	
 	if n > 0 and n <= _nLen_
-		generateCombinationsXT(paList, _nLen_, n, _aCurrent_, _aResult_)
+		generateCombinationsXT(aList, _nLen_, n, _aCurrent_, _aResult_)
 	ok
 	
 	return _aResult_
@@ -71254,7 +71254,7 @@ fdef
 
 	def Combinations()
 		_aContent_ = This.Content()
-		return @Combinations(_aContent_, 1)
+		return @Combinations(_aContent_, 2)
 
 	#--
 
@@ -71284,7 +71284,7 @@ fdef
 
 	def CombinationsXT()
 		_aContent_ = This.Content()
-		return @CombinationsXT(_aContent_, 1)
+		return @CombinationsXT(_aContent_, 2)
 
 	#--
 

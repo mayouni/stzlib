@@ -28,7 +28,7 @@ o1.RemoveAll("x")  # Actively modifies the object
 
 The `RemoveAll()` function exemplifies this active approach by directly acting on the object, akin to how a verb conveys immediate action in natural language.
 
-Implicitly, the interaction adopts a *conversational* style: the program communicates with the `stzString` object, `o1`, as if addressing a person. It's as though saying, **"o1, remove all 'x's, please!"**—reminiscent of calling someone by name to request an action, as in, "**Dan! Come here, please.**"
+Implicitly, the interaction adopts a *conversational* style: the program communicates with the `stzString` object, `o1`, as if addressing a person. It's as though saying, **"o1, remove all 'x's, please!"**—reminiscent of calling someone by name to request an action, as in, "**Dan! Remove these from the floor, please.**"
 
 
 ## Function Passive Form: Transformations Without Side Effects
@@ -44,32 +44,76 @@ o1 = new stzString("RIxxNxG")
 #--> RIxxNxG
 ```
 
-The `Removed()` function generates a new string, leaving the original object unchanged. 
+Here’s a refined version with repetitions eliminated and improved flow:  
 
-This is similar to expressing an action in the *past participle*, where the action has *already* been completed, and the object is now merely being referenced.
+The `Removed()` function generates a new string while preserving the original object unchanged.  
 
-Linguistically speaking, when you say, "*The object has been *removed**," the action of removal happened in the past, and the word "**removed**" serves as a *descriptor*, drawing attention to the object's *current* state *without* altering its essence.
+This mirrors the role of the *past participle* in language, which conveys a completed action and shifts focus to a new desired state of the subject, leaving its initial value intact.  
 
-This analogy underscores the behavior of the `Removed()` function—it creates a new string while leaving the original object untouched, just as the *past participle* describes a completed event without modifying the subject itself.
+Linguistically, invoking `o1.Remove()` is akin to saying, *"Oh, o1! Show me your state with all 'x' remov**ed**."* Here, "removed" acts as a linguistic *descriptor*, not an effective *action*, emphasizing the transformation without altering the original value of `o1`.  
 
+## @FunctionPassiveForm as a Terminator of @FluentChainsOfActions  
+
+The true computational potential of the `@FunctionPassiveForm` is revealed when combined with a **fluent chain of actions**, as shown below:  
+
+```ring  
+? Q("rixxnxg").UppercaseQ().ReplaceQ("I", :With = AHeart()).SpacifyQ().Removed("x")  
+#--> R♥NG  
+```  
+
+In this chain, a **copy-on-write mechanism** is applied to the initial `stzString` object created by `Q("RIxxNxG")`. At each step—Uppercasing, Replacing, Spacifying, and Removing—a new copy is generated, ensuring that the original object remains unaltered. This guarantees side-effect-free execution, a critical requirement in many real-world scenarios where maintaining program state integrity is essential.  
+
+The process happens efficiently, with the Ring VM's garbage collector handling intermediate copies and freeing up memory.  
+
+Importantly, the chain is intentionally interrupted by the `Removed()` function, which serves as a **terminator** in the sequence. Unlike previous steps that return a new `stzString` object, `Removed()` yields a native Ring string, signaling the conclusion of the fluent chain and ensuring a clean final output.  
 
 ## Function Negative Form: Intuitive Logical Negations
 
-Softanza simplifies logical **negations** by introducing direct negative function forms:
+Here’s the revised and refined version for better clarity and English correctness:  
 
-```ring
-# Traditional approach
-? NOT Q("*").IsLetter()
+Softanza simplifies logical **negations** by introducing direct negative function forms:  
 
-# Softanza's natural approach
-? Q("*").IsNotLetter()
+```ring  
+# Traditional approach  
+? NOT Q("*").IsLetter()  
 
-# Or even with an additiona 'A' for a sense of semantic precision
-? Q("*").IsNotALetter()
-```
+# Softanza's natural approach  
+? Q("*").IsNotLetter()  
 
-This approach makes logical expressions more readable and closer to natural language.
+# Or even with an additional 'A' for semantic precision  
+? Q("*").IsNotALetter()  
+```  
 
+This approach makes logical expressions more readable and closer to natural language, particularly when transforming complex logic like this:  
+
+```ring  
+if NOT (o1.IsString() and o1.IsLowercase() and o1.Contains("♥")) and  
+   o1.NumberOfChars() < 5 and  
+   NOT o1.NumberOfChars().IsEven()  
+
+    ? "It's ok!"  
+else  
+    ? "Oops!"  
+ok  
+```  
+
+Into a streamlined, linguistically intuitive expression like this:  
+
+```ring  
+if o1.IsNotAString() and  
+   o1.IsNotInLowercase() and  
+   o1.DoesNotContain("♥") and  
+
+   o1.NumberOfChars() < 5 and  
+   o1.NumberOfCharsQ().IsNotEven()  
+
+    ? "It's ok!"  
+else  
+    ? "Oops!"  
+ok  
+```  
+
+Which version do you find cleaner and more expressive?
 
 ## Flexibility in Expression: Function Alternative Forms
 
