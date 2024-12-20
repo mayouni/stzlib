@@ -9723,20 +9723,20 @@ proff()
 */
 profon()
 
-o1 = new stzList([ "r", "i", "n", "g" ])
+o1 = new stzList([ "R", "I", "N", "G" ])
 
 if o1.IsNotAString() and
    o1.IsNotInLowercase() and
    o1.DoesNotContain("♥") and
 
    o1.NumberOfChars() < 5 and
-   o1.NumberOfCharsQ().IsNotEven()
+   o1.NumberOfCharsQ().IsNotOdd()
 
     ? "It's ok!"
 else  
     ? "Oops!"
 ok
-#--? "Ooops!"
+#--? "It's ok!"
 
 # Let's see the negative conditions one by one
 
@@ -9744,14 +9744,19 @@ ok
 #--> TRUE
 
 ? o1.IsNotInLowercase()
-#--> FALSE
+#--> TRUE
 
 ? o1.DoesNotContain("♥")
+#--> TRUE
 
 ? o1.NumberOfChars() < 5
-? o1.NumberOfCharsQ().IsNotEven()
+#--> TRUE
 
-pron()
+? o1.NumberOfCharsQ().IsNotOdd()
+#--> TRUE
+
+proff()
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*=================
 

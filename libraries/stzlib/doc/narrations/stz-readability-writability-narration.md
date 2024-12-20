@@ -10,7 +10,7 @@ Imagine writing code that flows as naturally as your thoughts, where programming
 
 Softanza introduces a unique approach to programming by treating functions as *linguistic expressions*, offering developers unprecedented flexibility in how they **write** and **read** code.
 
-Through carefully designed features like `@FunctionActiveForm`, `@FunctionPassiveForm`, `@FunctionNegativeForm`, `@FunctionAlternativeForms`, `@FunctionNamedParams`, `@FunctionConditionalForm` and `@FunctionNameSuffixes`, Softanza breaks down the traditional barriers between human language and programming logic.
+Through carefully designed features like `@FunctionActiveForm`, `@FunctionPassiveForm`, `@FunctionNegativeForm`, `@FunctionAlternativeForms`, `@FunctionFluentForm`, `@FunctionNamedParams`, `@FunctionConditionalForm` and `@FunctionNameSuffixes`, Softanza breaks down the traditional barriers between human language and programming logic.
 
 >**NOTE**: In Softanza, as in Ring, the term `function` is used interchangeably to refer to both functions and methods.
 
@@ -95,10 +95,12 @@ Softanza simplifies logical **negations** by introducing direct negative functio
 
 This approach makes logical expressions more readable and closer to natural language, particularly when transforming complex logic like this:
 
-```ring  
+```ring
+o1 = new stzList([ "R", "I", "N", "G" ])
+
 if NOT (o1.IsString() and o1.IsLowercase() and o1.Contains("♥")) and
    o1.NumberOfChars() < 5 and
-   NOT o1.NumberOfChars().IsEven()
+   NOT o1.NumberOfChars().IsOdd()
 
     ? "It's ok!"
 else
@@ -109,17 +111,20 @@ ok
 Into a streamlined, linguistically intuitive expression like this:
 
 ```ring
+o1 = new stzList([ "R", "I", "N", "G" ])
+
 if o1.IsNotAString() and
    o1.IsNotInLowercase() and
    o1.DoesNotContain("♥") and
 
    o1.NumberOfChars() < 5 and
-   o1.NumberOfCharsQ().IsNotEven()
+   o1.NumberOfCharsQ().IsNotOdd()
 
     ? "It's ok!"
 else  
     ? "Oops!"
-ok  
+ok
+#--? "It's ok!"
 ```  
 
 Which version do you find cleaner and more expressive?
