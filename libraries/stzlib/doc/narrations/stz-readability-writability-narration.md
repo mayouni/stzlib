@@ -115,6 +115,8 @@ ok
 
 Which version do you find cleaner and more expressive?
 
+>**NOTE**: Function negative forms are not currently supported in all Softanza functions, but this is planned for the future.
+
 ## Flexibility in Expression: Function Alternative Forms
 
 Softanza recognizes that developers, as human beings, think in diverse ways and therefore provides multiple approaches to express the same operation.
