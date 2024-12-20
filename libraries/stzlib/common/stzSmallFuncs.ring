@@ -41,24 +41,30 @@ func QH(p)
 
 func QHH(p)
 	SetKeepingTimeTo(_TRUE_)
-	SetKeepingHistoryToXT(_TRUE_)
+	SetKeepingHistoryToXT(_TRUE_, :VTS)
 
-	oStzObj = Q(p)
+	return Q(p)
 
-	# Adding the first line in the histo
+	func QHHVTS(p)
+		return QHH(p)
 
-//	_aHistoXT + [ p, oStzObj.stzType(), 0, SizeInBytes(p) ]
+func QHHVT(p)
+	SetkeepingTimeTo(_TRUE)
+	SetKeepingHistoryToXT(_TRUE_, :VT)
 
-	return oStzObj
-
-	func QHHVTS()
-		return QHH()
-
-func QHHVT()
+	return Q(p)
 
 func QHHVS()
+	SetKeepingTimeTo(_TRUE_)
+	SetKeepingHistoryTo(_TRUE_, :VS)
+
+	return Q(p)
 
 func QHHTS()
+	SetKeepingTimeTo(_TRUE_)
+	SetKeepingHistoryTo(_TRUE_, :TS)
+
+	return Q(p)
 
 #--
 

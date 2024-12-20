@@ -550,7 +550,7 @@ func SetKeepingHistoryTo(bTrueOrFalse)
 
 #---
 
-func SetKeepingHistoryToXT(bTrueOrFalse)
+func SetKeepingHistoryToXT(bTrueOrFalse, pcSuffix)
 	if CheckParams()
 		if NOT (isNumber(bTrueOrFalse) and isNumber(bTrueOrFalse) )
 			StzRaise("Incorrect param type! bTrueOrFalse must be a number.")
@@ -558,6 +558,14 @@ func SetKeepingHistoryToXT(bTrueOrFalse)
 	
 		if NOT ( bTrueOrFalse = _FALSE_ or bTrueOrFalse = _TRUE_ )
 			StzRaise("Incorrect param value! bTrueOrFalse must be 0 or 1.")
+		ok
+
+		if NOT isString(pcSuffix)
+			StzRaise("Incorrect param type! pcSuffix must be a string!")
+		ok
+
+		if NOT ( pcSuffix = :VTTS or pcSuffix = :V )
+
 		ok
 	ok
 
@@ -578,6 +586,12 @@ func SetKeepingHistoryToXT(bTrueOrFalse)
 		SetKeepingHistoryToXT(bTrueOrFalse)
 
 	#>
+
+func UpdateObjectHistory(aInfo)
+	_aHisto = aInfo
+
+func UpdateObjectHistoryXT(aInfo)
+	_aHistoXT = aInfo
 
 #---
 
