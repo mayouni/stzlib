@@ -1,4 +1,4 @@
-# Writability vs. Readability — Softanza Asks: Why NOT Both?  
+# Writability vs. Readability of Computer Code— Softanza Asks: Why NOT Both?  
 ![An Arabic scholar **writing** his scientific discovery in a beautiful, **readable**, and artistic calligraphic style. By M.Ayouni, using Microsoft Image AI](../images/stz-functions-alterforms-namedparams.jpg)
 *An Arabic scholar **writing** his scientific discovery in a beautiful, **readable**, and artistic calligraphic style.*
 
