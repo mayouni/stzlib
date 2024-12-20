@@ -46,7 +46,7 @@ o1 = new stzString("RIxxNxG")
 
 The `Removed()` function generates a new string while preserving the original object unchanged.
 
-This mirrors the role of the *past participle* in language, which conveys a completed action and shifts focus to a new desired state of the subject, leaving its initial value intact.
+This mirrors the role of the *past participle* in english, which conveys a completed action and shifts focus to a new desired state of the subject, leaving its initial value intact.
 
 Invoking `o1.Remove()` is akin to saying, *"Oh, o1! Show me your state with all 'x' remov**ed**."* Here, "removed" acts as a linguistic *descriptor*, not an effective *action*, emphasizing the transformation *output* without altering the *original* value of `o1`.
 
