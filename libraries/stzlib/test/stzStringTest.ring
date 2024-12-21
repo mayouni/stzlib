@@ -9781,7 +9781,7 @@ o1 = new stzString("RIxxNxG")
 proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
-#== @FunctionTempForm #TODO #NARRATION
+#== @FunctionPartialForm #TODO #NARRATION
 
 profon()
 
@@ -9800,6 +9800,17 @@ proff()
 
 profon()
 
+o1 = new stzString("RIxxNxG")
+? o1.@("x").@Removed()
+#--> RING
+
+proff()
+# Executed in 0.05 second(s) in Ring 1.22
+
+/*---
+
+profon()
+
 o1 = new stzString("__Ri__ng__")
 
 o1.@("__").@Remove()
@@ -9808,6 +9819,22 @@ o1.@("__").@Remove()
 
 proff()
 # Executed in 0.05 second(s) in Ring 1.22
+
+/*---
+*/
+profon()
+
+o1 = new stzString("__Ri__ng__")
+? o1.@("__").@RemoveItQ().AndThenQ().UppercaseQ().TheString()
+#--> RING
+
+# Which we can write in even more elegant  form (without o1, and using an alternative of @() called @Take())
+
+? Q("__Ri__ng__").@Take("__").@RemoveItQ().AndThenQ().UppercaseQ().TheString()
+#--> RING
+
+proff()
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*---
 
@@ -9838,11 +9865,21 @@ proff()
 
 /*----
 */
+
 profon()
 
 ? Q("__Ri__ng__").
-	@("__").@RemoveItQ().AndThenQ().UppercaseQ().TheStringQ().AndQ().SpacifyItQ()
-.Content()
+	@("__").@RemoveItQ().AndThenQ().UppercaseQ().TheStringQ().AndQ().SpacifyItR()
+
+#--> R I N G
+
+? Q("__Ri__ng__").
+	@("__").@RemoveItQ().AndThenQ().UppercaseQ().TheStringQ().AndQ().SpacifyItQ().AsWell()
+#--> R I N G
+
+? Q("__Ri__ng__").
+	@("__").@RemoveItQ().AndThenQ().UppercaseQ().TheStringQ().AndQ().SpacifyItQ().@0(:AsWell)
+#--> R I N G
 
 proff()
 # Executed in 0.06 second(s) in Ring 1.22
