@@ -10,7 +10,7 @@ Imagine writing code that flows as naturally as your thoughts, where programming
 
 Softanza introduces a unique approach to programming by treating functions as *linguistic expressions*, offering developers unprecedented flexibility in how they **write** and **read** code.
 
-Through carefully designed features like `@FunctionActiveForm`, `@FunctionPassiveForm`, `@FunctionNegativeForm`, `@FunctionAlternativeForms`, `@FunctionFluentForm`, `@FunctionNamedParams`, `@FunctionConditionalForm` and `@FunctionNameSuffixes`, Softanza breaks down the traditional barriers between human language and programming logic.
+Through carefully designed features like `@FunctionActiveForm`, `@FunctionPassiveForm`, `@FunctionFluentForm`, `@FunctionPartialForm`, `@FunctionPluralForm`, `@FunctionExceptionalForm`, `@FunctionNegativeForm`, `@FunctionAlternativeForms`, `@FunctionNamedParams`, `@FunctionConditionalForm`, `@FunctionNameSuffixes` and `@SmallFunctions`, Softanza breaks down the traditional barriers between human language and programming logic.
 
 >**NOTE**: In Softanza, as in Ring, the term `function` is used interchangeably to refer to both functions and methods.
 
@@ -200,7 +200,7 @@ Here’s the improved and extended narration:
 
 ---
 
-## Function **ExceptionalForm**: Because the Real World Is Full of Exceptions
+## Function ExceptionalForm: Because the Real World Is Full of Exceptions
 
 In many real-world scenarios, we encounter cases where simple string processing fails to meet nuanced requirements. For example, consider the task of removing non-letter characters from the string `"__R~~~IN***G__"`. Using the standard `RemoveNonLetters()` function from the `stzString` class, this can be elegantly achieved:
 
@@ -458,6 +458,16 @@ This system provides a smooth *Programmer Experience by Design*, ensuring that d
 
 > **NOTE**: Softanza includes many other powerful suffixes (and prefixes), which will be explored in a dedicated article.
 
+
+## Small Functions, With Grand Potential
+
+You've discivered some of them: Q(), W(), XT(), CS(), Z(), ZZ(), but there are a lot of them: ST(), N(), IB(). Let's get a sense of them with quick examples.
+
+- examples go here
+
+they are made for writabibilty, but convey a meaning for readbility,
+togethor they make flexibility, be cause they are composable
+the impose a rigour on the types and order of params so to alleviate the mental load while programming
 
 ## Why It Matters: The Dual Benefits of Writable and Readable Code
 
