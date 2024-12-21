@@ -1574,7 +1574,21 @@ class stzString from stzObject
 
 			def TheStringQ() # Returns the object not a new one!
 				return This
+
+		def AsWellR()
+			return This.Content()
+
+			def AsWell()
+				return This.Content()
+
+			def AsWellQ()
+				return This
+
+		def R()
+			return This.Content()
+
 		#>
+
 
 	def QStringObject()
 		return @oQString
@@ -80078,7 +80092,7 @@ class stzString from stzObject
 		cResult = This.Copy().RemoveQ(pSubStr).Content()
 		return cResult
 
-	#== @FunctionTempForm
+	#== @FunctionPartialForm
 
 	def @Remove()
 		This.RemoveSections($TEMP_LIST)
@@ -88593,6 +88607,9 @@ class stzString from stzObject
 		return cResult
 
 		def Spacified()
+			return This.CharsSpacified()
+
+		def SpacifyItR()
 			return This.CharsSpacified()
 
 		#< @FunctionFutureForm
@@ -99797,10 +99814,26 @@ class stzString from stzObject
 
 		return This
 
+		def @AllCS(pSubStr, pCaseSensitive)
+			return This.@CS(pSubStr, pCaseSensitive)
+
+		def @TakeCS(pSubStr, pCaseSensitive)
+			return This.@CS(pSubStr, pCaseSensitive)
+
 	#--
 
-	def @(pcSubStr)
-		return This.@CS(pcSubStr, _TRUE_)
+	def @(pSubStr)
+		return This.@CS(pSubStr, _TRUE_)
+
+		def @All(pSubStr)
+			return This.@(pSubStr)
+
+		def @Take(pSubStr)
+			return This.@(pSubStr)
+
+
+	def @0(p)
+		return This.Content()
 
 	#===
 

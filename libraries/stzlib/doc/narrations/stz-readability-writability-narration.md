@@ -38,14 +38,14 @@ Sometimes, you want to perform an operation without altering the original object
 
 ```ring
 o1 = new stzString("RIxxNxG")
-? o1.Removed("x")  # Returns a new transformed string
+? o1.AllRemoved("x")  # Returns a new transformed string
 #--> RING
 
 ? o1.Content()  # Original object remains unchanged
 #--> RIxxNxG
 ```
 
-The `Removed()` function generates a new string while preserving the original object unchanged.
+The `Removed()` function returns a new string while preserving the original object unchanged.
 
 In natural language, the *past participle* often emphasizes a state rather than the action itself. For example, "If you find the door closed, then these are the keys" shifts focus from the act of closing to the desired condition of the door being closed. 
 
@@ -74,6 +74,180 @@ A key feature of this approach is the famous **copy-on-write mechanism**. Each o
 At the end of the chain, the `Removed()` function serves as a **terminator**. Unlike previous functions, it does not return an object that can be further processed but instead returns a native Ring string, marking the end of the chain and delivering the final result.
 
 >**NOTE**: Internally, the process happens efficiently, with the Ring VM's garbage collector handling intermediate copies and freeing up memory.
+
+## Function Partial Form: Opening a Second Avenue in the Transformation Chain
+
+In the example in the Section *Function Passive Form: Transformations Without Side Effects* above, we wrote `o1.AllRemoved("x")` and demonstrated the power of using the `@PassiveForm` of the `Remove()` function.
+
+However, this expression is not as linguistically elegant as natural language discourse. In fact, we would prefer to say: *All "x" removed*, in that order, rather than *"x" all removed!* – the latter sounds awkward, doesn't it?
+
+This issue stems from how computer languages are inherently designed regarding objects and methods acting upon them. In all object-oriented programming languages, methods invoked on an object (e.g., `o1.Removed("x")`) operate on the object itself (`o1`) rather than on the parameter (`"x"`), which is merely part of the object's content.
+
+Softanza *resolves* this limitation elegantly by allowing values like `x` to be interpreted *in context* of the main string, as a list of sections refelcting its occurrences in the string, temporarily stored in a hidden space during the chain. Using the `@Removed()` function, you instruct the Chain to *restore* the sections and *remove* them from the string. Thus, we can write:
+
+```ring
+o1 = new stzString("RIxxNxG")
+? o1.@("x").@Removed() # Or o1.@All("x").@Removed() for better semantic precision!
+#--> RING
+```
+
+This `@Removed()` function form is called `@FunctionPartialForm`. It enables Fluent Chains of Actions to open a *second avenue* of data manipulation, applying transformations not to the main object of the chain but to a **part** of it, mimicking natural language.
+
+Switching between the two avenues is intuitive:
+- When you use normal function forms (active or passive), you are transforming the main object (the `stzString` `"RIxxNxG"` in this case).
+- When you use the partial form `@Removed()`, or any other function prefixed by `@`, you are transforming the part.
+
+That's it.
+
+Of course, the part must *exist* within the object's content (e.g., `"x"` in `"RIxxNxG"`). Otherwise, nothing happens.
+
+Here’s an example of a longer chain that *combines* both main functions and partial functions:
+
+```ring
+o1 = new stzString("__Ri__ng__")
+? o1.@("__").@RemoveItQ().AndThenQ().UppercaseQ().TheString()
+
+# Which we can write in even more elegant  form (without o1, and using an alternative of @() called @Take())
+
+? Q("__Ri__ng__").@Take("__").@RemoveItQ().AndThenQ().UppercaseQ().TheString()
+#--> RING
+```
+
+Curious how the magic works? There’s no actual magic—just thoughtful design.
+
+- The `@("__")` small function identifies the substring `"__"` and stores its positions as sections `[[1, 2], [5, 6], [9, 10]]` in Softanza’s temporary memory.
+- When the `@RemoveItQ()` partial function is invoked with its `@` prefix, it removes those sections from the main object. The updated `stzString` (now containing `"Ring"`) is passed along the chain, thanks to the `Q()` suffix in `@RemoveItQ()`.
+- `AndThenQ()` acts as a linguistic connector, further passing the updated `stzString` to the next function, `UppercaseQ()`. This main function operates on the main string, converting it to `"RING"`.
+- Finally, `TheString()` serves as a linguistic *terminator* for the chain, returning the value `"RING"`.
+
+## Function Plural Form: Pushing the Boundaries of Singularity
+
+In Softanza, whenever a function operates on a singular element (e.g., a string, list, or number), it is guaranteed to have a counterpart that operates on collections of those elements (e.g., a list of strings, numbers, or lists). This design is both practical and efficient, eliminating the need for explicit loops and simplifying code and logic.
+
+Let’s illustrate this with an example. Suppose we have a scrambled string that needs to be cleaned of special characters like `_`, `~`, or `*`. The solution involves identifying the sections occupied by these characters and removing them. While describing this process is quick, implementing it step-by-step can be more involved:
+
+```ring
+o1 = new stzString("__R~~~IN***G__")
+
+# Finding the positions of the special characters
+
+aSections1 = o1.FindAsSections("__") # Or use the abbreviation with the ZZ suffix: o1.FindZZ("__")
+? @@(aSections1)
+#--> [ [1, 2], [13, 14] ]
+
+aSections2 = o1.FindZZ("~~~")
+? @@(aSections2)
+#--> [ [4, 6] ]
+
+aSections3 = o1.FindZZ("***")
+? @@(aSections3)
+#--> [ [9, 11] ]
+
+# Merging all the sections into one list
+
+aSections = Merge([ aSections1, aSections2, aSections3 ])
+? @@(aSections)
+#--> [ [1, 2], [4, 6], [9, 11], [13, 14] ]
+
+# Removing the sections from the string
+
+o1.RemoveSections(aSections)
+? o1.Content()
+#--> "RING"
+```
+
+Now, let’s explore the power of the `@PluralForm` for `Remove()` and see how it simplifies the same task in significantly fewer lines of code.
+
+**Option 1: Using the Plural Form of the `Find()` Function**
+
+First, we can use the plural version of the `Find()` function, called `FindMany()`:
+
+```ring
+o1 = new stzString("__R~~~IN***G__")
+
+# Getting the positions of special characters as sections
+
+aSections = o1.FindManyZZ(["__", "~~~", "***"])
+? @@(aSections)
+#--> [ [1, 2], [4, 6], [9, 11], [13, 14] ]
+
+# Removing the sections from the string
+
+o1.RemoveSections(aSections)
+? o1.Content()
+#--> "RING"
+```
+
+Here, we’ve reduced the number of lines while achieving the same result. But we can go even further by using the plural form of `Remove()` directly, skipping the intermediate step with `FindMany()`.
+
+**Option 2: Using the `RemoveMany()` Function**
+
+With `RemoveMany()`, we can directly remove the specified characters from the string:
+
+```ring
+o1 = new stzString("__R~~~IN***G__")
+
+# Removing the special characters from the string
+
+o1.RemoveMany(["__", "~~~", "***"])
+? o1.Content()
+#--> "RING"
+```
+
+This approach eliminates the need for intermediate steps entirely, showcasing the elegance and power of the `@FunctionPluralForm` in Softanza.
+
+Here’s the improved and extended narration:
+
+---
+
+## Function **ExceptionalForm**: Because the Real World Is Full of Exceptions
+
+In many real-world scenarios, we encounter cases where simple string processing fails to meet nuanced requirements. For example, consider the task of removing non-letter characters from the string `"__R~~~IN***G__"`. Using the standard `RemoveNonLetters()` function from the `stzString` class, this can be elegantly achieved:
+
+```ring
+o1 = new stzString("__R~~~IN***G__")
+o1.RemoveNonLetters()
+
+? o1.Content()
+#--> "RING"
+```
+
+What if the goal was to preserve the boundary characters `"__"` while still removing other non-letter symbols?
+
+This is where the `@ExceptionalForm` of the `RemoveNonLetters()` function proves invaluable. By leveraging `RemoveNonLettersExcept()`, you can specify exceptions to the removal rule.
+
+Let’s consider the same string, but this time, retaining the underscore characters:
+
+```ring
+o1 = new stzString("__R~~~IN***G__")
+o1.RemoveNonLettersExcept("_")
+
+? o1.Content()
+#--> "__RING__"
+```
+
+
+This is not just a convenience; it’s a game-changer in domains where flexibility and precision are crucial, such as in:
+
+- **Data Cleaning for Structured Text:** When processing text for web forms or database entries, certain characters like underscores or hyphens may have semantic significance.
+  
+- **Log Parsing in System Administration:** Logs often contain identifiers or codes with specific characters that must be preserved while other parts are cleaned.
+  
+- **Text Normalization for Natural Language Processing (NLP):** In NLP workflows, text normalization often involves removing extraneous symbols while preserving meaningful ones, such as hashtags or mentions in social media posts.
+  
+- **Formatting Legal or Financial Documents:** Legal or financial documents frequently use specific formatting rules, where certain symbols are integral to the meaning, such as preserving currency symbols (`$`) or percentage signs (`%`).
+
+Additionally, a function with the **ExceptionalForm**, indicated by the `Exception()` suffix, can also be conjugated in the **PluralForm**. Here’s how you can do it:
+
+```ring
+o1 = new stzString("__R~~~IN***G---")
+o1.RemoveNonLettersExceptMany([ "_", "-" ]) # Or simply Excep() without Many(), and Softanza will infer it from the context
+
+? o1.Content()
+#--> "__RING__"
+```
+
+This enhancement further extends the utility of the function, allowing it to handle multiple exceptions simultaneously.
 
 ## Function Negative Form: Intuitive Logical Negations
 
