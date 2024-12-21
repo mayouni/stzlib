@@ -5611,6 +5611,12 @@ class stzList from stzObject
 			def ListCSQ(pCaseSensitive)
 				return This.ContentCSQ(pCaseSensitive)
 
+		def TheListCS(pCaseSensitive)
+			return This.ContentCS(pCaseSensitive)
+
+			def TheListCSQ(pCaseSensitive)
+				return This.ContentCSQ(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -5637,7 +5643,13 @@ class stzList from stzObject
 			return This.Content()
 
 			def ListQ()
-				return This.ContentQ()
+				return This # Returns the object not a new one!
+
+		def TheList()
+			return This.Content()
+
+			def TheListQ()
+				return This # Returns the object not a new one!
 
 		#>
 

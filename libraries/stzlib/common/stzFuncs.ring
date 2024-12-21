@@ -731,6 +731,66 @@ func StartObjectTime()
 	func StartObjectTimeInClocks()
 		StartObjectTime()
 
+#-- Managing temporal values (used with @() inside objects)
+
+func TempList()
+	return $TEMP_LIST
+
+func SetTempList(aList)
+	if NOT isList(aList)
+		StzRaise("Incorrect param type! aList must be a list.")
+	ok
+
+	$TEMP_LIST = aList
+
+func EraseTempList()
+	$TEMP_LIST = []
+
+#--
+
+func TempString()
+	return $TEMP_STRING
+
+func SetTempString(cStr)
+	if NOT isString(cStr)
+		StzRaise("Incorrect param type! cStr must be a string.")
+	ok
+
+	$TEMP_STRING = cStr
+
+func EraseTempString()
+	$TEMP_STRING = _NULL_
+
+#--
+
+func TempNumber()
+	return $TEMP_NUMBER
+
+func SetTempNumber(n)
+	if NOT isNumber(n)
+		StzRaise("Incorrect param type! n must be a number.")
+	ok
+
+	$TEMP_NUMBER = n
+
+func EraseTempnumber()
+	$TEMP_NUMBER = 0
+
+#--
+
+func TempObject()
+	return $TEMP_OBJECT
+
+func SetTempObject(pObj)
+	if NOT isObject(pObj)
+		StzRaise("Incorrect param type! pObj must be an object.")
+	ok
+
+	$TEMP_OBJECt = pObj
+
+func EraseTempObject()
+	$TEMP_STRING = _NULL_
+
 #===
 
 func AttributesValues(pObject) # Compliments Ring attributes() function
