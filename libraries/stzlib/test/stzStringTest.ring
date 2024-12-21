@@ -9782,10 +9782,8 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 #== @FunctionTempForm #TODO #NARRATION
-*/
+
 profon()
-
-
 
 o1 = new stzString("__Ri__ng__")
 
@@ -9796,9 +9794,60 @@ o1 = new stzString("__Ri__ng__")
 #--> RING
 
 proff()
+# Executed in 0.06 second(s) in Ring 1.22
+
+#---
+
+profon()
+
+o1 = new stzString("__Ri__ng__")
+
+o1.@("__").@Remove()
+? o1.content()
+#--> Ring
+
+proff()
+# Executed in 0.05 second(s) in Ring 1.22
+
+/*---
+
+profon()
+
+o1 = new stzString("__Ri__ng__")
+
+o1.@("__").@RemoveItQ().AndThenQ().UppercaseQ().TheString()
+
+? o1.Content()
+"--> RING
+
+proff()
+
+/*---
+
+profon()
+
+o1 = new stzString("__Ri__ng__")
+
+o1.@("__").@RemoveItQ().AndThenQ().UppercaseQ().TheStringQ().AndQ().SpacifyIt()
+
+? o1.Content()
+#--> R I N G
+
+proff()
+# Executed in 0.06 second(s) in Ring 1.22
+
+/*----
+*/
+profon()
+
+? Q("__Ri__ng__").
+	@("__").@RemoveItQ().AndThenQ().UppercaseQ().TheStringQ().AndQ().SpacifyItQ()
+.Content()
+
+proff()
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*=================
-
 */
 profon()
 

@@ -1550,8 +1550,8 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def ContentQ()
-			return This
+		def ContentQ() # Same as Copy()
+			return new stzString(This.Content())
 
 		#>
 
@@ -1566,9 +1566,14 @@ class stzString from stzObject
 		def String()
 			return This.Content()
 
-			def StringQ() # Same as Copy()
-				return new stzString( This.String() )
+			def StringQ()
+				return This # Returns the object not a new one!
 
+		def TheString()
+			return This.Content()
+
+			def TheStringQ() # Returns the object not a new one!
+				return This
 		#>
 
 	def QStringObject()
@@ -80085,6 +80090,20 @@ class stzString from stzObject
 		def @RemoveCS(pCaseSensitive) # CS has no effect
 			This.@Remove()
 
+		#--
+
+		def @RemoveIt()
+			This.@Remove()
+
+			def @RemoveItQ()
+				return This.@RemoveQ()
+
+		def @RemoveThem()
+			This.@Remove()
+
+			def @RemoveThemQ()
+				return This.@RemoveQ()
+
 	def @Removed()
 		_cResult_ = This.Copy().@RemoveQ().Content()
 		return _cResult_
@@ -99774,7 +99793,7 @@ class stzString from stzObject
 		ok
 
 		_aSections_ = This.FindCSZZ(pSubStr, pCaseSensitive)
-		$TEMP_LIST  = _aSections_
+		SetTempList(_aSections_)
 
 		return This
 
