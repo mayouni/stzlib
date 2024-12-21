@@ -39,9 +39,69 @@ func QH(p)
 
 	return Q(p)
 
+	return QHHV(p) # tracing only the value (V)
+		return QHH(p)
+
 func QHH(p)
 	SetKeepingTimeTo(_TRUE_)
+	SetKeepingHistoryToXT(_TRUE_, :VTMS)
+
+	return Q(p)
+
+	func QHHVTMS(p) # Tracing Value, Type, Time and Size
+		return QHH(p)
+
+func QHHVT(p) # Tracing Value and Type
+	SetKeepingTimeTo(_TRUE_)
+	SetKeepingHistoryToXT(_TRUE_, :VT)
+
+	return Q(p)
+
+func QHHVM(p) # Tacing Value and Time
+	SetKeepingTimeTo(_TRUE_)
+	SetKeepingHistoryToXT(_TRUE_, :VM)
+
+	return Q(p)
+
+func QHHVS(p) # Tracing Value and Size
+	SetKeepingTimeTo(_TRUE_)
+	SetKeepingHistoryToXT(_TRUE_, :VS)
+
+	return Q(p)
+
+func QHHTM(p) # Tracing Type and Time
+	SetKeepingTimeTo(_TRUE_)
+	SetKeepingHistoryToXT(_TRUE_, :TM)
+
+	return Q(p)
+
+func QHHTS(p) # Tacing Type and Size
+	SetKeepingTimeTo(_TRUE_)
+	SetKeepingHistoryToXT(_TRUE_, :TS)
+
+	return Q(p)
+
+func QHHMS(p) # Tracing Time and Size
+	SetKeepingTimeTo(_TRUE_)
+	SetKeepingHistoryToXT(_TRUE_, :MS)
+
+	return Q(p)
+
+func QHHVTM(p) # Tracing Value, Type nad Time
+	SetKeepingTimeTo(_TRUE_)
+	SetKeepingHistoryToXT(_TRUE_, :TM)
+
+	return Q(p)
+
+func QHHVTS(p) # Tracing Value, Type and Size
+	SetKeepingTimeTo(_TRUE_)
 	SetKeepingHistoryToXT(_TRUE_, :VTS)
+
+	return Q(p)
+
+func QHHTMS(p) # Tracing Type, Time and Size
+	SetKeepingTimeTo(_TRUE_)
+	SetKeepingHistoryToXT(_TRUE_, :TMS)
 
 	return Q(p)
 

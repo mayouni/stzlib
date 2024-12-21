@@ -28,6 +28,11 @@ _FALSE_ = 0 // Avoids the risk of accidental change of _FALSE_ in a Ring program
 _TRUE_ = 1  // Idem for TRUE
 _NULL_ = "" // Idem for NULL
 
+$TEMP_LIST = [] # A temp list value used with @() inside objects
+$TEMP_STRING = ""
+$TEMP_NUMBER = 0
+$TEMP_OBJECT = _NULL_
+
 _bKeepHisto = _FALSE_ // for keeping objec update history
 _aHisto = []
 
@@ -592,6 +597,101 @@ func UpdateObjectHistory(aInfo)
 
 func UpdateObjectHistoryXT(aInfo)
 	_aHistoXT = aInfo
+
+
+func TraceObjectHistory(pStzObj) # 
+
+/*	if NOT (isObject(pStzObj) and IsStzObject(pStzObj))
+		StzRaise("Incorrect param type! pStzObj must be a Softanza object.")
+	ok
+*/
+	if KeepingHisto() = _TRUE_
+		StartObjectTime()
+		pStzObj.AddHistoricValue(pStzObj.Content())
+	ok
+
+	if KeepingHistoXT() = _TRUE_
+		_cDisp_ = _aHistoXT[2]
+
+		switch _cDisp_
+
+		on :VTMS
+			pStzObj.AddHistoricValueXT([
+				This.Content(),
+				This.StzType(),
+				This.ExecTime(),
+				This.SizeInBytes()
+			])
+
+		on :VTM
+			pStzObj.AddHistoricValueXT([
+				This.Content(),
+				This.StzType(),
+				This.ExecTime()
+			])
+
+		on :VTS
+			pStzObj.AddHistoricValueXT([
+				This.Content(),
+				This.StzType(),
+				This.SizeInBytes()
+			])
+
+		on :TMS
+			pStzObj.AddHistoricValueXT([
+				This.StzType(),
+				This.ExecTime(),
+				This.SizeInBytes()
+			])
+
+		on :VT
+			pStzObj.AddHistoricValueXT([
+				This.Content(),
+				This.StzType()
+			])
+
+		on :VM
+			pStzObj.AddHistoricValueXT([
+				This.Content(),
+				This.ExecTime()
+			])
+
+		on :VS
+			pStzObj.AddHistoricValueXT([
+				This.Content(),
+				This.SizeInBytes()
+			])
+
+		on :TM
+			pStzObj.AddHistoricValueXT([
+				This.StzType(),
+				This.ExecTime()
+			])
+
+		on :TS
+			pStzObj.AddHistoricValueXT([
+				This.StzType(),
+				This.SizeInBytes()
+			])
+
+		on :MS
+			pStzObj.AddHistoricValueXT([
+				This.ExecTime(),
+				This.SizeInBytes()
+			])
+
+		off
+			StzRaise("Unsupported syntax!")
+		ok
+
+	func @TraceObjectHistory(pStzObj)
+		TraceObjectHistory(pStzObj)
+
+	func TraceStzObjectHistory(pStzObj)
+		TraceObjectHistory(pStzObj)
+
+	func @TraceStzObjectHistory(pStzObj)
+		TraceObjectHistory(pStzObj)
 
 #---
 

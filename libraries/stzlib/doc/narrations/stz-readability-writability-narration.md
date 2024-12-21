@@ -22,7 +22,7 @@ In Softanza, functions are by default expressed in their **active form**, direct
 load "stzlib.ring"
 
 o1 = new stzString("RIxxNxG")
-o1.Remove("x")  # Actively modifies the object
+o1.RemoveAll("x")  # Actively modifies the object
 ? o1.Content()
 #--> RING
 ```

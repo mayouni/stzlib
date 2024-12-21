@@ -1472,8 +1472,10 @@ class stzString from stzObject
 
 		if KeepingObjectHistory() = _TRUE_
 			_aHisto + This.Content()
+		ok
 
-		but KeepingObjectHistoryXT() = _TRUE_
+		if KeepingObjectHistoryXT() = _TRUE_
+
 			StartObjectTime()
 			_aHistoXT + [ This.Content(), This.stzType(), 0, This.SizeInBytes() ]
 		ok
@@ -2799,11 +2801,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def LowercasedQ()
-			if This.Lowercased()
-				return This
-			else
-				return AFalseObject()
-			ok
+			return new stzString(This.Lowercased())
 
 		#>
 
@@ -3149,11 +3147,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def UppercasedQ()
-			if This.IsUppercased()
-				return This
-			else
-				return AFalseObject()
-			ok
+			return new stzString( This.Uppercased() )
 
 		#>
 
@@ -44458,24 +44452,8 @@ class stzString from stzObject
 		QStringObject().append(pcNewStr)
 
 		# Tracing the history of updates
-		#NOTE // Normally, this housld be abstructed in stzObject (#TODO)
 
-
-		if KeepingHisto() = _TRUE_
-			StartObjectTime()
-			This.AddHistoricValue(This.Content())  # From the parent stzObject
-		ok
-
-		if KeepingHistoXT() = _TRUE_
-
-			This.AddHistoricValueXT([
-				This.Content(),
-				This.StzType(),
-				This.ExecTime(),
-				This.SizeInBytes()
-			])
-
-		ok
+		@TraceObjectHistory(This)
 
 		# Verifying constraints (#TODO)
 
@@ -80089,9 +80067,30 @@ class stzString from stzObject
 
 		#>		
 
+	#-- @FunctionPassiveForm
+
 	def Removed(pSubStr)
 		cResult = This.Copy().RemoveQ(pSubStr).Content()
 		return cResult
+
+	#== @FunctionTempForm
+
+	def @Remove()
+		This.RemoveSections($TEMP_LIST)
+
+		def @RemoveQ()
+			This.@Remove()
+			return This
+
+		def @RemoveCS(pCaseSensitive) # CS has no effect
+			This.@Remove()
+
+	def @Removed()
+		_cResult_ = This.Copy().@RemoveQ().Content()
+		return _cResult_
+
+		def @RemovedCS(pCaseSensitive)
+			return This.@Removed()
 
 	  #----------------------------------------------#
 	 #   REMOVING SOME OCCURRENCES OF A SUBSTRING   #
@@ -99744,7 +99743,47 @@ class stzString from stzObject
 		def ToStzCCodeQ()
 			return This.ToStzCCode()
  
+	#===
+
+	def SubStringCS(pcSubStr, pCaseSensitive)
+		if This.ContainsCS(pcSubStr, pCaseSensitive)
+			return pcSubStr
+		else
+			return _NULL_
+		ok
+
+		def SubStringCSQ(pcSubStr, pCaseSensitive)
+			if This.ContainsCS(pcSubStr, pCaseSensitive)
+				return new stzString(pcSubStr)
+
+			else
+				return ANullObject()
+			ok
+
+	def SubString(pcSubStr)
+		return This.SubStringCS(pcSubStr, _TRUE_)
+
+		def SubStringQ(pcSubStr)
+			return This.SubStringCSQ(pcSubStr, _TRUE_)
+
+	#==
+
+	def @CS(pSubStr, pCaseSensitive)
+		if NOT ( isString(pSubStr) or (isList(pSubStr) and @IsListOfStrings(pSubStr)) )
+			StzRaise("Incorrect param type! pSubStr must be astring or list of strings.")
+		ok
+
+		_aSections_ = This.FindCSZZ(pSubStr, pCaseSensitive)
+		$TEMP_LIST  = _aSections_
+
+		return This
+
 	#--
+
+	def @(pcSubStr)
+		return This.@CS(pcSubStr, _TRUE_)
+
+	#===
 
 	def InCS(p, pCaseSensitive)
 		if NOT (isString(p) or isList(p))
@@ -99752,10 +99791,10 @@ class stzString from stzObject
 		ok
 
 		if isString(p)
-			return SubStringInCS(p, pCaseSensitive)
+			return This.SubStringInCS(p, pCaseSensitive)
 
 		but isList(p)
-			return ItemInCS(p, pCaseSensitive)
+			return This.ItemInCS(p, pCaseSensitive)
 		ok
 
 		#< @FunctionFluentForm
@@ -99794,14 +99833,17 @@ class stzString from stzObject
 		ok
 
 		def SubStringInCSQ(pcStr, pCaseSensitive)
-			return new stzSubStringCS(This.Content(), pcStr, pCaseSensitive)
-
+			if This.ExistsInCS(pcStr, pCaseSensitive)
+				return new stzSubStringCS(This.Content(), pcStr, pCaseSensitive)
+			else
+				return ANullObject()
+			ok
 
 	def SubStringIn(pcStr)
 		return This.SubStringInCS(pcStr, _TRUE_)
 
 		def SubStringInQ(pcStr)
-			return new stzSubString(This.Content(), pcStr)
+			return This.SubStringInCSQ(pcStr, _TRUE_)
 
 	#--
 
@@ -99817,7 +99859,11 @@ class stzString from stzObject
 		ok
 
 		def ItemInCSQ(paList, pCaseSensitive)
-			return new stzItemCS(This.Content(), paList, pCaseSensitive)
+			if This.ExistsInCS(paList, pCaseSensitive)
+				return new stzItemCS(This.Content(), paList, pCaseSensitive)
+			else
+				return ANullObject()
+			ok
 
 	def ItemIn(paList)	
 		return This.ItemInCS(paList, _TRUE_)

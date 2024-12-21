@@ -9720,7 +9720,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*================
-*/
+
 profon()
 
 o1 = new stzList([ "R", "I", "N", "G" ])
@@ -9757,6 +9757,45 @@ ok
 
 proff()
 # Executed in 0.06 second(s) in Ring 1.22
+
+/*=================
+
+profon()
+
+o1 = new stzString("RIxxNxG")
+
+? o1.SubString("x")
+#--> "x"
+
+? o1.SubStringQ("x").StzType() + NL
+#--> stzstring
+
+#--
+
+? @@( o1.SubString("y") )
+#--> NULL
+
+? o1.SubStringQ("y").StzType()
+# stznullobject
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
+#== @FunctionTempForm #TODO #NARRATION
+*/
+profon()
+
+
+
+o1 = new stzString("__Ri__ng__")
+
+? o1.@("__").@Removed()
+#--> Ring
+
+? o1.@("__").UppercasedQ().AndThenQ().@Removed()
+#--> RING
+
+proff()
 
 /*=================
 
