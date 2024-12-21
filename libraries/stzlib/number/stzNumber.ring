@@ -1706,9 +1706,14 @@ class stzNumber from stzObject
 			@nRound = StzCurrentRound()
 		ok
 
-		if KeepingHisto() = _TRUE_
-			This.AddHistoricValue(This.Value())  # From the parent stzObject
-		ok
+		# Tracing object history
+
+		@TraceObjectHistory(This)
+
+		# Checking object constraints (#TODO)
+
+		#< ... >
+
 
 		#< @FunctionFluentForm
 

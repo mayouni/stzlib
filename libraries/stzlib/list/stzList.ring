@@ -5545,8 +5545,9 @@ class stzList from stzObject
 
 		if KeepingObjectHistory() = _TRUE_
 			_aHisto + This.Content()
+		ok
 
-		but KeepingObjectHistoryXT() = _TRUE_
+		if KeepingObjectHistoryXT() = _TRUE_
 			StartObjectTime()
 			_aHistoXT + [ This.Content(), This.stzType(), 0, This.SizeInBytes() ]
 		ok
@@ -6839,19 +6840,14 @@ class stzList from stzObject
 
 		@aContent = paNewList
 
-		if KeepingHisto() = _TRUE_
-			This.AddHistoricValue(This.Content())  # From the parent stzObject
-		ok
+		# Tracing object history
 
-		if KeepingHistoXT() = _TRUE_
+		@TraceObjectHistory(This)
 
-			This.AddHistoricValueXT([
-				This.Content(),
-				This.StzType(),
-				This.ExecTime(),
-				This.SizeInBytes()
-			])
-		ok
+		# Checking object constraints (#TODO)
+
+		#< ... >
+
 
 		#< @FunctionFluentForm
 
