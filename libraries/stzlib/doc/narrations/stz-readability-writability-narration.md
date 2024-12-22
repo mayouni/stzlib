@@ -562,7 +562,7 @@ This feature introduces **algorithmic clarity and time-oriented thinking** into 
 - **Natural Thinking:** The flow reflects how we plan and describe solutions in real life.
 
 
-This elegant synergy of structure and foresight exemplifies how **Function Future Form (Futura)** transforms Softanza into a powerful tool for natural programming. Welcome to a future where your code thinks like you do.
+This elegant synergy of structure and foresight exemplifies how **Function Future Form** transforms Softanza into a powerful tool for natural programming. Welcome to a future where your code thinks like you do.
 
 ## Function Random Form: Gamification for Free
 
