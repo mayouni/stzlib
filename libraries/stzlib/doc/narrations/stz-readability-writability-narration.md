@@ -211,10 +211,6 @@ o1.RemoveMany(["__", "~~~", "***"])
 
 This approach eliminates the need for intermediate steps entirely, showcasing the elegance and power of the `@FunctionPluralForm` in Softanza.
 
-Here’s the improved and extended narration:
-
----
-
 ## Function ExceptionalForm: Handling Real-World Exceptions
 
 In many real-world scenarios, we encounter cases where simple string processing fails to meet nuanced requirements. For example, consider the task of removing non-letter characters from the string `"__R~~~IN***G__"`. Using the standard `RemoveNonLetters()` function from the `stzString` class, this can be elegantly achieved:
@@ -472,11 +468,6 @@ str.RemoveManyCS([ "o", "f", "n" ], :CaseSensitive = FALSE)
 This system provides a smooth *Programmer Experience by Design*, ensuring that developers focus on solving problems rather than interpreting functions and their parameters.
 
 > **NOTE**: Softanza includes many other powerful suffixes (and prefixes), which will be explored in a dedicated article.
-
-
-Your text is well-written and clear. Below are minor suggestions to enhance readability and flow:  
-
----
 
 ## Small Functions, With Grand Potential  
 
