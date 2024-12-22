@@ -5278,6 +5278,7 @@ class stzString from stzObject
 	#------------------------------------------------------------------#
 
 	def FindAsSectionsWCSXT(pcCondition, pCaseSensitive)
+
 		oCond = new stzString(pcCondition)
 
 		bChar = oCond.ContainsCS("@char", _FALSE_)
@@ -55240,8 +55241,12 @@ class stzString from stzObject
 
 		# Doing the job (Qt-side)
 
-		bResult = This.QStringObject().indexOf(pcSubStr, 0, _bCase_) + 1
-		return bResult
+		_nResult_ = This.QStringObject().indexOf(pcSubStr, 0, _bCase_)
+		if _nResult_ >= 0
+			return TRUE
+		else
+			return FALSE
+		ok
 
 		#< @FunctionAlternativeForm
 
