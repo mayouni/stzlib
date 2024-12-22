@@ -61,7 +61,12 @@ This distinction mirrors linguistic grammar, making code semantics intuitive and
 In Softanza, you can effortlessly *chain* multiple function calls, creating a smooth sequence of data transformations. For instance, consider the following example:
 
 ```ring
-? Q("rixxnxg").UppercaseQ().ReplaceQ("I", :With = AHeart()).SpacifyQ().Removed("x")
+? Q("rixxnxg").
+    UppercaseQ().
+    ReplaceQ("I", :With = AHeart()).
+    SpacifyQ().
+    Removed("x")
+
 #--> R♥NG
 ```
 
@@ -87,7 +92,7 @@ Softanza *resolves* this limitation elegantly by allowing values like `x` to be 
 
 ```ring
 o1 = new stzString("RIxxNxG")
-? o1.@("x").@Removed() # Or o1.@All("x").@Removed() for better semantic precision!
+? o1.@("x").@Removed() # Or o1.@All("x").@Removed()
 #--> RING
 ```
 
@@ -105,12 +110,22 @@ Here’s an example of a longer chain that *combines* both main functions and pa
 
 ```ring
 o1 = new stzString("__Ri__ng__")
-? o1.@("__").@RemoveItQ().AndThenQ().UppercaseQ().TheString()
+? o1.@("__").
+    @RemoveItQ().
+    AndThenQ().
+    UppercaseQ().TheString()
+
+    #--> RING
 
 # Which we can write in even more elegant  form (without o1, and using an alternative of @() called @Take())
 
-? Q("__Ri__ng__").@Take("__").@RemoveItQ().AndThenQ().UppercaseQ().TheString()
-#--> RING
+? Q("__Ri__ng__").
+    @Take("__").
+    @RemoveItQ().
+    AndThenQ().
+    UppercaseQ().TheString()
+
+    #--> RING
 ```
 
 Curious how the magic works? There’s no actual magic—just thoughtful design.
@@ -131,7 +146,7 @@ o1 = new stzString("__R~~~IN***G__")
 
 # Finding the positions of the special characters
 
-aSections1 = o1.FindAsSections("__") # Or use the abbreviation with the ZZ suffix: o1.FindZZ("__")
+aSections1 = o1.FindAsSections("__") # Or o1.FindZZ("__")
 ? @@(aSections1)
 #--> [ [1, 2], [13, 14] ]
 
@@ -200,7 +215,7 @@ Here’s the improved and extended narration:
 
 ---
 
-## Function ExceptionalForm: Because the Real World Is Full of Exceptions
+## Function ExceptionalForm: Handling Real-World Exceptions
 
 In many real-world scenarios, we encounter cases where simple string processing fails to meet nuanced requirements. For example, consider the task of removing non-letter characters from the string `"__R~~~IN***G__"`. Using the standard `RemoveNonLetters()` function from the `stzString` class, this can be elegantly achieved:
 
@@ -241,7 +256,7 @@ Additionally, a function with the **ExceptionalForm**, indicated by the `Excepti
 
 ```ring
 o1 = new stzString("__R~~~IN***G---")
-o1.RemoveNonLettersExceptMany([ "_", "-" ]) # Or simply Excep() without Many(), and Softanza will infer it from the context
+o1.RemoveNonLettersExceptMany([ "_", "-" ]) # Or simply ...Excep()
 
 ? o1.Content()
 #--> "__RING__"
@@ -459,60 +474,64 @@ This system provides a smooth *Programmer Experience by Design*, ensuring that d
 > **NOTE**: Softanza includes many other powerful suffixes (and prefixes), which will be explored in a dedicated article.
 
 
+Your text is well-written and clear. Below are minor suggestions to enhance readability and flow:  
+
+---
+
 ## Small Functions, With Grand Potential  
 
-You've discovered some of them in the sections above: `Q()`, `@()`, and `@@()`. Let's remind ourselves of their utility while introducing some new ones.  
+You've discovered some of them in the sections above: `Q()`, `@()`, and `@@()`. Let's revisit their utility while introducing new ones.
 
-- **`Q(val)`**: Elevates the value `val` to the corresponding `stzObject`. For example:  
-  - `Q(5)` is equivalent to `new stzNumber(5)`.  
-  - `Q("Hi!")` becomes `new stzString("Hi!")`.  
-  - `Q([1, 2, 3])` results in `new stzList([1, 2, 3])`.  
+- **`Q(val)`**: Elevates the value `val` to the corresponding `stzObject`. For example:
+  - `Q(5)` is equivalent to `new stzNumber(5)`.
+  - `Q("Hi!")` becomes `new stzString("Hi!")`.
+  - `Q([1, 2, 3])` results in `new stzList([1, 2, 3])`.
 
-  The letter `Q` signifies making the object *Queryable*, like when we say:  
+  The letter `Q` signifies making the object *Queryable*, like when we say:
   ```ring
-  Q("Hi!").Count()  
-  #--> 3  
+  Q("Hi!").Count()
+  #--> 3
   ```
 
-  It also puts the object in a *Queue of Actions* (or chain of actions), as in:  
+  It also places the object in a *Queue of Actions* (or chain of actions), as in:
   ```ring
-  Q("Hi!").RemoveQ("!").UppercaseQ().Content()  
-  #--> "HI"  
-  ```  
-
-- **`@@(val)`**: Resembling a pair of glasses to better see things, this function provides a readable string representation of the value `val`. It is particularly useful for lists, especially deep lists:  
-  ```ring
-  ? @@([1, [2, 3], 4])  
-  #--> "[ 1, [ 2, 3 ], 4 ]"  
+  Q("Hi!").RemoveQ("!").UppercaseQ().Content()
+  #--> "HI"
   ```
-  
-  Without `@@()`, the console might display a less readable, vertical list.  
 
-- **`@(val)`**: Used in Fluent Chains of Actions to introduce a partial value of the main object. This partial value can be processed later using a `@PartialFunction`, as explained in the related section above. Example:
+- **`@@(val)`**: Like a pair of glasses providing clarity, this function delivers a readable string representation of the value `val`. It is especially helpful for lists, particularly deep ones:
+  ```ring
+  ? @@([1, [2, 3], 4])
+  #--> "[ 1, [ 2, 3 ], 4 ]"
+  ```
+
+  >**NOTE**: Without `@@()`, the console might display a less readable, vertical list.
+
+- **`@(val)`**: Used in Fluent Chains of Actions, this function introduces a partial value of the main object. The partial value can later be processed using a `@PartialFunction`, as explained in the related section above. Example:
   ```ring
   ? Q("__RING__").@("_").Removed() #--> "RING"
   ```
 
-- **`QH()` and `QHH()`**: Derivatives of `Q()` that generate a step-by-step trace of the object’s transformation within a chain of actions, making it easier to debug and understand the flow. Example:
+- **`QH()` and `QHH()`**: These derivatives of `Q()` generate a step-by-step trace of the object’s transformation within a chain of actions, making it easier to debug and understand the flow. Example:
   ```ring
-  ? @@( Qh(12500).
+  ? Qh(12500).
 	AddQ(500).
 	RetrieveQ(1500).
 	DivideByQ(500).
 	MultiplyByQ(2).
-	History() )
+	History()
 
 	#--> [ 13000, 11500, 23, 46 ]
-  ```
+  ```  
 
-- **Quick Creators**: Handy shortcuts for creating native Ring values. For instance:  
-  - `L('"♥1" : "♥3"')` produces `[ "♥1", "♥2", "♥3" ]`.  
-  - `S()` generates strings.  
-  - `N()` creates numbers.  
+- **Quick Creators**: Handy shortcuts for creating native Ring values. For instance:
+  - `L('"♥1" : "♥3"')` produces `[ "♥1", "♥2", "♥3" ]`.
+  - `S()` generates strings.
+  - `N()` creates numbers.
 
-- **Other Utility Functions**: Functions such as `v()`, `Vr()`, `Vl()`, `VrVl()`, `Obj()`, and `@0()` simplify specific tasks. These will be covered in future articles in the documentation.  
+- **Other Utility Functions**: Functions such as `v()`, `Vr()`, `Vl()`, `VrVl()`, `Obj()`, and `@0()` simplify specific tasks. These will be covered in future articles in the documentation.
 
-Made primarily for *writeability*, these small functions are designed to minimize the mental load of common syntactic commands while fostering rapid coding reflexes. They allow developers to focus on solving problems and achieving objectives, rather than being bogged down by complex syntax.  
+Primarily designed for *writeability*, these small functions aim to minimize the mental load of repetitive syntactic commands, fostering rapid coding reflexes. They empower developers to focus on solving problems and achieving objectives rather than being bogged down by complex syntax.
 
 With such versatile tools, coding becomes not just efficient but genuinely enjoyable.
 
