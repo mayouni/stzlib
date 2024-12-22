@@ -180,137 +180,136 @@ class stzCCode
 		# ~> we can also add Keywords()
 
 		cCode = Q(cCode).TheseSubstringsSpacifiedCS([
+			"@items", "@allItems", "@item",
+		
+			"@chars", "@allChars", "@char",
 
-				"@items", "@allItems", "@item",
+			"@strings", "@allStrings", "@string",
+			"@SubStrings", "@allSubStrings", "@SubString",
+			"@Lines", "@allLines", "@Line",
+
+			"@numbers","@allNumbers", "@number",
 			
-				"@chars", "@allChars", "@char",
+			"@lists", "@allLists", "@list",
+			"@pairs", "@allPairs", "@pair",
 
-				"@strings", "@allStrings", "@string",
-				"@SubStrings", "@allSubStrings", "@SubString",
-				"@Lines", "@allLines", "@Line",
-	
-				"@numbers","@allNumbers", "@number",
-				
-				"@lists", "@allLists", "@list",
-				"@pairs", "@allPairs", "@pair",
+			"@splits", "@allSplits", "@split",
 
-				"@splits", "@allSplits", "@split",
+			"@objects", "@allObjects", "@object",
 
-				"@objects", "@allObjects", "@object",
+			"@positions", "@position", "@CurrentPosition",
+			"@EachPosition",
 
-				"@positions", "@position", "@CurrentPosition",
-				"@EachPosition",
+			"-@Number",
 
-				"-@Number",
+			"@NextItem",
+			"@NextChar", "@NextString", "@NextSubString",
+			"@NextLine",
 
-				"@NextItem",
-				"@NextChar", "@NextString", "@NextSubString",
-				"@NextLine",
+			"@NextNumber",
+			
+			"@NextList","@NextPair",
 
-				"@NextNumber",
-				
-				"@NextList","@NextPair",
+			"@NextSplit",
 
-				"@NextSplit",
+			"@NextObject",
 
-				"@NextObject",
+			"@PreviousPosition",
 
-				"@PreviousPosition",
+			"@PreviousItem",
+			"@PreviousChar",
+			"@PreviousString", "@PreviousSubString",
+			"@PreviousLine",
+			"@PreviousNumber",
 
-				"@PreviousItem",
-				"@PreviousChar",
-				"@PreviousString", "@PreviousSubString",
-				"@PreviousLine",
-				"@PreviousNumber",
-
-				"@PreviousList","@PreviousPair",
-				"@PreviousSplit",
-				"@PreviousObject"
-				
+			"@PreviousList","@PreviousPair",
+			"@PreviousSplit",
+			"@PreviousObject"
+			
 		], _FALSE_)
 
 		oResult = StzStringQ(" " + cCode + " ")
 
 		oResult.ReplaceManyCS([
-				" @items ","@allItems",
-								
-				" @chars ","@allChars",
-				" @strings ","@allStrings",
-				" @SubStrings ","@allSubStrings",
-				" @Lines ",
-				" @numbers ","@allNumbers",
-				
-				" @lists ","@allLists",
-				" @Splits ", "@allSplits",
-				" @pairs ","@allPairs",
-				
-				" @objects ","@allObjects" ],
+			" @items ","@allItems",
+							
+			" @chars ","@allChars",
+			" @strings ","@allStrings",
+			" @SubStrings ","@allSubStrings",
+			" @Lines ",
+			" @numbers ","@allNumbers",
+			
+			" @lists ","@allLists",
+			" @Splits ", "@allSplits",
+			" @pairs ","@allPairs",
+			
+			" @objects ","@allObjects" ],
 
-				" This.Content() ", _FALSE_)
+			" This.Content() ", _FALSE_)
 
 		oResult.ReplaceManyCS([
-				" @position ", " @CurrentPosition ",
-				" @Current@i ", " @CurrentI ",
-				" @EachPosition ", " @EachI " ],
+			" @position ", " @CurrentPosition ",
+			" @Current@i ", " @CurrentI ",
+			" @EachPosition ", " @EachI " ],
 
-				" @i ", _FALSE_)
+			" @i ", _FALSE_)
 
 		oResult.ReplaceManyCS([				
-				" @item ", " @EachItem ", " @CurrentItem ",
-				" @char ", " @EachChar ", " @CurrentChar ",
-				" @string", " @EachString ", " @CurrentString ",
-				" @SubString", " @EachSubString ", " @CurrentSubString ",
-				" @line", " @EachLine ", " @CurrentLine ",
+			" @item ", " @EachItem ", " @CurrentItem ",
+			" @char ", " @EachChar ", " @CurrentChar ",
+			" @string", " @EachString ", " @CurrentString ",
+			" @SubString", " @EachSubString ", " @CurrentSubString ",
+			" @line", " @EachLine ", " @CurrentLine ",
 
-				" @number ", " @EachNumber ", " @CurrentNumber ",
+			" @number ", " @EachNumber ", " @CurrentNumber ",
 
-				" @list ", " @EachList ", " @CurrentList ",
-				" @pair ", " @EachPair ", " @CurrentPair ",
-				" @section ", " @EachSection ", " @CurrentSection ",
+			" @list ", " @EachList ", " @CurrentList ",
+			" @pair ", " @EachPair ", " @CurrentPair ",
+			" @section ", " @EachSection ", " @CurrentSection ",
 
-				" @Split ", " @EachSplit ", " @CurrentSplit ",
+			" @Split ", " @EachSplit ", " @CurrentSplit ",
 
-				" @object ", " @EachObject ", " @CurrentObject " ],
+			" @object ", " @EachObject ", " @CurrentObject " ],
 
-				" This[@i] ", _FALSE_ )
+			" This[@i] ", _FALSE_ )
 			
 		oResult.ReplaceCS(" -@Number ", " - This[@i] ", _FALSE_)
 
 		oResult.ReplaceManyCS([
-				" @NextPosition ", " @NextI "],
+			" @NextPosition ", " @NextI "],
 
-				" @i + 1 ", _FALSE_)
+			" @i + 1 ", _FALSE_)
 			
 		oResult.ReplaceManyCS([
-				" @NextItem ",
-				" @NextChar ", " @NextString ", " @NextSubString ",
-				" @NextLine ",
-				" @NextNumber ",
-				
-				" @NextList ", " @NextPair ",
-				" @NextSplit ",
-				" @NextObject " ],
+			" @NextItem ",
+			" @NextChar ", " @NextString ", " @NextSubString ",
+			" @NextLine ",
+			" @NextNumber ",
+			
+			" @NextList ", " @NextPair ",
+			" @NextSplit ",
+			" @NextObject " ],
 
-				" This[@i + 1] ", _FALSE_)
-
-		oResult.ReplaceManyCS([
-				" @PreviousPosition ", " @PreviousI "],
-
-				" @i - 1 ", _FALSE_)
+			" This[@i + 1] ", _FALSE_)
 
 		oResult.ReplaceManyCS([
-				" @PreviousItem ",
-				" @PreviousChar ",
-				" @PreviousString ", " @PreviousSubString ",
-				" @PreviousLine ",
-				" @PreviousNumber ",
+			" @PreviousPosition ", " @PreviousI "],
 
-				" @PreviousList ", " @PreviousPair ",
-				" @PreviousSplit ",
-				" @PreviousObject "
-				],
+			" @i - 1 ", _FALSE_)
 
-				" This[@i - 1] ", _FALSE_)
+		oResult.ReplaceManyCS([
+			" @PreviousItem ",
+			" @PreviousChar ",
+			" @PreviousString ", " @PreviousSubString ",
+			" @PreviousLine ",
+			" @PreviousNumber ",
+
+			" @PreviousList ", " @PreviousPair ",
+			" @PreviousSplit ",
+			" @PreviousObject "
+			],
+
+			" This[@i - 1] ", _FALSE_)
 
 		cResult = oResult.Trimmed()
 

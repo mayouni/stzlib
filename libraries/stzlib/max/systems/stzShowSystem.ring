@@ -246,7 +246,11 @@ func NL@@(pValue)
 	return NL + @@(pValue)
 
 func NL@@NL(pValue)
-	return NL + @@NL(pValue)
+	if isString(pValue)
+		return NL + pValue + NL
+	else
+		return NL + @@NL(pValue) + NL
+	ok
 
 func ComputableForm(pValue)
 	return ComputableFormXT(pValue, " ", "")

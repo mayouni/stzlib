@@ -9884,12 +9884,12 @@ proff()
 # Executed in 0.06 second(s) in Ring 1.22
 
 /*=================
-*/
+
 profon()
 
 # Softanza knows about the list of cards
 
-o1 = new stzList( CardsXT() )
+o1 = new stzList( Cards() )
 
 # Here is their list
 
@@ -9942,12 +9942,67 @@ o1.rndRemoveItems()
 
 # Or we can remove a givan number of random cards
 
-o1.rndRemoveNItems(3)
+o1.rndRemoveNItems(3) + NL
 ? @@( o1.Content() )
 #--> [ "🂩", "🂪" ]
 
+#NOT: You can play the game with cards names by using CardsXT()
+
+o1 = new stzList( CardsXT() )
+? @@NL( o1.Content() )
+#--> [
+#	[ "ace", "🂡" ],
+#	[ "two", "🂢" ],
+#	[ "three", "🂣" ],
+#	[ "four", "🂤" ],
+#	[ "five", "🂥" ],
+#	[ "six", "🂦" ],
+#	[ "seven", "🂧" ],
+#	[ "eight", "🂨" ],
+#	[ "nine", "🂩" ],
+#	[ "ten", "🂪" ],
+#	[ "jack", "🂫" ],
+#	[ "queen", "🂭" ],
+#	[ "king", "🂮" ]
+# ]
+
 proff()
 # Executed in 0.01 second(s) in Ring 1.22
+
+/*=================
+*/
+profon()
+
+? @@( S(1:3) )
+#--> "[ 1, 2, 3 ]"
+
+? N("-12500") + 500
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---------
+
+profon()
+
+o1 = new stzString("123456789RING")
+? o1.FindNextSTCS("ring", 5, FALSE)
+#--> 10
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*---------
+profon()
+
+o1 = new stzString("SOooooFTAaaannnNZA")
+o1.RemoveWXT('Q(@char).isLowercase()') # remove all lowercase characters
+
+? o1.Content()
+#--> "SOFTANZA"
+
+proff()
+# Executed in 0.24 second(s) in Ring 1.22
 
 /*=================
 */
