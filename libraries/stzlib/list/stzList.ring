@@ -14081,6 +14081,8 @@ class stzList from stzObject
 
 		#>
 
+	#-- @FunctionPassiveForm
+
 	def AllOccurrencesOfThisItemRemovedCS(pItem, pCaseSensitive)
 		aResult = This.Copy().RemoveAllOccurrencesCSQ(pItem, pCaseSensitive).Content()
 		return aResult
@@ -14091,7 +14093,7 @@ class stzList from stzObject
 		def ItemRemovedCS(pItem, pCaseSensitive)
 			return This.AllOccurrencesOfThisItemRemovedCS(pItem, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
+	#== WITHOUT CASESENSITIVITY
 
 	def RemoveAll(pItem)
 		This.RemoveAllCS(pItem, _TRUE_)
@@ -14131,6 +14133,8 @@ class stzList from stzObject
 				This.RemoveItem(pItem)
 				return This
 
+	#-- @FunctionPassiveForm
+
 	def AllOccurrencesOfThisItemRemoved(pItem)
 		aResult = This.Copy().RemoveAllOccurrencesQ(pItem).Content()
 		return aResult
@@ -14140,6 +14144,103 @@ class stzList from stzObject
 
 		def ItemRemoved(pItem)
 			return This.AllOccurrencesOfThisItemRemoved(pItem)
+
+	#-- @FunctionRandomForm
+
+	def rndRemove()
+		_anPos_ = RandomNumbersIn(1:This.NumberOfItems())
+		This.RemoveItemsAtPositions(_anPos_)
+
+		#< @FunctionAlternativeForms
+
+		def rndRemoveQ()
+			This.rndRemove()
+			return This
+
+		def RemoveRandomly()
+			This.rndRemove()
+
+			def RemoveRandomlyQ()
+				return This.rndRemoveQ()
+
+		def RandomRemove()
+			This.rndRemove()
+
+			def RandomRemoveQ()
+				return This.rndRemoveQ()
+
+		def RandomlyRemove()
+			This.rndRemove()
+
+			def RandomlyRemoveQ()
+				return This.rndRemoveQ()
+
+		#--
+
+		def rndRemoveItems()
+			This.rndRemove()
+
+			def rndRemoveItemsQ()
+				return This.rndRemoveItemsQ()
+
+		def RemoveItemsRandomly()
+			This.rndRemove()
+
+			def RemoveItemsRandomlyQ()
+				return This.rndRemoveQ()
+
+		def RandomRemoveItems()
+			This.rndRemove()
+
+			def RandomRemoveItemsQ()
+				return This.rndRemoveQ()
+
+		def RandomlyRemoveItems()
+			This.rndRemove()
+
+			def RandomlyRemoveItemsQ()
+				return This.rndRemoveQ()
+
+		#>
+
+		#< @FunctionPassiveRandomForms
+
+		def rndRemoved()
+			_aResult_ = This.Copy().rndRemoveQ().Content()
+			return _aResult_
+
+			def RandomRemoved()
+				return This.rndRemoved()
+
+			def RandomyRemoved()
+				return This.rndRemoved()
+
+			def RemovedRandomly()
+				return This.rndRemoved()
+
+			def RemovedRandom()
+				return This.rndRemoved()
+
+		#--
+
+		def rndItemsRemoved()
+			_aResult_ = This.Copy().rndRemoveQ().Content()
+			return _aResult_
+
+			def RandomItemsRemoved()
+				return This.rndRemoved()
+
+			def RandomyRemovedItems()
+				return This.rndRemoved()
+
+			def ItemsRemovedRandomly()
+				return This.rndRemoved()
+
+			def ItemsRemovedRandom()
+				return This.rndRemoved()
+
+		#>
+
 
 	  #-------------------------------------------------------#
 	 #   REMOVING GIVEN OCCURRENCES OF AN ITEM IN THE LIST   #TODO // Add CASESENSITIVITY
@@ -15891,6 +15992,55 @@ class stzList from stzObject
 
 		def ItemsAtPositionsRemoved(panPos)
 			return This.ItemsAtThesePositionsRemoved(panPos)
+
+	  #-------------------------------------------#
+	 #  RANDOMLY REMOVING N ITEMS FROM THE LIST  #
+	#-------------------------------------------#
+
+	def rndRemoveNItems(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		_anPos_ = NRandomNumbersIn(n, 1:This.NumberOfItems())
+		This.RemoveItemsAtPositions(_anPos_)
+
+		#< @FunctionFluentForm
+
+		def rndRemoveNItemsQ(n)
+			This.rndRemoveNItems(n)
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RandomlyRemoveNItems(n)
+			This.rndRemoveNItems(n)
+
+			def RandomlyRemoveNItemsQ(n)
+				return This.rndRemoveNItemsQ(n)
+
+		def RemoveNItemsRandomly(n)
+			This.rndRemoveNItems(n)
+
+			def RemoveNItemsRandomlyQ(n)
+				return This.rndRemoveNItemsQ(n)
+
+		#>
+
+	#-- @functionPassiveForm
+
+	def rndNItemsRemoved(n)
+		_aResult_ = This.Copy().rndRemoveNItemsQ(n).Content()
+		return _aResult_
+
+		def NItemsRemovedRandomly(n)
+			return This.rndNItemsRemoved(n)
+
+		def NITemsRandomlyRemoved(n)
+			return This.rndNItemsRemoved(n)
 
 	  #-------------------------------#
 	 #   REMOVING A RANGE OF ITEMS   #
@@ -55283,6 +55433,9 @@ fdef
 		def AnyRandomNItems(n)
 			return This.NRandomItems(n)
 
+		def rndNItems(n)
+			return This.NRandomItems(n)
+
 		#>
 
 	  #-------------------------------------------------------------------#
@@ -55382,6 +55535,9 @@ fdef
 			return This.SomeRandomItems()
 
 		def AnyRandomItems()
+			return This.SomeRandomItems()
+
+		def rndItems()
 			return This.SomeRandomItems()
 
 		#>

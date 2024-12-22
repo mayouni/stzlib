@@ -10,7 +10,7 @@ Imagine writing code that flows as naturally as your thoughts, where programming
 
 Softanza introduces a unique approach to programming by treating functions as *linguistic expressions*, offering developers unprecedented flexibility in how they **write** and **read** code.
 
-Through carefully designed features like `@FunctionActiveForm`, `@FunctionPassiveForm`, `@FunctionFluentForm`, `@FunctionPartialForm`, `@FunctionPluralForm`, `@FunctionExceptionalForm`, `@FunctionNegativeForm`, `@FunctionAlternativeForms`, `@FunctionNamedParams`, `@FunctionConditionalForm`, `@FunctionNameSuffixes` and `@SmallFunctions`, Softanza breaks down the traditional barriers between human language and programming logic.
+Through carefully designed features like `@FunctionActiveForm`, `@FunctionPassiveForm`, `@FunctionFluentForm`, `@FunctionPartialForm`, `@FunctionPluralForm`, `@FunctionExceptionalForm`, `@FunctionNegativeForm`, `@FunctionAlternativeForms`, `@FunctionNamedParams`, `@FunctionConditionalForm`, `@FunctionNameSuffixes`, `@SmallFunctions`, `@FunctionFutureForm` and `@FunctionRandomForm`, Softanza breaks down the traditional barriers between human language and programming logic.
 
 >**NOTE**: In Softanza, as in Ring, the term `function` is used interchangeably to refer to both functions and methods.
 
@@ -535,10 +535,140 @@ Primarily designed for *writeability*, these small functions aim to minimize the
 
 With such versatile tools, coding becomes not just efficient but genuinely enjoyable.
 
-## Function Future Form
+## Function Future Form: Programming the Future with Softanza
+
+The following Ring code demonstrates a sequence of actions designed with foresight:
+
+```ring
+? BeforeQ('').UppercasingFQ("ringo").
+	RemoveFFQ("o").FromItQ().
+	SpacifyItQ().
+	AndThenQ().ReturnIt()
+
+    #--> R I N G
+```
+
+Here’s what happened behind the scenes:
+
+1. The process begins with an empty string elevated by `Q()` into an empty `stzString` object. This sets the stage for subsequent transformations.
+
+2. The `UppercasingFQ("ringo")` introduces two suffixes:
+   - `F()` stands for **Future**, instructing Softanza to defer the `Uppercasing` action.
+   - `Q()` ensures the object remains in an elevated state for chaining.  
+   This action isn’t executed immediately but stored for a future position in the chain.
+
+3. The `RemoveFFQ("o")` function signals that it depends on any pending actions preceding it. The **doubled `FF()`** suffix triggers the execution of all deferred actions before performing the removal. Result: `Uppercasing` converts "ringo" to "RING", and then `RemoveFF` eliminates "o" from it, leaving "RING".
+
+4. `FromItQ()` acts as a bridge, passing the processed `stzString` ("RING") to the next step.
+
+5. `SpacifyItQ()` adds spaces between characters, transforming "RING" into `"R I N G"`. The chain concludes with `AndThenQ().ReturnIt()`, which finalizes the sequence and outputs the resulting string.
+
+
+This feature introduces **algorithmic clarity and time-oriented thinking** into code by allowing developers to design solutions in a natural, human-like manner. By mapping actions along the axis of time, Softanza bridges the gap between thought and execution, providing:
+
+- **Clarity in Execution:** Each action clearly expresses when and how it will occur.
+- **Readable Workflow:** Chains are easy to understand, making code more maintainable.
+- **Natural Thinking:** The flow reflects how we plan and describe solutions in real life.
+
+
+This elegant synergy of structure and foresight exemplifies how **Function Future Form (Futura)** transforms Softanza into a powerful tool for natural programming. Welcome to a future where your code thinks like you do.
 
 ## Function Random Form: Gamification for Free
 
+In this section, Softanza introduces an interesting feature called `@FunctionRandomForm`, which is made possible simply by adding a `rnd` prefix to (any) function. This powerful feature allows you to manipulate and interact with data in a fun and flexible way.
+
+Let's imagine a scenario where we have a list of playing cards. The list is easily accessed and displayed as follows:
+
+```ring
+o1 = new stzList(Cards())
+
+? @@NL(o1.Content()) + NL
+#--> [
+#   "🂡",
+#   "🂢",
+#   "🂣",
+#   "🂤",
+#   "🂥",
+#   "🂦",
+#   "🂧",
+#   "🂨",
+#   "🂩",
+#   "🂪",
+#   "🂫",
+#   "🂭",
+#   "🂮"
+# ]
+```
+
+With `rndItems()`, we can retrieve random cards from the list:
+
+```ring
+? @@(o1.rndItems())
+#--> [ "🂫" ]
+
+? @@(o1.rndItems()) + NL
+#--> [ "🂨", "🂥", "🂡", "🂧" ]
+```
+
+We can also specify how many random cards we want to retrieve using `rndNItems(n)`:
+
+```ring
+? @@(o1.rndNItems(3))
+#--> [ "🂤", "🂨", "🂧" ]
+
+? @@(o1.rndNItems(3)) + NL
+#--> [ "🂧", "🂨", "🂡" ]
+```
+
+Not only can we retrieve random cards, but we can also remove a random number of cards from the list using `rndRemoveItems()`:
+
+```ring
+o1.rndRemoveItems()
+? @@(o1.Content())
+#--> [ "🂡", "🂢", "🂤", "🂥", "🂦", "🂧", "🂨", "🂩", "🂪", "🂮" ]
+
+o1.rndRemoveItems()
+? @@(o1.Content())
+#--> [ "🂤", "🂥", "🂦", "🂧", "🂨", "🂩", "🂮" ]
+
+o1.rndRemoveItems()
+? @@(o1.Content()) + NL
+#--> [ "🂥", "🂧", "🂨", "🂩", "🂮" ]
+```
+
+If we want to remove a specific number of random cards, we can use `rndRemoveNItems(n)`:
+
+```ring
+o1.rndRemoveNItems(3) + NL
+? @@(o1.Content())
+#--> [ "🂩", "🂪" ]
+```
+
+> **NOTE**: Currently, a few functions, including `rndItems()` and `rndRemove()`, have their @RandomForm enabled. Ultimately, Softanza will include these randomization features in all its functions, making gamification a first-class citizen in the design of the library.
+
+To add more and fun to the game, you can work with cards by their names and symbols. Using `CardsXT()`, we can generate a more detailed list:
+
+```ring
+o1 = new stzList(CardsXT())
+? @@NL(o1.Content())
+#--> [
+#   [ "ace", "🂡" ],
+#   [ "two", "🂢" ],
+#   [ "three", "🂣" ],
+#   [ "four", "🂤" ],
+#   [ "five", "🂥" ],
+#   [ "six", "🂦" ],
+#   [ "seven", "🂧" ],
+#   [ "eight", "🂨" ],
+#   [ "nine", "🂩" ],
+#   [ "ten", "🂪" ],
+#   [ "jack", "🂫" ],
+#   [ "queen", "🂭" ],
+#   [ "king", "🂮" ]
+# ]
+```
+
+This randomization feature makes Softanza extremely versatile, whether you’re playing a card game or dealing with more complex data manipulation tasks!
 
 ## Why It Matters: The Dual Benefits of Writable and Readable Code
 

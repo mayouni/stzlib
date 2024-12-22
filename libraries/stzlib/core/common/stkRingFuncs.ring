@@ -174,6 +174,27 @@ func ring_right(str, n)
 
 func ring_del(paList, n)
 
+	if CheckParams()
+
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+	ok
+
+	_nLen_ = len(paList)
+	if _nLen_ = 0
+		return
+	ok
+
+	if NOT (n >= 1 and n <= _nLen_)
+		StzRaise("Can't proceed! n has the value " + n + " while it must be inside the range of the list (between 1 and "+ _nLen_ + ").")
+	ok
+
 	del(paList, n)
 	return paList
 

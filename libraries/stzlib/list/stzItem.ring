@@ -172,10 +172,13 @@ class stzItemCS
 		def Size()
 			return This.NumberOfItems()
 
-		def HowManyItmes()
+		def HowManyItems()
 			return This.NumberOfItems()
 
 		def HowManyItem()
+			return This.NumberOfItems()
+
+		def CountItems()
 			return This.NumberOfItems()
 
 		#>
