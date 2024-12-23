@@ -10008,7 +10008,7 @@ proff()
 /*=================
 */
 profon()
-
+/*
 # Here is a fluent chain of actions that starts from
 # the word "LIFE" and ends at the word "L ♥ F E"
 
@@ -10062,7 +10062,7 @@ profon()
 # about the types of intermediate objects updated
 # the execution time those update have taken, and
 # their size in memory in bytes (inside the Ring VM)
-
+*/
 ? @@NL(
 	QHH("LIFE").
 	LowercaseQ().
@@ -10096,7 +10096,7 @@ profon()
 #
 #	[ "L ♥ F E", "stzstring", 0.01, 435 ]
 # ]
-
+/*
 # NOTE that only the methods that update the objects are traced!
 
 # The extensive output of the QHH() small function can be tuned
@@ -10168,7 +10168,7 @@ profon()
 #	[ [ "with", "♥" ], "stzlist", 322 ],
 #	[ "L ♥ F E", "stzstring", 435 ]
 # ]
-
+*/
 proff()
 # Executed in 0.60 second(s) in Ring 1.22
 

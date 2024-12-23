@@ -717,6 +717,114 @@ o1 = new stzList(CardsXT())
 
 This randomization feature makes Softanza extremely versatile, whether you’re playing a card game or dealing with more complex data manipulation tasks!
 
+
+## Multilingual Function Forms: Let Any Human Speak in Code  
+
+In writing program code, English is no longer the only option—you can now communicate with Softanza in any language!  
+
+Your code can be entirely in Arabic, Chinese, or even a mix of different languages within the same program.  
+
+```ring
+    Q("SOFTANZA") {
+
+        # Get the first character in English code
+        ? FirstChar()
+        #--> "S"
+
+        # Get the last character in French code (LastChar() in English)
+        ? DernierCaractère()
+        #--> "A"
+
+        # Get the last character in Arabic code
+        ? الحرف_الأخير()
+        #--> "َA"
+
+        # Get the number of characters in Chinese code (NumberOfChars() in English)
+        ? 字符数()
+        #--> 8
+    }
+```
+
+> **Note**: Not all Softanza functions have been translated yet. However, a user-friendly translation mechanism is planned for the future to make this process seamless.  
+
+
+## Function Free Forms in Softanza: Freedom to Define, Power to Execute
+
+In Softanza, extracting a section from a string is simple:  
+
+```ring
+? Q("I love Ring").Section(8, 11)
+#--> "Ring"
+```  
+
+Alternatively, you can use named parameters for clarity:  
+
+```ring
+? Q("I love Ring").Section(:From = 8, :To = 11)
+#--> "Ring"
+```  
+
+But what if you forget the parameters or don't know their order? That's where **Function Free Forms (FF)** come in:  
+
+```ring
+? Q("I love Ring").SectionFF([])
+#--> "I love Ring"
+```  
+
+Softanza, by default, returns the entire string (positions 1 to the end). You can also specify only some parameters:  
+
+```ring
+? Q("I love Ring").SectionFF([:From = 8])
+#--> "Ring"
+```  
+
+Even if you invert the parameter order, it works seamlessly:  
+
+```ring
+? Q("I love Ring").SectionFF([:To = 11, :From = 8])
+#--> "Ring"
+```  
+
+Now, consider the following string:  
+
+```ring
+o1 = new stzString("ring php ring ruby ring")
+```  
+
+Using `ReplaceNextOccurrence`, you can replace the first occurrence of a substring. Normally, the function requires three parameters:  
+
+```ring
+o1.ReplaceNextOccurrence(:Of = "ring", :StartingAt = 1, :With = "♥")
+? Content()
+#--> ♥ php ring ruby ring
+```  
+
+With the **FF** suffix, you can reduce the parameters and still get the same result:  
+
+```ring
+o1.ReplaceNextOccurrenceFF(["ring", :With = "♥"])
+#--> ♥ php ring ruby ring
+```  
+
+You can reorder the parameters as you like:  
+
+```ring
+o1.ReplaceNextOccurrenceFF([:Of = "ring", :With = "♥", :StartingAt = 1])
+#--> ♥ php ring ruby ring
+```  
+
+Or omit all parameters, letting Softanza infer the defaults:  
+
+```ring
+o1.ReplaceNextOccurrenceFF([])
+#--> ♥ php ring ruby ring
+```  
+
+Here, Softanza intelligently defaults the `:Of` parameter to the first substring it encounters ("ring" in this case).  
+
+**Function Free Forms** make Softanza functions flexible and intuitive, allowing users to define parameters in any order—or none at all—and achieve consistent results.  
+
+
 ## Why It Matters: The Dual Benefits of Writable and Readable Code
 
 Softanza's approach offers multiple advantages:
