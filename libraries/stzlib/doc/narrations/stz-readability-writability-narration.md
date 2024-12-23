@@ -429,10 +429,38 @@ While both approaches achieve the same result, the conditional approach in Softa
 
 Additionally, it is significantly more *writable*, reducing five lines of code to just one!
 
+## Function Prefixes: Unlock Function Superpowers with Three Simple Letters
 
-Here's the revised and polished version of your text with improved English, logical flow, and elegance: 
+In Softanza, as we saw previously, you can easily find the positions of a character inside a string using the `FindAll` function:  
 
----
+```ring
+? Q("RINGORIALAND").FindAll("I")
+# --> [2, 7]
+```  
+
+If you'd like to see those positions visually represented, the `viz` prefix provides a powerful enhancement:  
+
+```ring
+? Q("RINGORIALAND").vizFindAll("I")
+# --> RINGORIALAND
+#     -^----^-----
+```  
+
+The `viz` prefix adds a visual dimension to the output, making it more intuitive to locate the positions directly within the string.  
+
+For an even more detailed visualization, the `vizFindBoxed` method displays the string in a boxed format, clearly highlighting the character:  
+
+```ring
+? Q("RINGORIALAND").vizFindBoxed("I") + NL
+# -->
+# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+# │ R │ I │ N │ G │ O │ R │ I │ A │ L │ A │ N │ D │
+# └───┴─•─┴───┴───┴───┴───┴─•─┴───┴───┴───┴───┴───┘
+```  
+
+This feature is particularly useful for debugging and enhancing the programmer experience. By visually pinpointing specific characters or patterns, developers can better understand and analyze string data, making their workflows more efficient and error-free.
+
+>**NOTE**: Later in this article, you’ll discover two more powerful prefixes: `dft` and `inf`. Until then, take a moment to guess what they might do!
 
 ## Function Suffixes: Master Parameters from the Function Name
 
@@ -824,6 +852,54 @@ Here, Softanza intelligently defaults the `:Of` parameter to the first substring
 
 **Function Free Forms** make Softanza functions flexible and intuitive, allowing users to define parameters in any order—or none at all—and achieve consistent results.  
 
+## Function Default Form: Default Params Values, Made Computable!
+
+In Softanza, using a function with its default values is straightforward. You have two flexible options:  
+
+1. Add the `FF` suffix with `[]`, as shown in the previous section.  
+2. Use the `dft` prefix, like this:  
+
+```ring
+? Q("I love Ring").dftRange()
+# --> "I love Ring"
+```  
+
+This allows you to quickly apply a function while keeping its default values intact.  
+
+If you want to gain insight into the parameters and their default values, Softanza provides another handy feature: the `inf` prefix. It provides a clear description of the parameters, their names, types, and default values:  
+
+```ring
+? Q("I love Ring").infRange()
+# --> [
+#   [ :Param = "pnStart", :Name = "from", :Type = "NUMBER", :Default = 1 ],
+#   [ :Param = "pnRange", :Name = "to",   :Type = "NUMBER", :Default = 11 ]
+# ]
+```  
+
+This makes it easy to understand how a function works and what defaults are available, simplifying the process of coding efficiently and relegating the need for documentation to a supporting role.
+
+## Function Parameters Free Order: Parameters Your Way!
+
+A small but valuable feature in practice: when a function contains two parameters of different types, you can provide these parameters in any order.
+
+For example:
+
+```ring
+  Q("ring php ring python ring") {
+    
+    # You can place the number of occurrences before the substring
+    ? FindNthOccurrence(2, "ring")
+    #--> 10
+
+    # Or place the substring before the number of occurrences
+    ? FindNthOccurrence("ring", 2)
+    #--> 10
+  }
+```
+
+Regardless of the order, you still get the same result.
+
+>**NOTE**: Not all functions with two parameters support this feature yet, but it is planned for a future release.
 
 ## Why It Matters: The Dual Benefits of Writable and Readable Code
 
