@@ -621,7 +621,6 @@ func TraceObjectHistory(poStzObj)
 	_obj_ = poStzObj
 
 	if KeepingHisto() = _TRUE_
-		StartObjectTime()
 		_obj_.AddHistoricValue(_obj_.Content())
 	ok
 
@@ -738,7 +737,7 @@ func SetKeepingTimeTo(bTrueOrFalse)
 	ok
 
 	_bKeepTime = bTrueOrFalse
-
+	_nStartTimeInClocks = clock()
 
 	#< @FunctionAlternativeForms
 
