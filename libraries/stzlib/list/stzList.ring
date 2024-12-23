@@ -5543,14 +5543,7 @@ class stzList from stzObject
 
 		# Adding the first entry in the object history
 
-		if KeepingObjectHistory() = _TRUE_
-			_aHisto + This.Content()
-		ok
-
-		if KeepingObjectHistoryXT() = _TRUE_
-			StartObjectTime()
-			_aHistoXT + [ This.Content(), This.stzType(), 0, This.SizeInBytes() ]
-		ok
+		@TraceObjectHistory(This)
 
 	  #---------------------#
 	 #     CONSTRAINTS     #
