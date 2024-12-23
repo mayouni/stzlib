@@ -9970,13 +9970,14 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*=================
-*/
+
 profon()
 
 ? @@( S(1:3) )
 #--> "[ 1, 2, 3 ]"
 
-? N("-12500") + 500
+? N("-12500")
+#--> -12500
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.22

@@ -36,7 +36,7 @@ $TEMP_OBJECT = _NULL_
 _bKeepHisto = _FALSE_ // for keeping objec update history
 _aHisto = []
 
-_bKeepHistoXT = _FALSE_
+_aKeepHistoXT = [ _FALSE_, _NULL_ ]
 _aHistoXT = []
 
 _bKeepTime = _FALSE_ // for keeping object execution time
@@ -454,7 +454,7 @@ func KeepingHistory()
 		return KeepingHistory()
 
 func KeepingHistoryXT()
-	return _bKeepHistoXT
+	return _aKeepHistoXT[1]
 
 	func KeepingHistoXT()
 		return KeepingHistoryXT()
@@ -482,8 +482,23 @@ func KeepHistoryON()
 	func KeepHisto()
 		KeepHistoryON()
 
-func KeepHistoryONXT()
-	_bKeepHistoXT = _TRUE_
+func KeepHistoryONXT(pcMode)
+	if NOT isString(pcMode)
+		StzRaise("Incorrect param type! pcMode must be a string.")
+	ok
+
+	_cMode_ = ""
+
+	if pcMode = ""
+		_cMode_ = :VTMS # ~> [ Value, Type, Time, Size ]
+	ok
+
+	_acModes_ = [ :VTMS, :VT, :VM, :VS, :TM, :TS, :MS, :TM, :VTS, :TMS ]
+	_n_ = ring_find(_acModes_, lower(_cMode_))
+
+	if _n_ > 0
+		_aKeepHistoXT = [ _TRUE_, _cMode_ ]
+	ok
 
 	func KeepHistoryXT()
 		KeepHistoryONXT()
@@ -509,7 +524,7 @@ func KeepHistoryOFF()
 		KeepHistoryOFF()
 
 func KeepHistoryOFFXT()
-	_bKeepHistoXT = _FALSE_
+	_aKeepHistoXT = [ _FALSE_, _NULL_ ]
 
 	func DontKeepHistoryXT()
 		KeepHistoryOFFXT()
@@ -555,7 +570,7 @@ func SetKeepingHistoryTo(bTrueOrFalse)
 
 #---
 
-func SetKeepingHistoryToXT(bTrueOrFalse, pcSuffix)
+func SetKeepingHistoryToXT(bTrueOrFalse, pcMode)
 	if CheckParams()
 		if NOT (isNumber(bTrueOrFalse) and isNumber(bTrueOrFalse) )
 			StzRaise("Incorrect param type! bTrueOrFalse must be a number.")
@@ -565,16 +580,17 @@ func SetKeepingHistoryToXT(bTrueOrFalse, pcSuffix)
 			StzRaise("Incorrect param value! bTrueOrFalse must be 0 or 1.")
 		ok
 
-		if NOT isString(pcSuffix)
-			StzRaise("Incorrect param type! pcSuffix must be a string!")
-		ok
-
-		if NOT ( pcSuffix = :VTTS or pcSuffix = :V )
-
+		if NOT isString(pcMode)
+			StzRaise("Incorrect param type! pcMode must be a string!")
 		ok
 	ok
 
-	_bKeepHistoXT = bTrueOrFalse
+	_acModes_ = [ :VTMS, :VT, :VM, :VS, :TM, :TS, :MS, :TM, :VTS, :TMS ]
+	_n_ = ring_find(_acModes_, lower(pcMode))
+
+	if _n_ > 0
+		_aKeepHistoXT = [ bTrueOrFalse, pcMode ]
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -599,90 +615,99 @@ func UpdateObjectHistoryXT(aInfo)
 	_aHistoXT = aInfo
 
 
-func TraceObjectHistory(pStzObj) # 
+func TraceObjectHistory(poStzObj)
 
-/*	if NOT (isObject(pStzObj) and IsStzObject(pStzObj))
-		StzRaise("Incorrect param type! pStzObj must be a Softanza object.")
-	ok
-*/
+
+	_obj_ = poStzObj
+
 	if KeepingHisto() = _TRUE_
 		StartObjectTime()
-		pStzObj.AddHistoricValue(pStzObj.Content())
+		_obj_.AddHistoricValue(_obj_.Content())
 	ok
 
 	if KeepingHistoXT() = _TRUE_
-		_cDisp_ = _aHistoXT[2]
 
-		switch _cDisp_
+		_cDisp_ = _aKeepHistoXT[2]
 
-		on :VTMS
-			pStzObj.AddHistoricValueXT([
-				This.Content(),
-				This.StzType(),
-				This.ExecTime(),
-				This.SizeInBytes()
+		if _cDisp_ = "vtms"
+
+			_obj_.AddHistoricValueXT([
+				_obj_.Content(),
+				_obj_.StzType(),
+				_obj_.ExecTime(),
+				_obj_.SizeInBytes()
 			])
 
-		on :VTM
-			pStzObj.AddHistoricValueXT([
-				This.Content(),
-				This.StzType(),
-				This.ExecTime()
+		but _cDisp_ = "vtm"
+
+			_obj_.AddHistoricValueXT([
+				_obj_.Content(),
+				_obj_.StzType(),
+				_obj_.ExecTime()
 			])
 
-		on :VTS
-			pStzObj.AddHistoricValueXT([
-				This.Content(),
-				This.StzType(),
-				This.SizeInBytes()
+		but _cDisp_ = "vts"
+
+			_obj_.AddHistoricValueXT([
+				_obj_.Content(),
+				_obj_.StzType(),
+				_obj_.SizeInBytes()
 			])
 
-		on :TMS
-			pStzObj.AddHistoricValueXT([
-				This.StzType(),
-				This.ExecTime(),
-				This.SizeInBytes()
+		but _cDisp_ = "tms"
+
+			_obj_.AddHistoricValueXT([
+				_obj_.StzType(),
+				_obj_.ExecTime(),
+				_obj_.SizeInBytes()
 			])
 
-		on :VT
-			pStzObj.AddHistoricValueXT([
-				This.Content(),
-				This.StzType()
+		but _cDisp_ = "vt"
+			_obj_.AddHistoricValueXT([
+				_obj_.Content(),
+				_obj_.StzType()
 			])
 
-		on :VM
-			pStzObj.AddHistoricValueXT([
-				This.Content(),
-				This.ExecTime()
+		but _cDisp_ = "vm"
+
+			_obj_.AddHistoricValueXT([
+				_obj_.Content(),
+				_obj_.ExecTime()
 			])
 
-		on :VS
-			pStzObj.AddHistoricValueXT([
-				This.Content(),
-				This.SizeInBytes()
+		but _cDisp_ = "vs"
+
+			_obj_.AddHistoricValueXT([
+				_obj_.Content(),
+				_obj_.SizeInBytes()
 			])
 
-		on :TM
-			pStzObj.AddHistoricValueXT([
-				This.StzType(),
-				This.ExecTime()
+		but _cDisp_ = "tm"
+
+			_obj_.AddHistoricValueXT([
+				_obj_.StzType(),
+				_obj_.ExecTime()
 			])
 
-		on :TS
-			pStzObj.AddHistoricValueXT([
-				This.StzType(),
-				This.SizeInBytes()
+		but _cDisp_ = "ts"
+
+			_obj_.AddHistoricValueXT([
+				_obj_.StzType(),
+				_obj_.SizeInBytes()
 			])
 
-		on :MS
-			pStzObj.AddHistoricValueXT([
-				This.ExecTime(),
-				This.SizeInBytes()
+		but _cDisp_ = "ms"
+
+			_obj_.AddHistoricValueXT([
+				_obj_.ExecTime(),
+				_obj_.SizeInBytes()
 			])
 
-		off
+		else
 			StzRaise("Unsupported syntax!")
 		ok
+
+	ok
 
 	func @TraceObjectHistory(pStzObj)
 		TraceObjectHistory(pStzObj)
