@@ -5543,7 +5543,8 @@ class stzList from stzObject
 
 		# Adding the first entry in the object history
 
-		@TraceObjectHistory(This)
+		StartObjectTime()
+		TraceObjectHistory(This)
 
 	  #---------------------#
 	 #     CONSTRAINTS     #

@@ -1470,7 +1470,8 @@ class stzString from stzObject
 
 		# Adding the first entry in the object history
 
-		@TraceObjectHistory(This)
+		StartObjectTime()
+		TraceObjectHistory(This)
 
 	  #==========================#
 	 #   CHECKING CONSTRAINTS   #
@@ -39935,33 +39936,15 @@ class stzString from stzObject
 				return This.ReplaceByManyCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			ok
 
-			#--
-
-			bWellFormed = _FALSE_
-	
-			if isString(pcNewSubStr)
-				bWellFormed = _TRUE_
-			ok
-	
-			# Checking the correctness of pCaseSensitive param
-	
-			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-				pCaseSensitive = pCaseSensitive[2]
-			ok
-	
-			if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-				stzRaise("Incorrect param type! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
-			ok
-
 		ok
 
 		# Doing the job
 
-		bCase = @CaseSensitive(pCaseSensitive)
-		cResult = This.Content()
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_cResult_ = This.Content()
 
-		cResult = @ReplaceCS(cResult, pcSubStr, pcNewSubStr, bCase)
-		This.UpdateWith(cResult)
+		_cResult_ = @ReplaceCS(_cResult_, pcSubStr, pcNewSubStr, _bCase_)
+		This.UpdateWith(_cResult_)
 
 		#< @FunctionFluentForm
 		
