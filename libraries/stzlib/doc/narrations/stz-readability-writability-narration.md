@@ -5,6 +5,7 @@
 Imagine writing code that flows as naturally as your thoughts, where programming constructs mirror the linguistic patterns of human communication. This is the core philosophy of Softanza, a foundation library for the Ring programming language, yet a *computational thinking frameowork* that transforms code from a technical syntax into an expressive, intuitive language.
 
 *By Mansour Ayouni (Creator of Softanza).*
+
 ---
 
 ## Introduction: Functions As Linguistic Expressions
