@@ -10099,8 +10099,78 @@ profon()
 
 # NOTE that only the methods that update the objects are traced!
 
+# The extensive output of the QHH() small function can be tuned
+# at your will, showing only the information you need.
+
+# The idea is to add a suffix of one letter to each data:
+# V to Value, T to Type, M to Time, and S to Size.
+
+# So if you want to show only the Time and Size, you write:
+
+? @@NL(
+	QHHMS("LIFE").	# M for Time and S for Size
+	LowercaseQ().
+	SpacifyQ().
+	CharsQ().
+
+	RemoveSpacesQ().
+	UppercaseQ().
+	JoinQ().
+
+	SpacifyQ().
+	ReplaceQ("I", :With = AHeart()).
+	History()
+) + NL
+#--> [
+#	[ 0, 435 ],
+#	[ 0 435 ],
+#	[ 0, 435 ],
+#	[ 0, 322 ],
+#	[ 0, 319 ],
+#	[ 0, 319 ],
+#	[ 0, 319 ],
+#	[ 0, 319 ],
+#	[ 0, 319 ],
+#	[ 0, 435 ],
+#	[ 0, 435 ],
+#	[ 0, 322 ],
+#	[ 0, 435 ]
+# ]
+
+# And if you want to show Value, Type and Size, you write:
+
+? @@NL(
+	QHHVTS("LIFE").	# V for Value, T for Type and S ofr Size
+	LowercaseQ().
+	SpacifyQ().
+	CharsQ().
+
+	RemoveSpacesQ().
+	UppercaseQ().
+	JoinQ().
+
+	SpacifyQ().
+	ReplaceQ("I", :With = AHeart()).
+	History()
+)
+#--> [
+#	[ "LIFE", "stzstring", 435 ],
+#	[ "life", "stzstring", 435 ],
+#	[ "l i f e", "stzstring", 435 ],
+#	[ [ "l", " ", "i", " ", "f", " ", "e" ], "stzlist", 322 ],
+#	[ [ "l", "i", "f", "e" ], "stzlist", 319 ],
+#	[ [ "l", "i", "f", "e" ], "stzlist", 319 ],
+#	[ [ "L", "I", "F", "E" ], "stzlist", 319 ],
+#	[ [ "L", "I", "F", "E" ], "stzlist", 319 ],
+#	[ [ "L", "I", "F", "E" ], "stzlist", 319 ],
+#	[ "LIFE", "stzstring", 435 ],
+#	[ "L I F E", "stzstring", 435 ],
+#	[ [ "with", "♥" ], "stzlist", 322 ],
+#	[ "L ♥ F E", "stzstring", 435 ]
+# ]
+
 proff()
-# Executed in 0.13 second(s) in Ring 1.22s
+# Executed in 0.60 second(s) in Ring 1.22
 
 /*------------------
 

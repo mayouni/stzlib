@@ -185,8 +185,89 @@ Here's a detailed explanation of what happened in the code execution:
 
 The operations alternated between `stzstring` and `stzlist` objects, with strings opeations beeing faster (due to the use of Qt C++ internally), while lists generally having smaller memory footprints. Most operations completed very quickly, with only a few taking measurable time.
 
-
 >**NOTE**: The `@@NL()` small function generates a readable string representation of the list, just like `@@()`, but with the added distinction of displaying each item on a separate line.
+
+## Customizing the History Output
+
+While the complete output of `QHH()` provides comprehensive information, there might be times when you only need specific aspects of the transformation history. Softanza accommodates this need through its flexible function *suffix system* that lets you choose exactly what information to display.
+
+The suffix system uses single letters to represent different types of information:
+- `V`: Value of the transformation
+- `T`: Type of the object
+- `M`: Time taken for the transformation
+- `S`: Size of the object in memory
+
+For example, if you're only interested in monitoring execution time and memory usage, you can use the `MS` suffix:
+
+```ring
+? @@NL(
+    QHHMS("LIFE"). # M for Time and S for Size
+    LowercaseQ().
+    SpacifyQ().
+    CharsQ().
+    
+    RemoveSpacesQ().
+    UppercaseQ().
+    JoinQ().
+    
+    SpacifyQ().
+    ReplaceQ("I", :With = AHeart()).
+    History()
+) + NL
+
+#--> [
+#   [ 0, 435 ],
+#   [ 0 435 ],
+#   [ 0, 435 ],
+#   [ 0, 322 ],
+#   [ 0, 319 ],
+#   [ 0, 319 ],
+#   [ 0, 319 ],
+#   [ 0, 319 ],
+#   [ 0, 319 ],
+#   [ 0, 435 ],
+#   [ 0, 435 ],
+#   [ 0, 322 ],
+#   [ 0, 435 ]
+# ]
+```
+
+Or if you need to track values, types, and memory usage but not execution time, you can use the `VTS` suffix:
+
+```ring
+? @@NL(
+    QHHVTS("LIFE"). # V for Value, T for Type and S for Size
+    LowercaseQ().
+    SpacifyQ().
+    CharsQ().
+    
+    RemoveSpacesQ().
+    UppercaseQ().
+    JoinQ().
+    
+    SpacifyQ().
+    ReplaceQ("I", :With = AHeart()).
+    History()
+)
+
+#--> [
+#   [ "LIFE", "stzstring", 435 ],
+#   [ "life", "stzstring", 435 ],
+#   [ "l i f e", "stzstring", 435 ],
+#   [ [ "l", " ", "i", " ", "f", " ", "e" ], "stzlist", 322 ],
+#   [ [ "l", "i", "f", "e" ], "stzlist", 319 ],
+#   [ [ "l", "i", "f", "e" ], "stzlist", 319 ],
+#   [ [ "L", "I", "F", "E" ], "stzlist", 319 ],
+#   [ [ "L", "I", "F", "E" ], "stzlist", 319 ],
+#   [ [ "L", "I", "F", "E" ], "stzlist", 319 ],
+#   [ "LIFE", "stzstring", 435 ],
+#   [ "L I F E", "stzstring", 435 ],
+#   [ [ "with", "♥" ], "stzlist", 322 ],
+#   [ "L ♥ F E", "stzstring", 435 ]
+# ]
+```
+
+This flexible suffix system allows you to focus on the specific aspects of transformation history that matter most for your current task, whether it's debugging memory usage, analyzing performance, or tracking type changes.
 
 ## Key Benefits
 
