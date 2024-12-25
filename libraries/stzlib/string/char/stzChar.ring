@@ -213,6 +213,12 @@ func UnicodeToChar(nUnicode)
 	oChar = new stzChar(nUnicode)
 	return oChar.Content()	
 
+	func Char(nUnicode)
+		return UnicodeToChar(nUnicode)
+
+	func @Char(nUnicode)
+		return UnicodeToChar(nUnicode)
+
 func UnicodeSectionToListOfChars(nUnicode1, nUnicode2)
 	aResult = []
 

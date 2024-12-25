@@ -338,7 +338,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_aResult_ = []
 		_nLen_ = This.NumberOfPairs()
 
-		for @i = 1 to nLen_
+		for @i = 1 to _nLen_
 			_aResult_ + _aContent_[@i][2]
 		next
 
@@ -384,7 +384,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_bResult_ = _TRUE_
 
 		for @i = 2 to _nLen_
-			if len(_aContent[@i][2]) != _nSize
+			if len(_aContent_[@i][2]) != _nSize_
 				_bResult_ = _FALSE_
 				exit
 			ok
