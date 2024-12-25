@@ -2,18 +2,35 @@ load "../max/stzmax.ring"
 
 profon()
 
+change = [ :button = "espresso" ]
+f1 = func change { if change[:button] = "espresso" makeEspresso() ok }
+
+aList = [
+	:type = "button press",
+	:action = f1
+]
+
+? @@NL( aList )
+
+call f1(null)
+
+proff()
+
+func makeEspresso()
+	? "Starting your expresso!"
+
+/*---------
+
+profon()
+
 o1 = new CoffeeMachine
 o1 {
 
 	# Add knwoan patterns
 	Learn([
 		:type = "button press",
-		:action = func change { }
-/*			if change[:button] = "espresso"
-				makeEspresso()
-			ok
-		}
-*/
+		:action = func change { if change[:button] = "espresso" makeEspresso() ok }
+
 	])
 
 ? @@NL(context)
@@ -48,10 +65,11 @@ Class UnifiedSystem
 
     
     def learn(pattern)
-? isNull(context["patterns"])
-	if not isNull(context["patterns"])
+
+//	if not len(context["patterns"]) = 0
+
        	 	add(context["patterns"], pattern)
-    	ok
+//    	ok
 
     def process(change)
         # Apply known patterns

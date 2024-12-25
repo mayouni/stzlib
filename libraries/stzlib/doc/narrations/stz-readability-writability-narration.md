@@ -71,10 +71,10 @@ In Softanza, you can effortlessly *chain* multiple function calls, creating a sm
     SpacifyQ().
     Removed("x")
 
-#--> R♥NG
+#--> R ♥ N G
 ```
 
-Here, the process begins with the string `"rixxnxg"`, elevated to a `stzString` object with the `Q()` small function, and concludes with `"R♥NG"`. In between, we apply a series of transformations: converting to uppercase, replacing characters, adding spaces, and removing specific characters.
+Here, the process begins with the string `"rixxnxg"`, elevated to a `stzString` object with the `Q()` small function, and concludes with `"R ♥ N G"`. In between, we apply a series of transformations: converting to uppercase, replacing characters, adding spaces, and removing specific characters.
 
 Your text is well-written and clear. Here's a slightly refined version for improved readability and grammar:
 
