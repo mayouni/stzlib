@@ -7637,7 +7637,7 @@ class stzList from stzObject
 		_aContent_ = This.Content()
 
 		for @i = 1 to _nLen_
-			_aContent[@i] = pNewItem
+			_aContent_[@i] = pNewItem
 		next
 
 		This.UpdateWith(_aContent_)

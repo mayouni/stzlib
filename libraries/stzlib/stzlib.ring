@@ -150,13 +150,16 @@
 
 # Loading files related to the STRING module
 
+	load "string/stzStringGlobs.ring"
+	load "string/stzStringFuncs.ring"
 	load "string/stzString.ring"
-	load "string/stzSubString.ring"
-	load "string/stzListOfStrings.ring"
-	load "string/stzChar.ring"
-	load "string/stzListOfChars.ring"
-	load "string/stzListOfUnicodes.ring"
-	load "string/stzStringArt.ring"
+
+	load "string/substring/stzSubString.ring"
+	load "string/listofstrings/stzListOfStrings.ring"
+	load "string/char/stzChar.ring"
+	load "string/listofchars/stzListOfChars.ring"
+	load "string/listofunicodes/stzListOfUnicodes.ring"
+	load "string/stringart/stzStringArt.ring"
 
 # Loading files related tp the COMMON module
 

@@ -344,7 +344,7 @@ class stzListOfStrings from stzList
 		if IsQStringListObject(pNewListOfStr)
 			@oQStrList = pNewListOfStr
 
-		but @IsListOfString(pNewListOfStr)
+		but @IsListOfStrings(pNewListOfStr)
 			This.QStringListObject().clear()
 			nLen = len(pNewListOfStr)
 

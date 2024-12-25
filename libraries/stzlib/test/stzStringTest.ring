@@ -629,7 +629,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*=== Section() and CharsInSection()
-
+*/
 profon()
 
 # Here, you cen get a section from a string
@@ -4358,6 +4358,7 @@ o1 = new stzString( UnicodeDataAsString() ) # Contains 1_897_793 chars
 #--> _FALSE_
 
 StopProfiler()
+# Executed in 0.02 second(s) in Ring 1.22
 # Executed in 0.06 second(s) in Ring 1.21
 
 /*============
@@ -5976,6 +5977,7 @@ o1.RemoveSpacesInSections([ [ 6, 15 ], [ 27, 32 ], [ 42, 55 ] ])
 #--> Ring language is like a ring at your fingertips!
 
 proff()
+# Executed in 0.05 second(s) in Ring 1.22
 
 /*--------------
 
@@ -6007,9 +6009,11 @@ aSections = oHashList.ValuesQ().ItemsAtPositions(aSectionsPos)
 
 o1.RemoveSpacesInSections(aSections)
 ? o1.Content()
+# ring language is like a ring at your fingertips!
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.07 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.21
 
 /*-------------
 
@@ -10006,7 +10010,7 @@ proff()
 # Executed in 0.24 second(s) in Ring 1.22
 
 /*=================
-*/
+
 profon()
 
 # Here is a fluent chain of actions that starts from

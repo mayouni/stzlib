@@ -1,45 +1,31 @@
 load "../max/stzmax.ring"
 
-? @@( MergeContiguousSections([ [ 1, 4 ], [ 6, 8 ], [ 9, 10 ], [ 12, 13 ], [ 13, 15 ] ]) )
+? isNull("")
 
-func MergeContiguousSections(sections)
-	nLen = len(sections)
-	if nLen <= 1
-		return sections
-	ok
+/*----
 
-	// Sort the sections based on the start of each section
-	for i = 1 to nLen - 1
-		for j = i + 1 to nLen
-			if sections[i][1] > sections[j][1]
-				temp = sections[i]
-				sections[i] = sections[j]
-				sections[j] = temp
-			ok
-		next
-	next
+profon()
 
-	// Merge contiguous sections
-	mergedSections = []
-	current = sections[1]
 
-	for i = 2 to nLen
-		// If current section overlaps or is contiguous with the next section
-		if sections[i][1] <= current[2] + 1
-			// Extend the current section's end
-			current[2] = @max([ current[2], sections[i][2] ])
-		else
-			// Add the current section to merged sections and start a new current
-			mergedSections + current
-			current = sections[i]
-		ok
-	next
+o1 = new stzString("abracadabra")
 
-	// Add the last section
-	mergedSections + current
+o1.ReplaceManyNthSubStrings([
+	[ 1, 'a', :with = 'A' ],
+	[ 2, 'a', :with = 'B' ],
+	[ 4, 'a', :with = 'C' ],
+	[ 5, 'a', :with = 'D' ],
 
-	return mergedSections
+	[ 1, 'b', :with = 'E' ],
+		[ 2, 'r', :with = 'F' ]
+])
 
+
+? o1.Content()
+# AErBcadCbFD
+
+
+proff()
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*---
 

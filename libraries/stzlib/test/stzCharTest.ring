@@ -17,7 +17,8 @@ profon()
 #--> ⚝
 
 proff()
-# Executed in 0.17 second(s).
+# Executed in 0.13 second(s) in Ring 1.22
+# Executed in 0.17 second(s) in Ring 1.21
 
 /*-----
 
