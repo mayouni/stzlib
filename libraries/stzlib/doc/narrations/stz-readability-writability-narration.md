@@ -76,8 +76,6 @@ In Softanza, you can effortlessly *chain* multiple function calls, creating a sm
 
 Here, the process begins with the string `"rixxnxg"`, elevated to a `stzString` object with the `Q()` small function, and concludes with `"R ♥ N G"`. In between, we apply a series of transformations: converting to uppercase, replacing characters, adding spaces, and removing specific characters.
 
-Your text is well-written and clear. Here's a slightly refined version for improved readability and grammar:
-
 This chaining is made possible by the *`Q()` suffix*, which allows functions to return objects that can be further processed in a continuous flow. This style of expression is often referred to as a ***Chain of Actions***. The `Q()` construct, whether as a small function that initiates the chain or a suffix that ensures its continuation, is what makes it ***fluent***.
 
 A key feature of this approach is the famous **copy-on-write mechanism**. Each operation in the chain creates a *new copy* of the string, preserving the original object intact. This ensures that every step remains side-effect-free, crucial for maintaining state integrity in complex applications.
