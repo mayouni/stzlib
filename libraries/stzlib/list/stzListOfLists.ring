@@ -147,6 +147,12 @@ func Association(paLists)
 	func @Association(paLists)
 		return Association(paLists)
 
+	func Associate(paList)
+		return Association(paLists)
+
+	func @Associate(paList)
+		return Association(paLists)
+
 	#>
 
 	#< @FunctionMisspelledForm
@@ -166,6 +172,54 @@ func Association(paLists)
 		return Association(paLists)
 
 	#>
+
+func Pairify(paPairOfLists) # A @SpecializedForm of Association()
+
+	# EXAMPLE
+	# Pairify([ "A", "B", "C" ], [ 1, 2, 3 ])
+	#--> [ [ "A", 1 ], [ "B", "2" ], [ "C", 3 ])
+
+	if NOT ( isList(paPairOfLists) and len(paPairOfLists) = 2 and
+		isList(paPairOfLists[1]) and isList(paPairOfLists[2]) )
+
+		StzRaise("Incorrect param type! paListOf2Lists must be a pair of lists.")
+	ok
+
+	# Take a copy of the two lists (for safety)
+
+	_aList1_ = paPairOfLists[1]
+	_aList2_ = paPairOfLists[2]
+
+	# Adjusting the size of the two lists
+
+	_nLen1_ = len(_aList1_)
+	_nLen2_ = len(_aList2_)
+	_nDiff_ = Abs(_nLen1_ - _nLen2_)
+
+	if _nLen1_ < _nLen2_
+		for @i = 1 to _nDiff_
+			_aList1_ + _NULL_
+		next
+	else
+		for @i = 1 to _nDiff_
+			_aList2_ + _NULL
+		next
+	ok
+
+	_nLen_ = len(_aList1_)
+
+	# Doing the job
+
+	_aResult_ = []
+
+	for @i = 1 to _nLen_
+		_aResult_ + [ _aList1_[@i], _aList2_[@i] ]
+	next
+
+	return _aResult_
+
+	func @Pairify(paPairOfLists)
+		return Pairify(paPairOfLists)
 
 func CommonItemsCS(paLists, pCaseSensitive)
 	aResult = StzListOfListsQ(paLists).CommonItemsCS(pCaseSensitive)
@@ -1431,8 +1485,8 @@ class stzListOfLists from stzList
 
 		#< @FuntionFluentForm
 
-		def ExtendXTQ()
-			This.ExtendXT()
+		def ExtendXTQ(pItem)
+			This.ExtendXT(pItem)
 			return This
 
 		#>
@@ -1444,14 +1498,6 @@ class stzListOfLists from stzList
 
 			def ExtendEachListXTQ(pItem)
 				return This.ExtendXTQ(pItem)
-
-		def JustifyXT(pItem)
-			This.ExtendXT(pItem)
-
-			def JustifyXTQ(pItem)
-				return This.ExtendXTQ(pItem)
-
-		#--
 
 		def ExtendWith(pItem)
 			This.ExtendXT(pItem)
@@ -1465,11 +1511,57 @@ class stzListOfLists from stzList
 			def ExtendEachListWithQ(pItem)
 				return This.ExtendWithQ(pItem)
 
+		#--
+
+		def CompleteXT(pItem)
+			This.ExtendXT(pItem)
+
+			def CompleteXTQ(pItem)
+				return This.ExtendXTQ(pItem)
+
+		def CompleteEachListXT(pItem)
+			This.ExtendXT(pItem)
+
+			def CompleteEachListXTQ(pItem)
+				return This.ExtendXTQ(pItem)
+
+		def CompleteWith(pItem)
+			This.ExtendXT(pItem)
+
+			def CompleteWithQ(pItem)
+				return This.ExtendXTQ(pItem)
+
+		def ComplteEachListWith(pItem)
+			This.ExtendXT(pItem)
+
+			def CompleteEachListWithQ(pItem)
+				return This.ExtendXTQ(pItem)
+
+		#--
+
+		def JustifyXT(pItem)
+			This.ExtendXT(pItem)
+
+			def JustifyXTQ(pItem)
+				return This.ExtendXTQ(pItem)
+
+		def JustifyEachListXT(pItem)
+			This.ExtendXT(pItem)
+
+			def JustifyEachListXTQ(pItem)
+				return This.ExtendXTQ(pItem)
+
 		def JustifyWith(pItem)
-			This.ExtendWith(pItem)
+			This.ExtendXT(pItem)
 
 			def JustifyWithQ(pItem)
-				return This.ExtendWithQ(pItem)
+				return This.ExtendXTQ(pItem)
+
+		def JustifyEachListWith()
+			This.ExtendXT(pItem)
+
+			def JustiffyEachListWithQ(pItem)
+				return This.ExtendXTQ(pItem)
 
 		#>
 
@@ -1482,18 +1574,28 @@ class stzListOfLists from stzList
 		def EachListExtendedXT(pItem)
 			return This.ExtendedXT(pItem)
 
-		def JustifiedXT(pItem)
-			return This.ExtendedXT(pItem)
-
 		#--
 
-		def ExtendedWith(pItem)
+		def ExtendedWithXT(pItem)
 			return This.ExtendedXT(pItem)
 
 		def EachListExtendedWith(pItem)
 			return This.ExtendedXT(pItem)
 
+		#--
+
+		def JustifiedXT(pItem)
+			return This.ExtendedXT(pItem)
+
+		def EachListJustifiedXT(pItem)
+			return This.ExtendedXT(pItem)
+
+		#--
+
 		def JustifiedWith(pItem)
+			return This.ExtendedXT(pItem)
+
+		def EachListJustifiedWith(pItem)
 			return This.ExtendedXT(pItem)
 
 		#>
@@ -1819,7 +1921,10 @@ class stzListOfLists from stzList
 	 #  SHRINKING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION  #
 	#------------------------------------------------------------------#
 
+
 	def ShrinkTo(n)
+		#TODO // Review implementation for performance and history tracing
+
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
@@ -1858,17 +1963,11 @@ class stzListOfLists from stzList
 
 			return This.ShrinkedTo(n)
 
-		def AdjustedTo(n)
-			This.ShrinkedTo(n)
-
-		def AdjustedToPosition(n)
-			This.ShrinkedTo(n)
-
 	  #--------------------------------------------------------------------------------------#
 	 #  SHRINKING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION USING A GIVEN VALUE  #
 	#--------------------------------------------------------------------------------------#
 
-	def ShrinkToWith(n, pWith)
+	def ShrinkToWith(n, pItem)
 
 		if CheckingParams()
 
@@ -1880,8 +1979,8 @@ class stzListOfLists from stzList
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
-			if isList(pWith) and Q(pWith).IsWithOrByOrUsingNamedParam()
-				pWith = pWith[2]
+			if isList(pItem) and Q(pItem).IsWithOrByOrUsingNamedParam()
+				pItem = pItem[2]
 			ok
 
 		ok
@@ -1900,39 +1999,49 @@ class stzListOfLists from stzList
 			ok
 
 			if n < nLenList
-				aResult + Q(aContent[i]).ShrinkedTo(n)
+
+				_aTemp_ = []
+				for j = 1 to n
+					_aTemp_ + aContent[i][j]
+				next
+
+				aResult + _aTemp_
 
 			else
-				aResult + Q(aContent[i]).ExtendtedToWith(n, pWith)
-				#NOTE this a misspelled form --> Extend(t)edToWith
+				_aTemp_ = aContent[i]
+				_nDiff_ = nLenList - n
+
+				for j = 1 to _nDiff_
+					_aTemp_ + pItem
+				next
+
+				aResult + _aTemp_
 			ok
 		next
 
 		This.UpdateWith(aResult)
 
+		#< @FunctionFluentForm
 
-		def ShrinkToWithQ(n, pWith)
-			This.ShrinkToWith(n, pWith)
+		def ShrinkToWithQ(n, pItem)
+			This.ShrinkToWith(n, pItem)
 			return This
+
+		#>
 
 		#< @FunctionAlternativeForms
 
-		def ShrinkToUsing(n, pUsing)
-			This.ShrinkToWith(n, pWith)
+		def ShrinkToUsing(n, pItem)
+			This.ShrinkToWith(n, pItem)
 
-		def ShrinkToBy(n, pBy)
-			This.ShrinkToWith(n, pWith)
+			def ShrinkToUsingQ(n, pItem)
+				return This.ShrinkToWithQ(n, pItem)
 
-		#--
+		def ShrinkXT(n, pItem)
+			This.ShrinkToWith(n, pItem)
 
-		def AdjustToWith(n, pWith)
-			This.ShrinkToWith(n, pWith)
-
-		def AdjustToUsing(n, pWith)
-			This.ShrinkToWith(n, pWith)
-
-		def AdjustToBy(n, pBy)
-			This.ShrinkToWith(n, pWith)
+			def ShrinkXTQ(n, pItem)
+				return This.ShrinkToWithQ(n, pItem)
 
 		#>
 
@@ -1948,54 +2057,192 @@ class stzListOfLists from stzList
 		def ShrinkedToBy(n, pBy)
 			return This.ShrinkedToWith(n, pWith)
 
-		#--
-
-		def AdjustedToWith(n, pWith)
-			This.ShrinkedToWith(n, pWith)
-
-		def AdjustedToUsing(n, pWith)
-			This.ShrinkedToWith(n, pWith)
-
-		def AdjustedToBy(n, pBy)
-			This.ShrinkedToWith(n, pWith)
-
 		#>
 
 	  #-----------------------------------------------------------------------------#
 	 #  ADJUSTING THE LIST OF LISTS TO A GIVEN NUMBER OF ITEMS USING A GIVEN ITEM  #
 	#-----------------------------------------------------------------------------#
 
-	def AdjustXT(n, pWith)
-	
+	def AdjustWith(pItem)
+
 		if CheckingParams()
 	
-			if isList(n) and Q(n).IsToNamedParam()
-				n = n[2]
+			if isList(pItem) and Q(pItem).IsWithOrByOrUsingNamedParam()
+				pItem = pItem[2]
 			ok
-		
-			if isList(pWith) and Q(pWith).IsOneOfTheseNamedParams([ :With, :By, :Using ])
-				pWith = pWith[2]
-			ok
-		ok
-	
-		This.AdjustToUsing(n, pWith)
 
-		def AdjustXTQ(n, pWith)
-			This.AdjustXT(n, pWith)
+		ok
+
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_nLargest_ = This.SizeOfLargestList()
+
+		_aResult_ = []
+
+		for @i = 1 to _nLen_
+
+			_nLenList_ = len(_aContent_[@i])
+
+			if _nLenList_ = _nLargest_
+				_aResult_ + _aContent_[@i]
+				loop
+			ok
+
+			_nDiff_ = Abs( _nLenList_ - _nLargest_ )
+
+			if _nLenList_ < _nLargest_
+
+				_aTempList_ = _aContent_[@i]
+
+				for @j = 1 to _nDiff_
+					_aTempList_ + pItem
+				next
+
+			else
+
+				_aTempList_ = []
+
+				for @j = 1 to _nLargest_
+					_aTempList_ + _aContent_[@j]
+				next
+
+			ok
+
+			_aResult_ + _aTempList_
+
+		next
+
+		This.UpdateWith(_aResult_)
+
+		def AdjustWithQ(pItem)
+			This.AdjustWith(pItem)
 			return This
 
-		def ShrinkXT(n, pWith)
-			This.AdjustXT(n, pWith)
+		def AdjustUsing(pItem)
+			This.AdjustWith(pItem)
 
-			def ShrinkXTQ(n, pWith)
-				return This.AdjustXTQ(n, pWith)
+			def AdjustUsingQ(pItem)
+				return This.AdjustWithQ(pItem)
 
-	def AdjustedXT(n, pWith)
-		aResult = This.Copy().AdjustXTQ(n, pWith).Content()
+	def AdjustedWith(pItem)
+		_aResult_ = This.Copy().AdjustWithQ(pItem).Content()
+		return _aResult_
+
+		def AdjustedUsing(pItem)
+			return This.AdjustedWith(pItem)
+
+	#---
+
+	def AdjustTo(n)
+		This.AdjustXT(n, _NULL_)
+
+		def AdjustToQ(n)
+			This.AdjustTo(n)
+			return This
+
+		def AdjustToPosition(n)
+			This.AdjustTo(n)
+
+			def AdjustToPositionQ(n)
+				return This.AdjustToQ(n)
+
+	def AdjustedTo(n)
+		_aResult_ = This.Copy().AdjustToQ(n).Conten()
+		return _aResult_
+
+		def AdjustedToPosition(n)
+			return This.AdjustedTo(n)
+
+	#---
+
+	def AdjustXT(n, pItem)
+
+		if CheckingParams()
+
+			if isList(n) and Q(n).IsToOrToPosition(n)
+				n = n[2]
+			ok
+	
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+	
+			if isList(pItem) and Q(pItem).IsWithOrByOrUsingNamedParam()
+				pItem = pItem[2]
+			ok
+
+		ok
+
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+
+		_aResult_ = []
+
+		for @i = 1 to _nLen_
+
+			_nLenList_ = len(_aContent_[@i])
+
+			if _nLenList_ = n
+				_aResult_ + _aContent_[@i]
+				loop
+			ok
+
+			_nDiff_ = Abs( _nLenList_ - n )
+
+			if _nLenList_ < n
+
+				_aTempList_ = _aContent_[@i]
+
+				for @j = 1 to _nDiff_
+					_aTempList_ + pItem
+				next
+
+			else
+
+				_aTempList_ = []
+
+				for @j = 1 to n
+					_aTempList_ + _aContent_[@j]
+				next
+
+			ok
+
+			_aResult_ + _aTempList_
+
+		next
+
+		This.UpdateWith(_aResult_)
+
+
+		#< @FunctionFluentForm
+
+		def AdjustXTQ(n, pItem)
+			This.AdjustXT(n, pItem)
+			return This
+		#>
+
+		def AdjustToXT(n, pItem)
+			This.AdjustXT(n, pItem)
+
+			def AdjustToXTQ(n, pItem)
+				return This.AdjustXTQ(n, pItem)
+
+		def AdjustToWith(n, pItem)
+			This.AdjustXT(n, pItem)
+
+			def AdjustToWithQ(n, pItem)
+				return This.AdjustXTQ(n, pItem)
+
+	def AdjustedXT(n, pItem)
+		aResult = This.Copy().AdjustXTQ(n, pItem).Content()
 		return aResult
 
-		def ShrinkedXT(n, pWith)
-			return This.AdjustedXT(n, pWith)
+		def AdjustedToXT(n, pItem)
+			return This.AdjustedXT(n, pItem)
+
+
+		def AdjustedToWith(n, pItem)
+			return This.AdjustedXT(n, pItem)
 
 	  #========================================#
 	 #   ASSOCIATING THE LISTS ITEM BY ITEM   #
@@ -2011,6 +2258,21 @@ class stzListOfLists from stzList
 	def Associated()
 		aResult = This.Copy().AssociateQ().Content()
 		return aResult
+
+	  #----------------------------#
+	 #  PAIRIFYING THE TWO LISTS  #
+	#----------------------------#
+
+	def Pairify()
+		This.UpdateWith( @Pairify(This.Content()) )
+
+		def PairifyQ()
+			This.Parify()
+			return This
+
+	def Pairified()
+		_aResult_ = This.Copy().PairifyQ().Content()
+		return _aResult_
 
 	  #-------------------------------------#
 	 #   REVERSING THE ITEMS OF THE LIST   #

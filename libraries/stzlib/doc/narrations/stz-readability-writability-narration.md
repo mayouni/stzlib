@@ -113,6 +113,11 @@ That's it.
 
 Of course, the part must *exist* within the object's content (e.g., `"x"` in `"RIxxNxG"`). Otherwise, nothing happens.
 
+```ring
+? o1.@All("z").@Removed()
+#--> RIxxNxG
+```
+
 Here’s an example of a more elaborated chain that *combines* both main functions and *partial* functions:
 
 ```ring
