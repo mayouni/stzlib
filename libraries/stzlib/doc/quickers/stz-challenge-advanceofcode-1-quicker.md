@@ -32,5 +32,6 @@ load "stzlib.ring"
 
 Challenge raised in just 4 lines of code! Who can do more ;) ?
 
-A screen shot of the code in Ring NotePad:
+Here’s a snapshot of the solution in Ring NotePad:
+
 ![Code in Softanza for solving the AdventOfCode Challenge 2024 - Number 1](../images/stz-challenge-adventofcode-1.png)
