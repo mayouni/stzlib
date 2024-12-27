@@ -5,7 +5,7 @@
 func StzPairOfListsQ(paList1, paList2)
 	return new stzPairOfLists(paList1, paList2)
 
-class stzPairOfLists from stzPair
+class stzPairOfLists from stzListOfLists
 
 	@aList1
 	@aList2

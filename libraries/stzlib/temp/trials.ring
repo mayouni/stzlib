@@ -1,6 +1,28 @@
 load "../max/stzmax.ring"
 
+profon()
+
+o1 = new stzString("RIxxNxG")
+? o1.@All("x").@Removed()
+#--> RING
+
+? o1.@All("z").@Removed()
+#--> RIxxNxG
+
+proff()
+
+/*----
+
+profon()
+
 ? isNull("")
+#--> TRUE
+
+? isNull(_NULL_)
+
+? isTrue("") #TODO // Should rerurn TRUE
+
+proff()
 
 /*----
 

@@ -7,7 +7,7 @@ func StzListOfNumbersListsQ(paListOfListsOfNumbers)
 
 class stzListOfNumbersLists from stzListOfListsOfNumbers
 
-class stzListOfListsOfNumbers
+class stzListOfListsOfNumbers from stzListOfLists
 	@aContent
 
 	def init(paListOfListsOfNumbers)
@@ -35,8 +35,26 @@ class stzListOfListsOfNumbers
 	def NumberOfLists()
 		return len( This.ListOfListsOfNumbers() )
 
+	def UpdateWith(paList)
+
+		if CheckParams()
+			if NOT @IsListOfListsOfNumbers(paList)
+				StzRaise("Incorrect param type! paList must be a lists of lists of numbers.")
+			ok
+		ok
+
+		def Update(paList)
+			This.UpdateWith(paList)
+
+	  #------------------------------------------#
+	 #  ADJUSTING THE LIST OF PAIRS OF NUMBERS  #
+	#------------------------------------------#
+
 	def Complete()
 		This.CompeteWith(0)
+
+		def Adjust()
+			This.Complete()
 
 	def CompleteWith(n) #TODO
 		/* Example
@@ -58,54 +76,21 @@ class stzListOfListsOfNumbers
 
 		/* ... */
 
-	def SmallestLenOfList()
-		return StzListOfNumbersQ(This.NumbersOfItemsInEachList()).Min()
-
-	def SmallestList()
-		nMin = This.SmallestLenOfList()
-		aPos = StzListQ( This.NumbersOfItemsInEachList() ).FindAll(nMin)
-
-		if len(aPos) = 1
-			return This.Content()[aPos[1]]
-		else
-			aResult = []
-			for n in aPos
-				aResult + This.Content()[n]
-			next
-
-			return aResult
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-	def BiggestLenOfList()
-		return StzListOfNumbersQ(This.NumbersOfItemsInEachList()).Max()
+		_aContent_ = This.ToStzListOfLists().AdjustUsingQ(n).Content()
+		This.UpdateWith(_aContent_)
 
-	def BiggestList()
-		nMax = This.BiggestLenOfList()
-		aPos = StzListQ( This.NumbersOfItemsInEachList() ).FindAll(nMax)
+		def AdjustWith(n)
+			This.CompleteWith(n)
 
-		if len(aPos) = 1
-			return This.Content()[aPos[1]]
-		else
-			aResult = []
-			for n in aPos
-				aResult + This.Content()[n]
-			next
+	  #----------------------------------#
+	 #  SOME USEFUL CALCULATION 1 BY 1  #
+	#----------------------------------#
 
-			return aResult
-		ok
-
-	def NumbersOfItems()
-		anResult = []
-		for aList in This.ListOfLists()
-			anResult + len(aList)
-		next
-
-		return anResult
-
-		def NumbersOfItemsInEach()
-			return This.NumberOfItems()
-
-	def AddOneToOne() #TODO
+	def AddOneToOne()
 		/* Example:
 
 		o1 = stzListOfListsOfNumbersQ([
@@ -114,14 +99,54 @@ class stzListOfListsOfNumbers
 			[ 2, 0, 1 ]
 		])
 
-		o1.AddOneToOne()
-		? o1.Content()
-
+		? o1.AddOneToOne()
 		#--> [ 7, 7, 7 ]
 
 		*/
 
-		/* ... */
+		_aAdjusted_ = This.Copy().AdjustWithQ(0).Content()
+		_nLen_ = len(_aAdjusted_)
+		_nInnerSize_ = len(_aAdjusted_[1])
+
+		_anResult_ = []
+
+		for @j = 1 to _nInnerSize_
+
+			_nSum_ = 0
+
+			for @i = 1 to _nLen_
+				_nSum_ += _aAdjusted_[@i][@j] 
+			next
+
+			_anResult_ + _nSum_
+		next
+
+		return _anResult_
+
+		def Add1To1()
+			return This.AddOneToOne()
+
+		def Add11()
+			return This.AddOneToOne()
+
+		def SumOf1And1()
+			return This.AddOneToOne()
+
+		def Sum1And1()
+			return This.AddOneToOne()
+
+		def Sum11()
+			return This.AddOneToOne()
+
+	def Multiply1By1()
+
+		def Multiply11()
+
+	def AbsoluteProduct11()
+
+		def AbsProd11()
+
+	#----------------
 
 	def Associate() #TODO
 		/* Example:

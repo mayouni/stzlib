@@ -119,8 +119,12 @@
 
 	load "number/stzNumber.ring"
 	load "number/stzDecimalToBinary.ring"
+
 	load "number/stzPairOfNumbers.ring"
 	load "number/stzListOfNumbers.ring"
+	load "number/stzListOfListsOfNumbers.ring"
+	load "number/stzListOfPairsOfNumbers.ring"
+
 	load "number/stzRandom.ring"
 	load "number/stzBinaryNumber.ring"
 	load "number/stzHexNumber.ring"

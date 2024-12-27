@@ -4,6 +4,9 @@
 
 _cDefaultTimeFormat = "hh:mm:ss"
 
+func Now()
+	return time()
+
 func StzTimeQ(pTime)
 	return new stzTime(pTime)
 
