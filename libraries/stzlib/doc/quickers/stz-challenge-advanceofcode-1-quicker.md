@@ -16,7 +16,7 @@ load "stzlib.ring"
 # Step 1: Sort both lists
 
 	aList1 = Sort([ 3, 4, 2, 1, 3, 3 ])	#--> [ 1, 2, 3, 3, 3, 4 ]
-	aList2 = Sort([ 4, 3, 5, 3, 9, 3 ]) #--> [ 3, 3, 3, 4, 5, 9 ]
+	aList2 = Sort([ 4, 3, 5, 3, 9, 3 ]) 	#--> [ 3, 3, 3, 4, 5, 9 ]
 
 # Step 2: Pair elements from the two lists
 
@@ -30,5 +30,7 @@ load "stzlib.ring"
 	#--> 11
 ```  
 
-
 Challenge raised in just 4 lines of code! Who can do more ;) ?
+
+A screen shot of the code in Ring NotePad:
+![Code in Softanza for solving the AdventOfCode Challenge 2024 - Number 1](../images/stz-challenge-adventofcode-1.png)
