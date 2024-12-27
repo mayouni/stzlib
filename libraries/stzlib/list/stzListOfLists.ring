@@ -4583,6 +4583,13 @@ class stzListOfLists from stzList
 			StzRaise("Can't transform the list of lists into a list of pairs! Lists are not all pairs.")
 		ok
 
+	def ToStzListOfpairsOfNumbers()
+		if This.IsListOfPairsOfNumbers()
+			return new stzListOfPairsOfNumbers(This.Content())
+		else
+			StzRaise("Can't transform the list of lists into a list of pairs of numbers! Lists are not all pairs of numbers.")
+		ok
+
 	  #--------------------------------------#
 	 #  GETTING THE SPEEDUP OF THE NUMBERS  #
 	#======================================#
@@ -4719,3 +4726,27 @@ class stzListOfLists from stzList
 
 		def FindContiguousItems(paItems)
 			return This.FindSubList(paItems)
+
+	  #====================#
+	 #  SORINT THE LISTS  #
+	#====================#
+
+	def SortLists()
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+
+		_aResult_ = []
+
+		for @i = 1 to _nLen_
+			_aResult_ + @Sort(_aContent_[@i])
+		next
+
+		This.UpdateWith(_aResult_)
+
+		def SortListQ()
+			This.SortLists()
+			return This
+
+	def ListsSorted()
+		_aResult_ = This.Copy().SortListQ().Content()
+		return _aResult_
