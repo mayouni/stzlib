@@ -1,4 +1,4 @@
-**Tackling Advent of Code 2024 with Softanza - Part 2**  
+# Tackling Advent of Code 2024 with Softanza - Part 2
 
 The *Advent of Code 2024 - Day 2 Challenge* emphasizes maintaining stability in systems like machinery or data monitoring, ensuring gradual changes within safe boundaries. Engineers track fluctuations to prevent malfunctions, making this concept essential for diagnostics and risk mitigation. Read the full statement [here](https://adventofcode.com/2024/day/2).
 
@@ -22,4 +22,3 @@ QQ([1, 2, 7, 8, 9]).CheckThatXT('{
 Here, `QQ([1, 2, 7, 8, 9])` elevates the list to a `stzListOfNumbers`, and `CheckThat()` ensures it is sorted and the differences between adjacent numbers are within the specified range.
 
 This code solution directly mirrors the challenge requirements, written in a concise, human-readable way.
-
