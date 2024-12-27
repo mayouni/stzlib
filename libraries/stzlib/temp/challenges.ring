@@ -23,45 +23,19 @@ load "../max/stzmax.ring"
 # The goal is to output the total distance between the two lists after
 # following this procedure.
 
-/*
-aList1 = [ 3, 4, 2, 1, 3, 3 ]
-aList2 = [ 4, 3, 5, 3, 9, 3 ]
 
-# First step: Sorting both lists
+# Step 1: Sort both lists
 
-aSorted1 = @Sort(aList1)
-aSorted2 = @Sort(aList2)
+	aList1 = Sort([ 3, 4, 2, 1, 3, 3 ])	#--> [ 1, 2, 3, 3, 3, 4 ]
+	aList2 = Sort([ 4, 3, 5, 3, 9, 3 ]) #--> [ 3, 3, 3, 4, 5, 9 ]
 
-? @@(aSorted1)
-# --> [ 1, 2, 3, 3, 3, 4 ]
+# Step 2: Pair elements from the two lists
 
-? @@(aSorted2) + NL
-# --> [ 3, 3, 3, 4, 5, 9 ]
+	aPairs = Pairify([ aList1, aList2 ])
+	#--> [ [1, 3], [2, 3], [3, 3], [3, 4], [3, 5], [4, 9] ]
 
-# Second step: Pairing the numbers of the two lists
 
-aPairs = Pairify([aSorted1, aSorted2])
+# Steps 3 and 4: Calculate absolute differences for each pair and summing them
 
-? @@(aPairs)
-# --> [ [ 1, 3 ], [ 2, 3 ], [ 3, 3 ], [ 3, 4 ], [ 3, 5 ], [ 4, 9 ] ]
-
-# Third step: Calculating the absolute difference for each pair
-
-? @@(AbsDiff(aPairs))
-# --> [ 2, 1, 0, 1, 2, 5 ]
-
-# Fourth and final step: Getting their sum
-
-? Sum(AbsDiff(aPairs))
-# --> 11
-*/
-
-aList1 = [ 3, 4, 2, 1, 3, 3 ]
-aList2 = [ 4, 3, 5, 3, 9, 3 ]
-
-StzListOfListsQ([ aList1, aList2 ]) {
-	SortLists()
-	Pairify()
-
-	? Sum( ToStzListOfPairsOfNumbers().AbsDiff() )
-}
+	? Sum(AbsDiff(aPairs))
+	#--> 11
