@@ -3,8 +3,8 @@ load "../max/stzmax.ring"
 /*-----------
 
 pron()
-*/
-# CHALLENGE ADVENTOFCODE
+
+# CHALLENGE ADVENTOFCODE DAY 1
 # https://adventofcode.com/2024/day/1
 
 # PROBLEM STATEMENT (SIMPLIFIED)
@@ -45,21 +45,63 @@ pron()
 
 proff()
 
-/*---------
+/*--------- #TODO
 
-https://adventofcode.com/2024/day/2
+# # CHALLENGE ADVENTOFCODE DAY 2
+# https://adventofcode.com/2024/day/2
 
+# Write an algorithm that check if a lists of numbers is safe or unsafe.
 
-The levels are either all increasing or all decreasing.
-Any two adjacent levels differ by at least one and at most three.
-In the example above, the reports can be found safe or unsafe by checking those rules:
+# A list of numbers is considered safe when:
+# 	1) ~> The numbers are either all increasing or all decreasing.
+# 	2) ~> Any two adjacent numbers differ by at least one and at most three.
 
-7 6 4 2 1: Safe because the levels are all decreasing by 1 or 2.
-1 2 7 8 9: Unsafe because 2 7 is an increase of 5.
-9 7 6 2 1: Unsafe because 6 2 is a decrease of 4.
-1 3 2 4 5: Unsafe because 1 3 is increasing but 3 2 is decreasing.
-8 6 4 4 1: Unsafe because 4 4 is neither an increase or a decrease.
-1 3 6 7 9: Safe because the levels are all increasing by 1, 2, or 3.
-So, in this example, 2 reports are safe.
+# For example :
 
-Analyze the unusual data from the engineers. How many reports are safe?
+# c: Safe because the levels are all decreasing by 1 or 2.
+# [ 1, 2, 7, 8, 9 ] : Unsafe because 2:7 is an increase of 5.
+# [ 9, 7, 6, 2, 1 ] : Unsafe because 6:2 is a decrease of 4.
+# [ 1, 3, 2, 4, 5 ] : Unsafe because 1:3 is increasing but 3:2 is decreasing.
+# [ 8, 6, 4, 4, 1 ] : Unsafe because 4:4 is neither an increase or a decrease.
+# [ 1, 3, 6, 7, 9 ] : Safe because the levels are all increasing by 1, 2, or 3.
+
+? QQ([ 1, 2, 7, 8, 9 ]).CheckThat('{
+	Q(@List).IsSorted() and
+	Q(@NextNumber - @CurrentNumber).IsBetween(1, :And = 3)
+}')
+#--> TRUE
+
+# QQ() elevates the list to a stzListOfNumbers object (if it was one Q() it
+# would elevate it to a stzList object, but we want to be soecific here, since
+# the next code will contain a condion in number.
+
+# Then we use the ChecjThat() function that evaluates a condition agains the list.
+# the condition is self-expressive and translates perfectly to the solution instrcution
+# defined in the challenge statement:
+
+# 1. The list must be sorted (in assending or in descending)
+# 2. the difference betwe a number and the next to it must be between 1 and 3
+
+#-------------------
+*/
+profon()
+
+o1 = new stzString("xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))")
+
+o1.Replace([ "[", "]"], :By = [ "(", ")" ])
+
+aList = o1.BoundedByIB([ "mul(", ")" ]) # IB suffix to include bounds
+#--> [
+#	"mul(2,4)",
+#	"mul(3,7)",
+#	"mul(5,5)",
+#	"mul(32,64)",
+#	"mul(11,8)",
+#	"mul(8,5)"
+# ]
+
+? Q(aList).YieldXT('{ eval(@item) }")
+#--> 12123
+
+proff()
+# Executed in 0.02 second(s) in Ring 1.22
