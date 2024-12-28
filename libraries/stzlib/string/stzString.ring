@@ -32276,6 +32276,13 @@ class stzString from stzObject
 
 		return acResult
 
+		#< @FunctionFluentForm
+
+		def SubStringsBoundedByCSIBQ(pacBounds, pCaseSensitive)
+			return new stzList(This.SubStringsBoundedByCSIB(pacBounds, pCaseSensitive))
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def AnySubStringBoundedByCSIB(pacBounds, pCaseSenitive)
@@ -32303,6 +32310,13 @@ class stzString from stzObject
 
 	def SubStringsBoundedByIB(pacBounds)
 		return This.SubStringsBoundedByCSIB(pacBounds, _TRUE_)
+
+		#< @FunctionFluentForm
+
+		def SubStringsBoundedByIBQ(pacBounds)
+			return new stzList(This.SubStringsBoundedByIB(pacBounds))
+
+		#>
 
 		#< @FunctionAlternativeForms
 

@@ -137,6 +137,9 @@ func Substruct(panNumbers)
 	func @SubstructionOf(panNumbers)
 		return Substruct(panNumbers)
 
+func mul(n1, n2) # Used as ExternalCode
+	return n1 * n2
+
 func Product(panNumbers)
 	if CheckingParams()
 		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
