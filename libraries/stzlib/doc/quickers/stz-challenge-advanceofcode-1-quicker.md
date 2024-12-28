@@ -1,4 +1,4 @@
-# Tackling Advent of Code 2024 with Softanza - Part 1  
+# Tackling Advent of Code 2024 with Softanza - Day 1  
 
 The *Advent of Code 2024 - Day 1 Challenge* tasks us with computing the total "distance" between two lists of numbers. This involves sorting the lists, pairing their elements, calculating absolute differences, and summing these differences to obtain the final result. The complete problem description is available [here](https://adventofcode.com/2024/day/1).  
 

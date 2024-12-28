@@ -1,4 +1,4 @@
-# Tackling Advent of Code 2024 with Softanza - Part 2
+# Tackling Advent of Code 2024 with Softanza - Day 2
 
 The *Advent of Code 2024 - Day 2 Challenge* emphasizes maintaining stability in systems like machinery or data monitoring, ensuring gradual changes within safe boundaries. Engineers track fluctuations to prevent malfunctions, making this concept essential for diagnostics and risk mitigation. Read the full statement [here](https://adventofcode.com/2024/day/2).
 
