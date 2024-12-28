@@ -1,4 +1,4 @@
-# Tackling Advent of Code 2024 with Softanza - Day 3s
+# Tackling Advent of Code 2024 with Softanza - Day 3
 
 The *Advent of Code 2024 - Day 3 Challenge* involves extracting valid multiplication instructions (`mul(X,Y)`) from corrupted memory, calculating their products, and summing the results. This challenge emphasizes cleaning and processing noisy data, which is a key skill in data handling. Check the complete problem description [here](https://adventofcode.com/2024/day/3).
 

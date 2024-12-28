@@ -90,7 +90,8 @@ o1 = new stzString("xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,
 
 o1.Replace([ "[", "]"], :By = [ "(", ")" ])
 
-aList = o1.BoundedByIB([ "mul(", ")" ]) # IB suffix to include bounds
+
+? o1.BoundedByIB([ "mul(", ")" ]) # IB suffix to include bounds
 #--> [
 #	"mul(2,4)",
 #	"mul(3,7)",
@@ -100,7 +101,7 @@ aList = o1.BoundedByIB([ "mul(", ")" ]) # IB suffix to include bounds
 #	"mul(8,5)"
 # ]
 
-? Q(aList).YieldXT('{ eval(@item) }")
+//? Q(aList).YieldXT('{ eval(@item) }')
 #--> 12123
 
 proff()
