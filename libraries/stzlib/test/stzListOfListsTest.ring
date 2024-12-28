@@ -568,7 +568,7 @@ proff()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*--------
-*/
+
 profon()
 
 o1 = new stzListOfLists([
@@ -1493,11 +1493,11 @@ o1 = new stzListOfLists([
 ? proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
-/*===============
+/*=============== #TODO Make a narration about indexing lists of lists
 
 profon()
 
-// in this example, we are going to index those three lists:
+# In this example, we are going to index those three lists:
 
 a1 = [ "A", "B", "A" ]
 a2 = [ "A", "B", "C" ]
@@ -1526,3 +1526,41 @@ o1 = new stzListOfLists([ a1, a2, a3 ])
 
 proff()
 # Executed in 0.02 second(s) in Ring 1.21
+
+/*==============
+*/
+
+profon()
+
+? 3Cards()
+#--> [ "🂭", "🂡", "🂡" ]
+
+o1 = new stzListOfLists([
+	[ "A", "B" ],
+	[ 1, 2, 3 , 4, 5 ],
+	3Cards()
+])
+
+? @@SP( o1.Adjusted() ) + NL
+#--> [
+#	[ "A", "B",  "",  "", "" ],
+#	[   1,   2,   3,   4,  5 ],
+#	[ "🂡", "🂨", "🂨", "", "" ]
+# ]
+
+? @@SP( o1.Stretched() ) + NL # Or Extended or Expanded
+#--> [
+#	[ "A", "B",  "",  "", "" ],
+#	[   1,   2,   3,   4,  5 ],
+#	[ "🂡", "🂨", "🂨", "", "" ]
+# ]
+
+
+? @@SP( o1.Shrinked() )
+#--> [
+#	[ "A", "B" ],
+#	[ 1, 2 ],
+#	[ "🂡", "🂥" ]
+# ]
+
+proff()

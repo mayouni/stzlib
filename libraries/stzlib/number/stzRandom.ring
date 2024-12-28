@@ -2221,6 +2221,23 @@ func RandomNumberIn(panNumbers)
 
 	#==
 
+	func RandomNumberFrom(panNumbers)
+		return RandomNumberIn(panNumbers)
+
+	func ARandomNumberFrom(panNumbers)
+		return RandomNumberIn(panNumbers)
+
+	func ANumberFrom(panNumbers)
+		return RandomNumberIn(panNumbers)
+
+	func AnyNumberFrom(panNumbers)
+		return RandomNumberIn(panNumbers)
+
+	func AnyRandomNumberFrom(panNumbers)
+		return RandomNumberIn(panNumbers)
+
+	#==
+
 	func RandomNumberBetween(nMin, nMax)
 		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
@@ -2326,6 +2343,23 @@ func RandomNumberInZ(panNumbers)
 
 	#==
 
+	func RandomNumberFromZ(panNumbers)
+		return RandomNumberInZ(panNumbers)
+
+	func ARandomNumberFromZ(panNumbers)
+		return RandomNumberInZ(panNumbers)
+
+	func ANumberFromZ(panNumbers)
+		return RandomNumberInZ(panNumbers)
+
+	func AnyNumberFromZ(panNumbers)
+		return RandomNumberInZ(panNumbers)
+
+	func AnyRandomNumberFromZ(panNumbers)
+		return RandomNumberIn(panNumbers)
+
+	#==
+
 	func RandomNumberBetweenZ(nMin, nMax)
 		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
@@ -2369,6 +2403,23 @@ func RandomNumberInXT(panNumbers, nSeed)
 		return RandomNumberInXT(panNumbers, nSeed)
 
 	func AnyRandomNumberInXT(panNumbers, nSeed)
+		return RandomNumberInXT(panNumbers, nSeed)
+
+	#==
+
+	func RandomNumberFromXT(panNumbers, nSeed)
+		return RandomNumberInXT(panNumbers, nSeed)
+
+	func ARandomNumberFromXT(panNumbers, nSeed)
+		return RandomNumberInXT(panNumbers, nSeed)
+
+	func ANumberFromXT(panNumbers, nSeed)
+		return RandomNumberInXt(panNumbers, nSeed)
+
+	func AnyNumberFromXT(panNumbers, nSeed)
+		return RandomNumberInXT(panNumbers, nSeed)
+
+	func AnyRandomNumberFromXT(panNumbers, nSeed)
 		return RandomNumberInXT(panNumbers, nSeed)
 
 	#==
@@ -2426,6 +2477,23 @@ func RandomNumberInXTZ(panNumbers, nSeed)
 
 	#==
 
+	func RandomNumberFromXTZ(panNumbers, nSeed)
+		return RandomNumberInXTZ(panNumbers, nSeed)
+
+	func ARandomNumberFromXTZ(panNumbers, nSeed)
+		return RandomNumberInXTZ(panNumbers, nSeed)
+
+	func ANumberFromXTZ(panNumbers, nSeed)
+		return RandomNumberInXTZ(panNumbers, nSeed)
+
+	func AnyNumberFromXTZ(panNumbers, nSeed)
+		return RandomNumberInXTZ(panNumbers, nSeed)
+
+	func AnyRandomNumberFromXTZ(panNumbers, nSeed)
+		return RandomNumberInXTZ(panNumbers, nSeed)
+
+	#==
+
 	func RandomNumberBetweenXTZ(nMin, nMax, nSeed)
 		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
@@ -2475,6 +2543,22 @@ func SomeRandomNumbersIn(panNumbers)
 	#--
 
 	func RandomNumbersIn(panNumbers)
+		return SomeRandomNumbersIn(panNumbers)
+
+	#==
+
+	func SomeNumbersFrom(panNumbers)
+		return SomeRandomNumbersIn(panNumbers)
+
+	func AnyRandomNumbersFrom(panNumbers)
+		return SomeRandomNumbersIn(panNumbers)
+
+	func AnyNumbersFrom(panNumbers)
+		return SomeRandomNumbersIn(panNumbers)
+
+	#--
+
+	func RandomNumbersFrom(panNumbers)
 		return SomeRandomNumbersIn(panNumbers)
 
 	#==
@@ -2532,6 +2616,22 @@ func SomeRandomNumbersInZ(panNumbers)
 
 	#==
 
+	func SomeNumbersFromZ(panNumbers)
+		return RandomNumbersInZ(panNumbers)
+
+	func AnyRandomNumbersFromZ(panNumbers)
+		return RandomNumbersInZ(panNumbers)
+
+	func AnyNumbersFromZ(panNumbers)
+		return RandomNumbersInZ(panNumbers)
+
+	#--
+
+	func RandomNumbersFromZ(panNumbers)
+		return RandomNumbersInZ(panNumbers)
+
+	#==
+
 	func SomeRandomNumbersBetweenZ(nMin, nMax)
 		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
@@ -2581,6 +2681,22 @@ func SomeRandomNumbersInXT(panNumbers, nSeed)
 
 	#==
 
+	func SomeNumbersFromXT(panNumbers, nSeed)
+		return SomeRandomNumbersInXT(panNumbers, nSeed)
+
+	func AnyRandomNumbersFromXT(panNumbers, nSeed)
+		return SomeRandomNumbersInXT(panNumbers, nSeed)
+
+	func AnyNumbersFromXT(panNumbers, nSeed)
+		return SomeRandomNumbersInXT(panNumbers, nSeed)
+
+	#--
+
+	func RandomNumbersFromXT(panNumbers, nSeed)
+		return SomeRandomNumbersInXT(panNumbers, nSeed)
+
+	#==
+
 	func SomeRandomNumbersBetweenXT(nMin, nMax, nSeed)
 		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
@@ -2624,6 +2740,22 @@ func SomeRandomNumbersInXTZ(panNumbers, nSeed)
 	#--
 
 	func RandomNumbersInXTZ(panNumbers, nSeed)
+		return SomeRandomNumbersInXTZ(panNumbers, nSeed)
+
+	#==
+
+	func SomeNumbersFromXTZ(panNumbers, nSeed)
+		return SomeRandomNumbersInXTZ(panNumbers, nSeed)
+
+	func AnyRandomNumbersFromXTZ(panNumbers, nSeed)
+		return SomeRandomNumbersInXTZ(panNumbers, nSeed)
+
+	func AnyNumbersFromXTZ(panNumbers, nSeed)
+		return SomeRandomNumbersInXTZ(panNumbers, nSeed)
+
+	#--
+
+	func RandomNumbersFromXTZ(panNumbers, nSeed)
 		return SomeRandomNumbersInXTZ(panNumbers, nSeed)
 
 	#==
@@ -2687,6 +2819,30 @@ func SomeRandomNumbersInU(panNumbers)
 	#--
 
 	func RandomNumbersInU(panNumbers)
+		return SomeRandomNumbersInU(panNumbers)
+
+	#==
+
+	func SomeNumbersFromU(panNumbers)
+		return SomeRandomNumbersInU(panNumbers)
+
+	func AnyRandomNumbersFromU(panNumbers)
+		return SomeRandomNumbersInU(panNumbers)
+
+	func AnyNumbersFromU(panNumbers)
+		return SomeRandomNumbersInU(panNumbers)
+
+	#--
+
+	func UniqueRandomNumbersFrom(panNumbers)
+		return SomeRandomNumbersInU(panNumbers)
+
+	func SomeUniqueNumbersFrom(panNumbers)
+		return SomeRandomNumbersInU(panNumbers)
+
+	#--
+
+	func RandomNumbersFromU(panNumbers)
 		return SomeRandomNumbersInU(panNumbers)
 
 	#==
@@ -2755,6 +2911,30 @@ func SomeRandomNumbersInUZ(panNumbers)
 	#--
 
 	func RandomNumbersInUZ(nMin, nMax)
+		return SomeRandomNumbersInUZ(panNumbers)
+
+	#==
+
+	func SomeNumbersFromUZ(panNumbers)
+		return SomeRandomNumbersInUZ(panNumbers)
+
+	func AnyRandomNumbersFromUZ(panNumbers)
+		return SomeRandomNumbersInUZ(panNumbers)
+
+	func AnyNumbersFromUZ(panNumbers)
+		return SomeRandomNumbersInUZ(panNumbers)
+
+	#--
+
+	func UniqueRandomNumbersFromZ(panNumbers)
+		return SomeRandomNumbersInUZ(panNumbers)
+
+	func SomeUniqueNumbersFromZ(panNumbers)
+		return SomeRandomNumbersInUZ(panNumbers)
+
+	#--
+
+	func RandomNumbersFromUZ(nMin, nMax)
 		return SomeRandomNumbersInUZ(panNumbers)
 
 	#==
@@ -2886,6 +3066,28 @@ func SomeRandomNumbersInXTUZ(panNumbers, nSeed)
 
 	#==
 
+	func RandomNumbersFromXTUZ(panNumbers, nSeed)
+		return RandomNumbersInXTUZ(panNumbers, nSeed)
+
+	func SomeNumbersFromXTUZ(panNumbers, nSeed)
+		return RandomNumbersInXTUZ(panNumbers, nSeed)
+
+	func AnyRandomNumbersFromXTUZ(panNumbers, nSeed)
+		return RandomNumbersInXTUZ(panNumbers, nSeed)
+
+	func AnyNumbersFromXTUZ(panNumbers, nSeed)
+		return RandomNumbersInXTUZ(panNumbers, nSeed)
+
+	#--
+
+	func UniqueRandomNumbersFromXTZ(panNumbers, nSeed)
+		return RandomNumbersInXTUZ(panNumbers, nSeed)
+
+	func SomeUniqueNumbersFromXTZ(panNumbers, nSeed)
+		return RandomNumbersInXTUZ(panNumbers, nSeed)
+
+	#==
+
 	func SomeRandomNumbersBetweenXTUZ(nMin, nMax, nSeed)
 		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
@@ -2953,6 +3155,20 @@ func NRandomNumbersIn(n, panNumbers)
 
 	#==
 
+	func NRandomNumbersFrom(n, panNumbers)
+		return NRandomNumbersIn(n, panNumbers)
+
+	func RandomNNumbersFrom(n, panNumbers)
+		return NRandomNumbersIn(n, panNumbers)
+
+	func AnyNNumbersFrom(n, panNumbers)
+		return NRandomNumbersIn(n, panNumbers)
+
+	func NNumbersFrom(n, panNumbers)
+		return NRandomNumbersIn(n, panNumbers)
+
+	#==
+
 	func NRandomNumbersBetween(n, nMin, nMax)
 		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
@@ -3007,6 +3223,20 @@ func NRandomNumbersInZ(n, panNumbers)
 
 	#==
 
+	func NRandomNumbersFromZ(n, panNumbers)
+		return NRandomNumbersInZ(n, panNumbers)
+
+	func RandomNNumbersFromZ(n, panNumbers)
+		return NRandomNumbersInZ(n, panNumbers)
+
+	func AnyNNumbersFromZ(n, panNumbers)
+		return NRandomNumbersInZ(n, panNumbers)
+
+	func NNumbersFromZ(n, panNumbers)
+		return NRandomNumbersInZ(n, panNumbers)
+
+	#==
+
 	func NRandomNumbersBetweenZ(n, nMin, nMax)
 		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
@@ -3046,6 +3276,20 @@ func NRandomNumbersInXT(n, panNumbers, nSeed)
 
 	#==
 
+	func NRandomNumbersFromXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXT(n, panNumbers, nSeed)
+
+	func RandomNNumbersFromXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXT(n, panNumbers, nSeed)
+
+	func AnyNNumbersFromXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXT(n, panNumbers, nSeed)
+
+	func NNumbersFromXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXT(n, panNumbers, nSeed)
+
+	#==
+
 	func NRandomNumbersBetweenXT(n, nMin, nMax, nSeed)
 		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
@@ -3079,6 +3323,20 @@ func NRandomNumbersInXTZ(n, panNumbers, nSeed)
 		return NRandomNumbersInXTZ(n, panNumbers, nSeed)
 
 	func NNumbersInXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTZ(n, panNumbers, nSeed)
+
+	#==
+
+	func NRandomNumbersFromXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTZ(n, panNumbers, nSeed)
+
+	func RandomNNumbersFromXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTZ(n, panNumbers, nSeed)
+
+	func AnyNNumbersFromXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTZ(n, panNumbers, nSeed)
+
+	func NNumbersFromXTZ(n, panNumbers, nSeed)
 		return NRandomNumbersInXTZ(n, panNumbers, nSeed)
 
 	#==
@@ -3149,6 +3407,34 @@ func NRandomNumbersInU(n, panNumbers)
 		return NRandomNumbersInU(n, panNumbers)
 
 	func UniqueNNumbersIn(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
+
+	#==
+
+	func RandomNNumbersFromU(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
+
+	func AnyNNumbersFromU(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
+
+	func NNumbersFromU(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
+
+	#--
+
+	func NRandomNumbersFromU(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
+
+	func NUniqueRandomNumbersFrom(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
+
+	func UniqueNRandomNumbersFrom(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
+
+	func NUniqueNumbersFrom(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
+
+	func UniqueNNumbersFrom(n, panNumbers)
 		return NRandomNumbersInU(n, panNumbers)
 
 	#==
@@ -3237,6 +3523,34 @@ func NRandomNumbersInUZ(n, panNumbers)
 
 	#==
 
+	func RandomNNumbersFromUZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
+
+	func AnyNNumbersFromUZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
+
+	func NNumbersFromUZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
+
+	#--
+
+	func NRandomNumbersFromUZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
+
+	func NUniqueRandomNumbersFromZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
+
+	func UniqueNRandomNumbersFromZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
+
+	func NUniqueNumbersFromZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
+
+	func UniqueNNumbersFromZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
+
+	#==
+
 	func NRandomNumbersBetweenUZ(n, nMin, nMax)
 		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
@@ -3300,6 +3614,34 @@ func NRandomNumbersInXTU(n, panNumbers, nSeed)
 		return NRandomNumbersInXTU(n, panNumbers, nSeed)
 
 	func UniqueNNumbersInXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
+
+	#==
+
+	func NRandomNumbersFromXTU(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
+
+	func RandomNNumbersFromXTU(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
+
+	func AnyNNumbersFromXTU(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
+
+	func NNumbersFromXTU(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
+
+	#--
+
+	func NUniqueRandomNumbersFromXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
+
+	func UniqueNRandomNumbersFromXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
+
+	func NUniqueNumbersFromXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
+
+	func UniqueNNumbersFromXT(n, panNumbers, nSeed)
 		return NRandomNumbersInXTU(n, panNumbers, nSeed)
 
 	#==
@@ -3369,6 +3711,34 @@ func NRandomNumbersInXTUZ(n, panNumbers, nSeed)
 
 	#==
 
+	func NRandomNumbersFromXTUZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
+
+	func RandomNNumbersFromXTUZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
+
+	func AnyNNumbersFromXTUZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
+
+	func NNumbersFromXTUZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
+
+	#--
+
+	func NUniqueRandomNumbersFromXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
+
+	func UniqueNRandomNumbersFromXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
+
+	func NUniqueNumbersFromXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
+
+	func UniqueNNumbersFromXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
+
+	#==
+
 	func NRandomNumbersBetweenXTUZ(n, nMin, nMax, nSeed)
 		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
@@ -3417,6 +3787,33 @@ func ARandomItemIn(paList)
 
 	return aResult
 
+	#< @FunctionAlternativeForms
+
+	func AnItemIn(paList)
+		return ARandomItemIn(paList)
+
+	func OneItemIn(paList)
+		return ARandomItemIn(paList)
+
+	func 1ItemIn(paList)
+		return ARandomItemIn(paList)
+
+	#--
+
+	func ARandomItemFrom(paList)
+		return ARandomItemIn(paList)
+
+	func AnItemFrom(paList)
+		return ARandomItemIn(paList)
+
+	func OneItemFrom(paList)
+		return ARandomItemIn(paList)
+
+	func 1ItemFrom(paList)
+		return ARandomItemIn(paList)
+
+	#>
+
 func NRandomItemsIn(n, paList)
 	if CheckingParams()
 		if NOT isList(paList)
@@ -3436,6 +3833,12 @@ func NRandomItemsIn(n, paList)
 	return aResult
 
 	func NItemsIn(n, paList)
+		return NRandomItemsIn(n, paList)
+
+	func NRandomItemsFrom(n, paList)
+		return NRandomItemsIn(n, paList)
+
+	func NItemsFrom(n, paList)
 		return NRandomItemsIn(n, paList)
 
 func NRandomItemsInU(n, paList)
@@ -3459,6 +3862,8 @@ func NRandomItemsInU(n, paList)
 
 	return aResult
 
+	#< @FunctionAlternativeForms
+
 	func NUniqueRandomItemsIn(n, paList)
 		return NRandomItemsInU(n, paList)
 
@@ -3467,6 +3872,22 @@ func NRandomItemsInU(n, paList)
 
 	func NUniqueItemsIn(n, paList)
 		return NRandomItemsInU(n, paList)
+
+	#--
+
+	func NRandomItemsFromU(n, paList)
+		return NRandomItemsInU(n, paList)
+
+	func NUniqueRandomItemsFrom(n, paList)
+		return NRandomItemsInU(n, paList)
+
+	func NItemsFromU(n, paList)
+		return NRandomItemsFromU(n, paList)
+
+	func NUniqueItemsFrom(n, paList)
+		return NRandomItemsFromU(n, paList)
+
+	#>
 
 func NPercentOf(n, p)
 	if NOT IsNumberOrStringOrList(p)

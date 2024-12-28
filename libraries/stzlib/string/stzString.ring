@@ -32342,8 +32342,106 @@ class stzString from stzObject
 		#>
 
 	  #-----------------------------------------------------------------------#
-	 #  GETTING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS -- IBZ/EXTENSION  #
+	 #  GETTING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS -- IBW/EXTENSION  #
 	#-----------------------------------------------------------------------#
+
+	def SubStringsBoundedByWCSIB(pacBounds, pcCondition, pCaseSensitive)
+
+		_oaSubStr_ = This.SubStringsBoundedByCSIBQ(pacBounds, pCaseSensitive)
+		_acResult_ = _oaSubStr_.ItemsWCS(pcCondition, pCaseSensitive)
+		return _acResult_
+
+		#< @FunctionFluentForm
+
+		def SubStringsBoundedByWCSIBQ(pacBounds, pcCondition, pCaseSensitive)
+			return new stzList( This.SubStringsBoundedByWCSIB(pacBounds, pcCondition, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def BoundedByWCSIB(pacBounds, pcCondition, pCaseSensitive)
+			return This.SubStringsBoundedByWCSIB(pacBounds, pcCondition, pCaseSensitive)
+
+			def BoundedByWCSIBQ(pacBounds, pcCondition, pCaseSensitive)
+				return This.SubStringsBoundedByWCSIBQ(pacBounds, pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBoundedByWIB(pacBounds, pcCondition)
+		return This.SubStringsBoundedByWCSIB(pacBounds, pcCondition, _TRUE_)
+
+		#< @FunctionFluentForm
+
+		def SubStringsBoundedByWIBQ(pacBounds, pcCondition)
+			return new stzList(This.SubStringsBoundedByWIB(pacBounds, pcCondition))
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def BoundedByWIB(pacBounds, pcCondition)
+			return This.SubStringsBoundedByWIB(pacBounds, pcCondition)
+
+			def BoundedByWIBQ(pacBounds, pcCondition)
+				return This.SubStringsBoundedByWIBQ(pacBounds, pcCondition)
+
+		#>
+
+	  #-----------------------------------------------------------------------#
+	 #  GETTING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS -- IBW/EXTENSION  #
+	#-----------------------------------------------------------------------#
+
+	def SubStringsBoundedByWXTCSIB(pacBounds, pcCondition, pCaseSensitive)
+
+		_oaSubStr_ = This.SubStringsBoundedByCSIBQ(pacBounds, pCaseSensitive)
+		_acResult_ = _oaSubStr_.ItemsWXT(pcCondition)
+		return _acResult_
+
+		#< @FunctionFluentForm
+
+		def SubStringsBoundedByWXTCSIBQ(pacBounds, pcCondition, pCaseSensitive)
+			return new stzList( This.SubStringsBoundedByWXTCSIB(pacBounds, pcCondition, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def BoundedByWXTCSIB(pacBounds, pcCondition, pCaseSensitive)
+			return This.SubStringsBoundedByWXTCSIB(pacBounds, pcCondition, pCaseSensitive)
+
+			def BoundedByWXTCSIBQ(pacBounds, pcCondition, pCaseSensitive)
+				return This.SubStringsBoundedByWXTCSIBQ(pacBounds, pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBoundedByWXTIB(pacBounds, pcCondition)
+		return This.SubStringsBoundedByWXTCSIB(pacBounds, pcCondition, _TRUE_)
+
+		#< @FunctionFluentForm
+
+		def SubStringsBoundedByWXTIBQ(pacBounds, pcCondition)
+			return new stzList(This.SubStringsBoundedByWXTIB(pacBounds, pcCondition))
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def BoundedByWXTIB(pacBounds, pcCondition)
+			return This.SubStringsBoundedByWXTIB(pacBounds, pcCondition)
+
+			def BoundedByWXTIBQ(pacBounds, pcCondition)
+				return This.SubStringsBoundedByWXTIBQ(pacBounds, pcCondition)
+
+		#>
+
+	  #-----------------------------------------------------------------------#
+	 #  GETTING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS -- IBZ/EXTENSION  #
+	#=======================================================================#
 
 	def SubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
 
