@@ -1548,6 +1548,9 @@ o1 = new stzListOfLists([
 #	[ "🂡", "🂨", "🂨", "", "" ]
 # ]
 
+? @@SP( o1.AdjustedWith( AHeart() ) )
+
+
 ? @@SP( o1.Stretched() ) + NL # Or Extended or Expanded
 #--> [
 #	[ "A", "B",  "",  "", "" ],
@@ -1564,3 +1567,4 @@ o1 = new stzListOfLists([
 # ]
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.22
