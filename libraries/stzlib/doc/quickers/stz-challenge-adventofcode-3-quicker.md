@@ -30,14 +30,15 @@ The task is to calculate and sum their products.
 
 o1 = new stzString("xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))")
 
-# Step 2: Clean the input by replacing square brackets with parentheses to match the format of valid mul() function
+# Step 2: Clean the input by replacing square brackets with parentheses to match the
+format of valid mul() function
 
 o1.Replace([ "[", "]"], :By = [ "(", ")" ])
 #--> "xmul(2,4)%&mul(3,7)!@^do_not_mul(5,5)+mul(32,64)then(mul(11,8)mul(8,5))"
 
 # Step 3: Extract valid mul(X,Y) instructions using bounds
 
-aList = o1.BoundedByIB([ "mul(", ")" ])  // Isolate valid 'mul(X,Y)' instructions in a list of strings
+aList = o1.BoundedByIB([ "mul(", ")" ])
 #--> [
 #	"mul(2,4)",
 #	"mul(3,7)",
@@ -52,8 +53,6 @@ aList = o1.BoundedByIB([ "mul(", ")" ])  // Isolate valid 'mul(X,Y)' instruction
 sum = Q(aList).YieldXT('{ eval(@item) }') 
 #--> 12123
 ```
-
-Internally, the `Yield()` function walks across the items in the list `aList`, evaluates each to pure Ring code, executes it to invoke the `mul()` function with the corresponding numbers, retrieves the result, and accumulates it until it sums up to 12123.
 
 The code is self-explanatory, but we can add these details:
 
