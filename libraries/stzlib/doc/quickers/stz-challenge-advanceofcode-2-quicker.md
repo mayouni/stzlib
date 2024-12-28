@@ -8,7 +8,7 @@ The task is then to check if a list of numbers is "safe" based on two conditions
 1. The numbers must be **all increasing** or **all decreasing**.
 2. The difference between adjacent numbers must be **between 1 and 3**.
 
-## The Code
+## The Solution
 
 Softanza solves this elegantly with the `CheckThat()` method:
 

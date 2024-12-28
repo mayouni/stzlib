@@ -6,7 +6,7 @@ The *Advent of Code 2024 - Day 1 Challenge* tasks us with computing the total "d
 
 While seemingly simple, such problems have real-world relevance in areas like logistics and data reconciliation. Softanza, a foundational library for the Ring programming language, simplifies this process with tools like `Sort()`, `Sum()`, `Pairify()`, and `AbsDiff()`. These functions encapsulate common operations, allowing for a concise and expressive solution.  
 
-## The Code  
+## The Solution  
 
 Softanza is designed to align with human reasoning, translating natural problem-solving thought processes directly into code—a principle embodied in its "What You Think Is What You Write" motto. Let’s see this in action as we follow the four steps outlined in the challenge:  
 
