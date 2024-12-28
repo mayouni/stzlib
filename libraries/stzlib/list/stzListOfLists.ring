@@ -1445,6 +1445,32 @@ class stzListOfLists from stzList
 			def ExtendEachListQ()
 				return This.ExtendQ()
 
+		def Expand()
+			This.Extend()
+
+			def ExpandQ()
+				return This.ExtendQ()
+
+		def ExpandEachList()
+			This.Extend()
+
+			def ExpandEachListQ()
+				return This.ExtendQ()
+
+		def Stretch()
+			This.Extend()
+
+			def StretchQ()
+				return This.ExtendQ()
+
+		def StretchEachList()
+			This.Extend()
+
+			def StretchEachListQ()
+				return This.ExtendQ()
+
+		#--
+
 		def Adjust()
 			This.Extend()
 
@@ -1467,6 +1493,20 @@ class stzListOfLists from stzList
 
 		def EachListExtended()
 			return This.Extended()
+
+		def Expanded()
+			return This.Extended()
+
+		def EachListExpanded()
+			return This.Extended()
+
+		def Stretched()
+			return This.Extended()
+
+		def EachListStretched()
+			return This.Extended()
+
+		#--
 
 		def Adjusted()
 			return This.Extended()
@@ -1509,6 +1549,32 @@ class stzListOfLists from stzList
 			This.ExtendWith(pItem)
 
 			def ExtendEachListWithQ(pItem)
+				return This.ExtendWithQ(pItem)
+
+		#--
+
+		def StretchXT(pItem)
+			This.ExtendXT(pItem)
+
+			def StretchXTQ(pItem)
+				return This.ExtendXTQ(pItem)
+
+		def StretchEachListXT(pItem)
+			This.ExtendXT(pItem)
+
+			def StretchEachListXTQ(pItem)
+				return This.ExtendXTQ(pItem)
+
+		def StretchWith(pItem)
+			This.ExtendXT(pItem)
+
+			def StretchWithQ(pItem)
+				return This.ExtendXTQ(pItem)
+
+		def StretchEachListWith(pItem)
+			This.ExtendWith(pItem)
+
+			def StretchEachListWithQ(pItem)
 				return This.ExtendWithQ(pItem)
 
 		#--
@@ -1582,7 +1648,23 @@ class stzListOfLists from stzList
 		def EachListExtendedWith(pItem)
 			return This.ExtendedXT(pItem)
 
+		#==
+
+		def StretchedXT(pItem)
+			return This.ExtendedXT(pItem)
+
+		def EachListStretchedXT(pItem)
+			return This.ExtendedXT(pItem)
+
 		#--
+
+		def StretchedWithXT(pItem)
+			return This.ExtendedXT(pItem)
+
+		def EachListStretchedWith(pItem)
+			return This.ExtendedXT(pItem)
+
+		#==
 
 		def JustifiedXT(pItem)
 			return This.ExtendedXT(pItem)
@@ -1590,7 +1672,7 @@ class stzListOfLists from stzList
 		def EachListJustifiedXT(pItem)
 			return This.ExtendedXT(pItem)
 
-		#--
+		#==
 
 		def JustifiedWith(pItem)
 			return This.ExtendedXT(pItem)
@@ -1606,6 +1688,7 @@ class stzListOfLists from stzList
 
 	def ExtendTo(n)
 		This.ExtendToXT(n, _NULL_)
+
 
 		#< @FunctionFluentForm
 
@@ -1626,6 +1709,21 @@ class stzListOfLists from stzList
 
 			def ExtendToPositionQ(n)
 				return This.ExtendToQ(n)
+
+		#==
+
+		def StretchTo(n)
+			This.ExtendTo(n)
+
+			def StretchToQ(n)
+				return This.ExtendToQ(n)
+
+		def StretchToPosition(n)
+			This.ExtendToPosition(n)
+
+			def StretchToPositionQ(n)
+				return This.ExtendToPositionQ(n)
+
 		#>
 
 
@@ -1639,6 +1737,12 @@ class stzListOfLists from stzList
 			ok
 
 			return This.ExtendedTo(n)	
+
+		def StretchedTo(n)
+			return This.ExtendedTo(n)
+
+		def StretchedToPosition(n)
+			return This.ExtendedToPosition(n)
 
 	  #------------------------------------------------------------------------------------#
 	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION WITH A GIVEN ITEM  #
@@ -1697,11 +1801,27 @@ class stzListOfLists from stzList
 		def ExtendToPositionXT(n, pItem)
 			This.ExtendToXT(n, pItem)
 
+		#--
+
+		def StretchToXT(n, pItem)
+			This.ExtendToXT(n, pItem)
+
+			def StretchToXTQ(n, pItem)
+				return This.ExtendToXTQ(n, pItem)
+
+		def StretchToPositionXT(n, pItem)
+			This.ExtendToPositionXT(n, pItem)
+
+			def StretchToPositionXTQ(n, pItem)
+				return This.ExtendToPositionXTQ(n, pItem)
+
 		#>
 
 	def ExtendedToXT(n, pItem)
 		aResult = This.Copy().ExtendToXTQ(n, pItem).Content()
 		return aResult
+
+		#< @FunctionAlternativeForm
 
 		def ExtendedToPositionXT(n, pItem)
 			if NOT isNumber(n)
@@ -1710,9 +1830,22 @@ class stzListOfLists from stzList
 
 			return This.ExtendedToXT(n, pItem)	
 
+		#--
+
+		def StretchedToXT(n, pItem)
+			return This.ExtendedToXT(n, pItem)
+
+		def StretchedToPositionXT(n, pItem)
+			return This.ExtendedToPositionXT(n, pItem)
+
+		#>
+
+
 	  #---------------------------------------------------------------------------------------#
 	 #  EXTENDING THE LIST OF LISTS TO A GIVEN POSITION BY REPEATING THE ITEMS OF EACH LIST  #
 	#---------------------------------------------------------------------------------------#
+
+	#TODO // Add Stretch and Expand alternatives to all remaining methods
 
 	def ExtendToByRepeatingItems(n)
 		aContent = This.Content()

@@ -83,15 +83,27 @@ proff()
 # 2. the difference betwe a number and the next to it must be between 1 and 3
 
 #-------------------
-*/
+
+
+profon()
+
+@substring = "muldkfhdkfjhtio"
+
+ bOk =	Q(@substring).FirstNChars(3) = "mul" and
+	Q(@substring).NthCharQ(4).IsEither( "(", :Or = "]" ) //and
+	Q(@substring).LastCharQ().IsEither( ")", :Or = "]")
+
+proff()
+
+/*-------------------
+
 profon()
 
 o1 = new stzString("xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))")
 
 o1.Replace([ "[", "]"], :By = [ "(", ")" ])
 
-
-? o1.BoundedByIB([ "mul(", ")" ]) # IB suffix to include bounds
+? o1.BoundedByIB([ "mul(", ")" ])
 #--> [
 #	"mul(2,4)",
 #	"mul(3,7)",
@@ -101,8 +113,10 @@ o1.Replace([ "[", "]"], :By = [ "(", ")" ])
 #	"mul(8,5)"
 # ]
 
-//? Q(aList).YieldXT('{ eval(@item) }')
+//? Q(aList).YieldXT('{ eval(@item) }') #TODO
 #--> 12123
 
 proff()
 # Executed in 0.02 second(s) in Ring 1.22
+
+

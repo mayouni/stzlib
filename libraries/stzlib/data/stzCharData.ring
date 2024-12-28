@@ -2608,3 +2608,51 @@ Dotless LETTERS
 		next
 
 		return acResult
+
+	func NCards(n)
+		return NRandomItemsFrom(n, Cards())
+
+		func NRandomCards(n)
+			return NCards()
+
+	func ACard()
+		return NCards(1)
+
+		func OneCard()
+			return ACard()
+
+		func 1Card()
+			return ACard()
+
+		func ARandomCard()
+			return ACard()
+
+		func OneRandomCard()
+			return ACard()
+
+		func 1RandomCard()
+			return ACard()
+
+	func TwoCards()
+		return NCards(2)
+
+		func 2Cards()
+			return TwoCards()
+
+		func TwoRandomCards()
+			return TwoCards()
+
+		func 2RandomCards()
+			return TwoCards()
+
+	func ThreeCards()
+		return NCards(3)
+
+		func 3Cards()
+			return ThreeCards()
+
+		func ThreeRandomCards()
+			return ThreeCards()
+
+		func 3RandomCards()
+			return ThreeCards()
