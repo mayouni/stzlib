@@ -19,11 +19,9 @@ profon()
 
 	o1 = new stzList([ "from", 1, "to", 10, "step", 2 ])
 
-	? o1.ListWithStringsUppercased()
+	? o1.StringsUppercased()
 	#--> [ "FROM", 1, "TO", 10, "STEP", 2 ]
 
-	? o1.StringsUppercased()
-	#--> [ "FROM","TO", "STEP" ]
 
 proff()
 #--> Executed in 0.01 second(s)
@@ -34,7 +32,7 @@ profon()
 
 	o1 = new stzList([ "FROM", 1, "TO", 10, "STEP", 2 ])
  
-	? o1.ListWithStringsLowercased()
+	? o1.StringsLowercased()
 	#--> [ "from", 1, "to", 10, "step", 2 ]
 
 	? o1.StringsLowercased()
@@ -49,11 +47,8 @@ profon()
 
 	o1 = new stzList([ "from", 1, "to", 10, "step", 2 ])
 
-	? o1.ListWithStringsTitlecased()
-	#--> [ "From", 1, "To", 10, "Step", 2 ]
-
 	? o1.StringsTitlecased()
-	#--> [ "From","To", "Step" ]
+	#--> [ "From", 1, "To", 10, "Step", 2 ]
 
 proff()
 #--> Executed in 0.10 second(s)
