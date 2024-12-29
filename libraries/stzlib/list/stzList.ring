@@ -5082,6 +5082,30 @@ func @FindNext(aList, pItem, nStart)
 #---- #TODO
 // Add @FindNthPrevious() and @FindPrevious()
 
+# Wroks only for what Ring can find (numbers and strings)
+
+func @DeepFind(aList, pItem) #ai #chat-gpt
+	outputList = [] // Initialize an empty list to store results
+
+	for i = 1 to len(aList)
+		if type(aList[i]) = "LIST"
+			subPaths = DeepFind(aList[i], pItem) // Recursively search inner list
+			for j = 1 to len(subPaths)
+				path = [i] + subPaths[j]
+				add(outputList, path)
+			next
+		else
+			if aList[i] = pItem
+				add(outputList, i) // Add root-level position as an integer
+			ok
+		ok
+	next
+
+	return outputList
+
+	func DeepFind(aList, pItem)
+		return @DeepFind(aList, pItem)
+
 #=====
 
 func IsRingSortable(pListOrString)
@@ -43590,7 +43614,7 @@ fdef
 			_aStringified_ = This.DeepStringified()
 			_cItem_ = Q(pItem).Stringified()
 		else
-			_aStringified_ = lower( This.DeepStringified() )
+			_aStringified_ = This.DeepStringifyQ().DeepLowercased()
 			_cItem_ = lower( Q(pItem).Stringified() )
 		ok
 
@@ -46985,46 +47009,66 @@ fdef
 
 		This.UpdateWith(_aContent_)
 
+		#< @FunctionFluentForm
 
 		def LowercaseStringsQ()
 			This.LowercaseStrings()
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def Lowercase()
 			This.LowercaseStrings()
 
 			def LowercaseQ()
-				This.Lowercase()
-				return This
+				return This.LowercaseStringsQ()
 
-		def ApplyLowercase()
-			This.LowercaseStrings()
+		#>
 
-			def ApplyLowercaseQ()
-				This.ApplyLowercase()
-				return This
-
-	def ListWithStringsLowercased()
+	def StringsLowercased()
 		aResult = This.Copy().LowercaseStringsQ().Content()
 		return aResult
 
 		def Lowercased()
-			return This.ListWithStringsLowercased()
+			return This.StringsLowercased()
 
-	def StringsLowercased()
-		aResult = []
-		aContent = This.Content()
-		nLen = This.NumberOfItems()
+	  #-----------------------------#
+	 #  DEEP-LOWERCASING THE LIST  #
+	#-----------------------------#
 
-		for i = 1 to nLen
+	def DeepLowercase()
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-			if isString(aContent[i])
-				cStrLow = ring_lower(aContent[i])
-				aResult + cStrLow
+		for @i = 1 to _nLen_
+
+			if isString(_aContent_[@i])
+				_aContent_[@i] = ring_lower(_aContent_[@i])
+
+			but isList(_aContent_[@i])
+				_aContent_[@i] = StzListQ(_aContent_[@i]).DeepLowercased() # Recursive
+	
 			ok
+
 		next
 
-		return aResult
+		This.UpdateWith(_aContent_)
+
+		def DeepLowercaseQ()
+			This.DeepLowercase()
+			return This
+
+		def DeepApplyLowercase()
+			This.DeepLowercase()
+
+			def DeppApplyLowercaseQ()
+				return This.DeepLowercaseQ()
+
+	def DeepLowercased()
+		_aResult_ = This.Copy().DeepLowercaseQ().Content()
+		return _aResult_
 
 	  #=================================================#
 	 #  UPPERCASING THE STRINGS CONTAINED IN THE LIST  #
@@ -47061,27 +47105,48 @@ fdef
 				This.ApplyUppercase()
 				return This
 
-	def ListWithStringsUppercased()
+	def StringsUppercased()
 		aResult = This.Copy().UppercaseStringsQ().Content()
 		return aResult
 
 		def Uppercased()
-			return This.ListWithStringsUppercased()
+			return This.StringsUppercased()
 
-	def StringsUppercased()
-		aResult = []
-		aContent = This.Content()
-		nLen = This.NumberOfItems()
+	  #-----------------------------#
+	 #  DEEP-UPPERCASING THE LIST  #
+	#-----------------------------#
 
-		for i = 1 to nLen
+	def DeepUppercase()
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-			if isString(aContent[i])
-				cStrUpp = Q(aContent[i]).Uppercased()
-				aResult + cStrUpp
+		for @i = 1 to _nLen_
+
+			if isString(_aContent_[@i])
+				_aContent_[@i] = ring_upper(_aContent_[@i])
+
+			but isList(_aContent_[@i])
+				_aContent_[@i] = StzListQ(_aContent_[@i]).DeepUppercased() # Recursive
+	
 			ok
+
 		next
 
-		return aResult
+		This.UpdateWith(_aContent_)
+
+		def DeepUppercaseQ()
+			This.DeepUppercase()
+			return This
+
+		def DeepApplyUppercase()
+			This.DeepUppercase()
+
+			def DeppApplyUppercaseQ()
+				return This.DeepUppercaseQ()
+
+	def DeepUppercased()
+		_aResult_ = This.Copy().DeepUppercaseQ().Content()
+		return _aResult_
 	
 	  #=================================================#
 	 #  TITLECASING THE STRINGS CONTAINED IN THE LIST  #
@@ -47117,27 +47182,13 @@ fdef
 				This.ApplyTitlecase()
 				return This
 
-	def ListWithStringsTitlecased()
+	def StringsTitlecased()
 		aResult = This.Copy().TitlecaseStringsQ().Content()
 		return aResult
 
 		def Titlecased()
-			return This.ListWithStringsTitlecased()
+			return This.StringsTitlecased()
 
-	def StringsTitlecased()
-		aResult = []
-		aContent = This.Content()
-		nLen = This.NumberOfItems()
-
-		for i = 1 to nLen
-
-			if isString(aContent[i])
-				cStrTtl = Q(aContent[i]).Titlecased()
-				aResult + cStrTtl
-			ok
-		next
-
-		return aResult
 
 	  #==================================================#
 	 #  CAPITALIZING THE STRINGS CONTAINED IN THE LIST  #
@@ -47187,36 +47238,16 @@ fdef
 				This.ApplyCapitalcase()
 				return This
 
-	def ListWithStringsCapitalised()
+	def StringsCapitalised()
 		aResult = This.Copy().CapitaliseStringsQ().Content()
 		return aResult
 
-		def ListWithStringsCapitalized()
-			return This.ListWithStringsCapitalised()
-
 		def Capitalised()
-			return This.ListWithStringsCapitalised()
+			return This.StringsCapitalised()
 
 		def Capitalized()
-			return This.ListWithStringsCapitalised()
-
-	def StringsCapitalised()
-		aResult = []
-		aContent = This.Content()
-		nLen = This.NumberOfItems()
-
-		for i = 1 to nLen
-
-			if isString(aContent[i])
-				cStrCap = Q(aContent[i]).Capitalised()
-				aResult + cStrCap
-			ok
-		next
-
-		return aResult
-
-		def StringsCapitalized()
 			return This.StringsCapitalised()
+
 
 	#----
 

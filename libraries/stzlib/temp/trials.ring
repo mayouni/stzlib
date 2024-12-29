@@ -1,9 +1,9 @@
 load "../max/stzmax.ring"
 
-find([ 1, [ "A", "C" ], 3 ], [ "A", "C" ])
+
 
 /*----- #todo #narration STRINGIFY VS DEEP-STRINGIFY
-*/
+
 profon()
 
 # Define a nested list with a mix of strings, numbers, and sublists
@@ -49,6 +49,8 @@ proff()
 
 /*---------
 
+profon()
+
 aList1 = [
 	"A",
 	[ "B", "♥" ],
@@ -66,30 +68,104 @@ aList2 = [
 ? @@(DeepFind(aList2, "♥"))
 #--> [ [ 2, [ 2, 2 ] ], [ 2, [ 2, [ 3, 2 ] ] ], [ 2, 3 ] ]
 
-func DeepFind(aList, pItem) #ai #chat-gpt
-    outputList = [] // Initialize an empty list to store results
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
-    for i = 1 to len(aList)
-        if type(aList[i]) = "LIST"
-            subPaths = DeepFind(aList[i], pItem) // Recursively search inner list
-            for j = 1 to len(subPaths)
-                path = [i] + subPaths[j]
-                add(outputList, path)
-            next
-        else
-            if aList[i] = pItem
-                add(outputList, i) // Add root-level position as an integer
-            ok
-        ok
-    next
+/*---------
 
-    return outputList
+profon()
 
+o1 = new stzList([
+	1,
+	"UP",
+	[ "UP", 2, "UP" ],
+	[ 1, 2, [ "UP" ], 3, [ [ 4, "UP", 5 ] ] ],
+	"UP"
+])
 
+? @@NL( o1.Lowercased() ) + NL
+#--> [
+#	1,
+#	"up",
+#	[ "UP", 2, "UP" ],
+#	[ 1, 2, [ "UP" ], 3, [ [ 4, "UP", 5 ] ] ],
+#	"up"
+# ]
 
+? @@NL( o1.DeepLowercased() )
+#--> [
+#	1,
+#	"up",
+#	[ "up", 2, "up" ],
+#	[ 1, 2, [ "up" ], 3, [ [ 4, "up", 5 ] ] ],
+#	"up"
+# ]
 
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
+/*---------
+*/
 
+profon()
+
+o1 = new stzList([
+	1,
+	"up",
+	[ "up", 2, "up" ],
+	[ 1, 2, [ "up" ], 3, [ [ 4, "up", 5 ] ] ],
+	"up"
+])
+
+? @@NL( o1.Uppercased() ) + NL
+#--> [
+#	1,
+#	"UP",
+#	[ "up", 2, "up" ],
+#	[ 1, 2, [ "up" ], 3, [ [ 4, "up", 5 ] ] ],
+#	"UP"
+# ]
+
+? @@NL( o1.DeepUppercased() )
+#--> [
+#	1,
+#	"UP",
+#	[ "UP", 2, "UP" ],
+#	[ 1, 2, [ "UP" ], 3, [ [ 4, "UP", 5 ] ] ],
+#	"UP"
+# ]
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*---------
+*/
+profon()
+
+aList1 = [
+	"A",
+	[ "B", "♥" ],
+	[ "C", "D", "♥" ],
+	"♥"
+]
+
+o1 = new stzList(aList1)
+
+? @@(o1.DeepFind("♥")) + NL
+#--> [ [ 2, 2 ], [ 3, 3 ], 4 ]
+
+proff()
+
+/*-------
+
+aList2 = [
+	"X",
+	["Y", ["Z", "♥", ["W", "♥"]], "♥"],
+	"V"
+]
+? @@(DeepFind(aList2, "♥"))
+#--> [ [ 2, [ 2, 2 ] ], [ 2, [ 2, [ 3, 2 ] ] ], [ 2, 3 ] ]
+
+proff()
 
 /*---
 
