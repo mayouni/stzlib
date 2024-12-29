@@ -43588,26 +43588,29 @@ fdef
 
 		if _bCase_ = _TRUE_
 			_aStringified_ = This.DeepStringified()
-			_cItem_ = Q(pItem).DeepStringified()
+			_cItem_ = Q(pItem).Stringified()
 		else
-			_aStringified_ = This.StringifyQ().Lowercased()
-			_cItem_ = Q(pItem).StringifyQ().Lowercased()
+			_aStringified_ = lower( This.DeepStringified() )
+			_cItem_ = lower( Q(pItem).Stringified() )
 		ok
+
 
 		# Doing the job
 
+		_nLen_ = len(_aContent_)
 		outputList = [] // Initialize an empty list to store results
 	
-		for i = 1 to len(aList)
-			if type(aList[i]) = "LIST"
-				subPaths = DeepFind(aList[i], pItem) // Recursively search inner list
-				for j = 1 to len(subPaths)
+		for i = 1 to _nLen_
+			if isList(_aContent_[i])
+				subPaths = This.DeepFindCS(pItem, 0) // Recursively search inner list
+				nLenSubPaths = len(subPaths)
+				for j = 1 to nLenSubPaths
 					path = [i] + subPaths[j]
-					add(outputList, path)
+					outputList + path
 				next
 			else
-				if aList[i] = pItem
-					add(outputList, i) // Add root-level position as an integer
+				if _aStringified_[i] = _cItem_
+					outputList + i // Add root-level position as an integer
 				ok
 			ok
 		next
@@ -53452,6 +53455,51 @@ fdef
 
 		def ItemsStringifiedLowercasedAndReplaced(pcSubStr, pcOtherSubStr)
 			return This.StringifiedLowercasedAndReplaced(pcSubStr, pcOtherSubStr)
+
+	  #-----------------------------------------------------------------------#
+	 #  DEEP STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BECOME STRINGS)  #
+	#-----------------------------------------------------------------------#
+
+	def DeepStringify() #ai #chat-gpt
+	
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+	
+		for @i = 1 to _nLen_
+	
+			if isString(_aContent_[@i])
+				loop
+	
+			but isNumber(_aContent_[@i])
+				_aContent_[@i] = "" + _aContent_[@i]
+	
+			but isList(_aContent_[@i])
+				# Recursive call to handle deep lists
+				_innerList_ = _aContent_[@i]
+				objInner = new stzList(_innerList_)
+				objInner.DeepStringify()
+				_aContent_[@i] = objInner.Content()
+	
+			but isObject(_aContent_[@i])
+				_aContent_[@i] = @ObjectVarName(_aContent_[@i])
+			ok
+	
+		next
+	
+		This.UpdateWith(_aContent_)
+
+		#< @FunctionFluentForm
+
+		def DeepStringifyQ()
+			This.DeepStringify()
+			return This
+
+		#>
+
+
+	def DeepStringified()
+		_aResult_ = This.Copy().DeepStringifyQ().Content()
+		return _aResult_
 
 	  #==================================================#
 	 #  TRANSFORMING THE ITEMS OF THE LIST TO A STRING  #
@@ -84392,11 +84440,12 @@ fdef
 	
 	def IsUsingOrWithOrByNamedParam()
 
-		if This.IsUsingNamedParam() or
-		   This.IsWithNamedParam() or
-		   This.IsByNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Using or This.Item(1) = :With or This.Item(1) = :By ) )
 
 			return _TRUE_
+
 		else
 			return _FALSE_
 		ok

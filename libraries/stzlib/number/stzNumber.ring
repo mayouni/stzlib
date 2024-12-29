@@ -6028,14 +6028,23 @@ class stzNumber from stzObject
 	#------------------------------------------#
 
 	def Stringify()
-		# Do nithing, the object is naturally stringified
+		# Do nothing, the object is naturally stringified
 		# becauses it contains its value always as a string
 
 		def StringifyQ()
 			return new stzString( This.StringValue() )
 
+		def DeepStringifiy()
+			// Nothing
+
+			def DeepStringfyQ()
+				return This.StringifyQ()
+
 	def Stringified()
 		return This.StringValue()
+
+		def DeepStringified()
+			return This.Stringified()
 
 	def ToString()
 		return This.StringValue()

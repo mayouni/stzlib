@@ -97550,10 +97550,19 @@ class stzString from stzObject
 		# becauses it is already a string
 
 		def StringifyQ()
-			return This
+			return new stzString(This.Content())
+
+		def DeepStringify()
+			This.Stringify()
+
+			def DeepStringifyQ()
+				return This.StringifyQ()
 
 	def Stringified()
 		return This.Content()
+
+		def DeepStringified()
+			return This.Stringified()
 
 	def ToString()
 		return This.Content()

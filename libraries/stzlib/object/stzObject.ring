@@ -4397,18 +4397,13 @@ class stzObject
 	#------------------------------------------#
 
 	def ToString()
-		if This.IsANumber()
-			return This.StringValue()
+		return This.ObjectName()
 
-		but This.IsAString()
-			return This.Content()
+		def Stringified()
+			return This.ToString()
 
-		but This.IsAList()
-			return This.NumberOfItems()
-
-		else
-			StzRaise("Can't cast the object into a number.")
-		ok
+		def DeepStringified()
+			return This.ToString()
 
 	  #==============================#
 	 #     OPERATORS OVERLOADING    #
@@ -4860,9 +4855,6 @@ class stzObject
 
 	def ToPointer()
 		return object2pointer(This.Object())
-
-	def Stringified()
-		return This.Name()
 		
 
 	def Twice()
