@@ -2022,17 +2022,38 @@ proff()
 # Executed in 0.02 second(s)
 
 /*-----
-
+*/
 StartProfiler()
 
-o1 = new stzList([ "1", "🌞", "1", [ "2", "♥", "2", "🌞"], "1", [ "2", ["3", "🌞"] ] ])
+o1 = new stzList([
+	"1",
+	"🌞",
+	"1",
+	[ "2", "🌞", "2", "🌞"],
+	"1",
+	[ "2", ["3", "🌞"] ]
+])
 
 ? o1.DeepContains("🌞")
 #--> _TRUE_
 
 ? @@( o1.DeepFind("🌞") )
-#--> [ [ 1, 2 ], [ 2, 4 ], [ 3, 2 ] ]
-# 🌞 exists in level 1 at position 2, in level 2 at position 4, and in level 3 at position 2.
+#--> [ 1, 2 ], [ 2, 2 ], [ 2, 4 ], [ 3, 2 ] ]
+# 🌞 exists in level 1 at position 2, in level 2 at positions 2 and 4, and in level 3 at position 2.
+
+o1.DeepReplace("🌞", :By = "♥")
+? @@SP( o1.Content() )
+#--> [
+#	"1",
+#	"♥",
+#	"1",
+#	[ "2", "♥", "2", "♥" ],
+#	"1",
+#	[ "2", [ "3", "♥" ] ]
+# ]
+
+o1.DeepRemove("♥")
+? @@SP( o1.Content() )
 
 StopProfiler()
 # Executed in 0.03 second(s)
