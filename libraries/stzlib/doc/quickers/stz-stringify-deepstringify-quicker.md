@@ -20,7 +20,7 @@ In Sftanza, this works:
 #--> 2
 ```
 
-## Find() to DeepFind()
+## Find() and DeepFind()
 
 When you use Softanza’s `Find()` to search for an item within a list, the library automatically transforms non-string elements into strings to make them searchable. This applies also to using Softanza DeepFind() function to locate items, whatever their type, in a nested list:
 
@@ -74,9 +74,9 @@ While `DeepStringified()` recursively converts all elements into strings, at any
 # ]
 ```
 
-# Other possible use cases of Stringify() and DeepStringify()
+## Other possible use cases of Stringify() and DeepStringify()
 
-You might find Stringify() and DeepStringify() useful in other practical scenarios.
+You might find `Stringify()` and `DeepStringify()` useful in other practical scenarios.
 
 1. **Serialization for Logging or Debugging**: Easily convert complex nested lists into strings for clear and concise logs.
 
