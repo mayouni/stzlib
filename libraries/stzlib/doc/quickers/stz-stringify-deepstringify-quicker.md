@@ -1,6 +1,6 @@
 # Softanza Stringify() vs DeepStringify()
 
-One of the key enhancements Softanza brings to the Ring programming language is its powerful Find() function. Unlike Ring's native find(), which is limited to numbers and strings, Softanza’s Find() can locate any element in a list—even deeply nested structures or non-string data types. This capability is made possible through two internal methods: `Stringify()` and `DeepStringify`.
+One of the key enhancements Softanza brings to the Ring programming language is its powerful `Find()` function. Unlike Ring's native `find()`, which is limited to numbers and strings, Softanza’s `Find()` can locate any element in a list—even deeply nested structures or non-string data types. This capability is made possible through two internal methods: `Stringify()` and `DeepStringify`.
 
 ---
 
@@ -20,7 +20,7 @@ In Sftanza, this works:
 #--> 2
 ```
 
-## From Find() to DeepFind()
+## Find() to DeepFind()
 
 When you use Softanza’s `Find()` to search for an item within a list, the library automatically transforms non-string elements into strings to make them searchable. This applies also to using Softanza DeepFind() function to locate items, whatever their type, in a nested list:
 
@@ -33,8 +33,10 @@ When you use Softanza’s `Find()` to search for an item within a list, the libr
 
 Let's see how Stringify() and DeepStringify() work.
 
+We starting by defining a nested list with a mix of strings, numbers, and sublists, inside a stzList object.
+
 ```ring
-# Define a nested list with a mix of strings, numbers, and sublists
+load "stzlib.ring"
 
 aList1 = [
 	"A",
@@ -44,21 +46,25 @@ aList1 = [
 ]
 
 o1 = new stzList(aList1)
+```
 
-# Stringified(): Converts top-level elements to strings, preserving
-# nested sublists as string representations
+The `Stringfy()`function (we use its `@PassiveForm` here, `Stringified()`) converts top-level elements to strings:
 
-? @@SP( o1.Stringified() ) + NL
+```
+? @@( o1.Stringified() ) + NL
 #--> [
 #	"A",
 #	'[ "B", "♥" ]',
 #	'[ "C", "D", [ 1, 2, [ "E", [ 7, 8, 9 ], 10 ], 3 ], "♥" ]',
 #	"♥"
 #]
+```
 
-# DeepStringified(): Recursively converts all elements into strings,
-# retaining the structural hierarchy
+Note how the list in position 3 is transofrmed to overall string while preserving it's inner items as they are.
 
+While `DeepStringified()` recursively converts all elements into strings, at any level of the deep list, retaining the structural hierarchy:
+
+```ring
 ? @@SP( o1.DeepStringified() )
 #--> [
 #	"A",
