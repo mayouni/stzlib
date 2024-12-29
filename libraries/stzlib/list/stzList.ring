@@ -5077,6 +5077,8 @@ func @FindNext(aList, pItem, nStart)
 	func @FindNextST(aList, pItem, nStart)
 		return @FindNext(aList, pItem, nStart)
 
+
+
 #---- #TODO
 // Add @FindNthPrevious() and @FindPrevious()
 
@@ -14235,6 +14237,21 @@ class stzList from stzObject
 
 		#>
 
+	  #--------------------------------------------------------------------#
+	 #  DEEP-REMOVING AN ITEM FROM THE LIST AND ANY INNER LIST INSIDE IT  #
+	#--------------------------------------------------------------------#
+
+	def DeepRemoveCS(pcSubStr, pCaseSensitive)
+		_aPos_ = This.DeepFindCS(pcSubStr, pCaseSensitive)
+		# Returns a (sorted) list of pairs of numbers
+
+		_nLen_ = len(_aPos_)
+
+		_aResult_ = This.Content()
+
+		for @i = _nLen_ to 1 step -1
+#TODO
+		next
 
 	  #-------------------------------------------------------#
 	 #   REMOVING GIVEN OCCURRENCES OF AN ITEM IN THE LIST   #TODO // Add CASESENSITIVITY
@@ -43544,7 +43561,7 @@ fdef
 
 	// Finding pItem at any level of the list
 
-	def DeepFindCS(pItem, pCaseSensitive) 
+	def DeepFindCS(pItem, pCaseSensitive) #ai #chat-gpt
 		/* EXAMPLE
 
 		o1 = new stzList([
@@ -43564,6 +43581,40 @@ fdef
 		]
 		*/
 
+		_aContent_ = This.Content()
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+
+		# Stringifiyng the list and the item
+
+		if _bCase_ = _TRUE_
+			_aStringified_ = This.DeepStringified()
+			_cItem_ = Q(pItem).DeepStringified()
+		else
+			_aStringified_ = This.StringifyQ().Lowercased()
+			_cItem_ = Q(pItem).StringifyQ().Lowercased()
+		ok
+
+		# Doing the job
+
+		outputList = [] // Initialize an empty list to store results
+	
+		for i = 1 to len(aList)
+			if type(aList[i]) = "LIST"
+				subPaths = DeepFind(aList[i], pItem) // Recursively search inner list
+				for j = 1 to len(subPaths)
+					path = [i] + subPaths[j]
+					add(outputList, path)
+				next
+			else
+				if aList[i] = pItem
+					add(outputList, i) // Add root-level position as an integer
+				ok
+			ok
+		next
+	
+		return outputList
+			
+/*
 		oListStr = new stzString( @@(This.Content()) )
 		cItem = @@(pItem)
 
@@ -43588,10 +43639,11 @@ fdef
 			nPosition = oListStr.SectionQ(n1, nPos).NumberOfOccurrence(",") + 1
 			
 			aResult + [nLevel, nPosition]
+
 		next
 
 		return aResult
-
+*/
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepFind(pItem)

@@ -22,3 +22,5 @@ QQ([1, 2, 7, 8, 9]).CheckThatXT('{
 Here, `QQ([1, 2, 7, 8, 9])` elevates the list to a `stzListOfNumbers`, and `CheckThat()` ensures it is sorted and the differences between adjacent numbers are within the specified range.
 
 This code solution directly mirrors the challenge requirements, written in a concise, human-readable way.
+
+**NOTE**: The `XT()` suffix is typically used to indicate an e**XT**ended feature of a function. For example, in `CheckThatXT()`, it enables the use of natural expressions with keywords like `@NextNumber` and `@CurrentNumber`. In `IsBetweenXT()`, it ensures that the bounds (1 and 3 in the example) are included.

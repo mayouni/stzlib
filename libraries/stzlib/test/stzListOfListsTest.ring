@@ -1528,7 +1528,6 @@ proff()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*==============
-*/
 
 profon()
 
@@ -1548,7 +1547,12 @@ o1 = new stzListOfLists([
 #	[ "🂡", "🂨", "🂨", "", "" ]
 # ]
 
-? @@SP( o1.AdjustedWith( AHeart() ) )
+? @@SP( o1.AdjustedWith( AHeart() ) ) # Or AdjustedWith("♥")
+#--> [
+#	[ "A", "B",  "♥",  "♥", "♥" ],
+#	[   1,   2,    3,   4,    5 ],
+#	[ "🂡", "🂨",  "🂨", "♥", "♥" ]
+# ]
 
 
 ? @@SP( o1.Stretched() ) + NL # Or Extended or Expanded

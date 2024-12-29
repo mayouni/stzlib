@@ -1,5 +1,67 @@
 load "../max/stzmax.ring"
 
+/*-----
+
+profon()
+
+aList1 = [
+	"A",
+	[ "B", "♥" ],
+	[ "C", "D", "♥" ],
+	"♥"
+]
+
+o1 = new stzList(aList1)
+? @@( o1.DeepFind("♥") )
+
+proff()
+
+/*---------
+*/
+aList1 = [
+	"A",
+	[ "B", "♥" ],
+	[ "C", "D", "♥" ],
+	"♥"
+]
+? @@(DeepFind(aList1, "♥")) + NL
+#--> [ [ 2, 2 ], [ 3, 3 ], 4 ]
+
+aList2 = [
+	"X",
+	["Y", ["Z", "♥", ["W", "♥"]], "♥"],
+	"V"
+]
+? @@(DeepFind(aList2, "♥"))
+#--> [ [ 2, [ 2, 2 ] ], [ 2, [ 2, [ 3, 2 ] ] ], [ 2, 3 ] ]
+
+func DeepFind(aList, pItem) #ai #chat-gpt
+    outputList = [] // Initialize an empty list to store results
+
+    for i = 1 to len(aList)
+        if type(aList[i]) = "LIST"
+            subPaths = DeepFind(aList[i], pItem) // Recursively search inner list
+            for j = 1 to len(subPaths)
+                path = [i] + subPaths[j]
+                add(outputList, path)
+            next
+        else
+            if aList[i] = pItem
+                add(outputList, i) // Add root-level position as an integer
+            ok
+        ok
+    next
+
+    return outputList
+
+
+
+
+
+
+
+/*---
+
 profon()
 
 o1 = new stzString("RIxxNxG")
