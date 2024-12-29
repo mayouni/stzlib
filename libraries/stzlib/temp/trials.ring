@@ -1,23 +1,54 @@
 load "../max/stzmax.ring"
 
-/*-----
+find([ 1, [ "A", "C" ], 3 ], [ "A", "C" ])
 
+/*----- #todo #narration STRINGIFY VS DEEP-STRINGIFY
+*/
 profon()
+
+# Define a nested list with a mix of strings, numbers, and sublists
 
 aList1 = [
 	"A",
 	[ "B", "♥" ],
-	[ "C", "D", "♥" ],
+	[ "C", "D", [ 1, 2, [ "str", 7:9, 10 ],  3 ], "♥" ],
 	"♥"
 ]
 
 o1 = new stzList(aList1)
-? @@( o1.DeepFind("♥") )
 
+# Stringified(): Converts top-level elements to strings, preserving
+# nested sublists as string representations
+
+? @@SP( o1.Stringified() ) + NL
+#--> [
+#	"A",
+#	'[ "B", "♥" ]',
+#	'[ "C", "D", [ 1, 2, [ "E", [ 7, 8, 9 ], 10 ], 3 ], "♥" ]',
+#	"♥"
+#]
+
+# DeepStringified(): Recursively converts all elements into strings,
+# retaining the structural hierarchy
+
+? @@SP( o1.DeepStringified() )
+#--> [
+#	"A",
+#	[ "B", "♥" ],
+#	[ "C", "D", [ "1", "2", [ "E", [ "7", "8", "9" ], "10" ], "3" ], "♥" ],
+#	"♥"
+# ]
+
+# NOTE: These are used internally by Softanza in Find() and DeepFind() functions
+# to allow them search for items other then lists.
+
+# Other possible use cases of Stringify() and DeepStringify()
+# - 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*---------
-*/
+
 aList1 = [
 	"A",
 	[ "B", "♥" ],
