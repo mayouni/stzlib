@@ -50,7 +50,7 @@ aList = o1.BoundedByIB([ "mul(", ")" ])
 
 # Step 4: Sum the products of the extracted instructions
 
-sum = Q(aList).YieldXT('{ eval(@item) }') 
+sum = Q(aList).YieldAndCumulateXT('{ eval(@item) }') 
 #--> 12123
 ```
 
@@ -60,4 +60,6 @@ The code is self-explanatory, but we can add these details:
 
 2. In the `BoundedByIB()` function, the `IB` suffix ensures that the bounds are included in the result, giving us the exact multiplication expressions needed for evaluation.
 
-3. The `YieldXT()` method evaluates each item in the list (in this case, the multiplication expressions), transforms each string into its native Ring form (for example, the string "mul(2,4)" is transformed to the function call `mul(2,4)`), and computes the product. The `XT` suffix indicates that the results should be accumulated, returning the total sum of all products.
+3. The `YieldAndCumulateXT()` method evaluates each item in the list (in this case, multiplication expressions), transforms each string into its native Ring form (for example, the string `"mul(2,4)"` is transformed into the function call `mul(2,4)`), computes the products, and cumulates them.
+
+> **NOTE**: The `XT` suffix indicates that the condition string can contain expressive keywords, such as `@item` in the example.
