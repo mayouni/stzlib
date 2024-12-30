@@ -49422,8 +49422,8 @@ class stzString from stzObject
 		anResult = This.FindTheseSubStringsCS(acChars, pCaseSensitive)
 		return anResult
 
-		def FindTheseCharsCSZ(pCaseSensitive)
-			return This.FindCharsCS(pCaseSensitive)
+		def FindTheseCharsCSZ(pacChars, pCaseSensitive)
+			return This.FindCharsCS(pacChars, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -49439,10 +49439,7 @@ class stzString from stzObject
 
 	def TheseCharsCSZ(pacChars, pCaseSensitive)
 
-		aResult = [
-			pacChars,
-			This.FindTheseCharsCSZ(pacChars, pCaseSensitive)
-		]
+		aResult = This.TheseSubStringsCSZ(pacChars, pCaseSensitive)
 
 		return aResult
 
@@ -79192,6 +79189,19 @@ class stzString from stzObject
 
 		#>
 
+	def SubStringsRemovedExceptCS(pacSubStr, pCaseSensitive)
+		_cResult_ = This.Copy().RemoveSubStringsExceptCSQ(pacSubStr, pCaseSensitive).Content()
+		return _cResult_
+
+		def AllStringsRemovedExceptCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsRemovedExceptCS(pacSubStr, pCaseSensitive)
+
+		def AllRemovedExceptCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsRemovedExceptCS(pacSubStr, pCaseSensitive)
+
+		def RemovedExceptCs(pacSubStr, pCaseSensitive)
+			return This.SubStringsRemovedExceptCS(pacSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubStringsExcept(pacSubStr)
@@ -79243,6 +79253,18 @@ class stzString from stzObject
 				return This.RemoveSubStringsExceptQ(pacSubStr)
 
 		#>
+
+	def SubStringsRemovedExcept(pacSubStr)
+		return This.SubStringsRemovedExceptCS(pacSubStr, _TRUE_)
+
+		def AllSubStringsRemovedExcept(pacSubStr)
+			return This.SubStringsRemovedExcept(pacSubStr)
+
+		def AllRemovedExcept(pacSubStr)
+			return This.SubStringsRemovedExcept(pacSubStr)
+
+		def RemovedExcept(pacSubStr)
+			return This.SubStringsRemovedExceptCS(pacSubStr)
 
 	  #========================================================================#
 	 #  REMOVING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
