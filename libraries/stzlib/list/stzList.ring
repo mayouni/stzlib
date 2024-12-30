@@ -43604,19 +43604,22 @@ fdef
 			[ [3, 2], [ 1 ]  ],	# position 1 in the level [3, 2]
 		]
 		*/
-
+/*
 		_aContent_ = This.Content()
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		# Stringifiyng the list and the item
 
 		if _bCase_ = _TRUE_
-			_aStringified_ = This.DeepStringified()
-			_cItem_ = Q(pItem).Stringified()
+			_aStringified_ = This.Stringified()
+			_cItem_ = @@(pItem)
 		else
-			_aStringified_ = This.DeepStringifyQ().DeepLowercased()
-			_cItem_ = lower( Q(pItem).Stringified() )
+			_aStringified_ = This.StringifyQ().DeepLowercased()
+			_cItem_ = lower( @@(pItem) )
 		ok
+
+? ">> " + @@(_cItem_) + NL
+? @@SP( _aStringified_ ) + NL
 
 
 		# Doing the job
@@ -43626,7 +43629,7 @@ fdef
 	
 		for i = 1 to _nLen_
 			if isList(_aContent_[i])
-				subPaths = This.DeepFindCS(pItem, 0) // Recursively search inner list
+				subPaths = @DeepFind(_aStringified_[i], _cItem_) // Recursively search inner list
 				nLenSubPaths = len(subPaths)
 				for j = 1 to nLenSubPaths
 					path = [i] + subPaths[j]
@@ -43641,13 +43644,15 @@ fdef
 	
 		return outputList
 			
-/*
+*/
 		oListStr = new stzString( @@(This.Content()) )
 		cItem = @@(pItem)
 
 		anPos = oListStr.FindCS(cItem, pCaseSensitive) #--> [21, 52]
 		nLenPos = len(anPos)
-	
+
+? @@(oListStr.Content())
+? @@(anPos)
 		aResult = []
 
 		for i = 1 to nLenPos
@@ -43670,7 +43675,7 @@ fdef
 		next
 
 		return aResult
-*/
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepFind(pItem)
