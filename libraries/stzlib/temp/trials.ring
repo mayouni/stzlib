@@ -1,5 +1,53 @@
 load "../max/stzmax.ring"
 
+profon()
+
+c = "‎"
+
+? IsEmpty(c)
+#--> FALSE
+
+? Unicode(c)
+#--> 8205
+
+? CharName(c)
+#--> LEFT-TO-RIGHT MARK
+
+? "--"
+? @@NL( NamesOfInvisibleChars() )
+#--> [
+#	"<control>",
+#	"SPACE",
+#	"NO-BREAK SPACE",
+#	"EN QUAD",
+#	"EM QUAD",
+#	"EN SPACE",
+#	"EM SPACE",
+#	"THREE-PER-EM SPACE",
+#	"FOUR-PER-EM SPACE",
+#	"SIX-PER-EM SPACE",
+#	"FIGURE SPACE",
+#	"PUNCTUATION SPACE",
+#	"THIN SPACE",
+#	"HAIR SPACE",
+#	"ZERO WIDTH SPACE",
+#	"ZERO WIDTH NON-JOINER",
+#	"ZERO WIDTH JOINER",
+#	"LEFT-TO-RIGHT MARK",
+#	"RIGHT-TO-LEFT MARK",
+#	"LINE SEPARATOR",
+#	"PARAGRAPH SEPARATOR",
+#	"NARROW NO-BREAK SPACE",
+#	"MEDIUM MATHEMATICAL SPACE",
+#	"IDEOGRAPHIC SPACE",
+#	"HANGUL FILLER",
+#	"HANGUL CHOSEONG FILLER",
+#	"HALFWIDTH HANGUL FILLER"
+# ]
+
+proff()
+# Executed in 0.70 second(s) in Ring 1.22
+
 /*----
 
 profon()

@@ -1,15 +1,14 @@
 # Unmasking Unicode Lookalikes
-The world of Unicode characters is vast and sometimes fraught with challenges, particularly when it comes to the visual similarity between characters that are fundamentally different. Let’s explore some examples of this phenomenon and discover how Softanza can provide an elegant solution to it.
+
+The world of Unicode characters is vast, and sometimes tricky, especially when visually similar characters are actually different. Let's explore this with examples and see how Softanza offers a solution.
 
 ---
 
 ## The Problem
 
-Do you think "۰" and "٠" are the same?
+Are "۰" and "٠" the same? No! Neither are "۱" and "١," "۲" and "٢," or "۳" and "٣."
 
-No, they’re not! Nor are these: "۱" and "١," "۲" and "٢," or "۳" and "٣."
-
-Let’s see what happens when you check them for equality in Ring:
+Here's what happens when we check for equality in Ring:
 
 ```ring
 load "stzlib.ring"
@@ -19,59 +18,107 @@ load "stzlib.ring"
 ? "۳" = "٣"  #--> FALSE
 ? "۸" = "٨"  #--> FALSE
 ? "۹" = "٩"  #--> FALSE
-```  
+````
 
-Surprising, isn’t it? It doesn’t end there. Consider characters like "O", "Ο", and "О". These look nearly identical but they are distinct:  
+Surprising, right? It doesn't stop there. "O", "Ο", and "О" look almost identical, but they're distinct:
 
 ```ring
-? "O" = "Ο"  #--> FALSE  
-? "O" = "О"  #--> FALSE  
-? "Ο" = "О"  #--> FALSE  
-```  
+? "O" = "Ο"  #--> FALSE
+? "O" = "О"  #--> FALSE
+? "Ο" = "О"  #--> FALSE
+```
 
-This could pose serious security risks, as attackers might exploit these visual illusions to deceive software systems. Fortunately, Softanza provides robust tools to detect and handle such scenarios effectively.  
+This poses security risks, as attackers could exploit these visual tricks. Luckily, Softanza helps detect and handle these situations.
 
-## Softanza Unveils The Unicode Secret!
+## Softanza Unveils the Unicode Secret\!
 
-With Softanza's **`Unicode()`** function, you can uncover the true identity of any character. Here’s how:  
+Softanza's `Unicode()` function reveals a character's true identity:
 
 ```ring
 ? Unicode("۱")  #--> 1776
 ? Unicode("١")  #--> 1632
-```  
+```
 
-Clearly, these characters look similar but are fundamentally different. The **`AreEqual()`** function further demonstrates their uniqueness:
+These characters look similar but are fundamentally different. `AreEqual()` confirms this:
 
 ```ring
 ? AreEqual("۱", "١")  #--> FALSE
-```  
+```
 
-You can also investigate sets of visually identical characters:
+You can also check sets of visually identical characters:
 
 ```ring
 ? AreEqual(["O", "Ο", "О"])  #--> FALSE
 ? Unicodes(["O", "Ο", "О"])  #--> [ 79, 927, 1054 ]
-```  
+```
 
 ## Why Does This Happen?
 
-The answer lies in Unicode itself. Unicode assigns a **unique code point** to each character, focusing on their identity rather than their appearance (glyph). For instance:
+Unicode assigns a unique *code point* to each character, focusing on identity, not appearance (glyph). For example:
 
-- Latin "O" → `79`
-- Greek "Ο" → `927`
-- Cyrillic "О" → `1054`
+  * Latin "O" → `79`
+  * Greek "Ο" → `927`
+  * Cyrillic "О" → `1054`
 
-Even though these characters may appear identical, they belong to entirely different scripts. Softanza's **`Scripts()`** function reveals their origins:
+They look the same but belong to different scripts. Softanza's `Scripts()` function shows this:
 
 ```ring
 ? Scripts(["O", "Ο", "О"])  #--> [ "latin", "greek", "cyrillic" ]
-```  
+```
 
-## Code in Action  
+## Invisible Characters
 
-Softanza equips you with the tools to protect your software against these hidden risks, providing unparalleled control over string operations.  
+This character isn't empty; it's *invisible*\! Softanza has functions to check for this:
 
-Here is a snapshot of this exploration, captured in my Ring Notepad:
+```ring
+c = "‎"
+
+? IsEmpty(c)
+#--> FALSE
+
+? Unicode(c)
+#--> 8205
+
+? CharName(c)
+#--> LEFT-TO-RIGHT MARK
+
+? @@NL( NamesOfInvisibleChars() )
+#--> [
+#   "<control>",
+#   "SPACE",
+#   "NO-BREAK SPACE",
+#   "EN QUAD",
+#   "EM QUAD",
+#   "EN SPACE",
+#   "EM SPACE",
+#   "THREE-PER-EM SPACE",
+#   "FOUR-PER-EM SPACE",
+#   "SIX-PER-EM SPACE",
+#   "FIGURE SPACE",
+#   "PUNCTUATION SPACE",
+#   "THIN SPACE",
+#   "HAIR SPACE",
+#   "ZERO WIDTH SPACE",
+#   "ZERO WIDTH NON-JOINER",
+#   "ZERO WIDTH JOINER",
+#   "LEFT-TO-RIGHT MARK",
+#   "RIGHT-TO-LEFT MARK",
+#   "LINE SEPARATOR",
+#   "PARAGRAPH SEPARATOR",
+#   "NARROW NO-BREAK SPACE",
+#   "MEDIUM MATHEMATICAL SPACE",
+#   "IDEOGRAPHIC SPACE",
+#   "HANGUL FILLER",
+#   "HANGUL CHOSEONG FILLER",
+#   "HALFWIDTH HANGUL FILLER"
+# ]
+```
+
+## Code in Action
+
+Softanza helps protect your software from these hidden risks, giving you control over string operations.
+
+Here is a snapshot from my Ring Notepad:
 
 ![SoftanzaLib, unmasking unicode lookalities](../images/stz-unmasking-unicode-lookalities.png)  
 
