@@ -95,6 +95,8 @@ c = "‎" # This contains a LEFT-TO-RIGHT MARK
 
 As demonstrated, `IsEmpty()` correctly identifies that the string `c` is not empty. `Unicode()` reveals the character's code point, and `CharName()` provides its name. The `NamesOfInvisibleChars()` function offers a comprehensive list of known invisible characters.
 
+## Code in Action
+
 To finsih with, Here is a snapshot from my Ring Notepad:
 
 ![SoftanzaLib, unmasking unicode lookalities](../images/stz-unmasking-unicode-lookalities.png)  
