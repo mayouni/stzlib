@@ -87,12 +87,20 @@ c = "‎" // This contains a LEFT-TO-RIGHT MARK
 #--> LEFT-TO-RIGHT MARK
 
 ? ShowShortNL( NamesOfInvisibleChars() )
-#--> [ "<control>", "SPACE", "NO-BREAK SPACE", "...", "HANGUL FILLER", "HANGUL CHOSEONG FILLER", "HALFWIDTH HANGUL FILLER" ]
+#--> [
+#   "<control>",
+#   "SPACE",
+#   "NO-BREAK SPACE",
+#   "...",
+#   "HANGUL FILLER",
+#   "HANGUL CHOSEONG FILLER",
+#   "HALFWIDTH HANGUL FILLER"
+# ]
 ```
 
 As you can see, `IsEmpty()` correctly identifies that the string is *not* empty. `Unicode()` reveals the character's code point, and `CharName()` provides its name. The `NamesOfInvisibleChars()` function gives a comprehensive list of such characters. Softanza gives you the tools to detect and neutralize these hidden threats.
 
-**NOTE**: The `ShowShort()` function generates a concise version of the list, displaying 3 items from the start and 3 from the end by default. The extended form, `ShowShortXT(aList, n)` or `ShowShortXT(aList, [n1, n2])`, allows customization of the number of items shown (n items from both ends or n1 from the start and n2 from the end).
+> **NOTE**: The `ShowShort()` function generates a concise version of the list, displaying 3 items from the start and 3 from the end by default. The extended form, `ShowShortXT(aList, n)` or `ShowShortXT(aList, [n1, n2])`, allows customization of the number of items shown (n items from both ends or n1 from the start and n2 from the end).
 
 ## Finally, See it in Action!
 
