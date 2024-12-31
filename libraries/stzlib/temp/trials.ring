@@ -13,8 +13,8 @@ c = "‎"
 ? CharName(c)
 #--> LEFT-TO-RIGHT MARK
 
-? "--"
-? @@NL( NamesOfInvisibleChars() )
+
+? ShowShort( NamesOfInvisibleChars() )
 #--> [
 #	"<control>",
 #	"SPACE",
