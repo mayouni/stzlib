@@ -5077,105 +5077,170 @@ func @FindNext(aList, pItem, nStart)
 	func @FindNextST(aList, pItem, nStart)
 		return @FindNext(aList, pItem, nStart)
 
-# A function used internally with DeepFind method
+# Functions used internally with DeepFind method
 
-func FindInStrList(pcItemProvidedAsStr, pcListProvidedAsStr)
-	_positions_ = []
-    	_nLenItemProvidedAsStr_ = stzlen(pcItemProvidedAsStr)
+func FindNumberOrStringInNestedList(pNbrOrStr, paList) #ai #claude #chat-gpt
+
+    if CheckParams()
+        if NOT ( isNumber(pNbrOrStr) or isString(pNbrOrStr) )
+            StzRaise("Incorrect param type! pNbrOrStr must be a number or string.")
+        ok
+
+        if NOT isList(paList)
+            StzRaise("Incorrect param type! paList must be a list.")
+        ok
+    ok
+
+    _nLen_ = len(paList)
+    _aPositions_ = []
+    _nRootPos_ = 1
+
+    for @i = 1 to _nLen_
+
+        if isNumber(paList[@i]) or isString(paList[@i])
+            if paList[@i] = pNbrOrStr
+                _aPositions_ + [ _nRootPos_ ]
+            ok
+
+        but isList(paList[@i])
+
+            _aSubPositions_ = FindNumberOrStringInNestedList(pNbrOrStr, paList[@i])
+            _nLenPos_ = len(_aSubPositions_)
+
+            # Process nested positions
+
+            for @j = 1 to _nLenPos_
+                if isList(_aSubPositions_[@j])
+                    _aNewPath_ = [ _nRootPos_ ]
+                    _nLenNewPath_ = len(_aSubPositions_[@j])
+
+                    for @k = 1 to _nLenNewPath_
+                        _aNewPath_ + _aSubPositions_[@j][@k]
+                    next
+
+                    _aPositions_ + _aNewPath_
+                else
+                    _aPositions_ + [ _nRootPos_, _aSubPositions_[@j] ]
+                ok
+            next
+        ok
+
+        _nRootPos_++
+
+    next
+
+    return _aPositions_
+
+func FindStrListInNestedStrList(pcItemProvidedAsStr, pcListProvidedAsStr) #ai #claude
+	if CheckParams()
+		if NOT ( isString(pcItemProvidedAsStr) and isString(pcItemProvidedAsStr) )
+			StzRaise("Incorrect param type! pcItemProvidedAsStr and pcItemProvidedAsStr must both be strings.")
+		ok
+	ok
+
+	_aPositions_ = []
+	_nLenItemProvidedAsStr_ = stzlen(pcItemProvidedAsStr)
 	_nLenListProvidedAsStr_ = stzlen(pcListProvidedAsStr)
 
 	# Main parsing loop
 
-	_rootPos_ = 1  # Track position at current depth
-	_currentIndex_ = 1
+	_nRootPos_ = 1  # Track position at current depth
+	_nCurrentIndex_ = 1
     
-	while _currentIndex_ <= stzlen(pcListProvidedAsStr)
+	while _nCurrentIndex_ <= _nLenListProvidedAsStr_
 
 		# Check for direct match at current position
 
-		if ExistsAt(pcItemProvidedAsStr, pcListProvidedAsStr, _currentIndex_)
+		if ExistsAt(pcItemProvidedAsStr, pcListProvidedAsStr, _nCurrentIndex_)
 
-			_positions_ + _rootPos_  # Simply add the current position
-			_currentIndex_ += _nLenItemProvidedAsStr_ 
+			_aPositions_ + [ _nRootPos_ ]  # Simply add current position
+			_nCurrentIndex_ += _nLenItemProvidedAsStr_
 
-        	else
+		else
+			# Check for nested lists
 
-            		# Check for nested lists
+			if ring_substr2(pcListProvidedAsStr, _nCurrentIndex_, 1) = "["
 
-			if ring_substr2(pcListProvidedAsStr, _currentIndex_, 1) = "["
- 
-               			_subEnd_ = FindMatchingBracket(pcListProvidedAsStr, _currentIndex_)
+				_nSubEndPos_ = FindMatchingBracket(pcListProvidedAsStr, _nCurrentIndex_)
 
-                		if _subEnd_ > _currentIndex_ + 1
+				if _nSubEndPos_ > _nCurrentIndex_ + 1
 
-                    			_subStr_ = ring_substr2( pcListProvidedAsStr, (_currentIndex_ + 1), (_subEnd_ - _currentIndex_ - 1) )
-                    			_subPositions_ = FindInStrList(pcItemProvidedAsStr, _subStr_)
-					_nLenSubPositions_ = stzlen(_subPositions_)
+					_cSubStr_ = ring_substr2( pcListProvidedAsStr, (_nCurrentIndex_ + 1), (_nSubEndPos_ - _nCurrentIndex_ - 1) )
+					_aSubPositions_ = FindStrListInNestedStrList(pcItemProvidedAsStr, _cSubStr_)
 
-                        		# Create proper nested structure [parent_pos, child_pos]
+					_nLenSubPos_ = len(_aSubPositions_)
 
-					for @i = 1 to _nLenSubPositions_
+					# Only handle nesting for non-root positions
 
-		                           	 if isList(_subPositions_[@i])
-							_nLenSubPositions_ = len(_subPositions_[@i])
-							for @j = 1 to _nLenSubPositions_
-		                                		_positions_ + _subPositions_[@i][@j]
-							next
+					if _nRootPos_ != 1
 
-		                           	 else
+						for @i = 1 to _nLenSubPos_
 
-							if _rootPos_ = 1
-								_positions_ + _subPositions_[@i]
+							if isList(_aSubPositions_[@i])
+
+								_aNewPath_ = [ _nRootPos_ ]
+								_nLenInnerSubPos_ = len(_aSubPositions_[@i])
+
+								for @j = 1 to _nLenInnerSubPos_
+									_aNewPath_ + _aSubPositions_[@i][@j]
+								next
+
+								_aPositions_ + _aNewPath_
+
 							else
-		                                		_positions_ + [_rootPos_, _subPositions_[@i] ]
+								_aPositions_ + [ _nRootPos_, _aSubPositions_[@i] ]
 							ok
+						next
 
-		                            	ok
+					else
+						# At root level, add positions as-is
 
-		                        next
+						for @i = 1 to _nLenSubPos_
+							_aPositions_ + _aSubPositions_[@i]
+						next
+					ok
+				ok
 
-                		ok
+				_nCurrentIndex_ = _nSubEndPos_
 
-                		_currentIndex_ = _subEnd_
+			ok
 
-            		ok
-
-            		_currentIndex_++
-
-       	 	ok
+			_nCurrentIndex_++
+		ok
         
-	        # Move to next item at current level
+		# Move to next item at current level
 
-	        if _currentIndex_ <= _nLenListProvidedAsStr_ and 
-		   ring_substr2(pcListProvidedAsStr, _currentIndex_, 1) = ","
+		if _nCurrentIndex_ <= _nLenListProvidedAsStr_ and 
+		   ring_substr2(pcListProvidedAsStr, _nCurrentIndex_, 1) = ","
 
-			_rootPos_++
-			_currentIndex_++
-	        ok
+			_nRootPos_++
+			_nCurrentIndex_++
+		ok
 
-    	end
+	end
     
-    	return _positions_
+	return _aPositions_
 
-	func FindMatchingBracket(pcStr, _startPos_)
-		_openCount_ = 1
-		@i = _startPos_ + 1
-	    	_nLenStr_ = stzlen(pcStr)
+	func FindMatchingBracket(cStr, nStartPos)
+
+		_nOpenCount_ = 1
+		@i = nStartPos + 1
+		_nLenStr_ = stzlen(cStr)
 	
 		while @i <= _nLenStr_
-	
-			if ring_substr2(pcStr, @i, 1) = "["
-				_openCount_++
-	
-			but ring_substr2(pcStr, @i, 1) = "]"
-	
-				_openCount_--
-				if _openCount_ = 0
+
+			if ring_substr2(cStr, @i, 1) = "["
+				_nOpenCount_++
+
+			but ring_substr2(cStr, @i, 1) = "]"
+
+				_nOpenCount_--
+
+				if _nOpenCount_ = 0
 					return @i
 				ok
-	
 			ok
-	
+
 			@i++
 		end
 	    
@@ -5183,14 +5248,96 @@ func FindInStrList(pcItemProvidedAsStr, pcListProvidedAsStr)
 	
 	func ExistsAt(pcSearchStr, pcMainStr, pnStartPos)
 		if pnStartPos + stzlen(pcSearchStr) - 1 > stzlen(pcMainStr)
-			return false
+			return _FALSE_
 		ok
 	    
 		return ring_substr2(pcMainStr, pnStartPos, stzlen(pcSearchStr)) = pcSearchStr
-	
 
-#---- #TODO
-// Add @FindNthPrevious() and @FindPrevious()
+		func @ExistsAt(pcSearchStr, pcMainStr, pnStartPos)
+			return ExistsAt(pcSearchStr, pcMainStr, pnStartPos)
+
+//func FindStrListInNestedStrList(pcItemProvidedAsStr, pcListProvidedAsStr) #ai #claude
+//	positions = []
+//	nLenItemProvidedAsStr = stzlen(pcItemProvidedAsStr)
+//	nLenListProvidedAsStr = stzlen(pcListProvidedAsStr)
+//	# Main parsing loop
+//	rootPos = 1  # Track position at current depth
+//	currentIndex = 1
+//    
+//	while currentIndex <= nLenListProvidedAsStr
+//		# Check for direct match at current position
+//		if ExistsAt(pcItemProvidedAsStr, pcListProvidedAsStr, currentIndex)
+//			positions + [rootPos]  # Simply add current position
+//			currentIndex += nLenItemProvidedAsStr
+//		else
+//			# Check for nested lists
+//			if ring_substr2(pcListProvidedAsStr, currentIndex, 1) = "["
+//				subEnd = FindMatchingBracket(pcListProvidedAsStr, currentIndex)
+//				if subEnd > currentIndex + 1
+//					subStr = ring_substr2(pcListProvidedAsStr, currentIndex + 1, subEnd - currentIndex - 1)
+//					subPositions = FindStrListInNestedStrList(pcItemProvidedAsStr, subStr)
+//					
+//					# Only handle nesting for non-root positions
+//					if rootPos != 1
+//						for pos in subPositions
+//							if isList(pos)
+//								newPath = [rootPos]
+//								for p in pos
+//									newPath + p
+//								next
+//								positions + newPath
+//							else
+//								positions + [rootPos, pos]
+//							ok
+//						next
+//					else
+//						# At root level, add positions as-is
+//						for pos in subPositions
+//							positions + pos
+//						next
+//					ok
+//				ok
+//				currentIndex = subEnd
+//			ok
+//			currentIndex++
+//		ok
+//        
+//		# Move to next item at current level
+//		if currentIndex <= nLenListProvidedAsStr and 
+//		   ring_substr2(pcListProvidedAsStr, currentIndex, 1) = ","
+//			rootPos++
+//			currentIndex++
+//		ok
+//	end
+//    
+//	return positions
+//
+//	func FindMatchingBracket(pcStr, startPos)
+//		openCount = 1
+//		i = startPos + 1
+//		nLenStr = stzlen(pcStr)
+//	
+//		while i <= nLenStr
+//			if ring_substr2(pcStr, i, 1) = "["
+//				openCount++
+//			but ring_substr2(pcStr, i, 1) = "]"
+//				openCount--
+//				if openCount = 0
+//					return i
+//				ok
+//			ok
+//			i++
+//		end
+//	    
+//		return nLenStr
+//	
+//	func ExistsAt(pcSearchStr, pcMainStr, pnStartPos)
+//		if pnStartPos + stzlen(pcSearchStr) - 1 > stzlen(pcMainStr)
+//			return false
+//		ok
+//	    
+//		return ring_substr2(pcMainStr, pnStartPos, stzlen(pcSearchStr)) = pcSearchStr
+//
 
 #=====
 
@@ -39998,6 +40145,7 @@ class stzList from stzObject
 		#< @FunctionAlternativeForm
 
 		def ExistsInCS(p, pCaseSensitive)
+		
 			return This.IsContainedInCS(p, pCaseSensitive)
 
 		def IsIncludedInCS(p, pCaseSensitive)
@@ -40019,6 +40167,127 @@ class stzList from stzObject
 			return This.IsContainedIn(p)
 
 		#>
+
+	  #-----------------------------------------------------------#
+	 #  CHECKING IF THE SUBSTRING EXISTS AT THE GIVEN POSITIONS  #
+	#-----------------------------------------------------------#
+
+	def ExistsAtCS(pcSubStr, panPos, pCaseSensitive)
+
+		# Earlu checkbox()
+
+		if isNumber(panPos)
+			return This.ExistsAtPositionCS(pcsubStr, panPos, pCaseSensitive)
+		ok
+
+		# Checki,g params
+
+		if CheckParams()
+			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			ok
+		ok
+
+		# Doing the job
+
+		_anPos_ = This.FindAllCS(pcSubStr, pCaseSensitive)
+		_nLen_ = len(_anPos_)
+
+		_bResult_ = _TRUE_
+
+		for @i = 1 to _nLen_
+			if NOT ring_find(panPos, _anPos_[@i])
+				_bResult_ = _FALSE_
+				exit
+			ok
+		next
+
+		return _bResult_
+
+		#< @FunctionAlternativeForms
+
+		def ExistsAtPositionsCS(pcSubStr, panPos, pCaseSensitive)
+			return This.ExistsAtCS(pcSubStr, panPos, pCaseSensitive)
+
+		def SubStringExistsAtCS(pcSubStr, panPos, pCaseSensitive)
+			return This.ExistsAtCS(pcSubStr, panPos, pCaseSensitive)
+
+		def SubStringExistsAtPositionsCS(pcSubStr, panPos, pCaseSensitive)
+			return This.ExistsAtCS(pcSubStr, panPos, pCaseSensitive)
+ 
+		#--
+
+		def ExistsInPositionsCS(pcSubStr, panPos, pCaseSensitive)
+			return This.ExistsAtCS(pcSubStr, panPos, pCaseSensitive)
+
+		def SubStringExistsInCS(pcSubStr, panPos, pCaseSensitive)
+			return This.ExistsAtCS(pcSubStr, panPos, pCaseSensitive)
+
+		def SubStringExistsInPositionsCS(pcSubStr, panPos, pCaseSensitive)
+			return This.ExistsAtCS(pcSubStr, panPos, pCaseSensitive)
+ 
+		#>
+
+	#-- WIHTOUT CASESENSITIVITY
+
+	def ExistsAt(pcSubStr, panPos)
+		return This.ExistsAtCS(pcSubStr, panPos, _TRUE_)
+
+		#< @FunctionAlternativeForms
+
+		def ExistsAtPositions(pcSubStr, panPos)
+			return This.ExistsAt(pcSubStr, panPos)
+
+		def SubStringExistsAt(pcSubStr, panPos)
+			return This.ExistsAt(pcSubStr, panPos)
+
+		def SubStringExistsAtPositions(pcSubStr, panPos)
+			return This.ExistsAt(pcSubStr, panPos)
+ 
+		#--
+
+		def ExistsInPositions(pcSubStr, panPos)
+			return This.ExistsAt(pcSubStr, panPos)
+
+		def SubStringExistsIn(pcSubStr, panPos)
+			return This.ExistsAt(pcSubStr, panPos)
+
+		def SubStringExistsInPositions(pcSubStr, panPos)
+			return This.ExistsAt(pcSubStr, panPos)
+
+		#>
+
+	  #--------------------------------------------------------#
+	 #  CHECKING IF THE SUBSTRING EXISTS AT A GIVEN POSITION  #
+	#--------------------------------------------------------#
+
+	def ExistsAtPositionCS(pcSubStr, n, pCaseSensitive)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		_anPos_ = This.FindAllCS(pcSubStr, pCaseSensitive)
+		
+		if ring_find(_anPos_, n) > 0
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+
+		def ExistsInPositionCS(pcSubStr, n, pCaseSensitive)
+			return This.ExistsAtPositionCS(pcSubStr, n, pCaseSensitive)
+
+	#-- WIHTOUT CASESENSITIVITY
+
+	def ExistsAtPosition(pcSubStr, n)
+		return This.ExistsAtCS(pcSubStr, n, _TRUE_)
+
+		def ExistsInPosition(pcSubStr, n)
+			return This.ExistsAtPosition(pcSubStr, n)
 
 	  #-----------------------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS BOTH OF THE PROVIDED ITEM  #
@@ -43692,7 +43961,26 @@ fdef
 		*/
 
 		_aContent_ = This.Content()
+
+		# Early Check
+
+		if isNumber(pItem)
+			return FindNumberOrStringInNestedList(pItem, _aContent_)
+		ok
+
+		# Other cases (searched item is a string, list or object)
+
 		_bCase_ = @CaseSensitive(pCaseSensitive)
+
+		_cItem_ = @@(pItem)
+		_cContent_ = @@(_aContent_)
+
+		if _bCase_ = _FALSE_
+			_cItem_ = lower(_cItem_)
+			_cContent_ = lower(_cContent_)
+		ok
+
+		return FindStrListInNestedStrList( _cItem_, _cContent_ )
 
 		# Stringifiyng the list and the item
 
