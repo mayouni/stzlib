@@ -815,7 +815,7 @@ o1.DeepRemove("OTHER")
 #--> [ "♥", [ "♥", [ "♥" ] ], "♥" ]
 ```
 
-Softanza’s `@DeepFunctionForms` showcase the power and elegance of working with complex, nested data structures. By abstracting away recursion, these methods allow developers to manipulate lists efficiently, accurately, and without the pitfalls of manual traversal.
+Softanza’s `@DeepFunctionForms` showcase the power and elegance of working with complex, nested data structures. By *abstracting away recursion*, these methods allow developers to manipulate lists efficiently, accurately, and without the pitfalls of manual traversal.
 
 ## Multilingual Function Forms: Let Any Human Speak in Code  
 
