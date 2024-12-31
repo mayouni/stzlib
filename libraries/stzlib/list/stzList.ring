@@ -5077,34 +5077,120 @@ func @FindNext(aList, pItem, nStart)
 	func @FindNextST(aList, pItem, nStart)
 		return @FindNext(aList, pItem, nStart)
 
+# A function used internally with DeepFind method
 
+func FindInStrList(pcItemProvidedAsStr, pcListProvidedAsStr)
+	_positions_ = []
+    	_nLenItemProvidedAsStr_ = stzlen(pcItemProvidedAsStr)
+	_nLenListProvidedAsStr_ = stzlen(pcListProvidedAsStr)
+
+	# Main parsing loop
+
+	_rootPos_ = 1  # Track position at current depth
+	_currentIndex_ = 1
+    
+	while _currentIndex_ <= stzlen(pcListProvidedAsStr)
+
+		# Check for direct match at current position
+
+		if ExistsAt(pcItemProvidedAsStr, pcListProvidedAsStr, _currentIndex_)
+
+			_positions_ + _rootPos_  # Simply add the current position
+			_currentIndex_ += _nLenItemProvidedAsStr_ 
+
+        	else
+
+            		# Check for nested lists
+
+			if ring_substr2(pcListProvidedAsStr, _currentIndex_, 1) = "["
+ 
+               			_subEnd_ = FindMatchingBracket(pcListProvidedAsStr, _currentIndex_)
+
+                		if _subEnd_ > _currentIndex_ + 1
+
+                    			_subStr_ = ring_substr2( pcListProvidedAsStr, (_currentIndex_ + 1), (_subEnd_ - _currentIndex_ - 1) )
+                    			_subPositions_ = FindInStrList(pcItemProvidedAsStr, _subStr_)
+					_nLenSubPositions_ = stzlen(_subPositions_)
+
+                        		# Create proper nested structure [parent_pos, child_pos]
+
+					for @i = 1 to _nLenSubPositions_
+
+		                           	 if isList(_subPositions_[@i])
+							_nLenSubPositions_ = len(_subPositions_[@i])
+							for @j = 1 to _nLenSubPositions_
+		                                		_positions_ + _subPositions_[@i][@j]
+							next
+
+		                           	 else
+
+							if _rootPos_ = 1
+								_positions_ + _subPositions_[@i]
+							else
+		                                		_positions_ + [_rootPos_, _subPositions_[@i] ]
+							ok
+
+		                            	ok
+
+		                        next
+
+                		ok
+
+                		_currentIndex_ = _subEnd_
+
+            		ok
+
+            		_currentIndex_++
+
+       	 	ok
+        
+	        # Move to next item at current level
+
+	        if _currentIndex_ <= _nLenListProvidedAsStr_ and 
+		   ring_substr2(pcListProvidedAsStr, _currentIndex_, 1) = ","
+
+			_rootPos_++
+			_currentIndex_++
+	        ok
+
+    	end
+    
+    	return _positions_
+
+	func FindMatchingBracket(pcStr, _startPos_)
+		_openCount_ = 1
+		@i = _startPos_ + 1
+	    	_nLenStr_ = stzlen(pcStr)
+	
+		while @i <= _nLenStr_
+	
+			if ring_substr2(pcStr, @i, 1) = "["
+				_openCount_++
+	
+			but ring_substr2(pcStr, @i, 1) = "]"
+	
+				_openCount_--
+				if _openCount_ = 0
+					return @i
+				ok
+	
+			ok
+	
+			@i++
+		end
+	    
+		return _nLenStr_
+	
+	func ExistsAt(pcSearchStr, pcMainStr, pnStartPos)
+		if pnStartPos + stzlen(pcSearchStr) - 1 > stzlen(pcMainStr)
+			return false
+		ok
+	    
+		return ring_substr2(pcMainStr, pnStartPos, stzlen(pcSearchStr)) = pcSearchStr
+	
 
 #---- #TODO
 // Add @FindNthPrevious() and @FindPrevious()
-
-# Wroks only for what Ring can find (numbers and strings)
-
-func @DeepFind(aList, pItem) #ai #chat-gpt
-	outputList = [] // Initialize an empty list to store results
-
-	for i = 1 to len(aList)
-		if type(aList[i]) = "LIST"
-			subPaths = DeepFind(aList[i], pItem) // Recursively search inner list
-			for j = 1 to len(subPaths)
-				path = [i] + subPaths[j]
-				add(outputList, path)
-			next
-		else
-			if aList[i] = pItem
-				add(outputList, i) // Add root-level position as an integer
-			ok
-		ok
-	next
-
-	return outputList
-
-	func DeepFind(aList, pItem)
-		return @DeepFind(aList, pItem)
 
 #=====
 
@@ -43604,77 +43690,23 @@ fdef
 			[ [3, 2], [ 1 ]  ],	# position 1 in the level [3, 2]
 		]
 		*/
-/*
+
 		_aContent_ = This.Content()
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		# Stringifiyng the list and the item
 
-		if _bCase_ = _TRUE_
-			_aStringified_ = This.Stringified()
-			_cItem_ = @@(pItem)
-		else
-			_aStringified_ = This.StringifyQ().DeepLowercased()
-			_cItem_ = lower( @@(pItem) )
+		_cListAsStr_ = @@(_aContent_)
+		_cItem_ = @@(pItem)
+
+		if _bCase_ = _FALSE_
+			_cListAsStr_ = lower(_cListAsStr_)
+			_cItem_ = lower(_cItem_)
 		ok
 
-? ">> " + @@(_cItem_) + NL
-? @@SP( _aStringified_ ) + NL
+		_aResult_ = FindInStrList(_cItem_, _cListAsStr_)
 
-
-		# Doing the job
-
-		_nLen_ = len(_aContent_)
-		outputList = [] // Initialize an empty list to store results
-	
-		for i = 1 to _nLen_
-			if isList(_aContent_[i])
-				subPaths = @DeepFind(_aStringified_[i], _cItem_) // Recursively search inner list
-				nLenSubPaths = len(subPaths)
-				for j = 1 to nLenSubPaths
-					path = [i] + subPaths[j]
-					outputList + path
-				next
-			else
-				if _aStringified_[i] = _cItem_
-					outputList + i // Add root-level position as an integer
-				ok
-			ok
-		next
-	
-		return outputList
-			
-*/
-		oListStr = new stzString( @@(This.Content()) )
-		cItem = @@(pItem)
-
-		anPos = oListStr.FindCS(cItem, pCaseSensitive) #--> [21, 52]
-		nLenPos = len(anPos)
-
-? @@(oListStr.Content())
-? @@(anPos)
-		aResult = []
-
-		for i = 1 to nLenPos
-			nPos = anPos[i]
-		
-			oSection = oListStr.SectionQ(1, nPos)
-		
-			anPosBound1 = oSection.Find("[")
-			anPosBound2 = oSection.Find("]")
-		
-			nLevel = len(anPosBound1) - len(anPosBound2)
-		
-			n1 = oListStr.FindFirstPrevious("[", :StartingAt = nPos)
-			n2 = oListStr.FindFirstNext("]", :StartingAt = nPos)
-		
-			nPosition = oListStr.SectionQ(n1, nPos).NumberOfOccurrence(",") + 1
-			
-			aResult + [nLevel, nPosition]
-
-		next
-
-		return aResult
+		return _aResult_
 
 	#-- WITHOUT CASESENSITIVITY
 
