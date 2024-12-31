@@ -1,5 +1,7 @@
 load "../max/stzmax.ring"
 
+/*------
+
 profon()
 
 c = "‎"
@@ -8,7 +10,7 @@ c = "‎"
 #--> FALSE
 
 ? Unicode(c)
-#--> 8205
+#--> 8206
 
 ? CharName(c)
 #--> LEFT-TO-RIGHT MARK
@@ -16,33 +18,13 @@ c = "‎"
 
 ? ShowShort( NamesOfInvisibleChars() )
 #--> [
-#	"<control>",
-#	"SPACE",
-#	"NO-BREAK SPACE",
-#	"EN QUAD",
-#	"EM QUAD",
-#	"EN SPACE",
-#	"EM SPACE",
-#	"THREE-PER-EM SPACE",
-#	"FOUR-PER-EM SPACE",
-#	"SIX-PER-EM SPACE",
-#	"FIGURE SPACE",
-#	"PUNCTUATION SPACE",
-#	"THIN SPACE",
-#	"HAIR SPACE",
-#	"ZERO WIDTH SPACE",
-#	"ZERO WIDTH NON-JOINER",
-#	"ZERO WIDTH JOINER",
-#	"LEFT-TO-RIGHT MARK",
-#	"RIGHT-TO-LEFT MARK",
-#	"LINE SEPARATOR",
-#	"PARAGRAPH SEPARATOR",
-#	"NARROW NO-BREAK SPACE",
-#	"MEDIUM MATHEMATICAL SPACE",
-#	"IDEOGRAPHIC SPACE",
-#	"HANGUL FILLER",
-#	"HANGUL CHOSEONG FILLER",
-#	"HALFWIDTH HANGUL FILLER"
+#   "<control>",
+#   "SPACE",
+#   "NO-BREAK SPACE",
+#   "...",
+#   "HANGUL FILLER",
+#   "HANGUL CHOSEONG FILLER",
+#   "HALFWIDTH HANGUL FILLER"
 # ]
 
 proff()
@@ -52,13 +34,82 @@ proff()
 
 profon()
 
+aList = [
+	1,
+	[2, 3, [1] ],
+	4,
+	[ 1 ],
+	1 ,
+	[ 4, [ 7, [ 8, 9, 1 ] ] ]
+]
+
+? @@( FindNumberOrStringInNestedList(1, aList ) ) + NL
+#--> [ [ 1 ], [ 2, 3, 1 ], [ 4, 1 ], [ 5 ], [ 6, 2, 2, 3 ] ]
+
+? @@( Q(aList).DeepFind(1) )
+#--> [ [ 1 ], [ 2, 3, 1 ], [ 4, 1 ], [ 5 ], [ 6, 2, 2, 3 ] ]
+
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*----
+*/
+profon()
+
+o1 = new stzList([ 1, "♥", 3, 4, "♥", 6 ])
+
+? o1.ExistsInPositions("♥", [ 2, 5 ])
+
+? o1.ExistsAt("♥", 5)
+
+proff()
+
+/*----
+
+*/
+profon()
+
+aList = [
+	[ 1, 2, 3 ],
+	[ "B", [ 1, 2, 3 ] ],
+	[ "C", [  [ 1, 2, 3 ], "F" ], "D", [ 1, 2, 3 ] ],
+	"G",
+	[ 1, 2, 3 ]
+]
+
+? @@( Q(aList).DeepFind([ 1, 2, 3 ]) )
+#--> [ [ 1 ], [ 2, 2 ], [ 3, 2, 1 ], [ 3, 4 ], [ 5 ] ]
+
+proff()
+# [ [ 1 ], [ 2, 2 ], [ 3, 2, 1 ], [ 3, 4 ], [ 5 ] ]
+
+/*----
+*/
+profon()
+
 # Test of internal functions used with DeepFind() in stzString
 
-cListInStr = '[ [ 1, 2, 3 ], [ "B", [ 1, 2, 3 ] ], [ "C", "D", [ 1, 2, 3 ] ], [ 1, 2, 3 ] ]'
+aList = [
+	[ 1, 2, 3 ],
+	[ "B", [ 1, 2, 3 ] ],
+	[ "C", [  [ 1, 2, 3 ], "F" ], "D", [ 1, 2, 3 ] ],
+	"G",
+	[ 1, 2, 3 ]
+]
 
-? @@( FindInStrList("[ 1, 2, 3 ]", cListInStr) )
-#--> [ 1, [ 2, 2 ], [ 3, 3 ], 4 ]
+cListInStr = '[
+	[ 1, 2, 3 ],
+	[ "B", [ 1, 2, 3 ] ],
+	[ "C", [  [ 1, 2, 3 ], "F" ], "D", [ 1, 2, 3 ] ],
+	"G",
+	[ 1, 2, 3 ]
+]'
 
+? @@( FindStrListInNestedStrList("[ 1, 2, 3 ]", cListInStr) )
+#--> [ 1, [ 2, 2 ], [ 3, 2, 1 ], [ 3, 4 ], 5 ]
+
+/*
 ? @@( FindInStrList("", "") )
 #--> []
 
@@ -77,7 +128,7 @@ _input2_ = '[[[[1, 2, 3]]]]'
 _input3_ = '[ [ 1, 2, 3 ] , [ "B", [ 1, 2, 3 ] '  # Missing closing brackets
 ? @@( FindInStrList("[ 1, 2, 3 ]", _input3_) ) # Should return partial results
 #--> [ 1 ]
-
+*/
 proff()
 # Executed in 0.08 second(s) in Ring 1.22
 

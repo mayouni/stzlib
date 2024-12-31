@@ -81,7 +81,7 @@ c = "‎" // This contains a LEFT-TO-RIGHT MARK
 #--> FALSE
 
 ? Unicode(c)
-#--> 8205
+#--> 8206
 
 ? CharName(c)
 #--> LEFT-TO-RIGHT MARK
