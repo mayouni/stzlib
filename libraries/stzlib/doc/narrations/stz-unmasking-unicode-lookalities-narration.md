@@ -11,8 +11,6 @@ Are "۰" and "٠" the same? No! Neither are "۱" and "١," "۲" and "٢," or "۳
 Here's what happens when we check for equality in Ring:
 
 ```ring
-load "stzlib.ring"
-
 ? "۱" = "١"  #--> FALSE
 ? "۲" = "٢"  #--> FALSE
 ? "۳" = "٣"  #--> FALSE
@@ -35,6 +33,8 @@ This poses security risks, as attackers could exploit these visual tricks. Lucki
 Softanza's `Unicode()` function reveals a character's true identity:
 
 ```ring
+load "stzlib.ring"
+
 ? Unicode("۱")  #--> 1776
 ? Unicode("١")  #--> 1632
 ```
