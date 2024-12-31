@@ -767,7 +767,7 @@ o1 = new stzList([
 ])
 
 ? @@( o1.DeepFind("you") )
-# Output: [ [ 1 ], [ 3, 2 ], [ 3, 3, 1 ], [ 5 ] ]
+#--> [ [ 1 ], [ 3, 2 ], [ 3, 3, 1 ], [ 5 ] ]
 ```
 
 The paths returned pinpoint the locations of the word `"you"` within the structure:  
@@ -782,8 +782,7 @@ These paths can be used effortlessly to *retrieve*, *modify*, or *remove* items.
 o1.DeepReplace("you", :By = "♥")
 
 ? @@NL( o1.Content() )
-# Output:
-# [
+# #--> [
 #	"♥",
 #	"other",
 #	[ "other", "♥", [ "♥" ], "other" ],
@@ -798,8 +797,7 @@ Transformations are just as straightforward. To *uppercase* all occurrences of t
 o1.DeepUppercase("other")
 
 ? @@NL( o1.Content() )
-# Output:
-# [
+#--> [
 #	"♥",
 #	"OTHER",
 #	[ "OTHER", "♥", [ "♥" ], "OTHER" ],
@@ -814,7 +812,7 @@ The same simplicity applies to removing items. Calling `DeepRemove()` with the d
 o1.DeepRemove("OTHER")
 
 ? @@( o1.Content() )
-# Output: [ "♥", [ "♥", [ "♥" ] ], "♥" ]
+#--> [ "♥", [ "♥", [ "♥" ] ], "♥" ]
 ```
 
 Softanza’s `@DeepFunctionForms` showcase the power and elegance of working with complex, nested data structures. By abstracting away recursion, these methods allow developers to manipulate lists efficiently, accurately, and without the pitfalls of manual traversal.
