@@ -43961,40 +43961,44 @@ fdef
 		*/
 
 		_aContent_ = This.Content()
-
-		# Early Check
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		if isNumber(pItem)
 			return FindNumberOrStringInNestedList(pItem, _aContent_)
+
+		but isList(pItem)
+			_cItem_ = @@(pItem)
+			_cContent_ = @@(_aContent_)
+	
+			if _bCase_ = _FALSE_
+				_cItem_ = lower(_cItem_)
+				_cContent_ = lower(_cContent_)
+			ok
+	
+			return FindStrListInNestedStrList( _cItem_, _cContent_ )
+
+		but isString(pItem)
+
+			if _bCase_ = _TRUE_
+				_acStringified_ = This.DeepStringified()
+
+			else
+				_acStringified_ = This.DeepStringifyQ().Lowercased()
+			ok
+//? "---"
+//? pItem
+//? @@(_acStringified_)
+//? "---"
+			return FindNumberOrStringInNestedList(pItem, _acStringified_)
+
+		else //isObject(pItem)
+
+			_cItem_ = @@(pItem)
+			_cContent_ = @@(_aContent_)
+
+			return FindStrListInNestedStrList( _cItem_, _cContent_ )
+
 		ok
-
-		# Other cases (searched item is a string, list or object)
-
-		_bCase_ = @CaseSensitive(pCaseSensitive)
-
-		_cItem_ = @@(pItem)
-		_cContent_ = @@(_aContent_)
-
-		if _bCase_ = _FALSE_
-			_cItem_ = lower(_cItem_)
-			_cContent_ = lower(_cContent_)
-		ok
-
-		return FindStrListInNestedStrList( _cItem_, _cContent_ )
-
-		# Stringifiyng the list and the item
-
-		_cListAsStr_ = @@(_aContent_)
-		_cItem_ = @@(pItem)
-
-		if _bCase_ = _FALSE_
-			_cListAsStr_ = lower(_cListAsStr_)
-			_cItem_ = lower(_cItem_)
-		ok
-
-		_aResult_ = FindInStrList(_cItem_, _cListAsStr_)
-
-		return _aResult_
 
 	#-- WITHOUT CASESENSITIVITY
 

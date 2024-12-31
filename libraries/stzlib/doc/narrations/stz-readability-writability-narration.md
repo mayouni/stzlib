@@ -751,6 +751,70 @@ o1 = new stzList(CardsXT())
 This randomization feature makes Softanza extremely versatile, whether you’re playing a card game or dealing with more complex data manipulation tasks!
 
 
+## Function Deep Form: Recrusiveness Made Simple
+
+Softanza dives effortlessly into the depths of any list, no matter how deeply nested it is. This allows it to locate items—whether they are numbers, strings, lists, or (named) objects—within a list and all its inner lists. The result is returned as a path, offering a clear roadmap to each instance. 
+
+For example, consider a nested list containing the word "you" at various levels:
+
+```ring
+o1 = new stzList([
+	"you",
+	"other",
+	[ "other", "you", [ "you" ], "other" ],
+	"other",
+	"you"
+])
+
+? @@( o1.DeepFind("you") )
+# Output: [ [ 1 ], [ 3, 2 ], [ 3, 3, 1 ], [ 5 ] ]
+```
+
+The paths returned can then be used to retrieve, modify, or remove the items effortlessly. 
+
+Let’s replace every occurrence of "you" with "♥" using the `DeepReplace` method:
+
+```ring
+o1.DeepReplace("you", :By = "♥")
+
+? @@NL( o1.Content() )
+# Output:
+# [
+#	"♥",
+#	"other",
+#	[ "other", "♥", [ "♥" ], "other" ],
+#	"other",
+#	"♥"
+# ]
+```
+
+Transformation is just as simple. If you need to uppercase all occurrences of the word "other," you can call the `DeepUppercase` method, and Softanza will propagate the change through the entire structure:
+
+```ring
+o1.DeepUppercase("other")
+
+? @@NL( o1.Content() )
+# Output:
+# [
+#	"♥",
+#	"OTHER",
+#	[ "OTHER", "♥", [ "♥" ], "OTHER" ],
+#	"OTHER",
+#	"♥"
+# ]
+```
+
+When it comes to removing specific items, the process is equally straightforward. By calling `DeepRemove` with the desired item, you can cleanly eliminate all its occurrences, leaving the rest of the structure intact:
+
+```ring
+o1.DeepRemove("OTHER")
+
+? @@( o1.Content() )
+# Output: [ "♥", [ "♥", [ "♥" ] ], "♥" ]
+```
+
+This seamless handling of nested lists exemplifies how Softanza empowers developers to work with complex data structures efficiently and accurately. It eliminates the need for repetitive and error-prone manual recursion, allowing you to focus on what truly matters in your code.
+
 ## Multilingual Function Forms: Let Any Human Speak in Code  
 
 In writing program code, English is no longer the only option—you can now communicate with Softanza in any language!  
