@@ -12,6 +12,8 @@ No, they’re not! Nor are these: "۱" and "١," "۲" and "٢," or "۳" and "٣.
 Let’s see what happens when you check them for equality in Ring:
 
 ```ring
+load "stzlib.ring"
+
 ? "۱" = "١"  #--> FALSE
 ? "۲" = "٢"  #--> FALSE
 ? "۳" = "٣"  #--> FALSE
@@ -62,14 +64,15 @@ The answer lies in Unicode itself. Unicode assigns a **unique code point** to ea
 Even though these characters may appear identical, they belong to entirely different scripts. Softanza's **`Scripts()`** function reveals their origins:
 
 ```ring
-? Scripts(["O", "Ο", "О"])  # [ "latin", "greek", "cyrillic" ]
+? Scripts(["O", "Ο", "О"])  #--> [ "latin", "greek", "cyrillic" ]
 ```  
 
 ## Code in Action  
 
-SoftanzaLib equips you with the tools to protect your software against these hidden risks, providing unparalleled control over string operations.  
+Softanza equips you with the tools to protect your software against these hidden risks, providing unparalleled control over string operations.  
 
-Here is a snapasho of this exploration, captured in my Ring Notepad:
+Here is a snapshot of this exploration, captured in my Ring Notepad:
+
 ![SoftanzaLib, unmasking unicode lookalities](../images/stz-unmasking-unicode-lookalities.png)  
 
 
