@@ -54,7 +54,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*----
-*/
+
 profon()
 
 o1 = new stzList([ 1, "♥", 3, 4, "♥", 6 ])
@@ -67,7 +67,6 @@ proff()
 
 /*----
 
-*/
 profon()
 
 aList = [
@@ -85,7 +84,7 @@ proff()
 # [ [ 1 ], [ 2, 2 ], [ 3, 2, 1 ], [ 3, 4 ], [ 5 ] ]
 
 /*----
-*/
+
 profon()
 
 # Test of internal functions used with DeepFind() in stzString
@@ -109,26 +108,26 @@ cListInStr = '[
 ? @@( FindStrListInNestedStrList("[ 1, 2, 3 ]", cListInStr) )
 #--> [ 1, [ 2, 2 ], [ 3, 2, 1 ], [ 3, 4 ], 5 ]
 
-/*
-? @@( FindInStrList("", "") )
+? @@( FindStrListInNestedStrList("", "") )
 #--> []
 
-? @@( FindInStrList([1], "str") )
+? @@( FindStrListInNestedStrList('[1]', "str") )
 #--> []
 
 _input1_ = '[ [ 1, 2, 3 ] ,    [ "B", [ 1, 2, 3 ] ],[ "C", "D", [ 1, 2, 3 ] ] , [ 1, 2, 3 ] ]'
-? @@( FindInStrList("[ 1, 2, 3 ]", _input1_) )  # Should handle extra spaces
-#--> [ 1, [ 2, 2 ], [ 3, 3 ], 4 ]
+? @@( FindStrListInNestedStrList("[ 1, 2, 3 ]", _input1_) )  # Should handle extra spaces
+#--> [ [ 1 ], [ 2, 2 ], [ 3, 3 ], [ 4 ] ]
 
 # Nested edge cases
 _input2_ = '[[[[1, 2, 3]]]]'
-? @@( FindInStrList("[ 1, 2, 3 ]", _input2_) ) # Should handle deep nesting
+? @@( FindStrListInNestedStrList("[ 1, 2, 3 ]", _input2_) ) # Should handle deep nesting
+#--> [ ]
 
 # Malformed but recoverable
 _input3_ = '[ [ 1, 2, 3 ] , [ "B", [ 1, 2, 3 ] '  # Missing closing brackets
-? @@( FindInStrList("[ 1, 2, 3 ]", _input3_) ) # Should return partial results
-#--> [ 1 ]
-*/
+? @@( FindStrListInNestedStrList("[ 1, 2, 3 ]", _input3_) ) # Should return partial results
+#--> [ [ 1 ] ]
+
 proff()
 # Executed in 0.08 second(s) in Ring 1.22
 
@@ -178,7 +177,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*---------
-*/
+
 profon()
 
 o1 = new stzList([
@@ -188,31 +187,30 @@ o1 = new stzList([
 	"♥"
 ])
 
-? @@NL( FindInStrList(@@(o1.Content()), '"♥"') )
+? @@( o1.DeepFind("♥") ) + NL
+#--> [ [ 2, 2 ], [ 3, 3 ], [ 4 ] ]
 
-? @@(o1.DeepFind("♥")) + NL
-#--> [ [ 2, 2 ], [ 3, 3 ], 4 ]
+#---
 
-/*
-aList2 = [
+o2 = new stzList([
 	"X",
 	["Y", ["Z", "♥", ["W", "♥"]], "♥"],
 	"V",
 	"♥"
-]
-? @@NL(DeepFind(aList2, "♥"))
+])
+
+? @@NL( o2.DeepFind("♥") )
 #--> [
-#	[ 2, [ 2, 2 ] ],
-#	[ 2, [ 2, [ 3, 2 ] ] ],
+#	[ 2, 2, 2 ],
+#	[ 2, 2, 3, 2 ],
 #	[ 2, 3 ],
-#	4
+#	[ 4 ]
 # ]
-*/
+
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*----------
-*/
 
 profon()
 
@@ -225,9 +223,10 @@ o1 = new stzList([
 ])
 
 ? @@( o1.DeepFind("you") )
-#--> [ 1, [ 3, 2 ], [ 3, 1 ], 5 ]
+#--> [ [ 1 ], [ 3, 2 ], [ 3, 3, 1 ], [ 5 ] ]
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*---------
 
@@ -295,7 +294,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--------- #todo add #quicker
-
+*/
 profon()
 
 o1 = Q('[ [ 1, 2, 3 ], [ "B", [ 1, 2, 3 ] ], [ "C", "D", [ 1, 2, 3 ] ], [ 1, 2, 3 ] ]')
