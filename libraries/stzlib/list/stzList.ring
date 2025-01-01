@@ -5775,6 +5775,60 @@ func Combinations(aList, n)
 	func @Combinations(aList, n)
 		return Combinations(aList, n)
 
+# An internal function that generates paths of a nested list
+# from a particular string representation of the list (formed
+# from only "[", ",", and "]" and removing all the other chars)
+
+func GeneratePaths(cStr)
+
+	aResult = []
+	aCurrentPath = []
+	aLevelCounts = [1]    # Start with 1 for first position
+    
+	nLen = len(cStr)
+
+	for i = 1 to nLen
+		cChar = cStr[i]
+        
+		if cChar = "["
+			# Start new level
+			aLevelCounts + 1  # Start with position 1
+			aCurrentPath + 1  # Add current position to path
+			if len(aCurrentPath) > 0
+				aResult + aCurrentPath
+		ok
+            
+		but cChar = "]"
+			# Close current level
+			if len(aCurrentPath) > 0
+				del(aCurrentPath, len(aCurrentPath))
+			ok
+			if len(aLevelCounts) > 0
+				del(aLevelCounts, len(aLevelCounts))
+			ok
+            
+		but cChar = ","
+			# New item at current level
+			if len(aLevelCounts) > 0
+				# Increment count at current level
+				aLevelCounts[len(aLevelCounts)] += 1
+                
+				# Update path with new position
+				if len(aCurrentPath) > 0
+					del(aCurrentPath, len(aCurrentPath))
+				ok
+				aCurrentPath + aLevelCounts[len(aLevelCounts)]
+                
+				# Add new path to result
+				if len(aCurrentPath) > 0
+					aResult + aCurrentPath
+				ok
+			ok
+		ok
+	next
+    
+	return aResult
+
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -43810,85 +43864,270 @@ fdef
 
 		#>
 
-	  #==================================#
-	 #  PATH MANAGEMENT FOR DEEP LISTS  #
-	#==================================#
+	  #========================#
+	 #  MANAGING INNER-LISTS  #
+	#========================#
+	#TODO// Organize this section with the section GETTING & REMOVING ITEMS OF TYPE LIST
+
+	# Inner lists #Move this part near to Lists()
+
+	def SizeOfLargestList()
+		_nResult_ = @Max( This.ListsSizes() )
+		return _nResult_
+
+		def MaxListsSize()
+			return This.SizeOfLargestList()
+
+		def SizeOfBiggestList()
+			return This.SizeOfLargestList()
+
+		def SizeOfLongestList()
+			return This.SizeOfLargestList()
+
+	def FindLargestLists()
+
+		if NOT This.ContainsLists()
+			StzRaise("Can't proceed! The list contains no inner lists.") 
+		ok
+
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+
+		_anResult_ = []
+		_nMax_ = @Max( This.ListsSizes() )
+
+		for @i = 1 to _nLen_
+			if NOT islist(_aContent_[@i])
+				loop
+			ok
+
+			if len(_aContent_[@i]) = _nMax_
+				_anResult_ + @i
+			ok
+		next
+
+		return _anResult_
+
+		def FindBiggestLists()
+			return This.FindLargestLists()
+
+		def FindLongestLists()
+			return This.FindLargestLists()
+
+		def FindLargestList()
+			_anResult_ = This.FindLargestLists()
+			_nLen_ = len(_anResult_)
+
+			if _nLen_ = 1
+				return _anResult_[1]
+
+			else
+				return _anResult_
+			ok
+
+		def FindBiggestList()
+			return This.FindLargestList()
+
+		def FindLongestList()
+			return This.FindLargestList()
+
+	def LargestLists()
+		return This.ItemsAtPositions( This.FindLargestLists() )
+
+		def LongestLists()
+			return This.LargestLists()
+
+		def BiggestLists()
+			return This.LargestLists()
+
+		def LargestList()
+			_pos_ = This.FindLargestLists()
+
+			if isNumber(_pos_)
+				return This.ItemAtPosition(_pos_)
+
+			else
+				return This.ItemsAtPositions(_pos_)
+			ok
+
+		def BiggestList()
+			return This.LargestList()
+
+		def LongestList()
+			return This.LargestList()
+
+	#--
+
+	def SizeOfSmallestList()
+		_nResult_ = @Min( This.ListsSizes() )
+		return _nResult_
+
+		def MinListsSize()
+			return This.SizeOfSmallestList()
+
+		def SizeOfShortestList()
+			return This.SizeOfSmallestList()
+
+	def FindSmallestLists()
+
+		if NOT This.ContainsLists()
+			StzRaise("Can't proceed! The list contains no inner lists.") 
+		ok
+
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+
+		_anResult_ = []
+		_nMin_ = @Min( This.ListsSizes() )
+
+		for @i = 1 to _nLen_
+			if NOT islist(_aContent_[@i])
+				loop
+			ok
+
+			if len(_aContent_[@i]) = _nMin_
+				_anResult_ + @i
+			ok
+		next
+
+		return _anResult_
+
+		def FindShortestLists()
+			return This.FindSmallestLists()
+
+		def FindSmallestList()
+			_anResult_ = This.FindSmallestLists()
+			_nLen_ = len(_anResult_)
+
+			if _nLen_ = 1
+				return _anResult_[1]
+
+			else
+				return _anResult_
+			ok
+
+		def FindShortestList()
+			return This.FindSmallestList()
+
+	def SmallestLists()
+		return This.ItemsAtPositions( This.FindSmallestLists() )
+
+		def ShortestLists()
+			return This.SmallestLists()
+
+		def SmallestList()
+			_pos_ = This.FindSmallestLists()
+
+			if isNumber(_pos_)
+				return This.ItemAtPosition(_pos_)
+
+			else
+				return This.ItemsAtPositions(_pos_)
+			ok
+
+		def ShortestList()
+			return This.SmallestList()
+
+	  #===========================================#
+	 #  PATH MANAGEMENT FOR NESTED (DEEP) LISTS  #
+	#===========================================#
 
 	def Paths()
-	
-		_aContent_ = This.Content()
-		
-		return @FindPathsInList(_aContent_, [])
+		if This.IsEmpty()
+			return []
+		ok
+
+		_cContent_ = @@Q( This.Content() ).AllRemovedExcept([ "[", ",", "]" ])
+		_aResult_ = GeneratePaths(_cContent_)
+
+		return _aResult_
 	
 		def AllPaths()
-			return This.Path()
+			return This.Paths()
 
+		def PathsQ()
+			return new stzList(This.Paths())
 
+			def AllPathsQ()
+				return This.PathsQ()
 
-#-- PATH METRICS
+	#-- PATH METRICS
+	
+	def NumberOfPaths(paPath)
+		return len(This.Paths())
+	    
+		def CountPaths(paPath)
+			return This.NumberOfPaths()
 
-def PathDepth(paPath)
-    if NOT isList(paPath)
-        return 0
-    ok
-    
-    return len(paPath)
+		def HowManyPaths(paPath)
+			return This.NumberOfPaths()
 
-def LongestPath()
-    _aAllPaths_ = This.AllPaths()
-    _nLen_ = len(_aAllPaths_)
-    
-    if _nLen_ = 0
-        return []
-    ok
+	def LongestPathSize()
+		if This.IsEmpty()
+			return []
+		ok
 
-    _nMaxLen_ = 0
-    _aLongest_ = []
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
 
-    for i = 1 to _nLen_
-        if len(_aAllPaths_[i]) > _nMaxLen_
-            _nMaxLen_ = len(_aAllPaths_[i])
-            _aLongest_ = _aAllPaths_[i]
-        ok
-    next
+		_anSizes_ = []
 
-    return _aLongest_
+		for @i = 1 to _nLen_
+			_anSizes_ + len(_aPaths_[@i])
+		next
 
-def ShortestPath()
-    _aAllPaths_ = This.AllPaths()
-    _nLen_ = len(_aAllPaths_)
-    
-    if _nLen_ = 0
-        return []
-    ok
+		return @Max(_anSizes_)
+		
+		def LargestPathSize()
+			return This.LongestPath()	
+		
+	def LongestPaths()
+		_aResult_ = This.PathsQ().LargestLists()
+		return _aResult_
 
-    _nMinLen_ = 999999999
-    _aShortest_ = []
+		def LargestPaths()
+			return This.LongestPaths()
 
-    for i = 1 to _nLen_
-        if len(_aAllPaths_[i]) < _nMinLen_
-            _nMinLen_ = len(_aAllPaths_[i])
-            _aShortest_ = _aAllPaths_[i]
-        ok
-    next
+	def LongestPath()
+		_aResult_ = This.PathsQ().LargestList()
+		return _aResult_
 
-    return _aShortest_
+	def ShortestPathSize()
+		if This.IsEmpty()
+			return []
+		ok
 
-#-- PATH OPERATIONS
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
 
-def ItemAtPath(paPath)
-    if NOT This.IsValidPath(paPath)
-        return NULL
-    ok
+		_anSizes_ = []
 
-    _aContent_ = This.Content()
-    _nLen_ = len(paPath)
+		for @i = 1 to _nLen_
+			_anSizes_ + len(_aPaths_[@i])
+		next
 
-    for i = 1 to _nLen_
-        _aContent_ = _aContent_[paPath[i]]
-    next
+		return @Min(_anSizes_)	
 
-    return _aContent_
+	def ShortestPaths()
+		_aResult_ = This.PathsQ().ShortestLists()
+		return _aResult_
+
+	def ShortestPath()
+		_aResult_ = This.PathsQ().ShortestLists()
+		return _aResult_
+
+	#-- PATH OPERATIONS
+
+	def ItemAtPath(paPath)
+		if CheckParams()
+			if NOT ( isList(paPath) and @IsListOfListsOfNumbers(paPath) )
+				StzRaise("Incorrect param type! paPath must be a list of lists of numbers.")
+			ok
+		ok
+
+		
+		_nLen_ = len(paPath)
+
 
 def ReplaceAtPath(paPath, pItem)
     if NOT This.IsValidPath(paPath)
@@ -47596,9 +47835,9 @@ def PathsAtDepth(nDepth)
 	def ListsOfStringsUppercased()
 		return This.Copy().UppercaseListsOfStringsQ().Content()
 
-	  #-==============================================#
-	 #     GETTING & REMOVING ITEMS OF TYPE LIST     #
-	#===============================================#
+	  #===========================================#
+	 #   GETTING & REMOVING ITEMS OF TYPE LIST   #
+	#===========================================#
 
 	def NumberOfLists()
 		return len( This.Lists() )

@@ -1,17 +1,19 @@
 load "../max/stzmax.ring"
 
+/*=====
 
 profon()
 
 o1 = new stzList([
 	"item1",
 
-	[ "item21", ["item221", "item222"], "item22" ],
-	[ "item31", ["item321", "item322" ] ],
+	[ "item21", [ "item221", "item222" ], "item22" ],
+	[ "item31", [ "item321", "item322" ] ],
 
 	"item4"
 ])
-/*
+
+
 ? @@Q([
 	"item1",
 
@@ -20,59 +22,11 @@ o1 = new stzList([
 
 	"item4"])
 .AllRemovedExcept([ "[", ",", "]" ])
-*/
 
 ? @@NL( GeneratePaths("[,[,[,],],[,[,]],]") )
 
 proff()
-
-def GeneratePaths(cStr)
-    aResult = []
-    aCurrentPath = []
-    aLevelCounts = [1]    # Start with 1 for first position
-    
-    nLen = len(cStr)
-    for i = 1 to nLen
-        cChar = cStr[i]
-        
-        if cChar = "["
-            # Start new level
-            aLevelCounts + 1  # Start with position 1
-            aCurrentPath + 1  # Add current position to path
-            if len(aCurrentPath) > 0
-                aResult + aCurrentPath
-            ok
-            
-        but cChar = "]"
-            # Close current level
-            if len(aCurrentPath) > 0
-                del(aCurrentPath, len(aCurrentPath))
-            ok
-            if len(aLevelCounts) > 0
-                del(aLevelCounts, len(aLevelCounts))
-            ok
-            
-        but cChar = ","
-            # New item at current level
-            if len(aLevelCounts) > 0
-                # Increment count at current level
-                aLevelCounts[len(aLevelCounts)] += 1
-                
-                # Update path with new position
-                if len(aCurrentPath) > 0
-                    del(aCurrentPath, len(aCurrentPath))
-                ok
-                aCurrentPath + aLevelCounts[len(aLevelCounts)]
-                
-                # Add new path to result
-                if len(aCurrentPath) > 0
-                    aResult + aCurrentPath
-                ok
-            ok
-        ok
-    next
-    
-    return aResult
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*============
 
@@ -91,29 +45,116 @@ proff()
 profon()
 
 # Create a nested list
+
 o1 = new stzList([
 	"item1",
-	[ "item2", ["item3", "item4"], "item5" ],
-	[ "item6", ["item7"] ],
+	[ "item2", [ "item3", "item4" ], "item5" ],
+	[ "item6", [ "item7" ] ],
 	"item8"
 ])
 
 ? @@Q(o1.Content()).AllRemovedExcept([ "[", ",", "]" ])
 #--> [,[,[,],],[,[]],]
 
+proff()
+# Executed in 0.09 second(s) in Ring 1.22
 
-# Get all paths in the structure
-//? @@NL( o1.AllPaths() )
+/*------
+
+profon()
+
+o1 = new stzList([
+	[ 1 ],
+	[ 2 ],
+	[ 2, 1 ],
+	[ 2, 2 ],
+	[ 2, 2, 1 ],
+	[ 2, 2, 2 ],
+	[ 2, 3 ],
+	[ 3 ],
+	[ 3, 1 ],
+	[ 3, 2 ],
+	[ 3, 2, 1 ],
+	[ 4 ]
+])
+
+? "Larest lists:" + NL
+
+? @@( o1.ListsSizes() ) + NL
+#--> [ 1, 1, 2, 2, 3, 3, 2, 1, 2, 2, 3, 1 ]
+
+? o1.SizeOfLargestList() # Or MaxListsSize()
+#--> 3
+
+? @@( o1.FindLargestLists() )
+#--> [ 5, 6, 11 ]
+
+? @@( o1.LargestLists() ) + NL
+#--> [ [ 2, 2, 1 ], [ 2, 2, 2 ], [ 3, 2, 1 ] ]
+
+#--
+
+? "Shortest lists:" + NL
+
+? o1.MinListsSize() # Or SizeOfSmallestList()
+#--> 1
+
+? @@( o1.FindShortestLists() ) # Shortest or Smallest
+#--> [ 1, 2, 8, 12 ]
+
+? @@( o1.ShortestLists() ) + NL
+#--> [ [ 1 ], [ 2 ], [ 3 ], [ 4 ] ]
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
+
+/*------
+*/
+profon()
+
+? Q("   Ring ").WithoutSapces()
+#--> Ring
+
+? Q("bla {♥♥♥} blaba bla {♥♥♥} blabla").FindLasteAsSection("♥♥♥")
+#--> [ 22, 24 ]
+
+? QQ([ 2, 7, 18, 18, 10, 12, 25, 4 ]).NearstTo(10)
+
+proff()
+
+/*------
+*/
+
+profon()
+
+o1 = new stzList([
+	"item1",
+	[ "item2", [ "item3", "item4" ], "item5" ],
+	[ "item6", [ "item7" ] ],
+	"item8"
+])
+
+? @@NL( o1.Paths() ) + NL
 #--> [
-#	[1],
-#	[2, 1],
-#	[2, 2, 1],
-#	[2, 2, 2],
-#	[2, 3],
-#	[3, 1],
-#	[3, 2, 1],
-#	[4]
-#]
+#	[ 1 ],
+#	[ 2 ],
+#	[ 2, 1 ],
+#	[ 2, 2 ],
+#	[ 2, 2, 1 ],
+#	[ 2, 2, 2 ],
+#	[ 2, 3 ],
+#	[ 3 ],
+#	[ 3, 1 ],
+#	[ 3, 2 ],
+#	[ 3, 2, 1 ],
+#	[ 4 ]
+# ]
+
+? @@( o1.LargestPaths() ) + NL
+# [ [ 2, 2, 1 ], [ 2, 2, 2 ], [ 3, 2, 1 ] ]
+
+? @@( o1.ShortestPaths() )
 
 # Find paths containing specific items
 //? @@( o1.PathsContaining("item3") )
@@ -124,6 +165,7 @@ o1 = new stzList([
 #--> "item3"
 
 proff()
+# Executed in 0.08 second(s) in Ring 1.22
 
 /*----
 

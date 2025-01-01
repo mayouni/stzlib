@@ -974,6 +974,29 @@ Regardless of the order, you still get the same result.
 
 >**NOTE**: Not all functions with two parameters support this feature yet, but it is planned for a future release.
 
+### Function Misspelled Form: Functions that Just Work  
+
+In Softanza, when you write:  
+
+```ring
+? Q("   Ring ").WithoutSapces()
+#--> Ring
+
+? Q("bla {♥♥♥} blaba bla {♥♥♥} blabla").FindLasteAsSection("♥♥♥")
+#--> [ 22, 24 ]
+
+? QQ([ 2, 7, 18, 18, 10, 12, 25, 4 ]).NearstTo(10)
+#--> 12
+```  
+
+You get what you want, but here’s the twist: all the function names are misspelled!
+
+Look closely. This functionality, usually found in advanced IDE tools, is seamlessly integrated into Softanza’s library. The library recognizes and corrects minor typos in function names, mapping them to the closest valid definitions.
+
+This feature dramatically improves the coding experience by reducing disruptions caused by trivial errors. It saves time, lowers frustration, and enhances accessibility for developers of all skill levels, especially those working in non-native languages.
+
+Additionally, it simplifies the integration of such features into IDEs, as the intelligence resides in the library itself.
+
 ## Why It Matters: The Dual Benefits of Writable and Readable Code
 
 Softanza's approach offers multiple advantages:
