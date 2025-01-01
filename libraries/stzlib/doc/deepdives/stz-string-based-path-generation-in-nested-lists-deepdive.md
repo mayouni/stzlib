@@ -11,12 +11,12 @@ When working with nested lists, one common challenge is generating all possible 
 Consider a nested list like this:
 
 ```ring
-o1 = new stzList([
+[
     "item1",
     [ "item2", ["item3", "item4"], "item5" ],
     [ "item6", ["item7"] ],
     "item8"
-])
+]
 ```
 
 We want to generate all possible paths that can be used to access elements in this structure. A path is represented as a sequence of numbers indicating the positions needed to reach any element. For example:
@@ -33,7 +33,6 @@ Instead of directly traversing the nested structure, which would require complex
 The nested structure is converted into a string that preserves only the structural information using brackets and commas:
 
 ```
-? @@Q(o1.Content()).AllRemovedExcept([ "[", ",", "]" ])
 "[,[,],][,[]]"
 ```
 
@@ -42,11 +41,11 @@ This string encodes:
 - Commas `,` indicate siblings at the same level
 - Closing brackets `]` indicate exiting the current level
 
-> **NOTE**: @@Q() generates a string representation of the list and elevates it to an `stzString` object so that we can call `AllRemovedExcept()` on it. However, this is an internal detail that is not necessary for understanding this article.
+> **NOTE**: `@@Q()` generates a string representation of the list and elevates it to an `stzString` object so that we can call `AllRemovedExcept()` on it. However, this is an internal detail that is not necessary for understanding this article.
 
 ### Step 2: String-Based Path Generation
 
-The algorithm processes this string character by character, maintaining:
+The algorithm processes this string *character by character*, maintaining:
 - Current path (`aCurrentPath`)
 - Level counters (`aLevelCounts`)
 - Result collection (`aResult`)
@@ -58,28 +57,30 @@ For each character:
 
 ## Implementation Details
 
+The following demonstrates how the `GeneratePaths()` utility function is implemented in Softanza:
+
 ```ring
-def GeneratePaths(cStr)
+func GeneratePaths(cStr)
     aResult = []
     aCurrentPath = []
-    aLevelCounts = [1]    # Track positions at each level
+    aLevelCounts = [1]    # Tracks positions at each level
     
     for i = 1 to len(cStr)
         cChar = cStr[i]
         
         if cChar = "["
-            # New level starts at position 1
+            # Start a new level at position 1
             aLevelCounts + 1
             aCurrentPath + 1
             aResult + aCurrentPath
             
         but cChar = "]"
-            # Exit current level
+            # Exit the current level
             del(aCurrentPath, len(aCurrentPath))
             del(aLevelCounts, len(aLevelCounts))
             
         but cChar = ","
-            # New sibling at current level
+            # Add a new sibling at the current level
             aLevelCounts[len(aLevelCounts)] += 1
             del(aCurrentPath, len(aCurrentPath))
             aCurrentPath + aLevelCounts[len(aLevelCounts)]
@@ -89,6 +90,51 @@ def GeneratePaths(cStr)
     
     return aResult
 ```
+
+The function can be tested simply as follows:
+
+```ring
+? @@NL( GeneratePaths("[,[,[,],],[,[,]],]") )
+#--> [
+#	[ 1 ],
+#	[ 2 ],
+#	[ 2, 1 ],
+#	[ 2, 2 ],
+#	[ 2, 2, 1 ],
+#	[ 2, 2, 2 ],
+#	[ 2, 3 ],
+#	[ 3 ],
+#	[ 3, 1 ],
+#	[ 3, 2 ],
+#	[ 3, 2, 1 ],
+#	[ 3, 2, 2 ],
+#	[ 4 ]
+# ]
+```
+
+In practice, you won't need to call `GeneratePaths()` directly. It is automatically invoked when you use the more expressive `Paths()` method on an `stzList` object. For example:
+
+```ring
+load "stzlib.ring"
+
+o1 = new stzList([
+    "item1",
+    [ "item2", ["item3", "item4"], "item5" ],
+    [ "item6", ["item7"] ],
+    "item8"
+])
+
+? @@NL( o1.Paths() )
+```
+
+Softanza internally transforms the list into a bracket-and-comma string using the magical `@@()` function and cleans the string with the `RemoveExceptAll()` function. Here's an example:
+
+```ring
+? @@Q(o1.Content()).AllRemovedExcept([ "[", ",", "]" ])
+#--> "[,[,[,],],[,[,]],]"
+```
+
+This processed string is then fed to the `GeneratePaths()` function for further processing.
 
 ## Performance Considerations
 
@@ -126,22 +172,6 @@ This implementation benefits from several optimizations:
    - More maintainable code
    - Easier to extend or modify
 
-## Limitations and Considerations
-
-1. **Input Transformation**
-   - Requires preprocessing to convert structure to string format
-   - Additional step in the pipeline
-
-2. **Error Handling**
-   - Need to validate string format
-   - Malformed input might be harder to detect
-
-3. **Readability**
-   - String format might be less intuitive
-   - Requires documentation for clarity
-
 ## Conclusion
 
-The string-based approach to path generation offers an elegant balance of efficiency and simplicity. By leveraging Ring's optimized String implementation and avoiding recursive calls, we achieve a solution that is both performant and maintainable. While there are trade-offs to consider, the benefits often outweigh the limitations for many use cases.
-
-This implementation showcases how transforming a complex problem into a simpler domain (string processing) can lead to cleaner and more efficient solutions.
+The string-based approach to path generation offers an elegant balance of efficiency and simplicity. By leveraging Qt's optimized String implementation and avoiding recursive calls, we achieve a solution that is both performant and maintainable.
