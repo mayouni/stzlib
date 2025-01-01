@@ -118,8 +118,8 @@ load "stzlib.ring"
 
 o1 = new stzList([
     "item1",
-    [ "item2", ["item3", "item4"], "item5" ],
-    [ "item6", ["item7"] ],
+    [ "item2", [ "item3", "item4" ], "item5" ],
+    [ "item6", [ "item7" ] ],
     "item8"
 ])
 
