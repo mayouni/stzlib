@@ -2,19 +2,19 @@
 
 ## Introduction
 
-When working with nested data structures, one common challenge is generating all possible paths that can be used to access individual elements. This article explores an elegant solution implemented in Ring that uses a string-based approach to track and generate these paths efficiently.
+When working with nested lists, one common challenge is generating all possible paths that can be used to access individual elements. This deepdive article explores an elegant solution implemented in Softanza that uses a string-based approach to track and generate these paths efficiently.
 
 ## The Problem
 
-Consider a nested structure like this:
+Consider a nested list like this:
 
 ```ring
-[
+o1 = new stzList([
     "item1",
     [ "item2", ["item3", "item4"], "item5" ],
     [ "item6", ["item7"] ],
     "item8"
-]
+])
 ```
 
 We want to generate all possible paths that can be used to access elements in this structure. A path is represented as a sequence of numbers indicating the positions needed to reach any element. For example:
@@ -31,6 +31,7 @@ Instead of directly traversing the nested structure, which would require complex
 The nested structure is converted into a string that preserves only the structural information using brackets and commas:
 
 ```
+? @@Q(o1.Content()).AllRemovedExcept([ "[", ",", "]" ])
 "[,[,],][,[]]"
 ```
 
@@ -38,6 +39,8 @@ This string encodes:
 - Opening brackets `[` indicate entering a new level
 - Commas `,` indicate siblings at the same level
 - Closing brackets `]` indicate exiting the current level
+
+> **NOTE**: @@Q() generates a string representation of the list and elevates it to an `stzString` object so that we can call `AllRemovedExcept()` on it. However, this is an internal detail that is not necessary for understanding this article.
 
 ### Step 2: String-Based Path Generation
 
