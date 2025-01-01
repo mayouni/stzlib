@@ -1,8 +1,10 @@
 # Path Generation in Nested Structures: A String-Based Approach
-
-## Introduction
+![African father cooks delicious meal from simple ingredients, daughter watches joyfully!](../images/stz-string-based-path-generation-in-nested-lists.png)  
+*A multi-generational family joyfully sitting around a bag of vibrant flowers.*
 
 When working with nested lists, one common challenge is generating all possible paths that can be used to access individual elements. This deepdive article explores an elegant solution implemented in Softanza that uses a string-based approach to track and generate these paths efficiently.
+
+---
 
 ## The Problem
 
