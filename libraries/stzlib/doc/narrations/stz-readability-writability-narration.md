@@ -796,7 +796,7 @@ o1.DeepReplace("you", :By = "♥")
 Transformations are just as straightforward. To *uppercase* all occurrences of the word `"other"`, use the `DeepUppercase()` method. Softanza propagates the change throughout the structure automatically:
 
 ```ring
-o1.DeepUppercase("other")
+o1.DeepUppercaseString("other")
 
 ? @@NL( o1.Content() )
 #--> [

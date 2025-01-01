@@ -41626,374 +41626,6 @@ fdef
 
 		#>
 
-	  #======================#
-	 #    LIST STRUCTURE    #
-	#======================#
-
-	/*
-	TODO: Add a dedicated class calles stzDeepList
-
-	- Reveiew this section (its functions and its semantics)
-	- Avoid using _ in names of functions
-
-	- Merge with the next sections:
-		LEVELS OF THE LIST, and
-		SUBLISTS OF THE LIST --> LISTS IN LEVEL 1 OF THE LIST
-
-	- Ensure they are all consistent and correct
-
-	*/
-
-	def ContainsOneOrMoreLists()
-		nlen = len(@aContent)
-
-		bResult = _FALSE_
-
-		for i = 1 to nLen
-			if isList(@aContent[i])
-				bResult = _TRUE_
-				exit
-			ok
-		next
-
-		return bResult
-
-	def FindFirstList()
-		nlen = len(@aContent)
-
-		nResult = 0
-
-		for i = 1 to nLen
-			if isList(@aContent[i])
-				nResult = i
-				exit
-			ok
-		next
-
-		return nResult
-
-	def FirstList()
-		nlen = len(@aContent)
-
-		aResult = []
-
-		for i = 1 to nLen
-			if isList(@aContent[i])
-				aResult = @aContent[i]
-				exit
-			ok
-		next
-
-		return aResult
-
-		def FirstListQ()
-			return new stzList( This.FirstList() )
-
-		#-- MISSPELLED
-
-		def FristList()
-			return This.FirstList()
-
-			def FristListQ()
-				return This.FirstListQ()
-
-	def ListsPaths()
-		return This.ItemsThatAreLists_AtAnyLevel_TheirPaths() #TODO // Refactor this!
-
-		def ListsPathsQ()
-			return new stzList( This.ListsPaths() )
-
-	def ItemsThatAreListsAtAnyLevel_TheirPaths()
-		aResult = []
-		aInfo = This.ItemsThatAreListsAtAnyLevelXT()
-		nLen = len(aInfo)
-
-		for i = 1 to nLen
-			aResult + aInfo[i][1][2]	// GetItemByPath(x,y) : Generalize!!!
-		next
-		
-		return aResult
-
-		def ItemsThatAreListsAtAnyLevel_TheirPathsQ()
-			return new stzList( This.ItemsThatAreListsAtAnyLevel_TheirPaths() )
-
-		def FindDeepLists()
-			return This.ItemsThatAreListsAtAnyLevel_TheirPaths()
-
-			def FindDeepListsQ()
-				return new stzList( This.FindDeepLists() )
-
-		def DeepFindLists()
-			return This.ItemsThatAreListsAtAnyLevel_TheirPaths()
-
-			def DeepFindListsQ()
-					return new stzList(This.DeepFindLists())
-
-	def ItemByPath(panPath)
-		if This.ContainsItemOnPath(panPath)
-			cCode = "Result = "
-			cCode += GenerateListAccessCode_FromNameAndPath("This.Content()", panPath)
-			eval(cCode)
-			return Result
-		ok
-
-		def ItemByPathQ(panPath)
-			item = This.ItemByPath(panPath)
-			switch ring_type( item )
-			on "NUMBER"
-				return new stzNumer(""+ item)
-
-			on "STRING"
-				return new stzString(item)
-
-			on "LIST"
-				return new stzList(item)
-
-			on "OBJECT"
-				return new stzObject(item)
-
-			other
-				StzRaise("Unsupported type!")
-			off
-
-	def Paths()
-		// TODO
-
-	def ItemsAndTheirPaths()
-		// TODO
-
-	def IncludesPath(panPath)
-		return StzListQ( This.Paths() ).Contains(panPath)
-
-	def ContainsItemOnPath(panPath)
-		#TODO
-
-	def ContainsListOnPath(panPath)
-		try
-			cCode = "TempItem = "
-			cCode += GenerateListAccessCode_FromNameAndPath("This.Content()",panPath)
-	
-			eval(cCode)
-			if isList(TempItem)
-				return _TRUE_
-			else
-				return _FALSE_
-			ok
-		catch
-			return _FALSE_
-
-		done
-
-		
-	def NumberOfListsAtAnyLevel()
-		return len( This.ItemsThatAreListsAtAnyLevelXT() )
-	
-		def NumberOfDeepLists()
-			return This.NumberOfListsAtAnyLevel()
-
-		def HowManyDeepLists()
-			return This.NumberOfListsAtAnyLevel()
-
-		def HowManyListAtAnyLevel()
-			return This.NumberOfListsAtAnyLevel()
-
-
-	def ItemsThatAreListsInLevel(n)
-		// TODO
-
-	def ItemsThatAreListsInPositionNAtAnyLevel(n)
-		// TODO
-
-	def ItemsInLevel(n)
-		// TODO
-
-	def ItemsInPositionNAtAnyLevel(n)
-		// TODO
-
-	// Returns a stzListOfHashlists:
-	// for each list: its path, level and position.
-	def ItemsThatAreListsAtAnyLevelXT()
-		
-		aResult = []
-		aPath = []
-
-		nLevel = -1
-		nPosition = -1
-
-		for c in list2code(This.Content())
-			if c = "["
-				nLevel++
-				if nPosition > -1
-					aPath + (nPosition+1)
-				else
-					aPath = []
-				ok
-				aResult + [ :Path = aPath, :Level = nLevel, :Position = nPosition+1 ]
-				
-				nPosition = 0
-
-			but c = "]"
-				nLevel--
-				if len(aPath) > 0
-					del(aPath, len(aPath))
-				ok
-
-			but c = ","
-				nPosition++
-				
-			ok
-			
-		next
-		oResult = new stzList(aResult)
-		return oResult.Section(2, oResult.NumberOfItems())
-
-		def ItemsThatAreListsAtAnyLevelXTQ()
-			return new stzList( This.ItemsThatAreListsAtAnyLevelXT() )
-
-		def DeepListsXT()
-			return This.ItemsThatAreListsAtAnyLevelXT()
-
-			def DeepListsXTQ()
-				return This.ItemsThatAreListsAtAnyLevelXTQ()
-
-	def NumberOfLevels()
-		nResult = This.FindDeepListsQ().FlattenQ().SortQ().LastItem()
-		return nResult
-
-		#< @FunctionAlternativeForms
-
-		def CountLevels()
-			return This.NumberOfLevels()
-
-		def HowManyLevels()
-			return This.NumberOfLevels()
-
-		def HowManyLevel()
-			return This.NumberOfLevels()
-
-		#>
-	
-	def Depth()
-		return This.NumberOfLevels()
-
-	def ItemsThatAreListsAtAnyLevel()
-		aResult = []
-		n = 0
-		n1 = 0
-		n2 = 0
-
-		oListInString = StzStringQ( list2code(This.Content()) )
-
-		bInsideList = _FALSE_
-		for i = 2 to oListInString.NumberOfChars() - 1
-
-			c = oListInString[i]
-
-			if c = "["
-				bInsideList = _TRUE_
-				n1 = i
-			ok
-
-			if c = "]" and bInsideList = _TRUE_
-				n2 = i
-				cCode = oListInString.Section(n1, n2)
-				eval("aTempList = " + cCode)
-
-				aResult + aTempList
-				bInsideList = _FALSE_
-			ok
-			
-		next
-
-		return aResult
-
-		def ItemsThatAreListsAtAnyLevelQ()
-			return new stzList(This.ItemsThatAreListsAtAnyLevel())
-
-		def DeepLists()
-			return This.ItemsThatAreListsAtAnyLevel()
-
-			def DeepListsQ()
-				return This.ItemsThatAreListsAtAnyLevelQ()
-
-		def InnerLists()
-			return This.ItemsThatAreListsAtAnyLevel()
-
-			def InnerListsQ()
-				return This.ItemsThatAreListsAtAnyLevelQ()
-
-		def ListsAtAnyLevel()
-			return This.ItemsThatAreListsAtAnyLevel()
-
-			def ListsAtAnyLevelQ()
-				return This.ItemsThatAreListsAtAnyLevelQ()
-	
-	def Structure()
-		// TODOuble()
-		StzRaise("Not yet implemented!")
-
-	def ShowStructure()
-		/* Generates a treeview like this:
-			LIST[]
-			|
-			+-- cItem1
-			|
-			+-- Item2[]
-			| |
-			| +-- nItem2.1
-			| |
-                        | +-- oItem2.2
-			|
-			+-- nItem3
-		*/
-
-		StzRaise("Not yet implemented!")
-
-		#< @FuntionMisspelledForm
-
-		def ShwoStructure()
-			This.ShowStructure()
-
-		#>
-
-	  #---------------------------#
-	 #     LEVELS OF THE LIST    #
-	#===========================#
-
-	def Levels()
-		// TODO
-		StzRaise("Unsupported feature yet!")
-
-	def NthLevel(n)
-		// TODO
-		StzRaise("Unsupported feature yet!")
-
-	def ContentOfLevel(n)
-		// TODO
-		StzRaise("Unsupported feature yet!")
-
-		def ItemsOfLevel(n)
-			return This.ContentOfLevel(n)
-
-	def LevelsAndTheirItems()
-		// TODO
-		StzRaise("Unsupported feature yet!")
-
-	  #-----------------------------------------------#
-	 #   GETTING THE LIST OF ALL POSSIBLE SUBLISTS   #
-	#===============================================#
-	# By analogy to SubStrings() in stzString
-	#TODO // Use the same implementation of SubSrtrings() in stzString
-	#NOTE: Bring all the related functions
-
-	#WARNING: SubLists() and Lists() are different.
-	# SubLists() : Returns all the possible combinations of sections that
-	#              we can compose from the list (look at SubStrings() in stzString)
-	# Lists()    : Provides the list of items that are lists
-
-	def Sublists()
-		StzRaise("Not yet implemented!")
-
 	  #====================#
 	 #  SHOWING THE LIST  #
 	#====================#
@@ -44147,9 +43779,9 @@ fdef
 
 		#>
 
-	  #---------------------------------------------#
-	 #  FINDING THE LIST ITEMS IN AN GIVEN ITEM  #
-	#---------------------------------------------#
+	  #-------------------------------------------------------------------#
+	 #  FINDING THE GIVEN SUBSTRING INSIDE THE STRING-ITEMS IN THE LIST  #
+	#-------------------------------------------------------------------#
 
 	def FindInStringCS(pcStr, pCaseSensitive)
 		if NOT isString(pcStr)
@@ -44165,6 +43797,7 @@ fdef
 
 		#>
 
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInString(pcStr)
@@ -44176,6 +43809,193 @@ fdef
 			return This.FindInString(pcStr)
 
 		#>
+
+	  #==================================#
+	 #  PATH MANAGEMENT FOR DEEP LISTS  #
+	#==================================#
+
+	def Paths()
+	
+		_aContent_ = This.Content()
+		
+		return @FindPathsInList(_aContent_, [])
+	
+		def AllPaths()
+			return This.Path()
+
+
+
+#-- PATH METRICS
+
+def PathDepth(paPath)
+    if NOT isList(paPath)
+        return 0
+    ok
+    
+    return len(paPath)
+
+def LongestPath()
+    _aAllPaths_ = This.AllPaths()
+    _nLen_ = len(_aAllPaths_)
+    
+    if _nLen_ = 0
+        return []
+    ok
+
+    _nMaxLen_ = 0
+    _aLongest_ = []
+
+    for i = 1 to _nLen_
+        if len(_aAllPaths_[i]) > _nMaxLen_
+            _nMaxLen_ = len(_aAllPaths_[i])
+            _aLongest_ = _aAllPaths_[i]
+        ok
+    next
+
+    return _aLongest_
+
+def ShortestPath()
+    _aAllPaths_ = This.AllPaths()
+    _nLen_ = len(_aAllPaths_)
+    
+    if _nLen_ = 0
+        return []
+    ok
+
+    _nMinLen_ = 999999999
+    _aShortest_ = []
+
+    for i = 1 to _nLen_
+        if len(_aAllPaths_[i]) < _nMinLen_
+            _nMinLen_ = len(_aAllPaths_[i])
+            _aShortest_ = _aAllPaths_[i]
+        ok
+    next
+
+    return _aShortest_
+
+#-- PATH OPERATIONS
+
+def ItemAtPath(paPath)
+    if NOT This.IsValidPath(paPath)
+        return NULL
+    ok
+
+    _aContent_ = This.Content()
+    _nLen_ = len(paPath)
+
+    for i = 1 to _nLen_
+        _aContent_ = _aContent_[paPath[i]]
+    next
+
+    return _aContent_
+
+def ReplaceAtPath(paPath, pItem)
+    if NOT This.IsValidPath(paPath)
+        return
+    ok
+
+    _aContent_ = This.Content()
+    _nLen_ = len(paPath) - 1
+
+    for i = 1 to _nLen_
+        _aContent_ = _aContent_[paPath[i]]
+    next
+
+    _aContent_[paPath[len(paPath)]] = pItem
+    This.UpdateWith(_aContent_)
+
+def RemoveAtPath(paPath)
+    if NOT This.IsValidPath(paPath)
+        return
+    ok
+
+    _aContent_ = This.Content()
+    _nLen_ = len(paPath) - 1
+
+    for i = 1 to _nLen_
+        _aContent_ = _aContent_[paPath[i]]
+    next
+
+    del(_aContent_, paPath[len(paPath)])
+    This.UpdateWith(_aContent_)
+
+def InsertAtPath(paPath, pItem)
+    if NOT This.IsValidPath(paPath)
+        return
+    ok
+
+    _aContent_ = This.Content()
+    _nLen_ = len(paPath) - 1
+
+    for i = 1 to _nLen_
+        _aContent_ = _aContent_[paPath[i]]
+    next
+
+    ring_insert(_aContent_, paPath[len(paPath)], pItem)
+    This.UpdateWith(_aContent_)
+
+#-- PATH VALIDATION
+
+def IsValidPath(paPath)
+    if NOT isList(paPath)
+        return FALSE
+    ok
+
+    _aContent_ = This.Content()
+    _nLen_ = len(paPath)
+
+    try
+        for i = 1 to _nLen_
+            if paPath[i] > len(_aContent_)
+                return FALSE
+            ok
+            
+            if i < _nLen_ AND NOT isList(_aContent_[paPath[i]])
+                return FALSE
+            ok
+            
+            _aContent_ = _aContent_[paPath[i]]
+        next
+        
+        return TRUE
+        
+    catch
+        return FALSE
+    done
+
+#-- PATH FINDING
+
+def PathsContaining(pItem)
+    _aAllPaths_ = This.AllPaths()
+    _aResult_ = []
+    _nLen_ = len(_aAllPaths_)
+
+    for i = 1 to _nLen_
+        _aContent_ = This.ItemAtPath(_aAllPaths_[i])
+        if _aContent_ = pItem
+            _aResult_ + _aAllPaths_[i]
+        ok
+    next
+
+    return _aResult_
+
+def PathsAtDepth(nDepth)
+    _aAllPaths_ = This.AllPaths()
+    _aResult_ = []
+    _nLen_ = len(_aAllPaths_)
+
+    for i = 1 to _nLen_
+        if len(_aAllPaths_[i]) = nDepth
+            _aResult_ + _aAllPaths_[i]
+        ok
+    next
+
+    return _aResult_
+
+
+
+
 
 	  #=======================================================#
 	 #    VISUALLY FINDING ALL OCCURRENCES OF A GIVEN ITEM   #

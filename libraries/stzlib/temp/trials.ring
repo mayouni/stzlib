@@ -1,7 +1,195 @@
 load "../max/stzmax.ring"
 
-/*----
+
+profon()
+
+o1 = new stzList([
+	"item1",
+
+	[ "item21", ["item221", "item222"], "item22" ],
+	[ "item31", ["item321", "item322" ] ],
+
+	"item4"
+])
+/*
+? @@Q([
+	"item1",
+
+	[ "item21", ["item221", "item222"], "item22" ],
+	[ "item31", ["item321", "item322" ] ],
+
+	"item4"])
+.AllRemovedExcept([ "[", ",", "]" ])
 */
+
+? @@NL( GeneratePaths("[,[,[,],],[,[,]],]") )
+
+proff()
+
+def GeneratePaths(cStr)
+    aResult = []
+    aCurrentPath = []
+    aLevelCounts = [1]    # Start with 1 for first position
+    
+    nLen = len(cStr)
+    for i = 1 to nLen
+        cChar = cStr[i]
+        
+        if cChar = "["
+            # Start new level
+            aLevelCounts + 1  # Start with position 1
+            aCurrentPath + 1  # Add current position to path
+            if len(aCurrentPath) > 0
+                aResult + aCurrentPath
+            ok
+            
+        but cChar = "]"
+            # Close current level
+            if len(aCurrentPath) > 0
+                del(aCurrentPath, len(aCurrentPath))
+            ok
+            if len(aLevelCounts) > 0
+                del(aLevelCounts, len(aLevelCounts))
+            ok
+            
+        but cChar = ","
+            # New item at current level
+            if len(aLevelCounts) > 0
+                # Increment count at current level
+                aLevelCounts[len(aLevelCounts)] += 1
+                
+                # Update path with new position
+                if len(aCurrentPath) > 0
+                    del(aCurrentPath, len(aCurrentPath))
+                ok
+                aCurrentPath + aLevelCounts[len(aLevelCounts)]
+                
+                # Add new path to result
+                if len(aCurrentPath) > 0
+                    aResult + aCurrentPath
+                ok
+            ok
+        ok
+    next
+    
+    return aResult
+
+/*============
+
+profon()
+
+? RingVersion()
+#--> "1.22"
+
+? StzVersion()
+#--> "0.9"
+
+proff()
+
+/*============
+
+profon()
+
+# Create a nested list
+o1 = new stzList([
+	"item1",
+	[ "item2", ["item3", "item4"], "item5" ],
+	[ "item6", ["item7"] ],
+	"item8"
+])
+
+? @@Q(o1.Content()).AllRemovedExcept([ "[", ",", "]" ])
+#--> [,[,[,],],[,[]],]
+
+
+# Get all paths in the structure
+//? @@NL( o1.AllPaths() )
+#--> [
+#	[1],
+#	[2, 1],
+#	[2, 2, 1],
+#	[2, 2, 2],
+#	[2, 3],
+#	[3, 1],
+#	[3, 2, 1],
+#	[4]
+#]
+
+# Find paths containing specific items
+//? @@( o1.PathsContaining("item3") )
+#--> [ [2, 2, 1] ]
+
+# Get item at specific path
+//? o1.ItemAtPath([2, 2, 1])
+#--> "item3"
+
+proff()
+
+/*----
+
+profon()
+
+o1 = new stzList([
+	"item1",
+	[ "item2", ["item3", "item4"], "item5" ],
+	[ "item6", ["item7"] ],
+	"item8"
+])
+
+# Replace item at path
+o1.ReplaceAtPath([2, 2, 1], "newitem3")
+? o1.ItemAtPath([2, 2, 1])
+#--> "newitem3"
+
+proff()
+
+/*-------
+
+profon()
+
+o1 = new stzList([
+	"item1",
+	[ "item2", ["item3", "item4"], "item5" ],
+	[ "item6", ["item7"] ],
+	"item8"
+])
+
+# Get paths at specific depth
+? @@( o1.PathsAtDepth(2) )
+#--> [ [2, 1], [2, 3], [3, 1] ]
+
+# Get longest and shortest paths
+? @@( o1.LongestPath() )
+#--> [2, 2, 1]
+? @@( o1.ShortestPath() )
+#--> [1]
+
+# Validate paths
+? o1.IsValidPath([2, 2, 1])  #--> TRUE
+? o1.IsValidPath([5, 1])     #--> FALSE
+
+proff()
+
+/*-------
+
+profon()
+
+o1 = new stzList([
+	"item1",
+	[ "item2", ["item3", "item4"], "item5" ],
+	[ "item6", ["item7"] ],
+	"item8"
+])
+
+# Insert and remove at paths
+o1.InsertAtPath([2, 2], "inserted")
+o1.RemoveAtPath([2, 2, 1])
+
+? @@NL( o1.Content() )
+
+proff()
+/*============
+
 profon()
 
 o1 = new stzList([
@@ -40,7 +228,7 @@ proff()
 # Executed in 0.03 second(s) in Ring 1.22
 
 /*----
-*/
+
 profon()
 
 o1 = new stzList([
@@ -69,20 +257,24 @@ o1.DeepReplace("you", :By = "♥")
 
 #--
 
-//o1.DeepUppercaseString("other") #TODO
-//? @@NL( o1.Content() ) + NL
+o1.DeepUppercaseString("other") #TODO
+? @@NL( o1.Content() ) + NL
+#--> [
+#	"♥",
+#	"OTHER",
+#	[ "OTHER", "♥", [ "♥" ], "OTHER" ],
+#	"OTHER",
+#	"♥"
+# ]
 
 #--
 
-o1.DeepRemove("other")
+o1.DeepRemove("OTHER")
 ? @@( o1.Content() )
 #--> [ "♥", [ "♥", [ "♥" ] ], "♥" ]
 
-
-//+DeepLowercaseThis()
-//+DeepUppercaseThis()
-
 proff()
+# [ "♥", [ "♥", [ "♥" ] ], "♥" ]
 
 /*====
 
@@ -414,18 +606,6 @@ o1 = new stzList([
 
 ? @@(o1.DeepFind(1:3))
 #--> [ [ 2, 2 ], [ 3, 3 ], 4 ]
-
-proff()
-
-/*-------
-
-aList2 = [
-	"X",
-	["Y", ["Z", "♥", ["W", "♥"]], "♥"],
-	"V"
-]
-? @@(DeepFind(aList2, "♥"))
-#--> [ [ 2, [ 2, 2 ] ], [ 2, [ 2, [ 3, 2 ] ] ], [ 2, 3 ] ]
 
 proff()
 

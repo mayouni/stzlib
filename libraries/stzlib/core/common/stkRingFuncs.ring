@@ -16,13 +16,16 @@ func SoftanzaLogo()
 		return $SOFTANZALOGO
 
 func StzVersion()
-	return "1.0"
+	return "0.9"
 
 	func stz_version()
 		return StzVersion()
 
 func ring_version()
 	return version()
+
+	func RingVersion()
+		return version()
 
 func ring_EvenOrOdd(n) # Inverses the output to be more logic (odd -> 1, even -> 2)
 	if EvenOrOdd(n) = 1
