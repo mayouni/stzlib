@@ -1,8 +1,8 @@
-# Path Generation in Nested Structures: A Softanza String-Based Approach
+# Path Generation in Nested Lists: A Softanza String-Based Approach
 ![African father cooks delicious meal from simple ingredients, daughter watches joyfully!](../images/stz-string-based-path-generation-in-nested-lists.png)  
 *African father cooks delicious meal from simple ingredients, daughter watches joyfully!*
 
-When working with nested lists, one common challenge is generating all possible paths that can be used to access individual elements. This deepdive article explores an elegant solution implemented in Softanza that uses a string-based approach to track and generate these paths efficiently.
+When working with *nested* lists, one common challenge is generating all possible *paths* that can be used to *access* individual elements. This article explores an elegant solution implemented in Softanza that uses a *string-based* approach to track and generate these paths efficiently.
 
 ---
 
@@ -41,7 +41,6 @@ This string encodes:
 - Commas `,` indicate siblings at the same level
 - Closing brackets `]` indicate exiting the current level
 
-> **NOTE**: `@@Q()` generates a string representation of the list and elevates it to an `stzString` object so that we can call `AllRemovedExcept()` on it. However, this is an internal detail that is not necessary for understanding this article.
 
 ### Step 2: String-Based Path Generation
 
@@ -134,15 +133,15 @@ Softanza internally transforms the list into a bracket-and-comma string using th
 #--> "[,[,[,],],[,[,]],]"
 ```
 
-This processed string is then fed to the `GeneratePaths()` function for further processing.
+This string is then fed to the `GeneratePaths()` function for further processing.
 
 ## Performance Considerations
 
 This implementation benefits from several optimizations:
 
 1. **Efficient String Processing**
-   - Ring's String class is based on Qt's QString, providing optimized string operations
-   - Implicit sharing reduces memory overhead
+   - Softanza's `stzString` class is based on Qt's `QString`, providing optimized string operations
+   - Qt's implicit sharing reduces memory overhead
    - Fast character-by-character iteration
 
 2. **Minimal Memory Usage**
@@ -151,7 +150,7 @@ This implementation benefits from several optimizations:
    - Results array grows linearly with number of paths
 
 3. **Time Complexity**
-   - O(n) where n is the length of the input string
+   - `O(n)` where `n` is the length of the input string
    - Single pass through the input
    - Constant-time operations for path updates
 
