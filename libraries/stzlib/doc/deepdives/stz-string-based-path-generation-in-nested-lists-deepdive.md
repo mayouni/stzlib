@@ -1,4 +1,4 @@
-# Path Generation in Nested Lists: A Softanza String-Based Approach
+# Efficient Path Generation in Nested Lists: A String-Based Approach
 ![African father cooks delicious meal from simple ingredients, daughter watches joyfully!](../images/stz-string-based-path-generation-in-nested-lists.png)  
 *African father cooks delicious meal from simple ingredients, daughter watches joyfully!*
 
