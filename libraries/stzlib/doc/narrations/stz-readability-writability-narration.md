@@ -559,7 +559,7 @@ Softanza’s approach ensures a smooth **Programmer Experience by Design**. Deve
 
 ## Small Functions, With Grand Potential  
 
-You've discovered some of them in the sections above: `Q()`, `@()`, and `@@()`. Let's revisit theem while introducing new ones.
+You've already encountered some of them in the sections above: `Q()`, `@()`, and `@@()`. Let's revisit these while introducing some new ones.
 
 - **`Q(val)`**: Elevates the value `val` to the corresponding `stzObject`. For example:
   - `Q(5)` is equivalent to `new stzNumber(5)`.
@@ -758,6 +758,8 @@ Softanza dives effortlessly into the depths of any list, no matter how deeply *n
 Imagine a nested list containing the word `"you"` at various levels:
 
 ```ring
+load "stzlib.ring"
+
 o1 = new stzList([
 	"you",
 	"other",

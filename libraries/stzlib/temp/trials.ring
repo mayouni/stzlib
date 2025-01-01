@@ -1,6 +1,90 @@
 load "../max/stzmax.ring"
 
-/*------
+/*----
+*/
+profon()
+
+o1 = new stzList([
+	"ring",
+	[ "ruby", "julia", [ "php", "ring" ] ],
+	"pascal",
+	[ "ring" ]
+])
+
+? @@NL( o1.DeepUppercased() )
+#--> [
+#	"RING",
+#	[ "RUBY", "JULIA", [ "PHP", "RING" ] ],
+#	"PASCAL",
+	"RING"
+# ]
+
+? @@NL( o1.DeepLowercased() )
+#--> [
+#	"ring",
+#	[ "ruby", "julia", [ "php", "ring" ] ],
+#	"pascal",
+#	[ "ring" ]
+# ]
+
+o1.DeepUppercaseString("ring")
+? @@NL( o1.Content() )
+#--> [
+#	"RING",
+#	[ "ruby", "julia", [ "php", "RING" ] ],
+#	"pascal",
+#	[ "RING" ]
+# ]
+
+proff()
+# Executed in 0.03 second(s) in Ring 1.22
+
+/*----
+*/
+profon()
+
+o1 = new stzList([
+	"you",
+	"other",
+	[ "other", "you", [ "you" ], "other" ],
+	"other",
+	"you"
+])
+
+? @@( o1.DeepFind("you") ) + NL
+#--> [ [ 1 ], [ 3, 2 ], [ 3, 3, 1 ], [ 5 ] ]
+
+#--
+
+o1.DeepReplace("you", :By = "♥")
+
+? @@NL( o1.Content() ) + NL
+#--> [
+#	"♥",
+#	"other",
+#	[ "other", "♥", [ "♥" ], "other" ],
+#	"other",
+#	"♥"
+# ]
+
+#--
+
+//o1.DeepUppercaseString("other") #TODO
+//? @@NL( o1.Content() ) + NL
+
+#--
+
+o1.DeepRemove("other")
+? @@( o1.Content() )
+#--> [ "♥", [ "♥", [ "♥" ] ], "♥" ]
+
+
+//+DeepLowercaseThis()
+//+DeepUppercaseThis()
+
+proff()
+
+/*====
 
 profon()
 
@@ -294,14 +378,13 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--------- #todo add #quicker
-*/
+
 profon()
 
 o1 = Q('[ [ 1, 2, 3 ], [ "B", [ 1, 2, 3 ] ], [ "C", "D", [ 1, 2, 3 ] ], [ 1, 2, 3 ] ]')
 
-acTemp = o1.AllRemovedExcept([ "[", "]" ])
+? o1.AllRemovedExcept([ "[", "]" ])
 #--> "[[][[]][[]][]]"
-#--> [ 1, 3, 13, 16, 23, 33, 35, 38, 50, 60, 62, 65, 75, 77 ]
 
 proff()
 # Executed in 0.08 second(s) in Ring 1.22
@@ -449,7 +532,7 @@ Q("abracadabra") {
 
 proff()
 
-/*---
+/*--- #TODO
 
 profon()
 

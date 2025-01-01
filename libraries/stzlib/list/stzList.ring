@@ -13962,18 +13962,22 @@ class stzList from stzObject
 			pByValue = pByValue[2]
 		ok
 
-		cValue = @@(pItem)
-		cByValue = @@(pByValue)
+		_cValue_ = @@(pItem)
+		_cByValue_ = @@(pByValue)
 
-		cCode = This.ToCodeQ().ReplaceCSQ( cValue, cByValue, pCaseSensitive ).Content()
-		cCode = ' aResult = ' + cCode
+		_cCode_ = This.ToCodeQ().ReplaceCSQ( _cValue_, _cByValue_, pCaseSensitive ).Content()
+		_cCode_ = ' _aResult_ = ' + _cCode_
 
-		eval(cCode)
-		This.Update( aResult )
+		eval(_cCode_)
+		This.Update(_aResult_)
 
 		def DeepReplaceCSQ(pItem, pByValue, pCaseSensitive)
 			This.DeepReplaceCS(pItem, pByValue, pCaseSensitive)
 			return This
+
+	def DeepReplacedCS(pItem, pByValue, pCaseSensitive)
+		_cResult_ = This.Copy().DeepReplaceCSQ(pItem, pByValue, pCaseSensitive)
+		return _cResult_
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -13984,6 +13988,9 @@ class stzList from stzObject
 			This.DeepReplace(pItem, pByValue)
 			return This
 
+	def DeepReplaced(pItem, pByValue)
+		_cResult_ = This.Copy().DeepReplaceCSQ(pItem, pByValue).Content()
+		return _cResult_
 
 	  #=================================================================#
 	 #  TRIMMING THE LIST (REMOVING LEADING AND TRAILING EMPRY ITEMS)  #
@@ -14278,6 +14285,68 @@ class stzList from stzObject
 
 		#>
 
+	  #=====================================#
+	 #  DEEP-REMOVING AN ITEM IN THE LIST  #
+	#=====================================#
+
+	// Removes an item at any nested level of the list
+
+	def DeepRemoveCS(pItem, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzList([
+			"me",
+			"other",
+			[ "other", "me", [ "other" ], "other" ],
+			"other"
+		])
+		
+		o1.DeepRemove("other)
+		? o1.Content()
+		#--> [
+		#	"you",
+		#	[ "me", [ ] ],
+		#    ]
+		
+		*/
+
+		_cValue_ = @@(pItem)
+
+		_cCode_ =  This.ToCodeQ().
+				RemoveManyCSQ([
+
+					( _cValue_ + "," ),
+					( _cValue_ )
+
+				], pCaseSensitive ).
+
+				Content()
+
+		_cCode_ = ' _aResult_ = ' + _cCode_
+
+		eval(_cCode_)
+		This.Update(_aResult_)
+
+		def DeepRemoveCSQ(pItem, pCaseSensitive)
+			This.DeepRemoveCS(pItem, pCaseSensitive)
+			return This
+
+	def DeepRemovedCS(pItem, pCaseSensitive)
+		_cResult_ = This.Copy().DeepRemoveCSQ(pItem, pCaseSensitive)
+		return _cResult_
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DeepRemove(pItem)
+		This.DeepRemoveCS(pItem, _TRUE_)
+
+		def DeepRemoveQ(pItem)
+			This.DeepRemove(pItem)
+			return This
+
+	def DeepRemoved(pItem)
+		_cResult_ = This.Copy().DeepRemoveCSQ(pItem).Content()
+		return _cResult_
 
 	  #=========================================================#
 	 #   REMOVING ALL OCCURRENCE OF A GIVEN ITEM IN THE LIST   #
@@ -14493,22 +14562,6 @@ class stzList from stzObject
 				return This.rndRemoved()
 
 		#>
-
-	  #--------------------------------------------------------------------#
-	 #  DEEP-REMOVING AN ITEM FROM THE LIST AND ANY INNER LIST INSIDE IT  #
-	#--------------------------------------------------------------------#
-
-	def DeepRemoveCS(pcSubStr, pCaseSensitive)
-		_aPos_ = This.DeepFindCS(pcSubStr, pCaseSensitive)
-		# Returns a (sorted) list of pairs of numbers
-
-		_nLen_ = len(_aPos_)
-
-		_aResult_ = This.Content()
-
-		for @i = _nLen_ to 1 step -1
-#TODO
-		next
 
 	  #-------------------------------------------------------#
 	 #   REMOVING GIVEN OCCURRENCES OF AN ITEM IN THE LIST   #TODO // Add CASESENSITIVITY
@@ -43985,10 +44038,7 @@ fdef
 			else
 				_acStringified_ = This.DeepStringifyQ().Lowercased()
 			ok
-//? "---"
-//? pItem
-//? @@(_acStringified_)
-//? "---"
+
 			return FindNumberOrStringInNestedList(pItem, _acStringified_)
 
 		else //isObject(pItem)
@@ -47368,22 +47418,11 @@ fdef
 	#-----------------------------#
 
 	def DeepLowercase()
-		_aContent_ = This.Content()
-		_nLen_ = len(_aContent_)
 
-		for @i = 1 to _nLen_
+		_cCode_ = ' _aResult_ = ' + lower( @@(This.Content()) )
+		eval(_cCode_)
+		This.Update(_aResult_)
 
-			if isString(_aContent_[@i])
-				_aContent_[@i] = ring_lower(_aContent_[@i])
-
-			but isList(_aContent_[@i])
-				_aContent_[@i] = StzListQ(_aContent_[@i]).DeepLowercased() # Recursive
-	
-			ok
-
-		next
-
-		This.UpdateWith(_aContent_)
 
 		def DeepLowercaseQ()
 			This.DeepLowercase()
@@ -47398,6 +47437,44 @@ fdef
 	def DeepLowercased()
 		_aResult_ = This.Copy().DeepLowercaseQ().Content()
 		return _aResult_
+
+	  #-------------------------------------------------------------------#
+	 #  DEEP-LOWERCASING A GIVEN STRING IN THE LIST AND ITS INNER LISTS  #
+	#-------------------------------------------------------------------#
+
+	def DeepLowercaseString(pcStr)
+
+		_cContent_ = @@Q( This.Content() ).ReplaceQ(pcStr, lower(pcStr)).Content()
+		_cCode_ = ' _aResult_ = ' + _cContent_
+		eval(_cCode_)
+		This.Update(_aResult_)
+
+
+		def DeepLowercaseStringQ(pcStr)
+			This.DeepLowercaseString(pcStr)
+			return This
+
+		def DeepLowercaseThis(pcStr)
+			This.DeepLowercaseString(pcStr)
+
+			def DeepLowercaseThisQ(pcStr)
+				return This.DeepLowercaseStringQ(pcStr)
+
+		def DeepLowercaseXT(pcStr)
+			This.DeepLowercaseString(pcStr)
+
+			def DeepLowercaseXTQ(pcStr)
+				return This.DeepLowercaseStringQ(pcStr)
+
+	def StringDeepLowercased(pcStr)
+		_aResult_ = This.Copy().DeepLowercaseStringQ(pcStr).Content()
+		return _aResult_
+ 
+		def ThisDeepLowercased(pcStr)
+			return This.StringDeepLowercased(pcStr)
+
+		def DeepLowercasedXT(pcStr)
+			return This.StringDeepLowercased(pcStr)
 
 	  #=================================================#
 	 #  UPPERCASING THE STRINGS CONTAINED IN THE LIST  #
@@ -47446,22 +47523,10 @@ fdef
 	#-----------------------------#
 
 	def DeepUppercase()
-		_aContent_ = This.Content()
-		_nLen_ = len(_aContent_)
+		_cCode_ = ' _aResult_ = ' + upper( @@(This.Content()) )
+		eval(_cCode_)
+		This.Update(_aResult_)
 
-		for @i = 1 to _nLen_
-
-			if isString(_aContent_[@i])
-				_aContent_[@i] = ring_upper(_aContent_[@i])
-
-			but isList(_aContent_[@i])
-				_aContent_[@i] = StzListQ(_aContent_[@i]).DeepUppercased() # Recursive
-	
-			ok
-
-		next
-
-		This.UpdateWith(_aContent_)
 
 		def DeepUppercaseQ()
 			This.DeepUppercase()
@@ -47476,7 +47541,45 @@ fdef
 	def DeepUppercased()
 		_aResult_ = This.Copy().DeepUppercaseQ().Content()
 		return _aResult_
-	
+
+	  #-------------------------------------------------------------------#
+	 #  DEEP-UPPERCASING A GIVEN STRING IN THE LIST AND ITS INNER LISTS  #
+	#-------------------------------------------------------------------#
+
+	def DeepUppercaseString(pcStr)
+
+		_cContent_ = @@Q( This.Content() ).ReplaceQ(pcStr, upper(pcStr)).Content()
+		_cCode_ = ' _aResult_ = ' + _cContent_
+		eval(_cCode_)
+		This.Update(_aResult_)
+
+
+		def DeepUppercaseStringQ(pcStr)
+			This.DeepUppercaseString(pcStr)
+			return This
+
+		def DeepUppercaseThis(pcStr)
+			This.DeepUppercaseString(pcStr)
+
+			def DeepUppercaseThisQ(pcStr)
+				return This.DeepUppercaseStringQ(pcStr)
+
+		def DeepUppercaseXT(pcStr)
+			This.DeepUppercaseString(pcStr)
+
+			def DeepUppercaseXTQ(pcStr)
+				return This.DeepUppercaseStringQ(pcStr)
+
+	def StringDeepUppercased(pcStr)
+		_aResult_ = This.Copy().DeepUppercaseStringQ(pcStr).Content()
+		return _aResult_
+ 
+		def ThisDeepUppercased(pcStr)
+			return This.StringDeepUppercased(pcStr)
+
+		def DeepUppercasedXT(pcStr)
+			return This.StringDeepUppercased(pcStr)		
+
 	  #=================================================#
 	 #  TITLECASING THE STRINGS CONTAINED IN THE LIST  #
 	#=================================================#
