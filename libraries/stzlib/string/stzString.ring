@@ -79045,15 +79045,15 @@ class stzString from stzObject
 			ok
 		ok
 
-		acSubStr = U(pacSubStr)
-		nLen = len(acSubStr)
-		oCopy = This.Copy()
+		_acSubStr_ = U(pacSubStr)
+		_nLen_ = len(_acSubStr_)
+		_oCopy_ = This.Copy()
 
-		for i = 1 to nLen
-			oCopy.RemoveAllCS(cSubstr, pCaseSensitive)
+		for @i = 1 to _nLen_
+			_oCopy_.RemoveAllCS(_acSubstr_[@i], pCaseSensitive)
 		next
 
-		This.UpdateWith(oCopy.Content())
+		This.UpdateWith(_oCopy_.Content())
 
 
 		def RemoveManyCSQ(pacSubStr, pCaseSensitive)
