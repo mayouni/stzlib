@@ -109,8 +109,8 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 
-/*------
-*/
+/*------ #Misspelled forms
+
 profon()
 
 ? Q("   Ring ").WithoutSapces()
@@ -120,6 +120,7 @@ profon()
 #--> [ 22, 24 ]
 
 ? QQ([ 2, 7, 18, 18, 10, 12, 25, 4 ]).NearstTo(10)
+#--> 12
 
 proff()
 
@@ -130,9 +131,9 @@ profon()
 
 o1 = new stzList([
 	"item1",
-	[ "item2", [ "item3", "item4" ], "item5" ],
-	[ "item6", [ "item7" ] ],
-	"item8"
+	[ "item21", [ "item221", "item222" ], "item23" ],
+	[ "item3", [ "item31" ] ],
+	"item4"
 ])
 
 ? @@NL( o1.Paths() ) + NL
@@ -152,9 +153,45 @@ o1 = new stzList([
 # ]
 
 ? @@( o1.LargestPaths() ) + NL
-# [ [ 2, 2, 1 ], [ 2, 2, 2 ], [ 3, 2, 1 ] ]
+#--> [ [ 2, 2, 1 ], [ 2, 2, 2 ], [ 3, 2, 1 ] ]
 
 ? @@( o1.ShortestPaths() )
+#--> [ [ 1 ], [ 2 ], [ 3 ], [ 4 ] ]
+
+? @@( o1.PathsAtDepth(3) ) + NL
+#--> [ [ 2, 2, 1 ], [ 2, 2, 2 ], [ 3, 2, 1 ] ]
+
+? o1.ItemAtPath([2, 2, 2])
+#--> item222
+
+? @@NL( o1.ItemsAtPathXT([ 2, 2, 2 ]) ) + NL
+#--> [
+#	[ "item21", [ "item221", "item222" ], "item23" ],
+#	[ "item221", "item222" ],
+#	"item222"
+# ]
+
+? @@NL( o1.ItemsAtPaths([
+	[ 2, 2, 2 ],
+	[ 3, 1 ],
+	[ 4 ]
+]) ) + NL
+#--> [
+#	"item222",
+#	"item3",
+#	"item4"
+# ]
+
+? @@NL( o1.ItemsAtPathsXT([
+	[ 2, 2, 2 ],
+	[ 3, 1 ],
+	[ 4 ]
+]) )
+#--> [
+#	[ [ "item21", [ "item221", "item222" ], "item23" ], [ "item221", "item222" ], "item222" ],
+#	[ [ "item3", [ "item31" ] ], "item3" ],
+#	[ "item4" ]
+# ]
 
 # Find paths containing specific items
 //? @@( o1.PathsContaining("item3") )

@@ -44120,119 +44120,266 @@ fdef
 
 	def ItemAtPath(paPath)
 		if CheckParams()
-			if NOT ( isList(paPath) and @IsListOfListsOfNumbers(paPath) )
-				StzRaise("Incorrect param type! paPath must be a list of lists of numbers.")
+			if NOT This.IsValidPath(paPath)
+				StzRaise("Can't proceed! The list provided is not a valid path in the list.")
 			ok
 		ok
 
-		
-		_nLen_ = len(paPath)
+		_aContent_ = This.Content()
+		_cCode_ = '_result_ = _aContent_' + @@Q(paPath).ReplaceQ(",", "][").Content()
+		eval(_cCode_)
+
+		return _result_
+
+	def ItemsAtPath(paPath)
+		if CheckParams()
+			if NOT This.IsValidPath(paPath)
+				StzRaise("Can't proceed! The list provided is not a valid path in the list.")
+			ok
+		ok
+
+		_aContent_ = This.Content()
+		_nLenPath_ = len(paPath)
+
+		_aResult_ = []
+
+		_item_ = ""
+		_cCode_ = '_item_ = _aContent_'
+
+		for @i = 1 to _nLenPath_
+
+			_cCode_ += '[' + paPath[@i] + ']' 
+			eval(_cCode_)
+
+			_aResult_ + _item_
+		next
+
+		return _aResult_
+
+		def ItemsAtPathXT(paPath)
+			return This.ItemsAtPath(paPath)
+
+	def ItemsAtPaths(paPaths)
+		if CheckParams()
+			if NOT This.AreValidPaths(paPaths)
+				StzRaise("Can't proceed! The lists provided are not a valid paths in the list.")
+			ok
+		ok
+
+		_nLenPaths_ = len(paPaths)
+		_aResult_ = []
+
+		for @i = 1 to _nLenPaths_
+			_aResult_ + This.ItemAtPath(paPaths[@i])
+		next
+
+		return _aResult_
+
+	def ItemsAtPathsXT(paPaths)
+		if CheckParams()
+			if NOT This.AreValidPaths(paPaths)
+				StzRaise("Can't proceed! The lists provided are not a valid paths in the list.")
+			ok
+		ok
+
+		_nLenPaths_ = len(paPaths)
+		_aResult_ = []
+
+		for @i = 1 to _nLenPaths_
+			_aResult_ + This.ItemsAtPathXT(paPaths[@i])
+		next
+
+		return _aResult_
+
+	#-- PATH FINDING
+
+	def FindItemInPath(pItem, paPath)
+		/* ... */
+
+		def FindInPath(pItem, paPath)
+			return This.FindItemInPath(pItem, paPath)
+
+	def FindItemsInPath(paItems, paPath)
+		/* ... */
+
+		def FindManyInPath(paItems, paPath)
+			return This.FindItemsInPath(paItems, paPath)
+
+		def FindManyItemsInPath(paItems, paPath)
+			return This.FindItemsInPath(paItems, paPath)
+
+		def FindTheseItemsInPath(paItems, paPath)
+			return This.FindItemsInPath(paItems, paPath)
+
+	def FindItemInPaths(pItem, paPaths)
+		/* ... */
+
+		def FindInPaths(pItem, paPaths)
+			return This.FindItemInPaths(pItem, paPaths)
+
+	def FindItemsInPaths(paItems, paPaths)
+		/* ... */
+
+		def FindManyItemsInPaths(paItems, paPaths)
+			return This.FindItemsInPaths(paItems, paPaths)
+
+		def FindTheseItemsInPaths(paItems, paPaths)
+			return This.FindItemsInPaths(paItems, paPaths)
+
+	#--
+
+	def PathsContainingItem(pItem)
+		/* ... */
+
+	def PathsContainingItems(paItems)
+		/* ... */
+
+	def PathsContaining(pItemOrItems)
+		/* ... */
+
+	def PathsAtDepth(pnDepth)
+		if CheckParams()
+			if NOT isNumber(pnDepth)
+				StzRaise("Incorrect param type! pnDepth must be a number.")
+			ok
+		ok
+
+    		_aAllPaths_ = This.AllPaths()
+    		_nLen_ = len(_aAllPaths_)
+		_aResult_ = []
+
+    		for @i = 1 to _nLen_
+        		if len(_aAllPaths_[@i]) = pnDepth
+            			_aResult_ + _aAllPaths_[@i]
+       			 ok
+    		next
+
+    		return _aResult_
+
+	#--
+
+	def IsPath(paPath)
+		if NOT isList(paPath)
+			return _FALSE_
+		ok
+
+		if NOT @IsListOfNumbers(paPath)
+			return _FALSE_
+		ok
+
+		_bResult_ = This.PathsQ().Contains(paPath)
+		return _bResult_
+
+		def IsAPath(paPath)
+			return This.IsPath(paPath)
+
+		def IsValidPath(paPath)
+			return This.IsPath(paPath)
+
+		def IsAValidPath(paPath)
+			return This.IsPath(paPath)
+
+		def ContainsPath(paPath)
+			return This.IsPath(paPath)
+
+		def PathExists(paPath)
+			return This.IsPath(paPath)
+
+	def ArePaths(paPaths)
+		if NOT isList(paPaths)
+			return _FALSE_
+		ok
+
+		if NOT @IsListOfListsOfNumbers(paPaths)
+			return _FALSE_
+		ok
+
+		_bResult_ = This.PathsQ().ContainsMany(paPaths)
+		return _bResult_
 
 
-def ReplaceAtPath(paPath, pItem)
-    if NOT This.IsValidPath(paPath)
-        return
-    ok
+		def AreValidPaths(paPaths)
+			return This.ArePaths(paPaths)
 
-    _aContent_ = This.Content()
-    _nLen_ = len(paPath) - 1
+		def ContainsPaths(paPaths)
+			return This.ArePaths(paPaths)
 
-    for i = 1 to _nLen_
-        _aContent_ = _aContent_[paPath[i]]
-    next
+		def PathsExist(paPath)
+			return This.ArePaths(paPaths)
 
-    _aContent_[paPath[len(paPath)]] = pItem
-    This.UpdateWith(_aContent_)
+	#-- INSERTING ITEM
 
-def RemoveAtPath(paPath)
-    if NOT This.IsValidPath(paPath)
-        return
-    ok
+	def InsertAtNthPositionOfPath(pItem, paPath, pnPos)
 
-    _aContent_ = This.Content()
-    _nLen_ = len(paPath) - 1
+	def AddToPath(pItemOrItems, paPath)
 
-    for i = 1 to _nLen_
-        _aContent_ = _aContent_[paPath[i]]
-    next
+	def AddItemToPath(pItem, paPath)
 
-    del(_aContent_, paPath[len(paPath)])
-    This.UpdateWith(_aContent_)
+	def AddItemsToPath(pItem, paPath)
 
-def InsertAtPath(paPath, pItem)
-    if NOT This.IsValidPath(paPath)
-        return
-    ok
+	#--
 
-    _aContent_ = This.Content()
-    _nLen_ = len(paPath) - 1
+	def InsertAtNthPositionOfPaths(pItem, paPaths, pnPos)
 
-    for i = 1 to _nLen_
-        _aContent_ = _aContent_[paPath[i]]
-    next
+	def AddToPaths(pItemOrItems, paPaths)
 
-    ring_insert(_aContent_, paPath[len(paPath)], pItem)
-    This.UpdateWith(_aContent_)
+	def AddItemToPaths(pItem, paPaths)
 
-#-- PATH VALIDATION
+	def AddItemsToPaths(pItem, paPaths)
 
-def IsValidPath(paPath)
-    if NOT isList(paPath)
-        return FALSE
-    ok
+	#-- REPLACING ITEMS AT PATHS
 
-    _aContent_ = This.Content()
-    _nLen_ = len(paPath)
+	def ReplaceAtPath(pItemOrItems, pNewtItemOrItems, paPath)
 
-    try
-        for i = 1 to _nLen_
-            if paPath[i] > len(_aContent_)
-                return FALSE
-            ok
-            
-            if i < _nLen_ AND NOT isList(_aContent_[paPath[i]])
-                return FALSE
-            ok
-            
-            _aContent_ = _aContent_[paPath[i]]
-        next
-        
-        return TRUE
-        
-    catch
-        return FALSE
-    done
+	def ReplaceItemAtPath(pItem, pNewItem, paPath)
 
-#-- PATH FINDING
+	def RepalceTheseItemsAtPath(pItems, pNewtItemOrItems, paPath)
 
-def PathsContaining(pItem)
-    _aAllPaths_ = This.AllPaths()
-    _aResult_ = []
-    _nLen_ = len(_aAllPaths_)
+	#--
 
-    for i = 1 to _nLen_
-        _aContent_ = This.ItemAtPath(_aAllPaths_[i])
-        if _aContent_ = pItem
-            _aResult_ + _aAllPaths_[i]
-        ok
-    next
+	def ReplaceAtPaths(pItemOrItems, pNewtItemOrItems, paPaths)
 
-    return _aResult_
+	def ReplaceItemAtPaths(pItem, pNewItem, paPaths)
 
-def PathsAtDepth(nDepth)
-    _aAllPaths_ = This.AllPaths()
-    _aResult_ = []
-    _nLen_ = len(_aAllPaths_)
+	def RepalceTheseItemsAtPaths(paItems, pNewtItemOrItems, paPaths)
 
-    for i = 1 to _nLen_
-        if len(_aAllPaths_[i]) = nDepth
-            _aResult_ + _aAllPaths_[i]
-        ok
-    next
+	#-- REMOVING ITEMS AT PATHS
 
-    return _aResult_
+	def RemoveAtPath(pItemOrItems, paPath)
 
+	def RemoveItemAtPath(paItem, paPath)
 
+	def RemoveTheseItemsAtPath(paItems, paPath)
+
+		def RemoveManyAtPath(paItems, paPath)
+
+	#--
+
+	def RemoveAtPaths(pItemOrItems, paPaths)
+
+	def RemoveItemAtPaths(pItem, paPaths)
+
+	def RemoveTheseItemsAtPaths(pItems, paPaths)
+
+		def RemoveManyAtPaths(pItems, paPaths)
+
+	#--
+
+	def RemovePath(paPath)
+
+		def RemoveAllInPath(paPath)
+
+		def RemoveAllItemsInPath(paPath)
+
+		def RemoveItemsInPath(paPath)
+
+	def RemovePaths(paPaths)
+
+		def RemoveAllInPaths(paPaths)
+
+		def RemoveAllItemsInPaths(paPaths)
+
+		def RemoveItemsInPaths(paPaths)
 
 
 
