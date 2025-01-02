@@ -124,19 +124,21 @@ profon()
 
 proff()
 
-/*------
-*/
+/*==== PATHS MANAGEMENT
 
 profon()
 
 o1 = new stzList([
 	"item1",
 	[ "item21", [ "item221", "item222" ], "item23" ],
-	[ "item3", [ "item31" ] ],
+	[ "item31", [ "item321" ] ],
 	"item4"
 ])
 
-? @@NL( o1.Paths() ) + NL
+? o1.CountPaths() + NL
+#--> 12
+
+? @@NL( o1.Paths() )
 #--> [
 #	[ 1 ],
 #	[ 2 ],
@@ -152,17 +154,110 @@ o1 = new stzList([
 #	[ 4 ]
 # ]
 
-? @@( o1.LargestPaths() ) + NL
+proff()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*------
+
+profon()
+
+o1 = new stzList([
+	"item1",
+	[ "item21", [ "item221", "item222" ], "item23" ],
+	[ "item31", [ "item321" ] ],
+	"item4"
+])
+
+? @@( o1.LargestPaths() )
 #--> [ [ 2, 2, 1 ], [ 2, 2, 2 ], [ 3, 2, 1 ] ]
+
+? o1.HowManyLargestPaths()
+#--> 3
+
+proff()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*------
+
+profon()
+
+o1 = new stzList([
+	"item1",
+	[ "item21", [ "item221", "item222" ], "item23" ],
+	[ "item31", [ "item321" ] ],
+	"item4"
+])
 
 ? @@( o1.ShortestPaths() )
 #--> [ [ 1 ], [ 2 ], [ 3 ], [ 4 ] ]
 
-? @@( o1.PathsAtDepth(3) ) + NL
+? o1.NumberOfShortestPaths()
+#--> 4
+
+proff()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*------
+
+profon()
+
+o1 = new stzList([
+	"item1",
+	[ "item21", [ "item221", "item222" ], "item23" ],
+	[ "item31", [ "item321" ] ],
+	"item4"
+])
+
+? @@( o1.PathsAtDepth(3) ) + NL		# Or PathsAtLevel or FindItemsAtDepth(3)
 #--> [ [ 2, 2, 1 ], [ 2, 2, 2 ], [ 3, 2, 1 ] ]
+
+? @@NL( o1.ItemsAtDepth(3) ) + NL
+#--> [
+#	"item221",
+#	"item222",
+#	"item321"
+# ]
+
+? @@NL( o1.ItemsAtDepthZZ(3) ) 
+#--> [
+#	[ "item221", [ 2, 2, 1 ] ],
+#	[ "item222", [ 2, 2, 2 ] ],
+#	[ "item321", [ 3, 2, 1 ] ]
+# ]
+
+proff()
+# Executed in 0.24 second(s) in Ring 1.22
+
+/*------
+
+profon()
+
+o1 = new stzList([
+	"item1",
+	[ "item21", [ "item221", "item222" ], "item23" ],
+	[ "item31", [ "item321" ] ],
+	"item4"
+])
 
 ? o1.ItemAtPath([2, 2, 2])
 #--> item222
+
+? @@( o1.ItemAtPathZZ([2, 2, 2 ]) )
+#--> [ "item222", [ 2, 2, 2 ] ]
+
+proff()
+# Executed in 0.11 second(s) in Ring 1.22
+
+/*------
+
+profon()
+
+o1 = new stzList([
+	"item1",
+	[ "item21", [ "item221", "item222" ], "item23" ],
+	[ "item31", [ "item321" ] ],
+	"item4"
+])
 
 ? @@NL( o1.ItemsAtPathXT([ 2, 2, 2 ]) ) + NL
 #--> [
@@ -171,16 +266,62 @@ o1 = new stzList([
 #	"item222"
 # ]
 
+? @@NL( o1.ItemsAtPathXTZZ([ 2, 2, 2 ]) )
+#--> [
+#	[ [ "item21", [ "item221", "item222" ], "item23" ], [ 2 ] ],
+#	[ [ "item221", "item222" ], [ 2, 2 ] ],
+#	[ "item222", [ 2, 2, 2 ] ]
+# ]
+
+proff()
+# Executed in 0.12 second(s) in Ring 1.22
+
+/*------
+
+profon()
+
+o1 = new stzList([
+	"item1",
+	[ "item21", [ "item221", "item222" ], "item23" ],
+	[ "item31", [ "item321" ] ],
+	"item4"
+])
+
 ? @@NL( o1.ItemsAtPaths([
 	[ 2, 2, 2 ],
 	[ 3, 1 ],
 	[ 4 ]
-]) ) + NL
+]) )
 #--> [
 #	"item222",
 #	"item3",
 #	"item4"
 # ]
+
+? @@NL( o1.ItemsAtPathsZZ([
+	[ 2, 2, 2 ],
+	[ 3, 1 ],
+	[ 4 ]
+]) )
+#--> [
+#	[ "item222", [ 2, 2, 2 ] ],
+#	[ "item31", [ 3, 1 ] ],
+#	[ "item4", [ 4 ] ]
+# ]
+
+proff()
+# Executed in 0.22 second(s) in Ring 1.22
+
+/*------
+
+profon()
+
+o1 = new stzList([
+	"item1",
+	[ "item21", [ "item221", "item222" ], "item23" ],
+	[ "item31", [ "item321" ] ],
+	"item4"
+])
 
 ? @@NL( o1.ItemsAtPathsXT([
 	[ 2, 2, 2 ],
@@ -192,6 +333,102 @@ o1 = new stzList([
 #	[ [ "item3", [ "item31" ] ], "item3" ],
 #	[ "item4" ]
 # ]
+
+? @@NL( o1.ItemsAtPathsXTZZ([
+	[ 2, 2, 2 ],
+	[ 3, 1 ],
+	[ 4 ]
+]) )
+#--> [
+#	[ [ [ "item21", [ "item221", "item222" ], "item23" ], [ "item221", "item222" ], "item222" ], [ 2, 2, 2 ] ],
+#	[ [ [ "item31", [ "item321" ] ], "item31" ], [ 3, 1 ] ],
+#	[ [ "item4" ], [ 4 ] ]
+# ]
+
+proff()
+# Executed in 0.27 second(s) in Ring 1.22
+/*=====
+
+profon()
+
+? @@NL( PathsTo([ 2, 3, 2 ]) ) + NL
+#--> [
+#	[ 2 ],
+#	[ 2, 3 ],
+#	[ 2, 3, 2 ]
+# ]
+
+? @@NL( PathsToXT([ [ 2, 3 ], [ 2, 3, 2 ], [ 4 ] ]) )
+#--> [
+#	[ 2 ],
+#	[ 2, 3 ],
+#	[ 2, 3, 2 ],
+#	[ 4 ]
+# ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*=====
+*/
+profon()
+
+aList1 = [
+	[ 2, 1 ],
+	[ 2, 2, 2, 1 ]
+]
+
+aList2 = [
+	[ 2 ],
+	[ 2, 1 ]
+]
+
+? @@( Intersection([ aList1, aList2 ]) )
+#--> Executed in 0.02 second(s) in Ring 1.22
+
+proff()
+
+/*-----
+*/
+profon()
+
+o1 = new stzList([
+	"item1",
+	[ "♥♥♥", [ "item221", [ "♥♥♥", [], "item2223" ], [] ], "item23" ],
+	"item3"
+])
+
+
+_aItemPaths_ = o1.DeepFind("♥♥♥")
+? @@NL( _aItemPaths_ ) + NL
+#--> [
+#	[ 2, 1 ],
+#	[ 2, 2, 2, 1 ]
+# ]
+
+_aOverPaths_ = PathsToPath([ 2, 1 ])
+? @@NL( _aOverPaths_ )
+#--> [
+#	[ 2 ],
+#	[ 2, 2 ],
+#	[ 2, 2, 2 ],
+#	[ 2, 2, 2, 3 ]
+# ]
+
+? @@NL( o1.FindItemOverPath("♥♥♥", [ 2, 1 ]) )
+
+proff()
+
+/*----
+
+profon()
+
+o1 = new stzList([
+	"♥♥♥",
+	[ "item21", [ "item221", "♥♥♥" ], "item23" ],
+	[ "item3", [ "item31", "♥♥♥" ] ],
+	"item4"
+])
 
 # Find paths containing specific items
 //? @@( o1.PathsContaining("item3") )

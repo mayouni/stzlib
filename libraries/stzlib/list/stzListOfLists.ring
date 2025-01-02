@@ -3032,54 +3032,9 @@ class stzListOfLists from stzList
 	#======================================#
 
 	def CommonItemsCS(pCaseSensitive)
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
+		_aResult_ = This.ToStzListQ().FlattenQ().UniqueItemsCS(pCaseSensitive)
+		return _aResult_
 
-		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			StzRaise("Incorrect param type! pCaseSensitive must be _TRUE_ or _FALSE_.")
-		ok
-
-		aLists = @aContent
-
-		if pCaseSensitive = _FALSE_
-			aLists = This.Lowercased()
-		ok
-
-		nLenLists = len(aLists)
-
-		# Early cheks
-
-		if nLenLists = 0
-			return []
-
-		but This.AllListsAreEqualCS(pCaseSensitive)
-			return aLists[1]
-		ok
-
-		# Doing the job
-
-		aItems = StzListQ(aLists).FlattenQ().WithoutDuplicationCS(pCaseSensitive)
-		nLenItems = len(aItems)
-
-		aResult = []
-	
-		for i = 1 to nLenItems
-
-			bExistsInAllLists = _TRUE_
-			for j = 1 to nLenLists
-
-				if ring_find(aLists[j], aItems[i]) = 0
-					bExistsInAllLists = _FALSE_
-					exit
-				ok
-			next
-			if bExistsInAllLists
-				aResult + aItems[i]
-			ok
-		next
-
-		return aResult
 
 		def IntersectionCS(pCaseSensitive)
 			return This.CommonItemsCS(pCaseSensitive)
