@@ -5829,6 +5829,122 @@ func GeneratePaths(cStr)
     
 	return aResult
 
+# Used internallay for Paths management
+
+func PathsTo(paPath)
+	# EXAMPLE
+
+	# ? PathsTo([ 2, 3, 2 ]) )
+	#--> [
+	# 	[ 2 ],
+	# 	[ 2, 3 ],
+	# 	[ 2, 3, 2 ]
+	# ]
+
+	if CheckParams()
+		if NOT (isList(paPath) and IsListOfNumbers(paPath))
+			StzRaise("Incorrect param type! paPath must be a list of numbers.")
+		ok
+	ok
+
+	_aResult_ = []
+	_nLen_ = len(paPath)
+    
+	# Handle empty path case
+	if _nLen_ = 0
+	        return []
+    	ok
+    
+    	# Generate all possible subpaths
+
+	for @i = 1 to _nLen_
+		_aCurrentPath_ = 1 : @i  # Initialize list with size @i
+		_nLenSubPath_ = @i
+        
+		# Build the current subpath
+
+		for @j = 1 to _nLenSubPath_
+			_aCurrentPath_[@j] = paPath[@j]  # First fill with the original values
+		next
+        
+		# Add the current subpath to results
+
+		_aTempList_ = 1 : @i  # Create a new list for this combination
+
+		for @j = 1 to @i
+			_aTempList_[@j] = _aCurrentPath_[@j]
+		next
+
+		_aResult_ + _aTempList_
+	next
+    
+	return _aResult_
+
+	#< @FunctionAlternativeForms
+
+	func @PathsTo(paPath)
+		return PathsTo(paPath)
+
+	func PathsToPath(paPath)
+		return PathsTo(paPath)
+
+	func @PathsToPath(paPath)
+		return PathsTo(paPath)
+
+	#>
+
+func PathsToXT(paPaths)
+	# EXAMPLE
+
+	# ? @@NL( PathsToXT([ [ 2, 3 ], [ 2, 3, 2 ], [ 4 ] ]) )
+	#--> [
+	# 	[ 2 ],
+	# 	[ 2, 3 ],
+	# 	[ 2, 3, 2 ],
+	# 	[ 4 ]
+	# ]
+
+	if CheckParams()
+		if NOT (isList(paPaths) and IsListOfListsOfNumbers(paPaths))
+			StzRaise("Incorrect param type! paPaths must be a list of lists of numbers.")
+		ok
+	ok
+
+	_aResult_ = []
+	_nLen_ = len(paPaths)
+    
+	# Handle empty path case
+	if _nLen_ = 0
+	        return []
+    	ok
+    
+    	# Generate all possible subpaths
+
+	for @i = 1 to _nLen_
+		_aTempPaths_ = PathsToPath(paPaths[@i])
+		_nLenTemp_ = len(_aTempPaths_)
+
+		for @j = 1 to _nLenTemp_
+			_aResult_ + _aTempPaths_[@j]
+		next
+
+	next
+    
+	return U(_aResult_)
+
+	#< @FunctionAlternativeForms
+
+	func @PathsToXT(paPaths)
+		return PathsToXT(paPaths)
+
+	func PathsToPaths(paPaths)
+		return PathsToXT(paPaths)
+
+	func @PathsToPaths(paPaths)
+		return PathsToXT(paPaths)
+
+	#>
+
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -44053,13 +44169,13 @@ fdef
 
 	#-- PATH METRICS
 	
-	def NumberOfPaths(paPath)
+	def NumberOfPaths()
 		return len(This.Paths())
 	    
-		def CountPaths(paPath)
+		def CountPaths()
 			return This.NumberOfPaths()
 
-		def HowManyPaths(paPath)
+		def HowManyPaths()
 			return This.NumberOfPaths()
 
 	def LongestPathSize()
@@ -44088,9 +44204,32 @@ fdef
 		def LargestPaths()
 			return This.LongestPaths()
 
+	def NumberOfLongestPaths()
+		return len(This.LongestPaths())
+	    
+		def CountLongestPaths()
+			return This.NumberOfLongestPaths()
+
+		def HowManyLongestPaths()
+			return This.NumberOfLongestPaths()
+
+		#--
+
+		def NumberOfLargestPaths()
+			return This.NumberOfLongestPaths()
+
+		def CountLargestPaths()
+			return This.NumberOfLongestPaths()
+
+		def HowManyLargestPaths()
+			return This.NumberOfLongestPaths()
+
 	def LongestPath()
 		_aResult_ = This.PathsQ().LargestList()
 		return _aResult_
+
+		def LargestPath()
+			return This.LongestPath()
 
 	def ShortestPathSize()
 		if This.IsEmpty()
@@ -44108,20 +44247,49 @@ fdef
 
 		return @Min(_anSizes_)	
 
+		def SmallestPathSize()
+			return This.ShortestPathSise()
+
 	def ShortestPaths()
 		_aResult_ = This.PathsQ().ShortestLists()
 		return _aResult_
 
+		def SmallestPaths()
+			return This.ShortestPaths()
+
+	def NumberOfShortestPaths()
+		return len(This.ShortestPaths())
+	    
+		def CountshortestPaths()
+			return This.NumberOfShortestPaths()
+
+		def HowManyShortestPaths()
+			return This.NumberOfShortestPaths()
+
+		#--
+
+		def NumberOfSmallestPaths()
+			return This.NumberOfShortestPaths()
+
+		def CountSmallestPaths()
+			return This.NumberOfShortestPaths()
+
+		def HowManySmallestPaths()
+			return This.NumberOfShortestPaths()
+
 	def ShortestPath()
 		_aResult_ = This.PathsQ().ShortestLists()
 		return _aResult_
+
+		def SmallestPath()
+			return This.ShortestPath()
 
 	#-- PATH OPERATIONS
 
 	def ItemAtPath(paPath)
 		if CheckParams()
 			if NOT This.IsValidPath(paPath)
-				StzRaise("Can't proceed! The list provided is not a valid path in the list.")
+				StzRaise("Incorrect param type! paPath must be a valid path in the list.")
 			ok
 		ok
 
@@ -44131,10 +44299,27 @@ fdef
 
 		return _result_
 
+	def ItemAtPathZZ(paPath)
+		if CheckParams()
+			if NOT This.IsValidPath(paPath)
+				StzRaise("Incorrect param type! paPath must be a valid path in the list.")
+			ok
+		ok
+
+		_aContent_ = This.Content()
+		_cCode_ = '_item_ = _aContent_' + @@Q(paPath).ReplaceQ(",", "][").Content()
+		eval(_cCode_)
+
+		_aResult_ = [ _item_, paPath ]
+		return _aResult_
+
+		def ItemAtPathZ(paPath)
+			return This.ItemAtPathZZ(paPath)
+
 	def ItemsAtPath(paPath)
 		if CheckParams()
 			if NOT This.IsValidPath(paPath)
-				StzRaise("Can't proceed! The list provided is not a valid path in the list.")
+				StzRaise("Incorrect param type! paPath must be a valid path in the list.")
 			ok
 		ok
 
@@ -44159,10 +44344,50 @@ fdef
 		def ItemsAtPathXT(paPath)
 			return This.ItemsAtPath(paPath)
 
+	def ItemsAtPathZZ(paPath)
+
+		if CheckParams()
+			if NOT This.IsValidPath(paPath)
+				StzRaise("Incorrect param type! paPath must be a valid path in the list.")
+			ok
+		ok
+
+		_aContent_ = This.Content()
+		_nLenPath_ = len(paPath)
+
+		_aResult_ = []
+
+		_item_ = ""
+		_cCode_ = '_item_ = _aContent_'
+
+		for @i = 1 to _nLenPath_
+
+			_cCode_ += '[' + paPath[@i] + ']' 
+			eval(_cCode_)
+
+			_aSubPath_ = []
+			for @j = 1 to @i
+				_aSubPath_ + paPath[@j]
+			next
+
+			_aResult_ + [ _item_, _aSubPath_ ]
+		next
+
+		return _aResult_
+
+		def ItemsAtPathZ(paPath)
+			return This.ItemsAtPathZZ(paPath)
+
+		def ItemsAtPathXTZZ(paPath)
+			return This.ItemsAtPathZZ(paPath)
+
+		def ItemsAtPathXTZ(paPath)
+			return This.ItemsAtPathZZ(paPath)
+
 	def ItemsAtPaths(paPaths)
 		if CheckParams()
 			if NOT This.AreValidPaths(paPaths)
-				StzRaise("Can't proceed! The lists provided are not a valid paths in the list.")
+				StzRaise("Incorrect param type! paPaths must be a valid list of paths in the list.")
 			ok
 		ok
 
@@ -44175,10 +44400,29 @@ fdef
 
 		return _aResult_
 
+	def ItemsAtPathsZZ(paPaths)
+		if CheckParams()
+			if NOT This.AreValidPaths(paPaths)
+				StzRaise("Incorrect param type! paPaths must be a valid list of paths in the list.")
+			ok
+		ok
+
+		_nLenPaths_ = len(paPaths)
+		_aResult_ = []
+
+		for @i = 1 to _nLenPaths_
+			_aResult_ + [ This.ItemAtPath(paPaths[@i]), paPaths[@i] ]
+		next
+
+		return _aResult_
+
+		def ItemsAtPathsZ(paPaths)
+			return This.ItemsAtPathsZZ(paPaths)
+
 	def ItemsAtPathsXT(paPaths)
 		if CheckParams()
 			if NOT This.AreValidPaths(paPaths)
-				StzRaise("Can't proceed! The lists provided are not a valid paths in the list.")
+				StzRaise("Incorrect param type! paPaths must be a valid list of paths in the list.")
 			ok
 		ok
 
@@ -44191,13 +44435,40 @@ fdef
 
 		return _aResult_
 
+	def ItemsAtPathsXTZZ(paPaths)
+		if CheckParams()
+			if NOT This.AreValidPaths(paPaths)
+				StzRaise("Incorrect param type! paPaths must be a valid list of paths in the list.")
+			ok
+		ok
+
+		_nLenPaths_ = len(paPaths)
+		_aResult_ = []
+
+		for @i = 1 to _nLenPaths_
+			_aResult_ + [ This.ItemsAtPathXT(paPaths[@i]), paPaths[@i] ]
+		next
+
+		return _aResult_
+
+		def ItemsAtPathsXTZ(paPaths)
+			return This.ItemsAtPathsXTZZ(paPaths)
+
 	#-- PATH FINDING
 
-	def FindItemInPath(pItem, paPath)
-		/* ... */
+	def FindItemOverPath(pItem, paPath)
+		if NOT This.IsValidPath(paPath)
+			StzRaise("Incorrect param type! paPath must be a valid path in the list.")
+		ok
 
-		def FindInPath(pItem, paPath)
-			return This.FindItemInPath(pItem, paPath)
+		_aPaths_ = @PathsToPath(paPath)
+		_aItemPaths_ = This.DeepFind(pItem)
+	
+		_aResult_ = @Intersection([ _aPaths_, _aItemPaths_ ])
+		return _aResult_
+
+		def FindOverPath(pItem, paPath)
+			return This.FindItemOverPath(pItem, paPath)
 
 	def FindItemsInPath(paItems, paPath)
 		/* ... */
@@ -44237,6 +44508,24 @@ fdef
 	def PathsContaining(pItemOrItems)
 		/* ... */
 
+	#--
+
+	def Depths()
+
+		def Levels()
+
+	def NumberOfDepths()
+
+		def HowManyDepths()
+
+		def CountDepths()
+
+		def NumberOfLevels()
+
+		def CountLevels()
+
+		def HowManyLevels()
+
 	def PathsAtDepth(pnDepth)
 		if CheckParams()
 			if NOT isNumber(pnDepth)
@@ -44255,6 +44544,95 @@ fdef
     		next
 
     		return _aResult_
+
+		#< @FunctionAlternativeForms
+
+		def FindItemsAtDepth(pnDepth)
+			return This.PathsAtDepth(pnDepth)
+
+		def DeepFindItemsAtDepth(pnDepth)
+			return This.PathsAtDepth(pnDepth)
+
+		def FindItemsAtDepthZ(pnDepth)
+			return This.PathsAtDepth(pnDepth)
+
+		def FindItemsAtDepthZZ(pnDepth)
+			return This.PathsAtDepth(pnDepth)
+
+		def DeepFindItemsAtDepthZ(pnDepth)
+			return This.PathsAtDepth(pnDepth)
+
+		def DeepFindItemsAtDepthZZ(pnDepth)
+			return This.PathsAtDepth(pnDepth)
+
+		#--
+
+		def PathsAtLevel(pnDepth)
+			return This.PathsAtDepth(pnDepth)
+
+		def FindItemsAtLevel(pnDepth)
+			return This.PathsAtDepth(pnDepth)
+
+		def DeepFindItemsAtLevel(pnDepth)
+			return This.PathsAtDepth(pnDepth)
+
+		def FindItemsAtLevelZ(pnDepth)
+			return This.PathsAtDepth(pnDepth)
+
+		def FindItemsAtLevelZZ(pnDepth)
+			return This.PathsAtDepth(pnDepth)
+
+		def DeepFindItemsAtLevelZ(pnDepth)
+			return This.PathsAtDepth(pnDepth)
+
+		def DeepFindItemsAtLevelZZ(pnDepth)
+			return This.PathsAtDepth(pnDepth)
+
+		#>
+
+	def ItemsAtDepth(pnDepth)
+		_aResult_ = This.ItemsAtPaths( This.PathsAtDepth(pnDepth) )
+		return _aResult_
+
+		def ItemsAtLevel(pnDepth)
+			return This.ItemsAtDepth(pnDepth)
+
+	def ItemsAtDepthZZ(pnDepth)
+		_aResult_ = This.ItemsAtPathsZZ( This.PathsAtDepth(pnDepth) )
+		return _aResult_
+
+		def ItemsAtDepthZ(pnDepth)
+			return This.ItemsAtDepthZZ(pnDepth)
+
+		def ItemsAtLevelZZ(pnDepth)
+			return This.ItemsAtDepthZZ(pnDepth)
+
+		def ItemsAtLevelZ(pnDepth)
+			return This.ItemsAtDepthZZ(pnDepth)
+
+	def ReplaceItemsAtDepth(pnDepth, pNewItem) #TODO
+		/* ... */
+
+		def ReplaceItemsAtLevel(pnDepth, pNewItem)
+			This.ReplaceItemsAtDepth(pnDepth, pNewItem)
+
+	def ReplaceItemsAtDepthByMany(pnDepth, paNewItems) #TODO
+		/* ... */
+
+		def ReplaceItemsAtLevelByMany(pnDepth, paNewItems)
+			This.ReplaceItemsAtDepthByMany(pnDepth, paNewItems)
+
+	def ReplaceItemsAtDepthByManyXT(pnDepth, paNewItems) #TODO
+		/* ... */
+
+		def ReplaceItemsAtLevelByManyXT(pnDepth, paNewItems)
+			This.ReplaceItemsAtDepthByManyXT(pnDepth, paNewItems)
+
+	def RemoveItemsAtDepth(pnDepth) #TODO
+		/* ... */
+
+		def RemoveItemsAtLevel(pnDepth)
+			This.RemoveItemsAtDepth(pnDepth)
 
 	#--
 
@@ -44297,6 +44675,7 @@ fdef
 		_bResult_ = This.PathsQ().ContainsMany(paPaths)
 		return _bResult_
 
+		#< @FunctionAlternativeForms
 
 		def AreValidPaths(paPaths)
 			return This.ArePaths(paPaths)
@@ -44306,6 +44685,19 @@ fdef
 
 		def PathsExist(paPath)
 			return This.ArePaths(paPaths)
+
+		#--
+
+		def IsListOfPaths(paPaths)
+			return This.ArePaths(paPaths)
+
+		def IsListOfValidPaths(paPaths)
+			return This.ArePaths(paPaths)
+
+		def IsValidListOfPaths(paPaths)
+			return This.ArePaths(paPaths)
+
+		#>
 
 	#-- INSERTING ITEM
 
