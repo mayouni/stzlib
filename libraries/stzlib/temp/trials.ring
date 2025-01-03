@@ -437,7 +437,7 @@ proff()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*-----
-*/
+
 profon()
 
 o1 = new stzList([
@@ -457,18 +457,20 @@ proff()
 profon()
 
 o1 = new stzList([
-	"item1",
-	[ "♥♥♥", [ "item221", [ "♥♥♥", [], "item2223" ], [] ], "item23" ],
-	"item3"
+    "A",
+    [ "♥", [ "B", "♥", "C", "♥" ], "♥", "D" ],
+    "E"
 ])
 
-? @@( o1.FindItemOverPath("♥♥♥", [ 2, 1 ]) )
-#--> [ [ 2, 1 ] ]
+? @@( o1.FindItemsOverPath([ "♥", "B" ], [2, 2]) )
+#--> [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ], [ 2, 2, 1 ] ]
 
 proff()
-# Executed in 0.09 second(s) in Ring 1.22
+# Executed in 0.17 second(s) in Ring 1.22
 
-/*----
+
+
+/*----....
 
 profon()
 
