@@ -370,23 +370,87 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*=====
-*/
+
 profon()
 
 aList1 = [
 	[ 2, 1 ],
-	[ 2, 2, 2, 1 ]
+	[ 2, 2, 2, 1 ],
+	[ 4 ]
 ]
 
 aList2 = [
 	[ 2 ],
-	[ 2, 1 ]
+	[ 2, 1 ],
+	[ 4 ]
 ]
 
 ? @@( Intersection([ aList1, aList2 ]) )
-#--> Executed in 0.02 second(s) in Ring 1.22
+#--> [ 2, 1 ]
 
 proff()
+#--> Executed in 0.02 second(s) in Ring 1.22
+
+/*-----
+
+profon()
+
+aLists = [
+	[1, 2, 3, 4, 5],
+	[4, 5, 6, 7, 8],
+	[4, 5, 9, 10]
+]
+
+
+? @@( Intersection(aLists) )
+#--> [ 4, 5 ]
+
+aLists = [
+	[ "apple", "banana", "orange" ],
+	[ "banana", "orange", "grape" ],
+	[ "orange", "grape", "banana" ]
+]
+
+? @@(Intersection(aLists))
+#--> [ "banana", "orange" ]
+
+? @@(intersection([]))
+#--> []
+
+? @@(intersection([ [1] ]))
+#--> [ 1 ]
+
+aLists = [
+	[ "apple", "banana", "orange", 1:3 ],
+	[ "banana", 1:3, "orange", "grape" ],
+	[ "orange", "grape", 1:3, "banana" ]
+]
+
+? @@NL(Intersection(aLists))
+#--> [
+#	"banana",
+#	"orange",
+#	[ 1, 2, 3 ]
+# ]
+
+proff()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*-----
+*/
+profon()
+
+o1 = new stzList([
+    "A",
+    [ "♥", ["B", "♥", "C", "♥" ], "♥", "D" ],
+    "E"
+])
+
+? @@( o1.FindItemOverPath("♥", [2, 2]) )
+#--> [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ] ]
+
+proff()
+# Executed in 0.12 second(s) in Ring 1.22
 
 /*-----
 */
@@ -398,26 +462,11 @@ o1 = new stzList([
 	"item3"
 ])
 
-
-_aItemPaths_ = o1.DeepFind("♥♥♥")
-? @@NL( _aItemPaths_ ) + NL
-#--> [
-#	[ 2, 1 ],
-#	[ 2, 2, 2, 1 ]
-# ]
-
-_aOverPaths_ = PathsToPath([ 2, 1 ])
-? @@NL( _aOverPaths_ )
-#--> [
-#	[ 2 ],
-#	[ 2, 2 ],
-#	[ 2, 2, 2 ],
-#	[ 2, 2, 2, 3 ]
-# ]
-
-? @@NL( o1.FindItemOverPath("♥♥♥", [ 2, 1 ]) )
+? @@( o1.FindItemOverPath("♥♥♥", [ 2, 1 ]) )
+#--> [ [ 2, 1 ] ]
 
 proff()
+# Executed in 0.09 second(s) in Ring 1.22
 
 /*----
 
