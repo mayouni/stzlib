@@ -5943,6 +5943,14 @@ func PathsToXT(paPaths)
 	func @PathsToPaths(paPaths)
 		return PathsToXT(paPaths)
 
+	#--
+
+	func ExtendPaths(paPaths)
+		return PathsToXT(paPaths)
+
+	func ExpandPaths(paPaths)
+		return PathsToXT(paPaths)
+
 	#>
 
   /////////////////
@@ -44564,11 +44572,52 @@ fdef
 
 	#--
 
+	def FindItemOverPathsCS(pItem, paPaths, pCaseSensitive)
+    		if NOT This.AreValidPaths(paPaths)
+        		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
+    		ok
+
+		_aResult_ = []
+
+		_aSubPaths_ = @PathsToPaths(paPaths)
+		_nLen_ = len(_aSubPaths_)
+
+		for @i = 1 to _nLen_
+
+			_nLenSubPaths_ = len(_aSubPaths_[@i])
+
+			_anPos_ = StzListQ( This.ItemAtPath(_aSubPaths_[@i]) ).FindCS(pItem, pCaseSensitive)
+			_nLenPos_ = len(_anPos_)
+
+			_aPath_ = [@i]
+
+			for @j = 1 to _nLenPos_
+				
+				_aTemp_ = []
+				for @k = 1 to _nLenSubPaths_
+					_aTemp_ + _aSubPaths_[@i][@k]
+				next
+
+				_aTemp_ + _anPos_[@j]
+
+				_aResult_ + _aTemp_
+				
+			next
+
+		next
+
+		return _aResult_
+
+		def FindOverPathsCS(pItem, paPaths, pCaseSensitive)
+			return This.FindItemOverPathsCS(pItem, paPaths, pCaseSensitive)
+
 	def FindItemOverPaths(pItem, paPaths)
-		/* ... */
+		return This.FindItemOverPathsCS(pItem, paPaths, _TRUE_)
 
 		def FindOverPaths(pItem, paPaths)
 			return This.FindItemOverPaths(pItem, paPaths)
+
+	#---
 
 	def FindItemsOverPaths(paItems, paPaths)
 		/* ... */
