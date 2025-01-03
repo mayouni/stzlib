@@ -3031,9 +3031,58 @@ class stzListOfLists from stzList
 	 #  COMMON ITEMS BETWEEN ALL THE LISTS  #
 	#======================================#
 
-	def CommonItemsCS(pCaseSensitive)
-		_aResult_ = This.ToStzListQ().FlattenQ().UniqueItemsCS(pCaseSensitive)
-		return _aResult_
+	def CommonItemsCS(pCaseSensitive) #ai #claude
+
+		_aContent_ = This.Content()
+    		if len(_aContent_) = 0 return [] ok
+    		if len(_aContent_) = 1 return _aContent_[1] ok
+    
+    		# Start with the first list as our base for comparison
+
+    		aCommon = _aContent_[1]
+   		nListsLen = len(_aContent_)
+    
+    		# Compare with each subsequent list
+
+    		for i = 2 to nListsLen
+        		aTemp = []
+        		nCurrentListLen = len(_aContent_[i])
+        		nCommonLen = len(aCommon)
+        
+        		# Check each item in our current common items
+
+        		for j = 1 to nCommonLen
+
+            			item = aCommon[j]
+
+	   			if isNumber(item) or isString(item)
+
+	            		# Look for this item in the current list
+
+			            	for k = 1 to nCurrentListLen
+			                	if item = _aContent_[i][k]
+			                    		aTemp + item
+			                    		exit  # Found it, no need to continue inner loop
+			                	ok
+			            	next
+
+	   			else
+
+		            		for k = 1 to nCurrentListLen
+		                		if Q(item).IsEqualToCS(_aContent_[i][k], pCaseSensitive)
+		                    			aTemp + item
+		                    			exit  # Found it, no need to continue inner loop
+		                		ok
+		            		next
+	    			ok
+
+        		next
+        
+        		# Update our common items to only those found in current list
+        		aCommon = aTemp
+    		next
+    
+    		return aCommon
 
 
 		def IntersectionCS(pCaseSensitive)

@@ -44456,19 +44456,54 @@ fdef
 
 	#-- PATH FINDING
 
-	def FindItemOverPath(pItem, paPath)
-		if NOT This.IsValidPath(paPath)
-			StzRaise("Incorrect param type! paPath must be a valid path in the list.")
-		ok
+	def FindItemOverPathCS(pItem, paPath, pCaseSensitive)
 
-		_aPaths_ = @PathsToPath(paPath)
-		_aItemPaths_ = This.DeepFind(pItem)
-	
-		_aResult_ = @Intersection([ _aPaths_, _aItemPaths_ ])
+    		if NOT This.IsValidPath(paPath)
+        		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
+    		ok
+
+		_aResult_ = []
+
+		_aSubPaths_ = @PathsTo(paPath)
+		_nLen_ = len(_aSubPaths_)
+
+		for @i = 1 to _nLen_
+
+			_nLenSubPaths_ = len(_aSubPaths_[@i])
+
+			_anPos_ = StzListQ( This.ItemAtPath(_aSubPaths_[@i]) ).FindCS(pItem, pCaseSensitive)
+			_nLenPos_ = len(_anPos_)
+
+			_aPath_ = [@i]
+
+			for @j = 1 to _nLenPos_
+				
+				_aTemp_ = []
+				for @k = 1 to _nLenSubPaths_
+					_aTemp_ + _aSubPaths_[@i][@k]
+				next
+
+				_aTemp_ + _anPos_[@j]
+
+				_aResult_ + _aTemp_
+				
+			next
+
+		next
+
 		return _aResult_
+
+
+		def FindOverPathCS(pItem, paPath, pCaseSensitive)
+			return This.FindItemOverPathCS(pItem, paPath, pCaseSensitive)
+
+	def FindItemOverPath(pItem, paPath)
+		return This.FindItemOverPathCS(pItem, paPath, _TRUE_)
 
 		def FindOverPath(pItem, paPath)
 			return This.FindItemOverPath(pItem, paPath)
+
+	#--
 
 	def FindItemsInPath(paItems, paPath)
 		/* ... */
