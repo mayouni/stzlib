@@ -44505,32 +44505,79 @@ fdef
 
 	#--
 
-	def FindItemsInPath(paItems, paPath)
+	def FindItemsOverPathCS(paItems, paPath, pCaseSensitive)
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
+			ok
+
+			if NOT This.IsValidPath(paPath)
+				StzRaise("Can't proceed! paPath is not a valid path of the list.")
+			ok
+		ok
+
+		paItems = U(paItems)
+		_nLen_ = len(paItems)
+
+		_aResult_ = []
+
+		for @i = 1 to _nLen_
+			_aTemp_ = This.FindItemOverPathCS(paItems[@i], paPath, pCaseSensitive)
+			_nLenTemp_ = len(_aTemp_)
+
+			for @j = 1 to _nLenTemp_
+				_aResult_ + _aTemp_[@j]
+			next
+
+		next
+
+		return _aResult_
+
+		#< @FunctionAlternativeForms
+
+		def FindManyOverPathCS(paItems, paPath, pCaseSensitive)
+			return This.FindItemsOverPathCS(paItems, paPath, pCaseSensitive)
+
+		def FindManyItemsOverPathCS(paItems, paPath, pCaseSensitive)
+			return This.FindItemsOverPathCS(paItems, paPath, pCaseSensitive)
+
+		def FindTheseItemsOverPathCS(paItems, paPath, pCaseSensitive)
+			return This.FindItemsOverPathCS(paItems, paPath, pCaseSensitive)
+
+		#>
+
+	def FindItemsOverPath(paItems, paPath)
+		return This.FindItemsOverPathCS(paItems, paPath, _TRUE_)
+
+		#< @FunctionAlternativeForms
+
+		def FindManyOverPath(paItems, paPath)
+			return This.FindItemsOverPath(paItems, paPath)
+
+		def FindManyItemsOverPath(paItems, paPath)
+			return This.FindItemsOverPath(paItems, paPath)
+
+		def FindTheseItemsOverPath(paItems, paPath)
+			return This.FindItemsOverPath(paItems, paPath)
+
+		#>
+
+	#--
+
+	def FindItemOverPaths(pItem, paPaths)
 		/* ... */
 
-		def FindManyInPath(paItems, paPath)
-			return This.FindItemsInPath(paItems, paPath)
+		def FindOverPaths(pItem, paPaths)
+			return This.FindItemOverPaths(pItem, paPaths)
 
-		def FindManyItemsInPath(paItems, paPath)
-			return This.FindItemsInPath(paItems, paPath)
-
-		def FindTheseItemsInPath(paItems, paPath)
-			return This.FindItemsInPath(paItems, paPath)
-
-	def FindItemInPaths(pItem, paPaths)
+	def FindItemsOverPaths(paItems, paPaths)
 		/* ... */
 
-		def FindInPaths(pItem, paPaths)
-			return This.FindItemInPaths(pItem, paPaths)
+		def FindManyItemsOverPaths(paItems, paPaths)
+			return This.FindItemsOverPaths(paItems, paPaths)
 
-	def FindItemsInPaths(paItems, paPaths)
-		/* ... */
-
-		def FindManyItemsInPaths(paItems, paPaths)
-			return This.FindItemsInPaths(paItems, paPaths)
-
-		def FindTheseItemsInPaths(paItems, paPaths)
-			return This.FindItemsInPaths(paItems, paPaths)
+		def FindTheseItemsOverPaths(paItems, paPaths)
+			return This.FindItemsOverPaths(paItems, paPaths)
 
 	#--
 
