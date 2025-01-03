@@ -44699,6 +44699,76 @@ fdef
 		def ItemsAtPathsXTZ(paPaths)
 			return This.ItemsAtPathsXTZZ(paPaths)
 
+	#-- PATH'S SECTION
+
+	def PathsSection(paPath1, paPath2)
+
+		if CheckParams()
+
+			if isList(paPath1) and StzListQ(paPath1).IsFromOrFromPathNamedParam()
+				paPath1 = paPath1[2]
+			ok
+
+			if isList(paPath2) and StzListQ(paPath2).IsToOrToPathNamedParam()
+				paPath2 = paPath2[2]
+			ok
+
+			if NOT AreValidPaths([ paPath1, paPath2 ])
+				StzRaise("Incorrect param type! paPath1 and paPath2 are not valid paths.")
+			ok
+		ok
+
+		_aResult_ = This.ItemsAtPaths( @PathsSection(paPath1, paPath2) )
+		return _aResult_
+
+		#< @FunctionAlternativeFroms
+
+		def ItemsBetweenPaths(paPath1, paPath2)
+			return This.PathsSection(paPath1, paPath2)
+
+		def ItemsFromPathToPath(paPath1, paPath2)
+			return This.PathsSection(paPath1, paPath2)
+
+		#>
+
+	def PathsSectionZZ(paPath1, paPath2)
+		if CheckParams()
+
+			if isList(paPath1) and StzListQ(paPath1).IsFromOrFromPathNamedParam()
+				paPath1 = paPath1[2]
+			ok
+
+			if isList(paPath2) and StzListQ(paPath2).IsToOrToPathNamedParam()
+				paPath2 = paPath2[2]
+			ok
+
+			if NOT AreValidPaths([ paPath1, paPath2 ])
+				StzRaise("Incorrect param type! paPath1 and paPath2 are not valid paths.")
+			ok
+		ok
+
+		_aPaths_ = @PathsSection(paPath1, paPath2)
+		_aItems_ = This.ItemsAtPaths(_aPaths_)
+		_aResult_ = @Association([ _aItems_, _aPaths_ ])
+
+		return _aResult_
+
+		#< @FunctionAlternativeFroms
+
+		def ItemsBetweenPathsZZ(paPath1, paPath2)
+			return This.PathsSectionZZ(paPath1, paPath2)
+
+		def ItemsFromPathToPathZZ(paPath1, paPath2)
+			return This.PathsSectionZZ(paPath1, paPath2)
+
+		def PathsSectionZ(paPath1, paPath2)
+			return This.PathsSectionZZ(paPath1, paPath2)
+
+		def ItemsFromPathToPathZ(paPath1, paPath2)
+			return This.PathsSectionZZ(paPath1, paPath2)
+
+		#>
+
 	#-- COMMON PATH
 
 	def CommonPath()
@@ -50667,9 +50737,19 @@ fdef
 		# ~> n1 and n2 can be negative numbers, so their values are counted from the end
 		# ~> n1 can be greater then n2, and hence the section is reversed
 
+		#UPDATE
+		# We supported the syntax SectionXT( :FromPath = [2], :ToPath = [2,2,1] )
+		# as a bridge the less-obvious PathsSection() method.
+
 		nLen = This.NumberOfItemsCS(pCaseSensitive)
 
 		if CheckingParams()
+
+			if isList(n1) and StzListQ(n1).IsFromPathNamedParam() and
+			   isList(n2) and StzListQ(n2).IsToPathNamedParam()
+
+				return This.PathsSection(n1, n2)
+			ok
 
 			if isString(n1) and (n1 = :Start or n1 = :StartOfList)
 				n1 = 1
@@ -50732,6 +50812,13 @@ fdef
 
 	def SectionCSXTZ(n1, n2, pCaseSensitive)
 		if CheckingParams()
+
+			if isList(n1) and StzListQ(n1).IsFromPathNamedParam() and
+			   isList(n2) and StzListQ(n2).IsToPathNamedParam()
+
+				return This.PathsSectionZ(n1, n2)
+			ok
+
 			if isString(n1) and (n1 = :Start or n1 = :StartOfList)
 				n1 = 1
 			ok
@@ -50761,6 +50848,12 @@ fdef
 
 	def SectionCSXTZZ(n1, n2, pCaseSensitive)
 		if CheckingParams()
+
+			if isList(n1) and StzListQ(n1).IsFromPathNamedParam() and
+			   isList(n2) and StzListQ(n2).IsToPathNamedParam()
+
+				return This.PathsSectionZZ(n1, n2)
+			ok
 
 			if isString(n1) and (n1 = :Start or n1 = :StartOfList)
 				n1 = 1
@@ -87133,6 +87226,53 @@ fdef
 
 		def IsSubStringOrPositionNamedParam()
 			return This.IsPositionOrSubStringNamedParam()
+
+
+#--
+
+	def IsFromPathNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :FromPath
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+	def IsToPathNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :ToPath
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+	def IsFromOrFromPathNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   ( This.Item(1) = :FromPath or This.Item(1) = :From)
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+	def IsToOrToPathNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   ( This.Item(1) = :ToPath or This.Item(1) = :To)
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
 
 #WARNING: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.

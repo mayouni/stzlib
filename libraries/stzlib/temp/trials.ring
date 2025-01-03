@@ -565,7 +565,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-*/
+
 profon()
 
 # This list will have no common path because of root-level items
@@ -628,42 +628,10 @@ o2 = new stzList([
 proff()
 # Executed in 0.13 second(s) in Ring 1.22
 
-/*---
+#--
 
 profon()
 
-o1 = ...
-
-
-#  All paths share [2, 1] as common ancestor
-
-? @@( o1.ItemsAtCommonPath() ) # Or ItemsAtPathsIntersection()
-#--> [ 2, 1]
-
-# Paths share only [2]
-? @@( o1.ItemsAtCommonPath() )
-#--> [2]
-
-# No common path
-? @@( o1.ItemsAtCommonPath() )
-#--> []
-
-# One path is ancestor of others
-? @@( o1.ItemsAtCommonPath() )
-#--> [ 2, 1 ]
-
-# Single path
-? @@( o1.ItemsAtCommonPath() )
-#--> [ 2, 1, 3 ]
-
-# Empty paths list
-? @@( o1.ItemsAtCommonPath() )
-#--> [ ]
-
-proff()
-
-#--
-/*
 ? @@( PathsSection([ 2 ], [ 2, 3, 1 ]) )
 #--> [ [ 2 ], [ 2, 3 ], [ 2, 3, 1 ] ]
 
@@ -679,7 +647,74 @@ proff()
 ? @@( PathsSection([2,3], [2]) ) + NL
 #--> [ ]    # [2,3] is not a subpath of [2]
 
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
 #--
+*/
+profon()
+
+o1 = new stzList([ 
+	"X",
+	[ "Y", [ "Z1" ] ],
+	[ "Y", [ "Z2" ] ],
+	[ "Y", [ "Z3" ] ]
+])
+
+? @@NL( o1.Paths() )
+#--> [
+#	[ 1 ],
+#	[ 2 ],
+#	[ 2, 1 ],
+#	[ 2, 2 ],
+#	[ 2, 2, 1 ],
+#	[ 3 ],
+#	[ 3, 1 ],
+#	[ 3, 2 ],
+#	[ 3, 2, 1 ],
+#	[ 4 ],
+#	[ 4, 1 ],
+#	[ 4, 2 ],
+#	[ 4, 2, 1 ]
+# ]
+
+? @@NL( o1.PathsSection(:From = [2], :To = [2, 2, 1]) )
+#--> [
+#	[ "Y", [ "Z1" ] ],
+#	[ "Z1" ],
+#	"Z1"
+#]
+
+? @@NL( o1.PathsSectionZZ(:From = [2], :To = [2, 2, 1]) ) + NL
+#--> [
+#	[ [ "Y", [ "Z1" ] ], [ 2 ] ],
+#	[ [ "Z1" ], [ 2, 2 ] ],
+#	[ "Z1", [ 2, 2, 1 ] ]
+# ]
+
+# Can be accessed more expressively using SectionXT() like this:
+
+? @@NL( o1.SectionXT(:FromPath = [2], :ToPath = [2, 2, 1]) )
+#--> [
+#	[ "Y", [ "Z1" ] ],
+#	[ "Z1" ],
+#	"Z1"
+#]
+
+? @@NL( o1.SectionXTZZ(:FromPath = [2], :ToPath = [2, 2, 1]) )
+#--> [
+#	[ [ "Y", [ "Z1" ] ], [ 2 ] ],
+#	[ [ "Z1" ], [ 2, 2 ] ],
+#	[ "Z1", [ 2, 2, 1 ] ]
+# ]
+
+
+proff()
+# Executed in 0.45 second(s) in Ring 1.22
+
+/*--
+
+profon()
 
 # [2,1] is a subpath of [2,1,3] but not of [2,2]
 
@@ -688,7 +723,7 @@ proff()
 
 ? IsSubPathOf([ 2, 1 ], [ 2, 2 ]) + NL
 #--> FALSE
-*/
+
 proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
