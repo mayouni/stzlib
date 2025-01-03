@@ -5775,6 +5775,10 @@ func Combinations(aList, n)
 	func @Combinations(aList, n)
 		return Combinations(aList, n)
 
+#---------------------------------#
+#  FUNCTIONS FOR PATH MANAGEMENT  #
+#---------------------------------#
+
 # An internal function that generates paths of a nested list
 # from a particular string representation of the list (formed
 # from only "[", ",", and "]" and removing all the other chars)
@@ -5828,8 +5832,6 @@ func GeneratePaths(cStr)
 	next
     
 	return aResult
-
-# Used internallay for Paths management
 
 func PathsTo(paPath)
 	# EXAMPLE
@@ -5952,6 +5954,252 @@ func PathsToXT(paPaths)
 		return PathsToXT(paPaths)
 
 	#>
+
+func ReducePaths(paPaths)
+	# Returns the shortest unique ancestor paths
+    	# For example, between [2] and [2,2], we keep [2]
+    	# Between [3,1] and [3,1,2], we keep [3,1]
+
+	_nLenPaths_ = len(paPaths)
+   	_aResult_ = []
+
+	for @i = 1 to _nLenPaths_
+
+		_aPath_ = paPaths[@i]
+        	_bShouldAdd_ = _TRUE_
+        
+		for @j = 1 to _nLenPaths_
+
+			_aOtherPath_ = paPaths[@j]
+
+            		if _aOtherPath_ != _aPath_ and
+               		   IsSubPathOf(_aOtherPath_, _aPath_)
+
+                	   # If we find a shorter path that is a prefix of
+                	   # our current path, we skip the current path
+
+                		_bShouldAdd_ = _FALSE_
+                			exit
+            		ok
+        	next
+        
+        	if _bShouldAdd_
+			_aResult_ + _aPath_
+        	ok
+    	next
+
+    	return _aResult_
+
+	#< @FunctionAlternativeForms
+
+    	func ShortestCommonPaths(paPaths)
+		return ReducePaths(paPaths)
+
+   	func CollapsePaths(paPaths)
+		return ReducePaths(paPaths)
+
+	#--
+
+	func @ReducePaths(paPaths)
+		return ReducePaths(paPaths)
+
+    	func @ShortestCommonPaths(paPaths)
+		return ReducePaths(paPaths)
+
+   	func @CollapsePaths(paPaths)
+		return ReducePaths(paPaths)
+
+	#>
+
+func SortPaths(paPaths)
+    	# Sorts paths in ascending order:
+    	# [4] should come after [3,1,2] because 4 > 3
+    	# [2,2] should come after [2,1] because at position 2: 2 > 1
+
+    	_aResult_ = paPaths
+    	_nLen_ = len(_aResult_)
+
+    	_nLen1_ = _nLen_ - 1
+
+    	for @i = 1 to _nLen1_
+
+		_nLen2_ = _nLen_ - @i
+
+        	for @j = 1 to _nLen2_
+
+            		if PathIsGreaterThan(_aResult_[@j], _aResult_[@j+1])
+
+                		_temp_ = _aResult_[@j]
+                		_aResult_[@j] = _aResult_[@j+1]
+                		_aResult_[@j+1] = _temp_
+
+            		ok
+        	next
+    	next
+
+    	return _aResult_
+
+	func @SortPaths(paPaths)
+		return SortPaths(paPaths)
+
+func PathIsGreaterThan(paPath1, paPath2)
+    	# Compare paths lexicographically - first values matter most
+   	# [4] should come after [3,1,2] because 4 > 3
+    	# [2,2] should come after [2,1] because at position 2: 2 > 1
+
+	_nLen1_ = len(paPath1)
+	_nLen2_ = len(paPath2)
+
+   	_nMin_ = Min([ _nLen1_, _nLen2_ ])
+    
+    	# Compare common positions first
+
+	for @i = 1 to _nMin_
+		if paPath1[@i] != paPath2[@i]
+			return paPath1[@i] > paPath2[@i]
+		ok
+	next
+    
+    	# If one is ancestor of other, shorter comes first
+
+    	return _nLen1_ > _nLen2_
+
+	func @PathIsGreaterThan(paPath1, paPath2)
+		return PathIsGreaterThan(paPath1, paPath2)
+
+func IsSubPathOf(paShortPath, paLongPath)
+    	# Returns TRUE if paShortPath is an initial segment of paLongPath
+   	 # Example: [2,1] is a subpath of [2,1,3] but not of [2,2]
+
+	_nLenShort_ = len(paShortPath)
+
+    	if _nLenShort_ >= len(paLongPath)
+
+        	return _FALSE_
+    	ok
+    
+    	for @i = 1 to _nLenShort_
+        	if paShortPath[@i] != paLongPath[@i]
+            		return _FALSE_
+        	ok
+    	next
+    
+    	return _TRUE_
+
+	func @IsSubPathOf(paShortPath, paLongPath)
+		return IsSubPathOf(paShortPath, paLongPath)
+
+func CommonPath(paPaths)
+	if len(paPaths) = 0
+		return []
+	ok
+
+	_aShortestPath_ = paPaths[1]
+	_nLenPaths_ = len(paPaths)
+
+	# Find shortest path
+	for @i = 1 to _nLenPaths_
+		if len(paPaths[@i]) < len(_aShortestPath_)
+			_aShortestPath_ = paPaths[@i]
+		ok
+	next
+
+	# Try each length from longest to shortest
+	_nLen_ = len(_aShortestPath_)
+	
+	for @n = _nLen_ to 1 step -1
+		_aCandidate_ = []
+		
+		# Build candidate of length @n
+		for @j = 1 to @n
+			_aCandidate_ + _aShortestPath_[@j]
+		next
+
+		_bAllMatch_ = TRUE
+		
+		# Check if all paths match this candidate at length @n
+		for @i = 1 to _nLenPaths_
+			if len(paPaths[@i]) < @n
+				_bAllMatch_ = FALSE
+				exit
+			ok
+			
+			for @j = 1 to @n
+				if paPaths[@i][@j] != _aCandidate_[@j]
+					_bAllMatch_ = FALSE
+					exit
+				ok
+			next
+		next
+
+		if _bAllMatch_ = TRUE
+			return _aCandidate_
+		ok
+	next
+
+	return []
+
+	#< @FunctionAlternativeForms
+
+	func PathsIntersection(paPaths)
+		return CommonPath(paPaths)
+
+	#--
+
+	func @CommonPath(paPaths)
+		return CommonPath(paPaths)
+
+	func @PathsIntersection(paPaths)
+		return CommonPath(paPaths)
+
+	#>
+
+func PathsSection(paPath1, paPath2)
+	# Returns all paths from paPath1 to paPath2, where
+	# paPath1 must be a subpath of paPath2
+	# Example: [2] and [2,3,1] -> [ [2], [2,3], [2,3,1] ]
+    
+    	if NOT IsSubPathOf(paPath1, paPath2)
+        	return []
+    	ok
+    
+    	_aResult_ = []
+   	_nStart_ = len(paPath1)
+    	_nEnd_ = len(paPath2)
+    
+    	for @i = _nStart_ to _nEnd_
+
+        	_aTemp_ = []
+
+        	for @j = 1 to @i
+            		_aTemp_ + paPath2[@j]
+        	next
+
+        	_aResult_ + _aTemp_
+    	next
+    
+    	return _aResult_
+
+	func @PathsSection(paPath1, paPath2)
+		return PathsSection(paPath1, paPath2)
+
+func IsTree(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	_bResult_ = StzListQ(paList).IsTree()
+
+	func IsATree(paList)
+		return IsTree(paList)
+
+	func @IsTree(paList)
+		return IsTree(paList)
+
+	func @IsATree(paList)
+		return IsTree(paList)
 
   /////////////////
  ///   CLASS   ///
@@ -25168,17 +25416,6 @@ class stzList from stzObject
 
 		def IsAListOf(pcType)
 			return This.IsListOf(pcType)
-
-	def IsTree()
-		if NOT This.IsEmpty()
-			return _TRUE_
-
-		else
-			return _FALSE_
-		ok
-
-		def IsATree()
-			return This.IsTree()
 
 	def IsStzTree()
 		if This.StzClassName() = "stztree"
@@ -44461,6 +44698,35 @@ fdef
 
 		def ItemsAtPathsXTZ(paPaths)
 			return This.ItemsAtPathsXTZZ(paPaths)
+
+	#-- COMMON PATH
+
+	def CommonPath()
+		_aResult_ = @CommonPath(This.Paths())
+		return _aResult_
+
+		def PathsIntersection()
+			return This.CommonPath()
+
+	def ItemsAtCommonPath()
+		_aResult_ = This.ItemsAtPath( This.CommonPath() )
+		return _aResult_
+
+		def ItemsAtPathsIntersection()
+			return This.ItemsAtCommonPath()
+
+	def IsTree()
+		_aTemp_ = This.CommonPath()
+		_nLen_ = len(_aTemp_)
+
+		if _nLen_ = 1 and _aTemp_[1] = 1
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsATree()
+			return IsTree()
 
 	#-- PATH FINDING
 

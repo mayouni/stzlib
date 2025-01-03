@@ -469,7 +469,7 @@ proff()
 # Executed in 0.17 second(s) in Ring 1.22
 
 /*------
-*/
+
 profon()
 
 o1 = new stzList([
@@ -479,16 +479,46 @@ o1 = new stzList([
 	[ "F", "♥", "G", [ "♥" ] ]
 ])
 
-//? o1.AreValidPaths([ [2, 2], [4, 2] ])
+? o1.AreValidPaths([ [2, 2], [4, 2] ])
 #--> TRUE
 
 ? @@( ExpandPaths([ [2, 2], [4, 2] ]) )
 #--> [ [ 2 ], [ 2, 2 ], [ 4 ], [ 4, 2 ] ]
 
-? @@( CollapsePaths([ [ 2 ], [ 2, 2 ], [ 4 ], [ 4, 2 ], [ 3, 1 ], [ 3, 1, 2 ] ]) )
+? @@( CollapsePaths([
+	[ 2 ],
+	[ 2, 2 ],
+	[ 4 ],
+	[ 4, 2 ],
+	[ 3, 1 ],
+	[ 3, 1, 2 ]
+]) )
 #--> [ [ 2 ], [ 4 ], [ 3, 1 ] ]
 
-? @@NL( SortPaths([ [ 2 ], [ 2, 2 ], [ 4 ], [ 4, 2 ], [ 2, 1 ], [ 1 ], [ 3, 1 ], [ 3, 1, 2 ] ]) )
+proff()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*---
+
+profon()
+
+o1 = new stzList([
+	"A",
+	[ "♥", [ "B", "♥", "C", "♥" ], "♥", "D" ],
+	"E",
+	[ "F", "♥", "G", [ "♥" ] ]
+])
+
+? @@NL( SortPaths([
+	[ 2 ],
+	[ 2, 2 ],
+	[ 4 ],
+	[ 4, 2 ],
+	[ 2, 1 ],
+	[ 1 ],
+	[ 3, 1 ],
+	[ 3, 1, 2 ]
+]) )
 #--> [
 #	[ 1 ],
 #	[ 2 ],
@@ -500,162 +530,175 @@ o1 = new stzList([
 #	[ 4, 2 ]
 # ]
 
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+#---
+
+profon()
+
+#  All paths share [2, 1] as common ancestor
+? @@( CommonPath()([ [2, 1, 3], [2, 1, 4], [2, 1, 5] ]) ) # Or PathsIntersection()
+#--> [ 2, 1 ]
+
+# Paths share only [2]
+? @@( CommonPath([ [2,1,3], [2,1,4], [2,2,1] ]) )
+#--> [ 2 ]
+
+# No common path
+? @@( CommonPath([ [2,1,3], [3,1,4], [4,1,5] ]) )
+#--> [ ]
+
+# One path is ancestor of others
+? @@( CommonPath([ [2,1], [2,1,3], [2,1,4] ]) )
+#--> [ 2, 1 ]
+
+# Single path
+? @@( CommonPath([ [2,1,3] ]) )
+#--> [ 2, 1, 3 ]
+
+# Empty paths list
+? @@( CommonPath([]) )
+#--> [ ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+*/
+profon()
+
+# This list will have no common path because of root-level items
+
+o1 = new stzList([
+    "A",					# path [1]
+    [ "target", [ "B", "target", "C" ] ],	# paths starting with [2]
+    "E"						# path [3]
+])
+
+? @@( o1.CommonPath() ) + NL
+
+# But this list WILL have a common path [1]
+
+o2 = new stzList([
+    	[ 
+		"X",
+		[ "Y", [ "Z1" ] ],
+		[ "Y", [ "Z2" ] ],
+		[ "Y", [ "Z3" ] ]
+	]
+])
+
+? @@NL( o2.Paths() )
+#--> [
+#	[ 1 ],
+#	[ 1, 1 ],
+#	[ 1, 2 ],
+#	[ 1, 2, 1 ],
+#	[ 1, 2, 2 ],
+#	[ 1, 2, 2, 1 ],
+#	[ 1, 3 ],
+#	[ 1, 3, 1 ],
+#	[ 1, 3, 2 ],
+#	[ 1, 3, 2, 1 ],
+#	[ 1, 4 ],
+#	[ 1, 4, 1 ],
+#	[ 1, 4, 2 ],
+#	[ 1, 4, 2, 1 ]
+# ]
+
+? @@( o2.CommonPath() )
+#--> [ 1 ]
+
+# In o2, all paths will begin with [1], because:
+#	- Everything is nested under the first element [1]
+#	- Then all paths continue through the second level [1,2], the
+#	  third level [1,3] and the forth level [1,4]
+#	- No "sibling" elements at the root level to create divergent paths
+
+#~> This is an important characteristic of tree structures:
+# to have a common path, the structure needs to force all elements through the same "trunk" before branching out.
+
+? o2.IsTree() # Use CommonPath() internally
+#--> TRUE
+
+? o1.IsTree()
+#--> FALSE
+
+proff()
+# Executed in 0.13 second(s) in Ring 1.22
+
+/*---
+
+profon()
+
+o1 = ...
+
+
+#  All paths share [2, 1] as common ancestor
+
+? @@( o1.ItemsAtCommonPath() ) # Or ItemsAtPathsIntersection()
+#--> [ 2, 1]
+
+# Paths share only [2]
+? @@( o1.ItemsAtCommonPath() )
+#--> [2]
+
+# No common path
+? @@( o1.ItemsAtCommonPath() )
+#--> []
+
+# One path is ancestor of others
+? @@( o1.ItemsAtCommonPath() )
+#--> [ 2, 1 ]
+
+# Single path
+? @@( o1.ItemsAtCommonPath() )
+#--> [ 2, 1, 3 ]
+
+# Empty paths list
+? @@( o1.ItemsAtCommonPath() )
+#--> [ ]
+
+proff()
+
+#--
+/*
+? @@( PathsSection([ 2 ], [ 2, 3, 1 ]) )
+#--> [ [ 2 ], [ 2, 3 ], [ 2, 3, 1 ] ]
+
+? @@( PathsSection([2], [2,3,1]) )
+#--> [ [ 2 ], [ 2, 3 ], [ 2, 3, 1 ] ]
+
+? @@( PathsSection([2, 3], [2, 3, 1, 4]) )
+#--> [ [ 2, 3 ], [2, 3, 1 ], [ 2, 3, 1, 4 ] ]
+
+? @@( PathsSection([2], [3,1]) )
+#--> [ ]    # Because [2] is not a subpath of [3,1]
+
+? @@( PathsSection([2,3], [2]) ) + NL
+#--> [ ]    # [2,3] is not a subpath of [2]
+
+#--
+
+# [2,1] is a subpath of [2,1,3] but not of [2,2]
+
+? IsSubPathOf([ 2, 1 ], [ 2, 1, 3 ])
+#--> TRUE
+
+? IsSubPathOf([ 2, 1 ], [ 2, 2 ]) + NL
+#--> FALSE
+*/
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*-----------
+
 //? @@( o1.FindItemOverPaths("♥", [ [2, 2], [4, 2] ]) )
 #--> [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ], [ 2, 2, 1 ] ]
 
-? @@( PathsSection([ 2 ], [ 2, 3, 1 ]) )
-#--> [ [ 2 ], [ 2,3 ], [2, 3, 1] ]
+/*------------
 
-proff()
-# Executed in 0.17 second(s) in Ring 1.22
-
-def ReducePaths(paPaths)
-    # Returns the shortest unique ancestor paths
-    # For example, between [2] and [2,2], we keep [2]
-    # Between [3,1] and [3,1,2], we keep [3,1]
-
-    aResult = []
-    
-    for aPath in paPaths
-        bShouldAdd = TRUE
-        
-        for aOtherPath in paPaths
-            if aOtherPath != aPath and
-               IsSubPathOf(aOtherPath, aPath)
-                # If we find a shorter path that is a prefix of
-                # our current path, we skip the current path
-                bShouldAdd = FALSE
-                exit
-            ok
-        next
-        
-        if bShouldAdd
-            aResult + aPath
-        ok
-    next
-
-    return aResult
-
-    func ShortestCommonPaths(paPaths)
-		return ReducePaths(paPaths)
-
-    func CollapsePaths(paPaths)
-		return ReducePaths(paPaths)
-
-def SortPaths(paPaths)
-    # Sorts paths in ascending order based on:
-    # 1. Path length (shorter paths come first)
-    # 2. Path values at each position
-
-    aResult = paPaths
-    
-    for i = 1 to len(aResult) - 1
-        for j = 1 to len(aResult) - i
-            if PathIsGreaterThan(aResult[j], aResult[j+1])
-                temp = aResult[j]
-                aResult[j] = aResult[j+1]
-                aResult[j+1] = temp
-            ok
-        next
-    next
-
-    return aResult
-
-
-def PathIsGreaterThan(paPath1, paPath2)
-        # Helper function for path comparison
-        
-        n1 = len(paPath1)
-        n2 = len(paPath2)
-        
-        # First compare lengths
-        if n1 != n2
-            return n1 > n2
-        ok
-        
-        # If same length, compare values at each position
-        for i = 1 to n1
-            if paPath1[i] != paPath2[i]
-                return paPath1[i] > paPath2[i]
-            ok
-        next
-        
-        return FALSE
-
-def IsSubPathOf(paShortPath, paLongPath)
-    # Returns TRUE if paShortPath is an initial segment of paLongPath
-    # Example: [2,1] is a subpath of [2,1,3] but not of [2,2]
-    
-    if len(paShortPath) >= len(paLongPath)
-        return FALSE
-    ok
-    
-    for i = 1 to len(paShortPath)
-        if paShortPath[i] != paLongPath[i]
-            return FALSE
-        ok
-    next
-    
-    return TRUE
-
-def CommonPath(paPaths)
-    # Returns the shortest path common to ALL provided paths
-    # Example: [ [2,1,3], [2,1,4], [2,2,1] ] -> [2]
-    
-    if len(paPaths) = 0 return [] ok
-    
-    # Start with first path as potential common
-    aShortestPath = paPaths[1]
-    
-    # Find shortest path length (since common can't be longer)
-    for aPath in paPaths
-        if len(aPath) < len(aShortestPath)
-            aShortestPath = aPath
-        ok
-    next
-    
-    # Try each ancestor length, from longest to shortest
-    for n = len(aShortestPath) to 1 step -1
-        aCandidate = aShortestPath[1 : n]
-        bIsCommon = TRUE
-        
-        # Check if this ancestor is common to all paths
-        for aPath in paPaths
-            if aPath[1 : n] != aCandidate
-                bIsCommon = FALSE
-                exit
-            ok
-        next
-        
-        if bIsCommon
-            return aCandidate
-        ok
-    next
-    
-    return []
-
-def PathsSection(paPath1, paPath2)
-    # Returns all paths from paPath1 to paPath2, where paPath1 must be
-    # a subpath of paPath2
-    # Example: [2] and [2,3,1] -> [ [2], [2,3], [2,3,1] ]
-    
-    if NOT IsSubPathOf(paPath1, paPath2)
-        return []
-    ok
-    
-    aResult = []
-    nStart = len(paPath1)
-    nEnd = len(paPath2)
-    
-    for i = nStart to nEnd
-        aTemp = []
-        for j = 1 to i
-            aTemp + paPath2[j]
-        next
-        aResult + aTemp
-    next
-    
-    return aResult
 
 /*----....
 
