@@ -598,7 +598,7 @@ proff()
 # Executed in 0.18 second(s) in Ring 1.22
 
 /*----
-*/
+
 profon()
 
 o1 = new stzList([ 1, 2, "♥", 4, 5 ])
@@ -613,6 +613,36 @@ o1.RemoveThisItemAtPosition("♥", 3)
 
 proff()
 # Executed in 0.03 second(s) in Ring 1.22
+
+/*----
+
+profon()
+
+o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
+
+o1.RemoveThisItemAtPositions("♥", [ 3, 6 ])
+? @@( o1.Content() )
+#--> [ 1, 2, 4, "♥", 6, "♥" ]
+
+o1.RemoveThisItemAt("♥", [ 4, 6 ])
+? @@( o1.Content() )
+# [ 1, 2, 4, 6 ]
+
+proff()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*----
+*/
+profon()
+
+o1 = new stzList([ 1, 2, "♥", 4, "*", 6, "♥" ])
+
+o1.RemoveTheseItemsAt([ "♥", "*"], [ 3, 5, 7 ])
+? @@( o1.Content() )
+#--> [ 1, 2, 4, "♥", 6, "♥" ]
+
+proff()
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*----
 

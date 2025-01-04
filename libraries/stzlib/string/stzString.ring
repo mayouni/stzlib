@@ -53863,10 +53863,9 @@ class stzString from stzObject
 	#======================================================#
 
 	def IsEqualToCS(pcOtherStr, pCaseSensitive)
-		if CheckingParams()
-			if NOT isString(pcOtherStr)
-				StzRaise("Incorrect param type! pcOtherStr must be a string.")
-			ok
+		
+		if NOT isString(pcOtherStr)
+			return _FALSE_
 		ok
 
 		cContent = This.Content()

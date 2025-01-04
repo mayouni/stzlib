@@ -16537,6 +16537,11 @@ class stzList from stzObject
 		#< @FunctionAlternativeForms
 
 		def RemoveThisItemAtCS(pItem, n, pCaseSensitive)
+			if isList(n)
+				This.RemoveThisItemAtPositionsCS(pItem, n, pCaseSensitive)
+				return
+			ok
+
 			This.RemoveThisItemAtPositionCS(pItem, n, pCaseSensitive)
 
 			def RemoveThisItemAtCSQ(pItem, n, pCaseSensitive)
@@ -16555,6 +16560,11 @@ class stzList from stzObject
 				return This.RemoveThisItemAtPositionCSQ(pItem, n, pCaseSensitive)
 
 		def RemoveThisAtCS(pItem, n, pCaseSensitive)
+			if isList(n)
+				This.RemoveThisItemAtPositionsCS(pItem, n, pCaseSensitive)
+				return
+			ok
+
 			This.RemoveThisItemAtPositionCS(pItem, n, pCaseSensitive)
 
 			def RemoveThisAtCSQ(pItem, n, pCaseSensitive)
@@ -16583,6 +16593,11 @@ class stzList from stzObject
 		#< @FunctionAlternativeForms
 
 		def RemoveThisItemAt(pItem, n)
+			if isList(n)
+				This.RemoveThisItemAtPositions(pItem, n)
+				return
+			ok
+
 			This.RemoveThisItemAtPosition(pItem, n)
 
 			def RemoveThisItemAtQ(pItem, n)
@@ -16595,6 +16610,11 @@ class stzList from stzObject
 				return This.RemoveThisItemAtPositionQ(pItem, n)
 
 		def RemoveThisAt(pItem, n)
+			if isList(n)
+				This.RemoveThisItemAtPositions(pItem, n)
+				return
+			ok
+
 			This.RemoveThisItemAtPosition(pItem, n)
 
 			def RemoveThisAtQ(pItem, n)
@@ -16605,6 +16625,174 @@ class stzList from stzObject
 		_aResult_ = This.Copy().RemoveThisItemAtPositionQ(pItem, n).Content()
 		return _aResult_
 
+	  #--------------------------------------------#
+	 #  REMOVING A GiVEN ITEM AT GIVEN POSITIONS  #
+	#--------------------------------------------#
+
+	def RemoveThisItemAtPositionsCS(pItem, panPos, pCaseSensitive)
+		if CheckParams()
+			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			ok
+		ok
+
+
+		_anPos_ = u( ring_sort(panPos) )
+		_nLen_ = len(_anPos_)
+
+		_oCopy_ = This.Copy()
+
+		for @i = _nLen_ to 1 step -1
+			_oCopy_.RemoveThisItemAtPositionCS(pItem, _anPos_[@i], pCaseSensitive)
+		next
+
+		This.UpdateWith(_oCopy_.Content())
+
+		#< @FunctionFluentForm
+
+		def RemoveThisItemAtPositionsCSQ(pItem, panPos, pCaseSensitive)
+			This.RemoveThisItemAtPositionsCS(pItem, panPos, pCaseSensitive)
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveItemAtPositionsCS(pItem, panPos, pCaseSensitive)
+			This.RemoveThisItemAtPositionsCS(pItem, panPos, pCaseSensitive)
+
+			def RemoveItemAtPositionsCSQ(pItem, panPos, pCaseSensitive)
+				return This.RemoveThisItemAtPositionsCSQ(pItem, panPos, pCaseSensitive)
+
+		def RemoveThisAtPositionsCS(pItem, panPos, pCaseSensitive)
+			This.RemoveThisItemAtPositionsCS(pItem, panPos, pCaseSensitive)
+
+			def RemoveThisAtPositionsCSQ(pItem, panPos, pCaseSensitive)
+				return This.RemoveThisItemAtPositionsCSQ(pItem, panPos, pCaseSensitive)
+
+		#>
+
+	def ThisItemAtPositionsRemovedCS(pItem, panPos, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveThisItemAtPositionsCSQ(pItem, panPos, pCaseSensitive).Content()
+		return _aResult_
+
+		def ItemAtPositionsRemovedCS(pItem, panPos, pCaseSensitive)
+			return This.ThisItemAtPositionsRemovedCS(pItem, panPos, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveThisItemAtPositions(pItem, panPos)
+		This.RemoveThisItemAtPositionsCS(pItem, panPos, _TRUE_)
+
+		#< @FunctionFluentForm
+
+		def RemoveThisItemAtPositionsQ(pItem, panPos)
+			This.RemoveThisItemAtPositions(pItem, panPos)
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveThisAtPositions(pItem, panPos)
+			This.RemoveThisItemAtPositions(pItem, panPos)
+
+			def RemoveThisAtPositionsQ(pItem, panPos)
+				return This.RemoveThisItemAtPositionsQ(pItem, panPos)
+
+		#>
+
+	def ThisItemAtPositionsRemoved(pItem, panPos)
+		_aResult_ = This.Copy().RemoveThisItemAtPositionsQ(pItem, panPos).Content()
+		return _aResult_
+
+	  #-----------------------------------------------#
+	 #  REMOVING THE GiVEN ITEMS AT GIVEN POSITIONS  #
+	#-----------------------------------------------#
+
+	def RemoveTheseItemsAtPositionsCS(paItems, panPos, pCaseSensitive)
+
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
+			ok
+
+			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			ok
+		ok
+
+		_oCopy_ = This.Copy()
+		_anPos_ = @Intersection([ This.FindManyCS(paItems, pCaseSensitive), panPos ])
+		_oCopy_.RemoveAtPositions(_anPos_)
+
+		This.UpdateWith(_oCopy_.Content())
+
+		#< @FunctionFluentForm
+
+		def RemoveTheseItemsAtPositionsCSQ(paItems, panPos, pCaseSensitive)
+			This.RemoveTheseItemsAtPositionsCS(paItems, panPos, pCaseSensitive)
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveItemsAtPositionsCS(paItems, panPos, pCaseSensitive)
+			This.RemoveTheseItemsAtPositionsCS(paItems, panPos, pCaseSensitive)
+
+			def RemoveItemsAtPositionsCSQ(paItems, panPos, pCaseSensitive)
+				return This.RemoveTheseItemsAtPositionsCSQ(paItems, panPos, pCaseSensitive)
+
+		def RemoveTheseAtPositionsCS(paItems, panPos, pCaseSensitive)
+			This.RemoveTheseItemsAtPositionsCS(paItems, panPos, pCaseSensitive)
+
+			def RemoveTheseAtPositionsCSQ(paItems, panPos, pCaseSensitive)
+				return This.RemoveTheseItemsAtPositionsCSQ(pItem, panPos, pCaseSensitive)
+
+		def RemoveTheseItemsAtCS(paItems, panPos, pCaseSensitive)
+			This.RemoveTheseItemsAtPositionsCS(paItems, panPos, pCaseSensitive)
+
+			def RemoveTheseItemsAtCSQ(paItems, panPos, pCaseSensitive)
+				return This.RemoveTheseItemsAtPositionsCSQ(pItem, panPos, pCaseSensitive)
+
+		#>
+
+	def TheseItemsAtPositionsRemovedCS(paItems, panPos, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveTheseItemsAtPositionsCSQ(paItems, panPos, pCaseSensitive).Content()
+		return _aResult_
+
+		def ItemsAtPositionsRemovedCS(paItems, panPos, pCaseSensitive)
+			return This.TheseItemsAtPositionsRemovedCS(paItems, panPos, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveTheseItemsAtPositions(paItems, panPos)
+		This.RemoveTheseItemsAtPositionsCS(paItems, panPos, _TRUE_)
+
+		#< @FunctionFluentForm
+
+		def RemoveTheseItemsAtPositionsQ(paItems, panPos)
+			This.RemoveTheseItemsAtPositions(paItems, panPos)
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveTheseAtPositions(paItems, panPos)
+			This.RemoveTheseItemsAtPositions(paItems, panPos)
+
+			def RemoveTheseAtPositionsQ(paItems, panPos)
+				return This.RemoveTheseItemsAtPositionsQ(paItems, panPos)
+
+		def RemoveTheseItemsAt(paItems, panPos)
+			This.RemoveTheseItemsAtPositions(paItems, panPos)
+
+			def RemoveTheseItemsAtQ(paItems, panPos)
+				return This.RemoveTheseItemsAtPositionsQ(pItem, panPos)
+
+		#>
+
+	def TheseItemsAtPositionsRemoved(paItems, panPos)
+		_aResult_ = This.Copy().RemoveTheseItemsAtPositionsQ(paItems, panPos).Content()
+		return _aResult_
 
 	  #--------------------------------------#
 	 #  REMOVING A GIVEN NTH ITEM (IF ANY)  #
