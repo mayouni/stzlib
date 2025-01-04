@@ -45090,6 +45090,14 @@ fdef
 
 		_aContent_ = This.Content()
 
+		# Eraly check
+
+		if len(paPath) = 1 and NOT isList(_aContent_[paPath[1]])
+			del(_aContent_, paPath[1])
+			This.UpdateWith(_aContent_)
+			return
+		ok
+
 		# Constructing the accessor of the inner list
 
 		_cAccessor_ = "_aContent_["
@@ -45309,7 +45317,7 @@ fdef
 	#==
 
 	def RemoveItemAtPathsCS(pItem, paPaths, pCaseSensitive)
-		if NOT These.AreValidPaths(paPath)
+		if NOT These.AreValidPaths(paPaths)
 			StzRaise("Can't proceed! paPaths is not a valid list of paths in the list.")
 		ok
 
@@ -45318,8 +45326,8 @@ fdef
 
 		_oCopy_ = This.Copy()
 
-		for i@ = _nLenPaths_ to 1 step -1
-			_oCopy_.RemoveItemAtPathCS(_aPaths_[@i], pCaseSensitive)
+		for @i = _nLenPaths_ to 1 step -1
+			_oCopy_.RemoveItemAtPathCS(pItem, _aPaths_[@i], pCaseSensitive)
 		next
 
 		This.UpdateWith(_oCopy_.Content())
@@ -45344,6 +45352,53 @@ fdef
 
 	def ItemRemovedAtPaths(pItem, paPaths)
 		_aResult_ = This.Copy().RemoveItemAtPathsQ(pItem, paPaths).Content()
+		return _aResult_
+
+	#==
+
+	#==
+
+	def RemoveItemsAtPathsCS(paItems, paPaths, pCaseSensitive)
+
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
+			ok
+	
+			if NOT These.AreValidPaths(paPaths)
+				StzRaise("Can't proceed! paPaths is not a valid list of paths in the list.")
+			ok
+		ok
+
+		_nLen_ = len(paItems)
+		_oCopy_ = This.Copy()
+
+		for @i = 1 to _nLen_
+			_oCopy_.RemoveItemAtPathsCS(paItems[@i], paPaths, pCaseSensitive)
+		next
+
+		This.UpdateWith(_oCopy_.Content())
+
+
+		def RemoveItemsAtPathsCSQ(paItems, paPaths, pCaseSensitive)
+			This.RemoveItemsAtPathsCS(paItems, paPaths, pCaseSensitive)
+			return This
+
+	def ItemsRemoveAtPathsCS(paItems, paPaths, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveItemsAtPathsCSQ(paItems, paPaths, pCaseSensitive).Content()
+		return _aResult_
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveItemsAtPaths(paItems, paPaths)
+		This.RemoveItemsAtPathsCS(paItems, paPaths, _TRUE_)
+
+		def RemoveItemsAtPathsQ(paItems, paPaths)
+			This.RemoveItemsAtPaths(paItems, paPaths)
+			return This
+
+	def ItemsRemovedAtPaths(paItems, paPaths)
+		_aResult_ = This.Copy().RemoveItemsAtPathsQ(paItems, paPaths).Content()
 		return _aResult_
 
 	#==

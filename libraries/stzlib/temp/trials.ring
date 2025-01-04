@@ -492,32 +492,96 @@ profon()
 
 o1 = new stzList([
 	"A",
-	[ "♥", ["B", "♥", "C", "♥", "*" ], "♥", "D" ],
-	"E"
+	[ "B", "C", "♥" ],
+	"♥"
 ])
 
-o1.RemoveItemsAtPath([ "♥", "*" ], [2, 2])
+o1.RemoveItemAtPath("♥", [3])
 
 ? @@NL( o1.Content() )
 #--> [
 #	"A",
-#	[ "♥", [ "B", "C" ], "♥", "D" ],
-#	"E"
+#	[ "B", "C", "♥" ]
 # ]
 
 proff()
 # Executed in 0.09 second(s) in Ring 1.22
 
-/*----
+/*---
 
-*/
 profon()
 
 o1 = new stzList([
 	"A",
-	[ "♥", ["B", "♥", "C", "♥" ], "♥", "D" ],
-	"E",
-	"♥"
+	[ "B", "C", "♥" ],
+	[ "♥" ]
+])
+
+o1.RemoveItemAtPath("♥", [ 3 ])
+
+? @@NL( o1.Content() )
+#--> [
+#	"A",
+#	[ "B", "C", "♥" ],
+#	[ ]
+# ]
+
+proff()
+# Executed in 0.10 second(s) in Ring 1.22
+
+/*---
+
+profon()
+
+o1 = new stzList([
+	"A",
+	[ "B", "C", "♥" ],
+	[ "♥", 2 ]
+])
+
+o1.RemoveItemAtPath("♥", [ 3 ])
+
+? @@NL( o1.Content() )
+#--> [
+#	"A",
+#	[ "B", "C", "♥" ],
+#	[ 2 ]
+# ]
+
+proff()
+# Executed in 0.10 second(s) in Ring 1.22
+
+/*---
+
+profon()
+
+o1 = new stzList([
+	"A",
+	[ "B", [ "C", "♥", "D", "*", "♥", "*" ], "E", "F" ],
+	"G"
+])
+
+o1.RemoveItemsAtPath([ "♥", "*" ], [ 2, 2 ])
+
+? @@NL( o1.Content() )
+#--> [
+#	"A",
+#	[ "B", [ "C", "D" ], "E", "F" ],
+#	"G"
+# ]
+
+proff()
+# Executed in 0.11 second(s) in Ring 1.22
+
+/*----
+
+profon()
+
+o1 = new stzList([
+	"A",
+	[ "B", [ "C", "♥", "D", "♥" ], "♥", "E" ],
+	"F",
+	[ "♥", "G" ]
 ])
 
 o1.RemoveItemAtPaths("♥", [ [2, 2], [4] ])
@@ -525,12 +589,37 @@ o1.RemoveItemAtPaths("♥", [ [2, 2], [4] ])
 ? @@NL( o1.Content() )
 #--> [
 #	"A",
-#	[ "♥", [ "B", "C" ], "♥", "D" ],
-#	"E"
+#	[ "B", [ "C", "D" ], "♥", "E" ],
+#	"F",
+#	[ "G" ]
 # ]
 
 proff()
-# Executed in 0.09 second(s) in Ring 1.22
+# Executed in 0.18 second(s) in Ring 1.22
+
+/*----
+*/
+profon()
+
+o1 = new stzList([
+	"A",
+	[ "B", [ "C", "♥", "D", "*", "♥" ], "E", "F" ],
+	"G",
+	[ "♥", "H", "*" ]
+])
+
+o1.RemoveItemsAtPaths([ "♥", "*" ], [ [2, 2], [4] ])
+
+? @@NL( o1.Content() )
+#--> [
+#	"A",
+#	[ "B", [ "C", "D" ], "E", "F" ],
+#	"G",
+#	[ "H" ]
+# ]
+
+proff()
+# Executed in 0.32 second(s) in Ring 1.22
 
 /*=== REMOVING ITEMS OVER PATHS
 */
