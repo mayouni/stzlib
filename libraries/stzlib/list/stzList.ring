@@ -3960,7 +3960,7 @@ func AreEqualCS(paValues, pCaseSensitive)
 		return _FALSE_
 	ok
 
-	# ~> I left the old code commented so you can see
+	#NOTE //~> I left the old code commented so you can see
 	# how mutch Softanza can optimise the codebase
 	# at each refactoring
 
@@ -44412,6 +44412,8 @@ fdef
 			def AllPathsQ()
 				return This.PathsQ()
 
+	#-- LEAFS METRICS
+
 	#-- PATH METRICS
 	
 	def NumberOfPaths()
@@ -44913,36 +44915,23 @@ fdef
         		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
     		ok
 
-		_aResult_ = []
+		_nLen_ = len(paPaths)
 
-		_aSubPaths_ = @PathsToPaths(paPaths)
-		_nLen_ = len(_aSubPaths_)
+		_aResult_ = []
 
 		for @i = 1 to _nLen_
 
-			_nLenSubPaths_ = len(_aSubPaths_[@i])
+			_aPaths_ = This.FindItemOverPathCS(pItem, paPaths[@i], pCaseSensitive)
 
-			_anPos_ = StzListQ( This.ItemAtPath(_aSubPaths_[@i]) ).FindCS(pItem, pCaseSensitive)
-			_nLenPos_ = len(_anPos_)
+			_nLenPaths_ = len(_aPaths_)
 
-			_aPath_ = [@i]
-
-			for @j = 1 to _nLenPos_
-				
-				_aTemp_ = []
-				for @k = 1 to _nLenSubPaths_
-					_aTemp_ + _aSubPaths_[@i][@k]
-				next
-
-				_aTemp_ + _anPos_[@j]
-
-				_aResult_ + _aTemp_
-				
+			for @j = 1 to _nLenPaths_
+				_aResult_ + _aPaths_[@j]
 			next
 
 		next
 
-		return _aResult_
+		return U(_aResult_)
 
 		def FindOverPathsCS(pItem, paPaths, pCaseSensitive)
 			return This.FindItemOverPathsCS(pItem, paPaths, pCaseSensitive)
@@ -44955,8 +44944,37 @@ fdef
 
 	#---
 
+	def FindItemsOverPathsCS(paItems, paPaths, pCaseSensitive)
+    		if NOT This.AreValidPaths(paPaths)
+        		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
+    		ok
+
+		_nLen_ = len(paItems)
+
+		_aResult_ = []
+
+		for @i = 1 to _nLen_
+
+			_aPaths_ = This.FindItemOverPathsCS(paItems[@i], paPaths, pCaseSensitive)
+
+			_nLenPaths_ = len(_aPaths_)
+
+			for @j = 1 to _nLenPaths_
+				_aResult_ + _aPaths_[@j]
+			next
+
+		next
+
+		return U(_aResult_)
+
+		def FindManyItemsOverPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.FindItemsOverPathsCS(paItems, paPaths, pCaseSensitive)
+
+		def FindTheseItemsOverPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.FindItemsOverPathsCS(paItems, paPaths, pCaseSensitive)
+
 	def FindItemsOverPaths(paItems, paPaths)
-		/* ... */
+		return This.FindItemsOverPathsCS(paItems, paPaths, _TRUE_)
 
 		def FindManyItemsOverPaths(paItems, paPaths)
 			return This.FindItemsOverPaths(paItems, paPaths)
@@ -44964,7 +44982,173 @@ fdef
 		def FindTheseItemsOverPaths(paItems, paPaths)
 			return This.FindItemsOverPaths(paItems, paPaths)
 
-	#--
+	#-- REMOVING ITEMS OVER PATHS
+
+	def RemoveItemOverPathCS(pItem, paPath, pCaseSensitive)
+
+   		_aPaths_ = This.FindItemOverPathCS(pItem, paPath, pCaseSensitive)
+		_aResult_ = This.RemoveItemsAtPaths(_aPaths_)
+
+		def RemoveItemOverPathCSQ(pItem, paPath, pCaseSensitive)
+			This.RemoveOverPathCS(pItem, paPath, pCaseSensitive)
+			return This
+
+		def RemoveOverPathCS(pItem, paPath, pCaseSensitive)
+			return This.RemoveItemOverPathCS(pItem, paPath, pCaseSensitive)
+
+			def RemoveOverPathCSQ(pItem, paPath, pCaseSensitive)
+				return This.RemoveOverPathCSQ(pItem, paPath, pCaseSensitive)
+
+	def ItemRemoveOverPathCS(pItem, paPath, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveOverPathCSQ(pItem, paPath, pCaseSensitive).Content()
+		return _aResult_
+
+		def RemovedOverPathCS(pItem, paPath, pCaseSensitive)
+			return This.ItemRemoveOverPathCS(pItem, paPath, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveItemOverPath(pItem, paPath)
+		return This.RemoveItemOverPathCS(pItem, paPath, _TRUE_)
+
+		def RemoveItemOverPathQ(pItem, paPath)
+			This.RemoveItemOverPath(pItem, paPath)
+			return This
+
+		def RemoveOverPath(pItem, paPath)
+			return This.RemoveItemOverPath(pItem, paPath)
+
+			def RemoveOverPathQ(pItem, paPath)
+				return This.RemoveItemOverPathQ(pItem, paPath)
+
+	def ItemRemoveOverPath(pItem, paPath)
+		_aResult_ = This.Copy().RemoveOverPathQ(pItem, paPath).Content()
+		return _aResult_
+
+		def RemovedOverPath(pItem, paPath)
+			return This.ItemRemoveOverPath(pItem, paPath)
+
+	#==
+
+	def RemoveItemsOverPathCS(paItems, paPath, pCaseSensitive)
+
+   		_aPaths_ = This.FindItemsOverPathCS(paItems, paPath, pCaseSensitive)
+		_aResult_ = This.RemoveItemsAtPaths(_aPaths_)
+
+		def RemoveItemsOverPathCSQ(paItems, paPath, pCaseSensitive)
+			This.RemoveItemsOverPathCS(paItems, paPath, pCaseSensitive)
+			return This
+
+		def RemoveTheseItemsOverPathCS(paItems, paPath, pCaseSensitive)
+			This.RemoveItemsOverPathCS(paItems, paPath, pCaseSensitive)
+
+			def RemoveTheseItemsOverPathCSQ(paItems, paPath, pCaseSensitive)
+				return This.RemoveItemsOverPathCSQ(paItems, paPath, pCaseSensitive)
+
+	def ItemsRemoveOverPathCS(paItems, paPath, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveItemsOverPathCSQ(paItems, paPath, pCaseSensitive).Content()
+		return _aResult_
+
+		def TheseItemsRemovedOverPathCS(paItems, paPath, pCaseSensitive)
+			return This.ItemsRemoveOverPathCS(paItems, paPath, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveItemsOverPath(paItems, paPath)
+		return This.RemoveItemsOverPathCS(paItems, paPath, _TRUE_)
+
+		def RemoveItemsOverPathQ(paItems, paPath)
+			This.RemoveItemsOverPath(paItems, paPath)
+			return This
+
+		def RemoveTheseItemsOverPath(paItems, paPath)
+			This.RemoveItemsOverPath(paItems, paPath)
+
+			def RemoveTheseItemsOverPathQ(paItems, paPath)
+				return This.RemoveItemsOverPathQ(paItems, paPath)
+
+	def ItemsRemoveOverPath(paItems, paPath)
+		_aResult_ = This.Copy().RemoveItemsOverPathQ(paItems, paPath).Content()
+		return _aResult_
+
+		def TheseItemsRemoveOverPath(paItems, paPath)
+			return This.ItemsRemoveOverPath(paItems, paPath)
+
+	#==
+
+	def RemoveItemOverPathsCS(pItem, paPaths, pCaseSensitive)
+
+   		_aPaths_ = This.FindItemOverPathsCS(pItem, paPaths, pCaseSensitive)
+		_aResult_ = This.RemoveItemsAtPaths(_aPaths_)
+
+		def RemoveItemOverPathsCSQ(pItem, paPaths, pCaseSensitive)
+			This.RemoveItemOverPathsCS(pItem, paPaths, pCaseSensitive)
+			return This
+
+	def ItemRemoveOverPathsCS(pItem, paPaths, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveOverPathsCSQ(pItem, paPaths, pCaseSensitive).Content()
+		return _aResult_
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveItemOverPaths(pItem, paPaths)
+		return This.RemoveItemOverPathCS(pItem, paPaths, _TRUE_)
+
+		def RemoveItemOverPathsQ(pItem, paPaths)
+			This.RemoveItemOverPaths(pItem, paPaths)
+			return This
+
+	def ItemRemoveOverPaths(pItem, paPaths)
+		_aResult_ = This.Copy().RemoveOverPathsQ(pItem, paPaths).Content()
+		return _aResult_
+
+	#==
+
+	def RemoveItemsOverPathsCS(paItems, paPaths, pCaseSensitive)
+
+   		_aPaths_ = This.FindItemsOverPathsCS(paItems, paPaths, pCaseSensitive)
+		_aResult_ = This.RemoveItemsAtPaths(_aPaths_)
+
+		def RemoveItemsOverPathsCSQ(paItems, paPaths, pCaseSensitive)
+			This.RemoveItemsOverPathsCS(paItems, paPaths, pCaseSensitive)
+			return This
+
+		def RemoveTheseItemsOverPathsCS(paItems, paPaths, pCaseSensitive)
+			This.RemoveItemsOverPathsCS(paItems, paPaths, pCaseSensitive)
+
+			def RemoveTheseItemsOverPathsCSQ(paItems, paPaths, pCaseSensitive)
+				return This.RemoveItemsOverPathsCSQ(paItems, paPaths, pCaseSensitive)
+
+	def ItemsRemoveOverPathsCS(paItems, paPaths, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveItemsOverPathsCSQ(paItems, paPaths, pCaseSensitive).Content()
+		return _aResult_
+
+		def TheseItemsRemovedOverPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.ItemsRemoveOverPathsCS(paItems, paPaths, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveItemsOverPaths(paItems, paPaths)
+		return This.RemoveItemsOverPathCS(paItems, paPaths, _TRUE_)
+
+		def RemoveItemsOverPathsQ(paItem, paPaths)
+			This.RemoveItemsOverPaths(paItem, paPaths)
+			return This
+
+		def RemoveTheseItemsOverPaths(paItem, paPaths)
+			This.RemoveItemsOverPaths(paItems, paPaths)
+
+			def RemoveTheseItemsOverPathsQ(paItem, paPaths)
+				return This.RemoveItemsOverPathsQ(paItem, paPaths)
+
+	def ItemsRemoveOverPaths(paItems, paPaths)
+		_aResult_ = This.Copy().RemoveItemsOverPathsQ(paItems, paPaths).Content()
+		return _aResult_
+
+		def TheseItemsRemovedOverPaths(paItems, paPaths)
+			return This.ItemsRemoveOverPaths(paItems, paPaths)
+
+	#==
 
 	def PathsContainingItem(pItem)
 		/* ... */
