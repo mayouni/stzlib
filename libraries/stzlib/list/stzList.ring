@@ -45074,6 +45074,82 @@ fdef
 		def TheseItemsRemoveOverPath(paItems, paPath)
 			return This.ItemsRemoveOverPath(paItems, paPath)
 
+	#== REMOVING ITEM(S) AT GIVEN PATH(S)
+	#~> //AT (and not OVER) concerns the last item in the path
+	# while OVER concerns all the nodes of the path 
+
+	def RemoveItemAtPathCS(pItem, paPath, pCaseSensitive)
+		if NOT This.IsValidPath(paPath)
+			StzRaise("Can't proceed! paPath is not a valid path in the list.")
+		ok
+
+		_aContent_ = This.Content()
+
+		# Constructing the accessor of the inner list
+
+		_cAccessor_ = "_aContent_["
+		_nLenPath_ = len(paPath)
+
+		for @i = 1 to _nLenPath_
+			_cAccessor_ += '' + paPath[@i] + "]["
+		next
+
+		_cAccessor_ = StzStringQ(_cAccessor_).LastCharRemoved()
+
+		# Evaluating the new value of the inner list after removal
+
+		_cCode_ = '_aNewValue_ = Q(' + _cAccessor_ +
+			  ').RemoveCSQ(pItem, pCaseSensitive).Content()'
+
+		eval(_cCode_)
+
+		# Evaluating the code doing the replacement of the old
+		# value of the inner list by the new one
+
+		_cCode_ = '
+
+		_nTempLen_ = len(' + _cAccessor_ + ')
+		for @i = _nTempLen_ to 1 step -1
+			del(' + _cAccessor_ + ', @i)
+		next
+
+		_nTempLen_ = len(_aNewValue_)
+		for @i=1 to _nTempLen_
+			' + _cAccessor_ + ' + _aNewValue_[@i]
+		next
+		'
+
+		eval(_cCode_)
+
+		# Updating the list content
+
+		This.UpdateWith(_aContent_)
+
+		def RemoveItemAtPathCSQ(pItem, paPath, pCaseSensitive)
+			This.RemoveItemAtPathCS(pItem, paPath, pCaseSensitive)
+			return This
+
+	def ItemRemoveAtPathCS(pItem, paPath, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveItemAtPathCSQ(pItem, paPAth, pCaseSensitive).Content()
+		return _aResult_
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveItemAtPath(pItem, paPath)
+		This.RemoveItemAtPathCS(pItem, paPAth, _TRUE_)
+
+		def RemoveItemAtPathQ(pItem, paPath)
+			This.RemoveItemAtPath(pItem, paPath)
+			return This
+
+	def ItemRemovedAtPath(pItem, paPath)
+		_aResult_ = This.Copy().RemoveItemAtPathQ(pItem, paPath).Content()
+		return _aResult_
+	
+	#==
+
+	def RemoveItemsAtPathsCS(paItems, paPaths, pCaseSensitive)
+
 	#==
 
 	def RemoveItemOverPathsCS(pItem, paPaths, pCaseSensitive)
@@ -45388,23 +45464,7 @@ fdef
 
 	#-- REMOVING ITEMS AT PATHS
 
-	def RemoveAtPath(pItemOrItems, paPath)
 
-	def RemoveItemAtPath(paItem, paPath)
-
-	def RemoveTheseItemsAtPath(paItems, paPath)
-
-		def RemoveManyAtPath(paItems, paPath)
-
-	#--
-
-	def RemoveAtPaths(pItemOrItems, paPaths)
-
-	def RemoveItemAtPaths(pItem, paPaths)
-
-	def RemoveTheseItemsAtPaths(pItems, paPaths)
-
-		def RemoveManyAtPaths(pItems, paPaths)
 
 	#--
 
