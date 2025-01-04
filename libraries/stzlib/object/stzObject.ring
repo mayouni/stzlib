@@ -1622,6 +1622,9 @@ class stzObject
 
 	@cVarName = :@NoName
 
+	These
+	Those
+
 	def init(pObject)
 
 		# Creating an object from an existing object
@@ -1650,9 +1653,11 @@ class stzObject
 		ok
 
 		if ObjectKeepingTime() = _TRUE_
-? "inside object"
 			StartObjectTime()
 		ok
+
+		These = This
+		Those = This
 
 	def Content()
 		return @content

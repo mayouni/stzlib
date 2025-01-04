@@ -1412,6 +1412,9 @@ class stzNumber from stzObject
 
 	@cReturnType = :Number # Or :String depending on the type of the input
 
+	These
+	Those
+
 	  #------------#
 	 #    INIT    #
 	#------------#
@@ -1543,6 +1546,9 @@ class stzNumber from stzObject
 			ok
 
 		ok
+
+		These = This
+		Those = This
 
 	  #-------------------------#
 	 #    CONTENT AND VALUE    #

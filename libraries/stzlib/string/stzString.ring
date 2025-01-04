@@ -41,6 +41,8 @@ class stzString from stzObject
 	@cLanguage = :English	# Set explicitly using SetLanguage()
 				#TODO (future)// Infere the language from the string
 
+	These
+	Those
 
 	// Initializes the content of the softanza string object
 	def init(pcStr)
@@ -67,6 +69,9 @@ class stzString from stzObject
 
 		@oQString = new QString2()
 		@oQString.append(pcStr)
+
+		These = This
+		Those = This
 
 		# Adding the first entry in the object history
 

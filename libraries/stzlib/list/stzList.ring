@@ -6212,6 +6212,9 @@ class stzList from stzObject
 
 	@aWalkers = []
 
+	These
+	Those
+
 	  #--------------#
 	 #     INIT     #
 	#--------------#
@@ -6225,6 +6228,8 @@ class stzList from stzObject
 		ok
 
 		@aContent = paList
+		These = This
+		Those = This
 
 		# Adding the first entry in the object history
 
@@ -45148,7 +45153,198 @@ fdef
 	
 	#==
 
-	def RemoveItemsAtPathsCS(paItems, paPaths, pCaseSensitive)
+	def RemoveItemsAtPathCS(paItems, paPath, pCaseSensitive)
+		if NOT This.IsValidPath(paPath)
+			StzRaise("Can't proceed! paPath is not a valid path in the list.")
+		ok
+
+		_aContent_ = This.Content()
+
+		# Constructing the accessor of the inner list
+
+		_cAccessor_ = "_aContent_["
+		_nLenPath_ = len(paPath)
+
+		for @i = 1 to _nLenPath_
+			_cAccessor_ += '' + paPath[@i] + "]["
+		next
+
+		_cAccessor_ = StzStringQ(_cAccessor_).LastCharRemoved()
+
+		# Evaluating the new value of the inner list after removal
+
+		_cCode_ = '_aNewValue_ = Q(' + _cAccessor_ +
+			  ').RemoveManyCSQ(paItems, pCaseSensitive).Content()'
+
+		eval(_cCode_)
+
+		# Evaluating the code doing the replacement of the old
+		# value of the inner list by the new one
+
+		_cCode_ = '
+
+		_nTempLen_ = len(' + _cAccessor_ + ')
+		for @i = _nTempLen_ to 1 step -1
+			del(' + _cAccessor_ + ', @i)
+		next
+
+		_nTempLen_ = len(_aNewValue_)
+		for @i=1 to _nTempLen_
+			' + _cAccessor_ + ' + _aNewValue_[@i]
+		next
+		'
+
+		eval(_cCode_)
+
+		# Updating the list content
+
+		This.UpdateWith(_aContent_)
+
+		
+		#< @FunctionFluentForm
+
+		def RemoveItemsAtPathCSQ(paItems, paPath, pCaseSensitive)
+			This.RemoveItemsAtPathCS(paItems, paPath, pCaseSensitive)
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveManyAtPathCS(paItems, paPath, pCaseSensitive)
+			This.RemoveItemsAtPathCS(paItems, paPaths, pCaseSensitive)
+
+			def RemoveManyAtPathCSQ(paItems, paPath, pCaseSensitive)
+				return This.RemoveItemsAtPathCSQ(paItems, paPath, pCaseSensitive)
+
+		def RemoveManyItemsAtPathCS(paItems, paPath, pCaseSensitive)
+			This.RemoveItemsAtPathCS(paItems, paPath, pCaseSensitive)
+
+			def RemoveManyItemsAtPathCSQ(paItems, paPath, pCaseSensitive)
+				return This.RemoveItemsAtPathCSQ(paItems, paPath, pCaseSensitive)
+
+		def RemoveTheseItemsAtPathCS(paItems, paPath, pCaseSensitive)
+			This.RemoveItemsAtPathCS(paItems, paPath, pCaseSensitive)
+
+			def RemoveTheseItemsAtPathCSQ(paItems, paPath, pCaseSensitive)
+				return This.RemoveItemsAtPathCSQ(paItems, paPath, pCaseSensitive)
+
+		def RemoveTheseAtPathCS(paItems, paPath, pCaseSensitive)
+			This.RemoveItemsAtPathCS(paItems, paPath, pCaseSensitive)
+
+			def RemoveTheseAtPathCSQ(paItems, paPath, pCaseSensitive)
+				return This.RemoveItemsAtPathCSQ(paItems, paPath, pCaseSensitive)
+		#>
+
+	def ItemsRemovedAtPathCS(paItems, paPath, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveItemsAtPathCSQ(paItems, paPath, pCaseSensitive).Content()
+		return _aResult_
+
+		def ManyRemovedAtPathCs(paItems, paPath, pCaseSensitive)
+			return This.ItemsRemovedAtPathCS(paItems, paPath, pCaseSensitive)
+
+		def ManyItemsRemovedAtPathCS(paItems, paPath, pCaseSensitive)
+			return This.ItemsRemovedAtPathCS(paItems, paPath, pCaseSensitive)
+
+		def TheseItemsRemovedAtPathCS(paItems, paPath, pCaseSensitive)
+			return This.ItemsRemovedAtPathCS(paItems, paPath, pCaseSensitive)
+
+		def TheseRemovedAtPathCS(paItems, paPath, pCaseSensitive)
+			return This.ItemsRemovedAtPathCS(paItems, paPath, pCaseSensitive)
+
+	#-- WITHOUT CASESENSItiviTY
+
+	def RemoveItemsAtPath(paItems, paPath)
+		This.RemoveItemsAtPathCS(paItems, paPath, _TRUE_)
+
+		#< @FunctionFluentForm
+
+		def RemoveItemsAtPathQ(paItems, paPaths)
+			This.RemoveItemsAtPath(paItems, paPaths)
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveManyAtPath(paItems, paPath)
+			This.RemoveItemsAtPath(paItems, paPath)
+
+			def RemoveManyAtPathQ(paItems, paPath)
+				return This.RemoveItemsAtPathQ(paItems, paPath)
+
+		def RemoveManyItemsAtPath(paItems, paPath)
+			This.RemoveItemsAtPath(paItems, paPath)
+
+			def RemoveManyItemsAtPathQ(paItems, paPath)
+				return This.RemoveItemsAtPathQ(paItems, paPath)
+
+		def RemoveTheseItemsAtPath(paItems, paPath)
+			This.RemoveItemsAtPath(paItems, paPath)
+
+			def RemoveTheseItemsAtPathQ(paItems, paPath)
+				return This.RemoveItemsAtPathQ(paItems, paPath)
+
+		def RemoveTheseAtPath(paItems, paPath)
+			This.RemoveItemsAtPath(paItems, paPath)
+
+			def RemoveTheseAtPathQ(paItems, paPath)
+				return This.RemoveItemsAtPathQ(paItems, paPath)
+		#>
+
+	def ItemsRemovedAtPath(paItems, paPath)
+		_aResult_ = This.Copy().RemoveItemsAtPathQ(paItems, paPaths).Content()
+		return _aResult_
+
+		def ManyRemovedAtPath(paItems, paPath)
+			return This.ItemsRemovedAtPath(paItems, paPath)
+
+		def ManyItemsRemovedAtPath(paItems, paPath)
+			return This.ItemsRemovedAtPath(paItems, paPath)
+
+		def TheseItemsRemovedAtPath(paItems, paPath)
+			return This.ItemsRemovedAtPath(paItems, paPath)
+
+		def TheseRemovedAtPath(paItems, paPath)
+			return This.ItemsRemovedAtPath(paItems, paPath)
+
+	#==
+
+	def RemoveItemAtPathsCS(pItem, paPaths, pCaseSensitive)
+		if NOT These.AreValidPaths(paPath)
+			StzRaise("Can't proceed! paPaths is not a valid list of paths in the list.")
+		ok
+
+		_aPaths_ = @SortPaths(paPaths)
+		_nLenPaths_ = len(_aPaths_)
+
+		_oCopy_ = This.Copy()
+
+		for i@ = _nLenPaths_ to 1 step -1
+			_oCopy_.RemoveItemAtPathCS(_aPaths_[@i], pCaseSensitive)
+		next
+
+		This.UpdateWith(_oCopy_.Content())
+
+
+		def RemoveItemAtPathsCSQ(pItem, paPaths, pCaseSensitive)
+			This.RemoveItemAtPathsCS(pItem, paPaths, pCaseSensitive)
+			return This
+
+	def ItemRemoveAtPathsCS(pItem, paPaths, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveItemAtPathsCSQ(pItem, paPaths, pCaseSensitive).Content()
+		return _aResult_
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveItemAtPaths(pItem, paPaths)
+		This.RemoveItemAtPathsCS(pItem, paPaths, _TRUE_)
+
+		def RemoveItemAtPathsQ(pItem, paPaths)
+			This.RemoveItemAtPaths(pItem, paPaths)
+			return This
+
+	def ItemRemovedAtPaths(pItem, paPaths)
+		_aResult_ = This.Copy().RemoveItemAtPathsQ(pItem, paPaths).Content()
+		return _aResult_
 
 	#==
 
