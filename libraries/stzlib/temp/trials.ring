@@ -444,9 +444,9 @@ profon()
 # flexibility of finding items in singular or plural in a path or many paths
 
 o1 = new stzList([
-    "A",
-    [ "♥", ["B", "♥", "C", "♥" ], "♥", "D" ],
-    "E"
+	"A",
+	[ "♥", ["B", "♥", "C", "♥" ], "♥", "D" ],
+	"E"
 ])
 
 ? @@( o1.FindItemOverPath("♥", [2, 2]) )
@@ -466,20 +466,61 @@ proff()
 
 /*=== REMOVING ITEMS AT PATHS
 
-/*-----
-*/
 profon()
 
-# All the examples return the same result, but they show the power and*
-# flexibility of finding items in singular or plural in a path or many paths
-
 o1 = new stzList([
-    "A",
-    [ "♥", ["B", "♥", "C", "♥" ], "♥", "D" ],
-    "E"
+	"A",
+	[ "♥", ["B", "♥", "C", "♥" ], "♥", "D" ],
+	"E"
 ])
 
 o1.RemoveItemAtPath("♥", [2, 2])
+
+? @@NL( o1.Content() )
+#--> [
+#	"A",
+#	[ "♥", [ "B", "C" ], "♥", "D" ],
+#	"E"
+# ]
+
+proff()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*---
+
+profon()
+
+o1 = new stzList([
+	"A",
+	[ "♥", ["B", "♥", "C", "♥", "*" ], "♥", "D" ],
+	"E"
+])
+
+o1.RemoveItemsAtPath([ "♥", "*" ], [2, 2])
+
+? @@NL( o1.Content() )
+#--> [
+#	"A",
+#	[ "♥", [ "B", "C" ], "♥", "D" ],
+#	"E"
+# ]
+
+proff()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*----
+
+*/
+profon()
+
+o1 = new stzList([
+	"A",
+	[ "♥", ["B", "♥", "C", "♥" ], "♥", "D" ],
+	"E",
+	"♥"
+])
+
+o1.RemoveItemAtPaths("♥", [ [2, 2], [4] ])
 
 ? @@NL( o1.Content() )
 #--> [
