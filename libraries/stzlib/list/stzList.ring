@@ -6771,13 +6771,19 @@ class stzList from stzObject
 			return This.Item(n)
 
 			def NthItemQ(n)
-				return Q(This.NthItem(n))
+				return This.ItemQ(n)
 
 		def ItemAtPosition(n)
 			return This.Item(n)
 
+			def ItemAtPositionQ(n)
+				return This.ItemQ(n)
+
 		def ItemAt(n)
 			return This.Item(n)
+
+			def ItemAtQ(n)
+				return This.ItemQ(n)
 
 		#>
 
@@ -16512,6 +16518,94 @@ class stzList from stzObject
 
 		#>
 
+	  #---------------------------------------------#
+	 #  REMOVING A GiVEN ITEM AT A GIVEN POSITION  #
+	#---------------------------------------------#
+
+	def RemoveThisItemAtPositionCS(pItem, n, pCaseSensitive)
+		if This.ItemAtPositionQ(n).IsEqualToCS(pItem, pCaseSensitive)
+			This.RemoveItemAtPosition(n)
+		ok
+
+		#< @FunctionFluentForm
+
+		def RemoveThisItemAtPositionCSQ(pItem, n, pCaseSensitive)
+			This.RemoveThisItemAtPositionCS(pItem, n, pCaseSensitive)
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveThisItemAtCS(pItem, n, pCaseSensitive)
+			This.RemoveThisItemAtPositionCS(pItem, n, pCaseSensitive)
+
+			def RemoveThisItemAtCSQ(pItem, n, pCaseSensitive)
+				return This.RemoveThisItemAtPositionCSQ(pItem, n, pCaseSensitive)
+
+		def RemoveItemAtPositionCS(pItem, n, pCaseSensitive)
+			This.RemoveThisItemAtPositionCS(pItem, n, pCaseSensitive)
+
+			def RemoveItemAtPositionCSQ(pItem, n, pCaseSensitive)
+				return This.RemoveThisItemAtPositionCSQ(pItem, n, pCaseSensitive)
+
+		def RemoveThisAtPositionCS(pItem, n, pCaseSensitive)
+			This.RemoveThisItemAtPositionCS(pItem, n, pCaseSensitive)
+
+			def RemoveThisAtPositionCSQ(pItem, n, pCaseSensitive)
+				return This.RemoveThisItemAtPositionCSQ(pItem, n, pCaseSensitive)
+
+		def RemoveThisAtCS(pItem, n, pCaseSensitive)
+			This.RemoveThisItemAtPositionCS(pItem, n, pCaseSensitive)
+
+			def RemoveThisAtCSQ(pItem, n, pCaseSensitive)
+				return This.RemoveThisItemAtPositionCSQ(pItem, n, pCaseSensitive)
+		#>
+
+	def ThisItemAtPositionRemovedCS(pItem, n, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveThisItemAtPositionCSQ(pItem, n, pCaseSensitive).Content()
+		return _aResult_
+
+		def ItemAtPositionRemovedCS(pItem, n, pCaseSensitive)
+			return This.ThisItemAtPositionRemovedCS(pItem, n, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveThisItemAtPosition(pItem, n)
+		This.RemoveThisItemAtPositionCS(pItem, n, _TRUE_)
+
+		#< @FunctionFluentForm
+
+		def RemoveThisItemAtPositionQ(pItem, n)
+			This.RemoveThisItemAtPosition(pItem, n)
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveThisItemAt(pItem, n)
+			This.RemoveThisItemAtPosition(pItem, n)
+
+			def RemoveThisItemAtQ(pItem, n)
+				return This.RemoveThisItemAtPositionQ(pItem, n)
+
+		def RemoveThisAtPosition(pItem, n)
+			This.RemoveThisItemAtPosition(pItem, n)
+
+			def RemoveThisAtPositionQ(pItem, n)
+				return This.RemoveThisItemAtPositionQ(pItem, n)
+
+		def RemoveThisAt(pItem, n)
+			This.RemoveThisItemAtPosition(pItem, n)
+
+			def RemoveThisAtQ(pItem, n)
+				return This.RemoveThisItemAtPositionQ(pItem, n)
+		#>
+
+	def ThisItemAtPositionRemoved(pItem, n)
+		_aResult_ = This.Copy().RemoveThisItemAtPositionQ(pItem, n).Content()
+		return _aResult_
+
+
 	  #--------------------------------------#
 	 #  REMOVING A GIVEN NTH ITEM (IF ANY)  #
 	#--------------------------------------#
@@ -16539,12 +16633,6 @@ class stzList from stzObject
 			This.RemoveThisNthItemCS(n, pItem, pCaseSensitive)
 			return This
 
-		def RemoveThisItemAtPositionCS(n, pItem, pCaseSensitive)
-			This.RemoveThisNthItemCS(n, pItem, pCaseSensitive)
-
-			def RemoveThisItemAtPositionCSQ(n, pItem, pCaseSensitive)
-				return This.RemoveThisNthItemCSQ(n, pItem, pCaseSensitive)
-
 	def ThisNthItemRemovedCS(n, pItem, pCaseSensitive)
 		return This.RemoveThisNthItemCSQ(n, pItem, pCaseSensitive).Content()
 
@@ -16556,12 +16644,6 @@ class stzList from stzObject
 		def RemoveThisNthItemQ(n, pItem)
 			This.RemoveThisNthItemCS(n, pItem)
 			return This
-
-		def RemoveThisItemAtPosition(n, pItem)
-			This.RemoveThisNthItem(n, pItem)
-
-			def RemoveThisItemAtPositionQ(n, pItem)
-				return This.RemoveThisNthItemQ(n, pItem)
 
 	def ThisNthItemRemoved(n, pItem)
 		return This.RemoveThisNthItemQ(n, pItem).Content()
@@ -44991,8 +45073,16 @@ fdef
 
 	def RemoveItemOverPathCS(pItem, paPath, pCaseSensitive)
 
-   		_aPaths_ = This.FindItemOverPathCS(pItem, paPath, pCaseSensitive)
-		_aResult_ = This.RemoveItemsAtPaths(_aPaths_)
+		_aPath_ = @Sort(paPath)
+		_nLen_ = len(_aPath_)
+
+		_oCopy_ = This.Copy()
+
+		for @i = _nLen_ to 1 step -1
+			_oCopy_.RemoveThisItemAtPosition(pItem, _aPath_[@i])
+		next
+
+		This.UpdateWith(_oCopy_.Content())
 
 		def RemoveItemOverPathCSQ(pItem, paPath, pCaseSensitive)
 			This.RemoveOverPathCS(pItem, paPath, pCaseSensitive)
@@ -45353,8 +45443,6 @@ fdef
 	def ItemRemovedAtPaths(pItem, paPaths)
 		_aResult_ = This.Copy().RemoveItemAtPathsQ(pItem, paPaths).Content()
 		return _aResult_
-
-	#==
 
 	#==
 
