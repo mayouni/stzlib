@@ -601,6 +601,23 @@ proff()
 */
 profon()
 
+o1 = new stzList([ 1, 2, "♥", 4, 5 ])
+
+o1.RemoveThisItemAtPosition("♥", 5)
+? @@( o1.Content() )
+#--> [ 1, 2, "♥", 4, 5 ]
+
+o1.RemoveThisItemAtPosition("♥", 3)
+? @@( o1.Content() )
+#--> [ 1, 2, 4, 5 ]
+
+proff()
+# Executed in 0.03 second(s) in Ring 1.22
+
+/*----
+
+profon()
+
 o1 = new stzList([
 	"A",
 	[ "B", [ "C", "♥", "D", "*", "♥" ], "E", "F" ],

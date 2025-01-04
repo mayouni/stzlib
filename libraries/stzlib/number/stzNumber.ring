@@ -2376,10 +2376,9 @@ class stzNumber from stzObject
         #-------------------#
 	
 	def IsEqualTo(pOtherNumber)
-		if CheckingParams()
-			if NOT @IsNumberOrNumberInString(pOtherNumber)
-				StzRaise("Incorrect param type! pOtherNumber must be a number or number in string.")
-			ok
+
+		if NOT @IsNumberOrNumberInString(pOtherNumber)
+			return FALSE
 		ok
 
 		nCurrentRound = StzCurrentRound()
