@@ -5491,10 +5491,8 @@ class stzObject
 
 	def IsEqualTo(pOtherObject)
 
-		if CheckingParams()
-			if NOT isObject(pOtherObject)
-				StzRaise("Incorrect param type! pOtherObject must be an object.")
-			ok
+		if NOT isObject(pOtherObject)
+			return _FALSE_
 		ok
 
 		if @IsNamedObject(pOtherObject) and @IsNamedObject(pOtherObject) and
