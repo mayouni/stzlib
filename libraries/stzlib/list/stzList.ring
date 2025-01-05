@@ -5995,7 +5995,7 @@ func NthPathOver(n, paPath)
 func PathsOverXT(paPaths)
 	# EXAMPLE
 
-	# ? @@NL( PathsToXT([ [ 2, 3 ], [ 2, 3, 2 ], [ 4 ] ]) )
+	# ? @@NL( PathsOverXT([ [ 2, 3 ], [ 2, 3, 2 ], [ 4 ] ]) )
 	#--> [
 	# 	[ 2 ],
 	# 	[ 2, 3 ],
@@ -45310,6 +45310,9 @@ fdef
 		def ItemsToPath(paPath)
 			return This.ItemsOverPath(paPath)
 
+		def ItemsOver(paPath)
+			return This.ItemsOverPath(paPath)
+		
 	def ItemsOverPathZZ(paPath)
 		_aItems_ = This.ItemsOverPath(paPath)
 		_aPaths_ = This.PathsOverPath(paPath)
@@ -45318,6 +45321,9 @@ fdef
 		return _aResult_
 
 		def ItemsToPathZZ(paPath)
+			return This.ItemsOverPathZZ(paPath)
+
+		def ItemsOverZZ(paPath)
 			return This.ItemsOverPathZZ(paPath)
 
 	#-- NTH PATH(S) OVER A GIVEN PATH
@@ -45335,7 +45341,13 @@ fdef
 	
 		def NthPathToPath(n, paPath)
 			return This.NthPathToPath(n, paPath)
-	
+
+		def NthPathTo(n, paPath)
+			return This.NthPathToPath(n, paPath)
+
+		def NthPathOver(n, paPath)
+			return This.NthPathToPath(n, paPath)
+
 	func NthPathsOverPath(panPos, paPath)
 		if CheckParams()
 			if NOT (isList(panPos) and @IsListOfNumbers(panPos))
@@ -45357,6 +45369,12 @@ fdef
 		def NthPathsToPath(panPos, paPath)
 			return This.NthPathsOverPath(panPos, paPath)
 	
+		def NthPathsTo(panPos, paPath)
+			return This.NthPathsOverPath(panPos, paPath)
+
+		def NthPathsOver(panPos, paPath)
+			return This.NthPathsOverPath(panPos, paPath)
+
 	def PathsOverPath(paPath)
 		_oPaths_ = new stzList( This.Paths() )
 		_nPos_ = _oPaths_.FindFirst(paPath)
@@ -45380,6 +45398,25 @@ fdef
 			return This.PathsOverPath(paPath)
 
 		#>
+
+	def PathsOverPaths(paPaths)
+		if NOT These.AreValidPaths(paPaths)
+			StzRaise("Can't proceed! paPaths is not a list of valid paths in the list.")
+		ok
+
+		_nLen_ = len(paPaths)
+		_aResult_ = []
+
+		for @i = 1 to _nLen_
+			_aPaths_ = This.PathsOver(paPaths[@i])
+			_nLenTemp_ = len(_aPaths_)
+
+			for @j = 1 to  _nLenTemp_
+				_aResult_ + _aPaths_[@j]
+			next
+		next
+
+		return _aResult_
 
 	#-- NTH ITEM(S) OVER A GIVEN PATH
 
@@ -45411,6 +45448,9 @@ fdef
 
 
 		def NthItemsToPath(panPos, paPath)
+			return This.NthItemsOverPath(panPos, paPath)
+
+		def NthItemsOver(panPos, paPath)
 			return This.NthItemsOverPath(panPos, paPath)
 
 	def NthItemsOverPathZZ(panPos, paPath)
@@ -45446,6 +45486,8 @@ fdef
 		def NthItemsToPathZZ(panPos, paPath)
 			return This.NthItemsOverPathZZ(panPos, paPath)
 
+		def NthItemsOverZZ(panPos, paPath)
+			return This.NthItemsOverPathZZ(panPos, paPath)
 
 	def NthItemOverPath(n, paPath)
 
@@ -45477,8 +45519,17 @@ fdef
 		_result_ = This.ItemAtPath(_aPaths_[n])
 		return _result_
 
+		#< @FunctionAlternativeForms
+
 		def NthItemToPath(n, paPath)
 			return This.NthItemOverPath(n, paPath)
+
+		def NthItemTo(n, paPath)
+			return This.NthItemOverPath(n, paPath)
+
+		def NthItemOver(n, paPath)
+			return This.NthItemOverPath(n, paPath)
+		#>
 
 	def FirstItemOverPath(paPath)
 		return This.NthItemOverPath(1, paPath)
@@ -45486,10 +45537,22 @@ fdef
 		def FirstItemToPath(paPath)
 			return This.FirstItemOverPath(paPath)
 
+		def FirstItemTo(paPath)
+			return This.FirstItemOverPath(paPath)
+
+		def FirstItemOver(paPath)
+			return This.FirstItemOverPath(paPath)
+
 	def LastItemOverPath(paPath)
 		return This.NthItemOverPath(len(paPath), paPath)
 
 		def LastItemToPath(paPath)
+			return This.LastItemOverPath(paPath)
+
+		def LastItemTo(paPath)
+			return This.LastItemOverPath(paPath)
+
+		def LastItemOver(paPath)
 			return This.LastItemOverPath(paPath)
 
 	#-- FINDING ITEM(S) AT PATH(S)
@@ -45705,41 +45768,63 @@ fdef
 
 	#--
 
+def ExpandPath(paPath)
+	_aPaths_ = This.Paths()
+	_nLen_ = len(_aPaths_)
+
+	_aResult_ = []
+	_oPath_ = new stzList(paPath)
+
+	for @i = 1 to _nLen_
+
+		if @IsSubPathOf(paPath, _aPaths_[@i]) or
+		   _oPath_.IsEqualTo(_aPaths_[@i])
+
+			_aResult_ + _aPaths_[@i]
+		ok
+	next
+
+	return _aResult_
+
+def ExpandPaths(paPaths)
+
+	if NOT These.AreValidPaths(paPaths)
+		StzRaise("Can't proceed! paPaths is not a list of valid paths in the list.")
+	ok
+
+	_aResult_ = []
+	_nLen_ = len(paPaths)
+
+	for @i = 1 to _nLen_
+		_aTemp_ = This.ExpandPath(paPaths[@i])
+		_nLenTemp_ = len(_aTemp_)
+
+		for @j = 1 to _nLenTemp_
+			_aResult_ + _aTemp_[@j]
+		next
+
+	next
+
+	return _aResult_
+
+	
+def CollabsePath(paPath)
+
+def CollabsePaths(paPaths)
+
 	def FindItemOverPathCS(pItem, paPath, pCaseSensitive)
+		#TODO #NARRATION // A School case of computational thinking elegance!
 
     		if NOT This.IsValidPath(paPath)
         		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
     		ok
 
-		_aResult_ = []
+		_aItemPaths_ = This.DeepFindCS(pItem, pCaseSensitive)
+		_aAllPaths_ = This.PathsOver(paPath)
+? @@NL(_aItemPaths_)
+? @@NL(_aAllPaths_)
 
-		_aSubPaths_ = @PathsOver(paPath)
-		_nLen_ = len(_aSubPaths_)
-
-		for @i = 1 to _nLen_
-
-			_nLenSubPaths_ = len(_aSubPaths_[@i])
-
-			_anPos_ = StzListQ( This.ItemAtPath(_aSubPaths_[@i]) ).FindCS(pItem, pCaseSensitive)
-			_nLenPos_ = len(_anPos_)
-
-			_aPath_ = [@i]
-
-			for @j = 1 to _nLenPos_
-				
-				_aTemp_ = []
-				for @k = 1 to _nLenSubPaths_
-					_aTemp_ + _aSubPaths_[@i][@k]
-				next
-
-				_aTemp_ + _anPos_[@j]
-
-				_aResult_ + _aTemp_
-				
-			next
-
-		next
-
+		_aResult_ = @Intersection([ _aItemPaths_, _aAllPaths_ ])
 		return _aResult_
 
 		#< @FunctionAlternativeForms
@@ -45788,19 +45873,12 @@ fdef
 			ok
 		ok
 
-		_aPaths_ = @PathsOver(paPath)
-		_nLen_ = len(_aPaths_)
+		_aItemPaths_ = This.DeepFindManyCS(paItems, pCaseSensitive)
+		_aAllPaths_ = This.PathsOver(paPath)
 
-		_oListOfItems_ = new stzList(paItems)
-		_aResult_ = []
-
-		for @i = 1 to _nLen_
-			if This.ItemAtPathQ(_aPaths_[@i]).ExistsInCS(paItems, pCaseSensitive)
-				_aResult_ + _aPaths_[@i]
-			ok
-		next
-
+		_aResult_ = @Intersection([ _aItemPaths_, _aAllPaths_ ])
 		return _aResult_
+
 
 		#< @FunctionAlternativeForms
 
@@ -45867,22 +45945,19 @@ fdef
     		ok
 
 		_nLen_ = len(paPaths)
-
 		_aResult_ = []
 
 		for @i = 1 to _nLen_
 
 			_aPaths_ = This.FindItemOverPathCS(pItem, paPaths[@i], pCaseSensitive)
-
 			_nLenPaths_ = len(_aPaths_)
 
 			for @j = 1 to _nLenPaths_
 				_aResult_ + _aPaths_[@j]
 			next
-
 		next
 
-		return U(_aResult_)
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -45920,27 +45995,17 @@ fdef
 	#---
 
 	def FindItemsOverPathsCS(paItems, paPaths, pCaseSensitive)
-    		if NOT This.AreValidPaths(paPaths)
+
+    		if NOT These.AreValidPaths(paPaths)
         		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
     		ok
 
-		_nLen_ = len(paItems)
+		_aItemPaths_ = This.DeepFindManyCS(paItems, pCaseSensitive)
+		_aAllPaths_ = This.PathsOverPaths(paPaths)
 
-		_aResult_ = []
+		_aResult_ = @Intersection([ _aItemPaths_, _aAllPaths_ ])
+		return _aResult_
 
-		for @i = 1 to _nLen_
-
-			_aPaths_ = This.FindItemOverPathsCS(paItems[@i], paPaths, pCaseSensitive)
-
-			_nLenPaths_ = len(_aPaths_)
-
-			for @j = 1 to _nLenPaths_
-				_aResult_ + _aPaths_[@j]
-			next
-
-		next
-
-		return U(_aResult_)
 
 		#< @FunctionAlternativeForms
 
@@ -46674,7 +46739,16 @@ fdef
 			return _FALSE_
 		ok
 
-		_bResult_ = This.PathsQ().ContainsMany(paPaths)
+		_bResult_ = _TRUE_
+		_nLen_ = len(paPaths)
+
+		for @i = 1 to _nLen_
+			if NOT This.ContainsPath(paPaths[@i])
+				_bResult_ = _FALSE_
+				exit
+			ok
+		next
+
 		return _bResult_
 
 		#< @FunctionAlternativeForms
