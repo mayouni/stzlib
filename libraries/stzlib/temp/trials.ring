@@ -760,7 +760,7 @@ proff()
 # Executed in 0.95 second(s) in Ring 1.22
 
 /*----
-*/
+
 profon()
 
 o1 = new stzList([
@@ -793,21 +793,126 @@ proff()
 # Executed in 0.28 second(s) in Ring 1.22
 
 /*----
+
+profon()
+
+
+o1 = new stzList([
+    	"A",
+    	[ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    	"E"
+])
+
+
+? @@( o1.PathsOver([ 2 ]) )
+#--> [ [ 1 ], [ 2 ] ]
+
+? @@( o1.FindItemAtPath("♥", [ 2 ]) ) + NL
+#--> [ [ 2, 1 ], [ 2, 4 ], [ 2, 6 ] ]
+
+? @@NL( o1.PathsOver([ 2, 3, 4 ]) ) + NL
+#--> [
+#	[ 1 ],
+#	[ 2 ],
+#	[ 2, 1 ],
+#	[ 2, 2 ],
+#	[ 2, 3 ],
+#	[ 2, 3, 1 ],
+#	[ 2, 3, 2 ],
+#	[ 2, 3, 3 ],
+#	[ 2, 3, 4 ]
+# ]
+
+? o1.ItemExistsAtPath("♥", [ 2, 3, 4 ])
+#--> TRUE
+
+? @@( o1.FindItemAtPath("♥", [ 2, 3, 4 ]) ) + NL
+#--> [ 2, 3, 4 ]
+
+? o1.ItemExistsAtPath("X", [ 2, 3, 4 ])
+#--> FALSE
+
+? @@( o1.FindItemAtPath("X", [ 2, 3, 4 ]) )
+#--> [ ]
+
+proff()
+# Executed in 0.26 second(s) in Ring 1.22
+
+/*----
+
+profon()
+
+
+o1 = new stzList([
+    	"A",
+    	[ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    	"E"
+])
+
+? @@( o1.FindItemAtPath("♥", [ 2, 3, 4 ]) ) + NL
+#--> [ 2, 3, 4 ]
+
+? @@( o1.FindAnyOfTheseItemsAtPath([ "♥", "X", "Y" ], [ 2, 3, 4 ]) )
+#--> [ 2, 3, 4 ]
+
+? @@( o1.FindAnyOfTheseItemsAtPath([ "X", "Y", "Z" ], [ 2, 3, 4 ]) )
+#--> [ ]
+
+proff()
+# Executed in 0.32 second(s) in Ring 1.22
+
+/*----
+
+profon()
+
+
+o1 = new stzList([
+    	"A",
+    	[ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    	"E",
+	"♥"
+])
+
+? @@( o1.FindItemAtPaths("♥", [ [1], [3] ]) )
+#--> []
+
+? @@( o1.FindItemAtPaths("♥", [ [1], [3], [4] ]) )
+#--> [ 4 ]
+
+proff()
+# Executed in 0.28 second(s) in Ring 1.22
+
+/*----
 */
 profon()
 
 
 o1 = new stzList([
-    "A",
-    [ "♥", "*", ["B", "♥", "*", "C", "♥" ], "♥", "D", "*" ],
-    "E"
+    	"A",
+    	[ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    	"E",
+	"♥"
 ])
 
+? @@( o1.FindItemAtPaths("♥", [ [1], [3] ]) )
+#--> []
 
-? @@( PathsTo([2, 2]) )
-#--> [ [2], [2, 2] ]
+? @@( o1.FindItemAtPaths("♥", [ [1], [3], [2, 3] ]) )
+#--> [ [ 2, 3, 2 ], [ 2, 3, 4 ] ]
 
-? @@( o1.FindItemAtPath("♥", [2, 2]) )
+proff()
+# Executed in 0.28 second(s) in Ring 1.22
+
+/*----
+
+profon()
+
+
+o1 = new stzList([
+    "A",
+    [ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    "E"
+])
 
 //? @@( o1.FindItemOverPath("♥", [2, 2]) )
 

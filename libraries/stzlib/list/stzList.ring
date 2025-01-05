@@ -45494,11 +45494,49 @@ fdef
 
 	#-- FINDING ITEM(S) AT PATH(S)
 
+	def ItemExistsAtPathCS(pItem, paPath, pCaseSensitive)
+
+		_aPath_ = This.FindItemAtPathCS(pItem, paPath, pCaseSensitive)
+
+		if len(_aPath_) > 0
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	func ItemExistsAtPath(pItem, paPath)
+		return This.ItemExistsAtPathCS(pItem, paPath, _TRUE_)
+
+	#--
+
 	def FindItemAtPathCS(pItem, paPath, pCaseSensitive)
 
- 
+		_item_ = This.ItemAtPath(paPath)
 
-		_anResult_ = StzListQ(_aItem_).Find
+		if NOT isList(_item_)
+	 		if Q(_item_).IsEqualToCS(pItem, pCaseSensitive)
+				return paPath
+			else
+				return []
+			ok
+
+		else # the item is a list
+
+			_nLenPath_ = len(paPath)
+
+			_anPos_ = StzListQ(_item_).FindCS(pItem, pCaseSensitive)
+			_nLenPos_ = len(_anPos_)
+
+			_aResult_ = []
+
+			for @i = 1 to _nLenPos_
+				_aPath_ = paPath
+				_aPath_ +  _anPos_[@i]
+				_aResult_ + _aPath_
+			next
+
+			return _aResult_
+		ok
 
 		def FindAtPathCS(pItem, paPath, pCaseSensitive)
 			return This.FindItemAtPathCS(pItem, paPath, pCaseSensitive)
@@ -45511,7 +45549,7 @@ fdef
 
 	#--
 
-	def FindItemsAtPathCS(paItems, paPath, pCaseSensitive)
+	def FindAnyItemsAtPathCS(paItems, paPath, pCaseSensitive)
 		if CheckParams()
 			if NOT isList(paItems)
 				StzRaise("Incorrect param type! paItems must be a list.")
@@ -45522,46 +45560,57 @@ fdef
 			ok
 		ok
 
-		_aPaths_ = @PathsTo(paPath)
+		_aPaths_ = @PathsOver(paPath)
 		_nLen_ = len(_aPaths_)
 
 		_oListOfItems_ = new stzList(paItems)
-		_aResult_ = []
 
 		for @i = 1 to _nLen_
 			if This.ItemAtPathQ(_aPaths_[@i]).ExistsInCS(paItems, pCaseSensitive)
-				_aResult_ + _aPaths_[@i]
+				return _aPaths_[@i]
 			ok
 		next
 
-		return _aResult_
+		return []
 
 		#< @FunctionAlternativeForms
 
+		def FindItemsAtPathCS(paItems, paPath, pCaseSensitive)
+			return This.FindAnyItemsAtPathCS(paItems, paPath, pCaseSensitive)
+
 		def FindManyAtPathCS(paItems, paPath, pCaseSensitive)
-			return This.FindItemsAtPathCS(paItems, paPath, pCaseSensitive)
+			return This.FindAnyItemsAtPathCS(paItems, paPath, pCaseSensitive)
 
 		def FindManyItemsAtPathCS(paItems, paPath, pCaseSensitive)
-			return This.FindItemsAtPathCS(paItems, paPath, pCaseSensitive)
+			return This.FindAnyItemsAtPathCS(paItems, paPath, pCaseSensitive)
 
 		def FindTheseItemsAtPathCS(paItems, paPath, pCaseSensitive)
-			return This.FindItemsAtPathCS(paItems, paPath, pCaseSensitive)
+			return This.FindAnyItemsAtPathCS(paItems, paPath, pCaseSensitive)
+
+		def FindAnyOfTheseItemsAtPathCS(paItems, paPath, pCaseSensitive)
+			return This.FindAnyItemsAtPathCS(paItems, paPath, pCaseSensitive)
 
 		#>
 
-	def FindItemsAtPath(paItems, paPath)
+	def FindAnyItemsAtPath(paItems, paPath)
 		return This.FindItemsAtPathCS(paItems, paPath, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
+		def FindItemsAtPath(paItems, paPath)
+			return This.FindAnyItemsAtPath(paItems, paPath)
+
 		def FindManyAtPath(paItems, paPath)
-			return This.FindItemsAtPath(paItems, paPath)
+			return This.FindAnyItemsAtPath(paItems, paPath)
 
 		def FindManyItemsAtPath(paItems, paPath)
-			return This.FindItemsAtPath(paItems, paPath)
+			return This.FindAnyItemsAtPath(paItems, paPath)
 
 		def FindTheseItemsAtPath(paItems, paPath)
-			return This.FindItemsAtPath(paItems, paPath)
+			return This.FindAnyItemsAtPath(paItems, paPath)
+
+		def FindAnyOfTheseItemsAtPath(paItems, paPath)
+			return This.FindAnyItemsAtPath(paItems, paPath)
 
 		#>
 
@@ -45640,6 +45689,21 @@ fdef
 			return This.FindItemsAtPaths(paItems, paPaths)
 
 	#-- FINDING ITEM(S) OVER PATH(S)
+
+	def ItemExistsOverPathCS(pItem, paPath, pCaseSensitive)
+
+		_aPath_ = This.FindItemOverPathCS(pItem, paPath, pCaseSensitive)
+
+		if len(_aPath_) > 0
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	func ItemExistsOverPath(pItem, paPath)
+		return This.ItemExistsOverPathCS(pItem, paPath, _TRUE_)
+
+	#--
 
 	def FindItemOverPathCS(pItem, paPath, pCaseSensitive)
 
