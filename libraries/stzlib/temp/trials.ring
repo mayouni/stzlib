@@ -632,7 +632,7 @@ proff()
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*----
-*/
+
 profon()
 
 o1 = new stzList([ 1, 2, "♥", 4, "*", 6, "♥" ])
@@ -668,6 +668,7 @@ o1.RemoveItemsAtPaths([ "♥", "*" ], [ [2, 2], [4] ])
 proff()
 # Executed in 0.32 second(s) in Ring 1.22
 
+
 /*=== REMOVING ITEMS OVER PATHS
 */
 profon()
@@ -682,11 +683,14 @@ o1 = new stzList([
 ])
 
 o1.RemoveItemOverPath("♥", [2, 2])
-#--> [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ] ]
+#NOTE All these paths are concerned:
+#     [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ] ]
 
 ? @@NL( o1.Content() )
+#--> [ "♥", ["B", "♥", "C", "♥" ], "♥", "D" ],
 
 proff()
+# Executed in 0.39 second(s) in Ring 1.22
 
 /*-----
 

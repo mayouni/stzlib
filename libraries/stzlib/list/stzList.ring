@@ -45261,16 +45261,8 @@ fdef
 
 	def RemoveItemOverPathCS(pItem, paPath, pCaseSensitive)
 
-		_aPath_ = @Sort(paPath)
-		_nLen_ = len(_aPath_)
-
-		_oCopy_ = This.Copy()
-
-		for @i = _nLen_ to 1 step -1
-			_oCopy_.RemoveThisItemAtPosition(pItem, _aPath_[@i])
-		next
-
-		This.UpdateWith(_oCopy_.Content())
+		_aPaths_ = This.FindItemOverPathCS(pItem, paPath, pCaseSensitive)
+		This.RemoveItemAtPathsCS(pItem, _aPaths_, pCaseSensitive)
 
 		def RemoveItemOverPathCSQ(pItem, paPath, pCaseSensitive)
 			This.RemoveOverPathCS(pItem, paPath, pCaseSensitive)
@@ -45362,6 +45354,7 @@ fdef
 	# while OVER concerns all the nodes of the path 
 
 	def RemoveItemAtPathCS(pItem, paPath, pCaseSensitive)
+
 		if NOT This.IsValidPath(paPath)
 			StzRaise("Can't proceed! paPath is not a valid path in the list.")
 		ok
@@ -45376,21 +45369,46 @@ fdef
 			return
 		ok
 
+
+		_aPath_ = paPath
+		if NOT isList(This.ItemAtPath(_aPath_))
+
+			# Constructing the accessor of the inner list
+	
+			_cAccessor_ = "_aContent_["
+			_nLenPath_ = len(_aPath_)
+	
+			for @i = 1 to _nLenPath_ - 1
+				_cAccessor_ += '' + _aPath_[@i] + "]["
+			next
+	
+			_cAccessor_ = StzStringQ(_cAccessor_).LastCharRemoved()
+	
+			# Evaluating the new value of the inner list after removal
+	
+			_cCode_ = 'del(' + _cAccessor_ + ', ' + _aPath_[_nLenPath_] + ')'
+			eval(_cCode_)
+
+			This.UpdateWith(_aContent_)
+
+			return
+		ok
+
 		# Constructing the accessor of the inner list
 
 		_cAccessor_ = "_aContent_["
-		_nLenPath_ = len(paPath)
+		_nLenPath_ = len(_aPath_)
 
 		for @i = 1 to _nLenPath_
-			_cAccessor_ += '' + paPath[@i] + "]["
+			_cAccessor_ += '' + _aPath_[@i] + "]["
 		next
 
 		_cAccessor_ = StzStringQ(_cAccessor_).LastCharRemoved()
 
 		# Evaluating the new value of the inner list after removal
 
-		_cCode_ = '_aNewValue_ = Q(' + _cAccessor_ +
-			  ').RemoveCSQ(pItem, pCaseSensitive).Content()'
+		_cCode_ = '_aNewValue_ = Q(' + _cAccessor_ + ').
+			  RemoveCSQ(pItem, pCaseSensitive).Content()'
 
 		eval(_cCode_)
 
