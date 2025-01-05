@@ -883,7 +883,7 @@ proff()
 # Executed in 0.28 second(s) in Ring 1.22
 
 /*----
-*/
+
 profon()
 
 
@@ -914,7 +914,272 @@ o1 = new stzList([
     "E"
 ])
 
-//? @@( o1.FindItemOverPath("♥", [2, 2]) )
+? @@NL( o1.PathsOver([2, 2]) ) + NL
+#--> [
+#	[ 1 ],
+#	[ 2 ],
+#	[ 2, 1 ],
+#	[ 2, 2 ]
+# ]
+
+? @@NL( o1.ItemsOverPathZZ([2, 2]) ) + NL
+#--> [
+#	[ "A", [ 1 ] ],
+#	[ [ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ], [ 2 ] ],
+#	[ "♥", [ 2, 1 ] ],
+#	[ "B", [ 2, 2 ] ]
+# ]
+
+proff()
+# Executed in 0.25 second(s) in Ring 1.22
+
+/*---- #todo #narration finding an item over a given path
+# using DeepFind(), PathsOver, and Intersection
+
+profon()
+
+o1 = new stzList([
+    "A",
+    [ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    "E"
+])
+
+aItemPaths = o1.DeepFind("♥")
+#--> [
+#	[ 2, 1 ],
+#	[ 2, 3, 2 ],
+#	[ 2, 3, 4 ],
+#	[ 2, 4 ],
+#	[ 2, 6 ]
+# ]
+
+aAllPaths = o1.PathsOver([2, 3])
+#--> [
+#	[ 1 ],
+#	[ 2 ],
+#	[ 2, 1 ],
+#	[ 2, 2 ]
+# ]
+
+? @@( @intersection([ aItemPaths, aAllPaths ]) )
+#--> [ [ 2, 1 ] ]
+
+fproff()
+
+/*----
+
+profon()
+
+? IsSubPathOf( [2], [2, 3, 4])
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-----
+
+profon()
+
+o1 = new stzList([
+    "A",
+    [ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    "E"
+])
+
+? o1.IsValidPath([3])
+#--> TRUE
+
+? o1.IsValidPath([ 2, 3])
+#--> TRUE
+
+? o1.AreValidPaths([ [3], [2,3] ])
+#--> TRUE
+
+? o1.AreValidPaths([ [2,3], [3] ])
+#--> TRUE
+
+proff()
+# Executed in 0.18 second(s) in Ring 1.22
+
+/*-----
+
+profon()
+
+o1 = new stzList([
+    "A",
+    [ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    "E"
+])
+
+? @@NL( o1.Paths() ) + NL
+#--> [
+#	[ 1 ],
+#	[ 2 ],
+#	[ 2, 1 ],
+#	[ 2, 2 ],
+#	[ 2, 3 ],
+#	[ 2, 3, 1 ],
+#	[ 2, 3, 2 ],
+#	[ 2, 3, 3 ],
+#	[ 2, 3, 4 ],
+#	[ 2, 4 ],
+#	[ 2, 5 ],
+#	[ 2, 6 ],
+#	[ 3 ]
+# ]
+
+? o1.ContainsPath([3])
+#--> TRUE
+
+? o1.ContainsPath([ 2, 3 ])
+#--> TRUE
+
+? o1.ContainsPaths([ [3], [2, 3] ])
+#--> TRUE
+
+proff()
+
+/*-----
+*/
+profon()
+
+o1 = new stzList([
+    "A",
+    [ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    "E"
+])
+
+? @@NL( o1.Paths() )
+#--> [
+#	[ 1 ],
+#	[ 2 ],
+#	[ 2, 1 ],
+#	[ 2, 2 ],
+#	[ 2, 3 ],
+#	[ 2, 3, 1 ],
+#	[ 2, 3, 2 ],
+#	[ 2, 3, 3 ],
+#	[ 2, 3, 4 ],
+#	[ 2, 4 ],
+#	[ 2, 5 ],
+#	[ 2, 6 ],
+#	[ 3 ]
+# ]
+
+? @@NL( o1.ExpandPath([2]) )
+#--> [
+#	[ 2, 1 ],
+#	[ 2, 2 ],
+#	[ 2, 3 ],
+#	[ 2, 3, 1 ],
+#	[ 2, 3, 2 ],
+#	[ 2, 3, 3 ],
+#	[ 2, 3, 4 ],
+#	[ 2, 4 ],
+#	[ 2, 5 ],
+#	[ 2, 6 ]
+# ]
+
+? @@( o1.ExpandPath([3]) )
+#--> [ 3 ]
+
+? @@NL( o1.ExpandPath([2, 3]) )
+#--> [
+#	[ 2, 3, 1 ],
+#	[ 2, 3, 2 ],
+#	[ 2, 3, 3 ],
+#	[ 2, 3, 4 ]
+# ]
+
+
+? @@NL( o1.ExpandPaths([ [2, 3], [3] ]) )
+#--> [
+#	[ 2, 3 ],
+#	[ 2, 3, 1 ],
+#	[ 2, 3, 2 ],
+#	[ 2, 3, 3 ],
+#	[ 2, 3, 4 ],
+#	[ 3 ]
+# ]
+
+proff()
+
+/*-----
+*/
+profon()
+
+o1 = new stzList([
+    "A",
+    [ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    "E"
+])
+/*
+? o1.ItemExistsOverPath("♥", [2, 2])
+#--> TRUE
+
+? @@( o1.FindItemOverPath("♥", [2, 2]) ) + NL
+#--> [ [ 2, 1 ] ]
+
+? @@NL( o1.FindItemOverPath("♥", [2, 4]) ) + NL
+#--> [
+#	[ 2, 1 ],
+#	[ 2, 3, 2 ],
+#	[ 2, 3, 4 ],
+#	[ 2, 4 ]
+# ]
+*/
+? @@( o1.FindItemOverPath("♥", [2]) ) + NL
+#--> [ [ 2, 1 ] ]
+
+proff()
+# Executed in 0.32 second(s) in Ring 1.22
+
+/*----
+*/
+
+profon()
+
+o1 = new stzList([
+    	"A",
+	"B",
+    	[ "♥", "C", [ "D", "♥", "E", "♥" ], "♥", "F", "♥" ],
+    	"G"
+])
+
+//? o1.ItemExistsOverAllPaths("♥", [ [1], [2, 2], [3] ])
+#--> FALSE
+
+//? o1.ItemExistsOverAnyOfPaths("♥", [ [1], [2, 2], [3] ])
+#--> TRUE
+
+? @@( o1.FindItemOverPaths("♥", [ [1], [2] ]) ) + NL
+#--> []
+
+? @@( o1.FindItemOverPaths("♥", [ [1], [2], [3] ]) ) + NL
+#--> []
+
+? @@NL( o1.FindItemOverPath("♥", [ 3 ]) )
+
+
+//? @@NL( o1.FindItemOverPath("♥", [2, 4]) )
+#--> [
+#	[ 2, 1 ],
+#	[ 2, 3, 2 ],
+#	[ 2, 3, 4 ],
+#	[ 2, 4 ]
+# ]
+
+proff()
+# Executed in 0.32 second(s) in Ring 1.22
+
+/*---
+
+profon()
+
+o1 = new stzList([
+    "A",
+    [ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    "E"
+])
 
 //? @@( o1.FindItemsOverPath([ "♥", "*" ], [2, 2]) )
 //o1.RemoveItemsOverPath([ "♥", "*" ], [2, 2])
