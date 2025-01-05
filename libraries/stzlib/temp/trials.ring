@@ -670,11 +670,8 @@ proff()
 
 
 /*=== REMOVING ITEMS OVER PATHS
-*/
-profon()
 
-# All the examples return the same result, but they show the power and*
-# flexibility of finding items in singular or plural in a path or many paths
+profon()
 
 o1 = new stzList([
     "A",
@@ -687,12 +684,143 @@ o1.RemoveItemOverPath("♥", [2, 2])
 #     [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ] ]
 
 ? @@NL( o1.Content() )
+#--> [
+#	"A",
+#	[ [ "B", "C" ], "D" ],
+#	"E"
+# ]
+
+proff()
+# Executed in 0.39 second(s) in Ring 1.22
+
+/*----
+
+profon()
+
+o1 = new stzList([
+	"A",
+	[ "B", "♥", "C" ],
+	"D"
+])
+
+? @@NL( o1.Paths() ) + NL
+#--> [
+#	[ 1 ],
+#	[ 2 ],
+#	[ 2, 1 ],
+#	[ 2, 2 ],
+#	[ 2, 3 ],
+#	[ 3 ]
+# ]
+
+? o1.NumberOfItemsOverPath([3])
+#--> 6
+
+? @@NL( o1.ItemsOverPath([3]) ) + NL
+#--> [
+#	"A",
+#	[ "B", "♥", "C" ],
+#	"B",
+#	"♥",
+#	"C",
+#	"D"
+# ]
+
+? @@NL( o1.ItemsOverPathZZ([3]) ) + NL
+#--> [
+#	[ "A", [ 1 ] ],
+#	[ [ "B", "♥", "C" ], [ 2 ] ],
+#	[ "B", [ 2, 1 ] ],
+#	[ "♥", [ 2, 2 ] ],
+#	[ "C", [ 2, 3 ] ],
+#	[ "D", [ 3 ] ]
+# ]
+
+? @@( o1.NthItemOverPath(1, [3] ) )
+
+? @@( o1.NthItemOverPath(2, [3] ) )
+#--> [ "B", "♥", "C" ]
+
+? @@( o1.NthItemOverPath(3, [3]) )
+#--> "B"
+
+? @@( o1.NthItemOverPath(4, [3]) )
+#--> "♥"
+
+? @@( o1.NthItemOverPath(5, [3]) )
+#--> "C"
+
+? @@( o1.NthItemOverPath(6, [3]) )
+#--> "D"
+
+// ? @@( o1.NthItemOverPath(7, [3]) )
+#--> ERROR: Incorrect param value! n must be within the size of the path.
+
+proff()
+# Executed in 0.95 second(s) in Ring 1.22
+
+/*----
+*/
+profon()
+
+o1 = new stzList([
+	"A",
+	[ "B", "♥", "C" ],
+	"D"
+])
+
+? @@( o1.NthPathOverPath(4, [3]) ) + NL
+#--> [ 2, 2 ]
+
+? @@( o1.NthItemOverPath(4, [3]) ) + NL
+#--> "♥"
+
+? @@NL( o1.NthPathsOverPath([2, 4, 6], [3]) ) + NL
+#--> [
+#	[ 2 ],
+#	[ 2, 2 ],
+#	[ 3 ]
+# ]
+
+? @@NL( o1.NthItemsOverPath([ 2, 4, 6 ], [3]) )
+#--> [
+#	[ "B", "♥", "C" ],
+#	"♥",
+#	"D"
+# ]
+
+proff()
+# Executed in 0.28 second(s) in Ring 1.22
+
+/*----
+*/
+profon()
+
+
+o1 = new stzList([
+    "A",
+    [ "♥", "*", ["B", "♥", "*", "C", "♥" ], "♥", "D", "*" ],
+    "E"
+])
+
+
+? @@( PathsTo([2, 2]) )
+#--> [ [2], [2, 2] ]
+
+? @@( o1.FindItemAtPath("♥", [2, 2]) )
+
+//? @@( o1.FindItemOverPath("♥", [2, 2]) )
+
+//? @@( o1.FindItemsOverPath([ "♥", "*" ], [2, 2]) )
+//o1.RemoveItemsOverPath([ "♥", "*" ], [2, 2])
+
+//? @@NL( o1.Content() )
 #--> [ "♥", ["B", "♥", "C", "♥" ], "♥", "D" ],
 
 proff()
 # Executed in 0.39 second(s) in Ring 1.22
 
-/*-----
+/*====
 
 profon()
 
