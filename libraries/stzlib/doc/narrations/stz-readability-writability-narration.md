@@ -60,29 +60,59 @@ Similarly, in Softanza function design:
 
 This distinction mirrors human language grammar, making code semantics intuitive and state-focused.
 
-## Function Fluent Form: Guiding the Programmer's Train of Thought
+## Function Fluent Form: Sculpting Transformations with Precision  
 
-In Softanza, you can effortlessly *chain* multiple function calls, creating a smooth sequence of data transformations. For instance, consider the following example:
+In Softanza, functions can be seamlessly chained to create a fluent sequence of transformations. For example:  
 
 ```ring
-? Q("rixxnxg").
-    UppercaseQ().
-    ReplaceQ("I", :With = AHeart()).
-    SpacifyQ().
-    Removed("x")
+? Q("rixxnxg").  
+    UppercaseQ().  
+    ReplaceQ("I", :With = AHeart()).  
+    SpacifyQ().  
+    Removed("x")  
 
 #--> R ♥ N G
-```
+```  
 
-Here, the process begins with the string `"rixxnxg"`, elevated to a `stzString` object with the `Q()` small function, and concludes with `"R ♥ N G"`. In between, we apply a series of transformations: converting to uppercase, replacing characters, adding spaces, and removing specific characters.
+This example begins with the string `"rixxnxg"`, which is converted into an `stzString` object using the `Q()` function. The string is then transformed step by step: converting to uppercase, replacing characters, adding spaces, and removing specific characters. The chain concludes with the `Removed()` function, which terminates the sequence and returns the final result as a native Ring string, `"R ♥ N G"`.  
 
-This chaining is made possible by the *`Q()` suffix*, which allows functions to return objects that can be further processed in a continuous flow. This style of expression is often referred to as a ***Chain of Actions***. The `Q()` construct, whether as a small function that initiates the chain or a suffix that ensures its continuation, is what makes it ***fluent***.
+The `Q()` construct is central to this ***Chain of Actions***, enabling fluent transformations by returning an updated `stzString` object at each step. This approach makes complex string manipulations intuitive and expressive.  
 
-A key feature of this approach is the famous **copy-on-write mechanism**. Each operation in the chain creates a *new copy* of the string, preserving the original object intact. This ensures that every step remains side-effect-free, crucial for maintaining state integrity in complex applications.
+Softanza offers two distinct styles of transformation. When using `QC` mode, each operation explicitly creates a new object, leaving the original unchanged. This ensures immutability and eliminates side effects, preserving state safety across the chain. For example:  
 
-At the end of the chain, the `Removed()` function serves as a **terminator**. Unlike previous functions, it does not return an object that can be further processed but instead returns a native Ring string, marking the end of the chain and delivering the final result.
+```ring
+o1 = new stzString("rixxnxg")  
 
->**NOTE**: Internally, the process happens efficiently, with the Ring VM's garbage collector handling intermediate copies and freeing up memory.
+? o1.UppercaseQC().  
+    ReplaceQC("I", :With = AHeart()).  
+    SpacifyQC().  
+    Removed("x")  
+
+#--> R ♥ N G  
+
+# The original object remains intact  
+? o1.Content()  
+#--> "rixxnxg"
+```  
+
+In contrast, using `Q` mode allows transformations to directly modify the original object, creating a dynamic and interactive sculpting experience:  
+
+```ring
+o1 = new stzString("rixxnxg")  
+
+? o1.UppercaseQ().  
+    ReplaceQ("I", :With = AHeart()).  
+    SpacifyQ().  
+    Removed("x")  
+
+#--> R ♥ N G  
+
+# The original object is altered  
+? o1.Content()  
+#--> R ♥ N G
+```  
+
+This flexibility allows developers to choose between immutability for state safety or direct modification for dynamic workflows, empowering them to tailor their approach to the requirements of their application.
 
 ## Function Partial Form: Opening a Second Avenue in the Transformation Chain
 
