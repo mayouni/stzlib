@@ -82,9 +82,9 @@ The `Q()` construct lies at the heart of this ***Chain of Actions***, enabling f
 
 ## Function Immutable Form: Transforming Without Altering
 
-In the previous section, we explored the elegant chaining of actions on an initial `stzString` object using the versatile `Q()` construct. This fluent approach enables transformations to flow naturally, resulting in expressive and readable code.
+In the previous section, we explored the elegant chaining of actions on an initial `stzString` object using the versatile `Q()` construct.
 
-To demystify the internal workings of this process, we can isolate the first `stzString` object into a distinct variable, `o1`, and observe how its value has been altered after the transformation is applied:
+To better understand the internal workings of this process, we can isolate the first `stzString` object into a distinct variable, `o1`, and observe how its value evolves after the transformations are applied:
 
 ```ring
 o1 = new stzString("rixxnxg")
@@ -101,15 +101,17 @@ o1 = new stzString("rixxnxg")
 #--> R ♥ N G
 ```
 
-However, what if we wish to safeguard the integrity of the original object, ensuring that it remains pristine no matter how many transformations are applied? Enter `QC()`, the immutable counterpart of `Q()`. This construct offers a state-safe alternative by creating a new object for each operation, ensuring the original remains untouched.
+But what if we want to *safeguard the integrity of the original object*, ensuring it remains unchanged no matter how many transformations are applied? Enter `QC()`, the immutable counterpart to `Q()`!
+
+This construct provides a state-safe alternative by creating a new object at each step, leaving the original untouched.
 
 ```ring
 o1 = new stzString("rixxnxg")
 
-? o1.RemoveQC("x").
-    ReplaceQC("i", :With = AHeart()).
-    UppercaseQC().
-    SpacifiedQC()
+? o1.RemoveQC("x").     # Here a copy of o1, not o1 itself, is returned
+    ReplaceQ("i", :With = AHeart()).
+    UppercaseQ().
+    Spacified()
 
 #--> R ♥ N G
 
@@ -118,7 +120,20 @@ o1 = new stzString("rixxnxg")
 #--> "rixxnxg"
 ```  
 
-With `QC()`, transformations occur in a controlled and isolated manner, making it ideal for workflows where preserving the initial state is paramount. Whether you prefer the fluid adaptability of `Q()` or the immutable safety of `QC()`, Softanza empowers developers with the freedom to choose the style that aligns with their specific needs. This flexibility, combined with intuitive design, ensures both expressive fluency and robust control over state—a hallmark of thoughtful and modern programming.
+This can also be written more explicitly by inserting a `Copy()` function after the `Q()`, like this:
+
+```ring
+? o1.RemoveQ("x").
+    Copy().      # Here, a copy of o1 is returned and chained over
+    ReplaceQ("i", :With = AHeart()).
+    UppercaseQ().
+    Spacified()
+
+#--> R ♥ N G
+```
+
+With `QC()`, transformations occur in a controlled and isolated manner, making it ideal for workflows where preserving the initial state is paramount. Whether you prefer the fluid adaptability of `Q()` or the immutability of `QC()`, Softanza empowers developers with the freedom to choose the style that best suits their needs. This flexibility, combined with intuitive design, ensures both expressive fluency and robust control over state—a hallmark of thoughtful and modern programming.
+
 
 ## Function Partial Form: Opening a Second Avenue in the Transformation Chain
 
