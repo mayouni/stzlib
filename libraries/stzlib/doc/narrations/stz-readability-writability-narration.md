@@ -79,7 +79,7 @@ This example begins with the string `"rixxnxg"`, which is converted into an `stz
 
 The `Q()` construct lies at the heart of this ***Chain of Actions***, enabling fluent transformations by continuously returning the updated `stzString` object. This approach makes complex string manipulations intuitive and expressive.  
 
-To better understand the internal workings of this process, we can detach the first `stzString` object into a distinct variable `o1` and observe how its value evolves as transformations are applied:  
+To better understand the internal workings of this process, we can detach the first `stzString` object into a distinct variable `o1` and observe how its value is affected as transformations are applied:  
 
 ```ring
 o1 = new stzString("rixxnxg")  
