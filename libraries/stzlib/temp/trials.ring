@@ -4,6 +4,45 @@ load "../max/stzmax.ring"
 
 profon()
 
+o1 = new stzString("rixxnxg")  
+
+? o1.RemoveQ("x").  
+     ReplaceQ("i", :With = AHeart()).
+     UppercaseQ().
+     Spacified()
+
+#--> R ♥ N G  
+
+# The original object remains intact  
+? o1.Content()  
+#--> "R♥NG"
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*-----
+*/
+profon()
+
+o1 = new stzString("rixxnxg")
+
+? o1.RemoveQC("x").Content()
+/*     ReplaceQC("i", :With = AHeart()).
+     UppercaseQC().
+     Spacified()
+
+#--> R ♥ N G
+
+# The original object remains intact
+? o1.Content()
+#--> "rixxnxg"
+*/
+proff()
+
+/*=====
+
+profon()
+
 o1 = new stzList([
 	"item1",
 
@@ -1454,6 +1493,7 @@ o1 = new stzString("ring")
 #--> R I N G
 
 ? o1.Content()
+#--> R I N G
 
 proff()
 
