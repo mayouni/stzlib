@@ -84,7 +84,7 @@ The `Q()` construct lies at the heart of this ***Chain of Actions***, enabling f
 
 In the previous section, we explored the elegant chaining of actions on an initial `stzString` object using the versatile `Q()` construct.
 
-To better understand the internal workings of this process, we can isolate the initial `stzString` object into a distinct variable, `o1`, and observe how its value actually changes after the transformations are applied:
+To better understand the internal workings of this process, we can isolate the initial `stzString` object into a distinct variable, `o1`, and observe how its value *actually changes* after the transformations are applied:
 
 ```ring
 o1 = new stzString("rixxnxg")
@@ -101,9 +101,9 @@ o1 = new stzString("rixxnxg")
 #--> R ♥ N G
 ```
 
-But what if we want to *safeguard the integrity of the original object*, ensuring it remains unchanged no matter how many transformations are applied? Enter `QC()`, the immutable counterpart to `Q()`!
+But what if we want to *safeguard the integrity of the original object*, ensuring it remains unchanged no matter how many transformations are applied? Enter `QC()`, the **immutable** counterpart to `Q()`!
 
-This construct provides a state-safe alternative by creating a new object at each step, leaving the original untouched.
+This construct provides a state-safe alternative by creating a copy of the `o1` object, leaving the original untouched.
 
 ```ring
 o1 = new stzString("rixxnxg")
