@@ -60,6 +60,7 @@ Similarly, in Softanza function design:
 
 This distinction mirrors human language grammar, making code semantics intuitive and state-focused.
 
+
 ## Function Fluent Form: Sculpting Transformations with Precision  
 
 In Softanza, functions can be seamlessly chained to create a fluent sequence of transformations. For example:  
@@ -76,26 +77,9 @@ In Softanza, functions can be seamlessly chained to create a fluent sequence of 
 
 This example begins with the string `"rixxnxg"`, which is converted into an `stzString` object using the `Q()` function. The string is then transformed step by step: converting to uppercase, replacing characters, adding spaces, and removing specific characters. The chain concludes with the `Removed()` function, which terminates the sequence and returns the final result as a native Ring string, `"R ♥ N G"`.  
 
-The `Q()` construct is central to this ***Chain of Actions***, enabling fluent transformations by returning an updated `stzString` object at each step. This approach makes complex string manipulations intuitive and expressive.  
+The `Q()` construct lies at the heart of this ***Chain of Actions***, enabling fluent transformations by continuously returning the updated `stzString` object. This approach makes complex string manipulations intuitive and expressive.  
 
-Softanza offers two distinct styles of transformation. When using `QC` mode, each operation explicitly creates a new object, leaving the original unchanged. This ensures immutability and eliminates side effects, preserving state safety across the chain. For example:  
-
-```ring
-o1 = new stzString("rixxnxg")  
-
-? o1.UppercaseQC().  
-    ReplaceQC("I", :With = AHeart()).  
-    SpacifyQC().  
-    Removed("x")  
-
-#--> R ♥ N G  
-
-# The original object remains intact  
-? o1.Content()  
-#--> "rixxnxg"
-```  
-
-In contrast, using `Q` mode allows transformations to directly modify the original object, creating a dynamic and interactive sculpting experience:  
+To better understand the internal workings of this process, we can detach the first `stzString` object into a distinct variable `o1` and observe how its value evolves as transformations are applied:  
 
 ```ring
 o1 = new stzString("rixxnxg")  
@@ -112,7 +96,26 @@ o1 = new stzString("rixxnxg")
 #--> R ♥ N G
 ```  
 
-This flexibility allows developers to choose between immutability for state safety or direct modification for dynamic workflows, empowering them to tailor their approach to the requirements of their application.
+This detached view reveals that `Q()` directly modifies the original object. Each transformation updates `o1` itself, making this approach well-suited for scenarios where the initial data evolves naturally through successive transformations.  
+
+However, in cases where preserving the original object is critical, Softanza offers `QC()`. This variant ensures immutability by creating a new object at each step, leaving the original untouched. By employing `QC()`, we can maintain state safety and eliminate side effects:  
+
+```ring
+o1 = new stzString("rixxnxg")  
+
+? o1.UppercaseQC().  
+    ReplaceQC("I", :With = AHeart()).  
+    SpacifyQC().  
+    Removed("x")  
+
+#--> R ♥ N G  
+
+# The original object remains intact  
+? o1.Content()  
+#--> "rixxnxg"
+```  
+
+This dual approach—dynamic modification with `Q()` or immutable safety with `QC()`—gives developers the flexibility to choose the style that best fits their needs, ensuring both expressive fluency and precise control over state.
 
 ## Function Partial Form: Opening a Second Avenue in the Transformation Chain
 
