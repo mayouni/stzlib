@@ -80,11 +80,11 @@ This example begins with the string `"rixxnxg"`, which is converted into an `stz
 The `Q()` construct lies at the heart of this ***Chain of Actions***, enabling fluent transformations by continuously returning the updated `stzString` object. This approach makes complex string manipulations intuitive and expressive.
 
 
-## Function Immutable Form: Preserving State Safety in Softanza  
+## Function Immutable Form: Transforming Without Altering
 
 In the previous section, we explored the elegant chaining of actions on an initial `stzString` object using the versatile `Q()` construct. This fluent approach enables transformations to flow naturally, resulting in expressive and readable code.
 
-To demystify the internal workings of this process, we can isolate the first `stzString` object into a distinct variable, `o1`, and observe how its value evolves as each transformation is applied:
+To demystify the internal workings of this process, we can isolate the first `stzString` object into a distinct variable, `o1`, and observe how its value has been altered after the transformation is applied:
 
 ```ring
 o1 = new stzString("rixxnxg")
@@ -100,8 +100,6 @@ o1 = new stzString("rixxnxg")
 ? o1.Content()
 #--> R ♥ N G
 ```
-
-This detached view acts like peeking behind the curtain, revealing how `Q()` interacts with the original object. Each transformation updates `o1` directly, reflecting a dynamic process where the initial data evolves step by step. This makes `Q()` an excellent choice for scenarios where natural progression and modification of data are intended.
 
 However, what if we wish to safeguard the integrity of the original object, ensuring that it remains pristine no matter how many transformations are applied? Enter `QC()`, the immutable counterpart of `Q()`. This construct offers a state-safe alternative by creating a new object for each operation, ensuring the original remains untouched.
 
