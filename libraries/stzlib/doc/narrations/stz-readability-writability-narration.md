@@ -1007,7 +1007,7 @@ Regardless of the order, you still get the same result.
 
 >**NOTE**: Not all functions with two parameters support this feature yet, but it is planned for a future release.
 
-### Function Misspelled Form: Functions that Just Work  
+## Function Misspelled Form: Functions that Just Work  
 
 In Softanza, when you write:  
 
@@ -1024,7 +1024,7 @@ In Softanza, when you write:
 
 You get what you want, but here’s the twist: all the function names are misspelled!
 
-Look closely. This functionality, usually found in advanced IDE tools, is seamlessly integrated into Softanza’s library. The library recognizes and corrects minor typos in function names, mapping them to the closest valid definitions.
+Look closely. This functionality, usually found in advanced IDE tools, is seamlessly integrated into Softanza library. The library recognizes and corrects minor typos in function names, mapping them to the closest valid definitions.
 
 This feature dramatically improves the coding experience by reducing disruptions caused by trivial errors. It saves time, lowers frustration, and enhances accessibility for developers of all skill levels, especially those working in non-native languages.
 
