@@ -1392,7 +1392,9 @@ class stzString from stzObject
 			return This
 
 		def ApplyLowercaseQC()
-			return This.Copy().ApplyUppercaseQ()
+			_oCopy_ = This.Copy()
+			_oCopy_.ApplyUppercase()
+			return _oCopy_
 
 		#>
 
@@ -1717,7 +1719,9 @@ class stzString from stzObject
 			return This
 
 		def ApplyUppercaseQC()
-			return This.Copy().ApplyUppercaseQ()
+			_oCopy_ = This.Copy()
+			_oCopy_.ApplyLowercase()
+			return _oCopy_
 
 		#>
 
@@ -38681,8 +38685,9 @@ class stzString from stzObject
 			return This
 		
 		def ReplaceCSQC(pcSubStr, pcNewSubStr, pCaseSensitive)
-			return This.Copy().ReplaceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
-
+			_oCopy_ = This.Copy()
+			_oCopy_.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return _oCopy_
 		#>
 
 
@@ -38722,7 +38727,9 @@ class stzString from stzObject
 			return This
 
 		def ReplaceQC(pcSubStr, pcNewSubStr)
-			return This.Copy().ReplaceQ(pcSubStr, pcNewSubStr)
+			_oCopy_ = This.Copy()
+			_oCopy_.Replace(pcSubStr, pcNewSubStr)
+			return _oCopy_
 
 		#>
 
@@ -78842,7 +78849,9 @@ class stzString from stzObject
 			return This
 
 		def RemoveCSQC(pcSubStr, pCaseSensitive)
-			return This.Copy().RemoveCSQ(pcSubStr, pCaseSensitive)
+			_oCopy_ = This.Copy()
+			_oCopy_.RemoveCS(pcSubStr, pCaseSensitive)
+			return _oCopy_
 
 		#>
 

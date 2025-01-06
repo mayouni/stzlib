@@ -21,14 +21,14 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*-----
-*/
+
 profon()
 
 o1 = new stzString("rixxnxg")
 
-? o1.RemoveQC("x").Content()
-/*     ReplaceQC("i", :With = AHeart()).
-     UppercaseQC().
+? o1.RemoveQC("x").
+     ReplaceQ("i", :With = AHeart()).
+     UppercaseQ().
      Spacified()
 
 #--> R ♥ N G
@@ -36,8 +36,9 @@ o1 = new stzString("rixxnxg")
 # The original object remains intact
 ? o1.Content()
 #--> "rixxnxg"
-*/
+
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*=====
 
@@ -60,12 +61,28 @@ o1 = new stzList([
 	[ "item31", ["item321", "item322" ] ],
 
 	"item4"])
-.AllRemovedExcept([ "[", ",", "]" ])
+.AllRemovedExcept([ "[", ",", "]" ]) + NL
+#--> [,[,[,],],[,[,]],]
 
 ? @@NL( GeneratePaths("[,[,[,],],[,[,]],]") )
+#--> [
+#	[ 1 ],
+#	[ 2 ],
+#	[ 2, 1 ],
+#	[ 2, 2 ],
+#	[ 2, 2, 1 ],
+#	[ 2, 2, 2 ],
+#	[ 2, 3 ],
+#	[ 3 ],
+#	[ 3, 1 ],
+#	[ 3, 2 ],
+#	[ 3, 2, 1 ],
+#	[ 3, 2, 2 ],
+#	[ 4 ]
+# ]
 
 proff()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in almost 0.09 second(s) in Ring 1.22
 
 /*============
 
@@ -78,25 +95,7 @@ profon()
 #--> "0.9"
 
 proff()
-
-/*============
-
-profon()
-
-# Create a nested list
-
-o1 = new stzList([
-	"item1",
-	[ "item2", [ "item3", "item4" ], "item5" ],
-	[ "item6", [ "item7" ] ],
-	"item8"
-])
-
-? @@Q(o1.Content()).AllRemovedExcept([ "[", ",", "]" ])
-#--> [,[,[,],],[,[]],]
-
-proff()
-# Executed in 0.09 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*------
 
@@ -1482,20 +1481,6 @@ o1 = new stzList([
 
 proff()
 # Executed in 0.68 second(s) in Ring 1.22
-
-/*----
-*/
-profon()
-
-o1 = new stzString("ring")
-
-? o1.SpacifyQ().UppercaseQ().Content()
-#--> R I N G
-
-? o1.Content()
-#--> R I N G
-
-proff()
 
 /*-----
 */

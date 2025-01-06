@@ -8701,12 +8701,14 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def ReplaceAllOccurrencesCSQ(pItem, pNewIteme, pCaseSensitive)
+		def ReplaceAllOccurrencesCSQ(pItem, pNewItem, pCaseSensitive)
 			This.ReplaceAllOccurrencesCS(pItem, pNewItem, pCaseSensitive)
 			return This
 
 		def ReplaceAllOccurrencesCSQC(pItem, pNewIteme, pCaseSensitive)
-			return This.Copy().ReplaceAllOccurrencesCSQ(pItem, pNewIteme, pCaseSensitive)
+			_oCopy_ = This.Copy()
+			_oCopy_.ReplaceAllOccurrencesCS(pItem, pNewItem, pCaseSensitive)
+			return _oCopy_
 
 		#>
 
@@ -8744,7 +8746,9 @@ class stzList from stzObject
 				return This
 
 			def ReplaceCSQC(pItem, pNewItem, pCaseSensitive)
-				return This.ReplaceAllOccurrencesCSQC(pItem, pNewIteme, pCaseSensitive)
+				_oCopy_ = This.Copy()
+				_oCopy_.ReplaceCS(pItem, pNewItem, pCaseSensitive)
+				return _oCopy_
 
 		#--
 
@@ -8808,7 +8812,7 @@ class stzList from stzObject
 			return This
 
 		def ReplaceAllOccurrencesQC(pItem, pNewIteme)
-			return This.Copy().ReplaceAllOccurrencesQ(pItem, pNewIteme)
+			return This.ReplaceAllOccurrencesQC(pItem, pNewIteme, _TRUE)
 
 		#>
 
@@ -8822,7 +8826,7 @@ class stzList from stzObject
 				return This
 
 			def ReplaceItemQC(pItem, pNewItem)
-				return This.ReplaceAllOccurrencesQC(pItem, pNewIteme)
+				return This.ReplaceAllOccurrencesQC(pItem, pNewItem)
 
 		def ReplaceAll(pItem, pNewItem)
 			This.ReplaceAllOccurrences(pItem, pNewItem)
@@ -8846,7 +8850,7 @@ class stzList from stzObject
 				return This
 
 			def ReplaceQC(pItem, pNewItem)
-				return This.Copy().ReplaceQ(pItem, pNewItem)
+				return This.ReplaceQC(pItem, pNewItem, _TRUE_)
 
 		#--
 
@@ -8858,7 +8862,7 @@ class stzList from stzObject
 				return This
 
 			def ReplaceAnyQC(pItem, pNewItem)
-				return This.Copy().ReplaceAnyQ()
+				return This.ReplaceAllQC(pItem, pNewItem)
 
 		def ReplaceThisItem(pItem, pNewItem)
 			This.Replace(pItem, pNewItem)
@@ -8868,8 +8872,7 @@ class stzList from stzObject
 				return This
 
 			def ReplaceThisItemQC(pItem, pNewItem)
-				return This.Copy().ReplaceThisItemQ()
-
+				return This.ReplaceThisItemQC(pItem, pNewItem, _TRUE_)
 
 		#>
 
@@ -46592,11 +46595,11 @@ fdef
 		def ThesePathsCollabsed(paPaths)
 			return This.CollabseThesePaths(paPaths)
 
-	#-- FINDING ITEM(S) OVER PATH(S)
+	#-- CHECKING ITEM(S) EXISTENCE OVER PATH(S)
 
-	def ItemExistsUntilPathCS(pItem, paPath, pCaseSensitive)
+	def ItemExistsInPathCS(pItem, paPath, pCaseSensitive)
 
-		_aPath_ = This.FindItemUntilPathCS(pItem, paPath, pCaseSensitive)
+		_aPath_ = This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
 
 		if len(_aPath_) > 0
 			return _TRUE_
@@ -46604,8 +46607,107 @@ fdef
 			return _FALSE_
 		ok
 
-	func ItemExistsUntilPath(pItem, paPath)
-		return This.ItemExistsUntilPathCS(pItem, paPath, _TRUE_)
+		def ContainsItemInPathCS(pItem, paPath, pCaseSensitive)
+			return This.ItemExistsInPathCS(pItem, paPath, pCaseSensitive)
+
+	func ItemExistsInPath(pItem, paPath)
+		return This.ItemExistsInPathCS(pItem, paPath, _TRUE_)
+
+		def ContainsItemInPath(pItem, paPath)
+			return This.ItemExistsInPath(pItem, paPath)
+
+	#--
+
+	def ItemExistsInAllNodesOfPathCS(pItem, paPath, pCaseSensitive)
+
+		/* ... */ #TODO
+
+		def ContainsItemInAllNodesOfPathCS(pItem, paPath, pCaseSensitive)
+			return This.ItemExistsInAllNodesPathCS(pItem, paPath, pCaseSensitive)
+
+	func ItemExistsInAllNodesOfPath(pItem, paPath)
+		return This.ItemExistsInAllNodesOfPathCS(pItem, paPath, _TRUE_)
+
+		def ContainsItemInAllNodesOfPath(pItem, paPath)
+			return This.ItemExistsInAllNodesOfPath(pItem, paPath)
+
+	#--
+
+	def ItemExistsInPathsCS(pItem, paPaths, pCaseSensitive)
+
+		_aPath_ = This.FindItemInPathsCS(pItem, paPaths, pCaseSensitive)
+
+		if len(_aPath_) > 0
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+		def ContainsItemInPathsCS(pItem, paPaths, pCaseSensitive)
+			return This.ItemExistsInPathsCS(pItem, paPaths, pCaseSensitive)
+
+	func ItemExistsInPaths(pItem, paPaths)
+		return This.ItemExistsInPathsCS(pItem, paPaths, _TRUE_)
+
+		def ContainsItemInPaths(pItem, paPaths)
+			return This.ItemExistsInPaths(pItem, paPaths)
+
+	#--
+
+	def ItemExistsInAllNodesOfPathsCS(pItem, paPaths, pCaseSensitive)
+
+		/* ... */ #TODO
+
+		def ContainsItemInAllNodesOfPathsCS(pItem, paPaths, pCaseSensitive)
+			return This.ItemExistsInAllNodesPathsCS(pItem, paPaths, pCaseSensitive)
+
+	func ItemExistsInAllNodesOfPaths(pItem, paPath)
+		return This.ItemExistsInAllNodesOfPathsCS(pItem, paPaths, _TRUE_)
+
+		def ContainsItemInAllNodesOfPaths(pItem, paPaths)
+			return This.ItemExistsInAllNodesOfPaths(pItem, paPaths)
+
+	#--
+
+	def ItemsExistInPathCS(paItems, paPath, pCaseSensitive)
+
+		_aPath_ = This.FindItemsInPathCS(paItems, paPath, pCaseSensitive)
+
+		if len(_aPath_) > 0
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+		def ContainsItemsInPathCS(paItems, paPath, pCaseSensitive)
+			return This.ItemsExistInPathCS(paItems, paPath, pCaseSensitive)
+
+	func ItemsExistInPath(paItems, paPath)
+		return This.ItemsExistInPathCS(paItems, paPath, _TRUE_)
+
+		def ContainsItemsInPath(paItems, paPath)
+			return This.ItemsExistInPath(paItems, paPath)
+
+	#--
+
+	def ItemsExistInPathsCS(paItems, paPaths, pCaseSensitive)
+
+		_aPath_ = This.FindItemsInPathsCS(paItems, paPaths, pCaseSensitive)
+
+		if len(_aPath_) > 0
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+		def ContainsItemsInPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.ItemsExistInPathsCS(paItems, paPaths, pCaseSensitive)
+
+	func ItemsExistInPaths(paItems, paPaths)
+		return This.ItemsExistInPathsCS(paItems, paPaths, _TRUE_)
+
+		def ContainsItemsInPaths(paItems, paPaths)
+			return This.ItemsExistInPaths(paItems, paPaths)
 
 	#-- FINDING ITEM(S) OVER PATH(S)
 
@@ -51767,7 +51869,9 @@ fdef
 			return This
 
 			def LowercaseStringsQC()
-				return This.Copy().LowercaseStringsQ()
+				_oCopy_ = This.Copy()
+				_oCopy_.LowercaseStrings()
+				return _oCopy_
 
 		#>
 
@@ -51780,7 +51884,7 @@ fdef
 				return This.LowercaseStringsQ()
 
 			def LowercaseQC()
-				return This.Copy().LowercaseQ()
+				return LowercaseStringsQC()
 
 		#>
 
@@ -51807,7 +51911,9 @@ fdef
 			return This
 
 			def DeepLowercaseQC()
-				return This.Copy().DeepLowercaseQ()
+				_oCopy_ = This.Copy()
+				_oCopy_.DeepLowercase()
+				return _oCopy_
 
 		def DeepApplyLowercase()
 			This.DeepLowercase()
@@ -51882,7 +51988,9 @@ fdef
 			return This
 
 			def UppercaseStringsQC()
-				return This.Copy().UppercaseStringsQ()
+				_oCopy_ = This.Copy()
+				_oCopy_.UppercaseString()
+				return _oCopy_
 
 		def Uppercase()
 			This.UppercaseStrings()
@@ -51892,8 +52000,7 @@ fdef
 				return This
 
 			def UppercaseQC()
-				return This.UppercaseStringsQ()
-
+				return This.UppercaseStringsQC()
 
 		def ApplyUppercase()
 			This.UppercaseStrings()
@@ -51903,7 +52010,7 @@ fdef
 				return This
 
 			def ApplyUppercaseQC()
-				return This.UppercaseStringsQ()
+				return This.UppercaseStringsQC()
 
 	def StringsUppercased()
 		aResult = This.Copy().UppercaseStringsQ().Content()
@@ -51927,7 +52034,9 @@ fdef
 			return This
 
 			def DeepUppercaseQC()
-				return This.Copy().DeepUppercaseQ()
+				_oCopy_ = This.Copy()
+				_oCopy_.DeepUppercase()
+				return _oCopy_
 
 		def DeepApplyUppercase()
 			This.DeepUppercase()
