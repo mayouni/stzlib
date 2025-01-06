@@ -1231,6 +1231,27 @@ proff()
 # Executed in 0.67 second(s) in Ring 1.22
 
 /*-----
+
+profon()
+
+o1 = new stzList([
+	"A",
+	"♥",
+	[ "B", "♥", "C" ],
+	"D",
+    	[ "♥", "E", [ "F", "♥", "G", "♥" ], "♥", "H", "♥" ],
+    	"I"
+])
+
+? @@( o1.DeepestPath() ) + NL		# Or HighestPath() depending on how
+#--> [ 6 ]				# you look to the list building ;)
+
+? @@( o1.ShallowestPath() ) + NL	# Or LowestPath()
+#--> [ 1 ]
+
+proff()
+
+/*----
 */
 profon()
 
@@ -1243,14 +1264,135 @@ o1 = new stzList([
     	"I"
 ])
 
-? @@( o1.LongestPath() ) + NL
-#--> [ 6 ]
+? o1.LengthOfLongestPath()
+#--> 3
 
-? @@( o1.ShortestPath() )
-#--> [ 1 ]
+? @@( o1.LongestPath() ) + NL		# If many, returns the 1st
+#--> [ 5, 3, 1 ]
+
+? @@NL( o1.LongestPaths() ) + NL	# the little additional "s" returns them all ;)
+#--> [
+#	[ 5, 3, 1 ],
+#	[ 5, 3, 2 ],
+#	[ 5, 3, 3 ],
+#	[ 5, 3, 4 ]
+# ]
 
 proff()
-# Executed in 0.24 second(s) in Ring 1.22
+# Executed in 0.16 second(s) in Ring 1.22
+
+/*---
+
+profon()
+
+o1 = new stzList([
+	"A",
+	"♥",
+	[ "B", "♥", "C" ],
+	"D",
+    	[ "♥", "E", [ "F", "♥", "G", "♥" ], "♥", "H", "♥" ],
+    	"I"
+])
+
+? o1.LenOfShortestPath()
+#--> 1
+
+? @@( o1.ShortestPath() ) + NL		# If many, returns the 1st
+#--> [ 1 ]
+
+? @@NL( o1.ShortestPaths() ) + NL	# the little additional "s" returns them all ;)
+#--> [
+#	[ 1 ],
+#	[ 2 ],
+#	[ 3 ],
+#	[ 4 ],
+#	[ 5 ],
+#	[ 6 ]
+# ]
+
+proff()
+# Executed in 0.13 second(s) in Ring 1.22
+
+/*---
+
+profon()
+
+o1 = new stzList([])
+
+? o1.LenOfShortestPath()
+#--> 0
+
+? @@( o1.ShortestPath() )
+#--> [ ]
+
+? @@NL( o1.ShortestPaths() ) + NL
+#--> [ ]
+
+? o1.LenOfLongestPath()
+#--> 0
+
+? @@( o1.LongestPath() )
+#--> [ ]
+
+? @@NL( o1.LongestPaths() )
+#--> [ ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*----
+*/
+profon()
+
+o1 = new stzList([
+	"A",
+	"♥",
+	[ "B", "♥", "C" ],
+	"D",
+    	[ "♥", "E", [ "F", "♥", "G", "♥" ], "♥", "H", "♥" ],
+    	"I"
+])
+
+? @@( o1.LengthOfLongestPath() ) + NL
+#--> 3
+
+? @@( o1.LengthOfShortestPath() )
+#--> 1
+
+? @@NL( o1.PathsAndTheirLengths() )
+#--> [
+#	[ [ 1 ], 1 ],
+#	[ [ 2 ], 1 ],
+#	[ [ 3 ], 1 ],
+#	[ [ 3, 1 ], 2 ],
+#	[ [ 3, 2 ], 2 ],
+#	[ [ 3, 3 ], 2 ],
+#	[ [ 4 ], 1 ],
+#	[ [ 5 ], 1 ],
+#	[ [ 5, 1 ], 2 ],
+#	[ [ 5, 2 ], 2 ],
+#	[ [ 5, 3 ], 2 ],
+#	[ [ 5, 3, 1 ], 3 ],
+#	[ [ 5, 3, 2 ], 3 ],
+#	[ [ 5, 3, 3 ], 3 ],
+#	[ [ 5, 3, 4 ], 3 ],
+#	[ [ 5, 4 ], 2 ],
+#	[ [ 5, 5 ], 2 ],
+#	[ [ 5, 6 ], 2 ],
+#	[ [ 6 ], 1 ]
+# ]
+
+proff()
+# Executed in 0.14 second(s) in Ring 1.22
+
+/*---- #TODO #narration #seantic-precision PATHS SEMANTICS
+
+# Depth   -> DeepestPath()	or HighestPath() depending on the  observer perpspective
+	  VS ShallowestPath()	or LowestPath()
+
+# Lenght  -> LongestPath() VS ShortestPath()
+
+// Add examples here
 
 /*-----
 
@@ -1265,19 +1407,18 @@ o1 = new stzList([
     	"I"
 ])
 
-? @@NL( o1.FindItemUntilPaths("♥", [ [ 3, 2 ], [ 5, 2 ]) )
+? @@NL( o1.FindItemUntilPaths("♥", [ [ 3, 2 ], [ 5, 2 ] ]) )
 #--> [
 #	[ 2 ],
 #	[ 3, 2 ],
-#	[ 5, 1 ],
-#	[ 5, 3, 2 ]
+#	[ 5, 1 ]
 # ]
 
 proff()
-# Executed in 0.54 second(s) in Ring 1.22
+# Executed in 0.51 second(s) in Ring 1.22
 
 /*-----
-
+*/
 profon()
 
 o1 = new stzList([

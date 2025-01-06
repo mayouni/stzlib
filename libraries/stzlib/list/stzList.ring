@@ -6424,7 +6424,7 @@ func CommonPath(paPaths)
 
 	#>
 
-func LargestPath(paPaths)
+func DeepestPath(paPaths)
 	if CheckParams()
 		if NOT (isList(paPaths) and IsListOfListsOfNumbers(paPaths))
 			StzRaise("Incorrect param type! paPaths must be a list of lists of numbers.")
@@ -6436,16 +6436,16 @@ func LargestPath(paPaths)
 	_aResult_ = _aSorted_[_nLen_]
 	return _aResult_
 
-	func LongestPath(paPaths)
-		return LargestPath(paPaths)
+	func HighestPath(paPaths)
+		return DeepestPath(paPaths)
 
-	func @LargestPath(paPaths)
-		return LargestPath(paPaths)
+	func @DeepestPath(paPaths)
+		return DeepestPath(paPaths)
 
-	func @LongestPath(paPaths)
-		return LargestPath(paPaths)
+	func @HighestPath(paPaths)
+		return DeepestPath(paPaths)
 
-func ShortestPath(paPaths)
+func ShallowestPath(paPaths)
 	if CheckParams()
 		if NOT (isList(paPaths) and IsListOfListsOfNumbers(paPaths))
 			StzRaise("Incorrect param type! paPaths must be a list of lists of numbers.")
@@ -6456,14 +6456,15 @@ func ShortestPath(paPaths)
 	_aResult_ = _aSorted_[1]
 	return _aResult_
 
-	func SmallestPath(paPaths)
-		return ShortestPath(paPaths)
+	func LowestPath(paPaths)
+		return ShallowestPath(paPaths)
 
-	func @ShortestPath(paPaths)
-		return ShortestPath(paPaths)
+	func @ShallowestPath(paPaths)
+		return ShallowestPath(paPaths)
 
-	func @SmallestPath(paPaths)
-		return ShortestPath(paPaths)
+	func @LowestPath(paPaths)
+		return ShallowestPath(paPaths)
+
 
 func PathsSection(paPath1, paPath2)
 	# Returns all paths from paPath1 to paPath2, where
@@ -45009,19 +45010,236 @@ fdef
 		def HowManyPaths()
 			return This.NumberOfPaths()
 
-	def LongestPath()
-		_aResult_ = @LongestPath( This.Paths() )
+	def DeepestPath()
+		_aResult_ = @DeepestPath( This.Paths() )
 		return _aResult_
 
-		def LargestPath()
-			return This.LongestPath()
+		def HighestPath()
+			return This.DeepstPath()
+
+	def ShallowestPath()
+		_aResult_ = @ShallowestPath( This.Paths() )
+		return _aResult_
+
+		def LowestPath()
+			return This.ShallowestPath()
+
+	def PathsLengths()
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
+		_anResult_ = []
+
+		for @i = 1 to _nLen_
+			_anResult_ + len(_aPaths_[@i])
+		next
+
+		return _anResult_
+
+		def LenghtsOfPaths()
+			return This.PathsLengths()
+
+		def LenOfPaths()
+			return This.PathsLengths()
+
+	def PathsAndTheirLengths()
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
+		_aResult_ = []
+
+		for @i = 1 to _nLen_
+			_aResult_ + [ _aPaths_[@i], len(_aPaths_[@i]) ]
+		next
+
+		return _aResult_
+
+		def PathsAndTheirLen()
+			return This.PathsAndTheirLenghts()
+
+		#-- @Misspelled
+
+		def PathsAndTheirLenghts()
+			return This.PathsAndTheirLengths()
+
+	def LengthOfLongestPath()
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
+		_nMax_ = 0
+
+		for @i = 1 to _nLen_
+
+			_nLenPath_ = len(_aPaths_[@i])
+
+			if _nLenPath_ > _nMax_
+				_nMax_ = _nLenPath_
+			ok
+		next
+
+		return _nMax_
+
+		def LenOfLongestPath()
+			return This.LengthOfLongestPath()
+
+		def LongestPathLenght()
+			return This.LengthOfLongestPath()
+
+		def LongestPathLen()
+			return This.LengthOfLongestPath()
+
+		#-- @Misspelled
+
+		def LenghtOfLongestPath()
+			return This.LengthOfLongestPath()
+
+	def LongestPath()
+		if This.IsEmpty()
+			return []
+		ok
+
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
+		_nMax_ = 0
+		_n_ = 1
+
+		for @i = 1 to _nLen_
+
+			_nLenPath_ = len(_aPaths_[@i])
+
+			if _nLenPath_ > _nMax_
+				_nMax_ = _nLenPath_
+				_n_ = @i
+			ok
+		next
+
+		return _aPaths_[_n_]
+
+	def LongestPaths()
+		if This.IsEmpty()
+			return []
+		ok
+
+		_nMax_ = This.LengthOfLongestPath()
+
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
+		_aResult_ = []
+
+		for @i = 1 to _nLen_
+			if len(_aPaths_[@i]) = _nMax_
+				_aResult_ + _aPaths_[@i]
+			ok
+		next
+
+		return _aResult_
+
+	def NumberOfLongestPaths()
+		if This.IsEmpty()
+			return 0
+		ok
+
+		_nMax_ = This.LengthOfLongestPath()
+
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
+		_nResult_ = 0
+
+		for @i = 1 to _nLen_
+			if len(_aPaths_[@i]) = _nMax_
+				_nResult_++
+			ok
+		next
+
+		return _nResult_
+
+		def HowManyLongestPaths()
+			return This.NumberOfLongestPaths()
+
+		def CountLongestPaths()
+			return This.NumberOfLongestPaths()
+
+	def LengthOfShortestPath()
+		if This.IsEmpty()
+			return 0
+		ok
+
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
+		_nMin_ = len(_aPaths_[1])
+
+		for @i = 1 to _nLen_
+
+			_nLenPath_ = len(_aPaths_[@i])
+
+			if _nLenPath_ < _nMin_
+				_nMin_ = _nLenPath_
+			ok
+		next
+
+		return _nMin_
+
+		#-- @Misspelled
+
+		def LenghtOfShortestPath()
+			return This.LengthOfShortestPath()
 
 	def ShortestPath()
-		_aResult_ = @ShortestPath( This.Paths() )
+		if This.IsEmpty()
+			return []
+		else
+			return [1]
+		ok
+
+	def ShortestPaths()
+		if This.IsEmpty()
+			return []
+		ok
+
+		_nMax_ = This.LengthOfShortestPath()
+
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
+		_aResult_ = []
+
+		for @i = 1 to _nLen_
+			if len(_aPaths_[@i]) = _nMax_
+				_aResult_ + _aPaths_[@i]
+			ok
+		next
+
 		return _aResult_
 
-		def SmallestPath()
-			return This.ShortestPath()
+	def NumberOfShortestPaths()
+		if This.IsEmpty()
+			return 0
+		ok
+
+		_nMin_ = This.LengthOfShortestPath()
+
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
+		_nResult_ = 0
+
+		for @i = 1 to _nLen_
+			if len(_aPaths_[@i]) = _nMin_
+				_nResult_++
+			ok
+		next
+
+		return _nResult_
+
+		def HowManyShortestPaths()
+			return This.NumberOfShortestPaths()
+
+		def CountShortestPaths()
+			return This.NumberOfShortestPaths()
 
 	#-- PATH OPERATIONS
 
