@@ -1395,7 +1395,7 @@ proff()
 // Add examples here
 
 /*====
-*/
+
 profon()
 
 o1 = new stzList([
@@ -1415,7 +1415,7 @@ o1 = new stzList([
 # ]
 
 proff()
-# Executed in 0.50 second(s) in Ring 1.22
+# Executed in 0.51 second(s) in Ring 1.22
 
 /*-----
 
@@ -1445,6 +1445,19 @@ proff()
 # Executed in 0.68 second(s) in Ring 1.22
 
 /*----
+*/
+profon()
+
+o1 = new stzString("ring")
+
+? o1.SpacifyQ().UppercaseQ().Content()
+#--> R I N G
+
+? o1.Content()
+
+proff()
+
+/*-----
 */
 
 profon()
@@ -1494,7 +1507,7 @@ o1 = new stzList([
 # ]
 
 proff()
-# Executed in 0.32 second(s) in Ring 1.22
+# Executed in 1.05 second(s) in Ring 1.22
 
 /*---
 
