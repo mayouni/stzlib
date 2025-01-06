@@ -8704,6 +8704,10 @@ class stzList from stzObject
 		def ReplaceAllOccurrencesCSQ(pItem, pNewIteme, pCaseSensitive)
 			This.ReplaceAllOccurrencesCS(pItem, pNewItem, pCaseSensitive)
 			return This
+
+		def ReplaceAllOccurrencesCSQC(pItem, pNewIteme, pCaseSensitive)
+			return This.Copy().ReplaceAllOccurrencesCSQ(pItem, pNewIteme, pCaseSensitive)
+
 		#>
 
 		#< @FunctionAlternativeForms
@@ -8715,12 +8719,18 @@ class stzList from stzObject
 				This.ReplaceItemCS(pItem, pNewItem, pCaseSensitive)
 				return This
 
+			def ReplaceItemCSQC(pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceAllOccurrencesCSQC(pItem, pNewIteme, pCaseSensitive)
+
 		def ReplaceAllCS(pItem, pNewItem, pCaseSensitive)
 			This.ReplaceAllOccurrencesCS(pItem, pNewItem, pCaseSensitive)
 
 			def ReplaceAllCSQ(pItem, pNewItem, pCaseSensitive)
 				This.ReplaceAllCS(pItem, pNewItem, pCaseSensitive)
 				return This
+
+			def ReplaceAllCSQC(pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceAllOccurrencesCSQC(pItem, pNewIteme, pCaseSensitive)
 
 		def ReplaceCS(pItem, pNewItem, pCaseSensitive)
 			if isList(pItem) and Q(pItem).IsEachNamedParam()
@@ -8733,6 +8743,9 @@ class stzList from stzObject
 				This.ReplaceCS(pItem, pNewItem, pCaseSensitive)
 				return This
 
+			def ReplaceCSQC(pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceAllOccurrencesCSQC(pItem, pNewIteme, pCaseSensitive)
+
 		#--
 
 		def ReplaceAnyCS(pItem, pNewItem, pCaseSensitive)
@@ -8742,12 +8755,18 @@ class stzList from stzObject
 				This.ReplaceAnyCS(pItem, pNewItem, pCaseSensitive)
 				return This
 
+			def ReplaceAnyCSQC(pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceAllOccurrencesCSQC(pItem, pNewIteme, pCaseSensitive)
+
 		def ReplaceThisItemCS(pItem, pNewItem, pCaseSensitive)
 			This.ReplaceCS(pItem, pNewItem, pCaseSensitive)
 
 			def ReplaceThisItemCSQ(pItem, pNewItem, pCaseSensitive)
 				This.ReplaceThisItemCS(pItem, pNewItem, pCaseSensitive)
 				return This
+
+			def ReplaceThisItemCSQC(pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceAllOccurrencesCSQC(pItem, pNewIteme, pCaseSensitive)
 
 		#>
 
@@ -8787,6 +8806,10 @@ class stzList from stzObject
 		def ReplaceAllOccurrencesQ(pItem, pNewIteme)
 			This.ReplaceAllOccurrences(pItem, pNewItem)
 			return This
+
+		def ReplaceAllOccurrencesQC(pItem, pNewIteme)
+			return This.Copy().ReplaceAllOccurrencesQ(pItem, pNewIteme)
+
 		#>
 
 		#< @FunctionAlternativeForms
@@ -8798,12 +8821,18 @@ class stzList from stzObject
 				This.ReplaceItem(pItem, pNewItem)
 				return This
 
+			def ReplaceItemQC(pItem, pNewItem)
+				return This.ReplaceAllOccurrencesQC(pItem, pNewIteme)
+
 		def ReplaceAll(pItem, pNewItem)
 			This.ReplaceAllOccurrences(pItem, pNewItem)
 
 			def ReplaceAllQ(pItem, pNewItem)
 				This.ReplaceAll(pItem, pNewItem)
 				return This
+
+			def ReplaceAllQC(pItem, pNewItem)
+				return This.ReplaceAllOccurrencesQC(pItem, pNewIteme)
 
 		def Replace(pItem, pNewItem)
 			if isList(pItem) and Q(pItem).IsEachNamedParam()
@@ -8816,6 +8845,9 @@ class stzList from stzObject
 				This.Replace(pItem, pNewItem)
 				return This
 
+			def ReplaceQC(pItem, pNewItem)
+				return This.Copy().ReplaceQ(pItem, pNewItem)
+
 		#--
 
 		def ReplaceAny(pItem, pNewItem)
@@ -8825,12 +8857,19 @@ class stzList from stzObject
 				This.ReplaceAny(pItem, pNewItem)
 				return This
 
+			def ReplaceAnyQC(pItem, pNewItem)
+				return This.Copy().ReplaceAnyQ()
+
 		def ReplaceThisItem(pItem, pNewItem)
 			This.Replace(pItem, pNewItem)
 
 			def ReplaceThisItemQ(pItem, pNewItem)
 				This.ReplaceThisItem(pItem, pNewItem)
 				return This
+
+			def ReplaceThisItemQC(pItem, pNewItem)
+				return This.Copy().ReplaceThisItemQ()
+
 
 		#>
 
@@ -15124,7 +15163,12 @@ class stzList from stzObject
 		def RemoveAllCSQ(pItem, pCaseSensitive)
 			This.RemoveAllCS(pItem, pCaseSensitive)
 			return This
-	
+
+		def RemoveAllCSQC(pItem, pCaseSensitive)
+			_oCopy_ = This.Copy()
+			_oCopy_.RemoveAllCSQ(pItem, pCaseSensitive)
+			return _oCopy_
+
 		#>
 
 		#< @FunctionAlternativeForms
@@ -15136,6 +15180,9 @@ class stzList from stzObject
 				This.RemoveAllOccurrencesCS(pItem, pCaseSensitive)
 				return This
 
+			def RemoveAllOccurrencesCSQC(pItem, pCaseSensitive)
+				return This.RemoveAllCSQC(pItem, pCaseSensitive)
+
 		def RemoveCS(pItem, pCaseSensitive)
 			This.RemoveAllCS(pItem, pCaseSensitive)
 
@@ -15143,12 +15190,18 @@ class stzList from stzObject
 				This.RemoveCS(pItem, pCaseSensitive)
 				return This
 
+			def RemoveCSQC(pItem, pCaseSensitive)
+				return This.RemoveAllCSQC(pItem, pCaseSensitive)
+
 		def RemoveItemCS(pItem, pCaseSensitive)
 			This.RemoveAllCS(pItem, pCaseSensitive)
 
 			def RemoveItemCSQ(pItem, pCaseSensitive)
 				This.RemoveItemCS(pItem, pCaseSensitive)
 				return This
+
+			def RemoveItemCSQC(pItem, pCaseSensitive)
+				return This.RemoveAllCSQC(pItem, pCaseSensitive)
 
 		#>
 
@@ -15174,6 +15227,11 @@ class stzList from stzObject
 		def RemoveAllQ(pItem)
 			This.RemoveAll(pItem)
 			return This
+
+		def RemoveAllQC(pItem)
+			_oCopy_ = This.Copy()
+			_oCopy_.RemoveAll(pItem)
+			return _oCopy_
 	
 		#>
 
@@ -15186,6 +15244,9 @@ class stzList from stzObject
 				This.RemoveAllOccurrences(pItem)
 				return This
 
+			def RemoveAllOccurrencesQC(pItem)
+				return This.RemoveAllQC(pItem)
+
 		def Remove(pItem)
 			if isList(pItem) and Q(pItem).IsEachNamedParam()
 				pItem = pItem[2]
@@ -15197,12 +15258,18 @@ class stzList from stzObject
 				This.Remove(pItem)
 				return This
 
+			def RemoveQC(pItem)
+				return This.RemoveAllQC(pItem)
+
 		def RemoveItem(pItem)
 			This.RemoveAll(pItem)
 
 			def RemoveItemQ(pItem)
 				This.RemoveItem(pItem)
 				return This
+
+			def RemoveItemQC(pItem)
+				return This.RemoveAllQC(pItem)
 
 	#-- @FunctionPassiveForm
 
@@ -15228,11 +15295,17 @@ class stzList from stzObject
 			This.rndRemove()
 			return This
 
+			def rndRemoveQC()
+				return This.Copy().rndRemoveQ()
+
 		def RemoveRandomly()
 			This.rndRemove()
 
 			def RemoveRandomlyQ()
 				return This.rndRemoveQ()
+
+			def RemoveRandomlyQC()
+				return This.Copy().rndRemoveQ()
 
 		def RandomRemove()
 			This.rndRemove()
@@ -15240,11 +15313,17 @@ class stzList from stzObject
 			def RandomRemoveQ()
 				return This.rndRemoveQ()
 
+			def RandomRemoveQC()
+				return This.Copy().rndRemoveQ()
+
 		def RandomlyRemove()
 			This.rndRemove()
 
 			def RandomlyRemoveQ()
 				return This.rndRemoveQ()
+
+			def RandomlyRemoveQC()
+				return This.Copy().rndRemoveQ()
 
 		#--
 
@@ -15254,11 +15333,17 @@ class stzList from stzObject
 			def rndRemoveItemsQ()
 				return This.rndRemoveItemsQ()
 
+			def rndRemoveItemsQC()
+				return This.Copy().rndRemoveQ()
+
 		def RemoveItemsRandomly()
 			This.rndRemove()
 
 			def RemoveItemsRandomlyQ()
 				return This.rndRemoveQ()
+
+			def RemoveItemsRandomlyQC()
+				return This.Copy().rndRemoveQ()
 
 		def RandomRemoveItems()
 			This.rndRemove()
@@ -15266,11 +15351,17 @@ class stzList from stzObject
 			def RandomRemoveItemsQ()
 				return This.rndRemoveQ()
 
+			def RandomRemoveItemsQC()
+				return This.Copy().rndRemoveQ()
+
 		def RandomlyRemoveItems()
 			This.rndRemove()
 
 			def RandomlyRemoveItemsQ()
 				return This.rndRemoveQ()
+
+			def RandomlyRemoveItemsQC()
+				return This.Copy().rndRemoveQ()
 
 		#>
 
@@ -51675,6 +51766,9 @@ fdef
 			This.LowercaseStrings()
 			return This
 
+			def LowercaseStringsQC()
+				return This.Copy().LowercaseStringsQ()
+
 		#>
 
 		#< @FunctionAlternativeForm
@@ -51684,6 +51778,9 @@ fdef
 
 			def LowercaseQ()
 				return This.LowercaseStringsQ()
+
+			def LowercaseQC()
+				return This.Copy().LowercaseQ()
 
 		#>
 
@@ -51709,11 +51806,17 @@ fdef
 			This.DeepLowercase()
 			return This
 
+			def DeepLowercaseQC()
+				return This.Copy().DeepLowercaseQ()
+
 		def DeepApplyLowercase()
 			This.DeepLowercase()
 
 			def DeppApplyLowercaseQ()
 				return This.DeepLowercaseQ()
+
+			def DeppApplyLowercaseQC()
+				return This.DeepLowercaseQC()
 
 	def DeepLowercased()
 		_aResult_ = This.Copy().DeepLowercaseQ().Content()
@@ -51778,6 +51881,9 @@ fdef
 			This.UppercaseStrings()
 			return This
 
+			def UppercaseStringsQC()
+				return This.Copy().UppercaseStringsQ()
+
 		def Uppercase()
 			This.UppercaseStrings()
 
@@ -51785,12 +51891,19 @@ fdef
 				This.Uppercase()
 				return This
 
+			def UppercaseQC()
+				return This.UppercaseStringsQ()
+
+
 		def ApplyUppercase()
 			This.UppercaseStrings()
 
 			def ApplyUppercaseQ()
 				This.ApplyUppercase()
 				return This
+
+			def ApplyUppercaseQC()
+				return This.UppercaseStringsQ()
 
 	def StringsUppercased()
 		aResult = This.Copy().UppercaseStringsQ().Content()
@@ -51813,11 +51926,17 @@ fdef
 			This.DeepUppercase()
 			return This
 
+			def DeepUppercaseQC()
+				return This.Copy().DeepUppercaseQ()
+
 		def DeepApplyUppercase()
 			This.DeepUppercase()
 
 			def DeppApplyUppercaseQ()
 				return This.DeepUppercaseQ()
+
+			def DeepApplyUppercaseQC()
+				return This.DeepUppercaseQC()
 
 	def DeepUppercased()
 		_aResult_ = This.Copy().DeepUppercaseQ().Content()

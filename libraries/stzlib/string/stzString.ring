@@ -1391,6 +1391,9 @@ class stzString from stzObject
 			This.ApplyLowercase()
 			return This
 
+		def ApplyLowercaseQC()
+			return This.Copy().ApplyUppercaseQ()
+
 		#>
 
 		#< @FunctionAlternativeForm
@@ -1401,6 +1404,9 @@ class stzString from stzObject
 			def LowercaseQ()
 				This.Lowercase()
 				return This
+
+			def LowercaseQC()
+				return This.ApplyLowercaseQC()
 	
 		#>
 
@@ -1709,7 +1715,10 @@ class stzString from stzObject
 		def ApplyUppercaseQ()
 			This.ApplyUppercase()
 			return This
-	
+
+		def ApplyUppercaseQC()
+			return This.Copy().ApplyUppercaseQ()
+
 		#>
 
 		#< @FunctionAlternativeForm
@@ -1720,11 +1729,17 @@ class stzString from stzObject
 			def UppercaseQ()
 				return This.ApplyUppercaseQ()
 
+			def UppercaseQC()
+				return This.ApplyUppercaseQC()
+
 		def UppercaseIt()
 			This.ApplyUppercase()
 
 			def UppercaseItQ()
 				return This.ApplyUppercaseQ()
+
+			def UppercaseItQC()
+				return This.ApplyUppercaseQC()
 
 		#>
 
@@ -38665,7 +38680,11 @@ class stzString from stzObject
 			This.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 		
+		def ReplaceCSQC(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.Copy().ReplaceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+
 		#>
+
 
 		#< @FunctionAlternativeForms
 
@@ -38701,7 +38720,10 @@ class stzString from stzObject
 		def ReplaceQ(pcSubStr, pcNewSubStr)
 			This.Replace(pcSubStr, pcNewSubStr)
 			return This
-		
+
+		def ReplaceQC(pcSubStr, pcNewSubStr)
+			return This.Copy().ReplaceQ(pcSubStr, pcNewSubStr)
+
 		#>
 
 		#< @FunctionAlternativeForms
@@ -78819,6 +78841,9 @@ class stzString from stzObject
 			This.RemoveCS(pSubStr, pCaseSensitive)
 			return This
 
+		def RemoveCSQC(pcSubStr, pCaseSensitive)
+			return This.Copy().RemoveCSQ(pcSubStr, pCaseSensitive)
+
 		#>
 
 		#< @FunctionFutureForm
@@ -78853,6 +78878,11 @@ class stzString from stzObject
 		def RemoveQ(pcSubStr)
 			This.Remove(pcSubStr)
 			return This
+
+		def RemoveQC(pcSubStr)
+			_oCopy_ = This.Copy()
+			_oCopy_.Remove(pcSubStr)
+			return _oCopy_
 
 		#< @FunctionFutureForm
 
