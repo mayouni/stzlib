@@ -84,7 +84,7 @@ The `Q()` construct lies at the heart of this ***Chain of Actions***, enabling f
 
 In the previous section, we explored the elegant chaining of actions on an initial `stzString` object using the versatile `Q()` construct.
 
-To better understand the internal workings of this process, we can isolate the first `stzString` object into a distinct variable, `o1`, and observe how its value evolves after the transformations are applied:
+To better understand the internal workings of this process, we can isolate the initial `stzString` object into a distinct variable, `o1`, and observe how its value actually changes after the transformations are applied:
 
 ```ring
 o1 = new stzString("rixxnxg")
