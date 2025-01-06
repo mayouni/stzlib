@@ -1180,6 +1180,57 @@ proff()
 # Executed in 0.33 second(s) in Ring 1.22
 
 /*-----
+
+profon()
+
+o1 = new stzList([
+	"A",
+	"♥",
+	[ "B", "♥", "C" ],
+	"D",
+    	[ "♥", "E", [ "F", "♥", "G", "♥" ], "♥", "H", "♥" ],
+    	"I"
+])
+
+? @@NL( o1.FindItemUntilPath("♥", [ 5, 3, 2 ]) )
+#--> [
+#	[ 2 ],
+#	[ 3, 2 ],
+#	[ 5, 1 ],
+#	[ 5, 3, 2 ]
+# ]
+
+proff()
+# Executed in 0.54 second(s) in Ring 1.22
+
+/*-----
+
+profon()
+
+o1 = new stzList([
+	"A",
+	"♥",
+	[ "B", "♥", "C" ],
+	"*",
+	"D",
+    	[ "♥", "E", [ "F", "♥", "*", "G", "♥" ], "♥", "H", "♥" ],
+    	"I"
+])
+
+? @@NL( o1.FindItemsUntilPath([ "♥", "*" ], [ 6, 3, 3 ]) )
+#--> [
+#	[ 2 ],
+#	[ 3, 2 ],
+#	[ 4 ],
+#	[ 6, 1 ],
+#	[ 6, 3, 2 ],
+#	[ 6, 3, 3 ]
+# ]
+
+proff()
+# Executed in 0.67 second(s) in Ring 1.22
+
+/*-----
 */
 profon()
 
@@ -1192,7 +1243,29 @@ o1 = new stzList([
     	"I"
 ])
 
-? @@NL( o1.FindItemUntilPath("♥", [ 5, 3, 2 ]) ) + NL
+? @@( o1.LongestPath() ) + NL
+#--> [ 6 ]
+
+? @@( o1.ShortestPath() )
+#--> [ 1 ]
+
+proff()
+# Executed in 0.24 second(s) in Ring 1.22
+
+/*-----
+
+profon()
+
+o1 = new stzList([
+	"A",
+	"♥",
+	[ "B", "♥", "C" ],
+	"D",
+    	[ "♥", "E", [ "F", "♥", "G", "♥" ], "♥", "H", "♥" ],
+    	"I"
+])
+
+? @@NL( o1.FindItemUntilPaths("♥", [ [ 3, 2 ], [ 5, 2 ]) )
 #--> [
 #	[ 2 ],
 #	[ 3, 2 ],
@@ -1203,8 +1276,35 @@ o1 = new stzList([
 proff()
 # Executed in 0.54 second(s) in Ring 1.22
 
+/*-----
+
+profon()
+
+o1 = new stzList([
+	"A",
+	"♥",
+	[ "B", "♥", "C" ],
+	"*",
+	"D",
+    	[ "♥", "E", [ "F", "♥", "*", "G", "♥" ], "♥", "H", "♥" ],
+    	"I"
+])
+
+? @@NL( o1.FindItemsUntilPaths([ "♥", "*" ], [ [ 6, 3, 3 ] ]) )
+#--> [
+#	[ 2 ],
+#	[ 3, 2 ],
+#	[ 4 ],
+#	[ 6, 1 ],
+#	[ 6, 3, 2 ],
+#	[ 6, 3, 3 ]
+# ]
+
+proff()
+# Executed in 0.67 second(s) in Ring 1.22
+
 /*----
-*/
+
 
 profon()
 

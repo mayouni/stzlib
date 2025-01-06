@@ -6424,6 +6424,47 @@ func CommonPath(paPaths)
 
 	#>
 
+func LargestPath(paPaths)
+	if CheckParams()
+		if NOT (isList(paPaths) and IsListOfListsOfNumbers(paPaths))
+			StzRaise("Incorrect param type! paPaths must be a list of lists of numbers.")
+		ok
+	ok
+
+	_aSorted_ = SortPaths(paPaths)
+	_nLen_ = len(_aSorted_)
+	_aResult_ = _aSorted_[_nLen_]
+	return _aResult_
+
+	func LongestPath(paPaths)
+		return LargestPath(paPaths)
+
+	func @LargestPath(paPaths)
+		return LargestPath(paPaths)
+
+	func @LongestPath(paPaths)
+		return LargestPath(paPaths)
+
+func ShortestPath(paPaths)
+	if CheckParams()
+		if NOT (isList(paPaths) and IsListOfListsOfNumbers(paPaths))
+			StzRaise("Incorrect param type! paPaths must be a list of lists of numbers.")
+		ok
+	ok
+
+	_aSorted_ = SortPaths(paPaths)
+	_aResult_ = _aSorted_[1]
+	return _aResult_
+
+	func SmallestPath(paPaths)
+		return ShortestPath(paPaths)
+
+	func @ShortestPath(paPaths)
+		return ShortestPath(paPaths)
+
+	func @SmallestPath(paPaths)
+		return ShortestPath(paPaths)
+
 func PathsSection(paPath1, paPath2)
 	# Returns all paths from paPath1 to paPath2, where
 	# paPath1 must be a subpath of paPath2
@@ -44957,8 +44998,6 @@ fdef
 			def AllPathsQ()
 				return This.PathsQ()
 
-	#-- LEAFS METRICS
-
 	#-- PATH METRICS
 	
 	def NumberOfPaths()
@@ -44970,107 +45009,15 @@ fdef
 		def HowManyPaths()
 			return This.NumberOfPaths()
 
-	def LongestPathSize()
-		if This.IsEmpty()
-			return []
-		ok
-
-		_aPaths_ = This.Paths()
-		_nLen_ = len(_aPaths_)
-
-		_anSizes_ = []
-
-		for @i = 1 to _nLen_
-			_anSizes_ + len(_aPaths_[@i])
-		next
-
-		return @Max(_anSizes_)
-		
-		def LargestPathSize()
-			return This.LongestPath()	
-		
-	def LongestPaths()
-		_aResult_ = This.PathsQ().LargestLists()
-		return _aResult_
-
-		def LargestPaths()
-			return This.LongestPaths()
-
-	def NumberOfLongestPaths()
-		return len(This.LongestPaths())
-	    
-		def CountLongestPaths()
-			return This.NumberOfLongestPaths()
-
-		def HowManyLongestPaths()
-			return This.NumberOfLongestPaths()
-
-		#--
-
-		def NumberOfLargestPaths()
-			return This.NumberOfLongestPaths()
-
-		def CountLargestPaths()
-			return This.NumberOfLongestPaths()
-
-		def HowManyLargestPaths()
-			return This.NumberOfLongestPaths()
-
 	def LongestPath()
-		_aResult_ = This.PathsQ().LargestList()
+		_aResult_ = @LongestPath( This.Paths() )
 		return _aResult_
 
 		def LargestPath()
 			return This.LongestPath()
 
-	def ShortestPathSize()
-		if This.IsEmpty()
-			return []
-		ok
-
-		_aPaths_ = This.Paths()
-		_nLen_ = len(_aPaths_)
-
-		_anSizes_ = []
-
-		for @i = 1 to _nLen_
-			_anSizes_ + len(_aPaths_[@i])
-		next
-
-		return @Min(_anSizes_)	
-
-		def SmallestPathSize()
-			return This.ShortestPathSise()
-
-	def ShortestPaths()
-		_aResult_ = This.PathsQ().ShortestLists()
-		return _aResult_
-
-		def SmallestPaths()
-			return This.ShortestPaths()
-
-	def NumberOfShortestPaths()
-		return len(This.ShortestPaths())
-	    
-		def CountshortestPaths()
-			return This.NumberOfShortestPaths()
-
-		def HowManyShortestPaths()
-			return This.NumberOfShortestPaths()
-
-		#--
-
-		def NumberOfSmallestPaths()
-			return This.NumberOfShortestPaths()
-
-		def CountSmallestPaths()
-			return This.NumberOfShortestPaths()
-
-		def HowManySmallestPaths()
-			return This.NumberOfShortestPaths()
-
 	def ShortestPath()
-		_aResult_ = This.PathsQ().ShortestLists()
+		_aResult_ = @ShortestPath( This.Paths() )
 		return _aResult_
 
 		def SmallestPath()
@@ -46310,20 +46257,23 @@ fdef
 	#--
 
 	def FindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-		if CheckParams()
-			if NOT isList(paItems)
-				StzRaise("Incorrect param type! paItems must be a list.")
+
+    		if NOT This.IsValidPath(paPath)
+        		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
+    		ok
+
+		_aItemsZZ_ = This.ItemsUntilPathZZ(paPath)
+		_nLen_ = len(_aItemsZZ_)
+
+		_oItems_ = new stzList(paItems)
+		_aResult_ = []
+
+		for @i = 1 to _nLen_
+			if _oItems_.ContainsCS(_aItemsZZ_[@i][1], pCaseSensitive)
+				_aResult_ + _aItemsZZ_[@i][2]
 			ok
+		next
 
-			if NOT This.IsValidPath(paPath)
-				StzRaise("Can't proceed! paPath is not a valid path of the list.")
-			ok
-		ok
-
-		_aItemPaths_ = This.DeepFindManyCS(paItems, pCaseSensitive)
-		_aAllPaths_ = This.PathsUntil(paPath)
-
-		_aResult_ = @Intersection([ _aItemPaths_, _aAllPaths_ ])
 		return _aResult_
 
 
@@ -46415,23 +46365,11 @@ fdef
 	#--
 
 	def FindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
-    		if NOT This.AreValidPaths(paPaths)
+    		if NOT These.AreValidPaths(paPaths)
         		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
     		ok
 
-		_nLen_ = len(paPaths)
-		_aResult_ = []
-
-		for @i = 1 to _nLen_
-
-			_aPaths_ = This.FindItemUntilPathCS(pItem, paPaths[@i], pCaseSensitive)
-			_nLenPaths_ = len(_aPaths_)
-
-			for @j = 1 to _nLenPaths_
-				_aResult_ + _aPaths_[@j]
-			next
-		next
-
+		_aResult_ = This.FindItemUntilPathCS(pItem, @DeepestPath(paPaths), pCaseSensitive)
 		return _aResult_
 
 		#< @FunctionAlternativeForms
