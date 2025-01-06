@@ -1252,7 +1252,7 @@ o1 = new stzList([
 proff()
 
 /*----
-*/
+
 profon()
 
 o1 = new stzList([
@@ -1341,7 +1341,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*----
-*/
+
 profon()
 
 o1 = new stzList([
@@ -1394,8 +1394,8 @@ proff()
 
 // Add examples here
 
-/*-----
-
+/*====
+*/
 profon()
 
 o1 = new stzList([
@@ -1415,10 +1415,10 @@ o1 = new stzList([
 # ]
 
 proff()
-# Executed in 0.51 second(s) in Ring 1.22
+# Executed in 0.50 second(s) in Ring 1.22
 
 /*-----
-*/
+
 profon()
 
 o1 = new stzList([
@@ -1442,10 +1442,10 @@ o1 = new stzList([
 # ]
 
 proff()
-# Executed in 0.67 second(s) in Ring 1.22
+# Executed in 0.68 second(s) in Ring 1.22
 
 /*----
-
+*/
 
 profon()
 
@@ -1456,11 +1456,25 @@ o1 = new stzList([
     	"G"
 ])
 
-//? o1.ItemExistsOverAllPaths("♥", [ [1], [2, 2], [3] ])
+? o1.ItemExistsOverAllPaths("♥", [ [1], [2, 2], [3] ])
 #--> FALSE
 
-//? o1.ItemExistsOverAnyOfPaths("♥", [ [1], [2, 2], [3] ])
+? o1.ItemExistsOverAnyOfPaths("♥", [ [1], [2, 2], [3] ])
 #--> TRUE
+
+proff()
+
+/*----
+*/
+
+profon()
+
+o1 = new stzList([
+    	"A",
+	"B",
+    	[ "♥", "C", [ "D", "♥", "E", "♥" ], "♥", "F", "♥" ],
+    	"G"
+])
 
 ? @@( o1.FindItemUntilPaths("♥", [ [1], [2] ]) ) + NL
 #--> []
@@ -1468,15 +1482,15 @@ o1 = new stzList([
 ? @@( o1.FindItemUntilPaths("♥", [ [1], [2], [3] ]) ) + NL
 #--> []
 
-? @@NL( o1.FindItemUntilPath("♥", [ 3 ]) )
+? @@( o1.FindItemUntilPath("♥", [ 3, 1 ]) )
+#--> [ [ 3, 1 ] ]
 
-
-//? @@NL( o1.FindItemUntilPath("♥", [2, 4]) )
+? @@NL( o1.FindItemUntilPath("♥", [3, 4]) )
 #--> [
-#	[ 2, 1 ],
-#	[ 2, 3, 2 ],
-#	[ 2, 3, 4 ],
-#	[ 2, 4 ]
+#	[ 3, 1 ],
+#	[ 3, 3, 2 ],
+#	[ 3, 3, 4 ],
+#	[ 3, 4 ]
 # ]
 
 proff()
