@@ -1,50 +1,109 @@
 load "../max/stzmax.ring"
 
+/*----
 
-# Example usage with correct function signatures
 profon()
- 
-    # Example 1: Several Times (including 0)
-    o1 = new stzRegExpMaker
-    o1.addCharsRange("A-Z", :several, 0, 0)  # Second 0 is unused but required for signature
-    ? "1. Match letters zero or more times:"
-    ? o1.textGraph()
-    ? ""
-    
-    # Example 2: At Least
-    o2 = new stzRegExpMaker
-    o2.addDigitsRange("0-9", :atLeast, 3, 0)  # Last parameter unused but required
-    ? "2. Match at least 3 digits:"
-    ? o2.textGraph()
-    ? ""
-    
-    # Example 3: At Most
-    o3 = new stzRegExpMaker
-    o3.addCharsRange("A-Z", :atMost, 5, 0)  # Last parameter unused but required
-    ? "3. Match at most 5 letters:"
-    ? o3.textGraph()
-    ? ""
 
-    # Example 4: Between Range
-    o4 = new stzRegExpMaker
-    o4.addDigitsRange("0-9", :between, 2, 4)  # Both numbers used for range
-    ? "4. Match between 2 and 4 digits:" + NL
-    ? o4.textGraph()
-    ? ""
-    
-    # Example 5: Complex Pattern
-    o5 = new stzRegExpMaker
-    o5.addCharsRange("A-Z", :exactly, 2, 0)
-     o5.addDigitsRange("0-9", :between, 2, 4)
-     o5.addCharsRange("A-Z", :atLeast, 1, 0)
-    ? "5. Complex pattern example:" + NL
-    ? o5.textGraph()
+o1 = new stzRegExpMaker
+o1 {
+    addCharsRange("A-Z", :repeatedExactly, 2, 0)
+    addAmongChars(["-", " "], :repeatedAtMost, 1, 0)
+    addDigitsRange("0-9", :repeatedBetween, 1, 3)
+    addAmongChars(["-", " "], :repeatedAtMost, 1, 0)
+    addCharsRange("A-Z", :repeatedExactly, 2, 0)
+
+    ? getPattern() + NL
+
+    ? getNarration()
+
+}
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
+/*----
+
+profon()
+
+o1 = new stzRegExpMaker
+o1.parsePattern("[A-Z]{2}[- ]?[0-9]{1,3}[- ]?[A-Z]{2}")
+? o1.getNarration()
+
+proff()
+
+/*----
+
+profon()
+ 
+o1 = new stzRegExpMaker
+
+# French registration number pattern
+
+o1 {
+	addCharsRange("A-Z", :RepeatedExactly, 2, 0)
+	addAmongChars("- ", :RepeatedatMost, 1, 0)
+	addDigitsRange("0-9", :RepeatedExactly, 3, 0)
+	addAmongChars("- ", :RepeatedAtMost, 1, 0)
+	addCharsRange("A-Z", :RepeatedExactly, 2, 0)
+
+	? getPattern() + NL
+	? getNarration()
+}
+
+proff()
+
+/*------------
+
+profon()
+
+o1 = new stzRegExp()
+o1 {
+
+	# Designing the pattern in a natural style:
+
+		# Sequence 1:
+		CanContainACharBetween("A", :And = "Z", :RepeatedExactly = 2Times())
+	
+		# Sequence 2:
+		CanContainAChar(:Among = [ "-", " " ], :RepeatdAtMost = 1Time())
+	
+		# Sequence 3:
+		CanContainADigit(:From = [ "0", :To = "9"], :RepeatedExactly = 3Times())
+	
+		# Sequence 4:
+		RepeatSequence(2)
+	
+		# Sequence 5
+		RepeatSequence(1)
+
+		CanContainADigit(:From = [ "0", :To = "9"], :RepeatedBetween = [ 2, :To = 3Times() ])
+
+	# Math the pattern
+
+		? Match("your pattern here")
+		#--> TRUE
+
+	# Check the pattern in many ways
+
+		? Pattern()
+
+		? Narration()
+
+		? Sequences()
+
+		? SequencesXT()
+
+		? SequenceXT(3)
+
+	
+}
+
+proff()
+
+
 /*=====
 
+profon()
 
 o1 = new stzRegExp("[-.a-z0-9]+[@][-.a-z0-9]+[.][a-z]{2,4}")
 
@@ -54,11 +113,11 @@ o1 = new stzRegExp("[-.a-z0-9]+[@][-.a-z0-9]+[.][a-z]{2,4}")
 ? o1.Match("kalidianow@gmail.com")
 #--> TRUE
 
-
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*----
-
+*/
 profon()
 
 o1 = new stzRegExp("^(\d\d)/(\d\d)/(\d\d\d\d)$")
