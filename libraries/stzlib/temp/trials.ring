@@ -1,5 +1,6 @@
 load "../max/stzmax.ring"
 
+
 /*=====
 
 profon()
@@ -1494,11 +1495,23 @@ o1 = new stzList([
     	"G"
 ])
 
-? o1.ItemExistsOverAllPaths("♥", [ [1], [2, 2], [3] ])
-#--> FALSE
+ItemExistsInPath(pItem, paPath)
+ContainsItemInPath(pItem, paPath)
 
-? o1.ItemExistsOverAnyOfPaths("♥", [ [1], [2, 2], [3] ])
-#--> TRUE
+ItemExistsInAllNodesOfPath(pItem, paPath)
+ContainsItemInAllNodesOfPath(pItem, paPath)
+
+ItemExistsInPaths(pItem, paPaths)
+ContainsItemInPaths(pItem, paPaths)
+
+ItemExistsInAllNodesOfPaths(pItem, paPath)
+ContainsItemInAllNodesOfPaths(pItem, paPaths)
+
+ItemsExistInPath(paItems, paPath)
+ContainsItemsInPath(paItems, paPath)
+
+ItemsExistInPaths(paItems, paPaths)
+ContainsItemsInPaths(paItems, paPaths)
 
 proff()
 

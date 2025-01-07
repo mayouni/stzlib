@@ -157,6 +157,7 @@
 	load "string/stzStringGlobs.ring"
 	load "string/stzStringFuncs.ring"
 	load "string/stzString.ring"
+	load "string/stzRegExp.ring"
 
 	load "string/substring/stzSubString.ring"
 	load "string/listofstrings/stzListOfStrings.ring"
