@@ -38,6 +38,12 @@ func Concatenate(acListOfStr)
 	func @Concat(acListOfStr)
 		return Concatenate(acListOfStr)
 
+	func join(acListOfStr)
+		return Concatenate(acListOfStr)
+
+	func @join(acListOfStr)
+		return Concatenate(acListOfStr)
+
 	#>
 
 func ConcatenateXT(pacListOfStr, pcSep)

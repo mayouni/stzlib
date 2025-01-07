@@ -1,51 +1,177 @@
 
-func StzRegExpQ(pcPattern)
-	return new stzRegExp(pcPattern)
-
-# File: stzRegExp.ring
-# Description: Regular Expression Pattern Builder for Ring
-
-load "stdlibcore.ring"
-
 class stzRegExpMaker
-
     aSteps = []
-    aPatternRules = []
+    aSequences = []
     
     def init()
         aSteps = []
-        aPatternRules = []
+        aSequences = []
     
     def addRange(cType, cRange, cQuant, nTimes1, nTimes2)
+        cPattern = ""
+        
+        if cType = :among and type(cRange) = "LIST"
+            cPattern = "[" + join(cRange + "") + "]"
+        but cType = :among
+            cPattern = "[" + substr(cRange, "SPACE", " ") + "]"
+        else
+            cPattern = "[" + cRange + "]"
+        ok
 
-	cPattern = "[" + cRange + "]"      
         cQuantifier = ""
-
-        switch cQuant
-            case :exactly
+        if cQuant = :repeatedExactly
                 cQuantifier = "{" + nTimes1 + "}"
 
-            case :atLeast
+       but cQuant = :repeatedAtLeast
                 cQuantifier = "{" + nTimes1 + ",}"
 
-            case :atMost
-                cQuantifier = "{0," + nTimes1 + "}"
+       but cQuant = :repeatedAtMost
+                cQuantifier = "?"
 
-            case :between
+       but cQuant = :repeatedBetween
                 cQuantifier = "{" + nTimes1 + "," + nTimes2 + "}"
 
-            case :several
+       but cQuant =  :repeatedSeveral
                 cQuantifier = "*"
-
-        off
+        ok
         
         add(aSteps, cPattern + cQuantifier)
-        add(aPatternRules, cType)
-        add(aPatternRules, cRange)
-        add(aPatternRules, cQuant)
-        add(aPatternRules, nTimes1)
-	add(aPatternRules, nTimes2)
+        add(aSequences, [cType, cRange, cQuant, nTimes1, nTimes2])
+        
+
+def parsePattern(cPattern)
+    init()
+    
+    nPos = 1
+    while nPos <= len(cPattern)
+        if substr(cPattern, nPos, 1) = "["
+            # Find closing bracket
+            nStart = nPos + 1
+            for i = nStart to len(cPattern)
+                if substr(cPattern, i, 1) = "]"
+                    nEndPos = i
+                    exit
+                ok
+            next
+            
+            cClass = substr(cPattern, nStart, nEndPos - nStart)
+            nPos = nEndPos + 1
+            
+            # Parse quantifier
+            cQuant = ""
+            nTimes1 = 0
+            nTimes2 = 0
+            
+            if nPos <= len(cPattern)
+                if substr(cPattern, nPos, 1) = "?"
+                    cQuant = :repeatedAtMost
+                    nTimes1 = 1
+                    nPos++
+                but substr(cPattern, nPos, 1) = "{"
+                    nStart = nPos + 1
+                    for i = nStart to len(cPattern)
+                        if substr(cPattern, i, 1) = "}"
+                            nEndQuant = i
+                            exit
+                        ok
+                    next
+                    
+                    cQuantStr = substr(cPattern, nStart, nEndQuant - nStart)
+                    if substr(cQuantStr, ",") > 0
+                        aQuantParts = split(cQuantStr, ",")
+                        if len(aQuantParts) = 2
+                            cQuant = :repeatedBetween
+                            nTimes1 = 0 + aQuantParts[1]
+                            nTimes2 = 0 + aQuantParts[2]
+                        else
+                            cQuant = :repeatedAtLeast
+                            nTimes1 = 0 + aQuantParts[1]
+                        ok
+                    else
+                        cQuant = :repeatedExactly
+                        nTimes1 = 0 + cQuantStr
+                    ok
+                    nPos = nEndQuant + 1
+                ok
+            ok
+            
+            # Determine type and range
+            if cClass = "A-Z"
+                addCharsRange(cClass, cQuant, nTimes1, nTimes2)
+            but cClass = "0-9"
+                addDigitsRange(cClass, cQuant, nTimes1, nTimes2)
+            but cClass = "- "
+                addAmongChars(["-", " "], cQuant, nTimes1, nTimes2)
+            ok
+        else
+            nPos++
+        ok
+    end
+    
+    return self
+
+   
+    
+    func getNarration()
+        nMaxLen = 0
+        for cPattern in aSteps
+            if len(cPattern) > nMaxLen
+                nMaxLen = len(cPattern)
+            ok
+        next
+        nMaxLen++ # Add 1 for spacing
+        
+        cResult = "START" + nl + "│" + nl
+        
+        for i = 1 to len(aSequences)
+            oSeq = aSequences[i]
+            cPattern = aSteps[i]
+            cSpaces = copy(" ", nMaxLen - len(cPattern))
+            
+            cBase = ""
+            switch oSeq[1]
+                case :chars
+                    cBase = "a char from " + left(oSeq[2], 1) + " to " + right(oSeq[2], 1)
+                case :digits
+                    cBase = "a digit from " + left(oSeq[2], 1) + " to " + right(oSeq[2], 1)
+                case :among
+                    if type(oSeq[2]) = "LIST"
+                        cBase = "a char among [ '" + join(oSeq[2] + "', '") + "' ]"
+                    else
+                        cBase = "a char among [ '" + substr(oSeq[2], "SPACE", " ") + "' ]"
+                    ok
+            off
+            
+            cRepeat = ""
+            switch oSeq[3]
+                case :repeatedExactly
+                    cRepeat = "repeated exactly " + oSeq[4] + " times"
+                case :repeatedAtLeast
+                    cRepeat = "repeated at least " + oSeq[4] + " times"
+                case :repeatedAtMost
+                    cRepeat = "repeated at most " + oSeq[4] + " time"
+                case :repeatedBetween
+                    cRepeat = "repeated between " + oSeq[4] + " and " + oSeq[5] + " times"
+                case :repeatedSeveral
+                    cRepeat = "repeated zero or more times"
+            off
+            
+            cResult += "├─▶ " + cPattern + cSpaces + ": Can contain " + cBase + "," + nl
+            cResult += "│   " + copy(" ", nMaxLen+2) + cRepeat + "." + nl + "│" + nl
+        next
+        
+        cResult += "END"
+        return cResult
+
+    
   
+ 
+    
+    func addAmongChars(cChars, cQuant, nTimes1, nTimes2)
+        if type(cChars) = "LIST"
+            return addRange(:among, ["-", " "], cQuant, nTimes1, nTimes2)
+        ok
+        return addRange(:among, cChars, cQuant, nTimes1, nTimes2)
     
     func addCharsRange(cRange, cQuant, nTimes1, nTimes2)
         return addRange(:chars, cRange, cQuant, nTimes1, nTimes2)
@@ -54,75 +180,13 @@ class stzRegExpMaker
         return addRange(:digits, cRange, cQuant, nTimes1, nTimes2)
     
     def getPattern()
-
         cResult = ""
-
         for cStep in aSteps
             cResult += cStep
         next
-
         return cResult
     
-    func textGraph()
-        cResult = ""
 
-        for i = 1 to len(aPatternRules) step 5
-            cType = aPatternRules[i]
-            cRange = aPatternRules[i+1]
-            cQuant = aPatternRules[i+2]
-            nTimes1 = aPatternRules[i+3]
-	    nTimes2 = aPatternRules[i+4]
-
-            # Top border
-
-            cResult += "     +-------------+" + nl
-            
-            # Content
-            if cType = :chars
-                cResult += "     |    [" + cRange + "]    |" + nl
-            else
-                cResult += "     |    [" + cRange + "]    |" + nl
-            ok
-            
-            # Bottom border
-	    
-            cResult += "     +-------------+" + nl
-            
-            # Quantifier description
-            switch cQuant
-                case :exactly
-                    cResult += "  exactly " + nTimes1 + " times" + nl
-                case :atLeast
-                    cResult += "  at least " + nTimes1 + " times" + nl
-                case :atMost
-                    cResult += "  at most " + nTimes1 + " times" + nl
-                case :between
-                    cResult += "  between " + nTimes1 + " and " + nTimes2 + " times" + nl
-                case :several
-                    cResult += "  zero or more times (*)" + nl
-            off
-            
-            # Connector (if not last step)
-
-            if i < len(aPatternRules) - 3
-                cResult += "          |" + nl
-                cResult += "          v" + nl
-            ok
-
-
-        next
-        
-	# Bottom info: the regexp pattern
-
-	cResult += "    " + This.getPattern()
-
-        
-        return cResult
-
-
-
-
-/*
 class stzRegExp
 	
 	@oQRegExp
