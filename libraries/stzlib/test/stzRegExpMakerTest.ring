@@ -1,7 +1,7 @@
 load "../max/stzmax.ring"
 
 /*----
-*/
+
 profon()
 
 ? @@( Types([ 3, "ok", 1:3, ANullObject() ]) ) + NL
@@ -23,7 +23,7 @@ proff()
 */
 profon()
 
-o1 = new stzRegExpMaker()
+o1 = new stzRegExpMaker
 o1 {
 	# Sequence 1
 	AddCharsRange(	"A-Z", 	    :RepeatedExactly, 2, :Times)
@@ -41,10 +41,10 @@ o1 {
 	AddCharsRange(	"A-Z", 	    :RepeatedExactly, 2, :Times)
 
 	# Get the constructed pattern
-	? getPattern() + NL
+	? Pattern() + NL
 
 	# Get a narration that explains the pattern
-	? getNarration()
+	? Explain()
 }
 
 proff()

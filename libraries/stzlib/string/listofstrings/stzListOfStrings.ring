@@ -38,6 +38,8 @@ func Concatenate(acListOfStr)
 	func @Concat(acListOfStr)
 		return Concatenate(acListOfStr)
 
+	#--
+
 	func join(acListOfStr)
 		return Concatenate(acListOfStr)
 
@@ -48,6 +50,11 @@ func Concatenate(acListOfStr)
 
 func ConcatenateXT(pacListOfStr, pcSep)
 	if CheckingParams()
+
+		if isList(pcSep) and StzListQ(pcSep).IsWithOrUsingNamedPAram()
+			pcSep = pcSep[2]
+		ok
+
 		if NOT ( isList(pacListOfStr) and IsListOfStrings(pacListOfStr) )
 			StzRaise("Incorrect param type! pacListOfStr must be a list of strings.")
 		ok
@@ -77,6 +84,56 @@ func ConcatenateXT(pacListOfStr, pcSep)
 		return ConcatenateXT(acListOfStr, cSep)
 
 	func @ConcatXT(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	#--
+
+	func ConcatenateUsing(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	func ConcatUsing(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	func @ConcatenateUsing(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	func @ConcatUsing(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	#--
+
+	func ConcatenateWith(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	func ConcatWith(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	func @ConcatenateWith(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	func @ConcatWith(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	#==
+
+	func JoinXT(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	func JoinUsing(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	func JoinWith(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	#--
+
+	func @JoinXT(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	func @JoinUsing(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	func @JoinWith(acListOfStr, cSep)
 		return ConcatenateXT(acListOfStr, cSep)
 
 	#>
