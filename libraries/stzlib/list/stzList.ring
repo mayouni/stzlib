@@ -90737,6 +90737,31 @@ fdef
 			return _FALSE_
 		ok
 
+	def IsAmongNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :Among
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+	def IsBetweenOrFromNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   ( This.Item(1) = :Between or This.Item(1) = :From)
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+		def IsFromOrBetweenNamedParam()
+			return This.IsBetweenOrFromNamedParam()
+
 #WARNING: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.
 
