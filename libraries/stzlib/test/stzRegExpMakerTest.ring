@@ -1,43 +1,29 @@
 load "../max/stzmax.ring"
 
-/*===== CLASSIC STYLE
-
-profon()
-
-o1 = new stzRegExp("[-.a-z0-9]+[@][-.a-z0-9]+[.][a-z]{2,4}")
-
-? o1.IsValid()
-#--> TRUE
-
-? o1.Match("kalidianow@gmail.com")
-#--> TRUE
-
-proff()
-# Executed in almost 0 second(s) in Ring 1.22
-
 /*----
-
-profon()
-
-o1 = new stzRegExp("^(\d\d)/(\d\d)/(\d\d\d\d)$")
-
-? o1.IsValid()
-#--> TRUE
-
-? o1.Match("07/01/2025") + NL
-#--> TRUE
-
-? o1.Capture()
-#--> [ "07", "01", "2025" ]
-
-proff()
-# Executed in almost 0 second(s) in Ring 1.22
-
-/*=== DECLARATIVE STYLE: #todo Implement it using stzRegExpMaker in background
 */
 profon()
 
-o1 = new stzRegExp([])
+? @@( Types([ 3, "ok", 1:3, ANullObject() ]) ) + NL
+#--> [ "NUMBER", "STRING", "LIST", "OBJECT" ]
+
+? @@NL( TypesXT([ 3, "ok", 1:3, ANullObject() ]) )
+#--> [
+#	[ 3, "NUMBER" ],
+#	[ "ok", "STRING" ],
+#	[ [ 1, 2, 3 ], "LIST" ],
+#	[ @nullobject, "OBJECT" ]
+# ]
+
+proff()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*----
+
+*/
+profon()
+
+o1 = new stzRegExpMaker()
 o1 {
 	# Sequence 1
 	AddCharsRange(	"A-Z", 	    :RepeatedExactly, 2, :Times)
@@ -64,11 +50,11 @@ o1 {
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*------------ #todo Implement it using stzRegExpMaker in background
+/*------------
 
 profon()
 
-o1 = new stzRegExp()
+o1 = new stzRegExpMaker()
 o1 {
 
 	# Designing the pattern in a natural style:
@@ -113,11 +99,11 @@ o1 {
 proff()
 
 
-/*---- #todo Should use stzRegExpParser in the background
-*/
+/*---- Should use stzRegExpParser in the background
+
 profon()
 
-o1 = new stzRegExp
+o1 = new stzRegExpMaker
 o1.parsePattern("[A-Z]{2}[- ]?[0-9]{1,3}[- ]?[A-Z]{2}")
 ? o1.getNarration()
 
