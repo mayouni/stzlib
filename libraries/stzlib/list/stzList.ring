@@ -59,24 +59,6 @@ func Repeat(value, nTimes)
 
 	#>
 
-func Types(paList)
-	if CheckingParams()
-		if NOT isList(paList)
-			StzRaise("Incorrect param type! paList must be a list.")
-		ok
-	ok
-
-	acResult = []
-	nLen = len(paList)
-
-	for i = 1 to nLen
-		acResult + type(paList[i])
-	next
-
-	return acResult
-
-	func @Types(paList)
-		return Types(paList)
 
 func SortingOrder(p)
 	return Q(p).SortingOrder()
@@ -566,6 +548,43 @@ func SortBy(paList, pcExpr)
 		return SortBy(paList, pcExpr)
 
 #==========
+
+func Types(paValues)
+
+	if CheckParams()
+		if NOT isList(paValues)
+			StzRaise("Incorrect param type! paValues must be a list.")
+		ok
+	ok
+
+	_nLen_ = len(paValues)
+	_acResult_ = []
+
+	for @i = 1 to _nLen_
+		_acResult_ + type(paValues[@i])
+	next
+
+	return _acResult_
+	
+func TypesXT(paValues)
+
+	if CheckParams()
+		if NOT isList(paValues)
+			StzRaise("Incorrect param type! paValues must be a list.")
+		ok
+	ok
+
+	_nLen_ = len(paValues)
+	_aResult_ = []
+
+	for @i = 1 to _nLen_
+		_aResult_ + [ paValues[@i], type(paValues[@i]) ]
+	next
+
+	return _aResult_
+
+
+#---
 
 func IsSortedList(paList)
 	if IsSortedListInAscending(paList) or IsSortedListInDescending(paList)
