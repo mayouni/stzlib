@@ -188,7 +188,7 @@ class stzRegExp
 			cName = _acCaptureNames_[@i]
 
 			if cName != ""
-				aResult + [cName, oMatch.captured(@i)]
+				aResult + [cName, oMatch.captured(@i-1)]
 			ok
 		next
 
