@@ -1,6 +1,287 @@
 load "../max/stzmax.ring"
 
-/*===== CLASSIC STYLE
+
+/*=== Basic Pattern Matching
+
+profon()
+
+o1 = new stzRegExp("softanza")
+
+? o1.IsValid()
+#--> TRUE
+
+? o1.Match("softanza")
+#--> TRUE
+
+? o1.Match("Softanza")
+#--> FALSE
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*=== Case Sensitivity Examples
+
+profon()
+
+o1 = new stzRegExp("softanza")
+o1 {
+
+	# Let it be case incensitive
+
+	CaseInsensitive()
+
+	? IsCaseSensitive()
+	#--> FALSE
+
+	? Match("Softanza")
+	#--> TRUE
+
+	? Match("SOFTANZA") + NL
+	#--> TRUE
+
+	# Now, let it be rather case sensitive
+
+	CaseSensitive()
+
+	? IsCaseSensitive()
+	#--> TRUE
+
+	? Match("SOFTANZA")
+	#--> FALSE
+}
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*=== Multiline Pattern Examples
+*/
+profon()
+
+# In this example we use the regexp pattern "^Start.*$".
+
+# This pattern will:
+# - Match lines that begin with "Start"
+# - Followed by any characters (or no characters)
+# - Until the end of the line
+
+# Let's take a multiline string to match the pattern with:
+
+cMultilineText = "Start of line 1
+End of line 1
+Start of line 2
+End of line 2"
+
+# Without MultiLine option
+
+	o1 = new stzRegExp("^Start.*$")
+	
+	? o1.Match(cMultilineText)
+	#--> FALSE
+
+# With MultiLine option
+
+	o1.MultiLine()
+	
+	? o1.IsMultiLine()
+	#--> TRUE
+	
+	? o1.Match(cMultilineText)
+	#--> TRUE
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+#======================================#
+# Dot Matches Everything Example
+#======================================#
+
+? "=== Dot Matches Everything Examples ==="
+
+cText = "Line 1
+Line 2"
+
+o1 = new stzRegExp("Line.*Line")
+? o1.Match(cText)                 #--> FALSE
+
+o1.DotMatchesEverything()
+? o1.DotMatchesAll()              #--> TRUE
+? o1.Match(cText)                 #--> TRUE
+
+#======================================#
+# Extended Syntax Examples
+#======================================#
+
+? "=== Extended Syntax Examples ==="
+
+o1 = new stzRegExp("
+	# Match a valid date format
+	(?<day>[0-9]{2})   # Two digits for day
+	/                  # Literal slash
+	(?<month>[0-9]{2}) # Two digits for month
+	/                  # Literal slash
+	(?<year>[0-9]{4})  # Four digits for year
+")
+o1.ExtendedSyntax()
+? o1.HasExtendedSyntax()          #--> TRUE
+
+? o1.Match("25/12/2024")          #--> TRUE
+? o1.CapturedGroups()             #--> [["day","25"], ["month","12"], ["year","2024"]]
+
+#======================================#
+# Greedy vs Lazy Matching
+#======================================#
+
+? "=== Greedy vs Lazy Matching Examples ==="
+
+cHtml = "<p>First paragraph</p><p>Second paragraph</p>"
+
+# Greedy matching (default)
+o1 = new stzRegExp("<p>.*</p>")
+? o1.Match(cHtml)                 #--> TRUE  # Matches entire string
+
+# Lazy matching
+o1.InvertedGreedy()
+? o1.IsInvertedGreedy()           #--> TRUE
+? o1.Match(cHtml)                 #--> TRUE  # Matches first <p> tag only
+? o1.CapturedValues()             #--> ["<p>First paragraph</p>"]
+
+#======================================#
+# Unicode Property Support
+#======================================#
+
+? "=== Unicode Support Examples ==="
+
+o1 = new stzRegExp("\p{Script=Arabic}")
+o1.UseUnicode()
+? o1.UsesUnicode()                #--> TRUE
+? o1.Match("مرحبا")               #--> TRUE
+? o1.Match("Hello")               #--> FALSE
+
+#======================================#
+# Capture Groups Examples
+#======================================#
+
+? "=== Capture Groups Examples ==="
+
+o1 = new stzRegExp("(?<fname>[A-Za-z]+)\s+(?<lname>[A-Za-z]+)")
+? o1.Match("John Doe")            #--> TRUE
+? o1.CaptureCount()               #--> 2
+? o1.CaptureNames()               #--> ["fname", "lname"]
+? o1.CapturedGroups()             #--> [["fname","John"], ["lname","Doe"]]
+
+# Non-capturing groups
+o1.DontCapture()
+? o1.IsNonCapturing()             #--> TRUE
+? o1.CaptureCount()               #--> 0
+
+#======================================#
+# Position-specific Matching
+#======================================#
+
+? "=== Position-specific Matching Examples ==="
+
+o1 = new stzRegExp("world")
+? o1.MatchAt("Hello world!", 6)   #--> TRUE
+? o1.MatchAt("Hello world!", 0)   #--> FALSE
+
+#======================================#
+# Error Handling Examples
+#======================================#
+
+? "=== Error Handling Examples ==="
+
+o1 = new stzRegExp("(unclosed")
+? o1.IsValid()                    #--> FALSE
+? o1.LastError()                  #--> "Missing closing parenthesis"
+? o1.PatternErrorOffset()         #--> 8
+
+#======================================#
+# Pattern Options Reset
+#======================================#
+
+? "=== Pattern Options Reset Examples ==="
+
+o1 = new stzRegExp("pattern")
+o1.CaseInsensitive()
+o1.MultiLine()
+o1.ExtendedSyntax()
+
+? o1.GetOptions()                 #--> 13 # Binary: 1101
+
+o1.ResetOptions()
+? o1.GetOptions()                 #--> 0
+
+#======================================#
+# Complex Real-world Examples
+#======================================#
+
+? "=== Complex Real-world Examples ==="
+
+# Example 1: Parsing Log Files
+cLogPattern = new stzRegExp("
+	(?<timestamp>\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})\s+  # Timestamp
+	(?<level>INFO|WARN|ERROR)\s+                            # Log level
+	(?<message>.+)                                          # Message content
+")
+cLogPattern.ExtendedSyntax()
+cLogPattern.MultiLine()
+
+cLogEntry = "2024-01-09 15:30:45 ERROR Database connection failed"
+? cLogPattern.Match(cLogEntry)    #--> TRUE
+? cLogPattern.CapturedGroups()    #--> Shows parsed log components
+
+# Example 2: Email Validation with Unicode Support
+cEmailPattern = new stzRegExp("
+	^
+	(?<local>[\p{L}\p{N}._%+-]+)   # Local part allowing Unicode letters
+	@
+	(?<domain>[\p{L}\p{N}.-]+)     # Domain part
+	\.
+	(?<tld>\p{L}{2,})              # TLD with min 2 letters
+	$
+")
+cEmailPattern.ExtendedSyntax()
+cEmailPattern.UseUnicode()
+
+? cEmailPattern.Match("user.name@example.com")        #--> TRUE
+? cEmailPattern.Match("användare@例子.com")           #--> TRUE
+
+# Example 3: Phone Number Parser
+cPhonePattern = new stzRegExp("
+	# Format: +XX-XXX-XXX-XXXX or (XXX) XXX-XXXX
+	(?:
+		(?<intl>\+\d{2}-)? 		# Optional international prefix
+		(?<area>\d{3}-)? 		# Area code
+		(?<prefix>\d{3}-) 		# Prefix
+		(?<line>\d{4}) 			# Line number
+	) |
+	(?:
+		\((?<area2>\d{3})\)\s 	# Area code in parentheses
+		(?<prefix2>\d{3}-) 		# Prefix
+		(?<line2>\d{4}) 		# Line number
+	)
+")
+cPhonePattern.ExtendedSyntax()
+
+? cPhonePattern.Match("+1-555-123-4567")             #--> TRUE
+? cPhonePattern.Match("(555) 123-4567")              #--> TRUE
+? cPhonePattern.CapturedGroups()                     #--> Shows parsed phone components
+
+
+proff()
+
+
+
+
+
+
+
+
+
+
+
+
+/*===== CLASSIC STYLE ==============
 
 profon()
 
@@ -34,7 +315,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*=== DECLARATIVE STYLE: #todo Implement it using stzRegExpMaker in background
-*/
+
 profon()
 
 o1 = new stzRegExp([])
@@ -114,7 +395,7 @@ proff()
 
 
 /*---- #todo Should use stzRegExpParser in the background
-*/
+
 profon()
 
 o1 = new stzRegExp
