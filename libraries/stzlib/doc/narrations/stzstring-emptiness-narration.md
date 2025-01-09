@@ -11,7 +11,7 @@ This article explains Softanza’s handling of emptiness with **five rules**, us
 
 In Softanza, an empty string has no measurable presence. It cannot be counted inside any string, empty or not:
 
-```ring
+```c
 load "stzlib.ring"
 
 ? Q("").Count("") 
@@ -31,7 +31,7 @@ This prevents the confusion found in some languages where empty substrings are i
 
 Since emptiness is uncountable (Rule 1), it logically follows that it cannot be found. Searching for the list of positions of`""` in any string always returns an empty list:
 
-```ring
+```C
 ? @@( Q("").FindAll("") ) 
 #--> [ ]
 
@@ -41,7 +41,7 @@ Since emptiness is uncountable (Rule 1), it logically follows that it cannot be 
 
 Also, finding the first position of "" always returns 0, which means it does not even exist:
 
-```ring
+```C
 ? Q("").FindFirst("")
 #--> 0
 
@@ -59,7 +59,7 @@ This contrasts with languages like **Qt C++** or **Python**, or even the `substr
 
 An empty string contains nothing, and no string (empty or not) contains an empty one. This rule flows naturally from Rules 1 and 2:
 
-```ring
+```C
 ? Q("").Contains("") 
 #--> FALSE
 
@@ -78,7 +78,7 @@ This behavior eliminates ambiguities in mainstream languages, where `""` is ofte
 
 Replacing any value with emptiness has no meaningful effect, nor does replacing an empty string with another empty string.
 
-```ring
+```C
 ? @@( Q("").ReplaceQ("", "").Content() ) 
 #--> ""
 
@@ -91,7 +91,7 @@ Replacing any value with emptiness has no meaningful effect, nor does replacing 
 
 However, replacing emptiness with a non-empty string stretches the empty string to host the new content.
 
-```ring
+```C
 ? @@( Q("text").ReplaceQ("", "").Content() ) 
 #--> "text"
 
@@ -110,7 +110,7 @@ This avoids surprising behaviors like those in **Qt C++**, where replacing `""` 
 
 Similarly, emptiness cannot be removed from any string. Softanza guarantees that removal operations involving `""` leave the original string unchanged:
 
-```ring
+```C
 ? @@( Q("").RemoveQ("").Content() ) 
 #--> ""
 
@@ -133,7 +133,7 @@ In many languages, methods like `QString.indexOf("")` in **RingQt** or `substr("
 
 **Illustrating the Case Ring Induces Softanza in Error:**
 
-```ring
+```C
 // An empty value we don't control, e.g., from an API or user input
 val = ""
 
@@ -148,7 +148,7 @@ Here, `val` being empty leads to mistakenly identifying position 1 (first charac
 
 **Softanza’s Secure Approach:**
 
-```ring
+```C
 val = ""
 
 // Removing with Softanza
