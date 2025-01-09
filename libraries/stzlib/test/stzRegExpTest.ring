@@ -54,7 +54,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*=== Multiline Pattern Examples
-*/
+
 profon()
 
 # In this example we use the regexp pattern "^Start.*$".
@@ -88,50 +88,69 @@ End of line 2"
 	? o1.Match(cMultilineText)
 	#--> TRUE
 
+
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
-#======================================#
-# Dot Matches Everything Example
-#======================================#
+/*=== Dot Matches Everything Examples
 
-? "=== Dot Matches Everything Examples ==="
+profon()
 
 cText = "Line 1
 Line 2"
 
 o1 = new stzRegExp("Line.*Line")
-? o1.Match(cText)                 #--> FALSE
+o1 {
+	? Match(cText)
+	#--> FALSE
 
-o1.DotMatchesEverything()
-? o1.DotMatchesAll()              #--> TRUE
-? o1.Match(cText)                 #--> TRUE
+	DotMatchesEverything()
 
-#======================================#
-# Extended Syntax Examples
-#======================================#
+	? DotMatchesAll()
+	#--> TRUE
 
-? "=== Extended Syntax Examples ==="
+	? Match(cText)
+	#--> TRUE
+}
+
+proff()
+
+/*=== Extended Syntax Examples (comments allowed)
+
+profon()
 
 o1 = new stzRegExp("
+
 	# Match a valid date format
+
 	(?<day>[0-9]{2})   # Two digits for day
 	/                  # Literal slash
+
 	(?<month>[0-9]{2}) # Two digits for month
 	/                  # Literal slash
+
 	(?<year>[0-9]{4})  # Four digits for year
 ")
-o1.ExtendedSyntax()
-? o1.HasExtendedSyntax()          #--> TRUE
 
-? o1.Match("25/12/2024")          #--> TRUE
-? o1.CapturedGroups()             #--> [["day","25"], ["month","12"], ["year","2024"]]
+o1 {
+	ExtendedSyntax()
+	? HasExtendedSyntax()
+	#--> TRUE
 
-#======================================#
-# Greedy vs Lazy Matching
-#======================================#
+	? Match("25/12/2024")
+	#--> TRUE
 
-? "=== Greedy vs Lazy Matching Examples ==="
+	? @@( CapturedGroups() )
+	#--> [["day","25"], ["month","12"], ["year","2024"]]
+
+}
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*=== Greedy vs Lazy Matching Examples
+
+profon()
 
 cHtml = "<p>First paragraph</p><p>Second paragraph</p>"
 
@@ -145,11 +164,11 @@ o1.InvertedGreedy()
 ? o1.Match(cHtml)                 #--> TRUE  # Matches first <p> tag only
 ? o1.CapturedValues()             #--> ["<p>First paragraph</p>"]
 
-#======================================#
-# Unicode Property Support
-#======================================#
+proff()
 
-? "=== Unicode Support Examples ==="
+/*=== Unicode Support Examples
+
+profon()
 
 o1 = new stzRegExp("\p{Script=Arabic}")
 o1.UseUnicode()
@@ -157,11 +176,11 @@ o1.UseUnicode()
 ? o1.Match("مرحبا")               #--> TRUE
 ? o1.Match("Hello")               #--> FALSE
 
-#======================================#
-# Capture Groups Examples
-#======================================#
+proff()
 
-? "=== Capture Groups Examples ==="
+/*=== Capture Groups Examples
+
+profon()
 
 o1 = new stzRegExp("(?<fname>[A-Za-z]+)\s+(?<lname>[A-Za-z]+)")
 ? o1.Match("John Doe")            #--> TRUE
@@ -174,32 +193,32 @@ o1.DontCapture()
 ? o1.IsNonCapturing()             #--> TRUE
 ? o1.CaptureCount()               #--> 0
 
-#======================================#
-# Position-specific Matching
-#======================================#
+proff()
 
-? "=== Position-specific Matching Examples ==="
+/*=== Position-specific Matching Examples ==="
+
+profon()
 
 o1 = new stzRegExp("world")
 ? o1.MatchAt("Hello world!", 6)   #--> TRUE
 ? o1.MatchAt("Hello world!", 0)   #--> FALSE
 
-#======================================#
-# Error Handling Examples
-#======================================#
+proff()
 
-? "=== Error Handling Examples ==="
+/*=== Error Handling Examples ==="
+
+profon()
 
 o1 = new stzRegExp("(unclosed")
 ? o1.IsValid()                    #--> FALSE
 ? o1.LastError()                  #--> "Missing closing parenthesis"
 ? o1.PatternErrorOffset()         #--> 8
 
-#======================================#
-# Pattern Options Reset
-#======================================#
+proff()
 
-? "=== Pattern Options Reset Examples ==="
+/*=== Pattern Options Reset Examples ==="
+
+profon()
 
 o1 = new stzRegExp("pattern")
 o1.CaseInsensitive()
@@ -211,13 +230,13 @@ o1.ExtendedSyntax()
 o1.ResetOptions()
 ? o1.GetOptions()                 #--> 0
 
-#======================================#
-# Complex Real-world Examples
-#======================================#
+proff()
+/*=== Complex Real-world Examples
 
-? "=== Complex Real-world Examples ==="
+/*--- Example 1: Parsing Log Files
 
-# Example 1: Parsing Log Files
+profon()
+
 cLogPattern = new stzRegExp("
 	(?<timestamp>\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})\s+  # Timestamp
 	(?<level>INFO|WARN|ERROR)\s+                            # Log level
@@ -230,7 +249,12 @@ cLogEntry = "2024-01-09 15:30:45 ERROR Database connection failed"
 ? cLogPattern.Match(cLogEntry)    #--> TRUE
 ? cLogPattern.CapturedGroups()    #--> Shows parsed log components
 
-# Example 2: Email Validation with Unicode Support
+proff()
+
+/*--- Example 2: Email Validation with Unicode Support
+
+profon()
+
 cEmailPattern = new stzRegExp("
 	^
 	(?<local>[\p{L}\p{N}._%+-]+)   # Local part allowing Unicode letters
@@ -246,7 +270,12 @@ cEmailPattern.UseUnicode()
 ? cEmailPattern.Match("user.name@example.com")        #--> TRUE
 ? cEmailPattern.Match("användare@例子.com")           #--> TRUE
 
-# Example 3: Phone Number Parser
+proff()
+
+/*--- Example 3: Phone Number Parser
+
+profon()
+
 cPhonePattern = new stzRegExp("
 	# Format: +XX-XXX-XXX-XXXX or (XXX) XXX-XXXX
 	(?:
@@ -261,12 +290,12 @@ cPhonePattern = new stzRegExp("
 		(?<line2>\d{4}) 		# Line number
 	)
 ")
+
 cPhonePattern.ExtendedSyntax()
 
 ? cPhonePattern.Match("+1-555-123-4567")             #--> TRUE
 ? cPhonePattern.Match("(555) 123-4567")              #--> TRUE
 ? cPhonePattern.CapturedGroups()                     #--> Shows parsed phone components
-
 
 proff()
 
