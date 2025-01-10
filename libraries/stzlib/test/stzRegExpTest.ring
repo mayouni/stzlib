@@ -1,8 +1,8 @@
 load "../max/stzmax.ring"
 
-/*==
+/*===
 
-profon()
+pron()
 
 ? StzStartupTime() # in seconds
 #--> 0.05
