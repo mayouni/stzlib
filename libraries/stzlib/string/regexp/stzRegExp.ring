@@ -45,53 +45,55 @@ class stzRegExp
 	def CaseSensitive()
 		@nPatternOptions &= ~1  # Clear CaseInsensitiveOption bit
 		@oQRegExp.setPatternOptions(@nPatternOptions)
-		return This
+
 
 	def CaseInsensitive()
 		@nPatternOptions |= 1   # Set CaseInsensitiveOption bit
 		@oQRegExp.setPatternOptions(@nPatternOptions)
-		return This
+
 
 	def DotMatchesEverything()
 		@nPatternOptions |= 2   # Set DotMatchesEverythingOption bit
 		@oQRegExp.setPatternOptions(@nPatternOptions)
-		return This
+
 
 	def DotMatchesNewLine()
-		return This.DotMatchesEverything()
+		This.DotMatchesEverything()
 
 	def MultiLine()
 		@nPatternOptions |= 4   # Set MultilineOption bit
 		@oQRegExp.setPatternOptions(@nPatternOptions)
-		return This
+
 
 	def ExtendedSyntax()
 		@nPatternOptions |= 8   # Set ExtendedPatternSyntaxOption bit
 		@oQRegExp.setPatternOptions(@nPatternOptions)
-		return This
+
 
 	def InvertedGreedy()
 		@nPatternOptions |= 16  # Set InvertedGreedinessOption bit
 		@oQRegExp.setPatternOptions(@nPatternOptions)
-		return This
 		
 		def LazyByDefault()
-			return This.InvertedGreedy()
+			This.InvertedGreedy()
+
+		def LazyMatching()
+			This.InvertedGreedy()
+
+		def Lazy()
+			This.InvertedGreedy()
 
 	def DontCapture()
 		@nPatternOptions |= 32  # Set DontCaptureOption bit
 		@oQRegExp.setPatternOptions(@nPatternOptions)
-		return This
 
 	def UseUnicode()
 		@nPatternOptions |= 64  # Set UseUnicodePropertiesOption bit
 		@oQRegExp.setPatternOptions(@nPatternOptions)
-		return This
 
 	def DisableOptimizations()
 		@nPatternOptions |= 128 # Disable optimizations
 		@oQRegExp.setPatternOptions(@nPatternOptions)
-		return This
 
 	#-- Pattern options query methods
 
@@ -112,6 +114,12 @@ class stzRegExp
 
 	def IsInvertedGreedy()
 		return (@nPatternOptions & 16) != 0
+
+		def IsLazyMatching()
+			return This.IsInvertedGreedy()
+
+		def IsLazy()
+			return This.IsInvertedGreedy()
 
 	def IsNonCapturing()
 		return (@nPatternOptions & 32) != 0
@@ -161,13 +169,14 @@ class stzRegExp
 		
 		@i = 0
 		while true
-			@i++
+			
 			_cCapture_ = @oQRegExp.match(@cTempStr, 0, 0, 0).captured(@i)
 			if _cCapture_ = ""
 				exit
 			ok
 
 			_acResult_ + _cCapture_
+			@i++
 		end
 
 		return _acResult_
