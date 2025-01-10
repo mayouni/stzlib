@@ -1048,11 +1048,15 @@ This feature dramatically improves the coding experience by reducing disruptions
 
 Additionally, it simplifies the integration of such features into IDEs, as the intelligence resides in the library itself.
 
-## Function Timed Form: A Rule of Nature to Let Functions Born, Live and the Gracefully Dye!
+## Function Timed Form: A Rule of Nature to Let Functions Born, Live and Gracefully Dye!
 
 Planned for future.
 
 ## Function Cashed Form: Let your Functions Remember Things
+
+Planned for future.
+
+# Function Versioned Form
 
 Planned for future.
 
