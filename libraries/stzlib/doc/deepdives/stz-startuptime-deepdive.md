@@ -11,7 +11,7 @@ Let’s break it down with a table that clearly shows the startup times for diff
 
 | **Language**           | **Startup Time**                | **Characteristics**                                                                                               |
 |------------------------|---------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| **Ring (Softanza)**     | **0.05 seconds**                | Exceptionally fast startup, loading 300,000 lines of code in a fraction of a second. Ideal for performance-sensitive applications. |
+| **Ring (Softanza)**     | **0.05 seconds**                | Exceptionally fast startup, loading 300,000 lines of code in a fraction of a second. |
 | **Python**              | **0.1 to 1 second**             | Startup time varies with code size and libraries. Larger codebases result in longer load times.                   |
 | **Ruby**                | **0.1 to 1 second**             | Similar to Python, startup time can reach 1 second, especially for applications with multiple dependencies.        |
 | **PHP**                 | **0.1 to 1 second**             | PHP is typically faster than Python and Ruby in small scripts but lags behind for more complex applications.       |
@@ -45,3 +45,7 @@ Let’s break it down with a table that clearly shows the startup times for diff
 ## Why This Matters
 
 From this comparison, **Ring** clearly stands out for its **minimal startup time**, making Softanza, despite its size, a highly competitive choice for performance-critical applications.
+
+To get an idea of the value of this achievement and the depth of the issue, for example, in the Pyhton community, read this article by Jake Edge, along with and its liked pages:
+
+[Reducing Python's startup time](https://lwn.net/Articles/730915/)
