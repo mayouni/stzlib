@@ -99,8 +99,7 @@
 #  END OF THE NOTE NOTE  #
 #~~~~~~~~~~~~~~~~~~~~~~~~#
 
-//decimals(3)
-//t0 = clock()
+t0 = clock()
 
 # Loding the files related to the CORE layer
 
@@ -114,6 +113,8 @@
 	load "object/stzNullObject.ring"
 	load "object/stzTrueObject.ring"
 	load "object/stzFalseObject.ring"
+
+	#perf // Loads in 0.02 second (in Ring 1.22)
 
 # Loading files related to the NUMBER module
 
@@ -130,6 +131,8 @@
 	load "number/stzHexNumber.ring"
 	load "number/stzOctalNumber.ring"
 	load "number/stzListOfBytes.ring"
+
+	#perf // Loads in 0.02 second (in Ring 1.22)
 
 # Loading files related to the LIST module
 
@@ -152,6 +155,8 @@
 	load "list/stzListParser.ring"
 	load "list/stzListInString.ring"
 
+	#perf // Loads in 0.03 second (in Ring 1.22)
+
 # Loading files related to the STRING module
 
 	load "string/stzStringGlobs.ring"
@@ -170,6 +175,8 @@
 	load "string/listofunicodes/stzListOfUnicodes.ring"
 	load "string/stringart/stzStringArt.ring"
 
+	#perf // Loads in 0.02 second (in Ring 1.22)
+
 # Loading files related tp the COMMON module
 
 	load "common/stzFuncs.ring"
@@ -182,6 +189,8 @@
 	load "common/stzQtFuncs.ring"
 	load "common/stzRingLibs.ring"
 	load "common/stzNamedParams.ring" #TODO // Use it instead of stzList methods
+
+	#perf // Loads in 0.02 second (in Ring 1.22)
 
 # Loading files related to ERROR module
 
@@ -201,11 +210,16 @@
 	load "error/stzCounterError.ring"
 	load "error/stzFileError.ring"
 
+	#perf // Loads in 0.02 second (in Ring 1.22)
+
 # Loading files related to the TEST module
 
 	load "test/stzTest.ring"
 
+	#perf // Loads in 0.02 second (in Ring 1.22)
+
 # Loading files related to the DATA mlodule
+
 
 	load "data/stzLocaleData.ring"
 	load "data/stzStopWordsData.ring"
@@ -217,15 +231,29 @@
 	load "data/stzCharData.ring"
 	load "data/stzStringArtData.ring"
 
+	#perf // Loads in 0.03 second (in Ring 1.22)
+
+
 # Loading files related to the IO module
 
 	load "io/stzFile.ring"
 	load "io/stzFolder.ring"
 	load "io/stzExtCode.ring" // #TODO Is this the right place?
 
+	#perf // Loads in 0.02 second (in Ring 1.22)
+
 # loading MISC files
 
 	load "misc/stzDistanceZero.ring"
 
-//? (clock()-t0)/clockspersecond()
-#--> 0.06 seconds (Ring 1.20 64-bit)
+	#perf // Loads in 0.02 second (in Ring 1.22)
+
+#---
+
+# Softanza Startup time
+
+_$SOFTNAZA_STARTUP_TIME_ = (clock()-t0)/clockspersecond()
+#--> 0.06 seconds (Ring 1.22 64-bit)
+
+func StzStartupTime()
+	return _$SOFTNAZA_STARTUP_TIME_

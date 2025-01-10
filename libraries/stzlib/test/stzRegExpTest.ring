@@ -1,5 +1,14 @@
 load "../max/stzmax.ring"
 
+/*==
+
+profon()
+
+? StzStartupTime() # in seconds
+#--> 0.05
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*=== Basic Pattern Matching
 
@@ -148,23 +157,48 @@ o1 {
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*=== Greedy vs Lazy Matching Examples
+/*=== Greedy vs Lazy Matching Example ===*/
 
 profon()
 
+/*
+In this example, we'll illustrate the difference between greedy 
+and lazy matching using the same pattern but contrasting outcomes.
+The goal is to extract only the first <p> tag content from a string.
+*/
+
+// Example HTML string
 cHtml = "<p>First paragraph</p><p>Second paragraph</p>"
 
-# Greedy matching (default)
+// Greedy matching (default behavior)
 o1 = new stzRegExp("<p>.*</p>")
-? o1.Match(cHtml)                 #--> TRUE  # Matches entire string
+? o1.Match(cHtml)
+#--> TRUE
+? @@( o1.CapturedValues() )
+#--> [ "<p>First paragraph</p><p>Second paragraph</p>" ]
+// Greedy matching captures the entire string because it matches 
+// as much text as possible between the first <p> and the last </p>.
 
-# Lazy matching
-o1.InvertedGreedy()
-? o1.IsInvertedGreedy()           #--> TRUE
-? o1.Match(cHtml)                 #--> TRUE  # Matches first <p> tag only
-? o1.CapturedValues()             #--> ["<p>First paragraph</p>"]
+// Lazy matching (precise behavior)
+o1.LazyMatching()
+? o1.IsLazyMatching()
+#--> TRUE
+? o1.Match(cHtml)
+#--> TRUE
+? @@( o1.CapturedValues() )
+#--> [ "<p>First paragraph</p>" ]
+// Lazy matching stops at the first closing </p>, extracting only 
+// the first <p> tag content.
 
 proff()
+
+/*=== Summary ===
+- Greedy matching captures the largest possible match, which is useful 
+  for broad parsing tasks, such as extracting large sections of text.
+- Lazy matching focuses on capturing the smallest possible match, 
+  making it ideal for extracting specific elements like individual tags.
+*/
+
 
 /*=== Unicode Support Examples
 

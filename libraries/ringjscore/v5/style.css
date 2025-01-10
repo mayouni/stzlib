@@ -1,0 +1,40 @@
+body {
+    font-family: monospace;
+    max-width: 800px;
+    margin: 0px;
+    padding: 0px 10px;
+    background: #f0f4f8;
+}
+
+h1 {
+    text-align: center;
+    font-size: 24px;
+    font-weight: normal;
+    margin-bottom: 10px;
+}
+
+h1 { color: #91a1c0; }
+
+h1 span:first-child {
+    color: #0258c4;
+}
+
+h1 span:last-child {
+    color: #152138;
+}
+
+.editor-container {
+    position: relative;
+    margin: 15px auto;
+    padding: 15px;
+    border-radius: 8px;
+    
+    overflow: hidden;
+    color: #f0f4f8;
+    background: #223950;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    font-size: 16px;
+    line-height: 1.8;
+    font-family: 'Consolas', 'Monaco', monospace;
+}
