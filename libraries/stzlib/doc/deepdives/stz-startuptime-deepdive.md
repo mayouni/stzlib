@@ -46,6 +46,6 @@ Let’s break it down with a table that clearly shows the startup times for diff
 
 From this comparison, **Ring** clearly stands out for its **minimal startup time**, making Softanza, despite its size, a highly competitive choice for performance-critical applications.
 
-To get an idea of the value of this achievement and the depth of the issue, for example, in the Pyhton community, read this article by Jake Edge, along with and its liked pages:
+Finally, To truly appreciate the significance of this achievement and the depth of the issue, consider reading this article by Jake Edge from the Python community, along with the related discussions linked within it:
 
 [Reducing Python's startup time](https://lwn.net/Articles/730915/)
