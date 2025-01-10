@@ -1048,17 +1048,12 @@ This feature dramatically improves the coding experience by reducing disruptions
 
 Additionally, it simplifies the integration of such features into IDEs, as the intelligence resides in the library itself.
 
-## Function Timed Form: A Rule of Nature to Let Functions Born, Live and Gracefully Dye!
+## More Forms to Come in the Future
 
-Planned for future.
+- `@FunctionTimedForm`: A rule of nature to let functions be born, live, and gracefully die!
+- `@FunctionCashedForm`: Enable your functions to remember things.
+- `@FunctionVersionedForm`: For truly agile software architectures.
 
-## Function Cashed Form: Let your Functions Remember Things
-
-Planned for future.
-
-# Function Versioned Form
-
-Planned for future.
 
 ## Why It Matters: The Dual Benefits of Writable and Readable Code
 
