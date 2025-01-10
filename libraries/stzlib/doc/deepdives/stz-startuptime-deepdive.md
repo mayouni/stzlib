@@ -50,7 +50,7 @@ Startup time is a critical factor for various types of applications. Here’s wh
 
 - **Web Apps & Server APIs**: Faster startup times reduce latency, leading to quicker responses and a smoother user experience, especially in high-traffic situations.
 - **Command-Line Tools**: Rapid startup is crucial for command-line utilities, ensuring fast execution and responsiveness, especially for frequent or automated tasks.
-- **Serverless Environments**: In platforms like AWS Lambda, where services are billed by the millisecond, faster startup times help reduce costs.
+- **Serverless Environments**: In platforms like AWS Lambda, Google Cloud Functions, or Azure Functions, where services are billed by the millisecond, faster startup times help reduce costs.
 
 Finally, To truly appreciate the significance of this achievement and the depth of the issue, consider reading this article by Jake Edge from the Python community, along with the related discussions linked within it:
 
