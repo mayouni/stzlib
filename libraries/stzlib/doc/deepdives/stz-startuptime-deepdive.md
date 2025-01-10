@@ -44,8 +44,4 @@ Let’s break it down with a table that clearly shows the startup times for diff
 
 ## Why This Matters
 
-Startup time of a library like Softanza is critical for certain applications, especially those where responsiveness and speed are prioritized (web apps, reactive UIs, apss running on constrained devices, etc.).
-
-From this comparison, **Ring** clearly stands out for its **minimal startup time**. For large-scale applications where speed is essential from the very first execution, Ring’s efficiency in handling more then 300,000 lines of code (in the Softanza codebase) in just **0.05 seconds** offers a significant advantage over other popular languages, including those with compiled or intermediate runtimes like **.NET Core** and **Wolfram**.
-
-In conclusion, Ring’s startup performance positions it as a strong contender for projects where **time-to-execution** is a critical factor, ensuring that applications built with Softanza can benefit from rapid initialization without sacrificing functionality.
+From this comparison, **Ring** clearly stands out for its **minimal startup time**, making Softanza, despite its size, a highly competitive choice for performance-critical applications.
