@@ -1,4 +1,4 @@
-# Softanza Startup Time: How Ring Loads a 300K Line Library in only 0.05 Seconds!
+# Softanza Startup Time: How Ring Loads +300K LOC in 0.05 Seconds!
 
 This morning, I added the `StzStartupTime()` function to the Softanza library and was pleased to find that it took just **0.05 seconds** to load the entire library. Intrigued by how this performance compares to other languages, I asked ChatGPT for a detailed analysis. The result is an interesting comparison that shows how **Ring** outperforms many other languages in terms of startup time, especially considering it’s an interpreted language.
 
