@@ -1335,7 +1335,7 @@ func IsNumberInString(str)
 
 	# Now, it is safe ti use the Ring Number() function
 
-	if isNumber( ring_number(cNumberInStr) )
+	if isNumber( @Number(cNumberInStr) )
 		return _TRUE_
 	else
 		return _FALSE_

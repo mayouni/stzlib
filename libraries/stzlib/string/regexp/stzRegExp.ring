@@ -1,3 +1,7 @@
+#INFO A nice article to get the essentials of regExp
+# https://trustedsec.com/blog/regex-cheat-sheet
+#TODO: Write a narration based on it.
+
 func StzRegExpQ(pcPattern)
 	return new stzRegExp(pcPattern)
     
