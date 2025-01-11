@@ -57,18 +57,19 @@ class stzRegExp
 		@oQRegExp.setPatternOptions(@nPatternOptions)
 
 
-	def DotMatchesNewLine()
-		This.DotMatchesEverything()
+		def DotMatchesNewLine()
+			This.DotMatchesEverything()
 
 	def MultiLine()
 		@nPatternOptions |= 4   # Set MultilineOption bit
 		@oQRegExp.setPatternOptions(@nPatternOptions)
 
-
 	def ExtendedSyntax()
 		@nPatternOptions |= 8   # Set ExtendedPatternSyntaxOption bit
 		@oQRegExp.setPatternOptions(@nPatternOptions)
 
+		def EnableExtendedSyntax()
+			This.ExtendedSyntax()
 
 	def InvertedGreedy()
 		@nPatternOptions |= 16  # Set InvertedGreedinessOption bit
@@ -181,6 +182,12 @@ class stzRegExp
 
 		return _acResult_
 
+		def Capture()
+			return This.CapturedValues()
+	
+		def Captured()
+			return This.CapturedValues()
+
 	def CaptureNames()
 		return QStringListToList(@oQRegExp.namedCaptureGroups())
 
@@ -202,14 +209,6 @@ class stzRegExp
 		next
 
 		return aResult
-
-	#-- Aliases
-
-	def Capture()
-		return This.CapturedValues()
-
-	def Captured()
-		return This.CapturedValues()
 
 	#-- Error handling and information
 

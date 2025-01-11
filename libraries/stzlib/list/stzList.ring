@@ -2409,7 +2409,21 @@ func IsListOfNumbersInStrings(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfNumbersInStrings()
+	_nLen_ = len(paList)
+
+	for @i = 1 to _nLen
+		if NOT isString(paList[@i])
+			return _FALSE_
+		ok
+
+		if NOT @IsNumberInString(paList[@i])
+			return _FALSE_
+		ok
+	next
+
+	return _TRUE_
+
+	#NOTE // Make all functions independent form Softanza classes
 
 	#< @FunctionAlternativeForms
 

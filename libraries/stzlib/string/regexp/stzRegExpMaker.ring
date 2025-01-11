@@ -53,12 +53,17 @@ class stzRegExpMaker
 		# Constrcuting the main pattern string
 
 		cPattern = ""
-        
-		if cType = :among and type(cRange) = "LIST"
-			cPattern = "[" + join(cRange) + "]"
 
-		but cType = :among
+		if isList(cRange)
+			cRange = join(cRange)
+		ok
+
+		if cType = :among
 			cPattern = "[" + substr(cRange, "SPACE", " ") + "]"
+
+		but cType = :notAmong
+			cPattern = "[^" + substr(cRange, "SPACE", " ") + "]"
+
 		else
 			cPattern = "[" + cRange + "]"
 		ok
@@ -85,25 +90,75 @@ class stzRegExpMaker
 
 		# Storing the complete pattern (main string + quantifier part)
 
-        	add(acFragments, cPattern + cQuantifier)
+        	acFragments + (cPattern + cQuantifier)
 
 		# String the elements of the sequence applied
 
-        	add(aSequences, [cType, cRange, cQuant, nTimes1, nTimes2])
+        	aSequences + [ cType, cRange, cQuant, nTimes1, nTimes2 ]
         
 
 	def AddAmongChars(cChars, cQuant, nTimes1, nTimes2)
+
 		if isString(cChars)
 			cChars = Chars(cChars)
 		ok
         
 		AddRange(:among, cChars, cQuant, nTimes1, nTimes2)
-    
+
+		def AddAmongDigits(cDigits, cQuant, nTimes1, nTimes2)
+			if isString(cDigits)
+				cDigits = Chars(cDigits)
+			ok
+
+			if NOT (len(cDigits) = 3 and IsListOfStrings(cDigits) and
+				cDigits[2] = "-" and
+				@IsNumberInString(cDigits[1]) and
+				@IsNumberInString(cDigits[3]) )
+
+				StzRaise('Incorrect param type! cDigits must be a list of the form [ "0" , "-", "9" ].')
+			ok
+
+			This.AddAmongChars(cDigits, cQuant, nTimes1, nTimes2)
+
+	def AddNotAmongChars(cChars, cQuant, nTimes1, nTimes2)
+		if isString(cChars)
+			cChars = Chars(cChars)
+		ok
+        
+		AddRange(:NotAmong, cChars, cQuant, nTimes1, nTimes2)
+
+		def AddNotAmongDigits(cDigits, cQuant, nTimes1, nTimes2)
+			if isString(cDigits)
+				cDigits = Chars(cDigits)
+			ok
+
+			if NOT (len(cDigits) = 3 and IsListOfStrings(cDigits) and
+				cDigits[2] = "-" and
+				@IsNumberInString(cDigits[1]) and
+				@IsNumberInString(cDigits[3]) )
+
+				StzRaise('Incorrect param type! cDigits must be a list of the form [ "0" , "-", "9" ].')
+			ok
+
+			This.AddNotAmongChars(cDigits, cQuant, nTimes1, nTimes2)
+
 	def AddCharsRange(cRange, cQuant, nTimes1, nTimes2)
-		AddRange(:chars, cRange, cQuant, nTimes1, nTimes2)
-    
-	def AddDigitsRange(cRange, cQuant, nTimes1, nTimes2)
-		AddRange(:digits, cRange, cQuant, nTimes1, nTimes2)
+		This.AddRange(:Between, cRange, cQuant, nTimes1, nTimes2)
+ 
+		def AddDigitsRange(cDigits, cQuant, nTimes1, nTimes2)
+			if isString(cDigits)
+				cDigits = Chars(cDigits)
+			ok
+
+			if NOT (len(cDigits) = 3 and IsListOfStrings(cDigits) and
+				cDigits[2] = "-" and
+				@IsNumberInString(cDigits[1]) and
+				@IsNumberInString(cDigits[3]) )
+
+				StzRaise('Incorrect param type! cDigits must be a list of the form [ "0" , "-", "9" ].')
+			ok
+
+			This.AddDigitsRange(cDigits, cQuant, nTimes1, nTimes2)
 
 	  #------------------------------------------------#
 	 #  GETTING THE STRING PATTERN ANT ITS FRAGMENTS  #
@@ -133,7 +188,7 @@ class stzRegExpMaker
 		next
 
 		nMaxLen++ # Add 1 for spacing
-    
+ 
 		cResult = "START" + NL + "│" + NL
     		_nLenSeq_ = len(aSequences)
 
@@ -292,6 +347,18 @@ class stzRegExpMaker
 		def FragsXT()
 			return This.FragmentsXT()
 
+	  #---------------------------#
+	 #  GETTING THE QUANTIFIERS  #
+	#---------------------------#
+
+	def Quantifiers()
+		#TODO
+
+	def QuantifiersCommands()
+		#TODO
+
+		def QuantifiersXT()
+
 	  #-------------------------------------------------------------#
 	 #  GETTING THE SEQUENCES (FRAGMENTS IN COMPUTABLE DATA FORM)  #
 	#-------------------------------------------------------------#
@@ -300,6 +367,9 @@ class stzRegExpMaker
 		return aSequences
 
 		def Seqs()
+			return This.Sequences()
+
+		def Commands()
 			return This.Sequences()
 
 	def NumberOfSequences()
@@ -324,15 +394,32 @@ class stzRegExpMaker
 		def CountSeqs()
 			return This.NumberOfSequences()
 
+		#--
+
+		def NumberOfCommands()
+			return This.NumberOfSequences()
+
+		def HowManyCommands()
+			return This.NumberOfSequences()
+
+		def CountCommands()
+			return This.NumberOfSequences()
+
 		#>
 
 	def Sequence(n)
 		return aSequences[n]
 
 		def Seq(n)
+			return This.Sequence(n)
+
+		def Command(n)
+			return This.Sequence(n)
 
 	def SequenceXT(n)
 		return [ aSequences[n], acFragments[n] ]
+
+		#< @FunctionAlternativeForms
 
 		def SeqXT(n)
 			return This.SequenceXT(n)
@@ -352,6 +439,25 @@ class stzRegExpMaker
 		def SeqFrag(n)
 			return This.SequenceXT(n)
 
+		#--
+
+		def CommandXT()
+			return This.SequenceXT(n)
+
+		def CommandAndFragment()
+			return This.SequenceXT(n)
+
+		def CommandAndFrag()
+			return This.SequenceXT(n)
+
+		def CommandAndItsFragment()
+			return This.SequenceXT(n)
+
+		def CommandAndItsFrag()
+			return This.SequenceXT(n)
+
+		#>
+
 	def SequencesXT()
 		_aResult_ = @Association([ This.Sequences(), This.Fragments() ])
 		return _aResult_
@@ -359,10 +465,16 @@ class stzRegExpMaker
 		def SeqsXT()
 			return This.SequencesXT()
 
+		def CommandsXT()
+			return This.SequencesXT()
+
 	def RepeatSequence(n)
 
 		aSequences + aSequences[n]
 		acFragments + acFragments[n]
+
+		def RepeatCommand(n)
+			This.RepeatSequence(n)
 
 	  #-----------------------------------------------#
 	 #  DESIGING THE PATTERN IN A DECLARATIVE STYLE  #

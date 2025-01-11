@@ -18,7 +18,45 @@ profon()
 proff()
 # Executed in 0.02 second(s) in Ring 1.22
 
-/*----
+/*=== Ring number() VS Softanza @Number()
+
+profon()
+
+? number("12 120.5")
+#--> 12
+
+? @Number("12 120.5") + NL
+#--> 12120.50
+
+#--
+
+//? number("12_120.5")
+#--> ERROR: Invalid numeric string
+
+? @Number("12_120.5")
+#--> 12120.50
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+#---
+*/
+profon()
+
+? IsNumberInString("-12120.5")
+#--> TRUE
+
+? IsNumberInString("-12 120.5")
+#--> TRUE
+
+? IsNumberInString("-12_120.5")
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*===
+
 
 profon()
 
@@ -62,7 +100,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*------------
-*/
+*
 profon()
 
 # Let's design the string pattern of the new french registration number.
