@@ -1,5 +1,6 @@
 load "../max/stzmax.ring"
 
+ 
 /*----
 
 profon()
@@ -16,7 +17,7 @@ profon()
 # ]
 
 proff()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*=== Ring number() VS Softanza @Number()
 
@@ -40,7 +41,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 #---
-*/
+
 profon()
 
 ? IsNumberInString("-12120.5")
@@ -56,8 +57,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*===
-
-
+*/
 profon()
 
 o1 = new stzRegExpMaker()
@@ -73,19 +73,16 @@ o1 {
 
 	# Sequence 4
 	AddAmongChars(	["-", " "], :RepeatedAtMost, 1, :Time)
-
+#TODO Teste AddNotAmongChars()
 	# Sequence 5
 	AddCharsRange(	"A-Z", 	    :RepeatedExactly, 2, :Times)
 
 	# Get the constructed pattern
 	? Pattern() + NL
 
-	# Get a narration that explains the pattern
-	? Explain() + NL
-
 	# Get the pattern structure
 
-	? @@NL( o1.FragmentsXT() )
+//	? @@NL( o1.FragmentsXT() )
 	#--> [
 	# 	[ "[A-Z]{2}", 	[ "chars", "A-Z", "repeatedexactly", 2, "times" ] ],
 	# 	[ "[- ]?", 	[ "among", [ "-", " " ], "repeatedatmost", 1, "time" ] ],
@@ -100,7 +97,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*------------
-*
+
 profon()
 
 # Let's design the string pattern of the new french registration number.
@@ -139,33 +136,10 @@ o1 {
 	# Sequence 5
 	RepeatSequence(1)
 
-	# Checking the constructed pattern:
-	#---------------------------------
+	# Get the patter constructed internally
 
-	? Pattern() + NL
-	#--> [A-Z]{2}[- ]?[0-9]{3}[- ]?[A-Z]{2}
-
-	# Getting a visual-narrative explanation of the pattern
-
-	? Narration()
-	# START
-	# │
-	# 1─▶ [A-Z]{2} : Can contain a char from A to Z,
-	# │              repeated exactly 2 times.
-	# │
-	# 2─▶ [- ]?    : Can contain a char among [ "-", " " ],
-	# │              repeated at most 1 time.
-	# │
-	# 3─▶ [0-9]{3} : Can contain a char from 0 to 9,
-	# │              repeated exactly 3 times.
-	# │
-	# 4─▶ [- ]?    : Can contain a char among [ "-", " " ],
-	# │              repeated at most 1 time.
-	# │
-	# 5─▶ [A-Z]{2} : Can contain a char from A to Z,
-	# │              repeated exactly 2 times.
-	# │
-	# END
+	? Pattern()
+	#---> [A-Z]{2}[- ]?[0-9]{3}[- ]?[A-Z]{2}
 
 	# Everything has been stored as data for future use
 
@@ -188,15 +162,4 @@ o1 {
 }
 
 proff()
-# Executed in 0.03 second(s) in Ring 1.22
-
-
-/*---- Should use stzRegExpParser in the background
-
-profon()
-
-o1 = new stzRegExpMaker
-o1.parsePattern("[A-Z]{2}[- ]?[0-9]{1,3}[- ]?[A-Z]{2}")
-? o1.getNarration()
-
-proff()
+# Executed in 0.05 second(s) in Ring 1.22

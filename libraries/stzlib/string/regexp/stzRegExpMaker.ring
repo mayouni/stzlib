@@ -110,14 +110,6 @@ class stzRegExpMaker
 				cDigits = Chars(cDigits)
 			ok
 
-			if NOT (len(cDigits) = 3 and IsListOfStrings(cDigits) and
-				cDigits[2] = "-" and
-				@IsNumberInString(cDigits[1]) and
-				@IsNumberInString(cDigits[3]) )
-
-				StzRaise('Incorrect param type! cDigits must be a list of the form [ "0" , "-", "9" ].')
-			ok
-
 			This.AddAmongChars(cDigits, cQuant, nTimes1, nTimes2)
 
 	def AddNotAmongChars(cChars, cQuant, nTimes1, nTimes2)
@@ -132,14 +124,6 @@ class stzRegExpMaker
 				cDigits = Chars(cDigits)
 			ok
 
-			if NOT (len(cDigits) = 3 and IsListOfStrings(cDigits) and
-				cDigits[2] = "-" and
-				@IsNumberInString(cDigits[1]) and
-				@IsNumberInString(cDigits[3]) )
-
-				StzRaise('Incorrect param type! cDigits must be a list of the form [ "0" , "-", "9" ].')
-			ok
-
 			This.AddNotAmongChars(cDigits, cQuant, nTimes1, nTimes2)
 
 	def AddCharsRange(cRange, cQuant, nTimes1, nTimes2)
@@ -150,15 +134,7 @@ class stzRegExpMaker
 				cDigits = Chars(cDigits)
 			ok
 
-			if NOT (len(cDigits) = 3 and IsListOfStrings(cDigits) and
-				cDigits[2] = "-" and
-				@IsNumberInString(cDigits[1]) and
-				@IsNumberInString(cDigits[3]) )
-
-				StzRaise('Incorrect param type! cDigits must be a list of the form [ "0" , "-", "9" ].')
-			ok
-
-			This.AddDigitsRange(cDigits, cQuant, nTimes1, nTimes2)
+			This.AddCharsRange(cDigits, cQuant, nTimes1, nTimes2)
 
 	  #------------------------------------------------#
 	 #  GETTING THE STRING PATTERN ANT ITS FRAGMENTS  #
@@ -172,108 +148,6 @@ class stzRegExpMaker
 		next
 
 		return cResult
-	
-	  #---------------------------------------#
-	 #  GENERATING AN EXPLANATIVE NARRATION  #
-	#---------------------------------------#
-
-	def Narration()
-
-		nMaxLen = 0
-
-		for cPattern in acFragments
-			if len(cPattern) > nMaxLen
-				nMaxLen = len(cPattern)
-			ok
-		next
-
-		nMaxLen++ # Add 1 for spacing
- 
-		cResult = "START" + NL + "│" + NL
-    		_nLenSeq_ = len(aSequences)
-
-		for i = 1 to _nLenSeq_
-
-			aSeq = aSequences[i]
-			cPattern = acFragments[i]
-			cSpaces = copy(" ", nMaxLen - len(cPattern))
-        
-			# Calculate sequence number (0-9 repeating)
-			nSeqNum = i % 10
-        
-        		cBase = ""
-	
-			switch aSeq[1]
-	 		case :chars
-				cBase = "a char from " + left(aSeq[2], 1) + " to " + right(aSeq[2], 1)
-	
-			case :digits
-				cBase = "a digit from " + left(aSeq[2], 1) + " to " + right(aSeq[2], 1)
-	
-			case :among
-	
-				if type(aSeq[2]) = "LIST"
-	
-					# Now correctly showing the hyphen and space as separate characters
-	
-					aChars = []
-	
-					for char in aSeq[2]
-						add(aChars, char)
-					next
-	
-					cBase = 'a char among [ "' +
-						joinUsing(aChars, '", "') + '" ]'
-	
-				else
-					# Handle the case where it's a string with "SPACE"
-	
-						cChars = substr(aSeq[2], "SPACE", " ")
-						aChars = []
-	
-						for i = 1 to len(cChars)
-							add(aChars, substr(cChars, i, 1))
-						next
-	
-						cBase = 'a char among [ "' +
-							join(aChars + '", "') + '" ]'
-				ok
-			off
-	        
-			cRepeat = ""
-	
-			switch aSeq[3]
-			case :repeatedExactly
-				cRepeat = "repeated exactly " + aSeq[4] + " times"
-	
-			case :repeatedAtLeast
-				cRepeat = "repeated at least " + aSeq[4] + " times"
-	
-			case :repeatedAtMost
-				cRepeat = "repeated at most " + aSeq[4] + " time"
-	
-			case :repeatedBetween
-				cRepeat = "repeated between " + aSeq[4] + " and " + aSeq[5] + " times"
-	
-			case :repeatedSeveral
-				cRepeat = "repeated zero or more times"
-	
-			off
-	        
-			cResult += ''+ nSeqNum + "─▶ " + cPattern + cSpaces + ": Can contain " + cBase + "," + NL
-			cResult += "│   " + copy(" ", nMaxLen+2) + cRepeat + "." + nl + "│" + nl
-
-		next
-    
-		cResult += "END"
-		return cResult
-   
-	  	#< @FunctionAlternativeForm
-	
-	   	def Explain()
-			return Narration()
-	
-		#>
 
 	  #-----------------------------------------------#
 	 #  GETTING THE FRAGMENTS OF THE PATTERN STRING  #
