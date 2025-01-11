@@ -1287,8 +1287,60 @@ func BothAreMarquers(pcStr1, pcStr2)
 	func @BothAreMarquers(pcStr1, pcStr2)
 		return BothAreMarquers(pcStr1, pcStr2)
 
+func ring_number(cNumberInStr) #TODO // Move it to stzRingFuncs.ring
+	return number(cNumberInStr)
+
+func @Number(pNumberOrString) # An enjaced version of the Ring number() function.
+
+	if isNumber(pNumberOrString)
+		return pNumberOrString
+	ok
+
+	if NOT isString(pNumberOrString)
+		StzRaise("Incorrect param type! pNumberOrString must be a string.")
+	ok
+
+	# Removing spaces and underscores (because we use them in numbers)
+
+	cNumberInStr = ring_substr2(pNumberOrString, " ", "")
+	cNumberInStr = ring_substr2(cNumberInStr, "_", "")
+
+	if cNumberInStr = ""
+		StzRaise("Incorrect param value! pNumberOrString must contain a number.")
+	ok
+
+	# Now, it is safe ti use the Ring Number() function
+
+	_nResult_ = ring_number(cNumberInStr)
+	return _nResult_
+
 func IsNumberInString(str)
-	return StzStringQ(str).IsNumberInString()
+
+	if NOT isString(str)
+		return _FALSE_
+	ok
+
+	if str = ""
+		return _FALSE_
+	ok
+
+	# Removing spaces and underscores (because we use them in numbers)
+
+	cNumberInStr = ring_substr2(str, " ", "")
+	cNumberInStr = ring_substr2(cNumberInStr, "_", "")
+
+	if str = ""
+		return _FALSE_
+	ok
+
+	# Now, it is safe ti use the Ring Number() function
+
+	if isNumber( ring_number(cNumberInStr) )
+		return _TRUE_
+	else
+		return _FALSE_
+	ok
+	
 
 	func @IsNumberInstring(str)
 		return IsNumberInString(str)

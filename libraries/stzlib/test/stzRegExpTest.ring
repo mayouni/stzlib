@@ -62,8 +62,21 @@ o1 {
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*=== Multiline Pattern Examples
+/*===
+*/
 
+Match()
+	# ^ and $ match start and end of the whole string
+	# DOT matches any char except the NL (~> stops at then end of 1st line)
+
+MatchLines()
+	# ^ and $ matdh start and end of each line
+	# DOT matches any char including the NL char (~> continues on all lines)
+
+
+
+/*=== Multiline Pattern Examples
+*/
 profon()
 
 # In this example we use the regexp pattern "^Start.*$".
@@ -125,79 +138,96 @@ o1 {
 proff()
 
 /*=== Extended Syntax Examples (comments allowed)
-
+*/
 profon()
 
-o1 = new stzRegExp("
+# Instead of using the following cryptic regular expression:
+# "(?<day>[0-9]{2})/(?<month>[0-9]{2})/(?<year>[0-9]{4})"
+# We can provide a more expressive version in a commented style:
 
+o1 = new stzRegExp("
 	# Match a valid date format
 
-	(?<day>[0-9]{2})   # Two digits for day
+	(?<day>[0-9]{2})   # Group 1 : Two digits for the day
 	/                  # Literal slash
 
-	(?<month>[0-9]{2}) # Two digits for month
+	(?<month>[0-9]{2}) # Group 2 : Two digits for the month
 	/                  # Literal slash
 
-	(?<year>[0-9]{4})  # Four digits for year
+	(?<year>[0-9]{4})  # Group 3 : Four digits for the year
 ")
 
 o1 {
-	ExtendedSyntax()
+	# Enable the extended syntax option to make
+	# the commented pattern computable
+
+	EnableExtendedSyntax()
+
+	# Which can be verified by
+
 	? HasExtendedSyntax()
 	#--> TRUE
+
+	# Perform the match against a date string
 
 	? Match("25/12/2024")
 	#--> TRUE
 
-	? @@( CapturedGroups() )
-	#--> [["day","25"], ["month","12"], ["year","2024"]]
+	# Retrieve and display the captured groups
+	# (those enclosed between "(" and  ")" in the pattern)
 
+	? @@( CapturedGroups() )
+	#--> [ [ "day", "25" ], [ "month", "12" ], [ "year", "2024" ] ]
 }
 
 proff()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.22
 
-/*=== Greedy vs Lazy Matching Example ===*/
+/*=== Greedy vs Lazy Matching
 
 profon()
 
 /*
 In this example, we'll illustrate the difference between greedy 
 and lazy matching using the same pattern but contrasting outcomes.
-The goal is to extract only the first <p> tag content from a string.
 */
 
-// Example HTML string
+# Example HTML string
+
 cHtml = "<p>First paragraph</p><p>Second paragraph</p>"
 
-// Greedy matching (default behavior)
-o1 = new stzRegExp("<p>.*</p>")
-? o1.Match(cHtml)
-#--> TRUE
-? @@( o1.CapturedValues() )
-#--> [ "<p>First paragraph</p><p>Second paragraph</p>" ]
-// Greedy matching captures the entire string because it matches 
-// as much text as possible between the first <p> and the last </p>.
+# Greedy matching (default behavior)
+#-----------------------------------
 
-// Lazy matching (precise behavior)
-o1.LazyMatching()
-? o1.IsLazyMatching()
-#--> TRUE
-? o1.Match(cHtml)
-#--> TRUE
-? @@( o1.CapturedValues() )
-#--> [ "<p>First paragraph</p>" ]
-// Lazy matching stops at the first closing </p>, extracting only 
-// the first <p> tag content.
+#~> Captures the entire string because it matches as much text 
+#   as possible between the first <p> and the last </p>.
+
+	o1 = new stzRegExp("<p>.*</p>")
+	
+	? o1.Match(cHtml)
+	#--> TRUE
+	
+	? @@( o1.CapturedValues() )
+	#--> [ "<p>First paragraph</p><p>Second paragraph</p>" ]
+
+# Lazy matching (precise behavior)
+#---------------------------------
+
+#~> stops at the first closing </p>, extracting 
+#   only the first <p> tag content.
+
+	o1.LazyMatching()
+	? o1.IsLazyMatching()
+	#--> TRUE
+
+	? o1.Match(cHtml)
+	#--> TRUE
+
+	? @@( o1.CapturedValues() )
+	#--> [ "<p>First paragraph</p>" ]
 
 proff()
-
-/*=== Summary ===
-- Greedy matching captures the largest possible match, which is useful 
-  for broad parsing tasks, such as extracting large sections of text.
-- Lazy matching focuses on capturing the smallest possible match, 
-  making it ideal for extracting specific elements like individual tags.
-*/
+# Executed in almost 0 second(s) in Ring 1.22
 
 
 /*=== Unicode Support Examples
