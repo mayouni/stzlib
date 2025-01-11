@@ -1,4 +1,4 @@
-### The Problem: Ambiguity and Complexity in Regular Expression Scopes
+# The Problem: Ambiguity and Complexity in Regular Expression Scopes
 
 Regular expressions are powerful, but they often confuse users because of the mutable behavior of key metacharacters like `DOT (.)` and anchors like `^` and `$`. These characters behave differently depending on the context (whole string, lines, words, or segments), leading to unnecessary complexity in both writing and interpreting patterns. The required flags such as `dotall` (`s`) and `multiline` (`m`) exacerbate this confusion.
 
@@ -6,7 +6,7 @@ Let’s explore four examples illustrating the problem:
 
 ---
 
-#### **1. Whole String Matching with DOT (.)**
+## 1. Whole String Matching with DOT (.)
 
 **Problem**: Matching across the whole string requires enabling the `dotall` mode (`s`) to make `.` include newline characters. Without it, `.` matches only characters on the first line and stops just there!
 
@@ -23,9 +23,7 @@ End
 
 **Issue**: Users must remember and enable `dotall`, complicating both writing and understanding patterns.
 
----
-
-#### **2. Line-by-Line Matching with Multiline Mode**
+## 2. Line-by-Line Matching with Multiline Mode
 
 **Problem**: When matching each line individually in a multiline string, `^` and `$` behave differently depending on the `multiline` flag (`m`). Without it, these anchors match the beginning and end of the entire string, not individual lines.
 
@@ -41,9 +39,8 @@ Footer Content
 
 **Issue**: The `multiline` flag must be enabled to interpret `^` and `$` per line, adding cognitive overhead.
 
----
 
-#### **3. Matching Words Within Strings**
+## 3. Matching Words Within Strings
 
 **Problem**: Matching specific words in a string can be ambiguous. Should `.` match part of a word, or is the goal to match entire words only? Additionally, word boundaries (`\b`) must often be explicitly specified.
 
@@ -58,9 +55,8 @@ This word matches, but not "sword".
 
 **Issue**: Regular expressions for words require explicit word boundary markers, increasing complexity.
 
----
 
-#### **4. Matching Segments Across Lines**
+## 4. Matching Segments Across Lines
 
 **Problem**: Matching segments that span across lines introduces challenges with `.` and anchors. Without enabling the `dotall` flag, `.` will not match across lines, and `^`/`$` lose their meaning within the segment.
 
@@ -77,15 +73,13 @@ Content
 
 **Issue**: Users must enable `dotall` and mentally adjust to how `^` and `$` behave when crossing line boundaries.
 
----
 
-### Softanza’s Solution: Predictable Scopes with Explicit Functions
+## Softanza’s Solution: Predictable Scopes with Explicit Functions
 
 Softanza eliminates these ambiguities by introducing **four dedicated methods** for specific scopes: `Match()`, `MatchLine()`, `MatchWord()`, and `MatchSegment()`. Each method is unambiguous, with consistent behavior for `DOT (.)`, `^`, and `$`.
 
----
 
-#### **1. Match() – Whole String Matching**
+### 1. Match() – Whole String Matching
 
 - **Scope**: Matches patterns across the entire string, with `.` always including newline characters.
 - **Behavior**:
@@ -99,9 +93,8 @@ text = "Start\nSome more text\nEnd"
 o.Match(text)  # Matches "Start\nSome more text\nEnd"
 ```
 
----
 
-#### **2. MatchLine() – Line-by-Line Matching**
+### 2. MatchLine() – Line-by-Line Matching
 
 - **Scope**: Matches patterns within each line of a multiline string. `^` and `$` apply to individual lines.
 - **Behavior**:
@@ -115,9 +108,8 @@ text = "Header Content\nFooter Content"
 o.MatchLine(text)  # Matches "Header Content" and "Footer Content"
 ```
 
----
 
-#### **3. MatchWord() – Word Matching**
+### 3. MatchWord() – Word Matching
 
 - **Scope**: Matches whole words, explicitly handling word boundaries.
 - **Behavior**:
@@ -130,9 +122,8 @@ text = "This word matches, but not sword."
 o.MatchWord(text)  # Matches only "word"
 ```
 
----
 
-#### **4. MatchSegment() – Matching Segments Across Lines**
+### 4. MatchSegment() – Matching Segments Across Lines
 
 - **Scope**: Matches patterns that can span across lines in a multiline string.
 - **Behavior**:
@@ -146,9 +137,8 @@ text = "<div>\nContent\n</div>"
 o.MatchSegment(text)  # Matches "<div>\nContent\n</div>"
 ```
 
----
 
-### Conclusion: Clarity Through Explicit Scoping
+## Conclusion: Clarity Through Explicit Scoping
 
 Softanza’s design removes the need for ambiguous flags like `dotall` and `multiline` by making scope explicit in the API. The result is a predictable and intuitive framework:
 
