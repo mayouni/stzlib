@@ -141,6 +141,15 @@ func profon()
 	func ProfilerOn()
 		_time0 = clock()
 
+	func pron()
+		_time0 = clock()
+
+	func prf()
+		_time0 = clock()
+
+	func pr()
+		_time0 = clock()
+
 func Proff()
 
 	cElapsed = "" + (clock() - _time0) / clockspersecond()
@@ -162,6 +171,9 @@ func Proff()
 		Proff()
 
 	func ProfilerOff()
+		Proff()
+
+	func prff()
 		Proff()
 
 func STOP()

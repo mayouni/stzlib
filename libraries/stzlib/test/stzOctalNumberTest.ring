@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*------ Converting from octal de decimal, binary, and hexadecimal
 
-profon()
+pr()
 
 o1 = new stzOctalNumber("o2007")
 
@@ -23,7 +23,7 @@ proff()
 
 /*----
 */
-profon()
+pr()
 
 o1 = new stzOctalNumber("o0")
 

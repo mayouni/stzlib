@@ -3,7 +3,7 @@ load "../max/stzmax.ring"
 
 /*--
 
-profon()
+pr()
 
 o1 = new stzWalker( 1, 10, 2 )
 
@@ -38,7 +38,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 o1 = new stzWalker(:Start = 1, :End = 10, :Step = 2)
 
@@ -72,7 +72,7 @@ proff()
 
 /*===
 */
-profon()
+pr()
 
 oWalker = new stzWalker( 5, -5, 2 )
 ? oWalker.Content()
@@ -83,7 +83,7 @@ proff()
 
 /*===
 
-profon()
+pr()
 
 //oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 9 )
 #--> Error: Can't walk! The step is larger then the number of walkable positions.
@@ -95,7 +95,7 @@ proff()
 
 /*====
 
-profon()
+pr()
 
 oWalker = new stzWalker( 3, 9, 2 )
 oWalker {
@@ -122,7 +122,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 oWalker = new stzWalker(1, 10, 2)
 
@@ -137,7 +137,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 oWalker = new stzWalker(1, 12, 2)
 oWalker {
@@ -180,7 +180,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 oWalker = new stzWalker(12, 1, 2)
 oWalker {
@@ -226,7 +226,7 @@ proff()
 
 /*===
 
-profon()
+pr()
 
 w = new stzWalker(3, 12, 2)
 
@@ -278,7 +278,7 @@ proff()
 
 /*====
 
-profon()
+pr()
 
 oWalker = new stzWalker(1, 10, 2)
 
@@ -299,7 +299,7 @@ proff()
 
 #---
 
-profon()
+pr()
 
 w = new stzWalker(2, 9, 2)
 
@@ -323,7 +323,7 @@ proff()
 
 #====
 */
-profon()
+pr()
 
 w = new stzWalker(3, 10, 2)
 

@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*===
 
-profon()
+pr()
 
 ? IsStzFindable("ring")
 #--> _FALSE_
@@ -24,7 +24,7 @@ proff()
 
 /*===
 
-profon()
+pr()
 
 ? 3 : 5
 #--> [ 3, 5 ]
@@ -59,7 +59,7 @@ proff()
 
 /*----
 */
-profon()
+pr()
 
 ? BothAreEqual(0, "")
 #--> _FALSE_
@@ -94,7 +94,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 ? AllHaveSameType([1, "1", 1])
 #--> _FALSE_
@@ -103,7 +103,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 ? AreEqual([1, 1, 1])
 #--> _TRUE_
@@ -121,7 +121,7 @@ proff()
 
 /*===
 
-profon()
+pr()
 
 ? BothEndWithANumber( "v1" , "v3" )
 #--> _TRUE_
@@ -154,7 +154,7 @@ proff()
 aList1 = 1 : 1_500_000
 aList2 = 4 : 1_500_003
 
-profon()
+pr()
 
 ? EuclideanDistance(aList1, aList2)
 
@@ -167,7 +167,7 @@ proff()
 
 CheckParamOff()
 
-profon()
+pr()
 
 ? EuclideanDistance(aList1, aList2)
 
@@ -176,7 +176,7 @@ proff()
 
 /*============
 
-profon()
+pr()
 
 for i = 1 to 10_000
 	cCode = "str = ''+ i + ' '"
@@ -188,7 +188,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 for i = 1 to 1_000
 	cCode = "str = ''+ i + ' '"
@@ -200,7 +200,7 @@ proff()
 
 /*=========== #perf #narration
 
-profon()
+pr()
 
 # The Ring for loop is quick! Hence it loops 5 million
 #  times in a fraction of second:
@@ -216,7 +216,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 # Contrariwise, this Ring for/in loop takes too long to complete!
 # (500 thousand times and not 5 million like in the example above!)
 
@@ -231,7 +231,7 @@ proff()
 
 /*---- #perf
 
-profon()
+pr()
 
 # The ForEach alternative, by Softanza, solves the For/in
 # weakness and performs the same loop in a second!
@@ -248,7 +248,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 @ForEach( :number, :in = 1:5 ) {
 
@@ -265,7 +265,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 @ForEach( [ :name, :age ], :in = [ [ "Teebah", 12], ["Haneen", 8], ["Hussein", 2] ] ) {
 
@@ -296,7 +296,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 @ForEach( :number, :in = 1:5 ) { X('
 
@@ -315,7 +315,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 @ForEach( [ :name, :age ], :in = [ [ "teebah", 12], ["haneen", 8], ["hussein", 2] ] ) { X('
 
@@ -331,7 +331,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 aNumbers = []
 
@@ -347,7 +347,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 @ForEach( :name, :in = [ "teeba", "haneen", "hussein" ]) { X('
 
@@ -363,7 +363,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 @ForEach( [ :Name, :Age ], :In = [ :Heni = 25, :Omar = 32, :Sonia = 14 ] ) { X('
 	? name + " " + age
@@ -377,7 +377,7 @@ proff()
 
 /*============
 
-profon()
+pr()
 
 ? @@([
 	"*", '"*"', "*4", "*4*", "*4*3", "*4*34",
@@ -395,7 +395,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 ? @@("n")	#--> "n"
 ? @@('n')	#--> "n"
@@ -407,7 +407,7 @@ proff()
 
 /*---------------- Showing the short form of a long list
 
-profon()
+pr()
 
 ? @@( "A" : "Z" ) + NL
 #--> [
@@ -456,7 +456,7 @@ proff()
 
 /*================
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "[ 4, 7 ]", "[ 1, 3 ]", "[ 8, 9 ]" ])
 ? o1.Sorted()
@@ -466,7 +466,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 o1.SortInAscending()
@@ -478,7 +478,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 ? @@(  Association([ [4, 14, 9], [6, 16] ]) )
 #--> [ [ 4, 6 ], [ 14, 16 ], [ 9, "" ] ]
@@ -488,7 +488,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzString("...emm...eh..emm...eh")
 
@@ -514,7 +514,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzString("...|---|....|--|..--")
 
@@ -549,7 +549,7 @@ proff()
 
 /*------------ #todo write a #narration
 
-profon()
+pr()
 
 o1 = new stzString("...|---|....|--|..--")
 
@@ -572,7 +572,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzString('   str = "  ...  "     and   str !=    "  *** " ')
 
@@ -592,7 +592,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 ? @@('   str = "  ...  "     and   str !=    "  *** " ')
 #--> 'str = "  ...  " and str != "  *** "'
@@ -602,7 +602,7 @@ proff()
 
 /*----------- #TODO/FUTURE
 
-profon()
+pr()
 
 o1 = new stzString("SOanzNZA")
 o1.ReplaceSection(3, 5, :With@ = 'Q(@char).Uppercased()')
@@ -965,7 +965,7 @@ Q([ "A", 20, [ "B", 10 ], 30 ]){
 
 /*--------------
 
-profon()
+pr()
 
 ? Q([ 1, 2, 3 ]).IsListOf(:Numbers)		#--> _TRUE_
 
@@ -986,7 +986,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 # The InfereType() function is useful for internal features
 # of SoftanzaLib, in order to enable the goal of expressive code.
@@ -1031,7 +1031,7 @@ proff()
 
 /*=================
 
-profon()
+pr()
 
 ? ComputableForm(4) # or use the abbreviated form @@(4)
 #--> 4

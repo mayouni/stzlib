@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*------------------
 
-profon()
+pr()
 
 # This class allows us to define a system of parsing by
 # providing theree values: start, end, and number of steps.
@@ -76,7 +76,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 # Ususally the parser is used, not only to move over positions,
 # but more interestingly, to get the parsed items themselves.
@@ -107,7 +107,7 @@ proff()
 
 /*------------------
 */
-profon()
+pr()
 
 StzListParserQ("A":"L") {
 

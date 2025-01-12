@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*---
 
-profon()
+pr()
 
 StzParserQ([ "_", "A", "_" , "_", "B", "_", "_", "C", "_", "D" ]) {
 
@@ -26,7 +26,7 @@ proff()
 
 /*----
 */
-profon()
+pr()
 
 StzParserQ(["a", "_", "b", "_", "c"]) {
 	SetCurrentPosition(2)

@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*============
 /*
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "ring", "programming", "languag" ])
 ? o1.ConcatenatedUsing(" ")
@@ -17,7 +17,7 @@ proff()
 
 #--------
 /*
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "aa", "  ", "b", "     ", "ccc" ])
 o1.RemoveBlankSpacesStrings()
@@ -29,7 +29,7 @@ proff()
 
 /*============
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "a", "abcde", "abc", "ab", "abcd" ])
 o1.SortBy('len(@string)')
@@ -42,7 +42,7 @@ proff()
 
 /*=========
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "--**-*", "*---*", "--*-***" ])
 o1.RemoveSubString("*")
@@ -312,7 +312,7 @@ o1 = new stzListOfStrings([
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "A", "B", "C", "D", "E", "F"])
 o1.ReplaceManyOneByOneCS([ "B", "D", "F"], :With = [ "1", "2", "3" ], :CS=_TRUE_)
@@ -884,7 +884,7 @@ o1 = new stzListOfStrings([
 
 /*================
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "aaa", "bbb", "ccc" ])
 ? o1.SortingOrder()
@@ -901,7 +901,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "ccc", "bbb", "aaa" ])
 ? o1.SortingOrder()
@@ -918,7 +918,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "aaa", "ccc", "bbb" ])
 ? o1.SortingOrder()
@@ -935,7 +935,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "ccc", "bbb", "aaa" ])
 o1.SortInAscending()
@@ -947,7 +947,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 ? StzListOfStringsQ([ "ccc", "bbb", "aaa" ]).SortInAscendingQ().Content()
 #--> [ "aaa", "bbb", "ccc" ]
@@ -957,7 +957,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "aaa", "bbb", "ccc" ])
 o1.SortInDescending()
@@ -986,7 +986,7 @@ o1 = new stzListOfStrings([ "aaa", "bbb", "ccc" ])
 
 /*---------------- TODO: check result correctness!
 
-profon()
+pr()
 
 o1 = new stzList([ "tunis", "tripoli", "cairo", "casablanca" ])
 
@@ -997,7 +997,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "12", "12345", "123", "1" ])
 
@@ -1022,7 +1022,7 @@ proff()
 
 /*--------------- TODO/FUTURE
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "aaa bbb ccc", "mm nnn oo", "aaa vvv", "nn yyy", "aa bb c" ])
 ? o1.WordsOfEachStringAreSortedInAscending()	#--> _TRUE_
@@ -1069,7 +1069,7 @@ o1 = new stzListOfStrings([ "aaa bbb ccc", "mm nnn oo", "vvv aaa", "yyy nn", "bb
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "abcde", "bdace", "ebadc", "debac", "edcba" ])
 ? o1.AreAnagrams()
@@ -1098,7 +1098,7 @@ o1 = new stzListOfStrings([ "TOM", "SAM", "DAN" ])
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "tom", "sam", "dan" ])
 ? @@(o1.Unicodes())
@@ -1110,7 +1110,7 @@ proff()
 
 /*=============
 
-profon()
+pr()
 
 cUnicodeNames = "0020;SPACE
 0021;EXCLAMATION MARK
@@ -1149,7 +1149,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "abc;123;tunis;rgs", "jhd;343;gafsa;ghj", "lki;112;beja;okp" ])
 
@@ -1181,7 +1181,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "c", "d" ])
 
@@ -1199,7 +1199,7 @@ proff()
 
 /*==============
 
-profon()
+pr()
 
 o1 = new stzList([
 	"TUNIS", "GAFSA", "SFAX", "BEJA", "GABES", "REGUEB"
@@ -1212,7 +1212,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"tunis", "gafsa", "sfax", "beja", "gabes", "regueb"
@@ -1225,7 +1225,7 @@ proff()
 
 /*================
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([
 	"Medianet", "ST2i", "webgenetix", "equinoxes", "groupe-lsi",
@@ -1253,7 +1253,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([
 	:tunis, :tunis, :tunis, :gatufsa, :tunis, :tunis, :gabes,
@@ -1268,7 +1268,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"TuNIS", "Tunis", "TUNIS", "TUNIS",
@@ -1290,7 +1290,7 @@ proff()
 
 /* =================== MANAGING DUPLICATED STRINGS
 */
-profon()
+pr()
 
 o1 = new stzList([
 	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
@@ -1336,7 +1336,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
@@ -1369,7 +1369,7 @@ proff()
 
 #----------------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
@@ -1405,7 +1405,7 @@ proff()
 /*===============
 
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([
 	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
@@ -1425,7 +1425,7 @@ proff()
 
 /*===============
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([
 	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
@@ -1471,7 +1471,7 @@ proff()
 
 /*===============
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([
 	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
@@ -1487,7 +1487,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([
 	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
@@ -1503,7 +1503,7 @@ proff()
 
 /*===============
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([
 	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
@@ -1545,7 +1545,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([
 	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
@@ -1565,7 +1565,7 @@ proff()
 
 /*=========
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([
 	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
@@ -1604,7 +1604,7 @@ proff()
 
 /*-------------- #Note stzList has a more performant implementation (see example after this)
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "one", "ONE", "two", "TWO" ])
 
@@ -1637,7 +1637,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 o1 = new stzList([ "one", "ONE", "two", "TWO" ])
 
@@ -1670,7 +1670,7 @@ proff()
 
 /*=========
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([
 	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",

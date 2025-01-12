@@ -4,7 +4,7 @@ load "../max/stzmax.ring"
 
 /*---- Test Setup and Initialization ----
 
-profon()
+pr()
 
 o1 = new stzTree([
 	
@@ -87,7 +87,7 @@ myTree =
 
 /*---------------------
 
-profon()
+pr()
 
 oTree = new stzTree {
 	AddNode("Skills") {

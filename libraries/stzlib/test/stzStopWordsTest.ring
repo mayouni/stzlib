@@ -1,6 +1,6 @@
 load "../max/stzmax.ring"
 
-profon()
+pr()
 
 ? ShowShort( StopWordsIn(:English)  ) + NL
 #--> [ "a's", "able", "about", "...", "yourself", "yourselves", "zero" ]

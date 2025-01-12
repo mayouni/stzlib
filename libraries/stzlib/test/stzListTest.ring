@@ -4,7 +4,7 @@ load "../max/stzmax.ring"
 
 /*-------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A1", "A2", "A3", "A4", "A5", "A6", "A7" ])
 
@@ -27,7 +27,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", '', "B", '', '', "C" ])
 
@@ -56,7 +56,7 @@ proff()
 
 /*-------------------///
 
-profon()
+pr()
 
 ? Q(1:10).ManyRemoved([ 3, 7, 9 ])
 #--> [ 1, 2, 4, 5, 6, 8, 10 ]
@@ -66,7 +66,7 @@ proff()
 
 /*====
 
-profon()
+pr()
 
 o1 = new stzList([ "me", "you", "all", "the", "others" ])
 ? o1.ContainsEither("me", :or = "you")
@@ -81,7 +81,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzList([ "me", "you", "all", "the", "others" ])
 	? o1.ContainsOneOfThese([ "me", "you" ])
@@ -103,7 +103,7 @@ proff()
 
 /*======
 
-profon()
+pr()
 
 o1 = new stzList([ "ring", "qt", "softanza", "pyhton", "kandaji", "csharp", "zai" ])
 o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji", "zai" ], :By = [ "♥", "♥♥" ])
@@ -116,7 +116,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 o1 = new stzList([
 	"ring", "qt", "softanza", "pyhton", "kandaji", "csharp", "ring", "kandaji" ])
@@ -133,7 +133,7 @@ proff()
 
 #====
 
-profon()
+pr()
 
 ? SectionToRange(3, 7)
 #--> [ 3, 5 ]
@@ -146,7 +146,7 @@ proff()
 
 /*========= Stringifying the items of a list
 
-profon()
+pr()
 
 o1 = new stzList([ 120, "abc", 1:3 ])
 o1.Stringify()
@@ -157,7 +157,7 @@ proff()
 
 /*-------- QStringifying the items of a list
 
-profon()
+pr()
 
 # QStringifying a list : All items are forced to become QString objects
 o1 = new stzList([ 120, "abc", 1:3 ])
@@ -181,7 +181,7 @@ proff()
 
 /*====== @perf
 
-profon()
+pr()
 
 # Constructing a large deep list of 1 million items
 # Items are of all types : numbers, strings, lists and objects
@@ -217,7 +217,7 @@ proff()
 
 /*--------- @perf
 
-profon()
+pr()
 
 # PERFORMANCE TIP - FOR LARGE LISTS: Using Association() function directly
 # is better (4X) than using it through a stzListOfLists object
@@ -233,7 +233,7 @@ proff()
 
 /*-------- @perf
 
-profon()
+pr()
 
 # PERFORMANCE TIP - FOR LARGE LISTS: Using Merge() function directly
 # can be better than using it through a stzListOfLists object
@@ -249,7 +249,7 @@ proff()
 
 /*=====
 
-profon()
+pr()
 
 ? @@( Association([ "A":"C", 1:3, "a":"c" ]) )
 #--> [ [ "A", 1, "a" ], [ "B", 2, "b" ], [ "C", 3, "c" ] ]
@@ -259,7 +259,7 @@ proff()
 
 /*===== #narration: everything is findable
 
-profon()
+pr()
 
 # A stzString object can be created in one of three ways
 
@@ -337,7 +337,7 @@ proff()
 
 /*====
 
-profon()
+pr()
 
 ? Q(1:7) - These(3:5) # Or AllThese() or EachIn()
 #--> [ 1, 2, 6, 7 ]
@@ -351,7 +351,7 @@ proff()
 
 /*====
 
-profon()
+pr()
 
 StzListQ([ "1":"3", "2":"7", "10":"12" ]) {
 	Flatten()
@@ -381,7 +381,7 @@ proff()
 
 /*====
 
-profon()
+pr()
 
 o1 = new stzList([ "1", "A", "B", "A", "A", "C", "B", 1 ])
 ? @@( o1.Withoutduplication() ) + NL
@@ -405,7 +405,7 @@ proff()
 
 /*====
 
-profon()
+pr()
 
 ? Intersection([ 1:3, 2:7, 2:3 ])
 #--> [ 2, 3 ]
@@ -415,7 +415,7 @@ proff()
 
 /*===
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "A", "C", "D", "B" ])
 ? @@( o1.Index() )
@@ -431,7 +431,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
 ? @@( o1.IndexCS(_FALSE_) )
@@ -449,7 +449,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzListOfLists([ "A":"C", "A":"B", "A":"C" ])
 ? @@( o1.Index() )
@@ -464,7 +464,7 @@ proff()
 
 /*=====
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
 ? o1.ItemsOccuringNTimesCS(3, _FALSE_) #NOTE this is a misspelled form (one r instead of 2)
@@ -474,7 +474,7 @@ proff()
 
 /*===
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "A", "B", "C", "A", "C" ])
 ? o1.ItemsOccurringNTimes(2)
@@ -496,7 +496,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
 ? o1.ItemsOccuringNTimesCS(3, _FALSE_) #NOTE this is a misspelled form (one r instead of 2)
@@ -506,7 +506,7 @@ proff()
 
 /*==
 
-profon()
+pr()
 
 o1 = new stzList([ "_", "_", "3", "4", "5", "6", "7", "_", "_" ])
 
@@ -519,7 +519,7 @@ proff()
 
 /*==
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3, 4, "A", "B", 7, 8, "C", "D", 11, 12, 13 ])
 ? @@( o1.FindNumbersAsSections() )
@@ -529,7 +529,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([
 	1, 2, 3,
@@ -561,7 +561,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([
 	1, 2, 3,
@@ -615,7 +615,7 @@ proff()
 
 /*===== #narration: activating and deactivating CheckParams()
 
-profon()
+pr()
 
 # This narration shows how deactivating checking params could enhance
 # performance. By default, the feature is on, and depending on the
@@ -653,7 +653,7 @@ proff()
 
 /*======= #narration
 
-profon()
+pr()
 
 # The fellowing two code snippets illustrate the use of two similar functions.
 # Try to read the code, see the output and identify the difference between them...
@@ -682,7 +682,7 @@ proff()
 
 /*==== Find and AntiFind in stzList
 
-profon()
+pr()
 
 o1 = new stzList([ "1", "2", "♥", "4", "5", "♥", "6", "7", "♥", "9" ])
 
@@ -697,7 +697,7 @@ proff()
 
 /*---- Find and AntiFind in stzString
 
-profon()
+pr()
 
 o1 = new stzString("12♥45♥67♥9")
 
@@ -714,7 +714,7 @@ proff()
 
 /*======
 
-profon()
+pr()
 
 o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
 o1.ReplaceItemAtPositionsByMany([ 3, 5, 7], "ring", [ "♥", "♥♥", "♥♥♥" ])
@@ -727,7 +727,7 @@ proff()
 
 /*------
 
-profon()
+pr()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5, "♥" ])
 o1.ReplaceByMany("♥", [ 1, 3, 4, 6 ])
@@ -739,7 +739,7 @@ proff()
 
 /*=====
 
-profon()
+pr()
 
 o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
 o1.ReplaceAnyItemsAtPositions([ 1, 3, 4, 5 ], :By = "♥♥♥")
@@ -752,7 +752,7 @@ proff()
 
 /*===
 
-profon()
+pr()
 
 o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
 o1.ReplaceItemAtPositionsByManyXT([ 3, 5, 7, 9], "ring", [ "♥", "♥♥" ])
@@ -765,7 +765,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
 o1.ReplaceAnyItemAtPositionsByManyXT([ 3, 5, 7, 9], [ "♥", "♥♥" ])
@@ -778,7 +778,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
 o1.ReplaceItemAtPositionsByMany([ 3, 5, 7], "ring", [ "♥", "♥♥", "♥♥♥" ])
@@ -792,7 +792,7 @@ proff()
 
 /*------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"ring", "ruby", "softanza",
@@ -811,7 +811,7 @@ proff()
 
 /*=======
 
-profon()
+pr()
 
 o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
 o1.ReplaceTheseItemsAtPositionsByMany([ 1, 3, 4, 6 ], [ "ring", "softanza" ] , [ "♥", "♥♥" ])
@@ -824,7 +824,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"ring", "ruby", "softanza",
@@ -844,7 +844,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"ring", "ruby", "softanza",
@@ -866,7 +866,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"ring", "ruby", "softanza", "ring", "softanza", "php", "softanza", "ring", "python"
@@ -882,7 +882,7 @@ proff()
 
 /*=======
 
-profon()
+pr()
 
 o1 = new stzList([ "ring", "ruby", "ring", "php", "ring" ])
 o1.ReplaceAnyItemAtPositions([ 1, 5 ], :By = "♥♥♥")
@@ -895,7 +895,7 @@ proff()
 
 /*---------
 
-profon()
+pr()
 
 //CheckParamOff()
 
@@ -911,7 +911,7 @@ proff()
 
 /*========
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
 
@@ -924,7 +924,7 @@ proff()
 
 /*--------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
 
@@ -945,7 +945,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
 
@@ -967,7 +967,7 @@ proff()
 
 /*===
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "+", "b", "-", "c", "/", "d", "=", "0" ])
 o1.ReplaceMany( ["+", "-", "/" ], :by = "*" )
@@ -979,7 +979,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 o1 = new stzList([ "ring", "php", "ruby", "ring", "python", "ring" ])
 o1.ReplaceByMany("ring", [ "♥", "♥♥", "♥♥♥" ])
 	
@@ -991,7 +991,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 o1 = new stzList([ "ring", "ring", "ruby", "ring", "python", "ring" ])
 o1.ReplaceItemByManyXT("ring", [ "♥", "♥♥" ])
 	
@@ -1003,7 +1003,7 @@ proff()
 
 /*====
 
-profon()
+pr()
 
 o1 = new stzList([ 1, :♥, 3, 4, :♥, :♥ ])
 anPos = o1.Find(:♥)
@@ -1019,7 +1019,7 @@ proff()
 
 /*===
 
-profon()
+pr()
 
 o1 = new stzList([ "1", "♥", "♥", "4", "5", "6", "♥", "♥", "9" ])
 
@@ -1035,7 +1035,7 @@ proff()
 
 /*===
 
-profon()
+pr()
 
 o1 = new stzList( Q("1♥♥456♥♥901♥♥4").Chars() )
 
@@ -1060,7 +1060,7 @@ proff()
 
 /*===
 
-profon()
+pr()
 
 ? L('8:5')
 #--> [ 8, 7, 6, 5 ]
@@ -1070,7 +1070,7 @@ proff()
 
 /*----------------- #narration : Use of the L() small function
 
-profon()
+pr()
 
 # As we all know, Ring provides us with this elegant syntax:
 
@@ -1139,7 +1139,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 ? Q("2.8").IsRealInString()
 #--> _TRUE_
@@ -1154,7 +1154,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 ? 1 : 3
 #--> [ 1, 2, 3 ]
@@ -1191,7 +1191,7 @@ proff()
 
 /*=============
 
-profon()
+pr()
 
 ? Q(1:3).IsNeither(5:8, :Nor = 10:12)
 #--> _TRUE_
@@ -1227,7 +1227,7 @@ proff()
 
 /*=============
 
-profon()
+pr()
 
 ? Q([ "by", [ "2", "5", "6" ] ]).IsByNamedParam()
 #--> _TRUE_
@@ -1237,7 +1237,7 @@ proff()
 
 /*=============
 
-profon()
+pr()
 
 o1 = new stzList([ ["03", "04"], 3, ["01","02"], 1, "Two", 2, "One" ])
 ? @@( o1.Sorted() ) # Or o1.SortedInAscending()
@@ -1252,7 +1252,7 @@ proff()
 
 /*===========
 
-profon()
+pr()
 
 o1 = new stzList([ "🔻", "🔻", "1", "2", "3", "🔻", "🔻" ])
 o1.RemoveAnyItemFromStart("🔻")
@@ -1268,7 +1268,7 @@ proff()
 
 /*--------------- TODO: fix error
 
-profon()
+pr()
 
 new stzChar("🔻")
 #--> ERR: Can not create char object!
@@ -1277,7 +1277,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzString("♥♥♥123♥♥♥")
 
@@ -1294,7 +1294,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzString(" ♥♥♥123♥♥♥   ")
 o1.Trim()
@@ -1306,7 +1306,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzString("♥♥♥123♥♥♥")
 o1.TrimChar("♥")
@@ -1318,7 +1318,7 @@ proff()
 
 /*================= UNDERSTANDING THE ..ed() and ..Q() FUNCTION FORMS
 
-profon()
+pr()
 # In softanza the ..ed() form returns the expected result
 # from the function without altering the object content:
 
@@ -1352,7 +1352,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList(1:3)
 ? o1.Reversed()
@@ -1385,7 +1385,7 @@ o1.ReverseItemsInLists()
 
 /*==========
 
-profon()
+pr()
 
 ? Q(1:7) - 4:7
 #--> [ 1, 2, 3, 4, 5, 6, 7 ]
@@ -1400,7 +1400,7 @@ proff()
 
 /*==========
 
-profon()
+pr()
 
 o1 = new stzList([ Q("one"), Q(1), Q("two"), Q(2), Q("three"), Q(3), Q(1:2), NullObject() ])
 
@@ -1420,7 +1420,7 @@ proff()
 
 /*==========
 
-profon()
+pr()
 
 StzNamedListQ(:langs = [ :Ring, :Ruby, :Python ]) {
 
@@ -1440,7 +1440,7 @@ proff()
 
 /*========== A Softanza narration about one of the many uses of @
 
-profon()
+pr()
 
 # In softanza there some useful functions that you can use from
 # every where, because they are defined at the global level (you
@@ -1518,7 +1518,7 @@ proff()
 
 /*==========
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "*", "D", "*",  "=" ])
 
@@ -1532,7 +1532,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "*", "*", "*",  "*" ])
 
@@ -1546,7 +1546,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "*", "D", "*",  "=" ])
 o1.ReplaceManyByMany([ "*", "=" ], :With = ["C", "E", "F"])
@@ -1558,7 +1558,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "3", "D", "5",  "6" ])
 o1.ReplaceManyByMany([ "3", "5", "6"], :With = ["C", "E", "F"])
@@ -1571,7 +1571,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "*", "_", "-",  "/" ])
 o1.ReplaceManyByManyXT([ "*", "_", "-",  "/" ], :With = ["A", "B"])
@@ -1584,7 +1584,7 @@ proff()
 
 /*---------
 
-profon()
+pr()
 
 StzListQ([ "#1", "#2", "*", "*", "*" ]) {
 	ReplaceManyByManyXT(["*"], [ "#1", "#2" ])
@@ -1598,7 +1598,7 @@ proff()
 
 /*---------
 
-profon()
+pr()
 
 StzListQ([ "#1", "#2", "*", "_", "/" ]) {
 	ReplaceManyByManyXT(["*", "_", "/"], [ "#1", "#2" ])
@@ -1612,7 +1612,7 @@ proff()
 
 /*---------
 
-profon()
+pr()
 
 StzListQ([ "A", "A", "A", "A", "A" ]) {
 	ReplaceManyByManyXT(["A"], [ "#1", "#2" ])
@@ -1625,7 +1625,7 @@ proff()
 
 /*=========
 
-profon()
+pr()
 
 o1 = new stzList([ "♥", 1, 2, 2, "♥", "♥", 3 ])
 o1.RemoveAllExcept("♥") # Or RemoveItemsOtherThan()
@@ -1638,7 +1638,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzList([ "♥", 1, 2, 2, "★", 3, "🌞" ])
 o1.RemoveAllExcept([ "♥", "★", "🌞" ]) # Or RemoveItemsOtherThan()
@@ -1651,7 +1651,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 ? U([ "♥", 1, 2, 2, "♥", "♥", 3 ]) # Or Unique() or WithoutDuplicates()
 #--> [ "♥", 1, 2, 3 ]
@@ -1661,7 +1661,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzList([ "♥", "A", "B", "C", "♥" ])
 ? o1.FindAllExcept([ "A", "B", "C" ]) # Or FindItemsOtherThan()
@@ -1672,7 +1672,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 ? Q([ [], [] ]).AllItemsAreEmptyLists()
 #--> _TRUE_
@@ -1685,7 +1685,7 @@ proff()
 
 /*===========
 
-profon()
+pr()
 
 o1 = new stzList("A" : "E")
 ? o1.ItemsAtPositions([2, 3])
@@ -1696,7 +1696,7 @@ proff()
 
 /*===========
 
-profon()
+pr()
 
 aLargeList = []
 for i = 1 to 1_000
@@ -1720,7 +1720,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList([ "--_--", [ 12, "--_--", 10], "--_--", 9 ])
 o1.StringifyAndReplaceXT("_", "♥") # Used by internal staff in Softanza
@@ -1740,7 +1740,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList([ "--_--", [ 12, "--_--", 10], "--_--", 9 ])
 o1.StringifyAndReplace("_", "♥")
@@ -1753,7 +1753,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 aLargeList = [ "--_--", [ 12, "--_--", 10], "--_--", 9 ]
 for i = 1 to 1_000_000 # test it with 1_000, 10_000, and 100_000 times
@@ -1780,7 +1780,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, "r_INg", 2, "R_ng", 3, "R_ING" ])
 o1.StringifyLowercaseAndReplaceXT("_", :With = AHeart())
@@ -1793,7 +1793,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, "r_INg", 2, "R_ng", 3, "R_ING" ])
 o1.StringifyLowercaseAndReplace("_", :With = AHeart())
@@ -1805,7 +1805,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 aLargeList = [ "--_--", [ 12, "--_--", 10], "--_--", 9 ]
 for i = 1 to 1_000
@@ -1826,7 +1826,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 aLargeList = [ "--_--", [ 12, "--_--", 10], "--_--", 9 ]
 for i = 1 to 10_000
@@ -1845,7 +1845,7 @@ proff()
 
 /*===============
 
-profon()
+pr()
 
 o1 = new stzList([ 0, "", [], 1, 2, 3, [], _NULL_, 0 ])
 
@@ -1859,7 +1859,7 @@ proff()
 
 /*--------
 
-profon()
+pr()
 
 o1 = new stzList([ 0, "", [], 1, 2, 3, [], _NULL_, 0 ])
 
@@ -1874,7 +1874,7 @@ proff()
 
 /*------------- PERFORMANCE TIP
 
-profon()
+pr()
 
 #TODO // General note on performance
 # For all loops on large data (tens of thousands of times and more)
@@ -1903,7 +1903,7 @@ proff()
 
 /*------------- PERFORMANCE TIP
 
-profon()
+pr()
 
 # ComputableForm() function, abreviated with @@(), is not intended to
 # be used inside large loops like this:
@@ -1930,7 +1930,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 # In this example, the large list contains +160K items...
 
@@ -1969,7 +1969,7 @@ proff()
 
 /*============== #TODO check it
 
-profon()
+pr()
 
 ? IsChar("🌞")
 #!--> _FALSE_
@@ -1983,7 +1983,7 @@ proff()
 
 /*=============
 
-profon()
+pr()
 
 ? isNumber([ "'" ])
 #--> _FALSE_
@@ -2008,7 +2008,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 aList = [ "1", "🌞", "1", [ "2", "♥", "2", "🌞"], "1", [ "2", ["3", "🌞"] ] ]
 
@@ -2060,7 +2060,7 @@ StopProfiler()
 
 /*============
 
-profon()
+pr()
 
 o1 = new stzlist(1:120_000)
 
@@ -2098,7 +2098,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzlist(1:120_000)
 ShowShort( o1.Stringified() )
@@ -2110,7 +2110,7 @@ proff()
 
 /*==========
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 1:5, "hi!", StzNullObjectQ(), [ "a", "b" ] ])
 
@@ -2128,7 +2128,7 @@ proff()
 
 /*------------- SINGLES AND SINGLIFIED
 
-profon()
+pr()
 
 ? Q(['alone']).IsSingle()
 #--> _TRUE_
@@ -2161,7 +2161,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, [ "a", "b" ], 4, [ "c", "d"], [ "a", "b" ] ])
 ? o1.ContainsPairs()
@@ -2193,7 +2193,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 ? Q([ "a", "♥", "*" ]).ContainsThese([ "♥", "*"])
 #--> _TRUE_
@@ -2207,7 +2207,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 o1 = new stzList([ "ee♥ee", "b♥bbb", "ccc♥", "♥♥" ])
 ? o1.EachContains("♥")
@@ -2230,7 +2230,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 ? Unicode("Hi")
 #--> [ 72, 105 ]
@@ -2240,7 +2240,7 @@ proff()
 
 /*=====
 
-profon()
+pr()
 
 ? IsChar(12.5)
 #--> _FALSE_
@@ -2271,7 +2271,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 ? Q([ "a", "b", "c" ]).IsListOfChars()
 #--> _TRUE_
@@ -2284,7 +2284,7 @@ proff()
 
 /*=====
 
-profon()
+pr()
 
 ? Q(1:3).Unicodes()
 #--> [1, 2, 3]
@@ -2312,7 +2312,7 @@ proff()
 
 /*========= Replace and DeepReplace
 
-profon()
+pr()
 
 o1 = new stzList([
 	"me",
@@ -2337,7 +2337,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"me",
@@ -2360,7 +2360,7 @@ proff()
 
 /*==============
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
 
@@ -2373,7 +2373,7 @@ proff()
 
 /*==============
 
-profon()
+pr()
 
 o1 = new stzList(1:1_500_000)
 
@@ -2385,7 +2385,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList(1:18)
 
@@ -2400,7 +2400,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 o1 = new stzList(1:180_000)
 
@@ -2428,7 +2428,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 o1 = new stzList(1:180_000)
 
@@ -2441,7 +2441,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 o1 = new stzList(1:180_000)
 
@@ -2454,7 +2454,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 o1 = new stzList(1:180_000)
 
@@ -2467,7 +2467,7 @@ proff()
 
 /*=======
 
-profon()
+pr()
 
 # REMINDER: Duplication is performed in a reasonable performance
 # when the size of the list does not exceed 30K items!
@@ -2486,7 +2486,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 	alist = []
 	for i = 1 to 30000
@@ -2506,7 +2506,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 	o1 = new stzList([ "A", "B", "2", 1:3, "C", 2 ])
 	? o1.NoItemsAreDuplicated()
@@ -2522,7 +2522,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 o1 = new stzList([ "2", 2 ])
 ? o1.ContainsDuplicates()
@@ -2534,7 +2534,7 @@ proff()
 
 /*------- #narration
 
-profon()
+pr()
 	#NOTE // Let's precise the concepts of Duplicates/Duplications,
 	# and DuplicateItems, as implemented semantically in Softanza
 
@@ -2610,7 +2610,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
 o1.RemoveDuplicates()
@@ -2622,7 +2622,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 aBigList = 1:30_000
 aMore = [ "A", "B", "2", "A", "A", "B", 2, 2, "." ]
@@ -2642,7 +2642,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
 ? @@( o1.Withoutduplication() ) # Or ToSet()
@@ -2654,7 +2654,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
 o1.RemoveNonDuplicates()
@@ -2671,7 +2671,7 @@ proff()
 
 /*======== #narration
 
-profon()
+pr()
 
 # A Common Programming Dilemma:
 # When working with Ring sort() function, there's often a moment of uncertainty:
@@ -2725,7 +2725,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C" ])
 ? o1.ContainsDupSecutiveItems()
@@ -2736,7 +2736,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 # DupSecutive = Duplicate + Consecutive
 
@@ -2776,7 +2776,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 # DupOrigins = DuplicatesOrigins
 
@@ -2805,7 +2805,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 # DupOrigins = DuplicatesOrigins
 
@@ -2826,7 +2826,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 # Simulated CSV data with duplicate rows
 
@@ -2893,7 +2893,7 @@ proff()
 
 /*---- #NLP
 
-profon()
+pr()
 
 # Word frequency analysis
 aWords = [
@@ -2918,7 +2918,7 @@ proff()
 
 /*============
 
-profon()
+pr()
 
 ? Q([0]) * 3
 #--> [0, 0, 0]
@@ -2936,7 +2936,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 # Changes the object and returns its content IN THE SAME TIME:
 
@@ -2951,7 +2951,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzList([0, 1, 2])
 o1 * 3
@@ -2964,7 +2964,7 @@ proff()
 
 /*============
 
-profon()
+pr()
 
 o1 = new stzList(1:7)
 o1 - 3:5
@@ -2976,7 +2976,7 @@ proff()
 
 /*============
 
-profon()
+pr()
 
 o1 = new stzList(1:100_000)
 ? o1.NLastItems(10)
@@ -2986,7 +2986,7 @@ proff()
 
 /*============
 
-profon()
+pr()
 
 o1 = new stzList(1:299_000)
 o1.Stringified()
@@ -2996,7 +2996,7 @@ proff()
 
 /*=============
 
-profon()
+pr()
 
 o1 = new stzList("A" : "C")
 o1.ExtendWith(["D", "E"])
@@ -3009,7 +3009,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList("A" : "C")
 o1.ExtendTo(5)
@@ -3021,7 +3021,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList(1 : 3)
 o1.ExtendTo(5)
@@ -3033,7 +3033,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList("A" : "C")
 o1.ExtendToWith(5, "*")
@@ -3045,7 +3045,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList(1 : 3)
 o1.ExtendToWithItemsRepeated(8)
@@ -3057,7 +3057,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList(1 : 3)
 o1.ExtendToWithItemsIn( 8, "A":"C" )
@@ -3069,7 +3069,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C" ])
 o1.ExtendXT( :List, :With = ["D", "E"])
@@ -3081,7 +3081,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C" ])
 o1.ExtendXT( :List, :ToPosition = 5 )
@@ -3093,7 +3093,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C" ])
 o1.ExtendXT( :ToPosition = 5, :ByItemsRepeated )
@@ -3107,7 +3107,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C" ])
 o1.ExtendXT( :ToPosition = 5, :With = "*" )
@@ -3119,7 +3119,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C" ])
 o1.ExtendXT( :ToPosition = 5, :WithItemsIn = [ "D", "E" ])
@@ -3131,7 +3131,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C", "D", "E" ])
 o1.Shrink( :ToPosition = 3 )
@@ -3143,7 +3143,7 @@ proff()
 
 /*================
 
-profon()
+pr()
 
 Q([ "A", "B", "C" ]) {
 
@@ -3158,7 +3158,7 @@ proff()
 
 /*================
 
-profon()
+pr()
 
 o1 = new stzList([
 	"*", '"*"', "*4", [ "A", "B" , "'C'"], 12
@@ -3172,7 +3172,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"*", '"*"', "*4", "*4*", "*4*3", "*4*34",
@@ -3187,7 +3187,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"*", '"*"', "*4", "*4*", "*4*3", "*4*34",
@@ -3206,7 +3206,7 @@ proff()
 
 /*===========
 
-profon()
+pr()
 
 o1 = new stzList([
 	"*", "*4", "*4*", "*4*3", "*4*34",
@@ -3231,7 +3231,7 @@ proff()
 
 /*=========
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 
@@ -3309,7 +3309,7 @@ proff()
 
 /*========= #narration Ring List2Code() VS Softanza ListToCode()
 
-profon()
+pr()
 
 ? List2Code([ [ 6, 8 ], [ 16, 18 ] ]) + NL # Ring standard function
 #--> "[
@@ -3346,7 +3346,7 @@ proff()
 
 /*==================
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
 ? o1.FindLast("*")
@@ -3357,7 +3357,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
 ? o1.FindFirst("*")
@@ -3368,7 +3368,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
 ? o1.FindNext("*", :StartingAt = 4)
@@ -3379,7 +3379,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? ring_find( 1:100_000, 67_000 )
 #--> 67000
@@ -3389,7 +3389,7 @@ proff()
 
 /*----------------- #ring #perf
 
-profon()
+pr()
 
 aList = 1: 100_000
 nLen = len(aList)
@@ -3410,7 +3410,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList(1: 100_000)
 ? o1.IsListOfNumbers()
@@ -3425,7 +3425,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ 14, 10, 14, 14, 20 ])
 
@@ -3446,7 +3446,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])
 o1.RemoveSection(3, 8)
@@ -3458,7 +3458,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "1", "2", "_", "_", "_", "3", "4" ])
 o1.RemoveSection(3, 5)
@@ -3470,7 +3470,7 @@ proff()
 
 *-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "1", "2", "_", "_", "_", "3", "4" ])
 o1.RemoveRange(3, 3)
@@ -3482,7 +3482,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList(1:299_000)
 o1.RemoveSection(73_900, 120_010)
@@ -3495,7 +3495,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList(1:10)
 oListInStr = o1.ToCodeQ()
@@ -3511,7 +3511,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList(1:10)
 ? @@( o1.Section(3, 10) )
@@ -3522,7 +3522,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 Q(1:299_000).Section(100, 299_000)
 
@@ -3531,7 +3531,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ 14, 10, 14, 14, 20 ])
 
@@ -3546,7 +3546,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 
 o1 = new stzList([ 14, 10, 14, 14, 20 ])
@@ -3569,7 +3569,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList(1:14 + 12)
 ? o1.NumberOfOccurrence(12)
@@ -3580,7 +3580,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList(1:299_000 + 120000)
 
@@ -3597,7 +3597,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? ring_find(1:299_000, 40_000)
 #--> 40000
@@ -3606,7 +3606,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? Q([1, 2, 3, 4, 5, 3, 7]).Find(3)
 #--> [ 3, 6 ]
@@ -3616,7 +3616,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList( 1:7 + "str1" + "str2" + [ "+", "-" ] )
 ? @@( o1.OnlyNumbers() )
@@ -3627,7 +3627,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList( 10:12 + "str1" + "str2" + [ "+", "-" ] + o1 )
 
@@ -3642,7 +3642,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 aLarge = []
 for i = 1 to 299_000
@@ -3663,7 +3663,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 aLarge = []
 for i = 1 to 299_000
@@ -3684,7 +3684,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList( 1:299_000 + "str1" + "str2" + [ "+", "-" ] )
 ? len( o1.OnlyNumbers() )
@@ -3695,7 +3695,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList(1 : 299_000 + 4)
 
@@ -3720,7 +3720,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList(1:299_000+4)
 
@@ -3737,7 +3737,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList(1:299_000+4)
 
@@ -3758,7 +3758,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList( 1:299_000 + "str1" + "str2" + 12 + [ "+", "-" ]  + o1 )
 
@@ -3770,7 +3770,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList( 1:299_000 + "str1" + "str2" + 12 + [ "+", "-" ] + "str1" + o1 )
 
@@ -3782,7 +3782,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList(
 	1:299_000 + "str1" + "str2" + 12 + [ "*", "+" ] + "str1" + o1 +  [ "*", "+" ]
@@ -3796,7 +3796,7 @@ proff()
 
 /*==============
 
-profon()
+pr()
 
 o1 = new stzList([ 12, 88 ])
 ? o1.BothAreNumbers()
@@ -3819,7 +3819,7 @@ proff()
 
 /*============
 
-profon()
+pr()
 
 o1 = new stzString("123456789")
 
@@ -3834,7 +3834,7 @@ proff()
 
 /*============
 
-profon()
+pr()
 
 o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7" ])
 
@@ -3865,7 +3865,7 @@ proff()
 
 /*===========
 
-profon()
+pr()
 
 ? Association([ [ 1, 2, 3 ], [ "One", "Two", "Three" ] ])
 #--> [ [ 1, "One" ], [ 2, "Two" ], [ 3, "Three" ] ]
@@ -3876,7 +3876,7 @@ proff()
 
 /*===========
 
-profon()
+pr()
 
 o1 = new stzList([ :StartingAt, 5 ])
 ? o1.IsAPairQ().Where('{ isString(@pair[1]) and isNumber(@pair[2]) }')
@@ -3886,7 +3886,7 @@ proff()
 
 /*============
 
-profon()
+pr()
    
 o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ])
 
@@ -3963,7 +3963,7 @@ proff()
 
 /*============
 
-profon()
+pr()
 
 o1 = new stzList([ "programming", "is" ])
 ? o1.SortedBy('Q(@item).NumberOfChars()')
@@ -3974,7 +3974,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 ? StzCCodeQ('Q(@NextItem).IsNotANumber()').Transpiled()
 #--> Q( This[@i + 1] ).IsNotANumber(  )
@@ -3985,7 +3985,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 ? StzCCodeQ('NOT isNumber( This[@i + 1] )').ExecutableSection()
 #--> [1, -1]
@@ -3996,7 +3996,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 7 ])
 
@@ -4023,7 +4023,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8 ])
 
@@ -4042,7 +4042,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, "ring", 4, 5, "RING", 7, "Ring" ])
 
@@ -4061,7 +4061,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, "*", 4, 5, 6, "*", 8, 9 ])
 
@@ -4241,7 +4241,7 @@ StopProfiler()
 
 /*-----------
 
-profon()
+pr()
 
 ? @FindNth([ "_", "A", "_", "B", "C" ], 2, "_")
 #--> 3
@@ -4392,7 +4392,7 @@ StopProfiler()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzList([
 	[ "A", "B", "C" ],
@@ -4425,7 +4425,7 @@ StopProfiler()
 
 /*==========
 
-profon()
+pr()
 
 o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
 
@@ -4451,7 +4451,7 @@ proff()
 
 /*--------------- 
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "b", "C", "B", '"B",', "D", "E" ])
 ? o1.ToCode()
@@ -4463,7 +4463,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ 10, '"[ :Tunis, :Paris ]"', "ONE," ])
 ? o1.ToCode()
@@ -4475,7 +4475,7 @@ proff()
 
 /*--------------- #internal
 
-profon()
+pr()
 
 o1 = new stzList([ 10, [ :Tunis, :Paris ], "ONE," ])
 ? o1.StringifyAndReplaceQ(",", "*").Content()
@@ -4486,7 +4486,7 @@ proff()
 
 /*--------------- #internal
 
-profon()
+pr()
 
 aList = [ 10, 20, "One", "ONE", [ :Tunis, :Paris ], 30, "two" ]
 	for i = 1 to 10
@@ -4525,7 +4525,7 @@ proff()
 
 /*--------------- #perf
 
-profon()
+pr()
 
 #                                         v                              v
 aLarge = [ 10, 20, "One", "ONE", [ :Tunis, :Paris ], 30, "two", [ :Tunis, :Paris ] ]
@@ -4547,7 +4547,7 @@ proff()
 
 /*--------------- #perf
 
-profon()
+pr()
 
 aLarge = [ 10, 20, "One", "ONE", [ :Tunis, :Paris ], 30, "two" ]
 
@@ -4566,7 +4566,7 @@ proff()
 
 /*--------------- #perf
 
-profon()
+pr()
 
 # Constructing a large list of 30K items
 
@@ -4591,7 +4591,7 @@ proff()
 
 /*--------------- #ringqt draft
 
-profon()
+pr()
 
 aList = [ "5", "7", "5", "5", "4", "7" ]
 
@@ -4610,7 +4610,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
 
@@ -4646,7 +4646,7 @@ proff()
 
 /*---------- #ringqt draft
 
-profon()
+pr()
 
 aList = [ "Ab", "Im", "Ab", "Cf", "Fd", "Ab", "Cf" ]
 o1 = new QStringList()
@@ -4662,7 +4662,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzList([ "Ab", "Im", "Ab", "Cf", "Fd", "Ab", "Cf" ])
 ? @@( o1.ItemsZ() ) # Or ItemsAndTheirPositions()
@@ -4679,7 +4679,7 @@ proff()
 
 /*---------- #perf
 
-profon()
+pr()
 
 # ItemsAndTheirPositions(), also called ItemsZ(), can do
 # the job in a reasonable performance when the number of
@@ -4702,7 +4702,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzList(
 	[] +
@@ -4747,7 +4747,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 ? @@( "" )
 #--> ""
@@ -4779,7 +4779,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzString("123456789")
 ? o1.FindNext("1", :startingAt = 10)
@@ -4788,7 +4788,7 @@ proff()
 
 /*---------- #ring
 
-profon()
+pr()
 
 ? ring_version()
 #--> "1.17"
@@ -4801,7 +4801,7 @@ proff()
 
 /*---------- #ringqt code draft
 
-profon()
+pr()
 
 aList = [ "A", "*", "B", "C", "D", "*", "E" ]
 
@@ -4821,7 +4821,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, "*", 10:12, "B", 2, 1, "*", "A", 3, "*", "B", 10:12, "B" ])
 ? @@( o1.DuplicatesZ() )
@@ -4836,7 +4836,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 aList = [ "A", "B", 1, "A", "A", 1, "C", 1:2, "D", "B", "E", '"1"', 1:2 ]
 o1 = new stzList(aList)
@@ -4867,7 +4867,7 @@ proff()
 
 /*---------- Profiling the Duplicates() function --> Reasonable perf up to 30K items!
 
-profon()
+pr()
 
 aList = 1:100_000
 aList + 1 + "*" + 10:12 + "B" + 2 + 1 + "*" + "A," + 3 + "*" + "B" + 10:12 + "B"
@@ -4888,7 +4888,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 aList = 1 : 30_000
 aList + 1 + "*" + 10:12 + "B" + 2 + 1 + "*" + "A," + 3 + "*" + "B" + 10:12 + "B" + "A,"
@@ -4910,7 +4910,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "A", "A", "C", "D", "B", "E", "a" , "b"])
 ? @@( o1.DuplicatesCSZ(:CaseSensitive = _FALSE_) )
@@ -4948,7 +4948,7 @@ proff()
 
 /*======= MANAGING DUPLICATED ITEMS: Check errros
 
-profon()
+pr()
 
 o1 = new stzList([ 5, 7, 5, 5, 4, 7, 1 ])
 
@@ -4963,7 +4963,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList([ 5, 7, 5, 5, 4, 7, 1 ])
 
@@ -5013,7 +5013,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzList([ "*", "4", "*", "3", "4" ])
 
@@ -5028,7 +5028,7 @@ proff()
 
 /*==========
 
-profon()
+pr()
 
 o1 = new stzList(1:7)
 o1 - 4:6
@@ -5041,7 +5041,7 @@ proff()
 
 /*==========
 
-profon()
+pr()
 
 o1 = new stzList("A":"J")
 
@@ -5056,7 +5056,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList([ "Ring", "Ruby", "Python" ])
 
@@ -5068,7 +5068,7 @@ proff()
 
 /*==========
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "ab", "abnA", "abAb" ])
 
@@ -5083,7 +5083,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "ab", 1:3, "abA", "abAb", 1:3 ])
 
@@ -5108,7 +5108,7 @@ proff()
 
 /*==========
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3,"c" ])
 
@@ -5131,7 +5131,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "ab", "b" ])
 ? @@( o1.Intersection(:with = [ "a", "ab", "abc", "b", "bc", "c" ]) ) # Or CommonItems()
@@ -5164,7 +5164,7 @@ StopProfiler()
 
 /*===============
 
-profon()
+pr()
 
 aLarge = 1:1_000_000
 
@@ -5187,7 +5187,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 aList = [ "A", 10, "A", "♥", 20, 1:3, "♥", "B" ]
 aLarge = aList
@@ -5209,7 +5209,7 @@ proff()
 
 /*----------------- #narration #perf #ring
 
-profon()
+pr()
 
 # Constructing the large list
 
@@ -5249,7 +5249,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 # Constructing the large list (+1M items, the to-be-found item is a list (1:3),
 # and it exists in the beginning and the end of the large list)
@@ -5280,7 +5280,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 aLarge = 1:1_000_000
 
@@ -5345,7 +5345,7 @@ StopProfiler()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzString("12♥4♥67")
 
@@ -5360,7 +5360,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzList([ "1", "2", "♥", "4", "♥", "6", "7" ])
 
@@ -5420,7 +5420,7 @@ StopProfiler()
 
 /*------------ #ring
 
-profon()
+pr()
 
 ? find([ "A", "B", [ 1, 2, 3 ], "C" ], "C")
 #--> 4
@@ -5459,7 +5459,7 @@ StopProfiler()
 
 /*------------
 
-profon()
+pr()
 
 # Checking that Softanza function does not alter a gloabl
 # svariable et in the calling program
@@ -5481,7 +5481,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 #REMINDER // functions used internally to accelerate finding in stzLis
 #~> Limited to finding only number and strings
@@ -5636,7 +5636,7 @@ StopProfiler()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzList(1:10)
 ? o1.AntiPositions([ 3, 4, 7, 9 ])
@@ -5976,7 +5976,7 @@ StopProfiler()
 
 /*-----------
 
-profon()
+pr()
 #                     3 5
 o1 = new stzString("12•4•67")
 
@@ -5998,7 +5998,7 @@ proff()
 
 /*----------- #internal
 
-profon()
+pr()
 
 # This function is used internally by Softanza
 
@@ -6013,7 +6013,7 @@ proff()
 
 /*--------- #INTERNAL #TODO Write a document about it
 
-profon()
+pr()
 
 # This function is used internally by Softanza in the stzList class
 
@@ -6267,7 +6267,7 @@ StopProfiler()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzList([1,2,3,4,5])
 ? o1 - These([3,5])
@@ -6427,7 +6427,7 @@ StopProfiler()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzList("A":"J")
 
@@ -6672,7 +6672,7 @@ StopProfiler()
 
 /*==============
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
 o1.SortBy('len(@item)')
@@ -6684,7 +6684,7 @@ proff()
 
 /*==============
 
-profon()
+pr()
 
 o1 = new stzList([ "_", "A", "B", "C", "_", "D", "E", "_" ])
 
@@ -6737,7 +6737,7 @@ StopProfiler()
 
 /*-----------------
 
-profon()
+pr()
 
 # Extending a list of numbers to a given position
 
@@ -6766,7 +6766,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ ".",".",".",4 ,5 ,6 ,".",".","." ])
 ? o1.NextNItems(3, :StartingAtPosition = 3)
@@ -6780,7 +6780,7 @@ proff()
 
 /*=================
 
-profon()
+pr()
 
 o1 = new stzList([ 7, 3, 3, 10, 8, 8 ])
 
@@ -6815,7 +6815,7 @@ proff()
 
 /*================= #TODO
 
-profon()
+pr()
 
 o1 = new stzList([ ".", ".", "3", "4", ".", ".", "7", "8", "9", ".", "." ])
 
@@ -6832,7 +6832,7 @@ proff()
 
 /*=================
 
-profon()
+pr()
 
 ? @@( Q([ "AB", 12, ["A", "B"] ]).TypesXT() )
 #--> [ [ "AB", "STRING" ], [ 12, "NUMBER" ], [ [ "A", "B" ], "LIST" ] ]
@@ -6842,7 +6842,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList(["1","2","3","4","5"])
 
@@ -6866,7 +6866,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "T", "A", "Y", "O", "U", "B", "T", "A" ])
 ? @@NL( o1.SectionsBetween( "T", "A" ) )
@@ -6881,7 +6881,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 
@@ -6914,7 +6914,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 # The W() small function take a string (containing a condition)
 # and returns a list of the form :Where = ...
@@ -6927,7 +6927,7 @@ proff()
 
 /*------------------ #TODO
 
-profon()
+pr()
 
 ? Q([ "واحـد", "اثنان", "ثلاثة" ]).Yield('len(@item)')
 #--> [10, 10, 10]
@@ -6939,7 +6939,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 ? StzTextQ("你好").Script()
 #--> :Han
@@ -6949,7 +6949,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 ? Stz(:Text, :Attributes)
 #--> [
@@ -6965,7 +6965,7 @@ proff()
 
 /*================
 
-profon()
+pr()
 
 
 ? InfereType("string")
@@ -6979,7 +6979,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 ? Q([ "ring", "php", "python" ]).Are([ :Lowercase, :Strings ])
 #--> _TRUE_
@@ -6992,7 +6992,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 ? TQ("واحد").IsArabic()
 #--> _TRUE_
@@ -7002,7 +7002,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 ? Q([ "واحد", "اثنان", "ثلاثة" ]).Are(:Strings)
 #--> _TRUE_
@@ -7018,7 +7018,7 @@ proff()
 
 /*------------------ #TODO
 
-profon()
+pr()
 
 ? Q([ "你好", "亲", "朋友们" ]).Are([ :HanScript, :Texts ])
 #--> _TRUE_
@@ -7027,7 +7027,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 ? W('len(@item)=3')
 #--> ( "where", "len(@item)=3" ]
@@ -7037,7 +7037,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 ? Q([ "ONE", "TWO", "THREE" ]).Are(:Strings)
 #--> _TRUE_
@@ -7058,7 +7058,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 ? InfereType(:Numbers)
 #--> number
@@ -7067,7 +7067,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 ? Q([ 1, 2, 3 ]).Are(:Numbers)
 #--> _TRUE_
@@ -7089,7 +7089,7 @@ proff()
 
 /*============= #TODO check after adding Perform() function
 
-profon()
+pr()
 
 # Transforming the list structure so it becomes
 # a list of pairs of numbers. To do so, the numbers
@@ -7108,7 +7108,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", 0, 0, "B", "C", 0, "D", 0, 0 ])
 ? o1.ZerosRemoved()
@@ -7119,7 +7119,7 @@ proff()
 
 /*============= #narration COMPARING LISTS FOR EQUALITY
 
-profon()
+pr()
 
 # In Ring, you can't check two equal listq for equality,
 # and if you do, you get _FALSE_ as result:
@@ -7176,7 +7176,7 @@ proff()
 
 /*---------
 
-profon()
+pr()
 
 o1 = new stzList([ 0, 2, 0, 3, [1,2] ])
 ? o1.IsListOfNumbersAndPairsOfNumbers()
@@ -7187,7 +7187,7 @@ proff()
 
 /*========= Deep finding items at any level
 
-profon()
+pr()
 
 o1 = new stzList([
 	"you",
@@ -7213,7 +7213,7 @@ proff()
 
 /*========= Replace and DeepReplace
 
-profon()
+pr()
 
 o1 = new stzList([
 	"me",
@@ -7239,7 +7239,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([
 	"me",
@@ -7264,7 +7264,7 @@ proff()
 
 /*================
 
-profon()
+pr()
 
 # to get the background of this sample, read this:
 # https://groups.google.com/g/ring-lang/c/_33L7miE3QM
@@ -7298,7 +7298,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 # Same example above in stzList
 
@@ -7313,7 +7313,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 # Same example above in stzListOfStrings
 
@@ -7327,7 +7327,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A1", "A2", "A3" ])
 o1.InsertAfter( :ItemAtPosition = 3, "A4" )
@@ -7339,7 +7339,7 @@ proff()
 
 /*================ MOVING AND SWAPPING
 
-profon()
+pr()
 
 o1 = new stzList([ "C", "B", "A" ])
 o1.Move( :From = 3, :To = 1 )
@@ -7353,7 +7353,7 @@ proff()
 
 /*------------- #narration REMOVING DUPLICATES
 
-profon()
+pr()
 
 # Today, my wife, who manages a singing club, sent me a lengthy
 # Arabic song text and asked me to format it into a polished
@@ -7451,7 +7451,7 @@ proff()
 
 /*--------------- #narration Writablilty VS Readablility VS Both of them!
 
-profon()
+pr()
 
 # Softanza coding style is designed with a double promise in mind:
 #  - Your code is WRITABLE: Easy to you while your are crafting it
@@ -7498,7 +7498,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ "ONE", "TWO", "THREE" ])
 ? o1 - "TWO"
@@ -7509,7 +7509,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 ? Q([ "I", "B", "M" ]).HasSameContent( :As = [ "B", "M", "I" ] )
 ? Q([ "I", "B", "M" ]).HasSameContentCS( :As = [ "b", "m", "i" ], :CS = _FALSE_ )
@@ -7519,7 +7519,7 @@ proff()
 
 /*--------------- #narration SEMANTIC PRECISION
 
-profon()
+pr()
 
 ? Q("SFTANZA").IsLargerThan("RING")
 #--> _TRUE_
@@ -7543,7 +7543,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 ? Q([1, 2, 3, 4, 5]).IsLarger(:Than = [8, 9])
 #--> _TRUE_
@@ -7567,7 +7567,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ "arem", "mohsen", "AREM" ])
 
@@ -7588,7 +7588,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 ? o1.NthToLast(2)
@@ -7599,7 +7599,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 
@@ -7638,7 +7638,7 @@ proff()
 
 /*=======================
 
-profon()
+pr()
 
 # In Softanza, you can find lists inside lists:
 
@@ -7671,7 +7671,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2 ])
 
@@ -7692,7 +7692,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ [1,2], [3, [1], 4], [5,6], [ 2, 10 ], [3,4], [3, [1], 4] ])
 
@@ -7707,7 +7707,7 @@ proff()
 
 /*===============
 
-profon()
+pr()
 
 ? StzListQ( 4:8 ).ToListInString()
 #--> "[ 4, 5, 6, 7, 8 ]"
@@ -7720,7 +7720,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ 4, 1, 2, 1, 1, 2, 3, 3, 3 ])
 ? o1.DuplicatesRemoved()
@@ -7731,7 +7731,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
 
@@ -7746,7 +7746,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
 
@@ -7759,7 +7759,7 @@ proff()
 
 /*================
 
-profon()
+pr()
 
 ? Q(' [ "A", "B", 3 ] ').IsListInString()
 #--> _TRUE_
@@ -7778,7 +7778,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? Q(' "A" : "C" ').ToList()
 #--> [ "A", "B", "C" ]
@@ -7791,7 +7791,7 @@ proff()
 
 /*=============== #narration Generalisation of the Ring "A":"B" syntax 
 
-profon()
+pr()
 
 # In Ring, you can declare a "contiguous" list of chars
 # from "A" to "F" like this:
@@ -7819,7 +7819,7 @@ proff()
 
 /*----------------- #narration : Use of the L() small function
 
-profon()
+pr()
 
 # As we all know, Ring provides us with this elegant syntax:
 
@@ -7883,7 +7883,7 @@ proff()
 
 /*================
 
-profon()
+pr()
 
 aList = [
 	:Arabic,
@@ -7918,7 +7918,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([
 	1982, 1964, 1992, 1982, 1964, 2001, 1982, 1992, 2000
@@ -7940,7 +7940,7 @@ proff()
 
 /*----------------- #narration LIST CLASSIFICATION
 
-profon()
+pr()
 
 o1 = new stzList([
 	1:5, 3:9, 1:5, 10:15, 3:9, 12:20, 10:15, 1:5, 12:20
@@ -7987,7 +7987,7 @@ proff()
 
 /*=================
 
-profon()
+pr()
 
 ? StzStringQ(:stzList).IsStzClassName()
 #--> _TRUE_
@@ -8000,7 +8000,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? StzListQ([]).IsListOfStrings()
 #--> _FALSE_
@@ -8012,7 +8012,7 @@ proff()
 
 /*----------------- #narration HASHLIST SYNTAX :key = value
 
-profon()
+pr()
 
 # In Ring, this is how we can declare a hashlist using the :key = value syntax
 
@@ -8040,7 +8040,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 StzListQ([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ]) {
 
@@ -8068,7 +8068,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 StzListQ([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ]) {
 
@@ -8086,7 +8086,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
 ? o1 - These( o1.NonNumbers() )
@@ -8097,7 +8097,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzListOfStrings([ "A", "B", "1", "C", "2", "3", "D", "4", "5" ])
 
@@ -8112,7 +8112,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
 
@@ -8133,7 +8133,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
 ? o1.ItemsWXT('Q(@item).IsNotANumber()')
@@ -8144,7 +8144,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, "A":"B", 2, 3, "X", "Y", "Z" ])
 
@@ -8159,7 +8159,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? Q([ "A", 1:3, "B", 1:3, "C" ]).ItemRemoved(1:3)
 #--> [ "A", "B", "C" ]
@@ -8172,7 +8172,7 @@ proff()
 
 /*==================
 
-profon()
+pr()
 
 ? Q(1:5) - 3
 #--> [ 1, 2, 4, 5 ]
@@ -8191,7 +8191,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, "A":"B", 2, 3, "X", "Y", "Z" ])
 
@@ -8231,7 +8231,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3 ])
 
@@ -8274,7 +8274,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "VALUE1", "VALUE2", "VALUE3" ])
 o1.MultiplyBy([ 1001, 1002, 1003 ])
@@ -8290,7 +8290,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? @@SP( Q([ "VALUE1", "VALUE2", "VALUE3" ]) * [ 1001, 1002, 1003 ] )
 #--> [
@@ -8311,7 +8311,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 #WARNING
 
@@ -8353,7 +8353,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? ( Q([ "ONE", "TWO", "THREE" ]) * _TRUE_Object() ).Content()
 #                                  \_____ ____/
@@ -8374,7 +8374,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? @StzType( Q( "X":"Z" ) )
 #-- stzlist
@@ -8384,7 +8384,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3 ])
 ? @@( o1 + Q(4) + 5 )
@@ -8398,7 +8398,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3 ])
 
@@ -8413,7 +8413,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? @@( ( Q([1, 2, 3]) + Q([ 4, 5 ]) ).Content() )
 #--> [ 1, 2, 3, [ 4, 5 ] ]
@@ -8429,7 +8429,7 @@ proff()
 
 /*----------------- #narration Use of AsObject() with + operator
 
-profon()
+pr()
 
 # When you add a normal list to a stzList object,
 # you get a normal list:
@@ -8484,7 +8484,7 @@ proff()
 
 /*----------------- #narration HOW TO RETRIVE A NAMED OBJECT USING v()
 
-profon()
+pr()
 
 o1 = StzNamedStringQ(:mystr = "Hello!")
 
@@ -8500,7 +8500,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzNumber(12500)
 
@@ -8517,7 +8517,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? Q(12500) / 500
 #--> 25
@@ -8534,7 +8534,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? Q(12500) + 500
 #--> 13000
@@ -8551,7 +8551,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? Q(15) * 7
 #--> 105
@@ -8568,7 +8568,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? Q(15) - 7
 #--> 8
@@ -8585,7 +8585,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? Q("ABCDEFGHI") / 3
 #--> [ "ABC", "DEF", "GHI" ]
@@ -8607,7 +8607,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? Q("ABC") * 3
 #--> "ABCABCABC"
@@ -8629,7 +8629,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzString("A**BC***DE***")
 ? o1 - "*"
@@ -8645,7 +8645,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? Q("A**BC***DE***") - 3	# Remove the last 3 chars
 #--> "A**BC***DE"
@@ -8664,7 +8664,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? Q("ABCABCABC") / 3	# Remove the last 3 chars
 #--> [ "ABC", "ABC", "ABC" ]
@@ -8683,7 +8683,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? Basmalah() + NL
 #o--> ﷽
@@ -8722,7 +8722,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3 ])
 
@@ -8770,7 +8770,7 @@ proff()
 
 /*=================
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
 ? o1 - These([ "A", "B", "C", "D" ])
@@ -8781,7 +8781,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
 
@@ -8797,7 +8797,7 @@ proff()
 
 /*================
 
-profon()
+pr()
 
 StzListQ([ "by", "except"]) { 
 
@@ -8815,7 +8815,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? IsBoolean(_FALSE_)
 #--> _TRUE_
@@ -8828,7 +8828,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "by", "except", "stopwords" ])
 ? o1.IsMadeOfThese([ :by, :except, :stopwords ])
@@ -8839,7 +8839,7 @@ proff()
 
 /*================
 
-profon()
+pr()
 
 ? StzListQ([ "q", "r", [ 2, 1 ] ]).ToCode()
 #--> [ "q", "r", [ 2, 1 ] ]
@@ -8854,7 +8854,7 @@ proff()
 
 /*===============
 
-profon()
+pr()
 
 ? StzListQ([ "q", "r", [ 2, 1 ] ]).Contains([ 2, 1 ])
 #--> _TRUE_
@@ -8873,7 +8873,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? StzListQ([]).Contains(_NULL_)
 #--> _FALSE_
@@ -8892,7 +8892,7 @@ proff()
 
 /*==================
 
-profon()
+pr()
 
 o1 = new stzList([ "fa", "bo" , "wy" , "wo" ])
 ? @@( o1 - These([ "bo", "wo" ]) )
@@ -8903,7 +8903,7 @@ proff()
 
 /*==================
 
-profon()
+pr()
 
 ? IsListOfStrings([ "baba", "ommi", "jeddy" ])
 #--> _TRUE_
@@ -8916,7 +8916,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	? VizFind("A")
@@ -8934,7 +8934,7 @@ proff()
 
 /*------------------ TODO: Add this function (future)
 
-profon()
+pr()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	? VizFindXT("A")
@@ -8950,7 +8950,7 @@ proff()
 
 /*------------------ #TODO (future)
 
-profon()
+pr()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	? VizFindMany([ "A", "B", "C", "D" ])
@@ -8983,7 +8983,7 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
 /*===================
 
-profon()
+pr()
 
 StzListQ([ "A" , "B", "C", "A", "D", "A" ]) {
 	ReplaceNextNthOccurrenceST(2, :Of = "A", :With = "*", :StartingAt = 2 )
@@ -8996,7 +8996,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 StzListQ([ "A" , "B", "C", "A", "D", "A" ]) {
 	ReplacePreviousNthOccurrence(2, :of = "A", :By = "*", :StartingAt = 5)
@@ -9008,7 +9008,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 StzListQ([ -1 , 2, 3, 4 ]) {
 
@@ -9024,7 +9024,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "1", "2", "*", "4", "5" ])
 
@@ -9042,7 +9042,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A" , "B", "A", "C", "A", "D", "A" ])
 
@@ -9057,7 +9057,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
@@ -9077,7 +9077,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
@@ -9091,7 +9091,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	ReplacePreviousNthOccurrencesST([3, 1], "A", :With = [ "#3", "#1" ], :StartingAt = 6)
@@ -9104,7 +9104,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 StzListQ([ "A", "-", "-", "A", "-", "A", "-", "A" ]) {
 	RemoveNextNthOccurrence(2, :Of = "A", :StartingAt = 3)
@@ -9117,7 +9117,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 StzListQ([ "A", "-", "-", "A", "-", "A", "-", "A" ]) {
 	RemovePreviousNthOccurrence(2, :Of = "A", :StartingAt = 6)
@@ -9129,7 +9129,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	RemoveNextNthOccurrences([2, 3], :of = "A", :StartingAt = 2)
@@ -9147,7 +9147,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
@@ -9163,7 +9163,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
@@ -9185,7 +9185,7 @@ proff()
 
 /*=================
 
-profon()
+pr()
 
 # In Softanza, you can replace all occurrences of an item
 # in the list by a provided value, by saying:
@@ -9239,7 +9239,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C", "A", "D", "B", "A" ])
 ? o1.FindNthOccurrence(3, :Of = "A")
@@ -9253,7 +9253,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 StzListQ([ "A", "B", "C", "A", "D", "B", "A" ]) {
 
@@ -9271,7 +9271,7 @@ proff()
 
 /*====================
 
-profon()
+pr()
 
 o1 = new stzList([ 5, 7, 9, 2 ])
 ? o1.SortedInAscending()
@@ -9282,7 +9282,7 @@ proff()
 
 /*=====================
 
-profon()
+pr()
 
 o1 = new stzList([ "teeba", "hussein", "haneen" , "hussein" ])
 
@@ -9297,7 +9297,7 @@ proff()
 
 /*=====================
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "c" ])
 
@@ -9313,7 +9313,7 @@ proff()
 
 /*=====================
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "c" ])
 ? @@( o1 - These([ "b", "a" ]))
@@ -9324,7 +9324,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "c" ])
 ? @@( o1 - These([ "b", "a", "c" , "q" ]) )
@@ -9335,7 +9335,7 @@ proff()
 
 /*=====================
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "e", "a", "c", "v", "e" ])
 
@@ -9350,7 +9350,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "E", "a", "c", "V", "E" ])
 ? o1.FindMany([ "a", "c" ]) #--> [1, 3, 5]
@@ -9363,7 +9363,7 @@ proff()
 
 /*=====================
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "c" ])
 
@@ -9380,7 +9380,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "c" ])
 ? o1.IsStrictlyEqualTo([ "a", "b" ])	#--> _FALSE_
@@ -9395,7 +9395,7 @@ proff()
 
 /*=====================
 
-profon()
+pr()
 
 ? @@( StzListQ([ "a", [ "b", [ "c",  "d" ], "e" ], "f" ]).Flattened() )
 #--> [ "a","b","c","d","e","f" ]
@@ -9405,7 +9405,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 ? StzStringQ("ab []    cd").Simplified()
 #--> ab [] cd
@@ -9418,7 +9418,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 StzListQ([ "a",[ [ [], "c", [ 1, [] ], 2 ] ],"b" ]) {
 
@@ -9443,7 +9443,7 @@ proff()
 
 /*=====================
 
-profon()
+pr()
 
 o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 
@@ -9458,7 +9458,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 ? o1.FindMany([ :one, :two, :four ])
@@ -9472,7 +9472,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3])
 
@@ -9489,7 +9489,7 @@ proff()
 
 /*=====================
 
-profon()
+pr()
 
 oList = new stzList([ [1],[1],[1],[1] ])
 ? oList.ItemsHaveSameType()
@@ -9503,7 +9503,7 @@ proff()
 
 /*=====================
 
-profon()
+pr()
 
 o1 = new stzList(1:5)
 o1.AddItemAt(8, 9)
@@ -9515,7 +9515,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList("A":"E")
 o1.AddItemAt(8, "X")
@@ -9527,7 +9527,7 @@ proff()
 
 /*=====================
 
-profon()
+pr()
 
 # finding positions where current item is equal or bigger than 8
 
@@ -9540,7 +9540,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 ? StzListQ([ 3, 2, 5 ]).FindFirstOccurrence("2")
 #--> 0
@@ -9565,7 +9565,7 @@ proff()
 
 /*======================
 
-profon()
+pr()
 
 # Finding positions where current item is one of these [ 2, 4, 6 ]
 
@@ -9592,7 +9592,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "_", "_", 1:3, "_", 5:9, "_" ])
 ? o1.FindWXT( :Where = '{ Q(@item).IsOneOfThese([ 1:3, 5:9 ]) }' )
@@ -9674,7 +9674,7 @@ StopProfiler()
 
 /*========================= #TODO Chek result correctness
 
-profon()
+pr()
 
 ? StzCCodeQ('{ This[ @i - 3 ] = This[ @i + 3 ] }').ExecutableSection()
 #--> [4, -3]
@@ -9713,7 +9713,7 @@ StopProfiler()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
 
@@ -9785,7 +9785,7 @@ StopProfiler()
 
 /*========================
 
-profon()
+pr()
 
 o1 = new stzList( [ 0, 8, 0, 0, 1, 8, 0, 0 ] )
 
@@ -9800,7 +9800,7 @@ proff()
 
 /*----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ 122, 67, 120, 58, 101, 120 ])
 
@@ -9815,7 +9815,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ 122, 67, 120, 58, 101, 120 ])
 
@@ -9827,7 +9827,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "mio", "mia", "mio", "mix", "miz", "mix" ])
 
@@ -9849,7 +9849,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "mio", "mix", "mia", "mio", "mix", "miz", "mix" ])
 
@@ -9861,7 +9861,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ :Char, :String, :Number, :List, :Object, :CObject, :QObject, :Byte ])
 ? o1.RemoveItemsAtThesePositionsQ( 6:8 ).Content()
@@ -10064,7 +10064,7 @@ StopProfiler()
 
 /*========================
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C", "1", "2", "3", "D", "E" ])
 o1.ReplaceSection(4, 6, [ "*", "*", "*", "*" ])
@@ -10076,7 +10076,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C", "1", "2", "3", "D", "E" ])
 o1.ReplaceSectionByMany(4, 6, [ "*", "*", "*", "*" ])
@@ -10088,7 +10088,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 ? @@NL( StzListQ([ 1, 2, 3 ]).RepeatNTimes(3) )
 #--> [
@@ -10102,7 +10102,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 
@@ -10136,7 +10136,7 @@ proff()
 
 /*===================
 
-profon()
+pr()
 
 # All these return _TRUE_
 
@@ -10163,7 +10163,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 # All these return _TRUE_
 
@@ -10193,7 +10193,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 # All these return _TRUE_
 
@@ -10222,7 +10222,7 @@ proff()
 
 /*==================
 
-profon()
+pr()
 
 o1 = new stzList([ "ami", "coupain", "CAMARADE", "compagon" ])
 ? o1.NthItemW(3, :Where = '{ isString(This[@i]) and Q(This[@i]).IsLowercase() }')
@@ -10233,7 +10233,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "ami", "coupain", "CAMARADE", "compagon" ])
 ? o1.NthItemWXT(3, :Where = '{ isString(@item) and Q(@item).IsLowercase() }')
@@ -10244,7 +10244,7 @@ proff()
 
 /*================== #narration List Equality and Strict Equality in Softanza
 
-profon()
+pr()
 
 # In Softanza, two lists are equal when they have same
 # number of items and have same content
@@ -10293,7 +10293,7 @@ proff()
 
 /*-------------- #narration List approximate comparison in Softanza
 
-profon()
+pr()
 
 # Softanza can compare lists (and strings also), in an approximative way.
 # The degree of approximation can be tuned to fit with your need.
@@ -10322,7 +10322,7 @@ proff()
 
 /*----------------------- #narration
 
-profon()
+pr()
 
 # Softanza can sort a list, whatever data types it contains (not only
 # numbers and strings), in ascending and descending orders (see
@@ -10366,7 +10366,7 @@ proff()
 
 /*======================
 
-profon()
+pr()
 
 # Operators on stzString
 
@@ -10392,7 +10392,7 @@ proff()
 
 /*===============
 
-profon()
+pr()
 
 o1 = new stzList([ 10, 1, 2, 3, 10 ])
 
@@ -10405,7 +10405,7 @@ proff()
 
 /*==============
 
-profon()
+pr()
 
 obj = NullObject()
 
@@ -10440,7 +10440,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 oTrue  = _TRUE_Object()
 oFalse = _FALSE_Object()
@@ -10480,7 +10480,7 @@ proff()
 
 /*----------------------- #narration
 
-profon()
+pr()
 
 # Ring can find (and sort) items inside a list (respectively
 # using find() and sort() functions), but only if these items
@@ -10514,7 +10514,7 @@ proff()
 
 /*--------- #narration Same semantics for all softanza objects
 
-profon()
+pr()
 
 # Softanza works consistently on lists and strings: What works
 # for a string, would generally work for a list, when it makes
@@ -10546,7 +10546,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "{", "A", "B", "C", "}" ])
 
@@ -10562,7 +10562,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "{", "<", "A", "B", "C", ">", "}" ])
 
@@ -10577,7 +10577,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "{", "A", "B", "C", "}" ])
 
@@ -10589,7 +10589,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "1", "2", "A", "B", "C", "3", "4" ])
 
@@ -10604,7 +10604,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C" ])
 
@@ -10616,7 +10616,7 @@ proff()
 
 /*-----------------------
 
-profon()
+pr()
 
 ? @IsListOfHashLists([
 	[ :name = "mansour", :job = "programmer", :age = 45 ],
@@ -10651,7 +10651,7 @@ proff()
 
 /*===============
 
-profon()
+pr()
 
 ? StzListQ([ 1, 2, 3, 4, 5, 6 ]).ItemsWXTQ('{
 
@@ -10666,7 +10666,7 @@ proff()
 
 /*----------------------
 
-profon()
+pr()
 
 ? @@( StzListQ("A":"E").Reversed() )
 #--> [ "E", "D", "C", "B", "A" ]
@@ -10679,7 +10679,7 @@ proff()
 
 /*----------------------
 
-profon()
+pr()
 
 ? StzListQ([ "A", 1, "B", 2, "C", 3]).NumberOfItemsWXT('isNumber(@item)')
 #--> 3
@@ -10697,7 +10697,7 @@ proff()
 
 /*----------------------
 
-profon()
+pr()
 
 ? StzListQ([ "A", 1, "B", 2, "C", 3]).ItemsWXT(' isNumber(@item) ')
 #--> [1, 2, 3]
@@ -10714,7 +10714,7 @@ proff()
 
 /*----------------------
 
-profon()
+pr()
 
 o1 = new stzList( [ "1", "2", [ 1, [ "x" ], 2 ],  "3" ] )
 
@@ -10726,7 +10726,7 @@ proff()
 
 /*----------------------
 
-profon()
+pr()
 
 # You can replace the nth item of a list
 # by a given value by writing:
@@ -10748,7 +10748,7 @@ proff()
 
 /*----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "a", "A" ])
 o1.ReplaceAt(2, :By = "A")
@@ -10760,7 +10760,7 @@ proff()
 
 /*----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "1", "2", "_", "_", "_", "4", "5" ])
 o1.ReplaceSection(3, 5, :With = "3")
@@ -10784,7 +10784,7 @@ StopProfiler()
 
 /*========================
 
-profon()
+pr()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
 
@@ -10797,7 +10797,7 @@ proff()
 
 /*----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
 
@@ -10814,7 +10814,7 @@ proff()
 
 /*----------------------
 
-profon()
+pr()
 
 ? Intersection([ [ 1, 3, 4 ], [ 1, 3, 4 ] ])
 #--> [ 1, 3, 4 ]
@@ -10824,7 +10824,7 @@ proff()
 
 /*----------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
 
@@ -10870,7 +10870,7 @@ StopProfiler()
 
 /*=================
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", 3, "c"])
 ? o1.AllItemsExcept(3)
@@ -10881,7 +10881,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 ? @@( Merge([ [ 1, 2 ], [ 3 ] ]) )
 #--> [ 1, 2, 3 ]
@@ -10903,7 +10903,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 ? StzListQ([ "ض", "c", "س", "a", "ط", "b" ]).
 	ItemsWXT('StzCharQ(@item).IsArabic()')
@@ -10915,7 +10915,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 ? @@( StzListQ([ "a", 1, "b", 2, "c", 3 ]).Types() ) + NL
 #--> [ "STRING", "NUMBER", "STRING", "NUMBER", "STRING", "NUMBER" ]
@@ -10928,7 +10928,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 StzListQ([ "one", "two", "three" ]) {
 
@@ -10946,7 +10946,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 StzListQ([ "a", 1, "b", 2, "c", 3 ]) {
 
@@ -10960,7 +10960,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", 1, "b", 2, "c", 3 ])
 o1.RemoveWXT('Not isNumber(@item)')
@@ -10972,7 +10972,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 
 obj1 = _TRUE_Object()
@@ -11003,7 +11003,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 StzListQ([ "a", "b", [], "c", [] ]) {
 	? OnlyWhereXT('{ isString(@item) }')
@@ -11015,7 +11015,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 StzListQ([ "a", "b", [], "c", [] ]) {
 	RemoveWXT('{
@@ -11031,7 +11031,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 StzListQ([ 1, "a", "b", 2, 3, "c", 4, [ "..." ], "d" ]) {
 
@@ -11049,7 +11049,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList(["_", "A", "*", "_", "B", "*", "_", "C", "*" ])
 
@@ -11064,7 +11064,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 oTrueObj = _TRUE_Object()
 oFalseObj = _FALSE_Object()
@@ -11104,7 +11104,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList(["c", "c++", "C#", "RING", "Python", "RUBY"])
 
@@ -11119,7 +11119,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList(["c", "c++", "C#", "RING", "Python", "RUBY"])
 o1.InsertAfterWXT( :Where = '{ Q(@item).IsLowercase() }' , "*")
@@ -11131,7 +11131,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList( [ "c", "c++", "C#", "RING", "Python", "RUBY" ] )
 ? o1.ItemsWXT('{ Q(@item).IsLowercased() }')
@@ -11151,7 +11151,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList(["c", "c++", "C#", "RING", "python", "ruby"])
 
@@ -11169,7 +11169,7 @@ proff()
 
 /*==============
 
-profon()
+pr()
 
 o1 = new stzSplitter(5)
 
@@ -11187,7 +11187,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
 
@@ -11205,7 +11205,7 @@ proff()
 
 /*============
 
-profon()
+pr()
 
 o1 = new stzSplitter(5)
 
@@ -11220,7 +11220,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzSplitter(5)
 
@@ -11244,7 +11244,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzSplitter(5)
 
@@ -11256,7 +11256,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzSplitter(5)
 
@@ -11280,7 +11280,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzSplitter(5)
 
@@ -11307,7 +11307,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzString("abcde")
 
@@ -11331,7 +11331,7 @@ proff()
 
 /*================
 
-profon()
+pr()
 
 o1 = new stzList([ "*", "a", "*", "b", "C", "D", "*", "e" ])
 
@@ -11349,7 +11349,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "a", "a", "c", "d", "a" ])
 o1.RemoveOccurrences([ 4, 1, 3 ], "a")
@@ -11361,7 +11361,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "C", "D", "e" ])
 
@@ -11378,7 +11378,7 @@ proff()
 
 /*=========
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "C", "D", "e" ])
 
@@ -11391,7 +11391,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "C", "D", "e" ])
 
@@ -11405,7 +11405,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "C", "D", "e" ])
 o1.InsertBeforeW( '{ Q(This[@i]).IsLowercase() }', "*" )
@@ -11417,7 +11417,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "C", "D", "e" ])
 o1.InsertBeforeWXT( '{ Q(@item).IsLowercase() }', "*" )
@@ -11429,7 +11429,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
 
@@ -11442,7 +11442,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
 
@@ -11455,7 +11455,7 @@ proff()
 
 /*===========
 
-profon()
+pr()
 
 o1 = new stzList([ 5, 4, 3, 7 ])
 o1.SortUp() # Or SortInAscending()
@@ -11467,7 +11467,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ 5, 4, "tunis", 3, 7, "cairo" ])
 o1.SortInAscending()
@@ -11478,7 +11478,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ 5, [ :me, :you ], 4, "tunis", 3, 7, [ :them, :others ], "cairo"  ])
 o1.SortInAscending()
@@ -11490,7 +11490,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 obj1 = _TRUE_Object()
 obj2 = _FALSE_Object()
@@ -11505,7 +11505,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 o1 = new stzList([ 3, 6, 9, 12, "a", "b", [ "List0" ], [ "List1" ] ])
 ? o1.IsSortedInAscending()
@@ -11516,7 +11516,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 obj1 = _TRUE_Object()
 obj2 = _FALSE_Object()
@@ -11531,7 +11531,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList(1:5)
 
@@ -11547,7 +11547,7 @@ proff()
 
 /*=================
 
-profon()
+pr()
 
 o1 = new stzSplitter(3)
 ? @@( o1.SplitToNParts(0) )
@@ -11565,7 +11565,7 @@ proff()
 
 /*===========
 
-profon()
+pr()
 
 # Look at this list:
 
@@ -11591,7 +11591,7 @@ proff()
 
 /*--------------- #narration : - operator never changes the object
 
-profon()
+pr()
 
 # When you write this:
 
@@ -11639,7 +11639,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 o1 = new stzList(["file1", "file2", "file3" ])
 
@@ -11663,7 +11663,7 @@ proff()
 
 /*--------
 
-profon()
+pr()
 
 o1 = new stzList(["file1", "file2", "file3" ])
 
@@ -11680,7 +11680,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzString("File")
 
@@ -11705,7 +11705,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzNumber(12500)
 
@@ -11717,7 +11717,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 ? @@( Q([ 3, 6, 9 ]) / 3 )
 #     \_____ _____/
@@ -11747,7 +11747,7 @@ proff()
 
 /*===========
 
-profon()
+pr()
 
 o1 = new stzList([
 	"medianet", "st2i", "webgenetix", "equinoxes", "groupe-lsi",
@@ -11771,7 +11771,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? ListReverse([ 1, 2, 3 ])
 #--> Executed in almost 0 second(s).
@@ -11781,7 +11781,7 @@ proff()
 
 /*---------
 
-profon()
+pr()
 
 o1 = new stzList([ "tunis", 1:3, 1:3, "gafsa", "tunis", "tunis", 1:3, "gabes", "tunis", "regueb", "regueb" ])
 
@@ -11807,7 +11807,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "poetry", "music", "theater", "stranger" ])
 ? o1 - These([ "poetry", "music" ])
@@ -11818,7 +11818,7 @@ proff()
                               
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C" ])
 o1.ExtendXT(:ToPosition = 5, :With = "0") # Or ExtendToWith()
@@ -11830,7 +11830,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C" ])
 
@@ -11845,7 +11845,7 @@ proff()
 
 /*---------
 
-profon()
+pr()
 
 o1 = new stzList( [ "A", "B", [ 1, "v", 2 ], "X" ] )
 
@@ -11863,7 +11863,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", 1:3, NullObject(), "B", [ "C", 4:5, [ "V", 6:8, ["T", 9:12 ,"K"] ] ], "D" ])
 ? @@( o1.DeepLists() ) # Or ListsAtAnyLevel()
@@ -11874,7 +11874,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 ? @@( Q([ 0, 1:3, 4:7, 8:10 ]).Merged() )
 #--> [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
@@ -11885,7 +11885,7 @@ proff()
 
 /*---------------------- #todo review the semantics of UntilXT()
 
-profon()
+pr()
 
 o1 = new stzList([ :Water, :Milk, :Cofee, :Tea, :Sugar, " ",:Honey ])
 ? o1.WalkUntil('@Item = :Milk')
@@ -11899,7 +11899,7 @@ proff()
 
 /*--------
 
-profon()
+pr()
 
 ? Q(5).IsBetween(2, 7)
 #--> _TRUE_
@@ -11909,7 +11909,7 @@ proff()
 
 /*========= TODO: refactor it to use stzWalker
 
-profon()
+pr()
 
 ? Q(5).IsBetween(2, 7)
 
@@ -11928,7 +11928,7 @@ proff()
 
 /*---------------------- TODO: refactor it to use stzWalker
 
-profon()
+pr()
 
 oPerson = new Person
 //myList = "A":"J"
@@ -11963,7 +11963,7 @@ class Person
 
 #====================== DISTRIBUTING ITEMS OVER THE ITEMS OF AN OTHER LIST
 
-profon()
+pr()
 
 # Softanza can distribute the items of a list over the items of an other,
 # called metaphorically 'Beneficiary Items'  as they benfit from that
@@ -12018,7 +12018,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 # The distribution of the items of a list can be made directly using
 # the "/" operator on the list object:
@@ -12040,7 +12040,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzList(1:12)
 ? @@NL( o1.DistributeOver([ "Mansour", "Teeba", "Haneen", "Hussein", "Sherihen" ]) )
@@ -12059,7 +12059,7 @@ proff()
 
 /*----------------- #TODO check error
 
-profon()
+pr()
 
 o1 = new stzList( L(' "♥1" : "♥9" ') )
 ? @@SP( o1 / [ "Mansoor", "Teeba", "Haneen" ] )
@@ -12075,7 +12075,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 # A Softanza NullObject is a named object
 
@@ -12099,7 +12099,7 @@ proff()
 # created as named objects (a special form of a Softanza
 # object that you cread along with its name)
 
-profon()
+pr()
 
 obj1 = new stzString(:first  = "Ring")
 obj2 = new stzString(:second = "Python")
@@ -12122,7 +12122,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 ? AreEqual([ 1:3, 1:3, 1:3, 1:3 ])
 #--> _TRUE_
@@ -12138,7 +12138,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "c", "a", "a", "b", "c" ])
 o1.RemoveAll("a")
@@ -12150,7 +12150,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 ? AreEqualCS([ "a", "a", "A", "A", "a", "A" ], _FALSE_)
 #--> _TRUE_
@@ -12161,7 +12161,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 # All these return _TRUE_
 
@@ -12186,7 +12186,7 @@ proff()
 
 /*--------------------- #TODO
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C" ])
 ? o1.CheckWXT("isString(@item) and @IsUppercase(@item)")
@@ -12195,7 +12195,7 @@ proff()
 
 /*--------------------- #TODO
 
-profon()
+pr()
 
 # All items are lists with 3 items
 
@@ -12206,7 +12206,7 @@ proff()
 
 /*--------------------- #TODO
 
-profon()
+pr()
 
 # All items are lLists having same number of items
 
@@ -12217,7 +12217,7 @@ proff()
 
 /*--------------------- #narration
 
-profon()
+pr()
 
 # In the following example, we check if the entire list ["a", "b", "c"] exists
 # as a single item within the list ["a", "b", "c", "x", "z"].
@@ -12254,7 +12254,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "c", "a", "a", "b", "c" ])
 
@@ -12269,7 +12269,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ :monday, :monday, :monday ])
 ? o1.IsMadeOfOneOfThese([ :sunday, :monday, :saturday, :wednesday, :thirsday, :friday, :saturday ])
@@ -12280,7 +12280,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 ? IsHashList([ :Language = "arabic", :Country = "tn", :Script = "arabic" ])
 #--> _TRUE_
@@ -12293,7 +12293,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 ? Q([ :ar, :en, :fr ]).AreLanguageAbbreviations()
 #--> _TRUE_
@@ -12303,7 +12303,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ :Language = "arabic", :Country = "tn", :Script = "arabic" ])
 
@@ -12322,7 +12322,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ :english = "house", :french = "maison", :arabic = "منزل" ])
 ? o1.IsMultilingualString()
@@ -12337,7 +12337,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "green", "red", "blue" ])
 
@@ -12376,7 +12376,7 @@ proff()
 
 #---------
 
-profon()
+pr()
 
 o1 = new stzList([ "green", "red", "blue" ])
 
@@ -12397,7 +12397,7 @@ proff()
                                        
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "green", "red" ])
 
@@ -12412,7 +12412,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "green", "red" ])
 
@@ -12433,7 +12433,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3 ])
 
@@ -12448,7 +12448,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "b", "b", "c" ])
 ? o1 - "b"
@@ -12462,7 +12462,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "b", "b", "c" ])
 o1.RemoveItemsAtPositions([2,3,4])
@@ -12474,7 +12474,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "b", "b", "b", "c" ])
 ? o1 - these([ "b", "b" ])
@@ -12488,7 +12488,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 aList = [ :name = "mansour", :job = "programmer", :name = "xe" ]
 o1 = new stzList(aList)
@@ -12501,7 +12501,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "c", 12 ])
 ? o1.HasSameContentAs([ "a", 12, "c" ])
@@ -12512,7 +12512,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList([ :ring, 5, :php, :ruby, :python, :ring, 5 ])
 ? o1.NumberOfOccurrence(5)
@@ -12526,7 +12526,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "c" ])
 ? o1.ItemsHaveSameOrderAs([ "a", "c", "f" ])
@@ -12536,7 +12536,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3, 6 ])
 ? o1.IsReverseOf([ 6, 3, 2, 1 ])
@@ -12547,7 +12547,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 o1 = new stzList([ 1, 2, 3 ])
 
 ? o1.IsEqualTo([ 3, 1, 2 ])
@@ -12564,7 +12564,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList([ 2, 1, 3 ])
 ? o1.ItemsHaveSameOrderAs([ 2, 1, 3, 6 ])
@@ -12575,7 +12575,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 aList = [ 12,
 	[ "A", [ 1, 2, 3] ], 		# 1st sublist
@@ -12589,7 +12589,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", 1:3, "C", "D", 4:5 ])
 ? o1.FirstList()
@@ -12603,7 +12603,7 @@ proff()
 
 /*-------------------------- #TODO
 
-profon()
+pr()
 
 aList = [ 12,
 	[ "A", [ 1, 2, 3] ], # 1st sublist
@@ -12619,7 +12619,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -12638,7 +12638,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList(  [	:name, :age, 	:job		])
 ? o1.AssociateWith([ 	"Ali", 	24, 	"Programmer" 	])
@@ -12654,7 +12654,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 1, 1 ])
 ? o1.AllItemsAreEqualTo(1)
@@ -12664,7 +12664,7 @@ proff()
 
 /*--------------------------
 
-profon()
+pr()
 
 o1 = new stzList("a":"t")
 ? o1.Contains("x")
@@ -12676,7 +12676,7 @@ proff()
 /*============ TODO: Levels functions need a reflection, see code.
 # To be replaced with DeepFind
 
-profon()
+pr()
 
 o1 = new stzList([
 	1, [ "A", "B"], 2,

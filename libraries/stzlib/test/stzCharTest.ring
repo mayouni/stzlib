@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*-----
 */
-profon()
+pr()
 
 ? StzCharQ("⚝").Name()
 #--> OUTLINED WHITE STAR
@@ -22,7 +22,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 ? isvowel("a") 		# Ring function
 
@@ -38,7 +38,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 ? NthChar(3, "ring")
 #--> n
@@ -48,7 +48,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 ? Basmalah()
 #--> ﷽
@@ -71,7 +71,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 ? Allah()
 #o--> ﷲ
@@ -90,7 +90,7 @@ proff()
 
 /*------
 
-profon()
+pr()
 
 ? Smile()
 #--> 😆
@@ -122,7 +122,7 @@ proff()
 
 /*=========== TODO : LOGICAL ERRORS
 
-profon()
+pr()
 
 ? StzCharQ("0x10481").Content() #--> TODO: ERR, should be "𐒁"
 #--> ҁ
@@ -153,7 +153,7 @@ proff()
 #TODO // Add TurnUp, TurnDown, Turn, IsTurnedUp, IsTurnedDown
 # here in stzChar then in stzString
 
-profon()
+pr()
 
 ? @@(TurnableNumbers())
 #--> [ 2, 3 ]
@@ -169,7 +169,7 @@ proff()
 
 /*------ TURNED NUMBERS
 
-profon()
+pr()
 
 ? @@(TurnedNumbersUnicodes())
 #--> [ 8586, 8587 ]
@@ -188,7 +188,7 @@ proff()
 
 /*------- TURNABLE CHARS
 
-profon()
+pr()
 
 ? HowManyTurnableChars()
 #--> 141
@@ -216,7 +216,7 @@ proff()
 
 /*=====
 
-profon()
+pr()
 
 o1 = new stzChar("M")
 ? o1.Reverted()
@@ -231,7 +231,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzChar("Ɯ")
 ? o1.IsTurned()
@@ -260,7 +260,7 @@ proff()
 
 /*=====
 
-profon()
+pr()
 
 ? QQ("Ǝ").IsTurned()
 #--> _TRUE_
@@ -294,7 +294,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 # First, this is your name, nicely printed in a rounded box
 
@@ -313,7 +313,7 @@ proff()
 
 /*---------
 
-profon()
+pr()
 
 ? @@( ArabicDotlessUnicodes() ) + NL
 #--> [
@@ -337,7 +337,7 @@ proff()
 
 /*---------
 */
-profon()
+pr()
 
 StzCharQ('U+0649') {
 	? Content() 	#--> ى
@@ -448,7 +448,7 @@ proff()
 
 /*----- Arabic dotless letters
 
-profon()
+pr()
 
 ? @@( ArabicDotlessLetters() ) + NL
 #--> [ "ى", "ا", "ح", "د", "ر", "س", "ص", "ط", "ع", "م", "ه", "و", "ٮ", "ٯ", "ڡ", "ک", "ں" ]
@@ -467,7 +467,7 @@ proff()
 
 /*----- Latin dotless letters
 
-profon() 
+pr() 
 
 ? @@( LatinDotlessLetters() ) + NL
 #--> [ "ı", "ȷ" ]
@@ -481,12 +481,12 @@ profon()
 ? @@( LatinDotlessLettersXT() ) + NL
 #--> [ [ "ı", "ı" ], [ "i", "ı" ], [ "ȷ", "ȷ" ], [ "j", "ȷ" ] ]
 
-profon()
+pr()
 # Executed in 0.08 second(s)
 
 /*----- Dotless letters
 
-profon() 
+pr() 
 
 ? @@( DotlessLetters() ) + NL
 #--> [ "ى", "ا", "ح", "د", "ر", "س", "ص", "ط", "ع", "م", "ه", "و", "ٮ", "ٯ", "ڡ", "ک", "ں", "ı", "ȷ" ]
@@ -505,7 +505,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 ? MaxUnicodeNumber()
 #--> 1114112
@@ -526,7 +526,7 @@ profon()
 
 /*------------------ !! Check error (not always, run it many times!)
 */
-profon()
+pr()
 
 ? ACharOtherThan("y")
 #--> 
@@ -541,7 +541,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 ? MaxUnicode()
 #--> 1_114_112

@@ -6,7 +6,7 @@ load "../max/stzmax.ring"
 
 /*--------------------
 
-profon()
+pr()
 
 o1 = new stzListOfBytes("で")
 ? o1.ToHex() 
@@ -19,7 +19,7 @@ proff()
 
 /*--------------------
 
-profon()
+pr()
 
 o1 = new stzListOfBytes("s㊱m")
 
@@ -40,7 +40,7 @@ proff()
 
 /*--------------------
 
-profon()
+pr()
 
 o1 = new stzListOfBytes("مرحبا")
 
@@ -61,7 +61,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 o1 = new stzListOfBytes("RING")
 ? @@( o1.UnicodesPerChar() )
@@ -72,7 +72,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 oQByteArray = new QByteArray()
 oQByteArray.append("RING")
@@ -91,7 +91,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 // Swapping strings using stzString
 
@@ -124,7 +124,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 o1 = new stzListOfBytes("mЖ丽")
 ? o1.NumberOfBytes()
@@ -148,7 +148,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 o1 = new stzListOfBytes("mЖ丽")
 ? o1.Range(1, 1)
@@ -165,7 +165,7 @@ proff()
 
 /*======================
 
-profon()
+pr()
 
 ? Q("abc").ContainsNo(".")
 #--> _TRUE_
@@ -175,7 +175,7 @@ proff()
 
 /*---------------------
 
-profon()
+pr()
 
 ? Q("12500.89").RepresentsNumber()
 #--> _TRUE_
@@ -189,7 +189,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 o1 = new QChar(65)
 
@@ -211,7 +211,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 o1 = new QByteArray()
 o1.append("で")
@@ -226,7 +226,7 @@ proff()
 
 /*-------------------
 *
-profon()
+pr()
 
 ? str2hex("で") # A Ring function
 #--> e381a7
@@ -235,7 +235,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 o1 = new stzListOfBytes("で")
 
@@ -260,7 +260,7 @@ proff()
 
 /*-------------------
 */
-profon()
+pr()
 
 o1 = new stzString("ssdsd")
 
@@ -283,7 +283,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 o1 = new stzListOfBytes("s㊱m")
 

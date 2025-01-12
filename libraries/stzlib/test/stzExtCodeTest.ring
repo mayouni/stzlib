@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*----------
 
-profon()
+pr()
 
 Q([ 1, 2, "three", 4, "five" ]) {
 
@@ -30,7 +30,7 @@ proff()
 
 /*------------ #ring #perf
 
-profon()
+pr()
 
 ? sort([
 	[ "Bob",       89 ],
@@ -45,7 +45,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 ? StzListOfListsQ([
 	[ "Bob",       89 ],
@@ -65,7 +65,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 ? Min([2, 3])
 #--> 2
@@ -79,7 +79,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 CheckParamsOff()
 
@@ -113,7 +113,7 @@ proff()
 
 /*==== #narration SQL SUPPORT IN SOFTANZA EXTERNAL CODE
 */
-profon()
+pr()
 
 # SQL code to create a table with three columns
 
@@ -260,7 +260,7 @@ proff()
 
 /*==============
 
-profon()
+pr()
 
 for i = 1 to 3
 	Vr([ :x, :y, :z ]) '=' Vl([ i, 2*i, 3*i ])
@@ -279,7 +279,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 Vr([ :x, :y, :z ]) '=' Vl([ -1, 0, 1 ])
 ? v([ :x, :y, :z ])
@@ -291,7 +291,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 Vr([ :x, :y, :z ]) '=' Vl([ 10, 20, 30 ])
 ? v([ :x, :y, :z ])
@@ -304,7 +304,7 @@ proff()
 /*----------- #narration DYNAMIC CONSTRUCTION OF VARIABLE NAMES
 #ERR #TODO check it
 
-	profon()
+	pr()
 	
 	# Softanza makes it possible to contruct variable
 	# names in a dynamic way.
@@ -381,7 +381,7 @@ proff()
 
 /*======== #ERROR #TODO check it
 
-profon()
+pr()
 	
 	# In PHP we use indirection to dynamically
 	# call the name of a variable, like this:
@@ -430,7 +430,7 @@ proff()
 
 /*========
 
-profon()
+pr()
 
 # In Raku (Perl) language we write:
 "
@@ -454,7 +454,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 	n = -12;
 	vr(:sign) '=' b(n > 0) '?' bt("positive") '!!' bf("negative");
 	printf( v(:sign) );
@@ -465,7 +465,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzList([ 2, 4, 8 ])
 ? o1.EachItemIsA(:Number)
@@ -479,7 +479,7 @@ proff()
 
 /*===== ObjectName() and ClassName()
 
-profon()
+pr()
 
 o1 = new stzString(:nation = "Niger")
 
@@ -515,7 +515,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzString(:nation = "Niger") # A named object
 ? o1.VarName()
@@ -530,7 +530,7 @@ proff()
 
 /*------------ #narration NAMING UNNAMED OBJECTS AND MAKING THEM FINDABLE
 
-profon()
+pr()
 
 # By default, a softanza object is created with no name
 # (actually, with a name called :@noname)
@@ -660,7 +660,7 @@ proff()
 
 /*=========== TODO
 
-profon()
+pr()
 # Exploring the possibility of using named vars to make it
 # possible finding objects by name inside a list!
 
@@ -674,7 +674,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 Vr( "a" : "z" ) '<~' Vl( 1 : NumberOfLatinLetters() )
 ? v(:t)
@@ -685,7 +685,7 @@ proff()
 
 /*======
 
-profon()
+pr()
 
 ? @@( Q("::2").SplitAt(":") )
 #--> [ _NULL_, _NULL_, "2" ]
@@ -695,7 +695,7 @@ proff()
 
 /*==== Using a Python code inside Ring ===
 
-profon()
+pr()
 
 # Reversing a list, the Python way
 
@@ -712,7 +712,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 # Reversing a list, in Python code:
 '
@@ -733,7 +733,7 @@ proff()
 #NOTE: examples taken from this article:
 # https://note.nkmk.me/en/python-range-usage
 
-profon()
+pr()
 
 # range(n) : 0 <= x < n	--> n not included!
 
@@ -789,7 +789,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 # Used to suppoprt external code from 0-based languages
 
@@ -826,7 +826,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 # In python, we get the integer part of the division using the // operator
 
@@ -843,7 +843,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 # In Python, this code concatenates a list of items into a string
 # using a given separator:
@@ -862,7 +862,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 ? range(3)
 #--> [ 0, 1, 2 ]
@@ -903,7 +903,7 @@ print(euc_dist(a,b))
 # In Ring, with Softanza, we can reuse nearly the same code,
 # like this :
 
-profon()
+pr()
 
 	a = 1:5
 	b = 4:8
@@ -975,7 +975,7 @@ def euc_dist_(a,b)':' # we put the : char between two ''
 	# Using Softanza External Code facility, we can run quiet the same
 	# Python code in Ring:
 	
-	profon()
+	pr()
 	
 	def main()':' 
 		old_string = "This is the old string."
@@ -1025,7 +1025,7 @@ def euc_dist_(a,b)':' # we put the : char between two ''
 
 # range() is used for Pyhton-code compatibility
 
-profon()
+pr()
 
 	? range(3)
 	#--> [ 0, 1, 2 ]
@@ -1039,7 +1039,7 @@ proff()
 
 /*============= #ring #perf #flex
 
-profon()
+pr()
 
 # Ring print2str() is more performant than Softanza Interpolate (based on Qt)
 
@@ -1063,7 +1063,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 freind_name = "Mahmoud"
 country_name = "Mahmoud"
@@ -1080,7 +1080,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 # f-strings are a feature in Python for interpolating string
 # content, by dynmalically evaluating variables inside it:
@@ -1103,7 +1103,7 @@ proff()
 
 /*================ #todo #error
 
-profon()
+pr()
 
 # In Softanza, you can define many variables and affect
 # values to them in one line like this:
@@ -1139,7 +1139,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 # In Python, we can assign multiple values to many variables:
 '
@@ -1166,7 +1166,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen", "Teeba" ])
 ? v(:name2)
@@ -1178,7 +1178,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 Vr([ :name1, :name2, :name3 ]) '=' Vl([ "Hussein", "Haneen" ])
 ? @@( TempVarsXT() )
@@ -1193,7 +1193,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen" ])
 ? v(:name)
@@ -1203,7 +1203,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen" ])
 ? v([ :name1, :name2, :name7 ])
@@ -1213,7 +1213,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 Vr([ :name, :grades, :age ]) '=' Vl([ "Mansour", [10, 12, 15], 47 ])
 ? @@( v(:grades) )
@@ -1225,7 +1225,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 Vr([ :names ]) '=' Vl([ [ "Hussein", "Haneen", "Teebah" ] ])
 ? @@( v(:names) )
@@ -1236,7 +1236,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 ? @@( tempval() )
 #--> _NULL_
@@ -1270,7 +1270,7 @@ proff()
 
 /*============ TERNARY OPERATOR
 
-profon()
+pr()
 
 # In Python we can use ternary operator like this:
 	'
@@ -1310,7 +1310,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 # Ternary operator in C-style languages (C, C#, Java, Javascript, PHP...)
 # variable = (condition) ? value1 : value2;
@@ -1334,7 +1334,7 @@ proff()
 
 /*============
 
-profon()
+pr()
 
 bPositive = _TRUE_
 Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
@@ -1353,7 +1353,7 @@ proff()
 
 /*-------------- #ERR #TODO check it
 
-	profon()
+	pr()
 	
 	bPositive = _FALSE_
 	V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10 ])
@@ -1365,7 +1365,7 @@ proff()
 
 /*-------------- #ERR #TODO check it
 
-	profon()
+	pr()
 	
 	bPositive = _FALSE_
 	V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10, -20 ])
@@ -1377,7 +1377,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 bPositive = _TRUE_
 Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])

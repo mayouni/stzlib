@@ -1,10 +1,21 @@
-#INFO A nice article to get the essentials of regExp
+
+#INFO Some reference articles to read:
+
+# A nice article to get the essentials of regExp
 # https://trustedsec.com/blog/regex-cheat-sheet
-#TODO: Write a narration based on it.
+
+# An other valuable link from Mozilla MSDN:
+# https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Cheatsheet
+
+# An of course the reference article on Qt
+# https://doc.qt.io/qt-5/qregularexpression.html#details
 
 func StzRegExpQ(pcPattern)
 	return new stzRegExp(pcPattern)
-    
+
+	func rx(pcPattern)
+		return StzRegExpQ(pcPattern)
+
 class stzRegExp
 	
 	@oQRegExp
@@ -96,6 +107,9 @@ class stzRegExp
 		@nPatternOptions |= 64  # Set UseUnicodePropertiesOption bit
 		@oQRegExp.setPatternOptions(@nPatternOptions)
 
+		def EnableUnicode()
+			This.UseUnicode()
+
 	def DisableOptimizations()
 		@nPatternOptions |= 128 # Disable optimizations
 		@oQRegExp.setPatternOptions(@nPatternOptions)
@@ -167,6 +181,9 @@ class stzRegExp
 		@cTempStr = pcStr
 		return QRegExpObject().match(pcStr, nPos, 0, 0).hasMatch()
 
+		def MatchAtPosition(pcStr, nPos)
+			This.MatchAt(pcStr, nPos)
+
 	#-- Capture methods
 
 	def CapturedValues()
@@ -188,12 +205,30 @@ class stzRegExp
 
 		def Capture()
 			return This.CapturedValues()
-	
+
+		def CaptureValues()
+			return This.CapturedValues()
+
 		def Captured()
+			return This.CapturedValues()
+
+		def Values()
 			return This.CapturedValues()
 
 	def CaptureNames()
 		return QStringListToList(@oQRegExp.namedCaptureGroups())
+
+		def GroupsNames()
+			return This.CaptureNames()
+
+		def CapturedGroupsNames()
+			return This.CaptureNames()
+
+		def CapturedNames()
+			return This.CaptureNames()
+
+		def Names()
+			return This.CapturedValues()
 
 	def CapturedGroups()
 		oMatch = @oQRegExp.match(@cTempStr, 0, 0, 0)
@@ -208,11 +243,17 @@ class stzRegExp
 			cName = _acCaptureNames_[@i]
 
 			if cName != ""
-				aResult + [cName, oMatch.captured(@i-1)]
+				aResult + [ cName, oMatch.captured(@i-1) ]
 			ok
 		next
 
 		return aResult
+
+		def CaptureGroups()
+			return This.CapturedGroups()
+
+		def Groups()
+			return This.CapturedGroups()
 
 	#-- Error handling and information
 
