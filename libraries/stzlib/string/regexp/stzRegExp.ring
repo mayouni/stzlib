@@ -41,6 +41,12 @@ class stzRegExp
 		@oQRegExp.setPatternOptions(@nPatternOptions)
 		@cPattern = pcPattern
 
+		# It the pattern contains multilines, then extend the syntax
+
+		if ring_substr1(pcPattern, NL) > 0
+			This.EnableExtendedSyntax()
+		ok
+
 	#-- Pattern content methods
 
 	def Content()
@@ -67,7 +73,8 @@ class stzRegExp
 			ok
 		ok
 
-		@bInScopedMatch = TRUE
+		# Enable dot matches everything for cross-line matching
+		This.DotMatchesEverything()
 		@cTempStr = pcStr
 		return QRegExpObject().match(pcStr, 0, 0, 0).hasMatch()
 
@@ -94,6 +101,7 @@ class stzRegExp
 		ok
 
 		This.MultiLine()
+		This.DotMatchesEverything()  # Added to fix multiline matching
 		@cTempStr = pcStr
 		return QRegExpObject().match(pcStr, 0, 0, 0).hasMatch()
 
@@ -210,6 +218,11 @@ class stzRegExp
 
 	def DontCapture()
 		@nPatternOptions |= 32  # Set DontCaptureOption bit
+		# Fix: Update pattern to use non-capturing groups
+		cNewPattern = This.Pattern()
+		cNewPattern = substr(cNewPattern, "(?<", "(?:")  # Convert named groups
+		cNewPattern = substr(cNewPattern, "(", "(?:")    # Convert regular groups
+		This.SetPattern(cNewPattern)
 		@oQRegExp.setPatternOptions(@nPatternOptions)
 		return This
 
@@ -332,19 +345,18 @@ class stzRegExp
 
 	def CapturedValues()
 		_acResult_ = []
+		oMatch = @oQRegExp.match(@cTempStr, 0, 0, 0)
 		
-		@i = 0
-		while true
-			_cCapture_ = @oQRegExp.match(@cTempStr, 0, 0, 0).captured(@i)
-			if _cCapture_ = ""
-				exit
+		# Fix: Only add non-empty captures and avoid duplicates
+		for @i = 0 to This.CaptureCount()
+			_cCapture_ = oMatch.captured(@i)
+			if _cCapture_ != "" and @i > 0  # Skip first capture (full match)
+				_acResult_ + _cCapture_
 			ok
-
-			_acResult_ + _cCapture_
-			@i++
-		end
+		next
 
 		return _acResult_
+
 
 		def Capture()
 			return This.CapturedValues()
