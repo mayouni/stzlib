@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*---------
 
-profon()
+pr()
 
 ? Char(34)
 #--> "
@@ -30,7 +30,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzString(@@( [ " ", "!", "'+ char(34) +'", "#", "y"] ))
 o1.Replace( @@("'+ char(34) +'"), @@('"') )
@@ -43,7 +43,7 @@ proff()
 
 /*---------
 
-profon()
+pr()
 
 ? Contig("ج","ر") # Or ContigList() or Contiguous() or ContiguousList()
 
@@ -52,7 +52,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzList(' "ج":"ر" ')
 ? o1.Content()
@@ -62,7 +62,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzListOfChars(' "ج":"ر" ')
 ? o1.Content()
@@ -72,7 +72,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 ? NumberOfCharsBetween("A", "B")
 #--> 0
@@ -82,7 +82,7 @@ proff()
 
 /*=======
 
-profon()
+pr()
 
 ? @@( CharsBetween("A", :And = "E") )
 #--> [ "A", "B", "C", "D", "E" ]
@@ -92,7 +92,7 @@ proff()
 
 /*----- #TODO fix it!
 */
-profon()
+pr()
 
 o1 = new stzGrid(CharsBetween(" ", :And = "z") )
 ? o1.HowManyHLines()
@@ -105,7 +105,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 ? @@( CharsBetween("!", "p") )
 #--> [
@@ -124,7 +124,7 @@ proff()
 
 /*=============
 
-profon()
+pr()
 
 aList = [
 	[ "!", '"', "#", "$", "%", "&", "'", "(", ")", "*" ],
@@ -148,7 +148,7 @@ proff()
 
 /*---------------
 */
-profon()
+pr()
 
 # Showing the chars between "!" and "p" in a grid of 10 by 8
 
@@ -209,7 +209,7 @@ proff()
 
 /*----------
 */
-profon()
+pr()
 
 o1 = new stzGrid(9)
 o1.Show()

@@ -1,6 +1,6 @@
 load "../max/stzmax.ring"
 
-profon()
+pr()
 
 o1 = new stzDecimalToBinary("-12.05")
 ? o1.ToBinaryForm()

@@ -1,6 +1,6 @@
 load "../max/stzmax.ring"
 
-profon()
+pr()
 
 o1 = new stzListOfUnicodes( Arabic7araketUnicodes() )
 

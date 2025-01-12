@@ -1,6 +1,6 @@
 load "../max/stzmax.ring"
 
-profon()
+pr()
 
 o1 = new stzPair([ "Me", "You" ])
 ? o1.Content() #--> [ "Me", "You" ]

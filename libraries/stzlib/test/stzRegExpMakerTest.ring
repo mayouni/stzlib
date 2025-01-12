@@ -3,7 +3,7 @@ load "../max/stzmax.ring"
  
 /*----
 
-profon()
+pr()
 
 ? @@( Types([ 3, "ok", 1:3, ANullObject() ]) ) + NL
 #--> [ "NUMBER", "STRING", "LIST", "OBJECT" ]
@@ -21,7 +21,7 @@ proff()
 
 /*=== Ring number() VS Softanza @Number()
 
-profon()
+pr()
 
 ? number("12 120.5")
 #--> 12
@@ -42,7 +42,7 @@ proff()
 
 #---
 
-profon()
+pr()
 
 ? IsNumberInString("-12120.5")
 #--> TRUE
@@ -58,7 +58,7 @@ proff()
 
 /*===
 */
-profon()
+pr()
 
 o1 = new stzRegExpMaker()
 o1 {
@@ -98,7 +98,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 # Let's design the string pattern of the new french registration number.
 # Here are some examples: 

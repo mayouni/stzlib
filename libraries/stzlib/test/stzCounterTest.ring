@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*-----------
 */
-profon()
+pr()
 
 o1 = new stzCounter([
 	:StartAt = 1,
@@ -25,7 +25,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzCounter([
 	:StartAt = 1,
@@ -44,7 +44,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzCounter([
 	:StartAt = 1,

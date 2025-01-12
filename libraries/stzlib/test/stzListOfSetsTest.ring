@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzListOfSets([
 	[ "a", "b", "c" ],
@@ -18,7 +18,7 @@ proff()
 
 /*---
 */
-profon()
+pr()
 
 o1 = new stzSet([ "a", "b", "b", "c", "c" ])
 ? o1.IntersectionWith([ "a", "t", "c", "v" ])

@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzListOfChars([ 945, 946, 947 ])
 
@@ -30,7 +30,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 ? NumberOfMathChars()
 #--> 68
@@ -75,7 +75,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzListOfChars([ "1", "2", "♥", "4", "5", "♥", "7", "8", "♥" ])
 
@@ -108,7 +108,7 @@ proff()
 
 /*----------------
 
-profon()
+pr()
 
 ? StzListOfCharsQ("A":"E").IsContiguous()
 #--> _TRUE_
@@ -124,7 +124,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzListOfChars([ "a", "b", "c" ])
 
@@ -139,7 +139,7 @@ proff()
 
 /*============
 
-profon()
+pr()
 
 SetHilightChar("♥")
 
@@ -166,7 +166,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 ? StzListOfCharsQ("A":"E").BoxedXT([
 	:AllCorners = :Round,
@@ -184,7 +184,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 ? StzListOfCharsQ("A":"E").BoxedXT([ :Line = :Dashed, :AllCorners = :Round ])
 #-->
@@ -197,7 +197,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 ? StzListOfCharsQ("SOFTANZA").Boxed()
 #-->
@@ -210,7 +210,7 @@ proff()
 
 /*=========
 
-profon()
+pr()
 
 ? @@( L('"ا":"ج"') )
 #o--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
@@ -220,7 +220,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 ? StzListOfCharsQ(L('"ا":"ج"')).BoxedXT([ :Line = :Dashed, :AllCorners = :Round ])
 #-->
@@ -236,7 +236,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 ? StzListOfCharsQ("منصوريات").Boxed()
 #-->
@@ -249,7 +249,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 ? BothEndWithANumber( "day1", "day3" )
 #--> _TRUE_
@@ -259,7 +259,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 ? Q("[1, 2, 3 ]").ToList() # Or L("[1, 2, 3 ]")
 #--> [ 1, 2, 3 ]

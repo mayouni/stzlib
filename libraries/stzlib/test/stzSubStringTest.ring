@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*=====
 
-profon()
+pr()
 
 ? SubStringQ([ "♥♥", :In = "--♥♥--**--" ]).ComesBeforeSubString("**")
 #--> _TRUE_
@@ -87,7 +87,7 @@ Show( v[@1, @2] )
 
 /*-------------
 
-profon()
+pr()
 
 ? Q("ring").InQ("I LOVE ring LANGUAGE!" ).Uppercased()
 #--> I LOVE THE RING LANGUAGE!
@@ -127,7 +127,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 ? Q("I love Ring").Words()
 #--> [ "I", "love", "Ring" ]
@@ -139,7 +139,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 ? Q("human").InQ("THE human LIFE").IsInLowercase()
 #--> _TRUE_
@@ -164,7 +164,7 @@ proff()
 
 /*------------
 */
-profon()
+pr()
 
 ? Only("human").InQ([ "THE", "human", "LIFE" ]).IsInLowercase()
 #--> _TRUE_
@@ -198,7 +198,7 @@ proff()
 
 /*-----
 */
-profon()
+pr()
 
 o1 = new stzString("ring")
 
@@ -216,7 +216,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 o1 = new stzString("I LOVE THE ring LANGUAGE!")
 
@@ -233,7 +233,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 o1 = new stzSubString("ring", :in = "I LOVE THE ring LANGUAGE!")
 
@@ -260,7 +260,7 @@ proff()
 
 /*-----
 */
-profon()
+pr()
 
 o1 = new stzSubString("ING", :in = "I love the RING language!")
 

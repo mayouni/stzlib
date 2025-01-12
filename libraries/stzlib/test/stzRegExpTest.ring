@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*---
 
-profon()
+pr()
 
 cStr = "أهواك وأتمنى لو أنساك وأنسى روحي وياك
 وإن ضاعت يبقى فداك لو تنساني
@@ -58,7 +58,7 @@ proff()
 
 /*=== Basic Pattern Matching
 
-profon()
+pr()
 
 o1 = new stzRegExp("softanza")
 
@@ -76,7 +76,7 @@ proff()
 
 /*=== Case Sensitivity Examples
 
-profon()
+pr()
 
 o1 = new stzRegExp("softanza")
 o1 {
@@ -108,8 +108,121 @@ o1 {
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
+/*=== UNDERStANDING CHARACTER CLASSES (From Mozilla MSDN)
+
+# Character classes distinguish kinds of characters such as,
+# for example, distinguishing between letters and digits.
+
+pr()
+
+# Pattern [xyz]
+# Matches any one among the enclosed characters.
+
+rx("[abcd]") { ? Match("chop") }
+#--> TRUE
+
+# Pattern [x-z]
+# You can specify a range of characters by using a hyphen.
+
+rx("[a-d]") { ? Match("brisket") }
+#--> TRUE
+
+# But if the hyphen appears as the first or last character
+# enclosed in the square brackets, it is taken as a literal
+# hyphen to be included in the character class as a normal char.
+
+rx("[abcd-]") { ? Match("chop") }
+#--> TRUE
+
+rx("[abcd-]") { ? Match("brisket") }
+#--> TRUE
+
+rx("[abcd-]") { ? Match("-profit") }
+#--> TRUE
+
+rx("[abcd-]") { ? Match("non-profit") }
+#--> TRUE
+
+# [\w-] is the same as [A-Za-z0-9_-]
+
+rx("[\w-]") { ? Match("chop") }
+#--> TRUE
+
+rx("[\w-]") { ? Match("brisket") }
+#--> TRUE
+
+rx("[\w-]") { ? Match("non-profit") }
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*=== UNDERStANDING CAPTURED AND NON CAPTURED GROUPS (From Mozilla MSDN)
+
+pr()
+
+
+
+proff()
+
 /*===
+
+pr()
+
+# The | regular expression operator separates two or more alternatives.
+
+# The pattern first tries to match the first alternative;
+# if it fails, it tries to match the second one, and so on.
+
+# For example, the following matches "a" instead of "ab",
+# because the first alternative already matches successfully:
+
+rx("a|ab") { ? Match("abc") }
+#--> TRUE
+
+rx("a|ab") { ? Match("abc") ? @@( Capture() ) }
+#--> [ "a" ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*=== MATCHING ARABIC
+
+pr()
+
+rx("[أ-د]") { ? Match("نور") }
+#--> FALSE
+
+rx("[أ-د]") { ? Match("أنوار") }
+#--> TRUE
+
+rx("م|من") { ? Match("منجم") ? @@( Capture() ) }
+#o--> [ "م" ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*=== BACKREFERENCE
 */
+pr()
+
+# \n pattern: Where "n" is a positive integer.
+
+#~> Matches the same substring matched by the nth capturing group
+# in the regular expression (counting left parentheses).
+
+# For example:
+
+rx("apple(,)\sorange\1") { Match("apple, orange, cherry, peach") ? Values()[1] }
+#--> "apple, orange,"
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*===///////
+*/
+
+pr()
 
 Match()
 	# ^ and $ match start and end of the whole string
@@ -120,10 +233,11 @@ MatchLines()
 	# DOT matches any char including the NL char (~> continues on all lines)
 
 
+proff()
 
 /*=== Multiline Pattern Examples
-*/
-profon()
+
+pr()
 
 # In this example we use the regexp pattern "^Start.*$".
 
@@ -162,7 +276,7 @@ proff()
 
 /*=== Dot Matches Everything Examples
 
-profon()
+pr()
 
 cText = "Line 1
 Line 2"
@@ -184,8 +298,8 @@ o1 {
 proff()
 
 /*=== Extended Syntax Examples (comments allowed)
-*/
-profon()
+
+pr()
 
 # Instead of using the following cryptic regular expression:
 # "(?<day>[0-9]{2})/(?<month>[0-9]{2})/(?<year>[0-9]{4})"
@@ -194,13 +308,13 @@ profon()
 o1 = new stzRegExp("
 	# Match a valid date format
 
-	(?<day>[0-9]{2})   # Group 1 : Two digits for the day
+	(?<day>[0-9]{2})   # Named Group 1 : Two digits for the day
 	/                  # Literal slash
 
-	(?<month>[0-9]{2}) # Group 2 : Two digits for the month
+	(?<month>[0-9]{2}) # Named Group 2 : Two digits for the month
 	/                  # Literal slash
 
-	(?<year>[0-9]{4})  # Group 3 : Four digits for the year
+	(?<year>[0-9]{4})  # Named Group 3 : Four digits for the year
 ")
 
 o1 {
@@ -224,6 +338,8 @@ o1 {
 
 	? @@( CapturedGroups() )
 	#--> [ [ "day", "25" ], [ "month", "12" ], [ "year", "2024" ] ]
+
+	
 }
 
 proff()
@@ -231,12 +347,10 @@ proff()
 
 /*=== Greedy vs Lazy Matching
 
-profon()
+pr()
 
-/*
-In this example, we'll illustrate the difference between greedy 
-and lazy matching using the same pattern but contrasting outcomes.
-*/
+# In this example, we'll illustrate the difference between greedy 
+# and lazy matching using the same pattern but contrasting outcomes.
 
 # Example HTML string
 
@@ -278,7 +392,7 @@ proff()
 
 /*=== Unicode Support Examples
 
-profon()
+pr()
 
 o1 = new stzRegExp("\p{Script=Arabic}")
 o1.UseUnicode()
@@ -290,112 +404,154 @@ proff()
 
 /*=== Capture Groups Examples
 
-profon()
+pr()
 
 o1 = new stzRegExp("(?<fname>[A-Za-z]+)\s+(?<lname>[A-Za-z]+)")
-? o1.Match("John Doe")            #--> TRUE
-? o1.CaptureCount()               #--> 2
-? o1.CaptureNames()               #--> ["fname", "lname"]
-? o1.CapturedGroups()             #--> [["fname","John"], ["lname","Doe"]]
+
+? o1.Match("John Doe")
+#--> TRUE
+
+? o1.CaptureCount()
+#--> 2
+
+? o1.CaptureNames()
+#--> ["fname", "lname"]
+
+? o1.CapturedGroups()
+#--> [["fname","John"], ["lname","Doe"]]
 
 # Non-capturing groups
+
 o1.DontCapture()
-? o1.IsNonCapturing()             #--> TRUE
-? o1.CaptureCount()               #--> 0
+? o1.IsNonCapturing()
+#--> TRUE
+
+? o1.CaptureCount() #TODO // Check why it returns 2
+#--> 0
 
 proff()
 
 /*=== Position-specific Matching Examples ==="
 
-profon()
+pr()
 
 o1 = new stzRegExp("world")
-? o1.MatchAt("Hello world!", 6)   #--> TRUE
-? o1.MatchAt("Hello world!", 0)   #--> FALSE
+
+? o1.MatchAt("Hello world!", 6)
+#--> TRUE
+
+? o1.MatchAt("Hello world!", 0) #todo // check why it returns TRUE
+#--> FALSE
 
 proff()
 
-/*=== Error Handling Examples ==="
+/*=== Error Handling Examples
 
-profon()
+pr()
 
 o1 = new stzRegExp("(unclosed")
-? o1.IsValid()                    #--> FALSE
-? o1.LastError()                  #--> "Missing closing parenthesis"
-? o1.PatternErrorOffset()         #--> 8
+
+? o1.IsValid()
+#--> FALSE
+
+? o1.LastError()
+#--> "Missing closing parenthesis"
+
+? o1.PatternErrorOffset()
+#--> 8
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
-/*=== Pattern Options Reset Examples ==="
+/*=== Pattern Options Reset Examples
 
-profon()
+pr()
 
 o1 = new stzRegExp("pattern")
 o1.CaseInsensitive()
 o1.MultiLine()
 o1.ExtendedSyntax()
 
-? o1.GetOptions()                 #--> 13 # Binary: 1101
+? o1.GetOptions()
+#--> 13 # Binary: 1101
 
 o1.ResetOptions()
-? o1.GetOptions()                 #--> 0
+? o1.GetOptions()
+#--> 0
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
 /*=== Complex Real-world Examples
 
 /*--- Example 1: Parsing Log Files
 
-profon()
+pr()
 
 cLogPattern = new stzRegExp("
-	(?<timestamp>\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})\s+  # Timestamp
-	(?<level>INFO|WARN|ERROR)\s+                            # Log level
-	(?<message>.+)                                          # Message content
+	(?<timestamp>\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})\s+	# Timestamp
+	(?<level>INFO|WARN|ERROR)\s+				# Log level
+	(?<message>.+)						# Message content
 ")
+
 cLogPattern.ExtendedSyntax()
 cLogPattern.MultiLine()
 
 cLogEntry = "2024-01-09 15:30:45 ERROR Database connection failed"
-? cLogPattern.Match(cLogEntry)    #--> TRUE
-? cLogPattern.CapturedGroups()    #--> Shows parsed log components
+
+? cLogPattern.Match(cLogEntry)
+#--> TRUE
+
+? @@NL( cLogPattern.CapturedGroups() )
+#--> [
+#	[ "timestamp", "2024-01-09 15:30:45" ],
+#	[ "level", "ERROR" ],
+#	[ "message", "Database connection failed" ]
+# ]
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 2: Email Validation with Unicode Support
 
-profon()
+pr()
 
 cEmailPattern = new stzRegExp("
 	^
-	(?<local>[\p{L}\p{N}._%+-]+)   # Local part allowing Unicode letters
+	(?<local>[\p{L}\p{N}._%+-]+)	# Local part allowing Unicode letters
 	@
-	(?<domain>[\p{L}\p{N}.-]+)     # Domain part
+	(?<domain>[\p{L}\p{N}.-]+)	# Domain part
 	\.
-	(?<tld>\p{L}{2,})              # TLD with min 2 letters
+	(?<tld>\p{L}{2,})		# TLD with min 2 letters
 	$
 ")
+
 cEmailPattern.ExtendedSyntax()
 cEmailPattern.UseUnicode()
 
-? cEmailPattern.Match("user.name@example.com")        #--> TRUE
-? cEmailPattern.Match("användare@例子.com")           #--> TRUE
+? cEmailPattern.Match("user.name@example.com")
+#--> TRUE
+
+? cEmailPattern.Match("användare@例子.com")
+#--> TRUE
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Example 3: Phone Number Parser
 
-profon()
+pr()
 
 cPhonePattern = new stzRegExp("
 	# Format: +XX-XXX-XXX-XXXX or (XXX) XXX-XXXX
 	(?:
-		(?<intl>\+\d{2}-)? 		# Optional international prefix
-		(?<area>\d{3}-)? 		# Area code
-		(?<prefix>\d{3}-) 		# Prefix
+		(?<intl>\+\d{2}-)?		# Optional international prefix
+		(?<area>\d{3}-)?		# Area code
+		(?<prefix>\d{3}-)		# Prefix
 		(?<line>\d{4}) 			# Line number
 	) |
 	(?:
-		\((?<area2>\d{3})\)\s 	# Area code in parentheses
+		\((?<area2>\d{3})\)\s		# Area code in parentheses
 		(?<prefix2>\d{3}-) 		# Prefix
 		(?<line2>\d{4}) 		# Line number
 	)
@@ -403,15 +559,51 @@ cPhonePattern = new stzRegExp("
 
 cPhonePattern.ExtendedSyntax()
 
-? cPhonePattern.Match("+1-555-123-4567")             #--> TRUE
-? cPhonePattern.Match("(555) 123-4567")              #--> TRUE
-? cPhonePattern.CapturedGroups()                     #--> Shows parsed phone components
+? cPhonePattern.Match("+1-555-123-4567")
+#--> TRUE
+
+? cPhonePattern.Match("(555) 123-4567")
+#--> TRUE
+
+? @@NL( cPhonePattern.CapturedGroups() )
+#--> [
+#	[ "intl", "" ],
+#	[ "area", "" ],
+#	[ "prefix", "" ],
+#	[ "line", "" ],
+#	[ "area2", "555" ],
+#	[ "prefix2", "123-" ],
+#	[ "line2", "4567" ]
+# ]
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
+/*====
 
+pr()
 
+o1 = new stzRegExp("(?<day>\d\d)-(?<month>\d\d)-(?<year>\d\d\d\d) (\w+) (?<name>\w+)")
 
+? @@NL( o1.CaptureNames() )
+#--> [
+#	"",
+#	"day",
+#	"month",
+#	"year",
+#	"",
+#	"name"
+# ]
+
+? @@NL( o1.CaptureGroups() )
+#--> [
+#	[ "day", "" ],
+#	[ "month", "" ],
+#	[ "year", "" ],
+# ]
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 
 
@@ -422,7 +614,7 @@ proff()
 
 /*===== CLASSIC STYLE ==============
 
-profon()
+pr()
 
 o1 = new stzRegExp("[-.a-z0-9]+[@][-.a-z0-9]+[.][a-z]{2,4}")
 
@@ -437,7 +629,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzRegExp("^(\d\d)/(\d\d)/(\d\d\d\d)$")
 
@@ -455,7 +647,7 @@ proff()
 
 /*=== DECLARATIVE STYLE: #todo Implement it using stzRegExpMaker in background
 
-profon()
+pr()
 
 o1 = new stzRegExp([])
 o1 {
@@ -486,7 +678,7 @@ proff()
 
 /*------------ #todo Implement it using stzRegExpMaker in background
 
-profon()
+pr()
 
 o1 = new stzRegExp()
 o1 {
@@ -535,7 +727,7 @@ proff()
 
 /*---- #todo Should use stzRegExpParser in the background
 
-profon()
+pr()
 
 o1 = new stzRegExp
 o1.parsePattern("[A-Z]{2}[- ]?[0-9]{1,3}[- ]?[A-Z]{2}")

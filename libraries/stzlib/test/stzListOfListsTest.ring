@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*--------
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ "mohannad", 	100, "hi", "ring" ],
@@ -42,7 +42,7 @@ proff()
 
 /*--------
 
-profon()
+pr()
 
 ? @IsListofLists([
 	[ "mohannad", 	100, "hi", "ring" ],
@@ -56,7 +56,7 @@ proff()
 
 /*--------
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ "mohannad", 	100, "him", "ring" ],
@@ -78,7 +78,7 @@ proff()
 
 /*========
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ "mohannad", 	100, "him", "ring" ],
@@ -100,7 +100,7 @@ proff()
 
 /*-------- #ring #qt
 
-profon()
+pr()
 
 # In Ring and Qt and other programming languages, sort is made
 # based on asscii (or unicode) values of the chars. And hance,
@@ -140,7 +140,7 @@ proff()
 
 /*--------
 
-profon()
+pr()
 
 aList = [
 	[ "salem", 67, "" ],
@@ -164,7 +164,7 @@ proff()
 
 /*--------
 
-profon()
+pr()
 
 aLists = [
 	[ "mohannad", 	100, 	"him", 	"ring" ],
@@ -186,7 +186,7 @@ proff()
 
 /*-------- #narration
 
-profon()
+pr()
 
 # Softanza can gracefully sort a list of lists on a given column,
 # even when these inner lists exhibit varying lengths
@@ -229,7 +229,7 @@ proff()
 
 /*--------
 
-profon()
+pr()
 
 aLists = [
 	[ "mohannad", 	100, 	"him", 	"ring" ],
@@ -263,7 +263,7 @@ SortBy(pcExpr)
 
 /*-------- Col() and ColXT() in a list of lists
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ "mohannad", 	100, 	"him", "ring" ],
@@ -303,7 +303,7 @@ proff()
 /*-------------- #narration MEASURING SPEEDUP AND PERFPRMANCE GAIN
 # Inspired by a discussion with Mahmoud on the Ring group
 
-profon()
+pr()
 
 # Suppose you profiled a function you wrote and got 12.08 seconds.
 # After refactoring and optimizing the code, you get 3.2 seconds.
@@ -352,7 +352,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 o1 = new stzListOfLists([ [ 2, 3, 4 ], [ 6, 7, 8 ], [ 11, 12, 13 ] ])
 ? o1.AreContiguous()
@@ -363,7 +363,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3, 4, "|", 2, 3, 4, 5, "|", 2, 3, 4, 5 ])
 
@@ -384,7 +384,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, 3, 4, "|", 2, 3, 4, 5, "|", 2, 3, 4, 5 ])
 #		      \_____/       \_____/          \_____/
@@ -398,7 +398,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 ? Q([ "mohannad", 100, 	"loves", "ring" ]).ContainsMany([ "amer", 34 ])
 #--> _FALSE_
@@ -414,7 +414,7 @@ proff()
 
 /*--------------
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ "mohannad", 	100, 	"him", "ring" ],
@@ -458,7 +458,7 @@ proff()
 
 /*------------
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ "mohannad", 	100, 	"him", "ring" ],
@@ -491,7 +491,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ "mohannad", 	100, 	"him", "ring" ],
@@ -528,7 +528,7 @@ proff()
 
 /*--------
 
-profon()
+pr()
 
 ? @@( StzListQ([ "him", [ "him" ], "" ]).Sorted() ) + NL
 #--> [ "", "him", [ "him" ] ]
@@ -544,7 +544,7 @@ proff()
 
 /*--------
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ "mohannad", 	100, 	"him", 		"ring" 	],
@@ -569,7 +569,7 @@ proff()
 
 /*--------
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ :is, :will, :can, :some, :can ],
@@ -597,7 +597,7 @@ proff()
 
 /*===
 
-profon()
+pr()
 
 ? Intersection([
 	[ "A", "A", "X", "B", "C" ],
@@ -611,7 +611,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 ? Intersection([ "A":"C", "A":"C", "A":"C" ])
 #--> [ "A", "B", "C" ]
@@ -624,7 +624,7 @@ proff()
 
 /*=====
 
-profon()
+pr()
 
 o1 = new stzListOfLists([ 1:3, 1:3, 1:3 ])
 ? o1.IsMadeOfSameList()
@@ -644,7 +644,7 @@ proff()
 
 /*=========
 
-profon()
+pr()
 
 o1 = new stzListOfLists([ ["01","02"], ["16", "17"], ["23", "25"], ["08", "10"] ])
 
@@ -659,7 +659,7 @@ proff()
 
 /*=========
 
-profon()
+pr()
 
 ? @@( Association([ [ :one, :two, :three ], s[1, 2, 3] ]) )
 #--> [ [ "one", 1 ], [ "two", 2 ], [ "three", 3 ] ]
@@ -669,7 +669,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ "A", "B" ],
@@ -693,7 +693,7 @@ proff()
 
 /*=============
 
-profon()
+pr()
 
 o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
 
@@ -710,7 +710,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
 
@@ -730,7 +730,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([
 	[1, 2],
@@ -747,7 +747,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzList([ [1, 2], [3, [4]], 5 ])
 
@@ -759,7 +759,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 ? @@( ListsMerge([ [3, 5], [7, [8]] ]) )
 #--> [ 3, 5, 7, [ 8 ] ]
@@ -769,7 +769,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 aMyLists = [
 	[ "a", "ab", "b", "b" ],
@@ -785,7 +785,7 @@ proff()
 
 /*===============
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ "Ring", "Ruby", "Python" ],
@@ -801,7 +801,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3, "c" ])
 ? @@( o1.ToSet() )
@@ -812,7 +812,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 ? Q([ "a", "ab", "b", [ 1, 2, 3 ] ]).ToSet()
 #--> [ "a", "ab", "b", [ 1, 2, 3 ] ]
@@ -822,7 +822,7 @@ proff()
 
 /*=============== EXTENDING A LIST
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C" ])
 o1.ExtendTo(5)
@@ -835,7 +835,7 @@ proff()
 
 /*-------------
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C" ])
 o1.ExtendXT( :ToPosition = 5, :Using = AHeart() )
@@ -848,7 +848,7 @@ proff()
 
 /*=============== EXTENDING THE LISTS OF A LIST OF LISTS
 
-profon()
+pr()
 
 o1 = new stzListOfLists([ # or stzLists()
 	[ "A", "B" ],
@@ -879,7 +879,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ "A", "B" ],
@@ -901,7 +901,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ "A", "B" ],
@@ -923,7 +923,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 o1 = new stzLists([ # or stzListOfLists()
 	[ "A", "B" ],
@@ -945,7 +945,7 @@ proff()
 
 /*================= SHRINKING A LIST
 
-profon()
+pr()
 
 o1 = new stzList([ "A", "B", "C", "D", "E" ])
 o1.ShrinkTo(3)
@@ -958,7 +958,7 @@ proff()
 
 /*================= SHRINKING A LIST OF LISTS
 
-profon()
+pr()
 
 o1 = new stzLists([
 	[ "A", "B", "C" ],
@@ -976,7 +976,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzLists([
 	[ "A", "B", "C" ],
@@ -994,7 +994,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzLists([ # or stzListOfLists()
 	[ "A", "B" ],
@@ -1016,7 +1016,7 @@ proff()
 
 /*=================
 
-profon()
+pr()
 
 o1 = new stz2DList([	# Or stzListOfLists()
 	[ "A", "B" ],
@@ -1039,7 +1039,7 @@ proff()
 
 /*=================
 
-profon()
+pr()
 
 # You can extend a list of lists to any number of items like this:
 
@@ -1071,7 +1071,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 # You can even extend to n items and specify
 # the value of the item to extend them with, like this:
@@ -1099,7 +1099,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 # If the lists are to be extended to a number
 # smaller then the largest size in the list,
@@ -1132,7 +1132,7 @@ proff()
 
 /*---------------
 
-profon()
+pr()
 
 # If the lists are to be extended to a number
 # larger then the largest size in the list,
@@ -1165,7 +1165,7 @@ proff()
 
 /*==================
 
-profon()
+pr()
 
 o1 = new stzLists([ 1:3, 1:5, 1:2 ])
 
@@ -1194,7 +1194,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 o1 = new stzLists([ 1:2, 1:5, 1:3, 1:5 ])
 
@@ -1212,7 +1212,7 @@ proff()
 
 /*-------------------
 
-profon()
+pr()
 
 o1 = new stzLists([ 1:2, 1:5, 1:3, 1:2 ])
 
@@ -1230,7 +1230,7 @@ proff()
 
 /*==================
 
-profon()
+pr()
 
 o1 = new stzLists([ "A":"C", 1:3 ])
 ? @@( o1.Associated() )
@@ -1241,7 +1241,7 @@ proff()
 
 /*------------------
 
-profon()
+pr()
 
 ? @@( Association([ ["A", "B", "C"], [1, 2, 3] ]) )
 #--> [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ]
@@ -1251,7 +1251,7 @@ proff()
 
 /*==================
 
-profon()
+pr()
 
 o1 = new stzList([
 	[ 1, 2, 3 ],
@@ -1276,7 +1276,7 @@ proff()
 
 /*==================
 
-profon()
+pr()
 
 o1 = new stzList([ "A", 1:3, "B", 4:7, 8:10 ])
 ? @@( o1.MergeQ().Content() )
@@ -1295,7 +1295,7 @@ proff()
 
 /*-----------------
 
-profon()
+pr()
 
 o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
 
@@ -1320,7 +1320,7 @@ proff()
 
 /*==================
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	1:2, 1:3, [9,9,9], 1:4, 1:5, [9,9,9], 1:7, 1:8, [9,9,9]
@@ -1356,7 +1356,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 o1 = new stzString("[4, 5, 6, 7, 8]")
 
@@ -1388,7 +1388,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 
 ? @@( StzListQ( 4:8 ).ToListInAString() )
 #--> "[ 4, 5, 6, 7, 8 ]"
@@ -1401,7 +1401,7 @@ proff()
 
 /*----------- #TODO Retest after including CheckW()
 
-profon()
+pr()
 
 o1 = new stzListOfLists([ 1:3, 4:5, 6:7 ])
 ? @@( o1.ToListInString() )
@@ -1414,7 +1414,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ 1, 2, 3 ],
@@ -1464,7 +1464,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 // Merging many lists in one list
 o1 = new stzListOfLists([ 1:3, 4:7, 8:9, [10, 11:13] ])
@@ -1477,7 +1477,7 @@ proff()
 
 /*================
 
-profon()
+pr()
 
 o1 = new stzListOfLists([
 	[ 1, 2, 3 ],
@@ -1495,7 +1495,7 @@ o1 = new stzListOfLists([
 
 /*=============== #TODO Make a narration about indexing lists of lists
 
-profon()
+pr()
 
 # In this example, we are going to index those three lists:
 
@@ -1529,7 +1529,7 @@ proff()
 
 /*==============
 
-profon()
+pr()
 
 ? 3Cards()
 #--> [ "🂭", "🂡", "🂡" ]
