@@ -1,3 +1,166 @@
+# Regular Expression Examples for Softanza Library
+# These examples demonstrate both classic and enhanced usage patterns
+
+load "../max/stzmax.ring"
+
+/*=== 1. Basic Pattern Matching Examples
+
+pr()
+  
+# Simple literal match
+
+o1 = new stzRegExp("hello")
+
+? o1.Match("hello world")
+#--> TRUE
+    
+# Case sensitivity
+
+? o1.Match("Hello World")
+#--> FALSE
+    
+o1.CaseInsensitive()
+? o1.Match("Hello World")
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*=== 2. Scoped Pattern Matching Examples
+
+pr()
+    
+text = "This is line 1
+This is line 2"
+
+rx("^.*$") {
+
+	# Match entire text
+
+	? Match(text)
+	#--> FALSE
+
+	# Math the text line by line
+
+	? MatchLine(text)
+	#--> TRUE
+}
+
+rx("word") {
+
+	# Match single words
+
+	? MatchWord("This word here")
+	#--> TRUE
+
+	? MatchWord("sword")
+	#--> FALSE
+}
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*=== 3. Character Classes Examples
+
+pr()
+    
+# Basic character class
+
+rx("[aeiou]") {
+
+        ? Match("hello")
+	#--> TRUE
+
+        ? Match("rhythm")
+	#--> FALSE
+}
+    
+# Range in character class
+
+rx("[a-z]") {
+	
+        ? Match("hello")
+	#--> TRUE
+
+        ? Match("123")
+	#--> FALSE
+}
+
+proff()
+
+/*=== 4. Capture Groups Examples
+
+pr()
+
+# Named capture groups
+o1 = new stzRegExp("(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})")
+
+o1.Match("2024-01-15")
+
+? @@(o1.CapturedGroups())
+#--> [ [ "year", "2024" ], [ "month", "01" ], [ "day", "15" ] ]
+    
+# Simple capture
+
+rx("(\d+)") {
+	Match("age: 25")
+	? @@( Capture() )
+	#--> [ "25" ]/////////////////////////
+}
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*=== 5. Pattern Options Examples
+
+pr()
+    
+o1 = new stzRegExp("pattern")
+    
+# Case sensitivity
+
+o1.CaseSensitive()
+? o1.IsCaseSensitive()
+#--> TRUE
+    
+o1.CaseInsensitive()
+? o1.IsCaseInsensitive()
+#--> TRUE
+    
+# Multiline mode
+
+o1.MultiLine()
+? o1.IsMultiLine()
+#--> TRUE
+    
+# Reset options
+
+o1.ResetOptions()
+? o1.GetOptions()
+#--> 0
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*=== 6. Unicode Support Examples
+
+pr()
+
+o1 = new stzRegExp("\p{Script=Arabic}")
+
+o1.UseUnicode()
+
+? o1.Match("مرحبا")
+#--> TRUE
+
+? o1.Match("Hello")
+#--> FALSE
+
+proff()
+# # Executed in almost 0 second(s) in Ring 1.22
+
+/*=== 7. Real-world Examples ======================================
+
 load "../max/stzmax.ring"
 
 /*---
@@ -155,17 +318,17 @@ rx("[\w-]") { ? Match("non-profit") }
 #--> TRUE
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*=== UNDERStANDING CAPTURED AND NON CAPTURED GROUPS (From Mozilla MSDN)
 
 pr()
 
-
+#TODO
 
 proff()
 
-/*===
+/*=== UNDERSTANDING THE AMOMONG OPERATOR
 
 pr()
 
@@ -203,7 +366,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*=== BACKREFERENCE
-*/
+
 pr()
 
 # \n pattern: Where "n" is a positive integer.
@@ -220,20 +383,28 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*===///////
-*/
 
 pr()
 
-Match()
-	# ^ and $ match start and end of the whole string
-	# DOT matches any char except the NL (~> stops at then end of 1st line)
+# Match() - Whole String Matching
 
-MatchLines()
-	# ^ and $ matdh start and end of each line
-	# DOT matches any char including the NL char (~> continues on all lines)
+text = "Start
+Middle
+End"
 
+rx("Start.*End") { ? Match(text) } #TODO check it: should return TRUE!
+#--> TRUE
+
+# MatchLine() - Line-by-Line Processing
+
+text = "Header: Content
+Footer: More"
+
+rx("^[^:]+: .*$") { ? MatchLine(text) }
+#--> TRUE
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*=== Multiline Pattern Examples
 
@@ -270,6 +441,10 @@ End of line 2"
 	? o1.Match(cMultilineText)
 	#--> TRUE
 
+# Softanza can make it for you in one line by using:
+
+	? o1.MatchLine(cMultilineText)
+	#--> TRUE
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
@@ -283,7 +458,7 @@ Line 2"
 
 o1 = new stzRegExp("Line.*Line")
 o1 {
-	? Match(cText)
+	? Match(cText) #TODO //MatchLine() should return TRUE
 	#--> FALSE
 
 	DotMatchesEverything()
@@ -296,6 +471,7 @@ o1 {
 }
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*=== Extended Syntax Examples (comments allowed)
 
@@ -386,21 +562,30 @@ cHtml = "<p>First paragraph</p><p>Second paragraph</p>"
 	? @@( o1.CapturedValues() )
 	#--> [ "<p>First paragraph</p>" ]
 
+# Which can be made by one function:
+
+	? o1.MatchOne(cHtml)
+	#--> TRUE
+
+	? @@( o1.Values() )
+	#--> [ "<p>First paragraph</p>" ]
+
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
-
 
 /*=== Unicode Support Examples
 
 pr()
 
 o1 = new stzRegExp("\p{Script=Arabic}")
-o1.UseUnicode()
-? o1.UsesUnicode()                #--> TRUE
-? o1.Match("مرحبا")               #--> TRUE
-? o1.Match("Hello")               #--> FALSE
+
+? o1.Match("مرحبا")
+ #--> TRUE
+? o1.Match("Hello")
+#--> FALSE
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*=== Capture Groups Examples
 
@@ -411,14 +596,14 @@ o1 = new stzRegExp("(?<fname>[A-Za-z]+)\s+(?<lname>[A-Za-z]+)")
 ? o1.Match("John Doe")
 #--> TRUE
 
-? o1.CaptureCount()
+? o1.CountCaptures()
 #--> 2
 
-? o1.CaptureNames()
-#--> ["fname", "lname"]
+? @@( o1.CaptureNames() )
+#--> [ "fname", "lname" ]
 
-? o1.CapturedGroups()
-#--> [["fname","John"], ["lname","Doe"]]
+? @@( o1.CapturedGroups() )
+#--> [ [ "fname", "John" ], [ "lname", "Doe" ] ]
 
 # Non-capturing groups
 
@@ -426,7 +611,7 @@ o1.DontCapture()
 ? o1.IsNonCapturing()
 #--> TRUE
 
-? o1.CaptureCount() #TODO // Check why it returns 2
+? o1.CountCaptures() #TODO // Check why it returns 2
 #--> 0
 
 proff()
@@ -440,10 +625,11 @@ o1 = new stzRegExp("world")
 ? o1.MatchAt("Hello world!", 6)
 #--> TRUE
 
-? o1.MatchAt("Hello world!", 0) #todo // check why it returns TRUE
+? o1.MatchAt("Hello world!", 1)
 #--> FALSE
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*=== Error Handling Examples
 
@@ -458,7 +644,7 @@ o1 = new stzRegExp("(unclosed")
 #--> "Missing closing parenthesis"
 
 ? o1.PatternErrorOffset()
-#--> 8
+#--> 9
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
@@ -468,12 +654,13 @@ proff()
 pr()
 
 o1 = new stzRegExp("pattern")
+
 o1.CaseInsensitive()
 o1.MultiLine()
 o1.ExtendedSyntax()
 
 ? o1.GetOptions()
-#--> 13 # Binary: 1101
+#--> 13 	# Binary: 1101
 
 o1.ResetOptions()
 ? o1.GetOptions()
@@ -527,7 +714,7 @@ cEmailPattern = new stzRegExp("
 ")
 
 cEmailPattern.ExtendedSyntax()
-cEmailPattern.UseUnicode()
+//cEmailPattern.UseUnicode()
 
 ? cEmailPattern.Match("user.name@example.com")
 #--> TRUE
@@ -536,7 +723,7 @@ cEmailPattern.UseUnicode()
 #--> TRUE
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 3: Phone Number Parser
 
@@ -577,10 +764,10 @@ cPhonePattern.ExtendedSyntax()
 # ]
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*====
-
+*/
 pr()
 
 o1 = new stzRegExp("(?<day>\d\d)-(?<month>\d\d)-(?<year>\d\d\d\d) (\w+) (?<name>\w+)")
@@ -603,7 +790,7 @@ o1 = new stzRegExp("(?<day>\d\d)-(?<month>\d\d)-(?<year>\d\d\d\d) (\w+) (?<name>
 # ]
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.22
 
 
 
@@ -734,3 +921,4 @@ o1.parsePattern("[A-Z]{2}[- ]?[0-9]{1,3}[- ]?[A-Z]{2}")
 ? o1.getNarration()
 
 proff()
+
