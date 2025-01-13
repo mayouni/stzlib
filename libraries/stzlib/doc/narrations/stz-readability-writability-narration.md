@@ -1050,7 +1050,7 @@ Additionally, it simplifies the integration of such features into IDEs, as the i
 
 ## Function Statement Form: The Magic of X()
 
-In everyday programming, we express logical statements about our code using various constructs - much like how we make assertions in natural language. For example, we might say "*All readers of this page are programmers*." Such statements eventually face a moment of truth when tested against reality, revealing their actual truth value.
+In everyday speech, we express logical statements using various constructs. For example, we might say "*All readers of this page are programmers*." Such statements eventually face a moment of truth when tested against reality, revealing their actual truth value.
 
 At the language design level, this concept manifests through two crucial elements: the *statement* itself and a *verification* function that evaluates its truth.
 
