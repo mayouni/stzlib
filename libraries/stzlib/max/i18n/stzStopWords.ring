@@ -46,9 +46,9 @@ func StopWords()
 	#< @FunctionFluentForm
 
 	func StopWordsQ()
-		return StopWordsQR(:stzList)
+		return StopWordsQRT(:stzList)
 	
-	func StopWordsQR(pcReturnType)
+	func StopWordsQRT(pcReturnType)
 		if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 			pcReturnType = pcReturnType[2]
 		ok
@@ -79,9 +79,9 @@ func StopWordsLanguages()
 	#< @FunctionFluentForm
 
 	func StopWordsLanguagesQ()
-		return StopWordsLanguagesQR(:stzList)
+		return StopWordsLanguagesQRT(:stzList)
 	
-	func StopWordsLanguagesQR(pcReturnType)
+	func StopWordsLanguagesQRT(pcReturnType)
 		if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 			pcReturnType = pcReturnType[2]
 		ok
@@ -105,9 +105,9 @@ func StopWordsLanguages()
 		return StopWordsLanguages()
 
 		func StopWordsAvailableLanguagesQ()
-			return StopWordsAvailableLanguagesQR(:stzList)
+			return StopWordsAvailableLanguagesQRT(:stzList)
 		
-		func StopWordsAvailableLanguagesQR(pcReturnType)
+		func StopWordsAvailableLanguagesQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -127,9 +127,9 @@ func StopWordsLanguages()
 		return StopWordsLanguages()
 
 		func AvailbaleLanguagesForStopWordsQ()
-			return AvailbaleLanguagesForStopWordsQR(:stzList)
+			return AvailbaleLanguagesForStopWordsQRT(:stzList)
 		
-		func AvailbaleLanguagesForStopWordsQR(pcReturnType)
+		func AvailbaleLanguagesForStopWordsQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -245,9 +245,9 @@ func StopWordsIn(pcLang)
 	#< @FunctionFluentForm
 
 	func StopWordsInQ(pcLang)
-		return StopWordsInQR(pcLang, :stzList)
+		return StopWordsInQRT(pcLang, :stzList)
 		
-	func StopWordsInQR(pcLang, pcReturnType)
+	func StopWordsInQRT(pcLang, pcReturnType)
 		if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 			pcReturnType = pcReturnType[2]
 		ok
@@ -270,9 +270,9 @@ func StopWordsIn(pcLang)
 		return StopWordsIn(pcLang)
 
 		func StopWordsOfQ(pcLang)
-			return StopWordsOfQR(pcLang, :stzList)
+			return StopWordsOfQRT(pcLang, :stzList)
 		
-		func StopWordsOfQR(pcLang, pcReturnType)
+		func StopWordsOfQRT(pcLang, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -296,9 +296,9 @@ func ArabicStopWords()
 	#< @FunctionFluentForms
 
 	func ArabicStopWordsQ(pcLang)
-		return ArabicStopWordsQR(pcLang, :stzList)
+		return ArabicStopWordsQRT(pcLang, :stzList)
 		
-	func ArabicStopWordsQR(pcLang, pcReturnType)
+	func ArabicStopWordsQRT(pcLang, pcReturnType)
 		if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 			pcReturnType = pcReturnType[2]
 		ok
@@ -327,9 +327,9 @@ func EnglishStopWords()
 	#< @FunctionFluentForms
 
 	func EnglishStopWordsQ(pcLang)
-		return EnglishStopWordsQR(pcLang, :stzList)
+		return EnglishStopWordsQRT(pcLang, :stzList)
 		
-	func EnglishStopWordsQR(pcLang, pcReturnType)
+	func EnglishStopWordsQRT(pcLang, pcReturnType)
 		if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 			pcReturnType = pcReturnType[2]
 		ok

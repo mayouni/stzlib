@@ -1131,7 +1131,7 @@ cUnicodeNames = "0020;SPACE
 
 ? @@(
 	StzStringQ(cUnicodeNames).
-	SplitQR(NL, :stzListOfStrings).
+	SplitQRT(NL, :stzListOfStrings).
 	SplitQ(";").Content()
 )
 #--> [

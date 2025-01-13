@@ -3535,10 +3535,10 @@ pr()
 
 o1 = new stzList([ 14, 10, 14, 14, 20 ])
 
-? QR([2, 4], :stzPairOfNumbers).BothAreBetween(1, o1.NumberOfItems())
+? QRT([2, 4], :stzPairOfNumbers).BothAreBetween(1, o1.NumberOfItems())
 #--> _TRUE_
 
-? QR([0, 4], :stzPairOfNumbers).BothAreBetween(1, o1.NumberOfItems())
+? QRT([0, 4], :stzPairOfNumbers).BothAreBetween(1, o1.NumberOfItems())
 #--> _FALSE_
 
 proff()

@@ -19,7 +19,7 @@ load "../stzlib.ring"
 	
 		? StzStringQ("softanza").
 			UppercaseQ().
-			CharsQR(:stzListOfStrings).
+			CharsQRT(:stzListOfStrings).
 			ConcatenatedUsing(" ")
 
 

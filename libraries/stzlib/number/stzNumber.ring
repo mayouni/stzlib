@@ -3019,9 +3019,9 @@ class stzNumber from stzObject
 		#< @FunctionFluentFroms
 
 		def IntegersQ()
-			return This.IntegersQR(:stzList)
+			return This.IntegersQRT(:stzList)
 
-		def IntegersQR(pcReturnType)
+		def IntegersQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Integers() )
@@ -3043,8 +3043,8 @@ class stzNumber from stzObject
 			def IntergersQ()
 				return This.IntegersQ()
 
-			def IntergersQR(pcReturnType)
-				return This.IntegersQR(pcReturnType)
+			def IntergersQRT(pcReturnType)
+				return This.IntegersQRT(pcReturnType)
 
 		#>
 
@@ -3058,9 +3058,9 @@ class stzNumber from stzObject
 		#< @FunctionFluentFroms
 
 		def DecimalsQ()
-			return This.DecimalsQR(:stzList)
+			return This.DecimalsQRT(:stzList)
 
-		def DecimalsQR(pcReturnType)
+		def DecimalsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Decimals() )
@@ -3075,11 +3075,11 @@ class stzNumber from stzObject
 		#>
 
 	def SumOfIntegers()
-		nResult = This.IntegersQR(:stzListOfNumbers).Sum()
+		nResult = This.IntegersQRT(:stzListOfNumbers).Sum()
 		return nResult
 
 	def SumOfDecimals()
-		nResult = This.DecimalsQR(:stzListOfNumbers).Sum()
+		nResult = This.DecimalsQRT(:stzListOfNumbers).Sum()
 		return nResult
 
 	  #--------------#
@@ -4054,9 +4054,9 @@ class stzNumber from stzObject
 		#< @FunctionFluentForm
 
 		def FactorsQ()
-			return This.FactorsQR(:stzList)
+			return This.FactorsQRT(:stzList)
 
-		def FactorsQR(pcReturnType)
+		def FactorsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Factors() )
@@ -4099,9 +4099,9 @@ class stzNumber from stzObject
 		#< @FunctionFluentForm
 
 		def FactorsXRQ()
-			return This.FactorsXTQR(:stzList)
+			return This.FactorsXTQRT(:stzList)
 
-		def FactorsXTQR(pcReturnType)
+		def FactorsXTQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.FactorsXT() )
@@ -4148,9 +4148,9 @@ class stzNumber from stzObject
 		#< @FunctionFluentForm
 
 		def PrimeFactorsQ()
-			return This.PrimeFactorsQR(:stzList)
+			return This.PrimeFactorsQRT(:stzList)
 
-		def PrimeFactorsQR(pcReturnType)
+		def PrimeFactorsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Factors() )
@@ -4189,9 +4189,9 @@ class stzNumber from stzObject
 		#< @FunctionFluentForm
 
 		def PrimeFactorsXRQ()
-			return This.PrimeFactorsXTQR(:stzList)
+			return This.PrimeFactorsXTQRT(:stzList)
 
-		def PrimeFactorsXTQR(pcReturnType)
+		def PrimeFactorsXTQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.PrimeFactorsXT() )
@@ -4314,9 +4314,9 @@ class stzNumber from stzObject
 		StzDecimals( nCurrentRound )
 
 		def MultiplesUntilQ(pOtherNumber)
-			return This.MultiplesUntilQR(pOtherNumber, :stzList)
+			return This.MultiplesUntilQRT(pOtherNumber, :stzList)
 
-		def MultiplesUntilQR(pOtherNumber, pcReturnType)
+		def MultiplesUntilQRT(pOtherNumber, pcReturnType)
 
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
@@ -6161,7 +6161,7 @@ class stzNumber from stzObject
 		def DigitsQ()
 			return new stzList( This.Digits() )
 
-		def DigitsQR(pcReturnType)
+		def DigitsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Digits() )

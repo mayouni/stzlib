@@ -101,7 +101,7 @@ proff()
 pr()
 
 ? NFirstPrimesW(25, :Where = '{ 
-	Q(@prime).DigitsQR(:stzListOfNumbers).ArePrimes()
+	Q(@prime).DigitsQRT(:stzListOfNumbers).ArePrimes()
 }')
 #--> [
 #	2, 3, 5, 7, 23, 37, 53,

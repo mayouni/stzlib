@@ -699,13 +699,13 @@ class stzText from stzString
 			return len(This.Scripts())
 
 	def ScriptOfNthChar(n)
-		return This.CharAtQR(n, :stzChar).Script()
+		return This.CharAtQRT(n, :stzChar).Script()
 
 	def ScriptsPerChar()
 		aResult = []
 
 		for c in This.UniqueChars()
-			aResult + StzCharQR(c, :stzChar).Script()
+			aResult + StzCharQRT(c, :stzChar).Script()
 		next
 
 		return aResult
@@ -1379,9 +1379,9 @@ class stzText from stzString
 		#< @FunctionFluentForm
 
 		def WordsQ()
-			return This.WordsQR(:stzList)
+			return This.WordsQRT(:stzList)
 	
-		def WordsQR(pcReturnType)
+		def WordsQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -1412,9 +1412,9 @@ class stzText from stzString
 		#< @FunctionFluentForm
 
 		def SetOfWordsQ()
-			return This.SetOfWordsQR(:stzList)
+			return This.SetOfWordsQRT(:stzList)
 	
-		def SetOfWordsQR(pcReturnType)
+		def SetOfWordsQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -1436,9 +1436,9 @@ class stzText from stzString
 			return This.SetOfWords()
 
 			def UniqueWordsQ()
-				return This.UniqueWordsQR(:stzList)
+				return This.UniqueWordsQRT(:stzList)
 
-			def UniqueWordsQR(pcReturnType)
+			def UniqueWordsQRT(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
@@ -1457,16 +1457,16 @@ class stzText from stzString
 			return This.SetOfWords()
 
 			def WordsUQ()
-				return This.UniqueWordsQR(:stzList)
+				return This.UniqueWordsQRT(:stzList)
 
-			def WordsUQR(pcReturnType)
-				return This.UniqueWordsQR(pcReturnType)
+			def WordsUQRT(pcReturnType)
+				return This.UniqueWordsQRT(pcReturnType)
 
 		def WordsWithoutDuplication()
 			return This.SetOfWords()
 
 			def WordsWithoutDuplicationQ(pcReturnType)
-				return This.UniqueWordsQR(pcReturnType)
+				return This.UniqueWordsQRT(pcReturnType)
 
 		#>
 
@@ -1480,7 +1480,7 @@ class stzText from stzString
 
 		#< @FunctionFluentForm
 
-		def WordsSortedInAscendingQR(pcReturnType)
+		def WordsSortedInAscendingQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -1496,7 +1496,7 @@ class stzText from stzString
 			off
 
 		def WordsSortedInAscendingQ()
-			return This.WordsSortedInAscendingQR(:stzList)
+			return This.WordsSortedInAscendingQRT(:stzList)
 
 		#>
 
@@ -1505,7 +1505,7 @@ class stzText from stzString
 		def WordsInAscending()
 			return This.WordsSortedInAscending()
 
-			def WordsInAscendingQR(pcReturnType)
+			def WordsInAscendingQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -1521,12 +1521,12 @@ class stzText from stzString
 				off
 	
 			def WordsInAscendingQ()
-				return This.WordsInAscendingQR(:stzList)
+				return This.WordsInAscendingQRT(:stzList)
 
 		def WordsInAscendingOrder()
 			return This.WordsSortedInAscending()
 
-			def WordsInAscendingOrderQR(pcReturnType)
+			def WordsInAscendingOrderQRT(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
@@ -1542,7 +1542,7 @@ class stzText from stzString
 				off
 	
 			def WordsInAscendingOrderQ()
-				return This.WordsInAscendingOrderQR(:stzList)
+				return This.WordsInAscendingOrderQRT(:stzList)
 
 		#>
 
@@ -1556,7 +1556,7 @@ class stzText from stzString
 
 		#< @FunctionFluentForm
 
-		def WordsSortedInDescendingQR(pcReturnType)
+		def WordsSortedInDescendingQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -1572,7 +1572,7 @@ class stzText from stzString
 			off
 
 		def WordsSortedInDescendingQ()
-			return This.WordsSortedInDescendingQR(:stzList)
+			return This.WordsSortedInDescendingQRT(:stzList)
 
 		#>
 
@@ -1581,7 +1581,7 @@ class stzText from stzString
 		def WordsInDescendingOrder()
 			return This.WordsSortedInDescending()
 
-			def WordsInDescendingOrderQR(pcReturnType)
+			def WordsInDescendingOrderQRT(pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
@@ -1597,12 +1597,12 @@ class stzText from stzString
 				off
 	
 			def WordsInDesscendingOrderQ()
-				return This.WordsInDesscendingOrderQR(:stzList)
+				return This.WordsInDesscendingOrderQRT(:stzList)
 
 		def WordsInDescending()
 			return This.WordsSortedInDescending()
 
-			def WordsInDescendingQR(pcReturnType)
+			def WordsInDescendingQRT(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
@@ -1618,7 +1618,7 @@ class stzText from stzString
 				off
 	
 			def WordsInDescendingQ()
-				return This.WordsInDescendingQR(:stzList)
+				return This.WordsInDescendingQRT(:stzList)
 
 		#>
 
@@ -1633,9 +1633,9 @@ class stzText from stzString
 		#< @FunctionFluentForm
 
 		def UniqueWordsSortedInAscendingQ()
-			return This.UniqueWordsSortedInAscendingQR(:stzList)
+			return This.UniqueWordsSortedInAscendingQRT(:stzList)
 
-		def UniqueWordsSortedInAscendingQR(pcReturnType)
+		def UniqueWordsSortedInAscendingQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -1658,28 +1658,28 @@ class stzText from stzString
 			return This.UniqueWordsSortedInAscending()
 	
 			def WordsUSortedInAscendingQ()
-				return This.WordsUSortedInAscendingQR(:stzList)
+				return This.WordsUSortedInAscendingQRT(:stzList)
 	
-			def WordsUSortedInAscendingQR(pcReturnType)
-				return This.UniqueWordsSortedInAscendingQR(pcReturnType)
+			def WordsUSortedInAscendingQRT(pcReturnType)
+				return This.UniqueWordsSortedInAscendingQRT(pcReturnType)
 	
 		def WordsUSortedInAscendingOrder()
 			return This.UniqueWordsSortedInAscending()
 	
 			def WordsUSortedInAscendingOrderQ()
-				return This.WordsUSortedInAscendingOrderQR(:stzList)
+				return This.WordsUSortedInAscendingOrderQRT(:stzList)
 	
-			def WordsUSortedInAscendingOrderQR(pcReturnType)
-				return This.UniqueWordsSortedInAscendingQR(pcReturnType)
+			def WordsUSortedInAscendingOrderQRT(pcReturnType)
+				return This.UniqueWordsSortedInAscendingQRT(pcReturnType)
 	
 		def WordsWithoutDuplicationSortedInAscending()
 			return This.UniqueWordsSortedInAscending()
 	
 			def WordsWithoutDuplicationSortedInAscendingQ()
-				return This.WordsWithoutDuplicationSortedInAscendingQR(:stzList)
+				return This.WordsWithoutDuplicationSortedInAscendingQRT(:stzList)
 	
-			def WordsWithoutDuplicationSortedInAscendingQR(pcReturnType)
-				return This.UniqueWordsSortedInAscendingQR(pcReturnType)
+			def WordsWithoutDuplicationSortedInAscendingQRT(pcReturnType)
+				return This.UniqueWordsSortedInAscendingQRT(pcReturnType)
 	
 		def WordsWithoutDuplicationSortedInAscendingOrder()
 			return This.UniqueWordsSortedInAscending()
@@ -1688,46 +1688,46 @@ class stzText from stzString
 				return This.UniqueWordsSortedInAscending()
 	
 				def UniqueWordsInAscendingOrderQ()
-					return This.UniqueWordsInAscendingOrderQR(:stzList)
+					return This.UniqueWordsInAscendingOrderQRT(:stzList)
 	
-				def UniqueWordsInAscendingOrderQR(pcReturnType)
-					return This.UniqueWordsSortedInAscendingQR(pcReturnType)
+				def UniqueWordsInAscendingOrderQRT(pcReturnType)
+					return This.UniqueWordsSortedInAscendingQRT(pcReturnType)
 
 		def UniqueWordsInAscending()
 			return This.UniqueWordsSortedInAscending()
 
-			def UniqueWordsInAscendingQR(pcReturnType)
-				return This.UniqueWordsSortedInAscendingQR(pcReturnType)
+			def UniqueWordsInAscendingQRT(pcReturnType)
+				return This.UniqueWordsSortedInAscendingQRT(pcReturnType)
 	
 			def UniqueWordsInAscendingQ()
-				return This.UniqueWordsInAscendingQR(:stzList)
+				return This.UniqueWordsInAscendingQRT(:stzList)
 
 		def SetOfWordsSortedInAscending()
 			return This.UniqueWordsSortedInAscending()
 
-			def SetOfWordsSortedInAscendingQR(pcReturnType)
-				return This.UniqueWordsSortedInAscendingQR(pcReturnType)
+			def SetOfWordsSortedInAscendingQRT(pcReturnType)
+				return This.UniqueWordsSortedInAscendingQRT(pcReturnType)
 	
 			def SetOfWordsSortedInAscendingQ()
-				return This.SetOfWordsSortedInAscendingQR(:stzList)
+				return This.SetOfWordsSortedInAscendingQRT(:stzList)
 
 		def SetOfWordsInAscendingOrder()
 			return This.SetOfWordsSortedInAscending()
 
-			def SetOfWordsInAscendingOrderQR(pcReturnType)
-				return This.UniqueWordsSortedInAscendingQR(pcReturnType)
+			def SetOfWordsInAscendingOrderQRT(pcReturnType)
+				return This.UniqueWordsSortedInAscendingQRT(pcReturnType)
 	
 			def SetOfWordsInAscendingOrderQ()
-				return This.SetOfWordsInAscendingOrderQR(:stzList)
+				return This.SetOfWordsInAscendingOrderQRT(:stzList)
 
 		def SetOfWordsInAscending()
 			return This.SetOfWordsSortedInAscending()
 
-			def SetOfWordsInAscendingQR(pcReturnType)
-				return This.UniqueWordsSortedInAscendingQR(pcReturnType)
+			def SetOfWordsInAscendingQRT(pcReturnType)
+				return This.UniqueWordsSortedInAscendingQRT(pcReturnType)
 	
 			def SetOfWordsInAscendingQ()
-				return This.SetOfWordsInAscendingQR(:stzList)
+				return This.SetOfWordsInAscendingQRT(:stzList)
 
 		#>
 
@@ -1741,7 +1741,7 @@ class stzText from stzString
 
 		#< @FunctionFluentForm
 
-		def UniqueWordsSortedInDescendingQR(pcReturnType)
+		def UniqueWordsSortedInDescendingQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -1757,7 +1757,7 @@ class stzText from stzString
 			off
 
 		def UniqueWordsSortedInDescendingQ()
-			return This.UniqueWordsSortedInDescendingQR(:stzList)
+			return This.UniqueWordsSortedInDescendingQRT(:stzList)
 
 		#>
 
@@ -1767,28 +1767,28 @@ class stzText from stzString
 			return This.UniqueWordsSortedInDescending()
 	
 			def WordsUSortedInDescendingQ()
-				return This.WordsUSortedInDescendingQR(:stzList)
+				return This.WordsUSortedInDescendingQRT(:stzList)
 	
-			def WordsUSortedInDescendingQR(pcReturnType)
-				return This.UniqueWordsSortedInDescendingQR(pcReturnType)
+			def WordsUSortedInDescendingQRT(pcReturnType)
+				return This.UniqueWordsSortedInDescendingQRT(pcReturnType)
 	
 		def WordsUSortedInDescendingOrder()
 			return This.UniqueWordsSortedInDescending()
 	
 			def WordsUSortedInDescendingOrderQ()
-				return This.WordsUSortedInDescendingOrderQR(:stzList)
+				return This.WordsUSortedInDescendingOrderQRT(:stzList)
 	
-			def WordsUSortedInDescendingOrderQR(pcReturnType)
-				return This.UniqueWordsSortedInDescendingQR(pcReturnType)
+			def WordsUSortedInDescendingOrderQRT(pcReturnType)
+				return This.UniqueWordsSortedInDescendingQRT(pcReturnType)
 	
 		def WordsWithoutDuplicationSortedInDescending()
 			return This.UniqueWordsSortedInDescending()
 	
 			def WordsWithoutDuplicationSortedInDescendingQ()
-				return This.WordsWithoutDuplicationSortedInDescendingQR(:stzList)
+				return This.WordsWithoutDuplicationSortedInDescendingQRT(:stzList)
 	
-			def WordsWithoutDuplicationSortedInDescendingQR(pcReturnType)
-				return This.UniqueWordsSortedInDescendingQR(pcReturnType)
+			def WordsWithoutDuplicationSortedInDescendingQRT(pcReturnType)
+				return This.UniqueWordsSortedInDescendingQRT(pcReturnType)
 	
 		def WordsWithoutDuplicationSortedInDescendingOrder()
 			return This.UniqueWordsSortedInDescending()
@@ -1797,46 +1797,46 @@ class stzText from stzString
 				return This.UniqueWordsSortedInDescending()
 	
 				def UniqueWordsInDescendingOrderQ()
-					return This.UniqueWordsInDescendingOrderQR(:stzList)
+					return This.UniqueWordsInDescendingOrderQRT(:stzList)
 	
-				def UniqueWordsInDescendingOrderQR(pcReturnType)
-					return This.UniqueWordsSortedInDescendingQR(pcReturnType)
+				def UniqueWordsInDescendingOrderQRT(pcReturnType)
+					return This.UniqueWordsSortedInDescendingQRT(pcReturnType)
 
 		def UniqueWordsInDescending()
 			return This.UniqueWordsSortedInDescending()
 
 			def UniqueWordsInDescendingQ()
-				return This.UniqueWordsInDescendingQR(:stzList)
+				return This.UniqueWordsInDescendingQRT(:stzList)
 
-			def UniqueWordsInDescendingQR(pcReturnType)
-				return This.UniqueWordsSortedInDescendingQR(pcReturnType)
+			def UniqueWordsInDescendingQRT(pcReturnType)
+				return This.UniqueWordsSortedInDescendingQRT(pcReturnType)
 
 		def SetOfWordsSortedInDescending()
 			return This.UniqueWordsSortedInDescending()
 
 			def SetOfWordsSortedInDescendingQ()
-				return This.SetOfWordsSortedInDescendingQR(:stzList)
+				return This.SetOfWordsSortedInDescendingQRT(:stzList)
 
-			def SetOfWordsSortedInDescendingQR(pcReturnType)
-				return This.UniqueWordsSortedInDescendingQR(pcReturnType)
+			def SetOfWordsSortedInDescendingQRT(pcReturnType)
+				return This.UniqueWordsSortedInDescendingQRT(pcReturnType)
 
 		def SetOfWordsInDescendingOrder()
 			return This.SetOfWordsSortedInDescending()
 
 			def SetOfWordsInDescendingOrderQ()
-				return This.SetOfWordsInDescendingOrderQR(:stzList)
+				return This.SetOfWordsInDescendingOrderQRT(:stzList)
 
-			def SetOfWordsInDescendingOrderQR(pcReturnType)
-				return This.UniqueWordsSortedInDescendingQR(pcReturnType)
+			def SetOfWordsInDescendingOrderQRT(pcReturnType)
+				return This.UniqueWordsSortedInDescendingQRT(pcReturnType)
 
 		def SetOfWordsInDescending()
 			return This.SetOfWordsSortedInDescending()
 
 			def SetOfWordsInDescendingQ()
-				return This.SetOfWordsInDescendingQR(:stzList)
+				return This.SetOfWordsInDescendingQRT(:stzList)
 
-			def SetOfWordsInDescendingQR(pcReturnType)
-				return This.UniqueWordsSortedInDescendingQR(pcReturnType)
+			def SetOfWordsInDescendingQRT(pcReturnType)
+				return This.UniqueWordsSortedInDescendingQRT(pcReturnType)
 
 		#>
 
@@ -1860,7 +1860,7 @@ class stzText from stzString
 
 		StzRaise("Feature unavailable!")
 
-		def ReversWordsQR(pcReturnType)
+		def ReversWordsQRT(pcReturnType)
 			This.ReverseWords()
 			return This
 
@@ -1909,7 +1909,7 @@ class stzText from stzString
 */
 		#< @FunctionFluentForm
 
-			def WordsPositionsQR(pcReturnType)
+			def WordsPositionsQRT(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
@@ -1926,7 +1926,7 @@ class stzText from stzString
 				off
 
 			def WordsPositionsQ()
-				return This.WordsPositionsQR(:stzList)
+				return This.WordsPositionsQRT(:stzList)
 
 		#>
 
@@ -1936,9 +1936,9 @@ class stzText from stzString
 			return This.WordsPositions()
 
 			def WordsOccurrencesQ()
-				return This.WordsOccurrencesQR(:stzList)
+				return This.WordsOccurrencesQRT(:stzList)
 
-			def WordsOccurrencesQR(pcReturnType)
+			def WordsOccurrencesQRT(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 					pcReturnType = pcReturnType[2]
 				ok
@@ -2222,9 +2222,9 @@ class stzText from stzString
 		return aResult
 
 		def WordsFrequenciesQ()
-			return This.WordsFrequenciesQR(:stzList)
+			return This.WordsFrequenciesQRT(:stzList)
 
-		def WordsFrequenciesQR(pcReturnType)
+		def WordsFrequenciesQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -2295,7 +2295,7 @@ class stzText from stzString
 		aWordsFreqs = This.WordsAndTheirFrequencies()
 
 		oHashList = StzHashListQ( aWordsFreqs )
-		n = oHashList.ValuesQR(:stzListOfNumbers).FindMax()
+		n = oHashList.ValuesQRT(:stzListOfNumbers).FindMax()
 
 		cResult = aWordsFreqs[n][1]
 		return cResult
@@ -2311,7 +2311,7 @@ class stzText from stzString
 		aWordsFreqs = This.TheseWordsAndTheirFrequencies(pacWords)
 
 		oHashList = StzHashListQ( aWordsFreqs )
-		n = oHashList.ValuesQR(:stzListOfNumbers).FindMax()
+		n = oHashList.ValuesQRT(:stzListOfNumbers).FindMax()
 
 		return aWordsFreqs[n][1]
 
@@ -2344,7 +2344,7 @@ class stzText from stzString
 		aWordsFreqs = This.WordsAndTheirFrequencies()
 
 		oHashList = StzHashListQ( aWordsFreqs )
-		anMaxFreq = oHashList.ValuesQR(:stzList).RemoveDuplicatesQ().ToStzListOfNumbers().MaxNumbers(n)
+		anMaxFreq = oHashList.ValuesQRT(:stzList).RemoveDuplicatesQ().ToStzListOfNumbers().MaxNumbers(n)
 
 		return anMaxFreq
 
@@ -2575,7 +2575,7 @@ class stzText from stzString
 		aWordsFreqs = This.TheseWordsAndTheirFrequencies(pacWords)
 
 		oHashList = StzHashListQ( aWordsFreqs )
-		anPos = oHashList.ValuesQR(:stzListOfNumbers).FindFirstNMaxNumbers(n)
+		anPos = oHashList.ValuesQRT(:stzListOfNumbers).FindFirstNMaxNumbers(n)
 
 		aResult = []
 
@@ -2783,7 +2783,7 @@ class stzText from stzString
 		aWordsFreqs = This.WordsAndTheirFrequencies()
 
 		oHashList = StzHashListQ( aWordsFreqs )
-		n = oHashList.ValuesQR(:stzListOfNumbers).FindMin()
+		n = oHashList.ValuesQRT(:stzListOfNumbers).FindMin()
 
 		return aWordsFreqs[n][1]
 
@@ -2795,7 +2795,7 @@ class stzText from stzString
 		aWordsFreqs = This.TheseWordsAndTheirFrequencies(pacWords)
 
 		oHashList = StzHashListQ( aWordsFreqs )
-		n = oHashList.ValuesQR(:stzListOfNumbers).FindMin()
+		n = oHashList.ValuesQRT(:stzListOfNumbers).FindMin()
 
 		cResult = aWordsFreqs[n][1]
 		return cResult
@@ -2818,7 +2818,7 @@ class stzText from stzString
 		aWordsFreqs = This.WordsAndTheirFrequencies()
 
 		oHashList = StzHashListQ( aWordsFreqs )
-		anPos = oHashList.ValuesQR(:stzListOfNumbers).ReverseQ().FindTop(n)
+		anPos = oHashList.ValuesQRT(:stzListOfNumbers).ReverseQ().FindTop(n)
 
 		aResult = []
 
@@ -2839,7 +2839,7 @@ class stzText from stzString
 		aWordsFreqs = This.TheseWordsAndTheirFrequencies(pacWords)
 
 		oHashList = StzHashListQ( aWordsFreqs )
-		anPos = oHashList.ValuesQR(:stzListOfNumbers).FindMinNumbers(n)
+		anPos = oHashList.ValuesQRT(:stzListOfNumbers).FindMinNumbers(n)
 
 		aResult = []
 
@@ -3130,7 +3130,7 @@ class stzText from stzString
 		its IsStrictlyEqualTo() feature...
 		*/
 
-		oSortedCopy = This.WordsQR(:stzList).SortInAscendingQ()
+		oSortedCopy = This.WordsQRT(:stzList).SortInAscendingQ()
 
 		if oSortedCopy.IsStrictlyEqualTo( This.Words() )
 			return _TRUE_
@@ -3144,7 +3144,7 @@ class stzText from stzString
 	#--------------------------------------------------------------#
 
 	def WordsAreSortedInDescending()
-		oSortedCopy = This.WordsQR(:stzList).SortInDescendingQ()
+		oSortedCopy = This.WordsQRT(:stzList).SortInDescendingQ()
 
 		if oSortedCopy.IsStrictlyEqualTo( This.Words() )
 			return _TRUE_
@@ -4055,9 +4055,9 @@ class stzText from stzString
 		return acResult
 
 		def LettersQ()
-			return This.LettersQR(:stzList)
+			return This.LettersQRT(:stzList)
 
-		def LettersQR(pcReturnType)
+		def LettersQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -4115,9 +4115,9 @@ class stzText from stzString
 		return acResult
 
 		def LettersXTQ(paOptions)
-			return This.LettersXTQR(paOptions, :stzList)
+			return This.LettersXTQRT(paOptions, :stzList)
 
-		def LettersXTQR(paOptions, pcReturnType)
+		def LettersXTQRT(paOptions, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -4141,7 +4141,7 @@ class stzText from stzString
 			off
 
 	def UniqueLetters()
-		return This.LettersQR(:stzListOfStrings).DuplicatesRemoved()
+		return This.LettersQRT(:stzListOfStrings).DuplicatesRemoved()
 
 		def LettersU()
 			return This.UniqueLetters()
@@ -4150,12 +4150,12 @@ class stzText from stzString
 			return This.UniqueLetters()
 
 	def UniqueLettersXT(paOptions)
-		return This.LettersXTQR(paOptions, :stzListOfStrings).DuplicatesRemoved()
+		return This.LettersXTQRT(paOptions, :stzListOfStrings).DuplicatesRemoved()
 
 		def UniqueLettersXTQ(paOptions)
-			return This.UniqueLettersXTQR(paOptions, :stzList)
+			return This.UniqueLettersXTQRT(paOptions, :stzList)
 
-		def UniqueLettersXTQR(paOptions, pcReturnType)
+		def UniqueLettersXTQRT(paOptions, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -4182,9 +4182,9 @@ class stzText from stzString
 			return This.UniqueLettersXT(paOptions)
 
 			def ToSetOfLettersXTQ(paOptions)
-				return This.ToSetOfLettersXTQR(paOptions, :stzList)
+				return This.ToSetOfLettersXTQRT(paOptions, :stzList)
 	
-			def ToSetOfLettersXTQR(paOptions, pcReturnType)
+			def ToSetOfLettersXTQRT(paOptions, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
@@ -4272,7 +4272,7 @@ class stzText from stzString
 		*/
 
 		def RemoveStopWordsInScriptQ(pcScript)
-			This.RemoveStopWordsInScriptQR(pcScript)
+			This.RemoveStopWordsInScriptQRT(pcScript)
 			return This
 
 		def RemoveStopWordsIn(pcScript)
@@ -4306,9 +4306,9 @@ class stzText from stzString
 		#< @FunctionFluentForm
 
 		def SentencesQ()
-			return This.SentencesQR(:stzList)
+			return This.SentencesQRT(:stzList)
 
-		def SentencesQR(pcReturnType)
+		def SentencesQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -4349,9 +4349,9 @@ class stzText from stzString
 		#< @FunctionFluentForm
 
 		def UniqueSentencesQ()
-			return This.UniqueSentencesQR(:stzList)
+			return This.UniqueSentencesQRT(:stzList)
 
-		def UniqueSentencesQR(pcReturnType)
+		def UniqueSentencesQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -4392,9 +4392,9 @@ class stzText from stzString
 		#< @FunctionFluentForm
 
 		def UniqueParagraphsQ()
-			return This.UniqueParagraphsQR(:stzList)
+			return This.UniqueParagraphsQRT(:stzList)
 
-		def UniqueParagraphsQR(pcReturnType)
+		def UniqueParagraphsQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -4435,9 +4435,9 @@ class stzText from stzString
 		#< @FunctionFluentForm
 
 		def ParagraphsQ()
-			return This.ParagraphsQR(:stzList)
+			return This.ParagraphsQRT(:stzList)
 
-		def ParagraphsQR(pcReturnType)
+		def ParagraphsQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -4978,15 +4978,15 @@ class stzText from stzString
 	#---------------#
 
 	def Initials()
-		aResult = This.SplitQR(:Using = " ", :stzListOfStrings).
+		aResult = This.SplitQRT(:Using = " ", :stzListOfStrings).
 			       Yield('Q(@str).FirstChar()')
 
 		return aResult
 
 		def InitialsQ()
-			return This.InitialsQR(:stzList)
+			return This.InitialsQRT(:stzList)
 
-		def InitialsQR(pcReturnType)
+		def InitialsQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -5002,20 +5002,20 @@ class stzText from stzString
 				return new stzListOfChars( This.Initials() )
 
 			on :stzString
-				return new stzString( This.InitialsQR(:stzListOfStrings).Concatenated() )
+				return new stzString( This.InitialsQRT(:stzListOfStrings).Concatenated() )
 
 			on :stzText
-				return new stzText( This.InitialsQR(:stzListOfStrings).Concatenated() )
+				return new stzText( This.InitialsQRT(:stzListOfStrings).Concatenated() )
 
 			other
 				StzRaise("Unsupported return type!")
 			off
 
 	def InitialsAsString()
-		return This.InitialsQR(:stzString).Content()
+		return This.InitialsQRT(:stzString).Content()
 
 	def InitialsAsText()
-		return This.InitialsQR(:stzText).Content()
+		return This.InitialsQRT(:stzText).Content()
 
 	  #------------------------#
 	 #      CONTRACTIONS      #

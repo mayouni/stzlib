@@ -4332,7 +4332,7 @@ o1 = new stzTable([
 #	[ "salary"  , [ 35000, 28900, 25982 ] ]
 #    ]
 
-o1.SubTableQR([ :EMPLOYEE, :SALARY ], :stzTable).Show()
+o1.SubTableQRT([ :EMPLOYEE, :SALARY ], :stzTable).Show()
 
 #--> EMPLOYEE   SALARY
 #    --------- -------

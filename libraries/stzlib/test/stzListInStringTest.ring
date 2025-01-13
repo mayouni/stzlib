@@ -30,7 +30,7 @@ class Person name
 ? PluralOfStzClassName("stzList") #--> :stzLists
 ? PluralOfStzClassName("stzListOfStrings") #--> :stzListsOfStrings
 
-//? QR([ "H", "USS", "EI", "N" ], :stzListOfStrings).Concatenated()
+//? QRT([ "H", "USS", "EI", "N" ], :stzListOfStrings).Concatenated()
 /*
 obj1 = new Person { name = "foued" }
 obj2 = new Person { name = "kamel" }
@@ -41,7 +41,7 @@ StzListInStringQ('[ "A", "T", [ :hi, :bye ], 4, obj1, "C", "A", obj2, "A", 10 ]'
 	? List()[7] #--> "A"
 
 	? ListQ().NumberOfItems() #--> 10
-	? ListQR(:stzList).NumberOfItems() #--> 10
+	? ListQRT(:stzList).NumberOfItems() #--> 10
 	
 }
 

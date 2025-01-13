@@ -89,9 +89,9 @@ class stzPairOfLists from stzListOfLists
 		return aResult
 
 		def AssociateQ()
-			return This.AssociateQR(:stzList)
+			return This.AssociateQRT(:stzList)
 
-		def AssociateQR(pcReturnType)
+		def AssociateQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Associate() )

@@ -5994,8 +5994,8 @@ acSubStrXT =  o1.SubStringsBoundedByIBZZ([ "r","g" ])
 # ]
 
 
-oHashList = QR(acSubStrXT, :stzHashList)
-acWithoutSpaces = oHashList.KeysQR(:stzListOfStrings).WithoutSapces()
+oHashList = QRT(acSubStrXT, :stzHashList)
+acWithoutSpaces = oHashList.KeysQRT(:stzListOfStrings).WithoutSapces()
 ? @@(acWithoutSpaces) + NL
 #-->  [ "ring", "ring", "rfing" ]
 
@@ -6025,7 +6025,7 @@ o1 = new stzString("   r  in  g  is a rin  g  ")
 ? @@( o1.FindAnyBoundedByIBZZ([ "r", "g" ]) )
 #--> [ [ 4, 11 ], [ 19, 24 ] ]
 
-? QR( o1.SubStringsBoundedByIB([ "r","g" ]), :stzListOfStrings).WithoutSapces()
+? QRT( o1.SubStringsBoundedByIB([ "r","g" ]), :stzListOfStrings).WithoutSapces()
 #NOTE: WithoutSapces() is misspelled and the correct form is WithoutSpaces!
 # Despite that, softanza accepts it ;)
 
@@ -7859,7 +7859,7 @@ acOtherLangs = [ "JS", "C#", "PHP", "Python" ]
 o1 = new stzString("JS style can be used in Ring!")
 
 o1.Replace("JS", :By@ = '
-	QR(acOtherLangs, :stzListOfStrings).
+	QRT(acOtherLangs, :stzListOfStrings).
 	ConcatenateXTQ([ :Using = ", ", :LastSep = ", and " ]).
 	AddQ("s", :To = "style").
 	Content()
@@ -8251,7 +8251,7 @@ proff()
 pr()
 
 o1 = new stzString("..ONE...TWO..")
-? @@( o1.FindCharsWXT(:Where = 'QR(@char, :stzChar).IsALetter()') )
+? @@( o1.FindCharsWXT(:Where = 'QRT(@char, :stzChar).IsALetter()') )
 #--> [ 3, 4, 5, 9, 10, 11 ]
 
 	#WARNING
@@ -10381,7 +10381,7 @@ o1 = new stzString("
 
 ? @@SP(
 	o1.RemoveEmptyLinesQ().
-	LinesQR(:stzListOfStrings).
+	LinesQRT(:stzListOfStrings).
 	TrimQ().
 	StringsSplitted(:Using = ";")
 )

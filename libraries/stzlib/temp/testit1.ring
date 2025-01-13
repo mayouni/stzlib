@@ -190,7 +190,7 @@ StzDefineFunction([
 	:OnDataList	= [ :DistanceFromEarthInMKm ]
 
 	:FunctionCode	= '{
-		nMin = QR(@DataList, :stzListOfNumbers).Min()[1]
+		nMin = QRT(@DataList, :stzListOfNumbers).Min()[1]
 		return @DataList[nMin][1]
 	}'
 ])
@@ -1155,7 +1155,7 @@ o1.BoundSubStringsWithCS([ "word1", "word2", "word3" ], "<<", ">>", :CS = _FALSE
 
 ? StzListQ(1:3).ToListInShortForm()
 /*
-? StzListOfListsQR([ 1:3, 3:5, 1:3, 6:8, 3:5 ]).
+? StzListOfListsQRT([ 1:3, 3:5, 1:3, 6:8, 3:5 ]).
 	RemoveDuplicatesQ().
 	ToListInStringInShortForm()
 #--> [ "1 : 3", "3 : 5", "6 : 8" ]
@@ -1170,7 +1170,7 @@ o1 = new stzString("In these days, to be happy is a real challenge!
 ? @@(o1.ToStzText().RemovePunctuationQ().
 
 		LowercaseQ().
-		SplitQR(" ", :stzListOfStrings).
+		SplitQRT(" ", :stzListOfStrings).
 
 		YieldQ('[ @str, Sentiment(@str) ]').
 		RemoveDuplicatesQ().

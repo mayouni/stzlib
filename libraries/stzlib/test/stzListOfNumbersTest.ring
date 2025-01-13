@@ -162,13 +162,13 @@ o1 = new stzNumber("1234567.1234567")
 ? o1.Integers()
 #--> [ 1, 2, 3, 4, 5, 6, 7 ]
 
-? o1.IntergersQR(:stzListOfNumbers).Sum() + NL # Misspelled, but works!
+? o1.IntergersQRT(:stzListOfNumbers).Sum() + NL # Misspelled, but works!
 #--> 28
 
 ? o1.Decimals()
 #--> [ 1, 2, 3, 4, 5, 6, 7 ]
 
-? o1.DecimalsQR(:stzListOfNumbers).Sum()
+? o1.DecimalsQRT(:stzListOfNumbers).Sum()
 #--> 28
 
 proff()

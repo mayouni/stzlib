@@ -2194,8 +2194,8 @@ class stzObject
 			def IsAnXTQ(pacStr)
 				return This.IsAXTQ(pacStr)
 
-			def IsAnXTQR(pacStr, pcReturnType)
-				return This.IsAXTQR(pacStr, pcReturnType)
+			def IsAnXTQRT(pacStr, pcReturnType)
+				return This.IsAXTQRT(pacStr, pcReturnType)
 
 		#-- @FunctionNegativeForm
 
@@ -2205,8 +2205,8 @@ class stzObject
 			def IsNotAXTQ(pacStr)
 				return NOT This.IsAXTQ(pacStr)
 
-			def IsNotAXTQR(pacStr, pcReturnType)
-				return NOT This.IsAXTQR(pacStr, pcReturnType)
+			def IsNotAXTQRT(pacStr, pcReturnType)
+				return NOT This.IsAXTQRT(pacStr, pcReturnType)
 
 		def IsNotAnXT(pacStr)
 			return NOT This.IsAXT(pacStr)
@@ -2214,8 +2214,8 @@ class stzObject
 			def IsNotAnXTQ(pacStr)
 				return NOT This.IsAXTQ(pacStr)
 
-			def IsNotAnXTQR(pacStr, pcReturnType)
-				return NOT This.IsAXTQR(pacStr, pcReturnType)
+			def IsNotAnXTQRT(pacStr, pcReturnType)
+				return NOT This.IsAXTQRT(pacStr, pcReturnType)
 
 	def IsA(pcType)
 		/* Example
@@ -4542,7 +4542,7 @@ class stzObject
 
 		anResult = []
 		if len(anPos) > 0
-			anResult = Q(anPos).FirstNItemsQR(n, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
+			anResult = Q(anPos).FirstNItemsQRT(n, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
 		ok
 
 		return anResult
@@ -4743,7 +4743,7 @@ class stzObject
 		anPos = This.SectionQ(pnStartingAt, :Last).
 				FindAllCS(pStrOrItem, pCaseSensitive)
 
-		anResult = Q(anPos).LastNItemsQR(n, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
+		anResult = Q(anPos).LastNItemsQRT(n, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
 
 		return anResult
 

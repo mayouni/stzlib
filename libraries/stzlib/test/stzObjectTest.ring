@@ -130,7 +130,7 @@ StartProfiler()
 ? Q(5).ToNumberW('{ @number = @number + 5 }')
 #--> 10
 
-? QR([ -1, 2, -3, -4, 5 ], :stzListOfNumbers).ToNumberW('{ @number = This.Sum() }')
+? QRT([ -1, 2, -3, -4, 5 ], :stzListOfNumbers).ToNumberW('{ @number = This.Sum() }')
 #--> -1
 
 StopProfiler()
@@ -151,7 +151,7 @@ StartProfiler()
 #--> 3
 
 ? Q("Ring").ToNumberXT('{
-	@number = Q(@string).UnicodesQR(:stzListOfNumbers).Sum()
+	@number = Q(@string).UnicodesQRT(:stzListOfNumbers).Sum()
 }')
 #--> 400
 
@@ -175,12 +175,12 @@ pr()
 #--> 3
 
 ? Q([ "a", "b", "c" ]).ToNumberW('{
-	@number = QR(@list, :stzListOfChars).UnicodesQR(:stzListOfNumbers).Sum()
+	@number = QRT(@list, :stzListOfChars).UnicodesQRT(:stzListOfNumbers).Sum()
 }')
 #--> 294
 
 # In fact:
-? QR(["a", "b", "c"], :stzListOfChars).Unicodes() #--> [97, 98, 99]
+? QRT(["a", "b", "c"], :stzListOfChars).Unicodes() #--> [97, 98, 99]
 
 ? Q([ "Me", "and", "You!" ]).ToNumberW('{ @number += len(@item) }')
 #--> 9

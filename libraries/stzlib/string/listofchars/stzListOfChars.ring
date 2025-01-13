@@ -1225,7 +1225,7 @@ class stzListOfChars from stzListOfStrings
 
 		return aResult
 
-		def UnicodesQR(pcReturnType)
+		def UnicodesQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -1313,7 +1313,7 @@ class stzListOfChars from stzListOfStrings
 		return bResult
 
 	def IsContiguous()
-		return This.UnicodesQR(:stzListOfNumbers).IsContiguous()
+		return This.UnicodesQRT(:stzListOfNumbers).IsContiguous()
 
 		def IsContinuous()
 			return This.IsContiguous()

@@ -294,8 +294,9 @@ proff()
 # Executed in 0.04 second(s)
 
 /*=====
-*/
+
 pr()
+
 
 ? Some( NumbersIn( -5 : 5 ) )
 #--> [ -1, -4, -5, 3 ]
@@ -313,7 +314,60 @@ pr()
 #--> [ 1, 2, 4, 5 ]
 
 proff()
-# Executed in 0.03 second(s)
+
+/*----
+
+pr()
+
+Them = [ "Andy", "Bill", "Chris" ]
+
+? AllOf(Them)
+#--> [ "Andy", "Bill", "Chris" ]
+
+? @@( NoOneOf(Them) )
+#--> [ ]
+
+proff()
+# Executed in almost 0.00 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+MyExamNotes = [ 12, 17, 18, 16, 19 ]
+Them = MyExamNotes # An alternative name for semantic convenience
+Average = 10
+
+? AllOfQQ(MyExamNotes).ArePositive()
+#--> TRUE
+
+
+? AllOfQQ(Them).AreGreaterThen(Average)
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*-----
+*/
+pr()
+
+
+? NothingInQQX([ "aee@net", "@com.com", "--?mail@org" ]).MatchesX(rxp(:eMail))
+#--> TRUE
+
+? NothingInQQX([ "aee@net", "@com.com", "--?mail@org", "info@mail.com" ]).MatchesX(rxp(:eMail))
+#--> FALSE
+
+? EveryThingInQQX([ "hello@mail.com", "info@mail.org" ]).MatchesX(rxp(:eMail))
+#--> TRUE
+
+? EveryThingInQQX([ "hello@mail.com", "info@mail.org", "~;@com" ]).MatchesX(rxp(:eMail))
+#--> FALSE
+
+proff()
+# Executed in 0.06 second(s) in Ring 1.22
+
 
 /*-----
 

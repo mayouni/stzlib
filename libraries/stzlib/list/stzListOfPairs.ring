@@ -201,9 +201,9 @@ class stzListOfPairs from stzListOfLists
 		return Content()[n]
 
 		def PairAtQ(n)
-			return This.PairAtQR(n, :stzList)
+			return This.PairAtQRT(n, :stzList)
 
-		def PairAtQR(n, pcReturnType)
+		def PairAtQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.PairAt(n) )
@@ -219,8 +219,8 @@ class stzListOfPairs from stzListOfLists
 			def PairQ(n)
 				return This.PairAtQ(n)
 
-			def PairQR(n, pcReturnType)
-				return This.PairAtQR(n, pcReturnType)
+			def PairQRT(n, pcReturnType)
+				return This.PairAtQRT(n, pcReturnType)
 
 	  #-------------------------------------------------#
 	 #  FINDING POSITIONS OF A GIVEN PAIR IN THE LIST  #
@@ -277,9 +277,9 @@ class stzListOfPairs from stzListOfLists
 		#< @FunctionFluentForm
 
 		def FirstItemsQ()
-			return This.FirstItemsQR(:stzList)
+			return This.FirstItemsQRT(:stzList)
 
-		def FirstItemsQR(pcReturnType)
+		def FirstItemsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.FirstItems() )
@@ -332,9 +332,9 @@ class stzListOfPairs from stzListOfLists
 		#< @FunctionFluentForm
 
 		def FirstItemsUQ()
-			return This.FirstItemsUQR(:stzList)
+			return This.FirstItemsUQRT(:stzList)
 
-		def FirstItemsUQR(pcReturnType)
+		def FirstItemsUQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.FirstItemsU() )
@@ -398,9 +398,9 @@ class stzListOfPairs from stzListOfLists
 		#< @FunctionFluentForm
 
 		def SecondItemsQ()
-			return This.SecondItemsQR(:stzList)
+			return This.SecondItemsQRT(:stzList)
 
-		def SecondItemsQR(pcReturnType)
+		def SecondItemsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SecondItems() )
@@ -473,9 +473,9 @@ class stzListOfPairs from stzListOfLists
 		#< @FunctionFluentForm
 
 		def SecondItemsUQ()
-			return This.SecondItemsUQR(:stzList)
+			return This.SecondItemsUQRT(:stzList)
 
-		def SecondItemsUQR(pcReturnType)
+		def SecondItemsUQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SecondItemsU() )
@@ -796,9 +796,9 @@ class stzListOfPairs from stzListOfLists
 		#< @FunctionFluentForm
 
 		def ExpandedIfPairsOfNumbersQ()
-			return This.ExpandedIfPairsOfNumbersQR(:stzList)
+			return This.ExpandedIfPairsOfNumbersQRT(:stzList)
 
-		def ExpandedIfPairsOfNumbersQR(pcReturnType)
+		def ExpandedIfPairsOfNumbersQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok

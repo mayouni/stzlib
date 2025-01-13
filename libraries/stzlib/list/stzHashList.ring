@@ -216,9 +216,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return Content()
 
 		def PairsQ()
-			return This.PairsQR(:stzList)
+			return This.PairsQRT(:stzList)
 
-		def PairsQR(pcReturnType)
+		def PairsQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -253,9 +253,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return aResult
 
 		def KeysQ()
-			return This.KeysQR(:stzList)
+			return This.KeysQRT(:stzList)
 
-		def KeysQR(pcReturnType)
+		def KeysQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -294,9 +294,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionFluentForms
 
 		def KeysForValueQ()
-			return This.KeysForValueQR(:stzList)
+			return This.KeysForValueQRT(:stzList)
 
-		def KeysForValueQR(pcReturnType)
+		def KeysForValueQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -327,7 +327,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KeysForThisValueQ(pValue)
 				return This.KeysForValueQ(pValue)
 
-			def KeysForThisValueQR(pValue, pcReturnType)
+			def KeysForThisValueQRT(pValue, pcReturnType)
 				return This.KeysForValueQ(pValue, pcReturnType)
 
 		#>
@@ -345,9 +345,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return _aResult_
 
 		def ValuesQ()
-			return This.ValuesQR(:stzList)
+			return This.ValuesQRT(:stzList)
 
-		def ValuesQR(pcReturnType)
+		def ValuesQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -489,9 +489,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionFluentForm
 
 		def NthPairQ(n)
-			return This.NthPairQR(n, :stzList)
+			return This.NthPairQRT(n, :stzList)
 
-		def NthPairQR(n, pcReturnType)
+		def NthPairQRT(n, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -519,8 +519,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def PairQ(n)
 				return This.NthPairQ(n)
 
-			def PairQR(n, pcReturnType)
-				return This.NthPairQR(n, pcReturnType)
+			def PairQRT(n, pcReturnType)
+				return This.NthPairQRT(n, pcReturnType)
 	
 		#>
 	
@@ -2357,9 +2357,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionFluentForms
 
 		def TheseItemsZQ(paItems)
-			return This.TheseItemsZQR(:stzList)
+			return This.TheseItemsZQRT(:stzList)
 
-		def TheseItemsZQR(paItems, pcReturnType)
+		def TheseItemsZQRT(paItems, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.TheseItemsZ(paItems))
@@ -2388,7 +2388,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindItems()
 	
-		aIndex = This.Copy().ListifyQ().ValuesQR(:stzListOfLists).IndexXT()
+		aIndex = This.Copy().ListifyQ().ValuesQRT(:stzListOfLists).IndexXT()
 
 		aItems = This.Items()
 		nLen = len(aIndex)
@@ -2407,10 +2407,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ItemsZ()
 		
-		aIndex = This.Copy().ListifyQ().ValuesQR(:stzListOfLists).IndexXT()
+		aIndex = This.Copy().ListifyQ().ValuesQRT(:stzListOfLists).IndexXT()
 
 		aItems = This.Items()
-		anPos = QR(aIndex, :stzHashList).FindTheseKeys(aItems)
+		anPos = QRT(aIndex, :stzHashList).FindTheseKeys(aItems)
 		nLen = len(anPos)
 
 		aResult = []
@@ -2674,9 +2674,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionFluentForm
 
 		def ClassifyQ()
-			return This.ClassifyQR(pcReturnType)
+			return This.ClassifyQRT(pcReturnType)
 
-		def ClassifyQR(pcReturnType)
+		def ClassifyQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -2711,9 +2711,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionFluentForm
 
 		def ClassesQ()
-			return This.ClassesQR(:stzList)
+			return This.ClassesQRT(:stzList)
 
-		def ClassesQR(pcReturnType)
+		def ClassesQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -2738,8 +2738,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KlassesQ()
 				return ClassesQ()
 
-			def KlassesQR(pcReturnType)
-				return ClassesQR(pcReturnType)
+			def KlassesQRT(pcReturnType)
+				return ClassesQRT(pcReturnType)
 	
 		#>
 
@@ -2853,9 +2853,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionFluentForms
 
 		def KlassQ(pcClass)
-			return This.KlassQR(pClass, :stzList)
+			return This.KlassQRT(pClass, :stzList)
 
-		def KlassQR(pcClass, pcReturnType)
+		def KlassQRT(pcClass, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -2881,8 +2881,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def ClassQ(pcClass)
 				return This.KlassQ(pcClass)
 	
-			def ClassQR(pcClass, pcReturnType)
-				return This.KlassQR(pcClass, pcReturnType)
+			def ClassQRT(pcClass, pcReturnType)
+				return This.KlassQRT(pcClass, pcReturnType)
 
 		def ValuesInClass(pcClass)
 			return This.Klass(pcClass)
@@ -3768,9 +3768,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionFluentForm
 
 		def ClassesInListQ()
-			return This.ClassesInListsQR(:stzList)
+			return This.ClassesInListsQRT(:stzList)
 
-		def ClassesInListQR(pcReturnType)
+		def ClassesInListQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -3795,8 +3795,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KlassesInListQ()
 				return This.ClassesInListQ()
 
-			def KlassesInListQR(pcReturnType)
-				return This.CategoriesInListQR(pcReturnType)
+			def KlassesInListQRT(pcReturnType)
+				return This.CategoriesInListQRT(pcReturnType)
 
 		#--
 
@@ -3809,8 +3809,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KlassesInListsQ()
 				return This.ClassesInListQ()
 
-			def KlassesInListsQR(pcReturnType)
-				return This.CategoriesInListQR(pcReturnType)
+			def KlassesInListsQRT(pcReturnType)
+				return This.CategoriesInListQRT(pcReturnType)
 
 		#>
 
@@ -3885,9 +3885,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionFluentForm
 
 		def ClassifyInListQ()
-			return This.ClassifyInListQR(pcReturnType)
+			return This.ClassifyInListQRT(pcReturnType)
 
-		def ClassifyInListQR(pcReturnType)
+		def ClassifyInListQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -3912,8 +3912,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KlassifyInListQ()
 				return This.ClassifyInListQ()
 
-			def KlassifyInListQR(pcReturnType)
-				return This.ClassifyInListQR(pcReturnType)
+			def KlassifyInListQRT(pcReturnType)
+				return This.ClassifyInListQRT(pcReturnType)
 
 		#--
 
@@ -3923,8 +3923,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def ClassifyInListsQ()
 				return This.ClassifyInListQ()
 	
-			def ClassifyInListsQR(pcReturnType)
-				return This.ClassifyInListQR(pcReturnType)
+			def ClassifyInListsQRT(pcReturnType)
+				return This.ClassifyInListQRT(pcReturnType)
 
 		def KlassifyInLists()
 			return This.ClassifyInList()
@@ -3932,8 +3932,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KlassifyInListsQ()
 				return This.ClassifyInListQ()
 
-			def KlassifyInListsQR(pcReturnType)
-				return This.ClassifyInListQR(pcReturnType)
+			def KlassifyInListsQRT(pcReturnType)
+				return This.ClassifyInListQRT(pcReturnType)
 
 		#==
 
@@ -3943,7 +3943,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def ClassifyItemsInListQ()
 				return This.ClassifyInList()
 
-			def ClassifyItemsInListQR(pcReturnType)
+			def ClassifyItemsInListQRT(pcReturnType)
 				return This.ClassifyInListQT(pcReturnType)
 
 		def KlassifyItemsInList()
@@ -3952,8 +3952,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KlassifyItemsInListQ()
 				return This.ClassifyInListQ()
 
-			def KlassifyItemsInListQR(pcReturnType)
-				return This.ClassifyInListQR(pcReturnType)
+			def KlassifyItemsInListQRT(pcReturnType)
+				return This.ClassifyInListQRT(pcReturnType)
 
 		#--
 
@@ -3963,8 +3963,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def ClassifyItemsInListsQ()
 				return This.ClassifyInListQ()
 	
-			def ClassifyItemsInListsQR(pcReturnType)
-				return This.ClassifyInListQR(pcReturnType)
+			def ClassifyItemsInListsQRT(pcReturnType)
+				return This.ClassifyInListQRT(pcReturnType)
 
 		def KlassifyItemsInLists()
 			return This.ClassifyInList()
@@ -3972,8 +3972,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KlassifyItemsInListsQ()
 				return This.ClassifyInListQ()
 
-			def KlassifyItemsInListsQR(pcReturnType)
-				return This.ClassifyInListQR(pcReturnType)
+			def KlassifyItemsInListsQRT(pcReturnType)
+				return This.ClassifyInListQRT(pcReturnType)
 
 		#>
 
@@ -3988,9 +3988,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionFluentForms
 
 		def KalssInListQ(pcClass)
-			return This.KlassInListQR(pcClass, :stzList)
+			return This.KlassInListQRT(pcClass, :stzList)
 
-		def KlassInListQR(pcClass, pcReturnType)
+		def KlassInListQRT(pcClass, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -4016,8 +4016,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def ClassInListQ(pcClass)
 				return This.KalssInListQ(pcClass)
 
-			def ClassInListQR(pcClass, pcReturnType)
-				return This.KalssInListQR(pcClass)
+			def ClassInListQRT(pcClass, pcReturnType)
+				return This.KalssInListQRT(pcClass)
 
 		#--
 
@@ -4027,8 +4027,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KalssInListsQ(pcClass)
 				return This.KalssInListQ(pcClass)
 
-			def KalssInListsQR(pcClass, pcReturnType)
-				return This.KalssInListQR(pcClass)
+			def KalssInListsQRT(pcClass, pcReturnType)
+				return This.KalssInListQRT(pcClass)
 
 		def ClassInLists(pcClass)
 			return This.KlassInList(pcClass)
@@ -4036,8 +4036,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def ClassInListsQ(pcClass)
 				return This.KalssInListQ(pcClass)
 
-			def ClassInListsQR(pcClass, pcReturnType)
-				return This.KalssInListQR(pcClass)
+			def ClassInListsQRT(pcClass, pcReturnType)
+				return This.KalssInListQRT(pcClass)
 
 		#>
 

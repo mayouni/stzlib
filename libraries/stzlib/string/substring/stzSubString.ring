@@ -174,7 +174,7 @@ class stzListOfSubstringsCS
 		def SubStringsQ()
 			return new stzList(This.SubStrings())
 
-		def SubStringsQR(pcReturnType)
+		def SubStringsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.SubStrings())
@@ -192,7 +192,7 @@ class stzListOfSubstringsCS
 		def SectionQ()
 			return new stzList(This.Sections())
 
-		def SectionsQR(pcReturnType)
+		def SectionsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.Sections())
