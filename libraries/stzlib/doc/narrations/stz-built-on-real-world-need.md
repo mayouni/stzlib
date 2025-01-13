@@ -30,7 +30,7 @@ Manually removing duplicates is tedious and disruptive, especially when I’m de
 #To eliminate this recurring chore, I developed the `RemoveDuplicates()` function in the `stzList` class. With this powerful feature, I can fulfill such requests in seconds rather than minutes:  
 
 ![Softanza RemoveDuplicates() in action](../images/stz-remove-dupplicates-arabic-song.png)  
-*Softanza to the rescue with `RemoveDuplicates()`!*  
+*Softanza to the rescue with `RemoveDuplicates()`: Input on the right, output on the left!*  
 
 Naturally, creating this functionality required implementing several intermediary methods, such as:  
 - `FindDuplicates()` – Identifies all duplicates in the list.  
@@ -56,6 +56,6 @@ While some of these features, like `fromURL()` and `OnlyArabic()`, are already i
 
 ---
 
-### Borrowing from Reality  
+## Borrowing from Reality  
 
 This example highlights how every feature in Softanza is inspired by practical challenges, bridging the gap between real-world problems and elegant programming solutions. Nearly every function in Softanza has its own story—born out of necessity and crafted with purpose. One day, I hope to share all these stories, offering a glimpse into how Softanza continuously evolves to meet the demands of the real world.
