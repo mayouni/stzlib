@@ -64,4 +64,4 @@ While some of these features, like `fromURL()` and `OnlyArabic()`, are already i
 
 ## Borrowing from Reality  
 
-This example highlights how every feature in Softanza is inspired by practical challenges, bridging the gap between real-world problems and elegant programming solutions. Nearly every function in Softanza has its own story—born out of necessity and crafted with purpose. One day, I hope to share all these stories, offering a glimpse into how Softanza continuously evolves to meet the demands of the real world.
+This example highlights how every feature in Softanza is inspired by practical challenges, bridging the gap between real-world problems and elegant programming solutions. Nearly every function in Softanza has its own story—born out of necessity and crafted with purpose. One day, I hope to share all these stories, offering a glimpse into how Softanza continuously evolves to meet the demands of both the fervent dreamer and the realistic programmer alike.
