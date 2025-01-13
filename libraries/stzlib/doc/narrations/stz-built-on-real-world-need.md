@@ -31,7 +31,7 @@ Here’s the challenge: the lyrics I find online are often cluttered with unnece
 Manually removing duplicates is tedious and disruptive, especially when I’m deep in thought about critical aspects of Softanza’s design.
 
 
-#To eliminate this recurring chore, I developed the `RemoveDuplicates()` function in the `stzList` class. With this powerful feature, I can fulfill such requests in seconds rather than minutes:  
+To eliminate this recurring chore, I developed the `RemoveDuplicates()` function in the `stzList` class. With this powerful feature, I can fulfill such requests in seconds rather than minutes:  
 
 ![Softanza RemoveDuplicates() in action](../images/stz-remove-dupplicates-arabic-song.png)
 
