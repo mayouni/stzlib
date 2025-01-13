@@ -1081,9 +1081,9 @@ class stzListOfLists from stzList
 		#< @FunctionFluentForm
 
 		def ItemsAtPositionNQ(n)
-			return This.ItemsAtPositionNQR(n, :stzList)
+			return This.ItemsAtPositionNQRT(n, :stzList)
 
-		def ItemsAtPositionsNQR(n, pcReturnType)
+		def ItemsAtPositionsNQRT(n, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -1114,46 +1114,46 @@ class stzListOfLists from stzList
 			return This.ItemsAtPositionN(n)
 
 			def ItemsAtQ(n)
-				return This.ItemsAtPositionNQR(n, :stzList)
+				return This.ItemsAtPositionNQRT(n, :stzList)
 
-			def ItemsAtQR(n, pcReturnType)
-				return This.ItemsAtPositionNQR(n, pcReturnType)
+			def ItemsAtQRT(n, pcReturnType)
+				return This.ItemsAtPositionNQRT(n, pcReturnType)
 
 		def ItemsAtPosition(n)
 			return This.ItemsAtPositionN(n)
 
 			def ItemsAtPositionQ(n)
-				return This.ItemsAtPositionQR(n, :stzList)
+				return This.ItemsAtPositionQRT(n, :stzList)
 
-			def ItemsAtPositionQR(n, pcReturnType)
-				return This.ItemsAtPositionQR(n, pcReturnType)
+			def ItemsAtPositionQRT(n, pcReturnType)
+				return This.ItemsAtPositionQRT(n, pcReturnType)
 
 		def ListsAtPositionN(n)
 			return This.ItemsAtPositionN(n)
 
 			def ListsAtPositionNQ(n)
-				return This.ListsAtPositionNQR(n, :stzList)
+				return This.ListsAtPositionNQRT(n, :stzList)
 
-			def ListsAtPositionNQR(n, pcReturnType)
-				return This.ListsAtPositionNQR(n, pcReturnType)
+			def ListsAtPositionNQRT(n, pcReturnType)
+				return This.ListsAtPositionNQRT(n, pcReturnType)
 
 		def ListsAt(n)
 			return This.ItemsAtPositionN(n)
 
 			def ListsAtQ(n)
-				return This.ListsAtQR(n, :stzList)
+				return This.ListsAtQRT(n, :stzList)
 
-			def ListsAtQR(n, pcReturnType)
-				return This.ListsAtQR(n, pcReturnType)
+			def ListsAtQRT(n, pcReturnType)
+				return This.ListsAtQRT(n, pcReturnType)
 
 		def ListsAtPosition(n)
 			return This.ItemsAtPositionN(n)
 
 			def ListsAtPositionQ(n)
-				return This.ListsAtPositionQR(n, :stzList)
+				return This.ListsAtPositionQRT(n, :stzList)
 
-			def ListsAtPositionQR(n, pcReturnType)
-				return This.ListsAtPositionQR(n, pcReturnType)
+			def ListsAtPositionQRT(n, pcReturnType)
+				return This.ListsAtPositionQRT(n, pcReturnType)
 
 		#>
 
@@ -2540,9 +2540,9 @@ class stzListOfLists from stzList
 		return aResult
 
 		def IndexCSQ()
-			return This.IndexCSQR(pCaseSensitive, :stzList)
+			return This.IndexCSQRT(pCaseSensitive, :stzList)
 
-		def IndexCSQR(pCaseSensitive, pcReturnType)
+		def IndexCSQRT(pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.IndexCS(pCaseSensitive) )
@@ -2566,10 +2566,10 @@ class stzListOfLists from stzList
 		return This.IndexCS(_TRUE_)
 
 		def IndexQ()
-			return This.IndexQR(:stzList)
+			return This.IndexQRT(:stzList)
 
-		def IndexQR(pcReturnType)
-			return This.IndexCSQR(TRUE, pcReturnType)
+		def IndexQRT(pcReturnType)
+			return This.IndexCSQRT(TRUE, pcReturnType)
 
 	def Indexed()
 		return This.Index()
@@ -2629,9 +2629,9 @@ class stzListOfLists from stzList
 		return aResult
 
 		def IndexCSXTQ()
-			return This.IndexCSXTQR(pCaseSensitive, :stzList)
+			return This.IndexCSXTQRT(pCaseSensitive, :stzList)
 
-		def IndexCSXTQR(pCaseSensitive, pcReturnType)
+		def IndexCSXTQRT(pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.IndexCSXT(pCaseSensitive) )
@@ -2655,10 +2655,10 @@ class stzListOfLists from stzList
 		return This.IndexCSXT(_TRUE_)
 
 		def IndexXTQ()
-			return This.IndexXTQR(:stzList)
+			return This.IndexXTQRT(:stzList)
 
-		def IndexXTQR(pcReturnType)
-			return This.IndexCSXTQR(TRUE, pcReturnType)
+		def IndexXTQRT(pcReturnType)
+			return This.IndexCSXTQRT(TRUE, pcReturnType)
 
 	def IndexedXT()
 		return This.IndexXT()
@@ -3951,9 +3951,9 @@ class stzListOfLists from stzList
 		#< @FunctionFluentForms
 
 		def ClassifyQ()
-			return This.ClassifyQR(:stzList)
+			return This.ClassifyQRT(:stzList)
 
-		def ClassifyQR(pcReturnType)
+		def ClassifyQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -3990,9 +3990,9 @@ class stzListOfLists from stzList
 		#< @FunctionFluentForms
 
 		def ClassifyOnQ(pnColNumber)
-			return This.ClassifyOnQR(pnColNumber, :stzList)
+			return This.ClassifyOnQRT(pnColNumber, :stzList)
 
-		def ClassifyOnQR(pnColNumber, pcReturnType)
+		def ClassifyOnQRT(pnColNumber, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -4041,9 +4041,9 @@ class stzListOfLists from stzList
 		#< @FunctionFluentForms
 
 		def ClassifyByQ(pcExpr)
-			return This.ClassifyByQR(pcExpr, :stzList)
+			return This.ClassifyByQRT(pcExpr, :stzList)
 
-		def ClassifyByQR(pcExpr, pcReturnType)
+		def ClassifyByQRT(pcExpr, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok

@@ -708,7 +708,7 @@ class stzString from stzObject
 			ok
 		ok
 
-		This.AppendWith( QR(pacSubStr, :stzListOfStrings).Concatenated() )
+		This.AppendWith( QRT(pacSubStr, :stzListOfStrings).Concatenated() )
 
 		#< @FunctionFluentForm
 
@@ -2791,7 +2791,7 @@ class stzString from stzObject
 
 		for i = 1 to nLen
 			
-			cCapChar = oStr.CharAtPositionQR(anPos[i], :stzString).
+			cCapChar = oStr.CharAtPositionQRT(anPos[i], :stzString).
 						UppercasedInLocale(pLocale)
 
 			oStr.ReplaceCharAtPosition(anPos[i], cCapChar)
@@ -3327,9 +3327,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SubStringsCSQ(pCaseSensitive)
-			return This.SubStringsCSQR(pCaseSensitive, :stzList)
+			return This.SubStringsCSQRT(pCaseSensitive, :stzList)
 
-		def SubStringsCSQR(pCaseSensitive, pcReturnType)
+		def SubStringsCSQRT(pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SubStringsCS(pCaseSensitive) )
@@ -3350,9 +3350,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SubStringsQ()
-			return This.SubStringsQR(:stzList)
+			return This.SubStringsQRT(:stzList)
 
-		def SubStringsQR(pcReturnType)
+		def SubStringsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SubStrings() )
@@ -5355,7 +5355,7 @@ class stzString from stzObject
 		def LinesCSQ(pCaseSensitive)
 			return new stzList(This.LinesCS(pCaseSensitive))
 
-		def LinesCSQR(pCaseSensitive, pcReturnType)
+		def LinesCSQRT(pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -5381,10 +5381,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def LinesQ()
-			return This.LinesQR(:stzList)
+			return This.LinesQRT(:stzList)
 
-		def LinesQR(pcReturnType)
-			return This.LinesCSQR(TRUE, pcReturnType)
+		def LinesQRT(pcReturnType)
+			return This.LinesCSQRT(TRUE, pcReturnType)
 
 		#>
 
@@ -5423,9 +5423,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def UniqueLinesCSQ(pCaseSensitive)
-			return This.UniqueLinesCSQR(pCaseSensitive, :stzList)
+			return This.UniqueLinesCSQRT(pCaseSensitive, :stzList)
 
-		def UniqueLinesCSQR(pCaseSensitive, pcReturnType)
+		def UniqueLinesCSQRT(pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -5452,16 +5452,16 @@ class stzString from stzObject
 				return This.LinesCSQRU(pCaseSensitive, :stzList)
 
 			def LinesCSQRU(pCaseSensitive, pcReturnType)
-				return This.UniqueLinesCSQR(pCaseSensitive, pcReturnType)
+				return This.UniqueLinesCSQRT(pCaseSensitive, pcReturnType)
 
 		def LinesWithoutDuplicationCS(pCaseSensitive)
 			return This.UniqueLinesCS(pCaseSensitive)
 
 			def LinesWithoutDuplicationCSQ(pCaseSensitive)
-				return This.LinesWithoutDuplicationCSQR(pCaseSensitive, :stzList)
+				return This.LinesWithoutDuplicationCSQRT(pCaseSensitive, :stzList)
 
-			def LinesWithoutDuplicationCSQR(pCaseSensitive, pcReturnType)
-				return This.UniqueLinesCSQR(pCaseSensitive, pcReturnType)
+			def LinesWithoutDuplicationCSQRT(pCaseSensitive, pcReturnType)
+				return This.UniqueLinesCSQRT(pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -5473,10 +5473,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def UniqueLinesQ()
-			return This.UniqueLinesQR(:stzList)
+			return This.UniqueLinesQRT(:stzList)
 
-		def UniqueLinesQR(pcReturnType)
-			return This.UniqueLinesCSQR(TRUE, pcReturnType)
+		def UniqueLinesQRT(pcReturnType)
+			return This.UniqueLinesCSQRT(TRUE, pcReturnType)
 
 		#>
 
@@ -5489,16 +5489,16 @@ class stzString from stzObject
 				return This.LinesQRU(:stzList)
 
 			def LinesQRU(pcReturnType)
-				return This.UniqueLinesQR(pcReturnType)
+				return This.UniqueLinesQRT(pcReturnType)
 
 		def LinesWithoutDuplication()
 			return This.UniqueLines()
 
 			def LinesWithoutDuplicationQ()
-				return This.LinesWithoutDuplicationQR(:stzList)
+				return This.LinesWithoutDuplicationQRT(:stzList)
 
-			def LinesWithoutDuplicationQR(pcReturnType)
-				return This.UniqueLinesQR(pcReturnType)
+			def LinesWithoutDuplicationQRT(pcReturnType)
+				return This.UniqueLinesQRT(pcReturnType)
 
 		#>
 
@@ -5678,7 +5678,7 @@ class stzString from stzObject
 		"
 		*/
 
-		cResult = This.LinesCSQR(pCaseSensitive, :stzListOfStrings).
+		cResult = This.LinesCSQRT(pCaseSensitive, :stzListOfStrings).
 			       RemoveWQ(pCaseSensitive, pcCondition).
 			       ConcatenatedUsing(NL)
 
@@ -5896,7 +5896,7 @@ class stzString from stzObject
 		
 		return acResult
 
-		def MarquersQR(pcReturnType)
+		def MarquersQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -5923,9 +5923,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def UniqueMarquersQ()
-			return This.UniqueMarquersQR(:stzList)
+			return This.UniqueMarquersQRT(:stzList)
 
-		def UniqueMarquersQR(pcReturnType)
+		def UniqueMarquersQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -5952,8 +5952,8 @@ class stzString from stzObject
 			def SetOfMarquersQ()
 				return This.UniqueMarquersQ()
 
-			def SetOfMarquersQR(pcReturnType)
-				return This.UniqueMarquersQR(pcReturnType)
+			def SetOfMarquersQRT(pcReturnType)
+				return This.UniqueMarquersQRT(pcReturnType)
 
 		def MarquersU()
 			return This.UniqueMarquers()
@@ -5961,8 +5961,8 @@ class stzString from stzObject
 			def MarquersUQ()
 				return This.UniqueMarquersQ()
 
-			def MarquersUQR(pcReturnType)
-				return This.UniqueMarquersQR(pcReturnType)
+			def MarquersUQRT(pcReturnType)
+				return This.UniqueMarquersQRT(pcReturnType)
 
 		def MarquersWithoutDuplication()
 			return This.UniqueMarquers()
@@ -5970,8 +5970,8 @@ class stzString from stzObject
 			def MarquersWithoutDuplicationQ()
 				return This.UniqueMarquersQ()
 
-			def MarquersWithoutDuplicationQR(pcReturnType)
-				return This.UniqueMarquersQR(pcReturnType)
+			def MarquersWithoutDuplicationQRT(pcReturnType)
+				return This.UniqueMarquersQRT(pcReturnType)
 
 		#>
 
@@ -6184,9 +6184,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def OccurrencesOfMarquerQ(pcMarquer)
-			return This.OccurrencesOfMarquerQR(pcMarquer, :stzList)
+			return This.OccurrencesOfMarquerQRT(pcMarquer, :stzList)
 
-		def OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
+		def OccurrencesOfMarquerQRT(pcMarquer, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -6212,8 +6212,8 @@ class stzString from stzObject
 			def PositionsOfMarquerQ(pcMarquer)
 				return This.OccurrencesOfMarquerQ(pcMarquer)
 	
-			def PositionsOfMarquerQR(pcMarquer, pcReturnType)
-				return This.OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
+			def PositionsOfMarquerQRT(pcMarquer, pcReturnType)
+				return This.OccurrencesOfMarquerQRT(pcMarquer, pcReturnType)
 
 		def PositionsOfThisMarquer(pcMarquer)
 			return This.OccurrencesOfMarquer(pcMarquer)
@@ -6221,8 +6221,8 @@ class stzString from stzObject
 			def PositionsOfThisMarquerQ(pcMarquer)
 				return This.OccurrencesOfMarquerQ(pcMarquer)
 	
-			def PositionsOfThisMarquerQR(pcMarquer, pcReturnType)
-				return This.OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
+			def PositionsOfThisMarquerQRT(pcMarquer, pcReturnType)
+				return This.OccurrencesOfMarquerQRT(pcMarquer, pcReturnType)
 
 		def MarquerPositions(pcMarquer)
 			return This.OccurrencesOfMarquer(pcMarquer)
@@ -6230,8 +6230,8 @@ class stzString from stzObject
 			def MarquerPositionsQ(pcMarquer)
 				return This.OccurrencesOfMarquerQ(pcMarquer)
 	
-			def MarquerPositionsQR(pcMarquer, pcReturnType)
-				return This.OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
+			def MarquerPositionsQRT(pcMarquer, pcReturnType)
+				return This.OccurrencesOfMarquerQRT(pcMarquer, pcReturnType)
 
 		def FindMarquer(pcMarquer)
 			return This.OccurrencesOfMarquer(pcMarquer)
@@ -6239,8 +6239,8 @@ class stzString from stzObject
 			def FindMarquerQ(pcMarquer)
 				return This.OccurrencesOfMarquerQ(pcMarquer)
 	
-			def FindMarquerQR(pcMarquer, pcReturnType)
-				return This.OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
+			def FindMarquerQRT(pcMarquer, pcReturnType)
+				return This.OccurrencesOfMarquerQRT(pcMarquer, pcReturnType)
 
 		def FindThisMarquer(pcMarquer)
 			return This.OccurrencesOfMarquer(pcMarquer)
@@ -6248,8 +6248,8 @@ class stzString from stzObject
 			def FindThisMarquerQ(pcMarquer)
 				return This.OccurrencesOfMarquerQ(pcMarquer)
 	
-			def FindThisMarquerQR(pcMarquer, pcReturnType)
-				return This.OccurrencesOfMarquerQR(pcMarquer, pcReturnType)
+			def FindThisMarquerQRT(pcMarquer, pcReturnType)
+				return This.OccurrencesOfMarquerQRT(pcMarquer, pcReturnType)
 
 			#>
 
@@ -6364,9 +6364,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def MarquersAndSectionsQ()
-			return This.MarquersAndSectionsQR(:stzList)
+			return This.MarquersAndSectionsQRT(:stzList)
 
-		def MarquersAndSectionsQR(pcReturnType)
+		def MarquersAndSectionsQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -6392,8 +6392,8 @@ class stzString from stzObject
 			def MarquersZZQ()
 				return This.MarquersAndSectionsQ()
 
-			def MarquersZZQR(pcReturnType)
-				return This.MarquersAndSectionsQR(pcReturnType)
+			def MarquersZZQRT(pcReturnType)
+				return This.MarquersAndSectionsQRT(pcReturnType)
 
 		def MarquersAndTheirSections()
 			return This.MarquersAndSections()
@@ -6401,8 +6401,8 @@ class stzString from stzObject
 			def MarquersAndTheirSectionsQ()
 				return This.MarquersAndSectionsQ()
 
-			def MarquersAndTheirSectionsQR(pcReturnType)
-				return This.MarquersAndSectionsQR(pcReturnType)
+			def MarquersAndTheirSectionsQRT(pcReturnType)
+				return This.MarquersAndSectionsQRT(pcReturnType)
 
 		#>
 
@@ -6442,7 +6442,7 @@ class stzString from stzObject
 		def UniqueMarquersAndSectionsQ()
 			return new stzList(This.UniqueMarquersAndSections())
 
-		def UniqueMarquersAndSectionsQR(pcReturnType)
+		def UniqueMarquersAndSectionsQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -6469,8 +6469,8 @@ class stzString from stzObject
 			def MarquersZZUQ()
 				return This.UniqueMarquersAndSectionsQ()
 
-			def MarquersZZUQR(pcReturnType)
-				return This.UniqueMarquersAndSectionsQR(pcReturnType)
+			def MarquersZZUQRT(pcReturnType)
+				return This.UniqueMarquersAndSectionsQRT(pcReturnType)
 
 		def UniqueMarquersAndTheirSections()
 			return This.UniqueMarquersAndSections()
@@ -6478,8 +6478,8 @@ class stzString from stzObject
 			def UniqueMarquersAndTheirSectionsQ()
 				return This.UniqueMarquersAndSectionsQ()
 
-			def UniqueMarquersandTheirSectionsQR(pcReturnType)
-				return This.UniqueMarquersAndSectionsQR(pcReturnType)
+			def UniqueMarquersandTheirSectionsQRT(pcReturnType)
+				return This.UniqueMarquersAndSectionsQRT(pcReturnType)
 
 		def MarquersUAndTheirSections()
 			return This.UniqueMarquersAndSections()
@@ -6487,8 +6487,8 @@ class stzString from stzObject
 			def MarquersUAndTheirSectionsQ()
 				return This.UniqueMarquersAndSectionsQ()
 
-			def MarquersUAndTheirSectionsQR(pcReturnType)
-				return This.UniqueMarquersAndSectionsQR(pcReturnType)
+			def MarquersUAndTheirSectionsQRT(pcReturnType)
+				return This.UniqueMarquersAndSectionsQRT(pcReturnType)
 
 		def MarquersWithoutDuplicationAndTheirSections()
 			return This.UniqueMarquersAndSections()
@@ -6496,8 +6496,8 @@ class stzString from stzObject
 			def MarquersWithoutDuplicationAndTheirSectionsQ()
 				return This.UniqueMarquersAndSectionsQ()
 
-			def MarquersWithoutDuplicationAndTheirSectionsQR(pcReturnType)
-				return This.UniqueMarquersAndSectionsQR(pcReturnType)
+			def MarquersWithoutDuplicationAndTheirSectionsQRT(pcReturnType)
+				return This.UniqueMarquersAndSectionsQRT(pcReturnType)
 
 		def MarquersWithoutDuplicationZZ()
 			return This.UniqueMarquersAndSections()
@@ -6505,8 +6505,8 @@ class stzString from stzObject
 			def MarquersWithoutDuplicationZZQ()
 				return This.UniqueMarquersAndSectionsQ()
 
-			def MarquersWithoutDuplicationZZQR(pcReturnType)
-				return This.UniqueMarquersAndSectionsQR(pcReturnType)
+			def MarquersWithoutDuplicationZZQRT(pcReturnType)
+				return This.UniqueMarquersAndSectionsQRT(pcReturnType)
 
 		#>
 	
@@ -7248,9 +7248,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def NextMarquersQ(pnStartingAt)
-			return This.NextMarquersQR(pnstartingAt, :stzList)
+			return This.NextMarquersQRT(pnstartingAt, :stzList)
 
-		def NextMarquersQR(pcReturnType)
+		def NextMarquersQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -7276,8 +7276,8 @@ class stzString from stzObject
 			def NextMarquersSTQ(pnStartingAt)
 				return This.NextMarquersQ(pnStartingAt)
 
-			def NextMarquersSTQR(pnStartingAt, pcReturnType)
-				return This.NextMarquersQR(pnStartingAt, pcReturnType)
+			def NextMarquersSTQRT(pnStartingAt, pcReturnType)
+				return This.NextMarquersQRT(pnStartingAt, pcReturnType)
 
 		#>
 
@@ -7461,9 +7461,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def NthNextMarquerAndItsPositionQ(n, pnStartingAt)
-			return This.NthNextMarquerAndItsPositionQR(n, pnStartingAt,  :stzList)
+			return This.NthNextMarquerAndItsPositionQRT(n, pnStartingAt,  :stzList)
 
-		def NthNextMarquerAndItsPositionQR(n, pnStartingAt,  pcReturnType)
+		def NthNextMarquerAndItsPositionQRT(n, pnStartingAt,  pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -7489,7 +7489,7 @@ class stzString from stzObject
 			def NextNthMarquerAndItsPositionQ(n, pnStartingAt)
 				return This.NextNthMarquerAndItsPositionQ(n, pnStartingAt)
 
-			def NextNthMarquerAndItsPositionQR(n, pnStartingAt, pcReturnType)
+			def NextNthMarquerAndItsPositionQRT(n, pnStartingAt, pcReturnType)
 				return This.NextNthMarquerAndItsPositionQ(n, pnStartingAt)
 
 		def NextNthMarque(n, pnStartingAt)
@@ -7638,9 +7638,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def PreviousMarquersQ(pnStartingAt)
-			return This.PreviousMarquersQR(pnstartingAt, :stzList)
+			return This.PreviousMarquersQRT(pnstartingAt, :stzList)
 
-		def PreviousMarquersQR(pcReturnType)
+		def PreviousMarquersQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -7666,8 +7666,8 @@ class stzString from stzObject
 			def PreviousMarquersSTQ()
 				return This.PreviousMarquersQ()
 
-			def PreviousMarquersSTQR(pnStartingAt, pcReturnType)
-				return This.PreviousMarquersQR(pnstartingAt, pcReturnType)
+			def PreviousMarquersSTQRT(pnStartingAt, pcReturnType)
+				return This.PreviousMarquersQRT(pnstartingAt, pcReturnType)
 
 		#>
 
@@ -7811,9 +7811,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def NthPreviousMarquerAndItsPositionQ(n, pnStartingAt)
-			return This.NthPreviousMarquerAndItsPositionQR(n, pnStartingAt, pcReturnType)
+			return This.NthPreviousMarquerAndItsPositionQRT(n, pnStartingAt, pcReturnType)
 
-		def NthPreviousMarquerAndItsPositionQR(n, pnStartingAt, pcReturnType)
+		def NthPreviousMarquerAndItsPositionQRT(n, pnStartingAt, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -8251,7 +8251,7 @@ class stzString from stzObject
 
 	def FindDuplicatesCSXT(pCaseSensitive)
 		aSections = This.FindDuplicatesAsSectionsCS(pCaseSensitive)
-		anResult = QR(aSections, :stzListOfPairs).FirstItems()
+		anResult = QRT(aSections, :stzListOfPairs).FirstItems()
 		return anResult
 
 		def FindDuplicatesCSXTZ(pCaseSensitive)
@@ -8285,7 +8285,7 @@ class stzString from stzObject
 			next
 		next
 
-		aResult = QR(aResult, :stzListOfPairs).Sorted()
+		aResult = QRT(aResult, :stzListOfPairs).Sorted()
 		return aResult
 
 		#< @FunctionAlternativeForm
@@ -9201,7 +9201,7 @@ class stzString from stzObject
 		def ConsecutiveSubStringsOfNCharsQ(n)
 			return new stzList(This.ConsecutiveSubStringsOfNChars(n))
 
-		def ConsecutiveSubStringsOfNCharsQR(n, pcReturnType)
+		def ConsecutiveSubStringsOfNCharsQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.ConsecutiveSubStringsOfNChars(n))
@@ -9224,8 +9224,8 @@ class stzString from stzObject
 			def AdjuscentSubStringsOfNCharsQ(n)
 				return This. ConsecutiveSubStringsOfNCharsQ(n)
 
-			def AdjuscentSubStringsOfNCharsQR(n, pcReturnType)
-				return Thus.ConsecutiveSubStringsOfNCharsQR(n, pcReturnType)
+			def AdjuscentSubStringsOfNCharsQRT(n, pcReturnType)
+				return Thus.ConsecutiveSubStringsOfNCharsQRT(n, pcReturnType)
 
 		#>
 
@@ -9505,7 +9505,7 @@ class stzString from stzObject
 		def ConsecutiveSubStringsQ()
 			return new stzList(This.ConsecutiveSubStrings())
 
-		def ConsecutiveSubStringsQR(pcReturnType)
+		def ConsecutiveSubStringsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				new stzList( This.ConsecutiveSubStrings() )
@@ -11241,9 +11241,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def NextNthCharQ(n, pnStartingAt)
-			return This.NextNthCharQR(n, pnStartingAt, :stzString)
+			return This.NextNthCharQRT(n, pnStartingAt, :stzString)
 
-		def NextNthCharQR(n, pnStartingAt, pcReturnType)
+		def NextNthCharQRT(n, pnStartingAt, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -11273,8 +11273,8 @@ class stzString from stzObject
 			def NthNextCharQ()
 				return This.NextNthCharQ(n, pnStartingAt)
 	
-			def NthNextCharQR(pcReturnType)
-				return This.NextNthCharQR(n, pnStartingAt, pcReturnType)
+			def NthNextCharQRT(pcReturnType)
+				return This.NextNthCharQRT(n, pnStartingAt, pcReturnType)
 
 		#--
 
@@ -11284,8 +11284,8 @@ class stzString from stzObject
 			def NextNthCharSTQ(n, pnStartingAt)
 				return This.NextNthCharQ(n, pnStartingAt)
 
-			def NextNthCharSTQR(n, pnStartingAt, pcReturnType)
-				return This.NextNthCharQR(n, pnStartingAt, pcReturnType)
+			def NextNthCharSTQRT(n, pnStartingAt, pcReturnType)
+				return This.NextNthCharQRT(n, pnStartingAt, pcReturnType)
 
 		def NthNextCharST()
 			return This.NextNthChar()
@@ -11293,8 +11293,8 @@ class stzString from stzObject
 			def NthNextCharSTQ()
 				return This.NextNthCharQ(n, pnStartingAt)
 	
-			def NthNextCharSTQR(pcReturnType)
-				return This.NextNthCharQR(n, pnStartingAt, pcReturnType)
+			def NthNextCharSTQRT(pcReturnType)
+				return This.NextNthCharQRT(n, pnStartingAt, pcReturnType)
 
 		#>
 
@@ -11336,10 +11336,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def NextCharQ(pnStartingAt)
-			return This.NextCharQR(pnStartingAt, :stzString)
+			return This.NextCharQRT(pnStartingAt, :stzString)
 
-		def NextCharQR(pnStartingAt, pcReturnType)
-			return This.NextNthCharQR(1, pcReturnType)
+		def NextCharQRT(pnStartingAt, pcReturnType)
+			return This.NextNthCharQRT(1, pcReturnType)
 
 		#>
 
@@ -11351,8 +11351,8 @@ class stzString from stzObject
 			def NextCharSTQ(paStartingAt)
 				return This.NextCharQ(pnStartingAt)
 
-			def NextCharSTQR(pnStartingAt, pcReturnType)
-				return This.NextCharQR(pnStartingAt, pcReturnType)
+			def NextCharSTQRT(pnStartingAt, pcReturnType)
+				return This.NextCharQRT(pnStartingAt, pcReturnType)
 
 		#>
 
@@ -11401,9 +11401,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def PreviousNthCharQ(n, pnStartingAt)
-			return This.PreviousNthCharQR(n, pnStartingAt, :stzString)
+			return This.PreviousNthCharQRT(n, pnStartingAt, :stzString)
 
-		def PreviousNthCharQR(n, pnStartingAt, pcReturnType)
+		def PreviousNthCharQRT(n, pnStartingAt, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -11431,10 +11431,10 @@ class stzString from stzObject
 			return This.PreviousNthChar()
 
 			def NthPreviousCharQ()
-				return This.NthPreviousCharQR(:stzString)
+				return This.NthPreviousCharQRT(:stzString)
 	
-			def NthPreviousCharQR(pcReturnType)
-				return This.PreviousNthCharQR(n, pnStartingAt, pcReturnType)
+			def NthPreviousCharQRT(pcReturnType)
+				return This.PreviousNthCharQRT(n, pnStartingAt, pcReturnType)
 
 		#--
 
@@ -11444,7 +11444,7 @@ class stzString from stzObject
 			def PreviousNthCharSTQ(n, pnStartingAt)
 				return This.PreviousNthCharQ(n, pnStartingAt)
 
-			def PreviousNthCharSTQR(n, pnStartingAt, pcReturnType)
+			def PreviousNthCharSTQRT(n, pnStartingAt, pcReturnType)
 				return This.PreviousNthCharQ(n, pnStartingAt, pcReturnType)
 
 		#>
@@ -11487,9 +11487,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def PreviousCharQ(pnStartingAt)
-			return This.PreviousCharQR(pnStartingAt, :stzString)
+			return This.PreviousCharQRT(pnStartingAt, :stzString)
 
-		def PreviousCharQR(pnStartingAt, pcReturnType)
+		def PreviousCharQRT(pnStartingAt, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -11518,7 +11518,7 @@ class stzString from stzObject
 			def PreviousCharSTQ(pnStartingAt)
 				return This.PreviousCharQ(pnStartingAt)
 
-			def PreviousCharSTQR(pnStartingAt, pcReturnType)
+			def PreviousCharSTQRT(pnStartingAt, pcReturnType)
 				return This.PreviousCharQ(pnStartingAt, pcReturnType)
 
 		#>
@@ -11800,9 +11800,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def NRightCharsQ(n)
-			return This.NRightCharsQR(n, :stzList)
+			return This.NRightCharsQRT(n, :stzList)
 
-		def NRightCharsQR(n, pcReturnType)
+		def NRightCharsQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NRightChars(n) )
@@ -11814,7 +11814,7 @@ class stzString from stzObject
 				return new stzListOfchars( This.NRightChars(n) )
 
 			on :stzString
-				return new stzString( This.NRightCharsQR(n, :stzListOfStrings).Concatenated() )
+				return new stzString( This.NRightCharsQRT(n, :stzListOfStrings).Concatenated() )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -11830,8 +11830,8 @@ class stzString from stzObject
 			def RightNCharsQ(n)
 				return This.NRightCharsQ(n)
 
-			def RightNCharsQR(n, pcReturnType)
-				return This.NRightCharsQR(n, pcReturnType)
+			def RightNCharsQRT(n, pcReturnType)
+				return This.NRightCharsQRT(n, pcReturnType)
 
 		#>
 
@@ -11897,9 +11897,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def NLeftCharsQ(n)
-			return This.NLeftCharsQR(n, :stzList)
+			return This.NLeftCharsQRT(n, :stzList)
 
-		def NLeftCharsQR(n, pcReturnType)
+		def NLeftCharsQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NLeftChars(n) )
@@ -11911,7 +11911,7 @@ class stzString from stzObject
 				return new stzListOfChars( This.NLeftChars(n) )
 
 			on :stzString
-				return new stzString( This.NLeftCharsQR(n, :stzListOfStrings).Concatenated() )
+				return new stzString( This.NLeftCharsQRT(n, :stzListOfStrings).Concatenated() )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -11927,8 +11927,8 @@ class stzString from stzObject
 			def LeftNCharsQ(n)
 				return This.NLeftCharsQ(n)
 
-			def LeftNCharsQR(n, pcReturnType)
-				return This.NLeftCharsQR(n, pcReturnType)
+			def LeftNCharsQRT(n, pcReturnType)
+				return This.NLeftCharsQRT(n, pcReturnType)
 
 		#>
 
@@ -11983,9 +11983,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def NFirstCharsQ(n)
-			return This.NLeftCharsQR(n, :stzList)
+			return This.NLeftCharsQRT(n, :stzList)
 
-		def NFirstCharsQR(n, pcReturnType)
+		def NFirstCharsQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NFirstChars(n) )
@@ -11997,7 +11997,7 @@ class stzString from stzObject
 				return new stzListOfChars( This.NFirstChars(n) )
 
 			on :stzString
-				return new stzString( This.NFirstCharsQR(n, :stzListOfStrings).Concatenated() )
+				return new stzString( This.NFirstCharsQRT(n, :stzListOfStrings).Concatenated() )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -12013,8 +12013,8 @@ class stzString from stzObject
 			def FirstNCharsQ(n)
 				return This.NFirstCharsQ(n)
 
-			def FirstNCharsQR(n, pcReturnType)
-				return This.NFirstCharsQR(n, pcReturnType)
+			def FirstNCharsQRT(n, pcReturnType)
+				return This.NFirstCharsQRT(n, pcReturnType)
 
 		#-- item as alternative of char #TODO generalise it!
 
@@ -12152,8 +12152,8 @@ class stzString from stzObject
 			def FristNCharsQ(n)
 				return This.NFirstCharsQ(n)
 
-			def FristNCharsQR(n, pcReturnType)
-				return This.NFirstCharsQR(n, pcReturnType)
+			def FristNCharsQRT(n, pcReturnType)
+				return This.NFirstCharsQRT(n, pcReturnType)
 
 		#-- specific misspelled forms
 
@@ -12285,9 +12285,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def NLastCharsQ(n)
-			return This.NLastCharsQR(n, :stzList)
+			return This.NLastCharsQRT(n, :stzList)
 
-		def NLastCharsQR(n, pcReturnType)
+		def NLastCharsQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NLastChars(n) )
@@ -12299,7 +12299,7 @@ class stzString from stzObject
 				return new stzListOfChars( This.NLastChars(n) )
 
 			on :stzString
-				return new stzString( This.NLastCharsQR(n, :stzListOfStrings).Concatenated() )
+				return new stzString( This.NLastCharsQRT(n, :stzListOfStrings).Concatenated() )
 			other
 				StzRaise("Unsupported return type!")
 			off
@@ -12314,8 +12314,8 @@ class stzString from stzObject
 			def LastNCharsQ(n)
 				return This.NLastCharsQ(n)
 
-			def LastNCharsQR(n, pcReturnType)
-				return This.NLastCharsQR(n, pcReturnType)
+			def LastNCharsQRT(n, pcReturnType)
+				return This.NLastCharsQRT(n, pcReturnType)
 
 		#-- item as alternative of char #TODO generalise it!
 
@@ -12487,9 +12487,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def NextNCharsQ(n, pnStartingAt)
-			return This.NextNCharsQR(n, pnStartingAt, :stzList)
+			return This.NextNCharsQRT(n, pnStartingAt, :stzList)
 
-		def NextNCharsQR(n, pnStartingAt, pcReturnType)
+		def NextNCharsQRT(n, pnStartingAt, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NextNChars(n, pnStartingAt) )
@@ -12512,10 +12512,10 @@ class stzString from stzObject
 			return This.NextNChars(n, pnStartingAt)
 
 			def NNextCharsQ(n, pnStartingAt)
-				return This.NNextCharsQR(n, pnStartingAt, :stzList)
+				return This.NNextCharsQRT(n, pnStartingAt, :stzList)
 
-			def NNextCharsQR(n, pnStartingAt, pcReturnType)
-				return This.NextNCharsQR(n, pnStartingAt, pcReturnType)
+			def NNextCharsQRT(n, pnStartingAt, pcReturnType)
+				return This.NextNCharsQRT(n, pnStartingAt, pcReturnType)
 
 		#--
 
@@ -12525,17 +12525,17 @@ class stzString from stzObject
 			def NextNCharsSTQ(n, pnStartingAt)
 				return This.NextNCharsQ(n, pnStartingAt)
 
-			def NextNCharsSTQR(n, pnStartingAt, pcReturnType)
-				return This.NextNCharsQR(n, pnStartingAt, pcReturnType)
+			def NextNCharsSTQRT(n, pnStartingAt, pcReturnType)
+				return This.NextNCharsQRT(n, pnStartingAt, pcReturnType)
 
 		def NNextCharsST(n, pnStartingAt)
 			return This.NextNChars(n, pnStartingAt)
 
 			def NNextCharsSTQ(n, pnStartingAt)
-				return This.NNextCharsQR(n, pnStartingAt, :stzList)
+				return This.NNextCharsQRT(n, pnStartingAt, :stzList)
 
-			def NNextCharsSTQR(n, pnStartingAt, pcReturnType)
-				return This.NextNCharsQR(n, pnStartingAt, pcReturnType)
+			def NNextCharsSTQRT(n, pnStartingAt, pcReturnType)
+				return This.NextNCharsQRT(n, pnStartingAt, pcReturnType)
 
 
 		#>
@@ -12611,9 +12611,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def PreviousNCharsQ(n, pnStartingAt)
-			return This.PreviousNCharsQR(n, pnStartingAt, :stzList)
+			return This.PreviousNCharsQRT(n, pnStartingAt, :stzList)
 
-		def PreviousNCharsQR(n, pnStartingAt, pcReturnType)
+		def PreviousNCharsQRT(n, pnStartingAt, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.PreviousNChars(n, pnStartingAt) )
@@ -12636,10 +12636,10 @@ class stzString from stzObject
 			return This.PreviousNChars(n, pnStartingAt)
 
 			def NPreviousCharsQ(n, pnStartingAt)
-				return This.NPreviousCharsQR(n, pnStartingAt, :stzList)
+				return This.NPreviousCharsQRT(n, pnStartingAt, :stzList)
 
-			def NPreviousCharsQR(n, pnStartingAt, pcReturnType)
-				return This.PreviousNCharsQR(n, pnStartingAt, pcReturnType)
+			def NPreviousCharsQRT(n, pnStartingAt, pcReturnType)
+				return This.PreviousNCharsQRT(n, pnStartingAt, pcReturnType)
 
 		#--
 
@@ -12649,17 +12649,17 @@ class stzString from stzObject
 			def PreviousNCharsSTQ(n, pnStartingAt)
 				return This.PreviousNCharsQ(n, pnStartingAt)
 
-			def PreviousNCharsSTQR(n, pnStartingAt, pcReturnType)
-				return This.PreviousNCharsQR(n, pnStartingAt, pcReturnType)
+			def PreviousNCharsSTQRT(n, pnStartingAt, pcReturnType)
+				return This.PreviousNCharsQRT(n, pnStartingAt, pcReturnType)
 
 		def NPreviousCharsST(n, pnStartingAt)
 			return This.PreviousNChars(n, pnStartingAt)
 
 			def NPreviousCharsSTQ(n, pnStartingAt)
-				return This.NPreviousCharsQR(n, pnStartingAt, :stzList)
+				return This.NPreviousCharsQRT(n, pnStartingAt, :stzList)
 
-			def NPreviousCharsSTQR(n, pnStartingAt, pcReturnType)
-				return This.PreviousNCharsQR(n, pnStartingAt, pcReturnType)
+			def NPreviousCharsSTQRT(n, pnStartingAt, pcReturnType)
+				return This.PreviousNCharsQRT(n, pnStartingAt, pcReturnType)
 		#>
 
 		#< @FunctionSpecificForms
@@ -12861,7 +12861,7 @@ class stzString from stzObject
 
 	def IsPluralOfAStzType()
 
-		if QR( StzTypesXT(), :stzListOfPairs ).
+		if QRT( StzTypesXT(), :stzListOfPairs ).
 		   SecondItemsQ().
 		   ContainsCS( This.Content(), _FALSE_ )
 
@@ -13041,7 +13041,7 @@ class stzString from stzObject
 
 	def FindSectionBounds(n1, n2, nCharsBefore, nCharsAfter)
 
-		anResult = QR(
+		anResult = QRT(
 			This.FindSectionBoundsZZ(n1, n2, nCharsBefore, nCharsAfter),
 			:stzListOfPairs
 		).FirstItems()
@@ -13052,7 +13052,7 @@ class stzString from stzObject
 			return This.FindSectionBounds(n1, n2, nCharsBefore, nCharsAfter)
 
 	def FindSectionBoundsIB(n1, n2, nCharsBefore, nCharsAfter)
-		anResult = QR(
+		anResult = QRT(
 			This.FindSectionBoundsIBZZ(n1, n2, nCharsBefore, nCharsAfter),
 			:stzListOfPairs
 		).FirstItems()
@@ -18711,7 +18711,7 @@ class stzString from stzObject
 
 	def FindSubStringBoundsCSIB(pcSubStr, pCaseSensitive)
 		aSections = This.FindSubStringBoundsCSIBZZ(pcSubStr, pCaseSensitive)
-		anResult = QR(aSections, :stzListOfPairs).FirstItems()
+		anResult = QRT(aSections, :stzListOfPairs).FirstItems()
 
 		return anResult
 
@@ -19253,7 +19253,7 @@ class stzString from stzObject
 	def FindSubStringFirstBoundsCS(pcSubStr, pCaseSensitive)
 
 		aSections = This.FindFirstBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
-		anResult = QR(aSections, :stzListOfPairs).FirstItems()
+		anResult = QRT(aSections, :stzListOfPairs).FirstItems()
 
 		return anResult
 
@@ -19310,7 +19310,7 @@ class stzString from stzObject
 
 	def FindSubStringLastBoundsCS(pcSubStr, pCaseSensitive)
 		aSections = This.FindLastBoundsOfAsSectionsCS(pcSubStr, pCaseSensitive)
-		anResult = QR(aSections, :stzListOfPairs).FirstItems()
+		anResult = QRT(aSections, :stzListOfPairs).FirstItems()
 
 		return anResult
 
@@ -19536,9 +19536,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SubStringBoundsCSQ(pcSubStr, pCaseSensitive)
-			return This.SubStringBoundsCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.SubStringBoundsCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
-		def SubStringBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def SubStringBoundsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.SubStringBoundsCS(pcSubStr, pCaseSensitive))
@@ -19558,10 +19558,10 @@ class stzString from stzObject
 			return This.SubStringBoundsCS(pcSubStr, pCaseSensitive)
 
 			def BoundsOfCSQ(pcSubStr, pCaseSensitive)
-				return This.BoundsOfCSQR(pcSubStr, pCaseSensitive, :stzList)
+				return This.BoundsOfCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
-			def BoundsOfCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def BoundsOfCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 		#--
 
 		def SubStringFirstAndLastBoundsCS(pcSubStr, pCaseSensitive)
@@ -19570,8 +19570,8 @@ class stzString from stzObject
 			def SubStringFirstAndLastBoundsCSQ(pcSubStr, pCaseSensitive)
 				return This.BoundsOfCSQ(pcSubStr, pCaseSensitive)
 
-			def SubStringFirstAndLastBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SubStringFirstAndLastBoundsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SubStringFirstAndSecondBoundsCS(pcSubStr, pCaseSensitive)
 			return This.SubStringBoundsCS(pcSubStr, pCaseSensitive)
@@ -19579,8 +19579,8 @@ class stzString from stzObject
 			def SubStringFirstAndSecondBoundsCSQ(pcSubStr, pCaseSensitive)
 				return This.BoundsOfCSQ(pcSubStr, pCaseSensitive)
 
-			def SubStringFirstAndSecondBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SubStringFirstAndSecondBoundsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def FirstAndLastBoundsOfCS(pcSubStr, pCaseSensitive)
 			return This.SubStringBoundsCS(pcSubStr, pCaseSensitive)
@@ -19588,8 +19588,8 @@ class stzString from stzObject
 			def FirstAndLastBoundsOfCSQ(pcSubStr, pCaseSensitive)
 				return This.BoundsOfCSQ(pcSubStr, pCaseSensitive)
 
-			def FirstAndLastBoundsOfCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def FirstAndLastBoundsOfCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def FirstAndSecondBoundsOfCS(pcSubStr, pCaseSensitive)
 			return This.SubStringBoundsCS(pcSubStr, pCaseSensitive)
@@ -19597,8 +19597,8 @@ class stzString from stzObject
 			def FirstAndSecondBoundsOfCSQ(pcSubStr, pCaseSensitive)
 				return This.BoundsOfCSQ(pcSubStr, pCaseSensitive)
 
-			def FirstAndSecondBoundsOfCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def FirstAndSecondBoundsOfCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -19615,8 +19615,8 @@ class stzString from stzObject
 			def BoundsOfQ(pcSubStr)
 				return This.BoundsOfCSQ(pcSubStr, _TRUE_)
 
-			def BoundsOfQR(pcSubStr, pcReturnType)
-				return This.BoundsOfCSQR(pcSubStr, _TRUE_, pcReturnType)
+			def BoundsOfQRT(pcSubStr, pcReturnType)
+				return This.BoundsOfCSQRT(pcSubStr, _TRUE_, pcReturnType)
 
 		#--
 
@@ -19626,8 +19626,8 @@ class stzString from stzObject
 			def SubStringFirstAndLastBoundsQ(pcSubStr)
 				return This.BoundsOfQ(pcSubStr)
 
-			def SubStringFirstAndLastBoundsQR(pcSubStr, pcReturnType)
-				return This.BoundsOfQR(pcSubStr, pcReturnType)
+			def SubStringFirstAndLastBoundsQRT(pcSubStr, pcReturnType)
+				return This.BoundsOfQRT(pcSubStr, pcReturnType)
 
 		def SubStringFirstAndSecondBounds(pcSubStr)
 			return This.SubStringBounds(pcSubStr)
@@ -19635,8 +19635,8 @@ class stzString from stzObject
 			def SubStringFirstAndSecondBoundsQ(pcSubStr)
 				return This.BoundsOfQ(pcSubStr)
 
-			def SubStringFirstAndSecondBoundsQR(pcSubStr, pcReturnType)
-				return This.BoundsOfQR(pcSubStr, pcReturnType)
+			def SubStringFirstAndSecondBoundsQRT(pcSubStr, pcReturnType)
+				return This.BoundsOfQRT(pcSubStr, pcReturnType)
 
 		def FirstAndLastBoundsOf(pcSubStr)
 			return This.SubStringBounds(pcSubStr)
@@ -19644,8 +19644,8 @@ class stzString from stzObject
 			def FirstAndLastBoundsOfQ(pcSubStr)
 				return This.BoundsOfQ(pcSubStr)
 
-			def FirstAndLastBoundsOfQR(pcSubStr, pcReturnType)
-				return This.BoundsOfQR(pcSubStr, pcReturnType)
+			def FirstAndLastBoundsOfQRT(pcSubStr, pcReturnType)
+				return This.BoundsOfQRT(pcSubStr, pcReturnType)
 
 		def FirstAndSecondBoundsOf(pcSubStr)
 			return This.SubStringBounds(pcSubStr)
@@ -19653,8 +19653,8 @@ class stzString from stzObject
 			def FirstAndSecondBoundsOfQ(pcSubStr)
 				return This.BoundsOfQ(pcSubStr)
 
-			def FirstAndSecondBoundsOfQR(pcSubStr, pcReturnType)
-				return This.BoundsOfQR(pcSubStr, pcReturnType)
+			def FirstAndSecondBoundsOfQRT(pcSubStr, pcReturnType)
+				return This.BoundsOfQRT(pcSubStr, pcReturnType)
 
 		#>
 
@@ -19863,9 +19863,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SubStringBoundsUpToNCharsCSQ(pcSubStr, n, pCaseSensitive)
-			return This.SubStringBoundsUpToNCharsCSQR(pcSubStr, n, pCaseSensitive, :stzList)
+			return This.SubStringBoundsUpToNCharsCSQRT(pcSubStr, n, pCaseSensitive, :stzList)
 
-		def SubStringBoundsUpToNCharsCSQR(pcSubStr, n, pCaseSensitive, pcReturnType)
+		def SubStringBoundsUpToNCharsCSQRT(pcSubStr, n, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.SubStringBoundsUpToNCharsCS(pcSubStr, n, pCaseSensitive))
@@ -19885,10 +19885,10 @@ class stzString from stzObject
 			return This.SubStringBoundsUpToNCharsCS(pcSubStr, n, pCaseSensitive)
 
 			def BoundsUpToNCharsOfCSQ(pcSubStr, n, pCaseSensitive)
-				return This.BoundsOfUpToNCharsCSQR(pcSubStr, n, pCaseSensitive, :stzList)
+				return This.BoundsOfUpToNCharsCSQRT(pcSubStr, n, pCaseSensitive, :stzList)
 
-			def BoundsOfUpToNCharsCSQR(pcSubStr, n, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsUpToNCharsCSQR(pcSubStr, n, pCaseSensitive, pcReturnType)
+			def BoundsOfUpToNCharsCSQRT(pcSubStr, n, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsUpToNCharsCSQRT(pcSubStr, n, pCaseSensitive, pcReturnType)
 		#--
 
 		def SubStringFirstAndLastBoundsUpToNCharsCS(pcSubStr, n, pCaseSensitive)
@@ -19897,8 +19897,8 @@ class stzString from stzObject
 			def SubStringFirstAndLastBoundsUpToNCharsCSQ(pcSubStr, n, pCaseSensitive)
 				return This.BoundsOfUpToNCharsCSQ(pcSubStr, n, pCaseSensitive)
 
-			def SubStringFirstAndLastBoundsUpToNCharsCSQR(pcSubStr, n, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsUpToNCharsCSQR(pcSubStr, n, pCaseSensitive, pcReturnType)
+			def SubStringFirstAndLastBoundsUpToNCharsCSQRT(pcSubStr, n, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsUpToNCharsCSQRT(pcSubStr, n, pCaseSensitive, pcReturnType)
 
 		def SubStringFirstAndSecondBoundsUpToNCharsCS(pcSubStr, n, pCaseSensitive)
 			return This.SubStringBoundsUpToNCharsCS(pcSubStr, n, pCaseSensitive)
@@ -19906,8 +19906,8 @@ class stzString from stzObject
 			def SubStringFirstAndSecondBoundsUpToNCharsCSQ(pcSubStr, n, pCaseSensitive)
 				return This.BoundsOfUpToNCharsCSQ(pcSubStr, n, pCaseSensitive)
 
-			def SubStringFirstAndSecondBoundsUpToNCharsCSQR(pcSubStr, n, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsUpToNCharsCSQR(pcSubStr, n, pCaseSensitive, pcReturnType)
+			def SubStringFirstAndSecondBoundsUpToNCharsCSQRT(pcSubStr, n, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsUpToNCharsCSQRT(pcSubStr, n, pCaseSensitive, pcReturnType)
 
 		def FirstAndLastBoundsOfUpToNCharsCS(pcSubStr, n, pCaseSensitive)
 			return This.SubStringBoundsUpToNCharsCS(pcSubStr, n, pCaseSensitive)
@@ -19915,8 +19915,8 @@ class stzString from stzObject
 			def FirstAndLastBoundsOfUpToNCharsCSQ(pcSubStr, n, pCaseSensitive)
 				return This.BoundsOfUpToNCharsCSQ(pcSubStr, n, pCaseSensitive)
 
-			def FirstAndLastBoundsOfUpToNCharsCSQR(pcSubStr, n, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsUpToNCharsCSQR(pcSubStr, n, pCaseSensitive, pcReturnType)
+			def FirstAndLastBoundsOfUpToNCharsCSQRT(pcSubStr, n, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsUpToNCharsCSQRT(pcSubStr, n, pCaseSensitive, pcReturnType)
 
 		def FirstAndSecondBoundsOfUpToNCharsCS(pcSubStr, n, pCaseSensitive)
 			return This.SubStringBoundsUpToNCharsCS(pcSubStr, n, pCaseSensitive)
@@ -19924,8 +19924,8 @@ class stzString from stzObject
 			def FirstAndSecondBoundsOfUpToNCharsCSQ(pcSubStr, n, pCaseSensitive)
 				return This.BoundsOfUpToNCharsCSQ(pcSubStr, n, pCaseSensitive)
 
-			def FirstAndSecondBoundsOfUpToNCharsCSQR(pcSubStr, n, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsUpToNCharsCSQR(pcSubStr, n, pCaseSensitive, pcReturnType)
+			def FirstAndSecondBoundsOfUpToNCharsCSQRT(pcSubStr, n, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsUpToNCharsCSQRT(pcSubStr, n, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -19940,10 +19940,10 @@ class stzString from stzObject
 			return This.SubStringBoundsUpToNChars(pcSubStr, n)
 
 			def BoundsUpToNCharsOfQ(pcSubStr, n)
-				return This.BoundsOfUpToNCharsQR(pcSubStr, n, :stzList)
+				return This.BoundsOfUpToNCharsQRT(pcSubStr, n, :stzList)
 
-			def BoundsOfUpToNCharsQR(pcSubStr, n, pcReturnType)
-				return This.SubStringBoundsUpToNCharsQR(pcSubStr, n, pcReturnType)
+			def BoundsOfUpToNCharsQRT(pcSubStr, n, pcReturnType)
+				return This.SubStringBoundsUpToNCharsQRT(pcSubStr, n, pcReturnType)
 		#--
 
 		def SubStringFirstAndLastBoundsUpToNChars(pcSubStr, n)
@@ -19952,8 +19952,8 @@ class stzString from stzObject
 			def SubStringFirstAndLastBoundsUpToNCharsQ(pcSubStr, n)
 				return This.BoundsOfUpToNCharsQ(pcSubStr, n)
 
-			def SubStringFirstAndLastBoundsUpToNCharsQR(pcSubStr, n, pcReturnType)
-				return This.SubStringBoundsUpToNCharsQR(pcSubStr, n, pcReturnType)
+			def SubStringFirstAndLastBoundsUpToNCharsQRT(pcSubStr, n, pcReturnType)
+				return This.SubStringBoundsUpToNCharsQRT(pcSubStr, n, pcReturnType)
 
 		def SubStringFirstAndSecondBoundsUpToNChars(pcSubStr, n)
 			return This.SubStringBoundsUpToNChars(pcSubStr, n)
@@ -19961,8 +19961,8 @@ class stzString from stzObject
 			def SubStringFirstAndSecondBoundsUpToNCharsQ(pcSubStr, n)
 				return This.BoundsOfUpToNCharsQ(pcSubStr, n)
 
-			def SubStringFirstAndSecondBoundsUpToNCharsQR(pcSubStr, n, pcReturnType)
-				return This.SubStringBoundsUpToNCharsQR(pcSubStr, n, pcReturnType)
+			def SubStringFirstAndSecondBoundsUpToNCharsQRT(pcSubStr, n, pcReturnType)
+				return This.SubStringBoundsUpToNCharsQRT(pcSubStr, n, pcReturnType)
 
 		def FirstAndLastBoundsOfUpToNChars(pcSubStr, n)
 			return This.SubStringBoundsUpToNChars(pcSubStr, n)
@@ -19970,8 +19970,8 @@ class stzString from stzObject
 			def FirstAndLastBoundsOfUpToNCharsQ(pcSubStr, n)
 				return This.BoundsOfUpToNCharsQ(pcSubStr, n)
 
-			def FirstAndLastBoundsOfUpToNCharsQR(pcSubStr, n, pcReturnType)
-				return This.SubStringBoundsUpToNCharsQR(pcSubStr, n, pcReturnType)
+			def FirstAndLastBoundsOfUpToNCharsQRT(pcSubStr, n, pcReturnType)
+				return This.SubStringBoundsUpToNCharsQRT(pcSubStr, n, pcReturnType)
 
 		def FirstAndSecondBoundsOfUpToNChars(pcSubStr, n)
 			return This.SubStringBoundsUpToNChars(pcSubStr, n)
@@ -19979,8 +19979,8 @@ class stzString from stzObject
 			def FirstAndSecondBoundsOfUpToNCharsQ(pcSubStr, n)
 				return This.BoundsOfUpToNCharsQ(pcSubStr, n)
 
-			def FirstAndSecondBoundsOfUpToNCharsQR(pcSubStr, n, pcReturnType)
-				return This.SubStringBoundsUpToNCharsQR(pcSubStr, n, pcReturnType)
+			def FirstAndSecondBoundsOfUpToNCharsQRT(pcSubStr, n, pcReturnType)
+				return This.SubStringBoundsUpToNCharsQRT(pcSubStr, n, pcReturnType)
 
 		#>
 
@@ -20005,9 +20005,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SubStringBoundsCSXTQ(pcSubStr, panLenBounds, pCaseSensitive)
-			return This.SubStringBoundsCSXTQR(pcSubStr, panLenBounds, pCaseSensitive, :stzList)
+			return This.SubStringBoundsCSXTQRT(pcSubStr, panLenBounds, pCaseSensitive, :stzList)
 
-		def SubStringBoundsCSXTQR(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
+		def SubStringBoundsCSXTQRT(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.SubStringBoundsCSXT(pcSubStr, panLenBounds, pCaseSensitive))
@@ -20027,10 +20027,10 @@ class stzString from stzObject
 			return This.SubStringBoundsCSXT(pcSubStr, panLenBounds, pCaseSensitive)
 
 			def BoundsOfCSXTQ(pcSubStr, panLenBounds, pCaseSensitive)
-				return This.BoundsOfCSXTQR(pcSubStr, panLenBounds, pCaseSensitive, :stzList)
+				return This.BoundsOfCSXTQRT(pcSubStr, panLenBounds, pCaseSensitive, :stzList)
 
-			def BoundsOfCSXTQR(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsCSXTQR(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
+			def BoundsOfCSXTQRT(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSXTQRT(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
 		#--
 
 		def SubStringFirstAndLastBoundsCSXT(pcSubStr, panLenBounds, pCaseSensitive)
@@ -20039,8 +20039,8 @@ class stzString from stzObject
 			def SubStringFirstAndLastBoundsCSXTQ(pcSubStr, panLenBounds, pCaseSensitive)
 				return This.BoundsOfCSXTQ(pcSubStr, panLenBounds, pCaseSensitive)
 
-			def SubStringFirstAndLastBoundsCSXTQR(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsCSXTQR(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
+			def SubStringFirstAndLastBoundsCSXTQRT(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSXTQRT(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
 
 		def SubStringFirstAndSecondBoundsCSXT(pcSubStr, panLenBounds, pCaseSensitive)
 			return This.SubStringBoundsCSXT(pcSubStr, panLenBounds, pCaseSensitive)
@@ -20048,8 +20048,8 @@ class stzString from stzObject
 			def SubStringFirstAndSecondBoundsCSXTQ(pcSubStr, panLenBounds, pCaseSensitive)
 				return This.BoundsOfCSXTQ(pcSubStr, panLenBounds, pCaseSensitive)
 
-			def SubStringFirstAndSecondBoundsCSXTQR(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsCSXTQR(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
+			def SubStringFirstAndSecondBoundsCSXTQRT(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSXTQRT(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
 
 		def FirstAndLastBoundsOfCSXT(pcSubStr, panLenBounds, pCaseSensitive)
 			return This.SubStringBoundsCSXT(pcSubStr, panLenBounds, pCaseSensitive)
@@ -20057,8 +20057,8 @@ class stzString from stzObject
 			def FirstAndLastBoundsOfCSXTQ(pcSubStr, panLenBounds, pCaseSensitive)
 				return This.BoundsOfCSXTQ(pcSubStr, panLenBounds, pCaseSensitive)
 
-			def FirstAndLastBoundsOfCSXTQR(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsCSXTQR(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
+			def FirstAndLastBoundsOfCSXTQRT(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSXTQRT(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
 
 		def FirstAndSecondBoundsOfCSXT(pcSubStr, panLenBounds, pCaseSensitive)
 			return This.SubStringBoundsCSXT(pcSubStr, panLenBounds, pCaseSensitive)
@@ -20066,8 +20066,8 @@ class stzString from stzObject
 			def FirstAndSecondBoundsOfCSXTQ(pcSubStr, panLenBounds, pCaseSensitive)
 				return This.BoundsOfCSXTQ(pcSubStr, panLenBounds, pCaseSensitive)
 
-			def FirstAndSecondBoundsOfCSXTQR(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsCSXTQR(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
+			def FirstAndSecondBoundsOfCSXTQRT(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSXTQRT(pcSubStr, panLenBounds, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -20082,10 +20082,10 @@ class stzString from stzObject
 			return This.SubStringBoundsXT(pcSubStr, panLenBounds)
 
 			def BoundsXTOfQ(pcSubStr, panLenBounds)
-				return This.BoundsOfXTQR(pcSubStr, panLenBounds, :stzList)
+				return This.BoundsOfXTQRT(pcSubStr, panLenBounds, :stzList)
 
-			def BoundsOfXTQR(pcSubStr, panLenBounds, pcReturnType)
-				return This.SubStringBoundsXTQR(pcSubStr, panLenBounds, pcReturnType)
+			def BoundsOfXTQRT(pcSubStr, panLenBounds, pcReturnType)
+				return This.SubStringBoundsXTQRT(pcSubStr, panLenBounds, pcReturnType)
 		#--
 
 		def SubStringFirstAndLastBoundsXT(pcSubStr, panLenBounds)
@@ -20094,8 +20094,8 @@ class stzString from stzObject
 			def SubStringFirstAndLastBoundsXTQ(pcSubStr, panLenBounds)
 				return This.BoundsOfXTQ(pcSubStr, panLenBounds)
 
-			def SubStringFirstAndLastBoundsXTQR(pcSubStr, panLenBounds, pcReturnType)
-				return This.SubStringBoundsXTQR(pcSubStr, panLenBounds, pcReturnType)
+			def SubStringFirstAndLastBoundsXTQRT(pcSubStr, panLenBounds, pcReturnType)
+				return This.SubStringBoundsXTQRT(pcSubStr, panLenBounds, pcReturnType)
 
 		def SubStringFirstAndSecondBoundsXT(pcSubStr, panLenBounds)
 			return This.SubStringBoundsXT(pcSubStr, panLenBounds)
@@ -20103,8 +20103,8 @@ class stzString from stzObject
 			def SubStringFirstAndSecondBoundsXTQ(pcSubStr, panLenBounds)
 				return This.BoundsOfXTQ(pcSubStr, panLenBounds)
 
-			def SubStringFirstAndSecondBoundsXTQR(pcSubStr, panLenBounds, pcReturnType)
-				return This.SubStringBoundsXTQR(pcSubStr, panLenBounds, pcReturnType)
+			def SubStringFirstAndSecondBoundsXTQRT(pcSubStr, panLenBounds, pcReturnType)
+				return This.SubStringBoundsXTQRT(pcSubStr, panLenBounds, pcReturnType)
 
 		def FirstAndLastBoundsOfXT(pcSubStr, panLenBounds)
 			return This.SubStringBoundsXT(pcSubStr, panLenBounds)
@@ -20112,8 +20112,8 @@ class stzString from stzObject
 			def FirstAndLastBoundsOfXTQ(pcSubStr, panLenBounds)
 				return This.BoundsOfXTQ(pcSubStr, panLenBounds)
 
-			def FirstAndLastBoundsOfXTQR(pcSubStr, panLenBounds, pcReturnType)
-				return This.SubStringBoundsXTQR(pcSubStr, panLenBounds, pcReturnType)
+			def FirstAndLastBoundsOfXTQRT(pcSubStr, panLenBounds, pcReturnType)
+				return This.SubStringBoundsXTQRT(pcSubStr, panLenBounds, pcReturnType)
 
 		def FirstAndSecondBoundsOfXT(pcSubStr, panLenBounds)
 			return This.SubStringBoundsXT(pcSubStr, panLenBounds)
@@ -20121,8 +20121,8 @@ class stzString from stzObject
 			def FirstAndSecondBoundsOfXTQ(pcSubStr, panLenBounds)
 				return This.BoundsOfXTQ(pcSubStr, panLenBounds)
 
-			def FirstAndSecondBoundsOfXTQR(pcSubStr, panLenBounds, pcReturnType)
-				return This.SubStringBoundsXTQR(pcSubStr, panLenBounds, pcReturnType)
+			def FirstAndSecondBoundsOfXTQRT(pcSubStr, panLenBounds, pcReturnType)
+				return This.SubStringBoundsXTQRT(pcSubStr, panLenBounds, pcReturnType)
 
 		#>
 
@@ -22190,9 +22190,9 @@ class stzString from stzObject
 		#< @FunctionFleuntForms
 
 		def RepeatedLeadingCharCSQ(pCaseSensitive)
-			return This.RepeatedLeadingCharCSQR(pCaseSensitive, :stzChar)
+			return This.RepeatedLeadingCharCSQRT(pCaseSensitive, :stzChar)
 
-		def RepeatedLeadingCharCSQR(pCaseSensitive, pcReturnType)
+		def RepeatedLeadingCharCSQRT(pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -22214,28 +22214,28 @@ class stzString from stzObject
 		def LeadingRepeatedCharCS(pCaseSensitive)
 			return This.RepeatedLeadingCharCS(pCaseSensitive)
 
-			def LeadingRepeatedCharCSQR(pCaseSensitive, pcReturnType)
+			def LeadingRepeatedCharCSQRT(pCaseSensitive, pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.RepeatedLeadingCharCSQR(pCaseSensitive, pcReturnType)
+				return This.RepeatedLeadingCharCSQRT(pCaseSensitive, pcReturnType)
 
 			def LeadingRepeatedCharCSQ(pCaseSensitive)
-				return This.LeadingRepeatedCharCSQR(pCaseSensitive, :stzChar)
+				return This.LeadingRepeatedCharCSQRT(pCaseSensitive, :stzChar)
 	
 		def LeadingCharCS(pCaseSensitive)
 			return This.RepeatedLeadingCharCS(pCaseSensitive)
 
-			def LeadingCharCSQR(pCaseSensitive, pcReturnType)
+			def LeadingCharCSQRT(pCaseSensitive, pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.RepeatedLeadingCharCSQR(pCaseSensitive, pcReturnType)
+				return This.RepeatedLeadingCharCSQRT(pCaseSensitive, pcReturnType)
 
 			def LeadingCharCSQ(pCaseSensitive)
-				return This.LeadingCharCSQR(pCaseSensitive, :stzString)
+				return This.LeadingCharCSQRT(pCaseSensitive, :stzString)
 	
 		#>
 
@@ -22248,9 +22248,9 @@ class stzString from stzObject
 		#< @FunctionFleuntForms
 
 		def RepeatedLeadingCharQ()
-			return This.RepeatedLeadingCharQR(:stzString)
+			return This.RepeatedLeadingCharQRT(:stzString)
 
-		def RepeatedLeadingCharQR(pcReturnType)
+		def RepeatedLeadingCharQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -22272,28 +22272,28 @@ class stzString from stzObject
 		def LeadingRepeatedChar()
 			return This.RepeatedLeadingChar()
 
-			def LeadingRepeatedCharQR(pcReturnType)
+			def LeadingRepeatedCharQRT(pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.RepeatedLeadingCharQR(pcReturnType)
+				return This.RepeatedLeadingCharQRT(pcReturnType)
 
 			def LeadingRepeatedCharQ()
-				return This.LeadingRepeatedCharQR(:stzChar)
+				return This.LeadingRepeatedCharQRT(:stzChar)
 	
 		def LeadingChar()
 			return This.RepeatedLeadingChar()
 
-			def LeadingCharQR(pcReturnType)
+			def LeadingCharQRT(pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.RepeatedLeadingCharQR(pcReturnType)
+				return This.RepeatedLeadingCharQRT(pcReturnType)
 
 			def LeadingCharQ()
-				return This.LeadingCharQR(:stzChar)
+				return This.LeadingCharQRT(:stzChar)
 	
 		#>
 
@@ -23236,9 +23236,9 @@ class stzString from stzObject
 		#< @FunctionFleuntForms
 
 		def RepeatedTrailingCharCSQ(pCaseSensitive)
-			return This.RepeatedTrailingCharCSQR(pCaseSensitive, :stzChar)
+			return This.RepeatedTrailingCharCSQRT(pCaseSensitive, :stzChar)
 
-		def RepeatedTrailingCharCSQR(pCaseSensitive, pcReturnType)
+		def RepeatedTrailingCharCSQRT(pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -23260,28 +23260,28 @@ class stzString from stzObject
 		def TrailingRepeatedCharCS(pCaseSensitive)
 			return This.RepeatedTrailingCharCS(pCaseSensitive)
 
-			def TrailingRepeatedCharCSQR(pCaseSensitive, pcReturnType)
+			def TrailingRepeatedCharCSQRT(pCaseSensitive, pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.RepeatedTrailingCharCSQR(pCaseSensitive, pcReturnType)
+				return This.RepeatedTrailingCharCSQRT(pCaseSensitive, pcReturnType)
 
 			def TrailingRepeatedCharCSQ(pCaseSensitive)
-				return This.TrailingRepeatedCharCSQR(pCaseSensitive, :stzChar)
+				return This.TrailingRepeatedCharCSQRT(pCaseSensitive, :stzChar)
 	
 		def TrailingCharCS(pCaseSensitive)
 			return This.RepeatedTrailingCharCS(pCaseSensitive)
 
-			def TrailingCharCSQR(pCaseSensitive, pcReturnType)
+			def TrailingCharCSQRT(pCaseSensitive, pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.RepeatedTrailingCharCSQR(pCaseSensitive, pcReturnType)
+				return This.RepeatedTrailingCharCSQRT(pCaseSensitive, pcReturnType)
 
 			def TrailingCharCSQ(pCaseSensitive)
-				return This.TrailingCharCSQR(pCaseSensitive, :stzChar)
+				return This.TrailingCharCSQRT(pCaseSensitive, :stzChar)
 	
 		#>
 
@@ -23294,9 +23294,9 @@ class stzString from stzObject
 		#< @FunctionFleuntForms
 
 		def RepeatedTrailingCharQ()
-			return This.RepeatedTrailingCharQR(:stzString)
+			return This.RepeatedTrailingCharQRT(:stzString)
 
-		def RepeatedTrailingCharQR(pcReturnType)
+		def RepeatedTrailingCharQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -23318,28 +23318,28 @@ class stzString from stzObject
 		def TrailingRepeatedChar()
 			return This.RepeatedTrailingChar()
 
-			def TrailingRepeatedCharQR(pcReturnType)
+			def TrailingRepeatedCharQRT(pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.RepeatedTrailingCharQR(pcReturnType)
+				return This.RepeatedTrailingCharQRT(pcReturnType)
 
 			def TrailingRepeatedCharQ()
-				return This.TrailingRepeatedCharQR(:stzChar)
+				return This.TrailingRepeatedCharQRT(:stzChar)
 	
 		def TrailingChar()
 			return This.RepeatedTrailingChar()
 
-			def TrailingCharQR(pcReturnType)
+			def TrailingCharQRT(pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.RepeatedTrailingCharQR(pcReturnType)
+				return This.RepeatedTrailingCharQRT(pcReturnType)
 
 			def TrailingCharQ()
-				return This.TrailingCharQR(:stzChar)
+				return This.TrailingCharQRT(:stzChar)
 	
 		#>
 
@@ -27317,7 +27317,7 @@ class stzString from stzObject
 		anResult = []
 
 		if len(anPos) > 0
-			anResult = QR(anPos, :stzListOfNumbers).AddedToEach(nLenBound1)
+			anResult = QRT(anPos, :stzListOfNumbers).AddedToEach(nLenBound1)
 		ok
 
 		return anResult
@@ -35810,9 +35810,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SectionsQ(paSections)
-			return This.SectionsQR(paSections, :stzList)
+			return This.SectionsQRT(paSections, :stzList)
 
-		def SectionsQR(paSections, pcReturnType)
+		def SectionsQRT(paSections, pcReturnType)
 			if NOT isString(pcReturnType)
 				StzRaise("Incorrect param type! pcReturnType must be a string.")
 			ok
@@ -35838,8 +35838,8 @@ class stzString from stzObject
 			def ManySectionsQ(paSections)
 				return This.SectionsQ(paSections)
 	
-			def ManySectionsQR(paSections, pcReturnType)
-				return This.SectionsQR(paSections, pcReturnType)
+			def ManySectionsQRT(paSections, pcReturnType)
+				return This.SectionsQRT(paSections, pcReturnType)
 
 		def Slices(paSections)
 			return This.Sections(paSections)
@@ -35847,8 +35847,8 @@ class stzString from stzObject
 			def SlicesQ(paSections)
 				return This.SectionsQ(paSections)
 	
-			def SlicesQR(paSections, pcReturnType)
-				return This.SectionsQR(paSections, pcReturnType)
+			def SlicesQRT(paSections, pcReturnType)
+				return This.SectionsQRT(paSections, pcReturnType)
 
 		def ManySlices(paSections)
 			return This.Sections(paSections)
@@ -35856,8 +35856,8 @@ class stzString from stzObject
 			def ManySlicesQ(paSections)
 				return This.SectionsQ(paSections)
 	
-			def ManySlicesQR(paSections, pcReturnType)
-				return This.SectionsQR(paSections, pcReturnType)
+			def ManySlicesQRT(paSections, pcReturnType)
+				return This.SectionsQRT(paSections, pcReturnType)
 
 		#>
 
@@ -35885,9 +35885,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SectionsXTQ(paSections)
-			return This.SectionsXTQR(paSections, pcReturnType)
+			return This.SectionsXTQRT(paSections, pcReturnType)
 
-		def SectionsXTQR(paSections, pcReturnType)
+		def SectionsXTQRT(paSections, pcReturnType)
 			if NOT isString(pcReturnType)
 				StzRaise("Incorrect param type! pcReturnType must be a string.")
 			ok
@@ -35913,8 +35913,8 @@ class stzString from stzObject
 			def ManySectionsXTQ(paSections)
 				return This.SectionsXTQ(paSections)
 	
-			def ManySectionsXTQR(paSections, pcReturnType)
-				return This.SectionsXTQR(paSections, pcReturnType)
+			def ManySectionsXTQRT(paSections, pcReturnType)
+				return This.SectionsXTQRT(paSections, pcReturnType)
 
 		def SlicesXT(paSections)
 			return This.SectionsXT(paSections)
@@ -35922,8 +35922,8 @@ class stzString from stzObject
 			def SlicesXTQ(paSections)
 				return This.SectionsXTQ(paSections)
 	
-			def SlicesXTQR(paSections, pcReturnType)
-				return This.SectionsXTQR(paSections, pcReturnType)
+			def SlicesXTQRT(paSections, pcReturnType)
+				return This.SectionsXTQRT(paSections, pcReturnType)
 
 		def ManySlicesXT(paSections)
 			return This.SectionsXT(paSections)
@@ -35931,8 +35931,8 @@ class stzString from stzObject
 			def ManySlicesXTQ(paSections)
 				return This.SectionsXTQ(paSections)
 	
-			def ManySlicesXTQR(paSections, pcReturnType)
-				return This.SectionsXTQR(paSections, pcReturnType)
+			def ManySlicesXTQRT(paSections, pcReturnType)
+				return This.SectionsXTQRT(paSections, pcReturnType)
 
 		#>
 
@@ -36004,9 +36004,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def AntiSectionsQ(paSections)
-			return This.AntiSectionsQR(paSections, pcReturnType)
+			return This.AntiSectionsQRT(paSections, pcReturnType)
 
-		def AntiSectionsQR(paSections, pcReturnType)
+		def AntiSectionsQRT(paSections, pcReturnType)
 			if NOT isString(pcReturnType)
 				StzRaise("Incorrect param type! pcReturnType must be a string.")
 			ok
@@ -36049,9 +36049,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def AntiSectionsXTQ(paSections)
-			return This.AntiSectionsXTQR(paSections, pcReturnType)
+			return This.AntiSectionsXTQRT(paSections, pcReturnType)
 
-		def AntiSectionsXTQR(paSections, pcReturnType)
+		def AntiSectionsXTQRT(paSections, pcReturnType)
 			if NOT isString(pcReturnType)
 				StzRaise("Incorrect param type! pcReturnType must be a string.")
 			ok
@@ -36121,9 +36121,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SectionsAndAntiSectionsQ(paSections)
-			return This.SectionsAndAntiSectionsQR(paSections, pcReturnType)
+			return This.SectionsAndAntiSectionsQRT(paSections, pcReturnType)
 
-		def SectionsAndAntiSectionsQR(paSections, pcReturnType)
+		def SectionsAndAntiSectionsQRT(paSections, pcReturnType)
 			if NOT isString(pcReturnType)
 				StzRaise("Incorrect param type! pcReturnType must be a string.")
 			ok
@@ -36162,9 +36162,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SectionsAndAntiSectionsXTQ(paSections)
-			return This.SectionsAndAntiSectionsXTQR(paSections, pcReturnType)
+			return This.SectionsAndAntiSectionsXTQRT(paSections, pcReturnType)
 
-		def SectionsAndAntiSectionsXTQR(paSections, pcReturnType)
+		def SectionsAndAntiSectionsXTQRT(paSections, pcReturnType)
 			if NOT isString(pcReturnType)
 				StzRaise("Incorrect param type! pcReturnType must be a string.")
 			ok
@@ -47778,9 +47778,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def FindCSQ(pcSubStr, pCaseSensitive)
-				return This.FindCSQR(pcSubStr, pCaseSensitive, :stzList)
+				return This.FindCSQRT(pcSubStr, pCaseSensitive, :stzList)
 			
-		def FindCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def FindCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -47818,10 +47818,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def FindQ(pcSubStr)
-			return This.FindQR(pcSubStr, :stzList)
+			return This.FindQRT(pcSubStr, :stzList)
 		
-		def FindQR(pcSubStr, pcReturnType)
-				return This.FindCSQR(pcSubStr, _TRUE_, pcReturnType)
+		def FindQRT(pcSubStr, pcReturnType)
+				return This.FindCSQRT(pcSubStr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -47946,9 +47946,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def FindDCSQ(pcSubStr, pcDirection, pCaseSensitive)
-				return This.FindDCSQR(pcSubStr, pcDirection, pCaseSensitive, :stzList)
+				return This.FindDCSQRT(pcSubStr, pcDirection, pCaseSensitive, :stzList)
 			
-		def FindDCSQR(pcSubStr, pcDirection, pCaseSensitive, pcReturnType)
+		def FindDCSQRT(pcSubStr, pcDirection, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -48000,10 +48000,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def FindDQ(pcSubStr, pcDirection)
-			return This.FindDQR(pcSubStr, pcDirection, :stzList)
+			return This.FindDQRT(pcSubStr, pcDirection, :stzList)
 		
-		def FindDQR(pcSubStr, pcDirection, pcReturnType)
-				return This.FindDCSQR(pcSubStr, pcDirection, _TRUE_, pcReturnType)
+		def FindDQRT(pcSubStr, pcDirection, pcReturnType)
+				return This.FindDCSQRT(pcSubStr, pcDirection, _TRUE_, pcReturnType)
 
 		#>
 
@@ -48050,9 +48050,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SubStringDCSZQ(pcSubStr, pcDirection, pCaseSensitive)
-				return This.SubStringDCSZQR(pcSubStr, pcDirection, pCaseSensitive, :stzList)
+				return This.SubStringDCSZQRT(pcSubStr, pcDirection, pCaseSensitive, :stzList)
 			
-		def SubStringDCSZQR(pcSubStr, pcDirection, pCaseSensitive, pcReturnType)
+		def SubStringDCSZQRT(pcSubStr, pcDirection, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -48083,10 +48083,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SubStringDZQ(pcSubStr, pcDirection)
-			return This.SubStringDZQR(pcSubStr, pcDirection, :stzList)
+			return This.SubStringDZQRT(pcSubStr, pcDirection, :stzList)
 		
-		def SubStringDZQR(pcSubStr, pcDirection, pcReturnType)
-				return This.SubStringDCSZQR(pcSubStr, pcDirection, _TRUE_, pcReturnType)
+		def SubStringDZQRT(pcSubStr, pcDirection, pcReturnType)
+				return This.SubStringDCSZQRT(pcSubStr, pcDirection, _TRUE_, pcReturnType)
 
 		#>
 
@@ -48135,9 +48135,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SubStringDCSZZQ(pcSubStr, pcDirection, pCaseSensitive)
-				return This.SubStringDCSZZQR(pcSubStr, pcDirection, pCaseSensitive, :stzList)
+				return This.SubStringDCSZZQRT(pcSubStr, pcDirection, pCaseSensitive, :stzList)
 			
-		def SubStringDCSZZQR(pcSubStr, pcDirection, pCaseSensitive, pcReturnType)
+		def SubStringDCSZZQRT(pcSubStr, pcDirection, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -48168,10 +48168,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SubStringDZZQ(pcSubStr, pcDirection)
-			return This.SubStringDZZQR(pcSubStr, pcDirection, :stzList)
+			return This.SubStringDZZQRT(pcSubStr, pcDirection, :stzList)
 		
-		def SubStringDZZQR(pcSubStr, pcDirection, pcReturnType)
-				return This.SubStringDCSZZQR(pcSubStr, pcDirection, _TRUE_, pcReturnType)
+		def SubStringDZZQRT(pcSubStr, pcDirection, pcReturnType)
+				return This.SubStringDCSZZQRT(pcSubStr, pcDirection, _TRUE_, pcReturnType)
 
 		#>
 
@@ -48224,9 +48224,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def FindSTCSQ(pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.FindSTCSQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
+				return This.FindSTCSQRT(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
 			
-		def FindSTCSQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
+		def FindSTCSQRT(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -48264,10 +48264,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def FindSQ(pcSubStr, pnStartingAt)
-			return This.FindSQR(pcSubStr, pnStartingAt, :stzList)
+			return This.FindSQRT(pcSubStr, pnStartingAt, :stzList)
 		
-		def FindSQR(pcSubStr, pnStartingAt, pcReturnType)
-			return This.FindSQR(pcSubStr, pnStartingAt, :stzList)
+		def FindSQRT(pcSubStr, pnStartingAt, pcReturnType)
+			return This.FindSQRT(pcSubStr, pnStartingAt, :stzList)
 
 		#>
 
@@ -48304,9 +48304,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SubStringSTCSZQ(pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.SubStringSTCSZQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
+				return This.SubStringSTCSZQRT(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
 			
-		def SubStringSTCSZQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
+		def SubStringSTCSZQRT(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -48337,10 +48337,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SubStringSTZQ(pcSubStr, pnStartingAt)
-			return This.SubStringSTZQR(pcSubStr, pnStartingAt, :stzList)
+			return This.SubStringSTZQRT(pcSubStr, pnStartingAt, :stzList)
 		
-		def SubStringSTZQR(pcSubStr, pnStartingAt, pcReturnType)
-				return This.SubStringSTCSZQR(pcSubStr, pnStartingAt, _TRUE_, pcReturnType)
+		def SubStringSTZQRT(pcSubStr, pnStartingAt, pcReturnType)
+				return This.SubStringSTCSZQRT(pcSubStr, pnStartingAt, _TRUE_, pcReturnType)
 
 		#>
 
@@ -48367,9 +48367,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SubStringSTCSZZQ(pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.SubStringSTCSZZQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
+				return This.SubStringSTCSZZQRT(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
 			
-		def SubStringSTCSZZQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
+		def SubStringSTCSZZQRT(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -48400,10 +48400,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SubStringSTZZQ(pcSubStr, pnStartingAt)
-			return This.SubStringSTZZQR(pcSubStr, pnStartingAt, :stzList)
+			return This.SubStringSTZZQRT(pcSubStr, pnStartingAt, :stzList)
 		
-		def SubStringSTZZQR(pcSubStr, pnStartingAt, pcReturnType)
-				return This.SubStringSTCSZZQR(pcSubStr, pnStartingAt, _TRUE_, pcReturnType)
+		def SubStringSTZZQRT(pcSubStr, pnStartingAt, pcReturnType)
+				return This.SubStringSTCSZZQRT(pcSubStr, pnStartingAt, _TRUE_, pcReturnType)
 
 		#>
 
@@ -49033,9 +49033,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def FindManyCSQ(pacSubStr, pCaseSensitive)
-			return This.FindManyCSQR(pacSubStr, pCaseSensitive, :stzList)
+			return This.FindManyCSQRT(pacSubStr, pCaseSensitive, :stzList)
 	
-		def FindManyCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+		def FindManyCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 
 			switch pcReturnType
 			on :stzList
@@ -49084,9 +49084,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def FindManyQ(pacSubStr)
-			return This.FindManyQR(pacSubStr, :stzList)
+			return This.FindManyQRT(pacSubStr, :stzList)
 	
-		def FindManyQR(pacSubStr, pcReturnType)
+		def FindManyQRT(pacSubStr, pcReturnType)
 
 			switch pcReturnType
 			on :stzList
@@ -49739,7 +49739,7 @@ class stzString from stzObject
 					return []
 				ok
 
-				anPos = QR(anPos, :stzListOfNumbers).AddedToEach(p2[2])
+				anPos = QRT(anPos, :stzListOfNumbers).AddedToEach(p2[2])
 				nLen = Q(p1).NumberOfChars()
 
 				aSections = []
@@ -52228,7 +52228,7 @@ class stzString from stzObject
 
 		nResult = 0
 		if len(aSections) > 0
-			aSections = QR(paSections, :stzListOfPairs).Sorted()
+			aSections = QRT(paSections, :stzListOfPairs).Sorted()
 			nResult = This.FindFirstInSectionCS(aSections[1], pCasSensitive)
 		ok
 
@@ -52307,7 +52307,7 @@ class stzString from stzObject
 
 		aResult = []
 		if len(aSections) > 0
-			aSections = QR(paSections, :stzListOfPairs).Sorted()
+			aSections = QRT(paSections, :stzListOfPairs).Sorted()
 			aResult = This.FindFirstInSectionCSZZ(aSections[1], pCasSensitive)
 		ok
 
@@ -52464,7 +52464,7 @@ class stzString from stzObject
 
 		nResult = 0
 		if len(aSections) > 0
-			aSections = QR(paSections, :stzListOfPairs).Sorted()
+			aSections = QRT(paSections, :stzListOfPairs).Sorted()
 			nResult = This.FindLastInSectionCS(aSections[1], pCasSensitive)
 		ok
 
@@ -52543,7 +52543,7 @@ class stzString from stzObject
 
 		aResult = []
 		if len(aSections) > 0
-			aSections = QR(paSections, :stzListOfPairs).Sorted()
+			aSections = QRT(paSections, :stzListOfPairs).Sorted()
 			aResult = This.FindLastInSectionCSZZ(aSections[1], pCasSensitive)
 		ok
 
@@ -52685,9 +52685,9 @@ class stzString from stzObject
 		#< @FunctionFlunentForm
 
 		def FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
-			return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.FindAsSectionsCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
-		def FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def FindAsSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -52722,8 +52722,8 @@ class stzString from stzObject
 			def FindCSZZQ(pcSubStr, pCaseSensitive)
 				return This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
 
-			def FindCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def FindCSZZQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAsSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def FindAllAsSectionsCS(pcSubStr, pCaseSensitive)
 			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
@@ -52731,8 +52731,8 @@ class stzString from stzObject
 			def FindAllAsSectionsCSQ(pcSubStr, pCaseSensitive)
 				return This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
 
-			def FindAllAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def FindAllAsSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAsSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 
 		def FindAllCSZZ(pcSubStr, pCaseSensitive)
@@ -52741,8 +52741,8 @@ class stzString from stzObject
 			def FindAllCSZZQ(pcSubStr, pCaseSensitive)
 				return This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
 
-			def FindAllCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def FindAllCSZZQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAsSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#--
 
@@ -52752,8 +52752,8 @@ class stzString from stzObject
 			def PositionsAsSectionsCSQ(pcSubStr, pCaseSensitive)
 				return This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
 
-			def PositionsAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def PositionsAsSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAsSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def PositionsCSZZ(pcSubStr, pCaseSensitive)
 			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
@@ -52761,8 +52761,8 @@ class stzString from stzObject
 			def PositionsCSZZQ(pcSubStr, pCaseSensitive)
 				return This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
 
-			def PositionsCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def PositionsCSZZQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAsSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#--
 
@@ -52772,8 +52772,8 @@ class stzString from stzObject
 			def FindSubStringAsSectionsCSQ(pcSubStr, pCaseSensitive)
 				return This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
 
-			def FindSubStringAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def FindSubStringAsSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAsSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def FindSubStringCSZZ(pcSubStr, pCaseSensitive)
 			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
@@ -52781,8 +52781,8 @@ class stzString from stzObject
 			def FindSubStringCSZZQ(pcSubStr, pCaseSensitive)
 				return This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
 
-			def FindSubStringCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def FindSubStringCSZZQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAsSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -52794,10 +52794,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def FindAsSectionsQ(pcSubStr)
-			return This.FindAsSectionsQR(pcSubStr, :stzList)
+			return This.FindAsSectionsQRT(pcSubStr, :stzList)
 
-		def FindAsSectionsQR(pcSubStr, pcReturnType)
-			return This.FindAsSectionsCSQR(pcSubStr, _TRUE_, pcReturnType)
+		def FindAsSectionsQRT(pcSubStr, pcReturnType)
+			return This.FindAsSectionsCSQRT(pcSubStr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -52809,8 +52809,8 @@ class stzString from stzObject
 			def FindZZQ(pcSubStr)
 				return This.FindAsSectionsQ(pcSubStr)
 
-			def FindZZQR(pcSubStr, pcReturnType)
-				return This.FindAsSectionsQR(pcSubStr, pcReturnType)
+			def FindZZQRT(pcSubStr, pcReturnType)
+				return This.FindAsSectionsQRT(pcSubStr, pcReturnType)
 
 		def FindAllAsSections(pcSubStr)
 			return This.FindAsSections(pcSubStr)
@@ -52818,8 +52818,8 @@ class stzString from stzObject
 			def FindAllAsSectionsQ(pcSubStr)
 				return This.FindAsSectionsQ(pcSubStr)
 
-			def FindAllAsSectionsQR(pcSubStr, pcReturnType)
-				return This.FindAsSectionsQR(pcSubStr, pcReturnType)
+			def FindAllAsSectionsQRT(pcSubStr, pcReturnType)
+				return This.FindAsSectionsQRT(pcSubStr, pcReturnType)
 
 
 		def FindAllZZ(pcSubStr)
@@ -52828,8 +52828,8 @@ class stzString from stzObject
 			def FindAllZZQ(pcSubStr)
 				return This.FindAsSectionsQ(pcSubStr)
 
-			def FindAllZZQR(pcSubStr, pcReturnType)
-				return This.FindAsSectionsQR(pcSubStr, pcReturnType)
+			def FindAllZZQRT(pcSubStr, pcReturnType)
+				return This.FindAsSectionsQRT(pcSubStr, pcReturnType)
 
 		#--
 
@@ -52839,8 +52839,8 @@ class stzString from stzObject
 			def PositionsAsSectionsQ(pcSubStr)
 				return This.FindAsSectionsQ(pcSubStr)
 
-			def PositionsAsSectionsQR(pcSubStr, pcReturnType)
-				return This.FindAsSectionsQR(pcSubStr, pcReturnType)
+			def PositionsAsSectionsQRT(pcSubStr, pcReturnType)
+				return This.FindAsSectionsQRT(pcSubStr, pcReturnType)
 
 		def PositionsZZ(pcSubStr)
 			return This.FindAsSections(pcSubStr)
@@ -52848,8 +52848,8 @@ class stzString from stzObject
 			def PositionsZZQ(pcSubStr)
 				return This.FindAsSectionsQ(pcSubStr)
 
-			def PositionsZZQR(pcSubStr, pcReturnType)
-				return This.FindAsSectionsQR(pcSubStr, pcReturnType)
+			def PositionsZZQRT(pcSubStr, pcReturnType)
+				return This.FindAsSectionsQRT(pcSubStr, pcReturnType)
 
 		#--
 
@@ -52859,8 +52859,8 @@ class stzString from stzObject
 			def FindSubStringAsSectionsQ(pcSubStr)
 				return This.FindAsSectionsQ(pcSubStr)
 
-			def FindSubStringAsSectionsQR(pcSubStr, pcReturnType)
-				return This.FindAsSectionsQR(pcSubStr, pcReturnType)
+			def FindSubStringAsSectionsQRT(pcSubStr, pcReturnType)
+				return This.FindAsSectionsQRT(pcSubStr, pcReturnType)
 
 		def FindSubStringZZ(pcSubStr)
 			return This.FindAsSections(pcSubStr)
@@ -52868,8 +52868,8 @@ class stzString from stzObject
 			def FindSubStringZZQ(pcSubStr)
 				return This.FindAsSectionsQ(pcSubStr)
 
-			def FindSubStringZZQR(pcSubStr, pcReturnType)
-				return This.FindAsSectionsQR(pcSubStr, pcReturnType)
+			def FindSubStringZZQRT(pcSubStr, pcReturnType)
+				return This.FindAsSectionsQRT(pcSubStr, pcReturnType)
 
 		#>
 
@@ -53081,9 +53081,9 @@ class stzString from stzObject
 		#< @FunctionFlunentForm
 
 		def FindAsAntiSectionsCSQ(pcSubStr, pCaseSensitive)
-			return This.FindAsAntiSectionsCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.FindAsAntiSectionsCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
-		def FindAsAntiSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def FindAsAntiSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -53116,10 +53116,10 @@ class stzString from stzObject
 		return This.FindAsAntiSectionsCS(pcSubStr, _TRUE_)
 
 		def FindAsAntiSectionsQ(pcSubStr)
-			return This.FindAsAntiSectionsQR(pcSubStr, :stzList)
+			return This.FindAsAntiSectionsQRT(pcSubStr, :stzList)
 
-		def FindAsAntiSectionsQR(pcSubStr, pcReturnType)
-			return This.FindAsAntiSectionsCSQR(pcSubStr, _TRUE_, pcReturnType)
+		def FindAsAntiSectionsQRT(pcSubStr, pcReturnType)
+			return This.FindAsAntiSectionsCSQRT(pcSubStr, _TRUE_, pcReturnType)
 
 	  #-------------------------------------------------------------------------------#
 	 #  FINDING SUBSTRING AND RETURNING ITS POSITIONS AS ANTISECTIONS -- D/Extented  #
@@ -56251,9 +56251,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SplitCSXTQ(pSubStrOrPos, pCaseSensitive)
-			return This.SplitCSXTQR(pSubStrOrPos, pCaseSensitive, :stzList)
+			return This.SplitCSXTQRT(pSubStrOrPos, pCaseSensitive, :stzList)
 
-		def SplitCSXTQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+		def SplitCSXTQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitCSXT(pSubStrOrPos, pCaseSensitive) )
@@ -56276,10 +56276,10 @@ class stzString from stzObject
 			return This.SplitCSXT(pSubStrOrPos, pCaseSensitive)
 
 			def SplitsCSXTQ(pSubStrOrPos, pCaseSensitive)
-				return This.SplitsCSXTQR(pSubStrOrPos, pCaseSensitive, :stzList)
+				return This.SplitsCSXTQRT(pSubStrOrPos, pCaseSensitive, :stzList)
 
-		def SplitsCSXTQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
-			return This.SplitCSXTQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+		def SplitsCSXTQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
+			return This.SplitCSXTQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -56294,10 +56294,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SplitXTQ(pSubStrOrPos)
-			return This.SplitXTQR(pSubStrOrPos, :stzList)
+			return This.SplitXTQRT(pSubStrOrPos, :stzList)
 
-		def SplitXTQR(pSubStrOrPos, pcReturnType)
-			return This.SplitCSXTQR(pSubStrOrPos, _TRUE_, pcReturnType)
+		def SplitXTQRT(pSubStrOrPos, pcReturnType)
+			return This.SplitCSXTQRT(pSubStrOrPos, _TRUE_, pcReturnType)
 
 		#>
 
@@ -56307,10 +56307,10 @@ class stzString from stzObject
 			return This.SplitXT(pSubStrOrPos)
 
 			def SplitsXTQ(pSubStrOrPos)
-				return This.SplitsXTQR(pSubStrOrPos, :stzList)
+				return This.SplitsXTQRT(pSubStrOrPos, :stzList)
 
-			def SplitsXTQR(pSubStrOrPos, pcReturnType)
-				return This.SplitXTQR(pSubStrOrPos, pcReturnType)
+			def SplitsXTQRT(pSubStrOrPos, pcReturnType)
+				return This.SplitXTQRT(pSubStrOrPos, pcReturnType)
 	
 		#>
 
@@ -56467,10 +56467,10 @@ class stzString from stzObject
 			return This.SplitCSXTZ(pSubStrOrPos, pCaseSensitive)
 
 			def SplitsCSXTZQ(pSubStrOrPos, pCaseSensitive)
-				return This.SplitsCSXTZQR(pSubStrOrPos, pCaseSensitive, :stzList)
+				return This.SplitsCSXTZQRT(pSubStrOrPos, pCaseSensitive, :stzList)
 
-		def SplitsCSXTZQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
-			return This.SplitCSXTZQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+		def SplitsCSXTZQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
+			return This.SplitCSXTZQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -56488,10 +56488,10 @@ class stzString from stzObject
 			return This.SplitXTZ(pSubStrOrPos)
 
 			def SplitsXTZQ(pSubStrOrPos)
-				return This.SplitsXTZQR(pSubStrOrPos, :stzList)
+				return This.SplitsXTZQRT(pSubStrOrPos, :stzList)
 
-		def SplitsXTZQR(pSubStrOrPos, pcReturnType)
-			return This.SplitXTZQR(pSubStrOrPos, pcReturnType)
+		def SplitsXTZQRT(pSubStrOrPos, pcReturnType)
+			return This.SplitXTZQRT(pSubStrOrPos, pcReturnType)
 
 		#>
 
@@ -56648,10 +56648,10 @@ class stzString from stzObject
 			return This.SplitCSXTZZ(pSubStrOrPos, pCaseSensitive)
 
 			def SplitsCSXTZZQ(pSubStrOrPos, pCaseSensitive)
-				return This.SplitsCSXTZZQR(pSubStrOrPos, pCaseSensitive, :stzList)
+				return This.SplitsCSXTZZQRT(pSubStrOrPos, pCaseSensitive, :stzList)
 
-		def SplitsCSXTZZQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
-			return This.SplitCSXTZZQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+		def SplitsCSXTZZQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
+			return This.SplitCSXTZZQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -56669,10 +56669,10 @@ class stzString from stzObject
 			return This.SplitXTZZ(pSubStrOrPos)
 
 			def SplitsXTZZQ(pSubStrOrPos)
-				return This.SplitsXTZZQR(pSubStrOrPos, :stzList)
+				return This.SplitsXTZZQRT(pSubStrOrPos, :stzList)
 
-		def SplitsXTZZQR(pSubStrOrPos, pcReturnType)
-			return This.SplitXTZZQR(pSubStrOrPos, pcReturnType)
+		def SplitsXTZZQRT(pSubStrOrPos, pcReturnType)
+			return This.SplitXTZZQRT(pSubStrOrPos, pcReturnType)
 
 		#>
 
@@ -56923,9 +56923,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SplitAtCSQ(pSubStrOrPos, pCaseSensitive)
-			return This.SplitAtCSQR(pSubStrOrPos, pCaseSensitive, :stzList)
+			return This.SplitAtCSQRT(pSubStrOrPos, pCaseSensitive, :stzList)
 
-		def SplitAtCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+		def SplitAtCSQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtCS(pSubStrOrPos, pCaseSensitive) )
@@ -56950,8 +56950,8 @@ class stzString from stzObject
 			def SplitsAtCSQ(pSubStrOrPos, pCaseSensitive)
 				return This.SplitAtCSQ(pSubStrOrPos, pCaseSensitive, :stzList)
 
-		def SplitsAtCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
-			return This.SplitAtCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+		def SplitsAtCSQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
+			return This.SplitAtCSQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
 
 		#--
 
@@ -56959,10 +56959,10 @@ class stzString from stzObject
 			return This.SplitAtCS(pSubStrOrPos, pCaseSensitive)
 
 			def SeparatedByCSQ(pSubStrOrPos, pCaseSensitive)
-				return This.SplitsCSQR(pSubStrOrPos, pCaseSensitive, :stzList)
+				return This.SplitsCSQRT(pSubStrOrPos, pCaseSensitive, :stzList)
 	
-			def SeparatedByCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
-				return This.SplitAtCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+			def SeparatedByCSQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
+				return This.SplitAtCSQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -56977,10 +56977,10 @@ class stzString from stzObject
 		#< @FunctionAFluentForms
 
 		def SplitAtQ(pSubStrOrPos)
-			return This.SplitAtQR(pSubStrOrPos, :stzList)
+			return This.SplitAtQRT(pSubStrOrPos, :stzList)
 
-		def SplitAtQR(pSubStrOrPos, pcReturnType)
-			return This.SplitAtCSQR(pSubStrOrPos, _TRUE_, pcReturnType)
+		def SplitAtQRT(pSubStrOrPos, pcReturnType)
+			return This.SplitAtCSQRT(pSubStrOrPos, _TRUE_, pcReturnType)
 
 		#>
 
@@ -56992,8 +56992,8 @@ class stzString from stzObject
 			def SplitsAtQ(pSubStrOrPos)
 				return This.SplitAtQ(pSubStrOrPos, :stzList)
 	
-			def SplitsAtQR(pSubStrOrPos, pcReturnType)
-				return This.SplitAtQR(pSubStrOrPos, pcReturnType)
+			def SplitsAtQRT(pSubStrOrPos, pcReturnType)
+				return This.SplitAtQRT(pSubStrOrPos, pcReturnType)
 	
 		#--
 
@@ -57001,10 +57001,10 @@ class stzString from stzObject
 			return This.SplitAt(pSubStrOrPos)
 
 			def SeparatedByQ(pSubStrOrPos)
-				return This.SplitsQR(pSubStrOrPos, :stzList)
+				return This.SplitsQRT(pSubStrOrPos, :stzList)
 	
 			def SeparatedByR(pSubStrOrPos, pcReturnType)
-				return This.SplitAtQR(pSubStrOrPos, pcReturnType)
+				return This.SplitAtQRT(pSubStrOrPos, pcReturnType)
 		
 		#>
 
@@ -57233,9 +57233,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SplitAtPositionQ(n)
-			return This.SplitAtPositionQR(n, :stzList)
+			return This.SplitAtPositionQRT(n, :stzList)
 
-		def SplitAtPositionQR(n, pcReturnType)
+		def SplitAtPositionQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtPosition(n) )
@@ -57258,10 +57258,10 @@ class stzString from stzObject
 			return This.SplitAtPosition(n)
 
 			def SplitAtThisPositionQ(n)
-				return This.SplitAtThisPositionQR(n, :stzList)
+				return This.SplitAtThisPositionQRT(n, :stzList)
 
-			def SplitAtThisPositionQR(n, pcReturnType)
-				return This.SplitAtPositionQR(n, pcReturnType)
+			def SplitAtThisPositionQRT(n, pcReturnType)
+				return This.SplitAtPositionQRT(n, pcReturnType)
 
 		#--
 
@@ -57271,8 +57271,8 @@ class stzString from stzObject
 			def SplitsAtPositionQ(n)
 				return This.SplitAtPositionQ(n)
 
-			def SplitsAtPositionQR(n, pcReturnType)
-				return This.SplitAtPositionQR(n, pcReturnType)
+			def SplitsAtPositionQRT(n, pcReturnType)
+				return This.SplitAtPositionQRT(n, pcReturnType)
 
 		def SplitsThisPosition(n)
 			return This.SplitAtPosition(n)
@@ -57280,8 +57280,8 @@ class stzString from stzObject
 			def SplitsAtThisPositionQ(n)
 				return This.SplitAtPositionQ(n)
 
-			def SplitsAtThisPositionQR(n, pcReturnType)
-				return This.SplitAtPositionQR(n, pcReturnType)
+			def SplitsAtThisPositionQRT(n, pcReturnType)
+				return This.SplitAtPositionQRT(n, pcReturnType)
 
 		#--
 
@@ -57291,8 +57291,8 @@ class stzString from stzObject
 			def SeparatedByPositionQ(n)
 				return This.SplitAtPositionQ(n)
 
-			def SeparatedByPositionQR(n, pcReturnType)
-				return This.SplitAtPositionQR(n, pcReturnType)
+			def SeparatedByPositionQRT(n, pcReturnType)
+				return This.SplitAtPositionQRT(n, pcReturnType)
 
 		#>
 
@@ -57327,9 +57327,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SplitAtPositionsQ(anPos)
-			return This.SplitAtPositionsQR(anPos, :stzList)
+			return This.SplitAtPositionsQRT(anPos, :stzList)
 
-		def SplitAtPositionsQR(anPos, pcReturnType)
+		def SplitAtPositionsQRT(anPos, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtPositions(anPos) )
@@ -57352,19 +57352,19 @@ class stzString from stzObject
 			return This.SplitAtPositions(anPos)
 
 			def SplitAtThesePositionsQ(anPos)
-				return This.SplitAtThesePositionsQR(anPos, :stzList)
+				return This.SplitAtThesePositionsQRT(anPos, :stzList)
 	
-			def SplitAtThesePositionsQR(anPos, pcReturnType)
-				return This.SplitAtPositionsQR(anPos, pcReturnType)
+			def SplitAtThesePositionsQRT(anPos, pcReturnType)
+				return This.SplitAtPositionsQRT(anPos, pcReturnType)
 
 		def SplitAtManyPositions(anPos)
 			return This.SplitAtPositions(anPos)
 
 			def SplitAtManyPositionsQ(anPos)
-				return This.SplitAtManyPositionsQR(anPos, :stzList)
+				return This.SplitAtManyPositionsQRT(anPos, :stzList)
 	
-			def SplitAtManyPositionsQR(anPos, pcReturnType)
-				return This.SplitAtPositionsQR(anPos, pcReturnType)
+			def SplitAtManyPositionsQRT(anPos, pcReturnType)
+				return This.SplitAtPositionsQRT(anPos, pcReturnType)
 
 		#--
 
@@ -57372,28 +57372,28 @@ class stzString from stzObject
 			return This.SplitAtPositions(anPos)
 
 			def SplitsAtPositionsQ(anPos)
-				return This.SplitsAtPositionsQR(anPos, :stzList)
+				return This.SplitsAtPositionsQRT(anPos, :stzList)
 
-			def SplitsAtPositionsQR(anPos, pcReturnType)
-				return This.SplitAtPositionsQR(anPos, pcReturnType)
+			def SplitsAtPositionsQRT(anPos, pcReturnType)
+				return This.SplitAtPositionsQRT(anPos, pcReturnType)
 
 		def SplitsAtThesePositions(anPos)
 			return This.SplitAtPositions(anPos)
 
 			def SplitsAtThesePositionsQ(anPos)
-				return This.SplitsAtPositionsQR(anPos, :stzList)
+				return This.SplitsAtPositionsQRT(anPos, :stzList)
 
-			def SplitsAtThesePositionsQR(anPos, pcReturnType)
-				return This.SplitAtPositionsQR(anPos, pcReturnType)
+			def SplitsAtThesePositionsQRT(anPos, pcReturnType)
+				return This.SplitAtPositionsQRT(anPos, pcReturnType)
 
 		def SplitsAtManyPositions(anPos)
 			return This.SplitAtPositions(anPos)
 
 			def SplitsAtManyPositionsQ(anPos)
-				return This.SplitsAtPositionsQR(anPos, :stzList)
+				return This.SplitsAtPositionsQRT(anPos, :stzList)
 
-			def SplitsAtManyPositionsQR(anPos, pcReturnType)
-				return This.SplitAtPositionsQR(anPos, pcReturnType)
+			def SplitsAtManyPositionsQRT(anPos, pcReturnType)
+				return This.SplitAtPositionsQRT(anPos, pcReturnType)
 
 		#--
 
@@ -57403,8 +57403,8 @@ class stzString from stzObject
 			def SeparatedByPositionsQ(anPos)
 				return This.SplitAtPositionsQ(anPos)
 
-			def SeparatedByPositionsQR(anPos, pcReturnType)
-				return This.SplitAtPositionsQR(anPos, pcReturnType)
+			def SeparatedByPositionsQRT(anPos, pcReturnType)
+				return This.SplitAtPositionsQRT(anPos, pcReturnType)
 		#>
 
 	def SplittedAtPositions(anPos)
@@ -57455,9 +57455,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SplitAtSubStringCSQ(pcSubStr, pCaseSensitive)
-			return This.SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.SplitAtSubStringCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
-		def SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def SplitAtSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtSubStringCS(pcSubStr, pCaseSensitive) )
@@ -57482,8 +57482,8 @@ class stzString from stzObject
 			def SplitsAtSubStringCSQ(pcSubStr, pCaseSensitive)
 				return This.SplitAtSubStringCSQ(pcSubStr, pCaseSensitive)
 
-			def SplitsAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAtSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitAtThisSubStringCS(pcSubStr, pCaseSensitive)
 			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
@@ -57493,19 +57493,19 @@ class stzString from stzObject
 			return This.SplitAtSubStringCS(pcSubStr, pCaseSensitive)
 
 			def SplitAtThisSubStringCSQ(pcSubStr, pCaseSensitive)
-				return This.AtThisSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+				return This.AtThisSubStringCSQRT(pcSubStr, pCaseSensitive, :stzList)
 	
-			def SplitAtThisSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitAtThisSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitsAtThisSubStringCS(pcSubStr, pCaseSensitive)
 			return This.SplitAtThisSubStringCS(pcSubStr, pCaseSensitive)
 
 			def SplitsAtThisSubStringCSQ(pcSubStr, pCaseSensitive)
-				return This.SplitAtThisSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+				return This.SplitAtThisSubStringCSQRT(pcSubStr, pCaseSensitive, :stzList)
 	
-			def SplitsAtThisSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAtThisSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#--
 
@@ -57515,8 +57515,8 @@ class stzString from stzObject
 			def SeparatedBySubStringCSQ(pcSubStr, pCaseSensitive)
 				return This.SplitAtThisSubStringCSQ(pcSubStr, pCaseSensitive)
 
-			def SeparatedBySubStringCSQR(n, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SeparatedBySubStringCSQRT(n, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -57534,10 +57534,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SplitAtSubStringQ(pcSubStr)
-			return This.SplitAtSubStringQR(pcSubStr, :stzList)
+			return This.SplitAtSubStringQRT(pcSubStr, :stzList)
 
-		def SplitAtSubStringQR(pcSubStr, pcReturnType)
-			return This.SplitAtSubStringCSQR(pcSubStr, _TRUE_, pcReturnType)
+		def SplitAtSubStringQRT(pcSubStr, pcReturnType)
+			return This.SplitAtSubStringCSQRT(pcSubStr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -57549,26 +57549,26 @@ class stzString from stzObject
 			def SplitsAtSubStringQ(pcSubStr)
 				return This.SplitAtSubStringQ(pcSubStr)
 
-			def SplitsAtSubStringQR(pcSubStr, pcReturnType)
-				return This.SplitAtSubStringQR(pcSubStr, pcReturnType)
+			def SplitsAtSubStringQRT(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringQRT(pcSubStr, pcReturnType)
 
 		def SplitAtThisSubString(pcSubStr)
 			This.SplitAtThisSubStringCS(pcSubStr, _TRUE_)
 
 			def SplitAtThisSubStringQ(pcSubStr)
-				return This.AtThisSubStringQR(pcSubStr, :stzList)
+				return This.AtThisSubStringQRT(pcSubStr, :stzList)
 	
-			def SplitAtThisSubStringQR(pcSubStr, pcReturnType)
-				return This.SplitAtSubStringQR(pcSubStr, pcReturnType)
+			def SplitAtThisSubStringQRT(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringQRT(pcSubStr, pcReturnType)
 
 		def SplitsAtThisSubString(pcSubStr)
 			return This.SplitAtThisSubString(pcSubStr)
 
 			def SplitsAtThisSubStringQ(pcSubStr)
-				return This.SplitAtThisSubStringQR(pcSubStr, :stzList)
+				return This.SplitAtThisSubStringQRT(pcSubStr, :stzList)
 	
-			def SplitsAtThisSubStringQR(pcSubStr, pcReturnType)
-				return This.SplitAtSubStringQR(pcSubStr, pcReturnType)
+			def SplitsAtThisSubStringQRT(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringQRT(pcSubStr, pcReturnType)
 
 		#--
 
@@ -57578,8 +57578,8 @@ class stzString from stzObject
 			def SeparatedBySubStringQ(pcSubStr)
 				return This.SplitAtThisSubStringQ(pcSubStr)
 
-			def SeparatedBySubStringQR(n)
-				return This.SplitAtSubStringQR(pcSubStr, pcReturnType)
+			def SeparatedBySubStringQRT(n)
+				return This.SplitAtSubStringQRT(pcSubStr, pcReturnType)
 
 		#>
 
@@ -57608,8 +57608,8 @@ class stzString from stzObject
 			def SplitsAtSubStringCSZQ(pcSubStr, pCaseSensitive)
 				return This.SplitAtSubStringCSZQ(pcSubStr, pCaseSensitive)
 
-			def SplitsAtSubStringCSZQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringCSZQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAtSubStringCSZQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringCSZQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitAtThisSubStringCSz(pcSubStr, pCaseSensitive)
 			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
@@ -57619,19 +57619,19 @@ class stzString from stzObject
 			return This.SplitAtSubStringCSZ(pcSubStr, pCaseSensitive)
 
 			def SplitAtThisSubStringCSZQ(pcSubStr, pCaseSensitive)
-				return This.AtThisSubStringCSZQR(pcSubStr, pCaseSensitive, :stzList)
+				return This.AtThisSubStringCSZQRT(pcSubStr, pCaseSensitive, :stzList)
 	
-			def SplitAtThisSubStringCSZQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringCSZQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitAtThisSubStringCSZQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringCSZQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitsAtThisSubStringCSZ(pcSubStr, pCaseSensitive)
 			return This.SplitAtThisSubStringCSZ(pcSubStr, pCaseSensitive)
 
 			def SplitsAtThisSubStringCSZQ(pcSubStr, pCaseSensitive)
-				return This.SplitAtThisSubStringCSZQR(pcSubStr, pCaseSensitive, :stzList)
+				return This.SplitAtThisSubStringCSZQRT(pcSubStr, pCaseSensitive, :stzList)
 	
-			def SplitsAtThisSubStringCSZQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringCSZQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAtThisSubStringCSZQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringCSZQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -57654,26 +57654,26 @@ class stzString from stzObject
 			def SplitsAtSubStringZQ(pcSubStr)
 				return This.SplitAtSubStringZQ(pcSubStr)
 
-			def SplitsAtSubStringZQR(pcSubStr, pcReturnType)
-				return This.SplitAtSubStringZQR(pcSubStr, pcReturnType)
+			def SplitsAtSubStringZQRT(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringZQRT(pcSubStr, pcReturnType)
 
 		def SplitAtThisSubStringZ(pcSubStr)
 			This.SplitAtThisSubStringCSZ(pcSubStr, _TRUE_)
 
 			def SplitAtThisSubStringZQ(pcSubStr)
-				return This.AtThisSubStringZQR(pcSubStr, :stzList)
+				return This.AtThisSubStringZQRT(pcSubStr, :stzList)
 	
-			def SplitAtThisSubStringZQR(pcSubStr, pcReturnType)
-				return This.SplitAtSubStringZQR(pcSubStr, pcReturnType)
+			def SplitAtThisSubStringZQRT(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringZQRT(pcSubStr, pcReturnType)
 
 		def SplitsAtThisSubStringZ(pcSubStr)
 			return This.SplitAtThisSubStringZ(pcSubStr)
 
 			def SplitsAtThisSubStringZQ(pcSubStr)
-				return This.SplitAtThisSubStringZQR(pcSubStr, :stzList)
+				return This.SplitAtThisSubStringZQRT(pcSubStr, :stzList)
 	
-			def SplitsAtThisSubStringZQR(pcSubStr, pcReturnType)
-				return This.SplitAtSubStringZQR(pcSubStr, pcReturnType)
+			def SplitsAtThisSubStringZQRT(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringZQRT(pcSubStr, pcReturnType)
 
 		#>
 
@@ -57702,8 +57702,8 @@ class stzString from stzObject
 			def SplitsAtSubStringCSZZQ(pcSubStr, pCaseSensitive)
 				return This.SplitAtSubStringCSZZQ(pcSubStr, pCaseSensitive)
 
-			def SplitsAtSubStringCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAtSubStringCSZZQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringCSZZQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitAtThisSubStringCSZZ(pcSubStr, pCaseSensitive)
 			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
@@ -57713,19 +57713,19 @@ class stzString from stzObject
 			return This.SplitAtSubStringCSZZ(pcSubStr, pCaseSensitive)
 
 			def SplitAtThisSubStringCSZZQ(pcSubStr, pCaseSensitive)
-				return This.AtThisSubStringCSZZQR(pcSubStr, pCaseSensitive, :stzList)
+				return This.AtThisSubStringCSZZQRT(pcSubStr, pCaseSensitive, :stzList)
 	
-			def SplitAtThisSubStringCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitAtThisSubStringCSZZQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringCSZZQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitsAtThisSubStringCSZZ(pcSubStr, pCaseSensitive)
 			return This.SplitAtThisSubStringCSZZ(pcSubStr, pCaseSensitive)
 
 			def SplitsAtThisSubStringCSZZQ(pcSubStr, pCaseSensitive)
-				return This.SplitAtThisSubStringCSZZQR(pcSubStr, pCaseSensitive, :stzList)
+				return This.SplitAtThisSubStringCSZZQRT(pcSubStr, pCaseSensitive, :stzList)
 	
-			def SplitsAtThisSubStringCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAtThisSubStringCSZZQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringCSZZQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -57748,26 +57748,26 @@ class stzString from stzObject
 			def SplitsAtSubStringZZQ(pcSubStr)
 				return This.SplitAtSubStringZZQ(pcSubStr)
 
-			def SplitsAtSubStringZZQR(pcSubStr, pcReturnType)
-				return This.SplitAtSubStringZZQR(pcSubStr, pcReturnType)
+			def SplitsAtSubStringZZQRT(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringZZQRT(pcSubStr, pcReturnType)
 
 		def SplitAtThisSubStringZZ(pcSubStr)
 			This.SplitAtThisSubStringCSZZ(pcSubStr, _TRUE_)
 
 			def SplitAtThisSubStringZZQ(pcSubStr)
-				return This.AtThisSubStringZZQR(pcSubStr, :stzList)
+				return This.AtThisSubStringZZQRT(pcSubStr, :stzList)
 	
-			def SplitAtThisSubStringZZQR(pcSubStr, pcReturnType)
-				return This.SplitAtSubStringZZQR(pcSubStr, pcReturnType)
+			def SplitAtThisSubStringZZQRT(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringZZQRT(pcSubStr, pcReturnType)
 
 		def SplitsAtThisSubStringZZ(pcSubStr)
 			return This.SplitAtThisSubStringZZ(pcSubStr)
 
 			def SplitsAtThisSubStringZZQ(pcSubStr)
-				return This.SplitAtThisSubStringZZQR(pcSubStr, :stzList)
+				return This.SplitAtThisSubStringZZQRT(pcSubStr, :stzList)
 	
-			def SplitsAtThisSubStringZZQR(pcSubStr, pcReturnType)
-				return This.SplitAtSubStringZZQR(pcSubStr, pcReturnType)
+			def SplitsAtThisSubStringZZQRT(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringZZQRT(pcSubStr, pcReturnType)
 
 		#>
 
@@ -57798,9 +57798,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SplitAtSubStringsCSQ(pcSubStr, pCaseSensitive)
-			return This.SplitAtSubStringsCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.SplitAtSubStringsCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
-		def SplitAtSubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def SplitAtSubStringsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtSubStringsCS(pcSubStr, pCaseSensitive) )
@@ -57825,26 +57825,26 @@ class stzString from stzObject
 			def SplitAtManyCSQ(pacSubStr, pCaseSensitive)
 				return This.SplitAtSubStringsCSQ(pcSubStr, pCaseSensitive)
 
-			def SplitAtManyCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitAtManyCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitAtTheseSubStringsCS(pacSubStr, pCaseSensitive)
 			return This.SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
 
 			def SplitAtTheseSubStringsCSQ(pcSubStr, pCaseSensitive)
-				return This.SplitAtTheseSubStringsCSQR(pcSubStr, pCaseSensitive, :stzList)
+				return This.SplitAtTheseSubStringsCSQRT(pcSubStr, pCaseSensitive, :stzList)
 	
-			def SplitAtTheseSubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitAtTheseSubStringsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitAtManySubStringsCS(pacSubStr, pCaseSensitive)
 			return This.SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
 
 			def SplitAtManySubStringsCSQ(pcSubStr, pCaseSensitive)
-				return This.SplitAtManySubStringsCSQR(pcSubStr, pCaseSensitive, :stzList)
+				return This.SplitAtManySubStringsCSQRT(pcSubStr, pCaseSensitive, :stzList)
 	
-			def SplitAtManySubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitAtManySubStringsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#--
 
@@ -57854,8 +57854,8 @@ class stzString from stzObject
 			def SplitsAtSubStringsCSQ(pacSubStr, pCaseSensitive)
 				return This.SplitAtSubStringsCSQ(pacSubStr, pCaseSensitive)
 
-			def SplitsAtSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAtSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitsAtManyCS(pacSubStr, pCaseSensitive)
 			return This.SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
@@ -57863,26 +57863,26 @@ class stzString from stzObject
 			def SplitsAtManyCSQ(pacSubStr, pCaseSensitive)
 				return This.SplitAtSubStringsCSQ(pcSubStr, pCaseSensitive)
 
-			def SplitsAtManyCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAtManyCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplistAtTheseSubStringsCS(pacSubStr, pCaseSensitive)
 			return This.SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
 
 			def SplitsAtTheseSubStringsCSQ(pcSubStr, pCaseSensitive)
-				return This.SplitAtTheseSubStringsCSQR(pcSubStr, pCaseSensitive, :stzList)
+				return This.SplitAtTheseSubStringsCSQRT(pcSubStr, pCaseSensitive, :stzList)
 	
-			def SplitsAtTheseSubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAtTheseSubStringsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitsAtManySubStringsCS(pacSubStr, pCaseSensitive)
 			return This.SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
 
 			def SplitsAtManySubStringsCSQ(pcSubStr, pCaseSensitive)
-				return This.SplitAtManySubStringsCSQR(pcSubStr, pCaseSensitive, :stzList)
+				return This.SplitAtManySubStringsCSQRT(pcSubStr, pCaseSensitive, :stzList)
 	
-			def SplitsAtManySubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAtManySubStringsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -57910,10 +57910,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SplitAtSubStringsQ(pcSubStr, pCaseSensitive)
-			return This.SplitAtSubStringsQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.SplitAtSubStringsQRT(pcSubStr, pCaseSensitive, :stzList)
 
-		def SplitAtSubStringsQR(pcSubStr, pCaseSensitive, pcReturnType)
-			return This.SplitAtSubStringsCSQR(pcSubStr, _TRUE_, pcReturnType)
+		def SplitAtSubStringsQRT(pcSubStr, pCaseSensitive, pcReturnType)
+			return This.SplitAtSubStringsCSQRT(pcSubStr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -57925,26 +57925,26 @@ class stzString from stzObject
 			def SplitAtManyQ(pacSubStr)
 				return This.SplitAtSubStringsQ(pcSubStr)
 
-			def SplitAtManyQR(pacSubStr, pcReturnType)
-				return This.SplitAtSubStringsQR(pcSubStr, pcReturnType)
+			def SplitAtManyQRT(pacSubStr, pcReturnType)
+				return This.SplitAtSubStringsQRT(pcSubStr, pcReturnType)
 
 		def SplitAtTheseSubStrings(pacSubStr)
 			return This.SplitAtSubStrings(pacSubStr)
 
 			def SplitAtTheseSubStringsQ(pcSubStr)
-				return This.SplitAtTheseSubStringsQR(pcSubStr, :stzList)
+				return This.SplitAtTheseSubStringsQRT(pcSubStr, :stzList)
 	
-			def SplitAtTheseSubStringsQR(pcSubStr, pcReturnType)
-				return This.SplitAtSubStringsQR(pcSubStr, pcReturnType)
+			def SplitAtTheseSubStringsQRT(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringsQRT(pcSubStr, pcReturnType)
 
 		def SplitAtManySubStrings(pacSubStr)
 			return This.SplitAtSubStrings(pacSubStr)
 
 			def SplitAtManySubStringsQ(pcSubStr)
-				return This.SplitAtManySubStringsQR(pcSubStr, :stzList)
+				return This.SplitAtManySubStringsQRT(pcSubStr, :stzList)
 	
-			def SplitAtManySubStringsQR(pcSubStr, pcReturnType)
-				return This.SplitAtSubStringsQR(pcSubStr, pcReturnType)
+			def SplitAtManySubStringsQRT(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringsQRT(pcSubStr, pcReturnType)
 
 		#--
 
@@ -57954,8 +57954,8 @@ class stzString from stzObject
 			def SplitsAtSubStringsQ(pacSubStr)
 				return This.SplitAtSubStringsQ(pacSubStr)
 
-			def SplitsAtSubStringsQR(pacSubStr, pcReturnType)
-				return This.SplitAtSubStringsQR(pacSubStr, pcReturnType)
+			def SplitsAtSubStringsQRT(pacSubStr, pcReturnType)
+				return This.SplitAtSubStringsQRT(pacSubStr, pcReturnType)
 
 		def SplitsAtMany(pacSubStr)
 			return This.SplitAtSubStrings(pacSubStr)
@@ -57963,26 +57963,26 @@ class stzString from stzObject
 			def SplitsAtManyQ(pacSubStr)
 				return This.SplitAtSubStringsQ(pcSubStr)
 
-			def SplitsAtManyQR(pacSubStr, pcReturnType)
-				return This.SplitAtSubStringsQR(pcSubStr, pcReturnType)
+			def SplitsAtManyQRT(pacSubStr, pcReturnType)
+				return This.SplitAtSubStringsQRT(pcSubStr, pcReturnType)
 
 		def SplistAtTheseSubStrings(pacSubStr)
 			return This.SplitAtSubStrings(pacSubStr)
 
 			def SplitsAtTheseSubStringsQ(pcSubStr)
-				return This.SplitAtTheseSubStringsQR(pcSubStr, :stzList)
+				return This.SplitAtTheseSubStringsQRT(pcSubStr, :stzList)
 	
-			def SplitsAtTheseSubStringsQR(pcSubStr, pcReturnType)
-				return This.SplitAtSubStringsQR(pcSubStr, pcReturnType)
+			def SplitsAtTheseSubStringsQRT(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringsQRT(pcSubStr, pcReturnType)
 
 		def SplitsAtManySubStrings(pacSubStr)
 			return This.SplitAtSubStrings(pacSubStr)
 
 			def SplitsAtManySubStringsQ(pcSubStr)
-				return This.SplitAtManySubStringsQR(pcSubStr, :stzList)
+				return This.SplitAtManySubStringsQRT(pcSubStr, :stzList)
 	
-			def SplitsAtManySubStringsQR(pcSubStr, pcReturnType)
-				return This.SplitAtSubStringsQR(pcSubStr, pcReturnType)
+			def SplitsAtManySubStringsQRT(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringsQRT(pcSubStr, pcReturnType)
 
 		#>
 
@@ -58019,9 +58019,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtSectionQ(n1, n2)
-			return This.SplitAtSectionQR(n1, n2, :stzList)
+			return This.SplitAtSectionQRT(n1, n2, :stzList)
 
-		def SplitAtSectionQR(n1, n2, pcReturnType)
+		def SplitAtSectionQRT(n1, n2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtSection(n1, n2) )
@@ -58041,10 +58041,10 @@ class stzString from stzObject
 			return This.SplitAtSection(n1, n2)
 
 			def SplitAtThisSectionQ(n1, n2)
-				return This.SplitAtThisSectionQR(n1, n2, :stzList)
+				return This.SplitAtThisSectionQRT(n1, n2, :stzList)
 
-			def SplitAtThisSectionQR(n1, n2, pcReturnType)
-				return This.SplitAtSectionQR(n1, n2, pcReturnType)
+			def SplitAtThisSectionQRT(n1, n2, pcReturnType)
+				return This.SplitAtSectionQRT(n1, n2, pcReturnType)
 
 		#--
 
@@ -58052,19 +58052,19 @@ class stzString from stzObject
 			return This.SplitAtSection(n1, n2)
 
 			def SplitsAtSectionQ(n1, n2)
-				return This.SplitAtThisSectionQR(n1, n2, :stzList)
+				return This.SplitAtThisSectionQRT(n1, n2, :stzList)
 
-			def SplitsAtSectionQR(n1, n2, pcReturnType)
-				return This.SplitAtSectionQR(n1, n2, pcReturnType)
+			def SplitsAtSectionQRT(n1, n2, pcReturnType)
+				return This.SplitAtSectionQRT(n1, n2, pcReturnType)
 
 		def SplitsAtThisSection(n1, n2)
 			return This.SplitAtSection(n1, n2)
 
 			def SplitsAtThisSectionQ(n1, n2)
-				return This.SplitAtThisSectionQR(n1, n2, :stzList)
+				return This.SplitAtThisSectionQRT(n1, n2, :stzList)
 
-			def SplitsAtThisSectionQR(n1, n2, pcReturnType)
-				return This.SplitAtSectionQR(n1, n2, pcReturnType)
+			def SplitsAtThisSectionQRT(n1, n2, pcReturnType)
+				return This.SplitAtSectionQRT(n1, n2, pcReturnType)
 
 		#>
 
@@ -58092,9 +58092,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtSectionIBQ(n1, n2)
-			return This.SplitAtSectionIBQR(n1, n2, :stzList)
+			return This.SplitAtSectionIBQRT(n1, n2, :stzList)
 
-		def SplitAtSectionIBQR(n1, n2, pcReturnType)
+		def SplitAtSectionIBQRT(n1, n2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtSectionIB(n1, n2) )
@@ -58114,10 +58114,10 @@ class stzString from stzObject
 			return This.SplitAtSectionIB(n1, n2)
 
 			def SplitAtThisSectionIBQ(n1, n2)
-				return This.SplitAtThisSectionIBQR(n1, n2, :stzList)
+				return This.SplitAtThisSectionIBQRT(n1, n2, :stzList)
 
-			def SplitAtThisSectionIBQR(n1, n2, pcReturnType)
-				return This.SplitAtSectionIBQR(n1, n2, pcReturnType)
+			def SplitAtThisSectionIBQRT(n1, n2, pcReturnType)
+				return This.SplitAtSectionIBQRT(n1, n2, pcReturnType)
 
 		#--
 
@@ -58125,19 +58125,19 @@ class stzString from stzObject
 			return This.SplitAtSectionIB(n1, n2)
 
 			def SplitsAtSectionIBQ(n1, n2)
-				return This.SplitAtThisSectionIBQR(n1, n2, :stzList)
+				return This.SplitAtThisSectionIBQRT(n1, n2, :stzList)
 
-			def SplitsAtSectionIBQR(n1, n2, pcReturnType)
-				return This.SplitAtSectionIBQR(n1, n2, pcReturnType)
+			def SplitsAtSectionIBQRT(n1, n2, pcReturnType)
+				return This.SplitAtSectionIBQRT(n1, n2, pcReturnType)
 
 		def SplitsAtThisSectionIB(n1, n2)
 			return This.SplitAtSectionIB(n1, n2)
 
 			def SplitsAtThisSectionIBQ(n1, n2)
-				return This.SplitAtThisSectionIBQR(n1, n2, :stzList)
+				return This.SplitAtThisSectionIBQRT(n1, n2, :stzList)
 
-			def SplitsAtThisSectionIBQR(n1, n2, pcReturnType)
-				return This.SplitAtSectionIBQR(n1, n2, pcReturnType)
+			def SplitsAtThisSectionIBQRT(n1, n2, pcReturnType)
+				return This.SplitAtSectionIBQRT(n1, n2, pcReturnType)
 
 		#>
 
@@ -58168,9 +58168,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtSectionsQ(n1, n2)
-			return This.SplitAtSectionsQR(n1, n2, pcReturnType)
+			return This.SplitAtSectionsQRT(n1, n2, pcReturnType)
 
-		def SplitAtSectionsQR(n1, n2, pcReturnType)
+		def SplitAtSectionsQRT(n1, n2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtSections(n1, n2) )
@@ -58190,10 +58190,10 @@ class stzString from stzObject
 			return This.SplitAtSections(paSections)
 
 			def SplitAtTheseSectionsQ(paSections)
-				return This.SplitAtTheseSectionsQR(paSections, :stzList)
+				return This.SplitAtTheseSectionsQRT(paSections, :stzList)
 
-			def SplitAtTheseSectionsQR(paSections, pcReturnType)
-				return This.SplitAtSectionsQR(paSections, pcReturnType)
+			def SplitAtTheseSectionsQRT(paSections, pcReturnType)
+				return This.SplitAtSectionsQRT(paSections, pcReturnType)
 
 		#--
 
@@ -58201,19 +58201,19 @@ class stzString from stzObject
 			return This.SplitAtSections(paSections)
 
 			def SplitsAtSectionsQ(paSections)
-				return This.SplitAtTheseSectionsQR(paSections, :stzList)
+				return This.SplitAtTheseSectionsQRT(paSections, :stzList)
 
-			def SplitsAtSectionsQR(paSections, pcReturnType)
-				return This.SplitAtSectionsQR(paSections, pcReturnType)
+			def SplitsAtSectionsQRT(paSections, pcReturnType)
+				return This.SplitAtSectionsQRT(paSections, pcReturnType)
 
 		def SplitsAtTheseSections(paSections)
 			return This.SplitAtSections(paSections)
 
 			def SplitsAtTheseSectionsQ(paSections)
-				return This.SplitAtTheseSectionsQR(paSections, :stzList)
+				return This.SplitAtTheseSectionsQRT(paSections, :stzList)
 
-			def SplitsAtTheseSectionsQR(paSections, pcReturnType)
-				return This.SplitAtSectionsQR(paSections, pcReturnType)
+			def SplitsAtTheseSectionsQRT(paSections, pcReturnType)
+				return This.SplitAtSectionsQRT(paSections, pcReturnType)
 
 		#>
 
@@ -58244,9 +58244,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtSectionsIBQ(n1, n2)
-			return This.SplitAtSectionsIBQR(n1, n2, pcReturnType)
+			return This.SplitAtSectionsIBQRT(n1, n2, pcReturnType)
 
-		def SplitAtSectionsIBQR(n1, n2, pcReturnType)
+		def SplitAtSectionsIBQRT(n1, n2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtSectionsIB(n1, n2) )
@@ -58266,10 +58266,10 @@ class stzString from stzObject
 			return This.SplitAtSectionsIB(paSections)
 
 			def SplitAtTheseSectionsIBQ(paSections)
-				return This.SplitAtTheseSectionsIBQR(paSections, :stzList)
+				return This.SplitAtTheseSectionsIBQRT(paSections, :stzList)
 
-			def SplitAtTheseSectionsIBQR(paSections, pcReturnType)
-				return This.SplitAtSectionsIBQR(paSections, pcReturnType)
+			def SplitAtTheseSectionsIBQRT(paSections, pcReturnType)
+				return This.SplitAtSectionsIBQRT(paSections, pcReturnType)
 
 		#--
 
@@ -58277,19 +58277,19 @@ class stzString from stzObject
 			return This.SplitAtSectionsIB(paSections)
 
 			def SplitsAtSectionsIBQ(paSections)
-				return This.SplitAtTheseSectionsIBQR(paSections, :stzList)
+				return This.SplitAtTheseSectionsIBQRT(paSections, :stzList)
 
-			def SplitsAtSectionsIBQR(paSections, pcReturnType)
-				return This.SplitAtSectionsIBQR(paSections, pcReturnType)
+			def SplitsAtSectionsIBQRT(paSections, pcReturnType)
+				return This.SplitAtSectionsIBQRT(paSections, pcReturnType)
 
 		def SplitsAtTheseSectionsIB(paSections)
 			return This.SplitAtSectionsIB(paSections)
 
 			def SplitsAtTheseSectionsIBQ(paSections)
-				return This.SplitAtTheseSectionsIBQR(paSections, :stzList)
+				return This.SplitAtTheseSectionsIBQRT(paSections, :stzList)
 
-			def SplitsAtTheseSectionsIBQR(paSections, pcReturnType)
-				return This.SplitAtSectionsIBQR(paSections, pcReturnType)
+			def SplitsAtTheseSectionsIBQRT(paSections, pcReturnType)
+				return This.SplitAtSectionsIBQRT(paSections, pcReturnType)
 
 		#>
 
@@ -58364,9 +58364,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeCSQ(pSubStrOrPos, pCaseSensitive)
-			return This.SplitBeforeCSQR(pSubStrOrPos, pCaseSensitive, :stzList)
+			return This.SplitBeforeCSQRT(pSubStrOrPos, pCaseSensitive, :stzList)
 
-		def SplitBeforeCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+		def SplitBeforeCSQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforeCS(pSubStrOrPos, pCaseSensitive) )
@@ -58391,8 +58391,8 @@ class stzString from stzObject
 			def SplitsBeforeCSQ(pSubStrOrPos, pCaseSensitive)
 				return This.SplitBeforeCSQ(pSubStrOrPos, pCaseSensitive)
 
-			def SplitsBeforeCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
-				return This.SplitBeforeCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+			def SplitsBeforeCSQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
+				return This.SplitBeforeCSQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -58408,10 +58408,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeQ(pSubStrOrPos)
-			return This.SplitBeforeQR(pSubStrOrPos, :stzList)
+			return This.SplitBeforeQRT(pSubStrOrPos, :stzList)
 
-		def SplitBeforeQR(pSubStrOrPos, pcReturnType)
-			return This.SplitBeforeCSQR(pSubStrOrPos, _TRUE_, pcReturnType)
+		def SplitBeforeQRT(pSubStrOrPos, pcReturnType)
+			return This.SplitBeforeCSQRT(pSubStrOrPos, _TRUE_, pcReturnType)
 
 		#>
 
@@ -58423,8 +58423,8 @@ class stzString from stzObject
 			def SplitsBeforeQ(pSubStrOrPos)
 				return This.SplitBeforeQ(pSubStrOrPos)
 
-			def SplitsBeforeQR(pSubStrOrPos, pcReturnType)
-				return This.SplitBeforeQR(pSubStrOrPos, pcReturnType)
+			def SplitsBeforeQRT(pSubStrOrPos, pcReturnType)
+				return This.SplitBeforeQRT(pSubStrOrPos, pcReturnType)
 
 		#>
 
@@ -58456,9 +58456,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforePositionQ(n)
-			return This.SplitBeforePositionQR(n, :stzList)
+			return This.SplitBeforePositionQRT(n, :stzList)
 
-		def SplitBeforePositionQR(n, pcReturnType)
+		def SplitBeforePositionQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforePosition(n) )
@@ -58481,10 +58481,10 @@ class stzString from stzObject
 			return This.SplitBeforePosition(n)
 
 			def SplitBeforeThisPositionQ(n)
-				return This.SplitBeforeThisPositionQR(n, :stzList)
+				return This.SplitBeforeThisPositionQRT(n, :stzList)
 
-			def SplitBeforeThisPositionQR(n, pcReturnType)
-				return This.SplitBeforePositionQR(n, pcReturnType)
+			def SplitBeforeThisPositionQRT(n, pcReturnType)
+				return This.SplitBeforePositionQRT(n, pcReturnType)
 
 		#--
 
@@ -58494,8 +58494,8 @@ class stzString from stzObject
 			def SplitsBeforePositionQ(n)
 				return This.SplitBeforePositionQ(n)
 
-			def SplitsBeforePositionQR(n, pcReturnType)
-				return This.SplitBeforePositionQR(n, pcReturnType)
+			def SplitsBeforePositionQRT(n, pcReturnType)
+				return This.SplitBeforePositionQRT(n, pcReturnType)
 
 		def SplitsBeforeThisPosition(n)
 			return This.SplitBeforePosition(n)
@@ -58503,8 +58503,8 @@ class stzString from stzObject
 			def SplitsBeforeThisPositionQ(n)
 				return This.SplitBeforePositionQ(n)
 
-			def SplitsBeforeThisPositionQR(n, pcReturnType)
-				return This.SplitBeforePositionQR(n, pcReturnType)
+			def SplitsBeforeThisPositionQRT(n, pcReturnType)
+				return This.SplitBeforePositionQRT(n, pcReturnType)
 		#>
 
 	def SplittedBeforePosition(n)
@@ -58541,9 +58541,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforePositionsQ(anPos)
-			return This.SplitBeforePositionsQR(anPos, :stzList)
+			return This.SplitBeforePositionsQRT(anPos, :stzList)
 
-		def SplitBeforePositionsQR(anPos, pcReturnType)
+		def SplitBeforePositionsQRT(anPos, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforePositions(anPos) )
@@ -58566,19 +58566,19 @@ class stzString from stzObject
 			return This.SplitBeforePositions(anPos)
 
 			def SplitBeforeThesePositionsQ(anPos)
-				return This.SplitBeforThesePositionsQR(anPos, :stzList)
+				return This.SplitBeforThesePositionsQRT(anPos, :stzList)
 
-			def SplitBeforeThesePositionsQR(anPos, pcReturnType)
-				return This.SplitBeforePositionsQR(anPos, pcReturnType)
+			def SplitBeforeThesePositionsQRT(anPos, pcReturnType)
+				return This.SplitBeforePositionsQRT(anPos, pcReturnType)
 
 		def SplitBeforeManyPositions(anPos)
 			return This.SplitBeforePositions(anPos)
 
 			def SplitBeforeManyPositionsQ(anPos)
-				return This.SplitBeforeManyPositionsQR(anPos, :stzList)
+				return This.SplitBeforeManyPositionsQRT(anPos, :stzList)
 
-			def SplitBeforeManyPositionsQR(anPos, pcReturnType)
-				return This.SplitBeforePositionsQR(anPos, pcReturnType)
+			def SplitBeforeManyPositionsQRT(anPos, pcReturnType)
+				return This.SplitBeforePositionsQRT(anPos, pcReturnType)
 
 		#>
 
@@ -58613,9 +58613,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeSubStringCSQ(pcSubStr, pCaseSensitive)
-			return This.SplitBeforeSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.SplitBeforeSubStringCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
-		def SplitBeforeSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def SplitBeforeSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforeSubStringCS(pcSubStr, pCaseSensitive) )
@@ -58638,10 +58638,10 @@ class stzString from stzObject
 			return This.SplitBeforeSubStringCS(pcSubStr, pCaseSensitive)
 
 			def SplitBeforeThisSubStringCSQ(pcSubStr, pCaseSensitive)
-				return This.SplitBeforeThisSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+				return This.SplitBeforeThisSubStringCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
-			def SplitBeforeThisSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitBeforeSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitBeforeThisSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitBeforeSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#--
 
@@ -58651,7 +58651,7 @@ class stzString from stzObject
 			def SplitsBeforeSubStringCSQ(pcSubStr, pCaseSensitive)
 				return This.SplitBeforeSubStringCSQ(pcSubStr, pCaseSensitive)
 
-			def SplitsBeforeSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitsBeforeSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 				return This.SplitBeforeSubStringCSQ(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitsBeforeThisSubStringCS(pcSubStr, pCaseSensitive)
@@ -58660,7 +58660,7 @@ class stzString from stzObject
 			def SplitsBeforeThisSubStringCSQ(pcSubStr, pCaseSensitive)
 				return This.SplitBeforeSubStringCSQ(pcSubStr, pCaseSensitive)
 
-			def SplitsBeforeThisSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitsBeforeThisSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 				return This.SplitBeforeSubStringCSQ(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
@@ -58679,9 +58679,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeSubStringQ(pcSubStr)
-			return This.SplitBeforeSubStringQR(pcSubStr, :stzList)
+			return This.SplitBeforeSubStringQRT(pcSubStr, :stzList)
 
-		def SplitBeforeSubStringQR(pcSubStr, pcReturnType)
+		def SplitBeforeSubStringQRT(pcSubStr, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforeSubString(pcSubStr) )
@@ -58704,10 +58704,10 @@ class stzString from stzObject
 			return This.SplitBeforeSubString(pcSubStr)
 
 			def SplitBeforeThisSubStringQ(pcSubStr)
-				return This.SplitBeforeThisSubStringQR(pcSubStr, :stzList)
+				return This.SplitBeforeThisSubStringQRT(pcSubStr, :stzList)
 
-			def SplitBeforeThisSubStringQR(pcSubStr, pcReturnType)
-				return This.SplitBeforeSubStringQR(pcSubStr, pcReturnType)
+			def SplitBeforeThisSubStringQRT(pcSubStr, pcReturnType)
+				return This.SplitBeforeSubStringQRT(pcSubStr, pcReturnType)
 
 		#--
 
@@ -58717,7 +58717,7 @@ class stzString from stzObject
 			def SplitsBeforeSubStringQ(pcSubStr)
 				return This.SplitBeforeSubStringQ(pcSubStr)
 
-			def SplitsBeforeSubStringQR(pcSubStr, pcReturnType)
+			def SplitsBeforeSubStringQRT(pcSubStr, pcReturnType)
 				return This.SplitBeforeSubStringQ(pcSubStr, pcReturnType)
 
 		def SplitsBeforeThisSubString(pcSubStr)
@@ -58726,7 +58726,7 @@ class stzString from stzObject
 			def SplitsBeforeThisSubStringQ(pcSubStr)
 				return This.SplitBeforeSubStringQ(pcSubStr)
 
-			def SplitsBeforeThisSubStringQR(pcSubStr, pcReturnType)
+			def SplitsBeforeThisSubStringQRT(pcSubStr, pcReturnType)
 				return This.SplitBeforeSubStringQ(pcSubStr, pcReturnType)
 
 		#>
@@ -58759,9 +58759,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeSubStringsCSQ(pacSubStr, pCaseSensitive)
-			return This.SplitBeforeSubStringsCSQR(pacSubStr, pCaseSensitive, :stzList)
+			return This.SplitBeforeSubStringsCSQRT(pacSubStr, pCaseSensitive, :stzList)
 
-		def SplitBeforeSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+		def SplitBeforeSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforeSubStringsCS(pacSubStr, pCaseSensitive) )
@@ -58784,19 +58784,19 @@ class stzString from stzObject
 			return This.SplitBeforeSubStringsCS(pacSubStr, pCaseSensitive)
 
 			def SplitBeforeTheseSubStringsCSQ(pacSubStr, pCaseSensitive)
-				return This.SplitBeforeThisSubStringsCSQR(pacSubStr, pCaseSensitive, :stzList)
+				return This.SplitBeforeThisSubStringsCSQRT(pacSubStr, pCaseSensitive, :stzList)
 
-			def SplitBeforeTheseSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitBeforeSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+			def SplitBeforeTheseSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitBeforeSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitBeforeManySubStringsCS(pacSubStr, pCaseSensitive)
 			return This.SplitBeforeSubStringsCS(pacSubStr, pCaseSensitive)
 
 			def SplitBeforeManySubStringsCSQ(pacSubStr, pCaseSensitive)
-				return This.SplitBeforeManySubStringsCSQR(pacSubStr, pCaseSensitive, :stzList)
+				return This.SplitBeforeManySubStringsCSQRT(pacSubStr, pCaseSensitive, :stzList)
 
-			def SplitBeforeManySubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitBeforeSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+			def SplitBeforeManySubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitBeforeSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 
 		#--
 
@@ -58806,26 +58806,26 @@ class stzString from stzObject
 			def SplitsBeforeSubStringsCSQ(pacSubStr, pCaseSensitive)
 				return This.SplitBeforeSubStringsCSQ(pacSubStr, pCaseSensitive)
 
-			def SplitsBeforeSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitBeforeSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+			def SplitsBeforeSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitBeforeSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitsBeforeTheseSubStringsCS(pacSubStr, pCaseSensitive)
 			return This.SplitBeforeSubStringsCS(pacSubStr, pCaseSensitive)
 
 			def SplitsBeforeTheseSubStringsCSQ(pacSubStr, pCaseSensitive)
-				return This.SplitBeforeThisSubStringsCSQR(pacSubStr, pCaseSensitive, :stzList)
+				return This.SplitBeforeThisSubStringsCSQRT(pacSubStr, pCaseSensitive, :stzList)
 
-			def SplitsBeforeTheseSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitBeforeSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+			def SplitsBeforeTheseSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitBeforeSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitsBeforeManySubStringsCS(pacSubStr, pCaseSensitive)
 			return This.SplitBeforeSubStringsCS(pacSubStr, pCaseSensitive)
 
 			def SplitsBeforeManySubStringsCSQ(pacSubStr, pCaseSensitive)
-				return This.SplitBeforeManySubStringsCSQR(pacSubStr, pCaseSensitive, :stzList)
+				return This.SplitBeforeManySubStringsCSQRT(pacSubStr, pCaseSensitive, :stzList)
 
-			def SplitsBeforeManySubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitBeforeSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+			def SplitsBeforeManySubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitBeforeSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -58846,9 +58846,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeSubStringsQ(pacSubStr)
-			return This.SplitBeforeSubStringsQR(pacSubStr, :stzList)
+			return This.SplitBeforeSubStringsQRT(pacSubStr, :stzList)
 
-		def SplitBeforeSubStringsQR(pacSubStr, pcReturnType)
+		def SplitBeforeSubStringsQRT(pacSubStr, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforeSubStrings(pacSubStr) )
@@ -58871,19 +58871,19 @@ class stzString from stzObject
 			return This.SplitBeforeSubStrings(pacSubStr)
 
 			def SplitBeforeTheseSubStringsQ(pacSubStr)
-				return This.SplitBeforeThisSubStringsQR(pacSubStr, :stzList)
+				return This.SplitBeforeThisSubStringsQRT(pacSubStr, :stzList)
 
-			def SplitBeforeTheseSubStringsQR(pacSubStr, pcReturnType)
-				return This.SplitBeforeSubStringsQR(pacSubStr, pcReturnType)
+			def SplitBeforeTheseSubStringsQRT(pacSubStr, pcReturnType)
+				return This.SplitBeforeSubStringsQRT(pacSubStr, pcReturnType)
 
 		def SplitBeforeManySubStrings(pacSubStr)
 			return This.SplitBeforeSubStrings(pacSubStr)
 
 			def SplitBeforeManySubStringsQ(pacSubStr)
-				return This.SplitBeforeManySubStringsQR(pacSubStr, :stzList)
+				return This.SplitBeforeManySubStringsQRT(pacSubStr, :stzList)
 
-			def SplitBeforeManySubStringsQR(pacSubStr, pcReturnType)
-				return This.SplitBeforeSubStringsQR(pacSubStr, pcReturnType)
+			def SplitBeforeManySubStringsQRT(pacSubStr, pcReturnType)
+				return This.SplitBeforeSubStringsQRT(pacSubStr, pcReturnType)
 
 		#--
 
@@ -58893,26 +58893,26 @@ class stzString from stzObject
 			def SplitsBeforeSubStringsQ(pacSubStr)
 				return This.SplitBeforeSubStringsQ(pacSubStr)
 
-			def SplitsBeforeSubStringsQR(pacSubStr, pcReturnType)
-				return This.SplitBeforeSubStringsQR(pacSubStr, pcReturnType)
+			def SplitsBeforeSubStringsQRT(pacSubStr, pcReturnType)
+				return This.SplitBeforeSubStringsQRT(pacSubStr, pcReturnType)
 
 		def SplitsBeforeTheseSubStrings(pacSubStr)
 			return This.SplitBeforeSubStrings(pacSubStr)
 
 			def SplitsBeforeTheseSubStringsQ(pacSubStr)
-				return This.SplitBeforeThisSubStringsQR(pacSubStr, :stzList)
+				return This.SplitBeforeThisSubStringsQRT(pacSubStr, :stzList)
 
-			def SplitsBeforeTheseSubStringsQR(pacSubStr, pcReturnType)
-				return This.SplitBeforeSubStringsQR(pacSubStr, pcReturnType)
+			def SplitsBeforeTheseSubStringsQRT(pacSubStr, pcReturnType)
+				return This.SplitBeforeSubStringsQRT(pacSubStr, pcReturnType)
 
 		def SplitsBeforeManySubStrings(pacSubStr)
 			return This.SplitBeforeSubStrings(pacSubStr)
 
 			def SplitsBeforeManySubStringsQ(pacSubStr)
-				return This.SplitBeforeManySubStringsQR(pacSubStr, :stzList)
+				return This.SplitBeforeManySubStringsQRT(pacSubStr, :stzList)
 
-			def SplitsBeforeManySubStringsQR(pacSubStr, pcReturnType)
-				return This.SplitBeforeSubStringsQR(pacSubStr, pcReturnType)
+			def SplitsBeforeManySubStringsQRT(pacSubStr, pcReturnType)
+				return This.SplitBeforeSubStringsQRT(pacSubStr, pcReturnType)
 
 		#>
 
@@ -58946,9 +58946,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeSectionQ(n1, n2)
-			return This.SplitBeforeSectionQR(n1, n2, :stzList)
+			return This.SplitBeforeSectionQRT(n1, n2, :stzList)
 
-		def SplitBeforeSectionQR(n1, n2, pcReturnType)
+		def SplitBeforeSectionQRT(n1, n2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforeSection(n1, n2) )
@@ -58971,10 +58971,10 @@ class stzString from stzObject
 			return This.SplitBeforeSection(n1, n2)
 
 			def SplitBeforeThisSectionQ(n1, n2)
-				return This.SplitBeforeThisSectionQR(n1, n2, :stzList)
+				return This.SplitBeforeThisSectionQRT(n1, n2, :stzList)
 
-			def SplitBeforeThisSectionQR(n1, n2, pcReturnType)
-				return This.SplitBeforeSectionQR(n1, n2, pcReturnType)
+			def SplitBeforeThisSectionQRT(n1, n2, pcReturnType)
+				return This.SplitBeforeSectionQRT(n1, n2, pcReturnType)
 
 		#--
 
@@ -58984,8 +58984,8 @@ class stzString from stzObject
 			def SplitsBeforeSectionQ(n1, n2)
 				return This.SplitBeforeSectionQ(n1, n2)
 
-			def SplitsBeforeSectionQR(n1, n2, pcReturnType)
-				return This.SplitBeforeSectionQR(n1, n2, pcReturnType)
+			def SplitsBeforeSectionQRT(n1, n2, pcReturnType)
+				return This.SplitBeforeSectionQRT(n1, n2, pcReturnType)
 
 		def SplitsBeforeThisSection(n1, n2)
 			return This.SplitBeforeSection(n1, n2)
@@ -58993,8 +58993,8 @@ class stzString from stzObject
 			def SplitsBeforeThisSectionQ(n1, n2)
 				return This.SplitBeforeSectionQ(n1, n2)
 
-			def SplitsBeforeThisSectionQR(n1, n2, pcReturnType)
-				return This.SplitBeforeSectionQR(n1, n2, pcReturnType)
+			def SplitsBeforeThisSectionQRT(n1, n2, pcReturnType)
+				return This.SplitBeforeSectionQRT(n1, n2, pcReturnType)
 		#>
 
 	def SplittedBeforeSection(n1, n2)
@@ -59024,9 +59024,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeSectionIBQ(n1, n2)
-			return This.SplitBeforeSectionIBQR(n1, n2, :stzList)
+			return This.SplitBeforeSectionIBQRT(n1, n2, :stzList)
 
-		def SplitBeforeSectionIBQR(n1, n2, pcReturnType)
+		def SplitBeforeSectionIBQRT(n1, n2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforeSectionIB(n1, n2) )
@@ -59049,10 +59049,10 @@ class stzString from stzObject
 			return This.SplitBeforeSectionIB(n1, n2)
 
 			def SplitBeforeThisSectionIBQ(n1, n2)
-				return This.SplitBeforeThisSectionIBQR(n1, n2, :stzList)
+				return This.SplitBeforeThisSectionIBQRT(n1, n2, :stzList)
 
-			def SplitBeforeThisSectionIBQR(n1, n2, pcReturnType)
-				return This.SplitBeforeSectionIBQR(n1, n2, pcReturnType)
+			def SplitBeforeThisSectionIBQRT(n1, n2, pcReturnType)
+				return This.SplitBeforeSectionIBQRT(n1, n2, pcReturnType)
 
 		#--
 
@@ -59062,8 +59062,8 @@ class stzString from stzObject
 			def SplitsBeforeSectionIBQ(n1, n2)
 				return This.SplitBeforeSectionIBQ(n1, n2)
 
-			def SplitsBeforeSectionIBQR(n1, n2, pcReturnType)
-				return This.SplitBeforeSectionIBQR(n1, n2, pcReturnType)
+			def SplitsBeforeSectionIBQRT(n1, n2, pcReturnType)
+				return This.SplitBeforeSectionIBQRT(n1, n2, pcReturnType)
 
 		def SplitsBeforeThisSectionIB(n1, n2)
 			return This.SplitBeforeSectionIB(n1, n2)
@@ -59071,8 +59071,8 @@ class stzString from stzObject
 			def SplitsBeforeThisSectionIBQ(n1, n2)
 				return This.SplitBeforeSectionIBQ(n1, n2)
 
-			def SplitsBeforeThisSectionIBQR(n1, n2, pcReturnType)
-				return This.SplitBeforeSectionIBQR(n1, n2, pcReturnType)
+			def SplitsBeforeThisSectionIBQRT(n1, n2, pcReturnType)
+				return This.SplitBeforeSectionIBQRT(n1, n2, pcReturnType)
 		#>
 
 	def SplittedBeforeSectionIB(n1, n2)
@@ -59098,9 +59098,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeSectionsQ(paSections)
-			return This.SplitBeforeSectionsQR(paSections, :stzList)
+			return This.SplitBeforeSectionsQRT(paSections, :stzList)
 
-		def SplitBeforeSectionsQR(paSections, pcReturnType)
+		def SplitBeforeSectionsQRT(paSections, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforeSections(paSections) )
@@ -59123,19 +59123,19 @@ class stzString from stzObject
 			return This.SplitBeforeSections(paSections)
 
 			def SplitBeforeTheseSectionsQ(paSections)
-				return This.SplitBeforeThesesSectionsQR(paSections, :stzList)
+				return This.SplitBeforeThesesSectionsQRT(paSections, :stzList)
 
-			def SplitBeforeTheseSectionsQR(paSections, pcReturnType)
-				return This.SplitBeforeSectionsQR(paSections, pcReturnType)
+			def SplitBeforeTheseSectionsQRT(paSections, pcReturnType)
+				return This.SplitBeforeSectionsQRT(paSections, pcReturnType)
 
 		def SplitBeforeManySections(paSections)
 			return This.SplitBeforeSections(paSections)
 
 			def SplitBeforeManySectionsQ(paSections)
-				return This.SplitBeforeTheseSectionsQR(paSections, :stzList)
+				return This.SplitBeforeTheseSectionsQRT(paSections, :stzList)
 
-			def SplitBeforeManySectionsQR(paSections, pcReturnType)
-				return This.SplitBeforeSectionsQR(paSections, pcReturnType)
+			def SplitBeforeManySectionsQRT(paSections, pcReturnType)
+				return This.SplitBeforeSectionsQRT(paSections, pcReturnType)
 
 		#--
 
@@ -59145,26 +59145,26 @@ class stzString from stzObject
 			def SplitsBeforeSectionsQ(paSections)
 				return This.SplitBeforeSectionsQ(paSections)
 
-			def SplitsBeforeSectionsQR(paSections, pcReturnType)
-				return This.SplitBeforeSectionsQR(paSections, pcReturnType)
+			def SplitsBeforeSectionsQRT(paSections, pcReturnType)
+				return This.SplitBeforeSectionsQRT(paSections, pcReturnType)
 
 		def SplitsBeforeTheseSections(paSections)
 			return This.SplitBeforeSections(paSections)
 
 			def SplitsBeforeTheseSectionsQ(paSections)
-				return This.SplitBeforeThesesSectionsQR(paSections, :stzList)
+				return This.SplitBeforeThesesSectionsQRT(paSections, :stzList)
 
-			def SplitsBeforeTheseSectionsQR(paSections, pcReturnType)
-				return This.SplitBeforeSectionsQR(paSections, pcReturnType)
+			def SplitsBeforeTheseSectionsQRT(paSections, pcReturnType)
+				return This.SplitBeforeSectionsQRT(paSections, pcReturnType)
 
 		def SplitsBeforeManySections(paSections)
 			return This.SplitBeforeSections(paSections)
 
 			def SplitsBeforeManySectionsQ(paSections)
-				return This.SplitBeforeTheseSectionsQR(paSections, :stzList)
+				return This.SplitBeforeTheseSectionsQRT(paSections, :stzList)
 
-			def SplitsBeforeManySectionsQR(paSections, pcReturnType)
-				return This.SplitBeforeSectionsQR(paSections, pcReturnType)
+			def SplitsBeforeManySectionsQRT(paSections, pcReturnType)
+				return This.SplitBeforeSectionsQRT(paSections, pcReturnType)
 		#>
 
 	def SplittedBeforeSections(paSections)
@@ -59197,9 +59197,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeSectionsIBQ(paSections)
-			return This.SplitBeforeSectionsIBQR(paSections, :stzList)
+			return This.SplitBeforeSectionsIBQRT(paSections, :stzList)
 
-		def SplitBeforeSectionsIBQR(paSections, pcReturnType)
+		def SplitBeforeSectionsIBQRT(paSections, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforeSectionsIB(paSections) )
@@ -59223,19 +59223,19 @@ class stzString from stzObject
 			return This.SplitBeforeSectionsIB(paSections)
 
 			def SplitBeforeTheseSectionsIBQ(paSections)
-				return This.SplitBeforeThesesSectionsIBQR(paSections, :stzList)
+				return This.SplitBeforeThesesSectionsIBQRT(paSections, :stzList)
 
-			def SplitBeforeTheseSectionsIBQR(paSections, pcReturnType)
-				return This.SplitBeforeSectionsIBQR(paSections, pcReturnType)
+			def SplitBeforeTheseSectionsIBQRT(paSections, pcReturnType)
+				return This.SplitBeforeSectionsIBQRT(paSections, pcReturnType)
 
 		def SplitBeforeManySectionsIB(paSections)
 			return This.SplitBeforeSectionsIB(paSections)
 
 			def SplitBeforeManySectionsIBQ(paSections)
-				return This.SplitBeforeTheseSectionsIBQR(paSections, :stzList)
+				return This.SplitBeforeTheseSectionsIBQRT(paSections, :stzList)
 
-			def SplitBeforeManySectionsIBQR(paSections, pcReturnType)
-				return This.SplitBeforeSectionsIBQR(paSections, pcReturnType)
+			def SplitBeforeManySectionsIBQRT(paSections, pcReturnType)
+				return This.SplitBeforeSectionsIBQRT(paSections, pcReturnType)
 
 		#--
 
@@ -59245,26 +59245,26 @@ class stzString from stzObject
 			def SplitsBeforeSectionsIBQ(paSections)
 				return This.SplitBeforeSectionsIBQ(paSections)
 
-			def SplitsBeforeSectionsIBQR(paSections, pcReturnType)
-				return This.SplitBeforeSectionsIBQR(paSections, pcReturnType)
+			def SplitsBeforeSectionsIBQRT(paSections, pcReturnType)
+				return This.SplitBeforeSectionsIBQRT(paSections, pcReturnType)
 
 		def SplitsBeforeTheseSectionsIB(paSections)
 			return This.SplitBeforeSectionsIB(paSections)
 
 			def SplitsBeforeTheseSectionsIBQ(paSections)
-				return This.SplitBeforeThesesSectionsIBQR(paSections, :stzList)
+				return This.SplitBeforeThesesSectionsIBQRT(paSections, :stzList)
 
-			def SplitsBeforeTheseSectionsIBQR(paSections, pcReturnType)
-				return This.SplitBeforeSectionsIBQR(paSections, pcReturnType)
+			def SplitsBeforeTheseSectionsIBQRT(paSections, pcReturnType)
+				return This.SplitBeforeSectionsIBQRT(paSections, pcReturnType)
 
 		def SplitsBeforeManySectionsIB(paSections)
 			return This.SplitBeforeSectionsIB(paSections)
 
 			def SplitsBeforeManySectionsIBQ(paSections)
-				return This.SplitBeforeTheseSectionsIBQR(paSections, :stzList)
+				return This.SplitBeforeTheseSectionsIBQRT(paSections, :stzList)
 
-			def SplitsBeforeManySectionsIBQR(paSections, pcReturnType)
-				return This.SplitBeforeSectionsIBQR(paSections, pcReturnType)
+			def SplitsBeforeManySectionsIBQRT(paSections, pcReturnType)
+				return This.SplitBeforeSectionsIBQRT(paSections, pcReturnType)
 
 		#>
 
@@ -59340,9 +59340,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterCSQ(pSubStrOrPos, pCaseSensitive)
-			return This.SplitAfterCSQR(pSubStrOrPos, pCaseSensitive, :stzList)
+			return This.SplitAfterCSQRT(pSubStrOrPos, pCaseSensitive, :stzList)
 
-		def SplitAfterCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+		def SplitAfterCSQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterCS(pSubStrOrPos, pCaseSensitive) )
@@ -59367,8 +59367,8 @@ class stzString from stzObject
 			def SplitsAfterCSQ(pcSubStrOrPos, pCaseSensitive)
 				return This.SplitAfterCSQ(pcSubStrOrPos, pCaseSensitive)
 
-			def SplitsAfterCSQR(pcSubStrOrPos, pCaseSensitive, pcReturnType)
-				return This.SplitsAfterCSQR(pcSubStrOrPos, pCaseSensitive, pcReturnType)
+			def SplitsAfterCSQRT(pcSubStrOrPos, pCaseSensitive, pcReturnType)
+				return This.SplitsAfterCSQRT(pcSubStrOrPos, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -59383,10 +59383,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SplitAfterQ(pSubStrOrPos)
-			return This.SplitAfterQR(pSubStrOrPos, :stzList)
+			return This.SplitAfterQRT(pSubStrOrPos, :stzList)
 
-		def SplitAfterQR(pSubStrOrPos, pcReturnType)
-			return This.SplitAfterCSQR(pSubStrOrPos, _TRUE_, pcReturnType)
+		def SplitAfterQRT(pSubStrOrPos, pcReturnType)
+			return This.SplitAfterCSQRT(pSubStrOrPos, _TRUE_, pcReturnType)
 
 		#>
 
@@ -59398,8 +59398,8 @@ class stzString from stzObject
 			def SplitsAfterQ(pcSubStrOrPos)
 				return This.SplitAfterQ(pcSubStrOrPos)
 
-			def SplitsAfterQR(pcSubStrOrPos, pcReturnType)
-				return This.SplitsAfterCSQR(pcSubStrOrPos, pcReturnType)
+			def SplitsAfterQRT(pcSubStrOrPos, pcReturnType)
+				return This.SplitsAfterCSQRT(pcSubStrOrPos, pcReturnType)
 
 		#>
 
@@ -59427,9 +59427,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterPositionQ(n)
-			return This.SplitAfterPositionQR(n, :stzList)
+			return This.SplitAfterPositionQRT(n, :stzList)
 
-		def SplitAfterPositionQR(n, pcReturnType)
+		def SplitAfterPositionQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterPosition(n) )
@@ -59452,10 +59452,10 @@ class stzString from stzObject
 			return This.SplitAfterPosition(n)
 
 			def SplitAfterThisPositionQ(n)
-				return This.SplitAfterThisPositionQR(n, :stzList)
+				return This.SplitAfterThisPositionQRT(n, :stzList)
 
-			def SplitAfterThisPositionQR(n, pcReturnType)
-				return This.SplitAfterPositionQR(n, pcReturnType)
+			def SplitAfterThisPositionQRT(n, pcReturnType)
+				return This.SplitAfterPositionQRT(n, pcReturnType)
 
 		#--
 
@@ -59465,8 +59465,8 @@ class stzString from stzObject
 			def SplitsAfterPositionQ(n)
 				return This.SplitAfterPositionQ(n)
 
-			def SplitsAfterPositionQR(n, pcReturnType)
-				return This.SplitAfterPositionQR(n, pcReturnType)
+			def SplitsAfterPositionQRT(n, pcReturnType)
+				return This.SplitAfterPositionQRT(n, pcReturnType)
 
 		def SplitsAfterthisPosition(n)
 			return This.SplitAfterPosition(n)
@@ -59474,8 +59474,8 @@ class stzString from stzObject
 			def SplitsAfterThisPositionQ(n)
 				return This.SplitAfterPositionQ(n)
 
-			def SplitsAfterThisPositionQR(n, pcReturnType)
-				return This.SplitAfterPositionQR(n, pcReturnType)
+			def SplitsAfterThisPositionQRT(n, pcReturnType)
+				return This.SplitAfterPositionQRT(n, pcReturnType)
 
 		#>
 
@@ -59506,9 +59506,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterPositionsQ(anPos)
-			return This.SplitAfterPositionsQR(anPos, :stzList)
+			return This.SplitAfterPositionsQRT(anPos, :stzList)
 
-		def SplitAfterPositionsQR(anPos, pcReturnType)
+		def SplitAfterPositionsQRT(anPos, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterPositions(anPos) )
@@ -59531,19 +59531,19 @@ class stzString from stzObject
 			return This.SplitAfterThesePositions(anPos)
 
 			def SplitAfterThesePositionsQ(anPos)
-				return This.SplitAfterThesePositionsQR(anPos, :stzList)
+				return This.SplitAfterThesePositionsQRT(anPos, :stzList)
 
-			def SplitAfterThesePositionsQR(anPos, pcReturnType)
-				return This.SplitAfterPositionQR(n, pcReturnType)
+			def SplitAfterThesePositionsQRT(anPos, pcReturnType)
+				return This.SplitAfterPositionQRT(n, pcReturnType)
 
 		def SplitAfterManyPositions(anPos)
 			return This.SplitAfterManyPositions(anPos)
 
 			def SplitAfterManyPositionsQ(anPos)
-				return This.SplitAfterManyPositionsQR(anPos, :stzList)
+				return This.SplitAfterManyPositionsQRT(anPos, :stzList)
 
-			def SplitAfterManyPositionsQR(anPos, pcReturnType)
-				return This.SplitAfterPositionQR(n, pcReturnType)
+			def SplitAfterManyPositionsQRT(anPos, pcReturnType)
+				return This.SplitAfterPositionQRT(n, pcReturnType)
 
 		#--
 
@@ -59553,26 +59553,26 @@ class stzString from stzObject
 			def SplitsAfterPositionsQ(panPos)
 				return This.SplitAfterPositionsQ(panPos)
 
-			def SplitsAfterPositionsQR(panPos, pcReturnType)
-				return This.SplitsAfterPositionsQR(panPos, pcReturnType)
+			def SplitsAfterPositionsQRT(panPos, pcReturnType)
+				return This.SplitsAfterPositionsQRT(panPos, pcReturnType)
 
 		def SplitsAfterThesePositions(anPos)
 			return This.SplitAfterThesePositions(anPos)
 
 			def SplitsAfterThesePositionsQ(anPos)
-				return This.SplitAfterThesePositionsQR(anPos, :stzList)
+				return This.SplitAfterThesePositionsQRT(anPos, :stzList)
 
-			def SplitsAfterThesePositionsQR(anPos, pcReturnType)
-				return This.SplitAfterPositionQR(n, pcReturnType)
+			def SplitsAfterThesePositionsQRT(anPos, pcReturnType)
+				return This.SplitAfterPositionQRT(n, pcReturnType)
 
 		def SplitsAfterManyPositions(anPos)
 			return This.SplitAfterManyPositions(anPos)
 
 			def SplitsAfterManyPositionsQ(anPos)
-				return This.SplitAfterManyPositionsQR(anPos, :stzList)
+				return This.SplitAfterManyPositionsQRT(anPos, :stzList)
 
-			def SplitsAfterManyPositionsQR(anPos, pcReturnType)
-				return This.SplitAfterPositionQR(n, pcReturnType)
+			def SplitsAfterManyPositionsQRT(anPos, pcReturnType)
+				return This.SplitAfterPositionQRT(n, pcReturnType)
 
 		#>
 
@@ -59603,9 +59603,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterSubStringCSQ(pcSubStr, pCaseSensitive)
-			return This.SplitAfterSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.SplitAfterSubStringCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
-		def SplitAfterSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def SplitAfterSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterSubStringCS(pcSubStr, pCaseSensitive) )
@@ -59628,10 +59628,10 @@ class stzString from stzObject
 			return This.SplitAfterSubStringCS(pcSubStr, pCaseSensitive)
 
 			def SplitAfterThisSubStringQCS(pcSubStr, pCaseSensitive)
-				return This.SplitAfterThisSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+				return This.SplitAfterThisSubStringCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
-			def SplitAfterThisSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAfterSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitAfterThisSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAfterSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#--
 
@@ -59641,7 +59641,7 @@ class stzString from stzObject
 			def SplitsAfterSubStringCSQ(pcSubStr, pCaseSensitive)
 				return This.SplitAfterSubStringCSQ(pcSubStr, pCaseSensitive)
 
-			def SplitsAfterSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAfterSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 				return This.SplitAfterSubStringCSQ(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitsAfterThisSubStringCS(pcSubStr, pCaseSensitive)
@@ -59650,7 +59650,7 @@ class stzString from stzObject
 			def SplitsAfterThisSubStringCSQ(pcSubStr, pCaseSensitive)
 				return This.SplitAfterSubStringCSQ(pcSubStr, pCaseSensitive)
 
-			def SplitsAfterThisSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAfterThisSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 				return This.SplitAfterSubStringCSQ(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
@@ -59669,10 +59669,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterSubStringQ(pcSubStr)
-			return This.SplitAfterSubStringQR(pcSubStr)
+			return This.SplitAfterSubStringQRT(pcSubStr)
 
-		def SplitAfterSubStringQR(pcSubStr)
-			return This.SplitAfterThisSubStringCSQR(pcSubStr, _TRUE_, pcReturnType)
+		def SplitAfterSubStringQRT(pcSubStr)
+			return This.SplitAfterThisSubStringCSQRT(pcSubStr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -59682,10 +59682,10 @@ class stzString from stzObject
 			return This.SplitAfterSubString(pcSubStr)
 
 			def SplitAfterThisSubStringQ(pcSubStr)
-				return This.SplitAfterThisSubStringQR(pcSubStr, :stzList)
+				return This.SplitAfterThisSubStringQRT(pcSubStr, :stzList)
 
-			def SplitAfterThisSubStringQR(pcSubStr, pcReturnType)
-				return This.SplitAfterSubStringQR(pcSubStr, pcReturnType)
+			def SplitAfterThisSubStringQRT(pcSubStr, pcReturnType)
+				return This.SplitAfterSubStringQRT(pcSubStr, pcReturnType)
 
 		#--
 
@@ -59695,7 +59695,7 @@ class stzString from stzObject
 			def SplitsAfterSubStringQ(pcSubStr)
 				return This.SplitAfterSubStringQ(pcSubStr)
 
-			def SplitsAfterSubStringQR(pcSubStr, pcReturnType)
+			def SplitsAfterSubStringQRT(pcSubStr, pcReturnType)
 				return This.SplitAfterSubStringQ(pcSubStr, pcReturnType)
 
 		def SplitsAfterThisSubString(pcSubStr)
@@ -59704,7 +59704,7 @@ class stzString from stzObject
 			def SplitsAfterThisSubStringQ(pcSubStr)
 				return This.SplitAfterSubStringQ(pcSubStr)
 
-			def SplitsAfterThisSubStringQR(pcSubStr, pcReturnType)
+			def SplitsAfterThisSubStringQRT(pcSubStr, pcReturnType)
 				return This.SplitAfterSubStringQ(pcSubStr, pcReturnType)
 
 		#>
@@ -59733,9 +59733,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterSubStringsCSQ(pacSubStr, pCaseSensitive)
-			return This.SplitAfterSubStringsCSQR(pacSubStr, pCaseSensitive, :stzList)
+			return This.SplitAfterSubStringsCSQRT(pacSubStr, pCaseSensitive, :stzList)
 
-		def SplitAfterSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+		def SplitAfterSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterSubStringsCS(pacSubStr, pCaseSensitive) )
@@ -59758,19 +59758,19 @@ class stzString from stzObject
 			return This.SplitAfterSubStringsCS(pacSubStr, pCaseSensitive)
 
 			def SplitAfterTheseSubStringsQCS(pacSubStr, pCaseSensitive)
-				return This.SplitAfterTheseSubStringsCSQR(pacSubStr, pCaseSensitive, :stzList)
+				return This.SplitAfterTheseSubStringsCSQRT(pacSubStr, pCaseSensitive, :stzList)
 
-			def SplitAfterTheseSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAfterSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+			def SplitAfterTheseSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAfterSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitAfterManySubStringsCS(pacSubStr, pCaseSensitive)
 			return This.SplitAfterSubStringsCS(pacSubStr, pCaseSensitive)
 
 			def SplitAfterManySubStringsQCS(pacSubStr, pCaseSensitive)
-				return This.SplitAfterManySubStringsCSQR(pacSubStr, pCaseSensitive, :stzList)
+				return This.SplitAfterManySubStringsCSQRT(pacSubStr, pCaseSensitive, :stzList)
 
-			def SplitAfterManySubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAfterSubStringsCSQR(pacSubStr, pCaseSensitive)
+			def SplitAfterManySubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAfterSubStringsCSQRT(pacSubStr, pCaseSensitive)
 
 		#--
 
@@ -59780,8 +59780,8 @@ class stzString from stzObject
 			def SplitsAfterSubStringsCSQ(pacSubStr, pCaseSensitive)
 				return This.SplitAfterSubStringsCSQ(pacSubStr, pCaseSensitive)
 
-			def SplitsAfterSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAfterSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAfterSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAfterSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitsAfterTheseSubStringsCS(pacSubStr, pCaseSensitive)
 			return This.SplitAfterSubStringsCS(pacSubStr, pCaseSensitive)
@@ -59789,8 +59789,8 @@ class stzString from stzObject
 			def SplitsAfterTheseSubStringsCSQ(pacSubStr, pCaseSensitive)
 				return This.SplitAfterSubStringsCSQ(pacSubStr, pCaseSensitive)
 
-			def SplitsAfterTheseSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAfterSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAfterTheseSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAfterSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitsAfterManySubStringsCS(pacSubStr, pCaseSensitive)
 			return This.SplitAfterSubStringsCS(pacSubStr, pCaseSensitive)
@@ -59798,8 +59798,8 @@ class stzString from stzObject
 			def SplitsAfterManySubStringsCSQ(pacSubStr, pCaseSensitive)
 				return This.SplitAfterSubStringsCSQ(pacSubStr, pCaseSensitive)
 
-			def SplitsAfterManySubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAfterSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+			def SplitsAfterManySubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAfterSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -59820,10 +59820,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterSubStringsQ(pacSubStr)
-			return This.SplitAfterSubStringsQR(pacSubStr, :stzList)
+			return This.SplitAfterSubStringsQRT(pacSubStr, :stzList)
 
-		def SplitAfterSubStringsQR(pacSubStr, pcReturnType)
-			return This.SplitAfterSubStringsCSQR(pacSubStr, :CaseSensitive, pcReturnType)
+		def SplitAfterSubStringsQRT(pacSubStr, pcReturnType)
+			return This.SplitAfterSubStringsCSQRT(pacSubStr, :CaseSensitive, pcReturnType)
 
 		#>
 
@@ -59833,19 +59833,19 @@ class stzString from stzObject
 			return This.SplitAfterSubStrings(pacSubStr)
 
 			def SplitAfterTheseSubStringsQ(pacSubStr)
-				return This.SplitAfterTheseSubStringsQR(pacSubStr, :stzList)
+				return This.SplitAfterTheseSubStringsQRT(pacSubStr, :stzList)
 
-			def SplitAfterTheseSubStringsQR(pacSubStr, pcReturnType)
-				return This.SplitAfterSubStringsQR(pacSubStr, pcReturnType)
+			def SplitAfterTheseSubStringsQRT(pacSubStr, pcReturnType)
+				return This.SplitAfterSubStringsQRT(pacSubStr, pcReturnType)
 
 		def SplitAfterManySubStrings(pacSubStr)
 			return This.SplitAfterSubStrings(pacSubStr)
 
 			def SplitAfterManySubStringsQ(pacSubStr)
-				return This.SplitAfterManySubStringsQR(pacSubStr, :stzList)
+				return This.SplitAfterManySubStringsQRT(pacSubStr, :stzList)
 
-			def SplitAfterManySubStringsQR(pacSubStr, pcReturnType)
-				return This.SplitAfterSubStringsQR(pacSubStr, pcReturnType)
+			def SplitAfterManySubStringsQRT(pacSubStr, pcReturnType)
+				return This.SplitAfterSubStringsQRT(pacSubStr, pcReturnType)
 
 		#--
 
@@ -59855,8 +59855,8 @@ class stzString from stzObject
 			def SplitsAfterSubStringsQ(pacSubStr)
 				return This.SplitAfterSubStringsQ(pacSubStr)
 
-			def SplitsAfterSubStringsQR(pacSubStr, pcReturnType)
-				return This.SplitAfterSubStringsQR(pacSubStr, pcReturnType)
+			def SplitsAfterSubStringsQRT(pacSubStr, pcReturnType)
+				return This.SplitAfterSubStringsQRT(pacSubStr, pcReturnType)
 
 		def SplitsAfterTheseSubStrings(pacSubStr)
 			return This.SplitAfterSubStrings(pacSubStr)
@@ -59864,8 +59864,8 @@ class stzString from stzObject
 			def SplitsAfterTheseSubStringsQ(pacSubStr)
 				return This.SplitAfterSubStringsQ(pacSubStr)
 
-			def SplitsAfterTheseSubStringsQR(pacSubStr, pcReturnType)
-				return This.SplitAfterSubStringsQR(pacSubStr, pcReturnType)
+			def SplitsAfterTheseSubStringsQRT(pacSubStr, pcReturnType)
+				return This.SplitAfterSubStringsQRT(pacSubStr, pcReturnType)
 
 		def SplitsAfterManySubStrings(pacSubStr)
 			return This.SplitAfterSubStrings(pacSubStr)
@@ -59873,8 +59873,8 @@ class stzString from stzObject
 			def SplitsAfterManySubStringsQ(pacSubStr)
 				return This.SplitAfterSubStringsQ(pacSubStr)
 
-			def SplitsAfterManySubStringsQR(pacSubStr, pcReturnType)
-				return This.SplitAfterSubStringsQR(pacSubStr, pcReturnType)
+			def SplitsAfterManySubStringsQRT(pacSubStr, pcReturnType)
+				return This.SplitAfterSubStringsQRT(pacSubStr, pcReturnType)
 
 		#>
 
@@ -59905,9 +59905,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterSectionQ(n1, n2)
-			return This.SplitAfterSectionQR(n1, n2)
+			return This.SplitAfterSectionQRT(n1, n2)
 
-		def SplitAfterSectionQR(n1, n2, pcReturnType)
+		def SplitAfterSectionQRT(n1, n2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterSection(n1, n2) )
@@ -59930,10 +59930,10 @@ class stzString from stzObject
 			return This.SplitAfterSection(n1, n2)
 
 			def SplitAfterThisSectionQ(n1, n2)
-				return This.SplitAfterThisSectionQR(n1, n2, :stzList)
+				return This.SplitAfterThisSectionQRT(n1, n2, :stzList)
 
-			def SplitAfterThisSectionQR(n1, n2, pcReturnType)
-				return This.SplitAfterSectionQR(n1, n2, pcReturnType)
+			def SplitAfterThisSectionQRT(n1, n2, pcReturnType)
+				return This.SplitAfterSectionQRT(n1, n2, pcReturnType)
 
 		#--
 
@@ -59943,8 +59943,8 @@ class stzString from stzObject
 			def SplitsAfterSectionQ(n1, n2)
 				return This.SplitAfterSectionQ(n1, n2)
 
-			def SplitsAfteterSectionQR(n1, n2)
-				return This.SplitAfterSectionQR(n1, n2)
+			def SplitsAfteterSectionQRT(n1, n2)
+				return This.SplitAfterSectionQRT(n1, n2)
 
 		#>
 
@@ -59972,9 +59972,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterSectionIBQ(n1, n2)
-			return This.SplitAfterSectionIBQR(n1, n2, :stzList)
+			return This.SplitAfterSectionIBQRT(n1, n2, :stzList)
 
-		def SplitAfterSectionIBQR(n1, n2, pcReturnType)
+		def SplitAfterSectionIBQRT(n1, n2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterSectionIB(n1, n2) )
@@ -59997,10 +59997,10 @@ class stzString from stzObject
 			return This.SplitAfterSectionIB(n1, n2)
 
 			def SplitAfterThisSectionIBQ(n1, n2)
-				return This.SplitAfterThisSectionIBQR(n1, n2, :stzList)
+				return This.SplitAfterThisSectionIBQRT(n1, n2, :stzList)
 
-			def SplitAfterThisSectionIBQR(n1, n2, pcReturnType)
-				return This.SplitAfterSectionIBQR(n1, n2, pcReturnType)
+			def SplitAfterThisSectionIBQRT(n1, n2, pcReturnType)
+				return This.SplitAfterSectionIBQRT(n1, n2, pcReturnType)
 
 		#>
 
@@ -60027,9 +60027,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterSectionsQ(paSections)
-			return This.SplitAfterSectionsQR(paSections, :stzList)
+			return This.SplitAfterSectionsQRT(paSections, :stzList)
 
-		def SplitAfterSectionsQR(paSections, pcReturnType)
+		def SplitAfterSectionsQRT(paSections, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterSections(paSections) )
@@ -60052,10 +60052,10 @@ class stzString from stzObject
 			return This.SplitAfteSections(paSections)
 
 			def SplitAfterTheseSectionsQ(paSections)
-				return This.SplitAfterTheseSectionsQR(paSections, :stzList)
+				return This.SplitAfterTheseSectionsQRT(paSections, :stzList)
 
-			def SplitAfterTheseSectionsQR(paSections, pcReturnType)
-				return This.SplitAfterSectionsQR(paSections, pcReturnType)
+			def SplitAfterTheseSectionsQRT(paSections, pcReturnType)
+				return This.SplitAfterSectionsQRT(paSections, pcReturnType)
 
 		#>
 
@@ -60082,9 +60082,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterSectionsIBQ(paSections)
-			return This.SplitAfterSectionsIBQR(paSections, :stzList)
+			return This.SplitAfterSectionsIBQRT(paSections, :stzList)
 
-		def SplitAfterSectionsIBQR(paSections, pcReturnType)
+		def SplitAfterSectionsIBQRT(paSections, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterSectionsIB(paSections) )
@@ -60107,10 +60107,10 @@ class stzString from stzObject
 			return This.SplitAfteSectionsIB(paSections)
 
 			def SplitAfterTheseSectionsIBQ(paSections)
-				return This.SplitAfterTheseSectionsIBQR(paSections, :stzList)
+				return This.SplitAfterTheseSectionsIBQRT(paSections, :stzList)
 
-			def SplitAfterTheseSectionsIBQR(paSections, pcReturnType)
-				return This.SplitAfterSectionsIBQR(paSections, pcReturnType)
+			def SplitAfterTheseSectionsIBQRT(paSections, pcReturnType)
+				return This.SplitAfterSectionsIBQRT(paSections, pcReturnType)
 
 		#>
 
@@ -60150,9 +60150,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBetweenCSQ(Bound1, pBound2, pCaseSensitive)
-			return This.SplitBetweenCSQR(Bound1, pBound2, pCaseSensitive, :stzList)
+			return This.SplitBetweenCSQRT(Bound1, pBound2, pCaseSensitive, :stzList)
 
-		def SplitBetweenCSQR(Bound1, pBound2, pCaseSensitive, pcReturnType)
+		def SplitBetweenCSQRT(Bound1, pBound2, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBetweenCS(pBound1, pBound2, pCaseSensitive) )
@@ -60180,9 +60180,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBetweenQ(Bound1, pBound2, pCaseSensitive)
-			return This.SplitBetweenQR(Bound1, pBound2, :stzList)
+			return This.SplitBetweenQRT(Bound1, pBound2, :stzList)
 
-		def SplitBetweenQR(Bound1, pBound2, pcReturnType)
+		def SplitBetweenQRT(Bound1, pBound2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBetween(pBound1, pBound2) )
@@ -60238,9 +60238,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBetweenCSIBQ(Bound1, pBound2, pCaseSensitive)
-			return This.SplitBetweenCSIBQR(Bound1, pBound2, pCaseSensitive, :stzList)
+			return This.SplitBetweenCSIBQRT(Bound1, pBound2, pCaseSensitive, :stzList)
 
-		def SplitBetweenCSIBQR(Bound1, pBound2, pCaseSensitive, pcReturnType)
+		def SplitBetweenCSIBQRT(Bound1, pBound2, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBetweenCSIB(pBound1, pBound2, pCaseSensitive) )
@@ -60268,9 +60268,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBetweenIBQ(Bound1, pBound2, pCaseSensitive)
-			return This.SplitBetweenIBQR(Bound1, pBound2, :stzList)
+			return This.SplitBetweenIBQRT(Bound1, pBound2, :stzList)
 
-		def SplitBetweenIBQR(Bound1, pBound2, pcReturnType)
+		def SplitBetweenIBQRT(Bound1, pBound2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBetweenIB(pBound1, pBound2) )
@@ -60300,9 +60300,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBetweenPositionsQ(n1, n2)
-			return This.SplitBetweenPositionsQR(n1, n2, :stzList)
+			return This.SplitBetweenPositionsQRT(n1, n2, :stzList)
 
-		def SplitBetweenPositionsQR(n1, n2, pcReturnType)
+		def SplitBetweenPositionsQRT(n1, n2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBetweenPositions(n1, n2) )
@@ -60325,10 +60325,10 @@ class stzString from stzObject
 			return This.SplitBetweenPositions(n1, n2)
 
 			def SplitBetweenThesePositionsQ(n1, n2)
-				return This.SplitBetweenThesePositionsQR(n1, n2, :stzList)
+				return This.SplitBetweenThesePositionsQRT(n1, n2, :stzList)
 
-			def SplitBetweenThesePositionsQR(n1, n2, pcReturnType)
-				return This.SplitBetweenPositionsQR(n1, n2, pcReturnType)
+			def SplitBetweenThesePositionsQRT(n1, n2, pcReturnType)
+				return This.SplitBetweenPositionsQRT(n1, n2, pcReturnType)
 
 		#>
 
@@ -60348,9 +60348,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBetweenPositionsIBQ(n1, n2)
-			return This.SplitBetweenPositionsIBQR(n1, n2, :stzList)
+			return This.SplitBetweenPositionsIBQRT(n1, n2, :stzList)
 
-		def SplitBetweenPositionsIBQR(n1, n2, pcReturnType)
+		def SplitBetweenPositionsIBQRT(n1, n2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBetweenPositionsIB(n1, n2) )
@@ -60373,10 +60373,10 @@ class stzString from stzObject
 			return This.SplitBetweenPositionsIB(n1, n2)
 
 			def SplitBetweenThesePositionsIBQ(n1, n2)
-				return This.SplitBetweenThesePositionsIBQR(n1, n2, :stzList)
+				return This.SplitBetweenThesePositionsIBQRT(n1, n2, :stzList)
 
-			def SplitBetweenThesePositionsIBQR(n1, n2, pcReturnType)
-				return This.SplitBetweenPositionsIBQR(n1, n2, pcReturnType)
+			def SplitBetweenThesePositionsIBQRT(n1, n2, pcReturnType)
+				return This.SplitBetweenPositionsIBQRT(n1, n2, pcReturnType)
 
 		#>
 
@@ -60398,9 +60398,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBetweenSubStringsCSQ(pacSubStr, pCaseSensitive)
-			return This.SplitBetweenSubStringsCSQR(pacSubStr, pCaseSensitive, :stzList)
+			return This.SplitBetweenSubStringsCSQRT(pacSubStr, pCaseSensitive, :stzList)
 
-		def SplitBetweenSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+		def SplitBetweenSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBetweenSubStringsCS(pacSubStr, pCaseSensitive) )
@@ -60423,10 +60423,10 @@ class stzString from stzObject
 			return This.SplitBetweenSubStringsCS(pacSubStr, pCaseSensitive)
 
 			def SplitBetweenTheseSubStringsCSQ(pacSubStr, pCaseSensitive)
-				return This.SplitBetweenTheseSubStringsCSQR(pacSubStr, pCaseSensitive, :stzList)
+				return This.SplitBetweenTheseSubStringsCSQRT(pacSubStr, pCaseSensitive, :stzList)
 
-			def SplitBetweenTheseSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturntype)
-				return This.SplitBetweenSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+			def SplitBetweenTheseSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturntype)
+				return This.SplitBetweenSubStringsCSQRT(pacSubStr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -60445,9 +60445,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBetweenSubStringsQ(pacSubStr)
-			return This.SplitBetweenSubStringsQR(pacSubStr, :stzList)
+			return This.SplitBetweenSubStringsQRT(pacSubStr, :stzList)
 
-		def SplitBetweenSubStringsQR(pacSubStr, pcReturnType)
+		def SplitBetweenSubStringsQRT(pacSubStr, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBetweenSubStrings(pacSubStr) )
@@ -60470,10 +60470,10 @@ class stzString from stzObject
 			return This.SplitBetweenSubStrings(pacSubStr)
 
 			def SplitBetweenTheseSubStringsQ(pacSubStr)
-				return This.SplitBetweenTheseSubStringsQR(pacSubStr, :stzList)
+				return This.SplitBetweenTheseSubStringsQRT(pacSubStr, :stzList)
 
-			def SplitBetweenTheseSubStringsQR(pacSubStr, pcReturntype)
-				return This.SplitBetweenSubStringsQR(pacSubStr, pcReturnType)
+			def SplitBetweenTheseSubStringsQRT(pacSubStr, pcReturntype)
+				return This.SplitBetweenSubStringsQRT(pacSubStr, pcReturnType)
 
 		#>
 
@@ -60499,9 +60499,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitToNPartsQ(n)
-			return This.SplitToNPartsQR(n, :stzList)
+			return This.SplitToNPartsQRT(n, :stzList)
 
-		def SplitToNPartsQR(n, pcReturnType)
+		def SplitToNPartsQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitToNParts(n) )
@@ -60526,8 +60526,8 @@ class stzString from stzObject
 			def SplitToNSectionsQ(n, pcReturnType)
 				return This.SplitToNPartsQ(n)
 
-			def SplitToNSectionsQR(n, pcReturnType)
-				return This.SplitToNPartsQR(n, pcReturnType)
+			def SplitToNSectionsQRT(n, pcReturnType)
+				return This.SplitToNPartsQRT(n, pcReturnType)
 	
 		#>
 
@@ -60552,9 +60552,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitToPartsOfNCharsQ(n)
-			return This.SplitToPartsOfNCharsQR(n, :stzList)
+			return This.SplitToPartsOfNCharsQRT(n, :stzList)
 
-		def SplitToPartsOfNCharsQR(n, pcReturnType)
+		def SplitToPartsOfNCharsQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitToPartsOfNChars(n) )
@@ -60579,8 +60579,8 @@ class stzString from stzObject
 			def SplitToPartsOfExactlyNCharsQ(n)
 				return This.SplitToPartsOfNCharsQ(n)
 
-			def SplitToPartsOfExactlyNCharsQR(n, pcReturnType)
-				return This.SplitToPartsOfNCharsQR(n, pcReturnType)
+			def SplitToPartsOfExactlyNCharsQRT(n, pcReturnType)
+				return This.SplitToPartsOfNCharsQRT(n, pcReturnType)
 
 		#--
 
@@ -60590,8 +60590,8 @@ class stzString from stzObject
 			def SplitToSectionsOfNCharsQ(n)
 				return This.SplitToPartsOfNCharsQ(n)
 
-			def SplitToSectionsOfNCharsQR(n, pcReturnType)
-				return This.SplitToPartsOfNCharsQR(n, pcReturnType)
+			def SplitToSectionsOfNCharsQRT(n, pcReturnType)
+				return This.SplitToPartsOfNCharsQRT(n, pcReturnType)
 
 		def SplitToSectionsOfExactlyNChars(n)
 			return This.SplitToPartsOfNChars(n)
@@ -60599,8 +60599,8 @@ class stzString from stzObject
 			def SplitToSectionsOfExactlyNCharsQ(n)
 				return This.SplitToPartsOfNCharsQ(n)
 
-			def SplitToSectionsOfvNCharsQR(n, pcReturnType)
-				return This.SplitToPartsOfNCharsQR(n, pcReturnType)
+			def SplitToSectionsOfvNCharsQRT(n, pcReturnType)
+				return This.SplitToPartsOfNCharsQRT(n, pcReturnType)
 
 		#>
 
@@ -60632,9 +60632,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitToPartsOfNCharsXTQ(n)
-			return This.SplitToPartsOfNCharsXTQR(n, :stzList)
+			return This.SplitToPartsOfNCharsXTQRT(n, :stzList)
 
-		def SplitToPartsOfNCharsXTQR(n, pcReturnType)
+		def SplitToPartsOfNCharsXTQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitToPartsOfNCharsXT(n) )
@@ -60659,8 +60659,8 @@ class stzString from stzObject
 			def SplitToSectionsOfNCharsXTQ(n)
 				return This.SplitToPartsOfNCharsQ(n)
 
-			def SplitToSectionsOfNCharsXTQR(n, pcReturnType)
-				return This.SplitToPartsOfNCharsQR(n, pcReturnType)
+			def SplitToSectionsOfNCharsXTQRT(n, pcReturnType)
+				return This.SplitToPartsOfNCharsQRT(n, pcReturnType)
 
 		#>
 
@@ -60999,9 +60999,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtPositionsWCSQ(pcCondition, pCaseSensitive)
-			return This.SplitAtPositionsWCSQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAtPositionsWCSQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAtPositionsWCSQR(pcCondition, pCaseSensitive pcReturnType)
+		def SplitAtPositionsWCSQRT(pcCondition, pCaseSensitive pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtPositionsWCS(pcCondition, pCaseSensitive) )
@@ -61023,8 +61023,8 @@ class stzString from stzObject
 			def SplitAtPositionWCSQ(pcCondition, pCaseSensitive)
 				return This.SplitAtPositionsWCSQ(pcCondition, pCaseSensitive)
 
-			def SplitAtPositionWCSQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitAtPositionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitAtPositionWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAtPositionsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -61042,10 +61042,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtPositionsWQ(pcCondition)
-			return This.SplitAtPositionsWQR(pcCondition, :stzList)
+			return This.SplitAtPositionsWQRT(pcCondition, :stzList)
 
-		def SplitAtPositionsWQR(pcCondition, pcReturnType)
-			return This.SplitAtPositionsWCSQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitAtPositionsWQRT(pcCondition, pcReturnType)
+			return This.SplitAtPositionsWCSQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -61057,8 +61057,8 @@ class stzString from stzObject
 			def SplitAtPositionWQ(pcCondition)
 				return This.SplitAtPositionsWQ(pcCondition)
 
-			def SplitAtPositionWQR(pcCondition, pcReturnType)
-				return This.SplitAtPositionsWQR(pcCondition, pcReturnType)
+			def SplitAtPositionWQRT(pcCondition, pcReturnType)
+				return This.SplitAtPositionsWQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -61082,9 +61082,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtPositionsWCSXTQ(pcCondition, pCaseSensitive)
-			return This.SplitAtPositionsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAtPositionsWCSXTQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAtPositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitAtPositionsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtPositionsWCSXT(pcCondition, pCaseSensitive) )
@@ -61106,8 +61106,8 @@ class stzString from stzObject
 			def SplitAtPositionWCSXTQ(pcCondition, pCaseSensitive)
 				return This.SplitAtPositionsWCSXTQ(pcCondition, pCaseSensitive)
 
-			def SplitAtPositionWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitAtPositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitAtPositionWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAtPositionsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -61125,10 +61125,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtPositionsWXTQ(pcCondition)
-			return This.SplitAtPositionsWXTQR(pcCondition, :stzList)
+			return This.SplitAtPositionsWXTQRT(pcCondition, :stzList)
 
-		def SplitAtPositionsWXTQR(pcCondition, pcReturnType)
-			return This.SplitAtPositionsWCSXTQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitAtPositionsWXTQRT(pcCondition, pcReturnType)
+			return This.SplitAtPositionsWCSXTQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -61140,8 +61140,8 @@ class stzString from stzObject
 			def SplitAtPositionWXTQ(pcCondition)
 				return This.SplitAtPositionsWXTQ(pcCondition)
 
-			def SplitAtPositionWXTQR(pcCondition, pcReturnType)
-				return This.SplitAtPositionsWXTQR(pcCondition, pcReturnType)
+			def SplitAtPositionWXTQRT(pcCondition, pcReturnType)
+				return This.SplitAtPositionsWXTQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -61165,9 +61165,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforePositionsWCSQ(pcCondition, pCaseSensitive)
-			return This.SplitBeforePositionsWCSQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitBeforePositionsWCSQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitBeforePositionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitBeforePositionsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforePositionsWCS(pcCondition, pCaseSensitive) )
@@ -61190,8 +61190,8 @@ class stzString from stzObject
 			def SplitBeforePositionWCSQ(pcCondition, pCaseSensitive)
 				return This.SplitBeforePositionsWCSQ(pcCondition, pCaseSensitive)
 
-			def SplitBeforePositionWCSQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitBeforePositionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitBeforePositionWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitBeforePositionsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -61209,10 +61209,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforePositionsWQ(pcCondition)
-			return This.SplitBeforePositionsWQR(pcCondition, :stzList)
+			return This.SplitBeforePositionsWQRT(pcCondition, :stzList)
 
-		def SplitBeforePositionsWQR(pcCondition, pcReturnType)
-			return This.SplitBeforePositionsWCSQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitBeforePositionsWQRT(pcCondition, pcReturnType)
+			return This.SplitBeforePositionsWCSQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -61224,8 +61224,8 @@ class stzString from stzObject
 			def SplitBeforePositionWQ(pcCondition)
 				return This.SplitBeforePositionsWQ(pcCondition)
 
-			def SplitBeforePositionWQR(pcCondition, pcReturnType)
-				return This.SplitBeforePositionsWQR(pcCondition, pcReturnType)
+			def SplitBeforePositionWQRT(pcCondition, pcReturnType)
+				return This.SplitBeforePositionsWQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -61248,9 +61248,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforePositionsWCSXTQ(pcCondition, pCaseSensitive)
-			return This.SplitBeforePositionsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitBeforePositionsWCSXTQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitBeforePositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitBeforePositionsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforePositionsWCSXT(pcCondition, pCaseSensitive) )
@@ -61272,8 +61272,8 @@ class stzString from stzObject
 			def SplitBeforePositionWCSXTQ(pcCondition, pCaseSensitive)
 				return This.SplitBeforePositionsWCSXTQ(pcCondition, pCaseSensitive)
 
-			def SplitBeforePositionWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitBeforePositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitBeforePositionWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitBeforePositionsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -61291,10 +61291,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforePositionsWXTQ(pcCondition)
-			return This.SplitBeforePositionsWXTQR(pcCondition, :stzList)
+			return This.SplitBeforePositionsWXTQRT(pcCondition, :stzList)
 
-		def SplitBeforePositionsWXTQR(pcCondition, pcReturnType)
-			return This.SplitBeforePositionsWCSXTQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitBeforePositionsWXTQRT(pcCondition, pcReturnType)
+			return This.SplitBeforePositionsWCSXTQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -61306,8 +61306,8 @@ class stzString from stzObject
 			def SplitBeforePositionWXTQ(pcCondition)
 				return This.SplitBeforePositionsWXTQ(pcCondition)
 
-			def SplitBeforePositionWXTQR(pcCondition, pcReturnType)
-				return This.SplitBeforePositionsWXTQR(pcCondition, pcReturnType)
+			def SplitBeforePositionWXTQRT(pcCondition, pcReturnType)
+				return This.SplitBeforePositionsWXTQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -61331,9 +61331,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterPositionsWCSQ(pcCondition, pCaseSensitive)
-			return This.SplitAfterPositionsWCSQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAfterPositionsWCSQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAfterPositionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitAfterPositionsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterPositionsWCS(pcCondition, pCaseSensitive) )
@@ -61356,8 +61356,8 @@ class stzString from stzObject
 			def SplitAfterPositionWCSQ(pcCondition, pCaseSensitive)
 				return This.SplitAfterPositionsWCSQ(pcCondition, pCaseSensitive)
 
-			def SplitAfterPositionWCSQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitAfterPositionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitAfterPositionWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAfterPositionsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -61375,10 +61375,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterPositionsWQ(pcCondition)
-			return This.SplitAfterPositionsWQR(pcCondition, :stzList)
+			return This.SplitAfterPositionsWQRT(pcCondition, :stzList)
 
-		def SplitAfterPositionsWQR(pcCondition, pcReturnType)
-			return This.SplitAfterPositionsWCSQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitAfterPositionsWQRT(pcCondition, pcReturnType)
+			return This.SplitAfterPositionsWCSQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -61390,8 +61390,8 @@ class stzString from stzObject
 			def SplitAfterPositionWQ(pcCondition)
 				return This.SplitAfterPositionsWQ(pcCondition)
 
-			def SplitAfterPositionWQR(pcCondition, pcReturnType)
-				return This.SplitAfterPositionsWQR(pcCondition, pcReturnType)
+			def SplitAfterPositionWQRT(pcCondition, pcReturnType)
+				return This.SplitAfterPositionsWQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -61415,9 +61415,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterPositionsWCSXTQ(pcCondition, pCaseSensitive)
-			return This.SplitAfterPositionsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAfterPositionsWCSXTQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAfterPositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitAfterPositionsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterPositionsWCSXT(pcCondition, pCaseSensitive) )
@@ -61439,8 +61439,8 @@ class stzString from stzObject
 			def SplitAfterPositionWCSXTQ(pcCondition, pCaseSensitive)
 				return This.SplitAfterPositionsWCSXTQ(pcCondition, pCaseSensitive)
 
-			def SplitAfterPositionWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitAfterPositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitAfterPositionWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAfterPositionsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -61458,10 +61458,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterPositionsWXTQ(pcCondition)
-			return This.SplitAfterPositionsWXTQR(pcCondition, :stzList)
+			return This.SplitAfterPositionsWXTQRT(pcCondition, :stzList)
 
-		def SplitAfterPositionsWXTQR(pcCondition, pcReturnType)
-			return This.SplitAfterPositionsWCSXTQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitAfterPositionsWXTQRT(pcCondition, pcReturnType)
+			return This.SplitAfterPositionsWCSXTQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -61473,8 +61473,8 @@ class stzString from stzObject
 			def SplitAfterPositionWXTQ(pcCondition)
 				return This.SplitAfterPositionsWXTQ(pcCondition)
 
-			def SplitAfterPositionWXTQR(pcCondition, pcReturnType)
-				return This.SplitAfterPositionsWXTQR(pcCondition, pcReturnType)
+			def SplitAfterPositionWXTQRT(pcCondition, pcReturnType)
+				return This.SplitAfterPositionsWXTQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -61498,9 +61498,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAroundPositionsWCSQ(pcCondition, pCaseSensitive)
-			return This.SplitAroundPositionsWCSQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAroundPositionsWCSQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAroundPositionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitAroundPositionsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundPositionsWCS(pcCondition, pCaseSensitive) )
@@ -61523,8 +61523,8 @@ class stzString from stzObject
 			def SplitAroundPositionWCSQ(pcCondition, pCaseSensitive)
 				return This.SplitAroundPositionsWCSQ(pcCondition, pCaseSensitive)
 
-			def SplitAroundPositionWCSQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitAroundPositionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitAroundPositionWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAroundPositionsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -61542,10 +61542,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAroundPositionsWQ(pcCondition)
-			return This.SplitAroundPositionsWQR(pcCondition, :stzList)
+			return This.SplitAroundPositionsWQRT(pcCondition, :stzList)
 
-		def SplitAroundPositionsWQR(pcCondition, pcReturnType)
-			return This.SplitAroundPositionsWCSQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitAroundPositionsWQRT(pcCondition, pcReturnType)
+			return This.SplitAroundPositionsWCSQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -61557,8 +61557,8 @@ class stzString from stzObject
 			def SplitAroundPositionWQ(pcCondition)
 				return This.SplitAroundPositionsWQ(pcCondition)
 
-			def SplitAroundPositionWQR(pcCondition, pcReturnType)
-				return This.SplitAroundPositionsWQR(pcCondition, pcReturnType)
+			def SplitAroundPositionWQRT(pcCondition, pcReturnType)
+				return This.SplitAroundPositionsWQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -61582,9 +61582,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAroundPositionsWCSXTQ(pcCondition, pCaseSensitive)
-			return This.SplitAroundPositionsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAroundPositionsWCSXTQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAroundPositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitAroundPositionsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundPositionsWCSXT(pcCondition, pCaseSensitive) )
@@ -61606,8 +61606,8 @@ class stzString from stzObject
 			def SplitAroundPositionWCSXTQ(pcCondition, pCaseSensitive)
 				return This.SplitAroundPositionsWCSXTQ(pcCondition, pCaseSensitive)
 
-			def SplitAroundPositionWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitAroundPositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitAroundPositionWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAroundPositionsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -61625,10 +61625,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAroundPositionsWXTQ(pcCondition)
-			return This.SplitAroundPositionsWXTQR(pcCondition, :stzList)
+			return This.SplitAroundPositionsWXTQRT(pcCondition, :stzList)
 
-		def SplitAroundPositionsWXTQR(pcCondition, pcReturnType)
-			return This.SplitAroundPositionsWCSXTQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitAroundPositionsWXTQRT(pcCondition, pcReturnType)
+			return This.SplitAroundPositionsWCSXTQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -61640,8 +61640,8 @@ class stzString from stzObject
 			def SplitAroundPositionWXTQ(pcCondition)
 				return This.SplitAroundPositionsWXTQ(pcCondition)
 
-			def SplitAroundPositionWXTQR(pcCondition, pcReturnType)
-				return This.SplitAroundPositionsWXTQR(pcCondition, pcReturnType)
+			def SplitAroundPositionWXTQRT(pcCondition, pcReturnType)
+				return This.SplitAroundPositionsWXTQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -61671,9 +61671,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtSubStringsWCSQ(pcCondition, pCaseSensitive)
-			return This.SplitAtSubStringsWCSQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAtSubStringsWCSQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAtSubStringsWCSQR(pcCondition, pCaseSensitive pcReturnType)
+		def SplitAtSubStringsWCSQRT(pcCondition, pCaseSensitive pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtSubStringsWCS(pcCondition, pCaseSensitive) )
@@ -61695,8 +61695,8 @@ class stzString from stzObject
 			def SplitAtSubStringWCSQ(pcCondition, pCaseSensitive)
 				return This.SplitAtSubStringsWCSQ(pcCondition, pCaseSensitive)
 
-			def SplitAtSubStringWCSQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitAtSubStringWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -61714,10 +61714,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtSubStringsWQ(pcCondition)
-			return This.SplitAtSubStringsWQR(pcCondition, :stzList)
+			return This.SplitAtSubStringsWQRT(pcCondition, :stzList)
 
-		def SplitAtSubStringsWQR(pcCondition, pcReturnType)
-			return This.SplitAtSubStringsWCSQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitAtSubStringsWQRT(pcCondition, pcReturnType)
+			return This.SplitAtSubStringsWCSQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -61729,8 +61729,8 @@ class stzString from stzObject
 			def SplitAtSubStringWQ(pcCondition)
 				return This.SplitAtSubStringsWQ(pcCondition)
 
-			def SplitAtSubStringWQR(pcCondition, pcReturnType)
-				return This.SplitAtSubStringsWQR(pcCondition, pcReturnType)
+			def SplitAtSubStringWQRT(pcCondition, pcReturnType)
+				return This.SplitAtSubStringsWQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -61753,9 +61753,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtSubStringsWCSXTQ(pcCondition, pCaseSensitive)
-			return This.SplitAtSubStringsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAtSubStringsWCSXTQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAtSubStringsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitAtSubStringsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtSubStringsWCSXT(pcCondition, pCaseSensitive) )
@@ -61777,8 +61777,8 @@ class stzString from stzObject
 			def SplitAtSubStringWCSXTQ(pcCondition, pCaseSensitive)
 				return This.SplitAtSubStringsWCSXTQ(pcCondition, pCaseSensitive)
 
-			def SplitAtSubStringWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitAtSubStringWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -61796,10 +61796,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtSubStringsWXTQ(pcCondition)
-			return This.SplitAtSubStringsWXTQR(pcCondition, :stzList)
+			return This.SplitAtSubStringsWXTQRT(pcCondition, :stzList)
 
-		def SplitAtSubStringsWXTQR(pcCondition, pcReturnType)
-			return This.SplitAtSubStringsWCSXTQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitAtSubStringsWXTQRT(pcCondition, pcReturnType)
+			return This.SplitAtSubStringsWCSXTQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -61811,8 +61811,8 @@ class stzString from stzObject
 			def SplitAtSubStringWXTQ(pcCondition)
 				return This.SplitAtSubStringsWXTQ(pcCondition)
 
-			def SplitAtSubStringWXTQR(pcCondition, pcReturnType)
-				return This.SplitAtSubStringsWXTQR(pcCondition, pcReturnType)
+			def SplitAtSubStringWXTQRT(pcCondition, pcReturnType)
+				return This.SplitAtSubStringsWXTQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -61842,9 +61842,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeSubStringsWCSQ(pcCondition, pCaseSensitive)
-			return This.SplitBeforeSubStringsWCSQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitBeforeSubStringsWCSQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitBeforeSubStringsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitBeforeSubStringsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforeSubStringsWCS(pcCondition, pCaseSensitive) )
@@ -61867,8 +61867,8 @@ class stzString from stzObject
 			def SplitBeforeSubStringWCSQ(pcCondition, pCaseSensitive)
 				return This.SplitBeforeSubStringsWCSQ(pcCondition, pCaseSensitive)
 
-			def SplitBeforeSubStringWCSQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitBeforeSubStringsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitBeforeSubStringWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitBeforeSubStringsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -61886,10 +61886,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeSubStringsWQ(pcCondition)
-			return This.SplitBeforeSubStringsWQR(pcCondition, :stzList)
+			return This.SplitBeforeSubStringsWQRT(pcCondition, :stzList)
 
-		def SplitBeforeSubStringsWQR(pcCondition, pcReturnType)
-			return This.SplitBeforeSubStringsWCSQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitBeforeSubStringsWQRT(pcCondition, pcReturnType)
+			return This.SplitBeforeSubStringsWCSQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -61901,8 +61901,8 @@ class stzString from stzObject
 			def SplitBeforeSubStringWQ(pcCondition)
 				return This.SplitBeforeSubStringsWQ(pcCondition)
 
-			def SplitBeforeSubStringWQR(pcCondition, pcReturnType)
-				return This.SplitBeforeSubStringsWQR(pcCondition, pcReturnType)
+			def SplitBeforeSubStringWQRT(pcCondition, pcReturnType)
+				return This.SplitBeforeSubStringsWQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -61932,9 +61932,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeSubStringsWCSXTQ(pcCondition, pCaseSensitive)
-			return This.SplitBeforeSubStringsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitBeforeSubStringsWCSXTQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitBeforeSubStringsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitBeforeSubStringsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforeSubStringsWCSXT(pcCondition, pCaseSensitive) )
@@ -61956,8 +61956,8 @@ class stzString from stzObject
 			def SplitBeforeSubStringWCSXTQ(pcCondition, pCaseSensitive)
 				return This.SplitBeforeSubStringsWCSXTQ(pcCondition, pCaseSensitive)
 
-			def SplitBeforeSubStringWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitBeforeSubStringsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitBeforeSubStringWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitBeforeSubStringsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -61975,10 +61975,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeSubStringsWXTQ(pcCondition)
-			return This.SplitBeforeSubStringsWXTQR(pcCondition, :stzList)
+			return This.SplitBeforeSubStringsWXTQRT(pcCondition, :stzList)
 
-		def SplitBeforeSubStringsWXTQR(pcCondition, pcReturnType)
-			return This.SplitBeforeSubStringsWCSXTQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitBeforeSubStringsWXTQRT(pcCondition, pcReturnType)
+			return This.SplitBeforeSubStringsWCSXTQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -61990,8 +61990,8 @@ class stzString from stzObject
 			def SplitBeforeSubStringWXTQ(pcCondition)
 				return This.SplitBeforeSubStringsWXTQ(pcCondition)
 
-			def SplitBeforeSubStringWXTQR(pcCondition, pcReturnType)
-				return This.SplitBeforeSubStringsWXTQR(pcCondition, pcReturnType)
+			def SplitBeforeSubStringWXTQRT(pcCondition, pcReturnType)
+				return This.SplitBeforeSubStringsWXTQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -62015,9 +62015,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterSubStringsWCSQ(pcCondition, pCaseSensitive)
-			return This.SplitAfterSubStringsWCSQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAfterSubStringsWCSQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAfterSubStringsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitAfterSubStringsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterSubStringsWCS(pcCondition, pCaseSensitive) )
@@ -62040,8 +62040,8 @@ class stzString from stzObject
 			def SplitAfterSubStringWCSQ(pcCondition, pCaseSensitive)
 				return This.SplitAfterSubStringsWCSQ(pcCondition, pCaseSensitive)
 
-			def SplitAfterSubStringWCSQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitAfterSubStringsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitAfterSubStringWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAfterSubStringsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -62059,10 +62059,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterSubStringsWQ(pcCondition)
-			return This.SplitAfterSubStringsWQR(pcCondition, :stzList)
+			return This.SplitAfterSubStringsWQRT(pcCondition, :stzList)
 
-		def SplitAfterSubStringsWQR(pcCondition, pcReturnType)
-			return This.SplitAfterSubStringsWCSQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitAfterSubStringsWQRT(pcCondition, pcReturnType)
+			return This.SplitAfterSubStringsWCSQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -62074,8 +62074,8 @@ class stzString from stzObject
 			def SplitAfterSubStringWQ(pcCondition)
 				return This.SplitAfterSubStringsWQ(pcCondition)
 
-			def SplitAfterSubStringWQR(pcCondition, pcReturnType)
-				return This.SplitAfterSubStringsWQR(pcCondition, pcReturnType)
+			def SplitAfterSubStringWQRT(pcCondition, pcReturnType)
+				return This.SplitAfterSubStringsWQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -62105,9 +62105,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterSubStringsWCSXTQ(pcCondition, pCaseSensitive)
-			return This.SplitAfterSubStringsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAfterSubStringsWCSXTQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAfterSubStringsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitAfterSubStringsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterSubStringsWCSXT(pcCondition, pCaseSensitive) )
@@ -62129,8 +62129,8 @@ class stzString from stzObject
 			def SplitAfterSubStringWCSXTQ(pcCondition, pCaseSensitive)
 				return This.SplitAfterSubStringsWCSXTQ(pcCondition, pCaseSensitive)
 
-			def SplitAfterSubStringWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitAfterSubStringsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitAfterSubStringWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAfterSubStringsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -62148,10 +62148,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterSubStringsWXTQ(pcCondition)
-			return This.SplitAfterSubStringsWXTQR(pcCondition, :stzList)
+			return This.SplitAfterSubStringsWXTQRT(pcCondition, :stzList)
 
-		def SplitAfterSubStringsWXTQR(pcCondition, pcReturnType)
-			return This.SplitAfterSubStringsWCSXTQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitAfterSubStringsWXTQRT(pcCondition, pcReturnType)
+			return This.SplitAfterSubStringsWCSXTQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -62163,8 +62163,8 @@ class stzString from stzObject
 			def SplitAfterSubStringWXTQ(pcCondition)
 				return This.SplitAfterSubStringsWXTQ(pcCondition)
 
-			def SplitAfterSubStringWXTQR(pcCondition, pcReturnType)
-				return This.SplitAfterSubStringsWXTQR(pcCondition, pcReturnType)
+			def SplitAfterSubStringWXTQRT(pcCondition, pcReturnType)
+				return This.SplitAfterSubStringsWXTQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -62188,9 +62188,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAroundSubStringsWCSQ(pcCondition, pCaseSensitive)
-			return This.SplitAroundSubStringsWCSQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAroundSubStringsWCSQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAroundSubStringsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitAroundSubStringsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundSubStringsWCS(pcCondition, pCaseSensitive) )
@@ -62213,8 +62213,8 @@ class stzString from stzObject
 			def SplitAroundSubStringWCSQ(pcCondition, pCaseSensitive)
 				return This.SplitAroundSubStringsWCSQ(pcCondition, pCaseSensitive)
 
-			def SplitAroundSubStringWCSQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitAroundSubStringsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitAroundSubStringWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAroundSubStringsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -62232,10 +62232,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAroundSubStringsWQ(pcCondition)
-			return This.SplitAroundSubStringsWQR(pcCondition, :stzList)
+			return This.SplitAroundSubStringsWQRT(pcCondition, :stzList)
 
-		def SplitAroundSubStringsWQR(pcCondition, pcReturnType)
-			return This.SplitAroundSubStringsWCSQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitAroundSubStringsWQRT(pcCondition, pcReturnType)
+			return This.SplitAroundSubStringsWCSQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -62247,8 +62247,8 @@ class stzString from stzObject
 			def SplitAroundSubStringWQ(pcCondition)
 				return This.SplitAroundSubStringsWQ(pcCondition)
 
-			def SplitAroundSubStringWQR(pcCondition, pcReturnType)
-				return This.SplitAroundSubStringsWQR(pcCondition, pcReturnType)
+			def SplitAroundSubStringWQRT(pcCondition, pcReturnType)
+				return This.SplitAroundSubStringsWQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -62278,9 +62278,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAroundSubStringsWCSXTQ(pcCondition, pCaseSensitive)
-			return This.SplitAroundSubStringsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAroundSubStringsWCSXTQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAroundSubStringsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitAroundSubStringsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundSubStringsWCSXT(pcCondition, pCaseSensitive) )
@@ -62302,8 +62302,8 @@ class stzString from stzObject
 			def SplitAroundSubStringWCSXTQ(pcCondition, pCaseSensitive)
 				return This.SplitAroundSubStringsWCSXTQ(pcCondition, pCaseSensitive)
 
-			def SplitAroundSubStringWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
-				return This.SplitAroundSubStringsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			def SplitAroundSubStringWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAroundSubStringsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -62321,10 +62321,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAroundSubStringsWXTQ(pcCondition)
-			return This.SplitAroundSubStringsWXTQR(pcCondition, :stzList)
+			return This.SplitAroundSubStringsWXTQRT(pcCondition, :stzList)
 
-		def SplitAroundSubStringsWXTQR(pcCondition, pcReturnType)
-			return This.SplitAroundSubStringsWCSXTQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitAroundSubStringsWXTQRT(pcCondition, pcReturnType)
+			return This.SplitAroundSubStringsWCSXTQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -62336,8 +62336,8 @@ class stzString from stzObject
 			def SplitAroundSubStringWXTQ(pcCondition)
 				return This.SplitAroundSubStringsWXTQ(pcCondition)
 
-			def SplitAroundSubStringWXTQR(pcCondition, pcReturnType)
-				return This.SplitAroundSubStringsWXTQR(pcCondition, pcReturnType)
+			def SplitAroundSubStringWXTQRT(pcCondition, pcReturnType)
+				return This.SplitAroundSubStringsWXTQRT(pcCondition, pcReturnType)
 
 		#>
 
@@ -62401,9 +62401,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtCharsWCSQ(pcCondition, pCaseSensitive)
-			return This.SplitAtCharsWQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAtCharsWQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAtCharsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitAtCharsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtCharsWCS(pcCondition, pCaseSensitive) )
@@ -62428,10 +62428,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtCharsWQ(pcCondition)
-			return This.SplitAtCharsWQR(pcCondition, :stzList)
+			return This.SplitAtCharsWQRT(pcCondition, :stzList)
 
-		def SplitAtCharsWQR(pcCondition, pcReturnType)
-			return This.SplitAtCharsWCSQR(pcCondition, pcReturnType)
+		def SplitAtCharsWQRT(pcCondition, pcReturnType)
+			return This.SplitAtCharsWCSQRT(pcCondition, pcReturnType)
 
 
 		#>
@@ -62459,9 +62459,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtCharsWCSXTQ(pcCondition, pCaseSensitive)
-			return This.SplitAtCharsWXTQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAtCharsWXTQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAtCharsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitAtCharsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAtCharsWCSXT(pcCondition, pCaseSensitive) )
@@ -62486,10 +62486,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAtCharsWXTQ(pcCondition)
-			return This.SplitAtCharsWXTQR(pcCondition, :stzList)
+			return This.SplitAtCharsWXTQRT(pcCondition, :stzList)
 
-		def SplitAtCharsWXTQR(pcCondition, pcReturnType)
-			return This.SplitAtCharsWCSxtQR(pcCondition, pcReturnType)
+		def SplitAtCharsWXTQRT(pcCondition, pcReturnType)
+			return This.SplitAtCharsWCSxtQRT(pcCondition, pcReturnType)
 
 
 		#>
@@ -62585,9 +62585,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeCharsWCSQ(pcCondition, pCaseSensitive)
-			return This.SplitBeforeCharsWCSQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitBeforeCharsWCSQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitBeforeCharsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitBeforeCharsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforeCharsWCS(pcCondition, pCaseSensitive) )
@@ -62612,10 +62612,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeCharsWQ(pcCondition)
-			return This.SplitBeforeCharsWQR(pcCondition, :stzList)
+			return This.SplitBeforeCharsWQRT(pcCondition, :stzList)
 
-		def SplitBeforeCharsWQR(pcCondition, pcReturnType)
-			return This.SplitBeforeCharsWCSQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitBeforeCharsWQRT(pcCondition, pcReturnType)
+			return This.SplitBeforeCharsWCSQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -62636,9 +62636,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeCharsWCSXTQ(pcCondition, pCaseSensitive)
-			return This.SplitBeforeCharsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitBeforeCharsWCSXTQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitBeforeCharsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitBeforeCharsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitBeforeCharsWCSXT(pcCondition, pCaseSensitive) )
@@ -62663,10 +62663,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitBeforeCharsWXTQ(pcCondition)
-			return This.SplitBeforeCharsWXTQR(pcCondition, :stzList)
+			return This.SplitBeforeCharsWXTQRT(pcCondition, :stzList)
 
-		def SplitBeforeCharsWXTQR(pcCondition, pcReturnType)
-			return This.SplitBeforeCharsWCSXTQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitBeforeCharsWXTQRT(pcCondition, pcReturnType)
+			return This.SplitBeforeCharsWCSXTQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -62761,9 +62761,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterCharsWCSQ(pcCondition, pCaseSensitive)
-			return This.SplitAfterCharsWCSQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAfterCharsWCSQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAfterCharsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitAfterCharsWCSQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterCharsWCS(pcCondition, pCaseSensitive) )
@@ -62788,10 +62788,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterCharsWQ(pcCondition)
-			return This.SplitAfterCharsWQR(pcCondition, :stzList)
+			return This.SplitAfterCharsWQRT(pcCondition, :stzList)
 
-		def SplitAfterCharsWQR(pcCondition, pcReturnType)
-			return This.SplitAfterCharsWCSQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitAfterCharsWQRT(pcCondition, pcReturnType)
+			return This.SplitAfterCharsWCSQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -62812,9 +62812,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterCharsWCSXTQ(pcCondition, pCaseSensitive)
-			return This.SplitAfterCharsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+			return This.SplitAfterCharsWCSXTQRT(pcCondition, pCaseSensitive, :stzList)
 
-		def SplitAfterCharsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+		def SplitAfterCharsWCSXTQRT(pcCondition, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAfterCharsWCSXT(pcCondition, pCaseSensitive) )
@@ -62839,10 +62839,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def SplitAfterCharsWXTQ(pcCondition)
-			return This.SplitAfterCharsWXTQR(pcCondition, :stzList)
+			return This.SplitAfterCharsWXTQRT(pcCondition, :stzList)
 
-		def SplitAfterCharsWXTQR(pcCondition, pcReturnType)
-			return This.SplitAfterCharsWCSXTQR(pcCondition, _TRUE_, pcReturnType)
+		def SplitAfterCharsWXTQRT(pcCondition, pcReturnType)
+			return This.SplitAfterCharsWCSXTQRT(pcCondition, _TRUE_, pcReturnType)
 
 		#>
 
@@ -62928,7 +62928,7 @@ class stzString from stzObject
 		def SplitAroundCSQ(pSubStrOrPos, pCaseSensitive)
 			return new stzList( This.SplitAroundCS(pSubStrOrPos, pCaseSensitive) )
 
-		def SplitAroundCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+		def SplitAroundCSQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundCS(pSubStrOrPos, pCaseSensitive) )
@@ -62952,8 +62952,8 @@ class stzString from stzObject
 			def SplitsAroundCSQ(pSubStrOrPos, pCaseSensitive)
 				return This.SplittedAroundCSQ(pSubStrOrPos, pCaseSensitive)
 
-			def SplitsAroundCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
-				return This.SplittedAroundCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+			def SplitsAroundCSQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
+				return This.SplittedAroundCSQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
 
 
 	#-- WITHOUT CASESNESITIVITY
@@ -62964,8 +62964,8 @@ class stzString from stzObject
 		def SplitAroundQ(pSubStrOrPos)
 			return This.SplitAroundCS(pSubStrOrPos, _TRUE_)
 
-		def SplitAroundQR(pSubStrOrPos, pcReturnType)
-			return This.SplitAroundCSQR(pSubStrOrPos, _TRUE_, pcReturnType)
+		def SplitAroundQRT(pSubStrOrPos, pcReturnType)
+			return This.SplitAroundCSQRT(pSubStrOrPos, _TRUE_, pcReturnType)
 
 	def SplittedAround(pSubStrOrPos)
 		return This.SplittedAroundCS(pSubStrOrPos, _TRUE_)
@@ -63029,7 +63029,7 @@ class stzString from stzObject
 		def SplitAroundCSIBQ(pSubStrOrPos, pCaseSensitive)
 			return new stzList( This.SplitAroundCSIB(pSubStrOrPos, pCaseSensitive) )
 
-		def SplitAroundCSIBQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+		def SplitAroundCSIBQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundCSIB(pSubStrOrPos, pCaseSensitive) )
@@ -63053,8 +63053,8 @@ class stzString from stzObject
 			def SplitsAroundCSIBQ(pSubStrOrPos, pCaseSensitive)
 				return This.SplittedAroundCSIBQ(pSubStrOrPos, pCaseSensitive)
 
-			def SplitsAroundCSIBQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
-				return This.SplittedAroundCSIBQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+			def SplitsAroundCSIBQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
+				return This.SplittedAroundCSIBQRT(pSubStrOrPos, pCaseSensitive, pcReturnType)
 
 
 	#-- WITHOUT CASESNESITIVITY
@@ -63065,8 +63065,8 @@ class stzString from stzObject
 		def SplitAroundIBQ(pSubStrOrPos)
 			return This.SplitAroundCSIB(pSubStrOrPos, _TRUE_)
 
-		def SplitAroundIBQR(pSubStrOrPos, pcReturnType)
-			return This.SplitAroundCSIBQR(pSubStrOrPos, _TRUE_, pcReturnType)
+		def SplitAroundIBQRT(pSubStrOrPos, pcReturnType)
+			return This.SplitAroundCSIBQRT(pSubStrOrPos, _TRUE_, pcReturnType)
 
 	def SplittedAroundIB(pSubStrOrPos)
 		return This.SplittedAroundCSIB(pSubStrOrPos, _TRUE_)
@@ -63085,7 +63085,7 @@ class stzString from stzObject
 		def SplitAroundPositionQ(n)
 			return new stzList( This.SplitAroundPosition(n) )
 
-		def SplitAroundPositionQR(n, pcReturnType)
+		def SplitAroundPositionQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundPosition(n) )
@@ -63120,7 +63120,7 @@ class stzString from stzObject
 		def SplitAroundPositionsQ(panPos)
 			return new stzList( This.SplitAroundPositions(panPos) )
 
-		def SplitAroundPositionsQR(panPos, pcReturnType)
+		def SplitAroundPositionsQRT(panPos, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundPositions(panPos) )
@@ -63155,7 +63155,7 @@ class stzString from stzObject
 		def SplitAroundSectionQ(n1, n2)
 			return new stzList( This.SplitAroundSection(n1, n2) )
 
-		def SplitAroundSectionQR(n1, n2, pcReturnType)
+		def SplitAroundSectionQRT(n1, n2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundSection(n1, n2) )
@@ -63190,7 +63190,7 @@ class stzString from stzObject
 		def SplitAroundSectionIBQ(n1, n2)
 			return new stzList( This.SplitAroundSectionIB(n1, n2) )
 
-		def SplitAroundSectionIBQR(n1, n2, pcReturnType)
+		def SplitAroundSectionIBQRT(n1, n2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundSectionIB(n1, n2) )
@@ -63225,7 +63225,7 @@ class stzString from stzObject
 		def SplitAroundSectionsQ(paSections)
 			return new stzList( This.SplitAroundSections(paSections) )
 
-		def SplitAroundSectionsQR(paSections, pcReturnType)
+		def SplitAroundSectionsQRT(paSections, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundSections(paSections) )
@@ -63260,7 +63260,7 @@ class stzString from stzObject
 		def SplitAroundSectionsIBQ(paSections)
 			return new stzList( This.SplitAroundSectionsIB(paSections) )
 
-		def SplitAroundSectionsIBQR(paSections, pcReturnType)
+		def SplitAroundSectionsIBQRT(paSections, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundSectionsIB(paSections) )
@@ -63302,7 +63302,7 @@ class stzString from stzObject
 		def SplitAroundsubStringCSQ(pcSubStr, pCaseSensitive)
 			return new stzList( This.SplitAroundSubStringCS(pcSubStr, pCaseSensitive) )
 
-		def SplitAroundSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def SplitAroundSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundSubStringCS(pcSubStr, pCaseSensitive) )
@@ -63333,8 +63333,8 @@ class stzString from stzObject
 		def SplitAroundsubStringQ(pcSubStr)
 			return This.SplitAroundsubStringCSQ(pcSubStr, _TRUE_)
 
-		def SplitAroundSubStringQR(pcSubStr, pcReturnType)
-			return This.SplitAroundSubStringCSQR(pcSubStr, _TRUE_, pcReturnType)
+		def SplitAroundSubStringQRT(pcSubStr, pcReturnType)
+			return This.SplitAroundSubStringCSQRT(pcSubStr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -63365,7 +63365,7 @@ class stzString from stzObject
 		def SplitAroundsubStringCSIBQ(pcSubStr, pCaseSensitive)
 			return new stzList( This.SplitAroundSubStringCSIB(pcSubStr, pCaseSensitive) )
 
-		def SplitAroundSubStringCSiBQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def SplitAroundSubStringCSiBQRT(pcSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundSubStringCSIB(pcSubStr, pCaseSensitive) )
@@ -63396,8 +63396,8 @@ class stzString from stzObject
 		def SplitAroundsubStringIBQ(pcSubStr)
 			return This.SplitAroundsubStringCSIBQ(pcSubStr, _TRUE_)
 
-		def SplitAroundSubStringIBQR(pcSubStr, pcReturnType)
-			return This.SplitAroundSubStringCSIBQR(pcSubStr, _TRUE_, pcReturnType)
+		def SplitAroundSubStringIBQRT(pcSubStr, pcReturnType)
+			return This.SplitAroundSubStringCSIBQRT(pcSubStr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -63429,7 +63429,7 @@ class stzString from stzObject
 		def SplitAroundsubStringsCSQ(pacSubStrings, pCaseSensitive)
 			return new stzList( This.SplitAroundSubStringsCS(pacSubStrings, pCaseSensitive) )
 
-		def SplitAroundSubStringsCSQR(pcSubStr, pacSubStrings, pcReturnType)
+		def SplitAroundSubStringsCSQRT(pcSubStr, pacSubStrings, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundSubStringsCS(pacSubStrings, pCaseSensitive) )
@@ -63460,8 +63460,8 @@ class stzString from stzObject
 		def SplitAroundsubStringsQ(pacSubStrings)
 			return This.SplitAroundsubStringsCSQ(pacSubStrings, _TRUE_)
 
-		def SplitAroundSubStringsQR(pacSubStrings, pcReturnType)
-			return This.SplitAroundSubStringsCSQR(pacSubStrings, _TRUE_, pcReturnType)
+		def SplitAroundSubStringsQRT(pacSubStrings, pcReturnType)
+			return This.SplitAroundSubStringsCSQRT(pacSubStrings, _TRUE_, pcReturnType)
 
 		#>
 
@@ -63493,7 +63493,7 @@ class stzString from stzObject
 		def SplitAroundsubStringsCSIBQ(pacSubStrings, pCaseSensitive)
 			return new stzList( This.SplitAroundSubStringsCSIB(pacSubStrings, pCaseSensitive) )
 
-		def SplitAroundSubStringsCSIBQR(pcSubStr, pacSubStrings, pcReturnType)
+		def SplitAroundSubStringsCSIBQRT(pcSubStr, pacSubStrings, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SplitAroundSubStringsCSIB(pacSubStrings, pCaseSensitive) )
@@ -63524,8 +63524,8 @@ class stzString from stzObject
 		def SplitAroundsubStringsIBQ(pacSubStrings)
 			return This.SplitAroundsubStringsCSIBQ(pacSubStrings, _TRUE_)
 
-		def SplitAroundSubStringsIBQR(pacSubStrings, pcReturnType)
-			return This.SplitAroundSubStringsCSIBQR(pacSubStrings, _TRUE_, pcReturnType)
+		def SplitAroundSubStringsIBQRT(pacSubStrings, pcReturnType)
+			return This.SplitAroundSubStringsCSIBQRT(pacSubStrings, _TRUE_, pcReturnType)
 
 		#>
 
@@ -76248,9 +76248,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def PartsCSQ(pCaseSensitive)
-			return This.PartsCSQR(pCaseSensitive, :stzList)
+			return This.PartsCSQRT(pCaseSensitive, :stzList)
 
-		def PartsCSQR(pCaseSensitive, pcReturnType)
+		def PartsCSQRT(pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.PartsCS(pCaseSensitive) )
@@ -76272,19 +76272,19 @@ class stzString from stzObject
 			return This.PartsCS(pCaseSensitive)
 
 			def PartitionCSQ(pCaseSensitive)
-				return This.PartitionCSQR(pCaseSensitive, :stzList)
+				return This.PartitionCSQRT(pCaseSensitive, :stzList)
 
-			def PartitionCSQR(pCaseSensitive, pcReturnType)
-				return This.PartsCSQR(pCaseSensitive, pcReturnType)
+			def PartitionCSQRT(pCaseSensitive, pcReturnType)
+				return This.PartsCSQRT(pCaseSensitive, pcReturnType)
 
 		def PartionedCS(pCaseSensitive)
 			return This.PartsCS(pCaseSensitive)
 
 			def PartionedCSQ(pCaseSensitive)
-				return This.PartionedCSQR(pCaseSensitive, :stzList)
+				return This.PartionedCSQRT(pCaseSensitive, :stzList)
 
-			def PartionedCSQR(pCaseSensitive, pcReturnType)
-				return This.PartsCSQR(pCaseSensitive, pcReturnType)
+			def PartionedCSQRT(pCaseSensitive, pcReturnType)
+				return This.PartsCSQRT(pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -76296,10 +76296,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def PartsQ()
-			return This.PartsQR(:stzList)
+			return This.PartsQRT(:stzList)
 
-		def PartsQR(pcReturnType)
-			return This.PartsCSQR(TRUE, pcReturnType)
+		def PartsQRT(pcReturnType)
+			return This.PartsCSQRT(TRUE, pcReturnType)
 
 		#>
 
@@ -76309,19 +76309,19 @@ class stzString from stzObject
 			return This.Parts()
 
 			def PartitionQ()
-				return This.PartitionQR(:stzList)
+				return This.PartitionQRT(:stzList)
 
-			def PartitionQR(pcReturnType)
-				return This.PartsQR(pcReturnType)
+			def PartitionQRT(pcReturnType)
+				return This.PartsQRT(pcReturnType)
 
 		def Partioned()
 			return This.Parts()
 
 			def PartionedQ()
-				return This.PartionedQR(:stzList)
+				return This.PartionedQRT(:stzList)
 
-			def PartionedQR(pcReturnType)
-				return This.PartsQR(pcReturnType)
+			def PartionedQRT(pcReturnType)
+				return This.PartsQRT(pcReturnType)
 
 		#>
 
@@ -76644,9 +76644,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def PartsUsingCSQ(pcPartitionExpr, pCaseSensitive)
-			return This.PartsUsingCSQR(pcPartitionExpr, pCaseSensitive, :stzList)
+			return This.PartsUsingCSQRT(pcPartitionExpr, pCaseSensitive, :stzList)
 
-		def PartsUsingCSQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
+		def PartsUsingCSQRT(pcPartitionExpr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.PartsUsingCS(pcPartitionExpr, pCaseSensitive) )
@@ -76670,8 +76670,8 @@ class stzString from stzObject
 			def PartsWCSQ(pcPartitionExpr, pCaseSensitive)
 				return This.PartsUsingCSQ(pcPartitionExpr, pCaseSensitive)
 
-			def PartsWCSQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
-				return This.PartsUsingCSQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
+			def PartsWCSQRT(pcPartitionExpr, pCaseSensitive, pcReturnType)
+				return This.PartsUsingCSQRT(pcPartitionExpr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -76683,10 +76683,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def PartsUsingQ(pcPartitionExpr)
-			return This.PartsUsingQR(pcPartitionExpr, :stzList)
+			return This.PartsUsingQRT(pcPartitionExpr, :stzList)
 
-		def PartsUsingQR(pcPartitionExpr, pcReturnType)
-			return This.PartsUsingCSQR(pcPartitionExpr, _TRUE_, pcReturnType)
+		def PartsUsingQRT(pcPartitionExpr, pcReturnType)
+			return This.PartsUsingCSQRT(pcPartitionExpr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -76698,8 +76698,8 @@ class stzString from stzObject
 			def PartsWQ(pcPartitionExpr)
 				return This.PartsUsingQ(pcPartitionExpr)
 
-			def PartsWQR(pcPartitionExpr, pcReturnType)
-				return This.PartsUsingQR(pcPartitionExpr, pcReturnType)
+			def PartsWQRT(pcPartitionExpr, pcReturnType)
+				return This.PartsUsingQRT(pcPartitionExpr, pcReturnType)
 
 		#>
 
@@ -76736,9 +76736,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def PartsUsingCSXTQ(pcPartitionExpr, pCaseSensitive)
-			return This.PartsUsingCSXTQR(pcPartitionExpr, pCaseSensitive, :stzList)
+			return This.PartsUsingCSXTQRT(pcPartitionExpr, pCaseSensitive, :stzList)
 
-		def PartsUsingCSXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
+		def PartsUsingCSXTQRT(pcPartitionExpr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.PartsUsingCSXT(pcPartitionExpr, pCaseSensitive) )
@@ -76762,8 +76762,8 @@ class stzString from stzObject
 			def PartsWCSXTQ(pcPartitionExpr, pCaseSensitive)
 				return This.PartsUsingCSXTQ(pcPartitionExpr, pCaseSensitive)
 
-			def PartsWCSXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
-				return This.PartsUsingCSXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
+			def PartsWCSXTQRT(pcPartitionExpr, pCaseSensitive, pcReturnType)
+				return This.PartsUsingCSXTQRT(pcPartitionExpr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -76775,10 +76775,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def PartsUsingXTQ(pcPartitionExpr)
-			return This.PartsUsingXTQR(pcPartitionExpr, :stzList)
+			return This.PartsUsingXTQRT(pcPartitionExpr, :stzList)
 
-		def PartsUsingXTQR(pcPartitionExpr, pcReturnType)
-			return This.PartsUsingCSXTQR(pcPartitionExpr, _TRUE_, pcReturnType)
+		def PartsUsingXTQRT(pcPartitionExpr, pcReturnType)
+			return This.PartsUsingCSXTQRT(pcPartitionExpr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -76790,8 +76790,8 @@ class stzString from stzObject
 			def PartsWXTQ(pcPartitionExpr)
 				return This.PartsUsingXTQ(pcPartitionExpr)
 
-			def PartsWXTQR(pcPartitionExpr, pcReturnType)
-				return This.PartsUsingXTQR(pcPartitionExpr, pcReturnType)
+			def PartsWXTQRT(pcPartitionExpr, pcReturnType)
+				return This.PartsUsingXTQRT(pcPartitionExpr, pcReturnType)
 
 		#>
 
@@ -88045,9 +88045,9 @@ class stzString from stzObject
 		ok
 
 		def CentralCharQ()
-			return This.CentralCharQR(:stzChar)
+			return This.CentralCharQRT(:stzChar)
 	
-		def CentralCharQR(pcReturnType)
+		def CentralCharQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -89515,9 +89515,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def UnicodesQ()
-			return This.UnicodesQR(:stzList)
+			return This.UnicodesQRT(:stzList)
 
-		def UnicodesQR(pcReturnType)
+		def UnicodesQRT(pcReturnType)
 			if isList(pcReturnType) and
 			   Q(pcReturnType).IsReturnedAsNamedParam()
 
@@ -89684,9 +89684,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def HexUnicodesQ()
-			return This.HexUnicodesQR(:stzList)
+			return This.HexUnicodesQRT(:stzList)
 
-		def HexUnicodesQR(pcReturnType)
+		def HexUnicodesQRT(pcReturnType)
 			if isList(pcReturnType) and
 			   Q(pcReturnType).IsReturnedAsNamedParam()
 
@@ -89792,9 +89792,9 @@ class stzString from stzObject
 		#< @FunctionFleuntForms
 
 		def CharNamesQ()
-			return This.CharNamesQR(:stzList)
+			return This.CharNamesQRT(:stzList)
 
-		def CharNamesQR(pcReturnType)
+		def CharNamesQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -91422,9 +91422,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def CharsCSQ(pCaseSensitive)
-			return This.CharsCSQR(pCaseSensitive, :stzList)
+			return This.CharsCSQRT(pCaseSensitive, :stzList)
 
-		def CharsCSQR(pCaseSensitive, pcReturnType)
+		def CharsCSQRT(pCaseSensitive, pcReturnType)
 			if CheckingParams()
 
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -91460,8 +91460,8 @@ class stzString from stzObject
 		def CharsQ()
 			return new stzList(This.Chars())
 
-		def CharsQR(pcReturnType)
-			return This.CharsCSQR(TRUE, pcReturnType)
+		def CharsQRT(pcReturnType)
+			return This.CharsCSQRT(TRUE, pcReturnType)
 
 		#>
 
@@ -91471,10 +91471,10 @@ class stzString from stzObject
 			return This.Chars()
 
 			def ToListOfCharsQ()
-				return This.ToListOfCharsQR(:stzList)
+				return This.ToListOfCharsQRT(:stzList)
 
-			def ToListOfCharsQR(pcReturnType)
-				return This.CharsQR(pcReturnType)
+			def ToListOfCharsQRT(pcReturnType)
+				return This.CharsQRT(pcReturnType)
 	
 		#>
 
@@ -91489,9 +91489,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def CharsInSectionCSQ(n1, n2, pCaseSensitive)
-			return This.CharsInSectionCSQR(n1, n2, pCaseSensitive, :stzList)
+			return This.CharsInSectionCSQRT(n1, n2, pCaseSensitive, :stzList)
 
-		def CharsInSectionCSQR(n1, n2, pCaseSensitive, pcReturnType)
+		def CharsInSectionCSQRT(n1, n2, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.CharsInSectionCS(n1, n2, pCaseSensitive) )
@@ -91516,8 +91516,8 @@ class stzString from stzObject
 			def SectionCharsCSQ(n1, n2, pCaseSensitive)
 				return This.CharsInSectionCSQ(n1, n2, pCaseSensitive)
 
-			def SectionCharsCSQR(n1, n2, pCaseSensitive, pcReturnType)
-				return This.CharsInSectionCSQR(n1, n2, pCaseSensitive, pcReturnType)
+			def SectionCharsCSQRT(n1, n2, pCaseSensitive, pcReturnType)
+				return This.CharsInSectionCSQRT(n1, n2, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -91529,10 +91529,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def CharsInSectionQ(n1, n2)
-			return This.CharsInSectionCSQR(n1, n2, :stzList)
+			return This.CharsInSectionCSQRT(n1, n2, :stzList)
 
-		def CharsInSectionQR(n1, n2, pcReturnType)
-			return This.CharsInSectionQR(n1, n2, pcReturnType)
+		def CharsInSectionQRT(n1, n2, pcReturnType)
+			return This.CharsInSectionQRT(n1, n2, pcReturnType)
 
 		#>
 
@@ -91544,8 +91544,8 @@ class stzString from stzObject
 			def SectionCharsQ(n1, n2)
 				return This.CharsInSectionQ(n1, n2)
 
-			def SectionCharsQR(n1, n2, pcReturnType)
-				return This.CharsInSectionQR(n1, n2, pcReturnType)
+			def SectionCharsQRT(n1, n2, pcReturnType)
+				return This.CharsInSectionQRT(n1, n2, pcReturnType)
 
 		#>
 
@@ -92423,9 +92423,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def UniqueCharsCSQ(pCaseSensitive)
-			return This.UniqueCharsCSQR(pCaseSensitive, :stzList)
+			return This.UniqueCharsCSQRT(pCaseSensitive, :stzList)
 
-		def UniqueCharsCSQR(pCaseSensitive, pcReturnType)
+		def UniqueCharsCSQRT(pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -92454,8 +92454,8 @@ class stzString from stzObject
 			def ToSetOfCharsCSQ(pCaseSensitive)
 				return This.UniqueCharsCSQ(pCaseSensitive)
 	
-			def ToSetOfCharsCSQR(pCaseSensitive, pcReturnType)
-				return This.UniqueCharsCSQR(pCaseSensitive, pcReturnType)
+			def ToSetOfCharsCSQRT(pCaseSensitive, pcReturnType)
+				return This.UniqueCharsCSQRT(pCaseSensitive, pcReturnType)
 	
 		def CharsCSU(pCaseSensitive)
 			return This.UniqueCharsCS(pCaseSensitive)
@@ -92463,8 +92463,8 @@ class stzString from stzObject
 			def CharsCSUQ(pCaseSensitive)
 				return This.UniqueCharsCSQ(pCaseSensitive)
 
-			def CharsCSUQR(pCaseSensitive, pcReturnType)
-				return This.UniqueCharsCSQR(pCaseSensitive, pcReturnType)
+			def CharsCSUQRT(pCaseSensitive, pcReturnType)
+				return This.UniqueCharsCSQRT(pCaseSensitive, pcReturnType)
 
 		def CharsWithoutDuplicationCS(pCaseSensitive)
 			return This.UniqueCharsCS(pCaseSensitive)
@@ -92472,8 +92472,8 @@ class stzString from stzObject
 			def CharsWithoutDuplicationCSQ(pCaseSensitive)
 				return This.UniqueCharsCSQ(pCaseSensitive)
 
-			def CharsWithoutDuplicationCSQR(pCaseSensitive, pcReturnType)
-				return This.UniqueCharsCSQR(pCaseSensitive, pcReturnType)
+			def CharsWithoutDuplicationCSQRT(pCaseSensitive, pcReturnType)
+				return This.UniqueCharsCSQRT(pCaseSensitive, pcReturnType)
 
 		def CharsWithoutDuplicatesCS(pCaseSensitive)
 			return This.UniqueCharsCS(pCaseSensitive)
@@ -92481,8 +92481,8 @@ class stzString from stzObject
 			def CharsWithoutDuplicatesCSQ(pCaseSensitive)
 				return This.UniqueCharsCSQ(pCaseSensitive)
 
-			def CharsWithoutDuplicatesCSQR(pCaseSensitive, pcReturnType)
-				return This.UniqueCharsCSQR(pCaseSensitive, pcReturnType)
+			def CharsWithoutDuplicatesCSQRT(pCaseSensitive, pcReturnType)
+				return This.UniqueCharsCSQRT(pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -92494,10 +92494,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def UniqueCharsQ()
-			return This.UniqueCharsCSQR(TRUE, :stzList)
+			return This.UniqueCharsCSQRT(TRUE, :stzList)
 
-		def UniqueCharsQR(pcReturnTyp)
-			return This.UniqueCharsCSQR(TRUE, pcReturnType)
+		def UniqueCharsQRT(pcReturnTyp)
+			return This.UniqueCharsCSQRT(TRUE, pcReturnType)
 
 		#>
 
@@ -92509,8 +92509,8 @@ class stzString from stzObject
 			def ToSetOfCharsQ()
 				return This.UniqueCharsQ()
 	
-			def ToSetOfCharsQR(pcReturnType)
-				return This.UniqueCharsQR(pcReturnType)
+			def ToSetOfCharsQRT(pcReturnType)
+				return This.UniqueCharsQRT(pcReturnType)
 	
 		def CharsU()
 			return This.UniqueChars()
@@ -92518,8 +92518,8 @@ class stzString from stzObject
 			def CharsUQ()
 				return This.UniqueCharsQ()
 
-			def CharsUQR(pcReturnType)
-				return This.UniqueCharsQR(pcReturnType)
+			def CharsUQRT(pcReturnType)
+				return This.UniqueCharsQRT(pcReturnType)
 
 		def CharsWithoutDuplication()
 			return This.UniqueChars()
@@ -92527,8 +92527,8 @@ class stzString from stzObject
 			def CharsWithoutDuplicationQ()
 				return This.UniqueCharsQ()
 
-			def CharsWithoutDuplicationQR(pcReturnType)
-				return This.UniqueCharsQR(pcReturnType)
+			def CharsWithoutDuplicationQRT(pcReturnType)
+				return This.UniqueCharsQRT(pcReturnType)
 
 		def CharsWithoutDuplicates()
 			return This.UniqueChars()
@@ -92536,8 +92536,8 @@ class stzString from stzObject
 			def CharsWithoutDuplicatesQ()
 				return This.UniqueCharsQ()
 
-			def CharsWithoutDuplicatesQR(pcReturnType)
-				return This.UniqueCharsQR(pcReturnType)
+			def CharsWithoutDuplicatesQRT(pcReturnType)
+				return This.UniqueCharsQRT(pcReturnType)
 
 		#>
 
@@ -92546,7 +92546,7 @@ class stzString from stzObject
 	#-----------------------------#
 
 	def RemoveDuplicatedCharsCS(pCaseSensitive)
-		cNewString = This.UniqueCharsCSQR(pCaseSensitive, :stzListOfStrings).Concatenated()
+		cNewString = This.UniqueCharsCSQRT(pCaseSensitive, :stzListOfStrings).Concatenated()
 		This.Update(cNewString)
 
 		def RemoveDuplicatedCharsCSQ(pCaseSensitive)
@@ -92591,7 +92591,7 @@ class stzString from stzObject
 		def NthCharQ(n)
 			return new stzString(This.NthChar(n))
 
-		def NthCharQR(n, pcReturnType)
+		def NthCharQRT(n, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -92613,42 +92613,42 @@ class stzString from stzObject
 		def CharAt(n)
 			return This.NthChar(n)
 
-			def CharAtQR(n, pcReturnType)
+			def CharAtQRT(n, pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
-				return This.NthCharQR(n, pcReturnType)
+				return This.NthCharQRT(n, pcReturnType)
 	
 			def CharAtQ(n)
-				return This.CharAtQR(n, :stzString)
+				return This.CharAtQRT(n, :stzString)
 
 		def CharAtPosition(n)
 			return This.NthChar(n)
 
-			def CharAtPositionQR(n, pcReturnType)
-				return This.CharAtQR(n, pcReturnType)
+			def CharAtPositionQRT(n, pcReturnType)
+				return This.CharAtQRT(n, pcReturnType)
 
 			def CharAtPositionQ(n)
-				return This.CharAtPositionQR(n, :stzString)
+				return This.CharAtPositionQRT(n, :stzString)
 
 		def CharN(n)
 			return This.NthChar(n)
 
-			def CharNQR(n, pcReturnType)
-				return CharAtQR(n, pcReturnType)
+			def CharNQRT(n, pcReturnType)
+				return CharAtQRT(n, pcReturnType)
 	
 			def CharNQ(n)
-				return This.CharAtQR(n, :stzString)
+				return This.CharAtQRT(n, :stzString)
 
 		def Char(n)
 			return This.NthChar(n)
 
-			def CharQR(n, pcReturnType)
-				return CharAtQR(n, pcReturnType)
+			def CharQRT(n, pcReturnType)
+				return CharAtQRT(n, pcReturnType)
 	
 			def CharQ(n)
-				return This.CharAtQR(n, :stzString)
+				return This.CharAtQRT(n, :stzString)
 
 		#>
 
@@ -92683,9 +92683,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def CharsAtPositionsQ(panPosirtions)
-			return This.CharsAtPositionsQR(panPos, :stzList)
+			return This.CharsAtPositionsQRT(panPos, :stzList)
 
-		def CharsAtPositionsQR(panPos, pcReturnType)
+		def CharsAtPositionsQRT(panPos, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnTypeNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -92696,13 +92696,13 @@ class stzString from stzObject
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.CharsAtPositionsQR(panPos, pcReturnType) )
+				return new stzList( This.CharsAtPositionsQRT(panPos, pcReturnType) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.CharsAtPositionsQR(panPos, pcReturnType) )
+				return new stzListOfStrings( This.CharsAtPositionsQRT(panPos, pcReturnType) )
 
 			on :stzListOfChars
-				return new stzListOfChars( This.CharsAtPositionsQR(panPos, pcReturnType) )
+				return new stzListOfChars( This.CharsAtPositionsQRT(panPos, pcReturnType) )
 
 			other
 				stzRaise("Unsupported param type!")
@@ -92716,19 +92716,19 @@ class stzString from stzObject
 			return This.CharsAtPositions(panPos)
 
 			def CharsAtThesePositionsQ(panPos)
-				return This.CharsAtQR(panPos, :stzList)
+				return This.CharsAtQRT(panPos, :stzList)
 
-			def CharsAtThesePositionsQR(panPos, pcReturnType)
-				return This.CharsAtPositionsQR(panPos, pcReturnType)
+			def CharsAtThesePositionsQRT(panPos, pcReturnType)
+				return This.CharsAtPositionsQRT(panPos, pcReturnType)
 
 		def CharsAt(panPos)
 			return This.CharsAtPositions(panPos)
 
 			def CharsAtQ(panPos)
-				return This.CharsAtQR(panPos, :stzList)
+				return This.CharsAtQRT(panPos, :stzList)
 
-			def CharsAtQR(panPos, pcReturnType)
-				return This.CharsAtPositionsQR(panPos, pcReturnType)
+			def CharsAtQRT(panPos, pcReturnType)
+				return This.CharsAtPositionsQRT(panPos, pcReturnType)
 
 		#>
 
@@ -92742,9 +92742,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def FirstCharQ()
-			return This.FirstCharQR(:stzString)
+			return This.FirstCharQRT(:stzString)
 
-		def FirstCharQR(pcReturnType)
+		def FirstCharQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -92764,9 +92764,9 @@ class stzString from stzObject
 		return This.Char(2)
 
 		def SecondCharQ()
-			return This.SecondCharQR(:stzString)
+			return This.SecondCharQRT(:stzString)
 
-		def SecondCharQR(pcReturnType)
+		def SecondCharQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNameSpace()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -92794,9 +92794,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def LastCharQ()
-			return This.LastCharQR(:stzString)
+			return This.LastCharQRT(:stzString)
 
-		def LastCharQR(pcReturnType)
+		def LastCharQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -92843,9 +92843,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def LeftCharQ()
-			return This.LeftCharQR(:stzString)
+			return This.LeftCharQRT(:stzString)
 
-		def LeftCharQR(pcReturnType)
+		def LeftCharQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -92871,9 +92871,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def RightCharQ()
-			return This.RightCharQR(:stzString)
+			return This.RightCharQRT(:stzString)
 
-		def RightCharQR(pcReturnType)
+		def RightCharQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -93484,9 +93484,9 @@ class stzString from stzObject
 		return aResult
 
 		def LettersQ()
-			return This.LettersQR(:stzList)
+			return This.LettersQRT(:stzList)
 
-		def LettersQR(pcReturnType)
+		def LettersQRT(pcReturnType)
 
 			switch pcReturnType
 			on :stzList
@@ -93547,9 +93547,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def UniqueLettersQ()
-			return This.UniqueLettersQR(:stzList)
+			return This.UniqueLettersQRT(:stzList)
 
-		def UniqueLettersQR(pcReturnType)
+		def UniqueLettersQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.UniqueLetters() )
@@ -93569,19 +93569,19 @@ class stzString from stzObject
 			return This.UniqueLetters()
 
 			def LettersUQ()
-				return This.LettersUQR(:stzList)
+				return This.LettersUQRT(:stzList)
 
-			def LettersUQR(pcReturnType)
-				return This.UniqueLettersQR(pcReturnType)
+			def LettersUQRT(pcReturnType)
+				return This.UniqueLettersQRT(pcReturnType)
 	
 		def LettersWithoutDuplication()
 			return This.UniqueLetters()
 
 			def LettersWithoutDuplicationQ()
-				return This.LettersWithoutDuplicationQR(:stzList)
+				return This.LettersWithoutDuplicationQRT(:stzList)
 
-			def LettersWithoutDuplicationQR(pcReturnType)
-				return This.UniqueLettersQR(pcReturnType)
+			def LettersWithoutDuplicationQRT(pcReturnType)
+				return This.UniqueLettersQRT(pcReturnType)
 		#
 
 	  #----------------------------------------------------------------------#
@@ -96263,7 +96263,7 @@ class stzString from stzObject
 				return This
 		
 			but isList(pValue) and Q(pValue).IsListOfStrings()
-				cExtension = QR(pValue, :stzListOfStrings).Concatenated()
+				cExtension = QRT(pValue, :stzListOfStrings).Concatenated()
 				cResult = This.Content() + cExtension
 				return cResult
 
@@ -96417,7 +96417,7 @@ class stzString from stzObject
 					pValue[ len(pValue) ][2] = nRemainingChars
 				ok
 		
-				if NOT StzHashListQ(pValue).ValuesQR(:stzListOfNumbers).Sum() = This.NumberOfChars()
+				if NOT StzHashListQ(pValue).ValuesQRT(:stzListOfNumbers).Sum() = This.NumberOfChars()
 					stzRaise("Incorrect values! The sum of numbers must be equal to the number of chars!")
 				ok
 		
@@ -96528,7 +96528,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pacItems must be a list of strings.")
 		ok
 
-		cResult = QR(pacItems, :stzListOfStrings).ConcatenatedUsing(This.String())
+		cResult = QRT(pacItems, :stzListOfStrings).ConcatenatedUsing(This.String())
 		return cResult
 
 	  #==========================================#
@@ -96858,7 +96858,7 @@ class stzString from stzObject
 	#---------------------------------------------#
 
 	def EndsWithANumber()
-		nResult = This.LastCharQR(:stzChar).IsANumber()
+		nResult = This.LastCharQRT(:stzChar).IsANumber()
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -97003,9 +97003,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def NumbersQ()
-			return This.NumbersQR(:stzList)
+			return This.NumbersQRT(:stzList)
 
-		def NumbersQR(pcReturnType)
+		def NumbersQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -97246,9 +97246,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def NumbersComingAfterCSQ(pcSubStr, pCaseSensitive)
-			return This.NumbersComingAfterCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.NumbersComingAfterCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
-		def NumbersComingAfterCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def NumbersComingAfterCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -97279,10 +97279,10 @@ class stzString from stzObject
 			return This.NumbersComingAfterCS(pcSubStr, pCaseSensivitive)
 
 		def NumbersAfterCSQ(pcSubStr, pCaseSensitive)
-			return This.NumbesrAfterCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+			return This.NumbesrAfterCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
-		def NumbersAfterCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			return NumbersComingAfterCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def NumbersAfterCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+			return NumbersComingAfterCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -97294,10 +97294,10 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def NumbersComingAfterQ(pcSubStr)
-			return This.NumbersComingAfterQR(pcSubStr, :stzList)
+			return This.NumbersComingAfterQRT(pcSubStr, :stzList)
 
-		def NumbersComingAfterQR(pcSubStr, pcReturnType)
-			return This.NumbersComingAfterCSQR(pcSubStr, _TRUE_, pcReturnType)
+		def NumbersComingAfterQRT(pcSubStr, pcReturnType)
+			return This.NumbersComingAfterCSQRT(pcSubStr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -97307,10 +97307,10 @@ class stzString from stzObject
 			return This.NumbersComingAfter(pcSubStr)
 
 		def NumbersAfterQ(pcSubStr)
-			return This.NumbesrAfterQR(pcSubStr, pcReturnType)
+			return This.NumbesrAfterQRT(pcSubStr, pcReturnType)
 
-		def NumbersAfterQR(pcSubStr, pcReturnType)
-			return NumbersComingAfterQR(pcSubStr, pcReturnType)
+		def NumbersAfterQRT(pcSubStr, pcReturnType)
+			return NumbersComingAfterQRT(pcSubStr, pcReturnType)
 
 		#>
 
@@ -98080,9 +98080,9 @@ class stzString from stzObject
 		return acResult
 
 		def WordsCSQ(pCaseSensitive)
-			return WordsCSQR(pCaseSensitive, :stzList)
+			return WordsCSQRT(pCaseSensitive, :stzList)
 
-		def WordsCSQR(pCaseSensitive, pcReturnType)
+		def WordsCSQRT(pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.WordsCS(pCaseSensitive) )
@@ -98098,10 +98098,10 @@ class stzString from stzObject
 		return This.WordsCS(_TRUE_)
 
 		def WordsQ()
-			return This.WordsQR(:stzList)
+			return This.WordsQRT(:stzList)
 
-		def WordsQR(pcReturnType)
-			return This.WordsCSQR(TRUE, pcReturnType)
+		def WordsQRT(pcReturnType)
+			return This.WordsCSQRT(TRUE, pcReturnType)
 
 	  #---------------------------------------------------#
 	 #   GETTING THE LIST OF WORDS WITHOUT DUPPLICATION  #
@@ -98114,9 +98114,9 @@ class stzString from stzObject
 		#< @FunctionFulentForms
 
 		def WordsCSUQ(pCaseSensitive)
-			return WordsCSUQR(pCaseSensitive, :stzList)
+			return WordsCSUQRT(pCaseSensitive, :stzList)
 
-		def WordsCSUQR(pCaseSensitive, pcReturnType)
+		def WordsCSUQRT(pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.WordsCSu(pCaseSensitive) )
@@ -98136,8 +98136,8 @@ class stzString from stzObject
 		def UniqueWordsCSQ(pCaseSensitive)
 			return This.WordsCSUQ(pCaseSensitive)
 
-		def UniqueWordsCSQR(pCaseSensitive, pcReturnType)
-			return ThisWordsCSUQR(pCaseSensitive, pcReturnType)
+		def UniqueWordsCSQRT(pCaseSensitive, pcReturnType)
+			return ThisWordsCSUQRT(pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -98149,10 +98149,10 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def WordsUQ()
-			return This.WordsUQR(:stzList)
+			return This.WordsUQRT(:stzList)
 
-		def WordsUQR(pcReturnType)
-			return This.WordsCSUQR(TRUE, pcReturnType)
+		def WordsUQRT(pcReturnType)
+			return This.WordsCSUQRT(TRUE, pcReturnType)
 
 		#>
 
@@ -98164,8 +98164,8 @@ class stzString from stzObject
 		def UniqueWordsQ()
 			return This.WordsUQ()
 
-		def UniqueWordsQR(pcReturnType)
-			return ThisWordsUQR(pcReturnType)
+		def UniqueWordsQRT(pcReturnType)
+			return ThisWordsUQRT(pcReturnType)
 
 		#>
 		
@@ -98234,7 +98234,7 @@ class stzString from stzObject
 	def FindWordsCS(pCaseSensitive)
 
 		acSplittedZ = This.SplitCSZ(" ", pCaseSensitive)
-		anResult = U( QR(acSplittedZ, :stzListOfPairs).SecondItems() )
+		anResult = U( QRT(acSplittedZ, :stzListOfPairs).SecondItems() )
 
 		return anResult
 
@@ -98262,7 +98262,7 @@ class stzString from stzObject
 	def FindWordsAsSectionsCS(pCaseSensitive)
 
 		acSplittedZZ = This.SplitCSZZ(" ", pCaseSensitive)
-		aResult = QR(acSplittedZZ, :stzListOfPairs).SecondItems()
+		aResult = QRT(acSplittedZZ, :stzListOfPairs).SecondItems()
 
 		return aResult
 
@@ -98822,64 +98822,64 @@ class stzString from stzObject
 		return This.FindCS(pcSubStr, pCaseSensitive)
 	
 		def FindAllOccurrencesCSQ(pcSubStr, pCaseSensitive)
-			return This.FindAllOccurrencesCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.FindAllOccurrencesCSQRT(pcSubStr, pCaseSensitive, :stzList)
 						
-		def FFindAllOccurrencesCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			return This.FindCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def FFindAllOccurrencesCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+			return This.FindCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 	
 	def FindAllCS(pcSubStr, pCaseSensitive)
 		return This.FindCS(pcSubStr, pCaseSensitive)
 	
 		def FindAllCSQ(pcSubStr, pCaseSensitive)
-			return This.FindAllCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.FindAllCSQRT(pcSubStr, pCaseSensitive, :stzList)
 					
-		def FindAllCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			return This.FindCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def FindAllCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+			return This.FindCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 	def FindSubstringCS(pcSubStr, pCaseSensitive)
 		return This.FindCS(pcSubStr, pCaseSensitive)
 	
 		def FindSubstringCSQ(pcSubStr, pCaseSensitive)
-			return This.FindSubstringCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.FindSubstringCSQRT(pcSubStr, pCaseSensitive, :stzList)
 					
-		def FindSubstringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			return This.FindCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def FindSubstringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+			return This.FindCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 	def OccurrencesCS(pcSubStr, pCaseSensitive)
 		return This.FindCS(pcSubStr, pCaseSensitive)
 	
 		def OccurrencesCSQ(pcSubStr, pCaseSensitive)
-			return This.OccurrencesCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.OccurrencesCSQRT(pcSubStr, pCaseSensitive, :stzList)
 					
-		def OccurrencesCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			return This.FindCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def OccurrencesCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+			return This.FindCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 	def PositionsCS(pcSubStr, pCaseSensitive)
 		return This.FindCS(pcSubStr, pCaseSensitive)
 	
 		def PositionsCSQ(pcSubStr, pCaseSensitive)
-			return This.PositionsCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.PositionsCSQRT(pcSubStr, pCaseSensitive, :stzList)
 					
-		def PositionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			return This.FindCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def PositionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+			return This.FindCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 	def PositionsOfSubStringCS(pcSubStr, pCaseSensitive)
 		return This.FindCS(pcSubStr, pCaseSensitive)
 	
 		def PositionsOfSubStringCSQ(pcSubStr, pCaseSensitive)
-			return This.PositionsOfSubStringCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.PositionsOfSubStringCSQRT(pcSubStr, pCaseSensitive, :stzList)
 					
-		def PositionsOfSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			return This.FindCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def PositionsOfSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+			return This.FindCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 	def FindPositionsCS(pcSubStr, pCaseSensitive)
 		return This.FindCS(pcSubStr, pCaseSensitive)
 	
 		def FindPositionsCSQ(pcSubStr, pCaseSensitive)
-			return This.FindPositionsCSQR(pcSubStr, pCaseSensitive, :stzList)
+			return This.FindPositionsCSQRT(pcSubStr, pCaseSensitive, :stzList)
 					
-		def FindPositionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			return This.FindCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def FindPositionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
+			return This.FindCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 
 	#-- WITHOUT CASESENSITIVITY
@@ -98888,55 +98888,55 @@ class stzString from stzObject
 		return This.Find(pcSubStr)
 	
 		def FindAllQ(pcSubStr)
-			return This.FindAllQR(pcSubStr, :stzList)
+			return This.FindAllQRT(pcSubStr, :stzList)
 				
-		def FindAllQR(pcSubStr, pcReturnType)
-			return This.FindQR(pcSubStr, pcReturnType)
+		def FindAllQRT(pcSubStr, pcReturnType)
+			return This.FindQRT(pcSubStr, pcReturnType)
 
 	def FindSubString(pcSubStr)
 		return This.Find(pcSubStr)
 	
 		def FindSubStringQ(pcSubStr)
-			return This.FindSubStringQR(pcSubStr, :stzList)
+			return This.FindSubStringQRT(pcSubStr, :stzList)
 				
-		def FindSubStringQR(pcSubStr, pcReturnType)
-			return This.FindQR(pcSubStr, pcReturnType)
+		def FindSubStringQRT(pcSubStr, pcReturnType)
+			return This.FindQRT(pcSubStr, pcReturnType)
 
 	def Occurrences(pcSubStr)
 		return This.Find(pcSubStr)
 	
 		def OccurrencesQ(pcSubStr)
-			return This.OccurrencesQR(pcSubStr, :stzList)
+			return This.OccurrencesQRT(pcSubStr, :stzList)
 				
-		def OccurrencesQR(pcSubStr, pcReturnType)
-			return This.FindQR(pcSubStr, pcReturnType)
+		def OccurrencesQRT(pcSubStr, pcReturnType)
+			return This.FindQRT(pcSubStr, pcReturnType)
 
 	def Positions(pcSubStr)
 		return This.Find(pcSubStr)
 	
 		def PositionsQ(pcSubStr)
-			return This.PositionsQR(pcSubStr, :stzList)
+			return This.PositionsQRT(pcSubStr, :stzList)
 				
-		def PositionsQR(pcSubStr, pcReturnType)
-			return This.FindQR(pcSubStr, pcReturnType)
+		def PositionsQRT(pcSubStr, pcReturnType)
+			return This.FindQRT(pcSubStr, pcReturnType)
 	
 	def PositionsOfSubString(pcSubStr)
 		return This.Find(pcSubStr)
 	
 		def PositionsOfSubStringQ(pcSubStr)
-			return This.PositionsOfSubStringQR(pcSubStr, :stzList)
+			return This.PositionsOfSubStringQRT(pcSubStr, :stzList)
 				
-		def PositionsOfSubStringQR(pcSubStr, pcReturnType)
-			return This.FindQR(pcSubStr, pcReturnType)
+		def PositionsOfSubStringQRT(pcSubStr, pcReturnType)
+			return This.FindQRT(pcSubStr, pcReturnType)
 
 	def FindPositions(pcSubStr)
 		return This.Find(pcSubStr)
 	
 		def FindPositionsQ(pcSubStr)
-			return This.FindPositionsQR(pcSubStr, :stzList)
+			return This.FindPositionsQRT(pcSubStr, :stzList)
 				
-		def FindPositionsQR(pcSubStr, pcReturnType)
-			return This.FindQR(pcSubStr, pcReturnType)
+		def FindPositionsQRT(pcSubStr, pcReturnType)
+			return This.FindQRT(pcSubStr, pcReturnType)
 
 	  #-------------------------------------------#
 	 #  FINDING A SUBSTRING AT A GIVEN POSITION  #
@@ -99213,7 +99213,7 @@ class stzString from stzObject
 		def VowelsQ()
 			return new stzList(This.Vowels())
 
-		def VowelsQR(pcReturnType)
+		def VowelsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.Vowels())
@@ -99236,7 +99236,7 @@ class stzString from stzObject
 		def VowyelsQ()
 			return This.VowelsQ()
 
-		def VowyelsQR(pcReturnType)
+		def VowyelsQRT(pcReturnType)
 			return This.VowelsQ(pcReturnType)
 
 		#-- @BooleanForm
@@ -99271,7 +99271,7 @@ class stzString from stzObject
 		def VowelQ()
 			return new stzString(This.Vowel())
 
-		def VowelQR(pcReturnType)
+		def VowelQRT(pcReturnType)
 			switch pcReturnType
 			on :stzString
 				return new stzString(This.Vowel())
@@ -99291,8 +99291,8 @@ class stzString from stzObject
 			def VowyelQ()
 				return This.VowelQ()
 
-			def VowyelQR(pcReturnType)
-				return This.VowelQR(pcReturnType)
+			def VowyelQRT(pcReturnType)
+				return This.VowelQRT(pcReturnType)
 
 	def VowelN()
 		return This.NumberOfVowels()
@@ -99342,8 +99342,8 @@ class stzString from stzObject
 		def AllSubStringsCSQ(pCaseSitive)
 			return This.SubStringsCSQ(pCaseSitive)
 
-		def AllSubStringsCSQR(pCaseSitive, pcReturnType)
-			return This.SubStringsCSQR(pCaseSitive, pcReturnType)
+		def AllSubStringsCSQRT(pCaseSitive, pcReturnType)
+			return This.SubStringsCSQRT(pCaseSitive, pcReturnType)
 
 	def AllPossibleSubStringsCS(pCaseSitive)
 		return This.SubStringsCS(pCaseSitive)
@@ -99351,8 +99351,8 @@ class stzString from stzObject
 		def AllPossibleSubStringsCSQ(pCaseSitive)
 			return This.SubStringsCSQ(pCaseSitive)
 
-		def AllPossibleSubStringsCSQR(pCaseSitive, pcReturnType)
-			return This.SubStringsCSQR(pCaseSitive, pcReturnType)
+		def AllPossibleSubStringsCSQRT(pCaseSitive, pcReturnType)
+			return This.SubStringsCSQRT(pCaseSitive, pcReturnType)
 
 	def PossibleSubStringsCS(pCaseSitive)
 		return This.SubStringsCS(pCaseSitive)
@@ -99360,8 +99360,8 @@ class stzString from stzObject
 		def PossibleSubStringsCSQ(pCaseSitive)
 			return This.SubStringsCSQ(pCaseSitive)
 
-		def PossibleSubStringsCSQR(pCaseSitive, pcReturnType)
-			return This.SubStringsCSQR(pCaseSitive, pcReturnType)
+		def PossibleSubStringsCSQRT(pCaseSitive, pcReturnType)
+			return This.SubStringsCSQRT(pCaseSitive, pcReturnType)
 
 	#-- WITHOUT CASESENSITIVE
 
@@ -99371,8 +99371,8 @@ class stzString from stzObject
 		def AllSubStringsQ()
 			return This.SubStringsQ()
 
-		def AllSubStringsQR(pcReturnType)
-			return This.SubStringsQR(pcReturnType)
+		def AllSubStringsQRT(pcReturnType)
+			return This.SubStringsQRT(pcReturnType)
 
 	def AllPossibleSubStrings()
 		return This.SubStrings()
@@ -99380,8 +99380,8 @@ class stzString from stzObject
 		def AllPossibleSubStringsQ()
 			return This.SubStringsQ()
 
-		def AllPossibleSubStringsQR(pcReturnType)
-			return This.SubStringsQR(pcReturnType)
+		def AllPossibleSubStringsQRT(pcReturnType)
+			return This.SubStringsQRT(pcReturnType)
 
 	def PossibleSubStrings()
 		return This.SubStrings()
@@ -99389,8 +99389,8 @@ class stzString from stzObject
 		def PossibleSubStringsQ()
 			return This.SubStringsQ()
 
-		def PossibleSubStringsQR(pcReturnType)
-			return This.SubStringsQR(pcReturnType)
+		def PossibleSubStringsQRT(pcReturnType)
+			return This.SubStringsQRT(pcReturnType)
 
 	  #----------------------------#
 	 #  ALTERNATIVES OF Append()  #
@@ -99523,10 +99523,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def FindAnySeparatedByCSQ(pcSeparator, pCaseSensitive)
-			return This.FindAnySplittedByCSQR(pcSeparator, pCaseSensitive, :stzList)
+			return This.FindAnySplittedByCSQRT(pcSeparator, pCaseSensitive, :stzList)
 
-		def FindAnySeparatedByCSQR(pcSeparator, pCaseSensitive, pcReturnType)
-			return This.FindanySplittedByCSQR(pcSeparator, _TRUE_, pcReturnType)				
+		def FindAnySeparatedByCSQRT(pcSeparator, pCaseSensitive, pcReturnType)
+			return This.FindanySplittedByCSQRT(pcSeparator, _TRUE_, pcReturnType)				
 	
 		#>
 
@@ -99538,10 +99538,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def FindAnySeparatedByQ(pcSeparator)
-			return This.FindAnySeparatedByQR(pcSeparator, :stzList)
+			return This.FindAnySeparatedByQRT(pcSeparator, :stzList)
 
-		def FindAnySeparatedByQR(pcSeparator, pcReturnType)
-			return This.FindAnySplittedByCSQR(pcSeparator, _TRUE_, pcReturnType)				
+		def FindAnySeparatedByQRT(pcSeparator, pcReturnType)
+			return This.FindAnySplittedByCSQRT(pcSeparator, _TRUE_, pcReturnType)				
 
 		#>
 

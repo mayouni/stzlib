@@ -1048,7 +1048,7 @@ func FirstNPrimes(n)
 	func FirstNPRimesQ(n)
 		return new stzList(FirstNPrimes(n))
 
-	func FirstNPrimesQR(n, pcReturnType)
+	func FirstNPrimesQRT(n, pcReturnType)
 		if NOT isString(pcReturnType)
 			StzRaise("Incorrect param type! pcReturnType must be a string.")
 		ok
@@ -1072,8 +1072,8 @@ func FirstNPrimes(n)
 		func @firstNPrimesQ(n)
 			return FirstNPrimesQ(n)
 
-		func @FirstNPrimesQR(n, pcReturnType)
-			return FirstNPrimesQR(n, pcReturnType)
+		func @FirstNPrimesQRT(n, pcReturnType)
+			return FirstNPrimesQRT(n, pcReturnType)
 
 	#>
 
@@ -1285,7 +1285,7 @@ func PreviousNthPrimeST(nth, nbr)
 func FirstNPrimesWXT(n, pcCondition)
 	/* EXAMPLE
 
-	o1.FirstNPrimesW(25, ' Q(@number).DigitsQR(:stzListOfNumbers).ArePrime() ')
+	o1.FirstNPrimesW(25, ' Q(@number).DigitsQRT(:stzListOfNumbers).ArePrime() ')
 	#--> [ ... ]
 
 	*/
@@ -1451,9 +1451,9 @@ class stzListOfNumbers from stzList
 			return This.Content()
 
 			def NumbersQ()
-				return This.NumbersQR(:stzList)
+				return This.NumbersQRT(:stzList)
 
-			def NumbersQR(pcReturnType)
+			def NumbersQRT(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamType()
 					pcReturnType = pcReturnType[2]
 				ok
@@ -1477,9 +1477,9 @@ class stzListOfNumbers from stzList
 		return This.YieldW('@number', pcCondition)
 
 		def NumbersWQ(pcCondition)
-			return NumbersWQR(pcCondition, :stzList)
+			return NumbersWQRT(pcCondition, :stzList)
 
-		def NumbersWQR(pcCondition, pcReturnType)
+		def NumbersWQRT(pcCondition, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamType()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -3389,9 +3389,9 @@ class stzListOfNumbers from stzList
 		next
 
 		def ClipQ(nMin, nMax)
-			return This.ClipQR(nMin, nMax, pcReturnType)
+			return This.ClipQRT(nMin, nMax, pcReturnType)
 
-		def ClipQR(nMin, nMax, pcReturnType)
+		def ClipQRT(nMin, nMax, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -3422,9 +3422,9 @@ class stzListOfNumbers from stzList
 		#< @FunctionFluentForms
 
 		def ReplaceSectionWithQ(n1, n2, n)
-			return This.ReplaceSectionWithQR(n1, n2, n, :stzList)
+			return This.ReplaceSectionWithQRT(n1, n2, n, :stzList)
 
-		def ReplaceSectionWithQR(n1, n2, n, pcReturnType)
+		def ReplaceSectionWithQRT(n1, n2, n, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -3462,9 +3462,9 @@ class stzListOfNumbers from stzList
 
 
 		def CumulateQ()
-			return This.CumulateQR()
+			return This.CumulateQRT()
 
-		def CumulateQR()
+		def CumulateQRT()
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -3507,9 +3507,9 @@ class stzListOfNumbers from stzList
 		#< @FunctionFluentForm
 
 		def OnlyUnicodesQ()
-			return This.CumulateQR(:stzList)
+			return This.CumulateQRT(:stzList)
 
-		def OnlyUnicodesQR(pcReturnType)
+		def OnlyUnicodesQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -4548,7 +4548,7 @@ class stzListOfNumbers from stzList
 	#------------------------------------------------------------------#
 
 	def ANumberLessThan(nNumber)
-		nResult = This.NumbersLessThanQR(nNumber, :stzListOfNumbers).ARandomNumber()
+		nResult = This.NumbersLessThanQRT(nNumber, :stzListOfNumbers).ARandomNumber()
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -4591,7 +4591,7 @@ class stzListOfNumbers from stzList
 	#-- Z/EXTENDED FORM
 
 	def ANumberLessThanZ(nNumber)
-		aResult = This.NumbersLessThanQR(nNumber, :stzListOfNumbers).ARandomNumberZ()
+		aResult = This.NumbersLessThanQRT(nNumber, :stzListOfNumbers).ARandomNumberZ()
 
 		return aResult
 
@@ -4637,7 +4637,7 @@ class stzListOfNumbers from stzList
 	#---------------------------------------------------------------------#
 
 	def ANumberGreaterThan(nNumber)
-		nResult = This.NumbersGreaterThanQR(nNumber, :stzListOfNumbers).ARandomNumber()
+		nResult = This.NumbersGreaterThanQRT(nNumber, :stzListOfNumbers).ARandomNumber()
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -4692,7 +4692,7 @@ class stzListOfNumbers from stzList
 	#-- Z/EXTENDED FORM
 
 	def ANumberGreaterThanZ(nNumber)
-		aResult = This.NumbersGreaterThanQR(nNumber, :stzListOfNumbers).ARandomNumberZ()
+		aResult = This.NumbersGreaterThanQRT(nNumber, :stzListOfNumbers).ARandomNumberZ()
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -6765,9 +6765,9 @@ class stzListOfNumbers from stzList
 		#< @FunctionFluentForms
 
 		def NumbersSmallerThanQ(n)
-			return This.NumbersSmallerThanQR(n, :stzList)
+			return This.NumbersSmallerThanQRT(n, :stzList)
 
-		def NumbersSmallerThanQR(n, pcReturnType)
+		def NumbersSmallerThanQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NumbersSmallerThan(n) )
@@ -6789,8 +6789,8 @@ class stzListOfNumbers from stzList
 			def NumbersLessThanQ(n)
 				return This.NumbersSmallerThanQ(n)
 
-			def NumbersLessThanQR(n, pcReturnType)
-				return This.NumbersSmallerThanQR(n, pcReturnType)
+			def NumbersLessThanQRT(n, pcReturnType)
+				return This.NumbersSmallerThanQRT(n, pcReturnType)
 
 		#>
 
@@ -6842,9 +6842,9 @@ class stzListOfNumbers from stzList
 		#< @FunctionFluentForms
 
 		def NumbersGreaterThanQ(n)
-			return This.NumbersGreaterThanQR(n, :stzList)
+			return This.NumbersGreaterThanQRT(n, :stzList)
 
-		def NumberGreaterThanQR(n, pcReturnType)
+		def NumberGreaterThanQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NumbersGreaterThan(n) )
@@ -6866,7 +6866,7 @@ class stzListOfNumbers from stzList
 			def NumbersLargerThanQ(n)
 				return This.NumberSmallerThanQ(n)
 
-			def NumbersLargerThanQR(n, pcReturnType)
+			def NumbersLargerThanQRT(n, pcReturnType)
 				return This.NumberSmallerThanQ(n, pcReturnType)
 
 		def NumbersBiggerThan(n)
@@ -6875,7 +6875,7 @@ class stzListOfNumbers from stzList
 			def NumbersBiggerThanQ(n)
 				return This.NumberSmallerThanQ(n)
 
-			def NumbersBiggerThanQR(n, pcReturnType)
+			def NumbersBiggerThanQRT(n, pcReturnType)
 				return This.NumberSmallerThanQ(n, pcReturnType)
 
 		def NumbersMoreThan(n)
@@ -6884,7 +6884,7 @@ class stzListOfNumbers from stzList
 			def NumbersMoreThanQ(n)
 				return This.NumberSmallerThanQ(n)
 
-			def NumbersMoreThanQR(n, pcReturnType)
+			def NumbersMoreThanQRT(n, pcReturnType)
 				return This.NumberSmallerThanQ(n, pcReturnType)
 
 		#>
@@ -6947,9 +6947,9 @@ class stzListOfNumbers from stzList
 		#< @FunctionFluentForms
 
 		def NumbersOtherThanQ(n)
-			return new NumbersOtherThanQR(n, :stzList)
+			return new NumbersOtherThanQRT(n, :stzList)
 
-		def NumbersOtherThanQR(n, pcReturnType)
+		def NumbersOtherThanQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NumbersOtherThan(n) )
@@ -6971,8 +6971,8 @@ class stzListOfNumbers from stzList
 			def NumbersDifferentFromQ(n)
 				return This.NumbersOtherThanQ(n)
 
-			def NumbersDifferentFromQR(n, pcReturnType)
-				return This.NumbersOtherThanQR(n, pcReturnType)
+			def NumbersDifferentFromQRT(n, pcReturnType)
+				return This.NumbersOtherThanQRT(n, pcReturnType)
 
 		def NumbersDifferentOf(n)
 			return This.NumbersOtherThan(n)
@@ -6980,8 +6980,8 @@ class stzListOfNumbers from stzList
 			def NumbersDifferentOfQ(n)
 				return This.NumbersOtherThanQ(n)
 
-			def NumbersDifferentOfQR(n, pcReturnType)
-				return This.NumbersOtherThanQR(n, pcReturnType)
+			def NumbersDifferentOfQRT(n, pcReturnType)
+				return This.NumbersOtherThanQRT(n, pcReturnType)
 
 		def NumbersDifferentTo(n)
 			return This.NumbersOtherThan(n)
@@ -6989,8 +6989,8 @@ class stzListOfNumbers from stzList
 			def NumbersDifferentToQ(n)
 				return This.NumbersOtherThanQ(n)
 
-			def NumbersDifferentToQR(n, pcReturnType)
-				return This.NumbersOtherThanQR(n, pcReturnType)
+			def NumbersDifferentToQRT(n, pcReturnType)
+				return This.NumbersOtherThanQRT(n, pcReturnType)
 
 		#>
 
@@ -7373,6 +7373,54 @@ class stzListOfNumbers from stzList
 			def PositiveQ()
 				return This.ArePositiveQ()
 
+	def AreGreaterThen(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		_bResult_ = _TRUE_
+
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
+
+		for @i = 1 to _nLen_
+			if _anContent_[@i] < n
+				_bResult_ = _FALSE_
+				exit
+			ok
+		next
+
+		return _bResult_
+
+		def AreOver(n)
+			return This.AreGreaterThen(n)
+
+	def AreSmallerThen(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		_bResult_ = _TRUE_
+
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
+
+		for @i = 1 to _nLen_
+			if _anContent_[@i] > n
+				_bResult_ = _FALSE_
+				exit
+			ok
+		next
+
+		return _bResult_
+
+		def AreUnder(n)
+			return This.AreSmallerThen(n)
+
 	def IsDividableBy(n)
 		
 		anContent = This.Content()
@@ -7443,7 +7491,7 @@ class stzListOfNumbers from stzList
 		def AdjustQ()
 			return new stzList( This.Adjust() )
 
-		def AdjustQR(pcReturnType)
+		def AdjustQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Adjust() )
@@ -7465,8 +7513,8 @@ class stzListOfNumbers from stzList
 			def AdjustedQ()
 				return This.AdjustQ()
 
-			def AdjustedQR(pcReturnType)
-				return This.AdjustQR(pcReturnType)
+			def AdjustedQRT(pcReturnType)
+				return This.AdjustQRT(pcReturnType)
 
 		def Justified()
 			return This.Adjust()
@@ -7474,8 +7522,8 @@ class stzListOfNumbers from stzList
 			def JustifiedQ()
 				return This.AdjustQ()
 
-			def JustifiedQR(pcReturnType)
-				return This.AdjustQR(pcReturnType)
+			def JustifiedQRT(pcReturnType)
+				return This.AdjustQRT(pcReturnType)
 
 		def Justify()
 			return This.Adjust()
@@ -7483,8 +7531,8 @@ class stzListOfNumbers from stzList
 			def JustifyQ()
 				return This.AdjustQ()
 
-			def JustifyQR(pcReturnType)
-				return This.AdjustQR(pcReturnType)
+			def JustifyQRT(pcReturnType)
+				return This.AdjustQRT(pcReturnType)
 		#>
 
 	  #---------------------------------------------------------#
@@ -7593,7 +7641,7 @@ class stzListOfNumbers from stzList
 		def AdjustUsingQ(c)
 			return new stzList( This.AdjustUsing(c) )
 
-		def AdjustUsingQR(c, pcReturnType)
+		def AdjustUsingQRT(c, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.AdjustUsing(c) )
@@ -7615,8 +7663,8 @@ class stzListOfNumbers from stzList
 			def AdjustedUsingQ(c)
 				return This.AdjustUsingQ(c)
 
-			def AdjustedUsingQR(c, pcReturnType)
-				return This.AdjustUsingQR(c, pcReturnType)
+			def AdjustedUsingQRT(c, pcReturnType)
+				return This.AdjustUsingQRT(c, pcReturnType)
 
 		def JustifiedUsing(c)
 			return This.AdjustUsing(c)
@@ -7624,8 +7672,8 @@ class stzListOfNumbers from stzList
 			def JustifiedUsingQ(c)
 				return This.AdjustUsingQ(c)
 
-			def JustifiedUsingQR(c, pcReturnType)
-				return This.AdjustUsingQR(c, pcReturnType)
+			def JustifiedUsingQRT(c, pcReturnType)
+				return This.AdjustUsingQRT(c, pcReturnType)
 
 		def JustifyUsing(c)
 			return This.AdjustUsing(c)
@@ -7633,8 +7681,8 @@ class stzListOfNumbers from stzList
 			def JustifyUsingQ(c)
 				return This.AdjustUsingQ(c)
 
-			def JustifyUsingQR(c, pcReturnType)
-				return This.AdjustUsingQR(c, pcReturnType)
+			def JustifyUsingQRT(c, pcReturnType)
+				return This.AdjustUsingQRT(c, pcReturnType)
 
 		#>
 
@@ -7651,7 +7699,7 @@ class stzListOfNumbers from stzList
 		def AdjustXTQ()
 			return new stzList( This.AdjustXT() )
 
-		def AdjustXTQR(pcReturnType)
+		def AdjustXTQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.AdjustXT() )
@@ -7673,8 +7721,8 @@ class stzListOfNumbers from stzList
 			def AdjustedXTQ()
 				return This.AdjustXTQ()
 
-			def AdjustedXTQR(pcReturnType)
-				return This.AdjustXTQR(pcReturnType)
+			def AdjustedXTQRT(pcReturnType)
+				return This.AdjustXTQRT(pcReturnType)
 
 		def JustifiedXT()
 			return This.AdjustXT()
@@ -7682,8 +7730,8 @@ class stzListOfNumbers from stzList
 			def JustifiedXTQ()
 				return This.AdjustXTQ()
 
-			def JustifiedXTQR(pcReturnType)
-				return This.AdjustXTQR(pcReturnType)
+			def JustifiedXTQRT(pcReturnType)
+				return This.AdjustXTQRT(pcReturnType)
 
 		def JustifyXT()
 			return This.AdjustXT()
@@ -7691,8 +7739,8 @@ class stzListOfNumbers from stzList
 			def JustifyXTQ()
 				return This.AdjustXTQ()
 
-			def JustifyXTQR(pcReturnType)
-				return This.AdjustXTQR(pcReturnType)
+			def JustifyXTQRT(pcReturnType)
+				return This.AdjustXTQRT(pcReturnType)
 		#>
 
 	  #====================================#

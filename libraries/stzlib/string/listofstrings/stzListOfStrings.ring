@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------#
+	#-------------------------------------------------------------------------------#
 # 		   SOFTANZA LIBRARY (V1.0) - stzListOfStrings			#
 #		 An accelerative library for Ring applications	      		#
 #-------------------------------------------------------------------------------#
@@ -211,9 +211,9 @@ class stzListOfStrings from stzList
 			return This.Content()
 	
 			def StringsQ()
-				return This.StringsQR(:stzList)
+				return This.StringsQRT(:stzList)
 	
-			def StringsQR(pcReturnType)
+			def StringsQRT(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamType()
 					pcReturnType = pcReturnType[2]
 				ok
@@ -624,7 +624,7 @@ class stzListOfStrings from stzList
 			This.FilterCS(pcSubStr, pCaseSensitive)
 			return This
 
-		def FilterCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+		def FilterCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -653,7 +653,7 @@ class stzListOfStrings from stzList
 			This.Filter(pcSubStr)
 			return This
 
-		def FilterQR(pcSubStr, pcReturnType)
+		def FilterQRT(pcSubStr, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -1392,7 +1392,7 @@ class stzListOfStrings from stzList
 		def SplitQ(cSep)
 			return new stzListOfLists( This.Split(cSep) )
 
-		def SplitQR(cSep, pcReturnType)
+		def SplitQRT(cSep, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -1410,7 +1410,7 @@ class stzListOfStrings from stzList
 
 			other
 				StzRaise([
-					:Where = "stzListOfStrings (8611) > SplitQR()",
+					:Where = "stzListOfStrings (8611) > SplitQRT()",
 					:What  = "Can't cast the object to the type you requested!",
 					:Why   = "The type you required is not supported",
 					:Todo  = "Opt for an other type, implement it by yourself, or create the type of object uisng new."
@@ -1427,8 +1427,8 @@ class stzListOfStrings from stzList
 			def SplitStringsQ(cSep)
 				return This.SplitQ(cSep)
 
-			def SplitStringsQR(cSep, pcReturnType)
-				return This.SplitQR(cSep, pcReturnType)
+			def SplitStringsQRT(cSep, pcReturnType)
+				return This.SplitQRT(cSep, pcReturnType)
 
 		def SplitEachString(cSep)
 			return This.Split(cSep)
@@ -1436,8 +1436,8 @@ class stzListOfStrings from stzList
 			def SplitEachStringQ(cSep)
 				return This.SplitQ(cSep)
 
-			def SplitEachStringQR(cSep, pcReturnType)
-				return This.SplitQR(cSep, pcReturnType)
+			def SplitEachStringQRT(cSep, pcReturnType)
+				return This.SplitQRT(cSep, pcReturnType)
 
 		def SplitEach(cSep)
 			return This.Split(cSep)
@@ -1445,8 +1445,8 @@ class stzListOfStrings from stzList
 			def SplitEachQ(cSep)
 				return This.SplitQ(cSep)
 
-			def SplitEachQR(cSep, pcReturnType)
-				return This.SplitQR(cSep, pcReturnType)
+			def SplitEachQRT(cSep, pcReturnType)
+				return This.SplitQRT(cSep, pcReturnType)
 
 		#>
 
@@ -1585,9 +1585,9 @@ class stzListOfStrings from stzList
 		return acResult
 
 		def ScriptsQ()
-			return This.ScriptsQR(:stzList)
+			return This.ScriptsQRT(:stzList)
 
-		def ScriptsQR(pcReturnType)
+		def ScriptsQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -2005,7 +2005,7 @@ class stzListOfStrings from stzList
 		def FirstCharsQ()
 			return new stzList(This.FirstChars())
 
-		def FirstCharsQR(pcReturnType)
+		def FirstCharsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.FirstChars())
@@ -2038,7 +2038,7 @@ class stzListOfStrings from stzList
 		def LastCharsQ()
 			return new stzList(This.LastChars())
 
-		def LastCharsQR(pcReturnType)
+		def LastCharsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.LastChars())
@@ -2097,3 +2097,58 @@ class stzListOfStrings from stzList
 
 		def StringReplacedAtPosition(n, pcNewStr)
 			return This.ReplacedAt(n, pcNewStr)
+
+	  #==========================================#
+	 #  MATCHING PATTERNS (REGULAR EXPRESSION)  #
+	#==========================================#
+
+	def Matches(pcRegExpPatt)
+		_bResult_ = _TRUE_
+
+		_acContent_ = This.Content()
+		_nLen_ = len(_acContent_)
+
+		for @i = 1 to _nLen_
+			if rx(pcRegExpPatt).Match(_acContent_[@i]) = _FALSE_
+				_bResult_ = _FALSE_
+				exit
+			ok
+		next
+
+		return _bResult_
+
+		def Match(pcRegExpPatt)
+			return This.Matches(pcRegExpPatt)
+
+		#< @FunctionStatementForm
+
+		def MatchesX(pcRegExpPatt)
+	
+			bTruth = TruthStatement()
+	
+			if bTruth = _TRUE_
+	
+				return This.Matches(pcRegExpPatt)
+	
+			else
+	
+				_bResult_ = _TRUE_
+		
+				_acContent_ = This.Content()
+				_nLen_ = len(_acContent_)
+		
+				for @i = 1 to _nLen_
+					if rx(pcRegExpPatt).Match(_acContent_[@i]) = _TRUE_
+						_bResult_ = _FALSE_
+						exit
+					ok
+				next
+		
+				return _bResult_
+	
+			ok
+	
+			def MatchX(pcRegExpPatt)
+				return MatchesX(pcRegExpPatt)
+
+		#>

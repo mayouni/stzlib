@@ -490,9 +490,9 @@ func MathChars()
 	return UnicodesToChars(MathUnicodes())
 
 	func MathCharsQ()
-		return MathCharsQR(:stzList)
+		return MathCharsQRT(:stzList)
 
-	func MathCharsQR(pcReturnType)
+	func MathCharsQRT(pcReturnType)
 
 		switch pcReturnType
 		on :stzList

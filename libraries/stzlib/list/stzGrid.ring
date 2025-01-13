@@ -284,7 +284,7 @@ class stzGrid from stzObject
 			if Q(p).ContainsOneOfThese([ NL, GridSep() ])
 
 				aTempGrid = Q(p).RemoveEmptyLinesQ().
-						LinesQR(:stzListOfStrings).
+						LinesQRT(:stzListOfStrings).
 						TrimQ().
 						StringsSplitted(:Using = GridSep())
 

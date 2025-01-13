@@ -35,7 +35,7 @@ pr()
 ? NumberOfMathChars()
 #--> 68
 
-? MathCharsQR(:stzListOfChars).CharsAndTheirNames()
+? MathCharsQRT(:stzListOfChars).CharsAndTheirNames()
 #--> [
 #	[ "¬", "NOT SIGN" ], [ "°", "DEGREE SIGN" ], [ "±", "PLUS-MINUS SIGN" ],
 #	[ "¼", "VULGAR FRACTION ONE QUARTER" ], [ "½", "VULGAR FRACTION ONE HALF" ],

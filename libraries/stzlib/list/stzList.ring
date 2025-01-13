@@ -7231,9 +7231,9 @@ class stzList from stzObject
 		#< @FunctionFluentForms
 
 		def NFirstItemsQ(n)
-			return NFirstItemsQR(n, :stzList)
+			return NFirstItemsQRT(n, :stzList)
 
-		def NFirstItemsQR(n, pcReturnType)
+		def NFirstItemsQRT(n, pcReturnType)
 			if isList(pcReturnType) and
 			   Q(pcReturnType).IsReturnedAsNamedParam()
 
@@ -7268,8 +7268,8 @@ class stzList from stzObject
 			def FirstNItemsQ(n)
 				return This.NFirstItemsQ(n)
 
-			def FirstNItemsQR(n, pcReturnType)
-				return This.NFirstItemsQR(n, pcReturnType)
+			def FirstNItemsQRT(n, pcReturnType)
+				return This.NFirstItemsQRT(n, pcReturnType)
 
 		#>
 
@@ -7393,8 +7393,8 @@ class stzList from stzObject
 			def NFristItemsQ(n)
 				return This.NFirstItemsQ(n)
 
-			def NFristItemsQR(n, pcReturnType)
-				return This.NFirstItemsQR(n, pcReturnType)
+			def NFristItemsQRT(n, pcReturnType)
+				return This.NFirstItemsQRT(n, pcReturnType)
 
 		def FristNItems(n)
 			return This.NFirstItems(n)
@@ -7402,8 +7402,8 @@ class stzList from stzObject
 			def FristNItemsQ(n)
 				return This.NFirstItemsQ(n)
 
-			def FristNItemsQR(n, pcReturnType)
-				return This.NFirstItemsQR(n, pcReturnType)
+			def FristNItemsQRT(n, pcReturnType)
+				return This.NFirstItemsQRT(n, pcReturnType)
 
 		#--
 
@@ -7538,9 +7538,9 @@ class stzList from stzObject
 		#< @FunctionFluentForms
 
 		def NLastItemsQ(n)
-			return NLastItemsQR(n, :stzList)
+			return NLastItemsQRT(n, :stzList)
 
-		def NLastItemsQR(n, pcReturnType)
+		def NLastItemsQRT(n, pcReturnType)
 			if isList(pcReturnType) and
 			   Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
@@ -7574,8 +7574,8 @@ class stzList from stzObject
 			def LastNItemsQ(n)
 				return This.NLastItemsQ(n)
 
-			def LastNItemsQR(n, pcReturnType)
-				return This.NLastItemsQR(n, pcReturnType)
+			def LastNItemsQRT(n, pcReturnType)
+				return This.NLastItemsQRT(n, pcReturnType)
 
 		#>
 
@@ -7733,9 +7733,9 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def NextNItemsQ(n, pnStartingAt)
-			return This.NextNItemsQR(n, pnStartingAt, :stzList)
+			return This.NextNItemsQRT(n, pnStartingAt, :stzList)
 
-		def NextNItemsQR(n, pnStartingAt, pcReturnType)
+		def NextNItemsQRT(n, pnStartingAt, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NextNItems(n, pnStartingAt) )
@@ -7772,8 +7772,8 @@ class stzList from stzObject
 			def NextNItemsSTQ(n, pnStartingAt)
 				return This.NextNItemsQ(n, pnStartingAt)
 
-			def NextNItemsSTQR(n, pnStartingAt, pcReturnType)
-				return This.NextNItemsQR(n, pnStartingAt, pcReturnType)
+			def NextNItemsSTQRT(n, pnStartingAt, pcReturnType)
+				return This.NextNItemsQRT(n, pnStartingAt, pcReturnType)
 
 		#>
 
@@ -7820,9 +7820,9 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def PreviousNItemsQ(n, pnStartingAt)
-			return This.PreviousNItemsQR(n, pnStartingAt, :stzList)
+			return This.PreviousNItemsQRT(n, pnStartingAt, :stzList)
 
-		def PreviousNItemsQR(n, pnStartingAt, pcReturnType)
+		def PreviousNItemsQRT(n, pnStartingAt, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.PreviousNItems(n, pnStartingAt) )
@@ -7859,8 +7859,8 @@ class stzList from stzObject
 			def PreviousNItemsSTQ(n, pnStartingAt)
 				return This.PreviousNItemsQ(n, pnStartingAt)
 
-			def PreviousNItemsSTQR(n, pnStartingAt, pcReturnType)
-				return This.PreviousNItemsQR(n, pnStartingAt, pcReturnType)
+			def PreviousNItemsSTQRT(n, pnStartingAt, pcReturnType)
+				return This.PreviousNItemsQRT(n, pnStartingAt, pcReturnType)
 
 		#>
 
@@ -17864,7 +17864,7 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! panSection1 and panSection2 must be both pairs of number.")
 		ok
 
-		aSorted = QR([ panSection1, panSection2 ], :stzListOfPairs).Sorted()
+		aSorted = QRT([ panSection1, panSection2 ], :stzListOfPairs).Sorted()
 
 		anFirstSection = []
 		anLastSection  = []
@@ -29742,9 +29742,9 @@ class stzList from stzObject
 		#< @FunctionFluentForms
 
 		def ClassifyQ()
-			return This.ClassifyQR(:stzList)
+			return This.ClassifyQRT(:stzList)
 
-		def ClassifyQR(pcReturnType)
+		def ClassifyQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -29788,9 +29788,9 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def ClassesQ()
-			return This.ClassesQR(:stzList)
+			return This.ClassesQRT(:stzList)
 
-		def ClassesQR(pcReturnType)
+		def ClassesQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -29915,9 +29915,9 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def Classify@CQ()
-			return This.Classify@CQR(:stzList)
+			return This.Classify@CQRT(:stzList)
 
-		def Classify@CQR(pcReturnType)
+		def Classify@CQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -29954,9 +29954,9 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def Classes@CQ()
-			return This.Classes@CQR(:stzList)
+			return This.Classes@CQRT(:stzList)
 
-		def Classes@CQR(pcReturnType)
+		def Classes@CQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -30100,9 +30100,9 @@ class stzList from stzObject
 		#< @FunctionFluentForms
 
 		def ClassifyByCSQ(pcExpr, pCaseSensitive)
-			return This.ClassifyByCSQR(pcExpr, pCaseSensitive, :stzList)
+			return This.ClassifyByCSQRT(pcExpr, pCaseSensitive, :stzList)
 
-		def ClassifyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+		def ClassifyByCSQRT(pcExpr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.ClassifyByCS(pcExpr, pCaseSensitive) )
@@ -30136,8 +30136,8 @@ class stzList from stzObject
 		def ClassifyByQ(pcExpr)
 			return This.ClassifyByCSQ(pcExpr, _TRUE_)
 
-		def ClassifyByQR(pcExpr, pcReturnType)
-			return This.ClassifyByCSQR(pcExpr, _TRUE_, pcReturnType)
+		def ClassifyByQRT(pcExpr, pcReturnType)
+			return This.ClassifyByCSQRT(pcExpr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -30202,9 +30202,9 @@ class stzList from stzObject
 		#< @FunctionFluentForms
 
 		def PartsCSQ(pCaseSensitive)
-			return This.PartsCSQR(pCaseSensitive, :stzList)
+			return This.PartsCSQRT(pCaseSensitive, :stzList)
 
-		def PartsCSQR(pCaseSensitive, pcReturnType)
+		def PartsCSQRT(pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.PartsCS(pCaseSensitive) )
@@ -30226,19 +30226,19 @@ class stzList from stzObject
 			return This.PartsCS(pCaseSensitive)
 
 			def PartitionCSQ(pCaseSensitive)
-				return This.PartitionCSQR(pCaseSensitive, :stzList)
+				return This.PartitionCSQRT(pCaseSensitive, :stzList)
 
-			def PartitionCSQR(pCaseSensitive, pcReturnType)
-				return This.PartsCSQR(pCaseSensitive, pcReturnType)
+			def PartitionCSQRT(pCaseSensitive, pcReturnType)
+				return This.PartsCSQRT(pCaseSensitive, pcReturnType)
 
 		def PartionedCS(pCaseSensitive)
 			return This.PartsCS(pCaseSensitive)
 
 			def PartionedCSQ(pCaseSensitive)
-				return This.PartionedCSQR(pCaseSensitive, :stzList)
+				return This.PartionedCSQRT(pCaseSensitive, :stzList)
 
-			def PartionedCSQR(pCaseSensitive, pcReturnType)
-				return This.PartsCSQR(pCaseSensitive, pcReturnType)
+			def PartionedCSQRT(pCaseSensitive, pcReturnType)
+				return This.PartsCSQRT(pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -30250,10 +30250,10 @@ class stzList from stzObject
 		#< @FunctionFluentForms
 
 		def PartsQ()
-			return This.PartsQR(:stzList)
+			return This.PartsQRT(:stzList)
 
-		def PartsQR(pcReturnType)
-			return This.PartsCSQR(TRUE, pcReturnType)
+		def PartsQRT(pcReturnType)
+			return This.PartsCSQRT(TRUE, pcReturnType)
 
 		#>
 
@@ -30263,19 +30263,19 @@ class stzList from stzObject
 			return This.Parts()
 
 			def PartitionQ()
-				return This.PartitionQR(:stzList)
+				return This.PartitionQRT(:stzList)
 
-			def PartitionQR(pcReturnType)
-				return This.PartsQR(pcReturnType)
+			def PartitionQRT(pcReturnType)
+				return This.PartsQRT(pcReturnType)
 
 		def Partioned()
 			return This.Parts()
 
 			def PartionedQ()
-				return This.PartionedQR(:stzList)
+				return This.PartionedQRT(:stzList)
 
-			def PartionedQR(pcReturnType)
-				return This.PartsQR(pcReturnType)
+			def PartionedQRT(pcReturnType)
+				return This.PartsQRT(pcReturnType)
 
 		#>
 
@@ -30698,9 +30698,9 @@ class stzList from stzObject
 		#< @FunctionFluentForms
 
 		def PartsUsingCSQ(paPartitionExpr, pCaseSensitive)
-			return This.PartsUsingCSQR(paPartitionExpr, pCaseSensitive, :stzList)
+			return This.PartsUsingCSQRT(paPartitionExpr, pCaseSensitive, :stzList)
 
-		def PartsUsingCSQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+		def PartsUsingCSQRT(paPartitionExpr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.PartsUsingCS(paPartitionExpr, pCaseSensitive) )
@@ -30722,19 +30722,19 @@ class stzList from stzObject
 			return This.PartsUsingCS(paPartitionExpr, pCaseSensitive)
 
 			def PartitionUsingCSQ(paPartitionExpr, pCaseSensitive)
-				return This.PartitionUsingCSQR(paPartitionExpr, pCaseSensitive, :stzList)
+				return This.PartitionUsingCSQRT(paPartitionExpr, pCaseSensitive, :stzList)
 
-			def PartitionCSUsingQR(paPartitionExpr, pCaseSensitive, pcReturnType)
-				return This.PartsUsingCSQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+			def PartitionCSUsingQRT(paPartitionExpr, pCaseSensitive, pcReturnType)
+				return This.PartsUsingCSQRT(paPartitionExpr, pCaseSensitive, pcReturnType)
 
 		def PartionedUsingCS(paPartitionExpr, pCaseSensitive)
 			return This.PartsUsingCS(paPartitionExpr, pCaseSensitive)
 
 			def PartionedUsingCSQ(paPartitionExpr, pCaseSensitive)
-				return This.PartionedUsingCSQR(paPartitionExpr, pCaseSensitive, :stzList)
+				return This.PartionedUsingCSQRT(paPartitionExpr, pCaseSensitive, :stzList)
 
-			def PartionedUsingCSQR(paPartitionExpr, pCaseSensitive, pcReturnType)
-				return This.PartsUsingCSQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+			def PartionedUsingCSQRT(paPartitionExpr, pCaseSensitive, pcReturnType)
+				return This.PartsUsingCSQRT(paPartitionExpr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -30746,10 +30746,10 @@ class stzList from stzObject
 		#< @FunctionFluentForms
 
 		def PartsUsingQ(paPartitionExpr)
-			return This.PartsUsingQR(paPartitionExpr, :stzList)
+			return This.PartsUsingQRT(paPartitionExpr, :stzList)
 
-		def PartsUsingQR(paPartitionExpr, pcReturnType)
-			return This.PartsUsingCSQR(paPartitionExpr, _TRUE_, pcReturnType)
+		def PartsUsingQRT(paPartitionExpr, pcReturnType)
+			return This.PartsUsingCSQRT(paPartitionExpr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -30759,19 +30759,19 @@ class stzList from stzObject
 			return This.PartsUsing(paPartitionExpr)
 
 			def PartitionUsingQ(paPartitionExpr)
-				return This.PartitionUsingQR(paPartitionExpr, :stzList)
+				return This.PartitionUsingQRT(paPartitionExpr, :stzList)
 
-			def PartitionUsingQR(paPartitionExpr, pcReturnType)
-				return This.PartsUsingQR(paPartitionExpr, pcReturnType)
+			def PartitionUsingQRT(paPartitionExpr, pcReturnType)
+				return This.PartsUsingQRT(paPartitionExpr, pcReturnType)
 
 		def PartionedUsing(paPartitionExpr)
 			return This.PartsUsing(paPartitionExpr)
 
 			def PartionedUsingQ(paPartitionExpr)
-				return This.PartionedUsingQR(paPartitionExpr, :stzList)
+				return This.PartionedUsingQRT(paPartitionExpr, :stzList)
 
-			def PartionedUsingQR(paPartitionExpr, pcReturnType)
-				return This.PartsUsingQR(paPartitionExpr, pcReturnType)
+			def PartionedUsingQRT(paPartitionExpr, pcReturnType)
+				return This.PartsUsingQRT(paPartitionExpr, pcReturnType)
 
 		#>
 
@@ -30899,9 +30899,9 @@ class stzList from stzObject
 		#< @FunctionFluentForms
 
 		def PartsUsingCSXTQ(paPartitionExpr, pCaseSensitive)
-			return This.PartsUsingCSXTQR(paPartitionExpr, pCaseSensitive, :stzList)
+			return This.PartsUsingCSXTQRT(paPartitionExpr, pCaseSensitive, :stzList)
 
-		def PartsUsingCSXTQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+		def PartsUsingCSXTQRT(paPartitionExpr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.PartsUsingCSXT(paPartitionExpr, pCaseSensitive) )
@@ -30923,19 +30923,19 @@ class stzList from stzObject
 			return This.PartsUsingCSXT(paPartitionExpr, pCaseSensitive)
 
 			def PartitionUsingCSXTQ(paPartitionExpr, pCaseSensitive)
-				return This.PartitionUsingCSXTQR(paPartitionExpr, pCaseSensitive, :stzList)
+				return This.PartitionUsingCSXTQRT(paPartitionExpr, pCaseSensitive, :stzList)
 
-			def PartitionCSUsingXTQR(paPartitionExpr, pCaseSensitive, pcReturnType)
-				return This.PartsUsingCSXTQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+			def PartitionCSUsingXTQRT(paPartitionExpr, pCaseSensitive, pcReturnType)
+				return This.PartsUsingCSXTQRT(paPartitionExpr, pCaseSensitive, pcReturnType)
 
 		def PartionedUsingCSXT(paPartitionExpr, pCaseSensitive)
 			return This.PartsUsingCSXT(paPartitionExpr, pCaseSensitive)
 
 			def PartionedUsingCSXTQ(paPartitionExpr, pCaseSensitive)
-				return This.PartionedUsingCSXTQR(paPartitionExpr, pCaseSensitive, :stzList)
+				return This.PartionedUsingCSXTQRT(paPartitionExpr, pCaseSensitive, :stzList)
 
-			def PartionedUsingCSXTQR(paPartitionExpr, pCaseSensitive, pcReturnType)
-				return This.PartsUsingCSXTQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+			def PartionedUsingCSXTQRT(paPartitionExpr, pCaseSensitive, pcReturnType)
+				return This.PartsUsingCSXTQRT(paPartitionExpr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -30947,10 +30947,10 @@ class stzList from stzObject
 		#< @FunctionFluentForms
 
 		def PartsUsingXTQ(paPartitionExpr)
-			return This.PartsUsingXTQR(paPartitionExpr, :stzList)
+			return This.PartsUsingXTQRT(paPartitionExpr, :stzList)
 
-		def PartsUsingXTQR(paPartitionExpr, pcReturnType)
-			return This.PartsUsingCSXTQR(paPartitionExpr, _TRUE_, pcReturnType)
+		def PartsUsingXTQRT(paPartitionExpr, pcReturnType)
+			return This.PartsUsingCSXTQRT(paPartitionExpr, _TRUE_, pcReturnType)
 
 		#>
 
@@ -30960,19 +30960,19 @@ class stzList from stzObject
 			return This.PartsUsingXT(paPartitionExpr)
 
 			def PartitionUsingXTQ(paPartitionExpr)
-				return This.PartitionUsingXTQR(paPartitionExpr, :stzList)
+				return This.PartitionUsingXTQRT(paPartitionExpr, :stzList)
 
-			def PartitionUsingXTQR(paPartitionExpr, pcReturnType)
-				return This.PartsUsingXTQR(paPartitionExpr, pcReturnType)
+			def PartitionUsingXTQRT(paPartitionExpr, pcReturnType)
+				return This.PartsUsingXTQRT(paPartitionExpr, pcReturnType)
 
 		def PartionedUsingXT(paPartitionExpr)
 			return This.PartsUsingXT(paPartitionExpr)
 
 			def PartionedUsingXTQ(paPartitionExpr)
-				return This.PartionedUsingXTQR(paPartitionExpr, :stzList)
+				return This.PartionedUsingXTQRT(paPartitionExpr, :stzList)
 
-			def PartionedUsingXTQR(paPartitionExpr, pcReturnType)
-				return This.PartsUsingXTQR(paPartitionExpr, pcReturnType)
+			def PartionedUsingXTQRT(paPartitionExpr, pcReturnType)
+				return This.PartsUsingXTQRT(paPartitionExpr, pcReturnType)
 
 		#>
 
@@ -35518,7 +35518,7 @@ class stzList from stzObject
 			This.Flatten()
 			return This
 
-		def FlattenQR(pcReturnType)
+		def FlattenQRT(pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -43245,9 +43245,9 @@ fdef
 		#< @FunctionFluentForm
 
 		def FindAllOccurrencesCSQ(pItem, pCaseSensitive)
-			return This.FindAllOccurrencesCSQR(pItem, pCaseSensitive, :stzList)
+			return This.FindAllOccurrencesCSQRT(pItem, pCaseSensitive, :stzList)
 
-		def FindAllOccurrencesCSQR(pItem, pCaseSensitive, pcReturnType)
+		def FindAllOccurrencesCSQRT(pItem, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -43309,10 +43309,10 @@ fdef
 			#< @FunctionFluentForm
 
 			def FindAllCSQ(pItem, pCaseSensitive)
-				return This.FindAllCSQR(pItem, pCaseSensitive, :stzList)
+				return This.FindAllCSQRT(pItem, pCaseSensitive, :stzList)
 	
-			def FindAllCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.FindAllOccurrencesCSQR(pItem, pCaseSensitive, pcReturnType)
+			def FindAllCSQRT(pItem, pCaseSensitive, pcReturnType)
+				return This.FindAllOccurrencesCSQRT(pItem, pCaseSensitive, pcReturnType)
 			#>
 
 		def FindItemCS(pItem, pCaseSensitive)
@@ -43321,10 +43321,10 @@ fdef
 			#< @FunctionFluentForm
 
 			def FindItemCSQ(pItem, pCaseSensitive)
-				return This.FindItemCSQR(pItem, pCaseSensitive, :stzList)
+				return This.FindItemCSQRT(pItem, pCaseSensitive, :stzList)
 	
-			def FindItemCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.FindAllCSQR(pItem, pCaseSensitive, pcReturnType)
+			def FindItemCSQRT(pItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQRT(pItem, pCaseSensitive, pcReturnType)
 			#>
 
 		def PositionsCS(pItem, pCaseSensitive)
@@ -43333,10 +43333,10 @@ fdef
 			#< @FunctionFluentForm
 
 			def PositionsCSQ(pItem, pCaseSensitive)
-				return This.PositionsCSQR(pItem, pCaseSensitive, :stzList)
+				return This.PositionsCSQRT(pItem, pCaseSensitive, :stzList)
 	
-			def PositionsCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.FindAllCSQR(pItem, pCaseSensitive, pcReturnType)
+			def PositionsCSQRT(pItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQRT(pItem, pCaseSensitive, pcReturnType)
 			#>
 
 		def OccurrencesCS(pItem, pCaseSensitive)
@@ -43345,10 +43345,10 @@ fdef
 			#< @FunctionFluentForm
 
 			def OccurrencesCSQ(pItem, pCaseSensitive)
-				return This.OccurrencesCSQR(pItem, pCaseSensitive, :stzList)
+				return This.OccurrencesCSQRT(pItem, pCaseSensitive, :stzList)
 	
-			def OccurrencesCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.FindAllCSQR(pItem, pCaseSensitive, pcReturnType)
+			def OccurrencesCSQRT(pItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQRT(pItem, pCaseSensitive, pcReturnType)
 			#>
 
 		def FindCS(pItem, pCaseSensitive)
@@ -43359,10 +43359,10 @@ fdef
 			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
 
 			def FindCSQ(pItem, pCaseSensitive)
-				return This.FindCSQR(pItem, pCaseSensitive, :stzList)
+				return This.FindCSQRT(pItem, pCaseSensitive, :stzList)
 
-			def FindCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.FindAllCSQR(pItem, pCaseSensitive, pcReturnType)
+			def FindCSQRT(pItem, pCaseSensitive, pcReturnType)
+				return This.FindAllCSQRT(pItem, pCaseSensitive, pcReturnType)
 
 		#>	
 
@@ -43375,10 +43375,10 @@ fdef
 		#< @FunctionFluentForm
 
 		def FindAllOccurrencesQ(pItem)
-			return This.FindAllOccurrencesQR(pItem, :stzList)
+			return This.FindAllOccurrencesQRT(pItem, :stzList)
 
-		def FindAllOccurrencesQR(pItem, pcReturnType)
-			return This.FindAllOccurrencesCSQR(pItem, _TRUE_, pcReturnType)
+		def FindAllOccurrencesQRT(pItem, pcReturnType)
+			return This.FindAllOccurrencesCSQRT(pItem, _TRUE_, pcReturnType)
 		#>
 
 		#< @FunctionAlternativeForms
@@ -43389,10 +43389,10 @@ fdef
 			#< @FunctionFluentForm
 
 			def FindAllQ(pItem)
-				return This.FindAllQR(pItem, :stzlist)
+				return This.FindAllQRT(pItem, :stzlist)
 	
-			def FindAllQR(pItem, pcReturnType)
-				return This.FindAllOccurrencesQR(pItem, pcReturnType)
+			def FindAllQRT(pItem, pcReturnType)
+				return This.FindAllOccurrencesQRT(pItem, pcReturnType)
 	
 			#>
 
@@ -43402,10 +43402,10 @@ fdef
 			#< @FunctionFluentForm
 
 			def FindItemQ(pItem)
-				return This.FindItemQR(pItem, :stzList)
+				return This.FindItemQRT(pItem, :stzList)
 	
-			def FindItemQR(pItem, pcReturnType)
-				return This.FindAllOccurrencesQR(pItem, pcReturnType)
+			def FindItemQRT(pItem, pcReturnType)
+				return This.FindAllOccurrencesQRT(pItem, pcReturnType)
 			#>
 
 		def Positions(pItem)
@@ -43414,10 +43414,10 @@ fdef
 			#< @FunctionFluentForm
 
 			def PositionsQ(pItem)
-				return This.PositionsQR(pItem, :stzList)
+				return This.PositionsQRT(pItem, :stzList)
 	
-			def PositionsQR(pItem, pcReturnType)
-				return This.FindAllOccurrencesQR(pItem, pcReturnType)
+			def PositionsQRT(pItem, pcReturnType)
+				return This.FindAllOccurrencesQRT(pItem, pcReturnType)
 			#>
 
 		def Occurrences(pItem)
@@ -43426,10 +43426,10 @@ fdef
 			#< @FunctionFluentForm
 
 			def OccurrencesQ(pItem)
-				return This.OccurrencesQR(pItem, :stzList)
+				return This.OccurrencesQRT(pItem, :stzList)
 	
-			def OccurrencesQR(pItem, pcReturnType)
-				return This.FindAllOccurrencesQR(pItem, pcReturnType)
+			def OccurrencesQRT(pItem, pcReturnType)
+				return This.FindAllOccurrencesQRT(pItem, pcReturnType)
 			#>
 
 		def Find(pItem)
@@ -43442,10 +43442,10 @@ fdef
 			#< @FunctionFluentForm
 
 			def FindQ(pItem)
-				return This.FindQR(pItem, :stzList)
+				return This.FindQRT(pItem, :stzList)
 	
-			def FindQR(pItem, pcReturnType)
-				return This.FindAllOccurrencesQR(pItem, pcReturnType)
+			def FindQRT(pItem, pcReturnType)
+				return This.FindAllOccurrencesQRT(pItem, pcReturnType)
 			#>
 		#>
 
@@ -43531,7 +43531,7 @@ fdef
 		def AntiPositionsQ(anPos)
 			return new stzList(This.AntiPositions(anPos))
 
-		def AntiPositionsQR(anPos, pcReturnType)
+		def AntiPositionsQRT(anPos, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.AntiPositions(anPos))
@@ -43551,8 +43551,8 @@ fdef
 			def AntiPositionsOfQ(anPos)
 				return This.AntiPositionsQ(anPos)
 
-			def AntiPositionsOfQR(anPos, pcReturnType)
-				return This.AntiPositionsQR(anPos, pcReturnType)
+			def AntiPositionsOfQRT(anPos, pcReturnType)
+				return This.AntiPositionsQRT(anPos, pcReturnType)
 
 		#>
 
@@ -43972,7 +43972,7 @@ fdef
 		def FindManyCSQ(paItems, pCaseSensitive)
 			return new stzList(This.FindManyCS(paItems, pCaseSensitive))
 
-		def FindManyCSQR(paItems, pCaseSensitive, pcReturnType)
+		def FindManyCSQRT(paItems, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -44010,8 +44010,8 @@ fdef
 		def FindManyQ(paItems)
 			return new stzList(This.FindMany(paItems))
 
-		def FindManyQR(paItems, pcReturnType)
-			return This.FindManyCSQR(paItems, _TRUE_, pcReturnType)
+		def FindManyQRT(paItems, pcReturnType)
+			return This.FindManyCSQRT(paItems, _TRUE_, pcReturnType)
 
 		#>
 
@@ -44219,7 +44219,7 @@ fdef
 
 		#< @FunctionFluentForm
 
-		def FindAllExceptFirstCSQR(pItem, pCaseSensitive, pcReturnType)
+		def FindAllExceptFirstCSQRT(pItem, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -44236,7 +44236,7 @@ fdef
 			off
 
 		def FindAllExceptFirstCSQ(pItem, pCaseSensitive)
-			return This.FindAllExceptFirstCSQR(pItem, pCaseSensitive, :stzList)
+			return This.FindAllExceptFirstCSQRT(pItem, pCaseSensitive, :stzList)
 
 		#
 
@@ -44247,11 +44247,11 @@ fdef
 
 			#< @FunctionFluentForm
 	
-			def FindExceptFirstCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.FindAllExceptFirstCSQR(pItem, pCaseSensitive, pcReturnType)
+			def FindExceptFirstCSQRT(pItem, pCaseSensitive, pcReturnType)
+				return This.FindAllExceptFirstCSQRT(pItem, pCaseSensitive, pcReturnType)
 	
 			def FindExceptFirstCSQ(pItem, pCaseSensitive)
-				return This.FindAllExceptFirstCSQR(pItem, pCaseSenstive, :stzList)
+				return This.FindAllExceptFirstCSQRT(pItem, pCaseSenstive, :stzList)
 	
 		def FindFirstExceptCS(pItem, pCaseSensitive)
 			return This.FindAllExceptFirstCS(pItem, pCaseSensitive)
@@ -44271,11 +44271,11 @@ fdef
 
 			#< @FunctionFluentForm
 	
-			def FindExceptFristCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.FindAllExceptFristCSQR(pItem, pCaseSensitive, pcReturnType)
+			def FindExceptFristCSQRT(pItem, pCaseSensitive, pcReturnType)
+				return This.FindAllExceptFristCSQRT(pItem, pCaseSensitive, pcReturnType)
 	
 			def FindExceptFristCSQ(pItem, pCaseSensitive)
-				return This.FindAllExceptFristCSQR(pItem, pCaseSenstive, :stzList)
+				return This.FindAllExceptFristCSQRT(pItem, pCaseSenstive, :stzList)
 	
 		def FindFristExceptCS(pItem, pCaseSensitive)
 			return This.FindAllExceptFristCS(pItem, pCaseSensitive)
@@ -44296,10 +44296,10 @@ fdef
 		#< @FunctionFluentForm
 
 		def FindAllExceptFirstQ(pItem)
-			return This.FindAllExceptFirstQR(pItem, :stzList)
+			return This.FindAllExceptFirstQRT(pItem, :stzList)
 
-		def FindAllExceptFirstQR(pItem, pcReturnType)
-			return This.FindAllExceptFirstCSQR(pItem, _TRUE_, pcReturnType)
+		def FindAllExceptFirstQRT(pItem, pcReturnType)
+			return This.FindAllExceptFirstCSQRT(pItem, _TRUE_, pcReturnType)
 
 		#
 
@@ -44310,11 +44310,11 @@ fdef
 
 			#< @FunctionFluentForm
 	
-			def FindExceptFirstQR(pItem, pcReturnType)
-				return This.FindExceptFirstCSQR(pItem, _TRUE_, pcReturType)
+			def FindExceptFirstQRT(pItem, pcReturnType)
+				return This.FindExceptFirstCSQRT(pItem, _TRUE_, pcReturType)
 	
 			def FindExceptFirstQ(pItem)
-				return This.FindAllExceptFirstQR(pItem, :stzList)
+				return This.FindAllExceptFirstQRT(pItem, :stzList)
 	
 			#>
 
@@ -44336,11 +44336,11 @@ fdef
 
 			#< @FunctionFluentForm
 	
-			def FindExceptFristQR(pItem, pcReturnType)
-				return This.FindAllExceptFristQR(pItem, pcReturnType)
+			def FindExceptFristQRT(pItem, pcReturnType)
+				return This.FindAllExceptFristQRT(pItem, pcReturnType)
 	
 			def FindExceptFristQ(pItem)
-				return This.FindAllExceptFristQR(pItem, :stzList)
+				return This.FindAllExceptFristQRT(pItem, :stzList)
 	
 		def FindFristExcept(pItem)
 			return This.FindAllExceptFrist(pItem)
@@ -44363,7 +44363,7 @@ fdef
 
 		#< @FunctionFluentForm
 
-		def FindAllExceptLastCSQR(pItem, pCaseSensitive, pcReturnType)
+		def FindAllExceptLastCSQRT(pItem, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -44379,7 +44379,7 @@ fdef
 			off
 
 		def FindAllExceptLastCSQ(pItem, pCaseSensitive)
-			return This.FindAllExceptLastCSQR(pItem, pCaseSensitive, :stzList)
+			return This.FindAllExceptLastCSQRT(pItem, pCaseSensitive, :stzList)
 
 		#
 
@@ -44390,11 +44390,11 @@ fdef
 
 			#< @FunctionFluentForm
 	
-			def FindExceptLastCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.FindAllExceptLastCSQR(pItem, pCaseSensitive, pcReturnType)
+			def FindExceptLastCSQRT(pItem, pCaseSensitive, pcReturnType)
+				return This.FindAllExceptLastCSQRT(pItem, pCaseSensitive, pcReturnType)
 	
 			def FindExceptLastCSQ(pItem)
-				return This.FindAllExceptLastQR(pItem, pCaseSensitive, :stzList)
+				return This.FindAllExceptLastQRT(pItem, pCaseSensitive, :stzList)
 	
 			#>
 
@@ -44416,7 +44416,7 @@ fdef
 
 		#< @FunctionFluentForm
 
-		def FindAllExceptLastQR(pItem, pcReturnType)
+		def FindAllExceptLastQRT(pItem, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -44432,7 +44432,7 @@ fdef
 			off
 
 		def FindAllExceptLastQ(pItem)
-			return This.FindAllExceptLastQR(pItem, :stzList)
+			return This.FindAllExceptLastQRT(pItem, :stzList)
 
 		#
 
@@ -44444,10 +44444,10 @@ fdef
 			#< @FunctionFluentForm
 	
 			def FindExceptLastQ(pItem)
-				return This.FindAllExceptLastQR(pItem, :stzListOfNumbers)
+				return This.FindAllExceptLastQRT(pItem, :stzListOfNumbers)
 
-			def FindExceptLastQR(pItem, pcReturnType)
-				return This.FindExceptLastCSQR(pItem, _TRUE_, pcReturnType)
+			def FindExceptLastQRT(pItem, pcReturnType)
+				return This.FindExceptLastCSQRT(pItem, _TRUE_, pcReturnType)
 		
 			#>
 
@@ -50342,9 +50342,9 @@ fdef
 		#< @FunctionFluentForms
 
 		def ItemsAtPositionsQ(panPos)
-			return This.ItemsAtPositionsQR(panPos, :stzList)
+			return This.ItemsAtPositionsQRT(panPos, :stzList)
 
-		def ItemsAtPositionsQR(panPos, pcReturnType)
+		def ItemsAtPositionsQRT(panPos, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.ItemsAtPositions(panPos) )
@@ -50411,9 +50411,9 @@ fdef
 		#< @FunctionFluentForms
 
 		def ItemsOutsidePositionsQ(panPos)
-			return This.ItemsOutsidePositionsQR(panPos, :stzList)
+			return This.ItemsOutsidePositionsQRT(panPos, :stzList)
 
-		def ItemsOutsidePositionsQR(panPos, pcReturnType)
+		def ItemsOutsidePositionsQRT(panPos, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.ItemsOutsidePositions(panPos) )
@@ -50541,9 +50541,9 @@ fdef
 		#< @FunctionFluentForms
 
 		def ItemsWQ(pcCondition)
-			return This.ItemsWQR(pcCondition, :stzList)
+			return This.ItemsWQRT(pcCondition, :stzList)
 
-		def ItemsWQR(pcCondition, pcReturnType)
+		def ItemsWQRT(pcCondition, pcReturnType)
 			if isList(pcCondition) and Q(pcCondition).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -50727,9 +50727,9 @@ fdef
 		return aResult
 
 		def ItemsWXTQ(pcCondition)
-			return ItemsWXTQR(pcCondition, :stzList)
+			return ItemsWXTQRT(pcCondition, :stzList)
 
-		def ItemsWXTQR(pcCondition, pcReturnType)
+		def ItemsWXTQRT(pcCondition, pcReturnType)
 			if isList(pcCondition) and Q(pcCondition).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -51201,9 +51201,9 @@ fdef
 		#< @FunctionFluentForm
 
 		def NumbersQ()
-			return This.NumbersQR(:stzList)
+			return This.NumbersQRT(:stzList)
 
-		def NumbersQR(pcReturnType)
+		def NumbersQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -51227,9 +51227,9 @@ fdef
 			return This.Numbers()
 
 			def OnlyNumbersQ()
-				return This.OnlyNumbersQR(:stzList)
+				return This.OnlyNumbersQRT(:stzList)
 	
-			def OnlyNumbersQR(pcReturnType)
+			def OnlyNumbersQRT(pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
@@ -51380,9 +51380,9 @@ fdef
 		return aResult
 
 		def NonNumbersQ()
-			return This.NonNumbersQR(:stzList)
+			return This.NonNumbersQRT(:stzList)
 
-		def NonNumbersQR(pcReturnType)
+		def NonNumbersQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -51402,9 +51402,9 @@ fdef
 			return This.NonNumbers()
 
 			def OnlyNonNumbersQ()
-				return This.OnlyNonNumbersQR(:stzList)
+				return This.OnlyNonNumbersQRT(:stzList)
 	
-			def OnlyNonNumbersQR(pcReturnType)
+			def OnlyNonNumbersQRT(pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
@@ -51560,9 +51560,9 @@ fdef
 		#< @FunctionFluentForm
 
 		def StringsQ()
-			return This.StringsQR(:stzList)
+			return This.StringsQRT(:stzList)
 
-		def StringsQR(pcReturnType)
+		def StringsQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -51586,9 +51586,9 @@ fdef
 			return This.Strings()
 
 			def OnlyStringsQ()
-				return This.OnlyStringsQR(:stzList)
+				return This.OnlyStringsQRT(:stzList)
 	
-			def OnlyStringsQR(pcReturnType)
+			def OnlyStringsQRT(pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
@@ -51784,9 +51784,9 @@ fdef
 		return aResult	
 
 		def NonStringsQ()
-			return This.NonStringsQR(:stzList)
+			return This.NonStringsQRT(:stzList)
 
-		def NonStringsQR(pcReturnType)
+		def NonStringsQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -51806,9 +51806,9 @@ fdef
 			return This.NonStrings()
 
 			def OnlyNonStringsQ()
-				return This.OnlyNonStringsQR(:stzList)
+				return This.OnlyNonStringsQRT(:stzList)
 	
-			def OnlyNonStringsQR(pcReturnType)
+			def OnlyNonStringsQRT(pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
@@ -52363,9 +52363,9 @@ fdef
 		#< @FunctionFluentForm
 
 		def ListsQ()
-			return This.ListsQR(:stzList)
+			return This.ListsQRT(:stzList)
 
-		def ListsQR(pcReturnType)
+		def ListsQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -52389,9 +52389,9 @@ fdef
 			return This.Lists()
 
 			def OnlyListsQ()
-				return This.OnlyListsQR(:stzList)
+				return This.OnlyListsQRT(:stzList)
 	
-			def OnlyListsQR(pcReturnType)
+			def OnlyListsQRT(pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
@@ -52691,7 +52691,7 @@ fdef
 		def ListOfNumbersQQ()
 			return new stzListOfNumbers(This.ListsOfNumbers())
 
-		def ListOfNumbersQR(pcReturnType)
+		def ListOfNumbersQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.ListsOfNumbers())
@@ -52716,8 +52716,8 @@ fdef
 			def OnlyListsOfNumbersQQ()
 				return This.ListOfNumbersQQ()
 
-			def OnlyListsOfNumbersQR(pcReturnType)
-				return This.ListOfNumbersQR(pcReturnType)
+			def OnlyListsOfNumbersQRT(pcReturnType)
+				return This.ListOfNumbersQRT(pcReturnType)
 
 		#>
 
@@ -52829,7 +52829,7 @@ fdef
 		def ListOfStringsQQ()
 			return new stzListOfStrings(This.ListsOfStrings())
 
-		def ListOfStringsQR(pcReturnType)
+		def ListOfStringsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.ListsOfStrings())
@@ -52854,8 +52854,8 @@ fdef
 			def OnlyListsOfStringsQQ()
 				return This.ListOfStringsQQ()
 
-			def OnlyListsOfStringsQR(pcReturnType)
-				return This.ListOfStringsQR(pcReturnType)
+			def OnlyListsOfStringsQRT(pcReturnType)
+				return This.ListOfStringsQRT(pcReturnType)
 
 		#>
 
@@ -52967,7 +52967,7 @@ fdef
 		def ListOfListsQQ()
 			return new stzListOfLists(This.ListsOfLists())
 
-		def ListOfListsQR(pcReturnType)
+		def ListOfListsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.ListsOfLists())
@@ -52992,8 +52992,8 @@ fdef
 			def OnlyListsOfListsQQ()
 				return This.ListOfListsQQ()
 
-			def OnlyListsOfListsQR(pcReturnType)
-				return This.ListOfListsQR(pcReturnType)
+			def OnlyListsOfListsQRT(pcReturnType)
+				return This.ListOfListsQRT(pcReturnType)
 
 		#>
 
@@ -53105,7 +53105,7 @@ fdef
 		def ListOfObjectsQQ()
 			return new stzListOfObjects(This.ListsOfObjects())
 
-		def ListOfObjectsQR(pcReturnType)
+		def ListOfObjectsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList(This.ListsOfObjects())
@@ -53130,8 +53130,8 @@ fdef
 			def OnlyListsOfObjectsQQ()
 				return This.ListOfObjectsQQ()
 
-			def OnlyListsOfObjectsQR(pcReturnType)
-				return This.ListOfObjectsQR(pcReturnType)
+			def OnlyListsOfObjectsQRT(pcReturnType)
+				return This.ListOfObjectsQRT(pcReturnType)
 
 		#>
 
@@ -53258,9 +53258,9 @@ fdef
 		return aResult		
 
 		def NonListsQ()
-			return This.NonListsQR(:stzList)
+			return This.NonListsQRT(:stzList)
 
-		def NonListsQR(pcReturnType)
+		def NonListsQRT(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -53280,9 +53280,9 @@ fdef
 			return This.NonLists()
 
 			def OnlyNonListsQ()
-				return This.OnlyNonListsQR(:stzList)
+				return This.OnlyNonListsQRT(:stzList)
 	
-			def OnlyNonListsQR(pcReturnType)
+			def OnlyNonListsQRT(pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
@@ -53393,9 +53393,9 @@ fdef
 		#< @FunctionFluentForm
 
 		def ObjectsQ()
-			return This.ObjectsQR(:stzObject)
+			return This.ObjectsQRT(:stzObject)
 
-		def ObjectsQR(pcReturnType)
+		def ObjectsQRT(pcReturnType)
 			if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -53419,9 +53419,9 @@ fdef
 			return This.Objects()
 
 			def OnlyObjectsQ()
-				return This.OnlyObjectsQR(:stzObject)
+				return This.OnlyObjectsQRT(:stzObject)
 	
-			def OnlyObjectsQR(pcReturnType)
+			def OnlyObjectsQRT(pcReturnType)
 				if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
@@ -53488,9 +53488,9 @@ fdef
 		return aResult
 
 		def NonObjectsQ()
-			return This.NonObjectsQR(:stzObject)
+			return This.NonObjectsQRT(:stzObject)
 
-		def NonObjectsQR(pcReturnType)
+		def NonObjectsQRT(pcReturnType)
 			if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -53510,9 +53510,9 @@ fdef
 			return This.NonObjects()
 
 			def OnlyNonObjectsQ()
-				return This.OnlyNonObjectsQR(:stzObject)
+				return This.OnlyNonObjectsQRT(:stzObject)
 	
-			def OnlyNonObjectsQR(pcReturnType)
+			def OnlyNonObjectsQRT(pcReturnType)
 				if isObject(pcReturnType) and StzObjectQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
@@ -54943,9 +54943,9 @@ fdef
 		#< @FunctionFluentForms
 
 		def RangeQ(pnStart, pnRange)
-			return This.RangeQR(pnStart, pnRange, :stzList)
+			return This.RangeQRT(pnStart, pnRange, :stzList)
 
-		def RangeQR(pnStart, pnRange, pcReturntype)
+		def RangeQRT(pnStart, pnRange, pcReturntype)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -56493,7 +56493,7 @@ fdef
 
 		nResult = 0
 		if len(aSections) > 0
-			aSections = QR(paSections, :stzListOfPairs).Sorted()
+			aSections = QRT(paSections, :stzListOfPairs).Sorted()
 			nResult = This.FindFirstInSectionCS(aSections[1], pCasSensitive)
 		ok
 
@@ -56610,7 +56610,7 @@ fdef
 
 		nResult = 0
 		if len(aSections) > 0
-			aSections = QR(paSections, :stzListOfPairs).Sorted()
+			aSections = QRT(paSections, :stzListOfPairs).Sorted()
 			nResult = This.FindLastInSectionCS(aSections[1], pCasSensitive)
 		ok
 
@@ -57866,7 +57866,7 @@ fdef
 			This.Stringify()
 			return This
 
-		def StringifyQR(pcReturnType)
+		def StringifyQRT(pcReturnType)
 			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfstrings( This.Stringified() )
@@ -57884,8 +57884,8 @@ fdef
 			def StringifyItemsQ()
 				return This.StringifyQ()
 
-			def StringifyItemsQR(pcReturnType)
-				return This.StringifyQR(pcReturnType)
+			def StringifyItemsQRT(pcReturnType)
+				return This.StringifyQRT(pcReturnType)
 
 		#>
 
@@ -58152,7 +58152,7 @@ fdef
 			This.StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
 			return This
 
-		def StringifyAndReplaceCSXTQR(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
+		def StringifyAndReplaceCSXTQRT(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfstrings( This.StringifiedAndReplacedCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive) )
@@ -58180,7 +58180,7 @@ fdef
 			This.StringifyAndReplaceXT(pcSubStr, pcOtherSubStr)
 			return This
 
-		def StringifyAndReplaceXTQR(pcSubStr, pcOtherSubStr, pcReturnType)
+		def StringifyAndReplaceXTQRT(pcSubStr, pcOtherSubStr, pcReturnType)
 			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfstrings( This.StringifiedAndReplacedXT(pcSubStr, pcOtherSubStr) )
@@ -58213,7 +58213,7 @@ fdef
 			This.StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
 			return This
 
-		def StringifyAndReplaceCSQR(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
+		def StringifyAndReplaceCSQRT(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfstrings( This.StringifiedAndReplacedCS(pcSubStr, pcOtherSubStr, pCaseSensitive) )
@@ -58241,7 +58241,7 @@ fdef
 			This.StringifyAndReplace(pcSubStr, pcOtherSubStr)
 			return This
 
-		def StringifyAndReplaceQR(pcSubStr, pcOtherSubStr, pcReturnType)
+		def StringifyAndReplaceQRT(pcSubStr, pcOtherSubStr, pcReturnType)
 			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfstrings( This.StringifiedAndReplaced(pcSubStr, pcOtherSubStr) )
@@ -58377,7 +58377,7 @@ fdef
 			This.StringifyLowercaseAndReplaceCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
 			return This
 
-		def StringifyLowercaseAndReplaceCSXTQR(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
+		def StringifyLowercaseAndReplaceCSXTQRT(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfstrings( This.StringifiedLowercasedAndReplacedCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive) )
@@ -58405,7 +58405,7 @@ fdef
 			This.StringifyLowercaseAndReplaceXT(pcSubStr, pcOtherSubStr)
 			return This
 
-		def StringifyLowercaseAndReplaceXTQR(pcSubStr, pcOtherSubStr, pcReturnType)
+		def StringifyLowercaseAndReplaceXTQRT(pcSubStr, pcOtherSubStr, pcReturnType)
 			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfstrings( This.StringifiedLowercasedAndReplacedXT(pcSubStr, pcOtherSubStr) )
@@ -58439,7 +58439,7 @@ fdef
 			This.StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
 			return This
 
-		def StringifyLowercaseAndReplaceCSQR(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
+		def StringifyLowercaseAndReplaceCSQRT(pcSubStr, pcOtherSubStr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfstrings( This.StringifiedLowercasedAndReplacedCS(pcSubStr, pcOtherSubStr, pCaseSensitive) )
@@ -58467,7 +58467,7 @@ fdef
 			This.StringifyLowercaseAndReplace(pcSubStr, pcOtherSubStr)
 			return This
 
-		def StringifyLowercaseAndReplaceQR(pcSubStr, pcOtherSubStr, pcReturnType)
+		def StringifyLowercaseAndReplaceQRT(pcSubStr, pcOtherSubStr, pcReturnType)
 			switch pcReturnType
 			on :stzListOfStrings
 				return new stzListOfstrings( This.StringifiedLowercasedAndReplaced(pcSubStr, pcOtherSubStr) )
@@ -58545,7 +58545,7 @@ fdef
 				return This.ToCode()
 
 			but pOption = :Concatenated
-				return This.StringifyQR(:stzListOfStrings).Concatenated()
+				return This.StringifyQRT(:stzListOfStrings).Concatenated()
 			ok
 
 		but isList(pOption) and
@@ -58558,7 +58558,7 @@ fdef
 				pOption[2] = pOption[2][2]
 			ok
 
-			return This.StringifyQR(:stzListOfStrings).ConcatenatedUsing(pOption[2])
+			return This.StringifyQRT(:stzListOfStrings).ConcatenatedUsing(pOption[2])
 		ok
 
 		StzRaise("Unsupprorted syntax!")
@@ -59163,9 +59163,9 @@ fdef
 		return aoResult
 
 		def ToListOfStzStringsQ()
-			return This.ToListOfStzStringsQR(:stzList)
+			return This.ToListOfStzStringsQRT(:stzList)
 
-		def ToListOfStzStringsQR(pcReturnType)
+		def ToListOfStzStringsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.ToListOfStzStrings() )
@@ -62917,7 +62917,7 @@ fdef
 		def CharsQ()
 			return new stzList( This.Chars() )
 
-		def CharsQR(pcReturnType)
+		def CharsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				new stzList(This.Chars())
@@ -62987,7 +62987,7 @@ fdef
 		def LetterQ()
 			return new stzList( This.Letters() )
 
-		def LettersQR(pcReturnType)
+		def LettersQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				new stzList(This.Letters())
@@ -77705,14 +77705,14 @@ fdef
 			#--> more simple mental model to keep things memprable
 
 			if This.ToStzHashList().
-				KeysQR(:stzListOfStrings).
+				KeysQRT(:stzListOfStrings).
 				ContainsBothCS(:CaseSensitive, :CS, _FALSE_)
 
 				StzRaise("Incorrect format! :CaseSensitive and :CS can not be used both in the same time")
 			ok
 
 			if This.ToStzHashList().
-				KeysQR(:stzListOfStrings).
+				KeysQRT(:stzListOfStrings).
 				ContainsBothCS(:RemoveThisBound, :RemoveThisBoundingSubString, _FALSE_)
 
 				StzRaise("Incorrect format! :RemoveThisBound and :RemoveThisBoundingSubString can not be used both in the same time")

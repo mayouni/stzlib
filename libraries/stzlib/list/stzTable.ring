@@ -494,9 +494,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def ColumnsNamesQ()
-			return This.ColumnsQR( :stzList )
+			return This.ColumnsQRT( :stzList )
 
-		def ColumnsNamesQR(pcReturnType)
+		def ColumnsNamesQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.ColumnsNames() )
@@ -526,8 +526,8 @@ Class stzTable from stzObject
 			def AllColumnsNamesQ()
 				return This.AllColumnsNamesQ()
 
-			def AllColumnsNamesQR(pcReturnType)
-				return This.ColumnsNamesQR(pcReturnType)
+			def AllColumnsNamesQRT(pcReturnType)
+				return This.ColumnsNamesQRT(pcReturnType)
 
 		def ColumnNames()
 			return This.ColumnsNames()
@@ -535,8 +535,8 @@ Class stzTable from stzObject
 			def ColumnNamesQ()
 				return This.ColumnsNamesQ()
 
-			def ColumnNamesQR(pcReturnType)
-				return This.ColumnsNamesQR(pcReturnType)
+			def ColumnNamesQRT(pcReturnType)
+				return This.ColumnsNamesQRT(pcReturnType)
 
 		def AllColumnNames()
 			return This.ColumnsNames()
@@ -544,8 +544,8 @@ Class stzTable from stzObject
 			def AllColumnNamesQ()
 				return This.ColumnsNamesQ()
 
-			def AllColumnNamesQR(pcReturnType)
-				return This.ColumnsNamesQR(pcReturnType)
+			def AllColumnNamesQRT(pcReturnType)
+				return This.ColumnsNamesQRT(pcReturnType)
 
 		def ColsNames()
 			return This.ColumnsNames()
@@ -553,35 +553,35 @@ Class stzTable from stzObject
 			def ColsNamesQ()
 				return This.ColumnsNamesQ()
 
-			def ColsNamesQR(pcReturnType)
-				return This.ColumnsNamesQR(pcReturnType)
+			def ColsNamesQRT(pcReturnType)
+				return This.ColumnsNamesQRT(pcReturnType)
 
 		def AllColsNames() # Useful by contrast to TheseCols(paCols)
 			return This.ColumnsNames()
 
 			def AllColsNamesQ()
-				return This.ColsNamesQR(:stzList)
+				return This.ColsNamesQRT(:stzList)
 
-			def AllColsNamesQR(pcReturnType)
-				return This.ColsNamesQR(pcReturnType)
+			def AllColsNamesQRT(pcReturnType)
+				return This.ColsNamesQRT(pcReturnType)
 
 		def ColNames()
 			return This.ColumnsNames()
 
 			def ColNamesQ()
-				return This.AllColsNamesQR(:stzList)
+				return This.AllColsNamesQRT(:stzList)
 
-			def ColNamesQR(pcReturnType)
-				return This.ColsNamesQR(pcReturnType)
+			def ColNamesQRT(pcReturnType)
+				return This.ColsNamesQRT(pcReturnType)
 
 		def AllColNames()
 			return This.ColumnsNames()
 
 			def AllColNamesQ()
-				return This.AllColsNamesQR(:stzList)
+				return This.AllColsNamesQRT(:stzList)
 
-			def AllColNamesQR(pcReturnType)
-				return This.ColsNamesQR(pcReturnType)
+			def AllColNamesQRT(pcReturnType)
+				return This.ColsNamesQRT(pcReturnType)
 
 		def Header()
 			return This.ColumnsNames()
@@ -589,8 +589,8 @@ Class stzTable from stzObject
 			def HeaderQ()
 				return This.HeaderQ()
 
-			def HeaderQR(pcReturnType)
-				return This.HeaderQR(pcReturnType)
+			def HeaderQRT(pcReturnType)
+				return This.HeaderQRT(pcReturnType)
 
 		#>
 
@@ -1359,9 +1359,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def ColQ(p)
-			return This.ColQR(p, :stzList)
+			return This.ColQRT(p, :stzList)
 
-		def ColQR(p, pcReturnType)
+		def ColQRT(p, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Col(p) )
@@ -1396,46 +1396,46 @@ Class stzTable from stzObject
 			return This.Col(p)
 
 			def ColumnQ(p)
-				return This.ColumnQR(p, :stzList)
+				return This.ColumnQRT(p, :stzList)
 
-			def ColumnQR(p, pcReturnType)
-				return This.ColQR(p, pcReturnType)
+			def ColumnQRT(p, pcReturnType)
+				return This.ColQRT(p, pcReturnType)
 
 		def ColumnData(p)
 			return This.Col(p)
 
 			def ColumnDataQ(p)
-				return This.ColumnQR(p, :stzList)
+				return This.ColumnQRT(p, :stzList)
 
-			def ColumnDataQR(p, pcReturnType)
-				return This.ColQR(p, pcReturnType)
+			def ColumnDataQRT(p, pcReturnType)
+				return This.ColQRT(p, pcReturnType)
 
 		def ColData(p)
 			return This.Col(p)
 
 			def ColDataQ(p)
-				return This.ColumnQR(p, :stzList)
+				return This.ColumnQRT(p, :stzList)
 
-			def ColDataQR(p, pcReturnType)
-				return This.ColQR(p, pcReturnType)
+			def ColDataQRT(p, pcReturnType)
+				return This.ColQRT(p, pcReturnType)
 
 		def CellsInCol(p)
 			return This.Col(p)
 
 			def CellsInColQ(p)
-				return This.CellsInColQR(p, :stzList)
+				return This.CellsInColQRT(p, :stzList)
 
-			def CellsInColQR(p, pcReturnType)
-				return This.CellsInColQR(p, pcReturnType)
+			def CellsInColQRT(p, pcReturnType)
+				return This.CellsInColQRT(p, pcReturnType)
 
 		def CellsInColumn(p)
 			return This.Col(p)
 
 			def CellsInColumnQ(p)
-				return This.CellsInColumnQR(p, :stzList)
+				return This.CellsInColumnQRT(p, :stzList)
 
-			def CellsInColumnQR(p, pcReturnType)
-				return This.CellsInColumnQR(p, pcReturnType)
+			def CellsInColumnQRT(p, pcReturnType)
+				return This.CellsInColumnQRT(p, pcReturnType)
 
 		#>
 
@@ -1481,9 +1481,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def ColXTQ(p)
-			return This.ColXTQR(p, :stzList)
+			return This.ColXTQRT(p, :stzList)
 
-		def ColXTQR(p, pcReturnType)
+		def ColXTQRT(p, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.ColXT(p) )
@@ -1506,28 +1506,28 @@ Class stzTable from stzObject
 			return This.ColXT(p)
 
 			def ColumnXTQ(p)
-				return This.ColumnXTQR(p, :stzList)
+				return This.ColumnXTQRT(p, :stzList)
 
-			def ColumnXTQR(p, pcReturnType)
-				return This.ColXTQR(p, pcReturnType)
+			def ColumnXTQRT(p, pcReturnType)
+				return This.ColXTQRT(p, pcReturnType)
 
 		def CellsInColXT(p)
 			return This.ColXT(p)
 
 			def CellsInColXTQ(p)
-				return This.CellsInColXTQR(p, :stzList)
+				return This.CellsInColXTQRT(p, :stzList)
 
-			def CellsInColXTQR(p, pcReturnType)
-				return This.CellsInColXTQR(p, pcReturnType)
+			def CellsInColXTQRT(p, pcReturnType)
+				return This.CellsInColXTQRT(p, pcReturnType)
 
 		def CellsInColumnXT(p)
 			return This.ColXT(p)
 
 			def CellsInColumnXTQ(p)
-				return This.CellsInColumnXTQR(p, :stzList)
+				return This.CellsInColumnXTQRT(p, :stzList)
 
-			def CellsInColumnXTQR(p, pcReturnType)
-				return This.CellsInColumnXTQR(p, pcReturnType)
+			def CellsInColumnXTQRT(p, pcReturnType)
+				return This.CellsInColumnXTQRT(p, pcReturnType)
 
 		#>
 
@@ -1736,9 +1736,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def CellsAndPositionsInColQ(p)
-			return This.CellsAndPositionsInColQR(p, :stzList)
+			return This.CellsAndPositionsInColQRT(p, :stzList)
 
-		def CellsAndPositionsInColQR(p, pcReturnType)
+		def CellsAndPositionsInColQRT(p, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.CellsAndPositionsInCol(p) )
@@ -1761,28 +1761,28 @@ Class stzTable from stzObject
 			return This.CellsAndPositionsInCol(p)
 
 			def CellsAndPositionsInColumnQ(p)
-				return This.CellsAndPositionsInColumnQR(p, :stzList)
+				return This.CellsAndPositionsInColumnQRT(p, :stzList)
 
-			def CellsAndPositionsInColumnQR(p, pcReturnType)
-				return This.CellsAndPositionsInColQR(p, pcReturnType)
+			def CellsAndPositionsInColumnQRT(p, pcReturnType)
+				return This.CellsAndPositionsInColQRT(p, pcReturnType)
 
 		def ColZ(p)
 			return This.CellsAndPositionsInCol(p)
 
 			def ColZQ(p)
-				return This.ColZQR(p, :stzList)
+				return This.ColZQRT(p, :stzList)
 
-			def ColZQR(p, pcReturnType)
-				return This.CellsAndPositionsInColQR(p, pcReturnType)
+			def ColZQRT(p, pcReturnType)
+				return This.CellsAndPositionsInColQRT(p, pcReturnType)
 
 		def CellsInColZ(p)
 			return This.CellsAndPositionsInCol(p)
 
 			def CellsInColZQ(p)
-				return This.ColZQR(p, :stzList)
+				return This.ColZQRT(p, :stzList)
 
-			def CellsInColZQR(p, pcReturnType)
-				return This.CellsAndPositionsInColQR(p, pcReturnType)
+			def CellsInColZQRT(p, pcReturnType)
+				return This.CellsAndPositionsInColQRT(p, pcReturnType)
 
 		#>
 
@@ -2006,9 +2006,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def RowQ(n)
-			return This.RowQR(n, :stzList)
+			return This.RowQRT(n, :stzList)
 
-		def RowQR(n, pcReturnType)
+		def RowQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Row(n) )
@@ -2043,46 +2043,46 @@ Class stzTable from stzObject
 			return This.Row(n)
 
 			def RowNQ(n)
-				return This.RownQR(n, :stzList)
+				return This.RownQRT(n, :stzList)
 
-			def RowNQR(n, pcReturnType)
-				return This.CellsInRowQR(n, pcReturnType)
+			def RowNQRT(n, pcReturnType)
+				return This.CellsInRowQRT(n, pcReturnType)
 
 		def NthRow(n)
 			return This.Row(n)
 
 			def NthRowQ(n)
-				return This.NthRowQR(n, :stzList)
+				return This.NthRowQRT(n, :stzList)
 
-			def NthRowQR(n, pcReturnType)
-				return This.CellsInRowQR(n, pcReturnType)
+			def NthRowQRT(n, pcReturnType)
+				return This.CellsInRowQRT(n, pcReturnType)
 
 		def CellsInRow(n)
 			return This.Row(n)
 
 			def CellsInRowQ(n)
-				return This.CellsInRowQR(n, :stzList)
+				return This.CellsInRowQRT(n, :stzList)
 
-			def CellsInRowQR(n, pcReturnType)
-				return This.CellsInRowQR(n, pcReturnType)
+			def CellsInRowQRT(n, pcReturnType)
+				return This.CellsInRowQRT(n, pcReturnType)
 
 		def CellsInRowN(n)
 			return This.Row(n)
 
 			def CellsInRowNQ(n)
-				return This.CellsInRowNQR(n, :stzList)
+				return This.CellsInRowNQRT(n, :stzList)
 
-			def CellsInRowNQR(n, pcReturnType)
-				return This.CellsInRowQR(n, pcReturnType)
+			def CellsInRowNQRT(n, pcReturnType)
+				return This.CellsInRowQRT(n, pcReturnType)
 
 		def CellsInNthRow(n)
 			return This.Row(n)
 
 			def CellsInNthRowQ(n)
-				return This.CellsInNthRowQR(n, :stzList)
+				return This.CellsInNthRowQRT(n, :stzList)
 
-			def CellsInNthRowQR(n, pcReturnType)
-				return This.CellsInRowQR(n, pcReturnType)
+			def CellsInNthRowQRT(n, pcReturnType)
+				return This.CellsInRowQRT(n, pcReturnType)
 		#>
 
 	  #----------------------------------#
@@ -2143,9 +2143,9 @@ Class stzTable from stzObject
 		return aResult
 
 		def RowsQ()
-			return This.RowsQR(:stzList)
+			return This.RowsQRT(:stzList)
 
-		def RowsQR(pcReturnType)
+		def RowsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Rows() )
@@ -2185,10 +2185,10 @@ Class stzTable from stzObject
 			return This.Rows()
 
 			def AllRowsQ()
-				return This.AllRowsQR(:stzList)
+				return This.AllRowsQRT(:stzList)
 
-			def AllRowsQR(pcReturnType)
-				return This.RowsQR(pcReturnType)
+			def AllRowsQRT(pcReturnType)
+				return This.RowsQRT(pcReturnType)
 
 		#>
 
@@ -2203,9 +2203,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def RowZQ(n)
-			return This.RowZQR(p, :stzList)
+			return This.RowZQRT(p, :stzList)
 
-		def RowZQR(n, pcReturnType)
+		def RowZQRT(n, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.RowZ(n) )
@@ -2228,73 +2228,73 @@ Class stzTable from stzObject
 			return This.RowZ(n)
 
 			def CellsAndPositionsInRowQ(n)
-				return This.CellsAndPositionsInRowNQR(n, :stzList)
+				return This.CellsAndPositionsInRowNQRT(n, :stzList)
 
-			def CellsAndPositionsInRowQR(n, pcReturnType)
-				return This.RowZQR(n, pcReturnType)
+			def CellsAndPositionsInRowQRT(n, pcReturnType)
+				return This.RowZQRT(n, pcReturnType)
 
 		def CellsInRowZ(n)
 			return This.RowZ(n)
 
 			def CellsInRowZQ(n)
-				return This.CellsInRowZQR(n, :stzList)
+				return This.CellsInRowZQRT(n, :stzList)
 
-			def CellsInRowZQR(n, pcReturnType)
-				return This.RowZQR(n, pcReturnType)
+			def CellsInRowZQRT(n, pcReturnType)
+				return This.RowZQRT(n, pcReturnType)
 
 		def CellsInRowNAndTheirPositions(n)
 			return This.RowZ(p)
 
 			def CellsInRowNAndTheirsPositionsQ(n)
-				return This.CellsInRowNAndTheirsPositionsQR(n, :stzList)
+				return This.CellsInRowNAndTheirsPositionsQRT(n, :stzList)
 
-			def CellsInRowNAndTheirsPositionsQR(n, pcReturnType)
-				return This.RowZQR(n, pcReturnType)
+			def CellsInRowNAndTheirsPositionsQRT(n, pcReturnType)
+				return This.RowZQRT(n, pcReturnType)
 		
 		def CellsAndPositionsInRowN(n)
 			return This.RowZ(n)
 
 			def CellsAndPositionsInRowNQ(n)
-				return This.CellsAndPositionsInRowNQR(n, :stzList)
+				return This.CellsAndPositionsInRowNQRT(n, :stzList)
 
-			def CellsAndPositionsInRowNQR(n, pcReturnType)
-				return This.RowZQR(n, pcReturnType)
+			def CellsAndPositionsInRowNQRT(n, pcReturnType)
+				return This.RowZQRT(n, pcReturnType)
 
 		def CellsAndPositionsInNthRow(n)
 			return This.RowZ(p)
 
 			def CellsAndPositionsInNthRowQ(n)
-				return This.CellsAndPositionsInNthRowQR(n, :stzList)
+				return This.CellsAndPositionsInNthRowQRT(n, :stzList)
 
-			def CellsAndPositionsInNthRowQR(n, pcReturnType)
-				return This.RowZQR(n, pcReturnType)
+			def CellsAndPositionsInNthRowQRT(n, pcReturnType)
+				return This.RowZQRT(n, pcReturnType)
 
 		def CellsInNthRowAndTheirPositions(n)
 			return This.RowZ(p)
 
 			def CellsInNthRowAndTheirPositionsQ(n)
-				return This.CellsInNthRowAndTheirPositionsQR(n, :stzList)
+				return This.CellsInNthRowAndTheirPositionsQRT(n, :stzList)
 
-			def CellsInNthRowAndTheirPositionsQR(n, pcReturnType)
-				return This.RowZQR(n, pcReturnType)
+			def CellsInNthRowAndTheirPositionsQRT(n, pcReturnType)
+				return This.RowZQRT(n, pcReturnType)
 
 		def RowNZ(n)
 			return This.RowZ(n)
 
 			def RowNZQ(n)
-				return This.RowNZQR(n, :stzList)
+				return This.RowNZQRT(n, :stzList)
 
-			def RowNZQR(n, pcReturnType)
-				return This.RowZQR(n, pcReturnType)
+			def RowNZQRT(n, pcReturnType)
+				return This.RowZQRT(n, pcReturnType)
 
 		def NthRowZ(n)
 			return This.RowZ(n)
 
 			def NtRowZQ(n)
-				return This.NthRowZQR(n, :stzList)
+				return This.NthRowZQRT(n, :stzList)
 
-			def NthRowZQR(n, pcReturnType)
-				return This.RowZQR(n, pcReturnType)
+			def NthRowZQRT(n, pcReturnType)
+				return This.RowZQRT(n, pcReturnType)
 
 		#>
 
@@ -2620,9 +2620,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def TheseCellsQ(paCellsPos)
-			return TheseCellsQR(paCellsPos, :stzList)
+			return TheseCellsQRT(paCellsPos, :stzList)
 
-		def TheseCellsQR(paCellsPos, pcReturnType)
+		def TheseCellsQRT(paCellsPos, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.TheseCells(paCellsPos) )
@@ -2647,8 +2647,8 @@ Class stzTable from stzObject
 			def CellsAtPositionsQ(paCellsPos)
 				return This.CellsAtPositions(paCellsPos, :stzList)
 
-			def CellsAtPositionsQR(paCellsPos, pcReturnType)
-				return This.TheseCellsQR(paCellsPos, pcReturnType)
+			def CellsAtPositionsQRT(paCellsPos, pcReturnType)
+				return This.TheseCellsQRT(paCellsPos, pcReturnType)
 
 		def CellsAt(paCellsPos)
 			return This.TheseCells(paCellsPos)
@@ -2656,8 +2656,8 @@ Class stzTable from stzObject
 			def CellsAtQ(paCellsPos)
 				return This.CellsAtPositions(paCellsPos, :stzList)
 
-			def CellsAtQR(paCellsPos, pcReturnType)
-				return This.TheseCellsQR(paCellsPos, pcReturnType)
+			def CellsAtQRT(paCellsPos, pcReturnType)
+				return This.TheseCellsQRT(paCellsPos, pcReturnType)
 
 		def TheseCellsAt(paCellsPos)
 			return This.TheseCells(paCellsPos)
@@ -2665,8 +2665,8 @@ Class stzTable from stzObject
 			def TheseCellsAtQ(paCellsPos)
 				return This.TheseCellsAt(paCellsPos, :stzList)
 
-			def TheseCellsAtQR(paCellsPos, pcReturnType)
-				return This.TheseCellsQR(paCellsPos, pcReturnType)
+			def TheseCellsAtQRT(paCellsPos, pcReturnType)
+				return This.TheseCellsQRT(paCellsPos, pcReturnType)
 
 		def TheseCellsAtPositions(paCellsPos)
 			return This.TheseCells(paCellsPos)
@@ -2674,8 +2674,8 @@ Class stzTable from stzObject
 			def TheseCellsAtPositionsQ(paCellsPos)
 				return This.TheseCellsAtPositions(paCellsPos, :stzList)
 
-			def TheseCellsAtPositionsQR(paCellsPos, pcReturnType)
-				return This.TheseCellsQR(paCellsPos, pcReturnType)
+			def TheseCellsAtPositionsQRT(paCellsPos, pcReturnType)
+				return This.TheseCellsQRT(paCellsPos, pcReturnType)
 
 		#>
 
@@ -2691,9 +2691,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def CellsQ()
-			return This.CellsQR(:stzList)
+			return This.CellsQRT(:stzList)
 
-		def CellsQR(pcReturnType)
+		def CellsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Cells() )
@@ -2725,10 +2725,10 @@ Class stzTable from stzObject
 			return This.Cells()
 
 			def AllCellsQ()
-				return This.CellsQR(:stzList)
+				return This.CellsQRT(:stzList)
 
-			def AllCellsQR(pcReturnType)
-				return This.CellsQR(pcReturnType)
+			def AllCellsQRT(pcReturnType)
+				return This.CellsQRT(pcReturnType)
 
 		#>
 
@@ -2850,9 +2850,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def CellsToHashListQ()
-			return This.CellsToHashListQR( :stzList )
+			return This.CellsToHashListQRT( :stzList )
 
-		def CellsToHashListQR(pcReturnType)
+		def CellsToHashListQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.CellsToHashList() )
@@ -2872,10 +2872,10 @@ Class stzTable from stzObject
 			return This.CellsToHashList()
 
 			def CellsAsHashListQ()
-				return This.CellsAsHashListQR(:stzList)
+				return This.CellsAsHashListQRT(:stzList)
 
-			def CellsAsHashListQR(pcReturnType)
-				return This.CellsToHashListQR(pcReturnType)
+			def CellsAsHashListQRT(pcReturnType)
+				return This.CellsToHashListQRT(pcReturnType)
 
 		#>
 
@@ -2895,9 +2895,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def TheseCellsToHashListQ(paCellsPos)
-			return This.TheseCellsToHashListQR(paCellsPos, pcReturnType)
+			return This.TheseCellsToHashListQRT(paCellsPos, pcReturnType)
 
-		def TheseCellsToHashListQR(paCellsPos, pcReturnType)
+		def TheseCellsToHashListQRT(paCellsPos, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.TheseCellsToHashList(paCellsPos) )
@@ -2917,10 +2917,10 @@ Class stzTable from stzObject
 			return This.TheseCellsToHashList(paCellsPos)
 
 			def TheseCellsAsHashListQ(paCellsPos)
-				return This.TheseCellsAsHashListQR(paCellsPos, pcReturnType)
+				return This.TheseCellsAsHashListQRT(paCellsPos, pcReturnType)
 
-			def TheseCellsAsHashListQR(paCellsPos, pcReturnType)
-				return This.TheseCellsToHashListQR(paCellsPos, pcReturnType)
+			def TheseCellsAsHashListQRT(paCellsPos, pcReturnType)
+				return This.TheseCellsToHashListQRT(paCellsPos, pcReturnType)
 
 		#>
 
@@ -2943,9 +2943,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 		
 		def SectionQ( panCellPos1, panCellPos2 )
-			return This.SectionQR( panCellPos1, panCellPos2, :stzList )
+			return This.SectionQRT( panCellPos1, panCellPos2, :stzList )
 
-		def SectionQR( panCellPos1, panCellPos2, pcReturnType )
+		def SectionQRT( panCellPos1, panCellPos2, pcReturnType )
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Section( panCellPos1, panCellPos2 ) )
@@ -2973,8 +2973,8 @@ Class stzTable from stzObject
 			def CellsInSectionQ(panCellPos1, panCellPos2)
 				return This.SectionQ( panCellPos1, panCellPos2 )
 
-			def CellsInSectionQR( panCellPos1, panCellPos2, pcReturnType )
-				return This.SectionQR( panCellPos1, panCellPos2, pcReturnType )
+			def CellsInSectionQRT( panCellPos1, panCellPos2, pcReturnType )
+				return This.SectionQRT( panCellPos1, panCellPos2, pcReturnType )
 
 		#>
 
@@ -2988,9 +2988,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForms
 
 		def SectionZQ( panCellPos1, panCellPos2 )
-			return This.SectionZQR( panCellPos1, panCellPos2, :stzList )
+			return This.SectionZQRT( panCellPos1, panCellPos2, :stzList )
 
-		def SectionZQR( panCellPos1, panCellPos2, pcReturnType )
+		def SectionZQRT( panCellPos1, panCellPos2, pcReturnType )
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SectionZ( panCellPos1, panCellPos2 ) )
@@ -3012,8 +3012,8 @@ Class stzTable from stzObject
 			def SectionAndPositionQ( panCellPos1, panCellPos2 )
 				return This.SectionZQ( panCellPos1, panCellPos2 )
 
-			def SectionAndPositionQR( panCellPos1, panCellPos2, pcReturnType )
-				return This.SectionZQR( panCellPos1, panCellPos2, pcReturnType )
+			def SectionAndPositionQRT( panCellPos1, panCellPos2, pcReturnType )
+				return This.SectionZQRT( panCellPos1, panCellPos2, pcReturnType )
 	
 		def SectionAndItsPosition( panCellPos1, panCellPos2 )
 			return This.SectionZ( panCellPos1, panCellPos2 )
@@ -3021,8 +3021,8 @@ Class stzTable from stzObject
 			def SectionAndItsPositionQ( panCellPos1, panCellPos2 )
 				return This.SectionZQ( panCellPos1, panCellPos2 )
 
-			def SectionAndItsPositionQR( panCellPos1, panCellPos2, pcReturnType )
-				return This.SectionZQR( panCellPos1, panCellPos2, pcReturnType )
+			def SectionAndItsPositionQRT( panCellPos1, panCellPos2, pcReturnType )
+				return This.SectionZQRT( panCellPos1, panCellPos2, pcReturnType )
 	
 		#--
 
@@ -3032,8 +3032,8 @@ Class stzTable from stzObject
 			def CellsInSectionZQ( panCellPos1, panCellPos2 )
 				return This.SectionZQ( panCellPos1, panCellPos2 )
 
-			def CellsInSectionZQR( panCellPos1, panCellPos2, pcReturnType )
-				return This.SectionZQR( panCellPos1, panCellPos2, pcReturnType )
+			def CellsInSectionZQRT( panCellPos1, panCellPos2, pcReturnType )
+				return This.SectionZQRT( panCellPos1, panCellPos2, pcReturnType )
  
 		def CellsInSectionAndPosition( panCellPos1, panCellPos2 )
 			return This.SectionZ( panCellPos1, panCellPos2 )
@@ -3041,8 +3041,8 @@ Class stzTable from stzObject
 			def CellsInSectionAndPositionQ( panCellPos1, panCellPos2 )
 				return This.SectionZQ( panCellPos1, panCellPos2 )
 
-			def CellsInSectionAndPositionQR( panCellPos1, panCellPos2, pcReturnType )
-				return This.SectionZQR( panCellPos1, panCellPos2, pcReturnType )
+			def CellsInSectionAndPositionQRT( panCellPos1, panCellPos2, pcReturnType )
+				return This.SectionZQRT( panCellPos1, panCellPos2, pcReturnType )
 	
 		def CellsInSectionAndItsPosition( panCellPos1, panCellPos2 )
 			return This.SectionZ( panCellPos1, panCellPos2 )
@@ -3050,8 +3050,8 @@ Class stzTable from stzObject
 			def CellsInSectionAndItsPositionQ( panCellPos1, panCellPos2 )
 				return This.SectionZQ( panCellPos1, panCellPos2 )
 
-			def CellsInSectionAndItsPositionQR( panCellPos1, panCellPos2, pcReturnType )
-				return This.SectionZQR( panCellPos1, panCellPos2, pcReturnType )
+			def CellsInSectionAndItsPositionQRT( panCellPos1, panCellPos2, pcReturnType )
+				return This.SectionZQRT( panCellPos1, panCellPos2, pcReturnType )
 	
 		#>
 
@@ -3186,9 +3186,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def SectionAsPositionsQ( panCellPos1, panCellPos2 )
-			return This.SectionAsPositionsQR( panCellPos1, panCellPos2, :stzList )
+			return This.SectionAsPositionsQRT( panCellPos1, panCellPos2, :stzList )
 
-		def SectionAsPositionsQR( panCellPos1, panCellPos2, pcReturnType )
+		def SectionAsPositionsQRT( panCellPos1, panCellPos2, pcReturnType )
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SectionAsPositions(panCellPos1, panCellPos2))
@@ -3213,8 +3213,8 @@ Class stzTable from stzObject
 			def CellsInSectionAsPositionsQ( panCellPos1, panCellPos2 )
 				return This.SectionAsPositionsQ( panCellPos1, panCellPos2 )
 
-			def CellsInSectionAsPositionsQR( panCellPos1, panCellPos2, pcReturnType )
-				return This.SectionAsPositionsQR( panCellPos1, panCellPos2, pcReturnType )
+			def CellsInSectionAsPositionsQRT( panCellPos1, panCellPos2, pcReturnType )
+				return This.SectionAsPositionsQRT( panCellPos1, panCellPos2, pcReturnType )
 
 		#--
 
@@ -3450,9 +3450,9 @@ Class stzTable from stzObject
 		return aResult
 
 		def SectionToHashListQ(panCellPos1, panCellPos2)
-			return This.SectionsToHashListQR(panCellPos1, panCellPos2, :stzList)
+			return This.SectionsToHashListQRT(panCellPos1, panCellPos2, :stzList)
 
-		def SectionToHashListQR(panCellPos1, panCellPos2, pcReturnType)
+		def SectionToHashListQRT(panCellPos1, panCellPos2, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SectionToHashList(panCellPos1, panCellPos2) )
@@ -10133,7 +10133,7 @@ Class stzTable from stzObject
 			paNewValues = Q(paNewValues).ExtendXTQ(:To = nLenPos, :ByRepeatingItems).Content()
 
 		but nLenNew > nLenPos
-			This.ExtendTo( QR(paCellsPos, :stzListOfPairs).Max() )
+			This.ExtendTo( QRT(paCellsPos, :stzListOfPairs).Max() )
 		ok
 
 		This.ReplaceCellsByMany(paCellsPos, paNewValues)
@@ -12456,9 +12456,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def TheseColumnsQ(paColNamesOrNumbers)
-			return TheseColumnsQR(paColNamesOrNumbers, :stzList)
+			return TheseColumnsQRT(paColNamesOrNumbers, :stzList)
 
-		def TheseColumnsQR(paColNamesOrNumbers, pcReturnType)
+		def TheseColumnsQRT(paColNamesOrNumbers, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.TheseColumns(paColNamesOrNumbers) )
@@ -12483,10 +12483,10 @@ Class stzTable from stzObject
 			return This.TheseColumns(paColNamesOrNumbers)
 
 			def TheseColsQ(paColNamesOrNumbers)
-				return This.TheseColsQR(paColNamesOrNumbers, :stzList)
+				return This.TheseColsQRT(paColNamesOrNumbers, :stzList)
 
-			def TheseColsQR(paColNamesOrNumbers, pcReturnType)
-				return This.TheseColumnsQR(paColNamesOrNumbers, pcReturnType)
+			def TheseColsQRT(paColNamesOrNumbers, pcReturnType)
+				return This.TheseColumnsQRT(paColNamesOrNumbers, pcReturnType)
 
 		#>
 
@@ -12510,10 +12510,10 @@ Class stzTable from stzObject
 		#< @FunctionFluentForms
 
 		def ColumnsAtPositionsQ(panColNumbers)
-			return This.ColumnsAtPositionsQR(panColNumbers, :stzList)
+			return This.ColumnsAtPositionsQRT(panColNumbers, :stzList)
 
-		def ColumnsAtPositionsQR(panColNumbers, pcReturnType)
-			return This.TheseColumnsQR(panColNumbers, pcReturnType)
+		def ColumnsAtPositionsQRT(panColNumbers, pcReturnType)
+			return This.TheseColumnsQRT(panColNumbers, pcReturnType)
 
 		#>
 
@@ -12523,37 +12523,37 @@ Class stzTable from stzObject
 			return This.TheseColumns(panColNumbers)
 
 			def ColumnsAtQ(panColNumbers)
-				return This.ColumnsAtQR(panColNumbers, :stzList)
+				return This.ColumnsAtQRT(panColNumbers, :stzList)
 
-			def ColumnsAtQR(panColNumbers, pcReturnType)
-				return This.TheseColumnsQR(panColNumbers, pcReturnType)
+			def ColumnsAtQRT(panColNumbers, pcReturnType)
+				return This.TheseColumnsQRT(panColNumbers, pcReturnType)
 
 		def ColsAt(panColNumbers)
 			return This.TheseColumns(panColNumbers)
 
 			def ColsAtQ(panColNumbers)
-				return This.ColumnsAtQR(panColNumbers, :stzList)
+				return This.ColumnsAtQRT(panColNumbers, :stzList)
 
-			def ColsAtQR(panColNumbers, pcReturnType)
-				return This.TheseColumnsQR(panColNumbers, pcReturnType)
+			def ColsAtQRT(panColNumbers, pcReturnType)
+				return This.TheseColumnsQRT(panColNumbers, pcReturnType)
 
 		def ColAtPositions(panColNumbers)
 			return This.TheseColumns(panColNumbers)
 
 			def ColAtPositionsQ(panColNumbers)
-				return This.ColAtPositionsQR(panColNumbers, :stzList)
+				return This.ColAtPositionsQRT(panColNumbers, :stzList)
 
-			def ColAtPositionsQR(panColNumbers, pcReturnType)
-				return This.TheseColumnsXTQR(panColNumbers, pcReturnType)
+			def ColAtPositionsQRT(panColNumbers, pcReturnType)
+				return This.TheseColumnsXTQRT(panColNumbers, pcReturnType)
 
 		def ColAt(panColNumbers)
 			return This.TheseColumns(panColNumbers)
 
 			def ColAtQ(panColNumbers)
-				return This.ColAtQR(panColNumbers, :stzList)
+				return This.ColAtQRT(panColNumbers, :stzList)
 
-			def ColAtQR(panColNumbers, pcReturnType)
-				return This.TheseColumnsXTQR(panColNumbers, pcReturnType)
+			def ColAtQRT(panColNumbers, pcReturnType)
+				return This.TheseColumnsXTQRT(panColNumbers, pcReturnType)
 
 		#>
 
@@ -12582,9 +12582,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def TheseColumnsXTQ(panColNamesOrNumbers)
-			return This.TheseColumnsXTQR(panColNamesOrNumbers, :stzList)
+			return This.TheseColumnsXTQRT(panColNamesOrNumbers, :stzList)
 
-		def TheseColumnsXTQR(panColNamesOrNumbers, pcReturnType)
+		def TheseColumnsXTQRT(panColNamesOrNumbers, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.TheseColumnsXT(panColNamesOrNumbers) )
@@ -12607,18 +12607,18 @@ Class stzTable from stzObject
 			return This.TheseColumnsXT(panColNamesOrNumbers)
 
 			def TheseColsXTQ(panColNamesOrNumbers)
-				return This.TheseColsXTQR(panColNamesOrNumbers, :stzList)
+				return This.TheseColsXTQRT(panColNamesOrNumbers, :stzList)
 
-			def TheseColsXTQR(panColNamesOrNumbers, pcReturnType)
+			def TheseColsXTQRT(panColNamesOrNumbers, pcReturnType)
 				return This.TheseColsXT(panColNamesOrNumbers, pcReturnType)
 
 		def TheseColXT(panColNamesOrNumbers)
 			return This.TheseColumnsXT(panColNamesOrNumbers)
 
 			def TheseColXTQ(panColNamesOrNumbers)
-				return This.TheseColXTQR(panColNamesOrNumbers, :stzList)
+				return This.TheseColXTQRT(panColNamesOrNumbers, :stzList)
 
-			def TheseColXTQR(panColNamesOrNumbers, pcReturnType)
+			def TheseColXTQRT(panColNamesOrNumbers, pcReturnType)
 				return This.TheseColumnsXT(panColNamesOrNumbers, pcReturnType)
 
 		#>
@@ -12728,9 +12728,9 @@ Class stzTable from stzObject
 		ok
 
 		def SubTableQ(pacColNames)
-			return This.SubTableQR(pacColNames, :stzList)
+			return This.SubTableQRT(pacColNames, :stzList)
 
-		def SubTableQR(pacColNames, pcReturnType)
+		def SubTableQRT(pacColNames, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.SubTable(pacColNames) )
@@ -12759,10 +12759,10 @@ Class stzTable from stzObject
 		return This.TheseRows(panRowsNumbers)
 
 		def SubSetQ(panRowsNumbers)
-			return This.SubSetQR(panRowsNumbers, :stzList)
+			return This.SubSetQRT(panRowsNumbers, :stzList)
 
-		def SubSetQR(panRowsNumbers, pcReturnType)
-			return This.TheseRowsQR(panRowsNumbers, pcReturnType)
+		def SubSetQRT(panRowsNumbers, pcReturnType)
+			return This.TheseRowsQRT(panRowsNumbers, pcReturnType)
 
 	  #========================================================#
 	 #  GETTING THE LIST OF ROWS AS DEFINED BY THEIR NUMBERS  #
@@ -12785,9 +12785,9 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def TheseRowsQ(panRowsNumbers)
-			return TheseRowsQR(panRowsNumbers, :stzList)
+			return TheseRowsQRT(panRowsNumbers, :stzList)
 
-		def TheseRowsQR(panRowsNumbers, pcReturnType)
+		def TheseRowsQRT(panRowsNumbers, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.Theserows(panRowsNumbers) )
@@ -12812,19 +12812,19 @@ Class stzTable from stzObject
 			return This.TheseRows(panRowsNumbers)
 
 			def RowsAtPositionsQ(panRowsNumbers)
-				return This.RowsAtPositionsQR(panRowsNumbers, :stzList)
+				return This.RowsAtPositionsQRT(panRowsNumbers, :stzList)
 
-			def RowsAtPositionsQR(panRowsNumbers, pcReturnType)
-				return This.TheseRowsQR(panRowsNumbers, pcReturnType)
+			def RowsAtPositionsQRT(panRowsNumbers, pcReturnType)
+				return This.TheseRowsQRT(panRowsNumbers, pcReturnType)
 
 		def RowsAt(panRowsNumbers)
 			return This.TheseRows(panRowsNumbers)
 
 			def RowsAtQ(panRowsNumbers)
-				return This.RowsAtPositionsQR(panRowsNumbers, :stzList)
+				return This.RowsAtPositionsQRT(panRowsNumbers, :stzList)
 
-			def RowsAtQR(panRowsNumbers, pcReturnType)
-				return This.TheseRowsQR(panRowsNumbers, pcReturnType)
+			def RowsAtQRT(panRowsNumbers, pcReturnType)
+				return This.TheseRowsQRT(panRowsNumbers, pcReturnType)
 
 		#>
 
@@ -12847,9 +12847,9 @@ Class stzTable from stzObject
 		return aResult
 
 		def TheseRowsZQ(panRowsNumbers)
-			return This.TheseRowsZQR(panRowsNumbers, :stzList)
+			return This.TheseRowsZQRT(panRowsNumbers, :stzList)
 
-		def TheseRowsZQR(panRowsNumbers, pcReturnType)
+		def TheseRowsZQRT(panRowsNumbers, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.TheseRowsZ(panRowsNumbers) )

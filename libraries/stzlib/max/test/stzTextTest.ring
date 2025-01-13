@@ -169,8 +169,8 @@ StzTextQ("Programming Without Code Technology") {
 	? InitialsAsString()
 	#--> PWCT
 
-	# Or you can return any type you need using the QR() construct:
-	? InitialsQR(:stzString).Content()
+	# Or you can return any type you need using the QRT() construct:
+	? InitialsQRT(:stzString).Content()
 }
 
 /*==================
@@ -581,4 +581,4 @@ o1 = new stzText("Python Ruby Ring Julia")
 /*-----------------
 
 o1 = new stzText("Ring Python Ruby Julia")
-? o1.WordsQR(:stzString).Content()
+? o1.WordsQRT(:stzString).Content()

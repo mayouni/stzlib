@@ -2244,7 +2244,7 @@ proff()
 profon()
 
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
-? @@NL( o1.ClassifyByQR(' Q(@item).HowMany(0) ', :stzListOflists).SortedOn(1) )
+? @@NL( o1.ClassifyByQRT(' Q(@item).HowMany(0) ', :stzListOflists).SortedOn(1) )
 #--> [
 # 	[ "0", [ 8, 2 ] ],
 #	[ "1", [ 170, 0, 150 ] ],
@@ -6049,7 +6049,7 @@ proff()
 profon()
 
 o1 = new stzHashList([ [ "hussein", 3 ], [ "haneen", 1 ], [ "teeba", 3 ] ])
-? o1.ValuesQR(:stzListOfNumbers).Sum()
+? o1.ValuesQRT(:stzListOfNumbers).Sum()
 #--> 7
 
 proff()

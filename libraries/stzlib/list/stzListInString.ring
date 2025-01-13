@@ -31,7 +31,7 @@ class stzListInString from stzString
 		def ListQ()
 			return new stzList(This.List())
 
-		def ListQR(pcType)
+		def ListQRT(pcType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok

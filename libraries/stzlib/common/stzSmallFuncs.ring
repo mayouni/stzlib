@@ -125,7 +125,7 @@ func StzW(cType, paMethodAndFilter)
 			ReplaceCSQ("@Method", "@Item", _FALSE_).
 			Content()
 	
-	aResult = QR(aTempList, :stzListOfStrings).StringsW(ccondition)
+	aResult = QRT(aTempList, :stzListOfStrings).StringsW(ccondition)
 
 	return aResult
 
@@ -180,7 +180,7 @@ func QM(p)
 	SetMainObject(obj)
 	return obj
 
-func QR(p, pcType)
+func QRT(p, pcType)
 	if NOT isString(pcType)
 		StzRaise("Invalid param type! pcType should be a string containing the name of a softanza class.")
 	ok

@@ -1,4 +1,8 @@
 
+_$aRegExpPatterns_ = [
+	:eMail = "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+]
+
 func StzRegExpMakerQ()
 	return new stzRegExpMaker
 
@@ -13,6 +17,12 @@ func 3Times()
 
 func NTimes(n)
 	return n
+
+func RegExpPatterns()
+	return _$aRegExpPatterns_
+
+func rxp(pcPattName)
+	return regExpPatterns()[pcPattName]
 
 class stzRegExpMaker
 	acFragments = []

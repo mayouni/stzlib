@@ -456,7 +456,7 @@ proff()
 
 pr()
 
-? Q(25).MultiplesUntilQR(1080, :stzListOfNumbers).
+? Q(25).MultiplesUntilQRT(1080, :stzListOfNumbers).
 	LeastCommonNumber(:With = Q(42).MultiplesUntil(1080) )
 
 #--> 1050

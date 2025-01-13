@@ -55,6 +55,9 @@ _aRingTypesXT = [
 
 @ = 0
 
+# Temporary Truth Statement and Negation (read X as Truth)
+_bXStatement_ = _TRUE_
+
 _aStzFindableTypes = [
 	:stzListOfNumbers, :stzListOfUnicodes, :stzString, :stzMultiString,
 	:stzSubString, :stzItem, :stzStopWords, :stzStopWordsData,
@@ -437,6 +440,9 @@ _acStzCCKeywords = [
   //////////////////////////
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
+
+func TruthStatement()
+	return _bXStatement_
 
 func KeepingHistory()
 	return _bKeepHisto

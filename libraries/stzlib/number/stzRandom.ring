@@ -62,9 +62,165 @@ func SetNo(n)
 func No(p)
 	return []
 
+	#< @FunctionFluentForms
+
+	func NoQ(p)
+		return Q(No(p))
+
+	func NoQQ(p)
+		return QQ(No(p))
+
+	#>
+
+	#< @FunctionAlternativeForms
+
 	func Any(p)
 		return No(p)
 
+		func AnyQ(p)
+			return NoQ(p)
+
+		func AnyQQ(n)
+			return NoQQ(p)
+
+	func NoOne(p)
+		return No(p)
+
+		func NoOneQ(p)
+			return NoQ(p)
+
+		func NoOneQQ(p)
+			return NoQQ(p)
+
+	func NoOneOf(p)
+		return No(p)
+
+		func NoOneOfQ(p)
+			return NoQ(p)
+
+		func NoOneOfQQ(n)
+			return NoQQ(n)
+
+	func NoOneIn(p)
+		return No(p)
+
+		func NoOneInQ(p)
+			return NoQ(p)
+
+		func NoOneInQQ(n)
+			return NoQQ(n)
+
+	func NoOneAmong(p)
+		return No(p)
+
+		func NoOneAmongQ(p)
+			return NoQ(p)
+
+		func NoOneAmongQQ(n)
+			return NoQQ(n)
+
+	func NothingOf(p)
+		return No(p)
+
+		func NothingOfQ(p)
+			return NoQ(p)
+
+		func NothingOfQQ(n)
+			return NoQQ(n)
+
+	func NothingIn(p)
+		return No(p)
+
+		func NothingInQ(p)
+			return NoQ(p)
+
+		func NothingInQQ(n)
+			return NoQQ(n)
+
+	func NothingAmong(p)
+		return No(p)
+
+		func NothingAmongQ(p)
+			return NoQ(p)
+
+		func NothingAmongQQ(n)
+			return NoQQ(n)
+
+	#>
+
+	#< @FunctionStatementForm
+
+	func NothingInQQX(p)
+		_bXStatement_ = _FALSE_
+		return QQ(p)
+
+	#>
+
+func SomeOneIn(paList)
+	return AnItemIn(paList)
+
+	#< @FunctionFluentForms
+
+	func SomeOneInQ(paList)
+		return Q(SomeOneIn(paList))
+
+	func SomeOneInQQ(paList)
+		return QQ(SomeOneIn(paList))
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func SomeOneOf(paList)
+		return SomeOneIn(paList)
+
+		func SomeOneOfQ(paList)
+			return Q(SomeThingIn(paList))
+
+		func SomeOneOfQQ(paList)
+			return QQ(SomeThingIn(paList))
+
+	#--
+
+	func SomeThingIn(paList)
+		return SomeOneIn(paList)
+
+		func SomeThingInQ(paList)
+			return Q(SomeThingIn(paList))
+
+		func SomeThingInQQ(paList)
+			return QQ(SomeThingIn(paList))
+
+	func SomeThingOf(paList)
+		return SomeOneIn(paList)
+
+		func SomeThingOfQ(paList)
+			return Q(SomeThingIn(paList))
+
+		func SomeThingOfQQ(paList)
+			return QQ(SomeThingIn(paList))
+
+	#--
+
+	func SomeOneAmong(paList)
+		return SomeOneIn(paList)
+
+		func SomeOneAmongQ(paList)
+			return Q(SomeThingIn(paList))
+
+		func SomeOneAmongQQ(paList)
+			return QQ(SomeThingIn(paList))
+
+	func SomeThingAmong(paList)
+		return SomeOneIn(paList)
+
+		func SomeThingAmongQ(paList)
+			return Q(SomeThingIn(paList))
+
+		func SomeThingAmongQQ(paList)
+			return QQ(SomeThingIn(paList))
+
+	#>
 #--
 
 func DefaultFew()
@@ -79,6 +235,46 @@ func SetFew(n)
 func Few(paList)
 	return FewXT(paList, DefaultFew())
 
+	#< @FunctionFluentForms
+
+	func FewQ(paList)
+		return Q(Few(paList))
+
+	func FewQQ(paList)
+		return QQ(Few(paList))
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func FewOf(p)
+		return Few(p)
+
+		def FewOfQ(p)
+			return FewQ(p)
+
+		def FewOfQQ(p)
+			return FewQQ(p)
+
+	func FewIn(p)
+		return Few(p)
+
+		def FewInQ(p)
+			return FewQ(p)
+
+		def FewInQQ(p)
+			return FewQQ(p)
+
+	func FewAmong(p)
+		return Few(p)
+
+		def FewAmongQ(p)
+			return FewQ(p)
+
+		def FewAmongQQ(p)
+			return FewQQ(p)
+	#>
+
 func FewXT(paList, nFewRatio)
 	if CheckingParams()
 		if NOT isList(paList)
@@ -92,7 +288,47 @@ func FewXT(paList, nFewRatio)
 
 	n = ceil( len(paList) * nFewRatio )
 	return NRandomItemsInU(n, paList)
-	
+
+	#< @FunctionFluentForms
+
+	func FewXTQ(paList, nFewRatio)
+		return Q(FewXT(paList, nFewRatio))
+
+	func FewXTQQ(paList)
+		return QQ(Few(paList, nFewRatio))
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func FewOfXT(paList, nFewRatio)
+		return FewXT(paList, nFewRatio)
+
+		def FewOfXTQ(paList, nFewRatio)
+			return FewXTQ(paList, nFewRatio)
+
+		def FewOfXTQQ(paList, nFewRatio)
+			return FewXTQQ(paList, nFewRatio)
+
+	func FewInXT(paList, nFewRatio)
+		return FewXT(paList, nFewRatio)
+
+		def FewInXTQ(paList, nFewRatio)
+			return FewXTQ(paList, nFewRatio)
+
+		def FewInXTQQ(paList, nFewRatio)
+			return FewXTQQ(paList, nFewRatio)
+
+	func FewAmongXT(paList, nFewRatio)
+		return FewXT(paList, nFewRatio)
+
+		def FewAmongXTQ(paList, nFewRatio)
+			return FewXTQ(paList, nFewRatio)
+
+		def FewAmongXTQQ(paList, nFewRatio)
+			return FewXTQQ(paList, nFewRatio)
+	#>
+
 #--
 
 func DefaultSome()
@@ -105,6 +341,47 @@ func SetSome(n)
 
 func Some(paList)
 	return SomeXT(paList, DefaultSome())
+
+	#< @FunctionFluentForms
+
+	func SomeQ(paList)
+		return Q(Some(paList))
+
+	func SomeQQ(paList)
+		return QQ(Some(paList))
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func SomeOf(paList)
+		return Some(paList)
+
+		func SomeOfQ(paList)
+			return SomeQ(paList)
+
+		func SomeOfQQ(paList)
+			return SomeQQ(paList)
+
+	func SomeIn(paList)
+		return Some(paList)
+
+		func SomeInQ(paList)
+			return SomeQ(paList)
+
+		func SomeInQQ(paList)
+			return SomeQQ(paList)
+
+	func SomeAmong(paList)
+		return Some(paList)
+
+		func SomeAmongQ(paList)
+			return SomeQ(paList)
+
+		func SomeAmongQQ(paList)
+			return SomeQQ(paList)
+
+	#>
 
 func SomeXT(paList, nSomeRatio)
 	if CheckingParams()
@@ -120,6 +397,48 @@ func SomeXT(paList, nSomeRatio)
 	n = ceil( len(paList) * nSomeRatio )
 
 	return NRandomItemsInU(n, paList)
+
+	#< @FunctionFluentForms
+
+	func SomeXTQ(paList, nSomeRatio)
+		return Q(SomeXT(paList, nSomeRatio))
+
+	func SomeXTQQ(paList, nSomeRatio)
+		return QQ(SomeXT(paList, nSomeRatio))
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func SomeOfXT(paList, nSomeRatio)
+		return SomeXT(paList, nSomeRatio)
+
+		func SomeOfXTQ(paList, nSomeRatio)
+			return SomeXTQ(paList, nSomeRatio)
+
+		func SomeOfXTQQ(paList, nSomeRatio)
+			return SomeXTQQ(paList, nSomeRatio)
+
+	func SomeInXT(paList, nSomeRatio)
+		return SomeXT(paList, nSomeRatio)
+
+		func SomeInXTQ(paList, nSomeRatio)
+			return SomeXTQ(paList, nSomeRatio)
+
+		func SomeInXTQQ(paList, nSomeRatio)
+			return SomeXTQQ(paList, nSomeRatio)
+
+	func SomeAmongXT(paList, nSomeRatio)
+		return SomeXT(paList, nSomeRatio)
+
+		func SomeAmongXTQ(paList, nSomeRatio)
+			return SomeXTQ(paList, nSomeRatio)
+
+		func SomeAmongXTQQ(paList, nSomeRatio)
+			return SomeXTQQ(paList, nSomeRatio)
+
+	#>
+
 
 #--
 
@@ -141,6 +460,16 @@ func Half(paList)
 	n = ceil( len(paList) / 2 )
 	return NRandomItemsInU(n, paList)
 
+	#< @FunctionFluentForms
+
+	func HalfQ(paList)
+		return Q(Half(paList))
+
+	func HalfQQ(paList)
+		return QQ(Half(paList))
+
+	#>
+
 func HalfXT(paList)
 	if CheckingParams()
 		if NOT isList(paList)
@@ -155,6 +484,16 @@ func HalfXT(paList)
 		n = ceil( nLen / 2 )
 	ok
 
+	#< @FunctionFluentForms
+
+	func HalfXTQ(paList)
+		return Q(HalfXT(paList))
+
+	func HalfXTQQ(paList)
+		return QQ(HalfXT(paList))
+
+	#>
+
 #--
 
 func DefaultMany()
@@ -163,11 +502,69 @@ func DefaultMany()
 	func _Many()
 		return _nMany
 
+func Among(p)
+	if CheckParams()
+
+		if NOT (isList(p) or isString(p))
+			StzRaise("Incorrect param type! p must be a list or string.")
+		ok
+
+	ok
+
+	return p
+
+	func AmongQ(p)
+		return Q(Among(p))
+
+	func AmongQQ(p)
+		return QQ(Among(p))
+
 func SetMany(n)
 	_nMany = n
 
 func Many(paList)
 	return ManyXT(paList, DefaultMany())
+
+	#< @FunctionFluentForms
+
+	func ManyQ(paList)
+		return Q(Many(paList))
+
+	func ManyQQ(paList)
+		return QQ(Many(paList))
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func ManyIn(paList)
+		return Many(paList)
+
+		func ManyInQ(paList)
+			return ManyQ(paList)
+
+		func ManyInQQ(paList)
+			return ManyQQ(paList)
+
+	func ManyOf(paList)
+		return Many(paList)
+
+		func ManyOfQ(paList)
+			return ManyQ(paList)
+
+		func ManyOfQQ(paList)
+			return ManyQQ(paList)
+
+	func ManyAmong(paList)
+		return Many(paList)
+
+		func ManyAmongQ(paList)
+			return ManyQ(paList)
+
+		func ManyAmongQQ(paList)
+			return ManyQQ(paList)
+
+	#>
 
 func ManyXT(paList, nManyRatio)
 	if CheckingParams()
@@ -181,6 +578,47 @@ func ManyXT(paList, nManyRatio)
 
 	n = ceil( len(paList) * nManyRatio )
 	return NRandomItemsInU(n, paList)
+
+	#< @FunctionFluentForms
+
+	func ManyXTQ(paList)
+		return Q(Many(paList))
+
+	func ManyXTQQ(paList)
+		return QQ(Many(paList))
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func ManyInXT(paList, nManyRatio)
+		return ManyXT(paList, nManyRatio)
+
+		func ManyInXTQ(paList, nManyRatio)
+			return ManyXTQ(paList, nManyRatio)
+
+		func ManyInXTQQ(paList, nManyRatio)
+			return ManyXTQQ(paList, nManyRatio)
+
+	func ManyOfXT(paList, nManyRatio)
+		return ManyXT(paList, nManyRatio)
+
+		func ManyOfXTQ(paList, nManyRatio)
+			return ManyXTQ(paList, nManyRatio)
+
+		func ManyOfXTQQ(paList, nManyRatio)
+			return ManyXTQQ(paList, nManyRatio)
+
+	func ManyAmongXT(paList, nManyRatio)
+		return ManyXT(paList, nManyRatio)
+
+		func ManyAmongXTQ(paList, nManyRatio)
+			return ManyXTQ(paList, nManyRatio)
+
+		func ManyAmongXTQQ(paList, nManyRatio)
+			return ManyXTQQ(paList, nManyRatio)
+
+	#>
 
 #--
 
@@ -196,6 +634,29 @@ func SetMost(n)
 func Most(paList)
 	return MostXT(paList, DefaultMost())
 
+	#< @FunctionFluentForms
+
+	func MostQ(paList)
+		return Q(Most(paList))
+
+	func MostQQ(paList)
+		return QQ(Most(paList))
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func MostOf(paList)
+		return Most(paList)
+
+		func MostOfQ(paList)
+			return MostQ(paList)
+
+		func MostOfQQ(paList)
+			return MostQQ(paList)
+
+	#>
+
 func MostXT(paList, nMostRatio)
 	if CheckingParams()
 		if NOT isList(paList)
@@ -208,6 +669,29 @@ func MostXT(paList, nMostRatio)
 
 	n = floor( len(paList) * nMostRatio )
 	return NRandomItemsInU(n, paList)
+
+	#< @FunctionFluentForms
+
+	func MostXTQ(paList, nMostRatio)
+		return Q(MostXT(paList, nMostRatio))
+
+	func MostXTQQ(paList, nMostRatio)
+		return QQ(MostXT(paList, nMostRatio))
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func MostOfXT(paList, nMostRatio)
+		return MostXT(paList, nMostRatio)
+
+		func MostOfXTQ(paList, nMostRatio)
+			return MostXTQ(paList, nMostRatio)
+
+		func MostOfXTQQ(paList, nMostRatio)
+			return MostXTQQ(paList, nMostRatio)
+
+	#>
 
 #--
 
@@ -228,6 +712,100 @@ func All(paList)
 	ok
 
 	return paList
+
+	#< @FunctionFluentForms
+
+	func AllQ(paList)
+		return Q(All(paList))
+
+	func AllQQ(paList)
+		return QQ(All(paList))
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func AllOf(paList)
+		return All(paList)
+
+		func AllOfQ(paList)
+			return AllQ(paList)
+
+		func AllOfQQ(paList)
+			return AllQQ(paList)
+
+	func AllIn(paList)
+		return All(paList)
+
+		func AllInQ(paList)
+			return AllQ(paList)
+
+		func AllInQQ(paList)
+			return AllQQ(paList)
+
+	func AllAmong(paList)
+		return All(paList)
+
+		func AllAmongQ(paList)
+			return AllQ(paList)
+
+		func AllAmongQQ(paList)
+			return AllQQ(paList)
+
+	func Every(paList)
+		return All(paList)
+
+		func EveryQ(paList)
+			return AllQ(paList)
+
+		func EveryQQ(paList)
+			return AllQQ(paList)
+
+	func EveryItemIn(paList)
+		return All(paList)
+
+		func EveryItemInQ(paList)
+			return AllQ(paList)
+
+		func EveryItemInQQ(paList)
+			return AllQQ(paList)
+
+	func EveryThingIn(paList)
+		return All(paList)
+
+		func EveryThingInQ(paList)
+			return AllQ(paList)
+
+		func EveryThingInQQ(paList)
+			return AllQQ(paList)
+
+	func EveryItemAmong(paList)
+		return All(paList)
+
+		func EveryItemAmongQ(paList)
+			return AllQ(paList)
+
+		func EveryItemAmongQQ(paList)
+			return AllQQ(paList)
+
+	func EveryThingAmong(paList)
+		return All(paList)
+
+		func EveryThingAmongQ(paList)
+			return AllQ(paList)
+
+		func EveryThingAmongQQ(paList)
+			return AllQQ(paList)
+
+	#>
+
+	#< @FunctionStatementForm
+
+	func EveryThingInQQX(p)
+		_bXStatement_ = _TRUE_
+		return QQ(p)
+
+	#>
 
 #==
 
