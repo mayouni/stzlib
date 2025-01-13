@@ -17,11 +17,15 @@ My wife runs a music club where participants learn to sing classical Arabic song
 3. Formatting it into a Word document for printing and distribution.
 
 ![A word document containing the lyrics of an Arabic song](../images/stz-word-doc-arabic-song.png)
+
+
 *The final Word document I need to produce.*
 
 Here’s the challenge: the lyrics I find online are often cluttered with unnecessary repetition. Song transcriptions typically include every repeated phrase as performed by the singer—this is impractical for my wife’s needs. She frequently reminds me to remove duplicates when preparing new songs.
 
 ![A message reminding me to remove duplicates](../images/stz-message-to-transcribe-a-song.png)
+
+
 *The reminder my wife sent me to avoid duplication!*
 
 Manually removing duplicates is tedious and disruptive, especially when I’m deep in thought about critical aspects of Softanza’s design.
@@ -29,7 +33,9 @@ Manually removing duplicates is tedious and disruptive, especially when I’m de
 
 #To eliminate this recurring chore, I developed the `RemoveDuplicates()` function in the `stzList` class. With this powerful feature, I can fulfill such requests in seconds rather than minutes:  
 
-![Softanza RemoveDuplicates() in action](../images/stz-remove-dupplicates-arabic-song.png)  
+![Softanza RemoveDuplicates() in action](../images/stz-remove-dupplicates-arabic-song.png)
+
+
 *Softanza to the rescue with `RemoveDuplicates()`: Input on the right, output on the left!*  
 
 Naturally, creating this functionality required implementing several intermediary methods, such as:  
