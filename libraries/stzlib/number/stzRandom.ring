@@ -146,6 +146,22 @@ func No(p)
 		func NothingAmongQQ(n)
 			return NoQQ(n)
 
+	func NoItemIn(p)
+		return No(p)
+
+		func NoItemInQ(p)
+			return NoQ(p)
+
+		func NoItemInQQ(n)
+			return NoQQ(n)
+
+	func NoItemAmong(p)
+		func NoItemAmongQ(p)
+			return NoQ(p)
+
+		func NoItemamongQQ(n)
+			return NoQQ(n)
+
 	#>
 
 	#< @FunctionStatementForm
@@ -153,6 +169,9 @@ func No(p)
 	func NothingInQQX(p)
 		_bXStatement_ = _FALSE_
 		return QQ(p)
+
+		func NoNumberInQQX(p)
+			return NothingInQQX(p)
 
 	#>
 
@@ -804,6 +823,96 @@ func All(paList)
 	func EveryThingInQQX(p)
 		_bXStatement_ = _TRUE_
 		return QQ(p)
+
+	#>
+
+func AllNumbers(panList)
+	if CheckingParams()
+
+		if NOT isList(panList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+
+		aLast = panList[len(panList)]
+		if isList(aList) and StzListQ(aLast).IsAndNamedParam()
+			del(panList, len(panList))
+			panList + aLast[2]
+		ok
+
+		if NOT isListOfNumbers(panList)
+			StzRaise("Incorrect param type! paList must be a list of numbers.")
+		ok
+	ok
+
+	return paList
+
+	#< @FunctionFluentForms
+
+	func AllNumbersQ(paList)
+		return Q(AllNumbers(paList))
+
+	func AllNumbersQQ(paList)
+		return QQ(AllNumbers(paList))
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func AllNumbersIn(panList)
+		return AllNumbers(panList)
+
+		func AllNumbersInQ(panList)
+			return AllNumbersQ(panList)
+
+		func AllNumbersInQQ(paList)
+			return AllNumbersQQ(panList)
+
+	func EveryNumber(panList)
+		return AllNumbers(panList)
+
+		func EveryNumberQ(panList)
+			return AllNumbersQ(panList)
+
+		func EveryNumberQQ(paList)
+			return AllNumbersQQ(panList)
+
+	func EachNumber(panList)
+		return AllNumbers(panList)
+
+		func EachNumberQ(panList)
+			return AllNumbersQ(panList)
+
+		func EachNumberQQ(paList)
+			return AllNumbersQQ(panList)
+
+	func EveryNumberIn(panList)
+		return AllNumbers(panList)
+
+		func EveryNumberInQ(panList)
+			return AllNumbersQ(panList)
+
+		func EveryNumberInQQ(paList)
+			return AllNumbersQQ(panList)
+
+	func EachNumberIn(panList)
+		return AllNumbers(panList)
+
+		func EachNumberInQ(panList)
+			return AllNumbersQ(panList)
+
+		func EachNumberInQQ(paList)
+			return AllNumbersQQ(panList)
+
+	#>
+
+	#< @FunctionStatementForm
+
+	func AllNumbersQQX(panList)
+		_bXStatement_ = _TRUE_
+		return QQ(panList)
+
+		func AllNumbersInQQX(panList)
+			return AllNumbersQQX(panList)
 
 	#>
 

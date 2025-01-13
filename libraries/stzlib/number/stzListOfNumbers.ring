@@ -7331,18 +7331,52 @@ class stzListOfNumbers from stzList
 
 		return bResult
 
+		#< @FunctionFluentForm
+
 		def AreNegativeQ()
 			if This.AreNegative()
 				return This
 			else
 				return AFalseObject()
 			ok
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def Nagative()
 			return This.AreNagative()
 
 			def NegaiveQ()
 				return This.AreNegativeQ()
+		#>
+
+		#< @FunctionStatementForms
+
+		def IsNegativeX()
+			return This.AreNegativeX()
+
+		def AreNegativeX()
+	
+			bTruth = TruthStatement()
+	
+			if bTruth = _TRUE_
+	
+				return This.AreNegative()
+	
+			else
+	
+				if This.ContainsNegativeNumbers()
+					return _FALSE_
+				else
+					return _TRUE_
+				ok
+	
+			ok
+
+			def NegativeX()
+				return This.AreNegativeX()
+
+		#>
 
 	def ArePositive()
 		
@@ -7360,18 +7394,82 @@ class stzListOfNumbers from stzList
 
 		return bResult
 
+		#< @FunctionFluentForm
+
 		def ArePositiveQ()
 			if This.ArePositive()
 				return This
 			else
 				return AFalseObject()
 			ok
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def Positive()
 			return This.ArePositive()
 
 			def PositiveQ()
 				return This.ArePositiveQ()
+		#>
+
+		#< @FunctionStatementForms
+
+		def IsPositiveX()
+			return This.ArePositiveX()
+
+		def ArePositiveX()
+	
+			bTruth = TruthStatement()
+	
+			if bTruth = _TRUE_
+	
+				return This.ArePositive()
+	
+			else
+
+				if This.ContainsPositiveNumbers()
+					return _FALSE_
+				else
+					return _TRUE_
+				ok
+	
+			ok
+
+			def PositiveX()
+				return This.ArePositiveX()
+
+		#>
+
+	def ContainsPositiveNumbers()
+		_bResult_ = _FALSE_
+
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
+
+		for @i = 1 to _nLen_
+			if _anContent_[@i] > 0
+				_bResult_ = _TRUE_
+				exit
+			ok
+		next
+
+		return _bResult_
+
+	def ContainsNegativeNumbers()
+		_bResult_ = _FALSE_
+
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
+
+		for @i = 1 to _nLen_
+			if _anContent_[@i] < 0
+				_bResult_ = _TRUE_
+				exit
+			ok
+		next
+
+		return _bResult_
 
 	def AreGreaterThen(n)
 		if CheckParams()
