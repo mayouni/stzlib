@@ -1048,6 +1048,42 @@ This feature dramatically improves the coding experience by reducing disruptions
 
 Additionally, it simplifies the integration of such features into IDEs, as the intelligence resides in the library itself.
 
+# Function Statement Form: The Magic of X()
+
+In everyday programming, we express logical statements about our code using various constructs - much like how we make assertions in natural language. For example, we might say "*All readers of this page are programmers*." Such statements eventually face a moment of truth when tested against reality, revealing their actual truth value.
+
+At the language design level, this concept manifests through two crucial elements: the *statement* itself and a *verification* function that evaluates its truth.
+
+In Softanza, the elegant `X()` suffix enables programmers to articulate statements about their code with precision. Consider this example:
+
+```
+? AllNumbersInQX([ -2, -4, -21 ])
+```
+
+Here, Softanza interprets the programmer's intent clearly: they're making an assertion about *every* number in the list, not just some subset.
+
+But what exactly are we asserting about these numbers? This is where the second `X()` comes into play, serving as a prefix to the method that completes our logical statement:
+
+```
+? AllNumbersInQQX([ -2, -4, -21 ]).AreNegativeX()
+#--> TRUE
+
+? AllNumbersInQQX([ -2, 8, -4, -21 ]).AreNegativeX()
+#--> FALSE
+```
+
+The truth-checking mechanism maintains its elegance even when expressing negative assertions:
+
+```
+? NoNumberInQQX([ -2, -4, -21 ]).IsPositiveX()
+#--> TRUE
+
+? NoNumberInQQX([  -2, -4, -21, 10800 ]).IsPositiveX()
+#--> FALSE
+```
+
+This syntax pattern proves invaluable in real-world scenarios. When validating financial transactions, you might need to ensure all amounts are positive. In security systems, you could verify that no ports in a certain range are open. Data integrity checks might require confirming that all database records meet specific criteria. The `X()` syntax thus bridges the gap between human logical thinking and programmatic expression, making code both more readable and more reliable in production environments.
+
 ## More Forms to Come in the Future
 
 - `@FunctionTimedForm`: A rule of nature to let functions be born, live, and gracefully die!
