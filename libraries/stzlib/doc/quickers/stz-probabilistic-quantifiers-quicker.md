@@ -7,6 +7,7 @@ load "stzlib.ring"
 
 ? Some( NumbersIn( -5 : 5 ) )
 #--> [ -1, -4, -5, 3 ]
+
 ? Most( PositiveNumbersIn( -5 : 5 ) )
 #--> [ 1, 2, 4, 5 ]
 ```
@@ -24,8 +25,10 @@ Their true power emerges in probabilistic and random contexts:
 
 ```ring
 SetSome(0.4)
+
 ? Some( RandomNumbersIn(1:10) )
 #--> [ 5, 2, 7, 9 ]
+
 ? Few( RandomNumbersInU(1:10) ) # "U" for Unique items
 #--> [ 1, 4 ]
 ```
