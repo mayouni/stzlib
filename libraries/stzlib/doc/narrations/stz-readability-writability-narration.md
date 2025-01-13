@@ -1057,7 +1057,7 @@ At the language design level, this concept manifests through two crucial element
 In Softanza, the elegant `X()` suffix enables programmers to articulate statements about their code with precision. Consider this example:
 
 ```
-? AllNumbersInQX([ -2, -4, -21 ])
+AllNumbersInQX([ -2, -4, -21 ])
 ```
 
 Here, Softanza interprets the programmer's intent clearly: they're making an assertion about *every* number in the list, not just some subset.

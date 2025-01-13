@@ -90,7 +90,9 @@ Average = 10
 
 ## Logical Magic with Quantifiers
 
-Let’s dive into some logical magic with quantifiers. We’ll start with the `NothingIn()` quantifier, which works as the exact opposite of the `No()` quantifier we saw earlier. I’ll prefix it with `QQ()` because I’m working with a list of email addresses and want to promote it to a `stzListOfStrings` object to check the emails against a regular expression pattern.
+We’ll start with the `NothingIn()` quantifier, which is an exact alternative of the `No()` quantifier we saw earlier.
+
+I’ll prefix it with `QQ()` because I’m working with a list of email addresses and want to promote it to a `stzListOfStrings` object to check the emails against a regular expression pattern.
 
 Now, here’s where it gets even more exciting—I’ll add the magical `X()` suffix!
 
