@@ -27,12 +27,20 @@ Here’s the challenge: the lyrics I find online are often cluttered with unnece
 Manually removing duplicates is tedious and disruptive, especially when I’m deep in thought about critical aspects of Softanza’s design.
 
 
-## Solving the Problem with Softanza and Beyond
+#To eliminate this recurring chore, I developed the `RemoveDuplicates()` function in the `stzList` class. With this powerful feature, I can fulfill such requests in seconds rather than minutes:  
 
-To eliminate this recurring chore, I created the `RemoveDuplicates()` function in the `stzList` class. With this feature, I can fulfill her request in seconds instead of minutes:
+![Softanza RemoveDuplicates() in action](../images/stz-remove-dupplicates-arabic-song.png)  
+*Softanza to the rescue with `RemoveDuplicates()`!*  
 
-![Softanza RemoveDuplicates() in action](../images/stz-remove-dupplicates-arabic-song.png)
-*Softanza to the rescue with `RemoveDuplicates()`!*
+Naturally, creating this functionality required implementing several intermediary methods, such as:  
+- `FindDuplicates()` – Identifies all duplicates in the list.  
+- `ReplaceDuplicates()` – Replaces duplicates with specified values.  
+- `CountDuplicates()` – Counts the occurrences of duplicates.  
+- `ContainsDuplicates()` – Quickly checks if duplicates exist.  
+
+In keeping with Softanza's principles of consistency and versatility, these methods were implemented in both the `stzList` and `stzString` classes.  
+
+## Expanding the Spectrum of Features  
 
 But the journey didn’t end there. While `RemoveDuplicates()` solved part of the problem, I still needed to:
 1. Extract the song text from the internet link she provides.
