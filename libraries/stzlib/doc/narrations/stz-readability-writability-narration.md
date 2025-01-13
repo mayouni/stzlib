@@ -1048,7 +1048,7 @@ This feature dramatically improves the coding experience by reducing disruptions
 
 Additionally, it simplifies the integration of such features into IDEs, as the intelligence resides in the library itself.
 
-# Function Statement Form: The Magic of X()
+## Function Statement Form: The Magic of X()
 
 In everyday programming, we express logical statements about our code using various constructs - much like how we make assertions in natural language. For example, we might say "*All readers of this page are programmers*." Such statements eventually face a moment of truth when tested against reality, revealing their actual truth value.
 

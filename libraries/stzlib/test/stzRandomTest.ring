@@ -351,13 +351,13 @@ proff()
 /*-----
 */
 pr()
-/*
+
 ? AllNumbersInQQX([ -2, -4, -21 ]).AreNegativeX()
 #--> TRUE
 
 ? AllNumbersInQQX([ -2, 8, -4, -21 ]).AreNegativeX()
 #--> FALSE
-*/
+
 #--
 
 ? NoNumberInQQX([ -2, -4, -21 ]).IsPositiveX()
