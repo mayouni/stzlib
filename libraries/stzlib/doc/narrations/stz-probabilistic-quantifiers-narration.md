@@ -124,6 +124,6 @@ This approach combines intuitive expression with precise logic, allowing for cle
 
 Probabilistic quantifiers in Softanza enhance coding fluency, bridging the gap between natural language and precise logic. They enable expressive, easy-to-read code while still maintaining the power of rigorous validation. 
 
-**See them in action in Ring Notepad hereafter:**
+See them in action in Ring Notepad hereafter:
 
 ![Probabilistic Quantifiers in Softanza in Action](../images/stz-probabilistic-quantifiers-code.png)
