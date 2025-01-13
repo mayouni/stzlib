@@ -3,6 +3,8 @@
 Softanza introduces **probabilistic quantifiers** like `Few()`, `Some()`, `Most()`, and `All()`, enabling intuitive data manipulation by mirroring natural language. These quantifiers map conversational terms to precise proportions, making code both expressive and clear.  
 
 ```ring
+load "stzlib.ring"
+
 ? Some( NumbersIn( -5 : 5 ) )
 #--> [ -1, -4, -5, 3 ]
 ? Most( PositiveNumbersIn( -5 : 5 ) )
@@ -24,11 +26,12 @@ Their true power emerges in probabilistic and random contexts:
 SetSome(0.4)
 ? Some( RandomNumbersIn(1:10) )
 #--> [ 5, 2, 7, 9 ]
-? Few( RandomNumbersInU(1:10) ) # Unique items
+? Few( RandomNumbersInU(1:10) ) # "U" for Unique items
 #--> [ 1, 4 ]
 ```
 
 Probabilistic quantifiers enhance coding fluency, bridging natural thought and precision. They exemplify Softanza's commitment to making programming intuitive and efficient.
 
 See them in action in Ring Notepad hereafter:
+
 ![Probabilistic Quantifiers in Softanza](../images/stz-probabilistic-quantifiers.png)
