@@ -1,5 +1,6 @@
 # Probabilistic Quantifiers in Softanza: Natural Proportions Meet Logical Precision
 ![Probabilistic Quantifiers in Softanza](../images/stz-probabilistic-quantifiers.png)
+*A continuous path leading toward a grand pyramid structure.*
 
 Softanza introduces **probabilistic quantifiers** like `Few()`, `Some()`, `Most()`, and `All()`, allowing for more intuitive data manipulation by reflecting natural language. These quantifiers map conversational terms to precise proportions, making code both expressive and clear.
 
