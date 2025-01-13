@@ -144,9 +144,6 @@ func profon()
 	func pron()
 		_time0 = clock()
 
-	func prf()
-		_time0 = clock()
-
 	func pr()
 		_time0 = clock()
 
@@ -174,6 +171,9 @@ func Proff()
 		Proff()
 
 	func prff()
+		Proff()
+
+	func prf()
 		Proff()
 
 func STOP()
