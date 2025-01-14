@@ -118,8 +118,6 @@ t0 = clock()
 	load "common/stzRingLibs.ring"
 	load "common/stzNamedParams.ring" #TODO // Use it instead of stzList methods
 
-	#perf // Loads in 0.02 second (in Ring 1.22)
-
 # Loading files related to the OBJECT module
 
 	load "object/stzObject.ring"
@@ -128,8 +126,6 @@ t0 = clock()
 	load "object/stzNullObject.ring"
 	load "object/stzTrueObject.ring"
 	load "object/stzFalseObject.ring"
-
-	#perf // Loads in 0.02 second (in Ring 1.22)
 
 # Loading files related to the NUMBER module
 
@@ -146,8 +142,6 @@ t0 = clock()
 	load "number/stzHexNumber.ring"
 	load "number/stzOctalNumber.ring"
 	load "number/stzListOfBytes.ring"
-
-	#perf // Loads in 0.02 second (in Ring 1.22)
 
 # Loading files related to the LIST module
 
@@ -170,8 +164,6 @@ t0 = clock()
 	load "list/stzListParser.ring"
 	load "list/stzListInString.ring"
 
-	#perf // Loads in 0.03 second (in Ring 1.22)
-
 # Loading files related to the STRING module
 
 	load "string/stzStringGlobs.ring"
@@ -189,8 +181,6 @@ t0 = clock()
 	load "string/listofchars/stzListOfChars.ring"
 	load "string/listofunicodes/stzListOfUnicodes.ring"
 	load "string/stringart/stzStringArt.ring"
-
-	#perf // Loads in 0.02 second (in Ring 1.22)
 
 # Loading files related to ERROR module
 
@@ -210,16 +200,11 @@ t0 = clock()
 	load "error/stzCounterError.ring"
 	load "error/stzFileError.ring"
 
-	#perf // Loads in 0.02 second (in Ring 1.22)
-
 # Loading files related to the TEST module
 
 	load "test/stzTest.ring"
 
-	#perf // Loads in 0.02 second (in Ring 1.22)
-
 # Loading files related to the DATA mlodule
-
 
 	load "data/stzLocaleData.ring"
 	load "data/stzStopWordsData.ring"
@@ -231,8 +216,7 @@ t0 = clock()
 	load "data/stzCharData.ring"
 	load "data/stzStringArtData.ring"
 
-	#perf // Loads in 0.03 second (in Ring 1.22)
-
+	load "data/stzRegExpData.ring"
 
 # Loading files related to the IO module
 
@@ -240,13 +224,9 @@ t0 = clock()
 	load "io/stzFolder.ring"
 	load "io/stzExtCode.ring" // #TODO Is this the right place?
 
-	#perf // Loads in 0.02 second (in Ring 1.22)
-
 # loading MISC files
 
 	load "misc/stzDistanceZero.ring"
-
-	#perf // Loads in 0.02 second (in Ring 1.22)
 
 #---
 

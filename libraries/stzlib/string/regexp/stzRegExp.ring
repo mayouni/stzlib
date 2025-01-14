@@ -267,3 +267,58 @@ class stzRegExp
 
 		def MatchAtPosition(pcStr, nPos)
 			return This.MatchAt(pcStr, nPos)
+
+	#-- Getting a textual explanation of the pattern
+
+	def Explain()
+
+		_cResult_ = ""
+
+		# First we try to find an exisiting explanation (in RegExpExplanations())
+
+		_cName_ = RegExpPatternName(This.Pattern())
+		if _cName_ != ""
+			_cResult_ = RegExpPatternExplanation(_cName_)[1]
+		ok
+
+		# Otherwise we feed the pattern to stzRegAnalyzer
+
+		if _cResult_ = ""
+			_oRxAnal_ = new stzRegExpAnalyzer(This.Pattern())
+			_cResult_ = _oRxAnal_.Explain()
+		ok
+
+		# Returning the explanation (if any)
+
+		if _cResult_ = ""
+			StzResult("Can't explain the pattern.")
+		ok
+
+		return _cResult_
+
+	def ExplainXT()
+
+		_cResult_ = ""
+
+		# First we try to find an exisiting explanation (in RegExpExplanations())
+
+		_cName_ = RegExpPatternName(This.Pattern())
+		if _cName_ != ""
+			_cResult_ = RegExpPatternExplanation(_cName_)[2]
+
+		ok
+
+		# Otherwise we feed the pattern to stzRegAnalyzer
+
+		if _cResult_ = ""
+			_oRxAnal_ = new stzRegExpAnalyzer(This.Pattern())
+			_cResult_ = _oRxAnal_.ExplainXT()
+		ok
+
+		# Returning the explanation (if any)
+
+		if _cResult_ = ""
+			StzResult("Can't explain the pattern.")
+		ok
+
+		return _cResult_

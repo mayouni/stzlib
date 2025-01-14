@@ -1,95 +1,273 @@
 load "../max/stzmax.ring"
 
-/*====
+/*=== REGEX EXPLANATIONS
+
+pr()
+
+rx(pat(:email)) { ? Explain() }
+#-->
+# The regex `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$` matches standard email formats:
+#
+# - `^` and `$`: Start and end of the string.
+# - `[a-zA-Z0-9._%+-]+`: Local part allowing letters, numbers, and common special characters.
+# - `@`: Required @ symbol.
+# - `[a-zA-Z0-9.-]+`: Domain name allowing letters, numbers, dots, and hyphens.
+# - `\.[a-zA-Z]{2,}`: Last part of the domain (TLD) with minimum 2 letters.
+#
+# - Matches: `user@domain.com`, `user.name+tag@example.co.uk`
+# - Non-matches: `@domain.com`, `user@.com`, `user@domain`
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+rx(pat(:URL)) { ? Explain() }
+#-->
+# The regex `^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$` matches web URLs:
+#
+# - `^` and `$`: Start and end of the string.
+# - `(https?:\/\/)?`: Optional protocol.
+# - `([\da-z\.-]+)`: Domain name.
+# - `\.([a-z\.]{2,6})`: Last segment (TLD) like `.com`, `.tn`, etc.
+# - `([\/\w \.-]*)*\/?`: Optional path.
+#
+# - Matches: `https://example.com`, `domain.co.tn/path`
+# - Non-matches: `http:/domain.com`, `.com`, `https://`
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+rx(pat(:domain)) { ? Explain() }
+#-->
+# The regex `^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$` matches domain names:
+#
+# - `^` and `$`: Start and end of the string.
+# - `[a-z0-9](?:[a-z0-9-]*[a-z0-9])?`: Domain segments.
+# - `\.`: Dot separator.
+#
+# - Matches: `example.com`, `sub.domain.co.eg`
+# - Non-matches: `-example.com`, `domain..com`
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+rx(pat(:ipv4)) { ? Explain() }
+#-->
+# The regex `^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$` matches IPv4 addresses:
+#
+# - `^` and `$`: Start and end of the string.
+# - `25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?`: Numbers 0-255.
+# - Repeated 4 times with dots.
+#
+# - Matches: `192.168.0.1`, `10.0.0.0`
+# - Non-matches: `256.1.2.3`, `1.2.3`, `a.b.c.d`
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+rx(pat(:SocialHandle)) { ? Explain() }
+#-->
+# The regex `^@[a-zA-Z0-9_]{1,15}$` matches social media handles:
+#
+# - `^` and `$`: Start and end of the string.
+# - `@`: Required @ symbol.
+# - `[a-zA-Z0-9_]{1,15}`: 1-15 alphanumeric or underscore characters.
+#
+# - Matches: `@user123`, `@User_name`
+# - Non-matches: `user123`, `@user-name`, `@toolong123456789
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
 */
+pr()
+
+# Short explanation
+
+rx(pat(:isoDate)) {
+
+	# Getting the pattern string
+
+	? Pattern() + NL
+	#--> ^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$
+
+	# Getting a short explanation of the pattern
+
+	? Explain() + NL
+	#--> Matches ISO dates (YYYY-MM-DD)
+
+	# Getting a long explanation
+
+	? ExplainXT()
+	#-->
+	# - `^` and `$`: Start and end of the string.
+	# - `\d{4}`: Four-digit year.
+	# - `(?:0[1-9]|1[0-2])`: Months 01-12.
+	# - `(?:0[1-9]|[12]\d|3[01])`: Days 01-31.
+	# 
+	# - Matches: `2024-01-14`, `2023-12-31`
+	# - Non-matches: `2024-13-01`, `2024-01-32`
+
+}
+
+proff()
+
+/*---
+
+pr()
+
+rx(pat(:IPv6)) { ? Explain() }
+#-->
+# The regex `^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$` matches basic IPv6 addresses:
+#
+# - `^` and `$`: Start and end of the string.
+# - `[A-F0-9]{1,4}`: Hexadecimal groups.
+# - Seven groups with colons, plus final group.
+#
+# - Matches: `2001:0DB8:0000:0000:0000:0000:1428:57AB`
+# - Non-matches: `2001::1428:57AB` (compressed form)
+
+proff()
+# # Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+? RegExpPatterns()[:number]
+#--> ^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$
+
+? RegExpPatternName("^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$") + NL
+#--> "number"
+
+
+rx(pat(:number)) { ? Match("-12,345.67") ? Explain() + NL }
+#-->
+# The regex `^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$` matches numeric formats:
+# 
+# - `^` and `$`: Start and end of the string.
+# - `-?`: Optional negative sign.
+#
+# - `(?:\d+|\d{1,3}(?:,\d{3})+)`: 
+#   - Plain digits (`123`).
+#   - Comma-separated (`1,234` or `12,345,678`).
+#
+# - `(?:\.\d+)?`: Optional decimal part (`.45`).
+#
+# - Matches: `123`, `-1,234`, `123.45`, `-12,345.67`.
+# - Non-matches: `1,23,456`, `123.45.67`, `abc`.
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*====
+
 pr()
 
 # Test Web & Email
 
-	rx(rxp(:email)) { ? Match("user@example.com") }
+	rx(pat(:email)) { ? Match("user@example.com") }
 	#--> TRUE
 	
-	rx(rxp(:email)) { ? Match("invalid@email") }
+	rx(pat(:email)) { ? Match("invalid@email") }
 	#--> FALSE
 	
-	rx(rxp(:url)) { ? Match("http://example.com/path") }
-	#--> !!!
+	rx(pat(:url)) { ? Match("http://example.com/path") }
+	#--> TRUE
 	
-	rx(rxp(:url)) { ? Match("not-a-url") + NL }
+	rx(pat(:url)) { ? Match("not-a-url") + NL }
 	#--> FALSE
 
 # Test Dates & Times
 
-	rx(rxp(:isoDate)) { ? Match("2024-01-14") }
+	rx(pat(:isoDate)) { ? Match("2024-01-14") }
 	#--> TRUE
 	
-	rx(rxp(:isoDate)) { ? Match("2024-13-14") }
+	rx(pat(:isoDate)) { ? Match("2024-13-14") }
 	#--> FALSE
 	
-	rx(rxp(:time24h)) { ? Match("23:59") }
+	rx(pat(:time24h)) { ? Match("23:59") }
 	#--> TRUE
 	
-	rx(rxp(:time24h)) { ? Match("25:00")  + NL }
+	rx(pat(:time24h)) { ? Match("25:00")  + NL }
 	#--> FALSE
 
 # Test Numbers & Currency
 
-	rx(rxp(:number)) { ? Match("1,234.56") }
+	rx(pat(:number)) { ? Match("-12,345.67") }
 	#--> TRUE
-	
-	rx(rxp(:number)) { ? Match("1.2.3") }
+
+	rx(pat(:number)) { ? Match("1.2.3") }
 	#--> FALSE
 	
-	rx(rxp(:currencyValue)) { ? Match("1,234.56") }
+	rx(pat(:currencyValue)) { ? Match("1,234.56") }
 	#--> TRUE
 	
-	rx(rxp(:currencyValue)) { ? Match("1234.567") + NL }
+	rx(pat(:currencyValue)) { ? Match("1234.567") + NL }
 	#--> FALSE
 
-	# Test Security Patterns
+# Test Security Patterns
 
-	rx(rxp(:passwordComplexity)) { ? Match("Password123!") }
+	rx(pat(:passwordComplexity)) { ? Match("Password123!") }
 	#--> TRUE (Strong enough)
 
-	rx(rxp(:passwordComplexity)) { ? Match("abc") }
+	rx(pat(:passwordComplexity)) { ? Match("abc") }
 	#--> FALSE (weak password)
 
-	rx(rxp(:noSqlKeywords)) { ? Match("SELECT * FROM users") }
+	rx(pat(:noSqlKeywords)) { ? Match("SELECT * FROM users") }
 	#--> FALSE (SQL injection attempt!)
 
-	rx(rxp(:noSqlKeywords)) { ? Match("normal text") + NL }
+	rx(pat(:noSqlKeywords)) { ? Match("normal text") + NL }
 	#--> TRUE (Safe text)
 
-	# Test Mobile & Web App
+# Test Mobile & Web App
 
-	rx(rxp(:appVersion)) { ? Match("1.2.3") }
+	rx(pat(:appVersion)) { ? Match("1.2.3") }
 	#--> TRUE
 
-	rx(rxp(:appVersion)) { ? Match("1.2") }
+	rx(pat(:appVersion)) { ? Match("1.2") }
 	#--> FALSE
 
-	rx(rxp(:coordinates)) { ? Match("40.7128,-74.0060") }
-	#--> TRUE
+# Test Content Security
 
-	rx(rxp(:coordinates)) { ? Match("12.8") + NL }
-	#--> FALSE
-
-
-	# Test Content Security
-
-	rx(rxp(:allowedHtml)) { ? Match("<p>text</p>") }
+	rx(pat(:allowedHtml)) { ? Match("<p>text</p>") }
 	#--> TRUE
 
 	rx(rxp(:allowedHtml)) { ? Match("<script>alert(1)</script>") }
 	#--> FALSE
 
-	rx(rxp(:allowedFileTypes)) { ? Match("document.pdf") }
+	rx(pat(:allowedFileTypes)) { ? Match("document.pdf") }
 	#--> TRUE
 
-	rx(rxp(:allowedFileTypes)) { ? Match("script.exe") }
+	rx(pat(:allowedFileTypes)) { ? Match("script.exe") + NL }
+	#--> FALSE
+
+# Misc patterns
+
+	rx(pat(:coordinates)) { ? Match("40.7128,-74.0060") }
+	#--> TRUE
+
+	rx(pat(:coordinates)) { ? Match("12.8") + NL }
 	#--> FALSE
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*----
 
