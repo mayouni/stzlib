@@ -1,6 +1,109 @@
 load "../max/stzmax.ring"
 
- 
+/*====
+*/
+pr()
+
+# Test Web & Email
+
+	rx(rxp(:email)) { ? Match("user@example.com") }
+	#--> TRUE
+	
+	rx(rxp(:email)) { ? Match("invalid@email") }
+	#--> FALSE
+	
+	rx(rxp(:url)) { ? Match("http://example.com/path") }
+	#--> !!!
+	
+	rx(rxp(:url)) { ? Match("not-a-url") + NL }
+	#--> FALSE
+
+# Test Dates & Times
+
+	rx(rxp(:isoDate)) { ? Match("2024-01-14") }
+	#--> TRUE
+	
+	rx(rxp(:isoDate)) { ? Match("2024-13-14") }
+	#--> FALSE
+	
+	rx(rxp(:time24h)) { ? Match("23:59") }
+	#--> TRUE
+	
+	rx(rxp(:time24h)) { ? Match("25:00")  + NL }
+	#--> FALSE
+
+# Test Numbers & Currency
+
+	rx(rxp(:number)) { ? Match("1,234.56") }
+	#--> TRUE
+	
+	rx(rxp(:number)) { ? Match("1.2.3") }
+	#--> FALSE
+	
+	rx(rxp(:currencyValue)) { ? Match("1,234.56") }
+	#--> TRUE
+	
+	rx(rxp(:currencyValue)) { ? Match("1234.567") + NL }
+	#--> FALSE
+
+	# Test Security Patterns
+
+	rx(rxp(:passwordComplexity)) { ? Match("Password123!") }
+	#--> TRUE (Strong enough)
+
+	rx(rxp(:passwordComplexity)) { ? Match("abc") }
+	#--> FALSE (weak password)
+
+	rx(rxp(:noSqlKeywords)) { ? Match("SELECT * FROM users") }
+	#--> FALSE (SQL injection attempt!)
+
+	rx(rxp(:noSqlKeywords)) { ? Match("normal text") + NL }
+	#--> TRUE (Safe text)
+
+	# Test Mobile & Web App
+
+	rx(rxp(:appVersion)) { ? Match("1.2.3") }
+	#--> TRUE
+
+	rx(rxp(:appVersion)) { ? Match("1.2") }
+	#--> FALSE
+
+	rx(rxp(:coordinates)) { ? Match("40.7128,-74.0060") }
+	#--> TRUE
+
+	rx(rxp(:coordinates)) { ? Match("12.8") + NL }
+	#--> FALSE
+
+
+	# Test Content Security
+
+	rx(rxp(:allowedHtml)) { ? Match("<p>text</p>") }
+	#--> TRUE
+
+	rx(rxp(:allowedHtml)) { ? Match("<script>alert(1)</script>") }
+	#--> FALSE
+
+	rx(rxp(:allowedFileTypes)) { ? Match("document.pdf") }
+	#--> TRUE
+
+	rx(rxp(:allowedFileTypes)) { ? Match("script.exe") }
+	#--> FALSE
+
+proff()
+
+/*----
+
+pr()
+
+? unicode('"')
+#--> 34
+
+? unicode("'")
+#--> 39
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
 /*----
 
 pr()

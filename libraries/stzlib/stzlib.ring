@@ -105,6 +105,21 @@ t0 = clock()
 
 	load "core/stzCoreLib.Ring"	
 
+# Loading files related tp the COMMON module
+
+	load "common/stzFuncs.ring"
+	load "common/stzSplitter.ring"
+	load "common/stzWalker.ring"
+	load "common/stzCounter.ring"
+	load "common/stzParser.ring"
+	load "common/stzSection.ring"
+	load "common/stzSmallFuncs.ring"
+	load "common/stzQtFuncs.ring"
+	load "common/stzRingLibs.ring"
+	load "common/stzNamedParams.ring" #TODO // Use it instead of stzList methods
+
+	#perf // Loads in 0.02 second (in Ring 1.22)
+
 # Loading files related to the OBJECT module
 
 	load "object/stzObject.ring"
@@ -174,21 +189,6 @@ t0 = clock()
 	load "string/listofchars/stzListOfChars.ring"
 	load "string/listofunicodes/stzListOfUnicodes.ring"
 	load "string/stringart/stzStringArt.ring"
-
-	#perf // Loads in 0.02 second (in Ring 1.22)
-
-# Loading files related tp the COMMON module
-
-	load "common/stzFuncs.ring"
-	load "common/stzSplitter.ring"
-	load "common/stzWalker.ring"
-	load "common/stzCounter.ring"
-	load "common/stzParser.ring"
-	load "common/stzSection.ring"
-	load "common/stzSmallFuncs.ring"
-	load "common/stzQtFuncs.ring"
-	load "common/stzRingLibs.ring"
-	load "common/stzNamedParams.ring" #TODO // Use it instead of stzList methods
 
 	#perf // Loads in 0.02 second (in Ring 1.22)
 
