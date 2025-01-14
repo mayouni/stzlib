@@ -1,4 +1,6 @@
 # Softanza Library: Built on Real-World Needs  
+![A wife standing on her husband's back to work on a computer](../images/stz-built-on-real-world.png)
+*A wife standing on her husband's back to work on a computer*
 
 You may think Softanza's large feature set is daunting, but believe me, each singular function has its story rooted in a real-world need, shapeing every aspect of the library—from its features and programming style to its data structures and documentation.  
 

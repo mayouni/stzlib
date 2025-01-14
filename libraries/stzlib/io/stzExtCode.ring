@@ -695,12 +695,7 @@ func $(str) // C#
 		VrVl(str)
 
 	but isString(str) and Q(str).ContainsSubStringsBoundedBy([ "{", "}" ])
-		return Interpoltate(str) // Ring (SoftanzaLib)
-
-		#NOTE the method we used here is misspelled. Normally we
-		# should write it correctly as "Interpolate(str)". But I left
-		# as is to show how Softanza can be permissive to spelling
-		#ERRors when you are under time pressure in writing code ;)
+		return Interpolate(str) // Ring (SoftanzaLib)
 	
 	else
 		return v(str)

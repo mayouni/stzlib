@@ -50,7 +50,7 @@ class stzRegExpAnalyzer
 			but token[1] = :group
 				nGroups++
 				nCurrentNesting++
-				nMaxNesting = max(nMaxNesting, nCurrentNesting)
+				nMaxNesting = max([ nMaxNesting, nCurrentNesting ])
 				if nCurrentNesting > 1
 					nNestedGroups++
 				ok

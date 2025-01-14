@@ -1192,9 +1192,7 @@ func NCopies(n, p)
 		return NCopies(3, p)
 
 func WithoutSpaces(pcStr)
-	cResult = StzSrtringQ(pcStr).WithoutSpaces()
-	#NOTE: StzSrtringQ() is misspelled but Softanza recognizes it!
-
+	cResult = StzStringQ(pcStr).WithoutSpaces()
 	return cResult
 
 	func @WithoutSpaces(pcStr)
@@ -1209,6 +1207,15 @@ func WithoutSpaces(pcStr)
 		return WithoutSpaces(pcStr)
 
 	#>
+
+func Simplify(pcStr)
+	return StzStringQ(pcStr).Simplified()
+
+func Spacifiy(pcStr)
+	return StzStringQ(pcStr).Spacified()
+
+func Trim(pcStr)
+	return StzStringQ(pcStr).Trimmed()
 
 func IsMarquer(cStr)
 	if CheckingParams()
