@@ -46,7 +46,7 @@ Naturally, creating this functionality required implementing several intermediar
 
 In keeping with Softanza's principles of consistency and versatility, these methods were implemented in both the `stzList` and `stzString` classes.  
 
-## Expanding the Spectrum of Features  
+## Expanding the Spectrum
 
 But the journey didn’t end there. While `RemoveDuplicates()` solved part of the problem, I still needed to:
 1. Extract the song text from the internet link she provides.
