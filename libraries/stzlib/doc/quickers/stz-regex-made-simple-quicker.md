@@ -18,12 +18,12 @@ rx(pat(:xlsArrayFormula)) { ? Match("{=SUM(A1:A10)}") }
 
 # Retrieve and inspect the pattern
 
-rx(pat(:xlsArrayFormula)) { ? Pattern() + NL }
+rx(pat(:xlsArrayFormula)) { ? Pattern() }
 #--> "^\{(?:\s*=\s*[A-Za-z]+\([^\)]*\)|\s*[A-Za-z0-9\+\-\*/\(\)\&\^\.]+(\s*,\s*[A-Za-z0-9\+\-\*/\(\)\&\^\.]+)*\s*)\}$"
 
 # Request a concise explanation
 
-rx(pat(:xlsArrayFormula)) { ? Explain() + NL }
+rx(pat(:xlsArrayFormula)) { ? Explain() }
 #--> "Matches an array formula in Excel"
 
 # Request an extended breakdown of the regex
