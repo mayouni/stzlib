@@ -4,7 +4,7 @@ Softanza makes working with regular expressions significantly easier and more pr
 
 - **`rx(cPattern)`**: This function creates an `stzRegex` object from a regex pattern. While it allows direct input of regex strings, constructing long or complex patterns can be tedious and error-prone. 
 
-- **`pat(cPatternName)`**: This addresses the issue of complex regexes by allowing users to reference pre-shipped, domain-specific patterns by name. Softanza comes with a rich library of dozens (or even hundreds) of commonly used regexes for practical scenarios. For example, the pattern `:xlsArrayFormula` simplifies working with Excel array formulas.
+- **`pat(cPatternName)`**: This addresses the issue of complex regexes by allowing users to reference pre-shipped, domain-specific patterns by name. Softanza comes with a rich library of dozens of commonly used regexes for practical scenarios. For example, the pattern `:xlsArrayFormula` simplifies working with Excel array formulas.
 
 Here's how these features work in practice:
 
