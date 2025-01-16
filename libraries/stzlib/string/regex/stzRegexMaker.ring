@@ -1,10 +1,10 @@
 
 
-func StzRegExpMakerQ()
-	return new stzRegExpMaker
+func StzRegexMakerQ()
+	return new stzRegexMaker
 
 func rxp(pcPattName)
-	return regExpPatterns()[pcPattName]
+	return RegexPatterns()[pcPattName]
 
 	func pat(pcPattName)
 		return rxp(pcPattName)
@@ -18,7 +18,7 @@ func rxp(pcPattName)
 	func PatternByName(pcPattName)
 		return rxp(pcPattName)
 
-	func RegExpPattern(pcPattName)
+	func RegexPattern(pcPattName)
 		return rxp(pcPattName)
 
 func 1Time()
@@ -33,7 +33,7 @@ func 3Times()
 func NTimes(n)
 	return n
 
-class stzRegExpMaker
+class stzRegexMaker
 	acFragments = []
 	aSequences = []
   

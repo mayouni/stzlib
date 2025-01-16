@@ -4,20 +4,58 @@ load "../max/stzmax.ring"
 
 pr()
 
-rx(pat(:email)) { ? Pattern() + NL + Explain() + NL }
-#-->
-# [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}
-# Matches standard email formats
+rx(pat(:xlsArrayFormula)) { ? Match("{=SUM(A1:A10)}") }
+#--? TRUE
 
-rx(pat(:email)) { ? Pattern() + NL + Explain() + NL + ExplainXT() }
+# You want to see the regex pattern itself?
+
+rx(pat(:xlsArrayFormula)) { ? Pattern() + NL }
+#--> 
+
+# Hard to understand? Don't worry, ask Softanza to explain it
+
+//rx(pat(:xlsArrayFormula)) { ? Explain() + NL }
+#--> "Matches an array formula in Excel"
+
+# You want a detailed explanation of the regex itself? There an eXTended explanaltion
+
+//rx(pat(:xlsArrayFormula)) { ? ExplainXT() }
 #-->
-# [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}
-# Matches standard email formats
+# - `^\\{`: Matches the opening curly brace for the array formula.
+# - `(?:`: Start of a non-capturing group.
+# - `\\s*=\\s*[A-Za-z]+\\([^\\)]*\\)`: Matches a formula starting with an equal
+#   sign, a function name, and arguments enclosed in parentheses.
+# - `|`: Alternation to match either a function or plain array values.
+# - `\\s*[A-Za-z0-9\\+\\-\\*/\\(\\)\\&\\^\\.]+`: Matches numeric or textual values,
+#   operators, and parenthesized expressions.
+# - `(\\s*,\\s*[A-Za-z0-9\\+\\-\\*/\\(\\)\\&\\^\\.]+)*`: Optionally matches additional
+#   array elements separated by commas.
+# - `\\s*`: Allows trailing whitespace.
+# - `\\}`: Matches the closing curly brace for the array formula.
+# - `$`: Ensures the entire string matches the pattern.
+
+# - Matches: `{=SUM(A1:A10)}`, `{1, 2, 3}`, `{A1+B1, C1*D1}`.
+# - Non-matches: `{SUM(A1:A10}`, `{1, 2}`, `=SUM(A1:A10)`.
+
+//proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+*/
+pr()
+
+rx(pat(:email)) {
+	? Pattern() + NL
+	? ExplainXT()
+}
+#--> [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}
+#
 # - `^` and `$`: Start and end of the string.
 # - `[a-zA-Z0-9._%+-]+`: Local part allowing letters, numbers, and common special characters.
 # - `@`: Required @ symbol.
 # - `[a-zA-Z0-9.-]+`: Domain name allowing letters, numbers, dots, and hyphens.
 # - `\.[a-zA-Z]{2,}`: Last part of the domain (TLD) with minimum 2 letters.
+#
 # - Matches: `user@domain.com`, `user.name+tag@example.co.uk`
 # - Non-matches: `@domain.com`, `user@.com`, `user@domain`
 
@@ -372,7 +410,7 @@ proff()
 */
 pr()
 
-o1 = new stzRegExpMaker()
+o1 = new stzRegexMaker()
 o1 {
 	# Sequence 1
 	AddCharsRange(	"A-Z", 	    :RepeatedExactly, 2, :Times)
@@ -427,7 +465,7 @@ pr()
 #	AB123CD
 #	XY987ZT
 
-o1 = new stzRegExpMaker()
+o1 = new stzRegexMaker()
 o1 {
 
 	# Designing the pattern in a natural style:
@@ -455,7 +493,7 @@ o1 {
 
 	# Everything has been stored as data for future use
 
-	? @@NL( FragmentsXT() ) + NL // RegExp Fragments and their relative Sequences
+	? @@NL( FragmentsXT() ) + NL // Regex Fragments and their relative Sequences
 	# [
 	# 	[ "[A-Z]{2}", 	[ "chars", "A-Z", "repeatedexactly", 2, 0 ] ],
 	# 	[ "[- ]?", 	[ "among", [ "-", " " ], "repeatedatmost", 1, 0 ] ],

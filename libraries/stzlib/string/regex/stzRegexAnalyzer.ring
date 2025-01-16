@@ -1,9 +1,9 @@
 
-func StzRegExpAnalyzerQ(cPattern)
-	return new stzRegExpAnalyser(cPattern)
+func StzRegexAnalyzerQ(cPattern)
+	return new stzRegexAnalyser(cPattern)
 
-class stzRegExpAnalyzer
-	oParser = new stzRegExpParser(cPattern)
+class stzRegexAnalyzer
+	oParser = new stzRegexParser(cPattern)
 	
 	# Analysis results
 	aTokens = []

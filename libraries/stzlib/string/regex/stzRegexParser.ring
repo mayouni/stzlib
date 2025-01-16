@@ -1,6 +1,6 @@
 
 
-class stzRegExpParser
+class stzRegexParser
 	# Token types
 	aTokenTypes = [
 		:charClass,	# [abc], [a-z]
@@ -193,7 +193,7 @@ class stzRegExpParser
 	
 	def translateCharClass(cClass, bNegated, cQuant)
 		# Parse the character class content and create appropriate sequence
-		oMaker = new stzRegExpMaker
+		oMaker = new stzRegexMaker
 		
 		if substr(cClass, "-") > 0
 			# Range like A-Z or 0-9

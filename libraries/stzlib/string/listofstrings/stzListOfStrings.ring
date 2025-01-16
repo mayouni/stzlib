@@ -2102,14 +2102,14 @@ class stzListOfStrings from stzList
 	 #  MATCHING PATTERNS (REGULAR EXPRESSION)  #
 	#==========================================#
 
-	def Matches(pcRegExpPatt)
+	def Matches(pcRegexPatt)
 		_bResult_ = _TRUE_
 
 		_acContent_ = This.Content()
 		_nLen_ = len(_acContent_)
 
 		for @i = 1 to _nLen_
-			if rx(pcRegExpPatt).Match(_acContent_[@i]) = _FALSE_
+			if rx(pcRegexPatt).Match(_acContent_[@i]) = _FALSE_
 				_bResult_ = _FALSE_
 				exit
 			ok
@@ -2117,18 +2117,18 @@ class stzListOfStrings from stzList
 
 		return _bResult_
 
-		def Match(pcRegExpPatt)
-			return This.Matches(pcRegExpPatt)
+		def Match(pcRegexPatt)
+			return This.Matches(pcRegexPatt)
 
 		#< @FunctionStatementForm
 
-		def MatchesX(pcRegExpPatt)
+		def MatchesX(pcRegexPatt)
 	
 			bTruth = TruthStatement()
 	
 			if bTruth = _TRUE_
 	
-				return This.Matches(pcRegExpPatt)
+				return This.Matches(pcRegexPatt)
 	
 			else
 	
@@ -2138,7 +2138,7 @@ class stzListOfStrings from stzList
 				_nLen_ = len(_acContent_)
 		
 				for @i = 1 to _nLen_
-					if rx(pcRegExpPatt).Match(_acContent_[@i]) = _TRUE_
+					if rx(pcRegexPatt).Match(_acContent_[@i]) = _TRUE_
 						_bResult_ = _FALSE_
 						exit
 					ok
@@ -2148,7 +2148,7 @@ class stzListOfStrings from stzList
 	
 			ok
 	
-			def MatchX(pcRegExpPatt)
-				return MatchesX(pcRegExpPatt)
+			def MatchX(pcRegexPatt)
+				return MatchesX(pcRegexPatt)
 
 		#>

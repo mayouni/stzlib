@@ -1,7 +1,7 @@
 load "../max/stzmax.ring"
 
 /*----------------------------------#
-#  Understanding Qt RegExp Options  #
+#  Understanding Qt Regex Options  #
 #-----------------------------------#
 
 /*-- Test 1: Basic dot behavior
@@ -11,7 +11,7 @@ pr()
 txt = "hello
 world"
 
-o = new stzRegExp("hello.world")
+o = new stzRegex("hello.world")
 
 # Without DotMatchesAll
 
@@ -31,7 +31,7 @@ pr()
 
 txt = "Hello World"
 
-o = new stzRegExp("")
+o = new stzRegex("")
 o.SetPattern("hello world")
 
 # Case sensitive (default)
@@ -53,7 +53,7 @@ pr()
 
 txt = "<p>First</p><p>Second</p>"
 
-o = new stzRegExp("")
+o = new stzRegex("")
 o.SetPattern("<p>.*</p>")
 
 # Greedy (default)
@@ -76,7 +76,7 @@ pr()
 txt = "Start: Line1
 End: Line2"
 
-o = new stzRegExp("")
+o = new stzRegex("")
 o.SetPattern("^End:.*$")
 
 # Without MultiLine
@@ -98,7 +98,7 @@ pr()
 
 txt = "prefix preprocess present"
 
-o = new stzRegExp("\bpre\w+")
+o = new stzRegex("\bpre\w+")
 
 # Matching words starting with 'pre'
 
@@ -115,14 +115,14 @@ prf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--------------------------------------------#
-#  Testing Complete stzRegExp Implementation  #
+#  Testing Complete stzRegex Implementation  #
 #---------------------------------------------#
 
 /*-- Test 1: Basic Pattern Matching with Match
 
 pr()
 
-o = new stzRegExp("quick.*fox")
+o = new stzRegex("quick.*fox")
 
 # Pattern should match
 
@@ -145,7 +145,7 @@ txt = "First: Line1
 Second: Line2
 Third: Line3"
 
-o1 = new stzRegExp("^Second:.*$")
+o1 = new stzRegex("^Second:.*$")
 
 # Line matching with MatchLinesIn()
 
@@ -161,7 +161,7 @@ pr()
 
 txt = "<div>First</div><div>Second</div>"
 
-o1 = new stzRegExp("<div>.*</div>")
+o1 = new stzRegex("<div>.*</div>")
 
 # Matching all (greedy) with MatchSegmentsIn()
 
@@ -180,7 +180,7 @@ prf()
 
 pr()
 
-o1 = new stzRegExp("pre\w+")
+o1 = new stzRegex("pre\w+")
 
 # Word boundary matching with MatchWordsIn()
 
@@ -201,7 +201,7 @@ pr()
 
 txt = "Name: John, Age: 30"
 
-o1 = new stzRegExp("Name: (.*), Age: (\d+)")
+o1 = new stzRegex("Name: (.*), Age: (\d+)")
 
 # First we see if the text matchs the patterns
 
@@ -229,7 +229,7 @@ pr()
 
 txt = "Name: John, Age: 30"
 
-o1 = new stzRegExp("Name: (?<name>.*), Age: (?<age>\d+)")
+o1 = new stzRegex("Name: (?<name>.*), Age: (?<age>\d+)")
 
 # If the pattern includes named groups (between "<" and ">"),
 # then we can capture them and return them
@@ -260,7 +260,7 @@ proff()
 
 pr()
 
-o1 = new stzRegExp("(unclosed group")
+o1 = new stzRegex("(unclosed group")
 
 # Pattern validity
 
@@ -277,7 +277,7 @@ proff()
 
 pr()
 
-o1 = new stzRegExp("hello world")
+o1 = new stzRegex("hello world")
 
 # Case sensitive (should fail)
 
@@ -300,7 +300,7 @@ proff()
 
 pr()
 
-o1 = new stzRegExp("https?://[\w\-.]+(:\d+)?(/[\w\-./?%&=]*)?")
+o1 = new stzRegex("https?://[\w\-.]+(:\d+)?(/[\w\-./?%&=]*)?")
 urlText = "Visit https://example.com:8080/path?param=1#section or http://sub.domain.net"
 
 # Basic URL detection
@@ -343,7 +343,7 @@ proff()
 
 pr()
 
-o1 = new stzRegExp("")
+o1 = new stzRegex("")
 
 cPhoneText = "Call me at +1 (555) 123-4567 or 555.123.8901 or 5551234567"
 
@@ -384,7 +384,7 @@ logText = "
 2024-01-12 10:15:35 [INFO] Retry attempt 1
 2024-01-12 10:15:40 [ERROR] Connection refused"
 
-o1 = new stzRegExp("")
+o1 = new stzRegex("")
 
 # Match error lines
 o1.SetPattern("^.*\[ERROR\].*$")
@@ -421,7 +421,7 @@ pr()
 emailText = "Contact us at support@example.com or john.doe+label@sub.domain.co.uk
 Invalid emails: missing@domain, @nodomain.com, just.text"
 
-o = new stzRegExp("")
+o = new stzRegex("")
 
 # Basic email validation
 
@@ -462,7 +462,7 @@ function CalculateTotal(price, quantity) {
 }
 "
 
-o1 = new stzRegExp("")
+o1 = new stzRegex("")
 
 # Find function declarations
 
@@ -505,7 +505,7 @@ pr()
 
 dateText = "Important dates: 2024-01-12, 01/12/2024, Jan 12, 2024"
 
-o1 = new stzRegExp("")
+o1 = new stzRegex("")
 
 # Match various date formats
 
@@ -543,7 +543,7 @@ addressText = "John Doe
 New York, NY 10001
 USA"
 
-o1 = new stzRegExp("")
+o1 = new stzRegex("")
 
 # Match ZIP code
 
@@ -578,7 +578,7 @@ pr()
 
 cText = "Card numbers: 4111-1111-1111-1111 and 4111111111111111"
 
-o1 = new stzRegExp("")
+o1 = new stzRegex("")
 
 # Validate card format
 
@@ -622,7 +622,7 @@ htmlText = '
 
 # Match all paragraph lines
 
-o1 = new stzRegExp("<p>.*</p>")
+o1 = new stzRegex("<p>.*</p>")
 
 # Testing MatchLinesIn() to find all paragraph lines
 
@@ -636,13 +636,13 @@ o1 = new stzRegExp("<p>.*</p>")
 
 # Match just the first h1 line
 
-o2 = new stzRegExp("<h1>.*</h1>")
+o2 = new stzRegex("<h1>.*</h1>")
 ? o2.MatchLine(htmlText)
 #--> TRUE
 
 # Match title line with content capture
 
-o3 = new stzRegExp("<title>(.*)</title>")
+o3 = new stzRegex("<title>(.*)</title>")
 ? o3.MatchLine(htmlText)
 #--> TRUE
 
@@ -664,20 +664,20 @@ pr()
 
 txt = "مرحبا بكم في عالم البرمجة"
 
-o1 = new stzRegExp("مرحبا")
+o1 = new stzRegex("مرحبا")
 
 ? o1.Match(txt)
 #--> TRUE
 
 # Test with word boundary
 
-o2 = new stzRegExp("عالم")
+o2 = new stzRegex("عالم")
 ? o2.Match(txt)
 #--> TRUE
 
 # Test capturing
 
-o3 = new stzRegExp("(عالم) (البرمجة)")
+o3 = new stzRegex("(عالم) (البرمجة)")
 if o3.Match(txt) and o3.HasGroups()
     ? @@( o3.Capture() )
 ok

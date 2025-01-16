@@ -2148,7 +2148,7 @@ class stzText from stzString
 
 		next
 
-		#TODO // When RegExp is implemented, use it instead.
+		#TODO // When Regex is implemented, use it instead.
 
 		# ? ( clock() - t0 ) / clockspersecond()
 
