@@ -4,16 +4,20 @@ load "../max/stzmax.ring"
 
 pr()
 
-rx(pat(:email)) { ? Explain() }
+rx(pat(:email)) { ? Pattern() + NL + Explain() + NL }
 #-->
-# The regex `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$` matches standard email formats:
-#
+# [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}
+# Matches standard email formats
+
+rx(pat(:email)) { ? Pattern() + NL + Explain() + NL + ExplainXT() }
+#-->
+# [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}
+# Matches standard email formats
 # - `^` and `$`: Start and end of the string.
 # - `[a-zA-Z0-9._%+-]+`: Local part allowing letters, numbers, and common special characters.
 # - `@`: Required @ symbol.
 # - `[a-zA-Z0-9.-]+`: Domain name allowing letters, numbers, dots, and hyphens.
 # - `\.[a-zA-Z]{2,}`: Last part of the domain (TLD) with minimum 2 letters.
-#
 # - Matches: `user@domain.com`, `user.name+tag@example.co.uk`
 # - Non-matches: `@domain.com`, `user@.com`, `user@domain`
 
@@ -24,16 +28,17 @@ proff()
 
 pr()
 
-rx(pat(:URL)) { ? Explain() }
+rx(pat(:URL)) { ? Explain() ? Pattern() }
 #-->
-# The regex `^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$` matches web URLs:
-#
+# Matches web URLs
+# ^https?:\/\/(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$
+
+rx(pat(:URL)) { ? ExplainXT() }
 # - `^` and `$`: Start and end of the string.
 # - `(https?:\/\/)?`: Optional protocol.
 # - `([\da-z\.-]+)`: Domain name.
 # - `\.([a-z\.]{2,6})`: Last segment (TLD) like `.com`, `.tn`, etc.
 # - `([\/\w \.-]*)*\/?`: Optional path.
-#
 # - Matches: `https://example.com`, `domain.co.tn/path`
 # - Non-matches: `http:/domain.com`, `.com`, `https://`
 
@@ -44,14 +49,17 @@ proff()
 
 pr()
 
-rx(pat(:domain)) { ? Explain() }
+rx(pat(:domain)) { ? Explain() + NL }
+#--> Matches domain names
+
+rx(pat(:domain)) { ? Pattern() + NL }
+#--> ^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$
+
+rx(pat(:domain)) { ? ExplainXT() }
 #-->
-# The regex `^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$` matches domain names:
-#
 # - `^` and `$`: Start and end of the string.
 # - `[a-z0-9](?:[a-z0-9-]*[a-z0-9])?`: Domain segments.
 # - `\.`: Dot separator.
-#
 # - Matches: `example.com`, `sub.domain.co.eg`
 # - Non-matches: `-example.com`, `domain..com`
 
@@ -62,14 +70,18 @@ proff()
 
 pr()
 
-rx(pat(:ipv4)) { ? Explain() }
+rx(pat(:ipv4)) {
+	? Explain() + NL
+	? Pattern() + NL
+	? ExplainXT()
+}
 #-->
-# The regex `^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$` matches IPv4 addresses:
+# Matches IPv4 addresses
+# ^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$
 #
 # - `^` and `$`: Start and end of the string.
 # - `25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?`: Numbers 0-255.
 # - Repeated 4 times with dots.
-#
 # - Matches: `192.168.0.1`, `10.0.0.0`
 # - Non-matches: `256.1.2.3`, `1.2.3`, `a.b.c.d`
 
@@ -80,25 +92,53 @@ proff()
 
 pr()
 
-rx(pat(:SocialHandle)) { ? Explain() }
-#-->
-# The regex `^@[a-zA-Z0-9_]{1,15}$` matches social media handles:
-#
-# - `^` and `$`: Start and end of the string.
-# - `@`: Required @ symbol.
-# - `[a-zA-Z0-9_]{1,15}`: 1-15 alphanumeric or underscore characters.
-#
-# - Matches: `@user123`, `@User_name`
-# - Non-matches: `user123`, `@user-name`, `@toolong123456789
+rx(pat(:IPv6)) {
+
+	# Getting the pattern string
+
+	? Pattern() + NL
+	#--> (([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4})
+
+	# Getting a short explanation of the pattern
+
+	? Explain() + NL
+	#--> Matches basic IPv6 addresses
+
+	# Getting a long explanation
+
+	? ExplainXT()
+	#-->
+	# - `^` and `$`: Start and end of the string.
+	# - `[A-F0-9]{1,4}`: Hexadecimal groups.
+	#- Seven groups with colons, plus final group.
+	# - Matches: `2001:0DB8:0000:0000:0000:0000:1428:57AB`
+	# - Non-matches: `2001::1428:57AB` (compressed form)
+
+}
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
-# Short explanation
+rx(pat(:SocialHandle)) { ? Pattern() + NL + Explain() + NL + ExplainXT() }
+#--> ^@[a-zA-Z0-9._]{1,30}$
+#--> Matches social media handles
+#-->
+# - `^` and `$`: Start and end of the string.
+# - `@`: Required @ symbol.
+# - `[a-zA-Z0-9_]{1,15}`: 1-15 alphanumeric or underscore characters.
+# - Matches: `@user123`, `@User_name`
+# - Non-matches: `user123`, `@user-name`, `@toolong123456789`
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
 
 rx(pat(:isoDate)) {
 
@@ -127,54 +167,45 @@ rx(pat(:isoDate)) {
 }
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-
+*/
 pr()
 
-rx(pat(:IPv6)) { ? Explain() }
-#-->
-# The regex `^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$` matches basic IPv6 addresses:
-#
-# - `^` and `$`: Start and end of the string.
-# - `[A-F0-9]{1,4}`: Hexadecimal groups.
-# - Seven groups with colons, plus final group.
-#
-# - Matches: `2001:0DB8:0000:0000:0000:0000:1428:57AB`
-# - Non-matches: `2001::1428:57AB` (compressed form)
+rx(pat(:isoDateTime)) {
 
-proff()
-# # Executed in almost 0 second(s) in Ring 1.22
+	# Getting the pattern string
 
-/*---
+	? Pattern() + NL
+	#--> ^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?(Z|[+-][01][0-9]:[0-5][0-9])?$
 
-pr()
+	# Getting a short explanation of the pattern
 
-? RegExpPatterns()[:number]
-#--> ^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$
+	? Explain() + NL
+	#--> Mmatches ISO datetime
 
-? RegExpPatternName("^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$") + NL
-#--> "number"
+	# Getting a long explanation
 
+	? ExplainXT()
+	#-->
+	# - `^` and `$`: Start and end of the string.
+	# - `T`: Time separator.
+	# - `(?:[01]\d|2[0-3])`: Hours 00-23.
+	# - `[0-5]\d`: Minutes and seconds 00-59.
+	# - `(?:\.\d+)?`: Optional milliseconds.
+	# - `(?:Z|[+-][01]\d:[0-5]\d)`: Timezone.
+	# - Matches: `2024-01-14T15:30:00Z`, `2024-01-14T15:30:00.123+01:00`
+	# - Non-matches: `2024-01-14 15:30:00`, `2024-01-14T25:00:00Z`
 
-rx(pat(:number)) { ? Match("-12,345.67") ? Explain() + NL }
-#-->
-# The regex `^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$` matches numeric formats:
-# 
-# - `^` and `$`: Start and end of the string.
-# - `-?`: Optional negative sign.
-#
-# - `(?:\d+|\d{1,3}(?:,\d{3})+)`: 
-#   - Plain digits (`123`).
-#   - Comma-separated (`1,234` or `12,345,678`).
-#
-# - `(?:\.\d+)?`: Optional decimal part (`.45`).
-#
-# - Matches: `123`, `-1,234`, `123.45`, `-12,345.67`.
-# - Non-matches: `1,23,456`, `123.45.67`, `abc`.
+}
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+
 
 /*====
 
