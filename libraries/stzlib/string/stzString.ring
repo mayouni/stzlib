@@ -52609,7 +52609,7 @@ class stzString from stzObject
 		#>
 
 	  #===================================================#
-	 #   FINDING BY PATTERN (AN ALTERNATIVE TO REGEXP)   #TODO (FUTURE)
+	 #   FINDING BY PATTERN (AN ALTERNATIVE TO Regex)   #TODO (FUTURE)
 	#===================================================#
 
 	// Finds all the occurrences of a given substring in the string

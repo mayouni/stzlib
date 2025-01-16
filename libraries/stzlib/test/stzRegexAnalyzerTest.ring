@@ -1,6 +1,6 @@
 load "../max/stzmax.ring"
 
-o1 = new stzRegExpAnalyzer()
+o1 = new stzRegexAnalyzer()
 o1.init("(a+)*b{1,1000}[a-zA-Z]*")
 aResult = o1getAnalysis()
 

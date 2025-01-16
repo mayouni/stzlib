@@ -170,10 +170,10 @@ t0 = clock()
 	load "string/stzStringFuncs.ring"
 	load "string/stzString.ring"
 
-	load "string/regexp/stzRegExp.ring"
-	load "string/regexp/stzRegExpMaker.ring"
-	load "string/regexp/stzRegExpParser.ring"
-	load "string/regexp/stzRegExpAnalyzer.ring"
+	load "string/Regex/stzRegex.ring"
+	load "string/Regex/stzRegexMaker.ring"
+	load "string/Regex/stzRegexParser.ring"
+	load "string/Regex/stzRegexAnalyzer.ring"
 
 	load "string/substring/stzSubString.ring"
 	load "string/listofstrings/stzListOfStrings.ring"
@@ -216,7 +216,7 @@ t0 = clock()
 	load "data/stzCharData.ring"
 	load "data/stzStringArtData.ring"
 
-	load "data/stzRegExpData.ring"
+	load "data/stzRegexData.ring"
 
 # Loading files related to the IO module
 

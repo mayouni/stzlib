@@ -1,4 +1,4 @@
-# The stzRegExp class provides regular expression functionality with both
+# The stzRegex class provides regular expression functionality with both
 # classic Qt-style patterns and enhanced scoped matching capabilities.
 # It combines direct Qt access with Softanza's scope-based approach.
 
@@ -6,7 +6,7 @@
 
 #INFO Some reference articles to read:
 
-# A nice article to get the essentials of regExp
+# A nice article to get the essentials of Regex
 # https://trustedsec.com/blog/regex-cheat-sheet
 
 # An other valuable link from Mozilla MSDN:
@@ -15,15 +15,15 @@
 # An of course the reference article on Qt
 # https://doc.qt.io/qt-5/qregularexpression.html#details
 
-func StzRegExpQ(pcPattern)
-	return new stzRegExp(pcPattern)
+func StzRegexQ(pcPattern)
+	return new stzRegex(pcPattern)
 
 	func rx(pcPattern)
-		return StzRegExpQ(pcPattern)
+		return StzRegexQ(pcPattern)
 
-class stzRegExp
+class stzRegex
 	
-	@oQRegExp
+	@oQRegex
 	@cPattern
 	@cTempStr
 	@nPatternOptions = 0
@@ -41,9 +41,9 @@ class stzRegExp
 			ok
 		ok
 
-		@oQRegExp = new QRegularExpression()
-		@oQRegExp.setPattern(pcPattern)
-		@oQRegExp.setPatternOptions(@nPatternOptions)
+		@oQRegex = new QRegularExpression()
+		@oQRegex.setPattern(pcPattern)
+		@oQRegex.setPatternOptions(@nPatternOptions)
 		@cPattern = pcPattern
 
 		# If pattern contains multilines, extend the syntax
@@ -60,10 +60,10 @@ class stzRegExp
 		return @cPattern
 
 	def Copy()
-		return new stzRegExp(This.Pattern())
+		return new stzRegex(This.Pattern())
 
-	def QRegExpObject()
-		return @oQRegExp
+	def QRegexObject()
+		return @oQRegex
 
 	#-- Core Qt integration with simplified options
 
@@ -99,9 +99,9 @@ class stzRegExp
 			off
 		next
 
-		@oQRegExp.setPatternOptions(@nPatternOptions)
+		@oQRegex.setPatternOptions(@nPatternOptions)
 		@cTempStr = pcStr
-		return @oQRegExp.match(pcStr, 0, 0, 0).hasMatch()
+		return @oQRegex.match(pcStr, 0, 0, 0).hasMatch()
 
 	#-- Softanza scope-based pattern matching methods
 
@@ -185,7 +185,7 @@ class stzRegExp
 
 	def CapturedValues()
 		_acResult_ = []
-		oMatch = @oQRegExp.match(@cTempStr, 0, 0, 0)
+		oMatch = @oQRegex.match(@cTempStr, 0, 0, 0)
 		
 		# Only add non-empty captures and skip full match
 		for @i = 1 to This.CaptureCount()
@@ -199,7 +199,7 @@ class stzRegExp
 
 	def CaptureNames()
 
-		_acNames_ = QStringListToList(@oQRegExp.namedCaptureGroups())
+		_acNames_ = QStringListToList(@oQRegex.namedCaptureGroups())
 		_nLen_ = len(_acNames_)
 
 		_acResult_ = []
@@ -220,7 +220,7 @@ class stzRegExp
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
 		ok
 
-		oMatch = @oQRegExp.match(@cTempStr, 0, 0, 0)
+		oMatch = @oQRegex.match(@cTempStr, 0, 0, 0)
 		_acCaptureNames_ = This.CaptureNames()
 		aResult = []
 
@@ -239,16 +239,16 @@ class stzRegExp
 	#-- Pattern information and validation
 
 	def CaptureCount()
-		return @oQRegExp.captureCount()
+		return @oQRegex.captureCount()
 
 	def IsValid()
-		return This.QRegExpObject().isValid()
+		return This.QRegexObject().isValid()
 
 	def LastError()
-		return @oQRegExp.errorString()
+		return @oQRegex.errorString()
 
 	def PatternErrorOffset()
-		return @oQRegExp.patternErrorOffset()
+		return @oQRegex.patternErrorOffset()
 
 	#-- Legacy matching methods (maintained for compatibility)
 
@@ -263,7 +263,7 @@ class stzRegExp
 		ok
 
 		@cTempStr = pcStr
-		return QRegExpObject().match(pcStr, nPos, 0, 0).hasMatch()
+		return QRegexObject().match(pcStr, nPos, 0, 0).hasMatch()
 
 		def MatchAtPosition(pcStr, nPos)
 			return This.MatchAt(pcStr, nPos)
@@ -274,17 +274,17 @@ class stzRegExp
 
 		_cResult_ = ""
 
-		# First we try to find an exisiting explanation (in RegExpExplanations())
+		# First we try to find an exisiting explanation (in RegexExplanations())
 
-		_cName_ = RegExpPatternName(This.Pattern())
+		_cName_ = RegexPatternName(This.Pattern())
 		if _cName_ != ""
-			_cResult_ = RegExpPatternExplanation(_cName_)[1]
+			_cResult_ = RegexPatternExplanation(_cName_)[1]
 		ok
 
 		# Otherwise we feed the pattern to stzRegAnalyzer
 
 		if _cResult_ = ""
-			_oRxAnal_ = new stzRegExpAnalyzer(This.Pattern())
+			_oRxAnal_ = new stzRegexAnalyzer(This.Pattern())
 			_cResult_ = _oRxAnal_.Explain()
 		ok
 
@@ -300,18 +300,18 @@ class stzRegExp
 
 		_cResult_ = ""
 
-		# First we try to find an exisiting explanation (in RegExpExplanations())
+		# First we try to find an exisiting explanation (in RegexExplanations())
 
-		_cName_ = RegExpPatternName(This.Pattern())
+		_cName_ = RegexPatternName(This.Pattern())
 		if _cName_ != ""
-			_cResult_ = RegExpPatternExplanation(_cName_)[2]
+			_cResult_ = RegexPatternExplanation(_cName_)[2]
 
 		ok
 
 		# Otherwise we feed the pattern to stzRegAnalyzer
 
 		if _cResult_ = ""
-			_oRxAnal_ = new stzRegExpAnalyzer(This.Pattern())
+			_oRxAnal_ = new stzRegexAnalyzer(This.Pattern())
 			_cResult_ = _oRxAnal_.ExplainXT()
 		ok
 
