@@ -1,4 +1,4 @@
-# Regex Made Simple and Accessible in Softanza
+# Regex Made Simple and Accessible With Softanza
 
 Softanza makes working with regular expressions significantly easier and more practical. It introduces two key functions: `rx()` and `pat()`. 
 
