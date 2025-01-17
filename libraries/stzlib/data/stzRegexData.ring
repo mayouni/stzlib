@@ -8,6 +8,25 @@
 
 _$aRegexPatterns_ = [
 
+	# Patterns to Analyze Regex patterns!
+
+	:regexGroup = "\\(([^()]*|(?R))*\\)",
+	:regexQuantifier = "\\*|\\+|\\?|(\\{\\d+(,\\d*)?\\})",
+	:regexCharacterClass = "\\[(\\^?[^\]]+)\\]",
+	:regexAssertion = "\\(\\?<?[=!]",
+	:regexEscapedChar = "\\\\",
+	:regexAlternation = "(\\|)",
+	:regexWildcard = "\\",
+	:regexRedundantAlternation = "\\((?:[a-zA-Z0-9]\\|?)+\\)",
+
+	# Files names and paths
+
+	:fileName = "^[^<>:\" + char(34) + "/\\|?*\r\n]+$",
+	:filePath = "^(?:[a-zA-Z]:)?(?:\\\\[^<>:\" + char(34) + "/\\|?*\r\n]+)+\\\\?$",
+	:unixFilePath = "^(/[^<>:\" + char(34) + "/\\|?*\r\n]+)+/?$",
+	:fileExtension = "\\.[a-zA-Z0-9]+$",
+	:relativeFilePath = "^(?:\\.\\.?/|[^/<>:\" + char(34) + "|?*]+)(?:/[^/<>:\" + char(34) + "|?*]+)*/?$",
+
 	# Web & Email
 
 	:email = "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",
@@ -343,16 +362,153 @@ _$aRegexPatterns_ = [
 
 _$aRegexPatternsExplanations_ = [
 
+	# Patterns to Analyze Regex patterns!
+
+	:regexGroup = [
+		"Matches regex groups, including nested ones",
+
+		"- `\\(`: Match the opening parenthesis" + NL +
+    		"- `\\)`: Match the closing parenthesis" + NL + NL +
+
+		"- Matches: `(abc)`, `((a)(b))`" + NL +
+		"- Non-matches: `abc`, `(abc`"
+	],
+
+	:regexQuantifier = [
+		"Detects quantifiers used in regex patterns",
+
+		"- `\\*`: Match zero or more quantifiers" + NL +
+		"- `\\+`: Match one or more quantifiers" + NL +
+		"- `\\?`: Match zero or one quantifiers" + NL +
+		"- `\\{\\d+(,\\d*)?\\}`: Match numeric quantifiers like `{1,3}`" + NL + NL +
+
+	"- Matches: `a*`, `a+`, `a{2,5}`" + NL +
+	"- Non-matches: `a`, `{}`"
+	],
+
+	:regexCharacterClass = [
+		"Identifies character classes, including negated ones",
+
+		"- `\\[`: Match the opening bracket" + NL +
+		"- `(\\^?[^\]]+)`: Match optional `^` for negation, then all characters until `]`" + NL +
+		"- `\\]`: Match the closing bracket" + NL + NL +
+
+		"- Matches: `[abc]`, `[^0-9]`" + NL +
+		"- Non-matches: `[`, `[abc`"
+	],
+
+	:regexAssertion = [
+		"Detects lookahead and lookbehind assertions",
+
+		"- `\\(\\?`: Match opening `(?`" + NL +
+		"- `<?[=!]`: Match `=` or `!` for lookahead, or `<=`/`<!` for lookbehind" + NL + NL +
+
+		"- Matches: `(?=abc)`, `(?<=abc)`" + NL +
+		"- Non-matches: `abc`, `()`"
+	],
+
+	:regexEscapedChar = [
+		"Finds escaped characters in regex patterns",
+
+		"- `\\\\`: Match the escape character `\\`" + NL +
+		"- `.`: Match any character following the escape" + NL + NL +
+
+		"- Matches: `\\n`, `\\t`, `\\[`, `\\\\`" + NL +
+		"- Non-matches: `n`, `[`, `\\\\` (if unescaped)"
+	],
+
+	:regexAlternation = [
+		"Detects alternation (`|`) in patterns",
+
+		"- `(\\|)`: Match the `|` symbol used for alternation" + NL + NL +
+
+		"- Matches: `a|b`, `(a|b|c)`" + NL +
+		"- Non-matches: `a b`, `(abc)`"
+	],
+
+	:regexWildcard = [
+		"Finds wildcard characters in regex patterns",
+
+		"- `\\.`: Match the `.` character that represents any character" + NL + NL +
+
+		"- Matches: `a.b`, `.*`" + NL +
+		"- Non-matches: `a b`, `abc`"
+	],
+
+	:regexRedundantAlternation = [
+		"Detects redundant alternations that can be replaced by character classes",
+
+		"- `\\(`: Match the opening parenthesis" + NL +
+		"- `(?:[a-zA-Z0-9]\\|?)+`: Match multiple alternations of single characters" + NL +
+		"- `\\)`: Match the closing parenthesis" + NL + NL +
+
+		"- Matches: `(a|b|c)`, `(1|2|3)`" + NL +
+		"- Non-matches: `[abc]`, `1|23`"
+	],
+
+	# Files names and paths
+
+	:fileName = [
+		"Matches valid file names",
+
+		"- `^[^<>:\" + char(34) + "/\\|?*\r\n]+$`: Matches any string that does not contain invalid file name characters." + NL + NL +
+
+		"- Matches: `document.txt`, `image123.png`, `file_name.ext`." + NL +
+		"- Non-matches: `file/name.txt`, `file|name.ext`, `file:name`."
+	],
+
+	:filePath = [
+		"Matches valid Windows file paths",
+
+		"- `^(?:[a-zA-Z]:)?`: Optionally matches a drive letter followed by a colon (e.g., `C:`)." + NL +
+		"- `(?:\\\\[^<>:\" + char(34) + "/\\|?*\r\n]+)+`: Matches one or more folder or file names separated by backslashes." + NL +
+		"- `\\\\?$`: Allows an optional trailing backslash." + NL + NL +
+
+		"- Matches: `C:\\Users\\Documents\\file.txt`, `\\folder\\subfolder\\file.ext`." + NL +
+		"- Non-matches: `C:/Users/Documents/file.txt`, `/folder/subfolder/file.ext`."
+	],
+
+	:unixFilePath = [
+		"Matches valid Unix/Linux file paths",
+
+		"- `^/`: Matches a leading forward slash for absolute paths." + NL +
+		"- `(/[^<>:\" + char(34) + "/\\|?*\r\n]+)+`: Matches one or more folder or file names separated by forward slashes." + NL +
+		"- `/?$`: Allows an optional trailing forward slash." + NL + NL +
+
+		"- Matches: `/home/user/document.txt`, `/var/log/`, `/file`." + NL +
+		"- Non-matches: `C:\\Users\\Documents\\file.txt`, `folder/file.txt`."
+	],
+
+	:fileExtension = [
+		"Matches file extensions",
+
+		"- `\\.[a-zA-Z0-9]+$`: Matches a dot followed by one or more alphanumeric characters." + NL + NL +
+
+		"- Matches: `.txt`, `.png`, `.zip`." + NL +
+		"- Non-matches: `filetxt`, `.`, `..ext`."
+	],
+
+	:relativeFilePath = [
+		"Matches valid relative file paths",
+
+		"- `^(?:\\.\\.?/|[^/<>:\" + char(34) + "|?*]+)`: Matches a dot (`.`) or dot-dot (`..`) for relative paths or a valid folder name." + NL +
+		"- `(?:/[^/<>:\" + char(34) + "|?*]+)*`: Matches additional folder or file names separated by slashes." + NL +
+		"- `/?$`: Allows an optional trailing slash." + NL + NL +
+
+		"- Matches: `./file.txt`, `../folder/file.txt`, `folder/subfolder/file`." + NL +
+		"- Non-matches: `/absolute/path/file.txt`, `C:\\folder\\file.txt`."
+	],
+
 	# Web & Email
 
 	:email = [
 		"Matches standard email formats",
 	
-		"- `^` and `$`: Start and end of the string." + NL +
-		"- `[a-zA-Z0-9._%+-]+`: Local part allowing letters, numbers, and common special characters." + NL +
-		"- `@`: Required @ symbol." + NL +
-		"- `[a-zA-Z0-9.-]+`: Domain name allowing letters, numbers, dots, and hyphens." + NL +
-		"- `\.[a-zA-Z]{2,}`: Last part of the domain (TLD) with minimum 2 letters." + NL + NL +
+		"- `^` and `$`: Start and end of the string" + NL +
+		"- `[a-zA-Z0-9._%+-]+`: Local part allowing letters, numbers, and common special characters" + NL +
+		"- `@`: Required @ symbol" + NL +
+		"- `[a-zA-Z0-9.-]+`: Domain name allowing letters, numbers, dots, and hyphens" + NL +
+		"- `\.[a-zA-Z]{2,}`: Last part of the domain (TLD) with minimum 2 letters" + NL + NL +
 
 		"- Matches: `user@domain.com`, `user.name+tag@example.co.uk`" + NL +
 		"- Non-matches: `@domain.com`, `user@.com`, `user@domain`"
@@ -362,10 +518,10 @@ _$aRegexPatternsExplanations_ = [
 	:url = [
 		"Matches a standard HTTP or HTTPS URL",
 	
-		"- `^https?:\/\/`: Start with `http://` or `https://`." + NL +
-		"- `(?:[a-zA-Z0-9-]+\.)+`: Domain part (subdomains are optional)." + NL +
-		"- `[a-zA-Z]{2,}`: Domain TLD (top-level domain), at least two letters." + NL +
-		"- `(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$`: Optional path, query, or fragment." + NL + NL +
+		"- `^https?:\/\/`: Start with `http://` or `https://`" + NL +
+		"- `(?:[a-zA-Z0-9-]+\.)+`: Domain part (subdomains are optional)" + NL +
+		"- `[a-zA-Z]{2,}`: Domain TLD (top-level domain), at least two letters" + NL +
+		"- `(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$`: Optional path, query, or fragment" + NL + NL +
 
 		"- Matches: `https://example.com`, `http://domain.co.uk/path?query`" + NL +
 		"- Non-matches: `htt://example.com`, `://domain.com`"
@@ -374,10 +530,10 @@ _$aRegexPatternsExplanations_ = [
 	:domain = [
 		"Matches domain names with letters, numbers, and hyphens",
 	
-		"- `^[a-zA-Z0-9]`: Domain must start with a letter or number." + NL +
-		"- `[a-zA-Z0-9-]{1,61}`: Allowed characters include letters, numbers, and hyphens, between 1 and 61." + NL +
-		"- `[a-zA-Z0-9]`: Domain ends with a letter or number." + NL +
-		"- `\.[a-zA-Z]{2,}$`: Domain ends with a valid TLD." + NL + NL +
+		"- `^[a-zA-Z0-9]`: Domain must start with a letter or number" + NL +
+		"- `[a-zA-Z0-9-]{1,61}`: Allowed characters include letters, numbers, and hyphens, between 1 and 61" + NL +
+		"- `[a-zA-Z0-9]`: Domain ends with a letter or number" + NL +
+		"- `\.[a-zA-Z]{2,}$`: Domain ends with a valid TLD" + NL + NL +
 
 		"- Matches: `domain.com`, `subdomain.domain.org`" + NL +
 		"- Non-matches: `-domain.com`, `domain..com`"
@@ -386,11 +542,11 @@ _$aRegexPatternsExplanations_ = [
 	:ipv4 = [
 		"Matches valid IPv4 addresses",
 	
-		"- `^`: Start of string." + NL +
-		"- `(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)`: Match numbers 0-255." + NL +
-		"- `\.`: Dot separator between octets." + NL +
-		"- Pattern repeated 3 times with dots." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)`: Match numbers 0-255" + NL +
+		"- `\.`: Dot separator between octets" + NL +
+		"- Pattern repeated 3 times with dots" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `192.168.0.1`, `10.0.0.0`, `255.255.255.255`" + NL +
 		"- Non-matches: `256.1.2.3`, `1.2.3`, `300.1.2.3`"
@@ -399,9 +555,9 @@ _$aRegexPatternsExplanations_ = [
 	:ipv6 = [
 		"Matches valid IPv6 addresses",
 	
-		"- `([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}`: Full IPv6 address." + NL +
-		"- `([0-9a-fA-F]{1,4}:){1,7}:`: Compressed format with `::`." + NL +
-		"- `([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}`: Mixed formats." + NL + NL +
+		"- `([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}`: Full IPv6 address" + NL +
+		"- `([0-9a-fA-F]{1,4}:){1,7}:`: Compressed format with `::`" + NL +
+		"- `([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}`: Mixed formats" + NL + NL +
 
 		"- Matches: `2001:0db8:85a3:0000:0000:8a2e:0370:7334`, `fe80::1`" + NL +
 		"- Non-matches: `:::1`, `2001:0db8::`"
@@ -410,11 +566,11 @@ _$aRegexPatternsExplanations_ = [
 	:socialHandle = [
 		"Matches social media handles",
 	
-		"- `^`: Start of string." + NL +
-		"- `@`: Required @ symbol at start." + NL +
-		"- `[a-zA-Z0-9._]{1,30}`: Username with letters, numbers, dots, underscores." + NL +
-		"- Maximum length of 30 characters." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `@`: Required @ symbol at start" + NL +
+		"- `[a-zA-Z0-9._]{1,30}`: Username with letters, numbers, dots, underscores" + NL +
+		"- Maximum length of 30 characters" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `@user123`, `@john.doe`, `@handle_name`" + NL +
 		"- Non-matches: `user123`, `@user name`, `@`"
@@ -423,10 +579,10 @@ _$aRegexPatternsExplanations_ = [
 	:slug = [
 		"Matches URL-friendly slugs",
 	
-		"- `^`: Start of string." + NL +
-		"- `[a-z0-9]+`: One or more lowercase letters or numbers." + NL +
-		"- `(?:-[a-z0-9]+)*`: Optional groups of hyphen followed by alphanumerics." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[a-z0-9]+`: One or more lowercase letters or numbers" + NL +
+		"- `(?:-[a-z0-9]+)*`: Optional groups of hyphen followed by alphanumerics" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `my-blog-post`, `article-123`, `hello`" + NL +
 		"- Non-matches: `-post`, `Post-Title`, `my--post`"
@@ -437,13 +593,13 @@ _$aRegexPatternsExplanations_ = [
 	:isoDate = [
 		"Matches ISO 8601 date format (YYYY-MM-DD)",
 	
-		"- `^`: Start of string." + NL +
-		"- `\d{4}`: Four digits for year." + NL +
-		"- `-`: Literal hyphen separator." + NL +
-		"- `(0[1-9]|1[0-2])`: Month 01-12." + NL +
-		"- `-`: Literal hyphen separator." + NL +
-		"- `(0[1-9]|[12][0-9]|3[01])`: Day 01-31." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `\d{4}`: Four digits for year" + NL +
+		"- `-`: Literal hyphen separator" + NL +
+		"- `(0[1-9]|1[0-2])`: Month 01-12" + NL +
+		"- `-`: Literal hyphen separator" + NL +
+		"- `(0[1-9]|[12][0-9]|3[01])`: Day 01-31" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `2023-12-25`, `2024-01-01`" + NL +
 		"- Non-matches: `2023/12/25`, `23-12-25`"
@@ -452,12 +608,12 @@ _$aRegexPatternsExplanations_ = [
 	:isoDateTime = [
 		"Matches ISO 8601 datetime format with optional timezone",
 	
-		"- Starts with ISO date format." + NL +
-		"- `T`: Time separator." + NL +
-		"- `([01]?[0-9]|2[0-3])`: Hours (00-23)." + NL +
-		"- `:[0-5][0-9]:[0-5][0-9]`: Minutes and seconds." + NL +
-		"- `(\.[0-9]+)?`: Optional fractional seconds." + NL +
-		"- `(Z|[+-][01][0-9]:[0-5][0-9])?`: Optional timezone." + NL + NL +
+		"- Starts with ISO date format" + NL +
+		"- `T`: Time separator" + NL +
+		"- `([01]?[0-9]|2[0-3])`: Hours (00-23)" + NL +
+		"- `:[0-5][0-9]:[0-5][0-9]`: Minutes and seconds" + NL +
+		"- `(\.[0-9]+)?`: Optional fractional seconds" + NL +
+		"- `(Z|[+-][01][0-9]:[0-5][0-9])?`: Optional timezone" + NL + NL +
 
 		"- Matches: `2023-12-25T14:30:00Z`, `2024-01-01T09:00:00+01:00`" + NL +
 		"- Non-matches: `2023-12-25 14:30`, `2023-12-25T25:00:00Z`"
@@ -466,12 +622,12 @@ _$aRegexPatternsExplanations_ = [
 	:ddmmyyyy = [
 		"Matches dates in DD/MM/YYYY format with various separators",
 	
-		"- `^`: Start of string." + NL +
-		"- `(0[1-9]|[12][0-9]|3[01])`: Day (01-31)." + NL +
-		"- `[-/.]`: Separator (hyphen, forward slash, or dot)." + NL +
-		"- `(0[1-9]|1[0-2])`: Month (01-12)." + NL +
-		"- `[-/.]`: Same separator as above." + NL +
-		"- `\d{4}`: Four-digit year." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `(0[1-9]|[12][0-9]|3[01])`: Day (01-31)" + NL +
+		"- `[-/.]`: Separator (hyphen, forward slash, or dot)" + NL +
+		"- `(0[1-9]|1[0-2])`: Month (01-12)" + NL +
+		"- `[-/.]`: Same separator as above" + NL +
+		"- `\d{4}`: Four-digit year" + NL + NL +
 
 		"- Matches: `25/12/2023`, `01-01-2024`, `31.12.2023`" + NL +
 		"- Non-matches: `32/12/2023`, `13/13/2023`"
@@ -480,12 +636,12 @@ _$aRegexPatternsExplanations_ = [
 	:mmddyyyy = [
 		"Matches dates in MM/DD/YYYY format with various separators",
 	
-		"- `^`: Start of string." + NL +
-		"- `(0[1-9]|1[0-2])`: Month (01-12)." + NL +
-		"- `[-/.]`: Separator (hyphen, forward slash, or dot)." + NL +
-		"- `(0[1-9]|[12][0-9]|3[01])`: Day (01-31)." + NL +
-		"- `[-/.]`: Same separator as above." + NL +
-		"- `\d{4}`: Four-digit year." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `(0[1-9]|1[0-2])`: Month (01-12)" + NL +
+		"- `[-/.]`: Separator (hyphen, forward slash, or dot)" + NL +
+		"- `(0[1-9]|[12][0-9]|3[01])`: Day (01-31)" + NL +
+		"- `[-/.]`: Same separator as above" + NL +
+		"- `\d{4}`: Four-digit year" + NL + NL +
 
 		"- Matches: `12/25/2023`, `01-01-2024`, `12.31.2023`" + NL +
 		"- Non-matches: `13/25/2023`, `12/32/2023`"
@@ -494,11 +650,11 @@ _$aRegexPatternsExplanations_ = [
 	:time24h = [
 		"Matches 24-hour time format (HH:MM)",
 	
-		"- `^`: Start of string." + NL +
-		"- `([01]?[0-9]|2[0-3])`: Hours (0-23)." + NL +
-		"- `:`: Time separator." + NL +
-		"- `[0-5][0-9]`: Minutes (00-59)." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `([01]?[0-9]|2[0-3])`: Hours (0-23)" + NL +
+		"- `:`: Time separator" + NL +
+		"- `[0-5][0-9]`: Minutes (00-59)" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `23:59`, `00:00`, `14:30`" + NL +
 		"- Non-matches: `24:00`, `12:60`, `1:5`"
@@ -509,11 +665,11 @@ _$aRegexPatternsExplanations_ = [
 	:mdHeader = [
 		"Matches Markdown headers",
         
-		"- `^`: Start of line." + NL +
-		"- `#{1,6}`: 1 to 6 hash symbols." + NL +
-		"- `\\s`: Required space." + NL +
-		"- `.+`: Header text." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `#{1,6}`: 1 to 6 hash symbols" + NL +
+		"- `\\s`: Required space" + NL +
+		"- `.+`: Header text" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `# Header`, `### Subheader`" + NL +
 		"- Non-matches: `#Header`, `####### TooManyHashes`"
@@ -522,9 +678,9 @@ _$aRegexPatternsExplanations_ = [
 	:mdBold = [
 		"Matches Markdown bold text",
         
-		"- `\\*\\*`: Two asterisks." + NL +
-		"- `[^*]+`: Any characters except asterisk." + NL +
-		"- `\\*\\*`: Closing asterisks." + NL + NL +
+		"- `\\*\\*`: Two asterisks" + NL +
+		"- `[^*]+`: Any characters except asterisk" + NL +
+		"- `\\*\\*`: Closing asterisks" + NL + NL +
 
 		"- Matches: `**bold text**`, `**important**`" + NL +
 		"- Non-matches: `*single*`, `**incomplete`"
@@ -533,9 +689,9 @@ _$aRegexPatternsExplanations_ = [
 	:mdItalic = [
 		"Matches Markdown italic text",
  
-		"- `\\*`: Single asterisk." + NL +
-		"- `[^*]+`: Any characters except asterisk." + NL +
-		"- `\\*`: Closing asterisk." + NL + NL +
+		"- `\\*`: Single asterisk" + NL +
+		"- `[^*]+`: Any characters except asterisk" + NL +
+		"- `\\*`: Closing asterisk" + NL + NL +
 
 		"- Matches: `*italic*`, `*emphasized*`" + NL +
 		"- Non-matches: `**bold**`, `*incomplete`"
@@ -544,12 +700,12 @@ _$aRegexPatternsExplanations_ = [
 	:mdLink = [
 		"Matches Markdown links",
 
-		"- `\\[`: Opening square bracket." + NL +
-		"- `([^\\]]+)`: Link text (anything but closing bracket)." + NL +
-		"- `\\]`: Closing square bracket." + NL +
-		"- `\\(`: Opening parenthesis." + NL +
-		"- `([^\\)]+)`: URL (anything but closing parenthesis)." + NL +
-		"- `\\)`: Closing parenthesis." + NL + NL +
+		"- `\\[`: Opening square bracket" + NL +
+		"- `([^\\]]+)`: Link text (anything but closing bracket)" + NL +
+		"- `\\]`: Closing square bracket" + NL +
+		"- `\\(`: Opening parenthesis" + NL +
+		"- `([^\\)]+)`: URL (anything but closing parenthesis)" + NL +
+		"- `\\)`: Closing parenthesis" + NL + NL +
 
 		"- Matches: `[link](url)`, `[Example](http://example.com)`" + NL +
 		"- Non-matches: `[link](`, `[link]`"
@@ -558,13 +714,13 @@ _$aRegexPatternsExplanations_ = [
 	:mdImage = [
 		"Matches Markdown images",
 
-		"- `!`: Exclamation mark prefix." + NL +
-		"- `\\[`: Opening square bracket." + NL +
-		"- `([^\\]]*)`': Alt text (optional, anything but closing bracket)." + NL +
-		"- `\\]`: Closing square bracket." + NL +
-		"- `\\(`: Opening parenthesis." + NL +
-		"- `([^\\)]+)`: Image URL (anything but closing parenthesis)." + NL +
-		"- `\\)`: Closing parenthesis." + NL + NL +
+		"- `!`: Exclamation mark prefix" + NL +
+		"- `\\[`: Opening square bracket" + NL +
+		"- `([^\\]]*)`': Alt text (optional, anything but closing bracket)" + NL +
+		"- `\\]`: Closing square bracket" + NL +
+		"- `\\(`: Opening parenthesis" + NL +
+		"- `([^\\)]+)`: Image URL (anything but closing parenthesis)" + NL +
+		"- `\\)`: Closing parenthesis" + NL + NL +
 
 		"- Matches: `![alt](image.jpg)`, `![](photo.png)`" + NL +
 		"- Non-matches: `[img](pic.jpg)`, `![alt]()`"
@@ -573,11 +729,11 @@ _$aRegexPatternsExplanations_ = [
 	:mdBlockquote = [
 		"Matches Markdown blockquotes",
 
-		"- `^`: Start of line." + NL +
-		"- `>`: Greater than symbol." + NL +
-		"- `\\s`: Required space." + NL +
-		"- `.+`: Quoted text." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `>`: Greater than symbol" + NL +
+		"- `\\s`: Required space" + NL +
+		"- `.+`: Quoted text" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `> Quote`, `> Multiple words`" + NL +
 		"- Non-matches: `>No space`, `Quote>`"
@@ -586,9 +742,9 @@ _$aRegexPatternsExplanations_ = [
 	:mdCodeBlock = [
 		"Matches Markdown code blocks",
 
-		"- ```" + char(34) + ": Three backticks opening." + NL +
-		"- `[^`]*`: Any characters except backtick." + NL +
-		"- ```" + char(34) + ": Three backticks closing." + NL + NL +
+		"- ```" + char(34) + ": Three backticks opening" + NL +
+		"- `[^`]*`: Any characters except backtick" + NL +
+		"- ```" + char(34) + ": Three backticks closing" + NL + NL +
 
 		"- Matches: ```code block```, ```multiple" + NL + "lines```" + NL +
 		"- Non-matches: ``two ticks``, ````four ticks````"
@@ -597,9 +753,9 @@ _$aRegexPatternsExplanations_ = [
 	:mdInlineCode = [
 		"Matches Markdown inline code",
 
-		"- `` ` ``: Single backtick." + NL +
-		"- `[^`]+`: Any characters except backtick." + NL +
-		"- `` ` ``: Closing backtick." + NL + NL +
+		"- `` ` ``: Single backtick" + NL +
+		"- `[^`]+`: Any characters except backtick" + NL +
+		"- `` ` ``: Closing backtick" + NL + NL +
 
 		"- Matches: `code`, `var x = 1`" + NL +
 		"- Non-matches: ``double``, `unclosed"
@@ -608,11 +764,11 @@ _$aRegexPatternsExplanations_ = [
 	:mdListItem = [
 		"Matches Markdown unordered list items",
 
-		"- `^`: Start of line." + NL +
-		"- `[-*+]`: Either hyphen, asterisk, or plus sign." + NL +
-		"- `\\s`: Required space." + NL +
-		"- `.+`: List item text." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `[-*+]`: Either hyphen, asterisk, or plus sign" + NL +
+		"- `\\s`: Required space" + NL +
+		"- `.+`: List item text" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `- Item`, `* Point`, `+ Element`" + NL +
 		"- Non-matches: `Item-`, `-No space`"
@@ -621,12 +777,12 @@ _$aRegexPatternsExplanations_ = [
 	:mdNumberedList = [
 		"Matches Markdown numbered list items",
 
-		"- `^`: Start of line." + NL +
-		"- `\\d+`: One or more digits." + NL +
-		"- `\\.`: Literal period." + NL +
-		"- `\\s`: Required space." + NL +
-		"- `.+`: List item text." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `\\d+`: One or more digits" + NL +
+		"- `\\.`: Literal period" + NL +
+		"- `\\s`: Required space" + NL +
+		"- `.+`: List item text" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `1. First`, `42. Item`" + NL +
 		"- Non-matches: `1.No space`, `A. Letter`"
@@ -637,10 +793,10 @@ _$aRegexPatternsExplanations_ = [
    	:yamlKey = [
 		"Matches YAML keys",
 
-		"- `^`: Start of line." + NL +
-		"- `[a-zA-Z0-9]+`: At least one alphanumeric character." + NL +
-		"- `[a-zA-Z0-9_-]*`: Optional alphanumeric, underscore, or hyphen characters." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `[a-zA-Z0-9]+`: At least one alphanumeric character" + NL +
+		"- `[a-zA-Z0-9_-]*`: Optional alphanumeric, underscore, or hyphen characters" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `key`, `user123`, `my-key`, `long_key_name`" + NL +
 		"- Non-matches: `123`, `-key`, `key:`, `invalid!key`"
@@ -649,7 +805,7 @@ _$aRegexPatternsExplanations_ = [
 	:yamlValue = [
 		"Matches YAML values (strings, numbers, booleans, null)",
 
-		"- `^`: Start of line." + NL +
+		"- `^`: Start of line" + NL +
 		"- `(`: Start first alternative (quoted strings):" + NL +
 		"  - `\\ " + char(34) + "`: Opening quote" + NL +
 		"  - `[^\\ " + char(34) + "]*`: Any characters except quotes" + NL +
@@ -659,7 +815,7 @@ _$aRegexPatternsExplanations_ = [
 		"- `([0-9]+)`: Second alternative (numbers)" + NL +
 		"- `|`: OR" + NL +
 		"- `(true|false)|null`: Third alternative (booleans and null)" + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `" + char(34) + "hello" + char(34) + "`, `42`, `true`, `false`, `null`" + NL +
 		"- Non-matches: `'single quotes'`, `-42`, `True`, `NULL`"
@@ -668,12 +824,12 @@ _$aRegexPatternsExplanations_ = [
 	:yamlMap = [
 		"Matches YAML key-value mappings",
 
-		"- `^`: Start of line." + NL +
-		"- `[a-zA-Z0-9]+`: Key (at least one alphanumeric character)." + NL +
-		"- `:`: Colon separator." + NL +
-		"- `[ ]*`: Optional spaces." + NL +
-		"- `.+`: Value (any non-empty string)." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `[a-zA-Z0-9]+`: Key (at least one alphanumeric character)" + NL +
+		"- `:`: Colon separator" + NL +
+		"- `[ ]*`: Optional spaces" + NL +
+		"- `.+`: Value (any non-empty string)" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `name: John`, `age: 25`, `active: true`" + NL +
 		"- Non-matches: `: value`, `key :value`, `key:`, `-key: value`"
@@ -682,13 +838,13 @@ _$aRegexPatternsExplanations_ = [
 	:yamlArray = [
 		"Matches YAML array elements (numbers or quoted strings)",
 
-		"- `^`: Start of line." + NL +
+		"- `^`: Start of line" + NL +
 		"- `-?[0-9]+`: First alternative (optional negative sign followed by digits)" + NL +
 		"- `|`: OR" + NL +
 		"- `\\ " + char(34) + "`: Opening quote" + NL +
 		"- `[^\\ " + char(34) + "]*`: Any characters except quotes" + NL +
 		"- `\\ " + char(34) + "`: Closing quote" + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `42`, `-42`, `" + char(34) + "element" + char(34) + "`, `" + char(34) + "item 1" + char(34) + "`" + NL +
 		"- Non-matches: `true`, `null`, `'single quotes'`, `plain text`"
@@ -697,12 +853,12 @@ _$aRegexPatternsExplanations_ = [
 	:yamlFrontMatter = [
 		"Matches YAML front matter blocks",
 
-		"- `^`: Start of line." + NL +
-		"- `---`: Opening delimiter." + NL +
-		"- `\\s*\\n`: Optional whitespace and newline." + NL +
-		"- `(.*?)`: Non-greedy capture of any characters." + NL +
-		"- `\\n---`: Closing delimiter with newline." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `---`: Opening delimiter" + NL +
+		"- `\\s*\\n`: Optional whitespace and newline" + NL +
+		"- `(.*?)`: Non-greedy capture of any characters" + NL +
+		"- `\\n---`: Closing delimiter with newline" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches:" + NL +
 		"  ```yaml" + NL +
@@ -720,9 +876,9 @@ _$aRegexPatternsExplanations_ = [
 	:htmlComment = [
 		"Matches HTML comments",
 
-		"- `<!--`: Comment opening sequence." + NL +
-		"- `[\\s\\S]*?`: Any characters including newlines (non-greedy)." + NL +
-		"- `-->`: Comment closing sequence." + NL + NL +
+		"- `<!--`: Comment opening sequence" + NL +
+		"- `[\\s\\S]*?`: Any characters including newlines (non-greedy)" + NL +
+		"- `-->`: Comment closing sequence" + NL + NL +
 
 		"- Matches: `<!-- comment -->`, `<!-- multi" + NL + "line -->`" + NL +
 		"- Non-matches: `<!-- unclosed`, `/* css comment */`"
@@ -731,9 +887,9 @@ _$aRegexPatternsExplanations_ = [
 	:htmlDoctype = [
 		"Matches HTML DOCTYPE declarations",
 
-		"- `<!DOCTYPE`: DOCTYPE opening sequence." + NL +
-		"- `[^>]*`: Any characters except closing bracket." + NL +
-		"- `>`: Closing bracket." + NL + NL +
+		"- `<!DOCTYPE`: DOCTYPE opening sequence" + NL +
+		"- `[^>]*`: Any characters except closing bracket" + NL +
+		"- `>`: Closing bracket" + NL + NL +
 
 		"- Matches: `<!DOCTYPE html>`, `<!DOCTYPE HTML PUBLIC>`" + NL +
 		"- Non-matches: `<!DOCTYPEhtml>`, `<!DOCTYPE>`"
@@ -742,11 +898,11 @@ _$aRegexPatternsExplanations_ = [
 	:htmlOpenTag = [
 		"Matches HTML opening tags with optional attributes",
 
-		"- `<`: Opening angle bracket." + NL +
-		"- `([a-zA-Z][a-zA-Z0-9]*)`: Tag name." + NL +
+		"- `<`: Opening angle bracket" + NL +
+		"- `([a-zA-Z][a-zA-Z0-9]*)`: Tag name" + NL +
 		"- `((?:\s+[a-zA-Z][a-zA-Z0-9]*(?:\s*=\s*(?:\ " + NL + char(34) + NL + ".*?\ " + NL + char(34) + NL + "|'.*?'|[^'\ " + NL + char(34) + NL + "<>\\s]+))?)*)`:" + NL +
-		"  Optional attributes with values." + NL +
-		"- `\s*/?>`: Optional self-closing slash and closing bracket." + NL + NL +
+		"  Optional attributes with values" + NL +
+		"- `\s*/?>`: Optional self-closing slash and closing bracket" + NL + NL +
 
 		"- Matches: `<div>`, `<input type=\ " + NL + char(34) + NL + "text\ " + NL + char(34) + NL + ">`, `<br/>`" + NL +
 		"- Non-matches: `<1div>`, `<div`, `</div>`"
@@ -755,9 +911,9 @@ _$aRegexPatternsExplanations_ = [
 	:htmlCloseTag = [
 		"Matches HTML closing tags",
 
-		"- `</`: Closing tag opening sequence." + NL +
-		"- `([a-zA-Z][a-zA-Z0-9]*)`: Tag name." + NL +
-		"- `>`: Closing bracket." + NL + NL +
+		"- `</`: Closing tag opening sequence" + NL +
+		"- `([a-zA-Z][a-zA-Z0-9]*)`: Tag name" + NL +
+		"- `>`: Closing bracket" + NL + NL +
 
 		"- Matches: `</div>`, `</p>`, `</html>`" + NL +
 		"- Non-matches: `</1>`, `</>`, `</div`"
@@ -766,10 +922,10 @@ _$aRegexPatternsExplanations_ = [
 	:htmlAttribute = [
 		"Matches HTML attributes with optional values",
 
-		"- `\\s+`: Required whitespace." + NL +
-		"- `[a-zA-Z][a-zA-Z0-9]*`: Attribute name." + NL +
-		"- `(?:\\s*=\\s*`: Optional value assignment." + NL +
-		"- `(?:" + char(34) + ".*?" + char(34) + "|'.*?'|[^'" + char(34) + "<>\\s]+))?`: Optional value." + NL + NL +
+		"- `\\s+`: Required whitespace" + NL +
+		"- `[a-zA-Z][a-zA-Z0-9]*`: Attribute name" + NL +
+		"- `(?:\\s*=\\s*`: Optional value assignment" + NL +
+		"- `(?:" + char(34) + ".*?" + char(34) + "|'.*?'|[^'" + char(34) + "<>\\s]+))?`: Optional value" + NL + NL +
 
 		"- Matches: `class=" + char(34) + "main" + char(34) + "`, `disabled`, `data-value='123'`" + NL +
 		"- Non-matches: `=value`, `123=456`, `class =`"
@@ -778,10 +934,10 @@ _$aRegexPatternsExplanations_ = [
 	:htmlClass = [
 		"Matches HTML class attributes",
 
-		"- `\\s+class\\s*=\\s*`: Class attribute declaration." + NL +
-		"- `(?:" + char(34) + "[^" + char(34) + "]*" + char(34) + "`: Double-quoted value." + NL +
-		"- `|'[^']*'`: Single-quoted value." + NL +
-		"- `|[^'" + char(34) + "\\s>]+)`: Unquoted value." + NL + NL +
+		"- `\\s+class\\s*=\\s*`: Class attribute declaration" + NL +
+		"- `(?:" + char(34) + "[^" + char(34) + "]*" + char(34) + "`: Double-quoted value" + NL +
+		"- `|'[^']*'`: Single-quoted value" + NL +
+		"- `|[^'" + char(34) + "\\s>]+)`: Unquoted value" + NL + NL +
 
 		"- Matches: `class=" + char(34) + "main" + char(34) + "`, `class='header'`, `class=container`" + NL +
 		"- Non-matches: `class=`, `class=>`, `class`"
@@ -790,10 +946,10 @@ _$aRegexPatternsExplanations_ = [
 	:htmlId = [
 		"Matches HTML id attributes",
 
-		"- `\\s+id\\s*=\\s*`: ID attribute declaration." + NL +
-		"- `(?:" + char(34) + "[^" + char(34) + "]*" + char(34) + "`: Double-quoted value." + NL +
-		"- `|'[^']*'`: Single-quoted value." + NL +
-		"- `|[^'" + char(34) + "\\s>]+)`: Unquoted value." + NL + NL +
+		"- `\\s+id\\s*=\\s*`: ID attribute declaration" + NL +
+		"- `(?:" + char(34) + "[^" + char(34) + "]*" + char(34) + "`: Double-quoted value" + NL +
+		"- `|'[^']*'`: Single-quoted value" + NL +
+		"- `|[^'" + char(34) + "\\s>]+)`: Unquoted value" + NL + NL +
 
 		"- Matches: `id=" + char(34) + "main" + char(34) + "`, `id='header'`, `id=container`" + NL +
 		"- Non-matches: `id=`, `id=>`, `id`"
@@ -802,10 +958,10 @@ _$aRegexPatternsExplanations_ = [
 	:html5Color = [
 		"Matches HTML5 color hexadecimal values",
     
-		"- `^`: Start of line." + NL +
-		"- `#`: Hash symbol." + NL +
-		"- `[A-Fa-f0-9]{3,6}`: 3 or 6 hexadecimal characters." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `#`: Hash symbol" + NL +
+		"- `[A-Fa-f0-9]{3,6}`: 3 or 6 hexadecimal characters" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `#fff`, `#000000`, `#12AB3F`" + NL +
 		"- Non-matches: `#12`, `#1234567`, `123456`"
@@ -816,10 +972,10 @@ _$aRegexPatternsExplanations_ = [
 	:idSelector = [
 		"Matches CSS ID selectors",
 	
-		"- `^`: Start of string." + NL +
-		"- `#`: Hash symbol for ID." + NL +
-		"- `([a-zA-Z_][a-zA-Z\\d_-]*)`: Valid ID name." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `#`: Hash symbol for ID" + NL +
+		"- `([a-zA-Z_][a-zA-Z\\d_-]*)`: Valid ID name" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `#header`, `#nav-bar_1`" + NL +
 		"- Non-matches: `#1header`, `.class-name`"
@@ -828,11 +984,11 @@ _$aRegexPatternsExplanations_ = [
 	:classSelector = [
 		"Matches CSS class selectors",
 
-		"- `^`: Start of line." + NL +
-		"- `\\.`: Dot prefix." + NL +
-		"- `([a-zA-Z_]`: Must start with letter or underscore." + NL +
-		"- `[a-zA-Z\\d_-]*)`: Can contain letters, digits, underscores, hyphens." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `\\.`: Dot prefix" + NL +
+		"- `([a-zA-Z_]`: Must start with letter or underscore" + NL +
+		"- `[a-zA-Z\\d_-]*)`: Can contain letters, digits, underscores, hyphens" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `.container`, `.nav_item`, `.btn-primary`" + NL +
 		"- Non-matches: `.1class`, `.`, `.class#id`"
@@ -841,13 +997,13 @@ _$aRegexPatternsExplanations_ = [
 	:attributeSelector = [
 		"Matches CSS attribute selectors with optional values",
 
-		"- `\\[\\s*`: Opening bracket with optional whitespace." + NL +
-		"- `([a-zA-Z][a-zA-Z0-9-]*)`: Attribute name." + NL +
-		"- `\\s*`: Optional whitespace." + NL +
-		"- `(?:([*^$|!~]?=)`: Optional operator." + NL +
-		"- `\\s*`: Optional whitespace." + NL +
-		"- `(?:\\ " + char(34) + "[^\\ " + char(34) + "]*\\ " + char(34) + "|'[^']*'|[^'\\ " + char(34) + "\\s>]+))?`: Optional value." + NL +
-		"- `\\s*\\]`: Closing bracket with optional whitespace." + NL + NL +
+		"- `\\[\\s*`: Opening bracket with optional whitespace" + NL +
+		"- `([a-zA-Z][a-zA-Z0-9-]*)`: Attribute name" + NL +
+		"- `\\s*`: Optional whitespace" + NL +
+		"- `(?:([*^$|!~]?=)`: Optional operator" + NL +
+		"- `\\s*`: Optional whitespace" + NL +
+		"- `(?:\\ " + char(34) + "[^\\ " + char(34) + "]*\\ " + char(34) + "|'[^']*'|[^'\\ " + char(34) + "\\s>]+))?`: Optional value" + NL +
+		"- `\\s*\\]`: Closing bracket with optional whitespace" + NL + NL +
 
 		"- Matches: `[type]`, `[type=" + char(34) + "text" + char(34) + "]`, `[class^=" + char(34) + "btn-" + char(34) + "]`" + NL +
 		"- Non-matches: `[1type]`, `[]`, `[type=]`"
@@ -856,12 +1012,12 @@ _$aRegexPatternsExplanations_ = [
 	:hexColor = [
 		"Matches CSS hexadecimal color values",
 
-		"- `^`: Start of line." + NL +
-		"- `#`: Hash symbol." + NL +
-		"- `([a-fA-F\\d]{3}`: Three hex digits." + NL +
-		"- `|`: OR." + NL +
-		"- `[a-fA-F\\d]{6})`: Six hex digits." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `#`: Hash symbol" + NL +
+		"- `([a-fA-F\\d]{3}`: Three hex digits" + NL +
+		"- `|`: OR" + NL +
+		"- `[a-fA-F\\d]{6})`: Six hex digits" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `#fff`, `#000000`, `#1a2b3c`" + NL +
 		"- Non-matches: `#1`, `#12345`, `#gggggg`"
@@ -870,15 +1026,15 @@ _$aRegexPatternsExplanations_ = [
 	:rgbColor = [
 		"Matches CSS RGB and RGBA color values",
 
-		"- `^`: Start of line." + NL +
-		"- `rgba?`: 'rgb' with optional 'a'." + NL +
-		"- `\\(`: Opening parenthesis." + NL +
-		"- `\\s*\\d{1,3}\\s*,`: Red value (0-255)." + NL +
-		"- `\\s*\\d{1,3}\\s*,`: Green value (0-255)." + NL +
-		"- `\\s*\\d{1,3}`: Blue value (0-255)." + NL +
-		"- `(\\s*,\\s*(0|1|0?\\.\\d+))?`: Optional alpha value (0-1)." + NL +
-		"- `\\s*\\)`: Closing parenthesis." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `rgba?`: 'rgb' with optional 'a'" + NL +
+		"- `\\(`: Opening parenthesis" + NL +
+		"- `\\s*\\d{1,3}\\s*,`: Red value (0-255)" + NL +
+		"- `\\s*\\d{1,3}\\s*,`: Green value (0-255)" + NL +
+		"- `\\s*\\d{1,3}`: Blue value (0-255)" + NL +
+		"- `(\\s*,\\s*(0|1|0?\\.\\d+))?`: Optional alpha value (0-1)" + NL +
+		"- `\\s*\\)`: Closing parenthesis" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `rgb(255,0,0)`, `rgba(255, 0, 0, 0.5)`" + NL +
 		"- Non-matches: `rgb(300,0,0)`, `rgba(255,0)`, `rgb()`"
@@ -889,63 +1045,63 @@ _$aRegexPatternsExplanations_ = [
 	:digit = [
 		"Matches any single digit (0–9)",
 
-		"- `\d` : A digit from 0 to 9."
-	]
+		"- `\d` : A digit from 0 to 9"
+	],
 
 	:number = [
 		"Matches various number formats including decimals and thousands separators",
 
-		"- `^`: Start of string." + NL +
-		"- `-?`: Optional negative sign." + NL +
-		"- `(?:\\d+|\\d{1,3}(?:,\\d{3})+)?`: Whole number part with optional thousands separators." + NL +
-		"- `(?:\\.\\d+)?`: Optional decimal part." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `-?`: Optional negative sign" + NL +
+		"- `(?:\\d+|\\d{1,3}(?:,\\d{3})+)?`: Whole number part with optional thousands separators" + NL +
+		"- `(?:\\.\\d+)?`: Optional decimal part" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `1234`, `-123.45`, `1,234,567.89`" + NL +
 		"- Non-matches: `123.`, `.123`, `1,23,456`"
 	],
 
 	:currencyValue = [
-		"Matches currency values formatted with thousand separators and two decimal places.",
+		"Matches currency values formatted with thousand separators and two decimal places",
 
-		"- `^-?`: Optional negative sign." + NL +
-		"- `\\d{1,3}(?:,\\d{3})*`: Matches numbers with optional thousand separators (e.g., `1,000`)." + NL +
-		"- `(?:\\.\\d{2})?`: Optional decimal part with exactly two digits." + NL + NL +
+		"- `^-?`: Optional negative sign" + NL +
+		"- `\\d{1,3}(?:,\\d{3})*`: Matches numbers with optional thousand separators (e.g., `1,000`)" + NL +
+		"- `(?:\\.\\d{2})?`: Optional decimal part with exactly two digits" + NL + NL +
 
-		"- Matches: `1,234.56`, `1234.00`, `-1,000.99`." + NL +
-		"- Non-matches: `1234.5`, `12,34.00`, `123,456.789`."
+		"- Matches: `1,234.56`, `1234.00`, `-1,000.99`" + NL +
+		"- Non-matches: `1234.5`, `12,34.00`, `123,456.789`"
 	],
 
 	:scientificNotation = [
-		"Matches numbers in scientific notation format.",
+		"Matches numbers in scientific notation format",
 
-		"- `^-?`: Optional negative sign." + NL +
-		"- `\\d+(?:\\.\\d+)?`: Matches a number with an optional decimal part." + NL +
-		"- `(?:e[+-]?\\d+)?`: Optional scientific notation with exponent (e.g., `e+10`)." + NL + NL +
+		"- `^-?`: Optional negative sign" + NL +
+		"- `\\d+(?:\\.\\d+)?`: Matches a number with an optional decimal part" + NL +
+		"- `(?:e[+-]?\\d+)?`: Optional scientific notation with exponent (e.g., `e+10`)" + NL + NL +
 
-		"- Matches: `1.23e+3`, `-4.56e-7`, `123e5`, `0.001`." + NL +
-		"- Non-matches: `1e`, `1.2.3`, `e+2`."
+		"- Matches: `1.23e+3`, `-4.56e-7`, `123e5`, `0.001`" + NL +
+		"- Non-matches: `1e`, `1.2.3`, `e+2`"
 	],
 
 	:percentage = [
-		"Matches percentages with optional decimal points.",
+		"Matches percentages with optional decimal points",
 
-		"- `^-?`: Optional negative sign." + NL +
-		"- `\\d*\\.?\\d+`: Matches an optional integer or decimal part." + NL +
-		"- `%`: Ensures the value ends with a percent symbol." + NL + NL +
+		"- `^-?`: Optional negative sign" + NL +
+		"- `\\d*\\.?\\d+`: Matches an optional integer or decimal part" + NL +
+		"- `%`: Ensures the value ends with a percent symbol" + NL + NL +
 
-		"- Matches: `50%`, `123.45%`, `-0.1%`." + NL +
-		"- Non-matches: `50`, `%50`, `123.45`."
+		"- Matches: `50%`, `123.45%`, `-0.1%`" + NL +
+		"- Non-matches: `50`, `%50`, `123.45`"
 	],
 
 	:hexColor = [
-		"Matches hexadecimal color codes in 3 or 6 digit formats.",
+		"Matches hexadecimal color codes in 3 or 6 digit formats",
 
-		"- `^#`: Ensures the value starts with a hash (`#`)." + NL +
-		"- `([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})`: Matches either a 6-digit or 3-digit hexadecimal value." + NL + NL +
+		"- `^#`: Ensures the value starts with a hash (`#`)" + NL +
+		"- `([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})`: Matches either a 6-digit or 3-digit hexadecimal value" + NL + NL +
 
-		"- Matches: `#FFF`, `#ffffff`, `#123abc`." + NL +
-		"- Non-matches: `#1234`, `123abc`, `#fffffg`."
+		"- Matches: `#FFF`, `#ffffff`, `#123abc`" + NL +
+		"- Non-matches: `#1234`, `123abc`, `#fffffg`"
 	],
 
 	# Contact Information (International)
@@ -953,11 +1109,11 @@ _$aRegexPatternsExplanations_ = [
 	:phoneE164 = [
 		"Matches E.164 international phone number format",
 	
-		"- `^`: Start of string." + NL +
-		"- `\\+`: Required plus sign." + NL +
-		"- `[1-9]`: First digit must be 1-9." + NL +
-		"- `\\d{1,14}`: 1 to 14 additional digits." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `\\+`: Required plus sign" + NL +
+		"- `[1-9]`: First digit must be 1-9" + NL +
+		"- `\\d{1,14}`: 1 to 14 additional digits" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `+12345678901`, `+442071234567`" + NL +
 		"- Non-matches: `12345678901`, `+0123456789`"
@@ -966,45 +1122,45 @@ _$aRegexPatternsExplanations_ = [
 	:phoneGeneral = [
 		"Matches various phone number formats",
 	
-		"- `^`: Start of string." + NL +
-		"- `[+]?`: Optional plus sign." + NL +
-		"- `[(]?`: Optional opening parenthesis." + NL +
-		"- `[0-9]{1,4}`: 1-4 digits for country/area code." + NL +
-		"- `[)]?`: Optional closing parenthesis." + NL +
-		"- `[-\\s./0-9]*`: Any combination of digits, spaces, hyphens, dots, slashes." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[+]?`: Optional plus sign" + NL +
+		"- `[(]?`: Optional opening parenthesis" + NL +
+		"- `[0-9]{1,4}`: 1-4 digits for country/area code" + NL +
+		"- `[)]?`: Optional closing parenthesis" + NL +
+		"- `[-\\s./0-9]*`: Any combination of digits, spaces, hyphens, dots, slashes" + NL + NL +
 
 		"- Matches: `(123) 456-7890`, `+1.234.567.8900`, `123-456-7890`" + NL +
 		"- Non-matches: `abc-def-ghij`, `12-3456`"
 	],
 
 	:postalCode = [
-		"Matches postal codes with alphanumeric characters, optional spaces, and hyphens.",
+		"Matches postal codes with alphanumeric characters, optional spaces, and hyphens",
     
-		"- `^[A-Z0-9]`: Ensures the code starts with an alphanumeric character." + NL +
-		"- `[A-Z0-9\\- ]{0,10}`: Matches up to 10 characters including spaces and hyphens." + NL +
-		"- `[A-Z0-9]$`: Ensures the code ends with an alphanumeric character." + NL + NL +
+		"- `^[A-Z0-9]`: Ensures the code starts with an alphanumeric character" + NL +
+		"- `[A-Z0-9\\- ]{0,10}`: Matches up to 10 characters including spaces and hyphens" + NL +
+		"- `[A-Z0-9]$`: Ensures the code ends with an alphanumeric character" + NL + NL +
 
-		"- Matches: `12345`, `A1B 2C3`, `123-4567`." + NL +
-		"- Non-matches: `12 345`, `-12345`, `123 45 `."
+		"- Matches: `12345`, `A1B 2C3`, `123-4567`" + NL +
+		"- Non-matches: `12 345`, `-12345`, `123 45 `"
 	],
 
 	:countryCode = [
-		"Matches country codes of 2 to 3 uppercase letters.",
+		"Matches country codes of 2 to 3 uppercase letters",
 
-		"- `^[A-Z]{2,3}$`: Ensures 2 to 3 uppercase alphabetic characters." + NL + NL +
+		"- `^[A-Z]{2,3}$`: Ensures 2 to 3 uppercase alphabetic characters" + NL + NL +
 
-		"- Matches: `US`, `CAN`, `GB`." + NL +
-		"- Non-matches: `Us`, `123`, `USA1`."
+		"- Matches: `US`, `CAN`, `GB`" + NL +
+		"- Non-matches: `Us`, `123`, `USA1`"
 	],
 
 	:languageCode = [
-		"Matches language codes in `xx-XX` format, where `xx` is a lowercase language code and `XX` is an uppercase country code.",
+		"Matches language codes in `xx-XX` format, where `xx` is a lowercase language code and `XX` is an uppercase country code",
 
-		"- `^[a-z]{2}`: Ensures two lowercase letters for the language code." + NL +
-		"- `-[A-Z]{2}`: Ensures a hyphen followed by two uppercase letters for the country code." + NL + NL +
+		"- `^[a-z]{2}`: Ensures two lowercase letters for the language code" + NL +
+		"- `-[A-Z]{2}`: Ensures a hyphen followed by two uppercase letters for the country code" + NL + NL +
 
-		"- Matches: `en-US`, `fr-CA`, `es-ES`." + NL +
-		"- Non-matches: `EN-us`, `english-US`, `us-en`."
+		"- Matches: `en-US`, `fr-CA`, `es-ES`" + NL +
+		"- Non-matches: `EN-us`, `english-US`, `us-en`"
 	],
 
 	# Modern Data Formats
@@ -1012,13 +1168,13 @@ _$aRegexPatternsExplanations_ = [
 	:jwt = [
 		"Matches JSON Web Tokens",
 
-		"- `^`: Start of string." + NL +
-		"- `[A-Za-z0-9-_]+`: Base64url-encoded header." + NL +
-		"- `\\.`: Dot separator." + NL +
-		"- `[A-Za-z0-9-_]+`: Base64url-encoded payload." + NL +
-		"- `\\.`: Dot separator." + NL +
-		"- `[A-Za-z0-9-_]*`: Base64url-encoded signature." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[A-Za-z0-9-_]+`: Base64url-encoded header" + NL +
+		"- `\\.`: Dot separator" + NL +
+		"- `[A-Za-z0-9-_]+`: Base64url-encoded payload" + NL +
+		"- `\\.`: Dot separator" + NL +
+		"- `[A-Za-z0-9-_]*`: Base64url-encoded signature" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U`" + NL +
 		"- Non-matches: `abc.def`, `header.payload`"
@@ -1027,35 +1183,35 @@ _$aRegexPatternsExplanations_ = [
 	:uuid = [
 		"Matches UUID/GUID format",
 
-		"- `^`: Start of string." + NL +
-		"- `[0-9a-fA-F]{8}`: First 8 hexadecimal characters." + NL +
-		"- `-`: Hyphen separator." + NL +
-		"- `[0-9a-fA-F]{4}`: 4 hex characters (repeated 3 times)." + NL +
-		"- `-`: Hyphen separator." + NL +
-		"- `[0-9a-fA-F]{12}`: Final 12 hex characters." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[0-9a-fA-F]{8}`: First 8 hexadecimal characters" + NL +
+		"- `-`: Hyphen separator" + NL +
+		"- `[0-9a-fA-F]{4}`: 4 hex characters (repeated 3 times)" + NL +
+		"- `-`: Hyphen separator" + NL +
+		"- `[0-9a-fA-F]{12}`: Final 12 hex characters" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `123e4567-e89b-12d3-a456-426614174000`" + NL +
 		"- Non-matches: `123456-789-123-456`, `not-a-uuid`"
 	],
 
 	:base64 = [
-		"Matches strings encoded in Base64 format.",
+		"Matches strings encoded in Base64 format",
 
-		"- `^(?:[A-Za-z0-9+/]{4})*`: Matches groups of four Base64 characters (letters, digits, `+`, or `/`)." + NL +
-		"- `(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$`: Allows padding with `=` for the last group." + NL + NL +
+		"- `^(?:[A-Za-z0-9+/]{4})*`: Matches groups of four Base64 characters (letters, digits, `+`, or `/`)" + NL +
+		"- `(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$`: Allows padding with `=` for the last group" + NL + NL +
 
-		"- Matches: `TWFu`, `TWE=`, `TQ==`, `YWJjZA==`." + NL +
-		"- Non-matches: `T@W==`, `123`, `ABCD==`."
+		"- Matches: `TWFu`, `TWE=`, `TQ==`, `YWJjZA==`" + NL +
+		"- Non-matches: `T@W==`, `123`, `ABCD==`"
 	],
 
 	:emoji = [
-		"Matches strings composed entirely of emoji characters.",
+		"Matches strings composed entirely of emoji characters",
 
-		"- `^(?:\\p{Emoji_Presentation}|\\p{Emoji})+$`: Matches one or more Unicode emoji characters." + NL + NL +
+		"- `^(?:\\p{Emoji_Presentation}|\\p{Emoji})+$`: Matches one or more Unicode emoji characters" + NL + NL +
 
-		"- Matches: `😊`, `🎉🎈`, `👩‍🚀🚀`." + NL +
-		"- Non-matches: `😊abc`, `123🎉`, `😀_😊`."
+		"- Matches: `😊`, `🎉🎈`, `👩‍🚀🚀`" + NL +
+		"- Non-matches: `😊abc`, `123🎉`, `😀_😊`"
 	],
 
 	# API & Request Validation
@@ -1063,9 +1219,9 @@ _$aRegexPatternsExplanations_ = [
 	:apiKey = [
 		"Matches API key formats",
 	
-		"- `^`: Start of string." + NL +
-		"- `[A-Za-z0-9_-]{20,}`: At least 20 characters of letters, numbers, underscores, or hyphens." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[A-Za-z0-9_-]{20,}`: At least 20 characters of letters, numbers, underscores, or hyphens" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `abcd1234_xyz-987654321`, `api_key_123456789abcdefghijk`" + NL +
 		"- Non-matches: `short_key`, `invalid#key`, `api@key`"
@@ -1074,10 +1230,10 @@ _$aRegexPatternsExplanations_ = [
 	:bearerToken = [
 		"Matches Bearer authentication tokens",
 
-		"- `^`: Start of string." + NL +
-		"- `Bearer\\s+`: 'Bearer' keyword followed by whitespace." + NL +
-		"- `[A-Za-z0-9\\-._~+/]+=*`: Base64 URL-safe characters with optional padding." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `Bearer\\s+`: 'Bearer' keyword followed by whitespace" + NL +
+		"- `[A-Za-z0-9\\-._~+/]+=*`: Base64 URL-safe characters with optional padding" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `Bearer abc123xyz789`, `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9`" + NL +
 		"- Non-matches: `bearer token`, `Bearer`, `BearerToken123`"
@@ -1086,9 +1242,9 @@ _$aRegexPatternsExplanations_ = [
 	:queryParam = [
 		"Matches valid URL query parameter names",
 
-		"- `^`: Start of string." + NL +
-		"- `[\\w\\-%\\.]+`: One or more word characters, percent signs, or dots." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[\\w\\-%\\.]+`: One or more word characters, percent signs, or dots" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `page`, `sort-by`, `filter.name`" + NL +
 		"- Non-matches: `@param`, `query space`, `param#1`"
@@ -1097,43 +1253,43 @@ _$aRegexPatternsExplanations_ = [
 	:httpMethod = [
 		"Matches valid HTTP methods",
 
-		"- `^`: Start of string." + NL +
-		"- `(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)`: Valid HTTP methods." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)`: Valid HTTP methods" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `GET`, `POST`, `PUT`" + NL +
 		"- Non-matches: `get`, `SEND`, `RETRIEVE`"
 	],
 
 	:contentType = [
-		"Matches HTTP Content-Type headers with optional charset specifications.",
+		"Matches HTTP Content-Type headers with optional charset specifications",
 
-		"- `^[\\w\\-\\.\\/]+`: Matches the primary type and subtype (e.g., `application/json`)." + NL +
-		"- `(?:\\+[\\w\\-\\.\\/]+)?`: Optionally matches suffix types (e.g., `application/ld+json`)." + NL +
-		"- `(?:;\\s*charset=[\\w\\-]+)?$`: Optionally matches charset parameters (e.g., `charset=utf-8`)." + NL + NL +
+		"- `^[\\w\\-\\.\\/]+`: Matches the primary type and subtype (e.g., `application/json`)" + NL +
+		"- `(?:\\+[\\w\\-\\.\\/]+)?`: Optionally matches suffix types (e.g., `application/ld+json`)" + NL +
+		"- `(?:;\\s*charset=[\\w\\-]+)?$`: Optionally matches charset parameters (e.g., `charset=utf-8`)" + NL + NL +
 
-		"- Matches: `application/json`, `text/html; charset=utf-8`, `application/ld+json`." + NL +
-		"- Non-matches: `application`, `text; utf-8`, `image/jpg; charset`."
+		"- Matches: `application/json`, `text/html; charset=utf-8`, `application/ld+json`" + NL +
+		"- Non-matches: `application`, `text; utf-8`, `image/jpg; charset`"
 	],
 
 	:requestId = [
-		"Matches request IDs with a minimum length of 4 characters.",
+		"Matches request IDs with a minimum length of 4 characters",
 
-		"- `^[\\w\\-]{4,}$`: Ensures alphanumeric characters, underscores, or hyphens with a minimum length of 4." + NL + NL +
+		"- `^[\\w\\-]{4,}$`: Ensures alphanumeric characters, underscores, or hyphens with a minimum length of 4" + NL + NL +
 
-		"- Matches: `abc1`, `1234-5678`, `req_abc`." + NL +
-		"- Non-matches: `abc`, `12`, `req!123`."
+		"- Matches: `abc1`, `1234-5678`, `req_abc`" + NL +
+		"- Non-matches: `abc`, `12`, `req!123`"
 	],
 
 	:corsOrigin = [
-		"Matches valid CORS origin URLs with optional port numbers.",
+		"Matches valid CORS origin URLs with optional port numbers",
 
-		"- `^https?://`: Matches URLs starting with `http://` or `https://`." + NL +
-		"- `(?:[\\w-]+\\.)+[\\w-]+`: Matches domain names with optional subdomains." + NL +
-		"- `(?::\\d{1,5})?$`: Optionally matches port numbers (e.g., `:8080`)." + NL + NL +
+		"- `^https?://`: Matches URLs starting with `http://` or `https://`" + NL +
+		"- `(?:[\\w-]+\\.)+[\\w-]+`: Matches domain names with optional subdomains" + NL +
+		"- `(?::\\d{1,5})?$`: Optionally matches port numbers (e.g., `:8080`)" + NL + NL +
 
-		"- Matches: `https://example.com`, `http://sub.example.com:3000`." + NL +
-		"- Non-matches: `ftp://example.com`, `http://example`, `https://.com`."
+		"- Matches: `https://example.com`, `http://sub.example.com:3000`" + NL +
+		"- Non-matches: `ftp://example.com`, `http://example`, `https://.com`"
 	],
 
 	# Data Cleaning
@@ -1141,66 +1297,66 @@ _$aRegexPatternsExplanations_ = [
 	:alphanumeric = [
 		"Matches strings containing only letters and numbers",
 
-		"- `^`: Start of string." + NL +
-		"- `[a-zA-Z0-9]+`: One or more letters or numbers." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[a-zA-Z0-9]+`: One or more letters or numbers" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `ABC123`, `Test999`, `123abc`" + NL +
 		"- Non-matches: `ABC-123`, `Test_999`, `Special!`"
 	],
 
 	:alphabetic = [
-		"Matches strings containing only alphabetic characters (A-Z, a-z).",
+		"Matches strings containing only alphabetic characters (A-Z, a-z)",
 
-		"- `^[a-zA-Z]+$`: Ensures the string contains only uppercase and lowercase letters with no spaces or symbols." + NL + NL +
+		"- `^[a-zA-Z]+$`: Ensures the string contains only uppercase and lowercase letters with no spaces or symbols" + NL + NL +
 
-		"- Matches: `Hello`, `abcXYZ`, `Data`." + NL +
-		"- Non-matches: `Hello123`, `Data!`, `Hello World`."
+		"- Matches: `Hello`, `abcXYZ`, `Data`" + NL +
+		"- Non-matches: `Hello123`, `Data!`, `Hello World`"
 	],
 
 	:numeric = [
-		"Matches strings containing only numeric digits (0-9).",
+		"Matches strings containing only numeric digits (0-9)",
 
-		"- `^[0-9]+$`: Ensures the string consists solely of digits." + NL + NL +
+		"- `^[0-9]+$`: Ensures the string consists solely of digits" + NL + NL +
 
-		"- Matches: `12345`, `007`, `2023`." + NL +
-		"- Non-matches: `12.34`, `123abc`, `1 2 3`."
+		"- Matches: `12345`, `007`, `2023`" + NL +
+		"- Non-matches: `12.34`, `123abc`, `1 2 3`"
 	],
 
 	:spaces = [
-		"Matches sequences of whitespace characters (spaces, tabs, newlines, and carriage returns).",
+		"Matches sequences of whitespace characters (spaces, tabs, newlines, and carriage returns)",
 
-		"- `[ \\t\\r\\n]+`: Matches one or more spaces, tabs (`\\t`), carriage returns (`\\r`), or newlines (`\\n`)." + NL + NL +
+		"- `[ \\t\\r\\n]+`: Matches one or more spaces, tabs (`\\t`), carriage returns (`\\r`), or newlines (`\\n`)" + NL + NL +
 
-		"- Matches: ` `, `\t\t`, ` \n \t`." + NL +
-		"- Non-matches: `abc`, `123`, `a b` (does not match non-whitespace characters)."
+		"- Matches: ` `, `\t\t`, ` \n \t`" + NL +
+		"- Non-matches: `abc`, `123`, `a b` (does not match non-whitespace characters)"
 	],
 
 	:trim = [
-		"Matches leading and trailing whitespace in a string.",
+		"Matches leading and trailing whitespace in a string",
  
-		"- `^\\s+`: Matches leading whitespace at the beginning of the string." + NL +
-		"- `|\\s+$`: Matches trailing whitespace at the end of the string." + NL + NL +
+		"- `^\\s+`: Matches leading whitespace at the beginning of the string" + NL +
+		"- `|\\s+$`: Matches trailing whitespace at the end of the string" + NL + NL +
 
-		"- Matches: Leading/trailing spaces in `  Hello `, `\tWorld\n `." + NL +
-		"- Non-matches: `NoSpacesHere`, `A B` (internal spaces are not matched)."
+		"- Matches: Leading/trailing spaces in `  Hello `, `\tWorld\n `" + NL +
+		"- Non-matches: `NoSpacesHere`, `A B` (internal spaces are not matched)"
 	],
 
 	:nonPrintable = [
-		"Matches non-printable ASCII characters.",
+		"Matches non-printable ASCII characters",
 
-		"- `[\\x00-\\x1F\\x7F-\\x9F]`: Matches ASCII control characters (0x00–0x1F) and additional non-printable characters (0x7F–0x9F)." + NL + NL +
+		"- `[\\x00-\\x1F\\x7F-\\x9F]`: Matches ASCII control characters (0x00–0x1F) and additional non-printable characters (0x7F–0x9F)" + NL + NL +
 
-		"- Matches: `\x00` (null), `\x1B` (escape), `\x7F` (delete)." + NL +
-		"- Non-matches: `abc`, `123`, `@#$` (printable characters are not matched)."
+		"- Matches: `\x00` (null), `\x1B` (escape), `\x7F` (delete)" + NL +
+		"- Non-matches: `abc`, `123`, `@#$` (printable characters are not matched)"
 	],
 
 	:multipleSpaces = [
 		"Matches sequences of two or more whitespace characters",
 
-		"- `{2,}`: Two or more occurrences of the previous pattern." + NL + NL +
+		"- `{2,}`: Two or more occurrences of the previous pattern" + NL + NL +
 
-		"- Matches: `  `, `   `, multiple spaces/tabs." + NL +
+		"- Matches: `  `, `   `, multiple spaces/tabs" + NL +
 		"- Non-matches: ` ` (single space)"
 	],
 
@@ -1209,10 +1365,10 @@ _$aRegexPatternsExplanations_ = [
 	:jsonObject = [
 		"Matches JSON object structures",
 
-		"- `\\{`: Opening brace." + NL +
-		"- `(?:\\s*\\\ " + NL + char(34) + NL + "[a-zA-Z0-9_]+\\\ " + NL + char(34) + NL + "\\s*:\\s*`: Key part with quotes and colon." + NL +
-		"- `(?:\\\ " + NL + char(34) + NL + "[^\\\ " + NL + char(34) + NL + "]*\\\ " + NL + char(34) + NL + "|'[^']*'|\\d+|true|false|null|\\{.*?\\}|\\[.*?\\]))*`: Various value types." + NL +
-		"- `\\s*\\}`: Closing brace with optional whitespace." + NL + NL +
+		"- `\\{`: Opening brace" + NL +
+		"- `(?:\\s*\\\ " + NL + char(34) + NL + "[a-zA-Z0-9_]+\\\ " + NL + char(34) + NL + "\\s*:\\s*`: Key part with quotes and colon" + NL +
+		"- `(?:\\\ " + NL + char(34) + NL + "[^\\\ " + NL + char(34) + NL + "]*\\\ " + NL + char(34) + NL + "|'[^']*'|\\d+|true|false|null|\\{.*?\\}|\\[.*?\\]))*`: Various value types" + NL +
+		"- `\\s*\\}`: Closing brace with optional whitespace" + NL + NL +
 
 		"- Matches: `{\ " + NL + char(34) + NL + "name\ " + NL + char(34) + NL + ":\ " + NL + char(34) + NL + "value\ " + NL + char(34) + NL + "}`, `{\ " + NL + char(34) + NL + "age\ " + NL + char(34) + NL + ":25}`" + NL +
 		"- Non-matches: `{name:value}`, `{\ " + NL + char(34) + NL + "key\ " + NL + char(34) + NL + ":}`, `{\ " + NL + char(34) + NL + "key\ " + NL + char(34) + NL + "}`"
@@ -1221,42 +1377,42 @@ _$aRegexPatternsExplanations_ = [
 	:jsonArray = [
 		"Matches JSON array structures",
 
-		"- `^`: Start of string." + NL +
-		"- `\\[`: Opening bracket." + NL +
-		"- `(?:\\s*[^,]+,?\\s*)*`: Array elements separated by commas." + NL +
-		"- `\\]`: Closing bracket." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `\\[`: Opening bracket" + NL +
+		"- `(?:\\s*[^,]+,?\\s*)*`: Array elements separated by commas" + NL +
+		"- `\\]`: Closing bracket" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `[1,2,3]`, `[\ " + NL + char(34) + NL + "a\ " + NL + char(34) + NL + ",\ " + NL + char(34) + NL + "b\ " + NL + char(34) + NL + ",\ " + NL + char(34) + NL + "c\ " + NL + char(34) + NL + "]`" + NL +
 		"- Non-matches: `[1,2,]`, `[,]`, `[1,,2]`"
 	],
 
 	:jsonKeyValuePair = [
-		"Matches a key-value pair in JSON format.",
+		"Matches a key-value pair in JSON format",
 
-		"- `\" + char(34) + "[a-zA-Z0-9_]+\" + char(34) + "`: Matches a JSON key enclosed in double quotes, consisting of alphanumeric characters and underscores." + NL +
-		"- `\\s*:\\s*`: Matches the colon `:` separator with optional spaces around it." + NL +
+		"- `\" + char(34) + "[a-zA-Z0-9_]+\" + char(34) + "`: Matches a JSON key enclosed in double quotes, consisting of alphanumeric characters and underscores" + NL +
+		"- `\\s*:\\s*`: Matches the colon `:` separator with optional spaces around it" + NL +
 		"- `(?:\" + char(34) + "[^\" + char(34) + "]*\" + char(34) + "|'[^']*'|\\d+|true|false|null|\\{.*?\\}|\\[.*?\\])`: Matches the value, which can be:" + NL +
-		"  - A double-quoted string." + NL +
-		"  - A single-quoted string." + NL +
-		"  - A number (e.g., `123`)." + NL +
-		"  - A boolean (`true` or `false`)." + NL +
-		"  - `null`." + NL +
-		"  - A JSON object (`{}`) or array (`[]`)." + NL + NL +
+		"  - A double-quoted string" + NL +
+		"  - A single-quoted string" + NL +
+		"  - A number (e.g., `123`)" + NL +
+		"  - A boolean (`true` or `false`)" + NL +
+		"  - `null`" + NL +
+		"  - A JSON object (`{}`) or array (`[]`)" + NL + NL +
 
-		"- Matches: `\" + char(34) + "name\" + char(34) + ":\" + char(34) + "John\" + char(34) + "`, `\" + char(34) + "age\" + char(34) + ":30`, `\" + char(34) + "active\" + char(34) + ":true`, `\" + char(34) + "address\" + char(34) + ":{\" + char(34) + "city\" + char(34) + ":\" + char(34) + "Paris\" + char(34) + "}`." + NL +
-		"- Non-matches: `name:John`, `\" + char(34) + "key\" + char(34) + ":`, `\" + char(34) + "invalid\" + char(34) + "\" + char(34) + "value\" + char(34) + "`."
+		"- Matches: `\" + char(34) + "name\" + char(34) + ":\" + char(34) + "John\" + char(34) + "`, `\" + char(34) + "age\" + char(34) + ":30`, `\" + char(34) + "active\" + char(34) + ":true`, `\" + char(34) + "address\" + char(34) + ":{\" + char(34) + "city\" + char(34) + ":\" + char(34) + "Paris\" + char(34) + "}`" + NL +
+		"- Non-matches: `name:John`, `\" + char(34) + "key\" + char(34) + ":`, `\" + char(34) + "invalid\" + char(34) + "\" + char(34) + "value\" + char(34) + "`"
 	],
 
 	:geoJSON = [
-		"Matches a valid GeoJSON FeatureCollection object.",
+		"Matches a valid GeoJSON FeatureCollection object",
 
-		"- `^\\{\\s*\" + char(34) + "type\" + char(34) + "\\s*:\\s*\" + char(34) + "FeatureCollection\" + char(34) + "`: Matches the opening of a GeoJSON object with the type `FeatureCollection`." + NL +
-		"- `\\s*,\\s*\" + char(34) + "features\" + char(34) + "\\s*:\\s*\\[.*?\\]`: Matches the `features` property containing an array of features." + NL +
-		"- `\\s*\\}$`: Matches the closing brace of the GeoJSON object." + NL + NL +
+		"- `^\\{\\s*\" + char(34) + "type\" + char(34) + "\\s*:\\s*\" + char(34) + "FeatureCollection\" + char(34) + "`: Matches the opening of a GeoJSON object with the type `FeatureCollection`" + NL +
+		"- `\\s*,\\s*\" + char(34) + "features\" + char(34) + "\\s*:\\s*\\[.*?\\]`: Matches the `features` property containing an array of features" + NL +
+		"- `\\s*\\}$`: Matches the closing brace of the GeoJSON object" + NL + NL +
 
-		"- Matches: `{ \" + char(34) + "type\" + char(34) + ": \" + char(34) + "FeatureCollection\" + char(34) + ", \" + char(34) + "features\" + char(34) + ": [] }`, `{ \" + char(34) + "type\" + char(34) + ": \" + char(34) + "FeatureCollection\" + char(34) + ", \" + char(34) + "features\" + char(34) + ": [{\" + char(34) + "type\" + char(34) + ":\" + char(34) + "Feature\" + char(34) + "}] }`." + NL +
-		"- Non-matches: `{ \" + char(34) + "type\" + char(34) + ": \" + char(34) + "Feature\" + char(34) + ", \" + char(34) + "features\" + char(34) + ": [] }`, `{ \" + char(34) + "type\" + char(34) + ": \" + char(34) + "FeatureCollection\" + char(34) + " }`."
+		"- Matches: `{ \" + char(34) + "type\" + char(34) + ": \" + char(34) + "FeatureCollection\" + char(34) + ", \" + char(34) + "features\" + char(34) + ": [] }`, `{ \" + char(34) + "type\" + char(34) + ": \" + char(34) + "FeatureCollection\" + char(34) + ", \" + char(34) + "features\" + char(34) + ": [{\" + char(34) + "type\" + char(34) + ":\" + char(34) + "Feature\" + char(34) + "}] }`" + NL +
+		"- Non-matches: `{ \" + char(34) + "type\" + char(34) + ": \" + char(34) + "Feature\" + char(34) + ", \" + char(34) + "features\" + char(34) + ": [] }`, `{ \" + char(34) + "type\" + char(34) + ": \" + char(34) + "FeatureCollection\" + char(34) + " }`"
 	],
 
 	# CSV Patterns
@@ -1264,185 +1420,185 @@ _$aRegexPatternsExplanations_ = [
 	:csvHeaderRow = [
 		"Matches CSV header rows",
 
-		"- `^`: Start of string." + NL +
-		"- `([^,]*,)*`: Zero or more non-comma characters followed by comma." + NL +
-		"- `[^,]*`: Final field without comma." + NL +
-		"- `$`: End of string." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `([^,]*,)*`: Zero or more non-comma characters followed by comma" + NL +
+		"- `[^,]*`: Final field without comma" + NL +
+		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `name,age,email`, `first,last,address`" + NL +
 		"- Non-matches: `name,,age`, `,name,age`"
 	],
 
 	:csvQuotedField = [
-		"Matches a quoted field in a CSV file.",
+		"Matches a quoted field in a CSV file",
 
-		"- `\" + char(34) + "[^\" + char(34) + "]*\" + char(34) + "`: Matches any text enclosed within double quotes." + NL + NL +
+		"- `\" + char(34) + "[^\" + char(34) + "]*\" + char(34) + "`: Matches any text enclosed within double quotes" + NL + NL +
 
-		"- Matches: `\" + char(34) + "hello\" + char(34) + "`, `\" + char(34) + "123\" + char(34) + "`, `\" + char(34) + "a,b,c\" + char(34) + "`." + NL +
-		"- Non-matches: `hello`, `\" + char(34) + "hello` (unclosed quote)."
+		"- Matches: `\" + char(34) + "hello\" + char(34) + "`, `\" + char(34) + "123\" + char(34) + "`, `\" + char(34) + "a,b,c\" + char(34) + "`" + NL +
+		"- Non-matches: `hello`, `\" + char(34) + "hello` (unclosed quote)"
 	],
 
 	:csvUnquotedField = [
-		"Matches an unquoted field in a CSV file.",
+		"Matches an unquoted field in a CSV file",
 
-		"- `[^,\\r\\n]*`: Matches any sequence of characters that does not include a comma, carriage return, or newline." + NL + NL +
+		"- `[^,\\r\\n]*`: Matches any sequence of characters that does not include a comma, carriage return, or newline" + NL + NL +
 
-		"- Matches: `hello`, `123`, `a b c`." + NL +
-		"- Non-matches: `hello,world`, `line1\\nline2`."
+		"- Matches: `hello`, `123`, `a b c`" + NL +
+		"- Non-matches: `hello,world`, `line1\\nline2`"
 	],
 
 	:csvDelimiter = [
-		"Matches a comma as the field delimiter in a CSV file.",
+		"Matches a comma as the field delimiter in a CSV file",
 
-		"- `,`: Matches a singl NL +e comma." + NL + NL +
+		"- `,`: Matches a singl NL +e comma" + NL + NL +
 
-		"- Matches: `,` in `hello,world`." + NL +
-		"- Non-matches: `;`, `\\t`."
+		"- Matches: `,` in `hello,world`" + NL +
+		"- Non-matches: `;`, `\\t`"
 	],
 
 	:csvRowEnding = [
-		"Matches the end of a row in a CSV file.",
+		"Matches the end of a row in a CSV file",
 
-		"- `\\r?`: Matches an optional carriage return (\\r) at the end of a row." + NL + NL +
+		"- `\\r?`: Matches an optional carriage return (\\r) at the end of a row" + NL + NL +
 
-		"- Matches: `\\r`, `\\n`, or an empty string at the end of a row." + NL +
-		"- Non-matches: `\\r\\n` (without \\n)."
+		"- Matches: `\\r`, `\\n`, or an empty string at the end of a row" + NL +
+		"- Non-matches: `\\r\\n` (without \\n)"
 	],
 
 	:csvEscapedQuote = [
-		"Matches escaped double quotes within a quoted CSV field.",
+		"Matches escaped double quotes within a quoted CSV field",
 
-		"- `\" + char(34) + "\" + char(34) + "`: Matches two consecutive double quotes inside a quoted field." + NL + NL +
+		"- `\" + char(34) + "\" + char(34) + "`: Matches two consecutive double quotes inside a quoted field" + NL + NL +
 
-		"- Matches: `\" + char(34) + "hello\" + char(34) + "\" + char(34) + "world\" + char(34) + "` (represents `hello\" + char(34) + "world`)." + NL +
-		"- Non-matches: `\" + char(34) + "hello\" + char(34) + "world\" + char(34) + "` (no double quotes to escape)."
+		"- Matches: `\" + char(34) + "hello\" + char(34) + "\" + char(34) + "world\" + char(34) + "` (represents `hello\" + char(34) + "world`)" + NL +
+		"- Non-matches: `\" + char(34) + "hello\" + char(34) + "world\" + char(34) + "` (no double quotes to escape)"
 	],
 
 	:csvLine = [
-		"Matches an entire line of CSV data.",
+		"Matches an entire line of CSV data",
 
-		"- `^(?:(?:\" + char(34) + "[^\" + char(34) + "]*\" + char(34) + ")|(?:[^,\\\" + char(34) + "]+))`: Matches the first field, which can be quoted or unquoted." + NL +
-		"- `(?:,(?:(?:\" + char(34) + "[^\" + char(34) + "]*\" + char(34) + ")|(?:[^,\\\" + char(34) + "]+)))*`: Matches subsequent fields separated by commas, which can also be quoted or unquoted." + NL + NL +
+		"- `^(?:(?:\" + char(34) + "[^\" + char(34) + "]*\" + char(34) + ")|(?:[^,\\\" + char(34) + "]+))`: Matches the first field, which can be quoted or unquoted" + NL +
+		"- `(?:,(?:(?:\" + char(34) + "[^\" + char(34) + "]*\" + char(34) + ")|(?:[^,\\\" + char(34) + "]+)))*`: Matches subsequent fields separated by commas, which can also be quoted or unquoted" + NL + NL +
 
-		"- Matches: `\" + char(34) + "field1\" + char(34) + ",\" + char(34) + "field2\" + char(34) + "`, `field1,field2`, `\" + char(34) + "field,1\" + char(34) + ",field2`." + NL +
-		"- Non-matches: `field1,field2,` (trailing comma), `field1 field2` (no delimiter)."
+		"- Matches: `\" + char(34) + "field1\" + char(34) + ",\" + char(34) + "field2\" + char(34) + "`, `field1,field2`, `\" + char(34) + "field,1\" + char(34) + ",field2`" + NL +
+		"- Non-matches: `field1,field2,` (trailing comma), `field1 field2` (no delimiter)"
 	],
 
 	:sqlSelectStatement = [
 		"Matches SQL SELECT statements",
 
-		"- `^\\s*`: Allows leading whitespace." + NL +
-		"- `SELECT\\s+`: Matches the SELECT keyword followed by whitespace." + NL +
-		"- `.+?\\s+`: Matches selected columns or expressions followed by whitespace." + NL +
-		"- `FROM\\s+`: Matches the FROM keyword followed by whitespace." + NL +
-		"- `.+?`: Matches table or subquery names." + NL +
-		"- `(?:\\s+WHERE\\s+.+?)?`: Optionally matches the WHERE clause." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^\\s*`: Allows leading whitespace" + NL +
+		"- `SELECT\\s+`: Matches the SELECT keyword followed by whitespace" + NL +
+		"- `.+?\\s+`: Matches selected columns or expressions followed by whitespace" + NL +
+		"- `FROM\\s+`: Matches the FROM keyword followed by whitespace" + NL +
+		"- `.+?`: Matches table or subquery names" + NL +
+		"- `(?:\\s+WHERE\\s+.+?)?`: Optionally matches the WHERE clause" + NL +
+		"- `$`: End of line" + NL + NL +
 
-		"- Matches: `SELECT * FROM table`, `SELECT name, age FROM users WHERE age > 30`." + NL +
-		"- Non-matches: `SELCT *`, `SELECT FROM table`."
+		"- Matches: `SELECT * FROM table`, `SELECT name, age FROM users WHERE age > 30`" + NL +
+		"- Non-matches: `SELCT *`, `SELECT FROM table`"
 	],
 
 	:sqlInsertStatement = [
 		"Matches SQL INSERT statements",
 
-		"- `^\\s*`: Allows leading whitespace." + NL +
-		"- `INSERT\\s+INTO\\s+`: Matches the INSERT INTO keywords followed by whitespace." + NL +
-		"- `.+?\\s+`: Matches the table name followed by whitespace." + NL +
-		"- `\\(.+?\\)\\s+`: Matches column names in parentheses followed by whitespace." + NL +
-		"- `VALUES\\s+\\(.+?\\)`: Matches the VALUES keyword and a list of values in parentheses." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^\\s*`: Allows leading whitespace" + NL +
+		"- `INSERT\\s+INTO\\s+`: Matches the INSERT INTO keywords followed by whitespace" + NL +
+		"- `.+?\\s+`: Matches the table name followed by whitespace" + NL +
+		"- `\\(.+?\\)\\s+`: Matches column names in parentheses followed by whitespace" + NL +
+		"- `VALUES\\s+\\(.+?\\)`: Matches the VALUES keyword and a list of values in parentheses" + NL +
+		"- `$`: End of line" + NL + NL +
 
-		"- Matches: `INSERT INTO table (id, name) VALUES (1, 'Mouddour')`." + NL +
-		"- Non-matches: `INSERT table VALUES (1, 'Mouddour')`."
+		"- Matches: `INSERT INTO table (id, name) VALUES (1, 'Mouddour')`" + NL +
+		"- Non-matches: `INSERT table VALUES (1, 'Mouddour')`"
 	],
 
 	:sqlUpdateStatement = [
 		"Matches SQL UPDATE statements",
 
-		"- `^\\s*`: Allows leading whitespace." + NL +
-		"- `UPDATE\\s+`: Matches the UPDATE keyword followed by whitespace." + NL +
-		"- `.+?\\s+SET\\s+`: Matches the table name and SET keyword followed by whitespace." + NL +
-		"- `.+?`: Matches column-value assignments." + NL +
-		"- `(?:\\s+WHERE\\s+.+?)?`: Optionally matches the WHERE clause." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^\\s*`: Allows leading whitespace" + NL +
+		"- `UPDATE\\s+`: Matches the UPDATE keyword followed by whitespace" + NL +
+		"- `.+?\\s+SET\\s+`: Matches the table name and SET keyword followed by whitespace" + NL +
+		"- `.+?`: Matches column-value assignments" + NL +
+		"- `(?:\\s+WHERE\\s+.+?)?`: Optionally matches the WHERE clause" + NL +
+		"- `$`: End of line" + NL + NL +
 
-		"- Matches: `UPDATE table SET name='Maiga' WHERE id=1`." + NL +
-		"- Non-matches: `UPDATE SET name='Harouna'`."
+		"- Matches: `UPDATE table SET name='Maiga' WHERE id=1`" + NL +
+		"- Non-matches: `UPDATE SET name='Harouna'`"
 	],
 
 	:sqlDeleteStatement = [
 		"Matches SQL DELETE statements",
 
-		"- `^\\s*`: Allows leading whitespace." + NL +
-		"- `DELETE\\s+FROM\\s+`: Matches the DELETE FROM keywords followed by whitespace." + NL +
-		"- `.+?`: Matches the table name." + NL +
-		"- `(?:\\s+WHERE\\s+.+?)?`: Optionally matches the WHERE clause." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^\\s*`: Allows leading whitespace" + NL +
+		"- `DELETE\\s+FROM\\s+`: Matches the DELETE FROM keywords followed by whitespace" + NL +
+		"- `.+?`: Matches the table name" + NL +
+		"- `(?:\\s+WHERE\\s+.+?)?`: Optionally matches the WHERE clause" + NL +
+		"- `$`: End of line" + NL + NL +
 
-		"- Matches: `DELETE FROM users WHERE id=1`." + NL +
-		"- Non-matches: `DELETE WHERE id=1`, `DELETE FROM`."
+		"- Matches: `DELETE FROM users WHERE id=1`" + NL +
+		"- Non-matches: `DELETE WHERE id=1`, `DELETE FROM`"
 	],
 
 	:sqlCreateTable = [
 		"Matches SQL CREATE TABLE statements",
 
-		"- `^\\s*`: Allows leading whitespace." + NL +
-		"- `CREATE\\s+TABLE\\s+`: Matches the CREATE TABLE keywords followed by whitespace." + NL +
-		"- `[\\w]+\\s*\\(.+?\\)`: Matches the table name followed by column definitions in parentheses." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^\\s*`: Allows leading whitespace" + NL +
+		"- `CREATE\\s+TABLE\\s+`: Matches the CREATE TABLE keywords followed by whitespace" + NL +
+		"- `[\\w]+\\s*\\(.+?\\)`: Matches the table name followed by column definitions in parentheses" + NL +
+		"- `$`: End of line" + NL + NL +
 
-		"- Matches: `CREATE TABLE users (id INT, name VARCHAR(100))`." + NL +
-		"- Non-matches: `CREATE users`, `TABLE users (id INT)`."
+		"- Matches: `CREATE TABLE users (id INT, name VARCHAR(100))`" + NL +
+		"- Non-matches: `CREATE users`, `TABLE users (id INT)`"
 	],
 
 	:sqlDropTable = [
 		"Matches SQL DROP TABLE statements",
 
-		"- `^\\s*`: Allows leading whitespace." + NL +
-		"- `DROP\\s+TABLE\\s+`: Matches the DROP TABLE keywords followed by whitespace." + NL +
-		"- `[\\w]+`: Matches the table name." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^\\s*`: Allows leading whitespace" + NL +
+		"- `DROP\\s+TABLE\\s+`: Matches the DROP TABLE keywords followed by whitespace" + NL +
+		"- `[\\w]+`: Matches the table name" + NL +
+		"- `$`: End of line" + NL + NL +
 
-		"- Matches: `DROP TABLE users`." + NL +
-		"- Non-matches: `DROP users`, `TABLE DROP users`."
+		"- Matches: `DROP TABLE users`" + NL +
+		"- Non-matches: `DROP users`, `TABLE DROP users`"
 	],
 
 	:sqlIdentifier = [
 		"Matches valid SQL identifiers",
 
-		"- `^[a-zA-Z_][a-zA-Z0-9_]*$`: Matches an identifier starting with a letter or underscore, followed by alphanumeric characters or underscores." + NL + NL +
+		"- `^[a-zA-Z_][a-zA-Z0-9_]*$`: Matches an identifier starting with a letter or underscore, followed by alphanumeric characters or underscores" + NL + NL +
 
-		"- Matches: `table1`, `_column`, `userName`." + NL +
-		"- Non-matches: `1table`, `column-name`, `user.name`."
+		"- Matches: `table1`, `_column`, `userName`" + NL +
+		"- Non-matches: `1table`, `column-name`, `user.name`"
 	],
 
 	:sqlValue = [
 		"Matches SQL values",
 
-		"- `^('(?:[^']|''|\\\\')*'|\\d+|NULL)$`: Matches a single-quoted string, a number, or the NULL keyword." + NL + NL +
+		"- `^('(?:[^']|''|\\\\')*'|\\d+|NULL)$`: Matches a single-quoted string, a number, or the NULL keyword" + NL + NL +
 
-		"- Matches: `'John'`, `123`, `NULL`." + NL +
-		"- Non-matches: `John`, `''`, `12a`."
+		"- Matches: `'John'`, `123`, `NULL`" + NL +
+		"- Non-matches: `John`, `''`, `12a`"
 	],
 
 	:sqlOperator = [
 		"Matches SQL comparison operators",
 
-		"- `^(=|<>|!=|<|<=|>|>=|LIKE|IN|IS|BETWEEN)$`: Matches valid SQL operators for comparison." + NL + NL +
+		"- `^(=|<>|!=|<|<=|>|>=|LIKE|IN|IS|BETWEEN)$`: Matches valid SQL operators for comparison" + NL + NL +
 
-		"- Matches: `=`, `<>`, `LIKE`, `BETWEEN`." + NL +
-		"- Non-matches: `AND`, `OR`, `==`."
+		"- Matches: `=`, `<>`, `LIKE`, `BETWEEN`" + NL +
+		"- Non-matches: `AND`, `OR`, `==`"
 	],
 
 	:sqlJoinClause = [
 		"Matches SQL JOIN clauses",
 
-		"- `^\\s*JOIN\\s+`: Matches the JOIN keyword followed by whitespace." + NL +
-		"- `.+?\\s+ON\\s+.+?$`: Matches the table being joined and the ON condition." + NL + NL +
+		"- `^\\s*JOIN\\s+`: Matches the JOIN keyword followed by whitespace" + NL +
+		"- `.+?\\s+ON\\s+.+?$`: Matches the table being joined and the ON condition" + NL + NL +
 
-		"- Matches: `JOIN orders ON users.id = orders.user_id`." + NL +
-		"- Non-matches: `JOIN orders`, `ON users.id = orders.user_id`."
+		"- Matches: `JOIN orders ON users.id = orders.user_id`" + NL +
+		"- Non-matches: `JOIN orders`, `ON users.id = orders.user_id`"
 	],
 
 	# Regexes for Potential Security Concerns
@@ -1450,7 +1606,7 @@ _$aRegexPatternsExplanations_ = [
 	:sqlInjection = [
 		"Detects potential SQL injection patterns",
 
-		"- `(?:[\\\ " + NL + char(34) + NL + "';]+.*?)+`: Sequences of quotes or semicolons with following content." + NL +
+		"- `(?:[\\\ " + NL + char(34) + NL + "';]+.*?)+`: Sequences of quotes or semicolons with following content" + NL +
 		"- Matches: `'; DROP TABLE users;--`, `\ " + NL + char(34) + NL + " OR \ " + NL + char(34) + NL + "1\ " + NL + char(34) + NL + "=\ " + NL + char(34) + NL + "1`" + NL + NL +
 
 		"- Non-matches: `normal text`, `user@example.com`" + NL +
@@ -1460,11 +1616,11 @@ _$aRegexPatternsExplanations_ = [
 	:xssInjection = [
 		"Detects potential XSS patterns",
 	
-		"- `<`: Opening angle bracket." + NL +
-		"- `[a-zA-Z][a-zA-Z0-9]*`: HTML tag name." + NL +
-		"- `[^>]*>`: Tag attributes and closing." + NL +
-		"- `.*?`: Content." + NL +
-		"- `</[a-zA-Z][a-zA-Z0-9]*>`: Closing tag." + NL + NL +
+		"- `<`: Opening angle bracket" + NL +
+		"- `[a-zA-Z][a-zA-Z0-9]*`: HTML tag name" + NL +
+		"- `[^>]*>`: Tag attributes and closing" + NL +
+		"- `.*?`: Content" + NL +
+		"- `</[a-zA-Z][a-zA-Z0-9]*>`: Closing tag" + NL + NL +
 
 		"- Matches: `<script>alert('xss')</script>`, `<img src=x onerror=alert(1)>`" + NL +
 		"- Non-matches: `<plaintext>`, `normaltext`" + NL + NL +
@@ -1473,32 +1629,32 @@ _$aRegexPatternsExplanations_ = [
 	],
 
 	:emailInjection = [
-		"Matches potential email injection attempts in form inputs.",
+		"Matches potential email injection attempts in form inputs",
 
-		"- `.*[\\n\\r]+.+@[a-z0-9]+[.][a-z]{2,}.*`: Matches strings containing newline or carriage return characters, followed by an email-like pattern." + NL +
+		"- `.*[\\n\\r]+.+@[a-z0-9]+[.][a-z]{2,}.*`: Matches strings containing newline or carriage return characters, followed by an email-like pattern" + NL +
 		"- Components:" + NL +
-		"  - `.*`: Matches any characters before the injection." + NL +
-		"  - `[\\n\\r]+`: Matches one or more newline (`\\n`) or carriage return (`\\r`) characters." + NL +
-		"  - `.+@[a-z0-9]+[.][a-z]{2,}`: Matches a basic email address format." + NL +
-		"  - `.*`: Matches any characters after the injection." + NL + NL +
+		"  - `.*`: Matches any characters before the injection" + NL +
+		"  - `[\\n\\r]+`: Matches one or more newline (`\\n`) or carriage return (`\\r`) characters" + NL +
+		"  - `.+@[a-z0-9]+[.][a-z]{2,}`: Matches a basic email address format" + NL +
+		"  - `.*`: Matches any characters after the injection" + NL + NL +
 
-		"- Matches: `hello\\nabc@example.com`, `abc\\r\\ndef@domain.com`." + NL +
-		"- Non-matches: `hello@example.com` (no newline characters)."
+		"- Matches: `hello\\nabc@example.com`, `abc\\r\\ndef@domain.com`" + NL +
+		"- Non-matches: `hello@example.com` (no newline characters)"
 	],
 
 	:htmlInjection = [
-		"Matches potential HTML injection attempts in form inputs.",
+		"Matches potential HTML injection attempts in form inputs",
 
-		"- `<[^>]*?[^<]*[a-zA-Z0-9]+.*[^<]*?>`: Matches strings containing HTML-like tags with potential content inside." + NL +
+		"- `<[^>]*?[^<]*[a-zA-Z0-9]+.*[^<]*?>`: Matches strings containing HTML-like tags with potential content inside" + NL +
 		"- Components:" + NL +
-		"  - `<`: Matches the opening angle bracket of an HTML tag." + NL +
-		"  - `[^>]*?`: Matches zero or more characters that are not the closing angle bracket, non-greedily." + NL +
-		"  - `[^<]*[a-zA-Z0-9]+`: Ensures the tag contains at least one alphanumeric character." + NL +
-		"  - `.*`: Matches any additional content inside the tag." + NL +
-		"  - `[^<]*?>`: Matches zero or more characters until the closing angle bracket." + NL + NL +
+		"  - `<`: Matches the opening angle bracket of an HTML tag" + NL +
+		"  - `[^>]*?`: Matches zero or more characters that are not the closing angle bracket, non-greedily" + NL +
+		"  - `[^<]*[a-zA-Z0-9]+`: Ensures the tag contains at least one alphanumeric character" + NL +
+		"  - `.*`: Matches any additional content inside the tag" + NL +
+		"  - `[^<]*?>`: Matches zero or more characters until the closing angle bracket" + NL + NL +
 
-		"- Matches: `<script>alert('XSS')</script>`, `<div>content</div>`." + NL +
-		"- Non-matches: `content`, `< >`, `<tag>` (without meaningful content)."
+		"- Matches: `<script>alert('XSS')</script>`, `<div>content</div>`" + NL +
+		"- Non-matches: `content`, `< >`, `<tag>` (without meaningful content)"
 	],
 
 	# Ring Language Patterns
@@ -1506,10 +1662,10 @@ _$aRegexPatternsExplanations_ = [
 	:ringString = [
 		"Matches Ring string assignments and declarations",
 
-		"- `^=?`: Optional assignment operator at start." + NL +
-		"- `*`: Optional whitespace." + NL +
-		"- `([ " + char(34) + "'].*?[ " + char(34) + "']|[^ ]+)`: Quoted string or word." + NL +
-		"- `*$`: Optional whitespace at end." + NL + NL +
+		"- `^=?`: Optional assignment operator at start" + NL +
+		"- `*`: Optional whitespace" + NL +
+		"- `([ " + char(34) + "'].*?[ " + char(34) + "']|[^ ]+)`: Quoted string or word" + NL +
+		"- `*$`: Optional whitespace at end" + NL + NL +
 
 		"- Matches: `name = " + char(34) + "John" + char(34) + "`, `str = 'Hello'`" + NL +
 		"- Non-matches: `name = `, `= " + char(34) + "unclosed`"
@@ -1518,11 +1674,11 @@ _$aRegexPatternsExplanations_ = [
 	:ringNumber = [
 		"Matches Ring numeric literals",
 
-		"- `^`: Start of line." + NL +
-		"- `-?`: Optional minus sign." + NL +
-		"- `\\d+`: One or more digits." + NL +
-		"- `(?:\\.\\d+)?`: Optional decimal part." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `-?`: Optional minus sign" + NL +
+		"- `\\d+`: One or more digits" + NL +
+		"- `(?:\\.\\d+)?`: Optional decimal part" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `42`, `-17`, `3.14`, `-0.001`" + NL +
 		"- Non-matches: `.5`, `1.`, `1e5`"
@@ -1531,9 +1687,9 @@ _$aRegexPatternsExplanations_ = [
 	:ringBoolean = [
 		"Matches Ring boolean literals",
 
-		"- `^`: Start of line." + NL +
-		"- `(?:True|False)`: Either 'True' or 'False'." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?:True|False)`: Either 'True' or 'False'" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `True`, `False`" + NL +
 		"- Non-matches: `true`, `false`, `TRUE`"
@@ -1542,10 +1698,10 @@ _$aRegexPatternsExplanations_ = [
 	:ringVariable = [
 		"Matches Ring variable names",
 
-		"- `^`: Start of line." + NL +
-		"- `[a-zA-Z_]`: First character must be letter or underscore." + NL +
-		"- `\\w*`: Following characters can be letters, numbers, or underscores." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `[a-zA-Z_]`: First character must be letter or underscore" + NL +
+		"- `\\w*`: Following characters can be letters, numbers, or underscores" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `name`, `_count`, `myVar123`" + NL +
 		"- Non-matches: `123var`, `my-var`, `$var`"
@@ -1554,9 +1710,9 @@ _$aRegexPatternsExplanations_ = [
 	:ringFunction = [
 		"Matches Ring function declarations",
 
-		"- `^func`: Function declaration keyword." + NL +
-		"- `(\w+)`: Function name." + NL +
-		"- `\s*\((.*?)\)`: Parameters in parentheses." + NL + NL +
+		"- `^func`: Function declaration keyword" + NL +
+		"- `(\w+)`: Function name" + NL +
+		"- `\s*\((.*?)\)`: Parameters in parentheses" + NL + NL +
 
 		"- Matches: `func sum(x, y)`, `func hello()`" + NL +
 		"- Non-matches: `function test()`, `func()`"
@@ -1565,12 +1721,12 @@ _$aRegexPatternsExplanations_ = [
 	:ringFunctionCall = [
 		"Matches Ring function calls",
 
-		"- `^`: Start of line." + NL +
-		"- `([a-zA-Z_]\\w*)`: Function name." + NL +
-		"- `\\s*\\(`: Opening parenthesis with optional whitespace." + NL +
-		"- `(.*?)`: Function arguments." + NL +
-		"- `\\)`: Closing parenthesis." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `([a-zA-Z_]\\w*)`: Function name" + NL +
+		"- `\\s*\\(`: Opening parenthesis with optional whitespace" + NL +
+		"- `(.*?)`: Function arguments" + NL +
+		"- `\\)`: Closing parenthesis" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `print()`, `calculate(x,y)`, `func(1,2,3)`" + NL +
 		"- Non-matches: `1func()`, `func(`, `func`"
@@ -1579,10 +1735,10 @@ _$aRegexPatternsExplanations_ = [
 	:ringMainFunction = [
 		"Matches Ring main function declaration",
 
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `Func\\s+Main\\s*`: 'Func Main' declaration." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `Func\\s+Main\\s*`: 'Func Main' declaration" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `Func Main`, `FUNC MAIN`, `func main`" + NL +
 		"- Non-matches: `Func main()`, `Function Main`, `Main`"
@@ -1591,13 +1747,13 @@ _$aRegexPatternsExplanations_ = [
 	:ringClass = [
 		"Matches Ring class declarations",
  
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `Class\\s+`: 'Class' keyword and whitespace." + NL +
-		"- `([a-zA-Z_]\\w*)`: Class name." + NL +
-		"- `\\s*`: Optional whitespace." + NL +
-		"- `(?:from\\s+([a-zA-Z_]\\w*))?`: Optional inheritance." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `Class\\s+`: 'Class' keyword and whitespace" + NL +
+		"- `([a-zA-Z_]\\w*)`: Class name" + NL +
+		"- `\\s*`: Optional whitespace" + NL +
+		"- `(?:from\\s+([a-zA-Z_]\\w*))?`: Optional inheritance" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `Class Animal`, `Class Dog from Animal`" + NL +
 		"- Non-matches: `class animal`, `Class 1Dog`, `Class Dog from`"
@@ -1606,11 +1762,11 @@ _$aRegexPatternsExplanations_ = [
 	:ringClassAttribute = [
 		"Matches Ring class attribute declarations",
 
-		"- `^`: Start of line." + NL +
-		"- `[a-zA-Z_]\\w*`: Attribute name." + NL +
-		"- `\\s*=\\s*`: Assignment operator." + NL +
-		"- `.*`: Attribute value." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `[a-zA-Z_]\\w*`: Attribute name" + NL +
+		"- `\\s*=\\s*`: Assignment operator" + NL +
+		"- `.*`: Attribute value" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `name = value`, `count = 0`, `items = []`" + NL +
 		"- Non-matches: `1var = 2`, `= value`, `name =`"
@@ -1619,11 +1775,11 @@ _$aRegexPatternsExplanations_ = [
 	:ringNewObject = [
 		"Matches Ring object instantiation",
 
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `New\\s+`: 'New' keyword." + NL +
-		"- `([a-zA-Z_]\\w*)`: Class name." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `New\\s+`: 'New' keyword" + NL +
+		"- `([a-zA-Z_]\\w*)`: Class name" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `New Person`, `new Calculator`, `NEW Object`" + NL +
 		"- Non-matches: `New`, `New 1Class`, `New()`"
@@ -1632,12 +1788,12 @@ _$aRegexPatternsExplanations_ = [
 	:ringObjectAccess = [
 		"Matches Ring object access expressions",
    
-		"- `^`: Start of line." + NL +
-		"- `([a-zA-Z_]\\w*)`: Object name." + NL +
-		"- `\\s*{\\s*`: Opening brace with optional whitespace." + NL +
-		"- `(.*?)`: Member access expression." + NL +
-		"- `\\s*}`: Closing brace with optional whitespace." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `([a-zA-Z_]\\w*)`: Object name" + NL +
+		"- `\\s*{\\s*`: Opening brace with optional whitespace" + NL +
+		"- `(.*?)`: Member access expression" + NL +
+		"- `\\s*}`: Closing brace with optional whitespace" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `obj{method()}`, `list{item}`, `object{property}`" + NL +
 		"- Non-matches: `obj{}`, `{prop}`, `obj{`"
@@ -1646,13 +1802,13 @@ _$aRegexPatternsExplanations_ = [
 	:ringLoop = [
 		"Matches Ring loop constructs",
 
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
 		"- `(?:`: Non-capturing group for alternatives:" + NL +
 		"  - `for\\s+\\w+\\s*=\\s*\\d+\\s+to\\s+\\d+`: Numeric for loop" + NL +
 		"  - `|while\\s+.*`: While loop" + NL +
 		"  - `|for\\s+\\w+\\s+in\\s+.*?)`: For-in loop" + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `for x = 1 to 10`, `while count > 0`, `for item in list`" + NL +
 		"- Non-matches: `for`, `while`, `for x in`"
@@ -1661,11 +1817,11 @@ _$aRegexPatternsExplanations_ = [
 	:ringIf = [
 		"Matches Ring if statements",
 
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `if\\s+`: 'if' keyword." + NL +
-		"- `.*`: Condition." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `if\\s+`: 'if' keyword" + NL +
+		"- `.*`: Condition" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `if x > 0`, `IF true`, `if isValid()`" + NL +
 		"- Non-matches: `if`, `ifelse`, `if()`"
@@ -1674,11 +1830,11 @@ _$aRegexPatternsExplanations_ = [
 	:ringSwitch = [
 		"Matches Ring switch statements",
  
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `switch\\s+`: 'switch' keyword." + NL +
-		"- `.*`: Switch expression." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `switch\\s+`: 'switch' keyword" + NL +
+		"- `.*`: Switch expression" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `switch x`, `SWITCH value`, `switch expr()`" + NL +
 		"- Non-matches: `switch`, `case x`, `switch()`"
@@ -1687,12 +1843,12 @@ _$aRegexPatternsExplanations_ = [
 	:ringCase = [
 	"Matches Ring switch case statements",
  
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `(?:on|off)`: 'on' or 'off' keyword." + NL +
-		"- `\\s+`: Required whitespace." + NL +
-		"- `.*`: Case value." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `(?:on|off)`: 'on' or 'off' keyword" + NL +
+		"- `\\s+`: Required whitespace" + NL +
+		"- `.*`: Case value" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `on 1`, `OFF " + char(34) + "text" + char(34) + "`, `on value`" + NL +
 		"- Non-matches: `on`, `case 1`, `on()`"
@@ -1701,11 +1857,11 @@ _$aRegexPatternsExplanations_ = [
 	:ringList = [
 		"Matches Ring list literals",
 
-		"- `^`: Start of line." + NL +
-		"- `\\[`: Opening bracket." + NL +
-		"- `(?:[^[\\]]*|\\[.*?\\])*`: List contents, including nested lists." + NL +
-		"- `\\]`: Closing bracket." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `\\[`: Opening bracket" + NL +
+		"- `(?:[^[\\]]*|\\[.*?\\])*`: List contents, including nested lists" + NL +
+		"- `\\]`: Closing bracket" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `[1,2,3]`, `[[1,2],[3,4]]`, `[]`" + NL +
 		"- Non-matches: `[unclosed`, `[1,2,`, `[[]`"
@@ -1714,12 +1870,12 @@ _$aRegexPatternsExplanations_ = [
 	:ringListAccess = [
 		"Matches Ring list element access",
 
-		"- `^`: Start of line." + NL +
-		"- `([a-zA-Z_]\\w*)`: List variable name." + NL +
-		"- `\\s*\\[`: Opening bracket." + NL +
-		"- `(\\d+|\\w+)`: Numeric or variable index." + NL +
-		"- `\\s*\\]`: Closing bracket." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `([a-zA-Z_]\\w*)`: List variable name" + NL +
+		"- `\\s*\\[`: Opening bracket" + NL +
+		"- `(\\d+|\\w+)`: Numeric or variable index" + NL +
+		"- `\\s*\\]`: Closing bracket" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `list[1]`, `array[i]`, `items[index]`" + NL +
 		"- Non-matches: `list[]`, `[1]`, `list[1`"
@@ -1728,11 +1884,11 @@ _$aRegexPatternsExplanations_ = [
 	:ringHashTable = [
 		"Matches Ring hash table literals",
 
-		"- `^`: Start of line." + NL +
-		"- `\\[\\s*:`: Opening bracket and colon." + NL +
-		"- `(?:\\w+\\s*=\\s*[^,\\]]+\\s*,?\\s*)+`: Key-value pairs." + NL +
-		"- `\\]`: Closing bracket." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `\\[\\s*:`: Opening bracket and colon" + NL +
+		"- `(?:\\w+\\s*=\\s*[^,\\]]+\\s*,?\\s*)+`: Key-value pairs" + NL +
+		"- `\\]`: Closing bracket" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `[:name=" + char(34) + "John" + char(34) + ",age=30]`, `[:key=value]`" + NL +
 		"- Non-matches: `[]`, `[:invalid]`, `[:key=]`"
@@ -1741,12 +1897,12 @@ _$aRegexPatternsExplanations_ = [
 	:ringComment = [
 	"Matches Ring comments",
 
-		"- `^`: Start of line." + NL +
+		"- `^`: Start of line" + NL +
 		"- `(?:`: Non-capturing group for alternatives:" + NL +
 		"  - `#.*`: Single-line hash comment" + NL +
 		"  - `//.*`: Single-line double-slash comment" + NL +
 		"  - `/\\*[\\s\\S]*?\\*/`: Multi-line comment" + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `# comment`, `// note`, `/* multi line */`" + NL +
 		"- Non-matches: `/comment`, `/*unclosed`, `#`"
@@ -1755,11 +1911,11 @@ _$aRegexPatternsExplanations_ = [
 	:ringSee = [
 		"Matches Ring See statements",
 
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `See\\s+`: 'See' keyword." + NL +
-		"- `(?:[" + char(34) + "'].*?[" + char(34) + "']|\\w+)`: String literal or variable." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `See\\s+`: 'See' keyword" + NL +
+		"- `(?:[" + char(34) + "'].*?[" + char(34) + "']|\\w+)`: String literal or variable" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `See " + char(34) + "Hello" + char(34) + "`, `SEE x`, `see 'text'`" + NL +
 		"- Non-matches: `See`, `See()`, `See,`"
@@ -1768,11 +1924,11 @@ _$aRegexPatternsExplanations_ = [
 	:ringGive = [
 		"Matches Ring Give statements",
 
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `Give\\s+`: 'Give' keyword." + NL +
-		"- `\\w+`: Variable name." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `Give\\s+`: 'Give' keyword" + NL +
+		"- `\\w+`: Variable name" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `Give x`, `GIVE input`, `give variable`" + NL +
  		"- Non-matches: `Give`, `Give 1`, `Give()`"
@@ -1781,11 +1937,11 @@ _$aRegexPatternsExplanations_ = [
 	:ringLoad = [
 		"Matches Ring Load statements",
 
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `Load\\s+`: 'Load' keyword." + NL +
-		"- `[" + char(34) + "'].*?[" + char(34) + "']`: Quoted filename." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `Load\\s+`: 'Load' keyword" + NL +
+		"- `[" + char(34) + "'].*?[" + char(34) + "']`: Quoted filename" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `Load " + char(34) + "file.ring" + char(34) + "`, `LOAD 'module.ring'`" + NL +
 		"- Non-matches: `Load`, `Load file`, `Load()`"
@@ -1794,11 +1950,11 @@ _$aRegexPatternsExplanations_ = [
 	:ringImport = [
 		"Matches Ring Import statements",
  
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `Import\\s+`: 'Import' keyword." + NL +
-		"- `[\\w.]+`: Module path." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `Import\\s+`: 'Import' keyword" + NL +
+		"- `[\\w.]+`: Module path" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `Import module`, `IMPORT system.lib`, `import std.core`" + NL +
 		"- Non-matches: `Import`, `Import.`, `Import()`"
@@ -1807,12 +1963,12 @@ _$aRegexPatternsExplanations_ = [
 	:ringOperator = [
 		"Matches Ring operators",
 
-		"- `^`: Start of line." + NL +
+		"- `^`: Start of line" + NL +
 		"- `(?:`: Non-capturing group for alternatives:" + NL +
 		"  - `[+\\-*/=%]`: Arithmetic operators" + NL +
 		"  - `|==|!=|>=|<=|>|<`: Comparison operators" + NL +
 		"  - `|\\+=|-=|\\*=|/=`: Assignment operators" + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `+`, `==`, `<=`, `+=`" + NL +
 		"- Non-matches: `++`, `=!`, `=>`"
@@ -1821,9 +1977,9 @@ _$aRegexPatternsExplanations_ = [
 	:ringLogical = [
 		"Matches Ring logical operators",
 
-		"- `^`: Start of line." + NL +
-		"- `(?:and|or|not)`: Logical operators." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?:and|or|not)`: Logical operators" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `and`, `or`, `not`" + NL +
 		"- Non-matches: `AND`, `Or`, `Not`"
@@ -1832,11 +1988,11 @@ _$aRegexPatternsExplanations_ = [
 	:ringExit = [
 		"Matches Ring Exit statements",
  
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `exit`: 'Exit' keyword." + NL +
-		"- `(?:\\s+\\d+)?`: Optional exit code." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `exit`: 'Exit' keyword" + NL +
+		"- `(?:\\s+\\d+)?`: Optional exit code" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `exit`, `EXIT 0`, `exit 1`" + NL +
 		"- Non-matches: `exit()`, `exit code`, `exit -1`"
@@ -1845,11 +2001,11 @@ _$aRegexPatternsExplanations_ = [
 	:ringReturn = [
 		"Matches Ring Return statements",
         
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `return`: 'Return' keyword." + NL +
-		"- `(?:\\s+.*)?`: Optional return value." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `return`: 'Return' keyword" + NL +
+		"- `(?:\\s+.*)?`: Optional return value" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `return`, `RETURN value`, `return 42`" + NL +
 		"- Non-matches: `return()`, `return,`, `returns`"
@@ -1858,11 +2014,11 @@ _$aRegexPatternsExplanations_ = [
 	:ringPackage = [
 		"Matches Ring Package declarations",
 
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `Package\\s+`: 'Package' keyword." + NL +
-		"- `[\\w.]+`: Package name." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `Package\\s+`: 'Package' keyword" + NL +
+		"- `[\\w.]+`: Package name" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `Package myapp`, `PACKAGE system.core`, `package lib.util`" + NL +
 		"- Non-matches: `Package`, `Package.`, `Package()`"
@@ -1871,10 +2027,10 @@ _$aRegexPatternsExplanations_ = [
 	:ringPrivate = [
 	"Matches Ring Private declarations",
 
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `Private`: 'Private' keyword." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `Private`: 'Private' keyword" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `Private`, `PRIVATE`, `private`" + NL +
 		"- Non-matches: `Private()`, `Privates`, `Private var`"
@@ -1883,39 +2039,39 @@ _$aRegexPatternsExplanations_ = [
 	:ringBracestart = [
 		"Matches the Ring function definition for `braceStart`",
 
-		"- `^(?i)`: Case-insensitive match." + NL +
-		"- `func\\s+`: Matches the keyword `func` followed by one or more spaces." + NL +
-		"- `braceStart`: Matches the function name `braceStart`." + NL +
-		"- `\\s*\\(`: Matches optional whitespace followed by an opening parenthesis." + NL +
-		"- `\\s*\\)`: Matches optional whitespace followed by a closing parenthesis." + NL +
-		"- `\\s*$`: Allows for trailing whitespace after the closing parenthesis." + NL + NL +
+		"- `^(?i)`: Case-insensitive match" + NL +
+		"- `func\\s+`: Matches the keyword `func` followed by one or more spaces" + NL +
+		"- `braceStart`: Matches the function name `braceStart`" + NL +
+		"- `\\s*\\(`: Matches optional whitespace followed by an opening parenthesis" + NL +
+		"- `\\s*\\)`: Matches optional whitespace followed by a closing parenthesis" + NL +
+		"- `\\s*$`: Allows for trailing whitespace after the closing parenthesis" + NL + NL +
 
-		"- Matches: `func braceStart()`." + NL +
-		"- Non-matches: `func braceStart() something`, `braceStart()`, `func braceStart`."
+		"- Matches: `func braceStart()`" + NL +
+		"- Non-matches: `func braceStart() something`, `braceStart()`, `func braceStart`"
 	],
 
 	:ringBraceEnd = [
 		"Matches the Ring function definition for `braceEnd`",
 
-		"- `^(?i)`: Case-insensitive match." + NL +
-		"- `func\\s+`: Matches the keyword `func` followed by one or more spaces." + NL +
-		"- `braceEnd`: Matches the function name `braceEnd`." + NL +
-		"- `\\s*\\(`: Matches optional whitespace followed by an opening parenthesis." + NL +
-		"- `\\s*\\)`: Matches optional whitespace followed by a closing parenthesis." + NL +
-		"- `\\s*$`: Allows for trailing whitespace after the closing parenthesis." + NL + NL +
+		"- `^(?i)`: Case-insensitive match" + NL +
+		"- `func\\s+`: Matches the keyword `func` followed by one or more spaces" + NL +
+		"- `braceEnd`: Matches the function name `braceEnd`" + NL +
+		"- `\\s*\\(`: Matches optional whitespace followed by an opening parenthesis" + NL +
+		"- `\\s*\\)`: Matches optional whitespace followed by a closing parenthesis" + NL +
+		"- `\\s*$`: Allows for trailing whitespace after the closing parenthesis" + NL + NL +
 
-		"- Matches: `func braceEnd()`." + NL +
-		"- Non-matches: `func braceEnd() something`, `braceEnd()`, `func braceEnd`."
+		"- Matches: `func braceEnd()`" + NL +
+		"- Non-matches: `func braceEnd() something`, `braceEnd()`, `func braceEnd`"
 	],
 
 	:ringEval = [
 		"Matches Ring Eval function calls",
 
-		"- `^`: Start of line." + NL +
-		"- `(?i)`: Case-insensitive matching." + NL +
-		"- `Eval\\s*`: 'Eval' keyword." + NL +
-		"- `\\(.*?\\)`: Parentheses with expression." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `(?i)`: Case-insensitive matching" + NL +
+		"- `Eval\\s*`: 'Eval' keyword" + NL +
+		"- `\\(.*?\\)`: Parentheses with expression" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `Eval(1+1)`, `EVAL(x)`, `eval(expression())`" + NL +
 		"- Non-matches: `Eval`, `Eval x`, `Evaluate()`"
@@ -1926,13 +2082,13 @@ _$aRegexPatternsExplanations_ = [
 	:pythonString = [
 	        "Matches Python string literals",
 	        
-	        "- `^`: Start of line." + NL +
+	        "- `^`: Start of line" + NL +
 	        "- `(?:`: Non-capturing group for alternatives:" + NL +
 	        "  - `[" + char(34) + "]{3}.*?[" + char(34) + "]{3}`: Triple double-quoted strings" + NL +
 	        "  - `|[" + char(34) + "].*?[" + char(34) + "]`: Double-quoted strings" + NL +
 	        "  - `|'''.*?'''`: Triple single-quoted strings" + NL +
 	        "  - `|'.*?'`: Single-quoted strings" + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `" + char(34) + "hello" + char(34) + "`, `'world'`, `" + char(34) + char(34) + char(34) + "multiline" + char(34) + char(34) + char(34) + "`, `'''text'''`" + NL +
 	        "- Non-matches: `" + char(34) + "unclosed`, `''''extra'''`"
@@ -1941,12 +2097,12 @@ _$aRegexPatternsExplanations_ = [
     	:pythonNumber = [
 	        "Matches Python numeric literals",
 	        
-	        "- `^`: Start of line." + NL +
-	        "- `-?`: Optional minus sign." + NL +
-	        "- `\\d+`: One or more digits." + NL +
-	        "- `(?:\\.\\d+)?`: Optional decimal part." + NL +
-	        "- `(?:e[+-]?\\d+)?`: Optional scientific notation." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `-?`: Optional minus sign" + NL +
+	        "- `\\d+`: One or more digits" + NL +
+	        "- `(?:\\.\\d+)?`: Optional decimal part" + NL +
+	        "- `(?:e[+-]?\\d+)?`: Optional scientific notation" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `42`, `-17`, `3.14`, `1e-10`" + NL +
 	        "- Non-matches: `.5`, `1.`, `e5`"
@@ -1955,9 +2111,9 @@ _$aRegexPatternsExplanations_ = [
     	:pythonBoolean = [
 	        "Matches Python boolean and None literals",
 	        
-	        "- `^`: Start of line." + NL +
-	        "- `(?:True|False|None)`: Either 'True', 'False', or 'None'." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `(?:True|False|None)`: Either 'True', 'False', or 'None'" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `True`, `False`, `None`" + NL +
 	        "- Non-matches: `true`, `false`, `none`, `NULL`"
@@ -1966,10 +2122,10 @@ _$aRegexPatternsExplanations_ = [
 	:pythonVariable = [
 	        "Matches Python variable names",
 	        
-	        "- `^`: Start of line." + NL +
-	        "- `[a-zA-Z_]`: First character must be letter or underscore." + NL +
-	        "- `\\w*`: Following characters can be letters, numbers, or underscores." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `[a-zA-Z_]`: First character must be letter or underscore" + NL +
+	        "- `\\w*`: Following characters can be letters, numbers, or underscores" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `name`, `_count`, `myVar123`" + NL +
 	        "- Non-matches: `123var`, `my-var`, `$var`"
@@ -1978,13 +2134,13 @@ _$aRegexPatternsExplanations_ = [
     	:pythonFunction = [
 	        "Matches Python function definitions",
 	        
-	        "- `^`: Start of line." + NL +
-	        "- `def\\s+`: 'def' keyword and whitespace." + NL +
-	        "- `([a-zA-Z_]\\w*)`: Function name." + NL +
-	        "- `\\s*\\((.*?)\\)`: Parameter list in parentheses." + NL +
-	        "- `(?:\\s*->\\s*[\\w\\[\\],\\s]+)?`: Optional return type annotation." + NL +
-	        "- `:`: Function block start." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `def\\s+`: 'def' keyword and whitespace" + NL +
+	        "- `([a-zA-Z_]\\w*)`: Function name" + NL +
+	        "- `\\s*\\((.*?)\\)`: Parameter list in parentheses" + NL +
+	        "- `(?:\\s*->\\s*[\\w\\[\\],\\s]+)?`: Optional return type annotation" + NL +
+	        "- `:`: Function block start" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `def test():`, `def calc(x, y) -> int:`, `def _init():`" + NL +
 	        "- Non-matches: `def test`, `def 1func():`, `def()`"
@@ -1993,10 +2149,10 @@ _$aRegexPatternsExplanations_ = [
     	:pythonFunctionCall = [
 	        "Matches Python function calls",
 	        
-	        "- `^`: Start of line." + NL +
-	        "- `([a-zA-Z_]\\w*)`: Function name." + NL +
-	        "- `\\s*\\((.*?)\\)`: Function arguments in parentheses." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `([a-zA-Z_]\\w*)`: Function name" + NL +
+	        "- `\\s*\\((.*?)\\)`: Function arguments in parentheses" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `print()`, `calculate(x, y)`, `func(1, 2, 3)`" + NL +
 	        "- Non-matches: `1func()`, `func(`, `func`"
@@ -2005,12 +2161,12 @@ _$aRegexPatternsExplanations_ = [
     	:pythonLambda = [
 	        "Matches Python lambda expressions",
 	        
-	        "- `^`: Start of line." + NL +
-	        "- `lambda\\s+`: 'lambda' keyword and whitespace." + NL +
-	        "- `.*?`: Lambda parameters." + NL +
-	        "- `:\\s*`: Colon and optional whitespace." + NL +
-	        "- `.*`: Lambda body." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `lambda\\s+`: 'lambda' keyword and whitespace" + NL +
+	        "- `.*?`: Lambda parameters" + NL +
+	        "- `:\\s*`: Colon and optional whitespace" + NL +
+	        "- `.*`: Lambda body" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `lambda x: x*2`, `lambda: True`, `lambda a, b: a+b`" + NL +
 	        "- Non-matches: `lambda`, `lambda:`, `lambda x`"
@@ -2019,12 +2175,12 @@ _$aRegexPatternsExplanations_ = [
     	:pythonClass = [
 	        "Matches Python class definitions",
 	        
-	        "- `^`: Start of line." + NL +
-	        "- `class\\s+`: 'class' keyword and whitespace." + NL +
-	        "- `([a-zA-Z_]\\w*)`: Class name." + NL +
-	        "- `(?:\\((.*?)\\))?`: Optional parent classes." + NL +
-	        "- `:`: Class block start." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `class\\s+`: 'class' keyword and whitespace" + NL +
+	        "- `([a-zA-Z_]\\w*)`: Class name" + NL +
+	        "- `(?:\\((.*?)\\))?`: Optional parent classes" + NL +
+	        "- `:`: Class block start" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `class Test:`, `class Child(Parent):`, `class MyClass(A, B):`" + NL +
 	        "- Non-matches: `class Test`, `class 1Test:`, `class:`"
@@ -2033,11 +2189,11 @@ _$aRegexPatternsExplanations_ = [
     	:pythonClassMethod = [
 	        "Matches Python method decorators",
 	        
-	        "- `^`: Start of line." + NL +
-	        "- `@`: Decorator symbol." + NL +
-	        "- `\\w+`: Decorator name." + NL +
-	        "- `\\s*`: Optional whitespace." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `@`: Decorator symbol" + NL +
+	        "- `\\w+`: Decorator name" + NL +
+	        "- `\\s*`: Optional whitespace" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `@classmethod`, `@staticmethod`, `@property`" + NL +
 	        "- Non-matches: `@`, `@1method`, `@class method`"
@@ -2046,11 +2202,11 @@ _$aRegexPatternsExplanations_ = [
    	 :pythonDecorator = [
 	        "Matches Python decorators",
 	        
-	        "- `^`: Start of line." + NL +
-	        "- `@`: Decorator symbol." + NL +
-	        "- `[a-zA-Z_]\\w*`: Decorator name." + NL +
-	        "- `(?:\\((.*?)\\))?`: Optional decorator arguments." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `@`: Decorator symbol" + NL +
+	        "- `[a-zA-Z_]\\w*`: Decorator name" + NL +
+	        "- `(?:\\((.*?)\\))?`: Optional decorator arguments" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `@decorator`, `@wrap(arg)`, `@auth(user='admin')`" + NL +
 	        "- Non-matches: `@`, `@1dec`, `@dec(`"
@@ -2059,11 +2215,11 @@ _$aRegexPatternsExplanations_ = [
     	:pythonLoop = [
 	        "Matches Python loop statements",
 	        
-	        "- `^`: Start of line." + NL +
+	        "- `^`: Start of line" + NL +
 	        "- `(?:`: Non-capturing group for alternatives:" + NL +
 	        "  - `for\\s+.*?\\s+in\\s+.*?:`: For loop" + NL +
 	        "  - `|while\\s+.*?:`: While loop" + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `for i in range(10):`, `while True:`, `for x in list:`" + NL +
 	        "- Non-matches: `for`, `while`, `for in:`"
@@ -2072,10 +2228,10 @@ _$aRegexPatternsExplanations_ = [
     	:pythonIf = [
 	        "Matches Python conditional statements",
 	        
-	        "- `^`: Start of line." + NL +
-	        "- `(?:if|elif|else)`: Conditional keywords." + NL +
-	        "- `\\s*.*?:`: Condition and colon." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `(?:if|elif|else)`: Conditional keywords" + NL +
+	        "- `\\s*.*?:`: Condition and colon" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `if x > 0:`, `elif x < 0:`, `else:`" + NL +
 	        "- Non-matches: `if:`, `else if:`, `if x`"
@@ -2084,12 +2240,12 @@ _$aRegexPatternsExplanations_ = [
     	:pythonWith = [
 	        "Matches Python with statements",
 	        
-	        "- `^`: Start of line." + NL +
-	        "- `with\\s+`: 'with' keyword." + NL +
-	        "- `.*?\\s+`: Context manager expression." + NL +
-	        "- `as\\s+`: 'as' keyword." + NL +
-	        "- `.*?:`: Target variable and colon." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `with\\s+`: 'with' keyword" + NL +
+	        "- `.*?\\s+`: Context manager expression" + NL +
+	        "- `as\\s+`: 'as' keyword" + NL +
+	        "- `.*?:`: Target variable and colon" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `with open('file.txt') as f:`, `with context() as c:`" + NL +
 	        "- Non-matches: `with:`, `with as:`, `with open()`"
@@ -2098,10 +2254,10 @@ _$aRegexPatternsExplanations_ = [
     	:pythonTry = [
 	        "Matches Python exception handling statements",
 	        
-	        "- `^`: Start of line." + NL +
-	        "- `(?:try|except|finally|raise)`: Exception keywords." + NL +
-	        "- `\\s*.*?:`: Optional expression and colon." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `(?:try|except|finally|raise)`: Exception keywords" + NL +
+	        "- `\\s*.*?:`: Optional expression and colon" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `try:`, `except ValueError:`, `finally:`, `raise Exception()`" + NL +
 	        "- Non-matches: `try`, `except:()`, `raises:`"
@@ -2110,11 +2266,11 @@ _$aRegexPatternsExplanations_ = [
    	:pythonList = [
 	        "Matches Python list literals",
 	        
-	        "- `^`: Start of line." + NL +
-	        "- `\\[`: Opening bracket." + NL +
-	        "- `(?:[^[\\]]*|\\[.*?\\])*`: List contents, including nested lists." + NL +
-	        "- `\\]`: Closing bracket." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `\\[`: Opening bracket" + NL +
+	        "- `(?:[^[\\]]*|\\[.*?\\])*`: List contents, including nested lists" + NL +
+	        "- `\\]`: Closing bracket" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `[1,2,3]`, `[[1,2],[3,4]]`, `[]`" + NL +
 	        "- Non-matches: `[unclosed`, `[1,2,`, `[[]`"
@@ -2123,11 +2279,11 @@ _$aRegexPatternsExplanations_ = [
    	:pythonDict = [
 	        "Matches Python dictionary literals",
 	        
-	        "- `^`: Start of line." + NL +
-	        "- `{`: Opening brace." + NL +
-	        "- `(?:[^{}]*|{.*?})*`: Dictionary contents, including nested dicts." + NL +
-	        "- `}`: Closing brace." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `{`: Opening brace" + NL +
+	        "- `(?:[^{}]*|{.*?})*`: Dictionary contents, including nested dicts" + NL +
+	        "- `}`: Closing brace" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `{'a':1}`, `{1:2, 3:4}`, `{}`" + NL +
 	        "- Non-matches: `{unclosed`, `{:}`, `{{}`"
@@ -2136,11 +2292,11 @@ _$aRegexPatternsExplanations_ = [
 	:pythonTuple = [
         	"Matches Python tuple literals",
 
-	        "- `^`: Start of line." + NL +
-	        "- `\\(`: Opening parenthesis." + NL +
-	        "- `(?:[^()]*|\\(.*?\\))*`: Tuple contents, including nested tuples." + NL +
-	        "- `\\)`: Closing parenthesis." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `\\(`: Opening parenthesis" + NL +
+	        "- `(?:[^()]*|\\(.*?\\))*`: Tuple contents, including nested tuples" + NL +
+	        "- `\\)`: Closing parenthesis" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `(1,2)`, `(1,(2,3))`, `()`" + NL +
 	        "- Non-matches: `(unclosed`, `(,)`, `(()`"
@@ -2149,12 +2305,12 @@ _$aRegexPatternsExplanations_ = [
     	:pythonComprehension = [
 		"Matches Python list comprehensions",
 
-		"- `^`: Start of line." + NL +
-		"- `\\[`: Opening bracket." + NL +
-		"- `.*?\\s+`: Expression." + NL +
-		"- `for\\s+.*?\\s+in\\s+.*?`: For clause." + NL +
-		"- `\\]`: Closing bracket." + NL +
-		"- `$`: End of line." + NL + NL +
+		"- `^`: Start of line" + NL +
+		"- `\\[`: Opening bracket" + NL +
+		"- `.*?\\s+`: Expression" + NL +
+		"- `for\\s+.*?\\s+in\\s+.*?`: For clause" + NL +
+		"- `\\]`: Closing bracket" + NL +
+		"- `$`: End of line" + NL + NL +
 
 		"- Matches: `[x for x in range(10)]`, `[i*2 for i in list]`" + NL +
 		"- Non-matches: `[for in]`, `[x for]`, `[x in y]`"
@@ -2163,10 +2319,10 @@ _$aRegexPatternsExplanations_ = [
 	:pythonComment = [
 		"Matches Python single-line comments",
 
-	        "- `^`: Start of line." + NL +
-	        "- `#`: Comment symbol." + NL +
-	        "- `.*`: Comment text." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `#`: Comment symbol" + NL +
+	        "- `.*`: Comment text" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `# comment`, `#note`, `# TODO: fix`" + NL +
 	        "- Non-matches: `/#comment`, `comment#`, `##`"
@@ -2175,11 +2331,11 @@ _$aRegexPatternsExplanations_ = [
 	:pythonDocstring = [
 		"Matches Python docstrings",
 
-	        "- `^`: Start of line." + NL +
-	        "- `[" + char(34) + "]{3}`: Triple quotes." + NL +
-	        "- `[\\s\\S]*?`: Any content including newlines." + NL +
-	        "- `[" + char(34) + "]{3}`: Closing triple quotes." + NL +
-	        "- `$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `[" + char(34) + "]{3}`: Triple quotes" + NL +
+	        "- `[\\s\\S]*?`: Any content including newlines" + NL +
+	        "- `[" + char(34) + "]{3}`: Closing triple quotes" + NL +
+	        "- `$`: End of line" + NL + NL +
 
 	        "- Matches: `" + char(34) + char(34) + char(34) + "Documentation" + char(34) + char(34) + char(34) + "`, `" + char(34) + char(34) + char(34) + "Multi" + NL + "line" + char(34) + char(34) + char(34) + "`" + NL +
 	        "- Non-matches: `" + char(34) + "doc" + char(34) + "`, `" + char(34) + char(34) + char(34) + "unclosed`"
@@ -2188,13 +2344,13 @@ _$aRegexPatternsExplanations_ = [
 	:pythonImport = [
 	        "Matches Python import statements",
 
-	        "- `^`: Start of line." + NL +
-	        "- `(?:import|from)`: 'import' or 'from' keyword." + NL +
-	        "- `\\s+[\\w.]+`: Module path." + NL +
-	        "- `(?:\\s+import\\s+`: Optional import clause." + NL +
-	        "- `(?:\\w+(?:\\s+as\\s+\\w+)?`: Import target with optional alias." + NL +
-	        "- `(?:\\s*,\\s*\\w+(?:\\s+as\\s+\\w+)?)*|\\*))?`: Multiple imports or star import." + NL +
-	        "- `\\s*$`: End of line." + NL + NL +
+	        "- `^`: Start of line" + NL +
+	        "- `(?:import|from)`: 'import' or 'from' keyword" + NL +
+	        "- `\\s+[\\w.]+`: Module path" + NL +
+	        "- `(?:\\s+import\\s+`: Optional import clause" + NL +
+	        "- `(?:\\w+(?:\\s+as\\s+\\w+)?`: Import target with optional alias" + NL +
+	        "- `(?:\\s*,\\s*\\w+(?:\\s+as\\s+\\w+)?)*|\\*))?`: Multiple imports or star import" + NL +
+	        "- `\\s*$`: End of line" + NL + NL +
 
 	        "- Matches: `import os`, `from sys import path`, `from x import *`" + NL +
 	        "- Non-matches: `import`, `from`, `import as`"
@@ -3037,122 +3193,122 @@ _$aRegexPatternsExplanations_ = [
 	:xlsFunctionCall = [
 	    "Matches an Excel function call",
 	
-	    "- `^\\s*`: Allows leading whitespace." + NL +
-	    "- `[A-Z]+`: Matches the function name (uppercase letters)." + NL +
-	    "- `\\(.*\\)$`: Matches the opening parenthesis, arguments, and closing parenthesis." + NL + NL +
+	    "- `^\\s*`: Allows leading whitespace" + NL +
+	    "- `[A-Z]+`: Matches the function name (uppercase letters)" + NL +
+	    "- `\\(.*\\)$`: Matches the opening parenthesis, arguments, and closing parenthesis" + NL + NL +
 
-	    "- Matches: `SUM(A1:A10)`, ` IF(A1>0, TRUE, FALSE)`." + NL +
-	    "- Non-matches: `sum(A1:A10)`, `SUM A1:A10`."
+	    "- Matches: `SUM(A1:A10)`, ` IF(A1>0, TRUE, FALSE)`" + NL +
+	    "- Non-matches: `sum(A1:A10)`, `SUM A1:A10`"
 	],
 	
 	:xlsCellReference = [
 	    "Matches a single Excel cell reference",
 	
-	    "- `^[A-Z]+`: Matches the column (letters A to Z)." + NL +
-	    "- `\\d+$`: Matches the row (numeric part)." + NL + NL +
+	    "- `^[A-Z]+`: Matches the column (letters A to Z)" + NL +
+	    "- `\\d+$`: Matches the row (numeric part)" + NL + NL +
 
-	    "- Matches: `A1`, `B12`, `ZZ100`." + NL +
-	    "- Non-matches: `1A`, `ABCD`, `A 1`."
+	    "- Matches: `A1`, `B12`, `ZZ100`" + NL +
+	    "- Non-matches: `1A`, `ABCD`, `A 1`"
 	],
 	
 	:xlsRangeReference = [
 	    "Matches an Excel range reference",
 	
-	    "- `^[A-Z]+\\d+`: Matches the start cell of the range." + NL +
-	    "- `:[A-Z]+\\d+$`: Matches the colon and the end cell of the range." + NL + NL +
+	    "- `^[A-Z]+\\d+`: Matches the start cell of the range" + NL +
+	    "- `:[A-Z]+\\d+$`: Matches the colon and the end cell of the range" + NL + NL +
 
-	    "- Matches: `A1:B10`, `C5:D7`, `Z1:Z100`." + NL +
-	    "- Non-matches: `A1:B`, `A1-10`, `1A:B2`."
+	    "- Matches: `A1:B10`, `C5:D7`, `Z1:Z100`" + NL +
+	    "- Non-matches: `A1:B`, `A1-10`, `1A:B2`"
 	],
 	
 	:xlsRelativeReference = [
 	    "Matches a relative Excel cell reference",
 	
-	    "- `^(?:[A-Z]*\\d+|[A-Z]+\\d*)$`: Matches either column-relative or row-relative references." + NL + NL +
+	    "- `^(?:[A-Z]*\\d+|[A-Z]+\\d*)$`: Matches either column-relative or row-relative references" + NL + NL +
 
-	    "- Matches: `A1`, `1`, `A`." + NL +
-	    "- Non-matches: `$A$1`, `$1`, `$A`."
+	    "- Matches: `A1`, `1`, `A`" + NL +
+	    "- Non-matches: `$A$1`, `$1`, `$A`"
 	],
 	
 	:xlsAbsoluteReference = [
 	    "Matches an absolute Excel cell reference",
 	
-	    "- `^\\$[A-Z]+`: Matches the dollar sign and absolute column reference." + NL +
-	    "- `\\$\\d+$`: Matches the dollar sign and absolute row reference." + NL + NL +
+	    "- `^\\$[A-Z]+`: Matches the dollar sign and absolute column reference" + NL +
+	    "- `\\$\\d+$`: Matches the dollar sign and absolute row reference" + NL + NL +
 
-	    "- Matches: `$A$1`, `$B$100`." + NL +
-	    "- Non-matches: `A1`, `1`, `$A1`."
+	    "- Matches: `$A$1`, `$B$100`" + NL +
+	    "- Non-matches: `A1`, `1`, `$A1`"
 	],
 	
 	:xlsMixedReference = [
 	    "Matches a mixed Excel cell reference",
 	
-	    "- `^(?:\\$[A-Z]+\\d+|[A-Z]+\\$\\d+)$`: Matches either absolute column/relative row or relative column/absolute row references." + NL + NL +
+	    "- `^(?:\\$[A-Z]+\\d+|[A-Z]+\\$\\d+)$`: Matches either absolute column/relative row or relative column/absolute row references" + NL + NL +
 
-	    "- Matches: `$A1`, `A$1`, `$B$2`." + NL +
-	    "- Non-matches: `A1`, `$A$1`, `B2$`."
+	    "- Matches: `$A1`, `A$1`, `$B$2`" + NL +
+	    "- Non-matches: `A1`, `$A$1`, `B2$`"
 	],
 	
 	:xlsStringLiteral = [
 	    "Matches a string literal in Excel",
 	
-	   "- `^\" + char(34) + " + char(34) + " + char(34) + ".*\" + char(34) + " + char(34) + " + char(34) + "$`: Matches a string enclosed in double quotes." + NL + NL +
+	   "- `^\" + char(34) + " + char(34) + " + char(34) + ".*\" + char(34) + " + char(34) + " + char(34) + "$`: Matches a string enclosed in double quotes" + NL + NL +
 
-	   "- Matches: `\" + char(34) + "Hello\" + char(34) + "`, `\" + char(34) + "123\" + char(34) + "`, `\" + char(34) + "A1:B10\" + char(34) + "`." + NL +
-	    "- Non-matches: `Hello`, `'Hello'`, `\" + char(34) + "Hello`."
+	   "- Matches: `\" + char(34) + "Hello\" + char(34) + "`, `\" + char(34) + "123\" + char(34) + "`, `\" + char(34) + "A1:B10\" + char(34) + "`" + NL +
+	    "- Non-matches: `Hello`, `'Hello'`, `\" + char(34) + "Hello`"
 	],
 	
 	:xlsNumberLiteral = [
 	    "Matches a numeric literal in Excel",
 	
-	    "- `^-?\\d+(\\.\\d+)?$`: Matches an integer or decimal number, optionally negative." + NL + NL +
+	    "- `^-?\\d+(\\.\\d+)?$`: Matches an integer or decimal number, optionally negative" + NL + NL +
 
-	    "- Matches: `123`, `-45`, `3.14`, `-0.5`." + NL +
-	    "- Non-matches: `123A`, `3,14`, `.`."
+	    "- Matches: `123`, `-45`, `3.14`, `-0.5`" + NL +
+	    "- Non-matches: `123A`, `3,14`, `.`"
 	],
 	
 	:xlsBooleanLiteral = [
 	    "Matches a boolean literal in Excel",
 	
-	    "- `^(TRUE|FALSE)$`: Matches the literals TRUE or FALSE (case-sensitive)." + NL + NL +
+	    "- `^(TRUE|FALSE)$`: Matches the literals TRUE or FALSE (case-sensitive)" + NL + NL +
 
-	    "- Matches: `TRUE`, `FALSE`." + NL +
-	    "- Non-matches: `true`, `false`, `1`."
+	    "- Matches: `TRUE`, `FALSE`" + NL +
+	    "- Non-matches: `true`, `false`, `1`"
 	],
 	
 	:xlsArithmeticExpression = [
 	    "Matches an Excel arithmetic expression",
 	
-	    "- `^.*(?:[+\\-*/^]).*$`: Matches any formula containing arithmetic operators." + NL + NL +
+	    "- `^.*(?:[+\\-*/^]).*$`: Matches any formula containing arithmetic operators" + NL + NL +
 
-	    "- Matches: `A1+A2`, `B1-B2`, `3*4`, `5/2`, `2^3`." + NL +
-	    "- Non-matches: `A1A2`, `3*`, `*4`."
+	    "- Matches: `A1+A2`, `B1-B2`, `3*4`, `5/2`, `2^3`" + NL +
+	    "- Non-matches: `A1A2`, `3*`, `*4`"
 	],
 	
 	:xlsConditionalExpression = [
 	    "Matches an Excel conditional expression",
 	
-	    "- `^.*(?:=|<|>|<>).*$`: Matches any formula containing comparison operators." + NL + NL +
+	    "- `^.*(?:=|<|>|<>).*$`: Matches any formula containing comparison operators" + NL + NL +
 
-	    "- Matches: `A1=A2`, `B1<>C1`, `A1>10`, `5<=6`." + NL +
-	    "- Non-matches: `A1A2`, `=A1`, `<B2`."
+	    "- Matches: `A1=A2`, `B1<>C1`, `A1>10`, `5<=6`" + NL +
+	    "- Non-matches: `A1A2`, `=A1`, `<B2`"
 	],
 
 	:xlsArrayFormula = [
 	"Matches an Excel array formula",
 
-		"- `^\\{`: Matches the opening curly brace for the array formula." + NL +
-		"- `(?:`: Start of a non-capturing group." + NL +
-		"- `\\s*=\\s*[A-Za-z]+\\([^\\)]*\\)`: Matches a formula starting with an equal sign, a function name, and arguments enclosed in parentheses." + NL +
-		"- `|`: Alternation to match either a function or plain array values." + NL +
-		"- `\\s*[A-Za-z0-9\\+\\-\\*/\\(\\)\\&\\^\\.]+`: Matches numeric or textual values, operators, and parenthesized expressions." + NL +
-		"- `(\\s*,\\s*[A-Za-z0-9\\+\\-\\*/\\(\\)\\&\\^\\.]+)*`: Optionally matches additional array elements separated by commas." + NL +
-		"- `\\s*`: Allows trailing whitespace." + NL +
-		"- `\\}`: Matches the closing curly brace for the array formula." + NL +
-		"- `$`: Ensures the entire string matches the pattern." + NL + NL +
+		"- `^\\{`: Matches the opening curly brace for the array formula" + NL +
+		"- `(?:`: Start of a non-capturing group" + NL +
+		"- `\\s*=\\s*[A-Za-z]+\\([^\\)]*\\)`: Matches a formula starting with an equal sign, a function name, and arguments enclosed in parentheses" + NL +
+		"- `|`: Alternation to match either a function or plain array values" + NL +
+		"- `\\s*[A-Za-z0-9\\+\\-\\*/\\(\\)\\&\\^\\.]+`: Matches numeric or textual values, operators, and parenthesized expressions" + NL +
+		"- `(\\s*,\\s*[A-Za-z0-9\\+\\-\\*/\\(\\)\\&\\^\\.]+)*`: Optionally matches additional array elements separated by commas" + NL +
+		"- `\\s*`: Allows trailing whitespace" + NL +
+		"- `\\}`: Matches the closing curly brace for the array formula" + NL +
+		"- `$`: Ensures the entire string matches the pattern" + NL + NL +
 
-		"- Matches: `{=SUM(A1:A10)}`, `{1, 2, 3}`, `{A1+B1, C1*D1}`." + NL +
-		"- Non-matches: `{SUM(A1:A10}`, `{1, 2}`, `=SUM(A1:A10)`."
+		"- Matches: `{=SUM(A1:A10)}`, `{1, 2, 3}`, `{A1+B1, C1*D1}`" + NL +
+		"- Non-matches: `{SUM(A1:A10}`, `{1, 2}`, `=SUM(A1:A10)`"
 	]
 
 
