@@ -4,6 +4,8 @@
 #  REGEX DATA : NAMED PATTERNS AND THEIR EXPLANATIONS  #
 #------------------------------------------------------#
 
+#TODO // Test them all.
+
 _$aRegexPatterns_ = [
 
 	# Web & Email
@@ -67,6 +69,7 @@ _$aRegexPatterns_ = [
 
 	# Numbers & Currency (International)
 
+	:digit = "\d",
 	:number = "^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$",
    	:currencyValue = "^-?\d{1,3}(?:,\d{3})*(?:\.\d{2})?$",
    	:scientificNotation = "^-?\d+(?:\.\d+)?(?:e[+-]?\d+)?$",
@@ -99,7 +102,7 @@ _$aRegexPatterns_ = [
 	:requestId = "^[\w\-]{4,}$",
 	:corsOrigin = "^https?://(?:[\w-]+\.)+[\w-]+(?::\d{1,5})?$",
 
-   	# Data Cleaning
+   	# Data Cleaning Patterns
 
    	:alphanumeric = "^[a-zA-Z0-9]+$",
    	:alphabetic = "^[a-zA-Z]+$",
@@ -126,7 +129,7 @@ _$aRegexPatterns_ = [
    	:csvEscapedQuote = "\ " + char(34) + "\ " + char(34),
 	:csvLine = "^(?:(?:\ " + char(34) + "[^\ " + char(34) + "]*\ " + char(34) + ")|(?:[^,\ " + char(34) + "]+))(?:,(?:(?:\ " + char(34) + "[^\ " + char(34) + "]*\ " + char(34) + ")|(?:[^,\ " + char(34) + "]+)))*$",
 
-	# SQL Patters
+	# SQL Patterns
 
 	:sqlSelectStatement = "^\\s*SELECT\\s+.+?\\s+FROM\\s+.+?(?:\\s+WHERE\\s+.+?)?$",
 	:sqlInsertStatement = "^\\s*INSERT\\s+INTO\\s+.+?\\s+\\(.+?\\)\\s+VALUES\\s+\\(.+?\\)\\s*$",
@@ -882,6 +885,12 @@ _$aRegexPatternsExplanations_ = [
 	],
 
 	# Numbers & Currency (International)
+
+	:digit = [
+		"Matches any single digit (0–9)",
+
+		"- `\d` : A digit from 0 to 9."
+	]
 
 	:number = [
 		"Matches various number formats including decimals and thousands separators",
