@@ -1,5 +1,20 @@
 load "../max/stzmax.ring"
 
+/*-----
+*/
+pr()
+
+? IsNumberInString("5")
+#--> 1
+
+? IsNumberInString("C")
+#--> 0
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-----
+
 # Example 1: Basic pattern with character classes and quantifiers
 oParser = new stzRegexParser("[A-Z]{2}[- ]?[0-9]{3}[- ]?[A-Z]{2}")
 aSequences = oParser.parse()

@@ -194,15 +194,19 @@ class stzRegexParser
 	def translateCharClass(cClass, bNegated, cQuant)
 		# Parse the character class content and create appropriate sequence
 		oMaker = new stzRegexMaker
-		
+ ? @@(cClass)
 		if substr(cClass, "-") > 0
 			# Range like A-Z or 0-9
-			cStart = substr(cClass, 1, 1)
-			cEnd = right(cClass, 1)
+
+			cStart = cClass[1]
+			cEnd = cClass[3]
+
+? @@([ cStart, cEnd ])
 			
-			if isDigit(cStart) and isDigit(cEnd)
+			if IsNumberInString(cStart) and IsNumberInString(cEnd)
 				oMaker.addDigitsRange(cStart + "-" + cEnd, translateQuantifier(cQuant))
 			else
+? "ici"
 				oMaker.addCharsRange(cStart + "-" + cEnd, translateQuantifier(cQuant))
 			ok
 		else

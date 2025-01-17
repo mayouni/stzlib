@@ -1297,7 +1297,7 @@ func BothAreMarquers(pcStr1, pcStr2)
 func ring_number(cNumberInStr) #TODO // Move it to stzRingFuncs.ring
 	return number(cNumberInStr)
 
-func @Number(pNumberOrString) # An enjaced version of the Ring number() function.
+func @Number(pNumberOrString) # An enhanced version of the Ring number() function.
 
 	if isNumber(pNumberOrString)
 		return pNumberOrString
@@ -1318,36 +1318,16 @@ func @Number(pNumberOrString) # An enjaced version of the Ring number() function
 
 	# Now, it is safe ti use the Ring Number() function
 
-	_nResult_ = ring_number(cNumberInStr)
-	return _nResult_
+	try
+		_nResult_ = ring_number(cNumberInStr)
+		return _nResult_
+	catch
+		stzRaise("Can't proceed! pNumberOrString contains a literal not a number in string.")
+	done
 
 func IsNumberInString(str)
-
-	if NOT isString(str)
-		return _FALSE_
-	ok
-
-	if str = ""
-		return _FALSE_
-	ok
-
-	# Removing spaces and underscores (because we use them in numbers)
-
-	cNumberInStr = ring_substr2(str, " ", "")
-	cNumberInStr = ring_substr2(cNumberInStr, "_", "")
-
-	if str = ""
-		return _FALSE_
-	ok
-
-	# Now, it is safe ti use the Ring Number() function
-
-	if isNumber( @Number(cNumberInStr) )
-		return _TRUE_
-	else
-		return _FALSE_
-	ok
-	
+	return rx("\d").Match(str) # Regex-base, more performant then:
+	return StzStringQ(str).IsNumberInString()
 
 	func @IsNumberInstring(str)
 		return IsNumberInString(str)

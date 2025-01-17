@@ -2,46 +2,81 @@ load "../max/stzmax.ring"
 
 /*=== REGEX EXPLANATIONS
 
+#TODO // Test all Regex patterns supported in Softanza by name
+# Here is the list of their domains:
+
+# Web & Email
+# Dates & Times (International)
+# Markdown patters
+# YAML Patterns
+# HTML Patters
+# CSS Patterns
+# Numbers & Currency (International)
+# Contact Information (International)
+# Modern Data Formats
+# API & Request Validation
+# Data Cleaning
+# JSON Patterns
+# CSV Patterns
+# SQL Patterns
+# Regexes for Potential Security Concerns
+# Ring Language Patterns
+# Python Language Patterns
+# JavaScript Language Patterns
+# Visual Basic Language Patterns
+# Julia Language Patterns
+# Excel Formula Script
+
 pr()
 
+# Match an Excel array formula
 rx(pat(:xlsArrayFormula)) { ? Match("{=SUM(A1:A10)}") }
-#--? TRUE
+#--> TRUE
 
-# You want to see the regex pattern itself?
-
+# Retrieve and inspect the pattern
 rx(pat(:xlsArrayFormula)) { ? Pattern() + NL }
-#--> 
+#--> Outputs the complex regex string
 
-# Hard to understand? Don't worry, ask Softanza to explain it
-
-//rx(pat(:xlsArrayFormula)) { ? Explain() + NL }
+// Request a concise explanation
+rx(pat(:xlsArrayFormula)) { ? Explain() + NL }
 #--> "Matches an array formula in Excel"
 
-# You want a detailed explanation of the regex itself? There an eXTended explanaltion
+// Request an extended breakdown of the regex
+rx(pat(:xlsArrayFormula)) { ? ExplainXT() }
+#--> Detailed line-by-line explanation of the regex components.
 
-//rx(pat(:xlsArrayFormula)) { ? ExplainXT() }
-#-->
-# - `^\\{`: Matches the opening curly brace for the array formula.
-# - `(?:`: Start of a non-capturing group.
-# - `\\s*=\\s*[A-Za-z]+\\([^\\)]*\\)`: Matches a formula starting with an equal
-#   sign, a function name, and arguments enclosed in parentheses.
-# - `|`: Alternation to match either a function or plain array values.
-# - `\\s*[A-Za-z0-9\\+\\-\\*/\\(\\)\\&\\^\\.]+`: Matches numeric or textual values,
-#   operators, and parenthesized expressions.
-# - `(\\s*,\\s*[A-Za-z0-9\\+\\-\\*/\\(\\)\\&\\^\\.]+)*`: Optionally matches additional
-#   array elements separated by commas.
-# - `\\s*`: Allows trailing whitespace.
-# - `\\}`: Matches the closing curly brace for the array formula.
-# - `$`: Ensures the entire string matches the pattern.
-
-# - Matches: `{=SUM(A1:A10)}`, `{1, 2, 3}`, `{A1+B1, C1*D1}`.
-# - Non-matches: `{SUM(A1:A10}`, `{1, 2}`, `=SUM(A1:A10)`.
-
-//proff()
+proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-*/
+
+pr()
+
+rx(pat(:xlsConditionalExpression)) {
+
+	? Match("B2<>C3")
+	#--> TRUE
+
+	? Pattern() + NL
+	#--> "^.*(?:=|<|>|<>).*$"
+
+	? Explain() + NL
+	#--> Matches an Excel conditional expression
+
+	? ExplainXT() + NL
+	#-->
+	# - `^.*(?:=|<|>|<>).*$`: Matches any formula containing comparison operators.
+
+	# - Matches: `A1=A2`, `B1<>C1`, `A1>10`, `5<=6`.
+	# - Non-matches: `A1A2`, `=A1`, `<B2`.
+
+}
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
 pr()
 
 rx(pat(:email)) {
@@ -208,7 +243,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 rx(pat(:isoDateTime)) {
@@ -241,11 +276,7 @@ rx(pat(:isoDateTime)) {
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*---
-
-
-
-/*====
+/*----
 
 pr()
 
@@ -289,50 +320,6 @@ pr()
 	#--> TRUE
 	
 	rx(pat(:currencyValue)) { ? Match("1234.567") + NL }
-	#--> FALSE
-
-# Test Security Patterns
-
-	rx(pat(:passwordComplexity)) { ? Match("Password123!") }
-	#--> TRUE (Strong enough)
-
-	rx(pat(:passwordComplexity)) { ? Match("abc") }
-	#--> FALSE (weak password)
-
-	rx(pat(:noSqlKeywords)) { ? Match("SELECT * FROM users") }
-	#--> FALSE (SQL injection attempt!)
-
-	rx(pat(:noSqlKeywords)) { ? Match("normal text") + NL }
-	#--> TRUE (Safe text)
-
-# Test Mobile & Web App
-
-	rx(pat(:appVersion)) { ? Match("1.2.3") }
-	#--> TRUE
-
-	rx(pat(:appVersion)) { ? Match("1.2") }
-	#--> FALSE
-
-# Test Content Security
-
-	rx(pat(:allowedHtml)) { ? Match("<p>text</p>") }
-	#--> TRUE
-
-	rx(rxp(:allowedHtml)) { ? Match("<script>alert(1)</script>") }
-	#--> FALSE
-
-	rx(pat(:allowedFileTypes)) { ? Match("document.pdf") }
-	#--> TRUE
-
-	rx(pat(:allowedFileTypes)) { ? Match("script.exe") + NL }
-	#--> FALSE
-
-# Misc patterns
-
-	rx(pat(:coordinates)) { ? Match("40.7128,-74.0060") }
-	#--> TRUE
-
-	rx(pat(:coordinates)) { ? Match("12.8") + NL }
 	#--> FALSE
 
 proff()
@@ -406,8 +393,8 @@ pr()
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*===
-*/
+/*=== DECLARATIVE DESIFN OF REGEX PATTERNS
+
 pr()
 
 o1 = new stzRegexMaker()
@@ -422,24 +409,25 @@ o1 {
 	AddDigitsRange(	"0-9", 	    :RepeatedBetween, 1, :And = [3, :Times])
 
 	# Sequence 4
-	AddAmongChars(	["-", " "], :RepeatedAtMost, 1, :Time)
-#TODO Teste AddNotAmongChars()
+	AddNotAmongChars(	["-", " "], :RepeatedAtMost, 1, :Time)
+
 	# Sequence 5
-	AddCharsRange(	"A-Z", 	    :RepeatedExactly, 2, :Times)
+	RepeatSequence(1)
 
 	# Get the constructed pattern
 	? Pattern() + NL
+	#--> [A-Z]{2}[- ]?[0-9]{1,3}[^- ]?[A-Z]{2}
 
 	# Get the pattern structure
 
-//	? @@NL( o1.FragmentsXT() )
+	? @@NL( o1.FragmentsXT() )
 	#--> [
-	# 	[ "[A-Z]{2}", 	[ "chars", "A-Z", "repeatedexactly", 2, "times" ] ],
-	# 	[ "[- ]?", 	[ "among", [ "-", " " ], "repeatedatmost", 1, "time" ] ],
-	# 	[ "[0-9]{1,3}", [ "digits", "0-9", "repeatedbetween", 1, 3 ] ],
-	# 	[ "[- ]?", 	[ "among", [ "-", " " ], "repeatedatmost", 1, "time" ] ],
-	# 	[ "[A-Z]{2}", 	[ "chars", "A-Z", "repeatedexactly", 2, "times" ] ]
-	# ]
+	# [ "[A-Z]{2}", [ "between", "A-Z", "repeatedexactly", 2, "times" ] ],
+	# [ "[- ]?", [ "among", "- ", "repeatedatmost", 1, "time" ] ],
+	# [ "[0-9]{1,3}", [ "between", "0-9", "repeatedbetween", 1, 3 ] ],
+	# [ "[^- ]?", [ "notamong", "- ", "repeatedatmost", 1, "time" ] ],
+	# [ "[A-Z]{2}", [ "between", "A-Z", "repeatedexactly", 2, "times" ] ]
+]
 
 }
 
@@ -447,7 +435,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*------------
-
+*/
 pr()
 
 # Let's design the string pattern of the new french registration number.
@@ -512,4 +500,4 @@ o1 {
 }
 
 proff()
-# Executed in 0.05 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.22
