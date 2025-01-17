@@ -24,8 +24,10 @@ func StzRegexQ(pcPattern)
 class stzRegex
 	
 	@oQRegex
+	@oQMatchObject
+
 	@cPattern
-	@cTempStr
+	@cStr
 	@nPatternOptions = 0
 	@bInScopedMatch = FALSE
 
@@ -100,8 +102,16 @@ class stzRegex
 		next
 
 		@oQRegex.setPatternOptions(@nPatternOptions)
-		@cTempStr = pcStr
-		return @oQRegex.match(pcStr, 0, 0, 0).hasMatch()
+		@cStr = pcStr
+
+		@oQMatchObject = @oQRegex.match(pcStr, 0, 0, 0)
+		return @oQMatchObject.hasMatch()
+
+	def QMatchObject()
+		return @oQMatchObject
+
+	def String()
+		return @cStr
 
 	#-- Softanza scope-based pattern matching methods
 
@@ -185,11 +195,12 @@ class stzRegex
 
 	def CapturedValues()
 		_acResult_ = []
-		oMatch = @oQRegex.match(@cTempStr, 0, 0, 0)
-		
+//		oMatch = @oQRegex.match(This.String(), 0, 0, 0)
+		_oQMatch_ = This.QMatchObject()
+	
 		# Only add non-empty captures and skip full match
 		for @i = 1 to This.CaptureCount()
-			_cCapture_ = oMatch.captured(@i)
+			_cCapture_ = _oQMatch_.captured(@i)
 			if _cCapture_ != ""
 				_acResult_ + _cCapture_
 			ok
@@ -199,7 +210,8 @@ class stzRegex
 
 	def CaptureNames()
 
-		_acNames_ = QStringListToList(@oQRegex.namedCaptureGroups())
+		_oQRegex_ = This.QRegexObject()
+		_acNames_ = QStringListToList(_oQRegex_.namedCaptureGroups())
 		_nLen_ = len(_acNames_)
 
 		_acResult_ = []
@@ -220,14 +232,15 @@ class stzRegex
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
 		ok
 
-		oMatch = @oQRegex.match(@cTempStr, 0, 0, 0)
+//		oMatch = @oQRegex.match(This.String(), 0, 0, 0)
+		_oQMatch_ = This.QMatchObject()
 		_acCaptureNames_ = This.CaptureNames()
 		aResult = []
 
 		for @i = 1 to len(_acCaptureNames_)
 			cName = _acCaptureNames_[@i]
 			if cName != ""
-				aResult + [ cName, oMatch.captured(@i) ]
+				aResult + [ cName, _oQMatch_.captured(@i) ]
 			ok
 		next
 
@@ -239,16 +252,50 @@ class stzRegex
 	#-- Pattern information and validation
 
 	def CaptureCount()
-		return @oQRegex.captureCount()
+		return This.QRegexObject().captureCount()
 
 	def IsValid()
 		return This.QRegexObject().isValid()
 
+	def HasMatch()
+		return This.QMatchObject().hasMatch()
+
 	def LastError()
-		return @oQRegex.errorString()
+		return This.QRegexObject().errorString()
 
 	def PatternErrorOffset()
-		return @oQRegex.patternErrorOffset()
+		return This.QRegexObject().patternErrorOffset()
+
+	#-- Partial Matching
+
+	def HasPartialMatch()
+		return This.QMatchObject().hasPartialMatch()
+
+	def PartialMatchStart()
+		_nResult_ = 1
+		_oQMatch_ = This.QMatchObject()
+
+		if This.HasPartialMatch()
+			_nResult_ = _oQMatch_.capturedStart() + 1
+		ok
+
+		return _nResult_
+
+	def PartialMatchEnd()
+		_nResult_ = 1
+		_oQMatch_ = This.QMatchObject()
+
+		if This.HasPartialMatch()
+			_nResult_ = _oQMatch_.capturedEnd() + 1
+		ok
+
+		return _nResult_
+
+	def PartialMatchSection()
+		return [ This.PartialMatchStart(), This.PartialMatchStart() ]
+
+	def PartialMatchLength()
+		return This.QMatchObject().capturedLength(1)
 
 	#-- Legacy matching methods (maintained for compatibility)
 
@@ -262,8 +309,10 @@ class stzRegex
 			ok
 		ok
 
-		@cTempStr = pcStr
-		return QRegexObject().match(pcStr, nPos, 0, 0).hasMatch()
+		@cStr = pcStr
+
+		@oQMatch = This.QRegexObject().match(pcStr, nPos, 0, 0)
+		return @oQMatch.hasMatch()
 
 		def MatchAtPosition(pcStr, nPos)
 			return This.MatchAt(pcStr, nPos)

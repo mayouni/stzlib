@@ -114,9 +114,9 @@ txt = "compress express"
 prf()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*--------------------------------------------#
+/*-------------------------------------------#
 #  Testing Complete stzRegex Implementation  #
-#---------------------------------------------#
+#--------------------------------------------#
 
 /*-- Test 1: Basic Pattern Matching with Match
 
@@ -291,6 +291,38 @@ o1 = new stzRegex("hello world")
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
+
+/*---------------------------#
+#  Case of Partial Matching  #
+#----------------------------#
+*/
+pr()
+
+# A partial match occurs when the pattern matches up to
+# the end of the input string, but needs more characters
+# to potentially complete the match.
+
+# For example, if your pattern is "hello\d" and the input
+# is "hello", it's a partial match because adding a digit
+# would make it a full match.
+
+rx("hello\d") {
+
+	Match("hello")
+
+	? HasMatch()
+
+	? HasPartialMatch()
+
+	? PartialMatchStart()
+
+	? PartialMatchEnd()
+
+	? PartialMatchLength()
+
+}
+
+proff()
 
 /*-------------------------------------------------------#
 #  Real-World Regular Expression Examples with Softanza  #
