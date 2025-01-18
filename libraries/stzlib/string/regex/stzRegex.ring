@@ -30,8 +30,6 @@ class stzRegex
 	@nPatternOptions = 0
 	@bInScopedMatch = FALSE
 
-	@nLastMatchPosition = 0
-
 	def init(pcPattern)
 		if CheckParams()
 			if NOT isString(pcPattern)
@@ -77,78 +75,119 @@ class stzRegex
 
 	#-- Core Qt integration with enhanced options
 
-def MatchXT(pcStr, paOptions)
-	if CheckParams()
-		if NOT isString(pcStr)
-			StzRaise("Incorrect param type! pcStr must be a string.")
-		ok
-	ok
+	def MatchXT(pcStr, pnStartPosition, pcMatchType, pacOptions)
 
-	# Reset pattern options before applying new ones
-	@nPatternOptions = 0
+		if CheckParams()
 
-	nMatchType = 1      	# Default to NormalMatch
-	nStartPosition = 0  	# Default start position
-
-	# Apply options from array
-	for cOption in paOptions
-		if isNumber(cOption)
-			# Validate position
-			if cOption < 1 or cOption > len(pcStr)
-				return FALSE
+			if NOT isString(pcStr)
+				StzRaise("Incorrect param type! pcStr must be a string.")
 			ok
-			nStartPosition = cOption - 1
 
-		else
-			switch cOption
+			if NOT isNumber(pnStartPosition)
+				StzRaise("Incorrect param type! pnStartPosition must be a number.")
+			ok
+
+			if NOT isString(pcMatchType)
+				StzRaise("Incorrect param type! pcMatchType must be a string.")
+			ok
+
+			if NOT ( isList(pacOptions) and IsListOfStrings(pacOptions) )
+				StzRaise("Incorrect param type! pacOptions must be a list of strings.")
+			ok
+
+		ok
+	
+		# Reset pattern options before applying new ones
+
+		nQStartPosition = 0
+		nQMatchType = 1
+		@nQPatternOptions = 0
+	
+		# Defing the start position
+
+		if pnStartPosition >= 0
+			nQStartPosition = pnStartPosition - 1 # Convert 1-based to 0-based
+		ok
+
+		# Defining the match type
+
+		switch pcMatchType
+
+		on :NormalMatch
+			nQMatchType = 1
+
+		on :PartialPreferCompleteMatch
+			nQMatchType = 2
+
+		on :PartialPreferFirstMatch
+			nQMatchType = 3
+
+		on :NoMatch
+			nQMatchType = 4
+		off
+
+		# Defining options
+
+		nLen = len(pacOptions)
+
+		for i = 1 to nLen
+
+			switch pacOptions[i]
+
 			case "CaseInsensitive"
-				@nPatternOptions |= 1
+				@nQPatternOptions |= 1
+
 			case "DotMatchesAll"
-				@nPatternOptions |= 2
+				@nQPatternOptions |= 2
+
 			case "MultiLine"
-				@nPatternOptions |= 4
+				@nQPatternOptions |= 4
+
 			case "ExtendedSyntax"
-				@nPatternOptions |= 8
+				@nQPatternOptions |= 8
+
 			case "NonGreedy"
-				@nPatternOptions |= 16
+				@nQPatternOptions |= 16
+
 			case "DontCapture"
-				@nPatternOptions |= 32
+				@nQPatternOptions |= 32
+
 			case "UseUnicode"
-				@nPatternOptions |= 64
+				@nQPatternOptions |= 64
+
 			case "DisableOptimizations"
-				@nPatternOptions |= 128
+				@nQPatternOptions |= 128
 
 			off
-		ok
-	next
 
-	@oQRegex.setPatternOptions(@nPatternOptions)
-	@cStr = pcStr
-
-	@oQMatchObject = @oQRegex.match(pcStr, 0, 0, 0)
-
-	return @oQMatchObject.hasMatch()
-
-
+		next
+	
+		@oQRegex.setPatternOptions(@nQPatternOptions)
+		@cStr = pcStr
+	
+		@oQMatchObject = @oQRegex.match(pcStr, nQStartPosition, nQMatchType, 0)
+	
+		return @oQMatchObject.hasMatch()
+	
 	#-- Match Information Methods
 
-def HasMatch()
-	if @oQMatchObject = NULL
-		return FALSE
-	ok
-
-	return @oQMatchObject.hasMatch()
+	def HasMatch()
+		if @oQMatchObject = NULL
+			return FALSE
+		ok
+	
+		return @oQMatchObject.hasMatch()
 
 	#-- Softanza scope-based pattern matching methods
 
 	def MatchLinesIn(pcStr)
-		return This.MatchXT(pcStr, ["MultiLine", "DotMatchesAll"])
+		return This.MatchXT(pcStr, 1, :NormalMatch, [ "MultiLine", "DotMatchesAll" ])
 
 		def MatchLine(pcStr)
 			return This.MatchLinesIn(pcStr)
 
 	def MatchFirstLineIn(pcStr)
-		return This.MatchXT(pcStr, ["MultiLine", "NonGreedy"])
+		return This.MatchXT(pcStr, 1, :NormalMatch, ["MultiLine", "NonGreedy"])
 
 		def MatchFirstLine(pcStr)
 			return This.MatchFirstLineIn(pcStr)
@@ -156,7 +195,7 @@ def HasMatch()
 	def MatchWordsIn(pcStr)
 		cWordPattern = "\b" + This.Pattern() + "\b"
 		This.SetPattern(cWordPattern)
-		return This.MatchXT(pcStr, [])
+		return This.MatchXT(pcStr, 1, :NormalMatch, [])
 
 		def MatchWord(pcStr)
 			return This.MatchWordsIn(pcStr)
@@ -164,25 +203,25 @@ def HasMatch()
 	def MatchFirstWordIn(pcStr)
 		cWordPattern = "\b" + This.Pattern() + "\b"
 		This.SetPattern(cWordPattern)
-		return This.MatchXT(pcStr, ["NonGreedy"])
+		return This.MatchXT(pcStr, 1, :NormalMatch, [ "NonGreedy" ])
 
 		def MatchFirstWord(pcStr)
 			return This.MatchFirstWordIn(pcStr)
 
 	def MatchSegmentsIn(pcStr)
-		return This.MatchXT(pcStr, ["DotMatchesAll", "MultiLine"])
+		return This.MatchXT(pcStr, 1, :NormalMatch, [ "DotMatchesAll", "MultiLine" ])
 
 		def MatchSegment(pcStr)
 			return This.MatchSegmentsIn(pcStr)
 
 	def MatchFirstSegmentIn(pcStr)
-		return This.MatchXT(pcStr, ["DotMatchesAll", "MultiLine", "NonGreedy"])
+		return This.MatchXT(pcStr, 1, :NormalMatch, [ "DotMatchesAll", "MultiLine", "NonGreedy" ])
 
 		def MatchFirstSegment(pcStr)
 			return This.MatchFirstSegmentIn(pcStr)
 
 	def Match(pcStr)
-		return This.MatchXT(pcStr, ["DotMatchesAll"])
+		return This.MatchXT(pcStr, 1, :NormalMatch, [ "DotMatchesAll" ])
 
 		def MatchString(pcStr)
 			return This.Match(pcStr)
@@ -219,7 +258,7 @@ def HasMatch()
 		return _abResult_
 
 	def MatchFirst(pcStr)
-		return This.MatchXT(pcStr, ["DotMatchesAll", "NonGreedy"])
+		return This.MatchXT(pcStr, 1, :NormalMatch, [ "DotMatchesAll", "NonGreedy" ])
 
 	def MatchAt(pcStr, nPos)
 		if CheckParams()
@@ -231,9 +270,7 @@ def HasMatch()
 		ok
 	ok
 
-	@cStr = pcStr
-	@nLastMatchPosition = nPos - 1
-	return This.MatchXT(pcStr, [nPos])
+	return This.MatchXT(pcStr, nPos, :NormalMatch, [])
 
 	#-- Capture-related methods
 

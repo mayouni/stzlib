@@ -1,6 +1,38 @@
 load "../max/stzmax.ring"
 
 /*----------------#
+#  PARTIAL MATCH  #
+#-----------------#
+*/
+pr()
+
+# A partial match occurs when the pattern matches up to
+# the end of the input string, but needs more characters
+# to potentially complete the match.
+
+# For example, if your pattern is "hello\d" and the input
+# is "hello", it's a partial match because adding a digit
+# would make it a full match.
+
+rx("hello\d") {
+
+	Match("hello")
+
+	? HasMatch()
+
+	? HasPartialMatch()
+
+	? PartialMatchStart()
+
+	? PartialMatchEnd()
+
+	? PartialMatchLength()
+
+}
+
+proff()
+
+/*----------------#
 #  Recursiveness  #
 #-----------------#
 
@@ -34,7 +66,7 @@ proff()
 /*----------------#
 #  Partial Match  #
 #-----------------#
-*/
+
 pr()
 
 # Partial matching allows you to find patterns that are
@@ -71,6 +103,7 @@ nStartAt = 0
 #	"UseUnicode"		| 64
 #	"DisableOptimizations"	|= 128
 
+# Qt macth(str, nStartPos, nMatchType, aMatchOptions)
 
 ? rx.QRegexObject().match("hel", nStartAt, nQPartialPreferCompleteMatch, 0).hasPartialmatch()
 
@@ -80,7 +113,7 @@ proff()
 #  Understanding Qt Regex Options  #
 #----------------------------------#
 
-/*-- Test 1: Basic dot behavior
+# Test 1: Basic dot behavior
 
 pr()
 
@@ -91,11 +124,11 @@ o = new stzRegex("hello.world")
 
 # Without DotMatchesAll
 
-? o.MatchXT(txt, []) # Returns false - dot doesn't match newline
+? o.MatchXT(txt, 1, :NormalMatch, []) # Returns false - dot doesn't match newline
 #--> FALSE
 
 # With DotMatchesAll
-? o.MatchXT(txt, [ "DotMatchesAll" ]) # Returns true - dot matches newline
+? o.MatchXT(txt, 1, :NormalMatch, [ "DotMatchesAll" ]) # Returns true - dot matches newline
 #--> TRUE
 
 proff()
@@ -112,12 +145,12 @@ o.SetPattern("hello world")
 
 # Case sensitive (default)
 
-? o.MatchXT(txt, [])  # Returns false - different case
+? o.MatchXT(txt, 1, :NormalMacth, [])  # Returns false - different case
 #--> FALSE
 
 # Case insensitive
 
-? o.MatchXT(txt, [ "CaseInsensitive" ])  # Returns true - case ignored
+? o.MatchXT(txt, 1, :NormalMatch, [ "CaseInsensitive" ])  # Returns true - case ignored
 #--> TRUE
 
 proff()
@@ -132,14 +165,14 @@ txt = "<p>First</p><p>Second</p>"
 o = new stzRegex("")
 o.SetPattern("<p>.*</p>")
 
-# Greedy (default)
+# Greedy (default): Matches entire string
 
-? o.MatchXT(txt, [ "DotMatchesAll" ])  # Matches entire string
+? o.MatchXT(txt, 1, :NormalMatch, [ "DotMatchesAll" ])
 #--> TRUE
 
-# Non-greedy
+# Non-greedy: Matches first <p> only
 
-? o.MatchXT(txt, [ "DotMatchesAll", "NonGreedy" ])  # Matches first <p> only
+? o.MatchXT(txt, 1, :NormalMatch, [ "DotMatchesAll", "NonGreedy" ])
 #--> TRUE
 
 proff()
@@ -153,16 +186,16 @@ txt = "Start: Line1
 End: Line2"
 
 o = new stzRegex("")
-o.SetPattern("^End:.*$")
+o.SetPattern("^End:.*$") # ^ only matches start of string
 
 # Without MultiLine
 
-? o.MatchXT(txt, [])  # Returns false - ^ only matches start of string
+? o.MatchXT(txt, 1, :NormalMatch, [])
 #--> FALSE
 
-# With MultiLine
+# With MultiLine: now ^ matches start of any line
 
-? o.MatchXT(txt, [ "MultiLine" ])  # Returns true - ^ matches start of any line
+? o.MatchXT(txt, 1, :NormalMatch, [ "MultiLine" ])
 #--> TRUE
 
 prf()
@@ -178,13 +211,13 @@ o = new stzRegex("\bpre\w+")
 
 # Matching words starting with 'pre'
 
-? o.MatchXT(txt, [])  # Returns true for words starting with 'pre'
+? o.MatchXT(txt, 1, :NormalMatch, [])
 #--> TRUE
 
 # Test that fails (no 'pre' words)
 
 txt = "compress express"
-? o.MatchXT(txt, [])  # Returns false - no words start with 'pre'
+? o.MatchXT(txt, 1, :NormalMatch, [])
 #--> FALSE
 
 prf()
@@ -194,20 +227,20 @@ prf()
 #  Testing Complete stzRegex Implementation  #
 #--------------------------------------------#
 
-/*-- Test 1: Basic Pattern Matching with Match
+# Test 1: Basic Pattern Matching with Match
 
 pr()
 
-o = new stzRegex("quick.*fox")
+o1 = new stzRegex("quick.*fox")
 
 # Pattern should match
 
-? o.Match("The quick brown fox")  # Or MatchString()
+? o1.Match("The quick brown fox")  # Or MatchString()
 #--> TRUE
 
 # Pattern should not match
 
-? o.Match("slow blue fox")  # false
+? o1.Match("slow blue fox")  # false
 #--> FALSE
 
 prf()
@@ -241,12 +274,12 @@ o1 = new stzRegex("<div>.*</div>")
 
 # Matching all (greedy) with MatchSegmentsIn()
 
-? o1.MatchSegmentsIn(txt)	# matches both divs
+? o1.MatchSegmentsIn(txt) # matches both divs
 #--> TRUE
 
 # Matching first (non-greedy) with MatchFirstSegmentIn()
 
-? o1.MatchfirstSegmentIn(txt)	# matches first div
+? o1.MatchFirstSegmentIn(txt) # matches first div
 #--> TRUE
 
 prf()
@@ -313,12 +346,13 @@ o1 = new stzRegex("Name: (?<name>.*), Age: (?<age>\d+)")
 ? o1.Match(txt)
 #--> TRUE
 
-? o1.HasNames()
+? o1.HasNames() + NL
 #--> TRUE
 
 # Capturing names (just names)
 
-? @@( o1.Names() )
+? @@( o1.Names() ) + NL
+#--> [ "name", "age" ]
 
 # We can see the names and their values when we use
 # the eXTended form of Cpature() function
@@ -327,7 +361,7 @@ o1 = new stzRegex("Name: (?<name>.*), Age: (?<age>\d+)")
 #--> [
 #	[ "name", "John" ],
 #	[ "age", "30" ]
-" ]
+# ]
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
@@ -357,48 +391,16 @@ o1 = new stzRegex("hello world")
 
 # Case sensitive (should fail)
 
-? o1.MatchXT("HELLO world", [])
+? o1.MatchXT("HELLO world", 1, :NormalMacth, [])
 #--> FALSE
 
 # Case insensitive (should match)
 
-? o1.MatchXT("HELLO world", [ "CaseInsensitive" ])
+? o1.MatchXT("HELLO world", 1, :NormalMatch, [ "CaseInsensitive" ])
 #--> TRUE
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
-
-
-
-/*---- #TODO
-
-pr()
-
-# A partial match occurs when the pattern matches up to
-# the end of the input string, but needs more characters
-# to potentially complete the match.
-
-# For example, if your pattern is "hello\d" and the input
-# is "hello", it's a partial match because adding a digit
-# would make it a full match.
-
-rx("hello\d") {
-
-	Match("hello")
-
-	? HasMatch()
-
-	? HasPartialMatch()
-
-	? PartialMatchStart()
-
-	? PartialMatchEnd()
-
-	? PartialMatchLength()
-
-}
-
-proff()
 
 /*-------------------------------------------------------#
 #  Real-World Regular Expression Examples with Softanza  #
@@ -413,7 +415,7 @@ urlText = "Visit https://example.com:8080/path?param=1#section or http://sub.dom
 
 # Basic URL detection
 
-? o1.Match(urlText)
+? o1.Match(urlText) + NL
 #--> TRUE
 
 # Extract URL components using named groups
