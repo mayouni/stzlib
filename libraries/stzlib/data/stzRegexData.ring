@@ -10,14 +10,14 @@ _$aRegexPatterns_ = [
 
 	# Patterns to Analyze Regex patterns!
 
-	:regexGroup = "\\(([^()]*|(?R))*\\)",
-	:regexQuantifier = "\\*|\\+|\\?|(\\{\\d+(,\\d*)?\\})",
-	:regexCharacterClass = "\\[(\\^?[^\]]+)\\]",
-	:regexAssertion = "\\(\\?<?[=!]",
-	:regexEscapedChar = "\\\\",
-	:regexAlternation = "(\\|)",
-	:regexWildcard = "\\",
-	:regexRedundantAlternation = "\\((?:[a-zA-Z0-9]\\|?)+\\)",
+	:rxGroup = "\\(([^()]*|(?R))*\\)",
+	:rxQuantifier = "\\*|\\+|\\?|(\\{\\d+(,\\d*)?\\})",
+	:rxCharacterClass = "\\[(\\^?[^\]]+)\\]",
+	:rxAssertion = "\\(\\?<?[=!]",
+	:rxEscapedChar = "\\\\",
+	:rxAlternation = "(\\|)",
+	:rxWildcard = "\\",
+	:rxRedundantAlternation = "\\((?:[a-zA-Z0-9]\\|?)+\\)",
 
 	# Files names and paths
 
@@ -358,13 +358,44 @@ _$aRegexPatterns_ = [
 	:xlsConditionalExpression = "^.*(?:=|<|>|<>).*$",
 	:xlsArrayFormula = "^\{(?:\s*=\s*[A-Za-z]+\([^\)]*\)|\s*[A-Za-z0-9\+\-\*/\(\)\&\^\.]+(\s*,\s*[A-Za-z0-9\+\-\*/\(\)\&\^\.]+)*\s*)\}$",
 
+	# Credit cards and Bank accounts
+
+	:creditCard = "^\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{4}$",
+	:bankAccount = "^\\d{8,20}$",
+	:iban = "^[A-Z]{2}\\d{2}[A-Z0-9]{1,30}$",
+	:swiftCode = "^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$",
+
+	# Mathematic formulas
+
+	:simpleEquation = "^[A-Za-z0-9\\+\\-\\*/=\\(\\)\\.\\^\\s]+$",
+	:quadraticFormula = "^-?\\d*[A-Za-z]\\^2\\s*[+-]?\\s*\\d*[A-Za-z]\\s*[+-]?\\s*\\d+\\s*=\\s*0$",
+
+	# DNA and Chemistry
+
+	:dnaSequence = "^[ACGT]+$",
+	:chemicalFormula = "^[A-Z][a-z]?\\d*(?:[A-Z][a-z]?\\d*)*$",
+
+	# Measurements
+
+	:metricMeasurement = "^\\d+(\\.\\d+)?\\s?(mm|cm|m|km)$",
+	:imperialMeasurement = "^\\d+(\\.\\d+)?\\s?(in|ft|yd|mi)$",
+	:temperature = "^-?\\d+(\\.\\d+)?\\s?(°C|°F|K)$",
+
+	# Batcodes and QR-codes
+
+	:upc = "^\\d{12}$",
+	:ean13 = "^\\d{13}$",
+	:code128 = "^[!-~]+$", 
+	:qrCodeData = "^[A-Za-z0-9\\-._~:/?#\\[\\]@!$&'()*+,;=%]*$", 
+	:isbn10 = "^\\d{9}[\\dX]$", 
+	:isbn13 = "^978\\d{10}$"
 ]
 
 _$aRegexPatternsExplanations_ = [
 
 	# Patterns to Analyze Regex patterns!
 
-	:regexGroup = [
+	:rxGroup = [
 		"Matches regex groups, including nested ones",
 
 		"- `\\(`: Match the opening parenthesis" + NL +
@@ -374,7 +405,7 @@ _$aRegexPatternsExplanations_ = [
 		"- Non-matches: `abc`, `(abc`"
 	],
 
-	:regexQuantifier = [
+	:rxQuantifier = [
 		"Detects quantifiers used in regex patterns",
 
 		"- `\\*`: Match zero or more quantifiers" + NL +
@@ -386,7 +417,7 @@ _$aRegexPatternsExplanations_ = [
 	"- Non-matches: `a`, `{}`"
 	],
 
-	:regexCharacterClass = [
+	:rxCharacterClass = [
 		"Identifies character classes, including negated ones",
 
 		"- `\\[`: Match the opening bracket" + NL +
@@ -397,7 +428,7 @@ _$aRegexPatternsExplanations_ = [
 		"- Non-matches: `[`, `[abc`"
 	],
 
-	:regexAssertion = [
+	:rxAssertion = [
 		"Detects lookahead and lookbehind assertions",
 
 		"- `\\(\\?`: Match opening `(?`" + NL +
@@ -407,7 +438,7 @@ _$aRegexPatternsExplanations_ = [
 		"- Non-matches: `abc`, `()`"
 	],
 
-	:regexEscapedChar = [
+	:rxEscapedChar = [
 		"Finds escaped characters in regex patterns",
 
 		"- `\\\\`: Match the escape character `\\`" + NL +
@@ -417,7 +448,7 @@ _$aRegexPatternsExplanations_ = [
 		"- Non-matches: `n`, `[`, `\\\\` (if unescaped)"
 	],
 
-	:regexAlternation = [
+	:rxAlternation = [
 		"Detects alternation (`|`) in patterns",
 
 		"- `(\\|)`: Match the `|` symbol used for alternation" + NL + NL +
@@ -426,7 +457,7 @@ _$aRegexPatternsExplanations_ = [
 		"- Non-matches: `a b`, `(abc)`"
 	],
 
-	:regexWildcard = [
+	:rxWildcard = [
 		"Finds wildcard characters in regex patterns",
 
 		"- `\\.`: Match the `.` character that represents any character" + NL + NL +
@@ -435,7 +466,7 @@ _$aRegexPatternsExplanations_ = [
 		"- Non-matches: `a b`, `abc`"
 	],
 
-	:regexRedundantAlternation = [
+	:rxRedundantAlternation = [
 		"Detects redundant alternations that can be replaced by character classes",
 
 		"- `\\(`: Match the opening parenthesis" + NL +
@@ -3309,8 +3340,170 @@ _$aRegexPatternsExplanations_ = [
 
 		"- Matches: `{=SUM(A1:A10)}`, `{1, 2, 3}`, `{A1+B1, C1*D1}`" + NL +
 		"- Non-matches: `{SUM(A1:A10}`, `{1, 2}`, `=SUM(A1:A10)`"
-	]
+	],
 
+	# Credit cards and Bank accounts
+
+	:creditCard = [
+		"Matches credit card numbers",
+
+		"- `^\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{4}$`: Matches 16-digit numbers grouped in 4 digits separated by spaces or hyphens, or no separators." + NL + NL +
+
+		"- Matches: `1234 5678 9012 3456`, `1234-5678-9012-3456`, `1234567890123456`." + NL +
+		"- Non-matches: `1234 5678 90123`, `12345 6789`, `abcd efgh`."
+	],
+
+	:bankAccount = [
+		"Matches generic bank account numbers",
+
+		"- `^\\d{8,20}$`: Matches numeric strings between 8 and 20 digits." + NL + NL +
+
+		"- Matches: `12345678`, `98765432101234567890`." + NL +
+		"- Non-matches: `1234567`, `12345abcd`, `123456789012345678901`."
+	],
+
+	:iban = [
+		"Matches International Bank Account Numbers (IBAN)",
+
+		"- `^[A-Z]{2}\\d{2}[A-Z0-9]{1,30}$`: Starts with a 2-letter country code, 2-digit checksum, and up to 30 alphanumeric characters." + NL + NL +
+
+		"- Matches: `GB29NWBK60161331926819`, `DE89370400440532013000`." + NL +
+		"- Non-matches: `1234`, `GB29 NWBK60161331926819`."
+	],
+
+	:swiftCode = [
+		"Matches SWIFT/BIC codes",
+
+		"- `^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$`: Matches 8 or 11-character alphanumeric strings with specific formats." + NL + NL +
+
+		"- Matches: `DEUTDEFF`, `BOFAUS3NXXX`." + NL +
+		"- Non-matches: `DEUT1234`, `BOFAUS`."
+	],
+
+	# Mathematic formulas
+
+	:simpleEquation = [
+		"Matches basic mathematical equations",
+
+		"- `^[A-Za-z0-9\\+\\-\\*/=\\(\\)\\.\\^\\s]+$`: Allows letters, digits, operators, parentheses, decimal points, and spaces." + NL + NL +
+
+		"- Matches: `x + y = 10`, `2 * (a + b) = 3`." + NL +
+		"- Non-matches: `x = y & z`, `x ^ 2 == 10`."
+	],
+
+	:quadraticFormula = [
+    		"Matches quadratic equations",
+
+    		"- `^-?\\d*[A-Za-z]\\^2\\s*[+-]?\\s*\\d*[A-Za-z]\\s*[+-]?\\s*\\d+\\s*=\\s*0$`: Matches equations of the form `ax^2 + bx + c = 0`." + NL + NL +
+
+    		"- Matches: `x^2 + 3x + 2 = 0`, `-5y^2 - y + 1 = 0`." + NL +
+    		"- Non-matches: `x + y = 10`, `x^2 + y + 1`."
+	],
+
+	# DNA and Chemistry
+
+	:dnaSequence = [
+    		"Matches valid DNA sequences",
+
+		"- `^[ACGT]+$`: Matches strings containing only the characters `A`, `C`, `G`, and `T`." + NL + NL +
+
+		"- Matches: `ACGT`, `AGCTAGCT`." + NL +
+		"- Non-matches: `ACGUX`, `ACG T`."
+	],
+
+	:chemicalFormula = [
+		"Matches valid chemical formulas",
+
+		"- `^[A-Z][a-z]?\\d*(?:[A-Z][a-z]?\\d*)*$`: Matches element symbols (capital letter with optional lowercase letter) followed by optional digits." + NL + NL +
+
+		"- Matches: `H2O`, `C6H12O6`, `NaCl`." + NL +
+		"- Non-matches: `H20O`, `123H`, `HO2C6`."
+	],
+
+	# Measurements
+
+	:metricMeasurement = [
+		"Matches metric system measurements",
+
+		"- `^\\d+(\\.\\d+)?\\s?(mm|cm|m|km)$`: Matches numeric values with optional decimals followed by a metric unit." + NL + NL +
+
+		"- Matches: `10 cm`, `2.5 km`, `3m`." + NL +
+		"- Non-matches: `10in`, `2.5 cm km`."
+	],
+
+	:imperialMeasurement = [
+		"Matches imperial system measurements",
+
+		"- `^\\d+(\\.\\d+)?\\s?(in|ft|yd|mi)$`: Matches numeric values with optional decimals followed by an imperial unit." + NL + NL +
+
+		"- Matches: `5 ft`, `12.3 in`, `0.5 mi`." + NL +
+		"- Non-matches: `5cm`, `1 ft yd`."
+	],
+
+	:temperature = [
+		"Matches temperature values",
+
+		"- `^-?\\d+(\\.\\d+)?\\s?(°C|°F|K)$`: Matches numeric values with optional decimals and optional negative sign, followed by a temperature unit." + NL + NL +
+
+		"- Matches: `25°C`, `-10.5°F`, `300K`." + NL +
+		"- Non-matches: `25 degrees`, `10C`, `K300`."
+	],
+
+	# Barcodes, QR-codes and Alike
+
+	:upc = [
+		"Matches Universal Product Code (UPC) barcodes",
+
+		"- `^\\d{12}$`: Matches exactly 12 digits." + NL + NL +
+
+		"- Matches: `012345678905`, `123456789012`." + NL +
+		"- Non-matches: `0123456789`, `0123456789012`, `1234-5678-9012`."
+	],
+
+	:ean13 = [
+		"Matches European Article Number (EAN-13) barcodes",
+
+		"- `^\\d{13}$`: Matches exactly 13 digits." + NL + NL +
+
+		"- Matches: `4006381333931`, `1234567890128`." + NL +
+		"- Non-matches: `123456789012`, `12345678901234`, `EAN4006381333931`."
+	],
+
+	:code128 = [
+		"Matches Code 128 barcodes",
+
+		"- `^[!-~]+$`: Matches one or more printable ASCII characters (33 to 126)." + NL + NL +
+
+		"- Matches: `123ABC!@#$`, `HELLO-WORLD`, `Code128`." + NL +
+		"- Non-matches: `123 ABC`, `Code_128` (contains a space or unsupported characters)."
+	],
+
+	:qrCodeData = [
+		"Matches data strings typically stored in QR codes",
+
+		"- `^[A-Za-z0-9\\-._~:/?#\\[\\]@!$&'()*+,;=%]*$`: Matches URL-safe characters, including alphanumerics and special characters." + NL + NL +
+
+		"- Matches: `https://example.com`, `name=John&age=30`, `qr-code-12345`." + NL +
+		"- Non-matches: `http://example.com/ example` (contains spaces)."
+	],
+
+	:isbn10 = [
+		"Matches ISBN-10 identifiers",
+
+		"- `^\\d{9}[\\dX]$`: Matches 9 digits followed by a digit or `X` (checksum)." + NL + NL +
+
+		"- Matches: `0306406152`, `123456789X`." + NL +
+		"- Non-matches: `123456789`, `030640615X2` (invalid length or checksum)."
+	],
+
+	:isbn13 = [
+		"Matches ISBN-13 identifiers",
+
+		"- `^978\\d{10}$`: Matches strings starting with `978` followed by 10 digits." + NL + NL +
+
+		"- Matches: `9780306406157`, `9781234567897`." + NL +
+		"- Non-matches: `1234567890123`, `0306406157` (does not start with `978` or incorrect length)."
+	]
 
 ]
 
