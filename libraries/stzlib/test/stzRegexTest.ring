@@ -3,11 +3,12 @@ load "../max/stzmax.ring"
 /*----------------#
 #  Recursiveness  #
 #-----------------#
-*/
 
 # Recursive patterns in REGEX are commonly used to match nested structures in text.
 # They can be used to validate the correctness of nested HTML tags, return them or
 # replace them ; parse and manipulate complex deep data structures like JSON and XML.
+
+#TODO Reflect on how to simplify it in Softanza
 
 pr()
 
@@ -44,6 +45,8 @@ pr()
 # - Incremental search
 # - Auto-completion features
 # - Processing streaming data
+
+# TODO Reflect on how to simplify it in Softanza
 
 rx = new stzRegex("hello")
 ? rx.Match("hel")

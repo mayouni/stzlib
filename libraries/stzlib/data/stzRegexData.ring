@@ -358,6 +358,26 @@ _$aRegexPatterns_ = [
 	:xlsConditionalExpression = "^.*(?:=|<|>|<>).*$",
 	:xlsArrayFormula = "^\{(?:\s*=\s*[A-Za-z]+\([^\)]*\)|\s*[A-Za-z0-9\+\-\*/\(\)\&\^\.]+(\s*,\s*[A-Za-z0-9\+\-\*/\(\)\&\^\.]+)*\s*)\}$",
 
+	# R language patterns
+
+	:rVariableName = "^[A-Za-z.][A-Za-z0-9._]*$",
+	:rFunctionCall = "^[A-Za-z.][A-Za-z0-9._]*\\s*\\(.*\\)$",
+	:rAssignment = "^\\s*[A-Za-z.][A-Za-z0-9._]*\\s*(<-|=)\\s*.*$",
+	:rNumericVector = "^c\\((\\s*-?\\d+(\\.\\d+)?\\s*(,\\s*-?\\d+(\\.\\d+)?\\s*)*)?\\)$",
+	:rStringVector = "^c\\((\\s*\" + char(34) + ".*?\" + char(34) + "\\s*(,\\s*\" + char(34) + ".*?\" + char(34) + "\\s*)*)?\\)$",
+	:rDataFrame = "^[A-Za-z.][A-Za-z0-9._]*\\s*<-\\s*data\\.frame\\(.*\\)$",
+	:rPipeOperator = "\\s*%>%\\s*",
+	:rComment = "^\\s*#.*$",
+	:rLogicalOperator = "(\\&\\&|\\|\\||\\!|==|!=|<|<=|>|>=)",
+	:rIndexing = "\\[.*?\\]",
+	:rForLoop = "^\\s*for\\s*\\(\\s*[A-Za-z.][A-Za-z0-9._]*\\s*in\\s*.*\\)\\s*\\{",
+	:rIfStatement = "^\\s*if\\s*\\(.*\\)\\s*\\{",
+	:rElseStatement = "^\\s*else\\s*\\{",
+	:rLibraryCall = "^\\s*(library|require)\\s*\\(.*\\)$",
+	:rFunctionDefinition = "^\\s*[A-Za-z.][A-Za-z0-9._]*\\s*<-\\s*function\\s*\\(.*\\)\\s*\\{",
+	:rListCreation = "^list\\(.*\\)$",
+	:rApplyFamily = "(apply|lapply|sapply|vapply|mapply|tapply)\\s*\\(.*\\)",
+
 	# Credit cards and Bank accounts
 
 	:creditCard = "^\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{4}$",
@@ -3340,6 +3360,170 @@ _$aRegexPatternsExplanations_ = [
 
 		"- Matches: `{=SUM(A1:A10)}`, `{1, 2, 3}`, `{A1+B1, C1*D1}`" + NL +
 		"- Non-matches: `{SUM(A1:A10}`, `{1, 2}`, `=SUM(A1:A10)`"
+	],
+
+	# R language patterns
+
+	:rVariableName = [
+		"Matches valid variable names in R",
+
+		"- `^[A-Za-z.]`: Starts with a letter or a period (but not followed by a number)." + NL +
+		"- `[A-Za-z0-9._]*`: Can include letters, digits, periods, and underscores." + NL + NL +
+
+		"- Matches: `x`, `.myVar`, `data_1`." + NL +
+		"- Non-matches: `1variable`, `var-name` (invalid characters)."
+	],
+
+	:rFunctionCall = [
+		"Matches valid R function calls",
+
+		"- `^[A-Za-z.][A-Za-z0-9._]*`: Matches a valid function name." + NL +
+		"- `\\s*\\(.*\\)$`: Ensures the function is followed by parentheses with optional arguments inside." + NL + NL +
+
+		"- Matches: `sum(1, 2)`, `myFunc(a = 1)`." + NL +
+		"- Non-matches: `sum`, `1sum()` (invalid function name)."
+	],
+
+	:rAssignment = [
+		"Matches R assignment statements",
+
+		"- `^\\s*`: Optional leading whitespace." + NL +
+		"- `[A-Za-z.][A-Za-z0-9._]*`: Matches a valid variable name." + NL +
+		"- `\\s*(<-|=)\\s*`: Matches the assignment operator (`<-` or `=`)." + NL +
+		"- `.*$`: Matches the assigned value." + NL + NL +
+
+		"- Matches: `x <- 5`, `myVar = c(1, 2, 3)`." + NL +
+		"- Non-matches: `<- x 5` (wrong order)."
+	],
+
+	:rNumericVector = [
+		"Matches R numeric vector syntax",
+
+		"- `^c\\(`: Starts with the `c(` function." + NL +
+		"- `(\\s*-?\\d+(\\.\\d+)?\\s*(,\\s*-?\\d+(\\.\\d+)?\\s*)*)?`: Matches one or more numeric values separated by commas." + NL +
+		"- `\\)$`: Ends with a closing parenthesis." + NL + NL +
+
+		"- Matches: `c(1, 2, 3)`, `c(-1.5, 0.5)`." + NL +
+		"- Non-matches: `c(1; 2; 3)`, `c()` (invalid delimiters or empty vector)."
+	],
+
+	:rStringVector = [
+		"Matches R string vector syntax",
+
+		"- `^c\\(`: Starts with the `c(` function." + NL +
+		"- `(\\s*\" + char(34) + ".*?\" + char(34) + "\\s*(,\\s*\" + char(34) + ".*?\" + char(34) + "\\s*)*)?`: Matches one or more quoted strings separated by commas." + NL +
+		"- `\\)$`: Ends with a closing parenthesis." + NL + NL +
+
+		"- Matches: `c(\" + char(34) + "apple\" + char(34) + ", \" + char(34) + "banana\" + char(34) + ")`, `c(\" + char(34) + "hello\" + char(34) + ")`." + NL +
+		"- Non-matches: `c(apple, banana)`, `c()` (missing quotes or empty vector)."
+	],
+
+	:rDataFrame = [
+		"Matches R data frame creation statements",
+
+		"- `^[A-Za-z.][A-Za-z0-9._]*`: Matches a valid variable name for the data frame." + NL +
+		"- `\\s*<-\\s*`: Matches the assignment operator with optional whitespace." + NL +
+		"- `data\\.frame\\(.*\\)$`: Matches the `data.frame` function with arguments inside." + NL + NL +
+
+		"- Matches: `df <- data.frame(a = 1:5, b = letters[1:5])`." + NL +
+		"- Non-matches: `data.frame(a = 1:5)` (missing assignment)."
+	],
+
+	:rPipeOperator = [
+		"Matches the pipe operator `%>%` in R",
+
+		"- `\\s*%>%\\s*`: Matches the `%>%` operator with optional surrounding whitespace." + NL + NL +
+
+		"- Matches: `data %>% filter(x > 1)`, `a %>% b %>% c`." + NL +
+		"- Non-matches: `data |> filter(x > 1)` (different pipe operator)."
+	],
+
+	:rComment = [
+    		"Matches R comments",
+
+		"- `^\\s*`: Optional leading whitespace." + NL +
+		"- `#.*$`: Matches a `#` followed by any characters until the end of the line." + NL + NL +
+
+		"- Matches: `# This is a comment`, `   # Indented comment`." + NL +
+		"- Non-matches: `This is not a comment`."
+	],
+
+	:rLogicalOperator = [
+		"Matches logical operators in R",
+
+		"- `(\\&\\&|\\|\\||\\!|==|!=|<|<=|>|>=)`: Matches logical and comparison operators." + NL + NL +
+
+		"- Matches: `&&`, `||`, `!`, `==`, `!=`, `<`, `<=`, `>`, `>=`." + NL +
+		"- Non-matches: `&` (element-wise operator) or invalid syntax."
+	],
+
+	:rIndexing = [
+		"Matches indexing operations",
+
+		"- `\\[.*?\\]`: Matches square brackets with any content inside (non-greedy)." + NL + NL +
+
+		"- Matches: `x[1]`, `df[1, 2]`, `list[[3]]`." + NL +
+		"- Non-matches: `x1` (no brackets), `df[[1, 2]]` (invalid double-bracket indexing)."
+	],
+
+	:rForLoop = [
+		"Matches R `for` loops",
+
+		"- `^\\s*for\\s*\\(`: Starts with `for` keyword and a parenthesis." + NL +
+		"- `[A-Za-z.][A-Za-z0-9._]*`: Matches the loop variable name." + NL +
+		"- `in\\s*.*\\)\\s*\\{`: Matches the `in` keyword and loop range followed by `{`." + NL + NL +
+
+		"- Matches: `for (i in 1:10) {`, `for (name in names(vector)) {`." + NL +
+		"- Non-matches: `for i in 1:10` (missing parentheses)."
+	],
+
+	:rIfStatement = [
+		"Matches R `if` statements",
+
+		"- `^\\s*if\\s*\\(`: Starts with `if` keyword and a parenthesis." + NL +
+		"- `.*\\)\\s*\\{`: Matches any condition followed by a closing parenthesis and `{`." + NL +
+		"- Matches: `if (x > 1) {`, `if (length(vec) == 0) {`." + NL +
+		"- Non-matches: `if x > 1 {` (missing parentheses)."
+	],
+
+	:rElseStatement = [
+		"Matches R `else` statements",
+
+		"- `^\\s*else\\s*\\{`: Matches the `else` keyword followed by `{`." + NL +
+		"- Matches: `else {`." + NL +
+		"- Non-matches: `else x = 1` (missing `{`)."
+	],
+
+	:rLibraryCall = [
+		"Matches library or package loading calls",
+
+		"- `^\\s*(library|require)\\s*\\(`: Matches `library` or `require` followed by a parenthesis." + NL +
+		"- Matches: `library(ggplot2)`, `require(dplyr)`." + NL +
+		"- Non-matches: `load(ggplot2)` (wrong function)."
+	],
+
+	:rFunctionDefinition = [
+		"Matches R function definitions",
+
+		"- `^[A-Za-z.][A-Za-z0-9._]*\\s*<-\\s*function\\s*\\(`: Matches a valid function name assigned to a function declaration." + NL +
+		"- Matches: `myFunc <- function(x) {`." + NL +
+		"- Non-matches: `function(x) {` (missing assignment)."
+	],
+
+	:rListCreation = [
+		"Matches R list creation",
+
+		"- `^list\\(.*\\)$`: Matches the `list` function with any content inside." + NL +
+		"- Matches: `list(a = 1, b = 2)`, `list()`." + NL +
+		"- Non-matches: `lst(a = 1)` (invalid function name)."
+	],
+
+	:rApplyFamily = [
+		"Matches functions from the apply family",
+
+		"- `(apply|lapply|sapply|vapply|mapply|tapply)\\s*\\(.*\\)`: Matches any apply function followed by arguments." + NL +
+		"- Matches: `apply(matrix, 1, sum)`, `lapply(list, mean)`." + NL +
+		"- Non-matches: `applysum(matrix, 1)` (wrong function)."
 	],
 
 	# Credit cards and Bank accounts
