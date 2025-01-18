@@ -8,6 +8,15 @@
 
 _$aRegexPatterns_ = [
 
+	# Basic structure for international addresses
+	
+	:addressLine = "^[a-zA-Z0-9.,'’\\-\\s]+$",
+	:cityName = "^[a-zA-Z\\s\\-']+$",
+	:stateProvinceRegion = "^[a-zA-Z\\s\\-']+$",
+	:postalCode = "^[a-zA-Z0-9\\-\\s]{3,10}$",
+	:countryName = "^[a-zA-Z\\s\\-]+$",
+	:fullAddress = "^([a-zA-Z0-9.,'’\\-\\s]+)(\\n[a-zA-Z0-9.,'’\\-\\s]+)*\\n([a-zA-Z\\s\\-']+)\\n([a-zA-Z\\s\\-']+)\\n([a-zA-Z0-9\\-\\s]{3,10})\\n([a-zA-Z\\s\\-]+)$",
+	
 	# Patterns to Analyze Regex patterns!
 
 	:rxGroup = "\\(([^()]*|(?R))*\\)",
@@ -413,6 +422,64 @@ _$aRegexPatterns_ = [
 
 _$aRegexPatternsExplanations_ = [
 
+	:addressLine = [
+		"Matches a single line of an address",
+
+		"- `^[a-zA-Z0-9.,'’\\-\\s]+$`: Matches alphanumeric characters, common punctuation (`.,'’`), and whitespace." + NL + NL +
+
+		"- Matches: `123 Main St.`, `Apartment 42-B`, `Building A`." + NL +
+		"- Non-matches: `123<>|*` (invalid characters)."
+	],
+
+	:cityName = [
+		"Matches city names",
+
+		"- `^[a-zA-Z\\s\\-']+$`: Matches alphabetic characters, spaces, hyphens, and apostrophes." + NL + NL +
+
+		"- Matches: `San Francisco`, `O'Connor`, `New-York`." + NL +
+		"- Non-matches: `123 City` (numbers not allowed)."
+	],
+
+	:stateProvinceRegion = [
+		"Matches states, provinces, or regions",
+
+		"- `^[a-zA-Z\\s\\-']+$`: Matches alphabetic characters, spaces, hyphens, and apostrophes." + NL + NL +
+
+		"- Matches: `California`, `Baden-Württemberg`, `Québec`." + NL +
+		"- Non-matches: `CA123` (numbers not allowed)."
+	],
+
+	:postalCode = [
+		"Matches postal or ZIP codes",
+
+		"- `^[a-zA-Z0-9\\-\\s]{3,10}$`: Matches alphanumeric characters, hyphens, and spaces, between 3 to 10 characters." + NL + NL +
+
+		"- Matches: `12345`, `W1A 1AA`, `75008`, `123-456`." + NL +
+		"- Non-matches: `12` (too short), `12345678910` (too long)."
+	],
+
+	:countryName = [
+		"Matches country names",
+
+		"- `^[a-zA-Z\\s\\-]+$`: Matches alphabetic characters, spaces, and hyphens." + NL + NL +
+
+		"- Matches: `United States`, `Côte d'Ivoire`, `South-Africa`." + NL +
+		"- Non-matches: `123Country` (numbers not allowed)."
+	],
+
+	:fullAddress = [
+		"Matches a full international address with multiple lines",
+
+		"- `^([a-zA-Z0-9.,'’\\-\\s]+)(\\n[a-zA-Z0-9.,'’\\-\\s]+)*`: Matches one or more address lines." + NL +
+		"- `\\n([a-zA-Z\\s\\-']+)`: Matches the city name on a new line." + NL +
+		"- `\\n([a-zA-Z\\s\\-']+)`: Matches the state/province/region on another new line." + NL +
+		"- `\\n([a-zA-Z0-9\\-\\s]{3,10})`: Matches the postal/ZIP code on a new line." + NL +
+		"- `\\n([a-zA-Z\\s\\-]+)$`: Matches the country name on the final line." + NL + NL +
+
+		"- Matches: `123 Main St.\\nApartment 42-B\\nSan Francisco\\nCalifornia\\n94105\\nUnited States`." + NL +
+		"- Non-matches: `123 Main St., San Francisco, CA 94105, United States` (not separated into lines)."
+	],
+
 	# Patterns to Analyze Regex patterns!
 
 	:rxGroup = [
@@ -433,8 +500,8 @@ _$aRegexPatternsExplanations_ = [
 		"- `\\?`: Match zero or one quantifiers" + NL +
 		"- `\\{\\d+(,\\d*)?\\}`: Match numeric quantifiers like `{1,3}`" + NL + NL +
 
-	"- Matches: `a*`, `a+`, `a{2,5}`" + NL +
-	"- Non-matches: `a`, `{}`"
+		"- Matches: `a*`, `a+`, `a{2,5}`" + NL +
+		"- Non-matches: `a`, `{}`"
 	],
 
 	:rxCharacterClass = [
