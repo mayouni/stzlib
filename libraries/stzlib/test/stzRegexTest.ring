@@ -1,8 +1,81 @@
 load "../max/stzmax.ring"
 
-/*----------------------------------#
+/*----------------#
+#  Recursiveness  #
+#-----------------#
+*/
+
+# Recursive patterns in REGEX are commonly used to match nested structures in text.
+# They can be used to validate the correctness of nested HTML tags, return them or
+# replace them ; parse and manipulate complex deep data structures like JSON and XML.
+
+pr()
+
+# Matching a string containing any number of duplicated "abc"
+
+rx("(abc(?R)?)") { ? IsValid() ? Match("abc") ? Match("abcabcabc") + NL }
+#--> TRUE
+#--> TRUE
+#--> TRUE
+
+# Matching a string that contains balanced parentheses
+
+rx("(\((?R)*\))") { ? MatchMany([ "()", "(())", "((()))" ]) + NL }
+#--> 3
+
+# Matching nested HTML tags
+
+rx("<([^>]+)>(?R)*") { ? Match("<div><b>HELLO</b></div>") }
+#--> TRUE
+
+proff()
+
+/*----------------#
+#  Partial Match  #
+#-----------------#
+*/
+pr()
+
+# Partial matching allows you to find patterns that are
+# incomplete or still in progress. This is especially
+# useful for:
+
+# - Real-time input validation
+# - Incremental search
+# - Auto-completion features
+# - Processing streaming data
+
+rx = new stzRegex("hello")
+? rx.Match("hel")
+#--> FALSE
+
+# MatchType { NormalMatch, PartialPreferCompleteMatch, PartialPreferFirstMatch, NoMatch }
+
+nQNormalMatch = 0
+nQPartialPreferCompleteMatch = 1
+nQPartialPreferFirstMatch = 2
+nQNoMatch = 3
+
+nStartAt = 0
+
+# nQOption = {
+#	"CaseInsensitive" 	|= 1
+#	"DotMatchesAll" 	|= 2
+#	"MultiLine"		|= 4
+#	"ExtendedSyntax"	|= 8
+#	"NonGreedy"		|= 16
+#	"DontCapture"		|= 32
+#	"UseUnicode"		| 64
+#	"DisableOptimizations"	|= 128
+
+
+? rx.QRegexObject().match("hel", nStartAt, nQPartialPreferCompleteMatch, 0).hasPartialmatch()
+
+proff()
+
+/*---------------------------------#
 #  Understanding Qt Regex Options  #
-#-----------------------------------#
+#----------------------------------#
 
 /*-- Test 1: Basic dot behavior
 
@@ -168,9 +241,9 @@ o1 = new stzRegex("<div>.*</div>")
 ? o1.MatchSegmentsIn(txt)	# matches both divs
 #--> TRUE
 
-# Matching one (non-greedy) with MatchOneSegmentIn()
+# Matching first (non-greedy) with MatchFirstSegmentIn()
 
-? o1.MatchOneSegmentIn(txt)	# matches first div
+? o1.MatchfirstSegmentIn(txt)	# matches first div
 #--> TRUE
 
 prf()
@@ -292,10 +365,10 @@ o1 = new stzRegex("hello world")
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*---------------------------#
-#  Case of Partial Matching  #
-#----------------------------#
-*/
+
+
+/*---- #TODO
+
 pr()
 
 # A partial match occurs when the pattern matches up to
@@ -602,6 +675,28 @@ ok
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
+/*-----
+
+pr()
+
+rx = new stzRegex("")
+? rx.Match("any text will match")
+#--> TRUE
+
+proff()
+
+/*-----
+
+pr()
+
+? pat(:creditCard) + NL
+#--> ^\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{4}$
+
+rx(pat(:cardNumber)) { ? Match("4111-1111-1111-1111") }
+#--> TRUE
+
+proff()
+
 /*----------------------#
 #  Credit Card Masking  #
 #-----------------------#
@@ -617,6 +712,7 @@ o1 = new stzRegex("")
 o1.SetPattern("(?:\d{4}[-\s]?){4}")
 
 ? o1.Match(cText)
+#--> TRUE
 
 # Mask card number (show only last 4)
 
@@ -634,7 +730,7 @@ proff()
 /*------------------------#
 #  MATCHING HTML CONTENT  #
 #-------------------------#
-*/
+
 pr()
 
 # Simple HTML content with multiple lines
@@ -717,3 +813,4 @@ ok
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.22
+

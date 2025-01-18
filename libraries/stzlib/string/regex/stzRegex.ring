@@ -25,16 +25,21 @@ class stzRegex
 	
 	@oQRegex
 	@oQMatchObject
-
 	@cPattern
 	@cStr
 	@nPatternOptions = 0
 	@bInScopedMatch = FALSE
 
+	@nLastMatchPosition = 0
+
 	def init(pcPattern)
-		if pcPattern != NULL
-			This.SetPattern(pcPattern)
+		if CheckParams()
+			if NOT isString(pcPattern)
+				StzRaise("Incorrect param type! pcPattern must be a string.")
+			ok
 		ok
+
+		This.SetPattern(pcPattern)
 
 	def SetPattern(pcPattern)
 		if CheckParams()
@@ -67,20 +72,34 @@ class stzRegex
 	def QRegexObject()
 		return @oQRegex
 
-	#-- Core Qt integration with simplified options
+	def QMatchObject()
+		return @oQMatchObject
 
-	def MatchXT(pcStr, paOptions)
-		if CheckParams()
-			if NOT isString(pcStr)
-				StzRaise("Incorrect param type! pcStr must be a string.")
-			ok
+	#-- Core Qt integration with enhanced options
+
+def MatchXT(pcStr, paOptions)
+	if CheckParams()
+		if NOT isString(pcStr)
+			StzRaise("Incorrect param type! pcStr must be a string.")
 		ok
+	ok
 
-		# Reset pattern options before applying new ones
-		@nPatternOptions = 0
+	# Reset pattern options before applying new ones
+	@nPatternOptions = 0
 
-		# Apply options from array
-		for cOption in paOptions
+	nMatchType = 1      	# Default to NormalMatch
+	nStartPosition = 0  	# Default start position
+
+	# Apply options from array
+	for cOption in paOptions
+		if isNumber(cOption)
+			# Validate position
+			if cOption < 1 or cOption > len(pcStr)
+				return FALSE
+			ok
+			nStartPosition = cOption - 1
+
+		else
 			switch cOption
 			case "CaseInsensitive"
 				@nPatternOptions |= 1
@@ -98,20 +117,27 @@ class stzRegex
 				@nPatternOptions |= 64
 			case "DisableOptimizations"
 				@nPatternOptions |= 128
+
 			off
-		next
+		ok
+	next
 
-		@oQRegex.setPatternOptions(@nPatternOptions)
-		@cStr = pcStr
+	@oQRegex.setPatternOptions(@nPatternOptions)
+	@cStr = pcStr
 
-		@oQMatchObject = @oQRegex.match(pcStr, 0, 0, 0)
-		return @oQMatchObject.hasMatch()
+	@oQMatchObject = @oQRegex.match(pcStr, 0, 0, 0)
 
-	def QMatchObject()
-		return @oQMatchObject
+	return @oQMatchObject.hasMatch()
 
-	def String()
-		return @cStr
+
+	#-- Match Information Methods
+
+def HasMatch()
+	if @oQMatchObject = NULL
+		return FALSE
+	ok
+
+	return @oQMatchObject.hasMatch()
 
 	#-- Softanza scope-based pattern matching methods
 
@@ -121,11 +147,11 @@ class stzRegex
 		def MatchLine(pcStr)
 			return This.MatchLinesIn(pcStr)
 
-	def MatchOneLineIn(pcStr)
+	def MatchFirstLineIn(pcStr)
 		return This.MatchXT(pcStr, ["MultiLine", "NonGreedy"])
 
-		def MatchOneLine(pcStr)
-			return This.MatchOneLineIn(pcStr)
+		def MatchFirstLine(pcStr)
+			return This.MatchFirstLineIn(pcStr)
 
 	def MatchWordsIn(pcStr)
 		cWordPattern = "\b" + This.Pattern() + "\b"
@@ -135,13 +161,13 @@ class stzRegex
 		def MatchWord(pcStr)
 			return This.MatchWordsIn(pcStr)
 
-	def MatchOneWordIn(pcStr)
+	def MatchFirstWordIn(pcStr)
 		cWordPattern = "\b" + This.Pattern() + "\b"
 		This.SetPattern(cWordPattern)
 		return This.MatchXT(pcStr, ["NonGreedy"])
 
-		def MatchOneWord(pcStr)
-			return This.MatchOneWordIn(pcStr)
+		def MatchFirstWord(pcStr)
+			return This.MatchFirstWordIn(pcStr)
 
 	def MatchSegmentsIn(pcStr)
 		return This.MatchXT(pcStr, ["DotMatchesAll", "MultiLine"])
@@ -149,11 +175,11 @@ class stzRegex
 		def MatchSegment(pcStr)
 			return This.MatchSegmentsIn(pcStr)
 
-	def MatchOneSegmentIn(pcStr)
+	def MatchFirstSegmentIn(pcStr)
 		return This.MatchXT(pcStr, ["DotMatchesAll", "MultiLine", "NonGreedy"])
 
-		def MatchOneSegment(pcStr)
-			return This.MatchOneSegmentIn(pcStr)
+		def MatchFirstSegment(pcStr)
+			return This.MatchFirstSegmentIn(pcStr)
 
 	def Match(pcStr)
 		return This.MatchXT(pcStr, ["DotMatchesAll"])
@@ -161,8 +187,53 @@ class stzRegex
 		def MatchString(pcStr)
 			return This.Match(pcStr)
 
-	def MatchOne(pcStr)
+	def MatchMany(pacStr)
+		if NOT ( isList(pacStr) and IsListOfStrings(pacStr) )
+			StzRaise("Incorrect param type! pacStr must be a list of strings.")
+		ok
+
+		_bResult_ = _TRUE_
+		_nLen_ = len(pacStr)
+		
+		for @i = 1 to _nLen_
+			if NOT This.Match(pacStr[@i])
+				_bResult_ = _FALSE_
+				exit
+			ok
+		next
+
+		return _bResult_
+
+	def MatchManyXT(pacStr)
+		if NOT ( isList(pacStr) and IsListOfStrings(pacStr) )
+			StzRaise("Incorrect param type! pacStr must be a list of strings.")
+		ok
+
+		_abResult_ = []
+		_nLen_ = len(pacStr)
+		
+		for @i = 1 to _nLen_
+			_abResult_ + This.Match(pacStr[@i])
+		next
+
+		return _abResult_
+
+	def MatchFirst(pcStr)
 		return This.MatchXT(pcStr, ["DotMatchesAll", "NonGreedy"])
+
+	def MatchAt(pcStr, nPos)
+		if CheckParams()
+			if NOT isString(pcStr)
+				StzRaise("Incorrect param type! pcStr must be a string.")
+			ok
+		if NOT isNumber(nPos)
+			StzRaise("Incorrect param type! nPos must be a number.")
+		ok
+	ok
+
+	@cStr = pcStr
+	@nLastMatchPosition = nPos - 1
+	return This.MatchXT(pcStr, [nPos])
 
 	#-- Capture-related methods
 
@@ -195,7 +266,6 @@ class stzRegex
 
 	def CapturedValues()
 		_acResult_ = []
-//		oMatch = @oQRegex.match(This.String(), 0, 0, 0)
 		_oQMatch_ = This.QMatchObject()
 	
 		# Only add non-empty captures and skip full match
@@ -209,7 +279,6 @@ class stzRegex
 		return _acResult_
 
 	def CaptureNames()
-
 		_oQRegex_ = This.QRegexObject()
 		_acNames_ = QStringListToList(_oQRegex_.namedCaptureGroups())
 		_nLen_ = len(_acNames_)
@@ -232,7 +301,6 @@ class stzRegex
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
 		ok
 
-//		oMatch = @oQRegex.match(This.String(), 0, 0, 0)
 		_oQMatch_ = This.QMatchObject()
 		_acCaptureNames_ = This.CaptureNames()
 		aResult = []
@@ -257,117 +325,48 @@ class stzRegex
 	def IsValid()
 		return This.QRegexObject().isValid()
 
-	def HasMatch()
-		return This.QMatchObject().hasMatch()
-
 	def LastError()
 		return This.QRegexObject().errorString()
 
 	def PatternErrorOffset()
 		return This.QRegexObject().patternErrorOffset()
 
-	#-- Partial Matching
-
-	def HasPartialMatch()
-		return This.QMatchObject().hasPartialMatch()
-
-	def PartialMatchStart()
-		_nResult_ = 1
-		_oQMatch_ = This.QMatchObject()
-
-		if This.HasPartialMatch()
-			_nResult_ = _oQMatch_.capturedStart() + 1
-		ok
-
-		return _nResult_
-
-	def PartialMatchEnd()
-		_nResult_ = 1
-		_oQMatch_ = This.QMatchObject()
-
-		if This.HasPartialMatch()
-			_nResult_ = _oQMatch_.capturedEnd() + 1
-		ok
-
-		return _nResult_
-
-	def PartialMatchSection()
-		return [ This.PartialMatchStart(), This.PartialMatchStart() ]
-
-	def PartialMatchLength()
-		return This.QMatchObject().capturedLength(1)
-
-	#-- Legacy matching methods (maintained for compatibility)
-
-	def MatchAt(pcStr, nPos)
-		if CheckParams()
-			if NOT isString(pcStr)
-				StzRaise("Incorrect param type! pcStr must be a string.")
-			ok
-			if NOT isNumber(nPos)
-				StzRaise("Incorrect param type! nPos must be a number.")
-			ok
-		ok
-
-		@cStr = pcStr
-
-		@oQMatch = This.QRegexObject().match(pcStr, nPos, 0, 0)
-		return @oQMatch.hasMatch()
-
-		def MatchAtPosition(pcStr, nPos)
-			return This.MatchAt(pcStr, nPos)
-
-	#-- Getting a textual explanation of the pattern
+	#-- Explanation methods
 
 	def Explain()
-
 		_cResult_ = ""
-
-		# First we try to find an exisiting explanation (in RegexExplanations())
-
 		_cName_ = RegexPatternName(This.Pattern())
+		
 		if _cName_ != ""
 			_cResult_ = RegexPatternExplanation(_cName_)[1]
 		ok
-
-		# Otherwise we feed the pattern to stzRegAnalyzer
 
 		if _cResult_ = ""
 			_oRxAnal_ = new stzRegexAnalyzer(This.Pattern())
 			_cResult_ = _oRxAnal_.Explain()
 		ok
 
-		# Returning the explanation (if any)
-
 		if _cResult_ = ""
-			StzResult("Can't explain the pattern.")
+			StzRaise("Can't explain the pattern.")
 		ok
 
 		return _cResult_
 
 	def ExplainXT()
-
 		_cResult_ = ""
-
-		# First we try to find an exisiting explanation (in RegexExplanations())
-
 		_cName_ = RegexPatternName(This.Pattern())
+		
 		if _cName_ != ""
 			_cResult_ = RegexPatternExplanation(_cName_)[2]
-
 		ok
-
-		# Otherwise we feed the pattern to stzRegAnalyzer
 
 		if _cResult_ = ""
 			_oRxAnal_ = new stzRegexAnalyzer(This.Pattern())
 			_cResult_ = _oRxAnal_.ExplainXT()
 		ok
 
-		# Returning the explanation (if any)
-
 		if _cResult_ = ""
-			StzResult("Can't explain the pattern.")
+			StzRaise("Can't explain the pattern.")
 		ok
 
 		return _cResult_
