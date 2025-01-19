@@ -10,7 +10,7 @@ Qt's `QRegularExpression` class offers pattern matching through its `match()` me
 3. The match type (our focus in this article)
 4. The match options
 
-While all parameters deserve attention, this article focuses specifically on the third parameter (MatchType) as it presents particularly interesting naming challenges. Here's how Qt's original naming looks:
+Although all parameters deserve attention (and have been equally simplified by Softanza), this article specifically focuses on the third parameter, `MatchType`, as it poses particularly intriguing naming challenges. Here's how Qt's original naming looks:
 
 ```cpp
 QRegularExpression regex("world");
