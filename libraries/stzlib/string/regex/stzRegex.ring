@@ -1,5 +1,5 @@
 # The stzRegex class provides regular expression functionality with both
-# classic Qt-style patterns and enhanced scoped matching capabilities.
+# classic Qt-style patterns and enhanced scoped macth capabilities.
 # It combines direct Qt access with Softanza's scope-based approach.
 
 #---------------------------------------------------------------------
@@ -12,7 +12,7 @@
 # An other valuable link from Mozilla MSDN:
 # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Cheatsheet
 
-# An of course the reference article on Qt
+# And of course the reference article on Qt
 # https://doc.qt.io/qt-5/qregularexpression.html#details
 
 func StzRegexQ(pcPattern)
@@ -25,10 +25,15 @@ class stzRegex
 	
 	@oQRegex
 	@oQMatchObject
+
 	@cPattern
 	@cStr
-	@nPatternOptions = 0
-	@bInScopedMatch = FALSE
+
+	@nQPatternOptions = 0
+
+	  #----------------------------#
+	 #  INIT AND PATTERN SEETING  #
+	#----------------------------#
 
 	def init(pcPattern)
 		if CheckParams()
@@ -48,7 +53,7 @@ class stzRegex
 
 		@oQRegex = new QRegularExpression()
 		@oQRegex.setPattern(pcPattern)
-		@oQRegex.setPatternOptions(@nPatternOptions)
+		@oQRegex.setPatternOptions(@nQPatternOptions)
 		@cPattern = pcPattern
 
 		# If pattern contains multilines, extend the syntax
@@ -56,13 +61,18 @@ class stzRegex
 			This.EnableExtendedSyntax()
 		ok
 
-	#-- Pattern content methods
+	  #-------------------#
+	 #  GENERAL METHODS  #
+	#-------------------#
 
-	def Content()
-		return @cPattern
+	def String()
+		return @cStr
 
 	def Pattern()
 		return @cPattern
+
+		def Content()
+			return This.Pattern()
 
 	def Copy()
 		return new stzRegex(This.Pattern())
@@ -73,7 +83,10 @@ class stzRegex
 	def QMatchObject()
 		return @oQMatchObject
 
-	#-- Core Qt integration with enhanced options
+	  #-------------------------#
+	 #  CORE Qt MATCH SERVICE  #
+	#-------------------------#
+	# @MotherFunction of all other matching functions in the class
 
 	def MatchXT(pcStr, pnStartPosition, pcMatchType, pacOptions)
 
@@ -113,17 +126,17 @@ class stzRegex
 
 		switch pcMatchType
 
-		on :NormalMatch
+		on :MatchEntireContent
+			nQMatchType = 0
+
+		on :MatchEntireContentIfNotGoPartial
 			nQMatchType = 1
 
-		on :PartialPreferCompleteMatch
+		on :MatchFirstOccurrenceIfNotGoPartial
 			nQMatchType = 2
 
-		on :PartialPreferFirstMatch
+		on :ReturnFalseForAnyMatch
 			nQMatchType = 3
-
-		on :NoMatch
-			nQMatchType = 4
 		off
 
 		# Defining options
@@ -181,13 +194,13 @@ class stzRegex
 	#-- Softanza scope-based pattern matching methods
 
 	def MatchLinesIn(pcStr)
-		return This.MatchXT(pcStr, 1, :NormalMatch, [ "MultiLine", "DotMatchesAll" ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "MultiLine", "DotMatchesAll" ])
 
 		def MatchLine(pcStr)
 			return This.MatchLinesIn(pcStr)
 
 	def MatchFirstLineIn(pcStr)
-		return This.MatchXT(pcStr, 1, :NormalMatch, ["MultiLine", "NonGreedy"])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, ["MultiLine", "NonGreedy"])
 
 		def MatchFirstLine(pcStr)
 			return This.MatchFirstLineIn(pcStr)
@@ -195,7 +208,7 @@ class stzRegex
 	def MatchWordsIn(pcStr)
 		cWordPattern = "\b" + This.Pattern() + "\b"
 		This.SetPattern(cWordPattern)
-		return This.MatchXT(pcStr, 1, :NormalMatch, [])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [])
 
 		def MatchWord(pcStr)
 			return This.MatchWordsIn(pcStr)
@@ -203,25 +216,25 @@ class stzRegex
 	def MatchFirstWordIn(pcStr)
 		cWordPattern = "\b" + This.Pattern() + "\b"
 		This.SetPattern(cWordPattern)
-		return This.MatchXT(pcStr, 1, :NormalMatch, [ "NonGreedy" ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "NonGreedy" ])
 
 		def MatchFirstWord(pcStr)
 			return This.MatchFirstWordIn(pcStr)
 
 	def MatchSegmentsIn(pcStr)
-		return This.MatchXT(pcStr, 1, :NormalMatch, [ "DotMatchesAll", "MultiLine" ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "DotMatchesAll", "MultiLine" ])
 
 		def MatchSegment(pcStr)
 			return This.MatchSegmentsIn(pcStr)
 
 	def MatchFirstSegmentIn(pcStr)
-		return This.MatchXT(pcStr, 1, :NormalMatch, [ "DotMatchesAll", "MultiLine", "NonGreedy" ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "DotMatchesAll", "MultiLine", "NonGreedy" ])
 
 		def MatchFirstSegment(pcStr)
 			return This.MatchFirstSegmentIn(pcStr)
 
 	def Match(pcStr)
-		return This.MatchXT(pcStr, 1, :NormalMatch, [ "DotMatchesAll" ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "DotMatchesAll" ])
 
 		def MatchString(pcStr)
 			return This.Match(pcStr)
@@ -258,7 +271,7 @@ class stzRegex
 		return _abResult_
 
 	def MatchFirst(pcStr)
-		return This.MatchXT(pcStr, 1, :NormalMatch, [ "DotMatchesAll", "NonGreedy" ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "DotMatchesAll", "NonGreedy" ])
 
 	def MatchAt(pcStr, nPos)
 		if CheckParams()
@@ -270,7 +283,7 @@ class stzRegex
 		ok
 	ok
 
-	return This.MatchXT(pcStr, nPos, :NormalMatch, [])
+	return This.MatchXT(pcStr, nPos, :MatchEntireContent, [])
 
 	#-- Capture-related methods
 
