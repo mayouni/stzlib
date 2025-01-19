@@ -1,14 +1,19 @@
 load "../max/stzmax.ring"
 
 /*----------------#
-#  PARTIAL MATCH  #
+#  Partial Match  #
 #-----------------#
-*/
+
 pr()
 
-# A partial match occurs when the pattern matches up to
-# the end of the input string, but needs more characters
-# to potentially complete the match.
+# Partial matching allows you to find patterns that are
+# incomplete or still in progress. This is especially
+# useful for:
+
+# - Real-time input validation
+# - Incremental search
+# - Auto-completion features
+# - Processing streaming data
 
 # For example, if your pattern is "hello\d" and the input
 # is "hello", it's a partial match because adding a digit
@@ -29,6 +34,25 @@ rx("hello\d") {
 	? PartialMatchLength()
 
 }
+
+# TODO Reflect on how to simplify it in Softanza
+
+rx = new stzRegex("hello")
+? rx.Match("hel")
+#--> FALSE
+
+# MatchType { NormalMatch, PartialPreferCompleteMatch, PartialPreferFirstMatch, NoMatch }
+
+nQNormalMatch = 0			:MatchEntireContent
+nQPartialPreferCompleteMatch = 1	:MatchEntireContentIfNotGoPartial
+nQPartialPreferFirstMatch = 2		:MatchFirstOccurrenceIfNotGoPartial
+nQNoMatch = 3				:ReturnFalseForAnyMatch
+
+nStartAt = 0
+
+# Qt macth(str, nStartPos, nMatchType, aMatchOptions)
+
+? rx.QRegexObject().match("hel", nStartAt, nQPartialPreferCompleteMatch, 0).hasPartialmatch()
 
 proff()
 
@@ -60,52 +84,6 @@ rx("(\((?R)*\))") { ? MatchMany([ "()", "(())", "((()))" ]) + NL }
 
 rx("<([^>]+)>(?R)*") { ? Match("<div><b>HELLO</b></div>") }
 #--> TRUE
-
-proff()
-
-/*----------------#
-#  Partial Match  #
-#-----------------#
-
-pr()
-
-# Partial matching allows you to find patterns that are
-# incomplete or still in progress. This is especially
-# useful for:
-
-# - Real-time input validation
-# - Incremental search
-# - Auto-completion features
-# - Processing streaming data
-
-# TODO Reflect on how to simplify it in Softanza
-
-rx = new stzRegex("hello")
-? rx.Match("hel")
-#--> FALSE
-
-# MatchType { NormalMatch, PartialPreferCompleteMatch, PartialPreferFirstMatch, NoMatch }
-
-nQNormalMatch = 0
-nQPartialPreferCompleteMatch = 1
-nQPartialPreferFirstMatch = 2
-nQNoMatch = 3
-
-nStartAt = 0
-
-# nQOption = {
-#	"CaseInsensitive" 	|= 1
-#	"DotMatchesAll" 	|= 2
-#	"MultiLine"		|= 4
-#	"ExtendedSyntax"	|= 8
-#	"NonGreedy"		|= 16
-#	"DontCapture"		|= 32
-#	"UseUnicode"		| 64
-#	"DisableOptimizations"	|= 128
-
-# Qt macth(str, nStartPos, nMatchType, aMatchOptions)
-
-? rx.QRegexObject().match("hel", nStartAt, nQPartialPreferCompleteMatch, 0).hasPartialmatch()
 
 proff()
 
