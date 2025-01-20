@@ -101,11 +101,11 @@ regex.match("hello world", 6, StzRegex::MatchEntireContent, option);
 
 Here, "EntireContent" does not refer to the entire string but rather to the entire content *starting from* position 6.
 
-## Yet an Other Last Refinement
+## One More Poslishing Touch
 
 Qt's fourth matching type indeed performs no matching at all. In other terms, it's about turning the matching engine off, regardless of the regex pattern we provide—even if matches exist in the string we are working on!
 
-For this, Qt uses the `:NoMatch` option name, but this is not as clear as intended. The term "no match" could imply many things:
+For this, Qt uses the `NoMatch` option name, but this is not as clear as intended. The term "no match" could imply many things:
 
 - Is it ignoring the pattern altogether?
 - Or does it only consider the absence of matches?
