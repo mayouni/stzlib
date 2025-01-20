@@ -92,14 +92,14 @@ This solved several problems:
 2. "IfNotGoPartial" explicitly shows the fallback strategy
 3. "FirstPossibleOccurrence" removes the ambiguity about what "first" means
 
-Hence, when dealing with substring matching starting from a given position, consider the following example:
+Hence, when dealing with substring matching starting from a given position, and if we wirte:
 
 ```cpp
 // What happens when matching from position 6?
 regex.match("hello world", 6, StzRegex::MatchEntireContent, option);
 ```
 
-Here, "EntireContent" does not refer to the entire string but rather to the entire content starting from position 6.
+Here, "EntireContent" does not refer to the entire string but rather to the entire content *starting from* position 6.
 
 ## Yet an Other Last Refinement
 
