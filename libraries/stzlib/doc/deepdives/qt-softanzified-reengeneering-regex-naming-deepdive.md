@@ -78,13 +78,13 @@ Qt's `NormalMatch` raises questions:
 - How does it differ from "non-normal" matches?
 - Is it the default? The recommended option?
 
-Let's address these issues step by step:
+We address these issues altogethor by introducing the `EntireContent`, `FirstPossibleOccurrence`, and `IfNotGoPartial` concepts, and using them like that:
 
 ```cpp
 // Second iteration - clarifying what we're matching
-regex.match(text, 0, StzRegex::MatchEntireContent);
-regex.match(text, 0, StzRegex::MatchEntireContentIfNotGoPartial);
-regex.match(text, 0, StzRegex::MatchFirstPossibleOccurrenceIfNotGoPartial);
+regex.match(text, 0, StzRegex::MatchEntireContent, options);
+regex.match(text, 0, StzRegex::MatchEntireContentIfNotGoPartial, options);
+regex.match(text, 0, StzRegex::MatchFirstPossibleOccurrenceIfNotGoPartial, options);
 ```
 
 This solved several problems:
@@ -92,14 +92,14 @@ This solved several problems:
 2. "IfNotGoPartial" explicitly shows the fallback strategy
 3. "FirstPossibleOccurrence" removes the ambiguity about what "first" means
 
-However, when dealing with substring matching, a new issue emerged:
+Hence, when dealing with substring matching starting from a given position, consider the following example:
 
 ```cpp
 // What happens when matching from position 6?
-regex.match("hello world", 6, StzRegex::MatchEntireContent);
+regex.match("hello world", 6, StzRegex::MatchEntireContent, option);
 ```
 
-Does "EntireContent" mean the entire string or the entire content from position 6? We needed one final refinement.
+Here, "EntireContent" does not refer to the entire string but rather to the entire content starting from position 6.
 
 ## Yet an Other Last Refinement
 
@@ -143,6 +143,8 @@ This naming scheme is superior because:
 3. Makes the fallback strategy explicit with "IfNotGo"
 4. Clearly distinguishes between entire string matching and from-start matching
 5. Uses consistent terminology across all options
+
+> **NOTE**: When using Softanza, you won't need to worry about these complexities or their solutions, as the library provides higher-level functions and constructs that are easy to use. However, for those who prefer to tweak Qt's backend, this can be done using the improved naming conventions implemented internally by Softanza.
 
 ## Conclusion
 
