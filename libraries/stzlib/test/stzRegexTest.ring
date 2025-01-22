@@ -4,57 +4,194 @@ load "../max/stzmax.ring"
 #  Partial Match  #
 #-----------------#
 
+/*--- Example 1: Form validation as user types
+
 pr()
 
-# Partial matching allows you to find patterns that are
-# incomplete or still in progress. This is especially
-# useful for:
+o = new stzRegex("\d{3}-\d{2}-\d{4}")  # Social security number pattern
 
-# - Real-time input validation
-# - Incremental search
-# - Auto-completion features
-# - Processing streaming data
-
-# For example, if your pattern is "hello\d" and the input
-# is "hello", it's a partial match because adding a digit
-# would make it a full match.
-
-rx("hello\d") {
-
-	Match("hello")
-
-	? HasMatch()
-
-	? HasPartialMatch()
-
-	? PartialMatchStart()
-
-	? PartialMatchEnd()
-
-	? PartialMatchLength()
-
-}
-
-# TODO Reflect on how to simplify it in Softanza
-
-rx = new stzRegex("hello")
-? rx.Match("hel")
-#--> FALSE
-
-# MatchType { NormalMatch, PartialPreferCompleteMatch, PartialPreferFirstMatch, NoMatch }
-
-nQNormalMatch = 0			:MatchEntireContent
-nQPartialPreferCompleteMatch = 1	:MatchEntireContentIfNotGoPartial
-nQPartialPreferFirstMatch = 2		:MatchFirstOccurrenceIfNotGoPartial
-nQNoMatch = 3				:ReturnFalseForAnyMatch
-
-nStartAt = 0
-
-# Qt macth(str, nStartPos, nMatchType, aMatchOptions)
-
-? rx.QRegexObject().match("hel", nStartAt, nQPartialPreferCompleteMatch, 0).hasPartialmatch()
+? o.MatchAsYouType("123")		#--> TRUE
+? o.MatchAsYouType("123-")		#--> TRUE
+? o.MatchAsYouType("123-45")		#--> TRUE
+? o.MatchAsYouType("123-45-6789")	#--> TRUE
+? o.MatchAsYouType("abc")		#--> FALSE
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Example 2: Real-time search
+
+pr()
+
+o = new stzRegex("quick.*fox")
+
+? o.MatchInProgress("qui")		#--> TRUR
+? o.MatchInProgress("quick br")		#--> TRUE
+? o.MatchInProgress("quick brown f")	#--> TRUE
+? o.MatchInProgress("slow")		#--> FALSE
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Example 3: Detailed match information for UI feedback
+
+pr()
+
+o = new stzRegex("hello\d{3}")
+
+info = o.PartialMatchInfo("hello12")
+? @@NL(info)
+#--> [
+#	:matchType = "partial",
+#	:matched   = "hello12",
+#	:needed    = "one more digit",
+#	:position  = 1,
+#	:length    = 7
+# ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Example 4: Autocomplete suggestions
+
+pr()
+
+o = new stzRegex("(https?://)?(www\.)?[\w-]+\.com")
+
+? o.MatchAsYouType("www.")		#--> TRUE
+? o.MatchAsYouType("https://")		#--> TRUE
+? o.MatchAsYouType("example")		#--> TRUE
+? o.MatchAsYouType("example.")		#--> TRUE
+? o.MatchAsYouType("example.com")	#--> TRUE
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Example 5: Processing streaming data
+
+pr()
+
+o = new stzRegex("\d{2}:\d{2}:\d{2}")  # Time format
+
+? o.IsPartialMatch("12")		#--> TRUE
+? o.IsPartialMatch("12:")		#--> TRUE
+? o.IsPartialMatch("12:34")		#--> TRUE
+? o.IsPartialMatch("12:34:")		#--> TRUE
+? o.IsPartialMatch("12:34:56")		#--> TRUE
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- EHANCED PARTIAL INFO EXAMPLES
+# Example 1: Phone Number Validation
+
+pr()
+
+o = new stzRegex("^\d{3}-\d{3}-\d{4}$")
+
+? @@NL( o.PartialMatchInfo("123") ) + NL
+#--> [
+#	:matchType = "partial",
+#	:matched   = "123",
+#	:needed    = "more characters to match ^\d{3}-\d{3}-\d{4}$",
+#	:position  = 1,
+#	:length    = 3
+# ]
+
+? @@NL( o.PartialMatchInfo("123-456") )
+#--> [
+#	:matchType = "partial",
+#	:matched   = "123-456",
+#	:needed    = "more characters to match ^\d{3}-\d{3}-\d{4}$",
+#	:position  = 1,
+#	:length    = 7
+# ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Example 2: Email Validation
+
+pr()
+
+o = new stzRegex("^[\w\.-]+@[\w\.-]+\.\w{2,}$")
+
+? @@NL( o.PartialMatchInfo("user") ) + NL
+#--> [
+#	:matchType = "partial",
+#	:matched   = "user",
+#	:needed    = "more characters to match ^[\w\.-]+@[\w\.-]+\.\w{2,}$",
+#	:position  = 1,
+#	:length    = 4
+# ]
+
+? @@NL( o.PartialMatchInfo("user@example") )
+#--> [
+#	:matchType = "partial",
+#	:matched   = "user@example",
+#	:needed    = "more characters to match ^[\w\.-]+@[\w\.-]+\.\w{2,}$",
+#	:position  = 1,
+#	:length    = 12
+# ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-----
+
+pr()
+
+# Example 3: Time Format Validation
+
+o = new stzRegex("^\d{2}:\d{2}:\d{2}$")
+
+? @@NL( o.PartialMatchInfo("12") ) + NL
+#--> [
+#	:matchType = "partial",
+#	:matched   = "12",
+#	:needed    = "more characters to match ^\d{2}:\d{2}:\d{2}$",
+#	:position  = 1,
+#	:length    = 2
+# ]
+
+? @@NL( o.PartialMatchInfo("12:34") )
+#--> [
+#	:matchType = "partial",
+#	:matched   = "12:34",
+#	:needed    = "more characters to match ^\d{2}:\d{2}:\d{2}$",
+#	:position  = 1,
+#	:length    = 5
+# ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+# Example 4: URL Validation
+
+o = new stzRegex("^https?://[\w-]+(\.[\w-]+)*\.\w{2,}$")
+
+? @@NL( o.PartialMatchInfo("http") ) + NL
+#--> [
+#	:matchType = "partial",
+#	:matched   = "http",
+#	:position  = 1,
+#	:length    = 4
+# ]
+
+? @@NL( o.PartialMatchInfo("https://example") )
+#--> [
+#	:matchType = "partial",
+#	:matched   = "https://example",
+#	:position  = 1,
+#	:length    = 14
+# ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*----------------#
 #  Recursiveness  #
@@ -78,7 +215,7 @@ rx("(abc(?R)?)") { ? IsValid() ? Match("abc") ? Match("abcabcabc") + NL }
 # Matching a string that contains balanced parentheses
 
 rx("(\((?R)*\))") { ? MatchMany([ "()", "(())", "((()))" ]) + NL }
-#--> 3
+#--> TRUE
 
 # Matching nested HTML tags
 
@@ -86,7 +223,63 @@ rx("<([^>]+)>(?R)*") { ? Match("<div><b>HELLO</b></div>") }
 #--> TRUE
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
+/*----
+*/
+pr()
+
+# Match nested parentheses recursively
+oRegex = new stzRegex("\((?:[^()]+|(?R))*\)")
+ 
+# Test string with nested parentheses
+cTest = "(a(b(c)d)e)"
+
+# Checki,g recursive match
+
+? oRegex.Match(cTest) # Or MatchRecursive
+#--> TRUE
+
+# Showing all nested matches and depth()
+
+? @@NL( oRegex.RecursiveMatchInfo(cTest) )
+#--> [
+#	[ "matchtype", "recursive" ],
+#	[ "depth", 1 ],
+#	[ "matches", [ [
+#			[ "text", "(a(b(c)d)e)" ],
+#			[ "start", 0 ],
+#			[ "length", 11 ] ]
+#		     ]
+#	]
+# ]
+
+proff()
+
+/*---
+*/
+pr()
+
+oRegex = new stzRegex("\[(?:[^\[\]]+|(?R))*\]")
+ 
+cTest = "[1,[2,[3,4],[5]],6]"
+
+? oRegex.MatchRecursive(cTest)      
+#--> TRUE
+
+? @@NL( oRegex.RecursiveMatchInfo(cTest)  )
+#--> [
+#   ["matchtype", "recursive"],
+#   ["depth", 4],
+#   ["matches", [
+#     ["text", "[1,[2,[3,4],[5]],6]"], ["start", 0], ["length", 17],
+#     ["text", "[2,[3,4],[5]]"], ["start", 3], ["length", 12],
+#     ["text", "[3,4]"], ["start", 6], ["length", 5],
+#     ["text", "[5]"], ["start", 12], ["length", 3]
+#   ]]
+# ]
+
+proff()
 /*---------------------------------#
 #  Understanding Qt Regex Options  #
 #----------------------------------#

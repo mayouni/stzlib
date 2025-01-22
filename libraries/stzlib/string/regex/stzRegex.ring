@@ -115,7 +115,11 @@ class stzRegex
 		nQStartPosition = 0
 		nQMatchType = 1
 		@nQPatternOptions = 0
-	
+
+		# To store whether we want partial matches
+
+		nMatchResultType = 0
+
 		# Defing the start position
 
 		if pnStartPosition >= 0
@@ -131,9 +135,11 @@ class stzRegex
 
 		on :MatchEntireContentIfNotGoPartial
 			nQMatchType = 1
+			nMatchResultType = 1
 
 		on :MatchFirstOccurrenceIfNotGoPartial
 			nQMatchType = 2
+			nMatchResultType = 1
 
 		on :ReturnFalseForAnyMatch
 			nQMatchType = 3
@@ -171,6 +177,9 @@ class stzRegex
 			case "DisableOptimizations"
 				@nQPatternOptions |= 128
 
+			case "RecursiveMatch"
+				@nQPatternOptions |= 256
+
 			off
 
 		next
@@ -179,7 +188,11 @@ class stzRegex
 		@cStr = pcStr
 	
 		@oQMatchObject = @oQRegex.match(pcStr, nQStartPosition, nQMatchType, 0)
-	
+
+    		if nMatchResultType = 1
+        		return @oQMatchObject.hasMatch() or @oQMatchObject.hasPartialMatch()
+   		ok
+
 		return @oQMatchObject.hasMatch()
 	
 	#-- Match Information Methods
@@ -190,6 +203,14 @@ class stzRegex
 		ok
 	
 		return @oQMatchObject.hasMatch()
+
+	def HasPartialMatch() # Look at section Partial Math for further methods
+
+		if @oQMatchObject = NULL
+			return FALSE
+		ok
+	
+		return @oQMatchObject.hasPartialMatch()
 
 	#-- Softanza scope-based pattern matching methods
 
@@ -420,3 +441,145 @@ class stzRegex
 		ok
 
 		return _cResult_
+
+	#-- Partial Mutch
+
+	def IsPartialMatch(pcStr)
+
+		# Returns TRUE if the string partially matches the pattern, meaning it could
+		# potentially match if more characters were added.
+	
+		# Example: pattern "hello\d" partially matches "hello" since adding
+		# a digit would complete it.
+
+		return This.MatchXT(pcStr, 1, :MatchEntireContentIfNotGoPartial, [])
+
+
+		def IsPartial(pcStr)
+			return This.IsPartialMatch(pcStr)
+
+	def IsCompleteMatch(pcStr) 
+
+		# Returns TRUE only if the string completely matches the pattern
+		# with no need for additional characters.
+
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [])
+
+		def IsComplete(pcStr)
+			return This.IsCompleteMatch(pcStr)
+
+	def MatchAsYouType(pcStr)
+
+		# Optimized for real-time validation during user input. Returns TRUE if either:
+		# 1. The string completely matches the pattern
+		# 2. The string could potentially match if more characters were added
+	
+		# Perfect for validating form fields as users type.
+
+		return This.MatchXT(pcStr, 1, :MatchEntireContentIfNotGoPartial, [])
+
+		def ValidateAsTyped(pcStr)
+			return This.MatchAsYouType(pcStr)
+
+	def MatchInProgress(pcStr)
+
+		# Similar to MatchAsYouType() but optimized for searching/filtering scenarios.
+		# Tries to find any occurrence that could potentially match.
+
+		return This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
+
+		def SearchInProgress(pcStr)
+			return This.MatchInProgress(pcStr)
+
+	# Enhanced information methods
+
+	def PartialMatchInfo(pcStr)
+
+		# Returns detailed information about a partial match including:
+		# - Whether it's a complete or partial match
+		# - The matched portion
+		# - What's still needed to complete the match
+		# - Position information
+
+		if This.IsCompleteMatch(pcStr)
+			return [
+				:matchType = "complete",
+				:matched   = pcStr,
+				:position  = 1,
+				:length    = StzStringQ(pcStr).NumberOfChars()
+			]
+		ok
+
+		if This.IsPartialMatch(pcStr)
+			# For pattern "hello\d{3}" and input "hello12":
+			# - We have a partial match
+			# - We've matched "hello12"
+			# - We still need one more digit to complete \d{3}
+        
+			return [
+				:matchType = "partial",
+				:matched   = pcStr, # The actual partially matched string
+				:position  = 1,        # Starts at beginning
+				:length    = StzStringQ(pcStr).NumberOfChars() # Length of current match
+			]
+		ok
+
+		# No match at all
+
+		return [
+			:matchType = "none",
+			:matched   = "",
+			:position  = 0,
+			:length    = 0
+		]
+
+	def PartialMatchStart()
+
+		if @oQMatchObject != NULL
+			return @oQMatchObject.capturedStart()
+		ok
+
+		return 0
+
+	def PartialMatchLength()
+
+		if @oQMatchObject != NULL
+			return @oQMatchObject.capturedLength()
+		ok
+
+		return 0
+
+	#-- Recursive Match
+
+	def MatchRecursive(pcStr)
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "RecursiveMatch" ])
+
+	def RecursiveMatchInfo(pcStr)
+		if NOT This.MatchRecursive(pcStr)
+			return [ :matchType = "none", :depth = 0, :matches = [] ]
+		ok
+
+		aMatches = []
+		nMaxDepth = 0
+
+		nStart = 1
+		This.MatchAt(pcStr, nStart)
+
+		while This.HasMatch()
+			oMatch = This.QMatchObject()
+
+			aMatches + [
+				:text = oMatch.captured(0),
+				:start = oMatch.capturedStart(0)+1,
+				:length = oMatch.capturedLength(0)
+			]
+
+			nMaxDepth++
+			This.MatchAt(pcStr, nStart++)
+		end
+
+		return [
+			:matchType = "recursive",
+			:depth = nMaxDepth,
+			:matches = aMatches
+		]
