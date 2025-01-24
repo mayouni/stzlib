@@ -47,7 +47,7 @@ proff()
 # Executed in 0.08 second(s)
 
 /*---------------
-*/
+
 pr()
 
 # WAY 3: Creating a table by provding a list of lists, formatted as you
@@ -5989,7 +5989,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*========= EXCEL-Like functions
-*/
+
 pr()
 
 o1 = new stzTable([
@@ -6021,5 +6021,42 @@ o1 = new stzTable([
 #--> 4
 
 proff()
-# Executed in 0.05 second(s) in Ring 1.21
-# Executed in 0.08 second(s) in Ring 1.20
+# Executed in 0.13 second(s) in Ring 1.22
+
+/*=====
+
+pr()
+
+? IsNumberInString("08/27/2015")
+#--> FALSE
+
+? rx(pat(:number)).match("08/27/2015")
+#--> FALSE
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*----
+*/
+pr()
+
+o1 = new stzTable([])
+o1.FromCSV("bigdata.csv")
+? o1.Show()
+
+#-->
+# TREE_ID   BLOCK_ID   CREATED_AT   TREE_DBH   ALIVE
+# -------- ---------- ------------ ---------- ------
+#  180683     348711   08/27/2015          3   Alive
+#  200540     315986   09/03/2015         21   Alive
+#  204026     218365   09/05/2015          3    Dead
+#  204337     217969   09/05/2015         10   Alive
+#  189565     223043   08/30/2015         21   Alive
+#  190422     106099   08/30/2015         11    Dead
+#  190426     106099   08/30/2015         11   Alive
+#  208649     103940   09/07/2015          9   Alive
+#  209610     407443   09/08/2015          6   Alive
+#  180683     348711   08/27/2015          3   Alive
+
+proff()
+#--> Executed in 0.33 second(s) in Ring 1.22

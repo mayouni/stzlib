@@ -5791,13 +5791,13 @@ class stzString from stzObject
 	 #  GETTING AND SETTING MARQUER  #
 	#===============================#
 
-	func MarquerChar()
+	def MarquerChar()
 		return @cMarquer
 		
-		func Marquer()
+		def Marquer()
 			return @cMarquer
 	
-	func SetMarquerChar(c)
+	def SetMarquerChar(c)
 		if NOT (isString(c) and IsChar(c))
 			StzRaise("Incorrect param type! c must be a char.")
 		ok
@@ -5806,7 +5806,7 @@ class stzString from stzObject
 	
 		#NOTE // A marquer char can be set at the global level or string object level
 	
-		func SetMarquer()
+		def SetMarquer()
 			@cMarquer = c
 
 	  #--------------------------------------------#
@@ -32880,7 +32880,7 @@ class stzString from stzObject
 
 		#==
 
-		func DeepFindSubStringsCS(pacBounds, pCaseSensitive)
+		def DeepFindSubStringsCS(pacBounds, pCaseSensitive)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
@@ -32892,7 +32892,7 @@ class stzString from stzObject
 
 		#--
 
-		func DeepFindSubStringsCSZ(pacBounds, pCaseSensitive)
+		def DeepFindSubStringsCSZ(pacBounds, pCaseSensitive)
 			return This.DeepFindSubStringsCS(pacBounds, pCaseSensitive)
 
 		def DeepFindCSZ(pacBounds, pCaseSensitive)
@@ -32920,7 +32920,7 @@ class stzString from stzObject
 
 		#==
 
-		func DeepFindSubStrings(pacBounds)
+		def DeepFindSubStrings(pacBounds)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
@@ -32932,7 +32932,7 @@ class stzString from stzObject
 
 		#--
 
-		func DeepFindSubStringsZ(pacBounds)
+		def DeepFindSubStringsZ(pacBounds)
 			return This.DeepFindSubStrings(pacBounds)
 
 		def DeepFindZ(pacBounds)

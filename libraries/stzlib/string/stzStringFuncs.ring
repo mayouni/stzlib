@@ -1303,6 +1303,10 @@ func @Number(pNumberOrString) # An enhanced version of the Ring number() functio
 		return pNumberOrString
 	ok
 
+	if isString(pNumberOrString) and pNumberOrString = ""
+		return 0
+	ok
+
 	if NOT isString(pNumberOrString)
 		StzRaise("Incorrect param type! pNumberOrString must be a string.")
 	ok
@@ -1326,8 +1330,11 @@ func @Number(pNumberOrString) # An enhanced version of the Ring number() functio
 	done
 
 func IsNumberInString(str)
-	return rx("\d").Match(str) # Regex-base, more performant then:
-	return StzStringQ(str).IsNumberInString()
+	if NOT isString(str)
+		return FALSE
+	ok
+
+	return rx(pat(:number)).Match(str) # Regex-base, more performant then:
 
 	func @IsNumberInstring(str)
 		return IsNumberInString(str)
@@ -1434,3 +1441,20 @@ func SetMarquerChar(c)
 
 	func @SetMarquer()
 		_cMarquerChar = c
+
+func @SplitAt(cData, cSubStr)
+	if NOT (isString(cData) and isString(cSubStr))
+		StzRaise("Incorrect param type! cData and cSubStr must both be strings.")
+	ok
+
+	_oQString_ = new QString2()
+	_oQString_.append(cData)
+
+	_acResult_ = QStringListToList( _oQString_.split(cSubStr, 0, 0) )
+	return _acResult_
+
+	func SplitAt(cData, cSubStr)
+		return @SplitAt(cData, cSubStr)
+
+	func @Split(cData, cSubStr)
+		return @SplitAt(cData, cSubStr)
