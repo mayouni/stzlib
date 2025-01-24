@@ -242,14 +242,18 @@ Class stzTable from stzObject
 			# If the file is empty, make an empty table
 			#TODO should we raise an error instead?
 
-			if ring_trim(cData) = ""
+			if cData = ""
 				@aContent = [ :COL1 = [ ] ]
 				return
 			ok
 
 			# Splitting the lines
 
-			acLines = ring_split(cData, NL)
+			_oQCSV_ = new QString2()
+			_oQCSV_.append(cData)
+
+
+			acLines = QStringListToList( _oQCSV_.split(NL, 0, 0) )
 			nLen = len(acLines)
 
 			# Checking the first line
@@ -263,7 +267,10 @@ Class stzTable from stzObject
 
 			else
 
-				acLine1Splits = ring_split(cLine1, ";")
+				qt = new QString2()
+				qt.append(cLine1)
+
+				acLine1Splits = QStringListToList( qt.split(",", 0, 0) )
 				nLen1 = len(acLine1Splits)
 
 				bMadeOfStrings = _TRUE_
@@ -298,16 +305,15 @@ Class stzTable from stzObject
 
 				nLenLine = len(acLine)
 				anLens + nLenLine
-				nMin = Min(anLens)
+				nMin = @Min(anLens)
 
 				aRow = []
 
 				for j = 1 to nMin
-
 					cell = acLine[j]
 
 					if @IsNumberInString(cell)
-						cellValue = 0+ cell
+						cellValue = @Number(cell)
 
 					but @IsListInString(cell)
 						cCode = 'cellValue = ' + cell
@@ -318,7 +324,6 @@ Class stzTable from stzObject
 					ok
 
 					aRow + cellValue
-
 				next
 
 				aTable + aRow

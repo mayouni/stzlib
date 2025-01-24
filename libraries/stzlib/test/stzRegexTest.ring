@@ -225,39 +225,96 @@ rx("<([^>]+)>(?R)*") { ? Match("<div><b>HELLO</b></div>") }
 proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
+/*---- IsRecursivePattern() and IsRecursiveMatch()
+
+pr()
+
+# Match nested parentheses recursively
+
+rx("\((?:[^()]+|(?R))*\)") {
+	? IsRecursivePattern()
+	#--> TRUE
+
+	? IsRecursiveMatch("(a(b(c)d)e)") + NL
+	#--> TRUE
+}
+
+rx("\((?:[^()]+|(?R))*\)") {
+	? IsRecursivePattern()
+	#--> TRUE
+
+	? IsRecursiveMatch("abcde") + NL
+	#--> FALSE
+}
+
+rx("Hello") { 
+	? IsRecursivePattern()
+	#--> FALSE
+
+	? IsRecursiveMatch("(a(b(c)d)e)")
+	#--> FALSE
+
+}
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
 /*----
-*/
+
 pr()
 
 # Match nested parentheses recursively
 oRegex = new stzRegex("\((?:[^()]+|(?R))*\)")
- 
+
 # Test string with nested parentheses
 cTest = "(a(b(c)d)e)"
 
-# Checki,g recursive match
+# Checking recursive match
 
-? oRegex.Match(cTest) # Or MatchRecursive
+? oRegex.MatchRecursive(cTest) # Or MatchRecursive
 #--> TRUE
 
 # Showing all nested matches and depth()
 
-? @@NL( oRegex.RecursiveMatchInfo(cTest) )
+? @@NL( oRegex.RecursiveMatchInfo(cTest) ) + NL
 #--> [
 #	[ "matchtype", "recursive" ],
 #	[ "depth", 1 ],
-#	[ "matches", [ [
-#			[ "text", "(a(b(c)d)e)" ],
-#			[ "start", 0 ],
-#			[ "length", 11 ] ]
-#		     ]
+#	[ "matches", [
+#		[ "(a(b(c)d)e)", [ 1, 11 ] ],
+#		[ "(b(c)d)", [ 3, 9 ] ],
+#		[ "(c)", [ 5, 7 ] ] ]
 #	]
 # ]
 
+? oRegex.RecursiveValues(cTest) + NL
+#--> [ "(a(b(c)d)e)", "(b(c)d)", "(c)" ]
+
+? @@NL( oRegex.RecursiveValuesZZ(cTest) ) + NL
+#--> [
+#	[ "(a(b(c)d)e)", [ 1, 11 ] ],
+#	[ "(b(c)d)", [ 3, 9 ] ],
+#	[ "(c)", [ 5, 7 ] ]
+# ]
+
+? @@NL( oRegex.RecursiveValuesZ(cTest) ) + NL
+#--> [
+#	[ "(a(b(c)d)e)", 1 ],
+#	[ "(b(c)d)", 3 ],
+#	[ "(c)", 5 ]
+# ]
+
+? @@( oRegex.FindRecursiveValues(cTest) ) + NL
+#--> [ 1, 3, 5 ]
+
+? @@( oRegex.FindRecursiveValuesZZ(cTest) )
+#--> [ [ 1, 11 ], [ 3, 9 ], [ 5, 7 ] ]
+
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 oRegex = new stzRegex("\[(?:[^\[\]]+|(?R))*\]")
@@ -280,6 +337,92 @@ cTest = "[1,[2,[3,4],[5]],6]"
 # ]
 
 proff()
+
+/*---
+
+pr()
+
+rx = StzRegexQ("\((.*\((.*)\))\)")  // A pattern to match nested parentheses
+? @@NL( rx.RecursiveMatchInfo("f1(f2(f3(x))") )
+
+#--> [
+#	[ "matchtype", "recursive" ],
+#	[ "depth", 2 ],
+#	[ "matches", [
+#		[ "(f2(f3(x))", [ 3, 12 ] ],
+#		[ "(f3(x))", [ 6, 12 ] ] ]
+#	]
+# ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- RECURSIVE NAMED MATCHES
+
+pr()
+
+// Pattern with named capture groups for nested parentheses
+rx = StzRegexQ("(?<outer>\((?<inner>[^()]*(\((?<nested>[^()]+)\))?[^()]*)\))")
+
+// Test string with nested parentheses
+cTestStr = "(outer(nested))"
+
+? @@NL( rx.RecursiveMatchInfoXT(cTestStr) )
+#--> [
+#	[ "type", "recursive" ],
+#	[ "depth", 3 ],
+#	[ "matches", [
+#		[ [ "outer", "(outer(nested))" ], [ "position", [ 1, 15 ] ] ],
+#		[ [ "inner", "outer(nested)" ], [ "position", [ 2, 14 ] ] ],
+#		[ [ "nested", "(nested)" ], [ "position", [ 7, 14 ] ] ]
+#	] ]
+# ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+// Pattern with nested named capture groups
+rx = StzRegexQ("(?<outermost>\((?<middle>[^()]*(\((?<innermost>[^()]+)\))?[^()]*)\))")
+
+// String with 3 levels of nested parentheses
+cTestStr = "(outer(middle(inner)))"
+
+? @@NL( rx.RecursiveMatchInfoXT(cTestStr) ) + NL
+#--> [
+#	[ "type", "recursive" ],
+#	[ "depth", 3 ],
+#	[ "matches", [
+#		[ [ "outermost", "(middle(inner))" ], [ "position", [ 7, 21 ] ] ],
+#		[ [ "middle", "middle(inner)" ], [ "position", [ 8, 20 ] ] ],
+#		[ [ "innermost", "(inner)" ], [ "position", [ 14, 20 ] ] ] ]
+#	]
+# ]
+
+proff()
+
+/*---
+*/
+pr()
+
+// Recursive pattern with named groups
+oRegex = new stzRegex("(?<outer>\((?<inner>[^()]+|(?R))*\))")
+cTest = "(a(b(c)d)e)"
+
+? @@NL( oRegex.RecursiveMatchInfo(cTest) ) + NL
+#--> [
+#	[ "matchtype", "recursive" ],
+#	[ "depth", 3 ],
+#	[ "matches", [ [ "(a(b(c)d)e)", [ 1, 11 ] ], [ "(b(c)d)", [ 3, 9 ] ], [ "(c)", [ 5, 7 ] ] ] ]
+# ]
+
+? @@NL( oRegex.RecursiveMatchInfoXT(cTest) )
+
+proff()
+
 /*---------------------------------#
 #  Understanding Qt Regex Options  #
 #----------------------------------#

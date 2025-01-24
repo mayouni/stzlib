@@ -315,12 +315,30 @@ class stzRegex
 		return len(This.CaptureNames()) > 0
 
 	def Capture()
+
 		if NOT This.HasGroups()
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
 		ok
-		return This.CapturedValues()
+
+		_acResult_ = []
+
+		_oQMatch_ = This.QMatchObject()
+		
+		# Only add non-empty captures and skip full match
+
+		for @i = 1 to This.CaptureCount()
+			_cCapture_ = _oQMatch_.captured(@i)
+			if _cCapture_ != ""
+				_acResult_ + _cCapture_
+			ok
+		next
+
+		return _acResult_
 
 		def CaptureValues()
+			return This.Capture()
+
+		def CapturedValues()
 			return This.Capture()
 
 		def Values()
@@ -334,20 +352,6 @@ class stzRegex
 
 		def ValuesXT()
 			return This.CaptureXT()
-
-	def CapturedValues()
-		_acResult_ = []
-		_oQMatch_ = This.QMatchObject()
-	
-		# Only add non-empty captures and skip full match
-		for @i = 1 to This.CaptureCount()
-			_cCapture_ = _oQMatch_.captured(@i)
-			if _cCapture_ != ""
-				_acResult_ + _cCapture_
-			ok
-		next
-
-		return _acResult_
 
 	def CaptureNames()
 		_oQRegex_ = This.QRegexObject()
@@ -454,7 +458,6 @@ class stzRegex
 
 		return This.MatchXT(pcStr, 1, :MatchEntireContentIfNotGoPartial, [])
 
-
 		def IsPartial(pcStr)
 			return This.IsPartialMatch(pcStr)
 
@@ -491,8 +494,6 @@ class stzRegex
 		def SearchInProgress(pcStr)
 			return This.MatchInProgress(pcStr)
 
-	# Enhanced information methods
-
 	def PartialMatchInfo(pcStr)
 
 		# Returns detailed information about a partial match including:
@@ -505,8 +506,7 @@ class stzRegex
 			return [
 				:matchType = "complete",
 				:matched   = pcStr,
-				:position  = 1,
-				:length    = StzStringQ(pcStr).NumberOfChars()
+				:section  = [ 1, StzStringQ(pcStr).NumberOfChars() ]
 			]
 		ok
 
@@ -519,8 +519,7 @@ class stzRegex
 			return [
 				:matchType = "partial",
 				:matched   = pcStr, # The actual partially matched string
-				:position  = 1,        # Starts at beginning
-				:length    = StzStringQ(pcStr).NumberOfChars() # Length of current match
+				:section  = [ 1, StzStringQ(pcStr).NumberOfChars() ] # Position of current match
 			]
 		ok
 
@@ -529,9 +528,11 @@ class stzRegex
 		return [
 			:matchType = "none",
 			:matched   = "",
-			:position  = 0,
-			:length    = 0
+			:section  = []
 		]
+
+	def PartialMatch(pcStr)
+		return This.PartialMatchInfo(pcStr)[2]
 
 	def PartialMatchStart()
 
@@ -541,6 +542,16 @@ class stzRegex
 
 		return 0
 
+		def FindPartialMatch()
+			return This.PartialMatchStart()
+
+		def FindPartialMatchZ()
+			return This.PartialMatchStart()
+
+	def FindPartialMatchZZ()
+		anResult = [ This.FindPartialMatch(), PartialMatchLenght() ]
+		return anResult
+
 	def PartialMatchLength()
 
 		if @oQMatchObject != NULL
@@ -549,10 +560,23 @@ class stzRegex
 
 		return 0
 
+		def PartialMatchSize()
+			return This.PartialMatchLenght()
+
+		def PartialMatchNumberOfChars()
+			return This.PartialMatchLenght()
+
+	def PartialMatchZ()
+		aResult = [ This.PartialMacth(), This.FindPartialMatch() ]
+		return aResult
+
 	#-- Recursive Match
 
 	def MatchRecursive(pcStr)
 		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "RecursiveMatch" ])
+
+		def RecursiveMatch(pcStr)
+			return This.MatchRecursive(pcStr)
 
 	def RecursiveMatchInfo(pcStr)
 		if NOT This.MatchRecursive(pcStr)
@@ -564,18 +588,27 @@ class stzRegex
 
 		nStart = 1
 		This.MatchAt(pcStr, nStart)
+		acSeen = []
 
 		while This.HasMatch()
+
 			oMatch = This.QMatchObject()
+			cCapture = oMatch.captured(0)
 
-			aMatches + [
-				:text = oMatch.captured(0),
-				:start = oMatch.capturedStart(0)+1,
-				:length = oMatch.capturedLength(0)
-			]
+			if ring_find(acSeen, cCapture) = 0
 
-			nMaxDepth++
+				aMatches + [
+					cCapture,
+					[ oMatch.capturedStart(0)+1,
+					  oMatch.capturedEnd(0) ]
+				]
+
+				nMaxDepth++
+				acSeen + cCapture
+			ok
+
 			This.MatchAt(pcStr, nStart++)
+
 		end
 
 		return [
@@ -583,3 +616,207 @@ class stzRegex
 			:depth = nMaxDepth,
 			:matches = aMatches
 		]
+
+	def IsRecursivePattern()
+		# Test patterns known to represent recursive structures
+
+		acTestStrings = [
+			"(a(b(c)))",     # Nested parentheses
+			"a(b(c(d)))",    # Deep nesting
+			"(recursive)"    # Self-referential structure
+		]
+
+		# Try matching each test string
+
+		nLen = len(acTestStrings)
+
+		for i = 1 to nLen
+			if This.Match(acTestStrings[i])
+				return TRUE
+			ok
+		next
+    
+		return FALSE
+
+	def IsRecursiveMatch(pcStr)
+		# Requires both pattern recursion potential 
+		# AND actual recursive string structure
+
+		if This.IsRecursivePattern() AND 
+		   This.RecursiveMatchInfo(pcStr)[:matchType] = "recursive"
+
+			return TRUE
+		else
+			return FALSE
+		ok	
+
+	def RecursiveSubStringsZZ(pcStr)
+		return This.RecursiveMatchInfo(pcStr)[3][2]
+
+		def RecursiveValuesZZ(pcStr)
+			return This.RecursiveSubStringsZZ(pcStr)
+
+	def RecursiveSubStrings(pcStr)
+		_aTemp_ = This.RecursiveMatchInfo(pcStr)[3][2]
+		_nLen_ = len(_aTemp_)
+
+		_acResult_ = []
+
+		for @i = 1 to _nLen_
+			_acResult_ + _aTemp_[@i][1]
+		next
+
+		return _acResult_
+
+		def RecursiveValues(pcStr)
+			return This.RecursiveSubStrings(pcStr)
+
+	def RecursiveSubStringsZ(pcStr)
+		_aTemp_ = This.RecursiveMatchInfo(pcStr)[3][2]
+		_nLen_ = len(_aTemp_)
+
+		_acResult_ = []
+
+		for @i = 1 to _nLen_
+			_acResult_ + [ _aTemp_[@i][1], _aTemp_[@i][2][1] ]
+		next
+
+		return _acResult_
+
+		def RecursiveValuesZ(pcStr)
+			return This.RecursiveSubStringsZ(pcStr)
+
+	def FindRecursiveSubStringsZZ(pcStr)
+		_aTemp_ = This.RecursiveMatchInfo(pcStr)[3][2]
+		_nLen_ = len(_aTemp_)
+
+		_acResult_ = []
+
+		for @i = 1 to _nLen_
+			_acResult_ + _aTemp_[@i][2]
+		next
+
+		return _acResult_
+
+		def FindRecursiveValuesZZ(pcStr)
+			return This.FindRecursiveSubStringsZZ(pcStr)
+
+	def FindRecursiveSubStrings(pcStr)
+		_aTemp_ = This.RecursiveMatchInfo(pcStr)[3][2]
+		_nLen_ = len(_aTemp_)
+
+		_acResult_ = []
+
+		for @i = 1 to _nLen_
+			_acResult_ + _aTemp_[@i][2][1]
+		next
+
+		return _acResult_
+
+		def FindRecursiveSubStringsZ(pcStr)
+			return This.FindRecursiveSubPatterns(pcStr)
+
+		def FindRecursiveValues(pcStr)
+			return This.FindRecursiveSubStrings(pcStr)
+
+		def FindRecursiveValuesZ(pcStr)
+			return This.FindRecursiveSubStrings(pcStr)
+
+	def RecursiveDepth(pcStr)
+		return This.RecursiveMatchInfo(pcStr)[2][2]
+
+	#-- Named Recursive Match
+
+	def HasRecursiveNamedGroups()
+
+		def HasRecursiveNames()
+
+	def RecursiveNames()
+
+		def RecursiveNamedGroups()
+	
+		def RecursiveGroupsNames()
+
+def IsValidRecursiveNamedPattern()
+
+    cPattern = This.Pattern()
+
+    // Check for named capture groups
+
+    if NOT rx("\\(\\?<\\w+>").Match(cPattern)
+        return FALSE
+    ok
+
+    // Check for potential nested structure
+    if NOT ( rx("\\([^()]*\\(").Match(cPattern) and 
+        rx("\\)[^()]*\\)").Match(cPattern) )
+        return FALSE
+    ok
+
+    return TRUE
+
+def RecursiveMatchInfoXT(pcStr)
+
+    // Pattern syntax validation
+    if NOT IsValidRecursiveNamedPattern()
+        StzRaise("Can't proceed! Recursive named match requires:" + NL +
+            "- At least one named capture group (?<name>...)" + NL +
+            "- Potential for nested captures" + NL +
+            "- Optional intermediate content between captures")
+    ok
+
+    // Enable all possible regex options
+    @nQPatternOptions = 0
+    @nQPatternOptions |= 256  // RecursiveMatch flag
+    This.QRegexObject().setPatternOptions(@nQPatternOptions)
+
+    // First, verify match
+    bMatched = This.MatchXT(pcStr, 1, :MatchEntireContent, ["RecursiveMatch"])
+    if NOT bMatched
+        return [ :type = "none", :depth = 0, :matches = [] ]
+    ok
+
+    // Get match object
+    oMatch = This.QMatchObject()
+    if oMatch = NULL
+        return [ :type = "none", :depth = 0, :matches = [] ]
+    ok
+
+    // Get named captures
+    acNames = This.CaptureNames()
+    if len(acNames) = 0
+        return [ :type = "none", :depth = 0, :matches = [] ]
+    ok
+
+    // Prepare result structures
+    aMatches = []
+
+    // Collect named matches
+    aNamedCaptures = []
+    for i = 1 to len(acNames)
+        cName = acNames[i]
+        if cName != ""
+
+            cValue = oMatch.captured(i)
+
+            aNamedCaptures + [
+                [ cName, cValue ],
+                [ "position", [
+                    oMatch.capturedStart(i) + 1,
+                    oMatch.capturedEnd(i)
+                ] ]
+            ]
+        ok
+    next
+
+    nLen = len(aNamedCaptures)
+    for i = 1 to nLen
+    	aMatches + aNamedCaptures[i]
+    next
+
+    return [
+        :type = "recursive",
+        :depth = nLen,
+        :matches = aMatches
+    ]
+
