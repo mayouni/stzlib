@@ -6041,7 +6041,7 @@ proff()
 pr()
 
 o1 = new stzTable([])
-o1.FromCSV("bigdata.csv")
+o1.FromCSV("tabdata.csv")
 ? o1.Show()
 
 #-->
