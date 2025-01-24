@@ -1,103 +1,114 @@
+I'll revise the article to incorporate the new example and output, providing deeper insights into recursive named matching:
+
 # Recursive Named Matching in Softanza: A Comprehensive Guide
 
-## Introduction: Unraveling Complex Pattern Matching
 
-Imagine you're a detective trying to decode a complex, nested message. Some messages have layers within layers - like a Russian nesting doll or a puzzle box with hidden compartments. This is exactly what recursive named matching in Softanza helps you do with text patterns!
+Imagine you're a detective investigating a complex message with hidden layers. Some messages are like Russian nesting dolls - each layer reveals another secret beneath. This is precisely what recursive named matching in Softanza helps you unravel.
 
-## The Conceptual Landscape
+## A Concrete Example: Nested Parentheses Exploration
 
-### What is Recursive Named Matching?
-
-Recursive named matching is a sophisticated technique for capturing nested, hierarchical structures in text. It's like having a specialized microscope that can not only zoom into different layers of a complex system but also label each layer with a meaningful name.
-
-### Core Components
-
-1. **Named Capture Groups**: Think of these as labeled evidence bags in a detective's investigation.
-   - Each group gets a unique name
-   - Allows precise identification of specific text segments
-   - Provides semantic meaning to matched content
-
-2. **Nested Structure**: Represents hierarchical or recursive patterns
-   - Like finding a box inside a box inside another box
-   - Matches complex, multi-layered text structures
-
-## Practical Illustration: Nested Parentheses
-
-Let's explore a concrete example to make this abstract concept tangible:
+Let's dive into a practical demonstration that illuminates the power of recursive named matching:
 
 ```ring
-// Pattern for nested parenthetical expressions
+// Pattern with nested (recursive) named capture groups
 rx = StzRegexQ("(?<outermost>\((?<middle>[^()]*(\((?<innermost>[^()]+)\))?[^()]*)\))")
+
+// String with 3 levels of nested parentheses
 cTestStr = "(outer(middle(inner)))"
-result = rx.RecursiveMatchInfoXT(cTestStr)
+
+? @@NL( rx.RecursiveMatchInfoXT(cTestStr) )
+#-->
+# [
+#  [ "type", "recursive" ],
+#  [ "depth", 3 ],
+#  [ "matches", [
+#    [ [ "outermost", "(middle(inner))" ], [ "position", [ 7, 21 ] ] ],
+#    [ [ "middle", "middle(inner)" ], [ "position", [ 8, 20 ] ] ],
+#    [ [ "innermost", "(inner)" ], [ "position", [ 14, 20 ] ] ]
+#  ]]
+# ]
 ```
 
-### Breaking Down the Pattern
+## Anatomy of the Pattern
 
-- `(?<outermost>...)`: Captures the entire matched structure
-- `(?<middle>...)`: Captures the middle layer's content
-- `[^()]*`: Allows arbitrary text between parentheses
-- `(\((?<innermost>[^()]+)\))?`: Optional nested inner capture
+Let's dissect our recursive matching pattern:
 
-## Matching Logic: Behind the Scenes
+1. `(?<outermost>...)`: Captures the entire matched structure
+   - Identifies the broadest layer of nesting
+   - Provides context for the entire matched expression
+
+2. `(?<middle>...)`: Captures the middle layer's content
+   - Reveals the intermediate nesting level
+   - Allows for flexible content between parentheses
+
+3. `[^()]*`: A crucial flexibility mechanism
+   - Permits arbitrary text between parentheses
+   - Prevents rigid, overly strict matching
+
+4. `(\((?<innermost>[^()]+)\))?`: Optional nested inner capture
+   - Allows for potential inner nesting
+   - Optional, so it doesn't break if no inner structure exists
+
+## Matching Logic Explained
 
 When Softanza performs recursive named matching, it:
-1. Scans the input text
-2. Identifies matching structures
-3. Extracts named groups at each level
-4. Preserves hierarchical information
+1. Scans the input text systematically
+2. Identifies nested matching structures
+3. Extracts named groups at each hierarchical level
+4. Preserves the semantic meaning of each captured segment
 
-## Critical Pattern Design Constraints
+## Key Insights from Our Example
 
-To ensure successful recursive named matching, your regex pattern must:
+In the output `"(outer(middle(inner)))"`:
+- **Outermost Match**: `"(middle(inner))"` 
+  - Captures the entire nested structure
+  - Starts at position 7, ends at 21
+
+- **Middle Match**: `"middle(inner)"`
+  - Reveals the intermediate layer
+  - Starts at position 8, ends at 20
+
+- **Innermost Match**: `"(inner)"`
+  - Captures the deepest nested structure
+  - Starts at position 14, ends at 20
+
+## Pattern Design Constraints
+
+To achieve successful recursive named matching, your regex pattern must:
 
 1. **Include Named Capture Groups**
-   - Use `(?<name>...)` syntax
-   - Provide meaningful, unique names
-   - At least one named group required
+   - Use `(?<name>...)` syntax precisely
+   - Provide meaningful, unique group names
+   - Ensure at least one named group exists
 
 2. **Support Nested Structure**
-   - Include potential for nested captures
+   - Create potential for nested captures
    - Use flexible matching mechanisms
    - Allow optional intermediate content
 
-3. **Avoid Rigid Structures**
+3. **Embrace Structural Flexibility**
    - Permit variable content between captures
-   - Use `?` for optional components
+   - Utilize `?` for optional components
    - Enable partial or incomplete nesting
 
-## Common Pitfalls and Solutions
+## Mental Model: The Nested Map Explorer
 
-### Rigid Pattern Example (Will Fail)
-```ring
-// Too strict, won't support recursive matching
-rx = StzRegexQ("(\(.*\))")  
-```
-
-### Flexible Pattern (Will Succeed)
-```ring
-// Allows optional nesting, multiple named groups
-rx = StzRegexQ("(?<outer>\((?<inner>[^()]*(\((?<nested>[^()]+)\))?[^()]*)\))")
-```
-
-## Mental Model: Think Like a Nested Map Explorer
-
-Imagine recursive named matching as exploring a multi-level map:
-- Each layer has a name
-- You can dive into nested regions
-- Not every path needs to be fully explored
-- Flexibility is key to discovery
+Think of recursive named matching like exploring a multi-level map:
+- Each layer has a unique identifier
+- You can dive into nested regions effortlessly
+- Not every path must be fully explored
+- Flexibility is your greatest discovery tool
 
 ## Practical Applications
 
-Recursive named matching shines in scenarios like:
-- Parsing nested programming language constructs
+Recursive named matching excels in scenarios such as:
+- Parsing complex nested programming language constructs
 - Analyzing hierarchical document structures
-- Extracting complex configuration settings
-- Investigating nested mathematical expressions
+- Extracting intricate configuration settings
+- Investigating nested mathematical or logical expressions
 
-## Conclusion: The Power of Semantic Parsing
+## Conclusion: Beyond Simple Text Matching
 
-Recursive named matching transcends traditional regex. It's not just about finding text - it's about understanding the semantic structure of your data.
+Recursive named matching transcends traditional regex. It's not merely about finding text - it's about understanding the semantic structure hidden within your data.
 
-By providing both flexibility and precision, Softanza's approach empowers developers to handle increasingly complex text parsing challenges.
+Softanza's approach provides both flexibility and precision, empowering developers to navigate and extract meaning from the most complex textual landscapes.

@@ -361,37 +361,25 @@ proff()
 
 pr()
 
-// Pattern with named capture groups for nested parentheses
-rx = StzRegexQ("(?<outer>\((?<inner>[^()]*(\((?<nested>[^()]+)\))?[^()]*)\))")
+// Pattern with nested (recursive) named capture groups
 
-// Test string with nested parentheses
-cTestStr = "(outer(nested))"
-
-? @@NL( rx.RecursiveMatchInfoXT(cTestStr) )
-#--> [
-#	[ "type", "recursive" ],
-#	[ "depth", 3 ],
-#	[ "matches", [
-#		[ [ "outer", "(outer(nested))" ], [ "position", [ 1, 15 ] ] ],
-#		[ [ "inner", "outer(nested)" ], [ "position", [ 2, 14 ] ] ],
-#		[ [ "nested", "(nested)" ], [ "position", [ 7, 14 ] ] ]
-#	] ]
-# ]
-
-proff()
-# Executed in almost 0 second(s) in Ring 1.22
-
-/*---
-
-pr()
-
-// Pattern with nested named capture groups
 rx = StzRegexQ("(?<outermost>\((?<middle>[^()]*(\((?<innermost>[^()]+)\))?[^()]*)\))")
 
 // String with 3 levels of nested parentheses
+
 cTestStr = "(outer(middle(inner)))"
 
-? @@NL( rx.RecursiveMatchInfoXT(cTestStr) ) + NL
+? @@NL( rx.RecursiveMatchInfo(cTestStr) ) + NL
+#--> [
+#	[ "matchtype", "recursive" ],
+#	[ "depth", 2 ],
+#	[ "matches", [
+#		[ "(middle(inner))", [ 7, 21 ] ],
+#		[ "(inner)", [ 14, 20 ] ] ]
+#	]
+# ]
+
+? @@NL( rx.RecursiveNamedMatchInfo(cTestStr) ) + NL
 #--> [
 #	[ "type", "recursive" ],
 #	[ "depth", 3 ],
@@ -402,24 +390,50 @@ cTestStr = "(outer(middle(inner)))"
 #	]
 # ]
 
+? rx.RecursiveNames()
+#--> [ "outermost", "middle", "innermost" ]
+
+? rx.Names()
+#--> ? rx.RecursiveNames()
+#--> [ "outermost", "middle", "innermost" ]
+
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*---
 */
 pr()
 
-// Recursive pattern with named groups
+
 oRegex = new stzRegex("(?<outer>\((?<inner>[^()]+|(?R))*\))")
 cTest = "(a(b(c)d)e)"
+
+# Getting the recursive math info without considering named groups
+# (RecursiveMatch, for short)
 
 ? @@NL( oRegex.RecursiveMatchInfo(cTest) ) + NL
 #--> [
 #	[ "matchtype", "recursive" ],
 #	[ "depth", 3 ],
-#	[ "matches", [ [ "(a(b(c)d)e)", [ 1, 11 ] ], [ "(b(c)d)", [ 3, 9 ] ], [ "(c)", [ 5, 7 ] ] ] ]
+#	[ "matches", [
+#		[ "(a(b(c)d)e)", [ 1, 11 ] ],
+#		[ "(b(c)d)", [ 3, 9 ] ],
+#		[ "(c)", [ 5, 7 ] ]
+#	] ]
 # ]
 
-? @@NL( oRegex.RecursiveMatchInfoXT(cTest) )
+# Getting the recursive match info while taking names groups in consideration
+# (RecursionNamedMatch, for short)
+
+? @@NL( oRegex.RecursiveNamedMatchInfo(cTest) )
+#--> [
+#	[ "type", "recursive" ],
+#	[ "depth", 2 ],
+#	[ "matches", [
+#		[ [ "outer", "(a(b(c)d)e)" ], [ "position", [ 1, 11 ] ] ],
+#		[ [ "inner", "e" ], [ "position", [ 10, 10 ] ] ]
+#	] ]
+# ]
 
 proff()
 
