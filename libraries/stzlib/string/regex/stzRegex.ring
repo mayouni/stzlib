@@ -15,21 +15,67 @@
 # And of course the reference article on Qt
 # https://doc.qt.io/qt-5/qregularexpression.html#details
 
+  #====================#
+ #  GLOBAL VARIABLES  #
+#====================#
+
+_$aMATCH_TYPES = [
+	:MatchEntireContent,			# 0 in Qt
+	:MatchEntireContentIfNotGoPartial,	# 1 in Qt
+	:MatchFirstOccurrenceIfNotGoPartial,	# 2 in Qt
+	:ReturnFalseForAnyMatch			# 3 in Qt
+]
+
+_$aMATCH_OPTIONS = [
+	:CaseInsensitive,	# 1 in Qt
+	:DotMatchesAll,		# 2 in Qt
+	:MultiLine,		# 4 in Qt
+	:ExtendedSyntax,	# 8 in Qt
+	:NonGreedy,		# 16 in Qt
+	:DontCapture,		# 32 in Qt
+	:UseUnicode,		# 64 in Qt
+	:DisableOptimizations,	# 128 in Qt
+	:RecursiveMatch,	# 256 in Qt
+]
+
+  #=============#
+ #  FUNCTIONS  #
+#=============#
+
 func StzRegexQ(pcPattern)
 	return new stzRegex(pcPattern)
 
 	func rx(pcPattern)
 		return StzRegexQ(pcPattern)
 
+func MatchTypes()
+	return _$aMATCH_TYPES 
+
+	def @MatchTypes()
+		return _$aMATCH_TYPES 
+
+func MatchOptions()
+	return _$aMATCH_OPTIONS
+
+	func @MatchOptions()
+		return _$aMATCH_OPTIONS
+
+  #==================#
+ #  STZREGEX CLASS  #
+#==================#
+
 class stzRegex
 	
 	@oQRegex
 	@oQMatchObject
-
+	@cMatchType
 	@cPattern
 	@cStr
 
 	@nQPatternOptions = 0
+	@acMatchOptions = []
+
+	@bRecursiveMatch = FALSE
 
 	  #----------------------------#
 	 #  INIT AND PATTERN SEETING  #
@@ -53,8 +99,11 @@ class stzRegex
 
 		@oQRegex = new QRegularExpression()
 		@oQRegex.setPattern(pcPattern)
+
 		@oQRegex.setPatternOptions(@nQPatternOptions)
+
 		@cPattern = pcPattern
+		@cMatchType = :MatchEntireContent
 
 		# If pattern contains multilines, extend the syntax
 		if ring_substr1(pcPattern, NL) > 0
@@ -83,6 +132,26 @@ class stzRegex
 	def QMatchObject()
 		return @oQMatchObject
 
+	def MatchType()
+		return @cMatchType
+
+	def MatchOptions()
+		return @acMatchOptions
+
+	def MatchTypeXT()
+		_acResult_ = [ This.MatchType() ]
+		_acOptions_ = This.MatchOptions()
+		_nLen_ = len(_acOptions_)
+
+		for @i = 1 to _nLen_
+			_acResult_ + _acOptions_[@i]
+		next
+
+		return _acResult_
+
+		def MatchTypeAndOptions()
+			return This.MatchType()
+
 	  #-------------------------#
 	 #  CORE Qt MATCH SERVICE  #
 	#-------------------------#
@@ -110,10 +179,18 @@ class stzRegex
 
 		ok
 	
+		if NOT ring_find(@MatchTypes(), pcMatchType) > 0
+			StzRaise("Unsupported match type! Should be one of these " + @@(@MatchTypes()) + "!")
+		ok
+
+		if NOT StzListQ(@MatchOptions()).ContainsThese(pacOptions)
+			StzRaise("Unsupported match options! Should be one or more of these " + @@(@MatchOptions()) + "!")
+		ok
+
 		# Reset pattern options before applying new ones
 
 		nQStartPosition = 0
-		nQMatchType = 1
+		nQMatchType = 0
 		@nQPatternOptions = 0
 
 		# To store whether we want partial matches
@@ -145,6 +222,7 @@ class stzRegex
 			nQMatchType = 3
 		off
 
+
 		# Defining options
 
 		nLen = len(pacOptions)
@@ -153,40 +231,41 @@ class stzRegex
 
 			switch pacOptions[i]
 
-			case "CaseInsensitive"
+			case :CaseInsensitive
 				@nQPatternOptions |= 1
 
-			case "DotMatchesAll"
+			case :DotMatchesAll
 				@nQPatternOptions |= 2
 
-			case "MultiLine"
+			case :MultiLine
 				@nQPatternOptions |= 4
 
-			case "ExtendedSyntax"
+			case :ExtendedSyntax
 				@nQPatternOptions |= 8
 
-			case "NonGreedy"
+			case :NonGreedy
 				@nQPatternOptions |= 16
 
-			case "DontCapture"
+			case :DontCapture
 				@nQPatternOptions |= 32
 
-			case "UseUnicode"
+			case :UseUnicode
 				@nQPatternOptions |= 64
 
-			case "DisableOptimizations"
+			case :DisableOptimizations
 				@nQPatternOptions |= 128
 
-			case "RecursiveMatch"
+			case :RecursiveMatch
 				@nQPatternOptions |= 256
-
+				@bRecursiveMatch = TRUE
 			off
 
 		next
 	
 		@oQRegex.setPatternOptions(@nQPatternOptions)
+		@acMatchOptions = pacOptions
 		@cStr = pcStr
-	
+		@cMatchType = pcMatchType
 		@oQMatchObject = @oQRegex.match(pcStr, nQStartPosition, nQMatchType, 0)
 
     		if nMatchResultType = 1
@@ -215,13 +294,13 @@ class stzRegex
 	#-- Softanza scope-based pattern matching methods
 
 	def MatchLinesIn(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "MultiLine", "DotMatchesAll" ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :MultiLine, :DotMatchesAll ])
 
 		def MatchLine(pcStr)
 			return This.MatchLinesIn(pcStr)
 
 	def MatchFirstLineIn(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, ["MultiLine", "NonGreedy"])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :MultiLine, :NonGreedy ])
 
 		def MatchFirstLine(pcStr)
 			return This.MatchFirstLineIn(pcStr)
@@ -237,25 +316,26 @@ class stzRegex
 	def MatchFirstWordIn(pcStr)
 		cWordPattern = "\b" + This.Pattern() + "\b"
 		This.SetPattern(cWordPattern)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "NonGreedy" ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :NonGreedy ])
 
 		def MatchFirstWord(pcStr)
 			return This.MatchFirstWordIn(pcStr)
 
 	def MatchSegmentsIn(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "DotMatchesAll", "MultiLine" ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll, :MultiLine ])
 
 		def MatchSegment(pcStr)
 			return This.MatchSegmentsIn(pcStr)
 
 	def MatchFirstSegmentIn(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "DotMatchesAll", "MultiLine", "NonGreedy" ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll, :MultiLine, :NonGreedy ])
 
 		def MatchFirstSegment(pcStr)
 			return This.MatchFirstSegmentIn(pcStr)
 
 	def Match(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "DotMatchesAll" ])
+
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll ])
 
 		def MatchString(pcStr)
 			return This.Match(pcStr)
@@ -292,7 +372,7 @@ class stzRegex
 		return _abResult_
 
 	def MatchFirst(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "DotMatchesAll", "NonGreedy" ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll, :NonGreedy ])
 
 	def MatchAt(pcStr, nPos)
 		if CheckParams()
@@ -352,6 +432,17 @@ class stzRegex
 			return This.Capture()
 
 		def CaptureMatchingSubStrings()
+			return This.Capture()
+
+		#==
+
+		def MatchingValues()
+			return This.Capture()
+
+		def MatchingSubStrings()
+			return This.Capture()
+
+		def Matches()
 			return This.Capture()
 
 		#>
@@ -444,6 +535,17 @@ class stzRegex
 		def FindCaptureMatchingSubStrings()
 			return This.FindCapture()
 
+		#==
+
+		def FindMatchingValues()
+			return This.FindCapture()
+
+		def FindMatchingSubStrings()
+			return This.FindCapture()
+
+		def FindMatches()
+			return This.FindCapture()
+
 		#>
 
 	def CaptureZ()
@@ -484,6 +586,17 @@ class stzRegex
 			return This.CaptureZ()
 
 		def CaptureMatchingSubStringsZ()
+			return This.CaptureZ()
+
+		#==
+
+		def MatchingValuesZ()
+			return This.CaptureZ()
+
+		def MatchingSubStringsZ()
+			return This.CaptureZ()
+
+		def MatchesZ()
 			return This.CaptureZ()
 
 		#>
@@ -528,6 +641,17 @@ class stzRegex
 		def FindCaptureMatchingSubStringsZZ()
 			return This.FindCaptureZZ()
 
+		#==
+
+		def FindMatchingValuesZZ()
+			return This.FindCaptureZZ()
+
+		def FindMatchingSubStringsZZ()
+			return This.FindCaptureZZ()
+
+		def FindMatchesZZ()
+			return This.FindCaptureZZ()
+
 		#>
 
 	def CaptureZZ()
@@ -547,8 +671,8 @@ class stzRegex
 			_cCapture_ = _oQMatch_.captured(@i)
 
 			if _cCapture_ != ""
-				_aSection_ = [ _oQMatch_.capturedStart(@i)-1, _oQMatch_.capturedEnd(@i)-1 ]
-				_aResult_ + [ _cCapture_, _aSections_ ]
+				_aSection_ = [ _oQMatch_.capturedStart(@i)+1, _oQMatch_.capturedEnd(@i) ]
+				_aResult_ + [ _cCapture_, _aSection_ ]
 			ok
 		next
 
@@ -573,6 +697,17 @@ class stzRegex
 		def CaptureMatchingSubStringsZZ()
 			return This.CaptureZZ()
 
+		#==
+
+		def MatchingValuesZZ()
+			return This.CaptureZZ()
+
+		def MatchingSubStringsZZ()
+			return This.CaptureZZ()
+
+		def MatchesZZ()
+			return This.CaptureZZ()
+
 		#>
 
 	#-- Pattern information and validation
@@ -588,46 +723,6 @@ class stzRegex
 
 	def PatternErrorOffset()
 		return This.QRegexObject().patternErrorOffset()
-
-	#-- Explanation methods
-
-	def Explain()
-		_cResult_ = ""
-		_cName_ = RegexPatternName(This.Pattern())
-		
-		if _cName_ != ""
-			_cResult_ = RegexPatternExplanation(_cName_)[1]
-		ok
-
-		if _cResult_ = ""
-			_oRxAnal_ = new stzRegexAnalyzer(This.Pattern())
-			_cResult_ = _oRxAnal_.Explain()
-		ok
-
-		if _cResult_ = ""
-			StzRaise("Can't explain the pattern.")
-		ok
-
-		return _cResult_
-
-	def ExplainXT()
-		_cResult_ = ""
-		_cName_ = RegexPatternName(This.Pattern())
-		
-		if _cName_ != ""
-			_cResult_ = RegexPatternExplanation(_cName_)[2]
-		ok
-
-		if _cResult_ = ""
-			_oRxAnal_ = new stzRegexAnalyzer(This.Pattern())
-			_cResult_ = _oRxAnal_.ExplainXT()
-		ok
-
-		if _cResult_ = ""
-			StzRaise("Can't explain the pattern.")
-		ok
-
-		return _cResult_
 
 	#-- Partial Mutch
 
@@ -756,7 +851,9 @@ class stzRegex
 	#-- Recursive (Nested) Match
 
 	def MatchRecursive(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ "RecursiveMatch" ])
+		bResult = This.MatchXT(pcStr, 1, :MatchEntireContent, [ :RecursiveMatch ])
+		@bRecursiveMatch = bResult
+		return bResult
 
 		def RecursiveMatch(pcStr)
 			return This.MatchRecursive(pcStr)
@@ -769,16 +866,23 @@ class stzRegex
 		def NestedMatch(pcStr)
 			return This.MatchRecursive(pcStr)
 
-	def RecursiveMatchInfo(pcStr)
-		if NOT This.MatchRecursive(pcStr)
-			return [ :matchType = "none", :depth = 0, :matches = [] ]
+	def IsRecursiveMatch()
+		return @bRecursiveMatch
+
+		def IsNestedMatch()
+			return This.IsRecursiveMatch()
+
+	def RecursiveMatchInfo()
+		if NOT This.IsRecursiveMatch()
+			return [ :IsRecursive = FALSE, :depth = 0, :matches = [] ]
 		ok
 
 		aMatches = []
 		nMaxDepth = 0
 
+		cStr = This.String()
 		nStart = 1
-		This.MatchAt(pcStr, nStart)
+		This.MatchAt(cStr, nStart)
 		acSeen = []
 
 		while This.HasMatch()
@@ -798,12 +902,12 @@ class stzRegex
 				acSeen + cCapture
 			ok
 
-			This.MatchAt(pcStr, nStart++)
+			This.MatchAt(cStr, nStart++)
 
 		end
 
 		return [
-			:matchType = "recursive",
+			:IsRecursive = TRUE,
 			:depth = nMaxDepth,
 			:matches = aMatches
 		]
@@ -811,71 +915,32 @@ class stzRegex
 		def NestedMatchInfo(pcStr)
 			return This.RecursiveMatchInfo(pcStr)
 
-	def IsRecursivePattern()
-		# Test patterns known to represent recursive structures
-
-		acTestStrings = [
-			"(a(b(c)))",     # Nested parentheses
-			"a(b(c(d)))",    # Deep nesting
-			"(recursive)"    # Self-referential structure
-		]
-
-		# Try matching each test string
-
-		nLen = len(acTestStrings)
-
-		for i = 1 to nLen
-			if This.Match(acTestStrings[i])
-				return TRUE
-			ok
-		next
-    
-		return FALSE
-
-		def IsNestedPattern()
-			return This.IsRecursivePattern()
-
-	def IsRecursiveMatch(pcStr)
-		# Requires both pattern recursion potential 
-		# AND actual recursive string structure
-
-		if This.IsRecursivePattern() AND 
-		   This.RecursiveMatchInfo(pcStr)[:matchType] = "recursive"
-
-			return TRUE
-		else
-			return FALSE
-		ok	
-
-		def IsNestedMatch(pcStr)
-			return This.IsRecursiveMatch(pcStr)
-
-	def RecursiveSubStringsZZ(pcStr)
-		return This.RecursiveMatchInfo(pcStr)[3][2]
+	def RecursiveSubStringsZZ()
+		return This.RecursiveMatchInfo()[3][2]
 
 		#< @FunctionAlternativeForms
 
-		def RecursiveValuesZZ(pcStr)
-			return This.RecursiveSubStringsZZ(pcStr)
+		def RecursiveValuesZZ()
+			return This.RecursiveSubStringsZZ()
 
-		def NestedSubStringsZZ(pcStr)
-			return This.RecursiveSubStringsZZ(pcStr)
+		def NestedSubStringsZZ()
+			return This.RecursiveSubStringsZZ()
 
-		def NestedValuesZZ(pcStr)
-			return This.RecursiveSubStringsZZ(pcStr)
+		def NestedValuesZZ()
+			return This.RecursiveSubStringsZZ()
 
 		#--
 
-		def RecursiveMatchesZZ(pcStr)
-			return This.RecursiveSubStringsZZ(pcStr)
+		def RecursiveMatchesZZ()
+			return This.RecursiveSubStringsZZ()
 
-		def NestedMatchesZZ(pcStr)
-			return This.RecursiveSubStringsZZ(pcStr)
+		def NestedMatchesZZ()
+			return This.RecursiveSubStringsZZ()
 
 		#>
 
-	def RecursiveSubStrings(pcStr)
-		_aTemp_ = This.RecursiveMatchInfo(pcStr)[3][2]
+	def RecursiveSubStrings()
+		_aTemp_ = This.RecursiveMatchInfo()[3][2]
 		_nLen_ = len(_aTemp_)
 
 		_acResult_ = []
@@ -888,27 +953,27 @@ class stzRegex
 
 		#< @FunctionAlternativeForms
 
-		def RecursiveValues(pcStr)
-			return This.RecursiveSubStrings(pcStr)
+		def RecursiveValues()
+			return This.RecursiveSubStrings()
 
-		def NestedSubStrings(pcStr)
-			return This.RecursiveSubStrings(pcStr)
+		def NestedSubStrings()
+			return This.RecursiveSubStrings()
 
-		def NestedValues(pcStr)
-			return This.RecursiveSubStrings(pcStr)
+		def NestedValues()
+			return This.RecursiveSubStrings()
 
 		#---
 
-		def RecursiveMatches(pcStr)
-			return This.RecursiveSubStrings(pcStr)
+		def RecursiveMatches()
+			return This.RecursiveSubStrings()
 
-		def NestedMatches(pcStr)
-			return This.RecursiveSubStrings(pcStr)
+		def NestedMatches()
+			return This.RecursiveSubStrings()
 
 		#>
 
-	def RecursiveSubStringsZ(pcStr)
-		_aTemp_ = This.RecursiveMatchInfo(pcStr)[3][2]
+	def RecursiveSubStringsZ()
+		_aTemp_ = This.RecursiveMatchInfo()[3][2]
 		_nLen_ = len(_aTemp_)
 
 		_acResult_ = []
@@ -921,27 +986,27 @@ class stzRegex
 
 		#< @FunctionAlternativeForms
 
-		def RecursiveValuesZ(pcStr)
-			return This.RecursiveSubStringsZ(pcStr)
+		def RecursiveValuesZ()
+			return This.RecursiveSubStringsZ()
 
-		def NestedSubStringsZ(pcStr)
-			return This.RecursiveSubStringsZ(pcStr)
+		def NestedSubStringsZ()
+			return This.RecursiveSubStringsZ()
 
-		def NestedValuesZ(pcStr)
-			return This.RecursiveSubStringsZ(pcStr)
+		def NestedValuesZ()
+			return This.RecursiveSubStringsZ()
 
 		#--
 
-		def RecursiveMatchesZ(pcStr)
-			return This.RecursiveSubStringsZ(pcStr)
+		def RecursiveMatchesZ()
+			return This.RecursiveSubStringsZ()
 
-		def NestedMatchesZ(pcStr)
-			return This.RecursiveSubStringsZ(pcStr)
+		def NestedMatchesZ()
+			return This.RecursiveSubStringsZ()
 
 		#>
 
-	def FindRecursiveSubStringsZZ(pcStr)
-		_aTemp_ = This.RecursiveMatchInfo(pcStr)[3][2]
+	def FindRecursiveSubStringsZZ()
+		_aTemp_ = This.RecursiveMatchInfo()[3][2]
 		_nLen_ = len(_aTemp_)
 
 		_acResult_ = []
@@ -954,27 +1019,27 @@ class stzRegex
 
 		#< @FunctionAlternativeForms
 
-		def FindRecursiveValuesZZ(pcStr)
-			return This.FindRecursiveSubStringsZZ(pcStr)
+		def FindRecursiveValuesZZ()
+			return This.FindRecursiveSubStringsZZ()
 
-		def FindNestedSubStringsZZ(pcStr)
-			return This.FindRecursiveSubStringsZZ(pcStr)
+		def FindNestedSubStringsZZ()
+			return This.FindRecursiveSubStringsZZ()
 
-		def FindNestedValuesZZ(pcStr)
-			return This.FindRecursiveSubStringsZZ(pcStr)
+		def FindNestedValuesZZ()
+			return This.FindRecursiveSubStringsZZ()
 
 		#--
 
-		def FindRecursiveMatchesZZ(pcStr)
-			return This.FindRecursiveSubStringsZZ(pcStr)
+		def FindRecursiveMatchesZZ()
+			return This.FindRecursiveSubStringsZZ()
 
-		def FindNestedMatchesZZ(pcStr)
-			return This.FindRecursiveSubStringsZZ(pcStr)
+		def FindNestedMatchesZZ()
+			return This.FindRecursiveSubStringsZZ()
 
 		#>
 
-	def FindRecursiveSubStrings(pcStr)
-		_aTemp_ = This.RecursiveMatchInfo(pcStr)[3][2]
+	def FindRecursiveSubStrings()
+		_aTemp_ = This.RecursiveMatchInfo()[3][2]
 		_nLen_ = len(_aTemp_)
 
 		_acResult_ = []
@@ -987,102 +1052,52 @@ class stzRegex
 
 		#< @FunctionAlternativeForms
 
-		def FindRecursiveSubStringsZ(pcStr)
-			return This.FindRecursiveSubPatterns(pcStr)
+		def FindRecursiveSubStringsZ()
+			return This.FindRecursiveSubPatterns()
 
-		def FindRecursiveValues(pcStr)
-			return This.FindRecursiveSubStrings(pcStr)
+		def FindRecursiveValues()
+			return This.FindRecursiveSubStrings()
 
-		def FindRecursiveValuesZ(pcStr)
-			return This.FindRecursiveSubStrings(pcStr)
+		def FindRecursiveValuesZ()
+			return This.FindRecursiveSubStrings()
 
 		#--
 
-		def FindNestedSubPatterns(pcStr)
-			return This.FindRecursiveSubPatterns(pcStr)
+		def FindNestedSubPatterns()
+			return This.FindRecursiveSubPatterns()
 
-		def FindNestedSubStringsZ(pcStr)
-			return This.FindRecursiveSubPatterns(pcStr)
+		def FindNestedSubStringsZ()
+			return This.FindRecursiveSubPatterns()
 
-		def FindNestedValues(pcStr)
-			return This.FindRecursiveSubStrings(pcStr)
+		def FindNestedValues()
+			return This.FindRecursiveSubStrings()
 
-		def FindNestedValuesZ(pcStr)
-			return This.FindRecursiveSubStrings(pcStr)
+		def FindNestedValuesZ()
+			return This.FindRecursiveSubStrings()
 
 		#==
 
-		def FindRecursiveMatches(pcStr)
-			return This.FindRecursiveSubPatterns(pcStr)
+		def FindRecursiveMatches()
+			return This.FindRecursiveSubPatterns()
 
-		def FindRecursiveMatchesZ(pcStr)
-			return This.FindRecursiveSubPatterns(pcStr)
+		def FindRecursiveMatchesZ()
+			return This.FindRecursiveSubPatterns()
 
-		def FindNestedMatches(pcStr)
-			return This.FindRecursiveSubPatterns(pcStr)
+		def FindNestedMatches()
+			return This.FindRecursiveSubPatterns()
 
-		def FindNestedMatchesZ(pcStr)
-			return This.FindRecursiveSubPatterns(pcStr)
+		def FindNestedMatchesZ()
+			return This.FindRecursiveSubPatterns()
 
 		#>
 
-	def RecursiveDepth(pcStr)
-		return This.RecursiveMatchInfo(pcStr)[2][2]
+	def RecursiveDepth()
+		return This.RecursiveMatchInfo()[2][2]
 
-		def NestedDepth(pcStr)
-			return This.RecursiveMatchInfo(pcStr)[2][2]
+		def NestedDepth()
+			return This.RecursiveMatchInfo()[2][2]
 
 	#-- Named Recursive Match
-
-	def IsRecursiveNamedPattern()
-
-		cPattern = This.Pattern()
-
-		# Create a temporary regex object to validate pattern
-
-		oTempRx = new stzRegex(cPattern)
-
-		# Check for named capture groups
-
-		acNames = oTempRx.CaptureNames()
-
-		if len(acNames) = 0
-			return FALSE
-		ok
-
-		# Verify pattern validity
-
-		if NOT oTempRx.IsValid()
-			return FALSE
-		ok
-
-		# Check for potential nested structure using pattern analysis
-
-		bHasNestedPotential =
-			ring_substr1(cPattern, "(") > 0 and  	# Has opening parenthesis
-			ring_substr1(cPattern, ")") > 0 and  	# Has closing parenthesis
-			ring_substr1(cPattern, "(?<") > 0  	# Has named capture group
-
-		return bHasNestedPotential
-
-		#< @FunctionAlternativeForms
-
-		def IsNestedNamedPattern()
-			return This.IsRecursiveNamedPattern()
-
-		def HasRecursiveNamedGroups()
-			return This.IsRecursiveNamedPattern()
-
-		def HasRecursiveNames()
-			return This.IsRecursiveNamedPattern()
-
-		def HasNestedNamedGroups()
-			return This.IsRecursiveNamedPattern()
-
-		def HasNestedNames()
-			return This.IsRecursiveNamedPattern()
-
-		#>
 
 	def RecursiveNames()
 		return This.Names()
@@ -1108,81 +1123,42 @@ class stzRegex
 
 		#>
 
-	def RecursiveNamedMatchInfo(pcStr)
+	#-- Explanation methods
 
-		# Pattern syntax validation
-
-		if NOT IsRecursiveNamedPattern()
-			StzRaise("Can't proceed! Recursive named match requires:" + NL +
-			"- At least one named capture group (?<name>...)" + NL +
-			"- Potential for nested captures" + NL +
-			"- Optional intermediate content between captures")
+	def Explain()
+		_cResult_ = ""
+		_cName_ = RegexPatternName(This.Pattern())
+		
+		if _cName_ != ""
+			_cResult_ = RegexPatternExplanation(_cName_)[1]
 		ok
 
-		# Enable all possible regex options
-
-		@nQPatternOptions = 0
-		@nQPatternOptions |= 256  // RecursiveMatch flag
-		This.QRegexObject().setPatternOptions(@nQPatternOptions)
-
-		# First, verify match
-
-		bMatched = This.MatchXT(pcStr, 1, :MatchEntireContent, ["RecursiveMatch"])
-
-		if NOT bMatched
-			return [ :type = "none", :depth = 0, :matches = [] ]
+		if _cResult_ = ""
+			_oRxAnal_ = new stzRegexAnalyzer(This.Pattern())
+			_cResult_ = _oRxAnal_.Explain()
 		ok
 
-		# Get match object
-
-		oMatch = This.QMatchObject()
-
-		if oMatch = NULL
-			return [ :type = "none", :depth = 0, :matches = [] ]
+		if _cResult_ = ""
+			StzRaise("Can't explain the pattern.")
 		ok
 
-		# Get named captures
+		return _cResult_
 
-		acNames = This.CaptureNames()
-
-		if len(acNames) = 0
-			return [ :type = "none", :depth = 0, :matches = [] ]
+	def ExplainXT()
+		_cResult_ = ""
+		_cName_ = RegexPatternName(This.Pattern())
+		
+		if _cName_ != ""
+			_cResult_ = RegexPatternExplanation(_cName_)[2]
 		ok
 
-		# Prepare result structures
+		if _cResult_ = ""
+			_oRxAnal_ = new stzRegexAnalyzer(This.Pattern())
+			_cResult_ = _oRxAnal_.ExplainXT()
+		ok
 
-		aMatches = []
+		if _cResult_ = ""
+			StzRaise("Can't explain the pattern.")
+		ok
 
-		# Collect named matches
-
-		aNamedCaptures = []
-	
-		for i = 1 to len(acNames)
-	
-			cName = acNames[i]
-	
-			if cName != ""
-	
-				cValue = oMatch.captured(i)
-	
-				aNamedCaptures + [
-					[ cName, cValue ],
-					[ "position", [
-						oMatch.capturedStart(i) + 1,
-						oMatch.capturedEnd(i)
-					] ]
-				]
-			ok
-		next
-	
-		nLen = len(aNamedCaptures)
-	
-		for i = 1 to nLen
-			aMatches + aNamedCaptures[i]
-		next
-	
-		return [
-			:type = "recursive",
-			:depth = nLen,
-			:matches = aMatches
-		]
+		return _cResult_
