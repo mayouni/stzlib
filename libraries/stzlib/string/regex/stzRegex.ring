@@ -15,6 +15,16 @@
 # And of course the reference article on Qt
 # https://doc.qt.io/qt-5/qregularexpression.html#details
 
+#-----------
+
+#TODO Features to add to regex in Softanza:
+
+# - Use regex with lists not only strings
+# - Support lookaheads, conditionals, and code-embedding
+# - Use of regex not only to chek patterns but to generate new data using pattern
+# - use regex to translate code between languages (lang1 -> abstract syntax tree --> lang2)
+# - from patterns in stzregexdat.ring, add new functions to stzString
+
   #====================#
  #  GLOBAL VARIABLES  #
 #====================#
@@ -273,7 +283,14 @@ class stzRegex
    		ok
 
 		return @oQMatchObject.hasMatch()
-	
+
+		#< @FunctionMisspelledForm
+
+		def MacthXT(pcStr, pnStartPosition, pcMatchType, pacOptions)
+			return This.MatchXT(pcStr, pnStartPosition, pcMatchType, pacOptions)
+
+		#>
+
 	#-- Match Information Methods
 
 	def HasMatch()
@@ -337,8 +354,23 @@ class stzRegex
 
 		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll ])
 
+		#< @FunctionAlternativeForm
+
 		def MatchString(pcStr)
 			return This.Match(pcStr)
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def Macth(pcStr)
+			return This.Match(pcStr)
+
+		def MacthString(pcStr)
+			return This.Match(pcStr)
+
+		#TODO // Add this misspellef form to all "Match" functions
+
+		#>
 
 	def MatchMany(pacStr)
 		if NOT ( isList(pacStr) and IsListOfStrings(pacStr) )

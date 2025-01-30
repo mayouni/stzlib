@@ -200,9 +200,9 @@ proff()
 
 # Recursive patterns in REGEX are commonly used to match nested structures in text.
 # They can be used to validate the correctness of nested HTML tags, return them or
-# replace them ; parse and manipulate complex deep data structures like JSON and XML.
+# replace them and parse and manipulate complex deep data structures like JSON and XML.
 
-#TODO Reflect on how to simplify it in Softanza
+#TODO Reflect on how to simplify it in stzRegexMaker
 
 pr()
 
@@ -224,7 +224,33 @@ rx("<([^>]+)>(?R)*") { ? Match("<div><b>HELLO</b></div>") }
 #--> TRUE
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.22
+
+/*----
+*/
+pr()
+
+# Matching balanced parentheses
+# Regex pattern used:
+
+cPattern = "\(([^()]|(?R))*\)"
+
+# Explanation:
+
+# (?R) is a recursive call to the entire regex, allowing it
+# to match nested parentheses dynamically.
+# This ensures that only strings with balanced parentheses are matched.
+
+rx(cPattern) { ? MatchManyXT([ "(nested)", "((nested))", "(((deeply nested)))" ]) }
+#--> [ TRUE, TRUE, TRUE ]
+
+proff()
 # Executed in 0.01 second(s) in Ring 1.22
+
+#TODO
+
+o1 = new stzString("[[x[2],y]]")
+? o1.IsNestedUsing(("[", "]")
 
 /*---- IsRecursivePattern() and IsRecursiveMatch()
 
@@ -437,7 +463,6 @@ cTest = "(a(b(c)d)e)"
 # ]
 
 proff()
-
 
 /*---
 

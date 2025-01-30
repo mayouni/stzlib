@@ -1,7 +1,32 @@
-
-
 func StzRegexMakerQ()
 	return new stzRegexMaker
+
+	func rxm()
+		return new stzRegexMaker
+
+func StzRecursiveRegexMakerQ()
+	return new stzRecursiveRegexMaker
+
+	func StzNestedRegexMakerQ()
+		return new stzRecursiveRegexMaker
+
+	func rrxm()
+		return new stzRecursiveRegexMaker
+
+	func NestedRegex()
+		return new stzRecursiveRegexMaker
+
+	func nrxm()
+		return new stzRecursiveRegexMaker
+
+func StzConditionalRegexMakerQ()
+	return new stzConditionalRegexMaker
+
+	func wrxm()
+		return new stzConditionalRegexMaker
+
+	func crxm()
+		return new stzConditionalRegexMaker
 
 func rxp(pcPattName)
 	return RegexPatterns()[pcPattName]
@@ -21,6 +46,7 @@ func rxp(pcPattName)
 	func RegexPattern(pcPattName)
 		return rxp(pcPattName)
 
+
 func 1Time()
 	return 1
 
@@ -33,10 +59,15 @@ func 3Times()
 func NTimes(n)
 	return n
 
+#=====================#
+#  REGEX MAKER CLASS  #
+#=====================#
+
 class stzRegexMaker
 	acFragments = []
 	aSequences = []
-  
+	aGroups = []  	# List of [name, pattern] pairs
+
 	def init()
 
 	  #--------------------#
@@ -103,7 +134,7 @@ class stzRegexMaker
 		but cQuant = :repeatedBetween
 			cQuantifier = "{" + nTimes1 + "," + nTimes2 + "}"
 
-		but cQuant =  :repeatedSeveral
+		but cQuant =  :repeatedSeveralTimes or cQuant = :repeatedSeveral
 			cQuantifier = "*"
 		ok
 
@@ -632,9 +663,347 @@ class stzRegexMaker
 		def CanContainDigitAmong(pDigits, pRepeat)
 			return This.CanContainADigitAmong(pDigits, pRepeat)
 
-	#------
-	PRIVATE
-	#------
+	#---------------
+	#  ADDING A LITTERAL STRING  #
+	#----------------------------#
+
+	def AddLiteral(pcStr)
+		acFragments + pcStr
+
+	  #------------------------------#
+	 #     CHARACTER CLASS HELPER    #
+	#------------------------------#
+	
+	def AddCharacterClass(pcClass)
+		# Example usage:
+		# o1 = new stzRegexMaker
+		# o1.AddCharacterClass(:word)      # Matches word chars
+		# o1.AddCharacterClass(:nonDigit)  # Matches non-digits
+	
+		switch pcClass
+		on :word
+			AddRange(:among, "\w", :RepeatedSeveralTimes, 0, 0)
+	
+		on :nonWord 
+			AddRange(:among, "\W", :RepeatedSeveralTimes, 0, 0)
+	
+		on :digit
+			AddRange(:among, "\d", :RepeatedSeveralTimes, 0, 0)
+	
+		on :nonDigit
+			AddRange(:among, "\D", :RepeatedSeveralTimes, 0, 0)
+	
+		on :space  
+			AddRange(:among, "\s", :RepeatedSeveralTimes, 0, 0)
+	
+		on :nonSpace
+			AddRange(:among, "\S", :RepeatedSeveralTimes, 0, 0)
+		off
+	
+		def AddCharClass(pcClass)
+			This.AddCharacterClass(pcClass)
+
+		def AddClass(pcClass)
+			This.AddCharacterClass(pcClass)
+
+	  #------------------------------#
+	 #     COMMON PATTERN HELPER    # 
+	#------------------------------#
+	
+	def AddCommonPattern(pcType)
+		# Example :
+		# o1 = new stzRegexMaker
+		# o1.AddCommonPattern(:email)  # Matches email addresses
+		# o1.AddCommonPattern(:phone)  # Matches phone numbers
+	
+		acFragments + rxp(pcType)
+	
+	  #-------------------------------#
+	 #     BACKREFERENCE HELPER      #
+	#-------------------------------#
+	
+	def AddBackreference(pcGroupName)
+		# Example usage:
+		# o1 = new stzRegexMaker
+		# o1.AddCapturingGroup("tag", "<([a-z]+)>.*?</\1>")
+		# o1.AddBackreference("tag")  # Matches same tag again
+	
+		if isString(pcGroupName)
+			acFragments + "(?P=" + pcGroupName + ")"
+		but isNumber(pcGroupName)  
+			acFragments + "\\" + pcGroupName
+		ok
+	
+	  #-------------------------------#
+	 #     UNICODE CATEGORY HELPER   #
+	#-------------------------------#
+	
+	def AddUnicodeCategory(pcCategory)
+		# Example usage:
+		# o1 = new stzRegexMaker
+		# o1.AddUnicodeCategory(:letter)      # Matches any letter
+		# o1.AddUnicodeCategory(:punctuation) # Matches punctuation
+	
+		switch pcCategory
+		on :letter
+			acFragments + "\p{L}"
+		on :number
+			acFragments + "\p{N}" 
+		on :punctuation 
+			acFragments + "\p{P}"
+		on :symbol
+			acFragments + "\p{S}"
+		off
+	
+	  #-------------------------------#
+	 #     WORD BOUNDARY HELPER      #
+	#-------------------------------#
+	
+	def AddWordBoundary(pcType)
+		# Example : 
+		# o1 = new stzRegexMaker
+		# o1.AddWordBoundary(:start)
+		# o1.AddAmongChars("test")   # Matches "test" at word start
+		# o1.AddWordBoundary(:end)
+	
+		switch pcType
+		on :start
+			acFragments + "\b"
+		on :end  
+			acFragments + "\b"
+		on :none
+			acFragments + "\B"
+		off
+	
+	  #--------------------------------#
+	 #     CAPTURING GROUP HELPER     #
+	#--------------------------------#
+	
+	def AddCapturingGroup(pcName, pcPattern) 
+		# Example :
+		# o1 = new stzRegexMaker
+		# o1.AddCapturingGroup("number", "\d+")     	# Named group
+		# o1.AddCapturingGroup(:nonCapturing, "\w+") 	# Non-capturing
+		# o1.AddCapturingGroup(:atomic, "[aeiou]+")  	# Atomic group
+	
+		if pcName = :nonCapturing
+			acFragments + "(?:" + pcPattern + ")"
+		
+		but pcName = :atomic
+			acFragments + "(?>" + pcPattern + ")"
+		
+		but isString(pcName)
+			acFragments + "(?P<" + pcName + ">" + pcPattern + ")"
+		ok
+	
+	  #-----------------------------------------#
+	 #     MATCH LENGTH BEHAVIOR HELPER        #
+	#-----------------------------------------#
+	
+	def AddMatchLength(pcPattern, pcBehavior)
+		# Example :
+		# o1 = new stzRegexMaker  
+		
+		# Match shortest sequence of word chars:
+		# o1.AddMatchLength("\w+", :shortest)   # In "abc def", matches "abc" then "def"
+		
+		# Match longest sequence of digits:
+		# o1.AddMatchLength("[0-9]+", :longest) # In "12 345", matches "12345"
+		
+		# Match complete sequence without reconsidering matches:
+		# o1.AddMatchLength(".+", :complete)    # In "<a>b</a>", matches entire string
+	
+		switch pcBehavior
+		on :longest    # Takes longest possible match (formerly 'greedy')
+			acFragments + pcPattern + "+"
+	
+		on :shortest   # Takes shortest possible match (formerly 'lazy')
+			acFragments + pcPattern + "+?"
+	
+		on :complete   # Matches everything at once without backtracking (formerly 'possessive')
+			acFragments + pcPattern + "++"
+		off
+	
+	  #--------------------------------#
+	 #     VARIABLE LENGTH HELPER      #
+	#--------------------------------#
+	
+	def AddVariableLength(pcPattern, pcQuantifier)
+		# Example :
+		# o1 = new stzRegexMaker  
+		# o1.AddVariableLength("\w+", :lazy)     	# Lazy match
+		# o1.AddVariableLength("[0-9]+", :greedy) 	# Greedy match
+	
+		switch pcQuantifier
+		on :possessive
+			acFragments + pcPattern + "++"
+		on :lazy
+			acFragments + pcPattern + "+?"
+		on :greedy
+			acFragments + pcPattern + "+"
+		off
+	
+	  #----------------------#
+	 #    COMMENT HELPER    #
+	#----------------------#
+	
+	def AddComment(pcText)
+		# Example :
+		# o1 = new stzRegexMaker
+		# o1.AddComment("Match emails") 
+		# o1.AddCommonPattern(:email)
+	
+		acFragments + "(?#" + pcText + ")"
+	
+	  #--------------------------------#
+	 #     CASE SENSITIVITY HELPER    #
+	#--------------------------------#
+	
+	def SetCase(pcMode)
+		This.SetCaseXT(pcMode, "")
+
+	def SetCaseXT(pcMode, pcPattern)
+		# Example :
+		# o1 = new stzRegexMaker
+		# o1.SetCaseXT(:insensitive, "Test")  # Matches test/TEST/Test
+		# o1.SetCaseXT(:sensitive, "Test")    # Matches only "Test"
+	
+		switch pcMode
+		on :insensitive
+			acFragments + "(?i)" + pcPattern
+		on :sensitive  
+			acFragments + "(?-i)" + pcPattern
+		on :mixed
+			acFragments + "(?i:" + pcPattern + ")"
+		off
+	
+	  #--------------------------------#
+	 #     PATTERN COMPOSITION        #
+	#--------------------------------#
+	
+	def ComposePatterns(paPatterns, pcMode)
+		# Example :
+		# o1 = new stzRegexMaker
+		# patterns = ["\d+", "[A-Z]+"]
+		# o1.ComposePatterns(patterns, :and)  # Must contain both
+		# o1.ComposePatterns(patterns, :or)   # Contains either
+	
+		switch pcMode
+		on :and
+			cResult = ""
+			for cPattern in paPatterns
+				cResult += "(?=" + cPattern + ")"
+			next
+			acFragments + cResult
+			
+		on :or
+			acFragments + "(" + join(paPatterns, "|") + ")"
+			
+		on :sequence
+			acFragments + join(paPatterns, "")
+		off
+
+	  #----------------------------------------#
+	 #     GROUP REFERENCE SYSTEM             #
+	#----------------------------------------#
+
+	def DefineGroup(pcName, pcPattern)
+		# Defines a named capturing group that can be referenced later.
+		# Returns group index for error checking.
+
+		# Example:
+		# o1.DefineGroup("tag", "<([a-z]+)>")
+		# Now "tag" group can be referenced later
+
+		if NOT isString(pcName)
+			StzRaise("Group name must be a string")
+		ok
+
+		aGroups + [pcName, pcPattern]
+		acFragments + "(?P<" + pcName + ">" + pcPattern + ")"
+		return len(aGroups)
+
+	def ReuseGroupPattern(pcGroupName)
+		# Reuses the pattern of a previously defined group
+		# without capturing or referencing any matched content.
+
+		# Example:
+		# o1.DefineGroup("word", "\w+")
+		# o1.ReuseGroupPattern("word") # Uses same \w+ pattern
+
+		nGroup = FindGroup(pcGroupName)
+		if nGroup = 0
+			StzRaise("No group named '" + pcGroupName + "' has been defined")
+		ok
+
+		acFragments + "(?:" + aGroups[nGroup][2] + ")"
+
+	def MatchSameContentAs(pcGroupName)
+		# Requires matching the exact same text that was matched
+		# by the referenced group. The group must be defined earlier
+		# in the pattern.
+
+		# Example:
+		# Match repeated words:
+		# o1.DefineGroup("word", "\w+")
+		# o1.AddCharacterClass(:space)
+		# o1.MatchSameContentAs("word") # Must match same word
+
+		nGroup = FindGroup(pcGroupName)
+		if nGroup = 0
+			StzRaise("No group named '" + pcGroupName + "' has been defined")
+		ok
+
+		acFragments + "</(?P=" + pcTagGroupName + ")>"
+
+	def MatchOppositeTagAs(pcTagGroupName)
+		# Special case for HTML/XML - matches the closing tag
+		# for a previously captured opening tag. Group must contain
+		# the tag name.
+
+		# Example:
+		# Match balanced HTML tags:
+		# o1.DefineGroup("tag", "<([a-z]+)>")
+		# o1.AddMatchLength(".*", :shortest) 	# Content
+		# o1.MatchOppositeTagAs("tag")      	# Closing tag
+
+		nGroup = FindGroup(pcTagGroupName)
+		if nGroup = 0
+			StzRaise("No tag group named '" + pcTagGroupName + "' has been defined")
+		ok
+
+		acFragments + "</(?P=" + pcTagGroupName + ")>"
+
+	def IsBeforeGroup(pcGroupName)
+		# Positive lookahead - checks if the referenced group pattern
+		# appears ahead without consuming it.
+
+		# Example:
+		# Match word before number:
+		# o1.DefineGroup("num", "\d+")
+		# o1.AddCharacterClass(:word)
+		# o1.IsBeforeGroup("num")
+
+		nGroup = FindGroup(pcGroupName)
+		if nGroup = 0
+			StzRaise("No group named '" + pcGroupName + "' has been defined")
+		ok
+
+		acFragments + "(?=" + aGroups[nGroup][2] + ")"
+
+	def FindGroup(pcName)
+		# Returns index of named group or 0 if not found
+
+		for i = 1 to len(aGroups)
+			if aGroups[i][1] = pcName
+				return i
+			ok
+		next
+		return 0
+
+	#-----------#
+	   PRIVATE
+	#-----------#
 
 	def pvtGetRepeat(pRepeat)
 		# [ :RepatedExactly, 3 ],
@@ -687,3 +1056,676 @@ class stzRegexMaker
 		ok
 	
 		return [ _cRepeat_, _n1_, _n2_ ]
+
+#===============================#
+#  RECURSIVE REGEX MAKER CLASS  #
+#===============================#
+
+class stzNestedRegexMaker from stzRecursiveRegexMaker
+
+class stzRecursiveRegexMaker
+
+	aLevels = []
+	bNamedRecursion = FALSE
+	aParentStack = []  # Tracks current parent levels during declarative setup
+	nParentIndex = 0
+
+	def init()
+		This.EnableNamedRecursion()
+
+	def AddLevel(cName, cPattern)
+		aLevels + [
+			:name    = cName,
+			:pattern = cPattern,
+			:parent  = NULL,
+			:children = [],
+			:quant   = ""
+		]
+
+		nParentIndex = len(aParentStack)
+
+	def AddChildLevel(cParentName, cChildName, cPattern)
+		nParent = pvtFindLevelByName(cParentName)
+		
+		if nParent = 0
+			StzRaise("Parent level '" + cParentName + "' not found!")
+		ok
+
+		AddLevel(cChildName, cPattern)
+		
+		nChild = len(aLevels)
+		aLevels[nChild][:parent] = nParent
+		aLevels[nParent][:children] + nChild
+
+	def AddQuantifier(cLevelName, cQuant)
+		nLevel = pvtFindLevelByName(cLevelName)
+		
+		if nLevel = 0
+			StzRaise("Level '" + cLevelName + "' not found!")
+		ok
+
+		aLevels[nLevel][:quant] = cQuant
+
+	def EnableNamedRecursion()
+		bNamedRecursion = TRUE
+		
+	def DisableNamedRecursion()
+		bNamedRecursion = FALSE
+
+	def Pattern()
+		if len(aLevels) = 0
+			return ""
+		ok
+
+		cPattern = ""
+		
+		# Process all root levels (those without parents)
+
+		for i = 1 to len(aLevels)
+			if aLevels[i][:parent] = NULL
+				cPattern += pvtBuildPattern(i)
+			ok
+		next
+
+		return cPattern
+
+	def SubPattern(cLevelName)
+		nLevel = pvtFindLevelByName(cLevelName)
+		
+		if nLevel = 0
+			return ""
+		ok
+
+		return pvtBuildPattern(nLevel)
+
+	def LevelNames()
+		aResult = []
+		for level in aLevels
+			aResult + level[:name]
+		next
+		return aResult
+
+	def NumberOfLevels()
+		return len(aLevels)
+
+	def HasLevel(cName)
+		return pvtFindLevelByName(cName) > 0
+
+	def LevelParent(cName)
+		nLevel = pvtFindLevelByName(cName)
+		if nLevel = 0
+			return ""
+		ok
+		nParent = aLevels[nLevel][:parent]
+		if nParent = NULL
+			return ""
+		ok
+		return aLevels[nParent][:name]
+
+	def LevelChildren(cName)
+
+		nLevel = pvtFindLevelByName(cName)
+
+		if nLevel = 0
+			return []
+		ok
+
+		aResult = []
+
+		for nChild in aLevels[nLevel][:children]
+			aResult + aLevels[nChild][:name]
+		next
+
+		return aResult
+
+	def Info()
+
+		aResult = []
+
+		for level in aLevels
+
+			aInfo = [
+				:name = level[:name],
+				:pattern = level[:pattern],
+				:parent = level[:parent],
+				:children = level[:children],
+				:quantifier = level[:quant]
+			]
+
+			aResult + aInfo
+		next
+
+		return aResult
+
+	def Reset()
+		aLevels = []
+		bNamedRecursion = FALSE
+
+	private
+
+	def pvtFindLevelByName(cName)
+
+		for i = 1 to len(aLevels)
+			if aLevels[i][:name] = cName
+				return i
+			ok
+		next
+
+		return 0
+
+	def pvtBuildPattern(nLevel)
+
+		if nLevel < 1 or nLevel > len(aLevels)
+			return ""
+		ok
+
+		level = aLevels[nLevel]
+		cPattern = level[:pattern]
+
+		# Process children first to properly nest them
+
+		cChildrenPattern = ""
+
+		for nChild in level[:children]
+			cChildPattern = pvtBuildPattern(nChild)
+			cChildrenPattern += cChildPattern
+		next
+
+		# Add children pattern to current level's pattern
+
+		if cChildrenPattern != ""
+			cPattern += cChildrenPattern
+		ok
+
+		# Add quantifier if present
+
+		if level[:quant] != ""
+
+			if bNamedRecursion
+
+				# For named recursion, wrap pattern + children in capture group before quantifier
+				cPattern = "(?P<" + level[:name] + ">" + cPattern + ")" + level[:quant]
+			else
+
+				cPattern += level[:quant]
+			ok
+
+		else
+			if bNamedRecursion
+
+				# Wrap in capture group without quantifier
+				cPattern = "(?P<" + level[:name] + ">" + cPattern + ")"
+			ok
+		ok
+
+		# Special handling for close pattern
+
+		if lower(level[:name]) = "close"
+			return level[:pattern]
+		ok
+
+		return cPattern
+
+#=================================#
+#  CONDITIONAL REGEX MAKER CLASS  #
+#=================================#
+
+class stzConditionalRegexMaker
+	# The core pattern components
+	@cCondition = ""    # Stores the if condition
+	@cThenPart = ""     # Stores the then pattern
+	@cElsePart = ""     # Stores the else pattern (optional)
+	
+	def init()
+		Reset()
+
+	def Reset()
+		@cCondition = ""
+		@cThenPart = ""
+		@cElsePart = ""
+
+	  #------------------#
+	 #     IF PART      #
+	#------------------#
+
+	def IfMatch(pcPattern)
+		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+			pcPattern = pcPattern[2]
+		ok
+
+		if NOT isString(pcPattern)
+			StzRaise("Incorrect param type! pcPattern must be a string.")
+		ok
+
+		@cCondition = "(?(?=" + pcPattern + ")"
+		return This
+
+	def IfNotMatch(pcPattern)
+		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+			pcPattern = pcPattern[2]
+		ok
+
+		if NOT isString(pcPattern)
+			StzRaise("Incorrect param type! pcPattern must be a string.")
+		ok
+
+		@cCondition = "(?(?!" + pcPattern + ")"
+		return This
+
+	def IfCaptured(pcGroupName)
+		if isList(pcGroupName) and stzListQ(pcGroupName).IsGroupNamedParam()
+			cGroupName = pGroupName[2]
+		ok
+
+		if NOT isString(pcGroupName)
+			StzRaise("Incorrect param type! pcGroupName must be a string.")
+		ok
+
+		@cCondition = "(?" + pcGroupName
+		return This
+
+	  #------------------#
+	 #    THEN PART     #
+	#------------------#
+
+	def ThenMatch(pcPattern)
+		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+			pcPattern = pcPattern[2]
+		ok
+
+		if NOT isString(pcPattern)
+			StzRaise("Incorrect param type! pcPattern must be a string.")
+		ok
+
+		@cThenPart = pcPattern
+		return This
+
+	  #------------------#
+	 #    ELSE PART     #
+	#------------------#
+
+	def ElseMatch(pcPattern)
+		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+			pcPattern = pcPattern[2]
+		ok
+
+		if NOT isString(pcPattern)
+			StzRaise("Incorrect param type! pcPattern must be a string.")
+		ok
+
+		@cElsePart = pcPattern
+		return This
+
+	  #------------------#
+	 #  COMMON HELPERS  #
+	#------------------#
+
+	def IfStartsWith(pcPattern)
+		if isList(pcPattern) and StzListQ(pcPattern).IsPatternNamedParam()
+			pcPattern = pcPattern[2]
+		ok
+
+		if NOT isString(pcPattern)
+			StzRaise("Incorrect param type! pcPattern must be a string.")
+		ok
+
+		return This.IfMatch("^" + pcPattern)
+
+	def IfEndsWith(pcPattern)
+		if isList(pcPattern) and StzListQ(pcPattern).IsPatternNamedParam()
+			pcPattern = pcPattern[2]
+		ok
+
+		if NOT isString(pcPattern)
+			StzRaise("Incorrect param type! pcPattern must be a string.")
+		ok
+
+		return This.IfMatch(pcPattern + "$")
+
+	def IfContains(pcPattern)
+		if isList(pcPattern) and StzListQ(pcPattern).IsPatternNamedParam()
+			pcPattern = pcPattern[2]
+		ok
+
+		if NOT isString(pcPattern)
+			StzRaise("Incorrect param type! pcPattern must be a string.")
+		ok
+
+		return This.IfMatch(".*" + pcPattern + ".*")
+
+	def IfPrecededBy(pcPattern)
+		if isList(pcPattern) and StzListQ(pcPattern).IsPatternNamedParam()
+			pPattern = pPattern[2]
+		ok
+
+		if NOT isString(pcPattern)
+			StzRaise("Incorrect param type! pcPattern must be a string.")
+		ok
+
+		return This.IfMatch("(?<=" + pcPattern + ")")
+
+	def IfFollowedBy(pcPattern)
+		if isList(pcPattern) and StzListQ(pcPattern).IsPatternNamedParam()
+			pcPattern = pcPattern[2]
+		ok
+
+		if NOT isString(pcPattern)
+			StzRaise("Incorrect param type! pcPattern must be a string.")
+		ok
+
+		return This.IfMatch("(?=" + pcPattern + ")")
+
+	  #------------------#
+	 #  PATTERN OUTPUT  #
+	#------------------#
+
+	def Pattern()
+		if @cCondition = ""
+			return ""
+		ok
+
+		cResult = @cCondition + @cThenPart
+
+		if @cElsePart != ""
+			cResult += "|" + @cElsePart
+		ok
+
+		return cResult + ")"
+
+	def Content()
+		aResult = [
+			:condition = @cCondition,
+			:then = @cThenPart,
+			:else = @cElsePart,
+			:pattern = This.Pattern()
+		]
+
+		return aResult
+
+#============================#
+#  STZ REGEX LOOKING AROUND  #
+#============================#
+
+class stzRegexLookaroundMaker
+	@cDirection = ""	# "ahead" or "behind"
+	@cType = ""    	# "positive" or "negative" 
+	@cPattern = ""	# The actual pattern to look for
+	@cMainPattern = ""	# The main pattern to match (optional)
+
+	def init()
+		Reset()
+
+	def Reset()
+		@cDirection = ""
+		@cType = ""
+		@cPattern = ""
+		@cMainPattern = ""
+		return This
+
+	  #--------------------------#
+	 #    POSITIVE PATTERNS     #
+	#--------------------------#
+
+	def MustBeFollowedBy(pcPattern)
+		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+			pcPattern = pcPattern[2]
+		ok
+
+		if NOT isString(pcPattern)
+			StzRaise("Incorrect param type! pcPattern must be a string.")
+		ok
+
+		@cDirection = "ahead"
+		@cType = "positive"
+		@cPattern = pcPattern
+		return This
+
+		#< @FunctionAlternativeForms
+
+		def LookingAhead(pcPattern)
+			return This.MustBeFollowedBy(pcPattern)
+
+		#>
+
+	def MustBePrecededBy(pcPattern)
+		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+			pcPattern = pcPattern[2]
+		ok
+
+		if NOT isString(pcPattern)
+			StzRaise("Incorrect param type! pcPattern must be a string.")
+		ok
+
+		@cDirection = "behind"
+		@cType = "positive"
+		@cPattern = pcPattern
+		return This
+
+		#< @FunctionAlternativeForms
+
+		def LookingBehind(pcPattern)
+			return This.MustBePrecededBy(pcPattern)
+
+		#>
+
+	  #--------------------------#
+	 #    NEGATIVE PATTERNS     #
+	#--------------------------#
+
+	def CantBeFollowedBy(pcPattern)
+		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+			pcPattern = pcPattern[2]
+		ok
+
+		if NOT isString(pcPattern)
+			StzRaise("Incorrect param type! pcPattern must be a string.")
+		ok
+
+		@cDirection = "ahead"
+		@cType = "negative"
+		@cPattern = pcPattern
+		return This
+
+		#< @FunctionAlternativeForms
+
+		def NotLookingAhead(pcPattern)
+			return This.CantBeFollowedBy(pcPattern)
+
+		#>
+
+	def CantBePrecededBy(pcPattern)
+		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+			pcPattern = pcPattern[2]
+		ok
+
+		if NOT isString(pcPattern)
+			StzRaise("Incorrect param type! pcPattern must be a string.")
+		ok
+
+		@cDirection = "behind"
+		@cType = "negative"
+		@cPattern = pcPattern
+		return This
+
+		#< @FunctionAlternativeForms
+
+		def NotLookingBehind(pcPattern)
+			return This.CantBePrecededBy(pcPattern)
+
+		#>
+
+	  #------------------#
+	 #   MAIN PATTERN   #
+	#------------------#
+
+	def ThenMatch(pcPattern)
+		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+			pcPattern = pcPattern[2]
+		ok
+
+		if NOT isString(pcPattern)
+			StzRaise("Incorrect param type! pcPattern must be a string.")
+		ok
+
+		@cMainPattern = pcPattern
+		return This
+
+	  #------------------#
+	 #  COMMON HELPERS  #
+	#------------------#
+
+	def MustBeFollowedByWord(pcWord)
+		if isList(pcWord) and stzListQ(pcWord).IsPatternNamedParam()
+			pcWord = pcWord[2]
+		ok
+
+		if NOT isString(pcWord)
+			StzRaise("Incorrect param type! pcWord must be a string.")
+		ok
+
+		return This.MustBeFollowedBy("\b" + pcWord + "\b")
+
+		#< @FunctionAlternativeForms
+
+		def LookingForWord(pcWord)
+			return This.MustBeFollowedByWord(pcWord)
+
+		#>
+
+	def MustBePrecededByWord(pcWord)
+		if isList(pcWord) and stzListQ(pcWord).IsPatternNamedParam()
+			pcWord = pcWord[2]
+		ok
+
+		if NOT isString(pcWord)
+			StzRaise("Incorrect param type! pcWord must be a string.")
+		ok
+
+		return This.MustBePrecededBy("\b" + pcWord + "\b")
+
+		#< @FunctionAlternativeForms
+
+		def LookingBehindWord(pcWord)
+			return This.MustBePrecededByWord(pcWord)
+
+		#>
+
+	def CantBeFollowedByWord(pcWord)
+		if isList(pcWord) and stzListQ(pcWord).IsPatternNamedParam()
+			pcWord = pcWord[2]
+		ok
+
+		if NOT isString(pcWord)
+			StzRaise("Incorrect param type! pcWord must be a string.")
+		ok
+
+		return This.CantBeFollowedBy("\b" + pcWord + "\b")
+
+		#< @FunctionAlternativeForms
+
+		def NotFollowedByWord(pcWord)
+			return This.CantBeFollowedByWord(pcWord)
+
+		#>
+
+	def CantBePrecededByWord(pcWord)
+		if isList(pcWord) and stzListQ(pcWord).IsPatternNamedParam()
+			pcWord = pcWord[2]
+		ok
+
+		if NOT isString(pcWord)
+			StzRaise("Incorrect param type! pcWord must be a string.")
+		ok
+
+		return This.CantBePrecededBy("\b" + pcWord + "\b")
+
+		#< @FunctionAlternativeForms
+
+		def NotPrecededByWord(pcWord)
+			return This.CantBePrecededByWord(pcWord)
+
+		#>
+
+	def MustBeFollowedByNumber()
+		return This.MustBeFollowedBy("\d+")
+
+		#< @FunctionAlternativeForms
+
+		def LookingForNumber()
+			return This.MustBeFollowedByNumber()
+
+		#>
+
+	def MustBePrecededByNumber()
+		return This.MustBePrecededBy("\d+")
+
+		#< @FunctionAlternativeForms
+
+		def LookingBehindNumber()
+			return This.MustBePrecededByNumber()
+
+		#>
+
+	def MustBeFollowedBySpace()
+		return This.MustBeFollowedBy("\s+")
+
+		#< @FunctionAlternativeForms
+
+		def LookingForSpace()
+			return This.MustBeFollowedBySpace()
+
+		#>
+
+	def MustBePrecededBySpace()
+		return This.MustBePrecededBy("\s+")
+
+		#< @FunctionAlternativeForms
+
+		def LookingBehindSpace()
+			return This.MustBePrecededBySpace()
+
+		#>
+
+	  #------------------#
+	 #  PATTERN OUTPUT  #
+	#------------------#
+
+	def Pattern()
+		if @cPattern = "" 
+			return ""
+		ok
+
+		cResult = ""
+
+		switch @cDirection
+		on "ahead"
+			if @cType = "positive"
+				cResult = "(?=" + @cPattern + ")"
+			else
+				cResult = "(?!" + @cPattern + ")"
+			ok
+
+		on "behind"
+			if @cType = "positive"
+				cResult = "(?<=" + @cPattern + ")"
+			else
+				cResult = "(?<!" + @cPattern + ")"
+			ok
+		off
+
+		if @cMainPattern != ""
+			cResult += @cMainPattern
+		ok
+
+		return cResult
+
+	def Content()
+		aResult = [
+			:direction = @cDirection,
+			:type = @cType,
+			:lookPattern = @cPattern,
+			:mainPattern = @cMainPattern,
+			:pattern = This.Pattern()
+		]
+
+		return aResult
