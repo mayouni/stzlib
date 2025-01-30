@@ -25,6 +25,29 @@ func StzListQ(paList)
 
 #===
 
+func Slice(pStrOrList, n1, n2)
+	if CheckParams()
+		if NOT (isString(pStrOrList) or isList(pStrOrList))
+			StzRaise("Incorrect param type! pStrOrList must be a string or list.")
+		ok
+	ok
+
+	if isString(pStrOrList)
+		return StkStringQ(pStrOrList).section(n1, n2)
+	else
+		_aResult_ = []
+		_nLen_ = len(pStrOrList)
+
+		for @i = n1 to n2
+			_aResult_ + pStrOrList[@i]
+		next
+
+		return _aResult_
+	ok
+
+//	func Section(pStrOrList, n1, n2) #TODO // Used in stzSection.ring!
+//		return Slice(pStrOrList, n1, n2)
+
 func Repeat(value, nTimes)
 	if CheckParams()
 		if NOT isNumber(nTimes)
@@ -90775,6 +90798,39 @@ fdef
 
 		def IsFromOrBetweenNamedParam()
 			return This.IsBetweenOrFromNamedParam()
+
+	def IsLikeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :Like
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+	def IsPatternNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :Pattern
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+	def IsGroupNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :Group
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
 
 #WARNING: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.
