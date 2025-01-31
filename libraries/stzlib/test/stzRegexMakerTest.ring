@@ -781,13 +781,15 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 16: Pattern Information
-
+*/
 pr()
 
-o8 = new stzRecursiveRegexMaker()
-o8 {
+# We use rrxm() instead of new stzRecursiveRegexMaker()
 
-    EnableNamedRecursion()
+#--> "r": recursive, "rxm": regex maker
+
+rrxm() {
+    	EnableNamedRecursion()
 
 	AddLevel("object", "\{")
 	AddChildLevel("object", "key", '"[^"]+"\s*:\s*')
@@ -1100,7 +1102,7 @@ proff()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Use of IsBeforeGroup
-*/
+
 pr()
 
 o1 = new stzRegexMaker

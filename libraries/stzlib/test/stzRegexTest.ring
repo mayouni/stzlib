@@ -227,7 +227,7 @@ proff()
 # Executed in 0.03 second(s) in Ring 1.22
 
 /*----
-*/
+
 pr()
 
 # Matching balanced parentheses
@@ -247,10 +247,10 @@ rx(cPattern) { ? MatchManyXT([ "(nested)", "((nested))", "(((deeply nested)))" ]
 proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
-#TODO
+/*--- #TODO
 
 o1 = new stzString("[[x[2],y]]")
-? o1.IsNestedUsing(("[", "]")
+? o1.IsNestedUsing("[", "]")
 
 /*---- IsRecursivePattern() and IsRecursiveMatch()
 
@@ -259,26 +259,17 @@ pr()
 # Match nested parentheses recursively
 
 rx("\((?:[^()]+|(?R))*\)") {
-	? IsRecursivePattern()
+
+	? MatchRecursive("(a(b(c)d)e)")
 	#--> TRUE
 
-	? IsRecursiveMatch("(a(b(c)d)e)") + NL
+	? IsRecursiveMatch() + NL
 	#--> TRUE
-}
-
-rx("\((?:[^()]+|(?R))*\)") {
-	? IsRecursivePattern()
-	#--> TRUE
-
-	? IsRecursiveMatch("abcde") + NL
-	#--> FALSE
 }
 
 rx("Hello") { 
-	? IsRecursivePattern()
-	#--> FALSE
 
-	? IsRecursiveMatch("(a(b(c)d)e)")
+	? MatchRecursive("(a(b(c)d)e)")
 	#--> FALSE
 
 }
@@ -303,9 +294,9 @@ cTest = "(a(b(c)d)e)"
 
 # Showing all nested matches and depth()
 
-? @@NL( oRegex.RecursiveMatchInfo(cTest) ) + NL
+? @@NL( oRegex.RecursiveMatchInfo() ) + NL
 #--> [
-#	[ "matchtype", "recursive" ],
+#	[ "isrecursive", TRUE ],
 #	[ "depth", 1 ],
 #	[ "matches", [
 #		[ "(a(b(c)d)e)", [ 1, 11 ] ],
@@ -314,31 +305,31 @@ cTest = "(a(b(c)d)e)"
 #	]
 # ]
 
-? oRegex.RecursiveValues(cTest) + NL
+? @@( oRegex.RecursiveValues() ) + NL
 #--> [ "(a(b(c)d)e)", "(b(c)d)", "(c)" ]
 
-? @@NL( oRegex.RecursiveValuesZZ(cTest) ) + NL
+? @@NL( oRegex.RecursiveValuesZZ() ) + NL
 #--> [
 #	[ "(a(b(c)d)e)", [ 1, 11 ] ],
 #	[ "(b(c)d)", [ 3, 9 ] ],
 #	[ "(c)", [ 5, 7 ] ]
 # ]
 
-? @@NL( oRegex.RecursiveValuesZ(cTest) ) + NL
+? @@NL( oRegex.RecursiveValuesZ() ) + NL
 #--> [
 #	[ "(a(b(c)d)e)", 1 ],
 #	[ "(b(c)d)", 3 ],
 #	[ "(c)", 5 ]
 # ]
 
-? @@( oRegex.FindRecursiveValues(cTest) ) + NL
+? @@( oRegex.FindRecursiveValues() ) + NL
 #--> [ 1, 3, 5 ]
 
-? @@( oRegex.FindRecursiveValuesZZ(cTest) )
+? @@( oRegex.FindRecursiveValuesZZ() )
 #--> [ [ 1, 11 ], [ 3, 9 ], [ 5, 7 ] ]
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*---
 
@@ -351,29 +342,33 @@ cTest = "[1,[2,[3,4],[5]],6]"
 ? oRegex.MatchRecursive(cTest)      
 #--> TRUE
 
-? @@NL( oRegex.RecursiveMatchInfo(cTest)  )
+? @@NL( oRegex.RecursiveMatchInfo()  )
 #--> [
-#   ["matchtype", "recursive"],
-#   ["depth", 4],
-#   ["matches", [
-#     ["text", "[1,[2,[3,4],[5]],6]"], ["start", 0], ["length", 17],
-#     ["text", "[2,[3,4],[5]]"], ["start", 3], ["length", 12],
-#     ["text", "[3,4]"], ["start", 6], ["length", 5],
-#     ["text", "[5]"], ["start", 12], ["length", 3]
-#   ]]
+# [
+#	[ "isrecursive", 1 ],
+#	[ "depth", 4 ],
+#	[ "matches", [
+#		[ "[1,[2,[3,4],[5]],6]", [ 1, 19 ] ],
+#		[ "[2,[3,4],[5]]", [ 4, 16 ] ],
+#		[ "[3,4]", [ 7, 11 ] ],
+#		[ "[5]", [ 13, 15 ] ]
+#	] ]
 # ]
 
 proff()
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*---
 
 pr()
 
 rx = StzRegexQ("\((.*\((.*)\))\)")  // A pattern to match nested parentheses
-? @@NL( rx.RecursiveMatchInfo("f1(f2(f3(x))") )
 
+rx.MatchRecursive("f1(f2(f3(x))")
+
+? @@NL( rx.RecursiveMatchInfo() )
 #--> [
-#	[ "matchtype", "recursive" ],
+#	[ "isrecursive", TRUE ],
 #	[ "depth", 2 ],
 #	[ "matches", [
 #		[ "(f2(f3(x))", [ 3, 12 ] ],
@@ -382,7 +377,7 @@ rx = StzRegexQ("\((.*\((.*)\))\)")  // A pattern to match nested parentheses
 # ]
 
 proff()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- RECURSIVE NAMED MATCHES
 
@@ -394,9 +389,9 @@ rx = StzRegexQ("(?<outermost>\((?<middle>[^()]*(\((?<innermost>[^()]+)\))?[^()]*
 
 // String with 3 levels of nested parentheses
 
-cTestStr = "(outer(middle(inner)))"
+rx.MatchRecursive("(outer(middle(inner)))")
 
-? @@NL( rx.RecursiveMatchInfo(cTestStr) ) + NL
+? @@NL( rx.RecursiveMatchInfo() ) + NL
 #--> [
 #	[ "matchtype", "recursive" ],
 #	[ "depth", 2 ],
@@ -406,39 +401,24 @@ cTestStr = "(outer(middle(inner)))"
 #	]
 # ]
 
-? @@NL( rx.RecursiveNamedMatchInfo(cTestStr) ) + NL
-#--> [
-#	[ "type", "recursive" ],
-#	[ "depth", 3 ],
-#	[ "matches", [
-#		[ [ "outermost", "(middle(inner))" ], [ "position", [ 7, 21 ] ] ],
-#		[ [ "middle", "middle(inner)" ], [ "position", [ 8, 20 ] ] ],
-#		[ [ "innermost", "(inner)" ], [ "position", [ 14, 20 ] ] ] ]
-#	]
-# ]
-
-? rx.RecursiveNames()
-#--> [ "outermost", "middle", "innermost" ]
-
 ? rx.Names()
 #--> ? rx.RecursiveNames()
 #--> [ "outermost", "middle", "innermost" ]
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*---
 
 pr()
 
-
 oRegex = new stzRegex("(?<outer>\((?<inner>[^()]+|(?R))*\))")
-cTest = "(a(b(c)d)e)"
+oRegex.MatchRecursive("(a(b(c)d)e)")
 
 # Getting the recursive math info without considering named groups
 # (RecursiveMatch, for short)
 
-? @@NL( oRegex.RecursiveMatchInfo(cTest) ) + NL
+? @@NL( oRegex.RecursiveMatchInfo() ) + NL
 #--> [
 #	[ "matchtype", "recursive" ],
 #	[ "depth", 3 ],
@@ -449,24 +429,11 @@ cTest = "(a(b(c)d)e)"
 #	] ]
 # ]
 
-# Getting the recursive match info while taking names groups in consideration
-# (RecursionNamedMatch, for short)
-
-? @@NL( oRegex.RecursiveNamedMatchInfo(cTest) )
-#--> [
-#	[ "type", "recursive" ],
-#	[ "depth", 2 ],
-#	[ "matches", [
-#		[ [ "outer", "(a(b(c)d)e)" ], [ "position", [ 1, 11 ] ] ],
-#		[ [ "inner", "e" ], [ "position", [ 10, 10 ] ] ]
-#	] ]
-# ]
-
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*---
 
-*/
 pr()
 
 str = "(a(b(c(x)(y))d(z))e)"
@@ -531,10 +498,28 @@ proff()
 /*---------------------------------------#
 #  Finding Matches Positions in Regexes  #
 #----------------------------------------#
+
 */
 pr()
 
 proff()
+
+/*--- FINDING CAPTURED MATCHES
+
+FindCapture() # Or FindValues() or FindCapturedValues() FindMatches()
+
+FindCaptureZZ()
+
+CaptureZ() # or CapturedValuesZ()
+CaptureZZ() # CapturedValuesZZ()
+
+/*--- FINDIND PARTiAL MATCHES
+
+FindPartialMatch() # Z() and ZZ()
+
+/*--- FINDING RECURSIVE (NESTED) SUBSTRINGS
+
+FindNested()
 
 /*---------------------------------#
 #  Understanding Qt Regex Options  #
