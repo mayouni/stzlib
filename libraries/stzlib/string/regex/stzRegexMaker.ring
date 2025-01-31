@@ -1,3 +1,7 @@
+
+# A great tool to learn from:
+# https://www.regexmagic.com/patterns.html
+
 func StzRegexMakerQ()
 	return new stzRegexMaker
 
@@ -663,8 +667,8 @@ class stzRegexMaker
 		def CanContainDigitAmong(pDigits, pRepeat)
 			return This.CanContainADigitAmong(pDigits, pRepeat)
 
-	#---------------
-	#  ADDING A LITTERAL STRING  #
+	  #----------------------------#
+	 #  ADDING A LITTERAL STRING  #
 	#----------------------------#
 
 	def AddLiteral(pcStr)
@@ -722,7 +726,7 @@ class stzRegexMaker
 	 #     BACKREFERENCE HELPER      #
 	#-------------------------------#
 	
-	def AddBackreference(pcGroupName)
+	def AddBackReference(pcGroupName)
 		# Example usage:
 		# o1 = new stzRegexMaker
 		# o1.AddCapturingGroup("tag", "<([a-z]+)>.*?</\1>")
@@ -937,6 +941,9 @@ class stzRegexMaker
 		ok
 
 		acFragments + "(?:" + aGroups[nGroup][2] + ")"
+
+		def ReuseGroup(pcGroupName)
+			This.ReuseGroupPattern(pcGroupName)
 
 	def MatchSameContentAs(pcGroupName)
 		# Requires matching the exact same text that was matched
