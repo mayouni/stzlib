@@ -1,5 +1,6 @@
 # Softanzifying Regular Expressions: A Paradigm Shift
 ![Transforming Chaos into Clarity](../images/stz-regex-paradigm-shift.png)
+
 *Master Craftsmen Transforming Chaos into Clarity!*
 
 Regular expressions are a powerful tool for text processing, yet their classic syntax can be terse, cryptic, and error-prone. The **Softanza library** for the **Ring language** transforms regex usage by offering intuitive, semantically rich APIs that simplify pattern creation, execution, and analysis.
