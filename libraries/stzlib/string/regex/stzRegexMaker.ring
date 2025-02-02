@@ -32,6 +32,15 @@ func StzConditionalRegexMakerQ()
 	func crxm()
 		return new stzConditionalRegexMaker
 
+func StzRegexLookaroundMakerQ()
+	return new stzRegexLookaroundMaker
+
+	func rxma()
+		return new stzRegexLookaroundMaker
+
+	func arxm()
+		return new stzRegexLookaroundMaker
+
 func rxp(pcPattName)
 	return RegexPatterns()[pcPattName]
 
@@ -1278,7 +1287,7 @@ class stzRecursiveRegexMaker
 #=================================#
 
 class stzConditionalRegexMaker
-	# The core pattern components
+
 	@cCondition = ""    # Stores the if condition
 	@cThenPart = ""     # Stores the then pattern
 	@cElsePart = ""     # Stores the else pattern (optional)
@@ -1439,7 +1448,7 @@ class stzConditionalRegexMaker
 
 		return cResult + ")"
 
-	def Content()
+	def Info()
 		aResult = [
 			:condition = @cCondition,
 			:then = @cThenPart,
@@ -1449,18 +1458,18 @@ class stzConditionalRegexMaker
 
 		return aResult
 
-#============================#
-#  STZ REGEX LOOKING AROUND  #
-#============================#
+#==================================#
+#  STZ REGEX LOOKING AROUND CLASS  #
+#==================================#
 
 class stzRegexLookaroundMaker
-	@cDirection = ""	# "ahead" or "behind"
-	@cType = ""    	# "positive" or "negative" 
-	@cPattern = ""	# The actual pattern to look for
+	@cDirection = ""	# 'ahead' or 'behind'
+	@cType = ""    		# 'positive' or 'negative' 
+	@cPattern = ""		# The actual pattern to look for
 	@cMainPattern = ""	# The main pattern to match (optional)
 
 	def init()
-		Reset()
+		# Do nothing
 
 	def Reset()
 		@cDirection = ""
@@ -1726,7 +1735,7 @@ class stzRegexLookaroundMaker
 
 		return cResult
 
-	def Content()
+	def Info()
 		aResult = [
 			:direction = @cDirection,
 			:type = @cType,

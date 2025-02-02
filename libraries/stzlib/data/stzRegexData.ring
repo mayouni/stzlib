@@ -417,7 +417,20 @@ _$aRegexPatterns_ = [
 	:code128 = "^[!-~]+$", 
 	:qrCodeData = "^[A-Za-z0-9\\-._~:/?#\\[\\]@!$&'()*+,;=%]*$", 
 	:isbn10 = "^\\d{9}[\\dX]$", 
-	:isbn13 = "^978\\d{10}$"
+	:isbn13 = "^978\\d{10}$",
+
+	# Semantic Versioning (major.minor.patch)
+
+	:semVer = "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$",
+	:strictSemVer = "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
+	:versionWithBuild = "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$",
+	:preReleaseVersion = "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)$",
+	:versionWithPrefix = "^v?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
+	:dateVersion = "^(\\d{4})[.-]?(0[1-9]|1[0-2])[.-]?(0[1-9]|[12]\\d|3[01])$",
+	:windowsVersion = "^(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)$",
+	:pythonVersion = "^(\\d+)\\.(\\d+)\\.(\\d+)(?:[abrc]\\d+|\\.post\\d+|\\.dev\\d+)?$",
+	:mavenVersion = "^(\\d+)(?:\\.(\\d+))?(?:\\.(\\d+))?(?:-([A-Za-z0-9.-]+))?$"
+
 ]
 
 _$aRegexPatternsExplanations_ = [
@@ -3754,6 +3767,108 @@ _$aRegexPatternsExplanations_ = [
 
 		"- Matches: `9780306406157`, `9781234567897`." + NL +
 		"- Non-matches: `1234567890123`, `0306406157` (does not start with `978` or incorrect length)."
+	],
+
+
+	# Semantic Versioning (major.minor.patch)
+
+	:semVer = [
+		"Matches Semantic Versioning (SemVer) format (major.minor.patch with optional pre-release and build metadata)",
+
+		"- `^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$`:" + NL +
+		"  - Matches major, minor, and patch versions." + NL +
+		"  - Supports optional pre-release (`-alpha.1`, `-rc.2`) and build metadata (`+build123`)." + NL + NL +
+
+		"- Matches: `1.0.0`, `2.1.3-alpha`, `3.2.1-rc.1+build456`." + NL +
+		"- Non-matches: `v1.0`, `1.0.0.0` (invalid extra segments)."
+	],
+
+	:strictSemVer = [
+		"Matches strict Semantic Versioning without pre-release or build metadata (major.minor.patch)",
+
+		"- `^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$`:" + NL +
+		"  - Matches only the three required version segments." + NL +
+		"  - Does not allow pre-release or build metadata." + NL + NL +
+
+		"- Matches: `1.0.0`, `2.3.4`, `10.99.100`." + NL +
+		"- Non-matches: `1.0.0-alpha`, `v1.0.0`."
+	],
+
+	:versionWithBuild = [
+		"Matches version numbers with optional build metadata",
+
+		"- `^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$`:" + NL +
+		"  - Matches three-part version numbers." + NL +
+		"  - Allows build metadata prefixed by `+`." + NL + NL +
+
+		"- Matches: `1.0.0+build123`, `2.5.6+exp.sha.5114f85`." + NL +
+		"- Non-matches: `1.0.0-alpha`, `v1.2.3`."
+	],
+
+	:preReleaseVersion = [
+		"Matches versions with pre-release identifiers",
+
+		"- `^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)$`:" + NL +
+		"  - Matches three-part version numbers." + NL +
+		"  - Requires a pre-release identifier (e.g., `-beta`, `-rc.1`)." + NL + NL +
+
+		"- Matches: `1.2.3-alpha`, `4.5.6-beta.1`, `10.0.1-rc.2`." + NL +
+		"- Non-matches: `1.2.3`, `1.2.3+build`."
+	],
+
+	:versionWithPrefix = [
+		"Matches version numbers with an optional `v` prefix",
+
+		"- `^v?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$`:" + NL +
+		"  - Matches three-part version numbers." + NL +
+		"  - Allows an optional `v` at the beginning (e.g., `v1.0.0`)." + NL + NL +
+
+		"- Matches: `v1.0.0`, `1.2.3`, `v10.5.7`." + NL +
+		"- Non-matches: `1.0`, `1.2.3-beta`."
+	],
+
+	:dateVersion = [
+		"Matches date-based versioning (YYYY.MM.DD or YYYYMMDD)",
+
+		"- `^(\\d{4})[.-]?(0[1-9]|1[0-2])[.-]?(0[1-9]|[12]\\d|3[01])$`:" + NL +
+		"  - Matches year (4 digits), month (01-12), and day (01-31)." + NL +
+		"  - Allows `.` or `-` as separators or no separator at all." + NL + NL +
+
+		"- Matches: `2024.06.15`, `20240615`, `2024-12-01`." + NL +
+		"- Non-matches: `2024.13.01` (invalid month), `20240632` (invalid day)."
+	],
+
+	:windowsVersion = [
+		"Matches Windows-style version numbers (major.minor.build.revision)",
+
+		"- `^(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)$`:" + NL +
+		"  - Matches four-part version numbers." + NL +
+		"  - Each segment is a numeric value." + NL + NL +
+
+		"- Matches: `10.0.19041.572`, `6.1.7601.24540`." + NL +
+		"- Non-matches: `10.0.19041`, `v10.0.0.1`."
+	],
+
+	:pythonVersion = [
+		"Matches Python package versioning (PEP 440 format)",
+
+		"- `^(\\d+)\\.(\\d+)\\.(\\d+)(?:[abrc]\\d+|\\.post\\d+|\\.dev\\d+)?$`:" + NL +
+		"  - Matches three-part version numbers." + NL +
+		"  - Allows pre-release (`a1`, `b2`, `rc3`), post-release (`.post1`), and development release (`.dev0`)." + NL + NL +
+
+		"- Matches: `3.9.7`, `2.7.18rc1`, `1.2.3.post4`, `4.5.6.dev0`." + NL +
+		"- Non-matches: `1.2`, `1.2.3-alpha` (wrong format for PEP 440)."
+	],
+
+	:mavenVersion = [
+		"Matches Maven/Gradle-style versioning (with optional suffixes)",
+
+		"- `^(\\d+)(?:\\.(\\d+))?(?:\\.(\\d+))?(?:-([A-Za-z0-9.-]+))?$`:" + NL +
+		"  - Matches major, minor, and optional patch numbers." + NL +
+		"  - Allows suffixes like `-SNAPSHOT`, `-RELEASE`, `-RC1`." + NL + NL +
+
+		"- Matches: `1.0`, `2.3.4`, `3.0-SNAPSHOT`, `5.1.2-RELEASE`." + NL +
+		"- Non-matches: `v1.2.3`, `1.2.3+build`."
 	]
 
 ]
