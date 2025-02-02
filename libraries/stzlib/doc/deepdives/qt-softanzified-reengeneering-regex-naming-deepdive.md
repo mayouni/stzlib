@@ -1,6 +1,5 @@
 # Qt Softanzified: A Step-by-Step Naming Engineering Journey
-![A grandfather sculpting clay art while his granddaughter watches in contemplation
-](../images/stz-qt-softanzified.png)
+![A grandfather sculpting clay art while his granddaughter watches in contemplation](../images/stz-qt-softanzified.png)
 *A grandfather sculpting clay art while his granddaughter watches in contemplation*
 
 Naming is crucial for code usability. This case study follows the evolution of naming while working on Softanza's `stzRegex` class, based on `QRegularExpression` offered by `RingQt`, showing how careful naming engineering can make complex features more accessible while maintaining their full power.
