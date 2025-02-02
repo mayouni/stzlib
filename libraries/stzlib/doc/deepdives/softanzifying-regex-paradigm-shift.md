@@ -1,13 +1,13 @@
 # Softanzifying Regular Expressions: A Paradigm Shift
-![Transforming Chaos into Clarity
-](../images/stz-regex-paradigm-shift.png "")
+![Transforming Chaos into Clarity](../images/stz-regex-paradigm-shift.png "Transforming Chaos into Clarity")
+
 _Transforming Chaos into Clarity!_
 
 Regular expressions are a powerful tool for text processing, yet their classic syntax can be terse, cryptic, and error-prone. The **Softanza library** for the **Ring language** transforms regex usage by offering intuitive, semantically rich APIs that simplify pattern creation, execution, and analysis.
 
 ---
 
-## The Four-Pillar Architecture
+## 1. The Four-Pillar Architecture
 
 Softanza’s regular expression framework is built upon four fundamental pillars, each addressing a specific aspect of regex programming:
 
@@ -16,9 +16,8 @@ Softanza’s regular expression framework is built upon four fundamental pillars
 3. **stzRegexData**: A comprehensive library of pre-built patterns for common use cases (to be detailed in a future article).
 4. **stzRegexAnalyzer**: A tool for analyzing pattern complexity and optimization (to be detailed in a future article).
 
----
 
-## The Challenge with Classic Regex Syntax
+## 2. The Challenge with Classic Regex Syntax
 
 Classic regex syntax has long been a cornerstone for text manipulation. However, despite its power, it poses several challenges:
 
@@ -34,13 +33,12 @@ _Example: Email Address Pattern (Classic Regex)_
 
 Though powerful, this pattern can be overwhelming and lacks self-documentation.
 
----
 
-## The Softanza Approach: Semantic Engineering for Regex
+## 3. The Softanza Approach: Semantic Engineering for Regex
 
 Softanza takes a fundamentally different approach by providing a high-level API that abstracts away the complexity of regex syntax. Its design emphasizes clarity, readability, and safety.
 
-### Abstraction of Complexity
+### 3.1. Abstraction of Complexity
 
 Softanza wraps the underlying Qt regex engine so developers can build patterns using clear, method-chained calls with descriptive names. Consider the following transformation:
 
@@ -67,7 +65,7 @@ o1 {
 
 This declarative approach clarifies each component of the pattern.
 
-### Domain-Specific Language (DSL)
+### 3.2. Domain-Specific Language (DSL)
 
 At its core, Softanza introduces a DSL that maps directly to regex constructs and reads almost like natural language. For instance:
 
@@ -88,7 +86,7 @@ o1 {
 
 Here, each method call documents the pattern step-by-step, making the logic easier to follow than traditional regex.
 
-### Error Prevention and Enhanced Readability
+### 3.3. Error Prevention and Enhanced Readability
 
 By enforcing correct usage patterns via method chaining, Softanza helps prevent common errors—such as misplacing quantifiers or escape characters—and produces self-documenting code. Consider the example of adding word boundaries:
 
@@ -104,9 +102,8 @@ o1.AddWordBoundary(:end)
 
 Such clear constructs improve both code readability and maintainability.
 
----
 
-## Basic Matching with Softanza
+## 4. Basic Matching with stzRegex
 
 Even though Softanza shines in creating complex patterns, it does not reinvent the wheel for simple matches. The API remains straightforward for basic operations.
 
@@ -126,11 +123,10 @@ rx("\b\d+\b") {
 
 This example illustrates how Softanza wraps regular expressions in an accessible API, even for simple tasks.
 
----
 
-## Advanced Matching
+## 5. Advanced Matching with stzRegex
 
-### Capturing Named Groups
+### 5.1. Capturing Named Groups
 
 Named groups let developers assign descriptive names to parts of a regex, improving clarity and easing maintenance.
 
@@ -149,7 +145,7 @@ rx("Name: (?<name>.*), Age: (?<age>\d+)") {
 }
 ```
 
-### Finding Matches and Their Positions
+### 5.2. Finding Matches and Their Positions
 
 Softanza provides methods for locating matches and identifying their positions within a string.
 
@@ -176,7 +172,7 @@ _Explanation_:
 * `FindMatches()`: Retrieves a flat list of all matches.
 
 
-### Partial Matching with Real-Time Feedback
+### 5.3. Partial Matching with Real-Time Feedback
 
 Partial matching is ideal for validating input incrementally, such as during form entry or autocomplete suggestions.
 
@@ -207,9 +203,8 @@ _Explanation_:
 * `MatchAsYouType()`: Tests whether input partially matches the regex.
 * `PartialMatchInfo()`: Provides details about the partial match state.
 
----
 
-## Declarative Pattern Design with stzRegexMaker
+## 6. Declarative Pattern Design with stzRegexMaker
 
 For complex pattern creation, Softanza’s `stzRegexMaker` offers a declarative approach that improves writability.
 
@@ -230,7 +225,7 @@ o1 {
 
 This approach lets developers build patterns in a step-by-step, self-documenting manner.
 
-### Look-Around Patterns
+### 6.1. Look-Around Patterns
 
 Look-around constructs allow assertions about the surrounding context of a match without including those parts in the final match. Traditional regex uses constructs like lookahead and lookbehind, which can be unintuitive.
 
@@ -262,7 +257,7 @@ o1.MustBeFollowedByWord("hello") .ThenMatch("\w+")
 * **Readability**: The code reads naturally, reducing the cognitive load.
 
 
-### Recursive Patterns
+### 6.2. Recursive Patterns
 
 Recursive patterns are vital for matching nested structures (e.g., parentheses, JSON-like objects, XML tags). Traditional regex can implement recursion with constructs like `(R)`, but these are often complex.
 
@@ -285,7 +280,7 @@ o1 {
 * **Modularity**: Patterns are built incrementally.
 * **Reusability and Readability**: Each component is clearly defined and can be reused.
 
-### Conditional Patterns
+### 6.3. Conditional Patterns
 
 Conditional patterns enable different behaviors based on context. While classic regex uses `(?(condition)then|else)`, Softanza’s declarative approach is more intuitive.
 
@@ -307,9 +302,8 @@ o1 {
 * **Clarity and Flexibility**: Conditions are expressed with clear, descriptive methods.
 * **Maintainability**: The structure is self-documenting, making future modifications easier.
 
----
 
-## Small Functions for Streamlined Experience
+## 7. Small Functions for Streamlined Experience
 
 To further unify the regex experience and reduce verbosity, Softanza introduces several helper functions:
 
