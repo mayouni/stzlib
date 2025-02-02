@@ -75,7 +75,7 @@ This declarative approach clarifies each component of the pattern.
 
 At its core, Softanza introduces a DSL that maps directly to regex constructs and reads almost like natural language. For instance:
 
-**Example: Matching French Registration Numbers**
+**Matching French Registration Numbers**
 
 ```ring
 o1 = new stzRegexMaker()
@@ -127,8 +127,6 @@ rx("\b\d+\b") {
 * `\b`: Ensures the match occurs on whole word boundaries.
 * `\d+`: Matches one or more digits.
 
-This example illustrates how Softanza wraps regular expressions in an accessible API, even for simple tasks.
-
 
 ## 5. Advanced Matching with stzRegex
 
@@ -141,8 +139,12 @@ Named groups let developers assign descriptive names to parts of a regex, improv
 ```ring
 rx("Name: (?<name>.*), Age: (?<age>\d+)") {
     if Match("Name: John, Age: 30") and HasNames()
-        ? @@( Names() ) + NL #--> [ "name", "age" ]
-        ? @@NL( CaptureXT() )
+        ? @@( Names() ) + NL
+	#--> [ "name", "age" ]
+
+	# To get the caotured names and their values:
+
+        ? @@NL( CaptureXT() ) 	# Or NamesAndValues()
         #--> [
         #     [ "name", "John" ],
         #     [ "age", "30" ]
@@ -155,28 +157,59 @@ rx("Name: (?<name>.*), Age: (?<age>\d+)") {
 
 Softanza provides methods for locating matches and identifying their positions within a string.
 
-**Example: Locating Matches**
+**Example: Locating Numbers Bounded by Words**
 
 ```ring
 rx("\b\d+\b") {
     txt = "There are 12 apples and 34 oranges."
     if Match(txt)
+
+	# First let's see the matched values
+
+	? Matches()	# Or MatchedValues() or Simply Values()
+	#--> [ "12", "34" ]
+
+	# Get the positions of the matches
+
+        ? @@( FindMatches() )
+        #--> [ 10, 20 ]
+
+	# In fact, "12" starts at position 10 while "34" starts at position 20.
+	# We can return the Matches and their positons in one go:
+
+	? @@NL( MatchesZ() )	# Or MatchesAndPositons()
+        #--> [
+        #     [ "12", 10 ],
+        #     [ "34", 20 ]
+        # ]
+
+	# Now, what if you need to return the positions as sections?
+	# Then you use the ZZ() prefix like this:
+
+        ? @@( FindMatches() )	# Or FindMatchesAsSections()
+	#--> [ [ 10, 11 ],  [ 20, 21 ] ]
+
+	# To return the matches and their sections:
+
         ? @@NL( MatchesZZ() )
         #--> [
         #     [ "12", [ 10, 11 ] ],
         #     [ "34", [ 20, 21 ] ]
         # ]
-        ? @@( FindMatches() )
-        #--> [ "12", "34" ]
+
     ok
 }
 ```
 
-_Explanation_:
+In particualr, the sections returned can be use to replace substrings or remove them for the main string, or replacing them using `stzString` class:
 
-* `MatchesZZ()`: Returns each match along with its start and end positions.
-* `FindMatches()`: Retrieves a flat list of all matches.
-
+```ring
+StzStringQ(txt) {
+	ReplaceSections( rx(txt).FindMatchesZZ(), :With = "--" )
+	? Content()
+	#--> There are -- apples and -- oranges.
+}
+```
 
 ### 5.3. Partial Matching with Real-Time Feedback
 
@@ -187,11 +220,14 @@ Partial matching is ideal for validating input incrementally, such as during for
 ```ring
 o1 = new stzRegex("^\d{3}-\d{2}-\d{4}$")
 o1 {
-    ? MatchAsYouType("123")         #--> TRUE
-    ? MatchAsYouType("123-")        #--> TRUE
-    ? MatchAsYouType("123-45")      #--> TRUE
-    ? MatchAsYouType("123-45-6789") #--> TRUE
-    ? MatchAsYouType("abc")         #--> FALSE
+
+    ? MatchAsYouType("123")		#--> TRUE
+    ? MatchAsYouType("123-")		#--> TRUE
+    ? MatchAsYouType("123-45")		#--> TRUE
+    ? MatchAsYouType("123-45-6789")	#--> TRUE
+    ? MatchAsYouType("abc")		#--> FALSE
+
+    # You can get all the info you need in one go using PartialMatchInfo()
 
     ? @@NL( PartialMatchInfo("123-45") )
     #--> [
@@ -233,26 +269,30 @@ This approach lets developers build patterns in a step-by-step, self-documenting
 
 ### 6.1. Look-Around Patterns
 
-Look-around constructs allow assertions about the surrounding context of a match without including those parts in the final match. Traditional regex uses constructs like lookahead and lookbehind, which can be unintuitive.
+In Regex, Look-around constructs allow assertions about the surrounding context of a match without including those parts in the final match. Traditional regex uses constructs like lookahead and lookbehind, which can be unintuitive.
 
 **Classic Approach Example**:
 
 ```ring
 o1 = new stzRegexLookAroundMaker()
-o1.LookingBehind("Mr\.")         .ThenMatch("[A-Z][a-z]+")
-o1.NotLookingAhead("px")         .ThenMatch("\d+")
-o1.LookingForWord("hello")       .ThenMatch("\w+")
+
+o1.LookingBehind("Mr\.").ThenMatch("[A-Z][a-z]+")
+o1.NotLookingAhead("px").ThenMatch("\d+")
+o1.LookingForWord("hello").ThenMatch("\w+")
+
 ? o1.Pattern()
-//--> (?=\bhello\b)\w+
+#--> (?=\bhello\b)\w+
 ```
 
 **Softanza’s Improved Semantics**:
 
 ```ring
 o1 = new stzRegexLookAroundMaker()
-o1.MustBePrecededBy("Mr\.")      .ThenMatch("[A-Z][a-z]+")
-o1.CantBeFollowedBy("px")        .ThenMatch("\d+")
-o1.MustBeFollowedByWord("hello") .ThenMatch("\w+")
+
+o1.MustBePrecededBy("Mr\.").ThenMatch("[A-Z][a-z]+")
+o1.Matches("\d+").ButCantBeFollowedBy("px")
+o1.Matches("\w+").AndMustBeFollowedByWord("hello")
+
 ? o1.Pattern()
 //--> (?=\bhello\b)\w+
 ```
@@ -272,7 +312,6 @@ Recursive patterns are vital for matching nested structures (e.g., parentheses, 
 ```ring
 o1 = new stzRecursiveRegexMaker()
 o1 {
-    EnableNamedRecursion()
     AddLevel("expr", "\(")
     AddChildLevel("expr", "inner", "[^()]*")
     AddLevel("close", "\)")
@@ -288,19 +327,20 @@ o1 {
 
 ### 6.3. Conditional Patterns
 
-Conditional patterns enable different behaviors based on context. While classic regex uses `(?(condition)then|else)`, Softanza’s declarative approach is more intuitive.
+Conditional patterns enable different behaviors based on context. While classic regex uses `(?(condition)then|else)`, Softanza’s declarative approach is more intuitive and looks like normal `if/else` computer code.
 
 **Example: Conditional Pattern for Phone Number Formats**
 
 ```ring
 o1 = new stzConditionalRegexMaker()
 o1 {
-    IfStartsWith("+").
-    ThenMatch("\+1\d{10}").     // International format
-    ElseMatch("\d{10}")          // Local format
+    IfStartsWith("+")
+    ThenMatch("\+1\d{10}")	# International format
+    ElseMatch("\d{10}")		# Local format
+
     ? Pattern()
+    #--> (?(?=^+)\+1\d{10}|\d{10})
 }
-//--> (?(?=^+)\+1\d{10}|\d{10})
 ```
 
 **Benefits**:
@@ -377,7 +417,3 @@ These concise functions enable developers to write regex code that is both flexi
 ## Conclusion
 
 The Softanza library for Ring revolutionizes regex programming by transforming complex, error-prone syntax into an intuitive, expressive, and maintainable experience. Through semantic engineering, a declarative design, and a domain-specific language, Softanza bridges the gap between raw regex intricacies and developer-friendly code.
-
-Whether validating emails, parsing logs, or matching nested structures, Softanza empowers developers to focus on solving problems rather than deciphering cryptic expressions. Embrace the Softanzified approach and experience this paradigm shift firsthand!
-
-***
