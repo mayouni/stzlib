@@ -1,5 +1,3 @@
-I'll revise the article to incorporate the new example and output, providing deeper insights into recursive named matching:
-
 # Recursive Named Matching in Softanza: A Comprehensive Guide
 
 
@@ -51,7 +49,7 @@ Let's dissect our recursive matching pattern:
 
 ## Matching Logic Explained
 
-When Softanza performs recursive named matching, it:
+When Softanza (and its underlining Qt Regex Engine) performs recursive named matching, it:
 1. Scans the input text systematically
 2. Identifies nested matching structures
 3. Extracts named groups at each hierarchical level

@@ -781,7 +781,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 16: Pattern Information
-*/
+
 pr()
 
 # We use rrxm() instead of new stzRecursiveRegexMaker()
@@ -824,29 +824,21 @@ proff()
 #  DESIGNING CONDITIONAL REGEX PATTERNS  #
 #========================================#
 
+/*--- Basic conditional: if digit then match more digits else match letters
+
 pr()
 
-o = new stzRegexConditionalMaker
+o1 = new stzConditionalRegexMaker
 
-# Basic conditional: if digit then match more digits else match letters
-o.IfMatch("\d").
-  ThenMatch("\d+").
-  ElseMatch("[a-z]+")
+o1.IfMatch("\d").
+   ThenMatch("\d+").
+   ElseMatch("[a-z]+")
 
-? o.Pattern()
+? o1.Pattern()
 #--> (?(?=\d)\d+|[a-z]+)
 
-# Using named parameters
-o.Reset()
-o.IfStartsWith(:Pattern = "\d").
-  ThenMatch(:Pattern = "\d+").
-  ElseMatch(:Pattern = "[a-z]+")
-
-? o.Pattern()
-#--> (?(?=^\d)\d+|[a-z]+)
-
 # Checking content
-? @@NL( o.Content() )
+? @@NL( o1.Info() )
 #--> [
 #     :condition = "(?(?=^\d)",
 #     :then = "\d+",
@@ -856,29 +848,179 @@ o.IfStartsWith(:Pattern = "\d").
 
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Validate phone numbers
+
+pr()
+
+# Let's use the nice small function wrxm() or rxmw()
+# ("w" for conditional, or you can use "c" if you want,
+# and "rxm" for regex maker)
+
+wrxm() {
+
+	IfStartsWith("+").
+   	ThenMatch("\+1\d{10}").     # International format
+   	ElseMatch("\d{10}")         # Local format
+
+	? Pattern()
+}
+
+#--> (?(?=^+)\+1\d{10}|\d{10})
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Match different date formats
+
+pr()
+
+o1 = new stzConditionalRegexMaker
+
+o1.IfMatch("^\d{4}").          		# Starts with 4 digits
+   ThenMatch("\d{4}-\d{2}-\d{2}").  	# YYYY-MM-DD
+   ElseMatch("\d{2}/\d{2}/\d{4}")   	# DD/MM/YYYY
+
+? o1.Pattern()
+#--> (?(?=^\d{4})\d{4}-\d{2}-\d{2}|\d{2}/\d{2}/\d{4})
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- URL protocol matcher
+
+pr()
+
+wrxm() {
+	IfContains("localhost").
+	ThenMatch("http://localhost:\d+/.*").
+	ElseMatch("https://.*")
+
+	? Pattern()
+}
+
+#--> (?(?=.*localhost.*.)http://localhost:\d+/.*|https://.*))
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Email validation with different domains
+
+pr()
+
+wrxm() {
+
+	IfEndsWith(".edu").
+	ThenMatch("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.edu").
+	ElseMatch("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net)")
+
+	? Pattern()
+}
+
+#--> (?(?=.edu$)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.edu|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net))
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*==========================================#
 #  DESIGNING LOOKING AROUND REGEX PATTERNS  #
 #===========================================#
 
+/*--- Basic example
+
 pr()
 
-o = new stzRegexLookaroundMaker
+o1 = new stzRegexLookAroundMaker
 
-o.MustBePrecededBy("Mr\.").ThenMatch("[A-Z][a-z]+")
-o.CantBeFollowedBy("px").ThenMatch("\d+")
-o.MustBeFollowedByWord("hello").ThenMatch("\w+")
-? o.Pattern()
+# Looking around with Softanzified semantics
+
+o1.MustBePrecededBy("Mr\.").ThenMatch("[A-Z][a-z]+")
+o1.CantBeFollowedBy("px").ThenMatch("\d+")
+o1.MustBeFollowedByWord("hello").ThenMatch("\w+")
+? o1.Pattern()
 #--> (?=\bhello\b)\w+
 
 # Still works with original "looking" terminology
-o.LookingBehind("Mr\.").ThenMatch("[A-Z][a-z]+")
-o.NotLookingAhead("px").ThenMatch("\d+")
-o.LookingForWord("hello").ThenMatch("\w+")
-? o.Pattern()
+
+o1.LookingBehind("Mr\.").ThenMatch("[A-Z][a-z]+")
+o1.NotLookingAhead("px").ThenMatch("\d+")
+o1.LookingForWord("hello").ThenMatch("\w+")
+? o1.Pattern()
 #--> (?=\bhello\b)\w+
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Validate monetary amounts
+
+pr()
+
+o1 = new stzRegexLookAroundMaker
+o1.MustBePrecededBy("\$").
+   ThenMatch("\d+(\.\d{2})?")
+? o1.Pattern()
+#--> (?<=\$)\d+(\.\d{2})?
+
+proff()
+c
+
+/*--- Match words not followed by punctuation
+
+pr()
+
+# Let's use the nice small function rxma() or arxm(), with
+# 'rxm' meaning regex maker and 'a' meaning looking 'a'round
+
+rxma() {
+	CantBeFollowedBy("[.,!?]").
+	ThenMatch("\w+")
+	? Pattern()
+}
+#--> (?![.,!?])\w+
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Match HTML tags with specific attributes
+
+pr()
+
+o1 = new stzRegexLookAroundMaker
+o1 {
+	MustBeFollowedByWord("class").
+	ThenMatch("<\w+\s+")
+	? Pattern()
+}
+#--> (?=\bclass\b)<\w+\s+
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Find numbers with specific context
+*/
+pr()
+
+rxma() {
+	MustBePrecededByWord("version").
+	MustBeFollowedByWord("release").
+	ThenMatch("\d+\.\d+")
+
+	? Pattern()
+}
+#--> (?<=\bversion\b)(?=\brelease\b)\d+\.\d+
+
+proff()
+# # Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Using alternative syntax
+
+o5 = new stzRegexLookAroundMaker
+o5.LookingBehind("@").
+   NotLookingAhead("\W").
+   ThenMatch("[a-zA-Z0-9_]+")
+? o5.Pattern()
+#--> (?<=@)(?!\W)[a-zA-Z0-9_]+
 
 #=========================#
 #  OTHER EXAMPLES ...
