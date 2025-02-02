@@ -998,7 +998,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Find numbers with specific context
-*/
+
 pr()
 
 rxma() {
@@ -1011,20 +1011,29 @@ rxma() {
 #--> (?<=\bversion\b)(?=\brelease\b)\d+\.\d+
 
 proff()
-# # Executed in almost 0 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.22
 
-/*--- Using alternative syntax
+/*--- Using original regex-like syntax (which Softanza
+# does'nt actually like, because it's some how conduing!)
+*/
 
-o5 = new stzRegexLookAroundMaker
-o5.LookingBehind("@").
+pr()
+
+o1 = new stzRegexLookAroundMaker
+
+o1.LookingBehind("@").
    NotLookingAhead("\W").
    ThenMatch("[a-zA-Z0-9_]+")
-? o5.Pattern()
+
+? o1.Pattern()
 #--> (?<=@)(?!\W)[a-zA-Z0-9_]+
 
-#=========================#
-#  OTHER EXAMPLES ...
-#=========================#
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+#=====================#
+#  OTHER EXAMPLES...  #
+#=====================#
 
 /*--- Password Validation
 
