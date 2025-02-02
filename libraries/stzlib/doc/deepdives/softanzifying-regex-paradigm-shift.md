@@ -34,6 +34,8 @@ _Example: Email Address Pattern (Classic Regex)_
 Though powerful, this pattern can be overwhelming and lacks self-documentation. In Softanza you just need to express your intent:
 
 ```ring
+load "stzlib.ring"
+
 rx(pat(:email) { ? Match("mail@mail.com") }
 #--> TRUE
 ```
