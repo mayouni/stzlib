@@ -31,8 +31,14 @@ _Example: Email Address Pattern (Classic Regex)_
 ^[a-zA-Z0-9.\_%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 ```
 
-Though powerful, this pattern can be overwhelming and lacks self-documentation.
+Though powerful, this pattern can be overwhelming and lacks self-documentation. In Softanza you just need to express your intent:
 
+```ring
+rx(pat(:email) { ? Match("mail@mail.com") }
+#--> TRUE
+```
+
+Welcome to a world where regex programming becomes humanized, intuitive and elegantly simple!
 
 ## 3. The Softanza Approach: Semantic Engineering for Regex
 
