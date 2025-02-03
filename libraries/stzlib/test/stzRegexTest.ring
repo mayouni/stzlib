@@ -502,7 +502,23 @@ proff()
 */
 pr()
 
+rx("Name: (?<name>.*), Age: (?<age>\d+)") {
+	? Match("Name: John, Age: 30")
+	#--> TRUE
+
+	? @@( Matches() )
+	#--> [ "John", "30" ]
+
+	? @@( FindMatches() )
+	#--> [ 5, 16 ]
+
+	? @@( FindMatchesZZ() )
+	#--> [ [ 7, 10 ], [ 18, 19 ] ]
+
+}
+
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- FINDING CAPTURED MATCHES
 
