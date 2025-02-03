@@ -528,25 +528,16 @@ class stzRegex
 			return This.CapturedGroups()
 
 	def FindCapture()
-
-		if NOT This.HasGroups()
-			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
-		ok
-
 		_anResult_ = []
+		_aInfo_ = This.CaptureZ()
+		_nLen_ = len(_aInfo_)
 
-		_oQMatch_ = This.QMatchObject()
-		
-		# Only add non-empty captures and skip full match
-
-		for @i = 1 to This.CaptureCount()
-			_cCapture_ = _oQMatch_.captured(@i)
-			if _cCapture_ != ""
-				_anResult_ + _oQMatch_.capturedStart(@i)-1
-			ok
+		for @i = 1 to _nLen_
+			_anResult_ + _aInfo_[@i][2]
 		next
 
 		return _anResult_
+
 
 		#< @FunctionAlternativeForms
 
@@ -576,6 +567,12 @@ class stzRegex
 			return This.FindCapture()
 
 		def FindMatches()
+			return This.FindCapture()
+
+		def FindMatch()
+			return This.FindCapture()
+
+		def FindCapyures()
 			return This.FindCapture()
 
 		#>
@@ -635,21 +632,12 @@ class stzRegex
 
 	def FindCaptureZZ()
 
-		if NOT This.HasGroups()
-			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
-		ok
-
 		_aResult_ = []
+		_aInfo_ = This.CaptureZZ()
+		_nLen_ = len(_aInfo_)
 
-		_oQMatch_ = This.QMatchObject()
-		
-		# Only add non-empty captures and skip full match
-
-		for @i = 1 to This.CaptureCount()
-			_cCapture_ = _oQMatch_.captured(@i)
-			if _cCapture_ != ""
-				_aResult_ + [ _oQMatch_.capturedStart(0)-1, _oQMatch_.capturedend(0)-1 ]
-			ok
+		for @i = 1 to _nLen_
+			_aResult_ + _aInfo_[@i][2]
 		next
 
 		return _aResult_
@@ -682,6 +670,12 @@ class stzRegex
 			return This.FindCaptureZZ()
 
 		def FindMatchesZZ()
+			return This.FindCaptureZZ()
+
+		def FindMatchZZ()
+			return This.FindCaptureZZ()
+
+		def FindCapturesZZ()
 			return This.FindCaptureZZ()
 
 		#>
