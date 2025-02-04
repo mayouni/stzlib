@@ -76,11 +76,11 @@ func MatchOptions()
 
 class stzRegex
 	
-	@oQRegex
-	@oQMatchObject
-	@cMatchType
-	@cPattern
-	@cStr
+	@oQRegex = _NULL_
+	@oQMatchObject = _NULL_
+	@cMatchType = _NULL_
+	@cPattern = _NULL_
+	@cStr = _NULL_
 
 	@nQPatternOptions = 0
 	@acMatchOptions = []
@@ -572,7 +572,7 @@ class stzRegex
 		def FindMatch()
 			return This.FindCapture()
 
-		def FindCapyures()
+		def FindCaptures()
 			return This.FindCapture()
 
 		#>
@@ -753,7 +753,6 @@ class stzRegex
 	#-- Partial Mutch
 
 	def IsPartialMatch(pcStr)
-
 		# Returns TRUE if the string partially matches the pattern, meaning it could
 		# potentially match if more characters were added.
 	
@@ -765,8 +764,13 @@ class stzRegex
 		def IsPartial(pcStr)
 			return This.IsPartialMatch(pcStr)
 
-	def IsCompleteMatch(pcStr) 
+		def PartialMatch(pcStr)
+			return This.IsPartialMatch(pcStr)
 
+		def MatchPartial(pcStr)
+			return This.IsPartialMatch(pcStr)
+
+	def IsCompleteMatch(pcStr) 
 		# Returns TRUE only if the string completely matches the pattern
 		# with no need for additional characters.
 
@@ -776,7 +780,6 @@ class stzRegex
 			return This.IsCompleteMatch(pcStr)
 
 	def MatchAsYouType(pcStr)
-
 		# Optimized for real-time validation during user input. Returns TRUE if either:
 		# 1. The string completely matches the pattern
 		# 2. The string could potentially match if more characters were added
@@ -789,7 +792,6 @@ class stzRegex
 			return This.MatchAsYouType(pcStr)
 
 	def MatchInProgress(pcStr)
-
 		# Similar to MatchAsYouType() but optimized for searching/filtering scenarios.
 		# Tries to find any occurrence that could potentially match.
 
@@ -799,7 +801,6 @@ class stzRegex
 			return This.MatchInProgress(pcStr)
 
 	def PartialMatchInfo(pcStr)
-
 		# Returns detailed information about a partial match including:
 		# - Whether it's a complete or partial match
 		# - The matched portion
@@ -835,26 +836,25 @@ class stzRegex
 			:section  = []
 		]
 
-	def PartialMatch(pcStr)
-		return This.PartialMatchInfo(pcStr)[2]
+		def MatchPartialInfo(pcStr)
+			return This.PartialMatchInfo(pcStr)
 
-	def PartialMatchStart()
+	def FindPartialMatch(pcStr)
+		return This.PartialMAtchInfo(pcStr)[3][2][1]
 
+		def FindPartialMatchZ(pcStr)
+			return This.FindPartialMatch(pcStr)
+
+		
+	def PartialMatchStart(pcStr)
 		if @oQMatchObject != NULL
-			return @oQMatchObject.capturedStart()
+			return @oQMatchObject.capturedStart(0)
 		ok
 
 		return 0
 
-		def FindPartialMatch()
-			return This.PartialMatchStart()
-
-		def FindPartialMatchZ()
-			return This.PartialMatchStart()
-
-	def FindPartialMatchZZ()
-		anResult = [ This.FindPartialMatch(), PartialMatchLenght() ]
-		return anResult
+	def FindPartialMatchZZ(pcStr)
+		return This.PartialMAtchInfo(pcStr)[3][2]
 
 	def PartialMatchLength()
 
@@ -870,8 +870,8 @@ class stzRegex
 		def PartialMatchNumberOfChars()
 			return This.PartialMatchLenght()
 
-	def PartialMatchZ()
-		aResult = [ This.PartialMacth(), This.FindPartialMatch() ]
+	def PartialMatchZ(pcStr)
+		aResult = [ This.PartialMacth(pcStr), This.FindPartialMatch(pcStr) ]
 		return aResult
 
 	#-- Recursive (Nested) Match
@@ -940,6 +940,43 @@ class stzRegex
 
 		def NestedMatchInfo(pcStr)
 			return This.RecursiveMatchInfo(pcStr)
+
+	def MatchManyRecursive(pacStr)
+		if NOT ( isList(pacStr) and IsListOfStrings(pacStr) )
+			StzRaise("Incorrect param type! pacStr must be a list of strings.")
+		ok
+
+		_bResult_ = _TRUE_
+		_nLen_ = len(pacStr)
+		
+		for @i = 1 to _nLen_
+			if NOT This.MatchRecursive(pacStr[@i])
+				_bResult_ = _FALSE_
+				exit
+			ok
+		next
+
+		return _bResult_
+
+		def MatchManyNested(pacStr)
+			return This.MatchManyRecursive(pacStr)
+
+	def MatchManyRecursiveXT(pacStr)
+		if NOT ( isList(pacStr) and IsListOfStrings(pacStr) )
+			StzRaise("Incorrect param type! pacStr must be a list of strings.")
+		ok
+
+		_abResult_ = []
+		_nLen_ = len(pacStr)
+		
+		for @i = 1 to _nLen_
+			_abResult_ + This.MatchRecursive(pacStr[@i])
+		next
+
+		return _abResult_
+
+		def MatchManyNestedXT(pacStr)
+			return This.MatchManyRecursiveXT(pacStr)
 
 	def RecursiveSubStringsZZ()
 		return This.RecursiveMatchInfo()[3][2]
@@ -1062,6 +1099,12 @@ class stzRegex
 		def FindNestedMatchesZZ()
 			return This.FindRecursiveSubStringsZZ()
 
+		def FindRecursiveZZ()
+			return This.FindRecursiveSubStringsZZ()
+
+		def FindNestedZZ()
+			return This.FindRecursiveSubStringsZZ()
+
 		#>
 
 	def FindRecursiveSubStrings()
@@ -1079,7 +1122,7 @@ class stzRegex
 		#< @FunctionAlternativeForms
 
 		def FindRecursiveSubStringsZ()
-			return This.FindRecursiveSubPatterns()
+			return This.FindRecursiveSubStrings()
 
 		def FindRecursiveValues()
 			return This.FindRecursiveSubStrings()
@@ -1090,10 +1133,10 @@ class stzRegex
 		#--
 
 		def FindNestedSubPatterns()
-			return This.FindRecursiveSubPatterns()
+			return This.FindRecursiveSubStrings()
 
 		def FindNestedSubStringsZ()
-			return This.FindRecursiveSubPatterns()
+			return This.FindRecursiveSubStrings()
 
 		def FindNestedValues()
 			return This.FindRecursiveSubStrings()
@@ -1104,16 +1147,28 @@ class stzRegex
 		#==
 
 		def FindRecursiveMatches()
-			return This.FindRecursiveSubPatterns()
+			return This.FindRecursiveSubStrings()
 
 		def FindRecursiveMatchesZ()
-			return This.FindRecursiveSubPatterns()
+			return This.FindRecursiveSubStrings()
 
 		def FindNestedMatches()
-			return This.FindRecursiveSubPatterns()
+			return This.FindRecursiveSubStrings()
 
 		def FindNestedMatchesZ()
-			return This.FindRecursiveSubPatterns()
+			return This.FindRecursiveSubStrings()
+
+		def FindRecursive()
+			return This.FindRecursiveSubStrings()
+
+		def FindRecursiveZ()
+			return This.FindRecursiveSubStrings()
+
+		def FindNested()
+			return This.FindRecursiveSubStrings()
+
+		def FindNestedZ()
+			return This.FindRecursiveSubStrings()
 
 		#>
 
