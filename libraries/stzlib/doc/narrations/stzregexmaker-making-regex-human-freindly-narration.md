@@ -174,8 +174,4 @@ rxm() {
 
 ## Conclusion
 
-The Softanza RegexMaker transforms regex from a cryptic notation into clear, self-documenting code. By providing semantic methods that map to traditional regex concepts, it makes pattern creation more accessible while maintaining the full power of regular expressions.
-
-Whether you're matching simple text patterns or building complex parsers, RegexMaker's declarative approach helps you focus on what you want to match rather than how to express it in regex syntax.
-
-Remember: While RegexMaker is great for building patterns, you can also use predefined patterns from the `stzRegexData` class across any regex-related class in Softanza. This separation of pattern definitions from pattern construction gives you flexibility in how you work with regular expressions.
+The Softanza RegexMaker transforms regex from a cryptic notation into clear, self-documenting code. By providing semantic methods that map to traditional regex concepts, it makes pattern creation more accessible while maintaining the full power of regular expressions. RegexMaker's declarative approach helps you focus on what you want to match rather than how to express it in regex syntax.
