@@ -4,8 +4,6 @@
 #  REGEX DATA : NAMED PATTERNS AND THEIR EXPLANATIONS  #
 #------------------------------------------------------#
 
-#TODO // Test them all.
-
 _$aRegexPatterns_ = [
 
 	# Basic structure for international addresses
