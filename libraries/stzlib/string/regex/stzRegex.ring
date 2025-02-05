@@ -418,6 +418,49 @@ class stzRegex
 
 	return This.MatchXT(pcStr, nPos, :MatchEntireContent, [])
 
+	#-- Getting all the matching values in a given string
+
+	def AllMatches()
+		_acResults_ = []  # List to store all matching values
+		_nPos_ = 1  # Start searching from position 1
+	
+		while This.MatchAt(@cStr, _nPos_)  # Search for a match at the current position
+			_oQMatch_ = This.QMatchObject()
+			_cMatch_ = _oQMatch_.captured(0)  # Get the matched value
+			
+			if _cMatch_ != ""
+				_acResults_ + _cMatch_  # Store the match
+				_nPos_ = _oQMatch_.capturedEnd(0) + 1  # Move past the last match
+			else
+				break  # Stop if no match is found
+			ok
+		end
+	
+		return _acResults_
+	
+		def AllMatchingValues()
+			return This.AllMatches()
+
+	def NumberOfMatches()
+		return len(AllMatches())
+
+		def NumberOfMatchingValues()
+			return This.NumberOfMatches()
+
+		def HowManyMatches()
+			return This.NumberOfMatches()
+
+		def HowManyMatchingValues()
+			return This.NumberOfMatches()
+
+		def CountMatches()
+			return This.NumberOfMatches()
+
+		def CountMatchingValues()
+			return This.NumberOfMatches()
+
+
+
 	#-- Capture-related methods
 
 	def HasGroups()
@@ -475,6 +518,12 @@ class stzRegex
 			return This.Capture()
 
 		def Matches()
+			return This.Capture()
+
+		def MatchedValues()
+			return This.Capture()
+
+		def MatchedSubStrings()
 			return This.Capture()
 
 		#>
