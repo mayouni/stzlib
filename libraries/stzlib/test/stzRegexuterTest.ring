@@ -1,9 +1,9 @@
 
 load "../max/stzmax.ring"
 
-pr()
+/*---
 
-str = 
+pr()
 
 rx("(\d+)") {
 
@@ -20,15 +20,17 @@ rx("(\d+)") {
 }
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*---
-*/
 
 pr()
 
 ? @@( Match("The total was 42 dollars and 13 cents.", "(\d+)") )
+#--> [ "42", "13" ]
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Processing Numbers in Text
 */

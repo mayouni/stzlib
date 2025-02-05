@@ -8,23 +8,7 @@ func rxuter
 	return new stzRegexuter
 
 func Match(cInput, cPattern)
-    aAllMatches = []
-    cTemp = cInput
-    
-    rx(cPattern) {
-        while Match(cTemp)
-            if HasGroups()
-                aAllMatches + MatchedValues()[1]
-                nStart = len(cTemp) - len(SubStr(cTemp, MatchedStart()))
-                nLen = len(MatchedValue())
-                cTemp = left(cTemp, nStart - 1) + copy("*", nLen) + 
-                       right(cTemp, len(cTemp) - nStart - nLen + 1)
-            ok
-        end
-    }
-    
-    return aAllMatches
-
+	rx(cPattern) { Match(cInput) return AllMatches() }
 
 class stzRegexuter
     # Private attributes  
