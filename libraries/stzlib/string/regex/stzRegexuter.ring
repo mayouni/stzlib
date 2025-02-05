@@ -1,123 +1,227 @@
 # File: stzregexuter.ring
-# Description: Enhanced Regex Computer System for Softanza Library
+# Description: Reactive Regex Computer System for Softanza Library
 
 func rxuter
-    return new stzRegexuter
+	return new stzRegexuter
 
-    func rxu
+func rxu
 	return new stzRegexuter
 
 func Match(cInput, cPattern)
 	rx(cPattern) { Match(cInput) return AllMatches() }
 
 class stzRegexuter
-    # Private attributes  
-    aPatterns = []      # Pairs of [name, pattern]
-    aComputations = []  # Pairs of [name, computation]
-    
-    def init()
-        # Empty init - patterns and computations added dynamically
 
-    def RegisterPattern(aPattern)
-        if NOT ( isList(aPattern) and len(aPattern) = 2 and
-           isString(aPattern[1]) and isString(aPattern[2]) )
-            StzRaise("Incorrect param! aPattern must be a pair of strings.")
-        ok
+	aTriggers = []		# Pairs of [name, pattern]
+	aComputations = []	# Pairs of [name, computation]
+	aState = []		# [[trigger_name, [original, computed]], ...]
 
-        # Store pattern with its name
-        aPatterns + aPattern
+	  #------------------------------#
+	 #  INITILAIZING THE REGEXUTER  #
+	#------------------------------#
 
-    def AddTrigger(aPattern)
-        This.RegisterPattern(aPattern)
+	def init()
+		# Empty init - triggers and computations added dynamically
 
-    def TriggerPattern(aPattern)
-        This.RegisterPattern(aPattern)
+	  #-------------------------#
+	 #  ADDING REGEX TRIGGERS  #
+	#-------------------------#
 
-    def AddComputationalOp(cPatternName, cComputation)
-        if isList(cPatternName) and StzListQ(cPatternName).IsWhenNamedParam()
-            cPatternName = cPatternName[2]
-        ok
+	def RegisterTrigger(aTrigger)
 
-        if isList(cComputation) and StzListQ(cComputation).IsDoNamedParam()
-            cComputation = cComputation[2]
-        ok
+		if isString(aTrigger)
+			if TriggerNameExists(aTrigger)
+				StzRaise("Can't proceed! The trigger name you specified already exists.")
+			ok
 
-        # Validate computation contains @value
-        oStzStr = new stzString(cComputation)
-        if NOT oStzStr.ContainsCS("@value", :CaseSensitive = FALSE)
-            StzRaise("Invalid computation! Must contain @value keyword.")
-        ok
+			aTriggers + [ aTrigger, pat(aTrigger) ]
+			return
+		ok
 
-        # Clean computation string
-        cComputation = oStzStr.TrimQ().TheseBoundsRemoved("{", "}")
+		if NOT ( isList(aTrigger) and len(aTrigger) = 2 and
+		   isString(aTrigger[1]) and isString(aTrigger[2]) )
+			StzRaise("Incorrect param! aTrigger must be a pair of strings.")
+		ok
 
-        aComputations + [cPatternName, cComputation]
+		if TriggerNameExists(aTrigger[1])
+			StzRaise("Can't proceed! The trigger name you specified already exists.")
+		ok
 
-    def AddComputation(cPattern, cComputation)
-        This.AddComputationalOp(cPattern, cComputation)
+		# Store trigger with its name
+		aTriggers + aTrigger
 
+		#< @FunctionAlternativeForms
 
-    def ProcessText(aPatternNameAndText)
-        # More natural name than ComputeMatch
-        if NOT ( isList(aPatternNameAndText) and len(aPatternNameAndText) = 2 and
-            isString(aPatternNameAndText[1]) and isString(aPatternNameAndText[2]) )
-            StzRaise("Invalid input! Expected [pattern_name, text_to_analyze]")
-        ok
+		def AddTrigger(aTrigger)
+			This.RegisterTrigger(aTrigger)
+	
+			def Trigger(aTrigger)
+				This.RegisterTrigger(aTrigger)
+	
+			def @t(aTrigger)
+				This.RegisterTrigger(aTrigger)
 
-        cPatternName = aPatternNameAndText[1]
-        cTextToAnalyze = aPatternNameAndText[2]
+		#>
 
-        if trim(cPatternName) = "" or trim(cTextToAnalyze) = ""
-            return [ :matches = [], :computations = [] ]
-        ok
-        
-        aResult = [
-            :matches = [],
-            :computations = [],
-            :stateChanges = []
-        ]
+	
+	def TriggerNameExists(cName)
+		nLen = len(aTriggers)
+		bResult = FALSE
 
-        # Get the pattern registered for this name
-        cPattern = aPatterns[cPatternName]
-  
-        # Find ALL matches in the provided text
-        aMatches = Match(cTextToAnalyze, cPattern)
-        aResult[:matches] = aMatches
-        
-        # Apply computation to each match found
-        for match in aMatches
-            computation = executeComputation(match, cPatternName)
-            aResult[:computations] + computation
-        next
-        
-        return aResult
+		for i = 1 to nLen
+			if aTriggers[i][1] = cName
+				bResult = FALSE
+				exit
+			ok
+		next
 
-    def Process(aPatternNameAndText)
-        return This.ProcessText(aPatternNameAndText)
+		return bResult
 
-    private
+		def TriggerExists(cName)
+			return This.TriggerNameExists(cName)
 
-    def executeComputation(cMatchedValue, cPatternName)
-        if NOT (isString(cMatchedValue) and isString(cPatternName))
-            StzRaise("Invalid types! Expected string values.")
-        ok
+	  #-------------------------------------#
+	 #  DEFINING COMPUTATIONS PER TRIGGER  #
+	#-------------------------------------#
 
-        cPattern = aPatterns[cPatternName]
-        cComputation = aComputations[cPatternName]
+	def AddComputationalOp(cTriggerName, cComputation)
+		if isList(cTriggerName) and StzListQ(cTriggerName).IsWhenOrIfOrForNamedParam()
+			cTriggerName = cTriggerName[2]
+		ok
 
-        if trim(cPattern) = "" or trim(cComputation) = ""
-            StzRaise("Empty pattern or computation!")
-        ok
+		if isList(cComputation) and StzListQ(cComputation).IsDoNamedParam()
+			cComputation = cComputation[2]
+		ok
 
-        result = [ :value = cMatchedValue, :modifiesState = FALSE ]
-        
-        try
-            @value = cMatchedValue
-            eval(cComputation)
-            result[:value] = @value
-            result[:modifiesState] = TRUE
-        catch
-            result[:error] = "Computation failed (" + cCatchError + ")"
-        done
-        
-        return result
+		# Validate computation contains @value
+
+		oStzStr = new stzString(cComputation)
+		if NOT oStzStr.ContainsCS("@value", :CaseSensitive = FALSE)
+			StzRaise("Invalid computation! Must contain @value keyword.")
+		ok
+
+		# Clean computation string
+
+		cComputation = oStzStr.TrimQ().TheseBoundsRemoved("{", "}")
+
+		# Store the computatio (for future use)
+
+		aComputations + [cTriggerName, cComputation]
+
+		#< @FunctionAlternativeForms
+
+		def AddComputation(cTrigger, cComputation)
+			This.AddComputationalOp(cTrigger, cComputation)
+
+		def @c(cTrigger, cComputation)
+			This.AddComputationalOp(cTrigger, cComputation)
+
+		#>
+
+	  #-----------------------------------------------------------#
+	 #  EXECUTING THE TRiGGERED COMPUTATIONS FOR A GIVEN STRING  #
+	#-----------------------------------------------------------#
+
+	def Process(cText)
+
+		if NOT isString(cText)
+			StzRaise("Invalid input! Expected text to analyze.")
+		ok
+
+		if trim(cText) = ""
+			return [ :matches = [], :results = [] ]
+		ok
+		
+		aResult = [
+			:matches = [],
+			:results = []
+		]
+
+		# Check each registered trigger against the input
+
+		nLenTriggers = len(aTriggers)
+
+		for i = 1 to nLenTriggers
+
+			cTriggerName = aTriggers[i][1]
+			cPattern = aTriggers[i][2]
+			
+			# Find matches for this trigger
+
+			aMatches = Match(cText, cPattern)
+			
+			# If trigger fired (has matches)
+
+			nLenMatches = len(aMatches)
+
+			if nLenMatches > 0
+
+				# Add all matches
+
+				aResult[:matches] + aMatches
+				
+				# Compute results for each match
+
+				for j = 1 to nLenMatches
+
+					aCompResult = executeComputation(aMatches[j], cTriggerName)
+					aResult[:results] + aCompResult[1]
+					
+					# Track state changes
+
+					if aCompResult[1] != aMatches[j]
+						aState + [lower(cTriggerName), [aMatches[j], aCompResult[1]]]
+					ok
+				next
+			ok
+		next
+		
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def Compute(cText)
+			This.Process(cText)
+
+		#>
+
+	  #-----------------------------------------------------#
+	 #  GETTING THE CONTENT OF THE STATE OF THE REGEXUTER  #
+	#-----------------------------------------------------#
+
+	def State()
+		return aState
+
+	private
+
+	def executeComputation(cMatchedValue, cTriggerName)
+
+		if NOT (isString(cMatchedValue) and isString(cTriggerName))
+			StzRaise("Invalid types! Expected string values.")
+		ok
+
+		cPattern = ""
+		cComputation = ""
+		
+		# Find computation for this trigger
+
+		nLen = len(aComputations)
+
+		for i = 1 to nLen
+			if aComputations[i][1] = cTriggerName
+				cComputation = aComputations[i][2]
+				exit
+			ok
+		next
+
+		if trim(cComputation) = ""
+			return [cMatchedValue]
+		ok
+		
+		try
+			@value = cMatchedValue
+			eval(cComputation)
+			return [@value]
+		catch
+			return [cMatchedValue]
+		done

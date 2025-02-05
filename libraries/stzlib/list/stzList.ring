@@ -90865,6 +90865,74 @@ fdef
 			return _FALSE_
 		ok
 
+	def IsWhenOrIfNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   (This.Item(1) = :When or This.Item(1) = :If)
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+		def IsIfOrWhenNamedParam()
+			return This.IsWhenOrIfNamedParam()
+
+	def IsWhenOrForNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   (This.Item(1) = :When or This.Item(1) = :For)
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+		def IsForOrWhenNamedParam()
+			return This.IsWhenOrForNamedParam()
+
+	def IsIfOrForNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   (This.Item(1) = :If or This.Item(1) = :For)
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+		def IsForOrIfNamedParam()
+			return This.IsForOrIfNamedParam()
+
+	def IsIfOrForOrWhenNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   (This.Item(1) = :If or This.Item(1) = :For or This.Item(1) = :When)
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+		def IsIfOrWhenOrForNamedParam()
+			return This.IsIfOrForOrWhenNamedParam()
+
+		def IsWhenOrIfOrForNamedParam()
+			return This.IsIfOrForOrWhenNamedParam()
+
+		def IsWhenOrForOrIfNamedParam()
+			return This.IsIfOrForOrWhenNamedParam()
+
+		def IsForOrIfOrWhenNamedParam()
+			return This.IsIfOrForOrWhenNamedParam()
+
+		def IsForOrWhenOrIfNamedParam()
+			return This.IsIfOrForOrWhenNamedParam()
+
 #WARNING: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.
 
