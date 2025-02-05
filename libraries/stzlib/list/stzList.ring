@@ -90832,6 +90832,39 @@ fdef
 			return _FALSE_
 		ok
 
+	def IsWhenNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :When
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+	def IsForNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :For
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+	def IsForEachNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :ForEach
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
 #WARNING: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.
 
