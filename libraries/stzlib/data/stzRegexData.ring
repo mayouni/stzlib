@@ -427,7 +427,38 @@ _$aRegexPatterns_ = [
 	:dateVersion = "^(\\d{4})[.-]?(0[1-9]|1[0-2])[.-]?(0[1-9]|[12]\\d|3[01])$",
 	:windowsVersion = "^(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)$",
 	:pythonVersion = "^(\\d+)\\.(\\d+)\\.(\\d+)(?:[abrc]\\d+|\\.post\\d+|\\.dev\\d+)?$",
-	:mavenVersion = "^(\\d+)(?:\\.(\\d+))?(?:\\.(\\d+))?(?:-([A-Za-z0-9.-]+))?$"
+	:mavenVersion = "^(\\d+)(?:\\.(\\d+))?(?:\\.(\\d+))?(?:-([A-Za-z0-9.-]+))?$",
+
+	# Common word-based regex patterns
+    
+	:quotedWord = char(34) + "([^" + char(34) + "]+)" + char(34),
+	:singleWord = "^\\w+$",
+	:multipleWords = "^[\\w\\s]+$",
+	:camelCaseWord = "^[a-z]+([A-Z][a-z]*)*$",
+	:snakeCaseWord = "^[a-z]+(_[a-z]+)*$",
+	:pascalCaseWord = "^[A-Z][a-z]+([A-Z][a-z]*)*$",
+	:kebabCaseWord = "^[a-z]+(-[a-z]+)*$",
+    
+	# RTL and Language Support
+
+	:arabicChar = "^[\u0600-\u06FF]$",
+	:arabicWord = "^[\u0600-\u06FF]+$",
+	:hebrewWord = "^[\u0590-\u05FF]+$",
+	:rtlSentence = "^[\u0590-\u05FF\u0600-\u06FF\\s]+$",
+	:russianWord = "^[\u0400-\u04FF]+$",
+	:chineseCharacter = "^[\u4E00-\u9FFF]+$",
+	:nonLatinWord = "^[^a-zA-Z]+$",
+    
+	# Number detection in different numeral systems
+
+	:arabicNumerals = "^[\u0660-\u0669]+$",
+	:devanagariNumerals = "^[\u0966-\u096F]+$",
+	:easternArabicNumerals = "^[\u06F0-\u06F9]+$",
+	:universalNumber = "^[0-9\u0660-\u0669\u06F0-\u06F9\u0966-\u096F]+$",
+    
+	# Punctuation variations
+
+	:punctuationMarks = "^[.,!?;:'\" + char(34) + "”“\(\)\[\]\{\}]+$"
 
 ]
 
@@ -3867,12 +3898,125 @@ _$aRegexPatternsExplanations_ = [
 
 		"- Matches: `1.0`, `2.3.4`, `3.0-SNAPSHOT`, `5.1.2-RELEASE`." + NL +
 		"- Non-matches: `v1.2.3`, `1.2.3+build`."
+	],
+
+	# RTL Languages
+
+	:arabicChar = [
+		"Matches a single Arabic character.",
+
+		"- `^[\u0600-\u06FF]$`: Matches exactly one Arabic character from the Unicode Arabic block." + NL + NL +
+
+		"- Matches: `ع`, `ب`, `ك`." + NL +
+		"- Non-matches: `A`, `3`, `@`."
+	],
+
+	:arabicWord = [
+		"Matches a single Arabic word (one or more Arabic characters).",
+
+		"- `^[\u0600-\u06FF]+$`: Matches a sequence of Arabic characters without spaces or non-Arabic characters." + NL + NL +
+
+		"- Matches: `مرحبا`, `كلمة`." + NL +
+		"- Non-matches: `مرحبا123`, `Hello`, `مرحب@`."
+	],
+
+	:hebrewWord = [
+		"Matches a single Hebrew word (one or more Hebrew characters).",
+
+		"- `^[\u0590-\u05FF]+$`: Matches a sequence of Hebrew characters without spaces or non-Hebrew characters." + NL + NL +
+
+		"- Matches: `שלום`, `עברית`." + NL +
+		"- Non-matches: `שלום123`, `Shalom`, `עברית!`."
+	],
+
+	:rtlSentence = [
+		"Matches a complete sentence written in Hebrew or Arabic, including spaces.",
+
+		"- `^[\u0590-\u05FF\u0600-\u06FF\\s]+$`: Matches Hebrew and Arabic characters along with spaces." + NL + NL +
+
+		"- Matches: `السلام عليكم`, `שלום עולם`." + NL +
+		"- Non-matches: `שלום hello`, `مرحبًا!`."
+	],
+
+	# Non-lating Languages
+
+	:russianWord = [
+		"Matches a single word written in Cyrillic script (Russian and similar languages).",
+
+		"- `^[\u0400-\u04FF]+$`: Matches a sequence of Cyrillic characters without spaces or non-Cyrillic characters." + NL + NL +
+
+		"- Matches: `Привет`, `Москва`." + NL +
+		"- Non-matches: `Москва123`, `Hello`, `Привет!`."
+	],
+
+	:chineseChar = [
+		"Matches a single Chinese character.",
+
+		"- `^[\u4E00-\u9FFF]+$`: Matches exactly one Chinese character from the Unicode CJK Unified Ideographs block." + NL + NL +
+
+		"- Matches: `汉`, `字`." + NL +
+		"- Non-matches: `汉1`, `字!`."
+	],
+
+	:nonLatinWord = [
+		"Matches a word that contains no Latin (a-z, A-Z) characters.",
+
+		"- `^[^a-zA-Z]+$`: Matches a sequence of non-Latin characters." + NL + NL +
+
+		"- Matches: `你好`, `مرحبا`, `1234`." + NL +
+		"- Non-matches: `hello`, `casa123`, `测试abc`."
+	],
+
+	# Specific numeral formats
+
+	:arabicNumerals = [
+		"Matches Arabic-Indic numerals (٠١٢٣٤٥٦٧٨٩).",
+
+		"- `^[\u0660-\u0669]+$`: Matches a sequence of Arabic-Indic numerals." + NL + NL +
+
+		"- Matches: `١٢٣`, `٠٩٨٧٦٥`." + NL +
+		"- Non-matches: `123`, `١٢٣abc`."
+	],
+
+	:devanagariNumerals = [
+		"Matches Devanagari numerals (०१२३४५६७८९).",
+
+		"- `^[\u0966-\u096F]+$`: Matches a sequence of Devanagari numerals." + NL + NL +
+
+		"- Matches: `१२३`, `०९८७६५`." + NL +
+		"- Non-matches: `123`, `१२३abc`."
+	],
+
+	:indeanNumerals = [
+        	"Matches Indic numerals (۰۱۲۳۴۵۶۷۸۹).",
+
+		"- `^[\u06F0-\u06F9]+$`: Matches a sequence of Indic numerals." + NL + NL +
+
+		"- Matches: `۱۲۳`, `۰۹۸۷۶۵`." + NL +
+		"- Non-matches: `123`, `۱۲۳abc`."
+	],
+
+    	:universalNumber = [
+        	"Matches numbers in multiple numeral systems (Western, Indic, Devanagari).",
+
+		"- `^[0-9\u0660-\u0669\u06F0-\u06F9\u0966-\u096F]+$`: Matches a sequence of numbers from different numeral systems." + NL + NL +
+
+		"- Matches: `123`, `١٢٣`, `१२३`." + NL +
+		"- Non-matches: `123abc`, `١٢٣.`."
+	],
+
+	# Punctuation
+
+	:punctuationMarks = [
+		"Matches common punctuation marks including different quotation marks and brackets.",
+
+		"- `^[.,!?;:'\" + char(34) + "”“\\(\\)\\[\\]\\{\\}]+$`: Matches a sequence of punctuation marks." + NL + NL +
+
+		"- Matches: `.,!?;`, `“Hello”`, `()[]{}`." + NL +
+		"- Non-matches: `Hello!`, `123,456`."
 	]
 
 ]
-
-
-
 
 #-----------------------------------#
 #  UTILITY FUNCTION FOR REGEX DATA  #
