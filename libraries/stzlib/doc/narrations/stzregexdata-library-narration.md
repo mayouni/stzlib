@@ -1,8 +1,8 @@
-# Simplifying Regular Expressions with the stzRegexData Library
+# Simplifying Regular Expressions with the Enhanced stzRegexData Library
 
 Regular expressions (regex) have become indispensable tools for handling text-based data. They are used across a wide array of domains, from user interface (UI) applications and natural language processing (NLP) to code generation and data parsing. However, writing complex regex patterns can be daunting, error-prone, and time-consuming for developers. To address this challenge, the **stzRegexData** library was developed as part of the Softanza library regex framework in the Ring programming language.
 
-This article explores how the stzRegexData library simplifies regex usage, enhances developer productivity, and supports various domains through its comprehensive collection of predefined patterns. We'll also highlight its extensibility, making it an invaluable tool for modern application development.
+This article explores how the enhanced stzRegexData library simplifies regex usage, enhances developer productivity, and supports various domains through its comprehensive collection of predefined patterns. We'll also highlight its extensibility, making it an invaluable tool for modern application development.
 
 
 ## The Power of Predefined Regex Patterns
@@ -74,7 +74,7 @@ These patterns enable developers to parse and validate structured documents effi
 
 
 ### 5. **Programming Language Syntax Analysis**
-The library includes patterns for analyzing code written in popular languages like Python, JavaScript, and R. For example:
+The library includes patterns for analyzing code written in popular languages like Python, JavaScript, R, and more. For example:
 - `:pythonFunction` identifies Python function definitions.
 - `:jsArrowFunction` detects JavaScript arrow functions.
 - `:rAssignment` recognizes R variable assignments.
@@ -157,6 +157,47 @@ rx(pat(:creditCard)).Match("4111-1111-1111-1111")  # --> TRUE
 These patterns demonstrate the versatility of the library, addressing niche requirements across diverse industries.
 
 
+### 11. **Excel Formula Scripting**
+For Excel-related tasks, the library includes patterns for:
+- `:xlsFunctionCall` identifies Excel function calls.
+- `:xlsConditionalExpression` matches conditional expressions.
+
+Example:
+```ring
+rx(pat(:xlsConditionalExpression)).Match("A1=A2")  # --> TRUE
+```
+
+These patterns are particularly useful for automating spreadsheet operations and validating formulas.
+
+
+### 12. **API and Request Validation**
+In API development, the library provides patterns for:
+- `:apiKey` validates API keys.
+- `:bearerToken` checks Bearer tokens.
+- `:httpMethod` ensures valid HTTP methods.
+
+Example:
+```ring
+rx(pat(:apiKey)).Match("ABCDEF1234567890")  # --> TRUE
+```
+
+These patterns help enforce API security and ensure compliance with RESTful standards.
+
+
+### 13. **Password Complexity and Sensitive Data Detection**
+The library includes patterns for password complexity and sensitive data detection:
+- `:passwordStrong` enforces strong password rules.
+- `:ssnUSA` matches U.S. Social Security Numbers.
+- `:passportNumber` validates passport numbers.
+
+Example:
+```ring
+rx(pat(:passwordStrong)).Match("P@ssw0rd123!")  # --> TRUE
+```
+
+These patterns aid in enforcing security policies and protecting sensitive information.
+
+
 ## Enhancing Developer Experience
 
 The stzRegexData library significantly improves the developer experience by:
@@ -175,7 +216,8 @@ One of the standout features of the stzRegexData library is its extensibility. N
 
 This flexibility ensures that the library remains relevant and useful in the ever-changing landscape of software development.
 
+---
 
 ## Conclusion
 
-The stzRegexData library is a powerful tool that democratizes the use of regular expressions across various domains. By providing a comprehensive set of predefined patterns and detailed explanations, it empowers developers to tackle complex challenges with ease, enhances productivity, and fosters innovation.
+The stzRegexData library is a powerful tool that democratizes the use of regular expressions across various domains. By providing a comprehensive set of predefined patterns and detailed explanations, it empowers developers to tackle complex challenges with ease. Whether you're building a web application, performing NLP tasks, or analyzing code, this library simplifies regex usage, enhances productivity, and fosters innovation. Its extensibility further solidifies its position as an essential component of the modern developer's toolkit.
