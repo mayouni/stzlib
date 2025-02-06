@@ -7,7 +7,7 @@ func rxuter
 func rxu
 	return new stzRegexuter
 
-func Match(cInput, cPattern)
+func AllMatches(cInput, cPattern)
 	rx(cPattern) { Match(cInput) return AllMatches() }
 
 class stzRegexuter
@@ -148,7 +148,7 @@ class stzRegexuter
 			
 			# Find matches for this trigger
 
-			aMatches = Match(cText, cPattern)
+			aMatches = AllMatchs(cText, cPattern)
 			
 			# If trigger fired (has matches)
 
