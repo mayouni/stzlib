@@ -1,8 +1,8 @@
 
 
-#------------------------------------------------------#
-#  REGEX DATA : NAMED PATTERNS AND THEIR EXPLANATIONS  #
-#------------------------------------------------------#
+#-----------------------------#
+#  REGEX DATA NAMED PATTERNS  #
+#-----------------------------#
 
 _$aRegexPatterns_ = [
 
@@ -114,7 +114,6 @@ _$aRegexPatterns_ = [
 
    	:jwt = "^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$",
    	:base64 = "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
-   	:uuid = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
 	:emoji = "^(?:\\p{Emoji_Presentation}|\\p{Emoji})+$",
 
 
@@ -443,10 +442,9 @@ _$aRegexPatterns_ = [
 
 	:arabicChar = "^[\u0600-\u06FF]$",
 	:arabicWord = "^[\u0600-\u06FF]+$",
-	:hebrewWord = "^[\u0590-\u05FF]+$",
 	:rtlSentence = "^[\u0590-\u05FF\u0600-\u06FF\\s]+$",
 	:russianWord = "^[\u0400-\u04FF]+$",
-	:chineseCharacter = "^[\u4E00-\u9FFF]+$",
+	:chineseChar = "^[\u4E00-\u9FFF]+$",
 	:nonLatinWord = "^[^a-zA-Z]+$",
     
 	# Number detection in different numeral systems
@@ -458,9 +456,42 @@ _$aRegexPatterns_ = [
     
 	# Punctuation variations
 
-	:punctuationMarks = "^[.,!?;:'\" + char(34) + "”“\(\)\[\]\{\}]+$"
+	:punctuationMarks = "^[.,!?;:'\" + char(34) + "”“\(\)\[\]\{\}]+$",
+
+	# Password Complexity Patterns
+
+	:passworWeak = "^.{6,}$",
+	:passwordSimple = "^.{8,}$",
+	:passwordWithDigits = "^(?=.*[0-9]).{8,}$",
+	:passwordWithUpperLower = "^(?=.*[a-z])(?=.*[A-Z]).{8,}$",
+	:passwordWithSpecialChar = "^(?=.*[!@#$%^&*(),.?\" + char(34) + ":{}|<>]).{8,}$",
+	:passwordStrong = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?\" + char(34) + ":{}|<>]).{12,}$",
+
+    # API Keys and Secrets Detection
+
+    :hexSecret = "^[a-fA-F0-9]{32,}$",
+    :base64Secret = "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+    :jwtToken = "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$",
+    :awsAccessKey = "^AKIA[0-9A-Z]{16}$",
+    :awsSecretKey = "^[0-9a-zA-Z/+]{40}$",
+    :privateKeyPEM = "-----BEGIN (RSA|EC|DSA|PRIVATE) KEY-----[\\s\\S]+-----END (RSA|EC|DSA|PRIVATE) KEY-----",
+
+    # Personally Identifiable Information (PII)
+
+    :ssnUSA = "^\\d{3}-\\d{2}-\\d{4}$",
+    :passportNumber = "^[A-Z0-9]{6,9}$",
+
+    # Other Sensitive Data
+
+    :hexadecimalEntropy = "^[0-9a-fA-F]{64,}$",
+    :uuid = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+    :bcryptHash = "^\\$2[ayb]\\$\\d{2}\\$[./A-Za-z0-9]{53}$"
 
 ]
+
+#-----------------------------------#
+#  REGEX EXPLANATIONS KNWOLEDGBASE  #
+#-----------------------------------#
 
 _$aRegexPatternsExplanations_ = [
 
@@ -1338,21 +1369,6 @@ _$aRegexPatternsExplanations_ = [
 
 		"- Matches: `eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U`" + NL +
 		"- Non-matches: `abc.def`, `header.payload`"
-	],
-
-	:uuid = [
-		"Matches UUID/GUID format",
-
-		"- `^`: Start of string" + NL +
-		"- `[0-9a-fA-F]{8}`: First 8 hexadecimal characters" + NL +
-		"- `-`: Hyphen separator" + NL +
-		"- `[0-9a-fA-F]{4}`: 4 hex characters (repeated 3 times)" + NL +
-		"- `-`: Hyphen separator" + NL +
-		"- `[0-9a-fA-F]{12}`: Final 12 hex characters" + NL +
-		"- `$`: End of string" + NL + NL +
-
-		"- Matches: `123e4567-e89b-12d3-a456-426614174000`" + NL +
-		"- Non-matches: `123456-789-123-456`, `not-a-uuid`"
 	],
 
 	:base64 = [
@@ -3900,122 +3916,415 @@ _$aRegexPatternsExplanations_ = [
 		"- Non-matches: `v1.2.3`, `1.2.3+build`."
 	],
 
-	# RTL Languages
+	# Common word-based regex patterns
+
+	:quotedWord = [
+		"Matches text enclosed in double quotes",
+
+		"- `" + char(34) + "`: Opening double quote character" + NL +
+		"- `([^" + char(34) + "]+)`: Captures one or more characters that are not double quotes" + NL +
+		"- `" + char(34) + "`: Closing double quote character" + NL + NL +
+
+		"- Matches: `\" + char(34) + "Hello World\" + char(34) + "`, `\" + char(34) + "Testing 123\" + char(34) + "`" + NL +
+		"- Non-matches: `Hello World` (no quotes), `\" + char(34) + "Unclosed quote` (missing closing quote)"
+	],
+
+	:singleWord = [
+		"Matches a single word containing only word characters",
+
+		"- `^`: Start of string" + NL +
+		"- `\\w+`: One or more word characters (letters, numbers, underscore)" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `Hello`, `Testing123`, `word_with_underscore`" + NL +
+		"- Non-matches: `Hello World` (multiple words), `Special!` (special character)"
+	],
+
+	:multipleWords = [
+		"Matches multiple words with spaces",
+
+		"- `^`: Start of string" + NL +
+		"- `[\\w\\s]+`: One or more word characters or whitespace" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `Hello World`, `This is a test`" + NL +
+		"- Non-matches: `Hello,World` (comma), `Special!Chars` (special characters)"
+	],
+
+	:camelCaseWord = [
+		"Matches camelCase formatted words",
+
+		"- `^`: Start of string" + NL +
+		"- `[a-z]+`: One or more lowercase letters at start" + NL +
+		"- `([A-Z][a-z]*)*`: Zero or more sequences of uppercase followed by lowercase" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `camelCase`, `thisIsATest`" + NL +
+		"- Non-matches: `CamelCase` (starts uppercase), `not_camel_case` (underscore)"
+	],
+
+	:snakeCaseWord = [
+		"Matches snake_case formatted words",
+
+		"- `^`: Start of string" + NL +
+		"- `[a-z]+`: One or more lowercase letters" + NL +
+		"- `(_[a-z]+)*`: Zero or more sequences of underscore and lowercase letters" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `snake_case`, `this_is_snake`" + NL +
+		"- Non-matches: `Snake_Case` (uppercase), `not-snake` (hyphen)"
+	],
+
+	:pascalCaseWord = [
+		"Matches PascalCase formatted words",
+
+		"- `^`: Start of string" + NL +
+		"- `[A-Z]`: First uppercase letter" + NL +
+		"- `[a-z]+`: One or more lowercase letters" + NL +
+		"- `([A-Z][a-z]*)*`: Zero or more sequences of uppercase followed by lowercase" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `PascalCase`, `ThisIsPascal`" + NL +
+		"- Non-matches: `pascalCase` (starts lowercase), `This_Is_Not_Pascal` (underscores)"
+	],
+
+	:kebabCaseWord = [
+		"Matches kebab-case formatted words",
+
+		"- `^`: Start of string" + NL +
+		"- `[a-z]+`: One or more lowercase letters" + NL +
+		"- `(-[a-z]+)*`: Zero or more sequences of hyphen and lowercase letters" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `kebab-case`, `this-is-kebab`" + NL +
+		"- Non-matches: `Kebab-Case` (uppercase), `this_is_not_kebab` (underscores)"
+	],
+
+	# RTL and Language Support
 
 	:arabicChar = [
-		"Matches a single Arabic character.",
+		"Matches a single Arabic character",
 
-		"- `^[\u0600-\u06FF]$`: Matches exactly one Arabic character from the Unicode Arabic block." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[\\u0600-\\u06FF]`: Single character in Arabic Unicode range" + NL +
+		"- `$`: End of string" + NL + NL +
 
-		"- Matches: `ع`, `ب`, `ك`." + NL +
-		"- Non-matches: `A`, `3`, `@`."
+		"- Matches: `ا`, `ب`, `ت`" + NL +
+		"- Non-matches: `اب` (multiple characters), `a` (non-Arabic)"
 	],
 
 	:arabicWord = [
-		"Matches a single Arabic word (one or more Arabic characters).",
+		"Matches a word composed of Arabic characters",
 
-		"- `^[\u0600-\u06FF]+$`: Matches a sequence of Arabic characters without spaces or non-Arabic characters." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[\\u0600-\\u06FF]+`: One or more Arabic characters" + NL +
+		"- `$`: End of string" + NL + NL +
 
-		"- Matches: `مرحبا`, `كلمة`." + NL +
-		"- Non-matches: `مرحبا123`, `Hello`, `مرحب@`."
-	],
-
-	:hebrewWord = [
-		"Matches a single Hebrew word (one or more Hebrew characters).",
-
-		"- `^[\u0590-\u05FF]+$`: Matches a sequence of Hebrew characters without spaces or non-Hebrew characters." + NL + NL +
-
-		"- Matches: `שלום`, `עברית`." + NL +
-		"- Non-matches: `שלום123`, `Shalom`, `עברית!`."
+		"- Matches: `مرحبا`, `عالم`" + NL +
+		"- Non-matches: `hello`, `مرحبا123` (mixed with numbers)"
 	],
 
 	:rtlSentence = [
-		"Matches a complete sentence written in Hebrew or Arabic, including spaces.",
+		"Matches right-to-left text (Hebrew or Arabic) with spaces",
 
-		"- `^[\u0590-\u05FF\u0600-\u06FF\\s]+$`: Matches Hebrew and Arabic characters along with spaces." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[\\u0590-\\u05FF\\u0600-\\u06FF\\s]+`: Hebrew/Arabic characters and spaces" + NL +
+		"- `$`: End of string" + NL + NL +
 
-		"- Matches: `السلام عليكم`, `שלום עולם`." + NL +
-		"- Non-matches: `שלום hello`, `مرحبًا!`."
+		"- Matches: `مرحبا بالعالم`, `שלום עולם`" + NL +
+		"- Non-matches: `Hello World`, `مرحبا123` (mixed with numbers)"
 	],
 
-	# Non-lating Languages
-
 	:russianWord = [
-		"Matches a single word written in Cyrillic script (Russian and similar languages).",
+		"Matches words in Cyrillic characters",
 
-		"- `^[\u0400-\u04FF]+$`: Matches a sequence of Cyrillic characters without spaces or non-Cyrillic characters." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[\\u0400-\\u04FF]+`: One or more Cyrillic characters" + NL +
+		"- `$`: End of string" + NL + NL +
 
-		"- Matches: `Привет`, `Москва`." + NL +
-		"- Non-matches: `Москва123`, `Hello`, `Привет!`."
+		"- Matches: `привет`, `мир`" + NL +
+		"- Non-matches: `hello`, `привет123` (mixed with numbers)"
 	],
 
 	:chineseChar = [
-		"Matches a single Chinese character.",
+		"Matches Chinese characters",
 
-		"- `^[\u4E00-\u9FFF]+$`: Matches exactly one Chinese character from the Unicode CJK Unified Ideographs block." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[\\u4E00-\\u9FFF]+`: One or more Chinese characters" + NL +
+		"- `$`: End of string" + NL + NL +
 
-		"- Matches: `汉`, `字`." + NL +
-		"- Non-matches: `汉1`, `字!`."
+		"- Matches: `你好`, `世界`" + NL +
+		"- Non-matches: `hello`, `你好123` (mixed with numbers)"
 	],
 
 	:nonLatinWord = [
-		"Matches a word that contains no Latin (a-z, A-Z) characters.",
+		"Matches words not containing Latin alphabet",
 
-		"- `^[^a-zA-Z]+$`: Matches a sequence of non-Latin characters." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[^a-zA-Z]+`: One or more non-Latin characters" + NL +
+		"- `$`: End of string" + NL + NL +
 
-		"- Matches: `你好`, `مرحبا`, `1234`." + NL +
-		"- Non-matches: `hello`, `casa123`, `测试abc`."
+		"- Matches: `数字`, `١٢٣`, `привет`" + NL +
+		"- Non-matches: `hello`, `数字abc` (contains Latin)"
 	],
 
-	# Specific numeral formats
+	# Number detection in different numeral systems
 
 	:arabicNumerals = [
-		"Matches Arabic-Indic numerals (٠١٢٣٤٥٦٧٨٩).",
+		"Matches Arabic numerals",
 
-		"- `^[\u0660-\u0669]+$`: Matches a sequence of Arabic-Indic numerals." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[\\u0660-\\u0669]+`: One or more Arabic numeral characters" + NL +
+		"- `$`: End of string" + NL + NL +
 
-		"- Matches: `١٢٣`, `٠٩٨٧٦٥`." + NL +
-		"- Non-matches: `123`, `١٢٣abc`."
+		"- Matches: `٠١٢٣`, `٤٥٦`" + NL +
+		"- Non-matches: `123`, `٠١a` (mixed with letters)"
 	],
 
 	:devanagariNumerals = [
-		"Matches Devanagari numerals (०१२३४५६७८९).",
+		"Matches Devanagari numerals",
 
-		"- `^[\u0966-\u096F]+$`: Matches a sequence of Devanagari numerals." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[\\u0966-\\u096F]+`: One or more Devanagari numeral characters" + NL +
+		"- `$`: End of string" + NL + NL +
 
-		"- Matches: `१२३`, `०९८७६५`." + NL +
-		"- Non-matches: `123`, `१२३abc`."
+		"- Matches: `०१२`, `३४५`" + NL +
+		"- Non-matches: `123`, `०१a` (mixed with letters)"
 	],
 
-	:indeanNumerals = [
-        	"Matches Indic numerals (۰۱۲۳۴۵۶۷۸۹).",
+	:easternArabicNumerals = [
+		"Matches Eastern Arabic numerals",
 
-		"- `^[\u06F0-\u06F9]+$`: Matches a sequence of Indic numerals." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[\\u06F0-\\u06F9]+`: One or more Eastern Arabic numeral characters" + NL +
+		"- `$`: End of string" + NL + NL +
 
-		"- Matches: `۱۲۳`, `۰۹۸۷۶۵`." + NL +
-		"- Non-matches: `123`, `۱۲۳abc`."
+		"- Matches: `۰۱۲`, `۳۴۵`" + NL +
+		"- Non-matches: `123`, `۰۱a` (mixed with letters)"
 	],
 
-    	:universalNumber = [
-        	"Matches numbers in multiple numeral systems (Western, Indic, Devanagari).",
+	:universalNumber = [
+		"Matches numbers in various numeral systems",
 
-		"- `^[0-9\u0660-\u0669\u06F0-\u06F9\u0966-\u096F]+$`: Matches a sequence of numbers from different numeral systems." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[0-9\\u0660-\\u0669\\u06F0-\\u06F9\\u0966-\\u096F]+`: Digits from various systems" + NL +
+		"- `$`: End of string" + NL + NL +
 
-		"- Matches: `123`, `١٢٣`, `१२३`." + NL +
-		"- Non-matches: `123abc`, `١٢٣.`."
+		"- Matches: `123`, `٠١٢`, `۰۱۲`, `०१२`" + NL +
+		"- Non-matches: `12a`, `١٢٣a` (mixed with letters)"
 	],
 
-	# Punctuation
+	# Punctuation variations
 
 	:punctuationMarks = [
-		"Matches common punctuation marks including different quotation marks and brackets.",
+		"Matches standard punctuation marks",
 
-		"- `^[.,!?;:'\" + char(34) + "”“\\(\\)\\[\\]\\{\\}]+$`: Matches a sequence of punctuation marks." + NL + NL +
+		"- `^`: Start of string" + NL +
+		"- `[.,!?;:'\" + char(34) + "\" + char(34) + "\" + char(34) + "\\(\\)\\[\\]\\{\\}]+`: One or more punctuation characters" + NL +
+		"- `$`: End of string" + NL + NL +
 
-		"- Matches: `.,!?;`, `“Hello”`, `()[]{}`." + NL +
-		"- Non-matches: `Hello!`, `123,456`."
+		"- Matches: `...`, `!!!`, `?!.`" + NL +
+		"- Non-matches: `hello.` (contains letters), `123!` (contains numbers)"
+	],
+
+	# Password Complexity Patterns
+
+	:passwordWeak = [
+		"Matches passwords that are at least 6 characters long with no complexity requirements",
+
+		"- `^`: Start of string" + NL +
+		"- `.{6,}`: Any character, minimum 6 occurrences" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `abcdef`, `123456`, `password`" + NL +
+		"- Non-matches: `abc` (too short)"
+	],
+
+	:passwordSimple = [
+		"Matches passwords with minimum length requirement",
+
+		"- `^`: Start of string" + NL +
+		"- `.{8,}`: Any character, minimum 8 occurrences" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `password123`, `simplepass`" + NL +
+		"- Non-matches: `short` (too short), `pass` (too short)"
+	],
+
+	:passwordWithDigits = [
+		"Matches passwords containing at least one digit",
+
+		"- `^`: Start of string" + NL +
+		"- `(?=.*[0-9])`: Positive lookahead for at least one digit" + NL +
+		"- `.{8,}`: Any character, minimum 8 occurrences" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `password123`, `my2ndpass`" + NL +
+		"- Non-matches: `password` (no digits), `pass1` (too short)"
+	],
+
+	:passwordWithUpperLower = [
+		"Matches passwords with upper and lowercase letters",
+
+		"- `^`: Start of string" + NL +
+		"- `(?=.*[a-z])`: Positive lookahead for lowercase" + NL +
+		"- `(?=.*[A-Z])`: Positive lookahead for uppercase" + NL +
+		"- `.{8,}`: Any character, minimum 8 occurrences" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `Password123`, `TestPass`" + NL +
+		"- Non-matches: `password` (no uppercase), `Pass` (too short)"
+	],
+
+	:passwordWithSpecialChar = [
+		"Matches passwords containing special characters",
+
+		"- `^`: Start of string" + NL +
+		"- `(?=.*[!@#$%^&*(),.?\" + char(34) + ":{}|<>])`: Positive lookahead for special char" + NL +
+		"- `.{8,}`: Any character, minimum 8 occurrences" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `Pass@word123`, `Test!Pass`" + NL +
+		"- Non-matches: `password` (no special char), `Pass!` (too short)"
+	],
+
+	:passwordStrong = [
+		"Matches strong passwords with multiple requirements",
+
+		"- `^`: Start of string" + NL +
+		"- `(?=.*[a-z])`: Positive lookahead for lowercase" + NL +
+		"- `(?=.*[A-Z])`: Positive lookahead for uppercase" + NL +
+		"- `(?=.*[0-9])`: Positive lookahead for digit" + NL +
+		"- `(?=.*[!@#$%^&*(),.?\" + char(34) + ":{}|<>])`: Positive lookahead for special char" + NL +
+		"- `.{12,}`: Any character, minimum 12 occurrences" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `StrongP@ss123`, `C0mpl3x!Pass`" + NL +
+		"- Non-matches: `Weak!pass` (too short), `Password123` (no special char)"
+	],
+
+	# API Keys and Secrets Detection
+
+	:hexSecret = [
+		"Matches hexadecimal secret keys",
+
+		"- `^`: Start of string" + NL +
+		"- `[a-fA-F0-9]{32,}`: 32 or more hexadecimal characters" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `1a2b3c4d5e6f7890abcdef1234567890`" + NL +
+		"- Non-matches: `123abc` (too short), `12345g` (invalid hex char)"
+	],
+
+	:base64Secret = [
+		"Matches Base64 encoded strings",
+
+		"- `^`: Start of string" + NL +
+		"- `(?:[A-Za-z0-9+/]{4})*`: Groups of four Base64 characters" + NL +
+		"- `(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?`: Optional padding" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `SGVsbG8gV29ybGQ=`, `dGVzdA==`" + NL +
+		"- Non-matches: `Hello World`, `===invalid===`"
+	],
+
+	:jwtToken = [
+		"Matches JWT tokens (JSON Web Tokens)",
+
+		"- `^`: Start of string" + NL +
+		"- `[A-Za-z0-9-_]+\\.`: Base64-encoded header ending with a dot" + NL +
+		"- `[A-Za-z0-9-_]+\\.`: Base64-encoded payload ending with a dot" + NL +
+		"- `[A-Za-z0-9-_]+$`: Base64-encoded signature" + NL + NL +
+
+		"- Matches: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c`" + NL +
+		"- Non-matches: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ-INVALID` (invalid signature format)"
+	],
+
+	:awsAccessKey = [
+		"Matches AWS access keys",
+
+		"- `^`: Start of string" + NL +
+		"- `AKIA`: AWS access key prefix" + NL +
+		"- `[0-9A-Z]{16}$`: 16 uppercase alphanumeric characters" + NL + NL +
+
+		"- Matches: `AKIAIOSFODNN7EXAMPLE`" + NL +
+		"- Non-matches: `BKIAIOSFODNN7EXAMPLE` (wrong prefix), `AKIA123` (too short)"
+	],
+
+	:awsSecretKey = [
+		"Matches AWS secret keys",
+
+		"- `^`: Start of string" + NL +
+		"- `[0-9a-zA-Z/+]{40}$`: 40 characters including letters, digits, `/`, `+`" + NL + NL +
+
+		"- Matches: `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY`" + NL +
+		"- Non-matches: `shortkey123` (too short), `invalid_key_with_!@#` (invalid characters)"
+	],
+
+	:privateKeyPEM = [
+		"Matches PEM formatted private keys",
+
+		"- `-----BEGIN (RSA|EC|DSA|PRIVATE) KEY-----`: Header indicating key type" + NL +
+		"- `[\\s\\S]+`: Any characters (multiline support)" + NL +
+		"- `-----END (RSA|EC|DSA|PRIVATE) KEY-----`: Footer marking key end" + NL + NL +
+
+		"- Matches: `-----BEGIN RSA KEY-----\nMIIEpAIBAAKCAQEA...\n-----END RSA KEY-----`" + NL +
+		"- Non-matches: `-----BEGIN SOME RANDOM DATA-----\n...\n-----END SOME RANDOM DATA-----` (incorrect header/footer)"
+	],
+
+	# Personally Identifiable Information (PII)
+
+	:ssnUSA = [
+		"Matches US Social Security Numbers (SSN)",
+
+		"- `^`: Start of string" + NL +
+		"- `\\d{3}-\\d{2}-\\d{4}$`: Three digits, hyphen, two digits, hyphen, four digits" + NL + NL +
+
+		"- Matches: `123-45-6789`" + NL +
+		"- Non-matches: `123456789` (missing hyphens), `12-345-6789` (wrong format)"
+	],
+
+	:passportNumber = [
+		"Matches passport numbers",
+
+		"- `^`: Start of string" + NL +
+		"- `[A-Z0-9]{6,9}$`: 6 to 9 alphanumeric uppercase characters" + NL + NL +
+
+		"- Matches: `A1234567`, `123456789`" + NL +
+		"- Non-matches: `12345` (too short), `ABCD123456` (too long)"
+	],
+
+	# Other Sensitive Data
+
+	:hexadecimalEntropy = [
+		"Matches long hexadecimal strings (potential entropy keys)",
+
+		"- `^`: Start of string" + NL +
+		"- `[0-9a-fA-F]{64,}$`: At least 64 hexadecimal characters" + NL + NL +
+
+		"- Matches: `a3f9c...3e0a` (64+ hex chars)" + NL +
+		"- Non-matches: `a3f9c` (too short), `GHIJKL1234` (invalid hex characters)"
+	],
+
+	:uuid = [
+		"Matches UUIDs (Universally Unique Identifiers)",
+
+		"- `^`: Start of string" + NL +
+		"- `[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`: Standard UUID format" + NL + NL +
+
+		"- Matches: `550e8400-e29b-41d4-a716-446655440000`" + NL +
+		"- Non-matches: `550e8400e29b41d4a716446655440000` (missing hyphens), `550e8400-e29b-61d4-a716-446655440000` (invalid variant)"
+	],
+
+	:bcryptHash = [
+		"Matches bcrypt password hashes",
+
+		"- `^\\$2[ayb]\\$\\d{2}\\$`: Bcrypt format identifier and cost factor" + NL +
+		"- `[./A-Za-z0-9]{53}$`: 53 base64-like encoded characters" + NL + NL +
+
+		"- Matches: `$2b$12$Qe4VhXyQtk2Hl3m.r3lVze1aeXZ9c7G5YpTmHDHkJxXO/hP9mB0s.`" + NL +
+		"- Non-matches: `$2x$12$Qe4VhXyQtk2Hl3m.r3lVze1aeXZ9c7G5YpTmHDHkJxXO/hP9mB0s.` (invalid type), `$2b$12$short` (too short)"
 	]
-
 ]
 
 #-----------------------------------#
