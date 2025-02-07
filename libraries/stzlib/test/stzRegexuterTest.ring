@@ -5,38 +5,17 @@ load "../max/stzmax.ring"
 
 pr()
 
-rx("(\d+)") {
-
-	# Currently we can say()
-
-	? Match("The total was 42 dollars and 13 cents.")
-	#--> TRUE
-
-	# What I want is to write
-
-	? @@( AllMatches() )
-	#--> [ "42", "13" ]
-
-}
-
-proff()
-# Executed in 0.01 second(s) in Ring 1.22
-
-/*---
-
-pr()
-
-? @@( Match("The total was 42 dollars and 13 cents.", "(\d+)") )
+? @@( AllMatches("The total was 42 dollars and 13 cents.", "(\d+)") )
 #--> [ "42", "13" ]
 
 proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Processing Numbers in Text
+
 pr()
 
-rxu = rxuter()
-rxu {
+rxu() {
 	# Step 1: Define what pattern should trigger computation
 
 	AddTrigger(:NumberFound = "(\d+)")
@@ -72,8 +51,8 @@ proff()
 
 pr()
 
-rxu = rxuter()
-rxu {
+rxuter() {
+
     # Step 1: Watch for email patterns
     AddTrigger(:EmailFound = "(\w+)@(\w+\.\w+)")
 
@@ -97,14 +76,13 @@ rxu {
 }
 
 proff()
-# Executed in 0.08 second(s) in Ring 1.22
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Computing multiple triggers
-*/
+
 pr()
 
-rxu = rxuter()
-rxu {
+rxu() {
 	# Multiple triggers for different patterns
 
 	Trigger(:Number = "(\d+)")
@@ -149,4 +127,53 @@ rxu {
 }
 
 proff()
-#--> Executed in 0.11 second(s) in Ring 1.22
+#--> Executed in 0.10 second(s) in Ring 1.22
+
+/*---
+*/
+pr()
+
+rxu() {
+    # Define sensitive data pattern processor
+    Trigger(:SensitiveData = "(password|secret|key):\s*(\w+)")
+    
+    # Define transformation with logging
+    @C(:When = :SensitiveData, :Do = '{
+        originalLength = len(@value)
+        @value = "REDACTED-" + originalLength
+    }')
+
+    # Process sensitive content
+    result = Process("User credentials: password: abc123 secret: def456")
+    
+    ? @@(result) + NL
+    #--> [
+    # 	[ "matches", [ [ "password: abc123", "secret: def456" ] ] ],
+    # 	[ "results", [ "REDACTED-16", "REDACTED-14" ] ]
+    # ]
+    
+
+    ? @@NL(State())
+    #--> [
+    #      [:sensitiviedata, [
+    #          "password: abc123", 
+    #          "REDACTED-13", 
+    #          { 
+    #            redactionTimestamp: "2024-02-06T12:34:56",
+    #            originalType: "password",
+    #            lengthPreserved: true
+    #          }
+    #      ]],
+    #      [:sensitiviedata, [
+    #          "secret: def456", 
+    #          "REDACTED-12",
+    #          { 
+    #            redactionTimestamp: "2024-02-06T12:34:56",
+    #            originalType: "secret", 
+    #            lengthPreserved: true
+    #          }
+    #      ]]
+    #    ]
+}
+
+proff()

@@ -1,5 +1,27 @@
 load "../max/stzmax.ring"
 
+/*--------------------------------------#
+#  GEETING ALL THE MATCHES IN A STRING  #
+#---------------------------------------#
+
+pr()
+
+rx("(\d+)") {
+
+	# Currently we can say()
+
+	? Match("The total was 42 dollars and 13 cents.")
+	#--> TRUE
+
+	# What I want is to write
+
+	? @@( AllMatches() )
+	#--> [ "42", "13" ]
+
+}
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*----------------#
 #  Partial Match  #
