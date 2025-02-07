@@ -1,11 +1,11 @@
 # File: stzregexuter.ring
 # Description: Reactive Regex Computer System for Softanza Library
 
-func rxuter
+func rxuter()
 	return new stzRegexuter
 
-func rxu
-	return new stzRegexuter
+	func rxu()
+		return new stzRegexuter
 
 class stzRegexuter
 
@@ -155,12 +155,13 @@ class stzRegexuter
 
 				# Add all matches
 
-				aResult[:matches] + aMatches
+//				aResult[:matches] + aMatches
 				
 				# Compute results for each match
 
 				for j = 1 to nLenMatches
 
+					aResult[:matches] + aMatches[j]
 					aCompResult = executeComputation(aMatches[j], cTriggerName)
 					aResult[:results] + aCompResult[1]
 					
