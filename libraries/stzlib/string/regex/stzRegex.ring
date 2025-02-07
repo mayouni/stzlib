@@ -70,6 +70,11 @@ func MatchOptions()
 	func @MatchOptions()
 		return _$aMATCH_OPTIONS
 
+func AllMatches(cInput, cPattern)
+	oRegex = new stzRegex(cPattern)
+	oRegex.Match(cInput)
+	return oRegex.AllMatches()
+
   #==================#
  #  STZREGEX CLASS  #
 #==================#
