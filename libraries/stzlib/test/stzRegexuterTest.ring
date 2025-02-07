@@ -144,36 +144,20 @@ rxu() {
     }')
 
     # Process sensitive content
-    result = Process("User credentials: password: abc123 secret: def456")
-    
-    ? @@(result) + NL
-    #--> [
-    # 	[ "matches", [ [ "password: abc123", "secret: def456" ] ] ],
-    # 	[ "results", [ "REDACTED-16", "REDACTED-14" ] ]
-    # ]
-    
+
+   ? @@NL( Process("User credentials: password: abc123 secret: def456") ) + NL
+   #--> [
+   #   [ "matches", [ "password: abc123", "secret: def456" ] ],
+   #   [ "results", [ "REDACTED-16", "REDACTED-14" ] ]
+   # ]
+
 
     ? @@NL(State())
     #--> [
-    #      [:sensitiviedata, [
-    #          "password: abc123", 
-    #          "REDACTED-13", 
-    #          { 
-    #            redactionTimestamp: "2024-02-06T12:34:56",
-    #            originalType: "password",
-    #            lengthPreserved: true
-    #          }
-    #      ]],
-    #      [:sensitiviedata, [
-    #          "secret: def456", 
-    #          "REDACTED-12",
-    #          { 
-    #            redactionTimestamp: "2024-02-06T12:34:56",
-    #            originalType: "secret", 
-    #            lengthPreserved: true
-    #          }
-    #      ]]
-    #    ]
+    #  [ "sensitivedata", [ "password: abc123", "REDACTED-16" ] ],
+    #  [ "sensitivedata", [ "secret: def456", "REDACTED-14" ] ]
+    # ]
 }
 
 proff()
+# Executed in 0.08 second(s) in Ring 1.22
