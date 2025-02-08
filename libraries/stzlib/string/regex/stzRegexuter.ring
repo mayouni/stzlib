@@ -9,22 +9,25 @@ func rxuter()
 
 class stzRegexuter
 
-	aTriggers = []		# Pairs of [name, pattern]
-	aComputations = []	# Pairs of [name, computation]
-	aState = []		# [[trigger_name, [original, computed]], ...]
+	aTriggers = []		# Pairs of [cTriggerName, cRegexOatterns]
+	aCodesPerTrigger = []	# Pairs of [cTriggerName, cCodeToExecute]
+	aState = []		# [ [ cTriggerName, [ originalValue, computedValue ] ], ... ]
+
+	aLastResults = []	# List of last computed values after Prcess() is used
+	aLastMatches = []	# Idem for matches
 
 	  #------------------------------#
 	 #  INITILAIZING THE REGEXUTER  #
 	#------------------------------#
 
 	def init()
-		# Empty init - triggers and computations added dynamically
+		# Empty init
 
 	  #-------------------------#
 	 #  ADDING REGEX TRIGGERS  #
 	#-------------------------#
 
-	def RegisterTrigger(aTrigger)
+	def AddTrigger(aTrigger)
 
 		if isString(aTrigger)
 			if TriggerNameExists(aTrigger)
@@ -49,14 +52,11 @@ class stzRegexuter
 
 		#< @FunctionAlternativeForms
 
-		def AddTrigger(aTrigger)
-			This.RegisterTrigger(aTrigger)
+		def Trigger(aTrigger)
+			This.AddTrigger(aTrigger)
 	
-			def Trigger(aTrigger)
-				This.RegisterTrigger(aTrigger)
-	
-			def @t(aTrigger)
-				This.RegisterTrigger(aTrigger)
+			def @T(aTrigger)
+				This.AddTrigger(aTrigger)
 
 		#>
 
@@ -77,41 +77,44 @@ class stzRegexuter
 		def TriggerExists(cName)
 			return This.TriggerNameExists(cName)
 
-	  #-------------------------------------#
-	 #  DEFINING COMPUTATIONS PER TRIGGER  #
-	#-------------------------------------#
+	  #---------------------------------------#
+	 #  ADDING CODES TO COMPUTE PER TRIGGER  #
+	#---------------------------------------#
 
-	def AddComputationalOp(cTriggerName, cComputation)
+	def AddCode(cTriggerName, cCode)
 		if isList(cTriggerName) and StzListQ(cTriggerName).IsWhenOrIfOrForNamedParam()
 			cTriggerName = cTriggerName[2]
 		ok
 
-		if isList(cComputation) and StzListQ(cComputation).IsDoNamedParam()
-			cComputation = cComputation[2]
+		if isList(cCode) and StzListQ(cCode).IsDoNamedParam()
+			cCode = cCode[2]
 		ok
 
-		# Validate computation contains @value
+		# Validate code contains @value
 
-		oStzStr = new stzString(cComputation)
+		oStzStr = new stzString(cCode)
 		if NOT oStzStr.ContainsCS("@value", :CaseSensitive = FALSE)
-			StzRaise("Invalid computation! Must contain @value keyword.")
+			StzRaise("Invalid computation! cCode Must contain @value keyword.")
 		ok
 
-		# Clean computation string
+		# Clean code string
 
-		cComputation = oStzStr.TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = oStzStr.TrimQ().TheseBoundsRemoved("{", "}")
 
-		# Store the computatio (for future use)
+		# Store the code (for future use)
 
-		aComputations + [cTriggerName, cComputation]
+		aCodesPerTrigger + [cTriggerName, cCode]
 
 		#< @FunctionAlternativeForms
 
-		def AddComputation(cTrigger, cComputation)
-			This.AddComputationalOp(cTrigger, cComputation)
+		def AddComputation(cTriggerName, cCode)
+			This.AddCode(cTriggerName, cCode)
 
-		def @c(cTrigger, cComputation)
-			This.AddComputationalOp(cTrigger, cComputation)
+		def @c(cTriggerName, cCode)
+			This.AddCode(cTriggerName, cCode)
+
+		def AddScript(cTriggerName, cCode)
+			This.AddCode(cTriggerName, cCode)
 
 		#>
 
@@ -129,11 +132,6 @@ class stzRegexuter
 			return [ :matches = [], :results = [] ]
 		ok
 		
-		aResult = [
-			:matches = [],
-			:results = []
-		]
-
 		# Check each registered trigger against the input
 
 		nLenTriggers = len(aTriggers)
@@ -147,34 +145,33 @@ class stzRegexuter
 
 			aMatches = AllMatches(cText, cPattern)
 			
-			# If trigger fired (has matches)
+			# If trigger fired (has matches), add all matches,
+			# while Computing results for each match
 
 			nLenMatches = len(aMatches)
 
 			if nLenMatches > 0
 
-				# Add all matches
-
-//				aResult[:matches] + aMatches
-				
-				# Compute results for each match
-
 				for j = 1 to nLenMatches
 
-					aResult[:matches] + aMatches[j]
-					aCompResult = executeComputation(aMatches[j], cTriggerName)
-					aResult[:results] + aCompResult[1]
+					# Add the match
+
+					aLastMatches + aMatches[j]
+
+					# Execute the computation of that match
+ 
+					compResult = executeComputation(aMatches[j], cTriggerName)
+					aLastResults + compResult
 					
 					# Track state changes
 
-					if aCompResult[1] != aMatches[j]
-						aState + [lower(cTriggerName), [aMatches[j], aCompResult[1]]]
+					if compResult != aMatches[j]
+						aState + [lower(cTriggerName), [aMatches[j], compResult]]
 					ok
+
 				next
 			ok
 		next
-		
-		return aResult
 
 		#< @FunctionAlternativeForm
 
@@ -182,6 +179,42 @@ class stzRegexuter
 			This.Process(cText)
 
 		#>
+
+	def Results()
+		return aLastResults
+
+		def Result()
+			return This.Result()
+
+	def Matches()
+		return aLastMatches
+
+		def MatchedValues()
+			return This.Matches()
+
+	def ResultsXT()
+		return Association([ This.Results(), This.Matches() ])
+
+		def ResultXT()
+			return This.ResultsXT()
+
+		def ResultsAndMatches()
+			return This.ResultsXT()
+
+		def ResultsAndTheirMatches()
+			return This.ResultsXT()
+
+	def MatchesXT()
+		return Association([ This.Matches(), This.Results() ])
+
+		def MatchedValuesXT()
+			return This.MatchesXT()
+
+		def MatchesAndResults()
+			return This.MatchesXT()
+
+		def MatchesAndTheirResults()
+			return This.MatchesXT()
 
 	  #-----------------------------------------------------#
 	 #  GETTING THE CONTENT OF THE STATE OF THE REGEXUTER  #
@@ -203,23 +236,23 @@ class stzRegexuter
 		
 		# Find computation for this trigger
 
-		nLen = len(aComputations)
+		nLen = len(aCodesPerTrigger)
 
 		for i = 1 to nLen
-			if aComputations[i][1] = cTriggerName
-				cComputation = aComputations[i][2]
+			if aCodesPerTrigger[i][1] = cTriggerName
+				cCode = aCodesPerTrigger[i][2]
 				exit
 			ok
 		next
 
-		if trim(cComputation) = ""
-			return [cMatchedValue]
+		if trim(cCode) = ""
+			return cMatchedValue
 		ok
 		
 		try
 			@value = cMatchedValue
-			eval(cComputation)
-			return [@value]
+			eval(cCode)
+			return @value
 		catch
-			return [cMatchedValue]
+			return cMatchedValue
 		done

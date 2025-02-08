@@ -22,26 +22,20 @@ rxu() {
 
 	# Step 2: Define what to do when the trigger fires
 
-	AddComputation(
-
-		:When = :NumberFound,
-
-		:Do = '{
-
+	AddCode( :When = :NumberFound, :Do = '{
 		@value = @number(@value) * 2
-
-		}'
-	)
+	}')
 
 	# Step 3: Process some text to find and compute on matches
 
-	? @@NL(
-		Process("The total was 42 dollars and 13 cents.")
-	)
-	#--> [
-	# 	[ "matches", [ "42", "13" ] ],
-	# 	[ "results", [ 84, 26 ] ]
-	# ]
+	Process("The total was 42 dollars and 13 cents.")
+
+	? @@( Matches() )
+	#--> [ "42", "13" ]
+
+	? @@( Results() )
+	#--> [ 84, 26 ]
+
 }
 
 proff()
@@ -53,25 +47,25 @@ pr()
 
 rxuter() {
 
-    # Step 1: Watch for email patterns
-    AddTrigger(:EmailFound = "(\w+)@(\w+\.\w+)")
+	# Step 1: Watch for email patterns
 
-    # Step 2: Define how to process found emails
-    AddComputation(
-        :When = :EmailFound,
-        :Do = "{
-            @value = StzStringQ(@value).Split('@')[2]
-        }"
-    )
+	AddTrigger(:EmailFound = "(\w+)@(\w+\.\w+)")
 
-    # Step 3: Process text containing emails
-    ? @@NL(
-        Process("Contact us at support@example.com or sales@example.com")
-    )
-    #--> [
-    # 	[ "matches", [ [ "support@example.com", "sales@example.com" ] ] ],
-    # 	[ "results", [ "example.com", "example.com" ]
-    # ]
+	# Step 2: Define how to process found emails
+
+	AddComputation( :When = :EmailFound, :Do = "{
+	          @value = StzStringQ(@value).Split('@')[2]
+	}")
+
+	# Step 3: Process text containing emails
+
+	Process("Contact us at support@example.com or sales@example.com")
+
+	? @@NL( MatchesAndTheirResults() ) # or simply MatchesXT()
+	#--> [
+	# 	[ "support@example.com", "example.com" ],
+	# 	[ "sales@example.com", "example.com" ]
+	# ]
 
 }
 
@@ -91,72 +85,69 @@ rxu() {
 
 	# Different computations for each trigger (with @C as a shorthand for AddComputation())
 
-	@C(
-		:When = :Number,
-		:Do = '{
-			@value = @number(@value) * 2
-		}'
-	)
+	@C( :When = :Number, :Do = '{
+		@value = @number(@value) * 2
+	}')
 	
-	@C(
-		:When = :WordInQuotes,
-		:Do = '{
-			@value = upper(@value)
-		}'
-	)
+	@C( :When = :WordInQuotes, :Do = '{
+		@value = upper(@value)
+	}')
 	
-	@C(
-		:When = :EmailAddr,
-		:Do = '{
-			@value = "CONTACT: " + @value
-		}'
-	)
-
+	@C( :When = :EmailAddr, :Do = '{
+		@value = "CONTACT: " + @value
+	}')
 
 	# Feeding the Regexuter with a string to process it by
 	# firing the triggers and executing their computations
 
-	? @@NL(
-		Process('Contact "john doe" at john@example.com or
-			call 555123 for a "quick response"')
-	)
+	Process('Contact "john doe" at john@example.com or
+	call 555123 for a "quick response"')
+
+	? @@NL( ResultXT() ) # or ResultsAndTheirMatches()
 	#--> [
-	# [ "matches", [ [ "555123" ], [ '"john doe"', '"quick response"' ], [ "john@example.com" ] ] ],
-	# [ "results", [ 1110246, '"JOHN DOE"', '"QUICK RESPONSE"', "CONTACT: john@example.com" ] ]
+	# 	[ 1110246, "555123" ],
+	# 	[ '"JOHN DOE"', '"john doe"' ],
+	# 	[ '"QUICK RESPONSE"', '"quick response"' ],
+	# 	[ "CONTACT: john@example.com", "john@example.com" ]
 	# ]
+
 }
 
 proff()
 #--> Executed in 0.10 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 rxu() {
-    # Define sensitive data pattern processor
-    Trigger(:SensitiveData = "(password|secret|key):\s*(\w+)")
+
+	# Define sensitive data pattern processor
+
+	Trigger(:SensitiveData = "(password|secret|key):\s*(\w+)")
     
-    # Define transformation with logging
-    @C(:When = :SensitiveData, :Do = '{
-        originalLength = len(@value)
-        @value = "REDACTED-" + originalLength
-    }')
+	# Define transformation with logging
 
-    # Process sensitive content
+	@C(:When = :SensitiveData, :Do = '{
+		nOriginalLength = len(@value)
+		@value = "REDACTED-" + nOriginalLength
+	}')
 
-   ? @@NL( Process("User credentials: password: abc123 secret: def456") ) + NL
-   #--> [
-   #   [ "matches", [ "password: abc123", "secret: def456" ] ],
-   #   [ "results", [ "REDACTED-16", "REDACTED-14" ] ]
-   # ]
+	# Process sensitive content
 
+	Process("User credentials: password: abc123 secret: def456")
 
-    ? @@NL(State())
-    #--> [
-    #  [ "sensitivedata", [ "password: abc123", "REDACTED-16" ] ],
-    #  [ "sensitivedata", [ "secret: def456", "REDACTED-14" ] ]
-    # ]
+	? @@( Matches() )
+	#--> [ "password: abc123", "secret: def456" ]
+
+	? @@( Results() ) + NL
+	#--> [ "REDACTED-16", "REDACTED-14" ]
+
+	? @@NL( State() )
+	#--> [
+	#  [ "sensitivedata", [ "password: abc123", "REDACTED-16" ] ],
+	#  [ "sensitivedata", [ "secret: def456", "REDACTED-14" ] ]
+	# ]
 }
 
 proff()
