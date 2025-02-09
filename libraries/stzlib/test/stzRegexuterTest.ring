@@ -39,7 +39,7 @@ rxu() {
 }
 
 proff()
-# Executed in 0.07 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Finding and Processing Emails
 
@@ -70,7 +70,7 @@ rxuter() {
 }
 
 proff()
-# Executed in 0.07 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*--- Computing multiple triggers
 
@@ -114,7 +114,7 @@ rxu() {
 }
 
 proff()
-#--> Executed in 0.10 second(s) in Ring 1.22
+#--> Executed in 0.05 second(s) in Ring 1.22
 
 /*---
 
@@ -145,10 +145,272 @@ rxu() {
 
 	? @@NL( State() )
 	#--> [
-	#  [ "sensitivedata", [ "password: abc123", "REDACTED-16" ] ],
-	#  [ "sensitivedata", [ "secret: def456", "REDACTED-14" ] ]
+	# 	[
+	# 		[ "timestamp", "09/02/2025 12:32:40" ],
+	# 		[ "computationorder", 1 ],
+	# 
+	# 		[ "triggername", "sensitivedata" ],
+	# 		[ "pattern", "(password|secret|key):\s*(\w+)" ],
+	# 		[ "matchedvalue", "password: abc123" ],
+	# 		[ "computedvalue", "REDACTED-16" ],
+	# 		[ "position", 19 ],
+	# 
+	# 		[ "dependson", [ "sensitivedata" ] ],
+	# 		[ "affects", [ ] ]
+	# 	],
+
+	# 	[
+	# 		[ "timestamp", "09/02/2025 12:32:40" ],
+	# 		[ "computationorder", 2 ],
+	# 
+	# 		[ "triggername", "sensitivedata" ],
+	# 		[ "pattern", "(password|secret|key):\s*(\w+)" ],
+	# 		[ "matchedvalue", "secret: def456" ],
+	# 		[ "computedvalue", "REDACTED-14" ],
+	# 		[ "position", 36 ],
+	# 
+	# 		[ "dependson", [ "sensitivedata" ] ],
+	# 		[ "affects", [ "sensitivedata" ] ]
+	# 	]
 	# ]
 }
 
 proff()
-# Executed in 0.08 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
+
+#--- Text Processing Pipeline with Dependencies
+# Shows how state tracking helps understand transformation order
+
+pr()
+
+rxu = new stzRegexuter()
+rxu {
+	# Add triggers for a text processing pipeline
+
+	Trigger(["numbers", "\d+"])
+	Trigger(["words", "[a-zA-Z]+"])
+	Trigger(["spaces", "\s+"])
+
+	# Add computations
+
+	@C( :For = "numbers", 	:Do = '{ @value = number(@value) * 2 }' )
+	@C( :For = "words", 	:Do = '{ @value = upper(@value) }' )
+	@C( :For = "spaces", 	:Do = '{ @value = "-" }' )
+
+	# Process text
+	Process("hello 123 world 456")
+
+	# Check matches and their results
+
+	? @@NL( MatchesXT() ) + NL
+	#--> [
+	# 	[ "123", 246 ],
+	# 	[ "456", 912 ],
+	# 	[ "hello", "HELLO" ],
+	# 	[ "world", "WORLD" ],
+	# 	[ " ", "-" ],
+	# 	[ " ", "-" ],
+	# 	[ " ", "-" ]
+	# ]
+
+	# Check state to see transformation order and dependencies
+	? @@NL( State() )
+	#--> [
+	# 	[
+	# 		[ "timestamp", "09/02/2025 12:54:45" ],
+	# 		[ "computationorder", 1 ],
+
+	# 		[ "triggername", "numbers" ],
+	# 		[ "pattern", "\d+" ],
+	# 		[ "matchedvalue", "123" ],
+	# 		[ "computedvalue", 246 ],
+	# 		[ "position", 7 ],
+	# 		[ "dependson", [ "numbers" ] ],
+	# 		[ "affects", [ ] ]
+	# 	],
+	# 
+	# 	[
+	# 		[ "timestamp", "09/02/2025 12:54:45" ],
+	# 		[ "computationorder", 2 ],
+	# 		[ "triggername", "numbers" ],
+	# 		[ "pattern", "\d+" ],
+	# 		[ "matchedvalue", "456" ],
+	# 		[ "computedvalue", 912 ],
+	# 		[ "position", 17 ],
+	# 		[ "dependson", [ "numbers" ] ],
+	# 		[ "affects", [ "numbers" ] ]
+	# 	],
+	# 
+	# 	[
+	# 		[ "timestamp", "09/02/2025 12:54:45" ],
+	# 		[ "computationorder", 3 ],
+	# 		[ "triggername", "words" ],
+	# 		[ "pattern", "[a-zA-Z]+" ],
+	# 		[ "matchedvalue", "hello" ],
+	# 		[ "computedvalue", "HELLO" ],
+	# 		[ "position", 1 ],
+	# 		[ "dependson", [ "words" ] ],
+	# 		[ "affects", [ ] ]
+	# 	],
+	# 
+	# 	[
+	# 		[ "timestamp", "09/02/2025 12:54:45" ],
+	# 		[ "computationorder", 4 ],
+	# 		[ "triggername", "words" ],
+	# 		[ "pattern", "[a-zA-Z]+" ],
+	# 		[ "matchedvalue", "world" ],
+	# 		[ "computedvalue", "WORLD" ],
+	# 		[ "position", 11 ],
+	# 		[ "dependson", [ "words" ] ],
+	# 		[ "affects", [ "words" ] ]
+	# 	],
+	# 
+	# 	[
+	# 		[ "timestamp", "09/02/2025 12:54:45" ],
+	# 		[ "computationorder", 5 ],
+	# 		[ "triggername", "spaces" ],
+	# 		[ "pattern", "\s+" ],
+	# 		[ "matchedvalue", " " ],
+	# 		[ "computedvalue", "-" ],
+	# 		[ "position", 6 ],
+	# 		[ "dependson", [ "spaces" ] ],
+	# 		[ "affects", [ ] ]
+	# 	],
+	# 
+	# 	[
+	# 		[ "timestamp", "09/02/2025 12:54:45" ],
+	# 		[ "computationorder", 6 ],
+	# 		[ "triggername", "spaces" ],
+	# 		[ "pattern", "\s+" ],
+	# 		[ "matchedvalue", " " ],
+	# 		[ "computedvalue", "-" ],
+	# 		[ "position", 6 ],
+	# 		[ "dependson", [ "spaces" ] ],
+	# 		[ "affects", [ "spaces" ] ]
+	# 	],
+	# 
+	# 	[
+	# 		[ "timestamp", "09/02/2025 12:54:45" ],
+	# 		[ "computationorder", 7 ],
+	# 		[ "triggername", "spaces" ],
+	# 		[ "pattern", "\s+" ],
+	# 		[ "matchedvalue", " " ],
+	# 		[ "computedvalue", "-" ],
+	# 		[ "position", 6 ],
+	# 		[ "dependson", [ "spaces" ] ],
+	# 		[ "affects", [ "spaces" ] ]
+	# 	]
+	# ]
+}
+proff()
+# Executed in 0.07 second(s) in Ring 1.22
+
+/*--- Data Validation Pipeline
+# Shows how state helps track validation errors
+
+pr()
+
+rxu = new stzRegexuter()
+
+# Add validation triggers
+rxu.AddTrigger(["email", "[^@]+@[^@]+\.[^@]+"])
+rxu.AddTrigger(["phone", "\d{3}-\d{3}-\d{4}"])
+rxu.AddTrigger(["zipcode", "\d{5}"])
+
+# Add validation computations
+rxu.AddCode("email", '{
+    if NOT ( contains(@value, ".com") or contains(@value, ".org") )
+        @value = "INVALID {" + @value + "}"
+    ok
+}')
+
+rxu.AddCode("phone", '{
+    if NOT beginswith(@value, "555")
+        @value = "INVALID {" + @value + "}"
+    ok
+}')
+
+# Process contact info
+
+rxu.Process("Contact: john@email.net 123-456-7890 12345")
+? @@NL( rxu.MatchesXT() ) + NL
+#--> [
+#	[
+#		"Contact: john@email.net 123-456-7890 12345",
+#		"INVALID {Contact: john@email.net 123-456-7890 12345}"
+#	],
+#
+#	[
+#		"123-456-7890",
+#		"INVALID {123-456-7890}"
+#	],
+#
+#	[ "12345", "12345" ]
+# ]
+
+proff()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*--- Example 3: Code Analysis Pipeline
+# Shows how state helps track code transformations
+
+pr()
+
+rxu = new stzRegexuter()
+
+# Add code analysis triggers
+rxu.AddTrigger(["function", "func\s+\w+\s*\([^\)]*\)"])
+rxu.AddTrigger(["variable", "var\s+\w+\s*="])
+rxu.AddTrigger(["comment", "#.*$"])
+
+# Add analysis computations
+rxu.AddCode("function", '{
+    @value = "FUNCTION {" + trim(@value) + "}"
+}')
+
+rxu.AddCode("variable", '{
+    @value = "VAR {" + trim(@value) + "}"
+}')
+
+rxu.AddCode("comment", '{
+    @value = "COMMENT {" + trim(@value) + "}"
+}')
+
+# Process code
+
+codeText = "
+func calculate(x, y)
+    # Add two numbers
+    var result = x + y
+    return result
+"
+
+rxu.Process(codeText)
+
+# Use state to analyze code structure
+
+See "Code Analysis:" + NL + NL
+
+for entry in rxu.State()
+
+    ? "Found " + entry[:triggerName] + " at position " + entry[:position] + ":"
+    ? "  Original: " + entry[:matchedValue]
+    ? "  Processed: " + entry[:computedValue]
+
+    if len(entry[:affects]) > 0
+        ? "  Affects: " + @@(entry[:affects])
+    ok
+
+next
+#-->
+# Found function at line 2:
+#    Original: func calculate(x, y)
+#    Processed: FUNCTION:func calculate(x, y)
+# Found variable at line 49:
+#    Original: var result =
+#    Processed: VAR:var result =
+
+proff()
+# Executed in 0.03 second(s) in Ring 1.22
+
+/*===================================

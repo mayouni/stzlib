@@ -39,6 +39,8 @@ func StzStringClassName()
 	func StzStringClass()
 		return StzStringClassName()
 
+#--
+
 func IsNotString(pcStr)
 	return NOT isString(pcStr)
 
@@ -223,16 +225,62 @@ func StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 		StzRaise("Can't proceed! pStrOrList must be a string or list.")
 	ok
 
+	func ContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+
 	func @ContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 		return StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 func StzContains(pStrOrList, pSubStrOrItem)
 	return StzContainsCS(pStrOrList, pSubStrOrItem, _TRUE_)
 
+	func Contains(pStrOrList, pSubStrOrItem)
+		return StzContains(pStrOrList, pSubStrOrItem)
+
 	func @Contains(pStrOrList, pSubStrOrItem)
 		return StzContains(pStrOrList, pSubStrOrItem)
 
+#==
+
+func StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+	return Q(pStrOrList).StartsWithCS(pSubStrOrItem, bCaseSensitive)
+
+	func BeginsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzStartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+
+	func @StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzStartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+
+	func @BeginsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzStartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+
+func StzStartsWith(pStrOrList, pSubStrOrItem) # startsWith() seems to be reserved by Ring StdLib
+	return Q(pStrOrList).StartsWith(pSubStrOrItem)
+
+	func @StartssWith(pStrOrList, pSubStrOrItem)
+		return StzStartsWith(pStrOrList, pSubStrOrItem)
+
+	func BeginsWith(pStrOrList, pSubStrOrItem)
+		return StzStartsWith(pStrOrList, pSubStrOrItem)
+
+	func @BeginsWith(pStrOrList, pSubStrOrItem)
+		return StzStartsWith(pStrOrList, pSubStrOrItem)
+
 #--
+
+func StzEndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+	return Q(pStrOrList).EndsWithCS(pSubStrOrItem, bCaseSensitive)
+
+	func @EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzEndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+
+func StzEndsWith(pStrOrList, pSubStrOrItem) # endsWith() seems to be reserved by Ring StdLib
+	return Q(pStrOrList).EndsWith(pSubStrOrItem)
+
+	func @EndsWith(pStrOrList, pSubStrOrItem)
+		return StzEndsWith(pStrOrList, pSubStrOrItem)
+
+#==
 
 # A Ring-based implementation (#NOTE Internally, stzString uses Qt)
 # This is made as altenartive to show how Softanza enhances Ring
