@@ -373,7 +373,7 @@ proff()
 /*=======================================#
 #  DECLARATIVE DESIGN OF REGEX PATTERNS  #
 #========================================#
-
+*/
 pr()
 
 o1 = new stzRegexMaker()
@@ -396,7 +396,7 @@ o1 {
 	# Get the constructed pattern
 	? Pattern() + NL
 	#--> [A-Z]{2}[- ]?[0-9]{1,3}[^- ]?[A-Z]{2}
-}
+
 	# Get the pattern structure
 
 	? @@NL( o1.FragmentsXT() )
@@ -406,7 +406,7 @@ o1 {
 	# [ "[0-9]{1,3}", [ "between", "0-9", "repeatedbetween", 1, 3 ] ],
 	# [ "[^- ]?", [ "notamong", "- ", "repeatedatmost", 1, "time" ] ],
 	# [ "[A-Z]{2}", [ "between", "A-Z", "repeatedexactly", 2, "times" ] ]
-]
+
 
 }
 
