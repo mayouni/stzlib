@@ -39661,12 +39661,15 @@ class stzString from stzObject
 
 	#< @FunctionPassiveForm
 
-	def ManySubStringsReplaceByManyCS(pacSubStr, pacNewSubStr, pCaseSensitive)
+	def ManySubStringsReplacedByManyCS(pacSubStr, pacNewSubStr, pCaseSensitive)
 		cResult = This.Copy().ReplaceManyByManyCSQ(pacSubStr, pacNewSubStr, pCaseSensitive).Content()
 		return cResult
 
-		def SubStringsReplaceByManyCS(pacSubStr, pacNewSubStr, pCaseSensitive)
-			return This.ManySubStringsReplaceByManyCS(pacSubStr, pacNewSubStr, pCaseSensitive)
+		def SubStringsReplacedByManyCS(pacSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ManySubStringsReplacedByManyCS(pacSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ManyReplacedByManyCS(pacSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ManySubStringsReplacedByManyCS(pacSubStr, pacNewSubStr, pCaseSensitive)
 
 	#>
 
@@ -39696,12 +39699,15 @@ class stzString from stzObject
 
 	#< @FunctionPassiveForm
 
-	def ManySubStringsReplaceByMany(pacSubStr, pacNewSubStr)
+	def ManySubStringsReplacedByMany(pacSubStr, pacNewSubStr)
 		cResult = This.Copy().ReplaceManyByManyQ(pacSubStr, pacNewSubStr).Content()
 		return cResult
 
-		def SubStringsReplaceByMany(pacSubStr, pacNewSubStr)
-			return This.ManySubStringsReplaceByMany(pacSubStr, pacNewSubStr)
+		def SubStringsReplacedByMany(pacSubStr, pacNewSubStr)
+			return This.ManySubStringsReplacedByMany(pacSubStr, pacNewSubStr)
+
+		def ManyReplacedByMany(pacSubStr, pacNewSubStr)
+			return This.ManySubStringsReplacedByMany(pacSubStr, pacNewSubStr)
 
 	#>
 
@@ -39790,12 +39796,15 @@ class stzString from stzObject
 
 	#< @FunctionPassiveForm
 
-	def ManySubStringsReplaceByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
+	def ManySubStringsReplacedByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
 		cResult = This.Copy().ReplaceManyByManyCSXTQ(pacSubStr, pacNewSubStr, pCaseSensitive).Content()
 		return cResult
 
-		def SubStringsReplaceByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
-			return This.ManySubStringsReplaceByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
+		def SubStringsReplacedByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ManySubStringsReplacedByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ManyReplacedByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ManySubStringsReplacedByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
 
 	#>
 
@@ -39825,12 +39834,15 @@ class stzString from stzObject
 
 	#< @FunctionPassiveForm
 
-	def ManySubStringsReplaceByManyXT(pacSubStr, pacNewSubStr)
+	def ManySubStringsReplacedByManyXT(pacSubStr, pacNewSubStr)
 		cResult = This.Copy().ReplaceManyByManyXTQ(pacSubStr, pacNewSubStr).Content()
 		return cResult
 
-		def SubStringsReplaceByManyXT(pacSubStr, pacNewSubStr)
+		def SubStringsReplacedByManyXT(pacSubStr, pacNewSubStr)
 			return This.ManySubStringsReplaceByManyXT(pacSubStr, pacNewSubStr)
+
+		def ManyReplacedByManyXT(pacSubStr, pacNewSubStr)
+			return This.ManySubStringsReplacedByManyXT(pacSubStr, pacNewSubStr)
 
 	#>
 

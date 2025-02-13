@@ -3663,9 +3663,11 @@ func IsListInString(cStr)
 
 #===
 
-func Stringify(str)
-	cResult = StzStringQ(str).Stringifief()
-	return cResult
+func ListStringify(paList)
+	return StzListQ(paList).Stringified()
+
+func Stringify(p)
+	return Q(p).Stringified()
 
 func Spacify(str)
 	cResult = StzStringQ(str).Spacified()
@@ -9807,6 +9809,8 @@ class stzList from stzObject
 		def ItemsReplacedByTheseItemsCS(paItems, paNewItems, pCaseSensitive)
 			return This.ManyItemsReplacedByManyCS(paItems, paNewItems, pCaseSensitive)
 
+		def ManyReplacedByManyCS(paItems, paNewItems, pCaseSensitive)
+			return This.ManySubStringsReplacedByManyCS(paItems, paNewItems, pCaseSensitive)
 
 
 	#-- WITHOUT CASESENSITIVITY
@@ -9881,6 +9885,8 @@ class stzList from stzObject
 		def ItemsReplacedByTheseItems(paItems, paNewItems)
 			return This.ManyItemsReplacedByManyCS(paItems, paNewItems)
 
+		def ManyReplacedByMany(paItems, paNewItems)
+			return This.ManySubStringsReplacedByMany(paItems, paNewItems)
 
 
 	  #--------------------------------------------------#
@@ -10008,6 +10014,8 @@ class stzList from stzObject
 		def ItemsReplacedByTheseItemsCSXT(paItems, paNewItems, pCaseSensitive)
 			return This.ManyItemsReplacedByManyCSXT(paItems, paNewItems, pCaseSensitive)
 
+		def ManyReplacedByManyCSXT(paItems, paNewItems, pCaseSensitive)
+			return This.ManySubStringsReplacedByManyCSXT(paItems, paNewItems, pCaseSensitive)
 
 
 	#-- WITHOUT CASESENSITIVITY
@@ -10082,6 +10090,8 @@ class stzList from stzObject
 		def ItemsReplacedByTheseItemsXT(paItems, paNewItems)
 			return This.ManyItemsReplacedByManyCSXT(paItems, paNewItems)
 
+		def ManyReplacedByManyXT(paItems, paNewItems)
+			return This.ManySubStringsReplacedByManyXT(paItems, paNewItems)
 
 
 	  #----------------------------------------------------------------------------------#
