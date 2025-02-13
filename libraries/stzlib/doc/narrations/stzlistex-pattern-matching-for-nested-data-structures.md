@@ -163,4 +163,4 @@ List Regex optimizes pattern matching through:
 
 ## The Future of Pattern Matching
 
-As pattern matching evolves in languages like Rust and JavaScript, List Regex brings this power to hierarchical data structures with an intuitive, regex-like syntax. Its ability to **dynamically validate nested lists** without verbose conditions makes it a game-changer in structured data processing.
+As pattern matching evolves in todays programming languages, List Regex brings this power to hierarchical data structures with an intuitive, regex-like syntax. Its ability to **dynamically validate nested lists** without verbose conditions makes it a game-changer in structured data processing.
