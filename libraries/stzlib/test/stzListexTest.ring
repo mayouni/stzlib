@@ -258,7 +258,7 @@ proff()
 */
 
 /*--- Mixed quantifiers and types
-*/
+
 pr()
 
 # Multiple quantifiers
