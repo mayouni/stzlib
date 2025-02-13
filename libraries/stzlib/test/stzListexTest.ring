@@ -1,479 +1,494 @@
 load "../max/stzmax.ring"
 
-
-/*===============
-*/
-@N = "-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?"
-# - Matches numbers including negatives, commas for thousands, and decimals
-# - Examples: "123", "-123", "1,234", "123.45"
-
-@S = "\" + char(34) + "([^\" + char(34) + "]*)\" + char(34) + "|'([^']*)'"
-
-# - Matches strings in double or single quotes
-# - Handles escaped characters
-# - Examples: "hello", 'world', "escaped\"quote"
-
-@Item = "(?:" + @N + "|" + @S + ")" # This line wraps the alternation between @N and @S in a non-capturing group using (?: ... ).
-@L = "(?:" + @Item + "(?:\s*,\s*" + @Item + ")*)?"
-# - Matches a list of numbers and/or strings
-# - Items separated by commas with optional whitespace
-
-@OpenBr = "\[\s*("
-@CloseBr = ")\s*\]"
-@Comma = ")\s*,\s*("
-
-@Sstar   = QuantifierPattern(@S, "*", "")  # Any number of strings
-@Splus   = QuantifierPattern(@S, "+", "")  # One or more strings
-@Smark   = QuantifierPattern(@S, "?", "")  # Optional string
-@S1_3    = QuantifierPattern(@S, "1", "3") # 1 to 3 strings
-@S3      = QuantifierPattern(@S, "3", "3") # Exactly 3 strings
-
-@Nstar   = QuantifierPattern(@N, "*", "")  
-@Nplus   = QuantifierPattern(@N, "+", "")  
-@Nmark   = QuantifierPattern(@N, "?", "")  
-@N1_3    = QuantifierPattern(@N, "1", "3")  
-@N3      = QuantifierPattern(@N, "3", "3")  
-
-@Lstar   = QuantifierPattern(@L, "*", "")  
-@Lplus   = QuantifierPattern(@L, "+", "")  
-@Lmark   = QuantifierPattern(@L, "?", "")  
-@L1_3    = QuantifierPattern(@L, "1", "3")  
-@L3      = QuantifierPattern(@L, "3", "3")
-
-/*---
+/*--- Basic list matching
 
 pr()
 
-rx( @OpenBr + @L + @CloseBr ) {
-    ? Match("[]")
-    #--> TRUE
-}
-
-proff()
-# Executed in 0.01 second(s) in Ring 1.22
-
-/*--- Basic List Tests (Two Numbers)
-www
-pr()
-
-rx( @OpenBr + @N + @Comma + @N + @CloseBr ) {
-	? Match("[ 124, 34.12 ]")      #--> TRUE - Basic numbers
-	? Match("[-5, 1000.42]")       #--> TRUE - Negative and decimal
-	? Match("[1 234, 5_678.90]")   #--> TRUE - Thousands separator
-}
-
-proff()
-# Executed in 0.01 second(s) in Ring 1.22
-
-/*--- List of Two Strings
-
-pr()
-
-rx( @OpenBr + @S + @Comma + @S + @CloseBr ) {
-	? Match('[ "hello", "world" ]')	#--> TRUE - Basic strings
-}
-
-proff()
-# Executed in 0.01 second(s) in Ring 1.22
-
-/*--- Mixed List (String & Number)
-
-pr()
-
-rx( @OpenBr + @S + @Comma + @N + @CloseBr ) {
-	? Match('[ "age", 32 ]')	#--> TRUE - Basic mix
-	? Match('["temp", -273.15]')	#--> TRUE - Negative decimal
-	? Match('[ "price", 1234.56 ]')	#--> TRUE - With thousands
-}
-
-proff()
-# Executed in 0.01 second(s) in Ring 1.22
-
-/*--- General List (@L)
-
-pr()
-
-rx( @OpenBr + @L + @CloseBr ) {
-	? Match('[]')				#--> TRUE - Empty list
-	? Match('[ 1, "hello", "world" ]')	#--> TRUE - Mixed types
-	? Match('[ "a", 2, "b", 3 ]')		#--> TRUE - Alternating
-	? Match('[ 1, "hello", [ 2, 3 ] ]')	#--> TRUE - Nested list
-}
-
-proff()
-# Executed in 0.01 second(s) in Ring 1.22
-
-/*--- List of Strings with Star (@Sstar): @S* Zero ore More
-
-pr()
-
-rx( @OpenBr + @Sstar + @CloseBr ) {
-	? Match("[]")				#--> TRUE - Empty list
-	? Match('[ "hello" ]')			#--> TRUE - Single item
-	? Match('[ "hello", "world" ]')		#--> TRUE - Two items
-	? Match('[ "a", "b", "c", "d" ]')	#--> TRUE - Multiple items
-}
-
-proff()
-# Executed in 0.02 second(s) in Ring 1.22
-
-/*--- List of Strings with Plus (@Splus) : S+ One or More
-
-pr()
-
-rx( @OpenBr + @Splus + @CloseBr ) {
-	? Match("[]")			#--> FALSE - Empty not allowed
-
-	? Match('[ "hello" ]')		#--> TRUE - Single required
-	? Match('[ "a", "b", "c" ]')	#--> TRUE - Multiple OK
-}
-
-proff()
-# Executed in 0.01 second(s) in Ring 1.22
-
-/*--- List of 1-3 Strings (@S1_3)
-
-pr()
-
-rx( @OpenBr + @S1_3 + @CloseBr ) {
-	? Match("[]")				#--> FALSE - Empty not allowed
-
-	? Match('["one"]')			#--> TRUE - Minimum
-	? Match('["one", "two"]')		#--> TRUE - Middle
-	? Match('["one", "two", "three"]')	#--> TRUE - Maximum
-
-	? Match('["a", "b", "c", "d"]')		#--> FALSE - Too many
-}
-
-proff()
-# Executed in 0.01 second(s) in Ring 1.22
-
-/*--- List of Exactly 3 Strings (@S3)
-
-pr()
-
-rx( @OpenBr + @S3 + @CloseBr ) {
-	? Match('["one", "two"]')		#--> FALSE - Too few
-	? Match('["one", "two", "three"]')	#--> TRUE - Exact match
-
-	? Match('["a", "b", "c", "d"]')		#--> FALSE - Too many
-}
-
-proff()
-# Executed in 0.01 second(s) in Ring 1.22
-
-/*--- List with Optional Number (@Nmark)
-
-pr()
-
-rx( @OpenBr + @Nmark + @CloseBr ) {
-	? Match("[]")		#--> TRUE - Empty is valid
-	? Match("[42]")		#--> TRUE - Single number
-
-	? Match("[42, 43]")	#--> FALSE - Multiple not allowed
-}
-
-proff()
-# Executed in 0.01 second(s) in Ring 1.22
-
-/*--- List with Optional String (@Smark)
-
-pr()
-
-rx( @OpenBr + @Smark + @CloseBr ) {
-	? Match("[]")		#--> TRUE - Empty is valid
-	? Match('["hello"]')	#--> TRUE - Single string
-
-	? Match('["a", "b"]')	#--> FALSE - Multiple not allowed
-}
-
-proff()
-# Executed in 0.02 second(s) in Ring 1.22
-
-/*--- List with Optional Mixed Item (@Lmark)
-www
-*/
-pr()
-
-str = '[ @N, @L* ]'
-
-rx( @OpenBr + @N + @Comma + @Lmark + @CloseBr ) {
-	? Match("[ 1, ]")	#--> TRUE - Empty is valid
-	? Match("[4, [] ]")	#--> TRUE - Single number
-	? Match('[7, [1] ]')	#--> TRUE - Single string
-
-	? Match("[42, 43]")	#--> FALSE - Multiple not allowed
-}
-
-proff()
-# Executed in 0.02 second(s) in Ring 1.22
-
-/*--- Testing @N + @Comma + @Lmark Pattern (Number followed by optional list)
-www
-
-pr()
-
-rx( @OpenBr + @N + @Comma + @Lmark + @CloseBr ) {
-
-	? Match("[1,]")			#--> TRUE - Number with no list
-	? Match("[1, []]")		#--> TRUE - Number with empty list
-	? Match('[1, ["a", "b"]]')	#--> TRUE - Number with string list
-	? Match("[1, [42, 43]]")	#--> TRUE - Number with number list
-	? Match('[1, ["a", 42, "b"]]')	#--> TRUE - Number with mixed list
-
-	? Match('["hi"]')		#--> FALSE - Starts with string, not number
-	? Match("[1, [2], [3]]")	#--> FALSE - Has two lists after number
-	? Match("[1, 2]")		#--> FALSE - Second item not a list
-	? Match("[1, [2], 3]")		#--> FALSE - List followed by non-list
-}
-
-proff()
-# Executed in 0.04 second(s) in Ring 1.22
-
-/*--- Testing @S + @Comma + @Lmark Pattern (String followed by optional list)
-www
-pr()
-
-rx( @OpenBr + @S + @Comma + @Lmark + @CloseBr ) {
-	? Match('["name", ]')		#--> TRUE - String with no list
-	? Match('["name", []]')		#--> TRUE - String with empty list
-	? Match('["name", [1, 2, 3]]')	#--> TRUE - String with number list
-	? Match('["name", ["a", "b"]]')	#--> TRUE - String with string list
-
-	? Match('[42]')			#--> FALSE - Starts with number, not string
-	? Match('["name", [1], [2]]')	#--> FALSE - Has two lists after string
-	? Match('["name", "value"]')	#--> FALSE - Second item not a list
-}
-
-proff()
-# Executed in 0.04 second(s) in Ring 1.22
-
-/*--- Testing standalone @Lmark Pattern (Optional list by itself)
-
-pr()
-
-rx( @OpenBr + @Lmark + @CloseBr ) {
-	? Match("[]")		#--> TRUE - Empty outer list
-	? Match("[[]]")		#--> TRUE - Contains empty list
-	? Match("[[1, 2, 3]]")	#--> TRUE - Contains number list
-	? Match('[["a", "b"]]')	#--> TRUE - Contains string list
-
-	? Match("[[1], [2]]")	#--> FALSE - Contains multiple lists
-	? Match("[1]")		#--> FALSE - Contains number instead of list
-	? Match('["a"]')	#--> FALSE - Contains string instead of list
-}
-
-proff()
-# Executed in 0.03 second(s) in Ring 1.22
-
-/*---
-*/
-
-func QuantifierPattern(base, min, max)
-
-	# Special handling for list patterns
-
-	if base = @L
-		if min = "?"
-			# For @Lmark, we want to match an optional nested list
-			# The pattern should match either nothing or a complete
-			# list in brackets
-
-            		return "(?:\[\s*(?:" + @L + ")\s*\])?"
-		ok
-	ok
-
-	# Regular handling for non-list patterns
-
-	wrapped = "(?:" + base + ")"
-    
-	if min = "*"
-		return "(?:" + wrapped + "(?:\s*,\s*" + wrapped + ")*)?"
-
-	but min = "+"
-		return wrapped + "(?:\s*,\s*" + wrapped + ")*"
-
-	but min = "?"
-		return wrapped + "?"
-	ok
-
-	if NOT IsNumberInString(min)
-		StzRaise("Can't proceed! Insupported syntax in 'min' varaible.")
-	ok
-
-	if max = ""  # min is a number
-		min_count = @number(min)
-		if min_count = 1
-			return wrapped
-		else
-			return wrapped + "(?:\s*,\s*" + wrapped + "){" + (min_count - 1) + "}"
-		ok
-	ok
-
-	min_count = @number(min)
-	max_count = @number(max)
-
-	return wrapped + "(?:\s*,\s*" + wrapped + "){" + (min_count - 1) + "," + (max_count - 1) + "}"
-
-
-
-/*---
-
-rx('\[ \d+(?:\.\d+)?, \d+(?:\.\d+)?, "[^"]*" \]') {
-	? Match('[ 1, 2, "hello" ]')
-}
+? Lx("[@N]").Match([42])
 #--> TRUE
 
-/*---
+? Lx("[@S]").Match(["hello"])
+#--> TRUE
 
-pr()
+? Lx("[@L]").Match([[1,2,3]]) + NL
+#--> TRUE
 
-rx('^\s*\[\s*[\d+\s*,\s* "[^"]*"+]\s*\]\s*$') {
-	? Match('[ 10, "hi" ]')
-}
+? Lx("[@N]").Match([42])
+#--> TRUE
 
-proff()
+? Lx("[@S]").Match(["hello"])
+#--> TRUE
 
-/*---
-
-pr()
-
-# Match [number, string+] (number followed by one or more strings)
-lx = new stzListex("[@N, @S+ ]")
-? lx.regexpattern()
-#--> ^\[\s*\d{1\s*,\s*}({0\s*,\s*1}:\.\d{1\s*,\s*}){0\s*,\s*1}\s*,\s* "\[\s*^"\s*\]{0\s*,\s*}"{1\s*,\s*}\s*\]$
-
-? lx.match([42, "hello", "world"])     # true
-? lx.match([42, "hello"])              # true  
-? lx.match([42])                       # false - needs strings
-? lx.match(["hello", 42])              # false - wrong order
-
-# Match nested lists
-lx = new stzListex("[@L, @N]") 
-? lx.match([[1,2], 3])                 # true
+? Lx("[@A]").Match([[1,2,3]])
+#--> TRUE
 
 proff()
+# Executed in 0.14 second(s) in Ring 1.22
 
-/*---
+/*--- Matching lists with multiple elements
 
 pr()
 
-# Create patterns to match different list structures
+? Lx("[@N, @S, @L]").Match([42, "hello", [1,2,3]])
+#--> TRUE
 
-Lx = new stzListex('[ @N, @N, @S, "World", 3 ]') # Lx for Listex
+? Lx("[@N, @N, @N]").Match([1, 2, 3])
+#--> TRUE
+
+proff()
+# Executed in 0.10 second(s) in Ring 1.22
+
+/*--- Using Quantifiers in the list match
+
+pr()
+
+# Optional element
+
+? Lx("[@N, @S?]").Match([42])
+#--> TRUE
+
+# Optional present
+
+? Lx("[@N, @S?]").Match([42, "hello"])
+#--> TRUE
+
+# One or more
+
+? Lx("[@N+]").Match([1, 2, 3, 4])
+#--> TRUE
+
+# Zero or more empty
+
+? Lx("[@N*]").Match([])
+#--> TRUE
+
+# Number quantifier
+
+? Lx("[@N3]").Match([1, 2, 3])
+#--> TRUE
+
+# Range quantifier
+
+? Lx("[@N1-3]").Match([1])
+#--> TRUE
+
+? Lx("[@N1-3]").Match([1, 2])
+#--> TRUE
+
+proff()
+# Executed in 0.23 second(s) in Ring 1.22
+
+/*--- Complex types
+
+pr()
+
+# Nested lists
+
+? Lx("[@L]").Macth([ [1, [2, 3], 4] ])
+#--> TRUE
+
+# Mixed quotes
+
+? Lx("[@S, @S]").Match([ "double", 'single' ])
+#--> TRUE
+
+proff()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*--- Invalid cases (don't matching)
+
+pr()
+
+# Wrong type
+
+? Lx("[@N]").Match(["string"])
+#--> FALSE
+
+# Too few elements
+
+? Lx("[@N, @N]").Match([1])
+#--> FALSE
+
+# Too many elements
+
+? Lx("[@N]").Match([1, 2])
+#--> FALSE
+
+# Invalid range
+
+? Lx("[@N2-4]").Match([1])
+#--> FALSE
+
+proff()
+# Executed in 0.12 second(s) in Ring 1.22
+
+/*--- Edge cases
+
+pr()
+
+# Empty pattern
+
+? Lx("[]").Match([])
+#--> TRUE
+
+# Any type
+
+? Lx("[@A]").Match([42])
+#--> TRUE
+
+# Any type string
+
+? Lx("[@A]").Match(["hello"])
+#--> TRUE
+
+# Any type list
+
+? Lx("[@A]").Match( [[1,2,3]] )
+#--> TRUE
+
+# Deep nesting
+
+? Lx("[@L]").Match( [[[[[1]]]]] )
+#--> TRUE
+
+proff()
+# Executed in 0.12 second(s) in Ring 1.22
+
+/*===
+
+pr()
+
+Lx = new stzListex('[ @N, @S+, @N ]')
 Lx {
+	? Match([ 5 , "str", 3 ])
+	#--> TRUE
 
-	? Match([1, 2, "hello", "World", 3 ])
-	#ERROR returned FALSE but should return TRUE
+	? Match([ 5 , "str1", "str2", "str3", 3 ])
+	#--> TRUE
 
-	? Match([1, "hello", 2])
+	? Match([ 5, "", 3 ])
+	#--> TRUE
+
+	? Macth([ 5, 2, 3 ])
 	#--> FALSE
-
-? Pattern()
-#--> [ @N, @N, @S, "World", 3 ]
-
-? RegexPattern()
-#--> ^[ ({0\s*,\s*1}:\s{0\s*,\s*}\d{1\s*,\s*}({0\s*,\s*1}:\.\d{1\s*,\s*}){0\s*,\s*1}\s{0\s*,\s*})\s*,\s* ({0\s*,\s*1}:\s{0\s*,\s*}\d{1\s*,\s*}({0\s*,\s*1}:\.\d{1\s*,\s*}){0\s*,\s*1}\s{0\s*,\s*})\s*,\s* ({0\s*,\s*1}:\s{0\s*,\s*}"[^"]{0\s*,\s*}"\s{0\s*,\s*})\s*,\s* "World"\s*,\s* 3 ]$
-
 }
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.22
 
 /*---
 
 pr()
 
-Lx = new stzListex("[ @N+, @S? ]")  # Match one or more numbers followed by an optional string
+Lx = new stzListex('[ @N, @S+, @N ]')
+Lx {
+	? Match([ 5 , "str", 3 ])
+	#--> TRUE
 
-? Lx.match([1, 2, 3, "hello"])
-#ERROR returned FALSE but should return TRUE
+	# Chek the internal tokens structure produced
+	# by the parsing process undertaken to transform
+	# the list pattern into actionable data ready for match
 
-? Lx.match([1, 2, 3])
-#--> #ERROR returned FALSE but should be TRUE (string is optional)
-
-? Lx.match(["hello"])
-#--> FALSE (needs at least one number)
-
-? Lx.Pattern()
-#--> [ @N+, @S? ]
-
-? Lx.RegexPattern()
-#--> ^[ ({0\s*,\s*1}:\s{0\s*,\s*}\d{1\s*,\s*}({0\s*,\s*1}:\.\d{1\s*,\s*}){0\s*,\s*1}\s{0\s*,\s*}){1\s*,\s*}\s*,\s* ({0\s*,\s*1}:\s{0\s*,\s*}"[^"]{0\s*,\s*}"\s{0\s*,\s*}){0\s*,\s*1} ]$
+	? @@NL( Tokens() ) + NL
+	#--> [
+	# 	[
+	# 		[ "type", "number" ],
+	# 		[ "pattern", "(?:-?\d+(?:\.\d+)?)" ],
+	# 		[ "min", 1 ], [ "max", 1 ]
+	# 	],
+	# 	[
+	# 		[ "type", "string" ],
+	# 		[ "pattern", '(?:"[^"]*"|\'[^\']*\')' ],
+	# 		[ "min", 1 ], [ "max", 999999999999999 ]
+	# 	],
+	# 	[
+	# 		[ "type", "number" ],
+	# 		[ "pattern", "(?:-?\d+(?:\.\d+)?)" ],
+	# 		[ "min", 1 ], [ "max", 1 ]
+	# 	]
+	# ]
+}
 
 proff()
+# Executed in 0.08 second(s) in Ring
 
-/*=== repeating patterns
+/*--- Range pattern
 
 pr()
 
-Lx = new stzListex("[ @NR2-4, @S? ]")
-? Lx.match([1, 2])     #--> #ERROR returned FALSE but should be TRUE
-? Lx.match([1, 2, 3])  #--> #ERROR returned FALSE but should be TRUE
-? Lx.match([1])        #--> FALSE
-
-? Lx.Pattern()
-#--> [ @NR2-4, @S? ]
-
-? Lx.RegexPattern()
-#--> ^[ ({0\s*,\s*1}:\s{0\s*,\s*}\d{1\s*,\s*}({0\s*,\s*1}:\.\d{1\s*,\s*}){0\s*,\s*1}\s{0\s*,\s*})R2-4\s*,\s* ({0\s*,\s*1}:\s{0\s*,\s*}"[^"]{0\s*,\s*}"\s{0\s*,\s*}){0\s*,\s*1} ]$
+Lx = new stzListex('[@N1-3]')
+Lx {
+	? Match([1])          #--> TRUE	
+	? Match([1,2])        #--> TRUE
+	? Match([1,2,3])      #--> TRUE
+	? Match([1,2,3,4])    #--> FALSE
+}
 
 proff()
+# Executed in 0.10 second(s) in Ring 1.22
 
-/*---
+/*--- Basic types
 
 pr()
 
-Lx = new stzListex("[ @N+, @S2-3 ]")
-
-? Lx.match([["hello"]])              #--> FALSE  # Too few
-? Lx.match([5, "hello", "world"])    #ERROR: returned FALSE but should return TRUE   # Correct
-? Lx.match(["a", "b", "c", "d"])     #--> FALSE  # Too many
-
-? Lx.Pattern()
-#--> [ @N+, @S2-3 ]
-
-? Lx.RegexPattern()
-#--> ^[ ({0\s*,\s*1}:\s{0\s*,\s*}\d{1\s*,\s*}({0\s*,\s*1}:\.\d{1\s*,\s*}){0\s*,\s*1}\s{0\s*,\s*}){1\s*,\s*}\s*,\s* ({0\s*,\s*1}:\s{0\s*,\s*}"[^"]{0\s*,\s*}"\s{0\s*,\s*})2-3 ]$
+Lx = new stzListex('[@N, @S, @L]')
+Lx {
+	? Match([5, "hello", [1,2,3]])  #--> TRUE
+	? Match([5, [1,2], "hello"])    #--> FALSE
+}
 
 proff()
+# Executed in 0.08 second(s) in Ring 1.22
 
-/*---
+/*--- Quantifiers
 
 pr()
 
-Lx = new stzListex("[ @N+, @S?, @ANY2-3 ]")
+Lx = new stzListex('[@N+, @S]')
+Lx {
+	? Match([1,2,3, "hello"])       #--> TRUE
+	? Match([1, "hello"])           #--> TRUE
+	? Match(["hello"])              #--> FALSE
+}
 
-? Lx.match([42, "hello", [1, 2, 3] ])      #ERROR returnded FALSE but should return TRUE
-? Lx.match([true, 42, null])   		#--> FALSE
-? Lx.match([42, "str", 1])               #ERROR returned FALSE but should return TRUE
+proff()
+# Executed in 0.10 second(s) in Ring 1.22
 
-? Lx.Pattern()
-#--> [ @N+, @S?, @ANY2-3 ]
+#===
+*/
 
-? Lx.RegexPattern()
-#--> ^[ ({0\s*,\s*1}:\s{0\s*,\s*}\d{1\s*,\s*}({0\s*,\s*1}:\.\d{1\s*,\s*}){0\s*,\s*1}\s{0\s*,\s*}){1\s*,\s*}\s*,\s* ({0\s*,\s*1}:\s{0\s*,\s*}"[^"]{0\s*,\s*}"\s{0\s*,\s*}){0\s*,\s*1}\s*,\s* ({0\s*,\s*1}:({0\s*,\s*1}:\s{0\s*,\s*}\d{1\s*,\s*}({0\s*,\s*1}:\.\d{1\s*,\s*}){0\s*,\s*1}\s{0\s*,\s*})|({0\s*,\s*1}:\s{0\s*,\s*}"[^"]{0\s*,\s*}"\s{0\s*,\s*})|({0\s*,\s*1}:\s{0\s*,\s*}\[({0\s*,\s*1}:[^\[\]]{0\s*,\s*}|\[({0\s*,\s*1}:[^\[\]]{0\s*,\s*}|({0\s*,\s*1}R)){0\s*,\s*}\]){0\s*,\s*}\]\s{0\s*,\s*})|({0\s*,\s*1}:\s{0\s*,\s*}({0\s*,\s*1}i)({0\s*,\s*1}:true|false)\s{0\s*,\s*})|({0\s*,\s*1}:\s{0\s*,\s*}({0\s*,\s*1}i)({0\s*,\s*1}:null)\s{0\s*,\s*}))2-3 ]$
+/*--- Mixed quantifiers and types
+*/
+pr()
+
+# Multiple quantifiers
+
+? Lx('[ @N+, @S*, @L? ]').Match([ 1, 2, "a", "b" ])
+#--> TRUE
+
+# Nested alternating types
+
+? Lx('[ @L ]').Match([ [ 1, "hello", [ 2, "world", [3] ] ] ])
+#--> TRUE
+
+# Maximum depth test
+
+? Lx('[ @L ]').Match([ [[[[[[[[["too deep"]]]]]]]]] ])
+#--> FALSE
+
+proff()
+# Executed in 0.12 second(s) in Ring 1.22
+
+/*--- Edge cases with empty elements
+
+pr()
+
+# Empty strings
+
+? Lx('[ @S+ ]').Match([ "", "", "" ])
+#--> TRUE
+
+# Empty lists
+
+? Lx('[ @L+ ]').Match([ [], [], [] ])
+#--> TRUE
+
+# Zero in numbers
+
+? Lx("[ @N+ ]").Match([ 0, 0.0, -0 ])
+#--> TRUE
+
+proff()
+# Executed in 0.12 second(s) in Ring 1.22
+
+/*--- Complex number formats
+
+pr()
+
+# Decimal numbers
+
+? Lx('[@N+]').Match([1.23, -45.67, 0.89, -0.12])
+#--> TRUE
+
+# Large numbers
+
+? Lx("[@N]").Match([ 999999999999 ])
+#--> TRUE
+
+proff()
+# Executed in 0.10 second(s) in Ring 1.22
+
+/*--- String variations
+
+pr()
+
+# Unicode strings
+? Lx("[ @S ]").Match(["こんにちは"])
+#--> TRUE
+
+# Escaped quotes
+? Lx('[ @S ]').Match([ 'He said "hello"' ])
+#--> TRUE
+
+# Mixed quote types
+
+? Lx("[ @S ]").Match([ "outer'inner'quotes" ])
+#--> TRUE
+
+proff()
+# Executed in 0.10 second(s) in Ring 1.22
+
+/*--- Complex combinations
+
+pr()
+
+# Alternating patterns
+
+? Lx('[ @N, @S, @N, @S ]').Match([ 1, "one", 2, "two" ])
+#--> TRUE
+
+# Mixed quantifiers
+
+? Lx('[ @N+, @S*, @L1-3 ]').Match([ 1, 2, "a", [1], [2] ])
+#--> TRUE
+
+? Lx('[ @N+, @S*, @L0-3 ]').Match([ 1, 2 ])
+#--> TRUE
+
+# Nested with quantifiers
+
+? Lx('[ @L+ ]').Match([ [ 1, 2 ], [ "a","b" ], [ [ 1, 2, 3 ] ] ])
+#--> TRUE
+
+proff()
+# Executed in 0.19 second(s) in Ring 1.22
+
+/*--- Invalid patterns
+
+pr()
+
+# Invalid range order
+
+? Lx('[ @N3-1 ]').Match([1])
+#--> ERROR: Invalid range in quantifier: 3-1 
+
+# Invalid quantifier
+
+? Lx('[ @N^ ]').Match([1])
+#--> ERROR: Invalid quantifier: ^ 
+
+# Unclosed bracket
+
+? Lx('[@N, @S').Match([ 1, "a" ])
+#--> ERROR: Unmatched brackets in pattern
 
 proff()
 
-/*---
+/*--- Real-world use cases
 
+pr()
 
-// Exact match of 3 numbers
-Lx = new stzListex("[ @NR3 ]")
-? Lx.Match([1, 2, 3])  // TRUE
-? Lx.Match([1, 2])     // FALSE
+# JSON-like structure
 
+? Lx('[ @L ]').Match([[
+    "name", "John",
+    "age", 30,
+    "address", ["city", "NY", "zip", 10001]
+]])
+#--> TRUE
 
-// One or more numbers, optional string
-Lx = new stzListex("[ @N+, @S? ]")
-? Lx.Match([1, 2, 3])        // TRUE
-? Lx.Match([1, 2, "hello"])  // TRUE
+# CSV-like rows
 
-// 2-4 strings
-Lx = new stzListex("[ @SR2-4 ]")
-? Lx.Match(["a", "b"])           // TRUE
-? Lx.Match(["a", "b", "c"])      // TRUE
-? Lx.Match(["a", "b", "c", "d"]) // TRUE
-? Lx.Match(["a"])                // FALSE
-? Lx.Match(["a", "b", "c", "d", "e"]) // FALSE
+? Lx('[ @S, @N, @N, @S+ ]').Match([
+    "Product", 100, 29.99, "In Stock", "Featured"
+])
+#--> TRUE
+
+# Matrix-like structure
+
+? Lx('[@L+]').Match([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+])
+#--> TRUE
+
+proff()
+# Executed in 0.12 second(s) in Ring 1.22
+
+/*==== @A in data validation
+
+# @A metachar enables flexible data structures:
+# configuration parsing, mixed-type records, optional fields,
+# dynamic columns, and nested structures.
+
+/*--- Flexible config entries
+
+pr()
+
+Lx("[@S, @A]") {
+
+	? Match([ "port", 8080 ])
+	#--> TRUE
+
+	? Match([ "host", "localhost" ])
+	#--> TRUE
+
+	? Match([ "debug", [ true, "verbose" ] ])
+	#--> TRUE
+}
+
+proff()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*--- Mixed data records
+
+pr()
+
+? Lx("[@S, @A+]").Match([ "user", "john", 25, ["admin", "user"] ])
+#--> TRUE
+
+proff()
+# Executed in 0.08 second(s) in Ring 1.22
+
+/*--- Optional heterogeneous data
+
+pr()
+
+? Lx("[@N, @A?]").Match([100])
+#--> TRUE
+
+? Lx("[@N, @A?]").Match([100, "pending"])
+#--> TRUE
+
+? Lx("[@N, @A?]").Match([100, [1,2,3]])
+#--> TRUE
+
+proff()
+# Executed in 0.12 second(s) in Ring 1.22
+
+/*--- Dynamic columns
+
+pr()
+
+? Lx("[@S, @N, @A*]").Match(["Product", 100])
+#--> TRUE
+
+? Lx("[@S, @N, @A*]").Match(["Product", 100, "red", 50, ["S", "M", "L"]])
+#--> TRUE
+
+proff()
+# Executed in 0.11 second(s) in Ring 1.22
+
+/*--- Nested structures
+
+pr()
+
+? Lx("[@A, @L]").Match([42, [1,2,3]])
+#--> TRUE
+
+? Lx("[@A, @L]").Match(["key", ["a","b"]])
+#--> TRUE
+
+proff()
+# Executed in 0.10 second(s) in Ring 1.22

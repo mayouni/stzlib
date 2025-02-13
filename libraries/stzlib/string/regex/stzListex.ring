@@ -1,145 +1,316 @@
-# stzListex.ring
-# A class that applies regex patterns to lists, allowing for
-# powerful list structure matching
+# Softanza List Regex Engine
+# Version 1.0.0
 
-# ListEx - List Pattern Matching
-# Example: [@N, @S+] matches [42, "hello", "world"]
+func StzListRegexQ(cPattern)
+	return new stzListRegex(cPattern)
 
-# stzListex.ring
-# A class that applies regex patterns to lists, allowing for
-# powerful list structure matching
+	func StzListexQ(cPattern)
+		return StzListRegexQ(cPattern)
 
-#----------- IMPLEMENTED BY QWENT AI
+	func Lx(cPattern)
+		return StzListRegexQ(cPattern)
 
-class stzListPattern from stzListex
+class stzListex from stzListRegex
+class stzListRegex
 
-class stzListEx
-    # Core regex patterns for different types
-    NUMBER_PATTERN = "(?:-?\d+(?:\.\d+)?)"
-    STRING_PATTERN = '\"(?:[^\"\\]|\\.)*\"'
-    LIST_PATTERN = "\[(?:[^\[\]]|\[(?:[^\[\]]|(?R))*\])*\]"
-    BOOLEAN_PATTERN = "(?i)(?:true|false)"
-    NULL_PATTERN = "(?i)null"
-    ANY_PATTERN = "(?:" + NUMBER_PATTERN + "|" + STRING_PATTERN + "|" + 
-                  LIST_PATTERN + "|" + BOOLEAN_PATTERN + "|" + NULL_PATTERN + ")"
+	@cDomainPattern    # The original DSL pattern
+	@aTokens           # List of token definitions
 
-    oRegex
-    oPattern
+	# Main types patterns
 
-    def init(cPattern)
-        oPattern = cPattern
-        cRegexPattern = _transformPatternToRegex(cPattern)
-        oRegex = new stzRegex(cRegexPattern)
-    def _transformPatternToRegex(cPattern)
-        # Ensure pattern is wrapped in list brackets
-        if NOT (left(cPattern, 1) = "[" and right(cPattern, 1) = "]")
-            cPattern = "[" + cPattern + "]"
-        ok
+	@cNumberPattern = '(?:-?\d+(?:\.\d+)?)'
+	@cStringPattern = "(?:" + char(34) + "[^" + char(34) + "]*" + char(34) + "|\'[^\']*\')"
 
-        # Process pattern transformations in order
-        cPattern = _handleRangeRepetitions(cPattern)
-        cPattern = _handleFixedRepetitions(cPattern)
-        cPattern = _handleQuantifiers(cPattern)
-        cPattern = _replaceBasePatterns(cPattern)
-        cPattern = _normalizeSpacing(cPattern)
+	@cSimpleListPattern = '\[\s*[^\[\]]*\s*\]'
+	@cRecursiveListPattern = '\[\s*(?:[^\[\]]|\[(?:[^\[\]]|(?R))*\])*\s*\]'
+	@cListPattern = @cSimpleListPattern  # Default to simple pattern
+
+	@cAnyPattern = @cNumberPattern + "|" + @cStringPattern + "|" + @cListPattern
+    
+    
+	def init(cPattern)
+
+		if NOT isString(cPattern)
+			raise("Error: Pattern must be a string")
+        	ok
+
+		@cDomainPattern = @Trim(cPattern)
+
+		if NOT (StartsWith(@cDomainPattern, "[") and EndsWith(@cDomainPattern, "]"))
+			@cDomainPattern = "[" + @cDomainPattern + "]"
+		ok
+
+		@aTokens = This.ParsePattern(@cDomainPattern)
+
+	  #----------------------------#
+	 #  PARSING THE LIST PATTERN  #
+	#----------------------------#
+
+	def ParsePattern(cPattern)
+
+		# Remove outer brackets and trim
+
+		oPattern = new stzString(cPattern)
+		oPattern.TrimQ().RemoveTheseBoundsQ("[", "]").Trim()
+		cInner = oPattern.Content()
         
-        return "^" + cPattern + "$"
+		# Tokenization with error handling
 
-    def _handleRangeRepetitions(cPattern)
-        # Handle @XRm-n patterns
-        while true
-            oMatcher = new stzRegex("@([NSLBU$])R(\d+)-(\d+)")
-            if NOT oMatcher.Match(cPattern)
-                exit
-            ok
+		aTokens = []
+		nStart = 1
+		nLen = oPattern.NumberOfChars()
+		nDepth = 0
+		cCurrentToken = ""
 
-            aMatches = oMatcher.CapturedGroups()
-            cType = aMatches[1]
-            nMin = number(aMatches[2])
-            nMax = number(aMatches[3])
+		for i = 1 to nLen
+			cChar = oPattern.Char(i)
             
-            cReplacement = "(?:@" + cType + "(?:,\s*@" + cType + "){" + 
-                          (nMin-1) + "," + (nMax-1) + "})"
-            
-            cPattern = oMatcher.SubStr(cPattern, cReplacement, 1)
-        end
-        return cPattern
+			switch cChar
+			case "["
+				nDepth++
+				cCurrentToken += cChar
+   
+			case "]"
+				nDepth--
+				cCurrentToken += cChar
+				if nDepth < 0
+					raise("Error: Unmatched brackets in pattern")
+				ok
+                    
+			case ","
+				if nDepth = 0
+					if len(cCurrentToken) > 0
+						aTokens + This.ParseToken(@Trim(cCurrentToken))
+						cCurrentToken = ""
+					ok
+				else
+					cCurrentToken += cChar
+				ok
+                    
+			other
+				cCurrentToken += cChar
+			off
+		next
+        
+		# Add final token
 
-    def _handleFixedRepetitions(cPattern)
-        # Handle @XRn patterns
-        while true
-            oMatcher = new stzRegex("@([NSLBU$])R(\d+)")
-            if NOT oMatcher.Match(cPattern)
-                exit
-            ok
+		if len(cCurrentToken) > 0
+			aTokens + This.ParseToken(@Trim(cCurrentToken))
+		ok
 
-            aMatches = oMatcher.CapturedGroups()
-            cType = aMatches[1]
-            nCount = number(aMatches[2])
-            
-            cReplacement = "(?:@" + cType + "(?:,\s*@" + cType + "){" + 
-                          (nCount-1) + "})"
-            
-            cPattern = oMatcher.SubStr(cPattern, cReplacement, 1)
-        end
-        return cPattern
+		if nDepth != 0
+			raise("Error: Unmatched brackets in pattern")
+		ok
+   
+		return aTokens
 
-def _handleQuantifiers(cPattern)
-        aQuantifiers = [
-            ["@([NSLBU$])\+", "{1,}"],
-            ["@([NSLBU$])\*", "{0,}"],
-            ["@([NSLBU$])\?", "{0,1}"]
-        ]
+	  #---------------------------------------#
+	 #  PARSING A TOKEN IN THE LIST PATTERN  #
+	#---------------------------------------#
 
-        for aQuant in aQuantifiers
-            while true
-                oMatcher = new stzRegex(aQuant[1])
-                if NOT oMatcher.Match(cPattern)
-                    exit
-                ok
+	def ParseToken(cTokenStr)
+		aToken = []
+		oTokenStr = new stzString(cTokenStr)
+	
+		if StartsWith(cTokenStr, "@")
+			cKeyword = oTokenStr.Section(1, 2)
+	
+			switch cKeyword
+			case "@N"
+				aToken + [ "type", "number" ]
+				aToken + [ "pattern", @cNumberPattern ]
+				nPrefixLen = 2
+	
+			case "@S"
+				aToken + [ "type", "string" ]
+				aToken + [ "pattern", @cStringPattern ]
+				nPrefixLen = 2
+	
+			case "@L"
+				aToken + [ "type", "list" ]
+				aToken + [ "pattern", @cListPattern ]
+				nPrefixLen = 2
+	
+			case "@A"
+				aToken + [ "type", "any" ]
+				aToken + [ "pattern", @cAnyPattern ]
+				nPrefixLen = 2
+	                    
+			other
+				raise("Error: Unknown token type: " + cTokenStr)
+			off
+	           
+			nLenToken = oTokenStr.NumberOfChars()
+			if nLenToken = 2
+				aToken + [ "min", 1 ]
+				aToken + [ "max", 1 ]
+			else
+				cModifier = oTokenStr.Right(nLenToken - 2)
 
-                aGroups = oMatcher.CapturedGroups()
-                if len(aGroups) = 0
-                    exit
-                ok
+				switch cModifier
+				case "+"
+					aToken + [ "min", 1 ]
+					aToken + [ "max", RingMaxNumber() ]
+	                        
+				case "*"
+					aToken + [ "min", 0 ]
+					aToken + [ "max", RingMaxNumber() ]
+	                        
+				case "?"
+					aToken + [ "min", 0 ]
+					aToken + [ "max", 1 ]
+	                        
+				other
+					if rx("^\d+$").Match(cModifier)
+						nCount = number(cModifier)
+						aToken + [ "min", nCount ]
+						aToken + [ "max", nCount ]
+		
+					else
+						rx = rx("^(\d+)-(\d+)$")
+						bMatch = rx.Match(cModifier)
+		
+						if bMatch
+							aMatches = rx.Matches()
+							nMin = number(aMatches[1])
+							nMax = number(aMatches[2])
+		                            
+							if nMin > nMax
+								raise("Error: Invalid range in quantifier: " + cModifier)
+							ok
+		                            
+							aToken + [ "min", nMin ]
+							aToken + [ "max", nMax ]
+						else
+							raise("Error: Invalid quantifier: " + cModifier)
+						ok
+					ok
+				off
+			ok
+		else
+			aToken + [ "type", "literal" ]
+			aToken + [ "pattern", This.EscapeLiteral(cTokenStr) ]
+			aToken + [ "min", 1 ]
+			aToken + [ "max", 1 ]
+		ok
+	
+		return aToken
+	
+	  #-------------------------------#
+	 #  EXECUTING THE REGEX MATCHES  #
+	#-------------------------------#
 
-                cType = aGroups[1]
-                cReplacement = "(?:@" + cType + "(?:,\s*@" + cType + ")" + 
-                              aQuant[2] + ")"
-                
-                cPattern = oMatcher.SubStr(cPattern, cReplacement, 1)
-            end
-        next
-        return cPattern
+	def Match(pList)
+		if NOT isList(pList)
+			return false
+		ok
 
-    def _replaceBasePatterns(cPattern)
-        # Replace @X tokens with actual regex patterns
-        aPatterns = [
-            ["@N", NUMBER_PATTERN],
-            ["@S", STRING_PATTERN],
-            ["@L", LIST_PATTERN],
-            ["@B", BOOLEAN_PATTERN],
-            ["@U", NULL_PATTERN],
-            ["@$", ANY_PATTERN]
-        ]
+		# Stringifiying the list
 
-        for aPat in aPatterns
-            cPattern = substr(cPattern, aPat[1], "(?:" + aPat[2] + ")")
-        next
-        return cPattern
+		aElements = []
+		nLenList = len(pList)
+		for i = 1 to nLenList
+			aElements + @@(pList[i])
+		next
 
-    def _normalizeSpacing(cPattern)
-        # Normalize whitespace around delimiters
-        cPattern = substr(cPattern, ",", "\s*,\s*")
-        cPattern = substr(cPattern, "[", "\[\s*")
-        cPattern = substr(cPattern, "]", "\s*\]")
-        return cPattern
+		# Trying the macth
 
-    def Match(aList)
-        return oRegex.Match(@@(aList))
+		try
+			return This.MatchTokensToElements(@aTokens, aElements)
+		catch
+			raise("Error during list matching!")
+		done
 
-    def Pattern()
-        return oPattern
+		#< @FunctionMisspelledForm
 
-    def RegexPattern()
-        return oRegex.Pattern()
+		def Macth(pList)
+			return This.Match(pList)
+
+		#>
+
+	def MatchTokensToElements(aTokens, aElements)
+		nElementIndex = 1
+		nCurrentDepth = 0
+		nLenElem = len(aElements)
+		nLenTokens = len(aTokens)
+	
+		for i = 1 to nLenTokens
+			aToken = aTokens[i]
+
+			nCount = 0
+			nStartIndex = nElementIndex  # Track where this token started matching
+	
+			while nElementIndex <= nLenElem
+				cElement = aElements[nElementIndex]
+
+				bMatch = false
+
+				if aToken["type"] = "list"
+
+					# Try simple pattern first
+					if rx(@cSimpleListPattern).Match(cElement)
+						bMatch = true
+					ok
+
+					if bMatch = false
+						# If simple fails, try recursive
+						bMatch = rx(@cRecursiveListPattern).MatchRecursive(cElement)
+					ok
+
+				else
+					bMatch = rx("^" + aToken["pattern"] + "$").Match(cElement)
+				ok
+
+				if bMatch
+					nCount++
+					nElementIndex++
+	                    
+					if nCount = aToken["max"]
+						exit
+					ok
+				else
+					# If we haven't met minimum count, backtrack
+					if nCount < aToken["min"]
+						nElementIndex = nStartIndex
+						return false
+					ok
+					exit
+				ok
+			end
+	            
+			if nCount < aToken["min"] or nCount > aToken["max"]
+				return false
+			ok
+	            
+			nCurrentDepth++
+		next
+
+		return true
+
+	def EscapeLiteral(cLiteral)
+		aSpecials = [ "\", ".", "^", "$", "*", "+", "?", "(", ")", "[", "]", "{", "}", "|" ]
+		nLenSpecials = len(aSpecials)
+		cResult = cLiteral
+
+		for i = 1 to nLenSpecials
+			cResult = ring_substr2( cResult, aSpecials[i], ("\" + aSpecials[i]) )
+		next
+
+		return cResult
+
+	# Additional helper methods
+
+	def Tokens()
+		return @aTokens
+
+	def TokensXT()
+		return Association([ @aTokens, @aElements ])
+
+		def MatchInfo()
+			return This.TokensXT()
+
+	def Pattern()
+		return @cDomainPattern
+
+		def DomainPattern()
+			return This.Pattern()
