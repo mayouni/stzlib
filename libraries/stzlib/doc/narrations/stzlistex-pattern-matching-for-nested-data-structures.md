@@ -1,4 +1,4 @@
-# Softanza ListEx: Pattern Matching for Nested Data Structures
+# Softanza ListEx: Bringing Pattern Matching to Lists
 
 Pattern matching has revolutionized data validation and manipulation across various programming paradigms. While traditional regex excels at string matching, structured data—especially deeply nested lists—requires a more expressive approach. Enter **List Regex (Lx)**, a Softanza-powered pattern-matching engine that brings regex-style matching to structured data.
 
