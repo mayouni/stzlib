@@ -89,6 +89,21 @@ Lx(pattern).Match("hello")   #--> TRUE
 Lx(pattern).Match([42, 99])  #--> FALSE (expects a single number or string)
 ```
 
+### Explicit Number Sets – Matching Specific Values  
+
+Explicit number sets allow matching only predefined numbers:  
+
+```ring
+# Match a number that is either 4, 5, or 6
+pattern = "@N{4, 5, 6}"
+Lx(pattern).Match(4)  #--> TRUE
+Lx(pattern).Match(5)  #--> TRUE
+Lx(pattern).Match(6)  #--> TRUE
+Lx(pattern).Match(7)  #--> FALSE (not in the set)
+```
+
+This feature is useful when you need to match only a fixed set of numbers instead of a range.
+
 ### Named Captures – Extracting Matched Values
 
 Named captures allow labeling and extracting specific parts of matched data:
@@ -162,5 +177,5 @@ List Regex optimizes pattern matching through:
 `stzListEx` relies on Softanza's `stzRegex` engine, implemented using the high-performance Qt C++ regular expression library.
 
 ## The Future of Pattern Matching
-
+ 
 As pattern matching evolves in todays programming languages, List Regex brings this power to hierarchical data structures with an intuitive, regex-like syntax. Its ability to **dynamically validate nested lists** without verbose conditions makes it a game-changer in structured data processing.

@@ -16,18 +16,25 @@ class stzListRegex
 	@cDomainPattern    # The original DSL pattern
 	@aTokens           # List of token definitions
 
-	# Main types patterns
+	# The number @N pattern
 
 	@cNumberPattern = '(?:-?\d+(?:\.\d+)?)'
+
+	# The string @S pattern
+
 	@cStringPattern = "(?:" + char(34) + "[^" + char(34) + "]*" + char(34) + "|\'[^\']*\')"
+
+	# The list @L pattern
 
 	@cSimpleListPattern = '\[\s*[^\[\]]*\s*\]'
 	@cRecursiveListPattern = '\[\s*(?:[^\[\]]|\[(?:[^\[\]]|(?R))*\])*\s*\]'
 	@cListPattern = @cSimpleListPattern  # Default to simple pattern
 
+	# The @$ wildcard pattern
+
 	@cAnyPattern = @cNumberPattern + "|" + @cStringPattern + "|" + @cListPattern
-    
-    
+
+
 	def init(cPattern)
 
 		if NOT isString(cPattern)
@@ -52,18 +59,20 @@ class stzListRegex
 
 		oPattern = new stzString(cPattern)
 		oPattern.TrimQ().RemoveTheseBoundsQ("[", "]").Trim()
+		acChars = oPattern.chars()
+
 		cInner = oPattern.Content()
         
 		# Tokenization with error handling
 
 		aTokens = []
 		nStart = 1
-		nLen = oPattern.NumberOfChars()
+		nLen = len(acChars)
 		nDepth = 0
 		cCurrentToken = ""
 
 		for i = 1 to nLen
-			cChar = oPattern.Char(i)
+			cChar = acChars[i]
             
 			switch cChar
 			case "["
@@ -117,21 +126,25 @@ class stzListRegex
 	
 			switch cKeyword
 			case "@N"
+				aToken + [ "keyword", "@N" ]
 				aToken + [ "type", "number" ]
 				aToken + [ "pattern", @cNumberPattern ]
 				nPrefixLen = 2
 	
 			case "@S"
+				aToken + [ "keyword", "@S" ]
 				aToken + [ "type", "string" ]
 				aToken + [ "pattern", @cStringPattern ]
 				nPrefixLen = 2
 	
 			case "@L"
+				aToken + [ "keyword", "@L" ]
 				aToken + [ "type", "list" ]
 				aToken + [ "pattern", @cListPattern ]
 				nPrefixLen = 2
 	
-			case "@A"
+			case "@$"
+				aToken + [ "keyword", "@$" ]
 				aToken + [ "type", "any" ]
 				aToken + [ "pattern", @cAnyPattern ]
 				nPrefixLen = 2
@@ -187,11 +200,7 @@ class stzListRegex
 					ok
 				off
 			ok
-		else
-			aToken + [ "type", "literal" ]
-			aToken + [ "pattern", This.EscapeLiteral(cTokenStr) ]
-			aToken + [ "min", 1 ]
-			aToken + [ "max", 1 ]
+
 		ok
 	
 		return aToken
@@ -303,11 +312,11 @@ class stzListRegex
 	def Tokens()
 		return @aTokens
 
-	def TokensXT()
-		return Association([ @aTokens, @aElements ])
+		def TokensXT()
+			return @aTokens
 
 		def MatchInfo()
-			return This.TokensXT()
+			return @aTokens
 
 	def Pattern()
 		return @cDomainPattern
