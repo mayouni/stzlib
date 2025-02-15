@@ -1,5 +1,7 @@
 load "../max/stzmax.ring"
 
+
+
 /*--- Basic list matching
 
 pr()
@@ -19,7 +21,7 @@ pr()
 ? Lx("[@S]").Match(["hello"])
 #--> TRUE
 
-? Lx("[@A]").Match([[1,2,3]])
+? Lx("[@$]").Match([[1,2,3]])
 #--> TRUE
 
 proff()
@@ -39,7 +41,7 @@ proff()
 # Executed in 0.10 second(s) in Ring 1.22
 
 /*--- Using Quantifiers in the list match
-
+*/
 pr()
 
 # Optional element
@@ -133,17 +135,17 @@ pr()
 
 # Any type
 
-? Lx("[@A]").Match([42])
+? Lx("[@$]").Match([42])
 #--> TRUE
 
 # Any type string
 
-? Lx("[@A]").Match(["hello"])
+? Lx("[@$]").Match(["hello"])
 #--> TRUE
 
 # Any type list
 
-? Lx("[@A]").Match( [[1,2,3]] )
+? Lx("[@$]").Match( [[1,2,3]] )
 #--> TRUE
 
 # Deep nesting
@@ -157,6 +159,13 @@ proff()
 /*===
 
 pr()
+
+# Let's define a pattern for a list:**  
+# - Starts with a `@Number`  
+# - Contains one or more `@Strings`  
+# - Ends with a `@Number`  
+
+# Now, let's try matching several lists to this pattern.
 
 Lx = new stzListex('[ @N, @S+, @N ]')
 Lx {
@@ -416,7 +425,7 @@ pr()
 proff()
 # Executed in 0.12 second(s) in Ring 1.22
 
-/*==== @A in data validation
+/*==== @$ wildcard in data validation
 
 # @A metachar enables flexible data structures:
 # configuration parsing, mixed-type records, optional fields,
@@ -426,7 +435,7 @@ proff()
 
 pr()
 
-Lx("[@S, @A]") {
+Lx("[@S, @$]") {
 
 	? Match([ "port", 8080 ])
 	#--> TRUE
@@ -442,10 +451,10 @@ proff()
 # Executed in 0.09 second(s) in Ring 1.22
 
 /*--- Mixed data records
-
+*/
 pr()
 
-? Lx("[@S, @A+]").Match([ "user", "john", 25, ["admin", "user"] ])
+? Lx("[@S, @$+]").Match([ "user", "john", 25, ["admin", "user"] ])
 #--> TRUE
 
 proff()
@@ -455,13 +464,13 @@ proff()
 
 pr()
 
-? Lx("[@N, @A?]").Match([100])
+? Lx("[@N, @$?]").Match([100])
 #--> TRUE
 
-? Lx("[@N, @A?]").Match([100, "pending"])
+? Lx("[@N, @$?]").Match([100, "pending"])
 #--> TRUE
 
-? Lx("[@N, @A?]").Match([100, [1,2,3]])
+? Lx("[@N, @$?]").Match([100, [1,2,3]])
 #--> TRUE
 
 proff()
@@ -471,24 +480,25 @@ proff()
 
 pr()
 
-? Lx("[@S, @N, @A*]").Match(["Product", 100])
+? Lx("[@S, @N, @$*]").Match(["Product", 100])
 #--> TRUE
 
-? Lx("[@S, @N, @A*]").Match(["Product", 100, "red", 50, ["S", "M", "L"]])
+? Lx("[@S, @N, @$*]").Match(["Product", 100, "red", 50, ["S", "M", "L"]])
 #--> TRUE
 
 proff()
 # Executed in 0.11 second(s) in Ring 1.22
 
 /*--- Nested structures
-
+*/
 pr()
 
-? Lx("[@A, @L]").Match([42, [1,2,3]])
+? Lx("[@$, @L]").Match([42, [1,2,3]])
 #--> TRUE
 
-? Lx("[@A, @L]").Match(["key", ["a","b"]])
+? Lx("[@$, @L]").Match(["key", ["a","b"]])
 #--> TRUE
 
 proff()
 # Executed in 0.10 second(s) in Ring 1.22
+

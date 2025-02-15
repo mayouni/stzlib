@@ -50235,6 +50235,14 @@ class stzString from stzObject
 	#=======================================================#
 	
 	def FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+		if CheckParams() # Allow free params order
+			if isList(pcSubStr) and isString(paSections)
+				pTemp = pcSubStr
+				pcSubStr = paSections
+				paSections = pTemp
+			ok
+		ok
+
 		aSections = This.FindInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
 		nLen = len(aSections)
 
@@ -81089,6 +81097,60 @@ class stzString from stzObject
 		def SectionsRemoved(paListOfSections)
 			return This.ManySectionsRemoved(paListOfSections)
 
+	  #----------------------------------------------------------#
+	 #   REMOVING THE OCCURRENCES OF A SUBSTRING IN A SECTION   # 
+	#----------------------------------------------------------#
+
+	def RemoveInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+		aSections = This.FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+		This.RemoveSections(aSections)
+
+		def RemoveInSectionCSQ(pcSubStr, n1, n2, pCaseSensitive)
+			This.RemoveInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This
+
+	def SubStringRemovedInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+		cResult = This.Copy().RemoveInSectionCSQ(pcSubStr, n1, n2, pCaseSensitive).Content()
+		return cResult
+
+	#--
+
+	def RemoveInSection(pcSubStr, n1, n2)
+		This.RemoveInSectionCS(pcSubStr, n1, n2, _TRUE_)
+
+		def RemoveInSectionQ(pcSubStr, n1, n2)
+			return This.RemoveInSectionCSQ(pcSubStr, n1, n2, _TRUE_)
+
+	def SubStringRemoveInSection(pcSubStr, n1, n2)
+		return This.SubStringRemovedInSectionCS(pcSubStr, n1, n2, _TRUE_)
+
+	  #--------------------------------------------------------------#
+	 #   REMOVING THE OCCURRENCES OF A SUBSTRING IN MANY SECTIONS   # 
+	#--------------------------------------------------------------#
+
+	def RemoveInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+		aSections = This.FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+		This.RemoveSections(aSections)
+
+		def RemoveInSectionsCSQ(pcSubStr, paSections, pCaseSensitive)
+			This.RemoveInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This
+
+	def SubStringRemovedInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+		cResult = This.Copy().RemoveInSectionsCSQ(pcSubStr, paSections, pCaseSensitive).Content()
+		return cResult
+
+	#--
+
+	def RemoveInSections(pcSubStr, paSections)
+		This.RemoveInSectionsCS(pcSubStr, paSections, _TRUE_)
+
+		def RemoveInSectionsQ(pcSubStr, paSections)
+			return This.RemoveInSectionsCSQ(pcSubStr, paSections, _TRUE_)
+
+	def SubStringRemoveInSections(pcSubStr, paSections)
+		return This.SubStringRemovedInSectionCS(pcSubStr, paSections, _TRUE_)
+
 	  #-------------------------------------#
 	 #  REMOVING SPACES IN GIVEN SECTIONS  #
 	#-------------------------------------#
@@ -81945,6 +82007,69 @@ class stzString from stzObject
 
 		def ManyRangesReplacedWhereXT(paRanges, pcCondition)
 			return This.ManyRangesReplacedWXT(paRanges, pcCondition)
+
+	  #-----------------------------------------------------------#
+	 #   REPLACING THE OCCURRENCES OF A SUBSTRING IN A SECTION   # 
+	#===========================================================#
+
+	def ReplaceInSectionCS(pcSubStr, pcNewSubStr, n1, n2, pCaseSensitive)
+		cSection = This.SectionQ(n1, n2).ReplaceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
+		This.ReplaceSection(n1, n2, cSection)
+
+		def ReplaceInSectionCSQ(pcSubStr, n1, n2, pCaseSensitive)
+			This.ReplaceInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This
+
+	def SubStringReplacedInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+		cResult = This.Copy().ReplaceInSectionCSQ(pcSubStr, n1, n2, pCaseSensitive).Content()
+		return cResult
+
+	#--
+
+	def ReplaceInSection(pcSubStr, pcNewSubStr, n1, n2)
+		This.ReplaceInSectionCS(pcSubStr, pcNewSubStr, n1, n2, _TRUE_)
+
+		def ReplaceInSectionQ(pcSubStr, pcNewSubStr, n1, n2)
+			return This.ReplaceInSectionCSQ(pcSubStr, pcNewSubStr, n1, n2, _TRUE_)
+
+	def SubStringReplaceInSection(pcSubStr, pcNewSubStr, n1, n2)
+		return This.SubStringReplacedInSectionCS(pcSubStr, pcNewSubStr, n1, n2, _TRUE_)
+
+	  #--------------------------------------------------------------#
+	 #   REPLACING THE OCCURRENCES OF A SUBSTRING IN MANY SECTIONS   # 
+	#--------------------------------------------------------------#
+
+	def ReplaceInSectionsCS(pcSubStr, pcNewSubStr, paSections, pCaseSensitive)
+		aoSections = This.SectionsQ(paSections).ToListOfStzStrings()
+		nLen = len(aoSections)
+
+		acReplaced = []
+
+		for i = 1 to nLen
+			aoSections[i].ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			acReplaced + aoSections[i].Content()
+		next
+
+		This.ReplaceSectionsByMany(paSections, acReplaced)
+
+		def ReplaceInSectionsCSQ(pcSubStr, pcNewSubStr, paSections, pCaseSensitive)
+			This.ReplaceInSectionsCS(pcSubStr, pcNewSubStr, paSections, pCaseSensitive)
+			return This
+
+	def SubStringReplacedInSectionsCS(pcSubStr, pcNewSubStr, paSections, pCaseSensitive)
+		cResult = This.Copy().ReplaceInSectionsCSQ(pcSubStr, pcNewSubStr, paSections, pCaseSensitive).Content()
+		return cResult
+
+	#--
+
+	def ReplaceInSections(pcSubStr, pcNewSubStr, paSections)
+		This.ReplaceInSectionsCS(pcSubStr, pcNewSubStr, paSections, _TRUE_)
+
+		def ReplaceInSectionsQ(pcSubStr, pcNewSubStr, paSections)
+			return This.ReplaceInSectionsCSQ(pcSubStr, pcNewSubStr, paSections, _TRUE_)
+
+	def SubStringReplaceInSections(pcSubStr, pcNewSubStr, paSections)
+		return This.SubStringReplacedInSectionCS(pcSubStr, pcNewSubStr, paSections, _TRUE_)
 
 	  #==========================================#
 	 #    SWAPPING TWO SECTIONS OF THE STRING   # 
@@ -100205,3 +100330,4 @@ class stzString from stzObject
 		def RemoveAllOccurrencesOfSubstringQ(pSubStr)
 			This.RemoveAllOccurrencesOfSubstring(pSubStr)
 			return This
+

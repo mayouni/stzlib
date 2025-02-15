@@ -1,6 +1,40 @@
 load "../max/stzmax.ring"
 
+/*=====
+
+pr()
+
+o1 = new stzString("Softanza Programming by Heart")
+o1 {
+	? @@( FindZZ("Programming") )
+	#--> [ 10, 20 ]
+
+	ReplaceInSection("m", "M", 10, 20)
+	? Content()
+	# Softanza PrograMMing by Heart
+}
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
 /*-----
+*/
+pr()
+
+o1 = new stzString("Programming for programmers")
+o1 {
+	? @@( FindZZ([ "Programming", "programmers" ]) )
+	#--> [ [ 1, 11 ], [ 17, 27 ] ]
+
+	ReplaceInSections("m", "M", [ [ 1, 11 ], [ 17, 27 ] ])
+	? Content()
+	# PrograMMing for prograMMers
+}
+
+proff()
+# Executed in 0.05 second(s) in Ring 1.22
+
+/*=====
 
 pr()
 
