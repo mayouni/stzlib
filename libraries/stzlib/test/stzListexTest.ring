@@ -1,6 +1,74 @@
 load "../max/stzmax.ring"
 
+pron()
 
+? @@NL([ 1, [ "name", "age", "job" ], 2, 3 ])
+#--> [ 1, [ "name", "age", "job" ], 2, 3 ]
+
+? @@NL([ 1, [ [ "name", "Ali" ], [ "age", 52 ], [ "job", "programmer" ] ], 2, 3 ])
+#--> [
+#	1,
+#	[ [ "name", "Ali" ], [ "age", 52 ], [ "job", "programmer" ] ],
+#	2,
+#	3
+# ]
+
+? @@NL([ 1, [ [ "name", "Ali" ], [ "age", 52 ], [ "job", "programmer" ] ], [ "a", "b", "c" ], 2, 3 ])
+#--> [
+#	1,
+#	[ [ "name", "Ali" ], [ "age", 52 ], [ "job", "programmer" ] ],
+#	[ "a", "b", "c" ],
+#	2,
+#	3
+# ]
+
+? @@NL([ 1,
+  [ [ "name", "Ali" ], [ "age", 52 ], [ "job", "programmer" ] ],
+  [
+    "a",
+    [ [ "key1", "b" ], [ "key2", "c" ] ],
+    "d"
+  ],
+  2, 3 ])
+#--> [
+#	1,
+#	[ [ "name", "Ali" ], [ "age", 52 ], [ "job", "programmer" ] ],
+#	[
+#		"a",
+#		[ [ "key1", "b" ], [ "key2", "c" ] ],
+#		"d"
+#	],
+#	2,
+#	3
+# ]
+
+? @@NL([ 1,
+  [ [ "name", "Ali" ], [ "age", 52 ], [ "job", "programmer" ] ],
+  [
+    "a",
+    [ [ "key1", "b" ], [ "key2", "c" ], [ [ "key31", "e" ], [ "key32", "f" ], "g"  ], "h" ],
+    "d"
+  ],
+  2, 3 ])
+#--> [
+#	1,
+#	[ [ "name", "Ali" ], [ "age", 52 ], [ "job", "programmer" ] ],
+#	[
+#		"a",
+#		[
+#			[ "key1", "b" ],
+#			[ "key2", "c" ],
+#			[ [ "key31", "e" ], [ "key32", "f" ], "g" ],
+#			"h"
+#		],
+#		"d"
+#	],
+#	2,
+#	3
+# ]
+
+#-
+proff()
 
 /*--- Basic list matching
 
@@ -31,54 +99,54 @@ proff()
 
 pr()
 
-? Lx("[@N, @S, @L]").Match([42, "hello", [1,2,3]])
+? Lx("[ @N, @S, @L ]").Match([ 42, "hello", [ 1, 2, 3 ] ])
 #--> TRUE
 
-? Lx("[@N, @N, @N]").Match([1, 2, 3])
+? Lx("[ @N, @N, @N ]").Match([ 1, 2, 3 ])
 #--> TRUE
 
 proff()
 # Executed in 0.10 second(s) in Ring 1.22
 
 /*--- Using Quantifiers in the list match
-*/
+
 pr()
 
 # Optional element
 
-? Lx("[@N, @S?]").Match([42])
+? Lx("[ @N, @S? ]").Match([ 42 ])
 #--> TRUE
 
 # Optional present
 
-? Lx("[@N, @S?]").Match([42, "hello"])
+? Lx("[ @N, @S? ]").Match([ 42, "hello" ])
 #--> TRUE
 
 # One or more
 
-? Lx("[@N+]").Match([1, 2, 3, 4])
+? Lx("[ @N+ ]").Match([ 1, 2, 3, 4 ])
 #--> TRUE
 
 # Zero or more empty
 
-? Lx("[@N*]").Match([])
+? Lx("[ @N* ]").Match([])
 #--> TRUE
 
 # Number quantifier
 
-? Lx("[@N3]").Match([1, 2, 3])
+? Lx("[ @N3 ]").Match([ 1, 2, 3 ])
 #--> TRUE
 
 # Range quantifier
 
-? Lx("[@N1-3]").Match([1])
+? Lx("[ @N1-3 ]").Match([1])
 #--> TRUE
 
-? Lx("[@N1-3]").Match([1, 2])
+? Lx("[ @N1-3 ]").Match([1, 2])
 #--> TRUE
 
 proff()
-# Executed in 0.23 second(s) in Ring 1.22
+# Executed in 0.20 second(s) in Ring 1.22
 
 /*--- Complex types
 
@@ -86,12 +154,12 @@ pr()
 
 # Nested lists
 
-? Lx("[@L]").Macth([ [1, [2, 3], 4] ])
+? Lx("[ @L ]").Macth([ [1, [2, 3], 4] ])
 #--> TRUE
 
 # Mixed quotes
 
-? Lx("[@S, @S]").Match([ "double", 'single' ])
+? Lx("[ @S, @S ]").Match([ "double", 'single' ])
 #--> TRUE
 
 proff()
@@ -113,12 +181,7 @@ pr()
 
 # Too many elements
 
-? Lx("[@N]").Match([1, 2])
-#--> FALSE
-
-# Invalid range
-
-? Lx("[@N2-4]").Match([1])
+? Lx("[ @N ]").Match([1, 2]) #err
 #--> FALSE
 
 proff()
@@ -162,8 +225,8 @@ pr()
 
 # Let's define a pattern for a list:**  
 # - Starts with a `@Number`  
-# - Contains one or more `@Strings`  
-# - Ends with a `@Number`  
+# - Then, contains one or more `@Strings`  
+# - Finally, ends with a `@Number`  
 
 # Now, let's try matching several lists to this pattern.
 
@@ -186,7 +249,7 @@ proff()
 # Executed in 0.12 second(s) in Ring 1.22
 
 /*---
-
+*/
 pr()
 
 Lx = new stzListex('[ @N, @S+, @N ]')
