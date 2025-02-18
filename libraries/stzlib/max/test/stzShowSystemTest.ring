@@ -1,5 +1,117 @@
 load "../stzmax.ring"
 
+/*---
+
+pr()
+
+# Let us make a list with complex structure like this
+
+ aList = [ 1, [ [ "name", "Ali" ], [ "age", 52 ], [ "job", "programmer" ] ], [ "a", [ [ "key1", "b" ], [ "key2", "c" ], [ [ "key31", "e" ], [ "key32", "f" ], "g"  ], "h" ], "d" ], 2, 3 ]
+
+# Printing the list in the console makes it difficult to obtain a readable
+# representation because the output is displayed vertically, with all items
+# listed sequentially and no visual indication of their nested levels
+
+? aList
+#-->
+/*
+1
+name
+Ali
+age
+52
+job
+programmer
+a
+key1
+b
+key2
+c
+key31
+e
+key32
+f
+g
+h
+d
+2
+3
+*/
+
+# Ring list2code() does a good job to solve this problem, let's see:
+
+? @@( list2code(aList) )
+#--> [
+#	1,
+#	[
+#		[
+#			"name",
+#			"Ali"
+#		],
+#		[
+#			"age",
+#			52
+#		],
+#		[
+#			"job",
+#			"programmer"
+#		]
+#	],
+#	[
+#		"a",
+#		[
+#			[
+#				"key1",
+#				"b"
+#			],
+#			[
+#				"key2",
+#				"c"
+#			],
+#			[
+#				[
+#					"key31",
+#					"e"
+#				],
+#				[
+#					"key32",
+#					"f"
+#				],
+#				"g"
+#			],
+#			"h"
+#		],
+#		"d"
+#	],
+#	2,
+#	3
+# ]'
+
+# Still, Softanza's @@NL() function provides an intelligent
+# balance by qualifying inner list complexity and applying
+# indentation selectively
+
+? @@NL(aList)
+#--> [
+#	1,
+#	[ [ "name", "Ali" ], [ "age", 52 ], [ "job", "programmer" ] ],
+#	[
+#		"a",
+#		[
+#			[ "key1", "b" ],
+#			[ "key2", "c" ],
+#			[ [ "key31", "e" ], [ "key32", "f" ], "g" ],
+#			"h"
+#		],
+#		"d"
+#	],
+#	2,
+#	3
+# ]
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
 /*----
 
 profon()
