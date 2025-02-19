@@ -56,12 +56,17 @@ class stzListRegex
 		if nLen > 1
 			for i = nLen to 2 step -1
 
-				if @aTokens[i][:keyword] = @aTokens[i-1][:keyword]
+				if @aTokens[i][:keyword] = @aTokens[i-1][:keyword] and
+				   @aTokens[i][:min] != @aTokens[i][:max] = 1 and
+				   @aTokens[i-1][:min] != @aTokens[i-1][:max]
+
 					nMin = @Min([ @aTokens[i][:min], @aTokens[i-1][:min] ])
 					nMax = @aTokens[i][:max] + @aTokens[i-1][:max]
+
 					del(@aTokens, nLen)
 					@aTokens[i-1][:min] = nMin
 					@aTokens[i-1][:max] = nMax
+
 				ok
 			next
 		ok
@@ -254,128 +259,64 @@ class stzListRegex
 
 		#>
 
-def MatchTokensToElements(aTokens, aElements)
-	nElementIndex = 1
-	nLenElem = len(aElements)
-	nLenTokens = len(aTokens)
-	
-	for i = 1 to nLenTokens
-		aToken = aTokens[i]
-		
-		# Track elements matched by current token
-
-		nCount = 0
-		nStartIndex = nElementIndex
-		
-		# Handle each token's min-max requirements
-
-		while nElementIndex <= nLenElem and nCount < aToken["max"]
-			cElement = aElements[nElementIndex]
-			bMatch = false
-			
-			if aToken["type"] = "list"
-
-				# Try simple pattern first
-
-				if rx(@cSimpleListPattern).Match(cElement)
-					bMatch = true
-				ok
-				
-				if bMatch = false
-					# If simple fails, try recursive
-					bMatch = rx(@cRecursiveListPattern).MatchRecursive(cElement)
-				ok
-			else
-				bMatch = rx("^" + aToken["pattern"] + "$").Match(cElement)
-			ok
-			
-			if bMatch
-				nCount++
-				nElementIndex++
-			else
-				# No match, stop trying with this token
-				exit
-			ok
-		end
-		
-		# Check if we satisfied this token's min requirement
-
-		if nCount < aToken["min"]
-			return false
-		ok
-	next
-	
-	# Check if we consumed all elements
-	# if not, the pattern didn't match the whole list
-
-	if nElementIndex <= nLenElem
-		return false
-	ok
-	
-	return true
-
-	def MatchTokensToElements2(aTokens, aElements)
+	def MatchTokensToElements(aTokens, aElements)
 		nElementIndex = 1
-		nCurrentDepth = 0
 		nLenElem = len(aElements)
 		nLenTokens = len(aTokens)
-	
+		
 		for i = 1 to nLenTokens
 			aToken = aTokens[i]
-
-			nCount = 0
-			nStartIndex = nElementIndex  # Track where this token started matching
+			
+			# Track elements matched by current token
 	
-			while nElementIndex <= nLenElem
+			nCount = 0
+			nStartIndex = nElementIndex
+			
+			# Handle each token's min-max requirements
+	
+			while nElementIndex <= nLenElem and nCount < aToken["max"]
 				cElement = aElements[nElementIndex]
-
 				bMatch = false
-
+				
 				if aToken["type"] = "list"
-
+	
 					# Try simple pattern first
+	
 					if rx(@cSimpleListPattern).Match(cElement)
 						bMatch = true
 					ok
-
+					
 					if bMatch = false
 						# If simple fails, try recursive
 						bMatch = rx(@cRecursiveListPattern).MatchRecursive(cElement)
 					ok
-
 				else
 					bMatch = rx("^" + aToken["pattern"] + "$").Match(cElement)
 				ok
-
+				
 				if bMatch
 					nCount++
 					nElementIndex++
-	                    
-					if nCount = aToken["max"]
-						exit
-					ok
 				else
-					# If we haven't met minimum count, backtrack
-					if nCount < aToken["min"]
-						nElementIndex = nStartIndex
-						return false
-					ok
+					# No match, stop trying with this token
 					exit
 				ok
 			end
-	            
-			if nCount < aToken["min"] or nCount > aToken["max"]
+			
+			# Check if we satisfied this token's min requirement
+	
+			if nCount < aToken["min"]
 				return false
 			ok
-	            
-			nCurrentDepth++
 		next
-
-		# Check to ensure all elements have been consumed
+		
+		# Check if we consumed all elements
+		# if not, the pattern didn't match the whole list
+	
 		if nElementIndex <= nLenElem
-		    return false
+			return false
 		ok
-
+		
 		return true
 
 	def EscapeLiteral(cLiteral)
@@ -388,8 +329,6 @@ def MatchTokensToElements(aTokens, aElements)
 		next
 
 		return cResult
-
-	# Additional helper methods
 
 	def Tokens()
 		return @aTokens
