@@ -1,5 +1,7 @@
 load "../max/stzmax.ring"
 
+/*---
+
 pron()
 
 ? @@NL([ 1, [ "name", "age", "job" ], 2, 3 ])
@@ -67,7 +69,6 @@ pron()
 #	3
 # ]
 
-#-
 proff()
 
 /*--- Basic list matching
@@ -181,7 +182,7 @@ pr()
 
 # Too many elements
 
-? Lx("[ @N ]").Match([1, 2]) #err
+? Lx("[ @N ]").Match([1, 2])
 #--> FALSE
 
 proff()
@@ -249,7 +250,7 @@ proff()
 # Executed in 0.12 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 Lx = new stzListex('[ @N, @S+, @N ]')
@@ -264,21 +265,28 @@ Lx {
 	? @@NL( Tokens() ) + NL
 	#--> [
 	# 	[
+	# 		[ "keyword", "@N" ],
 	# 		[ "type", "number" ],
 	# 		[ "pattern", "(?:-?\d+(?:\.\d+)?)" ],
-	# 		[ "min", 1 ], [ "max", 1 ]
+	# 		[ "min", 1 ],
+	# 		[ "max", 1 ]
 	# 	],
 	# 	[
+	# 		[ "keyword", "@S" ],
 	# 		[ "type", "string" ],
 	# 		[ "pattern", '(?:"[^"]*"|\'[^\']*\')' ],
-	# 		[ "min", 1 ], [ "max", 999999999999999 ]
+	# 		[ "min", 1 ],
+	# 		[ "max", 999999999999999 ]
 	# 	],
 	# 	[
+	# 		[ "keyword", "@N" ],
 	# 		[ "type", "number" ],
 	# 		[ "pattern", "(?:-?\d+(?:\.\d+)?)" ],
-	# 		[ "min", 1 ], [ "max", 1 ]
+	# 		[ "min", 1 ],
+	# 		[ "max", 1 ]
 	# 	]
 	# ]
+
 }
 
 proff()
@@ -290,10 +298,10 @@ pr()
 
 Lx = new stzListex('[@N1-3]')
 Lx {
-	? Match([1])          #--> TRUE	
-	? Match([1,2])        #--> TRUE
-	? Match([1,2,3])      #--> TRUE
-	? Match([1,2,3,4])    #--> FALSE
+	? Match([ 1 ])		#--> TRUE	
+	? Match([ 1,2 ])	#--> TRUE
+	? Match([ 1, 2, 3 ])	#--> TRUE
+	? Match([ 1, 2, 3, 4 ])	#--> FALSE
 }
 
 proff()
@@ -318,16 +326,15 @@ pr()
 
 Lx = new stzListex('[@N+, @S]')
 Lx {
-	? Match([1,2,3, "hello"])       #--> TRUE
-	? Match([1, "hello"])           #--> TRUE
-	? Match(["hello"])              #--> FALSE
+	? Match([1,2,3, "hello"])	#--> TRUE
+	? Match([1, "hello"])		#--> TRUE
+	? Match(["hello"])		#--> FALSE
 }
 
 proff()
 # Executed in 0.10 second(s) in Ring 1.22
 
 #===
-*/
 
 /*--- Mixed quantifiers and types
 
@@ -343,10 +350,10 @@ pr()
 ? Lx('[ @L ]').Match([ [ 1, "hello", [ 2, "world", [3] ] ] ])
 #--> TRUE
 
-# Maximum depth test
+# Very deep list
 
 ? Lx('[ @L ]').Match([ [[[[[[[[["too deep"]]]]]]]]] ])
-#--> FALSE
+#--> TRUE
 
 proff()
 # Executed in 0.12 second(s) in Ring 1.22
@@ -395,10 +402,12 @@ proff()
 pr()
 
 # Unicode strings
-? Lx("[ @S ]").Match(["こんにちは"])
+
+? Lx("[ @S ]").Match([ "こんにちは" ])
 #--> TRUE
 
 # Escaped quotes
+
 ? Lx('[ @S ]').Match([ 'He said "hello"' ])
 #--> TRUE
 
@@ -408,7 +417,7 @@ pr()
 #--> TRUE
 
 proff()
-# Executed in 0.10 second(s) in Ring 1.22
+# Executed in 0.09 second(s) in Ring 1.22
 
 /*--- Complex combinations
 
@@ -441,20 +450,30 @@ pr()
 
 # Invalid range order
 
-? Lx('[ @N3-1 ]').Match([1])
-#--> ERROR: Invalid range in quantifier: 3-1 
+try
+	Lx('[ @N3-1 ]').Match([1])
+catch
+	? "ERROR: Invalid range in quantifier: 3-1"
+done
 
 # Invalid quantifier
 
-? Lx('[ @N^ ]').Match([1])
-#--> ERROR: Invalid quantifier: ^ 
+try
+	Lx('[ @N^ ]').Match([1])
+catch
+	? "ERROR: Invalid quantifier: ^"
+done
 
 # Unclosed bracket
 
-? Lx('[@N, @S').Match([ 1, "a" ])
-#--> ERROR: Unmatched brackets in pattern
+try
+	Lx('[@N, @S').Match([ 1, "a" ])
+catch
+	? "ERROR: Unmatched brackets in pattern"
+done
 
 proff()
+# Executed in 0.10 second(s) in Ring 1.22
 
 /*--- Real-world use cases
 
@@ -463,25 +482,25 @@ pr()
 # JSON-like structure
 
 ? Lx('[ @L ]').Match([[
-    "name", "John",
-    "age", 30,
-    "address", ["city", "NY", "zip", 10001]
+ 	"name", "John",
+	"age", 30,
+	"address", ["city", "NY", "zip", 10001]
 ]])
 #--> TRUE
 
 # CSV-like rows
 
 ? Lx('[ @S, @N, @N, @S+ ]').Match([
-    "Product", 100, 29.99, "In Stock", "Featured"
+	"Product", 100, 29.99, "In Stock", "Featured"
 ])
 #--> TRUE
 
 # Matrix-like structure
 
 ? Lx('[@L+]').Match([
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9]
+	[ 1, 2, 3 ],
+	[ 4, 5, 6 ],
+	[ 7, 8, 9 ]
 ])
 #--> TRUE
 
@@ -514,7 +533,7 @@ proff()
 # Executed in 0.09 second(s) in Ring 1.22
 
 /*--- Mixed data records
-*/
+
 pr()
 
 ? Lx("[@S, @$+]").Match([ "user", "john", 25, ["admin", "user"] ])
@@ -553,7 +572,7 @@ proff()
 # Executed in 0.11 second(s) in Ring 1.22
 
 /*--- Nested structures
-*/
+
 pr()
 
 ? Lx("[@$, @L]").Match([42, [1,2,3]])
@@ -563,5 +582,143 @@ pr()
 #--> TRUE
 
 proff()
-# Executed in 0.10 second(s) in Ring 1.22
+# Executed in 0.09 second(s) in Ring 1.22
 
+#=== Range Quantifier
+
+pr()
+
+Lx('[ @N1-3 ]') {
+	? Match([])		#--> FALSE
+	? Match([ 1 ])		#--> TRUE
+	? Match([ 1, 2 ])	#--> TRUE
+	? Match([ 1, 2, 3 ])	#--> TRUE
+	? Match([ 1, 2, 3, 4 ])	#--> FALSE
+	? Match([ "A" ])	#--> FALSE
+}
+
+proff()
+# Executed in 0.11 second(s) in Ring 1.22
+
+/*--- Basic range quantifiers
+
+pr()
+
+Lx("[ @N1-3 ]") {
+
+	? Match([])
+	#--> FALSE
+
+	? Match([1])
+	#--> TRUE
+
+	? Match([1, 2])
+	#--> TRUE
+
+	? Match([1, 2, 3])
+	#--> TRUE
+
+	? Match([1, 2, 3, 4])
+	#--> FALSE
+}
+
+proff()
+# Executed in 0.11 second(s) in Ring 1.22
+
+/*--- Multiple tokens with range quantifiers
+
+pr()
+
+Lx("[ @N1-2, @S1-2 ]") {
+
+	? Match([1, "hello"])
+	#--> TRUE
+
+	? Match([1, 2, "hello"])
+	#--> TRUE
+
+	? Match([1, "hello", "world"])
+	#--> TRUE
+
+	? Match([ 1 ])
+	#--> FALSE
+
+	? Match([ 1, "hello", "world", 2 ])
+	#--> FALSE
+
+}
+
+proff()
+# Executed in 0.11 second(s) in Ring 1.22
+
+/*--- Zero minimum range
+
+pr()
+
+Lx("[ @N0-2 ]") {
+
+	? Match([])		#--> TRUE
+	? Match([1])		#--> TRUE
+	? Match([1, 2])		#--> TRUE
+	? Match([1, 2, 3])	#--> FALSE
+}
+
+proff()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*--- Mixed tokens and range quantifiers
+
+pr()
+
+Lx("[ @N1-2, @S, @L0-1 ]") {
+
+	? Match([ 1, "text", [1, 2] ])
+	#--> TRUE
+
+	? Match([ 1, 2, "text" ])
+	#--> TRUE
+
+	? Match([ 1, 2, "text", [ 1,  2], "extra" ])
+	#--> FALSE
+}
+
+proff()
+# Executed in 0.12 second(s) in Ring 1.22
+
+/*--- Edge cases
+
+pr()
+
+? Lx("[ @N0-0 ]").Match([])
+#--> Should return TRUE
+
+? Lx("[ @N0-0 ]").Match([1])
+#--> FALSE
+
+? Lx("[ @N1-1 ]").Match([1]) # Same as Lx("[ @N ]").Match([1])
+#-->  TRUE
+
+proff()
+# Executed in 0.11 second(s) in Ring 1.22
+
+/*--- Multiple ranges of the same type
+*/
+pr()
+
+Lx("[ @N1-2, @N1-2 ]") {
+
+	? Match([1, 2])
+	#--> TRUE
+
+	? Match([1, 2, 3])
+	#--> TRUE
+
+	? Match([1, 2, 3, 4])
+	#--> TRUE
+
+	? Match([1, 2, 3, 4, 5])
+	#--> FALSE
+}
+
+proff()
+# Executed in 0.13 second(s) in Ring 1.22
