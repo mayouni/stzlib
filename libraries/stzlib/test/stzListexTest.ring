@@ -186,7 +186,7 @@ pr()
 #--> FALSE
 
 proff()
-# Executed in 0.12 second(s) in Ring 1.22
+# Executed in 0.10 second(s) in Ring 1.22
 
 /*--- Edge cases
 

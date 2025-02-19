@@ -172,7 +172,6 @@ t0 = clock()
 
 	load "string/regex/stzRegex.ring"
 	load "string/regex/stzRegexMaker.ring"
-//	load "string/regex/stzMetaRegex.ring"
 	load "string/regex/stzRegexuter.ring"
 	load "string/regex/stzListex.ring"
 
