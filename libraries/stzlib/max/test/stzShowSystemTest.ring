@@ -1,7 +1,7 @@
 load "../stzmax.ring"
 
 /*---
-
+*/
 pr()
 
 # Let us make a list with complex structure like this
@@ -12,7 +12,7 @@ pr()
 # representation because the output is displayed vertically, with all items
 # listed sequentially and no visual indication of their nested levels
 
-? aList
+//? aList
 #-->
 /*
 1
@@ -40,7 +40,7 @@ d
 
 # Ring list2code() does a good job to solve this problem, let's see:
 
-? @@( list2code(aList) )
+? list2code(aList)
 #--> [
 #	1,
 #	[
@@ -91,7 +91,7 @@ d
 # balance by qualifying inner list complexity and applying
 # indentation selectively
 
-? @@NL(aList)
+//? @@NL(aList)
 #--> [
 #	1,
 #	[ [ "name", "Ali" ], [ "age", 52 ], [ "job", "programmer" ] ],
