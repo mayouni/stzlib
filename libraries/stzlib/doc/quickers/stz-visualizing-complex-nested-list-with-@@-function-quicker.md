@@ -6,15 +6,15 @@ Let's define a list with a multi-level structure as follows:
 aList = [
 	1, [
     	[ "name", "Ali" ],
-[ "age", 52 ],
-[ "job", "programmer" ] ],
+	[ "age", 52 ],
+	[ "job", "programmer" ] ],
 
-[ "a", [
-[ "key1", "b" ], [ "key2", "c" ],
-[ [ "key31", "e" ], [ "key32", "f" ], "g"  ],
-"h" ],
-"d" ],
-2, 3
+	[ "a", [
+	[ "key1", "b" ], [ "key2", "c" ],
+	[ [ "key31", "e" ], [ "key32", "f" ], "g"  ],
+	"h" ],
+	"d" ],
+	2, 3
 ]
 ```
 
