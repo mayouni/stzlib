@@ -582,6 +582,19 @@ class stzRegex
 			return This.CapturedGroups()
 
 	def FindCapture()
+		_aPosZZ_ = This.FindMatchesZZ()
+		_nLen_ = len(_aPosZZ_)
+
+		_anResult_ = []
+
+		for @i = 1 to _nLen_
+			_anResult_ + _aPosZZ_[@i][1]
+		next
+
+		return _anResult_
+
+
+/*
 		_anResult_ = []
 		_aInfo_ = This.CaptureZ()
 		_nLen_ = len(_aInfo_)
@@ -591,7 +604,7 @@ class stzRegex
 		next
 
 		return _anResult_
-
+*/
 
 		#< @FunctionAlternativeForms
 
@@ -646,7 +659,20 @@ class stzRegex
 		for @i = 1 to This.CaptureCount()
 			_cCapture_ = _oQMatch_.captured(@i)
 			if _cCapture_ != ""
-				_aResult_ + [ _cCapture_, _oQMatch_.capturedStart(@i)-1 ]
+				_nPos_ = _oQMatch_.capturedStart(@i)+1
+
+				# Convert Qt postion to Ring position
+				#TODO // Use Qt2RingPos() instead
+
+				if _nPos_ >= 0
+					_nPos_++
+				else
+					_nPos_ = 0
+				ok
+
+				if _nPos_ > 0
+					_aResult_ + [ _cCapture_, _nPos_]
+				ok
 			ok
 		next
 

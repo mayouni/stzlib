@@ -95573,27 +95573,44 @@ class stzString from stzObject
 
 	def IsListInString()
 		/* EXAMPLES
-	
+
+		o1 = new stzString('[]')
+		? o1.IsListInString()
+
+		o1 = new stzString('[2]')
+		? o1.IsListInString()
+
 		o1 = new stzString('[ "A","B", "C", "D" ]')
-		? o1.IsListInString() #--> _TRUE_
+		? o1.IsListInString() #--> TRUE
 		
 		o1 = new stzString(' "A":"D" ')
-		? o1.IsListInString() #--> _TRUE_
+		? o1.IsListInString() #--> TRUE
 		
 		o1 = new stzString('[ "ا", "ب", "ج" ]')
-		? o1.IsListInString() #--> _TRUE_
+		? o1.IsListInString() #--> TRUE
 		
-		o1 = new stzString(' "ا":"ج": ')
-		? o1.IsListInString() #--> _TRUE_
+		o1 = new stzString(' "ا" : "ج" ')
+		? o1.IsListInString() #--> TRUE
 
 		o1 = new stzString("10 : 15")
-		? o1.IsListInString() #--> _TRUE_
+		? o1.IsListInString() #--> TRUE
 
 		*/
 
-		oCopy = This.RemoveSpacesQ().RemoveTheseBoundsQ( "{", "}" ).
+		cCode = 'bOk = isList(' + This.Content() + ')'
+		eval(cCode)
 
-		# A list can not be written with less then 2 chars
+		if bOk
+			return TRUE
+		ok
+
+		# Checking special case of unicode chars in short list form
+		# Example: ' "ا" : "ج" '
+
+
+		oCopy = This.RemoveSpacesQ()
+
+		# Early check: A list can not be written with less then 2 chars
 
 		if oCopy.NumberOfChars() < 2
 			return _FALSE_
@@ -95601,115 +95618,102 @@ class stzString from stzObject
 
 		bResult = _FALSE_
 
-		# Case 1 : The list is in normal [_,_,_] form
+		# Doing the job
 
-		if oCopy.IsBoundedBy([ "[","]" ]) and
-			oCopy.Contains(",")
+		if oCopy.ContainsOneOccurrence(":")
 
-			cCode = "aTempList = " + oCopy.Content()
+			# the : separator in _:_ can not be at the
+			# beginning or the end of the list in string
+
+			n = oCopy.FindFirst(":")
+			if NOT ( n > 1 and n < oCopy.NumberOfChars() )
+
+				bResult = _FALSE_
+
+			ok
+
+			# The list is in short form, let's analyze it
+			# and tranform it to a normal syntax
+
+			aListMembers = QStringListToList( oCopy.QStringObject().split( ":", 0, 0 ) )
+			#NOTE: could be written { aListMembers = oCopy.Split( :Using = ":" ) } after
+			# terminating Split() funtion in Softanza.
+
+			cMember1 = aListMembers[1]
+			cMember2 = aListMembers[2]
+
+			cCode = "pMember1 = " + cMember1
+			eval(cCode)
+
+			cCode = "pMember2 = " + cMember2
+			eval(cCode)
+
+			cNormalSyntax = "[ "
+
+			if ( isString(pMember1) and @IsChar(pMember1) ) and
+			   ( isString(pMember2) and @IsChar(pMember2) )
+				
+				n1 = CharUnicode(pMember1)
+				n2 = CharUnicode(pMember2)
+	
+				if n1 <= n2
+					for n = n1 to n2
+						cNormalSyntax += '"' + StzCharQ(n).Content() + '"'
+						if n < n2
+							cNormalSyntax += ", "
+						ok
+					next
+	
+				but n1 > n2
+					for n = n1 to n2 step -1
+						cNormalSyntax += '"' + StzCharQ(n).Content() + '"'
+						if n > n2
+							cNormalSyntax += ", "
+						ok
+					next
+				ok
+	
+				cNormalSyntax += " ]"
+
+			but isNumber(pMember1) and isNumber(pMember2)
+
+				n1 = pMember1
+				n2 = pMember2
+	
+				if n1 <= n2
+
+					for n = n1 to n2
+						cNormalSyntax += (""+ n)
+						if n < n2
+							cNormalSyntax += ", "
+						ok
+					next
+	
+				but n1 > n2
+
+					for n = n1 to n2 step -1
+						cNormalSyntax += (""+ n)
+						if n > n2
+							cNormalSyntax += ", "
+						ok
+					next
+	
+				ok
+	
+			ok
+
+			cNormalSyntax = StzStringQ(cNormalSyntax).RemoveFromEndQ(", ").Content()
+
+			if Q(cNormalSyntax).LastChar() != "]"
+				cNormalSyntax += " ]"
+			ok
+
+			cCode = "aTempList = " + cNormalSyntax
 			eval(cCode)
 
 			bResult = isList(aTempList)
 
-		else
-
-		# Case 2 : The list is in short _:_ form
-
-			if oCopy.ContainsOneOccurrence(":")
-
-				# the : separator in _:_ can not be at the
-				# beginning or the end of the list in string
-
-				n = oCopy.FindFirst(":")
-				if NOT ( n > 1 and n < oCopy.NumberOfChars() )
-
-					bResult = _FALSE_
-
-				ok
-
-				# The list is in short form, let's analyze it
-				# and tranform it to a normal syntax
-	
-				aListMembers = QStringListToList( oCopy.QStringObject().split( ":", 0, 0 ) )
-				#NOTE: could be written { aListMembers = oCopy.Split( :Using = ":" ) } after
-				# terminating Split() funtion in Softanza.
-
-				cMember1 = aListMembers[1]
-				cMember2 = aListMembers[2]
-
-				cCode = "pMember1 = " + cMember1
-				eval(cCode)
-	
-				cCode = "pMember2 = " + cMember2
-				eval(cCode)
-	
-				cNormalSyntax = "[ "
-	
-				if ( isString(pMember1) and @IsChar(pMember1) ) and
-				   ( isString(pMember2) and @IsChar(pMember2) )
-					
-					n1 = CharUnicode(pMember1)
-					n2 = CharUnicode(pMember2)
-		
-					if n1 <= n2
-						for n = n1 to n2
-							cNormalSyntax += '"' + StzCharQ(n).Content() + '"'
-							if n < n2
-								cNormalSyntax += ", "
-							ok
-						next
-		
-					but n1 > n2
-						for n = n1 to n2 step -1
-							cNormalSyntax += '"' + StzCharQ(n).Content() + '"'
-							if n > n2
-								cNormalSyntax += ", "
-							ok
-						next
-					ok
-		
-					cNormalSyntax += " ]"
-	
-				but isNumber(pMember1) and isNumber(pMember2)
-
-					n1 = pMember1
-					n2 = pMember2
-		
-					if n1 <= n2
-
-						for n = n1 to n2
-							cNormalSyntax += (""+ n)
-							if n < n2
-								cNormalSyntax += ", "
-							ok
-						next
-		
-					but n1 > n2
-
-						for n = n1 to n2 step -1
-							cNormalSyntax += (""+ n)
-							if n > n2
-								cNormalSyntax += ", "
-							ok
-						next
-		
-					ok
-		
-				ok
-
-				cNormalSyntax = StzStringQ(cNormalSyntax).RemoveFromEndQ(", ").Content()
-
-				if Q(cNormalSyntax).LastChar() != "]"
-					cNormalSyntax += " ]"
-				ok
-
-				cCode = "aTempList = " + cNormalSyntax
-				eval(cCode)
-
-				bResult = isList(aTempList)
-
-			ok  
-		ok
+		ok  
 
 		return bResult
 

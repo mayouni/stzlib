@@ -1,4 +1,24 @@
 
+func QtToRingPosition(n)
+	if NOT isNumber(n)
+		StzRaise("Incorrect param type! n must be a number.")
+	ok
+
+	if n >= 0
+		return n + 1
+	else
+		return 0
+	ok
+
+	func QtToRingPos(n)
+		return QtToRingPosition(n)
+
+	func Qt2RingPosition(n)
+		return QtToRingPosition(n)
+
+	func Qt2RingPos(n)
+		return QtToRingPosition(n)
+
 func IsQChar(p)
 	if isObject(p) and classname(p) = "qchar"
 		return _TRUE_

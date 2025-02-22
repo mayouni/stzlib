@@ -552,7 +552,7 @@ rx("Name: (?<name>.*), Age: (?<age>\d+)") {
 	#--> [ "John", "30" ]
 
 	? @@( FindMatches() )
-	#--> [ 5, 16 ]
+	#--> [ 7, 18 ]
 
 	? @@( FindMatchesZZ() )
 	#--> [ [ 7, 10 ], [ 18, 19 ] ]
@@ -614,7 +614,6 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- FINDING RECURSIVE (NESTED) SUBSTRINGS
-*/
 
 pr()
 
@@ -667,11 +666,11 @@ o = new stzRegex("hello.world")
 
 # Without DotMatchesAll
 
-? o.MatchXT(txt, 1, :NormalMatch, []) # Returns false - dot doesn't match newline
+? o.MatchXT(txt, 1, :MatchEntireContent, []) # Returns false - dot doesn't match newline
 #--> FALSE
 
 # With DotMatchesAll
-? o.MatchXT(txt, 1, :NormalMatch, [ "DotMatchesAll" ]) # Returns true - dot matches newline
+? o.MatchXT(txt, 1, :MatchEntireContent, [ :DotMatchesAll ]) # Returns true - dot matches newline
 #--> TRUE
 
 proff()
@@ -688,12 +687,12 @@ o.SetPattern("hello world")
 
 # Case sensitive (default)
 
-? o.MatchXT(txt, 1, :NormalMacth, [])  # Returns false - different case
+? o.MatchXT(txt, 1, :MatchEntireContent, [])  # Returns false - different case
 #--> FALSE
 
 # Case insensitive
 
-? o.MatchXT(txt, 1, :NormalMatch, [ "CaseInsensitive" ])  # Returns true - case ignored
+? o.MatchXT(txt, 1, :MatchEntireContent, [ :CaseInsensitive ])  # Returns true - case ignored
 #--> TRUE
 
 proff()
@@ -710,12 +709,12 @@ o.SetPattern("<p>.*</p>")
 
 # Greedy (default): Matches entire string
 
-? o.MatchXT(txt, 1, :NormalMatch, [ "DotMatchesAll" ])
+? o.MatchXT(txt, 1, :MatchEntireContent, [ :DotMatchesAll ])
 #--> TRUE
 
 # Non-greedy: Matches first <p> only
 
-? o.MatchXT(txt, 1, :NormalMatch, [ "DotMatchesAll", "NonGreedy" ])
+? o.MatchXT(txt, 1, :MatchEntireContent, [ :DotMatchesAll, :NonGreedy ])
 #--> TRUE
 
 proff()
@@ -733,12 +732,12 @@ o.SetPattern("^End:.*$") # ^ only matches start of string
 
 # Without MultiLine
 
-? o.MatchXT(txt, 1, :NormalMatch, [])
+? o.MatchXT(txt, 1, :MatchEntireContent, [])
 #--> FALSE
 
 # With MultiLine: now ^ matches start of any line
 
-? o.MatchXT(txt, 1, :NormalMatch, [ "MultiLine" ])
+? o.MatchXT(txt, 1, :MatchEntireContent, [ :MultiLine ])
 #--> TRUE
 
 prf()
@@ -754,17 +753,17 @@ o = new stzRegex("\bpre\w+")
 
 # Matching words starting with 'pre'
 
-? o.MatchXT(txt, 1, :NormalMatch, [])
+? o.MatchXT(txt, 1, :MatchEntireContent, [])
 #--> TRUE
 
 # Test that fails (no 'pre' words)
 
 txt = "compress express"
-? o.MatchXT(txt, 1, :NormalMatch, [])
+? o.MatchXT(txt, 1, :MatchEntireContent, [])
 #--> FALSE
 
 prf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*-------------------------------------------#
 #  Testing Complete stzRegex Implementation  #
@@ -787,7 +786,7 @@ o1 = new stzRegex("quick.*fox")
 #--> FALSE
 
 prf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*-- Test 2: Line Matching
 
@@ -805,7 +804,7 @@ o1 = new stzRegex("^Second:.*$")
 #--> TRUE
 
 prf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*-- Test 3: Greedy vs Non-Greedy
 
@@ -826,7 +825,7 @@ o1 = new stzRegex("<div>.*</div>")
 #--> TRUE
 
 prf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*-- Test 4: Word Boundaries
 
@@ -934,12 +933,12 @@ o1 = new stzRegex("hello world")
 
 # Case sensitive (should fail)
 
-? o1.MatchXT("HELLO world", 1, :NormalMacth, [])
+? o1.MatchXT("HELLO world", 1, :MatchEntireContent, [])
 #--> FALSE
 
 # Case insensitive (should match)
 
-? o1.MatchXT("HELLO world", 1, :NormalMatch, [ "CaseInsensitive" ])
+? o1.MatchXT("HELLO world", 1, :MatchEntireContent, [ :CaseInsensitive ])
 #--> TRUE
 
 proff()

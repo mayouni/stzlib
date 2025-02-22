@@ -25,6 +25,32 @@ func StzListQ(paList)
 
 #===
 
+func Listify(cStrInList)
+	if isList(cStrInlist)
+		return StzListQ(cStrInlist).Listified()
+	ok
+? @@(cStrInList)
+	oTempStr = new stzString(cStrInList)
+	if oTempStr.IsListInString()
+		cCode = 'aResult = ' + oTempStr.Content()
+		eval(ccode)
+		return aResult
+	ok
+
+	StzRaise("Can't proceed! cStrInList must be a string containing a well formatted Ring list.")
+
+	func @Listify(cStrInList)
+		return Listify(cStrInList)
+
+	func StringToList(cstrInList)
+		if NOT isString(cStrInList)
+			StzRaise("Incorrect param type! cStrInList must be a string.")
+		ok
+
+		return Listify(cStrInList)
+
+#===
+
 func Slice(pStrOrList, n1, n2)
 	if CheckParams()
 		if NOT (isString(pStrOrList) or isList(pStrOrList))
@@ -3669,13 +3695,23 @@ func ListStringify(paList)
 func Stringify(p)
 	return Q(p).Stringified()
 
+	func @Stringify(p)
+		return Stringify(p)
+
 func Spacify(str)
 	cResult = StzStringQ(str).Spacified()
 	return cResult
 
+	func @Spacify(str)
+		return Spacify(str)
+
 func SpacifyXT(str, pSep, pStep, pDirection)
 	cResult = StzStringQ(str).SpacifyXTQ(pSep, pStep, pDirection).Content()
 	return cResult
+
+	func @SpacifyXT(str, pSep, pStep, pDirection)
+		return SpacifyXT(str, pSep, pStep, pDirection)
+
 #===
 
 func StzNamedList(paNamed)
