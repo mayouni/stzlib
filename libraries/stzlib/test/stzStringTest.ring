@@ -4,6 +4,33 @@ load "../max/stzmax.ring"
 
 pr()
 
+o1 = new stzString('[ @$2{"a";1;[1]}U ]')
+? @@( o1.FindTheseBounds("[", "]") )
+#--> [ 1, 15 ]
+
+o1.RemoveTheseBounds("[", "]")
+? @@(o1.Content())
+#--> ' @$2{"a";1;[1}U ]'
+
+proff()
+# Executed in 0.05 second(s) in Ring 1.22
+
+#---
+*/
+pron()
+
+o1 = new stzString('[ @$2{"a";1;[1]}U ]')
+o1.RemoveFirstAndLastChars()
+? @@( o1.Content() )
+#--> ' @$2{"a";1;[1]}U '
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*=====
+
+pr()
+
 o1 = new stzString("Softanza Programming by Heart")
 o1 {
 	? @@( FindZZ("Programming") )
@@ -18,7 +45,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*-----
-*/
+
 pr()
 
 o1 = new stzString("Programming for programmers")
