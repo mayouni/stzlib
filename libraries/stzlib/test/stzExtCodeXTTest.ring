@@ -1,9 +1,9 @@
 load "../max/stzmax.ring"
 
 
-/*===========================#
-#  PYTHON LANGUAGE EXAMPLES  #
-#============================#
+/*=====================================#
+#  PYTHON LANGUAGE EXAMPLES -- PART 1  #
+#======================================#
 
 /*--- Basic example
 
@@ -82,7 +82,7 @@ oPyCode.Execute()
 # ]
 
 proff()
-#--> Executed in 0.11 second(s) in Ring 1.22
+#--> Executed in 0.10 second(s) in Ring 1.22
 
 
 /*--- String variations with proper escaping
@@ -253,190 +253,177 @@ oPyCode.Execute()
 proff()
 # Executed in 0.12 second(s) in Ring 1.22
 
-/*==========================#
-#  JULIA LANGUAGE EXAMPLES  #
-#===========================#
+/*=====================================#
+#  PTHON EXAMPLES - PART 2 (ADVANCED)  #
+#======================================#
 */
-pr()
 
-oExtCode = new StzExtCodeXT("julia")
-
-oExtCode.SetCode('
-data = Dict("key1" => [1, 2, 3], "key2" => "value")
-')
-
-# Executing the julia code (by firing Julia)
-
-oExtCode.Execute()
-? "Julia duration in seconds: " + oExtCode.Duration()
-#--> Duration in seconds: 0.10
-
-# Get transformed data from the exchange file
-
-? @@( oExtCode.FileData() )
-#--> [["key1", [1, 2, 3]], ["key2", "value"]]
-
-proff()
-# Executed in 0.12 second(s) in Ring 1.22
-
-/*========================#
-#  C++ LANGUAGE EXAMPLES  #
-#=========================#
-
-
-# Test file to verify the refactored functionality:
+/*--- Data Analysis with Pandas
 
 pr()
 
-    ? "Testing C++ compilation and execution"
-    
-    
-    # Create instance for C++
-    oCppCode = new StzExtCodeXT("cpp")
-    
-    # Test 1: Simple Hello World
-    ? NL + "Test 1: Hello World Program"
-    cCode = '
-    #include <iostream>
-    int main() {
-        std::cout << "Hello from C++!" << std::endl;
-        return 0;
-    }'
-    
-    oCppCode.SetCode(cCode)
-    oCppCode.Execute()
-    ? "Execution duration: " + oCppCode.LastCallDuration() + " seconds"
-    
-    # Test 2: File Output
-    ? NL + "Test 2: File Output Program"
-    cCode = '
-    #include <iostream>
-    #include <fstream>
-    
-    int main() {
-        std::ofstream outFile("cppdata.txt");
-        outFile << "[[\'+char(34)+'numbers\'+char(34)+', [1, 2, 3, 4, 5]]]";
-        outFile.close();
-        std::cout << "Data written to file" << std::endl;
-        return 0;
-    }'
-    
-    oCppCode.SetCode(cCode)
-    oCppCode.Execute()
-    ? "File content: " + read(oCppCode.FileName())
-    
-    # Test 3: Error handling
-    ? NL + "Test 3: Compilation Error Handling"
-    cCode = '
-    #include <iostream>
-    int main() {
-        std::cout << "This has a syntax error << std::endl;
-        return 0;
-    }'
-    
-    oCppCode.SetCode(cCode)
-    try
-        oCppCode.Execute()
-    catch
-        ? "Caught expected error: " + cCatchError
-    done
-    
-proff()
+oPyCode = new StzExtCodeXT("python")
+oPyCode.SetCode('
+import pandas as pd
+import numpy as np
 
-/*----
-
-cBatCode = '
-"C:\msys64\ucrt64\bin\g++.exe" %1 -o %2 2>&1
-echo Compilation completed with status: %ERRORLEVEL%
-'
-
-# Create instance for C++
-oCppCode = new StzExtCodeXT("cpp")
-
-# Set absolutely minimal test code
-cCode = '
-#include <iostream>
-int main() {
-    return 0;
-}
-'
-
-# Set the code in our object
-oCppCode.SetCode(cCode)
-
-# First write the source file
-write("temp.cpp", cCode)
-
-# Write the batch file - now more silent
-cBatchContent = '@echo off
-"C:\msys64\ucrt64\bin\g++.exe" %1 -o %2 2>&1
-echo %ERRORLEVEL%'
-write("compile.bat", cBatchContent)
-
-# Show the content of temp.cpp to verify
-? "C++ Source content:"
-? read("temp.cpp")
-
-# Try compilation using SystemSilent() instead of system()
-? "Attempting compilation:"
-cOutput = System("compile.bat temp.cpp temp.exe")
-? "Compilation returned: " + cOutput
-
-# Check the result
-? "Executable exists: " + @@(fexists("temp.exe"))
-
-if fexists("temp.exe")
-    ? "Running the executable:"
-    ? SystemSilent("temp.exe")
-ok
-
-/*---
-
-cCppCode = '
-#include <iostream>
-#include <fstream>
-#include <string>
-
-int main() {
-    // Create test data
-    std::ofstream outFile("cppdata.txt");
-    if (!outFile.is_open()) {
-        std::cerr << "Failed to open file" << std::endl;
-        return 1;
+# Create sample data
+data = {
+    "sales_data": {
+            "total_revenue": sum([a*b for a,b in zip([100, 150, 200, 120], [10.5, 8.75, 12.25, 15.00])]),
+            "average_price": np.mean([10.5, 8.75, 12.25, 15.00]),
+            "best_seller": "C"
     }
+}
+')
+oPyCode.Execute()
+? @@(oPyCode.Result())
+#--> [
+#	[
+#		"sales_data",
+#		[
+#			[ "total_revenue", 6612.50 ],
+#			[ "average_price", 11.62 ],
+#			[ "best_seller", "C" ] ]
+#		]
+#	]
+# ]
 
-    outFile << "[ [\'+char(34)+'test\'char(34)+', \'+char(34)+'value\'+char(34)+'] ]";
-    outFile.close();
-    
-    std::cout << "File written successfully" << std::endl;
-    return 0;
-}'
+proff()
+# Executed in 0.60 second(s) in Ring 1.22
 
-# Create instance for C++
-oCppCode = new StzExtCodeXT("cpp")
+/*--- Text Processing
 
-# Set the C++ code
-oCppCode.SetCode(cCppCode) # Content from test-cpp artifact
+pr()
 
-# Write compile.bat
-write("compile.bat", cBatCode) # Content from compile-cpp artifact
+oPyCode = new StzExtCodeXT("python")
+oPyCode.SetCode('
+from collections import Counter
+import re
 
-# Try compilation using the batch file
-? "Attempting compilation via batch file:"
-? system("compile.bat temp.cpp temp.exe")
+text = """
+Ring is a innovative programming language that can embed Python code.
+This makes Ring more powerful and flexible for developers who need
+both Ring and Python capabilities in their applications.
+"""
 
-# Check if executable was created
-? "Checking for temp.exe:"
-if fexists("temp.exe")
-    ? "Executable created successfully"
-    ? "Running the program:"
-    ? system("temp.exe")
-    
-    # Check if data file was created
-    if fexists("cppdata.txt")
-        ? "Data file content:"
-        ? read("cppdata.txt")
-    ok
-else
-    ? "Compilation failed"
-ok
+data = {
+    "text_analysis": {
+        "word_count": len(text.split()),
+        "char_count": len(text),
+        "word_frequency": dict(Counter(re.findall(r"\w+", text.lower()))),
+        "sentences": len(re.split(r"[.!?]+", text))
+    }
+}
+')
+oPyCode.Execute()
+? @@(oPyCode.Result())
+#--> [
+#	[
+#		"text_analysis",
+#		[
+#			[ "word_count", 30 ],
+#			[ "char_count", 195 ],
+#			[
+#				"word_frequency",
+#				[
+#					[ "ring", 3 ],
+#					[ "is", 1 ],
+#					[ "a", 1 ],
+#					[ "innovative", 1 ],
+#					[ "programming", 1 ],
+#					[ "language", 1 ],
+#					[ "that", 1 ],
+#					[ "can", 1 ],
+#					[ "embed", 1 ],
+#					[ "python", 2 ],
+#					[ "code", 1 ],
+#					[ "this", 1 ],
+#					[ "makes", 1 ],
+#					[ "more", 1 ],
+#					[ "powerful", 1 ],
+#					[ "and", 2 ],
+#					[ "flexible", 1 ],
+#					[ "for", 1 ],
+#					[ "developers", 1 ],
+#					[ "who", 1 ],
+#					[ "need", 1 ],
+#					[ "both", 1 ],
+#					[ "capabilities", 1 ],
+#					[ "in", 1 ],
+#					[ "their", 1 ],
+#					[ "applications", 1 ]
+#				]
+#			],
+#			[ "sentences", 3 ]
+#		]
+#	]
+# ]
+
+proff()
+# Executed in 0.14 second(s) in Ring 1.22
+
+/*--- Machine Learning Integration
+
+pr()
+
+oPyCode = new StzExtCodeXT("python")
+
+oPyCode.SetCode('
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+
+# Generate synthetic data
+X, y = make_classification(n_samples=100, n_features=4, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+# Train model
+clf = RandomForestClassifier(random_state=42)
+clf.fit(X_train, y_train)
+
+# Get predictions
+predictions = clf.predict(X_test)
+
+data = {
+    "accuracy": clf.score(X_test, y_test),
+    "feature_importance": clf.feature_importances_.tolist(),
+    "predictions": predictions.tolist(),
+    "model_params": str(clf.get_params())
+}
+')
+oPyCode.Execute()
+? @@(oPyCode.Result())
+#--> [
+#	['accuracy', 1.0],
+#	['feature_importance',
+#		[ 0.05509410437235118, 0.12683805728497533, 0.32986783001366454, 0.48820000832900895 ]
+#	],
+#	['predictions',
+#		[1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0]
+#	],
+#	['model_params', [
+#		[ 'bootstrap', True],
+#		[ 'ccp_alpha': 0.0 ],
+#		[ 'class_weight', Null],
+#		[ 'criterion', 'gini' ],
+#		[ 'max_depth', Null ],
+#		[ 'max_features', 'sqrt' ],
+#		[ 'max_leaf_nodes', Null ],
+#		[ 'max_samples', Null ],
+#		[ 'min_impurity_decrease', 0.0 ],
+#		[ 'min_samples_leaf', 1 ],
+#		[ 'min_samples_split', 2 ],
+#		[ 'min_weight_fraction_leaf', 0.0 ],
+#		[ 'monotonic_cst', Null ],
+#		[ 'n_estimators', 100 ],
+#		[ 'n_jobs', Null ],
+#		[ 'oob_score', False ],
+#		[ 'random_state', 42 ],
+# 		[ 'verbose', 0 ],
+# 		[ 'warm_start', False]
+#	]
+# ]
+
+proff()
+# Executed in 1.68 second(s) in Ring 1.22
