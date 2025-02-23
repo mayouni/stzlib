@@ -20,42 +20,17 @@ def transform_to_ring(data):
 
 
 # Main code
-print("Python script starting...")
 
 
 data = {
-    "company": {
-        "name": "TechCorp",
-        "departments": {
-            "IT": {
-                "employees": [
-                    {"name": "John", "skills": ["Python", "Ring", "SQL"]},
-                    {"name": "Alice", "skills": ["Java", "C++", "Ruby"]}
-                ],
-                "projects": ["WebApp", "Mobile"]
-            },
-            "HR": {
-                "employees": [
-                    {"name": "Bob", "role": "Manager"},
-                    {"name": "Carol", "role": "Recruiter"}
-                ],
-                "current_openings": 3
-            }
-        },
-        "stats": {
-            "founded": 2020,
-            "locations": ["NY", "SF", "London"],
-            "revenue": 1234567.89
-        }
-    }
+    "integer": 42,
+    "decimal": 3.14159,
+    "negative": -17,
+    "calculation": 2 ** 8
 }
 
 
-print("Data before transformation:", data)
 transformed = transform_to_ring(data)
-print("Data after transformation:", transformed)
 
-with open("pydata.txt", "w") as f:
+with open("' + @cDataFile + '", "w") as f:
     f.write(transformed)
-
-print("Data written to file")

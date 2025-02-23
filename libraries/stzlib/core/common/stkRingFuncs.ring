@@ -222,8 +222,8 @@ func ring_del(paList, n)
 	func ring_remove(paList, n) # An alternative I added to the Ring semantics
 		return ring_del(paList, n)
 
-	func remove(paList, n)	    # Idem
-		return ring_del(paList, n)
+func ring_file_remove(cFile)
+	remove(cFile)
 
 func ring_substr(paParams)
 	if not isList(paParams)
