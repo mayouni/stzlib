@@ -1,1 +1,1 @@
-[['numbers', [1, 2, 3, 4, 5]], ['mean', 3.0]]
+[['sales_data', [['total_revenue', 6612.5], ['average_price', 11.625], ['best_seller', 'C']]]]
