@@ -13,6 +13,11 @@
 # - File-based data exchange (with plans for shared memory)
 #===============================
 
+$cBatchCode = '
+@echo off
+g++ %1 -o %2
+echo Compilation completed with status: %ERRORLEVEL%'
+
 $cPyToRingDataTransFunc = '
 
 def transform_to_ring(data):
@@ -33,7 +38,29 @@ def transform_to_ring(data):
     return _transform(data)
 '
 
-$cJuliaToRingDataTransFunc = ''
+$cJuliaToRingDataTransFunc = '
+
+function transform_to_ring(data)
+    if isa(data, Dict)
+        items = []
+        for (key, value) in data
+            push!(items, "['+char(39)+'" * string(key) * "'+char(39)+', " * transform_to_ring(value) * "]")
+        end
+        return "[" * join(items, ", ") * "]"
+    elseif isa(data, Array)
+        return "[" * join([transform_to_ring(item) for item in data], ", ") * "]"
+    elseif isa(data, String)
+        return "'+char(39)+'" * replace(data, "'+char(39)+'" => "\\'+char(39)+'") * "'+char(39)+'"
+    elseif isa(data, Number)
+        return string(data)
+    elseif isa(data, Bool)
+        return string(data)
+    else
+        return "'+char(39)+'" * string(data) * "'+char(39)+'"
+    end
+end
+'
+
 $cCToRingDataTransFunc = ''
 $cCPPToRingDataTransFunc = ''
 
@@ -62,7 +89,10 @@ class StzExtCodeXT
 	@cCompilationMode = "dynamic"
 	@cPrecompiledPath = ""
 
-	# Constructor
+	# Batch file (used mainly for building with compiled langs)
+
+	@cBatchFile = "compile.bat"
+
 
 	def Init(cLang)
 		This.Configure()
@@ -127,7 +157,7 @@ class StzExtCodeXT
 
 	# Compile current code as a shared library
 
-	def CompileAsLibrary(cOutputName)
+	def Compile(cOutputName)
 
 		if @aLanguages[@cLanguage][:type] != "compiled"
 			stzraise("Can't proceed! Library compilation only available for compiled languages.")
@@ -155,18 +185,24 @@ class StzExtCodeXT
 		SystemSilent(cCmd) # يا ربّي و رضاية الوالدين
 		return cFullLibPath
 
+		# @FunctionAlternativeForm
+
+		def CompileAsLibrary(cOutputName)
+			This.Compile(cOutputName)
+
 	# Prepare code for execution
 
-	def prepare()
+	def Prepare()
 
 		# Write source code to file
 
-		This.writeToFile(@cSourceFile, this.prepareSourceCode())
+		This.writeToFile(@cSourceFile, This.PrepareSourceCode())
         
 		if @aLanguages[@cLanguage][:type] = "compiled"
 
 			if @cCompilationMode = "dynamic"
-				This.compile()
+				This.Compile(This.PrecompiledLibraryPath())
+
 			else
 				cLibPath = This.PrecompiledLibraryPath() #TODO Not implemented!
 				if cLibPath = NULL
@@ -182,6 +218,42 @@ class StzExtCodeXT
 			This.Prepare()
 			return This
 
+	# Preparing the batch file (for building with compiled langs)
+
+	def PrepareBatchFile()
+		cBatchContent = '@echo off' + NL
+        
+		# Add compiler path based on language
+
+		if @cLanguage = "cpp"
+			cCompilerPath = This.GetCompilerPath("g++.exe")
+			cBatchContent += '"' + cCompilerPath + '" %1 -o %2 2>&1' + NL
+
+		but @cLanguage = "c"
+			cCompilerPath = This.GetCompilerPath("gcc.exe")
+			cBatchContent += '"' + cCompilerPath + '" %1 -o %2 2>&1' + NL
+		ok
+        
+		cBatchContent += 'echo %ERRORLEVEL%'
+		write(@cBatchFile, cBatchContent)
+
+	# Getting compiler in common installation paths
+
+	 def GetCompilerPath(cCompiler) #TODO // Generalize it to OSes other than Windows
+		aCommonPaths = [
+			"C:\msys64\ucrt64\bin\",
+			"C:\MinGW\bin\",
+			"C:\msys64\mingw64\bin\"
+		]
+        
+		for cPath in aCommonPaths
+			if fexists(cPath + cCompiler)
+				return cPath + cCompiler
+			ok
+        	next
+        
+		return cCompiler  # Return just the compiler name if not found in common paths
+
 	# Execute the prepared code
 
 	def Execute()
@@ -191,18 +263,20 @@ class StzExtCodeXT
 		if @cCode = ""
 			return
 		end
-        
+    
 		@nStartTime = clock()
-        
-		cCmd = this.BuildCommand()
+    
+		# Set the working directory to the location of the executable
+		cWorkDir = ring_substr2(@cSourceFile, "\\" + @aLanguages[@cLanguage][:extension], "")
+		chdir(cWorkDir)
+
+		cCmd = This.BuildCommand()
 		cOutput = SystemSilent(cCmd)
-        
+
 		@nEndTime = clock()
-        
+    
 		This.RecordExecution(cOutput)
 		This.CleanupCompiledFiles()
-
-		# @functionFluentForm
 
 		def ExecuteQ()
 			This.Execute()
@@ -211,12 +285,11 @@ class StzExtCodeXT
 	# Get the output from the last execution
 
 	def Output()
+		if len(@aCallTrace) = 0
+			return ""
+		ok
 
-		if len(@aCallTrace) > 0
-			return @aCallTrace[len(@aCallTrace) - 1][:output]
-		end
-
-		return ""
+		return @aCallTrace[len(@aCallTrace)][:output]
 
 	# Get execution duration of last call
 
@@ -227,7 +300,10 @@ class StzExtCodeXT
 
 		return 0
 
-    # Get data from the exchange file
+		def Duration()
+			return This.LastCallDuration()
+
+	# Get data from the exchange file
 
 	def FileData()
 
@@ -403,12 +479,12 @@ class StzExtCodeXT
 
 	def EnsureDirectoryExists(cPath)
 		if NOT This.IsDirectory(cPath)
-			mkdir(cPath)
+			makedir(cPath)
 		end
 
 	def IsDirectory(cPath)
 		try
-			dir(cPath)
+			chdir(cPath)
 			return TRUE
 		catch
 			return FALSE
@@ -438,22 +514,49 @@ class StzExtCodeXT
 
 			cCmd = ""
 
-			if @aLanguages[@cLanguage]["customPath"] != ""
-				cCmd = @aLanguages[@cLanguage]["customPath"] + " " + @cSourceFile
+			if @aLanguages[@cLanguage][:customPath] != ""
+				cCmd = @aLanguages[@cLanguage][:customPath] + " " + @cSourceFile
 			else
-				cCmd = @aLanguages[@cLanguage]["runtime"] + " " + @cSourceFile
+				cCmd = @aLanguages[@cLanguage][:runtime] + " " + @cSourceFile
 			ok
-        
+
+		        // Suppress the console window on Windows
+			#TODO // Is it necessar since we are using SystemSilen()
+
+		        if isWindows()
+		            cCmd = "START /B " + cCmd + " > NUL 2>&1"
+		        ok
+
 			return cCmd
 
-		else
+		else # Compiled languages
+
 			if @cCompilationMode = "dynamic"
-				return "./" + @cOutputFile
+
+				# Use the batch file for compilation
+	
+				cCompileCmd = @cBatchFile + " " + @cSourceFile + " " + @cOutputFile
+				cOutput = SystemSilent(cCompileCmd)
+	                
+				# Check compilation status
+	
+				nStatus = @number(@trim(cOutput))
+	
+				if nStatus != 0
+					stzraise("Compilation failed with status: " + nStatus)
+				ok
+	                
+				# Return the path to execute
+	
+				if isWindows()
+					return @cOutputFile
+				else
+					return "./" + @cOutputFile
+				ok
 			ok
 
-			return this.PrecompiledLibraryPath()
+			return This.PrecompiledLibraryPath()
 		ok
-
 
         def RecordExecution(cOutput)
 
@@ -478,35 +581,59 @@ class StzExtCodeXT
 		if @aLanguages[@cLanguage][:type] = "compiled" and
 		   @aLanguages[@cLanguage][:cleanup]
 
-			remove(@cOutputFile)
+			ring_file_remove(@cOutputFile)
 		ok
 
         def FileExists(cFile)
             return fexists(cFile)
 
 
-	def PrepareSourceCode()
+def PrepareSourceCode()
 
-		cTransformFunction = @aLanguages[@cLanguage][:transformFunction]
+    cTransformFunction = @aLanguages[@cLanguage][:transformFunction]
 
-		# Create properly formatted Python code
+    # Create properly formatted external language code
 
-		cFullCode = NL + cTransformFunction + '
+    if @cLanguage = "python"
+
+        cFullCode = NL + cTransformFunction + '
 
 # Main code
-print("Python script starting...")
 
 ' +
 @cCode + '
 
-print("Data before transformation:", data)
 transformed = transform_to_ring(data)
-print("Data after transformation:", transformed)
 
-with open("' + @cDataFile + '", "w") as f:
+with open("'+char(39)+' + @cDataFile + '+char(39)+'", "w") as f:
     f.write(transformed)
-
-print("Data written to file")
 '
 
-		return cFullCode
+    but @cLanguage = "julia"
+
+    cFullCode = NL + cTransformFunction + '
+
+# Main code
+
+' +
+@cCode + '
+
+transformed = transform_to_ring(data)
+
+# Write data to file without printing to console
+open("'+char(39)+' + @cDataFile + '+char(39)+'", "w") do f
+    write(f, transformed)
+end
+'
+
+    return cFullCode
+
+    but @cLanguage = "cpp"
+        # For C++, just return the code directly
+        return @cCode
+
+    else
+        stzraise("Not implemented yet for this language!")
+    ok
+
+    return cFullCode

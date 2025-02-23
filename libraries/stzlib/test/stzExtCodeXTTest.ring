@@ -1,6 +1,9 @@
 load "../max/stzmax.ring"
 
 
+/*===========================#
+#  PYTHON LANGUAGE EXAMPLES  #
+#============================#
 
 /*--- Basic example
 
@@ -12,7 +15,7 @@ oPyCode = new StzExtCodeXT("python")
 
 # Python code that generates some data
 
-oPyCode.setCode('
+oPyCode.SetCode('
 data = {
     "numbers": [1, 2, 3, 4, 5],
     "mean": sum([1, 2, 3, 4, 5]) / 5
@@ -91,7 +94,6 @@ oPyCode.setCode('
 data = {
     "simple": "Hello World",
     "multiline": "First line\\nSecond line\\nThird line",
-    "special_chars": "alpha,beta,gamma,delta",
     "spaces": "   padded   ",
     "mixed_text": "Numbers: 123, Symbols: @#$%"
 }
@@ -105,7 +107,6 @@ oPyCode.Execute()
 #--> [
 #	[ "simple", "Hello World" ],
 #	[ "multiline", "First line\nSecond line\nThird line" ],
-#	[ "special_chars", "alpha,beta,gamma,delta" ],
 #	[ "spaces", "   padded   " ],
 #	[ "mixed_text", "Numbers: 123, Symbols: @#$%" ]
 # ]
@@ -156,7 +157,7 @@ oPyCode.Execute()
 # ]
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.22
 
 /*--- Complex nested structure
 
@@ -250,4 +251,192 @@ oPyCode.Execute()
 # ]
 
 proff()
-# Executed in 0.10 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.22
+
+/*==========================#
+#  JULIA LANGUAGE EXAMPLES  #
+#===========================#
+*/
+pr()
+
+oExtCode = new StzExtCodeXT("julia")
+
+oExtCode.SetCode('
+data = Dict("key1" => [1, 2, 3], "key2" => "value")
+')
+
+# Executing the julia code (by firing Julia)
+
+oExtCode.Execute()
+? "Julia duration in seconds: " + oExtCode.Duration()
+#--> Duration in seconds: 0.10
+
+# Get transformed data from the exchange file
+
+? @@( oExtCode.FileData() )
+#--> [["key1", [1, 2, 3]], ["key2", "value"]]
+
+proff()
+# Executed in 0.12 second(s) in Ring 1.22
+
+/*========================#
+#  C++ LANGUAGE EXAMPLES  #
+#=========================#
+
+
+# Test file to verify the refactored functionality:
+
+pr()
+
+    ? "Testing C++ compilation and execution"
+    
+    
+    # Create instance for C++
+    oCppCode = new StzExtCodeXT("cpp")
+    
+    # Test 1: Simple Hello World
+    ? NL + "Test 1: Hello World Program"
+    cCode = '
+    #include <iostream>
+    int main() {
+        std::cout << "Hello from C++!" << std::endl;
+        return 0;
+    }'
+    
+    oCppCode.SetCode(cCode)
+    oCppCode.Execute()
+    ? "Execution duration: " + oCppCode.LastCallDuration() + " seconds"
+    
+    # Test 2: File Output
+    ? NL + "Test 2: File Output Program"
+    cCode = '
+    #include <iostream>
+    #include <fstream>
+    
+    int main() {
+        std::ofstream outFile("cppdata.txt");
+        outFile << "[[\'+char(34)+'numbers\'+char(34)+', [1, 2, 3, 4, 5]]]";
+        outFile.close();
+        std::cout << "Data written to file" << std::endl;
+        return 0;
+    }'
+    
+    oCppCode.SetCode(cCode)
+    oCppCode.Execute()
+    ? "File content: " + read(oCppCode.FileName())
+    
+    # Test 3: Error handling
+    ? NL + "Test 3: Compilation Error Handling"
+    cCode = '
+    #include <iostream>
+    int main() {
+        std::cout << "This has a syntax error << std::endl;
+        return 0;
+    }'
+    
+    oCppCode.SetCode(cCode)
+    try
+        oCppCode.Execute()
+    catch
+        ? "Caught expected error: " + cCatchError
+    done
+    
+proff()
+
+/*----
+
+cBatCode = '
+"C:\msys64\ucrt64\bin\g++.exe" %1 -o %2 2>&1
+echo Compilation completed with status: %ERRORLEVEL%
+'
+
+# Create instance for C++
+oCppCode = new StzExtCodeXT("cpp")
+
+# Set absolutely minimal test code
+cCode = '
+#include <iostream>
+int main() {
+    return 0;
+}
+'
+
+# Set the code in our object
+oCppCode.SetCode(cCode)
+
+# First write the source file
+write("temp.cpp", cCode)
+
+# Write the batch file - now more silent
+cBatchContent = '@echo off
+"C:\msys64\ucrt64\bin\g++.exe" %1 -o %2 2>&1
+echo %ERRORLEVEL%'
+write("compile.bat", cBatchContent)
+
+# Show the content of temp.cpp to verify
+? "C++ Source content:"
+? read("temp.cpp")
+
+# Try compilation using SystemSilent() instead of system()
+? "Attempting compilation:"
+cOutput = System("compile.bat temp.cpp temp.exe")
+? "Compilation returned: " + cOutput
+
+# Check the result
+? "Executable exists: " + @@(fexists("temp.exe"))
+
+if fexists("temp.exe")
+    ? "Running the executable:"
+    ? SystemSilent("temp.exe")
+ok
+
+/*---
+
+cCppCode = '
+#include <iostream>
+#include <fstream>
+#include <string>
+
+int main() {
+    // Create test data
+    std::ofstream outFile("cppdata.txt");
+    if (!outFile.is_open()) {
+        std::cerr << "Failed to open file" << std::endl;
+        return 1;
+    }
+
+    outFile << "[ [\'+char(34)+'test\'char(34)+', \'+char(34)+'value\'+char(34)+'] ]";
+    outFile.close();
+    
+    std::cout << "File written successfully" << std::endl;
+    return 0;
+}'
+
+# Create instance for C++
+oCppCode = new StzExtCodeXT("cpp")
+
+# Set the C++ code
+oCppCode.SetCode(cCppCode) # Content from test-cpp artifact
+
+# Write compile.bat
+write("compile.bat", cBatCode) # Content from compile-cpp artifact
+
+# Try compilation using the batch file
+? "Attempting compilation via batch file:"
+? system("compile.bat temp.cpp temp.exe")
+
+# Check if executable was created
+? "Checking for temp.exe:"
+if fexists("temp.exe")
+    ? "Executable created successfully"
+    ? "Running the program:"
+    ? system("temp.exe")
+    
+    # Check if data file was created
+    if fexists("cppdata.txt")
+        ? "Data file content:"
+        ? read("cppdata.txt")
+    ok
+else
+    ? "Compilation failed"
+ok

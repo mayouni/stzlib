@@ -1,1 +1,1 @@
-[['company', [['name', 'TechCorp'], ['departments', [['IT', [['employees', [[['name', 'John'], ['skills', ['Python', 'Ring', 'SQL']]], [['name', 'Alice'], ['skills', ['Java', 'C++', 'Ruby']]]]], ['projects', ['WebApp', 'Mobile']]]], ['HR', [['employees', [[['name', 'Bob'], ['role', 'Manager']], [['name', 'Carol'], ['role', 'Recruiter']]]], ['current_openings', 3]]]]], ['stats', [['founded', 2020], ['locations', ['NY', 'SF', 'London']], ['revenue', 1234567.89]]]]]]
+[['numbers', [1, 2, 3, 4, 5]], ['mean', 3.0]]
