@@ -16,6 +16,9 @@ EXCIS follows a modular, language-agnostic architecture that enables consistent 
 
 The `StzExtCodeXT` class serves as the central component, orchestrating the entire execution workflow from code preparation to data retrieval.
 
+You can explore its code here:
+[](https://github.com/mayouni/stzlib/blob/main/libraries/stzlib/io/stzExtCodeXT.ring)
+
 ## Implementation Workflow
 
 The execution workflow follows a clear sequence of operations:
@@ -31,11 +34,11 @@ This workflow is encapsulated in the `Execute()` method and its supporting priva
 
 ```
 ┌────────────────┐     ┌────────────────┐     ┌────────────────┐     ┌────────────────┐
-│ Initialization │────▶│ Code Setting   │────▶│ Preparation    │────▶│ Execution      │
+│ Initialization │────>│ Code Setting   │────>│ Preparation    │────>│ Execution      │
 └────────────────┘     └────────────────┘     └────────────────┘     └────────────────┘
                                                                              │
 ┌────────────────┐     ┌────────────────┐                                    │
-│ Cleanup        │◀────│ Data Retrieval │◀───────────────────────────────────┘
+│ Cleanup        │<────│ Data Retrieval │<───────────────────────────────────┘
 └────────────────┘     └────────────────┘
 ```
 
