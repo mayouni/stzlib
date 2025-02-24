@@ -4,6 +4,8 @@ Softanza makes it easy to integrate R, a powerful language for statistics and vi
 
 Here’s how you can use `R()` in Softanza to execute R scripts, retrieve structured results, and work seamlessly between the two languages.
 
+> NOTE: For the feature to work, R must be installed on your system and accessible from the system's PATH.
+.
 ## Running Basic Numeric Operations
 
 The simplest use of `R()` is running a short R script and retrieving the results. Here’s an example that calculates the mean of a set of numbers:
@@ -298,6 +300,8 @@ This example showcases how `R()` enables time series manipulation and statistica
 ## Advanced Data Visualization – Complex Scatter Plot with Density
 
 When working with R’s powerful visualization tools, `R()` gives you full access to `ggplot2`, `plotly`, and more. The following example generates a complex scatter plot with density contours and trend lines, saving it as an image:
+
+> NOTE: The libraries mentioned above should have been installed on your R instance first.
 
 ```ring
 pr()

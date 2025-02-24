@@ -1,23 +1,90 @@
 
-# Python Transformation Function (Updated)
+# IMPORTANT NOTES FOR PYTHON CODE USED WITH RING INTEGRATION
+#
+# The transformation engine converts Python data structures to Ring format with these limitations:
+#
+# 1. Supported data types:
+#    - Basic types: int, float, str, bool, None
+#    - Collections: dict, list
+#    - String representations of dictionaries (will be parsed if possible)
+#
+# 2. Unsupported or potentially problematic types:
+#    - Complex objects (classes, custom types)
+#    - Numpy arrays (use .tolist() method)
+#    - Pandas DataFrames (convert to dict or list first)
+#    - Circular references
+#    - Special numeric types (Decimal, complex numbers)
+#    - Dates/times (convert to strings)
+#
+# 3. Best practices:
+#    - Convert specialized types to basic types before output
+#    - Flatten numpy arrays with .tolist()
+#    - Convert all dates/times to string format
+#    - Use dict/list/string/number for any data to be transferred to Ring
+#    - Avoid storing function objects or class instances in the output data
+
+# IMPORTANT NOTES FOR R CODE USED WITH RING INTEGRATION
+#
+# The transformation engine converts R data structures to Ring format with these limitations:
+#
+# 1. Supported data types:
+#    - Basic types: numeric, character, logical, NULL, NA
+#    - Collections: list, data.frame, vector, array
+#
+# 2. Unsupported or potentially problematic types:
+#    - Complex R objects (S3/S4/R6 classes)
+#    - Environments
+#    - Functions
+#    - Factors (convert to character first)
+#    - Circular references
+#    - Dates/POSIXt objects (convert to character first)
+#
+# 3. Best practices:
+#    - Convert factors to character vectors with as.character()
+#    - Convert dates/times to character with format() or as.character()
+#    - Convert specialized objects to lists where possible
+#    - Simplify complex data structures before output
+#    - Ensure vectors have appropriate names for dictionary-like behavior
+#    - Use as.list() for complex objects when appropriate
+
+# Python transformation function
+
 $cPyToRingDataTransFunc = '
 def transform_to_ring(data):
     def _transform(obj):
         if isinstance(obj, dict):
             items = []
             for key, value in obj.items():
-                items.append(f"[\'+char(39)+'{key}\'+char(39)+', {_transform(value)}]")
+                items.append(f"['+char(39)+'{key}'+char(39)+', {_transform(value)}]")
             return "[" + ", ".join(items) + "]"
         elif isinstance(obj, list):
             return "[" + ", ".join(_transform(item) for item in obj) + "]"
         elif isinstance(obj, str):
-            return f"\'+char(39)+'{obj}\'+char(39)+'"
+            # Check if the string looks like a Python dictionary
+            if obj.startswith("{") and obj.endswith("}"):
+                try:
+                    # Try to convert the string back to a dictionary using eval
+                    # This is safe here because we know the source is from get_params()
+                    dict_obj = eval(obj)
+                    if isinstance(dict_obj, dict):
+                        # If successful, transform the dictionary
+                        return _transform(dict_obj)
+                except:
+                    # If eval fails, just treat it as a normal string
+                    pass
+            return f"'+char(39)+'{obj}'+char(39)+'"
         elif isinstance(obj, (int, float)):
             return str(obj)
+        elif obj is None:
+            return "NULL"
+        elif isinstance(obj, bool):
+            return str(obj).upper()  # Convert True/False to TRUE/FALSE
         else:
-            return f"\'+char(39)+'{str(obj)}\'+char(39)+'"
+            return f"'+char(39)+'{str(obj)}'+char(39)+'"
     return _transform(data)
 '
+
+# R Transformation Function
 
 $cRToRingDataTransFunc = '
 transform_to_ring <- function(data) {
