@@ -5910,6 +5910,26 @@ func InfereType(cType)
 	func @InfereType(cType)
 		return InfereType(cType)
 
+#---
+
+# Viewing a file in the default program in the system
+
+func View(cFileName)
+	if CheckParams()
+		if NOT isString(cFileName)
+			stzraise("Incorrect param type! cFileName mlust be a string.")
+		ok
+	ok
+
+	if fexists(cFileName)
+		system("start " + cFileName)
+	else
+		stzraise("Can't proceed! The file you provided does not exist.")
+	ok
+
+	func @View(cFileName)
+		View(cFileName)
+
   ////////////////////////
  ///  GLOBAL CLASSES  ///
 ////////////////////////
