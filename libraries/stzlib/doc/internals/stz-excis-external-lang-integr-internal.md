@@ -33,11 +33,11 @@ This workflow is encapsulated in the `Execute()` method and its supporting priva
 
 ```
 ┌────────────────┐     ┌────────────────┐     ┌────────────────┐
-│ Initialization │────>│ Code Setting   │────>│ Preparation    │
+│ Initialization │────>│  Code Setting  │────>│  Preparation   │
 └────────────────┘     └────────────────┘     └────────────────┘
                                                        │
-┌────────────────┐     ┌────────────────┐     ┌───────V────────┐
-│ Cleanup        │<────│ Data Retrieval │<────│   Execution    │
+┌────────────────┐     ┌────────────────┐     ┌────────V───────┐
+│    Cleanup     │<────│ Data Retrieval │<────│   Execution    │
 └────────────────┘     └────────────────┘     └────────────────┘
 ```
 
