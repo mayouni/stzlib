@@ -63,23 +63,16 @@ transform_to_ring <- function(data) {
 # Main code
 cat("R script starting...\n")
 
-dates <- as.Date("2024-01-01") + 0:29  # 30 days of data
-values <- rnorm(30, mean = 100, sd = 15)
+measurements <- c(23.5, NA, 22.1, 24.3, NA, 21.8)
 data <- list(
-    time_series = list(
-        dates = format(dates, "%Y-%m-%d"),
-        values = values
-    ),
-    weekly_stats = list(
-        week_means = tapply(values, ceiling(seq_along(values)/7), mean),
-        week_sds = tapply(values, ceiling(seq_along(values)/7), sd)
-    ),
-    trends = list(
-        overall_trend = coef(lm(values ~ seq_along(values))),
-        volatility = sd(diff(values))
+    measurements = measurements,
+    analysis = list(
+        complete_cases = sum(!is.na(measurements)),
+        mean_without_na = mean(measurements, na.rm = TRUE),
+        na_positions = which(is.na(measurements))
     )
 )
 
 transformed <- transform_to_ring(data)
-writeLines(transformed, "rdata.txt")
+writeLines(transformed, "rresult.txt")
 cat("Data written to file\n")
