@@ -362,7 +362,7 @@ proff()
 # Executed in 0.14 second(s) in Ring 1.22
 
 /*--- Machine Learning Integration
-*/
+
 pr()
 
 oPyCode = new StzExtCodeXT("python")
@@ -424,7 +424,7 @@ oPyCode.Execute()
 # ]
 
 proff()
-# Executed in 1.64 second(s) in Ring 1.2
+# Executed in 1.75 second(s) in Ring 1.22
 
 /*=======================#
 #  R LANGAUAGE EXAMPLES  #
@@ -696,7 +696,7 @@ proff()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*=== Graphic DataViz - Complex scatter plot with density
-*/
+
 pr()
 
 R = new stzExtCodeXT(:R)
