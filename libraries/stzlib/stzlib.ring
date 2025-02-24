@@ -225,7 +225,7 @@ t0 = clock()
 	load "io/stzExtCode.ring" // #TODO Is this the right place?
 	load "io/stzExtCodeXT.ring"
 	load "io/stzPythonCode.ring"
-
+	load "io/stzRCode.ring"
 
 # loading MISC files
 

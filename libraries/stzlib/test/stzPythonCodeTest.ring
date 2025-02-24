@@ -155,7 +155,7 @@ proff()
 # Executed in 0.13 second(s) in Ring 1.22
 
 /*--- Python Machine Learning Integration in a Ring program
-*/
+
 pr()
 
 py() {

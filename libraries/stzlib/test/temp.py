@@ -1,6 +1,5 @@
 
 
-
 def transform_to_ring(data):
     def _transform(obj):
         if isinstance(obj, dict):
@@ -18,31 +17,17 @@ def transform_to_ring(data):
             return f"\'{str(obj)}\'"
     return _transform(data)
 
-
 # Main code
 print("Python script starting...")
 
-
-import pandas as pd
-import numpy as np
-
-# Create sample data
 data = {
-    "sales_data": {
-            "total_revenue": sum([a*b for a,b in zip([100, 150, 200, 120],
-				 [10.5, 8.75, 12.25, 15.00])]),
-
-            "average_price": np.mean([10.5, 8.75, 12.25, 15.00]),
-            "best_seller": "C"
-    }
+    "numbers": [1, 2, 3, 4, 5],
+    "mean": sum([1, 2, 3, 4, 5]) / 5
 }
-
 
 print("Data before transformation:", data)
 transformed = transform_to_ring(data)
 print("Data after transformation:", transformed)
-
 with open("pydata.txt", "w") as f:
     f.write(transformed)
-
 print("Data written to file")
