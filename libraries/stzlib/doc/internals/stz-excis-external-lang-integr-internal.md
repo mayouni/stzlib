@@ -41,6 +41,67 @@ This workflow is encapsulated in the `Execute()` method and its supporting priva
 └────────────────┘     └────────────────┘     └────────────────┘
 ```
 
+## File System and I/O Management
+
+The system utilizes several distinct file types for different purposes:
+
+### Temp File (@cTempFile)
+
+A temporary file named after the target language (e.g., `temp.py` for Python or `temp.R` for R) is automatically generated. This file contains the provided code along with the transformation function's code.
+
+It serves as the actual script fed into the Python or R runtime for execution. Its name can be retrieved using the `TempFileName()` method, and its content can be accessed through the `TempFileContent()` method.
+
+### Log File (@cLogFile)
+
+The log file captures the standard output and standard error streams from the external program execution. This file is essential for:
+
+* Capturing console output from the target language
+* Recording error messages and warnings
+* Facilitating debugging of external code
+* Monitoring execution progress
+
+The log file is accessed through the `Log()` method, which retrieves the complete console output of the most recent execution. This is particularly useful for diagnosing issues when the external code fails to execute correctly or produces unexpected results.
+
+### Result File (@cResultFile)
+
+The result file stores the transformed data structure that needs to be passed back to Ring. Unlike the log file, which contains arbitrary text output, the result file:
+
+* Contains only the structured data in Ring-compatible format
+* Is written to explicitly by the transformation function
+* Is language-dependent (specified in the language registry)
+* Serves as the primary data exchange mechanism between languages
+
+The `Result()` method parses the content of this file, evaluates it as Ring code, and returns the resulting data structure to the caller.
+
+```
+ring
+Copy
+def Log()
+    if NOT fexists(@cLogFile)
+        return ""
+    ok
+    return This.ReadFile(@cLogFile)
+
+def Result()
+    if NOT fexists(@cResultFile)
+        stzraise("Result file does not exist!")
+    ok
+    cContent = This.ReadFile(@cResultFile)
+    if cContent = NULL or cContent = ""
+        return ""
+    end
+    try
+        cCode = 'result = ' + cContent
+        eval(cCode)
+        return result
+    catch
+        ? "Eval error: " + cCatchError
+        return cContent
+    end
+```
+
+This separation of concerns ensures that diagnostic information is kept separate from actual data transfer, making the system more robust and easier to debug.
+
 ## Extensibility Mechanism
 
 The system is designed for extensibility, with a language registry that maintains metadata for each supported language:
@@ -281,5 +342,3 @@ The `Py()` function instantiates an object of the `stzPythonCode` class, while `
 ## Conclusion
 
 The Softanza External Code Integration System provides a powerful mechanism for bridging the gap between Ring and other programming languages, particularly those with rich ecosystems for data science, machine learning, and statistical computing. By automating the transformation of data structures and providing a clean, consistent interface, **EXCIS** enables Ring developers to leverage the best tools for each task across language boundaries.
-
-Future enhancements could include support for additional languages, more sophisticated data transformation capabilities, and integration with asynchronous execution models for long-running computations.

@@ -46,7 +46,7 @@ oPyCode.Execute()
 
 # Retrieve and display the data (in it's Ring natif form)
 
-? @@NL( oPyCode.Output() )
+? @@NL( oPyCode.Result() )
 #--> [
 #	[ "numbers", [ 1, 2, 3, 4, 5 ] ],
 #	[ "mean", 3 ]
@@ -72,7 +72,7 @@ data = {
 ')
 
 oPyCode.Run()
-? @@(oPyCode.Output())
+? @@(oPyCode.Result())
 #--> [
 #	[ "integer", 42 ],
 #	[ "decimal", 3.14 ],

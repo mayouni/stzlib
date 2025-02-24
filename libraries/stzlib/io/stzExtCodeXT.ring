@@ -166,26 +166,26 @@ class StzExtCodeXT
 
     @aLanguages = [
         :python = [
-            :name = "Python",
-            :type = "interpreted",
-            :extension = ".py",
-            :runtime = "python",
-            :alternateRuntimes = ["python3", "py"],
-            :datafile = "pydata.txt",
-            :customPath = "",
-            :transformFunction = $cPyToRingDataTransFunc,
-            :cleanup = TRUE
+            :Name = "Python",
+            :Type = "interpreted",
+            :Extension = ".py",
+            :Runtime = "python",
+            :AlternateRuntimes = ["python3", "py"],
+            :ResultFile = "pyresult.txt",
+            :CustomPath = "",
+            :TransformFunction = $cPyToRingDataTransFunc,
+            :Cleanup = TRUE
         ],
         :r = [
-            :name = "R",
-            :type = "interpreted",
-            :extension = ".R",
-            :runtime = "Rscript",
-            :alternateRuntimes = ["R"],
-            :datafile = "rdata.txt",
-            :customPath = "",
-            :transformFunction = $cRToRingDataTransFunc,
-            :cleanup = TRUE
+            :Name = "R",
+            :Type = "interpreted",
+            :Extension = ".R",
+            :Runtime = "Rscript",
+            :AlternateRuntimes = ["R"],
+            :ResultFile = "rresult.txt",
+            :CustomPath = "",
+            :TransformFunction = $cRToRingDataTransFunc,
+            :Cleanup = TRUE
         ]
     ]
 
@@ -195,8 +195,8 @@ class StzExtCodeXT
     @cLanguage = ""
     @cCode = ""
     @cSourceFile = ""
-    @cOutputFile = "output.txt"  # For capturing output/errors
-    @cDataFile = ""		 # The data file name
+    @cLogFile = "log.txt"
+    @cResultFile = ""
     @nStartTime = 0
     @nEndTime = 0
     @bVerbose = FALSE  # New: Debugging flag
@@ -207,7 +207,7 @@ class StzExtCodeXT
         ok
         @cLanguage = lower(cLang)
         @cSourceFile = "temp" + @aLanguages[@cLanguage][:extension]
-        @cDataFile = @aLanguages[@cLanguage][:datafile]
+        @cResultFile = @aLanguages[@cLanguage][:ResultFile]
 
     def IsLanguageSupported(cLang)
         return @aLanguages[lower(cLang)] != NULL
@@ -223,7 +223,7 @@ class StzExtCodeXT
 
     def Prepare()
         remove(@cSourceFile)
-        remove(@cDataFile)
+        remove(@cResultFile)
         This.WriteToFile(@cSourceFile, This.PrepareSourceCode())
 
     def Execute()
@@ -238,19 +238,19 @@ class StzExtCodeXT
         cWorkDir = ring_substr2(@cSourceFile, "\\" + @aLanguages[@cLanguage][:extension], "")
         chdir(cWorkDir)
 
-        cCmd = This.BuildCommand() + " > " + @cOutputFile + " 2>&1"
+        cCmd = This.BuildCommand() + " > " + @cLogFile + " 2>&1"
         nExitCode = system(cCmd)
 
         @nEndTime = clock()
 
-        cOutput = This.ReadFile(@cOutputFile)
+        cLog = This.ReadFile(@cLogFile)
 
-        This.RecordExecution(cOutput, nExitCode)
+        This.RecordExecution(cLog, nExitCode)
 
         if @bVerbose
             ? "Command: " + cCmd
             ? "Exit Code: " + nExitCode
-            ? "Output: " + cOutput
+            ? "Log: " + cLog
         end
 
 	def Run()
@@ -265,11 +265,11 @@ class StzExtCodeXT
         end
         return 0
 
-    def Output()
-        if NOT fexists(@cDataFile)
+    def Result()
+        if NOT fexists(@cResultFile)
             stzraise("File does not exist!")
         ok
-        cContent = This.ReadFile(@cDataFile)
+        cContent = This.ReadFile(@cResultFile)
         if cContent = NULL or cContent = ""
             return ""
         end
@@ -282,11 +282,8 @@ class StzExtCodeXT
             return cContent
         end
 
-	def Result()
-		return This.Output()
-
     def FileName()
-        return @cDataFile
+        return @cResultFile
 
     def CallTrace()
         return @aCallTrace
@@ -323,7 +320,7 @@ class StzExtCodeXT
             stzraise("Only interpreted languages are currently supported!")
         ok
 
-    def RecordExecution(cOutput, nExitCode)
+    def RecordExecution(cLog, nExitCode)
         cMode = ""
         if @aLanguages[@cLanguage][:type] = "interpreted"
             cMode = "interpreted"
@@ -334,7 +331,7 @@ class StzExtCodeXT
             :language = @cLanguage,
             :timestamp = TimeStamp(),
             :duration = (@nEndTime - @nStartTime) / clockspersecond(),
-            :output = cOutput,
+            :log = cLog,
             :exitcode = nExitCode,
             :mode = cMode
         ]
@@ -349,7 +346,7 @@ print("Python script starting...")
 print("Data before transformation:", data)
 transformed = transform_to_ring(data)
 print("Data after transformation:", transformed)
-with open("' + @cDataFile + '", "w") as f:
+with open("' + @cResultFile + '", "w") as f:
     f.write(transformed)
 print("Data written to file")
 '
@@ -361,7 +358,7 @@ print("Data written to file")
 cat("R script starting...\n")
 ' + @cCode + '
 transformed <- transform_to_ring(data)
-writeLines(transformed, "' + @cDataFile + '")
+writeLines(transformed, "' + @cResultFile + '")
 cat("Data written to file\n")
 '
             return cFullCode

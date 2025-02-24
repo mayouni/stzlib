@@ -19,8 +19,5 @@ class stzRCode
 		def Run()
 			@oPyCode.Execute()
 
-	def Output()
-		return @oPyCode.Output()
-
-		def Result()
-			return @oPyCode.Output()
+	def Result()
+		return @oPyCode.Result()

@@ -72,7 +72,7 @@ proff()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*--- Data analysis with NA handling
-
+*/
 pr()
 
 R() {
@@ -91,7 +91,7 @@ data <- list(
 
 # Back to Ring
 Run()
-? @@( Output() )
+? @@( Result() )
 
 } # Closing brace of the R() object
 

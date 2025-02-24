@@ -1,0 +1,1 @@
+[['measurements', [23.5, NULL, 22.1, 24.3, NULL, 21.8]], ['analysis', [['complete_cases', 4], ['mean_without_na', 22.925], ['na_positions', [2, 5]]]]]

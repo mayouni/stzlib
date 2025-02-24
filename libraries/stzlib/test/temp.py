@@ -36,31 +36,23 @@ def transform_to_ring(data):
 # Main code
 print("Python script starting...")
 
-from sklearn.datasets import make_classification
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
+import pandas as pd
+import numpy as np
 
-# Generate synthetic data
-X, y = make_classification(n_samples=100, n_features=4, random_state=42)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-
-# Train model
-clf = RandomForestClassifier(random_state=42)
-clf.fit(X_train, y_train)
-
-# Get predictions
-predictions = clf.predict(X_test)
-
+# Create sample data
 data = {
-    "accuracy": clf.score(X_test, y_test),
-    "feature_importance": clf.feature_importances_.tolist(),
-    "predictions": predictions.tolist(),
-    "model_params": str(clf.get_params())
+    "sales_data": {
+            "total_revenue": sum([a*b for a,b in zip([100, 150, 200, 120],
+				 [10.5, 8.75, 12.25, 15.00])]),
+
+            "average_price": np.mean([10.5, 8.75, 12.25, 15.00]),
+            "best_seller": "C"
+    }
 }
 
 print("Data before transformation:", data)
 transformed = transform_to_ring(data)
 print("Data after transformation:", transformed)
-with open("pydata.txt", "w") as f:
+with open("pyresult.txt", "w") as f:
     f.write(transformed)
 print("Data written to file")
