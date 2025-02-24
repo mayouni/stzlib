@@ -47,6 +47,13 @@
 #    - Ensure vectors have appropriate names for dictionary-like behavior
 #    - Use as.list() for complex objects when appropriate
 
+#--------------------------------------------------#
+#  TARGET LANGAUGES DATA TRANSFORMATION FUNCTIONS  #
+#--------------------------------------------------#
+#~> Embedded automatically within the external code you provide.
+#~> They transform the result of the external computation in
+#   format that is processable by Ring
+
 # Python transformation function
 
 $cPyToRingDataTransFunc = '
@@ -149,7 +156,14 @@ transform_to_ring <- function(data) {
 }
 '
 
+#------------------#
+#  THE MAIN CLASS  #
+#------------------#
+
 class StzExtCodeXT
+
+    # Configuring supported langauges
+
     @aLanguages = [
         :python = [
             :name = "Python",
@@ -175,12 +189,14 @@ class StzExtCodeXT
         ]
     ]
 
+    # Other attributes
+
     @aCallTrace = []
     @cLanguage = ""
     @cCode = ""
     @cSourceFile = ""
-    @cOutputFile = "output.txt"  # New: For capturing output/errors
-    @cDataFile = ""
+    @cOutputFile = "output.txt"  # For capturing output/errors
+    @cDataFile = ""		 # The data file name
     @nStartTime = 0
     @nEndTime = 0
     @bVerbose = FALSE  # New: Debugging flag
@@ -243,12 +259,6 @@ class StzExtCodeXT
 	def Exec()
 		This.Execute()
 
-/*    def Output()
-        if len(@aCallTrace) = 0
-            return ""
-        ok
-        return @aCallTrace[len(@aCallTrace)][:output]
-*/
     def LastCallDuration()
         if len(@aCallTrace) > 0
             return @aCallTrace[len(@aCallTrace)][:duration]
