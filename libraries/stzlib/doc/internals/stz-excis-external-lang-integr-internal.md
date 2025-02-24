@@ -73,9 +73,7 @@ The result file stores the transformed data structure that needs to be passed ba
 
 The `Result()` method parses the content of this file, evaluates it as Ring code, and returns the resulting data structure to the caller.
 
-```
-ring
-Copy
+```ring
 def Log()
     if NOT fexists(@cLogFile)
         return ""
