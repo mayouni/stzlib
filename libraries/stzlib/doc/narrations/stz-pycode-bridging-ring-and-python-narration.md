@@ -4,6 +4,8 @@ The Ring programming language, on which Softanza is built, is known for its simp
 
 This innovation **breaks the isolation of Ring**, seamlessly integrating it with **Python**, the world’s most widely used programming language. By enabling direct execution of Python code within Ring, `py()` unlocks new possibilities for data analytics, machine learning, and professional software development—without requiring C or C++ extensions.
 
+> NOTE: Python must be installed and accessible from the system PATH.
+
 ## A Simple Yet Powerful Design
 
 At its core, `py()` is an instance of the `stzPyCode` class, which inherits from `stzExtCodeXT`—a general class designed to support multiple external languages with minimal configuration. This means that **Softanza is paving the way for future expansions**, allowing other programming languages to be embedded within Ring easily.
@@ -13,7 +15,7 @@ The elegance of `py()` lies in its simplicity:
 ```ring
 py() {
     # The Python code is provided as a string to @() like this:
-    @('data = {"numbers": [1, 2, 3, 4, 5], "mean": sum([1, 2, 3, 4, 5]) / 5}')
+    @('res = {"numbers": [1, 2, 3, 4, 5], "mean": sum([1, 2, 3, 4, 5]) / 5}')
 
     # Execute the Python code
     Execute()
@@ -26,7 +28,7 @@ py() {
 
 This snippet executes a small Python script, calculates the mean of a list of numbers, and seamlessly returns the result to Ring as a **well-formed list data type**.
 
-> NOTE: Python must be installed and accessible from the system PATH.
+> NOTE: As you see in the R code, the result variable name must be is`res`. This is configurable within the class and you can change it by modifying the `@cResultVar` attribute to any name you prefer.
 
 ## Beyond Basic Computation: Real-World Applications
 
@@ -43,7 +45,7 @@ py() {
 @('import pandas as pd
 import numpy as np
 
-data = {
+res = {
     "sales_data": {
         "total_revenue": sum([a*b for a,b in zip([100, 150, 200, 120], [10.5, 8.75, 12.25, 15.00])]),
         "average_price": np.mean([10.5, 8.75, 12.25, 15.00]),
@@ -86,7 +88,7 @@ This makes Ring more powerful and flexible for developers who need
 both Ring and Python capabilities in their applications.
 """
 
-data = {
+res = {
     "text_analysis": {
         "word_count": len(text.split()),
         "char_count": len(text),
@@ -133,7 +135,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 clf = RandomForestClassifier(random_state=42)
 clf.fit(X_train, y_train)
 
-data = {
+res = {
     "accuracy": clf.score(X_test, y_test),
     "feature_importance": clf.feature_importances_.tolist(),
     "predictions": clf.predict(X_test).tolist()

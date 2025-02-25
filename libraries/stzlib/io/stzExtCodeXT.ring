@@ -197,6 +197,7 @@ class StzExtCodeXT
     @cSourceFile = ""
     @cLogFile = "log.txt"
     @cResultFile = ""
+    @cResultVar = "res"
     @nStartTime = 0
     @nEndTime = 0
     @bVerbose = FALSE  # New: Debugging flag
@@ -288,6 +289,15 @@ class StzExtCodeXT
     def CallTrace()
         return @aCallTrace
 
+    def ResultVar()
+		return @cResultVar
+
+def Code()
+    if NOT fexists(@cSourceFile)
+        return ""
+    ok
+    return This.ReadFile(@cSourceFile)
+
     PRIVATE
 
     def WriteToFile(cFile, cContent)
@@ -343,8 +353,8 @@ class StzExtCodeXT
 # Main code
 print("Python script starting...")
 ' + @cCode + '
-print("Data before transformation:", data)
-transformed = transform_to_ring(data)
+print("Data before transformation:", ' + @cResultVar + ')
+transformed = transform_to_ring(' + @cResultVar + ')
 print("Data after transformation:", transformed)
 with open("' + @cResultFile + '", "w") as f:
     f.write(transformed)
@@ -357,7 +367,7 @@ print("Data written to file")
 # Main code
 cat("R script starting...\n")
 ' + @cCode + '
-transformed <- transform_to_ring(data)
+transformed <- transform_to_ring(' + @cResultVar + ')
 writeLines(transformed, "' + @cResultFile + '")
 cat("Data written to file\n")
 '

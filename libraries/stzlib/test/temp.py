@@ -40,7 +40,7 @@ import pandas as pd
 import numpy as np
 
 # Create sample data
-data = {
+res = {
     "sales_data": {
             "total_revenue": sum([a*b for a,b in zip([100, 150, 200, 120],
 				 [10.5, 8.75, 12.25, 15.00])]),
@@ -50,8 +50,8 @@ data = {
     }
 }
 
-print("Data before transformation:", data)
-transformed = transform_to_ring(data)
+print("Data before transformation:", res)
+transformed = transform_to_ring(res)
 print("Data after transformation:", transformed)
 with open("pyresult.txt", "w") as f:
     f.write(transformed)
