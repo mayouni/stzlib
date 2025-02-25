@@ -30,6 +30,7 @@ The execution workflow of the EXCIS system follows a clear sequence of operation
 6. **Cleanup**: Temporary resources are removed (when configured)
 
 ![](../images/stz-excis-system.png)
+
 This workflow is encapsulated in the `Execute()` method and its supporting private methods.
 
 ## Easy Configuration
@@ -158,6 +159,8 @@ Adding support for a new language involves:
 3. Adding any specialized preparation logic if needed
 
 The system's design allows for both interpreted and compiled languages, though the current implementation focuses on interpreted languages.
+
+> NOTE: Of course, any new langauge you add should be installed on your system along with all the packages required by your code. The runtime of the language must be accessible from the system PATH.
 
 ## Transformation Functions
 
