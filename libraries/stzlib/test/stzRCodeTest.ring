@@ -1,5 +1,24 @@
 load "../max/stzmax.ring"
 
+/*--- Debugging external code execution
+*/
+pr()
+
+R() {
+
+	@('res = 2 + 3')
+	Run()
+
+	? Result()
+	? Duration() + NL
+
+	? @@(Trace()) + NL
+
+	? Code()
+
+}
+proff()
+
 /*--- Basic Numeric Data
 
 pr()
@@ -513,7 +532,7 @@ Backtrace:
  6.       └─rlang::abort(...)
 Execution halted
 */
-
+ 
 /*============================#
 #  Geospatial analysis in R  #
 #============================#

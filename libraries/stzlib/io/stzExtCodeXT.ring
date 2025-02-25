@@ -266,6 +266,15 @@ class StzExtCodeXT
         end
         return 0
 
+	def Duration()
+		return LastCallDuration()
+
+    def CallTrace()
+        return @aCallTrace
+
+	def Trace()
+		return @aCallTrace
+
     def Result()
         if NOT fexists(@cResultFile)
             stzraise("File does not exist!")
@@ -285,9 +294,6 @@ class StzExtCodeXT
 
     def FileName()
         return @cResultFile
-
-    def CallTrace()
-        return @aCallTrace
 
     def ResultVar()
 		return @cResultVar

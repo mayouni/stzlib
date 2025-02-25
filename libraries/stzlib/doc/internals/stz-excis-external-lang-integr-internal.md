@@ -334,7 +334,36 @@ The `Py()` function instantiates an object of the `stzPythonCode` class, while `
 
 ## Tracing the System
 
-It is possible to check the internal operation of the computation by calling the CallTrace() method, like this:
+It is possible to check the internal operation of the computation by using several methods:
+```ring
+R() {
+
+	@('res = 2 + 3')
+	Run()
+
+	? Result()		#--> 5
+	? Duration() + NL	#--> 0.30s
+
+	? @@(Trace()) + NL
+	#--> [
+	 	[
+	 	[ "language", "r" ],
+	 	[ "timestamp", "25/02/2025-09:08:58" ],
+	 	[ "duration", 0.30 ],
+	 	[ "log", "R script starting... Data written to file" ],
+	 	[ "exitcode", "" ],
+	 	[ "mode", "interpreted" ]
+	 	]
+	 ]
+
+	? Code()
+	#--> The listing of the internal code generate by the class
+	# in the target langauge (in this case R), including the code
+	# we provided ('res = 2 + 3') and the code of the transformation
+	# function transform_to_ring()
+
+}
+```
 
 ## Conclusion
 

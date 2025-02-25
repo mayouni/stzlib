@@ -2,22 +2,42 @@ func R()
 	return new stzRCode
 
 class stzRCode
-	@oPyCode = new stzExtCodeXT(:R)
+	@oRCode = new stzExtCodeXT(:R)
 
-	def SetCode(pcPyCode)
-		@oPyCode.setCode(pcPyCode)
+	# Initializing the external code
 
-		def @(pcPyCode)
-			This.SetCode(pcPyCode)
+	def SetCode(pcRCode)
+		@oRCode.setCode(pcRCode)
+
+		def @(pcRCode)
+			This.SetCode(pcRCode)
+
+	# Running the exteranl code
 
 	def Execute()
-		@oPyCode.Execute()
-
-		def Exec()
-			@oPyCode.Execute()
+		@oRCode.Execute()
 
 		def Run()
-			@oPyCode.Execute()
+			@oRCode.Execute()
+
+		def Exec()
+			@oRCode.Execute()
+
+	# Reading the result of the computation
 
 	def Result()
-		return @oPyCode.Result()
+		return @oRCode.Result()
+
+	# Debugging methods
+
+	def Code()
+		return @oRCode.Code()
+
+	def Duration()
+		return @oRCode.Duration()
+
+	def Log()
+		return @oRCode.Log()
+
+	def Trace()
+		return @oRCode.Trace()
