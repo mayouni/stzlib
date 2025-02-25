@@ -60,89 +60,30 @@ transform_to_ring <- function(data) {
   transform(data, depth = 0)
 }
 
-# Main code
-cat("R script starting...\n")
+		# Main code
+		cat("R script starting...\n")
+		
 
+	temperatures <- c(18.2, 19.5, 22.1, 23.4, 25.8, 26.9, 27.5, 28.1, 26.8, 25.2)
 
-# Load required libraries with error handling
+	res <- list(
 
+	    raw_data = temperatures,
 
-# Generate data
-set.seed(123)
-n_points <- 200
-x <- rnorm(n_points, mean = 0, sd = 1.5)
-y <- x^2 + rnorm(n_points, mean = 0, sd = 2)
-categories <- factor(sample(c("A", "B", "C"), n_points, replace = TRUE))
-sizes <- runif(n_points, 1, 5)
+	    statistics = list(
+	        mean = mean(temperatures),
+	        sd = sd(temperatures),
+	        quartiles = quantile(temperatures, probs = c(0.25, 0.5, 0.75)),
+	        range = range(temperatures)
+	    ),
 
-# Create data frame
-df <- data.frame(
-    x = x,
-    y = y,
-    category = categories,
-    size = sizes
-)
+	    analysis = list(
+	        above_25 = sum(temperatures > 25),
+	        percent_above_25 = mean(temperatures > 25) * 100
+	    )
+	)
 
-# Create and save the plot first
-p <- ggplot(df, aes(x = x, y = y, color = category)) +
-    geom_point(aes(size = size), alpha = 0.6) +
-    geom_smooth(method = "loess", se = TRUE) +
-    stat_density_2d(aes(fill = after_stat(level)), geom = "polygon", alpha = 0.1) +
-    labs(
-        title = "Complex 2D Visualization",
-        subtitle = "Scatter plot with density contours and trend lines",
-        x = "X Variable",
-        y = "Y Variable",
-        color = "Category",
-        size = "Size"
-    ) +
-    theme_minimal() +
-    theme(
-        plot.title = element_text(size = 16, face = "bold"),
-        plot.subtitle = element_text(size = 12),
-        legend.position = "right"
-    )
-
-# Add color scales
-if (requireNamespace("viridis", quietly = TRUE)) {
-    p <- p + scale_color_viridis_d() + scale_fill_viridis_c()
-} else {
-    p <- p + scale_color_brewer(palette = "Set1") + scale_fill_distiller(palette = "Blues")
-}
-
-# Save the plot
-ggsave("output.png", p, width = 10, height = 8, dpi = 300)
-
-# Create separate data structure for Ring
-data <- list(
-    plot_info = list(
-        filename = "output.png",
-        dimensions = list(
-            width = 10,
-            height = 8,
-            dpi = 300
-        ),
-        data_points = n_points
-    ),
-    statistics = list(
-        x = list(
-            mean = mean(x),
-            sd = sd(x),
-            range = range(x)
-        ),
-        y = list(
-            mean = mean(y),
-            sd = sd(y),
-            range = range(y)
-        ),
-        correlation = cor(x, y)
-    ),
-    categories = list(
-        levels = levels(categories),
-        counts = as.list(table(categories))
-    )
-)
-
-transformed <- transform_to_ring(res)
-writeLines(transformed, "rresult.txt")
-cat("Data written to file\n")
+		transformed <- transform_to_ring(res)
+		writeLines(transformed, "rresult.txt")
+		cat("Data written to file\n")
+		

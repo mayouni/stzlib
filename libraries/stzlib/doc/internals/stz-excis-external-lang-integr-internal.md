@@ -395,11 +395,11 @@ In fact, the `@nExitCode` in the `StzExtCodeXT` class captures the exit status o
 
 This information is valuable for debugging, error reporting, and potentially implementing conditional behavior based on execution success or failure, though the current implementation primarily uses it for record-keeping purposes.
 
-## When It doesn't Work
+## Troubleshooting: Handling Errors and Missing Output
 
-When you get an error or nothing at all, try to read the content of the `log.txt`file, using the `Log()`method. There you find all the debugging information you need.
+If you encounter an error or no output at all, check the contents of the `log.txt` file using the `Log()` method. This file contains all the debugging information you need.
 
-In this example, it tells us the R code uses a library that is not installed, namely `ggplot`, so go install it on top of R and just try again:
+For example, the log might reveal that your R script depends on a missing library, such as `ggplot`. In that case, simply install the package and try again:
 
 ```
 R script starting...
@@ -407,6 +407,17 @@ Error in ggplot(df, aes(x = x, y = y, color = category)) :
   could not find function "ggplot"
 Execution halted
 ```
+
+Normally, this information will be displayed automatically in the Ring console when an operation fails. However, it's good to keep this in mind in case you need to investigate further.
+
+**IMPORTANT: Cleanup Behavior**
+
+If you've set the `@aLanguages` attribute with `:Cleanup = TRUE`, the `Log()` method won't return anything—because all temporary files, including logs and output files, are deleted.
+
+So here is of  best practice to adopt for safety and peac of mind:
+
+* Keep `:Cleanup = FALSE` while developing and debugging your code.
+* Once everything works as expected or when deploying to production, switch to `:Cleanup = TRUE` to maintain a clean environment.
 
 ## Conclusion
 

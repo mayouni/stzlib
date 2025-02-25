@@ -92,15 +92,56 @@ jl() { @('
     Run()
     ? @@NL( Result() )
 }
+#--> [
+#	[
+#		"summary",
+#		[
+#			[ "best_region", "South" ],
+#			[ "avg_margin", 44.62 ],
+#			[ "total_sales", 1769 ],
+#			[ "total_profit", 810 ]
+#		]
+#	],
+#	[
+#		"by_region",
+#		[
+#			[
+#				"East",
+#				[ [ "sales", 340 ], [ "profit", 152 ], [ "margin", 42.35 ] ]
+#			],
+#			[
+#				"West",
+#				[ [ "sales", 384 ], [ "profit", 193 ], [ "margin", 49.97 ] ]
+#			],
+#			[
+#				"North",
+#				[ [ "sales", 487 ], [ "profit", 203 ], [ "margin", 40.78 ] ]
+#			],
+#			[
+#				"South",
+#				[ [ "sales", 558 ], [ "profit", 262 ], [ "margin", 46.43 ] ]
+#			]
+#		]
+#	],
+#	[
+#		"daily",
+#		[
+#			[ "dates", [ "2023-01-01", "2023-01-02", "2023-01-03", "2023-01-04", "2023-01-05", "2023-01-06", "2023-01-07", "2023-01-08", "2023-01-09", "2023-01-10" ] ],
+#			[ "profits", [ 40, 60, 42, 80, 81, 94, 110, 113, 82, 108 ] ]
+#		]
+#	]
+# ]
 
 proff()
+# Executed in 3.30 second(s) in Ring 1.22
 
 /*---------------------------------------------#
 #  Julia in Ring - Machine Learning with Flux  #
 #----------------------------------------------#
+*/
+pr()
 
-J = new stzExtCodeXT(:julia)
-J { @('
+jl() { @('
     using Flux, Statistics
 
     # Generate synthetic data
@@ -156,6 +197,8 @@ J { @('
     Run()
     ? Result()
 }
+
+proff()
 
 /*----------------------------------------------------#
 #  Julia in Ring - Scientific Computing and DataViz   #
