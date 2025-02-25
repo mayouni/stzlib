@@ -852,3 +852,8 @@ J { @('
 
 proff()
 # Executed in 1.35 second(s) in Ring 1.22
+
+/*==========================#
+#  GO LANGUAGE EXAMPLES  #
+#===========================#
+*/

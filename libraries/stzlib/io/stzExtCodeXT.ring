@@ -216,90 +216,90 @@ class StzExtCodeXT
 
     # Configuring supported langauges
 
-    @aLanguages = [
-        :python = [
-            :Name = "Python",
-            :Type = "interpreted",
-            :Extension = ".py",
-            :Runtime = "python",
-            :AlternateRuntimes = ["python3", "py"],
-            :ResultFile = "pyresult.txt",
-            :CustomPath = "",
-            :TransFunc = $cPyToRingTransFunc,
-            :Cleanup = FALSE
-        ],
-
-        :r = [
-            :Name = "R",
-            :Type = "interpreted",
-            :Extension = ".R",
-            :Runtime = "Rscript",
-            :AlternateRuntimes = ["R"],
-            :ResultFile = "rresult.txt",
-            :CustomPath = "",
-            :TransFunc = $cRToRingTransFunc,
-            :Cleanup = FALSE
-        ],
-
-	:julia = [
-	    :Name = "Julia",
-	    :Type = "interpreted",
-	    :Extension = ".jl",
-	    :Runtime = "julia",
-	    :AlternateRuntimes = [],
-	    :ResultFile = "jlresult.txt",
-	    :CustomPath = "",
-	    :TransFunc = $cJuliaToRingTransFunc,
-	    :Cleanup = TRUE
+	@aLanguages = [
+	        :python = [
+	            :Name = "Python",
+	            :Type = "interpreted",
+	            :Extension = ".py",
+	            :Runtime = "python",
+	            :AlternateRuntimes = ["python3", "py"],
+	            :ResultFile = "pyresult.txt",
+	            :CustomPath = "",
+	            :TransFunc = $cPyToRingTransFunc,
+	            :Cleanup = FALSE
+	        ],
+	
+	        :r = [
+	            :Name = "R",
+	            :Type = "interpreted",
+	            :Extension = ".R",
+	            :Runtime = "Rscript",
+	            :AlternateRuntimes = ["R"],
+	            :ResultFile = "rresult.txt",
+	            :CustomPath = "",
+	            :TransFunc = $cRToRingTransFunc,
+	            :Cleanup = FALSE
+	        ],
+	
+		:julia = [
+		    :Name = "Julia",
+		    :Type = "interpreted",
+		    :Extension = ".jl",
+		    :Runtime = "julia",
+		    :AlternateRuntimes = [],
+		    :ResultFile = "jlresult.txt",
+		    :CustomPath = "",
+		    :TransFunc = $cJuliaToRingTransFunc,
+		    :Cleanup = TRUE
+		]
 	]
 
-    ]
+	# Other attributes
 
-    # Other attributes
+	@aCallTrace = []
+	@cLanguage = ""
+	@cCode = ""
+	@cSourceFile = "" # will be named automatically 'temp.py'; 'temp.R', etc.
 
-    @aCallTrace = []
-    @cLanguage = ""
-    @cCode = ""
-    @cSourceFile = "" # will be named automatically 'temp.py'; 'temp.R', etc.
+	@cLogFile = "log.txt"
+	@cResultFile = ""	# will take whatever name defined in @aLanguages[@cLanguage]
+	@cResultVar = "res"	# can be changed with SetResVar()
 
-    @cLogFile = "log.txt"
-    @cResultFile = ""	# will take whatever name defined in @aLanguages[@cLanguage]
-    @cResultVar = "res"	# can be changed with SetResVar()
+	@nStartTime = 0
+	@nEndTime = 0
+	@bVerbose = FALSE	# can be changed using SetVerbose(TRUE)
 
-    @nStartTime = 0
-    @nEndTime = 0
-    @bVerbose = FALSE	# can be changed using SetVerbose(TRUE)
+	def Init(cLang)
+		if NOT This.IsLanguageSupported(cLang)
+			stzraise("Language '" + cLang + "' is not supported")
+		ok
 
-    def Init(cLang)
-        if NOT This.IsLanguageSupported(cLang)
-            stzraise("Language '" + cLang + "' is not supported")
-        ok
-        @cLanguage = lower(cLang)
-        @cSourceFile = "temp" + @aLanguages[@cLanguage][:extension]
-        @cResultFile = @aLanguages[@cLanguage][:ResultFile]
+		@cLanguage = lower(cLang)
+		@cSourceFile = "temp" + @aLanguages[@cLanguage][:extension]
+		@cResultFile = @aLanguages[@cLanguage][:ResultFile]
 
-    def IsLanguageSupported(cLang)
-        return @aLanguages[lower(cLang)] != NULL
+	def IsLanguageSupported(cLang)
+		return @aLanguages[lower(cLang)] != NULL
 
-    def SetRuntimePath(cPath)
-        @aLanguages[@cLanguage][:customPath] = cPath
+	def SetRuntimePath(cPath)
+		@aLanguages[@cLanguage][:customPath] = cPath
 
-    def SetCode(cNewCode)
-        @cCode = cNewCode
+	def SetCode(cNewCode)
+		@cCode = cNewCode
 
 	def @(cNewCode)
 		@cCode = cNewCode
 
-    def SetVerbose(bVerbose)
-        @bVerbose = bVerbose
+	def SetVerbose(bVerbose)
+		@bVerbose = bVerbose
 
-    def SetResultVar(cResVar)
-	if NOT cResVar = ""
-		@cResVar = cResVar
-	ok
+	def SetResultVar(cResVar)
+		if NOT cResVar = ""
+			@cResVar = cResVar
+		ok
 
-    def Prepare()
-        This.WriteToFile(@cSourceFile, This.PrepareSourceCode())
+	def Prepare()
+		This.WriteToFile(@cSourceFile, This.PrepareSourceCode())
 
 	def Execute()
 
@@ -315,7 +315,7 @@ class StzExtCodeXT
 		chdir(cWorkDir)
 
 		cCmd = This.BuildCommand() + " > " + @cLogFile + " 2>&1"
-		nExitCode = system(cCmd)
+		nExitCode = systemSilent(cCmd)
 
 		@nEndTime = clock()
 
