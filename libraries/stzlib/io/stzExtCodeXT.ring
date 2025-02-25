@@ -194,13 +194,15 @@ class StzExtCodeXT
     @aCallTrace = []
     @cLanguage = ""
     @cCode = ""
-    @cSourceFile = ""
+    @cSourceFile = "" # will be named automatically 'temp.py'; 'temp.R', etc.
+
     @cLogFile = "log.txt"
-    @cResultFile = ""
-    @cResultVar = "res"
+    @cResultFile = ""	# will take whatever name defined in @aLanguages[@cLanguage]
+    @cResultVar = "res"	# can be changed with SetResVar()
+
     @nStartTime = 0
     @nEndTime = 0
-    @bVerbose = FALSE
+    @bVerbose = FALSE	# can be changed using SetVerbose(TRUE)
 
     def Init(cLang)
         if NOT This.IsLanguageSupported(cLang)
