@@ -52,12 +52,14 @@ println("Julia script starting...")
 
     using DataFrames, Statistics, Dates
 
-    # Create a sample dataset
+    # Create a sample dataset with corrected region assignment
+    regions = ["North", "South", "East", "West", "North", "South", "East", "West", "North", "South"]
+    
     df = DataFrame(
         date = Date.(2023, 1, 1:10),
         sales = [120, 145, 132, 168, 175, 190, 208, 216, 192, 223],
         costs = [80, 85, 90, 88, 94, 96, 98, 103, 110, 115],
-        region = repeat(["North", "South", "East", "West"], 2, outer=true)[1:10]
+        region = regions
     )
     
     # Add calculated columns
@@ -94,7 +96,7 @@ println("Julia script starting...")
             "profits" => df.profit
         )
     )
-    
+
 transformed = transform_to_ring(res)
 println("Data before transformation: ", res)
 println("Data after transformation: ", transformed)
