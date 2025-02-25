@@ -38,7 +38,7 @@ proff()
 /*------------------------------------------------#
 #  Julia in Ring - Data Analysis with DataFrames  #
 #-------------------------------------------------#
-*/
+
 pr()
 
 jl() { @('
@@ -138,212 +138,96 @@ proff()
 /*---------------------------------------------#
 #  Julia in Ring - Machine Learning with Flux  #
 #----------------------------------------------#
-*/
+
 pr()
 
 jl() { @('
-    using Flux, Statistics
+	using Flux, Statistics, Optimisers
+	
+	# Generate synthetic data
+	x_train = collect(Float32, range(0, 10, length=100))
+	y_train = 2 .* x_train .+ 1 .+ 0.2 .* randn(Float32, 100)
+	
+	# Reshape data for Flux
+	x_batched = reshape(x_train, 1, :)
+	y_batched = reshape(y_train, 1, :)
+	
+	# Define a simple linear model
+	model = Dense(1 => 1)
+	
+	# Set up optimizer with the modern approach
+	optimizer = Optimisers.setup(Optimisers.Descent(0.01), model)
+	
+	# Training loop
+	losses = Float32[]
+	for epoch in 1:100
+	    # Define loss function
+	    function loss_fn(m)
+	        pred = m(x_batched)
+	        return Flux.mse(pred, y_batched)
+	    end
+	    
+	    # Compute gradient
+	    gs = Flux.gradient(m -> loss_fn(m), model)
+	    
+	    # Update parameters with optimizers - declare variables as global
+	    global optimizer, model = Optimisers.update(optimizer, model, gs[1])
+	    
+	    # Record loss
+	    current_loss = loss_fn(model)
+	    push!(losses, current_loss)
+	end
+	
+	# Extract learned parameters
+	slope = model.weight[1]
+	intercept = model.bias[1]
+	
+	# Make predictions
+	x_test = collect(Float32, range(0, 10, length=10))
+	predictions = vec(model(reshape(x_test, 1, :)))
+	
+	# Return results
+	res = Dict(
+	    "model_params" => Dict(
+	        "slope" => slope,
+	        "intercept" => intercept
+	    ),
+	    "training" => Dict(
+	        "initial_loss" => losses[1],
+	        "final_loss" => losses[end],
+	        "improvement_pct" => round((1 - losses[end]/losses[1]) * 100, digits=2)
+	    ),
+	    "predictions" => Dict(
+	        "x" => x_test,
+	        "y" => predictions,
+	        "actual_function" => "y = 2x + 1"
+	    )
+	)
+	') # End of julia code
 
-    # Generate synthetic data
-    x_train = collect(Float32, range(0, 10, length=100))
-    y_train = 2 .* x_train .+ 1 .+ 0.2 .* randn(Float32, 100)
-    
-    # Define a simple linear model
-    model = Dense(1 => 1)
-    
-    # Loss function
-    loss(x, y) = Flux.mse(model(x), y)
-    
-    # Training data
-    data = [(reshape(x_train[i:i], 1, 1), y_train[i:i]) for i in 1:length(x_train)]
-    
-    # Optimization
-    opt = Descent(0.01)
-    
-    # Training loop
-    losses = Float32[]
-    for epoch in 1:100
-        Flux.train!(loss, Flux.params(model), data, opt)
-        current_loss = mean([loss(reshape([x], 1, 1), [y]) for (x, y) in zip(x_train, y_train)])
-        push!(losses, current_loss)
-    end
-    
-    # Extract learned parameters
-    slope = model.weight[1]
-    intercept = model.bias[1]
-    
-    # Make predictions
-    x_test = collect(Float32, range(0, 10, length=10))
-    predictions = vec(model(reshape(x_test, 1, :)))
-    
-    # Return results
-    res = Dict(
-        "model_params" => Dict(
-            "slope" => slope,
-            "intercept" => intercept
-        ),
-        "training" => Dict(
-            "initial_loss" => losses[1],
-            "final_loss" => losses[end],
-            "improvement_pct" => round((1 - losses[end]/losses[1]) * 100, digits=2)
-        ),
-        "predictions" => Dict(
-            "x" => x_test,
-            "y" => predictions,
-            "actual_function" => "y = 2x + 1"
-        )
-    )
-')
-    Run()
-    ? Result()
+	# Back to Ring
+
+	Run()
+	? @@( Result() )
 }
+#--> [
+#	[
+#		"model_params",
+#		[ [ "slope", 2.08 ], [ "intercept", 0.50 ] ]
+#	],
+#	[
+#		"predictions",
+#		[
+#			[ "actual_function", "y = 2x + 1" ],
+#			[ "x", [ 0, 1.11, 2.22, 3.33, 4.44, 5.56, 6.67, 7.78, 8.89, 10 ] ],
+#			[ "y", [ 0.50, 2.81, 5.12, 7.43, 9.73, 12.04, 14.35, 16.66, 18.97, 21.27 ] ]
+#		]
+#	],
+#	[
+#		"training",
+#		[ [ "initial_loss", 8.86 ], [ "final_loss", 0.09 ], [ "improvement_pct", 99.04 ] ]
+#	]
+# ]
 
 proff()
-
-/*----------------------------------------------------#
-#  Julia in Ring - Scientific Computing and DataViz   #
-#-----------------------------------------------------#
-
-J = new stzExtCodeXT(:julia)
-J { @('
-    using DifferentialEquations, LinearAlgebra, Statistics
-
-    # Define the Lorenz system
-    function lorenz!(du, u, p, t)
-        σ, β, ρ = p
-        du[1] = σ * (u[2] - u[1])
-        du[2] = u[1] * (ρ - u[3]) - u[2]
-        du[3] = u[1] * u[2] - β * u[3]
-    end
-    
-    # Parameters and initial conditions
-    p = [10.0, 8/3, 28.0]  # σ, β, ρ
-    u0 = [1.0, 0.0, 0.0]
-    tspan = (0.0, 20.0)
-    
-    # Solve the ODE
-    prob = ODEProblem(lorenz!, u0, tspan, p)
-    sol = solve(prob, Tsit5(), reltol=1e-8, abstol=1e-8)
-    
-    # Sample points for visualization (reduced for simplicity)
-    t_samples = range(tspan[1], tspan[2], length=100)
-    points = sol(t_samples)
-    
-    # Extract coordinates
-    x_coords = [point[1] for point in points]
-    y_coords = [point[2] for point in points]
-    z_coords = [point[3] for point in points]
-    
-    # Calculate some statistics
-    function lyapunov_estimate(trajectory, dt)
-        n = length(trajectory) - 1
-        diffs = [norm(trajectory[i+1] - trajectory[i]) for i in 1:n]
-        return sum(log.(diffs ./ dt)) / n
-    end
-    
-    # Prepare return data
-    res = Dict(
-        "parameters" => Dict(
-            "sigma" => p[1],
-            "beta" => p[2],
-            "rho" => p[3]
-        ),
-        "trajectory" => Dict(
-            "t" => collect(t_samples),
-            "x" => x_coords,
-            "y" => y_coords,
-            "z" => z_coords
-        ),
-        "statistics" => Dict(
-            "x_mean" => mean(x_coords),
-            "y_mean" => mean(y_coords),
-            "z_mean" => mean(z_coords),
-            "x_std" => std(x_coords),
-            "y_std" => std(y_coords),
-            "z_std" => std(z_coords),
-            "estimated_lyapunov" => lyapunov_estimate(points, t_samples[2] - t_samples[1])
-        ),
-        "type" => "lorenz_attractor"
-    )
-')
-    Run()
-    ? Result()
-}
-
-/*-----------------------------------------------------------------#
-#  Julia in Ring - Text Analysis and Natural Language Processing   #
-#------------------------------------------------------------------#
-
-J = new stzExtCodeXT(:julia)
-J { @('
-    # Simple text analysis without external packages
-    
-    sample_text = """
-    Julia is a high-level, high-performance, dynamic programming language. 
-    While it is a general-purpose language and can be used to write any application, 
-    many of its features are well suited for numerical analysis and computational science.
-    
-    Distinctive aspects of Julia's design include a type system with parametric polymorphism 
-    and multiple dispatch as its core programming paradigm. It allows concurrent, 
-    parallel and distributed computing, and direct calling of C and Fortran libraries without glue code.
-    
-    Julia is garbage-collected, uses eager evaluation, and includes efficient libraries for 
-    floating-point calculations, linear algebra, random number generation, and regular expression matching.
-    """
-    
-    # Tokenize text
-    function tokenize(text)
-        # Convert to lowercase and replace non-alphanumeric with spaces
-        processed = lowercase(replace(text, r"[^a-zA-Z0-9\s]" => " "))
-        # Split by whitespace and filter out empty strings
-        return filter(s -> length(s) > 0, split(processed, r"\s+"))
-    end
-    
-    tokens = tokenize(sample_text)
-    
-    # Count word frequencies
-    function word_frequencies(tokens)
-        freqs = Dict{String, Int}()
-        for token in tokens
-            freqs[token] = get(freqs, token, 0) + 1
-        end
-        return freqs
-    end
-    
-    word_counts = word_frequencies(tokens)
-    
-    # Sort by frequency
-    sorted_words = sort(collect(word_counts), by=x->x[2], rev=true)
-    
-    # Calculate some basic statistics
-    total_words = length(tokens)
-    unique_words = length(word_counts)
-    avg_word_length = mean(length.(tokens))
-    
-    # Text complexity metrics
-    sentences = split(sample_text, r"[.!?]+")
-    words_per_sentence = mean([length(tokenize(s)) for s in sentences if length(s) > 0])
-    
-    # Get top words and their frequencies
-    top_n = 10
-    top_words = Dict(word => count for (word, count) in sorted_words[1:min(top_n, length(sorted_words))])
-    
-    # Prepare results
-    res = Dict(
-        "text_stats" => Dict(
-            "total_words" => total_words,
-            "unique_words" => unique_words,
-            "lexical_diversity" => round(unique_words / total_words * 100, digits=2),
-            "avg_word_length" => round(avg_word_length, digits=2),
-            "words_per_sentence" => round(words_per_sentence, digits=2)
-        ),
-        "top_words" => top_words,
-        "sample" => Dict(
-            "text" => sample_text[1:min(100, length(sample_text))] * "...",
-            "tokens" => tokens[1:min(20, length(tokens))]
-        )
-    )
-')
-    Run()
-    ? Result()
-}
+# Executed in 14.36 second(s) in Ring 1.22
