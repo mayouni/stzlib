@@ -221,6 +221,9 @@ class StzExtCodeXT
     def SetCode(cNewCode)
         @cCode = cNewCode
 
+	def @(cNewCode)
+		@cCode = cNewCode
+
     def SetVerbose(bVerbose)
         @bVerbose = bVerbose
 
