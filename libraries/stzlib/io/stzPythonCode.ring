@@ -14,5 +14,14 @@ class stzPythonCode
 	def Execute()
 		@oPyCode.Execute()
 
+		def Run()
+			@oPyCode.Execute()
+
+		def Exec()
+			@oPyCode.Execute()
+
 	def Result()
 		return @oPyCode.Result()
+
+	def Code()
+		return @oPyCode.Code()

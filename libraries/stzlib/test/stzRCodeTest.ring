@@ -1,13 +1,13 @@
 load "../max/stzmax.ring"
 
 /*--- Basic Numeric Data
-
+*/
 pr()
 
 R() {
 # Start of R code
 @('
-data <- list(
+res <- list(
     numbers = c(1, 2, 3, 4, 5),
     mean = mean(c(1, 2, 3, 4, 5))
 )
@@ -36,7 +36,7 @@ R = new stzRCode
 R.SetCode('
 
 numbers <- c(12, 15, 18, 22, 25)
-data <- list(
+res <- list(
     basic_stats = list(
         numbers = numbers,
         mean = mean(numbers),
@@ -72,14 +72,14 @@ proff()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*--- Data analysis with NA handling
-*/
+
 pr()
 
 R() {
 # Start of R script
 @('
 measurements <- c(23.5, NA, 22.1, 24.3, NA, 21.8)
-data <- list(
+res <- list(
     measurements = measurements,
     analysis = list(
         complete_cases = sum(!is.na(measurements)),
@@ -118,7 +118,7 @@ R = R()
 
 R.SetCode('
 temperatures <- c(18.2, 19.5, 22.1, 23.4, 25.8, 26.9, 27.5, 28.1, 26.8, 25.2)
-data <- list(
+res <- list(
     raw_data = temperatures,
     statistics = list(
         mean = mean(temperatures),
@@ -172,7 +172,7 @@ calculate_metrics <- function(values) {
     )
 }
 
-data <- list(
+res <- list(
     groups = list(
         group_a = group_a,
         group_b = group_b
@@ -229,7 +229,7 @@ R() {
 SetCode('
 dates <- as.Date("2024-01-01") + 0:29  # 30 days of data
 values <- rnorm(30, mean = 100, sd = 15)
-data <- list(
+res <- list(
     time_series = list(
         dates = format(dates, "%Y-%m-%d"),
         values = values
@@ -280,7 +280,7 @@ proff()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*=== Graphic DataViz - Complex scatter plot with density
-*/
+
 pr()
 
 R = new stzRCode
@@ -339,7 +339,7 @@ if (requireNamespace("viridis", quietly = TRUE)) {
 ggsave("output.png", p, width = 10, height = 8, dpi = 300)
 
 # Create separate data structure for Ring
-data <- list(
+res <- list(
     plot_info = list(
         filename = "output.png",
         dimensions = list(

@@ -1,5 +1,18 @@
 load "../max/stzmax.ring"
 
+/*---
+
+pr()
+
+# Python code  
+Py() { @('res = 2 + 3') Run() ? Result() }  #--> 5
+
+# R code  
+R() { @('res = 2 + 3') Run() ? Result() }   #--> 5
+
+proff()
+# Executed in 0.41 second(s) in Ring 1.22
+
 /*--- Simple python code
 
 pr()
@@ -8,7 +21,7 @@ py() {
 
 # Pyhton code
 @('
-data = {
+res = {
     "numbers": [1, 2, 3, 4, 5],
     "mean": sum([1, 2, 3, 4, 5]) / 5
 }
@@ -42,7 +55,7 @@ import pandas as pd
 import numpy as np
 
 # Create sample data
-data = {
+res = {
     "sales_data": {
             "total_revenue": sum([a*b for a,b in zip([100, 150, 200, 120],
 				 [10.5, 8.75, 12.25, 15.00])]),
@@ -91,7 +104,7 @@ This makes Ring more powerful and flexible for developers who need
 both Ring and Python capabilities in their applications.
 """
 
-data = {
+res = {
     "text_analysis": {
         "word_count": len(text.split()),
         "char_count": len(text),
@@ -178,7 +191,7 @@ clf.fit(X_train, y_train)
 # Get predictions
 predictions = clf.predict(X_test)
 
-data = {
+res = {
     "accuracy": clf.score(X_test, y_test),
     "feature_importance": clf.feature_importances_.tolist(),
     "predictions": predictions.tolist()

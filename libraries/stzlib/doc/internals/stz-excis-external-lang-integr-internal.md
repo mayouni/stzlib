@@ -45,11 +45,11 @@ This workflow is encapsulated in the `Execute()` method and its supporting priva
 
 The system utilizes several distinct file types for different purposes:
 
-### Temp File (@cTempFile)
+### Source File (@cSourceFile)
 
 A temporary file named after the target language (e.g., `temp.py` for Python or `temp.R` for R) is automatically generated. This file contains the provided code along with the transformation function's code.
 
-It serves as the actual script fed into the Python or R runtime for execution. Its name can be retrieved using the `TempFileName()` method, and its content can be accessed through the `TempFileContent()` method.
+It serves as the actual script fed into the Python or R runtime for execution. Its content can be accessed through the `Code()` method.
 
 ### Log File (@cLogFile)
 
@@ -74,6 +74,12 @@ The result file stores the transformed data structure that needs to be passed ba
 The `Result()` method parses the content of this file, evaluates it as Ring code, and returns the resulting data structure to the caller.
 
 ```ring
+def Code()
+    if NOT fexists(@cSourceFile)
+        return ""
+    ok
+    return This.ReadFile(@cSourceFile)
+
 def Log()
     if NOT fexists(@cLogFile)
         return ""
@@ -309,17 +315,17 @@ The `stzExtCodeXT` class can be used directly as follows:
 # Executing Python code  
 Py = new stzExtCodeXT(:Python)  
 
-Py.SetCode("2 + 3")  
+Py.SetCode("res = 2 + 3")  
 Py.Run()  
-? Py.Output()  
+? Py.Result()  
 # --> 5  
 
 # Executing R code  
 R = new stzExtCodeXT(:R)  
 
-R.SetCode("2 + 3")  
+R.SetCode("res = 2 + 3")  
 R.Run()  
-? R.Output()  
+? R.Result()  
 # --> 5  
 ```
 
@@ -327,15 +333,19 @@ However, in practice, you may prefer the more concise and elegant `Py()` and `R(
 
 ```ring
 # Python code  
-Py() { @('2 + 3') Run() ? Output }  
+Py() { @('res = 2 + 3') Run() ? Result() }  
 
 # R code  
-R() { @('2 + 3') Run() ? Output }  
+R() { @('res = 2 + 3') Run() ? Result() }  
 ```
 
 The `Py()` function instantiates an object of the `stzPythonCode` class, while `R()` instantiates an object of the `stzRCode` class. Both classes are specialized versions of the parent class `stzExtCodeXT`.
 
-> **Note:** The `XT` suffix in `stzExtCodeXT` indicates that this is an extended version of a more basic class called `stzExtCode`. This class allows writing Ring code that mimics the syntax of external languages (such as Python or others) while remaining purely Ring code.
+> **Note:** The result variable name used here (`res`) is configurable within the class. You can change it by modifying the `@cResultVar` attribute to any name you prefer.
+
+## Tracing the System
+
+It is possible to check the internal operation of the computation by calling the CallTrace() method, like this:
 
 ## Conclusion
 
