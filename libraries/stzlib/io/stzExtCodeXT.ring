@@ -156,6 +156,58 @@ transform_to_ring <- function(data) {
 }
 '
 
+# Julia transformation function
+
+$cJuliaToRingTransFunc = '
+function transform_to_ring(data)
+    function _transform(obj, depth=0)
+        # Prevent excessive recursion
+        if depth > 100
+            return "TOO_DEEP"
+        end
+        
+        # Handle nothing/missing values
+        if obj === nothing
+            return "NULL"
+        end
+        
+        # Handle dictionaries
+        if isa(obj, Dict)
+            items = String[]
+            for (key, value) in obj
+                push!(items, "[\'+char(39)+'$(key)\'+char(39)+', $(_transform(value, depth + 1))]")
+            end
+            return "[" * join(items, ", ") * "]"
+        end
+        
+        # Handle arrays
+        if isa(obj, AbstractArray)
+            return "[" * join([_transform(item, depth + 1) for item in obj], ", ") * "]"
+        end
+        
+        # Handle strings
+        if isa(obj, AbstractString)
+            return "\'+char(39)+'$(obj)\'+char(39)+'"
+        end
+        
+        # Handle numeric values
+        if isa(obj, Number)
+            return string(obj)
+        end
+        
+        # Handle boolean values
+        if isa(obj, Bool)
+            return obj ? "TRUE" : "FALSE"
+        end
+        
+        # Default case: convert to string
+        return "\'+char(39)+'$(string(obj))\'+char(39)+'"
+    end
+    
+    return _transform(data)
+end
+'
+
 #------------------#
 #  THE MAIN CLASS  #
 #------------------#
@@ -176,6 +228,7 @@ class StzExtCodeXT
             :TransFunc = $cPyToRingTransFunc,
             :Cleanup = TRUE
         ],
+
         :r = [
             :Name = "R",
             :Type = "interpreted",
@@ -186,7 +239,20 @@ class StzExtCodeXT
             :CustomPath = "",
             :TransFunc = $cRToRingTransFunc,
             :Cleanup = TRUE
-        ]
+        ],
+
+	:julia = [
+	    :Name = "Julia",
+	    :Type = "interpreted",
+	    :Extension = ".jl",
+	    :Runtime = "julia",
+	    :AlternateRuntimes = [],
+	    :ResultFile = "jlresult.txt",
+	    :CustomPath = "",
+	    :TransFunc = $cJuliaToRingTransFunc,
+	    :Cleanup = TRUE
+	]
+
     ]
 
     # Other attributes
@@ -388,6 +454,23 @@ writeLines(transformed, "' + @cResultFile + '")
 cat("Data written to file\n")
 '
             return cFullCode
+
+	but @cLanguage = "julia"
+
+    cFullCode = cTransFunc + '
+# Main code
+println("Julia script starting...")
+' + @cCode + '
+transformed = transform_to_ring(' + @cResultVar + ')
+println("Data before transformation: ", ' + @cResultVar + ')
+println("Data after transformation: ", transformed)
+open("' + @cResultFile + '", "w") do f
+    write(f, transformed)
+end
+println("Data written to file")
+'
+    return cFullCode
+
         else
             stzraise("Not implemented yet for this language!")
         ok
