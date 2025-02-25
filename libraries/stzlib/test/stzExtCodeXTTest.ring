@@ -16,7 +16,7 @@ oPyCode = new StzExtCodeXT("python")
 # Python code that generates some data
 
 oPyCode.SetCode('
-data = {
+res = {
     "numbers": [1, 2, 3, 4, 5],
     "mean": sum([1, 2, 3, 4, 5]) / 5
 }
@@ -63,7 +63,7 @@ pr()
 oPyCode = new StzExtCodeXT("python")
 
 oPyCode.SetCode('
-data = {
+res = {
     "integer": 42,
     "decimal": 3.14159,
     "negative": -17,
@@ -90,15 +90,13 @@ pr()
 
 oPyCode = new StzExtCodeXT("python")
 oPyCode.setCode('
-data = {
+res = {
     "simple": "Hello World",
     "multiline": "First line\\nSecond line\\nThird line",
     "spaces": "   padded   ",
     "mixed_text": "Numbers: 123, Symbols: @#$%"
 }
 ')
-
-#TODO: Adapt transform_to_ring() to manage escaping of \\n and other chars
 
 oPyCode.Exec()
 
@@ -120,7 +118,7 @@ pr()
 oPyCode = new StzExtCodeXT("python")
 
 oPyCode.SetCode('
-data = {
+res = {
     "simple_list": [1, 2, 3, 4, 5],
     "mixed_list": [1, "two", 3.14, True, None],
     "nested_list": [
@@ -165,7 +163,7 @@ pr()
 oPyCode = new StzExtCodeXT("python")
 
 oPyCode.SetCode('
-data = {
+res = {
     "company": {
         "name": "TechCorp",
         "departments": {
@@ -252,9 +250,9 @@ oPyCode.Execute()
 proff()
 # Executed in 0.12 second(s) in Ring 1.22
 
-/*=====================================#
-#  PTHON EXAMPLES - PART 2 (ADVANCED)  #
-#======================================#
+/*======================================#
+#  PYTHON EXAMPLES - PART 2 (ADVANCED)  #
+#=======================================#
 
 /*--- Data Analysis with Pandas
 
@@ -266,7 +264,7 @@ import pandas as pd
 import numpy as np
 
 # Create sample data
-data = {
+res = {
     "sales_data": {
             "total_revenue": sum([a*b for a,b in zip([100, 150, 200, 120], [10.5, 8.75, 12.25, 15.00])]),
             "average_price": np.mean([10.5, 8.75, 12.25, 15.00]),
@@ -300,12 +298,12 @@ from collections import Counter
 import re
 
 text = """
-Ring is a innovative programming language that can embed Python code.
+Ring is an innovative programming language that can embed Python code.
 This makes Ring more powerful and flexible for developers who need
 both Ring and Python capabilities in their applications.
 """
 
-data = {
+res = {
     "text_analysis": {
         "word_count": len(text.split()),
         "char_count": len(text),
@@ -383,7 +381,7 @@ clf.fit(X_train, y_train)
 # Get predictions
 predictions = clf.predict(X_test)
 
-data = {
+res = {
     "accuracy": clf.score(X_test, y_test),
     "feature_importance": clf.feature_importances_.tolist(),
     "predictions": predictions.tolist(),
@@ -437,7 +435,7 @@ pr()
 R = new StzExtCodeXT("r")
 
 R.SetCode('
-data <- list(
+res <- list(
     numbers = c(1, 2, 3, 4, 5),
     mean = mean(c(1, 2, 3, 4, 5))
 )
@@ -461,7 +459,7 @@ R = new StzExtCodeXT("r")
 
 R.SetCode('
 numbers <- c(12, 15, 18, 22, 25)
-data <- list(
+res <- list(
     basic_stats = list(
         numbers = numbers,
         mean = mean(numbers),
@@ -503,15 +501,20 @@ pr()
 R = new StzExtCodeXT("r")
 
 R.SetCode('
-measurements <- c(23.5, NA, 22.1, 24.3, NA, 21.8)
-data <- list(
-    measurements = measurements,
-    analysis = list(
-        complete_cases = sum(!is.na(measurements)),
-        mean_without_na = mean(measurements, na.rm = TRUE),
-        na_positions = which(is.na(measurements))
-    )
-)
+
+	measurements <- c(23.5, NA, 22.1, 24.3, NA, 21.8)
+
+	res <- list(
+
+	    measurements = measurements,
+
+	    analysis = list(
+	        complete_cases = sum(!is.na(measurements)),
+	        mean_without_na = mean(measurements, na.rm = TRUE),
+	        na_positions = which(is.na(measurements))
+	    )
+
+	)
 ')
 
 R.Execute()
@@ -538,20 +541,25 @@ pr()
 R = new stzExtCodeXT(:R)
 
 R.SetCode('
-temperatures <- c(18.2, 19.5, 22.1, 23.4, 25.8, 26.9, 27.5, 28.1, 26.8, 25.2)
-data <- list(
-    raw_data = temperatures,
-    statistics = list(
-        mean = mean(temperatures),
-        sd = sd(temperatures),
-        quartiles = quantile(temperatures, probs = c(0.25, 0.5, 0.75)),
-        range = range(temperatures)
-    ),
-    analysis = list(
-        above_25 = sum(temperatures > 25),
-        percent_above_25 = mean(temperatures > 25) * 100
-    )
-)
+
+	temperatures <- c(18.2, 19.5, 22.1, 23.4, 25.8, 26.9, 27.5, 28.1, 26.8, 25.2)
+
+	res <- list(
+
+	    raw_data = temperatures,
+
+	    statistics = list(
+	        mean = mean(temperatures),
+	        sd = sd(temperatures),
+	        quartiles = quantile(temperatures, probs = c(0.25, 0.5, 0.75)),
+	        range = range(temperatures)
+	    ),
+
+	    analysis = list(
+	        above_25 = sum(temperatures > 25),
+	        percent_above_25 = mean(temperatures > 25) * 100
+	    )
+	)
 ')
 
 R.Execute()
@@ -583,30 +591,36 @@ pr()
 R = new stzExtCodeXT(:R)
 
 R.SetCode('
-group_a <- c(15, 18, 21, 24, 27)
-group_b <- c(22, 25, 28, 31, 34)
-calculate_metrics <- function(values) {
-    list(
-        mean = mean(values),
-        variance = var(values),
-        coefficient_variation = sd(values) / mean(values) * 100
-    )
-}
 
-data <- list(
-    groups = list(
-        group_a = group_a,
-        group_b = group_b
-    ),
-    metrics = list(
-        group_a_metrics = calculate_metrics(group_a),
-        group_b_metrics = calculate_metrics(group_b)
-    ),
-    comparison = list(
-        mean_difference = mean(group_b) - mean(group_a),
-        ratio = mean(group_b) / mean(group_a)
-    )
-)
+	group_a <- c(15, 18, 21, 24, 27)
+	group_b <- c(22, 25, 28, 31, 34)
+
+	calculate_metrics <- function(values) {
+	    list(
+	        mean = mean(values),
+	        variance = var(values),
+	        coefficient_variation = sd(values) / mean(values) * 100
+	    )
+	}
+	
+	res <- list(
+
+	    groups = list(
+	        group_a = group_a,
+	        group_b = group_b
+	    ),
+
+	    metrics = list(
+	        group_a_metrics = calculate_metrics(group_a),
+	        group_b_metrics = calculate_metrics(group_b)
+	    ),
+
+	    comparison = list(
+	        mean_difference = mean(group_b) - mean(group_a),
+	        ratio = mean(group_b) / mean(group_a)
+	    )
+
+	)
 ')
 
 R.Execute()
@@ -648,22 +662,28 @@ pr()
 R = new stzExtCodeXT(:R)
 
 R.SetCode('
-dates <- as.Date("2024-01-01") + 0:29  # 30 days of data
-values <- rnorm(30, mean = 100, sd = 15)
-data <- list(
-    time_series = list(
-        dates = format(dates, "%Y-%m-%d"),
-        values = values
-    ),
-    weekly_stats = list(
-        week_means = tapply(values, ceiling(seq_along(values)/7), mean),
-        week_sds = tapply(values, ceiling(seq_along(values)/7), sd)
-    ),
-    trends = list(
-        overall_trend = coef(lm(values ~ seq_along(values))),
-        volatility = sd(diff(values))
-    )
-)
+
+	dates <- as.Date("2024-01-01") + 0:29  # 30 days of data
+	values <- rnorm(30, mean = 100, sd = 15)
+
+	res <- list(
+
+	    time_series = list(
+	        dates = format(dates, "%Y-%m-%d"),
+	        values = values
+	    ),
+
+	    weekly_stats = list(
+	        week_means = tapply(values, ceiling(seq_along(values)/7), mean),
+	        week_sds = tapply(values, ceiling(seq_along(values)/7), sd)
+	    ),
+
+	    trends = list(
+	        overall_trend = coef(lm(values ~ seq_along(values))),
+	        volatility = sd(diff(values))
+	    )
+
+	)
 ')
 
 R.Execute()
@@ -696,93 +716,93 @@ proff()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*=== Graphic DataViz - Complex scatter plot with density
-*/
+
 pr()
 
 R = new stzExtCodeXT(:R)
 
 R.SetCode('
 
-# Load required libraries with error handling
-library("ggplot2")
-library("plotly")
-library("viridis")
-
-# Generate data
-set.seed(123)
-n_points <- 200
-x <- rnorm(n_points, mean = 0, sd = 1.5)
-y <- x^2 + rnorm(n_points, mean = 0, sd = 2)
-categories <- factor(sample(c("A", "B", "C"), n_points, replace = TRUE))
-sizes <- runif(n_points, 1, 5)
-
-# Create data frame
-df <- data.frame(
-    x = x,
-    y = y,
-    category = categories,
-    size = sizes
-)
-
-# Create and save the plot first
-p <- ggplot(df, aes(x = x, y = y, color = category)) +
-    geom_point(aes(size = size), alpha = 0.6) +
-    geom_smooth(method = "loess", se = TRUE) +
-    stat_density_2d(aes(fill = after_stat(level)), geom = "polygon", alpha = 0.1) +
-    labs(
-        title = "Complex 2D Visualization",
-        subtitle = "Scatter plot with density contours and trend lines",
-        x = "X Variable",
-        y = "Y Variable",
-        color = "Category",
-        size = "Size"
-    ) +
-    theme_minimal() +
-    theme(
-        plot.title = element_text(size = 16, face = "bold"),
-        plot.subtitle = element_text(size = 12),
-        legend.position = "right"
-    )
-
-# Add color scales
-if (requireNamespace("viridis", quietly = TRUE)) {
-    p <- p + scale_color_viridis_d() + scale_fill_viridis_c()
-} else {
-    p <- p + scale_color_brewer(palette = "Set1") + scale_fill_distiller(palette = "Blues")
-}
-
-# Save the plot
-ggsave("output.png", p, width = 10, height = 8, dpi = 300)
-
-# Create separate data structure for Ring
-data <- list(
-    plot_info = list(
-        filename = "output.png",
-        dimensions = list(
-            width = 10,
-            height = 8,
-            dpi = 300
-        ),
-        data_points = n_points
-    ),
-    statistics = list(
-        x = list(
-            mean = mean(x),
-            sd = sd(x),
-            range = range(x)
-        ),
-        y = list(
-            mean = mean(y),
-            sd = sd(y),
-            range = range(y)
-        ),
-        correlation = cor(x, y)
-    ),
-    categories = list(
-        levels = levels(categories),
-        counts = as.list(table(categories))
-    )
-)
+	# Load required libraries with error handling
+	library("ggplot2")
+	library("plotly")
+	library("viridis")
+	
+	# Generate data
+	set.seed(123)
+	n_points <- 200
+	x <- rnorm(n_points, mean = 0, sd = 1.5)
+	y <- x^2 + rnorm(n_points, mean = 0, sd = 2)
+	categories <- factor(sample(c("A", "B", "C"), n_points, replace = TRUE))
+	sizes <- runif(n_points, 1, 5)
+	
+	# Create data frame
+	df <- data.frame(
+	    x = x,
+	    y = y,
+	    category = categories,
+	    size = sizes
+	)
+	
+	# Create and save the plot first
+	p <- ggplot(df, aes(x = x, y = y, color = category)) +
+	    geom_point(aes(size = size), alpha = 0.6) +
+	    geom_smooth(method = "loess", se = TRUE) +
+	    stat_density_2d(aes(fill = after_stat(level)), geom = "polygon", alpha = 0.1) +
+	    labs(
+	        title = "Complex 2D Visualization",
+	        subtitle = "Scatter plot with density contours and trend lines",
+	        x = "X Variable",
+	        y = "Y Variable",
+	        color = "Category",
+	        size = "Size"
+	    ) +
+	    theme_minimal() +
+	    theme(
+	        plot.title = element_text(size = 16, face = "bold"),
+	        plot.subtitle = element_text(size = 12),
+	        legend.position = "right"
+	    )
+	
+	# Add color scales
+	if (requireNamespace("viridis", quietly = TRUE)) {
+	    p <- p + scale_color_viridis_d() + scale_fill_viridis_c()
+	} else {
+	    p <- p + scale_color_brewer(palette = "Set1") + scale_fill_distiller(palette = "Blues")
+	}
+	
+	# Save the plot
+	ggsave("output.png", p, width = 10, height = 8, dpi = 300)
+	
+	# Create separate data structure for Ring
+	res <- list(
+	    plot_info = list(
+	        filename = "output.png",
+	        dimensions = list(
+	            width = 10,
+	            height = 8,
+	            dpi = 300
+	        ),
+	        data_points = n_points
+	    ),
+	    statistics = list(
+	        x = list(
+	            mean = mean(x),
+	            sd = sd(x),
+	            range = range(x)
+	        ),
+	        y = list(
+	            mean = mean(y),
+	            sd = sd(y),
+	            range = range(y)
+	        ),
+	        correlation = cor(x, y)
+	    ),
+	    categories = list(
+	        levels = levels(categories),
+	        counts = as.list(table(categories))
+	    )
+	)
 ')
 
 R.Execute()
@@ -798,7 +818,7 @@ proff()
 /*==========================#
 #  JULIA LANGUAGE EXAMPLES  #
 #===========================#
-*/
+
 pr()
 
 J = new stzExtCodeXT(:julia)
@@ -820,6 +840,7 @@ J { @('
 ')
     Run()
     ? @@( Result() )
+
 }
 #--> [
 #	[ "median", 3 ],

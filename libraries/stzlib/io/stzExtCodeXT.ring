@@ -226,7 +226,7 @@ class StzExtCodeXT
             :ResultFile = "pyresult.txt",
             :CustomPath = "",
             :TransFunc = $cPyToRingTransFunc,
-            :Cleanup = TRUE
+            :Cleanup = FALSE
         ],
 
         :r = [
@@ -238,7 +238,7 @@ class StzExtCodeXT
             :ResultFile = "rresult.txt",
             :CustomPath = "",
             :TransFunc = $cRToRingTransFunc,
-            :Cleanup = TRUE
+            :Cleanup = FALSE
         ],
 
 	:julia = [
@@ -299,138 +299,208 @@ class StzExtCodeXT
 	ok
 
     def Prepare()
-        remove(@cSourceFile)
-        remove(@cResultFile)
         This.WriteToFile(@cSourceFile, This.PrepareSourceCode())
 
-    def Execute()
+	def Execute()
 
-        This.Prepare()
+		This.Prepare()
 
-        if @cCode = ""
-            return
-        end
+		if @cCode = ""
+			return
+		end
 
-        @nStartTime = clock()
-        cWorkDir = ring_substr2(@cSourceFile, "\\" + @aLanguages[@cLanguage][:extension], "")
-        chdir(cWorkDir)
+		@nStartTime = clock()
 
-        cCmd = This.BuildCommand() + " > " + @cLogFile + " 2>&1"
-        nExitCode = system(cCmd)
+		cWorkDir = ring_substr2(@cSourceFile, "\\" + @aLanguages[@cLanguage][:extension], "")
+		chdir(cWorkDir)
 
-        @nEndTime = clock()
+		cCmd = This.BuildCommand() + " > " + @cLogFile + " 2>&1"
+		nExitCode = system(cCmd)
 
-        cLog = This.ReadFile(@cLogFile)
+		@nEndTime = clock()
 
-        This.RecordExecution(cLog, nExitCode)
+		cLog = This.ReadFile(@cLogFile)
 
-        if @bVerbose
-            ? "Command: " + cCmd
-            ? "Exit Code: " + nExitCode
-            ? "Log: " + cLog
-        end
+		This.RecordExecution(cLog, nExitCode)
 
-	def Run()
-		This.Execute()
+		if @bVerbose
+			? "Command: " + cCmd
+			? "Exit Code: " + nExitCode
+			? "Log: " + cLog
 
-	def Exec()
-		This.Execute()
+		end
 
-    def LastCallDuration()
-        if len(@aCallTrace) > 0
-            return @aCallTrace[len(@aCallTrace)][:duration]
-        end
-        return 0
+		def Run()
+			This.Execute()
+
+		def Exec()
+			This.Execute()
+
+	def CleanupFiles()
+
+		try
+		        remove(@cSourceFile)
+		        remove(@cResultFile)
+			remove(@cLogFile)
+		catch
+			stzraise(cError)
+		done
+
+		def Cleanup()
+			This.CleanupFiles()
+
+	def CleanupRequired()
+		bResult = @aLanguages[@cLanguage][:Cleanup]
+		if isNumber(bResult) and bResult = TRUE
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def LastCallDuration()
+		if len(@aCallTrace) > 0
+			return @aCallTrace[len(@aCallTrace)][:duration]
+		end
+		return 0
 
 	def Duration()
 		return LastCallDuration()
 
-    def CallTrace()
-        return @aCallTrace
+	def CallTrace()
+		return @aCallTrace
 
 	def Trace()
 		return @aCallTrace
 
-    def Result()
-        if NOT fexists(@cResultFile)
-            stzraise("File does not exist!")
-        ok
-        cContent = This.ReadFile(@cResultFile)
-        if cContent = NULL or cContent = ""
-            return ""
-        end
-        try
-            cCode = 'result = ' + cContent
-            eval(cCode)
-            return result
-        catch
-            ? "Eval error: " + cCatchError
-            return cContent
-        end
+	def Result()
+		if NOT fexists(@cResultFile)
+			stzraise("File does not exist!" + NL + NL +
 
-    def FileName()
-        return @cResultFile
+			"Log content (from " + @cLanguage + " console): " + NL +
+			"------------------" + copy("-", len(@cLanguage)) + "----------" + NL + NL +
+			This.Log() + NL + NL +
+			"------------------------" + NL +
+			"End of log file content.")
+		ok
 
-    def ResultVar()
+		cContent = This.ReadFile(@cResultFile)
+
+		if cContent = ""
+			return ""
+		ok
+
+		try
+			cCode = 'result = ' + cContent
+			eval(cCode)
+
+			if CleanupRequired()
+				This.CleanupFiles()
+			ok
+
+			return result
+
+		catch
+			? "Eval error: " + cCatchError + NL
+			? "Log content: " + This.Log()
+
+			return cContent
+		done
+
+	def FileName()
+		return @cResultFile
+
+	def ResultVar()
 		return @cResultVar
 
-def Code()
-    if NOT fexists(@cSourceFile)
-        return ""
-    ok
-    return This.ReadFile(@cSourceFile)
+	def RuntimePath()
+		return @aLanguage[@cLanguage][:RuntimePath]
 
-    PRIVATE
+	def IsVerbose()
+		return @bVerbose
 
-    def WriteToFile(cFile, cContent)
-        fp = fopen(cFile, "w")
-        fwrite(fp, cContent)
-        fclose(fp)
+	def SetLogFile(cFileName)
+		@cLogFile = cFileName
 
-    def ReadFile(cFile)
-        if NOT fexists(cFile)
-            return NULL
-        ok
-        fp = fopen(cFile, "r")
-        if fp = NULL
-            return NULL
-        end
-        cContent = fread(fp, fsize(fp))
-        fclose(fp)
-        return cContent
 
-    def BuildCommand()
-        if @aLanguages[@cLanguage][:type] = "interpreted"
-            cCmd = ""
-            if @aLanguages[@cLanguage][:customPath] != ""
-                cCmd = @aLanguages[@cLanguage][:customPath] + " " + @cSourceFile
-            else
-                cCmd = @aLanguages[@cLanguage][:runtime] + " " + @cSourceFile
-            ok
-            return cCmd
-        else
-            stzraise("Only interpreted languages are currently supported!")
-        ok
+	def LogFile()
+		return This.ReadFile(@cLogFile)
 
-    def RecordExecution(cLog, nExitCode)
-        cMode = ""
-        if @aLanguages[@cLanguage][:type] = "interpreted"
-            cMode = "interpreted"
-        else
-            stzraise("Only interpreted languages are currently supported!")
-        ok
-        @aCallTrace + [
-            :language = @cLanguage,
-            :timestamp = TimeStamp(),
-            :duration = (@nEndTime - @nStartTime) / clockspersecond(),
-            :log = cLog,
-            :exitcode = nExitCode,
-            :mode = cMode
-        ]
+		def Log()
+			return This.LogFile()
 
-    def PrepareSourceCode()
+	def Code()
+		if NOT fexists(@cSourceFile)
+			return ""
+		ok
+		return This.ReadFile(@cSourceFile)
+
+	#======
+	PRIVATE
+	#======
+
+	def WriteToFile(cFile, cContent)
+		fp = fopen(cFile, "w")
+		fwrite(fp, cContent)
+		fclose(fp)
+
+	def ReadFile(cFile)
+		if NOT fexists(cFile)
+			return NULL
+		ok
+
+		fp = fopen(cFile, "r")
+		if fp = NULL
+			return NULL
+		end
+
+		cContent = fread(fp, fsize(fp))
+		fclose(fp)
+
+		return cContent
+
+	def BuildCommand()
+
+		if @aLanguages[@cLanguage][:type] = "interpreted"
+
+			cCmd = ""
+
+			if @aLanguages[@cLanguage][:customPath] != ""
+				cCmd = @aLanguages[@cLanguage][:customPath] + " " + @cSourceFile
+			else
+				cCmd = @aLanguages[@cLanguage][:runtime] + " " + @cSourceFile
+			ok
+
+			return cCmd
+		else
+			stzraise("Only interpreted languages are currently supported!")
+		ok
+
+	def RecordExecution(cLog, nExitCode)
+
+		cMode = ""
+
+		if @aLanguages[@cLanguage][:type] = "interpreted"
+			cMode = "interpreted"
+		else
+			stzraise("Only interpreted languages are currently supported!")
+		ok
+
+		@aCallTrace + [
+			:Language = @cLanguage,
+			:Timestamp = TimeStamp(),
+			:Duration = (@nEndTime - @nStartTime) / clockspersecond(),
+			:Log = cLog,
+			:Exitcode = nExitCode,
+			:Mode = cMode
+		]
+
+
+	def PrepareSourceCode()
+
         cTransFunc = @aLanguages[@cLanguage][:TransFunc]
+
         if @cLanguage = "python"
+
             cFullCode = NL + cTransFunc + '
 # Main code
 print("Python script starting...")
@@ -442,34 +512,36 @@ with open("' + @cResultFile + '", "w") as f:
     f.write(transformed)
 print("Data written to file")
 '
-            return cFullCode
+		return cFullCode
 
-        but @cLanguage = "r"
-            cFullCode = cTransFunc + '
-# Main code
-cat("R script starting...\n")
-' + @cCode + '
-transformed <- transform_to_ring(' + @cResultVar + ')
-writeLines(transformed, "' + @cResultFile + '")
-cat("Data written to file\n")
-'
-            return cFullCode
+	but @cLanguage = "r"
+
+		cFullCode = cTransFunc + '
+		# Main code
+		cat("R script starting...\n")
+		' + @cCode + '
+		transformed <- transform_to_ring(' + @cResultVar + ')
+		writeLines(transformed, "' + @cResultFile + '")
+		cat("Data written to file\n")
+		'
+		return cFullCode
 
 	but @cLanguage = "julia"
 
-    cFullCode = cTransFunc + '
-# Main code
-println("Julia script starting...")
-' + @cCode + '
-transformed = transform_to_ring(' + @cResultVar + ')
-println("Data before transformation: ", ' + @cResultVar + ')
-println("Data after transformation: ", transformed)
-open("' + @cResultFile + '", "w") do f
-    write(f, transformed)
-end
-println("Data written to file")
-'
-    return cFullCode
+		cFullCode = cTransFunc + '
+		# Main code
+		println("Julia script starting...")
+		' + @cCode + '
+		transformed = transform_to_ring(' + @cResultVar + ')
+		println("Data before transformation: ", ' + @cResultVar + ')
+		println("Data after transformation: ", transformed)
+		open("' + @cResultFile + '", "w") do f
+		    write(f, transformed)
+		end
+		println("Data written to file")
+		'
+
+		return cFullCode
 
         else
             stzraise("Not implemented yet for this language!")
