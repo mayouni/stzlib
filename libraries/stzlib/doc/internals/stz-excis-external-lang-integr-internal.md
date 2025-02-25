@@ -389,6 +389,12 @@ R() {
 }
 ```
 
+Most of the information returned in the trace are expressive, except `"exitcode"` whcih may seem unclear to you...
+
+In fact, the `@nExitCode` in the `StzExtCodeXT` class captures the exit status of external Python or R script executions. It's stored in the execution trace record (`:exitcode` key in `@aCallTrace`) to track whether scripts ran successfully (exit code 0) or failed (non-zero).
+
+This information is valuable for debugging, error reporting, and potentially implementing conditional behavior based on execution success or failure, though the current implementation primarily uses it for record-keeping purposes.
+
 ## Conclusion
 
 The Softanza External Code Integration System provides a powerful mechanism for bridging the gap between Ring and other programming languages, particularly those with rich ecosystems for data science, machine learning, and statistical computing. By automating the transformation of data structures and providing a clean, consistent interface, **EXCIS** enables Ring developers to leverage the best tools for each task across language boundaries.

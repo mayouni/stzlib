@@ -1,7 +1,7 @@
 load "../max/stzmax.ring"
 
 /*--- Debugging external code execution
-*/
+
 pr()
 
 R() {
@@ -448,47 +448,50 @@ R() {
 }
 
 proff()
+# Executed in 1.45 second(s) in Ring 1.22
 
-/*--- Bar Chart with Error Bars ERR
+/*--- Bar Chart with Error Bars
 
 pr()
 
 R() { @('
 
-	library(ggplot2)
-	library(dplyr)
-	
-	mtcars %>%
-	  group_by(cyl) %>%
-	  summarise(
-	    mean_mpg = mean(mpg),
-	    se = sd(mpg)/sqrt(n())
-	  ) %>%
+  library(ggplot2)
+  library(dplyr)
 
-	  p <- ggplot(aes(x = factor(cyl), y = mean_mpg)) +
-	  	geom_bar(stat = "identity", fill = "#5ab4ac", width = 0.6) +
-	  	geom_errorbar(aes(ymin = mean_mpg - se, ymax = mean_mpg + se), 
-	                width = 0.2, color = "#d8b365") +
-	  	theme_light() +
-	 	labs(title = "Average MPG by Cylinder Count",
-	       	subtitle = "With standard error bars",
-	       	x = "Number of Cylinders",
-	       	y = "Average MPG") +
-	  	theme(panel.grid.major.x = element_blank())
+  # Group and summarize the data first, then save to a variable
+  summary_data <- mtcars %>%
+    group_by(cyl) %>%
+    summarise(
+      mean_mpg = mean(mpg),
+      se = sd(mpg)/sqrt(n())
+    )
 
-	# Save the plot
-	ggsave("output.png", p, width = 10, height = 8, dpi = 300)
+  # Create the plot with the summarized data  
+  p <- ggplot(summary_data, aes(x = factor(cyl), y = mean_mpg)) +
+    geom_bar(stat = "identity", fill = "#5ab4ac", width = 0.6) +
+    geom_errorbar(aes(ymin = mean_mpg - se, ymax = mean_mpg + se),
+                 width = 0.2, color = "#d8b365") +
+    theme_light() +
+    labs(title = "Average MPG by Cylinder Count",
+         subtitle = "With standard error bars",
+         x = "Number of Cylinders",
+         y = "Average MPG") +
+    theme(panel.grid.major.x = element_blank())
 
-	# Create separate data structure for Ring
-	res <- list( "DATAVIZ" )
+  # Save the plot
+  ggsave("output.png", p, width = 10, height = 8, dpi = 300)
 
-	')
+  # Create separate data structure for Ring
+  res <- list("DATAVIZ")
+')
 
-	Run()
-	View("output.png")
+  Run()
+  View("output.png")
 }
 
 proff()
+# Executed in 1.31 second(s) in Ring 1.22
 
 /*--- Connected Scatterplot
 */
@@ -496,59 +499,42 @@ pr()
 
 R() { @('
 
-	library(ggplot2)
-	library(gapminder)
-	
-	gapminder %>%
-	  filter(country %in% c("United States", "China", "India", "Germany", "Brazil")) %>%
-	  filter(year >= 1990) %>%
-	
-	  p <- ggplot(aes(x = gdpPercap, y = lifeExp, color = country, size = pop)) +
-	  	geom_point(alpha = 0.7) +
-	  	geom_path(aes(group = country), alpha = 0.8) +
-	 	scale_x_log10(labels = scales::dollar_format()) +
-	  	scale_size_continuous(range = c(2, 12), guide = "none") +
-	  	scale_color_brewer(palette = "Set2") +
-	  	theme_minimal() +
-	  	labs(title = "GDP vs Life Expectancy (1990-2007)",
-	       	x = "GDP per Capita (log scale)",
-	       	y = "Life Expectancy",
-	       	color = "Country")
+  library(ggplot2)
+  library(gapminder)
+  library(dplyr)
+  
+  # Filter the data and save to a variable
+  filtered_data <- gapminder %>%
+    filter(country %in% c("United States", "China", "India", "Germany", "Brazil")) %>%
+    filter(year >= 1990)
+  
+  # Create the plot with the filtered data
+  p <- ggplot(filtered_data, aes(x = gdpPercap, y = lifeExp, color = country, size = pop)) +
+    geom_point(alpha = 0.7) +
+    geom_path(aes(group = country), alpha = 0.8) +
+    scale_x_log10(labels = scales::dollar_format()) +
+    scale_size_continuous(range = c(2, 12), guide = "none") +
+    scale_color_brewer(palette = "Set2") +
+    theme_minimal() +
+    labs(title = "GDP vs Life Expectancy (1990-2007)",
+         x = "GDP per Capita (log scale)",
+         y = "Life Expectancy",
+         color = "Country")
+  
+  # Save the plot
+  ggsave("output.png", p, width = 10, height = 8, dpi = 300)
+  
+  # Create separate data structure for Ring
+  res <- list("DATAVIZ")
+')
 
-	# Save the plot
-	ggsave("output.png", p, width = 10, height = 8, dpi = 300)
-
-	# Create separate data structure for Ring
-	res <- list( "DATAVIZ" )
-
-	')
-
-	Run()
-	View("output.png")
-
+  Run()
+  View("output.png")
 }
 
 proff()
+# Executed in 1.77 second(s) in Ring 1.22
 
-# ERROR in log.txt
-/*
-R script starting...
-Error in `fortify()`:
-! `data` must be a <data.frame>, or an object coercible by `fortify()`,
-  or a valid <data.frame>-like object coercible by `as.data.frame()`, not a
-  <uneval> object.
-ℹ Did you accidentally pass `aes()` to the `data` argument?
-Backtrace:
-    ▆
- 1. ├─ggplot2::ggplot(...)
- 2. └─ggplot2:::ggplot.default(...)
- 3.   ├─ggplot2::fortify(data, ...)
- 4.   └─ggplot2:::fortify.default(data, ...)
- 5.     └─cli::cli_abort(msg)
- 6.       └─rlang::abort(...)
-Execution halted
-*/
- 
 /*============================#
 #  Geospatial analysis in R  #
 #============================#
