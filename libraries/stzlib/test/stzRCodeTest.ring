@@ -1,7 +1,7 @@
 load "../max/stzmax.ring"
 
 /*--- Basic Numeric Data
-*/
+
 pr()
 
 R() {
@@ -374,3 +374,273 @@ View("output.png") # Opening the image in the system default viewer
 
 proff()
 # Executed in 2.92 second(s) in Ring 1.22
+
+/*=======================#
+#  MODERN DATAVIZS IN R  #
+#========================#
+
+/*--- Fuel Efficiency by Cylinder Count
+
+pr()
+
+R() {
+
+	@('
+	library(ggplot2)
+	library(hrbrthemes)
+	
+	p <- ggplot(mtcars, aes(x = factor(cyl), y = mpg)) +
+	  geom_boxplot(fill = "#9ecae1", alpha = 0.7, outlier.shape = NA) +
+	  geom_jitter(width = 0.2, alpha = 0.5, color = "#3182bd") +
+	  theme_minimal() +
+	  labs(title = "Fuel Efficiency by Cylinder Count",
+	       x = "Cylinders",
+	       y = "Miles Per Gallon") +
+	  theme(
+	    plot.title = element_text(face = "bold"),
+	    axis.title = element_text(face = "italic")
+	  )
+
+	# Save the plot
+	ggsave("output.png", p, width = 10, height = 8, dpi = 300)
+
+	# Create separate data structure for Ring
+	res <- list( "DATAVIZ" )
+	')
+
+	Run()
+	View("output.png")
+}
+
+proff()
+
+/*--- Bar Chart with Error Bars ERR
+
+pr()
+
+R() { @('
+
+	library(ggplot2)
+	library(dplyr)
+	
+	mtcars %>%
+	  group_by(cyl) %>%
+	  summarise(
+	    mean_mpg = mean(mpg),
+	    se = sd(mpg)/sqrt(n())
+	  ) %>%
+
+	  p <- ggplot(aes(x = factor(cyl), y = mean_mpg)) +
+	  	geom_bar(stat = "identity", fill = "#5ab4ac", width = 0.6) +
+	  	geom_errorbar(aes(ymin = mean_mpg - se, ymax = mean_mpg + se), 
+	                width = 0.2, color = "#d8b365") +
+	  	theme_light() +
+	 	labs(title = "Average MPG by Cylinder Count",
+	       	subtitle = "With standard error bars",
+	       	x = "Number of Cylinders",
+	       	y = "Average MPG") +
+	  	theme(panel.grid.major.x = element_blank())
+
+	# Save the plot
+	ggsave("output.png", p, width = 10, height = 8, dpi = 300)
+
+	# Create separate data structure for Ring
+	res <- list( "DATAVIZ" )
+
+	')
+
+	Run()
+	View("output.png")
+}
+
+proff()
+
+/*--- Connected Scatterplot
+*/
+pr()
+
+R() { @('
+
+	library(ggplot2)
+	library(gapminder)
+	
+	gapminder %>%
+	  filter(country %in% c("United States", "China", "India", "Germany", "Brazil")) %>%
+	  filter(year >= 1990) %>%
+	
+	  p <- ggplot(aes(x = gdpPercap, y = lifeExp, color = country, size = pop)) +
+	  	geom_point(alpha = 0.7) +
+	  	geom_path(aes(group = country), alpha = 0.8) +
+	 	scale_x_log10(labels = scales::dollar_format()) +
+	  	scale_size_continuous(range = c(2, 12), guide = "none") +
+	  	scale_color_brewer(palette = "Set2") +
+	  	theme_minimal() +
+	  	labs(title = "GDP vs Life Expectancy (1990-2007)",
+	       	x = "GDP per Capita (log scale)",
+	       	y = "Life Expectancy",
+	       	color = "Country")
+
+	# Save the plot
+	ggsave("output.png", p, width = 10, height = 8, dpi = 300)
+
+	# Create separate data structure for Ring
+	res <- list( "DATAVIZ" )
+
+	')
+
+	Run()
+	View("output.png")
+
+}
+
+proff()
+
+# ERROR in log.txt
+/*
+R script starting...
+Error in `fortify()`:
+! `data` must be a <data.frame>, or an object coercible by `fortify()`,
+  or a valid <data.frame>-like object coercible by `as.data.frame()`, not a
+  <uneval> object.
+ℹ Did you accidentally pass `aes()` to the `data` argument?
+Backtrace:
+    ▆
+ 1. ├─ggplot2::ggplot(...)
+ 2. └─ggplot2:::ggplot.default(...)
+ 3.   ├─ggplot2::fortify(data, ...)
+ 4.   └─ggplot2:::fortify.default(data, ...)
+ 5.     └─cli::cli_abort(msg)
+ 6.       └─rlang::abort(...)
+Execution halted
+*/
+
+/*============================#
+#  Geospatial analysis in R  #
+#============================#
+
+/*--- World map
+
+pr()  
+
+R() { 
+  @(' 
+  # Load only necessary package
+  library(maps)
+  
+  # Create direct output file with png device
+  png("world.png", width = 3000, height = 2400, res = 300)
+  
+  # Draw map directly with base R
+  maps::map("world", fill = TRUE, col = "lightblue", border = "darkgray")
+  title("World Map")
+  
+  # Close device to save file
+  dev.off()
+  
+  # Create result for Ring
+  res <- list( 
+    filename = "world.png", 
+    status = "completed"
+  )
+  ')
+  
+  Run() 
+  View("world.png") 
+}
+
+proff()
+
+/*--- Advanced sample of Africa
+
+pr()  
+
+pr()  
+R = new stzExtCodeXT(:R)
+R() { 
+  @(' 
+  # Load necessary packages
+  library(maps)
+  
+  # Create Africa map with highlighted countries
+  png("africa.png", width = 3000, height = 2400, res = 300, bg = "white")
+  
+  # Set margins to give more room around the map
+  par(mar = c(4, 4, 4, 4), bg = "white")
+  
+  # Define countries to highlight
+  highlighted_countries <- c(
+    "Tunisia", "Morocco", "Cameroon",
+    "Senegal", "Ghana", "Guinea", "Togo"
+  )
+  
+  # Get all African countries for base map
+  african_countries <- c(
+    "Algeria", "Angola", "Benin", "Botswana", "Burkina Faso",
+    "Burundi", "Cameroon", "Cape Verde", "Central African Republic",
+    "Chad", "Comoros", "Congo", "Democratic Republic of the Congo",
+    "Ivory Coast", "Djibouti", "Egypt", "Equatorial Guinea",
+    "Eritrea", "Ethiopia", "Gabon", "Gambia", "Ghana", "Guinea",
+    "Guinea-Bissau", "Kenya", "Lesotho", "Liberia", "Libya",
+    "Madagascar", "Malawi", "Mali", "Mauritania", "Mauritius",
+    "Morocco", "Mozambique", "Namibia", "Niger", "Nigeria",
+    "Rwanda", "Sao Tome and Principe", "Senegal", "Seychelles",
+    "Sierra Leone", "Somalia", "South Africa", "South Sudan",
+    "Sudan", "Swaziland", "Tanzania", "Togo", "Tunisia",
+    "Uganda", "Zambia", "Zimbabwe", "Western Sahara"
+  )
+  
+  # Define custom colors for a professional look
+  background_color <- "#EEF4F9"  # Light blue-grey background
+  highlight_color <- "#F7941D"   # Orange highlight
+  border_color <- "#666666"      # Dark grey borders
+  ocean_color <- "#D6E8F0"       # Light blue for ocean
+  
+  # Draw ocean background
+  par(bg = ocean_color)
+  
+  # Set up the plot region for Africa with some extra space
+  map("world", xlim = c(-25, 55), ylim = c(-40, 40), fill = FALSE, border = FALSE)
+  
+  # Draw base Africa map in light gray
+  map("world", regions = african_countries, fill = TRUE,
+      col = background_color, border = border_color, lwd = 0.5, add = TRUE)
+  
+  # Highlight selected countries
+  map("world", regions = highlighted_countries, fill = TRUE,
+      col = highlight_color, border = border_color, lwd = 0.8, add = TRUE)
+
+  # Add a subtle grid
+  abline(h = seq(-40, 40, by = 10), col = "#CCCCCC", lty = 3)
+  abline(v = seq(-20, 60, by = 10), col = "#CCCCCC", lty = 3)
+  
+  # Add title with styling
+  title(
+    main = "Selected Countries in Africa",
+    cex.main = 1.8,
+    font.main = 2,
+    col.main = "#333333"
+  )
+  
+  dev.off()
+  
+  # Set result for Ring
+  res <- list(
+    filename = "africa.png",
+    highlighted_countries = highlighted_countries,
+    color_scheme = list(
+      background = background_color,
+      highlight = highlight_color,
+      border = border_color
+    ),
+    status = "completed"
+  )
+  ')
+  
+  Run() 
+  View("africa.png")
+}
+
+proff()
+
+/*---
+*/

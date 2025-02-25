@@ -20,7 +20,7 @@ You can explore its code [here](https://github.com/mayouni/stzlib/blob/main/libr
 
 ## Implementation Workflow
 
-The execution workflow follows a clear sequence of operations:
+The execution workflow of the EXCIS system follows a clear sequence of operations:
 
 1. **Initialization**: A language-specific executor is instantiated with appropriate runtime parameters
 2. **Code Setting**: The external code to be executed is provided to the executor
@@ -29,17 +29,8 @@ The execution workflow follows a clear sequence of operations:
 5. **Data Retrieval**: The transformed data is captured from a designated output file
 6. **Cleanup**: Temporary resources are removed (when configured)
 
+![](../images/stz-excis-system.png)
 This workflow is encapsulated in the `Execute()` method and its supporting private methods.
-
-```
-┌────────────────┐     ┌────────────────┐     ┌────────────────┐
-│ Initialization │────>│  Code Setting  │────>│  Preparation   │
-└────────────────┘     └────────────────┘     └────────────────┘
-                                                       │
-┌────────────────┐     ┌────────────────┐     ┌────────V───────┐
-│    Cleanup     │<────│ Data Retrieval │<────│   Execution    │
-└────────────────┘     └────────────────┘     └────────────────┘
-```
 
 ## File System and I/O Management
 
@@ -304,8 +295,6 @@ The transformation engine converts R data structures to Ring format with these l
 - Simplify complex data structures before output
 - Ensure vectors have appropriate names for dictionary-like behavior
 - Use `as.list()` for complex objects when appropriate
-
-Here’s a clearer and more polished version of your text:
 
 ## Simplified Programmer Experience
 
