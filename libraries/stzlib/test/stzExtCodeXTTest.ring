@@ -696,7 +696,7 @@ proff()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*=== Graphic DataViz - Complex scatter plot with density
-
+*/
 pr()
 
 R = new stzExtCodeXT(:R)
@@ -794,3 +794,40 @@ ok
 
 proff()
 # Executed in 2.92 second(s) in Ring 1.22
+
+/*==========================#
+#  JULIA LANGUAGE EXAMPLES  #
+#===========================#
+*/
+pr()
+
+J = new stzExtCodeXT(:julia)
+J { @('
+    # Your Julia code here
+    using Statistics
+    
+    # Example data
+    data = [1, 2, 3, 4, 5]
+    
+    # Calculate statistics
+    res = Dict(
+        "mean" => mean(data),
+        "median" => median(data),
+        "std" => std(data),
+        "min" => minimum(data),
+        "max" => maximum(data)
+    )
+')
+    Run()
+    ? @@( Result() )
+}
+#--> [
+#	[ "median", 3 ],
+#	[ "max", 5 ],
+#	[ "min", 1 ],
+#	[ "mean", 3 ],
+#	[ "std", 1.58 ]
+# ]
+
+proff()
+# Executed in 1.35 second(s) in Ring 1.22

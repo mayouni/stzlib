@@ -1,2 +1,4 @@
 R script starting...
-Data written to file
+Error in ggplot(df, aes(x = x, y = y, color = category)) : 
+  could not find function "ggplot"
+Execution halted

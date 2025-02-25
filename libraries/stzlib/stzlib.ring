@@ -226,6 +226,7 @@ t0 = clock()
 	load "io/stzExtCodeXT.ring"
 	load "io/stzPythonCode.ring"
 	load "io/stzRCode.ring"
+	load "io/stzJuliaCode.ring"
 
 # loading MISC files
 
