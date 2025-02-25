@@ -32,6 +32,29 @@ The execution workflow of the EXCIS system follows a clear sequence of operation
 ![](../images/stz-excis-system.png)
 This workflow is encapsulated in the `Execute()` method and its supporting private methods.
 
+## Easy Configuration
+
+After installing the external languages on your system (currently Python and R) and ensuring they are accessible from the system PATH (so the Ring `system()` command can call their runtimes), you can start working with the preconfigured settings available in the class attributes region.
+
+Alternatively, you can customize the configuration in code based on your needs by directly modifying the class attributes or using dedicated methods such as:
+
+```
+def SetRuntimePath(cPath)
+	@aLanguages\[@cLanguage]\[:customPath] = cPath
+
+def SetVerbose(bVerbose)
+	@bVerbose = bVerbose
+
+def SetResultVar(cResVar)
+	if NOT cResVar = ""
+		@cResVar = cResVar
+	ok
+
+def SetLogFile(cFileName)
+	@cLogFile = cFileName
+
+```
+
 ## File System and I/O Management
 
 The system utilizes several distinct file types for different purposes:
@@ -103,28 +126,28 @@ The system is designed for extensibility, with a language registry that maintain
 
 ```ring
 @aLanguages = [
-    :python = [
-        :name = "Python",
-        :type = "interpreted",
-        :extension = ".py",
-        :runtime = "python",
-        :alternateRuntimes = ["python3", "py"],
-        :datafile = "pydata.txt",
-        :customPath = "",
-        :transformFunction = $cPyToRingDataTransFunc,
-        :cleanup = TRUE
-    ],
-    :r = [
-        :name = "R",
-        :type = "interpreted",
-        :extension = ".R",
-        :runtime = "Rscript",
-        :alternateRuntimes = ["R"],
-        :datafile = "rdata.txt",
-        :customPath = "",
-        :transformFunction = $cRToRingDataTransFunc,
-        :cleanup = TRUE
-    ]
+        :python = [
+            :Name = "Python",
+            :Type = "interpreted",
+            :Extension = ".py",
+            :Runtime = "python",
+            :AlternateRuntimes = ["python3", "py"],
+            :ResultFile = "pyresult.txt",
+            :CustomPath = "",
+            :TransFunc = $cPyToRingTransFunc,
+            :Cleanup = TRUE
+        ],
+        :r = [
+            :Name = "R",
+            :Type = "interpreted",
+            :Extension = ".R",
+            :Runtime = "Rscript",
+            :AlternateRuntimes = ["R"],
+            :ResultFile = "rresult.txt",
+            :CustomPath = "",
+            :TransFunc = $cRToRingTransFunc,
+            :Cleanup = TRUE
+        ]
 ]
 ```
 
@@ -329,8 +352,6 @@ R() { @('res = 2 + 3') Run() ? Result() }
 ```
 
 The `Py()` function instantiates an object of the `stzPythonCode` class, while `R()` instantiates an object of the `stzRCode` class. Both classes are specialized versions of the parent class `stzExtCodeXT`.
-
-> **Note:** The result variable name used here (`res`) is configurable within the class. You can change it by modifying the `@cResultVar` attribute to any name you prefer.
 
 ## Tracing the System
 

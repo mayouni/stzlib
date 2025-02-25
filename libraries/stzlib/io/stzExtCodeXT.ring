@@ -56,7 +56,7 @@
 
 # Python transformation function
 
-$cPyToRingDataTransFunc = '
+$cPyToRingTransFunc = '
 def transform_to_ring(data):
     def _transform(obj):
         if isinstance(obj, dict):
@@ -93,7 +93,7 @@ def transform_to_ring(data):
 
 # R Transformation Function
 
-$cRToRingDataTransFunc = '
+$cRToRingTransFunc = '
 transform_to_ring <- function(data) {
   transform <- function(obj, depth = 0) {
     # Prevent excessive recursion
@@ -173,7 +173,7 @@ class StzExtCodeXT
             :AlternateRuntimes = ["python3", "py"],
             :ResultFile = "pyresult.txt",
             :CustomPath = "",
-            :TransformFunction = $cPyToRingDataTransFunc,
+            :TransFunc = $cPyToRingTransFunc,
             :Cleanup = TRUE
         ],
         :r = [
@@ -184,7 +184,7 @@ class StzExtCodeXT
             :AlternateRuntimes = ["R"],
             :ResultFile = "rresult.txt",
             :CustomPath = "",
-            :TransformFunction = $cRToRingDataTransFunc,
+            :TransFunc = $cRToRingTransFunc,
             :Cleanup = TRUE
         ]
     ]
@@ -200,7 +200,7 @@ class StzExtCodeXT
     @cResultVar = "res"
     @nStartTime = 0
     @nEndTime = 0
-    @bVerbose = FALSE  # New: Debugging flag
+    @bVerbose = FALSE
 
     def Init(cLang)
         if NOT This.IsLanguageSupported(cLang)
@@ -221,6 +221,11 @@ class StzExtCodeXT
 
     def SetVerbose(bVerbose)
         @bVerbose = bVerbose
+
+    def SetResultVar(cResVar)
+	if NOT cResVar = ""
+		@cResVar = cResVar
+	ok
 
     def Prepare()
         remove(@cSourceFile)
@@ -353,9 +358,9 @@ def Code()
         ]
 
     def PrepareSourceCode()
-        cTransformFunction = @aLanguages[@cLanguage][:transformFunction]
+        cTransFunc = @aLanguages[@cLanguage][:TransFunc]
         if @cLanguage = "python"
-            cFullCode = NL + cTransformFunction + '
+            cFullCode = NL + cTransFunc + '
 # Main code
 print("Python script starting...")
 ' + @cCode + '
@@ -369,7 +374,7 @@ print("Data written to file")
             return cFullCode
 
         but @cLanguage = "r"
-            cFullCode = cTransformFunction + '
+            cFullCode = cTransFunc + '
 # Main code
 cat("R script starting...\n")
 ' + @cCode + '
