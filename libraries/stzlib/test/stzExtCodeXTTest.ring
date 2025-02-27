@@ -1071,6 +1071,38 @@ xc.Execute()
 proff()
 # Executed in 0.35 second(s) in Ring 1.22
 
+/*===================================#
+#  EXAMPLES FOR THE PROLOG LANGUAGE  #
+#====================================#
+
+/*--- Simple program that creates a list of factorials
+*/
+oProlog = new stzExtCodeXT(:Prolog)
+
+oProlog.SetCode('
+% Compute factorial
+factorial(0, 1).
+factorial(N, F) :-
+    N > 0,
+    N1 is N - 1,
+    factorial(N1, F1),
+    F is N * F1.
+
+% Create a list with factorials from 1 to 10
+get_factorials(Result) :-
+    findall(
+        N-Fact,
+        (between(1, 10, N), factorial(N, Fact)),
+        Result
+    ).
+
+% Define the main result - this will be transformed
+res(Result) :- get_factorials(Result).
+')
+
+oProlog.Run()
+? @@( oProlog.Result() )
+proff()
 
 /*=============================================#
 #  A BIT OF FUN: THE GRAND PERFORMANCE BATTLE  #
@@ -1713,7 +1745,7 @@ proff()
 /*-------------------------------#
 #  BENCHMARK FOR JULIA LANGAUGE  #
 #--------------------------------#
-*/
+
 pr()
 
 cJuliaCode = '

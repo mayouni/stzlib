@@ -57,6 +57,19 @@ class StzExtCodeXT
             :TransFunc = $cCToRingTransFunc,
             :Cleanup = FALSE,
             :CaptureBuildErrors = TRUE
+        ],
+
+        :prolog = [
+            :Name = "SWI-Prolog",
+            :Type = "interpreted",
+            :Extension = ".pl",
+            :Runtime = "swipl",
+            :AlternateRuntimes = ["prolog"],
+            :ResultFile = "plresult.txt",
+            :CustomPath = "D:\\swipl\\bin\\swipl.exe",  # Update to your actual path
+            :TransFunc = $cSWIPrologToRingTransFunc,
+            :Cleanup = FALSE,
+            :ExtraArgs = "-q -g main -t halt"   # Quiet mode, call main/0, halt after execution
         ]
 
     ]
@@ -421,6 +434,23 @@ int main() {
     printf("Data written to file.\n");
     return 0;
 }
+'
+
+	#---------------------------
+   	 but @cLanguage = "prolog"
+	#---------------------------
+
+        	return cTransFunc + '
+:- use_module(library(lists)).
+:- use_module(library(apply)).
+
+% Main predicate called by the runtime
+main :-
+    writeln("SWI-Prolog program starting..."),
+    ' + @cCode + '
+    writeln("Transforming result..."),
+    transform_to_ring(' + @cResultVar + ', _),
+    writeln("Data written to file").
 '
 
 	#------
