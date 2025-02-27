@@ -1071,6 +1071,7 @@ xc.Execute()
 proff()
 # Executed in 0.35 second(s) in Ring 1.22
 
+
 /*=============================================#
 #  A BIT OF FUN: THE GRAND PERFORMANCE BATTLE  #
 #==============================================#
@@ -1231,7 +1232,7 @@ func ringQuickSort arr, low, high
 /*---------------------------#
 #  BENCHMARK FOR C LANGAUGE  #
 #----------------------------#
-*/
+
 pr()
 
 cCCode = '
@@ -1712,7 +1713,7 @@ proff()
 /*-------------------------------#
 #  BENCHMARK FOR JULIA LANGAUGE  #
 #--------------------------------#
-
+*/
 pr()
 
 cJuliaCode = '
@@ -1851,138 +1852,6 @@ J.Run()
 # ]
 
 proff()
-# Executed in 2.11 second(s) in Ring 1.22
-
-/*----------------------------#
-#  BENCHMARK FOR GO LANGAUGE  #
-#-----------------------------#
-*/
-pr()
-
-cGoCode = '
-// Fibonacci function using big.Int for large numbers
-func fib(n int) *big.Int {
-    if n <= 1 {
-        return big.NewInt(int64(n))
-    }
-
-    a := big.NewInt(0)
-    b := big.NewInt(1)
-    temp := new(big.Int)
-
-    for i := 2; i <= n; i++ {
-        temp.Add(a, b)
-        a.Set(b)
-        b.Set(temp)
-    }
-    return b
-}
-
-// Quicksort implementation
-func quicksort(arr []int, low, high int) {
-    if low < high {
-        // Partition the array
-        pivot := arr[high]
-        i := low - 1
-
-        for j := low; j < high; j++ {
-            if arr[j] < pivot {
-                i++
-                arr[i], arr[j] = arr[j], arr[i]
-            }
-        }
-
-        arr[i+1], arr[high] = arr[high], arr[i+1]
-
-        partition := i + 1
-
-        // Recursively sort the sub-arrays
-        quicksort(arr, low, partition-1)
-        quicksort(arr, partition+1, high)
-    }
-}
-
-// Main execution point
-var res map[string]interface{}
-
-func init() {
-    // Fibonacci sequence benchmark
-    n := 450
-    startTime := time.Now()
-    result := fib(n)
-    endTime := time.Now()
-    fibTime := float64(endTime.Sub(startTime).Milliseconds())
-
-    // Sorting benchmark
-    startTime = time.Now()
-    arraySize := 1000000 // One million elements
-    array := make([]int, arraySize)
-
-    // Fill with random numbers
-    rand.Seed(time.Now().UnixNano())
-    for i := 0; i < arraySize; i++ {
-        array[i] = rand.Intn(10000)
-    }
-
-    // Sort the array
-    quicksort(array, 0, arraySize-1)
-    endTime = time.Now()
-    sortTime := float64(endTime.Sub(startTime).Milliseconds())
-
-    // Matrix multiplication benchmark
-    startTime = time.Now()
-    matrixSize := 250
-
-    // Initialize matrices
-    matrix1 := make([][]int, matrixSize)
-    matrix2 := make([][]int, matrixSize)
-    resultMatrix := make([][]int, matrixSize)
-
-    for i := 0; i < matrixSize; i++ {
-        matrix1[i] = make([]int, matrixSize)
-        matrix2[i] = make([]int, matrixSize)
-        resultMatrix[i] = make([]int, matrixSize)
-
-        for j := 0; j < matrixSize; j++ {
-            matrix1[i][j] = rand.Intn(100)
-            matrix2[i][j] = rand.Intn(100)
-        }
-    }
-
-    // Matrix multiplication
-    for i := 0; i < matrixSize; i++ {
-        for j := 0; j < matrixSize; j++ {
-            for k := 0; k < matrixSize; k++ {
-                resultMatrix[i][j] += matrix1[i][k] * matrix2[k][j]
-            }
-        }
-    }
-
-    endTime = time.Now()
-    matrixTime := float64(endTime.Sub(startTime).Milliseconds())
-
-    // Set results in the format expected by StzExtCodeXT
-    res = map[string]interface{}{
-        "fibonacci": map[string]interface{}{
-            "n": n,
-            "result": result.String(),
-            "time_ms": fibTime,
-        },
-        "sorting": map[string]interface{}{
-            "array_size": arraySize,
-            "time_ms": sortTime,
-        },
-        "matrix": map[string]interface{}{
-            "matrix_size": matrixSize,
-            "time_ms": matrixTime,
-        },
-    }
-}'
-
-go = new stzExtCodeXT(:Go)
-go.SetCode(cGoCode)
-go.Run()
-? @@( go.Result() )
-
-proff()
+# Executed in 4.18 second(s) in Ring 1.22 : AFTER FIRST STARTUP
+# Executed in 2.04 second(s) in Ring 1.22 : AFTER WARM-UP
 

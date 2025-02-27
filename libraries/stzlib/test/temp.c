@@ -209,7 +209,7 @@ void free_value(Value* value) {
 }
 
 // Main transformation function
-void transform_res_to_ring(void* res, const char* filename) {
+void transform_to_ring(void* res, const char* filename) {
     if (!res) {
         write_to_file(filename, "NULL");
         return;
@@ -465,7 +465,7 @@ if (res) {
     res = NULL;
 }
 
-    transform_res_to_ring(res, "cresult.txt");
+    transform_to_ring(res, "cresult.txt");
     printf("Data written to file.\n");
     return 0;
 }
