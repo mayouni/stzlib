@@ -1,2 +1,4 @@
-C program starting...
-Data written to file.
+Julia script starting...
+Data before transformation: Dict{String, Dict{String, Real}}("fibonacci" => Dict("n" => 450, "time_ms" => 0.0, "result" => -8044227546631567272), "matrix" => Dict("time_ms" => 250.99992752075195, "matrix_size" => 250), "sorting" => Dict("time_ms" => 906.0001373291016, "array_size" => 1000000))
+Data after transformation: [['fibonacci', [['n', 450], ['time_ms', 0.0], ['result', -8044227546631567272]]], ['matrix', [['time_ms', 250.99992752075195], ['matrix_size', 250]]], ['sorting', [['time_ms', 906.0001373291016], ['array_size', 1000000]]]]
+Data written to file

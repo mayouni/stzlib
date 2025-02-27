@@ -1,8 +1,3 @@
-#  TARGET LANGAUGES DATA TRANSFORMATION FUNCTIONS  #
-
-#~> Embedded automatically within the external code you provide.
-#~> They transform the result of the external computation in
-#   format that is processable by Ring
 
 
 #------------------#
@@ -12,6 +7,7 @@
 class StzExtCodeXT
     # Configuring supported languages with full paths
     @aLanguages = [
+
         :python = [
             :Name = "Python",
             :Type = "interpreted",
@@ -23,7 +19,8 @@ class StzExtCodeXT
             :TransFunc = $cPyToRingTransFunc,
             :Cleanup = FALSE
         ],
-        :r = [
+
+        :R = [
             :Name = "R",
             :Type = "interpreted",
             :Extension = ".R",
@@ -34,6 +31,7 @@ class StzExtCodeXT
             :TransFunc = $cRToRingTransFunc,
             :Cleanup = FALSE
         ],
+
         :julia = [
             :Name = "Julia",
             :Type = "interpreted",
@@ -44,36 +42,6 @@ class StzExtCodeXT
             :CustomPath = "C:\\Users\\MSI\\.julia\\juliaup\\julia-1.11.3+0.x64.w64.mingw32\\bin\\julia.exe",  # Replace with your Julia path
             :TransFunc = $cJuliaToRingTransFunc,
             :Cleanup = FALSE
-        ],
-
-        :go = [
-            :Name = "Go",
-            :Type = "compiled",
-            :Extension = ".go",
-            :Runtime = "go",
-            :CompilerFlags = "run",
-            :ExecutableName = "temp_go",
-            :AlternateRuntimes = [],
-            :ResultFile = "goresult.txt",
-            :CustomPath = "C:\\Go\\bin\\go.exe",  # Replace with your Go path
-            :TransFunc = $cGoToRingTransFunc,
-            :Cleanup = FALSE,
-            :CaptureBuildErrors = TRUE
-        ],
-
-        :go = [
-            :Name = "Go",
-            :Type = "compiled",
-            :Extension = ".go",
-            :Runtime = "go",
-            :CompilerFlags = "run",
-            :ExecutableName = "temp_go",
-            :AlternateRuntimes = [],
-            :ResultFile = "goresult.txt",
-            :CustomPath = "C:\\Go\\bin\\go.exe",  # Replace with your Go path
-            :TransFunc = $cGoToRingTransFunc,
-            :Cleanup = FALSE,
-            :CaptureBuildErrors = TRUE
         ],
 
         :C = [
@@ -167,7 +135,9 @@ class StzExtCodeXT
                 		# Compile and run separately for C
                 		cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
                                  "if %ERRORLEVEL% EQU 0 " + @aLanguages[@cLanguage][:ExecutableName] + ".exe >> " + @cLogFile + " 2>&1" + NL
-            		ok
+			else # Vlang for the meantime
+				cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+			ok
         	else
             		# Interpreted languages (Python, R, Julia)
 		        cScriptContent += cRuntime + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
@@ -181,12 +151,13 @@ class StzExtCodeXT
 
         	if @aLanguages[@cLanguage][:Type] = "compiled"
 
-            		if @cLanguage = "c"
-
+           		if @cLanguage = "c"
                 		# Compile and run separately for C
                 		cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
                                  "if [ $? -eq 0 ]; then ./" + @aLanguages[@cLanguage][:ExecutableName] + " >> " + @cLogFile + " 2>&1; fi" + NL
- 	            	ok
+			else # Vlang for for the mean time
+				cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	            	ok
         	else
             		# Interpreted languages (Python, R, Julia)
             		cScriptContent += cRuntime + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
@@ -352,23 +323,33 @@ class StzExtCodeXT
         return cContent
 
     def BuildCommand()
+
         # Not used with batch approach, kept for compatibility
+
         if @aLanguages[@cLanguage][:type] = "interpreted"
+
             cCmd = @aLanguages[@cLanguage][:runtime] + " " + @cSourceFile
+
             if @aLanguages[@cLanguage][:customPath] != ""
                 cCmd = @aLanguages[@cLanguage][:customPath] + " " + @cSourceFile
             ok
             return cCmd
+
         but @aLanguages[@cLanguage][:type] = "compiled"
-            return @aLanguages[@cLanguage][:Runtime] + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile
+	    cCmd = @aLanguages[@cLanguage][:Runtime] + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile
+            return cCmd
         ok
+
         stzraise("Unsupported language type for " + @cLanguage)
 
     def RecordExecution(cLog, nExitCode)
+
         cMode = @aLanguages[@cLanguage][:type]
+
         if cMode != "interpreted" and cMode != "compiled"
             stzraise("Incorrect language type! Must be 'interpreted' or 'compiled'.")
         ok
+
         @aCallTrace + [
             :Language = @cLanguage,
             :Timestamp = TimeStamp(),
@@ -379,11 +360,13 @@ class StzExtCodeXT
         ]
 
     def PrepareSourceCode()
-        cTransFunc = @aLanguages[@cLanguage][:TransFunc]
-        cDoubleQuote = char(34)  # "
-        cSingleQuote = char(39)  # '
 
-        if @cLanguage = "python"
+        cTransFunc = @aLanguages[@cLanguage][:TransFunc]
+
+	#-------------------------
+         if @cLanguage = "python"
+	#-------------------------
+
             return NL + cTransFunc + '
 # Main code
 print("Python script starting...")
@@ -396,7 +379,10 @@ with open("' + @cResultFile + '", "w") as f:
 print("Data written to file")
 '
 
-        but @cLanguage = "r"
+	#---------------------
+         but @cLanguage = "r"
+	#---------------------
+
             return cTransFunc + '
 # Main code
 cat("R script starting...\n")
@@ -406,7 +392,10 @@ writeLines(transformed, "' + @cResultFile + '")
 cat("Data written to file\n")
 '
 
-        but @cLanguage = "julia"
+	#-------------------------
+         but @cLanguage = "julia"
+	#-------------------------
+
             return cTransFunc + '
 # Main code
 println("Julia script starting...")
@@ -419,97 +408,24 @@ open("' + @cResultFile + '", "w") do f
 end
 println("Data written to file")
 '
-      but @cLanguage = "go"
-            return '
-package main
-import (
-    ' + cDoubleQuote + 'fmt' + cDoubleQuote + '
-    ' + cDoubleQuote + 'reflect' + cDoubleQuote + '
-    ' + cDoubleQuote + 'strconv' + cDoubleQuote + '
-    ' + cDoubleQuote + 'strings' + cDoubleQuote + '
-    ' + cDoubleQuote + 'os' + cDoubleQuote + '
-    ' + cDoubleQuote + 'encoding/json' + cDoubleQuote + '
-)
 
-// transformToRing converts Go data structures to Ring format
-func transformToRing(data interface{}, depth int) string {
-    if depth > 100 {
-        return ' + cDoubleQuote + 'TOO_DEEP' + cDoubleQuote + '
-    }
-    if data == nil {
-        return ' + cDoubleQuote + 'NULL' + cDoubleQuote + '
-    }
-    v := reflect.ValueOf(data)
-    if v.Kind() == reflect.Ptr {
-        if v.IsNil() {
-            return ' + cDoubleQuote + 'NULL' + cDoubleQuote + '
-        }
-        v = v.Elem()
-    }
-    switch v.Kind() {
-    case reflect.Map:
-        var items []string
-        for _, key := range v.MapKeys() {
-            keyStr := fmt.Sprintf("%v", key.Interface())
-            valueStr := transformToRing(v.MapIndex(key).Interface(), depth+1)
-            items = append(items, fmt.Sprintf(' + cDoubleQuote + "['%s', %s]" + cDoubleQuote + ', keyStr, valueStr))
-        }
-        return ' + cDoubleQuote + '[' + cDoubleQuote + ' + strings.Join(items, ' + cDoubleQuote + ', ' + cDoubleQuote + ') + ' + cDoubleQuote + ']' + cDoubleQuote + '
-    case reflect.Slice, reflect.Array:
-        var items []string
-        for i := 0; i < v.Len(); i++ {
-            items = append(items, transformToRing(v.Index(i).Interface(), depth+1))
-        }
-        return ' + cDoubleQuote + '[' + cDoubleQuote + ' + strings.Join(items, ' + cDoubleQuote + ', ' + cDoubleQuote + ') + ' + cDoubleQuote + ']' + cDoubleQuote + '
-    case reflect.String:
-        return fmt.Sprintf(' + cDoubleQuote + "'%s'" + cDoubleQuote + ', v.String())
-    case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-        return strconv.FormatInt(v.Int(), 10)
-    case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-        return strconv.FormatUint(v.Uint(), 10)
-    case reflect.Float32, reflect.Float64:
-        return strconv.FormatFloat(v.Float(), ' + cSingleQuote + 'f' + cSingleQuote + ', -1, 64)
-    case reflect.Bool:
-        if v.Bool() {
-            return ' + cDoubleQuote + 'TRUE' + cDoubleQuote + '
-        }
-        return ' + cDoubleQuote + 'FALSE' + cDoubleQuote + '
-    case reflect.Struct:
-        jsonBytes, _ := json.Marshal(data)
-        var m map[string]interface{}
-        json.Unmarshal(jsonBytes, &m)
-        return transformToRing(m, depth+1)
-    default:
-        return fmt.Sprintf(' + cDoubleQuote + "'%v'" + cDoubleQuote + ', data)
-    }
-}
+	#---------------------
+	 but @cLanguage = "c"
+	#---------------------
 
-func WriteRingFormat(data interface{}, filename string) error {
-    result := transformToRing(data, 0)
-    return os.WriteFile(filename, []byte(result), 0644)
-}
-
-func main() {
-    fmt.Println(' + cDoubleQuote + 'Go program starting...' + cDoubleQuote + ')
-    // Main code
-    ' + @cCode + '
-    // Convert result to interface{} for transformation
-    var result interface{} = ' + @cResultVar + '
-    // Write to result file
-    WriteRingFormat(result, ' + cDoubleQuote + @cResultFile + cDoubleQuote + ')
-    fmt.Println(' + cDoubleQuote + 'Data written to file:' + cDoubleQuote + ', ' + @cResultVar + ')
-}
-'
-but @cLanguage = "c"
-    return $cCToRingTransFunc + '
+    		return $cCToRingTransFunc + '
 int main() {
     printf("C program starting...\n");
     ' + @cCode + '
-    transform_res_to_ring(res, "' + @cResultFile + '");
+    transform_to_ring(res, "' + @cResultFile + '");
     printf("Data written to file.\n");
     return 0;
 }
 '
-        else
+
+	#------
+          else
+	#------
+
             stzraise("Not implemented yet for this language!")
         ok

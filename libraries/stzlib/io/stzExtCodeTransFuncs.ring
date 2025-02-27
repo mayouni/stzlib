@@ -1,3 +1,9 @@
+#  TARGET LANGAUGES DATA TRANSFORMATION FUNCTIONS  #
+
+#~> Embedded automatically within the external code you provide.
+#~> They transform the result of the external computation in
+#   format that is processable by Ring
+
 #----------------------------------#
 #  Python Transformation Function  #
 #----------------------------------#
@@ -171,10 +177,6 @@ function transform_to_ring(data)
     return _transform(data)
 end
 '
-
-#-----------------------------#
-#  C Transformation Function  #
-#-----------------------------#
 
 #-----------------------------#
 #  C Transformation Function  #
@@ -391,7 +393,7 @@ void free_value(Value* value) {
 }
 
 // Main transformation function
-void transform_res_to_ring(void* res, const char* filename) {
+void transform_to_ring(void* res, const char* filename) {
     if (!res) {
         write_to_file(filename, "NULL");
         return;
@@ -466,3 +468,5 @@ Value* create_struct_value(size_t size) {
     return value;
 }
 '
+
+
