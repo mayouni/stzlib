@@ -1,4 +1,14 @@
-Julia script starting...
-Data before transformation: Dict{String, Dict{String, Real}}("fibonacci" => Dict("n" => 450, "time_ms" => 0.0, "result" => -8044227546631567272), "matrix" => Dict("time_ms" => 250.99992752075195, "matrix_size" => 250), "sorting" => Dict("time_ms" => 906.0001373291016, "array_size" => 1000000))
-Data after transformation: [['fibonacci', [['n', 450], ['time_ms', 0.0], ['result', -8044227546631567272]]], ['matrix', [['time_ms', 250.99992752075195], ['matrix_size', 250]]], ['sorting', [['time_ms', 906.0001373291016], ['array_size', 1000000]]]]
-Data written to file
+Warning: d:/github/stzlib/libraries/stzlib/test/temp.pl:1:
+Warning:    Singleton variables: [NULL]
+ERROR: d:/github/stzlib/libraries/stzlib/test/temp.pl:1:
+ERROR:    Arguments are not sufficiently instantiated
+ERROR: d:/github/stzlib/libraries/stzlib/test/temp.pl:28:
+ERROR:    Full stop in clause-body?  Cannot redefine ,/2
+Welcome to SWI-Prolog (threaded, 64 bits, version 9.2.9)
+SWI-Prolog comes with ABSOLUTELY NO WARRANTY. This is free software.
+Please run ?- license. for legal details.
+
+For online help and background, visit https://www.swi-prolog.org
+For built-in help, use ?- help(Topic). or ?- apropos(Word).
+
+1 ?- ^C

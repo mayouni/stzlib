@@ -4,6 +4,86 @@
 #~> They transform the result of the external computation in
 #   format that is processable by Ring
 
+#--------------------------------------#
+#  SWI-Prolog Transformation Function  #
+#--------------------------------------#
+
+$cPrologToRingTransFunc = '
+:- use_module(library(http/json)).
+
+% Main function to transform Prolog term to Ring format and save to file
+transform_to_ring(Term, Filename) :-
+    transform(Term, ResultStr),
+    open(Filename, write, Stream),
+    write(Stream, ResultStr),
+    close(Stream).
+
+% Transform an atom or string
+transform(Term, Result) :-
+    (atom(Term) ; string(Term)),
+    !,
+    format(atom(Result), "' + char(39) + '~w' + char(39) + '", [Term]).
+
+% Transform a number, handling scientific notation
+transform(Term, Result) :-
+    number(Term),
+    !,
+    format(atom(StrVal), "~w", [Term]),
+    (   sub_atom(StrVal, _, _, _, e) 
+    ->  format(atom(Result), "' + char(39) + '~w' + char(39) + '", [Term])
+    ;   Result = StrVal
+    ).
+
+% Transform boolean true value
+transform(true, "TRUE") :- !.
+
+% Transform boolean false value
+transform(false, "FALSE") :- !.
+
+% Transform a list
+transform(List, Result) :-
+    is_list(List),
+    !,
+    transform_list(List, Result, 0).
+
+% Transform a compound term (usually used for key-value pairs)
+transform(Term, Result) :-
+    compound(Term),
+    !,
+    Term =.. [Functor|Args],
+    transform_compound(Functor, Args, Result).
+
+% Default case for variables or other terms
+transform(_, "NULL").
+
+% Transform an empty list
+transform_list([], "[]", _).
+
+% Transform a non-empty list, with depth check to prevent excessive recursion
+transform_list([H|T], Result, Depth) :-
+    Depth < 100,  % Prevent excessive recursion
+    !,
+    NewDepth is Depth + 1,
+    transform(H, HResult),
+    transform_list(T, TResult, NewDepth),
+    format(atom(Result), "[~w, ~w]", [HResult, TResult]).
+
+% Handle case when depth limit is reached
+transform_list(_, "TOO_DEEP", Depth) :-
+    Depth >= 100.
+
+% Handle special case for key-value pairs (Term = Key-Value)
+transform_compound(-, [Key, Value], Result) :-
+    (atom(Key) ; string(Key)),
+    !,
+    transform(Value, ValueResult),
+    format(atom(Result), "[' + char(39) + '~w' + char(39) + ', ~w]", [Key, ValueResult]).
+
+% Default handling for other compound terms
+transform_compound(_, Args, Result) :-
+    transform_list(Args, Result, 0).
+'
+
 #----------------------------------#
 #  Python Transformation Function  #
 #----------------------------------#
