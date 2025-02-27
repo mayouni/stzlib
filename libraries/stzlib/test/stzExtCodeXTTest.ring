@@ -103,7 +103,9 @@ oPyCode.Exec()
 ? @@(oPyCode.Result())
 #--> [
 #	[ "simple", "Hello World" ],
-#	[ "multiline", "First line\nSecond line\nThird line" ],
+#	[ "multiline", "First line
+# Second line
+# Third line" ],
 #	[ "spaces", "   padded   " ],
 #	[ "mixed_text", "Numbers: 123, Symbols: @#$%" ]
 # ]
@@ -853,7 +855,1134 @@ J { @('
 proff()
 # Executed in 1.35 second(s) in Ring 1.22
 
-/*==========================#
-#  GO LANGUAGE EXAMPLES  #
-#===========================#
+/*======================#
+#  C LANGUAGE EXAMPLES  #
+#=======================#
+
+/*--- Basic example
+
+pr()
+
+xc = new StzExtCodeXT("c")
+xc.SetCode('
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Create an array using the Value system
+Value* res = create_array_value(5);
+if (res) {
+    for (int i = 0; i < 5; i++) {
+        res->data.array_val.items[i].type = TYPE_INT;
+        res->data.array_val.items[i].data.int_val = i + 1;
+    }
+    printf("Array created with values 1,2,3,4,5\n");
+} else {
+    printf("Failed to create array\n");
+    res = NULL;
+}
+') # End of C code
+
+xc.Execute()
+? @@( xc.Result() )
+#--> [1, 2, 3, 4, 5]
+
+proff()
+# Executed in 0.34 second(s) in Ring 1.22
+
+/*--- Creating structs with key pairs
+
+pr()
+
+xc = new StzExtCodeXT("c")
+xc.SetCode('
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Create a struct using the Value system
+Value* res = create_struct_value(3);
+if (res) {
+    // First key-value pair: name -> "John"
+    res->data.struct_val.pairs[0].key = strdup("name");
+    res->data.struct_val.pairs[0].value.type = TYPE_STRING;
+    res->data.struct_val.pairs[0].value.data.string_val = strdup("John");
+    
+    // Second key-value pair: age -> 30
+    res->data.struct_val.pairs[1].key = strdup("age");
+    res->data.struct_val.pairs[1].value.type = TYPE_INT;
+    res->data.struct_val.pairs[1].value.data.int_val = 30;
+    
+    // Third key-value pair: isActive -> true
+    res->data.struct_val.pairs[2].key = strdup("isActive");
+    res->data.struct_val.pairs[2].value.type = TYPE_BOOL;
+    res->data.struct_val.pairs[2].value.data.bool_val = true;
+    
+    printf("Struct created with 3 key-value pairs\n");
+} else {
+    printf("Failed to create struct\n");
+    res = NULL;
+}
+')
+
+xc.Execute()
+? @@( xc.Result() )
+#--> # [ [ "name", "John" ], [ "age", 30 ], [ "isActive", 1 ] ]
+
+proff()
+
+# Executed in 1.21 second(s) in Ring 1.22
+
+/*---  Nested Array of Mixed Types
+
+pr()
+
+xc = new StzExtCodeXT("c")
+xc.SetCode('
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Create the main array
+Value* res = create_array_value(4);
+if (res) {
+    // First element: integer
+    res->data.array_val.items[0].type = TYPE_INT;
+    res->data.array_val.items[0].data.int_val = 42;
+    
+    // Second element: string
+    res->data.array_val.items[1].type = TYPE_STRING;
+    res->data.array_val.items[1].data.string_val = strdup("hello");
+    
+    // Third element: float
+    res->data.array_val.items[2].type = TYPE_FLOAT;
+    res->data.array_val.items[2].data.float_val = 3.14159;
+    
+    // Fourth element: nested array
+    res->data.array_val.items[3].type = TYPE_ARRAY;
+    res->data.array_val.items[3].data.array_val.size = 2;
+    res->data.array_val.items[3].data.array_val.items = (Value*)calloc(2, sizeof(Value));
+    
+    // Add values to nested array
+    res->data.array_val.items[3].data.array_val.items[0].type = TYPE_BOOL;
+    res->data.array_val.items[3].data.array_val.items[0].data.bool_val = true;
+    
+    res->data.array_val.items[3].data.array_val.items[1].type = TYPE_INT;
+    res->data.array_val.items[3].data.array_val.items[1].data.int_val = 99;
+    
+    printf("Mixed type array created\n");
+} else {
+    printf("Failed to create array\n");
+    res = NULL;
+}
+')
+
+xc.Execute()
+? @@( xc.Result() )
+#--> [ 42, "hello", 3.14, [ TRUE, 99 ] ]
+
+proff()
+# Executed in 0.34 second(s) in Ring 1.22
+
+/*--- Complex Nested Structure with Arrays and Structs
+
+pr()
+
+xc = new StzExtCodeXT("c")
+xc.SetCode('
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Create a person record with nested data
+Value* res = create_struct_value(3);
+if (res) {
+    // Person basic info
+    res->data.struct_val.pairs[0].key = strdup("person");
+    res->data.struct_val.pairs[0].value.type = TYPE_STRUCT;
+    res->data.struct_val.pairs[0].value.data.struct_val.size = 2;
+    res->data.struct_val.pairs[0].value.data.struct_val.pairs = (KeyValue*)calloc(2, sizeof(KeyValue));
+    
+    // Add name
+    res->data.struct_val.pairs[0].value.data.struct_val.pairs[0].key = strdup("name");
+    res->data.struct_val.pairs[0].value.data.struct_val.pairs[0].value.type = TYPE_STRING;
+    res->data.struct_val.pairs[0].value.data.struct_val.pairs[0].value.data.string_val = strdup("Alice");
+    
+    // Add age
+    res->data.struct_val.pairs[0].value.data.struct_val.pairs[1].key = strdup("age");
+    res->data.struct_val.pairs[0].value.data.struct_val.pairs[1].value.type = TYPE_INT;
+    res->data.struct_val.pairs[0].value.data.struct_val.pairs[1].value.data.int_val = 28;
+    
+    // Skills array
+    res->data.struct_val.pairs[1].key = strdup("skills");
+    res->data.struct_val.pairs[1].value.type = TYPE_ARRAY;
+    res->data.struct_val.pairs[1].value.data.array_val.size = 3;
+    res->data.struct_val.pairs[1].value.data.array_val.items = (Value*)calloc(3, sizeof(Value));
+    
+    // Add skills
+    res->data.struct_val.pairs[1].value.data.array_val.items[0].type = TYPE_STRING;
+    res->data.struct_val.pairs[1].value.data.array_val.items[0].data.string_val = strdup("programming");
+    
+    res->data.struct_val.pairs[1].value.data.array_val.items[1].type = TYPE_STRING;
+    res->data.struct_val.pairs[1].value.data.array_val.items[1].data.string_val = strdup("design");
+    
+    res->data.struct_val.pairs[1].value.data.array_val.items[2].type = TYPE_STRING;
+    res->data.struct_val.pairs[1].value.data.array_val.items[2].data.string_val = strdup("management");
+    
+    // Metadata with mixed types
+    res->data.struct_val.pairs[2].key = strdup("metadata");
+    res->data.struct_val.pairs[2].value.type = TYPE_STRUCT;
+    res->data.struct_val.pairs[2].value.data.struct_val.size = 3;
+    res->data.struct_val.pairs[2].value.data.struct_val.pairs = (KeyValue*)calloc(3, sizeof(KeyValue));
+    
+    // Add metadata fields
+    res->data.struct_val.pairs[2].value.data.struct_val.pairs[0].key = strdup("active");
+    res->data.struct_val.pairs[2].value.data.struct_val.pairs[0].value.type = TYPE_BOOL;
+    res->data.struct_val.pairs[2].value.data.struct_val.pairs[0].value.data.bool_val = true;
+    
+    res->data.struct_val.pairs[2].value.data.struct_val.pairs[1].key = strdup("score");
+    res->data.struct_val.pairs[2].value.data.struct_val.pairs[1].value.type = TYPE_FLOAT;
+    res->data.struct_val.pairs[2].value.data.struct_val.pairs[1].value.data.float_val = 95.5;
+    
+    res->data.struct_val.pairs[2].value.data.struct_val.pairs[2].key = strdup("id");
+    res->data.struct_val.pairs[2].value.data.struct_val.pairs[2].value.type = TYPE_STRING;
+    res->data.struct_val.pairs[2].value.data.struct_val.pairs[2].value.data.string_val = strdup("USR-123");
+    
+    printf("Complex nested structure created\n");
+} else {
+    printf("Failed to create structure\n");
+    res = NULL;
+}
+')
+xc.Execute()
+? @@( xc.Result() )
+#--> [
+#	[
+#		"person",
+#		[ [ "name", "Alice" ], [ "age", 28 ] ]
+#	],
+#	[ "skills", [ "programming", "design", "management" ] ],
+#	[
+#		"metadata",
+#		[ [ "active", 1 ], [ "score", 95.50 ], [ "id", "USR-123" ] ]
+#	]
+# ]
+
+proff()
+# Executed in 0.35 second(s) in Ring 1.22
+
+/*=============================================#
+#  A BIT OF FUN: THE GRAND PERFORMANCE BATTLE  #
+#==============================================#
+
+/*------------------------------#
+#  BENCHMARK FOR RING LANGAUGE  #
+#-------------------------------#
+
+pr()
+
+    results = []
+    
+    # 1. Fibonacci benchmark
+    #------------------------
+
+    n = 450
+    startTime = clock()
+    result = ringFib(n)
+    endTime = clock()
+    fibTime = (endTime - startTime) / clockspersecond() * 1000
+    
+    add(results, ["fibonacci", [
+        ["n", n],
+        ["result", result],
+        ["time_ms", fibTime]
+    ]])
+    
+
+    # 2. Sorting benchmark
+    #----------------------
+
+    startTime = clock()
+    arraySize = 1000_000
+    array = list(arraySize)
+    
+    # Fill with random numbers (using same seed as C)
+
+    random(42)  // Set seed
+    for i = 1 to arraySize
+        array[i] = random(9999)
+    next
+    
+    # Sort the array
+
+    ringQuickSort(array, 1, arraySize)
+    endTime = clock()
+    sortTime = (endTime - startTime) / clockspersecond() * 1000
+    
+    add(results, ["sorting", [
+        ["array_size", arraySize],
+        ["time_ms", sortTime]
+    ]])
+    
+
+    # 3. Matrix multiplication benchmark
+    #------------------------------------
+
+    startTime = clock()
+    matrixSize = 250
+    
+    # Initialize matrices
+
+    matrix1 = list(matrixSize)
+    matrix2 = list(matrixSize)
+    resultMatrix = list(matrixSize)
+    
+    for i = 1 to matrixSize
+        matrix1[i] = list(matrixSize)
+        matrix2[i] = list(matrixSize)
+        resultMatrix[i] = list(matrixSize)
+        
+        for j = 1 to matrixSize
+            matrix1[i][j] = random(99)
+            matrix2[i][j] = random(99)
+            resultMatrix[i][j] = 0
+        next
+    next
+    
+    # Matrix multiplication
+
+    for i = 1 to matrixSize
+        for j = 1 to matrixSize
+            for k = 1 to matrixSize
+                resultMatrix[i][j] += matrix1[i][k] * matrix2[k][j]
+            next
+        next
+    next
+    
+    endTime = clock()
+    matrixTime = (endTime - startTime) / clockspersecond() * 1000
+    
+    add(results, ["matrix", [
+        ["matrix_size", matrixSize],
+        ["time_ms", matrixTime]
+    ]])
+    
+? @@( results )
+#--> [
+#	[
+#		"fibonacci",
+#		[ [ "n", 450 ], [ "result", 4953967011875060426190016040962563748574111464292417351569305200915826269230622714208530202624.00 ], [ "time_ms", 1 ] ]
+#	],
+#	[
+#		"sorting",
+#		[ [ "array_size", 1000000 ], [ "time_ms", 29923 ] ]
+#	],
+#	[
+#		"matrix",
+#		[ [ "matrix_size", 250 ], [ "time_ms", 7805 ] ]
+#	]
+# ]
+
+proff()
+# Executed in 37.83 second(s) in Ring 1.22
+
+# Ring fibonacci implementation
+
+func ringFib n
+    if n <= 1 return n ok
+    
+    a = 0 b = 1
+    for i = 2 to n
+        temp = a + b
+        a = b
+        b = temp
+    next
+    return b
+
+# Ring quicksort implementation
+
+func ringQuickSort arr, low, high
+    if low < high
+        // Partition the array
+        pivot = arr[high]
+        i = low - 1
+        
+        for j = low to high - 1
+            if arr[j] < pivot
+                i++
+                temp = arr[i]
+                arr[i] = arr[j]
+                arr[j] = temp
+            ok
+        next
+        
+        temp = arr[i + 1]
+        arr[i + 1] = arr[high]
+        arr[high] = temp
+        
+        partition = i + 1
+        
+        // Recursively sort the sub-arrays
+        ringQuickSort(arr, low, partition - 1)
+        ringQuickSort(arr, partition + 1, high)
+
+   ok
+
+/*---------------------------#
+#  BENCHMARK FOR C LANGAUGE  #
+#----------------------------#
 */
+pr()
+
+cCCode = '
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <stdint.h>
+
+// Function to calculate fibonacci numbers iteratively
+// Using uint64_t for larger fibonacci numbers
+uint64_t fib(int n) {
+    if (n <= 1) return n;
+    
+    uint64_t a = 0, b = 1, temp;
+    for (int i = 2; i <= n; i++) {
+        temp = a + b;
+        a = b;
+        b = temp;
+    }
+    return b;
+}
+
+// Function to sort an array using quicksort
+void quicksort(int arr[], int low, int high) {
+    if (low < high) {
+        // Partition the array
+        int pivot = arr[high];
+        int i = low - 1;
+        
+        for (int j = low; j <= high - 1; j++) {
+            if (arr[j] < pivot) {
+                i++;
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+        }
+        
+        int temp = arr[i + 1];
+        arr[i + 1] = arr[high];
+        arr[high] = temp;
+        
+        int partition = i + 1;
+        
+        // Recursively sort the sub-arrays
+        quicksort(arr, low, partition - 1);
+        quicksort(arr, partition + 1, high);
+    }
+}
+
+// Performance benchmark
+Value* res = create_struct_value(3);
+if (res) {
+    // 1. Fibonacci sequence benchmark
+    clock_t start = clock();
+    int n = 450;  // Calculate the 450th Fibonacci number (matching Ring)
+    uint64_t result = fib(n);
+    clock_t end = clock();
+    double fib_time = ((double)(end - start)) / CLOCKS_PER_SEC * 1000;
+    
+    // Store fibonacci result
+    if (res->data.struct_val.pairs) {
+        res->data.struct_val.pairs[0].key = strdup("fibonacci");
+        Value* fib_struct = create_struct_value(3);
+        
+        fib_struct->data.struct_val.pairs[0].key = strdup("n");
+        fib_struct->data.struct_val.pairs[0].value.type = TYPE_INT;
+        fib_struct->data.struct_val.pairs[0].value.data.int_val = n;
+        
+        fib_struct->data.struct_val.pairs[1].key = strdup("result");
+        fib_struct->data.struct_val.pairs[1].value.type = TYPE_INT;
+        fib_struct->data.struct_val.pairs[1].value.data.int_val = result;
+        
+        fib_struct->data.struct_val.pairs[2].key = strdup("time_ms");
+        fib_struct->data.struct_val.pairs[2].value.type = TYPE_FLOAT;
+        fib_struct->data.struct_val.pairs[2].value.data.float_val = fib_time;
+        
+        res->data.struct_val.pairs[0].value.type = TYPE_STRUCT;
+        res->data.struct_val.pairs[0].value.data.struct_val = fib_struct->data.struct_val;
+        free(fib_struct);
+    }
+    
+    // 2. Sorting benchmark
+    start = clock();
+    int array_size = 1000000;  // Match Ring 1,000,000 array size
+    int* array = (int*)malloc(array_size * sizeof(int));
+    
+    // Fill with random numbers
+    srand(42);  // Fixed seed for reproducibility (same as Ring)
+    for (int i = 0; i < array_size; i++) {
+        array[i] = rand() % 10000;  // Random numbers between 0-9999
+    }
+    
+    // Sort the array
+    quicksort(array, 0, array_size - 1);
+    end = clock();
+    double sort_time = ((double)(end - start)) / CLOCKS_PER_SEC * 1000;
+    free(array);
+    
+    // Store sorting result
+    if (res->data.struct_val.pairs) {
+        res->data.struct_val.pairs[1].key = strdup("sorting");
+        Value* sort_struct = create_struct_value(2);
+        
+        sort_struct->data.struct_val.pairs[0].key = strdup("array_size");
+        sort_struct->data.struct_val.pairs[0].value.type = TYPE_INT;
+        sort_struct->data.struct_val.pairs[0].value.data.int_val = array_size;
+        
+        sort_struct->data.struct_val.pairs[1].key = strdup("time_ms");
+        sort_struct->data.struct_val.pairs[1].value.type = TYPE_FLOAT;
+        sort_struct->data.struct_val.pairs[1].value.data.float_val = sort_time;
+        
+        res->data.struct_val.pairs[1].value.type = TYPE_STRUCT;
+        res->data.struct_val.pairs[1].value.data.struct_val = sort_struct->data.struct_val;
+        free(sort_struct);
+    }
+    
+    // 3. Matrix multiplication benchmark
+    start = clock();
+    int matrix_size = 250;  // Match Ring 250 matrix size
+    int** matrix1 = (int**)malloc(matrix_size * sizeof(int*));
+    int** matrix2 = (int**)malloc(matrix_size * sizeof(int*));
+    int** result_matrix = (int**)malloc(matrix_size * sizeof(int*));
+    
+    for(int i = 0; i < matrix_size; i++) {
+        matrix1[i] = (int*)malloc(matrix_size * sizeof(int));
+        matrix2[i] = (int*)malloc(matrix_size * sizeof(int));
+        result_matrix[i] = (int*)malloc(matrix_size * sizeof(int));
+        
+        for(int j = 0; j < matrix_size; j++) {
+            matrix1[i][j] = rand() % 100;  // Random numbers between 0-99
+            matrix2[i][j] = rand() % 100;
+            result_matrix[i][j] = 0;
+        }
+    }
+    
+    // Matrix multiplication
+    for(int i = 0; i < matrix_size; i++) {
+        for(int j = 0; j < matrix_size; j++) {
+            for(int k = 0; k < matrix_size; k++) {
+                result_matrix[i][j] += matrix1[i][k] * matrix2[k][j];
+            }
+        }
+    }
+    
+    end = clock();
+    double matrix_time = ((double)(end - start)) / CLOCKS_PER_SEC * 1000;
+    
+    // Free memory
+    for(int i = 0; i < matrix_size; i++) {
+        free(matrix1[i]);
+        free(matrix2[i]);
+        free(result_matrix[i]);
+    }
+    free(matrix1);
+    free(matrix2);
+    free(result_matrix);
+    
+    // Store matrix multiplication result
+    if (res->data.struct_val.pairs) {
+        res->data.struct_val.pairs[2].key = strdup("matrix");
+        Value* matrix_struct = create_struct_value(2);
+        
+        matrix_struct->data.struct_val.pairs[0].key = strdup("matrix_size");
+        matrix_struct->data.struct_val.pairs[0].value.type = TYPE_INT;
+        matrix_struct->data.struct_val.pairs[0].value.data.int_val = matrix_size;
+        
+        matrix_struct->data.struct_val.pairs[1].key = strdup("time_ms");
+        matrix_struct->data.struct_val.pairs[1].value.type = TYPE_FLOAT;
+        matrix_struct->data.struct_val.pairs[1].value.data.float_val = matrix_time;
+        
+        res->data.struct_val.pairs[2].value.type = TYPE_STRUCT;
+        res->data.struct_val.pairs[2].value.data.struct_val = matrix_struct->data.struct_val;
+        free(matrix_struct);
+    }
+} else {
+    printf("Failed to create result structure\n");
+    res = NULL;
+}
+'
+
+C = new StzExtCodeXT("c")
+C.SetCode(cCCode) 
+
+// Execute the C code and get results
+C.Execute()
+? @@( C.Result() )
+#--> [
+#	[
+#	[
+#		"fibonacci",
+#		[ [ "n", 450 ], [ "result", -8044227546631567360.00 ], [ "time_ms", 0 ] ]
+#	],
+#	[
+#		"sorting",
+#		[ [ "array_size", 1000000 ], [ "time_ms", 197 ] ]
+#	],
+#	[
+#		"matrix",
+#		[ [ "matrix_size", 250 ], [ "time_ms", 61 ] ]
+#	]
+# ]
+
+proff()
+# Executed in 0.61 second(s) in Ring 1.22
+
+/*--------------------------------#
+#  BENCHMARK FOR PYTHON LANGAUGE  #
+#---------------------------------#
+
+pr()
+
+cPythonCode = '
+import time
+import random
+
+# 1. Fibonacci benchmark
+def fib(n):
+    if n <= 1:
+        return n
+    
+    a, b = 0, 1
+    for i in range(2, n + 1):
+        a, b = b, a + b
+    return b
+
+# 2. Quicksort implementation
+def quicksort(arr, low, high):
+    if low < high:
+        # Partition the array
+        pivot = arr[high]
+        i = low - 1
+        
+        for j in range(low, high):
+            if arr[j] < pivot:
+                i += 1
+                arr[i], arr[j] = arr[j], arr[i]
+        
+        arr[i + 1], arr[high] = arr[high], arr[i + 1]
+        
+        partition = i + 1
+        
+        # Recursively sort the sub-arrays
+        quicksort(arr, low, partition - 1)
+        quicksort(arr, partition + 1, high)
+
+# Performance benchmark
+results = []
+
+# 1. Fibonacci sequence benchmark
+n = 450
+start_time = time.time()
+result = fib(n)
+end_time = time.time()
+fib_time = (end_time - start_time) * 1000  # Convert to milliseconds
+
+results.append(["fibonacci", [
+    ["n", n],
+    ["result", result],
+    ["time_ms", fib_time]
+]])
+
+# 2. Sorting benchmark
+start_time = time.time()
+array_size = 1000000  # One million elements
+array = []
+
+# Fill with random numbers
+random.seed(42)  # Fixed seed for reproducibility
+for i in range(array_size):
+    array.append(random.randint(0, 9999))
+
+# Sort the array
+quicksort(array, 0, array_size - 1)
+end_time = time.time()
+sort_time = (end_time - start_time) * 1000  # Convert to milliseconds
+
+results.append(["sorting", [
+    ["array_size", array_size],
+    ["time_ms", sort_time]
+]])
+
+# 3. Matrix multiplication benchmark
+start_time = time.time()
+matrix_size = 250
+
+# Initialize matrices
+matrix1 = []
+matrix2 = []
+result_matrix = []
+
+for i in range(matrix_size):
+    matrix1.append([0] * matrix_size)
+    matrix2.append([0] * matrix_size)
+    result_matrix.append([0] * matrix_size)
+    
+    for j in range(matrix_size):
+        matrix1[i][j] = random.randint(0, 99)
+        matrix2[i][j] = random.randint(0, 99)
+
+# Matrix multiplication
+for i in range(matrix_size):
+    for j in range(matrix_size):
+        for k in range(matrix_size):
+            result_matrix[i][j] += matrix1[i][k] * matrix2[k][j]
+
+end_time = time.time()
+matrix_time = (end_time - start_time) * 1000  # Convert to milliseconds
+
+results.append(["matrix", [
+    ["matrix_size", matrix_size],
+    ["time_ms", matrix_time]
+]])
+
+# Return results
+res = results'
+
+py = new stzExtCodeXT(:Python)
+py.setCode(cPythonCode)
+
+py.Run()
+? @@( py.Result() )
+#--> [
+#	[
+#		"fibonacci",
+#		[ [ "n", 450 ], [ "result", 4953967011875066910547013330669507468549271950815257134688446476787412478855327157343790039040.00 ], [ "time_ms", 0 ] ]
+#	],
+#	[
+#		"sorting",
+#		[ [ "array_size", 1000000 ], [ "time_ms", 3896.04 ] ]
+#	],
+#	[
+#		"matrix",
+#		[ [ "matrix_size", 250 ], [ "time_ms", 2512.93 ] ]
+#	]
+# ]
+
+proff()
+# Executed in 8.51 second(s) in Ring 1.22
+
+/*---------------------------#
+#  BENCHMARK FOR R LANGAUGE  #
+#----------------------------#
+
+cRCode = '
+# 1. Fibonacci function
+fib <- function(n) {
+  if (n <= 1) return(n)
+  
+  a <- 0
+  b <- 1
+  for (i in 2:n) {
+    temp <- a + b
+    a <- b
+    b <- temp
+  }
+  return(b)
+}
+
+# 2. Quicksort implementation
+quicksort <- function(arr, low, high) {
+  if (low < high) {
+    # Partition the array
+    pivot <- arr[high]
+    i <- low - 1
+    
+    for (j in low:(high-1)) {
+      if (arr[j] < pivot) {
+        i <- i + 1
+        temp <- arr[i]
+        arr[i] <- arr[j]
+        arr[j] <- temp
+      }
+    }
+    
+    temp <- arr[i + 1]
+    arr[i + 1] <- arr[high]
+    arr[high] <- temp
+    
+    partition <- i + 1
+    
+    # Recursively sort the sub-arrays
+    arr <- quicksort(arr, low, partition - 1)
+    arr <- quicksort(arr, partition + 1, high)
+  }
+  return(arr)
+}
+
+# Performance benchmark
+results <- list()
+
+# 1. Fibonacci sequence benchmark
+n <- 450
+start_time <- proc.time()
+result <- fib(n)
+end_time <- proc.time()
+fib_time <- (end_time - start_time)[3] * 1000  # Convert to milliseconds
+
+results$fibonacci <- list(
+  n = n,
+  result = result,
+  time_ms = fib_time
+)
+
+# 2. Sorting benchmark
+start_time <- proc.time()
+array_size <- 1000000  # One million elements
+array <- numeric(array_size)
+
+# Fill with random numbers
+set.seed(42)  # Fixed seed for reproducibility
+for (i in 1:array_size) {
+  array[i] <- floor(runif(1, 0, 10000))
+}
+
+# Note: For large arrays, we will use R built-in sort for performance
+# but measure the time regardless
+array <- sort(array)
+end_time <- proc.time()
+sort_time <- (end_time - start_time)[3] * 1000  # Convert to milliseconds
+
+results$sorting <- list(
+  array_size = array_size,
+  time_ms = sort_time
+)
+
+# 3. Matrix multiplication benchmark
+start_time <- proc.time()
+matrix_size <- 250
+
+# Initialize matrices
+set.seed(42)
+matrix1 <- matrix(floor(runif(matrix_size * matrix_size, 0, 100)), nrow = matrix_size)
+matrix2 <- matrix(floor(runif(matrix_size * matrix_size, 0, 100)), nrow = matrix_size)
+
+# Matrix multiplication (using R built-in operator)
+result_matrix <- matrix1 %*% matrix2
+
+end_time <- proc.time()
+matrix_time <- (end_time - start_time)[3] * 1000  # Convert to milliseconds
+
+results$matrix <- list(
+  matrix_size = matrix_size,
+  time_ms = matrix_time
+)
+
+# Return results in the expected format for StzExtCodeXT
+res <- list(
+  list("fibonacci", list(
+    list("n", n),
+    list("result", result),
+    list("time_ms", fib_time)
+  )),
+  list("sorting", list(
+    list("array_size", array_size),
+    list("time_ms", sort_time)
+  )),
+  list("matrix", list(
+    list("matrix_size", matrix_size),
+    list("time_ms", matrix_time)
+  ))
+)'
+
+R = new stzExtCodeXT(:R)
+R.SetCode(cRCode)
+R.Run()
+? @@( R.Result() )
+#--> [
+#	[ 'fibonacci', [['n', 450], ['result', 4.95396701187506e+93], ['time_ms', 20]]],
+# 	['sorting', [['array_size', 1e+06], ['time_ms', 690]]],
+#	['matrix', [['matrix_size', 250], ['time_ms', 10]]]
+# ]
+
+proff()
+# Executed in 4.53 second(s) in Ring 1.22
+
+/*-------------------------------#
+#  BENCHMARK FOR JULIA LANGAUGE  #
+#--------------------------------#
+
+pr()
+
+cJuliaCode = '
+# 1. Fibonacci function
+function fib(n)
+    if n <= 1
+        return n
+    end
+    
+    a, b = 0, 1
+    for i in 2:n
+        a, b = b, a + b
+    end
+    return b
+end
+
+# 2. Quicksort implementation
+function quicksort!(arr, low, high)
+    if low < high
+        # Partition the array
+        pivot = arr[high]
+        i = low - 1
+        
+        for j in low:(high-1)
+            if arr[j] < pivot
+                i += 1
+                arr[i], arr[j] = arr[j], arr[i]
+            end
+        end
+        
+        arr[i+1], arr[high] = arr[high], arr[i+1]
+        
+        partition = i + 1
+        
+        # Recursively sort the sub-arrays
+        quicksort!(arr, low, partition - 1)
+        quicksort!(arr, partition + 1, high)
+    end
+    return arr
+end
+
+# Performance benchmark
+using Random
+using LinearAlgebra
+
+results = []
+
+# 1. Fibonacci sequence benchmark
+n = 450
+start_time = time()
+result = fib(n)
+end_time = time()
+fib_time = (end_time - start_time) * 1000  # Convert to milliseconds
+
+push!(results, ["fibonacci", [
+    ["n", n],
+    ["result", result],
+    ["time_ms", fib_time]
+]])
+
+# 2. Sorting benchmark
+start_time = time()
+array_size = 1000000  # One million elements
+array = zeros(Int, array_size)
+
+# Fill with random numbers
+Random.seed!(42)  # Fixed seed for reproducibility
+for i in 1:array_size
+    array[i] = rand(0:9999)
+end
+
+# Sort the array (using Julia built-in sort! for performance on large arrays)
+sort!(array)
+end_time = time()
+sort_time = (end_time - start_time) * 1000  # Convert to milliseconds
+
+push!(results, ["sorting", [
+    ["array_size", array_size],
+    ["time_ms", sort_time]
+]])
+
+# 3. Matrix multiplication benchmark
+start_time = time()
+matrix_size = 250
+
+# Initialize matrices
+Random.seed!(42)
+matrix1 = rand(0:99, matrix_size, matrix_size)
+matrix2 = rand(0:99, matrix_size, matrix_size)
+
+# Matrix multiplication (using Julia built-in multiplication)
+result_matrix = matrix1 * matrix2
+
+end_time = time()
+matrix_time = (end_time - start_time) * 1000  # Convert to milliseconds
+
+push!(results, ["matrix", [
+    ["matrix_size", matrix_size],
+    ["time_ms", matrix_time]
+]])
+
+# Return results
+res = Dict(
+    "fibonacci" => Dict(
+        "n" => n,
+        "result" => result,
+        "time_ms" => fib_time
+    ),
+    "sorting" => Dict(
+        "array_size" => array_size,
+        "time_ms" => sort_time
+    ),
+    "matrix" => Dict(
+        "matrix_size" => matrix_size,
+        "time_ms" => matrix_time
+    )
+)'
+
+J = new stzExtCodeXT(:Julia)
+J.SetCode(cJuliaCode)
+J.Run()
+? @@( J.Result() )
+#--> [
+#	[
+#		"fibonacci",
+#		[ [ "n", 450 ], [ "time_ms", 11.00 ], [ "result", -8044227546631567360.00 ] ]
+#	],
+#	[
+#		"matrix",
+#		[ [ "time_ms", 255.00 ], [ "matrix_size", 250 ] ]
+#	],
+#	[
+#		"sorting",
+#		[ [ "time_ms", 944.00 ], [ "array_size", 1000000 ] ]
+#	]
+# ]
+
+proff()
+# Executed in 2.11 second(s) in Ring 1.22
+
+/*----------------------------#
+#  BENCHMARK FOR GO LANGAUGE  #
+#-----------------------------#
+*/
+pr()
+
+cGoCode = '
+// Fibonacci function using big.Int for large numbers
+func fib(n int) *big.Int {
+    if n <= 1 {
+        return big.NewInt(int64(n))
+    }
+
+    a := big.NewInt(0)
+    b := big.NewInt(1)
+    temp := new(big.Int)
+
+    for i := 2; i <= n; i++ {
+        temp.Add(a, b)
+        a.Set(b)
+        b.Set(temp)
+    }
+    return b
+}
+
+// Quicksort implementation
+func quicksort(arr []int, low, high int) {
+    if low < high {
+        // Partition the array
+        pivot := arr[high]
+        i := low - 1
+
+        for j := low; j < high; j++ {
+            if arr[j] < pivot {
+                i++
+                arr[i], arr[j] = arr[j], arr[i]
+            }
+        }
+
+        arr[i+1], arr[high] = arr[high], arr[i+1]
+
+        partition := i + 1
+
+        // Recursively sort the sub-arrays
+        quicksort(arr, low, partition-1)
+        quicksort(arr, partition+1, high)
+    }
+}
+
+// Main execution point
+var res map[string]interface{}
+
+func init() {
+    // Fibonacci sequence benchmark
+    n := 450
+    startTime := time.Now()
+    result := fib(n)
+    endTime := time.Now()
+    fibTime := float64(endTime.Sub(startTime).Milliseconds())
+
+    // Sorting benchmark
+    startTime = time.Now()
+    arraySize := 1000000 // One million elements
+    array := make([]int, arraySize)
+
+    // Fill with random numbers
+    rand.Seed(time.Now().UnixNano())
+    for i := 0; i < arraySize; i++ {
+        array[i] = rand.Intn(10000)
+    }
+
+    // Sort the array
+    quicksort(array, 0, arraySize-1)
+    endTime = time.Now()
+    sortTime := float64(endTime.Sub(startTime).Milliseconds())
+
+    // Matrix multiplication benchmark
+    startTime = time.Now()
+    matrixSize := 250
+
+    // Initialize matrices
+    matrix1 := make([][]int, matrixSize)
+    matrix2 := make([][]int, matrixSize)
+    resultMatrix := make([][]int, matrixSize)
+
+    for i := 0; i < matrixSize; i++ {
+        matrix1[i] = make([]int, matrixSize)
+        matrix2[i] = make([]int, matrixSize)
+        resultMatrix[i] = make([]int, matrixSize)
+
+        for j := 0; j < matrixSize; j++ {
+            matrix1[i][j] = rand.Intn(100)
+            matrix2[i][j] = rand.Intn(100)
+        }
+    }
+
+    // Matrix multiplication
+    for i := 0; i < matrixSize; i++ {
+        for j := 0; j < matrixSize; j++ {
+            for k := 0; k < matrixSize; k++ {
+                resultMatrix[i][j] += matrix1[i][k] * matrix2[k][j]
+            }
+        }
+    }
+
+    endTime = time.Now()
+    matrixTime := float64(endTime.Sub(startTime).Milliseconds())
+
+    // Set results in the format expected by StzExtCodeXT
+    res = map[string]interface{}{
+        "fibonacci": map[string]interface{}{
+            "n": n,
+            "result": result.String(),
+            "time_ms": fibTime,
+        },
+        "sorting": map[string]interface{}{
+            "array_size": arraySize,
+            "time_ms": sortTime,
+        },
+        "matrix": map[string]interface{}{
+            "matrix_size": matrixSize,
+            "time_ms": matrixTime,
+        },
+    }
+}'
+
+go = new stzExtCodeXT(:Go)
+go.SetCode(cGoCode)
+go.Run()
+? @@( go.Result() )
+
+proff()
+

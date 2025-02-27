@@ -209,12 +209,10 @@ func CharToUnicode(c)
 	def CharUnicode(c)
 		return CharToUnicode(c)
 
+
 func UnicodeToChar(nUnicode)
 	oChar = new stzChar(nUnicode)
 	return oChar.Content()	
-
-	func Char(nUnicode)
-		return UnicodeToChar(nUnicode)
 
 	func @Char(nUnicode)
 		return UnicodeToChar(nUnicode)

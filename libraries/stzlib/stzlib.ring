@@ -223,6 +223,8 @@ t0 = clock()
 	load "io/stzFile.ring"
 	load "io/stzFolder.ring"
 	load "io/stzExtCode.ring" // #TODO Is this the right place?
+
+	load "io/stzExtCodeTransFuncs.ring"
 	load "io/stzExtCodeXT.ring"
 	load "io/stzPythonCode.ring"
 	load "io/stzRCode.ring"
