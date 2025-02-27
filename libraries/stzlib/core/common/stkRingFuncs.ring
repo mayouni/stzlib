@@ -27,6 +27,9 @@ func ring_version()
 	func RingVersion()
 		return version()
 
+func ring_char(n)
+	return char(n)
+
 func ring_EvenOrOdd(n) # Inverses the output to be more logic (odd -> 1, even -> 2)
 	if EvenOrOdd(n) = 1
 		return 2

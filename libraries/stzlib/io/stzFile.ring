@@ -39,6 +39,9 @@ _aFileOpeningModes = [
 	:EraseAndWrite	= "QIODevice_WriteOnly" // If file do not exist, creates it
 ]
 
+func IsDir(cDir)
+	return dirExists(cDir)
+
 func StzFile(cFile)
 	return new stzFile(cFile)
 
