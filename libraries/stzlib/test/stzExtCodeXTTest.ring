@@ -424,7 +424,8 @@ oPyCode.Execute()
 # ]
 
 proff()
-# Executed in 1.75 second(s) in Ring 1.22
+# Executed in 7.63 second(s) in Ring 1.22 : AFTER FIRST RUN
+# Executed in 1.87 second(s) in Ring 1.22 : AFTER WARM-UP
 
 /*=======================#
 #  R LANGAUAGE EXAMPLES  #
@@ -451,7 +452,8 @@ R.Execute()
 # ]
 
 proff()
-# Executed in 0.31 second(s) in Ring 1.22
+# Executed in 1.42 second(s) in Ring 1.22 : AFTER FIRST RUN
+# Executed in 0.31 second(s) in Ring 1.22 : AFTER WARM-UP
 
 /*--- Simple nested list with different data types
 
@@ -808,14 +810,11 @@ R.SetCode('
 ')
 
 R.Execute()
-
-if fexists("output.png")
-	system("start output.png")
-ok
-
+View("output.png")
 
 proff()
-# Executed in 2.92 second(s) in Ring 1.22
+# Executed in 5.32 second(s) in Ring 1.22 : AFTER FRIST RUN
+# Executed in 2.92 second(s) in Ring 1.22 : AFTER WARM-UP
 
 /*==========================#
 #  JULIA LANGUAGE EXAMPLES  #
@@ -934,7 +933,7 @@ proff()
 # Executed in 1.21 second(s) in Ring 1.22
 
 /*---  Nested Array of Mixed Types
-
+*/
 pr()
 
 xc = new StzExtCodeXT("c")

@@ -33,7 +33,7 @@ The execution workflow of the EXCIS system follows a clear sequence of operation
 
 This workflow is encapsulated in the `Execute()` method and its supporting private methods.
 
-## Easy Configuration
+## System Configuration
 
 After installing the external languages on your system (currently Python and R) and ensuring they are accessible from the system PATH (so the Ring `system()` command can call their runtimes), you can start working with the preconfigured settings available in the class attributes region.
 
@@ -164,9 +164,9 @@ The system's design allows for both interpreted and compiled languages, though t
 
 ## Transformation Functions
 
-At the heart of EXCIS are the transformation functions that convert data structures between Ring and target languages. These functions are automatically embedded with the user code during execution.
+At the heart of EXCIS are the transformation functions that convert data structures between Ring and target languages. These functions are automatically embedded with the user code during execution. Here we show the example of the Pyhton transformation function.
 
-### Python Transformation
+### Python Transformation Function
 
 The Python transformation function converts Python data structures to Ring format:
 
@@ -205,72 +205,62 @@ def transform_to_ring(data):
     return _transform(data)
 ```
 
-### R Transformation
+You can see the other functions code in the Softanza code base [here](https://github.com/mayouni/stzlib/blob/main/libraries/stzlib/io/stzExtCodeTransFuncs.ring).
 
-The R transformation function converts R data structures to Ring format:
+### Type Mapping Table
 
-```r
-transform_to_ring <- function(data) {
-  transform <- function(obj, depth = 0) {
-    # Prevent excessive recursion
-    if (depth > 100) {
-      return("TOO_DEEP")
-    }
-    
-    # Handle NULL and NA values explicitly
-    if (is.null(obj)) {
-      return("NULL")
-    }
-    
-    # Handle lists or data frames
-    if (is.list(obj) || is.data.frame(obj)) {
-      items <- lapply(seq_along(obj), function(i) {
-        key <- names(obj)[i]
-        value <- transform(obj[[i]], depth + 1)
-        if (!is.null(key)) {
-          sprintf("['%s', %s]", key, value)
-        } else {
-          value
-        }
-      })
-      return(paste0("[", paste(items, collapse=", "), "]"))
-    }
-    
-    # Handle vectors or arrays
-    if (is.vector(obj) || is.array(obj)) {
-      if (length(obj) > 1) {
-        items <- sapply(obj, function(x) {
-          if (is.na(x)) return("NULL") # Changed from "NA" to "NULL"
-          transform(x, depth + 1)
-        })
-        return(paste0("[", paste(items, collapse=", "), "]"))
-      } else {
-        if (is.na(obj)) return("NULL") # Changed from "NA" to "NULL"
-      }
-    }
-    
-    # Handle character strings
-    if (is.character(obj)) {
-      return(sprintf("'%s'", obj))
-    }
-    
-    # Handle numeric values
-    if (is.numeric(obj)) {
-      return(as.character(obj))
-    }
-    
-    # Handle logical values
-    if (is.logical(obj)) {
-      return(ifelse(obj, "TRUE", "FALSE"))
-    }
-    
-    # Default case
-    return(sprintf("'%s'", as.character(obj)))
-  }
-  
-  transform(data, depth = 0)
-}
-```
+Here's a comprehensive mapping table showing how each supported language's data types are transformed to Ring types:
+
+| Language    | Source Type                   | Ring Type              | Notes                                            |
+|-------------|-------------------------------|------------------------|--------------------------------------------------|
+| **Python**  | `int`                         | Number                 |                                                  |
+|             | `float`                       | Number                 | Scientific notation converts to string           |
+|             | `str`                         | String                 |                                                  |
+|             | `bool` (`True`)               | `TRUE`                 |                                                  |
+|             | `bool` (`False`)              | `FALSE`                |                                                  |
+|             | `None`                        | `NULL`                 |                                                  |
+|             | `list`                        | List                   |                                                  |
+|             | `dict`                        | List of key-value pairs| Each pair as `[key, value]`                      |
+|             | Custom objects                | String                 | Via `str()` conversion                           |
+| **R**       | `numeric`                     | Number                 | Scientific notation converts to string           |
+|             | `character`                   | String                 |                                                  |
+|             | `logical` (`TRUE`)            | `TRUE`                 |                                                  |
+|             | `logical` (`FALSE`)           | `FALSE`                |                                                  |
+|             | `NULL`                        | `NULL`                 |                                                  |
+|             | `NA`                          | `NULL`                 |                                                  |
+|             | `list`                        | List                   |                                                  |
+|             | `data.frame`                  | List of key-value pairs| Column names as keys                             |
+|             | `vector` (named)              | List of key-value pairs|                                                  |
+|             | `vector` (unnamed)            | List                   |                                                  |
+|             | `factor`                      | String                 | Should be converted with `as.character()`        |
+| **Julia**   | `Int`                         | Number                 |                                                  |
+|             | `Float64`                     | Number                 | Scientific notation converts to string           |
+|             | `String`                      | String                 |                                                  |
+|             | `Bool` (`true`)               | `TRUE`                 |                                                  |
+|             | `Bool` (`false`)              | `FALSE`                |                                                  |
+|             | `Nothing`                     | `NULL`                 |                                                  |
+|             | `Dict`                        | List of key-value pairs| Each pair as `[key, value]`                      |
+|             | `Array`                       | List                   |                                                  |
+|             | `Tuple`                       | List                   |                                                  |
+|             | Custom structs                | String                 | Via `string()` conversion                        |
+| **C**       | `int64_t`                     | Number                 |                                                  |
+|             | `double`                      | Number                 | Scientific notation converts to string           |
+|             | `char*`                       | String                 |                                                  |
+|             | `bool` (`true`)               | `TRUE`                 |                                                  |
+|             | `bool` (`false`)              | `FALSE`                |                                                  |
+|             | `NULL`                        | `NULL`                 |                                                  |
+|             | `Value` (`TYPE_ARRAY`)        | List                   | Custom implementation                            |
+|             | `Value` (`TYPE_STRUCT`)       | List of key-value pairs| Custom implementation                            |
+| **Prolog**  | `atom`                        | String                 |                                                  |
+|             | `string`                      | String                 |                                                  |
+|             | `number` (integer)            | Number                 |                                                  |
+|             | `number` (float)              | Number                 | Scientific notation converts to string           |
+|             | `true`                        | `TRUE`                 |                                                  |
+|             | `false`                       | `FALSE`                |                                                  |
+|             | `list`                        | List                   |                                                  |
+|             | `Key-Value` ('-' operator)    | List `[Key, Value]`    | May be inconsistent                              |
+|             | Compound terms                | List                   | Arguments become list elements                   |
+
 
 ## Language-Specific Guidelines
 
@@ -321,6 +311,93 @@ The transformation engine converts R data structures to Ring format with these l
 - Simplify complex data structures before output
 - Ensure vectors have appropriate names for dictionary-like behavior
 - Use `as.list()` for complex objects when appropriate
+
+### Julia Guidelines
+
+- **Supported Data Types**:  
+  - Basic: `Int`, `Float64`, `String`, `Bool`, `Nothing`  
+  - Collections: `Dict`, `Array`, `Tuple`  
+  - String representations of dictionaries (parsed if possible)  
+
+- **Unsupported/Potential Issues**: 
+  - Complex objects (custom structs/types)  
+  - Special numeric types (`BigInt`, `Complex`)  
+  - Circular references  
+  - Symbols  
+  - Functions or closures  
+  - Dates/times (convert to strings)
+  - Higher-dimensional arrays (flatten or convert to nested arrays)
+
+- **Best Practices**:  
+  - Convert specialized types to basic types
+  - Convert `Date`, `DateTime` to string format with `string()`
+  - Flatten or nest multidimensional arrays as needed
+  - Use dictionaries with string keys for structured data
+  - Convert symbols to strings with `string()`
+  - Avoid returning functions or custom struct instances
+  - Use `Dict`, `Array`, `String`, `Number` for data transfer
+
+### C Guidelines
+
+- **Supported Data Types**:  
+  - Basic: `int64_t`, `double`, `char*`, `bool`, `NULL`  
+  - Collections: Custom struct using `Value` and `KeyValue` types
+  - Arrays using the `Value` array structure  
+
+- **Unsupported/Potential Issues**: 
+  - Arbitrary C structs (must convert to Value type)
+  - Function pointers
+  - Void pointers without type information
+  - Raw pointers to memory blocks  
+  - Circular references
+  - Thread-specific data
+  - File handles or I/O streams
+
+- **Best Practices**:  
+  - Use the provided functions to create Value objects:
+    - `create_int_value()` for integers
+    - `create_float_value()` for floating point
+    - `create_string_value()` for strings
+    - `create_bool_value()` for booleans
+    - `create_array_value()` for arrays
+    - `create_struct_value()` for key-value structures
+  - Remember to free dynamically allocated Value objects
+  - Convert custom structs to Value objects with struct_val type
+  - Convert raw C arrays to Value arrays
+  - Properly null-terminate all strings
+  - Set the global `res` variable to the Value object to be returned
+    
+### SWI-Prolog Guidelines
+
+- **Supported Data Types**:  
+  - Basic: `atom`, `string`, `number`, `true/false`  
+  - Collections: `list`, `compound terms`
+  - Key-value pairs using direct list notation [Key, Value] (most reliable)
+  - Key-value pairs using the `-` operator (Key-Value) (may be inconsistent)
+
+- **Unsupported/Potential Issues**: 
+  - Variables (unbound variables)
+  - Modules
+  - Streams
+  - Database references
+  - Large/infinite terms
+  - Cyclic terms
+  - Meta-predicates
+  - DCG rules
+  - Double backslashes (\\) in strings
+
+- **Best Practices**:  
+  - Define the result using a `res/1` predicate
+  - Use lists for sequential data
+  - Prefer list notation [Key, Value] over Key-Value pairs for more reliable results
+  - If using Key-Value pairs with the `-` operator, validate results carefully
+  - Use single backslash (\) instead of double backslash (\\) in strings
+  - Represent complex structures as nested lists or compound terms
+  - Convert dates/times to string format
+  - Use atomic values (atoms, strings, numbers) for basic data
+  - Use true/false atoms for boolean values
+  - Ensure all variables are bound in the final result
+  - Avoid circular references in data structures
 
 ## Simplified Programmer Experience
 
