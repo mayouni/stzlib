@@ -1,4 +1,8 @@
 
+:- use_module(library(lists)).
+:- use_module(library(apply)).
+
+
 :- use_module(library(http/json)).
 
 % Main function to transform Prolog term to Ring format and save to file
@@ -8,113 +12,88 @@ transform_to_ring(Term, Filename) :-
     write(Stream, ResultStr),
     close(Stream).
 
-% Transform an atom or string
+% Entry point for transformation, starts with depth 0
 transform(Term, Result) :-
+    transform_internal(Term, Result, 0).
+
+% Transform an atom or string
+transform_internal(Term, Result, _) :-
     (atom(Term) ; string(Term)),
     !,
     format(atom(Result), "\'~w\'", [Term]).
 
 % Transform a number, handling scientific notation
-transform(Term, Result) :-
+transform_internal(Term, Result, _) :-
     number(Term),
     !,
     format(atom(StrVal), "~w", [Term]),
-    (   sub_atom(StrVal, _, _, _, e) 
+    (   sub_atom(StrVal, _, _, _, e)
     ->  format(atom(Result), "\'~w\'", [Term])
     ;   Result = StrVal
     ).
 
-% Transform boolean true value
-transform(true, "TRUE") :- !.
-
-% Transform boolean false value
-transform(false, "FALSE") :- !.
+% Transform boolean values
+transform_internal(true, "TRUE", _) :- !.
+transform_internal(false, "FALSE", _) :- !.
 
 % Transform a list
-transform(List, Result) :-
+transform_internal(List, Result, Depth) :-
     is_list(List),
     !,
-    transform_list(List, Result).
+    transform_list(List, Result, Depth).
 
-% Transform a compound term
-transform(Term, Result) :-
+% Transform a compound term (e.g., key-value pairs)
+transform_internal(Term, Result, Depth) :-
     compound(Term),
     !,
     Term =.. [Functor|Args],
-    transform_compound(Functor, Args, Result).
+    transform_compound(Functor, Args, Result, Depth).
 
 % Default case for variables or other terms
-transform(_, "NULL").
+transform_internal(_, "NULL", _).
 
-% Transform a list into a flat string
-transform_list(List, Result) :-
-    transform_list_items(List, Items),
-    format(atom(Result), "[~w]", [Items]).
+% Transform an empty list
+transform_list([], "[]", _).
 
-% Transform list items into a comma-separated string
-transform_list_items([], "").
-transform_list_items([H], Result) :-
-    transform(H, HResult),
-    format(atom(Result), "~w", [HResult]).
-transform_list_items([H|T], Result) :-
-    transform(H, HResult),
-    transform_list_items(T, TResult),
-    (   TResult = "" -> format(atom(Result), "~w", [HResult])
-    ;   format(atom(Result), "~w, ~w", [HResult, TResult])
-    ).
+% Transform a non-empty list with depth check
+transform_list(List, Result, Depth) :-
+    Depth < 100,
+    !,
+    findall(Str, (member(Elem, List), transform_internal(Elem, Str, Depth + 1)), StrList),
+    atomic_list_concat(StrList, ", ", ElementsStr),
+    format(atom(Result), "[~w]", [ElementsStr]).
 
-% Handle key-value pairs (Term = Key-Value), including numeric keys
-transform_compound(-, [Key, Value], Result) :-
-    transform(Key, KeyResult),
-    transform(Value, ValueResult),
-    format(atom(Result), "[~w, ~w]", [KeyResult, ValueResult]).
+% Handle excessive depth
+transform_list(_, "TOO_DEEP", Depth) :-
+    Depth >= 100.
+
+% Handle key-value pairs (e.g., input_list-[1,2,3,4,5])
+transform_compound(-, [Key, Value], Result, Depth) :-
+    (atom(Key) ; string(Key)),
+    !,
+    transform_internal(Value, ValueResult, Depth),
+    format(atom(Result), "[\'~w\', ~w]", [Key, ValueResult]).
 
 % Default handling for other compound terms
-transform_compound(_, Args, Result) :-
-    transform_list(Args, Result).
-
-
-:- use_module(library(lists)).
-:- use_module(library(apply)).
+transform_compound(_, Args, Result, Depth) :-
+    transform_list(Args, Result, Depth).
 
 
 
-    % Solve the N-Queens problem
-    queens(N, Queens) :-
-        length(Queens, N),
-        queens_domain(Queens, N),
-        safe_queens(Queens).
+% Define a predicate to add 10 to each element
+add_ten([], []).
+add_ten([H|T], [H10|T10]) :-
+    H10 is H + 10,
+    add_ten(T, T10).
 
-    queens_domain([], _).
-    queens_domain([Q|Queens], N) :-
-        between(1, N, Q),  % Using between/3 instead of domain/3
-        queens_domain(Queens, N).
+% Create an input list and transform it
+process_data(Result) :-
+    InputList = [1, 2, 3, 4, 5],
+    add_ten(InputList, TransformedList),
+    Result = [input_list-InputList, transformed_list-TransformedList].
 
-    safe_queens([]).
-    safe_queens([Q|Queens]) :-
-        safe_queens(Queens, Q, 1),
-        safe_queens(Queens).
-
-    safe_queens([], _, _).
-    safe_queens([Q|Queens], Q0, D0) :-
-        Q =\= Q0,           % Different row
-        Q =\= Q0 + D0,      % Different diagonal
-        Q =\= Q0 - D0,      % Different diagonal
-        D1 is D0 + 1,
-        safe_queens(Queens, Q0, D1).
-
-    % Find solutions to the 4-Queens problem
-    solve_queens(Result) :-
-        findall(
-            Solution,
-            queens(4, Solution),
-            Solutions
-        ),
-        Result = Solutions.
-
-    % Define result
-    res(Result) :- solve_queens(Result).
-
+% Define the result variable that will be used by the transform_to_ring function
+res(Result) :- process_data(Result).
 
 
 % Main predicate called by the runtime
