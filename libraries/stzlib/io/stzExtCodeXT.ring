@@ -122,8 +122,8 @@ class StzExtCodeXT
    def Execute()
     	This.Prepare()
 
-    	if @cCode = ""
-        	return
+    	if @trim(@cCode) = ""
+        	stzraise("Can't execute! The code you provided is empty.")
     	end
 
     	if NOT fexists(@cSourceFile)
@@ -139,45 +139,27 @@ class StzExtCodeXT
 
     	cScriptFile = "run" + @cLanguage
 
-    	if isWindows()
-        	cScriptFile += ".bat"
-        	cScriptContent = "@echo off" + NL
-
-        	if @aLanguages[@cLanguage][:Type] = "compiled"
-            		if @cLanguage = "c"
-                		# Compile and run separately for C
-                		cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
-                                 "if %ERRORLEVEL% EQU 0 " + @aLanguages[@cLanguage][:ExecutableName] + ".exe >> " + @cLogFile + " 2>&1" + NL
-			else # Vlang for the meantime
-				cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
-			ok
-        	else
-            		# Interpreted languages (Python, R, Julia)
-		        cScriptContent += cRuntime + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
-        	ok
-
-        	cScriptContent += "exit %ERRORLEVEL%"
-
-    	else
-        	cScriptFile += ".sh"
-        	cScriptContent = "#!/bin/bash" + NL
-
-        	if @aLanguages[@cLanguage][:Type] = "compiled"
-
-           		if @cLanguage = "c"
-                		# Compile and run separately for C
-                		cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
-                                 "if [ $? -eq 0 ]; then ./" + @aLanguages[@cLanguage][:ExecutableName] + " >> " + @cLogFile + " 2>&1; fi" + NL
-			else # Vlang for for the mean time
-				cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
-	            	ok
-        	else
-            		# Interpreted languages (Python, R, Julia)
-            		cScriptContent += cRuntime + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
-        	ok
-
-        	cScriptContent += "exit $?"
-    	ok
+	 if isWindows()
+	    cScriptFile += ".bat"
+	    cScriptContent = "@echo off" + NL
+	    cExtraArgs = @aLanguages[@cLanguage][:ExtraArgs]
+	    if cExtraArgs != NULL and cExtraArgs != ""
+	        cScriptContent += cRuntime + " " + cExtraArgs + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	    else
+	        cScriptContent += cRuntime + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	    ok
+	    cScriptContent += "exit %ERRORLEVEL%"
+	else
+	    cScriptFile += ".sh"
+	    cScriptContent = "#!/bin/bash" + NL
+	    cExtraArgs = @aLanguages[@cLanguage][:ExtraArgs]
+	    if cExtraArgs != NULL and cExtraArgs != ""
+	        cScriptContent += cRuntime + " " + cExtraArgs + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	    else
+	        cScriptContent += cRuntime + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	    ok
+	    cScriptContent += "exit $?"
+	ok
 
     	This.WriteToFile(cScriptFile, cScriptContent)
 
@@ -440,16 +422,18 @@ int main() {
    	 but @cLanguage = "prolog"
 	#---------------------------
 
-        	return cTransFunc + '
+		return $cPrologToRingTransFunc + NL + '
 :- use_module(library(lists)).
 :- use_module(library(apply)).
+
+' + @cCode + NL + '
 
 % Main predicate called by the runtime
 main :-
     writeln("SWI-Prolog program starting..."),
-    ' + @cCode + '
+    res(Result),
     writeln("Transforming result..."),
-    transform_to_ring(' + @cResultVar + ', _),
+    transform_to_ring(Result, "' + @cResultFile + '"),
     writeln("Data written to file").
 '
 
