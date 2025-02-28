@@ -1,3 +1,19 @@
-SWI-Prolog program starting...
-Transforming result...
+R script starting...
+
+Attaching package: 'plotly'
+
+The following object is masked from 'package:ggplot2':
+
+    last_plot
+
+The following object is masked from 'package:stats':
+
+    filter
+
+The following object is masked from 'package:graphics':
+
+    layout
+
+Loading required package: viridisLite
+`geom_smooth()` using formula = 'y ~ x'
 Data written to file

@@ -4,6 +4,10 @@
 #~> They transform the result of the external computation in
 #   format that is processable by Ring
 
+# A Mapping Table that shows how external language types are casted to a Ring type
+# by the tranformation functions that exist in this file:
+# https://github.com/mayouni/stzlib/blob/main/libraries/stzlib/doc/internals/stz-excis-tranformation-table.md
+
 #--------------------------------------#
 #  SWI-Prolog Transformation Function  #
 #--------------------------------------#
