@@ -1,5 +1,4 @@
 
-
 #------------------#
 #  THE MAIN CLASS  #
 #------------------#
@@ -59,6 +58,18 @@ class StzExtCodeXT
             :CaptureBuildErrors = TRUE
         ],
 
+:nodejs = [
+    :Name = "NodeJS",
+    :Type = "interpreted",
+    :Extension = ".js",
+    :Runtime = "node",
+    :AlternateRuntimes = ["nodejs"],
+    :ResultFile = "jsresult.txt",
+    :CustomPath = "D:\\nodejs\\node.exe",  # Replace with your Node.js path
+    :TransFunc = $cNodeJSToRingTransFunc,
+    :Cleanup = FALSE
+],
+
         :prolog = [
             :Name = "SWI-Prolog",
             :Type = "interpreted",
@@ -67,7 +78,7 @@ class StzExtCodeXT
             :AlternateRuntimes = ["prolog"],
             :ResultFile = "plresult.txt",
             :CustomPath = "D:\\swipl\\bin\\swipl.exe",  # Update to your actual path
-            :TransFunc = $cSWIPrologToRingTransFunc,
+            :TransFunc = $cPrologToRingTransFunc,
             :Cleanup = FALSE,
             :ExtraArgs = "-q -g main -t halt"   # Quiet mode, call main/0, halt after execution
         ]
@@ -122,8 +133,8 @@ class StzExtCodeXT
    def Execute()
     	This.Prepare()
 
-    	if @trim(@cCode) = ""
-        	stzraise("Can't execute! The code you provided is empty.")
+    	if @cCode = ""
+        	return
     	end
 
     	if NOT fexists(@cSourceFile)
@@ -139,27 +150,46 @@ class StzExtCodeXT
 
     	cScriptFile = "run" + @cLanguage
 
-	 if isWindows()
-	    cScriptFile += ".bat"
-	    cScriptContent = "@echo off" + NL
-	    cExtraArgs = @aLanguages[@cLanguage][:ExtraArgs]
-	    if cExtraArgs != NULL and cExtraArgs != ""
-	        cScriptContent += cRuntime + " " + cExtraArgs + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
-	    else
-	        cScriptContent += cRuntime + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
-	    ok
-	    cScriptContent += "exit %ERRORLEVEL%"
-	else
-	    cScriptFile += ".sh"
-	    cScriptContent = "#!/bin/bash" + NL
-	    cExtraArgs = @aLanguages[@cLanguage][:ExtraArgs]
-	    if cExtraArgs != NULL and cExtraArgs != ""
-	        cScriptContent += cRuntime + " " + cExtraArgs + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
-	    else
-	        cScriptContent += cRuntime + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
-	    ok
-	    cScriptContent += "exit $?"
-	ok
+    	if isWindows()
+
+        	cScriptFile += ".bat"
+        	cScriptContent = "@echo off" + NL
+
+        	if @aLanguages[@cLanguage][:Type] = "compiled"
+
+               		# Compile and run
+               		cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
+                        "if %ERRORLEVEL% EQU 0 " + @aLanguages[@cLanguage][:ExecutableName] + ".exe >> " + @cLogFile + " 2>&1" + NL
+
+        	else # Interpreted languages (Python, R, Julia, and SWI-Prolog)
+
+         		cExtraArgs = ""
+         		if @aLanguages[@cLanguage][:ExtraArgs] != NULL
+            			cExtraArgs = @aLanguages[@cLanguage][:ExtraArgs]
+         		ok
+
+		        cScriptContent += cRuntime + " " + cExtraArgs + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+        	ok
+
+        	cScriptContent += "exit %ERRORLEVEL%"
+
+    	else
+        	cScriptFile += ".sh"
+        	cScriptContent = "#!/bin/bash" + NL
+
+        	if @aLanguages[@cLanguage][:Type] = "compiled"
+
+			# Compile and run
+			cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
+                                 "if [ $? -eq 0 ]; then ./" + @aLanguages[@cLanguage][:ExecutableName] + " >> " + @cLogFile + " 2>&1; fi" + NL
+
+        	else
+            		# Interpreted languages (Python, R, Julia, and SWI-Prolog)
+            		cScriptContent += cRuntime + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+        	ok
+
+        	cScriptContent += "exit $?"
+    	ok
 
     	This.WriteToFile(cScriptFile, cScriptContent)
 
@@ -362,7 +392,7 @@ class StzExtCodeXT
          if @cLanguage = "python"
 	#-------------------------
 
-            return NL + cTransFunc + '
+            return $cPyToRingTransFunc + '
 # Main code
 print("Python script starting...")
 ' + @cCode + '
@@ -378,7 +408,7 @@ print("Data written to file")
          but @cLanguage = "r"
 	#---------------------
 
-            return cTransFunc + '
+            return $cRToRingTransFunc + '
 # Main code
 cat("R script starting...\n")
 ' + @cCode + '
@@ -391,7 +421,7 @@ cat("Data written to file\n")
          but @cLanguage = "julia"
 	#-------------------------
 
-            return cTransFunc + '
+            return $cJuliaToRingTransFunc + '
 # Main code
 println("Julia script starting...")
 ' + @cCode + '
@@ -418,20 +448,38 @@ int main() {
 }
 '
 
+	#--------------------------
+	 but @cLanguage = "nodejs"
+	#--------------------------
+
+	return 'const { transform_to_ring, writeResultToFile } = (() => {
+' + $cNodeJSToRingTransFunc + '
+    return { transform_to_ring, writeResultToFile };
+})();
+
+console.log("NodeJS script starting...");
+' + @cCode + '
+console.log("Writing results to file...");
+writeResultToFile(' + @cResultVar + ', "' + @cResultFile + '");
+console.log("Data written to file");
+'
+
 	#---------------------------
    	 but @cLanguage = "prolog"
 	#---------------------------
 
-		return $cPrologToRingTransFunc + NL + '
+    	return '
 :- use_module(library(lists)).
 :- use_module(library(apply)).
 
-' + @cCode + NL + '
+' + $cPrologToRingTransFunc + '
+
+' + @cCode + '
 
 % Main predicate called by the runtime
 main :-
     writeln("SWI-Prolog program starting..."),
-    res(Result),
+    ' + @cResultVar + '(Result),
     writeln("Transforming result..."),
     transform_to_ring(Result, "' + @cResultFile + '"),
     writeln("Data written to file").
