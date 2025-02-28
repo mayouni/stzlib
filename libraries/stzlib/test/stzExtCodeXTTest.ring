@@ -1075,34 +1075,429 @@ proff()
 #  EXAMPLES FOR THE PROLOG LANGUAGE  #
 #====================================#
 
-/*--- Simple program that creates a list of factorials
-*/
+/*--- Simple List Processing
+
+pr()
+
 oProlog = new stzExtCodeXT(:Prolog)
 
 oProlog.SetCode('
-% Compute factorial
-factorial(0, 1).
-factorial(N, F) :-
-    N > 0,
-    N1 is N - 1,
-    factorial(N1, F1),
-    F is N * F1.
 
-% Create a list with factorials from 1 to 10
-get_factorials(Result) :-
-    findall(
-        N-Fact,
-        (between(1, 10, N), factorial(N, Fact)),
-        Result
-    ).
+    % Define a predicate to add 10 to each element
 
-% Define the main result - this will be transformed
-res(Result) :- get_factorials(Result).
+    add_ten([], []).
+    add_ten([H|T], [H10|T10]) :-
+        H10 is H + 10,
+        add_ten(T, T10).
+    
+    % Create an input list and transform it
+
+    process_data(Result) :-
+        InputList = [1, 2, 3, 4, 5],
+        add_ten(InputList, TransformedList),
+        Result = [input_list-InputList, transformed_list-TransformedList].
+    
+    % Define result
+
+    res(Result) :- process_data(Result).
+')
+
+oProlog.Run()
+
+? "Result of adding 10 to each element:"
+? @@( oProlog.Result() )
+
+#--> Result of adding 10 to each element:
+# [
+#	[ "input_list", [ 1, 2, 3, 4, 5 ] ],
+#	[ "transformed_list", [ 11, 12, 13, 14, 15 ] ]
+# ]
+
+proff()
+# Executed in 0.62 second(s) in Ring 1.22
+
+/*--- List of factorials in Prolog
+
+pr()
+
+oProlog = new stzExtCodeXT(:Prolog)
+
+oProlog.SetCode('
+
+	% Compute factorial
+
+	factorial(0, 1).
+	factorial(N, F) :-
+	    N > 0,
+	    N1 is N - 1,
+	    factorial(N1, F1),
+	    F is N * F1.
+	
+	% Create a list with factorials from 1 to 10
+
+	get_factorials(Result) :-
+	    findall(
+	        N-Fact,
+	        (between(1, 10, N), factorial(N, Fact)),
+	        Result
+	    ).
+	
+	% Define the main result - this will be transformed
+
+	res(Result) :- get_factorials(Result).
+')
+
+oProlog.Run()
+? @@(oProlog.Result())
+#--> [
+#	[ 1, 1 ],
+#	[ 2, 2 ],
+#	[ 3, 6 ],
+#	[ 4, 24 ],
+#	[ 5, 120 ],
+#	[ 6, 720 ],
+#	[ 7, 5040 ],
+#	[ 8, 40320 ],
+#	[ 9, 362880 ],
+#	[ 10, 3628800 ]
+# ]
+
+proff()
+# Executed in 0.20 second(s) in Ring 1.22
+
+/*--- Define family relationships and query ancestors
+
+pr()
+
+pl = new stzExtCodeXT(:Prolog)
+
+pl.SetCode('
+
+	% Facts: parent(Child, Parent)
+
+	parent(john, mary).
+	parent(john, peter).
+	parent(mary, alice).
+	parent(peter, bob).
+	parent(bob, eve).
+	
+	% Ancestor rule
+
+	ancestor(X, Y) :-
+	    parent(X, Y).
+	ancestor(X, Y) :-
+	    parent(X, Z),
+	    ancestor(Z, Y).
+	
+	% Get all ancestors of "john"
+
+	get_ancestors(Result) :-
+	    findall(
+	        john-Y,
+	        ancestor(john, Y),
+	        Result
+	    ).
+	
+	% Main result
+
+	res(Result) :- get_ancestors(Result).
+')
+
+pl.Run()
+? @@(pl.Result())
+#--> [
+#	[ "john", "mary" ],
+#	[ "john", "peter" ],
+#	[ "john", "alice" ],
+#	[ "john", "bob" ],
+#	[ "john", "eve" ]
+# ]
+
+proff()
+# Executed in 0.21 second(s) in Ring 1.22
+
+/*--- Graph Traversal
+
+pr()
+
+# All paths from a to e in a graph
+
+oProlog = new stzExtCodeXT(:Prolog)
+oProlog.SetCode('
+
+	% Define a simple graph
+
+	edge(a, b).
+	edge(a, c).
+	edge(b, d).
+	edge(c, d).
+	edge(d, e).
+	
+	% Define path finding
+
+	path(X, X, [X]).
+	path(X, Y, [X|Path]) :-
+	    edge(X, Z),
+	    path(Z, Y, Path).
+	
+	% Find all paths from a to e
+
+	find_paths(Result) :-
+	    findall(
+	        Path,
+	        path(a, e, Path),
+	        Paths
+	    ),
+	    Result = paths-Paths.
+	
+	% Define result
+
+	res(Result) :- find_paths(Result).
+')
+
+oProlog.Run()
+
+? @@( oProlog.Result() )
+#--> [
+#	"paths",
+#	[ [ "a", "b", "d", "e" ], [ "a", "c", "d", "e" ] ]
+# ]
+
+proff()
+# Executed in 0.21 second(s) in Ring 1.22
+
+/*--- Family Relationships Database ERR
+
+pr()
+
+oProlog = new stzExtCodeXT(:Prolog)
+oProlog.SetCode('
+
+	% Define family relationships
+
+	parent(john, bob).
+	parent(john, lisa).
+	parent(mary, bob).
+	parent(mary, lisa).
+	parent(bob, ann).
+	parent(bob, mike).
+	parent(lisa, carol).
+	
+	% Define gender
+
+	male(john).
+	male(bob).
+	male(mike).
+	female(mary).
+	female(lisa).
+	female(ann).
+	female(carol).
+	
+	% Define rules
+
+	father(X, Y) :- parent(X, Y), male(X).
+	mother(X, Y) :- parent(X, Y), female(X).
+	grandparent(X, Z) :- parent(X, Y), parent(Y, Z).
+	sibling(X, Y) :- parent(P, X), parent(P, Y), X \= Y.
+	
+	% Query the family tree
+
+	query_family(Result) :-
+
+	    findall([father, Child], father(john, Child), Fathers),
+	    findall([mother, Child], mother(mary, Child), Mothers),
+	    findall([grandparent, Child], grandparent(john, Child), GrandChildren),
+	    findall([sibling, Sib], sibling(bob, Sib), Siblings),
+
+	    Result = [
+		fathers-Fathers,
+		mothers-Mothers,
+		grandchildren-GrandChildren,
+		siblings-Siblings
+	    ].
+	
+	% Define result
+
+	res(Result) :- query_family(Result).
+')
+
+oProlog.Run()
+
+# Family relationships
+
+? @@( oProlog.Result() )
+#--> [
+#	[
+#		"fathers",
+#		[ [ "father", "bob" ], [ "father", "lisa" ] ]
+#	],
+#	[
+#		"mothers",
+#		[ [ "mother", "bob" ], [ "mother", "lisa" ] ]
+#	],
+#	[
+#		"grandchildren",
+#		[ [ "grandparent", "ann" ], [ "grandparent", "mike" ], [ "grandparent", "carol" ] ]
+#	],
+#	[
+#		"siblings",
+#		[ [ "sibling", "lisa" ], [ "sibling", "lisa" ] ]
+#	]
+# ]
+
+proff()
+# Executed in 0.21 second(s) in Ring 1.22
+
+/*--- N-Queens Problem ERR
+
+pr()
+
+oProlog = new stzExtCodeXT(:Prolog)
+
+oProlog.SetCode('
+
+    % Solve the N-Queens problem
+    queens(N, Queens) :-
+        length(Queens, N),
+        queens_domain(Queens, N),
+        safe_queens(Queens).
+
+    queens_domain([], _).
+    queens_domain([Q|Queens], N) :-
+        between(1, N, Q),  % Using between/3 instead of domain/3
+        queens_domain(Queens, N).
+
+    safe_queens([]).
+    safe_queens([Q|Queens]) :-
+        safe_queens(Queens, Q, 1),
+        safe_queens(Queens).
+
+    safe_queens([], _, _).
+    safe_queens([Q|Queens], Q0, D0) :-
+        Q =\= Q0,           % Different row
+        Q =\= Q0 + D0,      % Different diagonal
+        Q =\= Q0 - D0,      % Different diagonal
+        D1 is D0 + 1,
+        safe_queens(Queens, Q0, D1).
+
+    % Find solutions to the 4-Queens problem
+    solve_queens(Result) :-
+        findall(
+            Solution,
+            queens(4, Solution),
+            Solutions
+        ),
+        Result = Solutions.
+
+    % Define result
+    res(Result) :- solve_queens(Result).
 ')
 
 oProlog.Run()
 ? @@( oProlog.Result() )
+#--> [ [ 2, 4, 1, 3 ], [ 3, 1, 4, 2 ] ]
+
+#~> Two valid solutions to the 4-Queens problem,
+# where each list describes a valid placement
+# of queens on the chessboard.
+
 proff()
+
+/*--- Natural Language Processing ERR
+
+pr()
+
+oProlog = new stzExtCodeXT(:Prolog)
+oProlog.SetCode('
+
+	% Define a simple grammar for English sentences
+
+	sentence(sentence(NP, VP)) --> noun_phrase(NP), verb_phrase(VP).
+	
+	noun_phrase(noun_phrase(Det, Noun)) --> determiner(Det), noun(Noun).
+	noun_phrase(noun_phrase(Pronoun)) --> pronoun(Pronoun).
+	
+	verb_phrase(verb_phrase(Verb, NP)) --> verb(Verb), noun_phrase(NP).
+	verb_phrase(verb_phrase(Verb)) --> verb(Verb).
+	
+	determiner(determiner(the)) --> [the].
+	determiner(determiner(a)) --> [a].
+	
+	noun(noun(cat)) --> [cat].
+	noun(noun(dog)) --> [dog].
+	noun(noun(mouse)) --> [mouse].
+	
+	pronoun(pronoun(he)) --> [he].
+	pronoun(pronoun(she)) --> [she].
+	pronoun(pronoun(it)) --> [it].
+	
+	verb(verb(chases)) --> [chases].
+	verb(verb(eats)) --> [eats].
+	verb(verb(sleeps)) --> [sleeps].
+	
+	% Parse sentences
+
+	parse_sentences(Result) :-
+	    Sentence1 = [the, cat, chases, the, mouse],
+	    Sentence2 = [a, dog, eats],
+	    Sentence3 = [it, sleeps],
+	    
+	    (phrase(sentence(Tree1), Sentence1) -> ParseResult1 = [success, Tree1] ; ParseResult1 = [failure]),
+	    (phrase(sentence(Tree2), Sentence2) -> ParseResult2 = [success, Tree2] ; ParseResult2 = [failure]),
+	    (phrase(sentence(Tree3), Sentence3) -> ParseResult3 = [success, Tree3] ; ParseResult3 = [failure]),
+	    
+	    Result = [
+		sentence1-ParseResult1,
+		sentence2-ParseResult2,
+		sentence3-ParseResult3
+	    ].
+	
+	% Define result
+
+	res(Result) :- parse_sentences(Result).
+')
+
+oProlog.Run()
+
+? @@( oProlog.Result() )
+#--> [
+#	[
+#		"sentence1",
+#		[
+#			"success",
+#			[
+#				[ [ "the" ], [ "cat" ] ],
+#				[
+#					[ "chases" ],
+#					[ [ "the" ], [ "mouse" ] ]
+#				]
+#			]
+#		]
+#	],
+#	[
+#		"sentence2",
+#		[
+#			"success",
+#			[
+#				[ [ "a" ], [ "dog" ] ],
+#				[ [ "eats" ] ]
+#			]
+#		]
+#	],
+#	[
+#		"sentence3",
+#		[
+#			"success",
+#			[
+#				[ [ "it" ] ],
+#				[ [ "sleeps" ] ]
+#			]
+#		]
+#	]
+# ]
+
+proff()
+# Executed in 0.22 second(s) in Ring 1.22
 
 /*=============================================#
 #  A BIT OF FUN: THE GRAND PERFORMANCE BATTLE  #

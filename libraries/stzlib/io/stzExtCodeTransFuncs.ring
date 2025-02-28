@@ -8,6 +8,39 @@
 #  SWI-Prolog Transformation Function  #
 #--------------------------------------#
 
+/* Guidelines for SWI-Prolog code that works with this transformation function
+
+- Supported Data Types:  
+  - Basic: `atom`, `string`, `number`, `true/false`  
+  - Collections: `list`, `compound terms`
+  - Key-value pairs using direct list notation [Key, Value] (most reliable)
+  - Key-value pairs using the `-` operator (Key-Value) (may be inconsistent)
+
+- Unsupported/Potential Issues: 
+  - Variables (unbound variables)
+  - Modules
+  - Streams
+  - Database references
+  - Large/infinite terms
+  - Cyclic terms
+  - Meta-predicates
+  - DCG rules
+  - Double backslashes (\\) in strings
+
+- Best Practices:  
+  - Define the result using a `res/1` predicate
+  - Use lists for sequential data
+  - Prefer list notation [Key, Value] over Key-Value pairs for more reliable results
+  - If using Key-Value pairs with the `-` operator, validate results carefully
+  - Use single backslash (\) instead of double backslash (\\) in strings
+  - Represent complex structures as nested lists or compound terms
+  - Convert dates/times to string format
+  - Use atomic values (atoms, strings, numbers) for basic data
+  - Use true/false atoms for boolean values
+  - Ensure all variables are bound in the final result
+  - Avoid circular references in data structures
+*/
+
 $cPrologToRingTransFunc = '
 :- use_module(library(http/json)).
 
@@ -22,7 +55,7 @@ transform_to_ring(Term, Filename) :-
 transform(Term, Result) :-
     (atom(Term) ; string(Term)),
     !,
-    format(atom(Result), "' + char(39) + '~w' + char(39) + '", [Term]).
+    format(atom(Result), "\' + char(39) + '~w\' + char(39) + '", [Term]).
 
 % Transform a number, handling scientific notation
 transform(Term, Result) :-
@@ -30,7 +63,7 @@ transform(Term, Result) :-
     !,
     format(atom(StrVal), "~w", [Term]),
     (   sub_atom(StrVal, _, _, _, e) 
-    ->  format(atom(Result), "' + char(39) + '~w' + char(39) + '", [Term])
+    ->  format(atom(Result), "\' + char(39) + '~w\' + char(39) + '", [Term])
     ;   Result = StrVal
     ).
 
@@ -44,9 +77,9 @@ transform(false, "FALSE") :- !.
 transform(List, Result) :-
     is_list(List),
     !,
-    transform_list(List, Result, 0).
+    transform_list(List, Result).
 
-% Transform a compound term (usually used for key-value pairs)
+% Transform a compound term
 transform(Term, Result) :-
     compound(Term),
     !,
@@ -56,37 +89,60 @@ transform(Term, Result) :-
 % Default case for variables or other terms
 transform(_, "NULL").
 
-% Transform an empty list
-transform_list([], "[]", _).
+% Transform a list into a flat string
+transform_list(List, Result) :-
+    transform_list_items(List, Items),
+    format(atom(Result), "[~w]", [Items]).
 
-% Transform a non-empty list, with depth check to prevent excessive recursion
-transform_list([H|T], Result, Depth) :-
-    Depth < 100,  % Prevent excessive recursion
-    !,
-    NewDepth is Depth + 1,
+% Transform list items into a comma-separated string
+transform_list_items([], "").
+transform_list_items([H], Result) :-
     transform(H, HResult),
-    transform_list(T, TResult, NewDepth),
-    format(atom(Result), "[~w, ~w]", [HResult, TResult]).
+    format(atom(Result), "~w", [HResult]).
+transform_list_items([H|T], Result) :-
+    transform(H, HResult),
+    transform_list_items(T, TResult),
+    (   TResult = "" -> format(atom(Result), "~w", [HResult])
+    ;   format(atom(Result), "~w, ~w", [HResult, TResult])
+    ).
 
-% Handle case when depth limit is reached
-transform_list(_, "TOO_DEEP", Depth) :-
-    Depth >= 100.
-
-% Handle special case for key-value pairs (Term = Key-Value)
+% Handle key-value pairs (Term = Key-Value), including numeric keys
 transform_compound(-, [Key, Value], Result) :-
-    (atom(Key) ; string(Key)),
-    !,
+    transform(Key, KeyResult),
     transform(Value, ValueResult),
-    format(atom(Result), "[' + char(39) + '~w' + char(39) + ', ~w]", [Key, ValueResult]).
+    format(atom(Result), "[~w, ~w]", [KeyResult, ValueResult]).
 
 % Default handling for other compound terms
 transform_compound(_, Args, Result) :-
-    transform_list(Args, Result, 0).
+    transform_list(Args, Result).
 '
 
 #----------------------------------#
 #  Python Transformation Function  #
 #----------------------------------#
+
+/* Guidelines for Pyhton code that works with this transformation function
+
+- Supported Data Types:  
+  - Basic: `int`, `float`, `str`, `bool`, `None`  
+  - Collections: `dict`, `list`  
+  - String representations of dictionaries (parsed if possible)  
+
+- Unsupported/Potential Issues: 
+  - Complex objects (custom classes)  
+  - Numpy arrays (use `.tolist()`)  
+  - Pandas DataFrames (convert to `dict` or `list`)  
+  - Circular references  
+  - Special numeric types (`Decimal`, `complex`)  
+  - Dates/times (convert to strings)  
+
+- Best Practices:  
+  - Convert specialized types to basic types  
+  - Flatten numpy arrays with `.tolist()`  
+  - Convert dates/times to string format  
+  - Use `dict`, `list`, `str`, `number` for data transfer  
+  - Avoid storing function objects or class instances  
+*/
 
 $cPyToRingTransFunc = '
 def transform_to_ring(data):
@@ -130,6 +186,29 @@ def transform_to_ring(data):
 #-----------------------------#
 #  R Transformation Function  #
 #-----------------------------#
+
+/* Guidelines for R code that works with stzExtCodeXT
+ 
+- Supported Data Types:
+  - Basic: `numeric`, `character`, `logical`, `NULL`, `NA`  
+  - Collections: `list`, `data.frame`, `vector`, `array`  
+
+- Unsupported/Potential Issues:
+  - Complex R objects (`S3/S4/R6` classes)  
+  - Environments  
+  - Functions  
+  - Factors (convert to `character`)  
+  - Circular references  
+  - Dates/POSIXt (convert to `character`)  
+
+- Best Practices:
+  - Convert factors to `character` with `as.character()`  
+  - Convert dates/times to `character` with `format()` or `as.character()`  
+  - Convert specialized objects to lists  
+  - Simplify complex structures before output  
+  - Ensure vectors have names for dictionary-like behavior  
+  - Use `as.list()` for complex objects when appropriate 
+*/
 
 $cRToRingTransFunc = '
 transform_to_ring <- function(data) {
@@ -203,6 +282,32 @@ transform_to_ring <- function(data) {
 #  Julia Transformation Function  #
 #---------------------------------#
 
+/* Guidelines for Julia code that works with this transformation function
+
+- Supported Data Types:  
+  - Basic: `Int`, `Float64`, `String`, `Bool`, `Nothing`  
+  - Collections: `Dict`, `Array`, `Tuple`  
+  - String representations of dictionaries (parsed if possible)  
+
+- Unsupported/Potential Issues: 
+  - Complex objects (custom structs/types)  
+  - Special numeric types (`BigInt`, `Complex`)  
+  - Circular references  
+  - Symbols  
+  - Functions or closures  
+  - Dates/times (convert to strings)
+  - Higher-dimensional arrays (flatten or convert to nested arrays)
+
+- Best Practices:  
+  - Convert specialized types to basic types
+  - Convert `Date`, `DateTime` to string format with `string()`
+  - Flatten or nest multidimensional arrays as needed
+  - Use dictionaries with string keys for structured data
+  - Convert symbols to strings with `string()`
+  - Avoid returning functions or custom struct instances
+  - Use `Dict`, `Array`, `String`, `Number` for data transfer
+*/
+
 $cJuliaToRingTransFunc = '
 function transform_to_ring(data)
     function _transform(obj, depth=0)
@@ -261,6 +366,37 @@ end
 #-----------------------------#
 #  C Transformation Function  #
 #-----------------------------#
+
+/* Guidelines for C code that works with this transformation function
+
+- Supported Data Types:  
+  - Basic: `int64_t`, `double`, `char*`, `bool`, `NULL`  
+  - Collections: Custom struct using `Value` and `KeyValue` types
+  - Arrays using the `Value` array structure  
+
+- Unsupported/Potential Issues: 
+  - Arbitrary C structs (must convert to Value type)
+  - Function pointers
+  - Void pointers without type information
+  - Raw pointers to memory blocks  
+  - Circular references
+  - Thread-specific data
+  - File handles or I/O streams
+
+- Best Practices:  
+  - Use the provided functions to create Value objects:
+    - `create_int_value()` for integers
+    - `create_float_value()` for floating point
+    - `create_string_value()` for strings
+    - `create_bool_value()` for booleans
+    - `create_array_value()` for arrays
+    - `create_struct_value()` for key-value structures
+  - Remember to free dynamically allocated Value objects
+  - Convert custom structs to Value objects with struct_val type
+  - Convert raw C arrays to Value arrays
+  - Properly null-terminate all strings
+  - Set the global `res` variable to the Value object to be returned
+*/
 
 $cCToRingTransFunc = '
 #include <stdio.h>
