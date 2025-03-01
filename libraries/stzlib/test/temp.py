@@ -39,15 +39,18 @@ def transform_to_ring(data):
 # Main code
 print("Python script starting...")
 
-import pandas as pd
-import numpy as np
+from litellm import completion
+import os
 
-# Create sample of sales data
-res = {
-    "total_revenue": sum([a*b for a,b in zip([100, 150, 200, 120], [10.5, 8.75, 12.25, 15.00])]),
-    "average_price": np.mean([10.5, 8.75, 12.25, 15.00]),
-    "best_seller": "C"
-}
+# set ENV variables
+os.environ["OPENROUTER_API_KEY"] = "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"
+
+res = completion(
+  model="openrouter/google/palm-2-chat-bison",
+  messages = [{
+	"content": "Population of the 3 biggest towns in tunisia town in Tunsia. Give just the data in a json-like list of the form: [ <town>, <population>, <yearOfLastEstimate> ], without any other description or text narration","role": "user"}],
+)
+
 
 print("Data before transformation:", res)
 transformed = transform_to_ring(res)
