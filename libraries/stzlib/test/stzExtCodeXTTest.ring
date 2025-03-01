@@ -1482,6 +1482,421 @@ oProlog.Run()
 proff()
 # Executed in 0.22 second(s) in Ring 1.22
 
+#============================#
+#  NodeJS Langauge Examples  #
+#============================#
+
+/*-- A simple array
+
+pr()
+
+njs = new StzExtCodeXT("nodejs")
+njs.SetCode('
+
+// Create a simple array
+const res = [10, 20, 30, 40, 50];
+
+') # End of NodeJS code
+
+njs.Execute()
+? @@( njs.Result() )
+#--> [10, 20, 30, 40, 50]
+
+proff()
+# Executed in 0.14 second(s) in Ring 1.22
+
+/*--- Mixed data types
+
+pr()
+
+njs = new StzExtCodeXT("nodejs")
+njs.SetCode('
+
+// Create a complex object with various data types
+const res = {
+    name: "Product Catalog",
+    items: [
+        {
+            id: 101,
+            name: "Laptop",
+            price: 1299.99,
+            inStock: true,
+            specs: {
+                cpu: "Intel i7",
+                ram: "16GB",
+                storage: "512GB SSD"
+            }
+        },
+        {
+            id: 102,
+            name: "Smartphone",
+            price: 899.99,
+            inStock: false,
+            specs: {
+                cpu: "A15 Bionic",
+                ram: "8GB",
+                storage: "256GB"
+            }
+        }
+    ],
+    lastUpdated: "2024-02-28"
+};
+
+') # End of NodeJS code
+
+njs.Execute()
+? @@( njs.Result() )
+#--> [
+#	[ "name", "Product Catalog" ],
+#	[
+#		"items",
+#		[
+#			[
+#				[ "id", 101 ],
+#				[ "name", "Laptop" ],
+#				[ "price", 1299.99 ],
+#				[ "inStock", 1 ],
+#				[
+#					"specs",
+#					[ [ "cpu", "Intel i7" ], [ "ram", "16GB" ], [ "storage", "512GB SSD" ] ]
+#				]
+#			],
+#			[
+#				[ "id", 102 ],
+#				[ "name", "Smartphone" ],
+#				[ "price", 899.99 ],
+#				[ "inStock", 0 ],
+#				[
+#					"specs",
+#					[ [ "cpu", "A15 Bionic" ], [ "ram", "8GB" ], [ "storage", "256GB" ] ]
+#				]
+#			]
+#		]
+#	],
+#	[ "lastUpdated", "2024-02-28" ]
+# ]
+
+proff()
+# Executed in 0.15 second(s) in Ring 1.22
+
+/*--- Scientific notation
+
+pr()
+
+njs = new StzExtCodeXT("nodejs")
+njs.SetCode('
+
+// Create an object with scientific notation numbers
+const res = {
+    avogadro: 6.02214076e23,
+    planck: 6.62607015e-34,
+    speedOfLight: 2.99792458e8,
+    values: [1e10, 2e-5, 3.5e6]
+};
+
+') # End of NodeJS code
+
+njs.Execute()
+? @@( njs.Result() )
+#--> 	[ "avogadro", "6.02214076e+23" ],
+#	[ "planck", "6.62607015e-34" ],
+#	[ "speedOfLight", 299792458 ],
+#	[ "values", [ 10000000000, 0.00, 3500000 ] ]
+# ]
+
+proff()
+
+/*--- Asynchronous Operations with Promises
+
+pr()
+
+njs = new StzExtCodeXT("nodejs")
+njs.SetCode('
+// Asynchronous operations are a core strength of NodeJS
+// This example demonstrates handling multiple async operations
+
+// Helper function to simulate API calls or async tasks
+const simulateTask = (name, delay, data) => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      console.log(`Task ${name} completed after ${delay}ms`);
+      resolve(data);
+    }, delay);
+  });
+};
+
+// Function to execute multiple tasks in different ways
+async function demonstrateAsync() {
+  const startTime = Date.now();
+  
+  // Method 1: Sequential execution (tasks wait for each other)
+  const task1Result = await simulateTask("1-Database", 300, { rows: 10, source: "users_db" });
+  const task2Result = await simulateTask("2-API", 200, { status: 200, items: ["item1", "item2"] });
+  const task3Result = await simulateTask("3-Cache", 100, { hit: true, value: "cached_data" });
+  
+  const sequentialTime = Date.now() - startTime;
+  
+  // Method 2: Parallel execution (all tasks run concurrently)
+  const parallelStart = Date.now();
+  
+  const [task4Result, task5Result, task6Result] = await Promise.all([
+    simulateTask("4-Database", 300, { rows: 10, source: "users_db" }),
+    simulateTask("5-API", 200, { status: 200, items: ["item1", "item2"] }),
+    simulateTask("6-Cache", 100, { hit: true, value: "cached_data" })
+  ]);
+  
+  const parallelTime = Date.now() - parallelStart;
+  
+  return {
+    sequentialExecution: {
+      results: [task1Result, task2Result, task3Result],
+      totalTime: sequentialTime,
+      explanation: "Tasks run one after another, waiting for each to complete"
+    },
+    parallelExecution: {
+      results: [task4Result, task5Result, task6Result],
+      totalTime: parallelTime,
+      explanation: "All tasks run simultaneously, finishing in the time of the longest task",
+      speedImprovement: `${Math.round((sequentialTime / parallelTime) * 100) / 100}x faster than sequential`
+    },
+    benefits: [
+      "Non-blocking I/O means server keeps handling requests",
+      "Efficient resource usage during wait times",
+      "Perfect for API integrations, database queries, and network operations"
+    ]
+  };
+}
+
+// Create an expressive res object
+const res = { 
+  title: "NodeJS Asynchronous Operations Demonstration",
+  description: "Showcasing how NodeJS handles concurrent tasks efficiently",
+  status: "running",
+  started: new Date().toISOString()
+};
+
+// Execute the async function and update res
+demonstrateAsync().then(results => {
+  res.status = "complete";
+  res.completed = new Date().toISOString();
+  res.results = results;
+});
+
+') # End of NodeJS code
+
+njs.Execute()
+? @@( njs.Result() )
+#--> [
+#	[ "title", "NodeJS Asynchronous Operations Demonstration" ],
+#	[ "description", "Showcasing how NodeJS handles concurrent tasks efficiently" ],
+#	[ "status", "running" ],
+#	[ "started", "2025-02-28T23:09:58.042Z" ]
+# ]
+
+proff()
+# Executed in 1.09 second(s) in Ring 1.22
+
+/*--- Data Processing with Modern JavaScript
+
+pr()
+
+njs = new StzExtCodeXT("nodejs")
+njs.SetCode('
+
+// Sample dataset for processing
+const dataset = [
+  { category: "Electronics", price: 1200, stock: 45, rating: 4.5 },
+  { category: "Books", price: 25, stock: 200, rating: 4.8 },
+  { category: "Clothing", price: 85, stock: 30, rating: 3.9 },
+  { category: "Electronics", price: 800, stock: 10, rating: 4.2 },
+  { category: "Books", price: 30, stock: 65, rating: 4.0 }
+];
+
+// Using modern JS features for data transformation
+const res = {
+  // Group items by category with aggregated metrics
+  categorySummary: Object.entries(dataset.reduce((acc, item) => {
+    if (!acc[item.category]) {
+      acc[item.category] = { count: 0, totalValue: 0, avgRating: 0 };
+    }
+    
+    acc[item.category].count += 1;
+    acc[item.category].totalValue += (item.price * item.stock);
+    acc[item.category].avgRating = 
+      ((acc[item.category].avgRating * (acc[item.category].count - 1)) + item.rating) / acc[item.category].count;
+    
+    return acc;
+  }, {})),
+  
+  // Find high-value items (price * stock > 1000)
+  highValueItems: dataset
+    .filter(item => item.price * item.stock > 1000)
+    .map(item => ({
+      category: item.category,
+      totalValue: item.price * item.stock
+    })),
+    
+  // Total inventory value
+  totalInventoryValue: dataset.reduce((sum, item) => sum + (item.price * item.stock), 0)
+};
+')
+
+njs.Execute()
+? @@( njs.Result() )
+#--> [
+#	[
+#		"categorySummary",
+#		[
+#			[
+#				"Electronics",
+#				[ [ "count", 2 ], [ "totalValue", 62000 ], [ "avgRating", 4.35 ] ]
+#			],
+#			[
+#				"Books",
+#				[ [ "count", 2 ], [ "totalValue", 6950 ], [ "avgRating", 4.40 ] ]
+#			],
+#			[
+#				"Clothing",
+#				[ [ "count", 1 ], [ "totalValue", 2550 ], [ "avgRating", 3.90 ] ]
+#			]
+#		]
+#	],
+#	[
+#		"highValueItems",
+#		[
+#			[ [ "category", "Electronics" ], [ "totalValue", 54000 ] ],
+#			[ [ "category", "Books" ], [ "totalValue", 5000 ] ],
+#			[ [ "category", "Clothing" ], [ "totalValue", 2550 ] ],
+#			[ [ "category", "Electronics" ], [ "totalValue", 8000 ] ],
+#			[ [ "category", "Books" ], [ "totalValue", 1950 ] ]
+#		]
+#	],
+#	[ "totalInventoryValue", 71500 ]
+# ]
+
+proff()
+# Executed in 0.15 second(s) in Ring 1.22
+
+/*--- Basic Web API Concepts
+
+pr()
+
+# Example 3: Basic Web API Concepts (Simplified Further)
+njs = new StzExtCodeXT("nodejs")
+njs.SetCode('
+// Define a simple API with routes
+const routes = [
+  { path: "/api/users", method: "GET" },
+  { path: "/api/users/:id", method: "GET" },
+  { path: "/api/users", method: "POST" }
+];
+
+// Sample user data
+const users = [
+  { id: 1, name: "Alice", role: "admin" },
+  { id: 2, name: "Bob", role: "user" }
+];
+
+// Simulated request handler
+function handleRequest(path, method, body = null) {
+  // Simple router
+  if (path === "/api/users" && method === "GET") {
+    return {
+      statusCode: 200,
+      data: users
+    };
+  }
+  
+  // Handle dynamic path with parameter
+  if (path.match(/^\/api\/users\/\d+$/) && method === "GET") {
+    const userId = parseInt(path.split("/").pop());
+    const user = users.find(u => u.id === userId);
+    
+    if (user) {
+      return {
+        statusCode: 200,
+        data: user
+      };
+    } else {
+      return {
+        statusCode: 404,
+        error: "User not found"
+      };
+    }
+  }
+  
+  // Handle POST request
+  if (path === "/api/users" && method === "POST") {
+    const newUser = {
+      id: users.length + 1,
+      ...body
+    };
+    
+    return {
+      statusCode: 201,
+      data: newUser
+    };
+  }
+  
+  return {
+    statusCode: 404,
+    error: "Route not found"
+  };
+}
+
+// Create a focused result object with only essential data
+const res = {
+    getAllUsers: handleRequest("/api/users", "GET"),
+    getUserById: handleRequest("/api/users/1", "GET"),
+    getUserNotFound: handleRequest("/api/users/999", "GET"),
+    createUser: handleRequest("/api/users", "POST", { name: "Charlie", role: "editor" })
+};
+')
+
+njs.Execute()
+? @@( njs.Result() )
+#--> [
+#	[
+#		"getAllUsers",
+#		[
+#			[ "statusCode", 200 ],
+#			[
+#				"data",
+#				[
+#					[ [ "id", 1 ], [ "name", "Alice" ], [ "role", "admin" ] ],
+#					[ [ "id", 2 ], [ "name", "Bob" ], [ "role", "user" ] ]
+#				]
+#			]
+#		]
+#	],
+#	[
+#		"getUserById",
+#		[
+#			[ "statusCode", 200 ],
+#			[
+#				"data",
+#				[ [ "id", 1 ], [ "name", "Alice" ], [ "role", "admin" ] ]
+#			]
+#		]
+#	],
+#	[
+#		"getUserNotFound",
+#		[ [ "statusCode", 404 ], [ "error", "User not found" ] ]
+#	],
+#	[
+#		"createUser",
+#		[
+#			[ "statusCode", 201 ],
+#			[
+#				"data",
+#				[ [ "id", 3 ], [ "name", "Charlie" ], [ "role", "editor" ] ]
+#			]
+#		]
+#	]
+# ]
+proff()
+# Executed in 0.15 second(s) in Ring 1.22
+
 /*=============================================#
 #  A BIT OF FUN: THE GRAND PERFORMANCE BATTLE  #
 #==============================================#
@@ -2265,418 +2680,337 @@ proff()
 # Executed in 4.18 second(s) in Ring 1.22 : AFTER FIRST STARTUP
 # Executed in 2.04 second(s) in Ring 1.22 : AFTER WARM-UP
 
-#============================#
-#  NodeJS Langauge Examples  #
-#============================#
-*/
-
-/*-- A simple array
+/*--------------------------------#
+#  BENCHMARK FOR NODEJS LANGAUGE  #
+#---------------------------------#
 
 pr()
 
-njs = new StzExtCodeXT("nodejs")
-njs.SetCode('
+js = new stzExtCodeXT(:nodejs)
+js.SetCode('
 
-// Create a simple array
-const res = [10, 20, 30, 40, 50];
+// Fibonacci function
 
-') # End of NodeJS code
+function fib(n) {
+    if (n <= 1) return BigInt(n);
+    let a = BigInt(0);
+    let b = BigInt(1);
+    for (let i = 2; i <= n; i++) {
+        let temp = a + b;
+        a = b;
+        b = temp;
+    }
+    return b;
+}
 
-njs.Execute()
-? @@( njs.Result() )
-#--> [10, 20, 30, 40, 50]
+// Quicksort function
 
-proff()
-# Executed in 0.14 second(s) in Ring 1.22
-
-/*--- Mixed data types
-
-pr()
-
-njs = new StzExtCodeXT("nodejs")
-njs.SetCode('
-
-// Create a complex object with various data types
-const res = {
-    name: "Product Catalog",
-    items: [
-        {
-            id: 101,
-            name: "Laptop",
-            price: 1299.99,
-            inStock: true,
-            specs: {
-                cpu: "Intel i7",
-                ram: "16GB",
-                storage: "512GB SSD"
-            }
-        },
-        {
-            id: 102,
-            name: "Smartphone",
-            price: 899.99,
-            inStock: false,
-            specs: {
-                cpu: "A15 Bionic",
-                ram: "8GB",
-                storage: "256GB"
+function quicksort(arr, low, high) {
+    if (low < high) {
+        let pivot = arr[high];
+        let i = low - 1;
+        for (let j = low; j < high; j++) {
+            if (arr[j] < pivot) {
+                i++;
+                [arr[i], arr[j]] = [arr[j], arr[i]];
             }
         }
-    ],
-    lastUpdated: "2024-02-28"
-};
-
-') # End of NodeJS code
-
-njs.Execute()
-? @@( njs.Result() )
-#--> [
-#	[ "name", "Product Catalog" ],
-#	[
-#		"items",
-#		[
-#			[
-#				[ "id", 101 ],
-#				[ "name", "Laptop" ],
-#				[ "price", 1299.99 ],
-#				[ "inStock", 1 ],
-#				[
-#					"specs",
-#					[ [ "cpu", "Intel i7" ], [ "ram", "16GB" ], [ "storage", "512GB SSD" ] ]
-#				]
-#			],
-#			[
-#				[ "id", 102 ],
-#				[ "name", "Smartphone" ],
-#				[ "price", 899.99 ],
-#				[ "inStock", 0 ],
-#				[
-#					"specs",
-#					[ [ "cpu", "A15 Bionic" ], [ "ram", "8GB" ], [ "storage", "256GB" ] ]
-#				]
-#			]
-#		]
-#	],
-#	[ "lastUpdated", "2024-02-28" ]
-# ]
-
-proff()
-# Executed in 0.15 second(s) in Ring 1.22
-
-/*--- Scientific notation
-
-pr()
-
-njs = new StzExtCodeXT("nodejs")
-njs.SetCode('
-
-// Create an object with scientific notation numbers
-const res = {
-    avogadro: 6.02214076e23,
-    planck: 6.62607015e-34,
-    speedOfLight: 2.99792458e8,
-    values: [1e10, 2e-5, 3.5e6]
-};
-
-') # End of NodeJS code
-
-njs.Execute()
-? @@( njs.Result() )
-#--> 	[ "avogadro", "6.02214076e+23" ],
-#	[ "planck", "6.62607015e-34" ],
-#	[ "speedOfLight", 299792458 ],
-#	[ "values", [ 10000000000, 0.00, 3500000 ] ]
-# ]
-
-proff()
-
-/*--- Asynchronous Operations with Promises
-
-pr()
-
-njs = new StzExtCodeXT("nodejs")
-njs.SetCode('
-// Asynchronous operations are a core strength of NodeJS
-// This example demonstrates handling multiple async operations
-
-// Helper function to simulate API calls or async tasks
-const simulateTask = (name, delay, data) => {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      console.log(`Task ${name} completed after ${delay}ms`);
-      resolve(data);
-    }, delay);
-  });
-};
-
-// Function to execute multiple tasks in different ways
-async function demonstrateAsync() {
-  const startTime = Date.now();
-  
-  // Method 1: Sequential execution (tasks wait for each other)
-  const task1Result = await simulateTask("1-Database", 300, { rows: 10, source: "users_db" });
-  const task2Result = await simulateTask("2-API", 200, { status: 200, items: ["item1", "item2"] });
-  const task3Result = await simulateTask("3-Cache", 100, { hit: true, value: "cached_data" });
-  
-  const sequentialTime = Date.now() - startTime;
-  
-  // Method 2: Parallel execution (all tasks run concurrently)
-  const parallelStart = Date.now();
-  
-  const [task4Result, task5Result, task6Result] = await Promise.all([
-    simulateTask("4-Database", 300, { rows: 10, source: "users_db" }),
-    simulateTask("5-API", 200, { status: 200, items: ["item1", "item2"] }),
-    simulateTask("6-Cache", 100, { hit: true, value: "cached_data" })
-  ]);
-  
-  const parallelTime = Date.now() - parallelStart;
-  
-  return {
-    sequentialExecution: {
-      results: [task1Result, task2Result, task3Result],
-      totalTime: sequentialTime,
-      explanation: "Tasks run one after another, waiting for each to complete"
-    },
-    parallelExecution: {
-      results: [task4Result, task5Result, task6Result],
-      totalTime: parallelTime,
-      explanation: "All tasks run simultaneously, finishing in the time of the longest task",
-      speedImprovement: `${Math.round((sequentialTime / parallelTime) * 100) / 100}x faster than sequential`
-    },
-    benefits: [
-      "Non-blocking I/O means server keeps handling requests",
-      "Efficient resource usage during wait times",
-      "Perfect for API integrations, database queries, and network operations"
-    ]
-  };
+        [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
+        let partition = i + 1;
+        quicksort(arr, low, partition - 1);
+        quicksort(arr, partition + 1, high);
+    }
 }
 
-// Create an expressive res object
-const res = { 
-  title: "NodeJS Asynchronous Operations Demonstration",
-  description: "Showcasing how NodeJS handles concurrent tasks efficiently",
-  status: "running",
-  started: new Date().toISOString()
-};
+// Matrix creation and multiplication
 
-// Execute the async function and update res
-demonstrateAsync().then(results => {
-  res.status = "complete";
-  res.completed = new Date().toISOString();
-  res.results = results;
-});
+function createMatrix(size, randFunc) {
+    let matrix = [];
+    for (let i = 0; i < size; i++) {
+        matrix[i] = [];
+        for (let j = 0; j < size; j++) {
+            matrix[i][j] = randFunc();
+        }
+    }
+    return matrix;
+}
 
-') # End of NodeJS code
+function matrixMultiply(matrix1, matrix2) {
+    let size = matrix1.length;
+    let result = Array.from({ length: size }, () => Array(size).fill(0));
+    for (let i = 0; i < size; i++) {
+        for (let j = 0; j < size; j++) {
+            for (let k = 0; k < size; k++) {
+                result[i][j] += matrix1[i][k] * matrix2[k][j];
+            }
+        }
+    }
+    return result;
+}
 
-njs.Execute()
-? @@( njs.Result() )
+// Seeded random number generator
+
+function createSeededRandom(seed) {
+    let state = seed;
+    const a = 1664525;
+    const c = 1013904223;
+    const m = 2**32;
+    return function() {
+        state = (a * state + c) % m;
+        return state / m;
+    };
+}
+
+function randomInt(min, max, rand) {
+    return min + Math.floor(rand() * (max - min + 1));
+}
+
+// 1. Fibonacci Benchmark
+
+const n = 450;
+let startTime = process.hrtime.bigint();
+const fibResult = fib(n);
+let endTime = process.hrtime.bigint();
+const fibTime = Number(endTime - startTime) / 1e6; // nanoseconds to milliseconds
+
+// 2. Sorting Benchmark
+
+const arraySize = 1000000;
+let rand = createSeededRandom(42); // Set seed for reproducibility
+const array = [];
+
+for (let i = 0; i < arraySize; i++) {
+    array.push(randomInt(0, 9999, rand));
+}
+
+startTime = process.hrtime.bigint();
+quicksort(array, 0, arraySize - 1);
+endTime = process.hrtime.bigint();
+const sortTime = Number(endTime - startTime) / 1e6;
+
+// 3. Matrix Multiplication Benchmark
+
+const matrixSize = 250;
+rand = createSeededRandom(42); // Reset seed for reproducibility
+const matrix1 = createMatrix(matrixSize, () => randomInt(0, 99, rand));
+const matrix2 = createMatrix(matrixSize, () => randomInt(0, 99, rand));
+startTime = process.hrtime.bigint();
+const resultMatrix = matrixMultiply(matrix1, matrix2);
+endTime = process.hrtime.bigint();
+const matrixTime = Number(endTime - startTime) / 1e6;
+
+// Collect results in the expected format
+
+const res = [
+    ["fibonacci", [["n", n], ["result", fibResult.toString()], ["time_ms", fibTime]]],
+    ["sorting", [["array_size", arraySize], ["time_ms", sortTime]]],
+    ["matrix", [["matrix_size", matrixSize], ["time_ms", matrixTime]]]
+];
+')
+
+js.Run()
+? @@( js.Result() )
 #--> [
-#	[ "title", "NodeJS Asynchronous Operations Demonstration" ],
-#	[ "description", "Showcasing how NodeJS handles concurrent tasks efficiently" ],
-#	[ "status", "running" ],
-#	[ "started", "2025-02-28T23:09:58.042Z" ]
+#	[
+#		"fibonacci",
+#		[ [ "n", 450 ], [ "result", "4953967011875066473162524925231604047727791871346061001150551747313593851366517214899257280600" ], [ "time_ms", 0.07 ] ]
+#	],
+#	[
+#		"sorting",
+#		[ [ "array_size", 1000000 ], [ "time_ms", 134.67 ] ]
+#	],
+#	[
+#		"matrix",
+#		[ [ "matrix_size", 250 ], [ "time_ms", 80.76 ] ]
+#	]
 # ]
 
 proff()
-# Executed in 1.09 second(s) in Ring 1.22
+# Executed in 0.43 second(s) in Ring 1.22
 
-/*--- Data Processing with Modern JavaScript
+/*------------------------------------#
+#  BENCHMARK FOR SWI-PROLOG LANGAUGE  #
+#-------------------------------------#
 
 pr()
 
-njs = new StzExtCodeXT("nodejs")
-njs.SetCode('
+plg = new stzExtCodeXT(:Prolog)
+plg.SetCode('
 
-// Sample dataset for processing
-const dataset = [
-  { category: "Electronics", price: 1200, stock: 45, rating: 4.5 },
-  { category: "Books", price: 25, stock: 200, rating: 4.8 },
-  { category: "Clothing", price: 85, stock: 30, rating: 3.9 },
-  { category: "Electronics", price: 800, stock: 10, rating: 4.2 },
-  { category: "Books", price: 30, stock: 65, rating: 4.0 }
-];
+:- use_module(library(random)).
+:- use_module(library(clpfd)).
 
-// Using modern JS features for data transformation
-const res = {
-  // Group items by category with aggregated metrics
-  categorySummary: Object.entries(dataset.reduce((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = { count: 0, totalValue: 0, avgRating: 0 };
-    }
-    
-    acc[item.category].count += 1;
-    acc[item.category].totalValue += (item.price * item.stock);
-    acc[item.category].avgRating = 
-      ((acc[item.category].avgRating * (acc[item.category].count - 1)) + item.rating) / acc[item.category].count;
-    
-    return acc;
-  }, {})),
-  
-  // Find high-value items (price * stock > 1000)
-  highValueItems: dataset
-    .filter(item => item.price * item.stock > 1000)
-    .map(item => ({
-      category: item.category,
-      totalValue: item.price * item.stock
-    })),
-    
-  // Total inventory value
-  totalInventoryValue: dataset.reduce((sum, item) => sum + (item.price * item.stock), 0)
-};
+% Fibonacci calculation (iterative using accumulator)
+
+fib(N, Result) :-
+    N =< 1,
+    Result #= N.
+fib(N, Result) :-
+    N > 1,
+    fib_iter(N, 0, 1, Result).
+
+fib_iter(2, A, B, Result) :-
+    Result #= A + B.
+fib_iter(N, A, B, Result) :-
+    N > 2,
+    N1 is N - 1,
+    C #= A + B,
+    fib_iter(N1, B, C, Result).
+
+% Matrix multiplication
+
+matrix_multiply([], _, []).
+matrix_multiply([Row|Matrix1], Matrix2, [ResultRow|ResultMatrix]) :-
+    transpose(Matrix2, Matrix2T),
+    row_multiply(Row, Matrix2T, ResultRow),
+    matrix_multiply(Matrix1, Matrix2, ResultMatrix).
+
+row_multiply(Row, [Col|Cols], [Sum|Rest]) :-
+    dot_product(Row, Col, Sum),
+    row_multiply(Row, Cols, Rest).
+row_multiply(_, [], []).
+
+dot_product([], [], 0).
+dot_product([X|Xs], [Y|Ys], Sum) :-
+    dot_product(Xs, Ys, Rest),
+    Sum is X * Y + Rest.
+
+% Generate random array with seed
+
+generate_random_array(Size, Seed, Array) :-
+    set_random(seed(Seed)),
+    length(Array, Size),
+    maplist(random(0, 10000), Array).
+
+% Generate random matrix with seed
+
+generate_random_matrix(Size, Seed, Matrix) :-
+    set_random(seed(Seed)),
+    length(Matrix, Size),
+    maplist(generate_matrix_row(Size), Matrix).
+
+generate_matrix_row(Size, Row) :-
+    length(Row, Size),
+    maplist(random(0, 100), Row).
+
+% Main benchmark predicate
+
+run_benchmarks(Result) :-
+    % 1. Fibonacci Benchmark
+    statistics(runtime, [StartFib|_]),
+    fib(450, FibResult),
+    statistics(runtime, [EndFib|_]),
+    FibTime is (EndFib - StartFib),
+
+    % 2. Sorting Benchmark
+
+    % Note: Using SWI-Prolog built-in sort/2 instead of manual quicksort.
+    % Rationale: The manual quicksort implementation caused stack overflow
+    % for a 1,000,000-element list due to deep recursion and list copying.
+    % sort/2 is optimized internally (typically a merge sort variation),
+    % leveraging Prolog strengths and avoiding stack issues, though it
+    % deviates from the battle usual requirement of manual quicksort.
+    % This choice aligns with R and Julia use of built-in sort functions
+    % for practicality in their respective benchmarks.
+
+    generate_random_array(1000000, 42, Array),
+    statistics(runtime, [StartSort|_]),
+    sort(Array, _SortedArray),
+    statistics(runtime, [EndSort|_]),
+    SortTime is (EndSort - StartSort),
+
+    % 3. Matrix Multiplication Benchmark
+    generate_random_matrix(250, 42, Matrix1),
+    generate_random_matrix(250, 42, Matrix2),
+    statistics(runtime, [StartMatrix|_]),
+    matrix_multiply(Matrix1, Matrix2, _ResultMatrix),
+    statistics(runtime, [EndMatrix|_]),
+    MatrixTime is (EndMatrix - StartMatrix),
+
+    % Format results
+
+    Result = [
+        [fibonacci, [[n, 450], [result, FibResult], [time_ms, FibTime]]],
+        [sorting, [[array_size, 1000000], [time_ms, SortTime]]],
+        [matrix, [[matrix_size, 250], [time_ms, MatrixTime]]]
+    ].
+
+% Define result
+res(Result) :- run_benchmarks(Result).
+
 ')
 
-njs.Execute()
-? @@( njs.Result() )
+plg.Run()
+? @@( plg.Result() )
 #--> [
 #	[
-#		"categorySummary",
-#		[
-#			[
-#				"Electronics",
-#				[ [ "count", 2 ], [ "totalValue", 62000 ], [ "avgRating", 4.35 ] ]
-#			],
-#			[
-#				"Books",
-#				[ [ "count", 2 ], [ "totalValue", 6950 ], [ "avgRating", 4.40 ] ]
-#			],
-#			[
-#				"Clothing",
-#				[ [ "count", 1 ], [ "totalValue", 2550 ], [ "avgRating", 3.90 ] ]
-#			]
-#		]
+#		"fibonacci",
+#		[ [ "n", 450 ], [ "result", 4953967011875066910547013330669507468549271950815257134688446476787412478855327157343790039040.00 ], [ "time_ms", 0 ] ]
 #	],
 #	[
-#		"highValueItems",
-#		[
-#			[ [ "category", "Electronics" ], [ "totalValue", 54000 ] ],
-#			[ [ "category", "Books" ], [ "totalValue", 5000 ] ],
-#			[ [ "category", "Clothing" ], [ "totalValue", 2550 ] ],
-#			[ [ "category", "Electronics" ], [ "totalValue", 8000 ] ],
-#			[ [ "category", "Books" ], [ "totalValue", 1950 ] ]
-#		]
+#		"sorting",
+#		[ [ "array_size", 1000000 ], [ "time_ms", 110 ] ]
 #	],
-#	[ "totalInventoryValue", 71500 ]
+#	[
+#		"matrix",
+#		[ [ "matrix_size", 250 ], [ "time_ms", 4250 ] ]
+#	]
 # ]
 
 proff()
-# Executed in 0.15 second(s) in Ring 1.22
+# Executed in 7.20 second(s) in Ring 1.22
 
-/*--- Basic Web API Concepts
+#===============#
+#  LLM TESTING  #
+#===============#
 */
 pr()
 
-# Example 3: Basic Web API Concepts (Simplified Further)
-njs = new StzExtCodeXT("nodejs")
-njs.SetCode('
-// Define a simple API with routes
-const routes = [
-  { path: "/api/users", method: "GET" },
-  { path: "/api/users/:id", method: "GET" },
-  { path: "/api/users", method: "POST" }
-];
+$aMyAPIKeys = [
+	:Anthropic = "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",
+	:OpenAI = "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",
+	:OpenRouter = "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",
+	:Mistral = "6wpXbjKCqBm3AbK41Wniwtz4cS6Y8zzp"
+]
 
-// Sample user data
-const users = [
-  { id: 1, name: "Alice", role: "admin" },
-  { id: 2, name: "Bob", role: "user" }
-];
-
-// Simulated request handler
-function handleRequest(path, method, body = null) {
-  // Simple router
-  if (path === "/api/users" && method === "GET") {
-    return {
-      statusCode: 200,
-      data: users
-    };
-  }
-  
-  // Handle dynamic path with parameter
-  if (path.match(/^\/api\/users\/\d+$/) && method === "GET") {
-    const userId = parseInt(path.split("/").pop());
-    const user = users.find(u => u.id === userId);
-    
-    if (user) {
-      return {
-        statusCode: 200,
-        data: user
-      };
-    } else {
-      return {
-        statusCode: 404,
-        error: "User not found"
-      };
-    }
-  }
-  
-  // Handle POST request
-  if (path === "/api/users" && method === "POST") {
-    const newUser = {
-      id: users.length + 1,
-      ...body
-    };
-    
-    return {
-      statusCode: 201,
-      data: newUser
-    };
-  }
-  
-  return {
-    statusCode: 404,
-    error: "Route not found"
-  };
-}
-
-// Create a focused result object with only essential data
-const res = {
-    getAllUsers: handleRequest("/api/users", "GET"),
-    getUserById: handleRequest("/api/users/1", "GET"),
-    getUserNotFound: handleRequest("/api/users/999", "GET"),
-    createUser: handleRequest("/api/users", "POST", { name: "Charlie", role: "editor" })
-};
+cPrompt = Simplify('
+	Population of the 3 biggest towns in tunisia town in Tunsia.
+	Give just the data in a json-like list of the form:
+	[ <town>, <population>, <yearOfLastEstimate> ],
+	without any other description or text narration
 ')
 
-njs.Execute()
-? @@( njs.Result() )
+
+py = new stzExtCodeXT(:Python)
+py {
+
+@('
+from litellm import completion
+import os
+
+# set ENV variables
+os.environ["OPENROUTER_API_KEY"] = "' +
+MyAPIKeyFor(:OpenRouter) + '"
+
+res = completion(
+  model="openrouter/google/palm-2-chat-bison",
+  messages = [{
+	"content": "' + cPrompt + '","role": "user"}],
+)
+
+')
+
+Run()
+? @@(Result())
+}
+
 #--> [
-#	[
-#		"getAllUsers",
-#		[
-#			[ "statusCode", 200 ],
-#			[
-#				"data",
-#				[
-#					[ [ "id", 1 ], [ "name", "Alice" ], [ "role", "admin" ] ],
-#					[ [ "id", 2 ], [ "name", "Bob" ], [ "role", "user" ] ]
-#				]
-#			]
-#		]
-#	],
-#	[
-#		"getUserById",
-#		[
-#			[ "statusCode", 200 ],
-#			[
-#				"data",
-#				[ [ "id", 1 ], [ "name", "Alice" ], [ "role", "admin" ] ]
-#			]
-#		]
-#	],
-#	[
-#		"getUserNotFound",
-#		[ [ "statusCode", 404 ], [ "error", "User not found" ] ]
-#	],
-#	[
-#		"createUser",
-#		[
-#			[ "statusCode", 201 ],
-#			[
-#				"data",
-#				[ [ "id", 3 ], [ "name", "Charlie" ], [ "role", "editor" ] ]
-#			]
-#		]
-#	]
+#  [ "Tunis", 1056247, 2014 ],
+#  [ "Sfax", 955421, 2014 ],
+#  [ "Sousse", 675805, 2014 ]
 # ]
+
 proff()
-# Executed in 0.15 second(s) in Ring 1.22
+
+func MyAPIKeyFor(cProvider)
+	return $aMyAPIKeys[cProvider]

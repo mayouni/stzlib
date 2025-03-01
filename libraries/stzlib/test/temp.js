@@ -76,73 +76,124 @@ module.exports = {
 
 console.log("NodeJS script starting...");
 
-// Define a simple API with routes
-const routes = [
-  { path: "/api/users", method: "GET" },
-  { path: "/api/users/:id", method: "GET" },
-  { path: "/api/users", method: "POST" }
-];
 
-// Sample user data
-const users = [
-  { id: 1, name: "Alice", role: "admin" },
-  { id: 2, name: "Bob", role: "user" }
-];
+// Fibonacci function
 
-// Simulated request handler
-function handleRequest(path, method, body = null) {
-  // Simple router
-  if (path === "/api/users" && method === "GET") {
-    return {
-      statusCode: 200,
-      data: users
-    };
-  }
-  
-  // Handle dynamic path with parameter
-  if (path.match(/^\/api\/users\/\d+$/) && method === "GET") {
-    const userId = parseInt(path.split("/").pop());
-    const user = users.find(u => u.id === userId);
-    
-    if (user) {
-      return {
-        statusCode: 200,
-        data: user
-      };
-    } else {
-      return {
-        statusCode: 404,
-        error: "User not found"
-      };
+function fib(n) {
+    if (n <= 1) return BigInt(n);
+    let a = BigInt(0);
+    let b = BigInt(1);
+    for (let i = 2; i <= n; i++) {
+        let temp = a + b;
+        a = b;
+        b = temp;
     }
-  }
-  
-  // Handle POST request
-  if (path === "/api/users" && method === "POST") {
-    const newUser = {
-      id: users.length + 1,
-      ...body
-    };
-    
-    return {
-      statusCode: 201,
-      data: newUser
-    };
-  }
-  
-  return {
-    statusCode: 404,
-    error: "Route not found"
-  };
+    return b;
 }
 
-// Create a focused result object with only essential data
-const res = {
-    getAllUsers: handleRequest("/api/users", "GET"),
-    getUserById: handleRequest("/api/users/1", "GET"),
-    getUserNotFound: handleRequest("/api/users/999", "GET"),
-    createUser: handleRequest("/api/users", "POST", { name: "Charlie", role: "editor" })
-};
+// Quicksort function
+
+function quicksort(arr, low, high) {
+    if (low < high) {
+        let pivot = arr[high];
+        let i = low - 1;
+        for (let j = low; j < high; j++) {
+            if (arr[j] < pivot) {
+                i++;
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+        }
+        [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
+        let partition = i + 1;
+        quicksort(arr, low, partition - 1);
+        quicksort(arr, partition + 1, high);
+    }
+}
+
+// Matrix creation and multiplication
+
+function createMatrix(size, randFunc) {
+    let matrix = [];
+    for (let i = 0; i < size; i++) {
+        matrix[i] = [];
+        for (let j = 0; j < size; j++) {
+            matrix[i][j] = randFunc();
+        }
+    }
+    return matrix;
+}
+
+function matrixMultiply(matrix1, matrix2) {
+    let size = matrix1.length;
+    let result = Array.from({ length: size }, () => Array(size).fill(0));
+    for (let i = 0; i < size; i++) {
+        for (let j = 0; j < size; j++) {
+            for (let k = 0; k < size; k++) {
+                result[i][j] += matrix1[i][k] * matrix2[k][j];
+            }
+        }
+    }
+    return result;
+}
+
+// Seeded random number generator
+
+function createSeededRandom(seed) {
+    let state = seed;
+    const a = 1664525;
+    const c = 1013904223;
+    const m = 2**32;
+    return function() {
+        state = (a * state + c) % m;
+        return state / m;
+    };
+}
+
+function randomInt(min, max, rand) {
+    return min + Math.floor(rand() * (max - min + 1));
+}
+
+// 1. Fibonacci Benchmark
+
+const n = 450;
+let startTime = process.hrtime.bigint();
+const fibResult = fib(n);
+let endTime = process.hrtime.bigint();
+const fibTime = Number(endTime - startTime) / 1e6; // nanoseconds to milliseconds
+
+// 2. Sorting Benchmark
+
+const arraySize = 1000000;
+let rand = createSeededRandom(42); // Set seed for reproducibility
+const array = [];
+
+for (let i = 0; i < arraySize; i++) {
+    array.push(randomInt(0, 9999, rand));
+}
+
+startTime = process.hrtime.bigint();
+quicksort(array, 0, arraySize - 1);
+endTime = process.hrtime.bigint();
+const sortTime = Number(endTime - startTime) / 1e6;
+
+// 3. Matrix Multiplication Benchmark
+
+const matrixSize = 250;
+rand = createSeededRandom(42); // Reset seed for reproducibility
+const matrix1 = createMatrix(matrixSize, () => randomInt(0, 99, rand));
+const matrix2 = createMatrix(matrixSize, () => randomInt(0, 99, rand));
+startTime = process.hrtime.bigint();
+const resultMatrix = matrixMultiply(matrix1, matrix2);
+endTime = process.hrtime.bigint();
+const matrixTime = Number(endTime - startTime) / 1e6;
+
+// Collect results in the expected format
+
+const res = [
+    ["fibonacci", [["n", n], ["result", fibResult.toString()], ["time_ms", fibTime]]],
+    ["sorting", [["array_size", arraySize], ["time_ms", sortTime]]],
+    ["matrix", [["matrix_size", matrixSize], ["time_ms", matrixTime]]]
+];
 
 console.log("Writing results to file...");
 writeResultToFile(res, "jsresult.txt");
