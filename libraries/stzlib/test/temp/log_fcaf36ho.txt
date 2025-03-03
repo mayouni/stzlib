@@ -1,0 +1,4 @@
+Python script starting...
+Data before transformation: {'integer': 42, 'decimal': 3.14159, 'negative': -17, 'calculation': 256}
+Data after transformation: [['integer', 42], ['decimal', 3.14159], ['negative', -17], ['calculation', 256]]
+Data written to file

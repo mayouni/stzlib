@@ -1,0 +1,1 @@
+[['simple', 'Hello World'], ['multiline', 'First line\nSecond line\nThird line'], ['spaces', '   padded   '], ['mixed_text', 'Numbers: 123, Symbols: @#$%']]

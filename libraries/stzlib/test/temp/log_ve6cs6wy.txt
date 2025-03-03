@@ -1,0 +1,4 @@
+  File "D:\GitHub\stzlib\libraries\stzlib\test\temp\temp_ve6cs6wy.py", line 56
+    function extract_from_litellm_response(response) {
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax

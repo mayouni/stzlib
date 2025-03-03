@@ -1,0 +1,1 @@
+[['integer', 42], ['decimal', 3.14159], ['negative', -17], ['calculation', 256]]

@@ -48,6 +48,7 @@ class stzString from stzObject
 	def init(pcStr)
 
 		if CheckingParams()
+
 			if NOT ( isString(pcStr) or @IsQString(pcStr) or
 				 (isList(pcStr) and Q(pcStr).IsPairOfStrings()) )
 
@@ -95598,11 +95599,15 @@ class stzString from stzObject
 		*/
 
 		cCode = 'bOk = isList(' + This.Content() + ')'
-		eval(cCode)
 
-		if bOk
-			return TRUE
-		ok
+		try
+			eval(cCode)
+			if bOk
+				return TRUE
+			ok
+		catch
+			# Continue to next part of the code
+		done
 
 		# Checking special case of unicode chars in short list form
 		# Example: ' "ا" : "ج" '

@@ -1,7 +1,7 @@
 load "../max/stzmax.ring"
 
 /*--- Basic example in Julia
-
+*/
 pr()
 
 jl() { @('

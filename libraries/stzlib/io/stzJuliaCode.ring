@@ -1,7 +1,10 @@
-func jl()
+func XJl()
 	return new stzJuliaCode
 
-class stzJuliaCode
+	func Jl()
+		return new stzJuliaCode
+
+class stzJuliaCode from stzExtCodeXT
 	@ojlCode = new stzExtCodeXT(:Julia)
 
 	# Initializing the external code
