@@ -1,0 +1,4 @@
+Python script starting...
+Data before transformation: {'simple_list': [1, 2, 3, 4, 5], 'mixed_list': [1, 'two', 3.14, True, None], 'nested_list': [[1, 2, 3], [4, 5, 6], [7, 8, 9]], 'complex_nested': [{'name': 'John', 'age': 30}, {'name': 'Alice', 'age': 25}, {'name': 'Bob', 'age': 35}]}
+Data after transformation: [['simple_list', [1, 2, 3, 4, 5]], ['mixed_list', [1, 'two', 3.14, 'True', NULL]], ['nested_list', [[1, 2, 3], [4, 5, 6], [7, 8, 9]]], ['complex_nested', [[['name', 'John'], ['age', 30]], [['name', 'Alice'], ['age', 25]], [['name', 'Bob'], ['age', 35]]]]]
+Data written to file

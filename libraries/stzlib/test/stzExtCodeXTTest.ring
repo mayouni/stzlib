@@ -1,6 +1,5 @@
 load "../max/stzmax.ring"
 
-
 /*=====================================#
 #  PYTHON LANGUAGE EXAMPLES -- PART 1  #
 #======================================#
@@ -277,7 +276,8 @@ oPyCode.Execute()
 #--> [ [ "total_revenue", 6612.50 ], [ "average_price", 11.62 ], [ "best_seller", "C" ] ]
 
 proff()
-# Executed in 0.61 second(s) in Ring 1.22
+# Executed in 2.53 second(s) in Ring 1.22 : AFTER FIRST STARTUP
+# Executed in 0.61 second(s) in Ring 1.22 : AFTER WARM-UP
 
 /*--- Text Processing
 
@@ -2959,58 +2959,3 @@ plg.Run()
 
 proff()
 # Executed in 7.20 second(s) in Ring 1.22
-
-#===============#
-#  LLM TESTING  #
-#===============#
-*/
-pr()
-
-$aMyAPIKeys = [
-	:Anthropic = "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",
-	:OpenAI = "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",
-	:OpenRouter = "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",
-	:Mistral = "6wpXbjKCqBm3AbK41Wniwtz4cS6Y8zzp"
-]
-
-cPrompt = Simplify('
-	Population of the 3 biggest towns in tunisia town in Tunsia.
-	Give just the data in a json-like list of the form:
-	[ <town>, <population>, <yearOfLastEstimate> ],
-	without any other description or text narration
-')
-
-
-py = new stzExtCodeXT(:Python)
-py {
-
-@('
-from litellm import completion
-import os
-
-# set ENV variables
-os.environ["OPENROUTER_API_KEY"] = "' +
-MyAPIKeyFor(:OpenRouter) + '"
-
-res = completion(
-  model="openrouter/google/palm-2-chat-bison",
-  messages = [{
-	"content": "' + cPrompt + '","role": "user"}],
-)
-
-')
-
-Run()
-? @@(Result())
-}
-
-#--> [
-#  [ "Tunis", 1056247, 2014 ],
-#  [ "Sfax", 955421, 2014 ],
-#  [ "Sousse", 675805, 2014 ]
-# ]
-
-proff()
-
-func MyAPIKeyFor(cProvider)
-	return $aMyAPIKeys[cProvider]

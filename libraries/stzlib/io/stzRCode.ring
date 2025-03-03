@@ -1,5 +1,8 @@
-func R()
+func XR()
 	return new stzRCode
+
+	func R()
+		return new stzRCode
 
 class stzRCode
 	@oRCode = new stzExtCodeXT(:R)

@@ -1,5 +1,8 @@
-func py()
+func XPy()
 	return new stzPythonCode
+
+	func py()
+		return return new stzPythonCode
 
 class stzPyCode from stzPythonCode
 class stzPythonCode
