@@ -1,0 +1,5 @@
+temp\\temp_wdsq91x0.c: In function 'main':
+temp\\temp_wdsq91x0.c:313:47: error: 'res' undeclared (first use in this function)
+  313 |                             transform_to_ring(res, "temp\\cresult_wdsq91x0.txt");
+      |                                               ^~~
+temp\\temp_wdsq91x0.c:313:47: note: each undeclared identifier is reported only once for each function it appears in

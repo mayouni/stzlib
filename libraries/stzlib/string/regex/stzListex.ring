@@ -131,203 +131,185 @@ class stzListex
 		
 		return aTokens
 
-	def ParseToken(cTokenStr)
-		# NOTE
-		# The token parsing follows this sequence:
-		# - First check for range quantifiers (n-m)
-		# - Then check for simple quantifiers (+, *, ?)
-		# - Then check for single number quantifiers (n)
-		# - Then process set constraints
+def ParseToken(cTokenStr)
+	# Default values
+	bNegated = false
+	
+	# Check for negation prefix
+	if StartsWith(cTokenStr, "@!")
+		bNegated = true
+		cTokenStr = SubStr(cTokenStr, 3)  # Remove @! prefix
+	ok
+	
+	# Ensure token starts with @ or add it
+	if NOT StartsWith(cTokenStr, "@")
+		cTokenStr = "@" + cTokenStr
+	ok
+	
+	oTokenStr = new stzString(cTokenStr)
+	
+	# Extract keyword (first two characters)
+	cKeyword = oTokenStr.Section(1, 2)
 
-		aToken = []
+	# Set basic token properties based on keyword type
+	aToken = []
+
+	switch cKeyword
+	on "@N"
+		aToken + [ "keyword", "@N" ]
+		aToken + [ "type", "number" ]
+		aToken + [ "pattern", @cNumberPattern ]
 		
-		if NOT StartsWith(cTokenStr, "@")
-			raise("Error: Token must start with @ symbol: " + cTokenStr)
-		ok
+	on "@S"
+		aToken + [ "keyword", "@S" ]
+		aToken + [ "type", "string" ]
+		aToken + [ "pattern", @cStringPattern ]
 		
-		oTokenStr = new stzString(cTokenStr)
+	on "@L"
+		aToken + [ "keyword", "@L" ]
+		aToken + [ "type", "list" ]
+		aToken + [ "pattern", @cListPattern ]
 		
-		# Extract keyword (first two characters)
+	on "@$"
+		aToken + [ "keyword", "@$" ]
+		aToken + [ "type", "any" ]
+		aToken + [ "pattern", @cAnyPattern ]
+		
+	other
+		raise("Error: Unknown token type: " + cKeyword)
+	off
 
-		cKeyword = oTokenStr.Section(1, 2)
+	# Default values
+	nMin = 1
+	nMax = 1
+	nQuantifier = 1  # Default quantifier
+	aSetValues = []
+	bRequireUnique = false
+	
+	# Get remainder after keyword
+	cRemainder = ""
+	nLenToken = oTokenStr.NumberOfChars()
+	
+	if nLenToken > 2
+		cRemainder = oTokenStr.Section(3, nLenToken)
+	ok
 
-		# Set basic token properties based on keyword type
+	# First check for range quantifiers like 1-3 or standard quantifiers +, *, ?
+	if len(cRemainder) > 0
+		# Check for explicit range pattern like "1-3"
+		oRangeMatch = rx('^(\d+)-(\d+)')
 
-		switch cKeyword
-
-		on "@N"
-			aToken + [ "keyword", "@N" ]
-			aToken + [ "type", "number" ]
-			aToken + [ "pattern", @cNumberPattern ]
+		if oRangeMatch.Match(cRemainder)
+			aMatches = oRangeMatch.Matches()
+			nMin = number(aMatches[1])
+			nMax = number(aMatches[2])
 			
-		on "@S"
-			aToken + [ "keyword", "@S" ]
-			aToken + [ "type", "string" ]
-			aToken + [ "pattern", @cStringPattern ]
+			if nMin > nMax
+				raise("Error: Invalid range - min value greater than max: " + cTokenStr)
+			ok
 			
-		on "@L"
-			aToken + [ "keyword", "@L" ]
-			aToken + [ "type", "list" ]
-			aToken + [ "pattern", @cListPattern ]
-			
-		on "@$"
-			aToken + [ "keyword", "@$" ]
-			aToken + [ "type", "any" ]
-			aToken + [ "pattern", @cAnyPattern ]
-			
-		other
-			raise("Error: Unknown token type: " + cKeyword)
-		off
+			# Remove the processed range from remainder
+			nRangeLen = len(aMatches[1]) + 1 + len(aMatches[2])  # +1 for the "-"
+			cRemainder = right(cRemainder, len(cRemainder) - nRangeLen)
 
-		# Default values
+		else
+			# Check for +, *, ? quantifiers
+			oQMatch = rx('^([+*?])')
 
-		nMin = 1
-		nMax = 1
-		nQuantifier = 1  # Default quantifier
-		aSetValues = []
-		bRequireUnique = false
-		
-		# Get remainder after keyword
-
-		cRemainder = ""
-		nLenToken = oTokenStr.NumberOfChars()
-		
-		if nLenToken > 2
-			cRemainder = oTokenStr.Section(3, nLenToken)
-		ok
-
-		# First check for range quantifiers like 1-3 or standard quantifiers +, *, ?
-
-		if len(cRemainder) > 0
-
-			# Check for explicit range pattern like "1-3"
-
-			oRangeMatch = rx('^(\d+)-(\d+)')
-
-			if oRangeMatch.Match(cRemainder)
-				aMatches = oRangeMatch.Matches()
-				nMin = number(aMatches[1])
-				nMax = number(aMatches[2])
+			if oQMatch.Match(cRemainder)
+				aMatches = oQMatch.Matches()
+				cQuantifier = aMatches[1]
 				
-				if nMin > nMax
-					raise("Error: Invalid range - min value greater than max: " + cTokenStr)
-				ok
+				switch cQuantifier
+				on "+"
+					nMin = 1
+					nMax = 999999999  # Effectively unlimited
+				on "*"
+					nMin = 0
+					nMax = 999999999  # Effectively unlimited
+				on "?"
+					nMin = 0
+					nMax = 1
+				off
 				
-				# Remove the processed range from remainder
-				nRangeLen = len(aMatches[1]) + 1 + len(aMatches[2])  # +1 for the "-"
-				cRemainder = right(cRemainder, len(cRemainder) - nRangeLen)
+				cRemainder = right(cRemainder, len(cRemainder) - 1)
 
 			else
-				# Check for +, *, ? quantifiers
+				# Check for a single number quantifier
+				oNumberMatch = rx('^(\d+)')
 
-				oQMatch = rx('^([+*?])')
-
-				if oQMatch.Match(cRemainder)
-					aMatches = oQMatch.Matches()
-					cQuantifier = aMatches[1]
+				if oNumberMatch.Match(cRemainder)
+					aMatches = oNumberMatch.Matches()
+					nQuantifier = number(aMatches[1])
+					nMin = nQuantifier
+					nMax = nQuantifier
 					
-					switch cQuantifier
-					on "+"
-						nMin = 1
-						nMax = 999999999  # Effectively unlimited
-					on "*"
-						nMin = 0
-						nMax = 999999999  # Effectively unlimited
-					on "?"
-						nMin = 0
-						nMax = 1
-					off
-					
-					cRemainder = right(cRemainder, len(cRemainder) - 1)
-
-				else
-
-					# Check for a single number quantifier
-
-					oNumberMatch = rx('^(\d+)')
-
-					if oNumberMatch.Match(cRemainder)
-						aMatches = oNumberMatch.Matches()
-						nQuantifier = number(aMatches[1])
-						nMin = nQuantifier
-						nMax = nQuantifier
-						
-						# Remove the processed quantifier from remainder
-						cRemainder = right(cRemainder, len(cRemainder) - len(aMatches[1]))
-					ok
+					# Remove the processed quantifier from remainder
+					cRemainder = right(cRemainder, len(cRemainder) - len(aMatches[1]))
 				ok
 			ok
 		ok
+	ok
 
-		# Process set constraints if present
+	# Process set constraints if present
+	if len(cRemainder) > 0
+		# Check for {values}U format (set with uniqueness constraint)
+		oUniqueSetMatch = rx('^(\{(.*?)\})U')
 
-		if len(cRemainder) > 0
+		if oUniqueSetMatch.Match(cRemainder)
+			aMatches = oUniqueSetMatch.Matches()
+			cSetContent = aMatches[2]
+			
+			# Parse the set values with uniqueness enforcement
+			aSetValues = This.ParseSetValues(cSetContent, aToken["type"], true)
+			bRequireUnique = true
+			
+			# Remove the processed part from remainder
+			nSetLen = len(aMatches[1]) + 1 # +1 for the U
+			cRemainder = right(cRemainder, len(cRemainder) - nSetLen)
 
-			# Check for {values}U format (set with uniqueness constraint)
+		else
+			# Check for {values} format (regular set)
+			oSetMatch = rx('^(\{(.*?)\})')
 
-			oUniqueSetMatch = rx('^(\{(.*?)\})U')
-
-			if oUniqueSetMatch.Match(cRemainder)
-
-				aMatches = oUniqueSetMatch.Matches()
+			if oSetMatch.Match(cRemainder)
+				aMatches = oSetMatch.Matches()
 				cSetContent = aMatches[2]
 				
-				# Parse the set values with uniqueness enforcement
-
-				aSetValues = This.ParseSetValues(cSetContent, aToken["type"], true)
-				bRequireUnique = true
+				# Parse the set values
+				aSetValues = This.ParseSetValues(cSetContent, aToken["type"], false)
 				
 				# Remove the processed part from remainder
-
-				nSetLen = len(aMatches[1]) + 1 # +1 for the U
+				nSetLen = len(aMatches[1])
 				cRemainder = right(cRemainder, len(cRemainder) - nSetLen)
-
-			else
-
-				# Check for {values} format (regular set)
-
-				oSetMatch = rx('^(\{(.*?)\})')
-
-				if oSetMatch.Match(cRemainder)
-
-					aMatches = oSetMatch.Matches()
-					cSetContent = aMatches[2]
-					
-					# Parse the set values
-
-					aSetValues = This.ParseSetValues(cSetContent, aToken["type"], false)
-					
-					# Remove the processed part from remainder
-
-					nSetLen = len(aMatches[1])
-					cRemainder = right(cRemainder, len(cRemainder) - nSetLen)
-				ok
 			ok
 		ok
+	ok
 
-		# If there is still content in cRemainder, it's unexpected
-
-		if len(cRemainder) > 0
-			raise("Error: Unexpected content in token: " + cRemainder)
-		ok
-		
-		# Add the processed information to the token
-
-		aToken + [ "min", nMin ]
-		aToken + [ "max", nMax ]
-		aToken + [ "quantifier", nQuantifier ]  # Store the explicit quantifier if any
-		
-		if len(aSetValues) > 0
-			aToken + [ "hasset", true ]
-			aToken + [ "setvalues", aSetValues ]
-			aToken + [ "requireunique", bRequireUnique ]
-		else
-			aToken + [ "hasset", false ]
-			aToken + [ "setvalues", [] ]
-			aToken + [ "requireunique", false ]
-		ok
-		
-		return aToken
+	# If there is still content in cRemainder, it's unexpected
+	if len(cRemainder) > 0
+		raise("Error: Unexpected content in token: " + cRemainder)
+	ok
+	
+	# Add the processed information to the token
+	aToken + [ "min", nMin ]
+	aToken + [ "max", nMax ]
+	aToken + [ "quantifier", nQuantifier ]  # Store the explicit quantifier if any
+	
+	if len(aSetValues) > 0
+		aToken + [ "hasset", true ]
+		aToken + [ "setvalues", aSetValues ]
+		aToken + [ "requireunique", bRequireUnique ]
+	else
+		aToken + [ "hasset", false ]
+		aToken + [ "setvalues", [] ]
+		aToken + [ "requireunique", false ]
+	ok
+	
+	# Add negation flag
+	aToken + [ "negated", bNegated ]
+	
+	return aToken
 
 	def ParseSetValues(cSetContent, cType, bCheckUnique)
 
@@ -470,251 +452,195 @@ class stzListex
 	 #   MATCHING LOGIC   #
 	#--------------------#
 
-	def Match(pList)
-
-		if NOT isList(pList)
-			return false
-		ok
-		
-		# Convert the list to string representations for matching
-
-		aElements = []
-		nLen = len(pList)
-		
-		for i = 1 to nLen
-
-			aElements + @@(pList[i])
-			# ~> @@() Converts any Ring type, including lists,
-			# to a string representation. Examples:
-			# ? @@(24) --> "24"
-			# ? @@("Hello") --> "Hello"
-			# ? @@("'Hello'") --> "Hello"
-			# ? @@([ 1, "A" ]) --> '[ 1, "A" ]'
-			# ? @@( [ 1 , "A", [ "B", 2 ] ] ) --> '[ 1 , "A", [ "B", 2 ] ]'
-		next
-
-		# Perform the matching
-
-		try
-			bResult = This.MatchTokensToElements(@aTokens, aElements)
-			return bResult
-		catch
-			if @bDebugMode
-				? "Error during matching: " + cError
-			ok
-			return false
-		done
-
-	def MatchTokensToElements(aTokens, aElements)
-
-		nLenTokens = len(aTokens)
-		nLenElements = len(aElements)
-		
-		# Use backtracking to find valid matches
-
-		return This.BacktrackMatch(aTokens, aElements, 1, 1, [])
-
-
-	def BacktrackMatch(aTokens, aElements, nTokenIndex, nElementIndex, aUsedValues)
-		nLenTokens = len(aTokens)
-		nLenElements = len(aElements)
-
-		# Base case: If we've processed all tokens
-
-		if nTokenIndex > nLenTokens
-			# Success if we've consumed all elements
-			return nElementIndex > nLenElements
-		ok
+def Match(pList)
+    if NOT isList(pList)
+        return false
+    ok
     
-		# Get current token
-
-		aToken = aTokens[nTokenIndex]
+    # Convert the list to string representations for matching
+    aElements = []
+    nLen = len(pList)
     
-		# Create local copy of used values for uniqueness tracking
+    for i = 1 to nLen
+        aElements + @@(pList[i])
+    next
 
-		aLocalUsedValues = []
+    # Perform the matching
+    try
+        bResult = This.MatchTokensToElements(@aTokens, aElements)
+        return bResult
+    catch
+        if @bDebugMode
+            ? "Error during matching: " + cError
+        ok
+        return false
+    done
 
-		for i = 1 to len(aUsedValues)
-			aLocalUsedValues + aUsedValues[i]
-		next
+def MatchTokensToElements(aTokens, aElements)
+    nLenTokens = len(aTokens)
+    nLenElements = len(aElements)
     
-		# Try different match counts within min-max range
-		# Start from the minimum and try up to the maximum allowed
+    # Use backtracking to find valid matches
+    return This.BacktrackMatch(aTokens, aElements, 1, 1, [])
 
-		for nMatchCount = aToken[:min] to @Min([aToken[:max], nLenElements - nElementIndex + 1])
+def BacktrackMatch(aTokens, aElements, nTokenIndex, nElementIndex, aUsedValues)
+    nLenTokens = len(aTokens)
+    nLenElements = len(aElements)
 
-			# Try to match this number of elements
+    # Base case: If we've processed all tokens
+    if nTokenIndex > nLenTokens
+        # Crucial change: Ensure ALL elements have been exactly matched
+        return nElementIndex > nLenElements
+    ok
+    
+    # Get current token
+    aToken = aTokens[nTokenIndex]
+    
+    # Create local copy of used values for uniqueness tracking
+    aLocalUsedValues = []
+    for i = 1 to len(aUsedValues)
+        aLocalUsedValues + aUsedValues[i]
+    next
+    
+    # Try different match counts within min-max range
+    for nMatchCount = aToken[:min] to @Min([aToken[:max], nLenElements - nElementIndex + 1])
 
-			bSuccess = true
-			nElemIdx = nElementIndex
-			aMatchedElements = []
-			aLocalUsedValuesCopy = aLocalUsedValues
+        bSuccess = true
+        nElemIdx = nElementIndex
+        aMatchedElements = []
+        aLocalUsedValuesCopy = aLocalUsedValues
         
-			# Attempt to match exactly nMatchCount elements
-
-			for i = 1 to nMatchCount
-
-				if nElemIdx > nLenElements
-					bSuccess = false
-					exit
-				ok
+        # Attempt to match exactly nMatchCount elements
+        for i = 1 to nMatchCount
+            if nElemIdx > nLenElements
+                bSuccess = false
+                exit
+            ok
             
-				cElement = aElements[nElemIdx]
-      
-				# Check element matches token pattern
-
-				bMatched = false
+            cElement = aElements[nElemIdx]
+            bMatched = false
             
-				if aToken[:type] = "list"
-
-					# List pattern matching
-					bMatched = rx(@cRecursiveListPattern).MatchRecursive(cElement)
-
-				else
-					# Regular pattern matching
-					bMatched = rx("^" + aToken[:pattern] + "$").Match(cElement)
-
-				ok
+            # Pattern and type matching
+            if aToken[:type] = "list"
+                bMatched = rx(@cRecursiveListPattern).MatchRecursive(cElement)
+            else
+                bMatched = rx("^" + aToken[:pattern] + "$").Match(cElement)
+            ok
             
-				if bMatched
+            # Apply negation if specified
+            if aToken[:negated]
+                bMatched = NOT bMatched
+            ok
+            
+            if bMatched
+                # Set constraint checking
+                if aToken[:hasset]
+                    xElemValue = This.ConvertToType(cElement, aToken[:type])
+                    bInSet = false
 
-					# Element matches pattern, now check set constraints
-
-					if aToken[:hasset]
-
-						# Convert element to appropriate type for set comparison
-						xElemValue = This.ConvertToType(cElement, aToken[:type])
-
-						# Check if value is in the allowed set
-						bInSet = false
-
-						for j = 1 to len(aToken[:setvalues])
-
-							xSetValue = aToken[:setvalues][j]
-							if This.CompareValues(xElemValue, xSetValue, aToken[:type])
-								bInSet = true
-								exit
-							ok
-						next
-                    
-						if NOT bInSet
-							bSuccess = false
-							exit
-						ok
-                    
-						# For unique constraints, check if already matched
-
-						if aToken[:requireunique]
-
-							for j = 1 to len(aLocalUsedValuesCopy)
-								if This.CompareValues(xElemValue, aLocalUsedValuesCopy[j], aToken[:type])
-									bSuccess = false
-									exit
-								ok
-							next
+                    for j = 1 to len(aToken[:setvalues])
+                        xSetValue = aToken[:setvalues][j]
                         
-							if bSuccess
-								aLocalUsedValuesCopy + xElemValue
-
-							else
-								exit
-							ok
-						ok
-					ok
+                        # Direct comparison for set membership
+                        if This.CompareValues(xElemValue, xSetValue, aToken[:type])
+                            bInSet = true
+                            exit
+                        ok
+                    next
+                    
+                    # Modify set check for negation
+                    if aToken[:negated]
+                        bInSet = NOT bInSet
+                    ok
+                    
+                    if NOT bInSet
+                        bSuccess = false
+                        exit
+                    ok
+                    
+                    # Unique constraint for non-negated tokens
+                    if aToken[:requireunique] and NOT aToken[:negated]
+                        for j = 1 to len(aLocalUsedValuesCopy)
+                            if This.CompareValues(xElemValue, aLocalUsedValuesCopy[j], aToken[:type])
+                                bSuccess = false
+                                exit
+                            ok
+                        next
+                        
+                        if bSuccess
+                            aLocalUsedValuesCopy + xElemValue
+                        else
+                            exit
+                        ok
+                    ok
+                ok
                 
-					# Element matched this token
+                aMatchedElements + cElement
+                nElemIdx++
+            else
+                bSuccess = false
+                exit
+            ok
+        next
 
-					aMatchedElements + cElement
-					nElemIdx++
-
-				else
-               				 # Element doesn't match pattern
-               				 bSuccess = false
-                			exit
-           		 	ok
-        		next
-
-			if bSuccess
-
-				# This token matched successfully, try next token
-
-				if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElemIdx, aLocalUsedValuesCopy)
-					return true
-				ok
-            
-				# If the recursive match fails, continue trying with different match counts
-				# This ensures proper backtracking
-			ok
-		next
+        if bSuccess
+            # Crucial change: Ensure COMPLETE matching 
+            # when processing the last token
+            if nTokenIndex = nLenTokens
+                if nElemIdx = nLenElements + 1
+                    return true
+                ok
+            else
+                # For non-final tokens, recursively match the rest
+                if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElemIdx, aLocalUsedValuesCopy)
+                    return true
+                ok
+            ok
+        ok
+    next
     
-		# Important addition: Check if this token can be skipped (when min=0)
-
-		if aToken[:min] = 0
-
-			# Try skipping this token entirely and move to the next one
-
-			if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElementIndex, aLocalUsedValues)
-				return true
-			ok
-		ok
+    # Handle optional tokens
+    if aToken[:min] = 0
+        if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElementIndex, aLocalUsedValues)
+            return true
+        ok
+    ok
     
-		# Could not find a valid match with this token
-
-		return false
-
+    return false
 
 	# Helper function for value comparison by type
 
-	def CompareValues(xValue1, xValue2, cType)
-
-		switch cType
-
-		on "number"
-
-			# Simple number comparison
-			return xValue1 = xValue2
-			
-		on "string"
-
-			# Normalize strings by removing quotes for comparison
-
-			cVal1 = This.RemoveQuotes("" + xValue1)
-			cVal2 = This.RemoveQuotes("" + xValue2)
-			
-			return cVal1 = cVal2
-			
-		on "list"
-
-			# Normalize list representations for comparison
-
-			cVal1 = This.NormalizeListString(xValue1)
-			cVal2 = This.NormalizeListString(xValue2)
-
-			return cVal1 = cVal2
-			
-		on "any"
-
-			# For any type, try various comparison methods
-
-			if isNumber(xValue1) and isNumber(xValue2)
-				return xValue1 = xValue2
-			ok
-			
-			# Convert both to strings for comparison
-
-			cVal1 = This.RemoveQuotes("" + xValue1)
-			cVal2 = This.RemoveQuotes("" + xValue2)
-			
-			# For lists, normalize format if they appear to be lists
-
-			if (StartsWith(cVal1, "[") and EndsWith(cVal1, "]")) and
-			   (StartsWith(cVal2, "[") and EndsWith(cVal2, "]"))
-				cVal1 = This.NormalizeListString(cVal1)
-				cVal2 = This.NormalizeListString(cVal2)
-			ok
-			
-			return cVal1 = cVal2
-		off
+def CompareValues(xValue1, xValue2, cType)
+    switch cType
+    on "number"
+        return xValue1 = xValue2
+        
+    on "string"
+        cVal1 = This.RemoveQuotes("" + xValue1)
+        cVal2 = This.RemoveQuotes("" + xValue2)
+        return cVal1 = cVal2
+        
+    on "list"
+        cVal1 = This.NormalizeListString(xValue1)
+        cVal2 = This.NormalizeListString(xValue2)
+        return cVal1 = cVal2
+        
+    on "any"
+        if isNumber(xValue1) and isNumber(xValue2)
+            return xValue1 = xValue2
+        ok
+        
+        cVal1 = This.RemoveQuotes("" + xValue1)
+        cVal2 = This.RemoveQuotes("" + xValue2)
+        
+        if (StartsWith(cVal1, "[") and EndsWith(cVal1, "]")) and
+           (StartsWith(cVal2, "[") and EndsWith(cVal2, "]"))
+            cVal1 = This.NormalizeListString(cVal1)
+            cVal2 = This.NormalizeListString(cVal2)
+        ok
+        
+        return cVal1 = cVal2
+    off
 
 	# Normalize list string representation for comparison
 

@@ -14,6 +14,66 @@ func StzTimeQ(pTime)
 func TimeStamp()
 	return date() + "-" + time()
 
+# Implementation of mktime function in Ring
+# Converts calendar time components to Unix timestamp
+# Made during a conversation in the Ring Group with Bert
+# Link: https://groups.google.com/g/ring-lang/c/_byfajtY8mc/m/-GUt_sRGBAAJ
+
+func mktime(year, month, day, hour, minute, second) # By ClaudeAI
+    # Validate input ranges
+    if year < 1970 or month < 1 or month > 12 or 
+       day < 1 or day > 31 or 
+       hour < 0 or hour > 23 or 
+       minute < 0 or minute > 59 or 
+       second < 0 or second > 59
+        return 0  # Invalid input
+    ok
+
+    # Days in each month (non-leap year)
+    days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+    # Adjust for leap years
+    if year % 4 = 0 and (year % 100 != 0 or year % 400 = 0)
+        days_in_month[2] = 29
+    ok
+
+    # Validate day against month
+    if day > days_in_month[month]
+        return 0  # Invalid day for the month
+    ok
+
+    # Calculate total days since Unix epoch (1970-01-01)
+    total_days = 0
+
+    # Count days from years before the given year
+    for y = 1970 to year - 1
+        total_days += 365
+        # Add leap day for leap years
+        if y % 4 = 0 and (y % 100 != 0 or y % 400 = 0)
+            total_days += 1
+        ok
+    end
+
+    # Add days for months in the current year
+    for m = 1 to month - 1
+        total_days += days_in_month[m]
+    end
+
+    # Add days in current month
+    total_days += day - 1
+
+    # Calculate total seconds
+    timestamp = (total_days * 24 * 60 * 60) +  # Days to seconds
+                (hour * 60 * 60) +             # Hours to seconds
+                (minute * 60) +                # Minutes to seconds
+                second                         # Remaining seconds
+
+    return timestamp
+
+#-------------#
+#  THE CLASS  #
+#-------------#
+
 class stzTime from stzObject
 	oQTime
 

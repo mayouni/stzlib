@@ -533,6 +533,15 @@ class stzRegex
 
 		#>
 
+	def HasValues()
+		return len(This.MatchedValues()) > 0
+
+		def HasMatches()
+			return This.HasValues()
+
+		def HasMatchedValues()
+			return This.HasValues()
+
 	def CaptureXT()
 		if NOT This.HasGroups()
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
@@ -593,18 +602,6 @@ class stzRegex
 
 		return _anResult_
 
-
-/*
-		_anResult_ = []
-		_aInfo_ = This.CaptureZ()
-		_nLen_ = len(_aInfo_)
-
-		for @i = 1 to _nLen_
-			_anResult_ + _aInfo_[@i][2]
-		next
-
-		return _anResult_
-*/
 
 		#< @FunctionAlternativeForms
 
