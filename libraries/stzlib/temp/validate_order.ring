@@ -3,7 +3,7 @@ load "../max/stzmax.ring"
 load "gamelib.ring"
 
 /*-----
-
+*/
 profon()
 
 # Qt String is not performant for appending a large

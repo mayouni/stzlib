@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 
 #===================================================================#
-#           LISTEX -  SOFTANZA LIST REGEX ENGINE - TEST SUITE               #
+#           LISTEX -  SOFTANZA LIST REGEX ENGINE - TEST SUITE        #
 #===================================================================#
 
 /*--
@@ -16,7 +16,6 @@ Lx = new stzListex('[ @S ]')
 #  1. BASIC PATTERN MATCHING                                        #
 #------------------------------------------------------------------#
 */
-
 pr()
 
 ? "TEST GROUP 1: Basic Pattern Matching Tests"
@@ -181,7 +180,7 @@ TestPattern("[@N1-2, @N0-3]", [
 	[1], "TRUE",
 	[1, 2], "TRUE",
 	[1, 2, 3], "TRUE",
-	[1, 2, 3, 4, 5], "FALSE"
+	[1, 2, 3, 4, 5], "TRUE"
 ])
 
 # Combining multiple token types with quantifiers and sets
@@ -237,15 +236,71 @@ TestPattern("[@N, @S, @L, @$]", [
 	[1, "hello", [1, 2]], "FALSE"
 ])
 
-? ""
-? "===== END OF TEST SUITE ====="
 
-proff()
-# Executed in 1.60 second(s) in Ring 1.22
+/*===============================#
+#  GROUP 6 : NEGATION PATTERNS  #
+#===============================#
+*/
 
-/*------------------------------------------------------------------#
-#  TEST HELPER FUNCTION                                             #
-#------------------------------------------------------------------#
+TestPattern("[@!N]", [
+	[ 10 ], "FALSE",
+	[ "hello" ], "TRUE"
+])
+
+TestPattern("[@!S]", [
+	[ "hello" ], "FALSE",
+	[ 10 ], "TRUE",
+	[ [1, 2, 3] ], "TRUE"
+])
+
+
+TestPattern('[@!L]', [
+	[ [1, 2, 3] ], "FALSE",
+	[ 10 ], "TRUE",
+	[ "hello" ], "TRUE"
+])
+
+TestPattern("[@N, @!N]", [
+	[ 10, "hello" ], "TRUE",
+	[ 10, 20 ], "FALSE",
+	[ "hello", 10 ], "FALSE"
+])
+
+/*=================================#
+#  GROUP 7 : ALTERNATION PATTERN  #
+#=================================#
+
+TestPattern("[(@N|@S)]", [
+	[ 10 ], "TRUE",
+	[ "hello" ], "TRUE",
+	[ [1, 2, 3] ], "FALSE"
+])
+
+TestPattern("[ (@N|@S), (@L|@N) ]", [
+	[ 10, 20 ], "TRUE",
+	[ "hello", [1, 2, 3] ], "TRUE",
+	[ 10, [1, 2, 3] ], "TRUE",
+	[ "hello", "world" ], "FALSE"
+])
+
+TestPattern("[ ( @N{1;2;3} | @S ) ]", [
+	[ 1 ], "TRUE",
+	[ 2 ], "TRUE",
+	[ "hello" ], "TRUE",
+	[ 4 ], "FALSE"
+])
+
+TestPattern("[ (@N|@S), @!S ]", [
+	[ 10, [1, 2, 3] ], "TRUE",
+	[ "hello", [1, 2, 3] ], "TRUE",
+	[ 10, "hello" ], "FALSE",
+	[ "hello", 10 ], "TRUE"
+])
+
+
+/*=======================#
+#  TEST HELPER FUNCTION  #
+#------------------------#
 */
 func TestPattern(cPattern, aTestCases)
     Lx = new stzListex(cPattern)
@@ -276,3 +331,38 @@ func TestPattern(cPattern, aTestCases)
     next
     
     return
+
+func RunCaptureTest(cTestName, cPattern, aTestList, cCaptureName, aExpectedCapture)
+    oListex = Lx(cPattern)
+    
+    ? ""
+    ? "Testing pattern: " + cPattern
+    ? "----------------" + NL
+? ">> " + @@(aTestList)
+? ">> " + @@(aExpectedCapture) + nl
+    for i = 1 to len(aTestList)
+        pInput = aTestList[i]
+        cInputStr = @@(pInput)
+        
+        bResult = oListex.Match(pInput)
+        cActual = "FALSE"
+        
+        if bResult and oListex.HasCapture(cCaptureName)
+            aCapture = oListex.GetCapture(cCaptureName)
+            bMatched = CompareCaptures(aCapture, aExpectedCapture[i])
+            cActual = "TRUE"
+        else
+            bMatched = false
+        ok
+
+        cStatus = "✗"
+        if bMatched
+            cStatus = "✓"
+        ok
+
+        ? "  " + cStatus + " Match(" + cInputStr + ") --> " + cActual + 
+          iif(!bMatched, " (Expected: " + @@(aExpectedCapture[i]) + ")", "")
+    next
+    
+    return
+end
