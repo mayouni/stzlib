@@ -1,17 +1,15 @@
+
+
 # Softanza List Regex Engine
 
 func StzListRegexQ(cPattern)
-	return new stzListRegex(cPattern)
+	return new stzListex(cPattern)
 
 func StzListexQ(cPattern)
 	return StzListRegexQ(cPattern)
 
 func Lx(cPattern)
 	return StzListRegexQ(cPattern)
-
-#==================================#
-#  LIST REGEX ENGINE - CORE CLASS  #
-#==================================#
 
 class stzListex
 
@@ -20,7 +18,6 @@ class stzListex
 	@bDebugMode = false	# Debug mode flag
 
 	# Regular expression patterns for various token types
-
 	@cNumberPattern = '(?:-?\d+(?:\.\d+)?)'
 	@cStringPattern = "(?:" + char(34) + "[^" + char(34) + "]*" + char(34) + "|\'[^\']*\')"
 	@cSimpleListPattern = '\[\s*[^\[\]]*\s*\]'
@@ -33,37 +30,26 @@ class stzListex
 	#-------------------#
 
 	def init(cPattern)
-
 		if NOT isString(cPattern)
 			raise("Error: Pattern must be a string")
 		ok
 
 		# Initialize @cAnyPattern as the combination of all patterns
-
 		@cAnyPattern = @cNumberPattern + "|" + @cStringPattern + "|" + @cListPattern
 
 		# Normalize the pattern by ensuring it has outer brackets
-
 		@cPattern = This.NormalizePattern(cPattern)
 		
 		# Parse the pattern into tokens
-
 		@aTokens = This.ParsePattern(@cPattern)
 		
 		# Optimize the token sequence if possible
-
 		This.OptimizeTokens()
 
-	  #--------------------#
-	 #  PATTERN HANDLING  #
-	#--------------------#
-
 	def NormalizePattern(cPattern)
-
 		cPattern = @trim(cPattern)
 		
 		# Ensure pattern is enclosed in square brackets
-
 		if NOT (StartsWith(cPattern, "[") and EndsWith(cPattern, "]"))
 			cPattern = "[" + cPattern + "]"
 		ok
@@ -71,65 +57,51 @@ class stzListex
 		return cPattern
 
 	def ParsePattern(cPattern)
-
 		# Remove outer brackets and trim
-
 		oPattern = new stzString(cPattern)
 		oPattern.TrimQ().RemoveFirstAndLastCharsQ().Trim()
 		cInner = oPattern.Content()
-		acChars = oPattern.Chars()
-		
-		# Tokenization with depth tracking for nested structures
 
+		# Split at top-level commas
+		aParts = SplitAtTopLevelCommas(cInner)
+
+		# Parse each part into tokens
 		aTokens = []
-		nDepth = 0
-		cCurrentToken = ""
-		nLen = len(acChars)
-		
-		for i = 1 to nLen
-			cChar = acChars[i]
-			
-			switch cChar
+		for i = 1 to len(aParts)
+			aTokens + This.ParseToken(@trim(aParts[i]))
+		next
 
-			case "["
-				nDepth++
-				cCurrentToken += cChar
-				
-			case "]"
-				nDepth--
-				cCurrentToken += cChar
-				if nDepth < 0
-					raise("Error: Unmatched closing bracket in pattern")
-				ok
-				
-			case ","
-				if nDepth = 0
-					# Top-level comma separates tokens
-					if len(cCurrentToken) > 0
-						aTokens + This.ParseToken(@trim(cCurrentToken))
-						cCurrentToken = ""
-					ok
-				else
-					# Nested comma is part of the token
-					cCurrentToken += cChar
-				ok
-				
-			other
-				cCurrentToken += cChar
-			off
+		return aTokens
+
+	def ParseAlternationToken(cTokenStr, bNegated)
+		# Split alternation tokens
+		aParts = @split(cTokenStr, "|")
+		
+		aAlternatives = []
+		for i = 1 to len(aParts)
+			cPart = @trim(aParts[i])
+			# Add negation back to the first token if it exists
+			if bNegated and i = 1
+				cPart = "@!" + cPart
+			ok
+			aAlternatives + This.ParseToken(cPart)
 		next
 		
-		# Add the final token if any
-
-		if len(cCurrentToken) > 0
-			aTokens + This.ParseToken(@trim(cCurrentToken))
-		ok
+		# Create an alternation token
+		aToken = [
+			[ "keyword", "@ALT" ],
+			[ "type", "alternation" ],
+			[ "alternatives", aAlternatives ],
+			[ "min", 1 ],
+			[ "max", 1 ],
+			[ "quantifier", 1 ],
+			[ "hasset", false ],
+			[ "setvalues", [] ],
+			[ "requireunique", false ],
+			[ "negated", bNegated ]
+		]
 		
-		if nDepth != 0
-			raise("Error: Unmatched opening bracket in pattern")
-		ok
-		
-		return aTokens
+		return aToken
 
 	def ParseToken(cTokenStr)
 		# Default values
@@ -139,6 +111,11 @@ class stzListex
 		if StartsWith(cTokenStr, "@!")
 			bNegated = true
 			cTokenStr = SubStr(cTokenStr, 3)  # Remove @! prefix
+		ok
+	
+		# Alternation handling
+		if @Contains(cTokenStr, "|")
+			return This.ParseAlternationToken(cTokenStr, bNegated)
 		ok
 	
 		# Ensure token starts with @ or add it
@@ -151,34 +128,9 @@ class stzListex
 		# Extract keyword (first two characters)
 		cKeyword = oTokenStr.Section(1, 2)
 
-		# Set basic token properties based on keyword type
-		aToken = []
-
-		switch cKeyword
-		on "@N"
-			aToken + [ "keyword", "@N" ]
-			aToken + [ "type", "number" ]
-			aToken + [ "pattern", @cNumberPattern ]
+		# Rest of the parsing remains the same as in the original implementation
+		# (Include the rest of the ParseToken method from the original code)
 		
-		on "@S"
-			aToken + [ "keyword", "@S" ]
-			aToken + [ "type", "string" ]
-			aToken + [ "pattern", @cStringPattern ]
-		
-		on "@L"
-			aToken + [ "keyword", "@L" ]
-			aToken + [ "type", "list" ]
-			aToken + [ "pattern", @cListPattern ]
-		
-		on "@$"
-			aToken + [ "keyword", "@$" ]
-			aToken + [ "type", "any" ]
-			aToken + [ "pattern", @cAnyPattern ]
-
-		other
-			raise("Error: Unknown token type: " + cKeyword)
-		off
-
 		# Default values
 		nMin = 1
 		nMax = 1
@@ -194,8 +146,7 @@ class stzListex
 			cRemainder = oTokenStr.Section(3, nLenToken)
 		ok
 
-		# First check for range quantifiers like 1-3 or standard quantifiers +, *, ?
-
+		# Range and quantifier processing (from original code)
 		if len(cRemainder) > 0
 			# Check for explicit range pattern like "1-3"
 			oRangeMatch = rx('^(\d+)-(\d+)')
@@ -252,7 +203,7 @@ class stzListex
 			ok
 		ok
 
-		# Process set constraints if present
+		# Set constraints processing (from original code)
 		if len(cRemainder) > 0
 			# Check for {values}U format (set with uniqueness constraint)
 			oUniqueSetMatch = rx('^(\{(.*?)\})U')
@@ -262,7 +213,7 @@ class stzListex
 				cSetContent = aMatches[2]
 
 				# Parse the set values with uniqueness enforcement
-				aSetValues = This.ParseSetValues(cSetContent, aToken["type"], true)
+				aSetValues = This.ParseSetValues(cSetContent, "any", true)
 				bRequireUnique = true
 
 				# Remove the processed part from remainder
@@ -278,7 +229,8 @@ class stzListex
 					cSetContent = aMatches[2]
 
 					# Parse the set values
-					aSetValues = This.ParseSetValues(cSetContent, aToken["type"], false)
+
+					aSetValues = This.ParseSetValues(cSetContent, "any", false)
 
 					# Remove the processed part from remainder
 					nSetLen = len(aMatches[1])
@@ -291,6 +243,40 @@ class stzListex
 		if len(cRemainder) > 0
 			raise("Error: Unexpected content in token: " + cRemainder)
 		ok
+
+		# Set token type based on keyword
+		switch cKeyword
+		on "@N"
+			aToken = [
+				[ "keyword", "@N" ],
+				[ "type", "number" ],
+				[ "pattern", @cNumberPattern ]
+			]
+		
+		on "@S"
+			aToken = [
+				[ "keyword", "@S" ],
+				[ "type", "string" ],
+				[ "pattern", @cStringPattern ]
+			]
+		
+		on "@L"
+			aToken = [
+				[ "keyword", "@L" ],
+				[ "type", "list" ],
+				[ "pattern", @cListPattern ]
+			]
+		
+		on "@$"
+			aToken = [
+				[ "keyword", "@$" ],
+				[ "type", "any" ],
+				[ "pattern", @cAnyPattern ]
+			]
+
+		else
+			raise("Error: Unknown token type: " + cKeyword)
+		off
 
 		# Add the processed information to the token
 		aToken + [ "min", nMin ]
@@ -311,6 +297,38 @@ class stzListex
 		aToken + [ "negated", bNegated ]
 
 		return aToken
+
+# Helper function to split at top-level commas (from previous suggestions)
+func SplitAtTopLevelCommas(cStr)
+    aParts = []
+    cCurrent = ""
+    nDepth = 0
+    acChars = Chars(cStr)
+    nLen = len(acChars)
+
+    for i = 1 to nLen
+        cChar = acChars[i]
+        if cChar = "["
+            nDepth++
+            cCurrent += cChar
+        but cChar = "]"
+            nDepth--
+            cCurrent += cChar
+        but cChar = "," and nDepth = 0
+            aParts + @trim(cCurrent)
+            cCurrent = ""
+        else
+            cCurrent += cChar
+        ok
+    next
+    if len(cCurrent) > 0
+        aParts + @trim(cCurrent)
+    ok
+    return aParts
+
+	  #--------------------#
+	 #  PATTERN HANDLING  #
+	#--------------------#
 
 	def ParseSetValues(cSetContent, cType, bCheckUnique)
 
@@ -486,7 +504,7 @@ class stzListex
 		# Use backtracking to find valid matches
 		return This.BacktrackMatch(aTokens, aElements, 1, 1, [])
 
-	def BacktrackMatch(aTokens, aElements, nTokenIndex, nElementIndex, aUsedValues)
+def BacktrackMatch(aTokens, aElements, nTokenIndex, nElementIndex, aUsedValues)
 		nLenTokens = len(aTokens)
 		nLenElements = len(aElements)
 
@@ -504,6 +522,30 @@ class stzListex
 		for i = 1 to len(aUsedValues)
 			aLocalUsedValues + aUsedValues[i]
 		next
+
+		# Alternation token handling
+		if aToken[:keyword] = "@ALT"
+			# Try each alternative
+			for i = 1 to len(aToken[:alternatives])
+				aAltTokens = aToken[:alternatives]
+				aNewTokens = []
+
+				# Prepare tokens list with the current alternative
+				for j = 1 to nTokenIndex - 1
+					aNewTokens + aTokens[j]
+				next
+				aNewTokens + aAltTokens[i]
+				for j = nTokenIndex + 1 to nLenTokens
+					aNewTokens + aTokens[j]
+				next
+
+				# Check this alternative's match
+				if This.BacktrackMatch(aNewTokens, aElements, nTokenIndex, nElementIndex, aLocalUsedValues)
+					return true
+				ok
+			next
+			return false
+		ok
 
 		# Try different match counts within min-max range
 		for nMatchCount = aToken[:min] to @Min([aToken[:max], nLenElements - nElementIndex + 1])
