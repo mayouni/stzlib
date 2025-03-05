@@ -421,10 +421,10 @@ proff()
 #========================#
 
 /*--- Basic Numeric Data
-
+*/
 pr()
 
-R = new StzExtCodeXT("r")
+R = new StzExtCodeXT("R")
 
 R.SetCode('
 res <- list(

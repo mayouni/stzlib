@@ -12,13 +12,13 @@ Lx = new stzListex('[ @S ]')
 ? @@( Lx.Tokens() )
 #--> TRUE
 
-/*-----------------------------#
-#  1. BASIC PATTERN MATCHING   #
-#------------------------------#
+#---
 */
 pr()
 
-? "TEST GROUP 1: Basic Pattern Matching Tests"
+? "#----------------------------------------#"
+? "#  TEST GROUP 1: Basic Pattern Matching  #"
+? "#----------------------------------------#"
 
 # Basic single-token patterns
 
@@ -66,12 +66,12 @@ TestPattern("[@N, @N, @S]", [
 	[1, 2, 3], "FALSE"
 ])
 
-/*-----------------------#
-#  2. QUANTIFIER TESTS   #
-#------------------------#
+/*---
 */
 ? ""
-? "TEST GROUP 2: Quantifier Tests"
+? "#-----------------------------------------#"
+? "#  TEST GROUP 2: Pattern With Quantifier  #"
+? "#-----------------------------------------#"
 
 # Single-number quantifier
 
@@ -119,12 +119,12 @@ TestPattern("[@N2, @S+]", [
 	[1, "hello"], "FALSE"
 ])
 
-/*--------------------------#
-#  3. SET CONSTRAINT TESTS  #
-#---------------------------#
+/*---
 */
 ? ""
-? "TEST GROUP 3: Set Constraint Tests"
+? "#------------------------------------------------#"
+? "#  TEST GROUP 1: Set Selection Pattern Matching  #"
+? "#------------------------------------------------#"
 
 # Basic set constraints
 
@@ -160,12 +160,12 @@ TestPattern("[@N+{1; 2; 3}]", [
 	[1, 4], "FALSE"
 ])
 
-/*------------------------------------------------------------------#
-#  4. COMPLEX PATTERN COMBINATIONS                                  #
-#------------------------------------------------------------------#
+/*---
 */
 ? ""
-? "TEST GROUP 4: Complex Pattern Combinations"
+? "#----------------------------------------------#"
+? "#  TEST GROUP 1: Complex Pattern Combinations  #"
+? "#----------------------------------------------#"
 
 # Complex nesting patterns
 
@@ -194,12 +194,12 @@ TestPattern('[ @N+{1; 2; 3}, @S{"hello"; "world"}, @L? ]', [
     [1, "hello", [1], [2]], "FALSE"
 ])
 
-/*------------------------------------------------------------------#
-#  5. EDGE CASES AND ERROR HANDLING                                 #
-#------------------------------------------------------------------#
+/*---
 */
 ? ""
-? "TEST GROUP 5: Edge Cases and Error Handling"
+? "#-----------------------------------------------#"
+? "#  TEST GROUP 5: Edge Cases and Error Handling  #"
+? "#-----------------------------------------------#"
 
 # Empty pattern handling
 
@@ -236,11 +236,12 @@ TestPattern("[@N, @S, @L, @$]", [
 	[1, "hello", [1, 2]], "FALSE"
 ])
 
-
-/*===============================#
-#  GROUP 6 : NEGATION PATTERNS  #
-#===============================#
+/*---
 */
+? ""
+? "#-------------------------------------------#"
+? "#  TEST GROUP 6: Negation Pattern Matching  #"
+? "#-------------------------------------------#"
 
 TestPattern("[@!N]", [
 	[ 10 ], "FALSE",
@@ -266,39 +267,42 @@ TestPattern("[@N, @!N]", [
 	[ "hello", 10 ], "FALSE"
 ])
 
-proff()
 
-/*=================================#
-#  GROUP 7 : ALTERNATION PATTERN  #
-#=================================#
+/*---
+*/
+? ""
+? "#----------------------------------------------#"
+? "#  TEST GROUP 7: Alternation Pattern Matching  #"
+? "#----------------------------------------------#"
 
-TestPattern("[(@N|@S)]", [
+TestPattern("[@N|@S]", [
 	[ 10 ], "TRUE",
 	[ "hello" ], "TRUE",
 	[ [1, 2, 3] ], "FALSE"
 ])
 
-TestPattern("[ (@N|@S), (@L|@N) ]", [
+TestPattern("[ @N|@S, @L|@N ]", [
 	[ 10, 20 ], "TRUE",
 	[ "hello", [1, 2, 3] ], "TRUE",
 	[ 10, [1, 2, 3] ], "TRUE",
 	[ "hello", "world" ], "FALSE"
 ])
 
-TestPattern("[ ( @N{1;2;3} | @S ) ]", [
+TestPattern("[ @N{1;2;3} | @S ]", [
 	[ 1 ], "TRUE",
 	[ 2 ], "TRUE",
 	[ "hello" ], "TRUE",
 	[ 4 ], "FALSE"
 ])
 
-TestPattern("[ (@N|@S), @!S ]", [
+TestPattern("[ @N|@S, @!S ]", [
 	[ 10, [1, 2, 3] ], "TRUE",
 	[ "hello", [1, 2, 3] ], "TRUE",
 	[ 10, "hello" ], "FALSE",
 	[ "hello", 10 ], "TRUE"
 ])
 
+proff()
 
 /*=======================#
 #  TEST HELPER FUNCTION  #
@@ -309,9 +313,9 @@ func TestPattern(cPattern, aTestCases)
     
     ? ""
     ? "Testing pattern: " + cPattern
-    ? "----------------" + NL
+    nLen = len(aTestCases)
 
-    for i = 1 to len(aTestCases) step 2
+    for i = 1 to nLen step 2
         pInput = aTestCases[i]
         cExpected = aTestCases[i+1]
         
@@ -333,38 +337,3 @@ func TestPattern(cPattern, aTestCases)
     next
     
     return
-
-func RunCaptureTest(cTestName, cPattern, aTestList, cCaptureName, aExpectedCapture)
-    oListex = Lx(cPattern)
-    
-    ? ""
-    ? "Testing pattern: " + cPattern
-    ? "----------------" + NL
-? ">> " + @@(aTestList)
-? ">> " + @@(aExpectedCapture) + nl
-    for i = 1 to len(aTestList)
-        pInput = aTestList[i]
-        cInputStr = @@(pInput)
-        
-        bResult = oListex.Match(pInput)
-        cActual = "FALSE"
-        
-        if bResult and oListex.HasCapture(cCaptureName)
-            aCapture = oListex.GetCapture(cCaptureName)
-            bMatched = CompareCaptures(aCapture, aExpectedCapture[i])
-            cActual = "TRUE"
-        else
-            bMatched = false
-        ok
-
-        cStatus = "✗"
-        if bMatched
-            cStatus = "✓"
-        ok
-
-        ? "  " + cStatus + " Match(" + cInputStr + ") --> " + cActual + 
-          iif(!bMatched, " (Expected: " + @@(aExpectedCapture[i]) + ")", "")
-    next
-    
-    return
-end
