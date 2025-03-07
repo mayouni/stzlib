@@ -16,7 +16,7 @@ proff()
 # Executed in 0.05 second(s) in Ring 1.22
 
 #---
-*/
+
 pron()
 
 o1 = new stzString('[ @$2{"a";1;[1]}U ]')
@@ -690,7 +690,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*=== Section() and CharsInSection()
-*/
+
 pr()
 
 # Here, you cen get a section from a string
@@ -1936,7 +1936,8 @@ o1 = new stzString("123♥♥678♥♥123♥♥678")
 #--> [ [ 9, 10 ], [ 14, 15 ] ]
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.08 second(s) in Ring 20
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*===========
 

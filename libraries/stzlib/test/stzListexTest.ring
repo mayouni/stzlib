@@ -1,6 +1,5 @@
 load "../max/stzmax.ring"
 
-
 #=======================================================#
 #   LISTEX -  SOFTANZA LIST REGEX ENGINE - TEST SUITE   #
 #=======================================================#
@@ -123,7 +122,7 @@ TestPattern("[@N2, @S+]", [
 */
 ? ""
 ? "#------------------------------------------------#"
-? "#  TEST GROUP 1: Set Selection Pattern Matching  #"
+? "#  TEST GROUP 3: Set Selection Pattern Matching  #"
 ? "#------------------------------------------------#"
 
 # Basic set constraints
@@ -164,7 +163,7 @@ TestPattern("[@N+{1; 2; 3}]", [
 */
 ? ""
 ? "#----------------------------------------------#"
-? "#  TEST GROUP 1: Complex Pattern Combinations  #"
+? "#  TEST GROUP 4: Complex Pattern Combinations  #"
 ? "#----------------------------------------------#"
 
 # Complex nesting patterns
@@ -300,6 +299,51 @@ TestPattern("[ @N|@S, @!S ]", [
 	[ "hello", [1, 2, 3] ], "TRUE",
 	[ 10, "hello" ], "FALSE",
 	[ "hello", 10 ], "TRUE"
+])
+
+/*---
+*/
+? ""
+? "#---------------------------------#"
+? "#  TEST GROUP 8: NESTED PATTERNS  #"
+? "#---------------------------------#"
+
+# Simple nested list with number constraints
+
+TestPattern("[@N, [@N2], @N]", [
+	[1, [2, 3], 4], "TRUE",
+	[1, [2], 4], "FALSE",	# (inner list must have exactly 2 elements)
+	[1, [2, 3, 4], 4], "FALSE" # (inner list must have exactly 2 elements)
+])
+
+# Mixed type nested list
+
+TestPattern("[@N, [@S, @N], @S]", [
+	[1, ["hello", 42], "world"], "TRUE",
+	[1, ["hello"], "world"], "FALSE" # (inner list must have both string and number)
+])
+
+# Nested list with set constraints
+
+TestPattern("[@N, [@N{10;20}], @N]", [
+	[1, [10, 20], 5], "FALSE",
+	[1, [15], 5], "FALSE",
+	[1, [30], 5], "FALSE" # (inner number not in set)
+])
+
+# Complex nested pattern with multiple constraints
+
+TestPattern("[@N, [@S, @N, [@N2]], @S]", [
+	[1, ["hello", 42, [1, 2]], "world"], "TRUE",
+	[1, ["hello", 42, [1]], "world"], "FALSE",  # (third nested list must have exactly 2 elements)
+	[1, ["hello", 42, [1, 2, 3]], "world"], "FALSE"  # (third nested list must have exactly 2 elements)
+])
+
+# Nested list with quantifiers
+
+TestPattern("[@N, [@N+], @N]", [
+	[1, [10, 20, 30], 5], "TRUE",  # (one or more numbers in nested list)
+	[1, [10], 5], "TRUE"  # (at least one number in nested list)
 ])
 
 proff()

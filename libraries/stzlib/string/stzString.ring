@@ -43669,6 +43669,12 @@ class stzString from stzObject
 		def StartsWithOneOfTheseCS(paSubStr, pCaseSensitive)
 			return This.BeginsWithOneOfTheseCS(paSubStr, pCaseSensitive)
 
+		def StartsWithAnyOfTheseCS(paSubStr, pCaseSensitive)
+			return This.StartsWithOneOfTheseCS(paSubStr, pCaseSensitive)
+
+		def StartsWithAnyCS(paSubStr, pCaseSensitive)
+			return This.StartsWithOneOfTheseCS(paSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESNESITIVITY
 
 	def BeginsWithOneOfThese(paSubStr)
@@ -43676,6 +43682,12 @@ class stzString from stzObject
 
 		def StartsWithOneOfThese(paSubStr)
 			return This.BeginsWithOneOfThese(paSubStr)
+
+		def StartsWithAnyOfThese(paSubStr)
+			return This.StartsWithOneOfThese(paSubStr)
+
+		def StartsWithAny(paSubStr)
+			return This.StartsWithOneOfThese(paSubStr)
 
 	  #--------------------------------------------------------------------#
 	 #  CHECKS IF THE STRING STARTS WITH ONE OR AN OTHER GIVEN SUBSTRING  #
@@ -43738,7 +43750,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def FinishsWithCS(pcSubStr, pCaseSensitive)
+		def FinishesWithCS(pcSubStr, pCaseSensitive)
 			return This.EndsWithCS(pcSubStr, pCaseSensitive)
 
 			def FinishesWithCSQ(pcSubStr, pCaseSensitive)
@@ -43753,7 +43765,7 @@ class stzString from stzObject
 		def EndsWithQ(pcSubStr)
 			return  This.EndsWithCSQ(pcSubStr, _TRUE_)
 
-		def FinishsWith(pcSubStr)
+		def FinishesWith(pcSubStr)
 			return This.EndsWith()
 
 			def FinishesWithQ(pcSubStr)
@@ -43825,16 +43837,48 @@ class stzString from stzObject
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
+		def EndsWithAnyOfTheseCS(paSubStr, pCaseSensitive)
+			return This.EndsWithOneOfTheseCS(paSubStr, pCaseSensitive)
+
+		def EndsWithAnyCS(paSubStr, pCaseSensitive)
+			return This.EndsWithOneOfTheseCS(paSubStr, pCaseSensitive)
+
 		def FinishsWithOneOfTheseCS(paSubStr, pCaseSensitive)
 			return This.EndsWithOneOfTheseCS(paSubStr, pCaseSensitive)
+
+		def FinishsWithAnyOfTheseCS(paSubStr, pCaseSensitive)
+			return This.EndsWithOneOfTheseCS(paSubStr, pCaseSensitive)
+
+		def FinishesWithAnyCS(paSubStr, pCaseSensitive)
+			return This.EndsWithOneOfTheseCS(paSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def EndsWithOneOfThese(paSubStr)
 		return This.BeginsWithOneOfTheseCS(paSubStr, _TRUE_)
 
-		def FinsihsWithOneOfThese(paSubStr)
+		#< @FunctionAlternativeForms
+
+		def EndsWithAnyOfThese(paSubStr)
 			return This.EndsWithOneOfThese(paSubStr)
+
+		def EndsWithAny(paSubStr)
+			return This.EndsWithOneOfThese(paSubStr)
+
+		def FinishsWithOneOfThese(paSubStr)
+			return This.EndsWithOneOfThese(paSubStr)
+
+		def FinishsWithAnyOfThese(paSubStr)
+			return This.EndsWithOneOfThese(paSubStr)
+
+		def FinishesWithAny(paSubStr)
+			return This.EndsWithOneOfThese(paSubStr)
+
+		#>
 
 	  #------------------------------------------------------------------#
 	 #  CHECKS IF THE STRING ENDS WITH ONE OR AN OTHER GIVEN SUBSTRING  #
