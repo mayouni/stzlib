@@ -170,17 +170,20 @@ t0 = clock()
 	load "string/stzStringFuncs.ring"
 	load "string/stzString.ring"
 
-	load "string/regex/stzRegex.ring"
-	load "string/regex/stzRegexMaker.ring"
-	load "string/regex/stzRegexuter.ring"
-	load "string/regex/stzListex.ring"
-
 	load "string/substring/stzSubString.ring"
 	load "string/listofstrings/stzListOfStrings.ring"
 	load "string/char/stzChar.ring"
 	load "string/listofchars/stzListOfChars.ring"
 	load "string/listofunicodes/stzListOfUnicodes.ring"
 	load "string/stringart/stzStringArt.ring"
+
+# Laoading files related to REGEX module
+
+
+	load "regex/stzRegex.ring"
+	load "regex/stzRegexMaker.ring"
+	load "regex/stzRegexuter.ring"
+	load "regex/stzListex.ring"
 
 # Loading files related to ERROR module
 
