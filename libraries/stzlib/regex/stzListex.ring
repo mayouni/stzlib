@@ -55,6 +55,10 @@ class stzListex
 		# Optimize the token sequence if possible
 		This.OptimizeTokens()
 
+	  #--------------------#
+	 #  NORMALIZING DATA  #
+	#--------------------#
+
 	def NormalizePattern(cPattern)
 		cPattern = @trim(cPattern)
 		
@@ -64,6 +68,22 @@ class stzListex
 		ok
 		
 		return cPattern
+
+	def NormalizeListString(xList) # Used for comparison
+
+		cList = "" + xList
+		
+		# Remove all whitespace for consistent comparison
+
+		cList = StzStringQ(cList).
+			RemoveManyQ([ " ", char(9), char(10), char(13) ]).
+			Content()
+
+		return cList
+
+	  #----------------------------------------#
+	 #  PARSING PATTERNS (STRING --> TOKENS)  #
+	#========================================#
 
 	def ParsePattern(cPattern)
 		# Remove outer brackets and trim
@@ -82,126 +102,9 @@ class stzListex
 
 		return aTokens
 
-	def ParseNestedPattern(cNestedPattern, bNegated)
-
-		# Remove outer brackets
-
-		cInner = StzStringQ(cNestedPattern).RemoveFirstAndLastCharsQ().Content()
-
-		# Parse the nested pattern into tokens
-
-		aNestedTokens = []
-
-		# Split at top-level commas
-
-		aParts = SplitAtTopLevelCommas(cInner)
-
-		# Parse each part into tokens
-
-		for i = 1 to len(aParts)
-			aNestedTokens + This.ParseToken(@trim(aParts[i]))
-		next
-
-		# Process quantifiers for the entire nested pattern
-
-		nMin = 1
-		nMax = 1
-		nQuantifier = 1
-    
-		# Check if a quantifier is appended after the closing bracket
-
-		if len(cNestedPattern) > 2
-			cRest = StzStringQ(cNestedPattern).SectionRemoved(1, len(cNestedPattern) - 1)
-
-			# Handle +, *, ? quantifiers
-			oQMatch = rx(@cQuantifierPattern).Match(cRest)
-			if oQMatch
-				aMatches = oQMatch.Matches()
-				cQuantifier = aMatches[1]
-
-				switch cQuantifier
-				on "+"
-					nMin = 1
-					nMax = 999999999  # Effectively unlimited
-				on "*"
-					nMin = 0
-					nMax = 999999999  # Effectively unlimited
-				on "?"
-					nMin = 0
-					nMax = 1
-				off
-
-			else
-
-				# Check for a single number quantifier
-
-				oNumberMatch = rx(@cSingleNumberPattern).Match(cRest)
-				if oNumberMatch
-					aMatches = oNumberMatch.Matches()
-					nQuantifier = number(aMatches[1])
-					nMin = nQuantifier
-					nMax = nQuantifier
-				ok
-			ok
-		ok
-    
-		# Create a nested pattern token
-
-		aToken = [
-			[ "keyword", "@NESTED" ],
-			[ "type", "nested" ],
-			[ "pattern", @cRecursiveListPattern ],
-			[ "nestedTokens", aNestedTokens ],
-			[ "min", nMin ],
-			[ "max", nMax ],
-			[ "quantifier", nQuantifier ],
-			[ "hasset", false ],
-			[ "setvalues", [] ],
-			[ "requireunique", false ],
-			[ "negated", bNegated ]
-		]
-    
-		return aToken
-
-	def ParseAlternationToken(cTokenStr, bNegated)
-
-		# Split alternation tokens
-
-		aParts = @split(cTokenStr, "|")
-		nLen = len(aParts)
-
-		aAlternatives = []
-
-		for i = 1 to nLen
-
-			cPart = @trim(aParts[i])
-
-			# Add negation back to the first token if it exists
-
-			if bNegated and i = 1
-				cPart = "@!" + cPart
-			ok
-
-			aAlternatives + This.ParseToken(cPart)
-
-		next
-		
-		# Create an alternation token
-
-		aToken = [
-			[ "keyword", "@ALT" ],
-			[ "type", "alternation" ],
-			[ "alternatives", aAlternatives ],
-			[ "min", 1 ],
-			[ "max", 1 ],
-			[ "quantifier", 1 ],
-			[ "hasset", false ],
-			[ "setvalues", [] ],
-			[ "requireunique", false ],
-			[ "negated", bNegated ]
-		]
-		
-		return aToken
+	  #-------------------------#
+	 #  PARSING A GIVEN TOKEN  #
+	#-------------------------#
 
 	def ParseToken(cTokenStr)
 
@@ -510,46 +413,138 @@ class stzListex
 
 		return aToken
 
-	# Helper function to split at top-level commas (from previous suggestions)
+	  #--------------------------------#
+	 #  PARSING AN ALTERNATION TOKEN  #
+	#--------------------------------#
 
-	def SplitAtTopLevelCommas(cStr)
+	def ParseAlternationToken(cTokenStr, bNegated)
 
-		acParts = []
-		cCurrent = ""
-		nDepth = 0
-		acChars = Chars(cStr)
-		nLen = len(acChars)
+		# Split alternation tokens
+
+		aParts = @split(cTokenStr, "|")
+		nLen = len(aParts)
+
+		aAlternatives = []
 
 		for i = 1 to nLen
 
-			cChar = acChars[i]
+			cPart = @trim(aParts[i])
 
-			if cChar = "["
-				nDepth++
-				cCurrent += cChar
+			# Add negation back to the first token if it exists
 
-			but cChar = "]"
-				nDepth--
-				cCurrent += cChar
-
-			but cChar = "," and nDepth = 0
-				acParts + @trim(cCurrent)
-				cCurrent = ""
-
-			else
-				cCurrent += cChar
+			if bNegated and i = 1
+				cPart = "@!" + cPart
 			ok
+
+			aAlternatives + This.ParseToken(cPart)
+
+		next
+		
+		# Create an alternation token
+
+		aToken = [
+			[ "keyword", "@ALT" ],
+			[ "type", "alternation" ],
+			[ "alternatives", aAlternatives ],
+			[ "min", 1 ],
+			[ "max", 1 ],
+			[ "quantifier", 1 ],
+			[ "hasset", false ],
+			[ "setvalues", [] ],
+			[ "requireunique", false ],
+			[ "negated", bNegated ]
+		]
+		
+		return aToken
+
+	  #----------------------------#
+	 #  PARSING A NESTED PATTERN  #
+	#----------------------------#
+
+	def ParseNestedPattern(cNestedPattern, bNegated)
+
+		# Remove outer brackets
+
+		cInner = StzStringQ(cNestedPattern).RemoveFirstAndLastCharsQ().Content()
+
+		# Parse the nested pattern into tokens
+
+		aNestedTokens = []
+
+		# Split at top-level commas
+
+		aParts = SplitAtTopLevelCommas(cInner)
+
+		# Parse each part into tokens
+
+		for i = 1 to len(aParts)
+			aNestedTokens + This.ParseToken(@trim(aParts[i]))
 		next
 
-		if len(cCurrent) > 0
-			acParts + @trim(cCurrent)
+		# Process quantifiers for the entire nested pattern
+
+		nMin = 1
+		nMax = 1
+		nQuantifier = 1
+    
+		# Check if a quantifier is appended after the closing bracket
+
+		if len(cNestedPattern) > 2
+			cRest = StzStringQ(cNestedPattern).SectionRemoved(1, len(cNestedPattern) - 1)
+
+			# Handle +, *, ? quantifiers
+			oQMatch = rx(@cQuantifierPattern).Match(cRest)
+			if oQMatch
+				aMatches = oQMatch.Matches()
+				cQuantifier = aMatches[1]
+
+				switch cQuantifier
+				on "+"
+					nMin = 1
+					nMax = 999999999  # Effectively unlimited
+				on "*"
+					nMin = 0
+					nMax = 999999999  # Effectively unlimited
+				on "?"
+					nMin = 0
+					nMax = 1
+				off
+
+			else
+
+				# Check for a single number quantifier
+
+				oNumberMatch = rx(@cSingleNumberPattern).Match(cRest)
+				if oNumberMatch
+					aMatches = oNumberMatch.Matches()
+					nQuantifier = number(aMatches[1])
+					nMin = nQuantifier
+					nMax = nQuantifier
+				ok
+			ok
 		ok
+    
+		# Create a nested pattern token
 
-		return acParts
+		aToken = [
+			[ "keyword", "@NESTED" ],
+			[ "type", "nested" ],
+			[ "pattern", @cRecursiveListPattern ],
+			[ "nestedTokens", aNestedTokens ],
+			[ "min", nMin ],
+			[ "max", nMax ],
+			[ "quantifier", nQuantifier ],
+			[ "hasset", false ],
+			[ "setvalues", [] ],
+			[ "requireunique", false ],
+			[ "negated", bNegated ]
+		]
+    
+		return aToken
 
-	  #--------------------#
-	 #  PATTERN HANDLING  #
-	#--------------------#
+	  #--------------------------#
+	 #  PARSING THE SET VALUES  #
+	#--------------------------#
 
 	def ParseSetValues(cSetContent, cType, bCheckUnique)
 
@@ -643,14 +638,9 @@ class stzListex
 		
 		return aValues
 
-	# Helper method to remove quotes from string
-
-	def RemoveQuotes(cStr)
-		if (StartsWith(cStr, "'") and EndsWith(cStr, "'")) or
-		   (StartsWith(cStr, '"') and EndsWith(cStr, '"'))
-			return StzStringQ(cStr).FirstAndLastCharsRemoved()
-		ok
-		return cStr
+	  #--------------------------------#
+	 #  OPTIMIZING THE PARSED TOKENS  #
+	#================================#
 
 	def OptimizeTokens()
 
@@ -688,9 +678,9 @@ class stzListex
 			ok
 		next
 
-	  #--------------------#
-	 #   MATCHING LOGIC   #
-	#--------------------#
+	  #----------------------------------------------------------#
+	 #   MATCHING THE LIST PROVIDED AGAINST THE PATTERN TOKENS  #
+	#==========================================================#
 
 	def Match(paList)
 
@@ -721,6 +711,19 @@ class stzListex
 			return FALSE
 		done
 
+		#< @FunctionMisspelledForm
+
+		def Macth(pList)
+			return This.Match(pList)
+
+		#>
+
+	  #--------------------------------------------------#
+	 #  MATCHING TOKENS TO THE ELEMENTS OF THE PATTERN  #
+	#--------------------------------------------------#
+ 
+	# Method used by Match() and BacktrackMatch() methods
+
 	def MatchTokensToElements(aTokens, aElements)
 		nLenTokens = len(aTokens)
 		nLenElements = len(aElements)
@@ -729,7 +732,9 @@ class stzListex
 
 		return This.BacktrackMatch(aTokens, aElements, 1, 1, [])
 
-	# A regex-like backtracking mechanism, made for lists
+	  #-------------------------------------------------------#
+	 #  A REGEX-LIKE BACKTRACKING MECHANISM, MADE FOR LISTS  #
+	#-------------------------------------------------------#
 
 	def BacktrackMatch(aTokens, aElements, nTokenIndex, nElementIndex, aUsedValues)
 
@@ -1018,6 +1023,66 @@ class stzListex
 
 		return false
 
+	  #------------------#
+	 #  HELPER METHODS  #
+	#------------------#
+
+	def JoinSetValues(aValues)
+
+		cResult = ""
+		
+		for i = 1 to len(aValues)
+			if i > 1
+				cResult += "; "
+			ok
+			
+			cResult += "" + aValues[i]
+		next
+		
+		return cResult
+
+	def SplitAtTopLevelCommas(cStr)
+
+		acParts = []
+		cCurrent = ""
+		nDepth = 0
+		acChars = Chars(cStr)
+		nLen = len(acChars)
+
+		for i = 1 to nLen
+
+			cChar = acChars[i]
+
+			if cChar = "["
+				nDepth++
+				cCurrent += cChar
+
+			but cChar = "]"
+				nDepth--
+				cCurrent += cChar
+
+			but cChar = "," and nDepth = 0
+				acParts + @trim(cCurrent)
+				cCurrent = ""
+
+			else
+				cCurrent += cChar
+			ok
+		next
+
+		if len(cCurrent) > 0
+			acParts + @trim(cCurrent)
+		ok
+
+		return acParts
+
+	def RemoveQuotes(cStr)
+		if (StartsWith(cStr, "'") and EndsWith(cStr, "'")) or
+		   (StartsWith(cStr, '"') and EndsWith(cStr, '"'))
+			return StzStringQ(cStr).FirstAndLastCharsRemoved()
+		ok
+		return cStr
+
 	# Helper function for value comparison by type
 
 	def CompareValues(xValue1, xValue2, cType)
@@ -1055,43 +1120,25 @@ class stzListex
 			return cVal1 = cVal2
 		off
 
-	# Normalize list string representation for comparison
-
-	def NormalizeListString(xList)
-
-		cList = "" + xList
-		
-		# Remove all whitespace for consistent comparison
-
-		cList = StzStringQ(cList).
-			RemoveManyQ([ " ", char(9), char(10), char(13) ]).
-			Content()
-
-		return cList
+	# Convert a string representation to the appropriate type for comparison
 
 	def ConvertToType(cValue, cType)
-
-		# Convert a string representation to the appropriate type for comparison
 		
 		switch cType
 
 		on "number"
-
 			# Convert to numeric value
 			return @number(cValue)
 			
 		on "string"
-
 			# Return as is - normalization happens in CompareValues
 			return cValue
 			
 		on "list"
-
 			# Keep list representation as is
 			return cValue
 			
 		on "any"
-
 			# Keep as is for any type
 			return cValue
 		off
@@ -1110,32 +1157,11 @@ class stzListex
 		@bDebugMode = false
 		return self
 
-	def JoinSetValues(aValues)
-
-		cResult = ""
-		
-		for i = 1 to len(aValues)
-			if i > 1
-				cResult += "; "
-			ok
-			
-			cResult += "" + aValues[i]
-		next
-		
-		return cResult
-
 	def Pattern()
 		return @cPattern
 
-	  #---------------------------#
-	 #     ALIAS METHODS         #
-	#---------------------------#
-
-	def Macth(pList)
-		return This.Match(pList)
-
-	def DomainPattern()
-		return This.Pattern()
+		def DomainPattern()
+			return This.Pattern()
 
 	def Tokens()
 		return @aTokens
@@ -1145,3 +1171,9 @@ class stzListex
 
 		def TokensXT()
 			return This.Tokens()
+
+
+
+
+
+
