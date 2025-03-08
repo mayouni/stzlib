@@ -1,4 +1,4 @@
-# Softanza Magic: Calculating Numbers Inside a String—Effortlessly!
+# Calculating Numbers Inside a String—Effortlessly!
 
 In Softanza, you can perform calculations directly on numbers within a string,  and the string updates dynamically with the new values!
 
@@ -25,7 +25,7 @@ o1 {
 ```
 
 Need different calculations for each number?  
-Use the e`XT`ended form to apply unique operations to each number in the string!
+Use the e**XT**ended form to apply unique operations to each number in the string!
 
 ```ring
 o1 = new stzString("The total is 42 dollars and 13 cents.")
