@@ -81544,6 +81544,10 @@ class stzString from stzObject
 				pcNewSubStr = pcNewSubStr[2]
 			ok
 
+			if NOT isString(pcNewSubStr)
+				StzRaise("Incorrect param type! pcNewSubStr must be a string.")
+			ok
+
 			if isString(n1) and ring_find([
 				:First, :FirstChar, :StartOfString,
 				:Last,  :LastChar,  :EndOfString ], n1) = 0
@@ -93911,13 +93915,15 @@ class stzString from stzObject
 		cResult = This.Copy().MultiplyQ(pValue).Content()
 		return cResult
 
-	#--
+	  #--------------------------------------#
+	 #  POLYVALENT MULTIPLICATION FUNCTION  #
+	#--------------------------------------#
 
 	def MultiplyBy(pValue)
-		cResult = _NULL_
+		_cResult_ = _NULL_
 
 		if ring_type(pValue) = "NUMBER"
-			cResult = This.RepeatedNTimes(pValue)
+			_cResult_ = This.RepeatedNTimes(pValue)
 		
 		but ring_type(pValue) = "STRING"
 
@@ -93969,7 +93975,281 @@ class stzString from stzObject
 	def MultipliedBy(pValue)
 		cResult = This.Copy().MultiplyByQ(pValue).Content()
 		return cResult
-	
+
+	  #-----------------------------------------#
+	 #  MULTIPLYING NUMBERS INSIDE THE STRING  #
+	#=========================================#
+
+	def MultiplyByN(n)
+
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		acNumbers = This.Numbers()
+
+		acCaluclated = []
+		nLen = len(acNumbers)
+
+		for i = 1 to nLen
+			acCaluclated + @string( @number(acNumbers[i]) * n )
+		next
+
+
+		aSections = This.FindNumbersZZ()
+
+		This.ReplaceSectionsByMany(aSections, acCaluclated)
+
+		#< @FunctionFluentForm
+
+		def MultiplyByNQ(n)
+			This.MultiplyByN(n)
+			return This
+		#>
+
+	def MultipliedByN(n)
+		cResult = This.Copy().MultiplyByNQ(n).Content()
+		return cResult
+
+	#-- Multiplying each number by a different number
+
+	def MultiplyByNXT(anNumbers)
+
+		if CheckParams()
+			if NOT ( isList(anNumbers) and IsListOfNumbers(anNumbers) )
+				StzRaise("Incorrect param type! anNumbers must be a list of numbers.")
+			ok
+		ok
+
+		acNumbers = This.Numbers()
+
+		acCaluclated = []
+		nLen = @Min([ len(acNumbers), len(anNumbers) ])
+
+		for i = 1 to nLen
+			acCaluclated + @string( @number(acNumbers[i]) * anNumbers[i] )
+		next
+
+
+		aSections = This.FindNumbersZZ()
+
+		This.ReplaceSectionsByMany(aSections, acCaluclated)
+
+		#< @FunctionFluentForm
+
+		def MultiplyByNXTQ(n)
+			This.MultiplyByNXT(n)
+			return This
+		#>
+
+	def MultipliedByNXT(n)
+		cResult = This.Copy().MultiplyByNXTQ(n).Content()
+		return cResult
+
+	  #--------------------------------------#
+	 #  DIVIDING NUMBERS INSIDE THE STRING  #
+	#--------------------------------------#
+
+	def DivideByN(n)
+
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		acNumbers = This.Numbers()
+
+		acCaluclated = []
+		nLen = len(acNumbers)
+
+		for i = 1 to nLen
+			acCaluclated + @string( @number(acNumbers[i]) / n )
+		next
+
+
+		aSections = This.FindNumbersZZ()
+
+		This.ReplaceSectionsByMany(aSections, acCaluclated)
+
+		#< @FunctionFluentForm
+
+		def DivideByNQ(n)
+			This.DivideByN(n)
+			return This
+		#>
+
+	#-- Dividing each number by a different number
+
+	def DivideByNXT(anNumbers)
+
+		if CheckParams()
+			if NOT ( isList(anNumbers) and IsListOfNumbers(anNumbers) )
+				StzRaise("Incorrect param type! anNumbers must be a list of numbers.")
+			ok
+		ok
+
+		acNumbers = This.Numbers()
+
+		acCaluclated = []
+		nLen = @Min([ len(acNumbers), len(anNumbers) ])
+
+		for i = 1 to nLen
+			acCaluclated + @string( @number(acNumbers[i]) / anNumbers[i] )
+		next
+
+
+		aSections = This.FindNumbersZZ()
+
+		This.ReplaceSectionsByMany(aSections, acCaluclated)
+
+		#< @FunctionFluentForm
+
+		def DivideByNXTQ(n)
+			This.DivideByNXT(n)
+			return This
+		#>
+
+	def DividedByNXT(n)
+		cResult = This.Copy().DivideByNXTQ(n).Content()
+		return cResult
+
+	  #-------------------------------------#
+	 #  SUMMING NUMBERS INSIDE THE STRING  #
+	#-------------------------------------#
+
+	def AddN(n)
+
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		acNumbers = This.Numbers()
+
+		acMultiplied = []
+		nLen = len(acNumbers)
+
+		for i = 1 to nLen
+			acMultiplied + @string( @number(acNumbers[i]) + n )
+		next
+
+
+		aSections = This.FindNumbersZZ()
+
+		This.ReplaceSectionsByMany(aSections, acMultiplied)
+
+		#< @FunctionFluentForm
+
+		def AddNQ(n)
+			This.AddN(n)
+			return This
+		#>
+
+	#-- Summing each number with a different number
+
+	def AddNXT(anNumbers)
+
+		if CheckParams()
+			if NOT ( isList(anNumbers) and IsListOfNumbers(anNumbers) )
+				StzRaise("Incorrect param type! anNumbers must be a list of numbers.")
+			ok
+		ok
+
+		acNumbers = This.Numbers()
+
+		acCaluclated = []
+		nLen = @Min([ len(acNumbers), len(anNumbers) ])
+
+		for i = 1 to nLen
+			acCaluclated + @string( @number(acNumbers[i]) + anNumbers[i] )
+		next
+
+		aSections = This.FindNumbersZZ()
+
+		This.ReplaceSectionsByMany(aSections, acCaluclated)
+
+		#< @FunctionFluentForm
+
+		def AddNXTQ(n)
+			This.AddNXT(n)
+			return This
+		#>
+
+	def AddedNXT(n)
+		cResult = This.Copy().AddNXTQ(n).Content()
+		return cResult
+
+	  #----------------------------------------#
+	 #  RETRIEVING NUMBERS INSIDE THE STRING  #
+	#----------------------------------------#
+
+	def RetrieveN(n)
+
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		acNumbers = This.Numbers()
+
+		acMultiplied = []
+		nLen = len(acNumbers)
+
+		for i = 1 to nLen
+			acMultiplied + @string( @number(acNumbers[i]) - n )
+		next
+
+
+		aSections = This.FindNumbersZZ()
+
+		This.ReplaceSectionsByMany(aSections, acMultiplied)
+
+		#< @FunctionFluentForm
+
+		def RetrieveNQ(n)
+			This.RetrieveN(n)
+			return This
+		#>
+
+	#-- Retrieving each number from a different number
+
+	def RetrieveNXT(anNumbers)
+
+		if CheckParams()
+			if NOT ( isList(anNumbers) and IsListOfNumbers(anNumbers) )
+				StzRaise("Incorrect param type! anNumbers must be a list of numbers.")
+			ok
+		ok
+
+		acNumbers = This.Numbers()
+
+		acCaluclated = []
+		nLen = @Min([ len(acNumbers), len(anNumbers) ])
+
+		for i = 1 to nLen
+			acCaluclated + @string( @number(acNumbers[i]) - anNumbers[i] )
+		next
+
+		aSections = This.FindNumbersZZ()
+
+		This.ReplaceSectionsByMany(aSections, acCaluclated)
+
+		#< @FunctionFluentForm
+
+		def RetrieveNXTQ(n)
+			This.RetrieveNXT(n)
+			return This
+		#>
+
+	def RetrievedNXT(n)
+		cResult = This.Copy().RetrieveNXTQ(n).Content()
+		return cResult
+
 	  #========================================#
 	 #     BOXING THE STRING AND ITS CHARS    #
 	#========================================#

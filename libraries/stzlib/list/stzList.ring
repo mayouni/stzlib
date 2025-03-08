@@ -3698,6 +3698,9 @@ func Stringify(p)
 	func @Stringify(p)
 		return Stringify(p)
 
+	func @string(p)
+		return Stringify(p)
+
 func Spacify(str)
 	cResult = StzStringQ(str).Spacified()
 	return cResult

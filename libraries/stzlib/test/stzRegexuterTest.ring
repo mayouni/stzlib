@@ -1,18 +1,86 @@
 
 load "../max/stzmax.ring"
 
-/*---
+/*--- #TODO: solve confusion between Matches() and AllMatches()
 
 pr()
+
+# A function used internally to simply the stzRegexuter class
 
 ? @@( AllMatches("The total was 42 dollars and 13 cents.", "(\d+)") )
 #--> [ "42", "13" ]
 
+# For normal use, you can write this instead:
+
+rx("(\d+)") {
+	Match("The total was 42 dollars and 13 cents.")
+
+	? @@( Matches() )
+	#--> [ "42" ]
+
+	? @@( AllMatches() )
+	#--> [ "42", "13" ]
+
+}
+
 proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
-/*--- Processing Numbers in Text
+/*---
+*/
+pr()
 
+# In Softanza, you can process calculations on numbers inside
+# a string, and get that string updated with the new values!
+
+o1 = new stzString("The total is 42 dollars and 13 cents.")
+o1 {
+
+	MultiplyByN(2)
+	? Content()
+	#--> The total is 84 dollars and 26 cents.
+
+	DivideByN(2)
+	? Content()
+	#--> The total is 42 dollars and 13 cents.
+
+	AddN(8)
+	? Content()
+	#--> The total is 50 dollars and 21 cents.
+
+	RetrieveN(12)
+	? Content() + NL
+	#--> The total is 38 dollars and 9 cents.
+}
+
+# You can even make different claculation for each number.
+# For that, you just use the eXTended form like this:
+
+o1 = new stzString("The total is 42 dollars and 13 cents.")
+o1 {
+
+	MultiplyByNXT([2, 3]) # "42" multiplied by 2 and "13" by 3
+	? Content()
+	#--> The total is 84 dollars and 39 cents.
+
+	DivideByNXT([ 2, 3 ])
+	? Content()
+	#--> The total is 42 dollars and 13 cents.
+
+	AddNXT([ 8, 7 ])
+	? Content()
+	#--> The total is 50 dollars and 20 cents.
+
+	RetrieveNXT([40, 10])
+	? Content()
+	#--> The total is 10 dollars and 10 cents.
+
+}
+
+proff()
+
+/*--- Processing Numbers in Text
+*/
 pr()
 
 rxu() {
