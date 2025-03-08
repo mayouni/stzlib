@@ -53,7 +53,10 @@ func GreatestCommonDividor( n1, n2 )
 	#< @FunctionAlternativeForm
 
 	func CommonGreatestDividor(n1, n2)
-		return This.GreatestCommonDividor(n1, n2)
+		return GreatestCommonDividor(n1, n2)
+
+	func CommonDividor(n1, n2)
+		return GreatestCommonDividor(n1, n2)
 
 	#>
 

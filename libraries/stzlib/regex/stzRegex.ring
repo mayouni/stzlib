@@ -373,7 +373,7 @@ class stzRegex
 		def MacthString(pcStr)
 			return This.Match(pcStr)
 
-		#TODO // Add this misspellef form to all "Match" functions
+		#TODO // Add this misspelled form to all "Match" functions
 
 		#>
 
