@@ -1,4 +1,5 @@
 # Softanza ListEx: Bringing Pattern Matching to Lists
+![Softanza Listex, by Stable diffusing Image Creater AI](../images/stz-listex.png)
 
 Pattern matching has revolutionized data validation and manipulation across various programming paradigms. While traditional regex excels at string matching, structured data—especially deeply nested lists—requires a more expressive approach. Enter **List Regex (Lx)**, a Softanza-powered pattern-matching engine that brings regex-style matching to structured data.
 
@@ -111,17 +112,17 @@ Lx("[@N, [@N2], @N]").Match([1, [2], 4]) #--> FALSE (inner list must have exactl
 
 Softanza ListEx represents a true innovation in pattern matching by addressing a gap left by other languages. While some languages have **partial support** for structured pattern matching, none provide the **regex-like expressiveness tailored for list validation**. Here’s how ListEx compares:
 
-| Feature                  | Softanza ListEx (Ring) | Wolfram Language | C# | Rust | Haskell | Python |
-|--------------------------|----------------|------------------|----|------|---------|--------|
-| Dedicated List Patterns  | ✅         | ✅          | ◉ | ◉ | ◉ | ◉ |
-| Regex-Like Syntax        | ✅         | ✅          | ● | ● | ● | ● |
-| Quantifiers              | ✅         | ◉       | ◉ | ◉ | ◉ | ◉ |
-| Value Constraints        | ✅         | ✅          | ✅ | ✅ | ✅ | ✅ |
-| Uniqueness Constraints   | ✅         | ✅          | ● | ● | ● | ● |
-| Stepped Ranges           | ✅         | ✅          | ● | ● | ● | ● |
-| Nested Matching          | ✅         | ✅          | ✅ | ✅ | ✅ | ✅ |
+| Feature                 | stzListEx (Ring) | Wolfram | C# | Rust | Haskell | Python |
+|-------------------------|:----------------:|:-------:|:--:|:----:|:-------:|:------:|
+| Dedicated List Patterns | ✅                | ✅       | ◉  | ◉    | ◉       | ◉      |
+| Regex-Like Syntax       | ✅                | ✅       | ●  | ●    | ●       | ●      |
+| Quantifiers             | ✅                | ◉       | ◉  | ◉    | ◉       | ◉      |
+| Value Constraints       | ✅                | ✅       | ✅  | ✅    | ✅       | ✅      |
+| Uniqueness Constraints  | ✅                | ✅       | ●  | ●    | ●       | ●      |
+| Stepped Ranges          | ✅                | ✅       | ●  | ●    | ●       | ●      |
+| Nested Matching         | ✅                | ✅       | ✅  | ✅    | ✅       | ✅      |
 
-Legend: ✅ Yes		● No		◉ Parial / Limited
+Legend: ✅ Yes        ● No        ◉ Parial / Limited
 
 Softanza ListEx is positioned **at the forefront of structured pattern matching**, standing at the same level—or even surpassing—the most advanced systems in this area. While **Wolfram Language** has powerful symbolic pattern matching, it lacks the structured regex-like quantifiers of ListEx. **C# introduces pattern matching within switch expressions and tuples but lacks the expressiveness for list validation.** **Rust and Haskell** provide functional and structural pattern matching but lack stepped ranges and uniqueness constraints. **Python**, while widely used, does not offer native pattern matching for structured lists.
 
