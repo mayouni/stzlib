@@ -31,6 +31,9 @@ class stzListex
 	@cSetPattern = '^(\{(.*?)\})'
 	@cUniqueSetPattern = '^(\{(.*?)\})U'
 
+	@cSteppedRangePattern = '^(\{(\d+)-(\d+):(\d+)\})'
+	@cSteppedRangeUniquePattern = '^(\{(\d+)-(\d+):(\d+)\})U'
+
 	  #-------------------#
 	 #  INITIALIZATION   #
 	#-------------------#
@@ -206,52 +209,52 @@ class stzListex
 
 		bNegated = FALSE
 
-		if StartsWith(cTokenStr, "@!")
-			bNegated = true
-			cTokenStr = StzStringQ(cTokenStr).SectionRemoved(1, 2)  # Remove @! prefix
-		ok
+    		if StartsWith(cTokenStr, "@!")
+        		bNegated = true
+        		cTokenStr = StzStringQ(cTokenStr).SectionRemoved(1, 2)  # Remove @! prefix
+    		ok
 
-		# Handle nested list patterns
+    		# Handle nested list patterns
 
-		if StartsWith(cTokenStr, "[") and EndsWith(cTokenStr, "]")
-			return This.ParseNestedPattern(cTokenStr, bNegated)
-		ok
+    		if StartsWith(cTokenStr, "[") and EndsWith(cTokenStr, "]")
+        		return This.ParseNestedPattern(cTokenStr, bNegated)
+   		ok
 
-		# Alternation handling
+    		# Alternation handling
 
-		if @Contains(cTokenStr, "|")
-			return This.ParseAlternationToken(cTokenStr, bNegated)
-		ok
+    		if @Contains(cTokenStr, "|")
+        		return This.ParseAlternationToken(cTokenStr, bNegated)
+   		ok
 
-		# Ensure token starts with @ or add it
+    		# Ensure token starts with @ or add it
 
-		if NOT StartsWith(cTokenStr, "@")
-			cTokenStr = "@" + cTokenStr
-		ok
+    		if NOT StartsWith(cTokenStr, "@")
+        		cTokenStr = "@" + cTokenStr
+    		ok
     
-		# Extract keyword (first two characters)
+    		# Extract keyword (first two characters)
 
-		oTokenStr = new stzString(cTokenStr)
-		cKeyword = oTokenStr.Section(1, 2)
+    		oTokenStr = new stzString(cTokenStr)
+    		cKeyword = oTokenStr.Section(1, 2)
 
-		# Default values
+    		# Default values
 
-		nMin = 1
-		nMax = 1
-		nQuantifier = 1
-		aSetValues = []
-		bRequireUnique = false
+    		nMin = 1
+    		nMax = 1
+    		nQuantifier = 1
+    		aSetValues = []
+    		bRequireUnique = false
 
-		# Get remainder after keyword
+    		# Get remainder after keyword
 
-		cRemainder = ""
-		nLenToken = oTokenStr.NumberOfChars()
+    		cRemainder = ""
+    		nLenToken = oTokenStr.NumberOfChars()
 
-		if nLenToken > 2
-			cRemainder = oTokenStr.Section(3, nLenToken)
-		ok
+    		if nLenToken > 2
+        		cRemainder = oTokenStr.Section(3, nLenToken)
+    		ok
 
-		# Range and quantifier processing
+    		# Range and quantifier processing
 
 		if len(cRemainder) > 0
 
@@ -260,20 +263,22 @@ class stzListex
 			oRangeMatch = rx(@cRangePattern)
 
 			if oRangeMatch.Match(cRemainder)
+
 				aMatches = oRangeMatch.Matches()
-				nMin = number(aMatches[1])
-				nMax = number(aMatches[2])
-        
-				if nMin > nMax
-					stzraise("Error: Invalid range - min value greater than max: " + cTokenStr)
-				ok
-        
-				# Remove the processed range from remainder
+				nMin = @number(aMatches[1])
+				nMax = @number(aMatches[2])
+
+           			if nMin > nMax
+                			stzraise("Error: Invalid range - min value greater than max: " + cTokenStr)
+            			ok
+
+            			# Remove the processed range from remainder
 
 				nRangeLen = len(aMatches[1]) + 1 + len(aMatches[2])  # +1 for the "-"
 				cRemainder = right(cRemainder, len(cRemainder) - nRangeLen)
 
 			else
+
 				# Check for +, *, ? quantifiers
 
 				oQMatch = rx(@cQuantifierPattern)
@@ -284,6 +289,7 @@ class stzListex
 					cQuantifier = aMatches[1]
 
 					switch cQuantifier
+
 					on "+"
 						nMin = 1
 						nMax = 999999999  # Effectively unlimited
@@ -291,9 +297,11 @@ class stzListex
 					on "*"
 						nMin = 0
 						nMax = 999999999  # Effectively unlimited
+
 					on "?"
 						nMin = 0
 						nMax = 1
+
 					off
 
 					cRemainder = right(cRemainder, len(cRemainder) - 1)
@@ -306,59 +314,133 @@ class stzListex
 					if oNumberMatch.Match(cRemainder)
 
 						aMatches = oNumberMatch.Matches()
-						nQuantifier = number(aMatches[1])
+						nQuantifier = @number(aMatches[1])
 						nMin = nQuantifier
 						nMax = nQuantifier
-                
+                    
 						# Remove the processed quantifier from remainder
 
 						cRemainder = right(cRemainder, len(cRemainder) - len(aMatches[1]))
+
 					ok
 				ok
 			ok
 		ok
 
-		# Set constraints processing
+		# Set constraints processing including stepped ranges
 
 		if len(cRemainder) > 0
 
-			# Check for {values}U format (set with uniqueness constraint)
+			# Check for {start-end:step}U format (stepped range with uniqueness)
 
-			oUniqueSetMatch = rx(@cUniqueSetPattern)
+			oSteppedRangeUniqueMatch = rx(@cSteppedRangeUniquePattern)
 
-			if oUniqueSetMatch.Match(cRemainder)
+			if oSteppedRangeUniqueMatch.Match(cRemainder)
 
-				aMatches = oUniqueSetMatch.Matches()
-				cSetContent = aMatches[2]
+				aMatches = oSteppedRangeUniqueMatch.Matches()
+				nStart = @number(aMatches[2])
+				nEnd = @number(aMatches[3])
+				nStep = @number(aMatches[4])
+            
+				if nStart > nEnd
+					stzraise("Error: Invalid stepped range - start value greater than end: " + cTokenStr)
+				ok
+            
+            			if nStep <= 0
+					stzraise("Error: Invalid step value - must be positive: " + cTokenStr)
+				ok
+            
+				# Generate values based on the stepped range
 
-				# Parse the set values with uniqueness enforcement
+				aSetValues = []
 
-				aSetValues = This.ParseSetValues(cSetContent, "any", true)
-				bRequireUnique = TRUE
-
+				for i = nStart to nEnd step nStep
+					aSetValues + i
+				next
+            
 				# Remove the processed part from remainder
 
-				nSetLen = len(aMatches[1]) + 1 # +1 for the U
+				nSetLen = len(aMatches[1]) + 1  # +1 for the U
 				cRemainder = right(cRemainder, len(cRemainder) - nSetLen)
+            
+				bRequireUnique = true  # Uniqueness is required
 
 			else
-				# Check for {values} format (regular set)
+				# Check for {start-end:step} format (regular stepped range)
 
-				oSetMatch = rx(@cSetPattern)
+				oSteppedRangeMatch = rx(@cSteppedRangePattern)
 
-				if oSetMatch.Match(cRemainder)
+				if oSteppedRangeMatch.Match(cRemainder)
 
-					aMatches = oSetMatch.Matches()
-					cSetContent = aMatches[2]
+					aMatches = oSteppedRangeMatch.Matches()
+					nStart = @number(aMatches[2])
+					nEnd = @number(aMatches[3])
+					nStep = @number(aMatches[4])
+                
+					if nStart > nEnd
+						stzraise("Error: Invalid stepped range - start value greater than end: " + cTokenStr)
+					ok
+                
+					if nStep <= 0
+						stzraise("Error: Invalid step value - must be positive: " + cTokenStr)
+					ok
+                
+					# Generate values based on the stepped range
 
-					# Parse the set values
+					aSetValues = []
 
-					aSetValues = This.ParseSetValues(cSetContent, "any", false)
-
+					for i = nStart to nEnd step nStep
+						aSetValues + i
+					next
+                
 					# Remove the processed part from remainder
 
 					nSetLen = len(aMatches[1])
 					cRemainder = right(cRemainder, len(cRemainder) - nSetLen)
+                
+					bRequireUnique = false  # By default, stepped ranges don't require uniqueness
+
+				else
+
+					# Check for {values}U format (set with uniqueness constraint)
+
+					oUniqueSetMatch = rx(@cUniqueSetPattern)
+
+					if oUniqueSetMatch.Match(cRemainder)
+
+						aMatches = oUniqueSetMatch.Matches()
+						cSetContent = aMatches[2]
+                    
+						# Parse the set values with uniqueness enforcement
+
+						aSetValues = This.ParseSetValues(cSetContent, "any", true)
+						bRequireUnique = TRUE
+                    
+						# Remove the processed part from remainder
+
+						nSetLen = len(aMatches[1]) + 1 # +1 for the U
+						cRemainder = right(cRemainder, len(cRemainder) - nSetLen)
+
+					else
+						# Check for {values} format (regular set)
+
+						oSetMatch = rx(@cSetPattern)
+
+						if oSetMatch.Match(cRemainder)
+							aMatches = oSetMatch.Matches()
+							cSetContent = aMatches[2]
+
+							# Parse the set values
+
+							aSetValues = This.ParseSetValues(cSetContent, "any", false)
+
+							# Remove the processed part from remainder
+
+							nSetLen = len(aMatches[1])
+							cRemainder = right(cRemainder, len(cRemainder) - nSetLen)
+
+						ok
+					ok
 				ok
 			ok
 		ok
@@ -391,7 +473,7 @@ class stzListex
 			aToken = [
 				[ "keyword", "@L" ],
 				[ "type", "list" ],
-				[ "pattern", @cListPattern ]
+            			[ "pattern", @cListPattern ]
 			]
 
 		on "@$"
@@ -415,6 +497,7 @@ class stzListex
 			aToken + [ "hasset", true ]
 			aToken + [ "setvalues", aSetValues ]
 			aToken + [ "requireunique", bRequireUnique ]
+
 		else
 			aToken + [ "hasset", false ]
 			aToken + [ "setvalues", [] ]
@@ -653,10 +736,16 @@ class stzListex
 		nLenTokens = len(aTokens)
 		nLenElements = len(aElements)
 
+		# Add debug output if needed
+
+		if @bDebugMode
+			? "Matching token " + nTokenIndex + " against element " + nElementIndex
+			? "Token: " + @tokens[nTokenIndex][:keyword] + ", Element count: " + (nLenElements - nElementIndex + 1)
+		ok
+
 		# Base case: If we've processed all tokens
 
 		if nTokenIndex > nLenTokens
-
 			# Ensure ALL elements have been exactly matched
 			return nElementIndex > nLenElements
 		ok
@@ -701,7 +790,6 @@ class stzListex
 				if This.BacktrackMatch(aNewTokens, aElements, nTokenIndex, nElementIndex, aLocalUsedValues)
 					return true
 				ok
-
 			next
 
 			return false
@@ -724,10 +812,9 @@ class stzListex
 				# Attempt to match exactly nMatchCount nested lists
 
 				for i = 1 to nMatchCount
-
 					if nElemIdx > nLenElements
 						bSuccess = false
- 						exit
+						exit
 					ok
 
 					xElement = aElements[nElemIdx]
@@ -745,11 +832,10 @@ class stzListex
 						bSuccess = false  # If negated and is a list, this fails
 						exit
 					ok
-                
+            
 					# Recursively match the nested tokens against the nested list
 
 					if NOT This.MatchTokensToElements(aToken[:nestedTokens], xElement)
-
 						bSuccess = false
 						exit
 					ok
@@ -759,32 +845,27 @@ class stzListex
 
 				if bSuccess
 					# For final token, ensure complete matching
-
 					if nTokenIndex = nLenTokens
-
 						if nElemIdx = nLenElements + 1
 							return true
 						ok
-
 					else
 						# For non-final tokens, recursively match the rest
-
 						if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElemIdx, aLocalUsedValuesCopy)
 							return TRUE
 						ok
 					ok
 				ok
 			next
-        
+    
 			# Handle optional nested tokens
 
 			if aToken[:min] = 0
-
 				if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElementIndex, aLocalUsedValues)
 					return TRUE
 				ok
 			ok
-        
+    
 			return FALSE
 		ok
 
@@ -802,90 +883,113 @@ class stzListex
 			# Attempt to match exactly nMatchCount elements
 
 			for i = 1 to nMatchCount
-
 				if nElemIdx > nLenElements
 					bSuccess = false
 					exit
 				ok
 
 				xElement = aElements[nElemIdx]
-				bMatched = false
             
 				# Convert element to string for pattern matching if needed
 
 				cElement = @@(xElement)
 
-				# Pattern and type matching
+				# Handle negated tokens with stepped ranges
+				# We need to separate type checking from set membership checking
+            
+				# 1. First perform basic type checking
+
+				bTypeMatched = false
 
 				if aToken[:type] = "list"
-					bMatched = rx(@cRecursiveListPattern).MatchRecursive(cElement)
-
+					bTypeMatched = rx(@cRecursiveListPattern).MatchRecursive(cElement)
 				else
-					bMatched = rx("^" + aToken[:pattern] + "$").Match(cElement)
+					bTypeMatched = rx("^" + aToken[:pattern] + "$").Match(cElement)
 				ok
-        
-				# Apply negation if specified
+            
+				# For negated tokens without sets, we're done with type checking
 
-				if aToken[:negated]
-					bMatched = NOT bMatched
+				if aToken[:negated] and NOT aToken[:hasset]
+					bMatched = NOT bTypeMatched
+				else
+					# For normal tokens or negated tokens with sets, we continue
+					bMatched = bTypeMatched
 				ok
-        
-				if bMatched
-					# Set constraint checking
+            
+				# Debug output
 
-					if aToken[:hasset]
-						xElemValue = This.ConvertToType(cElement, aToken[:type])
-						bInSet = false
+				if @bDebugMode
+					? "Element: " + cElement + ", Type matched: " + bTypeMatched + ", Overall matched: " + bMatched
+				ok
+            
+				# If type check passes, now handle set constraints
 
-						for j = 1 to len(aToken[:setvalues])
-							xSetValue = aToken[:setvalues][j]
+				if bMatched and aToken[:hasset]
 
-							# Direct comparison for set membership
-							if This.CompareValues(xElemValue, xSetValue, aToken[:type])
-								bInSet = true
+					xElemValue = This.ConvertToType(cElement, aToken[:type])
+					bInSet = false
+                
+					# Check if the element is in the set
+
+					for j = 1 to len(aToken[:setvalues])
+						xSetValue = aToken[:setvalues][j]
+                    
+						# Direct comparison for set membership
+
+						if This.CompareValues(xElemValue, xSetValue, aToken[:type])
+							bInSet = true
+							exit
+						ok
+					next
+                
+					# Debug output
+
+					if @bDebugMode
+						? "Element: " + cElement + ", In set: " + bInSet + ", Negated: " + aToken[:negated]
+					ok
+                
+					# Apply set membership logic
+
+					if aToken[:negated]
+						# For negated tokens, we want to match elements NOT in the set
+						bMatched = NOT bInSet
+					else
+						# For normal tokens, we want to match elements IN the set
+						bMatched = bInSet
+					ok
+                
+					# Handle uniqueness constraint
+
+					if bMatched and aToken[:requireunique]
+
+						# Check if the element has been used before
+
+						for j = 1 to len(aLocalUsedValuesCopy)
+
+							if This.CompareValues(xElemValue, aLocalUsedValuesCopy[j], aToken[:type])
+								bMatched = false
 								exit
 							ok
 						next
+                    
+						# If still matched, add to used values list
 
-						# Modify set check for negation
-
-						if aToken[:negated]
-							bInSet = NOT bInSet
-						ok
-	
-						if NOT bInSet
-							bSuccess = false
-							exit
-						ok
-	                
-						# Unique constraint for non-negated tokens
-	
-						if aToken[:requireunique] and NOT aToken[:negated]
-		
-							for j = 1 to len(aLocalUsedValuesCopy)
-		
-								if This.CompareValues(xElemValue, aLocalUsedValuesCopy[j], aToken[:type])
-									bSuccess = false
-									exit
-								ok
-							next
-		
-							if bSuccess
-								aLocalUsedValuesCopy + xElemValue
-							else
-								exit
-							ok
+						if bMatched
+							aLocalUsedValuesCopy + xElemValue
 						ok
 					ok
+				ok
+            
+				# Final match decision
 
+				if bMatched
 					aMatchedElements + xElement
 					nElemIdx++
-
 				else
-					bSuccess = FALSE
+					bSuccess = false
 					exit
 				ok
-        		next
+			next
 
 			if bSuccess
 				# Ensure COMPLETE matching when processing the last token
@@ -894,13 +998,12 @@ class stzListex
 					if nElemIdx = nLenElements + 1
 						return TRUE
 					ok
-
 				else
 					# For non-final tokens, recursively match the rest
 
 					if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElemIdx, aLocalUsedValuesCopy)
 						return TRUE
-                			ok
+					ok
 				ok
 			ok
 		next
@@ -908,11 +1011,9 @@ class stzListex
 		# Handle optional tokens
 
 		if aToken[:min] = 0
-
 			if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElementIndex, aLocalUsedValues)
 				return TRUE
 			ok
-
 		ok
 
 		return false

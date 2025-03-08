@@ -1,5 +1,184 @@
 load "../max/stzmax.ring"
 
+/*---
+
+pr()
+
+Lx('[ @N*{3;5;8} ]') {
+	? Match([])	#--> TRUE
+	? Macth([ 5 ])	#--> TRUE
+	? Match([3, 8])	#--> TRUE
+}
+
+proff()
+# Executed in 0.05 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+Lx("[ @N{1-10:2} ]") {
+	? Match([3]) #--> TRUE
+	? Match([4]) #--> FALSE
+}
+
+proff()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+Lx("[ @N3{1-10:2} ]") {
+	? Match([ 3, 7, 9 ]) #--> TRUE
+}
+
+proff()
+# Executed in 0.05 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+Lx("[ @N1-2{1-10:2} ]") {
+	? Match([3])
+	#--> TRUE
+
+	? Match([ 5, 7 ])
+	#--> TRUE
+}
+
+proff()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+Lx("[ @N2{1-5:2} ]") {
+	? Match([ 3, 3 ])
+	#--> TRUE
+
+	? Match([ 3, 5 ])
+	#--> TRUE
+}
+
+proff()
+# Executed in 0.05 second(s) in Ring 1.22
+
+/*--- ERR
+
+pr()
+
+Lx("[ @N*{1-5:2}U ]") {
+	? Match([ 3, 3 ]) #--> FALSE
+	? Match([ 3, 5 ]) #--> TRUE
+}
+
+proff()
+
+/*---
+
+pr()
+
+Lx("[ @N?{1-5:2} ]") {
+	? Match([])
+	#--> TRUE
+
+	? Match([ 3 ])
+	#--> TRUE
+}
+
+proff()
+
+/*---
+
+pr()
+
+Lx("[ @N1-2{1-5:2} ]") {
+	? Match([ 3 ])
+	#--> TRUE
+	? Match([ 3, 5 ])
+	#--> TRUE
+}
+
+proff()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+# Match odd numbers between 1 and 10
+Lx("[ @N{1-10:2} ]") {
+	? Match([ 1 ])  #--> TRUE
+	? Match([ 3 ])  #--> TRUE
+	? Match([ 4 ])  #--> FALSE (not part of the defined sequence)
+}
+
+proff()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+# Basic stepped range
+Lx("[ @N1-10:2 ]") {
+	? Match([5])  #--> TRUE
+	? Match([8])  #--> FALSE
+}
+
+proff()
+
+/*---
+
+pr()
+
+# Matches a list containing a number the range 1-10 with step 3
+
+Lx = Lx("[ @N1-10:3 ]")
+? Lx.Match([ 4 ])    #--> TRUE
+? Lx.Match([4])      #--> TRUE
+
+proff()
+
+/*---
+
+pr()
+
+# With negation
+lx = Lx("[ @!N1-10:2 ]")
+? lx.Match([2]) # expected True 
+? lx.Match([3])        # False
+
+proff()
+
+/*---
+
+# With alternation
+listex = Lx("[ @N1-10:2 | @S ]")
+? listex.Match([5])  # expected True but returned false
+? listex.Match([8])
+? listex.Match(["hello"])     # expected True ("hello" is a string, 2 is not in the sequence) but returned false
+
+/*---
+
+# Nested with stepped range
+listex = Lx("[@N1-10:3, @S]")
+? listex.Match([[1, "test"]])    # True
+? listex.Match([[2, "test"]])    # False (2 is not in the sequence)
+
+/*---
+
+# In a complex pattern
+listex = Lx("@S+, @N1-20:5, [@N1-10:2, @S?]")
+? listex.Match(["a", "b", 10, [3]])        # True
+? listex.Match(["a", "b", "c", 15, [7]])   # True
+? listex.Match(["a", 15, [6]])             # False (6 is not in step sequence)
+
+proff()
+
 #=======================================================#
 #   LISTEX -  SOFTANZA LIST REGEX ENGINE - TEST SUITE   #
 #=======================================================#
@@ -345,6 +524,108 @@ TestPattern("[@N, [@N+], @N]", [
 	[1, [10, 20, 30], 5], "TRUE",  # (one or more numbers in nested list)
 	[1, [10], 5], "TRUE"  # (at least one number in nested list)
 ])
+
+/*---
+*/
+? ""
+? "#---------------------------------------#"
+? "#  TEST GROUP 9: STEPPED RANGE PATTERN  #"
+? "#---------------------------------------#"
+
+# Basic stepped range tests
+TestPattern("[@N{1-10:3}]", [
+    [1], "TRUE",
+    [4], "TRUE",
+    [7], "TRUE",
+    [10], "TRUE",
+    [2], "FALSE",
+    [3], "FALSE",
+    [8], "FALSE",
+    [11], "FALSE",
+    ["text"], "FALSE"
+])
+
+# Stepped range with uniqueness constraint
+TestPattern("[@N+{5-20:5}U]", [
+    [5, 10, 15, 20], "TRUE",
+    [5, 10, 15], "TRUE",
+    [5, 10, 10, 15], "FALSE",
+    [5, 5], "FALSE",
+    [5, 25], "FALSE"
+])
+
+# Multiple instances with different steps
+TestPattern("[@N{1-5:1}, @N{10-20:5}]", [
+    [3, 15], "TRUE",
+    [5, 10], "TRUE",
+    [1, 20], "TRUE",
+    [6, 15], "FALSE",
+    [3, 12], "FALSE"
+])
+
+# Combining with other quantifiers
+TestPattern("[@N*{2-10:2}]", [
+    [2, 4, 6, 8, 10], "TRUE",
+    [2, 6, 10], "TRUE",
+    [4, 8], "TRUE",
+    [2], "TRUE",
+    [], "TRUE",
+    [1, 3], "FALSE",
+    [2, 3], "FALSE"
+])
+
+# Combining with alternation
+TestPattern("[@N{1-9:2}|@S]", [
+    [1], "TRUE",
+    [3], "TRUE",
+    [9], "TRUE",
+    ["hello"], "TRUE",
+    [2], "FALSE",
+    [10], "FALSE"
+])
+
+# Complex pattern with stepped ranges
+TestPattern("[@N+{1-10:3}, @S, @N?{50-100:25}]", [
+    [1, 4, "text"], "TRUE",
+    [7, 10, 1, "hello"], "TRUE",
+    [7, "word", 75], "TRUE",
+    [7, "word"], "TRUE",
+    [2, "text"], "FALSE",
+    [7, 11, "word"], "FALSE",
+    ["word", 7], "FALSE"
+])
+
+# Nested patterns with stepped ranges
+TestPattern("[[@N+{1-10:3}]]", [
+    [[1, 4, 7]], "TRUE",
+    [[10]], "TRUE",
+    [[1, 4, 5]], "FALSE",
+    [[2, 5, 8]], "FALSE",
+    [1, 4, 7], "FALSE"
+])
+
+# Negated stepped range
+# Matches any non-number or any number that is
+# NOT in the set [2,5,8,11].
+
+TestPattern("[@!N{2-12:3}]", [
+    [2], "FALSE",
+    [5], "FALSE",
+    [8], "FALSE",
+
+    [3], "TRUE",
+    [6], "TRUE",
+    [9], "TRUE"
+])
+
+#NOTES:
+# - The negation is first applied only to the type check (e.g., "is this a number?")
+# - Then, if the type check passes, we handle set membership separately
+
+# - For negated tokens, uniqueness tracking is less relevant since we're matching what's NOT in the set
+# - Uniqueness constraints are now only applied to non-negated tokens where appropriate
+
+
 
 proff()
 
