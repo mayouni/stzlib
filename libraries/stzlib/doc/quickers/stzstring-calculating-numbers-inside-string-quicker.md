@@ -2,7 +2,7 @@
 
 In Softanza, you can perform calculations directly on numbers within a string,  and the string updates dynamically with the new values!
 
-## Basic calculation
+## Basic calculations
 
 ```ring
 o1 = new stzString("The total is 42 dollars and 13 cents.")

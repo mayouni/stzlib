@@ -296,7 +296,9 @@ class stzRegex
 
 		#>
 
-	#-- Match Information Methods
+	  #--------------------#
+	 #  Matching Methods  #
+	#--------------------#
 
 	def HasMatch()
 		if @oQMatchObject = NULL
@@ -425,7 +427,8 @@ class stzRegex
 
 	#-- Getting all the matching values in a given string
 
-	def AllMatches()
+	def Matches()
+
 		_acResults_ = []  # List to store all matching values
 		_nPos_ = 1  # Start searching from position 1
 	
@@ -442,9 +445,28 @@ class stzRegex
 		end
 	
 		return _acResults_
-	
+
+		#< @FunctionAlternativeForms
+
 		def AllMatchingValues()
-			return This.AllMatches()
+			return This.Matches()
+
+		def MatchingValues()
+			return This.Matches()
+
+		def MatchingSubStrings()
+			return This.Matches()
+
+		def AllMatches()
+			return This.Matches()
+
+		def MatchedValues()
+			return This.Matches()
+
+		def MatchedSubStrings()
+			return This.Matches()
+
+		#>
 
 	def NumberOfMatches()
 		return len(AllMatches())
@@ -464,9 +486,198 @@ class stzRegex
 		def CountMatchingValues()
 			return This.NumberOfMatches()
 
+	def FindMatches()
+		_anResults_ = []
+		_nPos_ = 1
+	
+		while This.MatchAt(@cStr, _nPos_)  # Search for a match at the current position
+			_oQMatch_ = This.QMatchObject()
+			
+			if _cMatch_ != ""
+				_nPos_ = _oQMatch_.capturedEnd(0) + 1  # Move past the last match
+				_anResults_ + _nPos_
+			else
+				break  # Stop if no match is found
+			ok
+		end
+	
+		return _anResults_
 
+		#< @FunctionAlternativeForms
 
-	#-- Capture-related methods
+		def FindValues()
+			return This.FindMatches()
+
+		def FindMatchingValues()
+			return This.FindMatches()
+
+		def FindMatchingSubStrings()
+			return This.FindMatches()
+
+		#--
+
+		def FindValuesZ()
+			return This.FindMatches()
+
+		def FindMatchesZ()
+			return This.FindMatches()
+
+		def FindMatchingValuesZ()
+			return This.FindMatches()
+
+		def FindMatchingSubStringsZ()
+			return This.FindMatches()
+
+		#>
+
+	def MatchesZ()
+
+		_aResults_ = []
+		_nPos_ = 1
+	
+		while This.MatchAt(@cStr, _nPos_)
+			_oQMatch_ = This.QMatchObject()
+			_cMatch_ = _oQMatch_.captured(0)
+			
+			if _cMatch_ != ""
+				
+				_nPos_ = _oQMatch_.capturedEnd(0) + 1
+				_aResults_ + [ _cMatch_, _nPos ]
+			else
+				break
+			ok
+		end
+	
+		return _aResults_
+
+		#< @FunctionAlternativeForms
+
+		def ValuesAndTheirPositions()
+			return This.MatchesZ()
+
+		def MatchesAndTheirPositions()
+			return This.MatchesZ()
+
+		def MatchingValuesAndTheirPositions()
+			return This.MatchesZ()
+
+		def MatchingSubStringsAndTheirPositions()
+			return This.MatchesZ()
+
+		#--
+
+		def ValuesZ()
+			return This.MatchesZ()
+
+		def MatchingValuesZ()
+			return This.MatchesZ()
+
+		def MatchingSubStringsZ()
+			return This.MatchesZ()
+
+		#>
+
+	def FindMatchesZZ()
+
+		_aResults_ = []
+		_nPos_ = 1
+	
+		while This.MatchAt(@cStr, _nPos_)
+
+			_oQMatch_ = This.QMatchObject()
+			_cMatch_ = _oQMatch_.captured(0)
+			_nLenMatch_ = StzStringQ(_cMatch_).NumberOfChars()
+
+			if _cMatch_ != ""
+				
+				_nPos_ = _oQMatch_.capturedEnd(0) + 1
+				_aResults_ + [ _nPos, _nPos_ + _nLenMatch_ - 1 ]
+			else
+				break
+			ok
+		end
+	
+		return _aResults_
+
+		#< @FunctionAlternativeForms
+
+		def FindValuesAsSections()
+			return This.FindMatchesZZ()
+
+		def FindMatchesAsSections()
+			return This.FindMatchesZZ()
+
+		def FindMatchingValuesAsSection()
+			return This.FindMatchesZZ()
+
+		def FindMatchingSubStringsAsSections()
+			return This.FindMatchesZZ()
+
+		#--
+
+		def FindValuesZZ()
+			return This.FindMatchesZZ()
+
+		def FindMatchingValuesZZ()
+			return This.FindMatchesZZ()
+
+		def FindMatchingSubStringsZZ()
+			return This.FindMatchesZZ()
+
+		#>
+
+	def MatchesZZ()
+
+		_aResults_ = []
+		_nPos_ = 1
+	
+		while This.MatchAt(@cStr, _nPos_)
+
+			_oQMatch_ = This.QMatchObject()
+			_cMatch_ = _oQMatch_.captured(0)
+			_nLenMatch_ = StzStringQ(_cMatch_).NumberOfChars()
+
+			if _cMatch_ != ""
+				
+				_nPos_ = _oQMatch_.capturedEnd(0) + 1
+				_aResults_ + [ _cMatch_, [ _nPos, _nPos_ + _nLenMatch_ - 1 ] ]
+			else
+				break
+			ok
+		end
+	
+		return _aResults_
+
+		#< @FunctionAlternativeForms
+
+		def ValuesAsSections()
+			return This.MatchesZZ()
+
+		def MatchesAsSections()
+			return This.MatchesZZ()
+
+		def MatchingValuesAsSection()
+			return This.MatchesZZ()
+
+		def MatchingSubStringsAsSections()
+			return This.MatchesZZ()
+
+		#--
+
+		def ValuesZZ()
+			return This.MatchesZZ()
+
+		def MatchingValuesZZ()
+			return This.MatchesZZ()
+
+		def MatchingSubStringsZZ()
+			return This.MatchesZZ()
+
+		#>
+
+	  #--------------------------------#
+	 #  Group Capture-related methods #
+	#--------------------------------#
 
 	def HasGroups()
 		return This.CaptureCount() > 0
@@ -474,7 +685,7 @@ class stzRegex
 	def HasNames()
 		return len(This.CaptureNames()) > 0
 
-	def Capture()
+	def CaptureGroups()
 
 		if NOT This.HasGroups()
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
@@ -497,39 +708,22 @@ class stzRegex
 
 		#< @FunctionAlternativeForms
 
+		def Capture()
+			return This.CaptureGroups()
+
 		def CaptureValues()
-			return This.Capture()
+			return This.CaptureGroups()
 
 		def CapturedValues()
-			return This.Capture()
-
-		def Values()
-			return This.Capture()
+			return This.CaptureGroups()
 
 		#--
 
 		def CaptureSubStrings()
-			return This.Capture()
+			return This.CaptureGroups()
 
 		def CaptureMatchingSubStrings()
-			return This.Capture()
-
-		#==
-
-		def MatchingValues()
-			return This.Capture()
-
-		def MatchingSubStrings()
-			return This.Capture()
-
-		def Matches()
-			return This.Capture()
-
-		def MatchedValues()
-			return This.Capture()
-
-		def MatchedSubStrings()
-			return This.Capture()
+			return This.CaptureGroups()
 
 		#>
 
@@ -541,15 +735,6 @@ class stzRegex
 
 		def HasMatchedValues()
 			return This.HasValues()
-
-	def CaptureXT()
-		if NOT This.HasGroups()
-			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
-		ok
-		return This.CapturedGroups()
-
-		def ValuesXT()
-			return This.CaptureXT()
 
 	def CaptureNames()
 		_oQRegex_ = This.QRegexObject()
@@ -567,6 +752,9 @@ class stzRegex
 		return _acResult_
 
 		def Names()
+			return This.CaptureNames()
+
+		def CaptureGroupNames()
 			return This.CaptureNames()
 
 	def CapturedGroups()
@@ -611,9 +799,6 @@ class stzRegex
 		def FindCapturedValues()
 			return This.FindCapture()
 
-		def FindValues()
-			return This.FindCapture()
-
 		#--
 
 		def FindCaptureSubStrings()
@@ -622,26 +807,12 @@ class stzRegex
 		def FindCaptureMatchingSubStrings()
 			return This.FindCapture()
 
-		#==
-
-		def FindMatchingValues()
-			return This.FindCapture()
-
-		def FindMatchingSubStrings()
-			return This.FindCapture()
-
-		def FindMatches()
-			return This.FindCapture()
-
-		def FindMatch()
-			return This.FindCapture()
-
 		def FindCaptures()
 			return This.FindCapture()
 
 		#>
 
-	def CaptureZ()
+	def CaptureGroupsZ()
 
 		if NOT This.HasGroups()
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
@@ -677,14 +848,14 @@ class stzRegex
 
 		#< @FunctionAlternativeForms
 
+		def CaptureZ()
+			return This.CaptureGroupsZ()
+
 		def CaptureValuesZ()
-			return This.CaptureZ()
+			return This.CaptureGroupsZ()
 
 		def CapturedValuesZ()
-			return This.CaptureZ()
-
-		def ValuesZ()
-			return This.CaptureZ()
+			return This.CaptureGroupsZ()
 
 		#--
 
@@ -692,17 +863,6 @@ class stzRegex
 			return This.CaptureZ()
 
 		def CaptureMatchingSubStringsZ()
-			return This.CaptureZ()
-
-		#==
-
-		def MatchingValuesZ()
-			return This.CaptureZ()
-
-		def MatchingSubStringsZ()
-			return This.CaptureZ()
-
-		def MatchesZ()
 			return This.CaptureZ()
 
 		#>
@@ -727,9 +887,6 @@ class stzRegex
 		def FindCapturedValuesZZ()
 			return This.FindCaptureZZ()
 
-		def FindValuesZZ()
-			return This.FindCaptureZZ()
-
 		#--
 
 		def FindCaptureSubStringsZZ()
@@ -738,26 +895,12 @@ class stzRegex
 		def FindCaptureMatchingSubStringsZZ()
 			return This.FindCaptureZZ()
 
-		#==
-
-		def FindMatchingValuesZZ()
-			return This.FindCaptureZZ()
-
-		def FindMatchingSubStringsZZ()
-			return This.FindCaptureZZ()
-
-		def FindMatchesZZ()
-			return This.FindCaptureZZ()
-
-		def FindMatchZZ()
-			return This.FindCaptureZZ()
-
 		def FindCapturesZZ()
 			return This.FindCaptureZZ()
 
 		#>
 
-	def CaptureZZ()
+	def CaptureGroupsZZ()
 
 		if NOT This.HasGroups()
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
@@ -783,39 +926,30 @@ class stzRegex
 
 		#< @FunctionAlternativeForms
 
+		def CaptureZZ()
+			return This.CaptureGroupsZZ()
+
 		def CaptureValuesZZ()
-			return This.CaptureZZ()
+			return This.CaptureGroupsZZ()
 
 		def CapturedValuesZZ()
-			return This.CaptureZZ()
-
-		def ValuesZZ()
-			return This.CaptureZZ()
+			return This.CaptureGroupsZZ()
 
 		#--
 
 		def CaptureSubStringsZZ()
-			return This.CaptureZZ()
+			return This.CaptureGroupsZZ()
 
 		def CaptureMatchingSubStringsZZ()
-			return This.CaptureZZ()
-
-		#==
-
-		def MatchingValuesZZ()
-			return This.CaptureZZ()
-
-		def MatchingSubStringsZZ()
-			return This.CaptureZZ()
-
-		def MatchesZZ()
-			return This.CaptureZZ()
+			return This.CaptureGroupsZZ()
 
 		#>
 
-	#-- Pattern information and validation
+	  #--------------------------------------#
+	 #  Pattern information and validation  #
+	#--------------------------------------#
 
-	def CaptureCount()
+ 	def CaptureCount()
 		return This.QRegexObject().captureCount()
 
 	def IsValid()
@@ -827,7 +961,9 @@ class stzRegex
 	def PatternErrorOffset()
 		return This.QRegexObject().patternErrorOffset()
 
-	#-- Partial Mutch
+	  #-----------------#
+	 #  Partial Mutch  #
+	#-----------------#
 
 	def IsPartialMatch(pcStr)
 		# Returns TRUE if the string partially matches the pattern, meaning it could
@@ -951,7 +1087,9 @@ class stzRegex
 		aResult = [ This.PartialMacth(pcStr), This.FindPartialMatch(pcStr) ]
 		return aResult
 
-	#-- Recursive (Nested) Match
+	  #----------------------------#
+	 #  Recursive (Nested) Match  #
+	#----------------------------#
 
 	def MatchRecursive(pcStr)
 		bResult = This.MatchXT(pcStr, 1, :MatchEntireContent, [ :RecursiveMatch ])
@@ -1281,7 +1419,9 @@ class stzRegex
 
 		#>
 
-	#-- Explanation methods
+	  #-----------------------#
+	 #  Explanation methods  #
+	#-----------------------#
 
 	def Explain()
 		_cResult_ = ""
