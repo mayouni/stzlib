@@ -2,7 +2,7 @@
 load "../max/stzmax.ring"
 
 /*--- #TODO: solve confusion between Matches() and AllMatches()
-
+*/
 pr()
 
 # A function used internally to simply the stzRegexuter class
@@ -28,6 +28,7 @@ proff()
 
 /*---
 */
+
 pr()
 
 # In Softanza, you can process calculations on numbers inside
@@ -78,6 +79,7 @@ o1 {
 }
 
 proff()
+# Executed in 0.12 second(s) in Ring 1.22
 
 /*--- Processing Numbers in Text
 */
