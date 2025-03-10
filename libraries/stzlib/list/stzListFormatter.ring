@@ -326,387 +326,217 @@ func SmartComputableForm(pValue)
     ok
 
 func ComputableFormXT(pValue, cSep1, cSep2)
-	if isNumber(pValue)
-		return ""+ pValue
+    if isNumber(pValue)
+        return "" + pValue
+    but isString(pValue)
+        oQStr = new QString2()
+        oQStr.append(pValue)
+        if oQStr.size() = 1
+            if pValue = '"'
+                cBound = "'"
+                cResult = cBound + pValue + cBound
+            else
+                cBound = '"'
+                cResult = cBound + pValue + cBound
+            ok
+            return cResult
+        else
+            cChar = '"'
+            oQStr = new QString2()
+            oQStr.append(pValue)
+            c1 = oQStr.mid(0, 1)
+            c2 = oQStr.mid(oQStr.size()-1, 1)
+            if c1 = '"' or c2 = '"'
+                cChar = "'"
+            ok
+            n1 = oQStr.indexof('"', 1, 0) + 1
+            n2 = oQStr.indexof("'", 1, 0) + 1
+            if n1 = 0 and n2 = 0
+                cChar = '"'
+            but n1 = 0
+                cChar = '"'
+            but n2 = 0
+                cChar = "'"
+            but n1 < n2
+                cChar = "'"
+            else
+                cChar = '"'
+            ok
+            cResult = cChar + pValue + cChar
+            return cResult
+        ok
+    but isList(pValue)
+        aContent = pValue
+        nLen = len(aContent)
+        if nLen = 0
+            return "[ ]"
+        ok
+        cResult = "[" + cSep1
+        
+        for i = 1 to nLen
+            if isNumber(aContent[i])
+                # Add number with appropriate separators
+                cResult += cSep2 + "" + aContent[i]
+            but isString(aContent[i])
+                # Handle strings
+                oQStr = new QString2()
+                oQStr.append(aContent[i])
+                if oQStr.size() = 1
+                    if aContent[i] = '"'
+                        cBound = "'"
+                        cResult += (cSep2 + cBound + aContent[i] + cBound)
+                    else
+                        cBound = '"'
+                        cResult += (cSep2 + cBound + aContent[i] + cBound)
+                    ok
+                else
+                    cChar = '"'
+                    oQStr = new QString2()
+                    oQStr.append(aContent[i])
+                    c1 = oQStr.mid(0, 1)
+                    c2 = oQStr.mid(oQStr.size()-1, 1)
+                    if c1 = '"' or c2 = '"'
+                        cChar = "'"
+                    ok
+                    n1 = oQStr.indexof('"', 1, 0) + 1
+                    n2 = oQStr.indexof("'", 1, 0) + 1
+                    if n1 = 0 and n2 = 0
+                        cChar = '"'
+                    but n1 = 0
+                        cChar = '"'
+                    but n2 = 0
+                        cChar = "'"
+                    but n1 < n2
+                        cChar = "'"
+                    else
+                        cChar = '"'
+                    ok
+                    cResult += (cSep2 + cChar + aContent[i] + cChar)
+                ok
 
-	but isString(pValue)
-		oQStr = new QString2()
-		oQStr.append(pValue)
+            but isList(aContent[i])
+                # Handle nested lists with precise indentation control
+                if ShouldExpandList(aContent[i])
+                    # Critical fix: We need to make sure each level's brackets line up vertically
+                    # The opening bracket appears at the current indentation level
+                    # Everything inside gets one more indentation level
+                    # The closing bracket needs to be at the same level as the opening one
+                    
+                    # For nested list contents, we need to:
+                    # 1. Use the current indentation (cSep2) for the opening bracket
+                    # 2. Add a newline after the opening bracket
+                    # 3. Increase indentation by one TAB for all contents
+                    # 4. Use the same indentation as opening bracket for closing bracket
+                    
+                    cNestedContent = FormatNestedList(aContent[i], cSep2)
+                    cResult += cSep2 + cNestedContent
+                else
+                    cResult += (cSep2 + ComputableForm(aContent[i]))
+                ok
+            but isObject(aContent[i])
+                cResult += (cSep2 + ObjectVarName(aContent[i]))
+            ok
+            
+            # Only add a comma if this is not the last element
+            if i < nLen
+                cResult += "," + cSep1
+            ok
+        next
+        
+        # Close the list with proper indentation
+        cResult += cSep1 + "]"
+        return cResult
+    but isObject(pValue)
+        cResult = ObjectVarName(pValue)
+        return cResult
+    else
+        StzRaise("Can't proceed! The @@() function is enabled to recognize the format of the data provided.")
+    ok
 
-		if oQStr.size() = 1
-			if pValue = '"'
-				cBound = "'"
-				cResult = cBound + pValue + cBound
-			else
-				cBound = '"'
-				cResult = cBound + pValue + cBound
-			ok
-			return cResult
-		else
-			cChar = '"'
-			oQStr = new QString2()
-			oQStr.append(pValue)
-			c1 = oQStr.mid(0, 1)
-			c2 = oQStr.mid(oQStr.size()-1, 1)
-	
-			if c1 = '"' or c2 = '"'
-				cChar = "'"
-			ok
-	
-			n1 = oQStr.indexof('"', 1, 0) + 1
-			n2 = oQStr.indexof("'", 1, 0) + 1
-	
-			if n1 = 0 and n2 = 0
-				cChar = '"'
-			but n1 = 0
-				cChar = '"'
-			but n2 = 0
-				cChar = "'"
-			but n1 < n2
-				cChar = "'"
-			else
-				cChar = '"'
-			ok
-	
-			cResult = cChar + pValue + cChar
-			return cResult
-		ok
-
-	but isList(pValue)
-		aContent = pValue
-		nLen = len(aContent)
-
-		if nLen = 0
-			return "[ ]"
-		ok
-
-		cResult = "[" + cSep1
-
-		for i = 1 to nLen
-			if isNumber(aContent[i])
-				cResult += "" + cSep2 + aContent[i] + "," + cSep1
-
-			but isString(acontent[i])
-				oQStr = new QString2()
-				oQStr.append(acontent[i])
-		
-				if oQStr.size() = 1
-					if aContent[i] = '"'
-						cBound = "'"
-						cResult += (cSep2 + cBound + aContent[i]  + cBound + "," + cSep1)
-					else
-						cBound = '"'
-						cResult += ( cSep2 + cBound + aContent[i]  + cBound + "," + cSep1 )
-					ok
-				else
-					cChar = '"'
-					oQStr = new QString2()
-					oQStr.append(aContent[i])
-					c1 = oQStr.mid(0, 1)
-					c2 = oQStr.mid(oQStr.size()-1, 1)
-		
-					if c1 = '"' or c2 = '"'
-						cChar = "'"
-					ok
-		
-					n1 = oQStr.indexof('"', 1, 0) + 1
-					n2 = oQStr.indexof("'", 1, 0) + 1
-		
-					if n1 = 0 and n2 = 0
-						cChar = '"'
-					but n1 = 0
-						cChar = '"'
-					but n2 = 0
-						cChar = "'"
-					but n1 < n2
-						cChar = "'"
-					else
-						cChar = '"'
-					ok
-		
-					cResult += (cSep2 + cChar + aContent[i] + cChar + "," + cSep1)
-				ok
-
-			but isList(aContent[i])
-				# Smart formatting for nested lists
-
-				cComma = ","
-
-				if ShouldExpandList(aContent[i])
-					cResult += ( cSep2 + ComputableFormXT(aContent[i], NL + cSep2, cSep2 + TAB) + "," + cSep1)
-
-				else
-					cResult += ( cSep2 + ComputableForm(aContent[i]) + cComma + cSep1)
-				ok
-
-			but isObject(aContent[i])
-				cResult += ( cSep2 + ObjectVarName(aContent[i]) + "," + cSep1 )
-			ok
-		next
-
-		oQStr = new QString2()
-		oQStr.append(cResult)
-		oQStr.replace( (oQStr.size() - 2), 2, "" )
-		oQStr.append(cSep1 + "]")
-
-		cResult = oQStr.mid(0, oQStr.size())
-		return cResult
-
-	but isObject(pValue)
-		cResult = ObjectVarName(pValue)
-		return cResult
-	else
-		StzRaise("Can't proceed! The @@() function is enabled to recognize the format of the data provided.")
-	ok
+# New helper function to handle nested list formatting with proper alignment
+func FormatNestedList(aList, cCurrentIndent)
+    cResult = "["
+    nLen = len(aList)
+    
+    if nLen = 0
+        return "[ ]"
+    ok
+    
+    # One newline after opening bracket
+    cResult += NL
+    
+    # Next indentation level for contents
+    cNextIndent = cCurrentIndent + TAB
+    
+    for i = 1 to nLen
+        if isNumber(aList[i])
+            cResult += cNextIndent + "" + aList[i]
+        but isString(aList[i])
+            # Handle strings (reusing the string handling logic)
+            oQStr = new QString2()
+            oQStr.append(aList[i])
+            if oQStr.size() = 1
+                if aList[i] = '"'
+                    cBound = "'"
+                    cResult += cNextIndent + cBound + aList[i] + cBound
+                else
+                    cBound = '"'
+                    cResult += cNextIndent + cBound + aList[i] + cBound
+                ok
+            else
+                cChar = '"'
+                oQStr = new QString2()
+                oQStr.append(aList[i])
+                c1 = oQStr.mid(0, 1)
+                c2 = oQStr.mid(oQStr.size()-1, 1)
+                if c1 = '"' or c2 = '"'
+                    cChar = "'"
+                ok
+                n1 = oQStr.indexof('"', 1, 0) + 1
+                n2 = oQStr.indexof("'", 1, 0) + 1
+                if n1 = 0 and n2 = 0
+                    cChar = '"'
+                but n1 = 0
+                    cChar = '"'
+                but n2 = 0
+                    cChar = "'"
+                but n1 < n2
+                    cChar = "'"
+                else
+                    cChar = '"'
+                ok
+                cResult += cNextIndent + cChar + aList[i] + cChar
+            ok
+        but isList(aList[i])
+            # Recursive call for more nested lists
+            if ShouldExpandList(aList[i])
+                cResult += cNextIndent + FormatNestedList(aList[i], cNextIndent)
+            else
+                cResult += cNextIndent + ComputableForm(aList[i])
+            ok
+        but isObject(aList[i])
+            cResult += cNextIndent + ObjectVarName(aList[i])
+        ok
+        
+        # Only add a comma if this is not the last element
+        if i < nLen
+            cResult += ","
+        ok
+        
+        # Add a newline after each item
+        cResult += NL
+    next
+    
+    # The closing bracket should be at the same indentation level as the opening one
+    cResult += cCurrentIndent + "]"
+    return cResult
 
 	#< @FunctionAlternativeForms
+
 	func @@XT(pValue, cSep1, cSep2)
 		return ComputableFormXT(pValue, cSep1, cSep2)
 	func CFXT(pValue, cSep1, cSep2)
 		return ComputableFormXT(pValue, cSep1, cSep2)
 	func @ComputableFormXT(pValue, cSep1, cSep2)
 		return ComputableFormXT(pValue, cSep1, cSep2)
-	#>
-
-/*========
-
-func NL@@(pValue)
-	return NL + @@(pValue)
-
-func NL@@NL(pValue)
-	if isString(pValue)
-		return NL + pValue + NL
-	else
-		return NL + @@NL(pValue) + NL
-	ok
-
-func ComputableForm(pValue)
-	return ComputableFormXT(pValue, " ", "")
-
-	#< @FunctionAlternativeForms
-
-	func 🕶(pValue)
-		return ComputableForm(pValue)
-
-	func 😎(pValue)
-		return ComputableForm(pValue)
-
-	func @@(pValue)
-		return ComputableForm(pValue)
-
-	func CF(pValue)
-		return ComputableForm(pValue)
-
-	func @ComputableForm(pValue)
-		return ComputableForm(pValue)
-
-	#>
-
-func ComputableFormNL(pValue)
-	return ComputableFormXT(pValue, NL, TAB)
-
-	#< @FunctionAlternativeForms
-
-	func @@NL(pValue)
-		return ComputableFormNL(pValue)
-
-	func CFNL(pValue)
-		return ComputableFormNL(pValue)
-
-	func @ComputableFormNL(pValue)
-		return ComputableFormNL(pValue)
-
-	#--
-
-	func @@SP(pValue)
-		return ComputableFormNL(pValue)
-
-	func ComputableFormSP(pValue)
-		return ComputableFormNL(pValue)
-
-	func @ComputableFormSP(pValue)
-		return ComputableFormNL(pValue)
-
-	func ComputableFormSpacified(pValue)
-		return ComputableFormNL(pValue)
-
-	func @ComputableFormSpacified(pValue)
-		return ComputableFormNL(pValue)
-
-	func CFSP(pValue)
-		return ComputableFormNL(pValue)
-
-	func @CFSP(pValue)
-		return ComputableFormNL(pValue)
-
-	#>
-
-func ComputableFormXT(pValue, cSep1, cSep2)
-
-	if isNumber(pValue)
-		return ""+ pValue
-
-	but isString(pValue)
-
-		oQStr = new QString2()
-		oQStr.append(pValue)
-
-		if oQStr.size() = 1
-
-			if pValue = '"'
-				cBound = "'"
-				cResult = cBound + pValue + cBound
-	
-			else
-				cBound = '"'
-				cResult = cBound + pValue + cBound
-			ok
-
-			return cResult
-
-		else
-
-			cChar = '"'
-	
-			oQStr = new QString2()
-			oQStr.append(pValue)
-			c1 = oQStr.mid(0, 1)
-			c2 = oQStr.mid(oQStr.size()-1, 1)
-	
-			if c1 = '"' or
-			   c2 = '"'
-				cChar = "'"
-			ok
-	
-			n1 = oQStr.indexof('"', 1, 0) + 1
-			n2 = oQStr.indexof("'", 1, 0) + 1
-	
-			if n1 = 0 and n2 = 0
-				cChar = '"'
-	
-			but n1 = 0
-				cChar = '"'
-	
-			but n2 = 0
-				cChar = "'"
-	
-			but n1 < n2
-				cChar = "'"
-			else
-				cChar = '"'
-			ok
-	
-			cResult = cChar + pValue + cChar
-
-			return cResult
-
-		ok
-
-	but isList(pValue)
-
-		aContent = pValue
-		nLen = len(aContent)
-
-		if nLen = 0
-			return "[ ]"
-		ok
-
-		cResult = "[" + cSep1
-
-		for i = 1 to nLen
-			if isNumber(aContent[i])
-				cResult += "" +
-					   cSep2 + aContent[i] + "," + cSep1
-
-			but isString(acontent[i])
-
-				oQStr = new QString2()
-				oQStr.append(acontent[i])
-		
-				if oQStr.size() = 1
-			
-					if aContent[i] = '"'
-						cBound = "'"
-						cResult += (cSep2 + cBound + aContent[i]  + cBound + "," + cSep1)
-			
-					else
-						cBound = '"'
-						cResult += ( cSep2 + cBound + aContent[i]  + cBound + "," + cSep1 )
-		
-					ok
-
-				else
-
-					cChar = '"'
-		
-					oQStr = new QString2()
-					oQStr.append(aContent[i])
-					c1 = oQStr.mid(0, 1)
-					c2 = oQStr.mid(oQStr.size()-1, 1)
-		
-					if c1 = '"' or
-				  		c2 = '"'
-						cChar = "'"
-					ok
-		
-					n1 = oQStr.indexof('"', 1, 0) + 1
-					n2 = oQStr.indexof("'", 1, 0) + 1
-		
-					if n1 = 0 and n2 = 0
-						cChar = '"'
-		
-					but n1 = 0
-						cChar = '"'
-		
-					but n2 = 0
-						cChar = "'"
-		
-					but n1 < n2
-						cChar = "'"
-					else
-						cChar = '"'
-					ok
-		
-					cResult += (cSep2 + cChar + aContent[i] + cChar + "," + cSep1)
-		
-				ok
-
-			but isList(aContent[i])
-				cResult += ( cSep2 + ComputableForm(aContent[i]) + "," + cSep1)
-
-			but isObject(aContent[i])
-				cResult += ( cSep2 + ObjectVarName(aContent[i]) + "," + cSep1 )
-
-			ok
-
-		next
-
-		oQStr = new QString2()
-		oQStr.append(cResult)
-		oQStr.replace( (oQStr.size() - 2), 2, "" )
-		oQStr.append(cSep1 + "]")
-
-		cResult = oQStr.mid(0, oQStr.size())
-		return cResult
-
-	but isObject(pValue)
-
-		cResult = ObjectVarName(pValue)
-		return cResult
-
-	else
-		StzRaise("Can't proceed! The @@() function is enabled to recognize the format of the data provided.")
-	ok
-
-	#< @FunctionAlternativeForms
-
-	func @@XT(pValue, cSep1, cSep2)
-		return ComputableFormXT(pValue, cSep1, cSep2)
-
-	func CFXT(pValue, cSep1, cSep2)
-		return ComputableFormXT(pValue, cSep1, cSep2)
-
-	func @ComputableFormXT(pValue, cSep1, cSep2)
-		return ComputableFormXT(pValue, cSep1, cSep2)
-
 	#>

@@ -1,5 +1,8 @@
 load "../max/stzmax.ring"
 
+
+
+
 /*---
 */
 pr()
@@ -91,23 +94,7 @@ d
 # balance by qualifying inner list complexity and applying
 # indentation selectively
 
-//? @@NL(aList)
-#--> [
-#	1,
-#	[ [ "name", "Ali" ], [ "age", 52 ], [ "job", "programmer" ] ],
-#	[
-#		"a",
-#		[
-#			[ "key1", "b" ],
-#			[ "key2", "c" ],
-#			[ [ "key31", "e" ], [ "key32", "f" ], "g" ],
-#			"h"
-#		],
-#		"d"
-#	],
-#	2,
-#	3
-# ]
+? @@NL(aList)
 
 proff()
 # Executed in 0.01 second(s) in Ring 1.22

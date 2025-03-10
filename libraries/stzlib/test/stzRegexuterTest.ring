@@ -1,14 +1,28 @@
 
 load "../max/stzmax.ring"
 
+/*---
+
 pron()
 
 ? @@NL([ [ "Contact: john@email.net 123-456-7890 12345", "INVALID {Contact: john@email.net 123-456-7890 12345}" ], [ "123-456-7890", "INVALID {123-456-7890}" ], [ "12345", "12345" ] ])
+#--> [
+#	[
+#			"Contact: john@email.net 123-456-7890 12345",
+#			"INVALID {Contact: john@email.net 123-456-7890 12345}"
+#	],
+#	[
+#			"123-456-7890",
+#			"INVALID {123-456-7890}"
+#	],
+#	[ "12345", "12345" ]
+# ]
 
 proff()
+
 /*--- #TODO: solve confusion between Matches() and AllMatches()
 #UPDATE : DONE!
-
+*/
 pr()
 
 # A function used internally to simply the stzRegexuter class

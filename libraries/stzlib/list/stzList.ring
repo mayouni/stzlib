@@ -25,11 +25,17 @@ func StzListQ(paList)
 
 #===
 
+func ListEqualsCS(paList1, paList2, pCaseSensitive)
+	return StzListQ(paList1).IsEqualToCS(paList2, pCaseSensitive)
+
+	func ListEquals(paList1, paList2)
+		return StzListQ(paList1).IsEqualTo(paList2)
+
 func Listify(cStrInList)
 	if isList(cStrInlist)
 		return StzListQ(cStrInlist).Listified()
 	ok
-? @@(cStrInList)
+
 	oTempStr = new stzString(cStrInList)
 	if oTempStr.IsListInString()
 		cCode = 'aResult = ' + oTempStr.Content()
