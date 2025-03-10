@@ -100,7 +100,7 @@ Lx("[@N{5}]").Match(6)  #--> FALSE (not in the set)
 
 ### Nested Patterns
 
-ListEx is particularly powerful when dealing with **nested structures**. This is useful for validating **complex configurations** and **hierarchical data**:
+Listex is particularly powerful when dealing with **nested structures**. This is useful for validating **complex configurations** and **hierarchical data**:
 
 ```ring
 Lx("[@N, [@N2], @N]").Match([1, [2, 3], 4]) #--> TRUE
@@ -109,9 +109,9 @@ Lx("[@N, [@N2], @N]").Match([1, [2], 4]) #--> FALSE (inner list must have exactl
 
 ## Why Softanza Listex Stands Out
 
-Softanza ListEx represents a true innovation in pattern matching by addressing a gap left by other languages. While some languages have **partial support** for structured pattern matching, none provide the **regex-like expressiveness tailored for list validation**. Here’s how Listex compares:
+Softanza Listex represents a true innovation in pattern matching by addressing a gap left by other languages. While some languages have **partial support** for structured pattern matching, none provide the **regex-like expressiveness tailored for list validation**. Here’s how Listex compares:
 
-| Feature                 | stzListEx (Ring) | Wolfram | C# | Rust | Haskell | Python |
+| Feature                 | stzListex (Ring) | Wolfram | C# | Rust | Haskell | Python |
 |-------------------------|:----------------:|:-------:|:--:|:----:|:-------:|:------:|
 | Dedicated List Patterns | ✅                | ✅       | —  | —    | —       | —      |
 | Regex-Like Syntax       | ✅                | ✅       | 🟥  | 🟥    | 🟥       | 🟥      |
