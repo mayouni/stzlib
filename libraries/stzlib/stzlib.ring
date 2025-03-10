@@ -186,6 +186,7 @@ t0 = clock()
 	load "regex/stzRegexuter.ring"
 
 	load "regex/stzListex.ring"
+	load "regex/stzListexuter.ring"
 
 # Loading files related to ERROR module
 
