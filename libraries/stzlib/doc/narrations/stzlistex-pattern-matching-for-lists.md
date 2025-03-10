@@ -114,11 +114,11 @@ Softanza ListEx represents a true innovation in pattern matching by addressing a
 | Feature                 | stzListEx (Ring) | Wolfram | C# | Rust | Haskell | Python |
 |-------------------------|:----------------:|:-------:|:--:|:----:|:-------:|:------:|
 | Dedicated List Patterns | ✅                | ✅       | —  | —    | —       | —      |
-| Regex-Like Syntax       | ✅                | ✅       | ●  | ●    | ●       | ●      |
-| Quantifiers             | ✅                | ◉       | ◉  | ◉    | ◉       | ◉      |
+| Regex-Like Syntax       | ✅                | ✅       | 🟥  | 🟥    | 🟥       | 🟥      |
+| Quantifiers             | ✅                | —      | —  | —    | —       | —      |
 | Value Constraints       | ✅                | ✅       | ✅  | ✅    | ✅       | ✅      |
-| Uniqueness Constraints  | ✅                | ✅       | ●  | ●    | ●       | ●      |
-| Stepped Ranges          | ✅                | ✅       | ●  | ●    | ●       | ●      |
+| Uniqueness Constraints  | ✅                | ✅       | 🟥  | 🟥    | 🟥       | 🟥      |
+| Stepped Ranges          | ✅                | ✅       | 🟥  | 🟥    | 🟥       | 🟥      |
 | Nested Matching         | ✅                | ✅       | ✅  | ✅    | ✅       | ✅      |
 
 Legend: ✅ Yes    |    🟥 No    |    — Parial / Limited
