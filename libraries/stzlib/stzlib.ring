@@ -163,6 +163,7 @@ t0 = clock()
 	load "list/stzItem.ring"
 	load "list/stzListParser.ring"
 	load "list/stzListInString.ring"
+	load "list/stzListFormatter.ring"
 
 # Loading files related to the STRING module
 

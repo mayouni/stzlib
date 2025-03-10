@@ -1,8 +1,14 @@
 
 load "../max/stzmax.ring"
 
+pron()
+
+? @@NL([ [ "Contact: john@email.net 123-456-7890 12345", "INVALID {Contact: john@email.net 123-456-7890 12345}" ], [ "123-456-7890", "INVALID {123-456-7890}" ], [ "12345", "12345" ] ])
+
+proff()
 /*--- #TODO: solve confusion between Matches() and AllMatches()
-*/
+#UPDATE : DONE!
+
 pr()
 
 # A function used internally to simply the stzRegexuter class
@@ -27,7 +33,6 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*---
-*/
 
 pr()
 
@@ -82,7 +87,7 @@ proff()
 # Executed in 0.12 second(s) in Ring 1.22
 
 /*--- Processing Numbers in Text
-*/
+
 pr()
 
 rxu() {
@@ -377,7 +382,7 @@ proff()
 
 /*--- Data Validation Pipeline
 # Shows how state helps track validation errors
-
+*/
 pr()
 
 rxu = new stzRegexuter()

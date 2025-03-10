@@ -167,9 +167,11 @@ class stzListex
 
 			if oRangeMatch.Match(cRemainder)
 
-				aMatches = oRangeMatch.Matches()
-				nMin = @number(aMatches[1])
-				nMax = @number(aMatches[2])
+				cMatch = oRangeMatch.Matches()[1]
+				acSplits = @split(cMatch, "-")
+
+				nMin = @number(acSplits[1])
+				nMax = @number(acSplits[2])
 
            			if nMin > nMax
                 			stzraise("Error: Invalid range - min value greater than max: " + cTokenStr)
@@ -177,7 +179,7 @@ class stzListex
 
             			# Remove the processed range from remainder
 
-				nRangeLen = len(aMatches[1]) + 1 + len(aMatches[2])  # +1 for the "-"
+				nRangeLen = len(acSplits[1]) + 1 + len(acSplits[2])  # +1 for the "-"
 				cRemainder = right(cRemainder, len(cRemainder) - nRangeLen)
 
 			else
@@ -241,9 +243,14 @@ class stzListex
 			if oSteppedRangeUniqueMatch.Match(cRemainder)
 
 				aMatches = oSteppedRangeUniqueMatch.Matches()
-				nStart = @number(aMatches[2])
-				nEnd = @number(aMatches[3])
-				nStep = @number(aMatches[4])
+				aSplits = StzStringQ(aMatches[1]).
+					RemoveFirstCharQ().RemoveNLastCharsQ(2).
+					ReplaceQ(":", "-").
+					Split("-")
+
+				nStart = @number(aSplits[1])
+				nEnd = @number(aSplits[2])
+				nStep = @number(aSplits[3])
             
 				if nStart > nEnd
 					stzraise("Error: Invalid stepped range - start value greater than end: " + cTokenStr)
@@ -276,9 +283,15 @@ class stzListex
 				if oSteppedRangeMatch.Match(cRemainder)
 
 					aMatches = oSteppedRangeMatch.Matches()
-					nStart = @number(aMatches[2])
-					nEnd = @number(aMatches[3])
-					nStep = @number(aMatches[4])
+
+					aSplits = StzStringQ(aMatches[1]).
+						RemoveFirstAndLastCharsQ().
+						ReplaceQ(":", "-").
+						Split("-")
+
+					nStart = @number(aSplits[1])
+					nEnd = @number(asplits[2])
+					nStep = @number(aSplits[3])
                 
 					if nStart > nEnd
 						stzraise("Error: Invalid stepped range - start value greater than end: " + cTokenStr)
@@ -312,7 +325,7 @@ class stzListex
 					if oUniqueSetMatch.Match(cRemainder)
 
 						aMatches = oUniqueSetMatch.Matches()
-						cSetContent = aMatches[2]
+						cSetContent = StzStringQ(aMatches[1]).RemoveFirstCharQ().NLastCharsRemoved(2)
                     
 						# Parse the set values with uniqueness enforcement
 
@@ -331,8 +344,7 @@ class stzListex
 
 						if oSetMatch.Match(cRemainder)
 							aMatches = oSetMatch.Matches()
-							cSetContent = aMatches[2]
-
+							cSetcontent = StzStringQ(aMatches[1]).FirstAndLastCharsRemoved()
 							# Parse the set values
 
 							aSetValues = This.ParseSetValues(cSetContent, "any", false)
