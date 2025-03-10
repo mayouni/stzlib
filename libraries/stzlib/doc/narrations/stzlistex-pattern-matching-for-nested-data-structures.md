@@ -1,4 +1,4 @@
-# Softanza ListEx: Bringing Pattern Matching to Lists
+# Softanza Listex: Bringing Pattern Matching to Lists
 
 Pattern matching has revolutionized data validation and manipulation across various programming paradigms. While traditional regex excels at string matching, structured data—especially deeply nested lists—requires a more expressive approach. Enter **List Regex (Lx)**, a Softanza-powered pattern-matching engine that brings regex-style matching to structured data.
 
@@ -23,7 +23,7 @@ Here, `@N` matches any number, and `@S` matches any string. The pattern ensures 
 
 ### Type Patterns
 
-Type patterns define the fundamental building blocks of ListEx pattern matching. These patterns help categorize data types concisely:
+Type patterns define the fundamental building blocks of Listex pattern matching. These patterns help categorize data types concisely:
 
 * `@N` - Matches any number (integer, float, scientific notation)
 * `@S` - Matches any string (single or double-quoted)
@@ -107,13 +107,13 @@ Lx("[@N, [@N2], @N]").Match([1, [2, 3], 4]) #--> TRUE
 Lx("[@N, [@N2], @N]").Match([1, [2], 4]) #--> FALSE (inner list must have exactly 2 elements)
 ```
 
-## Why Softanza ListEx Stands Out
+## Why Softanza Listex Stands Out
 
-Softanza ListEx represents a true innovation in pattern matching by addressing a gap left by other languages. While some languages have **partial support** for structured pattern matching, none provide the **regex-like expressiveness tailored for list validation**. Here’s how ListEx compares:
+Softanza ListEx represents a true innovation in pattern matching by addressing a gap left by other languages. While some languages have **partial support** for structured pattern matching, none provide the **regex-like expressiveness tailored for list validation**. Here’s how Listex compares:
 
 | Feature                 | stzListEx (Ring) | Wolfram | C# | Rust | Haskell | Python |
 |-------------------------|:----------------:|:-------:|:--:|:----:|:-------:|:------:|
-| Dedicated List Patterns | ✅                | ✅       | ◉  | ◉    | ◉       | ◉      |
+| Dedicated List Patterns | ✅                | ✅       | —  | —    | —       | —      |
 | Regex-Like Syntax       | ✅                | ✅       | ●  | ●    | ●       | ●      |
 | Quantifiers             | ✅                | ◉       | ◉  | ◉    | ◉       | ◉      |
 | Value Constraints       | ✅                | ✅       | ✅  | ✅    | ✅       | ✅      |
@@ -123,9 +123,9 @@ Softanza ListEx represents a true innovation in pattern matching by addressing a
 
 Legend: ✅ Yes    |    🟥 No    |    — Parial / Limited
 
-Softanza ListEx is positioned **at the forefront of structured pattern matching**, standing at the same level—or even surpassing—the most advanced systems in this area. While **Wolfram Language** has powerful symbolic pattern matching, it lacks the structured regex-like quantifiers of ListEx. **C# introduces pattern matching within switch expressions and tuples but lacks the expressiveness for list validation.** **Rust and Haskell** provide functional and structural pattern matching but lack stepped ranges and uniqueness constraints. **Python**, while widely used, does not offer native pattern matching for structured lists.
+Softanza Lisex is positioned **at the forefront of structured pattern matching**, standing at the same level—or even surpassing—the most advanced systems in this area. While **Wolfram Language** has powerful symbolic pattern matching, it lacks the structured regex-like quantifiers of Listex. **C# introduces pattern matching within switch expressions and tuples but lacks the expressiveness for list validation.** **Rust and Haskell** provide functional and structural pattern matching but lack stepped ranges and uniqueness constraints. **Python**, while widely used, does not offer native pattern matching for structured lists.
 
-Given this, Softanza ListEx **achieves a breakthrough** by combining regex-like syntax, deep nested matching, and advanced constraints in a way that no other system does.
+Given this, Softanza Listex **achieves a breakthrough** by combining regex-like syntax, deep nested matching, and advanced constraints in a way that no other system does.
 
 ## Conclusion
 
