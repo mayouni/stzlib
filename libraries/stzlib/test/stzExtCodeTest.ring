@@ -7,19 +7,19 @@ pr()
 Q([ 1, 2, "three", 4, "five" ]) {
 
 	? IsMadeOfNumbersOrStrings()
-	#--> _TRUE_
+	#--> TRUE
 
 	? IsMadeOfNumbersAndStrings()
-	#--> _TRUE_
+	#--> TRUE
 }
 
 Q([ 1, 2, 3, 4, 5 ]) {
 
 	? IsMadeOfNumbersOrStrings()
-	#--> _TRUE_
+	#--> TRUE
 
 	? IsMadeOfNumbersAndStrings()
-	#--> _FALSE_
+	#--> FALSE
 
 }
 
@@ -446,8 +446,8 @@ pr()
 	#--> No
 
 	# b ~> boolean condition
-	# bf ~> _FALSE_ case
-	# bt ~> _TRUE_ case
+	# bf ~> FALSE case
+	# bt ~> TRUE case
 
 proff()
 # Executed in 0.01 second(s).
@@ -469,9 +469,9 @@ pr()
 
 o1 = new stzList([ 2, 4, 8 ])
 ? o1.EachItemIsA(:Number)
-#--> _TRUE_
+#--> TRUE
 ? o1.EachItemIsA([ :Positive, :Even, :Number ]) # ItemsAreEither, AllItemsAreEither...
-#--> _TRUE_
+#--> TRUE
 
 proff()
 # Executed in 0.05 second(s) in Ring 1.21
@@ -487,7 +487,7 @@ o1 = new stzString(:nation = "Niger")
 #--> stzstring
 
 ? ObjectIsNamed(o1)
-#--> _TRUE_
+#--> TRUE
 
 ? ObjectName(o1)
 #--> nation
@@ -497,7 +497,7 @@ o1 = new stzString(:nation = "Niger")
 o1 = new stzString("Niger")
 
 ? ObjectIsNamed(o1)
-#--> _FALSE_
+#--> FALSE
 
 ? ObjectName(o1)
 #--> @noname
@@ -758,7 +758,7 @@ pr()
 	#--> []
 	
 	? range0Q([0, 3]) = range0(3)
-	#--> _TRUE_
+	#--> TRUE
 
 # range(n1, n2, step): n1 <= x < n2 (increasing by step)
 
@@ -777,12 +777,12 @@ pr()
 # range(start, stop, 1) is equivalent to range(start, stop)
 
 	? range0Q([ 3, 10, 1 ]) = range0([ 3, 10 ])
-	#--> _TRUE_
+	#--> TRUE
 
 # range(0, stop, 1) is equivalent to range(0, stop) and range(stop)
 
 	? range0Q([ 0, 10, 1 ]) = range0Q([ 0, 10 ]) = range0(10)
-	#--> _TRUE_
+	#--> TRUE
 
 proff()
 # Executed in 0.01 second(s).
@@ -1274,14 +1274,14 @@ pr()
 
 # In Python we can use ternary operator like this:
 	'
-	something = _TRUE_ // or _FALSE_
+	something = TRUE // or FALSE
 	value = "foo" if something else "bar"
 	'
 
 # As you might imagine, its equivalent in pure Ring is:
-	something = _TRUE_ // or _FALSE_
+	something = TRUE // or FALSE
 	
-	if something = _TRUE_
+	if something = TRUE
 		value = "foo"
 	else
 		value = "bar"
@@ -1292,14 +1292,14 @@ pr()
 # To to that, we just need to decorate the Python code with vr(), vl(),
 # _if() and _else() functions:
 
-bSomething = _TRUE_
+bSomething = TRUE
 vr([ :value ]) '=' vl([ "foo" ]) _if(bSomething) _else([ "bar" ])
 ? v(:value)
 #--> foo
 
-# And if we turn bSomething to _FALSE_:
+# And if we turn bSomething to FALSE:
 #ERR #todo check it
-	bSomething = _FALSE_
+	bSomething = FALSE
 	vr([ :value ]) '=' vl([ "foo" ]) _if(bSomething) _else([ "bar" ])
 	? v(:value)
 	#--> bar
@@ -1336,13 +1336,13 @@ proff()
 
 pr()
 
-bPositive = _TRUE_
+bPositive = TRUE
 Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 ? @@( v([ :x, :y, :z ]) )
 #--> [ 1, 2, 3 ]
 
 #ERR #TODO check it
-	bPositive = _FALSE_
+	bPositive = FALSE
 	Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 	? @@( v([ :x, :y, :z ]) )
 	#--> [ -1, -2, -3 ]
@@ -1355,7 +1355,7 @@ proff()
 
 	pr()
 	
-	bPositive = _FALSE_
+	bPositive = FALSE
 	V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10 ])
 	
 	? v([:x, :y])
@@ -1367,7 +1367,7 @@ proff()
 
 	pr()
 	
-	bPositive = _FALSE_
+	bPositive = FALSE
 	V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10, -20 ])
 	
 	? v([:x, :y])
@@ -1379,7 +1379,7 @@ proff()
 
 pr()
 
-bPositive = _TRUE_
+bPositive = TRUE
 Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 ? @@( v([ :x, :y, :z ]) )
 #--> [ 1, 2, 3 ]

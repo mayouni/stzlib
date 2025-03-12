@@ -5,22 +5,22 @@ load "../max/stzmax.ring"
 pr()
 
 ? Q(1:5).IsEqualTo(5:1)
-#--> _TRUE_
+#--> TRUE
 
 ? Q(1:5).IsIdenticalTo(5:1)
-#--> _FALSE_
+#--> FALSE
 
 ? Q("A":"E").IsSortedInAscending()
-#--> _TRUE_
+#--> TRUE
 
 ? Q("E":"A").IsSortedInDescending()
-#--> _TRUE_
+#--> TRUE
 
 ? Q("A":"E").IsContiguous()
-#--> _TRUE_
+#--> TRUE
 
 ? Q("E":"A").IsCOntiguous()
-#--> _TRUE_
+#--> TRUE
 
 proff()
 # Executed in 0.08 second(s) in Ring 1.21

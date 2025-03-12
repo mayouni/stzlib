@@ -32,9 +32,9 @@ class stzTest
 
 	def Succeeded()
 		if Q(This.Output()).IsEqualTo(This.MustReturn())
-			return _TRUE_
+			return TRUE
 		else
-			return _FALSE_
+			return FALSE
 		ok
 
 		def Success()

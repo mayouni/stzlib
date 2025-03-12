@@ -8,23 +8,23 @@ pr()
 #--> @nullobject
 
 ? Q(NullObject()).IsNamedObject()
-#--> _TRUE_
+#--> TRUE
 
 #--
 
-? _TRUE_Object().Name()
+? TRUEObject().Name()
 #--> @trueobject
 
 ? Q(TrueObject()).IsNamedObject()
-#--> _TRUE_
+#--> TRUE
 
 #--
 
-? _FALSE_Object().Name()
+? FALSEObject().Name()
 #--> @falseobject
 
 ? Q(FalseObject()).IsNamedObject()
-#--> _TRUE_
+#--> TRUE
 
 proff()
 # Executed in 0.04 second(s)
@@ -33,7 +33,7 @@ proff()
 
 pr()
 
-StzNamedObjectQ(:myobj = _TRUE_Object()) {
+StzNamedObjectQ(:myobj = TRUEObject()) {
 
 	? Name()
 	#--> :myobj
@@ -90,16 +90,16 @@ pr()
 # The first checks for VALUES while the second checks for TYPES:
 
 o1 = new stzNumber(5)
-? o1.IsEither(5, :Or = 12)		#--> _TRUE_
-? o1.IsEitherA(:Number, :Or = :String)	#--> _TRUE_
+? o1.IsEither(5, :Or = 12)		#--> TRUE
+? o1.IsEitherA(:Number, :Or = :String)	#--> TRUE
 
 o1 = new stzList(1:3)
-? o1.IsEither(1:3, :Or = 2:7) 		#--> _TRUE_
-? o1.IsEitherA(:List, :Or = :String)	#--> _TRUE_
+? o1.IsEither(1:3, :Or = 2:7) 		#--> TRUE
+? o1.IsEitherA(:List, :Or = :String)	#--> TRUE
 
 o1 = new stzString("ring")
-? o1.IsEither("ring", :or = "ruby")	#--> _TRUE_
-? o1.IsEitherA(:String, :Or = :List)	#--> _TRUE_
+? o1.IsEither("ring", :or = "ruby")	#--> TRUE
+? o1.IsEitherA(:String, :Or = :List)	#--> TRUE
 
 proff()
 # Executed in 0.06 second(s)
@@ -197,7 +197,7 @@ proff()
 pr()
 
 ? Q(StzTypesXT()).IsHashList()
-#--> _TRUE_
+#--> TRUE
 
 ? StzHashListQ(StzTypesXT()).FindValue('stzchars')
 #--> 17
@@ -237,60 +237,60 @@ proff()
 pr()
 
 ? Q("2").IsA([ :Number, :String, :List ])
-#--> _FALSE_
+#--> FALSE
 
 ? Q([10, 20]).IsA([ :List, :Pair, :ListOfNumbers, :PairOfNumbers ])
-#--> _TRUE_
+#--> TRUE
 
 ? Q("str").IsAList()
-#--> _FALSE_
+#--> FALSE
 
 ? Q("str").IsANumber()
-#--> _FALSE_
+#--> FALSE
 
 ? Q("str").IsAString()
-#--> _TRUE_
+#--> TRUE
 
 ? Q("5").IsNumberInString()
-#--> _TRUE_
+#--> TRUE
 
 ? Q("str").IsA(:String)
-#--> _TRUE_
+#--> TRUE
 
 ? Q("str").IsA(:StzString)
-#--> _TRUE_
+#--> TRUE
 
 ? Q("str").IsAn(:Object)
-#--> _TRUE_
+#--> TRUE
 
 ? Q("2").IsAString()
-#--> _TRUE_
+#--> TRUE
 
 ? Q("2").IsA(:String)
-#--> _TRUE_
+#--> TRUE
 
 ? Q("2").IsAXT([ :NumberInString ])
-#--> _TRUE_
+#--> TRUE
 
 ? Q("2").IsA(:NumberInString)
-#--> _TRUE_
+#--> TRUE
 
 ? Q("2").Is(:NumberInString)
-#--> _TRUE_
+#--> TRUE
 
 ? Q("2").Is(:NumberInString)
-#--> _TRUE_
+#--> TRUE
 
-#--> _TRUE_
+#--> TRUE
 
 ? Q("2").IsEitherA(:Number, :Or = :String)
-#--> _TRUE_
+#--> TRUE
 
 ? Q("2").IsOneOfThese([ 3, "2", 5 ])
-#--> _TRUE_
+#--> TRUE
 
 ? Q([ 10, 20, 30 ]).IsA(:ListOfNumbers)
-#--> _TRUE_
+#--> TRUE
 
 proff()
 # Executed in 0.10 second(s) in Ring 1.21
@@ -301,7 +301,7 @@ pr()
 
 o1 = new stzList([ 6, -2, 9, 5, -10 ])
 ? o1.EachItemIsEitherA(:Positive, :Or = :Negative, :Number)
-#--> _TRUE_
+#--> TRUE
 
 proff()
 # Executed in 0.04 second(s)
@@ -321,7 +321,7 @@ pr()
 o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
 
 ? o1.EachItemIsEitherA( :Number, :Or, :String )
-#--> _TRUE_
+#--> TRUE
 
 proff()
 # Executed in 0.14 second(s)
@@ -346,7 +346,7 @@ pr()
 
 o1 = new stzList([ 120, "1250", 54, "452" ])
 ? o1.EachItemIsEither( :Number, :Or, :NumberInString )
-#--> _TRUE_
+#--> TRUE
 
 proff()
 # Executed in 0.04 second(s)
@@ -365,13 +365,13 @@ proff()
 pr()
 
 ? Q([10, 20, 30 ]).IsA(:ListOfNumbers)
-#--> _TRUE_
+#--> TRUE
 
 ? Q([10, 20, 30 ]).Is(:ListOfNumbers)
-#--> _TRUE_
+#--> TRUE
 
 ? Q([ "1", "2", "3" ]).EachItemIsA([ :String, :NumberInString, :Char ])
-#--> _TRUE_
+#--> TRUE
 
 
 proff()
@@ -384,10 +384,10 @@ pr()
 o1 = new stzNumber(12500)
 
 ? o1.Is(:StzNumber)
-#--> _TRUE_
+#--> TRUE
 
 ? o1.Is(:String)
-#--> _FALSE_
+#--> FALSE
 
 proff()
 # Executed in 0.03 second(s)
@@ -398,7 +398,7 @@ pr()
 
 o1 = new stzString("hello")
 ? o1.Is(:StzString)
-#--> _TRUE_
+#--> TRUE
 
 proff()
 # Executed in 0.03 second(s)
@@ -420,12 +420,12 @@ pr()
 
 o1 = new QString2()
 ? IsQObject(o1)
-#--> _TRUE_
+#--> TRUE
 
 ? IsQtObject(o1)
-#--> _TRUE_
+#--> TRUE
 
-# Both return _TRUE_ --> Flexible syntax!
+# Both return TRUE --> Flexible syntax!
 
 proff()
 # Executed in 0.04 second(s)

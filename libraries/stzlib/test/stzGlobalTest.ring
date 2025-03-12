@@ -5,19 +5,19 @@ load "../max/stzmax.ring"
 pr()
 
 ? IsStzFindable("ring")
-#--> _FALSE_
+#--> FALSE
 
 ? IsStzFindable(1:20)
-#--> _FALSE_
+#--> FALSE
 
 ? IsStzFindable( Q("ring") ) # because Q() elevates "ring" to a stzString object
-#--> _TRUE_
+#--> TRUE
 
 ? IsStzFindable( Q(1:20) ) # because Q() elevates 1:20 to a stzList object
-#--> _TRUE_
+#--> TRUE
 
 ? IsStzFindable( ANullObject() ) # it's a stzObject but it is not findable!
-#--> _FALSE_
+#--> FALSE
 
 proff()
 # Executed in 0.02 second(s)
@@ -52,41 +52,41 @@ proff()
 ? "0" = 0
 
 ? "1" = 1
-#--> _TRUE_
+#--> TRUE
 
 ? 1 = "01.0"
-#--> _TRUE_
+#--> TRUE
 
 /*----
 */
 pr()
 
 ? BothAreEqual(0, "")
-#--> _FALSE_
+#--> FALSE
 
 ? BothAreEqual(1, "1")
-#--> _FALSE_
+#--> FALSE
 
 ? BothAreEqual([], "")
-#--> _FALSE_
+#--> FALSE
 
 ? BothAreEqual(1:3, [1, 2, 3])
-#--> _TRUE_
+#--> TRUE
 
 ? BothAreEqual("ring", "ring")
-#--> _TRUE_
+#--> TRUE
 
  ? BothAreEqual("RING", "ring")
-#--> _FALSE_
+#--> FALSE
 
-? BothAreEqualCS("RING", "ring", _FALSE_)
-#--> _TRUE_
+? BothAreEqualCS("RING", "ring", FALSE)
+#--> TRUE
 
 ? BothAreEqual("A":"C", "a":"c")
-#--> _FALSE_
+#--> FALSE
 
-? BothAreEqualCS("A":"C", "a":"c", _FALSE_)
-#--> _TRUE_
+? BothAreEqualCS("A":"C", "a":"c", FALSE)
+#--> TRUE
 
 proff()
 #--> Executed in 0.01 second(s) in Ring 1.21
@@ -97,7 +97,7 @@ proff()
 pr()
 
 ? AllHaveSameType([1, "1", 1])
-#--> _FALSE_
+#--> FALSE
 
 proff()
 
@@ -106,16 +106,16 @@ proff()
 pr()
 
 ? AreEqual([1, 1, 1])
-#--> _TRUE_
+#--> TRUE
 
 ? AreEqual([1, "1", 1])
-#--> _FALSE_
+#--> FALSE
 
 ? AreEqual([ "ring", "Ring", "RING" ])
-#--> _FALSE_
+#--> FALSE
 
-? AreEqualCS([ "ring", "Ring", "RING" ], _FALSE_)
-#--> _TRUE_
+? AreEqualCS([ "ring", "Ring", "RING" ], FALSE)
+#--> TRUE
 
 proff()
 
@@ -124,7 +124,7 @@ proff()
 pr()
 
 ? BothEndWithANumber( "v1" , "v3" )
-#--> _TRUE_
+#--> TRUE
 
 proff()
 
@@ -867,14 +867,14 @@ o1 = new stzString("blablabla")
 /*=============
 
 ? Q("(,,)").Check(:That = 'StzCharQ(@Char).IsPunctuation()')
-#--> _TRUE_
+#--> TRUE
 
 /*============ INFERRING TYPES: Q() & QQ()
 #NOTE: Unlike Ring, Softanza return type in lowercase.
 
 Q("ring") {
 	? Type()	#--> "object"
-	? IsAnObject()	#--> _TRUE_
+	? IsAnObject()	#--> TRUE
 	? StzType()	#--> "stzstring"
 }
 
@@ -967,19 +967,19 @@ Q([ "A", 20, [ "B", 10 ], 30 ]){
 
 pr()
 
-? Q([ 1, 2, 3 ]).IsListOf(:Numbers)		#--> _TRUE_
+? Q([ 1, 2, 3 ]).IsListOf(:Numbers)		#--> TRUE
 
-? Q([ "A", "B", "C" ]).IsListOf(:Strings)	#--> _TRUE_
+? Q([ "A", "B", "C" ]).IsListOf(:Strings)	#--> TRUE
 
 o1 = new stzNumber(10)
 
-? Q([ o1, o1, o1 ]).IsListOf(:StzNumbers)	#--> _TRUE_
+? Q([ o1, o1, o1 ]).IsListOf(:StzNumbers)	#--> TRUE
 
 o1 = new stzString("A")
-? Q([ o1, o1, o1 ]).IsListOf(:StzStrings)	#--> _TRUE_
+? Q([ o1, o1, o1 ]).IsListOf(:StzStrings)	#--> TRUE
 
-? Q([ [1,2], [3,4], [5,6] ]).IsListOf(:ListsOfNumbers)	#--> _TRUE_
-? Q([ [1,2], [3,4], [5,6] ]).IsListOf(:PairsOfNumbers)	#--> _TRUE_
+? Q([ [1,2], [3,4], [5,6] ]).IsListOf(:ListsOfNumbers)	#--> TRUE
+? Q([ [1,2], [3,4], [5,6] ]).IsListOf(:PairsOfNumbers)	#--> TRUE
 
 proff()
 #--> Executed in 0.09 second(s).
@@ -1058,12 +1058,12 @@ proff()
 
 StartProfiler()
 	
-	? "۰" = "٠"	#--> _FALSE_
-	? "۱" = "١"	#--> _FALSE_
-	? "۲" = "٢"	#--> _FALSE_
-	? "۳" = "٣"	#--> _FALSE_
-	? "۸" = "٨"	#--> _FALSE_		
-	? "۹" = "٩"	#--> _FALSE_
+	? "۰" = "٠"	#--> FALSE
+	? "۱" = "١"	#--> FALSE
+	? "۲" = "٢"	#--> FALSE
+	? "۳" = "٣"	#--> FALSE
+	? "۸" = "٨"	#--> FALSE		
+	? "۹" = "٩"	#--> FALSE
 
 	? Unicode("۱")	#--> 1777
 	? Unicode("١")	#--> 1633
@@ -1077,7 +1077,7 @@ StartProfiler()
 	# font we use in our system to render them, but from a unicode
 	# standpoint, they are different.
 
-	? AreEqual([ "O", "Ο", "О" ]) 	#--> _FALSE_
+	? AreEqual([ "O", "Ο", "О" ]) 	#--> FALSE
 
 	# In fact, they are different in uncicodes code points, scripts they
 	# represent, and unicode names they have:
