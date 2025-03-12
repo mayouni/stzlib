@@ -466,6 +466,15 @@ class stzRegex
 		def MatchedSubStrings()
 			return This.Matches()
 
+		def Result()
+			return This.Matches()
+
+		def Results()
+			return This.Matches()
+
+		def Harvest()
+			return This.Matches()
+
 		#>
 
 	def NumberOfMatches()

@@ -123,7 +123,7 @@ Softanza Listex represents a true innovation in pattern matching by addressing a
 
 Legend: ✅ Yes    |    🟥 No    |    — Parial / Limited
 
-Softanza Lisex is positioned **at the forefront of structured pattern matching**, standing at the same level—or even surpassing—the most advanced systems in this area. While **Wolfram Language** has powerful symbolic pattern matching, it lacks the structured regex-like quantifiers of Listex. **C# introduces pattern matching within switch expressions and tuples but lacks the expressiveness for list validation.** **Rust and Haskell** provide functional and structural pattern matching but lack stepped ranges and uniqueness constraints. **Python**, while widely used, does not offer native pattern matching for structured lists.
+Softanza Listex is positioned **at the forefront of structured pattern matching**, standing at the same level—or even surpassing—the most advanced systems in this area. While **Wolfram Language** has powerful symbolic pattern matching, it lacks the structured regex-like quantifiers of Listex. **C# introduces pattern matching within switch expressions and tuples but lacks the expressiveness for list validation.** **Rust and Haskell** provide functional and structural pattern matching but lack stepped ranges and uniqueness constraints. **Python**, while widely used, does not offer native pattern matching for structured lists.
 
 Given this, Softanza Listex **achieves a breakthrough** by combining regex-like syntax, deep nested matching, and advanced constraints in a way that no other system does.
 

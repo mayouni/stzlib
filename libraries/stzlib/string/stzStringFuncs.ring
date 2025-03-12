@@ -246,18 +246,18 @@ func StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	return Q(pStrOrList).StartsWithCS(pSubStrOrItem, bCaseSensitive)
 
 	func BeginsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
-		return StzStartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 	func @StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
-		return StzStartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 	func @BeginsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
-		return StzStartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 func StzStartsWith(pStrOrList, pSubStrOrItem) # startsWith() seems to be reserved by Ring StdLib
 	return Q(pStrOrList).StartsWith(pSubStrOrItem)
 
-	func @StartssWith(pStrOrList, pSubStrOrItem)
+	func @StartsWith(pStrOrList, pSubStrOrItem)
 		return StzStartsWith(pStrOrList, pSubStrOrItem)
 
 	func BeginsWith(pStrOrList, pSubStrOrItem)
@@ -268,11 +268,11 @@ func StzStartsWith(pStrOrList, pSubStrOrItem) # startsWith() seems to be reserve
 
 #--
 
-func StzEndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+func EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	return Q(pStrOrList).EndsWithCS(pSubStrOrItem, bCaseSensitive)
 
 	func @EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
-		return StzEndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 func StzEndsWith(pStrOrList, pSubStrOrItem) # endsWith() seems to be reserved by Ring StdLib
 	return Q(pStrOrList).EndsWith(pSubStrOrItem)

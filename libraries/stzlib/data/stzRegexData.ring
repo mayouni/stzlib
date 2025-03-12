@@ -97,10 +97,55 @@ _$aRegexPatterns_ = [
 
 	:digit = "\d",
 	:number = "^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$",
-   	:currencyValue = "^-?\d{1,3}(?:,\d{3})*(?:\.\d{2})?$",
-   	:scientificNotation = "^-?\d+(?:\.\d+)?(?:e[+-]?\d+)?$",
-   	:percentage = "^-?\d*\.?\d+%$",
-   	:hexColor = "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",  
+	:currencyValue = "^-?\d{1,3}(?:,\d{3})*(?:\.\d{2})?$",
+	:scientificNotation = "^-?\d+(?:\.\d+)?(?:e[+-]?\d+)?$",
+	:percentage = "^-?\d*\.?\d+%$",
+	:hexColor = "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+	
+	:integer = "^-?\d+$",
+	:positiveInteger = "^\d+$",
+	:negativeInteger = "^-\d+$",
+	
+	:float = "^-?\d+\.\d+$",
+	:positiveFloat = "^\d+\.\d+$",
+	:negativeFloat = "^-\d+\.\d+$",
+		
+	:binaryNumber = "^[01]+$",
+	:octalNumber = "^[0-7]+$",
+	:hexNumber = "^0[xX][A-Fa-f0-9]+$",
+	:romanNumber = "^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$",
+	
+	:measurementValue = "^-?\d+(?:\.\d+)?\s?(cm|mm|m|km|g|kg|lb|oz|L|ml|mL|ft|inch|in|yd|mi)$",
+	:phoneNumber = "^\+?\d{1,3}?[-.●]?\(?\d{1,4}?\)?[-.●]?\d{1,4}[-.●]?\d{1,9}$",
+
+	# Special patters for capturing numbers inside string
+
+	:numbersInSingleQuotes = "'-?\d+(?:\.\d+)?'",
+	:numbersInDoubleQuotes = '"-?\d+(?:\.\d+)?\"',
+	:numbersInBackticks = "-?\d+(?:\.\d+)?",
+	:numbersInCurlySingleQuotes = '[‘’]-?\d+(?:\.\d+)?[‘’]',
+	:numbersInCurlyDoubleQuotes = '[“”]-?\d+(?:\.\d+)?[“”]',
+
+	:numbersInQuotes = "'-?\d+(?:\.\d+)?'" + "|" +
+		'"-?\d+(?:\.\d+)?\"' + "|" +
+		"-?\d+(?:\.\d+)?" + "|" +
+		'[‘’]-?\d+(?:\.\d+)?[‘’]' + "|" +
+		'[“”]-?\d+(?:\.\d+)?[“”]',
+
+	:numbersInString = "(?<!\w)-?\d+(?:\.\d+)?(?!\w)",
+
+
+	:numbersInParentheses = "\(\s*-?\d+(?:\.\d+)?\s*\)",
+	:numbersAfterEquals = "=\s*-?\d+(?:\.\d+)?\b",
+	:numbersInCSV = '(?<=,|;|\s|^)-?\d+(?:\.\d+)?(?=,|;|\s|$)',
+	:numbersInBrackets = '\[\s*-?\d+(?:\.\d+)?\s*\]',
+	:numbersAfterColon = ':\s*-?\d+(?:\.\d+)?\b',
+
+	:numbersAsValuesInHashList = '=\s*"?([+-]?\d+(?:\.\d+)?)"?',
+	:numbersAsValuesInPairs = ',\s*"?([+-]?\d+(?:\.\d+)?)"?',
+	:numbersAsValuesInJSON = ':\s*"?([+-]?\d+(?:\.\d+)?)"?',
+
+	:numbersInList = '\b(["' + char(39) + ']?)(-?\d+(?:\.\d+)?)(\1)\b',
 
    	# Contact Information (International)
 
