@@ -4,19 +4,6 @@ load "../max/stzmax.ring"
 #   LISTEX -  SOFTANZA LIST REGEX ENGINE - TEST SUITE   #
 #=======================================================#
 
-/*--
-*/
-pr()
-
-Lx = new stzListex('[ @S ]')
-? Lx.Match([ 'Ring' ])
-? @@( Lx.Tokens() )
-#--> TRUE
-
-proff()
-
-#---
-
 pr()
 
 ? "#----------------------------------------#"
