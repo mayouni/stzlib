@@ -1,337 +1,436 @@
-# Example implementation of stzListexuter
+# Simplified stzListexuter implementation
+# A reactive pattern matching and data transformation engine for lists
 
 func lxuter()
     return new stzListexuter
     
-    func lxu()
-        return new stzListexuter
+func lxu()
+    return new stzListexuter
 
 class stzListexuter
 
-    # Core data structures
-    aTriggers = []      # Pairs of [cTriggerName, cListPattern]
-    aCodesPerTrigger = [] # Pairs of [cTriggerName, cCodeToExecute]
+    #---------------------------#
+    # Main Data Structures      #
+    #---------------------------#
     
-    # State management
-    aState = []         # List of state entries as hashlists
-    aActiveComputations = [] # Track active computations
+    @aTriggers = []         # HashList of triggers with format [name] = pattern
+    aComputations = []      # List of computations [cTriggerName, cCode]
+    aHarvested = []         # Collected data from pattern matching and transformations
     
-    # Results tracking
-    aLastTriggers = []
-    aLastMatches = []
-    aLastResults = []
-
-    # Performance tracking attributes
-    nProcessStartTime = 0
-    nLastProcessDuration = 0
+    #---------------------------#
+    # Processing State          #
+    #---------------------------#
+    
+    aState = []             # State history tracking all transformations
+    aProcessingChain = []   # Current processing chain for dependency tracking
+    
+    #---------------------------#
+    # Results Tracking          #
+    #---------------------------#
+    
+    aCurrentMatches = []    # Current matched patterns
+    aMatchedTriggers = []   # Names of triggered patterns
+    
+    #---------------------------#
+    # Performance Metrics       #
+    #---------------------------#
+    
+    nStartTime = 0          # Process start timestamp
+    nEndTime = 0            # Process end timestamp
+    
+    #---------------------------#
+    # Initialization            #
+    #---------------------------#
     
     def init()
-        # Do nothing
-        
-    #------------------#
-    # Trigger Methods  #
-    #------------------#
+        # Initialize the class
+
+    #---------------------------#
+    # Trigger Management        #
+    #---------------------------#
     
-    def AddTrigger(aTrigger)
-        if isString(aTrigger)
-            # Handle string case - convert to pattern
-            if TriggerNameExists(aTrigger)
-                StzRaise("Trigger name already exists: " + aTrigger)
-            ok
-            aTriggers + [ aTrigger, lpat(aTrigger) ]
-            return
-        ok
-        
-        if NOT (isList(aTrigger) and len(aTrigger) = 2 and 
-                isString(aTrigger[1]) and isString(aTrigger[2]))
-            StzRaise("Incorrect parameter format! Expected [name, pattern]")
-        ok
-        
-        if TriggerNameExists(aTrigger[1])
-            StzRaise("Trigger name already exists: " + aTrigger[1])
-        ok
-        
-        aTriggers + aTrigger
-        
-    def TriggerNameExists(cName)
-        for trigger in aTriggers
-            if trigger[1] = cName
-                return TRUE
-            ok
-        next
-        return FALSE
-        
-    #---------------#
-    # Code Methods  #
-    #---------------#
+    def Trigger(aTrigger)
     
-    def AddCode(cTriggerName, cCode)
-        if NOT TriggerNameExists(cTriggerName)
-            StzRaise("Trigger does not exist: " + cTriggerName)
-        ok
-        
-        if NOT isString(cCode)
-            StzRaise("Invalid code type! Expected string.")
-        ok
-        
-        # Verify code contains @value or @list reference
-        if NOT (StringContains(cCode, "@value") or StringContains(cCode, "@list"))
-            StzRaise("Code must contain @value or @list reference.")
-        ok
-        
-        # Clean code
+	    cName = aTrigger[1]
+	    cPattern = aTrigger[2]
+
+	    # Add trigger as a pair to the list
+	    @aTriggers + [cName, cPattern]
+	
+    
+    def GetTriggerPattern(cName)   
+        return @aTriggers[cName]
+    
+    #---------------------------#
+    # Computation Management    #
+    #---------------------------#
+    
+    def AddComputation(cTriggerName, cCode)
+        return @C(cTriggerName, cCode)
+    
+    def @C(cTriggerName, cCode)
+        if isList(cTriggerName)
+		cTriggerName = cTriggerName[2]
+	ok
+        if isList(cCode)
+		cCode = cCode[2]
+	ok
+
+        # Clean computation code
         cCode = trim(cCode)
         if left(cCode, 1) = "{" and right(cCode, 1) = "}"
-            cCode = substr(cCode, 2, len(cCode)-2)
+            cCode = StzStringQ(cCode).Section(2, len(cCode)-2)
         ok
         
-        aCodesPerTrigger + [cTriggerName, cCode]
-        
-    #------------------#
-    # Process Methods  #
-    #------------------#
+        # Store computation
+        aComputations + [cTriggerName, cCode]
     
-    def Process(aList)
-        if NOT isList(aList)
-            StzRaise("Invalid input! Expected list to analyze.")
-        ok
-        
-        if len(aList) = 0
-            ResetState()
-            return
-        ok
-        
-        # Reset tracking for this process run
-        aLastMatches = []
-        aLastResults = []
-        aLastTriggers = []
-        aActiveComputations = []
-        
-        for trigger in aTriggers
-            cTriggerName = trigger[1]
-            cPattern = trigger[2]
-            
-            # Create listex pattern matcher
-            oListex = new stzListex(cPattern)
-            
-            # Find all sublists that match the pattern
-            aMatches = FindAllMatches(aList, oListex)
-            
-            if len(aMatches) > 0
-                aActiveComputations + cTriggerName
-                
-                for i = 1 to len(aMatches)
-                    match = aMatches[i]
-                    
-                    aLastMatches + match
-                    aLastTriggers + cTriggerName
-                    
-                    # Execute computation and track result
-                    computedValue = executeComputation(match, cTriggerName)
-                    aLastResults + computedValue
-                    
-                    # Record state change
-                    if NOT ListEquals(computedValue, match)
-                        AddStateEntry(cTriggerName, cPattern, match, computedValue)
-                    ok
-                next
-                
-                del(aActiveComputations, len(aActiveComputations))
-            ok
-        next
-        
-    #------------------#
-    #  Result methods  #
-    #------------------#
-
-
-
-    #------------------#
-    # Helper Methods   #
-    #------------------#
+    #---------------------------#
+    # Processing Methods        #
+    #---------------------------#
     
-    def FindAllMatches(aList, oListex)
-        # Find all sublists that match the pattern
-        aResult = []
+    def Process(pData)
+        # Main processing method that analyzes data and runs computations
         
-        # Check if the whole list matches
-        if oListex.Match(aList)
-            aResult + aList
+        # Validate input
+        if NOT (isList(pData) or isString(pData) or isNumber(pData))
+            StzRaise("Invalid input! Expected list, string, or number.")
         ok
         
-        # Check parts of the list recursively
-        if len(aList) > 0
-            for i = 1 to len(aList)
-                if isList(aList[i])
-                    # Recursively check nested list
-                    aSubMatches = FindAllMatches(aList[i], oListex)
-                    for match in aSubMatches
-                        aResult + match
-                    next
+        # Reset state for new processing run
+        ResetProcessingState()
+        
+        # Start performance timer
+        nStartTime = clock()
+        
+        # If input is not a list, convert it to a single-item list
+        aInputData = []
+        if isList(pData)
+            aInputData = pData
+        else 
+            aInputData = [pData]
+        ok
+        
+        # Process each item in the list
+        ProcessList(aInputData)
+        
+        # End performance timer
+        nEndTime = clock()
+    
+    	def Compute(pData)
+        	# Alias for Process
+       		Process(pData)
+    
+    def ProcessList(aList)
+        # Process a list by applying all triggers and their computations
+        
+ /*       # First check if entire list matches any pattern
+        if isList(@aTriggers) and len(@aTriggers) > 0
+            for cTriggerName in StzHashListQ(@aTriggers).Keys()
+                cPattern = @aTriggers[cTriggerName]
+                
+                # Check if list matches this pattern
+                if MatchesPattern(aList, cPattern)
+                    # List matches, apply computation
+                    aCurrentMatches + aList
+                    aMatchedTriggers + cTriggerName
+                    
+                    # Execute computation for this match
+                    ExecuteComputation(aList, cTriggerName)
+                    
+                    # Store in state history
+                    AddToState(cTriggerName, aList, aHarvested)
                 ok
             next
-            
-            # Check for matching sublists at this level
-            for i = 1 to len(aList)
-                for j = i to len(aList)
-                    aSubList = StzListQ(aList).Section(i, j)
-                    if oListex.Match(aSubList) and len(aSubList) > 0
-                        aResult + aSubList
-                    ok
-                next
-            next
         ok
-        
-        return aResult
-        
-    #-----------------#
-    # State Methods   #
-    #-----------------#
-    
-    def ResetState()
-        aState = []
-        aActiveComputations = []
-        
-    def AddStateEntry(cTriggerName, cPattern, aMatchedValue, aComputedValue)
-        # Create state entry
-        entry = [
-            :timeStamp = date() + " " + time(),
-            :computationOrder = len(aState) + 1,
-            
-            :triggerName = cTriggerName,
-            :pattern = cPattern,
-            :matchedValue = aMatchedValue,
-            :computedValue = aComputedValue,
-            
-            :dependsOn = aActiveComputations,
-            :affects = getAffectedTriggers(cTriggerName)
-        ]
-        
-        aState + entry
-
-
-
-# Alternative method names
-def Trigger(aTrigger)
-    This.AddTrigger(aTrigger)
-
-def AddComputation(cTriggerName, cCode)
-    This.AddCode(cTriggerName, cCode)
-
-def @C(cTriggerName, cCode)
-    This.AddCode(cTriggerName, cCode)
-
-def Compute(aList)
-    This.Process(aList)
-
-# Result access methods
-def State()
-    return aState
-
-def Triggers()
-    return aLastTriggers
-
-def Matches() 
-    return aLastMatches
-
-def Results()
-    return aLastResults
-
-def ResultsXT()
-    return Association([ This.Results(), This.Matches() ])
-
-    def ResultXT()
-        return This.ResultsXT()
-
-    def ResultsAndMatches()
-        return This.ResultsXT()
-
-    def ResultsAndTheirMatches()
-        return This.ResultsXT()
-
-def MatchesXT()
-    return Association([ This.Matches(), This.Results() ])
-
-    def MatchedValuesXT()
-        return This.MatchesXT()
-
-    def MatchesAndResults()
-        return This.MatchesXT()
-
-    def MatchesAndTheirResults()
-        return This.MatchesXT()
-
-# Dependency chain method
-def getAffectedTriggers(cTriggerName)
-    aAffected = []
-    
-    # Look through state history for triggers affected by this one
-    for entry in aState
-        if find(entry[:dependsOn], cTriggerName) > 0
-            aAffected + entry[:triggerName] 
-        ok
-    next
-
-    return unique(aAffected)
-
-def GetDependencyChain(cTriggerName)
-    aChain = []
-    
-    for entry in aState
-        if entry[:triggerName] = cTriggerName
-            aChain + entry[:dependsOn]
-            
-            for depTrigger in entry[:dependsOn]
-                aChain + This.GetDependencyChain(depTrigger)
-            next
-        ok
-    next
-
-    return unique(aChain)
-
-# Additional state management methods
-def StateByPosition()
-    # Return state entries sorted by position
-    #TODO
-    return []
-
-def StateByComputationOrder() 
-    # Return state entries sorted by computation order
-    # TODO
-    return []
-
-
-    #------------------#
-    # Private Method  #
-    #------------------#
-    
-    private
-    
-    def executeComputation(aMatchedValue, cTriggerName)
-        # Find computation code for this trigger
-        cCode = ""
-        for pair in aCodesPerTrigger
-            if pair[1] = cTriggerName
-                cCode = pair[2]
-                exit
+   */     
+        # Then recursively process each item in the list
+        for i = 1 to len(aList)
+            # Process item based on its type
+            if isList(aList[i])
+                # Recursively process nested list
+                ProcessList(aList[i])
+            else
+                # Process single item
+                ProcessItem(aList[i])
             ok
         next
+    
+    def ProcessItem(pItem)
+        # Process a single item by applying all triggers and their computations
         
-        if trim(cCode) = ""
-            return aMatchedValue
+        if isList(@aTriggers) and len(@aTriggers) > 0
+            for cTriggerName in StzHashListQ(@aTriggers).Keys()
+                cPattern = @aTriggers[cTriggerName]
+                
+                # Check if item matches this pattern
+                if MatchesPattern(pItem, cPattern)
+                    # Item matches, apply computation
+                    aCurrentMatches + pItem
+                    aMatchedTriggers + cTriggerName
+                    
+                    # Execute computation for this match
+                    ExecuteComputation(pItem, cTriggerName)
+                    
+                    # Store in state history
+                    AddToState(cTriggerName, pItem, aHarvested)
+                ok
+            next
+        ok
+    
+    def MatchesPattern(pItem, cPattern)
+        # Check if an item matches a pattern
+        
+        # Determine if it's a listex pattern or regex pattern
+        if isString(cPattern) and 
+           @StartsWith(cPattern, "[") and @EndsWith(cPattern, "]")
+
+            # It's a listex pattern
+            if isList(pItem)
+                
+                # Create listex pattern matcher
+                oListex = new stzListex(cPattern)
+                return oListex.Match(pItem)
+            ok
+        else
+            # It's a regex pattern
+            if isString(pItem)
+                # Use regex for string matching
+                oRegex = new stzRegex(cPattern)
+                return oRegex.Match(pItem)
+            but isNumber(pItem)
+                # Convert number to string for regex matching
+                oRegex = new stzRegex(cPattern)
+                return oRegex.Match("" + pItem)
+            ok
         ok
         
+        return FALSE
+    
+    def ExecuteComputation(pMatchedItem, cTriggerName)
+        # Execute computation code for a given trigger and matched item
+        
+        # Find computation code for this trigger
+        cCode = GetComputationCode(cTriggerName)
+        
+/*        if @trim(cCode) = ""
+            # No computation defined, add item as is
+            aHarvested + pMatchedItem
+            return
+        ok
+ */       
         try
-            @list = aMatchedValue
-            @value = aMatchedValue  # For compatibility 
+            # Set up computation environment
+            @item = pMatchedItem
+            @value = pMatchedItem  # For compatibility
+@string = pMatchedItem
+
+
+            @list = []
+            if isList(pMatchedItem)
+                @list = pMatchedItem
+            else
+                @list = [pMatchedItem]
+            ok
+
+            @aResult = []  # Initialize result container
+            @trigger = cTriggerName
+            
+            # Execute computation code
             eval(cCode)
             
-            # Return either @list or @value based on which was modified
-            if @list != aMatchedValue
-                return @list
+            # Process results based on what was modified
+
+            if len(@aResult) > 0
+                # If @aResult was populated, add each item to harvested
+                for item in @aResult
+                    aHarvested + item
+                next
+
             else
-                return @value
+                aOriginalList = []
+
+                if isList(pMatchedItem)
+                    aOriginalList = pMatchedItem
+                else
+                    aOriginalList = [pMatchedItem]
+                ok
+                
+                if @list != aOriginalList
+                    # If @list was modified, add each item to harvested
+                    for item in @list
+                        aHarvested + item
+                    next
+                but @value != pMatchedItem
+                    # If @value was modified, add to harvested
+                    aHarvested + @value
+                else
+                    # Default: add original item
+                    aHarvested + pMatchedItem
+                ok
             ok
+            
         catch
-            return aMatchedValue
+            ? "Error in computation for trigger " + cTriggerName
+            # In case of error, add original item
+            aHarvested + pMatchedItem
         done
+    
+    def GetComputationCode(cTriggerName)
+        # Get computation code by trigger name
+        for computation in aComputations
+            if len(computation) >= 2 and computation[1] = cTriggerName
+                return computation[2]
+            ok
+        next
+        return ""  # No computation found
+    
+    #---------------------------#
+    # State Management          #
+    #---------------------------#
+    
+    def ResetState()
+        # Reset all state variables
+        aComputations = []
+        aHarvested = []
+        
+        aState = []
+        aProcessingChain = []
+        
+        aCurrentMatches = []
+        aMatchedTriggers = []
+        
+        nStartTime = 0
+        nEndTime = 0
+    
+    def ResetProcessingState()
+        # Reset just the processing state for a new run
+        aHarvested = []
+        
+        aCurrentMatches = []
+        aMatchedTriggers = []
+        
+        aProcessingChain = []
+        
+        nStartTime = 0
+        nEndTime = 0
+    
+    def AddToState(cTriggerName, pMatchedValue, pComputedValue)
+        # Add entry to state history
+        oEntry = [
+            :timestamp = date() + " " + time(),
+            :order = len(aState) + 1,
+            :trigger = cTriggerName,
+            :pattern = GetTriggerPattern(cTriggerName),
+            :matchedValue = pMatchedValue,
+            :computedValue = pComputedValue,
+            :processingChain = aProcessingChain
+        ]
+        
+        aState + oEntry
+        
+        # Update processing chain with this trigger
+        if find(aProcessingChain, cTriggerName) = 0
+            aProcessingChain + cTriggerName
+        ok
+    
+    #---------------------------#
+    # Results Access            #
+    #---------------------------#
+    
+    def Harvest()
+        # Return harvested data
+        return aHarvested
+    
+    def Results()
+        # Alias for Harvest()
+        return Harvest()
+    
+    def Matches()
+        # Return matched patterns
+        return aCurrentMatches
+    
+    def Triggers()
+        # Return triggered pattern names
+        return aMatchedTriggers
+    
+    def State()
+        # Return state history
+        return aState
+    
+    def StateAt(n)
+        # Return state at specific position
+        if n > 0 and n <= len(aState)
+            return aState[n]
+        ok
+        return NULL
+    
+    def ProcessingTime()
+        # Return processing time in milliseconds
+        return nEndTime - nStartTime
+    
+    #---------------------------#
+    # Result Formatting         #
+    #---------------------------#
+    
+    def ResultsXT()
+        # Return results with their matching patterns
+        return Association([This.Results(), This.Matches()])
+    
+        def ResultXT()
+            return This.ResultsXT()
+    
+        def ResultsAndMatches()
+            return This.ResultsXT()
+    
+        def ResultsAndTheirMatches()
+            return This.ResultsXT()
+    
+    def MatchesXT()
+        # Return matches with their computed results
+        return Association([This.Matches(), This.Results()])
+    
+        def MatchedValuesXT()
+            return This.MatchesXT()
+    
+        def MatchesAndResults()
+            return This.MatchesXT()
+    
+        def MatchesAndTheirResults()
+            return This.MatchesXT()
+    
+    #---------------------------#
+    # Dependency Tracking       #
+    #---------------------------#
+    
+    def GetDependencyChain()
+        # Get full dependency chain
+        return aProcessingChain
+    
+    #---------------------------#
+    # Utility Methods           #
+    #---------------------------#
+    
+    def Summary()
+        # Return summary of processing
+        oSummary = [
+            :triggersCount = len(@aTriggers),
+            :computationsCount = len(aComputations),
+            :harvestedCount = len(aHarvested),
+            :matchesCount = len(aCurrentMatches),
+            :stateCount = len(aState),
+            :processingTime = ProcessingTime()
+        ]
+        
+        return oSummary
+    
+    def ToString()
+        # Return string representation of listexuter
+        cResult = "stzListexuter {" + nl
+        cResult += "   Triggers: " + len(@aTriggers) + nl
+        cResult += "   Computations: " + len(aComputations) + nl
+        cResult += "   Harvested: " + len(aHarvested) + nl
+        cResult += "   State Entries: " + len(aState) + nl
+        cResult += "}"
+        
+        return cResult

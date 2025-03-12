@@ -365,6 +365,7 @@ func ComputableFormXT(pValue, cSep1, cSep2)
             cResult = cChar + pValue + cChar
             return cResult
         ok
+
     but isList(pValue)
         aContent = pValue
         nLen = len(aContent)
@@ -454,6 +455,7 @@ func ComputableFormXT(pValue, cSep1, cSep2)
     ok
 
 # New helper function to handle nested list formatting with proper alignment
+
 func FormatNestedList(aList, cCurrentIndent)
     cResult = "["
     nLen = len(aList)

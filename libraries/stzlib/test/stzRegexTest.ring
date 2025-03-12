@@ -67,7 +67,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Partial Match: Detailed match information for UI feedback
-
+*/
 pr()
 
 o1 = new stzRegex("hello\d{3}")
