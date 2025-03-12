@@ -81,8 +81,8 @@ QQ(anNumbers) {
     ? Mean()    #-->  17260
 }
 ```
-Softanza includes a rich set of pre-built, well-tested, and **named** regex patterns. You can easily call them with the `pat()` function and use them directly in `rx(pat())`, as shown above.
+> NOTE:  `QQ()` creates a stzListOfNumbers object, unlike Q(), which creates a stzList.
+
+Softanza provides a rich set of pre-built, well-tested, and **named** regex patterns like `:NumbersInString`. Simply call them with `pat()` and use them in `rx(pat())`, as shown above—no need to write complex, error-prone regex.
 
 Their complete list can be explored in the `stzRegexData.ring` file accessible [here](https://github.com/mayouni/stzlib/blob/main/libraries/stzlib/data/stzRegexData.ring).
-
-> NOTE:  `QQ()` creates a stzListOfNumbers object, unlike Q(), which creates a stzList.
