@@ -48,19 +48,14 @@ load "stzlib.ring"
 func main
 
 # Converting the list to a string for regex processing
-
 acData = Stringify(aData)
 
-# A list to store extracted numbers
-
-anNumbers = []
-
 # Processing each item with the :NumbersInString regex
+anNumbers = []
 
 for cItem in acData
 
-    # Using the Softanza regex engine with the :NumbersInString pattern
-    
+    # Trying to match numbers in the curren string-item
     rx( pat(:NumbersInString) ) {
 
         # If numbers are matched
@@ -68,13 +63,8 @@ for cItem in acData
         if Match(cItem)
 
             # Add each match to the result list
-            
             for cMatch in Matches()
-            
                 anNumbers + @number(cMatch)
-                #~> Numbers are matched as strings, so @number()
-                # converts them to native numbers
-                
             next
         ok
     }
@@ -83,12 +73,10 @@ end
 
 # Checking the resulting list of numbers
 
-? @@(anNumbers) + NL
+? @@(anNumbers)
 #--> [ 12500, 10200, 14800, 52700, 17100, 14400, 87200, 25200, 4520, 18230, 700, 840, 110, 180, 220 ]
 
 # Converting the list to a stzListOfNumbers object for calculations
-# (QQ creates a stzListOfNumbers, unlike Q(), which creates a stzList)
-
 QQ(anNumbers) {
     ? Sum()     #--> 258900
     ? Max()     #-->  87200
@@ -96,3 +84,4 @@ QQ(anNumbers) {
     ? Mean()    #-->  17260
 }
 ```
+> NOTE:  `QQ()` creates a stzListOfNumbers object, unlike Q(), which creates a stzList.
