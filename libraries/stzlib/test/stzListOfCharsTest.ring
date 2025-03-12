@@ -111,13 +111,13 @@ proff()
 pr()
 
 ? StzListOfCharsQ("A":"E").IsContiguous()
-#--> _TRUE_
+#--> TRUE
 
 ? StzListOfCharsQ("1":"5").IsContiguous()
-#--> _TRUE_
+#--> TRUE
 
 ? StzListOfCharsQ('"ا":"ج"').IsContiguous()
-#--> _TRUE_	TODO: ERROR!
+#--> TRUE	TODO: ERROR!
 
 proff()
 # Executed in 0.07 second(s).
@@ -171,7 +171,7 @@ pr()
 ? StzListOfCharsQ("A":"E").BoxedXT([
 	:AllCorners = :Round,
 	:Hilighted = [ 1, 2, 5, 3, 7 ],
-	:Numbered = _TRUE_
+	:Numbered = TRUE
 ])
 #-->
 # ╭───┬───┬───┬───┬───╮
@@ -252,7 +252,7 @@ proff()
 pr()
 
 ? BothEndWithANumber( "day1", "day3" )
-#--> _TRUE_
+#--> TRUE
 
 proff()
 # Executed in 0.01 second(s).

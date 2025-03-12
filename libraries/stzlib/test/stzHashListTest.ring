@@ -43,19 +43,19 @@ pr()
 ? NullObject().Name()
 #--> @nullobject
 
-? _TRUE_Object().Name()
+? TRUEObject().Name()
 #--> @trueobject
 
-? _FALSE_Object().Name()
+? FALSEObject().Name()
 #--> @falseobject
 
 ? ObjectVarName( NullObject() )
 #--> @nullobject
 
-? ObjectVarName( _TRUE_Object() )
+? ObjectVarName( TRUEObject() )
 #--> @trueobject
 
-? ObjectVarName( _FALSE_Object() )
+? ObjectVarName( FALSEObject() )
 #--> @falseobject
 
 proff()
@@ -201,8 +201,8 @@ o1 = new stzHashList([
 	:Seven	= 7,
 
 	:Ten	= NullObject(),
-	:Eleven	= _TRUE_Object(),
-	:Twelve	= _FALSE_Object(),
+	:Eleven	= TRUEObject(),
+	:Twelve	= FALSEObject(),
 
 	:Thirteen = StzNamedNumberQ( :@number = 10 ),
 	:Forteen  = StzNamedStringQ( :@string = "Forteen" ),
@@ -299,8 +299,8 @@ o1 = new stzHashList([
 	:Seven	= 7,
 
 	:Ten	= NullObject(),
-	:Eleven	= _TRUE_Object(),
-	:Twelve	= _FALSE_Object(),
+	:Eleven	= TRUEObject(),
+	:Twelve	= FALSEObject(),
 
 	:Thirteen  = StzNamedNumberQ( :@number = 10 ),
 	:Forteen   = StzNamedStringQ( :@string = "Forteen" ),
@@ -498,7 +498,7 @@ o1 = new stzHashList([
 # Info about one class
 
 ? o1.ContainsKlass(:white)
-#--> _TRUE_
+#--> TRUE
 
 ? o1.KlassSize(:white)
 #--> 3
@@ -515,7 +515,7 @@ o1 = new stzHashList([
 # Info about some classes
 
 ? o1.ContainsTheseKlasses([ :white, :green ])
-#--> _TRUE_
+#--> TRUE
 
 ? @@( o1.TheseKlassesSizes([ :white, :green ]) )
 #--> [ 3, 2 ]
@@ -753,7 +753,7 @@ pr()
 o1 = new stzHashList([ :name = "mansour", :age = 45, :job = "programmer" ])
 
 ? o1.ContainsKeys([:name, :age, :job])
-#--> _TRUE_
+#--> TRUE
 
 o1.RemoveByKey(:age)
 ? o1.Content()

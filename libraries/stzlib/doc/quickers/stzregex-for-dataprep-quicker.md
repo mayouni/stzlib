@@ -41,7 +41,7 @@ aData = [
 
 Your task is to analyze this sales data and compute key statistics: the total quantity sold, as well as the minimum, maximum, and mean values.
 
-The Softanza library offers a powerful yet user-friendly regex engine, accessible through the `rx()` small function, to simplify this process. Let’s explore how it works…
+The Softanza library offers a powerful yet user-friendly regex engine, accessible through the `rx()` small function. Let’s explore how it works…
 
 ```ring
 # Converting the list items to strings for regex processing
@@ -56,7 +56,6 @@ for cItem in acData
     rx( pat(:NumbersInString) ) {
 
         # If numbers are matched
-        
         if Match(cItem)
 
             # Add each match to the result list

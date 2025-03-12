@@ -97,7 +97,7 @@ StopProfiler()
 
 /*-----------------
 
-o1.RemoveDuplicatesCS(_TRUE_)
+o1.RemoveDuplicatesCS(TRUE)
 
 ? o1.Content()
 
@@ -227,7 +227,7 @@ o1.RemoveFirstXT("_")
 ? @@( o1.Content() )
 #--> [ "B", "C", "D", "E" ]
 
-o1.RemoveThisFirstItemCS("b", :CS = _FALSE_)
+o1.RemoveThisFirstItemCS("b", :CS = FALSE)
 ? @@( o1.Content() )
 #--> [ "C", "D", "E" ]
 
@@ -315,7 +315,7 @@ o1 = new stzListOfStrings([
 pr()
 
 o1 = new stzListOfStrings([ "A", "B", "C", "D", "E", "F"])
-o1.ReplaceManyOneByOneCS([ "B", "D", "F"], :With = [ "1", "2", "3" ], :CS=_TRUE_)
+o1.ReplaceManyOneByOneCS([ "B", "D", "F"], :With = [ "1", "2", "3" ], :CS=TRUE)
 #--> [ "A", "1", "C", "2", "E", "3" ]
 ? o1.Content()
 
@@ -325,13 +325,13 @@ proff()
 /*-----------------
 
 o1 = new stzListOfStrings([ "A", "b", "C", "B" ])
-? o1.FindAllCS("B", :CS = _FALSE_)
+? o1.FindAllCS("B", :CS = FALSE)
 #--> [2, 4]
 
 /*-----------------
 
 o1 = new stzListOfStrings([ "A", "b", "C", "B" ])
-o1.ReplaceStringCS("B", "_", :CS = _FALSE_)
+o1.ReplaceStringCS("B", "_", :CS = FALSE)
 ? o1.Content() #--> [ "A", "_", "C", "_" ]
 
 /*-----------------
@@ -348,8 +348,8 @@ o1 = new stzListOfStrings([ "ONE", "TWO", "THREE" ])
 /*------------
 
 o1 = new stzListOfStrings( functions() )
-? o1.ContainsCS("StzRaise", :CS = _FALSE_)	#--> _TRUE_
-? o1.FindFirstcs("StzRaise", :CS = _FALSE_)	#--> 318
+? o1.ContainsCS("StzRaise", :CS = FALSE)	#--> TRUE
+? o1.FindFirstcs("StzRaise", :CS = FALSE)	#--> 318
 
 /*-----------------
 
@@ -650,7 +650,7 @@ o1.ReplaceInStringNTheLastOccurrence(2, "ring", "♥" )
 
 /*====================
 
-? StzStringQ("salem").IsEqualToCS("SALEM", :CS = _FALSE_) #--> _TRUE_
+? StzStringQ("salem").IsEqualToCS("SALEM", :CS = FALSE) #--> TRUE
 
 /*===================
 
@@ -667,20 +667,20 @@ o1.RemoveEmptyStrings()
 o1 = new stzListOfStrings([ "WATCH", "see", "Watch", "Observe", "watch" ])
 ? o1.StringsW('{ @string = "watch" }') #--> "watch"
 
-? o1.StringsW('{ Q(@string).IsEqualToCS("watch", :CS = _FALSE_) }')
+? o1.StringsW('{ Q(@string).IsEqualToCS("watch", :CS = FALSE) }')
 #--> [ "WATCH", "Watch", "watch" ]
 
-? o1.Yield('{ Q(@string).IsEqualToCS("watch", :CaseSensitive = _FALSE_) }')
+? o1.Yield('{ Q(@string).IsEqualToCS("watch", :CaseSensitive = FALSE) }')
 #--> [ 1, 0, 1, 0, 1 ]
 
-? o1.YieldW('@string', :Where = '{ Q(@string).IsEqualToCS("watch", :CaseSensitive = _FALSE_) }')
+? o1.YieldW('@string', :Where = '{ Q(@string).IsEqualToCS("watch", :CaseSensitive = FALSE) }')
 #--> [ "WATCH", "Watch", "watch" ]
 
 
-? o1.FindW('{ Q(@string).IsEqualToCS("watch", :CS = _FALSE_) }')
+? o1.FindW('{ Q(@string).IsEqualToCS("watch", :CS = FALSE) }')
 #--> [1, 3, 5]
 
-? o1.StringsPositionsW('{ Q(@string).IsEqualToCS("watch", :CS = _FALSE_) }')
+? o1.StringsPositionsW('{ Q(@string).IsEqualToCS("watch", :CS = FALSE) }')
 #--> [1, 3, 5]
 
 /*-------------- TODO: ERROR
@@ -689,7 +689,7 @@ o1 = new stzListOfStrings([ "WATCH", "see", "Watch", "Observe", "watch" ])
 # in stzList. And sp its condition is evaluated there, and CaseSensitivity
 # is not supported (==> Remove inheritance alltogethor!)
 
-? @@( o1.Yield("[ @string, This.Find(@string, :CS = _FALSE_) ]") )
+? @@( o1.Yield("[ @string, This.Find(@string, :CS = FALSE) ]") )
 
 /*-------------------
 
@@ -729,8 +729,8 @@ StzListOfStringsQ([ "one", "two", "three", "two", "four" ]) {
 /*-------------------
 
 StzListOfStringsQ([ "one", "two", "three", "two", "four" ]) {
-	RemoveAllCS("TWO", :CaseSensitive = _FALSE_) 
-	#--> Same as RemoveAllCS("TWO", :CS = _FALSE_)
+	RemoveAllCS("TWO", :CaseSensitive = FALSE) 
+	#--> Same as RemoveAllCS("TWO", :CS = FALSE)
 	? Content() #--> [ "one","three","four" ]
 }
 
@@ -796,12 +796,12 @@ o1 = new stzListOfStrings([
 # The following finds the hole string "name" (whatever case it has)
 # and sees if it exists AS AN ITEM of the list of strings
 
-? @@( o1.FindStringCS("name", _TRUE_) ) #--> [ ]
+? @@( o1.FindStringCS("name", TRUE) ) #--> [ ]
 
 # While the following analyses the strings themselves and finds
 # where they may include the SUBSTRING "name"
 
-? @@( o1.FindSubstringCS("name", :CS = _FALSE_) )
+? @@( o1.FindSubstringCS("name", :CS = FALSE) )
 #--> [
 #	[ 1, [ 13    ] ],
 #	[ 3, [ 6, 21 ] ]
@@ -812,12 +812,12 @@ o1 = new stzListOfStrings([
 #	- in the 3rd string at positions 6 and 21
 
 # Now guess the following:
-? @@( o1.FindStringCS("mabrooka", :CaseSensitive = _FALSE_) )
+? @@( o1.FindStringCS("mabrooka", :CaseSensitive = FALSE) )
 #--> [ 2, 6 ]
 #--> "mabourka" exists (whatever case is) as an entire string item in positions 2 and 6
 
 # And this one:
-? @@( o1.FindSubstringCS("mabrooka", :CaseSensitive = _FALSE_) )
+? @@( o1.FindSubstringCS("mabrooka", :CaseSensitive = FALSE) )
 #--> [
 # 	[ 2, [ 1 ] ],
 # 	[ 6, [ 1 ] ]
@@ -837,13 +837,13 @@ o1 = new stzListOfStrings([
 	"Mabrooka"
 ])
 
-? @@( o1.FindSubstringCS("name", _TRUE_) ) + NL
+? @@( o1.FindSubstringCS("name", TRUE) ) + NL
 #--> [
 #	[ 1, [ 13    ] ],
 #	[ 3, [ 6, 21 ] ]
 #    ]
 
-? @@( o1.FindNthSubstringCS(2, "name", _TRUE_) )
+? @@( o1.FindNthSubstringCS(2, "name", TRUE) )
 #--> [ 3, 6 ]
 #--> The 2nd occurrenc of "name" in the list
 # of strings is in position 6 of the 3rd string.
@@ -859,7 +859,7 @@ o1 = new stzListOfStrings([
 	"Mabrooka"
 ])
 
-? @@( o1.FindManySubstringsCSXT([ "name", "nice" ], _TRUE_) )
+? @@( o1.FindManySubstringsCSXT([ "name", "nice" ], TRUE) )
 #--> [
 #	[ "name" , [ [ 1, 13 ], [ 3, 6 ], [ 3, 21 ] ] ],
 #	[ "nice" , [ [ 3, 16 ] ] ]
@@ -876,10 +876,10 @@ o1 = new stzListOfStrings([
 	"Mabrooka"
 ])
 
-? o1.FindStringCS("i see", :CaseSensitive = _FALSE_) #--> [4]
-? o1.FindStringCS("mabrooka", :CaseSensitive = _FALSE_) #--> [ 2, 6 ]
+? o1.FindStringCS("i see", :CaseSensitive = FALSE) #--> [4]
+? o1.FindStringCS("mabrooka", :CaseSensitive = FALSE) #--> [ 2, 6 ]
 
-? o1.FindManyStringsCS( [ "i see", "mabrooka" ], :CS = _FALSE_ ) # [ 2, 4, 6 ]
+? o1.FindManyStringsCS( [ "i see", "mabrooka" ], :CS = FALSE ) # [ 2, 4, 6 ]
 
 
 /*================
@@ -891,10 +891,10 @@ o1 = new stzListOfStrings([ "aaa", "bbb", "ccc" ])
 #--> :Ascending
 
 ? o1.IsSortedInAscending()
-#--> _TRUE_
+#--> TRUE
 
 ? o1.StringsAreSortedInAscending()
-#--> _TRUE_
+#--> TRUE
 
 proff()
 # Executed in 0.08 second(s)
@@ -908,10 +908,10 @@ o1 = new stzListOfStrings([ "ccc", "bbb", "aaa" ])
 #--> :Descending
 
 ? o1.IsSortedInDescending()
-#--> _TRUE_
+#--> TRUE
 
 ? o1.StringsAreSortedInDescending()
-#--> _TRUE_
+#--> TRUE
 
 proff()
 # Executed in 0.09 second(s)
@@ -925,10 +925,10 @@ o1 = new stzListOfStrings([ "aaa", "ccc", "bbb" ])
 #--> :Unsorted
 
 ? o1.IsSortedInAscending()
-#--> _FALSE_
+#--> FALSE
 
 ? o1.IsSortedInDescending()
-#--> _FALSE_
+#--> FALSE
 
 proff()
 # Executed in 0.09 second(s)
@@ -1025,17 +1025,17 @@ proff()
 pr()
 
 o1 = new stzListOfStrings([ "aaa bbb ccc", "mm nnn oo", "aaa vvv", "nn yyy", "aa bb c" ])
-? o1.WordsOfEachStringAreSortedInAscending()	#--> _TRUE_
+? o1.WordsOfEachStringAreSortedInAscending()	#--> TRUE
 
 o1 = new stzListOfStrings([ "ccc bbb aaa", "oo nnn mm", "vvv aaa", "yyy nn", "c bb aa" ])
-? o1.WordsOfEachStringAreSortedInDescending()	#--> _TRUE_
+? o1.WordsOfEachStringAreSortedInDescending()	#--> TRUE
 
 proff()
 
 /*--------------- TODO/FUTURE
 
 o1 = new stzListOfStrings([ "aaa bbb ccc", "mm nnn oo", "vvv aaa", "yyy nn", "bb aa c" ])
-? o1.WordsOfEachStringAreSortedInAscending() #--> _FALSE_
+? o1.WordsOfEachStringAreSortedInAscending() #--> FALSE
 
 ? o1.WordsOfEachStringSortedInAscending()
 #--> [ "aaa bbb ccc", 
@@ -1045,7 +1045,7 @@ o1 = new stzListOfStrings([ "aaa bbb ccc", "mm nnn oo", "vvv aaa", "yyy nn", "bb
 	"aa bb c"
 #     ]
 
-? o1.WordsOfEachStringAreSortedInAscending() #--> _FALSE_
+? o1.WordsOfEachStringAreSortedInAscending() #--> FALSE
 
 ? o1.WordsOfEachStringSortedInDescending()
 #--> [ "ccc bbb aaa", 
@@ -1073,10 +1073,10 @@ pr()
 
 o1 = new stzListOfStrings([ "abcde", "bdace", "ebadc", "debac", "edcba" ])
 ? o1.AreAnagrams()
-#--> _TRUE_
+#--> TRUE
 
 ? o1.IsListOfAnagrams()
-#--> _TRUE_
+#--> TRUE
 
 proff()
 # Executed in 1.49 second(s)
@@ -1084,9 +1084,9 @@ proff()
 /*================
 
 o1 = new stzListOfStrings([ "tom", "sam", "dan" ])
-? o1.ContainsCS("sam", _TRUE_)	#--> _TRUE_
-? o1.ContainsCS("SAM", _TRUE_)	#--> _FALSE_
-? o1.ContainsCS("SAM", :CS = _FALSE_)	#--> _TRUE_
+? o1.ContainsCS("sam", TRUE)	#--> TRUE
+? o1.ContainsCS("SAM", TRUE)	#--> FALSE
+? o1.ContainsCS("SAM", :CS = FALSE)	#--> TRUE
 
 /*================
 
@@ -1205,7 +1205,7 @@ o1 = new stzList([
 	"TUNIS", "GAFSA", "SFAX", "BEJA", "GABES", "REGUEB"
 ])
 
-? o1.IsUppercase() #--> _TRUE_
+? o1.IsUppercase() #--> TRUE
 
 proff()
 # Executed in 0.06 second(s).
@@ -1233,20 +1233,20 @@ o1 = new stzListOfStrings([
 	"lyria-systems", "noon-consulting", "ifes", "mourakiboun",
 	"ISIE", "HNEC", "HAICA", "kalidia", "triciti", "maxeam", "Ring" ])
 
-? o1.ContainsEachCS([ "IFES", "HAICA" ], _TRUE_ )
-#--> _FALSE_ (because 'ifes' is lowercase)
+? o1.ContainsEachCS([ "IFES", "HAICA" ], TRUE )
+#--> FALSE (because 'ifes' is lowercase)
 
 ? o1.ContainsEach([ "Ring", "keyrus" ])
-#--> _TRUE_
+#--> TRUE
 
-? o1.ContainsBothCS("WHITECAPE", "MEDIANET", :CS = _FALSE_)
-#--> _TRUE_
+? o1.ContainsBothCS("WHITECAPE", "MEDIANET", :CS = FALSE)
+#--> TRUE
 
-? o1.ContainsBothCS( "WHITECAPE", "Medianet", :CS = _FALSE_ )
-#--> _TRUE_
+? o1.ContainsBothCS( "WHITECAPE", "Medianet", :CS = FALSE )
+#--> TRUE
 
 ? o1.ContainsBoth("Medianet", "ST2i")
-#--> _TRUE_
+#--> TRUE
 
 proff()
 # Executed in 0.08 second(s)
@@ -1260,7 +1260,7 @@ o1 = new stzListOfStrings([
 	:tunis, :tunis, :regueb, :tuta, :regueb, "Tunis"
 ])
 
-? @@( o1.FindAllCS("Tunis", :CS = _FALSE_) )
+? @@( o1.FindAllCS("Tunis", :CS = FALSE) )
 #--> [ 1, 2, 3, 5, 6, 8, 9, 13 ]
 
 proff()
@@ -1279,10 +1279,10 @@ o1 = new stzList([
 ? @@(o1.FindAll("tunis"))
 #--> [ 6, 7, 14 ]
 
-? @@(o1.FindAllCS("tunis", _TRUE_))
+? @@(o1.FindAllCS("tunis", TRUE))
 #--> [ 6, 7, 14 ]
 
-? @@( o1.FindAllCS("tunis", :cs = _FALSE_) )
+? @@( o1.FindAllCS("tunis", :cs = FALSE) )
 #--> [ 1, 2, 3, 4, 6, 7, 9, 10, 14 ]
 
 proff()
@@ -1299,7 +1299,7 @@ o1 = new stzList([
 
 
 ? o1.ContainsDuplicatedItems() + NL
-#--> _TRUE_
+#--> TRUE
 # Executed in 0.10 second(s)
 
 	//? o1.NumberOfDuplicatedItems()
@@ -1321,7 +1321,7 @@ o1 = new stzList([
 
 //? o1.ContainsDuplicatedItem("tunis")
 //? o1.ContainsDuplicationsOf("tunis")
-#--> _TRUE_
+#--> TRUE
 # Executed in 0.10 second(s)
 
 ? @@( o1.FindDuplicationsOf("tunis") ) + NL
@@ -1343,12 +1343,12 @@ o1 = new stzList([
 	"tunis", "tunis", "regueb", "sfax", "regueb", "Tunis"
 ])
 
-? @@( o1.FindDuplicationsOfItemCS("tunis", :CS = _FALSE_) )
+? @@( o1.FindDuplicationsOfItemCS("tunis", :CS = FALSE) )
 #--> [ 2, 3, 5, 6, 8, 9, 13 ]
 # Executed in 0.12 second(s)
 
-? o1.ContainsDuplicatedString("regueb") #--> _TRUE_
-#--> _TRUE_
+? o1.ContainsDuplicatedString("regueb") #--> TRUE
+#--> TRUE
 # Executed in 0.06 second(s)
 
 ? o1.FindDuplicatedString("regueb")
@@ -1384,8 +1384,8 @@ o1 = new stzList([
 #--> 1
 # Executed in 0.10 second(s)
 
-? o1.StringIsDuplicatedNTimes("tunis", 6)	#--> _TRUE_
-? o1.StringIsDuplicatedNTimes("regueb", 1)	#--> _TRUE_
+? o1.StringIsDuplicatedNTimes("tunis", 6)	#--> TRUE
+? o1.StringIsDuplicatedNTimes("regueb", 1)	#--> TRUE
 
 ? @@( o1.FindDuplicates() )
 #--> [ 2, 3, 5, 6, 8, 9, 12 ]
@@ -1416,7 +1416,7 @@ o1 = new stzListOfStrings([
 #--> [ 2, 3, 5, 6, 8, 9 ]
 # Executed in 0.11 second(s)
 
-? @@( o1.FindDuplicatesOfStringCS("tunis", :CS = _FALSE_) )
+? @@( o1.FindDuplicatesOfStringCS("tunis", :CS = FALSE) )
 #--> [ 2, 3, 5, 6, 8, 9, 13 ]
 # Executed in 0.12 second(s)
 
@@ -1451,15 +1451,15 @@ o1 = new stzListOfStrings([
 ? NL + "--" + NL
 
 
-? o1.NumberOfDuplicatesCS(_FALSE_)
+? o1.NumberOfDuplicatesCS(FALSE)
 #--> 8
 # Executed in 0.67 second(s)
 
-? @@( o1.FindDuplicatesCS(_FALSE_) )
+? @@( o1.FindDuplicatesCS(FALSE) )
 #--> [ 2, 3, 5, 6, 8, 9, 12, 13 ]
 # Executed in 0.47 second(s)
 
-? @@( o1.DuplicatesCSZ(_FALSE_) ) # Or DuplicatesAndTheirPositions()
+? @@( o1.DuplicatesCSZ(FALSE) ) # Or DuplicatesAndTheirPositions()
 #--> [
 #	[ "tunis",  [ 2, 3, 5, 6, 8, 9, 13 ] ],
 #	[ "regueb", [ 12 ] ]
@@ -1494,7 +1494,7 @@ o1 = new stzListOfStrings([
 	"tunis", "tunis", "regueb", "sfax", "regueb", "Tunis"
 ])
 
-o1.RemoveDuplicatesCS(_FALSE_)
+o1.RemoveDuplicatesCS(FALSE)
 ? @@(o1.Content())
 #--> [ "tunis", "gatfsa", "gabes", "regueb", "sfax" ]
 
@@ -1510,15 +1510,15 @@ o1 = new stzListOfStrings([
 	"tunis", "tunis", "Regueb", "sfax", "regueb", "Tunis"
 ])
 
-? @@( o1.DuplicatedStringsCS(_FALSE_) )
+? @@( o1.DuplicatedStringsCS(FALSE) )
 #--> [ "tunis", "regueb" ]
 # Executed in 0.38 second(s)
 
-? @@( o1.FindDuplicatedStringsCS(_FALSE_) )
+? @@( o1.FindDuplicatedStringsCS(FALSE) )
 #--> [ 1, 2, 3, 5, 6, 8, 9, 13, 10, 12 ]
 # Executed in 0.50 second(s)
 
-? @@( o1.DuplicatedStringsCSZ(_FALSE_) )
+? @@( o1.DuplicatedStringsCSZ(FALSE) )
 #--> [
 #	[ "tunis",  [ 1, 2, 3, 5, 6, 8, 9, 13 ] ],
 #	[ "regueb", [ 10, 12 ] ]
@@ -1528,15 +1528,15 @@ o1 = new stzListOfStrings([
 #--
 ? NL + "--" + NL
 
-? @@( o1.DuplicatedStringsCS(_TRUE_) )
+? @@( o1.DuplicatedStringsCS(TRUE) )
 #--> [ "tunis" ]
 # Executed in 0.27 second(s)
 
-? @@( o1.FindDuplicatedStringsCS(_TRUE_) )
+? @@( o1.FindDuplicatedStringsCS(TRUE) )
 #--> [ 1, 2, 3, 5, 6, 8, 9 ]
 # Executed in 0.35 second(s)
 
-? @@( o1.DuplicatedStringsCSZ(_TRUE_) )
+? @@( o1.DuplicatedStringsCSZ(TRUE) )
 #--> [ [ "tunis", [ 1, 2, 3, 5, 6, 8, 9 ] ] ]
 # Executed in 0.35 second(s)
 
@@ -1552,11 +1552,11 @@ o1 = new stzListOfStrings([
 	"tunis", "tunis", "Regueb", "sfax", "regueb", "Tunis"
 ])
 
-? @@( o1.DuplicatedStringsCS(_FALSE_) )
+? @@( o1.DuplicatedStringsCS(FALSE) )
 #--> [ "tunis", "regueb" ]
 # Executed in 0.36 second(s)
 
-o1.RemoveDuplicatedStringsCS(_FALSE_)
+o1.RemoveDuplicatedStringsCS(FALSE)
 ? @@( o1.Content() )
 #--> [ "gatfsa", "gabes", "sfax" ]
 
@@ -1573,7 +1573,7 @@ o1 = new stzListOfStrings([
 ])
 
 ? o1.ContainsNonDuplicatedStrings()
-#--> _TRUE_
+#--> TRUE
 # Executed in 0.26 second(s)
 
 ? @@( o1.NumberOfNonDuplicatedStrings() )
@@ -1608,23 +1608,23 @@ pr()
 
 o1 = new stzListOfStrings([ "one", "ONE", "two", "TWO" ])
 
-? o1.ContainsNonDuplicatedStringsCS(_TRUE_)
-#--> _TRUE_: In fact all strings are different when case sensitivity applies
+? o1.ContainsNonDuplicatedStringsCS(TRUE)
+#--> TRUE: In fact all strings are different when case sensitivity applies
 
-? o1.ContainsNonDuplicatedStringsCS(_FALSE_)
-#--> _FALSE_: In fact, "one" equals "ONE" and "two" equals "TWO" when case sensitiviy
-# is applied. So, the list contains duplicated strings and the result is _FALSE_.
+? o1.ContainsNonDuplicatedStringsCS(FALSE)
+#--> FALSE: In fact, "one" equals "ONE" and "two" equals "TWO" when case sensitiviy
+# is applied. So, the list contains duplicated strings and the result is FALSE.
 
-? @@( o1.NumberOfNonDuplicatedStringsCS(_TRUE_) )
+? @@( o1.NumberOfNonDuplicatedStringsCS(TRUE) )
 #--> 4
 
-? @@( o1.FindNonDuplicatedStringsCS(_TRUE_) )
+? @@( o1.FindNonDuplicatedStringsCS(TRUE) )
 #--> [ 1, 2, 3, 4 ]
 
-? @@( o1.NonDuplicatedStringsCS(_TRUE_) )
+? @@( o1.NonDuplicatedStringsCS(TRUE) )
 #--> [ "one", "ONE", "two", "TWO" ]
 
-? @@( o1.NonDuplicatedStringsCSZ(_TRUE_) ) # Or NonDuplicatedStringsAndTheirPositionsCS()
+? @@( o1.NonDuplicatedStringsCSZ(TRUE) ) # Or NonDuplicatedStringsAndTheirPositionsCS()
 #--> [
 #	[ "one", 1 ],
 #	[ "ONE", 2 ],
@@ -1641,23 +1641,23 @@ pr()
 
 o1 = new stzList([ "one", "ONE", "two", "TWO" ])
 
-? o1.ContainsNonDuplicatedItemsCS(_TRUE_)
-#--> _TRUE_: In fact all strings are different when case sensitivity applies
+? o1.ContainsNonDuplicatedItemsCS(TRUE)
+#--> TRUE: In fact all strings are different when case sensitivity applies
 
-? o1.ContainsNonDuplicatedItemsCS(_FALSE_)
-#--> _FALSE_: In fact, "one" equals "ONE" and "two" equals "TWO" when case sensitiviy
-# is applied. So, the list contains duplicated strings and the result is _FALSE_.
+? o1.ContainsNonDuplicatedItemsCS(FALSE)
+#--> FALSE: In fact, "one" equals "ONE" and "two" equals "TWO" when case sensitiviy
+# is applied. So, the list contains duplicated strings and the result is FALSE.
 
-? @@( o1.NumberOfNonDuplicatedItemsCS(_TRUE_) )
+? @@( o1.NumberOfNonDuplicatedItemsCS(TRUE) )
 #--> 4
 
-? @@( o1.FindNonDuplicatedItemsCS(_TRUE_) )
+? @@( o1.FindNonDuplicatedItemsCS(TRUE) )
 #--> [ 1, 2, 3, 4 ]
 
-? @@( o1.NonDuplicatedItemsCS(_TRUE_) )
+? @@( o1.NonDuplicatedItemsCS(TRUE) )
 #--> [ "one", "ONE", "two", "TWO" ]
 
-? @@( o1.NonDuplicatedItemsCSZ(_TRUE_) ) # Or NonDuplicatedStringsAndTheirPositionsCS()
+? @@( o1.NonDuplicatedItemsCSZ(TRUE) ) # Or NonDuplicatedStringsAndTheirPositionsCS()
 #--> [
 #	[ "one", 1 ],
 #	[ "ONE", 2 ],
@@ -1677,11 +1677,11 @@ o1 = new stzListOfStrings([
 	"tunis", "tunis", "Regueb", "sfax", "regueb", "Tunis"
 ])
 
-//? @@( o1.DuplicatedStringsCS(_TRUE_) )
+//? @@( o1.DuplicatedStringsCS(TRUE) )
 #--> [ "tunis" ]
 # Executed in 0.26 second(s)
 
-o1.RemoveDuplicatedStringsCS(_TRUE_)
+o1.RemoveDuplicatedStringsCS(TRUE)
 ? @@( o1.Content() )
 #--> [ "gatfsa", "gabes", "Regueb", "sfax", "regueb", "Tunis" ]
 # Executed in 0.35 second(s)
@@ -1727,17 +1727,17 @@ o1 = new stzListOfStrings(  [ "Tunis", "gafsa", "tunis", "gabes", "tunis", "regu
 /*--------------
 
 o1 = new stzListOfStrings(  [ "Tunis", "gatufsa", "tunis", "gabes", "tunis", "regueb", "tuta", "regueb" ])
-? o1.FindNthOccurrenceCS(2, "tunis", _TRUE_) #--> 5
+? o1.FindNthOccurrenceCS(2, "tunis", TRUE) #--> 5
 
-? @@(o1.StringsContainingCS("tu", _TRUE_)) # Same as o1.FilterCS("tu", _TRUE_)
+? @@(o1.StringsContainingCS("tu", TRUE)) # Same as o1.FilterCS("tu", TRUE)
 #--> [ "gatufsa","tunis","tunis","tuta" ]
 
-? @@( o1.UniqueStringsContainingCS("tu", _TRUE_) )
+? @@( o1.UniqueStringsContainingCS("tu", TRUE) )
 #--> [ "gatufsa", "tunis", "tuta" ]
 
 /*--------------
 
-? StzStringQ("CAIRO").BoxedXT([ :EachChar = _TRUE_, :AllCorners = :Round ])
+? StzStringQ("CAIRO").BoxedXT([ :EachChar = TRUE, :AllCorners = :Round ])
 
 #--> 	╭───┬───┬───┬───┬───╮
 # 	│ C │ A │ I │ R │ O │
@@ -1762,9 +1762,9 @@ o1 = new stzListOfStrings([ "CAIRO", "TUNIS", "PARIS" ])
 
 o1 = new stzListOfStrings([ "CAIRO", "TUNIS", "PARIS" ])
 
-? o1.BoxXT([ :AllCorners = :Round, :EachChar = _TRUE_ ])
+? o1.BoxXT([ :AllCorners = :Round, :EachChar = TRUE ])
 /*
-? o1.BoxedXT([ :AllCorners = :Round, :EachChar = _FALSE_, :Width = 10, :TextAdjustedTo = :Right ])
+? o1.BoxedXT([ :AllCorners = :Round, :EachChar = FALSE, :Width = 10, :TextAdjustedTo = :Right ])
 ? o1.VizFindBoxed("I")
 
 ? o1.boxedXT([ :line = :dashed,
@@ -1823,7 +1823,7 @@ o1 = new stzListOfStrings([
 	"Mabrooka"
 ])
 
-? @@( o1.FindSubStringsCS([ "name", "mabrooka" ], :CaseSensitive = _FALSE_) )
+? @@( o1.FindSubStringsCS([ "name", "mabrooka" ], :CaseSensitive = FALSE) )
 #-->
 # [
 #	[ [ 1, [ 13 ] ], [ 3, [ 6, 18 ] ] ],	#>>> "name" is found here
@@ -1868,7 +1868,7 @@ o1 = new stzListOfStrings([ "aabc", "abxaaxcccz", "aattaacvv" ])
 /*====================
 
 o1 = new stzListOfStrings([ "aabc", "abxaaxcccz", "aattaacvv" ])
-? o1.ContainsSubStringInEachString("aa") #--> _TRUE_
+? o1.ContainsSubStringInEachString("aa") #--> TRUE
 
 ? @@( o1.UniqueChars() )	#TODO // fix performance lag!
 #--> [ "a", "b", "c", "x", "z", "t", "v" ]

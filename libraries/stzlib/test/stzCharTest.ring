@@ -235,10 +235,10 @@ pr()
 
 o1 = new stzChar("Ɯ")
 ? o1.IsTurned()
-#--> _TRUE_
+#--> TRUE
 
 ? o1.IsTurnable()
-#--> _TRUE_
+#--> TRUE
 
 ? o1.Turned()
 #--> M
@@ -247,10 +247,10 @@ o1 = new stzChar("Ɯ")
 
 o1 = new stzChar("M")
 ? o1.IsTurned()
-#--> _FALSE_
+#--> FALSE
 
 ? o1.IsTurnable()
-#--> _TRUE_
+#--> TRUE
 
 ? o1.Turned()
 #--> Ɯ
@@ -263,19 +263,19 @@ proff()
 pr()
 
 ? QQ("Ǝ").IsTurned()
-#--> _TRUE_
+#--> TRUE
 
 ? QQ("Ⅎ").IsTurned()
-#--> _TRUE_
+#--> TRUE
 
 ? QQ("I").IsTurned()
-#--> _TRUE_
+#--> TRUE
 
 ? QQ("⅂").IsTurned()
-#--> _TRUE_
+#--> TRUE
 
 ? Q("ƎℲI⅂").IsTurned()
-#--> _TRUE_
+#--> TRUE
 
 ? Q("ƎℲI⅂").Turned()
 #--> LIFE
@@ -563,7 +563,7 @@ proff()
 ? StzCharQ("CHECK MARK").Content() 	#--> ✓
 ? CQ("NOT CHECK MARK").Content()	#--> ⍻
 
-? StzCharQ("Ã").IsLatinDiacritic() 	#--> _TRUE_
+? StzCharQ("Ã").IsLatinDiacritic() 	#--> TRUE
 # To get the list of latin diacritics use LatinDiacritics()
 
 ? StzCharQ(" ").CharType() #--> separator_space
@@ -607,7 +607,7 @@ o1 = new stzChar(12500)
 
 /*-------------------
 
-? IsUnicodeHex("U+33B2") #--> _TRUE_
+? IsUnicodeHex("U+33B2") #--> TRUE
 
 /*-------------------
 
@@ -671,19 +671,19 @@ o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO // fix performance lag!
 
 /*-------------------
 
-? StzCharQ("R").IsCharOf("Ring") 	#--> _TRUE_
-? StzCharQ("R").IsLetterOf("Ring") 	#--> _TRUE_
+? StzCharQ("R").IsCharOf("Ring") 	#--> TRUE
+? StzCharQ("R").IsLetterOf("Ring") 	#--> TRUE
 
 /*-------------------
 
 ? StzCharQ("R").UnicodeCategoryNumber() #--> 14
 
-? StzStringQ("RiNG").IsLowercase()	#--> _FALSE_
-? StzCharQ("R").IsLetter() 		#--> _TRUE_
+? StzStringQ("RiNG").IsLowercase()	#--> FALSE
+? StzCharQ("R").IsLetter() 		#--> TRUE
 
 /*-------------------
 
-? StzCharQ("_").IsWordNonLetterChar() #--> _TRUE_
+? StzCharQ("_").IsWordNonLetterChar() #--> TRUE
 ? WordNonLetterChars()
 #--> [ "_", "-", "*", "/", "\", "+", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ]
 
@@ -704,11 +704,11 @@ o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO // fix performance lag!
 
 /*-------------------
 
-? StzCharQ("à").IsDiacricised() #--> _TRUE_
-? StzCharQ("à").IsLatinDiacritic() #--> _TRUE_
+? StzCharQ("à").IsDiacricised() #--> TRUE
+? StzCharQ("à").IsLatinDiacritic() #--> TRUE
 
-? StzCharQ(ArabicFat7ah()).IsDiacritic() #--> _TRUE_
-? StzCharQ(ArabicFat7ah()).IsArabicDiacritic() #--> _TRUE_
+? StzCharQ(ArabicFat7ah()).IsDiacritic() #--> TRUE
+? StzCharQ(ArabicFat7ah()).IsArabicDiacritic() #--> TRUE
 
 /*--------------------
 
@@ -717,7 +717,7 @@ o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO // fix performance lag!
 	
 /*--------------------
 
-? StzCharQ("Â").IsLatinDiacritic() #--> _TRUE_
+? StzCharQ("Â").IsLatinDiacritic() #--> TRUE
 
 /*----------------------
 
@@ -726,7 +726,7 @@ o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO // fix performance lag!
 
 /*----------------------
 
-? StzCharQ("v").IsInvertible() #--> _TRUE_
+? StzCharQ("v").IsInvertible() #--> TRUE
 ? StzCharQ("v").Inverted() #--> ʌ
 
 /*-------------
@@ -787,9 +787,9 @@ o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO // fix performance lag!
 
 /*-------------
 
-? StzCharQ("n").IsVisible() #--> _TRUE_
+? StzCharQ("n").IsVisible() #--> TRUE
 
-? StzCharQ(8207).IsInvisible() #--> _TRUE_
+? StzCharQ(8207).IsInvisible() #--> TRUE
 ? StzCharQ(8207).Name() #--> RIGHT-TO-LEFT MARK
 
 /*-------------
@@ -798,39 +798,39 @@ o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO // fix performance lag!
 
 /*-------------
 
-? StzCharQ("a").IsAsciiLetter() #--> _TRUE_
+? StzCharQ("a").IsAsciiLetter() #--> TRUE
 
 /*---------
 
 
-? StzCharQ("ỳ").IsDiacritic() #--> _TRUE_
+? StzCharQ("ỳ").IsDiacritic() #--> TRUE
 ? StzCharQ("ỳ").Name() #--> LATIN SMALL LETTER Y WITH GRAVE
 
-? StzCharQ("ž").IsDiacritic() #--> _TRUE_
+? StzCharQ("ž").IsDiacritic() #--> TRUE
 ? StzCharQ("ž").Name() #--> LATIN SMALL LETTER Z WITH CARON
 
-? StzCharQ("đ").IsDiacritic() #--> _TRUE_
+? StzCharQ("đ").IsDiacritic() #--> TRUE
 ? StzCharQ("đ").Name() #--> LATIN SMALL LETTER D WITH STROKE
 
-? StzcharQ("é").IsDiacritic() #--> _TRUE_
+? StzcharQ("é").IsDiacritic() #--> TRUE
 ? StzcharQ("é").Name() #--> LATIN SMALL LETTER E WITH ACUTE
 
-? StzCharQ("ῃ").IsDiacritic() #--> _FALSE_
+? StzCharQ("ῃ").IsDiacritic() #--> FALSE
 ? StzCharQ("ῃ").Name() #--> GREEK SMALL LETTER ETA WITH YPOGEGRAMMENI
 
-? StzCharQ("ὸ").IsDiacritic() #--> _FALSE_
+? StzCharQ("ὸ").IsDiacritic() #--> FALSE
 ? StzCharQ("ὸ").Name() #--> GREEK SMALL LETTER OMICRON WITH VARIA
 
-? StzCharQ("ὑ").IsDiacritic() #--> _FALSE_
+? StzCharQ("ὑ").IsDiacritic() #--> FALSE
 ? StzCharQ("ὑ").Name() #--> GREEK SMALL LETTER UPSILON WITH DASIA
 
-? StzCharQ("ē").IsDiacritic() #--> _TRUE_
+? StzCharQ("ē").IsDiacritic() #--> TRUE
 ? StzCharQ("ē").Name() #--> LATIN SMALL LETTER E WITH MACRON
 
-? StzCharQ("ُ").IsDiacritic() #--> _TRUE_
+? StzCharQ("ُ").IsDiacritic() #--> TRUE
 ? StzCharQ("ُ").Name() #--> ARABIC DAMMA
 
-? StzCharQ("׳").IsDiacritic() #--> _FALSE_
+? StzCharQ("׳").IsDiacritic() #--> FALSE
 ? StzCharQ("׳").Name() #--> HEBREW PUNCTUATION GERESH
 
 /*-------------
@@ -860,25 +860,25 @@ o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO // fix performance lag!
 
 /*--------------
 
-? StzCharQ("ʍ").IsTurnedChar() #--> _TRUE_
-? StzCharQ("ᴟ").IsTurnedChar() #--> _TRUE_
-? StzCharQ("ꟺ").IsTurnedChar() #--> _TRUE_
+? StzCharQ("ʍ").IsTurnedChar() #--> TRUE
+? StzCharQ("ᴟ").IsTurnedChar() #--> TRUE
+? StzCharQ("ꟺ").IsTurnedChar() #--> TRUE
 
 /*-------------
 
 o1 = new stzChar("-")
-? o1.IsLetter() #--> _FALSE_
-? o1.Islowercase() #--> _FALSE_
+? o1.IsLetter() #--> FALSE
+? o1.Islowercase() #--> FALSE
 
 /*------------
 
 o1 = new stzChar("ح")
-? o1.ScriptIs(:Arabic) #--> _TRUE_
-? o1.IsArabicScript()  #--> _TRUE_
+? o1.ScriptIs(:Arabic) #--> TRUE
+? o1.IsArabicScript()  #--> TRUE
 
 o1 = new stzChar("j")
-? o1.ScriptIs(:Latin) #--> _TRUE_
-? o1.IsLatinScript()  #--> _TRUE_
+? o1.ScriptIs(:Latin) #--> TRUE
+? o1.IsLatinScript()  #--> TRUE
 
 /*-------------
 
@@ -886,17 +886,17 @@ o1 = new stzChar("j")
 
 o1 = new stzChar("ُ")
 
-? o1.IsArabic7arakah() #--> _TRUE_
+? o1.IsArabic7arakah() #--> TRUE
 
 ? o1.Name() #--> ARABIC DAMMA
-? o1.NameIs("ARABIC DAMMA") #--> _TRUE_
+? o1.NameIs("ARABIC DAMMA") #--> TRUE
 
 /*-------------
 
-? StzCharQ("،").IsWordSeparator() 	#--> _TRUE_
-? StzCharQ(" ").IsWordSeparator() 	#--> _TRUE_
-? StzCharQ(".").IsSentenceSeparator() 	#--> _TRUE_
-? StzCharQ(NL).IsLineSeparator() 	#--> _TRUE_
+? StzCharQ("،").IsWordSeparator() 	#--> TRUE
+? StzCharQ(" ").IsWordSeparator() 	#--> TRUE
+? StzCharQ(".").IsSentenceSeparator() 	#--> TRUE
+? StzCharQ(NL).IsLineSeparator() 	#--> TRUE
 
 /*-------------
 
@@ -909,55 +909,55 @@ o1 = new stzChar("س")
 /*-------------
 
 o1 = new stzChar(" ")
-? o1.IsSpace() #--> _TRUE_
+? o1.IsSpace() #--> TRUE
 
 /*-------------
 
 o1 = new stzChar("٠")
 ? o1.Script()	#--> arabic
 ? o1.unicode()	#--> 1632
-? o1.IsDigit()	#--> _TRUE_
+? o1.IsDigit()	#--> TRUE
 ? o1.Name()	#--> ARABIC-INDIC DIGIT ZERO
 ? ""
 o1 = new stzChar("۰")
 ? o1.Script()	#--> arabic
 ? o1.unicode()	#--> 1776
-? o1.IsDigit()	#--> _TRUE_
+? o1.IsDigit()	#--> TRUE
 ? o1.Name()	#--> EXTENDED ARABIC-INDIC DIGIT ZERO
 ? ""
 o1 = new stzChar("3")
 ? o1.Script()	#--> common
-? o1.IsDigit()	#--> _TRUE_
+? o1.IsDigit()	#--> TRUE
 ? o1.Name()	#--> DIGIT THREE
 ? ""
 o1 = new stzChar("૫") 
 ? o1.Script()	#--> gujarati
-? o1.IsDigit()	#--> _TRUE_
+? o1.IsDigit()	#--> TRUE
 ? o1.Name()	#--> GUJARATI DIGIT FIVE
 ? ""
 o1 = new stzChar("၉")
 ? o1.Script()	#--> myanmar
-? o1.IsDigit()	#--> _TRUE_
+? o1.IsDigit()	#--> TRUE
 ? o1.Name()	#--> MYANMAR DIGIT NINE
 ? ""
 o1 = new stzChar("꧓")
 ? o1.Script()	#--> javanese
-? o1.IsDigit()	#--> _TRUE_
+? o1.IsDigit()	#--> TRUE
 ? o1.Name()	#--> JAVANESE DIGIT THREE
 ? ""
 o1 = new stzChar(43217) # I used unicode because the char itself is imprintable ꣑
 ? o1.Script()	#--> saurashtra
-? o1.IsDigit()	#--> _TRUE_
+? o1.IsDigit()	#--> TRUE
 ? o1.Name()	#--> SAURASHTRA DIGIT ONE
 ? ""
 o1 = new stzChar("൫") 
 ? o1.Script()	#--> malayalam
-? o1.IsDigit()	#--> _TRUE_
+? o1.IsDigit()	#--> TRUE
 ? o1.Name()	#--> MALAYALAM DIGIT FIVE
 ? ""
 o1 = new stzChar("０")
 ? o1.Script()	#--> common
-? o1.IsDigit()	#--> _TRUE_
+? o1.IsDigit()	#--> TRUE
 ? o1.Name()	#--> FULLWIDTH DIGIT ZERO
 
 /*------------- TODO: Make it possible...
@@ -969,8 +969,8 @@ c1 = new stzChar("1/3") #--> ERROR: Can not create char object!
 
 c1 = new stzChar("೨")
 ? c1.Unicode() #--> 3304
-? c1.IsANumber() #--> _TRUE_
-? c1.IsDigit() #--> _TRUE_
+? c1.IsANumber() #--> TRUE
+? c1.IsDigit() #--> TRUE
 
 ? c1.UnicodeCategory() #--> number_decimaldigit
 ? c1.Script() #--> kannada
@@ -1020,7 +1020,7 @@ o1 = new stzChar("⅋")
 ? o1.Name() #--> TURNED AMPERSAND
 ? o1.IntroducedInUnicodeVersion() #--> 3.2
 ? o1.UnicodeCategory() #--> symbol_math
-? o1.IsTurnedChar() #--> _TRUE_
+? o1.IsTurnedChar() #--> TRUE
 
 /*-------------
 
@@ -1190,13 +1190,13 @@ o1 = new stzChar("ⅺ")
 /*-------------
 
 o1 = new stzChar("Σ")
-? o1.IsLowercase() #--> _FALSE_
-? o1.IsUPPERcase() #--> _TRUE_
+? o1.IsLowercase() #--> FALSE
+? o1.IsUPPERcase() #--> TRUE
 ? o1.CharCase() #--> uppercase
 
 o1 = new stzChar("σ")
-? o1.IsLowercase() #--> _TRUE_
-? o1.IsUppercase() #--> _FALSE_
+? o1.IsLowercase() #--> TRUE
+? o1.IsUppercase() #--> FALSE
 ? o1.CharCase() #--> lowercase
 
 /*-------------
@@ -1206,12 +1206,12 @@ o1 {
 	? Content()			#--> ﮘ
 	? Unicode()			#--> 64408
 
-	? IsArabic()			#--> _TRUE_
-	? IsArabicLetter()		#--> _TRUE_
+	? IsArabic()			#--> TRUE
+	? IsArabicLetter()		#--> TRUE
 
-	? IsArabicPresentationForm()	#--> _TRUE_
-	? IsArabicPresentationFormA()	#--> _TRUE_
-	? IsArabicPresentationFormB()	#--> _FALSE_
+	? IsArabicPresentationForm()	#--> TRUE
+	? IsArabicPresentationFormA()	#--> TRUE
+	? IsArabicPresentationFormB()	#--> FALSE
 }
 
 /*-------------
@@ -1225,10 +1225,10 @@ o1 {
 	? Content()			#--> ۩
 	? Unicode()			#--> 1769
 
-	? IsArabic()			#--> _TRUE_
-	? IsArabicLetter()		#--> _FALSE_
+	? IsArabic()			#--> TRUE
+	? IsArabicLetter()		#--> FALSE
 
-	? IsQuranicSign()		#--> _TRUE_
+	? IsQuranicSign()		#--> TRUE
 }
 
 /*-------------
@@ -1238,12 +1238,12 @@ o1 {
 /*-------------
 
 o1 = new stzChar("⅗")
-? o1.IsArabicFraction() #--> _TRUE_
+? o1.IsArabicFraction() #--> TRUE
 
 /*-------------
 
 o1 = new stzChar("万")
-? o1.IsMandarinNumber() #--> _TRUE_
+? o1.IsMandarinNumber() #--> TRUE
 
 /*-------------
 
@@ -1261,7 +1261,7 @@ o1 = new stzChar(64544)
 
 o1 = new stzChar("ↈ")
 ? o1.Unicode() #--> 8584
-? o1.IsRomanNumber() #--> _TRUE_
+? o1.IsRomanNumber() #--> TRUE
 
 /*-------------
 
@@ -1278,18 +1278,18 @@ o1 = new stzChar(3572)
 
 /*-------------
 
-? "۲" = "٢" #--> _FALSE_
+? "۲" = "٢" #--> FALSE
 o1 = new stzChar("۲")
 ? o1.Name() #--> EXTENDED ARABIC-INDIC DIGIT TWO
 ? o1.Unicode() #--> 1778
 ? o1.UnicodeCategory() #--> number_decimaldigit
-? o1.IsIndianDigit() #--> _TRUE_
+? o1.IsIndianDigit() #--> TRUE
 ? ""
 o1 = new stzChar("٢")
 ? o1.Name() #--> ARABIC-INDIC DIGIT TWO
 ? o1.Unicode() # 1634
 ? o1.UnicodeCategory() #--> number_decimaldigit
-? o1.IsIndianDigit() #--> _TRUE_
+? o1.IsIndianDigit() #--> TRUE
 
 /*-------------
 
@@ -1310,10 +1310,10 @@ _cRightToLeftOverride = "‮"
 // Let's see...
 
 o1 = new stzChar(_cRightToLeftOverride)
-? o1.IsEmpty() # It's not! (returns _FALSE_)
+? o1.IsEmpty() # It's not! (returns FALSE)
 
 // Nor it is a whitespace...
-? o1.IsWhitespace() #--> _FALSE_
+? o1.IsWhitespace() #--> FALSE
 
 // Let's see why?
 ? o1.UnicodeCategory() # it belongs to other_format unicode category
@@ -1385,8 +1385,8 @@ o1 = new stzString("s㊱m")
 /*-------------
 
 o1 = new stzChar("6")
-? o1.IsANumber() # -> _TRUE_
-? o1.IsDigit()	 # -> _TRUE_
+? o1.IsANumber() # -> TRUE
+? o1.IsDigit()	 # -> TRUE
 
 /*-------------
 

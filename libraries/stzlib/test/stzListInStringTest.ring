@@ -6,13 +6,13 @@ load "../max/stzmax.ring"
 
 cList = '[ "A", "T", "B", 5, "C", "A", "A", "D", "E", 2, 7, "D" , 8 ]'
 
-? StringIsListInString(cList) #--> _TRUE_
+? StringIsListInString(cList) #--> TRUE
 
 /*---------------------
 
 cList = '[ "A", "T", [ :hi, :bye ], 5, "C", "A", "A", 2 ]'
 
-? StringIsListInString(cList) #--> _TRUE_
+? StringIsListInString(cList) #--> TRUE
 
 /*---------------------
 */
@@ -21,7 +21,7 @@ obj2 = new Person { name = "kamel" }
 
 cList = '[ "A", "T", [ :hi, :bye ], 5, obj1, "C", "A", obj2, "A", 2 ]'
 
-? StringIsListInString(cList) #--> _TRUE_
+? StringIsListInString(cList) #--> TRUE
 
 class Person name
 

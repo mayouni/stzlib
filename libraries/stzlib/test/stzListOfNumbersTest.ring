@@ -782,16 +782,16 @@ proff()
 pr()
 
 ? StzListOfNumbersQ( 12:22 ).IsContiguous()
-#--> _TRUE_
+#--> TRUE
 
 ? StzListOfNumbersQ( 17:8 ).IsContiguous()
-#--> _TRUE_
+#--> TRUE
 
 ? StzListOfNumbersQ([10, 12, 18]).IsContiguous()
-#--> _FALSE_
+#--> FALSE
 
 ? StzListOfNumbersQ([10, 11, 10]).IsContiguous()
-#--> _FALSE_
+#--> FALSE
 
 proff()
 # Executed in 0.03 second(s)
@@ -1277,7 +1277,7 @@ pr()
 o1 = new stzListOfNumbers(1:8)
 
 ? o1.ContainsADividableNumberBy(2) + NL
-#--> _TRUE_
+#--> TRUE
 
 ? @@( o1.DividableNumbersBy(2) )
 #--> [ 2, 4, 6, 8 ]

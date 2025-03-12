@@ -1,6 +1,5 @@
 load "../max/stzmax.ring"
 
-
 /*=====
 
 profon()
@@ -61,7 +60,8 @@ o1 = new stzList([
 	[ "item21", ["item221", "item222"], "item22" ],
 	[ "item31", ["item321", "item322" ] ],
 
-	"item4"])
+	"item4"
+])
 .AllRemovedExcept([ "[", ",", "]" ]) + NL
 #--> [,[,[,],],[,[,]],]
 
@@ -197,7 +197,7 @@ proff()
 # Executed in 0.09 second(s) in Ring 1.22
 
 /*------
-
+*/
 profon()
 
 o1 = new stzList([
@@ -1457,7 +1457,7 @@ proff()
 # Executed in 0.51 second(s) in Ring 1.22
 
 /*-----
-
+*/
 profon()
 
 o1 = new stzList([
@@ -1484,7 +1484,6 @@ proff()
 # Executed in 0.68 second(s) in Ring 1.22
 
 /*-----
-*/
 
 profon()
 

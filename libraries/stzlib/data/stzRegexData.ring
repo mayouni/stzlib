@@ -1,5 +1,4 @@
 
-
 #-----------------------------#
 #  REGEX DATA NAMED PATTERNS  #
 #-----------------------------#
@@ -226,16 +225,16 @@ _$aRegexPatterns_ = [
 	:ringNumber = "^-?\d+(?:\.\d+)?$",
 	:ringBoolean = "^(?:True|False)$",
 	:ringVariable = "^[a-zA-Z_]\w*$",
-	
+
 	:ringFunction = "^(?i)Func\s+([a-zA-Z_]\w*)\s*(?:\((.*?)\))?$",
 	:ringFunctionCall = "^([a-zA-Z_]\w*)\s*\((.*?)\)$",
 	:ringMainFunction = "^(?i)Func\s+Main\s*$",
-	
+
 	:ringClass = "^(?i)Class\s+([a-zA-Z_]\w*)\s*(?:from\s+([a-zA-Z_]\w*))?$",
 	:ringClassAttribute = "^[a-zA-Z_]\w*\s*=\s*.*$",
 	:ringNewObject = "^(?i)New\s+([a-zA-Z_]\w*)$",
 	:ringObjectAccess = "^([a-zA-Z_]\w*)\s*{\s*(.*?)\s*}$",
-	
+
 	:ringLoop = "^(?i)(?:for\s+\w+\s*=\s*\d+\s+to\s+\d+|while\s+.*|for\s+\w+\s+in\s+.*?)$",
 	:ringIf = "^(?i)if\s+.*$",
 	:ringSwitch = "^(?i)switch\s+.*$",
@@ -244,7 +243,7 @@ _$aRegexPatterns_ = [
 	:ringList = "^\[(?:[^[\]]*|\[.*?\])*\]$",
 	:ringListAccess = "^([a-zA-Z_]\w*)\s*\[\s*(\d+|\w+)\s*\]$",
 	:ringHashTable = "^\[\s*:(?:\w+\s*=\s*[^,\]]+\s*,?\s*)+\]$",
-	
+
 	:ringComment = "^(?:#.*|//.*|/\*[\s\S]*?\*/)$",
 	
 	:ringSee = "^(?i)See\s+[" + char(34) + "'].*?[" + char(34) + "']|See\s+\w+$",
@@ -254,10 +253,10 @@ _$aRegexPatterns_ = [
 	
 	:ringOperator = "^(?:[+\-*/=%]|==|!=|>=|<=|>|<|\+=|-=|\*=|/=)$",
 	:ringLogical = "^(?:and|or|not)$",
-	
+
 	:ringExit = "^(?i)exit(?:\s+\d+)?$",
 	:ringReturn = "^(?i)return(?:\s+.*)?$",
-	
+
 	:ringPackage = "^(?i)Package\s+[\w.]+$",
 	:ringPrivate = "^(?i)Private$",
 
@@ -512,25 +511,25 @@ _$aRegexPatterns_ = [
 	:passwordWithSpecialChar = "^(?=.*[!@#$%^&*(),.?\" + char(34) + ":{}|<>]).{8,}$",
 	:passwordStrong = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?\" + char(34) + ":{}|<>]).{12,}$",
 
-    # API Keys and Secrets Detection
+	# API Keys and Secrets Detection
 
-    :hexSecret = "^[a-fA-F0-9]{32,}$",
-    :base64Secret = "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
-    :jwtToken = "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$",
-    :awsAccessKey = "^AKIA[0-9A-Z]{16}$",
-    :awsSecretKey = "^[0-9a-zA-Z/+]{40}$",
-    :privateKeyPEM = "-----BEGIN (RSA|EC|DSA|PRIVATE) KEY-----[\\s\\S]+-----END (RSA|EC|DSA|PRIVATE) KEY-----",
+	:hexSecret = "^[a-fA-F0-9]{32,}$",
+	:base64Secret = "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+	:jwtToken = "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$",
+	:awsAccessKey = "^AKIA[0-9A-Z]{16}$",
+	:awsSecretKey = "^[0-9a-zA-Z/+]{40}$",
+	:privateKeyPEM = "-----BEGIN (RSA|EC|DSA|PRIVATE) KEY-----[\\s\\S]+-----END (RSA|EC|DSA|PRIVATE) KEY-----",
 
-    # Personally Identifiable Information (PII)
+	# Personally Identifiable Information (PII)
 
-    :ssnUSA = "^\\d{3}-\\d{2}-\\d{4}$",
-    :passportNumber = "^[A-Z0-9]{6,9}$",
+	:ssnUSA = "^\\d{3}-\\d{2}-\\d{4}$",
+	:passportNumber = "^[A-Z0-9]{6,9}$",
 
-    # Other Sensitive Data
+	# Other Sensitive Data
 
-    :hexadecimalEntropy = "^[0-9a-fA-F]{64,}$",
-    :uuid = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-    :bcryptHash = "^\\$2[ayb]\\$\\d{2}\\$[./A-Za-z0-9]{53}$"
+	:hexadecimalEntropy = "^[0-9a-fA-F]{64,}$",
+	:uuid = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+	:bcryptHash = "^\\$2[ayb]\\$\\d{2}\\$[./A-Za-z0-9]{53}$"
 
 ]
 

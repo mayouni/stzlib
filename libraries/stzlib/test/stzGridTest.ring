@@ -138,10 +138,10 @@ aList = [
 ]
 
 ? IsListOfListsOfStrings(aList)
-#--> _TRUE_
+#--> TRUE
 
 ? StzListOfListsQ(aList).ListsHaveSameNumberOfItems()
-#--> _TRUE_
+#--> TRUE
 
 proff()
 # Executed in 0.03 second(s)
@@ -319,8 +319,8 @@ StzGridQ( [ 7, 7 ] ) { Show() }
 
 StzGridQ( [ 7, 7 ] ) {
 
-	@bShowCenter = _TRUE_
-	//@bShowRanks = _TRUE_ #ERROR in case: _TRUE_ (occurs in stzCounter)
+	@bShowCenter = TRUE
+	//@bShowRanks = TRUE #ERROR in case: TRUE (occurs in stzCounter)
 
 	SetNode(1, 1, "1")
 	SetNode(7, 1, "2")
