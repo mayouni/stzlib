@@ -197,7 +197,7 @@ proff()
 # Executed in 0.09 second(s) in Ring 1.22
 
 /*------
-*/
+
 profon()
 
 o1 = new stzList([
@@ -209,9 +209,6 @@ o1 = new stzList([
 
 ? @@( o1.LargestPaths() )
 #--> [ [ 2, 2, 1 ], [ 2, 2, 2 ], [ 3, 2, 1 ] ]
-
-? o1.HowManyLargestPaths()
-#--> 3
 
 proff()
 # Executed in 0.09 second(s) in Ring 1.22
@@ -229,9 +226,6 @@ o1 = new stzList([
 
 ? @@( o1.ShortestPaths() )
 #--> [ [ 1 ], [ 2 ], [ 3 ], [ 4 ] ]
-
-? o1.NumberOfShortestPaths()
-#--> 4
 
 proff()
 # Executed in 0.09 second(s) in Ring 1.22
@@ -349,9 +343,8 @@ o1 = new stzList([
 # ]
 
 proff()
-# Executed in 0.22 second(s) in Ring 1.22
+# Executed in 0.39 second(s) in Ring 1.22
 
-/*------
 
 profon()
 
@@ -385,19 +378,20 @@ o1 = new stzList([
 # ]
 
 proff()
-# Executed in 0.27 second(s) in Ring 1.22
+# Executed in 0.44 second(s) in Ring 1.22
+
 /*=====
 
 profon()
 
-? @@NL( PathsTo([ 2, 3, 2 ]) ) + NL
+? @@NL( PathsIn([ 2, 3, 2 ]) ) + NL
 #--> [
 #	[ 2 ],
 #	[ 2, 3 ],
 #	[ 2, 3, 2 ]
 # ]
 
-? @@NL( PathsToXT([ [ 2, 3 ], [ 2, 3, 2 ], [ 4 ] ]) )
+? @@NL( PathsInXT([ [ 2, 3 ], [ 2, 3, 2 ], [ 4 ] ]) )
 #--> [
 #	[ 2 ],
 #	[ 2, 3 ],
@@ -406,7 +400,7 @@ profon()
 # ]
 
 proff()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*=====
 
@@ -425,7 +419,7 @@ aList2 = [
 ]
 
 ? @@( Intersection([ aList1, aList2 ]) )
-#--> [ 2, 1 ]
+#--> [ [ 2, 1 ], [ 4 ] ]
 
 proff()
 #--> Executed in 0.02 second(s) in Ring 1.22
@@ -479,7 +473,7 @@ proff()
 
 profon()
 
-# All the examples return the same result, but they show the power and*
+# All the examples return the same result, but they show the power and
 # flexibility of finding items in singular or plural in a path or many paths
 
 o1 = new stzList([
@@ -488,17 +482,17 @@ o1 = new stzList([
 	"E"
 ])
 
-? @@( o1.FindItemUntilPath("♥", [2, 2]) )
-#--> [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ] ]
+? @@( o1.FindItemInPath("♥", [2, 2]) )
+#--> [ [ 2, 1 ] ]
 
-? @@( o1.FindItemUntilPaths("♥", [ [2, 2] ]) )
-#--> [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ] ]
+? @@( o1.FindItemInPaths("♥", [ [2, 2] ]) )
+#--> [ [ 2, 1 ] ]
 
-? @@( o1.FindItemsUntilPath(["♥"], [2, 2]) )
-#--> [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ] ]
+? @@( o1.FindItemsInPath(["♥"], [2, 2]) )
+#--> [ [ 2, 1 ] ]
 
-? @@( o1.FindItemsUntilPaths(["♥"], [ [2, 2] ]) )
-#--> [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ] ]
+? @@( o1.FindItemsInPaths(["♥"], [ [2, 2] ]) )
+#--> [ [ 2, 1 ] ]
 
 proff()
 # Executed in 0.12 second(s) in Ring 1.22
@@ -709,7 +703,7 @@ proff()
 
 
 /*=== REMOVING ITEMS OVER PATHS
-
+*/
 profon()
 
 o1 = new stzList([
@@ -718,7 +712,11 @@ o1 = new stzList([
     "E"
 ])
 
-o1.RemoveItemUntilPath("♥", [2, 2])
+? @@( o1.FindInPathXT("♥", [ 2, 2 ]) ) + NL
+
+? @@( PathsIn([2, 2]) ) + nl
+
+o1.RemoveItemInPath("♥", [2, 2])
 #NOTE All these paths are concerned:
 #     [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ] ]
 
@@ -752,10 +750,10 @@ o1 = new stzList([
 #	[ 3 ]
 # ]
 
-? o1.NumberOfItemsUntilPath([3])
+? o1.NumberOfItemsInPath([3])
 #--> 6
 
-? @@NL( o1.ItemsUntilPath([3]) ) + NL
+? @@NL( o1.ItemsInPath([3]) ) + NL
 #--> [
 #	"A",
 #	[ "B", "♥", "C" ],
@@ -765,7 +763,7 @@ o1 = new stzList([
 #	"D"
 # ]
 
-? @@NL( o1.ItemsUntilPathZZ([3]) ) + NL
+? @@NL( o1.ItemsInPathZZ([3]) ) + NL
 #--> [
 #	[ "A", [ 1 ] ],
 #	[ [ "B", "♥", "C" ], [ 2 ] ],
@@ -775,24 +773,24 @@ o1 = new stzList([
 #	[ "D", [ 3 ] ]
 # ]
 
-? @@( o1.NthItemUntilPath(1, [3] ) )
+? @@( o1.NthItemInPath(1, [3] ) )
 
-? @@( o1.NthItemUntilPath(2, [3] ) )
+? @@( o1.NthItemInPath(2, [3] ) )
 #--> [ "B", "♥", "C" ]
 
-? @@( o1.NthItemUntilPath(3, [3]) )
+? @@( o1.NthItemInPath(3, [3]) )
 #--> "B"
 
-? @@( o1.NthItemUntilPath(4, [3]) )
+? @@( o1.NthItemInPath(4, [3]) )
 #--> "♥"
 
-? @@( o1.NthItemUntilPath(5, [3]) )
+? @@( o1.NthItemInPath(5, [3]) )
 #--> "C"
 
-? @@( o1.NthItemUntilPath(6, [3]) )
+? @@( o1.NthItemInPath(6, [3]) )
 #--> "D"
 
-// ? @@( o1.NthItemUntilPath(7, [3]) )
+// ? @@( o1.NthItemInPath(7, [3]) )
 #--> ERROR: Incorrect param value! n must be within the size of the path.
 
 proff()
@@ -808,20 +806,20 @@ o1 = new stzList([
 	"D"
 ])
 
-? @@( o1.NthPathUntilPath(4, [3]) ) + NL
+? @@( o1.NthPathInPath(4, [3]) ) + NL
 #--> [ 2, 2 ]
 
-? @@( o1.NthItemUntilPath(4, [3]) ) + NL
+? @@( o1.NthItemInPath(4, [3]) ) + NL
 #--> "♥"
 
-? @@NL( o1.NthPathsUntilPath([2, 4, 6], [3]) ) + NL
+? @@NL( o1.NthPathsInPath([2, 4, 6], [3]) ) + NL
 #--> [
 #	[ 2 ],
 #	[ 2, 2 ],
 #	[ 3 ]
 # ]
 
-? @@NL( o1.NthItemsUntilPath([ 2, 4, 6 ], [3]) )
+? @@NL( o1.NthItemsInPath([ 2, 4, 6 ], [3]) )
 #--> [
 #	[ "B", "♥", "C" ],
 #	"♥",
@@ -843,13 +841,13 @@ o1 = new stzList([
 ])
 
 
-? @@( o1.PathsUntil([ 2 ]) )
+? @@( o1.PathsIn([ 2 ]) )
 #--> [ [ 1 ], [ 2 ] ]
 
 ? @@( o1.FindItemAtPath("♥", [ 2 ]) ) + NL
 #--> [ [ 2, 1 ], [ 2, 4 ], [ 2, 6 ] ]
 
-? @@NL( o1.PathsUntil([ 2, 3, 4 ]) ) + NL
+? @@NL( o1.PathsIn([ 2, 3, 4 ]) ) + NL
 #--> [
 #	[ 1 ],
 #	[ 2 ],
@@ -953,7 +951,7 @@ o1 = new stzList([
     "E"
 ])
 
-? @@NL( o1.PathsUntil([2, 2]) ) + NL
+? @@NL( o1.PathsIn([2, 2]) ) + NL
 #--> [
 #	[ 1 ],
 #	[ 2 ],
@@ -961,7 +959,7 @@ o1 = new stzList([
 #	[ 2, 2 ]
 # ]
 
-? @@NL( o1.ItemsUntilPathZZ([2, 2]) ) + NL
+? @@NL( o1.ItemsInPathZZ([2, 2]) ) + NL
 #--> [
 #	[ "A", [ 1 ] ],
 #	[ [ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ], [ 2 ] ],
@@ -973,7 +971,7 @@ proff()
 # Executed in 0.25 second(s) in Ring 1.22
 
 /*---- #todo #narration finding an item over a given path
-# using DeepFind(), PathsUntil, and Intersection
+# using DeepFind(), PathsIn, and Intersection
 
 profon()
 
@@ -992,7 +990,7 @@ aItemPaths = o1.DeepFind("♥")
 #	[ 2, 6 ]
 # ]
 
-aAllPaths = o1.PathsUntil([2, 3])
+aAllPaths = o1.PathsIn([2, 3])
 #--> [
 #	[ 1 ],
 #	[ 2 ],
@@ -1231,7 +1229,7 @@ o1 = new stzList([
     	"I"
 ])
 
-? @@NL( o1.FindItemUntilPath("♥", [ 5, 3, 2 ]) )
+? @@NL( o1.FindItemInPath("♥", [ 5, 3, 2 ]) )
 #--> [
 #	[ 2 ],
 #	[ 3, 2 ],
@@ -1256,7 +1254,7 @@ o1 = new stzList([
     	"I"
 ])
 
-? @@NL( o1.FindItemsUntilPath([ "♥", "*" ], [ 6, 3, 3 ]) )
+? @@NL( o1.FindItemsInPath([ "♥", "*" ], [ 6, 3, 3 ]) )
 #--> [
 #	[ 2 ],
 #	[ 3, 2 ],
@@ -1446,7 +1444,7 @@ o1 = new stzList([
     	"I"
 ])
 
-? @@NL( o1.FindItemUntilPaths("♥", [ [ 3, 2 ], [ 5, 2 ] ]) )
+? @@NL( o1.FindItemInPaths("♥", [ [ 3, 2 ], [ 5, 2 ] ]) )
 #--> [
 #	[ 2 ],
 #	[ 3, 2 ],
@@ -1470,7 +1468,7 @@ o1 = new stzList([
     	"I"
 ])
 
-? @@NL( o1.FindItemsUntilPaths([ "♥", "*" ], [ [ 6, 3, 3 ] ]) )
+? @@NL( o1.FindItemsInPaths([ "♥", "*" ], [ [ 6, 3, 3 ] ]) )
 #--> [
 #	[ 2 ],
 #	[ 3, 2 ],
@@ -1526,16 +1524,16 @@ o1 = new stzList([
     	"G"
 ])
 
-? @@( o1.FindItemUntilPaths("♥", [ [1], [2] ]) ) + NL
+? @@( o1.FindItemInPaths("♥", [ [1], [2] ]) ) + NL
 #--> []
 
-? @@( o1.FindItemUntilPaths("♥", [ [1], [2], [3] ]) ) + NL
+? @@( o1.FindItemInPaths("♥", [ [1], [2], [3] ]) ) + NL
 #--> []
 
-? @@( o1.FindItemUntilPath("♥", [ 3, 1 ]) )
+? @@( o1.FindItemInPath("♥", [ 3, 1 ]) )
 #--> [ [ 3, 1 ] ]
 
-? @@NL( o1.FindItemUntilPath("♥", [3, 4]) )
+? @@NL( o1.FindItemInPath("♥", [3, 4]) )
 #--> [
 #	[ 3, 1 ],
 #	[ 3, 3, 2 ],
@@ -1556,8 +1554,8 @@ o1 = new stzList([
     "E"
 ])
 
-//? @@( o1.FindItemsUntilPath([ "♥", "*" ], [2, 2]) )
-//o1.RemoveItemsUntilPath([ "♥", "*" ], [2, 2])
+//? @@( o1.FindItemsInPath([ "♥", "*" ], [2, 2]) )
+//o1.RemoveItemsInPath([ "♥", "*" ], [2, 2])
 
 //? @@NL( o1.Content() )
 #--> [ "♥", ["B", "♥", "C", "♥" ], "♥", "D" ],
@@ -1575,7 +1573,7 @@ o1 = new stzList([
     "E"
 ])
 
-? @@( o1.FindItemsUntilPath([ "♥", "B" ], [2, 2]) )
+? @@( o1.FindItemsInPath([ "♥", "B" ], [2, 2]) )
 #--> [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ], [ 2, 2, 1 ] ]
 
 proff()

@@ -44481,6 +44481,8 @@ fdef
 		def HowManyPaths()
 			return This.NumberOfPaths()
 
+	#--
+
 	def DeepestPath()
 		return @DeepestPath( This.Paths() )
 
@@ -44493,6 +44495,8 @@ fdef
 
 		def LowestPath()
 			return This.ShallowestPath()
+
+	#--
 
 	def PathsLengths()
 		_aPaths_ = This.Paths()
@@ -44586,6 +44590,9 @@ fdef
 
 		return _aPaths_[_n_]
 
+		def LargestPath()
+			return This.LongestPath()
+
 	def LongestPaths()
 		if This.IsEmpty()
 			return []
@@ -44605,6 +44612,9 @@ fdef
 		next
 
 		return _aResult_
+
+		def LargestPaths()
+			return This.LongestPaths()
 
 	def NumberOfLongestPaths()
 		if This.IsEmpty()
@@ -44665,6 +44675,9 @@ fdef
 			return [1]
 		ok
 
+		def SmallestPath()
+			return This.ShortestPath()
+
 	def ShortestPaths()
 		if This.IsEmpty()
 			return []
@@ -44684,6 +44697,9 @@ fdef
 		next
 
 		return _aResult_
+
+		def SmallestPaths()
+			return This.ShortestPaths()
 
 	def NumberOfShortestPaths()
 		if This.IsEmpty()
@@ -44985,49 +45001,27 @@ fdef
 
 	#-- NTH ITEM(S) OVER A GIVEN PATH
 
-	def NumberOfItemsUntilPath(paPath)
+	def NumberOfItemsInPath(paPath)
 
-		_aPaths_ = This.PathsUntilPath(paPath)
+		_aPaths_ = This.PathsInPath(paPath)
 		_nResult_ = len(_aPaths_)
 
 		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def HowManyItemsUntilPath(paPath)
-			return This.NumberOfItemsUntilPath(paPath)
+		def HowManyItemsInPath(paPath)
+			return This.NumberOfItemsInPath(paPath)
 
-		def CountItmesUntilPath(paPath)
-			return This.NumberOfItemsUntilPath(paPath)
-
-		#--
-
-		def NumberOfItemsUpToPath(paPath)
-			return This.NumberOfItemsUntilPath(paPath)
-
-		def HowManyItemsUpToPath(paPath)
-			return This.NumberOfItemsUntilPath(paPath)
-
-		def CountItmesUpToPath(paPath)
-			return This.NumberOfItemsUntilPath(paPath)
-
-		#--
-
-		def NumberOfItemsDownToPath(paPath)
-			return This.NumberOfItemsUntilPath(paPath)
-
-		def HowManyItemsDownToPath(paPath)
-			return This.NumberOfItemsUntilPath(paPath)
-
-		def CountItmesDownToPath(paPath)
-			return This.NumberOfItemsUntilPath(paPath)
+		def CountItmesInPath(paPath)
+			return This.NumberOfItemsInPath(paPath)
 
 		#>
 
-	def ItemsUntilPath(paPath)
+	def ItemsInPath(paPath)
 
 		_aResult_ = []
-		_aPaths_ = This.PathsUntilPath(paPath)
+		_aPaths_ = This.PathsInPath(paPath)
 		_nLenPaths_ = len(_aPaths_)
 
 		_aResult_ = []
@@ -45040,117 +45034,46 @@ fdef
 
 		#< @FunctionFluentForm
 
-		def ItemsUntilPathQ(paPath)
-			return new stzList(This.ItemsUntilPath(paPath))
+		def ItemsInPathQ(paPath)
+			return new stzList(This.ItemsInPath(paPath))
 
 		#>
 
-		#< @FunctionAlternativeForms
-
-		def ItemsUntil(paPath)
-			return This.ItemsUntilPath(paPath)
-
-			def ItemsUntilQ(paPath)
-				return This.ItemsUntilPathQ(paPath)
-
-		#--
-
-		def ItemsUpToPath(paPath)
-			return This.ItemsUntilPath(paPath)
-
-			def ItemsUpToPathQ(paPath)
-				return This.ItemsUntilPathQ(paPath)
-
-		def ItemsDownToPath(paPath)
-			return This.ItemsUntilPath(paPath)
-
-			def ItemsDownToPathQ(paPath)
-				return This.ItemsUntilPathQ(paPath)
-
-		#>
-
-	def ItemsUntilPathZZ(paPath)
-		_aItems_ = This.ItemsUntilPath(paPath)
-		_aPaths_ = This.PathsUntilPath(paPath)
+	def ItemsInPathZZ(paPath)
+		_aItems_ = This.ItemsInPath(paPath)
+		_aPaths_ = This.PathsInPath(paPath)
 
 		_aResult_ = @Association([ _aItems_, _aPaths_ ])
 		return _aResult_
 
-		def ItemsUntilZZ(paPath)
-			return This.ItemsUntilPathZZ(paPath)
-
-		def ItemsUpToPathZZ(paPath)
-			return This.ItemsUntilPathZZ(paPath)
-
-		def ItemsDownToPathZZ(paPath)
-			return This.ItemsUntilPathZZ(paPath)
-
 	#-- NTH PATH(S) OVER A GIVEN PATH
 
-	def NthPathUntilPath(n, paPath)
+	def NthPathInPath(n, paPath)
 		if CheckParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
 	
-		_aPaths_ = This.PathsUntilPath(paPath)
+		_aPaths_ = This.PathsInPath(paPath)
 		_aResult_ = _aPaths_[n]
 		return _aResult_
 	
 		#< @FunctionFluentForm
 
-		def NthPathUntilPathQ(n, paPath)
-			return new stzList(This.NthPathUntilPath(n, paPath))
+		def NthPathInPathQ(n, paPath)
+			return new stzList(This.NthPathInPath(n, paPath))
 
 		#>
 
-		#< @FunctionAlternativeForms
-
-		def NthPathUntil(n, paPath)
-			return This.NthPathUntilPath(n, paPath)
-
-			def NthPathUntilQ(n, paPath)
-				return This.NthPathUntilPath(n, paPath)
-
-		#--
-
-		def NthPathUpToPath(n, paPath)
-			return This.NthPathUntilPath(n, paPath)
-
-			def NthPathUpToPathQ(n, paPath)
-				return This.NthPathUntilPathQ(n, paPath)
-
-		def NthPathUpTo(n, paPath)
-			return This.NthPathUntilPath(n, paPath)
-
-			def NthPathUpToQ(n, paPath)
-				return This.NthPathUntilPathQ(n, paPath)
-
-		#--
-
-		def NthPathDownToPath(n, paPath)
-			return This.NthPathUntilPath(n, paPath)
-
-			def NthPathDownToPathQ(n, paPath)
-				return This.NthPathUntilPathQ(n, paPath)
-
-		def NthPathDownTo(n, paPath)
-			return This.NthPathUntilPath(n, paPath)
-
-			def NthPathDownToQ(n, paPath)
-				return This.NthPathUntilPathQ(n, paPath)
-
-		#>
-
-	func NthPathsUntilPath(panPos, paPath)
+	func NthPathsInPath(panPos, paPath)
 		if CheckParams()
 			if NOT (isList(panPos) and @IsListOfNumbers(panPos))
 				StzRaise("Incorrect param type! panPos must be a list of numbers.")
 			ok
 		ok
 	
-		_aPaths_ = This.PathsUntilPath(paPath)
+		_aPaths_ = This.PathsInPath(paPath)
 		_nLenPos_ = len(panPos)
 	
 		_aResult_ = []
@@ -45163,50 +45086,12 @@ fdef
 
 		#< @FunctionFluentForm
 
-		def NthPathsUntilPathQ(panPos, paPath)
-			return new stzList(This.NthPathsUntilPath(panPos, paPath))
+		def NthPathsInPathQ(panPos, paPath)
+			return new stzList(This.NthPathsInPath(panPos, paPath))
 
 		#>
 
-		#< @FunctionAlternativeForms
-
-		def NthPathsUntil(panPos, paPath)
-			return This.NthPathsUntilPath(panPos, paPath)
-
-			def NthPathsUntilQ(panPos, paPath)
-				return This.NthPathsUntilPathQ(panPos, paPath)
-
-		#--
-
-		def NthPathsUpToPath(panPos, paPath)
-			return This.NthPathsUntilPath(panPos, paPath)
-	
-			def NthPathsUpToPathQ(panPos, paPath)
-				return This.NthPathsUntilPathQ(panPos, paPath)
-
-		def NthPathsUpTo(panPos, paPath)
-			return This.NthPathsUntilPath(panPos, paPath)
-
-			def NthPathsUpToQ(panPos, paPath)
-				return This.NthPathsUntilPathQ(panPos, paPath)
-
-		#--
-
-		def NthPathsDownToPath(panPos, paPath)
-			return This.NthPathsUntilPath(panPos, paPath)
-	
-			def NthPathsDownToPathQ(panPos, paPath)
-				return This.NthPathsUntilPathQ(panPos, paPath)
-
-		def NthPathsDownTo(panPos, paPath)
-			return This.NthPathsUntilPath(panPos, paPath)
-
-			def NthPathsDownToQ(panPos, paPath)
-				return This.NthPathsUntilPathQ(panPos, paPath)
-
-		#>
-
-	def PathsUntilPath(paPath)
+	def PathsInPath(paPath)
 		_oPaths_ = new stzList( This.Paths() )
 		_nPos_ = _oPaths_.FindFirst(paPath)
 	
@@ -45219,49 +45104,12 @@ fdef
 
 		#< @FunctionFluentForm
 
-		def PathsUntilPathQ(paPath)
-			return new stzList( This.PathsUntilPath(paPath) )
+		def PathsInPathQ(paPath)
+			return new stzList( This.PathsInPath(paPath) )
 
 		#>
 
-		#< @FunctionAlternativeForms
-
-		def PathsUntil(paPath)
-			return This.PathsUntilPath(paPath)
-
-			def PathsUntilQ(paPath)
-				return This.PathsUntilPathQ(paPath)
-
-		#--
-
-		def PathsUpToPath(paPath)
-			return This.PathsUntilPath(paPath)
-
-			def PathsUpToPathQ(paPath)
-				return This.PathsUntilPathQ(paPath)
-
-		def PathsUpTo(paPath)
-			return This.PathsUntilPath(paPath)
-
-			def PathsUpToQ(paPath)
-				return This.PathsUntilPathQ(paPath)
-
-		#--
-
-		def PathsDownToPath(paPath)
-			return This.PathsUntilPath(paPath)
-
-			def PathsDownToPathQ(paPath)
-				return This.PathsUntilPathQ(paPath)
-
-		def PathsDownTo(paPath)
-			return This.PathsUntilPath(paPath)
-
-			def PathsDownToQ(paPath)
-				return This.PathsUntilPathQ(paPath)
-		#>
-
-	def PathsUntilPaths(paPaths)
+	def PathsInPaths(paPaths)
 		if NOT These.AreValidPaths(paPaths)
 			StzRaise("Can't proceed! paPaths is not a list of valid paths in the list.")
 		ok
@@ -45270,7 +45118,7 @@ fdef
 		_aResult_ = []
 
 		for @i = 1 to _nLen_
-			_aPaths_ = This.PathsUntil(paPaths[@i])
+			_aPaths_ = This.PathsIn(paPaths[@i])
 			_nLenTemp_ = len(_aPaths_)
 
 			for @j = 1 to  _nLenTemp_
@@ -45281,24 +45129,12 @@ fdef
 		return _aResult_
 
 
-		def PathsUntilPathsQ(paPaths)
-			return new stzList(This.PathsUntilPaths(paPaths))
-
-		def PathsUpToPaths(paPaths)
-			return This.PathsUntilPaths(paPaths)
-
-			def PathsUpToPathsQ(paPaths)
-				return This.PathsToPaths(paPaths)
-
-		def PathsDownToPaths(paPaths)
-			return This.PathsUntilPaths(paPaths)
-
-			def PathsDownToPathsQ(paPaths)
-				return This.PathsToPaths(paPaths)
+		def PathsInPathsQ(paPaths)
+			return new stzList(This.PathsInPaths(paPaths))
 
 	#-- NTH ITEM(S) OVER A GIVEN PATH
 
-	def NthItemsUntilPath(panPos, paPath)
+	def NthItemsInPath(panPos, paPath)
 
 		if CheckParams()
 	
@@ -45312,7 +45148,7 @@ fdef
 		ok
 
 		_aResult_ = []
-		_aPaths_ = This.PathsUntilPath(paPath)
+		_aPaths_ = This.PathsInPath(paPath)
 
 		_nLenPos_ = len(panPos)
 
@@ -45326,34 +45162,12 @@ fdef
 
 		#< @FunctionFluentForm
 
-		def NthItemsUntilPathQ(panPos, paPath)
-			return new stzList(This.NthItemsUntilPath(panPos, paPath))
+		def NthItemsInPathQ(panPos, paPath)
+			return new stzList(This.NthItemsInPath(panPos, paPath))
 
 		#>
 
-		#< @FunctionAlternativeForms
-
-		def NthItemsUntil(panPos, paPath)
-			return This.NthItemsUntilPath(panPos, paPath)
-
-			def NthItemsUntilQ(panPos, paPath)
-				return This.NthItemsUntilPathQ(panPos, paPath)
-
-		def NthItemsUpToPath(panPos, paPath)
-			return This.NthItemsUntilPath(panPos, paPath)
-
-			def NthItemsUpToPathQ(panPos, paPath)
-				return This.NthItemsUntilPathQ(panPos, paPath)
-
-		def NthItemsDonwToPath(panPos, paPath)
-			return This.NthItemsUntilPath(panPos, paPath)
-
-			def NthItemsDownToPathQ(panPos, paPath)
-				return This.NthItemsUntilPathQ(panPos, paPath)
-
-		#>
-
-	def NthItemsUntilPathZZ(panPos, paPath)
+	def NthItemsInPathZZ(panPos, paPath)
 
 		if CheckParams()
 	
@@ -45367,7 +45181,7 @@ fdef
 		ok
 
 		_aResult_ = []
-		_aPaths_ = This.PathsUntilPath(paPath)
+		_aPaths_ = This.PathsInPath(paPath)
 
 		_nLenPos_ = len(panPos)
 
@@ -45382,16 +45196,7 @@ fdef
 
 		return _aResult_
 
-		def NthItemsUntilZZ(panPos, paPath)
-			return This.NthItemsUntilPathZZ(panPos, paPath)
-
-		def NthItemsUpToPathZZ(panPos, paPath)
-			return This.NthItemsUntilPathZZ(panPos, paPath)
-
-		def NthItemsDownToPathZZ(panPos, paPath)
-			return This.NthItemsUntilPathZZ(panPos, paPath)
-
-	def NthItemUntilPath(n, paPath)
+	def NthItemInPath(n, paPath)
 
 		if CheckParams()
 
@@ -45411,7 +45216,7 @@ fdef
 		ok
 
 		_aResult_ = []
-		_aPaths_ = This.PathsUntilPath(paPath)
+		_aPaths_ = This.PathsInPath(paPath)
 		_nLenPaths_ = len(_aPaths_)
 
 		if n < 1 or n > _nLenPaths_
@@ -45423,125 +45228,23 @@ fdef
 
 		#< @FunctionFluentForm
 
-		def NthItemUntilPathQ(n, paPath)
-			return new stzList(This.NthItemUntilPath(n, paPath))
+		def NthItemInPathQ(n, paPath)
+			return new stzList(This.NthItemInPath(n, paPath))
 
 		#>
 
-		#< @FunctionAlternativeForms
-
-		def NthItemUntil(n, paPath)
-			return This.NthItemUntilPath(n, paPath)
-
-			def NthItemUntilQ(n, paPath)
-				return This.NthItemUntilPathQ(n, paPath)
-
-		def NthItemUpToPath(n, paPath)
-			return This.NthItemUntilPath(n, paPath)
-
-			def NthItemUpToPathQ(n, paPath)
-				return This.NthItemUntilPathQ(n, paPath)
-
-		def NthItemUpTo(n, paPath)
-			return This.NthItemUntilPath(n, paPath)
-
-			def NthItemUpToQ(n, paPath)
-				return This.NthItemUntilPathQ(n, paPath)
-
-		def NthItemDownToPath(n, paPath)
-			return This.NthItemUntilPath(n, paPath)
-
-			def NthItemDownToPathQ(n, paPath)
-				return This.NthItemUntilPathQ(n, paPath)
-
-		def NthItemDownTo(n, paPath)
-			return This.NthItemUntilPath(n, paPath)
-
-			def NthItemDownToQ(n, paPath)
-				return This.NthItemUntilPathQ(n, paPath)
-
-		#>
-
-	def FirstItemUntilPath(paPath)
-		return This.NthItemUntilPath(1, paPath)
+	def FirstItemInPath(paPath)
+		return This.NthItemInPath(1, paPath)
 
 		#< @FunctionFluentForm
 
-		def FirstItemUntilPathQ(paPath)
-			return new stzList(This.FirstItemUntilPath(paPath))
+		def FirstItemInPathQ(paPath)
+			return new stzList(This.FirstItemInPath(paPath))
 
 		#>
 
-		#< @FunctionAlternativeForms
-
-		def FirstItemUntil(paPath)
-			return This.FirstItemUntilPath(paPath)
-
-			def FirstItemUntilQ(paPath)
-				return This.FirstItemUntilPathQ(paPath)
-
-		def FirstItemUpToPath(paPath)
-			return This.FirstItemUntilPath(paPath)
-
-			def FirstItemUpToPathQ(paPath)
-				return This.FirstItemUntilPathQ(paPath)
-
-		def FirstItemUpTo(paPath)
-			return This.FirstItemUntilPath(paPath)
-
-			def FirstItemUpToQ(paPath)
-				return This.FirstItemUntilPathQ(paPath)
-
-		def FirstItemDownToPath(paPath)
-			return This.FirstItemUntilPath(paPath)
-
-			def FirstItemDownToPathQ(paPath)
-				return This.FirstItemUntilPathQ(paPath)
-
-		def FirstItemDownTo(paPath)
-			return This.FirstItemUntilPath(paPath)
-
-			def FirstItemDownToQ(paPath)
-				return This.FirstItemUntilPathQ(paPath)
-
-		#>
-
-	def LastItemUntilPath(paPath)
-		return This.NthItemUntilPath(len(paPath), paPath)
-
-		#< @FunctionAlternativeForms
-
-		def LastItemUntil(paPath)
-			return This.LastItemUntilPath(paPath)
-
-			def LastItemUntilQ(paPath)
-				return This.LastItemUntilPathQ(paPath)
-
-		def LastItemUpToPath(paPath)
-			return This.LastItemUntilPath(paPath)
-
-			def LastItemUpToPathQ(paPath)
-				return This.LastItemUntilPathQ(paPath)
-
-		def LastItemUpTo(paPath)
-			return This.LastItemUntilPath(paPath)
-
-			def LastItemUpToQ(paPath)
-				return This.LastItemUntilPathQ(paPath)
-
-		def LastItemDownToPath(paPath)
-			return This.LastItemUntilPath(paPath)
-
-			def LastItemDownToPathQ(paPath)
-				return This.LastItemUntilPathQ(paPath)
-
-		def LastItemDownTo(paPath)
-			return This.LastItemUntilPath(paPath)
-
-			def LastItemDownToQ(paPath)
-				return This.LastItemUntilPathQ(paPath)
-
-		#>
+	def LastItemInPath(paPath)
+		return This.NthItemInPath(len(paPath), paPath)
 
 	#-- FINDING ITEM(S) AT PATH(S)
 
@@ -45631,7 +45334,7 @@ fdef
 			ok
 		ok
 
-		_aPaths_ = @PathsUntil(paPath)
+		_aPaths_ = @PathsIn(paPath)
 		_nLen_ = len(_aPaths_)
 
 		_oListOfItems_ = new stzList(paItems)
@@ -45998,6 +45701,7 @@ fdef
 	def ItemExistsInAllNodesOfPathCS(pItem, paPath, pCaseSensitive)
 
 		/* ... */ #TODO
+		stzraise("Function not yet implemented!")
 
 		def ContainsItemInAllNodesOfPathCS(pItem, paPath, pCaseSensitive)
 			return This.ItemExistsInAllNodesPathCS(pItem, paPath, pCaseSensitive)
@@ -46034,6 +45738,7 @@ fdef
 	def ItemExistsInAllNodesOfPathsCS(pItem, paPaths, pCaseSensitive)
 
 		/* ... */ #TODO
+		stzraise("Function not yet implemented!")
 
 		def ContainsItemInAllNodesOfPathsCS(pItem, paPaths, pCaseSensitive)
 			return This.ItemExistsInAllNodesPathsCS(pItem, paPaths, pCaseSensitive)
@@ -46088,13 +45793,13 @@ fdef
 
 	#-- FINDING ITEM(S) OVER PATH(S)
 
-	def FindItemUntilPathCS(pItem, paPath, pCaseSensitive)
+	def FindItemInPathCS(pItem, paPath, pCaseSensitive)
 
     		if NOT This.IsValidPath(paPath)
         		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
     		ok
 
-		_aItemsZZ_ = This.ItemsUntilPathZZ(paPath)
+		_aItemsZZ_ = This.ItemsInPathZZ(paPath)
 		_nLen_ = len(_aItemsZZ_)
 
 		_oItem_ = Q(pItem)
@@ -46110,110 +45815,78 @@ fdef
 
 		#< @FunctionAlternativeForms
 
-		def FindUntilPathCS(pItem, paPath, pCaseSensitive)
-			return This.FindItemUntilPathCS(pItem, paPath, pCaseSensitive)
+		def FindInPathCS(pItem, paPath, pCaseSensitive)
+			return This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
 
 		#--
 
 		def FindItemUpToPathCS(pItem, paPath, pCaseSensitive)
-			return This.FindItemUntilPathCS(pItem, paPath, pCaseSensitive)
+			return This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
 
 		def FindUpToPathCS(pItem, paPath, pCaseSensitive)
-			return This.FindItemUntilPathCS(pItem, paPath, pCaseSensitive)
+			return This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
 
 		#--
 
 		def FindItemDownToPathCS(pItem, paPath, pCaseSensitive)
-			return This.FindItemUntilPathCS(pItem, paPath, pCaseSensitive)
+			return This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
 
 		def FindDownToPathCS(pItem, paPath, pCaseSensitive)
-			return This.FindItemUntilPathCS(pItem, paPath, pCaseSensitive)
+			return This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
 
 		#==
 
-		def DeepFindItemUntilPathCS(pItem, paPath, pCaseSensitive)
-			return This.FindItemUntilPathCS(pItem, paPath, pCaseSensitive)
+		def DeepFindItemInPathCS(pItem, paPath, pCaseSensitive)
+			return This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
 
-		def DeepFindUntilPathCS(pItem, paPath, pCaseSensitive)
-			return This.FindItemUntilPathCS(pItem, paPath, pCaseSensitive)
+		def DeepFindInPathCS(pItem, paPath, pCaseSensitive)
+			return This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
 
 		#--
 
 		def DeepFindItemUpToPathCS(pItem, paPath, pCaseSensitive)
-			return This.FindItemUntilPathCS(pItem, paPath, pCaseSensitive)
+			return This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
 
 		def DeepFindUpToPathCS(pItem, paPath, pCaseSensitive)
-			return This.FindItemUntilPathCS(pItem, paPath, pCaseSensitive)
+			return This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
 
 		#--
 
 		def DeepFindItemDownToPathCS(pItem, paPath, pCaseSensitive)
-			return This.FindItemUntilPathCS(pItem, paPath, pCaseSensitive)
+			return This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
 
 		def DeepFindDownToPathCS(pItem, paPath, pCaseSensitive)
-			return This.FindItemUntilPathCS(pItem, paPath, pCaseSensitive)
+			return This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
 
 		#>
 
-	def FindItemUntilPath(pItem, paPath)
-		return This.FindItemUntilPathCS(pItem, paPath, _TRUE_)
+	def FindItemInPath(pItem, paPath)
+		return This.FindItemInPathCS(pItem, paPath, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
-		def FindUntilPath(pItem, paPath)
-			return This.FindItemUntilPath(pItem, paPath)
-
-		#--
-
-		def FindItemUpToPath(pItem, paPath)
-			return This.FindItemUntilPath(pItem, paPath)
-
-		def FindUpToPath(pItem, paPath)
-			return This.FindItemUntilPath(pItem, paPath)
-
-		#--
-
-		def FindItemDownToPath(pItem, paPath)
-			return This.FindItemUntilPath(pItem, paPath)
-
-		def FindDownToPath(pItem, paPath)
-			return This.FindItemUntilPath(pItem, paPath)
+		def FindInPath(pItem, paPath)
+			return This.FindItemInPath(pItem, paPath)
 
 		#==
 
-		def DeepFindItemUntilPath(pItem, paPath)
-			return This.FindItemUntilPath(pItem, paPath)
+		def DeepFindItemInPath(pItem, paPath)
+			return This.FindItemInPath(pItem, paPath)
 
-		def DeepFindUntilPath(pItem, paPath)
-			return This.FindItemUntilPath(pItem, paPath)
-
-		#--
-
-		def DeepFindItemUpToPath(pItem, paPath)
-			return This.FindItemUntilPath(pItem, paPath)
-
-		def DeepFindUpToPath(pItem, paPath)
-			return This.FindItemUntilPath(pItem, paPath)
-
-		#--
-
-		def DeepFindItemDownToPath(pItem, paPath)
-			return This.FindItemUntilPath(pItem, paPath)
-
-		def DeepFindDownToPath(pItem, paPath)
-			return This.FindItemUntilPathCS(pItem, paPath)
+		def DeepFindInPath(pItem, paPath)
+			return This.FindItemInPath(pItem, paPath)
 
 		#>
 
 	#--
 
-	def FindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
+	def FindItemsInPathCS(paItems, paPath, pCaseSensitive)
 
     		if NOT This.IsValidPath(paPath)
         		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
     		ok
 
-		_aItemsZZ_ = This.ItemsUntilPathZZ(paPath)
+		_aItemsZZ_ = This.ItemsInPathZZ(paPath)
 		_nLen_ = len(_aItemsZZ_)
 
 		_oItems_ = new stzList(paItems)
@@ -46230,615 +45903,360 @@ fdef
 
 		#< @FunctionAlternativeForms
 
-		def FindManyUntilPathCS(paItems, paPath, pCaseSensitive)
-			return This.FindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
+		def FindManyInPathCS(paItems, paPath, pCaseSensitive)
+			return This.FindItemsInPathCS(paItems, paPath, pCaseSensitive)
 
-		def FindManyItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-			return This.FindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
+		def FindManyItemsInPathCS(paItems, paPath, pCaseSensitive)
+			return This.FindItemsInPathCS(paItems, paPath, pCaseSensitive)
 
-		def FindTheseItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-			return This.FindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		#--
-
-		def FindItemsUpToPathCS(paItems, paPath, pCaseSensitive)
-			return This.FindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		def FindManyUpToPathCS(paItems, paPath, pCaseSensitive)
-			return This.FindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		def FindManyItemsUpToPathCS(paItems, paPath, pCaseSensitive)
-			return This.FindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		def FindTheseItemsUpToPathCS(paItems, paPath, pCaseSensitive)
-			return This.FindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		#--
-
-		def FindItemsDownToPathCS(paItems, paPath, pCaseSensitive)
-			return This.FindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		def FindManyDownToPathCS(paItems, paPath, pCaseSensitive)
-			return This.FindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		def FindManyItemsDownToPathCS(paItems, paPath, pCaseSensitive)
-			return This.FindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		def FindTheseItemsDownToPathCS(paItems, paPath, pCaseSensitive)
-			return This.FindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
+		def FindTheseItemsInPathCS(paItems, paPath, pCaseSensitive)
+			return This.FindItemsInPathCS(paItems, paPath, pCaseSensitive)
 
 		#==
 
-		def DeepFindManyUntilPathCS(paItems, paPath, pCaseSensitive)
-			return This.DeepFindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
+		def DeepFindManyInPathCS(paItems, paPath, pCaseSensitive)
+			return This.DeepFindItemsInPathCS(paItems, paPath, pCaseSensitive)
 
-		def DeepFindManyItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-			return This.DeepFindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
+		def DeepFindManyItemsInPathCS(paItems, paPath, pCaseSensitive)
+			return This.DeepFindItemsInPathCS(paItems, paPath, pCaseSensitive)
 
-		def DeepFindTheseItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-			return This.DeepFindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		#--
-
-		def DeepFindItemsUpToPathCS(paItems, paPath, pCaseSensitive)
-			return This.DeepFindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		def DeepFindManyUpToPathCS(paItems, paPath, pCaseSensitive)
-			return This.DeepFindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		def DeepFindManyItemsUpToPathCS(paItems, paPath, pCaseSensitive)
-			return This.DeepFindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		def DeepFindTheseItemsUpToPathCS(paItems, paPath, pCaseSensitive)
-			return This.DeepFindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		#--
-
-		def DeepFindItemsDownToPathCS(paItems, paPath, pCaseSensitive)
-			return This.DeepFindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		def DeepFindManyDownToPathCS(paItems, paPath, pCaseSensitive)
-			return This.DeepFindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		def DeepFindManyItemsDownToPathCS(paItems, paPath, pCaseSensitive)
-			return This.DeepFindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-
-		def DeepFindTheseItemsDownToPathCS(paItems, paPath, pCaseSensitive)
-			return This.DeepFindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
+		def DeepFindTheseItemsInPathCS(paItems, paPath, pCaseSensitive)
+			return This.DeepFindItemsInPathCS(paItems, paPath, pCaseSensitive)
 
 		#>
 
-	def FindItemsUntilPath(paItems, paPath)
-		return This.FindItemsUntilPathCS(paItems, paPath, _TRUE_)
+	def FindItemsInPath(paItems, paPath)
+		return This.FindItemsInPathCS(paItems, paPath, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
-		def FindManyUntilPath(paItems, paPath)
-			return This.FindItemsUntilPath(paItems, paPath)
+		def FindManyInPath(paItems, paPath)
+			return This.FindItemsInPath(paItems, paPath)
 
-		def FindManyItemsUntilPath(paItems, paPath)
-			return This.FindItemsUntilPath(paItems, paPath)
+		def FindManyItemsInPath(paItems, paPath)
+			return This.FindItemsInPath(paItems, paPath)
 
-		def FindTheseItemsUntilPath(paItems, paPath)
-			return This.FindItemsUntilPath(paItems, paPath)
-
-		#--
-
-		def FindItemsUpToPath(paItems, paPath)
-			return This.FindItemsUntilPath(paItems, paPath)
-
-		def FindManyUpToPath(paItems, paPath)
-			return This.FindItemsUntilPath(paItems, paPath)
-
-		def FindManyItemsUpToPath(paItems, paPath)
-			return This.FindItemsUntilPath(paItems, paPath)
-
-		def FindTheseItemsUpToPath(paItems, paPath)
-			return This.FindItemsUntilPath(paItems, paPath)
-
-		#--
-
-		def FindItemsDownToPath(paItems, paPath)
-			return This.FindItemsUntilPath(paItems, paPath)
-
-		def FindManyDownToPath(paItems, paPath)
-			return This.FindItemsUntilPath(paItems, paPath)
-
-		def FindManyItemsDownToPath(paItems, paPath)
-			return This.FindItemsUntilPath(paItems, paPath)
-
-		def FindTheseItemsDownToPath(paItems, paPath)
-			return This.FindItemsUntilPath(paItems, paPath)
+		def FindTheseItemsInPath(paItems, paPath)
+			return This.FindItemsInPath(paItems, paPath)
 
 		#==
 
-		def DeepFindManyUntilPath(paItems, paPath)
-			return This.DeepFindItemsUntilPath(paItems, paPath)
+		def DeepFindManyInPath(paItems, paPath)
+			return This.DeepFindItemsInPath(paItems, paPath)
 
-		def DeepFindManyItemsUntilPath(paItems, paPath)
-			return This.DeepFindItemsUntilPath(paItems, paPath)
+		def DeepFindManyItemsInPath(paItems, paPath)
+			return This.DeepFindItemsInPath(paItems, paPath)
 
-		def DeepFindTheseItemsUntilPath(paItems, paPath)
-			return This.DeepFindItemsUntilPath(paItems, paPath)
-
-		#--
-
-		def DeepFindItemsUpToPath(paItems, paPath)
-			return This.DeepFindItemsUntilPath(paItems, paPath)
-
-		def DeepFindManyUpToPath(paItems, paPath)
-			return This.DeepFindItemsUntilPath(paItems, paPath)
-
-		def DeepFindManyItemsUpToPath(paItems, paPath)
-			return This.DeepFindItemsUntilPath(paItems, paPath)
-
-		def DeepFindTheseItemsUpToPath(paItems, paPath)
-			return This.DeepFindItemsUntilPath(paItems, paPath)
-
-		#--
-
-		def DeepFindItemsDownToPath(paItems, paPath)
-			return This.DeepFindItemsUntilPath(paItems, paPath)
-
-		def DeepFindManyDownToPath(paItems, paPath)
-			return This.DeepFindItemsUntilPath(paItems, paPath)
-
-		def DeepFindManyItemsDownToPath(paItems, paPath)
-			return This.DeepFindItemsUntilPath(paItems, paPath)
-
-		def DeepFindTheseItemsDownToPath(paItems, paPath)
-			return This.DeepFindItemsUntilPath(paItems, paPath)
+		def DeepFindTheseItemsInPath(paItems, paPath)
+			return This.DeepFindItemsInPath(paItems, paPath)
 
 		#>
 
 	#--
 
-	def FindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
+	def FindItemInPathsCS(pItem, paPaths, pCaseSensitive)
     		if NOT These.AreValidPaths(paPaths)
         		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
     		ok
 
-		_aResult_ = This.FindItemUntilPathCS(pItem, @DeepestPath(paPaths), pCaseSensitive)
+		_aResult_ = This.FindItemInPathCS(pItem, @DeepestPath(paPaths), pCaseSensitive)
 		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def FindUntilPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.FindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
-
-		#--
-
-		def FindItemUpToPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.FindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
-
-		def FindUpToPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.FindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
-
-		def FindItemDownToPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.FindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
-
-		def FindDownToPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.FindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
+		def FindInPathsCS(pItem, paPaths, pCaseSensitive)
+			return This.FindItemInPathsCS(pItem, paPaths, pCaseSensitive)
 
 		#==
 
-		def DeepFindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.FindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
+		def DeepFindItemInPathsCS(pItem, paPaths, pCaseSensitive)
+			return This.FindItemInPathsCS(pItem, paPaths, pCaseSensitive)
 
-		def DeepFindUntilPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.FindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
-
-		#--
-
-		def DeepFindItemUpToPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.FindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
-
-		def DeepFindUpToPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.FindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
-
-		def DeepFindItemDownToPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.FindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
-
-		def DeepFindDownToPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.FindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
+		def DeepFindInPathsCS(pItem, paPaths, pCaseSensitive)
+			return This.FindItemInPathsCS(pItem, paPaths, pCaseSensitive)
 
 		#>
 
-	def FindItemUntilPaths(pItem, paPaths)
-		return This.FindItemUntilPathsCS(pItem, paPaths, _TRUE_)
+	def FindItemInPaths(pItem, paPaths)
+		return This.FindItemInPathsCS(pItem, paPaths, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
-		def FindUntilPaths(pItem, paPaths)
-			return This.FindItemUntilPaths(pItem, paPaths)
-
-		#--
-
-		def FindItemUpToPaths(pItem, paPaths)
-			return This.FindItemUntilPaths(pItem, paPaths)
-
-		def FindUpToPaths(pItem, paPaths)
-			return This.FindItemUntilPaths(pItem, paPaths)
-
-		def FindItemDownToPaths(pItem, paPaths)
-			return This.FindItemUntilPaths(pItem, paPaths)
-
-		def FindUpDownPaths(pItem, paPaths)
-			return This.FindItemUntilPaths(pItem, paPaths)
+		def FindInPaths(pItem, paPaths)
+			return This.FindItemInPaths(pItem, paPaths)
 
 		#==
 
-		def DeepFindItemUntilPaths(pItem, paPaths)
-			return This.FindItemUntilPaths(pItem, paPaths)
+		def DeepFindItemInPaths(pItem, paPaths)
+			return This.FindItemInPaths(pItem, paPaths)
 
-		def DeepFindUntilPaths(pItem, paPaths)
-			return This.FindItemUntilPaths(pItem, paPaths)
-
-		#--
-
-		def DeepFindItemUpToPaths(pItem, paPaths)
-			return This.FindItemUntilPaths(pItem, paPaths)
-
-		def DeepFindUpToPaths(pItem, paPaths)
-			return This.FindItemUntilPaths(pItem, paPaths)
-
-		def DeepFindItemDownToPaths(pItem, paPaths)
-			return This.FindItemUntilPaths(pItem, paPaths)
-
-		def DeepFindDownToPaths(pItem, paPaths)
-			return This.FindItemUntilPaths(pItem, paPaths)
+		def DeepFindInPaths(pItem, paPaths)
+			return This.FindItemInPaths(pItem, paPaths)
 
 		#>
 
 	#---
 
-	def FindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+	def FindItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
     		if NOT These.AreValidPaths(paPaths)
         		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
     		ok
 
-		return This.FindItemsUntilPathCS(paItems, @DeepestPath(paPaths), pCaseSensitive)
+		return This.FindItemsInPathCS(paItems, @DeepestPath(paPaths), pCaseSensitive)
 
 
 		#< @FunctionAlternativeForms
 
-		def FindManyItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.FindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+		def FindManyItemsInPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.FindItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
-		def FindTheseItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.FindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-
-		#--
-
-		def FindItemsUpToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.FindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-
-		def FindManyItemsUpToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.FindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-
-		def FindTheseItemsUpToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.FindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-
-		#--
-
-		def FindItemsDownToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.FindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-
-		def FindManyItemsDownToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.FindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-
-		def FindTheseItemsDownToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.FindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+		def FindTheseItemsInPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.FindItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
 		#==
 
-		def DeepFindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.DeepFindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+		def DeepFindItemsInPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.DeepFindItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
-		def DeepFindManyItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.DeepFindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+		def DeepFindManyItemsInPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.DeepFindItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
-		def DeepFindTheseItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.DeepFindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-
-		#--
-
-		def DeepFindItemsUpToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.DeepFindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-
-		def DeepFindManyItemsUpToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.DeepFindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-
-		def DeepFindTheseItemsUpToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.DeepFindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-
-		#--
-
-		def DeepFindItemsDownToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.DeepFindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-
-		def DeepFindManyItemsDownToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.DeepFindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-
-		def DeepFindTheseItemsDownToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.DeepFindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+		def DeepFindTheseItemsInPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.DeepFindItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
 		#>
 
-	def FindItemsUntilPaths(paItems, paPaths)
-		return This.FindItemsUntilPathsCS(paItems, paPaths, _TRUE_)
+	def FindItemsInPaths(paItems, paPaths)
+		return This.FindItemsInPathsCS(paItems, paPaths, _TRUE_)
 
 		#< @FunctionAlternativeForms
 
-		def FindManyItemsUntilPaths(paItems, paPaths)
-			return This.FindItemsUntilPaths(paItems, paPaths)
+		def FindManyItemsInPaths(paItems, paPaths)
+			return This.FindItemsInPaths(paItems, paPaths)
 
-		def FindTheseItemsUntilPaths(paItems, paPaths)
-			return This.FindItemsUntilPaths(paItems, paPaths)
-
-		#--
-
-		def FindItemsUpToPaths(paItems, paPaths)
-			return This.FindItemsUntilPaths(paItems, paPaths)
-
-		def FindManyItemsUpToPaths(paItems, paPaths)
-			return This.FindItemsUntilPaths(paItems, paPaths)
-
-		def FindTheseItemsUpToPaths(paItems, paPaths)
-			return This.FindItemsUntilPaths(paItems, paPaths)
-
-		#--
-
-		def FindItemsDownToPaths(paItems, paPaths)
-			return This.FindItemsUntilPaths(paItems, paPaths)
-
-		def FindManyItemsDownToPaths(paItems, paPaths)
-			return This.FindItemsUntilPaths(paItems, paPaths)
-
-		def FindTheseItemsDownToPaths(paItems, paPaths)
-			return This.FindItemsUntilPaths(paItems, paPaths)
+		def FindTheseItemsInPaths(paItems, paPaths)
+			return This.FindItemsInPaths(paItems, paPaths)
 
 		#==
 
-		def DeepFindItemsUntilPaths(paItems, paPaths)
-			return This.DeepFindItemsUntilPaths(paItems, paPaths)
+		def DeepFindItemsInPaths(paItems, paPaths)
+			return This.DeepFindItemsInPaths(paItems, paPaths)
 
-		def DeepFindManyItemsUntilPaths(paItems, paPaths)
-			return This.DeepFindItemsUntilPaths(paItems, paPaths)
+		def DeepFindManyItemsInPaths(paItems, paPaths)
+			return This.DeepFindItemsInPaths(paItems, paPaths)
 
-		def DeepFindTheseItemsUntilPaths(paItems, paPaths)
-			return This.DeepFindItemsUntilPaths(paItems, paPaths)
-
-		#--
-
-		def DeepFindItemsUpToPaths(paItems, paPaths)
-			return This.DeepFindItemsUntilPaths(paItems, paPaths)
-
-		def DeepFindManyItemsUpToPaths(paItems, paPaths)
-			return This.DeepFindItemsUntilPaths(paItems, paPaths)
-
-		def DeepFindTheseItemsUpToPaths(paItems, paPaths)
-			return This.DeepFindItemsUntilPaths(paItems, paPaths)
-
-		#--
-
-		def DeepFindItemsDownToPaths(paItems, paPaths)
-			return This.DeepFindItemsUntilPaths(paItems, paPaths)
-
-		def DeepFindManyItemsDownToPaths(paItems, paPaths)
-			return This.DeepFindItemsUntilPaths(paItems, paPaths)
-
-		def DeepFindTheseItemsDownToPaths(paItems, paPaths)
-			return This.DeepFindItemsUntilPaths(paItems, paPaths)
+		def DeepFindTheseItemsInPaths(paItems, paPaths)
+			return This.DeepFindItemsInPaths(paItems, paPaths)
 
 		#>
 
 	#-- REMOVING ITEMS OVER PATHS
 
-	def RemoveItemUntilPathCS(pItem, paPath, pCaseSensitive)
+	def RemoveItemInPathCS(pItem, paPath, pCaseSensitive)
 
-		_aPaths_ = This.FindItemUntilPathCS(pItem, paPath, pCaseSensitive)
+		_aPaths_ = This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
 		This.RemoveItemAtPathsCS(pItem, _aPaths_, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
-		def RemoveItemUntilPathCSQ(pItem, paPath, pCaseSensitive)
-			This.RemoveUntilPathCS(pItem, paPath, pCaseSensitive)
+		def RemoveItemInPathCSQ(pItem, paPath, pCaseSensitive)
+			This.RemoveInPathCS(pItem, paPath, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveUntilPathCS(pItem, paPath, pCaseSensitive)
-			return This.RemoveItemUntilPathCS(pItem, paPath, pCaseSensitive)
+		def RemoveInPathCS(pItem, paPath, pCaseSensitive)
+			return This.RemoveItemInPathCS(pItem, paPath, pCaseSensitive)
 
-			def RemoveUntilPathCSQ(pItem, paPath, pCaseSensitive)
-				return This.RemoveUntilPathCSQ(pItem, paPath, pCaseSensitive)
+			def RemoveInPathCSQ(pItem, paPath, pCaseSensitive)
+				return This.RemoveInPathCSQ(pItem, paPath, pCaseSensitive)
 
 		#--
 
-		def DeepRemoveItemUntilPathCS(pItem, paPath, pCaseSensitive)
-			return This.RemoveItemUntilPathCS(pItem, paPath, pCaseSensitive)
+		def DeepRemoveItemInPathCS(pItem, paPath, pCaseSensitive)
+			return This.RemoveItemInPathCS(pItem, paPath, pCaseSensitive)
 
-			def DeepRemoveItemUntilPathCSQ(pItem, paPath, pCaseSensitive)
-				return This.RemoveUntilPathCSQ(pItem, paPath, pCaseSensitive)
+			def DeepRemoveItemInPathCSQ(pItem, paPath, pCaseSensitive)
+				return This.RemoveInPathCSQ(pItem, paPath, pCaseSensitive)
 
-		def DeepRemoveUntilPathCS(pItem, paPath, pCaseSensitive)
-			return This.RemoveItemUntilPathCS(pItem, paPath, pCaseSensitive)
+		def DeepRemoveInPathCS(pItem, paPath, pCaseSensitive)
+			return This.RemoveItemInPathCS(pItem, paPath, pCaseSensitive)
 
-			def DeepRemoveUntilPathCSQ(pItem, paPath, pCaseSensitive)
-				return This.RemoveUntilPathCSQ(pItem, paPath, pCaseSensitive)
+			def DeepRemoveInPathCSQ(pItem, paPath, pCaseSensitive)
+				return This.RemoveInPathCSQ(pItem, paPath, pCaseSensitive)
 
 		#>
 
-	def ItemRemoveUntilPathCS(pItem, paPath, pCaseSensitive)
-		_aResult_ = This.Copy().RemoveUntilPathCSQ(pItem, paPath, pCaseSensitive).Content()
+	def ItemRemoveInPathCS(pItem, paPath, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveInPathCSQ(pItem, paPath, pCaseSensitive).Content()
 		return _aResult_
 
-		def RemovedUntilPathCS(pItem, paPath, pCaseSensitive)
-			return This.ItemRemoveUntilPathCS(pItem, paPath, pCaseSensitive)
+		def RemovedInPathCS(pItem, paPath, pCaseSensitive)
+			return This.ItemRemoveInPathCS(pItem, paPath, pCaseSensitive)
 
-		def ItemDeepRemovedUntilPathCS(pItem, paPath, pCaseSensitive)
-			return This.ItemRemoveUntilPathCS(pItem, paPath, pCaseSensitive)
+		def ItemDeepRemovedInPathCS(pItem, paPath, pCaseSensitive)
+			return This.ItemRemoveInPathCS(pItem, paPath, pCaseSensitive)
 
-		def DeepRemovedUntilPathCS(pItem, paPath, pCaseSensitive)
-			return This.ItemRemoveUntilPathCS(pItem, paPath, pCaseSensitive)
+		def DeepRemovedInPathCS(pItem, paPath, pCaseSensitive)
+			return This.ItemRemoveInPathCS(pItem, paPath, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveItemUntilPath(pItem, paPath)
-		return This.RemoveItemUntilPathCS(pItem, paPath, _TRUE_)
+	def RemoveItemInPath(pItem, paPath)
+		return This.RemoveItemInPathCS(pItem, paPath, _TRUE_)
 
 		#< @FunctionFluentForm
 
-		def RemoveItemUntilPathQ(pItem, paPath)
-			This.RemoveUntilPath(pItem, paPath)
+		def RemoveItemInPathQ(pItem, paPath)
+			This.RemoveInPath(pItem, paPath)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveUntilPath(pItem, paPath)
-			return This.RemoveItemUntilPath(pItem, paPath)
+		def RemoveInPath(pItem, paPath)
+			return This.RemoveItemInPath(pItem, paPath)
 
-			def RemoveUntilPathQ(pItem, paPath)
-				return This.RemoveUntilPathQ(pItem, paPath)
+			def RemoveInPathQ(pItem, paPath)
+				return This.RemoveInPathQ(pItem, paPath)
 
 		#--
 
-		def DeepRemoveItemUntilPath(pItem, paPath)
-			return This.RemoveItemUntilPath(pItem, paPath)
+		def DeepRemoveItemInPath(pItem, paPath)
+			return This.RemoveItemInPath(pItem, paPath)
 
-			def DeepRemoveItemUntilPathQ(pItem, paPath)
-				return This.RemoveUntilPathQ(pItem, paPath)
+			def DeepRemoveItemInPathQ(pItem, paPath)
+				return This.RemoveInPathQ(pItem, paPath)
 
-		def DeepRemoveUntilPath(pItem, paPath)
-			return This.RemoveItemUntilPath(pItem, paPath)
+		def DeepRemoveInPath(pItem, paPath)
+			return This.RemoveItemInPath(pItem, paPath)
 
-			def DeepRemoveUntilPathQ(pItem, paPath)
-				return This.RemoveUntilPathQ(pItem, paPath)
+			def DeepRemoveInPathQ(pItem, paPath)
+				return This.RemoveInPathQ(pItem, paPath)
 
 		#>
 
-	def ItemRemoveUntilPath(pItem, paPath)
-		_aResult_ = This.Copy().RemoveUntilPathQ(pItem, paPath).Content()
+	def ItemRemoveInPath(pItem, paPath)
+		_aResult_ = This.Copy().RemoveInPathQ(pItem, paPath).Content()
 		return _aResult_
 
-		def RemovedUntilPath(pItem, paPath)
-			return This.ItemRemoveUntilPath(pItem, paPath)
+		def RemovedInPath(pItem, paPath)
+			return This.ItemRemoveInPath(pItem, paPath)
 
-		def ItemDeepRemovedUntilPath(pItem, paPath)
-			return This.ItemRemoveUntilPath(pItem, paPath)
+		def ItemDeepRemovedInPath(pItem, paPath)
+			return This.ItemRemoveInPath(pItem, paPath)
 
-		def DeepRemovedUntilPath(pItem, paPath)
-			return This.ItemRemoveUntilPath(pItem, paPath)
+		def DeepRemovedInPath(pItem, paPath)
+			return This.ItemRemoveInPath(pItem, paPath)
 
 	#==
 
-	def RemoveItemsUntilPathCS(paItems, paPath, pCaseSensitive)
+	def RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
 
-   		_aPaths_ = This.FindItemsUntilPathCS(paItems, paPath, pCaseSensitive)
+   		_aPaths_ = This.FindItemsInPathCS(paItems, paPath, pCaseSensitive)
 		_aResult_ = This.RemoveItemsAtPaths(paItems, _aPaths_)
 
 		#< @FunctionFluentForm
 
-		def RemoveItemsUntilPathCSQ(paItems, paPath, pCaseSensitive)
-			This.RemoveItemsUntilPathCS(paItems, paPath, pCaseSensitive)
+		def RemoveItemsInPathCSQ(paItems, paPath, pCaseSensitive)
+			This.RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
 			return This
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveTheseItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-			This.RemoveItemsUntilPathCS(paItems, paPath, pCaseSensitive)
+		def RemoveTheseItemsInPathCS(paItems, paPath, pCaseSensitive)
+			This.RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
 
-			def RemoveTheseItemsUntilPathCSQ(paItems, paPath, pCaseSensitive)
-				return This.RemoveItemsUntilPathCSQ(paItems, paPath, pCaseSensitive)
+			def RemoveTheseItemsInPathCSQ(paItems, paPath, pCaseSensitive)
+				return This.RemoveItemsInPathCSQ(paItems, paPath, pCaseSensitive)
 
 		#--
 
-		def DeepRemoveItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-			This.RemoveItemsUntilPathCS(paItems, paPath, pCaseSensitive)
+		def DeepRemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
+			This.RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
 
-			def DeepRemoveItemsUntilPathCSQ(paItems, paPath, pCaseSensitive)
-				return This.RemoveItemsUntilPathCSQ(paItems, paPath, pCaseSensitive)
+			def DeepRemoveItemsInPathCSQ(paItems, paPath, pCaseSensitive)
+				return This.RemoveItemsInPathCSQ(paItems, paPath, pCaseSensitive)
  
-		def DeepRemoveTheseItemsUntilPathCS(paItems, paPath, pCaseSensitive)
-			This.RemoveItemsUntilPathCS(paItems, paPath, pCaseSensitive)
+		def DeepRemoveTheseItemsInPathCS(paItems, paPath, pCaseSensitive)
+			This.RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
 
-			def DeepRemoveTheseItemsUntilPathCSQ(paItems, paPath, pCaseSensitive)
-				return This.RemoveItemsUntilPathCSQ(paItems, paPath, pCaseSensitive)
+			def DeepRemoveTheseItemsInPathCSQ(paItems, paPath, pCaseSensitive)
+				return This.RemoveItemsInPathCSQ(paItems, paPath, pCaseSensitive)
 
 		#>
 
-	def ItemsRemoveUntilPathCS(paItems, paPath, pCaseSensitive)
-		_aResult_ = This.Copy().RemoveItemsUntilPathCSQ(paItems, paPath, pCaseSensitive).Content()
+	def ItemsRemoveInPathCS(paItems, paPath, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveItemsInPathCSQ(paItems, paPath, pCaseSensitive).Content()
 		return _aResult_
 
-		def TheseItemsRemovedUntilPathCS(paItems, paPath, pCaseSensitive)
-			return This.ItemsRemoveUntilPathCS(paItems, paPath, pCaseSensitive)
+		def TheseItemsRemovedInPathCS(paItems, paPath, pCaseSensitive)
+			return This.ItemsRemoveInPathCS(paItems, paPath, pCaseSensitive)
 
-		def TheseItemsDeepRemovedUntilPathCS(paItems, paPath, pCaseSensitive)
-			return This.ItemsRemoveUntilPathCS(paItems, paPath, pCaseSensitive)
+		def TheseItemsDeepRemovedInPathCS(paItems, paPath, pCaseSensitive)
+			return This.ItemsRemoveInPathCS(paItems, paPath, pCaseSensitive)
 
-		def ItemsDeepRemovedUntilPathCS(paItems, paPath, pCaseSensitive)
-			return This.ItemsRemoveUntilPathCS(paItems, paPath, pCaseSensitive)
+		def ItemsDeepRemovedInPathCS(paItems, paPath, pCaseSensitive)
+			return This.ItemsRemoveInPathCS(paItems, paPath, pCaseSensitive)
  
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveItemsUntilPath(paItems, paPath)
-		return This.RemoveItemsUntilPathCS(paItems, paPath, _TRUE_)
+	def RemoveItemsInPath(paItems, paPath)
+		return This.RemoveItemsInPathCS(paItems, paPath, _TRUE_)
 
 		#< @FunctionFluentForm
 
-		def RemoveItemsUntilPathQ(paItems, paPath)
-			This.RemoveItemsUntilPath(paItems, paPath)
+		def RemoveItemsInPathQ(paItems, paPath)
+			This.RemoveItemsInPath(paItems, paPath)
 			return This
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveTheseItemsUntilPath(paItems, paPath)
-			This.RemoveItemsUntilPath(paItems, paPath)
+		def RemoveTheseItemsInPath(paItems, paPath)
+			This.RemoveItemsInPath(paItems, paPath)
 
-			def RemoveTheseItemsUntilPathQ(paItems, paPath)
-				return This.RemoveItemsUntilPathQ(paItems, paPath)
+			def RemoveTheseItemsInPathQ(paItems, paPath)
+				return This.RemoveItemsInPathQ(paItems, paPath)
 
 		#--
 
-		def DeepRemoveItemsUntilPath(paItems, paPath)
-			This.RemoveItemsUntilPath(paItems, paPath)
+		def DeepRemoveItemsInPath(paItems, paPath)
+			This.RemoveItemsInPath(paItems, paPath)
 
-			def DeepRemoveItemsUntilPathQ(paItems, paPath)
-				return This.RemoveItemsUntilPathQ(paItems, paPath)
+			def DeepRemoveItemsInPathQ(paItems, paPath)
+				return This.RemoveItemsInPathQ(paItems, paPath)
  
-		def DeepRemoveTheseItemsUntilPath(paItems, paPath)
-			This.RemoveItemsUntilPath(paItems, paPath)
+		def DeepRemoveTheseItemsInPath(paItems, paPath)
+			This.RemoveItemsInPath(paItems, paPath)
 
-			def DeepRemoveTheseItemsUntilPathQ(paItems, paPath)
-				return This.RemoveItemsUntilPathQ(paItems, paPath)
+			def DeepRemoveTheseItemsInPathQ(paItems, paPath)
+				return This.RemoveItemsInPathQ(paItems, paPath)
 
 		#>
 
-	def ItemsRemoveUntilPath(paItems, paPath)
-		_aResult_ = This.Copy().RemoveItemsUntilPathQ(paItems, paPath).Content()
+	def ItemsRemoveInPath(paItems, paPath)
+		_aResult_ = This.Copy().RemoveItemsInPathQ(paItems, paPath).Content()
 		return _aResult_
 
-		def TheseItemsRemovedUntilPath(paItems, paPath)
-			return This.ItemsRemoveUntilPath(paItems, paPath)
+		def TheseItemsRemovedInPath(paItems, paPath)
+			return This.ItemsRemoveInPath(paItems, paPath)
 
-		def TheseItemsDeepRemovedUntilPath(paItems, paPath)
-			return This.ItemsRemoveUntilPath(paItems, paPath)
+		def TheseItemsDeepRemovedInPath(paItems, paPath)
+			return This.ItemsRemoveInPath(paItems, paPath)
 
-		def ItemsDeepRemovedUntilPath(paItems, paPath)
-			return This.ItemsRemoveUntilPath(paItems, paPath)
+		def ItemsDeepRemovedInPath(paItems, paPath)
+			return This.ItemsRemoveInPath(paItems, paPath)
  
 	#== REMOVING ITEM(S) AT GIVEN PATH(S)
-	#~> //AT (and not UPTO or UNTIL) concerns the last item in the path
-	# while UPTO or UNTIL concerns all the items of the path 
+
+	#~> //AT (and not IN) concerns the last item in the path
+	# while IN concerns all the items of the path 
 
 	def RemoveItemAtPathCS(pItem, paPath, pCaseSensitive)
 
@@ -47469,322 +46887,331 @@ fdef
 
 	#==
 
-	def RemoveItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
+	def RemoveItemInPathsCS(pItem, paPaths, pCaseSensitive)
 
-   		_aPaths_ = This.FindItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
+   		_aPaths_ = This.FindItemInPathsCS(pItem, paPaths, pCaseSensitive)
 		_aResult_ = This.RemoveItemsAtPaths(_aPaths_)
 
 		#< @FunctionFluentForm
 
-		def RemoveItemUntilPathsCSQ(pItem, paPaths, pCaseSensitive)
-			This.RemoveItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
+		def RemoveItemInPathsCSQ(pItem, paPaths, pCaseSensitive)
+			This.RemoveItemInPathsCS(pItem, paPaths, pCaseSensitive)
 			return This
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def DeepRemoveItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
-			This.RemoveItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
+		def DeepRemoveItemInPathsCS(pItem, paPaths, pCaseSensitive)
+			This.RemoveItemInPathsCS(pItem, paPaths, pCaseSensitive)
 
-			def DeepRemoveItemUntilPathsCSQ(pItem, paPaths, pCaseSensitive)
-				return This.RemoveItemUntilPathsCSQ(pItem, paPaths, pCaseSensitive)
+			def DeepRemoveItemInPathsCSQ(pItem, paPaths, pCaseSensitive)
+				return This.RemoveItemInPathsCSQ(pItem, paPaths, pCaseSensitive)
 
 		def RemoveItemUpToPathsCS(pItem, paPaths, pCaseSensitive)
-			This.RemoveItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
+			This.RemoveItemInPathsCS(pItem, paPaths, pCaseSensitive)
 
 			def RemoveItemUpToPathsCSQ(pItem, paPaths, pCaseSensitive)
-				return This.RemoveItemUntilPathsCSQ(pItem, paPaths, pCaseSensitive)
+				return This.RemoveItemInPathsCSQ(pItem, paPaths, pCaseSensitive)
 
 		def DeepRemoveItemUpToPathsCS(pItem, paPaths, pCaseSensitive)
-			This.RemoveItemUntilPathsCS(pItem, paPaths, pCaseSensitive)
+			This.RemoveItemInPathsCS(pItem, paPaths, pCaseSensitive)
 
 			def DeepRemoveItemUpToPathsCSQ(pItem, paPaths, pCaseSensitive)
-				return This.RemoveItemUntilPathsCSQ(pItem, paPaths, pCaseSensitive)
+				return This.RemoveItemInPathsCSQ(pItem, paPaths, pCaseSensitive)
 
 		#>
 
-	def ItemRemoveUntilPathsCS(pItem, paPaths, pCaseSensitive)
-		_aResult_ = This.Copy().RemoveUntilPathsCSQ(pItem, paPaths, pCaseSensitive).Content()
+	def ItemRemoveInPathsCS(pItem, paPaths, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveInPathsCSQ(pItem, paPaths, pCaseSensitive).Content()
 		return _aResult_
 
-		def ItemDeepRemovedUntilPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.ItemRemoveUntilPathsCS(pItem, paPaths, pCaseSensitive)
+		def ItemDeepRemovedInPathsCS(pItem, paPaths, pCaseSensitive)
+			return This.ItemRemoveInPathsCS(pItem, paPaths, pCaseSensitive)
 
 		def ItemDeepRemovedUpToPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.ItemRemoveUntilPathsCS(pItem, paPaths, pCaseSensitive)
+			return This.ItemRemoveInPathsCS(pItem, paPaths, pCaseSensitive)
 
 		def ItemRemoveUpToPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.ItemRemoveUntilPathsCS(pItem, paPaths, pCaseSensitive)
+			return This.ItemRemoveInPathsCS(pItem, paPaths, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveItemUntilPaths(pItem, paPaths)
-		return This.RemoveItemUntilPathCS(pItem, paPaths, _TRUE_)
+	def RemoveItemInPaths(pItem, paPaths)
+		return This.RemoveItemInPathCS(pItem, paPaths, _TRUE_)
 
 		#< @FunctionFluentForm
 
-		def RemoveItemUntilPathsQ(pItem, paPaths)
-			This.RemoveItemUntilPaths(pItem, paPaths)
+		def RemoveItemInPathsQ(pItem, paPaths)
+			This.RemoveItemInPaths(pItem, paPaths)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def DeepRemoveItemUntilPaths(pItem, paPaths)
-			This.RemoveItemUntilPaths(pItem, paPaths)
+		def DeepRemoveItemInPaths(pItem, paPaths)
+			This.RemoveItemInPaths(pItem, paPaths)
 
-			def DeepRemoveItemUntilPathsQ(pItem, paPaths)
-				return This.RemoveItemUntilPathsQ(pItem, paPaths)
+			def DeepRemoveItemInPathsQ(pItem, paPaths)
+				return This.RemoveItemInPathsQ(pItem, paPaths)
 
 		def RemoveItemUpToPaths(pItem, paPaths)
-			This.RemoveItemUntilPaths(pItem, paPaths)
+			This.RemoveItemInPaths(pItem, paPaths)
 
 			def RemoveItemUpToPathsQ(pItem, paPaths)
-				return This.RemoveItemUntilPathsQ(pItem, paPaths)
+				return This.RemoveItemInPathsQ(pItem, paPaths)
 
 		def DeepRemoveItemUpToPaths(pItem, paPaths)
-			This.RemoveItemUntilPaths(pItem, paPaths)
+			This.RemoveItemInPaths(pItem, paPaths)
 
 			def DeepRemoveItemUpToPathsQ(pItem, paPaths)
-				return This.RemoveItemUntilPathsQ(pItem, paPaths)
+				return This.RemoveItemInPathsQ(pItem, paPaths)
 
 		#>
 
-	def ItemRemoveUntilPaths(pItem, paPaths)
-		_aResult_ = This.Copy().RemoveUntilPathsQ(pItem, paPaths).Content()
+	def ItemRemoveInPaths(pItem, paPaths)
+		_aResult_ = This.Copy().RemoveInPathsQ(pItem, paPaths).Content()
 		return _aResult_
 
-		def ItemDeepRemovedUntilPaths(pItem, paPaths)
-			return This.ItemRemoveUntilPaths(pItem, paPaths)
+		def ItemDeepRemovedInPaths(pItem, paPaths)
+			return This.ItemRemoveInPaths(pItem, paPaths)
 
 		def ItemDeepRemovedUpToPaths(pItem, paPaths)
-			return This.ItemRemoveUntilPaths(pItem, paPaths)
+			return This.ItemRemoveInPaths(pItem, paPaths)
 
 		def ItemRemoveUpToPaths(pItem, paPaths)
-			return This.ItemRemoveUntilPaths(pItem, paPaths)
+			return This.ItemRemoveInPaths(pItem, paPaths)
 
 	#==
 
-	def RemoveItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+	def RemoveItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
-   		_aPaths_ = This.FindItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+   		_aPaths_ = This.FindItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 		_aResult_ = This.RemoveItemsAtPaths(_aPaths_)
 
 		#< @FunctionFluentForm
 
-		def RemoveItemsUntilPathsCSQ(paItems, paPaths, pCaseSensitive)
-			This.RemoveItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+		def RemoveItemsInPathsCSQ(paItems, paPaths, pCaseSensitive)
+			This.RemoveItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 			return This
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveTheseItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-			This.RemoveItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+		def RemoveTheseItemsInPathsCS(paItems, paPaths, pCaseSensitive)
+			This.RemoveItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
-			def RemoveTheseItemsUntilPathsCSQ(paItems, paPaths, pCaseSensitive)
-				return This.RemoveItemsUntilPathsCSQ(paItems, paPaths, pCaseSensitive)
+			def RemoveTheseItemsInPathsCSQ(paItems, paPaths, pCaseSensitive)
+				return This.RemoveItemsInPathsCSQ(paItems, paPaths, pCaseSensitive)
 
 		#--
 
-		def DeepRemoveItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-			This.RemoveItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+		def DeepRemoveItemsInPathsCS(paItems, paPaths, pCaseSensitive)
+			This.RemoveItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
-			def DeepRemoveItemsUntilPathsCSQ(paItems, paPaths, pCaseSensitive)
-				return This.RemoveItemsUntilPathsCSQ(paItems, paPaths, pCaseSensitive)
+			def DeepRemoveItemsInPathsCSQ(paItems, paPaths, pCaseSensitive)
+				return This.RemoveItemsInPathsCSQ(paItems, paPaths, pCaseSensitive)
 
-		def DeepRemoveTheseItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
-			This.RemoveItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+		def DeepRemoveTheseItemsInPathsCS(paItems, paPaths, pCaseSensitive)
+			This.RemoveItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
-			def DeepRemoveTheseItemsUntilPathsCSQ(paItems, paPaths, pCaseSensitive)
-				return This.RemoveItemsUntilPathsCSQ(paItems, paPaths, pCaseSensitive)
+			def DeepRemoveTheseItemsInPathsCSQ(paItems, paPaths, pCaseSensitive)
+				return This.RemoveItemsInPathsCSQ(paItems, paPaths, pCaseSensitive)
 
 		#==
 
 		def RemoveItemsUpToPathsCS(paItems, paPaths, pCaseSensitive)
-			This.RemoveItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+			This.RemoveItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
 			def RemoveItemsUpToPathsCSQ(paItems, paPaths, pCaseSensitive)
-				return This.RemoveItemsUntilPathsCSQ(paItems, paPaths, pCaseSensitive)
+				return This.RemoveItemsInPathsCSQ(paItems, paPaths, pCaseSensitive)
 
 		def RemoveTheseItemsUpToPathsCS(paItems, paPaths, pCaseSensitive)
-			This.RemoveItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+			This.RemoveItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
 			def RemoveTheseItemsUpToPathsCSQ(paItems, paPaths, pCaseSensitive)
-				return This.RemoveItemsUntilPathsCSQ(paItems, paPaths, pCaseSensitive)
+				return This.RemoveItemsInPathsCSQ(paItems, paPaths, pCaseSensitive)
 
 		#--
 
 		def DeepRemoveItemsUpToPathsCS(paItems, paPaths, pCaseSensitive)
-			This.RemoveItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+			This.RemoveItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
 			def DeepRemoveItemsUpToPathsCSQ(paItems, paPaths, pCaseSensitive)
-				return This.RemoveItemsUntilPathsCSQ(paItems, paPaths, pCaseSensitive)
+				return This.RemoveItemsInPathsCSQ(paItems, paPaths, pCaseSensitive)
 
 		def DeepRemoveTheseItemsUpToPathsCS(paItems, paPaths, pCaseSensitive)
-			This.RemoveItemsUntilPathsCS(paItems, paPaths, pCaseSensitive)
+			This.RemoveItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
 			def DeepRemoveTheseItemsUpToPathsCSQ(paItems, paPaths, pCaseSensitive)
-				return This.RemoveItemsUntilPathsCSQ(paItems, paPaths, pCaseSensitive)
+				return This.RemoveItemsInPathsCSQ(paItems, paPaths, pCaseSensitive)
 
 		#>
 
-	def ItemsRemoveUntilPathsCS(paItems, paPaths, pCaseSensitive)
-		_aResult_ = This.Copy().RemoveItemsUntilPathsCSQ(paItems, paPaths, pCaseSensitive).Content()
+	def ItemsRemoveInPathsCS(paItems, paPaths, pCaseSensitive)
+		_aResult_ = This.Copy().RemoveItemsInPathsCSQ(paItems, paPaths, pCaseSensitive).Content()
 		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def TheseItemsRemovedUntilPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.ItemsRemoveUntilPathsCS(paItems, paPaths, pCaseSensitive)
+		def TheseItemsRemovedInPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.ItemsRemoveInPathsCS(paItems, paPaths, pCaseSensitive)
 
-		def ItemsDeepRemovedUntilPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.ItemsRemoveUntilPathsCS(paItems, paPaths, pCaseSensitive)
+		def ItemsDeepRemovedInPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.ItemsRemoveInPathsCS(paItems, paPaths, pCaseSensitive)
 
-		def TheseItemsDeepRemovedUntilPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.ItemsRemoveUntilPathsCS(paItems, paPaths, pCaseSensitive)
+		def TheseItemsDeepRemovedInPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.ItemsRemoveInPathsCS(paItems, paPaths, pCaseSensitive)
 
 		#--
 
 		def ItemsRemoveUpToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.ItemsRemoveUntilPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.ItemsRemoveInPathsCS(paItems, paPaths, pCaseSensitive)
 
 		def TheseItemsRemovedUpToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.ItemsRemoveUntilPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.ItemsRemoveInPathsCS(paItems, paPaths, pCaseSensitive)
 
 		def ItemsDeepRemovedUpToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.ItemsRemoveUntilPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.ItemsRemoveInPathsCS(paItems, paPaths, pCaseSensitive)
 
 		def TheseItemsDeepRemovedUpToPathsCS(paItems, paPaths, pCaseSensitive)
-			return This.ItemsRemoveUntilPathsCS(paItems, paPaths, pCaseSensitive)
+			return This.ItemsRemoveInPathsCS(paItems, paPaths, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveItemsUntilPaths(paItems, paPaths)
-		return This.RemoveItemsUntilPathCS(paItems, paPaths, _TRUE_)
+	def RemoveItemsInPaths(paItems, paPaths)
+		return This.RemoveItemsInPathCS(paItems, paPaths, _TRUE_)
 
 		#< @FunctionFluentForm
 
-		def RemoveItemsUntilPathsQ(paItems, paPaths)
-			This.RemoveItemsUntilPaths(paItems, paPaths)
+		def RemoveItemsInPathsQ(paItems, paPaths)
+			This.RemoveItemsInPaths(paItems, paPaths)
 			return This
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveTheseItemsUntilPaths(paItems, paPaths)
-			This.RemoveItemsUntilPaths(paItems, paPaths)
+		def RemoveTheseItemsInPaths(paItems, paPaths)
+			This.RemoveItemsInPaths(paItems, paPaths)
 
-			def RemoveTheseItemsUntilPathsQ(paItems, paPaths)
-				return This.RemoveItemsUntilPathsQ(paItems, paPaths)
+			def RemoveTheseItemsInPathsQ(paItems, paPaths)
+				return This.RemoveItemsInPathsQ(paItems, paPaths)
 
 		#--
 
-		def DeepRemoveItemsUntilPaths(paItems, paPaths)
-			This.RemoveItemsUntilPaths(paItems, paPaths)
+		def DeepRemoveItemsInPaths(paItems, paPaths)
+			This.RemoveItemsInPaths(paItems, paPaths)
 
-			def DeepRemoveItemsUntilPathsQ(paItems, paPaths)
-				return This.RemoveItemsUntilPathsQ(paItems, paPaths)
+			def DeepRemoveItemsInPathsQ(paItems, paPaths)
+				return This.RemoveItemsInPathsQ(paItems, paPaths)
 
-		def DeepRemoveTheseItemsUntilPaths(paItems, paPaths)
-			This.RemoveItemsUntilPaths(paItems, paPaths)
+		def DeepRemoveTheseItemsInPaths(paItems, paPaths)
+			This.RemoveItemsInPaths(paItems, paPaths)
 
-			def DeepRemoveTheseItemsUntilPathsQ(paItems, paPaths)
-				return This.RemoveItemsUntilPathsQ(paItems, paPaths)
+			def DeepRemoveTheseItemsInPathsQ(paItems, paPaths)
+				return This.RemoveItemsInPathsQ(paItems, paPaths)
 
 		#==
 
 		def RemoveItemsUpToPaths(paItems, paPaths)
-			This.RemoveItemsUntilPaths(paItems, paPaths)
+			This.RemoveItemsInPaths(paItems, paPaths)
 
 			def RemoveItemsUpToPathsQ(paItems, paPaths)
-				return This.RemoveItemsUntilPathsQ(paItems, paPaths)
+				return This.RemoveItemsInPathsQ(paItems, paPaths)
 
 		def RemoveTheseItemsUpToPaths(paItems, paPaths)
-			This.RemoveItemsUntilPaths(paItems, paPaths)
+			This.RemoveItemsInPaths(paItems, paPaths)
 
 			def RemoveTheseItemsUpToPathsQ(paItems, paPaths)
-				return This.RemoveItemsUntilPathsQ(paItems, paPaths)
+				return This.RemoveItemsInPathsQ(paItems, paPaths)
 
 		#--
 
 		def DeepRemoveItemsUpToPaths(paItems, paPaths)
-			This.RemoveItemsUntilPaths(paItems, paPaths)
+			This.RemoveItemsInPaths(paItems, paPaths)
 
 			def DeepRemoveItemsUpToPathsQ(paItems, paPaths)
-				return This.RemoveItemsUntilPathsQ(paItems, paPaths)
+				return This.RemoveItemsInPathsQ(paItems, paPaths)
 
 		def DeepRemoveTheseItemsUpToPaths(paItems, paPaths)
-			This.RemoveItemsUntilPaths(paItems, paPaths)
+			This.RemoveItemsInPaths(paItems, paPaths)
 
 			def DeepRemoveTheseItemsUpToPathsQ(paItems, paPaths)
-				return This.RemoveItemsUntilPathsQ(paItems, paPaths)
+				return This.RemoveItemsInPathsQ(paItems, paPaths)
 
 		#>
 
 
-	def ItemsRemoveUntilPaths(paItems, paPaths)
-		_aResult_ = This.Copy().RemoveItemsUntilPathsQ(paItems, paPaths).Content()
+	def ItemsRemoveInPaths(paItems, paPaths)
+		_aResult_ = This.Copy().RemoveItemsInPathsQ(paItems, paPaths).Content()
 		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def TheseItemsRemovedUntilPaths(paItems, paPaths)
-			return This.ItemsRemoveUntilPaths(paItems, paPaths)
+		def TheseItemsRemovedInPaths(paItems, paPaths)
+			return This.ItemsRemoveInPaths(paItems, paPaths)
 
-		def ItemsDeepRemovedUntilPaths(paItems, paPaths)
-			return This.ItemsRemoveUntilPaths(paItems, paPaths)
+		def ItemsDeepRemovedInPaths(paItems, paPaths)
+			return This.ItemsRemoveInPaths(paItems, paPaths)
 
-		def TheseItemsDeepRemovedUntilPaths(paItems, paPaths)
-			return This.ItemsRemoveUntilPaths(paItems, paPaths)
+		def TheseItemsDeepRemovedInPaths(paItems, paPaths)
+			return This.ItemsRemoveInPaths(paItems, paPaths)
 
 		#--
 
 		def ItemsRemoveUpToPaths(paItems, paPaths)
-			return This.ItemsRemoveUntilPaths(paItems, paPaths)
+			return This.ItemsRemoveInPaths(paItems, paPaths)
 
 		def TheseItemsRemovedUpToPaths(paItems, paPaths)
-			return This.ItemsRemoveUntilPaths(paItems, paPaths)
+			return This.ItemsRemoveInPaths(paItems, paPaths)
 
 		def ItemsDeepRemovedUpToPaths(paItems, paPaths)
-			return This.ItemsRemoveUntilPaths(paItems, paPaths)
+			return This.ItemsRemoveInPaths(paItems, paPaths)
 
 		def TheseItemsDeepRemovedUpToPaths(paItems, paPaths)
-			return This.ItemsRemoveUntilPaths(paItems, paPaths)
+			return This.ItemsRemoveInPaths(paItems, paPaths)
 
 		#>
 
-	#==
+	#== #TODO
 
 	def PathsContainingItem(pItem)
-		/* ... */
+		stzraise("Function not implemented yet!")
 
 	def PathsContainingItems(paItems)
-		/* ... */
+		stzraise("Function not implemented yet!")
 
 	def PathsContaining(pItemOrItems)
-		/* ... */
+		stzraise("Function not implemented yet!")
 
-	#--
+	#-- #TODO
 
 	def Depths()
+		stzraise("Function not implemented yet!")
 
 		def Levels()
+			return Depths()
 
 	def NumberOfDepths()
+		stzraise("Function not implemented yet!")
 
+		
 		def HowManyDepths()
+			return This.NumberOfDepths()
 
 		def CountDepths()
+			return This.NumberOfDepths()
 
 		def NumberOfLevels()
+			return This.NumberOfDepths()
 
 		def CountLevels()
+			return This.NumberOfDepths()
 
 		def HowManyLevels()
+			return This.NumberOfDepths()
 
 	def PathsAtDepth(pnDepth)
 		if CheckParams()
@@ -47871,25 +47298,25 @@ fdef
 			return This.ItemsAtDepthZZ(pnDepth)
 
 	def ReplaceItemsAtDepth(pnDepth, pNewItem) #TODO
-		/* ... */
+		stzraise("Function not implemented yet!")
 
 		def ReplaceItemsAtLevel(pnDepth, pNewItem)
 			This.ReplaceItemsAtDepth(pnDepth, pNewItem)
 
 	def ReplaceItemsAtDepthByMany(pnDepth, paNewItems) #TODO
-		/* ... */
+		stzraise("Function not implemented yet!")
 
 		def ReplaceItemsAtLevelByMany(pnDepth, paNewItems)
 			This.ReplaceItemsAtDepthByMany(pnDepth, paNewItems)
 
 	def ReplaceItemsAtDepthByManyXT(pnDepth, paNewItems) #TODO
-		/* ... */
+		stzraise("Function not implemented yet!")
 
 		def ReplaceItemsAtLevelByManyXT(pnDepth, paNewItems)
 			This.ReplaceItemsAtDepthByManyXT(pnDepth, paNewItems)
 
 	def RemoveItemsAtDepth(pnDepth) #TODO
-		/* ... */
+		stzraise("Function not implemented yet!")
 
 		def RemoveItemsAtLevel(pnDepth)
 			This.RemoveItemsAtDepth(pnDepth)
@@ -47968,64 +47395,79 @@ fdef
 
 		#>
 
-	#-- INSERTING ITEM
+	#-- INSERTING ITEM #TODO
 
 	def InsertAtNthPositionOfPath(pItem, paPath, pnPos)
+		stzraise("Function not implemented yet!")
 
 	def AddToPath(pItemOrItems, paPath)
+		stzraise("Function not implemented yet!")
 
 	def AddItemToPath(pItem, paPath)
+		stzraise("Function not implemented yet!")
 
 	def AddItemsToPath(pItem, paPath)
+		stzraise("Function not implemented yet!")
 
 	#--
 
 	def InsertAtNthPositionOfPaths(pItem, paPaths, pnPos)
+		stzraise("Function not implemented yet!")
 
 	def AddToPaths(pItemOrItems, paPaths)
+		stzraise("Function not implemented yet!")
 
 	def AddItemToPaths(pItem, paPaths)
+		stzraise("Function not implemented yet!")
 
 	def AddItemsToPaths(pItem, paPaths)
+		stzraise("Function not implemented yet!")
 
-	#-- REPLACING ITEMS AT PATHS
+	#-- REPLACING ITEMS AT PATHS #TODO
 
 	def ReplaceAtPath(pItemOrItems, pNewtItemOrItems, paPath)
+		stzraise("Function not implemented yet!")
 
 	def ReplaceItemAtPath(pItem, pNewItem, paPath)
+		stzraise("Function not implemented yet!")
 
 	def RepalceTheseItemsAtPath(pItems, pNewtItemOrItems, paPath)
+		stzraise("Function not implemented yet!")
 
 	#--
 
 	def ReplaceAtPaths(pItemOrItems, pNewtItemOrItems, paPaths)
+		stzraise("Function not implemented yet!")
 
 	def ReplaceItemAtPaths(pItem, pNewItem, paPaths)
+		stzraise("Function not implemented yet!")
 
 	def RepalceTheseItemsAtPaths(paItems, pNewtItemOrItems, paPaths)
+		stzraise("Function not implemented yet!")
 
 	#-- REMOVING ITEMS AT PATHS
 
-
+	#TODO
 
 	#--
 
 	def RemovePath(paPath)
+		stzraise("Function not implemented yet!")
 
 		def RemoveAllInPath(paPath)
+			This.RemovePath(paPath)
 
 		def RemoveAllItemsInPath(paPath)
-
-		def RemoveItemsInPath(paPath)
+			This.RemovePath(paPath)
 
 	def RemovePaths(paPaths)
+		stzraise("Function not implemented yet!")
 
 		def RemoveAllInPaths(paPaths)
+			This.RemovePaths(paPaths)
 
 		def RemoveAllItemsInPaths(paPaths)
-
-		def RemoveItemsInPaths(paPaths)
-
+			This.RemovePaths(paPaths)
 
 
 	  #=======================================================#
