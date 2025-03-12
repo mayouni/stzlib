@@ -44,7 +44,7 @@ Your task is to analyze this sales data and compute key statistics: the total qu
 The Softanza library offers a powerful yet user-friendly regex engine, accessible through the `rx()` small function, to simplify this process. Let’s explore how it works…
 
 ```ring
-# Converting the list to a string for regex processing
+# Converting the list items to strings for regex processing
 acData = Stringify(aData)
 
 # Processing each item with the :NumbersInString regex
