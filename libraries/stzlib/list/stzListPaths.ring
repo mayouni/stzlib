@@ -59,7 +59,7 @@ func GeneratePaths(cStr)
 	def GenPaths(str)
 		return GeneratePaths(str)
 
-func PathsUntil(paPath)
+func PathsIn(paPath)
 	# EXAMPLE
 
 	# ? PathsTo([ 2, 3, 2 ]) )
@@ -110,46 +110,18 @@ func PathsUntil(paPath)
 
 	#< @FunctionAlternativeForms
 
-	func @PathsUntil(paPath)
-		return PathsUntil(paPath)
+	func @PathsIn(paPath)
+		return PathsIn(paPath)
 
-	func PathsUntilPath(paPath)
-		return PathsUntil(paPath)
+	func PathsInPath(paPath)
+		return PathsIn(paPath)
 
-	func @PathsUntilPath(paPath)
-		return PathsUntil(paPath)
-
-	#--
-
-	func PathsUpTo(paPath)
-		return PathsUntil(paPath)
-
-	func @PathsUpTo(paPath)
-		return PathsUntil(paPath)
-
-	func PathsUpToPath(paPath)
-		return PathsUntil(paPath)
-
-	func @PathsUpToPath(paPath)
-		return PathsUntil(paPath)
-
-	#--
-
-	func PathsDownTo(paPath)
-		return PathsUntil(paPath)
-
-	func @PathsDownTo(paPath)
-		return PathsUntil(paPath)
-
-	func PathsDownToPath(paPath)
-		return PathsUntil(paPath)
-
-	func @PathsDownToPath(paPath)
-		return PathsUntil(paPath)
+	func @PathsInPath(paPath)
+		return PathsIn(paPath)
 
 	#>
 
-func LastPathUntil(paPath)
+func LastPathIn(paPath)
 	if CheckParams()
 		if NOT ( isList(paPath) and IsListOfNumbers(paPath) )
 			StzRaise("Incorrect param type! paPair muts be a list of numbers.")
@@ -157,51 +129,23 @@ func LastPathUntil(paPath)
 	ok
 
 	_nLen_ = len(paPath)
-	_aResult_ = NthPathUntil(_nLen_, paPath)
+	_aResult_ = NthPathIn(_nLen_, paPath)
 	return _aResult_
 
 	#< @FunctionAlternativeForms
 
-	func LastPathUntilPath(paPath)
-		return LastPathUntil(paPath)
+	func LastPathInPath(paPath)
+		return LastPathIn(paPath)
 
-	func @LastPathUntil(paPath)
-		return LastPathUntil(paPath)
+	func @LastPathIn(paPath)
+		return LastPathIn(paPath)
 
-	func @LastPathUntilPath(paPath)
-		return LastPathUntil(paPath)
-
-	#--
-
-	func LastPathUpTo(paPath)
-		return LastPathUntil(paPath)
-
-	func LastPathUpToPath(paPath)
-		return LastPathUntil(paPath)
-
-	func @LastPathUpTo(paPath)
-		return LastPathUntil(paPath)
-
-	func @LastPathUpToPath(paPath)
-		return LastPathUntil(paPath)
-
-	#--
-
-	func LastPathDownTo(paPath)
-		return LastPathUntil(paPath)
-
-	func LastPathDownToPath(paPath)
-		return LastPathUntil(paPath)
-
-	func @LastPathDownTo(paPath)
-		return LastPathUntil(paPath)
-
-	func @LastPathDownToPath(paPath)
-		return LastPathUntil(paPath)
+	func @LastPathInPath(paPath)
+		return LastPathIn(paPath)
 
 	#>
 
-func NthPathUntil(n, paPath)
+func NthPathIn(n, paPath)
 
 	if CheckParams()
 		if Not isNumber(n)
@@ -209,7 +153,7 @@ func NthPathUntil(n, paPath)
 		ok
 	ok
 
-	_aPaths_ = PathsUntil(paPath)
+	_aPaths_ = PathsIn(paPath)
 	_nLen_ = len(_aPaths_)
 
 	if n < 1 or n > _nLen_
@@ -221,49 +165,21 @@ func NthPathUntil(n, paPath)
 
 	#< @FunctionAlternativeForms
 
-	func NthPathUntilPath(n, paPath)
-		return NthPathUntil(n, paPath)
+	func NthPathInPath(n, paPath)
+		return NthPathIn(n, paPath)
 
-	func @NthPathUntil(n, paPath)
-		return NthPathUntil(n, paPath)
+	func @NthPathIn(n, paPath)
+		return NthPathIn(n, paPath)
 
-	func @NthPathUntilPath(n, paPath)
-		return NthPathUntil(n, paPath)
-
-	#--
-
-	func NthPathUpTo(n, paPath)
-		return NthPathUntil(n, paPath)
-
-	func NthPathUpToPath(n, paPath)
-		return NthPathUntil(n, paPath)
-
-	func @NthPathUpTo(n, paPath)
-		return NthPathUntil(n, paPath)
-
-	func @NthPathUpToPath(n, paPath)
-		return NthPathUntil(n, paPath)
-
-	#--
-
-	func NthPathDownTo(n, paPath)
-		return NthPathUntil(n, paPath)
-
-	func NthPathDownToPath(n, paPath)
-		return NthPathUntil(n, paPath)
-
-	func @NthPathDownTo(n, paPath)
-		return NthPathUntil(n, paPath)
-
-	func @NthPathDownToPath(n, paPath)
-		return NthPathUntil(n, paPath)
+	func @NthPathInPath(n, paPath)
+		return NthPathIn(n, paPath)
 
 	#>
 
-func PathsUntilXT(paPaths)
+func PathsInXT(paPaths)
 	# EXAMPLE
 
-	# ? @@NL( PathsUntilXT([ [ 2, 3 ], [ 2, 3, 2 ], [ 4 ] ]) )
+	# ? @@NL( PathsInXT([ [ 2, 3 ], [ 2, 3, 2 ], [ 4 ] ]) )
 	#--> [
 	# 	[ 2 ],
 	# 	[ 2, 3 ],
@@ -288,7 +204,7 @@ func PathsUntilXT(paPaths)
     	# Generate all possible subpaths
 
 	for @i = 1 to _nLen_
-		_aTempPaths_ = PathsUntil(paPaths[@i])
+		_aTempPaths_ = PathsIn(paPaths[@i])
 		_nLenTemp_ = len(_aTempPaths_)
 
 		for @j = 1 to _nLenTemp_
@@ -301,46 +217,18 @@ func PathsUntilXT(paPaths)
 
 	#< @FunctionAlternativeForms
 
-	func @PathsUntilXT(paPath)
-		return PathsUntilXT(paPath)
+	func @PathsInXT(paPath)
+		return PathsInXT(paPath)
 
-	func PathsUntilPathXT(paPath)
-		return PathsUntilXT(paPath)
+	func PathsInPathXT(paPath)
+		return PathsInXT(paPath)
 
-	func @PathsUntilPathXt(paPath)
-		return PathsUntilXt(paPath)
-
-	#--
-
-	func PathsUpToXT(paPath)
-		return PathsUntilXT(paPath)
-
-	func @PathsUpToXT(paPath)
-		return PathsUntilXT(paPath)
-
-	func PathsUpToPathXT(paPath)
-		return PathsUntilXt(paPath)
-
-	func @PathsUpToPathXT(paPath)
-		return PathsUntilXT(paPath)
-
-	#--
-
-	func PathsDownToXT(paPath)
-		return PathsUntilXT(paPath)
-
-	func @PathsDownToXT(paPath)
-		return PathsUntilXT(paPath)
-
-	func PathsDownToPathXT(paPath)
-		return PathsUntilXt(paPath)
-
-	func @PathsDownToPathXT(paPath)
-		return PathsUntilXT(paPath)
+	func @PathsInPathXt(paPath)
+		return PathsInXt(paPath)
 
 	#>
 
-func LastPathUntilXT(paPath)
+func LastPathInXT(paPath)
 	if CheckParams()
 		if NOT ( isList(paPath) and IsListOfNumbers(paPath) )
 			StzRaise("Incorrect param type! paPair muts be a list of numbers.")
@@ -348,51 +236,23 @@ func LastPathUntilXT(paPath)
 	ok
 
 	_n_ = len(paPath)
-	_aResult_ = NthPathUntilXT(_n_, paPath)
+	_aResult_ = NthPathInXT(_n_, paPath)
 	return _aResult_
 
 	#< @FunctionAlternativeForms
 
-	func LastPathUntilPathXT(paPath)
-		return LastPathUntilXT(paPath)
+	func LastPathInPathXT(paPath)
+		return LastPathInXT(paPath)
 
-	func @LastPathUntilXT(paPath)
-		return LastPathUntilXT(paPath)
+	func @LastPathInXT(paPath)
+		return LastPathInXT(paPath)
 
-	func @LastPathUntilPathXT(paPath)
-		return LastPathUntilXT(paPath)
-
-	#--
-
-	func LastPathUpToXT(paPath)
-		return LastPathUntilXT(paPath)
-
-	func LastPathUpToPathXT(paPath)
-		return LastPathUntilXT(paPath)
-
-	func @LastPathUpToXT(paPath)
-		return LastPathUntilXT(paPath)
-
-	func @LastPathUpToPathXT(paPath)
-		return LastPathUntilXT(paPath)
-
-	#--
-
-	func LastPathDownToXT(paPath)
-		return LastPathUntilXT(paPath)
-
-	func LastPathDownToPathXT(paPath)
-		return LastPathUntilXT(paPath)
-
-	func @LastPathDownToXT(paPath)
-		return LastPathUntilXT(paPath)
-
-	func @LastPathDownToPathXT(paPath)
-		return LastPathUntilXT(paPath)
+	func @LastPathInPathXT(paPath)
+		return LastPathInXT(paPath)
 
 	#>
 
-func NthPathUntilXT(n, paPath)
+func NthPathInXT(n, paPath)
 
 	if CheckParams()
 		if Not isNumber(n)
@@ -412,42 +272,14 @@ func NthPathUntilXT(n, paPath)
 
 	#< @FunctionAlternativeForms
 
-	func NthPathUntilPathXT(n, paPath)
-		return NthPathUntilXT(n, paPath)
+	func NthPathInPathXT(n, paPath)
+		return NthPathInXT(n, paPath)
 
-	func @NthPathUntilXT(n, paPath)
-		return NthPathUntilXT(n, paPath)
+	func @NthPathInXT(n, paPath)
+		return NthPathInXT(n, paPath)
 
-	func @NthPathUntilPathXT(n, paPath)
-		return NthPathUntilXT(n, paPath)
-
-	#--
-
-	func NthPathUpToXT(n, paPath)
-		return NthPathUntilXT(n, paPath)
-
-	func NthPathUpToPathXT(n, paPath)
-		return NthPathUntilXT(n, paPath)
-
-	func @NthPathUpToXT(n, paPath)
-		return NthPathUntilXT(n, paPath)
-
-	func @NthPathUpToPathXT(n, paPath)
-		return NthPathUntilXT(n, paPath)
-
-	#--
-
-	func NthPathDownToXT(n, paPath)
-		return NthPathUntilXT(n, paPath)
-
-	func NthPathDownToPathXT(n, paPath)
-		return NthPathUntilXT(n, paPath)
-
-	func @NthPathDownToXT(n, paPath)
-		return NthPathUntilXT(n, paPath)
-
-	func @NthPathDownToPathXT(n, paPath)
-		return NthPathUntilXT(n, paPath)
+	func @NthPathInPathXT(n, paPath)
+		return NthPathInXT(n, paPath)
 
 	#>
 
@@ -751,6 +583,9 @@ func LongestPath(aPaths)
     
     return aLongest
 
+    func @LongestPath(aPaths)
+	return LongestPath(aPaths)
+
 # Returns the shortest path in terms of number of elements
 
 func ShortestPath(aPaths)
@@ -770,6 +605,9 @@ func ShortestPath(aPaths)
     
     return aShortest
 
+    func @ShortestPath(aPaths)
+	return ShortestPath(aPaths)
+
 # Returns all paths whose depth is equal to a specified value
 
 func PathsWithDepth(aPaths, nDepth)
@@ -783,6 +621,9 @@ func PathsWithDepth(aPaths, nDepth)
     
     return aResult
 
+    func @PathsWithPath(aPaths, n)
+	return PathsWithDepth(aPaths, nDepth)
+
 # Returns all paths that are superpaths of a given path
 
 func SuperPathsOf(aPaths, aBasePath)
@@ -795,6 +636,9 @@ func SuperPathsOf(aPaths, aBasePath)
     next
     
     return aResult
+
+    func @SuperPathsOf(aPaths, aBasePath)
+	return SuperPathsOf(aPaths, aBasePath)
 
 # Checks if a nested list forms a valid tree structure
 

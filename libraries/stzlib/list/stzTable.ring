@@ -10382,6 +10382,7 @@ Class stzTable from stzObject
 
 	def ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, pCaseSensitive) #TODO
 		/* ... */
+		stzraise("Function not yet implemented!")
 
 		#< @FunctionAlternativeForms
 
@@ -10424,6 +10425,7 @@ Class stzTable from stzObject
 
 	def ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, pCaseSensitive) #TODO
 		/* ... */
+		stzraise("Function not yet implemented!")
 
 		#< @FunctionAlternativeForms
 
@@ -10464,6 +10466,7 @@ Class stzTable from stzObject
 
 	def ReplaceManyCellsByValueByManyCSXT(paCellsValues, pNewCellValue, pCaseSensitive) #TODO
 		/* ... */
+		stzraise("Function not yet implemented!")
 
 		#< @FunctionAlternativeForms
 
@@ -11393,6 +11396,7 @@ Class stzTable from stzObject
 
 	def ReplaceInCellCS(pnCol, pnRow, pSubValue, pNewSubValue, pCaseSensitive) // TODO
 		/* ... */
+		stzraise("Function not yet implemented!")
 
 	def ReplaceInCell(pnCol, pnRow, pSubValue, pNewSubValue)
 		This.ReplaceInCellCS(pnCol, pnRow, pSubValue, pNewSubValue, _TRUE_)
@@ -11401,6 +11405,7 @@ Class stzTable from stzObject
 
 	def ReplaceInCellsCS(paCellsPos, pSubValue, pNewSubValue, pCaseSensitive) // TODO
 		/* ... */
+		stzraise("Function not yet implemented!")
 
 	def ReplaceInCells(paCellsPos, pSubValue, pNewSubValue)
 		This.ReplaceInCellsCS(paCellsPos, pSubValue, pNewSubValue, _TRUE_)
@@ -11409,6 +11414,7 @@ Class stzTable from stzObject
 
 	def ReplaceInCellsByManyCS(paCellsPos, pSubValues, pNewSubValue, pCaseSensitive) // TODO
 		/* ... */
+		stzraise("Function not yet implemented!")
 
 	def ReplaceInCellsByMany(paCellsPos, pSubValues, pNewSubValue)
 		This.ReplaceInCellsByManyCS(paCellsPos, pSubValues, pNewSubValue, _TRUE_)
@@ -11419,6 +11425,7 @@ Class stzTable from stzObject
 
 	def ReplaceInSectionCS(paCellPos1, paCellPos2,  pSubValue, pNewSubValue, pCaseSensitive) // TODO
 		/* ... */
+		stzraise("Function not yet implemented!")
 
 	def ReplaceInSection(paCellPos1, paCellPos2,  pSubValue, pNewSubValue)
 		This.ReplaceInSectionCS(paCellPos1, paCellPos2,  pSubValue, pNewSubValue, _TRUE_)
@@ -11427,6 +11434,7 @@ Class stzTable from stzObject
 
 	def ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, pCaseSensitive) // TODO
 		/* ... */
+		stzraise("Function not yet implemented!")
 
 	def ReplaceInSectionByMany(paCellPos1, paCellPos2,  pSubValues, pNewSubValue)
 		This.ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, ;CaseSensitive = _TRUE_)
@@ -11437,6 +11445,7 @@ Class stzTable from stzObject
 
 	def ReplaceInSectionsCS(aSections, pSubValue, pCaseSensitive)
 		/* ... */
+		stzraise("Function not yet implemented!")
 
 	ReplaceInSections(aSections, pSubValue)
 		This.ReplaceInSectionsCS(aSections, pSubValue, _TRUE_)
@@ -11445,6 +11454,7 @@ Class stzTable from stzObject
 
 	def ReplaceInSectionsByManyCS(aSections, paSubValues, pCaseSensitive)
 		/* ... */
+		stzraise("Function not yet implemented!")
 
 	ReplaceInSectionsByMany(aSections, paSubValues)
 		This.ReplaceInSectionsByManyCS(aSections, paSubValues, _TRUE_)

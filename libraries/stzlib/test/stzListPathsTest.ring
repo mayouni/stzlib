@@ -28,7 +28,7 @@ proff()
 
 pr()
 
-? @@( PathsUntil([2, 3, 2]) )
+? @@( PathsIn([2, 3, 2]) )
 #--> [ [ 2 ], [ 2, 3 ], [ 2, 3, 2 ] ]
 
 proff()
@@ -37,13 +37,13 @@ proff()
 
 pr()
 
-? @@( NthPathUntil(1, [2, 3, 2]) )
+? @@( NthPathIn(1, [2, 3, 2]) )
 #--> [ 2 ]
 
-? @@( NthPathUntil(2, [2, 3, 2]) )
+? @@( NthPathIn(2, [2, 3, 2]) )
 #--> [ 2, 3 ]
 
-? @@( NthPathUntil(3, [2, 3, 2]) )
+? @@( NthPathIn(3, [2, 3, 2]) )
 #--> [ 2, 3, 2 ]
 
 proff()
@@ -53,7 +53,7 @@ proff()
 
 pr()
 
-? @@( LastPathUntil([2, 3, 2]) )
+? @@( LastPathIn([2, 3, 2]) )
 #--> [ 2, 3, 2 ]
 
 proff()
