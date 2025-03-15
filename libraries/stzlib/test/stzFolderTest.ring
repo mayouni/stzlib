@@ -8,5 +8,5 @@ o1 = new stzFolder("level1")
 
 ? o1.rmdir()
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.21

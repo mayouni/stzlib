@@ -14,7 +14,7 @@ o1 = new stzListOfBytes("で")
 
 #TODO --> (\xE3 \x81 \xa7 in UTF-8)
 
-proff()
+pf()
 #--> Executed in 0.05 second(s)
 
 /*--------------------
@@ -35,7 +35,7 @@ o1 = new stzListOfBytes("s㊱m")
 ? @@( o1.BytecodesPerChar() )
 #--> [ [ "s", [ 115 ] ], [ "㊱", [ -29, -118, -79 ] ], [ "m", [ 109 ] ] ]
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*--------------------
@@ -56,7 +56,7 @@ o1 = new stzListOfBytes("مرحبا")
 ? @@( o1.BytecodesPerChar() )
 #--> [ [ "م", [ -39, -123 ] ], [ "ر", [ -40, -79 ] ], [ "ح", [ -40, -83 ] ], [ "ب", [ -40, -88 ] ], [ "ا", [ -40, -89 ] ] ]
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*-------------------
@@ -67,7 +67,7 @@ o1 = new stzListOfBytes("RING")
 ? @@( o1.UnicodesPerChar() )
 #--> [ [ "R", [ 82 ] ], [ "I", [ 73 ] ], [ "N", [ 78 ] ], [ "G", [ 71 ] ] ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-------------------
@@ -86,7 +86,7 @@ oQByteArray.append("RING")
 ? @@( QByteArrayToListOfUnicodesPerChar(oQByteArray) )
 #--> [ [ "R", [ 82 ] ], [ "I", [ 73 ] ], [ "N", [ 78 ] ], [ "G", [ 71 ] ] ]
 
-proff()
+pf()
 #--> Executed in 0.08 second(s)
 
 /*-------------------
@@ -119,7 +119,7 @@ o1.SwapWith(o2)
 ? CallMethod("ToString()", :On = [ :o1, :o2 ])
 #--> [ "Old", "New" ]
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*-------------------
@@ -142,7 +142,7 @@ o1 = new stzListOfBytes("mЖ丽")
 ? o1.NRightBytes(3) # Or 3RightBytes()
 #--> 丽
 
-proff()
+pf()
 #--> Executed in 0.03 second(s) in Ring 1.21
 #--> Executed in 0.08 second(s) in Ring 1.19
 
@@ -160,7 +160,7 @@ o1 = new stzListOfBytes("mЖ丽")
 ? o1.Section(4,:End)
 #--> 丽
 
-proff()
+pf()
 #--> Executed in 0.04 second(s)
 
 /*======================
@@ -170,7 +170,7 @@ pr()
 ? Q("abc").ContainsNo(".")
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*---------------------
@@ -183,7 +183,7 @@ pr()
 ? Q("12500").RepresentsInteger()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.07 second(s) in Ring 1.18
 
@@ -205,7 +205,7 @@ o1 = new QChar(65)
 ? Q( o1.Unicode() ).ToOctal()
 #--> 0o101
 
-proff()
+pf()
 #--> Executed in 0.03 second(s) in Ring 1.21
 #--> Executed in 0.17 second(s) in Ring 1.18
 
@@ -221,7 +221,7 @@ o1.append("で")
 # To get this format:  # \xE3 \x81 \xA7 (in UTF-8)
 # use the ToHexUTF8() from stzListOfBytes() ~> See example below...
 
-proff()
+pf()
 # Executed in almost 0 second(s).
 
 /*-------------------
@@ -231,7 +231,7 @@ pr()
 ? str2hex("で") # A Ring function
 #--> e381a7
 
-proff()
+pf()
 
 /*-------------------
 
@@ -254,7 +254,7 @@ o1 = new stzListOfBytes("で")
 ? o1.ToHexUTF8()
 #--> \xe3 \x81 \xa7
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.05 second(s) in Ring 1.19
 
@@ -276,7 +276,7 @@ o1 = new stzString("ssdsd")
 ? @@( o1.CharsAndUnicodesU() )
 #--> [ [ "s", 115 ], [ "d", 100 ] ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.07 second(s) in Ring 1.18
 # Executed in 0.12 second(s) in Ring 1.17
@@ -320,6 +320,6 @@ o1 {
 
 }
 
-proff()
+pf()
 # Executed in 0.05 second(s) on Ring 1.21
 # Executed in 0.12 second(s) on Ring 1.18

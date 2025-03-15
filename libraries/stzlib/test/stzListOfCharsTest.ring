@@ -25,7 +25,7 @@ o1 = new stzListOfChars([ 945, 946, 947 ])
 #	"≈", "≠", "≡", "≤", "≥"
 # ]
 
-proff()
+pf()
 #--> Executed in 0.08 second(s)
 
 /*-----------------
@@ -69,7 +69,7 @@ pr()
 #	[ "≤", "LESS-THAN OR EQUAL TO" ], [ "≥", "GREATER-THAN OR EQUAL TO" ]
 # ]
 
-proff()
+pf()
 # Executed in 1.65 second(s) in Ring 1.21
 # Executed in 5.90 second(s) in Ring 1.17
 
@@ -103,7 +103,7 @@ o1 = new stzListOfChars([ "1", "2", "♥", "4", "5", "♥", "7", "8", "♥" ])
 ? o1.LastNOccurrencesST(1, :Of = "♥", :StartingAt = 9)
 #--> [ 9 ]
 
-proff()
+pf()
 # Executed in 0.10 second(s).
 
 /*----------------
@@ -119,7 +119,7 @@ pr()
 ? StzListOfCharsQ('"ا":"ج"').IsContiguous()
 #--> TRUE	TODO: ERROR!
 
-proff()
+pf()
 # Executed in 0.07 second(s).
 
 /*-------------
@@ -134,7 +134,7 @@ o1 = new stzListOfChars([ "a", "b", "c" ])
 ? CharsUnicodes([ "a", "b", "c" ])
 #--> [ 97, 98, 99 ]
 
-proff()
+pf()
 # Executed in 0.05 second(s).
 
 /*============
@@ -161,7 +161,7 @@ SetHilightChar("♥")
 # │ T │ E │ X │ T │
 # └───┴───┴─♥─┴───╯
 
-proff()
+pf()
 # Executed in 0.09 second(s).
 
 /*-------------
@@ -179,7 +179,7 @@ pr()
 # ╰───┴─•─┴─•─┴───┴─•─╯
 #   1   2   3       5 
 
-proff()
+pf()
 # Executed in 0.09 second(s).
 
 /*-------------
@@ -192,7 +192,7 @@ pr()
 # ┊ A ┊ B ┊ C ┊ D ┊ E ┊
 # ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌╯
 
-proff()
+pf()
 # Executed in 0.04 second(s).
 
 /*-------------
@@ -205,7 +205,7 @@ pr()
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
 # └───┴───┴───┴───┴───┴───┴───┴───┘
 
-proff()
+pf()
 # Executed in 0.03 second(s).
 
 /*=========
@@ -215,7 +215,7 @@ pr()
 ? @@( L('"ا":"ج"') )
 #o--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
 
-proff()
+pf()
 # Executed in 0.07 second(s).
 
 /*-------------
@@ -231,7 +231,7 @@ pr()
 
 #NOTE to get a correct boxing, you should use a fixed font
 
-proff()
+pf()
 # Executed in 0.10 second(s).
 
 /*-------------
@@ -244,7 +244,7 @@ pr()
 #o │ م │ ن │ ص │ و │ ر │ ي │ ا │ ت │
 #  └───┴───┴───┴───┴───┴───┴───┴───┘
 
-proff()
+pf()
 # Executed in 0.04 second(s).
 
 /*-------
@@ -254,7 +254,7 @@ pr()
 ? BothEndWithANumber( "day1", "day3" )
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*-------
@@ -284,5 +284,5 @@ pr()
 ? @@( Q('softanza').ToList() ) # Or @@( L('softanza') )
 #--> [ "softanza" ]
 
-proff()
+pf()
 # Executed in 0.22 second(s).

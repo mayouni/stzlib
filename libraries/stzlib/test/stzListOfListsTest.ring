@@ -37,7 +37,7 @@ o1.Extend()
 ? o1.HowManyMissing()
 #--> 0
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*--------
@@ -51,7 +51,7 @@ pr()
 ])
 #--> TRUE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.21
 
 /*--------
@@ -73,7 +73,7 @@ o1 = new stzListOfLists([
 ? @@( o1.NthCol(4) )
 #--> [ "ring"]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*========
@@ -95,7 +95,7 @@ o1.Sort()
 #	[ "salem", 67 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*-------- #ring #qt
@@ -135,7 +135,7 @@ aLists = [
 #	[ "amer", 300, "a", 1 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.02 second(s).
 
 /*--------
@@ -159,7 +159,7 @@ aList = [
 #	[ "salem", 67, "" ]
 # ]
 
-proff()
+pf()
 # Executed in almost 0 second(s).
 
 /*--------
@@ -182,7 +182,7 @@ aLists = [
 SortListsOn(aLists, 3)
 #--> ERROR: Can't proceed! Nth column must not contain objects.
 
-proff()
+pf()
 
 /*-------- #narration
 
@@ -224,7 +224,7 @@ aLists = [
 # These modifications are made to make it possible the use of
 # the Ring standard function sort(aListOfLists, nCol).
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*--------
@@ -252,7 +252,7 @@ aLists = [
 #	[ "mohannad", 100, "him", "ring" ]
 # ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.21
 
 /*-------- #TODO #narration Difference between SortOn() and SortBy()
@@ -297,7 +297,7 @@ o1 = new stzListOfLists([
 #	[ ]
 # ]
 
-proff()
+pf()
 # Executed in 0.02 second(s).
 
 /*-------------- #narration MEASURING SPEEDUP AND PERFPRMANCE GAIN
@@ -347,7 +347,7 @@ oSales = new stzListOfNumbers([ 34500.89, 42180.98, 56100.65 ])
 ? oSales.GainX()    # Or GainFactor() instead of SpeedUp()
 #--> [ 1.22, 1.33 ]
 
-proff()
+pf()
 # Executed in 0.04 second(s).
 
 /*-------
@@ -358,7 +358,7 @@ o1 = new stzListOfLists([ [ 2, 3, 4 ], [ 6, 7, 8 ], [ 11, 12, 13 ] ])
 ? o1.AreContiguous()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*-------
@@ -379,7 +379,7 @@ o1 = new stzList([ 1, 2, 3, 4, "|", 2, 3, 4, 5, "|", 2, 3, 4, 5 ])
 ? AreContiguous( [ [ 2, 3, 4 ], [ 6, 7, 8 ], [ 11, 12, 13 ] ] )
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.05 second(s) in Ring 1.21
 
 /*-------
@@ -393,7 +393,7 @@ o1 = new stzList([ 1, 2, 3, 4, "|", 2, 3, 4, 5, "|", 2, 3, 4, 5 ])
 ? o1.FindSubList([ 2, 3, 4 ])
 #--> [ 2, 6, 11 ]
 
-proff()
+pf()
 # Executed in 0.04 second(s).
 
 /*-------
@@ -409,7 +409,7 @@ pr()
 ? Q([ "mohannad", 100, 	"loves", "ring" ]).ContainsSubList([ "loves", "ring" ])
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.06 second(s) in Ring 1.21
 
 /*--------------
@@ -453,7 +453,7 @@ o1 = new stzListOfLists([
 #	[ [ "sahloul", 108, "amer", 34 ], 9 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.20 second(s) in Ring 1.21
 
 /*------------
@@ -486,7 +486,7 @@ o1 = new stzListOfLists([
 ? o1.ContainsSubList([ "amer", 34 ])
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.11 second(s) in Ring 1.21
 
 /*-------------
@@ -523,7 +523,7 @@ o1 = new stzListOfLists([
 #	[ "mohannad", 100, "him", "ring" ]
 # ]
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*--------
@@ -539,7 +539,7 @@ o1.Stringify()
 o1.Sort()
 #--> [ "him", '[ "him" ]', "" ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.21
 
 /*--------
@@ -564,7 +564,7 @@ o1 = new stzListOfLists([
 #	[ "mohannad", 100, "him", 		"ring" 	]
 # ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*--------
@@ -592,7 +592,7 @@ o1 = new stzListOfLists([
 #	[ "some", 	[ [ 1, 4 ] ] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*===
@@ -606,7 +606,7 @@ pr()
 ])
 #--> [ "A", "X", "C" ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*-----
@@ -619,7 +619,7 @@ pr()
 ? Intersection([ "A":"C", "A":"B", "A":"C" ])
 #--> [ "A", "B" ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*=====
@@ -639,7 +639,7 @@ o1 = new stzListOfLists([ 1:3, 1:3, 1:3 ])
 #	AllListsAreEqual()
 #	AllObjectsAreEqual()
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*=========
@@ -654,7 +654,7 @@ o1 = new stzListOfLists([ ["01","02"], ["16", "17"], ["23", "25"], ["08", "10"] 
 ? @@( o1.SortedInDescending() )
 #--> [ [ "23", "25" ], [ "16", "17" ], [ "08", "10" ], [ "01", "02" ] ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*=========
@@ -664,7 +664,7 @@ pr()
 ? @@( Association([ [ :one, :two, :three ], s[1, 2, 3] ]) )
 #--> [ [ "one", 1 ], [ "two", 2 ], [ "three", 3 ] ]
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*-------------
@@ -689,7 +689,7 @@ o1 = new stzListOfLists([
 ? @@( o1.ExtraItems() )
 #--> [ [ ], [ "I", "♥" ], [ "R" ], [ "I", "N", "G" ] ]
 
-proff()
+pf()
 
 /*=============
 
@@ -705,7 +705,7 @@ o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
 ? @@( o1.Flattened() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*---------------
@@ -722,7 +722,7 @@ o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
 ? @@( o1.Merged() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 #NOTE: You will understand the difference between Flatten() and Merge()
@@ -742,7 +742,7 @@ o1 = new stzList([
 ? @@( o1.Flattened() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*---------------
@@ -754,7 +754,7 @@ o1 = new stzList([ [1, 2], [3, [4]], 5 ])
 ? @@( o1.Merged() )
 #--> [ 1, 2, 3, [ 4 ], 5 ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*---------------
@@ -764,7 +764,7 @@ pr()
 ? @@( ListsMerge([ [3, 5], [7, [8]] ]) )
 #--> [ 3, 5, 7, [ 8 ] ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*-------------
@@ -780,7 +780,7 @@ aMyLists = [
 ? @@( Intersection(aMyLists) ) # Same as CommonItems()
 #--> [ "ab", "b" ]
 
-proff()
+pf()
 # Executed in 0.07 second(s)
 
 /*===============
@@ -796,7 +796,7 @@ o1 = new stzListOfLists([
 ? o1.CommonItems() # Same as Intersection()
 #--> [ "Ring", "Pyhton" ]
 
-proff()
+pf()
 # Executed in 0.11 second(s)
 
 /*-------------
@@ -807,7 +807,7 @@ o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3, "c" ])
 ? @@( o1.ToSet() )
 #--> [ "a", "ab", "b", [ 1, 2, 3 ], "abc", "bc", "c" ]
 
-proff()
+pf()
 # Executed in 0.17 second(s)
 
 /*-------------
@@ -817,7 +817,7 @@ pr()
 ? Q([ "a", "ab", "b", [ 1, 2, 3 ] ]).ToSet()
 #--> [ "a", "ab", "b", [ 1, 2, 3 ] ]
 
-proff()
+pf()
 #--> Executed in 0.06 second(s)
 
 /*=============== EXTENDING A LIST
@@ -830,7 +830,7 @@ o1.ExtendTo(5)
 ? @@( o1.content() )
 #--> [ "A", "B", "C", "", "" ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*-------------
@@ -843,7 +843,7 @@ o1.ExtendXT( :ToPosition = 5, :Using = AHeart() )
 ? @@( o1.content() )
 #--> [ "A", "B", "C", "♥", "♥" ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*=============== EXTENDING THE LISTS OF A LIST OF LISTS
@@ -874,7 +874,7 @@ o1.Extend()
 ? o1.IsHomolog()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.07 second(s)
 
 /*---------------
@@ -896,7 +896,7 @@ o1.ExtendXT(:Using = AHeart())
 #	[ "I", "♥", "♥", "♥" ]
 # ]
 
-proff()
+pf()
 # Executed in 0.08 second(s)
 
 /*---------------
@@ -918,7 +918,7 @@ o1.ExtendToXT( :Position = 6, :ByRepeatingItems ) # or :Using = :RepeatedItems
 #	[ "I", "I", "I", "I", "I", "I" ]
 # ]
 
-proff()
+pf()
 #--> Executed in 0.07 second(s)
 
 /*---------------
@@ -940,7 +940,7 @@ o1.ExtendToXT( :Position = 6, :Using = AHeart())
 #	[ "I", "♥", "♥", "♥", "♥", "♥" ]
 # ]
 
-proff()
+pf()
 # Executed in 0.10 second(s)
 
 /*================= SHRINKING A LIST
@@ -953,7 +953,7 @@ o1.ShrinkTo(3)
 ? o1.Content()
 #--> [ "A", "B", "C" ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*================= SHRINKING A LIST OF LISTS
@@ -971,7 +971,7 @@ o1.Shrink()
 ? @@( o1.Content() )
 #--> [ [ "A", "B" ], [ "D", "E" ], [ "H", "I" ] ]
 
-proff()
+pf()
 # Executed in 0.09 second(s)
 
 /*-----------------
@@ -989,7 +989,7 @@ o1.ShrinkTo(1)
 ? @@( o1.Content() )
 #--> [ [ "A" ], [ "D" ], [ "H" ] ]
 
-proff()
+pf()
 # Executed in 0.12 second(s)
 
 /*-----------------
@@ -1011,7 +1011,7 @@ o1.Show()
 #	[ "I", "♥", "♥" ]
 # 
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*=================
@@ -1034,7 +1034,7 @@ o1 = new stz2DList([	# Or stzListOfLists()
 #	[ "I", "", "", "" ]
 # ]
 
-proff()
+pf()
 # Executed in 0.07 second(s)
 
 /*=================
@@ -1066,7 +1066,7 @@ o1.ExtendTo(4)
 ? o1.IsHomolog()
 #--> TRUE
 
-proff()
+pf()
 #--> Executed in 0.05 second(s)
 
 /*---------------
@@ -1094,7 +1094,7 @@ o1.ExtendToXT(4, :Using = AHeart())
 ? o1.IsHomolog()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*---------------
@@ -1127,7 +1127,7 @@ o1.ExtendToXT(3, :Using = AHeart())
 ? o1.IsHomolog()
 #--> FALSE
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*---------------
@@ -1160,7 +1160,7 @@ o1.ExtendToXT(5, :Using = AHeart())
 ? o1.IsHomolog()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*==================
@@ -1189,7 +1189,7 @@ o1 = new stzLists([ 1:3, 1:5, 1:2 ])
 ? o1.FindLargest()
 #--> 2
 
-proff()
+pf()
 #--> Executed in 0.03 second(s)
 
 /*-------------------
@@ -1207,7 +1207,7 @@ o1 = new stzLists([ 1:2, 1:5, 1:3, 1:5 ])
 ? @@( o1.LargestListsZ() )
 # [ [ [ 1, 2, 3, 4, 5 ], 2 ], [ [ 1, 2, 3, 4, 5 ], 4 ] ]
 
-proff()
+pf()
 # Executed in 0.07 second(s)
 
 /*-------------------
@@ -1225,7 +1225,7 @@ o1 = new stzLists([ 1:2, 1:5, 1:3, 1:2 ])
 ? @@( o1.SmallestListsZ() )
 #--> [ [ [ 1, 2 ], 1 ], [ [ 1, 2 ], 4 ] ]
 
-proff()
+pf()
 # Executed in 0.07 second(s)
 
 /*==================
@@ -1236,7 +1236,7 @@ o1 = new stzLists([ "A":"C", 1:3 ])
 ? @@( o1.Associated() )
 #--> [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*------------------
@@ -1246,7 +1246,7 @@ pr()
 ? @@( Association([ ["A", "B", "C"], [1, 2, 3] ]) )
 #--> [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*==================
@@ -1271,7 +1271,7 @@ o1 = new stzList([ "A":"C", "E":"D", "G": "Y" ])
 ? o1.EachItemIs(:ListOfChars)
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.37 second(s)
 
 /*==================
@@ -1290,7 +1290,7 @@ o1 = new stzList([ "A", 1:3, "B", 4:7, [ "C", 99:100, "D" ], 8:10 ])
 ? @@( o1.FlattenQ().Content() )
 #--> [ "A", 1, 2, 3, "B", 4, 5, 6, 7, "C", 99, 100, "D", 8, 9, 10 ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-----------------
@@ -1315,7 +1315,7 @@ o1 = new stzListOfLists([ 1:3, 4:7, 8:10, [ "A", 0:1, "B" ] ])
 ? @@( o1.Flattened() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "A", 0, 1, "B" ]
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*==================
@@ -1351,7 +1351,7 @@ o1 = new stzListOfLists([
 ? @@(o1.LastNOccurrencesXT(1, :Of = [9,9,9], :StartingAt = 9))
 #--> [9]
 
-proff()
+pf()
 # Executed in 0.15 second(s)
 
 /*-----------
@@ -1383,7 +1383,7 @@ o1.RemoveTheseBounds("[","]")
 ? o1.Content()
 #--> "4, 5, 6, 7, 8"
 
-proff()
+pf()
 # Executed in 0.06 second(s) in Ring 1.21
 
 /*-----------
@@ -1396,7 +1396,7 @@ pr()
 ? @@( StzListQ( 4:8 ).ToListInAStringInShortForm() )
 #--> "4:8"
 
-proff()
+pf()
 # Executed in 0.50 second(s)
 
 /*----------- #TODO Retest after including CheckW()
@@ -1410,7 +1410,7 @@ o1 = new stzListOfLists([ 1:3, 4:5, 6:7 ])
 ? @@( o1.ToListInStringInShortForm() )
 #--> [ "1:3", "4:5", "6:7" ]
 
-proff()
+pf()
 
 /*----------
 
@@ -1459,7 +1459,7 @@ o1 = new stzListOfLists([
 
 //? @@( o1.Yield('{ len(@list) }') ) 	#--> [ 3, 5, 2, 2, 3 ]
 
-proff()
+pf()
 # Executed in 0.05 second(s) in Ring 1.21
 
 /*----------
@@ -1472,7 +1472,7 @@ o1 = new stzListOfLists([ 1:3, 4:7, 8:9, [10, 11:13] ])
 ? @@( o1.Flattened() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*================
@@ -1490,7 +1490,7 @@ o1 = new stzListOfLists([
 ? @@( o1.ListsOfSizeN(2) )
 #--> [ [ 9, 0 ], [ 3, 5 ] ]
 
-? proff()
+? pf()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*=============== #TODO Make a narration about indexing lists of lists
@@ -1524,7 +1524,7 @@ o1 = new stzListOfLists([ a1, a2, a3 ])
 #	[ "D", [ [ 3, 2 ] ] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*==============
@@ -1570,5 +1570,5 @@ o1 = new stzListOfLists([
 #	[ "🂡", "🂥" ]
 # ]
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.22

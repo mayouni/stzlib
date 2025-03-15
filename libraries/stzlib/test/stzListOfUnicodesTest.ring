@@ -12,5 +12,5 @@ o1 = new stzListOfUnicodes( Arabic7araketUnicodes() )
 #	[ 1618, "ْ" ]
 # ]
 
-proff()
+pf()
 # Executed in 0.04 second(s) in Ring 1.21

@@ -32,7 +32,7 @@ R() {
 
 }
 
-proff()
+pf()
 # Executed in 0.31 second(s) in Ring 1.22
 
 /*--- Basic Numeric Data
@@ -60,7 +60,7 @@ Run()
 #    [ "mean", 3 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.31 second(s) in Ring 1.22
 
 /*--- Simple nested list with different data types
@@ -103,7 +103,7 @@ R.Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*--- Data analysis with NA handling
@@ -142,7 +142,7 @@ Run()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*--- Statistical calculations
@@ -187,7 +187,7 @@ R.Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*--- Nested calculations with custom functions
@@ -252,7 +252,7 @@ R.Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*--- Time series data with aggregation
@@ -311,7 +311,7 @@ Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*=== Graphic DataViz - Complex scatter plot with density
@@ -407,7 +407,7 @@ res <- list(
 R.Execute()
 View("output.png") # Opening the image in the system default viewer
 
-proff()
+pf()
 # Executed in 2.92 second(s) in Ring 1.22
 
 /*=======================#
@@ -447,7 +447,7 @@ R() {
 	View("output.png")
 }
 
-proff()
+pf()
 # Executed in 1.45 second(s) in Ring 1.22
 
 /*--- Bar Chart with Error Bars
@@ -490,7 +490,7 @@ R() { @('
   View("output.png")
 }
 
-proff()
+pf()
 # Executed in 1.31 second(s) in Ring 1.22
 
 /*--- Connected Scatterplot
@@ -532,7 +532,7 @@ R() { @('
   View("output.png")
 }
 
-proff()
+pf()
 # Executed in 1.77 second(s) in Ring 1.22
 
 /*============================#
@@ -569,7 +569,7 @@ R() {
   View("world.png") 
 }
 
-proff()
+pf()
 
 /*--- Advanced sample of Africa
 
@@ -661,7 +661,7 @@ R() {
   View("africa.png")
 }
 
-proff()
+pf()
 
 /*---
 */

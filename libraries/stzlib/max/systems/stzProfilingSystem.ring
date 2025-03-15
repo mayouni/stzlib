@@ -132,7 +132,7 @@ func ElapsedTimeXT(pIn)
 	func ElpasedTimeXT(pIn)
 		return ElapsedTimeXT(pIn)
 
-func profon()
+func pr()
 	_time0 = clock()
 
 	func StartProfiler()
@@ -144,10 +144,10 @@ func profon()
 	func pron()
 		_time0 = clock()
 
-	func pr()
+	func profon()
 		_time0 = clock()
 
-func Proff()
+func pf()
 
 	cElapsed = "" + (clock() - _time0) / clockspersecond()
 	if 0+ cElapsed = 0 
@@ -159,19 +159,22 @@ func Proff()
 	STOP()
 
 	func EndProfiler()
-		Proff()
+		pf()
 
 	func Profoff()
-		Proff()
+		pf()
 
 	func StopProfiler()
-		Proff()
+		pf()
 
 	func ProfilerOff()
-		Proff()
+		pf()
 
 	func prff()
-		Proff()
+		pf()
+
+	func Proff()
+		pf()
 
 	func prf()
 		Proff()

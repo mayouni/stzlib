@@ -28,7 +28,7 @@ StzGridQ([10, 10]).FillWithQ( CharsBetween("!", "p") ).Show() #TODO // fix it!
 #   ] ^ _ ` a b c d e f
 #   g h i j k l m n o p
 
-proff()
+pf()
 # Executed in 0.06 second(s) in Ring 1.21
 # Executed in 0.20 second(s) in Ring 1.19
 

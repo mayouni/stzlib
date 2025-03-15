@@ -25,7 +25,7 @@ StzTestQ() {
 	CheckXT()
 }
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.20 second(s) in Ring 1.19
 
@@ -51,7 +51,7 @@ StzTestQ() {
 # ~~~~~~~~~~~~~
 # Correctly returned: "N I A M E Y"
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.14 second(s) in ring 1.19
 

@@ -23,7 +23,7 @@ Q([ 1, 2, 3, 4, 5 ]) {
 
 }
 
-proff()
+pf()
 
 # Executed in almost 0 second(s) in Ring 1.21
 # Executed in 0.04 second(s) in Ring 1.20
@@ -38,7 +38,7 @@ pr()
 	[ "Roy",      100 ]
 ], 2)
 
-proff()
+pf()
 
 # Executed in almost 0 second(s) in Ring 1.21
 #--> Executed in 0.03 second(s) in Ring 1.20
@@ -59,7 +59,7 @@ pr()
 #	[ "Bob",       89 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.04 second(s) in Ring 1.20
 
@@ -73,7 +73,7 @@ pr()
 ? Max([2, 3])
 #--> 3
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.21
 # Executed in 0.07 second(s) in Ring 1.20
 
@@ -108,7 +108,7 @@ o1.SortOnDown(:SCORE) # Or SortOnInDescending()
 #  Roy     100
 #  Bob      89
 
-proff()
+pf()
 # Executed in 0.10 second(s)
 
 /*==== #narration SQL SUPPORT IN SOFTANZA EXTERNAL CODE
@@ -254,7 +254,7 @@ pr()
 	#    Roy     100
 	#    Bob      89
 
-proff()
+pf()
 # Executed in 0.32 second(s) in Ring 1.21
 # Executed in 2.07 second(s) in Ring 1.20
 
@@ -273,7 +273,7 @@ next
 ? @@( VarVal([ :x, :y, :z ]) ) # Or VrVl()
 #--> [ [ "x", 3 ], [ "y", 6 ], [ "z", 9 ] ]
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 # Executed in 0.11 second(s) in Ring 1.20
 
@@ -285,7 +285,7 @@ Vr([ :x, :y, :z ]) '=' Vl([ -1, 0, 1 ])
 ? v([ :x, :y, :z ])
 #--> [ -1, 0, 1 ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.06 second(s) in Ring 1.20
 
@@ -297,7 +297,7 @@ Vr([ :x, :y, :z ]) '=' Vl([ 10, 20, 30 ])
 ? v([ :x, :y, :z ])
 #--> [ 10, 20, 30 ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.06 second(s) in Ring 1.20
 
@@ -376,7 +376,7 @@ proff()
 	#    [ "name9", 90 ]
 	#    [ "name10", 100 ]
 	
-proff()
+pf()
 # Executed in 0.37 second(s)
 
 /*======== #ERROR #TODO check it
@@ -425,7 +425,7 @@ pr()
 		echo( v(v(:var)) )
 		#--> programmer
 
-proff()
+pf()
 # Executed in 0.11 second(s)
 
 /*========
@@ -449,7 +449,7 @@ pr()
 	# bf ~> FALSE case
 	# bt ~> TRUE case
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*----------
@@ -459,7 +459,7 @@ pr()
 	vr(:sign) '=' b(n > 0) '?' bt("positive") '!!' bf("negative");
 	printf( v(:sign) );
 	#--> negative
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.03 second(s) in Ring 1.20
 
@@ -473,7 +473,7 @@ o1 = new stzList([ 2, 4, 8 ])
 ? o1.EachItemIsA([ :Positive, :Even, :Number ]) # ItemsAreEither, AllItemsAreEither...
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.05 second(s) in Ring 1.21
 # Executed in 0.09 second(s) in Ring 1.20
 
@@ -510,7 +510,7 @@ o1 = new stzString("Niger")
 # In fact, the actual implementation ignores those objects completely
 # and assign a @noname to them --> they are considered UnnamedObject!
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*------------
@@ -525,7 +525,7 @@ o1.RenameIt(:country) # Or SetVarName()
 ? o1.VarName()
 #--> country
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*------------ #narration NAMING UNNAMED OBJECTS AND MAKING THEM FINDABLE
@@ -655,7 +655,7 @@ o1 = new stzList([ "one", greeting, 12, greeting, Q("two"), hello, 10 , Q(10) ])
 #	@cvarname: hello
 #	...
 
-proff()
+pf()
 # Executed in 0.09 second(s).
 
 /*=========== TODO
@@ -670,7 +670,7 @@ pr()
 Vr([ :my_name, :my_age ]) '<~' Vl([ Q("Mansour"), Q(67) ])
 ? v(:my_name).VarName()
 
-proff()
+pf()
 
 /*------------
 
@@ -680,7 +680,7 @@ Vr( "a" : "z" ) '<~' Vl( 1 : NumberOfLatinLetters() )
 ? v(:t)
 #--> 20
 
-proff()
+pf()
 # Executed in 0.11 second(s).
 
 /*======
@@ -690,7 +690,7 @@ pr()
 ? @@( Q("::2").SplitAt(":") )
 #--> [ _NULL_, _NULL_, "2" ]
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*==== Using a Python code inside Ring ===
@@ -707,7 +707,7 @@ pr()
 ? Q(1:10)['2:8:2']
 #--> [ 2, 4, 6, 8 ]
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*------------
@@ -725,7 +725,7 @@ range(1, 5)[::-1]
 ? range1Q([ 1, 5 ])['::-1']
 #--> [ 4, 3, 2, 1 ]
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*============
@@ -784,7 +784,7 @@ pr()
 	? range0Q([ 0, 10, 1 ]) = range0Q([ 0, 10 ]) = range0(10)
 	#--> TRUE
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*--------------
@@ -821,7 +821,7 @@ pr()
 ? range0(':5:-1')
 #--> [ 4, 3, 2, 1, 0 ]
 
-proff()
+pf()
 # Executed in 0.02 second(s).
 
 /*--------------
@@ -838,7 +838,7 @@ pr()
 ? Q(345)['// 100']
 #--> 3
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*---------------
@@ -856,7 +856,7 @@ pr()
 ? Q(' + ').join([ "a", "b", "c" ])
 #--> a + b + c
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 # Executed in 0.05 second(s) in Ring 1.20
 
@@ -876,7 +876,7 @@ pr()
 ? range1([ -3, 4, 2 ])
 #--> [ -3, -1, 1, 3 ]
 
-proff()
+pf()
 # Executed in almost 0 second(s).
 
 /*--------------
@@ -911,7 +911,7 @@ pr()
 	? euc_dist_(a,b)
 	#--> 6.71
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 2.21
 # Executed in 0.03 second(s) in ring 1.20
 
@@ -992,7 +992,7 @@ def euc_dist_(a,b)':' # we put the : char between two ''
 		#--> See the difference in meaning attributed by each language to
 		#    string cmparaison operators =, < and >
 	
-	proff()
+	pf()
 	#Executed in 0.08 second(s)
 	
 	def diff(old_string, new_string)':' # Here we put : between quotes
@@ -1033,7 +1033,7 @@ pr()
 	? range([-3, 3+1, 2])
 	#--> [ -3, -1, 1, 3 ]
 	
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.21
 # Executed in 0.03 second(s) in Ring 1.20
 
@@ -1058,7 +1058,7 @@ country_name = "Tunisia"
 
 #TODO // Use it in Interpolate() function
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*------------
@@ -1075,7 +1075,7 @@ country_name = "Mahmoud"
 
 ? Interpolate("مرحبا بك {اسم_صديق} في بلدك {اسم_بلد} !")
 
-proff()
+pf()
 # Executed in 0.03 second(s).
 
 /*------------
@@ -1097,7 +1097,7 @@ pr()
 	print( f("My best language is {bestlang}!") )
 	#--> My best language is Ring!
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.08 second(s) in Ring 1.20
 
@@ -1134,7 +1134,7 @@ Vr([ :x, :y, :z ]) '=' Vl([ 10, 20, 30 ])
 	? v([ :x, :x, :z, :y ])
 	#--> [ 10, 10, 30, 20 ]
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*----------------
@@ -1160,7 +1160,7 @@ pr()
 	print( v(:y) )	#--> 20
 	print( v(:z) )	#--> 30
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.06 second(s) in Ring 1.20
 
@@ -1172,7 +1172,7 @@ Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen", "Teeba" ])
 ? v(:name2)
 #--> Teeba
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.05 second(s) in Ring 1.20
 
@@ -1187,7 +1187,7 @@ Vr([ :name1, :name2, :name3 ]) '=' Vl([ "Hussein", "Haneen" ])
 ? @@( v(:name3) )
 #--> _NULL_
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.05 second(s) in Ring 1.20
 
@@ -1199,7 +1199,7 @@ Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen" ])
 ? v(:name)
 #--> ERROR: Undefined named variable!
 
-proff()
+pf()
 
 /*--------------
 
@@ -1209,7 +1209,7 @@ Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen" ])
 ? v([ :name1, :name2, :name7 ])
 #--> ERROR: ndefined named variable!
 
-proff()
+pf()
 
 /*--------------
 
@@ -1219,7 +1219,7 @@ Vr([ :name, :grades, :age ]) '=' Vl([ "Mansour", [10, 12, 15], 47 ])
 ? @@( v(:grades) )
 #--> [ 10, 12, 15 ]
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.05 second(s) in Ring 1.20
 
@@ -1231,7 +1231,7 @@ Vr([ :names ]) '=' Vl([ [ "Hussein", "Haneen", "Teebah" ] ])
 ? @@( v(:names) )
 #--> [ "Hussein", "Haneen", "Teebah" ]
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*--------------
@@ -1265,7 +1265,7 @@ setV(:name = "cherihen")
 ? @@( tempvarname() ) # same as tempvar()
 #--> name
 
-proff()
+pf()
 # Executed in 0.02 second(s).
 
 /*============ TERNARY OPERATOR
@@ -1304,7 +1304,7 @@ vr([ :value ]) '=' vl([ "foo" ]) _if(bSomething) _else([ "bar" ])
 	? v(:value)
 	#--> bar
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.06 second(s) in Ring 1.20
 
@@ -1329,7 +1329,7 @@ pr()
 	printf( v(:sign) );
 	#--> negative
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*============
@@ -1347,7 +1347,7 @@ Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 	? @@( v([ :x, :y, :z ]) )
 	#--> [ -1, -2, -3 ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.12 second(s) in Ring 1.20
 
@@ -1361,7 +1361,7 @@ proff()
 	? v([:x, :y])
 	#--> [ -10, 20 ]
 	
-	proff()
+	pf()
 
 /*-------------- #ERR #TODO check it
 
@@ -1373,7 +1373,7 @@ proff()
 	? v([:x, :y])
 	#--> [ -10, -20 ]
 	
-	proff()
+	pf()
 
 /*--------------
 
@@ -1384,7 +1384,7 @@ Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 ? @@( v([ :x, :y, :z ]) )
 #--> [ 1, 2, 3 ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.07 second(s) in Ring 1.20
 

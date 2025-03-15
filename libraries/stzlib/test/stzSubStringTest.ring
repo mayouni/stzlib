@@ -41,7 +41,7 @@ pr()
 ? Q("--♥♥--**--").SubStringQ("--").ComesbetweenSubStrings("♥♥", :And = "**")
 #--> TRUE
 
-proff()
+pf()
 
 #---
 
@@ -122,7 +122,7 @@ pr()
 ? TheSubStringQ([ "ring", :In = "I LOVE ring LANGUAGE!" ]).Uppercased()
 #--> I LOVE THE RING LANGUAGE!
 
-proff()
+pf()
 # Executed in 0.16 second(s)
 
 /*------------
@@ -135,7 +135,7 @@ pr()
 ? Q("I love Ring").SubStringIsAWord("Ring")
 #--> TRUE
 
-proff()
+pf()
 
 /*------------
 
@@ -159,7 +159,7 @@ pr()
 ? TheWord("love").InQ("I love Ring").ReplacedBy(AHeart())
 #--> I ♥ Ring
 
-proff()
+pf()
 # Executed in 0.80 second(s)
 
 /*------------
@@ -179,7 +179,7 @@ pr()
 
 ? Every(:Number).InQ([ 10, "human", 20, "human", 30, "HUMAN" ]).IsMultipleOf(10) # stzEveryItem.ring
 
-proff()
+pf()
 
 /*-----
 
@@ -193,7 +193,7 @@ proff()
 #--> SOFTAnza
 
 
-proff()
+pf()
 # Executed in 0.80 second(s)
 
 /*-----
@@ -211,7 +211,7 @@ o1 = new stzString("ring")
 ? o1.SubstringInQ("I LOVE THE ring LANGUAGE!").Uppercased()
 #--> I LOVE THE RING LANGUAGE!
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*-----
@@ -229,7 +229,7 @@ o1 = new stzString("I LOVE THE ring LANGUAGE!")
 ? o1.SubStringQ("ring").Uppercased()
 #--> I LOVE THE RING LANGUAGE!
 
-proff()
+pf()
 
 /*-----
 
@@ -255,7 +255,7 @@ o1 = new stzSubString("ring", :in = "I LOVE THE ring LANGUAGE!")
 ? o1.NumberOfChars()
 #--> 4
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*-----
@@ -267,4 +267,4 @@ o1 = new stzSubString("ING", :in = "I love the RING language!")
 ? o1.Lowercased()
 #--> I love the Ring language!
 
-proff()
+pf()

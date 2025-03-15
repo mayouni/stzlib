@@ -13,7 +13,7 @@ o1 = new stzListOfSets([
 ? @@( o1.Intersection() )
 #--> [ "a", "c" ]
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*---
@@ -27,7 +27,7 @@ o1 = new stzSet([ "a", "b", "b", "c", "c" ])
 ? o1.UniqueItems()
 #--> [ "a", "b", "c" ]
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 
 

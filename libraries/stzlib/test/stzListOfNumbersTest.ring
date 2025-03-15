@@ -12,7 +12,7 @@ o1 = new stzListOfNumbers([ 2.07, 0.39, 0.12])
 ? o1.SpeedUpX()		# X ~> In factor
 #--> [ 5.31, 3.25 ]
 
-proff()
+pf()
 #--> Executed in 0.02 second(s).
 
 /*-----
@@ -27,7 +27,7 @@ o1 = new stzPairOfNumbers([ 2.07, 0.39 ])
 ? o1.SpeedUpX()		# X ~> In factor
 #--> 5.31
 
-proff()
+pf()
 #--> Executed in 0.02 second(s).
 
 /*=====
@@ -62,7 +62,7 @@ pr()
 ? SumXT([ 10, 2, 4 ])
 #--> [ 10, 12, 16 ]
 
-proff()
+pf()
 # Executed in 0.01 second(s)
 
 /*=====
@@ -95,7 +95,7 @@ decimals(3)
 #	0012.100
 #	0007.000
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*=====
@@ -108,7 +108,7 @@ pr()
 ? Max([ 2, 4 ])
 #--> 4
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*=====
@@ -118,7 +118,7 @@ pr()
 ? @@( Association([ [ 1, 2, 3 ] , [ 1, 3, 8 ] ]) )
 #--> [ [ 1, 1 ], [ 2, 3 ], [ 3, 8 ] ]
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*====
@@ -140,7 +140,7 @@ o1 = new stzListOfNumbers([ 2, 7, 3, 10, 5, 4, 9, 1, 6, 8 ])
 ? @@( o1.Top3Z() )
 # [ [ 8, 4 ], [ 9, 7 ], [ 10, 10 ] ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*=====
@@ -150,7 +150,7 @@ pr()
 ? NZeros(5)
 #--> [ 0, 0, 0, 0, 0 ]
 
-proff()
+pf()
 # Executed in 0.01 second(s)
 
 /*=====
@@ -171,7 +171,7 @@ o1 = new stzNumber("1234567.1234567")
 ? o1.DecimalsQRT(:stzListOfNumbers).Sum()
 #--> 28
 
-proff()
+pf()
 # Executed in 0.05 second(s) in Ring 1.20
 # Executed in 0.11 second(s) in ring 1.18
 
@@ -182,7 +182,7 @@ pr()
 ? QQ(1:3).StzType()
 #--> StzListOfNumbers
 
-proff()
+pf()
 
 /*================= #todo write a #narration
 
@@ -211,7 +211,7 @@ pr()
 #--> [ 2, 4 ]
 
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21s
 
 /*----------------
@@ -228,7 +228,7 @@ pr()
 
 #--> [ 1, 2, 3 ]
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*----------------
@@ -245,7 +245,7 @@ pr()
 
 # [ 1, 2, 3, 4 ]
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*----------------
@@ -262,7 +262,7 @@ pr()
 
 #--> 
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*----------------
@@ -279,7 +279,7 @@ pr()
 
 #--> [ [ "A", "B" ], [ "A", "B" ], [ "A", "B" ] ]
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*----------------
@@ -294,7 +294,7 @@ o1 = new stzList(["one", "two", "three", "four", "five", "six" ])
 ? @@( o1.SplittedToNParts(3) )
 #--> [ [ "one", "two" ], [ "three", "four" ], [ "five", "six" ] ]
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*----------------
@@ -311,7 +311,7 @@ pr()
 
 #--> [ [ "one", "two" ], [ "three", "four" ], [ "five", "six" ] ]
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*----------------
@@ -328,7 +328,7 @@ pr()
 
 #--> [ [ 4 ], [ 44 ], [ 444 ] ]
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*----------------
@@ -346,7 +346,7 @@ o1 = new stzList([ "A", "B" ])
 ? @@( o1.SplittedToNParts(0) )
 #--> [ ]
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 # Executed in 0.06 second(s) in Ring 1.18
 
@@ -365,7 +365,7 @@ pr()
 ? ( Q(["A", 1, "B", 2, "C", 3 ]) / Q(3) ).Content()
 # [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ]
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*===============
@@ -378,7 +378,7 @@ pr()
 ? Q([1, 2, "*", 3 ]) + Q("*")
 #--> A stzList object containg [ 1, 2, 3 ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*================
@@ -391,7 +391,7 @@ pr()
 ? (Q("Ringggg") - Q("ggg")).Content()
 #--> A StzString object containg "Ring"
 
-proff()
+pf()
 
 /*---------------
 
@@ -403,7 +403,7 @@ pr()
 ? Q("Rin") + Q("g")
 #--> A StzString object containg "Ring"
 
-proff()
+pf()
 
 /*---------------
 
@@ -419,7 +419,7 @@ o1 = new stzListOfNumbers(1:5)
 ? o1.NumbersOtherThan(3)
 #--> [1, 2, 4, 5]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*---------------
@@ -429,7 +429,7 @@ pr()
 ? 3RandomNumbersIn(1:10)
 #--> [10, 9, 10]
 
-proff()
+pf()
 
 /*---------------
 
@@ -438,7 +438,7 @@ pr()
 ? NRandomNumbersIn(3, 1:10)
 #--> [10, 10, 10]
 
-proff()
+pf()
 
 /*---------------
 
@@ -449,7 +449,7 @@ pr()
 #--> [10, 10, 10]
 #--> [10, 9, 9]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*---------------
@@ -461,7 +461,7 @@ pr()
 #--> [100_000, 99_999, 100_000]
 #--> [99_999, 99_999, 99_999]
 
-proff()
+pf()
 # Executed in 0.62 second(s)
 
 /*---------------
@@ -476,7 +476,7 @@ pr()
 #--> 1
 
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*---------------
@@ -491,7 +491,7 @@ pr()
 #--> 192
 
 
-proff()
+pf()
 # Executed in 0.01 second(s)
 
 /*---------------
@@ -506,7 +506,7 @@ pr()
 #--> 4
 
 
-proff()
+pf()
 # Executed in 0.01 second(s)
 
 /*---------------
@@ -521,7 +521,7 @@ pr()
 #--> 192
 
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 /*---------------
 
@@ -529,7 +529,7 @@ pr()
 
 ? QQ(1:7).AnyNumberBeforeOrAfter(3)
 
-proff()
+pf()
 
 /*---------------
 
@@ -538,7 +538,7 @@ pr()
 o1 = new stzListOfNumbers(1: 10)
 ? o1.ANumberOtherThan(5)
 
-proff()
+pf()
 
 /*===============
 
@@ -562,7 +562,7 @@ o1 = new stzListOfNumbers([ 2, 7, 18, 18, 10, 25, 4 ])
 				# You can use the short form FNeighbors()
 #--> [ 2, 25 ]
 
-proff()
+pf()
 # Executed in 0.15 second(s)
 
 /*-------------
@@ -589,7 +589,7 @@ o1 = new stzListOfNumbers([ 2, 7, 18, 18, 10, 12, 25, 4 ])
 ? o1.Nearest(1)
 #--> 2
 
-proff()
+pf()
 # Executed in 0.18 second(s)
 
 /*-------------
@@ -616,7 +616,7 @@ o1 = new stzListOfNumbers([ 4, 8, 10, 16, 18 ])
 ? o1.Farthest(1)
 #--> 18
 
-proff()
+pf()
 # Executed in 0.13 second(s)
 
 /*-----------------
@@ -637,7 +637,7 @@ o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
 ? @@( o1.Neighbors(22) )
 #--> [ 18, _NULL_ ]
 
-proff()
+pf()
 # Executed in 0.10 second(s)
 
 /*-----------------
@@ -658,7 +658,7 @@ o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
 ? @@( o1.FNeighbors(18) )
 #--> [ 1, _NULL_ ]
 
-proff()
+pf()
 # Executed in 0.10 second(s)
 
 /*-------------
@@ -682,7 +682,7 @@ o1 = new stzListOfNumbers([ 2, 4, 7, 10, 12, 15, 18, 25 ])
 ? @@( o1.FarthestToXT(25, :ComingAfterIt) )
 #--> _NULL_
 
-proff()
+pf()
 # Executed in 0.30 second(s)
 
 /*-------------
@@ -706,7 +706,7 @@ o1 = new stzListOfNumbers([ 2, 4, 7, 10, 12, 15, 18, 25 ])
 ? @@( o1.NearestToXT(25, :ComingAfterIt) )
 #--> _NULL_
 
-proff()
+pf()
 # Executed in 0.30 second(s)
 
 /*===========
@@ -719,7 +719,7 @@ pr()
 ? Max([1, 10])
 #--> 10
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*===============
@@ -774,7 +774,7 @@ pr()
 ? StzListOfNumbersQ( 17:8 ).SortingOrder()
 #--> :Descending
 
-proff()
+pf()
 # Executed in 0.15 second(s)
 
 /*==============
@@ -793,7 +793,7 @@ pr()
 ? StzListOfNumbersQ([10, 11, 10]).IsContiguous()
 #--> FALSE
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*========
@@ -807,7 +807,7 @@ o1.Cumulate()
 ? @@( o1.Content() )
 #--> [ 1, 2, 5, 9, 14, 20, 27, 35, 44 ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*========
@@ -817,7 +817,7 @@ pr()
 ? StzListOfNumbersQ( 1:5 ).Reversed()
 #--> 5:1
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*========
@@ -852,7 +852,7 @@ StzListOfNumbersQ([ 2, 10, 7, 4, 19, 7, 19 ]) {
 
 }
 
-proff()
+pf()
 # Executed in 0.55 second(s)
 
 /*==================
@@ -862,7 +862,7 @@ pr()
 ? StzListOfNumbersQ([ 1, 2, 3 ]).AddedToEach(5)
 #--> [6, 7, 8]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*-----------------
@@ -886,7 +886,7 @@ StzListOfNumbersQ([ 1, 2, 3 ]) {
 	#--> [ 4, 5, 6 ]
 }
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-------------------
@@ -900,7 +900,7 @@ o1.SubStructManyOneByOne([ 6, 7, 7 ])
 ? @@( o1.Content() )
 #--> [ 2, 3, 7 ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*-------------------
@@ -927,7 +927,7 @@ StzListOfNumbersQ([ 2, 4, 8 , 10 , 12 ]) {
 
 }
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*-------------------
@@ -939,7 +939,7 @@ o1.SpacifySubStringUsing("ring", "_")
 ? o1.Content()
 #--> hello_ring_programmer!
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-------------------
@@ -952,7 +952,7 @@ o1.SpacifySubStringsUsing(["is", "your", "name"], "_")
 
 ? o1.Content()
 
-proff()
+pf()
 # Executed in 0.09 second(s)
 
 /*-------------------
@@ -965,7 +965,7 @@ o1.SpacifySubStringsUsing(["is", "your", "name"], " ")
 ? o1.Content()
 #--> what is your name please?
 
-proff()
+pf()
 # Executed in 0.10 second(s)
 
 /*=================
@@ -976,7 +976,7 @@ o1 = new stzCCode('{ Q(This[@i]).IsDividableBy(4) and This[@i] <= 20 }')
 ? o1.ExecutableSection()
 #--> [1, :Last]
 
-proff()
+pf()
 # Executed in 0.12 second(s)
 
 /*-------------------
@@ -988,7 +988,7 @@ o1 = new stzListOfNumbers([ 4, 7, 36, 9, 20 ])
 ? o1.FindW('{ Q(This[@i]).IsDividableBy(4) and This[@i] <= 20 }')
 #--> [1, 5]
 
-proff()
+pf()
 # Executed in 0.15 second(s)
 
 /*-------------------
@@ -1001,7 +1001,7 @@ o1.Update([])
 ? @@( o1.Content() )
 #--> [ ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*======================
@@ -1015,7 +1015,7 @@ o1 = new stzString("---ring---ring--ring--")
 ? @@( o1.FindInSectionsAsSections("ring", [ [3, 8], [10, 15], [16, 21] ]) )
 #--> [ [ 4, 7 ], [ 11, 14 ], [ 17, 20 ] ]
 
-proff()
+pf()
 # Executed in 0.10 second(s)
 
 /*--------------------
@@ -1032,7 +1032,7 @@ o1 = new stzString("---ring---ruby--python--python--")
 ? @@( o1.FindInSectionAsSections("python", 15, :Last) )
 #--> [ [ 17, 22 ], [ 25, 30 ] ]
 
-proff()
+pf()
 # Executed in 0.07 second(s)
 
 /*--------------------
@@ -1050,7 +1050,7 @@ o1 = new stzString("iloveringprogramminglanguage!!")
 ? @@( o1.FindXT("ring", :InSection = [ 3, 12] ) )
 #--> [ 6 ]
 
-proff()
+pf()
 
 /*--------------------
 
@@ -1064,7 +1064,7 @@ o1 = new stzString("iloveringprogramminglanguage!!")
 ? @@( o1.FindInSections("ring", [ [3, 12], [18, 20] ] ) )
 #--> [ 6 ]
 
-proff()
+pf()
 
 
 /*--------------------
@@ -1077,7 +1077,7 @@ o1.SortByInDescending('Q(@string).NumberOfChars()')
 ? @@( o1.Content() )
 #--> [ "language", "ring", "i" ]
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*--------------------
@@ -1089,7 +1089,7 @@ o1 = new stzString("iloveringprogramminglanguage!!")
 
 #--> [ [ 1, 1 ], [ 2, 5 ], [ 6, 9 ], [ 7, 7 ], [ 10, 20 ], [ 18, 18 ] ]
 
-proff()
+pf()
 # Executed in 0.07 second(s)
 
 /*--------------------
@@ -1100,7 +1100,7 @@ o1 = new stzString("weloveringlanguage!")
 o1.AddXT(" ", :AfterThese = Q([ "we", "love", "ring", "language" ]).Reversed())
 #--> we love ring language !
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*------------------
@@ -1113,7 +1113,7 @@ o1.AddXT([ " ", " " ], :Around = "ring")
 ? o1.Content()
 # Executed in 0.04 second(s)
 
-proff()
+pf()
 
 /*------------------
 
@@ -1126,7 +1126,7 @@ o1.SpacifySubStrings([ "love", "ring", "language" ])
 ? o1.Content()
 # we love ring language !
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*--------------------
@@ -1138,7 +1138,7 @@ o1 = new stzString("iloveringprogramminglanguage")
 						 # do not exist in the main string
 #--> iloveringprogramminglanguage
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*--------------------
@@ -1151,7 +1151,7 @@ o1 = new stzString("iloveringprogramminglanguage")
 								# exist in the main string
 #--> ilovering programming language
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*-------------------
@@ -1164,7 +1164,7 @@ o1.AddToEachW( 1, :Where = '{ Q(This[@i]).IsDividableBy(4) and This[@i] <= 20 }'
 ? @@(o1.Content())
 #--> [ 5, 21 ]
 
-proff()
+pf()
 # Executed in 0.17 second(s)
 
 /*-------------------
@@ -1176,7 +1176,7 @@ o1.SubStructFromEachW( 10, :Where = '{ @number > 20 }' )
 ? @@(o1.Content())
 #--> [ 14, 24 ]
 
-proff()
+pf()
 # Executed in 0.11 second(s)
 
 /*-------------------
@@ -1188,7 +1188,7 @@ o1.DivideEachByW( 5, :Where = '{ @number > 20 }' )
 ? @@(o1.Content())
 #--> [ 5, 7 ]
 
-proff()
+pf()
 # Executed in 0.11 second(s)
 
 /*======
@@ -1201,7 +1201,7 @@ pr()
 ?  MultiplicationsYieldingN_WithoutCommutation(9)
 #--> [ [ 1, 9 ], [ 3, 3 ] ]
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*--------------
@@ -1222,7 +1222,7 @@ o1 = new stzListOfNumbers([ 12, 10, 98, 3, 23, 98, 7 ])
 ? o1.FindMax()
 #--> 3
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*--------------
@@ -1234,7 +1234,7 @@ o1.AddToEveryNumber(2)
 ? ListToCode( o1.Content() )
 #--> [ 3, 4, 5, 6, 7, 8, 9, 10 ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*--------------
@@ -1246,7 +1246,7 @@ o1.SubStructFromEach(2)
 ? ListToCode( o1.Content() )
 #--> [ -1, 0, 1, 2, 3, 4, 5, 6 ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*---------------
@@ -1267,7 +1267,7 @@ o1 = new stzListOfNumbers(1:8)
 ? o1.Mean()
 #--> 4.50
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*---------------
@@ -1282,7 +1282,7 @@ o1 = new stzListOfNumbers(1:8)
 ? @@( o1.DividableNumbersBy(2) )
 #--> [ 2, 4, 6, 8 ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*---------------
@@ -1301,7 +1301,7 @@ o1.Clip(3, 5)
 ? @@( o1.Content() )
 #--> [ 3, 3, 3, 4, 5, 5, 5, 5 ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*--------------
@@ -1313,5 +1313,5 @@ o1.ReplaceSectionWith(3, 5, 2)
 #--> [ 1, 2, 2, 2, 2, 6, 7, 8 ]
 ? @@( o1.Content() )
 
-proff()
+pf()
 # Executed in 0.03 second(s)

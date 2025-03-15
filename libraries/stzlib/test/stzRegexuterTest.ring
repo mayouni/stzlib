@@ -3,7 +3,7 @@ load "../max/stzmax.ring"
 
 /*---
 
-pron()
+pr()
 
 ? @@NL([ [ "Contact: john@email.net 123-456-7890 12345", "INVALID {Contact: john@email.net 123-456-7890 12345}" ], [ "123-456-7890", "INVALID {123-456-7890}" ], [ "12345", "12345" ] ])
 #--> [
@@ -18,7 +18,7 @@ pron()
 #	[ "12345", "12345" ]
 # ]
 
-proff()
+pf()
 
 /*--- #TODO: solve confusion between Matches() and AllMatches()
 #UPDATE : DONE!
@@ -43,7 +43,7 @@ rx("(\d+)") {
 
 }
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*---
@@ -97,7 +97,7 @@ o1 {
 
 }
 
-proff()
+pf()
 # Executed in 0.12 second(s) in Ring 1.22
 
 /*--- Processing Numbers in Text
@@ -127,7 +127,7 @@ rxu() {
 
 }
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Finding and Processing Emails
@@ -158,7 +158,7 @@ rxuter() {
 
 }
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.22
 
 /*--- Computing multiple triggers
@@ -202,7 +202,7 @@ rxu() {
 
 }
 
-proff()
+pf()
 #--> Executed in 0.05 second(s) in Ring 1.22
 
 /*---
@@ -264,7 +264,7 @@ rxu() {
 	# ]
 }
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.22
 
 #--- Text Processing Pipeline with Dependencies
@@ -391,7 +391,7 @@ rxu {
 	# 	]
 	# ]
 }
-proff()
+pf()
 # Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Data Validation Pipeline
@@ -437,7 +437,7 @@ rxu.Process("Contact: john@email.net 123-456-7890 12345")
 #	[ "12345", "12345" ]
 # ]
 
-proff()
+pf()
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Example 3: Code Analysis Pipeline
@@ -499,7 +499,7 @@ next
 #    Original: var result =
 #    Processed: VAR:var result =
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.22
 
 /*===================================

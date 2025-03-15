@@ -33,7 +33,7 @@ o1 {
 
 }
 
-proff()
+pf()
 # Executed in 0.02 second(s).
 
 /*-------------------
@@ -67,7 +67,7 @@ o1 {
 	#--> 1
 }
 
-proff()
+pf()
 # Executed in 0.04 second(s).
 
 /*===
@@ -78,7 +78,7 @@ oWalker = new stzWalker( 5, -5, 2 )
 ? oWalker.Content()
 #--> [ 5, 3, 1, -1, -3, -5 ]
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*===
@@ -91,7 +91,7 @@ pr()
 oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 0 )
 #--> Error: Can't create the stzWalker object! pnStep must be strictly positive number..
 
-proff()
+pf()
 
 /*====
 
@@ -117,7 +117,7 @@ oWalker {
 
 }
 
-proff()
+pf()
 # Executed in 0.02 second(s).
 
 /*----
@@ -132,7 +132,7 @@ oWalker = new stzWalker(1, 10, 2)
 ? oWalker.NumberOfSteps()
 #--> 5
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*----
@@ -175,7 +175,7 @@ oWalker {
 
 }
 
-proff()
+pf()
 # Executed in 0.02 second(s).
 
 /*----
@@ -221,7 +221,7 @@ oWalker {
 	#--> ERROR: Can't walk! No more walkable positions.
 }
 
-proff()
+pf()
 # Executed in 0.02 second(s).
 
 /*===
@@ -273,7 +273,7 @@ w.WalkTo(5) #--> [ 7, 5 ]
 ? w.Position()
 #--> 5
 
-proff()
+pf()
 # Executed in 0.02 second(s).
 
 /*====
@@ -294,7 +294,7 @@ while oWalker.HasNext()
 end
 #--> [ 3, 5, 7, 9 ]
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 #---
@@ -318,7 +318,7 @@ w = new stzWalker(2, 9, 2)
 ? w.WalkFromStart()
 #--> [ 2, 4 ]
 
-proff()
+pf()
 # Executed in 0.02 second(s).
 
 #====
@@ -351,5 +351,5 @@ w.RemoveWalks()
 ? w.HowManyWalks()
 #--> 0
 
-proff()
+pf()
 # Executed in 0.02 second(s).

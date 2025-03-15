@@ -51,7 +51,7 @@ oPyCode.Execute()
 #	[ "mean", 3 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.10 second(s) in Ring 1.22
 
 
@@ -79,7 +79,7 @@ oPyCode.Run()
 #	[ "calculation", 256 ]
 # ]
 
-proff()
+pf()
 #--> Executed in 0.12 second(s) in Ring 1.22
 
 
@@ -109,7 +109,7 @@ oPyCode.Exec()
 #	[ "mixed_text", "Numbers: 123, Symbols: @#$%" ]
 # ]
 
-proff()
+pf()
 # Executed in 0.12 second(s) in Ring 1.22
 
 /*--- Nested lists and mixed types
@@ -154,7 +154,7 @@ oPyCode.Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.12 second(s) in Ring 1.22
 
 /*--- Complex nested structure
@@ -248,7 +248,7 @@ oPyCode.Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.12 second(s) in Ring 1.22
 
 /*======================================#
@@ -275,7 +275,7 @@ oPyCode.Execute()
 ? @@(oPyCode.Result())
 #--> [ [ "total_revenue", 6612.50 ], [ "average_price", 11.62 ], [ "best_seller", "C" ] ]
 
-proff()
+pf()
 # Executed in 2.53 second(s) in Ring 1.22 : AFTER FIRST STARTUP
 # Executed in 0.61 second(s) in Ring 1.22 : AFTER WARM-UP
 
@@ -347,7 +347,7 @@ oPyCode.Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.14 second(s) in Ring 1.22
 
 /*--- Machine Learning Integration
@@ -412,7 +412,7 @@ oPyCode.Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 7.63 second(s) in Ring 1.22 : AFTER FIRST RUN
 # Executed in 1.87 second(s) in Ring 1.22 : AFTER WARM-UP
 
@@ -440,7 +440,7 @@ R.Execute()
 #    [ "mean", 3 ]
 # ]
 
-proff()
+pf()
 # Executed in 1.42 second(s) in Ring 1.22 : AFTER FIRST RUN
 # Executed in 0.31 second(s) in Ring 1.22 : AFTER WARM-UP
 
@@ -484,7 +484,7 @@ R.Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*--- Data analysis with NA handling
@@ -524,7 +524,7 @@ R.Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.31 second(s) in Ring 1.22
 
 /*--- Statistical calculations
@@ -574,7 +574,7 @@ R.Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*--- Nested calculations with custom functions
@@ -645,7 +645,7 @@ R.Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.31 second(s) in Ring 1.22
 
 /*--- Time series data with aggregation
@@ -705,7 +705,7 @@ R.Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*=== Graphic DataViz - Complex scatter plot with density
@@ -801,7 +801,7 @@ R.SetCode('
 R.Execute()
 View("output.png")
 
-proff()
+pf()
 # Executed in 5.32 second(s) in Ring 1.22 : AFTER FRIST RUN
 # Executed in 2.92 second(s) in Ring 1.22 : AFTER WARM-UP
 
@@ -840,7 +840,7 @@ J { @('
 #	[ "std", 1.58 ]
 # ]
 
-proff()
+pf()
 # Executed in 1.35 second(s) in Ring 1.22
 
 /*======================#
@@ -875,7 +875,7 @@ xc.Execute()
 ? @@( xc.Result() )
 #--> [1, 2, 3, 4, 5]
 
-proff()
+pf()
 # Executed in 0.34 second(s) in Ring 1.22
 
 /*--- Creating structs with key pairs
@@ -917,7 +917,7 @@ xc.Execute()
 ? @@( xc.Result() )
 #--> # [ [ "name", "John" ], [ "age", 30 ], [ "isActive", 1 ] ]
 
-proff()
+pf()
 
 # Executed in 1.21 second(s) in Ring 1.22
 
@@ -969,7 +969,7 @@ xc.Execute()
 ? @@( xc.Result() )
 #--> [ 42, "hello", 3.14, [ TRUE, 99 ] ]
 
-proff()
+pf()
 # Executed in 0.34 second(s) in Ring 1.22
 
 /*--- Complex Nested Structure with Arrays and Structs
@@ -1056,7 +1056,7 @@ xc.Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.35 second(s) in Ring 1.22
 
 /*===================================#
@@ -1099,7 +1099,7 @@ oProlog.Run()
 #	[ "transformed_list", [ 11, 12, 13, 14, 15 ] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.21 second(s) in Ring 1.22
 
 /*--- List of factorials in Prolog
@@ -1148,7 +1148,7 @@ oProlog.Run()
 #	[ 10, 3628800 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.20 second(s) in Ring 1.22
 
 /*--- Define family relationships and query ancestors
@@ -1199,7 +1199,7 @@ pl.Run()
 #	[ "john", "eve" ]
 # ]
 
-proff()
+pf()
 # Executed in 0.21 second(s) in Ring 1.22
 
 /*--- Graph Traversal
@@ -1246,7 +1246,7 @@ oProlog.Run()
 ? @@( oProlog.Result() )
 #--> [ [ "a", "b", "d", "e" ], [ "a", "c", "d", "e" ] ]
 
-proff()
+pf()
 # Executed in 0.21 second(s) in Ring 1.22
 
 /*--- Family Relationships Database ERR
@@ -1328,7 +1328,7 @@ oProlog.Run()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.21 second(s) in Ring 1.22
 
 /*--- N-Queens Problem ERR
@@ -1384,7 +1384,7 @@ oProlog.Run()
 # where each list describes a valid placement
 # of queens on the chessboard.
 
-proff()
+pf()
 
 /*--- Natural Language Processing
 
@@ -1479,7 +1479,7 @@ oProlog.Run()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.22 second(s) in Ring 1.22
 
 #============================#
@@ -1502,7 +1502,7 @@ njs.Execute()
 ? @@( njs.Result() )
 #--> [10, 20, 30, 40, 50]
 
-proff()
+pf()
 # Executed in 0.14 second(s) in Ring 1.22
 
 /*--- Mixed data types
@@ -1576,7 +1576,7 @@ njs.Execute()
 #	[ "lastUpdated", "2024-02-28" ]
 # ]
 
-proff()
+pf()
 # Executed in 0.15 second(s) in Ring 1.22
 
 /*--- Scientific notation
@@ -1604,7 +1604,7 @@ njs.Execute()
 #	[ "values", [ 10000000000, 0.00, 3500000 ] ]
 # ]
 
-proff()
+pf()
 
 /*--- Asynchronous Operations with Promises
 
@@ -1693,7 +1693,7 @@ njs.Execute()
 #	[ "started", "2025-02-28T23:09:58.042Z" ]
 # ]
 
-proff()
+pf()
 # Executed in 1.09 second(s) in Ring 1.22
 
 /*--- Data Processing with Modern JavaScript
@@ -1774,7 +1774,7 @@ njs.Execute()
 #	[ "totalInventoryValue", 71500 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.15 second(s) in Ring 1.22
 
 /*--- Basic Web API Concepts
@@ -1894,7 +1894,7 @@ njs.Execute()
 #		]
 #	]
 # ]
-proff()
+pf()
 # Executed in 0.15 second(s) in Ring 1.22
 
 /*=============================================#
@@ -2009,7 +2009,7 @@ pr()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 37.83 second(s) in Ring 1.22
 
 # Ring fibonacci implementation
@@ -2262,7 +2262,7 @@ C.Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.61 second(s) in Ring 1.22
 
 /*--------------------------------#
@@ -2396,7 +2396,7 @@ py.Run()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 8.51 second(s) in Ring 1.22
 
 /*---------------------------#
@@ -2532,7 +2532,7 @@ R.Run()
 #	['matrix', [['matrix_size', 250], ['time_ms', 10]]]
 # ]
 
-proff()
+pf()
 # Executed in 4.53 second(s) in Ring 1.22
 
 /*-------------------------------#
@@ -2676,7 +2676,7 @@ J.Run()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 4.18 second(s) in Ring 1.22 : AFTER FIRST STARTUP
 # Executed in 2.04 second(s) in Ring 1.22 : AFTER WARM-UP
 
@@ -2825,7 +2825,7 @@ js.Run()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.43 second(s) in Ring 1.22
 
 /*------------------------------------#
@@ -2957,5 +2957,5 @@ plg.Run()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 7.20 second(s) in Ring 1.22

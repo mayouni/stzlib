@@ -16,7 +16,7 @@ pr()
 ? StzCharQ(9885).Content()
 #--> ⚝
 
-proff()
+pf()
 # Executed in 0.13 second(s) in Ring 1.22
 # Executed in 0.17 second(s) in Ring 1.21
 
@@ -33,7 +33,7 @@ pr()
 ? AreVowels("aie")
 ? AreVowels([ "a", "i", "e" ])
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*-----
@@ -43,7 +43,7 @@ pr()
 ? NthChar(3, "ring")
 #--> n
 
-proff()
+pf()
 # Executed in 0.01 second(s)
 
 /*-----
@@ -65,7 +65,7 @@ pr()
 ? StzCharQ(65021).SizeInChars()
 #--> 1
 
-proff()
+pf()
 # Executed in 0.05 second(s) on Ring 1.21
 # Executed in 0.09 second(s) on ring 1.20
 
@@ -85,7 +85,7 @@ pr()
 ? SalatAlaMuhammad()
 #o--> ﷺ
 
-proff()
+pf()
 # Executed in almost 0 second(s).
 
 /*------
@@ -116,7 +116,7 @@ pr()
 ? Tick() # Or Check()
 #--> ✓
 
-proff()
+pf()
 # Executed in almost 0 second(s).
 # Executed in 0.02 second(s)
 
@@ -145,7 +145,7 @@ pr()
 ? StzCharQ("OSMANYA LETTER BA").Content()
 #--> ҁ
 
-proff()
+pf()
 # Executed in 1.93 second(s)
 
 /*======== TURNABLE NUMBERS
@@ -164,7 +164,7 @@ pr()
 ? @@(TurnableNumbersXT()) #NOTE: Font in Notepad may not show the turned numbers
 #--> [ [ 2, "↊" ], [ 3, "↋" ] ]
 
-proff()
+pf()
 # Executed in 0.11 second(s)
 
 /*------ TURNED NUMBERS
@@ -183,7 +183,7 @@ pr()
 ? @@(TurnedNumbersXT()) # Or TurnedNumberAndTheirUnicodes()
 #--> [ [ "↊", 8586 ], [ "↋", 8587 ] ]
 
-proff()
+pf()
 # Executed in 0.51 second(s)
 
 /*------- TURNABLE CHARS
@@ -211,7 +211,7 @@ pr()
 ? @@S( TurnableCharsAndTheirUnicodes() )
 #--> [ [ "$", 36 ], [ "&", 38 ], [ "(", 40 ], "...", [ "ꭃ", 43843 ], [ "ꭐ", 43856 ], [ "ꭑ", 43857 ] ]
 
-proff()
+pf()
 # Executed in 0.30 second(s)
 
 /*=====
@@ -226,7 +226,7 @@ o1 = new stzChar("Ɯ")
 ? o1.Reverted()
 #--> M
 
-proff()
+pf()
 # Executed in 0.08 second(s)
 
 /*---
@@ -255,7 +255,7 @@ o1 = new stzChar("M")
 ? o1.Turned()
 #--> Ɯ
 
-proff()
+pf()
 # Executed in 0.22 second(s)
 
 /*=====
@@ -289,7 +289,7 @@ pr()
 ? Q("⅂IℲƎ").CharsTurned()
 #--> LIFE
 
-proff()
+pf()
 # Executed in 2.07 second(s)
 
 /*-----------
@@ -309,7 +309,7 @@ pr()
 ? Q("GARY").Turned() # Turns the chars down
 #--> ⅄RⱯ⅁
 
-proff()
+pf()
 
 /*---------
 
@@ -332,7 +332,7 @@ pr()
 ? @@( LatinDotlessLetters() )
 #--> [ "ı", "ȷ" ]
 
-proff()
+pf()
 # Executed in 0.74 second(s)
 
 /*---------
@@ -441,7 +441,7 @@ StzCharQ('U+06BA') {
 	? Unicode()	#--> 1722
 }
 
-proff()
+pf()
 # Executed in 0.73 second(s) on Ring 1.21
 # Executed in 0.83 second(s) on Ring 1.20
 # Executed in 6.96 second(s) on Ring 1.18
@@ -462,7 +462,7 @@ pr()
 ? @@( ArabicDotlessLettersXT() )
 #--> [ [ "ى", "ى" ], [ "ي", "ٮ" ], [ "ح", "ح" ], [ "خ", "ح" ], [ "ج", "ح" ], [ "د", "د" ], [ "ذ", "د" ], [ "ر", "ر" ], [ "ز", "ر" ], [ "س", "س" ], [ "ش", "س" ], [ "ص", "ص" ], [ "ض", "ص" ], [ "ط", "ط" ], [ "ظ", "ط" ], [ "ک", "ک" ], [ "ك", "ک" ], [ "ع", "ع" ], [ "غ", "ع" ], [ "ٮ", "ٮ" ], [ "ب", "ٮ" ], [ "ت", "ٮ" ], [ "ث", "ٮ" ], [ "ٯ", "ٯ" ], [ "ق", "ٯ" ], [ "ف", "ٯ" ], [ "ں", "ں" ], [ "ن", "ں" ], [ "ه", "ه" ], [ "ة", "ه" ] ]
 
-proff()
+pf()
 # Executed in 0.12 second(s)
 
 /*----- Latin dotless letters
@@ -500,7 +500,7 @@ pr()
 ? @@( DotlessLettersXT() ) + NL
 #--> [ [ "ى", "ى" ], [ "ي", "ٮ" ], [ "ح", "ح" ], [ "خ", "ح" ], [ "ج", "ح" ], [ "د", "د" ], [ "ذ", "د" ], [ "ر", "ر" ], [ "ز", "ر" ], [ "س", "س" ], [ "ش", "س" ], [ "ص", "ص" ], [ "ض", "ص" ], [ "ط", "ط" ], [ "ظ", "ط" ], [ "ک", "ک" ], [ "ك", "ک" ], [ "ع", "ع" ], [ "غ", "ع" ], [ "ٮ", "ٮ" ], [ "ب", "ٮ" ], [ "ت", "ٮ" ], [ "ث", "ٮ" ], [ "ٯ", "ٯ" ], [ "ق", "ٯ" ], [ "ف", "ٯ" ], [ "ں", "ں" ], [ "ن", "ں" ], [ "ه", "ه" ], [ "ة", "ه" ], [ "ı", "ı" ], [ "i", "ı" ], [ "ȷ", "ȷ" ], [ "j", "ȷ" ] ]
 
-proff()
+pf()
 # Executed in 0.14 second(s)
 
 /*-----
@@ -537,7 +537,7 @@ pr()
 #--> "⟶"
 #--> "ਭ"
 
-proff()
+pf()
 
 /*------------------
 
@@ -554,7 +554,7 @@ pr()
 
 ? Unicode("䛂")
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*------------------

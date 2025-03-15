@@ -22,7 +22,7 @@ SetStringArtStyle(:neon)
 
 ? " Powered by: Softanza and the Ring GameEngine (c)"
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 
 

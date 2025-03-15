@@ -20,7 +20,7 @@ o1 = new stzCounter([
 ? o1.CountXT( :To = 13, :AndReturnNth = 12)
 #--> 2
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*------------
@@ -39,7 +39,7 @@ o1 = new stzCounter([
 ? o1.CountToXT(9, :ReturnNth = 7)
 #--> 3
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*------------
@@ -58,5 +58,5 @@ o1 = new stzCounter([
 ? o1.CountToXT(9, :ReturnNth = 7)
 #--> 4
 
-proff()
+pf()
 # Executed in 0.04 second(s)

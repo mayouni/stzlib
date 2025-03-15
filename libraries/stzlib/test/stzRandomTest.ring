@@ -11,7 +11,7 @@ o1.Randomize()
 #--> [ 1, "B", 2, "A", "C", 4, "D", 3 ]
 #--> [ "B", "D", 2, 3, 4, 1, "A", "C" ]
 
-proff()
+pf()
 
 /*====
 
@@ -24,7 +24,7 @@ o1.RandomizeNumbers()
 #--> [ "A", "B", 30, 40, 60, 50, "A", "B", "C" ]
 #--> [ "A", "B", 30, 50, 60, 40, "A", "B", "C" ]
 
-proff()
+pf()
 
 #--
 
@@ -35,7 +35,7 @@ o1.RandomizeStrings()
 ? o1.Content()
 #--> [ 1, 2, 3, 4, "B", "C", "D", "A" ]
 
-proff()
+pf()
 #--> Executed in 0.03 second(s)
 
 #--
@@ -50,7 +50,7 @@ o1.RandomizeSection(1, 4)
 #--> [ 2, 1, 3, 4, "A", "B", "C", "D" ]
 #--> [ 4, 3, 1, 2, "A", "B", "C", "D" ]
 
-proff()
+pf()
 #--> Executed in 0.04 second(s)
 
 /*--
@@ -64,7 +64,7 @@ o1.RandomizeSection(5, 8)
 #--> [ 1, 2, 3, 4, "C", "A", "D", "B" ]
 #--> [ 1, 2, 3, 4, "B", "A", "C", "D" ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*--
@@ -79,7 +79,7 @@ o1.RandomizeSections([ [1,4], [8,10] ])
 #--> [ 2, 1, 3, 4, "A", "B", "C", 9, 8, 10, "D" ]
 #--> [ 2, 3, 4, 1, "A", "B", "C", 9, 8, 10, "D" ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*--
@@ -94,7 +94,7 @@ o1.RandomizeStrings()
 #--> [ 1, 2, "A", "B", "C", 6, 7, "D", "E", "G", "F" ]
 #--> [ 1, 2, "B", "A", "C", 6, 7, "F", "G", "E", "D" ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*--
@@ -108,7 +108,7 @@ o1.RandomiseLists() # Or ShuffleLists()
 #--> [ "A", "B", [ 1, 2, 3 ], [ 4, 5 ], [ 6, 7, 8 ], "C", [ 9, 10 ], [ 11, 12 ] ]
 #--> [ "A", "B", [ 4, 5 ], [ 6, 7, 8 ], [ 1, 2, 3 ], "C", [ 9, 10 ], [ 11, 12 ] ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*----
@@ -140,7 +140,7 @@ Q("123456789") {
 	# ]
 }
 
-proff()
+pf()
 # Executed in 7.76 second(s)
 
 /*---
@@ -193,7 +193,7 @@ Q([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ]) {
 	# ]
 }
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*---
@@ -209,7 +209,7 @@ Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]) {
 	#--> [ [ "S", 1 ], [ "A", 8 ], [ "N", 6 ] ]
 }
 
-proff()
+pf()
 
 /*----
 
@@ -249,7 +249,7 @@ Q("SOFTANZA") {
 
 }
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-------
@@ -290,7 +290,7 @@ Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]) {
 
 }
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*=====
@@ -313,7 +313,7 @@ pr()
 ? Most( PositiveNumbersIn( -5 : 5 ) )
 #--> [ 1, 2, 4, 5 ]
 
-proff()
+pf()
 
 /*----
 
@@ -327,7 +327,7 @@ Them = [ "Andy", "Bill", "Chris" ]
 ? @@( NoOneOf(Them) )
 #--> [ ]
 
-proff()
+pf()
 # Executed in almost 0.00 second(s) in Ring 1.22
 
 /*---
@@ -345,7 +345,7 @@ Average = 10
 ? AllOfQQ(Them).AreGreaterThen(Average)
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*-----
@@ -372,7 +372,7 @@ pr()
 ? NoNumberInQQX([  2, 4, 21, -10800 ]).IsNegativeX()
 #--> FALSE
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*-----
@@ -393,7 +393,7 @@ pr()
 ? EveryThingInQQX([ "hello@mail.com", "info@mail.org", "~;@com" ]).MatchesX(rxp(:eMail))
 #--> FALSE
 
-proff()
+pf()
 # Executed in 0.06 second(s) in Ring 1.22
 
 
@@ -410,7 +410,7 @@ pr()
 ? MostXT( PositiveNumbersIn( -5 : 5 ), 90/100 )
 #--> [ 3, 4, 5, 1 ]
 
-proff()
+pf()
 
 /*-----
 */
@@ -420,7 +420,7 @@ TheAnnualGain = 20500
 ? NPercentOf( 10, TheAnnualGain )
 #--> 2050
 
-proff()
+pf()
 
 /*=====
 
@@ -435,7 +435,7 @@ pr()
 ? NRandomItemsInU(3, "A":"E")
 #--> [ "B", "E", "A" ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*=====
@@ -448,7 +448,7 @@ pr()
 ? NRandomNumbersInU(3, 1:10)
 #--> [ 5, 1, 10 ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*=====
@@ -464,7 +464,7 @@ pr()
 ? sin(9_999_999_999)
 #--> -1.00
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*=====
@@ -529,7 +529,7 @@ pr()
 ? ARandomNumberXT(77)
 #--> 32_438_4546
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*---
@@ -560,7 +560,7 @@ pr()
 ? @@( NRandomNumbersBetweenUZ(3, 100, 110) )
 #--> [ [ 102, 3 ], [ 106, 7 ], [ 103, 4 ] ]
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*---
@@ -570,7 +570,7 @@ pr()
 ? -5:1
 #--> [ -5, -4, -3, -2, -1, 0, 1 ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*---
@@ -589,7 +589,7 @@ pr()
 ? SomeRandomNumbersBetweenU(-10, -1)
 #--> [ -10, -7, -3 ]
 
-proff()
+pf()
 # Executed in 0.01 second(s)
 
 /*---
@@ -611,7 +611,7 @@ pr()
 ? NRandomNumbersIn(5, 0:3)
 #--> [ 0, 1, 1, 2, 3 ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*---
@@ -649,7 +649,7 @@ SetRandomRound(5)
 	? ARandomNumberLessThan01(0.5)
 	#--> 0.26434
 
-proff()
+pf()
 # Executed in 0.15 second(s)
 
 /*---
@@ -662,4 +662,4 @@ pr()
 ? ARandomNumberBetween(-3, -2)
 #--> -2.45
 
-proff()
+pf()
