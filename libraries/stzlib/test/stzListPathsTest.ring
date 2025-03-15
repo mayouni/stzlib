@@ -21,7 +21,7 @@ cNestedList = "[1,[2,3],[4,5,[6,7]]]"
 #	[ 3, 3, 2 ]
 # ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -31,7 +31,7 @@ pr()
 ? @@( PathsIn([2, 3, 2]) )
 #--> [ [ 2 ], [ 2, 3 ], [ 2, 3, 2 ] ]
 
-proff()
+pf()
 
 /*---
 
@@ -46,7 +46,7 @@ pr()
 ? @@( NthPathIn(3, [2, 3, 2]) )
 #--> [ 2, 3, 2 ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -56,7 +56,7 @@ pr()
 ? @@( LastPathIn([2, 3, 2]) )
 #--> [ 2, 3, 2 ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -68,7 +68,7 @@ aPaths = [ [1], [1, 2], [1, 2, 3], [4], [4, 5] ]
 ? @@( ReducePaths(aPaths) )
 #--> [ [ 1 ], [ 4 ] ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -86,7 +86,7 @@ aUnsorted = [ [4], [2, 3], [1, 5], [2, 1], [3, 2, 1]]
 #	[ 4 ]
 # ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -102,7 +102,7 @@ pr()
 ? PathIsGreaterThan([1, 2], [1, 2, 3])
 #--> FALSE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -115,7 +115,7 @@ pr()
 ? IsSubPathOf([2, 1], [2, 2])
 #--> FALSE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -126,7 +126,7 @@ aPathSet = [[1, 2, 3, 4], [1, 2, 5], [1, 2, 6, 7]]
 ? @@( CommonPath(aPathSet) )
 #--> [ 1, 2 ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -136,7 +136,7 @@ pr()
 ? @@( PathsSection([2], [2, 3, 1]) )
 #--> [ [ 2 ], [ 2, 3 ], [ 2, 3, 1 ] ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -147,7 +147,7 @@ aPathCollection = [[1], [2, 3], [1, 2, 3], [4, 5]]
 ? @@( DeepestPath(aPathCollection) )
 #--> [ 4, 5 ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -163,7 +163,7 @@ pr()
 ? IsTree([1, [2, 3], [4, [5, 6]]])
 #--> TRUE
 
-proff()
+pf()
 
 #===
 
@@ -189,5 +189,5 @@ aPaths = [ [1], [1, 2], [1, 2, 3], [4], [4, 5], [3, 2, 1] ]
 ? @@( SuperPathsOf(aPaths, [1]) )
 #--> [ [ 1, 2 ], [ 1, 2, 3 ] ]
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22

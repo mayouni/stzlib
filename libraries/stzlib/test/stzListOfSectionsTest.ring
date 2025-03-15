@@ -13,7 +13,7 @@ o1.MergeContiguous() # Or MergeAdjuscent()
 ? @@( o1.Content() )
 #--> [ [1, 4], [6, 10], [12, 15] ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*------------------
@@ -28,5 +28,5 @@ o1.MergeContiguous()
 ? @@( o1.Content() )
 #--> [ [ 4, 5 ], [ 8, 11 ], [ 14, 19 ], [ 22, 23 ] ]
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.22

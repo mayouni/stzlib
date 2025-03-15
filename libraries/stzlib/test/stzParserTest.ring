@@ -21,7 +21,7 @@ StzParserQ([ "_", "A", "_" , "_", "B", "_", "_", "C", "_", "D" ]) {
 	? CurrentPosition()	#--> 5
 }
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*----
@@ -34,5 +34,5 @@ StzParserQ(["a", "_", "b", "_", "c"]) {
 	#--> "_"
 }
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21

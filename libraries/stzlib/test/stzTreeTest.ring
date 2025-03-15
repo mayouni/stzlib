@@ -27,7 +27,7 @@ o1 = new stzTree([
     
     o1.Show()
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*---- TODO: Make it possible the input of a tree in a string:
@@ -118,4 +118,4 @@ oTree = new stzTree {
 oTree = new stzTree(myTree)
 oTree.Show()
 
-proff()
+pf()

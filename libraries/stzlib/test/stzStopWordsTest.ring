@@ -14,5 +14,5 @@ pr()
 ? StopWordLanguage("لو")
 #--> :Arabic
 
-proff()
+pf()
 # Executed in 0.39 second(s) in Ring 1.21

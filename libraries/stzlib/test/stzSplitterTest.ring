@@ -22,7 +22,7 @@ pr()
 ? Q("E":"A").IsCOntiguous()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.08 second(s) in Ring 1.21
 # Executed in 0.24 second(s) in Ring 1.19
 
@@ -37,7 +37,7 @@ o1 = new stzSplitter(10)
 ? @@( o1.SplitXT( :AtSections = [ [3,5], [8,9] ] ) )
 #--> [ [ 1, 2 ], [ 6, 7 ], [ 10, 10 ] ]
 
-proff()
+pf()
 # Executed in 0.25 second(s) in Ring 1.21
 
 /*====================
@@ -70,7 +70,7 @@ o1 = new stzSplitter(10)
 ? @@( o1.SplitAt( :Sections = [ [ 4, 6 ] ] ) )
 #--> [ [ 1, 3 ], [ 7, 10 ] ]
 
-proff()
+pf()
 # Executed in 0.16 second(s) in Ring 1.21
 # Executed in 0.23 second(s) in Ring 1.20
 
@@ -107,7 +107,7 @@ o1 = new stzSplitter(10)
 ? @@( o1.SplitBefore( :Sections = [ [ 4, 6 ] ] ) )
 #--> [ [ 1, 3 ], [ 4, 10 ] ]
 
-proff()
+pf()
 # Executed in 0.20 second(s) in Ring 1.21
 
 /*====================
@@ -143,7 +143,7 @@ o1 = new stzSplitter(10)
 ? @@( o1.SplitAfter( :Sections = [ [ 4, 6 ] ] ) )
 #--> [ [ 1, 6 ], [ 7, 10 ] ]
 
-proff()
+pf()
 # Executed in 0.18 second(s) in Ring 1.21
 # Executed in 0.19 second(s) in Ring 1.20
 
@@ -163,7 +163,7 @@ o1 = new stzSplitter(10)
 ? @@( o1.Split( :ToNParts = 4 ) )
 #--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
-proff()
+pf()
 # Executed in 0.14 second(s) in Ring 1.21
 # Executed in 0.16 second(s) in Ringh 1.20
 
@@ -187,7 +187,7 @@ o1 = new stzSplitter(10)
 ? @@( o1.SplitToPartsOfNPositionsXT(3) ) + NL # XT ~> adds the remaining part
 #--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 9 ], [ 10, 10 ] ]
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*---
@@ -199,7 +199,7 @@ o1 = new stzSplitter(12)
 ? @@( o1.SplitToPartsOfExactlyNPositions(5) )
 #--> [ [ 1, 5 ], [ 6, 10 ] ]
 
-proff()
+pf()
 # Executed in 0.09 second(s)
 
 /*==================
@@ -256,7 +256,7 @@ o1 = new stzList( 1:10 )
 ? @@( o1.SplittedAfterWXT( :Where = 'Q(@position).IsMultipleOf(3)' ) )
 #--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ], [ 10 ] ]
 
-proff()
+pf()
 # Executed in 0.60 second(s) in Ring 1.21
 
 /*==================
@@ -269,5 +269,5 @@ o1 = new stzSplitter(10)
 ? @@( o1.GetPairsFromPositions([3, 6, 8]) )
 #--> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21

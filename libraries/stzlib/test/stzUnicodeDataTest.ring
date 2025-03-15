@@ -13,7 +13,7 @@ pr()
 
 # Executed in 0.06 second(s)
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*----
@@ -39,7 +39,7 @@ StzUnicodeDataQ() {
 
 }
 
-proff()
+pf()
 # Executed in 0.58 second(s)
 
 /*------ #narration
@@ -137,7 +137,7 @@ SetDefaultSome(3)
 # 	[ "Adlam", [123904, 123951] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-----------------
@@ -146,7 +146,7 @@ pr()
 
 ? StzUnicodeDataQ().CharUnicodeByName("CHECK MARK")
 
-proff()
+pf()
 #--> Executed in 0.33 second(s)
 
 /*-----------------
@@ -168,7 +168,7 @@ pr()
 ? StzCharQ(12500).Content()
 #--> ピ
 
-proff()
+pf()
 # Executed in 0.38 second(s)
 
 /*-----------------
@@ -235,5 +235,5 @@ StzUnicodeDataQ() {
 	
 }
 
-proff()
+pf()
 

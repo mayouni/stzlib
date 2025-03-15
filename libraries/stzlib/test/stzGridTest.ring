@@ -25,7 +25,7 @@ pr()
 ? @@( '"""ring"' )
 #--> '"""ring"'
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*----------
@@ -38,7 +38,7 @@ o1.Replace( @@("'+ char(34) +'"), @@('"') )
 ?o1.Content()
 #--> [ " ", "!", '"', "#", "y" ]
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*---------
@@ -47,7 +47,7 @@ pr()
 
 ? Contig("ج","ر") # Or ContigList() or Contiguous() or ContiguousList()
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*----------
@@ -57,7 +57,7 @@ pr()
 o1 = new stzList(' "ج":"ر" ')
 ? o1.Content()
 
-proff()
+pf()
 # Executed in 0.18 second(s)
 
 /*----------
@@ -67,7 +67,7 @@ pr()
 o1 = new stzListOfChars(' "ج":"ر" ')
 ? o1.Content()
 
-proff()
+pf()
 # Executed in 0.18 second(s)
 
 /*----------
@@ -77,7 +77,7 @@ pr()
 ? NumberOfCharsBetween("A", "B")
 #--> 0
 
-proff()
+pf()
 #--> Executed in 0.03 second(s)
 
 /*=======
@@ -87,7 +87,7 @@ pr()
 ? @@( CharsBetween("A", :And = "E") )
 #--> [ "A", "B", "C", "D", "E" ]
 
-proff()
+pf()
 # Executed in 0.05 second(s).
 
 /*----- #TODO fix it!
@@ -100,7 +100,7 @@ o1 = new stzGrid(CharsBetween(" ", :And = "z") )
 
 o1.Show()
 
-proff()
+pf()
 #--> Executed in 0.02 second(s)
 
 /*---------------
@@ -119,7 +119,7 @@ pr()
 #	"g", "h", "i", "j", "k", "l", "m", "n", "o", "p"
 # ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*=============
@@ -143,7 +143,7 @@ aList = [
 ? StzListOfListsQ(aList).ListsHaveSameNumberOfItems()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*---------------
@@ -179,7 +179,7 @@ StzGridQ([10, 10]).FillWithQ( CharsBetween("!", "p") ).Show()
 #                      
 #                      
 
-proff()
+pf()
 # Executed in 0.10 second(s)
 
 /*---------------
@@ -204,7 +204,7 @@ StzGridQ([ :Of = 10, :By = 10 ]) {
 #   ] ^ _ ` a b c d e f
 #   g h i j k l m n o p
 
-proff()
+pf()
 #--> Executed in 0.15 second(s)
 
 /*----------
@@ -225,7 +225,7 @@ o1.Show()
 # * * *
 # * * *
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*----------

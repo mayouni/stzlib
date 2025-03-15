@@ -7,7 +7,7 @@ pr()
 ? Q( :CS = FALSE ).IsCaseSensitiveNamedParam()
 #--> TRUE
 
-proff()
+pf()
 #--> Executed in 0.02 second(s)
 
 /*------ #ring
@@ -25,7 +25,7 @@ pr()
 ], 2) )
 #--> Ring error message: Bad parameter type! In sort() In function ring_sort2() in
 
-proff()
+pf()
 
 
 /*------
@@ -54,7 +54,7 @@ o1 = new stzListOfpairs([
 #	[ "ibrahim", 	10700 	]
 # ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*=====::::::::::::::::::::::::::::
@@ -94,7 +94,7 @@ aLists = [
 #	[ "Baker", 493 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*---------------
@@ -119,7 +119,7 @@ aLists = [
 #	[ 5, "E", 7 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*---------------
@@ -156,7 +156,7 @@ aLists = [
 #	[ [ 1, 2, 3 ], 120, "blue", 0 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*---------------
@@ -170,7 +170,7 @@ aLists = [
 ? @@( SortLists(aLists) )
 #--> [ [ 4 ], [ 1, 2, 3 ], [ 5, 6, 7, 8 ] ]
 
-proff()
+pf()
 # Executed in 0.01 second(s)
 
 /*---------------
@@ -180,7 +180,7 @@ pr()
 ? @@( SortListsBySize([ [ 1, 2, 3 ], [ 5, 6, 7, 8 ], [ 1 ] ]) )
 # [ [ 1 ], [ 1, 2, 3 ], [ 5, 6, 7, 8 ] ]
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*---------------
@@ -208,7 +208,7 @@ aLists = [
 #	[ "King" ]
 # ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*---------------
@@ -226,7 +226,7 @@ o1 = new stzListOfStrings([ "130", "12500", "17" ])
 #TODO
 # Add this feature to stzListOfNumbers #UPDATE done!
 
-proff()
+pf()
 # Executed in 0.09 second(s)
 
 #TODO // Rethink stzListOfStrings main container
@@ -269,7 +269,7 @@ aLists = [
 #	[ "Easy", 		[ 5, 6, 7, 8 ] 			]
 # ]
 
-proff()
+pf()
 
 # Executed in 0.04 second(s)
 
@@ -298,7 +298,7 @@ aLists = [
 #	[ "King", [ 1 ] ]	  ]
 # ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*======= SortLists()
@@ -322,7 +322,7 @@ pr()
 #	[ "K", "L", "M" ]
 # ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*---------------
@@ -346,7 +346,7 @@ pr()
 #	[ "W", "N" ]
 # ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*---------------
@@ -371,7 +371,7 @@ aLists = [
 #	[ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-------------------
@@ -394,7 +394,7 @@ pr()
 ])
 #--> FALSE
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*-------------------
@@ -415,7 +415,7 @@ aLists = [
 ? @@( Types(aLists) )
 #--> [ "LIST", "LIST", "LIST" ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*-------------------
@@ -433,7 +433,7 @@ aList = [ 10:12, 3:5, "A":"C", [5] ]
 ? @@( Types(alist) )
 #--> [ "LIST", "LIST", "LIST", "LIST" ]
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*-------------------
@@ -446,7 +446,7 @@ pr()
 ? Types([ 7, 2, [ "B":"D", 10, 8 ] ])
 #--> [ "NUMBER", "NUMBER", "LIST" ])
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*-------------------
@@ -470,7 +470,7 @@ aLists = [
 #	[ [ 3, 4, 5 ], 		[ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*-------
@@ -503,7 +503,7 @@ o1 = new stzListOfpairs([
 #	[ "samir", 	16000 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-------
@@ -513,7 +513,7 @@ pr()
 ? Min([ 4, 4 ])
 #--> 4
 
-proff()
+pf()
 
 /*-------
 
@@ -529,7 +529,7 @@ o1.MergeInclusive()
 ? @@( o1.Content() )
 #--> [ [ 4, 6 ], [ 10, 11 ], [ 12, 22 ] ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-------
@@ -546,7 +546,7 @@ o1.MergeOverlapping()
 ? @@( o1.Content() )
 #--> [ [ 4, 6 ], [ 10, 11 ], [ 12, 22 ] ]
 
-proff()
+pf()
 # Executed in 0.06 second(s).
 
 /*===-----
@@ -566,7 +566,7 @@ o1.MergeOverlapping()
 ? @@( o1.Content() )
 #--> [ [ 8, 15 ], [ 26, 29 ] ]
 
-proff()
+pf()
 # Executed in 0.04 second(s).
 
 /*-----
@@ -588,7 +588,7 @@ o1.MergeSections()
 ? @@( o1.Content() )
 #--> [ [ 4, 6 ], [ 8, 14 ], [ 20, 28 ] ]
 
-proff()
+pf()
 # Executed in 0.05 second(s).
 
 /*----- #narration
@@ -663,7 +663,7 @@ o1.RemoveSections(aSections)
 
 # resulting in the correct removal through RemoveSections().
 
-proff()
+pf()
 # Executed in 0.12 second(s) in Ring 1.21
 
 /*-----
@@ -684,7 +684,7 @@ oSlots.Merge()
 #--> [ [ 9, 12 ], [ 15, 16 ] ]
 # Shows actual blocked time periods
 
-proff()
+pf()
 # Executed in 0.05 second(s).
 
 /*=====
@@ -704,7 +704,7 @@ o1.ToStzHashList().Show()
 #	-----   --------   ------------   ---
 #	foued      kamel   manufacturer   120
 
-proff()
+pf()
 # Executed in 0.08 second(s)
 
 /*-------
@@ -719,7 +719,7 @@ o1 = new stzListOfPairs([ [1.0, 2.0], [16.0, 17.34], [23.0, 25], [8.20, 10.0] ])
 ? @@( o1.SortedInDescending() )
 #--> [ [ 23, 25 ], [ 16, 17.34 ], [ 8.20, 10 ], [ 1, 2 ] ]
 
-proff()
+pf()
 
 /*-----
 
@@ -733,7 +733,7 @@ o1 = new stzListOfPairs([ [1,2], [8, 10], [16, 17], [23, 25] ])
 ? @@( o1.SortedInDescending() )
 #--> [ [ 23, 25 ], [ 16, 17 ], [ 8, 10 ], [ 1, 2 ] ]
 
-proff()
+pf()
 # Executed in 0.20 second(s)
 
 /*------------ TODO: check it!
@@ -748,7 +748,7 @@ o1 = new stzListOfPairs([ ["01","02"], ["16", "17"], ["23", "25"], ["08", "10"] 
 ? @@( o1.SortedInDescending() )
 #--> [ [ "23", "25" ], [ "16", "17" ], [ "08", "10" ], [ "01", "02" ] ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*-----------
@@ -761,7 +761,7 @@ o1 = new stzList([
 
 ? o1.Sorted()
 
-proff()
+pf()
 
 /*-----------
 
@@ -774,7 +774,7 @@ o1 = new stzListOfPairs([
 ? @@( o1.Sorted() )
 #--> [ [ 5, 3 ], [ 6, 1 ], [ 6, 3 ], [ 6, 9 ] ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-----------
@@ -788,7 +788,7 @@ o1 = new stzListOfPairs([
 ? @@( o1.Sorted() )
 #--> [ [ 2, 5 ], [ 3, 7 ], [ 4, 1 ], [ 6, 1 ] ]
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*----------- #TODO // check it!
@@ -802,7 +802,7 @@ o1 = new stzListOfPairs([
 ? @@( o1.SortedInDescending() )
 #--> [ [ 4, 1 ], [ 2, 5 ], [ 2, 4 ], [ 2, 3 ], [ 2, 1 ] ]
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*===========
@@ -821,7 +821,7 @@ pr()
 ? Q("--♥-♥--").ContainsXT( :LessThen = 3, "♥") # ContainsLessThen(3, "♥")
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21s
 # Executed in 0.04 second(s) in Ring 1.18
 
@@ -834,10 +834,10 @@ o1.Sort() # Or SortInAscending()
 ? @@(o1.Content())
 #--> [ [ 3, 1 ], [ 4, 7 ], [ 8, 9 ] ]
 
-proff()
+pf()
 #--> Executed in 0.05 second(s)
 
-proff()
+pf()
 
 /*------------
 
@@ -848,7 +848,7 @@ o1.SortInDescending()
 ? @@(o1.Content())
 #--> [ [ 8, 9 ], [ 4, 7 ], [ 3, 1 ] ]
 
-proff()
+pf()
 #--> Executed in 0.05 second(s)
 
 /*======
@@ -859,7 +859,7 @@ o1 = new stzList([ "ring", "php", "ring", "ring", "_" ])
 ? o1.Find("ring")
 #--> [1, 3, 4]
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*------------
@@ -880,7 +880,7 @@ o1 = new stzListOfPairs([
 ? o1.FindInSecondItems("_")
 #--> [1, 3, 5]
 
-proff()
+pf()
 # Executed in 0.10 second(s)
 
 /*===================
@@ -890,7 +890,7 @@ pr()
 ? StzCCodeQ('[ @CurrentItem, @NextItem]').Transpiled()
 #--> [  @CurrentItem, This[@i + 1] ]
 
-proff()
+pf()
 # Executed in 0.96 second(s)
 
 /*----------------- ERR
@@ -912,7 +912,7 @@ o1 = new stzList([ 1, 3,4, 7,8,9, 12 ])
 
 ? @@( o1.YieldW('[ This[@i], This[@i+1] ]', :Where = 'This[@i] = This[@i+1]+1') )
 
-proff()
+pf()
 /*----------------- #TOSO Retest when Yield() is included
 
 StartProfiler()
@@ -941,7 +941,7 @@ o1.SortInAscending()
 ? @@( o1.Content() )
 #--> [ [ 1, 2 ], [ 6, 6 ], [ 9, 10 ] ]
 
-proff()
+pf()
 
 /*-----------------
 
@@ -996,7 +996,7 @@ o1 = new stzListOfPairs([
 ? o1.LastNOccurrencesS(2, :Of = [9,9], :StartingAt = 4)
 #--> [6, 9]
 
-proff()
+pf()
 # Executed in 0.08 second(s)
 
 /*------
@@ -1007,7 +1007,7 @@ o1 = new stzListOfPairs([ ["A", "B"], ["C", "♥"], ["E", "F"] ])
 ? o1.ContainsInAllPairs("♥") # Or ContainsInside()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*------
@@ -1021,7 +1021,7 @@ o1 = new stzListOfPairs([
 ? @@( o1.Swapped() )
 #--> [ [ 22, 18 ], [ 12, 8 ], [ 5, 3 ] ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*------ #todo check perf
@@ -1041,7 +1041,7 @@ o1 = new stzListOfPairs([
 ? o1.IsListOfSectionsSortedInAscending()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*------  #todo check perf
@@ -1061,7 +1061,7 @@ o1 = new stzListOfPairs([
 ? o1.IsListOfSectionsSortedInDescending()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*------------
@@ -1079,5 +1079,5 @@ anPos = o1.ExpandedIfPairsOfNumbersQ().MergeQ().RemoveDuplicatesQ().SortedInAsce
 ? @@( anPos )
 #--> [ 3, 4, 5, 8, 9, 10, 11, 12, 20, 21, 22, 23 ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)

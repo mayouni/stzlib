@@ -71,7 +71,7 @@ StzListParserQ("A":"L") {
 	? @@( CurrentPosition() )	#--> 1
 }
 
-proff()
+pf()
 # Executed in 0.05 second(s) in Ring 1.21
 
 /*------------------
@@ -102,7 +102,7 @@ StzListParserQ("A":"L") {
 	//? NextNthItem(2)	# !--> "I"
 }
 
-proff()
+pf()
 # Executed in 0.04 second(s) in Ring 1.21
 
 /*------------------
@@ -123,5 +123,5 @@ StzListParserQ("A":"L") {
 
 }
 
-proff()
+pf()
 # Executed in 0.04 second(s) in Ring 1.21

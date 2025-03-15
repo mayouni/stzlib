@@ -18,7 +18,7 @@ o1 = new stzOctalNumber("o2007")
 ? o1.ToHex()
 #--> 0x407
 
-proff()
+pf()
 # Executed in 0.05 second(s).
 
 /*----
@@ -40,5 +40,5 @@ o1.FromBinary("b10000000111")
 ? o1.OctalNumber()
 #--> 0o2007
 
-proff()
+pf()
 # Executed in 0.05 second(s).

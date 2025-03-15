@@ -12,7 +12,7 @@ o1 = new stzListOfStrings([ ])
 ? @@( o1.ConcatenatedUsing(" ") )
 #--> ""
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 #--------
@@ -24,7 +24,7 @@ o1.RemoveBlankSpacesStrings()
 ? @@( o1.Content() )
 #--> [ "aa", "b", "ccc" ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*============
@@ -37,7 +37,7 @@ o1.SortBy('len(@string)')
 ? o1.Content()
 #--> [ "a", "ab", "abc", "abcd", "abcde" ]
 
-proff()
+pf()
 #--> Executed in 0.28 second(s)
 
 /*=========
@@ -49,7 +49,7 @@ o1.RemoveSubString("*")
 ? @@( o1.Content() )
 #--> [ "---", "---", "---" ]
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*============
@@ -319,7 +319,7 @@ o1.ReplaceManyOneByOneCS([ "B", "D", "F"], :With = [ "1", "2", "3" ], :CS=TRUE)
 #--> [ "A", "1", "C", "2", "E", "3" ]
 ? o1.Content()
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-----------------
@@ -896,7 +896,7 @@ o1 = new stzListOfStrings([ "aaa", "bbb", "ccc" ])
 ? o1.StringsAreSortedInAscending()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.08 second(s)
 
 /*---------------
@@ -913,7 +913,7 @@ o1 = new stzListOfStrings([ "ccc", "bbb", "aaa" ])
 ? o1.StringsAreSortedInDescending()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.09 second(s)
 
 /*---------------
@@ -930,7 +930,7 @@ o1 = new stzListOfStrings([ "aaa", "ccc", "bbb" ])
 ? o1.IsSortedInDescending()
 #--> FALSE
 
-proff()
+pf()
 # Executed in 0.09 second(s)
 
 /*---------------
@@ -942,7 +942,7 @@ o1.SortInAscending()
 ? o1.Content()
 #--> [ "aaa", "bbb", "ccc" ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*---------------
@@ -952,7 +952,7 @@ pr()
 ? StzListOfStringsQ([ "ccc", "bbb", "aaa" ]).SortInAscendingQ().Content()
 #--> [ "aaa", "bbb", "ccc" ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*---------------
@@ -963,7 +963,7 @@ o1 = new stzListOfStrings([ "aaa", "bbb", "ccc" ])
 o1.SortInDescending()
 ? o1.Content()	#--> [ "ccc", "bbb", "aaa" ]
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*---------------
@@ -993,7 +993,7 @@ o1 = new stzList([ "tunis", "tripoli", "cairo", "casablanca" ])
 o1.SortByInDescending('len(This[@item])')
 ? o1.Content()
 
-proff()
+pf()
 
 /*----------------
 
@@ -1017,7 +1017,7 @@ o1 = new stzListOfStrings([ "12", "12345", "123", "1" ])
 #	"1"
 # ]
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*--------------- TODO/FUTURE
@@ -1030,7 +1030,7 @@ o1 = new stzListOfStrings([ "aaa bbb ccc", "mm nnn oo", "aaa vvv", "nn yyy", "aa
 o1 = new stzListOfStrings([ "ccc bbb aaa", "oo nnn mm", "vvv aaa", "yyy nn", "c bb aa" ])
 ? o1.WordsOfEachStringAreSortedInDescending()	#--> TRUE
 
-proff()
+pf()
 
 /*--------------- TODO/FUTURE
 
@@ -1078,7 +1078,7 @@ o1 = new stzListOfStrings([ "abcde", "bdace", "ebadc", "debac", "edcba" ])
 ? o1.IsListOfAnagrams()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 1.49 second(s)
 
 /*================
@@ -1105,7 +1105,7 @@ o1 = new stzListOfStrings([ "tom", "sam", "dan" ])
 #--> [ [ 116,111,109 ],[ 115,97,109 ],[ 100,97,110 ] ]
 
 
-proff()
+pf()
 # Executed in 0.07 second(s)
 
 /*=============
@@ -1144,7 +1144,7 @@ cUnicodeNames = "0020;SPACE
 #	[ "002C", "COMMA" ], 		[ "002D", "HYPHEN-MINUS" ],
 #	[ "002E", "FULL STOP" ], 	[ "002F", "SOLIDUS" ]
 # ]
-proff()
+pf()
 # Executed in 0.24 second(s)
 
 /*-------------------
@@ -1176,7 +1176,7 @@ o1 = new stzListOfStrings([ "abc;123;tunis;rgs", "jhd;343;gafsa;ghj", "lki;112;b
 ? o1.NthSubstrings(3, :AfterSplittingStringsUsing = ";")
 #--> [ "tunis", "gafsa", "beja" ]
 
-proff()
+pf()
 # Executed in 0.12 second(s)
 
 /*-------------------
@@ -1194,7 +1194,7 @@ o1 = new stzList([ "a", "b", "c", "d" ])
 #	[ "b", "c" ], [ "b", "d" ], [ "c", "d" ]
 # ]
 
-proff()
+pf()
 # Executed in almost 0 second(s).
 
 /*==============
@@ -1207,7 +1207,7 @@ o1 = new stzList([
 
 ? o1.IsUppercase() #--> TRUE
 
-proff()
+pf()
 # Executed in 0.06 second(s).
 
 /*------------------
@@ -1220,7 +1220,7 @@ o1 = new stzList([
 
 ? o1.IsLowercase()
 
-proff()
+pf()
 # Executed in 0.06 second(s).
 
 /*================
@@ -1248,7 +1248,7 @@ o1 = new stzListOfStrings([
 ? o1.ContainsBoth("Medianet", "ST2i")
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.08 second(s)
 
 /*---------------
@@ -1263,7 +1263,7 @@ o1 = new stzListOfStrings([
 ? @@( o1.FindAllCS("Tunis", :CS = FALSE) )
 #--> [ 1, 2, 3, 5, 6, 8, 9, 13 ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-------------
@@ -1285,7 +1285,7 @@ o1 = new stzList([
 ? @@( o1.FindAllCS("tunis", :cs = FALSE) )
 #--> [ 1, 2, 3, 4, 6, 7, 9, 10, 14 ]
 
-proff()
+pf()
 # Executed in 0.02 second(s).
 
 /* =================== MANAGING DUPLICATED STRINGS
@@ -1331,7 +1331,7 @@ o1 = new stzList([
 	#--> [ 1, 2, 3, 5, 6, 8, 9 ]
 	# Executed in 0.12 second(s)
 
-proff()
+pf()
 # Executed in 0.01 second(s).
 
 /*-----------------
@@ -1365,7 +1365,7 @@ o1 = new stzList([
 #--> [ "tunis", "regueb" ]
 # Executed in 0.24 second(s)
 
-proff()
+pf()
 
 #----------------
 
@@ -1400,7 +1400,7 @@ o1 = new stzList([
 #--> [ "tunis" = [ 2, 3, 5, 6, 8, 9 ], [ "regueb" = [ 12 ] ]
 
 
-proff()
+pf()
 
 /*===============
 
@@ -1420,7 +1420,7 @@ o1 = new stzListOfStrings([
 #--> [ 2, 3, 5, 6, 8, 9, 13 ]
 # Executed in 0.12 second(s)
 
-proff()
+pf()
 # Executed in 0.20 second(s)
 
 /*===============
@@ -1466,7 +1466,7 @@ o1 = new stzListOfStrings([
 # ]
 # Executed in 0.47 second(s)
 
-proff()
+pf()
 # Executed in 2.46 second(s)
 
 /*===============
@@ -1482,7 +1482,7 @@ o1.RemoveDuplicates()
 ? @@( o1.Content() )
 #--> [ "tunis", "gatfsa", "gabes", "regueb", "sfax", "Tunis" ]
 
-proff()
+pf()
 # Executed in 0.03 second(s): so fast because it uses Qt
 
 /*--------------
@@ -1498,7 +1498,7 @@ o1.RemoveDuplicatesCS(FALSE)
 ? @@(o1.Content())
 #--> [ "tunis", "gatfsa", "gabes", "regueb", "sfax" ]
 
-proff()
+pf()
 # Executed in 0.49 second(s): takes a while because it's not based on Qt
 
 /*===============
@@ -1540,7 +1540,7 @@ o1 = new stzListOfStrings([
 #--> [ [ "tunis", [ 1, 2, 3, 5, 6, 8, 9 ] ] ]
 # Executed in 0.35 second(s)
 
-proff()
+pf()
 # Executed in 2.22 second(s)
 
 /*--------------
@@ -1560,7 +1560,7 @@ o1.RemoveDuplicatedStringsCS(FALSE)
 ? @@( o1.Content() )
 #--> [ "gatfsa", "gabes", "sfax" ]
 
-proff()
+pf()
 # Executed in 0.87 second(s)
 
 /*=========
@@ -1599,7 +1599,7 @@ o1 = new stzListOfStrings([
 # ]
 # Executed in 0.36 second(s)
 
-proff()
+pf()
 # Executed in 1.59 second(s)
 
 /*-------------- #Note stzList has a more performant implementation (see example after this)
@@ -1632,7 +1632,7 @@ o1 = new stzListOfStrings([ "one", "ONE", "two", "TWO" ])
 #	[ "TWO", 4 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.07 second(s)
 
 /*--------------
@@ -1665,7 +1665,7 @@ o1 = new stzList([ "one", "ONE", "two", "TWO" ])
 #	[ "TWO", 4 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*=========
@@ -1686,7 +1686,7 @@ o1.RemoveDuplicatedStringsCS(TRUE)
 #--> [ "gatfsa", "gabes", "Regueb", "sfax", "regueb", "Tunis" ]
 # Executed in 0.35 second(s)
 
-proff()
+pf()
 # Executed in 0.58 second(s)
 
 /*--------------

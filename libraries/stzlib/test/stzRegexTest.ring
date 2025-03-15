@@ -20,7 +20,7 @@ rx("(\d+)") {
 
 }
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*----------------#
@@ -45,7 +45,7 @@ o1 = new stzRegex("\d{3}-\d{2}-\d{4}")  # Social security number pattern
 ? o1.MatchAsYouType("123-45-6789")	#--> TRUE
 ? o1.MatchAsYouType("abc")		#--> FALSE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Partial Match: Real-time search
@@ -63,7 +63,7 @@ o1 = new stzRegex("quick.*fox")
 ? o1.MatchInProgress("quick brown f")	#--> TRUE
 ? o1.MatchInProgress("slow")		#--> FALSE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Partial Match: Detailed match information for UI feedback
@@ -79,7 +79,7 @@ o1 = new stzRegex("hello\d{3}")
 #	[ "section", [ 1, 7 ] ]
 # ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Partial Match: Autocomplete suggestions
@@ -94,7 +94,7 @@ o1 = new stzRegex("(https?://)?(www\.)?[\w-]+\.com")
 ? o1.MatchAsYouType("example.")		#--> TRUE
 ? o1.MatchAsYouType("example.com")	#--> TRUE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Partial Match: Processing streaming data
@@ -109,7 +109,7 @@ o1 = new stzRegex("\d{2}:\d{2}:\d{2}")  # Time format
 ? o1.IsPartialMatch("12:34:")		#--> TRUE
 ? o1.IsPartialMatch("12:34:56")		#--> TRUE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Partial Match: Phone Number Validation
@@ -132,7 +132,7 @@ o1 = new stzRegex("^\d{3}-\d{3}-\d{4}$")
 #	[ "section", [ 1, 7 ] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Partial Match: Email Validation
@@ -155,7 +155,7 @@ o1 = new stzRegex("^[\w\.-]+@[\w\.-]+\.\w{2,}$")
 #	[ "section", [ 1, 12 ] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Partial Match: Time Format Validation
@@ -178,7 +178,7 @@ o1 = new stzRegex("^\d{2}:\d{2}:\d{2}$")
 #	[ "section", [ 1, 5 ] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Partial Match: URL Validation
@@ -201,7 +201,7 @@ o1 = new stzRegex("^https?://[\w-]+(\.[\w-]+)*\.\w{2,}$")
 #	[ "section", [ 1, 15 ] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*----------------#
@@ -254,17 +254,17 @@ rx("(\((?R)*\))") {
 	#--> [ TRUE, FALSE, TRUE ]
  }
 
-proff()
+pf()
 # Executed in 0.05 second(s) in Ring 1.22
 
 /*--- Matching nested HTML tags
 
-pron()
+pr()
 
 rx("<([^>]+)>(?R)*") { ? MatchRecursive("<div><b>HELLO</b></div>") }
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Matching balanced parentheses
@@ -284,7 +284,7 @@ cPattern = "\(([^()]|(?R))*\)"
 rx(cPattern) { ? MatchManyXT([ "(nested)", "((nested))", "(((deeply nested)))" ]) }
 #--> [ TRUE, TRUE, TRUE ]
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- #TODO
@@ -314,7 +314,7 @@ rx("Hello") {
 
 }
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*----
@@ -368,7 +368,7 @@ cTest = "(a(b(c)d)e)"
 ? @@( oRegex.FindRecursiveValuesZZ() )
 #--> [ [ 1, 11 ], [ 3, 9 ], [ 5, 7 ] ]
 
-proff()
+pf()
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*---
@@ -395,7 +395,7 @@ cTest = "[1,[2,[3,4],[5]],6]"
 #	] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*---
@@ -416,7 +416,7 @@ rx.MatchRecursive("f1(f2(f3(x))")
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- RECURSIVE NAMED MATCHES
@@ -445,7 +445,7 @@ rx.MatchRecursive("(outer(middle(inner)))")
 #--> ? rx.RecursiveNames()
 #--> [ "outermost", "middle", "innermost" ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*---
@@ -469,7 +469,7 @@ oRegex.MatchRecursive("(a(b(c)d)e)")
 #	] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*---
@@ -532,7 +532,7 @@ rx("(?<outer>\((?<inner>[^()]+|(?R))*\))") {
 
 }
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.22
 
 /*---------------------------------------#
@@ -559,12 +559,12 @@ rx("Name: (?<name>.*), Age: (?<age>\d+)") {
 
 }
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*=== FINDIND PARTiAL MATCHES
 
-pron()
+pr()
 
 o1 = new stzRegex("^https?://[\w-]+(\.[\w-]+)*\.\w{2,}$")
 
@@ -584,7 +584,7 @@ o1 = new stzRegex("^https?://[\w-]+(\.[\w-]+)*\.\w{2,}$")
 #	[ "section", [ 1, 4 ] ]
 # ]
 
-proff()
+pf()
 
 /*---
 
@@ -610,7 +610,7 @@ cMyUrl = "https://example"
 #	[ "section", [ 1, 15 ] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- FINDING RECURSIVE (NESTED) SUBSTRINGS
@@ -648,7 +648,7 @@ rx("(?<outer>\((?<inner>[^()]+|(?R))*\))") {
 	# ]
 }
 
-proff()
+pf()
 # Executed in 0.05 second(s) in Ring 1.22
 
 /*---------------------------------#
@@ -673,7 +673,7 @@ o = new stzRegex("hello.world")
 ? o.MatchXT(txt, 1, :MatchEntireContent, [ :DotMatchesAll ]) # Returns true - dot matches newline
 #--> TRUE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*-- Test 2: Case sensitivity
@@ -695,7 +695,7 @@ o.SetPattern("hello world")
 ? o.MatchXT(txt, 1, :MatchEntireContent, [ :CaseInsensitive ])  # Returns true - case ignored
 #--> TRUE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*-- Test 3: Greedy vs Non-greedy
@@ -717,7 +717,7 @@ o.SetPattern("<p>.*</p>")
 ? o.MatchXT(txt, 1, :MatchEntireContent, [ :DotMatchesAll, :NonGreedy ])
 #--> TRUE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*-- Test 4: Line boundaries
@@ -843,7 +843,7 @@ o1 = new stzRegex("pre\w+")
 ? o1.MatchWordsIn("compress")
 #--> FALSE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*-- Test 5: Capture Values of Defined Groups
@@ -871,7 +871,7 @@ o1 = new stzRegex("Name: (.*), Age: (\d+)")
 ? @@( o1.Capture() )
 #--> [ "John", "30" ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*-- Test 6: Named Capture Groups
@@ -905,7 +905,7 @@ o1 = new stzRegex("Name: (?<name>.*), Age: (?<age>\d+)")
 #	[ "age", "30" ]
 # ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*-- Test 7: Error Handling
@@ -922,7 +922,7 @@ o1 = new stzRegex("(unclosed group")
 ? o1.LastError()
 #--> missing closing parenthesis
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*-- Test 8: Qt Options via MatchXT
@@ -941,7 +941,7 @@ o1 = new stzRegex("hello world")
 ? o1.MatchXT("HELLO world", 1, :MatchEntireContent, [ :CaseInsensitive ])
 #--> TRUE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*-------------------------------------------------------#
@@ -988,7 +988,7 @@ o1.SetPattern("^https://.*\.gov$")
 ? o1.Match("https://example.com")
 #--> FALSE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 #-- Phone Number Processing
@@ -1022,7 +1022,7 @@ ok
 #	[ "line", "4567" ]
 # ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--------------------#
@@ -1061,7 +1061,7 @@ ok
 #
 # ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*-------------------#
@@ -1097,7 +1097,7 @@ ok
 #	[ "domain", "sub.domain.co.uk" ]
 # ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*----------------#
@@ -1146,7 +1146,7 @@ ok
 #	[ "value", "0.2" ]
 # ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*-----------------------#
@@ -1179,10 +1179,10 @@ ok
 #	[ "day", "12" ]
 # ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
-proff()
+pf()
 
 /*---------------------#
 #  Address Processing  #
@@ -1219,7 +1219,7 @@ ok
 #	[ "zip", "10001" ]
 # ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*-----
@@ -1230,7 +1230,7 @@ rx = new stzRegex("")
 ? rx.Match("any text will match")
 #--> TRUE
 
-proff()
+pf()
 
 /*-----
 
@@ -1242,7 +1242,7 @@ pr()
 rx(pat(:cardNumber)) { ? Match("4111-1111-1111-1111") }
 #--> TRUE
 
-proff()
+pf()
 
 /*----------------------#
 #  Credit Card Masking  #
@@ -1271,7 +1271,7 @@ if o1.Match(cText) and o1.HasGroups()
 ok
 #--> 1111
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22s
 
 /*------------------------#
@@ -1328,7 +1328,7 @@ if o3.HasGroups()
 ok
 #--> [ "Hello World" ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*-----------------------#
@@ -1358,7 +1358,7 @@ if o3.Match(txt) and o3.HasGroups()
 ok
 #-o-> [ "عالم", "البرمجة" ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 #--------------------------------------#
@@ -1475,6 +1475,6 @@ QQ(anNumbers) {
 	? Mean()	#-->  17260
 }
 
-proff()
+pf()
 # Executed in 0.06 second(s) in Ring 1.22
 

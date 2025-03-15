@@ -17,7 +17,7 @@ Rx( pat(:numbersInQuotes) ) {
 	#--> [ '150', ‘90’ ] correct!
 }
 
-proff()
+pf()
 
 /*---
 
@@ -32,7 +32,7 @@ Rx( pat(:numbersInsideString) ) {
 	#--> [ '150', '90' ] correct!
 }
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*==================
@@ -48,7 +48,7 @@ Rx( pat(:numbersAsValuesInHashList) ) {
 	#--> [ "= 34", '= "64000"' ]!
 }
 
-proff()
+pf()
 
 /*---
 
@@ -64,7 +64,7 @@ Rx( pat(:numbersAsValuesInPairs) ) {
 
 }
 
-proff()
+pf()
 
 /*---
 
@@ -80,7 +80,7 @@ Rx( pat(:numbersAsValuesInJSON) ) {
 	#--> [ ": 34", ': "64000"' ]
 }
 
-proff()
+pf()
 
 /*==========
 */
@@ -95,7 +95,7 @@ Rx( pat(:numbersInParentheses) ) {
 	#--> [ (34), (64000) ] corrrect!
 }
 
-proff()
+pf()
 
 /*---
 
@@ -110,7 +110,7 @@ Rx( pat(:numbersAfterEquals) ) {
 	#--> [ "= 34", "=64000" ] correct!
 }
 
-proff()
+pf()
 
 /*---
 
@@ -132,7 +132,7 @@ Rx( pat(:numbersInCSV) ) {
 	#--> [ '34', '64000', '2.5', '-10' ] correct
 }
 
-proff()
+pf()
 
 /*---
 
@@ -147,7 +147,7 @@ Rx( pat(:numbersInBrackets) ) {
 	#--> [ "[34]", "[64000]" ] correct
 }
 
-proff()
+pf()
 
 /*---
 
@@ -162,7 +162,7 @@ Rx( pat(:numbersAfterColon) ) {
 	#--> [ ": 34", ": 64000" ] correct
 }
 
-proff()
+pf()
 
 /*---
 
@@ -186,4 +186,4 @@ Rx( pat(:numbersInList) ) {
 	#--> [ "34", "64000" ] correct
 }
 
-proff()
+pf()

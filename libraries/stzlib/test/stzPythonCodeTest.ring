@@ -10,7 +10,7 @@ Py() { @('res = 2 + 3') Run() ? Result() }  #--> 5
 # R code  
 R() { @('res = 2 + 3') Run() ? Result() }   #--> 5
 
-proff()
+pf()
 # Executed in 0.41 second(s) in Ring 1.22
 
 /*--- Simple python code
@@ -40,7 +40,7 @@ Execute()
 
 } # closing brace of the py() object
 
-proff()
+pf()
 # Executed in 0.10 second(s) in Ring 1.22
 
 /*--- Data Analysis with Pandas
@@ -84,7 +84,7 @@ Execute()
 #	]
 # ]
 
-proff()
+pf()
 # Executed in 0.57 second(s) in Ring 1.22
 
 /*--- Text Processing with Python and its regex engine
@@ -164,7 +164,7 @@ Execute()
 # ]
 
 
-proff()
+pf()
 # Executed in 0.13 second(s) in Ring 1.22
 
 /*--- Python Machine Learning Integration in a Ring program
@@ -212,5 +212,5 @@ Execute()
 # ]
 
 
-proff()
+pf()
 # Executed in 1.67 second(s) in Ring 1.22

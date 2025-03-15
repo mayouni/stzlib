@@ -7,7 +7,7 @@ pr()
 ? @@( FirstNPrimes(5) )
 #--> [ 2, 3, 5, 7, 11 ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.21
 
 /*---
@@ -17,7 +17,7 @@ pr()
 ? @@( Q("134").Digits() )
 #--> [ "1", "3", "4" ]
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*---
@@ -28,7 +28,7 @@ o1.Numberify() # Or Numbrify()
 ? @@( o1.Content() )
 #--> [ 12, 25, 38 ]
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*---
@@ -43,7 +43,7 @@ o1 = new stzListOfNumbers([ 2, 4, 5 ])
 ? o1.ArePrimes()
 #-->  FALSE
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*---
@@ -57,7 +57,7 @@ pr()
 #	61, 67, 71, 73, 79, 83, 89, 97
 # ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.21
 
 /*---
@@ -70,7 +70,7 @@ pr()
 ? Q(-12.45).Digits()
 #--> [ 1, 2, 4, 5 ]
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*---
@@ -89,7 +89,7 @@ pr()
 ? PreviousNthPrime(29, :Before = 140)
 #--> 13
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.21
 
 /*=========
@@ -111,7 +111,7 @@ pr()
 #	773, 2237, 2273
 # ]
 
-proff()
+pf()
 # Executed in 1.19 second(s) in Ring 1.21
 
 /*---
@@ -151,7 +151,7 @@ pr()
 #	773, 2237, 2273
 # ]
 
-proff()
+pf()
 # Executed in 3.42 second(s) in Ring 1.21
 
 /*------
@@ -168,7 +168,7 @@ pr()
 ? HexToDecimal("x167A")
 #--> 5754
 
-proff()
+pf()
 # Executed in 0.02 second(s).
 
 /*-------
@@ -201,7 +201,7 @@ StzHexNumberQ("x167A") {
 	#--> b1011001111010
 }
 
-proff()
+pf()
 # Executed in 0.06 second(s).
 
 /*---------------------
@@ -218,7 +218,7 @@ o1 = new stzHexNumber("xE82")
 ? o1.Content()
 #--> E82
 
-proff()
+pf()
 # Executed in 0.02 second(s).
 
 /*---------------------
@@ -233,5 +233,5 @@ o1.FromBinary("b10011")
 
 ? o1.ToOctal() # TODO check correctness
 
-proff()
+pf()
 # Executed in 0.02 second(s).

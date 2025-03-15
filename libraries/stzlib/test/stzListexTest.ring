@@ -439,7 +439,7 @@ TestPattern("[@!N{2-12:3}]", [
 
 
 
-proff()
+pf()
 
 /*=======================#
 #  TEST HELPER FUNCTION  #

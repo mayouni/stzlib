@@ -17,7 +17,7 @@ o1.ToStzTable().Shwo()
 #      karima    ayouni   coach
 #      wissal     salhi   tutor
 
-proff()
+pf()
 
 /*--------------
 
@@ -33,7 +33,7 @@ StzNamedHashListQ(:myhash = [ :x = 10, :y = 20 ]) {
 
 }
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*-------------
@@ -58,7 +58,7 @@ pr()
 ? ObjectVarName( FALSEObject() )
 #--> @falseobject
 
-proff()
+pf()
 #--> Executed in 0.06 second(s)
 
 /*==============
@@ -77,7 +77,7 @@ o1 = new stzHashList([
 ? @@( o1.FindValues([ "here", "and", "there" ]) )
 #--> [ 1, 2, 4 ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*---------------
@@ -118,7 +118,7 @@ o1 = new stzHashList([
 #WARNING: when you use FindValues, ITEMS inside lists are not found.
 # And when you use FindInLists or FindItems then VALUES are not found.
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*------------- TODO
@@ -136,7 +136,7 @@ o1 = new stzHashList([
 ? o1.FindValueOrItem(:can) # called also FindVitem(:can)
 #--> [ 1, 2, 5 ]
 
-proff()
+pf()
 
 /*---------------- FINDING ITEMS INSIDE VALUES THAT ARE LISTS
 
@@ -165,7 +165,7 @@ o1 = new stzHashList([
 #	[ "will", [ [ 2, [ 2 ] ], [ 4, [ 2 ] ], [ 5, [ 1 ] ] ] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-----------
@@ -183,7 +183,7 @@ o1 = new stzHashList([
 ? @@( o1.FindInLists(:will) )
 #--> [ [ 2, [ 2 ] ], [ 4, [ 2, 3 ] ], [ 5, [ 1 ] ] ]
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*-----------
@@ -281,7 +281,7 @@ o1 = new stzHashList([
 ? @@( o1.StzHashLists() )
 #--> [ @hashlist ]
 
-proff()
+pf()
 # Executed in 0.21 second(s) in Ring 1.21
 
 /*-----------
@@ -336,7 +336,7 @@ o1 = new stzHashList([
 ? @@( o1.TheseListsZ([ [ "can", "will" ], [ "will" ] ]) )
 #--> [ [ [ "can", "will" ], [ 5 ] ], [ [ "will" ], [ 6, 16 ] ] ]
 
-proff()
+pf()
 # Executed in 0.04 second(s) in Ring 1.21
 
 /*-----------
@@ -363,7 +363,7 @@ o1 = new stzHashList([
 #	:Five	= [ :will ]
 # ]
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*-----------
@@ -392,7 +392,7 @@ o1 = new stzHashList([
 #	[ "some", [ [ 2, 4 ] ] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*-----------
@@ -421,7 +421,7 @@ o1 = new stzHashList([
 ? @@( o1.FindStzObjects() )
 #--> [ 1, 2, 3, 4, 5, 6, 7 ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*=============
@@ -454,7 +454,7 @@ o1 = new stzHashList([
 #	[ "if", 	 [ [ 5, [ 2 ] ] ] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-------------
@@ -559,7 +559,7 @@ o1 = new stzHashList([
 ? o1.WeakestNCLasses(3)
 #--> [ :red, :green, :yellow ])
 
-proff()
+pf()
 # Executed in 0.88 second(s)
 
 /*---------------- #narration
@@ -623,7 +623,7 @@ pr()
 	# 	[ "can", [ [ 2, [ 3 ] ] ] ]
 	# ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*==================
@@ -656,7 +656,7 @@ o1 = new stzHashList([
 ? @@( o1.Klass(:asia) )
 #--> [ "saudi_arabia", "iraq", "japan" ]
 
-proff()
+pf()
 # Executed in 0.08 second(s) in Ring 1.21
 # Executed in 0.10 second(s) in Ring 1.19
 # Executed in 1.54 second(s) in Ring 1.17
@@ -671,7 +671,7 @@ pr()
 o1 = new stzHashList([ :name = "Brad", :job = "actor", :job = "singer" ])
 #--> Error message: The list you provided is not a hash list!
 
-proff()
+pf()
 
 /*---------------
 
@@ -693,7 +693,7 @@ o1 = new stzHashList( [ :one = 1, :two = 2 ] )
 o1 = new stzHashList( [ ["one", 1], [ "two", 2] ] )
 ? o1.Keys() #--> [ "one", "two" ]
 
-proff()
+pf()
 # Executed in 0.01 second(s)
 
 /*--------------- 
@@ -716,7 +716,7 @@ o1 = new stzHashList([
 ? @@( o1.FindValue([ 10, 15 ]) )
 #--> [ 4 ]
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*---------------
@@ -731,7 +731,7 @@ o1 = new stzHashList([ :math = 18, :stats = 16, :history = 14 ])
 ? o1[:stats]
 #--> 16
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*--------------
@@ -742,7 +742,7 @@ o1 = new stzHashList([ [ "NAME", "Mansour"] , [ "AGE" , 45 ] ])
 ? @@( o1.Content() ) # Keys are automatically lowercased
 #--> [ [ "name", "Mansour" ], [ "age", 45 ] ]
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.03 second(s) in Ring 1.19
 
@@ -762,7 +762,7 @@ o1.RemoveByKey(:age)
 ? o1.RemovePairByKeyQ(:job).Content()
 #--> [ :name = "mansour" ]
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*--------------
@@ -773,7 +773,7 @@ o1 = new stzHashList([ :name = "Hussein", :age = 1, :grandftaher = "Hussein" ])
 o1.RemovePairsByValue("Hussein")
 ? o1.Content() #--> [ :age = 1 ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-------------
@@ -788,4 +788,4 @@ o1.Show()
 #    'grandftaher': "Hussein"
 #    'grandmother': "Arem"
 
-proff()
+pf()

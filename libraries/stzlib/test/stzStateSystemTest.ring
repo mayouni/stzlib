@@ -7,7 +7,7 @@ load "../max/stzmax.ring"
 pr()
 
 	#WARNING// This code works as expected and even executes
-	# the final proff() function correctly, but it returns
+	# the final pf() function correctly, but it returns
 	# an internal error I cant't understand:
 	# 
 	# ~> Error (E3) : Deleting scope while no scope! 
@@ -54,7 +54,7 @@ pNotAState = _NULL_
 ? AreRingStates([ pState1, pState2, pNotAState ])
 #--> FALSE
 
-proff()
+pf()
 # Executed in 0.01 second(s)
 
 /*=========== #ring Testing the use of Ring states
@@ -117,7 +117,7 @@ pr()
 	ring_state_delete(pState1)
 	ring_state_delete(pState2)
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.07 second(s) in Ring 1.20
 
@@ -175,6 +175,6 @@ pr()
     
 	? NL + "<<< PROGRAM COMPLETED"
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.09 second(s) in Ring 1.20

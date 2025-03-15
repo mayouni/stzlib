@@ -712,20 +712,18 @@ o1 = new stzList([
     "E"
 ])
 
-? @@( o1.FindInPathXT("♥", [ 2, 2 ]) ) + NL
+? @@( PathsIn([2, 2]) ) + NL
+#--> [ [ 2 ], [ 2, 2 ] ]
 
-? @@( PathsIn([2, 2]) ) + nl
+? @@( o1.FindInPath("♥", [ 2, 2 ]) ) + NL
+#--> [ [ 2, 1 ] ]
 
 o1.RemoveItemInPath("♥", [2, 2])
 #NOTE All these paths are concerned:
 #     [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ] ]
 
-? @@NL( o1.Content() )
-#--> [
-#	"A",
-#	[ [ "B", "C" ], "D" ],
-#	"E"
-# ]
+? @@( o1.Content() )
+#--> [ "A", [ [ "B", "♥", "C", "♥" ], "♥", "D" ], "E" ]
 
 proff()
 # Executed in 0.39 second(s) in Ring 1.22

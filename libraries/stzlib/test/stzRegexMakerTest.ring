@@ -22,7 +22,7 @@ rx(pat(:xlsArrayFormula)) { ? Explain() + NL }
 rx(pat(:xlsArrayFormula)) { ? ExplainXT() }
 #--> Detailed line-by-line explanation of the regex components.
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -49,7 +49,7 @@ rx(pat(:xlsConditionalExpression)) {
 
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -71,7 +71,7 @@ rx(pat(:email)) {
 # - Matches: `user@domain.com`, `user.name+tag@example.co.uk`
 # - Non-matches: `@domain.com`, `user@.com`, `user@domain`
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -92,7 +92,7 @@ rx(pat(:URL)) { ? ExplainXT() }
 # - Matches: `https://example.com`, `domain.co.tn/path`
 # - Non-matches: `http:/domain.com`, `.com`, `https://`
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -113,7 +113,7 @@ rx(pat(:domain)) { ? ExplainXT() }
 # - Matches: `example.com`, `sub.domain.co.eg`
 # - Non-matches: `-example.com`, `domain..com`
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -135,7 +135,7 @@ rx(pat(:ipv4)) {
 # - Matches: `192.168.0.1`, `10.0.0.0`
 # - Non-matches: `256.1.2.3`, `1.2.3`, `a.b.c.d`
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -166,7 +166,7 @@ rx(pat(:IPv6)) {
 
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -183,7 +183,7 @@ rx(pat(:SocialHandle)) { ? Pattern() + NL + Explain() + NL + ExplainXT() }
 # - Matches: `@user123`, `@User_name`
 # - Non-matches: `user123`, `@user-name`, `@toolong123456789`
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -216,7 +216,7 @@ rx(pat(:isoDate)) {
 
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
@@ -250,7 +250,7 @@ rx(pat(:isoDateTime)) {
 
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 #---
@@ -299,7 +299,7 @@ pr()
 	rx(pat(:currencyValue)) { ? Match("1234.567") + NL }
 	#--> FALSE
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*----
@@ -312,7 +312,7 @@ pr()
 ? unicode("'")
 #--> 39
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*----
@@ -330,7 +330,7 @@ pr()
 #	[ @nullobject, "OBJECT" ]
 # ]
 
-proff()
+pf()
 # Executed in 0.06 second(s) in Ring 1.22
 
 /*=== Ring number() VS Softanza @Number()
@@ -351,7 +351,7 @@ pr()
 ? @Number("12_120.5")
 #--> 12120.50
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 #---
@@ -367,7 +367,7 @@ pr()
 ? IsNumberInString("-12_120.5")
 #--> TRUE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*=======================================#
@@ -410,7 +410,7 @@ o1 {
 
 }
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*------------
@@ -477,7 +477,7 @@ o1 {
 
 }
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*=====================================#
@@ -500,7 +500,7 @@ o1 {
 	#--> (?P<expr>\()(?P<inner>[^()]*)\)
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 2: Nested JSON-like structure
@@ -533,7 +533,7 @@ o2 {
 	#--> (?P<object>\{)(?P<pair>"[^"]+"\s*:\s*)+(?P<value>[^{}]+)\}
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 3: XML-like tags
@@ -589,7 +589,7 @@ o3 {
 ? @@(o3.LevelChildren("tag"))
 #--> [ "content" ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 4: Empty Pattern
@@ -602,7 +602,7 @@ o1 {
 	#--> ""
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 5: Single Level No Children
@@ -617,7 +617,7 @@ o2 {
     #--> (?P<simple>abc)
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 6: Multiple Independent Levels
@@ -633,7 +633,7 @@ o3 {
     #--> (?P<first>abc)(?P<second>def)
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 7: Deeply Nested Structure
@@ -652,7 +652,7 @@ o4 {
     #--> (?P<outer>\{)(?P<inner1>\[)(?P<inner2>\()(?P<content>[^()]*)\)\]\}
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 9: Complex Quantifiers
@@ -672,7 +672,7 @@ o5 {
     #--> (?P<list>\[)(?P<item>[0-9]+)(?P<separator>,\s*)?+\]
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 10: Special Characters Escaping
@@ -687,7 +687,7 @@ o6 {
     #--> (?P<special>\$\^\*\+\?\{\}\[\]\(\))
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 11: Back References with Groups
@@ -704,7 +704,7 @@ o7 {
     #--> (?P<tag><([a-z]+)>)(?P<content>.*?)</\1>
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 12: Multiple Quantified Children
@@ -729,7 +729,7 @@ o8 {
 	#--> (?P<object>\{(?P<key>"[^"]+"\s*:\s*(?P<value>[^,}]+))+(?P<comma>,\s*)*)\}
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 13: Unicode Support
@@ -745,7 +745,7 @@ o9 {
     #--> (?P<unicode>[\u0410-\u044F]+)(?P<space>\s+)
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 14: Empty Child Pattern
@@ -761,7 +761,7 @@ o10 {
     #--> (?P<parent>start)(?P<empty>)
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 15: Alternation Patterns
@@ -777,7 +777,7 @@ o11 {
     #--> (?P<choice>(yes|no))(?P<maybe>(?:maybe)?)
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 16: Pattern Information
@@ -817,7 +817,7 @@ rrxm() {
 
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*=======================================#
@@ -847,7 +847,7 @@ o1.IfMatch("\d").
 #    ]
 
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Validate phone numbers
@@ -869,7 +869,7 @@ wrxm() {
 
 #--> (?(?=^+)\+1\d{10}|\d{10})
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Match different date formats
@@ -885,7 +885,7 @@ o1.IfMatch("^\d{4}").          		# Starts with 4 digits
 ? o1.Pattern()
 #--> (?(?=^\d{4})\d{4}-\d{2}-\d{2}|\d{2}/\d{2}/\d{4})
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- URL protocol matcher
@@ -902,7 +902,7 @@ wrxm() {
 
 #--> (?(?=.*localhost.*.)http://localhost:\d+/.*|https://.*))
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Email validation with different domains
@@ -920,7 +920,7 @@ wrxm() {
 
 #--> (?(?=.edu$)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.edu|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net))
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*==========================================#
@@ -949,7 +949,7 @@ o1.LookingForWord("hello").ThenMatch("\w+")
 ? o1.Pattern()
 #--> (?=\bhello\b)\w+
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Validate monetary amounts
@@ -962,7 +962,7 @@ o1.MustBePrecededBy("\$").
 ? o1.Pattern()
 #--> (?<=\$)\d+(\.\d{2})?
 
-proff()
+pf()
 c
 
 /*--- Match words not followed by punctuation
@@ -979,7 +979,7 @@ rxma() {
 }
 #--> (?![.,!?])\w+
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Match HTML tags with specific attributes
@@ -994,7 +994,7 @@ o1 {
 }
 #--> (?=\bclass\b)<\w+\s+
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Find numbers with specific context
@@ -1010,7 +1010,7 @@ rxma() {
 }
 #--> (?<=\bversion\b)(?=\brelease\b)\d+\.\d+
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Using original regex-like syntax (which Softanza
@@ -1028,7 +1028,7 @@ o1.LookingBehind("@").
 ? o1.Pattern()
 #--> (?<=@)(?!\W)[a-zA-Z0-9_]+
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 #=====================#
@@ -1053,7 +1053,7 @@ o1 {
 	#--> \b(?P<length>.{8,})(?P<upper>.*[A-Z].*)(?P<lower>.*[a-z].*)(?P<digit>.*\d.*)(?P<special>.*[!@#$%^&*].*)\b
 }
 
-proff()
+pf()
 
 /*--- HTML Tag Matcher
 
@@ -1074,7 +1074,7 @@ rxm() {
 	#--> (?P<tag><([a-z]+)>)(?P<content>.*?)\\1
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Smart Quote Matcher
@@ -1090,7 +1090,7 @@ o1.AddComment("Matches smart quotes and content")
 ? o1.Pattern()
 #--> (?i)(?P<quote>[""].*?[""])(?#Matches smart quotes and content)
 
-proff()
+pf()
 
 /*--- Data Validation
 
@@ -1105,7 +1105,7 @@ o1.AddCommonPattern(:email)
 ? o1.Pattern()
 #--> [\s]*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- HTML Content Extraction - different matching behaviors:
@@ -1129,7 +1129,7 @@ rxm() {
 	#--> (?P<tag><div>).*+?.*+.*++
 }
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Data Parsing - choosing appropriate behavior:
@@ -1150,7 +1150,7 @@ o1.AddMatchLength("\d+", :complete)  # Match complete number without backtrackin
 ? o1.Pattern()
 #--> \w++?.++\d+++
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Match duplicated words
@@ -1186,7 +1186,7 @@ rx("\b(?P<word>\w+)[\s]*(?P=word)\b") {
 
 }
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- HTML tag matching
@@ -1217,7 +1217,7 @@ rx("(?P<tag><([a-z]+)>).*</\2>") {
 	#--> FALSE
 }
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Format validation with reused patterns
@@ -1249,7 +1249,7 @@ rx("(?P<num>\d{2})/(?:\d{2})/(?:\d{2})") {
 	#--> FALSE
 }
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Use of IsBeforeGroup
@@ -1281,5 +1281,5 @@ rx("[\w]+[\s]+(?P<num>\d+)") {
 	#--> FALSE
 }
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.22

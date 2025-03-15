@@ -26,7 +26,7 @@ pr()
 ? Q(FalseObject()).IsNamedObject()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*--------------
@@ -58,7 +58,7 @@ pr()
 ? @@([ 1:3, StzNullObjectQ(), "a":"b", StzFalseObjectQ() ])
 #!--> [ [ 1, 2, 3 ], @noname, [ "a", "b" ], @noname ]
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 # Executed in 0.09 second(s) in Ring 1.20
 
@@ -69,7 +69,7 @@ pr()
 ? fabs(-5) #--> 5	Ring function
 ? Abs(-5)  #--> 5	Softanza function
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*------------------
@@ -79,7 +79,7 @@ pr()
 ? StzNumberQ("-5.23456").Absolute()
 #--> "5.23456"
 
-proff()
+pf()
 # Executed in 0.17 second(s)
 
 /*==================
@@ -101,7 +101,7 @@ o1 = new stzString("ring")
 ? o1.IsEither("ring", :or = "ruby")	#--> TRUE
 ? o1.IsEitherA(:String, :Or = :List)	#--> TRUE
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*================== ToNumber() and ToNumberW()
@@ -117,7 +117,7 @@ pr()
 ? Q([ "a", "b", "c" ]).ToNumber()
 #--> 3
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*------------------
@@ -189,7 +189,7 @@ pr()
 ? Q([ "Me", "and", "You!" ]).Yield('len(@item)')
 #--> [2, 3, 4]
 
-proff()
+pf()
 # Executed in 0.21 second(s)
 
 /*=================
@@ -202,7 +202,7 @@ pr()
 ? StzHashListQ(StzTypesXT()).FindValue('stzchars')
 #--> 17
 
-proff()
+pf()
 #--> Executed in 0.06 second(s)
 
 /*-----------------
@@ -218,7 +218,7 @@ pr()
 ? PluralToStzType(:stzchars)
 #--> "stzchar"
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*-----------------
@@ -230,7 +230,7 @@ pr()
 
 ? @IsRingOrStzType(:PairOfNumbers)
 
-proff()
+pf()
 
 /*-----------------
 */
@@ -292,7 +292,7 @@ pr()
 ? Q([ 10, 20, 30 ]).IsA(:ListOfNumbers)
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.10 second(s) in Ring 1.21
 
 /*=======
@@ -303,7 +303,7 @@ o1 = new stzList([ 6, -2, 9, 5, -10 ])
 ? o1.EachItemIsEitherA(:Positive, :Or = :Negative, :Number)
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*------ #TODO
@@ -312,7 +312,7 @@ pr()
 
 ? Q(["a", 3, "c"]).IsAQ(:list).Of([ :Numbers, :and = :strings ])
 
-proff()
+pf()
 
 /*------
 
@@ -323,7 +323,7 @@ o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
 ? o1.EachItemIsEitherA( :Number, :Or, :String )
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.14 second(s)
 
 /*------ #TODO
@@ -338,7 +338,7 @@ o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
 
 ? o1.EachItemIsEitherA( :Number, :Or, [ :Lowercase, :Latin, :String ])
 
-proff()
+pf()
 
 /*------
 
@@ -348,7 +348,7 @@ o1 = new stzList([ 120, "1250", 54, "452" ])
 ? o1.EachItemIsEither( :Number, :Or, :NumberInString )
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*------ #TODO
@@ -358,7 +358,7 @@ pr()
 o1 = new stzList([ 2, 4, 8, "-129", 10, "-100.45" ])
 ? o1.EachItemIsEither([ :Positive, :Even, :Number ], :Or, [ :Negative, :NumberInString ] )
 
-proff()
+pf()
 
 /*------------
 
@@ -374,7 +374,7 @@ pr()
 #--> TRUE
 
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*--------------------
@@ -389,7 +389,7 @@ o1 = new stzNumber(12500)
 ? o1.Is(:String)
 #--> FALSE
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*--------------------
@@ -400,7 +400,7 @@ o1 = new stzString("hello")
 ? o1.Is(:StzString)
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*--------------------
@@ -411,7 +411,7 @@ o1 = new stzGrid([ [1,2,3], [4,5,6], [7,8,9] ])
 ? o1.Is(:StzGrid) # from stzObject based on the name of the class
 ? o1.IsAGrid() # used by natural code in stzChainOfTruth
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*----------------
@@ -427,7 +427,7 @@ o1 = new QString2()
 
 # Both return TRUE --> Flexible syntax!
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*----------------
@@ -440,6 +440,6 @@ pr()
 ? HowManyRingQtClasses()
 #--> 368
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 

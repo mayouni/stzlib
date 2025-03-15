@@ -21,7 +21,7 @@ pr()
 ? Q(120602061.1).HowMany("06")
 #--> 2
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*======
@@ -34,7 +34,7 @@ pr()
 ? @@( Q(462).Factors() )
 #--> [ 1, 2, 3, 6, 7, 11, 14, 21, 22, 33, 42, 66, 77, 154, 231, 462 ]
 
-proff()
+pf()
 #--> Executed in 0.03 second(s)
 
 /*----------
@@ -59,7 +59,7 @@ pr()
 ? @@( Q(54).PrimeDividors() )
 #--> [ 2, 3 ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*------
@@ -82,7 +82,7 @@ puts Prime.each(5000).select{|p| 2.pow(p-1 ,p*p) == 1 }
 ? PrimesUnderQ(5000).WXT(' isWeiferich(@number) ')
 #--> [ 1093, 3511 ]
 
-proff()
+pf()
 # Executed in 2.41 second(s) in Ring 1.21
 
 /*--------
@@ -95,7 +95,7 @@ pr()
 ? PrimesUnderIB(19)
 #--> [ 2, 3, 5, 7, 11, 13, 17, 19 ]
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.21
 
 /*------- #ring
@@ -109,7 +109,7 @@ for i = 1 to 5000
 next
 #--> [ 1, 4 ]
 
-proff()
+pf()
 # Executed in 0.36 second(s) in Ring 1.21
 
 /*----- #ring + softanza
@@ -129,7 +129,7 @@ next
 ? anResult
 # Executed in 0.36 second(s) in Ring 1.21
 
-proff()
+pf()
 
 /*----
 */
@@ -152,7 +152,7 @@ aHash = [ :1 = "One", :2 = "Two", :3 = "Three" ]
 ? aHash[:1]
 #--> "One"
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.21
 
 /*================
@@ -174,7 +174,7 @@ n2 = 10
 ? Max( CommonNumbers([ Factors(n1), Factors(n2) ]) )
 #--> 5
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*================
@@ -192,7 +192,7 @@ o1 = new stzNumber(3200)
 ? o1 + [ 300, 500, 200 ]
  #--> 4200
 
-proff()
+pf()
 # Executed in 1.03 second(s)
 
 /*-----------------
@@ -210,7 +210,7 @@ o1 = new stzNumber(12500)
 ? o1 - [ 10000, 2000, 250 ]
 #--> 250
 
-proff()
+pf()
 # Executed in 1.04 second(s)
 
 /*-----------------
@@ -228,7 +228,7 @@ o1 = new stzNumber(12)
 ? o1 * [ 5, 4, 2 ]
  #--> 480
 
-proff()
+pf()
 # Executed in 0.83 second(s)
 
 /*-----------------
@@ -255,7 +255,7 @@ o1 * Q([ 5, 4, 2 ])
 ? o1.NumericValue()
  #--> 480
 
-proff()
+pf()
 # Executed in 0.75 second(s) in Ring 1.17
 
 /*-----------------
@@ -273,7 +273,7 @@ o1 = new stzNumber(3000)
 ? o1 / [ 20, 15, 2 ]
  #--> 5
 
-proff()
+pf()
 # Executed in 0.24 second(s) in Ring 1.19
 
 /*================
@@ -293,7 +293,7 @@ StzNamedNumberQ(:myage = 47) {
 
 }
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*=================
@@ -307,7 +307,7 @@ pr()
 #--> 999_999_999_999_991
 #--> 999_999_999_999_992
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*-----------------
@@ -321,7 +321,7 @@ pr()
 #--> 9
 #--> 10
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*------------------
@@ -335,7 +335,7 @@ pr()
 #	999_999_999_969_942.00
 # ]
 
-proff()
+pf()
 
 /*------------------
 
@@ -347,7 +347,7 @@ pr()
 ? 5RandomNumbersLessThan(17_000)
 #--> [ 16_998, 16_997, 16_999, 16_997, 16_997 ]
 
-proff()
+pf()
 # Executed in 0.04 second(s) in Ring 1.19
 
 /*------------------
@@ -361,7 +361,7 @@ pr()
 #--> 8
 #--> 7
 
-proff()
+pf()
 
 /*-----------------
 
@@ -374,7 +374,7 @@ pr()
 #--> 4
 #--> 3
 
-proff()
+pf()
 
 /*-----------------
 
@@ -386,7 +386,7 @@ pr()
 ? 3RandomNumbersIB( :Between = 1, :And = 5 )
 #--> [ 4, 5, 4 ]
 
-proff()
+pf()
 
 /*-----------------
 
@@ -398,7 +398,7 @@ pr()
 ? OddOrEven(120)
 #--> :Even
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*-----------------
@@ -411,7 +411,7 @@ pr()
 ? Q(13).IsFardi()	# or IsOdd()
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*===========
@@ -424,7 +424,7 @@ o1 = new stzNumber("601793176.32")
 ? o1.ToHexForm()
 #!--> 0x23DEA298.
 
-proff()
+pf()
 
 /*=============
 
@@ -436,7 +436,7 @@ pr()
 ? GCD(250, 420) # or GreatestCommonDividor(:Of = 250, :And = 420)
 #--> 10
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*-------- FIX
@@ -448,7 +448,7 @@ pr()
 
 ? CommonItems([ :Between = [ "a", "b", "c" ], :And = [ 1, "b", 2, "c" ] ])
 
-proff()
+pf()
 # Executed in 0.04 second(s) in Ring 1.19
 # Executed in 0.07 second(s) in Ring 1.17
 
@@ -510,7 +510,7 @@ aList2 = Q(42).Multiples(:Under = 1080) # Use ? @@( aList2 ) to show the list
 ? StzListOfNumbersQ(aList1).LeastCommonNumber(aList2)
 #--> 1050
 
-proff()
+pf()
 # Executed in 0.85 second(s) in Ring 1.19 (64 Bits)
 # Executed in 1.41 second(s) in Ring 1.18
 # Executed in 2.35 second(s) in Ring 1.17
@@ -541,7 +541,7 @@ pr()
 #	882, 924, 966, 1008, 1050
 # ]
 
-proff()
+pf()
 # Executed in 0.51 second(s)
 
 /*----------------
@@ -567,7 +567,7 @@ pr()
 #	[ 350, 3 ], [ 525, 2 ], [ 1050, 1 ]
 # ]
 
-proff()
+pf()
 # Executed in 0.51 second(s) in Ring 1.19
 # Executed in 0.68 second(s) in Ring 1.17
 
@@ -587,7 +587,7 @@ pr()
 ? Q(24) / [ 3, 2] # same as 24 / 3 / 2
 #--> 4
 
-proff()
+pf()
 # Executed in 0.09 second(s) in Ring 1.19
 # Executed in 0.14 second(s) in Ring 1.17
 
@@ -606,7 +606,7 @@ o1.MultiplyBy([ 3, 2 ])
 ? o1.Content()
 #--> 66
 
-proff()
+pf()
 # Executed in 0.16 second(s)
 
 /*-----------------
@@ -624,7 +624,7 @@ o1 = new stzNumber(11)
 ? o1.Times([2, 3])
 #--> 66
 
-proff()
+pf()
 # Executed in 0.09 second(s) in Ring 1.19
 # Executed in 0.13 second(s) in Ring 1.17
 
@@ -637,7 +637,7 @@ o1.MultiplyByMany([2, 3])
 ? o1.Value()
 #--> 66
 
-proff()
+pf()
 # Executed in 0.10 second(s) in Ring 1.19
 # Executed in 0.12 second(s) in Ring 1.17
 /*------------------
@@ -668,7 +668,7 @@ o1 = new stzNumber(5)
 #       5       5       5
  #      5       5       5
 
-proff()
+pf()
 # Executed in 0.30 second(s)
 
 /*-----------------------
@@ -681,7 +681,7 @@ pr()
 ? Q(5).RepeatedInAPair()
 #--> [5, 5]
 
-proff()
+pf()
 # Executed in 0.08 second(s)
 
 /*-----------------------
@@ -692,7 +692,7 @@ o1 = new stzNumber("5")
 ? ring_type(o1.Number())
 #--> NUMBER
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*-----------------------
@@ -713,7 +713,7 @@ pr()
 ? Q([1, 2]).RepeatedInAPair()
 #--> [ [1,2], [1,2] ]
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*-----------------------
@@ -735,7 +735,7 @@ pr()
 ? StzNumberQ("⑨").Number() #--> 9
 # You can also use .NumericValue() or just .Value() and it works!
 
-proff()
+pf()
 # Executed in 0.07 second(s)
 
 /*-----------------------
@@ -745,7 +745,7 @@ pr()
 ? Q(10) ^ 3
 #--> 1000
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*--------------------
@@ -755,7 +755,7 @@ pr()
 ? type(Round(81.8))
 #--> 82
 
-proff()
+pf()
 
 /*--------------------
 
@@ -764,7 +764,7 @@ pr()
 ? Q(2).IsBetween(1, 3)
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*=============== ici
@@ -780,7 +780,7 @@ pr()
 ? RoundXT([ "81.8", 3 ])
 #--> "81.800"
 
-proff()
+pf()
 # Executed in 0.11 second(s)
 
 /*--------------------
@@ -801,7 +801,7 @@ StzNumberQ("81.8") {
 
 }
 
-proff()
+pf()
 # Executed in 0.08 second(s)
 
 /*--------------------
@@ -836,7 +836,7 @@ pr()
 	? 1.224
 	#--> 1.22
 
-proff()
+pf()
 # Executed in 0.01 second(s)
 
 /*-----------------------
@@ -857,7 +857,7 @@ o1 = new stzNumber("-12.4521")
 ? o1.StringValue() # Or Content() ~> Sensitive to the current round on the stzNumber object (4)
 #--> "-12.4521"
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*-----------------------
@@ -877,7 +877,7 @@ o1 = new stzNumber([ 981.123456701, :round = 5 ])
 ? o1.StringValue() # Rounded to the what is specified at the object level, 5.
 #--> 981.12346
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*-----------------------
@@ -900,7 +900,7 @@ o1 = new stzNumber([ 55993400908134, :Round = 5 ])
 ? o1.Cotangent()
 #--> "0.01644"
 
-proff()
+pf()
 # Executed in 0.08 second(s)
 
 /*-----------------------
@@ -915,7 +915,7 @@ o1 = new stzNumber("12.872")
 ? o1.IsBetween(12, "13")
 #--> TRUE
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*-----------------------
@@ -928,7 +928,7 @@ pr()
 ? StzNumberQ(7).DownTo(1)
 #--> 7:1
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*----------------------- TODO: FIX
@@ -946,7 +946,7 @@ pr()
 
 ? Q(5.12).IsEqualTo([ 5.1200000000000001, :Round = 16 ])
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-----------------------
@@ -970,7 +970,7 @@ o1 = new stzNumber([ "123", 3 ])
 ? o1.Content()
 #--> 123.000
 
-proff()
+pf()
 
 /*-----------------------
 
@@ -982,7 +982,7 @@ o1.RoundTo(3)
 
 ? o1.Content()
 
-proff()
+pf()
 
 /*-----------------------
 
@@ -994,7 +994,7 @@ pr()
 ? MaxRoundInRing()
 #--> 14
 
-proff()
+pf()
 # Executed in 0.03 second(s)
 
 /*-----------------------
@@ -1013,7 +1013,7 @@ o1.RoundTo(:Max)
 ? o1.Content()
 #--> 23500.12399999999980
 
-proff()
+pf()
 # Executed in 0.06 second(s)
 
 /*-----------------------
@@ -1030,7 +1030,7 @@ o1.RoundTo(:Max)
 ? o1.Content()
 #--> "12345678912345"
 
-proff()
+pf()
 
 /*-----------------------
 
@@ -1040,7 +1040,7 @@ o1 = new stzNumber("123.")
 ? o1.RoundedTo(:Max)
 #--> "123.0000000000"
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*-----------------------
@@ -1070,7 +1070,7 @@ o1 = new stzNumber("12.456")
 ? o1.RoundedTo(5)
 #--> "12.456"
 
-proff()
+pf()
 # Executed in 0.19 second(s)
 
 /*=================
@@ -1092,7 +1092,7 @@ Q(14) {
 	#--> FALSE
 }
 
-proff()
+pf()
 
 /*-----------------------  #ERROR
 

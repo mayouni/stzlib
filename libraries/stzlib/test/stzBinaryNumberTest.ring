@@ -19,7 +19,7 @@ decimals(10)
 
 decimals(2)
 
-proff()
+pf()
 # Executed in 0.04 second(s) in Ring 1.21
 # Executed in 0.11 second(s) in Ring 1.17
 
@@ -35,7 +35,7 @@ o1.FromDecimal(127)
 ? o1.BinaryNumber()
 #--> 0b1111111
 
-proff()
+pf()
 # Executed in 0.03 second(s) on Ring 1.21
 # Executed in 0.07 second(s) on Ring 1.20
 
@@ -50,7 +50,7 @@ o1.FromHex("0x127")
 ? o1.BinaryNumber()
 #--> 0b100100111
 
-proff()
+pf()
 # Executed in 0.04 second(s) on Ring 1.21
 # Executed in 0.11 second(s) on Ring 1.20
 
@@ -65,7 +65,7 @@ o1.FromOctal("0o127")
 ? o1.BinaryNumber()
 #--> 0b1010111
 
-proff()
+pf()
 
 /*-------------------
 
@@ -83,6 +83,6 @@ o1 = new stzBinaryNumber("0b1010111")
 ? o1.ToHex()
 #--> 0x57
 
-proff()
+pf()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.09 second(s) in Ring 1.18

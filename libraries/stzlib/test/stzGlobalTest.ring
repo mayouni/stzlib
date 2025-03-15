@@ -19,7 +19,7 @@ pr()
 ? IsStzFindable( ANullObject() ) # it's a stzObject but it is not findable!
 #--> FALSE
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*===
@@ -41,7 +41,7 @@ pr()
 ? L(' "10":"12" ')
 #--> #--> [ "10", "11", "12" ]
 
-proff()
+pf()
 
 /*=====
 
@@ -88,7 +88,7 @@ pr()
 ? BothAreEqualCS("A":"C", "a":"c", FALSE)
 #--> TRUE
 
-proff()
+pf()
 #--> Executed in 0.01 second(s) in Ring 1.21
 #--> Executed in 0.04 second(s) in Ring 1.20
 
@@ -99,7 +99,7 @@ pr()
 ? AllHaveSameType([1, "1", 1])
 #--> FALSE
 
-proff()
+pf()
 
 /*----
 
@@ -117,7 +117,7 @@ pr()
 ? AreEqualCS([ "ring", "Ring", "RING" ], FALSE)
 #--> TRUE
 
-proff()
+pf()
 
 /*===
 
@@ -126,7 +126,7 @@ pr()
 ? BothEndWithANumber( "v1" , "v3" )
 #--> TRUE
 
-proff()
+pf()
 
 /*======== #perf Desabling param checking to enhance performance
 #TODO // Generalize this feature to all Softanza functions
@@ -158,7 +158,7 @@ pr()
 
 ? EuclideanDistance(aList1, aList2)
 
-proff()
+pf()
 # It take 25.54 seconds!
 
 # A lot.
@@ -171,7 +171,7 @@ pr()
 
 ? EuclideanDistance(aList1, aList2)
 
-proff()
+pf()
 # Now the function takes just 2.05 seconds! (10 times faster)
 
 /*============
@@ -184,7 +184,7 @@ for i = 1 to 10_000
 next
 # Executed in 8.25 second(s)
 
-proff()
+pf()
 
 /*----------
 
@@ -196,7 +196,7 @@ for i = 1 to 1_000
 next
 # Executed in 0.88 second(s)
 
-proff()
+pf()
 
 /*=========== #perf #narration
 
@@ -209,7 +209,7 @@ for i = 1 to 5_000_000
 	// Do nothing
 next
 
-proff()
+pf()
 # Executed in 0.11 second(s) in Ring 1.20
 # Executed in 0.12 second(s) in Ring 1.19
 # Executed in 0.44 second(s) in Ring 1.17
@@ -227,7 +227,7 @@ next
 # In Notepad 1.19+, click on the pause button on the right of the Input control
 # at the bottom of the Output window to stop the execution;
 
-proff()
+pf()
 
 /*---- #perf
 
@@ -240,7 +240,7 @@ pr()
 	// Do nothing
 }
 
-proff()
+pf()
 # Executed in 1.25 second(s) in Ring 1.21
 # Executed in 2.04 second(s) in Ring 1.18
 
@@ -260,7 +260,7 @@ pr()
 
 }
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*----------
@@ -291,7 +291,7 @@ pr()
 
 }
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*----------
@@ -310,7 +310,7 @@ pr()
 #    4
 #    5
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*----------
@@ -326,7 +326,7 @@ pr()
 #    haneen	8
 #    hussein	2
 
-proff()
+pf()
 # Executed in 0.05 second(s) in Ring 1.20
 
 /*----------
@@ -342,7 +342,7 @@ aNumbers = []
 ? ShowShort(aNumbers)
 #--> [ 1, 2, 3, "...", 98, 99, 100 ]
 
-proff()
+pf()
 # Executed in 0.30 second(s)
 
 /*-----------
@@ -358,7 +358,7 @@ pr()
 #--> HANEEN
 #--> HUSSEIN
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*-----------
@@ -372,7 +372,7 @@ pr()
 #    omar 32
 #    sonia 14
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*============
@@ -390,7 +390,7 @@ pr()
 #	"*34", "3", "34", "4"
 # ]
 
-proff()
+pf()
 # Executed in 0.05 second(s)
 
 /*-----------
@@ -402,7 +402,7 @@ pr()
 ? @@("'n'")	#--> "'n'"
 ? @@('"n"')	#--> '"n"'
 
-proff()
+pf()
 #--> Executed in 0.02 second(s)
 
 /*---------------- Showing the short form of a long list
@@ -438,7 +438,7 @@ pr()
 ? @@SXT(1:50, [2, 3]) + NL
 #--> [ 1, 2, "...", 48, 49, 50 ]
 
-proff()
+pf()
 #--> Executed in 0.01 second(s) in Ring 1.21
 #--> Executed in 0.10 second(s) in Rin 1.20
 
@@ -452,7 +452,7 @@ proff()
 ? Q(1:10).ShowShortXT([2, 3])
 #--> [ 1, 2, "...", 8, 9, 10 ]
 
-proff()
+pf()
 
 /*================
 
@@ -461,7 +461,7 @@ pr()
 o1 = new stzListOfStrings([ "[ 4, 7 ]", "[ 1, 3 ]", "[ 8, 9 ]" ])
 ? o1.Sorted()
 
-proff()
+pf()
 #--> Executed in 0.03 second(s)
 
 /*-------------
@@ -473,7 +473,7 @@ o1.SortInAscending()
 ? @@( o1.Content() )
 #--> [ [1,3], [4, 7], [8, 9] ]
 
-proff()
+pf()
 # Executed in 0.07 second(s)
 
 /*------------
@@ -483,7 +483,7 @@ pr()
 ? @@(  Association([ [4, 14, 9], [6, 16] ]) )
 #--> [ [ 4, 6 ], [ 14, 16 ], [ 9, "" ] ]
 
-proff()
+pf()
 # Executed in 0.04 second(s)
 
 /*------------
@@ -509,7 +509,7 @@ o1 = new stzString("...emm...eh..emm...eh")
 ? @@(o1.FindAsSections([ "emm", "eh" ])) # Of FindZZ() for short
 #--> [ [ 4, 6 ], [ 10, 11 ], [ 14, 16 ], [ 20, 21 ] ]
 
-proff()
+pf()
 # Executed in 0.07 second(s)
 
 /*------------
@@ -544,7 +544,7 @@ o1 = new stzString("...|---|....|--|..--")
 ? @@( o1.FindSubStringsBoundedByZZ("|") )# Idem
 #--> [ [ 5, 7 ], [ 9, 12 ], [ 14, 15 ] ]
 
-proff()
+pf()
 # Executed in 0.10 second(s)
 
 /*------------ #todo write a #narration
@@ -567,7 +567,7 @@ o1 = new stzString("...|---|....|--|..--")
 #	[ "--", [ [ 5, 6 ], [ 6, 7 ], [ 14, 15 ], [ 19, 20 ] ] ]
 # ]
 
-proff()
+pf()
 # Executed in 0.08 second(s)
 
 /*------------
@@ -587,7 +587,7 @@ o1 = new stzString('   str = "  ...  "     and   str !=    "  *** " ')
 ? @@( o1.FindAsSections( o1.BoundedBy('"') ) )
 #--> [ [ 11, 17 ], [ 19, 39 ], [ 41, 46 ] ]
 
-proff()
+pf()
 # Executed in 0.07 second(s)
 
 /*------------
@@ -597,7 +597,7 @@ pr()
 ? @@('   str = "  ...  "     and   str !=    "  *** " ')
 #--> 'str = "  ...  " and str != "  *** "'
 
-proff()
+pf()
 # Executed in 0.02 second(s)
 
 /*----------- #TODO/FUTURE
@@ -609,7 +609,7 @@ o1.ReplaceSection(3, 5, :With@ = 'Q(@char).Uppercased()')
 ? o1.Content()
 #--> SOANZNZA
 
-proff()
+pf()
 # Executed in 1.09
 
 /*===================
@@ -981,7 +981,7 @@ o1 = new stzString("A")
 ? Q([ [1,2], [3,4], [5,6] ]).IsListOf(:ListsOfNumbers)	#--> TRUE
 ? Q([ [1,2], [3,4], [5,6] ]).IsListOf(:PairsOfNumbers)	#--> TRUE
 
-proff()
+pf()
 #--> Executed in 0.09 second(s).
 
 /*-------------------
@@ -1026,7 +1026,7 @@ pr()
 
 ? Q(:Pair).InfereType()			#--> :List
 
-proff()
+pf()
 # Executed in 0.03 second(s).
 
 /*=================
@@ -1049,7 +1049,7 @@ pr()
 ? ComputableForm([ 1, 2, "a" ]) # or use the abbreviated form @@(...)
 #--> [ 1, 2, "a" ]
 
-proff()
+pf()
 # Executed in almost 0 second(s).
 
 /*================ #narration: chars looking similar but are different!

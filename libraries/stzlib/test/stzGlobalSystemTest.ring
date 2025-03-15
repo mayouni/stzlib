@@ -14,5 +14,5 @@ pState2 = ring_state_init()
 ? ArePointers([ pState1, pState2 ])
 #--> TRUE
 
-proff()
+pf()
 # Executed in almost 0 second(s) in Ring 1.21
