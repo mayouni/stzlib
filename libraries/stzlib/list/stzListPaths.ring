@@ -2,9 +2,10 @@
 #  FUNCTIONS FOR PATH MANAGEMENT  #
 #---------------------------------#
 
-# An internal function that generates paths of a nested list
-# from a particular string representation of the list (formed
-# from only "[", ",", and "]" and removing all the other chars)
+# An internal function used by stzList that generates paths
+# of a nested list from a particular string representation
+# of the list (formed from only "[", ",", and "]" and
+# removing all the other chars)
 
 func GeneratePaths(cStr)
 
