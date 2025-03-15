@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 /*=====
 
-profon()
+pr()
 
 o1 = new stzString("rixxnxg")  
 
@@ -22,7 +22,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 o1 = new stzString("rixxnxg")
 
@@ -42,7 +42,7 @@ proff()
 
 /*=====
 
-profon()
+pr()
 
 o1 = new stzList([
 	"item1",
@@ -87,7 +87,7 @@ proff()
 
 /*============
 
-profon()
+pr()
 
 ? RingVersion()
 #--> "1.22"
@@ -100,7 +100,7 @@ proff()
 
 /*------
 
-profon()
+pr()
 
 o1 = new stzList([
 	[ 1 ],
@@ -150,7 +150,7 @@ proff()
 
 /*------ #Misspelled forms
 
-profon()
+pr()
 
 ? Q("   Ring ").WithoutSapces()
 #--> Ring
@@ -165,7 +165,7 @@ proff()
 
 /*==== PATHS MANAGEMENT
 
-profon()
+pr()
 
 o1 = new stzList([
 	"item1",
@@ -198,7 +198,7 @@ proff()
 
 /*------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"item1",
@@ -215,7 +215,7 @@ proff()
 
 /*------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"item1",
@@ -232,7 +232,7 @@ proff()
 
 /*------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"item1",
@@ -263,7 +263,7 @@ proff()
 
 /*------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"item1",
@@ -283,7 +283,7 @@ proff()
 
 /*------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"item1",
@@ -311,7 +311,7 @@ proff()
 
 /*------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"item1",
@@ -346,7 +346,7 @@ proff()
 # Executed in 0.39 second(s) in Ring 1.22
 
 
-profon()
+pr()
 
 o1 = new stzList([
 	"item1",
@@ -382,7 +382,7 @@ proff()
 
 /*=====
 
-profon()
+pr()
 
 ? @@NL( PathsIn([ 2, 3, 2 ]) ) + NL
 #--> [
@@ -404,7 +404,7 @@ proff()
 
 /*=====
 
-profon()
+pr()
 
 aList1 = [
 	[ 2, 1 ],
@@ -426,7 +426,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 aLists = [
 	[1, 2, 3, 4, 5],
@@ -471,7 +471,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 # All the examples return the same result, but they show the power and
 # flexibility of finding items in singular or plural in a path or many paths
@@ -499,7 +499,7 @@ proff()
 
 /*=== REMOVING ITEMS AT PATHS
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -521,7 +521,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -542,7 +542,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -564,7 +564,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -586,7 +586,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -608,7 +608,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -632,7 +632,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, "♥", 4, 5 ])
 
@@ -649,7 +649,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
 
@@ -666,7 +666,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzList([ 1, 2, "♥", 4, "*", 6, "♥" ])
 
@@ -679,7 +679,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -701,10 +701,85 @@ o1.RemoveItemsAtPaths([ "♥", "*" ], [ [2, 2], [4] ])
 proff()
 # Executed in 0.32 second(s) in Ring 1.22
 
+/*===
+
+pr()
+
+o1 = new stzList([ "A", [], "B" ])
+
+? @@( o1.Paths() )
+#--> [ [ 1 ], [ 2 ], [ 2, 1 ], [ 3 ] ]
+
+? o1.ItemAtPath([1])
+#--> "A"
+
+? @@( o1.ItemAtPath([2]) )
+""
+
+? o1.ItemAtPath([3])
+#--> "B"
+
+pf()
+# Executed in 0.17 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+o1 = new stzList([
+    "A",
+    [ "♥", "B", "♥", [], "C" ], #NOTE //[] is replaced internally with [NULL]
+    "D"				# Otherwise path parsing won't work correctly!
+])
+
+? @@NL( o1.Paths() ) + NL
+#--> [
+#	[ 1 ],
+#	[ 2 ],
+#
+#	[ 2, 1 ],
+#	[ 2, 2 ],
+#	[ 2, 3 ],
+#	[ 2, 4 ],
+#	[ 2, 4, 1 ],
+#	[ 2, 5 ],
+#
+#	[ 3 ]
+# ]
+
+? @@( o1.FindInPath("♥", [ 2, 5 ]) )
+#--> [ [ 2, 1 ], [ 2, 3 ] ]
+
+? @@( o1.FindInPath("♥", [ 2, 1 ]) )
+#--> [ [ 2, 1 ] ]
+
+? @@( o1.FindAtPath("♥", [ 2, 4 ]) )
+#--> []
+
+pf()
+# Executed in 0.61 second(s) in Ring 1.22
+
+/*---
+*/
+pr()
+
+o1 = new stzList([ 1, "♥", [ 3, "♥" ], 4 ])
+
+? @@( o1.Paths() )
+#--> [ [ 1 ], [ 2 ], [ 3 ], [ 3, 1 ], [ 3, 2 ], [ 4 ] ]
+
+? @@( o1.Path([3]) )
+#--> [ [ 1 ], [ 2 ], [ 3 ] ]
+
+? @@( o1.FindInPath("♥", [3]) )
+#--> [ [ 2 ] ]
+
+pf()
+# Executed in 0.28 second(s) in Ring 1.22
 
 /*=== REMOVING ITEMS OVER PATHS
 */
-profon()
+pr()
 
 o1 = new stzList([
     "A",
@@ -726,11 +801,11 @@ o1.RemoveItemInPath("♥", [2, 2])
 #--> [ "A", [ [ "B", "♥", "C", "♥" ], "♥", "D" ], "E" ]
 
 proff()
-# Executed in 0.39 second(s) in Ring 1.22
+# Executed in 0.50 second(s) in Ring 1.22
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -796,7 +871,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -829,7 +904,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 
 o1 = new stzList([
@@ -875,7 +950,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 
 o1 = new stzList([
@@ -898,7 +973,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 
 o1 = new stzList([
@@ -919,7 +994,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 
 o1 = new stzList([
@@ -940,7 +1015,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 
 o1 = new stzList([
@@ -971,7 +1046,7 @@ proff()
 /*---- #todo #narration finding an item over a given path
 # using DeepFind(), PathsIn, and Intersection
 
-profon()
+pr()
 
 o1 = new stzList([
     "A",
@@ -1003,7 +1078,7 @@ fproff()
 
 /*----
 
-profon()
+pr()
 
 ? IsSubPathOf( [2], [2, 3, 4])
 
@@ -1012,7 +1087,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 o1 = new stzList([
     "A",
@@ -1037,7 +1112,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 o1 = new stzList([
     "A",
@@ -1075,7 +1150,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 o1 = new stzList([
     "A",
@@ -1140,7 +1215,7 @@ proff()
 
 /*------
 
-profon()
+pr()
 
 o1 = new stzList([
     "A",
@@ -1177,7 +1252,7 @@ proff()
 
 /*------
 
-profon()
+pr()
 
 o1 = new stzList([
     "A",
@@ -1216,7 +1291,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -1240,7 +1315,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -1267,7 +1342,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -1288,7 +1363,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -1318,7 +1393,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -1350,7 +1425,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([])
 
@@ -1377,7 +1452,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -1431,7 +1506,7 @@ proff()
 
 /*====
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -1454,7 +1529,7 @@ proff()
 
 /*-----
 */
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -1481,7 +1556,7 @@ proff()
 
 /*-----
 
-profon()
+pr()
 
 o1 = new stzList([
     	"A",
@@ -1513,7 +1588,7 @@ proff()
 /*----
 */
 
-profon()
+pr()
 
 o1 = new stzList([
     	"A",
@@ -1544,7 +1619,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([
     "A",
@@ -1563,7 +1638,7 @@ proff()
 
 /*====
 
-profon()
+pr()
 
 o1 = new stzList([
     "A",
@@ -1579,7 +1654,7 @@ proff()
 
 /*------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -1609,7 +1684,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -1644,7 +1719,7 @@ proff()
 
 #---
 
-profon()
+pr()
 
 #  All paths share [2, 1] as common ancestor
 ? @@( CommonPath()([ [2, 1, 3], [2, 1, 4], [2, 1, 5] ]) ) # Or PathsIntersection()
@@ -1675,7 +1750,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 # This list will have no common path because of root-level items
 
@@ -1739,7 +1814,7 @@ proff()
 
 #--
 
-profon()
+pr()
 
 ? @@( PathsSection([ 2 ], [ 2, 3, 1 ]) )
 #--> [ [ 2 ], [ 2, 3 ], [ 2, 3, 1 ] ]
@@ -1761,7 +1836,7 @@ proff()
 
 #--
 
-profon()
+pr()
 
 o1 = new stzList([ 
 	"X",
@@ -1823,7 +1898,7 @@ proff()
 
 /*--
 
-profon()
+pr()
 
 # [2,1] is a subpath of [2,1,3] but not of [2,2]
 
@@ -1842,7 +1917,7 @@ proff()
 
 /*----....
 
-profon()
+pr()
 
 o1 = new stzList([
 	"♥♥♥",
@@ -1864,7 +1939,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzList([
 	"item1",
@@ -1882,7 +1957,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"item1",
@@ -1909,7 +1984,7 @@ proff()
 
 /*-------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"item1",
@@ -1927,7 +2002,7 @@ o1.RemoveAtPath([2, 2, 1])
 proff()
 /*============
 
-profon()
+pr()
 
 o1 = new stzList([
 	"ring",
@@ -1966,7 +2041,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzList([
 	"you",
@@ -2015,7 +2090,7 @@ proff()
 
 /*====
 
-profon()
+pr()
 
 c = "‎"
 
@@ -2045,7 +2120,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 aList = [
 	1,
@@ -2068,7 +2143,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 o1 = new stzList([ 1, "♥", 3, 4, "♥", 6 ])
 
@@ -2080,7 +2155,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 aList = [
 	[ 1, 2, 3 ],
@@ -2098,7 +2173,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 # Test of internal functions used with DeepFind() in stzString
 
@@ -2146,7 +2221,7 @@ proff()
 
 /*----- #todo #narration STRINGIFY VS DEEP-STRINGIFY
 
-profon()
+pr()
 
 # Define a nested list with a mix of strings, numbers, and sublists
 
@@ -2191,7 +2266,7 @@ proff()
 
 /*---------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"A",
@@ -2225,7 +2300,7 @@ proff()
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzList([
 	"you",
@@ -2243,7 +2318,7 @@ proff()
 
 /*---------
 
-profon()
+pr()
 
 o1 = new stzList([
 	1,
@@ -2276,7 +2351,7 @@ proff()
 
 /*---------
 
-profon()
+pr()
 
 o1 = new stzList([
 	1,
@@ -2308,7 +2383,7 @@ proff()
 
 /*--------- #todo add #quicker
 
-profon()
+pr()
 
 o1 = Q('[ [ 1, 2, 3 ], [ "B", [ 1, 2, 3 ] ], [ "C", "D", [ 1, 2, 3 ] ], [ 1, 2, 3 ] ]')
 
@@ -2320,7 +2395,7 @@ proff()
 
 /*-----------
 
-profon()
+pr()
 /*
 o1 = new stzList([
 	"A",
@@ -2348,7 +2423,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 o1 = new stzString("RIxxNxG")
 ? o1.@All("x").@Removed()
@@ -2361,7 +2436,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 ? isNull("")
 #--> TRUE
@@ -2374,7 +2449,7 @@ proff()
 
 /*----
 
-profon()
+pr()
 
 
 o1 = new stzString("abracadabra")
@@ -2399,7 +2474,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 # Given the string: "abracadabra", replace programatically:
 #
@@ -2431,7 +2506,7 @@ proff()
 
 /*---
 
-profon()
+pr()
 
 Q("abracadabra") {
 	ReplaceManyNthSubStrings([
@@ -2451,7 +2526,7 @@ proff()
 
 /*--- #TODO
 
-profon()
+pr()
 
 Naturally() {
 	Given the string "abracadabra" replace programatically

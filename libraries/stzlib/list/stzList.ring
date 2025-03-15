@@ -44451,6 +44451,30 @@ fdef
 	 #  PATH MANAGEMENT FOR NESTED (DEEP) LISTS  #
 	#===========================================#
 
+	def Path(paPath)
+		_oPaths_ = This.PathsQ()
+
+		_n1_ = _oPaths_.FindFirst(paPath)
+		_n2_ = _oPaths_.NumberOfItems()
+
+		if _n1_ < _n2_
+			_n1_++
+		ok
+
+		_oPaths_.RemoveSection(_n1_, _n2_)
+		_aResult_ = _oPaths_.Content()
+
+		return _aResult_
+
+		def PathQ(paPath)
+			return new stzList(This.Path())
+
+		def PathTo(paPath)
+			return This.Path(paPath)
+
+			def PathToQ(paPath)
+				return This.PathQ(paPath)
+
 	def Paths()
 		if This.IsEmpty()
 			return []
@@ -44736,8 +44760,12 @@ fdef
 			ok
 		ok
 
-		_aContent_ = This.Content()
+		#NOTE: // Whe the list contains an empty list at any level, then it
+		# replaced by [NULL] for the path parsing to work correctly
+
+		_aContent_ = This.Copy().DeepReplaceQ([], [_NULL_]).Content()
 		_cCode_ = '_result_ = _aContent_' + @@Q(paPath).ReplaceQ(",", "][").Content()
+
 		eval(_cCode_)
 
 		return _result_
@@ -45019,6 +45047,7 @@ fdef
 		#>
 
 	def ItemsInPath(paPath)
+
 
 		_aResult_ = []
 		_aPaths_ = This.PathsInPath(paPath)
@@ -51246,6 +51275,7 @@ fdef
 		def FindListsZZ()
 			return This.FindListsAsSections()
 
+
 	def FindList(paList) # Add case sensitivity
 
 		if CheckingParams()
@@ -51312,6 +51342,19 @@ fdef
 
 		return aResult
 
+	def FindEmptyLists()
+		aContent = This.Content()
+		nLen = len(acontent)
+		aResult = []
+
+		for i = 1 to nLen
+			if isList(aContent[i]) and len(aContent[i]) = 0
+				aResult + i
+			ok
+		next
+		
+		return aResult
+
 	  #--------------------------------------------#
 	 #  REMOVING THE LISTS CONTAINED IN THE LIST  #
 	#--------------------------------------------#
@@ -51333,6 +51376,22 @@ fdef
 
 	def ListsRemoved()
 		aResult = This.Copy().RemoveListsQ().Content()
+		return aResult
+
+	  #--------------------------------------------#
+	 #  REMOVING THE LISTS CONTAINED IN THE LIST  #
+	#--------------------------------------------#
+
+	def RemoveEmptyLists()
+		anPos = This.FindEmptyLists()
+		This.RemoveItemsAtThesePositions(anPos)
+
+		def RemoveEmptyListsQ()
+			This.RemoveEmptyLists()
+			return This
+
+	def EmptyListsRemoved()
+		aResult = This.Copy().RemoveEmptyListsQ().Content()
 		return aResult
 
 	  #-----------------------------------------#
