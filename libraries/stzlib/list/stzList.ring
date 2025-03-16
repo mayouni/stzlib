@@ -44475,6 +44475,18 @@ fdef
 			def PathToQ(paPath)
 				return This.PathQ(paPath)
 
+		def PathsTo(paPath)
+			return This.Path(paPath)
+
+			def PathsToQ(paPath)
+				return This.PathQ(paPath)
+
+		def PathsUpTo(paPath)
+			return This.Path(paPath)
+
+			def PathsUpToQ(paPath)
+				return This.PathQ(paPath)
+
 	def Paths()
 		if This.IsEmpty()
 			return []
@@ -44773,6 +44785,12 @@ fdef
 		def ItemAtPathQ(paPath)
 			return Q(This.ItemAtPath(paPath))
 
+		def ItemInPath(paPath)
+			return This.ItemAtPath(paPath)
+
+			def ItemInPathQ(paPath)
+				retuen This.ItemAtPathQ(paPath)
+
 	def ItemAtPathZZ(paPath)
 		if CheckParams()
 			if NOT This.IsValidPath(paPath)
@@ -44787,7 +44805,7 @@ fdef
 		_aResult_ = [ _item_, paPath ]
 		return _aResult_
 
-		def ItemAtPathZ(paPath)
+		def ItemInPathZZ(paPath)
 			return This.ItemAtPathZZ(paPath)
 
 	def ItemsAtPath(paPath)
@@ -44849,13 +44867,7 @@ fdef
 
 		return _aResult_
 
-		def ItemsAtPathZ(paPath)
-			return This.ItemsAtPathZZ(paPath)
-
 		def ItemsAtPathXTZZ(paPath)
-			return This.ItemsAtPathZZ(paPath)
-
-		def ItemsAtPathXTZ(paPath)
 			return This.ItemsAtPathZZ(paPath)
 
 	def ItemsAtPaths(paPaths)
@@ -45772,7 +45784,7 @@ fdef
 		def ContainsItemInAllNodesOfPathsCS(pItem, paPaths, pCaseSensitive)
 			return This.ItemExistsInAllNodesPathsCS(pItem, paPaths, pCaseSensitive)
 
-	func ItemExistsInAllNodesOfPaths(pItem, paPath)
+	func ItemExistsInAllNodesOfPaths(pItem, paPaths)
 		return This.ItemExistsInAllNodesOfPathsCS(pItem, paPaths, _TRUE_)
 
 		def ContainsItemInAllNodesOfPaths(pItem, paPaths)
