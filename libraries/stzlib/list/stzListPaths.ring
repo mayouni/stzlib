@@ -120,6 +120,20 @@ func PathsIn(paPath)
 	func @PathsInPath(paPath)
 		return PathsIn(paPath)
 
+	#--
+
+	def PathsTo(paPath)
+		return PathsIn(paPath)
+
+	def @PathsTo(paPath)
+		return PathsIn(paPath)
+
+	def PathsToPath(paPath)
+		return PathsIn(paPath)
+
+	def @PathsToPath(paPath)
+		return PathsIn(paPath)
+
 	#>
 
 func LastPathIn(paPath)

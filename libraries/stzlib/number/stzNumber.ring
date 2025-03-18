@@ -1086,7 +1086,7 @@ func GetUnitsDozensAndHundreds(pNumber)	// Or simplier : GetMicroStructure(pNumb
 
 			pcNumber = pcNumber[2] + pcNumber[3] + pcNumber[4]
 		else
-			StzRaise("Can't proceed! The lenght of the number should not exceed 3.")
+			StzRaise("Can't proceed! The length of the number should not exceed 3.")
 		ok
 	ok
 

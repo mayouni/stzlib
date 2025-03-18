@@ -1508,7 +1508,7 @@ proff()
 # Depth   -> DeepestPath()	or HighestPath() depending on the  observer perpspective
 #	  VS ShallowestPath()	or LowestPath()
 
-# Lenght  -> LongestPath() VS ShortestPath()
+# Length  -> LongestPath() VS ShortestPath()
 
 // Add examples here
 
@@ -1639,7 +1639,7 @@ proff()
 # Executed in 1.27 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 o1 = new stzList([
@@ -1649,15 +1649,106 @@ o1 = new stzList([
 ])
 
 ? @@NL(o1.Paths())
+#--> [
+#	[ 1 ],
+#	[ 2 ],
+#	[ 2, 1 ],
+#	[ 2, 2 ],
+#	[ 2, 3 ],
+#	[ 2, 3, 1 ],
+#	[ 2, 3, 2 ],
+#	[ 2, 3, 3 ],
+#	[ 2, 3, 4 ],
+#	[ 2, 4 ],
+#	[ 2, 5 ],
+#	[ 2, 6 ],
+#	[ 3 ]
+# ]
+
+? o1.IsValidPath([ 2, 3, 3 ])
+#--> TRUE
+
+? o1.AreValidPaths([ [ 2, 1 ], [ 2, 3, 2 ] ])
+#--> TRUE
+
+pf()
+#--> Executed in 0.12 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+o1 = new stzList([
+    "A",
+    [ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    "E"
+])
+
+? @@NL(PathsTo([2, 3, 3]))
+#--> [
+#	[ 2 ],
+#	[ 2, 3 ],
+#	[ 2, 3, 3 ]
+# ]
+
+? @@NL( o1.PathsTo([2, 3, 3]) )
+#--> [
+#	[ 2 ],
+#	[ 2, 3 ],
+#	[ 2, 3, 3 ]
+# ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+*/
+pr()
+
+# Finding the position of the smallest number
+
+numbers = [ 7, 8, -2, 5, 3 ]
+
+? FindMin(numbers)
+#--> 3
+
+? Min(numbers)
+#--> -2
+
+? FindMax(numbers)
+#--> 2
+
+? Max(numbers)
+#--> 8
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+*/
+pr()
+
+o1 = new stzList([
+    "A",
+    [ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    "E"
+])
+
+? @@NL( o1.PathsTo([2, 3, 3]) )
 
 ? @@( o1.FindItemsInPath([ "♥", "*" ], [2, 2]) )
 #--> [ [ 2, 1 ] ]
 
 ? @@( o1.ItemAtPath([2, 3, 3]) )
+#--> "D"
+
+? o1.IsValidPath([2, 3, 3])
+#--> TRUE
 
 o1.RemoveItemsInPath([ "♥", "*" ], [2, 3, 3])
 
-? @@NL( o1.Content() )
+//? @@NL( o1.Content() )
 #--> [ "♥", ["B", "♥", "C", "♥" ], "♥", "D" ],
 
 proff()

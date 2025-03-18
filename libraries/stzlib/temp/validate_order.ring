@@ -93,7 +93,7 @@ proff()
 	? al_ustr_size(salem)
 	#--> 60
 
-# Getting the number of chars (lenght) of the string
+# Getting the number of chars (length) of the string
 
 	? al_ustr_length(salem) + NL
 	#--> 32

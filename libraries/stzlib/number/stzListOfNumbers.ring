@@ -68,11 +68,26 @@ func MinOf(panNumbers)
 	func @MinOf(panNumbers)
 		return Min(panNumbers)
 
+	func MinIn(panNumbers)
+		return Min(panNumbers)
+
+	func @MinIn(panNumbers)
+		return Min(panNumbers)
+
 func MaxOf(panNumbers)
 	return Max(panNumbers) # Defined in SoftanzaCore
 
 	func @MaxOf(panNumbers)
 		return Max(panNumbers)
+
+	func MaxIn(panNumbers)
+		return Max(panNumbers)
+
+	func @MaxIn(panNumbers)
+		return Max(panNumbers)
+
+func FindMaxIn(panNumbers)
+	return FindMax(panNumbers) # Defined in SoftanzaCore
 
 #-- Multiple calculation
 
