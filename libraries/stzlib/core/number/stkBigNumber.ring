@@ -1046,7 +1046,7 @@ pvtAddOne(cNumber) # Must ba an int
 			but nLenIntPart1 > nLenIntPart2
 				return "10"
 	
-			else // same lenght
+			else // same length
 	
 				# Start by comparing int parts
 	

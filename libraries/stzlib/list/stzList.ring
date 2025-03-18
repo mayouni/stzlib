@@ -9,12 +9,12 @@
 #									    #
 #---------------------------------------------------------------------------#
 
-#TODO Centralise all updading features in update() method
-# ~> It's important to have a single entry for simplifying
-# a feature like Undo/Redo (currently scattered over many
-# places in the code.
+#TODO Centralize all updading features in update() method
+# ~> It's important to have a single entry for this allover
+# the codebase, although it leads to slightly higher perf tax.
 
 #NOTE ~> Same #TODO applies to stzString and stzNumber
+#UPDATE: Mostly done!
 
 # Loading the functions for managing paths in list
 
@@ -18519,7 +18519,7 @@ class stzList from stzObject
 			ok
 		ok
 
-		# Preparing the lenghts and bounds values
+		# Preparing the lengths and bounds values
 
 		nLenList = len(@aContent)
 
@@ -44452,18 +44452,7 @@ fdef
 	#===========================================#
 
 	def Path(paPath)
-		_oPaths_ = This.PathsQ()
-
-		_n1_ = _oPaths_.FindFirst(paPath)
-		_n2_ = _oPaths_.NumberOfItems()
-
-		if _n1_ < _n2_
-			_n1_++
-		ok
-
-		_oPaths_.RemoveSection(_n1_, _n2_)
-		_aResult_ = _oPaths_.Content()
-
+		_aResult_ = @PathsTo(paPath)
 		return _aResult_
 
 		def PathQ(paPath)
@@ -44546,7 +44535,7 @@ fdef
 
 		return _anResult_
 
-		def LenghtsOfPaths()
+		def LengthsOfPaths()
 			return This.PathsLengths()
 
 		def LenOfPaths()
@@ -44565,7 +44554,7 @@ fdef
 		return _aResult_
 
 		def PathsAndTheirLen()
-			return This.PathsAndTheirLenghts()
+			return This.PathsAndTheirLengths()
 
 		#-- @Misspelled
 
@@ -44592,7 +44581,7 @@ fdef
 		def LenOfLongestPath()
 			return This.LengthOfLongestPath()
 
-		def LongestPathLenght()
+		def LongestPathLength()
 			return This.LengthOfLongestPath()
 
 		def LongestPathLen()
@@ -44707,9 +44696,19 @@ fdef
 	def ShortestPath()
 		if This.IsEmpty()
 			return []
-		else
-			return [1]
 		ok
+
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
+		_anSizes_ = []
+
+		for @i = 1 to _nLen_
+			_anSizes_ + len(_aPaths_[@i])
+		next
+
+		_nPos_ = @FindMin(_anSizes)
+		return _aPaths_[_nPos_]
 
 		def SmallestPath()
 			return This.ShortestPath()
@@ -44789,7 +44788,7 @@ fdef
 			return This.ItemAtPath(paPath)
 
 			def ItemInPathQ(paPath)
-				retuen This.ItemAtPathQ(paPath)
+				return This.ItemAtPathQ(paPath)
 
 	def ItemAtPathZZ(paPath)
 		if CheckParams()
@@ -46198,8 +46197,7 @@ fdef
 
 	def RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
 
-   		_aPaths_ = This.FindItemsInPathCS(paItems, paPath, pCaseSensitive)
-		_aResult_ = This.RemoveItemsAtPaths(paItems, _aPaths_)
+		#TODO
 
 		#< @FunctionFluentForm
 
@@ -46857,19 +46855,19 @@ fdef
 				StzRaise("Incorrect param type! paItems must be a list.")
 			ok
 	
-			if NOT These.AreValidPaths(paPaths)
+			if NOT This.AreValidPaths(paPaths)
 				StzRaise("Can't proceed! paPaths is not a valid list of paths in the list.")
 			ok
 		ok
 
+		_aPaths_ = This.FindItemsAtPathsCS(paItems, paPaths, pCaseSensitive)
+		_nLenPaths_ = len(_aPaths_)
 		_nLen_ = len(paItems)
-		_oCopy_ = This.Copy()
 
-		for @i = 1 to _nLen_
-			_oCopy_.RemoveItemAtPathsCS(paItems[@i], paPaths, pCaseSensitive)
+		for @i = _nLenPaths_ to 1 step -1
+			This.RemoveItemsAtPathsCS(paItems, _aPaths_[@i], pCaseSensitive)
 		next
 
-		This.UpdateWith(_oCopy_.Content())
 
 		#< @FunctionFluentForm
 
@@ -46931,7 +46929,11 @@ fdef
 	def RemoveItemInPathsCS(pItem, paPaths, pCaseSensitive)
 
    		_aPaths_ = This.FindItemInPathsCS(pItem, paPaths, pCaseSensitive)
-		_aResult_ = This.RemoveItemsAtPaths(_aPaths_)
+		_nLen_ = len(_aPaths_)
+
+		for @i = _nLen_ to 1 step -1
+			This.RemoveItemsAtPath(_aPaths_[@i])
+		next
 
 		#< @FunctionFluentForm
 

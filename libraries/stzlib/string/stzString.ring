@@ -53616,8 +53616,8 @@ class stzString from stzObject
 			aSections = []
 
 			# There is a difficulty we must manage related to
-			# keeping the same lenght of the line as cVizLine
-			# whatever lenght the numbers have.
+			# keeping the same length of the line as cVizLine
+			# whatever length the numbers have.
 
 			# Here we deal with it:
 
@@ -93376,7 +93376,7 @@ class stzString from stzObject
 				return This.NumberOfCharBQ()
 
 				def LengthBQV()
-					SetLastValue(This.Lenght())
+					SetLastValue(This.Length())
 					return This.LengthBQ()
 
 		#-- Used in natural-coding

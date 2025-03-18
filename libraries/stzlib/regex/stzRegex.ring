@@ -1087,10 +1087,10 @@ class stzRegex
 		return 0
 
 		def PartialMatchSize()
-			return This.PartialMatchLenght()
+			return This.PartialMatchLength()
 
 		def PartialMatchNumberOfChars()
-			return This.PartialMatchLenght()
+			return This.PartialMatchLength()
 
 	def PartialMatchZ(pcStr)
 		aResult = [ This.PartialMacth(pcStr), This.FindPartialMatch(pcStr) ]
