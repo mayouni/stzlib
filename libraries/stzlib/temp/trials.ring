@@ -1702,7 +1702,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 # Finding the position of the smallest number
@@ -1723,6 +1723,28 @@ numbers = [ 7, 8, -2, 5, 3 ]
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+*/
+pr()
+
+o1 = new stzList([
+    "A",
+    [ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    "E"
+])
+
+? @@NL( o1.PathsContainingItem("♥") )
+#--> [
+#	[ 2, 1 ],
+#	[ 2, 3, 2 ],
+#	[ 2, 3, 4 ],
+#	[ 2, 4 ],
+#	[ 2, 6 ]
+# ]
+
+pf()
+# Executed in 0.50 second(s) in Ring 1.22
 
 /*---
 

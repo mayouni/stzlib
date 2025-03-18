@@ -46195,9 +46195,39 @@ fdef
 
 	#==
 
-	def RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
+def RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
+    if CheckParams()
+        if NOT isList(paItems)
+            StzRaise("Incorrect param type! paItems must be a list.")
+        ok
+        if NOT This.IsValidPath(paPath)
+            StzRaise("Incorrect param type! paPath must be a valid path in the list.")
+        ok
+    ok
 
-		#TODO
+    _aContent_ = This.Content()
+    _aPaths_ = This.PathsInPath(paPath)
+    _nLenPaths_ = len(_aPaths_)
+
+    for @i = _nLenPaths_ to 1 step -1
+        _cAccessor_ = "_aContent_" + @@Q(_aPaths_[@i]).ReplaceQ(",", "][").Content()
+        _cCode_ = '_aNewValue_ = Q(' + _cAccessor_ + ').RemoveManyCSQ(paItems, pCaseSensitive).Content()'
+        eval(_cCode_)
+
+        _cCode_ = '
+            _nTempLen_ = len(' + _cAccessor_ + ')
+            for @j = _nTempLen_ to 1 step -1
+                del(' + _cAccessor_ + ', @j)
+            next
+            _nTempLen_ = len(_aNewValue_)
+            for @j = 1 to _nTempLen_
+                ' + _cAccessor_ + ' + _aNewValue_[@j]
+            next
+        '
+        eval(_cCode_)
+    next
+
+    This.UpdateWith(_aContent_)
 
 		#< @FunctionFluentForm
 
@@ -47220,8 +47250,19 @@ fdef
 
 	#== #TODO
 
-	def PathsContainingItem(pItem)
-		stzraise("Function not implemented yet!")
+def PathsContainingItem(pItem)
+    _aPaths_ = This.Paths()
+    _nLen_ = len(_aPaths_)
+    _aResult_ = []
+
+    for @i = 1 to _nLen_
+        _item_ = This.ItemAtPath(_aPaths_[@i])
+        if Q(_item_).IsEqualToCS(pItem, _TRUE_)
+            _aResult_ + _aPaths_[@i]
+        ok
+    next
+
+    return _aResult_
 
 	def PathsContainingItems(paItems)
 		stzraise("Function not implemented yet!")
