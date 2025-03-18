@@ -678,7 +678,7 @@ proff()
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*----
-
+*/
 pr()
 
 o1 = new stzList([
@@ -757,7 +757,7 @@ o1 = new stzList([
 #--> []
 
 pf()
-# Executed in 0.61 second(s) in Ring 1.22
+# Executed in 0.22 second(s) in Ring 1.22
 
 /*---
 
@@ -775,7 +775,7 @@ o1 = new stzList([ 1, "♥", [ 3, "♥" ], 4 ])
 #--> [ [ 2 ] ]
 
 pf()
-# Executed in 0.28 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.22
 
 /*=== REMOVING ITEMS OVER PATHS
 
@@ -793,7 +793,7 @@ o1 = new stzList([
 ? @@( o1.FindInPath("♥", [ 2, 2 ]) ) + NL
 #--> [ [ 2, 1 ] ]
 
-o1.RemoveItemInPath("♥", [2, 2]) )
+o1.RemoveItemInPath("♥", [2, 2])
 #NOTE All these paths are concerned:
 # [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ] ]
 
@@ -801,7 +801,7 @@ o1.RemoveItemInPath("♥", [2, 2]) )
 #--> [ "A", [ [ "B", "♥", "C", "♥" ], "♥", "D" ], "E" ]
 
 proff()
-# Executed in 0.50 second(s) in Ring 1.22
+# Executed in 0.24 second(s) in Ring 1.22
 
 /*----
 
@@ -868,7 +868,7 @@ o1 = new stzList([
 #--> ERROR: Incorrect param value! n must be within the size of the path.
 
 proff()
-# Executed in 0.99 second(s) in Ring 1.22
+# Executed in 0.89 second(s) in Ring 1.22
 
 /*----
 
@@ -914,27 +914,52 @@ o1 = new stzList([
     	"E"
 ])
 
+? @@( o1.ItemAtPath([2,3,4]) )
+#--> "♥"
+
+? o1.ItemExistsAtPath("♥", [ 2, 3, 4 ]) + NL
+#--> TRUE
+
+# Many paths
+
+? @@( o1.ItemsAtPaths([[2,3,4]]) )
+#--> [ "♥" ]
+
+? o1.ItemExistsAtPaths("♥", [[ 2, 3, 4 ]])
+#--> TRUE
+
+pf()
+# Executed in 0.25 second(s) in Ring 1.22
+
+/*----
+
+pr()
+
+
+o1 = new stzList([
+    	"A",
+    	[ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    	"E"
+])
+
 
 ? @@( o1.PathTo([ 2 ]) ) # Or Path()
-#--> [ [ 1 ], [ 2 ] ]
+#--> [ [ 2 ] ]
 
-? @@( o1.FindItemAtPath("♥", [ 2 ]) ) + NL
+? @@( o1.FindItemAtPath("♥", [ 2, 2 ]) ) + NL
 #--> [ [ 2, 1 ], [ 2, 4 ], [ 2, 6 ] ]
 
 ? @@NL( o1.PathTo([ 2, 3, 4 ]) ) + NL
 #--> [
-#	[ 1 ],
 #	[ 2 ],
-#	[ 2, 1 ],
-#	[ 2, 2 ],
 #	[ 2, 3 ],
-#	[ 2, 3, 1 ],
-#	[ 2, 3, 2 ],
-#	[ 2, 3, 3 ],
 #	[ 2, 3, 4 ]
 # ]
 
-? o1.ItemExistsAtPath("♥", [ 2, 3, 4 ])
+? @@( o1.ItemsAtPaths([[2,3,4]]) )
+#--> [ "♥" ]
+
+? o1.ItemExistsAtPaths("♥", [[ 2, 3, 4 ]])
 #--> TRUE
 
 ? @@( o1.FindItemAtPath("♥", [ 2, 3, 4 ]) ) + NL
@@ -947,7 +972,7 @@ o1 = new stzList([
 #--> [ ]
 
 proff()
-# Executed in 0.32 second(s) in Ring 1.22
+# Executed in 0.40 second(s) in Ring 1.22
 
 /*----
 
@@ -970,10 +995,10 @@ o1 = new stzList([
 #--> [ ]
 
 proff()
-# Executed in 0.53 second(s) in Ring 1.22
+# Executed in 0.37 second(s) in Ring 1.22
 
 /*----
-
+*/
 pr()
 
 
@@ -1042,7 +1067,7 @@ o1 = new stzList([
 # ]
 
 proff()
-# Executed in 0.32 second(s) in Ring 1.22
+# Executed in 0.24 second(s) in Ring 1.22
 
 /*---- #todo #narration finding an item over a given path
 # using DeepFind(), PathsUpTo, and Intersection
@@ -1056,6 +1081,7 @@ o1 = new stzList([
 ])
 
 aItemPaths = o1.DeepFind("♥")
+? @@NL(aItemPaths) + nl
 #--> [
 #	[ 2, 1 ],
 #	[ 2, 3, 2 ],
@@ -1064,16 +1090,16 @@ aItemPaths = o1.DeepFind("♥")
 #	[ 2, 6 ]
 # ]
 
-aAllPaths = o1.PathsUpTo([2, 3]) # Or Path() or PathTo() or PathsTo()
+aAllPaths = o1.PathsUpTo([2, 3, 2]) # Or Path() or PathTo() or PathsTo()
+? @@NL(aAllPaths) + nl
 #--> [
-#	[ 1 ],
 #	[ 2 ],
-#	[ 2, 1 ],
-#	[ 2, 2 ]
+#	[ 2, 3 ],
+#	[ 2, 3, 2 ]
 # ]
 
 ? @@( @Intersection([ aItemPaths, aAllPaths ]) )
-#--> [ [ 2, 1 ] ]
+#--> [ [ 2, 3, 2 ] ]
 
 #UPDATE! Now you can find it simply in one line:
 
@@ -1081,7 +1107,7 @@ aAllPaths = o1.PathsUpTo([2, 3]) # Or Path() or PathTo() or PathsTo()
 #--> [ [ 2, 1 ] ]
 
 pf()
-# Executed in 0.39 second(s) in Ring 1.22
+# Executed in 0.14 second(s) in Ring 1.22
 
 /*----
 
@@ -1318,7 +1344,7 @@ o1 = new stzList([
 # ]
 
 proff()
-# Executed in 0.69 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.22
 
 /*-----
 
@@ -1345,7 +1371,7 @@ o1 = new stzList([
 # ]
 
 proff()
-# Executed in 0.83 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.22
 
 /*-----
 
@@ -1533,7 +1559,7 @@ o1 = new stzList([
 # ]
 
 proff()
-# Executed in 0.62 second(s) in Ring 1.22
+# Executed in 0.20 second(s) in Ring 1.22
 
 /*-----
 
@@ -1556,11 +1582,14 @@ o1 = new stzList([
 #	[ 4 ],
 #	[ 6, 1 ],
 #	[ 6, 3, 2 ],
-#	[ 6, 3, 3 ]
+#	[ 6, 3, 3 ],
+#	[ 6, 3, 5 ],
+#	[ 6, 4 ],
+#	[ 6, 6 ]
 # ]
 
 proff()
-# Executed in 0.86 second(s) in Ring 1.22
+# Executed in 0.14 second(s) in Ring 1.22
 
 /*-----
 
@@ -1599,13 +1628,13 @@ o1 = new stzList([
 
 # The fellowing are not implemented yet
 
-//? o1.ItemExistsInAllNodesOfPath("♥", [ 3, 2 ]) 			#TODO
-//? o1.ContainsItemInAllNodesOfPath("♥", [ 3, 2 ]) 			#TODO
-//? o1.ItemExistsInAllNodesOfPaths("♥", [ [ 3, 2 ], [ 3, 3 ] ])		#TODO
-//? o1.ContainsItemInAllNodesOfPaths("♥", [ [ 3, 2 ], [ 3, 3 ] ])	#TODO
+# ? o1.ItemExistsInAllNodesOfPath("♥", [ 3, 2 ]) 			#TODO
+# ? o1.ContainsItemInAllNodesOfPath("♥", [ 3, 2 ]) 			#TODO
+# ? o1.ItemExistsInAllNodesOfPaths("♥", [ [ 3, 2 ], [ 3, 3 ] ])		#TODO
+# ? o1.ContainsItemInAllNodesOfPaths("♥", [ [ 3, 2 ], [ 3, 3 ] ])	#TODO
 
 proff()
-# Executed in 2.53 second(s) in Ring 1.22
+# Executed in 0.55 second(s) in Ring 1.22
 
 /*----
 
@@ -1636,7 +1665,7 @@ o1 = new stzList([
 # ]
 
 proff()
-# Executed in 1.27 second(s) in Ring 1.22
+# Executed in 0.40 second(s) in Ring 1.22
 
 /*---
 
@@ -1725,16 +1754,36 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 o1 = new stzList([
     "A",
-    [ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    [ "♥", "B", [ "C", "♥", "D", "E" ], "♥", "F", "G" ],
     "E"
 ])
 
-? @@NL( o1.PathsContainingItem("♥") )
+? @@NL( o1.PathsContainingItem("♥") ) # Or simply DeepFind()
+#--> [
+#	[ 2, 1 ],
+#	[ 2, 3, 2 ],
+#	[ 2, 4 ]
+# ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+o1 = new stzList([
+    "A",
+    [ "♥", "B", [ "C", "♥", "D", "♥" ], "*", "E", "*" ],
+    "E"
+])
+
+? @@NL( o1.PathsContainingItems([ "♥", "*" ]) ) # Or simpliy DeepFindMany()
 #--> [
 #	[ 2, 1 ],
 #	[ 2, 3, 2 ],
@@ -1744,11 +1793,52 @@ o1 = new stzList([
 # ]
 
 pf()
-# Executed in 0.50 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*---
 
+pr()
+
+o1 = new stzList([
+    "A",
+    [ "♥", "B", [ "C", "♥", "D", "♥" ], "*", "E", "*" ],
+    "E"
+])
+
+? @@NL( o1.FindItemInPath("♥", [ 2, 4 ]) )
+#--> [
+#	[ 2, 1 ],
+#	[ 2, 3, 2 ],
+#	[ 2, 3, 4 ]
+# ]
+
+pf()
+# Executed in 0.12 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+o1 = new stzList([
+    "A",
+    [ "♥", "B", [ "C", "♥", "D", "♥" ], "*", "E", "*" ],
+    "E"
+])
+
+? @@NL( o1.FindItemsInPath([ "♥", "*" ], [ 2, 4 ]) )
+#--> [
+#	[ 2, 1 ],
+#	[ 2, 3, 2 ],
+#	[ 2, 3, 4 ],
+#	[ 2, 4 ]
+# ]
+
+pf()
+# Executed in 0.10 second(s) in Ring 1.22
+
+/*---
 */
+
 pr()
 
 o1 = new stzList([
@@ -1759,16 +1849,13 @@ o1 = new stzList([
 
 ? @@NL( o1.PathsTo([2, 3, 3]) )
 
-? @@( o1.FindItemsInPath([ "♥", "*" ], [2, 2]) )
-#--> [ [ 2, 1 ] ]
-
 ? @@( o1.ItemAtPath([2, 3, 3]) )
 #--> "D"
 
 ? o1.IsValidPath([2, 3, 3])
 #--> TRUE
 
-o1.RemoveItemsInPath([ "♥", "*" ], [2, 3, 3])
+//o1.RemoveItemsInPath([ "♥", "*" ], [2, 3, 3])
 
 //? @@NL( o1.Content() )
 #--> [ "♥", ["B", "♥", "C", "♥" ], "♥", "D" ],

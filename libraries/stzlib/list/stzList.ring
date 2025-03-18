@@ -44155,14 +44155,75 @@ fdef
 
 		ok
 
+		#< @FunctionAlternativeForms
+
+		def PathsContainingItemCS(pItem, pCaseSensitive)
+			return This.DeepFindCS(pItem, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepFind(pItem)
 		return This.DeepFindCS(pItem, _TRUE_)
 
-	  #-----------------------------------------------------#
+		#< @FunctionAlternativeForms
+
+		def PathsContainingItem(pItem)
+			return This.DeepFind(pItem)
+
+		#>
+
+
+	  #-------------------------------------#
+	 #  FININDING MANY ITEMS AT ANY LEVEL  #
+	#-------------------------------------#
+
+	def DeepFindManyCS(paItems, pCaseSensitive)
+
+		if CheckParams()
+			if NOT isList(paItems)
+				stzraise("Incorrect param type! paItems must be a list.")
+			ok
+		ok
+
+		_aItems_ = U(paItems)
+		_aResult_ = []
+		_nLen_ = len(_aItems_)
+
+		for @i = 1 to _nLen_
+			_aTemp_ = This.DeepFindCS(_aItems_[@i], pCaseSensitive)
+			_nLenTemp_ = len(_aTemp_)
+
+			for @j = 1 to _nLenTemp_
+				_aResult_ + _aTemp_[@j]
+			next
+		next
+
+		return _aResult_
+
+		#< @FunctionAlternativeForms
+
+		def PathsContainingItemsCS(paItems, pCaseSensitive)
+			return This.DeepFindManyCS(paItems, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DeepFindMany(paItems)
+		return This.DeepFindManyCS(paItems, _TRUE_)
+
+		#< @FunctionAlternativeForms
+
+		def PathsContainingItems(paItems)
+			return This.DeepFindMany(paItems)
+
+		#>
+
+	  #---------------------------------------------------#
 	 #  FINDING THE LIST ITEMS IN AN OTHER LIST OR ITEM  #
-	#-----------------------------------------------------#
+	#---------------------------------------------------#
 
 	def FindInCS(pOtherListOrStr, pCaseSensitive)
 		/* 
@@ -44807,68 +44868,6 @@ fdef
 		def ItemInPathZZ(paPath)
 			return This.ItemAtPathZZ(paPath)
 
-	def ItemsAtPath(paPath)
-		if CheckParams()
-			if NOT This.IsValidPath(paPath)
-				StzRaise("Incorrect param type! paPath must be a valid path in the list.")
-			ok
-		ok
-
-		_aContent_ = This.Content()
-		_nLenPath_ = len(paPath)
-
-		_aResult_ = []
-
-		_item_ = ""
-		_cCode_ = '_item_ = _aContent_'
-
-		for @i = 1 to _nLenPath_
-
-			_cCode_ += '[' + paPath[@i] + ']' 
-			eval(_cCode_)
-
-			_aResult_ + _item_
-		next
-
-		return _aResult_
-
-		def ItemsAtPathXT(paPath)
-			return This.ItemsAtPath(paPath)
-
-	def ItemsAtPathZZ(paPath)
-
-		if CheckParams()
-			if NOT This.IsValidPath(paPath)
-				StzRaise("Incorrect param type! paPath must be a valid path in the list.")
-			ok
-		ok
-
-		_aContent_ = This.Content()
-		_nLenPath_ = len(paPath)
-
-		_aResult_ = []
-
-		_item_ = ""
-		_cCode_ = '_item_ = _aContent_'
-
-		for @i = 1 to _nLenPath_
-
-			_cCode_ += '[' + paPath[@i] + ']' 
-			eval(_cCode_)
-
-			_aSubPath_ = []
-			for @j = 1 to @i
-				_aSubPath_ + paPath[@j]
-			next
-
-			_aResult_ + [ _item_, _aSubPath_ ]
-		next
-
-		return _aResult_
-
-		def ItemsAtPathXTZZ(paPath)
-			return This.ItemsAtPathZZ(paPath)
-
 	def ItemsAtPaths(paPaths)
 		if CheckParams()
 			if NOT This.AreValidPaths(paPaths)
@@ -45017,13 +45016,6 @@ fdef
 
 		def PathsIntersection()
 			return This.CommonPath()
-
-	def ItemsAtCommonPath()
-		_aResult_ = This.ItemsAtPath( This.CommonPath() )
-		return _aResult_
-
-		def ItemsAtPathsIntersection()
-			return This.ItemsAtCommonPath()
 
 	def IsTree()
 		_aTemp_ = This.CommonPath()
@@ -45290,46 +45282,63 @@ fdef
 
 	def ItemExistsAtPathCS(pItem, paPath, pCaseSensitive)
 
-		_aPath_ = This.FindItemAtPathCS(pItem, paPath, pCaseSensitive)
+		_bResult_ = This.ItemAtPathQ(paPath).
+				IsEqualToCS(pItem, pCaseSensitive)
 
-		if len(_aPath_) > 0
-			return _TRUE_
-		else
-			return _FALSE_
-		ok
+		return _bResult_
 
 	func ItemExistsAtPath(pItem, paPath)
 		return This.ItemExistsAtPathCS(pItem, paPath, _TRUE_)
 
 	#--
 
-	def FindItemAtPathCS(pItem, paPath, pCaseSensitive)
+	def ItemExistsAtPathsCS(pItem, paPaths, pCaseSensitive)
 
-		_item_ = This.ItemAtPath(paPath)
-
-		if NOT isList(_item_)
-	 		if Q(_item_).IsEqualToCS(pItem, pCaseSensitive)
-				return paPath
-			else
-				return []
+		if CheckParams()
+			if NOT isList(paPaths)
+				stzraise("Incorrect param type! paPaths must be a list.")
 			ok
 
-		else # the item is a list
+			if NoT This.AreValidPaths(paPaths)
+				stzraise("Incorrect param value! paPaths is not a valid list of paths.")
+			ok
+		ok
 
-			_nLenPath_ = len(paPath)
+		_nLen_ = len(paPaths)
+		_bResult_ = _TRUE_
 
-			_anPos_ = StzListQ(_item_).FindCS(pItem, pCaseSensitive)
-			_nLenPos_ = len(_anPos_)
+		for @i = 1 to _nLen_
+			if NOT This.ItemExistsAtPathCS(pItem, paPaths[@i], pCaseSensitive)
+				_bResult_ = _FALSE_
+				exit
+			ok
+		next
 
-			_aResult_ = []
+		return _bResult_
 
-			for @i = 1 to _nLenPos_
-				_aPath_ = paPath
-				_aPath_ +  _anPos_[@i]
-				_aResult_ + _aPath_
-			next
+	def ItemExistsAtPaths(pItem, paPaths)
+		return This.ItemExistsAtPathsCS(pItem, paPaths, _TRUE_)
 
-			return _aResult_
+
+	#==
+
+	def FindItemAtPathCS(pItem, paPath, pCaseSensitive)
+
+		if CheckParams()
+
+			if NOT isList(paPath)
+				stzraise("Incorrect param type! paPath must be a list.")
+			ok
+	
+			if NOT This.IsValidPath(paPath)
+				stzraise("Incorrect param value! paPath is not a valid path.")
+			ok
+		ok
+
+		if This.ItemExistsAtPathCS(pItem, paPath, pcasesensitive)
+			return paPath
+		else
+			return []
 		ok
 
 		#< @FunctionAlternativeForms
@@ -45476,23 +45485,16 @@ fdef
         		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
     		ok
 
+		_aResult_ = []
 		_nLen_ = len(paPaths)
 
-		_aResult_ = []
-
 		for @i = 1 to _nLen_
-
-			_aPaths_ = This.FindItemAtPathCS(pItem, paPaths[@i], pCaseSensitive)
-
-			_nLenPaths_ = len(_aPaths_)
-
-			for @j = 1 to _nLenPaths_
-				_aResult_ + _aPaths_[@j]
-			next
-
+			if This.ItemExistsAtPathCS(pItem, paPaths[@i], pCaseSensitive)
+				_aResult_ + paPaths[@i]
+			ok
 		next
 
-		return U(_aResult_)
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -45839,19 +45841,32 @@ fdef
         		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
     		ok
 
-		_aItemsZZ_ = This.ItemsInPathZZ(paPath)
-		_nLen_ = len(_aItemsZZ_)
+    		if NOT This.IsValidPath(paPath)
+        		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
+    		ok
 
-		_oItem_ = Q(pItem)
-		_aResult_ = []
+		# All paths where the items exist
 
-		for @i = 1 to _nLen_
-			if _oItem_.IsEqualToCS(_aItemsZZ_[@i][1], pCaseSensitive)
-				_aResult_ + _aItemsZZ_[@i][2]
+		_aAllPaths_ = DeepFindCS(pItem, pCaseSensitive)
+		_nLen_ = len(_aAllPaths_)
+		_n_ = 0
+
+		for @i = _nLen_ to 1 step -1
+			if @PathIsGreaterThan(_aAllPaths_[@i], paPath)
+				loop
+			else
+				_n_ = @i
+				exit
 			ok
 		next
-
+		
+		_aResult_ = []
+		for @i = 1 to _n_
+			_aResult_ + _aAllPaths_[@i]
+		next
+		
 		return _aResult_
+
 
 		#< @FunctionAlternativeForms
 
@@ -45926,19 +45941,27 @@ fdef
         		StzRaise("Incorrect param type! paPath must be a valid path in the list.")
     		ok
 
-		_aItemsZZ_ = This.ItemsInPathZZ(paPath)
-		_nLen_ = len(_aItemsZZ_)
+		# All paths where the items exist
 
-		_oItems_ = new stzList(paItems)
-		_aResult_ = []
+		_aAllPaths_ = DeepFindManyCS(paItems, pCaseSensitive)
+		_nLen_ = len(_aAllPaths_)
+		_n_ = 0
 
-		for @i = 1 to _nLen_
-			if _oItems_.ContainsCS(_aItemsZZ_[@i][1], pCaseSensitive)
-				_aResult_ + _aItemsZZ_[@i][2]
+		for @i = _nLen_ to 1 step -1
+			if @PathIsGreaterThan(_aAllPaths_[@i], paPath)
+				loop
+			else
+				_n_ = @i
+				exit
 			ok
 		next
-
-		return _aResult_
+		
+		_aResult_ = []
+		for @i = 1 to _n_
+			_aResult_ + _aAllPaths_[@i]
+		next
+		
+		return @SortPaths(_aResult_)
 
 
 		#< @FunctionAlternativeForms
@@ -47247,28 +47270,6 @@ def RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
 			return This.ItemsRemoveInPaths(paItems, paPaths)
 
 		#>
-
-	#== #TODO
-
-def PathsContainingItem(pItem)
-    _aPaths_ = This.Paths()
-    _nLen_ = len(_aPaths_)
-    _aResult_ = []
-
-    for @i = 1 to _nLen_
-        _item_ = This.ItemAtPath(_aPaths_[@i])
-        if Q(_item_).IsEqualToCS(pItem, _TRUE_)
-            _aResult_ + _aPaths_[@i]
-        ok
-    next
-
-    return _aResult_
-
-	def PathsContainingItems(paItems)
-		stzraise("Function not implemented yet!")
-
-	def PathsContaining(pItemOrItems)
-		stzraise("Function not implemented yet!")
 
 	#-- #TODO
 
