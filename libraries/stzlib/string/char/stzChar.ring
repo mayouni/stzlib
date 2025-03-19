@@ -57,6 +57,27 @@ or 'unavoidable' Qt feature.
  ///   FUNCTIONS   ///
 /////////////////////
 
+func IsInvisibleChar(c)
+
+	if CheckParams()
+		if NOT isString(c)
+			stzraise("Incorrect param type! c must be a string.")
+		ok
+
+		if NOT IsChar(c)
+			stzraise("Incorrect param type! c must be a char.")
+		ok
+	ok
+
+	if ring_find( InvisibleChars(), c )
+		return _TRUE_
+	else
+		return _FALSE_
+	ok
+
+	func @IsInvisibleChar(c)
+		return IsInvisibleChar(c)
+
 func DistanceZero() # See the stzDistanceZero class
 	return "🔻"
 
@@ -732,7 +753,7 @@ class stzChar from stzObject
 		# by trying to find it in a local copy of the official UnicodeData.txt
 		# file. Unfortunaletly, this file does not contrain directly all the names.
 		# (a further processing of other files is necessary). But this is not
-		# supported now and leaved for future releases.
+		# supported now and left for future releases.
 
 		cHex = DecimalToHex( This.Unicode() )
 		cResult = StzUnicodeDataQ().CharNameByHexCode(cHex)

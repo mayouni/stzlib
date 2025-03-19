@@ -44160,6 +44160,9 @@ fdef
 		def PathsContainingItemCS(pItem, pCaseSensitive)
 			return This.DeepFindCS(pItem, pCaseSensitive)
 
+		def PathsContainingCS(pItem, pCaseSensitive)
+			return This.DeepFindCS(pItem, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -44170,6 +44173,9 @@ fdef
 		#< @FunctionAlternativeForms
 
 		def PathsContainingItem(pItem)
+			return This.DeepFind(pItem)
+
+		def PathsContaining(pItem)
 			return This.DeepFind(pItem)
 
 		#>
@@ -44207,6 +44213,9 @@ fdef
 		def PathsContainingItemsCS(paItems, pCaseSensitive)
 			return This.DeepFindManyCS(paItems, pCaseSensitive)
 
+		def PathsContainingManyCS(paItems, pCaseSensitive)
+			return This.DeepFindManyCS(paItems, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -44217,6 +44226,9 @@ fdef
 		#< @FunctionAlternativeForms
 
 		def PathsContainingItems(paItems)
+			return This.DeepFindMany(paItems)
+
+		def PathsContainingMany(paItems)
 			return This.DeepFindMany(paItems)
 
 		#>
@@ -44768,7 +44780,7 @@ fdef
 			_anSizes_ + len(_aPaths_[@i])
 		next
 
-		_nPos_ = @FindMin(_anSizes)
+		_nPos_ = @FindMin(_anSizes_)
 		return _aPaths_[_nPos_]
 
 		def SmallestPath()
@@ -46747,6 +46759,7 @@ fdef
 		ok
 
 		_aPaths_ = This.FindItemsAtPathsCS(paItems, paPaths, pCaseSensitive)
+
 		_nLenPaths_ = len(_aPaths_)
 		_nLen_ = len(paItems)
 
@@ -46755,13 +46768,13 @@ fdef
 		for @i = _nLenPaths_ to 1 step -1
 
 			_cCode_ = 'del(_aContent_'
-
 			_nLenPath_ = len(_aPaths_[@i])
+
 			for @j = 1 to _nLenPath_ - 1
 				_cCode_ += '[' + _aPaths_[@i][@j] + ']'
 			next
 
-			_cCode_ += ', ' + _aPaths_[@i][_nLenPaths_] + ')'
+			_cCode_ += ', ' + _aPaths_[@i][_nLenPath_] + ')'
 			eval(_cCode_)
 		next
 
@@ -47400,10 +47413,6 @@ fdef
 	def RepalceTheseItemsAtPaths(paItems, pNewtItemOrItems, paPaths)
 		stzraise("Function not implemented yet!")
 
-	#-- REMOVING ITEMS AT PATHS
-
-	#TODO
-
 	#--
 
 	def RemovePath(paPath)
@@ -47423,7 +47432,6 @@ fdef
 
 		def RemoveAllItemsInPaths(paPaths)
 			This.RemovePaths(paPaths)
-
 
 	  #=======================================================#
 	 #    VISUALLY FINDING ALL OCCURRENCES OF A GIVEN ITEM   #

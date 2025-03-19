@@ -41,6 +41,39 @@ func StzStringClassName()
 
 #--
 
+func IsInvisibleString(str)
+
+	if CheckParams()
+		if NOT isString(str)
+			stzraise("Incorrect param type! str must be a string.")
+		ok
+	ok
+
+	_acChars_ = Chars(str)
+	_nLen_ = len(_acChars_)
+
+	_bResult_ = _TRUE_
+
+	for @i = 1 to _nLen_
+		if NOT IsInvisibleChar(_acChars_[@i])
+			_bResult_ = _FALSE_
+			exit
+		ok
+	next
+
+	return _bResult_
+
+	func @IsInvisibleString(str)
+		return IsInvisibleString(str)
+
+	func IsInvisible(str)
+		return IsInvisibleString(str)
+
+	func @IsInvisible(str)
+		return IsInvisibleString(str)
+
+#--
+
 func IsNotString(pcStr)
 	return NOT isString(pcStr)
 
