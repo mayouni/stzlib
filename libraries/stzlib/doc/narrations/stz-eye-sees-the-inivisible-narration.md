@@ -7,7 +7,6 @@ Invisible characters are a fascinating aspect of Unicode that often go unnoticed
 We begin with what appears to be an empty string:
 
 ```
-pr()
 c = "‎" 
 ```
 
@@ -39,6 +38,7 @@ Softanza makes working with these characters straightforward. We can explore the
     "HALFWIDTH HANGUL FILLER"
 ]
 ```
+>NOTE: To keep the output concise and readable, we utilize `ShowShort()` here instead of displaying an extensive list.
 
 The library provides a comprehensive list of all invisible characters recognized by Unicode. In total:
 
@@ -70,39 +70,35 @@ Softanza provides comprehensive tools to detect and manage these hidden characte
 ```
 StzStringQ(text2) {
 
-? ContainsInvisibleChars()
-#--> TRUE
+        ? ContainsInvisibleChars()
+        #--> TRUE
 
-? @HowMany( InvisibleChars() ) + NL
-#--> 1
+        ? @HowMany( InvisibleChars() ) + NL
+        #--> 2
 
-? @@( FindInvisibleChars() )
-#--> [ 6, 13 ]
+        ? @@( FindInvisibleChars() )
+        #--> [ 6, 13 ]
 
-? QQ(InvisibleChars()).Names()
-#--> [ "LEFT-TO-RIGHT MARK", "ZERO WIDTH SPACE" ]
+        ? QQ(InvisibleChars()).Names()
+        #--> [ "LEFT-TO-RIGHT MARK", "ZERO WIDTH SPACE" ]
+
+        RemoveInvisibleChars()
+
+        ? @HowMany( InvisibleChars() )
+        #--> 0
+}
 ```
 
 Not only can we detect the presence of invisible characters, but we can also locate them precisely and identify their types. In this case, we've found a LEFT-TO-RIGHT MARK and a ZERO WIDTH SPACE.
 
-The RemoveInvisibleChars() function efficiently cleans up these hidden characters:
-
-```
-RemoveInvisibleChars()
-
-? @HowMany( InvisibleChars() )
-#--> 0
-}
-```
-
-After cleaning, all invisible characters are removed, resulting in a clean, predictable string.
+The `RemoveInvisibleChars()` function efficiently cleans up these hidden characters.
 
 ## Practical Applications
 
 - **Text validation**: Detect hidden characters that might cause unexpected behavior in inputs
 - **Security enhancement**: Identify potential vulnerabilities from invisible characters in usernames or code
 - **Multilingual support**: Properly handle directional markers for mixed language text
-- **Data sanitization**: Clean imported data by removing or standardizing invisible characters using RemoveInvisibleChars()
+- **Data sanitization**: Clean imported data by removing or standardizing invisible characters using `RemoveInvisibleChars()`
 - **UI consistency**: Ensure consistent spacing and layout across different platforms
 - **Document formatting**: Control text flow with specialized whitespace characters
 - **Debugging aid**: Identify hard-to-spot issues in source code caused by invisible characters
