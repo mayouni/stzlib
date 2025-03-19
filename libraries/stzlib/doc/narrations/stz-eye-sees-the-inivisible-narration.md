@@ -16,14 +16,14 @@ This character looks empty to our eyes, but is it truly empty? Let's investigate
 ? IsEmpty(c) #--> FALSE
 ```
 
-Surprisingly, the IsEmpty() function tells us this string is not empty! But what is it then?
+Surprisingly, the `IsEmpty()` function tells us this string is not empty! But what is it then?
 
 ```
 ? Unicode(c) #--> 8206
 ? CharName(c) #--> LEFT-TO-RIGHT MARK
 ```
 
-Mystery solved! This "invisible" character is actually Unicode code point 8206, known as the LEFT-TO-RIGHT MARK. It's a special character used for controlling text direction in bidirectional text.
+Mystery solved! This "invisible" character is actually Unicode code point `8206`, known as the `LEFT-TO-RIGHT MARK`. It's a special character used for controlling text direction in bidirectional text.
 
 Softanza makes working with these characters straightforward by allowing us to explore them by name:
 
@@ -89,7 +89,7 @@ StzStringQ(text2) {
 }
 ```
 
-Not only can we detect the presence of invisible characters, but we can also locate them precisely and identify their types. In this case, we've found a LEFT-TO-RIGHT MARK and a ZERO WIDTH SPACE.
+Not only can we detect the presence of invisible characters, but we can also locate them precisely and identify their types. In this case, we've found a `LEFT-TO-RIGHT MARK` and a `ZERO WIDTH SPACE`.
 
 The `RemoveInvisibleChars()` function efficiently cleans up these hidden characters.
 
