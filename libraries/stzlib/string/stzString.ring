@@ -5764,6 +5764,122 @@ class stzString from stzObject
 
 		#>
 
+	  #=========================================#
+	 #  MANAGING INVISBLE CHARS IN THE STRING  #
+	#=========================================#
+
+	def ContainsInvisibleChars()
+
+		_acChars_ = This.Chars()
+		_nLen_ = len(_acChars_)
+
+		_bResult_ = _FALSE_
+
+		for @i = 1 to _nLen_
+			if @IsInvisible(_acChars_[@i])
+				_bResult_ = _TRUE_
+				exit
+			ok
+		next
+
+		return _bResult_
+
+		def ContainsInvisible()
+			return This.ContainsInvisibleChars()
+
+	  #-----------------------------------------------------#
+	 #  GETTING THE LIST OF INVISIBLE CHARS IN THE STRING  #
+	#-----------------------------------------------------#
+
+	def InvisibleChars()
+
+		_acChars_ = This.Chars()
+		_nLen_ = len(_acChars_)
+
+		_acResult_ = []
+
+		for @i = 1 to _nLen_
+			if @IsInvisible(_acChars_[@i])
+				_acResult_ + _acChars_[@i]
+			ok
+		next
+
+		return _acResult_
+
+		def Invisibles()
+			return This.InvisibleChars()
+
+	  #---------------------------------#
+	 #  GETTING INVISIBLE CHARS NAMES  #
+	#---------------------------------#
+
+	def InvisibleCharsNames()
+
+		_acChars_ = This.Chars()
+		_nLen_ = len(_acChars_)
+		
+		_acResult_ = []
+
+		for @i = 1 to _nLen_
+			if @IsInvisible(_acChars_[@i])
+				_acResult_ + CharName(_acChars_[@i])
+			ok
+		next
+
+		return _acResult_
+
+		def InvisiblesNames()
+			return This.InvisibleCharsNames()
+
+	  #-------------------------------------------#
+	 #  FINDING INVISIBLE CHARS FROM THE STRING  #
+	#-------------------------------------------#
+
+	def FindInvisibleChars()
+
+		_acChars_ = This.Chars()
+		_nLen_ = len(_acChars_)
+		
+		_anResult_ = []
+
+		for @i = 1 to _nLen_
+			if @IsInvisible(_acChars_[@i])
+				_anResult_ + @i
+			ok
+		next
+
+		return _anResult_
+
+		def FindInvisible()
+			return This.FindInvisibleChars()
+
+		def FindInvisibles()
+			return This.FindInvisibleChars()
+
+	  #--------------------------------------------#
+	 #  REMOVING INVISIBLE CHARS FROM THE STRING  #
+	#--------------------------------------------#
+
+	def RemoveInvisibleChars()
+		This.RemoveCharsAtPositions(This.FindInvisibleChars())
+
+		def RemoveInvisibleCharsQ()
+			This.RemoveInvisibleChars()
+			return This
+
+		def RemoveInvisibles()
+			This.RemoveInvisibleChars()
+
+			def RemoveInvisiblesQ()
+				return This.RemoveInvisibleCharsQ()
+
+	def InvisbleCharsRemoved()
+		_cResult_ = This.Copy().RemoveInvisibleCharQ().Content()
+		return _cResult_
+
+		def InvisiblesRemoved()
+			return This.InvisibleCharsRemoved()
+
 	  #===========================================#
 	 #  CHECKING IF THE STRING CONTAINS NUMBERS  #
 	#===========================================#

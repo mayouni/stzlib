@@ -4652,6 +4652,45 @@ func StzLen(p)
 	func @StzLen(p)
 		return StzLen(p)
 
+func HowMany(paList)
+
+	if NOT isList(paList)
+		StzRaise("Incorrect param type! paList must be a list.")
+	ok
+
+	return len(paList)
+
+	#< @FunctionAlternativeForms
+
+	func @HowMany(paList)
+		return HowMany(palist)
+
+	#--
+
+	func HowManyItemsIn(paList)
+		return HowMany(paList)
+
+	func HowManyItems(paList)
+		if isList(paList) and Q(paList).IsInNamedParam()
+			paList = paList[2]
+		ok
+
+		return HowMany(paList)
+
+	#-- @FunctionMisspelledForms
+	#TODO // Add "Hwo" as an alternative of "Hwo" in all functions
+
+	func HwoMany(paList)
+		return HowMany(paList)
+
+	func HwoManyItemsIn(paList)
+		return HowMany(paList)
+
+	func HwoManyItems(paList)
+		return HowManyItems(paList)
+
+	#>
+
 func Unicode(p)
 	if isList(p) and Q(p).IsOfNamedParam()
 		p = p[2]
@@ -5306,35 +5345,6 @@ func BothEndWithANumber(p1, p2)
 	else
 		return _FALSE_
 	ok
-
-func HowMany(paList)
-	if NOT isList(paList)
-		StzRaise("Incorrect param type! paList must be a list.")
-	ok
-
-	return len(paList)
-
-	func HowManyItemsIn(paList)
-		return HowMany(paList)
-
-	func HowManyItems(paList)
-		if isList(paList) and Q(paList).IsInNamedParam()
-			paList = paList[2]
-		ok
-
-		return HowMany(paList)
-
-	#-- @FunctionMisspelledForms
-	#TODO // Add "Hwo" as an alternative of "Hwo" in all functions
-
-	func HwoMany(paList)
-		return HowMany(paList)
-
-	func HwoManyItemsIn(paList)
-		return HowMany(paList)
-
-	func HwoManyItems(paList)
-		return HowManyItems(paList)
 
 func NewLine()
 	return NL
