@@ -44200,7 +44200,7 @@ fdef
 			next
 		next
 
-		return _aResult_
+		return @SortPaths(_aResult_)
 
 		#< @FunctionAlternativeForms
 
@@ -45943,25 +45943,27 @@ fdef
 
 		# All paths where the items exist
 
-		_aAllPaths_ = DeepFindManyCS(paItems, pCaseSensitive)
+		_aAllPaths_ = This.DeepFindManyCS(paItems, pCaseSensitive)
+
 		_nLen_ = len(_aAllPaths_)
 		_n_ = 0
 
 		for @i = _nLen_ to 1 step -1
-			if @PathIsGreaterThan(_aAllPaths_[@i], paPath)
-				loop
-			else
+			if NOT @PathIsGreaterThan(_aAllPaths_[@i], paPath)
 				_n_ = @i
 				exit
 			ok
 		next
 		
 		_aResult_ = []
-		for @i = 1 to _n_
-			_aResult_ + _aAllPaths_[@i]
-		next
-		
-		return @SortPaths(_aResult_)
+		if _n_ > 0
+			for @i = 1 to _n_
+				_aResult_ + _aAllPaths_[@i]
+			next
+			_aResult_ @SortPaths(_aResult_)
+		ok
+
+		return _aResult_
 
 
 		#< @FunctionAlternativeForms
@@ -46114,12 +46116,10 @@ fdef
 
 		#>
 
-	#-- REMOVING ITEMS OVER PATHS
+	#-- REMOVING ITEMS IN PATHS
 
 	def RemoveItemInPathCS(pItem, paPath, pCaseSensitive)
-
-		_aPaths_ = This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
-		This.RemoveItemAtPathsCS(pItem, _aPaths_, pCaseSensitive)
+		This.RemoveItemsInPathsCS([pItem], [paPath], pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -46218,39 +46218,8 @@ fdef
 
 	#==
 
-def RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
-    if CheckParams()
-        if NOT isList(paItems)
-            StzRaise("Incorrect param type! paItems must be a list.")
-        ok
-        if NOT This.IsValidPath(paPath)
-            StzRaise("Incorrect param type! paPath must be a valid path in the list.")
-        ok
-    ok
-
-    _aContent_ = This.Content()
-    _aPaths_ = This.PathsInPath(paPath)
-    _nLenPaths_ = len(_aPaths_)
-
-    for @i = _nLenPaths_ to 1 step -1
-        _cAccessor_ = "_aContent_" + @@Q(_aPaths_[@i]).ReplaceQ(",", "][").Content()
-        _cCode_ = '_aNewValue_ = Q(' + _cAccessor_ + ').RemoveManyCSQ(paItems, pCaseSensitive).Content()'
-        eval(_cCode_)
-
-        _cCode_ = '
-            _nTempLen_ = len(' + _cAccessor_ + ')
-            for @j = _nTempLen_ to 1 step -1
-                del(' + _cAccessor_ + ', @j)
-            next
-            _nTempLen_ = len(_aNewValue_)
-            for @j = 1 to _nTempLen_
-                ' + _cAccessor_ + ' + _aNewValue_[@j]
-            next
-        '
-        eval(_cCode_)
-    next
-
-    This.UpdateWith(_aContent_)
+	def RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
+		This.RemoveItemsInPathsCS(paItems, [paPath], pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -46351,85 +46320,7 @@ def RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
 	# while IN concerns all the items of the path 
 
 	def RemoveItemAtPathCS(pItem, paPath, pCaseSensitive)
-
-		if NOT This.IsValidPath(paPath)
-			StzRaise("Can't proceed! paPath is not a valid path in the list.")
-		ok
-
-		_aContent_ = This.Content()
-
-		# Eraly check
-
-		if len(paPath) = 1 and NOT isList(_aContent_[paPath[1]])
-			del(_aContent_, paPath[1])
-			This.UpdateWith(_aContent_)
-			return
-		ok
-
-
-		_aPath_ = paPath
-		if NOT isList(This.ItemAtPath(_aPath_))
-
-			# Constructing the accessor of the inner list
-	
-			_cAccessor_ = "_aContent_["
-			_nLenPath_ = len(_aPath_)
-	
-			for @i = 1 to _nLenPath_ - 1
-				_cAccessor_ += '' + _aPath_[@i] + "]["
-			next
-	
-			_cAccessor_ = StzStringQ(_cAccessor_).LastCharRemoved()
-	
-			# Evaluating the new value of the inner list after removal
-	
-			_cCode_ = 'del(' + _cAccessor_ + ', ' + _aPath_[_nLenPath_] + ')'
-			eval(_cCode_)
-
-			This.UpdateWith(_aContent_)
-
-			return
-		ok
-
-		# Constructing the accessor of the inner list
-
-		_cAccessor_ = "_aContent_["
-		_nLenPath_ = len(_aPath_)
-
-		for @i = 1 to _nLenPath_
-			_cAccessor_ += '' + _aPath_[@i] + "]["
-		next
-
-		_cAccessor_ = StzStringQ(_cAccessor_).LastCharRemoved()
-
-		# Evaluating the new value of the inner list after removal
-
-		_cCode_ = '_aNewValue_ = Q(' + _cAccessor_ + ').
-			  RemoveCSQ(pItem, pCaseSensitive).Content()'
-
-		eval(_cCode_)
-
-		# Evaluating the code doing the replacement of the old
-		# value of the inner list by the new one
-
-		_cCode_ = '
-
-		_nTempLen_ = len(' + _cAccessor_ + ')
-		for @i = _nTempLen_ to 1 step -1
-			del(' + _cAccessor_ + ', @i)
-		next
-
-		_nTempLen_ = len(_aNewValue_)
-		for @i=1 to _nTempLen_
-			' + _cAccessor_ + ' + _aNewValue_[@i]
-		next
-		'
-
-		eval(_cCode_)
-
-		# Updating the list content
-
-		This.UpdateWith(_aContent_)
+		This.RemoveItemsAtPathsCS([pItem], [paPath], pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -46527,52 +46418,7 @@ def RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
 	#==
 
 	def RemoveItemsAtPathCS(paItems, paPath, pCaseSensitive)
-		if NOT This.IsValidPath(paPath)
-			StzRaise("Can't proceed! paPath is not a valid path in the list.")
-		ok
-
-		_aContent_ = This.Content()
-
-		# Constructing the accessor of the inner list
-
-		_cAccessor_ = "_aContent_["
-		_nLenPath_ = len(paPath)
-
-		for @i = 1 to _nLenPath_
-			_cAccessor_ += '' + paPath[@i] + "]["
-		next
-
-		_cAccessor_ = StzStringQ(_cAccessor_).LastCharRemoved()
-
-		# Evaluating the new value of the inner list after removal
-
-		_cCode_ = '_aNewValue_ = Q(' + _cAccessor_ +
-			  ').RemoveManyCSQ(paItems, pCaseSensitive).Content()'
-
-		eval(_cCode_)
-
-		# Evaluating the code doing the replacement of the old
-		# value of the inner list by the new one
-
-		_cCode_ = '
-
-		_nTempLen_ = len(' + _cAccessor_ + ')
-		for @i = _nTempLen_ to 1 step -1
-			del(' + _cAccessor_ + ', @i)
-		next
-
-		_nTempLen_ = len(_aNewValue_)
-		for @i=1 to _nTempLen_
-			' + _cAccessor_ + ' + _aNewValue_[@i]
-		next
-		'
-
-		eval(_cCode_)
-
-		# Updating the list content
-
-		This.UpdateWith(_aContent_)
-
+		This.RemoveItemsAtPathsCS(paItems, [paPath], pCaseSensitive)
 		
 		#< @FunctionFluentForm
 
@@ -46790,20 +46636,7 @@ def RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
 	#==
 
 	def RemoveItemAtPathsCS(pItem, paPaths, pCaseSensitive)
-		if NOT These.AreValidPaths(paPaths)
-			StzRaise("Can't proceed! paPaths is not a valid list of paths in the list.")
-		ok
-
-		_aPaths_ = @SortPaths(paPaths)
-		_nLenPaths_ = len(_aPaths_)
-
-		_oCopy_ = This.Copy()
-
-		for @i = _nLenPaths_ to 1 step -1
-			_oCopy_.RemoveItemAtPathCS(pItem, _aPaths_[@i], pCaseSensitive)
-		next
-
-		This.UpdateWith(_oCopy_.Content())
+		This.RemoveItemsAtPathsCS([pItem], paPaths, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -46917,10 +46750,22 @@ def RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
 		_nLenPaths_ = len(_aPaths_)
 		_nLen_ = len(paItems)
 
+		_aContent_ = This.Content()
+		
 		for @i = _nLenPaths_ to 1 step -1
-			This.RemoveItemsAtPathsCS(paItems, _aPaths_[@i], pCaseSensitive)
+
+			_cCode_ = 'del(_aContent_'
+
+			_nLenPath_ = len(_aPaths_[@i])
+			for @j = 1 to _nLenPath_ - 1
+				_cCode_ += '[' + _aPaths_[@i][@j] + ']'
+			next
+
+			_cCode_ += ', ' + _aPaths_[@i][_nLenPaths_] + ')'
+			eval(_cCode_)
 		next
 
+		This.UpdateWith(_aContent_)
 
 		#< @FunctionFluentForm
 
@@ -46980,13 +46825,7 @@ def RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
 	#==
 
 	def RemoveItemInPathsCS(pItem, paPaths, pCaseSensitive)
-
-   		_aPaths_ = This.FindItemInPathsCS(pItem, paPaths, pCaseSensitive)
-		_nLen_ = len(_aPaths_)
-
-		for @i = _nLen_ to 1 step -1
-			This.RemoveItemsAtPath(_aPaths_[@i])
-		next
+		This.RemoveItemsInPathsCS([pItem], paPaths, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -47082,8 +46921,39 @@ def RemoveItemsInPathCS(paItems, paPath, pCaseSensitive)
 
 	def RemoveItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
-   		_aPaths_ = This.FindItemsInPathsCS(paItems, paPaths, pCaseSensitive)
-		_aResult_ = This.RemoveItemsAtPaths(_aPaths_)
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
+			ok
+	
+			if NOT This.AreValidPaths(paPaths)
+				StzRaise("Can't proceed! paPaths is not a valid list of paths in the list.")
+			ok
+		ok
+//_aResult_ = This.RemoveItemsAtPaths(_aPaths_)
+		_aPaths_ = This.FindItemsInPathsCS(paItems, paPaths, pCaseSensitive)
+		_nLenPaths_ = len(_aPaths_)
+		_nLen_ = len(paItems)
+
+		_aContent_ = This.Content()
+		
+		for @i = _nLenPaths_ to 1 step -1
+
+			_cCode_ = 'del(_aContent_'
+
+			_nLenPath_ = len(_aPaths_[@i])
+			for @j = 1 to _nLenPath_ - 1
+				_cCode_ += '[' + _aPaths_[@i][@j] + ']'
+			next
+
+			_cCode_ += ', ' + _aPaths_[@i][len(_aPaths_[@i])] + ')'
+
+			eval(_cCode_)
+			
+		next
+
+		This.UpdateWith(_aContent_)
+
 
 		#< @FunctionFluentForm
 

@@ -678,28 +678,42 @@ proff()
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*----
-*/
+
 pr()
 
 o1 = new stzList([
 	"A",
-	[ "B", [ "C", "♥", "D", "*", "♥" ], "E", "F" ],
+	[ "B", [ "C", "♥", "D" ], "E", "F" ],
 	"G",
-	[ "♥", "H", "*" ]
+	[ "H", "I", "*" ]
 ])
 
-o1.RemoveItemsAtPaths([ "♥", "*" ], [ [2, 2], [4] ])
+? @@NL( o1.FindItemsAtPaths([ "♥", "*" ],  [ [2, 2, 2], [4, 3] ]) ) + nl
+#--> [
+#	[ 2, 2, 2 ],
+#	[ 4, 3 ]
+# ]
+
+? @@( o1.ItemsAtPaths([ [ 2, 2, 2 ], [ 4, 3 ]]) )
+#--> [ "♥", "*" ]
+
+o1.RemoveItemsAtPaths([ "♥", "*" ], [ [2, 2, 2], [4, 3] ])
 
 ? @@NL( o1.Content() )
 #--> [
 #	"A",
-#	[ "B", [ "C", "D" ], "E", "F" ],
+#	[
+#		"B",
+#		[ "C", "D" ],
+#		"E",
+#		"F"
+#	],
 #	"G",
-#	[ "H" ]
+#	[ "H", "I" ]
 # ]
 
 proff()
-# Executed in 0.32 second(s) in Ring 1.22
+# Executed in 0.84 second(s) in Ring 1.22
 
 /*===
 
@@ -998,7 +1012,7 @@ proff()
 # Executed in 0.37 second(s) in Ring 1.22
 
 /*----
-*/
+
 pr()
 
 
@@ -1637,7 +1651,7 @@ proff()
 # Executed in 0.55 second(s) in Ring 1.22
 
 /*----
-
+*/
 pr()
 
 o1 = new stzList([
@@ -1837,28 +1851,53 @@ pf()
 # Executed in 0.10 second(s) in Ring 1.22
 
 /*---
-*/
+
+pr()
+
+aList = [
+    "A",
+    [ "♥", "B", [ "C", "♥", "D", "*" ], "♥", "E", "*" ],
+    "E"
+]
+
+del(aList[2][3], 4)
+del(aList[2][3], 2)
+del(aList[2], 1)
+
+? @@(aList)
+#--> [ "A", [ "B", [ "C", "D" ], "♥", "E", "*" ], "E" ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
 
 pr()
 
 o1 = new stzList([
     "A",
-    [ "♥", "B", [ "C", "♥", "D", "♥" ], "♥", "E", "♥" ],
+    [ "♥", "B", [ "C", "♥", "D", "*" ], "♥", "E", "*" ],
     "E"
 ])
 
-? @@NL( o1.PathsTo([2, 3, 3]) )
+? @@( o1.FindItemsInPath([ "♥", "*" ], [2, 3, 4]) )
+#--> [ [ 2, 1 ], [ 2, 3, 2 ], [ 2, 3, 4 ] ]
 
-? @@( o1.ItemAtPath([2, 3, 3]) )
-#--> "D"
+o1.RemoveItemsInPath([ "♥", "*" ], [2, 3, 4])
 
-? o1.IsValidPath([2, 3, 3])
-#--> TRUE
+? @@NL( o1.Content() )
+#--> [
+#	"A",
+#	[
+#		"B",
+#		[ "C", "D" ],
+#		"♥",
+#		"E",
+#		"*"
+#	],
+#	"E"
+# ]
 
-//o1.RemoveItemsInPath([ "♥", "*" ], [2, 3, 3])
-
-//? @@NL( o1.Content() )
-#--> [ "♥", ["B", "♥", "C", "♥" ], "♥", "D" ],
 
 proff()
 # Executed in 0.39 second(s) in Ring 1.22
@@ -1873,8 +1912,8 @@ o1 = new stzList([
     "E"
 ])
 
-? @@( o1.FindItemsInPath([ "♥", "B" ], [2, 2]) )
-#--> [ [ 2, 1 ], [ 2, 3 ], [ 2, 2, 2 ], [ 2, 2, 4 ], [ 2, 2, 1 ] ]
+? @@( o1.FindItemsInPath([ "♥", "B" ], [2, 2, 3]) )
+#--> [ [ 2, 1 ], [ 2, 2, 1 ], [ 2, 2, 2 ] ]
 
 proff()
 # Executed in 0.17 second(s) in Ring 1.22
