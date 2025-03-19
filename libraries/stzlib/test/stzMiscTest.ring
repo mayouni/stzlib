@@ -1,5 +1,9 @@
 load "../max/stzmax.ring"
 
+#NOTE Most of the tesyt samples of Path Managemnt in stzList
+# are here in this file #TODO Relocate them to stzListTest or
+# stzListPaths.ring files
+
 /*=====
 
 pr()
@@ -2302,7 +2306,7 @@ pf()
 # Executed in 1 second(s) in Ring 1.22
 
 /*---
-
+*/
 pr()
 
 text1 = "Hello World"
@@ -2338,6 +2342,10 @@ StzStringQ(text2) {
 	#--> 0
 }
 
+# Replacing invisible chars by a visible char
+
+Q(text2) { ReplaceInvisibleChars(:With = "*") ? Content() }
+#--> Hello* World*
 
 pf()
 # Executed in 0.64 second(s) in Ring 1.22

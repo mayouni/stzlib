@@ -5880,6 +5880,46 @@ class stzString from stzObject
 		def InvisiblesRemoved()
 			return This.InvisibleCharsRemoved()
 
+	  #--------------------------------------------#
+	 #  REPLACING INVISIBLE CHARS FROM THE STRING  #
+	#--------------------------------------------#
+
+	def ReplaceInvisibleChars(pCharOrMany)
+
+		if CheckParams()
+			if isList(pCharOrMany) and StzListQ(pCharOrMany).IsWithOrByOrUsingNamedParam()
+				pCharOrMany = pCharOrMany[2]
+			ok
+		ok
+
+		if isString(pCharOrMany)
+			This.ReplaceCharsAtPositions(This.FindInvisibleChars(), pCharOrMany)
+
+		but isList(pCharOrMany)
+
+			This.ReplaceCharsAtPositionsByMany(This.FindInvisibleChars(), pCharOrMany)
+
+		else
+			stzraise("Incorrect param type! pCharOrMany must be a string or list.")
+		ok
+
+		def ReplaceInvisibleCharsQ(pCharOrMany)
+			This.ReplaceInvisibleChars(pCharOrMany)
+			return This
+
+		def ReplaceInvisibles(pCharOrMany)
+			This.ReplaceInvisibleChars(pCharOrMany)
+
+			def ReplaceInvisiblesQ(pCharOrMany)
+				return This.ReplaceInvisibleCharsQ(pCharOrMany)
+
+	def InvisbleCharsReplaced(pCharOrMany)
+		_cResult_ = This.Copy().ReplaceInvisibleCharQ(pCharOrMany).Content()
+		return _cResult_
+
+		def InvisiblesReplaced(pCharOrMany)
+			return This.InvisibleCharsReplaced(pCharOrMany)
+
 	  #===========================================#
 	 #  CHECKING IF THE STRING CONTAINS NUMBERS  #
 	#===========================================#
@@ -42042,8 +42082,14 @@ class stzString from stzObject
 	def ReplaceCharsAtPositions(panPos, pcNewSubStr)
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = _TRUE_ #>
 
-		if NOT isList(panPos) and IsListOfNumbers(panPos)
-			StzRaise("Incorrect param type! panPos must be a list of numbers.")
+		if CheckParams()
+			if NOT isList(panPos) and IsListOfNumbers(panPos)
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			ok
+
+			if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithOrByOrUsingNamedParam()
+				pcNewSubStr = pcNewSubStr[2]
+			ok
 		ok
 
 		nLen = len(panPos)
