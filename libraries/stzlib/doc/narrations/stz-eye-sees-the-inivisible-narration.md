@@ -38,7 +38,7 @@ Softanza makes working with these characters straightforward by allowing us to e
     "HALFWIDTH HANGUL FILLER"
 ]
 ```
-> NOTE: To keep the output concise and readable, we utilize `ShowShort()` here instead of displaying an extensive list.
+> **NOTE**: To keep the output concise and readable, we utilize `ShowShort()` here instead of displaying an extensive list.
 
 The library provides a comprehensive list of all invisible characters recognized by Unicode. In total:
 
@@ -93,6 +93,18 @@ Not only can we detect the presence of invisible characters, but we can also loc
 
 The `RemoveInvisibleChars()` function efficiently cleans up these hidden characters.
 
+## Replacing Invisible Characters with Visible Ones
+
+Sometimes, rather than removing invisible characters, you might want to make them visible for debugging or validation purposes. Softanza offers an elegant solution:
+
+```
+Q(text2) { ReplaceInvisibleChars(:With = "*") ? Content() }
+#--> Hello* World*
+```
+> **NOTE:** _Q(text2) is a shorthand for StzStringQ(text2), as introduced earlier, both serving to elevate the text2 string to an stzString object._
+
+This technique reveals exactly where the invisible characters were hiding in your text, transforming them into asterisks (or any character of your choice). This visual representation can be invaluable when troubleshooting text-processing issues or demonstrating the presence of invisible characters to users.
+
 ## Practical Applications
 
 - **Text validation**: Detect hidden characters that might cause unexpected behavior in inputs
@@ -104,5 +116,6 @@ The `RemoveInvisibleChars()` function efficiently cleans up these hidden charact
 - **Debugging aid**: Identify hard-to-spot issues in source code caused by invisible characters
 - **Form processing**: Sanitize user inputs before database storage to prevent inconsistencies
 - **Text comparison**: Ensure accurate string comparisons by removing invisible variations
+- **Educational tools**: Visualize invisible characters by replacing them with visible markers
 
 These invisible characters may be hidden from sight, but understanding and managing them is crucial for robust text processing in modern applications.

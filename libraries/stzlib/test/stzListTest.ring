@@ -1,5 +1,7 @@
 load "../max/stzmax.ring"
 
+#NOTE Tests of Paths Management can be found in stzMiscTest.ring file
+
 #TODO Add Check() Yield() Perform()
 
 /*-------------------
