@@ -25,10 +25,10 @@ Surprisingly, the IsEmpty() function tells us this string is not empty! But what
 
 Mystery solved! This "invisible" character is actually Unicode code point 8206, known as the LEFT-TO-RIGHT MARK. It's a special character used for controlling text direction in bidirectional text.
 
-Softanza makes working with these characters straightforward. We can explore the universe of invisible characters:
+Softanza makes working with these characters straightforward by allowing us to explore them by name:
 
 ```
-? ShowShort( NamesOfInvisibleChars() ) #--> [
+? ShowShort( InvisibleCharsNames() ) #--> [
     "<control>",
     "SPACE",
     "NO-BREAK SPACE",
@@ -38,7 +38,7 @@ Softanza makes working with these characters straightforward. We can explore the
     "HALFWIDTH HANGUL FILLER"
 ]
 ```
->NOTE: To keep the output concise and readable, we utilize `ShowShort()` here instead of displaying an extensive list.
+> NOTE: To keep the output concise and readable, we utilize `ShowShort()` here instead of displaying an extensive list.
 
 The library provides a comprehensive list of all invisible characters recognized by Unicode. In total:
 
