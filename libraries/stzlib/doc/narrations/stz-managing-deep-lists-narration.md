@@ -309,7 +309,6 @@ In this section, we compare Softanza to several mainstream languages in the fiel
 - ✅ Full native support
 - ⚙️ Possible with custom implementation
 - 🔄 Partial support
-- ❌ No direct support
 
 | **Deep List Feature**                                     | **Softanza (Ring)** | **Wolfram Language** | **Python (`jsonpath-ng`)** | **JavaScript (Lodash)** | **C# (LINQ/JSON.NET)** | **Java (Stream API/Jackson)** |
 |-----------------------------------------------------------|:-------------------:|----------------------|----------------------------|-------------------------|------------------------|-------------------------------|
