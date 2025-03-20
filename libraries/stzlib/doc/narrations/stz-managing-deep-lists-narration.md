@@ -1,6 +1,7 @@
 # Taming Deep Lists with Softanza
 ![Softanza, Mastering the Depths](../images/stz-deep-lists.png)
-_Softanza, Mastering Depths ftom the Heart._
+
+_Softanza, Mastering Depths from the Heart._
 
 Deeply nested lists are powerful data structures but can become unwieldy as complexity grows. Softanza, an extension library for the Ring programming language, offers elegant solutions for managing these hierarchical structures. This article walks through practical approaches to common challenges with deep (nested) lists, introducing Softanza's features as they become relevant to solving real problems.
 
@@ -310,24 +311,24 @@ In this section, we compare Softanza to several mainstream languages in the fiel
 - 🔄 Partial support
 - ❌ No direct support
 
-| **Softanza Feature** | **Softanza (Ring)** | **Wolfram Language** | **Python (`jsonpath-ng`)** | **JavaScript (Lodash)** | **C# (LINQ/JSON.NET)** | **Java (Stream API/Jackson)** |
-|----------------------|--------------------|----------------------|--------------------------|-------------------------|------------------------|-------------------------------|
-| **Deep Finding** (`DeepFind()`) | ✅ | ✅ | 🔄 | ⚙️ | 🔄 | 🔄 |
-| **Global Replacement** (`DeepReplace(:By)`) | ✅ | ✅ | ⚙️ | ⚙️ | ⚙️ | ⚙️ |
-| **Deep Removal** (`DeepRemove()`) | ✅ | ✅ | ⚙️ | ⚙️ | ⚙️ | ⚙️ |
-| **Path Enumeration** (`Paths()`) | ✅ | ✅ | ⚙️ | ⚙️ | ⚙️ | ⚙️ |
-| **Path-Specific Access** (`ItemAtPath()`) | ✅ | ✅ | 🔄 | ✅ | 🔄 | 🔄 |
-| **Multiple Path Operations** (`ItemsAtPaths()`) | ✅ | ✅ | ⚙️ | ⚙️ | ⚙️ | ⚙️ |
-| **Targeted Replacement** (`DeepReplaceAt()`) | ✅ | ✅ | ⚙️ | ✅ | ⚙️ | ⚙️ |
-| **Path Traversal Operations** (`DeepFindIn()`) | ✅ | ✅ | ⚙️ | ⚙️ | ⚙️ | ⚙️ |
-| **Value-Conditional Operations** (`DeepReplaceThisAt()`) | ✅ | ✅ | ⚙️ | ⚙️ | ⚙️ | ⚙️ |
-| **Multi-Target Operations** (`DeepReplaceTheseIn()`) | ✅ | ✅ | ⚙️ | ⚙️ | ⚙️ | ⚙️ |
-| **Complex Value Mapping** (`DeepReplaceManyByManyIn()`) | ✅ | ✅ | ⚙️ | ⚙️ | ⚙️ | ⚙️ |
-| **Cycling Replacements** (`DeepReplaceManyByManyInXT()`) | ✅ | 🔄 | ⚙️ | ⚙️ | ⚙️ | ⚙️ |
-| **Path Analysis** (`LongestPaths()`, `PathsAtDepth()`) | ✅ | 🔄 | ⚙️ | ⚙️ | ⚙️ | ⚙️ |
-| **Path Relationships** (`IsSubPathOf()`, `CommonPath()`) | ✅ | 🔄 | ⚙️ | ⚙️ | ⚙️ | ⚙️ |
-| **Path Expansion** (`ExpandPath()`, `CollapsePath()`) | ✅ | ⚙️ | ⚙️ | ⚙️ | ⚙️ | ⚙️ |
-| **Deep String Transformations** (`DeepUppercaseString()`) | ✅ | ✅ | ⚙️ | ⚙️ | ⚙️ | ⚙️ |
+| **Deep List Feature**                                     | **Softanza (Ring)** | **Wolfram Language** | **Python (`jsonpath-ng`)** | **JavaScript (Lodash)** | **C# (LINQ/JSON.NET)** | **Java (Stream API/Jackson)** |
+|-----------------------------------------------------------|:-------------------:|----------------------|----------------------------|-------------------------|------------------------|-------------------------------|
+| **Deep Finding** (`DeepFind()`)                           | ✅                   | ✅                    | 🔄                         | ⚙️                      | 🔄                     | 🔄                            |
+| **Global Replacement** (`DeepReplace(:By)`)               | ✅                   | ✅                    | ⚙️                         | ⚙️                      | ⚙️                     | ⚙️                            |
+| **Deep Removal** (`DeepRemove()`)                         | ✅                   | ✅                    | ⚙️                         | ⚙️                      | ⚙️                     | ⚙️                            |
+| **Path Enumeration** (`Paths()`)                          | ✅                   | ✅                    | ⚙️                         | ⚙️                      | ⚙️                     | ⚙️                            |
+| **Path-Specific Access** (`ItemAtPath()`)                 | ✅                   | ✅                    | 🔄                         | ✅                       | 🔄                     | 🔄                            |
+| **Multiple Path Operations** (`ItemsAtPaths()`)           | ✅                   | ✅                    | ⚙️                         | ⚙️                      | ⚙️                     | ⚙️                            |
+| **Targeted Replacement** (`DeepReplaceAt()`)              | ✅                   | ✅                    | ⚙️                         | ✅                       | ⚙️                     | ⚙️                            |
+| **Path Traversal Operations** (`DeepFindIn()`)            | ✅                   | ✅                    | ⚙️                         | ⚙️                      | ⚙️                     | ⚙️                            |
+| **Value-Specific Operations** (`DeepReplaceThisAt()`)     | ✅                   | ✅                    | ⚙️                         | ⚙️                      | ⚙️                     | ⚙️                            |
+| **Multi-Target Operations** (`DeepReplaceTheseIn()`)      | ✅                   | ✅                    | ⚙️                         | ⚙️                      | ⚙️                     | ⚙️                            |
+| **Complex Value Mapping** (`DeepReplaceManyByManyIn()`)   | ✅                   | ✅                    | ⚙️                         | ⚙️                      | ⚙️                     | ⚙️                            |
+| **Cycling Replacements** (`DeepReplaceManyByManyInXT()`)  | ✅                   | 🔄                   | ⚙️                         | ⚙️                      | ⚙️                     | ⚙️                            |
+| **Path Analysis** (`LongestPaths()`, `PathsAtDepth()`)    | ✅                   | 🔄                   | ⚙️                         | ⚙️                      | ⚙️                     | ⚙️                            |
+| **Path Relationships** (`IsSubPathOf()`, `CommonPath()`)  | ✅                   | 🔄                   | ⚙️                         | ⚙️                      | ⚙️                     | ⚙️                            |
+| **Path Expansion** (`ExpandPath()`, `CollapsePath()`)     | ✅                   | ⚙️                   | ⚙️                         | ⚙️                      | ⚙️                     | ⚙️                            |
+| **Deep String Transformations** (`DeepUppercaseString()`) | ✅                   | ✅                    | ⚙️                         | ⚙️                      | ⚙️                     | ⚙️                            |
 
 **Key Takeaways:**
 1. **Softanza** remains the only solution with **full native support** for all operations.
