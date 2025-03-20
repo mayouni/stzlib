@@ -1,4 +1,6 @@
 # Taming Deep Lists with Softanza
+![Softanza, Mastering the Depths](../images/stz-deep-lists.png)
+_Softanza, Mastering Depths ftom the Heart._
 
 Deeply nested lists are powerful data structures but can become unwieldy as complexity grows. Softanza, an extension library for the Ring programming language, offers elegant solutions for managing these hierarchical structures. This article walks through practical approaches to common challenges with deep (nested) lists, introducing Softanza's features as they become relevant to solving real problems.
 
