@@ -44660,6 +44660,9 @@ fdef
 		def LongestPathLen()
 			return This.LengthOfLongestPath()
 
+		def MaxPathDepth()
+			return This.LengthOfLongestPath()
+
 		#-- @Misspelled
 
 		def LenghtOfLongestPath()
