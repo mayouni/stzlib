@@ -82,14 +82,18 @@ class stzTree from stzList
 		return FALSE
 
 	def IsNode(pPath)
-		
+
+		if NOT This.IsValidPath(pPath)
+			return FALSE
+		ok
+
 		oItem = This.ItemAtPath(pPath)
 		
 		if isList(oItem)
 			return TRUE
+		else
+			return FALSE
 		ok
-		
-		return FALSE
 
 	def AllLeaves()
 		aResult = []
@@ -169,7 +173,7 @@ class stzTree from stzList
 		
 		oParent = This.ItemAtPath(pParentPath)
 		oParent + pItem
-		This.ReplaceItemAtPath(oParent, pParentPath)
+//		This.ReplaceItemAtPath(oParent, pParentPath)
 		
 		return TRUE
 
@@ -201,18 +205,15 @@ class stzTree from stzList
 		ok
 		
 		for aPath in aPaths
-			This.RemoveItemAtPath(aPath)
+			This.RemoveItemAtPath(This.ItemAtPath(aPath), aPath)
 		next
 		
 		return TRUE
 
 	def ReplaceElement(pPath, pNewValue)
-		if NOT This.ItemExistsAtPath(pPath)
-			return FALSE
-		ok
-		
-		This.ReplaceItemAtPath(pNewValue, pPath)
-		return TRUE
+
+		This.ReplaceItemAtPath(This.ItemAtPath(pPath), pNewValue, pPath)
+
 
 	#--- BRANCH OPERATIONS ---#
 	
@@ -220,12 +221,12 @@ class stzTree from stzList
 		aResult = []
 		
 		# Check if paths exist
-		if NOT This.ItemExistsAtPath(pStartPath) OR NOT This.ItemExistsAtPath(pEndPath)
+/*		if NOT This.ItemExistsAtPath(pStartPath) OR NOT This.ItemExistsAtPath(pEndPath)
 			return aResult
 		ok
-		
+*/		
 		# Find common ancestor path
-		aCommonPath = CommonPath([pStartPath, pEndPath])
+		aCommonPath = @CommonPath([pStartPath, pEndPath])
 		
 		if len(aCommonPath) = 0
 			return aResult
@@ -246,11 +247,6 @@ class stzTree from stzList
 		aBranch = This.Branch(pStartPath, pEndPath)
 		
 		if len(aBranch) = 0
-			return FALSE
-		ok
-		
-		# Check if destination exists and is a node
-		if NOT This.ItemExistsAtPath(pDestPath)
 			return FALSE
 		ok
 		
@@ -318,9 +314,6 @@ class stzTree from stzList
 		return This.Show()
 	
 	def Expand(pPath)
-		if NOT This.ItemExistsAtPath(pPath)
-			return ""
-		ok
 		
 		if NOT This.IsNode(pPath)
 			return ""
@@ -350,9 +343,6 @@ class stzTree from stzList
 		return cResult
 
 	def Collapse(pPath)
-		if NOT This.ItemExistsAtPath(pPath)
-			return ""
-		ok
 		
 		if NOT This.IsNode(pPath)
 			return ""
@@ -385,9 +375,6 @@ class stzTree from stzList
 		return aResult
 
 	def FindInPath(pValue, pPath)
-		if NOT This.ItemExistsAtPath(pPath)
-			return []
-		ok
 		
 		# Expand the path to get all subpaths
 		aExpandedPaths = This.ExpandPath(pPath)
@@ -404,9 +391,6 @@ class stzTree from stzList
 	#--- SORTING ---#
 	
 	def SortNodeChildren(pPath)
-		if NOT This.ItemExistsAtPath(pPath)
-			return FALSE
-		ok
 		
 		if NOT This.IsNode(pPath)
 			return FALSE
@@ -436,25 +420,23 @@ class stzTree from stzList
 		next
 		
 		# Sort the helper list
-		aSorted = SortListOfPairs(aSortHelper, 1)
-		
+
+		aSorted = @SortOn(aSortHelper, 1)
 		# Rebuild the sorted children
 		oNode = []
 		
 		for aPair in aSorted
-			oNode + This.ItemAtPath(aPair[2])
+			if This.IsValidPath(aPair[2])
+				oNode + This.ItemAtPath(aPair[2])
+			ok
 		next
 		
 		# Replace the node with sorted children
-		This.ReplaceItemAtPath(oNode, pPath)
+//		This.ReplaceItemAtPath(oNode, pPath)
 		
-		return TRUE
 
 	def SortSubtree(pPath)
-		if NOT This.ItemExistsAtPath(pPath)
-			return FALSE
-		ok
-		
+	
 		if NOT This.IsNode(pPath)
 			return FALSE
 		ok
@@ -470,22 +452,3 @@ class stzTree from stzList
 		
 		# Finally sort the top node
 		This.SortNodeChildren(pPath)
-		
-		return TRUE
-
-#=================== HELPER FUNCTIONS ===================#
-
-func SortListOfPairs(aList, nIndex)
-	aTemp = []
-	
-	for i = 1 to len(aList)
-		for j = i to len(aList)
-			if aList[i][nIndex] > aList[j][nIndex]
-				aTemp = aList[i]
-				aList[i] = aList[j]
-				aList[j] = aTemp
-			ok
-		next
-	next
-	
-	return aList

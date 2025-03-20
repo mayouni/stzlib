@@ -3,20 +3,22 @@ load "../max/stzmax.ring"
 # Examples of using the stzTree class
 
 func main()
+pr()
 	# Example 1: Creating a simple tree and exploring its structure
-	Example1()
+	Example1() + NL + NL
 	
 	# Example 2: Manipulating tree elements
-	Example2()
+	Example2() + NL + NL
 	
 	# Example 3: Working with branches
-	Example3()
+	Example3() + NL + NL
 	
 	# Example 4: Advanced search and navigation
-	Example4()
+	Example4() + NL + NL
 	
 	# Example 5: Sorting tree elements
 	Example5()
+pf()
 
 func Example1()
 	? "=== Example 1: Creating and Exploring a Tree ==="
@@ -112,7 +114,7 @@ func Example2()
 	# Replace an element
 	? "Replacing 'Resume.docx' with 'Resume_2023.docx'..."
 	aPath = oTree.DeepFind("Resume.docx")[1]
-	oTree.ReplaceElement(aPath, "Resume_2023.docx")
+//	oTree.ReplaceElement(aPath, "Resume_2023.docx")
 	
 	# Remove an element
 	? "Removing 'Cover_Letter.docx'..."
