@@ -659,29 +659,26 @@ func SuperPathsOf(aPaths, aBasePath)
 
 func IsTree(paList)
 
-	# If it's not a list, it's not a tree
+	# If it is not a list, it is not a tree
 	if NOT isList(paList)
 		return false
 	ok
     
-	# An empty list is not considered a valid tree
+	# A tree is a list of 2 items (the root name and the tree content)
 
-	if len(paList) = 0
+	if NOT len(paList) = 2
 		return FALSE
 	ok
     
-	# Checks each element of the list
+	# Which form a pair made of a lowercase string and a list
 
-	nLen = len(paList)
+	if NOT ( isString(paList[1]) and
+		 isLower(paList[1]) and
 
-	for i = 1 to nLen
-		# If the element is a list, recursively checks that it's a valid tree
-		if isList(item)
-			if NOT IsTree(item)
-				return FALSE
-			ok
-		ok
-	next
+		 isList(paList[2]) )
+
+		return FALSE
+	ok
     
 	# If all tests pass, it's a valid tree
 	return TRUE

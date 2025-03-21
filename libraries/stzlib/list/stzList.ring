@@ -44660,9 +44660,6 @@ fdef
 		def LongestPathLen()
 			return This.LengthOfLongestPath()
 
-		def MaxPathDepth()
-			return This.LengthOfLongestPath()
-
 		#-- @Misspelled
 
 		def LenghtOfLongestPath()
@@ -47157,32 +47154,48 @@ fdef
 
 		#>
 
-	#-- #TODO
+	#--
 
-	def Depths()
-		stzraise("Function not implemented yet!")
+	def NumberOfLevels()
+		_cBraces_ = @@Q(This.Content()).RemoveAllExceptQ([ "[", "]" ]).Content()
+		_nLenBraces_ = len(_cBraces_)
 
-		def Levels()
-			return Depths()
+		nMaxLevel = 0
+		nCurrentLevel = 0
+    
+		# Iterate through each character in the string
 
-	def NumberOfDepths()
-		stzraise("Function not implemented yet!")
-
-		
-		def HowManyDepths()
-			return This.NumberOfDepths()
-
-		def CountDepths()
-			return This.NumberOfDepths()
-
-		def NumberOfLevels()
-			return This.NumberOfDepths()
+		for @i = 1 to _nLenBraces_
+        
+			if _cBraces_[@i] = "["
+				# Increase current nesting level on opening bracket
+				nCurrentLevel++
+				# Update maximum level seen so far
+				if nCurrentLevel > nMaxLevel
+					nMaxLevel = nCurrentLevel
+				ok
+			but _cBraces_[@i] = "]"
+				# Decrease current nesting level on closing bracket
+				nCurrentLevel--
+			ok
+		next
+    
+		return nMaxLevel
 
 		def CountLevels()
-			return This.NumberOfDepths()
+			return This.NumberofLevels()
 
 		def HowManyLevels()
-			return This.NumberOfDepths()
+			return This.NumberofLevels()
+
+		def Depth()
+			return this.NumberofLevels()
+
+		def MaxLevel()
+			return this.NumberofLevels()
+
+		def MaxDepth()
+			return this.NumberofLevels()
 
 	def PathsAtDepth(pnDepth)
 		if CheckParams()

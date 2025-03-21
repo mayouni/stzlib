@@ -441,8 +441,8 @@ R.Execute()
 # ]
 
 pf()
-# Executed in 1.42 second(s) in Ring 1.22 : AFTER FIRST RUN
-# Executed in 0.31 second(s) in Ring 1.22 : AFTER WARM-UP
+# Executed in 1.06 second(s) in Ring 1.22 : AFTER FIRST RUN
+# Executed in 0.34 second(s) in Ring 1.22 : AFTER WARM-UP
 
 /*--- Simple nested list with different data types
 

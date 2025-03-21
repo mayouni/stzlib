@@ -44,7 +44,7 @@ pf()
 # Executed in 0.10 second(s) in Ring 1.22
 
 /*--- Data Analysis with Pandas
-*/
+
 pr()
 
 py() {
@@ -85,7 +85,8 @@ Execute()
 # ]
 
 pf()
-# Executed in 0.57 second(s) in Ring 1.22
+# Executed in 2.50 second(s) in Ring 1.22 : AFTER FIRST RUN
+# Executed in 0.57 second(s) in Ring 1.22 : AFTER WARMUP
 
 /*--- Text Processing with Python and its regex engine
 
@@ -213,4 +214,132 @@ Execute()
 
 
 pf()
-# Executed in 1.67 second(s) in Ring 1.22
+# Executed in 7.61 second(s) in Ring 1.22 : AFTER FIRST RUN
+# Executed in 1.87 second(s) in Ring 1.22 : AFTER WARMUP
+
+/*===== ADVANCED EXAMPLE - COMPARING PERF PYTHON VS SOFTANZA
+*/
+pr()
+
+py() {
+
+	# --> START OF PYHTON CODE
+    	@('
+
+# Function to traverse the list and replace all occurrences of a target item
+def traverse_and_replace(lst, target, replacement):
+    count = 0
+    for i in range(len(lst)):
+        if isinstance(lst[i], list):
+            # If the element is a sublist, recurse
+            count += traverse_and_replace(lst[i], target, replacement)
+        elif lst[i] == target:
+            # If the element is the target, replace it
+            lst[i] = replacement
+            count += 1
+    return count
+
+deep_list = aDeep =  [
+    	42, "apple", "♥", ["sun", 314, [-7, "moon", "♥"], "rain"], [
+        99,
+        "star", "♥",
+        [
+            0,
+            "♥", "cloud",
+            [
+                272,
+                "wind", "♥",
+                [
+                    "tree",
+                    100,
+                    [
+                        "fish", "♥",
+                        "♥", "bird",
+                        [
+                            8,
+                            "sky", "♥",
+                            [
+                                "♥", "river",
+                                162,
+                                [
+                                    "fire", "♥", "♥",
+                                    "♥", "stone",
+                                    ["lake", "♥", 77]
+                                ]
+                            ]
+                        ],
+                        "winter", "♥"
+                    ]
+                ]
+            ],
+            "♥", "summer", "♥"
+        ],
+        "night", "♥", "♥"
+	]
+]
+
+# Step 4: Replace all "♥" with "★" and count the replacements
+count = traverse_and_replace(deep_list, "♥", "★")
+
+# Step 5: Set the result
+res = {"replacements_made": count}
+')
+	# <-- END OF PYTHON CODE
+
+	run()
+	? result()
+
+}
+
+pf()
+# Executed in 0.17 second(s) in Ring 1.22
+
+/*---
+*/
+
+pr()
+
+aDeep =  [
+    	42, "apple", "♥", ["sun", 314, [-7, "moon", "♥"], "rain"], [
+        99,
+        "star", "♥",
+        [
+            0,
+            "♥", "cloud",
+            [
+                272,
+                "wind", "♥",
+                [
+                    "tree",
+                    100,
+                    [
+                        "fish", "♥",
+                        "♥", "bird",
+                        [
+                            8,
+                            "sky", "♥",
+                            [
+                                "♥", "river",
+                                162,
+                                [
+                                    "fire", "♥", "♥",
+                                    "♥", "stone",
+                                    ["lake", "♥", 77]
+                                ]
+                            ]
+                        ],
+                        "winter", "♥"
+                    ]
+                ]
+            ],
+            "♥", "summer", "♥"
+        ],
+        "night", "♥", "♥"
+    ]
+]
+
+o1 = new stzList(aDeep)
+o1.DeepReplace("♥", "★")
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22

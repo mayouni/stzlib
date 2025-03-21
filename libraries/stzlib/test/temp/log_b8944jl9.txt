@@ -1,0 +1,4 @@
+Python script starting...
+Data before transformation: {'accuracy': 0.95, 'feature_importance': [0.04791468568701373, 0.10976766645573904, 0.3350227308191291, 0.5072949170381181], 'predictions': [1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1]}
+Data after transformation: [['accuracy', 0.95], ['feature_importance', [0.04791468568701373, 0.10976766645573904, 0.3350227308191291, 0.5072949170381181]], ['predictions', [1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1]]]
+Data written to file

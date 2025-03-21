@@ -15,7 +15,6 @@ Element		Generic name corresponding to the constitutents of a Tree.
 Node		Intermediate level, can have higher levels (also called "Parent"
 		levels) and lower levels (also called "Child" levels).
 
-		Remark: The root or the leaves correspond to specific nodes.
 
 Branch		Section of the Tree that can define a path:
 		from the root to a leaf, from a node to another node,
@@ -56,11 +55,18 @@ class stzTree from stzList
 	#--- INITIALIZATION ---#
 	
 	def init(paTree)
-		if isList(paTree)
-			super.init(paTree)
-		else
-			super.init([])
+
+		if CheckParams()
+			if NOT isList(paTree)
+				stzraise("Can't create a stzTree object! paTree must be a list.")
+			ok
 		ok
+
+		if NOT IsTree(paTree)
+			stzraise("Can't create a stzTree object! paTree must be a tree.")
+		ok
+
+		super.init(paTree)
 
 	#--- BASIC TREE STRUCTURE INFORMATION ---#
 	
@@ -95,73 +101,107 @@ class stzTree from stzList
 			return FALSE
 		ok
 
-	def AllLeaves()
+	def FindLeaves()
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
 		aResult = []
 		
-		for aPath in This.Paths()
-			if This.IsLeaf(aPath)
-				aResult + [ This.ItemAtPath(aPath), aPath ]
+		for @i = 1 to _nLen_
+			if This.IsLeaf(_aPaths_[@i])
+				aResult + _aPaths_[@i]
 			ok
 		next
 		
 		return aResult
+
+	def Leaves()
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
+		aResult = []
+		
+		for @i = 1 to _nLen_
+			if This.IsLeaf(_aPaths_[@i])
+				aResult + This.ItemAtPath(_aPaths_[@i])
+			ok
+		next
+		
+		return aResult
+
+	def LeavesZ()
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
+		aResult = []
+		
+		for @i = 1 to _nLen_
+			if This.IsLeaf(_aPaths_[@i])
+				aResult + [ This.ItemAtPath(_aPaths_[@i]), _aPaths_[@i] ]
+			ok
+		next
+		
+		return aResult
+
+		def LeavesZZ()
+			return This.LeavesZ()
 
 	def CountLeaves()
-		nResult = 0
-		
-		for aPath in This.Paths()
-			if This.IsLeaf(aPath)
-				nResult++
-			ok
-		next
-		
-		return nResult
+		return len(This.Leaves())
 
-	def AllNodes()
+	def FindNodes()
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
 		aResult = []
 		
-		for aPath in This.Paths()
-			if This.IsNode(aPath)
-				aResult + [ This.ItemAtPath(aPath), aPath ]
+		for @i = 1 to _nLen_
+			if This.IsNode(_aPaths_[@i])
+				aResult + _aPaths_[@i]
 			ok
 		next
 		
 		return aResult
 
-	def CountNodes()
-		nResult = 0
+	def Nodes()
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
+		aResult = []
 		
-		for aPath in This.Paths()
-			if This.IsNode(aPath)
-				nResult++
+		for @i = 1 to _nLen_
+			if This.IsNode(_aPaths_[@i])
+				aResult + This.ItemAtPath(_aPaths_[@i])
 			ok
 		next
 		
-		return nResult
+		return aResult
 
-	def Height()
-		if This.IsEmpty()
-			return 0
-		ok
+	def NodesZ()
+		_aPaths_ = This.Paths()
+		_nLen_ = len(_aPaths_)
+
+		aResult = []
 		
-		return This.MaxPathDepth()
+		for @i = 1 to _nLen_
+			if This.IsNode(_aPaths_[@i])
+				aResult + [ This.ItemAtPath(_aPaths_[@i]), _aPaths_[@i] ]
+			ok
+		next
+		
+		return aResult
+
+		def NodeZZ()
+			return This.NodesZ()
+
+	def CountNodes()
+		return len(This.Nodes())
+
+	def Hight()
+		return This.Depth()
 
 	def Width()
-		if This.IsEmpty()
-			return 0
-		ok
-		
-		nMax = 0
-		
-		for aPath in This.Paths()
-			if This.IsLeaf(aPath)
-				if len(aPath) = 1
-					nMax = max([nMax, aPath[1]])
-				ok
-			ok
-		next
-		
-		return nMax
+		return This.LenOfLongestPath()
 
 	#--- ELEMENT MANIPULATION ---#
 	
@@ -352,7 +392,7 @@ class stzTree from stzList
 
 	#--- ADVANCED SEARCH ---#
 	
-	def FindLeaves(pValue)
+	def FindLeaf(pValue)
 		aResult = []
 		
 		for aPath in This.Paths()
@@ -363,7 +403,7 @@ class stzTree from stzList
 		
 		return aResult
 
-	def FindNodes(pValue)
+	def FindNode(pValue)
 		aResult = []
 		
 		for aPath in This.Paths()
@@ -452,3 +492,4 @@ class stzTree from stzList
 		
 		# Finally sort the top node
 		This.SortNodeChildren(pPath)
+
