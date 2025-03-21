@@ -1,0 +1,4 @@
+  File "D:\GitHub\stzlib\libraries\stzlib\test\temp\temp_whl9oiwr.py", line 58
+    deep_list = aDeep =  [
+                         ^
+SyntaxError: '[' was never closed

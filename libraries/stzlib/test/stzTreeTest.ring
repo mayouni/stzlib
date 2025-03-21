@@ -1,78 +1,288 @@
 load "../max/stzmax.ring"
 
-# Examples of using the stzTree class
 
-func main()
+/*--- Example 1: Creating and Exploring a Tree
+
 pr()
-	# Example 1: Creating a simple tree and exploring its structure
-	Example1() + NL + NL
+
+o1 = new stzTree([
+	"Root",
+	[
+		"Node1.1",
+		[
+			"Leaf1.1.1"
+		]
+	],
+	"Node2",
+	[
+		"Leaf2.1",
+		"Leaf2.2",
+		"Leaf2.3"
+	],
+	[
+		"Leaf3.1",
+		"Leaf3.2"
+	],
+	"Leaf4"
+])
 	
-	# Example 2: Manipulating tree elements
-	Example2() + NL + NL
-	
-	# Example 3: Working with branches
-	Example3() + NL + NL
-	
-	# Example 4: Advanced search and navigation
-	Example4() + NL + NL
-	
-	# Example 5: Sorting tree elements
-	Example5()
+# Display the tree
+
+? o1.Show()
+#--> Executed in 0.02 second(s) in Ring 1.22
+
 pf()
 
-func Example1()
-	? "=== Example 1: Creating and Exploring a Tree ==="
-	
-	# Create a tree structure
-	oTree = new stzTree([
-		"Root",
-		[
-			"Node1.1",
-			[
-				"Leaf1.1.1"
-			]
+/*---
+*/
+pr()
+
+? IsTree(
+	:root = [
+
+		:documents = [
+			"Resume.docx",
+			"Cover_Letter.docx"
 		],
-		"Leaf2",
-		[
-			"Node3",
-			"Leaf3.1",
-			"Leaf3.2"
+
+		:projects = [
+			"ProjectA.txt",
+			"ProjectB.txt",
+			"ProjectC.txt"
 		],
-		[
-			"Node4",
-			"Leaf4.1"
+
+		"unclassified.doc",
+
+		:pictures = [
+
+			:personal = [
+				"vacation.jpg",
+				"family.jpg"
+			],
+
+			:professional = [
+				"team.jpg",
+				"snapshot.jpg"
+			],
+
+			"other.jpg"
 		],
-		"Leaf5"
-	])
+
+		"readme.txt",
+		[ 1, 2, 3 ]
+	]
+)
+
+pf()
+
+/*---
+
+pr()
+
+o1 = new stzTree(
+	:root = [
+
+		:documents = [
+			"Resume.docx",
+			"Cover_Letter.docx"
+		],
+
+		:projects = [
+			"ProjectA.txt",
+			"ProjectB.txt",
+			"ProjectC.txt"
+		],
+
+		:pictures = [
+
+			:personal = [
+				"vacation.jpg",
+				"family.jpg"
+			],
+
+			:professional = [
+				"team.jpg",
+				"snapshot.jpg"
+			],
+
+			"other.jpg"
+		],
+
+		"readme.txt",
+		[ 1, 2, 3 ]
+	]
+)
+
+? @@( o1.FindLeaves() ) + NL
+
+? @@( o1.FindNodes() )
+
+pf()
+
+/*---
+
+pr()
+
+o1 = new stzTree([
+	"Root",
+	[
+		"Node1.1",
+		[
+			"Leaf1.1.1"
+		]
+	],
+	"Node2",
+	[
+		"Leaf2.1",
+		"Leaf2.2",
+		"Leaf2.3"
+	],
+	[
+		"Leaf3.1",
+		"Leaf3.2"
+	],
+	"Leaf4"
+])
+
+
+# Basic information
+
+? o1.Hight() # Or Depth in nested list semantics
+#--> 3
+
+? o1.Width() # Or LenOfLongestPath() in list semantics
+#--> 3
+
+? o1.CountLeaves()
+#--> 10
+
+? o1.CountNodes()
+#--> 4
 	
-	# Display the tree
-	? "Tree Structure:"
-	? oTree.Show()
+pf()
+# Executed in 1.96 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+o1 = new stzTree([
+	"Root",
+	[
+		"Node1.1",
+		[
+			"Leaf1.1.1"
+		]
+	],
+	"Node2",
+	[
+		"Leaf2.1",
+		"Leaf2.2",
+		"Leaf2.3"
+	],
+	[
+		"Leaf3.1",
+		"Leaf3.2"
+	],
+	"Leaf4"
+])
 	
-	# Basic information
-	? "Tree Height: " + oTree.Height()
-	? "Tree Width: " + oTree.Width()
-	? "Number of Leaves: " + oTree.CountLeaves()
-	? "Number of Nodes: " + oTree.CountNodes()
 	
-	# Check element types
-	? "Is [1] a leaf? " + oTree.IsLeaf([1])
-	? "Is [2] a node? " + oTree.IsNode([2])
-	? "Is [3] a leaf? " + oTree.IsLeaf([3])
-	? "Is [4] a node? " + oTree.IsNode([4])
+# Check element types
+
+? o1.IsLeaf([1])
+? o1.IsNode([2])
+? o1.IsLeaf([3])
+? o1.IsNode([4])
+
+pf()
+# Executed in 0.34 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+o1 = new stzTree([
+	"Root",
+	[
+		"Node1.1",
+		[
+			"Leaf1.1.1"
+		]
+	],
+	"Node2",
+	[
+		"Leaf2.1",
+		"Leaf2.2",
+		"Leaf2.3"
+	],
+	[
+		"Leaf3.1",
+		"Leaf3.2"
+	],
+	"Leaf4"
+])
 	
-	# Get all leaves and nodes
-	? "All Leaves:"
-	aLeaves = oTree.AllLeaves()
-	for item in aLeaves
-		? "- " + item[1] + " at path " + @@(item[2])
-	next
+# Get all leaves
+
+? @@NL( o1.Leaves() )
+#--> [
+#	"Root",
+#	"Node1.1",
+#	"Leaf1.1.1",
+#	"Node2",
+#	"Leaf2.1",
+#	"Leaf2.2",
+#	"Leaf2.3",
+#	"Leaf3.1",
+#	"Leaf3.2",
+#	"Leaf4"
+# ]
+
+pf()
+# Executed in 0.95 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+o1 = new stzTree([
+	"Root",
+	[
+		"Node1.1",
+		[
+			"Leaf1.1.1"
+		]
+	],
+	"Node2",
+	[
+		"Leaf2.1",
+		"Leaf2.2",
+		"Leaf2.3"
+	],
+	[
+		"Leaf3.1",
+		"Leaf3.2"
+	],
+	"Leaf4"
+])
 	
-	? "All Nodes:"
-	aNodes = oTree.AllNodes()
-	for item in aNodes
-		? "- Node at path " + @@(item[2])
-	next
+# Get all nodes
+
+? @@NL( o1.Nodes() )
+#--> [
+#	[
+#		"Node1.1",
+#		[ "Leaf1.1.1" ]
+#	],
+#	[ "Leaf1.1.1" ],
+#	[ "Leaf2.1", "Leaf2.2", "Leaf2.3" ],
+#	[ "Leaf3.1", "Leaf3.2" ]
+# ]
+
+pf()
+
+/*=============
 
 func Example2()
 	? "=== Example 2: Manipulating Tree Elements ==="
