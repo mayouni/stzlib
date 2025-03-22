@@ -218,7 +218,7 @@ pf()
 # Executed in 1.87 second(s) in Ring 1.22 : AFTER WARMUP
 
 /*===== ADVANCED EXAMPLE - COMPARING PERF PYTHON VS SOFTANZA
-*/
+
 pr()
 
 py() {
@@ -239,7 +239,7 @@ def traverse_and_replace(lst, target, replacement):
             count += 1
     return count
 
-deep_list = aDeep =  [
+deep_list = [
     	42, "apple", "♥", ["sun", 314, [-7, "moon", "♥"], "rain"], [
         99,
         "star", "♥",
@@ -295,7 +295,6 @@ pf()
 # Executed in 0.17 second(s) in Ring 1.22
 
 /*---
-*/
 
 pr()
 
