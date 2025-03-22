@@ -79408,6 +79408,11 @@ class stzString from stzObject
 
 		*/
 
+		if isString(pacSubStr)
+			acTemp = [] + pacSubStr
+			pacSubStr = acTemp
+		ok
+
 		aSections = This.FindSubStringsExceptCSZZ(pacSubStr, pCaseSensitive)
 		This.RemoveSections(aSections)
 

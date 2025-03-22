@@ -1,40 +1,8 @@
 load "../max/stzmax.ring"
 
 
-/*--- Example 1: Creating and Exploring a Tree
-
-pr()
-
-o1 = new stzTree([
-	"Root",
-	[
-		"Node1.1",
-		[
-			"Leaf1.1.1"
-		]
-	],
-	"Node2",
-	[
-		"Leaf2.1",
-		"Leaf2.2",
-		"Leaf2.3"
-	],
-	[
-		"Leaf3.1",
-		"Leaf3.2"
-	],
-	"Leaf4"
-])
-	
-# Display the tree
-
-? o1.Show()
-#--> Executed in 0.02 second(s) in Ring 1.22
-
-pf()
-
 /*---
-*/
+
 pr()
 
 ? IsTree(
@@ -74,6 +42,7 @@ pr()
 )
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*---
 
@@ -83,15 +52,17 @@ o1 = new stzTree(
 	:root = [
 
 		:documents = [
-			"Resume.docx",
-			"Cover_Letter.docx"
+			"resume.docx",
+			"cover_letter.docx"
 		],
 
 		:projects = [
-			"ProjectA.txt",
-			"ProjectB.txt",
-			"ProjectC.txt"
+			"ProjA.txt",
+			"ProjB.txt",
+			"ProjC.txt"
 		],
+
+		"tempo.doc",
 
 		:pictures = [
 
@@ -113,371 +84,359 @@ o1 = new stzTree(
 	]
 )
 
-? @@( o1.FindLeaves() ) + NL
-
-? @@( o1.FindNodes() )
-
-pf()
-
-/*---
-
-pr()
-
-o1 = new stzTree([
-	"Root",
-	[
-		"Node1.1",
-		[
-			"Leaf1.1.1"
-		]
-	],
-	"Node2",
-	[
-		"Leaf2.1",
-		"Leaf2.2",
-		"Leaf2.3"
-	],
-	[
-		"Leaf3.1",
-		"Leaf3.2"
-	],
-	"Leaf4"
-])
-
-
-# Basic information
-
-? o1.Hight() # Or Depth in nested list semantics
-#--> 3
-
-? o1.Width() # Or LenOfLongestPath() in list semantics
-#--> 3
-
-? o1.CountLeaves()
-#--> 10
-
-? o1.CountNodes()
-#--> 4
-	
-pf()
-# Executed in 1.96 second(s) in Ring 1.22
-
-/*---
-
-pr()
-
-o1 = new stzTree([
-	"Root",
-	[
-		"Node1.1",
-		[
-			"Leaf1.1.1"
-		]
-	],
-	"Node2",
-	[
-		"Leaf2.1",
-		"Leaf2.2",
-		"Leaf2.3"
-	],
-	[
-		"Leaf3.1",
-		"Leaf3.2"
-	],
-	"Leaf4"
-])
-	
-	
-# Check element types
-
-? o1.IsLeaf([1])
-? o1.IsNode([2])
-? o1.IsLeaf([3])
-? o1.IsNode([4])
-
-pf()
-# Executed in 0.34 second(s) in Ring 1.22
-
-/*---
-
-pr()
-
-o1 = new stzTree([
-	"Root",
-	[
-		"Node1.1",
-		[
-			"Leaf1.1.1"
-		]
-	],
-	"Node2",
-	[
-		"Leaf2.1",
-		"Leaf2.2",
-		"Leaf2.3"
-	],
-	[
-		"Leaf3.1",
-		"Leaf3.2"
-	],
-	"Leaf4"
-])
-	
-# Get all leaves
-
-? @@NL( o1.Leaves() )
+? o1.Show()
 #--> [
-#	"Root",
-#	"Node1.1",
-#	"Leaf1.1.1",
-#	"Node2",
-#	"Leaf2.1",
-#	"Leaf2.2",
-#	"Leaf2.3",
-#	"Leaf3.1",
-#	"Leaf3.2",
-#	"Leaf4"
+#	"root",
+#	[
+#		[
+#			"documents",
+#			[ "resume.docx", "cover_letter.docx" ]
+#		],
+#		[
+#			"projects",
+#			[ "ProjA.txt", "ProjB.txt", "ProjC.txt" ]
+#		],
+#		"tempo.doc",
+#		[
+#			"pictures",
+#			[
+#				[
+#					"personal",
+#					[ "vacation.jpg", "family.jpg" ]
+#				],
+#				[
+#					"professional",
+#					[ "team.jpg", "snapshot.jpg" ]
+#				],
+#				"other.jpg"
+#			]
+#		],
+#		"readme.txt",
+#		[ 1, 2, 3 ]
+#	]
 # ]
 
 pf()
-# Executed in 0.95 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.22
 
-/*---
+/*=== BRANCHES
 
 pr()
 
-o1 = new stzTree([
-	"Root",
-	[
-		"Node1.1",
-		[
-			"Leaf1.1.1"
-		]
-	],
-	"Node2",
-	[
-		"Leaf2.1",
-		"Leaf2.2",
-		"Leaf2.3"
-	],
-	[
-		"Leaf3.1",
-		"Leaf3.2"
-	],
-	"Leaf4"
-])
-	
-# Get all nodes
+o1 = new stzTree(
+	:root = [
 
-? @@NL( o1.Nodes() )
+		:documents = [
+			"Resume.docx",
+			"Cover_Letter.docx"
+		],
+
+		:projects = [
+			"ProjectA.txt",
+			"ProjectB.txt",
+			"ProjectC.txt"
+		],
+
+		"unclassified.doc",
+
+		:pictures = [
+
+			:personal = [
+				"vacation.jpg",
+				"family.jpg"
+			],
+
+			:professional = [
+				"team.jpg",
+				"snapshot.jpg"
+			],
+
+			"other.jpg"
+		],
+
+		"readme.txt",
+		[ 1, 2, 3 ]
+	]
+)
+
+? @@( o1.Branch('[:root][:projects]') ) + NL
+#--> [ "ProjectA.txt", "ProjectB.txt", "ProjectC.txt" ]
+
+? o1.Branches()
+#--> [
+#	'[:root]',
+#	'[:root][:documents]',
+#	'[:root][:projects]',
+#	'[:root][:pictures]',
+#	'[:root][:pictures][:personal]',
+#	'[:root][:pictures][:professional]'
+# ]
+
+? @@( o1.Branch('[:root][:pictures][:professional]') )
+#--> [ "team.jpg", "snapshot.jpg" ]
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*=== NODES
+
+pr()
+
+o1 = new stzTree(
+	:root = [
+
+		:documents = [
+			"Resume.docx",
+			"Cover_Letter.docx"
+		],
+
+		:projects = [
+			"ProjectA.txt",
+			"ProjectB.txt",
+			"ProjectC.txt"
+		],
+
+		"unclassified.doc",
+
+		:pictures = [
+
+			:personal = [
+				"vacation.jpg",
+				"family.jpg"
+			],
+
+			:professional = [
+				"team.jpg",
+				"snapshot.jpg"
+			],
+
+			"other.jpg"
+		],
+
+		"readme.txt",
+		[ 1, 2, 3 ]
+	]
+)
+
+? o1.Nodes()
+#--> [
+#	'root',		
+#	'documents',
+#	'projects',
+#	'pictures',
+#	'personal',
+#	'professional'
+# ]
+
+? @@NL( o1.NodesXT() ) + NL # Or NodesAndTheirBranches()
+#--> [
+#	[ 'root', 	  '[:root]' ],
+#	[ 'documents',	  '[:root][:documents]' ],
+#	[ 'projects',	  '[:root][:projects]' ],
+#	[ 'pictures',	  '[:root][:pictures]' ],
+#	[ 'personal',	  '[:root][:pictures][:personal]' ],
+#	[ 'professional', '[:root][:pictures][:professional]' ]
+# ]
+
+? o1.FindNode(:professional) + NL # returns the branch leading to that node
+#--> '[:root][:pictures][:professional]'
+
+? @@( o1.Node(:professional) ) + NL
+#--> [ "team.jpg", "snapshot.jpg" ]
+
+? o1.FindNodes([ :documents, :professional ])
+#--> [
+#	"[:root][:documents]",
+#	"[:root][:pictures][:professional]"
+# ]
+
+? @@NL( o1.Node(:Picture) )
+#--> NULL
+
+? @@NL( o1.Node(:Pictures) )
 #--> [
 #	[
-#		"Node1.1",
-#		[ "Leaf1.1.1" ]
+#		"personal",
+#		[ "vacation.jpg", "family.jpg" ]
 #	],
-#	[ "Leaf1.1.1" ],
-#	[ "Leaf2.1", "Leaf2.2", "Leaf2.3" ],
-#	[ "Leaf3.1", "Leaf3.2" ]
+#	[
+#		"professional",
+#		[ "team.jpg", "snapshot.jpg" ]
+#	],
+#	"other.jpg"
 # ]
 
 pf()
+# Executed in 0.05 second(s) in Ring 1.22
 
-/*=============
+/* === LEAFS
 
-func Example2()
-	? "=== Example 2: Manipulating Tree Elements ==="
-	
-	# Create a tree
-	oTree = new stzTree([
-		"Root",
-		[
-			"Documents",
+pr()
+
+o1 = new stzTree(
+	:root = [
+
+		:documents = [
 			"Resume.docx",
-			"Cover_Letter.docx",
-			[
-				"Projects",
-				"ProjectA.txt",
-				"ProjectB.txt"
-			]
+			"Cover_Letter.docx"
 		],
-		[
-			"Pictures",
-			"Vacation.jpg",
-			"Family.jpg"
-		]
-	])
-	
-	? "Original Tree:"
-	? oTree.Show()
-	
-	# Add a leaf
-	? "Adding a leaf 'ProfilePic.jpg' to 'Pictures'..."
-	oTree.AddLeaf("ProfilePic.jpg", [3])
-	
-	# Add a node
-	? "Adding a node 'Videos' with content..."
-	oTree.AddNode(["Videos", "Birthday.mp4"], [])
-	
-	? "After additions:"
-	? oTree.Show()
-	
-	# Replace an element
-	? "Replacing 'Resume.docx' with 'Resume_2023.docx'..."
-	aPath = oTree.DeepFind("Resume.docx")[1]
-//	oTree.ReplaceElement(aPath, "Resume_2023.docx")
-	
-	# Remove an element
-	? "Removing 'Cover_Letter.docx'..."
-	oTree.RemoveElementByValue("Cover_Letter.docx")
-	
-	? "Final Tree after modifications:"
-	? oTree.Show()
 
-func Example3()
-	? "=== Example 3: Working with Branches ==="
-	
-	# Create a tree
-	oTree = new stzTree([
-		"FileSystem",
-		[
-			"Users",
-			[
-				"Alice",
-				"Documents",
-				"Pictures",
-				"Music"
+		:projects = [
+			"ProjectA.txt",
+			"ProjectB.txt",
+			"ProjectC.txt"
+		],
+
+		"unclassified.doc",
+
+		:pictures = [
+
+			:personal = [
+				"vacation.jpg",
+				"family.jpg"
 			],
-			[
-				"Bob",
-				"Videos",
-				"Downloads"
-			]
-		],
-		[
-			"System",
-			"Logs",
-			"Config"
-		]
-	])
-	
-	? "Tree Structure:"
-	? oTree.Show()
-	
-	# Get a branch from Users/Alice to Users/Bob
-	? "Branch from Alice to Bob:"
-	aBranch = oTree.Branch([2, 1], [2, 2])
-	
-	for item in aBranch
-		? "- Element at path " + @@(item[2])
-	next
-	
-	# Expanding a specific path
-	? "Expanding Users node [2]:"
-	? oTree.Expand([2])
-	
-	# Collapsing the tree
-	? "Collapsed Tree:"
-	? oTree.CollapseAll()
 
-func Example4()
-	? "=== Example 4: Advanced Search and Navigation ==="
-	
-	# Create a tree with repeated values
-	oTree = new stzTree([
-		"Root",
-		[
-			"Folder1",
-			"Document.txt",
-			"Image.jpg",
-			[
-				"SubFolder1",
-				"Document.txt",
-				"Script.py"
-			]
-		],
-		[
-			"Folder2",
-			"Document.txt",
-			[
-				"SubFolder2",
-				"Config.json"
-			]
-		]
-	])
-	
-	? "Tree Structure:"
-	? oTree.Show()
-	
-	# Find all occurrences of "Document.txt"
-	? "Finding all 'Document.txt' files:"
-	aPaths = oTree.DeepFind("Document.txt")
-	
-	for aPath in aPaths
-		? "- Found at path: " + @@(aPath)
-	next
-	
-	# Find items in a specific path
-	? "Finding 'Document.txt' within Folder1:"
-	aPaths = oTree.FindInPath("Document.txt", [2])
-	
-	for aPath in aPaths
-		? "- Found at path: " + @@(aPath)
-	next
-	
-	# Find all leaves with a specific value
-	? "All leaves named 'Document.txt':"
-	aPaths = oTree.FindLeaves("Document.txt")
-	
-	for aPath in aPaths
-		? "- Found at path: " + @@(aPath)
-	next
+			:professional = [
+				"team.jpg",
+				"snapshot.jpg"
+			],
 
-func Example5()
-	? "=== Example 5: Sorting Tree Elements ==="
-	
-	# Create a tree with unsorted elements
-	oTree = new stzTree([
-		"Library",
-		[
-			"Fiction",
-			"Z-Author",
-			"C-Author",
-			"A-Author",
-			[
-				"SciFi",
-				"Star Wars",
-				"Dune",
-				"Foundation"
-			]
+			"other.jpg"
 		],
-		[
-			"Non-Fiction",
-			"History",
-			"Biography",
-			"Science"
-		]
-	])
-	
-	? "Original Unsorted Tree:"
-	? oTree.Show()
-	
-	# Sort children of the Fiction node
-	? "Sorting Fiction node children..."
-	oTree.SortNodeChildren([2])
-	
-	? "After sorting Fiction node:"
-	? oTree.Show()
-	
-	# Sort the entire SciFi subtree
-	? "Sorting SciFi subtree..."
-	oTree.SortSubtree([2, 4])
-	
-	? "After sorting SciFi subtree:"
-	? oTree.Show()
-	
-	# Sort the entire tree
-	? "Sorting entire tree..."
-	oTree.SortSubtree([])
-	
-	? "Final sorted tree:"
-	? oTree.Show()
+
+		"readme.txt",
+		[ 1, 2, 3 ]
+	]
+)
+
+? @@NL( o1.Leafs() )
+#--> [
+#	"Resume.docx",
+#	"Cover_Letter.docx",
+#	"ProjectA.txt",
+#	"ProjectB.txt",
+#	"ProjectC.txt",
+#	"unclassified.doc",
+#	"vacation.jpg",
+#	"family.jpg",
+#	"team.jpg",
+#	"snapshot.jpg",
+#	"other.jpg",
+#	"readme.txt",
+#	[ 1, 2, 3 ]
+# ]
+
+? @@NL( o1.LeafsXT() ) + NL
+#--> [
+#	[ "Resume.docx", [ "[:root][:documents]" ] ],
+#	[ "Cover_Letter.docx", [ "[:root][:documents]" ] ],
+#	[ "ProjectA.txt", [ "[:root][:projects]" ] ],
+#	[ "ProjectB.txt", [ "[:root][:projects]" ] ],
+#	[ "ProjectC.txt", [ "[:root][:projects]" ] ],
+#	[ "unclassified.doc", [ "[:root]" ] ],
+#	[ "vacation.jpg", [ "[:root][:pictures][:personal]" ] ],
+#	[ "family.jpg", [ "[:root][:pictures][:personal]" ] ],
+#	[ "team.jpg", [ "[:root][:pictures][:professional]" ] ],
+#	[ "snapshot.jpg", [ "[:root][:pictures][:professional]" ] ],
+#	[ "other.jpg", [ "[:root][:pictures]" ] ],
+#	[ "readme.txt", [ "[:root]" ] ],
+#	[ [ 1, 2, 3 ], [ "[:root]" ] ]
+# ]
+
+? @@( o1.FindLeaf("team.jpg") ) + NL
+#--> [ "[:root][:pictures][:professional]" ]
+
+? @@( o1.FindLeaf("snapshot.jpg") ) + NL
+#--> [ "[:root][:pictures][:professional]" ]
+
+? @@NL( o1.FindLeafs([ "Resume.docx", "team.jpg" ]) ) + NL
+#--> [
+#	[ "[:root][:documents]" ],
+#	[ "[:root][:pictures][:professional]" ]
+# ]
+
+? @@( o1.LeafsAt("[:root][:pictures][:professional]") ) # Equivalent to Branch()
+#--> [ "team.jpg", "snapshot.jpg" ]
+
+pf()
+# Executed in 0.24 second(s) in Ring 1.22
+
+/* === ADDING NODES AND LEAFS
+*/
+pr()
+
+o1 = new stzTree(
+	:root = [
+		:documents = [
+			"Resume.docx",
+			"Cover_Letter.docx"
+		],
+		
+		:projects = []
+	]
+)
+
+o1.AddLeafAt("NewDocument.pdf", "[:root][:documents]")
+? @@( o1.Branch("[:root][:documents]") ) + NL
+#--> [
+#	"Resume.docx",
+#	"Cover_Letter.docx",
+#	"NewDocument.pdf"
+# ]
+
+o1.AddNodeAt(:media = [ "video.mp4", "audio.mp3" ], "[:root]")
+? o1.Nodes()
+#--> [ "root", "documents", "projects", "media" ]
+
+? @@( o1.Branch("[:root][:media]") ) + NL
+#--> [ "video.mp4", "audio.mp3" ]
+
+
+# Adding an empty node and then adding content to it...
+
+o1.AddNodeAt(:archived = [], "[:root]")
+o1.AddLeafAt("OldFile.txt", "[:root][:archived]")
+? @@( o1.Branch("[:root][:archived]") ) + NL
+#--> [ "OldFile.txt" ]
+
+
+# Adding a nested node structure...
+
+o1.AddNodeAt(:images = [], "[:root][:media]")
+o1.AddLeafAt("photo.jpg", "[:root][:media][:images]")
+? @@( o1.LeafsAt("[:root][:media][:images]") ) + NL
+#--> [ "photo.jpg" ]
+
+# Final Tree Structure
+? o1.Show()
+#--> [
+#	"root",
+#	[
+#		[
+#			"documents",
+#			[ "Resume.docx", "Cover_Letter.docx", "NewDocument.pdf" ]
+#		],
+#		[
+#			"projects",
+#			[ ]
+#		],
+#		[
+#			"media",
+#			[
+#				"video.mp4",
+#				"audio.mp3",
+#				[
+#					"images",
+#					[ "photo.jpg" ]
+#				]
+#			]
+#		],
+#		[
+#			"archived",
+#			[ "OldFile.txt" ]
+#		]
+#	]
+# ]
+
+pf()
+# Executed in 0.06 second(s) in Ring 1.22

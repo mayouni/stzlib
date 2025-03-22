@@ -2,57 +2,10 @@
 # Extending stzList to provide tree-specific capabilities
 
 
-/*
-NOTE: stzStree is different by design from the Tree class prvided by StdLib of Ring.
-
-Name		Definition
-------		-----------
-Root		First element of the Tree.
-
-Element		Generic name corresponding to the constitutents of a Tree.
-		--> Root, Node or Leaf are elements of a Tree.
-
-Node		Intermediate level, can have higher levels (also called "Parent"
-		levels) and lower levels (also called "Child" levels).
-
-
-Branch		Section of the Tree that can define a path:
-		from the root to a leaf, from a node to another node,
-		from a node to a leaf, from the root to a node.
-
-Leaf		Last element of the tree structure: there is no level below.
-
-myTree() {
-	Node1 {
-		Node1.1 {
-			Leaf1.1.1
-		}
-
-	Leaf2
-
-	Node3 {
-		Leaf3.1
-		Leaf3.2
-	}
-
-	Node4 {
-		Leaf1.4.1
-	}
-
-	Leaf5
-
-	Show()
-	Find("Leaf3.1") // ==> Path = [3,1]
-}
-*/
-
 func StzTreeQ(paTree)
 	return new stzTree(paTree)
 
-
 class stzTree from stzList
-
-	#--- INITIALIZATION ---#
 	
 	def init(paTree)
 
@@ -62,434 +15,311 @@ class stzTree from stzList
 			ok
 		ok
 
-		if NOT IsTree(paTree)
+		if NOT @IsTree(paTree)
 			stzraise("Can't create a stzTree object! paTree must be a tree.")
 		ok
 
-		super.init(paTree)
+		aTemp = []
+		aTemp + paTree
 
-	#--- BASIC TREE STRUCTURE INFORMATION ---#
-	
-	def Root()
-		if This.IsEmpty()
-			return NULL
-		ok
-		
-		return This.First()
-	
-	def IsLeaf(pPath)
-		
-		oItem = This.ItemAtPath(pPath)
-		
-		if NOT isList(oItem)
-			return TRUE
-		ok
-		
-		return FALSE
+		super.init(aTemp)
 
-	def IsNode(pPath)
+	  #--------------------------------#
+	 #  VISUALIZING THE TREE CONTENT  #
+	#--------------------------------#
 
-		if NOT This.IsValidPath(pPath)
-			return FALSE
+	def Show()
+		? @@NL(This.Content()[1])
+
+	  #---------------------#
+	 #  MANAGING BRANCHES  #
+	#---------------------#
+
+	def Branch(pcBranch)
+		if pcBranch = ""
+			return
 		ok
 
-		oItem = This.ItemAtPath(pPath)
-		
-		if isList(oItem)
-			return TRUE
-		else
-			return FALSE
-		ok
+		_cCode_ = '_aResult_ = This.Content()' + pcBranch
+		eval(_cCode_)
 
-	def FindLeaves()
-		_aPaths_ = This.Paths()
-		_nLen_ = len(_aPaths_)
+		return _aResult_
 
-		aResult = []
-		
-		for @i = 1 to _nLen_
-			if This.IsLeaf(_aPaths_[@i])
-				aResult + _aPaths_[@i]
-			ok
-		next
-		
+	def Branches()
+		aResult = [ '[:root]' ]
+
+		aTree = super.Content()[1]
+
+		aRootContent = aTree[2]
+		This._CollectBranches("[:root]", aRootContent, aResult)
+    
 		return aResult
 
-	def Leaves()
-		_aPaths_ = This.Paths()
-		_nLen_ = len(_aPaths_)
+	def _CollectBranches(cCurrentPath, paContent, aResult)
+		nLen = len(paContent)
 
-		aResult = []
-		
-		for @i = 1 to _nLen_
-			if This.IsLeaf(_aPaths_[@i])
-				aResult + This.ItemAtPath(_aPaths_[@i])
+		for i = 1 to nLen
+			item = paContent[i]
+        		nLenItem = len(item)
+
+			# Process branch entries - they're lists with string as first element
+			if isList(item) and nLenItem >= 2 and isString(item[1])
+				cBranchName = item[1]
+				cBranchPath = cCurrentPath + "[:"+cBranchName+"]"
+				aResult + cBranchPath
+
+				# Process subbranches if exists
+				if nLenItem >= 2 and isList(item[2])
+					This._CollectBranches(cBranchPath, item[2], aResult)
+				ok
 			ok
 		next
-		
-		return aResult
 
-	def LeavesZ()
-		_aPaths_ = This.Paths()
-		_nLen_ = len(_aPaths_)
-
-		aResult = []
-		
-		for @i = 1 to _nLen_
-			if This.IsLeaf(_aPaths_[@i])
-				aResult + [ This.ItemAtPath(_aPaths_[@i]), _aPaths_[@i] ]
-			ok
-		next
-		
-		return aResult
-
-		def LeavesZZ()
-			return This.LeavesZ()
-
-	def CountLeaves()
-		return len(This.Leaves())
-
-	def FindNodes()
-		_aPaths_ = This.Paths()
-		_nLen_ = len(_aPaths_)
-
-		aResult = []
-		
-		for @i = 1 to _nLen_
-			if This.IsNode(_aPaths_[@i])
-				aResult + _aPaths_[@i]
-			ok
-		next
-		
-		return aResult
+	  #------------------#
+	 #  MANAGING NODES  #
+	#------------------#
 
 	def Nodes()
-		_aPaths_ = This.Paths()
-		_nLen_ = len(_aPaths_)
+		aResult = [ 'root' ]
 
-		aResult = []
-		
-		for @i = 1 to _nLen_
-			if This.IsNode(_aPaths_[@i])
-				aResult + This.ItemAtPath(_aPaths_[@i])
-			ok
-		next
-		
+		aTree = super.Content()[1]
+		aRootContent = aTree[2]
+
+		This._CollectNodes(aRootContent, aResult)
+
 		return aResult
 
-	def NodesZ()
-		_aPaths_ = This.Paths()
-		_nLen_ = len(_aPaths_)
+	def _CollectNodes(paContent, aResult)
 
-		aResult = []
-		
-		for @i = 1 to _nLen_
-			if This.IsNode(_aPaths_[@i])
-				aResult + [ This.ItemAtPath(_aPaths_[@i]), _aPaths_[@i] ]
+		nLenContent = len(paContent)
+
+		for i = 1 to nLenContent
+
+			item = paContent[i]
+			nLenItem = len(item)
+
+			# Process branch entries - they're lists
+			# with string as first element
+
+			if isList(item) and nLenItem >= 2 and isString(item[1])
+
+				cNodeName = item[1]
+				aResult + cNodeName
+            
+				# Process subnodes if exists
+
+				if nLenItem >= 2 and isList(item[2])
+					This._CollectNodes(item[2], aResult)
+				ok
 			ok
-		next
-		
-		return aResult
 
-		def NodeZZ()
+		next
+
+	def NodesXT()
+		return @Association([ This.Nodes(), This.Branches() ])
+
+		def NodesAndTheirBranches()
 			return This.NodesZ()
 
-	def CountNodes()
-		return len(This.Nodes())
+	def FindNode(pcNode)
+		return This.NodesXT()[pcNode]
 
-	def Hight()
-		return This.Depth()
+	def Node(pcNode)
+		return This.Branch(This.FindNode(pcNode))
 
-	def Width()
-		return This.LenOfLongestPath()
+	def FindNodes(pacNodes)
 
-	#--- ELEMENT MANIPULATION ---#
-	
-	def AddLeaf(pItem, pParentPath)
-		
-		if NOT This.IsNode(pParentPath)
-			return FALSE
-		ok
-		
-		oParent = This.ItemAtPath(pParentPath)
-		oParent + pItem
-//		This.ReplaceItemAtPath(oParent, pParentPath)
-		
-		return TRUE
+		_acNodes_ = U(pacNodes)
+		_nLen_ = len(_acNodes_)
+		_acResult_ = [] // Branches
 
-	def AddNode(pNode, pParentPath)
-
-		if NOT This.IsNode(pParentPath)
-			return FALSE
-		ok
-		
-		if NOT isList(pNode)
-			pNode = [pNode]
-		ok
-		
-		oParent = This.ItemAtPath(pParentPath)
-		oParent + pNode
-		This.ReplaceItemAtPath(oParent, pParentPath)
-		
-		return TRUE
-
-	def RemoveElement(pPath)
-		This.RemoveItemAtPath(pPath)
-
-
-	def RemoveElementByValue(pValue)
-		aPaths = This.DeepFind(pValue)
-		
-		if len(aPaths) = 0
-			return FALSE
-		ok
-		
-		for aPath in aPaths
-			This.RemoveItemAtPath(This.ItemAtPath(aPath), aPath)
+		for @i = 1 to _nLen_
+			_acResult_ + This.FindNode(_acNodes_[@i])
 		next
-		
-		return TRUE
 
-	def ReplaceElement(pPath, pNewValue)
+		return _acResult_
 
-		This.ReplaceItemAtPath(This.ItemAtPath(pPath), pNewValue, pPath)
-
-
-	#--- BRANCH OPERATIONS ---#
+	  #------------------#
+	 #  MANAGING LEAFS  #
+	#------------------#
 	
-	def Branch(pStartPath, pEndPath)
+	def Leafs()
 		aResult = []
+		aTree = super.Content()[1]
+		aRootContent = aTree[2]
 		
-		# Check if paths exist
-/*		if NOT This.ItemExistsAtPath(pStartPath) OR NOT This.ItemExistsAtPath(pEndPath)
-			return aResult
-		ok
-*/		
-		# Find common ancestor path
-		aCommonPath = @CommonPath([pStartPath, pEndPath])
-		
-		if len(aCommonPath) = 0
-			return aResult
-		ok
-		
-		# Get all paths between start and end
-		for aPath in This.Paths()
-			if IsSubPathOf(aCommonPath, aPath) AND
-			   IsSubPathOf(aPath, pStartPath) OR IsSubPathOf(aPath, pEndPath) OR 
-			   aPath = pStartPath OR aPath = pEndPath
-				aResult + [This.ItemAtPath(aPath), aPath]
-			ok
-		next
+		This._CollectLeafs(aRootContent, aResult)
 		
 		return aResult
 
-	def CopyBranch(pStartPath, pEndPath, pDestPath)
-		aBranch = This.Branch(pStartPath, pEndPath)
+	def _CollectLeafs(paContent, aResult)
+		nLenContent = len(paContent)
 		
-		if len(aBranch) = 0
-			return FALSE
-		ok
-		
-		if NOT This.IsNode(pDestPath)
-			return FALSE
-		ok
-		
-		# Create a new subtree from the branch
-		aNewTree = []
-		
-		for aPair in aBranch
-			# TODO: Build the new tree structure
-			# This is complex and would require recreating the structure 
-			# at the new location with proper path adjustments
-		next
-		
-		return TRUE
-
-	#--- TRAVERSAL & VISUALIZATION ---#
-	
-	def Show()
-		return This.DisplayAsTree()
-	
-	def DisplayAsTree()
-		cResult = ""
-		
-		# Root level items
-		for i = 1 to len(This.Content())
-			cItem = This.Content()[i]
+		for i = 1 to nLenContent
+			item = paContent[i]
 			
-			if isList(cItem)
-				cResult += "Node" + i + " {" + nl
-				cResult += This.DisplaySubtree(cItem, 1)
-				cResult += "}" + nl
-			else
-				cResult += "Leaf" + i + ": " + cItem + nl
+			# If the item is not a list or it's a simple value, it's a leaf
+			if NOT isList(item) OR (isList(item) AND len(item) = 0)
+				aResult + item
+				loop
 			ok
-		next
-		
-		return cResult
-
-	def DisplaySubtree(pSubtree, nLevel)
-		cResult = ""
-		cIndent = ring_copy(char(9), nLevel)
-		
-		for i = 1 to len(pSubtree)
-			cItem = pSubtree[i]
 			
-			if isList(cItem)
-				cResult += cIndent + "Node" + i + " {" + nl
-				cResult += This.DisplaySubtree(cItem, nLevel + 1)
-				cResult += cIndent + "}" + nl
-			else
-				cResult += cIndent + "Leaf" + i + ": " + cItem + nl
+			# If it's a list but not a branch (doesn't have a string as first element)
+			if isList(item) AND (len(item) < 2 OR NOT isString(item[1]))
+				aResult + item
+				loop
+			ok
+			
+			# If it's a branch, check its contents
+			if isList(item) AND len(item) >= 2 AND isString(item[1])
+				# Only process the contents if it's a list
+				if len(item) >= 2 AND isList(item[2])
+					This._CollectLeafs(item[2], aResult)
+				ok
+			ok
+		next
+	
+	def LeafsXTCS(pCaseSensitive)
+		aLeafs = This.Leafs()
+		aLeafBranches = []
+		
+		for i = 1 to len(aLeafs)
+			aLeafBranches + []
+		next
+		
+		aTree = super.Content()[1]
+		aRootContent = aTree[2]
+		
+		This._MapLeafsToBranchesCS(aRootContent, "[:root]", aLeafs, aLeafBranches, pCaseSensitive)
+		
+		aResult = []
+		for i = 1 to len(aLeafs)
+			aResult + [ aLeafs[i], aLeafBranches[i] ]
+		next
+		
+		return aResult
+		
+		def LeafsAndTheirBranchesCS(pCaseSensitive)
+			return This.LeafsXTCS(pCaseSensitive)
+
+	def LeafsXT()
+		return This.LeafsXTCS(_TRUE_)
+
+		def LeafsAndTheirBranches()
+			return This.LeafsXT()
+	
+	def _MapLeafsToBranchesCS(paContent, cCurrentPath, aLeafs, aLeafBranches, pCaseSensitive)
+		nLenContent = len(paContent)
+		
+		for i = 1 to nLenContent
+			item = paContent[i]
+			
+			# If the item is not a list or it's a simple value, it's a leaf
+			if NOT isList(item) OR (isList(item) AND len(item) = 0)
+				nPos = StzListQ(aLeafs).FindFirstCS(item, pCaseSensitive)
+				if nPos > 0
+					aLeafBranches[nPos] + cCurrentPath
+				ok
+				loop
+			ok
+			
+			# If it's a list but not a branch (doesn't have a string as first element)
+			if isList(item) AND (len(item) < 2 OR NOT isString(item[1]))
+
+				nPos = StzListQ(aLeafs).FindFirstCS(item, pCaseSensitive)
+				if nPos > 0
+					aLeafBranches[nPos] + cCurrentPath
+				ok
+				loop
+			ok
+			
+			# If it's a branch, check its contents
+			if isList(item) AND len(item) >= 2 AND isString(item[1])
+				cBranchName = item[1]
+				cBranchPath = cCurrentPath + "[:"+cBranchName+"]"
+				
+				# Only process the contents if it's a list
+				if len(item) >= 2 AND isList(item[2])
+					This._MapLeafsToBranchesCS(item[2], cBranchPath, aLeafs, aLeafBranches, pCaseSensitive)
+				ok
+			ok
+		next
+
+	def _MapLeafsToBranches(paContent, cCurrentPath, aLeafs, aLeafBranches)
+		return This._MapLeafsToBranchesCS(paContent, cCurrentPath, aLeafs, aLeafBranches, _TRUE_)
+	
+	def FindLeafCS(pLeaf, pCaseSensitive)
+		aResult = []
+		aLeafsAndBranches = This.LeafsXTCS(pCaseSensitive)
+		
+		for i = 1 to len(aLeafsAndBranches)
+			if aLeafsAndBranches[i][1] = pLeaf
+				aResult = aLeafsAndBranches[i][2]
+				exit
 			ok
 		next
 		
-		return cResult
+		return aResult
 
-	#--- EXPANSION & COLLAPSE ---#
-	
-	def ExpandAll()
-		# In a real application, this would manage a display state
-		# For our implementation, we'll return the full tree structure
-		return This.Show()
-	
-	def Expand(pPath)
+	def FindLeaf(pLeaf)
+		return This.FindLeafCS(pLeaf, _TRUE_)
+
+	def FindLeafsCS(paLeafs, pCaseSensitive)
+		aResult = []
 		
-		if NOT This.IsNode(pPath)
-			return ""
+		for i = 1 to len(paLeafs)
+			aResult + This.FindLeafCS(paLeafs[i], pCaseSensitive)
+		next
+		
+		return aResult
+
+	def FindLeafs(paLeafs)
+		return This.FindLeafsCS(paLeafs, _TRUE_)
+	
+	def LeafsAt(pcBranch)
+		return This.Branch(pcBranch)
+
+	  #--------------------------#
+	 #  ADDING NODES AND LEAFS  #
+	#--------------------------#
+
+	def AddNodeAt(paNode, pcBranch)
+		if CheckParams()
+
+			if NOT ( isList(paNode) and len(paNode) = 2 and
+			         isString(paNode[1]) and isList(paNode[2]) )
+
+				stzRaise("Incorrect param! paNode is not a valid node.")
+			ok
+			
+			if NOT isString(pcBranch)
+				stzRaise("Can't add node! pcBranch must be a string.")
+			ok
 		ok
 		
-		cResult = ""
-		oSubtree = This.ItemAtPath(pPath)
-		
-		cResult = This.DisplaySubtree(oSubtree, 0)
-		return cResult
+		# Check if branch exists
+		if NOT ring_find(This.Branches(), pcBranch) > 0
+			return FALSE
+		ok
 
-	def CollapseAll()
-		# In a real implementation, this would collapse the display
-		# Here we just show the first level
-		cResult = ""
-		
-		for i = 1 to len(This.Content())
-			cItem = This.Content()[i]
-			
-			if isList(cItem)
-				cResult += "Node" + i + " {...}" + nl
-			else
-				cResult += "Leaf" + i + ": " + cItem + nl
+		_cNodeName_ = paNode[1]
+		_aNodeContent_ = paNode[2]
+
+		cCode = 'This.Content()' + pcBranch + ' + [ _cNodeName_, _aNodeContent_ ]'
+		eval(cCode)
+
+	
+	def AddLeafAt(pItem, pcBranch)
+		if CheckParams()
+			if NOT isString(pcBranch)
+				stzRaise("Can't add leaf! pcBranch must be a string.")
 			ok
-		next
-		
-		return cResult
-
-	def Collapse(pPath)
-		
-		if NOT This.IsNode(pPath)
-			return ""
 		ok
 		
-		return "Node at " + @@(pPath) + " {...}"
-
-	#--- ADVANCED SEARCH ---#
-	
-	def FindLeaf(pValue)
-		aResult = []
-		
-		for aPath in This.Paths()
-			if This.IsLeaf(aPath) AND This.ItemAtPath(aPath) = pValue
-				aResult + aPath
-			ok
-		next
-		
-		return aResult
-
-	def FindNode(pValue)
-		aResult = []
-		
-		for aPath in This.Paths()
-			if This.IsNode(aPath) AND This.ItemAtPath(aPath) = pValue
-				aResult + aPath
-			ok
-		next
-		
-		return aResult
-
-	def FindInPath(pValue, pPath)
-		
-		# Expand the path to get all subpaths
-		aExpandedPaths = This.ExpandPath(pPath)
-		aResult = []
-		
-		for aSubPath in aExpandedPaths
-			if This.ItemAtPath(aSubPath) = pValue
-				aResult + aSubPath
-			ok
-		next
-		
-		return aResult
-
-	#--- SORTING ---#
-	
-	def SortNodeChildren(pPath)
-		
-		if NOT This.IsNode(pPath)
+		# Check if branch exists
+		if NOT ring_find(This.Branches(), pcBranch) > 0
 			return FALSE
 		ok
 		
-		# Get children paths
-		aChildren = []
-		
-		for aChildPath in This.ExpandPath(pPath)
-			if len(aChildPath) = len(pPath) + 1
-				aChildren + aChildPath
-			ok
-		next
-		
-		# Sort children based on their string values
-		aItems = []
-		
-		for aChildPath in aChildren
-			aItems + This.ItemAtPath(aChildPath)
-		next
-		
-		# Create a helper list for sorting
-		aSortHelper = []
-		
-		for i = 1 to len(aItems)
-			aSortHelper + [aItems[i], aChildren[i]]
-		next
-		
-		# Sort the helper list
-
-		aSorted = @SortOn(aSortHelper, 1)
-		# Rebuild the sorted children
-		oNode = []
-		
-		for aPair in aSorted
-			if This.IsValidPath(aPair[2])
-				oNode + This.ItemAtPath(aPair[2])
-			ok
-		next
-		
-		# Replace the node with sorted children
-//		This.ReplaceItemAtPath(oNode, pPath)
-		
-
-	def SortSubtree(pPath)
-	
-		if NOT This.IsNode(pPath)
-			return FALSE
-		ok
-		
-		# First sort all subnodes recursively
-		aExpandedPaths = This.ExpandPath(pPath)
-		
-		for aSubPath in aExpandedPaths
-			if This.IsNode(aSubPath)
-				This.SortNodeChildren(aSubPath)
-			ok
-		next
-		
-		# Finally sort the top node
-		This.SortNodeChildren(pPath)
-
+		cCode = 'This.Content()' + pcBranch + ' + pItem'
+		eval(cCode)
