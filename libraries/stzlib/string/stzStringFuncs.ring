@@ -450,6 +450,9 @@ func StzTrim(cStrOrList)
 	func @trim(cStrOrList)
 		return StzTrim(cStrOrList)
 
+	func Trim(pcStr)
+		return StzStringQ(pcStr).Trimmed()
+
 func TrimString(cStr)
 	if CheckParams()
 		if NOT isString(cStr)
@@ -1292,11 +1295,22 @@ func WithoutSpaces(pcStr)
 func Simplify(pcStr)
 	return StzStringQ(pcStr).Simplified()
 
-func Spacifiy(pcStr)
-	return StzStringQ(pcStr).Spacified()
+	func @Simplify(pcStr)
+		return StzStringQ(pcStr).Simplified()
 
-func Trim(pcStr)
-	return StzStringQ(pcStr).Trimmed()
+func Spacify(str)
+	cResult = StzStringQ(str).Spacified()
+	return cResult
+
+	func @Spacify(str)
+		return Spacify(str)
+
+func SpacifyXT(str, pSep, pStep, pDirection)
+	cResult = StzStringQ(str).SpacifyXTQ(pSep, pStep, pDirection).Content()
+	return cResult
+
+	func @SpacifyXT(str, pSep, pStep, pDirection)
+		return SpacifyXT(str, pSep, pStep, pDirection)
 
 func IsMarquer(cStr)
 	if CheckingParams()

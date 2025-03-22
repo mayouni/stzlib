@@ -54236,7 +54236,7 @@ class stzString from stzObject
 		#< @FunctionMisspelledForm
 
 		def IsEqualtTo(pcOtherStr)
-			return This.IsEqualTo()
+			return This.IsEqualTo(pcOtherStr)
 
 		#>
 
