@@ -269,7 +269,7 @@ pf()
 # Executed in 0.05 second(s) in Ring 1.22
 
 /* === LEAFS
-
+*/
 pr()
 
 o1 = new stzTree(
@@ -651,10 +651,11 @@ pf()
 # - Working with both string and numeric values
 
 /*--
-*/
+
 pr()
 
 # Set up a test tree
+
 o1 = new stzTree(
 	:root = [
 		:node1 = [ "X", :node11 = [ "A", "B", "C", "D", "X" ] ],
@@ -663,39 +664,19 @@ o1 = new stzTree(
 	]
 )
 
-? "INITIAL TREE STRUCTURE:"
 o1.Show()
 
-
-? "============================================"
-? "TESTING REPLACE NODE METHODS"
-? "============================================"
-
-# Testing ReplaceNode()
-? "Replacing node11 with new node test1:"
-o1.ReplaceNode("node11", [ "test1", [ "new1", "new2" ] ])
+o1.ReplaceNode("node11", :By = [ "test1", [ "new1", "new2" ] ])
 ? @@(o1.Node("test1"))
 #--> [ "new1", "new2" ]
 
-# Testing ReplaceNodeAt()
-? "Replacing node3 using branch path:"
-o1.ReplaceNodeAt([ "node3new", [ "hello", "world" ] ], '[:root][:node3]')
-? @@(o1.Node("node3new"))
-#--> [ "hello", "world" ]
+pf()
+# Executed in 0.04 second(s) in Ring 1.22
 
-? "============================================"
-? "TESTING REPLACE LEAF METHODS"
-? "============================================"
+/*---
 
-# Testing ReplaceLeaf() - replaces all occurrences
-? "Replacing all 'X' with 'REPLACED':"
-o1.ReplaceLeaf("X", "REPLACED")
-o1.Show()
-/*
-Tree with all X replaced by REPLACED
-*/
+pr()
 
-# Reset tree for next tests
 o1 = new stzTree(
 	:root = [
 		:node1 = [ "X", :node11 = [ "A", "B", "C", "D", "X" ] ],
@@ -704,23 +685,138 @@ o1 = new stzTree(
 	]
 )
 
-# Testing ReplaceLeafAt() - specific location
-? "Replacing 'B' with 'BETA' at specific branch:"
-o1.ReplaceLeafAt("B", "BETA", '[:root][:node1][:node11]')
+o1.ReplaceNodeAt(
+	'[:root][:node3]',
+	:By = [ "node3new", [ "hello", "world" ] ]
+)
+
+? @@(o1.Node("node3new"))
+#--> [ "hello", "world" ]
+
+#NOTE: Softanza is flexible and lets you give the two params in the
+# method above in any order, try it by yourself!
+pf()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*===
+
+pr()
+
+o1 = new stzTree(
+	:root = [
+		:node1 = [ "X", :node11 = [ "A", "B", "C", "D", "X" ] ],
+		:node2 = [ 1, 2, 3 ],
+		:node3 = [ "X", 4, 5 ]
+	]
+)
+
+o1.ReplaceLeaf("X", :By = "REPLACED") # Or ReplaceItem() or even Replace()
+o1.Show()
+#--> [
+#	"root",
+#	[
+#		[
+#			"node1",
+#			[
+#				"REPLACED",
+#				[
+#					"node11",
+#					[ "A", "B", "C", "D", "REPLACED" ]
+#				]
+#			]
+#		],
+#		[
+#			"node2",
+#			[ 1, 2, 3 ]
+#		],
+#		[
+#			"node3",
+#			[ "REPLACED", 4, 5 ]
+#		]
+#	]
+# ]
+
+pf()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+o1 = new stzTree(
+	:root = [
+		:node1 = [ "X", :node11 = [ "A", "B", "C", "D", "X" ] ],
+		:node2 = [ 1, 2, 3 ],
+		:node3 = [ "X", 4, 5 ]
+	]
+)
+
+o1.ReplaceLeafAt(	# Or ReplaceItemAt() or ReplaceAt()
+	"B",
+	:By = "BETA",
+	'[:root][:node1][:node11]'
+)
+
 ? @@(o1.NodeAt('[:root][:node1][:node11]'))
 #--> [ "A", "BETA", "C", "D", "X" ]
 
+pf()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+o1 = new stzTree(
+	:root = [
+		:node1 = [ "X", :node11 = [ "A", "B", "C", "D", "X" ] ],
+		:node2 = [ 1, 2, 3 ],
+		:node3 = [ "X", 4, 5 ]
+	]
+)
+
 # Testing ReplaceLeafInNode() - by node name
-? "Replacing 'A' with 'ALPHA' in node11:"
-o1.ReplaceLeafInNode("A", "ALPHA", "node11")
+
+o1.ReplaceLeafInNode(   # Or ReplaceItemInNode() or ReplaceInNode()
+	"A",
+	:By = "ALPHA",
+	"node11"
+)
 ? @@(o1.Node("node11"))
 #--> [ "ALPHA", "BETA", "C", "D", "X" ]
 
+pf()
+# Executed in 0.03 second(s) in Ring 1.22
+
+/*---
+*/
+
+pr()
+
+o1 = new stzTree(
+	:root = [
+		:node1 = [ "X", :node11 = [ "A", "B", "C", "D", "X" ] ],
+		:node2 = [ 1, 2, 3 ],
+		:node3 = [ "X", 4, 5 ]
+	]
+)
+
 # Testing ReplaceTheseLeafs() - multiple at once
-? "Replacing multiple items at once:"
-o1.ReplaceTheseLeafs([ "C", "D" ], [ "GAMMA", "DELTA" ])
+
+o1.ReplaceThese([ "C", "D" ], :By = "ALPHA")
+
 ? @@(o1.Node("node11"))
+#--> [ "A", "B", "ALPHA", "ALPHA", "X" ]
+
+#--
+
+o1.ReplaceByMany('ALPHA', :By = [ "GAMMA", "BETA" ])
 #--> [ "ALPHA", "BETA", "GAMMA", "DELTA", "X" ]
+
+//? @@(o1.Node("node11"))
+
+pf()
+/*---
 
 # Testing ReplaceLeafCS() - with case sensitivity
 ? "Replacing with case sensitivity:"

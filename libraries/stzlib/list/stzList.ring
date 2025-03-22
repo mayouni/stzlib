@@ -45502,7 +45502,7 @@ fdef
 		#--
 
 		def DeepFindItemAtPathsCS(pItem, paPaths, pCaseSensitive)
-			return This.This.FindItemAtPathsCS(pItem, paPaths, pCaseSensitive)
+			return This.FindItemAtPathsCS(pItem, paPaths, pCaseSensitive)
 
 		def DeepFindAtPathsCS(pItem, paPaths, pCaseSensitive)
 			return This.FindItemAtPathsCS(pItem, paPaths, pCaseSensitive)
@@ -45520,7 +45520,7 @@ fdef
 		#--
 
 		def DeepFindItemAtPaths(pItem, paPaths)
-			return This.This.FindItemAtPaths(pItem, paPaths)
+			return This.FindItemAtPaths(pItem, paPaths)
 
 		def DeepFindAtPaths(pItem, paPaths)
 			return This.FindItemAtPaths(pItem, paPaths)
