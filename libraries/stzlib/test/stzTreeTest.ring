@@ -1,6 +1,5 @@
 load "../max/stzmax.ring"
 
-
 /*---
 
 pr()
@@ -362,7 +361,7 @@ pf()
 # Executed in 0.24 second(s) in Ring 1.22
 
 /* === ADDING NODES AND LEAFS
-*/
+
 pr()
 
 o1 = new stzTree(
@@ -440,3 +439,249 @@ o1.AddLeafAt("photo.jpg", "[:root][:media][:images]")
 
 pf()
 # Executed in 0.06 second(s) in Ring 1.22
+
+/* === GETTING NODES IN A PATH
+
+pr()
+
+o1 = new stzTree(
+	:root = [
+		:node1 = [ "...", :node11 = [ "..." ] ],
+		:node2 = [ "..." ],
+		:node3 = [ "..." ]
+	]
+)
+
+? @@( o1.NodesInPath('[:root]') )
+#--> [ ":root" ]
+
+? @@( o1.NodesInPath('[:root][:node1][:node11]') )
+#--> [ ":root", ":node1", ":node11" ]
+
+? o1.NthNodeInPath(2, '[:root][:node1][:node11]')
+#--> ':node1'
+
+? o1.LastNodeInPath('[:root][:node1][:node11]')
+#--> ':node11'
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*=== NODE() and NODEAT()
+
+pr()
+o1 = new stzTree(
+	:root = [
+		:node1 = [ "...", :node11 = [ "..." ] ],
+		:node2 = [ "..." ],
+		:node3 = [ "..." ]
+	]
+)
+
+? @@( o1.Node(:node2) )
+#--> [ "..." ]
+
+? @@( o1.NodeAt('[:root][:node2]') )
+#--> [ "..." ]
+
+pf()
+# Executed in 0.03 second(s) in Ring 1.22
+
+/* === REMOVING NODES AND LEAFS
+*/
+
+pr()
+o1 = new stzTree(
+	:root = [
+		:node1 = [ "...", :node11 = [ "..." ] ],
+		:node2 = [ "..." ],
+		:node3 = [ "..." ]
+	]
+)
+
+o1.RemoveNodeAt('[:root][:node2]')
+o1.RemoveNode(:node3)
+o1.RemoveNode(:node11)
+
+o1.Show()
+#--> [
+#	"root",
+#	[
+#		[
+#			"node1",
+#			[ "..." ]
+#		]
+#	]
+# ]
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*---
+*
+pr()
+
+o1 = new stzTree(
+	:root = [
+		:documents = [
+			"Resume.docx",
+			"Cover_Letter.docx"
+		],
+		
+		:projects = [
+			"ProjectA.txt",
+			"ProjectB.txt",
+			"ProjectC.txt"
+		],
+
+		"unclassified.doc",
+
+		:pictures = [
+			:personal = [
+				"vacation.jpg",
+				"family.jpg"
+			],
+
+			:professional = [
+				"team.jpg",
+				"snapshot.jpg"
+			],
+
+			"other.jpg"
+		],
+
+		"readme.txt",
+		[ 1, 2, 3 ]
+	]
+)
+
+# Remove a leaf from a branch
+
+o1.RemoveLeafAt("family.jpg", "[:root][:pictures][:personal]")
+? @@( o1.LeafsAt("[:root][:pictures][:personal]") ) + NL
+#--> [ "vacation.jpg" ]
+
+# Remove multiple leafs from a branch
+
+o1.RemoveLeafsAt([ "ProjectA.txt", "ProjectC.txt" ], "[:root][:projects]")
+? @@( o1.LeafsAt("[:root][:projects]") ) + NL
+#--> [ "ProjectB.txt" ]
+
+# Remove a node errrrr
+
+o1.RemoveNodeAt("[:root][:pictures][:professional]")
+? @@( o1.Nodes() ) + NL
+#--> [ "root", "documents", "projects", "pictures", "personal" ]
+
+# Verify node is removed by checking if its content exists
+? "Verifying 'team.jpg' no longer exists..."
+? @@( o1.FindLeaf("team.jpg") ) + NL
+#--> [ ]
+
+# Remove root level leaf
+? "Removing 'unclassified.doc' from root..."
+o1.RemoveLeafAt("unclassified.doc", "[:root]")
+? @@( o1.LeafsAt("[:root]") ) + NL
+#--> [ "readme.txt", [ 1, 2, 3 ] ]
+
+# Show final tree structure after removals
+? "Final tree structure after removals:"
+? o1.Show()
+
+pf()
+# Executed in 0.08 second(s) in Ring 1.22
+
+/* === REPLACING NODES AND LEAFS
+
+pr()
+
+o1 = new stzTree(
+	:root = [
+		:documents = [
+			"Resume.docx",
+			"Cover_Letter.docx"
+		],
+		
+		:projects = [
+			"ProjectA.txt",
+			"ProjectB.txt"
+		],
+
+		:pictures = [
+			:personal = [
+				"vacation.jpg",
+				"family.jpg"
+			]
+		]
+	]
+)
+
+# Replace a leaf in a branch
+? "Replacing 'Resume.docx' with 'Updated_Resume.pdf'..."
+o1.ReplaceLeafAt("Resume.docx", "Updated_Resume.pdf", "[:root][:documents]")
+? @@( o1.LeafsAt("[:root][:documents]") ) + NL
+#--> [ "Updated_Resume.pdf", "Cover_Letter.docx" ]
+
+# Replace multiple leafs
+? "Replacing project files with new versions..."
+o1.ReplaceLeafsAt(
+    [ "ProjectA.txt", "ProjectB.txt" ],
+    [ "Project_2023.txt", "Project_2024.txt" ],
+    "[:root][:projects]"
+)
+? @@( o1.LeafsAt("[:root][:projects]") ) + NL
+#--> [ "Project_2023.txt", "Project_2024.txt" ]
+
+# Replace an entire node
+? "Replacing 'personal' node with 'archived'..."
+o1.ReplaceNodeAt(
+    "[:root][:pictures][:personal]",
+    :archived = [ "old_photo1.jpg", "old_photo2.jpg" ]
+)
+
+? @@( o1.Nodes() ) + NL
+#--> [ "root", "documents", "projects", "pictures", "archived" ]
+
+# Verify the old content is gone
+? "Verifying 'vacation.jpg' no longer exists..."
+? @@( o1.FindLeaf("vacation.jpg") ) + NL
+#--> [ ]
+
+# Verify the new content exists
+? "Verifying new content exists at the new node location..."
+? @@( o1.LeafsAt("[:root][:pictures][:archived]") ) + NL
+#--> [ "old_photo1.jpg", "old_photo2.jpg" ]
+
+# Replace a node with a more complex structure
+? "Replacing 'pictures' with 'media' containing nested nodes..."
+o1.ReplaceNodeAt(
+    "[:root][:pictures]",
+    :media = [
+        :images = [
+            "photo1.png",
+            "photo2.png"
+        ],
+        :videos = [
+            "clip1.mp4",
+            "clip2.mp4"
+        ]
+    ]
+)
+
+? @@( o1.Nodes() ) + NL
+#--> [ "root", "documents", "projects", "media", "images", "videos" ]
+
+? "Content of images node:"
+? @@( o1.LeafsAt("[:root][:media][:images]") ) + NL
+#--> [ "photo1.png", "photo2.png" ]
+
+? "Content of videos node:"
+? @@( o1.LeafsAt("[:root][:media][:videos]") ) + NL
+#--> [ "clip1.mp4", "clip2.mp4" ]
+
+# Final Tree Structure
+? "Final tree structure after replacements:"
+? o1.Show()
+
+pf()
+# Executed in 0.07 second(s) in Ring 1.22

@@ -3711,20 +3711,6 @@ func Stringify(p)
 	func @string(p)
 		return Stringify(p)
 
-func Spacify(str)
-	cResult = StzStringQ(str).Spacified()
-	return cResult
-
-	func @Spacify(str)
-		return Spacify(str)
-
-func SpacifyXT(str, pSep, pStep, pDirection)
-	cResult = StzStringQ(str).SpacifyXTQ(pSep, pStep, pDirection).Content()
-	return cResult
-
-	func @SpacifyXT(str, pSep, pStep, pDirection)
-		return SpacifyXT(str, pSep, pStep, pDirection)
-
 #===
 
 func StzNamedList(paNamed)
