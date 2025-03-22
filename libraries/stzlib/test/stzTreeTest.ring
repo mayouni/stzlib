@@ -398,7 +398,6 @@ o1.AddLeafAt("OldFile.txt", "[:root][:archived]")
 ? @@( o1.Branch("[:root][:archived]") ) + NL
 #--> [ "OldFile.txt" ]
 
-
 # Adding a nested node structure...
 
 o1.AddNodeAt(:images = [], "[:root][:media]")
@@ -440,7 +439,7 @@ o1.AddLeafAt("photo.jpg", "[:root][:media][:images]")
 pf()
 # Executed in 0.06 second(s) in Ring 1.22
 
-/* === GETTING NODES IN A PATH
+/*=== GETTING NODES IN A PATH
 
 pr()
 
@@ -467,7 +466,7 @@ o1 = new stzTree(
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
-/*=== NODE() and NODEAT()
+/*=== Node() and NodeAt()
 
 pr()
 o1 = new stzTree(
@@ -487,8 +486,7 @@ o1 = new stzTree(
 pf()
 # Executed in 0.03 second(s) in Ring 1.22
 
-/* === REMOVING NODES AND LEAFS
-*/
+/* === REMOVING NODES
 
 pr()
 o1 = new stzTree(
@@ -518,170 +516,262 @@ pf()
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*---
-*
-pr()
 
+pr()
 o1 = new stzTree(
 	:root = [
-		:documents = [
-			"Resume.docx",
-			"Cover_Letter.docx"
-		],
-		
-		:projects = [
-			"ProjectA.txt",
-			"ProjectB.txt",
-			"ProjectC.txt"
-		],
-
-		"unclassified.doc",
-
-		:pictures = [
-			:personal = [
-				"vacation.jpg",
-				"family.jpg"
-			],
-
-			:professional = [
-				"team.jpg",
-				"snapshot.jpg"
-			],
-
-			"other.jpg"
-		],
-
-		"readme.txt",
-		[ 1, 2, 3 ]
+		:node1 = [ "...", :node11 = [ "..." ] ],
+		:node2 = [ "..." ],
+		:node3 = [ "..." ]
 	]
 )
 
-# Remove a leaf from a branch
+o1.RemoveTheseNodes([:node11, :node2, :node3 ])
+#--> [
+#	"root",
+#	[
+#		[
+#			"node1",
+#			[ "..." ]
+#		]
+#	]
+# ]
 
-o1.RemoveLeafAt("family.jpg", "[:root][:pictures][:personal]")
-? @@( o1.LeafsAt("[:root][:pictures][:personal]") ) + NL
-#--> [ "vacation.jpg" ]
-
-# Remove multiple leafs from a branch
-
-o1.RemoveLeafsAt([ "ProjectA.txt", "ProjectC.txt" ], "[:root][:projects]")
-? @@( o1.LeafsAt("[:root][:projects]") ) + NL
-#--> [ "ProjectB.txt" ]
-
-# Remove a node errrrr
-
-o1.RemoveNodeAt("[:root][:pictures][:professional]")
-? @@( o1.Nodes() ) + NL
-#--> [ "root", "documents", "projects", "pictures", "personal" ]
-
-# Verify node is removed by checking if its content exists
-? "Verifying 'team.jpg' no longer exists..."
-? @@( o1.FindLeaf("team.jpg") ) + NL
-#--> [ ]
-
-# Remove root level leaf
-? "Removing 'unclassified.doc' from root..."
-o1.RemoveLeafAt("unclassified.doc", "[:root]")
-? @@( o1.LeafsAt("[:root]") ) + NL
-#--> [ "readme.txt", [ 1, 2, 3 ] ]
-
-# Show final tree structure after removals
-? "Final tree structure after removals:"
-? o1.Show()
+o1.Show()
+# Executed in 0.05 second(s) in Ring 1.22
 
 pf()
-# Executed in 0.08 second(s) in Ring 1.22
+# Executed in 0.05 second(s) in Ring 1.22
 
-/* === REPLACING NODES AND LEAFS
+/*=== GETTING LEAFS (itEMS) BY NODE AND BY BRANCH
+
+pr()
+o1 = new stzTree(
+	:root = [
+		:node1 = [ "...", :node11 = [ "A", "B", "C" ] ],
+		:node2 = [ "..." ],
+		:node3 = [ "..." ]
+	]
+)
+
+? @@( o1.LeafsInNode(:node11) ) # OR ItemsInNode()
+#--> [ "A", "B", "C" ]
+
+? @@( o1.LeafsAt('[:root][:node1][:node11]') ) # Or ItemsAt()
+#--> [ "A", "B", "C" ]
+
+pf()
+# Executed in 0.03 second(s) in Ring 1.22
+
+/*=== REMOVING LEAFS (ITEMS)
 
 pr()
 
 o1 = new stzTree(
 	:root = [
-		:documents = [
-			"Resume.docx",
-			"Cover_Letter.docx"
-		],
-		
-		:projects = [
-			"ProjectA.txt",
-			"ProjectB.txt"
-		],
-
-		:pictures = [
-			:personal = [
-				"vacation.jpg",
-				"family.jpg"
-			]
-		]
+		:node1 = [ "X", :node11 = [ "A", "B", "C", "D", "X" ] ],
+		:node2 = [ 1, 2, 3 ],
+		:node3 = [ "X", 4, 5 ]
 	]
 )
 
-# Replace a leaf in a branch
-? "Replacing 'Resume.docx' with 'Updated_Resume.pdf'..."
-o1.ReplaceLeafAt("Resume.docx", "Updated_Resume.pdf", "[:root][:documents]")
-? @@( o1.LeafsAt("[:root][:documents]") ) + NL
-#--> [ "Updated_Resume.pdf", "Cover_Letter.docx" ]
+o1.RemoveLeaf("X") # Or RemoveItem()
+o1.Show()
+#--> [
+#	"root",
+#	[
+#		[
+#			"node1",
+#			[
+#				[
+#					"node11",
+#					[ "A", "B", "C", "D" ]
+#				]
+#			]
+#		],
+#		[
+#			"node2",
+#			[ 1, 2, 3 ]
+#		],
+#		[
+#			"node3",
+#			[ 4, 5 ]
+#		]
+#	]
+# ]
 
-# Replace multiple leafs
-? "Replacing project files with new versions..."
-o1.ReplaceLeafsAt(
-    [ "ProjectA.txt", "ProjectB.txt" ],
-    [ "Project_2023.txt", "Project_2024.txt" ],
-    "[:root][:projects]"
-)
-? @@( o1.LeafsAt("[:root][:projects]") ) + NL
-#--> [ "Project_2023.txt", "Project_2024.txt" ]
+o1.RemoveLeafAt("B", '[:root][:node1][:node11]')
+? @@(o1.Node(:node11))
+#--> [ "A", "C", "D" ]
 
-# Replace an entire node
-? "Replacing 'personal' node with 'archived'..."
-o1.ReplaceNodeAt(
-    "[:root][:pictures][:personal]",
-    :archived = [ "old_photo1.jpg", "old_photo2.jpg" ]
-)
+o1.RemoveLeafInNode("A", :node11)
+? @@(o1.Node(:node11))
+#--> [ "C", "D" ]
 
-? @@( o1.Nodes() ) + NL
-#--> [ "root", "documents", "projects", "pictures", "archived" ]
-
-# Verify the old content is gone
-? "Verifying 'vacation.jpg' no longer exists..."
-? @@( o1.FindLeaf("vacation.jpg") ) + NL
+o1.RemoveTheseLeafsAt([ "C", "D" ], '[:root][:node1][:node11]')
+? @@(o1.Node(:node11))
 #--> [ ]
 
-# Verify the new content exists
-? "Verifying new content exists at the new node location..."
-? @@( o1.LeafsAt("[:root][:pictures][:archived]") ) + NL
-#--> [ "old_photo1.jpg", "old_photo2.jpg" ]
-
-# Replace a node with a more complex structure
-? "Replacing 'pictures' with 'media' containing nested nodes..."
-o1.ReplaceNodeAt(
-    "[:root][:pictures]",
-    :media = [
-        :images = [
-            "photo1.png",
-            "photo2.png"
-        ],
-        :videos = [
-            "clip1.mp4",
-            "clip2.mp4"
-        ]
-    ]
-)
-
-? @@( o1.Nodes() ) + NL
-#--> [ "root", "documents", "projects", "media", "images", "videos" ]
-
-? "Content of images node:"
-? @@( o1.LeafsAt("[:root][:media][:images]") ) + NL
-#--> [ "photo1.png", "photo2.png" ]
-
-? "Content of videos node:"
-? @@( o1.LeafsAt("[:root][:media][:videos]") ) + NL
-#--> [ "clip1.mp4", "clip2.mp4" ]
-
-# Final Tree Structure
-? "Final tree structure after replacements:"
-? o1.Show()
+o1.RemoveLeafs()
+o1.Show()
+#--> [
+#	"root",
+#	[
+#		[
+#			"node1",
+#			[
+#				[
+#					"node11",
+#					[ ]
+#				]
+#			]
+#		],
+#		[
+#			"node2",
+#			[ ]
+#		],
+#		[
+#			"node3",
+#			[ ]
+#		]
+#	]
+# ]
 
 pf()
-# Executed in 0.07 second(s) in Ring 1.22
+# Executed in 0.19 second(s) in Ring 1.22
+
+/*=== REPLACING NODES AND LEAFS (ITEMS)
+
+# The tests in this section cover:
+# - Node replacement at various levels of the tree
+# - Leaf replacement with different targeting strategies (global, specific branch, specific node)
+# - Case-sensitive vs case-insensitive replacements
+# - Multiple replacements at once
+# - Replacing all leafs with a single value
+# - Working with both string and numeric values
+
+/*--
+*/
+pr()
+
+# Set up a test tree
+o1 = new stzTree(
+	:root = [
+		:node1 = [ "X", :node11 = [ "A", "B", "C", "D", "X" ] ],
+		:node2 = [ 1, 2, 3 ],
+		:node3 = [ "X", 4, 5 ]
+	]
+)
+
+? "INITIAL TREE STRUCTURE:"
+o1.Show()
+
+
+? "============================================"
+? "TESTING REPLACE NODE METHODS"
+? "============================================"
+
+# Testing ReplaceNode()
+? "Replacing node11 with new node test1:"
+o1.ReplaceNode("node11", [ "test1", [ "new1", "new2" ] ])
+? @@(o1.Node("test1"))
+#--> [ "new1", "new2" ]
+
+# Testing ReplaceNodeAt()
+? "Replacing node3 using branch path:"
+o1.ReplaceNodeAt([ "node3new", [ "hello", "world" ] ], '[:root][:node3]')
+? @@(o1.Node("node3new"))
+#--> [ "hello", "world" ]
+
+? "============================================"
+? "TESTING REPLACE LEAF METHODS"
+? "============================================"
+
+# Testing ReplaceLeaf() - replaces all occurrences
+? "Replacing all 'X' with 'REPLACED':"
+o1.ReplaceLeaf("X", "REPLACED")
+o1.Show()
+/*
+Tree with all X replaced by REPLACED
+*/
+
+# Reset tree for next tests
+o1 = new stzTree(
+	:root = [
+		:node1 = [ "X", :node11 = [ "A", "B", "C", "D", "X" ] ],
+		:node2 = [ 1, 2, 3 ],
+		:node3 = [ "X", 4, 5 ]
+	]
+)
+
+# Testing ReplaceLeafAt() - specific location
+? "Replacing 'B' with 'BETA' at specific branch:"
+o1.ReplaceLeafAt("B", "BETA", '[:root][:node1][:node11]')
+? @@(o1.NodeAt('[:root][:node1][:node11]'))
+#--> [ "A", "BETA", "C", "D", "X" ]
+
+# Testing ReplaceLeafInNode() - by node name
+? "Replacing 'A' with 'ALPHA' in node11:"
+o1.ReplaceLeafInNode("A", "ALPHA", "node11")
+? @@(o1.Node("node11"))
+#--> [ "ALPHA", "BETA", "C", "D", "X" ]
+
+# Testing ReplaceTheseLeafs() - multiple at once
+? "Replacing multiple items at once:"
+o1.ReplaceTheseLeafs([ "C", "D" ], [ "GAMMA", "DELTA" ])
+? @@(o1.Node("node11"))
+#--> [ "ALPHA", "BETA", "GAMMA", "DELTA", "X" ]
+
+# Testing ReplaceLeafCS() - with case sensitivity
+? "Replacing with case sensitivity:"
+o1 = new stzTree(
+	:root = [
+		:node1 = [ "x", "X", :node11 = [ "a", "A" ] ]
+	]
+)
+
+? "Case sensitive (default):"
+o1.ReplaceLeaf("x", "replaced-lowercase")
+? @@(o1.NodeAt('[:root][:node1]'))
+#--> [ "replaced-lowercase", "X", ["node11", ["a", "A"]] ]
+
+? "Case insensitive:"
+o1.ReplaceLeafCS("a", "replaced-a", FALSE)
+? @@(o1.NodeAt('[:root][:node1][:node11]'))
+#--> [ "replaced-a", "replaced-a" ]
+
+# Testing ReplaceAllLeafsWith() - change all leafs
+? "Replacing all leafs with single value:"
+o1 = new stzTree(
+	:root = [
+		:node1 = [ "one", "two", :node11 = [ "three", "four" ] ],
+		:node2 = [ "five", "six" ]
+	]
+)
+
+o1.ReplaceAllLeafsWith("ALL-SAME")
+o1.Show()
+/*
+All leaf nodes replaced with "ALL-SAME"
+*/
+
+# Test with numbers
+? "Testing with numeric values:"
+o1 = new stzTree(
+	:root = [
+		:node1 = [ 1, 2, :node11 = [ 3, 4 ] ],
+		:node2 = [ 5, 6 ]
+	]
+)
+
+o1.ReplaceLeaf(3, 333)
+? @@(o1.Node("node11"))
+#--> [ 333, 4 ]
+
+o1.ReplaceTheseLeafs([ 1, 5 ], [ 111, 555 ])
+? @@(o1.NodeAt('[:root][:node1]'))
+#--> [ 111, 2, ["node11", [333, 4]] ]
+? @@(o1.NodeAt('[:root][:node2]'))
+#--> [ 555, 6 ]
+
+pf()
