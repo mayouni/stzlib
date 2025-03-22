@@ -264,7 +264,7 @@ class stzTree from stzList
 				loop
 			ok
 			
-			# If it's a list but not a branch (doesn't have a string as first element)
+			# If it is a list but not a branch (doesn't have a string as first element)
 			if isList(item) AND (len(item) < 2 OR NOT isString(item[1]))
 
 				nPos = StzListQ(aLeafs).FindFirstCS(item, pCaseSensitive)
@@ -291,47 +291,114 @@ class stzTree from stzList
 
 	#--
 
-	def FindLeafCS(pLeaf, pCaseSensitive)
-		aResult = []
-		aLeafsAndBranches = This.LeafsXTCS(pCaseSensitive)
+def FindLeafCS(pLeaf, pCaseSensitive)
+	aResult = []
+	aLeafsAndBranches = This.LeafsXTCS(pCaseSensitive)
+	
+	for i = 1 to len(aLeafsAndBranches)
+		if aLeafsAndBranches[i][1] = pLeaf
+			aBranches = aLeafsAndBranches[i][2]
+			aPositions = This._FindLeafPositionsAt(pLeaf, aBranches, pCaseSensitive)
+			
+			for j = 1 to len(aBranches)
+				# Concatenate branch path with position directly
+				if aPositions[j] != ""
+					aResult + (aBranches[j] + aPositions[j])
+				ok
+			next
+			
+			exit
+		ok
+	next
+	
+	return aResult
+
+def FindLeaf(pLeaf)
+	return This.FindLeafCS(pLeaf, _TRUE_)
+
+	def FindItem(pLeaf)
+		return This.FindLeaf(pLeaf)
+
+# Helper function to find positions of an item in multiple branches
+def _FindLeafPositionsAt(pLeaf, paBranches, pCaseSensitive)
+	aPositions = []
+	
+	for i = 1 to len(paBranches)
+		aNodeContent = This.Branch(paBranches[i])
+		nPos = 0
 		
-		for i = 1 to len(aLeafsAndBranches)
-			if aLeafsAndBranches[i][1] = pLeaf
-				aResult = aLeafsAndBranches[i][2]
-				exit
+		for j = 1 to len(aNodeContent)
+			if pCaseSensitive = _TRUE_
+				if aNodeContent[j] = pLeaf
+					nPos = j
+					exit
+				ok
+			else
+				if lower(aNodeContent[j]) = lower(pLeaf)
+					nPos = j
+					exit
+				ok
 			ok
 		next
 		
-		return aResult
+		# Return the position as "[n]" instead of just "n"
+		if nPos > 0
+			aPositions + ("[" + nPos + "]")
+		else
+			aPositions + ""
+		ok
+	next
+	
+	return aPositions
 
-		def FindItemCS(pLeaf, pCaseSensitive)
-			return This.FindLeafCS(pLeaf, pCaseSensitive)
-
-	def FindLeaf(pLeaf)
-		return This.FindLeafCS(pLeaf, _TRUE_)
-
-		def FindItem(pLeaf)
-			return This.FindLeaf(pLeaf)
+# Helper function to find position of an item in a specific branch
+def _FindLeafPositionAt(pLeaf, pcBranch, pCaseSensitive)
+	aNodeContent = This.Branch(pcBranch)
+	nPos = 0
+	
+	for i = 1 to len(aNodeContent)
+		if pCaseSensitive = _TRUE_
+			if aNodeContent[i] = pLeaf
+				nPos = i
+				exit
+			ok
+		else
+			if lower(aNodeContent[i]) = lower(pLeaf)
+				nPos = i
+				exit
+			ok
+		ok
+	next
+	
+	# Return the position as "[n]" instead of just "n"
+	if nPos > 0
+		return "[" + nPos + "]"
+	else
+		return ""
+	ok
 
 	#--
 
-	def FindLeafsCS(paLeafs, pCaseSensitive)
-		aResult = []
-		
-		for i = 1 to len(paLeafs)
-			aResult + This.FindLeafCS(paLeafs[i], pCaseSensitive)
-		next
-		
-		return aResult
+def FindLeafsCS(paLeafs, pCaseSensitive)
+	aResult = []
+	
+	for i = 1 to len(paLeafs)
+		aBranchesWithPos = This.FindLeafCS(paLeafs[i], pCaseSensitive)
+		aResult + aBranchesWithPos
+	next
+	
+	return aResult
 
-		def FindItemsCS(paLeafs, pCaseSensitive)
-			return This.FindLeafsCS(paLeafs, pCaseSensitive)
+	def FindItemsCS(paLeafs, pCaseSensitive)
+		return This.FindLeafsCS(paLeafs, pCaseSensitive)
 
-	def FindLeafs(paLeafs)
-		return This.FindLeafsCS(paLeafs, _TRUE_)
+def FindLeafs(paLeafs)
+	return This.FindLeafsCS(paLeafs, _TRUE_)
 
-		def FindItems(paLeafs)
-			return This.FindLeafs(paLeafs)
+	def FindItems(paLeafs)
+		return This.FindLeafs(paLeafs)
+
+#--
 
 	def LeafsAt(pcBranch)
 		return This.Branch(pcBranch)
@@ -413,7 +480,7 @@ class stzTree from stzList
 			return THis.NumberOfNodesInBranch(pcBranch)
 	
 		def HowManyNodesInPath(pcBranch)
-			return return THis.NumberOfNodesInBranch(pcBranch)
+			return THis.NumberOfNodesInBranch(pcBranch)
 
 		#>
 
@@ -529,47 +596,76 @@ class stzTree from stzList
 			This.RemoveLeafInNode(pLeaf, pcNode)
 	#--
 
-	def RemoveLeafAtCS(pLeaf, pcBranchPath, pCaseSensitive)
-
-		# Preparing the stringified data elements
-
-		_cNodeName_ = This.LastNodeInBranch(pcBranchPath)
-
-		_aNodeContent_ = This.NodeAt(pcBranchPath)
-		_cNode1_ = @Simplify( @@([ _cNodeName_, _aNodeContent_ ]) )
-
-		_aNodeContent2_ = StzListQ(This.NodeAt(pcBranchPath)).RemoveQ(pLeaf).Content()
-		_cNode2_ = @Simplify( @@([ _cNodeName_, _aNodeContent2_ ]) )
-
-		_cTree_ = @Simplify( @@(This.Content()) )
-
-		# Managing case sensitivity
-
-		if CaseSensitive(pCaseSensitive) = FALSE
-			_cNode1_ = lower(_cNode1_)
-			_cNode2_ = lower(_cNode2_)
-			_cTree_  = lower(_cTree_)
+def RemoveLeafAtCS(pLeaf, pcBranchPath, pCaseSensitive)
+	# Extract branch path and position
+	nPosStart = ring_find_last(pcBranchPath, "[")
+	nPosEnd = ring_find_last(pcBranchPath, "]")
+	
+	# Check if the path includes a position at the end
+	if nPosStart > 0 and nPosEnd = len(pcBranchPath)
+		# Get position number
+		cPosition = substr(pcBranchPath, nPosStart + 1, nPosEnd - nPosStart - 1)
+		if isNumber(cPosition)
+			nPos = number(cPosition)
+			
+			# Get branch path without position
+			cBranchPath = substr(pcBranchPath, 1, nPosStart - 1)
+			
+			# Get node content
+			aNodeContent = This.Branch(cBranchPath)
+			
+			# Check if position is valid
+			if nPos > 0 and nPos <= len(aNodeContent)
+				# Remove the item at the specified position
+				aNodeContent = del(aNodeContent, nPos)
+				
+				# Update the node
+				_cNodeName_ = This.LastNodeInBranch(cBranchPath)
+				_cNode1_ = @Simplify( @@([ _cNodeName_, This.Branch(cBranchPath) ]) )
+				_cNode2_ = @Simplify( @@([ _cNodeName_, aNodeContent ]) )
+				_cTree_ = @Simplify( @@(This.Content()) )
+				
+				_cNode1_ = ring_substr2(_cNode1_, ":", "")
+				_cNode2_ = ring_substr2(_cNode2_, ":", "")
+				_cTree_ = ring_substr2(_cTree_, _cNode1_, _cNode2_)
+				
+				_cCode_ = 'This.UpdateWith(' + _cTree_ + ')'
+				eval(_cCode_)
+				
+				return
+			ok
 		ok
+	ok
+	
+	# If no position specified or invalid format, use the original method
+	# Preparing the stringified data elements
+	_cNodeName_ = This.LastNodeInBranch(pcBranchPath)
+	_aNodeContent_ = This.NodeAt(pcBranchPath)
+	_cNode1_ = @Simplify( @@([ _cNodeName_, _aNodeContent_ ]) )
+	
+	_aNodeContent2_ = StzListQ(This.NodeAt(pcBranchPath)).RemoveQ(pLeaf).Content()
+	_cNode2_ = @Simplify( @@([ _cNodeName_, _aNodeContent2_ ]) )
+	
+	_cTree_ = @Simplify( @@(This.Content()) )
+	
+	# Managing case sensitivity
+	if CaseSensitive(pCaseSensitive) = FALSE
+		_cNode1_ = lower(_cNode1_)
+		_cNode2_ = lower(_cNode2_)
+		_cTree_  = lower(_cTree_)
+	ok
+	
+	# Processing the removal
+	_cNode1_ = ring_substr2(_cNode1_, ":", "")
+	_cNode2_ = ring_substr2(_cNode2_, ":", "")
+	_cTree_ = ring_substr2(_cTree_, _cNode1_, _cNode2_)
+	
+	# Updating the tree (by evaluation)
+	_cCode_ = 'This.UpdateWith(' + _cTree_ + ')'
+	eval(_cCode_)
 
-		# Processing the removal
-
-		_cNode1_ = ring_substr2(_cNode1_, ":", "")
-		_cNode2_ = ring_substr2(_cNode2_, ":", "")
-		_cTree_ = ring_substr2(_cTree_, _cNode1_, _cNode2_)
-
-		# Updatting the tree (by evaluation)
-
-		_cCode_ = 'This.UpdateWith(' + _cTree_ + ')'
-		eval(_cCode_)
-
-		def RemoveItemAtCS(pItem, pcBranchPath, pCaseSensitive)
-			return This.RemoveLeafAtCS(pItem, pcBranchPath, pCaseSensitive)
-
-	def RemoveLeafAt(pLeaf, pcBranchPath)
-		This.RemoveLeafAtCS(pLeaf, pcBranchPath, _TRUE_)
-
-		def RemoveItemAt(pItem, pcBranchPath)
-			return This.RemoveLeafAt(pItem, pcBranchPath)
+	def RemoveItemAtCS(pItem, pcBranchPath, pCaseSensitive)
+		return This.RemoveLeafAtCS(pItem, pcBranchPath, pCaseSensitive)
 
 	#--
 
@@ -671,8 +767,20 @@ class stzTree from stzList
  #  REPLACING NODES AND LEAFS  #
 #-----------------------------#
 
-def ReplaceNodeAt(paNewNode, pcBranch)
+def ReplaceNodeAt(pcBranch, paNewNode)
+
+    if isList(pcBranch) and isString(paNewNode)
+		temp = paNewNode
+		paNewNode = pcBranch
+		pcBranch = temp
+   ok
+
     if CheckParams()
+
+	if isList(paNewNode) and StzListQ(paNewNode).IsByOrWithNamedParam()
+		paNewNode = paNewNode[2]
+	ok
+
         if NOT ( isList(paNewNode) and len(paNewNode) = 2 and
                  isString(paNewNode[1]) and isList(paNewNode[2]) )
             stzRaise("Incorrect param! paNewNode is not a valid node.")
@@ -684,90 +792,158 @@ def ReplaceNodeAt(paNewNode, pcBranch)
     ok
     
     # Check if branch exists
+
     if NOT ring_find(This.Branches(), pcBranch) > 0
         return FALSE
     ok
 
     # Removing the existing node first
+
     This.RemoveNodeAt(pcBranch)
     
     # Adding the new node
+
     _cNodeName_ = paNewNode[1]
     _aNodeContent_ = paNewNode[2]
     
     # Extract the parent branch path
+
     _acBranchParts_ = @split(pcBranch, "][")
     _nLen_ = len(_acBranchParts_)
     
     if _nLen_ <= 1
         cParentBranch = "[:root]"
+
     else
+
         cParentBranch = ""
+
         for i = 1 to _nLen_ - 1
+
             if i = 1
                 cParentBranch += _acBranchParts_[i] + "]"
+
             else
                 cParentBranch += "[" + _acBranchParts_[i] + "]"
             ok
+
         next
+
     ok
     
     # Add the new node to the parent branch
+
     cCode = 'This.Content()' + cParentBranch + ' + [ _cNodeName_, _aNodeContent_ ]'
     eval(cCode)
     
     return TRUE
 
 def ReplaceNode(pcNode, paNewNode)
-    return This.ReplaceNodeAt(paNewNode, This.FindNode(pcNode))
+
+   if isList(paNewNode) and StzListQ(paNewNode).IsByOrWithNamedParam()
+	paNewNode = paNewNode[2]
+   ok
+
+    return This.ReplaceNodeAt(This.FindNode(pcNode), paNewNode)
 
 #--
 
 def ReplaceLeafAtCS(pOldLeaf, pNewLeaf, pcBranchPath, pCaseSensitive)
-    # Preparing the stringified data elements
-    _cNodeName_ = This.LastNodeInBranch(pcBranchPath)
-
-    _aNodeContent_ = This.NodeAt(pcBranchPath)
-    _cNode1_ = @Simplify( @@([ _cNodeName_, _aNodeContent_ ]) )
-
-    # Create new content by replacing the leaf
-    _aNodeContent2_ = []
-    for i = 1 to len(_aNodeContent_)
-        if _aNodeContent_[i] = pOldLeaf
-            _aNodeContent2_ + pNewLeaf
-        else
-            _aNodeContent2_ + _aNodeContent_[i]
-        ok
-    next
-    
-    _cNode2_ = @Simplify( @@([ _cNodeName_, _aNodeContent2_ ]) )
-
-    _cTree_ = @Simplify( @@(This.Content()) )
-
-    # Managing case sensitivity
-    if CaseSensitive(pCaseSensitive) = FALSE
-        _cNode1_ = lower(_cNode1_)
-        _cNode2_ = lower(_cNode2_)
-        _cTree_  = lower(_cTree_)
-    ok
-
-    # Processing the replacement
-    _cNode1_ = ring_substr2(_cNode1_, ":", "")
-    _cNode2_ = ring_substr2(_cNode2_, ":", "")
-    _cTree_ = ring_substr2(_cTree_, _cNode1_, _cNode2_)
-
-    # Updating the tree (by evaluation)
-    _cCode_ = 'This.UpdateWith(' + _cTree_ + ')'
-    eval(_cCode_)
+	if isList(pNewLeaf) and StzListQ(pNewLeaf).IsByOrWithNamedParam()
+		pNewLeaf = pNewLeaf[2]
+	ok
+	
+	# Extract branch path and position
+	nPosStart = ring_find_last(pcBranchPath, "[")
+	nPosEnd = ring_find_last(pcBranchPath, "]")
+	
+	# Check if the path includes a position at the end
+	if nPosStart > 0 and nPosEnd = len(pcBranchPath)
+		# Get position number
+		cPosition = substr(pcBranchPath, nPosStart + 1, nPosEnd - nPosStart - 1)
+		if isNumber(cPosition)
+			nPos = number(cPosition)
+			
+			# Get branch path without position
+			cBranchPath = substr(pcBranchPath, 1, nPosStart - 1)
+			
+			# Get node content
+			aNodeContent = This.Branch(cBranchPath)
+			
+			# Check if position is valid
+			if nPos > 0 and nPos <= len(aNodeContent)
+				# Replace the item at the specified position
+				aNodeContent[nPos] = pNewLeaf
+				
+				# Update the node
+				_cNodeName_ = This.LastNodeInBranch(cBranchPath)
+				_cNode1_ = @Simplify( @@([ _cNodeName_, This.Branch(cBranchPath) ]) )
+				_cNode2_ = @Simplify( @@([ _cNodeName_, aNodeContent ]) )
+				_cTree_ = @Simplify( @@(This.Content()) )
+				
+				_cNode1_ = ring_substr2(_cNode1_, ":", "")
+				_cNode2_ = ring_substr2(_cNode2_, ":", "")
+				_cTree_ = ring_substr2(_cTree_, _cNode1_, _cNode2_)
+				
+				_cCode_ = 'This.UpdateWith(' + _cTree_ + ')'
+				eval(_cCode_)
+				
+				return
+			ok
+		ok
+	ok
+	
+	# If no position specified or invalid format, use the original method
+	# Preparing the stringified data elements
+	_cNodeName_ = This.LastNodeInBranch(pcBranchPath)
+	
+	_aNodeContent_ = This.NodeAt(pcBranchPath)
+	_cNode1_ = @Simplify( @@([ _cNodeName_, _aNodeContent_ ]) )
+	
+	# Create new content by replacing the leaf
+	_aNodeContent2_ = []
+	for i = 1 to len(_aNodeContent_)
+		if _aNodeContent_[i] = pOldLeaf
+			_aNodeContent2_ + pNewLeaf
+		else
+			_aNodeContent2_ + _aNodeContent_[i]
+		ok
+	next
+	
+	_cNode2_ = @Simplify( @@([ _cNodeName_, _aNodeContent2_ ]) )
+	
+	_cTree_ = @Simplify( @@(This.Content()) )
+	
+	# Managing case sensitivity
+	if CaseSensitive(pCaseSensitive) = FALSE
+		_cNode1_ = lower(_cNode1_)
+		_cNode2_ = lower(_cNode2_)
+		_cTree_  = lower(_cTree_)
+	ok
+	
+	# Processing the replacement
+	_cNode1_ = ring_substr2(_cNode1_, ":", "")
+	_cNode2_ = ring_substr2(_cNode2_, ":", "")
+	_cTree_ = ring_substr2(_cTree_, _cNode1_, _cNode2_)
+	
+	# Updating the tree (by evaluation)
+	_cCode_ = 'This.UpdateWith(' + _cTree_ + ')'
+	eval(_cCode_)
     
     def ReplaceItemAtCS(pOldItem, pNewItem, pcBranchPath, pCaseSensitive)
-        return This.ReplaceLeafAtCS(pOldItem, pNewItem, pcBranchPath, pCaseSensitive)
+        This.ReplaceLeafAtCS(pOldItem, pNewItem, pcBranchPath, pCaseSensitive)
+
+   def ReplaceAtCS(pOldItem, pNewItem, pcBranchPath, pCaseSensitive)
+	This.ReplaceLeafAtCS(pOldItem, pNewItem, pcBranchPath, pCaseSensitive)
 
 def ReplaceLeafAt(pOldLeaf, pNewLeaf, pcBranchPath)
     This.ReplaceLeafAtCS(pOldLeaf, pNewLeaf, pcBranchPath, _TRUE_)
     
     def ReplaceItemAt(pOldItem, pNewItem, pcBranchPath)
         return This.ReplaceLeafAt(pOldItem, pNewItem, pcBranchPath)
+
+   def ReplaceAt(pOldItem, pNewItem, pcBranchPath)
+	This.ReplaceLeafAt(pOldItem, pNewItem, pcBranchPath)
 
 #--
 
@@ -781,11 +957,38 @@ def ReplaceLeafCS(pOldLeaf, pNewLeaf, pCaseSensitive)
     def ReplaceItemCS(pOldItem, pNewItem, pCaseSensitive)
         This.ReplaceLeafCS(pOldItem, pNewItem, pCaseSensitive)
 
+    def ReplaceCS(pOldLeaf, pNewLeaf, pCaseSensitive)
+		This.ReplaceLeafCS(pOldLeaf, pNewLeaf, pCaseSensitive)
+
 def ReplaceLeaf(pOldLeaf, pNewLeaf)
     This.ReplaceLeafCS(pOldLeaf, pNewLeaf, _TRUE_)
     
     def ReplaceItem(pOldItem, pNewItem)
         This.ReplaceLeaf(pOldItem, pNewItem)
+
+    def Replace(pOldLeaf, pNewLeaf)
+		This.ReplaceLeaf(pOldLeaf, pNewLeaf)
+
+#--
+
+def ReplaceLeafByManyCS(pOldLeaf, paNewLeafs, pCaseSensitive)
+   aBranches = This.FindLeaf(pOldLeaf)
+   ?@@(abranches)
+
+    def ReplaceItemByManyCS(pOldItem, paNewItems, pCaseSensitive)
+        This.ReplaceLeafByManyCS(pOldItem, paNewItems, pCaseSensitive)
+
+    def ReplaceByManyCS(pOldLeaf, paNewLeafs, pCaseSensitive)
+		This.ReplaceLeafByManyCS(pOldLeaf, paNewLeafs, pCaseSensitive)
+
+def ReplaceLeafByMany(pOldLeaf, paNewLeafs)
+    This.ReplaceLeafByManyCS(pOldLeaf, paNewLeafs, _TRUE_)
+    
+    def ReplaceItemByMany(pOldItem, paNewItems)
+        This.ReplaceLeafByMany(pOldItem, paNewItems)
+
+    def ReplaceByMany(pOldLeaf, paNewLeafs)
+		This.ReplaceLeafByMany(pOldLeaf, paNewLeafs)
 
 #--
 
@@ -795,16 +998,50 @@ def ReplaceLeafInNodeCS(pOldLeaf, pNewLeaf, pcNode, pCaseSensitive)
     def ReplaceItemInNodeCS(pOldItem, pNewItem, pcNode, pCaseSensitive)
         This.ReplaceLeafInNodeCS(pOldItem, pNewItem, pcNode, pCaseSensitive)
 
+    def ReplaceInNodeCS(pOldLeaf, pNewLeaf, pcNode, pCaseSensitive)
+	This.ReplaceLeafAtCS(pOldLeaf, pNewLeaf, This.FindNode(pcNode), pCaseSensitive)
+
 def ReplaceLeafInNode(pOldLeaf, pNewLeaf, pcNode)
     This.ReplaceLeafInNodeCS(pOldLeaf, pNewLeaf, pcNode, _TRUE_)
     
     def ReplaceItemInNode(pOldItem, pNewItem, pcNode)
         This.ReplaceLeafInNode(pOldItem, pNewItem, pcNode)
 
-#--
+    def ReplaceInNode(pOldLeaf, pNewLeaf, pcNode)
+	This.ReplaceLeafAt(pOldLeaf, pNewLeaf, This.FindNode(pcNode))
 
-def ReplaceTheseLeafsCS(paOldLeafs, paNewLeafs, pCaseSensitive)
-    nLen = len(paOldLeafs)
+#==
+
+def ReplaceTheseLeafsCS(paOldLeafs, pNewLeaf, pCaseSensitive)
+	if isList(pNewLeaf) and StzListQ(pNewLeaf).IsByOrWithNamedParam()
+		pNewLeaf = pNewLeaf[2]
+	ok
+
+	This.ReplaceTheseLeafsByManyCSXT(paOldLeafs, [ pNewLeaf ], pCaseSensitive)
+
+    def ReplaceTheseItemsCS(paOldItems, pNewItem, pCaseSensitive)
+        This.ReplaceTheseLeafsCS(paOldLeafs, pNewLeaf, pCaseSensitive)
+
+    def ReplaceTheseCS(paOldItems, pNewItem, pCaseSensitive)
+        This.ReplaceTheseLeafsCS(paOldLeafs, pNewLeaf, pCaseSensitive)
+
+def ReplaceTheseLeafs(paOldLeafs, pNewLeaf)
+    This.ReplaceTheseLeafsCS(paOldLeafs, pNewLeaf, _TRUE_)
+    
+    def ReplaceTheseItems(paOldItems, pNewItem)
+        This.ReplaceTheseLeafs(paOldLeafs, pNewLeaf)
+
+    def ReplaceThese(paOldItems, pNewItem)
+        This.ReplaceTheseLeafs(paOldItems, pNewItem)
+
+
+def ReplaceTheseLeafsByManyCS(paOldLeafs, paNewLeafs, pCaseSensitive)
+
+   if isList(paNewLeafs) and StzListQ(paNewLeafs).IsByOrWithNamedParam()
+	paNewLeafs = paNewLeafs[2]
+   ok
+
+    nLen = @Min([ len(paOldLeafs), len(paNewLeafs) ])
     
     if len(paNewLeafs) != nLen
         stzRaise("Incorrect param! Number of new leafs doesn't match number of old leafs.")
@@ -814,29 +1051,95 @@ def ReplaceTheseLeafsCS(paOldLeafs, paNewLeafs, pCaseSensitive)
         This.ReplaceLeafCS(paOldLeafs[i], paNewLeafs[i], pCaseSensitive)
     next
     
-    def ReplaceTheseItemsCS(paOldItems, paNewItems, pCaseSensitive)
-        This.ReplaceTheseLeafsCS(paOldItems, paNewItems, pCaseSensitive)
+    def ReplaceTheseItemsByManyCS(paOldItems, paNewItems, pCaseSensitive)
+        This.ReplaceTheseLeafsByManyCS(paOldItems, paNewItems, pCaseSensitive)
 
-def ReplaceTheseLeafs(paOldLeafs, paNewLeafs)
-    This.ReplaceTheseLeafsCS(paOldLeafs, paNewLeafs, _TRUE_)
+    def ReplaceTheseByManyCS(paOldItems, paNewItems, pCaseSensitive)
+        This.ReplaceTheseLeafsByManyCS(paOldItems, paNewItems, pCaseSensitive)
+
+def ReplaceTheseLeafsByMany(paOldLeafs, paNewLeafs)
+    This.ReplaceTheseLeafsByManyCS(paOldLeafs, paNewLeafs, _TRUE_)
     
-    def ReplaceTheseItems(paOldItems, paNewItems)
-        This.ReplaceTheseLeafs(paOldItems, paNewItems)
+    def ReplaceTheseItemsByMany(paOldItems, paNewItems)
+        This.ReplaceTheseLeafsByMany(paOldItems, paNewItems)
+
+    def ReplaceTheseByMany(paOldItems, paNewItems)
+        This.ReplaceTheseLeafsByMany(paOldItems, paNewItems)
 
 #--
 
-def ReplaceAllLeafsWithCS(pNewLeaf, pCaseSensitive)
+def ReplaceTheseLeafsByManyCSXT(paOldLeafs, paNewLeafs, pCaseSensitive)
+   if isList(paNewLeafs) and StzListQ(paNewLeafs).IsByOrWithNamedParam()
+	paNewLeafs = paNewLeafs[2]
+   ok
+
+   nLen1 = len(paOldLeafs)
+   nLen2 = len(paNewLeafs)
+
+  aNewLeafs = []
+  if nLen1 = nLen2
+	aNewLeafs = paNewLeafs
+
+  but nLen2 > nLen1
+	for i = 1 to nLen1
+		aNewLeafs + paNewLeafs[i]
+	next
+  else
+	nDiff = nLen1 - nLen2
+	aNewLeafs = paNewLeafs
+	j = 0
+	for i = 1 to nDiff
+		j++
+		if j > nLen2
+			j = 1
+		ok
+		aNewLeafs + paNewLeafs[j]
+	next
+   ok
+
+   This.ReplaceTheseLeafsByManyCS(paOldLeafs, aNewLeafs, pCaseSensitive)
+
+    def ReplaceTheseItemsByManyCSXT(paOldItems, paNewItems, pCaseSensitive)
+        This.ReplaceTheseLeafsByManyCSXT(paOldItems, paNewItems, pCaseSensitive)
+
+    def ReplaceTheseByManyCSXT(paOldItems, paNewItems, pCaseSensitive)
+        This.ReplaceTheseLeafsByManyCSXT(paOldItems, paNewItems, pCaseSensitive)
+
+def ReplaceTheseLeafsByManyXT(paOldLeafs, paNewLeafs)
+    This.ReplaceTheseLeafsByManyCSXT(paOldLeafs, paNewLeafs, _TRUE_)
+    
+    def ReplaceTheseItemsByManyXT(paOldItems, paNewItems)
+        This.ReplaceTheseLeafsByMany(paOldItems, paNewItems)
+
+    def ReplaceTheseByManyXT(paOldItems, paNewItems)
+        This.ReplaceTheseLeafsByManyXT(paOldItems, paNewItems)
+
+#==
+
+def ReplaceLeafsWithCS(pNewLeaf, pCaseSensitive)
     aLeafs = This.Leafs()
     
     for i = 1 to len(aLeafs)
         This.ReplaceLeafCS(aLeafs[i], pNewLeaf, pCaseSensitive)
     next
     
-    def ReplaceAllItemsWithCS(pNewItem, pCaseSensitive)
+    def ReplaceItemsWithCS(pNewItem, pCaseSensitive)
         This.ReplaceAllLeafsWithCS(pNewItem, pCaseSensitive)
 
-def ReplaceAllLeafsWith(pNewLeaf)
-    This.ReplaceAllLeafsWithCS(pNewLeaf, _TRUE_)
+    def ReplaceAllLeafsWithCS(pNewLeaf, pCaseSensitive)
+	This.ReplaceLeafsWithCS(pNewLeaf, pCaseSensitive)
+
+    def ReplaceAllItemsWithCS(pNewItem, pCaseSensitive)
+        This.ReplaceLeafsWithCS(pNewItem, pCaseSensitive)
+
+def ReplaceLeafsWith(pNewLeaf)
+    This.ReplaceLeafsWithCS(pNewLeaf, _TRUE_)
     
+    def ReplaceItemsWith(pNewItem)
+        This.ReplaceLeafsWith(pNewItem)
+
+   def ReplaceAllLeafsWith(pNewLeaf)
+	This.ReplaceLeafsWithCS(pNewLeaf)
+
     def ReplaceAllItemsWith(pNewItem)
-        This.ReplaceAllLeafsWith(pNewItem)
+        This.ReplaceLeafsWith(pNewItem)
