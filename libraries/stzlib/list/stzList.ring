@@ -14539,33 +14539,33 @@ class stzList from stzObject
 			cContent = ring_substr2(cContent, acItems[i], "")
 		next
 
-		cContent = @Simplify(cContent)
-		cContent = ring_substr2(cContent, "[ ,", "[ ")
-		cContent = ring_substr2(cContent, ", ,", ", ") 
-		cContent = ring_substr2(cContent, ", ]", " ]")
+		cContent = ring_substr2(@Simplify(cContent), "[ ,", "[ ")
+		cContent = ring_substr2(@Simplify(cContent), ", ,", ", ") 
+		cContent = ring_substr2(@Simplify(cContent), ", ]", " ]")
 
 		cCode = 'This.UpdateWith(' + cContent + ')'
 		eval(cCode)
-		
-/*
-		cCodeForRemoval = This.ToCodeQ()
-    
-    for item in aItems
-        cValue = @@(item)
-        cCodeForRemoval = cCodeForRemoval.RemoveManyCSQ([
-            (cValue + ","),
-            cValue
-        ], pCaseSensitive)
-    next
-    
-    cCode = '_aResult_ = ' + cCodeForRemoval.Content()
-? cCode
-stop()
-    eval(cCode)
-    This.Update(_aResult_)
-*/
+
+		def DeepRemoveManyCSQ(paItems, pCaseSensitive)
+			This.DeepRemoveManyCS(paItems, pCaseSensitive)
+			return This
+
+	def ManyDeepRemovedCS(paItems, pCaseSensitive)
+		aResult = This.Copy().DeepRemoveManyCSQ(paItems, pCaseSensitive).Content()
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def DeepRemoveMany(paItems)
 		This.DeepRemoveManyCS(paItems, _TRUE_)
+
+		def DeepRemoveManyQ(paItems)
+			This.DeepRemoveMany(paItems, pCaseSensitive)
+			return This
+
+	def ManyDeepRemoved(paItems)
+		aResult = This.Copy().DeepRemoveManyCS(paItems).Content()
+		return aResult
 
 	  #=========================================================#
 	 #   REMOVING ALL OCCURRENCE OF A GIVEN ITEM IN THE LIST   #
