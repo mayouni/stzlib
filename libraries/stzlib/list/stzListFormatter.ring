@@ -335,7 +335,10 @@ func ShouldExpandList(aList)
 		ok
 	ok
 
-	
+	_nLenStr_ = len( @@(aList) )
+	if _nLenStr_ > 50
+		return _TRUE_
+	ok
 
 	_nLen_ = len(aList)
 

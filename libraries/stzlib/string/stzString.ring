@@ -82511,7 +82511,7 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def RemoveFirstOccurrenceQ(pcSubStr, pcNewSubStr)
+		def RemoveFirstOccurrenceQ(pcSubStr)
 			This.RemoveFirstOccurrence(pcSubStr)
 			return This
 	
