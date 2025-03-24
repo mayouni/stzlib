@@ -233,7 +233,7 @@ class stzTree from stzList
 			ok
 		next
 
-	def NodesXT()
+	def NodesZ()
 		return @Association([ This.Nodes(), This.Branches() ])
 
 		def NodesAndTheirBranches()
@@ -249,7 +249,7 @@ class stzTree from stzList
 		ok
 
 		pcNodeName = lower(pcNodeName)
-		cResult = This.NodesXT()[pcNodeName]
+		cResult = This.NodesZ()[pcNodeName]
 
 		if cResult = ""
 			stzraise("Inexistant node!")
@@ -329,17 +329,25 @@ class stzTree from stzList
 	 #  MANAGING ITEMS  #
 	#------------------#
 	
-	def Items()
+	def ItemsCS(pCaseSensitive)
 		aResult = []
-		aTree = super.Content()[1]
+		aTree = super.ContentCS(pCaseSensitive)[1]
 		aRootContent = aTree[2]
 		
 		This._CollectItems(aRootContent, aResult)
 		
 		return aResult
 
+		def AllItemsCS(pCaseSensitive)
+			return This.ItemsCS(pCaseSensitive)
+
+	def Items()
+		return This.ItemsCS(_TRUE_)
+
 		def AllItems()
 			return This.Items()
+
+	# An internal method used by Items()
 
 	def _CollectItems(paContent, aResult)
 		nLenContent = len(paContent)
@@ -372,41 +380,43 @@ class stzTree from stzList
 				ok
 			ok
 		next
-	
-	def ItemsXTCS(pCaseSensitive)
+
+	def ItemsXTCS(pCaseSensitive) # ItemsAndTheirPathsCS()
 		aItems = This.Items()
-		aItemBranches = []
+		aItemPaths = []
 		
 		for i = 1 to len(aItems)
-			aItemBranches + []
+			aItemPaths + []
 		next
 		
 		aTree = super.Content()[1]
 		aRootContent = aTree[2]
 		
-		This._MapItemsToBranchesCS(aRootContent, "[:root]", aItems, aItemBranches, pCaseSensitive)
+		This._MapItemsToPathsCS(aRootContent, "[:root]", aItems, aItemPaths, pCaseSensitive)
 		
 		aResult = []
 		for i = 1 to len(aItems)
-			aResult + [ aItems[i], aItemBranches[i] ]
+			aResult + [ aItems[i], aItemPaths[i] ]
 		next
 		
 		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def ItemsAndTheirBranchesCS(pCaseSensitive)
+		def ItemsAndTheirPathsCS(pCaseSensitive)
 			return This.ItemsXTCS(pCaseSensitive)
 
 		#>
 
-	def ItemsXT()
+	def ItemsZ()
 		return This.ItemsXTCS(_TRUE_)
 
-		def ItemsAndTheirBranches()
-			return This.ItemsXT()
+		def ItemsAndTheirPaths()
+			return This.ItemsZ()
 
-	def _MapItemsToBranchesCS(paContent, cCurrentPath, aItems, aItemBranches, pCaseSensitive)
+	# An internal method used by ItemsZ()
+
+	def _MapItemsToPathsCS(paContent, cCurrentPath, aItems, aItemPaths, pCaseSensitive)
 		nLenContent = len(paContent)
 		
 		for i = 1 to nLenContent
@@ -416,7 +426,7 @@ class stzTree from stzList
 			if NOT isList(item) OR (isList(item) AND len(item) = 0)
 				nPos = StzListQ(aItems).FindFirstCS(item, pCaseSensitive)
 				if nPos > 0
-					aItemBranches[nPos] + cCurrentPath
+					aItemPaths[nPos] + cCurrentPath
 				ok
 				loop
 			ok
@@ -426,7 +436,7 @@ class stzTree from stzList
 
 				nPos = StzListQ(aItems).FindFirstCS(item, pCaseSensitive)
 				if nPos > 0
-					aItemBranches[nPos] + cCurrentPath
+					aItemPaths[nPos] + cCurrentPath
 				ok
 				loop
 			ok
@@ -438,13 +448,13 @@ class stzTree from stzList
 				
 				# Only process the contents if it's a list
 				if len(item) >= 2 AND isList(item[2])
-					This._MapItemsToBranchesCS(item[2], cBranchPath, aItems, aItemBranches, pCaseSensitive)
+					This._MapItemsToPathsCS(item[2], cBranchPath, aItems, aItemPaths, pCaseSensitive)
 				ok
 			ok
 		next
 
-	def _MapItemsToBranches(paContent, cCurrentPath, aItems, aItemBranches)
-		return This._MapItemsToBranchesCS(paContent, cCurrentPath, aItems, aItemBranches, _TRUE_)
+	def _MapItemsToPaths(paContent, cCurrentPath, aItems, aItemPaths)
+		return This._MapItemsToPathsCS(paContent, cCurrentPath, aItems, aItemPaths, _TRUE_)
 
 	  #-----------------#
 	 #  FINDING ITEMS  #
@@ -452,7 +462,7 @@ class stzTree from stzList
 
 	def FindItemCS(pItem, pCaseSensitive)
 		aResult = []
-		aItemsAndBranches = This.ItmesXTCS(pCaseSensitive)
+		aItemsAndBranches = This.ItemsXTCS(pCaseSensitive)
 		
 		for i = 1 to len(aItemsAndBranches)
 			if aItemsAndBranches[i][1] = pItem
@@ -472,8 +482,14 @@ class stzTree from stzList
 		
 		return aResult
 
+		def FindThisItemCS(pItem, pCaseSensitive)
+			return This.FindItemCS(pItem, pCaseSensitive)
+
 	def FindItem(pItem)
 		return This.FindItemCS(pItem, _TRUE_)
+
+		def FindThisItem(pItem)
+			This.FindItem(pItem)
 	
 	# Helper function to find positions of an item in multiple branches
 
@@ -481,7 +497,7 @@ class stzTree from stzList
 		aPositions = []
 		
 		for i = 1 to len(paBranches)
-			aNodeContent = This.Branch(paBranches[i])
+			aNodeContent = This.NodeAt(paBranches[i])
 			nPos = 0
 			
 			for j = 1 to len(aNodeContent)
@@ -511,7 +527,7 @@ class stzTree from stzList
 	# Helper function to find position of an item in a specific branch
 
 	def _FindItemPositionAt(pItem, pcBranch, pCaseSensitive)
-		aNodeContent = This.Branch(pcBranch)
+		aNodeContent = This.NodeAtBranch(pcBranch)
 		nPos = 0
 		
 		for i = 1 to len(aNodeContent)
@@ -537,18 +553,49 @@ class stzTree from stzList
 
 	#--
 
-	def FindItemsCS(paItems, pCaseSensitive)
+	def FindTheseItemsCS(paItems, pCaseSensitive)
 		aResult = []
-		
+		nLen = len(paItems)
+
 		for i = 1 to len(paItems)
 			aBranchesWithPos = This.FindItemCS(paItems[i], pCaseSensitive)
-			aResult + aBranchesWithPos
+			nLen2 = len(aBranchesWithPos)
+			for j = 1 to nLen2
+				aResult + aBranchesWithPos[nLen2]
+			next
 		next
 		
 		return aResult
 	
-	def FindItems(paItems)
-		return This.FindItemsCS(paItems, _TRUE_)
+	def FindTheseItems(paItems)
+		return This.FindTheseItemsCS(paItems, _TRUE_)
+
+	#--
+
+	def FindItemsCS(pCaseSensitive) # FindAllItems()
+		aResult = []
+		aItemsAndBranches = This.ItemsXTCS(pCaseSensitive)
+
+		for i = 1 to len(aItemsAndBranches)
+			cItem = aItemsAndBranches[i][1]
+			aBranches = aItemsAndBranches[i][2]
+			aPositions = This._FindItemPositionsAt(cItem, aBranches, pCaseSensitive)
+
+			for j = 1 to len(aBranches)
+				# Concatenate branch path with position directly
+				if aPositions[j] != ""
+					aResult + (aBranches[j] + aPositions[j])
+				ok
+			next
+		next
+
+		return aResult
+
+		def FindAllItemsCS(pCaseSensitive)
+			return This.FindItemsCS(pCaseSensitive)
+
+	def FindItems()
+		return This.FindItemsCS(_TRUE_)
 
 	#--
 
@@ -700,8 +747,20 @@ class stzTree from stzList
 	 #  REMOVING ITEMS AND NODES  #
 	#----------------------------#
 
+	def RemoveItemsCS(pCaseSensitive)
+		acPaths = This.FindItemsCS(pCaseSensitive)
+
+? acPaths
+stop()
+
+		def RemoveAllItemsCS(pCaseSensitive)
+			This.RemoveItemsCS(pCaseSensitive)
+
 	def RemoveItems()
-		super.DeepRemoveMany(This.Items())
+		This.RemoveItemsCS(_TRUE_)
+
+		def RemoveAllItems()
+			This.RemoveItems()
 
 	#-----------------#
 	#  TODO FEATURES  #
