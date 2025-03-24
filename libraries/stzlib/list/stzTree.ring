@@ -696,11 +696,17 @@ class stzTree from stzList
 			return This.LastNodeInBranch(pcBranch)
 
 
+	  #----------------------------#
+	 #  REMOVING ITEMS AND NODES  #
+	#----------------------------#
+
+	def RemoveItems()
+		super.DeepRemoveMany(This.Items())
+
 	#-----------------#
 	#  TODO FEATURES  #
 	#-----------------#
 
-	# Removing/Deleting Nodes and Items
 	# Updating/Replacing Content
 	# Moving/Reorganizing Tree Sections
 	# Tree Merging and Comparison

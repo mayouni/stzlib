@@ -14502,6 +14502,71 @@ class stzList from stzObject
 		_cResult_ = This.Copy().DeepRemoveCSQ(pItem).Content()
 		return _cResult_
 
+	  #----------------------------------------#
+	 #  DEEP-REMOVING MANY ITEMS IN THE LIST  #
+	#----------------------------------------#
+
+	def DeepRemoveManyCS(paItems, pCaseSensitive)
+		if CheckParams()
+			if NOT isList(paItems)
+				stzRaise("Incorrect param type! paItems must be a list.")
+			ok
+		ok
+
+		cContent = @@(This.Content())
+		
+		aItems = U(paItems)
+		nLen = len(aItems)
+		if nLen = 0
+			return
+		ok
+
+		acItems = []
+		for i = 1 to nLen
+			acItems + @@(paItems[i])
+		next
+
+		bCase = @CaseSensitive(pCaseSensitive)
+
+		if bCase = FALSE
+			cContent = lower(cContent)
+			for i = 1 to nLen
+				acItems[i] = lower(acItems[i])
+			next
+		ok
+
+		for i = 1 to nLen
+			cContent = ring_substr2(cContent, acItems[i], "")
+		next
+
+		cContent = @Simplify(cContent)
+		cContent = ring_substr2(cContent, "[ ,", "[ ")
+		cContent = ring_substr2(cContent, ", ,", ", ") 
+		cContent = ring_substr2(cContent, ", ]", " ]")
+
+		cCode = 'This.UpdateWith(' + cContent + ')'
+		eval(cCode)
+		
+/*
+		cCodeForRemoval = This.ToCodeQ()
+    
+    for item in aItems
+        cValue = @@(item)
+        cCodeForRemoval = cCodeForRemoval.RemoveManyCSQ([
+            (cValue + ","),
+            cValue
+        ], pCaseSensitive)
+    next
+    
+    cCode = '_aResult_ = ' + cCodeForRemoval.Content()
+? cCode
+stop()
+    eval(cCode)
+    This.Update(_aResult_)
+*/
+	def DeepRemoveMany(paItems)
+		This.DeepRemoveManyCS(paItems, _TRUE_)
+
 	  #=========================================================#
 	 #   REMOVING ALL OCCURRENCE OF A GIVEN ITEM IN THE LIST   #
 	#=========================================================#

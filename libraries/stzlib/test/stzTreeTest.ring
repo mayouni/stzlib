@@ -229,7 +229,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- FINDING AND GETTING AN ITEM
-*/
+
 pr()
 
 o1 = new stzTree(
@@ -251,3 +251,15 @@ o1 = new stzTree(
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.22
+
+#===== REMOVIN ITEMS AND NODES
+*/
+pr()
+
+o1 = new stzList([ "X", [ 1, "Y", 2, [ 3, "X"] ], 4, "Y" ])
+o1.DeepRemoveMany([ "X", "Y" ])
+? @@( o1.Content() )
+#--> [ [ 1, 2, [ 3 ] ], 4 ]
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
