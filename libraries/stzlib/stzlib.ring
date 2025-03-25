@@ -143,6 +143,8 @@ t0 = clock()
 	load "number/stzOctalNumber.ring"
 	load "number/stzListOfBytes.ring"
 
+	load "number/stzMatrix.ring"
+
 # Loading files related to the LIST module
 
 	load "list/stzList.ring"
