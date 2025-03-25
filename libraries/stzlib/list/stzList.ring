@@ -5868,6 +5868,64 @@ func Combinations(aList, n)
 	func @Combinations(aList, n)
 		return Combinations(aList, n)
 
+#===
+
+func ListsHaveSameNumberOfItems(paList)
+
+	if CheckParams()
+
+		if NOT isList(paList)
+			stzraise("Incorrect param type! paList must be alist.")
+		ok
+
+	ok
+
+	nLen = len(paList)
+
+	if nLen = 0
+		StzRaise("Can't check inner lists! Because the list is empty.")
+	ok
+
+	nLenTemp = 0
+
+	for i = 1 to nLen
+		if isList(paList[i])
+			nLenList = len(paList[i])
+			if nLenTemp = 0
+				nLenTemp = nLenList
+			else
+				if nLenList != nLenTemp
+					return _FALSE_
+				ok
+			ok
+		ok
+	next
+
+	return _TRUE_
+
+	func AllListsHaveSameNumberOfItems(paList)
+		return ListsHaveSameNumberOfItems(paList)
+
+	func ListsHaveSameSize(paList)
+		return ListsHaveSameNumberOfItems(paList)
+
+	func AllListsHaveSameSize(paList)
+		return ListsHaveSameNumberOfItems(paList)
+
+	#--
+
+	func @ListsHaveSameNumberOfItems(paList)
+		return ListsHaveSameNumberOfItems(paList)
+
+	func @AllListsHaveSameNumberOfItems(paList)
+		return ListsHaveSameNumberOfItems(paList)
+
+	func @ListsHaveSameSize(paList)
+		return ListsHaveSameNumberOfItems(paList)
+
+	func @AllListsHaveSameSize(paList)
+		return ListsHaveSameNumberOfItems(paList)
+
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -18943,7 +19001,6 @@ class stzList from stzObject
 		def IsAGrid()
 			return This.IsGrid
 
-
 	def IsHashList()
 		/*
 		A hash list is a grid of 2 vlines.
@@ -19112,6 +19169,18 @@ class stzList from stzObject
 			return This.IsListOfListsOfSameSize()
 
 		#>
+
+	def IsMatrix()
+		if This.IsListOfListsOfNumbers() and
+		   This.AllListsHaveSameSize()
+	
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAMatrix()
+			return This.IsMatrix()
 
 	  #----------------------------------------------------#
 	 #  CHECKING THAT THE LIST IS A LIST OF HYBRID LISTS  #

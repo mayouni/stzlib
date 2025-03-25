@@ -27,38 +27,6 @@ func ItemExists(pItem, paList)
 		return _FALSE_
 	ok
 
-func AllListsHaveSameSize(paListOfLists)
-	if CheckingParams()
-		if NOT ( isList(paListOfLists) and
-			 len(paListOfLists) > 1 and
-			 IsListOfLists(paListOfLists) )
-
-			StzRaise("Incorrect param type! paListOfLists must be a list of lists.")
-		ok
-	ok
-
-	nLen = len(paListOfLists)	
-	nSize = len(paListOfLists[1])
-	bResult = _TRUE_
-
-	for i = 2 to nLen
-		if len(paListOfLists[i]) != nSize
-			bResult = _FALSE_
-			exit
-		ok
-	next
-
-	return bResult
-
-	func ListsHaveSameSize(paListofLists)
-		return AllListsHaveSameSize(paListOfLists)
-
-	func AllListsHaveSameNumberOfItems(paListOfLists)
-		return AllListsHaveSameSize(paListOfLists)
-
-	func ListsHaveSameNumberOfItems(paListOfLists)
-		return AllListsHaveSameSize(paListOfLists)
-
 func ListsMerge(paListOfLists)
 	if CheckingParams()
 		if NOT ( isList(paListOfLists) and @IsListOfLists(paListOfLists) )
@@ -277,6 +245,7 @@ func AreContiguous(paListOfLists)
 
 	func @AreConsecutive(paListOfLists)
 			return IsContiguous(paListOfLists)
+
 
   #=========#
  #  CLASS  #

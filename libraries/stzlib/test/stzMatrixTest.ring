@@ -1,7 +1,7 @@
 load "../max/stzmax.ring"
 
 /*---
-*/
+
 pr()
 
 	# Create a 3x3 matrix
@@ -78,17 +78,23 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 o1 = new stzMatrix([
-	[ 58, 64 ],
+	[ 58,   64 ],
 	[ 139, 154 ]
 ])
-? @@(o1.Content())
+
 o1.Show()
+#-->
+# ┌         ┐
+# │  58  64 │
+# │ 139 154 │
+# └         ┘
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Multiplying two matrices
 */
@@ -99,13 +105,13 @@ o1 = new stzMatrix([
     [ 4, 5, 6 ]
 ])
 
-o1.MultiplyByMatrix([
-    [ 7, 8 ],
-    [ 9, 10 ],
+o1.MultiplyBy([
+    [  7,  8 ],
+    [  9, 10 ],
     [ 11, 12 ]
 ])
 
-? @@(o1.Content())
+
 o1.Show()
 
 
