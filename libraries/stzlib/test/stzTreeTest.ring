@@ -1,7 +1,7 @@
 load "../max/stzmax.ring"
 
 /*--- NODES, ITEMS, AND BRANCHES
-
+*/
 pr()
 
 o1 = new stzTree(
@@ -252,7 +252,7 @@ pf()
 # Executed in 0.03 second(s) in Ring 1.22
 
 #=== FINDING ITEMS
-*/
+
 pr()
 
 o1 = new stzTree(
@@ -368,21 +368,3 @@ o1.DeepRemoveMany([ "X", "Y" ])
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
-
-/*---
-*/
-pr()
-
-o1 = new stzTree(
-	:root = [
-		:node1 = [ "X", :node11 = [ "A", "B", "C", "D", "X" ] ],
-		:node2 = [ 1, 2, 3 ],
-		:node3 = [ "X", 4, 5 ]
-	]
-)
-
-o1.RemoveItems()
-
-//o1.Show()
-
-pf()

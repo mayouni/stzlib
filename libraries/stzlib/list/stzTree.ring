@@ -747,20 +747,47 @@ class stzTree from stzList
 	 #  REMOVING ITEMS AND NODES  #
 	#----------------------------#
 
-	def RemoveItemsCS(pCaseSensitive)
-		acPaths = This.FindItemsCS(pCaseSensitive)
 
-? acPaths
-stop()
+	def RemoveItemCS(pItem, pCaseSensitive) #TODO
+		stzraise("Not yet implemented!")
 
-		def RemoveAllItemsCS(pCaseSensitive)
-			This.RemoveItemsCS(pCaseSensitive)
+		def RemoveThisItemCS(pItem, pCaseSensitive)
 
-	def RemoveItems()
-		This.RemoveItemsCS(_TRUE_)
+	def RemoveItem(pItem) #TODO
+    		This.RemoveItemCS(pItem, _TRUE_)
 
-		def RemoveAllItems()
-			This.RemoveItems()
+	#--
+
+	def RemoveTheseItemsCS(paItems, pCaseSensitive) #TODO
+		stzraise("Not yet implemented!")
+
+	def RemoveTheseItems(paItems)
+		This.RemoveTheseItemsCS(paItems, _TRUE_)
+
+	#--
+
+	def RemoveItems() #TODO
+		stzraise("Not yet implemented!")
+
+	def RemoveAllItems()
+		This.RemoveItems()
+
+	# Helper functions for extracting branch and position from path
+
+	def _GetBranchFromPath(cPath)
+		oPath = new stzString(cPath)
+		n = oPath.FindLast("[")
+
+		cBranch = oPath.Section(1, n-1)
+		return cBranch
+
+	def _GetPositionFromPath(cPath)
+		oPath = new stzString(cPath)
+		n1 = oPath.FindLast("[")
+		n2 = oPath.NumberOfChars()
+
+		cPos = oPath.Section(n1+1, n2-1)
+		return 0+ cPos
 
 	#-----------------#
 	#  TODO FEATURES  #
