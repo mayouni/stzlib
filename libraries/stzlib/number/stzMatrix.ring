@@ -99,6 +99,19 @@ func ConstantMatrix(paParams)
     
     return aMatrix
 
+
+func IsMatrix(paList)
+	if isList(paList) and IsListOfListsOfNumbers(paList) and
+	   AllListsHaveSameSize(paList)
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func @IsMatrix(paList)
+		return IsMatrix(paList)
+
 class stzMatrix
 
 	# Matrix core attributes
