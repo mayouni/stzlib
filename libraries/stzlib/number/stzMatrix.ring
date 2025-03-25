@@ -5,6 +5,24 @@ load "fastpro.ring"
 # -> Machine learning-specific methods
 # -> Performance optimizations (using RingFastPro C extension)
 
+#--
+
+#NOTE : RingFastPro Extension Usage in this class
+
+# The RingFastPro extension provides high-performance list
+# of numbers manipulation functions that are most effective
+# for bulk operations on lists of numbers and matrices.
+
+# Therefore, in this class, we use updateList() from RingFastPro
+# for uniform transformations like adding/multiplying all elements,
+# updating entire rows/columns, or performing serial operations.
+
+# While we avoid using FastPro for complex computational
+# logic or methods requiring individual element inspection,
+# as traditional iteration remains more readable and flexible.
+
+#--
+
 # Global matrix creation functions
 
 func Diagonal1Matrix(paValues)
@@ -182,37 +200,21 @@ class stzMatrix
 
 	def AddInCols(pnValue, paColumns)
 
-		# Using RingFastPro
-
 		for nCol in paColumns
-			updateList(@aMatrix, :add, :col, nCol, pnValue)
+			for i = 1 to @nRows
+				@aMatrix[i][nCol] += pnValue
+			next
 		next
-
-		# Instead of this:
-
-		# for nCol in paColumns
-		# 	for i = 1 to @nRows
-		# 		@aMatrix[i][nCol] += pnValue
-		# 	next
-		# next
 
 	# Adds a value to multiple rows
 
 	def AddInRows(pnValue, paRows)
 
-		# Using RingFastPro
-
 		for nRow in paRows
-			updateList(@aMatrix, :add, :row, nRow, pnValue)
+			for j = 1 to @nCols
+				@aMatrix[nRow][j] += pnValue
+			next
 		next
-
-		# Instead of this:
-
-		# for nRow in paRows
-		# 	for j = 1 to @nCols
-		# 		@aMatrix[nRow][j] += pnValue
-		# 	next
-		# next
 
 	  #-----------------------------#
 	 # Element-wise multiplication #
@@ -228,14 +230,6 @@ class stzMatrix
 		# Using RingFastPro
 
 		updateList(@aMatrix, :mul, :items, pnValue)
-
-		# Instead of this:
-
-		# for i = 1 to @nRows
-		# 	for j = 1 to @nCols
-		# 		@aMatrix[i][j] *= pnValue
-		# 	next
-		# next
 
 	  #-------------------------------#
 	 #  Matrix-to-Matrix Operations  #
@@ -297,13 +291,15 @@ class stzMatrix
 	def Sum()
 
 		nTotal = 0
-		 
+
 		for i = 1 to @nRows
+
 			for j = 1 to @nCols
 				nTotal += @aMatrix[i][j]
 			next
+
 		next
- 
+
 		return nTotal
 
 	# Calculates the mean of all elements
