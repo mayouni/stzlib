@@ -19392,6 +19392,250 @@ class stzList from stzObject
 
 		#>
 
+	def IsListOfPositiveNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return _FALSE_
+		ok
+
+		bResult = _TRUE_
+
+		for i = 1 to nLen
+			if NOT @IsNumber(@aContent[i])
+				bResult = _FALSE_
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfPositiveNumbers()
+			return This.IsListOfPositiveNumbers()
+
+		def ItemsArePositiveNumbers()
+			return This.IsListOfPositiveNumbers()
+
+		def ItemsAreAllPositiveNumbers()
+			return This.IsListOfPositiveNumbers()
+
+		def AllItemsArePositiveNumbers()
+			return This.IsListOfPositiveNumbers()
+
+		def ContainsOnlyPositiveNumbers()
+			return This.IsListOfPositiveNumbers()
+
+		def ContainsPositiveNumbersOnly()
+			return This.IsListOfPositiveNumbers()
+
+		def IsMadeOfPositiveNumbers()
+			return This.IsListOfPositiveNumbers()
+
+		def IsMadeOfOnlyPositiveNumbers()
+			return This.IsListOfPositiveNumbers()
+
+		def IsMadeOfPositiveNumbersOnly()
+			return This.IsListOfPositiveNumbers()
+
+		def IsMadeOnlyOfPositiveNumbers()
+			return This.IsListOfPositiveNumbers()
+
+		def IsOnlyMadeOfPositiveNumbers()
+			return This.IsListOfPositiveNumbers()
+
+		#--
+
+		def ArePositiveNumbers()
+			return This.IsListOfPositiveNumbers()
+
+		def AreAllPositiveNumbers()
+			return This.IsListOfPositiveNumbers()
+
+		def AllArePositiveNumbers()
+			return This.IsListOfPositiveNumbers()
+
+		#>
+
+	def IsListOfNonZeroNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return _FALSE_
+		ok
+
+		bResult = _TRUE_
+
+		for i = 1 to nLen
+			if NOT ( @IsNumber(@aContent[i]) and @aContent[i] != 0 )
+				bResult = _FALSE_
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfNonZeroNumbers()
+			return This.IsListOfNonZeroNumbers()
+
+		def ItemsAreNonZeroNumbers()
+			return This.IsListOfNonZeroNumbers()
+
+		def ItemsAreAllNonZeroNumbers()
+			return This.IsListOfNonZeroNumbers()
+
+		def AllItemsAreNonZeroNumbers()
+			return This.IsListOfNonZeroNumbers()
+
+		def ContainsOnlyNonZeroNumbers()
+			return This.IsListOfNonZeroNumbers()
+
+		def ContainsNonZeroNumbersOnly()
+			return This.IsListOfNonZeroNumbers()
+
+		def IsMadeOfNonZeroNumbers()
+			return This.IsListOfNonZeroNumbers()
+
+		def IsMadeOfOnlyNonZeroNumbers()
+			return This.IsListOfNonZeroNumbers()
+
+		def IsMadeOfNonZeroNumbersOnly()
+			return This.IsListOfNonZeroNumbers()
+
+		def IsMadeOnlyOfNonZeroNumbers()
+			return This.IsListOfNonZeroNumbers()
+
+		def IsOnlyMadeOfNonZeroNumbers()
+			return This.IsListOfNonZeroNumbers()
+
+		#--
+
+		def AreNonZeroNumbers()
+			return This.IsListOfNonZeroNumbers()
+
+		def AreAllNonZeroNumbers()
+			return This.IsListOfNonZeroNumbers()
+
+		def AllAreNonZeroNumbers()
+			return This.IsListOfNonZeroNumbers()
+
+		#>
+
+	def IsListOfNonZeroPositiveNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return _FALSE_
+		ok
+
+		bResult = _TRUE_
+
+		for i = 1 to nLen
+			if NOT ( @IsNumber(@aContent[i]) and @aContent[i] > 0)
+				bResult = _FALSE_
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfNonZeroPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def ItemsAreNonZeroPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def ItemsAreAllNonZeroPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def AllItemsAreNonZeroPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def ContainsOnlyNonZeroPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def ContainsNonZeroPositiveNumbersOnly()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def IsMadeOfNonZeroPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def IsMadeOfOnlyNonZeroPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def IsMadeOfNonZeroPositiveNumbersOnly()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def IsMadeOnlyOfNonZeroPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def IsOnlyMadeOfNonZeroPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		#--
+
+		def AreNonZeroPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def AreAllNonZeroPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def AllAreNonZeroPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		#==
+
+		def IsListOfStrictlyPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def IsAListOfStrictlyPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def ItemsAreStrictlyPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def ItemsAreAllStrictlyPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def AllItemsAreStrictlyPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def ContainsOnlyStrictlyPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def ContainsStrictlyPositiveNumbersOnly()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def IsMadeOfStrictlyPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def IsMadeOfOnlyStrictlyPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def IsMadeOfStrictlyPositiveNumbersOnly()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def IsMadeOnlyOfStrictlyPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def IsOnlyMadeOfStrictlyPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		#--
+
+		def AreStrictlyPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def AreAllStrictlyPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		def AllAreStrictlyPositiveNumbers()
+			return This.IsListOfNonZeroPositiveNumbers()
+
+		#>
+
 	  #--------------------------------------------------------#
 	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF NUMBERS  #
 	#--------------------------------------------------------#

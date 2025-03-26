@@ -3,7 +3,7 @@ load "../max/stzmax.ring"
 /*----------------#
 # BASIC EXAMPLES  #
 #-----------------#
-*/
+
 pr()
 
 # Create a 3x3 matrix
@@ -95,6 +95,7 @@ o1.Show()
 # └           ┘
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Test global matrix creation functions
 
@@ -319,9 +320,7 @@ o1 = new stzMatrix([
 
 # First and third columns replaced
 
-o1.ReplaceCols([ 1, 3 ], [ [ 10, 20, 30 ], [ 40, 50, 60 ] ])
-# Result: 
-# Matrix becomes [10,2,40],[20,5,50],[30,8,60]
+o1.ReplaceCols([ 1, 3 ], :By = [ [ 10, 20, 30 ], [ 40, 50, 60 ] ])
 
 o1.Show()
 #-->
@@ -335,7 +334,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- ReplaceRow Example
-
+*/
 pr()
 
 o1 = new stzMatrix([

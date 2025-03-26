@@ -448,6 +448,22 @@ class stzMatrix
 
 		return nMin
 
+	#-------------------------------#
+	#  FINDING THING IN THE MATRIX  #
+	#-------------------------------#
+
+	def FindElement(nElm)
+
+	def FindElements(panElms)
+
+	def FindCol(panCol)
+
+	def FindCols(paCols)
+
+	def FindRow(panRow)
+
+	def FindRows(panRows)
+
 	  #-----------------------------#
 	 # Matrix Manipulation Methods #
 	#-----------------------------#
@@ -492,33 +508,69 @@ class stzMatrix
 
 	# Replaces a specific column with a given list
 
-	def ReplaceCol(pnCol, paNewCol)
+	def ReplaceCol(pnCol, panNewCol)
 
-		if len(paNewCol) != @nRows
-			raise("Column replacement must match matrix rows")
+		if CheckParams()
+
+			if NOT isNumber(pnCol)
+				stzraise("Incorrect param type! pnCol must be a number.")
+			ok
+
+			if isList(panNewCol) and StzListQ(panNewCol).IsByOrWithNamedParam()
+				panNewCol = panNewCol[2]
+			ok
+
+			if NOT ( isList(panNewCol) and @IsListOfNumbers(panNewCol) )
+				stzraise("Incorrect param type! panNewCol must be a list of numbers.")
+			ok
+
+		ok
+
+		if len(panNewCol) != @nRows
+			stzraise("Can't proceed! Column replacement must match matrix rows.")
 		ok
 		
 		for i = 1 to @nRows
-			@aMatrix[i][pnCol] = paNewCol[i]
+			@aMatrix[i][pnCol] = panNewCol[i]
 		next
 
 	# Replace multiple columns
 
 	def ReplaceCols(panCols, paNewCols)
 
+		if CheckParams()
+			if NOT ( isList(panCols) and @IsListOfNonZeroPositiveNumbers(panCols) )
+				stzraise("Incorrect param type! panCols must be a list of strictictly positive numbers.")
+			ok
+
+			if isList(paNewCols) and StzListQ(paNewCols).IsByOrWithNamedParam()
+				paNewCols = paNewCols[2]
+			ok
+
+			if NOT ( isList(paNewCols) and @IsMatrixOfNonZeroPositiveNumbers(paNewCols) )
+				stzraise("Incorrect param type! paNewCols must be a list of lists of NonZero positive numbers having the same size.")
+			ok
+		ok
+
+		# Logical cheks
+
+		nLenNewCols = len(paNewCols)
+
+		if len(paNewCols[1]) != @nRows
+			raise("Can't proceed! Replacement columns must match matrix rows")
+		ok
+
 		nLenCols = len(panCols)
 
 		if nLenCols != len(paNewCols)
-			raise("Number of columns to replace must match new columns")
+			raise("Can't proceed! Number of columns to replace must match new columns")
 		ok
+
+		# Doing the job
 
 		for k = 1 to nLenCols
 
 			nCol = panCols[k]
-
-			if len(paNewCols[k]) != @nRows
-				raise("Replacement column must match matrix rows")
-			ok
 
 			for i = 1 to @nRows
 				@aMatrix[i][nCol] = paNewCols[k][i]
@@ -527,10 +579,28 @@ class stzMatrix
 
 	# Replace a specific row
 
-	def ReplaceRow(pnRow, paNewRow)
+	def ReplaceRow(pnRow, panNewRow)
+
+		if CheckParams()
+			if NOT isNumber(pnRow)
+				stzraise("Incorrect param type! pnRow must be a number.")
+			ok
+
+			if NOT pnRow > 0
+				stzraise("Incorrect param value! pnRow must be a NonZero positive number.")
+			ok
+
+			if isList(panNewRow) and StzListQ(panNewRow).IsByOrUsingNamedParam()
+				panNewRow = panNewRow[2]
+			ok
+
+			if NOT @IsListOfNonZeroPositiveNumbers(panNewRow)
+				stzraise("Incorrect param type! panNewRow must be a list of NonZero positive numbers.")
+			ok
+		ok
 
 		if len(paNewRow) != @nCols
-			raise("New row must match matrix columns")
+			raise("Can't proceed! New row must match matrix columns.")
 		ok
 
 		@aMatrix[pnRow] = paNewRow
@@ -538,6 +608,20 @@ class stzMatrix
 	# Replace multiple rows
 
 	def ReplaceRows(panRows, paNewRows)
+
+		if CheckParams()
+			if NOT ( isList(panRows) and @IsListOfNonZeroPositiveNumbers(panRows) )
+				stzraise("Incorrect param type! panRows must be a list of strictictly positive numbers.")
+			ok
+
+			if isList(paNewRows) and StzListQ(paNewRows).IsByOrWithNamedParam()
+				paNewRows = paNewRows[2]
+			ok
+
+			if NOT ( isList(paNewRows) and @IsMatrixOfNonZeroPositiveNumbers(paNewRows) )
+				stzraise("Incorrect param type! paNewRows must be a list of lists of NonZero positive numbers having the same size.")
+			ok
+		ok
 
 		nLenRows = len(panRows)
 
@@ -555,6 +639,94 @@ class stzMatrix
 
 			@aMatrix[nRow] = paNewRows[k]
 		next
+
+	  #------------------------------------#
+	 #  REPLACING ELEMENTS IN THE MATRIX  #
+	#------------------------------------#
+
+	# Replacing all the occurrence of an element by a new element
+
+	def ReplaceElement(pnElm, pnNewElm)
+
+		if isList(pnNewElm)
+			This.ReplaceElementByMany(pnElm, pnNewElm)
+		ok
+
+		#TODO
+
+		def ReplaceAllOccurrences(pnElm, pnNewElm)
+			This.ReplaceElement(pnElm, pnNewElm)
+
+	# Replacing any element at the given position by a new element
+
+	def ReplaceElmentAt(pnRow, pnCol, pnNewElm)
+		#TODO
+
+	# Replacing a given element by a new element, only if
+	# it exists at the given posisiton
+
+	def ReplaceThisElementAt(pnElm, pnRow, pnCol, pnNewElm)
+
+		if CheckParams()
+			if NOT (isNumber(pnRow) and isNumber(pnCol))
+				stzraise("Incorrect param types! pnRow and pnCol must be both numbers.")
+			ok
+
+			if NOT (pnRow > 0 and pnCol > 0)
+				stzraise("Incorrect param values! pnRow and pnCol must be both non-zero positive integers.")
+			ok
+
+			if NOT isNumber(pnNewElm)
+				stzraise("Incorrect param type! pnNewElm must be a number.")
+			ok
+		ok
+
+		@aMatrix[pnRow][pnCol] = pnNewElm
+
+	# Replacing the occureences of the given elements in the matrix by
+	# the given new element, only they exist at the given positions
+
+	def RepalaceTheseElementsAt(panElms, panPos, pnNewElm)
+		#TODO
+
+	  #--------------------------------#
+	 #  REPLACEMENT BY MANY ELEMENTS  #
+	#--------------------------------#
+
+	# Replacing all the occurrences of an element by the given new element
+
+	def ReplaceElementByMany(pnElm, panNewElms)
+		#TODO
+		# consider the @min() of the number of occurrences of pnElm
+		# in the matrix and the lenght of panNewElms
+
+		def ReplaceAllOccurrencesByMany(pnElm, panNewElms)
+			This.ReplaceElementByMany(pnElm, panNewElms)
+
+	def ReplaceElementByManyXT(pnElm, panNewElms)
+		#TODO
+		# if the number of occurrences of pnElm is different then
+		# the lenght of panNewElms then go cyclic (in case there
+		# are less elements in panNewElms, restart from the first)
+
+		def ReplaceAllOccurrencesXT(pnElm, panNewElms)
+			This.ReplaceElementXT(pnElm, panNewElms)
+
+	#--
+
+	# Replacing the occureences of the given elements in the matrix by
+	# the given new elements, only if they exist at the given positions
+
+	def RepalaceTheseElementsAtByMany(panElms, panPos, panNewElms)
+		#TODO
+		# consider the @min() of the number of occurrences of panElms
+		# in the matrix and the lenght of panNewElms
+
+	def RepalaceTheseElementsAtByManyXT(panElms, panPos, panNewElms)
+		#TODO
+		# if the number of occurrences of panElms is different then
+		# the lenght of panNewElms then go cyclic (in case there
+		# are less elements in panNewElms, restart from the first)
 
 	  #-----------------------------#
 	 # Specialized Data Extraction #
