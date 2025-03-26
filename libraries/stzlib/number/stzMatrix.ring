@@ -1,4 +1,3 @@
-load "fastpro.ring"
 
 # TODO :Potential Future Enhancements:
 # -> More advanced mathematical operations
@@ -21,7 +20,9 @@ load "fastpro.ring"
 # logic or methods requiring individual element inspection,
 # as traditional iteration remains more readable and flexible.
 
-#--
+
+
+#-- Global functions
 
 func StzMatrixQ(paMatrix)
 	return new stzMatrix(paMatrix)
@@ -30,77 +31,77 @@ func StzMatrixQ(paMatrix)
 
 func Diagonal1Matrix(paValues)
 
-    nSize = len(paValues)
-    aMatrix = []
-    
-    for i = 1 to nSize
+	nSize = len(paValues)
+	aMatrix = []
 
-        aRow = []
+	for i = 1 to nSize
 
-        for j = 1 to nSize
+		aRow = []
 
-		if j = 1
-			aRow + paValues[i]
-		else
-			aRow + 0
-		ok
+		for j = 1 to nSize
 
-        next
+			if j = 1
+				aRow + paValues[i]
+			else
+				aRow + 0
+			ok
 
-        aMatrix + aRow
+		next
 
-    next
-    
-    return aMatrix
+		aMatrix + aRow
+
+	next
+
+	return aMatrix
 
 func Diagonal2Matrix(paValues)
 
-    nSize = len(paValues)
-    aMatrix = []
+	nSize = len(paValues)
+	aMatrix = []
     
-    for i = 1 to nSize
+	for i = 1 to nSize
 
-        aRow = []
+		aRow = []
 
-        for j = 1 to nSize
+		for j = 1 to nSize
 
-		if j = nSize - i + 1
-			aRow + paValues[i]
-		else
-			aRow + 0
-		ok
+			if j = nSize - i + 1
+				aRow + paValues[i]
+			else
+				aRow + 0
+			ok
 
-        next
+		next
 
-        aMatrix + aRow
+		aMatrix + aRow
 
-    next
-    
-    return aMatrix
+	next
+
+	return aMatrix
 
 func ConstantMatrix(paParams)
 
-    nValue = paParams[1]
-    aSize = paParams[2]
-    
-    nRows = aSize[1]
-    nCols = aSize[2]
-    
-    aMatrix = []
-    
-    for i = 1 to nRows
+	nValue = paParams[1]
+	aSize = paParams[2]
 
-        aRow = []
+	nRows = aSize[1]
+	nCols = aSize[2]
 
-        for j = 1 to nCols
-            aRow + nValue
-        next
+	aMatrix = []
 
-        aMatrix + aRow
+	for i = 1 to nRows
 
-    next
-    
-    return aMatrix
+		aRow = []
+
+		for j = 1 to nCols
+			aRow + nValue
+		next
+
+		aMatrix + aRow
+
+	next
+
+	return aMatrix
 
 
 func IsMatrix(paList)
@@ -114,6 +115,25 @@ func IsMatrix(paList)
 
 	func @IsMatrix(paList)
 		return IsMatrix(paList)
+
+func IsMatrixOfPositiveNumbers(paList)
+	#TODO
+
+	func @IsMatrixOfPositiveNumbers(paList)
+		return IsMatrixOfPositiveNumbers(paList)
+
+func IsMatrixOfNonZeroPositiveNumbers(paList)
+	#TODO
+
+	func IsMatrixOfStrictlyPositiveNumbers(paList)
+		return IsMatrixOfNonZeroPositiveNumbers(paList)
+
+	func @IsMatrixOfNonzeroPositiveNumbers(paList)
+		return IsMatrixOfNonZeroPositiveNumbers(paList)
+
+	func @IsMatrixOfStrictlyPositiveNumbers(paList)
+		return IsMatrixOfNonZeroPositiveNumbers(paList)
+
 
 class stzMatrix
 
@@ -599,11 +619,11 @@ class stzMatrix
 			ok
 		ok
 
-		if len(paNewRow) != @nCols
+		if len(panNewRow) != @nCols
 			raise("Can't proceed! New row must match matrix columns.")
 		ok
 
-		@aMatrix[pnRow] = paNewRow
+		@aMatrix[pnRow] = panNewRow
 
 	# Replace multiple rows
 

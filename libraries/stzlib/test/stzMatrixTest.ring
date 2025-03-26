@@ -3,7 +3,7 @@ load "../max/stzmax.ring"
 /*----------------#
 # BASIC EXAMPLES  #
 #-----------------#
-
+*/
 pr()
 
 # Create a 3x3 matrix
@@ -333,8 +333,18 @@ o1.Show()
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
+/*---
+
+pr()
+
+? IsListOfNonZeroPositiveNumbers([ 100, 200, 300 ])
+#--> TRUE
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
 /*--- ReplaceRow Example
-*/
+
 pr()
 
 o1 = new stzMatrix([
@@ -359,7 +369,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- AddInDiagonal Example
-
+*/
 pr()
 
 o1 = new stzMatrix([
