@@ -172,6 +172,11 @@ class stzMatrix
 
 	def Add(pnValue)
 
+		if isList(pnValue) and @IsMatrix(pnValue)
+			This.AddMatrix(pnValue)
+			return
+		ok
+
 		# Using RingFastPro
 
 		updateList(@aMatrix, :add, :items, pnValue)
@@ -232,6 +237,26 @@ class stzMatrix
 			next
 		next
 
+	# Add value to main diagonal elements
+
+	def AddInDiagonal(pnValue)
+
+		nMin = @min([@nRows, @nCols])
+
+		for i = 1 to nMin
+			@aMatrix[i][i] += pnValue
+		next
+
+	# Add value to secondary diagonal elements
+
+	def AddInDiagonal2(pnValue)
+
+		nMin = @min([@nRows, @nCols])
+
+		for i = 1 to nMin
+			@aMatrix[i][@nCols - i + 1] += pnValue
+		next
+
 	  #-----------------------------#
 	 # Element-wise multiplication #
 	#-----------------------------#
@@ -247,9 +272,68 @@ class stzMatrix
 
 		updateList(@aMatrix, :mul, :items, pnValue)
 
+	# Multiply a specific column by a value
+
+	def MultiplyByInCol(pnValue, pnCol)
+
+		for i = 1 to @nRows
+			@aMatrix[i][pnCol] *= pnValue
+		next
+
+	# Multiply a specific row by a value
+
+	def MultiplyByInRow(pnValue, pnRow)
+
+		for j = 1 to @nCols
+			@aMatrix[pnRow][j] *= pnValue
+		next
+
+	# Multiply main diagonal elements by a value
+
+	def MultiplyByInDiagonal1(pnValue)
+
+		nMin = @min([@nRows, @nCols])
+
+		for i = 1 to nMin
+			@aMatrix[i][i] *= pnValue
+		next
+
+	# Multiply secondary diagonal elements by a value
+
+	def MultiplyByInDagonal2(pnValue)
+
+		nMin = @min([@nRows, @nCols])
+
+		for i = 1 to nMin
+			@aMatrix[i][@nCols - i + 1] *= pnValue
+		next
+
 	  #-------------------------------#
 	 #  Matrix-to-Matrix Operations  #
 	#-------------------------------#
+
+	def AddMatrix(paMatrix)
+
+		# Validate input is a matrix with same dimensions
+
+		if not (isList(paMatrix) and @IsMatrix(paMatrix))
+			raise("Input must be a valid matrix")
+		ok
+
+		nInputRows = len(paMatrix)
+		nInputCols = len(paMatrix[1])
+
+		if @nRows != nInputRows or @nCols != nInputCols
+			raise("Matrices must have the same dimensions")
+		ok
+
+		# Element-wise addition
+
+		for i = 1 to @nRows
+			for j = 1 to @nCols
+				@aMatrix[i][j] += paMatrix[i][j]
+			next
+		next
 
 	def MultiplyByMatrix(paMatrix)
 
@@ -361,16 +445,18 @@ class stzMatrix
 
 	# Creates a submatrix by extracting specific rows and columns
 
-	def SubMatrix(panRows, panColumns)
+	def SubMatrix(panRows, panCols)
 
 		aSubMatrix = []
+		nLenRows = len(panRows)
+		nLenCols = len(panCols)
 
-		for nRow in panRows
+		for i = 1 to nLenRows
 
 			aSubRow = []
 
-			for nCol in panColumns
-				aSubRow + @aMatrix[nRow][nCol]
+			for j = 1 to nLenCols
+				aSubRow + @aMatrix[panRows[i]][panCols[i]]
 			next
 
 			aSubMatrix + aSubRow
@@ -379,19 +465,73 @@ class stzMatrix
 
 		return aSubMatrix
 
-		def SubMatrixQ(panRows, panColumns)
-			return new stzMatrix(This.SubMatrix(panRows, panColumns))
+		def SubMatrixQ(panRows, panCols)
+			return new stzMatrix(This.SubMatrix(panRows, panCols))
 
 	# Replaces a specific column with a given list
 
-	def ReplaceCol(pnCol, paNewColumn)
+	def ReplaceCol(pnCol, paNewCol)
 
-		if len(paNewColumn) != @nRows
+		if len(paNewCol) != @nRows
 			raise("Column replacement must match matrix rows")
 		ok
 		
 		for i = 1 to @nRows
-			@aMatrix[i][pnCol] = paNewColumn[i]
+			@aMatrix[i][pnCol] = paNewCol[i]
+		next
+
+	# Replace multiple columns
+
+	def ReplaceCols(panCols, paNewCols)
+
+		nLenCols = len(panCols)
+
+		if nLenCols != len(paNewCols)
+			raise("Number of columns to replace must match new columns")
+		ok
+
+		for k = 1 to nLenCols
+
+			nCol = panCols[k]
+
+			if len(paNewCols[k]) != @nRows
+				raise("Replacement column must match matrix rows")
+			ok
+
+			for i = 1 to @nRows
+				@aMatrix[i][nCol] = paNewCols[k][i]
+			next
+		next
+
+	# Replace a specific row
+
+	def ReplaceRow(pnRow, paNewRow)
+
+		if len(paNewRow) != @nCols
+			raise("New row must match matrix columns")
+		ok
+
+		@aMatrix[pnRow] = paNewRow
+
+	# Replace multiple rows
+
+	def ReplaceRows(panRows, paNewRows)
+
+		nLenRows = len(panRows)
+
+		if nLenRows != len(paNewRows)
+			raise("Number of rows to replace must match new rows")
+		ok
+
+		for k = 1 to nLenRows
+
+			nRow = panRows[k]
+
+			if len(paNewRows[k]) != @nCols
+				raise("Replacement row must match matrix columns")
+			ok
+
+			@aMatrix[nRow] = paNewRows[k]
 		next
 
 	  #-----------------------------#
@@ -407,6 +547,21 @@ class stzMatrix
 
 		for i = 1 to nMin
 			aDiagonal + @aMatrix[i][i]
+		next
+
+		return aDiagonal
+
+		func Diagonal1()
+
+	# Secondary diagonal elements
+
+	def Diagonal2()
+
+		nMin = @min([@nRows, @nCols])
+		aDiagonal = []
+
+		for i = 1 to nMin
+			aDiagonal + @aMatrix[i][@nCols - i + 1]
 		next
 
 		return aDiagonal
@@ -485,79 +640,79 @@ class stzMatrix
 
 		# Check determinant
 
-	nDet = This.Determinant()
+		nDet = This.Determinant()
 
-	if nDet = 0
-		raise("Matrix is not invertible (determinant is zero)")
-	ok
+		if nDet = 0
+			raise("Matrix is not invertible (determinant is zero)")
+		ok
 
-	# Create augmented matrix with identity
+		# Create augmented matrix with identity
 
-	aAugmented = []
+		aAugmented = []
 
-	for i = 1 to @nRows
-
-		aRow = []
-
-		for j = 1 to @nCols
-			aRow + @aMatrix[i][j]
+		for i = 1 to @nRows
+	
+			aRow = []
+	
+			for j = 1 to @nCols
+				aRow + @aMatrix[i][j]
+			next
+	
+			for j = 1 to @nCols
+				if j = i
+					aRow + 1
+				else
+					aRow + 0
+				ok
+			next
+	
+			aAugmented + aRow
 		next
 
-		for j = 1 to @nCols
-			if j = i
-				aRow + 1
-			else
-				aRow + 0
-			ok
+		# Gaussian elimination
+	
+		for i = 1 to @nRows
+	
+			# Find pivot
+	
+			nPivot = aAugmented[i][i]
+			nTwice = 2*@nCols
+	
+			for j = i to nTwice
+				aAugmented[i][j] /= nPivot
+			next
+	
+			# Eliminate other rows
+	
+			for k = 1 to @nRows
+	
+				if k != i
+	
+					nFactor = aAugmented[k][i]
+	
+					for j = i to nTwice
+						aAugmented[k][j] -= nFactor * aAugmented[i][j]
+					next
+				ok
+			next
 		next
 
-		aAugmented + aRow
-	next
-
-	# Gaussian elimination
-
-	for i = 1 to @nRows
-
-		# Find pivot
-
-		nPivot = aAugmented[i][i]
-		nTwice = 2*@nCols
-
-		for j = i to nTwice
-			aAugmented[i][j] /= nPivot
+		# Extract inverse matrix
+	
+		aInverse = []
+	
+		for i = 1 to @nRows
+	
+			aRow = []
+	
+			for j = @nCols + 1 to nTwice
+				aRow + aAugmented[i][j]
+			next
+	
+			aInverse + aRow
 		next
-
-		# Eliminate other rows
-
-		for k = 1 to @nRows
-
-			if k != i
-
-				nFactor = aAugmented[k][i]
-
-				for j = i to nTwice
-					aAugmented[k][j] -= nFactor * aAugmented[i][j]
-				next
-			ok
-		next
-	next
-
-	# Extract inverse matrix
-
-	aInverse = []
-
-	for i = 1 to @nRows
-
-		aRow = []
-
-		for j = @nCols + 1 to nTwice
-			aRow + aAugmented[i][j]
-		next
-
-		aInverse + aRow
-	next
-
-	@aMatrix = aInverse
+	
+		@aMatrix = aInverse
 
 	  #-----------------------------#
 	 # Visualization of the matrix #
@@ -621,3 +776,10 @@ class stzMatrix
 		# Bottom border
 
 		see "└" + copy(" ", nTotalWidth) + "┘" + nl
+
+	#< @FunctionMisspelledForm
+
+	def Shwo()
+		return Show()
+
+	#>
