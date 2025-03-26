@@ -454,28 +454,41 @@ class stzMatrix
 
 	# Creates a submatrix by extracting specific rows and columns
 
-	def SubMatrix(panRows, panCols)
+	def SubMatrix(panStart, panEnd)
 
-		aSubMatrix = []
-		nLenRows = len(panRows)
-		nLenCols = len(panCols)
+		if CheckParams()
 
-		for i = 1 to nLenRows
+			if NOT (isList(panStart) and len(panStart) = 2 and
+				isNumber(panStart[1]) and isNumber(panStart[2]))
+	
+				stzraise("Incorrect param type! panStart must be a pair of numbers.")
+			ok
 
-			aSubRow = []
+			if NOT (isList(panEnd) and len(panEnd) = 2 and
+				isNumber(panEnd[1]) and isNumber(panEnd[2]))
+	
+				stzraise("Incorrect param type! panEnd must be a pair of numbers.")
+			ok
+		ok
 
-			for j = 1 to nLenCols
-				aSubRow + @aMatrix[panRows[i]][panCols[i]]
+		aResult = []
+
+		for i = panStart[1] to panEnd[1]
+			aRow = []
+			for j = panStart[2] to panEnd[2]
+				aRow + @aMatrix[i][j]
 			next
 
-			aSubMatrix + aSubRow
-
+			aResult + aRow
 		next
 
-		return aSubMatrix
+		return aResult
 
-		def SubMatrixQ(panRows, panCols)
-			return new stzMatrix(This.SubMatrix(panRows, panCols))
+		def SubMatrixQ(panStart, panEnd)
+			return new stzMatrix(This.SubMatrix(panStart, panEnd))
+
+		def Section(panStart, panEnd)
+			return SubMatrix(panStart, panEnd)
 
 	# Replaces a specific column with a given list
 

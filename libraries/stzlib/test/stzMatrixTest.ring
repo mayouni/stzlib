@@ -70,15 +70,29 @@ o1.Show() + NL
 
 # Submatrix extraction
 
-o1.SubMatrixQ([1,3], [1,3]).Show() + NL
+o1.SubMatrixQ([ 1 , 1 ], [ 3, 2 ]).Show() + NL
+#-->
+# ┌       ┐
+# │ 14 20 │
+# │ 14 20 │
+# │ 17 23 │
+# └       ┘
 
 # Diagonal extraction
+
 ? @@( o1.Diagonal() ) + NL
+#--> [ 14, 20, 19 ]
 
 # Column replacement
 
-o1.ReplaceCol(2, [100, 200, 300])
+o1.ReplaceCol(2, :By = [ 100, 200, 300 ])
 o1.Show()
+#-->
+# ┌           ┐
+# │ 14 100 16 │
+# │ 14 200 16 │
+# │ 17 300 19 │
+# └           ┘
 
 pf()
 
