@@ -97,7 +97,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Multiplying two matrices
-*/
+
 pr()
 
 o1 = new stzMatrix([
@@ -111,8 +111,49 @@ o1.MultiplyBy([
     [ 11, 12 ]
 ])
 
-
 o1.Show()
-
+#-->
+# ┌         ┐
+# │  58  64 │
+# │ 139 154 │
+# └         ┘
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- 2x2 Matrix Determinant
+
+pr()
+
+o1 = new stzMatrix([
+    [4, 7],
+    [2, 6]
+])
+
+? o1.Determinant()
+#--> 10
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- 3x3 Matrix Inversion
+*/
+pr()
+
+o1 = new stzMatrix([
+    [1, 2, 3],
+    [0, 1, 4],
+    [5, 6, 0]
+])
+
+o1.Inverse()
+o1.Show()
+#-->
+# ┌            ┐
+# │ -24  18  5 │
+# │  20 -15 -4 │
+# │  -5   4  1 │
+# └            ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22

@@ -23,6 +23,9 @@ load "fastpro.ring"
 
 #--
 
+func StzMatrixQ(paMatrix)
+	return new stzMatrix(paMatrix)
+
 # Global matrix creation functions
 
 func Diagonal1Matrix(paValues)
@@ -412,19 +415,149 @@ class stzMatrix
 	 # Advanced Calculations #
 	#-----------------------#
 
-	func Determinant()
+	# Recursive method for calculating determinant
+	# ~> Efficient up to ~10x10 matrices
 
-		# Implement determinant calculation
-		# This requires recursive or iterative methods
+	def Determinant()
 
-		stzraise("Not yet implemented!")
+		# Only handle square matrices
 
-	func Inverse()
+		if @nRows != @nCols
+			raise("Determinant is only defined for square matrices")
+		ok
 
-		# Implement matrix inversion
-		# Requires sophisticated linear algebra
+		# Base cases
 
-		stzraise("Not yet implemented!")
+		if @nRows = 1
+			return @aMatrix[1][1]
+		ok
+
+		if @nRows = 2
+
+			return  @aMatrix[1][1] * @aMatrix[2][2] - 
+				@aMatrix[1][2] * @aMatrix[2][1]
+		ok
+
+		# Recursive calculation for larger matrices
+
+		nDeterminant = 0
+		nSign = 1
+
+		for j = 1 to @nCols
+
+			# Create submatrix
+
+			aSubMatrix = []
+
+			for k = 2 to @nRows
+
+				aRow = []
+
+				for l = 1 to @nCols
+					if l != j
+						aRow + @aMatrix[k][l]
+					ok
+				next
+
+				aSubMatrix + aRow
+			next
+
+			# Recursive determinant calculation
+
+			nDeterminant += nSign * @aMatrix[1][j] * 
+                        		StzMatrixQ(aSubMatrix).Determinant()
+
+			nSign *= -1
+		next
+
+		return nDeterminant
+
+	# Simple Gaussian elimination for matrix inversion
+	# ~> Reliable up to ~50x50 matrices
+
+	def Inverse()
+
+		# Only handle square matrices
+
+		if @nRows != @nCols
+			raise("Inverse is only defined for square matrices")
+		ok
+
+		# Check determinant
+
+	nDet = This.Determinant()
+
+	if nDet = 0
+		raise("Matrix is not invertible (determinant is zero)")
+	ok
+
+	# Create augmented matrix with identity
+
+	aAugmented = []
+
+	for i = 1 to @nRows
+
+		aRow = []
+
+		for j = 1 to @nCols
+			aRow + @aMatrix[i][j]
+		next
+
+		for j = 1 to @nCols
+			if j = i
+				aRow + 1
+			else
+				aRow + 0
+			ok
+		next
+
+		aAugmented + aRow
+	next
+
+	# Gaussian elimination
+
+	for i = 1 to @nRows
+
+		# Find pivot
+
+		nPivot = aAugmented[i][i]
+		nTwice = 2*@nCols
+
+		for j = i to nTwice
+			aAugmented[i][j] /= nPivot
+		next
+
+		# Eliminate other rows
+
+		for k = 1 to @nRows
+
+			if k != i
+
+				nFactor = aAugmented[k][i]
+
+				for j = i to nTwice
+					aAugmented[k][j] -= nFactor * aAugmented[i][j]
+				next
+			ok
+		next
+	next
+
+	# Extract inverse matrix
+
+	aInverse = []
+
+	for i = 1 to @nRows
+
+		aRow = []
+
+		for j = @nCols + 1 to nTwice
+			aRow + aAugmented[i][j]
+		next
+
+		aInverse + aRow
+	next
+
+	@aMatrix = aInverse
 
 	  #-----------------------------#
 	 # Visualization of the matrix #
@@ -488,6 +621,3 @@ class stzMatrix
 		# Bottom border
 
 		see "└" + copy(" ", nTotalWidth) + "┘" + nl
-
-
-
