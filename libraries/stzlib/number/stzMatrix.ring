@@ -153,6 +153,9 @@ class stzMatrix
 	def Content()
 		return @aMatrix
 
+	def Copy()
+		return new stzMatrix(@aMatrix)
+
 	# Matrix Structure Queries
 
 	def Rows()
@@ -179,7 +182,7 @@ class stzMatrix
 
 		# Using RingFastPro
 
-		updateList(@aMatrix, :add, :items, pnValue)
+		updateList(@aMatrix, :add, :manyrows, 1, @nRows, pnValue)
 
 		# Innstead of this:
 
@@ -268,9 +271,15 @@ class stzMatrix
 			return
 		ok
 
-		# Using RingFastPro
+		for i = 1 to @nRows
+			for j = 1 to @nCols
+				@aMatrix[i][j] *= pnValue
+			next
+		next
 
-		updateList(@aMatrix, :mul, :items, pnValue)
+		def MultiplyByQ(pnValue)
+			This.MultiplyBy(pnValue)
+			return This
 
 	# Multiply a specific column by a value
 
@@ -714,6 +723,58 @@ class stzMatrix
 	
 		@aMatrix = aInverse
 
+
+	# Computes the difference between adjacent elements in the matrix
+
+	def Diff()
+
+		aResult = []
+		
+		for i = 1 to @nRows
+
+			rowDiffs = []
+
+			for j = 2 to @nCols
+				rowDiffs + (@aMatrix[i][j] - @aMatrix[i][j-1])
+			next
+
+			aResult + rowDiffs
+
+		next
+
+		return aResult
+
+	# Subtracts the mean of each row from its respective elements
+
+	def SubMean()
+
+		aResult = []
+		
+		for i = 1 to @nRows
+	
+			rowMean = @Mean(@aMatrix[i])
+	
+			rowAdjusted = []
+	
+			for j = 1 to @nCols
+				rowAdjusted + (@aMatrix[i][j] - rowMean)
+			next
+	
+			aResult + rowAdjusted
+		next
+	
+		@aMatrix = aResult
+
+		def SubMeanQ()
+			This.SubMean()
+			return This
+
+		def SubtractMean()
+			This.SubMean()
+
+			def SubtractMeanQ()
+				return This.SubMeanQ()
+
 	  #-----------------------------#
 	 # Visualization of the matrix #
 	#-----------------------------#
@@ -735,17 +796,23 @@ class stzMatrix
 			anColWidths + 0
 		next
 
+		# Determine max width considering formatted numbers
+
 		for j = 1 to @nCols
 
 			nMaxWidth = 0
 
 			for i = 1 to @nRows
 
-				nWidth = len("" + @aMatrix[i][j])
+				# Format number to remove unnecessary decimals
+
+				cFormattedNum = _FormatNumber(@aMatrix[i][j])
+				nWidth = len(cFormattedNum)
 
 				if nWidth > nMaxWidth
 					nMaxWidth = nWidth
 				ok
+
 			next
 
 			anColWidths[j] = nMaxWidth
@@ -757,7 +824,7 @@ class stzMatrix
 
 		# Top border
 
-		see "┌" + copy(" ", nTotalWidth) + "┐" + nl
+		see "┌" + ring_copy(" ", nTotalWidth) + "┐" + NL
 
 		# Matrix content
 
@@ -766,20 +833,51 @@ class stzMatrix
 			see "│ "
 
 			for j = 1 to @nCols
-				# Left-pad numbers with spaces to align them properly
-				see copy(" ", anColWidths[j] - len("" + @aMatrix[i][j])) + @aMatrix[i][j] + " "
+
+				# Format and left-pad numbers
+
+				cFormattedNum = _FormatNumber(@aMatrix[i][j])
+				see ring_copy(" ", anColWidths[j] - len(cFormattedNum)) + cFormattedNum + " "
+
 			next
 
-			see "│" + nl
+			see "│" + NL
 		next
 
 		# Bottom border
 
-		see "└" + copy(" ", nTotalWidth) + "┘" + nl
+		see "└" + ring_copy(" ", nTotalWidth) + "┘" + nl
 
-	#< @FunctionMisspelledForm
+		#< @FunctionMisspelledForm
 
-	def Shwo()
-		return Show()
+		def Shwo()
+			return Show()
 
-	#>
+		#>
+
+	# Helper function to format numbers
+
+	def _FormatNumber(pnNum)
+
+		# Convert to string, removing trailing zeros after decimal
+
+		cNum = "" + pnNum
+
+		# If decimal point exists
+
+		if ring_substr1(cNum, ".") > 0
+
+			# Remove trailing zeros
+
+			while cNum[len(cNum)] = "0"
+				cNum = left(cNum, len(cNum) - 1)
+			end
+
+			# Remove trailing decimal point if it's the last character
+
+			if cNum[len(cNum)] = "."
+				cNum = left(cNum, len(cNum) - 1)
+			ok
+		ok
+
+		return cNum
