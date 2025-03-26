@@ -1410,10 +1410,10 @@ func PrimesUnderIB(n)
 	func PrimesUnderIBQQ(n)
 		return new stzListOfNumbers(PrimesUnderIB(n))
 
-def IsListOfNonZeroPositiveNumbers(paList)
+func IsListOfNonZeroPositiveNumbers(paList)
 
 	if CheckParams()
-		if NOT isString(paList)
+		if NOT isList(paList)
 			stzraise("Incorrect param type! paList must be a list of numbers.")
 		ok
 	ok
@@ -1426,7 +1426,7 @@ def IsListOfNonZeroPositiveNumbers(paList)
 	bResult = _TRUE_
 
 	for i = 1 to nLen
-		if NOT ( isNumber(paList) and paList[i] > 0 )
+		if NOT ( isNumber(paList[i]) and paList[i] > 0 )
 			bResult = _FALSE_
 			exit
 		ok
@@ -1434,8 +1434,14 @@ def IsListOfNonZeroPositiveNumbers(paList)
 
 	return bResult
 
-	func IsListOfStrictlyPositiveNumbers()
-		return IsListOfNonZeroPositiveNumbers()
+	func IsListOfStrictlyPositiveNumbers(paList)
+		return IsListOfNonZeroPositiveNumbers(paList)
+
+	func @IsListOfNonZeroPositiveNumbers(paList)
+		return IsListOfNonZeroPositiveNumbers(paList)
+
+	func @IsListOfStrictlyPositiveNumbers(paList)
+		return IsListOfNonZeroPositiveNumbers(paList)
 
   ////////////////
  ///  CLASS   ///
