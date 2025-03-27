@@ -197,11 +197,11 @@ FastProUpdate(aImage, [
 	:Multiply = [ :Col = 2, :By = 0.59, :ToCol = 1 ],    	# G *= 0.59
 	:Multiply = [ :Col = 3, :By = 0.11, :ToCol = 1 ],    	# B *= 0.11
 
-        :Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ],    	# R += G
-      	:Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ], 	# R += B
+        :Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ],    		# R += G
+      	:Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ], 		# R += B
 
-        :Copy  = [ :Row = 1, :ToRow = 3],    	# G = R (grayscale)
-     	:Copy  = [ :Col = 1, :toCol = 2]       	# B = R (grayscale)
+        :Copy  = [ :Row = 1, :ToRow = 3],    			# G = R (grayscale)
+     	:Copy  = [ :Col = 1, :toCol = 2]       			# B = R (grayscale)
 
 ])
     
