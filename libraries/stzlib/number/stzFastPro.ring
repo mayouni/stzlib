@@ -26,7 +26,16 @@ func FastProUpdate(paList, paCommands)
 
 	# And then it evaluates that string to call FastPro dynamically
 
-	# Semantic enhancement
+	# if a 1D list is provided, wrap it in a list container, so it
+	# can be processed normally with the rest of the code (made for
+	# a list of lists of number, i.e. a 2D list)
+
+	if isList(paList) and IsListofNumbers(paList)
+		aTemp = [] + paList
+		paList = aTemp
+	ok
+
+	# Ensuring the command is contained in a hashlist
 
 	if isList(paCommands) and len(paCommands) = 2 and
 	   isString(paCommands[1]) and isList(paCommands[2])
@@ -34,6 +43,8 @@ func FastProUpdate(paList, paCommands)
 		aTemp = [] + paCommands
 		paCommands = aTemp
 	ok
+
+	# Doing the job
 
 	nLen = len(paCommands)
 
@@ -43,17 +54,18 @@ func FastProUpdate(paList, paCommands)
 
 		on :Set
 
-			# Case: FastProUpdate(aMatrix, :Set = [ :Items, :With = 5 ])
+			# Case: FastProUpdate(aMatrix, :Set = [ :All, :With = 5 ])
 
-			if isList(pacommands[i][2]) and len(paCommands[i][2]) = 2 and
-			   isString(paCommands[i][2][1]) and paCommands[i][2][1] = :Items and
+			if isList(pacommands[i][2]) and len(paCommands[i][2]) = 1 and
 
-			   isList(paCommands[i][2][2]) and len(paCommands[i][2][2]) = 2 and
-			   isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :With and
+			   isString(paCommands[i][2][1][1]) and paCommands[i][2][1][1] = :All and
 
-			   isNumber(paCommands[i][2][2][2])
+			   isList(paCommands[i][2][1][2]) and len(paCommands[i][2][1][2]) = 2 and
+			   isString(paCommands[i][2][1][2][1]) and paCommands[i][2][1][2][1] = :With and
 
-				updateList(paList, :set, :items, paCommands[i][2][2][2])
+			   isNumber(paCommands[i][2][1][2][2])
+
+				updateList(paList, :set, :manyrows, 1, len(paList), paCommands[i][2][1][2][2])
 				return paList
 
 			# Case: FastProUpdate(aMatrix, :Set = [ :Row = 1, :With = 5 ]) or
@@ -192,6 +204,24 @@ func FastProUpdate(paList, paCommands)
 			updateList(paList, :copy, cColOrRow, n1, n2)
 			return paList
 
+		on :Add
+
+			# Case: FastProUpdate(aMatrix, :Add = [ 8, :ToColsFrom = [1, :To = 2] ])
+			Lx = Lx('[ @N, [ @S, [ @N, [ @S, @N] ] ] ]')
+?			Lx.Match(paCommands[i][2])
+
+//? @@NL( Lx.MatchesXT() )
+#--> [
+#	[ @N, 8 ],
+#	[ @S, "add" ],
+#	[ @N, 8 ],
+#	[ @S, "tocolsfrom" ],
+#	[ @L   
+
+
+
+stop()
+
 		on :Multiply
 
 			if isList(paCommands[i][2]) and len(paCommands[i][2]) = 2 and
@@ -280,6 +310,11 @@ func FastProUpdate(paList, paCommands)
 
 	next
 
+	# If the execution flow reatches this point, then what
+	# was provided is a list of commands that we should
+	# contruct dynamicall and feed to updateColumn() from
+	# RingFastPro for execution.
+
 	# Construct the updateColumn call dynamically
 	cCode = "updateColumn(paList"
     
@@ -310,6 +345,7 @@ func FastProUpdate(paList, paCommands)
 
 
 func FastProUpdateList(paList, pcCommand, pcSelection, panValues)
+
 
 	if isNumber(panValues)
 		updateList(paList, pcCommand, pcSelection, panValues)
