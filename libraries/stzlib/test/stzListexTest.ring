@@ -1,7 +1,47 @@
 load "../max/stzmax.ring"
 
-#=======================================================#
-#   LISTEX -  SOFTANZA LIST REGEX ENGINE - TEST SUITE   #
+/*====================================#
+#   LISTEX - TESTING MATCHES CAPTURE  #
+#=====================================#
+
+/*---
+
+pr()
+
+# [ 8, [ "tocolsfrom", [ 1, [ "to", 2 ] ] ] ]
+# [ @N, [ @S, [ @N, [ @S, @N ] ] ] ]
+oStr = new stzString(@@([ 8, [ "tocolsfrom", [ 1, [ "to", 2 ] ] ] ]))
+acValues = ( oStr.RemoveManyQ([ "[ ", " ]" ]).Split(", ") )
+nLenVal = len(acValues)
+aValues = []
+for i = 1 to nLenVal
+	cCode = 'val = ' + acValues[i]
+	eval(cCode)
+	aValues + val
+next
+
+? @@NL(aValues)
+
+/*--- GETTING MATCHED VALUES AFTER MATHCH IS DONE
+*/
+pr()
+
+Lx = Lx('[ @N, [ @S, [ @N, [ @S, @N ] ] ] ]')
+
+? Lx.Match([ 8, :ToColsFrom = [1, :To = 2] ])
+#--> TRUE
+
+? @@( Lx.Matches() ) + NL
+#--> [ 8, "tocolsfrom", 1, "to", 2 ]
+
+? @@NL( Lx.MatchesXT() )
+#--> [ [ "@N", 8 ], [ "@S", "tocolsfrom" ], [ "@N", 1 ], [ "@S", "to" ], [ "@N", 2 ] ]
+
+
+pf()
+
+/*======================================================#
+#   LISTEX - AUTOMATED TEST SUITE FOR PATTERN MATCHING  #
 #=======================================================#
 
 pr()
@@ -56,8 +96,8 @@ TestPattern("[@N, @N, @S]", [
 	[1, 2, 3], "FALSE"
 ])
 
-/*---
-*/
+#---
+
 ? ""
 ? "#-----------------------------------------#"
 ? "#  TEST GROUP 2: Pattern With Quantifier  #"
@@ -109,8 +149,8 @@ TestPattern("[@N2, @S+]", [
 	[1, "hello"], "FALSE"
 ])
 
-/*---
-*/
+#---
+
 ? ""
 ? "#------------------------------------------------#"
 ? "#  TEST GROUP 3: Set Selection Pattern Matching  #"
@@ -150,8 +190,8 @@ TestPattern("[@N+{1; 2; 3}]", [
 	[1, 4], "FALSE"
 ])
 
-/*---
-*/
+#---
+
 ? ""
 ? "#----------------------------------------------#"
 ? "#  TEST GROUP 4: Complex Pattern Combinations  #"
@@ -184,8 +224,8 @@ TestPattern('[ @N+{1; 2; 3}, @S{"hello"; "world"}, @L? ]', [
     [1, "hello", [1], [2]], "FALSE"
 ])
 
-/*---
-*/
+#---
+
 ? ""
 ? "#-----------------------------------------------#"
 ? "#  TEST GROUP 5: Edge Cases and Error Handling  #"
@@ -226,8 +266,8 @@ TestPattern("[@N, @S, @L, @$]", [
 	[1, "hello", [1, 2]], "FALSE"
 ])
 
-/*---
-*/
+#---
+
 ? ""
 ? "#-------------------------------------------#"
 ? "#  TEST GROUP 6: Negation Pattern Matching  #"
@@ -257,9 +297,8 @@ TestPattern("[@N, @!N]", [
 	[ "hello", 10 ], "FALSE"
 ])
 
+#---
 
-/*---
-*/
 ? ""
 ? "#----------------------------------------------#"
 ? "#  TEST GROUP 7: Alternation Pattern Matching  #"
@@ -292,8 +331,8 @@ TestPattern("[ @N|@S, @!S ]", [
 	[ "hello", 10 ], "TRUE"
 ])
 
-/*---
-*/
+#---
+
 ? ""
 ? "#---------------------------------#"
 ? "#  TEST GROUP 8: NESTED PATTERNS  #"
@@ -337,8 +376,8 @@ TestPattern("[@N, [@N+], @N]", [
 	[1, [10], 5], "TRUE"  # (at least one number in nested list)
 ])
 
-/*---
-*/
+#---
+
 ? ""
 ? "#---------------------------------------#"
 ? "#  TEST GROUP 9: STEPPED RANGE PATTERN  #"
@@ -437,9 +476,8 @@ TestPattern("[@!N{2-12:3}]", [
 # - For negated tokens, uniqueness tracking is less relevant since we're matching what's NOT in the set
 # - Uniqueness constraints are now only applied to non-negated tokens where appropriate
 
-
-
 pf()
+# Executed in 3.71 second(s) in Ring 1.22
 
 /*=======================#
 #  TEST HELPER FUNCTION  #

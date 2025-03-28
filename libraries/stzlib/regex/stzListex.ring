@@ -34,6 +34,8 @@ class stzListex
 	@cSteppedRangePattern = '^(\{(\d+)-(\d+):(\d+)\})'
 	@cSteppedRangeUniquePattern = '^(\{(\d+)-(\d+):(\d+)\})U'
 
+	@aList = []
+
 	  #-------------------#
 	 #  INITIALIZATION   #
 	#-------------------#
@@ -713,6 +715,7 @@ class stzListex
 
 		try
 			bResult = This.MatchTokensToElements(@aTokens, aElements)
+			@aList = paList
 			return bResult
 
 		catch
@@ -1155,9 +1158,47 @@ class stzListex
 			return cValue
 		off
 
-	  #---------------------------#
-	 #     DEBUG METHODS         #
-	#---------------------------#
+	  #--------------------------------#
+	 #  CAOTURING THE MATCHED VALUES  #
+	#--------------------------------#
+
+	def MatchesXT()
+
+		oStr = new stzString(@@(This.List()))
+		acValues = ( oStr.RemoveManyQ([ "[ ", " ]" ]).Split(", ") )
+		nLen = len(acValues)
+
+		aValues = []
+
+		for i = 1 to nLen
+			cCode = 'val = ' + acValues[i]
+			eval(cCode)
+			aValues + val
+		next
+		
+		aResult = @Association([ This.Keywords(), aValues ])
+
+		return aResult
+
+	def Matches()
+
+		oStr = new stzString(@@(This.List()))
+		acValues = ( oStr.RemoveManyQ([ "[ ", " ]" ]).Split(", ") )
+		nLen = len(acValues)
+
+		aResult = []
+
+		for i = 1 to nLen
+			cCode = 'val = ' + acValues[i]
+			eval(cCode)
+			aResult + val
+		next
+
+		return aResult
+
+	  #-----------------#
+	 #  DEBUG METHODS  #
+	#-----------------#
 
 	def EnableDebug()
 
@@ -1183,3 +1224,22 @@ class stzListex
 
 		def TokensXT()
 			return This.Tokens()
+
+	def Keywords()
+
+		oStr = new stzString(This.Pattern())
+		acKeys = ( oStr.RemoveManyQ([ "[ ", " ]" ]).Split(", ") )
+		nLen = len(acKeys)
+
+		acResult = []
+
+		for i = 1 to nLen
+			cCode = 'cKey = "' + acKeys[i] + '"'
+			eval(cCode)
+			acResult + cKey
+		next
+
+		return acResult
+
+	def List()
+		return @aList
