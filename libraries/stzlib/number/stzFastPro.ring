@@ -2,10 +2,12 @@
 
 load "fastpro.ring"
 
-#-- Wrappers for FastPro functions
+#-- Wrappers and semantic simplifiers for FastPro functions
 
 # pcCommand could be :set, :add, :sub, :mul, :div, :rem, :pow, :serial, :merge and :copy
 # pccSelection could be :col, :row, :manycols, :manyrows and :items
+
+#TODO: Include the uise of :rem and :pow
 
 func FastProUpdate(paList, paCommands)
 
@@ -67,6 +69,21 @@ func FastProUpdate(paList, paCommands)
 
 				updateList(paList, :set, :manyrows, 1, len(paList), paCommands[i][2][1][2][2])
 				return paList
+
+			# Case: FastProUpdate(aMatrix, :Set = [ :Col = 2, :Step = 2 ])
+
+			but isList(paCommands[i][2]) and len(paCommands[i][2]) = 2 and
+
+			   isList(paCommands[i][2][1]) and len(paCommands[i][2][1]) = 2  and
+			   isString(paCommands[i][2][1][1]) and paCommands[i][2][1][1] = :Col and
+			   isNumber(paCommands[i][2][1][2]) and
+
+			   isList(paCommands[i][2][2]) and len(paCommands[i][2][2]) = 2 and
+			   isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :Step and
+			   isNumber(paCommands[i][2][2][2])
+
+				updateList(paList, :serial, :col, paCommands[i][2][1][2], paCommands[i][2][2][2])
+				return 
 
 			# Case: FastProUpdate(aMatrix, :Set = [ :Row = 1, :With = 5 ]) or
 			#       FastProUpdate(aMatrix, :Set = [ :Col = 1, :With = 5 ])
@@ -150,7 +167,7 @@ func FastProUpdate(paList, paCommands)
 				ok
 
 			else
-				stzraise("Incorrect param type! The command must look like this:" + NL +
+				stzraise("Syntax error! The command must look like this:" + NL +
 					 ":Set = [ :Rows = [ 1, 3], :With = 5 ] or :Set = [ :Cold = [ 1, 3 ], :With = 5 ]")
 			ok
 
@@ -168,7 +185,6 @@ func FastProUpdate(paList, paCommands)
 			   isString(paCommands[i][2][1][1]) and
 			   (paCommands[i][2][1][1] = :Col or paCommands[i][2][1][1] = :Row) and
 			   isNumber(paCommands[i][2][1][2])
-
 
 				if paCommands[i][2][1][1] = :Row
 
@@ -197,7 +213,7 @@ func FastProUpdate(paList, paCommands)
 				ok
 
 			else
-				stzraise("Incorrect param type! The command must look like this:" + NL +
+				stzraise("Syntax error! The command must look like this:" + NL +
 					 ":Copy = [ :Row = 1, :ToRow = 3 ] or :Copy = [ :Col = 1, :ToCol = 3 ]")
 			ok
 
@@ -207,20 +223,88 @@ func FastProUpdate(paList, paCommands)
 		on :Add
 
 			# Case: FastProUpdate(aMatrix, :Add = [ 8, :ToColsFrom = [1, :To = 2] ])
-			Lx = Lx('[ @N, [ @S, [ @N, [ @S, @N] ] ] ]')
-?			Lx.Match(paCommands[i][2])
 
-//? @@NL( Lx.MatchesXT() )
-#--> [
-#	[ @N, 8 ],
-#	[ @S, "add" ],
-#	[ @N, 8 ],
-#	[ @S, "tocolsfrom" ],
-#	[ @L   
+			if isList(paCommands[i][2]) and len(paCommands[i][2]) = 2 and
+			   isNumber(paCommands[i][2][1]) and
 
+			   isList(paCommands[i][2][2]) and len(paCommands[i][2][2]) = 2
 
+			   	if isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :ToColsFrom and
+			   	   isList(paCommands[i][2][2][2]) and len(paCommands[i][2][2][2]) = 2 and
+			   	   isNumber(paCommands[i][2][2][2][1]) and
 
-stop()
+			   	   isList(paCommands[i][2][2][2][2]) and len(paCommands[i][2][2][2][2]) = 2 and
+			   	   isString(paCommands[i][2][2][2][2][1]) and paCommands[i][2][2][2][2][1] = :To and
+			   	   isNumber(paCommands[i][2][2][2][2][2])
+
+					updateList(paList, :add, :manycols,
+						paCommands[i][2][2][2][1], paCommands[i][2][2][2][2][2], paCommands[i][2][1])
+
+					return paList
+
+				but isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :ToRowsFrom and
+			   	   isList(paCommands[i][2][2][2]) and len(paCommands[i][2][2][2]) = 2 and
+			   	   isNumber(paCommands[i][2][2][2][1]) and
+
+			   	   isList(paCommands[i][2][2][2][2]) and len(paCommands[i][2][2][2][2]) = 2 and
+			   	   isString(paCommands[i][2][2][2][2][1]) and paCommands[i][2][2][2][2][1] = :To and
+			   	   isNumber(paCommands[i][2][2][2][2][2])
+
+					updateList(paList, :add, :manyrows,
+						paCommands[i][2][2][2][1], paCommands[i][2][2][2][2][2], paCommands[i][2][1])
+
+					return paList
+
+				ok
+
+			else
+				stzraise("Syntax error! The command must look like this:" + NL +
+					 ":Add = [ 8, :ToColsFrom = [1, :To = 2] ] or :Add = [ 8, :ToRowsFrom = [1, :To = 2] ]")
+
+			ok
+
+		on :Subtract
+
+			# Case: FastProUpdate(aMatrix, :Subtract = [ 8, :FromColsFrom = [1, :To = 2] ])
+
+			if isList(paCommands[i][2]) and len(paCommands[i][2]) = 2 and
+			   isNumber(paCommands[i][2][1]) and
+
+			   isList(paCommands[i][2][2]) and len(paCommands[i][2][2]) = 2
+
+			   	if isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :FromColsFrom and
+			   	   isList(paCommands[i][2][2][2]) and len(paCommands[i][2][2][2]) = 2 and
+			   	   isNumber(paCommands[i][2][2][2][1]) and
+
+			   	   isList(paCommands[i][2][2][2][2]) and len(paCommands[i][2][2][2][2]) = 2 and
+			   	   isString(paCommands[i][2][2][2][2][1]) and paCommands[i][2][2][2][2][1] = :To and
+			   	   isNumber(paCommands[i][2][2][2][2][2])
+
+					updateList(paList, :sub, :manycols,
+						paCommands[i][2][2][2][1], paCommands[i][2][2][2][2][2], paCommands[i][2][1])
+
+					return paList
+
+				but isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :FromRowsFrom and
+			   	   isList(paCommands[i][2][2][2]) and len(paCommands[i][2][2][2]) = 2 and
+			   	   isNumber(paCommands[i][2][2][2][1]) and
+
+			   	   isList(paCommands[i][2][2][2][2]) and len(paCommands[i][2][2][2][2]) = 2 and
+			   	   isString(paCommands[i][2][2][2][2][1]) and paCommands[i][2][2][2][2][1] = :To and
+			   	   isNumber(paCommands[i][2][2][2][2][2])
+
+					updateList(paList, :sub, :manyrows,
+						paCommands[i][2][2][2][1], paCommands[i][2][2][2][2][2], paCommands[i][2][1])
+
+					return paList
+
+				ok
+
+			else
+				stzraise("Syntax error! The command must look like this:" + NL +
+					 ":Subtract = [ 8, :FromColsFrom = [1, :To = 2] ] or :subtract = [ 8, :FromRowsFrom = [1, :To = 2] ]")
+
+			ok
 
 		on :Multiply
 
@@ -233,33 +317,112 @@ stop()
 				paCommands[i][2] + [ :ToCol, paCommands[i][2][1][2] ] 
 			ok
 
-			# Case: FastProUpdate(aMatrix, :Multiply = [ :Col = 1, :By = 0.5 ] or
-			#       FastProUpdate(aMatrix, :Multiply = [ :Col = 1, :By = 0.5, :ToCol = 3 ]
+			# Cases: FastProUpdate(aMatrix, :Multiply = [ :Col = 1, :By = 0.5 ] or
+			#        FastProUpdate(aMatrix, :Multiply = [ :Col = 1, :By = 0.5, :ToCol = 3 ]
 
-			if NOT (isList(paCommands[i][2]) and len(paCommands[i][2]) = 3 and
+			if isList(paCommands[i][2]) and len(paCommands[i][2]) = 3 and
+			   isList(paCommands[i][2][1]) and len(paCommands[i][2][1]) = 2 and
+			   isString(paCommands[i][2][1][1])
+
+				if paCommands[i][2][1][1] = :Col and
+				   isNumber(paCommands[i][2][1][2]) and
+
+				   isList(paCommands[i][2][2]) and len(paCommands[i][2][2]) = 2 and
+				   isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :By and
+				   isNumber(paCommands[i][2][2][2]) and
+
+				   isList(paCommands[i][2][3]) and len(paCommands[i][2][3]) = 2 and
+				   isString(paCommands[i][2][3][1]) and paCommands[i][2][3][1] = :ToCol and
+				   isNumber(paCommands[i][2][3][2])
+
+					nCol = paCommands[i][2][1][2]
+					nVal = paCommands[i][2][2][2]
+					nToCol = paCommands[i][2][3][2]
+		
+					updateList(paList, :mul, :col, nCol, nVal, nToCol)
+					return paList
+
+				ok
+
+			# Case: FastProUpdate(aMatrix, :Multiply = [ :Row = 1, :By = 0.5 ]
+
+			but isList(paCommands[i][2]) and len(paCommands[i][2]) = 2 and
+
+			    isList(paCommands[i][2][1]) and len(paCommands[i][2][1]) = 2 and
+			    isString(paCommands[i][2][1][1]) and paCommands[i][2][1][1] = :Row and
+			    isNumber(paCommands[i][2][1][2]) and
+
+			    isList(paCommands[i][2][2]) and len(paCommands[i][2][2]) = 2 and
+			    isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :By and
+			    isNumber(paCommands[i][2][2][2])
+
+				updateList(paList, :mul, :row, paCommands[i][2][1][2], paCommands[i][2][2][2])
+				return paList
+
+			else
+
+				stzraise("Syntax error! The command must look like this:" + NL +
+					 ":Multiply = [ :Col = 1, :By = 2 ] or :Multiply = [ :Col = 1, :By = 2, :ToCol = 3 ]")
+			ok
+
+		on :Divide
+
+			if isList(paCommands[i][2]) and len(paCommands[i][2]) = 2 and
 
 				isList(paCommands[i][2][1]) and len(paCommands[i][2][1]) = 2 and
 				isString(paCommands[i][2][1][1]) and paCommands[i][2][1][1] = :Col and
-				isNumber(paCommands[i][2][1][2]) and
+				isNumber(paCommands[i][2][1][2])
 
-				isList(paCommands[i][2][2]) and len(paCommands[i][2][2]) = 2 and
-				isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :By and
-				isNumber(paCommands[i][2][2][2]) and
-
-				isList(paCommands[i][2][3]) and len(paCommands[i][2][3]) = 2 and
-				isString(paCommands[i][2][3][1]) and paCommands[i][2][3][1] = :ToCol and
-				isNumber(paCommands[i][2][3][2]) )
-
-				stzraise("Incorrect param type! The command must look like this:" + NL +
-					 ":Multiply = [ :Col = 1, :By = 0.3 ]")
+				paCommands[i][2] + [ :ToCol, paCommands[i][2][1][2] ] 
 			ok
 
-			nCol = paCommands[i][2][1][2]
-			nVal = paCommands[i][2][2][2]
-			nToCol = paCommands[i][2][3][2]
+			# Cases: FastProUpdate(aMatrix, :Divide = [ :Col = 1, :By = 0.5 ] or
+			#        FastProUpdate(aMatrix, :Divide = [ :Col = 1, :By = 0.5, :ToCol = 3 ]
 
-			updateList(paList, :mul, :col, nCol, nVal, nToCol)
-			return paList
+			if isList(paCommands[i][2]) and len(paCommands[i][2]) = 3 and
+			   isList(paCommands[i][2][1]) and len(paCommands[i][2][1]) = 2 and
+			   isString(paCommands[i][2][1][1])
+
+				if paCommands[i][2][1][1] = :Col and
+				   isNumber(paCommands[i][2][1][2]) and
+
+				   isList(paCommands[i][2][2]) and len(paCommands[i][2][2]) = 2 and
+				   isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :By and
+				   isNumber(paCommands[i][2][2][2]) and
+
+				   isList(paCommands[i][2][3]) and len(paCommands[i][2][3]) = 2 and
+				   isString(paCommands[i][2][3][1]) and paCommands[i][2][3][1] = :ToCol and
+				   isNumber(paCommands[i][2][3][2])
+
+					nCol = paCommands[i][2][1][2]
+					nVal = paCommands[i][2][2][2]
+					nToCol = paCommands[i][2][3][2]
+		
+					updateList(paList, :div, :col, nCol, nVal, nToCol)
+					return paList
+
+				ok
+
+			# Case: FastProUpdate(aMatrix, :Divide = [ :Row = 1, :By = 0.5 ]
+
+			but isList(paCommands[i][2]) and len(paCommands[i][2]) = 2 and
+
+			    isList(paCommands[i][2][1]) and len(paCommands[i][2][1]) = 2 and
+			    isString(paCommands[i][2][1][1]) and paCommands[i][2][1][1] = :Row and
+			    isNumber(paCommands[i][2][1][2]) and
+
+			    isList(paCommands[i][2][2]) and len(paCommands[i][2][2]) = 2 and
+			    isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :By and
+			    isNumber(paCommands[i][2][2][2])
+
+				updateList(paList, :div, :row, paCommands[i][2][1][2], paCommands[i][2][2][2])
+				return paList
+
+			else
+
+				stzraise("Syntax error! The command must look like this:" + NL +
+					 ":Multiply = [ :Col = 1, :By = 2 ] or :Multiply = [ :Col = 1, :By = 2, :ToCol = 3 ]")
+			ok
 
 		on :Merge
 
@@ -284,7 +447,7 @@ stop()
 				isString(aValues[2][1]) and aValues[2][1] = :InCol and
 				isNumber(aValues[2][2]) )
 
-				stzraise("Incorrect syntax! The command must look like this:" + NL + 
+				stzraise("Syntax error! The command must look like this:" + NL + 
 					 ":Merge = [ :Cols = [ 1, 3], :InCol = 1 ]")
 			ok
 
