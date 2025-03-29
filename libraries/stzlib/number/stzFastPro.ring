@@ -32,9 +32,22 @@ func FastProUpdate(paList, paCommands)
 	# can be processed normally with the rest of the code (made for
 	# a list of lists of number, i.e. a 2D list)
 
-	if isList(paList) and IsListofNumbers(paList)
-		aTemp = [] + paList
-		paList = aTemp
+	bListOfNumbers = _FALSE_
+
+	_aList_ = paList
+
+	# Case : FastProUpdate(myList, :set = [ :All, :with = 1000 ])
+
+	if isList(_aList_) and IsListOfNumbers(_aList_) and paCommands[1] = :Set and
+	   isList(pacommands[2]) and len(paCommands[2]) = 2 and
+	   isString(paCommands[2][1]) and paCommands[2][1] = :All and
+	   isList(paCommands[2][2]) and len(paCommands[2][2]) = 2 and
+	   isString(paCommands[2][2][1]) and paCommands[2][2][1] = :With and
+	   isNumber(paCommands[2][2][2])
+
+		updateList(paList, :set, :items, paCommands[2][2][2])
+		return paList
+
 	ok
 
 	# Ensuring the command is contained in a hashlist
@@ -46,7 +59,7 @@ func FastProUpdate(paList, paCommands)
 		paCommands = aTemp
 	ok
 
-	# Doing the job
+	# Doing the job: Preparing the calculated list
 
 	nLen = len(paCommands)
 
@@ -56,23 +69,23 @@ func FastProUpdate(paList, paCommands)
 
 		on :Set
 
-			# Case: FastProUpdate(aMatrix, :Set = [ :All, :With = 5 ])
+/*			# Case: FastProUpdate(aMatrix, :Set = [ :All, :With = 5 ])
 
-			if isList(pacommands[i][2]) and len(paCommands[i][2]) = 1 and
+			if isList(pacommands[i][2]) and len(paCommands[i][2]) = 2 and
 
-			   isString(paCommands[i][2][1][1]) and paCommands[i][2][1][1] = :All and
+			   isString(paCommands[i][2][1]) and paCommands[i][2][1] = :All and
 
-			   isList(paCommands[i][2][1][2]) and len(paCommands[i][2][1][2]) = 2 and
-			   isString(paCommands[i][2][1][2][1]) and paCommands[i][2][1][2][1] = :With and
+			   isList(paCommands[i][2][2]) and len(paCommands[i][2][2]) = 2 and
+			   isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :With and
 
-			   isNumber(paCommands[i][2][1][2][2])
+			   isNumber(paCommands[i][2][2][2])
 
-				updateList(paList, :set, :manyrows, 1, len(paList), paCommands[i][2][1][2][2])
-				return paList
-
+				updateList(_aList_, :set, :manyrows, 1, len(_aList_), paCommands[i][2][2][2])
+				return _aList_[1]
+*/
 			# Case: FastProUpdate(aMatrix, :Set = [ :Col = 2, :Step = 2 ])
 
-			but isList(paCommands[i][2]) and len(paCommands[i][2]) = 2 and
+			if isList(paCommands[i][2]) and len(paCommands[i][2]) = 2 and
 
 			   isList(paCommands[i][2][1]) and len(paCommands[i][2][1]) = 2  and
 			   isString(paCommands[i][2][1][1]) and paCommands[i][2][1][1] = :Col and
@@ -82,8 +95,8 @@ func FastProUpdate(paList, paCommands)
 			   isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :Step and
 			   isNumber(paCommands[i][2][2][2])
 
-				updateList(paList, :serial, :col, paCommands[i][2][1][2], paCommands[i][2][2][2])
-				return 
+				updateList(_aList_, :serial, :col, paCommands[i][2][1][2], paCommands[i][2][2][2]) 
+				return _aList_
 
 			# Case: FastProUpdate(aMatrix, :Set = [ :Row = 1, :With = 5 ]) or
 			#       FastProUpdate(aMatrix, :Set = [ :Col = 1, :With = 5 ])
@@ -123,8 +136,8 @@ func FastProUpdate(paList, paCommands)
 
 				ok
 
-				updateList(paList, :set, cColOrRow, nColOrRow, nValue)
-				return paList
+				updateList(_aList_, :set, cColOrRow, nColOrRow, nValue)
+				return _aList_
 
 			# Case: FastProUpdate(aMatrix, :Set = [ :Rows = [ 1, 3 ], :With = 5 ]) or
 			#       FastProUpdate(aMatrix, :Set = [ :Cols = [ 1, 3 ], :With = 5 ])
@@ -137,18 +150,18 @@ func FastProUpdate(paList, paCommands)
 			   (paCommands[i][2][1][1] = :Rows or paCommands[i][2][1][1] = :Cols) and
 			   isPairOfNumbers(paCommands[i][2][1][2])
 
-
 				if paCommands[i][2][1][1] = :Rows
 
 					if isList(paCommands[i][2][2]) and len(paCommands[i][2][2]) = 2 and
 					   isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :With and
 					   isNumber(paCommands[i][2][2][2])
 
-						cColsOrRows = :manyrows
 						nStart = paCommands[i][2][1][2][1]
 						nEnd   = paCommands[i][2][1][2][2]
 						nValue = paCommands[i][2][2][2]
 
+						updateList(_aList_, :set, :manyrows, nStart, nEnd, nValue)
+						return _aList_
 					ok
 
 				else # paCommands[i][2][1][1] = :Cols
@@ -157,11 +170,12 @@ func FastProUpdate(paList, paCommands)
 					   isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :With and
 					   isNumber(paCommands[i][2][2][2])
 
-						cColsOrRows = :manycols
 						nStart = paCommands[i][2][1][2][1]
 						nEnd   = paCommands[i][2][1][2][2]
 						nValue = paCommands[i][2][2][2]
 
+						updateList(_aList_, :set, :manycols, nStart, nEnd, nValue)
+						return _aList_
 					ok
 
 				ok
@@ -170,9 +184,6 @@ func FastProUpdate(paList, paCommands)
 				stzraise("Syntax error! The command must look like this:" + NL +
 					 ":Set = [ :Rows = [ 1, 3], :With = 5 ] or :Set = [ :Cold = [ 1, 3 ], :With = 5 ]")
 			ok
-
-			updateList(paList, :set, cColsOrRows, nStart, nEnd, nValue)
-			return paList
 
 		on :Copy
 
@@ -217,8 +228,8 @@ func FastProUpdate(paList, paCommands)
 					 ":Copy = [ :Row = 1, :ToRow = 3 ] or :Copy = [ :Col = 1, :ToCol = 3 ]")
 			ok
 
-			updateList(paList, :copy, cColOrRow, n1, n2)
-			return paList
+			updateList(_aList_, :copy, cColOrRow, n1, n2)
+			return _aList_
 
 		on :Add
 
@@ -237,10 +248,9 @@ func FastProUpdate(paList, paCommands)
 			   	   isString(paCommands[i][2][2][2][2][1]) and paCommands[i][2][2][2][2][1] = :To and
 			   	   isNumber(paCommands[i][2][2][2][2][2])
 
-					updateList(paList, :add, :manycols,
+					updateList(_aList_, :add, :manycols,
 						paCommands[i][2][2][2][1], paCommands[i][2][2][2][2][2], paCommands[i][2][1])
-
-					return paList
+					return _aList_
 
 				but isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :ToRowsFrom and
 			   	   isList(paCommands[i][2][2][2]) and len(paCommands[i][2][2][2]) = 2 and
@@ -250,11 +260,9 @@ func FastProUpdate(paList, paCommands)
 			   	   isString(paCommands[i][2][2][2][2][1]) and paCommands[i][2][2][2][2][1] = :To and
 			   	   isNumber(paCommands[i][2][2][2][2][2])
 
-					updateList(paList, :add, :manyrows,
+					updateList(_aList_, :add, :manyrows,
 						paCommands[i][2][2][2][1], paCommands[i][2][2][2][2][2], paCommands[i][2][1])
-
-					return paList
-
+					return _aList_
 				ok
 
 			else
@@ -280,10 +288,9 @@ func FastProUpdate(paList, paCommands)
 			   	   isString(paCommands[i][2][2][2][2][1]) and paCommands[i][2][2][2][2][1] = :To and
 			   	   isNumber(paCommands[i][2][2][2][2][2])
 
-					updateList(paList, :sub, :manycols,
+					updateList(_aList_, :sub, :manycols,
 						paCommands[i][2][2][2][1], paCommands[i][2][2][2][2][2], paCommands[i][2][1])
-
-					return paList
+					return _aList_
 
 				but isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :FromRowsFrom and
 			   	   isList(paCommands[i][2][2][2]) and len(paCommands[i][2][2][2]) = 2 and
@@ -293,11 +300,9 @@ func FastProUpdate(paList, paCommands)
 			   	   isString(paCommands[i][2][2][2][2][1]) and paCommands[i][2][2][2][2][1] = :To and
 			   	   isNumber(paCommands[i][2][2][2][2][2])
 
-					updateList(paList, :sub, :manyrows,
+					updateList(_aList_, :sub, :manyrows,
 						paCommands[i][2][2][2][1], paCommands[i][2][2][2][2][2], paCommands[i][2][1])
-
-					return paList
-
+					return _aList_
 				ok
 
 			else
@@ -339,9 +344,8 @@ func FastProUpdate(paList, paCommands)
 					nVal = paCommands[i][2][2][2]
 					nToCol = paCommands[i][2][3][2]
 		
-					updateList(paList, :mul, :col, nCol, nVal, nToCol)
-					return paList
-
+					updateList(_aList_, :mul, :col, nCol, nVal, nToCol)
+					return _aList_
 				ok
 
 			# Case: FastProUpdate(aMatrix, :Multiply = [ :Row = 1, :By = 0.5 ]
@@ -356,9 +360,8 @@ func FastProUpdate(paList, paCommands)
 			    isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :By and
 			    isNumber(paCommands[i][2][2][2])
 
-				updateList(paList, :mul, :row, paCommands[i][2][1][2], paCommands[i][2][2][2])
-				return paList
-
+				updateList(_aList_, :mul, :row, paCommands[i][2][1][2], paCommands[i][2][2][2])
+				return _aList_
 			else
 
 				stzraise("Syntax error! The command must look like this:" + NL +
@@ -398,9 +401,8 @@ func FastProUpdate(paList, paCommands)
 					nVal = paCommands[i][2][2][2]
 					nToCol = paCommands[i][2][3][2]
 		
-					updateList(paList, :div, :col, nCol, nVal, nToCol)
-					return paList
-
+					updateList(_aList_, :div, :col, nCol, nVal, nToCol)
+					return _aList_
 				ok
 
 			# Case: FastProUpdate(aMatrix, :Divide = [ :Row = 1, :By = 0.5 ]
@@ -415,9 +417,8 @@ func FastProUpdate(paList, paCommands)
 			    isString(paCommands[i][2][2][1]) and paCommands[i][2][2][1] = :By and
 			    isNumber(paCommands[i][2][2][2])
 
-				updateList(paList, :div, :row, paCommands[i][2][1][2], paCommands[i][2][2][2])
-				return paList
-
+				updateList(_aList_, :div, :row, paCommands[i][2][1][2], paCommands[i][2][2][2])
+				return _aList_
 			else
 
 				stzraise("Syntax error! The command must look like this:" + NL +
@@ -469,42 +470,37 @@ func FastProUpdate(paList, paCommands)
 			
 			aTempCommand + anTempVals
 			paCommands[i] = aTempCommand
+
+			# Construct the updateColumn call dynamically
+			cCode = "updateColumn(_aList_"
+		    
+			# Iterate through commands and add to the call
+		
+			nLen = len(paCommands)
+		
+			for i = 1 to nLen
+		
+				cCmd = paCommands[i][1]
+				aParams = paCommands[i][2]
+				nLenParams = len(aParams)
+		
+				cCode += ", :" + cCmd
+		
+				for j = 1 to nLenParams
+		 			cCode += ", " + @@(aParams[j])
+				next
+		
+			next
+		    
+			cCode += ")"
+		
+			# Evaluate the dynamically constructed call
+		
+			eval(cCode)
+			return _aList_
 		off
 
-	next
-
-	# If the execution flow reatches this point, then what
-	# was provided is a list of commands that we should
-	# contruct dynamicall and feed to updateColumn() from
-	# RingFastPro for execution.
-
-	# Construct the updateColumn call dynamically
-	cCode = "updateColumn(paList"
-    
-	# Iterate through commands and add to the call
-
-	nLen = len(paCommands)
-
-	for i = 1 to nLen
-
-		cCmd = paCommands[i][1]
-		aParams = paCommands[i][2]
-		nLenParams = len(aParams)
-
-		cCode += ", :" + cCmd
-
-		for j = 1 to nLenParams
- 			cCode += ", " + @@(aParams[j])
-		next
-
-	next
-    
-	cCode += ")"
-
-	# Evaluate the dynamically constructed call
-
-	eval(cCode)
-	return paList
+	next	
 
 
 func FastProUpdateList(paList, pcCommand, pcSelection, panValues)

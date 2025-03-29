@@ -1,20 +1,65 @@
 load "../max/stzmax.ring"
 
+pr()
+
+? IsListOfNumbers(1:1_000_000)
+#--> TRUE
+
+pf()
+# Executed in 0.23 second(s) in Ring 1.22
 
 /*===
-
+*/
 pr()
 
 # Create a 1D list and set all items to 1000
 
-aList = 1:1_000_000
+myList = 1:1_000_000
 
-FastProUpdate(aList, :set = [ :items, :with = 1000 ])
-? ShowShort(aList)
+FastProUpdate(myList, :set = [ :All, :with = 1000 ])
+? ShowShort(myList)
 #--> [ 1000, 1000, 1000, "...", 1000, 1000, 1000 ]
 
+# In RinFastPro
+# updateList(myList, :set, :items, 1000)
+
+
 pf()
-# Executed in 0.15 second(s) in Ring 1.22
+# Executed in 0.47 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+myList = 1:7
+
+FastProUpdate(myList, :set = [ :all, :with = 5 ])
+? @@(myList)
+#--> [ 5, 5, 5, 5, 5, 5, 5 ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+*/
+pr()
+
+aMatrix = [
+	[ 1, 2, 3 ],
+	[ 4, 5, 6 ],
+	[ 7, 8, 9 ]
+]
+
+FastProUpdate(aMatrix, :set = [ :all, :with = 5 ])
+? @@NL(aMatrix)
+#--> [
+#	[ 1, 2, 3 ],
+#	[ 4, 5, 6 ],
+#	[ 7, 8, 9 ]
+# ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*---
 
@@ -132,32 +177,6 @@ FastProUpdate(aMatrix, :Set = [ :Col = 2, :With = 0 ])
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
-
-
-/*---
-
-pr()
-
-aMatrix = 1:7
-
-FastProUpdate(aMatrix, :set = [ :all = :with = 5 ])
-? @@NL(aMatrix)
-
-pf()
-/*---
-
-pr()
-
-aMatrix = [
-	[ 1, 2, 3 ],
-	[ 4, 5, 6 ],
-	[ 7, 8, 9 ]
-]
-
-FastProUpdate(aMatrix, :set = [ :all = :with = 5 ])
-? @@NL(aMatrix)
-
-pf()
 
 /*---
 
@@ -283,7 +302,6 @@ FastProUpdate(aMatrix, :Multiply = [ :Row = 2, :By = 2 ])
 #	[ 2, 8, 16 ]
 # ]
 
-
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
@@ -341,7 +359,7 @@ FastProUpdate(aMatrix, :Divide = [ :Col = 3, :By = 4 ])
 #--> [
 #	[ 1, 2, 1 ],
 #	[ 1, 2, 1 ],
-#	[ 3, 4, 4 ]
+#	[ 3, 4, 2 ]
 #]
 
 FastProUpdate(aMatrix, :Divide = [ :Col = 2, :By = 2, :ToCol = 1 ])
@@ -356,7 +374,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-
+*/
 pr()
 
 aMatrix = [
@@ -392,25 +410,25 @@ aImage = [
 
 FastProUpdate(aImage, [
 
-	:Multiply = [ :Col = 1, :By = 0.3, :ToCol = 1 ],     	# R *= 0.3
+	:Multiply = [ :Col = 1, :By = 0.3 ],     	# R *= 0.3
 
-	:Multiply = [ :Col = 2, :By = 0.59, :ToCol = 1 ],    	# G *= 0.59
-	:Multiply = [ :Col = 3, :By = 0.11, :ToCol = 1 ],    	# B *= 0.11
+	:Multiply = [ :Col = 2, :By = 0.59 ],    	# G *= 0.59
+	:Multiply = [ :Col = 3, :By = 0.11 ],    	# B *= 0.11
 
-        :Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ],    		# R += G
-      	:Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ], 		# R += B
+        :Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ],    	# R += G
+      	:Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ], 	# R += B
 
-        :Copy  = [ :Row = 1, :ToRow = 3],    			# G = R (grayscale)
-     	:Copy  = [ :Col = 1, :toCol = 2]       			# B = R (grayscale)
+        :Copy  = [ :Row = 1, :ToRow = 3],    		# G = R (grayscale)
+     	:Copy  = [ :Col = 1, :toCol = 2]       		# B = R (grayscale)
 
 ])
     
 # Grayscale Converted Image:
 ? @@NL(aImage)
 #--> [
-#	[ 150.45, 11, 50 ],
-#	[ 118, 16.50, 75 ],
-#	[ 106.20, 9.90, 120 ]
+#	[ 76.50, 100, 50 ],
+#	[ 60, 150, 75 ],
+#	[ 54, 90, 120 ]
 # ]
 
 pf()

@@ -898,7 +898,15 @@ func IsListOfNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfNumbers()
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if not isNumber(paList[1])
+			return _FALSE_
+		ok
+	next
+
+	return _TRUE_
 
 	#< @FunctionAlternativeForms
 
