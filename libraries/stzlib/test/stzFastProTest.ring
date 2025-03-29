@@ -1,5 +1,6 @@
 load "../max/stzmax.ring"
 
+
 /*===
 
 pr()
@@ -188,7 +189,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 aMatrix = [
@@ -197,16 +198,185 @@ aMatrix = [
 	[ 1, 2, 3 ]
 ]
 
-FastProUpdate(aMatrix, :Add = [ 8, :ToColsFrom = [1, :To = 2] ])
-//FastProUpdate(aMatrix, :Add = [ 8, :ToCol = 2 ])
+FastProUpdate(aMatrix, :Add = [ 8, :ToColsFrom = [ 1, :To = 2 ] ])
+? @@NL(aMatrix) + NL
+#--> [
+#	[ 9, 10, 3 ],
+#	[ 9, 10, 3 ],
+#	[ 9, 10, 3 ]
+# ]
 
-updateList(aMatrix, :add, :manycols, 1, 3, 8)
+FastProUpdate(aMatrix, :Add = [ 7, :ToRowsFrom = [ 2, :To = 3 ] ])
 ? @@NL(aMatrix)
+#--> [
+#	[ 9, 10, 3 ],
+#	[ 16, 17, 10 ],
+#	[ 16, 17, 10 ]
+# ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-*/
+
+pr()
+
+aMatrix = [
+	[ 10, 20, 30 ],
+	[ 40, 50, 60 ],
+	[ 70, 80, 90 ]
+]
+
+FastProUpdate(aMatrix, :Subtract = [ 10, :FromColsFrom = [ 1, :To = 3 ] ])
+? @@NL(aMatrix) + NL
+#--> [
+#	[ 0, 10, 20 ],
+#	[ 30, 40, 50 ],
+#	[ 60, 70, 80 ]
+# ]
+
+FastProUpdate(aMatrix, :Subtract = [ 10, :FromRowsFrom = [ 1, :To = 3 ] ])
+? @@NL(aMatrix)
+#--> [
+#	[ -10, 0, 10 ],
+#	[ 20, 30, 40 ],
+#	[ 50, 60, 70 ]
+# ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+aMatrix = [
+	[ 2, 4, 8 ],
+	[ 1, 2, 4 ],
+	[ 2, 4, 9 ]
+]
+
+
+FastProUpdate(aMatrix, :Multiply = [ :Col = 2, :By = 2 ])
+? @@NL(aMatrix) + NL
+#--> [
+#	[ 2, 8, 8 ],
+#	[ 1, 4, 4 ],
+#	[ 2, 8, 9 ]
+# ]
+
+FastProUpdate(aMatrix, :Multiply = [ :Col = 2, :By = 2, :ToCol = 3 ])
+? @@NL(aMatrix) + NL
+#--> [
+#	[ 2, 8, 16 ],
+#	[ 1, 4,  8 ],
+#	[ 2, 8, 16 ]
+# ]
+
+#--
+
+FastProUpdate(aMatrix, :Multiply = [ :Row = 2, :By = 2 ])
+? @@NL(aMatrix)
+#--> [
+#	[ 2, 8, 16 ],
+#	[ 2, 8, 16 ],
+#	[ 2, 8, 16 ]
+# ]
+
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+aMatrix = [
+	[ 2, 4, 8 ],
+	[ 1, 2, 4 ],
+	[ 3, 4, 8 ]
+]
+
+FastProUpdate(aMatrix, :Divide = [ :Col = 2, :By = 2 ])
+? @@NL(aMatrix)
+#--> [
+#	[ 2, 2, 8 ],
+#	[ 1, 1, 4 ],
+#	[ 3, 2, 8 ]
+# ]
+
+FastProUpdate(aMatrix, :Divide = [ :Col = 3, :By = 2, :ToCol = 1 ])
+? @@NL(aMatrix)
+#--> [
+#	[ 4, 2, 8 ],
+#	[ 2, 1, 4 ],
+#	[ 4, 2, 8 ]
+# ]
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+aMatrix = [
+	[ 2, 4, 8 ],
+	[ 1, 2, 4 ],
+	[ 3, 4, 8 ]
+]
+
+FastProUpdate(aMatrix, :Divide = [ :Row = 1, :By = 2 ])
+? @@NL(aMatrix) + NL
+#--> [
+#	[ 1, 2, 4 ],
+#	[ 1, 2, 4 ],
+#	[ 3, 4, 8 ]
+# ]
+
+#--
+
+FastProUpdate(aMatrix, :Divide = [ :Col = 3, :By = 4 ])
+? @@NL(aMatrix) + NL
+#--> [
+#	[ 1, 2, 1 ],
+#	[ 1, 2, 1 ],
+#	[ 3, 4, 4 ]
+#]
+
+FastProUpdate(aMatrix, :Divide = [ :Col = 2, :By = 2, :ToCol = 1 ])
+? @@NL(aMatrix)
+#--> [
+#	[ 1, 2, 1 ],
+#	[ 1, 2, 1 ],
+#	[ 2, 4, 2 ]
+# ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+aMatrix = [
+	[ 5, 5, 5 ],
+	[ 5, 5, 5 ],
+	[ 5, 5, 5 ]
+]
+
+FastProUpdate(aMatrix, :Set = [ :Col = 1, :Step = 0 ])
+? @@NL( aMatrix )
+#--> [
+#	[ 1, 5, 5 ],
+#	[ 2, 5, 5 ],
+#	[ 3, 5, 5 ]
+# ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*===
 
 pr()
 
