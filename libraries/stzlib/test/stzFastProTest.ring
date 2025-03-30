@@ -1,5 +1,26 @@
 load "../max/stzmax.ring"
 
+/*---
+
+pr()
+
+aMatrix = [
+	[ 1, 2, 3 ],
+	[ 2, 4, 6 ],
+	[ 3, 6, 9 ]
+]
+
+FastProUpdate(aMatrix, :Raise = [ :Col = 1, :ToPower = 2 ])
+? @@NL(aMatrix)
+
+# In RinFastPro:
+# updateColumn(aMatrix, :pow, 1, 2)
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
 pr()
 
 ? IsListOfNumbers(1:1_000_000)
@@ -9,7 +30,7 @@ pf()
 # Executed in 0.23 second(s) in Ring 1.22
 
 /*===
-*/
+
 pr()
 
 # Create a 1D list and set all items to 1000
@@ -25,7 +46,7 @@ FastProUpdate(myList, :set = [ :All, :with = 1000 ])
 
 
 pf()
-# Executed in 0.47 second(s) in Ring 1.22
+# Executed in 0.34 second(s) in Ring 1.22
 
 /*---
 
@@ -41,7 +62,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 aMatrix = [
@@ -53,9 +74,9 @@ aMatrix = [
 FastProUpdate(aMatrix, :set = [ :all, :with = 5 ])
 ? @@NL(aMatrix)
 #--> [
-#	[ 1, 2, 3 ],
-#	[ 4, 5, 6 ],
-#	[ 7, 8, 9 ]
+#	[ 5, 5, 5 ],
+#	[ 5, 5, 5 ],
+#	[ 5, 5, 5 ]
 # ]
 
 pf()
@@ -332,7 +353,7 @@ FastProUpdate(aMatrix, :Divide = [ :Col = 3, :By = 2, :ToCol = 1 ])
 # ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*---
 
@@ -374,7 +395,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 aMatrix = [
@@ -389,6 +410,35 @@ FastProUpdate(aMatrix, :Set = [ :Col = 1, :Step = 0 ])
 #	[ 1, 5, 5 ],
 #	[ 2, 5, 5 ],
 #	[ 3, 5, 5 ]
+# ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+*/
+pr()
+
+aMatrix = [
+	[ 3, 7, 5 ],
+	[ 2, 8, 0 ],
+	[ 5, 5, 0 ]
+]
+
+FastProUpdate(aMatrix, :Merge = [ :Cols = [ 1, 2 ], :InCol = 2 ])
+? @@NL(aMatrix) + NL
+#--> [
+#	[ 3, 10, 5 ],
+#	[ 2, 10, 0 ],
+#	[ 5, 10, 0 ]
+# ]
+
+FastProUpdate(aMatrix, :Merge = [ :Rows = [ 2, 3 ], :InRow = 3 ])
+? @@NL(aMatrix)
+#--> [
+#	[ 3, 10, 5 ],
+#	[ 2, 10, 0 ],
+#	[ 7, 20, 0 ]
 # ]
 
 pf()
@@ -410,16 +460,16 @@ aImage = [
 
 FastProUpdate(aImage, [
 
-	:Multiply = [ :Col = 1, :By = 0.3 ],     	# R *= 0.3
+	:Multiply = [ :Col = 1, :By = 0.3 ],
 
-	:Multiply = [ :Col = 2, :By = 0.59 ],    	# G *= 0.59
-	:Multiply = [ :Col = 3, :By = 0.11 ],    	# B *= 0.11
+	:Multiply = [ :Col = 2, :By = 0.59 ],
+	:Multiply = [ :Col = 3, :By = 0.11 ],
 
-        :Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ],    	# R += G
-      	:Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ], 	# R += B
+        :Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ],
+      	:Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ],
 
-        :Copy  = [ :Row = 1, :ToRow = 3],    		# G = R (grayscale)
-     	:Copy  = [ :Col = 1, :toCol = 2]       		# B = R (grayscale)
+        :Copy  = [ :Row = 1, :ToRow = 3],
+     	:Copy  = [ :Col = 1, :toCol = 2]
 
 ])
     
@@ -432,4 +482,4 @@ FastProUpdate(aImage, [
 # ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.22
