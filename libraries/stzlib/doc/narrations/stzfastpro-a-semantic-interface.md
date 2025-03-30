@@ -4,7 +4,7 @@
 
 `RingFastPro` extension, by Mahmoud Fayed, provides essential high-performance list operations in Ring through C-based optimization. Softanza builds upon this foundation by offering a semantic interface that maintains `RingFastPro`'s computational efficiency while providing a more declarative and learnable syntax.
 
-> **NOTE**: The FastProUpdate() function was originally motivated by its use in the Softanza's `stzMatrix` class, where a more intuitive programming experience for matrix operations was needed.
+> **NOTE**: The `FastProUpdate()` function was originally motivated by its use in the Softanza's `stzMatrix` class, where a more intuitive programming experience for matrix operations was needed.
 
 ## Core Commands Structure in stzFastPro
 
@@ -16,13 +16,13 @@ FastProUpdate(aList, :Command = [ parameters... ])
 
 The main commands include operations like setting values, adding, subtracting, multiplying, dividing, calculating modulo, raising to powers, copying, merging elements, and sequential stepping within lists and matrices. Let's explore each with practical examples.
 
-> **NOTE**: You can read about the original RingFastPro extension in [this](https://ring-lang.github.io/doc1.22/whatisnew22.html) Ring documentation article.
+> **NOTE**: You can read about the original `RingFastPro` extension in [this](https://ring-lang.github.io/doc1.22/whatisnew22.html) Ring documentation article.
 
 ## Setting Values
 
 ### Setting Specific Rows or Columns
 
-When working with matrices, you'll often need to modify entire rows or columns. stzFastPro makes this straightforward:
+When working with matrices, you'll often need to modify entire rows or columns. `FastProUpdate()` makes this straightforward:
 
 ```ring
 aMatrix = [
@@ -64,7 +64,7 @@ This produces:
 
 ### Setting Multiple Rows or Columns
 
-stzFastPro allows for operating on multiple rows or columns in a single command:
+`FastProUpdate()` allows for operating on multiple rows or columns in a single command:
 
 ```ring
 aMatrix = [
@@ -103,6 +103,26 @@ This produces:
     [ 5, 0, 0 ]
 ]
 ```
+
+### Setting a Range of Rows or Columns
+
+You can also specify a range of rows or columns using the `RowsFrom` and `ColsFrom` parameters:
+
+```ring
+aMatrix = [
+    [ 1, 2, 3 ],
+    [ 4, 5, 6 ],
+    [ 7, 8, 9 ]
+]
+
+# Set columns from 2 to 3 with the value 0
+FastProUpdate(aMatrix, :Set = [ :ColsFrom = [ 2, :To = 3 ], :With = 0 ])
+
+# Set rows from 1 to 2 with the value 5
+FastProUpdate(aMatrix, :Set = [ :RowsFrom = [ 1, :To = 2 ], :With = 5 ])
+```
+
+This syntax provides a more intuitive way to specify ranges.
 
 ### Setting All Elements
 
@@ -178,6 +198,31 @@ aMatrix = [
     [ 1, 2, 3 ]
 ]
 
+# Add 8 to column 2
+FastProUpdate(aMatrix, :Add = [ 8, :ToCol = 2 ])
+```
+
+The result:
+
+```
+[
+    [ 1, 10, 3 ],
+    [ 1, 10, 3 ],
+    [ 1, 10, 3 ]
+]
+```
+
+### Adding to a Range of Columns or Rows
+
+You can add a value to a range of columns or rows:
+
+```ring
+aMatrix = [
+    [ 1, 2, 3 ],
+    [ 1, 2, 3 ],
+    [ 1, 2, 3 ]
+]
+
 # Add 8 to columns 1 and 2
 FastProUpdate(aMatrix, :Add = [ 8, :ToColsFrom = [ 1, :To = 2 ] ])
 ```
@@ -212,6 +257,23 @@ This creates:
 ## Subtraction Operations
 
 Similarly, subtraction operations become more readable:
+
+```ring
+aMatrix = [
+    [ 10, 20, 30 ],
+    [ 40, 50, 60 ],
+    [ 70, 80, 90 ]
+]
+
+# Subtract 10 from column 1
+FastProUpdate(aMatrix, :Subtract = [ 10, :FromCol = 1 ])
+```
+
+This would subtract 10 from all values in column 1.
+
+### Subtracting from a Range of Columns or Rows
+
+You can also subtract from ranges:
 
 ```ring
 aMatrix = [
@@ -292,6 +354,48 @@ Row operations follow the same pattern:
 FastProUpdate(aMatrix, :Multiply = [ :Row = 2, :By = 2 ])
 ```
 
+### Multiplying a Range of Columns or Rows
+
+You can also multiply values in a range of columns or rows:
+
+```ring
+aMatrix = [
+    [ 1, 2, 3 ],
+    [ 1, 2, 3 ],
+    [ 1, 2, 3 ]
+]
+
+# Multiply columns 1-3 by 2
+FastProUpdate(aMatrix, :Multiply = [ :ColsFrom = [ 1, :To = 3 ], :By = 2 ])
+```
+
+Result:
+
+```
+[
+    [ 2, 4, 6 ],
+    [ 2, 4, 6 ],
+    [ 2, 4, 6 ]
+]
+```
+
+Similarly for rows:
+
+```ring
+# Multiply rows 2-3 by 3
+FastProUpdate(aMatrix, :Multiply = [ :RowsFrom = [ 2, :To = 3 ], :By = 3 ])
+```
+
+Result:
+
+```
+[
+    [ 2, 4, 6 ],
+    [ 6, 12, 18 ],
+    [ 6, 12, 18 ]
+]
+```
+
 ## Division Operations
 
 Division follows a similar pattern to multiplication:
@@ -351,6 +455,48 @@ Result:
 ]
 ```
 
+### Dividing a Range of Columns or Rows
+
+You can also divide values in a range of columns or rows:
+
+```ring
+aMatrix = [
+    [ 1, 2, 3 ],
+    [ 1, 2, 3 ],
+    [ 1, 2, 3 ]
+]
+
+# Divide columns 1-3 by 2
+FastProUpdate(aMatrix, :Divide = [ :ColsFrom = [ 1, :To = 3 ], :By = 2 ])
+```
+
+Result:
+
+```
+[
+    [ 0.50, 1, 1.50 ],
+    [ 0.50, 1, 1.50 ],
+    [ 0.50, 1, 1.50 ]
+]
+```
+
+And for rows:
+
+```ring
+# Divide rows 2-3 by 3
+FastProUpdate(aMatrix, :Divide = [ :RowsFrom = [ 2, :To = 3 ], :By = 3 ])
+```
+
+Result:
+
+```
+[
+    [ 0.50, 1, 1.50 ],
+    [ 0.17, 0.33, 0.50 ],
+    [ 0.17, 0.33, 0.50 ]
+]
+```
+
 ## Power Operations
 
 stzFastPro also supports raising elements to powers:
@@ -367,11 +513,54 @@ FastProUpdate(aMatrix, :Raise = [ :Col = 1, :ToPower = 2 ])
 ```
 
 Result:
+
 ```ring
 [
     [ 1, 0, 0 ],
     [ 4, 0, 0 ],
     [ 9, 0, 0 ]
+]
+```
+
+### Raising a Range of Columns or Rows to Powers
+
+You can also raise values in a range of columns or rows to a power:
+
+```ring
+aMatrix = [
+    [ 1, 2, 3 ],
+    [ 1, 2, 3 ],
+    [ 1, 2, 3 ]
+]
+
+# Raise columns 2-3 to power 2
+FastProUpdate(aMatrix, :Raise = [ :ColsFrom = [ 2, :To = 3 ], :ToPower = 2 ])
+```
+
+Result:
+
+```
+[
+    [ 1, 4, 9 ],
+    [ 1, 4, 9 ],
+    [ 1, 4, 9 ]
+]
+```
+
+Similarly for rows:
+
+```ring
+# Raise rows 2-3 to power 2
+FastProUpdate(aMatrix, :Raise = [ :RowsFrom = [ 2, :To = 3 ], :ToPower = 2 ])
+```
+
+Result:
+
+```
+[
+    [ 1, 4, 9 ],
+    [ 1, 16, 81 ],
+    [ 1, 16, 81 ]
 ]
 ```
 
@@ -383,21 +572,70 @@ stzFastPro enables modulo divisions:
 
 ```ring
 aMatrix = [
-    [ 1, 2, 3 ],
-    [ 2, 4, 6 ],
-    [ 3, 6, 9 ]
+    [ 1, 2, 4 ],
+    [ 2, 4, 9 ],
+    [ 2, 7, 8 ]
 ]
 
 # Calculating the modulo of numbers in column 3 by 2
-FastProUpdate(aMatrix, :Modulo = \[ :Col = 3, :By = 2 ])
+FastProUpdate(aMatrix, :Modulo = [ :Col = 3, :By = 2 ])
 ```
+
 Result:
 
 ```ring
+[
+    [ 1, 2, 0 ],
+    [ 2, 4, 1 ],
+    [ 2, 7, 0 ]
+]
+```
+
+### Modulo Operations on Ranges of Columns or Rows
+
+You can perform modulo operations on ranges of columns or rows:
+
+```ring
 aMatrix = [
-	[ 1, 2, 0 ],
-	[ 2, 4, 1 ],
-	[ 2, 7, 0 ]
+    [ 0, 5, 3 ],
+    [ 0, 7, 9 ],
+    [ 0, 9, 7 ]
+]
+
+# Modulo columns 2-3 by 2
+FastProUpdate(aMatrix, :Modulo = [ :ColsFrom = [ 2, :To = 3 ], :By = 2 ])
+```
+
+Result:
+
+```
+[
+    [ 0, 1, 1 ],
+    [ 0, 1, 1 ],
+    [ 0, 1, 1 ]
+]
+```
+
+And for rows:
+
+```ring
+aMatrix = [
+    [ 0, 0, 0 ],
+    [ 2, 7, 4 ],
+    [ 5, 9, 7 ]
+]
+
+# Modulo rows 2-3 by 2
+FastProUpdate(aMatrix, :Modulo = [ :RowsFrom = [ 2, :To = 3 ], :By = 2 ])
+```
+
+Result:
+
+```
+[
+    [ 0, 0, 0 ],
+    [ 0, 1, 0 ],
+    [ 1, 1, 1 ]
 ]
 ```
 
@@ -478,18 +716,9 @@ FastProUpdate(aImage, [
     :Multiply = [ :Col = 3, :By = 0.11 ],            # B channel weighting
     :Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ],       # Combine R and G
     :Merge = [ :Cols = [ 1, 3 ], :InCol = 1 ],       # Add B to the result
-    :Copy = [ :Col = 1, :ToCol = 2 ],                # Copy to G channel
-    :Copy = [ :Col = 1, :ToCol = 3 ]                 # Copy to B channel
+    :Copy = [ :Row = 1, :ToRow = 3 ],                # Copy results to row 3
+    :Copy = [ :Col = 1, :ToCol = 2 ]                 # Copy to G channel
 ])
-```
-
-Result:
-```ring
-[
-	[ 76.50, 100, 50 ],
-	[ 60, 150, 75 ],
-	[ 54, 90, 120 ]
-]
 ```
 
 This example demonstrates how `FastProUpdate()` can handle complex image processing operations like grayscale conversion in a single, readable command.
@@ -505,6 +734,17 @@ FastProUpdate(aList, :set = [ :All, :with = 1000 ])
 # Executed in 0.34 second(s) in Ring 1.22
 ```
 
+The underlying C implementation ensures excellent performance even for operations on very large lists:
+
+```ring
+# Checking if a large list contains only numbers
+? IsListOfNumbers(1:1_000_000)
+# --> TRUE
+# Executed in 0.23 second(s) in Ring 1.22
+```
+
 ## Conclusion
 
 `FastProUpdate()` enhances `RingFastPro`'s powerful list manipulation capabilities with a semantic interface that improves code readability and maintainability. By providing a declarative syntax while preserving the underlying C-powered performance, `FastProUpdate()` offers Ring programmers an efficient way to work with numerical data in both simple operations and complex transformations.
+
+The range-based operations (using `:ColsFrom`, `:RowsFrom` with `:To` parameters) and the ability to chain multiple operations make `FastProUpdate()` especially powerful for matrix operations in scientific computing, image processing, and data analysis applications.
