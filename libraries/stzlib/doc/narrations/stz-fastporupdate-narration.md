@@ -6,7 +6,7 @@
 
 > **NOTE**: The `FastProUpdate()` function was originally motivated by its use in the Softanza's `stzMatrix` class, where a more intuitive programming experience for matrix operations was needed.
 
-## Core Commands Structure in stzFastPro
+## Core Commands Structure in FastProUpdate()
 
 `FastProUpdate()` provides a unique entry-point for all the features of the `RingFastPro`extension. Here's the basic unified structure:
 
@@ -499,7 +499,7 @@ Result:
 
 ## Power Operations
 
-stzFastPro also supports raising elements to powers:
+FastProUpdate() also supports raising elements to powers:
 
 ```ring
 aMatrix = [
@@ -568,7 +568,7 @@ This operation is particularly useful for mathematical transformations without n
 
 ## Modulo Operations
 
-stzFastPro enables modulo divisions:
+`FastProUpdate()` enables modulo divisions:
 
 ```ring
 aMatrix = [
@@ -641,7 +641,7 @@ Result:
 
 ## Merging Operations
 
-stzFastPro provides a powerful merge operation that combines values from two rows or columns:
+`FastProUpdate()` provides a powerful merge operation that combines values from two rows or columns:
 
 ```ring
 aMatrix = [
@@ -722,26 +722,6 @@ FastProUpdate(aImage, [
 ```
 
 This example demonstrates how `FastProUpdate()` can handle complex image processing operations like grayscale conversion in a single, readable command.
-
-## Performance with Large Datasets
-
-Despite its more semantic interface, `FastProUpdate()` maintains the performance advantages of RingFastPro, even with large datasets:
-
-```ring
-# Create a 1D list with 1 million elements and set all to 1000
-aList = 1:1_000_000
-FastProUpdate(aList, :set = [ :All, :with = 1000 ])
-# Executed in 0.34 second(s) in Ring 1.22
-```
-
-The underlying C implementation ensures excellent performance even for operations on very large lists:
-
-```ring
-# Checking if a large list contains only numbers
-? IsListOfNumbers(1:1_000_000)
-# --> TRUE
-# Executed in 0.23 second(s) in Ring 1.22
-```
 
 ## Conclusion
 
