@@ -2,8 +2,22 @@
 
 load "fastpro.ring"
 
-func FastProUpdate(paList, paCommand)
+_aCommandsXT = [
+	:set = [ :set, 1, 2 ],
+	:add = [ :add, 2, 1 ],
+	:subtract = [ :sub, 2, 1 ],
+	:multiply = [ :mul, 1, 2 ],
+	:divide = [ :div, 1, 2 ],
+	:raise = [ :pow, 1, 2 ],
+	:modulo = [ :rem, 1, 2 ],
+	:copy = [ :copy, 1, 2 ],
+	:merge = [ :merge, 1, 2 ]
+]
 
+func FastProUpdate(paList, paCommand)
+	if isList(paCommand) and IsListOfLists(paCommand)
+		return FastProUpdateMany(paList, paCommand)
+	ok
 
 	# Case : FastProUpdate(myList, :set = [ :All, :with = 1000 ])
 
@@ -764,167 +778,59 @@ func FastProUpdate(paList, paCommand)
 
 	off
 
+func FastProUpdateMany(paList, paCommandLists)
 
-func FastProUpdateMany(paList, paListOfCommands)
-	# This function recieves pcCommands in a hashlist like this:
-	# 	CUpdateListCol(@aMatrix, [
-	# 		:mul = [ val1, val2 ],
-	# 		:merge = [val1, val2],
-	# 		:copy = [val1, val2]
-	# 	]
+	cCode = "updateColumn( paList, " + NL + TAB
 
-	# It generates a string with the corresponding the FastPro function
-	# that contains all the commands as params in the same call, like this:
+	nLen = len(paCommandLists)
 
-	# 	cCode = 'updateColumn( @aMatrix,
-	# 		:mul, val1, val2,
-	# 		:merge, val1, val2,
-	# 		:copy, val1, val2 )
+	for i = 1 to nLen
 
-	# And then it evaluates that string to call FastPro dynamically
+		cCommandList = @Simplify(@@(paCommandLists[i]))
 
-	# if a 1D list is provided, wrap it in a list container, so it
-	# can be processed normally with the rest of the code (made for
-	# a list of lists of number, i.e. a 2D list)
+		if ring_substr1(cCommandList, "set") > 0
+			cCommand = "set"
 
+		but ring_substr1(cCommandList, "add") > 0
+			cCommand = "add"
 
-		/*
-		on :Merge
+		but ring_substr1(cCommandList, "subtract") > 0
+			cCommand = "subtract"
 
-			# Case: FastProUpdate(aImage, [
-			# 	:Multiply = [ :Col = 1, :By = 0.3, :ToCol = 1 ],
-			#       :Merge    = [ :Cols = [ 1, 2 ], :ToCol = 1 ],
-        		# 	:Copy     = [ :Row = 1, :ToRow = 3]
-			# ])
+		but ring_substr1(cCommandList, "multiply") > 0
+			cCommand = "multiply"
 
-			aValues = paCommand[2]
+		but ring_substr1(cCommandList, "divide") > 0
+			cCommand = "divide"
 
-			# Check the softanzifed syntax
+		but ring_substr1(cCommandList, "raise") > 0
+			cCommand = "raise"
 
-			if not (isList(aValues) and len(aValues) = 2 and
+		but ring_substr1(cCommandList, "modulo") > 0
+			cCommand = "modulo"
 
-				isList(aValues[1]) and len(aValues[1]) = 2 and
-				isString(aValues[1][1]) and aValues[1][1] = :Cols and
+		but ring_substr1(cCommandList, "copy") > 0
+			cCommand = "copy"
 
-				IsPairOfNumbers(aValues[1][2]) and
+		but ring_substr1(cCommandList, "merge") > 0
+			cCommand = "merge"
 
-				isList(aValues[2]) and len(aValues[2]) = 2 and
-				isString(aValues[2][1]) and (aValues[2][1] = :InCol or aValues[2][1] = :ToCol) and
-				isNumber(aValues[2][2]) )
-
-				stzraise("Syntax error! The command must look like this:" + NL + 
-					 ":Merge = [ :Cols = [ 1, 3], :InCol = 1 ]")
-			ok
-
-			# Transform it to a RingFastPro-freindly syntax
-
-			aTempCommand = [ :merge ]
-
-			aVals = aValues[1][2]
-
-			n = ring_find(aVals, aValues[2][2])
-			if n > 0
-				del(aVals, n)
-			ok
-
-			anTempVals = [] + aValues[2][2]
-
-			nLen = len(aVals)
-			for j = 1 to nLen
-				anTempVals + aVals[j]
-			next
-			
-			aTempCommand + anTempVals
-			paCommand = aTempCommand
-
-			# Construct the updateColumn call dynamically
-			cCode = "updateColumn(paList"
-		    
-			# Iterate through commands and add to the call
-		
-			nLen = len(paCommand)
-		
-			for i = 1 to nLen
-		
-				cCmd = paCommand
-				aParams = paCommand[2]
-				nLenParams = len(aParams)
-		
-				cCode += ", :" + cCmd
-		
-				for j = 1 to nLenParams
-		 			cCode += ", " + @@(aParams[j])
-				next
-		
-			next
-		    
-			cCode += ")"
-		
-			# Evaluate the dynamically constructed call
-		
-			eval(cCode)
-			return paList
-		off
-
-	next	
-
-
-func FastProUpdateListList(paList, pcCommand, pcSelection, panValues)
-
-
-	if isNumber(panValues)
-		updateList(paList, pcCommand, pcSelection, panValues)
-		return paList
-	ok
-
-	if CheckParams()
-		if NOT ( isList(panValues) and IsListOfNumbers(panValues) )
-			stzraise("Incorrect param type! panValues must be a list of numbers.")
+		else
+			stzraise("Insupported command or syntax error!")
 		ok
-	ok
 
-	nLen = len(panValues)
+		anNumbers = NumbersIn(cCommandList)
 
-	switch nLen
-	on 1
-		updateList(paList, pcCommand, pcSelection, panValues[1])
-	on 2
-		updateList(paList, pcCommand, pcSelection, panValues[1], panValues[2])
-	on 3
-		updateList(paList, pcCommand, pcSelection, panValues[1], panValues[2], panValues[3])
-	off
+		cCode += ":" + _aCommandsXT[cCommand][1] + ", " + anNumbers[_aCommandsXT[cCommand][2]] + ", " +
+			 anNumbers[_aCommandsXT[cCommand][3]]
 
+		if i < nLen
+			cCode += "," + NL + TAB
+		ok
+
+	next
+
+	cCode += " )"
+
+	eval(cCode)
 	return paList
-
-func FastProUpdateListList1(paList, pcCommand, pcSelection, p1)
-	updateList(paList, pcCommand, pcSelection, p1)
-	return paList
-
-	# Examples:
-
-	# updateList(<aList>,:set,:items,<nValue>)
-	
-func FastProUpdateListList2(paList, pcCommand, pcSelection, p1, p2)
-	updateList(paList, pcCommand, pcSelection, p1, p2)
-	return paList
-
-	# Examples:
-
-	# updateList(<aList>,:set,:row,<nRow>,<nValue>)
-	# updateList(<aList>,:set,:col,<nCol>,<nValue>)
-
-	# updateList(<aList>,:copy,:row,<nRowSrc>,<nRowDest>)
-	# updateList(<aList>,:copy,:col,<nColSrc>,<nColDest>)
-
-	# updateList(<aList>,:merge,:row,<nRowDest>,<nRow>)
-	# updateList(<aList>,:merge,:col,<nColDest>,<nCol>)
-
-func FastProUpdateListList3(paList, pcCommand, pcSelection, p1, p2, p3)
-	updateList(paList, pcCommand, pcSelection, p1, p2)
-	return paList
-
-	# Examples:
-
-	# updateList(<aList>,:set,:manyrows,<nRowStart>,<nRowEnd>,<nValue>)
-	# updateList(<aList>,:set,:manycols,<nColStart>,<nColEnd>,<nValue>)
-	# updateList(<aList>,:mul,:col,<nCol>,<nValue>,<nColDest>)
