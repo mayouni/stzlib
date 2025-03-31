@@ -714,8 +714,8 @@ FastProUpdate(aImage, [
     :Multiply = [ :Col = 1, :By = 0.3 ],             # R channel weighting
     :Multiply = [ :Col = 2, :By = 0.59 ],            # G channel weighting
     :Multiply = [ :Col = 3, :By = 0.11 ],            # B channel weighting
-    :Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ],       # Combine R and G
-    :Merge = [ :Cols = [ 1, 3 ], :InCol = 1 ],       # Add B to the result
+    :Merge = [ :Cols = [ 1, :And = 2 ] ],       # Combine R and G
+    :Merge = [ :Cols = [ 1, :And = 3 ] ],       # Add B to the result
     :Copy = [ :Row = 1, :ToRow = 3 ],                # Copy results to row 3
     :Copy = [ :Col = 1, :ToCol = 2 ]                 # Copy to G channel
 ])

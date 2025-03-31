@@ -532,7 +532,6 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-*/
 
 pr()
 
@@ -623,15 +622,65 @@ pf()
 
 pr()
 
-# Simulate an image matrix with RGB channels
+#--- Multiply
+
+str = '[ "muliply", [ [ "col", 1 ], [ "by", 2 ] ] ]'
+
+? @@( NumbersIn(str) )
+
+_aCommandsXT = [
+	:set = [ :set, 1, 2 ],
+	:add = [ :add, 2, 1 ],
+	:subtract = [ :sub, 2, 1 ],
+	:multiply = [ :mul, 1, 2 ],
+	:divide = [ :div, 1, 2 ],
+	:raise = [ :pow, 1, 2 ],
+	:modulo = [ :rem, 1, 2 ],
+	:copy = [ :copy, 1, 2 ],
+	:merge = [ :merge, 1, 2 ]
+]
+
+
+
+
+pf()
+
+/*---
+*/
+pr()
 
 aImage = [
-	[255, 100, 50],   # R, G, B for pixel 1
-	[200, 150, 75],   # R, G, B for pixel 2
-	[180, 90, 120]    # R, G, B for pixel 3
+	[ 10, 20, 30 ],
+	[ 12, 22, 33 ],
+	[ 14, 24, 36 ]
 ]
-   
-# Simulate grayscale conversion with weighted channels
+
+FastProUpdate(aImage, [
+	:Multiply = [ :Col = 1, :By = 2 ],
+	:Add	  = [ 6, :ToCol = 2 ],
+	:Divide	  = [ :Col = 3, :By = 3 ],
+	:Subtract = [ 10, :FromCol = 1 ]
+])
+
+? @@NL(aImage)
+#--> [
+#	[ 10, 26, 10 ],
+#	[ 14, 28, 11 ],
+#	[ 18, 30, 12 ]
+# ]
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*---
+*/
+pr()
+
+aImage = [
+    [255, 100, 50],   # R, G, B for pixel 1
+    [200, 150, 75],   # R, G, B for pixel 2
+    [180, 90, 120]    # R, G, B for pixel 3
+]
 
 FastProUpdate(aImage, [
 
@@ -640,21 +689,21 @@ FastProUpdate(aImage, [
 	:Multiply = [ :Col = 2, :By = 0.59 ],
 	:Multiply = [ :Col = 3, :By = 0.11 ],
 
-        :Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ],
-      	:Merge = [ :Cols = [ 1, 2 ], :InCol = 1 ],
+        :Merge = [ :Cols = [ 1, :And = 2 ] ],
+      	:Merge = [ :Cols = [ 1, :And = 2 ] ],
 
         :Copy  = [ :Row = 1, :ToRow = 3],
-     	:Copy  = [ :Col = 1, :toCol = 2]
+     	:Copy  = [ :Col = 1, :ToCol = 2]
 
 ])
     
 # Grayscale Converted Image:
 ? @@NL(aImage)
 #--> [
-#	[ 76.50, 100, 50 ],
-#	[ 60, 150, 75 ],
-#	[ 54, 90, 120 ]
+#	[ 194.50, 194.50, 194.50 ],
+#	[ 237,    237,    237    ],
+#	[ 160.20, 160.20, 160.20 ]
 # ]
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22

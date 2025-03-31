@@ -770,19 +770,25 @@ func CommonNumbers(paListsOfNumbers)
 
 	#>
 
-func NumbersIn(paList)
+func NumbersIn(pStrOrList)
 	if CheckingParams()
-		if NOT IsList(paList)
-			StzRaise("Incorrect param type! paList must be a list.")
+		if NOT (isList(pStrOrList) or isString(pStrOrList))
+			StzRaise("Incorrect param type! pStrOrList must be a string or list.")
 		ok
 	ok
 
-	nLen = len(paList)
+	if isString(pStrOrList)
+		return StzStringQ(pStrOrList).NumbersQ().Numberified()
+	ok
+
+	# Case where pStrOrList is a list
+
+	nLen = len(pStrOrList)
 	anResult = []
 
 	for i = 1 to nLen
-		if isNumber(paList[i])
-			anResult + palist[i]
+		if isNumber(pStrOrList[i])
+			anResult + pStrOrList[i]
 		ok
 	next
 
@@ -792,6 +798,19 @@ func NumbersIn(paList)
 
 	func @NumbersIn(paList)
 		return NumbersIn(paList)
+
+	func Numbers(pStrOrList)
+
+		if CheckParams()
+			if isList(pStrOrList) and StzListQ(pStrOrList).IsInNamedParam()
+				pStrOrList = pStrOrList[2]
+			ok
+		ok
+
+		return NumbersIn(pStrOrList)
+
+	func @Numbers(pStrOrList)
+		return Numbers(pStrOrList)
 
 	#>
 
