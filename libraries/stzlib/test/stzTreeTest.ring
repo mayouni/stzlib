@@ -1,7 +1,7 @@
 load "../max/stzmax.ring"
 
 /*--- NODES, ITEMS, AND BRANCHES
-*/
+
 pr()
 
 o1 = new stzTree(
@@ -93,7 +93,7 @@ pf()
 # Executed in 0.06 second(s) in Ring 1.22
 
 /*--- FINDING NODE(S)
-
+*/
 pr()
 
 o1 = new stzTree(

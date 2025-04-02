@@ -144,6 +144,7 @@ t0 = clock()
 	load "number/stzListOfBytes.ring"
 
 	load "number/stzFastPro.ring" # A wrapper to RingFastPro extension
+	load "number/stzFastProBinary.ring"
 	load "number/stzMatrix.ring"
 
 # Loading files related to the LIST module
