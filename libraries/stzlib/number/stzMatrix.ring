@@ -1,8 +1,11 @@
+#-------------------------#
+#  SOFTANZA MATRIX CLASS  #
+#-------------------------#
 
 # TODO :Potential Future Enhancements:
+# -> Remaining arithmetic calculations (Subtract, Divide, Power, Modulo)
 # -> More advanced mathematical operations
 # -> Machine learning-specific methods
-# -> Performance optimizations (using RingFastPro C extension)
 
 #--
 
@@ -19,8 +22,6 @@
 # While we avoid using FastPro for complex computational
 # logic or methods requiring individual element inspection,
 # as traditional iteration remains more readable and flexible.
-
-
 
 #-- Global functions
 
@@ -117,13 +118,47 @@ func IsMatrix(paList)
 		return IsMatrix(paList)
 
 func IsMatrixOfPositiveNumbers(paList)
-	#TODO
+
+	if isList(paList) and IsListOfListsOfNumbers(paList) and
+	   AllListsHaveSameSize(paList)
+
+		nLen = len(paList)
+		nLen2 = len(paList[1])
+
+		for i = 1 to nLen
+			for j = 1 to nLen2
+				if NOT paList[i][j] >= 0
+					return FALSE
+				ok
+			next
+		next
+
+	ok
+
+	return TRUE
 
 	func @IsMatrixOfPositiveNumbers(paList)
 		return IsMatrixOfPositiveNumbers(paList)
 
 func IsMatrixOfNonZeroPositiveNumbers(paList)
-	#TODO
+
+	if isList(paList) and IsListOfListsOfNumbers(paList) and
+	   AllListsHaveSameSize(paList)
+
+		nLen = len(paList)
+		nLen2 = len(paList[1])
+
+		for i = 1 to nLen
+			for j = 1 to nLen2
+				if NOT paList[i][j] > 0
+					return FALSE
+				ok
+			next
+		next
+
+	ok
+
+	return TRUE
 
 	func IsMatrixOfStrictlyPositiveNumbers(paList)
 		return IsMatrixOfNonZeroPositiveNumbers(paList)
@@ -185,7 +220,7 @@ class stzMatrix
 		return @nCols
 
 	def Size()
-		return [@nRows, @nCols]
+		return [ @nRows, @nCols ]
 
 	  #--------------------------#
 	 # Element-Level Operations #
@@ -244,6 +279,34 @@ class stzMatrix
 
 	def AddInCols(pnValue, paColumns)
 
+		if CheckParams()
+			if NOT isNumber(pnValue)
+				stzeaise("Incorrect param type! pnVakue must be a number.")
+			ok
+
+			if NOT isList(paColumns)
+				stzeaise("Incorrect param type! paColumns must be a list.")
+			ok
+		ok
+
+		 # Case: AddInCols(8, [ :From = 1, :To = 3 ])
+
+		if len(paColumns) = 2 and
+
+		   isList(paColumns[1]) and len(paColumns[1]) = 2 and
+		   isString(paColumns[1][1]) and paColumns[1][1] = :From and
+		   isNumber(paColumns[1][2]) and
+
+		   isList(paColumns[2]) and len(paColumns[2]) = 2 and
+		   isString(paColumns[2][1]) and paColumns[2][1] = :To and
+		   isNumber(paColumns[2][2])
+
+			updateList(@aMatrix, :add, :manycols, paColumns[1][2], paColumns[2][2], pnValue)
+			return
+		ok
+
+		#-- Other cases
+
 		for nCol in paColumns
 			for i = 1 to @nRows
 				@aMatrix[i][nCol] += pnValue
@@ -253,6 +316,34 @@ class stzMatrix
 	# Adds a value to multiple rows
 
 	def AddInRows(pnValue, paRows)
+
+		if CheckParams()
+			if NOT isNumber(pnValue)
+				stzeaise("Incorrect param type! pnVakue must be a number.")
+			ok
+
+			if NOT isList(paColumns)
+				stzeaise("Incorrect param type! paColumns must be a list.")
+			ok
+		ok
+
+		 # Case: AddInRows(8, [ :From = 1, :To = 3 ])
+
+		if len(paColumns) = 2 and
+
+		   isList(paColumns[1]) and len(paColumns[1]) = 2 and
+		   isString(paColumns[1][1]) and paColumns[1][1] = :From and
+		   isNumber(paColumns[1][2]) and
+
+		   isList(paColumns[2]) and len(paColumns[2]) = 2 and
+		   isString(paColumns[2][1]) and paColumns[2][1] = :To and
+		   isNumber(paColumns[2][2])
+
+			updateList(@aMatrix, :add, :manyrows, paColumns[1][2], paColumns[2][2], pnValue)
+			return
+		ok
+
+		#-- Other cases
 
 		for nRow in paRows
 			for j = 1 to @nCols
@@ -303,23 +394,151 @@ class stzMatrix
 
 	# Multiply a specific column by a value
 
-	def MultiplyByInCol(pnValue, pnCol)
+	def MultiplyCol(pnCol, pnValue)
 
-		for i = 1 to @nRows
-			@aMatrix[i][pnCol] *= pnValue
+		if CheckParams()
+
+			if NOT isNumber(pnCol)
+				stzraise("Incorrect param type! pnCol must be a number.")
+			ok
+	
+			if isList(pnValue) and StzListQ(pnValue).IsByOrInColNamedParam()
+				pnValue = pnValue[2]
+	
+				if NOT isNumber(pnValue)
+					stzraise("Incorrect param type! pnValue must be a number.")
+				ok
+			ok
+		ok
+
+		updatelist(@aMatrix, :mul, :col, pnCol, pnValue)
+
+		def MultiplyColBy(pnCol, pnValue)
+			if NOT isNumber(pnValue)
+				stzraise("Incorrect param type! pnValue must be a number.")
+			ok
+
+			This.MultiplyCol(pnCol, pnValue)
+
+		def MultiplyByInCol(pnValue, pnCol)
+			This.MultiplyColBy(pnCol, pnValue)
+
+	# Multiply many columns at one time
+
+	def MultiplyCols(panCols, pnValue)
+		if CheckParams()
+
+			if NOT isList(panCols) and @IsListOfNumbers(panCols)
+				stzraise("Incorrect param type! panCols must be a list of numbers.")
+			ok
+	
+			if isList(pnValue) and StzListQ(pnValue).IsByOrInColNamedParam()
+				pnValue = pnValue[2]
+	
+				if NOT isNumber(pnValue)
+					stzraise("Incorrect param type! pnValue must be a number.")
+				ok
+			ok
+		ok
+
+		# Doing the job
+
+		nLen = len(panCols)
+
+		aCommands = []
+
+		for i = 1 to nLen
+			aCommands + [ :mul, :col, panCols[i], pnValue ]
 		next
+
+		# Using Softanza FastPro enhancement
+
+		FastProUpdateMany(@aMatrix, aCommands)
+
+		# More performant then:
+
+		# for i = 1 to nLen
+		# 	updateList(@aMatrix, :mul, :col, panCols[i], pnValue)
+		# next
 
 	# Multiply a specific row by a value
 
-	def MultiplyByInRow(pnValue, pnRow)
+	def MultiplyRow(pnRow, pnValue)
 
-		for j = 1 to @nCols
-			@aMatrix[pnRow][j] *= pnValue
+		if CheckParams()
+
+			if NOT isNumber(pnRow)
+				stzraise("Incorrect param type! pnRow must be a number.")
+			ok
+	
+			if isList(pnValue) and StzListQ(pnValue).IsByOrInRowNamedParam()
+				pnValue = pnValue[2]
+	
+				if NOT isNumber(pnValue)
+					stzraise("Incorrect param type! pnValue must be a number.")
+				ok
+			ok
+		ok
+
+		updatelist(@aMatrix, :mul, :row, pnRow, pnValue)
+
+		def MultiplyRowBy(pnRow, pnValue)
+			if NOT isNumber(pnValue)
+				stzraise("Incorrect param type! pnValue must be a number.")
+			ok
+
+			This.MultiplyRow(pnRow, pnValue)
+
+		def MultiplyByInRow(pnValue, pnRow)
+			This.MultiplyColBy(pnRow, pnValue)
+
+	# Multiply many rows at one time
+
+	def MultiplyRows(panRows, pnValue)
+		if CheckParams()
+
+			if NOT isList(panRows) and @IsListOfNumbers(panRows)
+				stzraise("Incorrect param type! panRows must be a list of numbers.")
+			ok
+	
+			if isList(pnValue) and StzListQ(pnValue).IsByOrInColNamedParam()
+				pnValue = pnValue[2]
+	
+				if NOT isNumber(pnValue)
+					stzraise("Incorrect param type! pnValue must be a number.")
+				ok
+			ok
+		ok
+
+		# Doing the job
+
+		nLen = len(panRows)
+
+		aCommands = []
+
+		for i = 1 to nLen
+			aCommands + [ :mul, :row, panRows[i], pnValue ]
 		next
+
+		# Using Softanza FastPro enhancement
+
+		FastProUpdateMany(@aMatrix, aCommands)
+
+		# More performant then:
+
+		# for i = 1 to nLen
+		# 	updateList(@aMatrix, :mul, :row, panRows[i], pnValue)
+		# next
 
 	# Multiply main diagonal elements by a value
 
-	def MultiplyByInDiagonal1(pnValue)
+	def MultiplyDiagonal1(pnValue)
+
+		if CheckParams()
+			if isList(pnValue) and StzListQ(pnValue).IsByNamedParam()
+				pnValue = pnValue[2]
+			ok
+		ok
 
 		nMin = @min([@nRows, @nCols])
 
@@ -327,15 +546,37 @@ class stzMatrix
 			@aMatrix[i][i] *= pnValue
 		next
 
+		#< @FunctionAlternativeForms
+
+		def MultiplyDiagonal(pnValue)
+			This.MultiplyDiagonal1(pnValue)
+
+		def MultiplyByInDiagonal1(pnValue)
+			This.MultiplyDiagonal1(pnValue)
+
+		def MultiplyByInDiagonal(pnValue)
+			This.MultiplyDiagonal1(pnValue)
+
+		#>
+
 	# Multiply secondary diagonal elements by a value
 
-	def MultiplyByInDagonal2(pnValue)
+	def MultiplyDiagonal2(pnValue)
+
+		if CheckParams()
+			if isList(pnValue) and StzListQ(pnValue).IsByNamedParam()
+				pnValue = pnValue[2]
+			ok
+		ok
 
 		nMin = @min([@nRows, @nCols])
 
 		for i = 1 to nMin
 			@aMatrix[i][@nCols - i + 1] *= pnValue
 		next
+
+		def MultiplyByInDagonal2(pnValue)
+			This.MultiplyDiagonal2(pnValue)
 
 	  #-------------------------------#
 	 #  Matrix-to-Matrix Operations  #
@@ -473,16 +714,22 @@ class stzMatrix
 	#-------------------------------#
 
 	def FindElement(nElm)
+		#TODO
 
 	def FindElements(panElms)
+		#TODO
 
 	def FindCol(panCol)
+		#TODO
 
-	def FindCols(paCols)
+	def FindCols(panCols)
+		#TODO
 
 	def FindRow(panRow)
+		#TODO
 
 	def FindRows(panRows)
+		#TODO
 
 	  #-----------------------------#
 	 # Matrix Manipulation Methods #
@@ -556,33 +803,33 @@ class stzMatrix
 
 	# Replace multiple columns
 
-	def ReplaceCols(panCols, paNewCols)
+	def ReplaceCols(panCols, panNewCols)
 
 		if CheckParams()
 			if NOT ( isList(panCols) and @IsListOfNonZeroPositiveNumbers(panCols) )
 				stzraise("Incorrect param type! panCols must be a list of strictictly positive numbers.")
 			ok
 
-			if isList(paNewCols) and StzListQ(paNewCols).IsByOrWithNamedParam()
-				paNewCols = paNewCols[2]
+			if isList(panNewCols) and StzListQ(panNewCols).IsByOrWithNamedParam()
+				panNewCols = panNewCols[2]
 			ok
 
-			if NOT ( isList(paNewCols) and @IsMatrixOfNonZeroPositiveNumbers(paNewCols) )
+			if NOT ( isList(panNewCols) and @IsMatrixOfNonZeroPositiveNumbers(panNewCols) )
 				stzraise("Incorrect param type! paNewCols must be a list of lists of NonZero positive numbers having the same size.")
 			ok
 		ok
 
 		# Logical cheks
 
-		nLenNewCols = len(paNewCols)
+		nLenNewCols = len(panNewCols)
 
-		if len(paNewCols[1]) != @nRows
+		if len(panNewCols[1]) != @nRows
 			raise("Can't proceed! Replacement columns must match matrix rows")
 		ok
 
 		nLenCols = len(panCols)
 
-		if nLenCols != len(paNewCols)
+		if nLenCols != len(panNewCols)
 			raise("Can't proceed! Number of columns to replace must match new columns")
 		ok
 
@@ -593,7 +840,7 @@ class stzMatrix
 			nCol = panCols[k]
 
 			for i = 1 to @nRows
-				@aMatrix[i][nCol] = paNewCols[k][i]
+				@aMatrix[i][nCol] = panNewCols[k][i]
 			next
 		next
 

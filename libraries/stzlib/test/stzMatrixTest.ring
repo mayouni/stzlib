@@ -3,7 +3,7 @@ load "../max/stzmax.ring"
 /*----------------#
 # BASIC EXAMPLES  #
 #-----------------#
-*/
+
 pr()
 
 # Create a 3x3 matrix
@@ -256,7 +256,7 @@ o1.Show()
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*--- MultiplyByInCol Example
+/*--- MultiplyCol Example
 
 pr()
  
@@ -268,7 +268,7 @@ o1 = new stzMatrix([
 
 # Second column multiplied by 2
 
-o1.MultiplyByInCol(2, 2)
+o1.MultiplyCol(2, :By = 2)
 
 o1.Show()
 #-->
@@ -281,7 +281,23 @@ o1.Show()
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*--- MultiplyByInRow Example
+/*--- Multiplying many cols
+*/
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 3 ],
+    [ 4, 5, 6 ],
+    [ 7, 8, 9 ]
+])
+
+o1.MultiplyCols([1, 3], :By = 2)
+o1.MultiplyCols([:from = 2, :to = 3], :By = 2)
+o1.Show()
+
+pf()
+
+/*--- MultiplyRow Example
 
 pr()
 
@@ -293,7 +309,7 @@ o1 = new stzMatrix([
 
 # Third row multiplied by 3
 
-o1.MultiplyByInRow(3, 3)
+o1.MultiplyRow(3, :By = 3)
 # Result: 
 # Matrix becomes [1,2,3],[4,5,6],[21,24,27]
 
@@ -304,6 +320,16 @@ o1.Show()
 # │  4  5  6 │
 # │ 21 24 27 │
 # └          ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+? IsMatrixOfNonZeroPositiveNumbers([ [ 10, 20, 30 ], [ 40, 50, 60 ] ])
+#--> TRUE
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
@@ -369,7 +395,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- AddInDiagonal Example
-*/
+
 pr()
 
 o1 = new stzMatrix([
@@ -438,7 +464,7 @@ pr()
 o1 = new stzMatrix([
 	[ 20, 22, 21, 23, 25 ], # day 1
 	[ 18, 20, 17, 25, 28 ], # day 2
-	[ 19, 17, 14, 23, 34 ] # day 3
+	[ 19, 17, 14, 23, 34 ]  # day 3
 ])
 
 # Calculating temparture differences
@@ -454,7 +480,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Using SubMean()
-*/
+
 pr()
 
 # Consider a matrix of students' test scores
@@ -488,7 +514,7 @@ pf()
 #----------------------#
 
 /*--- Example 1: Financial Portfolio Analysis
-*/
+
 pr()
 	# Assume a 3-asset portfolio with historical returns for 5 time periods
 
@@ -508,7 +534,7 @@ pr()
 	
 	# Compute portfolio variance (sum of squared deviations)
 
-	oRetMx.SubMean().Power(2).Sum()
+	oRetMx.SubMeanQ().PowerQ(2).Sum()
 	? "Portfolio Variance: " + variance
 
 /*-- Example 2: Image Processing Simulation
