@@ -382,11 +382,7 @@ class stzMatrix
 			return
 		ok
 
-		for i = 1 to @nRows
-			for j = 1 to @nCols
-				@aMatrix[i][j] *= pnValue
-			next
-		next
+		updateList(@aMatrix, :mul, :manyrows, 1, @nRows, pnValue)
 
 		def MultiplyByQ(pnValue)
 			This.MultiplyBy(pnValue)
@@ -426,12 +422,8 @@ class stzMatrix
 	# Multiply many columns at one time
 
 	def MultiplyCols(panCols, pnValue)
-		if CheckParams()
 
-			if NOT isList(panCols) and @IsListOfNumbers(panCols)
-				stzraise("Incorrect param type! panCols must be a list of numbers.")
-			ok
-	
+		if CheckParams()
 			if isList(pnValue) and StzListQ(pnValue).IsByOrInColNamedParam()
 				pnValue = pnValue[2]
 	
@@ -441,19 +433,45 @@ class stzMatrix
 			ok
 		ok
 
+		# Early check for the case: MultiplyCols([:from = 2, :to = 3], :By = 2)
+
+		if isList(panCols) and len(panCols) = 2 and
+
+		   isList(panCols[1]) and len(panCols[1]) = 2 and
+		   isString(panCols[1][1]) and panCols[1][1] = :From and
+		   isNumber(panCols[1][2]) and
+
+		   isList(panCols[2]) and len(panCols[2]) = 2 and
+		   isString(panCols[2][1]) and panCols[2][1] = :To and
+		   isNumber(panCols[2][2])
+
+			updateList(@aMatrix, :mul, :manycols, panCols[1][2], panCols[2][2], pnValue)
+			return
+		ok
+
+		# Doing the job, for the normal case: MultiplyCols([ 1, 3 ], :By = 2)
+
+		if CheckParams()
+			if NOT isList(panCols) and @IsListOfNumbers(panCols)
+				stzraise("Incorrect param type! panCols must be a list of numbers.")
+			ok
+		ok
+
 		# Doing the job
 
 		nLen = len(panCols)
 
 		aCommands = []
+		cCode = 'updateColumn(@aMatrix, '
 
 		for i = 1 to nLen
-			aCommands + [ :mul, :col, panCols[i], pnValue ]
+			cCode += ':mul, ' + panCols[i] + ', ' + pnValue + ', '
 		next
 
-		# Using Softanza FastPro enhancement
+		cCode += ')'
+		cCode = ring_substr2(ccode, ", )", ")")
 
-		FastProUpdateMany(@aMatrix, aCommands)
+		eval(ccode)
 
 		# More performant then:
 
@@ -495,12 +513,8 @@ class stzMatrix
 	# Multiply many rows at one time
 
 	def MultiplyRows(panRows, pnValue)
-		if CheckParams()
 
-			if NOT isList(panRows) and @IsListOfNumbers(panRows)
-				stzraise("Incorrect param type! panRows must be a list of numbers.")
-			ok
-	
+		if CheckParams()
 			if isList(pnValue) and StzListQ(pnValue).IsByOrInColNamedParam()
 				pnValue = pnValue[2]
 	
@@ -510,25 +524,37 @@ class stzMatrix
 			ok
 		ok
 
+		# Early check for the case: MultiplyRows([:from = 2, :to = 3], :By = 2)
+
+		if isList(panRows) and len(panRows) = 2 and
+
+		   isList(panRows[1]) and len(panRows[1]) = 2 and
+		   isString(panRows[1][1]) and panRows[1][1] = :From and
+		   isNumber(panRows[1][2]) and
+
+		   isList(panRows[2]) and len(panRows[2]) = 2 and
+		   isString(panRows[2][1]) and panRows[2][1] = :To and
+		   isNumber(panRows[2][2])
+
+			updateList(@aMatrix, :mul, :manyrows, panRows[1][2], panRows[2][2], pnValue)
+			return
+		ok
+
+		# Doing the job, for the normal case: MultiplyRows([ 1, 3 ], :By = 2)
+
+		if CheckParams()
+			if NOT isList(panRows) and @IsListOfNumbers(panRows)
+				stzraise("Incorrect param type! panRows must be a list of numbers.")
+			ok
+		ok
+
 		# Doing the job
 
 		nLen = len(panRows)
 
-		aCommands = []
-
 		for i = 1 to nLen
-			aCommands + [ :mul, :row, panRows[i], pnValue ]
+		 	updateList(@aMatrix, :mul, :row, panRows[i], pnValue)
 		next
-
-		# Using Softanza FastPro enhancement
-
-		FastProUpdateMany(@aMatrix, aCommands)
-
-		# More performant then:
-
-		# for i = 1 to nLen
-		# 	updateList(@aMatrix, :mul, :row, panRows[i], pnValue)
-		# next
 
 	# Multiply main diagonal elements by a value
 
@@ -714,22 +740,109 @@ class stzMatrix
 	#-------------------------------#
 
 	def FindElement(nElm)
-		#TODO
+		aPositions = []
+    
+		for i = 1 to @nRows
+			for j = 1 to @nCols
+				if @aMatrix[i][j] = nElm
+					aPositions + [i, j]
+				ok
+			next
+		next
+    
+		return aPositions
 
 	def FindElements(panElms)
-		#TODO
 
-	def FindCol(panCol)
-		#TODO
+		aResult = []
+		nLen = len(panElms)
+
+		for i = 1 to nLen
+
+			aPositions = This.FindElement(panElms[i])
+			nLen2 = len(aPositions)
+
+			for j = 1 to nLen2
+				aResult + aPositions[j]
+			next
+
+		next
+
+		return aResult
+
+	func FindCol(paCol)
+		aResult = []
+
+		for nColIndex = 1 to @nCols
+			bMatch = True
+
+			for nRowIndex = 1 to @nRows
+				if @aMatrix[nRowIndex][nColIndex] != paCol[nRowIndex]
+					bMatch = False
+					exit
+				ok
+			next
+
+			if bMatch
+				aResult + nColIndex
+			ok
+		next
+    
+		return aResult
 
 	def FindCols(panCols)
-		#TODO
+		
+		nLen = len(panCols)
+		anResult = []
+
+		for i = 1 to nLen
+
+			anPos = This.FindCol(panCols[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		return U(@sort(anResult))
 
 	def FindRow(panRow)
-		#TODO
+		anResult = []
+
+		for nRowIndex = 1 to @nRows
+			bMatch = True
+
+			for nColIndex = 1 to @nCols
+				if @aMatrix[nRowIndex][nColIndex] != panRow[nColIndex]
+					bMatch = False
+					exit
+				ok
+			next
+
+			if bMatch
+				anResult + nRowIndex
+			ok
+		next
+    
+		return anResult
 
 	def FindRows(panRows)
-		#TODO
+
+		nLen = len(panRows)
+		anResult = []
+
+		for i = 1 to nLen
+
+			anPos = This.FindRow(panRows[i])
+			nLenPos = len(anPos)
+
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+		next
+
+		return U(@sort(anResult))
 
 	  #-----------------------------#
 	 # Matrix Manipulation Methods #
@@ -773,6 +886,10 @@ class stzMatrix
 		def Section(panStart, panEnd)
 			return SubMatrix(panStart, panEnd)
 
+	  #----------------------------------#
+	 #  REPLACING THINGS IN THE MATRIX  #
+	#----------------------------------#
+
 	# Replaces a specific column with a given list
 
 	def ReplaceCol(pnCol, panNewCol)
@@ -783,7 +900,7 @@ class stzMatrix
 				stzraise("Incorrect param type! pnCol must be a number.")
 			ok
 
-			if isList(panNewCol) and StzListQ(panNewCol).IsByOrWithNamedParam()
+			if isList(panNewCol) and StzListQ(panNewCol).IsByOrWithOrUsingNamedParam()
 				panNewCol = panNewCol[2]
 			ok
 
@@ -810,7 +927,7 @@ class stzMatrix
 				stzraise("Incorrect param type! panCols must be a list of strictictly positive numbers.")
 			ok
 
-			if isList(panNewCols) and StzListQ(panNewCols).IsByOrWithNamedParam()
+			if isList(panNewCols) and StzListQ(panNewCols).IsByOrWithOrUsingNamedParam()
 				panNewCols = panNewCols[2]
 			ok
 
@@ -857,7 +974,7 @@ class stzMatrix
 				stzraise("Incorrect param value! pnRow must be a NonZero positive number.")
 			ok
 
-			if isList(panNewRow) and StzListQ(panNewRow).IsByOrUsingNamedParam()
+			if isList(panNewRow) and StzListQ(panNewRow).IsByOrWithOrUsingNamedParam()
 				panNewRow = panNewRow[2]
 			ok
 
@@ -915,32 +1032,9 @@ class stzMatrix
 
 	def ReplaceElement(pnElm, pnNewElm)
 
-		if isList(pnNewElm)
-			This.ReplaceElementByMany(pnElm, pnNewElm)
-		ok
-
-		#TODO
-
-		def ReplaceAllOccurrences(pnElm, pnNewElm)
-			This.ReplaceElement(pnElm, pnNewElm)
-
-	# Replacing any element at the given position by a new element
-
-	def ReplaceElmentAt(pnRow, pnCol, pnNewElm)
-		#TODO
-
-	# Replacing a given element by a new element, only if
-	# it exists at the given posisiton
-
-	def ReplaceThisElementAt(pnElm, pnRow, pnCol, pnNewElm)
-
 		if CheckParams()
-			if NOT (isNumber(pnRow) and isNumber(pnCol))
-				stzraise("Incorrect param types! pnRow and pnCol must be both numbers.")
-			ok
-
-			if NOT (pnRow > 0 and pnCol > 0)
-				stzraise("Incorrect param values! pnRow and pnCol must be both non-zero positive integers.")
+			if isList(pnNewElm) and StzListQ(pnNewElm).IsByOrWithOrUsingNamedParam()
+				pnNewElm = pnNewElm[2]
 			ok
 
 			if NOT isNumber(pnNewElm)
@@ -948,13 +1042,113 @@ class stzMatrix
 			ok
 		ok
 
-		@aMatrix[pnRow][pnCol] = pnNewElm
+		if isList(pnNewElm)
+			This.ReplaceElementByMany(pnElm, pnNewElm)
+		ok
+
+		for i = 1 to @nRows
+			for j = 1 to @nCols
+				if @aMatrix[i][j] = pnElm
+					@aMatrix[i][j] = pnNewElm
+				ok
+			next
+		next
+
+		def ReplaceAllOccurrences(pnElm, pnNewElm)
+			This.ReplaceElement(pnElm, pnNewElm)
+
+	# Replacing any element at the given position by a new element
+
+	def ReplaceElementAt(panRowCol, pnNewElm)
+
+		if CheckParams()
+
+			if NOT (isList(panRowCol) and len(panRowCol) = 2 and
+				isNumber(panRowCol[1]) and isNumber(panRowCol[2]) )
+
+				stzraise("Incorrect param types! panRowCol must be a pair of numbers.")
+			ok
+
+			if isList(pnNewElm) and StzListQ(pnNewElm).IsByOrWithOrUsingNamedParam()
+				pnNewElm = pnNewElm[2]
+			ok
+
+			if NOT isNumber(pnNewElm)
+				stzraise("Incorrect param type! pnNewElm must be a number.")
+			ok
+
+		ok
+
+		nRow = panRowCol[1]
+		nCol = panRowCol[2]
+
+		@aMatrix[nRow][nCol] = pnNewElm
+
+	# Replacing a given element by a new element, only if
+	# it exists at the given posisiton
+
+	def ReplaceThisElementAt(pnElm, panRowCol, pnNewElm)
+
+		if CheckParams()
+
+			if NOT (isList(panRowCol) and len(panRowCol) = 2 and
+				isNumber(panRowCol[1]) and isNumber(panRowCol[2]) )
+
+				stzraise("Incorrect param types! panRowCol must be a pair of numbers.")
+			ok
+
+			if isList(pnNewElm) and StzListQ(pnNewElm).IsByOrWithOrUsingNamedParam()
+				pnNewElm = pnNewElm[2]
+			ok
+
+			if NOT isNumber(pnNewElm)
+				stzraise("Incorrect param type! pnNewElm must be a number.")
+			ok
+
+		ok
+
+		nRow = panRowCol[1]
+		nCol = panRowCol[2]
+
+		if @aMatrix[nRow][nCol] = pnElm
+			@aMatrix[nRow][nCol] = pnNewElm
+		else
+			stzraise("Can't proceed! pnElm must be equal to the element in position panRowCol.")
+		ok
 
 	# Replacing the occureences of the given elements in the matrix by
 	# the given new element, only they exist at the given positions
 
-	def RepalaceTheseElementsAt(panElms, panPos, pnNewElm)
-		#TODO
+	def ReplaceTheseElementsAt(panElms, panPos, pnNewElm)
+
+		if CheckParams()
+			if NOT isList(panElms)
+				stzraise("Incorrect param type! panElms must be a list.")
+			ok
+	
+			if NOT isList(panPos)
+				stzraise("Incorrect param type! panPos must be a list of position pairs.")
+			ok
+	
+			if NOT isNumber(pnNewElm)
+				stzraise("Incorrect param type! pnNewElm must be a number.")
+			ok
+		ok
+
+		nLen = len(panPos)
+	
+		for i = 1 to nLen
+			nRow = panPos[i][1]
+			nCol = panPos[i][2]
+	
+			if nRow <= @nRows and nCol <= @nCols
+				if i <= len(panElms)
+					if @aMatrix[nRow][nCol] = panElms[i]
+						@aMatrix[nRow][nCol] = pnNewElm
+					ok
+				ok
+			ok
+		next
 
 	  #--------------------------------#
 	 #  REPLACEMENT BY MANY ELEMENTS  #
@@ -963,37 +1157,151 @@ class stzMatrix
 	# Replacing all the occurrences of an element by the given new element
 
 	def ReplaceElementByMany(pnElm, panNewElms)
-		#TODO
-		# consider the @min() of the number of occurrences of pnElm
-		# in the matrix and the lenght of panNewElms
+
+		if CheckParams()
+			if NOT isNumber(pnElm)
+				stzraise("Incorrect param type! pnElm must be a number.")
+			ok
+
+			if NOT isList(panNewElms)
+				stzraise("Incorrect param type! panNewElms must be a list of numbers.")
+			ok
+		ok
+
+		aPositions = This.FindElement(pnElm)
+		nLen = len(aPositions)
+		nNewElmsLen = len(panNewElms)
+    
+		# Consider the minimum of occurrences and replacement values
+
+		nToReplace = @min([nLen, nNewElmsLen])
+
+		for i = 1 to nToReplace
+			nRow = aPositions[i][1]
+			nCol = aPositions[i][2]
+			@aMatrix[nRow][nCol] = panNewElms[i]
+		next
 
 		def ReplaceAllOccurrencesByMany(pnElm, panNewElms)
 			This.ReplaceElementByMany(pnElm, panNewElms)
 
 	def ReplaceElementByManyXT(pnElm, panNewElms)
-		#TODO
-		# if the number of occurrences of pnElm is different then
-		# the lenght of panNewElms then go cyclic (in case there
-		# are less elements in panNewElms, restart from the first)
+
+		if CheckParams()
+			if NOT isNumber(pnElm)
+				stzraise("Incorrect param type! pnElm must be a number.")
+			ok
+
+			if NOT isList(panNewElms)
+				stzraise("Incorrect param type! panNewElms must be a list of numbers.")
+			ok
+		ok
+
+		aPositions = This.FindElement(pnElm)
+		nLen = len(aPositions)
+		nNewElmsLen = len(panNewElms)
+
+		# If no replacement values, exit
+
+		if nNewElmsLen = 0 return ok
+
+		# Replace all occurrences with cycling through replacement values
+
+		for i = 1 to nLen
+			nRow = aPositions[i][1]
+			nCol = aPositions[i][2]
+			nIndex = ((i-1) % nNewElmsLen) + 1  # Cycle through new elements
+			@aMatrix[nRow][nCol] = panNewElms[nIndex]
+		next
 
 		def ReplaceAllOccurrencesXT(pnElm, panNewElms)
-			This.ReplaceElementXT(pnElm, panNewElms)
+			This.ReplaceElementByManyXT(pnElm, panNewElms)
 
 	#--
 
 	# Replacing the occureences of the given elements in the matrix by
 	# the given new elements, only if they exist at the given positions
 
-	def RepalaceTheseElementsAtByMany(panElms, panPos, panNewElms)
-		#TODO
-		# consider the @min() of the number of occurrences of panElms
-		# in the matrix and the lenght of panNewElms
+	def ReplaceTheseElementsAtByMany(panElms, panPos, panNewElms)
 
-	def RepalaceTheseElementsAtByManyXT(panElms, panPos, panNewElms)
-		#TODO
-		# if the number of occurrences of panElms is different then
-		# the lenght of panNewElms then go cyclic (in case there
-		# are less elements in panNewElms, restart from the first)
+		if CheckParams()
+
+			if NOT isList(panElms)
+				stzraise("Incorrect param type! panElms must be a list.")
+			ok
+
+			if NOT isList(panPos)
+				stzraise("Incorrect param type! panPos must be a list of position pairs.")
+			ok
+
+			if NOT isList(panNewElms)
+				stzraise("Incorrect param type! panNewElms must be a list of numbers.")
+			ok
+		ok
+
+		nLen = len(panPos)
+		nElmsLen = len(panElms)
+		nNewElmsLen = len(panNewElms)
+
+		# Consider minimum of occurrences, elements, and replacement values
+
+		nToReplace = @min([nLen, nElmsLen, nNewElmsLen])
+
+		for i = 1 to nToReplace
+
+			nRow = panPos[i][1]
+			nCol = panPos[i][2]
+
+			if nRow <= @nRows and nCol <= @nCols
+
+				if @aMatrix[nRow][nCol] = panElms[i]
+					@aMatrix[nRow][nCol] = panNewElms[i]
+				ok
+
+			ok
+		next
+
+	def ReplaceTheseElementsAtByManyXT(panElms, panPos, panNewElms)
+
+		if CheckParams()
+
+			if NOT isList(panElms)
+				stzraise("Incorrect param type! panElms must be a list.")
+			ok
+
+			if NOT isList(panPos)
+				stzraise("Incorrect param type! panPos must be a list of position pairs.")
+			ok
+
+			if NOT isList(panNewElms)
+				stzraise("Incorrect param type! panNewElms must be a list of numbers.")
+			ok
+
+		ok
+
+		nLen = len(panPos)
+		nElmsLen = len(panElms)
+		nNewElmsLen = len(panNewElms)
+
+		# If no replacement values, exit
+
+		if nNewElmsLen = 0 return ok
+
+		# Replace elements with cycling through replacement values
+
+		for i = 1 to @min([nLen, nElmsLen])
+
+			nRow = panPos[i][1]
+			nCol = panPos[i][2]
+
+			if nRow <= @nRows and nCol <= @nCols
+				if @aMatrix[nRow][nCol] = panElms[i]
+					nIndex = ((i-1) % nNewElmsLen) + 1  # Cycle through new elements
+					@aMatrix[nRow][nCol] = panNewElms[nIndex]
+				ok
+			ok
+
+		next
 
 	  #-----------------------------#
 	 # Specialized Data Extraction #
