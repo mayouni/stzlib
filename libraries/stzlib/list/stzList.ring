@@ -90077,6 +90077,34 @@ fdef
 		def IsForOrWhenOrIfNamedParam()
 			return This.IsIfOrForOrWhenNamedParam()
 
+	def IsByOrInColNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   (This.Item(1) = :By or This.Item(1) = :InCol)
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+		def IsInColOrByNamedParam()
+			return This.IsByOrInColNamedParam()
+
+	def IsByOrInRowNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   (This.Item(1) = :By or This.Item(1) = :InRow)
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+		def IsInRowOrByNamedParam()
+			return This.IsByOrInRowNamedParam()
+
 #WARNING: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.
 
