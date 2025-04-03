@@ -831,6 +831,6 @@ func FastProUpdateMany(paList, paCommandLists)
 	next
 
 	cCode += " )"
-
+? ccode
 	eval(cCode)
 	return paList

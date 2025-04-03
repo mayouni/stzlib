@@ -281,8 +281,53 @@ o1.Show()
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
+/*---
+
+pr()
+
+aMatrix = [
+    [ 1, 2, 3 ],
+    [ 4, 5, 6 ],
+    [ 7, 8, 9 ]
+]
+
+updateColumn(aMatrix, :mul, 1, 2, :mul, 3, 2)
+
+? @@NL(aMatrix)
+#--> [
+#	[ 2, 2, 6 ],
+#	[ 8, 5, 12 ],
+#	[ 14, 8, 18 ]
+# ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
 /*--- Multiplying many cols
-*/
+
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 0, 3 ],
+    [ 4, 0, 6 ],
+    [ 7, 0, 9 ]
+])
+
+o1.MultiplyCols([1, 3], :By = 2)
+
+o1.Show()
+#-->
+# ┌         ┐
+# │  2 0  6 │
+# │  8 0 12 │
+# │ 14 0 18 │
+# └         ┘
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*---
+
 pr()
 
 o1 = new stzMatrix([
@@ -291,11 +336,17 @@ o1 = new stzMatrix([
     [ 7, 8, 9 ]
 ])
 
-o1.MultiplyCols([1, 3], :By = 2)
 o1.MultiplyCols([:from = 2, :to = 3], :By = 2)
 o1.Show()
+#-->
+# ┌         ┐
+# │ 1  4  6 │
+# │ 4 10 12 │
+# │ 7 16 18 │
+# └         ┘
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- MultiplyRow Example
 
@@ -310,9 +361,6 @@ o1 = new stzMatrix([
 # Third row multiplied by 3
 
 o1.MultiplyRow(3, :By = 3)
-# Result: 
-# Matrix becomes [1,2,3],[4,5,6],[21,24,27]
-
 o1.Show()
 #-->
 # ┌          ┐
@@ -324,8 +372,53 @@ o1.Show()
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
+/*--- Multiplying many rows
+
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 3 ],
+    [ 5, 5, 5 ],
+    [ 7, 8, 9 ]
+])
+
+o1.MultiplyRows([1, 3], :By = 2)
+
+o1.Show()
+#-->
+# ┌          ┐
+# │  2  4  6 │
+# │  5  5  5 │
+# │ 14 16 18 │
+# └          ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
 /*---
 
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 3 ],
+    [ 4, 5, 6 ],
+    [ 7, 8, 9 ]
+])
+
+o1.MultiplyRows([:from = 2, :to = 3], :By = 2)
+o1.Show()
+#-->
+# ┌          ┐
+# │  1  2  3 │
+# │  8 10 12 │
+# │ 14 16 18 │
+# └          ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*===
+*
 pr()
 
 ? IsMatrixOfNonZeroPositiveNumbers([ [ 10, 20, 30 ], [ 40, 50, 60 ] ])
@@ -508,6 +601,195 @@ o1.Show()
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
+/*=== FINDING THINGS IN THE MATRIX
+
+/*-- FindElement() - Find all occurrences of an element in the matrix
+
+pr()
+
+o1 = new stzMatrix([
+	[ 80, 85, 99 ],
+	[ 70, 75, 80 ],
+	[ 99, 65, 99 ]
+])
+
+? @@( o1.FindElement(99) )
+#--> [ [ 1, 3 ], [ 3, 1 ], [ 3, 3 ] ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-- FindElements() - Find all occurrences of multiple elements
+
+pr()
+
+o1 = new stzMatrix([
+	[ 88, 85, 99 ],
+	[ 70, 88, 80 ],
+	[ 99, 65, 99 ]
+])
+
+? @@( o1.FindElements([ 88, 99 ]) )
+#--> [ [ 1, 1 ], [ 2, 2 ], [ 1, 3 ], [ 3, 1 ], [ 3, 3 ] ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-- FindCol() - Find columns that match a pattern
+
+pr()
+
+o1 = new stzMatrix([
+	[ 88, 85, 88 ],
+	[ 70, 88, 70 ],
+	[ 99, 65, 99 ]
+])
+
+? @@( o1.FindCol([ 88, 70, 99 ]) )
+#--> [ 1, 3 ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-- FindCols() - Find all columns that match multiple patterns
+
+pr()
+
+o1 = new stzMatrix([
+	[ 88, 85, 88, 1 ],
+	[ 70, 88, 70, 1 ],
+	[ 99, 65, 99, 1 ]
+	
+])
+
+? @@( o1.FindCols([
+	[ 1, 1, 1 ],
+	[ 88, 70, 99 ]
+]) )
+#--> [ 1, 3, 4 ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-- FindRow() - Find rows that match a pattern
+
+pr()
+
+o1 = new stzMatrix([
+	[ 7, 21, 88 ],
+	[ 1, 11, 11 ],
+	[ 7, 21, 88 ]
+])
+
+? @@( o1.FindRow([ 7, 21, 88 ]) )
+#--> [ 1, 3 ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-- FindRows() - Find all rows that match multiple patterns
+
+pr()
+
+o1 = new stzMatrix([
+	[ 7, 21, 88 ],
+	[ 0,  0,  0 ],
+	[ 1, 11, 11 ],
+	[ 7, 21, 88 ],
+	[ 0,  0,  0 ]
+])
+
+
+? @@( o1.FindRows([
+	[ 7, 21, 88 ],
+	[ 0,  0,  0 ]
+]) )
+#--> [ 1, 2, 4, 5 ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*=== REPLACING ELEMENTS IN THE MATRIX
+
+/*-- ReplaceElement() - Replace all occurrences of an element
+*/
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 5 ],
+    [ 4, 5, 6 ],
+    [ 5, 8, 9 ]
+])
+
+o1.ReplaceElement(5, :By = 0)
+o1.Show()
+#-->
+# ┌       ┐
+# │ 1 2 0 │
+# │ 4 0 6 │
+# │ 0 8 9 │
+# └       ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-- ReplaceElementAt() - Replace element at a specific position
+
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 3 ],
+    [ 4, 5, 6 ],
+    [ 7, 8, 9 ]
+])
+
+o1.ReplaceElementAt([ 3, 3 ], :By = 0 )
+o1.Show()
+#-->
+# ┌       ┐
+# │ 1 2 3 │
+# │ 4 5 6 │
+# │ 7 8 0 │
+# └       ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-- ReplaceThisElementAt() - Replace a specific element at a specific position
+*/
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 3 ],
+    [ 4, 5, 6 ],
+    [ 7, 8, 9 ]
+])
+
+o1.ReplaceThisElementAt(9, [ 3, 3 ], :By = 0 )
+o1.Show()
+#-->
+# ┌       ┐
+# │ 1 2 3 │
+# │ 4 5 6 │
+# │ 7 8 0 │
+# └       ┘
+
+/*-- ReplaceTheseElementsAt() - Replace multiple elements at specific positions
+	#TODO
+
+/*=== REPLACEMENT BY MANY ELEMENTS
+
+/*-- ReplaceElementByMany() - Replace occurrences with multiple elements (limited)
+	#TODO
+
+/*-- ReplaceElementByManyXT() - Replace occurrences with cycling elements
+	#TODO
+
+/*-- ReplaceTheseElementsAtByMany() - Replace specific elements at specific positions
+	#TODO
+
+/*-- ReplaceTheseElementsAtByManyXT() - Replace specific elements at specific positions with cycling
+	#TODO
 
 /*---------------------#
 #  PRACTICAL EXAMPLES  #
