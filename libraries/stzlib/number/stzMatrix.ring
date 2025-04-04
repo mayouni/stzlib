@@ -878,6 +878,106 @@ class stzMatrix
 	 # Matrix Manipulation Methods #
 	#-----------------------------#
 
+	# Getting the section of elements between two positions
+
+	def FindElementsInSection(panStart, panEnd)
+		if CheckParams()
+
+			if NOT (isList(panStart) and len(panStart) = 2 and
+				isNumber(panStart[1]) and isNumber(panStart[2]))
+	
+				stzraise("Incorrect param type! panStart must be a pair of numbers.")
+			ok
+
+			if NOT (isList(panEnd) and len(panEnd) = 2 and
+				isNumber(panEnd[1]) and isNumber(panEnd[2]))
+	
+				stzraise("Incorrect param type! panEnd must be a pair of numbers.")
+			ok
+		ok
+
+		aResult = []
+
+		for i = panStart[1] to panEnd[1]
+			aRow = []
+
+			for j = panStart[2] to panEnd[2]
+				aRow + [j, i]
+			next
+
+			nLen = len(aRow)
+			for j = 1 to nLen
+				aResult + aRow[j]
+			next
+		next
+
+		return aResult
+
+		def FindNumbersInSection(panStart, panEnd)
+			return This.FindElementsInSection(panStart, panEnd)
+
+	def Section(panStart, panEnd)
+
+		if CheckParams()
+
+			if NOT (isList(panStart) and len(panStart) = 2 and
+				isNumber(panStart[1]) and isNumber(panStart[2]))
+	
+				stzraise("Incorrect param type! panStart must be a pair of numbers.")
+			ok
+
+			if NOT (isList(panEnd) and len(panEnd) = 2 and
+				isNumber(panEnd[1]) and isNumber(panEnd[2]))
+	
+				stzraise("Incorrect param type! panEnd must be a pair of numbers.")
+			ok
+		ok
+
+		aResult = []
+
+		for i = panStart[1] to panEnd[1]
+			aRow = []
+			for j = panStart[2] to panEnd[2]
+				aRow + @aMatrix[j][i]
+			next
+
+			aResult + aRow
+		next
+
+		return @Merge(aResult)
+
+		#< @FunctionFluentForms
+
+		def SectionQ(panStart, panEnd)
+			return new stzList(This.Section(panStart, panEnd))
+
+		def SectionQQ(panStart, panEnd)
+			return new stzListOfNumbers(This.Section(panStart, panEnd))
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ElementsInSection(panStart, panEnd)
+			return This.Section(panStart, panEnd)
+
+			def ElementsInSectionQ(panStart, panEnd)
+				return This.SectionQ(panStart, panEnd)
+
+			def ElementsInSectionQQ(panStart, panEnd)
+				return This.SectionQQ(panStart, panEnd)
+
+		def NumbersInSection(panStart, panEnd)
+			return This.Section(panStart, panEnd)
+
+			def NumbersInSectionQ(panStart, panEnd)
+				return This.SectionQ(panStart, panEnd)
+
+			def NumbersInSectionQQ(panStart, panEnd)
+				return This.SectionQQ(panStart, panEnd)
+
+		#>
+
 	# Creates a submatrix by extracting specific rows and columns
 
 	def SubMatrix(panStart, panEnd)
@@ -908,13 +1008,10 @@ class stzMatrix
 			aResult + aRow
 		next
 
-		return aResult
+		return new stzMatrix(aResult)
 
 		def SubMatrixQ(panStart, panEnd)
-			return new stzMatrix(This.SubMatrix(panStart, panEnd))
-
-		def Section(panStart, panEnd)
-			return SubMatrix(panStart, panEnd)
+			return This.SubMatrix(panStart, panEnd)
 
 	  #----------------------------------#
 	 #  REPLACING THINGS IN THE MATRIX  #
@@ -1119,6 +1216,9 @@ class stzMatrix
 		def ReplaceAllOccurrences(pnElm, pnNewElm)
 			This.ReplaceElement(pnElm, pnNewElm)
 
+		def ReplaceNumber(pnElm, pnNewElm)
+			This.ReplaceElement(pnElm, pnNewElm)
+
 	# Replacing any element at the given position by a new element
 
 	def ReplaceElementAt(panRowCol, pnNewElm)
@@ -1145,6 +1245,9 @@ class stzMatrix
 		nCol = panRowCol[2]
 
 		@aMatrix[nRow][nCol] = pnNewElm
+
+		def ReplaceNumberAt(panRowCol, pnNewElm)
+			This.ReplaceElementAt(panRowCol, pnNewElm)
 
 	# Replacing a given element by a new element, only if
 	# it exists at the given posisiton
@@ -1177,6 +1280,9 @@ class stzMatrix
 		else
 			stzraise("Can't proceed! pnElm must be equal to the element in position panRowCol.")
 		ok
+
+		def ReplaceThisNumberAt(pnElm, panRowCol, pnNewElm)
+			This.ReplaceThisElementAt(pnElm, panRowCol, pnNewElm)
 
 	# Replacing the occureences of the given elements in the matrix by
 	# the given new element, only they exist at the given positions
@@ -1216,6 +1322,9 @@ class stzMatrix
 			ok
 		next
 
+		def ReplaceTheseNumbersAt(panElms, panPos, pnNewElm)
+			This.ReplaceTheseElementsAt(panElms, panPos, pnNewElm)
+
 	  #--------------------------------#
 	 #  REPLACEMENT BY MANY ELEMENTS  #
 	#--------------------------------#
@@ -1251,6 +1360,9 @@ class stzMatrix
 		def ReplaceAllOccurrencesByMany(pnElm, panNewElms)
 			This.ReplaceElementByMany(pnElm, panNewElms)
 
+		def ReplaceNumberByMany(pnElm, panNewElms)
+			This.ReplaceElementByMany(pnElm, panNewElms)
+
 	def ReplaceElementByManyXT(pnElm, panNewElms)
 
 		if CheckParams()
@@ -1281,6 +1393,9 @@ class stzMatrix
 		next
 
 		def ReplaceAllOccurrencesXT(pnElm, panNewElms)
+			This.ReplaceElementByManyXT(pnElm, panNewElms)
+
+		def ReplaceNumberByManyXT(pnElm, panNewElms)
 			This.ReplaceElementByManyXT(pnElm, panNewElms)
 
 	#--
@@ -1327,6 +1442,9 @@ class stzMatrix
 			ok
 		next
 
+		def ReplaceTheseNumbersAtByMany(panElms, panPos, panNewElms)
+			This.ReplaceTheseElementsAtByMany(panElms, panPos, panNewElms)
+
 	def ReplaceTheseElementsAtByManyXT(panElms, panPos, panNewElms)
 
 		if CheckParams()
@@ -1368,6 +1486,9 @@ class stzMatrix
 			ok
 
 		next
+
+		def ReplaceTheseNumbersAtByManyXT(panElms, panPos, panNewElms)
+			This.ReplaceTheseElementsAtByManyXT(panElms, panPos, panNewElms)
 
 	  #-----------------------------#
 	 # Specialized Data Extraction #
