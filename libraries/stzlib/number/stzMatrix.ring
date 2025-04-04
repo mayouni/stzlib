@@ -735,6 +735,36 @@ class stzMatrix
 
 		return nMin
 
+	# Calculates the power of all elements
+
+	def Power(n)
+
+		nTotal = 0
+
+		for i = 1 to @nRows
+
+			for j = 1 to @nCols
+				@aMatrix[i][j] = pow(@aMatrix[i][j], n)
+			next
+
+		next
+
+		def PowerQ(n)
+			This.Power(n)
+			return This
+
+		def RaiseToPower(n)
+			This.Power(n)
+
+			def RaiseToPowerQ(n)
+				return This.PowerQ(n)
+
+		def ToPower(n)
+			This.Power(n)
+
+			def ToPowerQ(n)
+				return This.PowerQ(n)
+
 	#-------------------------------#
 	#  FINDING THING IN THE MATRIX  #
 	#-------------------------------#
@@ -1032,6 +1062,42 @@ class stzMatrix
 
 	def ReplaceElement(pnElm, pnNewElm)
 
+		bXT = _FALSE_
+
+		if isList(pnNewElm)
+
+			if isString(pnNewElm[1])
+
+				if ( pnNewElm[1] = :ByMany or
+			     	     pnNewElm[1] = :WithMany or 
+			     	     pnNewElm[1] = :UsingMany )
+
+					pnNewElm[1] = :By
+
+				but ( pnNewElm[1] = :ByManyXT or
+			     	     pnNewElm[1] = :WithManyXT or 
+			     	     pnNewElm[1] = :UsingManyXT )
+
+					pnNewElm[1] = :ByXT
+					bXT = _TRUE_
+				ok
+
+			ok
+
+			if StzListQ(pnNewElm).IsByOrWithOrUsingNamedParam()
+				pnNEwElm = pnNewElm[2]
+			ok
+
+			if NOT bXT
+				This.ReplaceElementByMany(pnElm, pnNewElm)
+			else
+				
+				This.ReplaceElementByManyXT(pnElm, pnNewElm[2])
+			ok
+
+			return
+		ok
+
 		if CheckParams()
 			if isList(pnNewElm) and StzListQ(pnNewElm).IsByOrWithOrUsingNamedParam()
 				pnNewElm = pnNewElm[2]
@@ -1040,10 +1106,6 @@ class stzMatrix
 			if NOT isNumber(pnNewElm)
 				stzraise("Incorrect param type! pnNewElm must be a number.")
 			ok
-		ok
-
-		if isList(pnNewElm)
-			This.ReplaceElementByMany(pnElm, pnNewElm)
 		ok
 
 		for i = 1 to @nRows
@@ -1129,7 +1191,11 @@ class stzMatrix
 			if NOT isList(panPos)
 				stzraise("Incorrect param type! panPos must be a list of position pairs.")
 			ok
-	
+
+			if isList(pnNewElm) and StzListQ(pnNewElm).IsByOrWithOrUsingNamedParam()
+				pnNewElm = pnNewElm[2]
+			ok
+
 			if NOT isNumber(pnNewElm)
 				stzraise("Incorrect param type! pnNewElm must be a number.")
 			ok

@@ -712,7 +712,7 @@ pf()
 /*=== REPLACING ELEMENTS IN THE MATRIX
 
 /*-- ReplaceElement() - Replace all occurrences of an element
-*/
+
 pr()
 
 o1 = new stzMatrix([
@@ -756,7 +756,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*-- ReplaceThisElementAt() - Replace a specific element at a specific position
-*/
+
 pr()
 
 o1 = new stzMatrix([
@@ -775,86 +775,162 @@ o1.Show()
 # └       ┘
 
 /*-- ReplaceTheseElementsAt() - Replace multiple elements at specific positions
-	#TODO
+
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 3 ],
+    [ 4, 5, 6 ],
+    [ 7, 8, 9 ]
+])
+
+o1.ReplaceTheseElementsAt([ 9, 2 ], [ [ 3, 3 ], [ 1, 2 ] ], :By = 0 )
+o1.Show()
+#-->
+# ┌       ┐
+# │ 1 0 3 │
+# │ 4 5 6 │
+# │ 7 8 0 │
+# └       ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*=== REPLACEMENT BY MANY ELEMENTS
 
 /*-- ReplaceElementByMany() - Replace occurrences with multiple elements (limited)
-	#TODO
+
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 5 ],
+    [ 4, 5, 6 ],
+    [ 5, 8, 9 ]
+])
+
+o1.ReplaceElement(5, :ByMany = [ -1, -2, -3 ]) # Or ReplaceElementByMany()
+o1.Show()
+#-->
+# ┌          ┐
+# │  1  2 -1 │
+# │  4 -2  6 │
+# │ -3  8  9 │
+# └          ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 5 ],
+    [ 4, 5, 6 ],
+    [ 5, 8, 9 ]
+])
+
+o1.ReplaceElement(5, :ByMany = [ -1, -2 ]) # Or ReplaceElementByMany()
+o1.Show()
+#-->
+# ┌          ┐
+# │  1  2 -1 │
+# │  4 -2  6 │
+# │  5  8  9 │
+# └          ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*-- ReplaceElementByManyXT() - Replace occurrences with cycling elements
-	#TODO
+
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 5 ],
+    [ 4, 5, 6 ],
+    [ 5, 8, 9 ]
+])
+
+o1.ReplaceElement(5, :ByManyXT = [ -1, -2 ]) # Or ReplaceElementByManyXT()
+o1.Show()
+#-->
+# ┌          ┐
+# │  1  2 -1 │
+# │  4 -2  6 │
+# │ -1  8  9 │
+# └          ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
 
 /*-- ReplaceTheseElementsAtByMany() - Replace specific elements at specific positions
-	#TODO
+
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 5 ],
+    [ 4, 5, 6 ],
+    [ 5, 8, 9 ]
+])
+
+o1.ReplaceTheseElementsAtByMany([ 2, 8 ], [ [ 1, 2 ], [ 3, 2 ] ], [ -1, -2 ])
+o1.Show()
+#-->
+# ┌        ┐
+# │ 1 -1 5 │
+# │ 4  5 6 │
+# │ 5 -2 9 │
+# └        ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*-- ReplaceTheseElementsAtByManyXT() - Replace specific elements at specific positions with cycling
-	#TODO
-
-/*---------------------#
-#  PRACTICAL EXAMPLES  #
-#----------------------#
-
-/*--- Example 1: Financial Portfolio Analysis
 
 pr()
-	# Assume a 3-asset portfolio with historical returns for 5 time periods
 
-	oRetMx = new stzMatrix([
+o1 = new stzMatrix([
+    [ 1, 2, 5 ],
+    [ 4, 5, 6 ],
+    [ 5, 8, 9 ]
+])
 
-		[  0.02,  0.03, -0.01 ],
-		[  0.01, -0.02,  0.04 ],
-		[  0.03,  0.01,  0.02 ],
-		[ -0.01,  0.04,  0.03 ],
-		[  0.02, -0.01,  0.01 ]
+o1.ReplaceTheseElementsAtByManyXT(
+	[ 2, 5, 8 ],
+	[ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ],
+	[ -1, -2 ]
+)
+o1.Show()
+#-->
+# ┌        ┐
+# │ 1 -1 5 │
+# │ 4 -2 6 │
+# │ 5 -1 9 │
+# └        ┘
 
-	])
-	
-	# Compute average returns for each asset
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
-	? oRetMx.Mean()
-	
-	# Compute portfolio variance (sum of squared deviations)
-
-	oRetMx.SubMeanQ().PowerQ(2).Sum()
-	? "Portfolio Variance: " + variance
-
-/*-- Example 2: Image Processing Simulation
-
+/*===
+*/
 pr()
-	# Simulating a 3x3 grayscale image as a matrix
-	image = new stzMatrix([
-		[100, 150, 200],
-		[50, 100, 150],
-		[0, 50, 100]
-	])
-	
-	# Apply brightness increase by adding 50 to all pixels
-	image.Add(50)
-	image.Show()
-	
-	# Apply an edge detection filter (simple difference operation)
-	edges = image.Diff()
-	edges.Show()
 
-/--- Example 3: Neural Network Weight Simulation
+o1 = new stzMatrix([
+    [ 1, 2, 5 ],
+    [ 4, 5, 6 ],
+    [ 5, 8, 9 ]
+])
 
-pr()
-	# Initialize weight matrix (3 neurons, 4 inputs)
-	weights = new stzMatrix([
-		[0.5, -0.2, 0.3, 0.1],
-		[0.1, 0.4, -0.5, 0.2],
-		[-0.3, 0.2, 0.6, -0.1]
-	])
-	
-	# Input vector (1 sample, 4 features)
-	input = new stzMatrix([
-		[1.0, -0.5, 0.2, 0.4]
-	])
-	
-	# Compute weighted sum (dot product simulation)
-	output = input.Mul(weights.Transpose())
-	? "Neural Network Output: "
-	output.Show()
+o1.Power(2)
+o1.Show()
+#-->
+# ┌          ┐
+# │  1  4 25 │
+# │ 16 25 36 │
+# │ 25 64 81 │
+# └          ┘
 
-
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
