@@ -978,6 +978,14 @@ class stzMatrix
 
 		#>
 
+	def ElementsInSectionZ(panStart, panEnd)
+		aResult = @Association([
+			This.ElementsInSection(panStart, panEnd),
+			This.FindElementsInSection(panStart, panEnd)
+		])
+
+		return aResult
+
 	# Creates a submatrix by extracting specific rows and columns
 
 	def SubMatrix(panStart, panEnd)
