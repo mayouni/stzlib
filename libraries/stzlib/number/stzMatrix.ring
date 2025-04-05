@@ -250,6 +250,46 @@ class stzMatrix
 
 	# Adds a value to a specific column
 
+	def AddXT(pnValue, p)
+
+		if isList(p)
+			_oList_ = new stzList(p)
+
+			if _oList_.IsInColNamedParam()
+
+				This.AddInCol(pnValue, p[2])
+				return
+
+			but _oList_.IsInRowNamedParam()
+
+				This.AddInRow(pnValue, p[2])
+				return
+
+			but _oList_.IsInColsNamedParam()
+
+				This.AddInCols(pnValue, p[2])
+				return
+
+			but _oList_.IsInRowsNamedParam()
+
+				This.AddInRows(pnValue, p[2])
+				return
+
+			but _oList_.IsInDiagonal() or _oList_.IsInDiagonal1()
+
+				This.AddInDiagonal(pnValue, p[2])
+				return
+
+			but _oList_.IsInDiagonal2()
+
+				This.AddInDiagonal2(pnValue, p[2])
+				return
+
+			ok
+		ok
+
+		stzraise("Unsupported syntax!")
+
 	def AddInCol(pnValue, pnCol)
 
 		# Using RingFastPro
