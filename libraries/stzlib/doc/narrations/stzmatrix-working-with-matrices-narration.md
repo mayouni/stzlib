@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Matrices are the unsung heroes of computational problem-solving, powering everything from data analysis to 3D graphics and machine learning. Whether you’re balancing equations or transforming datasets, matrix operations are essential. The Softanza library for the Ring programming language simplifies this with its `stzMatrix` class—a powerful, user-friendly tool that blends efficiency with elegance. In this article, we’ll dive into `stzMatrix`, exploring its features through practical examples that show how it can streamline your numerical computing tasks.
+Matrices are the unsung heroes of computational problem-solving, powering everything from data analysis to image processing and machine learning. Whether you’re balancing equations or transforming datasets, matrix operations are essential. The Softanza library for the Ring programming language simplifies this with its `stzMatrix` class—a powerful, user-friendly tool that blends efficiency with elegance. In this article, we’ll dive into `stzMatrix`, exploring its features through practical examples that show how it can streamline your numerical computing tasks.
 
 ## Getting Started with stzMatrix
 

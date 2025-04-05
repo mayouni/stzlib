@@ -3,7 +3,7 @@ load "../max/stzmax.ring"
 /*----------------#
 # BASIC EXAMPLES  #
 #-----------------#
-
+*/
 pr()
 
 # Create a 3x3 matrix

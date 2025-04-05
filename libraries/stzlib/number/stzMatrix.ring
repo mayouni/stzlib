@@ -6,6 +6,7 @@
 # -> Remaining arithmetic calculations (Subtract, Divide, Power, Modulo)
 # -> More advanced mathematical operations
 # -> Machine learning-specific methods
+#--> Advanced decompositions (e.g., SVD, LU)
 
 #--
 
