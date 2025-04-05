@@ -1,6 +1,6 @@
 # Introducing stzCobol: Bridging Legacy Systems with Modern Programming
 
-Legacy softAre systems built on COBOL continue to power critical infrastructure across banking, insurance, government, and other enterprise sectors. While these systems have proven remarkably durable, organizations face mounting challenges: dwindling expertise, increasing maintenance costs, and the need to integrate with modern technologies. Enter stzCobol, a groundbreaking framework that creates a bidirectional bridge between legacy COBOL and the modern Ring programming language.
+Legacy software systems built on COBOL continue to power critical infrastructure across banking, insurance, government, and other enterprise sectors. While these systems have proven remarkably durable, organizations face mounting challenges: dwindling expertise, increasing maintenance costs, and the need to integrate with modern technologies. Enter stzCobol, a groundbreaking framework that creates a bidirectional bridge between legacy COBOL and the modern Ring programming language.
 
 ## The Vision Behind stzCobol
 
