@@ -4,6 +4,8 @@
 
 Matrices are the unsung heroes of computational problem-solving, powering everything from data analysis to image processing and machine learning. Whether you’re balancing equations or transforming datasets, matrix operations are essential. The Softanza library for the Ring programming language simplifies this with its `stzMatrix` class—a powerful, user-friendly tool that blends efficiency with elegance. In this article, we’ll dive into `stzMatrix`, exploring its features through practical examples that show how it can streamline your numerical computing tasks.
 
+> **Note** : stzMatrix is implemented using the efficient C-based RingFastPro extension.
+
 ## Getting Started with stzMatrix
 
 Creating and working with matrices in `stzMatrix` is a breeze. Let’s start with a simple 3x3 matrix:
@@ -187,6 +189,7 @@ Output:
 │ 14 0 18 │
 └         ┘
 ```
+And you can operate the multiplication on a range of columns:
 
 ```ring
 # Multiply rows 2 to 3 by 2
@@ -288,7 +291,7 @@ Output:
 ]
 ```
 
-These are moved up here to provide a foundation before exploring transformations.
+Now you can feed these to stzMatrix to get an object that you can work on.
 
 ## Matrix Transformations
 
@@ -426,6 +429,8 @@ Output:
 │ 17 23 19 │
 └          ┘
 ```
+
+> **Note** : In matrix semantics, elements positions are read vertically from top to down and then horizontally from left to right.
 
 ## Extracting Submatrices
 
