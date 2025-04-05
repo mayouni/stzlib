@@ -874,19 +874,25 @@ class stzMatrix
 
 		return U(@sort(anResult))
 
-	  #-----------------------------#
-	 # Matrix Manipulation Methods #
-	#-----------------------------#
+	#--
 
 	# Getting the section of elements between two positions
 
 	def FindElementsInSection(panStart, panEnd)
 		if CheckParams()
 
+			if isList(panStart) and StzListQ(panStart).IsFromNamedParam()
+				panStart = panStart[2]
+			ok
+
 			if NOT (isList(panStart) and len(panStart) = 2 and
 				isNumber(panStart[1]) and isNumber(panStart[2]))
 	
 				stzraise("Incorrect param type! panStart must be a pair of numbers.")
+			ok
+
+			if isList(panEnd) and StzListQ(panEnd).IsToNamedParam()
+				panEnd = panEnd[2]
 			ok
 
 			if NOT (isList(panEnd) and len(panEnd) = 2 and
@@ -916,14 +922,140 @@ class stzMatrix
 		def FindNumbersInSection(panStart, panEnd)
 			return This.FindElementsInSection(panStart, panEnd)
 
+	def FindInSection(pElmOrMany, panStart, panEnd)
+
+		if isNumber(pElmOrMany)
+			return This.FindElementInSection(pElmOrMany, panStart, panEnd)
+
+		but isList(pElmOrMany)
+			return This.FindElementsInSection(pElmOrMany, panStart, panEnd)
+		else
+			stzraise("Incorrect param type! pElmOrMany must be a number or a list of numbers.")
+		ok
+
+	def FindElementInSection(pnElm, panStart, panEnd)
+
+		if CheckParams()
+
+			if NOT isNumber(pnElm)
+				stzraise("Incorrect param type! pnElm must be a number.")
+			ok
+
+			if isList(panStart) and StzListQ(panStart).IsFromNamedParam()
+				panStart = panStart[2]
+			ok
+
+			if NOT ( isList(panStart) and len(panStart) = 2 and
+				 isNumber(panStart[1]) and isNumber(panStart[2]))
+
+				stzraise("Incorrect param type! panStart must be a pair of numbers.")
+			ok
+
+			if isList(panEnd) and StzListQ(panEnd).IsToNamedParam()
+				panEnd = panEnd[2]
+			ok
+
+			if NOT ( isList(panEnd) and len(panEnd) = 2 and
+				isNumber(panEnd[1]) and isNumber(panEnd[2]))
+
+				stzraise("Incorrect param type! panEnd must be a pair of numbers.")
+			ok
+		ok
+
+		aResult = []
+
+		for i = panStart[1] to panEnd[1]
+
+			for j = panStart[2] to panEnd[2]
+
+				if @aMatrix[i][j] = pnElm
+					aResult + [i, j]
+				ok
+
+			next
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindThisElementInSection(pnElm, panStart, panEnd)
+			return This.FindElementInSection(pnElm, panStart, panEnd)
+
+		def FindNumberInSection(pnElm, panStart, panEnd)
+			return This.FindElementInSection(pnElm, panStart, panEnd)
+
+		def FindThisNumberInSection(pnElm, panStart, panEnd)
+			return This.FindElementInSection(pnElm, panStart, panEnd)
+
+		#>
+
+	def FindTheseElementsInSection(panElms, panStart, panEnd)
+
+		if CheckParams()
+
+			if NOT (isList(panElms) and @IsListOfNumbers(panElms))
+				stzraise("Incorrect param type! panElms must be a list of numbers.")
+			ok
+
+			if isList(panStart) and StzListQ(panStart).IsFromNamedParam()
+				panStart = panStart[2]
+			ok
+
+			if NOT (isList(panStart) and len(panStart) = 2 and
+				isNumber(panStart[1]) and isNumber(panStart[2]))
+
+				stzraise("Incorrect param type! panStart must be a pair of numbers.")
+			ok
+
+			if isList(panEnd) and StzListQ(panEnd).IsToNamedParam()
+				panEnd = panEnd[2]
+			ok
+
+			if NOT (isList(panEnd) and len(panEnd) = 2 and
+				isNumber(panEnd[1]) and isNumber(panEnd[2]))
+
+				stzraise("Incorrect param type! panEnd must be a pair of numbers.")
+			ok
+		ok
+
+		# Doing the job
+
+		anElms = U(panElms)
+		aResult = []
+
+		for i = panStart[1] to panEnd[1]
+
+			for j = panStart[2] to panEnd[2]
+
+				if ring_find(anElms, @aMatrix[i][j]) > 0
+					aResult + [i, j]
+				ok
+
+			next
+ 		next
+
+		return aResult
+
+		def FindTheseNumbersInSection(panElms, panStart, panEnd)
+			return This.FindTheseElementsInSection(panElms, panStart, panEnd)
+
 	def Section(panStart, panEnd)
 
 		if CheckParams()
+
+			if isList(panStart) and StzListQ(panStart).IsFromNamedParam()
+				panStart = panStart[2]
+			ok
 
 			if NOT (isList(panStart) and len(panStart) = 2 and
 				isNumber(panStart[1]) and isNumber(panStart[2]))
 	
 				stzraise("Incorrect param type! panStart must be a pair of numbers.")
+			ok
+
+			if isList(panEnd) and StzListQ(panEnd).IsToNamedParam()
+				panEnd = panEnd[2]
 			ok
 
 			if NOT (isList(panEnd) and len(panEnd) = 2 and
@@ -986,6 +1118,9 @@ class stzMatrix
 
 		return aResult
 
+		def NumbersInSectionZ(panStart, panEnd)
+			return This.ElementsInSectionZ(panStart, panEnd)
+
 	# Creates a submatrix by extracting specific rows and columns
 
 	def SubMatrix(panStart, panEnd)
@@ -1035,7 +1170,7 @@ class stzMatrix
 				stzraise("Incorrect param type! pnCol must be a number.")
 			ok
 
-			if isList(panNewCol) and StzListQ(panNewCol).IsByOrWithOrUsingNamedParam()
+			if isList(panNewCol) and StzListQ(panNewCol).IsByNamedParam()
 				panNewCol = panNewCol[2]
 			ok
 
@@ -1062,7 +1197,7 @@ class stzMatrix
 				stzraise("Incorrect param type! panCols must be a list of strictictly positive numbers.")
 			ok
 
-			if isList(panNewCols) and StzListQ(panNewCols).IsByOrWithOrUsingNamedParam()
+			if isList(panNewCols) and StzListQ(panNewCols).IsByNamedParam()
 				panNewCols = panNewCols[2]
 			ok
 
@@ -1109,7 +1244,7 @@ class stzMatrix
 				stzraise("Incorrect param value! pnRow must be a NonZero positive number.")
 			ok
 
-			if isList(panNewRow) and StzListQ(panNewRow).IsByOrWithOrUsingNamedParam()
+			if isList(panNewRow) and StzListQ(panNewRow).IsByNamedParam()
 				panNewRow = panNewRow[2]
 			ok
 
@@ -1189,7 +1324,7 @@ class stzMatrix
 
 			ok
 
-			if StzListQ(pnNewElm).IsByOrWithOrUsingNamedParam()
+			if StzListQ(pnNewElm).IsByNamedParam()
 				pnNEwElm = pnNewElm[2]
 			ok
 
@@ -1204,7 +1339,7 @@ class stzMatrix
 		ok
 
 		if CheckParams()
-			if isList(pnNewElm) and StzListQ(pnNewElm).IsByOrWithOrUsingNamedParam()
+			if isList(pnNewElm) and StzListQ(pnNewElm).IsByNamedParam()
 				pnNewElm = pnNewElm[2]
 			ok
 
@@ -1239,7 +1374,7 @@ class stzMatrix
 				stzraise("Incorrect param types! panRowCol must be a pair of numbers.")
 			ok
 
-			if isList(pnNewElm) and StzListQ(pnNewElm).IsByOrWithOrUsingNamedParam()
+			if isList(pnNewElm) and StzListQ(pnNewElm).IsByNamedParam()
 				pnNewElm = pnNewElm[2]
 			ok
 
@@ -1270,7 +1405,7 @@ class stzMatrix
 				stzraise("Incorrect param types! panRowCol must be a pair of numbers.")
 			ok
 
-			if isList(pnNewElm) and StzListQ(pnNewElm).IsByOrWithOrUsingNamedParam()
+			if isList(pnNewElm) and StzListQ(pnNewElm).IsByNamedParam()
 				pnNewElm = pnNewElm[2]
 			ok
 
@@ -1306,7 +1441,7 @@ class stzMatrix
 				stzraise("Incorrect param type! panPos must be a list of position pairs.")
 			ok
 
-			if isList(pnNewElm) and StzListQ(pnNewElm).IsByOrWithOrUsingNamedParam()
+			if isList(pnNewElm) and StzListQ(pnNewElm).IsByNamedParam()
 				pnNewElm = pnNewElm[2]
 			ok
 
@@ -1497,6 +1632,123 @@ class stzMatrix
 
 		def ReplaceTheseNumbersAtByManyXT(panElms, panPos, panNewElms)
 			This.ReplaceTheseElementsAtByManyXT(panElms, panPos, panNewElms)
+
+	#--
+
+	def ReplaceElementsAt(panPos, pBy)
+
+		if CheckParams() and isList(pBy)
+
+			_oList_ = new stzList(pBy)
+
+			if _oList_.IsByManyNamedParam()
+				This.ReplaceElementsAtByMany(panPos, pBy[2])
+				return
+
+			but _oList_.IsByManyXTNamedParam() or _oList_.IsByXTNamedParam()
+				This.ReplaceElementsAtByManyXT(panPos, pBy[2])
+				return
+			ok
+
+			if _oList_.IsByNamedParam()
+				pBy = pBy[2]
+			ok
+
+			if isList(pBy)
+				This.ReplaceElementsAtByMany(panPos, pBy)
+				return
+			ok
+
+			if NOT isNumber(pBy)
+				stzraise("Incorrect param type! pBy must be a number.")
+			ok
+
+		ok
+
+		# Doing the job
+
+		nLen = len(panPos)
+
+		for i = 1 to nLen
+			@aMatrix[ panPos[i][1] ][ panPos[i][2] ] = pBy
+		next
+
+	def ReplaceElementsAtByMany(panPos, panMany)
+
+		if CheckParams()
+			if NOT ( isList(panMany) and @IsListOfNumbers(panMany) )
+				stzraise("Incorrect param type! panMany must be a list of numbers.")
+			ok
+		ok
+
+		_nMin_ = @Min([ len(panPos), len(panMany) ])
+
+		for i = 1 to _nMin_
+			@aMatrix[ panPos[i][1] ][ panPos[i][2] ] = panMany[i]
+		next
+		
+	def ReplaceElementsAtByManyXT(panPos, panByMany)
+
+		nLen = len(panPos)
+		nNewElmsLen = len(panByMany)
+
+		# If no replacement values, exit
+
+		if nNewElmsLen = 0 return ok
+
+		# Replace all occurrences with cycling through replacement values
+
+		for i = 1 to nLen
+			nRow = panPos[i][1]
+			nCol = panPos[i][2]
+			nIndex = ((i-1) % nNewElmsLen) + 1  # Cycle through new elements
+			@aMatrix[nRow][nCol] = panByMany[nIndex]
+		next
+
+	def ReplaceSection(panStart, panEnd, pBy)
+		aElmsPos = This.FindElementsInSection(panStart, panEnd)
+		This.ReplaceElementsAt(aElmsPos, pby)
+
+	def ReplaceSectionByMany(panStart, panEnd, paMany)
+		aElmsPos = This.FindElementsInSection(panStart, panEnd)
+		This.ReplaceElementsAtByMany(aElmsPos, paMany)
+
+		def ReplaceElementsInSectionByMany(panStart, panEnd, paMany)
+			This.ReplaceSectionByMany(panStart, panEnd, paMany)
+
+	def ReplaceElementInSection(pnElm, panStart, panEnd, pBy)
+		aElmsPos = This.FindElementInSection(pnElm, panStart, panEnd)
+		This.ReplaceElementsAt(aElmsPos, pby)
+
+		def ReplaceThisElementInSection(pnElm, panStart, panEnd, pBy)
+			This.ReplaceElementInSection(pnElm, panStart, panEnd, pBy)
+
+	def ReplaceElementInSectionByMany(pnElm, panStart, panEnd, paMany)
+		aElmsPos = This.FindThisElementInSection(panStart, panEnd)
+		This.ReplaceElementsAtByMany(aElmsPos, paMany)
+
+		def ReplaceThisElementInSectionByMany(pnElm, panStart, panEnd, paMany)
+			This.ReplaceElementInSectionByMany(pnElm, panStart, panEnd, paMany)
+
+	def ReplaceElementInSectionByManyXT(pnElm, panStart, panEnd, paMany)
+		aElmsPos = This.FindThisElementInSection(panStart, panEnd)
+		This.ReplaceElementsAtByManyXT(aElmsPos, paMany)
+
+		def ReplaceThisElementInSectionByManyXT(pnElm, panStart, panEnd, paMany)
+			This.ReplaceElementInSectionByManyXT(pnElm, panStart, panEnd, paMany)
+
+	def ReplaceTheseElementsInSection(panElms, panStart, panEnd, pBy)
+		aElmsPos = This.FindTheseElementsInSection(panElms, panStart, panEnd)
+		This.ReplaceElementsAt(aElmsPos, pby)
+
+	def ReplaceTheseElementsInSectionByMany(panElms, panStart, panEnd, paMany)
+		aElmsPos = This.FindTheseElementsInSection(panElms, panStart, panEnd)
+		This.ReplaceElementsAtByMany(aElmsPos, paMany)
+
+	def ReplaceTheseElementsInSectionByManyXT(panElms, panStart, panEnd, paMany)
+		aElmsPos = This.FindTheseElementsInSection(panElms, panStart, panEnd)
+		This.ReplaceElementsAtByManyXT(aElmsPos, paMany)
+
 
 	  #-----------------------------#
 	 # Specialized Data Extraction #

@@ -1009,8 +1009,74 @@ o1 = new stzMatrix([
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
-/*---
-*/
+/*=== ReplaceElementsAt() - Replace elements at specific positions with a single value
+
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 3 ],
+    [ 4, 5, 6 ],
+    [ 7, 8, 9 ]
+])
+
+o1.ReplaceElementsAt([ [1,3], [2,2], [3,1] ], :By = 0)
+o1.Show()
+#-->
+# ┌       ┐
+# │ 1 2 0 │
+# │ 4 0 6 │
+# │ 0 8 9 │
+# └       ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-- ReplaceElementsAtByMany() - Replace elements at positions with corresponding values
+
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 3 ],
+    [ 4, 5, 6 ],
+    [ 7, 8, 9 ]
+])
+
+o1.ReplaceElementsAt([ [1,3], [2,2], [3,1] ], :By = [ 10, 20, 30 ]) # Or ReplaceElementsAtByMany
+o1.Show()
+#-->
+# ┌          ┐
+# │  1  2 10 │
+# │  4 20  6 │
+# │ 30  8  9 │
+# └          ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-- ReplaceElementsAtByManyXT() - Replace elements by cycling through replacement values
+
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 3 ],
+    [ 4, 5, 6 ],
+    [ 7, 8, 9 ]
+])
+
+o1.ReplaceElementsAt([ [1,1], [1,3], [2,2], [3,1], [3,3] ], :ByXT = [ -1, -2 ]) # Or ReplaceElementsAtByManyXT()
+o1.Show()
+#-->
+# ┌          ┐
+# │ -1  2 -2 │
+# │  4 -1  6 │
+# │ -2  8 -1 │
+# └          ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-- ReplaceSection() - Replace all elements in a section with a single value
+
 pr()
 
 o1 = new stzMatrix([
@@ -1023,5 +1089,112 @@ o1 = new stzMatrix([
 #--> [ 14, 14, 20, 20 ]
 
 o1.ReplaceSection([ 1, 1 ], [ 2, 2 ], :By = 0)
+o1.Show()
+#-->
+# ┌          ┐
+# │  0  0 16 │
+# │  0  0 16 │
+# │ 17 23 19 │
+# └          ┘
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-- ReplaceSectionByMany() - Replace section elements with multiple values
+
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 3 ],
+    [ 4, 5, 6 ],
+    [ 7, 8, 9 ]
+])
+
+# Replace section from [1,1] to [2,3] with values [10, 20, 30, 40, 50, 60]
+o1.ReplaceSection(:From = [1,1], :To = [2,3], :ByMany = [ 10, 20, 30, 40, 50, 60 ])
+o1.Show()
+#-->
+# ┌         ┐
+# │ 10 40 3 │
+# │ 20 50 6 │
+# │ 30 60 9 │
+# └         ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-- ReplaceThisElementInSection() - Replace specific value in a section with another value
+
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 5, 3 ],
+    [ 4, 5, 6 ],
+    [ 7, 5, 9 ]
+])
+
+o1.ReplaceElementInSection(5, :From = [1,1], :To = [3,2], :By = 0)
+o1.Show()
+#-->
+# ┌       ┐
+# │ 1 0 3 │
+# │ 4 0 6 │
+# │ 7 0 9 │
+# └       ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*-- ReplaceTheseElementsInSectionByManyXT() - Replace multiple values in section with cycling replacements
+
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 2, 3 ],
+    [ 2, 5, 1 ],
+    [ 7, 1, 2 ]
+])
+
+# Replace all occurrences of 1 and 2 in entire matrix with cycling values [100, 200]
+o1.ReplaceTheseElementsInSection(
+	[1, 2],
+	:From = [1,1], :To = [3,3],
+	:ByManyXT = [-1, -2]
+)
+
+o1.Show()
+#-->
+# ┌          ┐
+# │ -1 -2  3 │
+# │ -1  5 -2 │
+# │  7 -1 -2 │
+# └          ┘
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+#---
+*/
+pr()
+
+o1 = new stzMatrix([
+    [ 1, 5, 3 ],
+    [ 4, 5, 6 ],
+    [ 7, 5, 9 ]
+])
+
+? @@NL( o1.ElementsInSectionZ([ 2, 2 ], [ 3, 3 ]) )
+#--> [
+#	[ 5, [ 2, 2 ] ],
+#	[ 5, [ 3, 2 ] ],
+#	[ 6, [ 2, 3 ] ],
+#	[ 9, [ 3, 3 ] ]
+# ]
+
+# NOTE 1 : By convention, positions in matrices are read vertically
+# from top tp down and then from left to right
+
+# NOTE 2 : Element and Number are semantic alternatives in stzMatrix
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
