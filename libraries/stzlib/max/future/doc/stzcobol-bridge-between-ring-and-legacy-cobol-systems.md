@@ -204,5 +204,3 @@ stzCobol represents a promising approach to the challenge of legacy COBOL system
 In an industry often focused on the newest technologies, stzCobol offers a refreshing perspective: building bridges between generations of programming knowledge rather than leaving legacy systems behind. By enabling bidirectional translation between Ring and COBOL, it provides both practical modernization capabilities and educational value.
 
 For organizations with critical COBOL systems, stzCobol offers a path to gradual modernization that preserves existing investments while reducing dependency on scarce expertise. For educators and students, it provides a unique window into programming history and alternative paradigms. And for the wider programming community, it serves as a reminder that understanding where we've been can be as valuable as knowing where we're going.
-
-Whether you're maintaining critical COBOL infrastructure, teaching the next generation of programmers, or simply curious about programming language evolution, stzCobol invites you to explore the richness of both worlds.
