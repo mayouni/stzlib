@@ -34,7 +34,7 @@ o1.Show() + NL
 
 # Add to specific column
 
-o1.AddInCol(2, 5)
+o1.AddToCol(2, 5)
 o1.Show() + NL
 #-->
 # ┌          ┐
@@ -45,7 +45,7 @@ o1.Show() + NL
 
 # Add to specific row
 
-o1.AddInRow(1, 3)
+o1.AddToRow(1, 3)
 o1.Show() + NL
 #-->
 # ┌          ┐
@@ -1199,8 +1199,8 @@ o1 = new stzMatrix([
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
-/*====== FLEXIBLE PARAMS
-
+/*====== SIMPLE METHOD NAME WITH FLEXIBLE PARAMS
+*/
 pr()
 
 o1 = new stzMatrix([
@@ -1257,10 +1257,10 @@ o1.Show()
 # Specify the orders of params explicitely as a suffix in the
 # function name: C or R for column or Row, and V for Value
 
-o1.MultiplyCV(1, 3) # Column 1, then Value 3
+o1.MultiplyCV(1, 3) # Multiply Column 1 by Value 3
 o1.Show()
 
-o1.MultiplyVC(3, 1) # Value 3, then Column 1
+o1.MultiplyVC(3, 1) # Multiply Column 1 by Value 3
 o1.Show()
 #-->
 # ┌          ┐
@@ -1269,7 +1269,7 @@ o1.Show()
 # │ 42 30 18 │
 # └          ┘
 
-o1.MultiplyCV(2, 3)
+o1.MultiplyRV(2, 3)
 o1.Show()
 #-->
 # ┌           ┐
@@ -1278,7 +1278,7 @@ o1.Show()
 # │ 126 30 18 │
 # └           ┘
 
-o1.MultiplyVC(3, 2)
+o1.MultiplyVR(3, 2)
 #-->
 # ┌            ┐
 # │  54 270 18 │
@@ -1325,7 +1325,7 @@ o1.Show()
 
 # Adds column 2 by the value 3
 
-o1.Add([ 3, :InCol = 3 ])
+o1.Add([ 3, :ToCol = 3 ])
 o1.Show()
 #-->
 # ┌          ┐
@@ -1336,7 +1336,7 @@ o1.Show()
 
 # Adds 3 in row 1
 
-o1.Add([ 3, :InRow = 1 ])
+o1.Add([ 3, :ToRow = 1 ])
 o1.Show()
 #-->
 # ┌          ┐
@@ -1361,3 +1361,4 @@ o1.Show()
 # └          ┘
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.22

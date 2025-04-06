@@ -284,34 +284,34 @@ class stzMatrix
 		if isList(p)
 			_oList_ = new stzList(p)
 
-			if _oList_.IsInColNamedParam()
+			if _oList_.IsToColNamedParam()
 
-				This.AddInCol(pnValue, p[2])
+				This.AddToCol(pnValue, p[2])
 				return
 
-			but _oList_.IsInRowNamedParam()
+			but _oList_.IsToRowNamedParam()
 
-				This.AddInRow(pnValue, p[2])
+				This.AddToRow(pnValue, p[2])
 				return
 
-			but _oList_.IsInColsNamedParam()
+			but _oList_.IsToColsNamedParam()
 
-				This.AddInCols(pnValue, p[2])
+				This.AddToCols(pnValue, p[2])
 				return
 
-			but _oList_.IsInRowsNamedParam()
+			but _oList_.IsToRowsNamedParam()
 
 				This.AddInRows(pnValue, p[2])
 				return
 
-			but _oList_.IsInDiagonal() or _oList_.IsInDiagonal1()
+			but _oList_.IsToDiagonal() or _oList_.IsToDiagonal1()
 
-				This.AddInDiagonal(pnValue, p[2])
+				This.AddToDiagonal(pnValue, p[2])
 				return
 
 			but _oList_.IsInDiagonal2()
 
-				This.AddInDiagonal2(pnValue, p[2])
+				This.AddToDiagonal2(pnValue, p[2])
 				return
 
 			ok
@@ -319,7 +319,7 @@ class stzMatrix
 
 		stzraise("Unsupported syntax!")
 
-	def AddInCol(pnCol, pnValue)
+	def AddToCol(pnCol, pnValue)
 
 		# Using RingFastPro
 
@@ -333,7 +333,7 @@ class stzMatrix
 
 	# Adds a value to a specific row
 
-	def AddInRow(pnRow, pnValue)
+	def AddToRow(pnRow, pnValue)
 
 		# Using RingFastPro
 
@@ -347,7 +347,7 @@ class stzMatrix
 
 	# Adds a value to multiple columns
 
-	def AddInCols(paColumns, pnValue)
+	def AddToCols(paColumns, pnValue)
 
 		if CheckParams()
 			if NOT isNumber(pnValue)
@@ -385,7 +385,7 @@ class stzMatrix
 
 	# Adds a value to multiple rows
 
-	def AddInRows(paRows, pnValue)
+	def AddToRows(paRows, pnValue)
 
 		if CheckParams()
 			if NOT isNumber(pnValue)
@@ -425,7 +425,7 @@ class stzMatrix
 
 	# Add value to main diagonal elements
 
-	def AddInDiagonal(pnValue)
+	def AddToDiagonal(pnValue)
 
 		nMin = @min([@nRows, @nCols])
 
@@ -435,7 +435,7 @@ class stzMatrix
 
 	# Add value to secondary diagonal elements
 
-	def AddInDiagonal2(pnValue)
+	def AddToDiagonal2(pnValue)
 
 		nMin = @min([@nRows, @nCols])
 
@@ -491,6 +491,12 @@ class stzMatrix
 	def MultiplyVC(nValue, nCol)
 		This.MultiplyCol(nCol, nValue)
 
+	def MultiplyRV(nRow, nValue)
+		This.MultiplyInRow(nRow, nValue)
+
+	def MultiplyVR(nValue, nRow)
+		This.MultiplyInRow(nCol, nValue)
+
 	def MultiplyBy(pnValue)
 
 		if isList(pnValue) and @IsMatrix(pnValue)
@@ -525,6 +531,8 @@ class stzMatrix
 
 		updatelist(@aMatrix, :mul, :col, pnCol, pnValue)
 
+		#< @FunctionAlternativeForm
+
 		def MultiplyColBy(pnCol, pnValue)
 			if NOT isNumber(pnValue)
 				stzraise("Incorrect param type! pnValue must be a number.")
@@ -532,8 +540,7 @@ class stzMatrix
 
 			This.MultiplyCol(pnCol, pnValue)
 
-		def MultiplyByInCol(pnValue, pnCol)
-			This.MultiplyColBy(pnCol, pnValue)
+		#>
 
 	# Multiply many columns at one time
 
@@ -623,9 +630,6 @@ class stzMatrix
 
 			This.MultiplyRow(pnRow, pnValue)
 
-		def MultiplyByInRow(pnValue, pnRow)
-			This.MultiplyColBy(pnRow, pnValue)
-
 	# Multiply many rows at one time
 
 	def MultiplyRows(panRows, pnValue)
@@ -688,15 +692,9 @@ class stzMatrix
 			@aMatrix[i][i] *= pnValue
 		next
 
-		#< @FunctionAlternativeForms
+		#< @FunctionAlternativeForm
 
 		def MultiplyDiagonal(pnValue)
-			This.MultiplyDiagonal1(pnValue)
-
-		def MultiplyByInDiagonal1(pnValue)
-			This.MultiplyDiagonal1(pnValue)
-
-		def MultiplyByInDiagonal(pnValue)
 			This.MultiplyDiagonal1(pnValue)
 
 		#>
@@ -716,9 +714,6 @@ class stzMatrix
 		for i = 1 to nMin
 			@aMatrix[i][@nCols - i + 1] *= pnValue
 		next
-
-		def MultiplyByInDagonal2(pnValue)
-			This.MultiplyDiagonal2(pnValue)
 
 	  #-------------------------------#
 	 #  Matrix-to-Matrix Operations  #
