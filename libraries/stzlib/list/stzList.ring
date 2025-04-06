@@ -90077,6 +90077,50 @@ fdef
 		def IsForOrWhenOrIfNamedParam()
 			return This.IsIfOrForOrWhenNamedParam()
 
+	def IsToColNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :ToCol
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+	def IsToColsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :ToCols
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+	def IsToRowNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :ToRow
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+	def IsToRowsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :ToRows
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
 	def IsByOrInColNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and
@@ -90091,6 +90135,20 @@ fdef
 		def IsInColOrByNamedParam()
 			return This.IsByOrInColNamedParam()
 
+	def IsByOrToColNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   (This.Item(1) = :By or This.Item(1) = :ToCol)
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+		def IsToColOrByNamedParam()
+			return This.IsByOrToColNamedParam()
+
 	def IsByOrInRowNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and
@@ -90104,6 +90162,20 @@ fdef
 
 		def IsInRowOrByNamedParam()
 			return This.IsByOrInRowNamedParam()
+
+	def IsByOrToRowNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   (This.Item(1) = :By or This.Item(1) = :ToRow)
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+		def IsToRowOrByNamedParam()
+			return This.IsByOrToRowNamedParam()
 
 	def IsByXTNamedParam()
 		if This.NumberOfItems() = 2 and
