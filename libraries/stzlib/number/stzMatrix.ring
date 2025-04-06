@@ -227,26 +227,55 @@ class stzMatrix
 	 # Element-Level Operations #
 	#--------------------------#
 
-	# Adds a value to each matrix element
+	def Add(p)
 
-	def Add(pnValue)
+		if isList(p) and StzListQ(p).IsByNamedParam()
+			p = p[2]
+		ok
 
-		if isList(pnValue) and @IsMatrix(pnValue)
-			This.AddMatrix(pnValue)
+		if isNumber(p)
+			updateList(@aMatrix, :add, :manyrows, 1, @nRows, p)
+			return
+
+		but isList(p) and @IsMatrix(p)
+			This.AddMatrix(p)
 			return
 		ok
 
-		# Using RingFastPro
+		if isList(p) and len(p) = 2
 
-		updateList(@aMatrix, :add, :manyrows, 1, @nRows, pnValue)
+			if isNumber(p[1]) and isNumber(p[2])
+				This.AddInRow(p[1], p[2])
+				return
 
-		# Innstead of this:
+			but isNumber(p[1]) and isList(p[2]) and len(p[2]) = 2 and
+			    isString(p[2][1]) and isNumber(p[2][2])
 
-		# for i = 1 to @nRows
-		# 	for j = 1 to @nCols
-		# 		@aMatrix[i][j] += pnValue
-		# 	next
-		# next
+				if p[2][1] = :InCol
+		    			This.AddInCol(p[2][2], p[1])
+					return
+
+				but  p[2][1] = :Inrow
+		    			This.AddInRow(p[2][2], p[1])
+					return
+				ok
+
+			ok
+		ok
+
+		stzraise("Incorrect param type or incorrect syntax!")
+
+	def AddCV(nCol, nValue)
+		This.AddInCol(nCol, nValue)
+
+	def AddVC(nValue, nCol)
+		This.AddInCol(nCol, nValue)
+
+	def AddRV(nRow, nValue)
+		This.AddInRow(nRow, nValue)
+
+	def AddVR(nValue, nRow)
+		This.AddInRow(nRow, nValue)
 
 	# Adds a value to a specific column
 
@@ -290,7 +319,7 @@ class stzMatrix
 
 		stzraise("Unsupported syntax!")
 
-	def AddInCol(pnValue, pnCol)
+	def AddInCol(pnCol, pnValue)
 
 		# Using RingFastPro
 
@@ -304,7 +333,7 @@ class stzMatrix
 
 	# Adds a value to a specific row
 
-	def AddInRow(pnValue, pnRow)
+	def AddInRow(pnRow, pnValue)
 
 		# Using RingFastPro
 
@@ -318,7 +347,7 @@ class stzMatrix
 
 	# Adds a value to multiple columns
 
-	def AddInCols(pnValue, paColumns)
+	def AddInCols(paColumns, pnValue)
 
 		if CheckParams()
 			if NOT isNumber(pnValue)
@@ -356,7 +385,7 @@ class stzMatrix
 
 	# Adds a value to multiple rows
 
-	def AddInRows(pnValue, paRows)
+	def AddInRows(paRows, pnValue)
 
 		if CheckParams()
 			if NOT isNumber(pnValue)
@@ -386,9 +415,11 @@ class stzMatrix
 
 		#-- Other cases
 
-		for nRow in paRows
+		nLen = len(panRows)
+
+		for i = 1 to nLen
 			for j = 1 to @nCols
-				@aMatrix[nRow][j] += pnValue
+				@aMatrix[panRows[i]][j] += pnValue
 			next
 		next
 
@@ -415,6 +446,50 @@ class stzMatrix
 	  #-----------------------------#
 	 # Element-wise multiplication #
 	#-----------------------------#
+
+	def Multiply(p)
+
+		if isList(p) and StzListQ(p).IsByNamedParam()
+			p = p[2]
+		ok
+
+		if isNumber(p)
+			This.MultiplyBy(p)
+			return
+		ok
+
+		if isList(p) and len(p) = 2
+
+			if isNumber(p[1]) and isNumber(p[2])
+				This.MultiplyRow(p[1], p[2])
+				return
+
+			but isList(p[1]) and len(p[1]) = 2 and
+			    isString(p[1][1]) and isNumber(p[1][2]) and
+
+			    isList(p[2]) and len(p[2]) = 2 and
+			    isString(p[2][1]) and p[2][1] = :By and
+			    isNumber(p[2][2])
+
+				if p[1][1] = :Col
+					This.MultiplyCol(p[1][2], p[2][2])
+					return
+
+				but p[1][1] = :Row
+					This.MultiplyRow(p[1][2], p[2][2])
+					return
+
+				ok
+			ok
+		ok
+
+		stzraise("Incorrect param type or incorrect syntax!")
+
+	def MultiplyCV(nCol, nValue)
+		This.MultiplyCol(nCol, nValue)
+
+	def MultiplyVC(nValue, nCol)
+		This.MultiplyCol(nCol, nValue)
 
 	def MultiplyBy(pnValue)
 
