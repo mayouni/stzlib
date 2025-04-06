@@ -204,6 +204,6 @@ o1.Show()
 # └        ┘
 ```
 
-> NOTE: The same operation can be performed using `AddRV(2, 3)` and `AddVR(3, 3)`, where `RV` stands for _Row then Value_, and `VR` indicates the reverse order, _Value then Row_.
+> NOTE: The same thing can be performed using `AddRV(2, 3)` and `AddVR(3, 3)`, where `RV` stands for _Row then Value_, and `VR` indicates the reverse order, _Value then Row_.
 
 This parameter encoding system maintains consistency across the API while allowing developers to choose the parameter order that feels most natural to them, whether they come from mathematical backgrounds, traditional programming disciplines, or prefer a more natural language orientation.
