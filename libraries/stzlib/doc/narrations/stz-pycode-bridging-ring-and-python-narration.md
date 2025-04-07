@@ -28,7 +28,7 @@ py() {
 
 This snippet executes a small Python script, calculates the mean of a list of numbers, and seamlessly returns the result to Ring as a **well-formed list data type**.
 
-> NOTE: As you see in the R code, the result variable name must be is`res`. This is configurable within the class and you can change it by modifying the `@cResultVar` attribute to any name you prefer.
+> NOTE: As you see in the Pyhton code, the result variable name must be is`res`. This is configurable within the class and you can change it by modifying the `@cResultVar` attribute to any name you prefer.
 
 ## Beyond Basic Computation: Real-World Applications
 
