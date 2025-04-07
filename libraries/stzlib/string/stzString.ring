@@ -98041,17 +98041,10 @@ class stzString from stzObject
 	#============================================#
 
 	def Digits()
-		acResult = []
-		aoChars = This.CharsQ().ToListOfStzChars()
-		nLen = len(aoChars)
 
-		for i = 1 to nLen
-			if aochars[i].IsDigit()
-				acResult + aoChars[i].Content()
-			ok
-		next
-
-		return acResult
+		rx = new stzRegex(pat(:Digit))
+		rx.Match(This.Content())
+		return rx.Matches()
 
 		def DigitsQ()
 			return new stzList(This.Digits())
