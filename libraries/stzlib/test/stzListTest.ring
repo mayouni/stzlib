@@ -9671,21 +9671,21 @@ StopProfiler()
 #--> Executed in 0.03 second.
 
 /*=========================
+*/
+pr()
 
-StartProfiler()
-
-o1 = new stzString ('{ This[ @i - 3 ] = This[ @i + 3 ] .... @i -12233.87  @i + 764.3322 }')
-//? o1.NumbersAfter("@i")
+o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] .... @i -12233.87  @i + 764.3322 }')
+? o1.NumbersAfter("@i")
 #--> [ "-3", "3", "-12233.87", "764.3322" ]
 
-? o1.NumberComingAfter("@")
+? o1.NumberComingAfter("@i")
 #--> "-3"
 
-StopProfiler()
-# Executed in 0.25 second(s).
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*========================= #TODO Chek result correctness
-
+*/
 pr()
 
 ? StzCCodeQ('{ This[ @i - 3 ] = This[ @i + 3 ] }').ExecutableSection()

@@ -29,7 +29,7 @@ oPyCode.Execute()
 # Check the data file name:
 
 ? @@( oPyCode.FileName() )
-#--> "pydata.txt"
+#--> "temp\\pyresult_dcscnr4g.txt"
 
 # Read and display the file content
 
@@ -421,7 +421,7 @@ pf()
 #========================#
 
 /*--- Basic Numeric Data
-*/
+
 pr()
 
 R = new StzExtCodeXT("R")
@@ -439,6 +439,9 @@ R.Execute()
 #    [ "numbers", [1, 2, 3, 4, 5] ],
 #    [ "mean", 3 ]
 # ]
+
+? R.Duration()
+#--> 0.32
 
 pf()
 # Executed in 1.06 second(s) in Ring 1.22 : AFTER FIRST RUN
@@ -649,7 +652,7 @@ pf()
 # Executed in 0.31 second(s) in Ring 1.22
 
 /*--- Time series data with aggregation
-
+*/
 pr()
 
 R = new stzExtCodeXT(:R)
