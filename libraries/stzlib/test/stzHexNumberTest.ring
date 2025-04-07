@@ -11,14 +11,16 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.21
 
 /*---
-
+*/
 pr()
 
-? @@( Q("134").Digits() )
-#--> [ "1", "3", "4" ]
+? pat(:digits)
+
+? @@( Q("1@an3 xy4b12").Digits() )
+#--> [ "1", "3", "4", "1", "2" ]
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*---
 
