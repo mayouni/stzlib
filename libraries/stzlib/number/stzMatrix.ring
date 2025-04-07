@@ -245,18 +245,18 @@ class stzMatrix
 		if isList(p) and len(p) = 2
 
 			if isNumber(p[1]) and isNumber(p[2])
-				This.AddInRow(p[1], p[2])
+				This.AddToRow(p[1], p[2])
 				return
 
 			but isNumber(p[1]) and isList(p[2]) and len(p[2]) = 2 and
 			    isString(p[2][1]) and isNumber(p[2][2])
 
-				if p[2][1] = :InCol
-		    			This.AddInCol(p[2][2], p[1])
+				if p[2][1] = :ToCol
+		    			This.AddToCol(p[2][2], p[1])
 					return
 
-				but  p[2][1] = :Inrow
-		    			This.AddInRow(p[2][2], p[1])
+				but  p[2][1] = :ToRow
+		    			This.AddToRow(p[2][2], p[1])
 					return
 				ok
 
@@ -266,16 +266,16 @@ class stzMatrix
 		stzraise("Incorrect param type or incorrect syntax!")
 
 	def AddCV(nCol, nValue)
-		This.AddInCol(nCol, nValue)
+		This.AddToCol(nCol, nValue)
 
 	def AddVC(nValue, nCol)
-		This.AddInCol(nCol, nValue)
+		This.AddToCol(nCol, nValue)
 
 	def AddRV(nRow, nValue)
-		This.AddInRow(nRow, nValue)
+		This.AddToRow(nRow, nValue)
 
 	def AddVR(nValue, nRow)
-		This.AddInRow(nRow, nValue)
+		This.AddToRow(nRow, nValue)
 
 	# Adds a value to a specific column
 
@@ -301,7 +301,7 @@ class stzMatrix
 
 			but _oList_.IsToRowsNamedParam()
 
-				This.AddInRows(pnValue, p[2])
+				This.AddToRows(pnValue, p[2])
 				return
 
 			but _oList_.IsToDiagonal() or _oList_.IsToDiagonal1()
@@ -359,7 +359,7 @@ class stzMatrix
 			ok
 		ok
 
-		 # Case: AddInCols(8, [ :From = 1, :To = 3 ])
+		 # Case: AddToCols(8, [ :From = 1, :To = 3 ])
 
 		if len(paColumns) = 2 and
 
@@ -397,7 +397,7 @@ class stzMatrix
 			ok
 		ok
 
-		 # Case: AddInRows(8, [ :From = 1, :To = 3 ])
+		 # Case: AddToRows(8, [ :From = 1, :To = 3 ])
 
 		if len(paColumns) = 2 and
 
@@ -492,10 +492,10 @@ class stzMatrix
 		This.MultiplyCol(nCol, nValue)
 
 	def MultiplyRV(nRow, nValue)
-		This.MultiplyInRow(nRow, nValue)
+		This.MultiplyRow(nRow, nValue)
 
 	def MultiplyVR(nValue, nRow)
-		This.MultiplyInRow(nCol, nValue)
+		This.MultiplyRow(nRow, nValue)
 
 	def MultiplyBy(pnValue)
 
@@ -520,7 +520,7 @@ class stzMatrix
 				stzraise("Incorrect param type! pnCol must be a number.")
 			ok
 	
-			if isList(pnValue) and StzListQ(pnValue).IsByOrInColNamedParam()
+			if isList(pnValue) and StzListQ(pnValue).IsByNamedParam()
 				pnValue = pnValue[2]
 	
 				if NOT isNumber(pnValue)
@@ -547,7 +547,7 @@ class stzMatrix
 	def MultiplyCols(panCols, pnValue)
 
 		if CheckParams()
-			if isList(pnValue) and StzListQ(pnValue).IsByOrInColNamedParam()
+			if isList(pnValue) and StzListQ(pnValue).IsByNamedParam()
 				pnValue = pnValue[2]
 	
 				if NOT isNumber(pnValue)
@@ -612,7 +612,7 @@ class stzMatrix
 				stzraise("Incorrect param type! pnRow must be a number.")
 			ok
 	
-			if isList(pnValue) and StzListQ(pnValue).IsByOrInRowNamedParam()
+			if isList(pnValue) and StzListQ(pnValue).IsByNamedParam()
 				pnValue = pnValue[2]
 	
 				if NOT isNumber(pnValue)
@@ -635,7 +635,7 @@ class stzMatrix
 	def MultiplyRows(panRows, pnValue)
 
 		if CheckParams()
-			if isList(pnValue) and StzListQ(pnValue).IsByOrInColNamedParam()
+			if isList(pnValue) and StzListQ(pnValue).IsByNamedParam()
 				pnValue = pnValue[2]
 	
 				if NOT isNumber(pnValue)
@@ -1473,6 +1473,24 @@ class stzMatrix
 		def ReplaceNumber(pnElm, pnNewElm)
 			This.ReplaceElement(pnElm, pnNewElm)
 
+		def Replace(pnElm, pnNewElm)
+			This.ReplaceElement(pnElm, pnNewElm)
+
+	def ReplaceMany(panElms, pnNewElm)
+		#TODO
+		stzraise("Method not implemented yet!")
+
+		def ReplaceElements(panElms, pnNewElm)
+			This.ReplaceMany(panElms, pnNewElm)
+
+	def ReplaceManyByMany(panElms, panNewElms)
+		#TODO
+		stzraise("Method not implemented yet!")
+
+	def ReplaceManyByManyXT(panElms, panNewElms)
+		#TODO
+		stzraise("Method not implemented yet!")
+
 	# Replacing any element at the given position by a new element
 
 	def ReplaceElementAt(panRowCol, pnNewElm)
@@ -1501,6 +1519,9 @@ class stzMatrix
 		@aMatrix[nRow][nCol] = pnNewElm
 
 		def ReplaceNumberAt(panRowCol, pnNewElm)
+			This.ReplaceElementAt(panRowCol, pnNewElm)
+
+		def ReplaceAt(panRowCol, pnNewElm)
 			This.ReplaceElementAt(panRowCol, pnNewElm)
 
 	# Replacing a given element by a new element, only if
@@ -1577,6 +1598,9 @@ class stzMatrix
 		next
 
 		def ReplaceTheseNumbersAt(panElms, panPos, pnNewElm)
+			This.ReplaceTheseElementsAt(panElms, panPos, pnNewElm)
+
+		def ReplaceTheseAt(panelms, panPos, pnNewElm)
 			This.ReplaceTheseElementsAt(panElms, panPos, pnNewElm)
 
 	  #--------------------------------#

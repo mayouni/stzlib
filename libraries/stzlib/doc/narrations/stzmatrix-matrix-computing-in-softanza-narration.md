@@ -11,7 +11,7 @@ The Softanza library for the Ring programming language simplifies these complex 
 - Mathematical rigor for complex calculations
 - Consistent syntax that scales with complexity
 
-All while maintaining Ring's accessible programming style. In this article, we'll explore `stzMatrix` through practical examples that demonstrate how it can streamline your numerical computing tasks across various domains.
+All while maintaining Softanza's accessible programming style. In this article, we'll explore `stzMatrix` through practical examples that demonstrate how it can streamline your numerical computing tasks across various domains.
 
 > **Note**: `stzMatrix` is implemented using the efficient C-based `RingFastPro` extension, providing performance benefits for computationally intensive operations.
 
