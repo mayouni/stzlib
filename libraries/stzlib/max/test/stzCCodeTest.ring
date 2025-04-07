@@ -1,18 +1,47 @@
 load "../stzmax.ring"
 
-/*--------
+/*---
+*/
+pr()
 
-profon()
+rx = new stzRegex("@i[+-]\d+|@i")
+? rx.Match("@i-2 @i+1 @i")
+? @@( rx.Matches() ) + NL
+#--> [ "@i-2", "@i+1", "@i" ]
+
+rx = new stzRegex("(?<=@i)([+-]\d+)")
+? rx.Match("@i-2 @i+1 @i")
+? @@( rx.Matches() ) + NL
+#--> [ "@i-2", "@i+1", "@i" ]
+
+pf()
+
+/*--------
+*/
+pr()
+
+? @@( Q("This[@i+1]").NumbersAfter("@i") )
+#--> [ "1" ]
+
+? @@( Q("@i-2@i+1]").NumbersAfter("@i") )
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*--------
+*/
+pr()
 
 ? StzCCodeQ(' This[@i] = This[@i+1] ').ExecutableSection()
 #--> [ 1, -1 ]
+#ERROR : returned [ 1 : "last" ]
 
-proff()
+pf()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*-------- #narration BETWEEN vs BOUNDEDBY
 
-profon()
+pr()
 #                         7  10
 # BETWEEN ~>           xxx[--v----------------]xxx
 o1 = new stzString("___<<<ring>>>___<<<softanza>>>___")
@@ -33,12 +62,12 @@ o1 = new stzString("___<<<ring>>>___<<<softanza>>>___")
 ? o1.BoundedBy([ "<<<", ">>>" ])
 #--> [ "ring", "softanza" ]
 
-proff()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzString('{ This[@i] = This[@i + 1] + 5 }')
 ? @@( o1.FindSubStringsBoundedByIBZZ([ "[", "]" ]) )
@@ -53,24 +82,26 @@ o1 = new stzString('{ This[@i] = This[@i + 1] + 5 }')
 ? o1.NumbersAfter("@i")
 #--> [ "+1", "+5" ]
 
-proff()
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
 # Executed in 0.07 second(s) in ring 1.21
 # Executed in 0.29 second(s) in ring 1.17
 
 /*----------
 
-profon()
+pr()
 
 o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
 ? o1.NumbersAfter("@i")
 #--> [ "-3", "+3", "10" ]
 
-proff()
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
 # Executed in 0.11 second(s) in ring 1.21
 # Executed in 0.18 second(s) in Ring 1.17
 
 /*----------
-
+*/
 StartProfiler()
 
 o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')

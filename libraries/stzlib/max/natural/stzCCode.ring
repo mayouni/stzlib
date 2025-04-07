@@ -333,19 +333,19 @@ class stzCCode
 
 		# An important detail: In general, ExectuableSection, returnes a
 		# section of the form [ 3, 12 ], for example, to say that the
-		# conditional code can run from item 2 to item 12 without raising
+		# conditional code can run from item 3 to item 12 without raising
 		# the rather distrupting "Out of range access" error. But, if the
 		# last item is envolved, and because stzCCode class does not know
 		# it, then [ 3, :last ] is returned instead.
 
 		# Therefore, it's the responsibility of the the code that called
-		# stzCCode, to check that speciefic case, and replace :last the
+		# stzCCode, to check that speciefic case, and replace :last with
 		# the NumberOfItems() value applied to the calling object scope.
 
 		_oCode_ = new stzString( This.Code() )
 
-		# The first check we must do, is that the consitional code must
-		# contains the @i or This[@i] keywords
+		# The first check we must do, is that the conditional code must
+		# contain the @i or This[@i] keywords
 
 		#NOTE # If you include sphisticaed keywords like @CurrentItem,
 		# @NextItem and so on, they will be ignored. To instruct Softanza
@@ -357,6 +357,7 @@ class stzCCode
 		ok
 
 		acSubStr = _oCode_.SubStringsBoundedBy([ "[","]" ])
+/*
 		nLenSubStr = len(acSubStr)
 
 		acNumbersAfter = []
@@ -368,6 +369,13 @@ class stzCCode
 			ok
 		next
 
+		acNumbersAfter = StzStringQ( Join(acSubStr) ).NumbersAfter("@i")
+*/
+
+		rx = new stzRegex("(?<=@i)([+-]\d+)")
+		rx.Match(Join(acsubStr))
+		acNumbersAfter = rx.Matches()
+
 		nLenAfter = len(acNumbersAfter)
 
 		if len(acNumbersAfter) = 0
@@ -377,10 +385,12 @@ class stzCCode
 		anNumbers = []
 		for i = 1 to nLenAfter
 			cNumber = acNumbersAfter[i]
-			if cNumber[1] = "+" or cNumber[1] = "-"
+//			if cNumber[1] = "+" or cNumber[1] = "-"
 				anNumbers + (0+ cNumber)
-			ok
+//			ok
 		next
+? @@(anNumbers)
+
 		oNumbers = new stzList(anNumbers)
 
 		anResult = [ 1, :Last ]

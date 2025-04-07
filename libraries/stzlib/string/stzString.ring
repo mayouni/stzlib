@@ -97859,27 +97859,13 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcsubStr must be a string.")
 		ok
 
-		acSubStr = This.Copy().
-			RemoveSpacesQ().
-			SplitQ("@i").
-			FirstItemRemoved()
+		cPatt = "(?<=" + pcSubStr + ")(\s*[+-]\s*\d*\.?\d+)"
 
-		# Splitting takes as little as 0.01s
-
-		nLen = len(acSubStr)
-	
-		acResult = []
-		for i = 1 to nLen
-			acNumbers = Q(acSubStr[i]).Numbers()
-			nLen2 = len(acNumbers)
-
-			for j = 1 to nLen2
-				acResult + acNumbers[j]
-			next j
-		next i
+		rx = new stzRegex(cPatt)
+		rx.Match(This.WithoutSpaces())
+		acResult = rx.Matches()
 
 		return acResult
-
 
 		#< @FunctionFluentForm
 
@@ -97960,7 +97946,18 @@ class stzString from stzObject
 		#TODO // Re-implement it for better performance
 		# No need to parse all the numbers and then get the nth
 
-		return This.NumbersComingAfterCS(pcSubStr, pCaseSensitive)[n]
+		if CheckParams()
+			if NOT isNumber(n)
+				stzraise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		acResult = This.NumbersComingAfterCS(pcSubStr, pCaseSensitive)
+		nLen = len(acResult)
+
+		if n <= nLen
+			return acResult[n]
+		ok
 
 		#< @FunctionAlternativeForm
 
