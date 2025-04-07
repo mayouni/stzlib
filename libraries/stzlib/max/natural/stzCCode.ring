@@ -357,39 +357,23 @@ class stzCCode
 		ok
 
 		acSubStr = _oCode_.SubStringsBoundedBy([ "[","]" ])
-/*
-		nLenSubStr = len(acSubStr)
 
-		acNumbersAfter = []
-
-		for i = 1 to nLenSubStr
-			acNumbers = Q(acSubStr[i]).NumbersAfter("@i")
-			if len(acNumbers) > 0
-				acNumbersAfter + acNumbers[1]
-			ok
-		next
-
-		acNumbersAfter = StzStringQ( Join(acSubStr) ).NumbersAfter("@i")
-*/
+		# Getting the indexs after the @i
 
 		rx = new stzRegex("(?<=@i)([+-]\d+)")
 		rx.Match(Join(acsubStr))
-		acNumbersAfter = rx.Matches()
 
+		acNumbersAfter = rx.Matches()
 		nLenAfter = len(acNumbersAfter)
 
-		if len(acNumbersAfter) = 0
+		if nLenAfter = 0
 			return [ 1, :Last ]
 		ok
 
 		anNumbers = []
 		for i = 1 to nLenAfter
-			cNumber = acNumbersAfter[i]
-//			if cNumber[1] = "+" or cNumber[1] = "-"
-				anNumbers + (0+ cNumber)
-//			ok
+			anNumbers + (0+ acNumbersAfter[i])
 		next
-? @@(anNumbers)
 
 		oNumbers = new stzList(anNumbers)
 

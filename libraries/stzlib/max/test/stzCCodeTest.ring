@@ -1,7 +1,7 @@
 load "../stzmax.ring"
 
 /*---
-*/
+
 pr()
 
 rx = new stzRegex("@i[+-]\d+|@i")
@@ -15,9 +15,10 @@ rx = new stzRegex("(?<=@i)([+-]\d+)")
 #--> [ "@i-2", "@i+1", "@i" ]
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*--------
-*/
+
 pr()
 
 ? @@( Q("This[@i+1]").NumbersAfter("@i") )
@@ -26,7 +27,7 @@ pr()
 ? @@( Q("@i-2@i+1]").NumbersAfter("@i") )
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*--------
 */

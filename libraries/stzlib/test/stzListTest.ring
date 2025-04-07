@@ -9671,7 +9671,7 @@ StopProfiler()
 #--> Executed in 0.03 second.
 
 /*=========================
-*/
+
 pr()
 
 o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] .... @i -12233.87  @i + 764.3322 }')
@@ -9682,7 +9682,7 @@ o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] .... @i -12233.87  @i + 76
 #--> "-3"
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*========================= #TODO Chek result correctness
 */
