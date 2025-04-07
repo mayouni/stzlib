@@ -30,15 +30,14 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--------
-*/
+
 pr()
 
-? StzCCodeQ(' This[@i] = This[@i+1] ').ExecutableSection()
+? StzCCodeQ('{ This[ @i + 3 ] = This[@i + 1] }').ExecutableSection()
 #--> [ 1, -1 ]
-#ERROR : returned [ 1 : "last" ]
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.07 second(s) in Ring 1.21
 
 /*-------- #narration BETWEEN vs BOUNDEDBY
 
@@ -110,6 +109,7 @@ o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
 #--> [4, -3]
 
 StopProfiler()
+# Executed in 0.07 second(s) in Ring 1.22
 # Executed in 0.09 second(s) in Ring 1.21
 # Executed in 0.22 second(s) in ring 1.17
 

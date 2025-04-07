@@ -86361,12 +86361,16 @@ class stzString from stzObject
 		def WithoutSpaces()
 			return This.SpacesRemoved()
 
-			#< @FunctionMisspelledForm
+		def WithoutSpacesQ()
+			return new stzString(This.WithoutSpaces())
 
-			def WithoutSapces()
-				return This.WithoutSpaces()
+		#< @FunctionMisspelledForm
 
-			#>
+		def WithoutSapces()
+			return This.WithoutSpaces()
+
+		#>
+
 
 	  #==========================================#
 	 #  EXTRACTING A SUBSTRING FROM THE STRING  #
