@@ -356,7 +356,7 @@ class stzCCode
 			StzRaise("Can't proceed! The conditional code provided does not contain @i or This[@i] keywords.")
 		ok
 
-		acSubStr = _oCode_.SubStringsBoundedBy([ "[","]" ])
+		acSubStr = _oCode_.WithoutSpacesQ().SubStringsBoundedBy([ "[","]" ])
 
 		# Getting the indexs after the @i
 
@@ -447,7 +447,7 @@ class stzCCode
 		#NOTE # The fellowing line is the sole difference between
 		# ExectuableSection() and ExecutablesSectionXT() alternatives.
 
-		# Transpiling the condisonal code provided to turn any
+		# Transpiling the conditional code provided to turn any
 		# sophisticaed keyword (like @CurrentItem, @NextItem, etc)
 		# to their basic alternatives (This[@i], This[@+i], etc)
 
@@ -455,30 +455,29 @@ class stzCCode
 	
 		# Doing the job to get the borners of the executable section
 
+		if NOT _oCode_.Copy().RemoveSpacesQ().ContainsOneOfTheseCS([ "@i", "This[@i]" ], _FALSE_)
+			StzRaise("Can't proceed! The conditional code provided does not contain @i or This[@i] keywords.")
+		ok
+
 		acSubStr = _oCode_.SubStringsBoundedBy([ "[","]" ])
-		nLenSubStr = len(acSubStr)
 
-		acNumbersAfter = []
-		for i = 1 to nLenSubStr
-			acNumbers = Q(acSubStr[i]).NumbersAfter("@i")
-			if len(acNumbers) > 0
-				acNumbersAfter + acNumbers[1]
-			ok
-		next
+		# Getting the indexs after the @i
 
+		rx = new stzRegex("(?<=@i)([+-]\d+)")
+		rx.Match(Join(acsubStr))
+
+		acNumbersAfter = rx.Matches()
 		nLenAfter = len(acNumbersAfter)
 
-		if len(acNumbersAfter) = 0
+		if nLenAfter = 0
 			return [ 1, :Last ]
 		ok
 
 		anNumbers = []
 		for i = 1 to nLenAfter
-			cNumber = acNumbersAfter[i]
-			if cNumber[1] = "+" or cNumber[1] = "-"
-				anNumbers + (0+ cNumber)
-			ok
+			anNumbers + (0+ acNumbersAfter[i])
 		next
+
 		oNumbers = new stzList(anNumbers)
 
 		anResult = [ 1, :Last ]
@@ -504,7 +503,7 @@ class stzCCode
 			but BothArePositive( nMin, nMax )
 				nMin = 1
 				nMax = - nMax
-	
+
 			but nMin < 0 and nMax > 0
 				nMin = Abs(nMin) + 1
 				nMax = - nMax

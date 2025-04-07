@@ -9688,10 +9688,11 @@ pf()
 */
 pr()
 
-? StzCCodeQ('{ This[ @i - 3 ] = This[ @i + 3 ] }').ExecutableSection()
+? StzCCodeQ('{ This[@i - 3 ] = This[ @i + 3 ] }').ExecutableSection()
 #--> [4, -3]
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*============== #narration: ...W() and ..WXT() forms in Conditional Code
 
