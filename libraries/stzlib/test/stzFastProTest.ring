@@ -238,7 +238,7 @@ aMatrix = [
 	[ 7, 8, 9 ]
 ]
 
-FastProUpdate(aMatrix, :Set = [ :Rows = [ 2, 3 ], :With = 5 ])
+FastProUpdate(aMatrix, :Set = [ :Rows = [ :From = 2, :To = 3 ], :With = 5 ])
 ? @@NL(aMatrix)
 #--> [
 #	[ 1, 2, 3 ],
@@ -246,7 +246,7 @@ FastProUpdate(aMatrix, :Set = [ :Rows = [ 2, 3 ], :With = 5 ])
 #	[ 5, 5, 5 ]
 # ]
 
-FastProUpdate(aMatrix, :Set = [ :Cols = [ 2, 3 ], :With = 0 ])
+FastProUpdate(aMatrix, :Set = [ :Cols = [ :From = 2, :To = 3 ], :With = 0 ])
 ? @@NL(aMatrix)
 #--> [
 #	[ 1, 0, 0 ],

@@ -168,7 +168,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Multiplying two matrices
-
+*/
 pr()
 
 o1 = new stzMatrix([
@@ -774,6 +774,9 @@ o1.Show()
 # │ 7 8 0 │
 # └       ┘
 
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
 /*-- ReplaceTheseElementsAt() - Replace multiple elements at specific positions
 
 pr()
@@ -1200,7 +1203,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*====== SIMPLE METHOD NAME WITH FLEXIBLE PARAMS
-*/
+
 pr()
 
 o1 = new stzMatrix([
@@ -1291,7 +1294,6 @@ pf()
 
 /*===
 
-*/
 pr()
 
 o1 = new stzMatrix([

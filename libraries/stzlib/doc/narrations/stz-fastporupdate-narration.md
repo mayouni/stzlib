@@ -116,10 +116,10 @@ aMatrix = [
 ]
 
 # Set columns from 2 to 3 with the value 0
-FastProUpdate(aMatrix, :Set = [ :ColsFrom = [ 2, :To = 3 ], :With = 0 ])
+FastProUpdate(aMatrix, :Set = [ :Cols = [ :From = 2, :To = 3 ], :With = 0 ])
 
 # Set rows from 1 to 2 with the value 5
-FastProUpdate(aMatrix, :Set = [ :RowsFrom = [ 1, :To = 2 ], :With = 5 ])
+FastProUpdate(aMatrix, :Set = [ :Rows = [ :From = 1, :To = 2 ], :With = 5 ])
 ```
 
 This syntax provides a more intuitive way to specify ranges.
