@@ -582,6 +582,7 @@ class stzChar from stzObject
 				@oQChar = new QChar(nUnicode)
 
 			else
+
 				StzRaise("Can not create char object!")
 			ok
 

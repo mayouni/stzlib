@@ -61,8 +61,8 @@ class stzString from stzObject
 
 			but isList(pcStr) and Q(pcStr).IsPairOfStrings() # Named string
 				@cVarName = pcStr[1] # Inherited from stzObject
-				QStringObject() = new QString2()
-				QStringObject().append(pcStr[2])
+				@oQString = new QString2()
+				@oQString.append(pcStr[2])
 				return
 			ok
 
@@ -36845,16 +36845,16 @@ class stzString from stzObject
 			if oParam.IsOneOfTheseNamedParams([
 				:At, :AtPosition, :Before, :BeforePosition ])
 
-				This.InsertBefore(pWhere[2], pcSubStr)
+				This.InsertBefore(pcSubStr, pWhere[2])
 				return
 
 			but oParam.IsOneOfTheseNamedParams([ :After, :AfterPosition ])
 
-				This.InsertAfter(pWhere[2], pcSubStr)
+				This.InsertAfter(pcSubStr, pWhere[2])
 				return
 			ok
 		else
-			This.InsertBefore(pWhere, pcSubStr)
+			This.InsertBefore(pcSubStr, pWhere)
 		ok
 
 		#< @FunctionFluentForm
@@ -36925,6 +36925,11 @@ class stzString from stzObject
 				This.InsertSubStringBeforePositions(nPos, pcSubStr)
 			ok
 
+		but isNumber(nPos)
+
+			if isString(pcSubStr)
+				This.InsertSubStringBeforePosition(nPos, pcSubStr)
+			ok
 		ok
 
 		# The string has changed, check constraints...
@@ -37247,6 +37252,11 @@ class stzString from stzObject
 				This.InsertSubStringAfterPositions(nPos, pcSubStr)
 			ok
 
+		but isNumber(nPos)
+
+			if isString(pcSubStr)
+				This.InsertSubStringAfterPosition(nPos, pcSubStr)
+			ok
 		ok
 
 		# The string has changed, check constraints...
@@ -96094,12 +96104,19 @@ class stzString from stzObject
 
 		*/
 
-		cCode = 'bOk = isList(' + This.Content() + ')'
+		_cContent_ = This.Content()
+		cTrimmed = @trim(_cContent_)
+
+		if NOT cTrimmed[1] = "["
+			_cContent_ = @@(This.Content())
+		ok
+		
+		cCode = 'bOk = isList(' + _cContent_ + ')'
 
 		try
 			eval(cCode)
 			if bOk
-				return TRUE
+				return _TRUE_
 			ok
 		catch
 			# Continue to next part of the code
@@ -96520,6 +96537,14 @@ class stzString from stzObject
 			nLenPart1 = oPart1.NumberOfChars()
 			nLenPart2 = oPart2.NumberOfChars()
 
+oPart1.RemoveTheseBounds('"', '"')
+oPart1.RemoveTheseBounds("'", "'")
+cPart1 = oPArt1.Content()
+
+oPart2.RemoveTheseBounds('"', '"')
+oPart2.RemoveTheseBounds("'", "'")
+cPart2 = oPArt2.Content()
+
 			if BothAreIntegersInStrings(cPart1, cPart2)
 
 				n1 = 0+ ring_trim(cPart1)
@@ -96614,8 +96639,8 @@ class stzString from stzObject
 
 				next
 
-				n1 = 0+ (ring_reverse(cNumber1))
-				cSubStr1 = ring_reverse(cSubStr1)
+				n1 = 0+ @reverse(cNumber1)
+				cSubStr1 = @reverse(cSubStr1)
 
 				# Extracting the second substring and number
 
@@ -96634,8 +96659,9 @@ class stzString from stzObject
 					ok
 				next
 
-				n2 = 0+ (ring_reverse(cNumber2))
-				cSubStr2 = ring_reverse(cSubStr2)
+
+				n2 = 0+ @reverse(cNumber2)
+				cSubStr2 = @reverse(cSubStr2)
 
 				# Composing the list
 
@@ -96652,7 +96678,7 @@ class stzString from stzObject
 			ok
 
 		ok
-
+? "emmm"
 		# Case where this syntax is provided :
 		# Q("#1 : #3").ToList() and gives [ "#1", "#2", "#3" ]
 

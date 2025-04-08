@@ -27228,6 +27228,19 @@ class stzList from stzObject
 	def WalkUntilBeforeXT(pcCondition, pReturn)
 		return This.WalkUntilXT( :Before = pcCondition, pReturn)
 
+	  #----------------------------------------------#
+	 #  WALKING UNTIL THE FIRST OCCURRENCE AN ITEM  #
+	#----------------------------------------------#
+
+	def WalkUntilItem(pItem)
+
+		nPos = This.FindFirst(pItem)
+		if nPos > 0
+			return 1:nPos
+		else
+			return []
+		ok
+
 	  #-----------------#
 	 #  WALKING WHILE  #
 	#=================#
@@ -50628,15 +50641,15 @@ fdef
 	def FindStrings()
 		aContent = This.Content()
 		nLen = len(acontent)
-		aResult = []
+		anResult = []
 
 		for i = 1 to nLen
 			if isString(aContent[i])
-				aResult + i
+				anResult + i
 			ok
 		next
 		
-		return aResult		
+		return anResult		
 
 		def FindStringsZ()
 			return This.FindStrings()
@@ -52606,6 +52619,7 @@ fdef
 
 		#>
 
+
 	#--
 
 	def RemoveObjects()
@@ -54527,7 +54541,7 @@ fdef
 			
 		ok
 
-		aResult = This.DistributeOverXT( acBeneficiaryItems, :Using = anShare)
+		aResult = This.DistributeOverXT( acBeneficiaryItems, anShare)
 		return aResult
 
 	  #=======================#
@@ -56395,31 +56409,35 @@ fdef
 		aResult = []
 
 		acSeen = []
-		for i = 1 to nLen	
-			if NOT isObject(aContent[i])
-				i++
+		for i = 1 to nLen
+	
+			if isObject(aContent[i])
+
+				cName = :@NoName
+	
+				if ObjectIsStzObject(aContent[i])
+					cName = aContent[i].VarName()
+				ok
+	
+				if ring_find(acSeen, cName)
+					loop
+				ok
+	
+				anPos = This.FindObject(cName)
+				aResult + [ cName, anPos ]
+				acSeen + cName
+
 			ok
-
-			cName = :@NoName
-
-			if ObjectIsStzObject(aContent[i])
-				cName = aContent[i].VarName()
-			ok
-
-			if ring_find(acSeen, cName)
-				loop
-			ok
-
-			anPos = This.FindObject(cName)
-			aResult + [ cName, anPos ]
-			acSeen + cName
 
 		next
 
 		return aResult
 
 		def ObjectsAndTheirPositions()
-			return This.Objects()
+			return This.ObjectsZ()
+
+		def ObjectsAndPositions()
+			return This.ObjectsZ()
 
 	def TheseObjectsZ(paoObjects)
 
@@ -58161,7 +58179,7 @@ fdef
 							cMethod = "AnObject"
 						ok
 
-						cCode = 'bOk = Q(@item).Is' + cMethod + '()'
+						cCode = 'bOk = QQ(@item).Is' + cMethod + '()'
 					ok
 
 					eval(cCode)
@@ -62065,6 +62083,21 @@ fdef
 	 #  GETTING THE LIST OF CHARS IN THE LIST  #
 	#-----------------------------------------#
 
+	def FindChars()
+
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+
+		_anResult_ = []
+
+		for @i = 1 to _nLen_
+			if isString(_aContent_[@i]) and @IsChar(_aContent_[@i])
+				_anResult_ + @i
+			ok
+		next
+
+		return _anResult_
+
 	def Chars()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -62101,6 +62134,15 @@ fdef
 			off
 		#>
 
+	def CharsZ()
+		return @Association([ This.Chars(), This.FindChars() ])
+
+		def CharsAndTheirPositions()
+			return This.CharsZ()
+
+		def CharsAndPositions()
+			return This.CharsZ()
+
 	  #-------------------------------------------#
 	 #  GETTING THE NUMBER OF CHARS IN THE LIST  #
 	#-------------------------------------------#
@@ -62135,14 +62177,39 @@ fdef
 	 #  GETTING THE LIST OF LETTERS IN THE LIST  #
 	#-------------------------------------------#
 
+	def FindLetters()
+
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+
+		_anResult_ = []
+
+		for @i = 1 to _nLen_
+
+			if isString(_aContent_[@i]) and
+			   @IsChar(_aContent_[@i]) and
+			   @IsLetter(_aContent_[@i])
+
+				_anResult_ + @i
+			ok
+		next
+
+		return _anResult_
+
+
 	def Letters()
+
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
 
 		_aResult_ = []
 
 		for @i = 1 to _nLen_
-			if isString(_aContent_[@i]) and @IsLetter(_aContent_[@i])
+
+			if isString(_aContent_[@i]) and
+			   @IsChar(_aContent_[@i]) and
+			   @IsLetter(_aContent_[@i])
+
 				_aResult_ + _aContent_[@i]
 			ok
 		next
@@ -62170,6 +62237,12 @@ fdef
 
 			off
 		#>
+
+	def LettersZ()
+		return @Association([ This.Letters(), This.FindLetters() ])
+
+		def LettersAndTheirPositions()
+			return THis.LettersZ()
 
 	  #---------------------------------------------#
 	 #  GETTING THE NUMBER OF LETTERS IN THE LIST  #

@@ -222,22 +222,20 @@ func QQ(p)
 
 	if isString(p)
 
-		oParam = Q(p)
+		oParam = new stzString(p)
 
 		if oParam.IsNumberInString()
 			return new stzNumber(p)
 
-		but oParam.IsListInString() #TODO // check Q(' "A" : "C" ').IsListInString()
-			return new stzList(p)
-			#TODO // check new stzList("[1, 2, 3]")
+		but oParam.IsListInString()
+			return new stzList(L(p))
 
 		but oParam.IsChar() or oParam.IsHexUnicode()
 			return new stzChar(p)
 
-		else
-			return new stzString(p)
-
 		ok
+
+		return new stzText(p)
 
 	but isList(p)
 

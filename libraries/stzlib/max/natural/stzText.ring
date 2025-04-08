@@ -5046,3 +5046,6 @@ class stzText from stzString
 
 	def IsText()
 		return _TRUE_
+
+	def StzType()
+		return :stzText

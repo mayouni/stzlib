@@ -1268,15 +1268,6 @@ o1.RemoveAnyItemFromEnd("🔻")
 pf()
 # Executed in 0.01 second(s)
 
-/*--------------- TODO: fix error
-
-pr()
-
-new stzChar("🔻")
-#--> ERR: Can not create char object!
-
-pf()
-
 /*---------------
 
 pr()
@@ -1878,7 +1869,7 @@ pf()
 
 pr()
 
-#TODO // General note on performance
+#PERF : General note on performance
 # For all loops on large data (tens of thousands of times and more)
 # don't rely on stzString services, but use Qt directly instead!
 
@@ -2238,7 +2229,8 @@ o1 = new stzList([ 0, "a♥a" ])
 #--> FALSE
 
 pf()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.19
 
 /*-----
 
@@ -3245,6 +3237,16 @@ pf()
 
 pr()
 
+o1 = new stzChar("♥")
+? o1.Content()
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
 o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 
 #--
@@ -3255,7 +3257,7 @@ o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 ? @@( o1.Chars() )
 #--> [ "a", "♥" , "b" ]
 
-//? @@( o1.CharsZ() ) # Or CharsAndTheirPositions()
+? @@( o1.CharsZ() ) # Or CharsAndTheirPositions()
 
 #--
 
@@ -3265,7 +3267,7 @@ o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 ? @@( o1.Letters() )
 #--> [ "a", "b" ]
 
-//? @@( o1.LettersZ() ) #TODO
+? @@( o1.LettersZ() )
 
 #--
 
@@ -3275,7 +3277,7 @@ o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 ? @@( o1.Numbers() )
 #--> [ 5 ]
 
-# ? @@( o1.NumbersZ() ) #TODO
+? @@( o1.NumbersZ() )
 
 #--
 
@@ -3285,7 +3287,7 @@ o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 ? @@( o1.Strings() )
 #--> [ "a", "bcd", "♥", "b", "♥♥♥" ]
 
-# ? @@( o1.StringsZ() ) #TODO
+? @@( o1.StringsZ() )
 
 #--
 
@@ -3295,7 +3297,7 @@ o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 ? @@( o1.Lists() )
 #--> [ [ 1, 2 ] ]
 
-# ? @@( o1.ListsZ() ) #TODO
+? @@( o1.ListsZ() )
 
 #--
 
@@ -3304,7 +3306,8 @@ o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 
 ? @@( o1.Pairs() )
 #--> [ [ 1, 2 ] ]
-# ? @@( o1.PairsZ() ) #TODO
+
+? @@( o1.PairsZ() )
 
 #--
 
@@ -3314,10 +3317,10 @@ o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 ? @@( o1.Objects() )
 #--> []
 
-# ? @@( o1.ObjectsZ() ) #TODO
+? @@( o1.ObjectsZ() )
 
 pf()
-# Executed in 0.12 second(s)
+# Executed in 0.12 second(s) in Ring 1.20
 
 /*========= #narration Ring List2Code() VS Softanza ListToCode()
 
@@ -7028,14 +7031,67 @@ pr()
 pf()
 # Executed in 0.26 second(s).
 
-/*------------------ #TODO
+/*---
 
 pr()
+
+? QQ("normal text").StzType()
+#--> stztext
+
+pf()
+# Executed in 0.03 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+? QQ("normal text").StzType()
+#--> stztext
+
+o1 = new stzString("normal text")
+
+? o1.IsNumberInString()
+#--> FALSE
+
+? o1.IsListInString()
+#--> FALSE
+
+pf()
+# Executed in 0.07 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+? Q(' "A" : "C" ').IsListInString()
+#--> TRUE
+
+? QQ("C").StzType()
+#--> stzchar
+
+? QQ("12500").StzType()
+#--> stznumber
+
+? QQ("[ 1, 2, 3 ]").StzType()
+#--> stzlist
+
+? QQ("normal text").StzType()
+#--> stztext
+
+pf()
+# Executed in 0.14 second(s) in Ring 1.22
+
+/*------------------
+
+pr()
+
+? StzTextQ("朋友们").IsHanScript()
 
 ? Q([ "你好", "亲", "朋友们" ]).Are([ :HanScript, :Texts ])
 #--> TRUE
 
 pf()
+# Executed in 0.28 second(s) in Ring 1.22
 
 /*------------------
 
@@ -7284,21 +7340,21 @@ pr()
 # First way: Substring first
 
 o1 = new stzString("ACD")
-o1.Insert("B", :AtPosition = 2)
+o1.Insert("B", :BeforePosition = 2)
 ? o1.Content()
 #--> "ABCD"
 
 # Second way: Position first
 
 o1 = new stzString("ACD")
-o1.InsertAt( :Position = 2, :SubString = "B")
+o1.InsertBefore( :Position = 2, :SubString = "B")
 ? o1.Content()
 #--> "ABCD"
 
 # Short forms:
 
 o1.Insert("B", 2)
-o1.InsertAt(2, "B")
+o1.InsertBefore(2, "B")
 ? o1.Content()
 #--> ABBBCD
 
@@ -8941,6 +8997,7 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 #TODO : Generalize it for list of strings and other types
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.22
 # Executed in 0.04 second(s) in Ring 1.21
 # Executed in 0.10 second(s) in Ring 1.20
 
@@ -9684,8 +9741,8 @@ o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] .... @i -12233.87  @i + 76
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
-/*========================= #TODO Chek result correctness
-*/
+/*=========================
+
 pr()
 
 ? StzCCodeQ('{ This[@i - 3 ] = This[ @i + 3 ] }').ExecutableSection()
@@ -10437,7 +10494,7 @@ o1 = new stzList([ 10, "A":"E", 12, obj, 10, "A":"E", obj, "Ring" ])
 #--> [ 4, 7 ]
 
 #TODO // this won't work corretcly if we add other objects different from
-# obj in the list. We should think of an other algorithm other then relying
+# obj in the list. We should think of an an algorithm other then relying
 # on the empty spaces generated, for objects, by list2code() function of Ring!
 
 	#UPDATE It's done, and object findability is now managed using named object.
@@ -11974,7 +12031,7 @@ pf()
 
 class Person
 
-#====================== DISTRIBUTING ITEMS OVER THE ITEMS OF AN OTHER LIST
+/*====================== DISTRIBUTING ITEMS OVER THE ITEMS OF AN OTHER LIST
 
 pr()
 
@@ -12070,7 +12127,23 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.21
 # Executed in 0.02 second(s) in Ring 1.17
 
-/*----------------- #TODO check error
+/*------
+
+pr()
+
+? L("[1, 2, 3 ]")	#--> [ 1, 2, 3 ]
+? L("1:3")		#--> [ 1, 2, 3 ]
+? L("A:C")		#--> [ "A", "B", "C"]
+
+? L("#1 : #3")		#--> [ "#1", "#2", "#3" ]
+? L("day1 : day3")	#--> [ "day1", "day2", "day3" ]
+
+? L('"♥1" : "♥3"')	#--> [ "♥1", "♥2", "♥3" ]
+
+pf()
+# Executed in 0.46 second(s) in Ring 1.22
+
+/*-----------------
 
 pr()
 
@@ -12084,7 +12157,7 @@ o1 = new stzList( L(' "♥1" : "♥9" ') )
 # ]
 
 pf()
-# Executed in 0.05 second(s).
+# Executed in 0.17 second(s) in Ring 1.22
 
 /*------------
 
@@ -12106,7 +12179,7 @@ pr()
 pf()
 # Executed in almost 0 second(s).
 
-/*------------ #narration NAMED OBJECTS EQuALiTY #todo check error
+/*------------ #narration NAMED OBJECTS EQuALiTY
 
 # Softanza can check objects equality only if objects are
 # created as named objects (a special form of a Softanza
@@ -12131,7 +12204,7 @@ obj3 = new stzString(:first  = "basic")
 #--> TRUE
 
 pf()
-# Executed in 0.03 second(s).
+# Executed in 0.08 second(s) in Ring 1.22
 
 /*---------------------
 
@@ -12147,7 +12220,7 @@ pr()
 #--> TRUE
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*---------------------
 
@@ -12614,40 +12687,16 @@ o1 = new stzList([ "A", "B", 1:3, "C", "D", 4:5 ])
 pf()
 # Executed in almost 0 second(s).
 
-/*-------------------------- #TODO
-
-pr()
-
-aList = [ 12,
-	[ "A", [ 1, 2, 3] ], # 1st sublist
-	[ "B", [ 3, 5, 3 ] ], # 2nd sublist
-	[ "C", [ 1, 4, [1,2,3], 4] ] # 3d sublist
-]
-
-o1 = new stzList(aList)
-? o1.WalkUntilItem(7)
-? aList
-
-pf()
-
 /*--------------------------
 
 pr()
 
-o1 = new stzList([
-	"A",
-	[ 1, 2, 3 ],
-	"B",
-	[ 4, [ 5, 6 ], 7 ],
-	"C",
-	[ 8 ]
-])
-
-? @@( o1.DeepLists() )
-#--> [ [ 1, 2, 3 ], [ 5, 6 ], [ 8 ] ]
+o1 = new stzList([ "A", "B", "C", "D", "E", "F" ])
+? @@( o1.WalkUntilItem("D") )
+#--> [ 1, 2, 3, 4 ]
 
 pf()
-# Executed in 0.04 second(s).
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--------------------------
 
@@ -12685,45 +12734,4 @@ o1 = new stzList("a":"t")
 
 pf()
 # Executed in 0.03 second(s).
-
-/*============ TODO: Levels functions need a reflection, see code.
-# To be replaced with DeepFind
-
-pr()
-
-o1 = new stzList([
-	1, [ "A", "B"], 2,
-	[ 3, 4, [ "B", "C" ] ],
-	[ 5, [ 6, [ "D", "E" ], 7 ], 8 ]
-])
-
-? @@NL( o1.DeepFindLists() ) + NL
-#--> [
-#	[ 2 ],
-#	[ 4 ],
-#	[ 4, 3 ],
-#	[ 3 ],
-#	[ 3, 2 ],
-#	[ 3, 2, 2 ]
-# ]
-
-? o1.NumberOfLevels() + NL
-#--> 4
-
-? @@( o1.DeepLists() ) + NL
-#--> [ [ "A", "B" ], [ "B", "C" ], [ "D", "E" ] ]
-
-
-? @@NL( o1.DeepListsXT() )
-#--> [
-#	[ [ "path", [ 2 ] ], [ "level", 1 ], [ "position", 2 ] ],
-#	[ [ "path", [ 4 ] ], [ "level", 1 ], [ "position", 4 ] ],
-#	[ [ "path", [ 4, 3 ] ], [ "level", 2 ], [ "position", 3 ] ],
-#	[ [ "path", [ 3 ] ], [ "level", 1 ], [ "position", 3 ] ],
-#	[ [ "path", [ 3, 2 ] ], [ "level", 2 ], [ "position", 2 ] ],
-#	[ [ "path", [ 3, 2, 2 ] ], [ "level", 3 ], [ "position", 2 ] ]
-# ]
-
-pf()
-# Executed in 0.15 second(s).
 
