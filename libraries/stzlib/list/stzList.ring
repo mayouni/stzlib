@@ -76261,6 +76261,99 @@ fdef
 	 #  LIST YIELDER  #
 	#================#
 
+	def YieldW(pcCondition, pcYielder)
+
+		_aResult_ = []
+		_aItems_ = This.ItemsW(pcCondition)
+		_nLen_ = len(_aItems_)
+
+		_cCode_ = lower(StzCCodeQ(pcYielder).Content())
+		_cCode_ = ring_substr2(_cCode_, "this[", "_aItems_[")
+		_cCode_ = ring_substr2(_cCode_, "@aContent[", "_aItems_[")
+
+		_cCode_ = '_aResult_ + ' + _cCode_
+
+		for @i = 1 to _nLen_
+			eval(_cCode_)
+		next
+
+		return _aResult_
+
+		#< @FunctionAlternativeForm
+
+		def YieldItemsW(pcCondition)
+			return This.YieldW(pcCondtion)
+
+		#>
+
+	def YieldWXT(pcCondition, pcYielder)
+
+		_aResult_ = []
+		_aItems_ = This.ItemsWXT(pcCondition)
+
+		_nLen_ = len(_aItems_)
+
+		_oCode_ = new stzCCode(pcYielder)
+		_oCode_.Transpile()
+		_cCode_ = lower(_oCode_.Content())
+
+		_cCode_ = ring_substr2(_cCode_, "this[", "_aItems_[")
+		_cCode_ = ring_substr2(_cCode_, "@aContent[", "_aItems_[")
+
+		_cCode_ = '_aResult_ + ' + _cCode_
+
+		for @i = 1 to _nLen_
+			eval(_cCode_)
+		next
+
+		return _aResult_
+
+		#< @FunctionAlternativeForm
+
+		def YieldItemsWXT(pcCondition, pcYielder)
+			return This.YieldW(pcCondition, pcYielder)
+
+		#>
+
+	#--
+
+	def YieldAtW(panPos, pcCondition, pcYielder)
+
+		_aResult_ = This.ItemsAtPositionsQ(panPos).YieldW(pcCondition, pcYielder)
+		return _aResult_
+
+
+		#< @FunctionAlternativeForms
+
+		def YieldItemsAtW(panPos, pcCondition)
+			return This.YieldAtW(panPos, pcCondition)
+
+		def YieldAtPositionsW(panPos, pcCondition)
+			return This.YieldAtW(panPos, pcCondition)
+
+		def YieldItemsAtpositionsW(panPos, pcCondition)
+			return This.YieldAtW(panPos, pcCondition)
+
+		#>
+
+	def YieldAtWXT(panPos, pcCondition)
+
+		_aResult_ = This.ItemsAtPositionsQ(panPos).YieldWXT(pcCondition, pcYielder)
+		return _aResult_
+
+
+		#< @FunctionAlternativeForms
+
+		def YieldItemsAtWXT(panPos, pcCondition)
+			return This.YieldAtWXT(panPos, pcCondition)
+
+		def YieldAtPositionsWXT(panPos, pcCondition)
+			return This.YieldAtWXT(panPos, pcCondition)
+
+		def YieldItemsAtpositionsWXT(panPos, pcCondition)
+			return This.YieldAtWXT(panPos, pcCondition)
+
+		#>
 
 	  #==================#
 	 #  LIST PERFORMER  #
