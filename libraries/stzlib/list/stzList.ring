@@ -76161,7 +76161,6 @@ fdef
 
 		#>
 
-
 	  #================#
 	 #  LISt CHECKER  #
 	#================#
@@ -76179,6 +76178,13 @@ fdef
 		else
 			return _FALSE_
 		ok
+
+		#< @FunctionFluentForm
+
+		def CheckWQ(pcCondition)
+			This.CheckW(pcCondition)(pcCondition)
+			return This
+		#>
 
 		#< @FunctionAlternativeForms
 
@@ -76201,6 +76207,13 @@ fdef
 			return _FALSE_
 		ok
 
+		#< @FunctionFluentForm
+
+		def CheckWXTQ(pcCondition)
+			This.CheckWXT(pcCondition)
+			return This
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def CheckThatXT(pcCondition)
@@ -76221,6 +76234,13 @@ fdef
 
 		_bResult_ = This.ItemsAtPositionsQ(panPos).CheckW(pcCondition)
 		return _bResult_
+
+		#< @FunctionFluentForm
+
+		def CheckAtWQ(panPos, pcCondition)
+			This.CheckAtW(panPos, pcCondition)
+			return This
+		#>
 
 		#< @FunctionAlternativeForms
 
@@ -76243,6 +76263,13 @@ fdef
 
 		_bResult_ = This.ItemsAtPositionsQ(panPos).CheckWXT(pcCondition)
 		return _bResult_
+
+		#< @FunctionFluentForm
+
+		def CheckAtWXTQ(panPos, pcCondition)
+			This.YieldW(pcCondition, pcYielder)
+			return This
+		#>
 
 		#< @FunctionAlternativeForms
 
@@ -76279,6 +76306,13 @@ fdef
 
 		return _aResult_
 
+		#< @FunctionFluentForm
+
+		def YieldWQ(pcCondition, pcYielder)
+			This.YieldW(pcCondition, pcYielder)
+			return This
+		#>
+
 		#< @FunctionAlternativeForm
 
 		def YieldItemsW(pcCondition)
@@ -76308,6 +76342,13 @@ fdef
 
 		return _aResult_
 
+		#< @FunctionFluentForm
+
+		def YieldWXTQ(pcCondition, pcYielder)
+			This.YieldWXT(pcCondition, pcYielder)
+			return This
+		#>
+
 		#< @FunctionAlternativeForm
 
 		def YieldItemsWXT(pcCondition, pcYielder)
@@ -76322,42 +76363,129 @@ fdef
 		_aResult_ = This.ItemsAtPositionsQ(panPos).YieldW(pcCondition, pcYielder)
 		return _aResult_
 
+		#< @FunctionFluentForm
+
+		def YieldAtWQ(panPos, pcCondition, pcYielder)
+			This.YieldAtW(panPos, pcCondition, pcYielder)
+			return This
+		#>
 
 		#< @FunctionAlternativeForms
 
-		def YieldItemsAtW(panPos, pcCondition)
-			return This.YieldAtW(panPos, pcCondition)
+		def YieldItemsAtW(panPos, pcCondition, pcYielder)
+			return This.YieldAtW(panPos, pcCondition, pcYielder)
 
-		def YieldAtPositionsW(panPos, pcCondition)
-			return This.YieldAtW(panPos, pcCondition)
+		def YieldAtPositionsW(panPos, pcCondition, pcYielder)
+			return This.YieldAtW(panPos, pcCondition, pcYielder)
 
-		def YieldItemsAtpositionsW(panPos, pcCondition)
-			return This.YieldAtW(panPos, pcCondition)
+		def YieldItemsAtpositionsW(panPos, pcCondition, pcYielder)
+			return This.YieldAtW(panPos, pcCondition, pcYielder)
 
 		#>
 
-	def YieldAtWXT(panPos, pcCondition)
+	def YieldAtWXT(panPos, pcCondition, pcYielder)
 
 		_aResult_ = This.ItemsAtPositionsQ(panPos).YieldWXT(pcCondition, pcYielder)
 		return _aResult_
 
+		#< @FunctionFluentForm
+
+		def YieldAtWXTQ(panPos, pcCondition, pcYielder)
+			This.YieldAtWXT(panPos, pcCondition, pcYielder)
+			return This
+		#>
 
 		#< @FunctionAlternativeForms
 
-		def YieldItemsAtWXT(panPos, pcCondition)
-			return This.YieldAtWXT(panPos, pcCondition)
+		def YieldItemsAtWXT(panPos, pcCondition, pcYielder)
+			return This.YieldAtWXT(panPos, pcCondition, pcYielder)
 
-		def YieldAtPositionsWXT(panPos, pcCondition)
-			return This.YieldAtWXT(panPos, pcCondition)
+		def YieldAtPositionsWXT(panPos, pcCondition, pcYielder)
+			return This.YieldAtWXT(panPos, pcCondition, pcYielder)
 
-		def YieldItemsAtpositionsWXT(panPos, pcCondition)
-			return This.YieldAtWXT(panPos, pcCondition)
+		def YieldItemsAtpositionsWXT(panPos, pcCondition, pcYielder)
+			return This.YieldAtWXT(panPos, pcCondition, pcYielder)
 
 		#>
 
 	  #==================#
 	 #  LIST PERFORMER  #
 	#==================#
+
+	def PerformW(pcCondition, pcAction)
+
+		_anPos_ = FindItemsW(pcCondition)
+		_nLen_ = len(_anPos_)
+
+		_oCode_ = new stzCCode(pcAction)
+		_cCode_ = _oCode_.Content()
+
+		_cCode_ = '@aContent[@i] = ' + _cCode_
+
+		for i = 1 to _nLen_
+			@i = _anPos_[i]
+			eval(_cCode_)
+		next
+
+		def PerformWQ(pcCondition, pcAction)
+			This.PerformW(pcCondition, pcAction)
+			return This
+
+	#--
+
+	def PerformWXT(pcCondition, pcAction)
+
+		_anPos_ = FindItemsWXT(pcCondition)
+		_nLen_ = len(_anPos_)
+
+		_oCode_ = new stzCCode(pcAction)
+		_oCode_.Transpile()
+		_cCode_ = _oCode_.Content()
+
+		_cCode_ = '@aContent[@i] = ' + _cCode_
+
+		for i = 1 to _nLen_
+			@i = _anPos_[i]
+			eval(_cCode_)
+		next
+
+		def PerformWXTQ(pcCondition, pcAction)
+			This.PerformWXT(pcCondition, pcAction)
+			return This
+
+	#==
+
+	def PerformAtW(panPos, pcCondition, pcAction)
+
+		_oList_ = new stzList(This.ItemsAtPositions(panPos))
+		_oList_.PerformW(pcCondition, pcAction)
+		_aNewItems_ = _oList_.Content()
+
+		This.ReplaceItemsAtPositionsByMany(panPos, _aNewItems_)
+
+		def PerformAtWQ(panPos, pcCondition, pcAction)
+			This.PerformAtW(panPos, pcCondition, pcAction)
+			return This
+
+		def PerformAtPositonsW(panPos, pcCondition, pcAction)
+			This.PerformAtW(panPos, pcCondition, pcAction)
+
+	#--
+
+	def PerformAtWXT(panPos, pcCondition, pcAction)
+
+		_oList_ = new stzList(This.ItemsAtPositions(panPos))
+		_oList_.PerformWXT(pcCondition, pcAction)
+		_aNewItems_ = _oList_.Content()
+
+		This.ReplaceItemsAtPositionsByMany(panPos, _aNewItems_)
+
+		def PerformAtWXTQ(panPos, pcCondition, pcAction)
+			This.PerformAtWXT(panPos, pcCondition, pcAction)
+			return This
+
+		def PerformAtPositonsWXT(panPos, pcCondition, pcAction)
+			This.PerformAtWXT(panPos, pcCondition, pcAction)
 
 	    /////////////////////////////////////////////////////
 	   /// #===========================================# ///
