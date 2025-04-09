@@ -40939,7 +40939,7 @@ class stzList from stzObject
 	def ContainsW(pcCondition)
 
 		if CheckingParams()
-			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParam()
 				pcCondition = pcCondition[2]
 			ok
 
@@ -40963,7 +40963,7 @@ class stzList from stzObject
 
 		# Composing the conditional code
 
-		cCode = 'bOk = (' + oCode.Content() + ')'
+		cCode = 'bOk = (' + _oCode_.Content() + ')'
 		
 		# Evaluating the code against the items
 
@@ -40980,6 +40980,76 @@ class stzList from stzObject
 		# Returning the result
 
 		return bResult
+
+		def ContainsItemsW(pcCondition)
+			return This.ContainsW(pcCondition)
+
+	#--
+
+	def ContainsAtW(panPos, pcCondition)
+
+		if CheckingParams()
+
+			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+				stzraise("Incorrect param type! panPos must be a list of numbers.")
+			ok
+
+			if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+		ok
+
+		# Getting the executable section
+
+		_oCode_ = new stzCCode(pcCondition)
+		anSection = _oCode_.ExecutableSection()
+
+		n1 = anSection[1]
+		n2 = anSection[2]
+		if n2 = :Last
+			n2 = len(@aContent)
+		ok
+
+		# Composing the conditional code
+
+		cCode = 'bOk = (' + _oCode_.Content() + ')'
+		
+		# Evaluating the code against the items
+
+		bResult = _TRUE_
+
+		nLen = len(panPos)
+
+		for i = 1 to nLen
+			@i = panPos[i]
+
+			eval(cCode)
+			if NOT bOk
+				bResult = _FALSE_
+				exit
+			ok
+		next
+
+		# Returning the result
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ContainsItemsAtW(panPos, pcCondition)
+			return This.ContainsAtW(panPos, pcCondition)
+
+		def ContainsAtPositionsW(panPos, pcCondition)
+			return This.ContainsAtW(panPos, pcCondition)
+
+		def ContainsItemsAtPositionsW(panPos, pcCondition)
+			return This.ContainsAtW(panPos, pcCondition)
+
+		#>
 
 	  #--------------------------------------#
 	 #  CONDITIONAL CONTAINMENT -- XTended  #
@@ -41032,6 +41102,80 @@ class stzList from stzObject
 		# Getting the result
 
 		return bResult
+
+		def ContainsItemsWXT(pcCondition)
+			return This.ContainsWXT(pcCondition)
+
+	#--
+
+	def ContainsAtWXT(panPos, pcCondition)
+
+		if CheckingParams()
+
+			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+				stzraise("Incorrect param type! panPos must be a list of numbers.")
+			ok
+
+			if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+		ok
+
+		# Transpiling the conditional code
+
+		_oCode_ = new stzCCode(pcCondition)
+		_oCode_.Transpile()
+
+		# Getting the executable section
+
+		anSection = _oCode_.ExecutableSection()
+
+		n1 = anSection[1]
+		n2 = anSection[2]
+		if n2 = :Last
+			n2 = len(@aContent)
+		ok
+
+		# Composing the conditional code
+
+		cCode = 'bOk = (' + _oCode_.Content() + ')'
+		
+		# Evaluating the code against the items
+
+		bResult = _TRUE_
+
+		nLen = len(panPos)
+
+		for i = 1 to nLen
+			@i = panPos[i]
+
+			eval(cCode)
+			if NOT bOk
+				bResult = _FALSE_
+				exit
+			ok
+		next
+
+		# Returning the result
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ContainsItemsAtWXT(panPos, pcCondition)
+			return This.ContainsAtWXT(panPos, pcCondition)
+
+		def ContainsAtPositionsWXT(panPos, pcCondition)
+			return This.ContainsAtWXT(panPos, pcCondition)
+
+		def ContainsItemsAtPositionsWXT(panPos, pcCondition)
+			return This.ContainsAtWXT(panPos, pcCondition)
+
+		#>
 
 	  #-------------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS CONTAINED IN A GIVEN LIST OR ITEM  #
@@ -76017,6 +76161,110 @@ fdef
 
 		#>
 
+
+	  #================#
+	 #  LISt CHECKER  #
+	#================#
+
+	def CheckW(pcCondition)
+		if NOT This.ContainsItemsW(pcCondition)
+			return _FALSE_
+		ok
+
+		anPos = This.FindItemsW(pcCondition)
+		_nLen_ = len(anPos)
+
+		if _nLen_ = This.NumberOfItems()
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def CheckThat(pcCondition)
+			return This.CheckW(pcCondtion)
+
+		def CheckThatW(pcCondition)
+			return This.CheckW(pcCondtion)
+
+		#>
+
+	def CheckWXT(pcCondition)
+
+		anPos = This.FindItemsWXT(pcCondition)
+		_nLen_ = len(anPos)
+
+		if _nLen_ = This.NumberOfItems()
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def CheckThatXT(pcCondition)
+			return This.CheckWXT(pcCondtion)
+
+		def CheckThatWXT(pcCondition)
+			return This.CheckWXT(pcCondtion)
+
+		#>
+
+	#--
+
+	def CheckAtW(panPos, pcCondition)
+
+		if NOT This.ContainsItemsAtW(panPos, pcCondition)
+			return _FALSE_
+		ok
+
+		_bResult_ = This.ItemsAtPositionsQ(panPos).CheckW(pcCondition)
+		return _bResult_
+
+		#< @FunctionAlternativeForms
+
+		def CheckItemsAtW(panPos, pcCondition)
+			return This.CheckAtW(panPos, pcCondition)
+
+		def CheckAtPositionsW(panPos, pcCondition)
+			return This.CheckAtW(panPos, pcCondition)
+
+		def CheckItemsAtpositionsW(panPos, pcCondition)
+			return This.CheckAtW(panPos, pcCondition)
+
+		#>
+
+	def CheckAtWXT(panPos, pcCondition)
+
+		if NOT This.ContainsItemsAtWXT(panPos, pcCondition)
+			return _FALSE_
+		ok
+
+		_bResult_ = This.ItemsAtPositionsQ(panPos).CheckWXT(pcCondition)
+		return _bResult_
+
+		#< @FunctionAlternativeForms
+
+		def CheckItemsAtWXT(panPos, pcCondition)
+			return This.CheckAtWXT(panPos, pcCondition)
+
+		def CheckAtPositionsWXT(panPos, pcCondition)
+			return This.CheckAtWXT(panPos, pcCondition)
+
+		def CheckItemsAtpositionsWXT(panPos, pcCondition)
+			return This.CheckAtWXT(panPos, pcCondition)
+
+		#>
+
+	  #================#
+	 #  LIST YIELDER  #
+	#================#
+
+
+	  #==================#
+	 #  LIST PERFORMER  #
+	#==================#
 
 	    /////////////////////////////////////////////////////
 	   /// #===========================================# ///
