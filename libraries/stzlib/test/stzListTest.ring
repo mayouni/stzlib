@@ -12270,27 +12270,55 @@ o1 = new stzList([ "a", "a", "A", "A", "a", "A" ])
 pf()
 # Executed in almost 0 second(s).
 
-/*--------------------- #TODO
+/*===============
+
+pr()
+
+o1 = new stzList([ "A", "B", "C", 5 ])
+
+? o1.ContainsW("isString(This[@i]) and @IsUppercase(This[@i])")
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*---------------------
+
+pr()
+
+o1 = new stzList([ "A", 5, "B", "C" ])
+
+? o1.CheckW("isString(This[@i]) and @IsUppercase(This[@i])")
+#--> FALSE
+
+pf()
+# Executed in 0.10 second(s) in Ring 1.22
+
+/*---------------------
 
 pr()
 
 o1 = new stzList([ "A", "B", "C" ])
-? o1.CheckWXT("isString(@item) and @IsUppercase(@item)")
+
+? o1.CheckW("isString(This[@i]) and @IsUppercase(This[@i])")
+#--> TRUE
 
 pf()
+# Executed in 0.09 second(s) in Ring 1.22
 
-/*--------------------- #TODO
+/*---------------------
 
 pr()
 
 # All items are lists with 3 items
 
-o1 = new stzList([ 1:3, 1:3, 1:3 ])
+o1 = new stzList([ 1:3, 1:3, 1:3, 5 ])
 ? o1.CheckWXT('isList(@item) and len(@item) = 3')
+#--> FALSE
 
 pf()
+# Executed in 0.10 second(s) in Ring 1.22
 
-/*--------------------- #TODO
+/*---------------------
 
 pr()
 
@@ -12298,10 +12326,42 @@ pr()
 
 o1 = new stzList([ 1:3, 1:3, 1:3 ])
 ? o1.CheckWXT('isList(@item) and len(@item) = len(o1[1])')
+#--> TRUE
 
 pf()
+# Executed in 0.10 second(s) in Ring 1.22
 
-/*--------------------- #narration
+/*---------------------
+*
+pr()
+
+o1 = new stzList([ "A", 1:3, "B", "C", 1:3, 1:3 ])
+
+? o1.ContainsItemsAtW(	# Or ContainsAtW()
+	[ 2, 5, 6 ],
+	'isList(This[@i]) and len(This[@i]) = 3'
+)
+#--> TRUE
+
+? o1.ContainsItemsAtW(
+	[ 2, 3, 6 ],
+	'isList(This[@i]) and len(This[@i]) = 3'
+)
+#--> FALSE
+
+/*----
+*/
+pr()
+
+o1 = new stzList([ "A", 1:3, "B", "C", 1:3, 1:3 ])
+
+? o1.CheckItemsAtW([ 2, 5, 6 ], 'isList(this[@i]) and len(this[@i]) = 3')
+#--> TRUE
+
+pf()
+# Executed in 0.10 second(s) in Ring 1.22
+
+/*========= #narration
 
 pr()
 
