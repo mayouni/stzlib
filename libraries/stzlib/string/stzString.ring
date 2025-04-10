@@ -95857,6 +95857,7 @@ class stzString from stzObject
 	def RemoveWalkers(pcWalkerName)
 		@aWalkers = []
 
+	#TODO // Add other feature from stzWalker
 
 	  #=================================#
 	 #  REPEATING THE STRING N TIMES   #

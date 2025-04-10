@@ -26572,7 +26572,7 @@ class stzList from stzObject
 		def ComposeTheseWalkers(pacNames)
 			return This.CombineTheseWalkers(pacNames)
 
-	def CombineWalkers()
+	def CombineWalkers() #TODO // Needs to add a stzListOfWalkers class
 		/* ... */
 		StzRaise("Inexistant feature in this release!")
 

@@ -22,6 +22,16 @@ func Named(c)
 func WhileWalking(cWalker)
 	return cWalker
 
+func IsWalker(pObject)
+	if isObject(pObject) and classname(pObject) = "stzwalker"
+		return _TRUE_
+	else
+		return _FALSE_
+	ok
+
+	func @IsWalker(pObject)
+		return IsWalker(pObject)
+
   /////////////////
  ///   CLASS   ///
 /////////////////
