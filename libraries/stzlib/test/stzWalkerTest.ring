@@ -34,7 +34,8 @@ o1 {
 }
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*-------------------
 
@@ -68,10 +69,10 @@ o1 {
 }
 
 pf()
-# Executed in 0.04 second(s).
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*===
-*/
+
 pr()
 
 oWalker = new stzWalker( 5, -5, 2 )
@@ -79,7 +80,8 @@ oWalker = new stzWalker( 5, -5, 2 )
 #--> [ 5, 3, 1, -1, -3, -5 ]
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*===
 
@@ -118,7 +120,8 @@ oWalker {
 }
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*----
 
@@ -133,7 +136,8 @@ oWalker = new stzWalker(1, 10, 2)
 #--> 5
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*----
 
@@ -142,7 +146,7 @@ pr()
 oWalker = new stzWalker(1, 12, 2)
 oWalker {
 
-	? @@( Walkables())
+	? @@( Walkables() )
 	#--> [ 1, 3, 5, 7, 9, 11 ]
 	
 	? CurrentPosition()
@@ -176,7 +180,8 @@ oWalker {
 }
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*----
 
@@ -222,7 +227,8 @@ oWalker {
 }
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*===
 
@@ -274,7 +280,7 @@ w.WalkTo(5) #--> [ 7, 5 ]
 #--> 5
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*====
 
@@ -295,9 +301,9 @@ end
 #--> [ 3, 5, 7, 9 ]
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s) in Ring 1.22
 
-#---
+/*---
 
 pr()
 
@@ -319,10 +325,10 @@ w = new stzWalker(2, 9, 2)
 #--> [ 2, 4 ]
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in almost 0 second(s) in Ring 1.22
 
-#====
-*/
+/*====
+
 pr()
 
 w = new stzWalker(3, 10, 2)

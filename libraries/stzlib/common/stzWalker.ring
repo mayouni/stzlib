@@ -26,7 +26,7 @@ func WhileWalking(cWalker)
  ///   CLASS   ///
 /////////////////
 
-class stzWalker from stzList
+class stzWalker
 
 	@nStart
 	@nEnd
