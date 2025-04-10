@@ -11965,7 +11965,7 @@ o1 = new stzList([ :Water, :Milk, :Cofee, :Tea, :Sugar, " ",:Honey ])
 #--> [ 1, 2, 3, 4, 5, 6 ]
 
 pf()
-# Executed in 0.16 second(s).
+# Executed in 0.12 second(s).
 
 /*--------
 
@@ -12362,7 +12362,7 @@ pf()
 # Executed in 0.10 second(s) in Ring 1.22
 
 /*==== YIELDER
-
+*/
 pr()
 
 o1 = new stzList([ 1, "ring", 2, "python", 3, "ruby" ])
@@ -12449,7 +12449,7 @@ pf()
 # Executed in 0.05 second(s) in Ring 1.22
 
 #---
-*/
+
 pr()
 
 o1 = new stzList([ 1, "ring", 3, "python", 5, "ruby" ])

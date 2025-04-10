@@ -81,9 +81,6 @@ func Slice(pStrOrList, n1, n2)
 		return _aResult_
 	ok
 
-//	func Section(pStrOrList, n1, n2) #TODO // Used in stzSection.ring!
-//		return Slice(pStrOrList, n1, n2)
-
 func Repeat(value, nTimes)
 	if CheckParams()
 		if NOT isNumber(nTimes)
