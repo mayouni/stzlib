@@ -13,6 +13,12 @@
  ///   FUNCTIONS   ///
 /////////////////////
 
+func Wk(pnStart, pnEnd, pnNext)
+	return new stzWalker(pnStart, pnEnd, pnNext)
+
+	func StzWalkerQ(pnStart, pnEnd, pnNext)
+		return new stzWalker(pnStart, pnEnd, pnNext)
+
 func With(p)
 	return [ :With, p ]
 
@@ -44,8 +50,6 @@ class stzWalker
 
 	@anWalkables = []
 	@nCurrentPos
-
-	@anWalks = []
 
 	  #-------------------------#
 	 #   SETTING THE WALKER    #
@@ -350,7 +354,6 @@ class stzWalker
 			anWalks + anRemaining[i]
 		next
 
-		@anWalks + anWalks
 		@nCurrentPos = anWalks[len(anWalks)]
 
 		return anWalks
@@ -425,15 +428,18 @@ class stzWalker
 
 		#>
 
-	def HasNext()
+	def CanWalk()
 		if This.CurrentPosition() < This.LastStep()
 				return _TRUE_
 			else
 				return _FALSE_
 			ok
 
+		def HasNext()
+			return This.CanWalk()
+
 		def HasNextStep()
-			return This.HasNext()
+			return This.CanWalk()
 
 	  #-----------------------------#
 	 #  WALKING TO GIVEN POSITION  #
@@ -640,7 +646,6 @@ class stzWalker
 
 		ok
 
-		@anWalks + anResult
 		@nCurrentPos = anResult[ len(anResult) ]
 
 		return anResult
@@ -660,49 +665,60 @@ class stzWalker
 	#--------------------------------#
 
 	def Walks()
-		return @anWalks
+
+		_nPos_ = ring_find(@anWalkables, This.CurrentPosition())
+		_anResult_ = []
+
+		for i = 1 to _nPos_
+			_anResult_ + @anWalkables[i]
+		next
+
+		return _anResult_
 
 		def WalkingHistory()
-			return @anWalks
+			return This.Walks()
 
 		def WalkHistory()
-			return @anWalks
+			return This.Walks()
 
 		def History()
-			return @anWalks
+			return This.Walks()
+
+		def WalkedPositions()
+			return This.Walks()
 
 	def NumberOfWalks()
-		return len(@anWalks)
+		return len(This.Walks())
 
 		def HowManyWalks()
-			return len(@anWalks)
+			return This.NumberOfWalks()
 
 		def CountWalks()
-			return len(@anWalks)
+			return This.NumberOfWalks()
 
 		def SizeOfWalkingHistory()
-			return len(@anWalks)
+			return This.NumberOfWalks()
 
 		def SizeOfWalkHistory()
-			return len(@anWalks)
+			return This.NumberOfWalks()
 
-	def RemoveWalks()
-		@anWalks = []
+		def NumberOfWalkedPositions()
+			return This.NumberOfWalks()
 
-		def RemoveWalkingHistory()
-			@anWalks = []
-
-		def RemoveWalkHistory()
-			@anWalks = []
+		def CountWalkedPositions()
+			This.NumberOfWalks()
 
 	def NthWalk(n)
-		return @anWalks[n]
+		return This.Walks()[n]
+
+		def NthWalkedPosition(n)
+			return This.NthWalk(n)
 
 	def FirstWalk()
-		return @anWalks[1]
+		return This.NthWalk(1)
 
 	def LastWalk()
-		return @anWalks[len(@anWalks)]
+		return This.NthWalk( len(This.Walks()) )
 
 	  #-----------#
 	 #   MISC.   #
