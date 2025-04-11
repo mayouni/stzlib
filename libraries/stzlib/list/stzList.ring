@@ -26510,7 +26510,7 @@ class stzList from stzObject
 
 	# ~> Redesign these functions based on stzWalker class
 
-	def AddWalker(pcName, pnStart, pnEnd, panSteps)
+	def AddWalker(pcName, pnStart, pnEnd, pnStep)
 
 		if CheckingParams()
 
@@ -26523,41 +26523,68 @@ class stzList from stzObject
 			ok
 		ok
 
-		aWalkers = This.Walkers()
-		nLenWalkers = len(aWalkers)
+		_aWalkers_ = This.Walkers()
+		_nLenWalkers_ = len(_aWalkers_)
 
-		bNewName = _TRUE_
+		_bNewName_ = _TRUE_
 
-		for i = 1 to nLenWalkers
-			if aWalkers[i][1] = pcName
-				bNewName = _FALSE_
+		for i = 1 to _nLenWalkers_
+			if _aWalkers_[i][1] = pcName
+				_bNewName_ = _FALSE_
 				exit
 			ok
 		next
 
-		if NOT bNewName
+		if NOT _bNewName_
 			StzRaise(stzListError(:CanNotAddWalkerAlreadyExistant))
 		else
-			oWalk = new stzWalker(pnStart, pnEnd, panSteps)
-			@aWalkers + [ pcName, oWalk.Content() ]
+			_oWalker_ = new stzWalker(pnStart, pnEnd, panSteps)
+			@aWalkers + [ pcName, _oWalker_ ]
 		ok
 
 	def Walkers()
 		return @aWalkers
 
-	def Walker(pcWalker)
-		return This.Walkers()[pcWalker]
+	def Walker(pcWalkerNamed)
+		return This.Walkers()[pcWalkerNamed]
 
-	def FindWalker(pcWalker) #TODO
-		/* ... */
-		StzRaise("Inexistant feature in this release!")
+		def WalkerQ(pcWalkerNamed)
+			return This.Walker(pcWalkerNamed)
+
+	def FindWalker(pWalker)
+
+		if isString(pWalker)
+			return ring_find(@acWalkersNames, pcWalker)
+
+		but isList(pWalker) and @IsListOfNumbers(pWalker)
+			return This.WalkersObject().Find(pWalker)
+
+		else
+			stzraise("Incorrect param type! pwalker must be a string or list of numbers.")
+		ok
+
+	def FindWalkers(paWalkers) # By name or by content (walkables positions)
+
+		if isList(paWalkers)
+
+			if @IsListOfStrings(paWalkers)
+				StzListQ(@acWalkersNames).FindMany(paWalkers)
+
+			but @IsListOfListsOfNumbers(paWalkers)
+				This.WalkersObject().FindMany(paWalkers)
+
+			else
+				stzraise("Incorrect param type! paWalkers must be a list of strings or list of lists of numbers.")
+			ok
+		else
+			stzraise("Incorrect param type! pawalkers must be a string or list of strings or list of lists of numbers.")
+		ok
 
 	def RemoveWalker(pcWalker)
-		del( @aWalkers, This.FindWalker(pcWalker) )
+		This.Walkersobject().RemoveNth(This.FindWalker(pcWalker) )
 
 	def RemoveTheseWalkers(pacNames) #TODO
-		/* ... */
-		StzRaise("Inexistant feature in this release!")
+		This.WalkerObject().RemoveMany(This.FindWalkers(paWalkers))
 
 	def RemoveWalkers()
 		@aWalkers = []

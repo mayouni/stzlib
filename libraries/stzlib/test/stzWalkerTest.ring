@@ -96,7 +96,7 @@ oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 0 )
 pf()
 
 /*====
-
+*/
 pr()
 
 oWalker = new stzWalker( 3, 9, 2 )
@@ -117,11 +117,48 @@ oWalker {
 	? Position()
 	#--> 9
 
+	? @@( History() ) # Or WalkedPositions()
+	#--> [ 3, 5, 7, 9 ]
+
 }
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 # Executed in 0.02 second(s) in Ring 1.21
+
+/*---
+
+pr()
+
+w = new stzWalker(1, 10, 2)
+
+# Statically getting the walkables positions
+# (without performing any movement of the walker)
+
+? @@( w.Walkables() )	# Or Positions()
+#--> [ 1, 3, 5, 7, 9 ]
+
+? @@( w.Unwalkables() )
+#--> [ 2, 4, 6, 8, 10 ]
+
+# Now, we will perform an effectove walking
+# (the Walker will move across the positions)
+
+# first, let's get the default position
+
+? w.Position()	# Or CurrentPosition()
+#--> 1
+
+# Walk through all the positions
+
+while w.CanWalk()
+	w.Walk()
+	? w.Position()
+end
+#--> [ 3, 5, 7, 9 ]
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*----
 

@@ -285,6 +285,19 @@ class stzListOfWalkers
 		def SharedWalkables()
 			return This.CommonWalkables()
 
+	def WalkedPositions()
+		_aResult_ = []
+		_nLen_ = len(@aoWalkers)
+
+		for i = 1 to _nLen_
+			_aResult_ + @aoWalkers[i].WalkedPositions()
+		next
+
+		return _aResult_
+
+		def History()
+			return This.WalkedPositions()
+
 	  #-----------------#
 	 #   WALKER SYNC   #
 	#-----------------#
@@ -373,3 +386,63 @@ class stzListOfWalkers
 
 		def WalkAllToPosition(n)
 			This.WalkToPosition(n)
+
+	  #-------------------#
+	 #  FINDING WALKERS  #
+	#-------------------#
+
+	# Finding is a particular subject that is interepred by Softanza as
+	# returning the walkers (by their positions in the @aWolkers container)
+	# that have the give path (to be found) in their history (they already
+	# walked through it) or in their walkable plan.
+
+	def FindWalkedPath(panPositions)
+		
+		if CheckParams()
+			if NOT (isList(panPositions) and @IsListOfNumbers(panPositions))
+				stzraise("Incorrect param type! panPositions must be a list of numbers.")
+			ok
+		ok
+
+		_cPositions_ = ring_substr2( @@(panPositions), "[", "" )
+		_cPositions_ = ring_substr2( _cPositions_, "]", "" )
+		_cPositions_ = @trim(_cPositions_)
+
+		_anResult_ = []
+
+		_anLists_ = This.WalkedPositions()
+		_nLen_ = len(_anLists_)
+
+		for i = 1 to _nLen_
+			if @Contains( @@(_anLists_[i]), _cPositions_ )
+				_anResult_ + i
+			ok
+		next
+
+		return _anResult_
+
+
+	def FindWalkablePath(panPositions)
+
+		if CheckParams()
+			if NOT (isList(panPositions) and @IsListOfNumbers(panPositions))
+				stzraise("Incorrect param type! panPositions must be a list of numbers.")
+			ok
+		ok
+
+		_cPositions_ = ring_substr2( @@(panPositions), "[", "" )
+		_cPositions_ = ring_substr2( _cPositions_, "]", "" )
+		_cPositions_ = @trim(_cPositions_)
+
+		_anResult_ = []
+
+		_anLists_ = This.Walkables()
+		_nLen_ = len(_anLists_)
+
+		for i = 1 to _nLen_
+			if @Contains( @@(_anLists_[i]), _cPositions_ )
+				_anResult_ + i
+			ok
+		next
+
+		return _anResult_

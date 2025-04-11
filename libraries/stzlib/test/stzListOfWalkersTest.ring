@@ -98,9 +98,8 @@ o1.WalkAllNSteps(1)
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
-
 /*--- Advanced walking strategies
-*/
+
 pr()
     
 wa = new stzWalker(1, 10, 1)
@@ -114,24 +113,78 @@ o1 = new stzListOfWalkers([ wa, wb, wc ])
 ? @@( o1.CurrentPositions() )
 #--> [ 1, 5, 3 ]
 
+# Synchronizing all the walkers at position 5
+
 o1.WalkToPosition(5)
 ? @@( o1.CurrentPositions() )
+#--> [ 5, 5, 5 ]
+
+# Reset them at their respective first positions
 
 o1.Restart()
 ? @@( o1.CurrentPositions() )
-    
-
+#--> [ 1, 5, 3 ]
     
 # Walk all walkers 2 steps from current position
 
 o1.WalkAllNSteps(2)
 ? @@( o1.CurrentPositions() )
-    #--> Walk all walkers 2 steps from current position:
-    #--> Final positions:
-    #--> Walker 1 position: 10
-    #--> Walker 2 position: 20
-    #--> Walker 3 position: 15
+#--> [ 3, 15, 7 ]
     
-pf()  # End performance measurement
+pf()
+# Executed in 0.03 second(s) in Ring 1.22
 
+#--- FINDING PATHS
+*/
+pr()
 
+o1 = new stzListOfWalkers([
+	Wk(1, 10, 2),
+	Wk(2, 12, 2),
+	Wk(4, 14, 2)
+])
+
+# In the planned walkables positions, let's find
+# where the path [ 8, 10, 12 ] will be walked through
+
+? @@NL( o1.Walkables() )
+#--> [
+#	[ 1, 3, 5, 7, 9 ],
+#	[ 2, 4, 6, 8, 10, 12 ],
+#	[ 4, 6, 8, 10, 12, 14 ]
+# ]
+
+# Result : sencond and third walkers
+
+? @@( o1.FindWalkablePath([ 8, 10, 12 ]) )
+#--> [ 2, 3 ]
+
+# Now let's try to find the same path in the already walked history
+
+? @@( o1.FindWalkedPath([ 8, 10, 12 ]) )
+#--> [ ]
+
+# Returned nothing! Why?
+# Well, it's because the walkers did not move yet:
+
+? @@( o1.History() ) # Each walker sits on it's respective start position
+#--> [ [ 1 ], [ 2 ], [ 4 ] ]
+
+# So let's instruct them to commit some steps
+
+o1.WalkNSteps(3)
+? @@NL( o1.History() )
+#--> [
+#	[ 1, 3, 5, 7 ],
+#	[ 2, 4, 6, 8 ],
+#	[ 4, 6, 8, 10 ]
+# ]
+
+# Now we can make our search of, say, the path [6, 8 ] in
+# the walkable positions space:
+
+? @@( o1.FindWalkedPath([ 6, 8 ]) )
+#--> [ 2, 3 ]
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
