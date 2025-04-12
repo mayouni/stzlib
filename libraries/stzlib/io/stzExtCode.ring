@@ -55,6 +55,9 @@ func iif(cCondition, pTrue, pFalse)
 		return pFalse
 	ok
 
+	func @if(cCondition, pTrue, pFalse)
+		return iif(cCondition, pTrue, pFalse)
+
 func TempVars()
 
 	aResult = []

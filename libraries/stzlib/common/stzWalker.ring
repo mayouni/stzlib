@@ -13,11 +13,11 @@
  ///   FUNCTIONS   ///
 /////////////////////
 
-func Wk(pnStart, pnEnd, pnNext)
-	return new stzWalker(pnStart, pnEnd, pnNext)
+func Wk(pnStart, pnEnd, pSteps)
+	return new stzWalker(pnStart, pnEnd, pSteps)
 
-	func StzWalkerQ(pnStart, pnEnd, pnNext)
-		return new stzWalker(pnStart, pnEnd, pnNext)
+	func StzWalkerQ(pnStart, pnEnd, pSteps)
+		return new stzWalker(pnStart, pnEnd, pSteps)
 
 func With(p)
 	return [ :With, p ]
@@ -46,16 +46,19 @@ class stzWalker
 
 	@nStart
 	@nEnd
-	@nStep
+	@pSteps   # Can be a number or a list of numbers
+	@bIsVariantSteps = _FALSE_  # TRUE if steps vary, FALSE if constant step
 
 	@anWalkables = []
 	@nCurrentPos
+	@aWalkHistory = []  # Stores the history of walks as separate lists
 
 	  #-------------------------#
 	 #   SETTING THE WALKER    #
 	#-------------------------#
 
-	def init(pnStart, pnEnd, pnStep)
+	def init(pnStart, pnEnd, pSteps)
+
 		# There are the two ways to initiate a stzWalker object:
 
 		# -> by providing a list of params values. Example:
@@ -68,7 +71,7 @@ class stzWalker
 		# 		:Step = 3
 		# ])
 
-		if CheckingParams() #TODO // Should be CheckNamedParams()...
+		if CheckingParams()
 
 			if isList(pnStart) and
 			   StzListQ(pnStart).IsOneOfTheseNamedParams([
@@ -92,18 +95,14 @@ class stzWalker
 				pnEnd = pnEnd[2]
 			ok
 
-			if isList(pnStep) and
-			   StzListQ(pnStep).IsOneOfTheseNamedParams([
-				:Jump, :Step, :NStep
+			if isList(pSteps) and
+			   StzListQ(pSteps).IsOneOfTheseNamedParams([
+				:Jump, :Step, :NStep, :Steps
 			  ])
 	
-				pnStep = pnStep[2]
+				pSteps = pSteps[2]
 			ok
 		ok
-
-		if NOT @AreNumbers([ pnStart, pnEnd, pnStep ])
-			StzRaise("Incorrect params types! pnStart, pnEnd, and pnStep must all be numbers.")
-		ok	
 
 		# Some logical checks
 
@@ -111,32 +110,97 @@ class stzWalker
 			StzRaise("Can't create the stzWalker object! pnStart and pnEnd must be different.")
 		ok
 
-		if NOT pnStep > 0
-			StzRaise("Can't create the stzWalker object! pnStep must be strictly positive number.")
-		ok
+		# Check if steps is a number or a list of numbers
 
-		if pnStep > abs(pnEnd - pnStart) + 1
-			StzRaise("Can't walk! The step is larger then the number of walkable positions.")
+		if isNumber(pSteps)
+			@bIsVariantSteps = FALSE
+			
+			if NOT pSteps > 0
+				StzRaise("Can't create the stzWalker object! pSteps must be a strictly positive number.")
+			ok
+			
+			if pSteps > abs(pnEnd - pnStart) + 1
+				StzRaise("Can't walk! The step is larger then the number of walkable positions.")
+			ok
+			
+		but isList(pSteps)
+			@bIsVariantSteps = TRUE
+			
+			if len(pSteps) = 0
+				StzRaise("Can't create the stzWalker object! pSteps list cannot be empty.")
+			ok
+			
+			if NOT @ArePositiveNumbers(pSteps)
+				StzRaise("Can't create the stzWalker object! All steps in the list must be positive numbers.")
+			ok
+			
+			# Check if steps have constant difference
+
+			if @HaveConstantDifference(pSteps)
+				@bIsVariantSteps = FALSE
+				pSteps = pSteps[1]  # Use first step as they're all the same
+			ok
+		else
+			StzRaise("Incorrect param type! pSteps must be a number or a list of numbers.")
 		ok
 
 		# Setting the object attributes
 
 		@nStart = pnStart
 		@nEnd = pnEnd
-		@nStep = pnStep	
+		@pSteps = pSteps	
+
+		# Populate walkable positions
 
 		@anWalkables = []
+		if @bIsVariantSteps
+			This.CalculateVariantWalkables()
+		else
+			This.CalculateConstantWalkables()
+		ok
+
+		@nCurrentPos = pnStart
+		@aWalkHistory = []  # Initialize empty walk history
+
+	def CalculateConstantWalkables()
 		if @nStart < @nEnd
-			for i = @nStart to @nEnd step @nStep
+			for i = @nStart to @nEnd step @pSteps
 				@anWalkables + i
 			next
 		else
-			for i = @nStart to @nEnd step -@nStep
+			for i = @nStart to @nEnd step -@pSteps
 				@anWalkables + i
 			next
 		ok
 
-		@nCurrentPos = pnStart
+	def CalculateVariantWalkables()
+
+		@anWalkables = [ @nStart ]
+		nCurrentPos = @nStart
+		nDirection = IIF(@nStart < @nEnd, 1, -1)
+		nStepIndex = 1
+		nNumSteps = len(@pSteps)
+
+		while TRUE
+			nCurrentPos = nCurrentPos + (nDirection * @pSteps[nStepIndex])
+			
+			# Check if we've gone past the end
+
+			if (nDirection = 1 and nCurrentPos > @nEnd) or
+			   (nDirection = -1 and nCurrentPos < @nEnd)
+				exit
+			ok
+			
+			@anWalkables + nCurrentPos
+			
+			# Move to next step in the list, cycling if necessary
+
+			nStepIndex++
+
+			if nStepIndex > nNumSteps
+				nStepIndex = 1
+			ok
+		end
 
 	  #------------------#
 	 #   GENERAL INFO   #
@@ -149,7 +213,7 @@ class stzWalker
 			return Content()
 
 	def Copy()
-		return new stzWalker( This.Content() )
+		return new stzWalker( @nStart, @nEnd, @pSteps )
 
 	def StartPosition()
 		return @nStart
@@ -163,8 +227,15 @@ class stzWalker
 		def EndingPosition()
 			return This.EndPosition()
 
+	def Steps()
+		return @pSteps
+
 	def NStep() #NOTE: We can't use Step() because STEP is reserved by Ring
-		return @nStep
+		if @bIsVariantSteps
+			return @pSteps
+		else
+			return @pSteps
+		ok
 
 		#< @FunctionAlternativeForms
 
@@ -183,6 +254,12 @@ class stzWalker
 			return This.NStep()
 
 		#>
+
+	def IsVariantSteps()
+		return @bIsVariantSteps
+
+		def HasVariantSteps()
+			return This.IsVariantSteps()
 
 	def CurrentPosition()
 		return @nCurrentPos
@@ -214,7 +291,7 @@ class stzWalker
 		if @nStart < @nEnd
 			anResult = @nStart : @nEnd
 		else
-			nResult = @nEnd : @nStart
+			anResult = @nStart : @nEnd : -1
 		ok
 
 		return anResult
@@ -355,6 +432,9 @@ class stzWalker
 		next
 
 		@nCurrentPos = anWalks[len(anWalks)]
+		
+		# Add this walk operation to history
+		@aWalkHistory + anWalks
 
 		return anWalks
 
@@ -634,19 +714,25 @@ class stzWalker
 
 		anResult = []
 
-		if n1 < n2
-			for i = n1 to n2 step @nStep
-				anResult + i
+		anWalkables = This.Walkables()
+		nPos1 = ring_find(anWalkables, n1)
+		nPos2 = ring_find(anWalkables, n2)
+		
+		if nPos1 < nPos2
+			for i = nPos1 to nPos2
+				anResult + anWalkables[i]
 			next
-
 		else
-			for i = n1 to n2 step -@nStep
-				anResult + i
+			for i = nPos1 to nPos2 step -1
+				anResult + anWalkables[i]
 			next
-
 		ok
 
 		@nCurrentPos = anResult[ len(anResult) ]
+		
+		# Add this walk operation to history
+
+		@aWalkHistory + anResult
 
 		return anResult
 
@@ -665,15 +751,7 @@ class stzWalker
 	#--------------------------------#
 
 	def Walks()
-
-		_nPos_ = ring_find(@anWalkables, This.CurrentPosition())
-		_anResult_ = []
-
-		for i = 1 to _nPos_
-			_anResult_ + @anWalkables[i]
-		next
-
-		return _anResult_
+		return @aWalkHistory
 
 		def WalkingHistory()
 			return This.Walks()
@@ -684,8 +762,46 @@ class stzWalker
 		def History()
 			return This.Walks()
 
-		def WalkedPositions()
-			return This.Walks()
+	def WalkedPositions()
+		aResult = []
+		
+		# Flatten the walk history to get all positions walked
+
+		nLen = len(@aWalkHistory)
+
+		for i = 1 to nLen
+
+			nLen2 = len(@aWalkHistory[i])
+
+			for j = 1 to nLen2
+				if ring_find(aResult, @aWalkHistory[i][j]) = 0
+					aResult + @aWalkHistory[i][j]
+				ok
+			next
+		next
+		
+		# Sort the positions
+
+		aResult = This._SortPositions(aResult)
+		
+		return aResult
+
+	def _SortPositions(aPos)
+
+		# Sort the positions based on their order in walkables
+
+		aWalkables = This.Walkables()
+		nLen = len(aWalkables)
+
+		aSorted = []
+
+		for i = 1 to nLen
+			if ring_find(aPos, aWalkables[i]) > 0
+				aSorted + aWalkables[i]
+			ok
+		next
+		
+		return aSorted
 
 	def NumberOfWalks()
 		return len(This.Walks())
@@ -703,22 +819,69 @@ class stzWalker
 			return This.NumberOfWalks()
 
 		def NumberOfWalkedPositions()
-			return This.NumberOfWalks()
+			return len(This.WalkedPositions())
 
 		def CountWalkedPositions()
-			This.NumberOfWalks()
+			return This.NumberOfWalkedPositions()
 
 	def NthWalk(n)
-		return This.Walks()[n]
+		if n > len(@aWalkHistory) or n < 1
+			StzRaise("Invalid walk index! n must be between 1 and " + len(@aWalkHistory))
+		ok
+		
+		return @aWalkHistory[n]
 
 		def NthWalkedPosition(n)
-			return This.NthWalk(n)
+			return This.WalkedPositions()[n]
 
 	def FirstWalk()
+		if len(@aWalkHistory) = 0
+			return []
+		ok
+		
 		return This.NthWalk(1)
 
 	def LastWalk()
-		return This.NthWalk( len(This.Walks()) )
+		if len(@aWalkHistory) = 0
+			return []
+		ok
+		
+		return This.NthWalk(len(@aWalkHistory))
+
+	  #-----------------#
+	 #   HELPER FUNCS  #
+	#-----------------#
+	
+	def @ArePositiveNumbers(pList)
+		if NOT isList(pList)
+			return FALSE
+		ok
+
+		nLen = len(pList)
+
+		for i = 1 to nLen
+//		for item in pList
+			if NOT (isNumber(pList[i]) and pList[i] > 0)
+				return FALSE
+			ok
+		next
+		
+		return TRUE
+		
+	def @HaveConstantDifference(pList)
+		if len(pList) <= 1
+			return TRUE
+		ok
+		
+		nDiff = pList[2] - pList[1]
+		
+		for i = 2 to len(pList)-1
+			if pList[i+1] - pList[i] != nDiff
+				return FALSE
+			ok
+		next
+		
+		return TRUE
 
 	  #-----------#
 	 #   MISC.   #

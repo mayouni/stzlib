@@ -87,7 +87,7 @@ pf()
 
 pr()
 
-//oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 9 )
+oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 9 )
 #--> Error: Can't walk! The step is larger then the number of walkable positions.
 
 oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 0 )
@@ -96,7 +96,7 @@ oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 0 )
 pf()
 
 /*====
-*/
+
 pr()
 
 oWalker = new stzWalker( 3, 9, 2 )
@@ -211,8 +211,8 @@ oWalker {
 	? WalkN(1)
 	#--> [ 9, 11 ]
 
-	//Walk()
-	#--> ERROR: Can't walk! No more walkable positions.
+	// Walk()
+	#--> ERROR: Can't walk! No more walkable positions!
 
 }
 
@@ -239,7 +239,7 @@ oWalker {
 	? CurrentPosition() + NL
 	#--> 8
 
-	? @@( RemainingWalkables())
+	? @@( RemainingWalkables() )
 	#--> [ 6, 4, 2 ]
 
 	? NL + "--" + NL
@@ -259,8 +259,8 @@ oWalker {
 	? @@( WalkN(1) )
 	#--> [ 4, 2 ]
 
-	//Walk()
-	#--> ERROR: Can't walk! No more walkable positions.
+	// Walk()
+	#--> ERROR: Can't walk! No more walkable positions!
 }
 
 pf()
@@ -284,8 +284,8 @@ w.WalkNSteps(2) #--> Inspect it wit ? and you get [ 3, 5, 7 ]
 ? w.Position() + NL
 #--> 7
 
-//w.WalkTo(8)
-#--> ERROR: Can't walk! The position(s) provided must be walkable.
+// w.WalkTo(8)
+#--> ERROR: Can't walk! The position provided must be walkable.
 
 w.WalkTo(5) #--> [ 7, 5 ]
 ? w.Position() + NL
@@ -346,19 +346,19 @@ pr()
 
 w = new stzWalker(2, 9, 2)
 
-? w.Walkables()
+? @@( w.Walkables() )
 #--> [ 2, 4, 6, 8 ]
 
-? w.WalkTo(4)
+? @@( w.WalkTo(4) )
 #--> [ 2, 4 ]
 
-? w.Position() + NL
+? w.Position()
 #--> 4
 
-? w.WalkFromEnd()
+? @@( w.WalkFromEnd() )
 #--> [ 8, 6, 4 ]
 
-? w.WalkFromStart()
+? @@( w.WalkFromStart() )
 #--> [ 2, 4 ]
 
 pf()
@@ -374,25 +374,147 @@ w.Walk()
 w.WalkBetween(7, 9)
 w.WalkFromLast()
 
-? @@NL( w.Walks() )
+? @@( w.WalkedPositions() ) + NL
+#--> [ 3, 5, 7, 9 ]
+
+? @@NL( w.Walks() ) + NL # Or w.History()
 #--> [
 #	[ 3, 5 ],
 #	[ 7, 9 ],
 #	[ 9 ]
 # ]
 
-? w.FirstWalk()
+? @@( w.FirstWalk() )
 #--> [ 3, 5 ]
 
-? w.NthWalk(2)
+? @@( w.NthWalk(2) )
 #--> [ 7, 9 ]
 
-? w.LastWalk()
+? @@( w.LastWalk() )
 #--> [ 9 ]
 
-w.RemoveWalks()
-? w.HowManyWalks()
-#--> 0
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*=== VARIANT STEPS
+
+/*--- Basic variant steps (using a list of step sizes)
+
+pr()
+
+oWalker = new stzWalker(1, 15, [ 2, 3, 1 ]) 
+oWalker {
+
+	? @@( Walkables() )
+	#--> [ 1, 3, 6, 7, 9, 12, 13, 15 ]
+	# Steps: +2, +3, +1, +2, +3, +1, +2
+
+	? CurrentPosition()
+	#--> 1
+
+	? @@( WalkN(3) )
+	#--> [ 1, 3, 6, 7 ]
+
+}
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*--- Walking backwards with variant steps
+
+pr()
+
+oWalker = new stzWalker(20, 5, [ 4, 2, 1 ])
+oWalker {
+
+	? @@( Walkables() )
+	#--> [ 20, 16, 14, 13, 9, 7, 6 ]
+	# Steps: -4, -2, -1, -4, -2, -1
+
+	? CurrentPosition()
+	#--> 20
+	? @@( WalkN(4) )
+	#--> [ 20, 16, 14, 13, 9 ]
+}
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*--- Using variant steps with WalkBetween
+
+pr()
+
+oWalker = new stzWalker(5, 25, [ 3, 5, 2 ])
+oWalker {
+
+	? @@( Walkables() )
+	#--> [ 5, 8, 13, 15, 18, 23, 25 ]
+
+	? CurrentPosition()
+	#--> 5
+	? @@( WalkBetween(8, 23) )
+	#--> [ 8, 13, 15, 18, 23 ]
+	? CurrentPosition()
+	#--> 23
+
+}
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*--- Checking walking history with variant steps
+
+pr()
+
+oWalker = new stzWalker(100, 70, [ 7, 3, 5 ])
+oWalker {
+
+	? @@( Walkables() )
+	#--> [ 100, 93, 90, 85, 78, 75, 70 ]
+
+	? CurrentPosition()
+	#--> 100
+
+	? @@( Walk() )
+	#--> [ 100, 93 ]
+
+	? @@( Walk() )
+	#--> [ 93, 90 ]
+
+	? @@( Walks() )
+	#--> [ [ 100, 93 ], [ 93, 90 ] ]
+
+	? @@( WalkedPositions() )
+	#--> [ 100, 93, 90 ]
+
+}
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*--- Remaining walkable positions with variant steps
+*/
+pr()
+
+oWalker = new stzWalker(10, 35, [ 5, 3, 7 ])
+oWalker {
+
+	? @@( Walkables() )
+	#--> [ 10, 15, 18, 25, 30, 33 ]
+
+	? CurrentPosition()
+	#--> 10
+
+	? @@( Walk() )
+	#--> [ 10, 15 ]
+
+	? @@( RemainingWalkables() )
+	#--> [ 18, 25, 30, 33 ]
+
+	? NumberOfRemainingWalkables()
+	#--> 4
+
+}
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
