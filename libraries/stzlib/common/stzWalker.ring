@@ -122,6 +122,7 @@ class stzWalker
 
 		# Check if steps is a number or a list of numbers
 		if isNumber(pSteps)
+
 			@bIsVariantSteps = FALSE
 			
 			# Allow negative steps as direction modifiers
@@ -130,6 +131,7 @@ class stzWalker
 			ok
 			
 		but isList(pSteps)
+
 			@bIsVariantSteps = TRUE
 			
 			if len(pSteps) = 0
