@@ -8244,3 +8244,38 @@ class stzListOfNumbers from stzList
 		next
 
 		return bResult
+
+	  #-----------------------------------------------------------------#
+	 #  CHECKINg IF THE LISt IS MADE OF POSITIVE NAD NEGATIVE NUMBERS  #
+	#-----------------------------------------------------------------#
+
+	def ContainsPositiveAndNegativeNumbers()
+
+		_nLen_ = len(@aContent)
+		if _nLen_ < 2
+			return _FALSE_
+		ok
+
+		for @i = 2 to _nLen_
+
+			if (@aContent[1] > 0 and @aContent[@i] < 0) or
+			   (@aContent[1] < 0 and @aContent[@i] > 0)
+
+				return _TRUE_
+			ok
+		next
+
+		return _FALSE_
+
+		#< @FunctionAlternativeForms
+
+		def ContainsNegativeAndPositiveNumbers()
+			return This.ContainsPositiveAndNegativeNumbers()
+
+		def IsMadeOfPositiveAndNegativeNumbers()
+			return This.ContainsPositiveAndNegativeNumbers()
+
+		def IsMadeOfNegativeAndPositiveNumbers()
+			return This.ContainsPositiveAndNegativeNumbers()
+
+		#>

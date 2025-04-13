@@ -1,5 +1,277 @@
 load "../max/stzmax.ring"
 
+/*---
+
+pr()
+
+# This function returns the list of walkable positions from nStart to nEnd
+# based on the provided list of steps anSteps, avoiding infinite loops.
+//func GetWalkablePositions nStart, nEnd, anSteps
+
+nStart = 5
+nEnd = 25
+anSteps = [ -2, 1, 4, -3, 7 ]
+
+
+    # --- Step 1. Find a cycle by accumulating steps until cumulative sum equals 0
+    anCycle = []
+    nSum = 0
+    nCycleIndex = 0
+    nLenSteps = len(anSteps)
+    for i = 1 to nLenSteps
+        nSum += anSteps[i]
+        anCycle + anSteps[i]
+        if nSum = 0 and i < nLenSteps
+            nCycleIndex = i   # cycle detected at position i
+            exit            # leave the cycle loop early
+        end
+    next
+
+    # --- Step 2. Split the steps:
+    # if a cycle was detected, use the steps before the closing element (last element of the cycle)
+    # as the initial steps.
+    initialSteps = [] 
+    if nCycleIndex > 0
+        # Use the steps up to (but not including) the one that closed the cycle.
+        for i = 1 to nCycleIndex - 1
+            initialSteps + anCycle[i]
+        next
+    else
+        # If no cycle detected, use the full list as initial steps.
+        initialSteps = anSteps
+    end
+
+    # The extra (or remaining) part consists of any steps after the cycle.
+    remainingSteps = []
+    if nCycleIndex > 0
+        for i = nCycleIndex + 1 to nLenSteps
+            remainingSteps + anSteps[i]
+        next
+    end
+
+    # --- Step 3. Build the repeating pattern:
+    # We want to preserve the “direction” that the user intended.
+    # For our test case this will be: remainingSteps concatenated with
+    # the positive portion of the initialSteps (skipping any negatives).
+    repeatSteps = []
+    # First add any remaining steps
+    for i = 1 to len(remainingSteps)
+        repeatSteps + remainingSteps[i]
+    next
+    # Then add the positive steps from the initial phase.
+    for i = 1 to len(initialSteps)
+        if initialSteps[i] > 0
+            repeatSteps + initialSteps[i]
+        end
+    next
+
+    # --- Step 4. Build the walkable positions.
+    # First apply the initialSteps, then repeat the repeatSteps until we reach nEnd.
+    n = nStart
+    anWalkables = [ n ]
+    # Apply the initial steps in order.
+    for i = 1 to len(initialSteps)
+        n = n + initialSteps[i]
+        anWalkables + n
+    next
+
+    # Then use the repeatSteps pattern.
+    nTimes = 0
+    nLenRepeat = len(repeatSteps)
+    while n < nEnd
+        nTimes++
+        if nTimes > 100
+		exit
+	ok
+        for i = 1 to nLenRepeat
+            candidate = n + repeatSteps[i]
+            # In forward walks, if candidate overshoots nEnd, skip this step.
+            if nStart < nEnd
+                if candidate > nEnd
+                    # skip this step, do nothing
+                    loop
+                ok
+            else
+                if candidate < nEnd then
+                    loop
+                ok
+            end
+            n = candidate
+            anWalkables + n
+            if n = nEnd
+		exit 2
+	    ok
+        next
+    end
+
+
+    ? @@( anWalkables )
+
+
+pf()
+
+/*---
+
+pr()
+
+# Let's take the exxamle of:
+nStart = 5
+nEnd = 25
+
+# And suppose the user introduced these steps
+
+anSteps = [ -2, 1, 4, -3, 7 ]
+nLenSteps = len(anSteps)
+
+# Considering only the real steps by identifying
+# potenial infinite walking loop
+
+anRealSteps = []
+
+nSum = 0
+for i = 1 to nLenSteps
+
+	
+	nSum += anSteps[i]
+	if nSum = 0
+		exit
+	ok
+	
+	anRealSteps + anSteps[i]
+next
+
+? @@(anRealSteps) # Note how the last [ -3, 7 ] steps are ignored
+#--> [ -2, 1, 4 ]
+
+
+# Now, Doing the job, by cycling through the real steps,
+# sum them and yield the value, until the value goes out
+# of the walkable limits, or when accedding a  high loop
+
+nLenRealSteps = len(anRealSteps)
+n = nStart
+anWalkables = [n]
+
+nTimes = 0
+
+while true
+
+	nTimes++
+	if  nTimes > 100
+		exit
+	ok
+
+	for i = 2 to nLenRealSteps
+		n += anRealSteps[i]
+		if n < nStart or n > nEnd
+			exit
+		ok
+		anWalkables + n
+	next
+
+end
+
+# Now we should have our walkable positions
+? @@(anWalkables)
+#--> [ 5, 6, 10, 11, 15, 16, 20, 21, 25 ]
+
+# note that this is not totally correct, but the logic is good!
+
+pf()
+
+/*---
+
+pr()
+
+nStart = 5
+nEnd = 25
+
+anSteps = [ -2, 1, 4, -3 ]
+nLenSteps = len(anSteps)
+
+anWalkables = [ nStart ]
+nCurrent = nStart
+n = 0
+i = 0
+
+aStepVals = [ 5 ]
+
+while TRUE
+	n++
+	if n > nEnd
+		exit
+	ok
+
+	i++
+	if i > nLenSteps
+		i = 1
+	ok
+
+	nStep = anSteps[i]
+? ">> @"+ nStep
+? ">> " + @@(aStepVals) + NL
+	nNew = nCurrent + nStep
+
+? "!!! " + @@([ i, len(aStepVals)]) + nl
+
+	nLenVal = len(aStepVals)
+	
+	if i > nLenVal
+		aStepVals + nNew
+	else
+		if aStepVals[i] = nNew
+			exit
+		ok
+
+		aStepVals[i] = nNew
+	ok
+
+	anWalkables + nNew
+end
+
+? @@(anWalkables)
+
+pf()
+
+/*--- Using negative steps
+*/
+pr()
+
+
+oWalker = new stzWalker(5, 25, [ -2, 1, 4, -3, 7 ])
+oWalker {
+
+        # Negative steps walker setup
+
+        ? StartPosition()
+	#--> 5
+        ? EndPosition()
+	#--> 25
+
+        ? @@( oWalker.Steps() )
+	#--> [ -2, 1, 4, -3 ]
+        ? Direction()
+	#--> forward (since 5 < 25)
+
+        ? @@( Walkables() )
+	#--> [ 5, 3, 4, 8, 5, 9, 13, 10 ]
+        ? CurrentPosition() + NL
+	#--> 5
+
+        # Walking through positions with mixed negative/positive steps
+
+        ? @@( Walk() )      # Output: [ 5, 3 ] (first step is -2)
+        ? CurrentPosition() + NL  # Output: 3
+
+        # Walking multiple steps
+
+        ? @@( WalkNSteps(3) )  # Output: [ 3, 4, 8, 5 ]
+
+        ? CurrentPosition()  # Output: 5
+}
+
+pf()
+
 /*--
 
 pr()
@@ -701,41 +973,9 @@ oWalker {
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
-/*--- Using negative steps
-*/
+/*---
+
 pr()
-
-
-oWalker = new stzWalker(5, 25, [ -2, 1, -1, 2 ])
-oWalker {
-
-	# Negative steps walker setup
-
-	? StartPosition()
-
-	? EndPosition()
-
-	? @@( oWalker.Steps() )
-
-	? Direction()
-
-	? @@( Walkables() )
-
-	? CurrentPosition() + NL
-
-	# Walking through positions with mixed negative/positive steps
-
-	? @@( Walk() )
-
-	? CurrentPosition() + NL
-
-	# Walking multiple steps
-
-	? @@( WalkNSteps(3) )
-
-	? CurrentPosition()
-
-}
 
 pf()
 
