@@ -47,6 +47,21 @@ _oIntermediateTable = new stzTable([])
 ///////////////////
 
 func iif(cCondition, pTrue, pFalse)
+	if CheckParams()
+		if isList(cCondition) and StzListQ(ccondition).IsItNamedParam()
+			cCondition = cCondition[2]
+		ok
+
+		if isList(pTrue) and StzListQ(pTrue).IsSayOrReturnNamedParam()
+			pTrue = pTrue[2]
+		ok
+
+		if isList(pFalse) and StzListQ(pFalse).IsElseOrOtherwiseNamedParam()
+			pFalse = pFalse[2]
+		ok
+
+	ok
+
 	cCode = 'bOk = (' + cCondition + ')'
 	eval(cCode)
 	if bOk
@@ -56,6 +71,9 @@ func iif(cCondition, pTrue, pFalse)
 	ok
 
 	func @if(cCondition, pTrue, pFalse)
+		return iif(cCondition, pTrue, pFalse)
+
+	func iff(cCondition, pTrue, pFalse)
 		return iif(cCondition, pTrue, pFalse)
 
 func TempVars()

@@ -52,6 +52,9 @@ class stzWalker
 	@anWalkables = []
 	@nCurrentPos
 	@aWalkHistory = []  # Stores the history of walks as separate lists
+	
+	# New attribute for direction
+	@cDirection  # :Forward or :Backward
 
 	  #-------------------------#
 	 #   SETTING THE WALKER    #
@@ -110,17 +113,20 @@ class stzWalker
 			StzRaise("Can't create the stzWalker object! pnStart and pnEnd must be different.")
 		ok
 
-		# Check if steps is a number or a list of numbers
+		# Set initial direction based on start and end positions
+		if pnStart < pnEnd
+			@cDirection = :Forward
+		else
+			@cDirection = :Backward
+		ok
 
+		# Check if steps is a number or a list of numbers
 		if isNumber(pSteps)
 			@bIsVariantSteps = FALSE
 			
-			if NOT pSteps > 0
-				StzRaise("Can't create the stzWalker object! pSteps must be a strictly positive number.")
-			ok
-			
-			if pSteps > abs(pnEnd - pnStart) + 1
-				StzRaise("Can't walk! The step is larger then the number of walkable positions.")
+			# Allow negative steps as direction modifiers
+			if abs(pSteps) > abs(pnEnd - pnStart) + 1
+				StzRaise("Can't walk! The absolute step value is larger than the number of walkable positions.")
 			ok
 			
 		but isList(pSteps)
@@ -130,12 +136,12 @@ class stzWalker
 				StzRaise("Can't create the stzWalker object! pSteps list cannot be empty.")
 			ok
 			
-			if NOT @ArePositiveNumbers(pSteps)
-				StzRaise("Can't create the stzWalker object! All steps in the list must be positive numbers.")
+			# We now allow negative numbers in the steps list
+			if NOT @AreNonZeroNumbers(pSteps)
+				StzRaise("Can't create the stzWalker object! All steps in the list must be non-zero numbers.")
 			ok
 			
 			# Check if steps have constant difference
-
 			if @HaveConstantDifference(pSteps)
 				@bIsVariantSteps = FALSE
 				pSteps = pSteps[1]  # Use first step as they're all the same
@@ -145,13 +151,11 @@ class stzWalker
 		ok
 
 		# Setting the object attributes
-
 		@nStart = pnStart
 		@nEnd = pnEnd
 		@pSteps = pSteps	
 
 		# Populate walkable positions
-
 		@anWalkables = []
 		if @bIsVariantSteps
 			This.CalculateVariantWalkables()
@@ -159,22 +163,23 @@ class stzWalker
 			This.CalculateConstantWalkables()
 		ok
 
-		@nCurrentPos = pnStart
+		@nCurrentPos = @nStart
 		@aWalkHistory = []  # Initialize empty walk history
 
 	def CalculateConstantWalkables()
-		if @nStart < @nEnd
-			for i = @nStart to @nEnd step @pSteps
+		if @nStart < @nEnd  # Forward direction
+			nStep = abs(@pSteps)
+			for i = @nStart to @nEnd step nStep
 				@anWalkables + i
 			next
-		else
-			for i = @nStart to @nEnd step -@pSteps
+		else  # Backward direction
+			nStep = abs(@pSteps)
+			for i = @nStart to @nEnd step -nStep
 				@anWalkables + i
 			next
 		ok
 
 	def CalculateVariantWalkables()
-
 		@anWalkables = [ @nStart ]
 		nCurrentPos = @nStart
 		nDirection = IIF(@nStart < @nEnd, 1, -1)
@@ -182,25 +187,35 @@ class stzWalker
 		nNumSteps = len(@pSteps)
 
 		while TRUE
-			nCurrentPos = nCurrentPos + (nDirection * @pSteps[nStepIndex])
+			# Get step and apply direction logic
+			nStep = @pSteps[nStepIndex]
 			
-			# Check if we've gone past the end
-
-			if (nDirection = 1 and nCurrentPos > @nEnd) or
-			   (nDirection = -1 and nCurrentPos < @nEnd)
+			# Apply step based on its sign and the overall direction
+			if nStep > 0
+				# Positive step follows the main direction
+				nCurrentPos = nCurrentPos + (nDirection * abs(nStep))
+			else
+				# Negative step goes against the main direction
+				nCurrentPos = nCurrentPos - (nDirection * abs(nStep))
+			ok
+			
+			# Check if we've gone past the end or reversed beyond the start
+			if (@nStart < @nEnd and (nCurrentPos > @nEnd or nCurrentPos < @nStart)) or
+			   (@nStart > @nEnd and (nCurrentPos < @nEnd or nCurrentPos > @nStart))
 				exit
 			ok
 			
 			@anWalkables + nCurrentPos
 			
 			# Move to next step in the list, cycling if necessary
-
 			nStepIndex++
-
 			if nStepIndex > nNumSteps
 				nStepIndex = 1
 			ok
 		end
+
+		# Ensure walkables are properly ordered
+		@anWalkables = This._SortPositions(@anWalkables)
 
 	  #------------------#
 	 #   GENERAL INFO   #
@@ -219,18 +234,26 @@ class stzWalker
 		return @nStart
 
 		def StartingPosition()
-			return This.StartPosition()
+			return @nStart
+
+		def Start()
+			return @nStart
 
 	def EndPosition()
 		return @nEnd
 
 		def EndingPosition()
-			return This.EndPosition()
+			return @nEnd
+
+		def Endd()
+			return @nEnd
 
 	def Steps()
 		return @pSteps
 
-	def NStep() #NOTE: We can't use Step() because STEP is reserved by Ring
+		def Stepp()
+
+	def NStep() # NOTE: We can't use Step() because STEP is reserved by Ring
 		if @bIsVariantSteps
 			return @pSteps
 		else
@@ -279,6 +302,37 @@ class stzWalker
 
 		def SetCurrent(n)
 			SetCurrentPosition(n)
+
+	#--- Direction methods ---#
+	
+	def Direction()
+		return @cDirection
+		
+		def CurrentDirection()
+			return This.Direction()
+
+	def SetDirection(cDirection)
+		if cDirection != :Forward and cDirection != :Backward
+			StzRaise("Invalid direction! Must be :Forward or :Backward.")
+		ok
+		
+		@cDirection = cDirection
+		return This
+		
+	def ReverseDirection()
+		if @cDirection = :Forward
+			@cDirection = :Backward
+		else
+			@cDirection = :Forward
+		ok
+		
+		return This
+		
+	def IsMovingForward()
+		return (@cDirection = :Forward)
+		
+	def IsMovingBackward()
+		return (@cDirection = :Backward)
 
 	  #-----------------------------------------------------#
 	 #  POSITIONS, WALKED POSITIONS & UNWALKED POSITIONS   #
@@ -340,17 +394,6 @@ class stzWalker
 		def CountWalkables()
 			return This.NumberOfWalkablePositions()
 
-		#--
-
-		def NumberOfSteps()
-			return This.NumberOfWalkablePositions()
-
-		def HowManySteps()
-			return This.NumberOfWalkablePositions()
-
-		def CountSteps()
-			return This.NumberOfWalkablePositions()
-
 		#>
 
 	def UnwalkablePositions()
@@ -384,15 +427,37 @@ class stzWalker
 	#--------------#
 
 	def RemainingWalkables()
+
 		anWalkables = This.Walkables()
-		nCurrent = ring_find( anWalkables, This.CurrentPosition() )
+		nCurrent = ring_find(anWalkables, This.CurrentPosition())
 
 		anResult = []
 		nLen = len(anWalkables)
 
-		for i = nCurrent + 1 to nLen
-			anResult + anWalkables[i]
-		next
+		if This.IsMovingForward()
+
+			if anWalkables[1] < anWalkables[2]
+				for i = nCurrent + 1 to nLen
+					anResult + anWalkables[i]
+				next
+			else
+				for i = nCurrent - 1 to 1 step -1
+					anResult + anWalkables[i]
+				next
+			ok
+
+		else
+
+			if anWalkables[1] < anWalkables[2]
+				for i = nCurrent - 1 to 1 step -1
+					anResult + anWalkables[i]
+				next
+			else
+				for i = nCurrent + 1 to nLen
+					anResult + anWalkables[i]
+				next
+			ok
+		ok
 
 		return anResult
 
@@ -417,12 +482,50 @@ class stzWalker
 	def Walk()
 		return This.WalkNSteps(1)
 
+	def WalkForward()
+		cPrevDirection = @cDirection
+		@cDirection = :Forward
+		anResult = This.WalkNSteps(1)
+		return anResult
+
+	def WalkBackward()
+
+		# Save current position
+		nCurrentPos = @nCurrentPos
+
+		# Set direction to backward
+		@cDirection = :Backward
+
+		# Find current position in walkables array
+		anWalkables = This.Walkables()
+		nCurrentIndex = ring_find(anWalkables, nCurrentPos)
+
+		# Check if there's a position before the current one
+		if nCurrentIndex <= 1
+			StzRaise("Can't walk backward! Already at the beginning of walkable positions.")
+		ok
+
+		# The previous position is the one before current in the walkables array
+		nPreviousPos = anWalkables[nCurrentIndex - 1]
+
+		# Create result array with current and previous positions
+		anResult = [ nCurrentPos, nPreviousPos ]
+
+		# Update current position
+		@nCurrentPos = nPreviousPos
+
+		# Add this walk operation to history
+		@aWalkHistory + anResult
+
+		return anResult
+
 	def WalkNSteps(n)
 		anRemaining = This.RemainingWalkables()
+
 		nLenRemaining = len(anRemaining)
 
 		if n > nLenRemaining
-			StzRaise("Can't walk! No more walkable positions.")
+			StzRaise("Can't walk! No more walkable positions in the current direction.")
 		ok
 
 		anWalks = [ This.CurrentPosition() ]
@@ -434,6 +537,7 @@ class stzWalker
 		@nCurrentPos = anWalks[len(anWalks)]
 		
 		# Add this walk operation to history
+
 		@aWalkHistory + anWalks
 
 		return anWalks
@@ -447,6 +551,72 @@ class stzWalker
 			return This.WalkNSteps(n)
 
 		#>
+		
+	def WalkNForward(n)
+		# Save current position
+		nCurrentPos = @nCurrentPos
+
+		# Set direction to forward
+		@cDirection = :Forward
+
+		# Find current position in walkables array
+		anWalkables = This.Walkables()
+		nCurrentIndex = ring_find(anWalkables, nCurrentPos)
+
+		# Check if there are enough positions after the current one
+		if nCurrentIndex + n > len(anWalkables)
+			StzRaise("Can't walk forward! Not enough walkable positions in forward direction.")
+		ok
+
+		# Create result array starting with current position
+		anResult = [ nCurrentPos ]
+
+		# Add the next n positions in forward direction
+		for i = 1 to n
+			anResult + anWalkables[nCurrentIndex + i]
+		next
+
+		# Update current position to the last position we walked to
+		@nCurrentPos = anResult[len(anResult)]
+
+		# Add this walk operation to history
+		@aWalkHistory + anResult
+
+		return anResult
+		
+	def WalkNBackward(n)
+		# Save current position
+		nCurrentPos = @nCurrentPos
+
+		# Set direction to backward
+		@cDirection = :Backward
+
+		# Find current position in walkables array
+		anWalkables = This.Walkables()
+		nCurrentIndex = ring_find(anWalkables, nCurrentPos)
+
+		# For a backward walker, we need to move forward in the array
+		# Check if there are enough positions after the current one
+
+		if nCurrentIndex + n > len(anWalkables)
+			StzRaise("Can't walk backward! Not enough walkable positions in backward direction.")
+		ok
+
+		# Create result array starting with current position
+		anResult = [ nCurrentPos ]
+
+		# Add the next n positions in array (which is backward in value)
+		for i = 1 to n
+			anResult + anWalkables[nCurrentIndex + i]
+		next
+
+		# Update current position to the last position we walked to
+		@nCurrentPos = anResult[len(anResult)]
+
+		# Add this walk operation to history
+		@aWalkHistory + anResult
+
+		return anResult
 
 	def Walkables()
 		return @anWalkables
@@ -455,6 +625,7 @@ class stzWalker
 			return This.Walkables()
 
 	def NthWalkablePosition(n)
+
 		if CheckingParams()
 			if isString(n)
 				if n = :First
@@ -509,11 +680,7 @@ class stzWalker
 		#>
 
 	def CanWalk()
-		if This.CurrentPosition() < This.LastStep()
-				return _TRUE_
-			else
-				return _FALSE_
-			ok
+		return len(This.RemainingWalkables()) > 0
 
 		def HasNext()
 			return This.CanWalk()
@@ -526,14 +693,24 @@ class stzWalker
 	#-----------------------------#
 
 	def WalkTo(n)
-		return This.WalkBetween( This.CurrentPosition(), n)
+
+		if CheckParams()
+			if NOT isNumber(n)
+				stzraise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		if NOT ring_find(This.Walkables(), n)
+			stzraise("Can't walk! The position provided is not walkable.")
+		ok
+
+		return This.WalkBetween(This.CurrentPosition(), n)
 
 		def WalkToPosition(n)
 			return This.WalkTo(n)
 
-
 	def WalkToFirst()
-		return This.WalkTo( This.FirstWalkablePosition() )
+		return This.WalkTo(This.FirstWalkablePosition())
 
 		def WalkToFirstPosition()
 			return This.WalkTofirst()
@@ -545,7 +722,7 @@ class stzWalker
 			return This.WalkToFirst()
 
 	def WalkToLast()
-		return This.WalkTo( This.LastWalkablePosition() )
+		return This.WalkTo(This.LastWalkablePosition())
 
 		def WalkToLastPosition()
 			return This.WalkToLast()
@@ -561,13 +738,13 @@ class stzWalker
 	#---------------------------------#
 
 	def WalkFrom(n)
-		return This.WalkBetween( n, This.CurrentPosition())
+		return This.WalkBetween(n, This.CurrentPosition())
 
 		def WalkFromPosition(n)
 			return This.WalkFrom(n)
 
 	def WalkFromFirst()
-		anResult = This.WalkFrom( This.FirstWalkable() )
+		anResult = This.WalkFrom(This.FirstWalkable())
 		return anResult
 
 		def WalkFromFirstPosition()
@@ -577,7 +754,7 @@ class stzWalker
 			return This.WalkFromFirst()
 
 	def WalkFromLast()
-		anResult = This.WalkFrom( This.LastWalkable() )
+		anResult = This.WalkFrom(This.LastWalkable())
 		return anResult
 
 		def WalkFromLastPosition()
@@ -591,13 +768,14 @@ class stzWalker
 	#--------------------------------------#
 
 	def IsWalkable(n)
+
 		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
 
-		if ring_find( This.Walkables(), n) > 0
+		if ring_find(This.Walkables(), n) > 0
 			return _TRUE_
 		else
 			return _FALSE_
@@ -617,6 +795,7 @@ class stzWalker
 		#>
 
 	def AreWalkables(anPos)
+
 		if CheckingParams()
 			if NOT @IsListOfNumbers(anPos)
 				StzRaise("Incorrect param type! anPos must be a list of numbers.")
@@ -646,13 +825,14 @@ class stzWalker
 	#----------------------------------------#
 
 	def IsUnwalkable(n)
+
 		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
 
-		if ring_find( This.Unwalkables(), n) > 0
+		if ring_find(This.Unwalkables(), n) > 0
 			return _TRUE_
 		else
 			return _FALSE_
@@ -672,6 +852,7 @@ class stzWalker
 		#>
 
 	def AreUnwalkables(anPos)
+
 		if CheckingParams()
 			if NOT @IsListOfNumbers(anPos)
 				StzRaise("Incorrect param type! anPos must be a list of numbers.")
@@ -698,6 +879,7 @@ class stzWalker
 	#---------------------------------------------#
 
 	def WalkBetween(n1, n2)
+
 		if CheckingParams()
 			if isList(n2) and StzListQ(n3).IsAndNamedParam()
 				n2 = n2[2]
@@ -708,8 +890,14 @@ class stzWalker
 			ok
 		ok
 
-		if NOT This.AreWalkables([ n1, n2 ])
-			StzRaise("Can't walk! The position(s) provided must be walkable.")
+		if NOT This.AreWalkables([n1, n2])
+
+			_cTemp_ = "position"
+			if n2 - n1 > 1
+				_cTemp_ += "s"
+			ok
+
+			StzRaise("Can't walk! The " + _cTemp_ + " provided is not walkable.")
 		ok
 
 		anResult = []
@@ -718,17 +906,21 @@ class stzWalker
 		nPos1 = ring_find(anWalkables, n1)
 		nPos2 = ring_find(anWalkables, n2)
 		
+		# Update direction based on the walk direction
+
 		if nPos1 < nPos2
+			@cDirection = :Forward
 			for i = nPos1 to nPos2
 				anResult + anWalkables[i]
 			next
 		else
+			@cDirection = :Backward
 			for i = nPos1 to nPos2 step -1
 				anResult + anWalkables[i]
 			next
 		ok
 
-		@nCurrentPos = anResult[ len(anResult) ]
+		@nCurrentPos = anResult[len(anResult)]
 		
 		# Add this walk operation to history
 
@@ -770,7 +962,6 @@ class stzWalker
 		nLen = len(@aWalkHistory)
 
 		for i = 1 to nLen
-
 			nLen2 = len(@aWalkHistory[i])
 
 			for j = 1 to nLen2
@@ -825,6 +1016,7 @@ class stzWalker
 			return This.NumberOfWalkedPositions()
 
 	def NthWalk(n)
+
 		if n > len(@aWalkHistory) or n < 1
 			StzRaise("Invalid walk index! n must be between 1 and " + len(@aWalkHistory))
 		ok
@@ -835,6 +1027,7 @@ class stzWalker
 			return This.WalkedPositions()[n]
 
 	def FirstWalk()
+
 		if len(@aWalkHistory) = 0
 			return []
 		ok
@@ -853,6 +1046,7 @@ class stzWalker
 	#-----------------#
 	
 	def @ArePositiveNumbers(pList)
+
 		if NOT isList(pList)
 			return FALSE
 		ok
@@ -860,7 +1054,6 @@ class stzWalker
 		nLen = len(pList)
 
 		for i = 1 to nLen
-//		for item in pList
 			if NOT (isNumber(pList[i]) and pList[i] > 0)
 				return FALSE
 			ok
@@ -868,7 +1061,24 @@ class stzWalker
 		
 		return TRUE
 		
+	def @AreNonZeroNumbers(pList)
+
+		if NOT isList(pList)
+			return FALSE
+		ok
+
+		nLen = len(pList)
+
+		for i = 1 to nLen
+			if NOT (isNumber(pList[i]) and pList[i] != 0)
+				return FALSE
+			ok
+		next
+		
+		return TRUE
+		
 	def @HaveConstantDifference(pList)
+
 		if len(pList) <= 1
 			return TRUE
 		ok
@@ -888,4 +1098,4 @@ class stzWalker
 	#-----------#
 
 	def ToStzList()
-		return new stzList( This.WalkedPositions() )
+		return new stzList(This.WalkedPositions())

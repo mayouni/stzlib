@@ -88256,10 +88256,45 @@ fdef
 			return _FALSE_
 		ok
 
+	def IsStartFromNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :StartFrom )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsStartsFromNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :StartsFrom )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsStartingFromNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :StartingFrom )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
 
 	def IsEndNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :End )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsStopNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Stop )
 
 			return _TRUE_
 		else
@@ -90753,6 +90788,70 @@ fdef
 		else
 			return _FALSE_
 		ok
+
+	def IsItNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :It )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsSayNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Say )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsSayOrReturnNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Say or This.Item(1) = :Return) )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+		def IsReturnOrSayNamedParam()
+			return This.IsSayOrReturnNamedParam()
+
+	def IsOtherwiseNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Otherwise )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsElseNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Else )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsElseOrOtherwiseNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Else or This.Item(1) = :Otherwise) )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+		def IsOtherwiseOrElseNamedParam()
+			return This.IsElseOrOtherwiseNamedParam()
 
 #WARNING: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.
