@@ -23,9 +23,7 @@ load "stzlib.ring"
 
 This prevents the confusion found in some languages where empty substrings are implicitly considered "present" at every position in a string.
 
->NOTE: The small `Q(val)` function converts the value `val` into its corresponding Softanza object. In this case, `Q("text")` returns an `stzString("text")` object.
-
-
+> NOTE: The small `Q(val)` function converts the value `val` into its corresponding Softanza object. In this case, `Q("text")` returns an `stzString("text")` object.
 
 ## Rule 2: Emptiness Is Unfindable
 
@@ -39,7 +37,7 @@ Since emptiness is uncountable (Rule 1), it logically follows that it cannot be 
 #--> [ ]
 ```
 
-Also, finding the first position of "" always returns 0, which means it does not even exist:
+Also, finding the first position of `""` always returns `0`, which means it does not even exist:
 
 ```ring
 ? Q("").FindFirst("")
@@ -51,9 +49,7 @@ Also, finding the first position of "" always returns 0, which means it does not
 
 This contrasts with languages like **Qt C++** or **Python**, or even the `substr()` function in **Ring**, where finding `""` may return the first position, misleadingly implying its presence.
 
->NOTE: We focus on **Qt** here because it is integrated into Ring through the **RingQt** library, which serves as the primary option for managing Unicode strings in the Ring language.
-
-
+> NOTE: We focus on **Qt** here because it is integrated into Ring through the **RingQt** library, which serves as the primary option for managing Unicode strings in the Ring language.
 
 ## Rule 3: Emptiness Is Uncontainable
 
@@ -72,8 +68,6 @@ An empty string contains nothing, and no string (empty or not) contains an empty
 
 This behavior eliminates ambiguities in mainstream languages, where `""` is often considered contained within any string.
 
-
-
 ## Rule 4: Emptiness Is Irreplaceable but Stretchable
 
 Replacing any value with emptiness has no meaningful effect, nor does replacing an empty string with another empty string.
@@ -85,13 +79,9 @@ Replacing any value with emptiness has no meaningful effect, nor does replacing 
 ? @@( Q("").ReplaceQ("text", "").Content() ) 
 #--> ""
 
-? @@( Q("").ReplaceQ('', "text").Content() ) 
+? @@( Q("").ReplaceQ("", "text").Content() ) 
 #--> ""
-```
 
-However, replacing emptiness with a non-empty string stretches the empty string to host the new content.
-
-```ring
 ? @@( Q("text").ReplaceQ("", "").Content() ) 
 #--> "text"
 
@@ -99,12 +89,19 @@ However, replacing emptiness with a non-empty string stretches the empty string 
 #--> "text"
 ```
 
+However, replacing emptiness with a non-empty string stretches the empty string to host the new content.
+
+```ring
+
+? @@( Q("").ReplaceQ("", "X").Content() )
+#--> "X"
+```
+
 Softanza enforces this by ensuring replacements involving `""` either return the original string or logically adjust to accommodate the replacement.
 
 This avoids surprising behaviors like those in **Qt C++**, where replacing `""` inserts the replacement string between every character (`"tXeXtX"`).
 
->NOTE: The @@() function (resembling two glasses one puts on to improve sight) returns a readable, string-based representation of the value val, regardless of its type.
-
+> NOTE: The `@@(val)` function (resembling two glasses one puts on to improve sight) returns a readable, string-based representation of the value `val`, regardless of its type.
 
 ## Rule 5: Emptiness Is Irremovable
 
@@ -123,8 +120,6 @@ Similarly, emptiness cannot be removed from any string. Softanza guarantees that
 
 This ensures logical consistency and avoids unintended alterations.
 
-
-
 ## Logical Fluency and Real-World Implications
 
 Softanza’s rules for handling emptiness prevent common errors and make programs more predictable.
@@ -141,7 +136,7 @@ val = ""
 nPosition = substr("ring", val) #--> 1
 
 // Removing the character at that position using Softanza
-? Q("Ring"=.RemoveAt(nPosition) #--> "ing"
+? Q("Ring").RemoveAt(nPosition) #--> "ing"
 ```
 
 Here, `val` being empty leads to mistakenly identifying position 1 (first character) as a valid match, resulting in an unintended modification.
