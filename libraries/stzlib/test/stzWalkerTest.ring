@@ -249,25 +249,32 @@ oWalker {
 	#--> 25
 
         ? @@( oWalker.Steps() )
-	#--> [ -2, 1, 4, -3 ]
+	#--> [ -2, 1, 4, -3, 7 ]
+
         ? Direction()
 	#--> forward (since 5 < 25)
 
         ? @@( Walkables() )
-	#--> [ 5, 3, 4, 8, 5, 9, 13, 10 ]
+	#--> [ 5, 3, 4, 8, 15, 16, 20, 21, 25 ]
+
         ? CurrentPosition() + NL
 	#--> 5
 
         # Walking through positions with mixed negative/positive steps
 
-        ? @@( Walk() )      # Output: [ 5, 3 ] (first step is -2)
-        ? CurrentPosition() + NL  # Output: 3
+        ? @@( Walk() )
+	#--> [ 5, 3 ] 	(first step is -2)
+
+        ? CurrentPosition() + NL
+	#--> 3
 
         # Walking multiple steps
 
-        ? @@( WalkNSteps(3) )  # Output: [ 3, 4, 8, 5 ]
+        ? @@( WalkNSteps(3) )
+	#--> [ 3, 4, 8, 15 ]
 
-        ? CurrentPosition()  # Output: 5
+        ? CurrentPosition()
+	#--> 15
 }
 
 pf()

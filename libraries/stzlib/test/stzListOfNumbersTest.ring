@@ -21,7 +21,7 @@ o1 = new stzListOfNumbers([ -1, 5, 7 , -9 ])
 #--> TRUE
 
 pf()
-# Executed in 0.08 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*=====
 

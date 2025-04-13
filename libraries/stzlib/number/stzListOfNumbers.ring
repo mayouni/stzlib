@@ -62,6 +62,30 @@ func StzListOfNumbersQ(paListOfNumbers)
 func NumbersUnicodes(anNumbers)
 	return StzListOfNumbersQ(anNumbers).Unicodes()
 
+func AreNonZeroNumbers(anNumbers)
+	if NOT isList(anNumbers)
+		return FALSE
+	ok
+
+	nLen = len(anNumbers)
+
+	for i = 1 to nLen
+		if NOT (isNumber(anNumbers[i]) and anNumbers[i] != 0)
+			return FALSE
+		ok
+	next
+	
+	return TRUE
+
+	func AreNonNullNumbers(anNumbers)
+		return AreNonZeroNumbers(anNumbers)
+
+	func @AreNonZeroNumbers(anNumbers)
+		return AreNonZeroNumbers(anNumbers)
+
+	func @AreNonNullNumbers(anNumbers)
+		return AreNonZeroNumbers(anNumbers)
+
 func MinOf(panNumbers)
 	return Min(panNumbers) # Defined in SoftanzaCore
 
@@ -8279,3 +8303,22 @@ class stzListOfNumbers from stzList
 			return This.ContainsPositiveAndNegativeNumbers()
 
 		#>
+
+	  #---------------------------------------------------------#
+	 #  CHECKINg IF THE LISt IS MADE OF ONLY NON-ZERO NUMBERS  #
+	#---------------------------------------------------------#
+
+	def AreNonZeroNumbers()
+	
+		nLen = len(@aContent)
+	
+		for i = 1 to nLen
+			if @aContent[i] = 0
+				return FALSE
+			ok
+		next
+		
+		return TRUE
+	
+		def AreNonNullNumbers()
+			return This.AreNonZeroNumbers()
