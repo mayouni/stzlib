@@ -1,6 +1,5 @@
 load "../max/stzmax.ring"
 
-
 /*--
 
 pr()
@@ -30,14 +29,13 @@ o1 {
 
 	? CurrentPosition() # Or Position()
 	#--> 1
-
 }
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
 # Executed in 0.02 second(s) in Ring 1.21
 
-/*-------------------
+/*---
 
 pr()
 
@@ -69,7 +67,7 @@ o1 {
 }
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*===
 
@@ -117,7 +115,10 @@ oWalker {
 	? Position()
 	#--> 9
 
-	? @@( History() ) # Or WalkedPositions()
+	? @@( History() ) # Or Walks()
+	#--> [ [ 3, 5 ], [ 5, 7, 9 ] ]
+
+	? @@( WalkedPositions() )
 	#--> [ 3, 5, 7, 9 ]
 
 }
@@ -146,7 +147,7 @@ w = new stzWalker(1, 10, 2)
 
 # first, let's get the default position
 
-? w.Position()	# Or CurrentPosition()
+? w.Position() + NL # Or CurrentPosition()
 #--> 1
 
 # Walk through all the positions
@@ -166,15 +167,26 @@ pr()
 
 oWalker = new stzWalker(1, 10, 2)
 
-? oWalker.Position()
-#--> 1
+# All positions
 
-? oWalker.NumberOfSteps()
-#--> 5
+? oWalker.NumberOfPositions()
+#--> 10
+
+? @@( oWalker.Positions() )
+#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+
+# Walkable positions
+
+? @@( oWalker.Walkables() )
+#--> [ 1, 3, 5, 7, 9 ]
+
+# Unwalkable positions
+
+? @@( oWalker.UnWalkables() )
+#--> [ 2, 4, 6, 8, 10 ]
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
-# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*----
 
@@ -195,7 +207,7 @@ oWalker {
 	? CurrentPosition()
 	#--> 5
 
-	? @@( RemainingWalkables())
+	? @@( RemainingWalkables() )
 	#--> [ 7, 9, 11 ]
 
 	WalkN(2) # You can type ? to see the walked steps ~> [ 5, 7, 9 ]
@@ -208,7 +220,7 @@ oWalker {
 	? @@( RemainingWalkables() )
 	#--> [ 11 ]
 
-	? WalkN(1)
+	? @@( WalkN(1) )
 	#--> [ 9, 11 ]
 
 	// Walk()
@@ -227,16 +239,22 @@ pr()
 oWalker = new stzWalker(12, 1, 2)
 oWalker {
 
-	? @@( Walkables())
+	? Direction()
+	#--> backward
+
+	? @@( Walkables() )
 	#--> [ 12, 10, 8, 6, 4, 2 ]
-		
-	? CurrentPosition() + NL
-	#--> 12
-	
-	? @@( WalkN(2) )
+
+	? CurrentPosition()
+	#--> 2
+
+	? @@( RemainingWalkables() )
+	#--> [ 10, 8, 6, 4, 2 ]
+
+	? @@( WalkNSteps(2) ) # Or WalkN()
 	#--> [ 12, 10, 8 ]
 
-	? CurrentPosition() + NL
+	? CurrentPosition() # Or Position()
 	#--> 8
 
 	? @@( RemainingWalkables() )
@@ -256,8 +274,11 @@ oWalker {
 	? @@( RemainingWalkables() )
 	#--> [ 2 ]
 
-	? @@( WalkN(1) )
+	? @@( WalkN(1) ) # Or simplie Walk()
 	#--> [ 4, 2 ]
+
+	? @@( RemainingWalkables() )
+	#--> [ ]
 
 	// Walk()
 	#--> ERROR: Can't walk! No more walkable positions!
@@ -279,38 +300,39 @@ w = new stzWalker(3, 12, 2)
 ? @@( w.Walkables() )
 #--> [ 3, 5, 7, 9, 11 ]
 
-w.WalkNSteps(2) #--> Inspect it wit ? and you get [ 3, 5, 7 ]
+? @@( w.WalkNSteps(2) )
+#--> [ 3, 5, 7 ]
 
-? w.Position() + NL
+? w.Position()
 #--> 7
 
 // w.WalkTo(8)
-#--> ERROR: Can't walk! The position provided must be walkable.
+#--> ERROR: Can't walk! The position provided is not walkable.
 
-w.WalkTo(5) #--> [ 7, 5 ]
+? @@( w.WalkTo(5) )
+#--> [ 7, 5 ]
+
 ? w.Position() + NL
 #--> 5
 
-
 ? "--" + NL
 
-
-? w.WalkToFirst()
+? @@( w.WalkToFirst() )
 #--> [ 5, 3 ]
 
-? w.WalkToLast()
+? @@( w.WalkToLast() )
 #--> [ 3, 5, 7, 9, 11 ]
 
 ? w.Position() + NL
 #--> 11
 
-? w.WalkBetween(5, 9)
+? @@( w.WalkBetween(5, 9) )
 #--> [ 5, 7, 9 ]
 
 ? w.Position() + NL
 #--> 9
 
-? w.WalkBetween(9, 5)
+? @@( w.WalkBetween(9, 5) )
 #--> [ 9, 7, 5 ]
 
 ? w.Position()
@@ -370,9 +392,16 @@ pr()
 
 w = new stzWalker(3, 10, 2)
 
-w.Walk()
-w.WalkBetween(7, 9)
-w.WalkFromLast()
+? @@( w.Walkables() ) + NL
+#--> [ 3, 5, 7, 9 ]
+
+? @@( w.Walk() )
+#--> [ 3, 5 ]
+
+# Walk from the last position to the current position
+
+? @@( w.WalkFromLast() )
+#--> [ 9, 7, 5 ]
 
 ? @@( w.WalkedPositions() ) + NL
 #--> [ 3, 5, 7, 9 ]
@@ -380,21 +409,20 @@ w.WalkFromLast()
 ? @@NL( w.Walks() ) + NL # Or w.History()
 #--> [
 #	[ 3, 5 ],
-#	[ 7, 9 ],
-#	[ 9 ]
+#	[ 9, 7, 5 ]
 # ]
 
 ? @@( w.FirstWalk() )
 #--> [ 3, 5 ]
 
 ? @@( w.NthWalk(2) )
-#--> [ 7, 9 ]
+#--> [ 9, 7, 5 ]
 
 ? @@( w.LastWalk() )
-#--> [ 9 ]
+#--> [ 9, 7, 5 ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*=== VARIANT STEPS
 
@@ -433,6 +461,7 @@ oWalker {
 
 	? CurrentPosition()
 	#--> 20
+
 	? @@( WalkN(4) )
 	#--> [ 20, 16, 14, 13, 9 ]
 }
@@ -452,8 +481,10 @@ oWalker {
 
 	? CurrentPosition()
 	#--> 5
+
 	? @@( WalkBetween(8, 23) )
 	#--> [ 8, 13, 15, 18, 23 ]
+
 	? CurrentPosition()
 	#--> 23
 
@@ -493,7 +524,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Remaining walkable positions with variant steps
-*/
+
 pr()
 
 oWalker = new stzWalker(10, 35, [ 5, 3, 7 ])
@@ -518,3 +549,381 @@ oWalker {
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
+
+/*=== DIRECTIONAL WALKING
+
+/*--- Basic direction with forward and backward walking
+
+pr()
+
+oWalker = new stzWalker(:From = 5, :To = 25, :Step = 5)
+oWalker {
+
+	# Initial walker setup
+	? @@( Walkables() )
+	#--> [ 5, 10, 15, 20, 25 ]
+
+	? StartPosition()
+	#--> 5
+
+	? EndPosition()
+	#--> 25
+
+	? Direction()
+	#--> forward
+
+	? CurrentPosition() + NL
+	#--> 5
+
+	? "---" + NL
+
+	# Walking forward by default
+
+	? @@( Walk() )	# Moves from position 5 to position 10
+	#--> [ 5, 10 ]
+
+	? CurrentPosition() + NL
+	#--> 10
+
+	? "---" + NL
+
+	# Explicitly walking backward
+
+	? @@( WalkBackward() )
+	#--> [ 10, 5 ]
+
+	? CurrentPosition()
+	#--> 5
+
+	? Direction() + NL
+	#--> backward
+
+	? "---" + NL
+
+	# Walking forward with multiple steps
+
+	? @@( WalkNForward(2) )
+	#--> [ 5, 10, 15 ]
+
+	? CurrentPosition()
+	#--> 15
+
+	? Direction() + NL
+	#--> forward
+
+	? "---" + NL
+
+	# Walking to a specific position (changes direction automatically)
+
+	? @@( WalkTo(5) )
+	#--> [ 15, 10, 5 ]
+
+	? CurrentPosition()
+	#--> 5
+
+	? Direction()
+	#--> backward
+}
+
+pf()
+# Executed in 0.06 second(s) in Ring 1.22
+
+/*--- Using variable steps with direction
+
+pr()
+
+oWalker = new stzWalker(5, 25, [ 3, 5, 2 ])
+oWalker {
+
+	# Walker setup
+
+	? StartPosition()
+	#--> 5
+
+	? EndPosition()
+	#--> 25
+
+	? @@( Steps() )
+	#--> [ 3, 5, 2 ]
+
+	? Direction()
+	#--> forward
+
+	?  @@( Walkables() )
+	#--> [ 5, 8, 13, 15, 18, 23, 25 ]
+
+	? CurrentPosition() + NL
+	#--> 5
+
+	? "---" + NL
+
+	# Walking between positions
+
+	? @@( WalkBetween(23, 8) )
+	#--> [ 23, 18, 15, 13, 8 ]
+
+	? CurrentPosition()
+	#--> 8
+
+	? Direction() + NL
+	#--> backward
+
+	? "---" + NL
+
+	# Setting direction explicitly
+
+	SetDirection(:Forward)
+	? Direction()
+	#--> forward
+
+	? @@( oWalker.Walk() )
+	#--> [ 8, 13 ]
+
+	? CurrentPosition() + NL
+	#--> 13
+
+	? "---" + NL
+
+	# Reversing direction
+
+	ReverseDirection()
+	? Direction()
+	#--> backward
+
+	? @@(oWalker.Walk())
+	#--> [ 13, 8 ]
+
+	? CurrentPosition()
+	#--> 8
+
+}
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*--- Using negative steps
+*/
+pr()
+
+
+oWalker = new stzWalker(5, 25, [ -2, 1, -1, 2 ])
+oWalker {
+
+	# Negative steps walker setup
+
+	? StartPosition()
+
+	? EndPosition()
+
+	? @@( oWalker.Steps() )
+
+	? Direction()
+
+	? @@( Walkables() )
+
+	? CurrentPosition() + NL
+
+	# Walking through positions with mixed negative/positive steps
+
+	? @@( Walk() )
+
+	? CurrentPosition() + NL
+
+	# Walking multiple steps
+
+	? @@( WalkNSteps(3) )
+
+	? CurrentPosition()
+
+}
+
+pf()
+
+/*--- Backward initial direction
+
+pr()
+
+oWalker = new stzWalker(25, 5, 4)
+oWalker {
+
+	# Backward walker setup
+
+	? StartPosition()
+	#--> 25
+
+	? EndPosition()
+	#--> 5
+
+	? Direction()
+	#--> backward
+
+	? @@( Walkables() )
+	#--> [ 25, 21, 17, 13, 9, 5 ]
+
+	? CurrentPosition()
+	#--> 25
+
+	? @@( RemainingWalkables() )
+	#--> [ 21, 17, 13, 9, 5 ]
+
+	? "---" + NL
+
+	# Walking in backward default direction
+
+	? @@(Walk())
+	#--> [ 25, 21 ]
+
+	? CurrentPosition() + NL
+	#--> 21
+
+	# Checking remaining walkables (in backward direction)
+	? @@(RemainingWalkables()) + NL
+	#--> [ 17, 13, 9, 5 ]
+
+	? "---" + NL
+
+	# Changing direction to forward despite backward configuration()
+
+	? CurrentPosition()
+	#--> 21
+
+	SetDirection(:Forward)
+	? Direction()
+	#--> forward
+
+	# Can still walk?
+	? @IF( :It = CanWalk(), :Say = "YES", :Otherwise = "NO" )
+	#--> YES
+
+	? @@(oWalker.RemainingWalkables())
+	#--> [ 25 ]
+
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*--- Complex walking scenario with direction changes
+
+pr()
+
+oWalker = new stzWalker(:start = 10, :end = 30, :step = [2, 3, 5])
+oWalker {
+
+	? @@(oWalker.Walkables())
+	#--> [ 10, 12, 15, 20, 22, 25, 30 ]
+
+	? CurrentPosition() + NL
+	#--> 10
+
+	? @@( WalkNSteps(3) )
+	#--> [ 10, 12, 15, 20 ]
+
+	? CurrentPosition()
+	#--> 20
+
+	? Direction() + NL
+    	#--> forward
+
+	# Walking to a position backward
+
+	? @@( WalkTo(10) )
+	#--> [ 20, 15, 12, 10 ]
+
+	? CurrentPosition()
+	#--> 10
+
+	? Direction() + NL
+    	#--> backward
+
+	# Walking from current to another position
+
+	? @@( WalkBetween(10, 20) )
+	#--> [ 10, 12, 15, 20 ]
+
+	? CurrentPosition()
+	#--> 20
+
+	? Direction() + NL
+    	#--> forward
+
+	# Walking history
+
+	? @@NL( Walks() ) # Or History()
+	#--> [
+	# 	[ 10, 12, 15, 20 ],
+	# 	[ 20, 15, 12, 10 ],
+	# 	[ 10, 12, 15, 20 ]
+	# ]
+
+	? @@( WalkedPositions() )
+	#--> [ 10, 12, 15, 20 ]
+
+}
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*--- Using constant step with direction changes
+
+pr()
+
+oWalker = new stzWalker(1, 20, 3)
+oWalker {
+
+	? @@(oWalker.Walkables())
+	#--> [ 1, 4, 7, 10, 13, 16, 19 ]
+
+	? CurrentPosition() + NL
+	#--> 1
+
+	# Walking forward twice
+
+	? @@( Walk() )
+	#--> [ 1, 4 ]
+
+	? @@( Walk() )
+	#--> [ 4, 7 ]
+
+	? CurrentPosition() + NL
+	#--> 7
+
+	# Changing direction and walking backward
+
+	SetDirection(:Backward)
+	? @@( Walk() )
+	#--> [ 7, 4 ]
+
+	? CurrentPosition()
+	#--> 4
+
+	? Direction() + NL
+	#--> backward
+
+	# Reverse direction and walk again
+
+	ReverseDirection()
+	? Direction()
+	#--> forward
+
+	? @@( Walk() )
+	#--> [ 4, 7 ]
+
+	? CurrentPosition() + NL
+	#--> 7
+
+	# Try walking to position 16
+
+	? @@( WalkTo(16) )
+	#--> [ 7, 10, 13, 16 ]
+
+	? CurrentPosition()
+	#--> 16
+
+	? Direction() + NL
+	#--> forward
+
+}
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
