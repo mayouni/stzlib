@@ -167,6 +167,7 @@ class stzWalker
 		@aWalkHistory = []  # Initialize empty walk history
 
 	def CalculateConstantWalkables()
+		
 		if @nStart < @nEnd  # Forward direction
 			nStep = abs(@pSteps)
 			for i = @nStart to @nEnd step nStep
@@ -180,6 +181,11 @@ class stzWalker
 		ok
 
 	def CalculateVariantWalkables()
+		if StzListOfNumbersQ(@pSteps).ContainsPositiveAndNegativeNumbers()
+			This.CalculateVariantWalkablesXT()
+			return
+		ok
+
 		@anWalkables = [ @nStart ]
 		nCurrentPos = @nStart
 		nDirection = IIF(@nStart < @nEnd, 1, -1)
@@ -216,6 +222,107 @@ class stzWalker
 
 		# Ensure walkables are properly ordered
 		@anWalkables = This._SortPositions(@anWalkables)
+
+
+def CalculateVariantWalkablesXT()
+? "hnè"
+	nStart = @nStart
+	nEnd = @nEnd
+	anSteps = @anSteps
+
+
+    # --- Step 1. Find a cycle by accumulating steps until cumulative sum equals 0
+    anCycle = []
+    nSum = 0
+    nCycleIndex = 0
+    nLenSteps = len(anSteps)
+    for i = 1 to nLenSteps
+        nSum += anSteps[i]
+        anCycle + anSteps[i]
+        if nSum = 0 and i < nLenSteps
+            nCycleIndex = i   # cycle detected at position i
+            exit            # leave the cycle loop early
+        end
+    next
+
+    # --- Step 2. Split the steps:
+    # if a cycle was detected, use the steps before the closing element (last element of the cycle)
+    # as the initial steps.
+    initialSteps = [] 
+    if nCycleIndex > 0
+        # Use the steps up to (but not including) the one that closed the cycle.
+        for i = 1 to nCycleIndex - 1
+            initialSteps + anCycle[i]
+        next
+    else
+        # If no cycle detected, use the full list as initial steps.
+        initialSteps = anSteps
+    end
+
+    # The extra (or remaining) part consists of any steps after the cycle.
+    remainingSteps = []
+    if nCycleIndex > 0
+        for i = nCycleIndex + 1 to nLenSteps
+            remainingSteps + anSteps[i]
+        next
+    end
+
+    # --- Step 3. Build the repeating pattern:
+    # We want to preserve the “direction” that the user intended.
+    # For our test case this will be: remainingSteps concatenated with
+    # the positive portion of the initialSteps (skipping any negatives).
+    repeatSteps = []
+    # First add any remaining steps
+    for i = 1 to len(remainingSteps)
+        repeatSteps + remainingSteps[i]
+    next
+    # Then add the positive steps from the initial phase.
+    for i = 1 to len(initialSteps)
+        if initialSteps[i] > 0
+            repeatSteps + initialSteps[i]
+        end
+    next
+
+    # --- Step 4. Build the walkable positions.
+    # First apply the initialSteps, then repeat the repeatSteps until we reach nEnd.
+    n = nStart
+    anWalkables = [ n ]
+    # Apply the initial steps in order.
+    for i = 1 to len(initialSteps)
+        n = n + initialSteps[i]
+        anWalkables + n
+    next
+
+    # Then use the repeatSteps pattern.
+    nTimes = 0
+    nLenRepeat = len(repeatSteps)
+    while n < nEnd
+        nTimes++
+        if nTimes > 100
+		exit
+	ok
+        for i = 1 to nLenRepeat
+            candidate = n + repeatSteps[i]
+            # In forward walks, if candidate overshoots nEnd, skip this step.
+            if nStart < nEnd
+                if candidate > nEnd
+                    # skip this step, do nothing
+                    loop
+                ok
+            else
+                if candidate < nEnd then
+                    loop
+                ok
+            end
+            n = candidate
+            anWalkables + n
+            if n = nEnd
+		exit 2
+	    ok
+        next
+    end
+
+    @anWalkables = anWalkables
 
 	  #------------------#
 	 #   GENERAL INFO   #
