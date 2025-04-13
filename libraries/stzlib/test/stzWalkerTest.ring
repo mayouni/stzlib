@@ -1,240 +1,9 @@
 load "../max/stzmax.ring"
 
-/*---
 
-pr()
-
-# This function returns the list of walkable positions from nStart to nEnd
-# based on the provided list of steps anSteps, avoiding infinite loops.
-//func GetWalkablePositions nStart, nEnd, anSteps
-
-nStart = 5
-nEnd = 25
-anSteps = [ -2, 1, 4, -3, 7 ]
-
-
-    # --- Step 1. Find a cycle by accumulating steps until cumulative sum equals 0
-    anCycle = []
-    nSum = 0
-    nCycleIndex = 0
-    nLenSteps = len(anSteps)
-    for i = 1 to nLenSteps
-        nSum += anSteps[i]
-        anCycle + anSteps[i]
-        if nSum = 0 and i < nLenSteps
-            nCycleIndex = i   # cycle detected at position i
-            exit            # leave the cycle loop early
-        end
-    next
-
-    # --- Step 2. Split the steps:
-    # if a cycle was detected, use the steps before the closing element (last element of the cycle)
-    # as the initial steps.
-    initialSteps = [] 
-    if nCycleIndex > 0
-        # Use the steps up to (but not including) the one that closed the cycle.
-        for i = 1 to nCycleIndex - 1
-            initialSteps + anCycle[i]
-        next
-    else
-        # If no cycle detected, use the full list as initial steps.
-        initialSteps = anSteps
-    end
-
-    # The extra (or remaining) part consists of any steps after the cycle.
-    remainingSteps = []
-    if nCycleIndex > 0
-        for i = nCycleIndex + 1 to nLenSteps
-            remainingSteps + anSteps[i]
-        next
-    end
-
-    # --- Step 3. Build the repeating pattern:
-    # We want to preserve the “direction” that the user intended.
-    # For our test case this will be: remainingSteps concatenated with
-    # the positive portion of the initialSteps (skipping any negatives).
-    repeatSteps = []
-    # First add any remaining steps
-    for i = 1 to len(remainingSteps)
-        repeatSteps + remainingSteps[i]
-    next
-    # Then add the positive steps from the initial phase.
-    for i = 1 to len(initialSteps)
-        if initialSteps[i] > 0
-            repeatSteps + initialSteps[i]
-        end
-    next
-
-    # --- Step 4. Build the walkable positions.
-    # First apply the initialSteps, then repeat the repeatSteps until we reach nEnd.
-    n = nStart
-    anWalkables = [ n ]
-    # Apply the initial steps in order.
-    for i = 1 to len(initialSteps)
-        n = n + initialSteps[i]
-        anWalkables + n
-    next
-
-    # Then use the repeatSteps pattern.
-    nTimes = 0
-    nLenRepeat = len(repeatSteps)
-    while n < nEnd
-        nTimes++
-        if nTimes > 100
-		exit
-	ok
-        for i = 1 to nLenRepeat
-            candidate = n + repeatSteps[i]
-            # In forward walks, if candidate overshoots nEnd, skip this step.
-            if nStart < nEnd
-                if candidate > nEnd
-                    # skip this step, do nothing
-                    loop
-                ok
-            else
-                if candidate < nEnd then
-                    loop
-                ok
-            end
-            n = candidate
-            anWalkables + n
-            if n = nEnd
-		exit 2
-	    ok
-        next
-    end
-
-
-    ? @@( anWalkables )
-
-
-pf()
-
-/*---
-
-pr()
-
-# Let's take the exxamle of:
-nStart = 5
-nEnd = 25
-
-# And suppose the user introduced these steps
-
-anSteps = [ -2, 1, 4, -3, 7 ]
-nLenSteps = len(anSteps)
-
-# Considering only the real steps by identifying
-# potenial infinite walking loop
-
-anRealSteps = []
-
-nSum = 0
-for i = 1 to nLenSteps
-
-	
-	nSum += anSteps[i]
-	if nSum = 0
-		exit
-	ok
-	
-	anRealSteps + anSteps[i]
-next
-
-? @@(anRealSteps) # Note how the last [ -3, 7 ] steps are ignored
-#--> [ -2, 1, 4 ]
-
-
-# Now, Doing the job, by cycling through the real steps,
-# sum them and yield the value, until the value goes out
-# of the walkable limits, or when accedding a  high loop
-
-nLenRealSteps = len(anRealSteps)
-n = nStart
-anWalkables = [n]
-
-nTimes = 0
-
-while true
-
-	nTimes++
-	if  nTimes > 100
-		exit
-	ok
-
-	for i = 2 to nLenRealSteps
-		n += anRealSteps[i]
-		if n < nStart or n > nEnd
-			exit
-		ok
-		anWalkables + n
-	next
-
-end
-
-# Now we should have our walkable positions
-? @@(anWalkables)
-#--> [ 5, 6, 10, 11, 15, 16, 20, 21, 25 ]
-
-# note that this is not totally correct, but the logic is good!
-
-pf()
-
-/*---
-
-pr()
-
-nStart = 5
-nEnd = 25
-
-anSteps = [ -2, 1, 4, -3 ]
-nLenSteps = len(anSteps)
-
-anWalkables = [ nStart ]
-nCurrent = nStart
-n = 0
-i = 0
-
-aStepVals = [ 5 ]
-
-while TRUE
-	n++
-	if n > nEnd
-		exit
-	ok
-
-	i++
-	if i > nLenSteps
-		i = 1
-	ok
-
-	nStep = anSteps[i]
-? ">> @"+ nStep
-? ">> " + @@(aStepVals) + NL
-	nNew = nCurrent + nStep
-
-? "!!! " + @@([ i, len(aStepVals)]) + nl
-
-	nLenVal = len(aStepVals)
-	
-	if i > nLenVal
-		aStepVals + nNew
-	else
-		if aStepVals[i] = nNew
-			exit
-		ok
-
-		aStepVals[i] = nNew
-	ok
-
-	anWalkables + nNew
-end
-
-? @@(anWalkables)
-
-pf()
 
 /*--- Using negative steps
-*/
+
 pr()
 
 
@@ -1174,3 +943,165 @@ oWalker {
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
+
+#=== EDGE CASES FOR NEGATIVE AND POSITIVE STEPS
+
+/*--- Empty sequence due to self-cancelling steps
+
+pr()
+
+oWalker = new stzWalker(10, 20, [3, -3])
+
+# Walking 3 steps and then -3 is not considering a walking
+# pattern in Softanza and only the firts 3 step is considered
+
+? @@( oWalker.Steps() )
+#--> 3
+
+# Hence it's like oWalker = nex stzWalker(10, 20, 3)
+
+? @@( oWalker.Walkables() )
+#--> [ 10, 13, 16, 19 ]
+
+? oWalker.CurrentPosition()
+#--> 10
+
+# Walking one step
+
+? @@( oWalker.Walk() )
+#--> [ 10, 13 ]
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*--- Oscillation with mixed steps around start position
+
+pr()
+
+oWalker = new stzWalker(10, 20, [ 2, -1 ])
+
+? @@( oWalker.Walkables() )
+#--> [ 10, 12, 14, 16, 18, 20 ]
+
+? oWalker.CurrentPosition()
+#--> 10
+
+? @@( oWalker.Walk() )
+#--> [ 10, 12 ]
+
+? @@( oWalker.Walk() )
+#--> [ 12, 14 ]
+
+? @@( oWalker.Walk() )
+#--> [ 14, 16 ]
+
+? oWalker.CurrentPosition()
+#--> 16
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*--- Negative steps taking us backward beyond start //////////
+
+pr()
+
+# Trying to go backward beyond start
+
+oWalker = new stzWalker(10, 20, [-5, 2]) #TODO shoumd raise an error becaue -5 --> outiside!
+
+? @@( oWalker.Walkables() )
+
+# Check if position 5 is walkable
+? oWalker.IsWalkable(5)
+
+? oWalker.CurrentPosition()
+? @@( oWalker.Walk() )
+? oWalker.CurrentPosition()
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*--- Mixed steps with large values
+
+pr()
+
+oWalker = new stzWalker(100, 120, [15, -10, 7])
+
+? @@( oWalker.Walkables() )
+#--> [ 100, 115, 105, 112, 119 ]
+
+? @@( oWalker.WalkNSteps(3) )
+#--> [ 100, 115, 105, 112 ]
+
+? oWalker.CurrentPosition()
+#--> 112
+
+pf()
+# Executed in 0.03 second(s) in Ring 1.22
+
+/*--- Boundary condition - reaching end exactly
+
+pr()
+
+# Reaching end exactly
+
+oWalker = new stzWalker(5, 25, [5, 10, 5])
+
+? @@( oWalker.Walkables() )
+#--> [ 5, 10, 20, 25 ]
+
+? @@( oWalker.WalkToLast() )
+#--> [ 5, 10, 20, 25 ]
+
+? @@( oWalker.Walk() )
+#--> ERROR: Can't walk! No more walkable positions in the current direction.
+
+pf()
+
+/*--- Alternating small and large steps
+
+pr()
+
+oWalker = new stzWalker(10, 50, [1, -2, 10, -5])
+
+?  @@( oWalker.Walkables() ) + NL
+#--> [ 10, 11, 9, 19, 14, 15, 25, 26, 36, 37, 47, 48, 49, 50 ]
+
+# Walk sequence of 5 steps
+
+for i = 1 to 5
+	? @@( oWalker.Walk() )
+next
+#-->
+# [ 10, 11 ]
+# [ 11, 9 ]
+# [ 9, 19 ]
+# [ 19, 14 ]
+# [ 14, 15 ]
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*--- Skipping over the end position
+*/
+pr()
+
+oWalker = new stzWalker(5, 25, [8, 12])
+
+? @@( oWalker.Walkables() )
+#--> [ 5, 13, 21 ]
+
+while oWalker.CanWalk()
+    ? @@( oWalker.Walk() )
+end
+#--> [ 5, 13 ]
+#--> [ 13, 21 ]
+
+? oWalker.CurrentPosition()
+#--> 21
+
+? oWalker.IsWalkable(25)
+#--> 0
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22

@@ -31,7 +31,7 @@ This model addresses the challenge of navigating the thousands of features in th
 
    Example:
    ```ring
-   o1 = new stzList([ "A", '', "B", '', '', "C" ])
+   o1 = new stzList([ "A", "", "B", "", "", "C" ])
    ```
    In this case, a list is chosen to represent a sequence of values where some are empty strings.
 
@@ -92,7 +92,7 @@ This model addresses the challenge of navigating the thousands of features in th
    ```ring
    o1.ReplaceItemsAtPositions( o1.FindEmptyStrings(), :With = "~")
    ? o1.Content()
-   #--> [ "A", '~', "B", '~', '~', "C" ]
+   #--> [ "A", "~", "B", "~", "~", "C" ]
 
    # Or you can do better by calling directly the dedicated method
 
@@ -105,7 +105,7 @@ This model addresses the challenge of navigating the thousands of features in th
    Or remove the identified elements altogether.
 
    ```ring
-   o1 = new stzList([ "A", '', "B", '', '', "C" ])
+   o1 = new stzList([ "A", "", "B", "", "", "C" ])
    o1.RemoveItemsAtPositions( o1.FindEmptyStrings() )
    #--> [ "A", "B", "C" ]
 

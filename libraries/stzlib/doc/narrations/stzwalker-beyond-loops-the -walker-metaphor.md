@@ -9,6 +9,8 @@ At its core, stzWalker transforms the typical iteration paradigm. Rather than a 
 For example:
 
 ```ring
+load "stzlib.ring"
+
 # Creating a walker that starts at position 1, ends at 10, and steps by 2
 oWalker = new stzWalker(1, 10, 2)
 
@@ -159,9 +161,6 @@ One of stzWalker’s most powerful features is its capacity to manage variant di
 Consider the following example:
 
 ```ring
-/*--- Using variant directional stepping
-*/
-pr()
 
 oWalker = new stzWalker(5, 25, [ -2, 1, 4, -3, 7 ])
 oWalker {
@@ -188,7 +187,9 @@ oWalker {
         # Walking through positions with mixed negative/positive steps
 
         ? @@( Walk() )
-        #--> [ 5, 3 ] 	(first step is interpreted as moving backward, because -2 is opposite to the overall 'forward' direction)
+        #--> [ 5, 3 ] 	~> First step is interpreted as moving backward,
+        #			       because -2 is opposite to the overall
+        #				   'forward' direction
 
         ? CurrentPosition() + NL
         #--> 3
@@ -313,7 +314,7 @@ The stzWalker innovation stands head and shoulders above traditional looping con
 | **Position Synchronization**  | ✅ Native               | Complex Custom Code   | Not Built-in       | Not Built-in       | Not Built-in               |
 | **Traversal Prediction**      | ✅ Full Visibility      | Non-existent          | Limited            | Limited            | Partial                    |
 
-### Key Takeaways:
+**Key Takeaways**:
 
 - **Abstraction of Iteration Logic**: With stzWalker, developers are liberated from the boilerplate of manual index management.
 - **Fluent, Readable API**: The design emphasizes expressiveness—code reads as an intuitive narrative of traversal intent.
