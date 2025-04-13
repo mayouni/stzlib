@@ -300,7 +300,7 @@ The stzWalker innovation stands head and shoulders above traditional looping con
 | Feature                       | Softanza Walker      | Traditional Loops     | Java Iterators     | .NET Enumerators   | Python List Comprehensions |
 |-------------------------------|----------------------|-----------------------|--------------------|--------------------|----------------------------|
 | **Declarative Syntax**        | ✅ High (Expressive)    | Low (Procedural)      | Medium             | Medium             | ✅ High                       |
-| **Step Control**              | ✅ Built-in             | Manual                | Limited            | Limited            | Built-in                   |
+| **Step Control**              | ✅ Built-in             | Manual                | Limited            | Limited            | ✅ Built-in                   |
 | **Directional Control**       | ✅ Advanced (Bi-Directional) | Manual         | Forward Only       | Forward Only       | Limited                    |
 | **Position Awareness**        | ✅ Native               | Manual Tracking       | Limited            | Limited            | Not Native                 |
 | **Walking History**           | ✅ Comprehensive        | None                  | None               | None               | None                       |
