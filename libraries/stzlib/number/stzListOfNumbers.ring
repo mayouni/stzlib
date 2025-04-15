@@ -62,6 +62,34 @@ func StzListOfNumbersQ(paListOfNumbers)
 func NumbersUnicodes(anNumbers)
 	return StzListOfNumbersQ(anNumbers).Unicodes()
 
+def HaveSameDifference(anNumbers)
+    	if NOT (isList(anNumbers) and IsListOfNumbers(anNumbers))
+		return FALSE
+	ok
+
+	nLen = len(anNumbers)
+
+	# A list with fewer than 3 elements doesn't have enough information
+	# to determine a true pattern of constant difference
+
+	if nLen < 3
+		return _FALSE_
+	ok
+
+	nDiff = anNumbers[2] - anNumbers[1]
+
+	for i = 2 to nLen -1 
+		if anNumbers[i+1] - anNumbers[i] != nDiff
+			return _FALSE_
+		ok
+	next
+
+	return _TRUE_
+
+	func @HaveSameDifference(anNumbers)
+		return HaveSameDifference(anNumbers)
+
+
 func AreNonZeroNumbers(anNumbers)
 	if NOT isList(anNumbers)
 		return FALSE
@@ -8322,3 +8350,10 @@ class stzListOfNumbers from stzList
 	
 		def AreNonNullNumbers()
 			return This.AreNonZeroNumbers()
+
+	  #------------------------------------------------------#
+	 #  CHECKINg IF THE NUMBERS HAVE A CONSTANT DIFFERENCE  #
+	#------------------------------------------------------#
+
+	def HaveSameDifference()
+		return @HaveSameDifference(This.Content())

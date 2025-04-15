@@ -5191,25 +5191,34 @@ func AreBothListsOfObjects(aList1, aList2)
 	ok
 
 func EuclideanDistance(anNumbers1, anNumbers2)
-	if isList(anNumbers1) and StzListQ(anNumbers1).IsBetweenNamedParam()
-		anNumbers1 = anNumbers1[1]
-	ok
-	if isList(anNumbers2) and StzListQ(anNumbers2).IsAndNamedParam()
-		anNumbers2 = anNumbers2[1]
-	ok
-	
-	if NOT AreBothListsOfNumbers(anNumbers1, anNumbers2)
-		StzRaise("Incorrect param types! anNumbers1 and anNumbers2 must be both lists of numbers.")
-	ok
-	
-	if len(anNumbers1) != len(anNumbers2)
-		StzRaise("Incorrect lists sizes! anNumbers1 and anNumbers2 must both have the same size.")
+
+	if CheckParams()
+		if isList(anNumbers1) and StzListQ(anNumbers1).IsBetweenNamedParam()
+			anNumbers1 = anNumbers1[1]
+		ok
+		if isList(anNumbers2) and StzListQ(anNumbers2).IsAndNamedParam()
+			anNumbers2 = anNumbers2[1]
+		ok
+		
+		if NOT AreBothListsOfNumbers(anNumbers1, anNumbers2)
+			StzRaise("Incorrect param types! anNumbers1 and anNumbers2 must be both lists of numbers.")
+		ok
+		
+		if len(anNumbers1) != len(anNumbers2)
+			StzRaise("Incorrect lists sizes! anNumbers1 and anNumbers2 must both have the same size.")
+		ok
 	ok
 
 	nResult = euc_dist(anNumbers1, anNumbers2)
 	return nResult
 
 func euc_dist(a,b)
+
+	if CheckParams()
+		if NOT ( isNumber(a) and isNumber(b) )
+			StzRaise("Incorrect param types! a and b must be bother numbers.")
+		ok
+	ok
 
 	s = 0
 	n = len(a)
