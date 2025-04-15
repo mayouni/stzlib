@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------#
-# 		   SOFTANZA LIBRARY (V1.0) - STZSTRING		          #
+# 		   SOFTANZA LIBRARY (V0.9) - STZWALKER		          #
 # 	An accelerative library for Ring applications, and more!	  #
 #-------------------------------------------------------------------------#
 #									  #
@@ -62,42 +62,40 @@ class stzWalker
 
 	def init(pnStart, pnEnd, pSteps)
 
-		# There are the two ways to initiate a stzWalker object:
+	# There are the two ways to initiate a stzWalker object:
 
-		# -> by providing a list of params values. Example:
-		# 	new stzWalker([ 1, 10, 3 ])
+	# -> by providing a list of params values. Example:
+	# 	new stzWalker([ 1, 10, 3 ])
 
-		# -> by providing a hashlist of named params. Example:
-		# 	new stzWalker([
-		# 		:StartAt = 1,
-		# 		:EndAt = 10,
-		# 		:Step = 3
-		# ])
+	# -> by providing a hashlist of named params. Example:
+	# 	new stzWalker([
+	# 		:StartAt = 1,
+	# 		:EndAt = 10,
+	# 		:Step = 3
+	# ])
 
 		if CheckingParams()
-
+	
 			if isList(pnStart) and
 			   StzListQ(pnStart).IsOneOfTheseNamedParams([
 				:Start, :StartAt, :StartsAt, :StartingAt,
 				:StartFrom, :StartsFrom, :StartingFrom,
-
 				:From, :FromPosition
-			   ])
-
+			])
+	
 				pnStart = pnStart[2]
 			ok
-
+	
 			if isList(pnEnd) and
 			   StzListQ(pnEnd).IsOneOfTheseNamedParams([
 				:End, :EndAt, :EndsAt, :EndingAt,
 				:Stop, :StopAt, :StopsAt, :StoppingAt,
-
 				:To, :ToPosition
 			   ])
-
-				pnEnd = pnEnd[2]
+	
+	 			pnEnd = pnEnd[2]
 			ok
-
+	
 			if isList(pSteps) and
 			   StzListQ(pSteps).IsOneOfTheseNamedParams([
 				:Jump, :Step, :NStep, :Steps
@@ -106,257 +104,338 @@ class stzWalker
 				pSteps = pSteps[2]
 			ok
 		ok
-
+	
 		# Some logical checks
-
+	
 		if pnStart = pnEnd
 			StzRaise("Can't create the stzWalker object! pnStart and pnEnd must be different.")
 		ok
-
+	
 		# Set initial direction based on start and end positions
+	
 		if pnStart < pnEnd
 			@cDirection = :Forward
 		else
 			@cDirection = :Backward
 		ok
-
+	
+		# Setting the object attributes
+	
+		@nStart = pnStart
+		@nEnd = pnEnd
+		@pSteps = pSteps
+	
 		# Check if steps is a number or a list of numbers
+	
 		if isNumber(pSteps)
-
-			@bIsVariantSteps = FALSE
-			
-			# Allow negative steps as direction modifiers
-			if abs(pSteps) > abs(pnEnd - pnStart) + 1
-				StzRaise("Can't walk! The absolute step value is larger than the number of walkable positions.")
+	
+			if pSteps = 0
+				StzRaise("Can't create the stzWalker object! The step number must not be equal to zero.")
 			ok
-			
+		
+			if pSteps < 0
+				StzRaise("Can't create the stzWalker object! The step number must not be negative.")
+			ok
+		
+			if @nStart < @nEnd and pSteps < 0
+				StzRaise("Can't create the stzWalker object! The step number must not be negative when the walker is gooing forward.")
+			ok
+		
+			if abs(pSteps) > abs(@nStart - @nEnd)
+				StzRaise("Can't create the stzWalker object! The specified step number exceeds the allowed walking range.")
+			ok
+		
+		        @bIsVariantSteps = FALSE
+	        
+	        	# No need for step sign validation here - we'll handle that
+	        	# in the calculation methods by inverting steps for backward walkers
+	        
 		but isList(pSteps)
-
-			@bIsVariantSteps = TRUE
-			
-			if len(pSteps) = 0
-				StzRaise("Can't create the stzWalker object! pSteps list cannot be empty.")
+			if len(pSteps) = 2 and pSteps[1] + pSteps[2] = 0
+				StzRaise("Can't create the stzWalker object! The two steps must not be opposite numbers.")
 			ok
-			
-			# We now allow negative numbers in the steps list
-			if NOT @AreNonZeroNumbers(pSteps)
-				StzRaise("Can't create the stzWalker object! All steps in the list must be non-zero numbers.")
-			ok
-			
-			# Check if steps have constant difference
-			if @HaveConstantDifference(pSteps)
+		
+		        @bIsVariantSteps = TRUE
+		        
+		        if len(pSteps) = 0
+		            StzRaise("Can't create the stzWalker object! pSteps list cannot be empty.")
+		        ok
+		        
+		        # Check if all elements are non-zero numbers
+		        if NOT @AreNonZeroNumbers(pSteps)
+		            StzRaise("Can't create the stzWalker object! All steps in the list must be non-zero numbers.")
+		        ok
+		        
+		        # Checking for constant difference
+		        # If the list has mixed sign numbers or has only 2 elements with different signs, 
+		        # we treat it as variant steps
+	
+			if HaveSameDifference(pSteps) and NOT StzListOfNumbersQ(@pSteps).ContainsPositiveAndNegativeNumbers()
 				@bIsVariantSteps = FALSE
-				pSteps = pSteps[1]  # Use first step as they're all the same
+				@pSteps = pSteps[1]  # Use first step as they're all the same
 			ok
 		else
 			StzRaise("Incorrect param type! pSteps must be a number or a list of numbers.")
 		ok
-
-		# Setting the object attributes
-		@nStart = pnStart
-		@nEnd = pnEnd
-		@pSteps = pSteps	
-
+	
 		# Populate walkable positions
+	
 		@anWalkables = []
+	
 		if @bIsVariantSteps
-			This.CalculateVariantWalkables()
+	
+			# Check if we have mixed positive/negative steps - use specialized calculation
+	
+			if StzListOfNumbersQ(@pSteps).ContainsPositiveAndNegativeNumbers()
+				This.CalculateVariantWalkablesXT()
+			else
+				This.CalculateVariantWalkables()
+		        ok
+	
 		else
 			This.CalculateConstantWalkables()
 		ok
-
+	
 		@nCurrentPos = @nStart
 		@aWalkHistory = []  # Initialize empty walk history
 
 	def CalculateConstantWalkables()
-		
-		if @nStart < @nEnd  # Forward direction
-			nStep = abs(@pSteps)
-			for i = @nStart to @nEnd step nStep
-				@anWalkables + i
-			next
-		else  # Backward direction
-			nStep = abs(@pSteps)
-			for i = @nStart to @nEnd step -nStep
-				@anWalkables + i
-			next
+
+		@anWalkables = [ @nStart ]
+
+		# Get the natural direction and current position
+
+		bForwardNaturalDirection = (@nStart < @nEnd)
+		nCurrentPos = @nStart
+
+		# Determine how to apply the step based on direction
+
+		nStep = @pSteps
+
+		# For backward direction, ensure step has the right sign
+
+		if !bForwardNaturalDirection and nStep > 0
+			nStep = -nStep
+
+		but bForwardNaturalDirection and nStep < 0
+			nStep = -nStep  # Ensure step is positive for forward direction
+		ok
+
+		# Add safety counter to prevent infinite loops
+
+		nMaxIterations = abs(@nEnd - @nStart) * 2
+		nIteration = 0
+
+		# Calculate next position
+
+		nNextPos = nCurrentPos + nStep
+
+		# Continue adding positions while within bounds
+
+		while ((bForwardNaturalDirection and nNextPos <= @nEnd) or 
+			(!bForwardNaturalDirection and nNextPos >= @nEnd)) and
+			nIteration < nMaxIterations
+
+			nIteration++
+			@anWalkables + nNextPos
+			nCurrentPos = nNextPos
+			nNextPos = nCurrentPos + nStep
+
+		end
+
+		# Safety check
+
+		if nIteration >= nMaxIterations
+			StzRaise("Can't create the walker object! Maximum iterations reached when calculating constant walkables. Possible infinite loop detected.")
 		ok
 
 	def CalculateVariantWalkables()
-		if StzListOfNumbersQ(@pSteps).ContainsPositiveAndNegativeNumbers()
-			This.CalculateVariantWalkablesXT()
-			return
-		ok
+
+		# Start with the initial position
 
 		@anWalkables = [ @nStart ]
 		nCurrentPos = @nStart
-		nDirection = IIF(@nStart < @nEnd, 1, -1)
-		nStepIndex = 1
-		nNumSteps = len(@pSteps)
 
-		while TRUE
-			# Get step and apply direction logic
-			nStep = @pSteps[nStepIndex]
-			
-			# Apply step based on its sign and the overall direction
-			if nStep > 0
-				# Positive step follows the main direction
-				nCurrentPos = nCurrentPos + (nDirection * abs(nStep))
-			else
-				# Negative step goes against the main direction
-				nCurrentPos = nCurrentPos - (nDirection * abs(nStep))
+		# Determine natural direction of the walk
+
+		bForwardNaturalDirection = (@nStart < @nEnd)
+
+		# Apply sign correction to steps for backward direction
+
+		anSteps = []
+
+		if bForwardNaturalDirection
+			anSteps = @pSteps
+
+		else
+			# For backward direction, negate positive steps
+
+			nLen = len(@pSteps)
+
+			for i = 1 to nLen
+				if @pSteps[i] > 0
+					anSteps + -@pSteps[i]
+				else
+					anSteps + @pSteps[i]
+				ok
+			next
+		ok
+    
+		# Steps index management
+
+		nStepIndex = 1
+   		nNumSteps = len(anSteps)
+
+		# Path tracking for error reporting
+
+		aPath = [ nCurrentPos ]
+		aAppliedSteps = []
+
+		# Maximum number of iterations to prevent infinite loops
+
+		nMaxIterations = 1000
+		nIteration = 0
+
+		while nIteration < nMaxIterations
+
+			nIteration++
+
+			# Get current step and remember it for error reporting
+
+			nStep = anSteps[nStepIndex]
+			aAppliedSteps + nStep
+
+			# Calculate next position
+
+			nNextPos = nCurrentPos + nStep
+
+			# Check if we've reached or passed the end boundary
+
+			if (bForwardNaturalDirection and nNextPos > @nEnd) or
+			   (!bForwardNaturalDirection and nNextPos < @nEnd)
+
+				exit  # Stop calculation when we go beyond the endpoint
 			ok
-			
-			# Check if we've gone past the end or reversed beyond the start
-			if (@nStart < @nEnd and (nCurrentPos > @nEnd or nCurrentPos < @nStart)) or
-			   (@nStart > @nEnd and (nCurrentPos < @nEnd or nCurrentPos > @nStart))
+
+			# Add valid position to walkables and update tracking
+
+			@anWalkables + nNextPos
+			nCurrentPos = nNextPos
+			aPath + nCurrentPos
+
+			# Move to next step in the list, cycling if necessary
+
+			nStepIndex++
+
+			if nStepIndex > nNumSteps
+				nStepIndex = 1
+			ok
+
+			# Check if we've reached the end position exactly
+
+			if nCurrentPos = @nEnd
 				exit
 			ok
-			
-			@anWalkables + nCurrentPos
-			
-			# Move to next step in the list, cycling if necessary
+		end
+
+		# Safety check
+
+		if nIteration >= nMaxIterations
+			StzRaise("Exceeded maximum iterations when calculating walkable positions. Possible infinite loop detected.")
+		ok
+		
+
+	def CalculateVariantWalkablesXT()
+	# Dedicated only to steps containing positive and negative numbers
+
+		# Start with the initial position
+
+		@anWalkables = [ @nStart ]
+		nCurrentPos = @nStart
+
+		# Start and end values for convenience
+
+		nStart = @nStart
+		nEnd = @nEnd
+		anSteps = @pSteps
+    
+		# Determine natural direction
+
+		bForwardNaturalDirection = (nStart < nEnd)
+
+		# Track path and steps for error reporting
+
+		aPath = [ nCurrentPos ]
+		aAppliedSteps = []
+
+		# Process steps in sequence with boundary checking
+
+		nStepIndex = 1
+		nLenSteps = len(anSteps)
+		nMaxIterations = 1000  # Safety limit
+		nIteration = 0
+    
+		while nIteration < nMaxIterations
+
+			nIteration++
+
+			# Get next step - don't add to applied steps list yet
+			nStep = anSteps[nStepIndex]
+
+			# Calculate next position
+			nNextPos = nCurrentPos + nStep
+
+			# Now add the step to applied steps
+			aAppliedSteps + nStep
+        
+			# Check boundary constraints
+
+			if (bForwardNaturalDirection and nNextPos < nStart) or
+			   (!bForwardNaturalDirection and nNextPos > nStart)
+
+				# Boundary violation - raise error with detailed path information
+
+				cErrorPath = @@(aPath)
+				cStepsPath = @@(aAppliedSteps)
+
+				StzRaise("Can't initiate the walker! Trying to walk to position " + nNextPos + 
+					 " in the path " + cErrorPath + " after applying these steps " + cStepsPath)
+			ok
+
+			# If we hit the ending boundary but didn't violate it
+
+			if (bForwardNaturalDirection and nNextPos > nEnd) or
+			   (!bForwardNaturalDirection and nNextPos < nEnd)
+
+				exit  # Stop calculation when we go beyond the endpoint
+			ok
+
+			# Add valid position to walkables and update tracking
+
+			@anWalkables + nNextPos
+			nCurrentPos = nNextPos
+			aPath + nCurrentPos
+
+			# Check if we've reached the end position
+
+			if nCurrentPos = nEnd
+				exit
+			ok
+
+			# Move to next step
+
 			nStepIndex++
-			if nStepIndex > nNumSteps
+
+			if nStepIndex > nLenSteps
 				nStepIndex = 1
 			ok
 		end
 
-		# Ensure walkables are properly ordered
-		@anWalkables = This._SortPositions(@anWalkables)
+		# Safety check
 
-
-	# Dedicated ony to steps containing positive and negative numbers
-
-	def CalculateVariantWalkablesXT()
-	
-		nStart = @nStart
-		nEnd = @nEnd
-		anSteps = @pSteps
-	
-		# Step 1: Find a cycle by accumulating steps
-		# until cumulative sum equals 0
-	
-		anCycle = []
-		nSum = 0
-		nCycleIndex = 0
-		nLenSteps = len(anSteps)
-	
-		for i = 1 to nLenSteps
-	
-			nSum += anSteps[i]
-			anCycle + anSteps[i]
-	
-			if nSum = 0 and i < nLenSteps
-				nCycleIndex = i	# cycle detected at position i
-				exit		# leave the cycle loop early
-			ok
-		next
-	
-		# Step 2: Split the steps
-		# if a cycle was detected, use the steps before the closing
-		# element (last element of the cycle) as the initial steps
-	
-		initialSteps = [] 
-	
-		if nCycleIndex > 0
-	
-			# Use the steps up to (but not including) the
-			# one that closed the cycle
-	
-			for i = 1 to nCycleIndex - 1
-				initialSteps + anCycle[i]
-			next
-		else
-			# If no cycle detected, use the full list as initial steps
-			initialSteps = anSteps
-		end
-	
-		# The extra (or remaining) part consists of any steps after the cycle
-	
-		remainingSteps = []
-	
-		if nCycleIndex > 0
-			for i = nCycleIndex + 1 to nLenSteps
-				remainingSteps + anSteps[i]
-			next
-		end
-	
-		# Step 3: Build the repeating pattern
-		# We want to preserve the “direction” that the user intended
-		# For our test case this will be: remainingSteps concatenated with
-		# the positive portion of the initialSteps (skipping any negatives).
-	
-		repeatSteps = []
-	
-		# First add any remaining steps
-	
-		for i = 1 to len(remainingSteps)
-			repeatSteps + remainingSteps[i]
-		next
-	
-		# Then add the positive steps from the initial phase
-	
-		for i = 1 to len(initialSteps)
-			if initialSteps[i] > 0
-				repeatSteps + initialSteps[i]
-			ok
-		next
-	
-		# Step 4: Build the walkable positions
-		# First apply the initialSteps, then repeat the
-		# repeatSteps until we reach nEnd
-	
-		n = nStart
-		anWalkables = [ n ]
-	
-		# Apply the initial steps in order
-	
-		for i = 1 to len(initialSteps)
-			n = n + initialSteps[i]
-			anWalkables + n
-		next
-	
-		# Then use the repeatSteps pattern
-	
-		nTimes = 0
-		nLenRepeat = len(repeatSteps)
-	
-		while n < nEnd
-	
-			nTimes++
-			if nTimes > 100
-				exit
-			ok
-	
-			for i = 1 to nLenRepeat
-	
-				candidate = n + repeatSteps[i]
-	
-				# In forward walks, if candidate overshoots nEnd,
-				# skip this step
-	
-				if nStart < nEnd
-					if candidate > nEnd
-						# skip this step, do nothing
-						loop
-					ok
-				else
-					if candidate < nEnd then
-						loop
-					ok
-				end
-	
-				n = candidate
-				anWalkables + n
-	
-				if n = nEnd
-					exit 2
-				ok
-			next
-		end
-	
-		@anWalkables = anWalkables
+		if nIteration >= nMaxIterations
+			StzRaise("Exceeded maximum iterations when calculating walkable positions for mixed steps.")
+		ok
 
 	  #------------------#
 	 #   GENERAL INFO   #
@@ -444,8 +523,10 @@ class stzWalker
 		def SetCurrent(n)
 			SetCurrentPosition(n)
 
-	#--- Direction methods ---#
-	
+	  #---------------------#
+	 #  Direction methods  #
+	#---------------------#
+
 	def Direction()
 		return @cDirection
 		
@@ -569,11 +650,9 @@ class stzWalker
 
 	def RemainingWalkables()
 
-		# If we have mixed positive/negative steps
+		# If we have mixed positive/negative steps, use specialized implementation
 
-		if @bIsVariantSteps and
-		   StzListOfNumbersQ(@pSteps).ContainsPositiveAndNegativeNumbers()
-
+		if @bIsVariantSteps and StzListOfNumbersQ(@pSteps).ContainsPositiveAndNegativeNumbers()
 			return This.RemainingWalkablesMixed()
 		ok
 
@@ -582,48 +661,49 @@ class stzWalker
 		anWalkables = This.Walkables()
 		nCurrent = ring_find(anWalkables, This.CurrentPosition())
 
+		if nCurrent = 0
+			return []
+		ok
+
 		anResult = []
 		nLen = len(anWalkables)
 
 		if This.IsMovingForward()
 
-			if anWalkables[1] < anWalkables[2]
-
+			if anWalkables[1] < anWalkables[nLen]  # Ascending order
 				for i = nCurrent + 1 to nLen
 					anResult + anWalkables[i]
 				next
 
-			else
+			else  # Descending order
 				for i = nCurrent - 1 to 1 step -1
 					anResult + anWalkables[i]
 				next
-
 			ok
 
-		else
+		else  # Moving backward
 
-			if anWalkables[1] < anWalkables[2]
+			if anWalkables[1] < anWalkables[nLen]  # Ascending order
 
 				for i = nCurrent - 1 to 1 step -1
 					anResult + anWalkables[i]
 				next
 
-			else
+			else  # Descending order
+
 				for i = nCurrent + 1 to nLen
 					anResult + anWalkables[i]
 				next
-
 			ok
-
 		ok
 
 		return anResult
 
-    
 	def RemainingWalkablesMixed()
 
 		anWalkables = This.Walkables()
-		nCurrentIndex = ring_find(anWalkables, This.CurrentPosition())
+		nCurrentPos = This.CurrentPosition()
+		nCurrentIndex = ring_find(anWalkables, nCurrentPos)
 
 		if nCurrentIndex = 0
 			return []
@@ -632,12 +712,12 @@ class stzWalker
 		anResult = []
 		nLen = len(anWalkables)
 
-		# For mixed steps, we always move forward in the walkables array
+		# With mixed steps, we follow the walkables array order
 
 		for i = nCurrentIndex + 1 to nLen
 			anResult + anWalkables[i]
 		next
-    
+
 		return anResult
 
 
@@ -660,9 +740,11 @@ class stzWalker
 		return This.WalkNSteps(1)
 
 	def WalkForward()
+
 		cPrevDirection = @cDirection
 		@cDirection = :Forward
 		anResult = This.WalkNSteps(1)
+
 		return anResult
 
 	def WalkBackward()
@@ -698,34 +780,49 @@ class stzWalker
 
 	def WalkNSteps(n)
 
-		# If we have mixed positive/negative steps
+		# For mixed steps (positive and negative), use a different implementation
 
-		if @bIsVariantSteps and
-		   StzListOfNumbersQ(@pSteps).ContainsPositiveAndNegativeNumbers()
-
+		if @bIsVariantSteps and StzListOfNumbersQ(@pSteps).ContainsPositiveAndNegativeNumbers()
 			return This.WalkNStepsMixed(n)
-		else
+		ok
 
-			# Use existing implementation for normal cases
+		# Get remaining walkable positions in the current direction
 
-			anRemaining = This.RemainingWalkables()
-			nLenRemaining = len(anRemaining)
+		anRemaining = This.RemainingWalkables()
+		nLenRemaining = len(anRemaining)
 
-			if n > nLenRemaining
-				StzRaise("Can't walk! No more walkable positions in the current direction.")
-			ok
+		# Start with the current position
 
-			anWalks = [ This.CurrentPosition() ]
+		anWalks = [ This.CurrentPosition() ]
 
-			for i = 1 to n
-				anWalks + anRemaining[i]
-			next
+		# Handle edge cases
 
+		if n <= 0
+			StzRaise("Can't walk! Number of steps must be positive.")
+		ok
+
+		if n > nLenRemaining
+			# Instead of raising an error, we walk to the last possible position
+			n = nLenRemaining
+		ok
+    
+		# Perform the walk
+
+		for i = 1 to n
+			anWalks + anRemaining[i]
+		next
+
+		# Update current position and history
+
+		if len(anWalks) > 1
 			@nCurrentPos = anWalks[len(anWalks)]
 			@aWalkHistory + anWalks
-
-			return anWalks
 		ok
+
+		return anWalks
+
+	def WalkN(n)
+		return This.WalkNSteps(n)
 
 	def WalkNStepsMixed(n)
 
@@ -740,84 +837,176 @@ class stzWalker
 		anWalks = [ nCurrentPos ]
 		nRemaining = len(anWalkables) - nCurrentIndex
 
+		# Check if we have enough remaining walkable positions
+
 		if n > nRemaining
-			StzRaise("Can't walk! Only " + nRemaining + " walkable positions remain.")
+			# Instead of raising an error, just walk as far as possible
+			n = nRemaining
 		ok
+
+		# Perform the walk
 
 		for i = 1 to n
 			anWalks + anWalkables[nCurrentIndex + i]
 		next
 
-		@nCurrentPos = anWalks[len(anWalks)]
-		@aWalkHistory + anWalks
+		# Update state
+
+		if len(anWalks) > 1
+			@nCurrentPos = anWalks[len(anWalks)]
+			@aWalkHistory + anWalks
+		ok
 
 		return anWalks
 
 	def WalkNForward(n)
-		# Save current position
+
+		# Save current direction and position
+
+		cPrevDirection = @cDirection
 		nCurrentPos = @nCurrentPos
 
 		# Set direction to forward
+
 		@cDirection = :Forward
 
 		# Find current position in walkables array
+
 		anWalkables = This.Walkables()
 		nCurrentIndex = ring_find(anWalkables, nCurrentPos)
 
-		# Check if there are enough positions after the current one
-		if nCurrentIndex + n > len(anWalkables)
-			StzRaise("Can't walk forward! Not enough walkable positions in forward direction.")
+		if nCurrentIndex = 0
+			StzRaise("Current position not found in walkable positions!")
 		ok
 
-		# Create result array starting with current position
+		# Get remaining walkables based on natural direction of the walkables
+
 		anResult = [ nCurrentPos ]
 
-		# Add the next n positions in forward direction
-		for i = 1 to n
-			anResult + anWalkables[nCurrentIndex + i]
-		next
+		# Check if the walkables are in ascending or descending order
 
-		# Update current position to the last position we walked to
-		@nCurrentPos = anResult[len(anResult)]
+		bAscending = (len(anWalkables) >= 2 and anWalkables[1] < anWalkables[2])
+
+		# In a forward walk:
+		# - If walkables are ascending, we move forward in the array (higher indices)
+		# - If walkables are descending, we move backward in the array (lower indices)
+
+		if bAscending
+
+			# Move forward in array (to higher indices)
+			nAvailable = len(anWalkables) - nCurrentIndex
+
+			if n > nAvailable
+				n = nAvailable  # Walk as far as possible
+			ok
+
+			for i = 1 to n
+				anResult + anWalkables[nCurrentIndex + i]
+			next
+
+		else
+			# Move backward in array (to lower indices)
+			nAvailable = nCurrentIndex - 1
+
+			if n > nAvailable
+				n = nAvailable  # Walk as far as possible
+			ok
+
+			for i = 1 to n
+				anResult + anWalkables[nCurrentIndex - i]
+			next
+		ok
+
+		# Update current position
+
+		if len(anResult) > 1
+			@nCurrentPos = anResult[len(anResult)]
+		ok
 
 		# Add this walk operation to history
+
 		@aWalkHistory + anResult
 
 		return anResult
-		
+    
+	def WalkNStepsForward(n)
+		return This.WalkNForward(n)
+
 	def WalkNBackward(n)
-		# Save current position
+
+		# Save current direction and position
+
+		cPrevDirection = @cDirection
 		nCurrentPos = @nCurrentPos
 
 		# Set direction to backward
+
 		@cDirection = :Backward
 
 		# Find current position in walkables array
+
 		anWalkables = This.Walkables()
 		nCurrentIndex = ring_find(anWalkables, nCurrentPos)
 
-		# For a backward walker, we need to move forward in the array
-		# Check if there are enough positions after the current one
-
-		if nCurrentIndex + n > len(anWalkables)
-			StzRaise("Can't walk backward! Not enough walkable positions in backward direction.")
+		if nCurrentIndex = 0
+			StzRaise("Current position not found in walkable positions!")
 		ok
 
-		# Create result array starting with current position
+		# Get remaining walkables based on natural direction of the walkables
+
 		anResult = [ nCurrentPos ]
 
-		# Add the next n positions in array (which is backward in value)
-		for i = 1 to n
-			anResult + anWalkables[nCurrentIndex + i]
-		next
+		# Check if the walkables are in ascending or descending order
 
-		# Update current position to the last position we walked to
-		@nCurrentPos = anResult[len(anResult)]
+		bAscending = (len(anWalkables) >= 2 and anWalkables[1] < anWalkables[2])
+
+		# In a backward walk:
+		# - If walkables are ascending, we move backward in the array (lower indices)
+		# - If walkables are descending, we move forward in the array (higher indices)
+
+		if bAscending
+
+			# Move backward in array (to lower indices)
+
+			nAvailable = nCurrentIndex - 1
+
+			if n > nAvailable
+				n = nAvailable  # Walk as far as possible
+			ok
+
+			for i = 1 to n
+				anResult + anWalkables[nCurrentIndex - i]
+			next
+
+		else
+			# Move forward in array (to higher indices)
+
+			nAvailable = len(anWalkables) - nCurrentIndex
+
+			if n > nAvailable
+				n = nAvailable  # Walk as far as possible
+			ok
+
+			for i = 1 to n
+				anResult + anWalkables[nCurrentIndex + i]
+			next
+		ok
+
+		# Update current position
+
+		if len(anResult) > 1
+			@nCurrentPos = anResult[len(anResult)]
+		ok
 
 		# Add this walk operation to history
+
 		@aWalkHistory + anResult
 
 		return anResult
+
+
+	def WalkNStepsBackward(n)
+		return This.WalkNBackward(n)
 
 	def Walkables()
 		return @anWalkables
@@ -895,10 +1084,8 @@ class stzWalker
 
 	def WalkTo(n)
 
-		if CheckParams()
-			if NOT isNumber(n)
-				stzraise("Incorrect param type! n must be a number.")
-			ok
+		if NOT isNumber(n)
+			stzraise("Incorrect param type! n must be a number.")
 		ok
 
 		if NOT ring_find(This.Walkables(), n)
@@ -1081,19 +1268,14 @@ class stzWalker
 
 	def WalkBetween(n1, n2)
 
-		if CheckingParams()
-			if isList(n2) and StzListQ(n3).IsAndNamedParam()
-				n2 = n2[2]
-			ok
-
-			if NOT (isNumber(n1) and isNumber(n2))
-				StzRaise("Incorrect param type! n1 and n2 must be numbers.")
-			ok
+		if NOT (isNumber(n1) and isNumber(n2))
+			StzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
 		if NOT This.AreWalkables([n1, n2])
 
 			_cTemp_ = "position"
+
 			if n2 - n1 > 1
 				_cTemp_ += "s"
 			ok
@@ -1102,27 +1284,30 @@ class stzWalker
 		ok
 
 		anResult = []
-
 		anWalkables = This.Walkables()
 		nPos1 = ring_find(anWalkables, n1)
 		nPos2 = ring_find(anWalkables, n2)
-		
+
 		# Update direction based on the walk direction
 
 		if nPos1 < nPos2
+
 			@cDirection = :Forward
+
 			for i = nPos1 to nPos2
 				anResult + anWalkables[i]
 			next
+
 		else
 			@cDirection = :Backward
+
 			for i = nPos1 to nPos2 step -1
 				anResult + anWalkables[i]
 			next
 		ok
 
 		@nCurrentPos = anResult[len(anResult)]
-		
+
 		# Add this walk operation to history
 
 		@aWalkHistory + anResult
@@ -1242,25 +1427,73 @@ class stzWalker
 		
 		return This.NthWalk(len(@aWalkHistory))
 
-	  #-----------------#
-	 #   HELPER FUNCS  #
-	#-----------------#
-		
-	def @HaveConstantDifference(pList)
+	  #---------------------#
+	 #  CHECKING BOUNDARY  #
+	#---------------------#
 
-		if len(pList) <= 1
-			return TRUE
-		ok
-		
-		nDiff = pList[2] - pList[1]
-		
-		for i = 2 to len(pList)-1
-			if pList[i+1] - pList[i] != nDiff
-				return FALSE
+	def CheckBoundary(n)
+	# Checks if a position respects the walker boundaries
+
+		# Determine boundary violation based on natural direction
+
+		bForwardNaturalDirection = (@nStart < @nEnd)
+
+		if bForwardNaturalDirection
+
+			# In a forward walk (start < end)
+
+			if n < @nStart
+				return [ _FALSE_, "Position " + n + " goes before the start boundary (" + @nStart + ")" ]
+
+			but n > @nEnd
+				return [ _TRUE_, "Position " + n + " goes beyond the end boundary (" + @nEnd + "), ignoring" ]
+
+			else
+				return [ _TRUE_, "" ]  # Valid position
 			ok
-		next
-		
-		return TRUE
+
+		else
+			# In a backward walk (start > end)
+
+			if n > @nStart
+				return [ _FALSE_, "Position " + n + " goes before the start boundary (" + @nStart + ")" ]
+
+			but n < @nEnd
+				return [ _TRUE_, "Position " + n + " goes beyond the end boundary (" + @nEnd + "), ignoring" ]
+			else
+				return [ _TRUE_, "" ]  # Valid position
+			ok
+
+		ok
+
+	# Simplified and unified utility method for detecting
+	# boundary violations during calculations
+
+	def IsValidNextStep(nCurrentPos, nStep)
+
+		nNextPos = nCurrentPos + nStep
+		aCheck = This.CheckBoundary(nNextPos)
+
+		if aCheck[1] = _FALSE_
+			# Don't silently skip - raise the error
+			StzRaise(aCheck[2])
+		ok
+
+		# Check if we've gone beyond the end (but not violated)
+
+		if ((@nStart < @nEnd and nNextPos > @nEnd) or 
+		   (@nStart > @nEnd and nNextPos < @nEnd))
+
+			# This is a valid but end-exceeding position
+
+			return [ _TRUE_, nNextPos, _TRUE_ ]
+			# Third element indicates "beyond end"
+		ok
+
+		# Valid position within boundaries
+
+		return [ _TRUE_, nNextPos, _FALSE_ ]
+		# Third element indicates "within boundaries"
 
 	  #-----------#
 	 #   MISC.   #

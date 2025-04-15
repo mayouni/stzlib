@@ -1,13 +1,10 @@
 load "../max/stzmax.ring"
 
-
-
 /*--- Using negative steps
 
 pr()
 
-
-oWalker = new stzWalker(5, 25, [ -2, 1, 4, -3, 7 ])
+oWalker = new stzWalker(5, 25, [ 1, 4, -3, 7 ])
 oWalker {
 
         # Negative steps walker setup
@@ -18,13 +15,13 @@ oWalker {
 	#--> 25
 
         ? @@( oWalker.Steps() )
-	#--> [ -2, 1, 4, -3, 7 ]
+	#--> [ 1, 4, -3, 7 ]
 
         ? Direction()
 	#--> forward (since 5 < 25)
 
         ? @@( Walkables() )
-	#--> [ 5, 3, 4, 8, 15, 16, 20, 21, 25 ]
+	#--> [ 5, 6, 10, 7, 14, 15, 19, 16, 23, 24 ]
 
         ? CurrentPosition() + NL
 	#--> 5
@@ -32,21 +29,22 @@ oWalker {
         # Walking through positions with mixed negative/positive steps
 
         ? @@( Walk() )
-	#--> [ 5, 3 ] 	(first step is -2)
+	#--> [ 5, 6 ] 	(first step is 1)
 
         ? CurrentPosition() + NL
-	#--> 3
+	#--> 6
 
         # Walking multiple steps
 
         ? @@( WalkNSteps(3) )
-	#--> [ 3, 4, 8, 15 ]
+	#--> [ 6, 10, 7, 14 ]
 
         ? CurrentPosition()
-	#--> 15
+	#--> 14
 }
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--
 
@@ -55,7 +53,6 @@ pr()
 o1 = new stzWalker( 1, 10, 2 )
 
 o1 {
-
 	? NumberOfPositions()
 	#--> 10
 
@@ -90,7 +87,6 @@ pr()
 o1 = new stzWalker(:Start = 1, :End = 10, :Step = 2)
 
 o1 {
-
 	? NumberOfPositions()
 	#--> 10
 
@@ -115,7 +111,7 @@ o1 {
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*===
 
@@ -131,15 +127,21 @@ pf()
 
 /*===
 
-pr()
+oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 8)
+#--> Error: Line 3143 Can't create the stzWalker object!
+# The specified step number exceeds the allowed walking range.
 
-oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 9 )
-#--> Error: Can't walk! The step is larger then the number of walkable positions.
+/*---
+
+oWalker = new stzWalker( :StartingAt = 10, :EndingAt = 2, :Step = 11)
+#--> Error: Line 3143 Can't create the stzWalker object!
+# The specified step number exceeds the allowed walking range.
+
+/*---
 
 oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 0 )
-#--> Error: Can't create the stzWalker object! pnStep must be strictly positive number..
-
-pf()
+#--> Error: Can't create the walker object!
+# stzWalker object! The step number must not be equal to zero.
 
 /*====
 
@@ -242,7 +244,6 @@ pr()
 
 oWalker = new stzWalker(1, 12, 2)
 oWalker {
-
 	? @@( Walkables() )
 	#--> [ 1, 3, 5, 7, 9, 11 ]
 	
@@ -258,8 +259,9 @@ oWalker {
 	? @@( RemainingWalkables() )
 	#--> [ 7, 9, 11 ]
 
-	WalkN(2) # You can type ? to see the walked steps ~> [ 5, 7, 9 ]
-	? CurrentPosition()
+	? @@( WalkN(2) )
+	#--> [ 5, 7, 9 ]
+	? CurrentPosition() + NL
 	#--> 9
 	
 	? @@( HowManyRemainingWalkables() )
@@ -271,9 +273,8 @@ oWalker {
 	? @@( WalkN(1) )
 	#--> [ 9, 11 ]
 
-	// Walk()
-	#--> ERROR: Can't walk! No more walkable positions!
-
+	? @@( Walk() ) # Won't walk and stays on current last position
+	#--> [ 11 ]
 }
 
 pf()
@@ -294,7 +295,7 @@ oWalker {
 	#--> [ 12, 10, 8, 6, 4, 2 ]
 
 	? CurrentPosition()
-	#--> 2
+	#--> 12
 
 	? @@( RemainingWalkables() )
 	#--> [ 10, 8, 6, 4, 2 ]
@@ -328,8 +329,8 @@ oWalker {
 	? @@( RemainingWalkables() )
 	#--> [ ]
 
-	// Walk()
-	#--> ERROR: Can't walk! No more walkable positions!
+	? @@( Walk() ) # Does nothing and stays on position 2
+	#--> [ 2 ]
 }
 
 pf()
@@ -354,7 +355,7 @@ w = new stzWalker(3, 12, 2)
 ? w.Position()
 #--> 7
 
-// w.WalkTo(8)
+//? w.WalkTo(8)
 #--> ERROR: Can't walk! The position provided is not walkable.
 
 ? @@( w.WalkTo(5) )
@@ -490,17 +491,17 @@ oWalker {
 
 	? @@( WalkN(3) )
 	#--> [ 1, 3, 6, 7 ]
-
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*--- Walking backwards with variant steps
 
 pr()
 
 oWalker = new stzWalker(20, 5, [ 4, 2, 1 ])
+
 oWalker {
 
 	? @@( Walkables() )
@@ -515,7 +516,7 @@ oWalker {
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*--- Using variant steps with WalkBetween
 
@@ -535,11 +536,10 @@ oWalker {
 
 	? CurrentPosition()
 	#--> 23
-
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*--- Checking walking history with variant steps
 
@@ -569,7 +569,7 @@ oWalker {
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Remaining walkable positions with variant steps
 
@@ -592,11 +592,10 @@ oWalker {
 
 	? NumberOfRemainingWalkables()
 	#--> 4
-
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*=== DIRECTIONAL WALKING
 
@@ -674,7 +673,7 @@ oWalker {
 }
 
 pf()
-# Executed in 0.06 second(s) in Ring 1.22
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Using variable steps with direction
 
@@ -743,17 +742,10 @@ oWalker {
 
 	? CurrentPosition()
 	#--> 8
-
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
-
-/*---
-
-pr()
-
-pf()
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Backward initial direction
 
@@ -813,7 +805,6 @@ oWalker {
 
 	? @@(oWalker.RemainingWalkables())
 	#--> [ 25 ]
-
 }
 
 pf()
@@ -878,7 +869,7 @@ oWalker {
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Using constant step with direction changes
 
@@ -938,7 +929,6 @@ oWalker {
 
 	? Direction() + NL
 	#--> forward
-
 }
 
 pf()
@@ -951,28 +941,8 @@ pf()
 pr()
 
 oWalker = new stzWalker(10, 20, [3, -3])
-
-# Walking 3 steps and then -3 is not considering a walking
-# pattern in Softanza and only the firts 3 step is considered
-
-? @@( oWalker.Steps() )
-#--> 3
-
-# Hence it's like oWalker = nex stzWalker(10, 20, 3)
-
-? @@( oWalker.Walkables() )
-#--> [ 10, 13, 16, 19 ]
-
-? oWalker.CurrentPosition()
-#--> 10
-
-# Walking one step
-
-? @@( oWalker.Walk() )
-#--> [ 10, 13 ]
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+#--> ERROR: Can't create the stzWalker object!
+# The two steps must not be opposite numbers.
 
 /*--- Oscillation with mixed steps around start position
 
@@ -981,7 +951,7 @@ pr()
 oWalker = new stzWalker(10, 20, [ 2, -1 ])
 
 ? @@( oWalker.Walkables() )
-#--> [ 10, 12, 14, 16, 18, 20 ]
+#--> [ 10, 12, 11, 13, 12, 14, 13, 15, 14, 16, 15, 17, 16, 18, 17, 19, 18, 20 ]
 
 ? oWalker.CurrentPosition()
 #--> 10
@@ -990,36 +960,35 @@ oWalker = new stzWalker(10, 20, [ 2, -1 ])
 #--> [ 10, 12 ]
 
 ? @@( oWalker.Walk() )
-#--> [ 12, 14 ]
+#--> [ 12, 11 ]
 
 ? @@( oWalker.Walk() )
-#--> [ 14, 16 ]
+#--> [ 11, 13 ]
 
 ? oWalker.CurrentPosition()
-#--> 16
+#--> 13
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
-/*--- Negative steps taking us backward beyond start //////////
+/*==== Negative steps taking us backward beyond start
 
-pr()
+w = new stzWalker(10, 20, -5)
+#--> ERROR: Can't create the stzWalker object! The step number must not be negative.
+
+/*---
+
+w = new stzWalker(10, 2, -5)
+#--> ERROR: Can't create the stzWalker object! The step number must not be negative.
+
+/*---
 
 # Trying to go backward beyond start
 
-oWalker = new stzWalker(10, 20, [-5, 2]) #TODO shoumd raise an error becaue -5 --> outiside!
-
-? @@( oWalker.Walkables() )
-
-# Check if position 5 is walkable
-? oWalker.IsWalkable(5)
-
-? oWalker.CurrentPosition()
-? @@( oWalker.Walk() )
-? oWalker.CurrentPosition()
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+oWalker = new stzWalker(10, 20, [ -5, 2 ])
+#--> ERROR: Can't initiate the walker!
+# Trying to walk to position 5 in the path [10]
+# after applying these steps [-5]
 
 /*--- Mixed steps with large values
 
@@ -1028,7 +997,7 @@ pr()
 oWalker = new stzWalker(100, 120, [15, -10, 7])
 
 ? @@( oWalker.Walkables() )
-#--> [ 100, 115, 105, 112, 119 ]
+#--> [ 100, 115, 105, 112 ]
 
 ? @@( oWalker.WalkNSteps(3) )
 #--> [ 100, 115, 105, 112 ]
@@ -1037,7 +1006,7 @@ oWalker = new stzWalker(100, 120, [15, -10, 7])
 #--> 112
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Boundary condition - reaching end exactly
 
@@ -1053,55 +1022,44 @@ oWalker = new stzWalker(5, 25, [5, 10, 5])
 ? @@( oWalker.WalkToLast() )
 #--> [ 5, 10, 20, 25 ]
 
+? oWalker.CurrentPosition()
+#--> 25
+
+# If you istruct it to walk furth it will stick to the last position
 ? @@( oWalker.Walk() )
-#--> ERROR: Can't walk! No more walkable positions in the current direction.
+#--> [ 25 ]
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*--- Alternating small and large steps
 
-pr()
-
 oWalker = new stzWalker(10, 50, [1, -2, 10, -5])
 
-?  @@( oWalker.Walkables() ) + NL
-#--> [ 10, 11, 9, 19, 14, 15, 25, 26, 36, 37, 47, 48, 49, 50 ]
-
-# Walk sequence of 5 steps
-
-for i = 1 to 5
-	? @@( oWalker.Walk() )
-next
-#-->
-# [ 10, 11 ]
-# [ 11, 9 ]
-# [ 9, 19 ]
-# [ 19, 14 ]
-# [ 14, 15 ]
-
-pf()
-# Executed in 0.04 second(s) in Ring 1.22
+#--> ERROR: Can't initiate the walker!
+# Trying to walk to position 9 in the path [10, 11]
+# after applying these steps [1, -2].
 
 /*--- Skipping over the end position
 */
 pr()
 
-oWalker = new stzWalker(5, 25, [8, 12])
+oWalker = new stzWalker(5, 25, [ 8, 12 ])
 
 ? @@( oWalker.Walkables() )
-#--> [ 5, 13, 21 ]
+#--> [ 5, 13, 25 ]
 
 while oWalker.CanWalk()
     ? @@( oWalker.Walk() )
 end
 #--> [ 5, 13 ]
-#--> [ 13, 21 ]
+#--> [ 13, 25 ]
 
 ? oWalker.CurrentPosition()
-#--> 21
+#--> 25
 
 ? oWalker.IsWalkable(25)
-#--> 0
+#--> TRUE
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22

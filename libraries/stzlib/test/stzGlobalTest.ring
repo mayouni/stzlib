@@ -58,7 +58,7 @@ pf()
 #--> TRUE
 
 /*----
-*/
+
 pr()
 
 ? BothAreEqual(0, "")
@@ -131,7 +131,6 @@ pf()
 /*======== #perf Desabling param checking to enhance performance
 #TODO // Generalize this feature to all Softanza functions
 
-
 # Softanza functions do a lot of work in checking params correctness.
 # You can see it by yourself by reading any function code.
 # But this comes with a performance cost, especially when you use
@@ -140,11 +139,11 @@ pf()
 # For example, the function EuclideanDistance() cheks by default for
 # the params to be both lists of numbers of same size:
 
-? EuclideanDistance(1:3, 1:5)
+//? EuclideanDistance(1:3, 1:5)
 #!--> Incorrect lists sizes! anNumbers1 and anNumbers2 must both have the same size.
 
 # It does not allow you to use incorrect types:
-? EuclideanDistance('A':'C', 1:3)
+//? EuclideanDistance('A':'C', 1:3)
 #!--> Incorrect param types! anNumbers1 and anNumbers2 must be both lists of numbers.
 
 # And so on.
@@ -157,22 +156,35 @@ aList2 = 4 : 1_500_003
 pr()
 
 ? EuclideanDistance(aList1, aList2)
-
-pf()
-# It take 25.54 seconds!
+#--> 3674.23
 
 # A lot.
+
+pf()
+# Executed in 19.32 second(s) in Ring 1.22
+# Executed take 25.54 seconds in Ring 1.19
+
+
+/*--- Continue
+
+pr()
 
 # What if we disable the params cheks and see what gain we could obtain:
 
 CheckParamOff()
+_bParamCheck = false
 
-pr()
+aList1 = 1 : 1_500_000
+aList2 = 4 : 1_500_003
 
 ? EuclideanDistance(aList1, aList2)
+#--> 3674.23
+
+# A lot faster!
 
 pf()
-# Now the function takes just 2.05 seconds! (10 times faster)
+# Executed in 0.89 second(s) in Ring 1.22
+# Executed in 2.05 second(s) in Ring 1.22
 
 /*============
 
@@ -985,7 +997,7 @@ pf()
 #--> Executed in 0.09 second(s).
 
 /*-------------------
-
+*/
 pr()
 
 # The InfereType() function is useful for internal features
