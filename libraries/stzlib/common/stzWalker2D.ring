@@ -53,52 +53,77 @@ class stzWalker2D
 	 #   SETTING THE WALKER    #
 	#-------------------------#
 
-	def init(pnStartX, pnStartY, pnEndX, pnEndY, pSteps)
-		
-		# Handle initialization with a list or hashlist
-		if isList(pnStartX) and len(pnStartX) = 5
-			pnStartY = pnStartX[2]
-			pnEndX = pnStartX[3]
-			pnEndY = pnStartX[4]
-			pSteps = pnStartX[5]
-			pnStartX = pnStartX[1]
-		
-		# Handle initialization with named parameters
-		but isList(pnStartX) and 
-		   (HasAttribute(pnStartX, :StartX) or HasAttribute(pnStartX, :StartAt))
-			
-			if HasAttribute(pnStartX, :StartX)
-				pnStartX = pnStartX[:StartX]
-				
-			but HasAttribute(pnStartX, :StartAt) and 
-			    isList(pnStartX[:StartAt]) and
-			    len(pnStartX[:StartAt]) = 2
-				
-				pnStartY = pnStartX[:StartAt][2]
-				pnStartX = pnStartX[:StartAt][1]
+	def init(panStart, panEnd, pSteps)
+
+		# Checking the params types
+
+		if NOT (isList(panStart) and isList(panEnd))
+			StzRaise("Incorrect param type! panStart and panEnd must be lists.")
+		ok
+
+		if NOT (isList(pSteps) or isNumber(pSteps))
+			StzRaise("Incorrect param type! pSteps must be a number or a list.")
+		ok
+
+		if CheckingParams()
+	
+			if isList(panStart) and
+			   StzListQ(panStart).IsOneOfTheseNamedParams([
+				:Start, :StartAt, :StartsAt, :StartingAt,
+				:StartFrom, :StartsFrom, :StartingFrom,
+				:From, :FromPosition
+			])
+	
+				panStart = panStart[2]
 			ok
-			
-			if HasAttribute(pnStartX, :EndX)
-				pnEndX = pnStartX[:EndX]
-				
-			but HasAttribute(pnStartX, :EndAt) and
-			    isList(pnStartX[:EndAt]) and
-			    len(pnStartX[:EndAt]) = 2
-				
-				pnEndY = pnStartX[:EndAt][2]
-				pnEndX = pnStartX[:EndAt][1]
+	
+			if isList(panEnd) and
+			   StzListQ(panEnd).IsOneOfTheseNamedParams([
+				:End, :EndAt, :EndsAt, :EndingAt,
+				:Stop, :StopAt, :StopsAt, :StoppingAt,
+				:To, :ToPosition
+			   ])
+	
+	 			panEnd = panEnd[2]
 			ok
-			
-			if HasAttribute(pnStartX, :Steps)
-				pSteps = pnStartX[:Steps]
+	
+			if isList(pSteps) and
+			   StzListQ(pSteps).IsOneOfTheseNamedParams([
+				:Jump, :Step, :NStep, :Steps
+			  ])
+	
+				pSteps = pSteps[2]
 			ok
 		ok
 
+		# Chcking the params values
+
+		if NOT ( len(panStart) = 2 and isNumber(panStart[1]) and isNumber(panStart[2]) )
+			StzRaise("Incorrect param value! panStart must be a pair of numbers.")
+		ok
+
+		if NOT ( len(panEnd) = 2 and isNumber(panEnd[1]) and isNumber(panEnd[2]) )
+			StzRaise("Incorrect param value! panEnd must be a pair of numbers.")
+		ok
+
+		if isList(pSteps) and NOT @IsListOfPairsOfNumbers(pSteps)
+			StzRaise("Incorrect param value! pSteps must be a list of pairs of numbers.")
+		ok
+
+		# Getting the coordinates values
+
+		pnStartX = panStart[1]
+		pnStartY = panStart[2]
+
+		pnEndX = panEnd[1]
+		pnEndY = panEnd[2]
+
 		# Some logical checks
+
 		if pnStartX = pnEndX and pnStartY = pnEndY
 			StzRaise("Can't create the stzWalker2D object! Start and end positions must be different.")
 		ok
-
+	
 		# Store parameters
 		@nStartX = pnStartX
 		@nStartY = pnStartY
@@ -197,69 +222,74 @@ class stzWalker2D
 
 	def CalculateConstantStepWalkables()
 
+		bInverse = FALSE
+
+? @@([ [ @nStartX, @nStartY ], [ @nEndX, @nEndY ] ])
+
+		if @nStartX > @nEndX or ( @nStartX = @nEndX and @nEndX < @nEndY )
+			bInverse = TRUE
+	
+			Swap(@nStartX, @nEndX)
+			Swap(@nStartY, @nEndY)
+
+		ok
+? @@([ [ @nStartX, @nStartY ], [ @nEndX, @nEndY ] ])
+stop()
+
 		# Get step size
 		nStep = @pSteps
 
-		# Calculate the total number of steps needed
+		# Calculate the total differences
 		nDeltaX = @nEndX - @nStartX
 		nDeltaY = @nEndY - @nStartY
 
 		# Determine the number of steps in each direction
-		nStepsX = nDeltaX / nStep
-		nStepsY = nDeltaY / nStep
-
-		# Determine if we need to round up or down
-		nStepsX = floor(nStepsX)
-		nStepsY = floor(nStepsY)
+		nStepsX = floor(abs(nDeltaX) / nStep)
+		nStepsY = floor(abs(nDeltaY) / nStep)
 
 		# Calculate step directions
-		nStepDirX = sign(nDeltaX)
-		nStepDirY = sign(nDeltaY)
+		nStepDirX = nDeltaX >= 0 ? 1 : -1
+		nStepDirY = nDeltaY >= 0 ? 1 : -1
 
-		# Adjust zero steps to be non-negative for loop iteration
-		if nStepsX < 0 nStepsX = 0 ok
-		if nStepsY < 0 nStepsY = 0 ok
+		# Reset walkables (start position already added in CalculateWalkables)
+		@aWalkables = [[@nStartX, @nStartY]]
 
-		# Check if we need to make a purely horizontal move first
-		if abs(nStepsX) > abs(nStepsY)
+		# Horizontal-first or vertical-first based on predominant movement
+		nX = @nStartX
+		nY = @nStartY
 
-			# Horizontal-first movement
-			nX = @nStartX
-			nY = @nStartY
-
-			for i = 1 to abs(nStepsX)
+		if abs(nDeltaX) >= abs(nDeltaY)
+			# Horizontal movement first
+			for i = 1 to nStepsX
 				nX += nStep * nStepDirX
 				@aWalkables + [nX, nY]
 			next
-
 			# Then vertical movement
-			for i = 1 to abs(nStepsY)
+			for i = 1 to nStepsY
 				nY += nStep * nStepDirY
 				@aWalkables + [nX, nY]
 			next
-
 		else
-			# Vertical-first movement
-			nX = @nStartX
-			nY = @nStartY
-
-			for i = 1 to abs(nStepsY)
+			# Vertical movement first
+			for i = 1 to nStepsY
 				nY += nStep * nStepDirY
 				@aWalkables + [nX, nY]
 			next
-
 			# Then horizontal movement
-			for i = 1 to abs(nStepsX)
+			for i = 1 to nStepsX
 				nX += nStep * nStepDirX
 				@aWalkables + [nX, nY]
 			next
 		ok
 
-		# If we didn't hit the exact end position, add it
+		# Ensure the end position is included
 		if @aWalkables[len(@aWalkables)][1] != @nEndX or 
 		   @aWalkables[len(@aWalkables)][2] != @nEndY
-			
 			@aWalkables + [@nEndX, @nEndY]
+		ok
+
+		if bInverse
+			@aWalkables = reverse(@aWalkables)
 		ok
 
 	def CalculateVariantStepWalkables()
@@ -276,6 +306,9 @@ class stzWalker2D
 		nMaxIterations = 1000
 		nIterations = 0
 
+		# Reset walkables (start position already added in CalculateWalkables)
+		@aWalkables = [[@nStartX, @nStartY]]
+
 		# Calculate path until we reach the end position or max iterations
 		while (nX != @nEndX or nY != @nEndY) and nIterations < nMaxIterations
 
@@ -286,35 +319,27 @@ class stzWalker2D
 
 			# Process the step based on its type
 			if isNumber(pCurrentStep)
-				# Apply step in current direction
+				# Apply step in current direction, adjusted for reverse path
 				nStepX = 0
 				nStepY = 0
+				nDeltaX = @nEndX - nX
+				nDeltaY = @nEndY - nY
+				nStepDirX = @IF(nDeltaX >= 0, 1, -1)
+				nStepDirY = @IF(nDeltaY >= 0, 1, -1)
 
-				if @cDirection = :Right
-					nStepX = pCurrentStep
-				but @cDirection = :Left
-					nStepX = -pCurrentStep
-				but @cDirection = :Down
-					nStepY = pCurrentStep
-				but @cDirection = :Up
-					nStepY = -pCurrentStep
-				but @cDirection = :UpRight
-					nStepX = pCurrentStep
-					nStepY = -pCurrentStep
-				but @cDirection = :UpLeft
-					nStepX = -pCurrentStep
-					nStepY = -pCurrentStep
-				but @cDirection = :DownRight
-					nStepX = pCurrentStep
-					nStepY = pCurrentStep
-				but @cDirection = :DownLeft
-					nStepX = -pCurrentStep
-					nStepY = pCurrentStep
+				if abs(nDeltaX) >= abs(nDeltaY)
+					nStepX = pCurrentStep * nStepDirX
+				else
+					nStepY = pCurrentStep * nStepDirY
 				ok
-
 			but isList(pCurrentStep)
+				# For reverse paths, adjust step direction based on end position
 				nStepX = pCurrentStep[1]
 				nStepY = pCurrentStep[2]
+				nDeltaX = @nEndX - nX
+				nDeltaY = @nEndY - nY
+				if nDeltaX < 0 nStepX = -nStepX ok
+				if nDeltaY < 0 nStepY = -nStepY ok
 			ok
 
 			# Apply step
@@ -378,7 +403,7 @@ class stzWalker2D
 			return Content()
 
 	def Copy()
-		return new stzWalker2D(@nStartX, @nStartY, @nEndX, @nEndY, @pSteps)
+		return new stzWalker2D([@nStartX, @nStartY], [@nEndX, @nEndY], @pSteps)
 
 	def StartPosition()
 		return [@nStartX, @nStartY]
@@ -578,7 +603,7 @@ class stzWalker2D
 		nMaxX = max([@nStartX, @nEndX])
 		nMinY = min([@nStartY, @nEndY])
 		nMaxY = max([@nStartY, @nEndY])
-		
+
 		for nX = nMinX to nMaxX
 			for nY = nMinY to nMaxY
 				aResult + [nX, nY]
@@ -629,8 +654,10 @@ class stzWalker2D
 		aAllPositions = This.AllPositionsInBoundary()
 		aWalkables = This.WalkablePositions()
 		aResult = []
-		
-		for i = 1 to len(aAllPositions)
+
+		nLen = len(aAllPositions)
+
+		for i = 1 to nLen
 			if NOT This._ListContains(aWalkables, aAllPositions[i])
 				aResult + aAllPositions[i]
 			ok
@@ -670,8 +697,9 @@ class stzWalker2D
 		ok
 		
 		aResult = []
-		
-		for i = nCurrentIndex + 1 to len(aWalkables)
+		nLen = len(aWalkables)
+
+		for i = nCurrentIndex + 1 to nLen
 			aResult + aWalkables[i]
 		next
 		
@@ -1058,39 +1086,43 @@ class stzWalker2D
 	 #    WALKING IN SECTIONS     #
 	#----------------------------#
 
-	def WalkBetween(pnStartX, pnStartY, pnEndX, pnEndY)
-		
-		if isList(pnStartX) and len(pnStartX) = 2
-			pnStartY = pnStartX[2]
-			pnStartX = pnStartX[1]
+	def WalkBetween(panStart, panEnd)
+
+		if NOT ( isList(panStart) and isList(panEnd) and
+			 len(panStart) = 2 and len(panEnd) = 2 and
+			 isNumber(panStart[1]) and isNumber(panStart[2]) and
+			 isNumber(panEnd[1]) and isNumber(panEnd[2]) )
+
+			StzRaise("Incorrect param type! panStart and panEnd must be both lists.")
+		ok
+
+		nStartX = panStart[1]
+		nStartY = panStart[2]
+
+		nEndX = panEnd[1]
+		nEndY = panEnd[2]
+
+		if NOT This.IsWalkable([nStartX, nStartY])
+			StzRaise("Can't walk between! The position [" + nStartX + "," + nStartY + "] is not walkable.")
 		ok
 		
-		if isList(pnEndX) and len(pnEndX) = 2
-			pnEndY = pnEndX[2]
-			pnEndX = pnEndX[1]
+		if NOT This.IsWalkable([nEndX, nEndY])
+			StzRaise("Can't walk between! The position [" + nEndX + "," + nEndY + "] is not walkable.")
 		ok
-		
-		if NOT This.IsWalkable([pnStartX, pnStartY])
-			StzRaise("Can't walk between! The position [" + pnStartX + "," + pnStartY + "] is not walkable.")
-		ok
-		
-		if NOT This.IsWalkable([pnEndX, pnEndY])
-			StzRaise("Can't walk between! The position [" + pnEndX + "," + pnEndY + "] is not walkable.")
-		ok
-		
-		aStart = [pnStartX, pnStartY]
-		aEnd = [pnEndX, pnEndY]
+
+		aStart = [nStartX, nStartY]
+		aEnd = [nEndX, nEndY]
 		aWalkables = This.Walkables()
-		
+
 		nStartIndex = This._FindPositionIndex(aWalkables, aStart)
 		nEndIndex = This._FindPositionIndex(aWalkables, aEnd)
-		
+
 		if nStartIndex = 0 or nEndIndex = 0
 			StzRaise("Position not found in walkable positions!")
 		ok
-		
+
 		aResult = []
-		
+
 		if nStartIndex <= nEndIndex
 			# Forward direction
 			for i = nStartIndex to nEndIndex
@@ -1102,92 +1134,103 @@ class stzWalker2D
 				aResult + aWalkables[i]
 			next
 		ok
-		
+
 		# Update current position and history
 		@aCurrPosition = aResult[len(aResult)]
 		@aWalkHistory + aResult
 		
 		return aResult
-		
-		def WalkFromTo(pnStartX, pnStartY, pnEndX, pnEndY)
-			return This.WalkBetween(pnStartX, pnStartY, pnEndX, pnEndY)
+
+		def WalkFromTo(panStart, panEnd)
+			return This.WalkBetween(panStart, panEnd)
 
 	  #-------------------------------#
 	 #  FINDING POSITIONS BY INDEX   #
 	#-------------------------------#
 
 	def PositionAt(nIndex)
+
+		if NoT isNumber(nIndex)
+			StzRaise("Incorrect param type! nIndex must be a number.")
+		ok
+
+		if nIndex = 0
+			StzRaise("Incorrect param value! nIndex must not be equal to zero.")
+		ok
+
 		aWalkables = This.Walkables()
 		
 		if nIndex < 1 or nIndex > len(aWalkables)
 			StzRaise("Invalid position index! Index must be between 1 and " + len(aWalkables) + ".")
 		ok
-		
+	
 		return aWalkables[nIndex]
-		
+
 		def WalkableAt(nIndex)
 			return This.PositionAt(nIndex)
-			
+	
 		def WalkablePositionAt(nIndex)
 			return This.PositionAt(nIndex)
-
-	def IndexOf(nX, nY)
-		
-		if isList(nX) and len(nX) = 2
-			nY = nX[2]
-			nX = nX[1]
-		ok
-		
-		aPos = [nX, nY]
-		aWalkables = This.Walkables()
-		
-		return This._FindPositionIndex(aWalkables, aPos)
-		
-		def PositionIndexOf(nX, nY)
-			return This.IndexOf(nX, nY)
-			
-		def WalkableIndexOf(nX, nY)
-			return This.IndexOf(nX, nY)
 
 	  #------------------------------#
 	 #   CALCULATING DISTANCES      #
 	#------------------------------#
 
-	def DistanceBetween(nX1, nY1, nX2, nY2)
+	def DistanceBetween(panPos1, panPos2)
 
-		if isList(nX1) and len(nX1) = 2
-			nY1 = nX1[2]
-			nX1 = nX1[1]
+		# Checking params
+
+		if NOT ( isList(panPos1) and isList(panPos2) and
+			 len(panPos1) = 2 and len(panPos2) = 2 and
+			 isNumber(panPos1[1]) and isNumber(panPos1[2]) and
+			 isNumber(panPos2[1]) and isNumber(panPos2[2]) )
+
+			StzRaise("Incorrect param type! panPos1 and panPos2 must be both lists.")
 		ok
 
-		if isList(nX2) and len(nX2) = 2
-			nY2 = nX2[2]
-			nX2 = nX2[1]
+		nX1 = panPos1[1]
+		nY1 = panPos1[2]
+
+		nX2 = panPos2[1]
+		nY2 = panPos2[2]
+
+		if ring_find([ nX1, nY1, nX2, nY2 ], 0) > 0
+			StzRaise("Incorrect param value! Coordinate params must all be non zero numbers.")
 		ok
-	
+
 		# Euclidean distance
 		return sqrt(pow(nX2 - nX1, 2) + pow(nY2 - nY1, 2))
 
-		def Distance(nX1, nY1, nX2, nY2)
-			return This.DistanceBetween(nX1, nY1, nX2, nY2)
+		def Distance(panPos1, panPos2)
+			return This.DistanceBetween(panPos1, panPos2)
 
-	def ManhattanDistanceBetween(nX1, nY1, nX2, nY2)
+	def ManhattanDistanceBetween(panPos1, panPos2)
 
-		if isList(nX1) and len(nX1) = 2
-			nY1 = nX1[2]
-			nX1 = nX1[1]
+		# Checking params
+
+		if NOT ( isList(panPos1) and isList(panPos2) and
+			 len(panPos1) = 2 and len(panPos2) = 2 and
+			 isNumber(panPos1[1]) and isNumber(panPos1[2]) and
+			 isNumber(panPos2[1]) and isNumber(panPos2[2]) )
+
+			StzRaise("Incorrect param type! panPos1 and panPos2 must be both lists.")
 		ok
 
-		if isList(nX2) and len(nX2) = 2
-			nY2 = nX2[2]
-			nX2 = nX2[1]
+		nX1 = panPos1[1]
+		nY1 = panPos1[2]
+
+		nX2 = panPos2[1]
+		nY2 = panPos2[2]
+
+		if ring_find([ nX1, nY1, nX2, nY2 ], 0) > 0
+			StzRaise("Incorrect param value! Coordinate params must all be non zero numbers.")
 		ok
 
 		# Manhattan distance (sum of absolute differences)
 		return abs(nX2 - nX1) + abs(nY2 - nY1)
 
-		def ManhattanDistance(nX1, nY1, nX2, nY2)
-			return This.ManhattanDistanceBetween(nX1, nY1, nX2, nY2)
+		def ManhattanDistance(panPos1, panPos2)
+			return This.ManhattanDistanceBetween(panPos1, panPos2)
 
 	  #----------------------------#
 	 #   NEIGHBORING POSITIONS    #
@@ -1195,9 +1238,12 @@ class stzWalker2D
 
 	def NeighborsOf(nX, nY)
 
-		if isList(nX) and len(nX) = 2
-			nY = nX[2]
-			nX = nX[1]
+		if NOT (isNumber(nX) and isNumber(nY))
+			StzRaise("Incorrect param type! nX and nY must be numbers.")
+		ok
+
+		if nX = 0 or nY = 0
+			StzRaise("Incorrect param value! nX and nY must be non zero numbers.")
 		ok
 
 		aNeighbors = []
@@ -1252,129 +1298,6 @@ class stzWalker2D
 		def CountNeighbors(nX, nY)
 			return This.NumberOfNeighbors(nX, nY)
 
-	  #----------------------------------#
-	 #   PATH FINDING (SIMPLE A-STAR)   #
-	#----------------------------------#
-
-	def FindPathBetween(nX1, nY1, nX2, nY2)
-
- 		# A* Search Algorithm
-
-		# This implementation finds the shortest path between two walkable positions
-		# using the A* search algorithm with Manhattan distance heuristic.
-
-		# The algorithm works by:
-		# 1. Maintaining an open set of positions to explore
-		# 2. Using f_score = g_score + heuristic to prioritize which positions to explore
-		# 3. Tracking the best known path to each position
-		# 4. Reconstructing the optimal path once the goal is reached
-
-		# Note: This A* implementation uses linear searches in lists which works
-		# well for small grids. For large-scale pathfinding, consider implementing
-		# a more efficient data structure like a priority queue and hashmap.
-
-		if isList(nX1) and len(nX1) = 2
-			nY1 = nX1[2]
-			nX1 = nX1[1]
-		ok
-		
-		if isList(nX2) and len(nX2) = 2
-			nY2 = nX2[2]
-			nX2 = nX2[1]
-		ok
-		
-		# Check if positions are walkable
-		if NOT This.IsWalkable([nX1, nY1])
-			StzRaise("Can't find path! The start position [" + nX1 + "," + nY1 + "] is not walkable.")
-		ok
-		
-		if NOT This.IsWalkable([nX2, nY2])
-			StzRaise("Can't find path! The end position [" + nX2 + "," + nY2 + "] is not walkable.")
-		ok
-		
-		# A* algorithm implementation
-		aStart = [nX1, nY1]
-		aGoal = [nX2, nY2]
-		
-		# Initialize the open and closed sets
-		aOpenSet = [aStart]
-		aClosedSet = []
-		
-		# g_score[node] is the cost of the best path from start to node
-		aGScore = []
-		aGScore + [aStart, 0]
-		
-		# f_score[node] = g_score[node] + heuristic(node, goal)
-		aFScore = []
-		aFScore + [aStart, This.ManhattanDistanceBetween(nX1, nY1, nX2, nY2)]
-		
-		# cameFrom[node] is the node immediately preceding it on the best path
-		aCameFrom = []
-		
-		while len(aOpenSet) > 0
-			# Get the node in openSet having the lowest fScore value
-			nCurrentIndex = 1
-			nLowestFScore = This._GetScoreFor(aFScore, aOpenSet[1])
-			
-			for i = 2 to len(aOpenSet)
-				nScore = This._GetScoreFor(aFScore, aOpenSet[i])
-				if nScore < nLowestFScore
-					nLowestFScore = nScore
-					nCurrentIndex = i
-				ok
-			next
-			
-			aCurrent = aOpenSet[nCurrentIndex]
-			
-			# If we reached the goal, reconstruct and return the path
-			if aCurrent[1] = aGoal[1] and aCurrent[2] = aGoal[2]
-				return This._ReconstructPath(aCameFrom, aCurrent)
-			ok
-			
-			# Move current from open to closed set
-			del(aOpenSet, nCurrentIndex)
-			aClosedSet + aCurrent
-			
-			# Check each neighbor
-			aNeighbors = This.NeighborsOf(aCurrent[1], aCurrent[2])
-			
-			for aNeighbor in aNeighbors
-				# Skip if in closed set
-				if This._ListContains(aClosedSet, aNeighbor)
-					loop
-				ok
-				
-				# Calculate tentative_gScore
-				nTentativeGScore = This._GetScoreFor(aGScore, aCurrent) + 
-								This.DistanceBetween(aCurrent[1], aCurrent[2], 
-												   aNeighbor[1], aNeighbor[2])
-				
-				# If neighbor is not in openSet, discover it
-				bIsInOpenSet = This._ListContains(aOpenSet, aNeighbor)
-				if NOT bIsInOpenSet
-					aOpenSet + aNeighbor
-				ok
-				
-				# This path to neighbor is better than any previous one
-				nNeighborGScore = This._GetScoreFor(aGScore, aNeighbor)
-				if nTentativeGScore < nNeighborGScore or nNeighborGScore = 0
-					# Record the best path
-					This._UpdateCameFrom(aCameFrom, aNeighbor, aCurrent)
-					This._UpdateScore(aGScore, aNeighbor, nTentativeGScore)
-					
-					nFScore = nTentativeGScore + 
-							This.ManhattanDistanceBetween(aNeighbor[1], aNeighbor[2], nX2, nY2)
-					This._UpdateScore(aFScore, aNeighbor, nFScore)
-				ok
-			next
-		end
-		
-		# If we get here, no path was found
-		return []
-		
-		def FindPath(nX1, nY1, nX2, nY2)
-			return This.FindPathBetween(nX1, nY1, nX2, nY2)
-	
 	def _ReconstructPath(aCameFrom, aCurrent)
 		aPath = [aCurrent]
 		
@@ -1384,60 +1307,84 @@ class stzWalker2D
 		end
 		
 		return aPath
-	
+
 	def _GetScoreFor(aScoreList, aPos)
-		for i = 1 to len(aScoreList) step 2
+
+		nLen = len(aScoreList)
+
+		for i = 1 to nLen step 2
 			if This._ArePositionsEqual(aScoreList[i], aPos)
 				return aScoreList[i+1]
 			ok
 		next
+
 		return 0  # Default score if not found
 	
 	def _UpdateScore(aScoreList, aPos, nScore)
-		for i = 1 to len(aScoreList) step 2
+
+		nLen = len(aScoreList)
+
+		for i = 1 to nLen step 2
 			if This._ArePositionsEqual(aScoreList[i], aPos)
 				aScoreList[i+1] = nScore
 				return
 			ok
 		next
+
 		aScoreList + [aPos, nScore]
 	
 	def _HasCameFrom(aCameFrom, aPos)
-		for i = 1 to len(aCameFrom) step 2
+
+		nLen = len(aCameFrom)
+
+		for i = 1 to nLen step 2
 			if This._ArePositionsEqual(aCameFrom[i], aPos)
 				return TRUE
 			ok
 		next
+
 		return FALSE
 	
 	def _GetCameFrom(aCameFrom, aPos)
-		for i = 1 to len(aCameFrom) step 2
+
+		nLen = len(aCameFrom)
+
+		for i = 1 to nLen step 2
 			if This._ArePositionsEqual(aCameFrom[i], aPos)
 				return aCameFrom[i+1]
 			ok
 		next
+
 		return []  # Empty position if not found
 	
 	def _UpdateCameFrom(aCameFrom, aPos, aFrom)
+
 		for i = 1 to len(aCameFrom) step 2
 			if This._ArePositionsEqual(aCameFrom[i], aPos)
 				aCameFrom[i+1] = aFrom
 				return
 			ok
 		next
+
 		aCameFrom + [aPos, aFrom]
-	
+
 	def _ArePositionsEqual(aPos1, aPos2)
-		if NOT (isList(aPos1) and len(aPos1) = 2 and isList(aPos2) and len(aPos2) = 2)
+
+		if NOT ( isList(aPos1) and len(aPos1) = 2 and
+			 isList(aPos2) and len(aPos2) = 2 and
+
+			 isNumber(aPos1[1]) and isNumber(aPos1[2]) and
+			 isNumber(aPos2[1]) and isNumber(aPos2[2]) )
+
 			return FALSE
 		ok
-		
+
 		return (aPos1[1] = aPos2[1] and aPos1[2] = aPos2[2])
-	
+
 	  #---------------------------#
 	 #   HELPER METHODS          #
 	#---------------------------#
-	
+
 	def _FindPositionIndex(aList, aPos)
 		for i = 1 to len(aList)
 			if aList[i][1] = aPos[1] and aList[i][2] = aPos[2]
@@ -1445,28 +1392,28 @@ class stzWalker2D
 			ok
 		next
 		return 0  # Not found
-	
+
 	def _ListContains(aList, aPos)
 		return This._FindPositionIndex(aList, aPos) != 0
-	
+
 	  #---------------------------#
 	 #    VISUALIZATION UTILS    #
 	#---------------------------#
-	
-	def DrawPath()
-		
+
+	def Show()
+		? This.ToString()
+
+		def ShowWalk()
+			Show()
+
+	def ToString()
+
+		# Determine grid boundaries based on walkable positions
 		nMinX = min([@nStartX, @nEndX])
 		nMaxX = max([@nStartX, @nEndX])
 		nMinY = min([@nStartY, @nEndY])
 		nMaxY = max([@nStartY, @nEndY])
-		
-		# Add some padding
-		nPadding = 2
-		nMinX = max([1, nMinX - nPadding])
-		nMaxX = nMaxX + nPadding
-		nMinY = max([1, nMinY - nPadding])
-		nMaxY = nMaxY + nPadding
-		
+
 		# Create grid
 		aGrid = []
 		for y = nMinY to nMaxY
@@ -1476,46 +1423,53 @@ class stzWalker2D
 			next
 			aGrid + aRow
 		next
-		
+
 		# Mark walkable positions
-		for aPos in This.Walkables()
-			nX = aPos[1]
-			nY = aPos[2]
+		aWalkables = This.Walkables()
+		nLen = len(aWalkables)
+
+		for i = 1 to nLen
+			nX = aWalkables[i][1]
+			nY = aWalkables[i][2]
 			if nX >= nMinX and nX <= nMaxX and nY >= nMinY and nY <= nMaxY
 				aGrid[nY - nMinY + 1][nX - nMinX + 1] = "o"  # Walkable
 			ok
 		next
-		
+
 		# Mark current position
 		nCurrX = @aCurrPosition[1]
 		nCurrY = @aCurrPosition[2]
 		if nCurrX >= nMinX and nCurrX <= nMaxX and nCurrY >= nMinY and nCurrY <= nMaxY
-			aGrid[nCurrY - nMinY + 1][nCurrX - nMinX + 1] = "C"  # Current
+			aGrid[nCurrY - nMinY + 1][nCurrX - nMinX + 1] = "x"  # Current
 		ok
-		
+
 		# Mark start and end positions
 		if @nStartX >= nMinX and @nStartX <= nMaxX and @nStartY >= nMinY and @nStartY <= nMaxY
 			aGrid[@nStartY - nMinY + 1][@nStartX - nMinX + 1] = "S"  # Start
 		ok
-		
 		if @nEndX >= nMinX and @nEndX <= nMaxX and @nEndY >= nMinY and @nEndY <= nMaxY
 			aGrid[@nEndY - nMinY + 1][@nEndX - nMinX + 1] = "E"  # End
 		ok
-		
+
 		# Draw the grid
 		cResult = ""
-		for y = 1 to len(aGrid)
+		nLen = len(aGrid)
+		for y = 1 to nLen
 			cRow = ""
-			for x = 1 to len(aGrid[y])
+			nLenTemp = len(aGrid[y])
+			for x = 1 to nLenTemp
 				cRow += aGrid[y][x] + " "
 			next
 			cResult += cRow + nl
 		next
-		
+
 		return cResult
-		
-		def ToString()
-			return This.DrawPath()
-			
-		def Draw()
-			return This.DrawPath()
+
+
+	def ShowXT()
+		? This.ToStringXT()
+
+		def ShowWalkXT()
+			ShowXT()
+
+	def ToStringXT()

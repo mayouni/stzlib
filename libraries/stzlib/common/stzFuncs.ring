@@ -4943,7 +4943,14 @@ func Empty(pcStzType)
 
 	off
 
+func Swap(p1, p2)
+	_temp_ = p2
+	p2 = p1
+	p1 = _temp_
 
+	return [p1, p2]
+
+	func @Swap(p1, p2)
 
 func new_stz(cType, p)
 	
