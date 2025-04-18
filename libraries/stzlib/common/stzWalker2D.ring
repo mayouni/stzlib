@@ -425,16 +425,6 @@ class stzWalker2D
 	def Steps()
 		return @pSteps
 
-	def StepSize()
-		if @bIsVariantSteps
-			return @pSteps
-		else
-			return @pSteps
-		ok
-
-		def NStep()
-			return This.StepSize()
-
 	def IsVariantSteps()
 		return @bIsVariantSteps
 
