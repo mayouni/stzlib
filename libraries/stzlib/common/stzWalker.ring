@@ -6,7 +6,7 @@
 # 	Description	: The class for creating walkers in Softanza      #
 #	Version		: V1.0 (2020-2024)				  #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		  #
-#								          #
+#									          #
 #-------------------------------------------------------------------------#
 
   /////////////////////
