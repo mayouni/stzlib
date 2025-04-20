@@ -205,9 +205,6 @@ class stzWalker2D
 			# Variable step mode
 			This.CalculateVariableStepWalkables(nMinX, nMaxX, nMinY, nMaxY)
 		ok
-		
-		# Sort walkables in path order
-		This.SortWalkables()
 
 	def CalculateFixedStepWalkables(nMinX, nMaxX, nMinY, nMaxY)
 		# Determine step sizes for X and Y
@@ -331,53 +328,6 @@ class stzWalker2D
 		if nIterations >= nMaxIterations
 			StzRaise("Maximum iterations reached when calculating walkable positions. Possible infinite loop.")
 		ok
-
-	def SortWalkables()
-		# Sort walkables in natural path order (start to end)
-		# For 2D, we'll order based on distance from start
-		
-		if len(@aWalkables) <= 1
-			return
-		ok
-		
-		# Create a copy with distances
-		aWithDist = []
-		
-		for i = 1 to len(@aWalkables)
-			nDist = This._CalculateDistance(@nStartX, @nStartY, @aWalkables[i][1], @aWalkables[i][2])
-			aWithDist + [nDist, @aWalkables[i]]
-		next
-		
-		# Sort by distance
-		aWithDist = This._SortListByFirstElement(aWithDist)
-		
-		# Extract sorted positions
-		@aWalkables = []
-		for i = 1 to len(aWithDist)
-			@aWalkables + aWithDist[i][2]
-		next
-
-	def _CalculateDistance(nX1, nY1, nX2, nY2)
-		# Manhattan distance calculation
-		return abs(nX2 - nX1) + abs(nY2 - nY1)
-
-	def _SortListByFirstElement(aList)
-		# Basic bubble sort by first element
-		aResult = aList
-		nLen = len(aResult)
-		
-		for i = 1 to nLen - 1
-			for j = 1 to nLen - i
-				if aResult[j][1] > aResult[j+1][1]
-					# Swap elements
-					temp = aResult[j]
-					aResult[j] = aResult[j+1]
-					aResult[j+1] = temp
-				ok
-			next
-		next
-		
-		return aResult
 
 	  #------------------#
 	 #   GENERAL INFO   #
@@ -567,6 +517,9 @@ class stzWalker2D
 			return This.NumberOfUnwalkablePositions()
 
 		def CountUnwalkables()
+			return This.NumberOfUnwalkablePositions()
+
+		def NumberOfUnwalkables()
 			return This.NumberOfUnwalkablePositions()
 
 	  #--------------#
