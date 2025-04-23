@@ -46,9 +46,15 @@ _oIntermediateTable = new stzTable([])
  ///  FUNCTIONS  ///
 ///////////////////
 
-func iif(cCondition, pTrue, pFalse)
+func iif(pCondition, pTrue, pFalse)
+
 	if CheckParams()
-		if isList(cCondition) and StzListQ(ccondition).IsItNamedParam()
+
+		if NOT ( isNumber(pCondition) or isString(pCondition) or isList(pCondition) )
+			StzRaise("Incorrect param type! pCondition must be a number, a string, or a ist of strings.")
+		ok
+
+		if isList(pCondition) and StzListQ(pcondition).IsItNamedParam()
 			cCondition = cCondition[2]
 		ok
 
@@ -62,8 +68,21 @@ func iif(cCondition, pTrue, pFalse)
 
 	ok
 
+	if isNumber(pCondition)
+
+		if pCondition = _TRUE_
+			return pTrue
+		else
+			return pFalse
+		ok
+
+	ok
+
+	# pCondition is a string
+
 	cCode = 'bOk = (' + cCondition + ')'
 	eval(cCode)
+
 	if bOk
 		return pTrue
 	else

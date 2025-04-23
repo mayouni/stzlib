@@ -15037,6 +15037,7 @@ class stzList from stzObject
 
 		return aResult
 
+
 		#< @FunctionAlternativeForms
 
 		def AllOfTheseItemsRemovedCS(paItems, pCaseSensitive)
@@ -15054,6 +15055,14 @@ class stzList from stzObject
 
 	def RemoveMany(paItems)
 		This.RemoveManyCS(paItems, _TRUE_)
+
+		#< @FunctionFluentForm
+
+		def RemoveManyQ(paItems)
+			This.RemoveMany(paItems)
+			return This
+
+		#>
 
 		#< @FunctionAlternativeForms
 
