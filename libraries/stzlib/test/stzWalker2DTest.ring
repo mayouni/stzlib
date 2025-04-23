@@ -64,6 +64,8 @@ w = new stzWalker2D([2, 3], [6, 8], 2)
 #	[ 2, 8 ], [ 4, 8 ], [ 6, 8 ]
 # ]
 
+w.Show()
+
 #   1 2 3 4 5 6
 # 1 . . . . . .
 # 2 . . . . . .
@@ -130,10 +132,10 @@ w = Wk2D([1, 1], [3, 3], 1)
 # ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Initialize with reverse directions
-
+*/
 pr()
 
 w = new stzWalker2D([1, 3], [5, 8], 2)
@@ -147,6 +149,8 @@ w = new stzWalker2D([1, 3], [5, 8], 2)
 #	[ 1, 7 ], [ 3, 7 ], [ 5, 7 ],
 #	[ 2, 8 ], [ 4, 8 ]
 # ]
+
+w.Show()
 
 #   1 2 3 4 5
 # 1 . . . . .
@@ -250,7 +254,7 @@ w = new stzWalker2D([1, 1], [5, 5], 1)
 #--> [ 3, 4 ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Walk to end
 
@@ -312,7 +316,7 @@ w = new stzWalker2D([1, 1], [7, 7], [2, 3])
 #--> [ 6, 1 ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.09 second(s) in Ring 1.22
 
 # =================
 # Position Queries
@@ -510,149 +514,400 @@ w = new stzWalker2D([5, 5], [1, 1], 1)
 pf()
 # Executed in 0.08 second(s) in Ring 1.22
 
+#   1 2 3 4 5
+# 1 . . . . .
+# 2 . . . . .
+# 3 E . . . .
+# 4 . . . . .
+# 5 S . . . .
+
 /*--- Walk with mixed directions
-*/
+
 pr()
 
-w = new stzWalker2D([5, 1], [1, 5], 1)
+w = new stzWalker2D([1, 3], [5, 1], 1)
 
-@@(w.StartPosition())
+? @@(w.StartPosition())
+#--> [ 1, 3 ]
+
 ? @@(w.EndPosition())
+#--> [ 5, 1 ]
+
 ? w.Direction() + NL
+#--> froward
 
 ? @@(w.Walkables()) + NL
+#--> [ [ 1, 3 ], [ 2, 3 ], [ 3, 3 ], [ 4, 3 ], [ 5, 3 ] ]
 
 ? @@(w.WalkNSteps(2)) + NL
+#--> [ [ 1, 3 ], [ 2, 3 ], [ 3, 3 ] ]
 
 ? @@(w.CurrentPosition())
+#--> [ 3, 3 ]
 
 pf()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+w = new stzWalker2D([5, 1], [1, 3], 1)
+
+? @@(w.StartPosition())
+#--> [ 5, 1 ]
+
+? @@(w.EndPosition())
+#--> [ 1, 3 ]
+
+? w.Direction() + NL
+#--> backward
+
+? @@(w.Walkables()) + NL
+#--> [ [ 5, 1 ], [ 4, 1 ], [ 3, 1 ], [ 2, 1 ], [ 1, 1 ] ]
+
+? @@(w.WalkNSteps(2)) + NL
+#--> [ [ 5, 1 ], [ 4, 1 ], [ 3, 1 ] ]
+
+? @@(w.CurrentPosition())
+#--> [ 3, 1 ]
+
+pf()
+# Executed in 0.07 second(s) in Ring 1.22
 
 # ===============================
 # Variable Steps & Complex Walks
 # ===============================
 
-Separator("TEST GROUP 5: Variable Steps & Complex Walks")
+/*--- Walk with variable steps (list of single numbers)
 
-/*--- Test 5.1: Walk with variable steps (array of single numbers)
-test5_1 = new stzWalker2D([1, 1], [10, 10], [1, 2, 3])
-? "Test 5.1: Walk with variable steps (array of single numbers)"
-? "Start position: " + @@(test5_1.StartPosition())
-? "End position: " + @@(test5_1.EndPosition())
-? "Step size: " + @@(test5_1.Steps())
-? "Walkable positions: " + @@(test5_1.WalkablePositions())
-? "Walk three steps: " + @@(test5_1.WalkNSteps(3))
-? "Current position: " + @@(test5_1.CurrentPosition())
+pr()
 
-/*--- Test 5.2: Walk with variable steps (array of pairs)
-test5_2 = new stzWalker2D([1, 1], [10, 10], [[1, 1], [2, 2], [1, 3]])
-? NL + "Test 5.2: Walk with variable steps (array of pairs)"
-? "Start position: " + @@(test5_2.StartPosition())
-? "End position: " + @@(test5_2.EndPosition())
-? "Step size: " + @@(test5_2.Steps())
-? "Walkable positions: " + @@(test5_2.WalkablePositions())
-? "Walk three steps: " + @@(test5_2.WalkNSteps(3))
-? "Current position: " + @@(test5_2.CurrentPosition())
+w = new stzWalker2D([1, 1], [10, 10], [1, 2, 3])
 
-/*--- Test 5.3: Walk between two positions
-test5_3 = new stzWalker2D([1, 1], [9, 9], 2)
-? NL + "Test 5.3: Walk between two positions"
-? "Start position: " + @@(test5_3.StartPosition())
-? "End position: " + @@(test5_3.EndPosition())
-? "Current position before: " + @@(test5_3.CurrentPosition())
-? "Walk between [3, 3] and [7, 7]: " + @@(test5_3.WalkBetween([3, 3], [7, 7]))
-? "Current position after: " + @@(test5_3.CurrentPosition())
+? @@(w.StartPosition())
+#--> [ 1, 1 ]
 
-# ===============================
+? @@(w.EndPosition())
+#--> [ 10, 10 ]
+
+? @@(w.Steps()) + NL
+#--< [ 1, 2, 3 ]
+
+? @@(w.WalkablePositions()) + NL
+#--> [
+#	[ 1, 1 ], [ 2, 1 ], [ 4, 1 ], [ 7, 1 ], [ 8, 1 ], [ 10, 1 ],
+#	[ 3, 2 ], [ 4, 2 ], [ 6, 2 ], [ 9, 2 ], [ 10, 2 ],
+#	[ 2, 3 ], [ 5, 3 ], [ 6, 3 ], [ 8, 3 ],
+#	[ 1, 4 ], [ 2, 4 ], [ 4, 4 ], [ 7, 4 ], [ 8, 4 ], [ 10, 4 ],
+#	[ 3, 5 ], [ 4, 5 ], [ 6, 5 ], [ 9, 5 ], [ 10, 5 ],
+#	[ 2, 6 ], [ 5, 6 ], [ 6, 6 ], [ 8, 6 ],
+#	[ 1, 7 ], [ 2, 7 ], [ 4, 7 ], [ 7, 7 ], [ 8, 7 ], [ 10, 7 ],
+#	[ 3, 8 ], [ 4, 8 ], [ 6, 8 ], [ 9, 8 ], [ 10, 8 ],
+#	[ 2, 9 ], [ 5, 9 ], [ 6, 9 ], [ 8, 9 ],
+#	[ 1, 10 ], [ 2, 10 ], [ 4, 10 ], [ 7, 10 ], [ 8, 10 ], [ 10, 10 ]
+# ]
+
+? @@(w.WalkNSteps(3))
+#--> [ [ 1, 1 ], [ 2, 1 ], [ 4, 1 ], [ 7, 1 ] ]
+
+? @@(w.CurrentPosition())
+#--> [ 7, 1 ]
+
+pf()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*--- Walk between two positions
+*/
+pr()
+
+w = new stzWalker2D([1, 1], [9, 9], 2)
+
+? @@(w.StartPosition())
+#--> [ 1, 1 ]
+
+? @@(w.EndPosition())
+#--> [ 9, 9 ]
+
+? @@(w.CurrentPosition()) + NL
+#--> [ 1, 1 ]
+
+? @@(w.WalkBetween([3, 3], [7, 7])) + NL
+#--> [
+#		  [ 3, 3 ], [ 5, 3 ], [ 7, 3 ], [ 9, 3 ],
+#	[ 2, 4 ], [ 4, 4 ], [ 6, 4 ], [ 8, 4 ],
+#	[ 1, 5 ], [ 3, 5 ], [ 5, 5 ], [ 7, 5 ], [ 9, 5 ],
+#	[ 2, 6 ], [ 4, 6 ], [ 6, 6 ], [ 8, 6 ],
+#	[ 1, 7 ], [ 3, 7 ], [ 5, 7 ], [ 7, 7 ]
+# ]
+
+? @@(w.CurrentPosition())
+#--> [ 1, 1 ]
+
+pf()
+# Executed in 0.08 second(s) in Ring 1.22
+
+# =======================
 # History & Reset Tests
-# ===============================
+# ======================
 
-Separator("TEST GROUP 6: History & Reset Tests")
+/*--- Walk history
 
-/*--- Test 6.1: Walk history
-test6_1 = new stzWalker2D([1, 1], [5, 5], 1)
-test6_1.Walk()
-test6_1.Walk()
-test6_1.WalkBackward()
-test6_1.Walk()
-? "Test 6.1: Walk history"
-? "Current position: " + @@(test6_1.CurrentPosition())
-? "History: " + @@(test6_1.Walks())
-? "Number of walks: " + test6_1.NumberOfWalks()
+pr()
 
-/*--- Test 6.2: Reset history
-test6_2 = new stzWalker2D([1, 1], [5, 5], 1)
-test6_2.WalkNSteps(3)
-? NL + "Test 6.2: Reset history"
-? "History before reset: " + @@(test6_2.Walks())
-test6_2.ResetHistory()
-? "History after reset: " + @@(test6_2.Walks())
-? "Current position: " + @@(test6_2.CurrentPosition())
+w = new stzWalker2D([1, 1], [5, 5], 1)
+w.Walk()
+w.Walk()
+w.WalkBackward()
+w.Walk()
 
-/*--- Test 6.3: Full reset
-test6_3 = new stzWalker2D([1, 1], [5, 5], 1)
-test6_3.WalkNSteps(3)
-? NL + "Test 6.3: Full reset"
-? "Position before reset: " + @@(test6_3.CurrentPosition())
-? "History before reset: " + @@(test6_3.Walks())
-test6_3.Reset()
-? "Position after reset: " + @@(test6_3.CurrentPosition())
-? "History after reset: " + @@(test6_3.Walks())
+? @@(w.CurrentPosition()) + NL
+#--> [ 3, 1 ]
 
-# ===============================
+? @@NL(w.Walks()) + NL
+#--> [
+#	[ [ 1, 1 ], [ 2, 1 ] ],		~> w.Walk()
+#	[ [ 2, 1 ], [ 3, 1 ] ], 	~> w.Walk()
+#	[ [ 3, 1 ], [ 2, 1 ] ], 	~> w.WalkBakcward()
+#	[ [ 2, 1 ], [ 3, 1 ] ]  	~> w.Walk()
+# ]
+
+? w.NumberOfWalks()
+#--> 4
+
+pf()
+# Executed in 0.08 second(s) in Ring 1.22
+
+/*--- Reset history
+
+pr()
+
+w = new stzWalker2D([1, 1], [5, 5], 1)
+
+w.WalkNSteps(3)
+
+# History before reset
+
+? @@NL(w.Walks()) # One walk for 3 steps
+#--> [
+#	[
+#		[ 1, 1 ],
+#		[ 2, 1 ],
+#		[ 3, 1 ],
+#		[ 4, 1 ]
+#	]
+# ]
+
+w.ResetHistory()
+
+# History after reset
+
+? @@NL(w.Walks()) + NL
+#--> []
+
+? @@(w.CurrentPosition())
+#--> [ 4, 1 ]
+
+pf()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*--- Full reset
+
+pr()
+
+w = new stzWalker2D([1, 1], [5, 5], 1)
+
+w.WalkNSteps(3)
+
+# Position before reset
+
+? @@(w.CurrentPosition())
+#--> [ 4, 1 ]
+
+# History before reset
+
+? @@NL(w.Walks()) + NL
+#--> [
+#	[
+#		[ 1, 1 ],
+#		[ 2, 1 ],
+#		[ 3, 1 ],
+#		[ 4, 1 ]
+#	]
+# ]
+
+w.Reset()
+
+# After reset
+
+? @@(w.CurrentPosition())
+#--> [ 1, 1 ]
+
+? @@(w.Walks())
+#--> [ ]
+
+pf()
+# Executed in 0.07 second(s) in Ring 1.22
+
+# ============
 # Edge Cases
-# ===============================
+# ============
 
-Separator("TEST GROUP 7: Edge Cases")
+/*--- Start equals end
 
-/*--- Test 7.1: Start equals end
-test7_1 = new stzWalker2D([3, 3], [3, 3], 1)
-? "Test 7.1: Start equals end"
-? "Start position: " + @@(test7_1.StartPosition())
-? "End position: " + @@(test7_1.EndPosition())
-? "Walkable positions: " + @@(test7_1.WalkablePositions())
-? "Walk attempt: " + @@(test7_1.Walk())
+pr()
 
-/*--- Test 7.2: Over-walking beyond end
-test7_2 = new stzWalker2D([1, 1], [5, 5], 2)
-? NL + "Test 7.2: Over-walking beyond end"
-? "Walkable positions: " + @@(test7_2.WalkablePositions())
-? "Number of walkable positions: " + test7_2.NumberOfWalkablePositions()
-? "Walk 10 steps (more than available): " + @@(test7_2.WalkNSteps(10))
-? "Current position: " + @@(test7_2.CurrentPosition())
+w = new stzWalker2D([3, 3], [3, 3], 1)
 
-/*--- Test 7.3: Negative steps
-test7_3 = new stzWalker2D([1, 1], [5, 5], [-1, -2])
-? NL + "Test 7.3: Negative steps"
-? "Start position: " + @@(test7_3.StartPosition())
-? "End position: " + @@(test7_3.EndPosition())
-? "Step size: " + @@(test7_3.Steps())
-? "Direction: " + test7_3.Direction()
-? "Walkable positions: " + @@(test7_3.WalkablePositions())
-? "Walk one step: " + @@(test7_3.Walk())
-? "Current position: " + @@(test7_3.CurrentPosition())
+? @@(w.StartPosition())
+#--> [ 3, 3 ]
 
-/*--- Test 7.4: Walk between invalid positions
-test7_4 = new stzWalker2D([1, 1], [5, 5], 1)
-? NL + "Test 7.4: Walk between invalid positions"
-? "Try walking between [1, 1] and [6, 6] (out of bounds): "
-try
-    ? @@(test7_4.WalkBetween([1, 1], [6, 6]))
-catch
-    ? "Error: Position [6, 6] is not walkable"
-done
+? @@(w.EndPosition())
+#--> [ 3, 3 ]
 
-/*--- Test 7.5: Set current position to invalid position
-test7_5 = new stzWalker2D([1, 1], [5, 5], 2)
-? NL + "Test 7.5: Set current position to invalid position"
-? "Try setting current position to [2, 2] (unwalkable): "
-try
-    test7_5.SetCurrentPosition(2, 2)
-    ? "Successfully set position to: " + @@(test7_5.CurrentPosition())
-catch
-    ? "Error: Position [2, 2] is not walkable"
-done
+? @@(w.WalkablePositions())
+#--> [ [ 3, 3 ] ]
+
+# Walk attempt
+
+? @@(w.Walk()) # Did not move ans stays on current position
+#--> [ [ 3, 3 ] ]
+
+pf()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*--- Over-walking beyond end
+
+pr()
+
+w = new stzWalker2D([1, 1], [5, 5], 2)
+
+? @@(w.Walkables())
+#--> [
+#	[ 1, 1 ], [ 3, 1 ], [ 5, 1 ],
+#	[ 2, 2 ], [ 4, 2 ],
+#	[ 1, 3 ], [ 3, 3 ], [ 5, 3 ],
+#	[ 2, 4 ], [ 4, 4 ],
+#	[ 1, 5 ], [ 3, 5 ], [ 5, 5 ]
+# ]
+
+? w.NumberOfWalkables()
+#--> 13
+
+# Walk 3 steps
+
+? @@(w.WalkNSteps(10)) + NL
+#--> [
+#	[ 1, 1 ], [ 3, 1 ], [ 5, 1 ],
+#	[ 2, 2 ], [ 4, 2 ],
+#	[ 1, 3 ], [ 3, 3 ], [ 5, 3 ],
+#	[ 2, 4 ], [ 4, 4 ],
+#	[ 1, 5 ]
+# ]
+
+? @@(w.RemainingWalkables()) + NL
+#--> [ [ 3, 5 ], [ 5, 5 ] ]
+
+# Walk 5 steps (more than available)
+
+? @@(w.WalkNSteps(5)) # Walks just the remaining steps
+#--> [ [ 1, 5 ], [ 3, 5 ], [ 5, 5 ] ]
+
+? @@(w.CurrentPosition())
+#--> [ 5, 5 ]
+
+pf()
+# Executed in 0.08 second(s) in Ring 1.22
+
+/*--- Negative steps
+
+pr()
+
+w = new stzWalker2D([1, 1], [5, 5], [3, -1])
+
+? @@(w.StartPosition())
+#--> [ 1, 1 ]
+
+? @@(w.EndPosition())
+#--> [ 5, 5 ]
+
+? @@(w.Steps())
+#--> [ 3, -1 ]
+
+? w.Direction()
+#--> forward
+
+? @@(w.Walkables()) + NL
+#--> [
+#	[ 1, 1 ], [ 4, 1 ], [ 3, 1 ],
+#	[ 1, 2 ],
+#	[ 5, 1 ],
+#	[ 3, 2 ], [ 2, 2 ], [ 5, 2 ], [ 4, 2 ],
+#	[ 2, 3 ], [ 1, 3 ], [ 4, 3 ], [ 3, 3 ],
+#	[ 1, 4 ],
+#	[ 5, 3 ],
+#	[ 3, 4 ], [ 2, 4 ], [ 5, 4 ], [ 4, 4 ],
+#	[ 2, 5 ], [ 1, 5 ], [ 4, 5 ], [ 3, 5 ]
+# ]
+
+? @@(w.Walk())
+#--> [ [ 1, 1 ], [ 4, 1 ] ]
+
+? @@(w.CurrentPosition())
+#--> [ 4, 1 ]
+
+pf()
+# Executed in 0.09 second(s) in Ring 1.22
+
+/*--- Walk between invalid positions
+
+pr()
+
+w = new stzWalker2D([1, 1], [5, 5], 1)
+
+# Try walking between [1, 1] and [6, 6] (out of bounds)
+
+w.WalkBetween([1, 1], [6, 6])
+#--> Can't walk between the positions! End position [6,6] is not walkable.
 
 pf()
 
+/*--- Set current position to invalid position
+
+pr()
+
+w = new stzWalker2D([1, 1], [5, 5], 2)
+
+? @@( w.Walkables() ) + NL
+#--> [
+#	[ 1, 1 ], [ 3, 1 ], [ 5, 1 ],
+#	[ 2, 2 ], [ 4, 2 ],
+#	[ 1, 3 ], [ 3, 3 ], [ 5, 3 ],
+#	[ 2, 4 ], [ 4, 4 ],
+#	[ 1, 5 ], [ 3, 5 ], [ 5, 5 ]
+# ]
+
+# Try setting current position to [2, 2] (unwalkable)
+
+? w.IsWalkable(2, 3)
+#--> FALSE
+
+w.SetCurrentPosition(2, 3)
+#--> ERROR: Incorrect params! [ 2, 3 ] do not correspond to a walkable position.
+
+pf()
+
+#---
+
+pr()
+
+w = new stzWalker2D([5, 1], [5, 5], [-4, -1])
+#--> ERROR: Incorrect steps! Attempting to walk before the first position.
+
+pf()
+
+/*---
+
+w = new stzWalker2D([5, 1], [5, 5], [-2, 1])
+#--> Error (R2) : Array Access (Index out of range)
 

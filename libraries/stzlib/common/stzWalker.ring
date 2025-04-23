@@ -14,7 +14,11 @@
 /////////////////////
 
 func Wk(pnStart, pnEnd, pSteps)
-	return new stzWalker(pnStart, pnEnd, pSteps)
+	if isList(pnStart) and isList(pnEnd)
+		return new stzWalker2D(pnStart, pnEnd, pSteps=
+	else
+		return new stzWalker(pnStart, pnEnd, pSteps)
+	ok
 
 	func StzWalkerQ(pnStart, pnEnd, pSteps)
 		return new stzWalker(pnStart, pnEnd, pSteps)
