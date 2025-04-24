@@ -804,64 +804,107 @@ class stzWalker2D
 	def Show()
 		? This.ToString()
 
-def ToString()
-    nMinX = min([@anStartPos[1], @anEndPos[1]])
-    nMaxX = max([@anStartPos[1], @anEndPos[1]])
-    nMinY = min([@anStartPos[2], @anEndPos[2]])
-    nMaxY = max([@anStartPos[2], @anEndPos[2]])
+	def ToString()
 
-    # Determine grid size based on the boundaries
-    nGridWidth = nMaxX - nMinX + 1
-    nGridHeight = nMaxY - nMinY + 1
+		# Calculate the actual grid bounds we need to display
 
-    # Create an empty grid filled with "."
-    aGrid = newlist(nGridHeight, nGridWidth)
-    for y = 1 to nGridHeight
-        for x = 1 to nGridWidth
-            aGrid[y][x] = "."
-        next
-    next
+		nMinX = 1 # Always start from 1
+		nMaxX = max([@anStartPos[1], @anEndPos[1]])
+		nMinY = 1 # Always start from 1
+		nMaxY = max([@anStartPos[2], @anEndPos[2]])
+	
+		# Determine grid size based on the boundaries
 
-    # Mark start and end positions
-    nStartX = @anStartPos[1] - nMinX + 1
-    nStartY = @anStartPos[2] - nMinY + 1
-    nEndX = @anEndPos[1] - nMinX + 1
-    nEndY = @anEndPos[2] - nMinY + 1
-    aGrid[nStartY][nStartX] = "S"
-    aGrid[nEndY][nEndX] = "E"
+		nGridWidth = nMaxX - nMinX + 1
+		nGridHeight = nMaxY - nMinY + 1
+	
+		# Create an empty grid filled with "."
 
-    # Mark walkable positions ("o" if walked, "." otherwise)
-    for pos in @aWalkables
-        nPosX = pos[1] - nMinX + 1
-        nPosY = pos[2] - nMinY + 1
-        if This._ListContains(This.WalkedPositions(), pos)
-            aGrid[nPosY][nPosX] = "o"
-        else
-            aGrid[nPosY][nPosX] = "."
-        ok
-    next
+		aGrid = newlist(nGridHeight, nGridWidth)
+		for y = 1 to nGridHeight
+			for x = 1 to nGridWidth
+				aGrid[y][x] = "."
+			next
+		next
+	
+		# Mark walkable positions with "o"
 
-    # Convert grid to string representation
-    sResult = ""
-    # Add X-axis labels
-    sResult += "   "  # Space for Y-axis labels
-    for x = 0 to nGridWidth - 1
-        sResult += ""+
-		     (x + nMinX) % 10 + " "
-    next
-    sResult += NL
+		nLen = len(@aWalkables)
+		for i = 1 to nLen
+			nPosX = @aWalkables[i][1] - nMinX + 1
+			nPosY = @aWalkables[i][2] - nMinY + 1
+			aGrid[nPosY][nPosX] = "o"
+		next
+	
+		# Mark start and end positions (these override
+		# any walkable markers)
 
-    # Add rows with Y-axis labels
-    for y = nGridHeight to 1 step -1
-        sResult += ""+
-		   ((y + nMinY - 1) % 10) + " |"  # Y-axis label
-        for x = 1 to nGridWidth
-            sResult += aGrid[y][x] + " "
-        next
-        sResult += NL
-    next
+		nStartX = @anStartPos[1] - nMinX + 1
+		nStartY = @anStartPos[2] - nMinY + 1
+		nEndX = @anEndPos[1] - nMinX + 1
+		nEndY = @anEndPos[2] - nMinY + 1
 
-    return sResult
+		aGrid[nStartY][nStartX] = "S"
+		aGrid[nEndY][nEndX] = "E"
+	
+		# Mark current position with "x" (this overrides
+		# any other marker)
+
+		nCurrX = @aCurrPosition[1] - nMinX + 1
+		nCurrY = @aCurrPosition[2] - nMinY + 1
+
+		aGrid[nCurrY][nCurrX] = "x"
+	
+		# Convert grid to string representation
+
+		sResult = ""
+	
+		# Add X-axis labels
+
+		sResult += "    "
+		for x = nMinX to nMaxX
+			sResult += ""+ (x % 10) + "  "
+		next
+		sResult += NL
+	
+		# Add top border with rounded corners with
+		# indicator for current X position
+
+		sResult += "  ╭"
+		for x = 1 to nGridWidth
+			if x = nCurrX
+				sResult += "─v─"
+			else
+				sResult += "───"
+			ok
+		next
+		sResult += "╮" + NL
+	
+		# Add rows with Y-axis labels and borders
+
+		for y = 1 to nGridHeight
+			# Add Y indicator for current position
+			if y = nCurrY
+				sResult += ""+ (y % 10) + " >"
+			else
+				sResult += ""+ (y % 10) + " │"
+			ok
+			
+			for x = 1 to nGridWidth
+				sResult += " " + aGrid[y][x] + " "
+			next
+			sResult += "│" + NL
+		next
+	
+		# Add bottom border with rounded corners
+
+		sResult += "  ╰"
+		for x = 1 to nGridWidth
+			sResult += "───"
+		next
+		sResult += "╯"
+	
+		return sResult
 
 		def Stringified()
 			return This.ToString()
