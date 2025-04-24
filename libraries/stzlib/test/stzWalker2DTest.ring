@@ -134,13 +134,23 @@ w = Wk2D([1, 1], [3, 3], 1)
 pf()
 # Executed in 0.07 second(s) in Ring 1.22
 
+    1 2 3 4 5 
+  ╭───────────╮
+3 │ S . o . o │
+4 │ . x . o . │
+5 │ o . o . o │
+6 │ . o . o . │
+7 │ o . o . o │
+8 │ . o . o E │
+  ╰───────────╯
+
 /*--- Initialize with reverse directions
 */
 pr()
 
 w = new stzWalker2D([1, 3], [5, 8], 2)
-? @@( w.Walkables() )
 
+? @@( w.Walkables() ) + NL
 #--> [
 #	[ 1, 3 ], [ 3, 3 ], [ 5, 3 ],
 #	[ 2, 4 ], [ 4, 4 ],
@@ -150,17 +160,21 @@ w = new stzWalker2D([1, 3], [5, 8], 2)
 #	[ 2, 8 ], [ 4, 8 ]
 # ]
 
-w.Show()
+w.WalkN(4)
 
-#   1 2 3 4 5
-# 1 . . . . .
-# 2 . . . . .
-# 3 S . o . o
-# 4 . o . o .
-# 5 o . o . o
-# 6 . o . o .
-# 7 o . o . o
-# 8 . o . E .
+w.Show()
+#-->
+#     1  2  3  4  5  
+#   ╭──────────v────╮
+# 1 │ .  .  .  .  . │
+# 2 │ .  .  .  .  . │
+# 3 │ S  .  o  .  o │
+# 4 > .  o  .  x  . │
+# 5 │ o  .  o  .  o │
+# 6 │ .  o  .  o  . │
+# 7 │ o  .  o  .  o │
+# 8 │ .  o  .  o  E │
+#   ╰───────────────╯
 
 pf()
 # Executed in 0.07 second(s) in Ring 1.22
