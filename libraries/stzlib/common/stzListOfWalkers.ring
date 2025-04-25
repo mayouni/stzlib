@@ -13,15 +13,20 @@
  ///   CLASS   ///
 /////////////////
 
-func Wks(aoWalkers)
+func Wks(paoWalkers)
+	try
+		return new stzListOfWalkers(paoWalkers)
+	catch
+		return new stzListOfWalkers2D(paoWalkers)
+	done
 
 class stzListOfWalkers
 
 	@aoWalkers = []
 
-	  #------------------------#
-	 #   INITIALIZATION      #
-	#------------------------#
+	  #---------------------#
+	 #   INITIALIZATION    #
+	#---------------------#
 
 	def init(paoWalkers)
 

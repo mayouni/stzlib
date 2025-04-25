@@ -97,9 +97,21 @@ class stzWalker2D
 		ok
 
 		# Handle different parameter formats
+
 		@anStartPos = panStart
 		@anEndPos = panEnd
 		@pSteps = pSteps
+
+
+		# Early check if 0s in positions
+
+		if ring_find(@anStartPos, 0) > 0 or ring_find(@anEndPos, 0) > 0
+			StzRaise("Incorrect param type! Start and end positions must not contain zeros.")
+		ok
+
+		if @anStartPos[1] = @anEndPos[1] and @anStartPos[2] = @anEndPos[2]
+			StzRaise("Can't create the stzWalker object! pnStart and pnEnd must be different.")
+		ok
 
 		# Calculate direction
 
@@ -121,6 +133,7 @@ class stzWalker2D
 			anTempSteps + @pSteps
 
 		else
+
 			if ring_find(@pSteps, 0)
 				StzRaise("Incorrect param value! @pSteps list must not contain a zero.")
 			ok
