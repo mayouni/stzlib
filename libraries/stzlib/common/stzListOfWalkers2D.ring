@@ -1,0 +1,957 @@
+#---------------------------------------------------------------------------#
+# 		  SOFTANZA LIBRARY (V1.0) - STZLISTOFWALKERS2D  	    #
+# 	  An accelerative library for Ring applications, and more!	    #
+#---------------------------------------------------------------------------#
+#									    #
+# 	Description : The class for managing lists of 2D walkers in Softanza #
+#	Version	    : V0.9 (2020-2025)				            #
+#	Author	    : Based on stzListOfWalkers by Mansour Ayouni	    #
+#								            #
+#---------------------------------------------------------------------------#
+
+  /////////////////////
+ ///   FUNCTIONS   ///
+/////////////////////
+
+func WksIn2D(paWalkers)
+	return new stzListOfWalkers2D(paWalkers)
+
+	func StzListOfWalkers2DQ(paWalkers)
+		return new stzListOfWalkers2D(paWalkers)
+
+  /////////////////
+ ///   CLASS   ///
+/////////////////
+
+class stzListOfWalkers2D
+
+	@aoWalkers = []
+
+	  #------------------------#
+	 #   INITIALIZATION      #
+	#------------------------#
+
+	def init(paWalkers)
+		if isList(paWalkers)
+			nLen = len(paWalkers)
+			for i = 1 to nLen
+				if NOT IsWalker2D(paWalkers[i])
+					StzRaise("Incorrect param type! All items must be stzWalker2D objects.")
+				ok
+			next
+			
+			@aoWalkers = paWalkers
+
+		but IsWalker2D(paWalkers)
+			@aoWalkers = [ paWalkers ]
+
+		else
+			StzRaise("Incorrect param type! paWalkers must be either a stzWalker2D object or a list of stzWalker2D objects.")
+		ok
+
+	  #------------------#
+	 #   GENERAL INFO   #
+	#------------------#
+
+	def Content()
+		return @aoWalkers
+
+		def Value()
+			return @aoWalkers
+
+		def Walkers()
+			return @aoWalkers
+
+		def WalkersObjects()
+			return @aoWalkers
+
+	def Copy()
+		return new stzListOfWalkers2D(This.Content())
+
+	def Size()
+		return len(@aoWalkers)
+
+		def Count()
+			return This.Size()
+
+		def NumberOfWalkers()
+			return This.Size()
+
+		def CountWalkers()
+			return This.Size()
+
+		def HowManyWalkers()
+			return This.Size()
+
+	def Walker(n)
+		if n < 1 or n > This.Size()
+			StzRaise("Index out of range!")
+		ok
+
+		return @aoWalkers[n]
+
+		def WalkerAt(n)
+			return This.Walker(n)
+
+	def FirstWalker()
+		return This.Walker(1)
+
+	def LastWalker()
+		return This.Walker(This.Size())
+
+	def AddWalker(oWalker)
+		if NOT IsWalker2D(oWalker)
+			StzRaise("Incorrect param type! oWalker must be a stzWalker2D object.")
+		ok
+
+		@aoWalkers + oWalker
+
+	def AddWalkers(paoWalkers)
+		nLen = len(paoWalkers)
+		for i = 1 to nLen
+			This.AddWalker(paoWalkers[i])
+		next
+
+	def RemoveWalker(n)
+		if n < 1 or n > This.Size()
+			StzRaise("Index out of range!")
+		ok
+
+		del(@aoWalkers, n)
+
+	def RemoveFirstWalker()
+		This.RemoveWalker(1)
+
+	def RemoveLastWalker()
+		This.RemoveWalker(This.Size())
+
+	  #----------------------------#
+	 #   COMPARATIVE OPERATIONS   #
+	#----------------------------#
+
+	def WalkerWithSmallestGrid()
+		if This.Size() = 0
+			StzRaise("Can't determine the walker with smallest grid. The list is empty!")
+		ok
+
+		nSmallestSize = This.Walker(1).NumberOfPositions()
+		nSmallestIndex = 1
+		nSize = This.Size()
+
+		for i = 2 to nSize
+			if This.Walker(i).NumberOfPositions() < nSmallestSize
+				nSmallestSize = This.Walker(i).NumberOfPositions()
+				nSmallestIndex = i
+			ok
+		next
+
+		return This.Walker(nSmallestIndex)
+
+		def MinGridWalker()
+			return This.WalkerWithSmallestGrid()
+
+	def WalkerWithLargestGrid()
+		if This.Size() = 0
+			StzRaise("Can't determine the walker with largest grid. The list is empty!")
+		ok
+
+		nLargestSize = This.Walker(1).NumberOfPositions()
+		nLargestIndex = 1
+		nSize = This.Size()
+
+		for i = 2 to nSize
+			if This.Walker(i).NumberOfPositions() > nLargestSize
+				nLargestSize = This.Walker(i).NumberOfPositions()
+				nLargestIndex = i
+			ok
+		next
+
+		return This.Walker(nLargestIndex)
+
+		def MaxGridWalker()
+			return This.WalkerWithLargestGrid()
+
+	def SmallestWalker()
+		if This.Size() = 0
+			StzRaise("Can't determine the smallest walker. The list is empty!")
+		ok
+
+		nSmallestSize = This.Walker(1).NumberOfWalkablePositions()
+		nSmallestIndex = 1
+		nSize = This.Size()
+
+		for i = 2 to nSize
+			if This.Walker(i).NumberOfWalkablePositions() < nSmallestSize
+				nSmallestSize = This.Walker(i).NumberOfWalkablePositions()
+				nSmallestIndex = i
+			ok
+		next
+
+		return This.Walker(nSmallestIndex)
+
+		def MinWalker()
+			return This.SmallestWalker()
+
+	def LargestWalker()
+		if This.Size() = 0
+			StzRaise("Can't determine the largest walker. The list is empty!")
+		ok
+
+		nLargestSize = This.Walker(1).NumberOfWalkablePositions()
+		nLargestIndex = 1
+		nSize = This.Size()
+
+		for i = 2 to nSize
+			if This.Walker(i).NumberOfWalkablePositions() > nLargestSize
+				nLargestSize = This.Walker(i).NumberOfWalkablePositions()
+				nLargestIndex = i
+			ok
+		next
+
+		return This.Walker(nLargestIndex)
+
+		def MaxWalker()
+			return This.LargestWalker()
+
+	def WalkerWithLeastSteps()
+		return This.SmallestWalker()
+
+	def WalkerWithMostSteps()
+		return This.LargestWalker()
+
+	def SortByGridSize()
+		aTemp = []
+		nSize = This.Size()
+
+		for i = 1 to nSize
+			aTemp + [ i, This.Walker(i).NumberOfPositions() ]
+		next
+
+		oTemp = new stzListOfPairs(aTemp)
+		oTemp.SortOnInAscending(2)
+		aTemp = oTemp.Content()
+		nLen = len(aTemp)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + @aoWalkers[aTemp[i][1]]
+		next
+
+		@aoWalkers = aResult
+
+	def SortByNumberOfWalkables()
+		aTemp = []
+		nSize = This.Size()
+
+		for i = 1 to nSize
+			aTemp + [ i, This.Walker(i).NumberOfWalkablePositions() ]
+		next
+
+		oTemp = new stzListOfPairs(aTemp)
+		oTemp.SortInAscendingOn(2)
+		aTemp = oTemp.Content()
+		nLen = len(aTemp)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + @aoWalkers[aTemp[i][1]]
+		next
+
+		@aoWalkers = aResult
+
+	def WalkersEqual(n1, n2)
+		nSize = This.Size()
+		if n1 < 1 or n1 > nSize or n2 < 1 or n2 > nSize
+			StzRaise("Index out of range!")
+		ok
+
+		oWalker1 = This.Walker(n1)
+		aWalkables1 = oWalker1.WalkablePositions()
+		nLen1 = len(aWalkables)
+
+		oWalker2 = This.Walker(n2)
+		aWalkables2 = oWalker2.WalkablePositions()
+		nLen2 = len(aWalkables)
+
+		if nLen1 != nLen2
+			return FALSE
+		ok
+
+		for i = 1 to nLen1
+			if aWalkables1[i][1] != aWalkables2[i][1] or aWalkables1[i][2] != aWalkables2[i][2]
+				return FALSE
+			ok
+		next
+
+		return TRUE
+
+	  #---------------------#
+	 #   WALKER ANALYSIS   #
+	#---------------------#
+
+	def AllWalkersUseTheSameSteps()
+		nSize = This.Size()
+		if nSize <= 1
+			return TRUE
+		ok
+
+		steps = This.Walker(1).Steps()
+
+		if isNumber(steps)
+			# If the first walker uses a single number step
+			nStep = steps
+			
+			for i = 2 to nSize
+				tempSteps = This.Walker(i).Steps()
+				if isNumber(tempSteps)
+					if tempSteps != nStep
+						return FALSE
+					ok
+				else
+					# One walker uses a list of steps while others use single number
+					return FALSE
+				ok
+			next
+		else
+			# If the first walker uses a list of steps
+			aSteps = This.Walker(1).Steps()
+			nLenSteps = len(aSteps)
+
+			for i = 2 to nSize
+				tempSteps = This.Walker(i).Steps()
+
+				if isNumber(tempSteps)
+					# One walker uses a single number while others use list
+					return FALSE
+				else
+					if len(tempSteps) != nLenSteps
+						return FALSE
+					ok
+
+					for j = 1 to nLenSteps
+						if tempSteps[j] != aSteps[j]
+							return FALSE
+						ok
+					next
+				ok
+			next
+		ok
+
+		return TRUE
+
+	def MostCommonStep()
+
+		nSize = This.Size()
+		if nSize = 0
+			StzRaise("Can't determine the most common step. The list is empty!")
+		ok
+
+		aSteps = []
+		aCounts = []
+
+		for i = 1 to nSize
+			pStep = This.Walker(i).Steps()
+			sStep = @@(pStep)  # Convert to string for comparison
+			nPos = ring_find(aSteps, sStep)
+
+			if nPos = 0
+				aSteps + sStep
+				aCounts + 1
+			else
+				aCounts[nPos]++
+			ok
+		next
+
+		nMaxCount = 0
+		nMaxIndex = 0
+		nLen = len(aCounts)
+
+		for i = 1 to nLen
+			if aCounts[i] > nMaxCount
+				nMaxCount = aCounts[i]
+				nMaxIndex = i
+			ok
+		next
+
+		return aSteps[nMaxIndex]
+
+	def WalkersWithStep(pStep)
+		aResult = []
+		sStep = @@(pStep)  # Convert to string for comparison
+		nSize = This.Size()
+
+		for i = 1 to nSize
+			oWalker = This.Walker(i)
+			if @@(oWalker.Steps()) = sStep
+				aResult + oWalker
+			ok
+		next
+
+		return new stzListOfWalkers2D(aResult)
+
+	def WalkablePositions()
+		aResult = []
+		nSize = This.Size()
+
+		for i = 1 to nSize
+			aResult + This.Walker(i).WalkablePositions()
+		next
+
+		return aResult
+
+		def Walkables()
+			return This.WalkablePositions()
+
+	def CommonWalkablePositions()
+		nSize = This.Size()
+		if nSize = 0
+			return []
+		ok
+
+		# Start with all walkables from first walker
+		aCommon = This.Walker(1).WalkablePositions()
+		
+		# Intersect with each subsequent walker
+		for i = 2 to nSize
+
+			aWalkables = This.Walker(i).WalkablePositions()
+			nLenWalkables = len(aWalkables)
+
+			aNewCommon = []
+			nLenComman = len(aCommon)
+
+			# Find positions that exist in both lists
+			for j = 1 to nLenComman
+				for k = 1 to nLenWalkables
+
+					if aCommon[j][1] = aWalkables[k][1] and 
+					   aCommon[j][2] = aWalkables[k][2]
+						aNewCommon + aCommon[j]
+						exit
+					ok
+				next
+			next
+			
+			aCommon = aNewCommon
+			
+			# If no common walkables left, exit early
+			if len(aCommon) = 0
+				return []
+			ok
+		next
+		
+		return aCommon
+
+		def OverlappingWalkablePositions()
+			return This.CommonWalkablePositions()
+
+		def SharedWalkablePositions()
+			return This.CommonWalkablePositions()
+
+	def WalkedPositions()
+		aResult = []
+		nSize = This.Size()
+
+		for i = 1 to nSize
+			aResult + This.Walker(i).WalkedPositions()
+		next
+
+		return aResult
+
+		def History()
+			return This.WalkedPositions()
+
+	  #-----------------#
+	 #   WALKER SYNC   #
+	#-----------------#
+
+	def SetCurrentPosition(nX, nY)
+		nLen = This.Size()
+
+		for i = 1 to nLen
+			if This.Walker(i).IsWalkable(nX, nY)
+				This.Walker(i).SetCurrentPosition(nX, nY)
+			ok
+		next
+
+		def SetCurrentPositionTo(nX, nY)
+			return This.SetCurrentPosition(nX, nY)
+
+	def SetAllToPosition(nX, nY)
+		nLen = This.Size()
+
+		for i = 1 to nLen
+			if This.Walker(i).IsWalkable(nX, nY)
+				This.Walker(i).SetCurrentPosition(nX, nY)
+			else
+				StzRaise("Position [" + nX + "," + nY + "] is not walkable for walker #" + i)
+			ok
+		next
+
+	  #-----------------------------#
+	 #   WALKER TRANSFORMATIONS    #
+	#-----------------------------#
+
+	def MergeWalkablePositions()
+
+		nSize = This.Size()
+
+		if nSize = 0
+			return []
+		ok
+		
+		aAllWalkables = []
+		
+		# Collect all walkable positions
+		for i = 1 to nSize
+			aWalkables = This.Walker(i).WalkablePositions()
+			nLen = len(aWalkables)
+
+			for j = 1 to nLen
+				# Check if position already exists
+				bExists = FALSE
+				nLenAll = len(aAllWalkables)
+				for k = 1 to nLenAll
+					if aAllWalkables[k][1] = aWalkables[j][1] and 
+					   aAllWalkables[k][2] = aWalkables[j][2]
+						bExists = TRUE
+						exit
+					ok
+				next
+				
+				if NOT bExists
+					aAllWalkables + aWalkables[j]
+				ok
+			next
+		next
+		
+		# Sort positions by X then Y
+		return This._SortPositions(aAllWalkables)
+
+		def MergeWalkables()
+			return This.MergeWalkablePositions()
+
+	  #-------------------#
+	 #   BULK WALKING    #
+	#-------------------#
+
+	def CurrentPositions()
+		anResult = []
+		nSize = This.Size()
+
+		for i = 1 to nSize
+			anResult + This.Walker(i).CurrentPosition()
+		next
+
+		return anResult
+
+	def WalkAllNSteps(n)
+
+		nSize = This.Size()
+		aResult = []
+
+		for i = 1 to nSize
+			aResult + @aoWalkers[i].WalkNSteps(n)
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def WalkNSteps(n)
+			return This.WalkAllNSteps(n)
+
+		#>
+
+	def WalkAllToTheirEnd()
+		nSize = This.Size()
+		aResult = []
+
+		for i = 1 to nSize
+			aResult + @aoWalkers[i].WalkToLast()
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def WalkAllToEnd()
+			return This.WalkAllToTheirEnd()
+
+		def WalkToEnd()
+			return This.WalkAllToTheirEnd()
+
+		#>
+
+	def RestartAllWalkers()
+		nSize = This.Size()
+		aResult = []
+
+		for i = 1 to nSize
+			aResult + @aoWalkers[i].WalkToFirst()
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def RestartWalkers()
+			return This.RestartAllWalkers()
+
+		def Restart()
+			return This.RestartAllWalkers()
+
+		def WalkToFirst()
+			This.RestartAllWalkers()
+
+		#>
+
+	def WalkToPosition(nX, nY)
+		nSize = This.Size()
+		aResult = []
+
+		for i = 1 to nSize
+			if @aoWalkers[i].IsWalkable(nX, nY)
+				aResult + @aoWalkers[i].WalkTo(nX, nY)
+			else
+				StzRaise("Position [" + nX + "," + nY + "] is not walkable for walker #" + i)
+			ok
+		next
+
+		return aResult
+
+		def WalkAllToPosition(nX, nY)
+			This.WalkToPosition(nX, nY)
+
+	def WalkIfPossible(nX, nY)
+
+		nSize = This.Size()
+
+		for i = 1 to nSize
+			if @aoWalkers[i].IsWalkable(nX, nY)
+				aResult + @aoWalkers[i].WalkTo(nX, nY)
+			ok
+		next
+
+		return aResult
+
+	  #------------------------#
+	 #  2D SPECIFIC METHODS   #
+	#------------------------#
+
+	def BoundingBox()
+
+		nSize = This.Size()
+
+		if nSize = 0
+			return [ 0, 0, 0, 0 ]  # Empty bounding box
+		ok
+		
+		# Initialize with extreme values
+
+		nMinX = 99999
+		nMinY = 99999
+		nMaxX = -99999
+		nMaxY = -99999
+		
+		# Iterate through all walkers and find min/max coordinates
+
+		for i = 1 to nSize
+
+			aPositions = This.Walker(i).Positions()
+			nLen = len(aPositions)
+
+			for j = 1 to nLen
+
+				nX = aPositions[j][1]
+				nY = aPositions[j][2]
+				
+				if nX < nMinX
+					nMinX = nX
+				ok
+				
+				if nX > nMaxX
+					nMaxX = nX
+				ok
+				
+				if nY < nMinY
+					nMinY = nY
+				ok
+				
+				if nY > nMaxY
+					nMaxY = nY
+				ok
+			next
+		next
+		
+		return [ nMinX, nMinY, nMaxX, nMaxY ]
+
+	def ContainsPosition(nX, nY)
+
+		nSize = This.Size()
+
+		for i = 1 to nSize
+			if This.Walker(i).IsWalkable(nX, nY)
+				return TRUE
+			ok
+		next
+		
+		return FALSE
+
+	def WalkersAtPosition(nX, nY)
+
+		aResult = []
+		nSize = This.Size()
+
+		for i = 1 to nSize
+			if This.Walker(i).IsWalkable(nX, nY)
+				aResult + i
+			ok
+		next
+		
+		return aResult
+
+	def Show()
+		? This.ToString()
+
+	def ToString()
+
+		aBoundingBox = This.BoundingBox()
+		nMinX = aBoundingBox[1]
+		nMinY = aBoundingBox[2]
+		nMaxX = aBoundingBox[3]
+		nMaxY = aBoundingBox[4]
+		
+		nGridWidth = nMaxX - nMinX + 1
+		nGridHeight = nMaxY - nMinY + 1
+		
+		# Create an empty grid filled with "."
+		aGrid = newlist(nGridHeight, nGridWidth)
+		for y = 1 to nGridHeight
+			for x = 1 to nGridWidth
+				aGrid[y][x] = "."
+			next
+		next
+		
+		# Mark each walker's walkable positions with numbers
+
+		nSize = This.Size()
+
+		for i = 1 to nSize
+
+			nWalkerNum = i % 10  # Use modulo to keep single digit
+			aWalkables = This.Walker(i).WalkablePositions()
+			nLen = len(aWalkables)
+
+			for j = 1 to nLen
+
+				nPosX = aWalkables[j][1] - nMinX + 1
+				nPosY = aWalkables[j][2] - nMinY + 1
+				
+				if nPosX > 0 and nPosY > 0 and nPosX <= nGridWidth and nPosY <= nGridHeight
+					# If position already has a different walker's mark, use "*" for overlap
+					if aGrid[nPosY][nPosX] != "." and aGrid[nPosY][nPosX] != "" + nWalkerNum
+						aGrid[nPosY][nPosX] = "*"
+					else
+						aGrid[nPosY][nPosX] = "" + nWalkerNum
+					ok
+				ok
+			next
+			
+			# Mark each walker's current position with "C"+number
+
+			aCurrPos = This.Walker(i).CurrentPosition()
+			nCurrX = aCurrPos[1] - nMinX + 1
+			nCurrY = aCurrPos[2] - nMinY + 1
+			
+			if nCurrX > 0 and nCurrY > 0 and nCurrX <= nGridWidth and nCurrY <= nGridHeight
+				aGrid[nCurrY][nCurrX] = "C" + nWalkerNum
+			ok
+		next
+		
+		# Convert grid to string representation
+		# Add X-axis labels
+
+		sResult = "    "
+		for x = nMinX to nMaxX
+			sResult += ""+ (x % 10) + "  "
+		next
+		sResult += NL
+		
+		# Add top border
+		sResult += "  ╭"
+		for x = 1 to nGridWidth
+			sResult += "───"
+		next
+		sResult += "╮" + NL
+		
+		# Add rows with Y-axis labels and borders
+		for y = 1 to nGridHeight
+			sResult += ""+ ((y+nMinY-1) % 10) + " │"
+			
+			for x = 1 to nGridWidth
+				sResult += " " + aGrid[y][x] + " "
+			next
+			sResult += "│" + NL
+		next
+		
+		# Add bottom border
+		sResult += "  ╰"
+		for x = 1 to nGridWidth
+			sResult += "───"
+		next
+		sResult += "╯" + NL
+		
+		# Add legend
+		sResult += NL + "Legend:" + NL
+		sResult += "  . = Empty position" + NL
+		sResult += "  1-9 = Walker's walkable position" + NL
+		sResult += "  * = Overlapping walkable positions" + NL
+		sResult += "  C# = Current position of walker #" + NL
+		
+		return sResult
+
+		def Stringified()
+			return This.ToString()
+
+	  #-------------------#
+	 #  FINDING WALKERS  #
+	#-------------------#
+
+	def FindWalkersWithPositions(paPositions)
+
+		if NOT isList(paPositions)
+			StzRaise("Incorrect param type! paPositions must be a list of [x,y] positions.")
+		ok
+		
+		aResult = []
+		nSize = This.Size()
+		nLenPos = len(paPositions)
+
+		for i = 1 to nSize
+
+			bContainsAll = TRUE
+			
+			for j = 1 to nLenPos
+				if NOT This.Walker(i).IsWalkable(paPositions[j][1], paPositions[j][2])
+					bContainsAll = FALSE
+					exit
+				ok
+			next
+			
+			if bContainsAll
+				aResult + i
+			ok
+		next
+		
+		return aResult
+
+		def FindWalkersContainingPositions(paPositions)
+			return This.FindWalkersWithPositions(paPositions)
+
+		def FindWalkersOnPositions(paPositions)
+			return This.FindWalkersWithPositions(paPositions)
+
+	def FindWalkersWithinBoundingBox(nX1, nY1, nX2, nY2)
+
+		aResult = []
+		nSize = This.Size()
+
+		for i = 1 to nSize
+			aBBox = This._GetWalkerBoundingBox(This.Walker(i))
+			
+			# Check if walker's bounding box is completely within the given box
+			if aBBox[1] >= nX1 and aBBox[2] >= nY1 and 
+			   aBBox[3] <= nX2 and aBBox[4] <= nY2
+				aResult + i
+			ok
+		next
+		
+		return aResult
+
+	def FindWalkersIntersectingPath(paPositions)
+
+		if NOT isList(paPositions)
+			StzRaise("Incorrect param type! paPositions must be a list of [x,y] positions.")
+		ok
+		
+		aResult = []
+		nSize = This.Size()
+		nLenPos = len(paPositions)
+
+		for i = 1 to nSize
+
+			bIntersects = FALSE
+			
+			for j = 1 to nLenPos
+				if This.Walker(i).IsWalkable(paPositions[j][1], paPositions[j][2])
+					bIntersects = TRUE
+					exit
+				ok
+			next
+			
+			if bIntersects
+				aResult + i
+			ok
+		next
+		
+		return aResult
+
+	  #----------------------#
+	 #   HELPER METHODS     #
+	#----------------------#
+
+	def _GetWalkerBoundingBox(oWalker)
+		aPositions = oWalker.Positions()
+		nLenPos = len(aPositions)
+
+		if nLenPos = 0
+			return [0, 0, 0, 0]
+		ok
+		
+		nMinX = 99999
+		nMinY = 99999
+		nMaxX = -99999
+		nMaxY = -99999
+		
+		for i = 1 to nLenPos
+			nX = aPositions[i][1]
+			nY = aPositions[i][2]
+			
+			if nX < nMinX
+				nMinX = nX
+			ok
+			
+			if nX > nMaxX
+				nMaxX = nX
+			ok
+			
+			if nY < nMinY
+				nMinY = nY
+			ok
+			
+			if nY > nMaxY
+				nMaxY = nY
+			ok
+		next
+		
+		return [ nMinX, nMinY, nMaxX, nMaxY ]
+
+	def _SortPositions(aPositions)
+		# Simple bubble sort to order positions by X, then Y
+		nLen = len(aPositions)
+		
+		for i = 1 to nLen - 1
+			for j = 1 to nLen - i
+				if aPositions[j][1] > aPositions[j+1][1] or 
+				  (aPositions[j][1] = aPositions[j+1][1] and aPositions[j][2] > aPositions[j+1][2])
+					temp = aPositions[j]
+					aPositions[j] = aPositions[j+1]
+					aPositions[j+1] = temp
+				ok
+			next
+		next
+		
+		return aPositions

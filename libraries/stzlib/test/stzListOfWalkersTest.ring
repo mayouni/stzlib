@@ -68,7 +68,7 @@ o1 = new stzListOfWalkers([w1, w2, w3])
 #--> [ 1, 2, 4, 6, 7, 8, 10, 12 ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Balk walking operations
 
@@ -99,19 +99,28 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Advanced walking strategies
-
+*/
 pr()
     
 wa = new stzWalker(1, 10, 1)
-wb = new stzWalker(5, 25, 5)
+? @@(wa.Walkables())
+#--> [ 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+
+wb = new stzWalker(1, 25, 4)
+? @@(wb.Walkables())
+#--> [ 5, 10, 15, 20, 25 ]
+
 wc = new stzWalker(3, 15, 2)
+? @@(wc.Walkables())
+#--> [ 3, 5, 7, 9, 11, 13, 15 ]
 
 o1 = new stzListOfWalkers([ wa, wb, wc ])
+
 ? @@( o1.CommonWalkables() )
-#--> [ 5 ]
+#--> [ 5, 9 ]
 
 ? @@( o1.CurrentPositions() )
-#--> [ 1, 5, 3 ]
+#--> [ 1, 1, 3 ]
 
 # Synchronizing all the walkers at position 5
 
@@ -119,23 +128,27 @@ o1.WalkToPosition(5)
 ? @@( o1.CurrentPositions() )
 #--> [ 5, 5, 5 ]
 
+o1.WalkNSteps(3)
+? @@( o1.CurrentPositions() )
+#--> [ 8, 17, 11 ]
+
 # Reset them at their respective first positions
 
 o1.Restart()
 ? @@( o1.CurrentPositions() )
-#--> [ 1, 5, 3 ]
+#--> [ 1, 1, 3 ]
     
 # Walk all walkers 2 steps from current position
 
 o1.WalkAllNSteps(2)
 ? @@( o1.CurrentPositions() )
-#--> [ 3, 15, 7 ]
-    
+#--> [ 3, 9, 7 ]
+
 pf()
 # Executed in 0.03 second(s) in Ring 1.22
 
-#--- FINDING PATHS
-*/
+/*--- FINDING PATHS
+
 pr()
 
 o1 = new stzListOfWalkers([

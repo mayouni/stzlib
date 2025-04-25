@@ -112,8 +112,8 @@ t0 = clock()
 
 	load "common/stzWalker.ring"
 	load "common/stzListOfWalkers.ring"
-
 	load "common/stzWalker2D.ring"
+	load "common/stzListOfWalkers2D.ring"
 
 	load "common/stzCounter.ring"
 	load "common/stzParser.ring"
