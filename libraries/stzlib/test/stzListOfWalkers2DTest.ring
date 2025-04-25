@@ -1,13 +1,7 @@
-/*=============================================
- * SOFTANZA LIBRARY - STZLISTOFWALKERS2D TESTS
- *=============================================
- * This file contains comprehensive tests for the stzListOfWalkers2D class
- * demonstrating various features, functionalities, and edge cases.
- */
 
 load "../max/stzmax.ring"
 
-/*--- Initialize with factory functions WksIn2D() and StzListOfWalkers2DQ()
+/*--- Initialize with factory functions Wks2D() and StzListOfWalkers2DQ()
 
 pr()
 
@@ -19,7 +13,7 @@ w3 = new stzWalker2D([0,0], [4,4], 2)
 
 # Create a list of walkers using factory functions
 
-walkers1 = WksIn2D([w1, w2])
+walkers1 = Wks([w1, w2])
 walkers2 = StzListOfWalkers2DQ([w1, w2, w3])
 
 # Number of walkers in walkers1
@@ -34,86 +28,103 @@ pf()
 # Executed in 0.20 second(s) in Ring 1.22
 
 /*--- Access walkers and their properties
-*/
+
 pr()
 
-walkers = WksIn2D([
-    new stzWalker2D([0,0], [2,2], 1),
-    new stzWalker2D([1,1], [3,3], 1),
-    new stzWalker2D([0,0], [4,4], 2)
+walkers = Wks([
+    Wk([0,0], [2,2], 1),
+    Wk([1,1], [3,3], 1),
+    Wk([0,0], [4,4], 2)
 ])
 
 ? @@(walkers.FirstWalker().StartPosition())
-#--> First walker start position: [0,0]
+#--> [ 0, 0 ]
 
 ? @@(walkers.LastWalker().EndPosition())
-#--> Last walker end position: [4,4]
+#--> [ 4, 4 ]
 
 ? @@(walkers.Walker(2).Steps())
 #--> Walker at position 2 step size: 1
 
 pf()
+
 /*--- Add and remove walkers
 
 pr()
 
-walkers = WksIn2D([new stzWalker2D([0,0], [2,2], 1)])
+walkers = Wks([ Wk([0,0], [2,2], 1) ])
 
-? "Initial size: " + walkers.Size()
-#--> Initial size: 1
+# Initial size
 
-walkers.AddWalker(new stzWalker2D([1,1], [3,3], 1))
-? "Size after adding one walker: " + walkers.Size()
-#--> Size after adding one walker: 2
+? walkers.Size()
+#--> 1
+
+walkers.AddWalker(Wk([1,1], [3,3], 1))
+
+# Size after adding one walker
+
+? walkers.Size()
+#--> 2
 
 walkers.AddWalkers([
-    new stzWalker2D([0,0], [4,4], 2),
-    new stzWalker2D([5,5], [7,7], 1)
+    Wk([0,0], [4,4], 2),
+    Wk([5,5], [7,7], 1)
 ])
-? "Size after adding multiple walkers: " + walkers.Size()
-#--> Size after adding multiple walkers: 4
+
+# Size after adding multiple walkers
+? walkers.Size()
+#--> 4
 
 walkers.RemoveWalker(2)
-? "Size after removing one walker: " + walkers.Size()
-#--> Size after removing one walker: 3
+
+# Size after removing one walker
+? walkers.Size()
+#--> 3
 
 walkers.RemoveFirstWalker()
-? "Size after removing first walker: " + walkers.Size()
-#--> Size after removing first walker: 2
+
+# Size after removing first walker
+? walkers.Size()
+#--> 2
 
 walkers.RemoveLastWalker()
-? "Size after removing last walker: " + walkers.Size()
-#--> Size after removing last walker: 1
+
+# Size after removing last walker
+? walkers.Size()
+#--> 1
 
 pf()
+# Executed in 0.34 second(s) in Ring 1.22
+
 /*--- Comparative operations - finding smallest/largest walker
 
 pr()
 
-walkers = WksIn2D([
-    new stzWalker2D([0,0], [2,2], 1),   // 9 positions total
-    new stzWalker2D([0,0], [1,1], 1),   // 4 positions total
-    new stzWalker2D([0,0], [4,4], 2)    // 9 positions total but larger steps
+walkers = Wks2D([
+    new stzWalker2D([1,1], [3,3], 1),
+    new stzWalker2D([1,1], [2,2], 1),
+    new stzWalker2D([1,1], [5,5], 2)
 ])
 
-smallestGridWalker = walkers.WalkerWithSmallestGrid()
-? "Smallest grid walker bounds: " + @@(smallestGridWalker.StartPosition()) + " to " + @@(smallestGridWalker.EndPosition())
-#--> Smallest grid walker bounds: [0,0] to [1,1]
+oSmallestWalker = walkers.SmallestWalker()
 
-largestGridWalker = walkers.WalkerWithLargestGrid()
-? "Largest grid walker bounds: " + @@(largestGridWalker.StartPosition()) + " to " + @@(largestGridWalker.EndPosition())
-#--> Largest grid walker bounds: [0,0] to [4,4]
+	? @@(oSmallestWalker.StartPosition())
+	#--> [ 1, 1 ]
 
-// Note: These methods count walkable positions, which may differ from grid size
-smallestWalker = walkers.SmallestWalker()
-? "Smallest walker bounds: " + @@(smallestWalker.StartPosition()) + " to " + @@(smallestWalker.EndPosition())
-#--> Smallest walker bounds: [0,0] to [1,1]
+	? @@(oSmallestWalker.EndPosition())
+	#--> [ 2, 2 ]
 
-largestWalker = walkers.LargestWalker()
-? "Largest walker bounds: " + @@(largestWalker.StartPosition()) + " to " + @@(largestWalker.EndPosition())
-#--> Largest walker bounds: [0,0] to [2,2]
+oLargestWalker = walkers.LargestWalker()
+
+	? @@(oLargestWalker.StartPosition())
+	#--> [ 1, 1 ]
+
+	? @@(oLargestWalker.EndPosition())
+	#--> [ 5, 5 ]
 
 pf()
+# Executed in 0.20 second(s) in Ring 1.22
+
 /*--- Working with walker steps and equality
 
 pr()
@@ -123,92 +134,98 @@ w2 = new stzWalker2D([0,0], [2,2], 1)
 w3 = new stzWalker2D([1,1], [3,3], 1)
 w4 = new stzWalker2D([0,0], [2,2], 2)
 
-walkers = WksIn2D([w1, w2, w3, w4])
+walkers = Wks2D([w1, w2, w3, w4])
 
-? "All walkers use the same steps? " + walkers.AllWalkersUseTheSameSteps()
-#--> All walkers use the same steps? FALSE
+# All walkers use the same steps?
+? walkers.AllWalkersHaveSameSteps()
+#--> FALSE
 
-sameStepWalkers = WksIn2D([w1, w2, w3])
-? "These walkers use the same steps? " + sameStepWalkers.AllWalkersUseTheSameSteps()
-#--> These walkers use the same steps? TRUE
+oSameStepWalkers = Wks2D([w1, w2, w3])
+? oSameStepWalkers.AllWalkersHaveSameSteps()
+#--> TRUE
 
-? "Walker 1 and 2 are equal? " + walkers.WalkersEqual(1, 2)
-#--> Walker 1 and 2 are equal? TRUE
+# Walker 1 and 2 are equal
+? walkers.WalkersEqual(1, 2)
+#--> TRUE
 
-? "Walker 1 and 3 are equal? " + walkers.WalkersEqual(1, 3)
-#--> Walker 1 and 3 are equal? FALSE
+? walkers.WalkersEqual(1, 3)
+#--> FALSE
 
-? "Walker 1 and 4 are equal? " + walkers.WalkersEqual(1, 4)
-#--> Walker 1 and 4 are equal? FALSE
+? walkers.WalkersEqual(1, 4)
+#--> FALSE
 
 pf()
+
+# Executed in 0.25 second(s) in Ring 1.22
+
 /*--- Walkable positions analysis
 
 pr()
 
-w1 = new stzWalker2D([0,0], [1,1], 1)
-w2 = new stzWalker2D([0,0], [1,0], 1)
-w3 = new stzWalker2D([1,0], [1,1], 1)
+w1 = new stzWalker2D([1,1], [2,2], 1)
+w2 = new stzWalker2D([1,1], [2,1], 1)
+w3 = new stzWalker2D([2,1], [2,2], 1)
 
-walkers = WksIn2D([w1, w2, w3])
+o1 = Wks2D([w1, w2, w3])
 
-? "All walkable positions (all walkers): "
-walkablePositions = walkers.WalkablePositions()
-for position in walkablePositions
-    ? "- " + @@(position)
-next
-#--> All walkable positions (all walkers):
-#--> - [0,0]
-#--> - [0,1]
-#--> - [1,0]
-#--> - [1,1]
-#--> - [0,0]
-#--> - [1,0]
-#--> - [1,0]
-#--> - [1,1]
+? @@NL( o1.Walkables() ) + NL
+#--> [
+#	[
+#		[ 1, 1 ],
+#		[ 2, 1 ],
+#		[ 1, 2 ],
+#		[ 2, 2 ]
+#	],
+#	[
+#		[ 1, 1 ],
+#		[ 2, 1 ]
+#	],
+#	[
+#		[ 2, 1 ],
+#		[ 2, 2 ]
+#	]
+# ]
 
-? "Common walkable positions: "
-commonPositions = walkers.CommonWalkablePositions()
-for position in commonPositions
-    ? "- " + @@(position)
-next
-#--> Common walkable positions:
-#--> - [1,0]
 
-? "Merged walkable positions (unique): "
-mergedPositions = walkers.MergeWalkablePositions()
-for position in mergedPositions
-    ? "- " + @@(position)
-next
-#--> Merged walkable positions (unique):
-#--> - [0,0]
-#--> - [0,1]
-#--> - [1,0]
-#--> - [1,1]
+? @@( o1.CommonWalkables() ) + NL
+#--> [ [ 2, 1 ] ]
+
+# Merged walkable positions (unique)
+
+? @@(o1.MergedWalkables())
+#--> [ [ 1, 1 ], [ 1, 2 ], [ 2, 1 ], [ 2, 2 ] ]
 
 pf()
+# Executed in 0.20 second(s) in Ring 1.22
+
 /*--- Walking operations
 
 pr()
 
+? IsWalker2D([ [0,0], [2,2] ])
+#--> FALSE
+
 w1 = new stzWalker2D([0,0], [2,2], 1)
+#--> ERROR: Incorrect param type! Start and end positions must not contain zeros.
+
+pf()
+
+/*---
+*/
+pr()
+
 w2 = new stzWalker2D([1,1], [3,3], 1)
 
-walkers = WksIn2D([w1, w2])
+o1 = Wks2D([w1, w2])
 
-? "Initial positions:"
-for i = 1 to walkers.Size()
-    ? "Walker " + i + ": " + @@(walkers.Walker(i).CurrentPosition())
-next
-#--> Initial positions:
-#--> Walker 1: [0,0]
-#--> Walker 2: [1,1]
+? @@( o1.CurrentPositions() )
+#--> [ [ 0, 0 ], [ 1, 1 ] ]
 
-walkers.WalkAllNSteps(2)
-? "After walking 2 steps:"
-for i = 1 to walkers.Size()
-    ? "Walker " + i + ": " + @@(walkers.Walker(i).CurrentPosition())
-next
+o1.WalkAllNSteps(2)
+
+? @@( o1.CurrentPositions() )
+#--> 
+/*
 #--> After walking 2 steps:
 #--> Walker 1: [0,2]
 #--> Walker 2: [1,3]
@@ -230,7 +247,7 @@ next
 #--> After restarting:
 #--> Walker 1: [0,0]
 #--> Walker 2: [1,1]
-
+*/
 pf()
 /*--- Setting positions and walking to specific positions
 
@@ -239,7 +256,7 @@ pr()
 w1 = new stzWalker2D([0,0], [2,2], 1)
 w2 = new stzWalker2D([1,1], [3,3], 1)
 
-walkers = WksIn2D([w1, w2])
+walkers = Wks2D([w1, w2])
 
 walkers.SetCurrentPosition(1, 1)
 ? "After setting position to [1,1]:"
@@ -276,7 +293,7 @@ pr()
 w1 = new stzWalker2D([0,0], [2,2], 1)
 w2 = new stzWalker2D([1,1], [3,3], 1)
 
-walkers = WksIn2D([w1, w2])
+walkers = Wks2D([w1, w2])
 
 boundingBox = walkers.BoundingBox()
 ? "Bounding box: " + @@(boundingBox)
@@ -303,7 +320,7 @@ w1 = new stzWalker2D([0,0], [2,2], 1)
 w2 = new stzWalker2D([1,1], [3,3], 1)
 w3 = new stzWalker2D([4,4], [6,6], 1)
 
-walkers = WksIn2D([w1, w2, w3])
+walkers = Wks2D([w1, w2, w3])
 
 ? "Walkers containing position [1,1]: " + @@(walkers.FindWalkersContainingPositions([[1,1]]))
 #--> Walkers containing position [1,1]: [1,2]
@@ -322,7 +339,7 @@ pf()
 
 pr()
 
-emptyWalkers = WksIn2D([])
+emptyWalkers = Wks2D([])
 
 ? "Size of empty walkers: " + emptyWalkers.Size()
 #--> Size of empty walkers: 0
@@ -349,7 +366,7 @@ pf()
 
 pr()
 
-singleWalker = WksIn2D([new stzWalker2D([0,0], [2,2], 1)])
+singleWalker = Wks2D([new stzWalker2D([0,0], [2,2], 1)])
 
 ? "Size: " + singleWalker.Size()
 #--> Size: 1
@@ -372,7 +389,7 @@ pr()
 w1 = new stzWalker2D([0,0], [2,2], 1)            // Single step
 w2 = new stzWalker2D([0,0], [2,2], [1, 2, 1])    // List of steps
 
-mixedStepWalkers = WksIn2D([w1, w2])
+mixedStepWalkers = Wks2D([w1, w2])
 
 ? "All walkers use the same steps? " + mixedStepWalkers.AllWalkersUseTheSameSteps()
 #--> All walkers use the same steps? FALSE
@@ -392,7 +409,7 @@ pr()
 w1 = new stzWalker2D([0,0], [2,2], 1)
 w2 = new stzWalker2D([1,1], [3,3], 1)
 
-walkers = WksIn2D([w1, w2])
+walkers = Wks2D([w1, w2])
 
 try
     walkers.Walker(3)
@@ -424,7 +441,7 @@ pf()
 pr()
 
 try
-    invalidWalkers = WksIn2D("not a list")
+    invalidWalkers = Wks2D("not a list")
     ? "This should not be reached"
 catch
     ? "Error: Invalid parameter type"
@@ -432,7 +449,7 @@ end
 #--> Error: Invalid parameter type
 
 try
-    invalidWalkers = WksIn2D([1, 2, 3])
+    invalidWalkers = Wks2D([1, 2, 3])
     ? "This should not be reached"
 catch
     ? "Error: Items must be stzWalker2D objects"
@@ -448,7 +465,7 @@ w1 = new stzWalker2D([0,0], [3,3], 1)
 w2 = new stzWalker2D([2,2], [5,5], 1)
 w3 = new stzWalker2D([4,0], [4,4], 1)
 
-walkers = WksIn2D([w1, w2, w3])
+walkers = Wks2D([w1, w2, w3])
 
 // Set different positions for each walker
 w1.WalkTo(1, 2)
@@ -467,7 +484,7 @@ w1 = new stzWalker2D([0,0], [2,2], 1)        // Constant step of 1
 w2 = new stzWalker2D([0,0], [4,4], 2)        // Constant step of 2
 w3 = new stzWalker2D([0,0], [3,3], [1,2,1])  // Variable step pattern
 
-walkers = WksIn2D([w1, w2, w3])
+walkers = Wks2D([w1, w2, w3])
 
 // Walk each 3 steps and check positions
 walkers.WalkAllNSteps(3)

@@ -15,7 +15,7 @@
 
 func Wk(pnStart, pnEnd, pSteps)
 	if isList(pnStart) and isList(pnEnd)
-		return new stzWalker2D(pnStart, pnEnd, pSteps=
+		return new stzWalker2D(pnStart, pnEnd, pSteps)
 	else
 		return new stzWalker(pnStart, pnEnd, pSteps)
 	ok
@@ -108,9 +108,13 @@ class stzWalker
 				pSteps = pSteps[2]
 			ok
 		ok
-	
-		# Some logical checks
-	
+
+		# Early checks of positions
+
+		if pnStart = 0 or pnEnd = 0
+			StzRaise("Incorrect param type! Start and end positions must not be zeros.")
+		ok
+
 		if pnStart = pnEnd
 			StzRaise("Can't create the stzWalker object! pnStart and pnEnd must be different.")
 		ok

@@ -13,7 +13,7 @@
  ///   FUNCTIONS   ///
 /////////////////////
 
-func WksIn2D(paWalkers)
+func Wks2D(paWalkers)
 	return new stzListOfWalkers2D(paWalkers)
 
 	func StzListOfWalkers2DQ(paWalkers)
@@ -27,27 +27,25 @@ class stzListOfWalkers2D
 
 	@aoWalkers = []
 
-	  #------------------------#
-	 #   INITIALIZATION      #
-	#------------------------#
+	  #--------------------#
+	 #   INITIALIZATION   #
+	#--------------------#
 
-	def init(paWalkers)
-		if isList(paWalkers)
-			nLen = len(paWalkers)
-			for i = 1 to nLen
-				if NOT IsWalker2D(paWalkers[i])
-					StzRaise("Incorrect param type! All items must be stzWalker2D objects.")
-				ok
-			next
-			
-			@aoWalkers = paWalkers
+	def init(paoWalkers)
 
-		but IsWalker2D(paWalkers)
-			@aoWalkers = [ paWalkers ]
-
-		else
-			StzRaise("Incorrect param type! paWalkers must be either a stzWalker2D object or a list of stzWalker2D objects.")
+		if NOT isList(paoWalkers)
+			StzRaise("Incorrect param type! paoWalkers must be a list.")
 		ok
+
+		nLen = len(paoWalkers)
+
+		for i = 1 to nLen
+			if NOT @IsWalker2D(paoWalkers[i])
+				StzRaise("Incorrect param type! All items must be stzWalker2D objects.")
+			ok
+		next
+			
+		@aoWalkers = paoWalkers
 
 	  #------------------#
 	 #   GENERAL INFO   #
@@ -129,48 +127,6 @@ class stzListOfWalkers2D
 	 #   COMPARATIVE OPERATIONS   #
 	#----------------------------#
 
-	def WalkerWithSmallestGrid()
-		if This.Size() = 0
-			StzRaise("Can't determine the walker with smallest grid. The list is empty!")
-		ok
-
-		nSmallestSize = This.Walker(1).NumberOfPositions()
-		nSmallestIndex = 1
-		nSize = This.Size()
-
-		for i = 2 to nSize
-			if This.Walker(i).NumberOfPositions() < nSmallestSize
-				nSmallestSize = This.Walker(i).NumberOfPositions()
-				nSmallestIndex = i
-			ok
-		next
-
-		return This.Walker(nSmallestIndex)
-
-		def MinGridWalker()
-			return This.WalkerWithSmallestGrid()
-
-	def WalkerWithLargestGrid()
-		if This.Size() = 0
-			StzRaise("Can't determine the walker with largest grid. The list is empty!")
-		ok
-
-		nLargestSize = This.Walker(1).NumberOfPositions()
-		nLargestIndex = 1
-		nSize = This.Size()
-
-		for i = 2 to nSize
-			if This.Walker(i).NumberOfPositions() > nLargestSize
-				nLargestSize = This.Walker(i).NumberOfPositions()
-				nLargestIndex = i
-			ok
-		next
-
-		return This.Walker(nLargestIndex)
-
-		def MaxGridWalker()
-			return This.WalkerWithLargestGrid()
-
 	def SmallestWalker()
 		if This.Size() = 0
 			StzRaise("Can't determine the smallest walker. The list is empty!")
@@ -213,33 +169,6 @@ class stzListOfWalkers2D
 		def MaxWalker()
 			return This.LargestWalker()
 
-	def WalkerWithLeastSteps()
-		return This.SmallestWalker()
-
-	def WalkerWithMostSteps()
-		return This.LargestWalker()
-
-	def SortByGridSize()
-		aTemp = []
-		nSize = This.Size()
-
-		for i = 1 to nSize
-			aTemp + [ i, This.Walker(i).NumberOfPositions() ]
-		next
-
-		oTemp = new stzListOfPairs(aTemp)
-		oTemp.SortOnInAscending(2)
-		aTemp = oTemp.Content()
-		nLen = len(aTemp)
-
-		aResult = []
-
-		for i = 1 to nLen
-			aResult + @aoWalkers[aTemp[i][1]]
-		next
-
-		@aoWalkers = aResult
-
 	def SortByNumberOfWalkables()
 		aTemp = []
 		nSize = This.Size()
@@ -269,11 +198,11 @@ class stzListOfWalkers2D
 
 		oWalker1 = This.Walker(n1)
 		aWalkables1 = oWalker1.WalkablePositions()
-		nLen1 = len(aWalkables)
+		nLen1 = len(aWalkables1)
 
 		oWalker2 = This.Walker(n2)
 		aWalkables2 = oWalker2.WalkablePositions()
-		nLen2 = len(aWalkables)
+		nLen2 = len(aWalkables2)
 
 		if nLen1 != nLen2
 			return FALSE
@@ -287,11 +216,14 @@ class stzListOfWalkers2D
 
 		return TRUE
 
+		def WalkersAreEqual(n1, n2)
+			return This.WalkersEqual(n1, n2)
+
 	  #---------------------#
 	 #   WALKER ANALYSIS   #
 	#---------------------#
 
-	def AllWalkersUseTheSameSteps()
+	def AllWalkersHaveSameSteps()
 		nSize = This.Size()
 		if nSize <= 1
 			return TRUE
@@ -450,6 +382,9 @@ class stzListOfWalkers2D
 		def SharedWalkablePositions()
 			return This.CommonWalkablePositions()
 
+		def CommonWalkables()
+			return This.CommonWalkablePositions()
+
 	def WalkedPositions()
 		aResult = []
 		nSize = This.Size()
@@ -531,6 +466,12 @@ class stzListOfWalkers2D
 		return This._SortPositions(aAllWalkables)
 
 		def MergeWalkables()
+			return This.MergeWalkablePositions()
+
+		def MergedWalkablePositions()
+			return This.MergeWalkablePositions()
+
+		def MergedWalkables()
 			return This.MergeWalkablePositions()
 
 	  #-------------------#

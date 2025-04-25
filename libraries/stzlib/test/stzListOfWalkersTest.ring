@@ -99,7 +99,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Advanced walking strategies
-*/
+
 pr()
     
 wa = new stzWalker(1, 10, 1)
@@ -148,7 +148,7 @@ pf()
 # Executed in 0.03 second(s) in Ring 1.22
 
 /*--- FINDING PATHS
-
+*/
 pr()
 
 o1 = new stzListOfWalkers([
@@ -180,16 +180,16 @@ o1 = new stzListOfWalkers([
 # Returned nothing! Why?
 # Well, it's because the walkers did not move yet:
 
-? @@( o1.History() ) # Each walker sits on it's respective start position
-#--> [ [ 1 ], [ 2 ], [ 4 ] ]
+? @@( o1.History() )
+#--> [ [ ], [ ], [ ] ]
 
 # So let's instruct them to commit some steps
 
 o1.WalkNSteps(3)
 ? @@NL( o1.History() )
 #--> [
-#	[ 1, 3, 5, 7 ],
-#	[ 2, 4, 6, 8 ],
+#	[ 1, 3, 5, 7  ],
+#	[ 2, 4, 6, 8  ],
 #	[ 4, 6, 8, 10 ]
 # ]
 
