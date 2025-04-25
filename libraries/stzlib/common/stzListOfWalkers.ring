@@ -13,6 +13,8 @@
  ///   CLASS   ///
 /////////////////
 
+func Wks(aoWalkers)
+
 class stzListOfWalkers
 
 	@aoWalkers = []
@@ -21,22 +23,21 @@ class stzListOfWalkers
 	 #   INITIALIZATION      #
 	#------------------------#
 
-	def init(paWalkers)
-		if isList(paWalkers)
-			for oWalker in paWalkers
-				if NOT @IsWalker(oWalker)
-					StzRaise("Incorrect param type! All items must be stzWalker objects.")
-				ok
-			next
-			
-			@aoWalkers = paWalkers
+	def init(paoWalkers)
 
-		but @IsWalker(paWalkers)
-			@aoWalkers = [ paWalkers ]
-
-		else
-			StzRaise("Incorrect param type! paWalkers must be either a stzWalker object or a list of stzWalker objects.")
+		if NOT isList(paoWalkers)
+			StzRaise("Incorrect param type! paoWalkers must be a list.")
 		ok
+
+		nLen = len(paoWalkers)
+
+		for i = 1 to nLen
+			if NOT @IsWalker(paoWalkers[i])
+				StzRaise("Incorrect param type! All items must be stzWalker objects.")
+			ok
+		next
+			
+		@aoWalkers = paoWalkers
 
 	  #------------------#
 	 #   GENERAL INFO   #
@@ -107,27 +108,29 @@ class stzListOfWalkers
 		ok
 
 		del(@aoWalkers , n)
-		return This
 
 	def RemoveFirstWalker()
-		return This.RemoveWalker(1)
+		This.RemoveWalker(1)
 
 	def RemoveLastWalker()
-		return This.RemoveWalker(This.Size())
+		This.RemoveWalker(This.Size())
 
 	  #----------------------------#
 	 #   COMPARATIVE OPERATIONS   #
 	#----------------------------#
 
 	def SmallestWalker()
-		if This.Size() = 0
+
+		nSize = This.Size()
+
+		if nSize = 0
 			StzRaise("Can't determine the smallest walker. The list is empty!")
 		ok
 
 		nSmallestSize = This.Walker(1).NumberOfWalkablePositions()
 		nSmallestIndex = 1
 
-		for i = 2 to This.Size()
+		for i = 2 to nSize
 			if This.Walker(i).NumberOfWalkablePositions() < nSmallestSize
 				nSmallestSize = This.Walker(i).NumberOfWalkablePositions()
 				nSmallestIndex = i
@@ -140,14 +143,17 @@ class stzListOfWalkers
 			return This.SmallestWalker()
 
 	def LargestWalker()
-		if This.Size() = 0
+
+		nSize = This.Size()
+
+		if nSize = 0
 			StzRaise("Can't determine the largest walker. The list is empty!")
 		ok
 
 		nLargestSize = This.Walker(1).NumberOfWalkablePositions()
 		nLargestIndex = 1
 
-		for i = 2 to This.Size()
+		for i = 2 to nSize
 			if This.Walker(i).NumberOfWalkablePositions() > nLargestSize
 				nLargestSize = This.Walker(i).NumberOfWalkablePositions()
 				nLargestIndex = i
@@ -166,37 +172,48 @@ class stzListOfWalkers
 		return This.LargestWalker()
 
 	def SortByNumberOfWalkables()
+
+		nSize = This.Size()
+
 		aTemp = []
-		for i = 1 to This.Size()
+		for i = 1 to nSize
 			aTemp + [ i, This.Walker(i).NumberOfWalkablePositions() ]
 		next
 
-		StzListOfPairsQ(aTemp).SortInAscendingBySecondItem()
-		aResult = []
+		oTemp = new stzListOfPairs(aTemp)
+		oTemp.SortInAscendingOn(2)
+		aTemp = oTemp.Content()
 
-		for i = 1 to len(aTemp)
+		aResult = []
+		nLen = len(aTemp)
+
+		for i = 1 to nLen
 			aResult + @aoWalkers [aTemp[i][1]]
 		next
 
 		@aoWalkers = aResult
-		return This
 
 	def WalkersEqual(n1, n2)
-		if n1 < 1 or n1 > This.Size() or n2 < 1 or n2 > This.Size()
+
+		nSize = This.Size()
+
+		if n1 < 1 or n1 > nSize or n2 < 1 or n2 > nSize
 			StzRaise("Index out of range!")
 		ok
 
 		oWalker1 = This.Walker(n1)
-		oWalker2 = This.Walker(n2)
+		aWalkables1 = oWalker1.Walkables()
+		nLen1 = len(aWalkables1)
 
-		if oWalker1.NumberOfWalkablePositions() != oWalker2.NumberOfWalkablePositions()
+		oWalker2 = This.Walker(n2)
+		aWalkables2 = oWalker2.Walkables()
+		nLen2 = len(aWalkables2)
+
+		if nLen1 != nLen2
 			return FALSE
 		ok
 
-		aWalkables1 = oWalker1.WalkablePositions()
-		aWalkables2 = oWalker2.WalkablePositions()
-
-		for i = 1 to len(aWalkables1)
+		for i = 1 to nLen1
 			if aWalkables1[i] != aWalkables2[i]
 				return FALSE
 			ok
@@ -209,13 +226,16 @@ class stzListOfWalkers
 	#---------------------#
 
 	def AllWalkersUseTheSameStep()
-		if This.Size() <= 1
+
+		nSize = This.Size()
+
+		if nSize <= 1
 			return TRUE
 		ok
 
 		nStep = This.Walker(1).NStep()
 		
-		for i = 2 to This.Size()
+		for i = 2 to nSize
 			if This.Walker(i).NStep() != nStep
 				return FALSE
 			ok
@@ -224,14 +244,17 @@ class stzListOfWalkers
 		return TRUE
 
 	def MostCommonStep()
-		if This.Size() = 0
+
+		nSize = This.Size()
+
+		if nSize = 0
 			StzRaise("Can't determine the most common step. The list is empty!")
 		ok
 
 		aSteps = []
 		aCounts = []
 
-		for i = 1 to This.Size()
+		for i = 1 to nSize
 			nStep = This.Walker(i).NStep()
 			nPos = ring_find(aSteps, nStep)
 
@@ -243,10 +266,11 @@ class stzListOfWalkers
 			ok
 		next
 
+		nLenCounts = len(aCounts)
 		nMaxCount = 0
 		nMaxIndex = 0
 
-		for i = 1 to len(aCounts)
+		for i = 1 to nLenCounts
 			if aCounts[i] > nMaxCount
 				nMaxCount = aCounts[i]
 				nMaxIndex = i
@@ -256,9 +280,11 @@ class stzListOfWalkers
 		return aSteps[nMaxIndex]
 
 	def WalkersWithStep(nStep)
+
+		nSize = This.Size()
 		aResult = []
 		
-		for i = 1 to This.Size()
+		for i = 1 to nSize
 			if This.Walker(i).NStep() = nStep
 				aResult + This.Walker(i)
 			ok
@@ -268,7 +294,7 @@ class stzListOfWalkers
 
 	def Walkables()
 		aResult = []
-		nLen = len(@aoWalkers )
+		nLen = len(@aoWalkers)
 
 		for i = 1 to nLen
 			aResult + @aoWalkers[i].Content()
@@ -335,21 +361,29 @@ class stzListOfWalkers
 		return anResult
 
 	def WalkAllNSteps(n)
+		aResult = []
 		nLen = len(@aoWalkers)
 
 		for i = 1 to nLen
-			@aoWalkers[i].WalkNSteps(n)
+			aResult + @aoWalkers[i].WalkNSteps(n)
 		next
+
+
+		return aResult
 
 		def WalkNSteps(n)
 			This.WalkAllNSteps(n)
 
 	def WalkAllToTheirEnd()
-		nLen = len(@aoWalmkers)
 
-		for i = 1 to This.Size()
-			@aoWalkers[i].WalkToLast()
+		aResult = []
+		nLen = len(@aoWalkers)
+
+		for i = 1 to nLen
+			aResult + @aoWalkers[i].WalkToLast()
 		next
+
+		return aResult
 
 		def WalkAllToEnd()
 			This.WalkAllToTheirEnd()
@@ -357,12 +391,17 @@ class stzListOfWalkers
 		def WalkToEnd()
 			This.WalkAllToTheirEnd()
 
+
 	def RestartAllWalkers()
 		nLen = len(@aoWalkers)
 
-		for i = 1 to This.Size()
-			@aoWalkers[i].WalkToFirst()
+		for i = 1 to nLen
+			@aoWalkers[i].SetCurrentPosition(@aoWalkers[i].@anWalkables[1])
+
 		next
+
+		return This.CurrentPositions()
+
 
 		def RestartWalkers()
 			This.RestartAllWalkers()
@@ -373,28 +412,33 @@ class stzListOfWalkers
 		def WalkToFirst()
 			This.RestartAllWalkers()
 
+		def Reset()
+			This.RestartAllWalkers()
+
+		def ResetAllWalkers()
+			This.RestartAllWalkers()
+
 	def WalkToPosition(n)
+		aResult = []
 		nLen = len(@aoWalkers)
 
 		for i = 1 to nLen
-			if @aoWalkers[i].IsWalkable(n)
-				This.Walker(i).WalkToPosition(n)
-			else
-				stzraise("Can't walk to position n!")
-			ok
+			aResult + @aoWalkers[i].WalkToPosition(n)
 		next
+    
+		return aResult
 
 		def WalkAllToPosition(n)
-			This.WalkToPosition(n)
+		return This.WalkToPosition(n)
 
 	  #-------------------#
 	 #  FINDING WALKERS  #
 	#-------------------#
 
-	# Finding is a particular subject that is interepred by Softanza as
-	# returning the walkers (by their positions in the @aWolkers container)
-	# that have the give path (to be found) in their history (they already
-	# walked through it) or in their walkable plan.
+	#NOTE // "Finding" is a specific concept interpreted by Softanza as
+	# identifying the walkers (by their positions in the @aWalkers container)
+	# who either have the given path in their history (they have already walked it)
+	# or in their walkable plan (they intend to walk it).
 
 	def FindWalkedPath(panPositions)
 		

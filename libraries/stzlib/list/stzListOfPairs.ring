@@ -648,6 +648,20 @@ class stzListOfPairs from stzListOfLists
 			def SortOnUpQ(n)
 				return This.SortOnQ(n)
 
+		#--
+
+		def SortInAscendingOn(n)
+			This.SortOn(n)
+
+			def SortInAscendingOnQ(n)
+				return This.SortOnQ(n)
+
+		def SortUpOn(n)
+			This.SortOn(n)
+
+			def SortUpOnQ(n)
+				return This.SortOnQ(n)
+
 		#>
 
 	def SortedOn(n)
@@ -660,6 +674,14 @@ class stzListOfPairs from stzListOfLists
 			return This.SortedOn(n)
 
 		def SortedOnUp(n)
+			return This.SortedOn(n)
+
+		#--
+
+		def SortedInAscendingOn(n)
+			return This.SortedOn(n)
+
+		def SortedUpOn(n)
 			return This.SortedOn(n)
 
 		#>
@@ -682,10 +704,22 @@ class stzListOfPairs from stzListOfLists
 
 		#< @FunctionAlternativeForms
 
+		def SortInDescendingOn(n)
+			This.SortOnInDescending(n)
+
+			def SortInDescendingOnQ(n)
+				return This.SortOnInDescendingQ(n)
+
 		def SortOnDown(n)
 			This.SortOnInDescending(n)
 
 			def SortOnDownQ(n)
+				return This.SortOnInDescendingQ(n)
+
+		def SortDownOn(n)
+			This.SortOnInDescending(n)
+
+			def SortDownOnQ(n)
 				return This.SortOnInDescendingQ(n)
 
 		#>
@@ -696,7 +730,13 @@ class stzListOfPairs from stzListOfLists
 
 		#< @FunctionAlternativeForms
 
+		def SortedInDescendingOn(n)
+			return This.SortedOnInDescending(n)
+
 		def SortedOnDown(n)
+			return This.SortedOnInDescending(n)
+
+		def SortedDownOn(n)
 			return This.SortedOnInDescending(n)
 
 		#>

@@ -740,6 +740,12 @@ class stzWalker
 		def CountRemaining()
 			return This.NumberOfRemainingWalkables()
 
+	def Reset()
+		This.SetCurrentPosition(@anWalkables[1])
+
+		def Restart()
+			This.Reset()
+
 	def Walk()
 		return This.WalkNSteps(1)
 
@@ -792,12 +798,12 @@ class stzWalker
 
 		# Get remaining walkable positions in the current direction
 
-		anRemaining = This.RemainingWalkables()
-		nLenRemaining = len(anRemaining)
+		_anRemaining_ = This.RemainingWalkables()
+		_nLenRemaining_ = len(_anRemaining_)
 
 		# Start with the current position
 
-		anWalks = [ This.CurrentPosition() ]
+		_anWalks_ = [ @nCurrentPos ]
 
 		# Handle edge cases
 
@@ -805,25 +811,25 @@ class stzWalker
 			StzRaise("Can't walk! Number of steps must be positive.")
 		ok
 
-		if n > nLenRemaining
+		if n > _nLenRemaining_
 			# Instead of raising an error, we walk to the last possible position
-			n = nLenRemaining
+			n = _nLenRemaining_
 		ok
     
 		# Perform the walk
 
 		for i = 1 to n
-			anWalks + anRemaining[i]
+			_anWalks_ + _anRemaining_[i]
 		next
 
 		# Update current position and history
 
-		if len(anWalks) > 1
-			@nCurrentPos = anWalks[len(anWalks)]
-			@aWalkHistory + anWalks
+		if len(_anWalks_) > 1
+			@nCurrentPos = _anWalks_[len(_anWalks_)]
+			@aWalkHistory + _anWalks_
 		ok
 
-		return anWalks
+		return _anWalks_
 
 	def WalkN(n)
 		return This.WalkNSteps(n)
