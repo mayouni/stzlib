@@ -591,7 +591,8 @@ class stzWalker2D
 			StzRaise("No walkable positions available!")
 		ok
 
-		return This.WalkTo(aWalkables[1])
+		aPos = aWalkables[1]
+		return This.WalkTo(aPos[1], aPos[2])
 
 		def WalkToFirstPosition()
 			return This.WalkToFirst()
@@ -612,7 +613,8 @@ class stzWalker2D
 			StzRaise("No walkable positions available!")
 		ok
 
-		return This.WalkTo(aWalkables[len(aWalkables)])
+		aPos = aWalkables[len(aWalkables)]
+		return This.WalkTo(aPos[1], aPos[2])
 
 		def WalkToLastPosition()
 			return This.WalkToLast()

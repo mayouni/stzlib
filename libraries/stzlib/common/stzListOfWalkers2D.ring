@@ -524,6 +524,12 @@ class stzListOfWalkers2D
 		def WalkToEnd()
 			return This.WalkAllToTheirEnd()
 
+		def WalkToLast()
+			return This.WalkAllToTheirEnd()
+
+		def WalkAllToLast()
+			return This.WalkAllToTheirEnd()
+
 		#>
 
 	def RestartAllWalkers()
@@ -568,6 +574,7 @@ class stzListOfWalkers2D
 
 	def WalkIfPossible(nX, nY)
 
+		aResult = []
 		nSize = This.Size()
 
 		for i = 1 to nSize
@@ -664,18 +671,29 @@ class stzListOfWalkers2D
 		nMinY = aBoundingBox[2]
 		nMaxX = aBoundingBox[3]
 		nMaxY = aBoundingBox[4]
-		
+
 		nGridWidth = nMaxX - nMinX + 1
 		nGridHeight = nMaxY - nMinY + 1
-		
+
 		# Create an empty grid filled with "."
+
 		aGrid = newlist(nGridHeight, nGridWidth)
+
 		for y = 1 to nGridHeight
 			for x = 1 to nGridWidth
 				aGrid[y][x] = "."
 			next
 		next
-		
+
+		# Track positions for border markers
+
+		aTopMarkers = list(nGridWidth)
+		aLeftMarkers = list(nGridHeight)
+
+		# Set cell width to accommodate larger labels (E10, etc.)
+
+		nCellWidth = 3  # Standard width for all cells
+
 		# Mark each walker's walkable positions with numbers
 
 		nSize = This.Size()
@@ -686,76 +704,125 @@ class stzListOfWalkers2D
 			aWalkables = This.Walker(i).WalkablePositions()
 			nLen = len(aWalkables)
 
+			# Get start and end positions
+			aStart = This.Walker(i).StartPosition()
+			aEnd = This.Walker(i).EndPosition()
+
 			for j = 1 to nLen
 
 				nPosX = aWalkables[j][1] - nMinX + 1
 				nPosY = aWalkables[j][2] - nMinY + 1
-				
+
 				if nPosX > 0 and nPosY > 0 and nPosX <= nGridWidth and nPosY <= nGridHeight
+					# Mark start position
+					if aWalkables[j][1] = aStart[1] and aWalkables[j][2] = aStart[2]
+						aGrid[nPosY][nPosX] = "S" + nWalkerNum
+					# Mark end position
+					but aWalkables[j][1] = aEnd[1] and aWalkables[j][2] = aEnd[2]
+						aGrid[nPosY][nPosX] = "E" + nWalkerNum
 					# If position already has a different walker's mark, use "*" for overlap
-					if aGrid[nPosY][nPosX] != "." and aGrid[nPosY][nPosX] != "" + nWalkerNum
+					but aGrid[nPosY][nPosX] != "." and aGrid[nPosY][nPosX] != "" + nWalkerNum
 						aGrid[nPosY][nPosX] = "*"
 					else
 						aGrid[nPosY][nPosX] = "" + nWalkerNum
 					ok
 				ok
 			next
-			
-			# Mark each walker's current position with "C"+number
 
+			# Mark each walker's current position with "x"+number
 			aCurrPos = This.Walker(i).CurrentPosition()
 			nCurrX = aCurrPos[1] - nMinX + 1
 			nCurrY = aCurrPos[2] - nMinY + 1
-			
+
 			if nCurrX > 0 and nCurrY > 0 and nCurrX <= nGridWidth and nCurrY <= nGridHeight
-				aGrid[nCurrY][nCurrX] = "C" + nWalkerNum
+	
+				aGrid[nCurrY][nCurrX] = "x" + nWalkerNum
+	
+				# Mark borders for current positions
+				aTopMarkers[nCurrX] = "v"
+				aLeftMarkers[nCurrY] = ">"
 			ok
 		next
-		
-		# Convert grid to string representation
-		# Add X-axis labels
 
-		sResult = "    "
+		# Convert grid to string representation
+		# Add X-axis labels with proper alignment for each column
+
+		sResult = "    "  # Extra space for Y-axis column
+
 		for x = nMinX to nMaxX
-			sResult += ""+ (x % 10) + "  "
+			sXLabel = "" + (x % 10)
+			nPadding = floor((nCellWidth - len(sXLabel)) / 2)
+			sSpaceBefore = space(nPadding)
+			sSpaceAfter = space(nCellWidth - len(sXLabel) - nPadding)
+			sResult += sSpaceBefore + sXLabel + sSpaceAfter
 		next
 		sResult += NL
-		
-		# Add top border
-		sResult += "  ╭"
+
+		# Add top border with markers
+
+		sResult += "  ╭─"
+
 		for x = 1 to nGridWidth
-			sResult += "───"
+
+			if aTopMarkers[x] = "v"
+				sBorder = "─v" + ring_copy("─", nCellWidth-2)
+			else
+				sBorder = ring_copy("─", nCellWidth)
+			ok
+
+			sResult += sBorder
 		next
+
 		sResult += "╮" + NL
-		
+
 		# Add rows with Y-axis labels and borders
+
 		for y = 1 to nGridHeight
-			sResult += ""+ ((y+nMinY-1) % 10) + " │"
-			
+
+			sYLabel = "" + ((y+nMinY-1) % 10)
+
+			if aLeftMarkers[y] = "> "
+				sResult += sYLabel + " " + aLeftMarkers[y]
+			else
+				sResult += sYLabel + " │ "
+			ok
+
 			for x = 1 to nGridWidth
-				sResult += " " + aGrid[y][x] + " "
+				sContent = aGrid[y][x]
+				nPadding = floor((nCellWidth - len(sContent)) / 2)
+				sSpaceBefore = ring_copy(" ", nPadding)
+				sSpaceAfter = ring_copy(" ", nCellWidth - len(sContent) - nPadding)
+				sResult += sSpaceBefore + sContent + sSpaceAfter
 			next
+
 			sResult += "│" + NL
 		next
-		
+
 		# Add bottom border
-		sResult += "  ╰"
+
+		sResult += "  ╰─"
+
 		for x = 1 to nGridWidth
-			sResult += "───"
+			sResult += ring_copy("─", nCellWidth)
 		next
 		sResult += "╯" + NL
-		
-		# Add legend
-		sResult += NL + "Legend:" + NL
-		sResult += "  . = Empty position" + NL
-		sResult += "  1-9 = Walker's walkable position" + NL
-		sResult += "  * = Overlapping walkable positions" + NL
-		sResult += "  C# = Current position of walker #" + NL
-		
-		return sResult
+    
+		return sResult   
 
 		def Stringified()
 			return This.ToString()
+
+	def Legend()
+
+		cResult =  "  . = Empty position" + NL
+		cResult += "1-9 = Walker's walkable position" + NL
+		cResult += "  * = Overlapping walkable positions" + NL
+		cResult += " x# = Current position of walker #" + NL
+		cResult += " S# = Start position of walker #" + NL
+		cResult += " E# = End position of walker #" + NL
+		cResult += "v/> = Markers of current positions on grid borders" + NL
+    
+		return cResult
 
 	  #-------------------#
 	 #  FINDING WALKERS  #
@@ -767,26 +834,10 @@ class stzListOfWalkers2D
 			StzRaise("Incorrect param type! paPositions must be a list of [x,y] positions.")
 		ok
 		
-		aResult = []
-		nSize = This.Size()
-		nLenPos = len(paPositions)
+		aWalkables = This.Walkables()
 
-		for i = 1 to nSize
-
-			bContainsAll = TRUE
-			
-			for j = 1 to nLenPos
-				if NOT This.Walker(i).IsWalkable(paPositions[j][1], paPositions[j][2])
-					bContainsAll = FALSE
-					exit
-				ok
-			next
-			
-			if bContainsAll
-				aResult + i
-			ok
-		next
-		
+		oLoL = new stzListOfLists(This.Walkables())
+		aResult = oLoL.Find(paPositions)
 		return aResult
 
 		def FindWalkersContainingPositions(paPositions)

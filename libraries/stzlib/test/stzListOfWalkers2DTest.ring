@@ -211,73 +211,72 @@ w1 = new stzWalker2D([0,0], [2,2], 1)
 pf()
 
 /*---
-*/
+
 pr()
 
-w2 = new stzWalker2D([1,1], [3,3], 1)
+w1 = new stzWalker2D([1, 1], [3, 3], 1)
+w2 = new stzWalker2D([2, 2], [4, 4], 1)
 
-o1 = Wks2D([w1, w2])
+o1 = Wks2D([ w1, w2 ])
+
+? @@(o1.Walkables()) + Nl
+#--> [
+#	[
+#		[ 1, 1 ], [ 2, 1 ], [ 3, 1 ],
+#		[ 1, 2 ], [ 2, 2 ], [ 3, 2 ],
+#		[ 1, 3 ], [ 2, 3 ], [ 3, 3 ]
+#	],
+#	[
+#		[ 2, 2 ], [ 3, 2 ], [ 4, 2 ],
+#		[ 2, 3 ], [ 3, 3 ], [ 4, 3 ],
+#		[ 2, 4 ], [ 3, 4 ], [ 4, 4 ]
+#	]
+# ]
 
 ? @@( o1.CurrentPositions() )
-#--> [ [ 0, 0 ], [ 1, 1 ] ]
+#--> [ [ 1, 1 ], [ 2, 2 ] ]
 
 o1.WalkAllNSteps(2)
 
 ? @@( o1.CurrentPositions() )
-#--> 
-/*
-#--> After walking 2 steps:
-#--> Walker 1: [0,2]
-#--> Walker 2: [1,3]
+#--> [ [ 3, 1 ], [ 4, 2 ] ]
 
-walkers.WalkAllToTheirEnd()
-? "After walking to end:"
-for i = 1 to walkers.Size()
-    ? "Walker " + i + ": " + @@(walkers.Walker(i).CurrentPosition())
-next
-#--> After walking to end:
-#--> Walker 1: [2,2]
-#--> Walker 2: [3,3]
+o1.WalkAllToEnd()
+? @@( o1.CurrentPositions() )
+#--> [ [ 3, 3 ], [ 4, 4 ] ]
 
-walkers.RestartAllWalkers()
-? "After restarting:"
-for i = 1 to walkers.Size()
-    ? "Walker " + i + ": " + @@(walkers.Walker(i).CurrentPosition())
-next
-#--> After restarting:
-#--> Walker 1: [0,0]
-#--> Walker 2: [1,1]
-*/
+o1.RestartAllWalkers()
+? @@( o1.CurrentPositions() )
+#--> [ [ 1, 1 ], [ 2, 2 ] ]
+
 pf()
+# Executed in 0.13 second(s) in Ring 1.22
+
 /*--- Setting positions and walking to specific positions
 
 pr()
 
-w1 = new stzWalker2D([0,0], [2,2], 1)
-w2 = new stzWalker2D([1,1], [3,3], 1)
+w1 = new stzWalker2D([ 1, 1 ], [ 3, 3 ], 1)
+w2 = new stzWalker2D([ 2, 2 ], [ 4, 4 ], 1)
 
-walkers = Wks2D([w1, w2])
+o1 = Wks2D([ w1, w2 ])
 
-walkers.SetCurrentPosition(1, 1)
-? "After setting position to [1,1]:"
-for i = 1 to walkers.Size()
-    ? "Walker " + i + ": " + @@(walkers.Walker(i).CurrentPosition())
-next
+o1.SetCurrentPosition(3, 3)
+? @@( o1.CurrentPositions() )
+#--> [ [ 2, 2 ], [ 2, 2 ] ]
+
 #--> After setting position to [1,1]:
 #--> Walker 1: [1,1]
 #--> Walker 2: [1,1]
 
-// This will only move walkers that can reach [2,2]
-walkers.WalkIfPossible(2, 2)
-? "After walking if possible to [2,2]:"
-for i = 1 to walkers.Size()
-    ? "Walker " + i + ": " + @@(walkers.Walker(i).CurrentPosition())
-next
-#--> After walking if possible to [2,2]:
-#--> Walker 1: [2,2]
-#--> Walker 2: [2,2]
+# This will only move walkers that can reach [ 3, 3 ]
 
-// Try a position outside some walkers' range
+o1.WalkIfPossible(3, 3)
+? @@( o1.CurrentPositions() ) + NL
+#--> [ [ 3, 3 ], [ 3, 3 ] ]
+
+# Try a position outside some walkers' range
+
 try
     walkers.SetAllToPosition(4, 4)
 catch
@@ -286,49 +285,70 @@ end
 #--> Error: Position out of range for some walkers
 
 pf()
+# Executed in 0.13 second(s) in Ring 1.22
+
 /*--- Bounding box and visualization
 
 pr()
 
-w1 = new stzWalker2D([0,0], [2,2], 1)
-w2 = new stzWalker2D([1,1], [3,3], 1)
+w1 = new stzWalker2D([1,1], [3,3], 1)
+w2 = new stzWalker2D([2,2], [4,4], 1)
 
-walkers = Wks2D([w1, w2])
+o1 = Wks2D([w1, w2])
 
-boundingBox = walkers.BoundingBox()
-? "Bounding box: " + @@(boundingBox)
-#--> Bounding box: [0,0,3,3]
+? o1.ContainsPosition(1, 1)
+#--> TRUE
 
-? "Contains position [1,1]: " + walkers.ContainsPosition(1, 1)
-#--> Contains position [1,1]: TRUE
+? o1.ContainsPosition(4, 4)
+#--> TRUE
 
-? "Contains position [4,4]: " + walkers.ContainsPosition(4, 4)
-#--> Contains position [4,4]: FALSE
+? @@(o1.WalkersAtPosition(3, 3)) = NL
+#--> [ 1, 2 ]
 
-? "Walkers at position [1,1]: " + @@(walkers.WalkersAtPosition(1, 1))
-#--> Walkers at position [1,1]: [1,2]
+# Visual representation of walkers
+o1.Show() + NL
+#-->
+#     1  2  3  4 
+#   ╭──v──v───────╮
+# 1 │ x1  1  1  . │
+# 2 │  1 x2  *  2 │
+# 3 │  1  *  *  2 │
+# 4 │  .  2  2 E2 │
+#   ╰─────────────╯
 
-// Visual representation of walkers
-? walkers.ToString()
+? o1.Legend()
+#-->
+#   . = Empty position
+# 1-9 = Walker's walkable position
+#   * = Overlapping walkable positions
+#  x# = Current position of walker #
+#  S# = Start position of walker #
+#  E# = End position of walker #
+# v/> = Markers of current positions on grid borders
 
 pf()
+# Executed in 0.14 second(s) in Ring 1.22
+
 /*--- Finding walkers
+*/
 
 pr()
 
-w1 = new stzWalker2D([0,0], [2,2], 1)
+w1 = new stzWalker2D([1,1], [3,3], 1)
 w2 = new stzWalker2D([1,1], [3,3], 1)
-w3 = new stzWalker2D([4,4], [6,6], 1)
+w3 = new stzWalker2D([3,3], [6,6], 1)
 
 walkers = Wks2D([w1, w2, w3])
 
-? "Walkers containing position [1,1]: " + @@(walkers.FindWalkersContainingPositions([[1,1]]))
-#--> Walkers containing position [1,1]: [1,2]
+# Walkers containing position [1,1]
+? @@(walkers.FindWalkersOnPositions([[1,1]]))
+#--> [ 1, 2 ]
 
-? "Walkers containing positions [1,1] and [2,2]: " + @@(walkers.FindWalkersContainingPositions([[1,1],[2,2]]))
+# Walkers containing positions [1,1] and [2,2]
+? @@(walkers.FindWalkersOnPositions([ [1,1], [3,3] ]))
 #--> Walkers containing positions [1,1] and [2,2]: [1,2]
 
-? "Walkers within bounding box [0,0,3,3]: " + @@(walkers.FindWalkersWithinBoundingBox(0, 0, 3, 3))
+? "Walkers within bounding box [0,0,3,3]: " + @@(walkers.FindWalkersWithinSection(0, 0, 3, 3))
 #--> Walkers within bounding box [0,0,3,3]: [1,2]
 
 ? "Walkers intersecting path [[1,1],[5,5]]: " + @@(walkers.FindWalkersIntersectingPath([[1,1],[5,5]]))
