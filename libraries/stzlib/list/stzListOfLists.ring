@@ -275,10 +275,10 @@ class stzListOfLists from stzList
 		ok
 
 		if len(paList) = 0
-			@aContent = [ paList ]
-		else
-			@aContent = paList
+			StzRaise("Can't create the stzListOfLists object! You must provide a non empty list.")
 		ok
+
+		@aContent = paList
 
 		if KeepingHistory() = _TRUE_
 			This.AddHistoricValue(This.Content())
@@ -437,9 +437,14 @@ class stzListOfLists from stzList
 
 	  #------------------------------------#
 	 #  FINDING AN ITEM INSIDE THE LISTS  #
-	#------------------------------------#
+	#====================================#
 
 	def FindInListsCS(pItem, pCaseSensitive)
+
+		if isList(pItem)
+			return This.FindManyInListsCS(pItem, pCaseSensitive)
+		ok
+
 		nLen = len(@aContent)
 		aResult = []
 
@@ -457,6 +462,13 @@ class stzListOfLists from stzList
 		#< @FunctionAlternativeForms
 
 		def FindItemInListsCS(pItem, pCaseSensitive)
+			return This.FindInListsCS(pItem, pCaseSensitive)
+
+		def FindItemInsideCS(pItem, pCaseSensitive)
+			return This.FindInListsCS(pItem, pCaseSensitive)
+
+		def FindInsideCS(pItem, pCaseSensitive)
+			return This.FindInListsCS(pItem, pCaseSensitive)
 
 		#>
 
@@ -470,14 +482,69 @@ class stzListOfLists from stzList
 		def FindItemInLists(pItem)
 			return This.FindInLists(pItem)
 
+		def FindItemInside(pItem)
+			return This.FindInLists(pItem)
+
+		def FindInside(pItem)
+			return This.FindInLists(pItem)
+
+		#>
+
+	  #---------------------------------------#
+	 #  FINDING MANY ITEMS INSIDE THE LISTS  #
+	#---------------------------------------#
+
+	def FindManyInListsCS(paItems, pCaseSensitive)
+
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
+			ok
+		ok
+
+		aItems = U(paItems)
+
+		nLen = len(@aContent)
+		aoStzLists = This.ToListOfStzLists()
+		aResult = []
+
+		for i = 1 to nLen
+			anPos = aoStzLists[i].FindManyCS(paItems, pCaseSensitive)
+			nLenPos = len(anPos)
+			for j = 1 to nLenPos
+				aResult + [ i, anPos[j] ]
+			next
+		next
+		
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindItemsInListsCS(paItems, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindManyInLists(paItems)
+		return This.FindManyInListsCS(paItems, _TRUE_)
+	
+		#< @FunctionAlternativeForms
+
+		def FindItemsInLists(paItems)
+			return This.FindManyInLists(pItem)
+
 		#>
 
 	  #--------------------------------------#
 	 #  FINDING A SUBLIST INSIDE THE LISTS  #
-	#--------------------------------------#
+	#======================================#
 
-	def FindSubListInListsCS(paSubList, pCaseSensitive)
+	def FindSubListInListsCS(paSubList, pCaseSensitive) #TODO
 		StzRaise("Function non implemented yet!")
+
+	def FindSubListInList(paSubList)
+		return This.FindSubListInListCS(paSubList, pCaseSensitive)
 
 	  #======================#
 	 #   POSITIONS WHERE    #
@@ -4596,6 +4663,17 @@ class stzListOfLists from stzList
 		
 	def stzType()
 		return :stzListOfLists
+
+	def ToListOfStzLists()
+
+		aoResult = []
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			aoResult + new stzList(@aContent[i])
+		next
+
+		return aoResult
 
 	def ToListsInString()
 		acResult = []
