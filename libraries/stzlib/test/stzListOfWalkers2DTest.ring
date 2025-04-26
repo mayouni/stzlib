@@ -330,7 +330,6 @@ pf()
 # Executed in 0.14 second(s) in Ring 1.22
 
 /*--- Finding walkers
-*/
 
 pr()
 
@@ -338,97 +337,113 @@ w1 = new stzWalker2D([1,1], [3,3], 1)
 w2 = new stzWalker2D([1,1], [3,3], 1)
 w3 = new stzWalker2D([3,3], [6,6], 1)
 
-walkers = Wks2D([w1, w2, w3])
+walkers = Wks([w1, w2, w3])
+//? @@( walkers.Walkables() ) + NL
+#--> [
+#	[
+#		[ 1, 1 ], [ 2, 1 ], [ 3, 1 ],
+#		[ 1, 2 ], [ 2, 2 ], [ 3, 2 ],
+#		[ 1, 3 ], [ 2, 3 ], [ 3, 3 ]
+#	],
+#	[
+#		[ 1, 1 ], [ 2, 1 ], [ 3, 1 ],
+#		[ 1, 2 ], [ 2, 2 ], [ 3, 2 ],
+#		[ 1, 3 ], [ 2, 3 ], [ 3, 3 ]
+#	],
+#	[
+#		[ 3, 3 ], [ 4, 3 ], [ 5, 3 ], [ 6, 3 ],
+#		[ 3, 4 ], [ 4, 4 ], [ 5, 4 ], [ 6, 4 ],
+#		[ 3, 5 ], [ 4, 5 ], [ 5, 5 ], [ 6, 5 ],
+#		[ 3, 6 ], [ 4, 6 ], [ 5, 6 ], [ 6, 6 ]
+#	]
+# ]
 
-# Walkers containing position [1,1]
-? @@(walkers.FindWalkersOnPosition([1,1]))
-#--> [ 1, 2 ]
+# Walkable position [1,1] is walked by walker1
+# in position 1 and walker2 in position 1
 
-# Walkers containing positions [1,1] and [2,2]
-? @@(walkers.FindWalkersOnPositions([ [1,1], [3,3] ]))
-#--> Walkers containing positions [1,1] and [2,2]: [1,2]
+? @@(walkers.FindWalkable([1,1])) + NL
+#--> [ [ 1, 1 ], [ 2, 1 ] ]
 
-/*
-? "Walkers within bounding box [0,0,3,3]: " + @@(walkers.FindWalkersWithinSection(0, 0, 3, 3))
-#--> Walkers within bounding box [0,0,3,3]: [1,2]
+# Finding walkables [1, 1] and [3,3]
 
-? "Walkers intersecting path [[1,1],[5,5]]: " + @@(walkers.FindWalkersIntersectingPath([[1,1],[5,5]]))
-#--> Walkers intersecting path [[1,1],[5,5]]: [1,2,3]
-*/
+? @@(walkers.FindWalkables([ [1,1], [3,3] ])) + NL
+#--> [ [ 1, 1 ], [ 1, 9 ], [ 2, 1 ], [ 2, 9 ], [ 3, 1 ] ]
+
+# What are the walkables that walks on a given section of the grid
+
+? @@( walkers.FindWalkersInSection([1,1] , [3, 3]) ) + NL
+#--> [ 1, 2 ]	~> Walkers 1 and 2
+
+
+# Walkers intersecting path from [1,1] to [5,5]
+
+? @@(walkers.FindWalkersIntersectingPath([ [1, 1], [5, 5] ] ))
+#--> [ 1, 2, 3 ]
+#~> Walkers 1, 2 and 3 have walkable positions that overlap with the given path.
+#~> Helps you identify walkers that could potentially cross or interact with a given path
+
 pf()
+# Executed in 0.27 second(s) in Ring 1.22
+
 /*--- Edge cases - Empty list of walkers
 
 pr()
 
-emptyWalkers = Wks2D([])
-
-? "Size of empty walkers: " + emptyWalkers.Size()
-#--> Size of empty walkers: 0
-
-? "Bounding box of empty walkers: " + @@(emptyWalkers.BoundingBox())
-#--> Bounding box of empty walkers: [0,0,0,0]
-
-? "Contains position [0,0]: " + emptyWalkers.ContainsPosition(0, 0)
-#--> Contains position [0,0]: FALSE
-
-? "Walkers at position [0,0]: " + @@(emptyWalkers.WalkersAtPosition(0, 0))
-#--> Walkers at position [0,0]: []
-
-try
-    emptyWalkers.WalkerWithSmallestGrid()
-    ? "This should not be reached"
-catch
-    ? "Error: Cannot find smallest grid in empty list"
-end
-#--> Error: Cannot find smallest grid in empty list
+emptyWalkers = Wks([])
+#--> ERROR: Can't create a stzListOfWalkers object!
+# paoWalkers list must be a list of stzWalker or stzWalker2D objects.
 
 pf()
+
 /*--- Edge cases - Single walker
 
 pr()
 
-singleWalker = Wks2D([new stzWalker2D([0,0], [2,2], 1)])
+oSingleWalker = Wks2D([ new stzWalker2D([1,1], [3,3], 1) ])
 
-? "Size: " + singleWalker.Size()
-#--> Size: 1
+? oSingleWalker.Size()
+#--> 1
 
-? "All walkers use the same steps? " + singleWalker.AllWalkersUseTheSameSteps()
-#--> All walkers use the same steps? TRUE
+? oSingleWalker.AllWalkersHaveSameSteps()
+#--> TRUE
 
-? "Bounding box: " + @@(singleWalker.BoundingBox())
-#--> Bounding box: [0,0,2,2]
-
-commonPositions = singleWalker.CommonWalkablePositions()
-? "Common walkable positions count: " + len(commonPositions)
-#--> Common walkable positions count: 9
+? @@(oSingleWalker.CommonWalkablePositions())
+#--> [
+#	[ 1, 1 ], [ 2, 1 ], [ 3, 1 ],
+#	[ 1, 2 ], [ 2, 2 ], [ 3, 2 ],
+#	[ 1, 3 ], [ 2, 3 ], [ 3, 3 ]
+# ]
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.22
+
 /*--- Edge cases - Walkers with different step types
 
 pr()
 
-w1 = new stzWalker2D([0,0], [2,2], 1)            // Single step
-w2 = new stzWalker2D([0,0], [2,2], [1, 2, 1])    // List of steps
+w1 = new stzWalker2D([1, 1], [3, 3], 1)            // Single step
+w2 = new stzWalker2D([1, 1], [3, 3], [1, 2, 1])    // List of steps
 
-mixedStepWalkers = Wks2D([w1, w2])
+oMixedStepWalkers = Wks2D([w1, w2])
 
-? "All walkers use the same steps? " + mixedStepWalkers.AllWalkersUseTheSameSteps()
-#--> All walkers use the same steps? FALSE
+? oMixedStepWalkers.AllWalkersHaveSameSteps()
+#--> FALSE
 
-? "Most common step: " + @@(mixedStepWalkers.MostCommonStep())
-#--> Most common step: 1
 
-walkersWithStep1 = mixedStepWalkers.WalkersWithStep(1)
-? "Number of walkers with step 1: " + walkersWithStep1.Size()
-#--> Number of walkers with step 1: 1
+? oMixedStepWalkers.MostCommonStep()
+#--> 1
+
+? oMixedStepWalkers.WalkersWithStep(1).Size()
+#--> 1
 
 pf()
+
 /*--- Edge cases - Invalid operations
 
 pr()
 
-w1 = new stzWalker2D([0,0], [2,2], 1)
-w2 = new stzWalker2D([1,1], [3,3], 1)
+w1 = new stzWalker2D([1,1], [3,3], 1)
+w2 = new stzWalker2D([2,2], [4,4], 1)
 
 walkers = Wks2D([w1, w2])
 
@@ -457,6 +472,8 @@ end
 #--> Error: Position not walkable
 
 pf()
+# Executed in 0.13 second(s) in Ring 1.22
+
 /*--- Edge cases - Creating with invalid parameters
 
 pr()
@@ -478,45 +495,64 @@ end
 #--> Error: Items must be stzWalker2D objects
 
 pf()
-/*--- Complex grid visualization with multiple walkers
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Visualization with multiple walkers
 
 pr()
 
-w1 = new stzWalker2D([0,0], [3,3], 1)
-w2 = new stzWalker2D([2,2], [5,5], 1)
-w3 = new stzWalker2D([4,0], [4,4], 1)
+w1 = new stzWalker2D([1,1], [4,4], 1)
+w2 = new stzWalker2D([3,3], [6,6], 1)
 
-walkers = Wks2D([w1, w2, w3])
+Wks2D([w1, w2]) {
 
-// Set different positions for each walker
-w1.WalkTo(1, 2)
-w2.WalkTo(3, 4)
-w3.WalkTo(4, 2)
+	# Set different positions for each walker
 
-? walkers.ToString()
+	Walker(1).WalkTo(2, 3)
+	walker(2).WalkTo(4, 5)
+
+	Show()
+	#-->
+	#       1  2  3  4  5  6 
+	#    ╭─────v─────v───────╮
+	#  1 │ S1  1  1  1  .  . │
+	#  2 │  1  1  1  1  .  . │
+	#  3 >  1 x1 S2  *  2  2 │
+	#  4 │  1  1  *  *  2  2 │
+	#  5 >  .  .  2 x2  2  2 │
+	#  6 │  .  .  2  2  2 E2 │
+	#    ╰───────────────────╯
+
+	? Legend()
+	#-->
+	#   . = Empty position
+	# 1-9 = Walker's walkable position
+	#   * = Overlapping walkable positions
+	#  x# = Current position of walker #
+	#  S# = Start position of walker #
+	#  E# = End position of walker #
+	# v/> = Markers of current positions on grid borders
+
+}
 
 pf()
-/*--- Working with different step patterns
+# Executed in 0.16 second(s) in Ring 1.22
 
+/*--- Working with different step patterns
+*/
 pr()
 
 // Create walkers with different step patterns
-w1 = new stzWalker2D([0,0], [2,2], 1)        // Constant step of 1
-w2 = new stzWalker2D([0,0], [4,4], 2)        // Constant step of 2
-w3 = new stzWalker2D([0,0], [3,3], [1,2,1])  // Variable step pattern
+w1 = new stzWalker2D([1,1], [3,3], 1)        // Constant step of 1
+w2 = new stzWalker2D([1,1], [5,5], 2)        // Constant step of 2
+w3 = new stzWalker2D([1,1], [4,4], [1,2,1])  // Variable step pattern
 
 walkers = Wks2D([w1, w2, w3])
 
 // Walk each 3 steps and check positions
 walkers.WalkAllNSteps(3)
 
-? "Positions after 3 steps:"
-for i = 1 to walkers.Size()
-    ? "Walker " + i + ": " + @@(walkers.Walker(i).CurrentPosition())
-next
-#--> Positions after 3 steps:
-#--> Walker 1: [1,2]
-#--> Walker 2: [2,2]
-#--> Walker 3: [2,2]
+? @@(walkers.CurrentPositions())
+#--> [ [ 1, 2 ], [ 2, 2 ], [ 1, 2 ] ]
 
 pf()

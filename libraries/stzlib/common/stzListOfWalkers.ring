@@ -14,11 +14,25 @@
 /////////////////
 
 func Wks(paoWalkers)
-	try
+
+	if NOT isList(paoWalkers)
+		StzRaise("Can't create a stzListOfWalkers object! paoWalkers must be a list.")
+	ok
+
+	if NOT len(paoWalkers) > 0
+		StzRaise("Can't create a stzListOfWalkers object! paoWalkers list must not be empty.")
+	ok
+
+	if IsWalker(paoWalkers[1])
 		return new stzListOfWalkers(paoWalkers)
-	catch
+
+	but isWalker2D(paoWalkers[1])
 		return new stzListOfWalkers2D(paoWalkers)
-	done
+
+	else
+		StzRaise("Can't create a stzListOfWalkers object! paoWalkers list must be a list of stzWalker or stzWalker2D objects.")
+
+	ok
 
 class stzListOfWalkers
 
@@ -35,6 +49,10 @@ class stzListOfWalkers
 		ok
 
 		nLen = len(paoWalkers)
+		if nLen = 0
+			StzRaise("Can't create the stzListOfWalkers object! You must provide a non empty list of stzWalker objects.")
+		ok
+
 
 		for i = 1 to nLen
 			if NOT @IsWalker(paoWalkers[i])
@@ -436,6 +454,7 @@ class stzListOfWalkers
 		def WalkAllToPosition(n)
 		return This.WalkToPosition(n)
 
+
 	  #-------------------#
 	 #  FINDING WALKERS  #
 	#-------------------#
@@ -495,3 +514,31 @@ class stzListOfWalkers
 		next
 
 		return _anResult_
+
+	  #-----------------#
+	 #   WALKER SYNC   #
+	#-----------------#
+
+	def SetAllToPosition(n)
+		nLen = This.Size()
+
+		for i = 1 to nLen
+			if This.Walker(i).IsWalkable(n)
+				This.Walker(i).SetCurrentPosition(n)
+			else
+				StzRaise("Position [" + n + "] is not walkable for walker #" + i)
+			ok
+		next
+
+	def SetAllToStep(pStep)
+
+		if CheckParams()
+			if NOT ( isNumber(pStep) or ( isList(pStep) and @IsListOfNumbers(pSteps) ) )
+				StzRaise("Incorrect param type! pStep must be a number or a list of numbers.")
+			ok
+		ok
+
+		nLen = len(@aoWalkers)
+		for i = 1 to nLen
+			@aoWalkers.@step = pStep
+		next
