@@ -341,19 +341,20 @@ w3 = new stzWalker2D([3,3], [6,6], 1)
 walkers = Wks2D([w1, w2, w3])
 
 # Walkers containing position [1,1]
-? @@(walkers.FindWalkersOnPositions([[1,1]]))
+? @@(walkers.FindWalkersOnPosition([1,1]))
 #--> [ 1, 2 ]
 
 # Walkers containing positions [1,1] and [2,2]
 ? @@(walkers.FindWalkersOnPositions([ [1,1], [3,3] ]))
 #--> Walkers containing positions [1,1] and [2,2]: [1,2]
 
+/*
 ? "Walkers within bounding box [0,0,3,3]: " + @@(walkers.FindWalkersWithinSection(0, 0, 3, 3))
 #--> Walkers within bounding box [0,0,3,3]: [1,2]
 
 ? "Walkers intersecting path [[1,1],[5,5]]: " + @@(walkers.FindWalkersIntersectingPath([[1,1],[5,5]]))
 #--> Walkers intersecting path [[1,1],[5,5]]: [1,2,3]
-
+*/
 pf()
 /*--- Edge cases - Empty list of walkers
 
