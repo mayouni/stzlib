@@ -16,9 +16,6 @@
 func StzListOfListsQ(paList)
 	return new stzListOfLists(paList)
 
-	func Stz2DList(paList)
-		return StzListOfListsQ(paList)
-
 func ItemExists(pItem, paList)
 	oTempList = new stzList(paList)
 	if oTempList.Contains(pItem) 
@@ -221,9 +218,6 @@ func CommonItems(paLists)
 func StzListsQ(paList)
 	return new stzLists(paList)
 
-func Stz2DListQ(paList)
-	return new stz2DList(paList)
-
 #--
 
 func AreContiguous(paListOfLists)
@@ -253,8 +247,6 @@ func AreContiguous(paListOfLists)
 
 class stzLists from stzListOfLists
 
-class stz2DList from stzListOfLists
-
 class stzListOfLists from stzList
 
 	@aContent = []
@@ -264,7 +256,7 @@ class stzListOfLists from stzList
 		if CheckingParams()
 
 			if NOT isList(paList) 
-				StzRaise("Can't create the object! You must provide a list.")
+				StzRaise("Can't create the stzListOfLists object! You must provide a list.")
 			ok
 	
 			bOk = _TRUE_
@@ -277,7 +269,7 @@ class stzListOfLists from stzList
 			next
 	
 			if NOT bOk
-				StzRaise("Can't create the object! You must provide a list of lists!")
+				StzRaise("Can't create the stzListOfLists object! You must provide a list of lists!")
 			ok
 
 		ok
@@ -307,9 +299,6 @@ class stzListOfLists from stzList
 
 	def ListOfLists()
 		return This.Content()
-
-		def 2Dlist()
-			return This.Content()
 
 	def NumberOfLists()
 		return len(@aContent)
@@ -751,6 +740,12 @@ class stzListOfLists from stzList
 			return This.ListsHaveSameNumberOfItems()
 
 		def IsA2DList()
+			return This.ListsHaveSameNumberOfItems()
+
+		def IsList2D()
+			return This.ListsHaveSameNumberOfItems()
+
+		def IsAList2D()
 			return This.ListsHaveSameNumberOfItems()
 
 		def IsGrid()

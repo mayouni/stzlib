@@ -828,7 +828,13 @@ class stzListOfWalkers2D
 	 #  FINDING WALKERS  #
 	#-------------------#
 
-	def FindWalkersWithPositions(paPositions)
+	def FindOnPosition(paPosition)
+		return This.FindWalkersOnPositions([paPosition])
+
+		def FindWalkersOnPosition(paPosition)
+			return This.FindOnPosition(paPosition)
+
+	def FindOnPositions(paPositions)
 
 		if NOT isList(paPositions)
 			StzRaise("Incorrect param type! paPositions must be a list of [x,y] positions.")
@@ -837,16 +843,33 @@ class stzListOfWalkers2D
 		aWalkables = This.Walkables()
 
 		oLoL = new stzListOfLists(This.Walkables())
-		aResult = oLoL.Find(paPositions)
+? @@(paPositions)
+? @@NL(oLoL.Content()) + NL
+		aResult = oLoL.FindManyInLists(paPositions)
 		return aResult
 
-		def FindWalkersContainingPositions(paPositions)
-			return This.FindWalkersWithPositions(paPositions)
-
 		def FindWalkersOnPositions(paPositions)
-			return This.FindWalkersWithPositions(paPositions)
+			return This.FindOnPositions(paPositions)
 
-	def FindWalkersWithinBoundingBox(nX1, nY1, nX2, nY2)
+		def FindWalkersContainingPositions(paPositions)
+			return This.FindOnPositions(paPositions)
+
+
+	def FindWalkersInSection(panStartPos, panEndPos)
+
+		if NOT (isList(panStartPos) and len(panStartPos) and
+			isNumber(panStartPos[1]) and isNumber(panStartPos[2]) and
+
+			isList(panEndPos) and len(panEndPos) and
+			isNumber(panEndPos[1]) and isNumber(panEndPos[2]) )
+
+			StzRaise("Incorrect param type! panStartPos and panEndPos must be pairs of numbers.")
+		ok
+
+		nX1 = panStartPos[1]
+		nY1 = panStartPos[2]
+		nX2 = panEndPos[1]
+		nY2 = panEndPos[2]
 
 		aResult = []
 		nSize = This.Size()

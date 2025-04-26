@@ -159,17 +159,23 @@ t0 = clock()
 	load "list/stzHashList.ring"
 	load "list/stzListOfHashLists.ring"
 	load "list/stzSet.ring"
+
 	load "list/stzListOfLists.ring"
+	load "list/stzList2D.ring"
 	load "list/stzListOfPairs.ring"
 	load "list/stzListOfSections.ring"
 	load "list/stzSetOfSections.ring"
+
 	load "list/stzPair.ring"
 	load "list/stzPairOfLists.ring"
 	load "list/stzListOfSets.ring"
+
 	load "list/stzTable.ring"
 	load "list/stzTree.ring"
 	load "list/stzGrid.ring"
+
 	load "list/stzItem.ring"
+
 	load "list/stzListParser.ring"
 	load "list/stzListInString.ring"
 	load "list/stzListFormatter.ring"
