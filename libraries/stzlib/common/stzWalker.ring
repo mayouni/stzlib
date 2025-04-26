@@ -50,7 +50,7 @@ class stzWalker
 
 	@nStart
 	@nEnd
-	@pSteps   # Can be a number or a list of numbers
+	@Steps   # Can be a number or a list of numbers
 	@bIsVariantSteps = _FALSE_  # TRUE if steps vary, FALSE if constant step
 
 	@anWalkables = []
@@ -131,7 +131,7 @@ class stzWalker
 	
 		@nStart = pnStart
 		@nEnd = pnEnd
-		@pSteps = pSteps
+		@Steps = pSteps
 	
 		# Check if steps is a number or a list of numbers
 	
@@ -178,9 +178,9 @@ class stzWalker
 		        # If the list has mixed sign numbers or has only 2 elements with different signs, 
 		        # we treat it as variant steps
 	
-			if HaveSameDifference(pSteps) and NOT StzListOfNumbersQ(@pSteps).ContainsPositiveAndNegativeNumbers()
+			if HaveSameDifference(pSteps) and NOT StzListOfNumbersQ(@Steps).ContainsPositiveAndNegativeNumbers()
 				@bIsVariantSteps = FALSE
-				@pSteps = pSteps[1]  # Use first step as they're all the same
+				@Steps = pSteps[1]  # Use first step as they're all the same
 			ok
 		else
 			StzRaise("Incorrect param type! pSteps must be a number or a list of numbers.")
@@ -194,7 +194,7 @@ class stzWalker
 	
 			# Check if we have mixed positive/negative steps - use specialized calculation
 	
-			if StzListOfNumbersQ(@pSteps).ContainsPositiveAndNegativeNumbers()
+			if StzListOfNumbersQ(@Steps).ContainsPositiveAndNegativeNumbers()
 				This.CalculateVariantWalkablesXT()
 			else
 				This.CalculateVariantWalkables()
@@ -218,7 +218,7 @@ class stzWalker
 
 		# Determine how to apply the step based on direction
 
-		nStep = @pSteps
+		nStep = @Steps
 
 		# For backward direction, ensure step has the right sign
 
@@ -273,18 +273,18 @@ class stzWalker
 		anSteps = []
 
 		if bForwardNaturalDirection
-			anSteps = @pSteps
+			anSteps = @Steps
 
 		else
 			# For backward direction, negate positive steps
 
-			nLen = len(@pSteps)
+			nLen = len(@Steps)
 
 			for i = 1 to nLen
-				if @pSteps[i] > 0
-					anSteps + -@pSteps[i]
+				if @Steps[i] > 0
+					anSteps + -@Steps[i]
 				else
-					anSteps + @pSteps[i]
+					anSteps + @Steps[i]
 				ok
 			next
 		ok
@@ -365,7 +365,7 @@ class stzWalker
 
 		nStart = @nStart
 		nEnd = @nEnd
-		anSteps = @pSteps
+		anSteps = @Steps
     
 		# Determine natural direction
 
@@ -456,7 +456,7 @@ class stzWalker
 			return Content()
 
 	def Copy()
-		return new stzWalker( @nStart, @nEnd, @pSteps )
+		return new stzWalker( @nStart, @nEnd, @Steps )
 
 	def StartPosition()
 		return @nStart
@@ -477,15 +477,15 @@ class stzWalker
 			return @nEnd
 
 	def Steps()
-		return @pSteps
+		return @Steps
 
 		def Stepp()
 
 	def NStep() # NOTE: We can't use Step() because STEP is reserved by Ring
 		if @bIsVariantSteps
-			return @pSteps
+			return @Steps
 		else
-			return @pSteps
+			return @Steps
 		ok
 
 		#< @FunctionAlternativeForms
@@ -660,7 +660,7 @@ class stzWalker
 
 		# If we have mixed positive/negative steps, use specialized implementation
 
-		if @bIsVariantSteps and StzListOfNumbersQ(@pSteps).ContainsPositiveAndNegativeNumbers()
+		if @bIsVariantSteps and StzListOfNumbersQ(@Steps).ContainsPositiveAndNegativeNumbers()
 			return This.RemainingWalkablesMixed()
 		ok
 
@@ -796,7 +796,7 @@ class stzWalker
 
 		# For mixed steps (positive and negative), use a different implementation
 
-		if @bIsVariantSteps and StzListOfNumbersQ(@pSteps).ContainsPositiveAndNegativeNumbers()
+		if @bIsVariantSteps and StzListOfNumbersQ(@Steps).ContainsPositiveAndNegativeNumbers()
 			return This.WalkNStepsMixed(n)
 		ok
 

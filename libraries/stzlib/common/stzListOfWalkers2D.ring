@@ -34,10 +34,13 @@ class stzListOfWalkers2D
 	def init(paoWalkers)
 
 		if NOT isList(paoWalkers)
-			StzRaise("Incorrect param type! paoWalkers must be a list.")
+			StzRaise("Can't create a stzListOfWalkers2D object! paoWalkers must be a list.")
 		ok
 
 		nLen = len(paoWalkers)
+		if nLen = 0
+			StzRaise("Can't create the stzListOfWalkers2D object! You must provide a non empty list of stzWalker2D objects.")
+		ok
 
 		for i = 1 to nLen
 			if NOT @IsWalker2D(paoWalkers[i])
@@ -273,6 +276,11 @@ class stzListOfWalkers2D
 
 		return TRUE
 
+
+
+	# Analyzing all walkers in the collection and determining which
+	# step size (or step sequence) is used most frequently among them:
+
 	def MostCommonStep()
 
 		nSize = This.Size()
@@ -425,6 +433,19 @@ class stzListOfWalkers2D
 			ok
 		next
 
+	def SetAllToStep(pStep)
+
+		if CheckParams()
+			if NOT ( isNumber(pStep) or ( isList(pStep) and @IsListOfNumbers(pSteps) ) )
+				StzRaise("Incorrect param type! pStep must be a number or a list of numbers.")
+			ok
+		ok
+
+		nLen = len(@aoWalkers)
+		for i = 1 to nLen
+			@aoWalkers.@step = pStep
+		next
+
 	  #-----------------------------#
 	 #   WALKER TRANSFORMATIONS    #
 	#-----------------------------#
@@ -502,6 +523,9 @@ class stzListOfWalkers2D
 		#< @FunctionAlternativeForm
 
 		def WalkNSteps(n)
+			return This.WalkAllNSteps(n)
+
+		def WalkN(n)
 			return This.WalkAllNSteps(n)
 
 		#>
@@ -775,28 +799,27 @@ class stzListOfWalkers2D
 
 		sResult += "╮" + NL
 
-		# Add rows with Y-axis labels and borders
-
-		for y = 1 to nGridHeight
-
-			sYLabel = "" + ((y+nMinY-1) % 10)
-
-			if aLeftMarkers[y] = "> "
-				sResult += sYLabel + " " + aLeftMarkers[y]
-			else
-				sResult += sYLabel + " │ "
-			ok
-
-			for x = 1 to nGridWidth
-				sContent = aGrid[y][x]
-				nPadding = floor((nCellWidth - len(sContent)) / 2)
-				sSpaceBefore = ring_copy(" ", nPadding)
-				sSpaceAfter = ring_copy(" ", nCellWidth - len(sContent) - nPadding)
-				sResult += sSpaceBefore + sContent + sSpaceAfter
-			next
-
-			sResult += "│" + NL
-		next
+# Add rows with Y-axis labels and borders
+for y = 1 to nGridHeight
+    sYLabel = "" + ((y+nMinY-1) % 10)
+    
+    # Fix: Replace the vertical line with ">" when there's a marker
+    if aLeftMarkers[y] = ">"
+        sResult += sYLabel + " > " # Show y-coordinate and ">" as the border
+    else
+        sResult += sYLabel + " │ " # Show y-coordinate and normal border
+    ok
+    
+    for x = 1 to nGridWidth
+        sContent = aGrid[y][x]
+        nPadding = floor((nCellWidth - len(sContent)) / 2)
+        sSpaceBefore = ring_copy(" ", nPadding)
+        sSpaceAfter = ring_copy(" ", nCellWidth - len(sContent) - nPadding)
+        sResult += sSpaceBefore + sContent + sSpaceAfter
+    next
+    
+    sResult += "│" + NL
+next
 
 		# Add bottom border
 
@@ -824,17 +847,16 @@ class stzListOfWalkers2D
     
 		return cResult
 
-	  #-------------------#
-	 #  FINDING WALKERS  #
-	#-------------------#
+	  #------------------------------#
+	 #  FINDING WALKABLE POSITIONS  #
+	#------------------------------#
 
-	def FindOnPosition(paPosition)
-		return This.FindWalkersOnPositions([paPosition])
+	# Identifying which walkers can walk on specific position(s)
 
-		def FindWalkersOnPosition(paPosition)
-			return This.FindOnPosition(paPosition)
+	def FindWalkable(paPosition)
+		return This.FindWalkables([paPosition])
 
-	def FindOnPositions(paPositions)
+	def FindWalkables(paPositions)
 
 		if NOT isList(paPositions)
 			StzRaise("Incorrect param type! paPositions must be a list of [x,y] positions.")
@@ -843,17 +865,12 @@ class stzListOfWalkers2D
 		aWalkables = This.Walkables()
 
 		oLoL = new stzListOfLists(This.Walkables())
-? @@(paPositions)
-? @@NL(oLoL.Content()) + NL
 		aResult = oLoL.FindManyInLists(paPositions)
+
 		return aResult
 
-		def FindWalkersOnPositions(paPositions)
-			return This.FindOnPositions(paPositions)
-
-		def FindWalkersContainingPositions(paPositions)
-			return This.FindOnPositions(paPositions)
-
+	# Identifiying walkers whose entire bounding box fits
+	# within a specified rectangular section
 
 	def FindWalkersInSection(panStartPos, panEndPos)
 
@@ -885,6 +902,9 @@ class stzListOfWalkers2D
 		next
 		
 		return aResult
+
+	# Determining which walkers have walkable positions that
+	# overlap with a specific path
 
 	def FindWalkersIntersectingPath(paPositions)
 

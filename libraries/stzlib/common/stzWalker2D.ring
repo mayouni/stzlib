@@ -40,7 +40,7 @@ class stzWalker2D
 
 	@cDirection	# :forward or :backward
 
-	@pSteps		# Can be a number or a list of numbers
+	@Steps		# Can be a number or a list of numbers
 
 	@aWalkables = []	# List of walkable positions as [x,y] pairs
 	@aCurrPosition = []	# Current position as [x,y]
@@ -100,7 +100,7 @@ class stzWalker2D
 
 		@anStartPos = panStart
 		@anEndPos = panEnd
-		@pSteps = pSteps
+		@Steps = pSteps
 
 
 		# Early check if 0s in positions
@@ -125,20 +125,20 @@ class stzWalker2D
 
 		anTempSteps = []
 
-		if isNumber(@pSteps)
-			if @pSteps = 0
-				StzRaise("Incorrect param value! @pSteps must be non zero.")
+		if isNumber(@Steps)
+			if @Steps = 0
+				StzRaise("Incorrect param value! @Steps must be non zero.")
 			ok
 
-			anTempSteps + @pSteps
+			anTempSteps + @Steps
 
 		else
 
-			if ring_find(@pSteps, 0)
-				StzRaise("Incorrect param value! @pSteps list must not contain a zero.")
+			if ring_find(@Steps, 0)
+				StzRaise("Incorrect param value! @Steps list must not contain a zero.")
 			ok
 
-			anTempSteps = @pSteps
+			anTempSteps = @Steps
 		ok
 
 		nSum = Sum(anTempSteps)
@@ -149,7 +149,7 @@ class stzWalker2D
 		   ( @cDirection = :Backward and nSum > 0 and
 		    @anEndPos[1] <= nSum )
 
-			StzRaise("Incorrect param value! @pSteps is attempting to walk out before the first position.")
+			StzRaise("Incorrect param value! @Steps is attempting to walk out before the first position.")
 
 		ok
 
@@ -202,9 +202,9 @@ class stzWalker2D
 
 		# Check if pSteps is a number or a list
 
-		if isNumber(@pSteps)
+		if isNumber(@Steps)
 
-			for i = n1 to n2 step @pSteps
+			for i = n1 to n2 step @Steps
 				aResult + aAllPos[i]
 			next
 
@@ -219,14 +219,14 @@ class stzWalker2D
 				aResult + aAllPos[i]
 	
 				# Get the current step from the list
-				stepSize = @pSteps[currentStep]
+				stepSize = @Steps[currentStep]
 	
 				# Move to next position
 				i += stepSize
 	
 				# Move to next step in the cycle
 				currentStep++
-				if currentStep > len(@pSteps)
+				if currentStep > len(@Steps)
 					currentStep = 1
 				ok
 			end
@@ -269,9 +269,9 @@ class stzWalker2D
 		ok
 
 		# Check if pSteps is a number or a list
-		if isNumber(@pSteps)
+		if isNumber(@Steps)
 			nMaxSteps = len(aAllPos) - n1 + 1
-			for i = n1 to len(aAllPos) step @pSteps
+			for i = n1 to len(aAllPos) step @Steps
 				aResult + aAllPos[i]
 			next
 		else
@@ -283,14 +283,14 @@ class stzWalker2D
 				aResult + aAllPos[i]
 
 				# Get the current step from the list
-				stepSize = @pSteps[currentStep]
+				stepSize = @Steps[currentStep]
 
 				# Move to next position
 				i += stepSize
 
 				# Move to next step in the cycle
 				currentStep++
-				if currentStep > len(@pSteps)
+				if currentStep > len(@Steps)
 					currentStep = 1
 				ok
 			end
@@ -309,7 +309,7 @@ class stzWalker2D
 			return Content()
 
 	def Copy()
-		return new stzWalker2D(@anStartPos, @anEndPos, @pSteps)
+		return new stzWalker2D(@anStartPos, @anEndPos, @Steps)
 
 	def StartPosition()
 		return @anStartPos
@@ -330,7 +330,7 @@ class stzWalker2D
 			return This.EndPosition()
 
 	def Steps()
-		return @pSteps
+		return @Steps
 
 	def CurrentPosition()
 		return @aCurrPosition
