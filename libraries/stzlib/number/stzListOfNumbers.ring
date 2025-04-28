@@ -1868,7 +1868,9 @@ class stzListOfNumbers from stzList
 
 		#>
 
-	#==
+	  #==============================#
+	 #  FINDING THE SMALLES NUMBER  #
+	#==============================#
 
 	def FindMin()
 		aContent = This.Content()
@@ -2285,7 +2287,9 @@ class stzListOfNumbers from stzList
 
 		#>
 
-	#==
+	  #==============================#
+	 #  FINDING THE LARGEST NUMBER  #
+	#==============================#
 
 	def FindMax()
 		aContent = This.Content()
@@ -3218,6 +3222,53 @@ class stzListOfNumbers from stzList
 			return This.FarthestNeighbors(n)
 
 		#>
+
+	  #=====================================================#
+	 #  GETTING THE SEQUENTIAL DIFFERENCE BETWEEN NUMBERS  #
+	#=====================================================#
+
+	def Diff()
+		anResult = []
+		nLen = len(@aContent)
+		if nLen = 1
+			StzRaise("Can't compute the Diffs! The ist must contain more then 1 number.")
+		ok
+
+		for i = 2 to nLen
+			anResult + ( @aContent[i] - @aContent[i-1] )
+		next
+
+		return anResult
+
+		def Diffs()
+			return This.Diff()
+
+		def Differences()
+			return This.Diff()
+
+	def DiffTo(n)
+
+		if CheckParams() and NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")				
+		ok
+
+		anResult = []
+		nLen = len(@aContent)
+		if nLen = 1
+			StzRaise("Can't compute the Diffs! The ist must contain more then 1 number.")
+		ok
+
+		for i = 1 to nLen
+			anResult + ( n - @aContent[i] )
+		next
+
+		return anResult
+
+		def DiffsTo(n)
+			return This.DiffTo(n)
+
+		def DifferencesTo(n)
+			return This.DiffTo(n)
 
 	  #======================================================#
 	 #  LEAST COMMON NUMBER WITH AN OTHER LIST OF NUMBERS   #

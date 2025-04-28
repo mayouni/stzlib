@@ -1,7 +1,28 @@
 load "../max/stzmax.ring"
 
 /*=====
+
+pr()
+
+o1 = new stzNumbers([ 8, 12, 14, 18, 20, 24 ])
+? @@( o1.Diffs() )
+#--> [ 4, 2, 4, 2, 4 ]
+
+pf()
+# Executed in 0.03 second(s) in Ring 1.22
+
+/*---
 */
+pr()
+
+o1 = new stzNumbers([ 8, 12, 14, 18, 20, 24 ])
+? @@( o1.DiffTo(12) )
+#--> [ 4, 0, -2, -6, -8, -12 ]
+
+pf()
+
+/*=====
+
 pr()
 
 o1 = new stzListOfNumbers([ 1, 5, 7 , 9 ])
@@ -21,7 +42,7 @@ o1 = new stzListOfNumbers([ -1, 5, 7 , -9 ])
 #--> TRUE
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*=====
 
