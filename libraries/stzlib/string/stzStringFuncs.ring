@@ -1292,6 +1292,23 @@ func WithoutSpaces(pcStr)
 
 	#>
 
+func WithoutQuotes(cStr)
+
+	cStr = @trim(cStr)
+	oStr = new stzString(cStr)
+
+	if oStr.IsBoundedBy('"') or
+	   oStr.IsBoundedBy("'")
+
+		oStr.RemoveFirstAndLastChars()
+		return oStr.Content()
+	ok
+
+	return cStr
+
+	func @WithoutQuotes(cStr)
+		return WithoutQuotes(cStr)
+
 func Simplify(pcStr)
 	return StzStringQ(pcStr).Simplified()
 

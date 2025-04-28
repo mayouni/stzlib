@@ -5,6 +5,14 @@
 
 _$aRegexPatterns_ = [
 
+	# String Structure Patterns
+
+	:textWithNumberSuffix = "^([^\d]*)(\d+)$",
+	:numberWithTextSuffix = "^(\d+)([^\d]*)$", 
+	:textNumberText = "^([^\d]*)(\d+)([^\d]*)$",
+	:alternatingTextNumber = "^([^\d]+\d+)+$",
+	:spaceSeparatedWords = "^(\S+)(?:\s+\S+)*$",
+
 	# Basic structure for international addresses
 	
 	:addressLine = "^[a-zA-Z0-9.,'’\\-\\s]+$",
@@ -242,6 +250,7 @@ _$aRegexPatterns_ = [
 
 	:ringList = "^\[(?:[^[\]]*|\[.*?\])*\]$",
 	:ringListAccess = "^([a-zA-Z_]\w*)\s*\[\s*(\d+|\w+)\s*\]$",
+	:ringListRange = "^([^:]+)\s*:\s*([^:]+)$",  #--> 1:3, A:C, #1:#3, day1:day3
 	:ringHashTable = "^\[\s*:(?:\w+\s*=\s*[^,\]]+\s*,?\s*)+\]$",
 
 	:ringComment = "^(?:#.*|//.*|/\*[\s\S]*?\*/)$",
@@ -538,6 +547,70 @@ _$aRegexPatterns_ = [
 #-----------------------------------#
 
 _$aRegexPatternsExplanations_ = [
+
+	# String patterns
+
+	:textWithNumberSuffix = [
+		"Splits string into non-numeric prefix and numeric suffix",
+
+		"- `^`: Start of string" + NL +
+		"- `([^\\d]*)`: First group: any sequence of non-digit characters" + NL +
+		"- `(\\d+)`: Second group: one or more digits" + NL +
+
+		"- `$`: End of string" + NL + NL +
+		"- Matches: `#1` → [`#`, `1`], `day3` → [`day`, `3`]" + NL +
+		"- Non-matches: `123test`, `test`"
+	],
+
+	:numberWithTextSuffix = [
+		"Splits string into numeric prefix and non-numeric suffix",
+
+		"- `^`: Start of string" + NL +
+		"- `(\\d+)`: First group: one or more digits" + NL +
+		"- `([^\\d]*)`: Second group: any sequence of non-digit characters" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `123abc` → [`123`, `abc`], `5px` → [`5`, `px`]" + NL +
+		"- Non-matches: `abc123`, `abc`"
+	],
+
+	:textNumberText = [
+		"Splits string into prefix, number, and suffix",
+
+		"- `^`: Start of string" + NL +
+		"- `([^\\d]*)`: First group: any sequence of non-digit characters" + NL +
+		"- `(\\d+)`: Second group: one or more digits" + NL +
+		"- `([^\\d]*)`: Third group: any sequence of non-digit characters" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `page5of10` → [`page`, `5`, `of10`]" + NL +
+		"- Non-matches: `page`, `123`"
+	],
+
+	:alternatingTextNumber = [
+		"Matches strings with alternating text and number segments",
+
+		"- `^`: Start of string" + NL +
+		"- `([^\\d]+\\d+)+`: One or more occurrences of text followed by numbers" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `ab12cd34`, `test99more55`" + NL +
+		"- Non-matches: `123abc`, `test`"
+	],
+
+	:spaceSeparatedWords = [
+		"Matches space-separated words",
+
+		"- `^`: Start of string" + NL +
+		"- `(\\S+)`: First group: one or more non-whitespace characters" + NL +
+		"- `(?:\\s+\\S+)*`: Zero or more occurrences of space(s) and word" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `hello world`, `one two three`" + NL +
+		"- Non-matches: `hello\nworld` (contains newline)"
+	],
+
+	# Adress patterns
 
 	:addressLine = [
 		"Matches a single line of an address",
@@ -2085,6 +2158,18 @@ _$aRegexPatternsExplanations_ = [
 
 		"- Matches: `[1,2,3]`, `[[1,2],[3,4]]`, `[]`" + NL +
 		"- Non-matches: `[unclosed`, `[1,2,`, `[[]`"
+	],
+
+	:ringListRange = [
+		"Matches Ring range format expressions",
+
+		"- `^`: Start of line" + NL +
+		"- `([^:]+)`: First capture group for the start value" + NL +
+		"- `\\s*:\\s*`: Colon separator with optional whitespace" + NL +
+		"- `([^:]+)`: Second capture group for the end value" + NL +
+		"- `$`: End of line" + NL + NL +
+		"- Matches: `1:3`, `A:C`, `#1:#3`, `day1:day3`" + NL +
+		"- Non-matches: `1:3:5`, `1::3`"
 	],
 
 	:ringListAccess = [

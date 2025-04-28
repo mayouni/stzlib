@@ -39,26 +39,53 @@ o1.Replace( @@("'+ char(34) +'"), @@('"') )
 #--> [ " ", "!", '"', "#", "y" ]
 
 pf()
-# Executed in 0.02 second(s)
-
-/*---------
-
-pr()
-
-? Contig("ج","ر") # Or ContigList() or Contiguous() or ContiguousList()
-
-pf()
-# Executed in 0.06 second(s)
+# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.20
 
 /*----------
 
 pr()
 
-o1 = new stzList(' "ج":"ر" ')
-? o1.Content()
+? Rx(pat(:textWithNumberSuffix)).Match("day1")
+#--> TRUE
 
 pf()
-# Executed in 0.18 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*----------
+*/
+pr()
+
+? @@( L("[1, 2, 3 ]") )
+#--> [ 1, 2, 3 ]
+
+? @@( L("1:3") )
+#--> [ 1, 2, 3 ]
+
+? @@( L("A:C") ) + NL
+#--> [ "A", "B", "C"]
+
+? @@( L("#1 : #3") )
+#--> [ "#1", "#2", "#3" ]
+
+? @@( L("day1 : day3") ) + nl
+#--> [ "day1", "day2", "day3" ]
+
+? @@( L("سامي1 : سامي3") )
+#o--> [ "سامي1", "سامي2", "سامي3" ]
+
+? @@( L('"A":"C"') )  + NL
+#--> [ '"A":"C"' ]
+
+
+? @@(  L(' "ا" : "ج" ') )
+#o--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+
+? @@(  L('ا:ج') )
+#o--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+
+pf()
+# Executed in 0.33 second(s) in Ring 1.22
 
 /*----------
 
