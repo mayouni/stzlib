@@ -1,1487 +1,568 @@
-/*
-TODO:
-	- Rank vs Position?
-	- Should a szGrid host only strings?
-		I think so...
-		A grid is a visual asset after all.
-		If you need to host other values, use a stzTable insetad.
 
-	--> DECISION: stzGrid would contains only nodes that are strings.
+# Project : Softanza
+# File    : stzgrid.ring
+# Author  : Mansour Ayouni (2025)
+#
+# Description : A positional construct for navigating
+# grid-like objects (1-indexed)
+#
+#------------------------------------------------------
 
-	Also: the Show() function will not show an accurate grid if nodes
-	contains strings of many chars! So:
+func StzGrid(pArg)
+	return new stzGrid(pArg)
 
-	- Should stzGrid contain only chars?
-*/
-
-_cEmptyNodeChar = "."
-_cGridSeparator = ":"
-
-func IsGrid(paList)
-	if isList(paList) and IsListOfLists(paList) and AllListsHaveSameSize(paList)
-		return _TRUE_
-	else
-		return _FALSE_
-	ok
-
-	func @IsGrid(paList)
-		return IsGrid(paList)
-
-	#--
-
-	func IsAGrid(paList)
-		return IsGrid(paList)
-
-	func @IsAGrid(paList)
-		return IsGrid(paList)
-
-	#>
-
-func GridEmptyNodeChar()
-	return _cEmptyNodeChar
-
-	func StzGridEmptyNodeChar()
-		return GridEmptyNodeChar()
-
-	func EmptyNodeChar()
-		return GridEmptyNodeChar()
-
-	func EmptyNode()
-		return GridEmptyNodeChar()
-
-func SetGridEmptyNodeChar(cChar)
-	if NOT (isString(cChar) and Q(cChar).IsAChar())
-		StzRaise("Incorrect param type! cChar must be a char.")
-	ok
-
-	_cEmptyNodeChar = cChar
-
-	func SetStzGridEmptyNodeChar(cChar)
-		SetGridEmptyNodeChar(cChar)
-
-	func SetEmptyNodeChar(cChar)
-		SetGridEmptyNodeChar(cChar)
-
-func GridSeparator()
-	return _cGridSeparator
-
-	func StzGridSeparator()
-		return GridSeparator()
-
-	func GridSep()
-		return GridSeparator()
-
-	func StzGridSep()
-		return GridSeparator()
-
-func SetGridSeparator(cSep)
-	if NOT isString(cSep)
-		StzRaise("Incorrect param type! cSep must be a string.")
-	ok
-
-	_cGridSeparator = cSep
-
-	func SetStzGridSeparator(cSep)
-		SetGridSeparator(cSep)
-
-	func SetGridSep(cSep)
-		SetGridSeparator(cSep)
-
-	func SetStzGridSep(cSep)
-		SetGridSeparator(cSep)
-
-func StzGrid(p)
-	return new stzGrid(p)
-
-func StzGridQ(p)
-	return new stzGrid(p)
-
-class stzGrid from stzObject
-	@aContent
-	@nNumberOfVLines
-	@nNumberOfHLines
-
-	@bShowRanks = _FALSE_
-	@bShowCenter = _FALSE_
-
-	@nOpacity
-	@aLayers
-
-	  #--------------#
-	 #     INIT     #
-	#--------------#
-
-	def init(p)
-		/* There are 4 ways of creating a stzGrid object:
-	
-		Way 1 :
-			o1 = new stzGrid(12)
-	
-		Way 2 :
-			o1 = new stzGrid([3,4])
-	
-		Way 3 :
-			o1 = new setGrid([
-				["A","B","C"],
-				["E","F","G"],
-				["H","I","J"]
-			])
-	
-		Way 4:
-			o1 = new stzGrid("
-				. : 1 : . : . : .
-				1 : 2 : 3 : 4 : 5
-				. : 3 : . : . : .
-				. : 4 : . : . : .
-				. : 5 : . : . : .
-				")
-
-		Way 5:
-
-			o1 = new stzGrid( CharsBetween(" ", "z") )
-
-		*/
-	
-		This.SetGrid(p)
-
-		if KeepingHistory() = _TRUE_
-			This.AddHistoricValue(This.Content())
-		ok
-
-		if KeepingHistoryXT() = _TRUE_
-
-			This.AddHistoricValueXT([
-				This.Content(),
-				This.StzType(),
-				This.ExecTime(),   # From stzList #TODO Check it works
-				This.SizeInBytes()
-			])
-		ok
-
-	  #--------------------#
-	 #  SETTING THE GRID  #
-	#--------------------#
-
-	def SetGrid(p) 
+Class stzGrid From stzObject
 	/*
-	Example 1 : 	SetGrid(12)
+	The stzGrid class is a positional construct for navigating
+	# grid-like objects. It doesn't host data itself but provides
+	# ways to move in grid-like structures in various directions:
+	# forward, backward, up, down, left, right.
 
-	Example 2 : 	SetGrid([3,4])
-
-	Example 3 :
-			SetGrid([
-				["A","B","C"],
-				["E","F","G"],
-				["H","I","J"]
-			])
-
-	Example 4 (TODO):
-
-		SetGrid("
-			. : 1 : . : . : .
-			1 : 2 : 3 : 4 : 5
-			. : 3 : . : . : .
-			. : 4 : . : . : .
-			. : 5 : . : . : .
-		")
-
-	Example 5 :
-
-		SetGrid( CharsBetween(" ", "z") )
-
+	The grid is one-based, meaning positions start from (1,1)
+	at the top-left corner.
 	*/
 
-		aTempGrid = []
-		aHLine = []
-		nV = 0
-		nH = 0
-
-		switch ring_type(p)	
-		on "NUMBER"
-			anVH = @MostSquareLikeFactors(p)
-			nV = anVH[1]
-			nH = anVH[2]
-		
-			for i = 1 to nH
-				aHLine = []
-				for j = 1 to nV
-					aHLine + EmptyNodeChar()
-				next
-				aTempGrid + aHLine
-			next i
-		
-		on "LIST"
-
-			if len(p) = 2
-
-				nV = p[1]
-				if isList(nV) and Q(nV).IsOfNamedParam()
-					nV = nV[2]
-				ok
-
-				nH = p[2]
-				if isList(nH) and Q(nH).IsByNamedParam()
-					nH = nH[2]
-				ok
-
-				if NOT @BothAreNumbers(nV, nH)
-					StzRaise("Incorrect param! p must be a pair of numbers.")
-				ok
-
-				for i = 1 to nV
-					aHLine + EmptyNode()
-				next i
-		
-				for i = 1 to nH
-					aTempGrid + aHLine
-				next i
-
-			else
-
-				if @IsListOfListsOfStrings(p) and
-				   StzListOfListsQ(p).ListsHaveSameNumberOfItems()
-
-					nV = len( p[1] )
-					nH = len(p)
-
-					for i = 1 to nH
-						aTempGrid + p[i]
-					next
-
-				else
-					# Case like StzGridQ( "A" : "M" )
-					# ~> Produces a 3x5 grid and fills the first 13
-					# cells with the given 13 chars, and leaves the
-					# last two cells empty (with EmpyNodeChar())
-
-					nLen = len(p)
-					aVH = @MostSquareLikeFactors(nLen)
-
-					nV = aVH[1]
-					nH = aVH[2]
-
-					n = 0
-					for i = 1 to nV
-						aHLine = []
-						for j = 1 to nH
-							n++
-							if n <= nLen
-								cNode = p[n]
-							else
-								cNode = EmptyNode()
-							ok
-							aHLine + cNode
-						next j
-
-						aTempGrid + aHLine
-					next i
-
-				ok
-
-			ok
-
-		on "STRING"
-			if Q(p).ContainsOneOfThese([ NL, GridSep() ])
-
-				aTempGrid = Q(p).RemoveEmptyLinesQ().
-						LinesQRT(:stzListOfStrings).
-						TrimQ().
-						StringsSplitted(:Using = GridSep())
-
-				nV = len(aTempGrid)
-				nH = len(aTempGrid[1])
-			ok
-		off
-
-		@aContent = aTempGrid
-
-		@nNumberOfVLines = nV
-		@nNumberOfHLines = nH
-
-	  #----------------#
-	 #     UPDATE     #
-	#----------------#
-
-	def Update(paContent)
-		@aContent = paContent
-
-		if KeepingHisto() = _TRUE_
-			This.AddHistoricValue(This.Content())  # From the parent stzObject
+	@nRows = 0
+	@nCols = 0
+	@nCurrentRow = 1
+	@nCurrentCol = 1
+	@nWrapMode = :NoWrap # :Wrap, :NoWrap
+	@cDirection = :Forward # :Forward, :Backward, :Left, :Right, :Up, :Down
+	
+	def init(pArg)
+		if isList(pArg) and len(pArg) = 2
+			# Initialize with number of rows and columns
+			@nRows = pArg[1]
+			@nCols = pArg[2]
+			
+		elseif isObject(pArg) and classname(pArg) = "stzGrid"
+			# Copy constructor
+			@nRows = pArg.NumberOfRows()
+			@nCols = pArg.NumberOfColumns()
+			@nCurrentRow = pArg.CurrentRow()
+			@nCurrentCol = pArg.CurrentColumn()
+			@nWrapMode = pArg.WrapMode()
+			@cDirection = pArg.Direction()
+			
+		else
+			stzRaise("Incorrect param type! You must provide [nRows, nCols] or a stzGrid object.")
 		ok
-
-		def UpdateWith(paContent)
-			This.Update(paContent)
-
-	  #-----------------#
-	 #     GENERAL     #
-	#-----------------#
-
-	def Content()
-		return @aContent
-
-		def Value()
-			return Content()
-
+		
+		# Initialize position to (1,1)
+		@nCurrentRow = 1
+		@nCurrentCol = 1
+	
+	#-- INFORMATION METHODS
+	
 	def Size()
-		anResult = [ This.NumberOfHLines(), This.NumberOfVLines() ]
-		return anResult
-
-		def Dimensions()
-			return This.Size()
-
-	def NumberOfVLines()
-		return @nNumberOfVLines
-
-		def HowManyVlines()
-			return This.NumberOfVLines()
-
-		def HowManyVLine()
-			return This.NumberOfVLines()
-
-	def NumberOfHLines()
-		return @nNumberOfHLines
-
-		def HowManyHlines()
-			return This.NumberOfHLines()
-
-		def HowManyHLine()
-			return This.NumberOfHLines()
-
-		def CountHLines()
-			return This.NumberOfHLines()
-
-	def NumberOfNodes()
-		return This.NumberOfVLines() * This.NumberOfHLines()
-
-		def HowManyNodes()
-			return This.NumberOfNodes()
-
-		def HowManyNode()
-			return This.NumberOfNodes()
-
-		def CountNodes()
-			return This.NumberOfNodes()
-
-	def NumberOfNodesPerHLine()
-		return This.NumberOfVLines()
-
-		def HowManyNodesPerHLine()
-			return This.NumberOfNodesPerHLine()
-
-		def HowManyNodePerHLine()
-			return This.NumberOfNodesPerHLine()
-
-		def CountNodesPerHLine()
-			return This.NumberOfNodesPerHLine()
-
-	def NumberOfNodesPerVLine()
-		return This.NumberOfHLines()
-
-		def HowManyNodesPerVLine()
-			return This.NumberOfNodesPerVLine()
-
-		def HowManyNodePerVLine()
-			return This.NumberOfNodesPerVLine()
-
-		def CountNodesPerVLine()
-			return This.NumberOfNodesPerVLine()
-
-	def HasNVLines(n)
-		if This.NumberOfVlines() = n
-			return _TRUE_
-		else
-			return _FALSE_
-		ok
-
-		def ContainsNVLines(n)
-			return This.HasNVLines(n)
-
-	def HasNHLines(n)
-		if This.NumberOfHLines() = n
-			return _TRUE_
-		else
-			return _FALSE_
-		ok
-
-		def ContainsNHLines(n)
-			return This.HasNHLines(n)
-
-	def HasNNodes(n)
-		if This.NumberOfNodes() = n
-			return _TRUE_
-		else
-			return _FALSE_
-		ok
-
-		def ContainsNVNodes(n)
-			return This.HasNVNodes(n)
+		return [@nRows, @nCols]
 		
-	def AllNodesOf_NthVLineAre_Strings(n)
-		bResult = _TRUE_
-		for node in This.VLine(n)
-			if NOT isString(node)
-				bResult = _FALSE_
-			ok
-		next
-		return bResult
-
-	def AllNodesOf_NthHLineAre_Strings(n)
-		// TODO
-
-	  #-----------------------------------------#
-	 #     GETTING Nodes, HLines, & VLines     #
-	#-----------------------------------------#
-	
-	def VLine(n)
-
-		_aResult_ = []
-		_nLen_ = This.NumberOfHLines()
-
-		for @i = 1 to _nLen_
-			_aResult_ + This.HLine(@i)[n]
-		next
-
-		return _aResult_
-
-	def FirstVLine()
-		return This.VLine(1)
-
-	def LastVLine()
-		return This.VLine( This.NumberOfVLines() )
-
-	def VLines()
-		_aResult_ = []
-		_nLen_ = This.NumberOfVLines()
-
-		for @i = 1 to _nLen_
-			_aResult_ + This.VLine(@i)
-		next
-
-		return _aResult_
-
-	def HLine(n)
-		return This.Content()[n]
-
-	def FirstHLine()
-		return This.HLine(1)
-
-	def LastHLine()
-		return This.HLine( This.NumberOfHLines() )
-
-	def HLines()
-
-		_aResult_ = []
-		_nLen_ = This.NumberOfHLines()
-
-		for @i = 1 to NumberOfHLines()
-			_aResult_ + This.HLine(@i)
-		next
-
-		return _aResult_
-
-	def NodeAtPosition(nVLine, nHLine)
-		return This.HLine(nHLine)[nVLine]
-
-		def Node(nVLine, nHLine)
-			return This.NodeAtPosition(nVLine, nHLine)
-
-	def NthNode()
-		aPosition = This.PositionOfNode(n)
-		nVLine = aPosition[1]
-		nHLine = aPosition[2]
-		return This.NodeAtPosition(nVLine, nHLine)
-
-	def PositionOfNode(n)
-		if n <= NumberOfVLines
-			nVLine = n
-			nHLine = 1
-		else
-
-			nHLine = StzNumberQ( ""+ n / This.NumberOfVLines() ).IntegerPartValue()
-			nVLine = n - nHLine * This.NumberOfVLines()
-
-			if nVLine = 0
-				nVLine = This.NumberOfVLines()
-			but nVLine > 0
-				nHLine++
-			ok
-		ok
-
-		aPosition = [ nVLine, nHLine ]
-		return aPosition
-
-		def NodePosition(n)
-			return PositionOfNode(n)
-
-	  #----------------------------------------#
-	 #     NUMBERED VLines, HLines & GRID     #
-	#----------------------------------------#
-
-	def NumberedVLines(pnVLine)
-		_n_ = StzCounterQ([ :StartAt = 1, :WhenYouReach = 10, :RestartAt = 0 ]).CountTo(pnVLine)
-
-		/* TODO: Replace with this when stzList is up!
-		oTempList = new stzList( VLine(n) )
-		return oTempList.InsertInStart(n) */
-
-		_aResult_ = [ _n_ ]
-		_nLen_ = This.NumberOfHLines()
-
-		for @i = 1 to _nLen_
-			_aResult_ + This.VLine(pnVLine)[@i]
-		next
-
-		return _aResult_
-
-	def NumberedHLines(pnHLine)
-		_n_ = StzCounterQ([ :StartAt = 1, :WhenYouReach = 10, :RestartAt = 0 ]).CountTo(pnHLine)
-
-		/* Replace with this when stzList is up!
-		oTempList = new stzList( HLine(n) )
-		return oTempList.InsertInStart(n) */
-
-		_aResult_ = [ _n_ ]
-		_nLen_ = This.NumberOfVLines()
-
-		for @i = 1 to 
-			_aResult_ + This.HLine(pnHLine)[@i]
-		next
-
-		return _aResult_
-
-
-	  #--------------------------------------#
-	 #     CENTRAL VLine, HLine & Node      #
-	#--------------------------------------#
-
-	def HasCentralHLine()
-		if StzNumberQ( ""+ This.NumberOfHLines() ).IsOdd()
-			return _TRUE_
-		else
-			return _FALSE_
-		ok
-
-		def ContainsCentralHLine()
-			return This.HasCentralHLine()
-
-	def RankOfCentralHLine()
-		if This.HasCentralHLine()
-			return 1+ StzNumberQ( ""+ (This.NumberOfHLines()/2) ).IntegerPart()
-
-		else
-			StzRaise("The grid has no central HLine!")
-			StzRaise(stzGridError(:CanNotDefineRankOfCentralHorizontalLine))
-		ok
-
-	def CentralHLine()
-		return HLine( RankOfCentralHLine() )
-
-	def HasCentralVLine()
-		if StzNumberQ( ""+ NumberOfVLines() ).IsOdd()
-			return _TRUE_
-		else
-			return _FALSE_
-		ok
-
-		def ContainsCentralVLine()
-			return This.HasCentralVLine()
-
-	def RankOfCentralVLine()
-		if This.HasCentralVLine() 
-			return 1+ StzNumberQ( ""+ (This.NumberOfVLines()/2) ).IntegerPart()		
-
-		else
-			StzRaise("The grid has no central VLine!")
-		ok
-
-	def CentralVLine()
-		return This.VLine( This.RankOfCentralVLine() )
-
-	def HasCentralNode()
-		if This.HasCentralVLine() and This.HasCentralHLine()
-			return _TRUE_
-		else
-			return _FALSE_
-		ok
-
-		def ContainsCentralNode()
-			return This.HasCentralNode()
-
-	def HasCentralRegion()
-		if NOT This.HasCentralNode()
-			return _TRUE_
-		else
-			return _FALSE_
-
-		ok
-
-		def ContainsCentralRegion()
-			return This.HasCentralRegion()
-
-	def PositionOfCentralNode()
-		if This.HasCentralNode()
-			aPosition = [ This.RankOfCentralVLine(),
-				      This.RankOfCentralHLine() ]
-			return aPosition
-		ok
-
-		def CentralNodePosition()
-			return This.PositionOfCentralNode()
-	
-	def CentralNode()
-		If This.HasCentralNode()
-			return This.Node( This.RankOfCentralNode() )
-		else
-			StzRaise("The grid has no central Node!")
-		ok
-
-	def RankOfCentralNode()
-		return This.RankOfNode( This.RankOfCentralVLine(),
-					This.RankOfCentralHLine() )
-
-	def CenterRank()
-		return This.RankOfCentralNode()
-
-	def RankOfCenter()
-		return This.RankOfCentralNode()
-
-	def RankOfNode(nVLine, nHLine)
-		return This.NumberOfNodesPerHLine() * (nHLine - 1) + nVLine
-
-	def Center()
-
-		if This.HasCentralNode()
-			return This.CentralNode()
-		else
-			return This.CentralRegion()
-		ok
-
-	def Diagonal()
-
-		_nVLen_ = This.NumberOfVLines()
-		_nHLen_ = This.NumberOfHLines()
-
-		if _nVLen_ = _nHLen_
-
-			_aResult_ = []
-
-			for @i = 1 to _nVLen_
-				_aResult_ + This.NodeAtPosition(@i, @i)
-			next
-
-			return _aResult_
-		ok
-
-	def Diagonal1()
-
-		_nVLen_ = This.NumberOfVLines()
-		_nHLen_ = This.NumberOfHLines()
-
-		if _nVLen_ = _nHLen_
-
-			aResult = []
-
-			for @i = 1 to _nVLen_
-				_aResult_ + This.NodeAtPosition(@i, @i)
-			next
-
-			return _aResult_
-		ok
-
-	def Diagonal2()
-
-		_nVLen_ = This.NumberOfVLines()
-		_nHLen_ = This.NumberOfHLines()
-
-		if _nVLen_ = _nHLen_
-
-			_aResult_ = []
-
-			for @i = 1 to _nHLen_
-				_aResult_ + This.NodeAtPosition( _nHLen_ - i + 1, i )
-			next
-
-			return _aResult_
-		ok
-
-	  #-----------------------------------------#
-	 #     SETTING Nodes, HLines, & VLines     #
-	#-----------------------------------------#			
-
-	def SetNode(nVLine, nHLine, pValue)
-
-		if nVLine = :FirstVLine
-			nVLine = 1
-
-		but nVLine = :LastVLine
-			nVLine = This.NumberOfVLines()
-
-		but nVLine = :CentralVLine
-			nVLine = This.RankOfCentralVLine() // TODO
-
-		but nVLine = :AnyVLine
-			nVLine = random( This.NumberOfVLines() )
-		ok
-
-		if nHLine = :FirstHLine
-			nHLine = 1
-
-		but nHLine = :LastHLine
-			nHLine = This.NumberOfHLines()
-
-		but nHLine = :CentralHLine
-			nHLine = This.RankOfCentralHLine() // TODO
-
-		but nHLine = :AnyHLine
-			nHLine = random( This.NumberOfHLines() )
-		ok
-
-		// Setting the Node
-		This.Content()[nHLine][nVLine] = pValue
-
-	def SetCentralNode(pNode)
-		if This.HasCentralNode()
-			This.SetNode( :CentralVLine, :CentralHLine, pNode)
-		else
-			StzRaise("The grid has no central Node!")
-		ok
-
-	def SetNodeAtRank(n, pValue)
-		aPosition = PositionOfNode(n)
-		nVLine = aPosition[1]
-		nHLine = aPosition[2]
-		This.SetNode( nVLine, nHLine, pValue)
-
-	def SetHLine(nHLine, paHLine)
-		for nVLine = 1 to NumberOfVLines()
-			if nVLine <= len(paHLine)
-				cHLine = paHLine[nVLine]
-			else
-				cHLine = _NULL_
-			ok
-			This.SetNode(nVLine, nHLine, cHLine)
-		next
-
-	def SetHLineSection(nHLine, nStart, nEnd, paHLine)
-		// TODO
-
-	def SetHLineStartingFrom(nHLine, nStart, paHLine)
-		// TODO
-
-	def SetHLineEndingAt(nHLine, nEnd, paHLine)
-		// TODO
-
-	def SetVLine(pnVLine, paVLine)
-
-		_nLenPaVLine_ = len(paVLine)
-		_nLenHLine_ = This.NumberOfHLines()
-		_cVLine_ = ""
-
-		for @i = 1 to _nLenHLine_
-
-			if @i <= _nLenPaVLine_
-				_cVLine_ = paVLine[@i]
-			else
-				_cVLine_ = _NULL_
-			ok
-
-			This.SetNode(pnVLine, @i, _cVLine_)
-		next
-	
-	def SetVLineSection(nVLine, nStart, nEnd, paVLine)
-		// TODO
-
-	def SetVLineStartingFrom(nVLine, nStart, paVLine)
-		// TODO
-
-	def SetVLineEndingAt(nVLine, nEnd, paVLine)
-		// TODO
-
-	def SetCentralRegion(paNodes)
-		if This.HasCentralRegion()
-			aPositions = This.CentralRegion()
-			for i = 1 to len( aPositions )
-				nVLine = aPositions[i][1]
-				nHLine = aPositions[i][2]
-				This.SetNode(nVLine, nHLine, paNodes[i])
-			next i
+	def NumberOfRows()
+		return @nRows
 		
+	def NumberOfColumns()
+		return @nCols
+		
+	def TotalNumberOfCells()
+		return @nRows * @nCols
+		
+	def CurrentPosition()
+		return [@nCurrentRow, @nCurrentCol]
+		
+	def CurrentRow()
+		return @nCurrentRow
+		
+	def CurrentColumn()
+		return @nCurrentCol
+		
+	def IsValidPosition(nRow, nCol)
+		if nRow >= 1 and nRow <= @nRows and
+		   nCol >= 1 and nCol <= @nCols
+			return TRUE
 		else
-			StzRaise("The grid has no central region!")
+			return FALSE
 		ok
-
-	def SetCenter(pNode)
-		aPositions = []
-		if This.HasCentralNode()
-			aPositions + This.CentralNodePosition()
-
+		
+	def IsCurrentPositionValid()
+		return IsValidPosition(@nCurrentRow, @nCurrentCol)
+		
+	#-- CONFIGURATION
+	
+	def Direction()
+		return @cDirection
+		
+	def SetDirection(cDirection)
+		cDirection = lower(cDirection)
+		
+		if cDirection = :forward or 
+		   cDirection = :backward or 
+		   cDirection = :left or 
+		   cDirection = :right or 
+		   cDirection = :up or 
+		   cDirection = :down
+			@cDirection = cDirection
+			return self
 		else
-			// HasCentralRegion = _TRUE_
-			aPositions = This.CentralRegion() // Should be CentralRegionPositions()
+			stzRaise("Invalid direction! Valid options are: :forward, :backward, :left, :right, :up, :down")
 		ok
-
-		for i = 1 to len(aPositions)
-			nVLine = aPositions[i][1]
-			nHLine = aPositions[i][2]
-			This.SetNode(nVLine, nHLine, pNode)
-		next
-
-  	  #----------------------------------------#
-	 #     SWAP AND REVERSE LINES & NODES     #
-	#----------------------------------------#
-
-	def SwapLines()
-		/*
-			A 1 E		A B C
-			B 2 F	  =>	1 2 3
-			C 3 G		E F G
-		*/
-
-		_aVLines_ = This.VLines()
-		_nLenHLine_ = This.NumberOfHLines()
-
-		_oCopy_ = This.Copy()
-
-		for @i = 1 to _nLenHLine_
-			_oCopy_.SetHLine(@i, _aVLines_[@i])
-		next
-
-		This.UpdateWith( _oCopy_.Content() )
-
-	def SwapLinesQ()
-		This.SwapLines()
-		return This
-
-	def ReverseHLines()
-		/*
-			1 2 3		7 8 9
-			4 5 6	  =>	4 5 6
-			7 8 9		1 2 3
-		*/
-
-		aContent = StzListQ( This.HLines() ).Reversed()
-		This.UpdateWith(aContent)
-
-	def ReverseHLinesQ()
-		This.ReverseHLines()
-		return This
-
-	def ReverseVLines()
-		/*
-			1 2 3		3 2 1
-			4 5 6	  =>	6 5 4
-			7 8 9		9 8 7
-		*/
-
-		#TODO
-		StzRaise("TODO feature!")
-
-	def ReverseVLinesQ()
-		This.ReverseVLines()
-		return This
-
-	def ReverseNodesInHLines()
-		/*
-			1 2 3		3 2 1
-			4 5 6	  =>	6 5 4
-			7 8 9		9 8 7
-		*/
-
-		#TODO
-
-	def ReverseNodesInHLinesQ()
-		This.ReverseHLines()
-		return This
-
-	def ReverseNodesInVLines()
-		/*
-			1 2 3		7 8 9
-			4 5 6	  =>	4 5 6
-			7 8 9		1 2 3
-		*/
-		n = 0
-		for vLine in This.VLines()
-			n++
-			This.SetVLine( n, (StzListQ( vLine ).Reversed()) )
-		next
-
-	def ReverseNodesInVLinesQ()
-		This.ReverseNodesInVLines()
-		return This
-
-	def ReverseNodes()
-		/*
-			1 2 3		9 8 7
-			4 5 6	  =>	6 5 4
-			7 8 9		3 2 1
-		*/
-
-		// TODO
-
-	def ReverseNodesQ()
-		This.ReverseNodes()
-		return This
-
-	  #-----------------------------------#
-	 #     TURN GRID TO LEFT & RIGHT     #
-	#-----------------------------------#
-
-	def TurnToLeft()
-		/*
-			1 2 3		3 6 9
-			4 5 6	  =>	2 5 8
-			7 8 9		1 4 7
-		*/
-
-		#TODO
-
-	def TurnToLeftQ()
-		This.TurnToLeft()
-		return This
-
-	def TurnToRight()
-		/*
-			1 2 3		7 4 1
-			4 5 6	  =>	8 5 2
-			7 8 9		9 6 3
-		*/
-
-		#TODO
-
-	def TurnToRightQ()
-		This.TurnToRight()
-		return This
-
-	def TurnToLeftNTimes(n)
-		for i = i to n
-			This.TurnToLeft()
-		next
-
-	def TurnToLeftNTimesQ(n)
-		This.TurnToLeftNTimes(n)
-		return This
-
-	def TurnToRightNTimes(n)
-		for i = i to n
-			This.TurnToRight()
-		next
-
-	def TurnToRightNTimesQ(n)
-		This.TurnToRightNTimes(n)
-		return This
-
-	  #---------------------------------------#
-	 #     POPULATING THE GRID WITH DATA     #
-	#---------------------------------------#
-
-	def PopulateAllWith(pValue)
-		// TODO
-
-	def PopulateAllWithQ(pValue)
-		This.PopulateAllWith(pValue)
-		return This
-
-	  #----------------------------------------#
-	 #     SHOWING GRID, HLines, & VLines     #
-	#----------------------------------------#	
-
-	def ShowHLine(n)
-		nH = This.NumberOfHLines()
-		nV = This.NumberOfVLines()
-
-		if n = :First
-			n = 1
-		but n = :Last
-			n = nH
-
+		
+	def WrapMode()
+		return @nWrapMode
+		
+	def SetWrapMode(cWrapMode)
+		cWrapMode = lower(cWrapMode)
+		
+		if cWrapMode = :wrap
+			@nWrapMode = :Wrap
+			return self
+		but cWrapMode = :nowrap
+			@nWrapMode = :NoWrap
+			return self
+		else
+			stzRaise("Invalid wrap mode! Valid options are: :wrap, :nowrap")
 		ok
-
-		cStr = ""
-		if @bShowRanks = _TRUE_
-			cStr = "" +
-			StzCounterQ([
-				:StartAt = 1,
-				:WhenYouReach = 10,
-				:RestartAt = 0,
-				:Step = 1 ]).
-			CountingTo(nV)[n] + SingleSpace()
+		
+	def EnableWrapping()
+		@nWrapMode = :Wrap
+		return self
+		
+	def DisableWrapping()
+		@nWrapMode = :NoWrap
+		return self
+		
+	#-- MOVEMENT METHODS
+	
+	def GoTo(nRow, nCol)
+		if IsValidPosition(nRow, nCol)
+			@nCurrentRow = nRow
+			@nCurrentCol = nCol
+			return self
+		else
+			stzRaise("Invalid position! Row must be between 1 and " + @nRows + 
+			         ", and column between 1 and " + @nCols + ".")
 		ok
-
-		for i = 1 to nV
-			cNode = This.HLine(i)[1]
-			if cNode = ""
-				cNode = EmptyNodeChar()
+		
+	def GoToFirstPosition()
+		return GoTo(1, 1)
+		
+	def GoToLastPosition()
+		return GoTo(@nRows, @nCols)
+		
+	def GoToNextPosition()
+		if @cDirection = :forward
+			return MoveForward()
+		but @cDirection = :backward
+			return MoveBackward()
+		but @cDirection = :left
+			return MoveLeft()
+		but @cDirection = :right
+			return MoveRight()
+		but @cDirection = :up
+			return MoveUp()
+		but @cDirection = :down
+			return MoveDown()
+		ok
+		
+	def GoToPreviousPosition()
+		if @cDirection = :forward
+			return MoveBackward()
+		but @cDirection = :backward
+			return MoveForward()
+		but @cDirection = :left
+			return MoveRight()
+		but @cDirection = :right
+			return MoveLeft()
+		but @cDirection = :up
+			return MoveDown()
+		but @cDirection = :down
+			return MoveUp()
+		ok
+		
+	def MoveBy(nRowOffset, nColOffset)
+		nNewRow = @nCurrentRow + nRowOffset
+		nNewCol = @nCurrentCol + nColOffset
+		
+		if @nWrapMode = :Wrap
+			if nNewRow < 1
+				nNewRow = @nRows - ((abs(nNewRow) % @nRows))
+				if nNewRow = 0
+					nNewRow = @nRows
+				ok
+			elseif nNewRow > @nRows
+				nNewRow = ((nNewRow - 1) % @nRows) + 1
 			ok
-
-			cStr += "" + cNode
-
-			if i < This.NumberOfVLines()
-				cStr += SingleSpace()
+			
+			if nNewCol < 1
+				nNewCol = @nCols - ((abs(nNewCol) % @nCols))
+				if nNewCol = 0
+					nNewCol = @nCols
+				ok
+			elseif nNewCol > @nCols
+				nNewCol = ((nNewCol - 1) % @nCols) + 1
 			ok
-		next
-		? cStr
-
-		#< @FuntionMisspelledForm
-
-		def ShwoHLine(n)
-			This.ShowHLine(n)
-
-		#>
-
-	def ShowVLine(n)
-		if CheckParams()
-			if isString(n)
-				if n = :FirstOne
-					n = 1
-				but n = :LastOne
-					n = This.NumberOfVLines()
+			
+			@nCurrentRow = nNewRow
+			@nCurrentCol = nNewCol
+			return self
+			
+		else # :NoWrap
+			if IsValidPosition(nNewRow, nNewCol)
+				@nCurrentRow = nNewRow
+				@nCurrentCol = nNewCol
+				return self
+			else
+				return NULL
+			ok
+		ok
+		
+	def MoveForward()
+		@cDirection = :Forward
+		
+		nNewCol = @nCurrentCol + 1
+		if nNewCol <= @nCols
+			@nCurrentCol = nNewCol
+			return self
+		else
+			nNewRow = @nCurrentRow + 1
+			
+			if @nWrapMode = :Wrap
+				if nNewRow > @nRows
+					@nCurrentRow = 1
+				else
+					@nCurrentRow = nNewRow
+				ok
+				@nCurrentCol = 1
+				return self
+				
+			else # :NoWrap
+				if nNewRow <= @nRows
+					@nCurrentRow = nNewRow
+					@nCurrentCol = 1
+					return self
+				else
+					return NULL # Reached the end of grid
 				ok
 			ok
-
-			if NOT isNumber(n)
-				StzRaise("Incorrect param type! n must be a number.")
+		ok
+		
+	def MoveBackward()
+		@cDirection = :Backward
+		
+		nNewCol = @nCurrentCol - 1
+		if nNewCol >= 1
+			@nCurrentCol = nNewCol
+			return self
+		else
+			nNewRow = @nCurrentRow - 1
+			
+			if @nWrapMode = :Wrap
+				if nNewRow < 1
+					@nCurrentRow = @nRows
+				else
+					@nCurrentRow = nNewRow
+				ok
+				@nCurrentCol = @nCols
+				return self
+				
+			else # :NoWrap
+				if nNewRow >= 1
+					@nCurrentRow = nNewRow
+					@nCurrentCol = @nCols
+					return self
+				else
+					return NULL # Reached the beginning of grid
+				ok
 			ok
 		ok
-
-		# Doing the job
-
-		_cStr_ = ""
-
-		if This.@bShowRanks = _TRUE_
-			_cStr_ = "" + This.NumberedVLine(n)[1] + NL
+		
+	def MoveRight()
+		@cDirection = :Right
+		
+		nNewCol = @nCurrentCol + 1
+		
+		if @nWrapMode = :Wrap
+			if nNewCol > @nCols
+				@nCurrentCol = 1
+			else
+				@nCurrentCol = nNewCol
+			ok
+			return self
+			
+		else # :NoWrap
+			if nNewCol <= @nCols
+				@nCurrentCol = nNewCol
+				return self
+			else
+				return NULL # Can't move further right
+			ok
 		ok
-
-		_nLenHLines_ = This.NumberOfHLines()
-
-		for @i = 1 to _nLenHLines_
-
-			_cStr_ += @@( This.VLine(n)[@i] )
-
-			if @i < _nLenHLines_
-				_cStr_ += NL
+		
+	def MoveLeft()
+		@cDirection = :Left
+		
+		nNewCol = @nCurrentCol - 1
+		
+		if @nWrapMode = :Wrap
+			if nNewCol < 1
+				@nCurrentCol = @nCols
+			else
+				@nCurrentCol = nNewCol
+			ok
+			return self
+			
+		else # :NoWrap
+			if nNewCol >= 1
+				@nCurrentCol = nNewCol
+				return self
+			else
+				return NULL # Can't move further left
+			ok
+		ok
+		
+	def MoveUp()
+		@cDirection = :Up
+		
+		nNewRow = @nCurrentRow - 1
+		
+		if @nWrapMode = :Wrap
+			if nNewRow < 1
+				@nCurrentRow = @nRows
+			else
+				@nCurrentRow = nNewRow
+			ok
+			return self
+			
+		else # :NoWrap
+			if nNewRow >= 1
+				@nCurrentRow = nNewRow
+				return self
+			else
+				return NULL # Can't move further up
+			ok
+		ok
+		
+	def MoveDown()
+		@cDirection = :Down
+		
+		nNewRow = @nCurrentRow + 1
+		
+		if @nWrapMode = :Wrap
+			if nNewRow > @nRows
+				@nCurrentRow = 1
+			else
+				@nCurrentRow = nNewRow
+			ok
+			return self
+			
+		else # :NoWrap
+			if nNewRow <= @nRows
+				@nCurrentRow = nNewRow
+				return self
+			else
+				return NULL # Can't move further down
+			ok
+		ok
+		
+	#-- TRAVERSAL METHODS
+	
+	def Positions()
+		aResult = []
+		
+		for i = 1 to @nRows
+			for j = 1 to @nCols
+				add(aResult, [i, j])
+			next
+		next
+		
+		return aResult
+		
+	def ForEachPosition(pCode)
+		for i = 1 to @nRows
+			for j = 1 to @nCols
+				@nCurrentRow = i
+				@nCurrentCol = j
+				call pCode(i, j)
+			next
+		next
+		return self
+		
+	def TraverseInDirection(cDirection, pCode)
+		oTemp = new stzGrid([@nRows, @nCols])
+		oTemp.GoTo(@nCurrentRow, @nCurrentCol)
+		oTemp.SetDirection(cDirection)
+		oTemp.SetWrapMode(@nWrapMode)
+		
+		while TRUE
+			nRow = oTemp.CurrentRow()
+			nCol = oTemp.CurrentColumn()
+			
+			call pCode(nRow, nCol)
+			
+			# Try to move to next position
+			oNext = oTemp.GoToNextPosition()
+			if oNext = NULL
+				# Reached the boundary in NoWrap mode
+				exit
+			ok
+			
+			# Detect if we've completed a full cycle in Wrap mode
+			if @nWrapMode = :Wrap and
+			   nRow = oTemp.CurrentRow() and nCol = oTemp.CurrentColumn()
+				exit
+			ok
+		end
+		
+		return self
+		
+	#-- NEIGHBORS & RELATIVE POSITIONS
+	
+	def Neighbors()
+		aResult = []
+		
+		# Check each of the 8 neighbors
+		aDirections = [ [-1,-1], [-1,0], [-1,1], 
+		                [0,-1],          [0,1],
+		                [1,-1],  [1,0],  [1,1] ]
+		
+		for aDir in aDirections
+			nRow = @nCurrentRow + aDir[1]
+			nCol = @nCurrentCol + aDir[2]
+			
+			if IsValidPosition(nRow, nCol)
+				add(aResult, [nRow, nCol])
 			ok
 		next
-
-		? _cStr_
-
-		#< @FuntionMisspelledForm
-
-		def ShwoVLine(n)
-			This.ShowVLine(n)
-
-		#>
-
+		
+		return aResult
+		
+	def AdjacentNeighbors()
+		aResult = []
+		
+		# Check the 4 adjacent neighbors (no diagonals)
+		aDirections = [ [0,-1], [-1,0], [1,0], [0,1] ]
+		
+		for aDir in aDirections
+			nRow = @nCurrentRow + aDir[1]
+			nCol = @nCurrentCol + aDir[2]
+			
+			if IsValidPosition(nRow, nCol)
+				add(aResult, [nRow, nCol])
+			ok
+		next
+		
+		return aResult
+		
+	def PositionAbove()
+		nRow = @nCurrentRow - 1
+		nCol = @nCurrentCol
+		
+		if IsValidPosition(nRow, nCol)
+			return [nRow, nCol]
+		else
+			return NULL
+		ok
+		
+	def PositionBelow()
+		nRow = @nCurrentRow + 1
+		nCol = @nCurrentCol
+		
+		if IsValidPosition(nRow, nCol)
+			return [nRow, nCol]
+		else
+			return NULL
+		ok
+		
+	def PositionToLeft()
+		nRow = @nCurrentRow
+		nCol = @nCurrentCol - 1
+		
+		if IsValidPosition(nRow, nCol)
+			return [nRow, nCol]
+		else
+			return NULL
+		ok
+		
+	def PositionToRight()
+		nRow = @nCurrentRow
+		nCol = @nCurrentCol + 1
+		
+		if IsValidPosition(nRow, nCol)
+			return [nRow, nCol]
+		else
+			return NULL
+		ok
+		
+	def DistanceTo(nRow, nCol)
+		# Manhattan distance (L1 norm)
+		return abs(@nCurrentRow - nRow) + abs(@nCurrentCol - nCol)
+		
+	def EuclideanDistanceTo(nRow, nCol)
+		# Euclidean distance (L2 norm)
+		nDeltaRow = @nCurrentRow - nRow
+		nDeltaCol = @nCurrentCol - nCol
+		return sqrt(nDeltaRow * nDeltaRow + nDeltaCol * nDeltaCol)
+		
+	#-- VISUALIZATION METHODS
+	
 	def Show()
-
-		if @bShowRanks = _TRUE_
-			aTemp = []
-
-			oCounter = new stzCounter([
-				:StartAt=1,
-				:WhenYouReach = 10,
-				:RestartAt = 1,
-				:Step = 1 ])
-
-			aTemp = oCounter.CountingTo( This.NumberOfVLines() )
-
-			cStr = DoubleSpace()
-			for j = 1 to len(aTemp)
-				cStr += ""+ aTemp[j]
-				if j < len(aTemp)
-					cStr += SingleSpace()
-				ok
-			next
-	
-			? cStr
-		ok
-
-		if This.@bShowCenter = _TRUE_
-			This.SetCenter("+")
-		ok
-
-		_nLenHLines_ = This.NumberOfHLines()
-
-		for @j = 1 to _nLenHLines_
-			This.ShowHLine(@j)
-		next
-
-		? ""
+		? This.ToString()
 		
-		#< @FuntionMisspelledForm
-
-		def Shwo()
-			This.Show()
-
-		#>
-
-	def ShowXT(paOptions) // TODO
-		# :ShowCenter, :ShowRanks
-
-		StzRaise("TODO")
-
-		#< @FuntionMisspelledForm
-
-		def ShwoXT(paOptions)
-			This.ShowXT(paOptions)
-
-		#>
-
-	def ShowRegion(paRegion)
-		// TODO
-
-		#< @FuntionMisspelledForm
-
-		def ShwoRegion(paRegion)
-			This.ShowRegion(paRegion)
-
-		#>
-
-	def ShowRegionStroke(paRegion)
-		// TODO
-
-		#< @FuntionMisspelledForm
-
-		def ShwoRegionStroke(paRegion)
-			This.ShowRegionStroke(paRegion)
-
-		#>
-
-	def ShowRegionCenter(paRegion)
-		// TODO
-
-		#< @FuntionMisspelledForm
-
-		def ShwoRegionCenter(paRegion)
-			This.ShowRegionCenter(paRegion)
-
-		#>
-
-	  #------------------#
-	 #     Sections     #
-	#------------------#
-
-	def Section( paNode1, paNode2 )
-		// TODO
-
-	  #-----------------#
-	 #     REGIONS     #
-	#-----------------#
-
-	def Region(paNode1, paNode2)
-		aRegion = []
-
-		nVLine1 = paNode1[1]
-		nHLine1 = paNode1[2]
-
-		nVLine2 = paNode2[1]
-		nHLine2 = paNode2[2]
-
-		for j = nHLine1 to nHLine2
-			for i = nVLine1 to nVLine2
-				aRegion + [ i, j ]
-			next i
-		next j
-
-		return aRegion
-
-	def RegionPositions(paPosition1, paPosition2)
-		return This.Region(paPosition1, paPosition2)
-
-	def RegionNumberOfNodes(paPosition1, paPosition2)
-		return len( This.RegionPositions(paPosition1, paPosition2) )
-
-	def RegionNodes(paPosition1, paPosition2)
-		aResult = []
-		aPositions = This.RegionPositions(paPosition1, paPosition2)
-
-		for i = 1 to len(aPositions)
-			nVLine = aPositions[i][1]
-			nHLine = aPositions[i][2]
-			aResult + This.NodeAtPosition(nVLine,nHLine)
-		next
-
-		return aResult
-
-	def CentralRegion()
-		aPositions = []
-
-		if This.HasCentralRegion()
-			aPositions = This.Region(
-				[ (This.NumberOfVLines() / 2) , (This.NumberOfHLines() / 2) ],
-				[ (This.NumberOfVLines() / 2) + 1 , (This.NumberOfHLines() / 2) + 1 ])
-		else
-			StzRaise("The grid has no central region!")
-		ok
-		return aPositions
-
-	def CentralRegionPositions()
-		return This.CentralRegion()
-
-	def CentralRegionNumberOfNodes()
-		return len( This.CentralRegion() ) // 4 or 1
-
-	def CentralRegionNodes()
-		aResult = []
-		aPositions = This.CentralRegionPositions()
-
-		for i = 1 to len(aPositions)
-			nVLine = aPositions[i][1]
-			nHLine = aPositions[i][2]
-			aResult + This.NodeAtPosition(nVLine, nHLine)
-		next
-
-		return aResult
-
-	def RegionCentralNode()
-		// TODO
-
-	def IsRegionHasCenter()
-		// TODO
-
-	  #-------------------#
-	 #     SPLITTING     #
-	#-------------------#
-
-	def SplitVerticallyBeforeVLine(n)
-		// TODO
-
-	def SplitVerticallyAfterVLine(n)
-		// TODO
-
-	def SplitVerticallyAndRandomly()
-		// TODO
-
-	def SplitHorizontallyBeforeHLine(n)
-		// TODO
-
-	def SplitHorizontallyAfterHLine(n)
-		// TODO
-
-	def SplitHorizontallyAndRandomly()
-		// TODO
-
-	  #-----------------------------------#
-	 #     DESIGNING SHAPES USING PEN   #
-	#----------------------------------#
-
-	def StartPenAt(pNode)
-		// TODO
-
-	def MovePenRight(n)
-		// TODO
-
-	def MovePenDown(n)
-		// TODO
-
-	def MovePenLeft(n)
-		// TODO
-
-	def MovePenUp(n)
-		// TODO
-
-	  #---------------#
-	 #     LAYERS    #
-	#---------------#
-
-	def Layers()
-		return aLayers
-
-	def SetCurrentLayer(n)
-		CurrentLayer = n
-
-	def SetOpacity(n)
-		if n = 0 or n = 1
-			Opacity = n
-		else
-			StzRaise("Opacity can be eighter 0 or 1!")
-		ok
-
-	def Opacity()
-		return @nOpacity
-
-	def IsOpaque()
-		if This.Opacity() = 1
-			return _TRUE_
-		else
-			return _FALSE_
-		ok
-
-	def IsTransparent()
-		if Opacity() = 0
-			return _TRUE_
-		else
-			return _FALSE_
-		ok
-
-	def RemoveLayer(n)
-		del(@aLayers, n)
-
-	def RemoveCurrentLayer()
-		del(@aLayers, CurrentLayer() )
-
-	def MoveLayerToLevel(n)
-		// TODO
-
-	def MergeLayers(paLayers)
-		// TODO
-
-	def SetSuperpositionMode(pcFeature)
-		// TODO
-
-	  #------------------------------------------#
-	 #  REPLACING ALL NODES WITH A GIVEN VALUE  #
-	#------------------------------------------#
-
-	def ReplaceAll(pcValue)
-		if CheckParams()
-			if isList(pcValue) and Q(pcValue).IsWithOrByNamedParam()
-				pcValue = pcValue[2]
-			ok
-		ok
-
-		_aContent_ = This.Content()
-		_nLenHLines_ = This.NumberOfHLines()
-		_nLenVLines_ = This.NumberOfVLines()
-
-		for @h = 1 to _nLenHLines_
-
-			for @v = 1 to _nLenVLines_
-				_aContent_[@h][@v] = pcValue
+	def ToString()
+		# Create an empty grid filled with "."
+		aGrid = list(@nRows)
+		for y = 1 to @nRows
+			aGrid[y] = list(@nCols)
+			for x = 1 to @nCols
+				aGrid[y][x] = "."
 			next
 		next
-
-		def ReplaceAllQ(pcValue)
-			This.ReplaceAll(pcValue)
-			return This
-
-	  #------------------------------------------#
-	 #  FILLING THE GRID WITH A LIST OF ITEMS   #
-	#------------------------------------------#
-	#NOTE
-	# Currently, only adding a list of chars is allowed
-
-	#TODO
-	# Review this restriction! Because it is imposed by
-	# show() function and not  by any logical constraint!
-
-	#UPDATE
-	# Any thing can be added without restriction
-	# The show function will manage to attribue a symbol (a char) to
-	# each node to generate a consistent display
-
-	def FillWith(paList)
-		This.FillWithXT(paList, :Direction = :Horizontally)
-
-		def FillWithQ(paList)
-			This.FillWith(paList)
-			return This
-
-	def FillWithXT(paList, pcDirection)
-
-		if CheckingParams()
-			if NOT isList(paList) 
-				StzRaise("Incorrect param type! paList must be a list.")
-			ok
-	
-			if isList(pcDirection) and
-			   Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
-	
-				pcDirection = pcDirection[2]
-			ok
-	
-			if NOT ( isString(pcDirection) and ring_find([ :Horizontally, :Vertically ], pcDirection) > 0 )
-				StzRaise("Incorrect param! pcDirection must be a string equal to :Horizontally, :Vertically, or :Default.")
-			ok
+		
+		# Mark current position with "x"
+		if IsValidPosition(@nCurrentRow, @nCurrentCol)
+			aGrid[@nCurrentRow][@nCurrentCol] = "x"
 		ok
-
-		# Doing the job
-
-		nLen = len(paList)
-
-		aTemp = []
-
-		if pcDirection = :Default or pcDirection = :Horizontally
-
-			# Composing the grid value
-
-			aTemp = []
-			nV = This.NumberOfVLines()
-
-			for i = 1 to nLen step nV
-
-				nEnd = i + nV - 1
-				if i = nLen
-					nEnd = nLen
-				ok
-
-				aTemp + Q(paList).Section(i, nEnd)
+		
+		# Convert grid to string representation
+		cResult = ""
+		
+		# Add X-axis labels
+		cResult += "    " # Space for alignment with the grid
+		for x = 1 to @nCols
+			cResult += ""+ x + " "
+		next
+		cResult += NL()
+		
+		# Add top border with rounded corners and indicator for current X position
+		cResult += "  ╭"
+		for x = 1 to @nCols
+			if x = @nCurrentCol
+				cResult += "─v─"
+			else
+				cResult += "──"
+			ok
+		next
+		cResult += "╮" + NL()
+		
+		# Add rows with Y-axis labels and borders
+		for y = 1 to @nRows
+			# Add Y indicator for current position
+			if y = @nCurrentRow
+				cResult += ""+ y + " > "
+			else
+				cResult += ""+ y + " │ "
+			ok
+			
+			for x = 1 to @nCols
+				cResult += ""+ aGrid[y][x] + " "
 			next
-
-			aTemp = StzListOfListsQ(aTemp).Extended()
-
-			# Completing the grid with empty lines if required
-
-			nLenTemp = len(aTemp)
-			nH = THis.NumberOfHLines()
-
-			if nLenTemp < nH
-				aTempLine = []
-				for i = 1 to nV
-					aTempLine + ""
-				next
-	
-				nDiff = nH - nLenTemp
-				for i = 1 to nDiff
-					aTemp + aTempLine
-				next
-			ok
-
-			# Setting the new value of the grid
-
-			This.SetGrid(aTemp)
-
-		but pcDirection = :Vertically
-			StzRaise("Feature unavailable in this release!")
-
-		ok
-
-		#< @FunctionFluentForm
-
-		def FillWithXTQ(paList, pcDirection)
-			This.FillWithXT(paList, pcDirection)
-			return This
-
-		#>
-
-		#< @FunctionAlternativess
-
-		def FillWithD(paList, pcDirection)
-			This.FillWithXT(paList, pcDirection)
-
-			def FillWithDQ(paList, pcDirection)
-				This.FillWithD(paList, pcDirection)
-				return This
-
-		#>
-
-	  #-----------#
-	 #   MISC.   #
-	#-----------#
-
-	def IsAGrid() # required by stzChainOfTruth
-		return _TRUE_
-
-	def StzType()
-		return :stzgrid
-
-	def SetGridSize(pnNumberOfVLines, pnNumberOfHLines) #TODO
-		/* ... */
-		StzRaise("Inexistant feature in this release!")
-
-	def Extend() #TODO
-		/* ... */
-		StzRaise("Inexistant feature in this release!")
-
-	def Shrink() #TODO
-		/* ... */
-		StzRaise("Inexistant feature in this release!")
+			cResult += "│" + NL()
+		next
+		
+		# Add bottom border with rounded corners
+		cResult += "  ╰"
+		for x = 1 to @nCols
+			cResult += "──"
+		next
+		cResult += "─╯"
+		
+		return cResult
