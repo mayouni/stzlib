@@ -8,7 +8,7 @@ TODO:
 
 	--> DECISION: stzGrid would contains only nodes that are strings.
 
-	Also: the Show() function will not show an accurate grif if nodes
+	Also: the Show() function will not show an accurate grid if nodes
 	contains strings of many chars! So:
 
 	- Should stzGrid contain only chars?

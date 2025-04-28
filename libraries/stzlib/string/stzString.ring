@@ -96495,229 +96495,158 @@ class stzString from stzObject
 
 
 	def ToList()
-		/* EXAMPLES
+		cStr = @trim(This.Content())
 
-		? Q("[1, 2, 3 ]")	#--> [ 1, 2, 3 ]
-		? Q("1:3")		#--> [ 1, 2, 3 ]
-		? Q("A:C")		#--> [ "A", "B", "C"]
+		# Case 1: String is already in Ring list format
 
-		? Q("#1 : #3")		#--> [ "#1", "#2", "#3" ]
-		? Q("day1 : day3")	#--> [ "day1", "day2", "day3" ]
-
-		*/
-
-		aResult = []
-
-		oCopy = This.Copy()
-		nLenCopy = oCopy.NumberOfChars()
-
-		oCopy.Trim()
-
-
-		# Case where we have a normal list syntax
-
-		if oCopy.IsBoundedBy([ "[", "]" ])
-			cCode = "aResult = " + This.Content()
-			eval(cCode)
+		if Rx(pat(:RingList)).Match(cStr)
+			eval('aResult = ' + cStr)
 			return aResult
 		ok
 
-		# Case where we have a continuous list syntax
+		# Case 2: String is in range format (e.g., "1:3", "A:C", "#1:#3", "day1:day3")
 
-		nPos = oCopy.FindFirst(":")
-		nLen = oCopy.NumberOfChars()
+		if @Contains(cStr, ":")
+   
+			# Split by colon and trim quotes
 
-		if nLen >= 3 and oCopy.NumberOfOccurrence(":") = 1 and
-		   nPos != 1 and nPos != nLen
+			aMatches = @Split(cStr, ":")
+			cStart = @trim(aMatches[1])
+			cEnd = @trim(aMatches[2])
 
-			acParts = oCopy.Split(":")
-			cPart1 = Q(acParts[1]).Trimmed()
-			cPart2 = Q(acParts[2]).Trimmed()
-			oPart1 = new stzString(cPart1)
-			oPart2 = new stzString(cPart2)
-			nLenPart1 = oPart1.NumberOfChars()
-			nLenPart2 = oPart2.NumberOfChars()
+			# Handle quoted values
 
-oPart1.RemoveTheseBounds('"', '"')
-oPart1.RemoveTheseBounds("'", "'")
-cPart1 = oPArt1.Content()
+			oStart = new stzString(cStart)
+			cFirstChar = oStart.FirstChar()
+			cLastChar = oStart.LastChar()
 
-oPart2.RemoveTheseBounds('"', '"')
-oPart2.RemoveTheseBounds("'", "'")
-cPart2 = oPArt2.Content()
+			if (cFirstChar = '"' and
+			   cLastChar = '"') or
 
-			if BothAreIntegersInStrings(cPart1, cPart2)
+			   (cFirstChar = "'" and
+			   cLastChar = "'")
 
-				n1 = 0+ ring_trim(cPart1)
-				n2 = 0+ ring_trim(cPart2)
-
-				anResult = n1 : n2
-				return anResult
-
-			# Case Q(' 1 : 3 ') ~> [ 1, 2, 3 ]
-
-			but BothAreRealsInStrings(cPart1, cPart2)
-
-				cPart1 = ring_trim(cPart1)
-				cPart2 = ring_trim(cPart2)
-
-				nLenPart1 = len(cPart1)
-				nLenPart2 = len(cPart2)
-
-				nDec1 = 0
-				nDec2 = 0
-
-				#TODO # Check if ring_substr() upports all unicode chars!
-
-				nPos1 = ring_substr1(cPart1, ".")
-				if nPos1 > 0
-					nDec1 = nLenPart1 - nPos1
-				ok
-
-				nPos2 = ring_substr1(cPart2, ".")
-				if nPos2 > 0
-					nDec2 = nLenPart2 - nPos2
-				ok
-
-				nDec = Max([ nDec1, nDec2 ])
-
-				nTempDec = CurrentRound()
-				decimals(nDec)
-
-				n1 = 0+ cPart1
-				n2 = 0+ cPart2 + (1 / pow(10, nDec+1))
-				nStep = 1 / pow(10, nDec)
-
-				anResult = []
-
-				for n = n1 to n2 step nStep
-					anResult + n
-				next
-
-				decimals(nTempDec)
-
-				return anResult
-
-			# Case Q(' "A" : "C" ') ~> [ "A", "B", "C" ]
-
-			but ( (oPart1.IsBoundedBy('"') or oPart1.IsBoundedBy("'") ) and
-			      (oPart2.IsBoundedBy('"') or oPart2.IsBoundedBy("'") ) )
-
-				# Case of "A" : "E"
-
-				if  nLenPart1 = 3 and nLenPart2 = 3
-
-					anUnicodes = ring_sort([
-						@Unicode(oPart1.CharAt(2)),
-						@Unicode(oPart2.CharAt(2))
-					])
-	
-					anUnicodes = anUnicodes[1] : anUnicodes[2]
-					aResult = @UnicodesToChars(anUnicodes)
-
-					return aResult
-				ok
-
-			# Case "day1 : day3" ~> [ "day1", "day2", "day3" ]
-
-			but BothEndWithANumber(cPart1, cPart2)
-
-				# Extracting the first substring and number
-
-				acChars1 = @Chars(cPart1)
-
-				nLen1 = len(acChars1)
-
-				cSubStr1 = ""
-				cNumber1 = ""
-
-				for j = nLen1 to 1 step -1
-					if @IsNumberInString(acChars1[j])
-						cNumber1 += acChars1[j]
-					else
-						cSubStr1 += acChars1[j]
-					ok
-
-				next
-
-				n1 = 0+ @reverse(cNumber1)
-				cSubStr1 = @reverse(cSubStr1)
-
-				# Extracting the second substring and number
-
-				acChars2 = @Chars(cPart2)
-				nLen2 = len(acChars2)
-
-				cSubStr2 = ""
-				cNumber2 = ""
-
-				for j = nLen2 to 1 step -1
-
-					if @IsNumberInString(acChars2[j])
-						cNumber2 += acChars2[j]
-					else
-						cSubStr2 += acChars2[j]
-					ok
-				next
-
-
-				n2 = 0+ @reverse(cNumber2)
-				cSubStr2 = @reverse(cSubStr2)
-
-				# Composing the list
-
-				if cSubStr1 = cSubStr2
-					acResult = []
-
-					for j = n1 to n2
-						acResult + (cSubStr1 + j)
-					next
-
-					return acResult
-				ok
-
+				oStart.RemoveFirstAndLastChars()
 			ok
 
-		ok
-? "emmm"
-		# Case where this syntax is provided :
-		# Q("#1 : #3").ToList() and gives [ "#1", "#2", "#3" ]
+			nLenStart = oStart.NumberOfChars()
+			cStart = oStart.Content()
 
-		if oCopy.NumberOfOccurrence(":") = 1 and
-		   oCopy.FirstChar() = "#"
+			#--
 
-			oCopy2 = oCopy
-			oCopy2.RemoveSpaces()
-			n = oCopy2.FindFirst(":")
+			oEnd = new stzString(cEnd)
+			cFirstChar = oEnd.FirstChar()
+			cLastChar = oEnd.LastChar()
 
-			if n < oCopy2.NumberOfChars() and
-			   oCopy2.NthChar(n+1) = "#"
+			if (cFirstChar = '"' and
+			   cLastChar = '"') or
 
-				aoSplits = oCopy2.SplitQ(":").ToListOfStzStrings()
-				oStzStrOne = aoSplits[1].RemoveFirstCharQ()
-				oStzStrTwo = aoSplits[2].RemoveFirstCharQ()
+			   (cFirstChar = "'" and
+			   cLastChar = "'")
 
-				if oStzStrOne.IsNumberInString() and
-				   oStzStrTwo.IsNumberInString()
-
-					n1 = 0+ oStzStrOne.Content()
-					n2 = 0+ oStzStrTwo.Content()
-
-					acResult = []
-
-					for i = n1 to n2
-						acResult + ("#" + i)
-					next
-
-					return acResult
-
-				ok
-
+				oEnd.RemoveFirstAndLastChars()
 			ok
 
+			nLenEnd = oEnd.NumberOfChars()
+			cEnd = oEnd.Content()
+
+			# Case 2.1: Numeric range (e.g., "1:3")
+			if oStart.IsNumberInString() and oEnd.IsNumberInString()
+				nStart = 0 + cStart
+				nEnd = 0 + cEnd
+				aResult = []
+
+				for i = nStart to nEnd
+					aResult + i
+				next
+
+				return aResult
+
+			# Case 2.2: Single character range (e.g., "A:C", "ا:ج")
+			but nLenStart = 1 and nLenEnd = 1
+
+				cStartChar = cStart
+				cEndChar = cEnd
+				nStart = @Unicode(cStartChar)
+				nEnd = @Unicode(cEndChar)
+				aResult = []
+
+				for i = nStart to nEnd
+					aResult + @Char(i)
+				next
+
+				return aResult
+
+			# Case 2.3: Prefix with numbers (e.g., "#1:#3", "day1:day3")
+			else
+
+				# Extract the prefix and the numeric part
+
+				oRegexStart = Rx(pat(:textWithNumberSuffix))
+				oRegexEnd = Rx(pat(:textWithNumberSuffix))
+
+				if oRegexStart.Match(cStart) and oRegexEnd.Match(cEnd)
+
+					# Getting the parts of start string
+
+					oStart = new stzString(cStart)
+					n = nLenStart + 1
+
+					while TRUE
+ 						n--
+						if n = 0
+							exit
+						ok
+
+						cChar = oStart.NthChar(n)
+
+						if NOT @IsNumberInString(cChar)
+							exit
+						ok
+					end
+
+					aStartMatches = oStart.SplitAfterPosition(n)
+
+					# Getting the parts of the end string
+
+					oEnd = new stzString(cEnd)
+					n = nLenEnd + 1
+
+					while TRUE
+						n--
+						if n = 0
+							exit
+						ok
+
+						cChar = oEnd.NthChar(n)
+						if NOT @IsNumberInString(cChar)
+							exit
+						ok
+					end
+
+					aEndMatches = oEnd.SplitAfterPosition(n)
+                
+					# Check if prefixes match
+
+					cPrefix = aStartMatches[1]
+
+					if cPrefix = aEndMatches[1]
+
+						nStart = 0+ aStartMatches[2]
+						nEnd = 0 + aEndMatches[2]
+						acResult = []
+
+						for i = nStart to nEnd
+							acResult + (cPrefix + i)
+						next
+
+						return acResult
+					ok
+				ok
+			ok
 		ok
 
-		# Last case : returning the string in a list
+		# If none of the patterns match, return a list containing the string
 
 		return [ This.Content() ]
 
