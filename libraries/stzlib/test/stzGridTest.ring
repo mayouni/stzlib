@@ -53,7 +53,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*----------
-*/
+
 pr()
 
 ? @@( L("[1, 2, 3 ]") )
@@ -91,21 +91,11 @@ pf()
 
 pr()
 
-o1 = new stzListOfChars(' "ج":"ر" ')
-? o1.Content()
-
-pf()
-# Executed in 0.18 second(s)
-
-/*----------
-
-pr()
-
 ? NumberOfCharsBetween("A", "B")
-#--> 0
+#--> 2
 
 pf()
-#--> Executed in 0.03 second(s)
+#--> Executed in 0.01 second(s) in Ring 1.22
 
 /*=======
 
@@ -115,10 +105,11 @@ pr()
 #--> [ "A", "B", "C", "D", "E" ]
 
 pf()
-# Executed in 0.05 second(s).
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.05 second(s) in Ring 1.20
 
 /*----- #TODO fix it!
-*/
+
 pr()
 
 o1 = new stzGrid(CharsBetween(" ", :And = "z") )
@@ -147,7 +138,8 @@ pr()
 # ]
 
 pf()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*=============
 
@@ -171,7 +163,7 @@ aList = [
 #--> TRUE
 
 pf()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*---------------
 */
