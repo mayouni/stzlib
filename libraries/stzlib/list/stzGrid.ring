@@ -22,69 +22,71 @@ Class stzGrid From stzObject
 	at the top-left corner.
 	*/
 
-	@nRows = 0
-	@nCols = 0
-	@nCurrentRow = 1
-	@nCurrentCol = 1
-	@nWrapMode = :NoWrap # :Wrap, :NoWrap
+	@nRows
+	@nCols
+
+	@nCurrentRow
+	@nCurrentCol
+
 	@cDirection = :Forward # :Forward, :Backward, :Left, :Right, :Up, :Down
 	
-	def init(pArg)
-		if isList(pArg) and len(pArg) = 2
-			# Initialize with number of rows and columns
-			@nRows = pArg[1]
-			@nCols = pArg[2]
-			
-		elseif isObject(pArg) and classname(pArg) = "stzGrid"
-			# Copy constructor
-			@nRows = pArg.NumberOfRows()
-			@nCols = pArg.NumberOfColumns()
-			@nCurrentRow = pArg.CurrentRow()
-			@nCurrentCol = pArg.CurrentColumn()
-			@nWrapMode = pArg.WrapMode()
-			@cDirection = pArg.Direction()
-			
-		else
-			stzRaise("Incorrect param type! You must provide [nRows, nCols] or a stzGrid object.")
+	def init(panColRow)
+
+		if NOT (isList(panColRow) and len(panColRow) = 2 and
+			isNumber(panColRow[1]) and isNumber(panColRow[2]) )
+
+			stzRaise("Incorrect param type! panColRow must be a pair of numbers.")
 		ok
 		
+		@nCols = panColRow[1]
+		@nRows = panColRow[2]
+
 		# Initialize position to (1,1)
+
 		@nCurrentRow = 1
 		@nCurrentCol = 1
 	
 	#-- INFORMATION METHODS
-	
+
 	def Size()
-		return [@nRows, @nCols]
-		
+		return @nCols * @nRows
+
+		def NumberOfNodes()
+			return This.Size()
+
+	def SizeXY()
+		return [ @nCols, @nRows ]
+
+	def NumberOfColumns()
+		return @nCols
+	
 	def NumberOfRows()
 		return @nRows
 		
-	def NumberOfColumns()
-		return @nCols
-		
-	def TotalNumberOfCells()
-		return @nRows * @nCols
-		
 	def CurrentPosition()
-		return [@nCurrentRow, @nCurrentCol]
-		
+		return [ @nCurrentCol, @nCurrentRow ]
+
+		def Position()
+			return This.CurrentPosition()
+
+	def CurrentColumn()
+		return @nCurrentCol
+
 	def CurrentRow()
 		return @nCurrentRow
 		
-	def CurrentColumn()
-		return @nCurrentCol
-		
-	def IsValidPosition(nRow, nCol)
-		if nRow >= 1 and nRow <= @nRows and
-		   nCol >= 1 and nCol <= @nCols
+	def IsValidPosition(nCol, nRow)
+
+		if nCol >= 1 and nCol <= @nCols and
+		   nRow >= 1 and nRow <= @nRows
+
 			return TRUE
 		else
 			return FALSE
 		ok
-		
-	def IsCurrentPositionValid()
-		return IsValidPosition(@nCurrentRow, @nCurrentCol)
+
+	def IsCurrentPositionValid() # For debugging purposes
+		return IsValidPosition( @nCurrentCol, @nCurrentRow)
 		
 	#-- CONFIGURATION
 	
@@ -101,148 +103,120 @@ Class stzGrid From stzObject
 		   cDirection = :up or 
 		   cDirection = :down
 			@cDirection = cDirection
-			return self
+
 		else
 			stzRaise("Invalid direction! Valid options are: :forward, :backward, :left, :right, :up, :down")
 		ok
-		
-	def WrapMode()
-		return @nWrapMode
-		
-	def SetWrapMode(cWrapMode)
-		cWrapMode = lower(cWrapMode)
-		
-		if cWrapMode = :wrap
-			@nWrapMode = :Wrap
-			return self
-		but cWrapMode = :nowrap
-			@nWrapMode = :NoWrap
-			return self
-		else
-			stzRaise("Invalid wrap mode! Valid options are: :wrap, :nowrap")
-		ok
-		
-	def EnableWrapping()
-		@nWrapMode = :Wrap
-		return self
-		
-	def DisableWrapping()
-		@nWrapMode = :NoWrap
-		return self
+
 		
 	#-- MOVEMENT METHODS
 	
-	def GoTo(nRow, nCol)
-		if IsValidPosition(nRow, nCol)
-			@nCurrentRow = nRow
+	def GoToNode(nCol, nRow)
+		if IsValidPosition(nCol, nRow)
 			@nCurrentCol = nCol
-			return self
+			@nCurrentRow = nRow
+
 		else
-			stzRaise("Invalid position! Row must be between 1 and " + @nRows + 
-			         ", and column between 1 and " + @nCols + ".")
+			stzRaise("Invalid position! Column must be between 1 and " + @nCols + 
+			         ", and row between 1 and " + @nRows + ".")
 		ok
+
+		def Goto(nCol, nRow)
+			This.GoToNode(nCol, nRow)
 		
-	def GoToFirstPosition()
-		return GoTo(1, 1)
+	def GoToFirstNode()
+		This.GoToNode(1, 1)
 		
-	def GoToLastPosition()
-		return GoTo(@nRows, @nCols)
+		def GotoFirstPosition()
+			This.GoToNode(1, 1)
+
+	def GoToLastNode()
+		This.GoTo(@nCols, @nRows)
 		
-	def GoToNextPosition()
+		def GotoLastPosition()
+			This.GoTo(@nCols, @nRows)
+
+	def GoToNextNode()
+
 		if @cDirection = :forward
-			return MoveForward()
+			This.MoveForward()
+
 		but @cDirection = :backward
-			return MoveBackward()
+			This.MoveBackward()
+
 		but @cDirection = :left
-			return MoveLeft()
+			This.MoveLeft()
+
 		but @cDirection = :right
-			return MoveRight()
+			This.MoveRight()
+
 		but @cDirection = :up
-			return MoveUp()
+			This.MoveUp()
+
 		but @cDirection = :down
-			return MoveDown()
+			This.MoveDown()
+
 		ok
-		
-	def GoToPreviousPosition()
+
+		def GoToNextPosition()
+			This.GoToNextNode()
+
+	def GoToPreviousNode()
 		if @cDirection = :forward
-			return MoveBackward()
+			This.MoveBackward()
+
 		but @cDirection = :backward
-			return MoveForward()
+			This.MoveForward()
+
 		but @cDirection = :left
-			return MoveRight()
+			This.MoveRight()
+
 		but @cDirection = :right
-			return MoveLeft()
+			This.MoveLeft()
+
 		but @cDirection = :up
-			return MoveDown()
+			This.MoveDown()
+
 		but @cDirection = :down
-			return MoveUp()
+			This.MoveUp()
+
 		ok
 		
-	def MoveBy(nRowOffset, nColOffset)
-		nNewRow = @nCurrentRow + nRowOffset
-		nNewCol = @nCurrentCol + nColOffset
+		def GoToPreviousPosition()
+			This.GoToPreviousNode()
+
+	def Move(nCols, nRows)
+
+		nNewCols = @nCurrentCol + nCols
+		nNewRows = @nCurrentRow + nRows
 		
-		if @nWrapMode = :Wrap
-			if nNewRow < 1
-				nNewRow = @nRows - ((abs(nNewRow) % @nRows))
-				if nNewRow = 0
-					nNewRow = @nRows
-				ok
-			elseif nNewRow > @nRows
-				nNewRow = ((nNewRow - 1) % @nRows) + 1
-			ok
-			
-			if nNewCol < 1
-				nNewCol = @nCols - ((abs(nNewCol) % @nCols))
-				if nNewCol = 0
-					nNewCol = @nCols
-				ok
-			elseif nNewCol > @nCols
-				nNewCol = ((nNewCol - 1) % @nCols) + 1
-			ok
-			
+
+		if IsValidPosition(nNewRow, nNewCol)
 			@nCurrentRow = nNewRow
 			@nCurrentCol = nNewCol
-			return self
-			
-		else # :NoWrap
-			if IsValidPosition(nNewRow, nNewCol)
-				@nCurrentRow = nNewRow
-				@nCurrentCol = nNewCol
-				return self
-			else
-				return NULL
-			ok
 		ok
 		
+		def MoveBy(nCols, nRows)
+			This.Move(nCols, nRows)
+
+		def MoveByNColsNRows(nCols, nRows)
+			This.Move(nCols, nRows)
+
 	def MoveForward()
 		@cDirection = :Forward
 		
 		nNewCol = @nCurrentCol + 1
 		if nNewCol <= @nCols
 			@nCurrentCol = nNewCol
-			return self
+
 		else
 			nNewRow = @nCurrentRow + 1
-			
-			if @nWrapMode = :Wrap
-				if nNewRow > @nRows
-					@nCurrentRow = 1
-				else
-					@nCurrentRow = nNewRow
-				ok
+
+			if nNewRow <= @nRows
+				@nCurrentRow = nNewRow
 				@nCurrentCol = 1
-				return self
-				
-			else # :NoWrap
-				if nNewRow <= @nRows
-					@nCurrentRow = nNewRow
-					@nCurrentCol = 1
-					return self
-				else
-					return NULL # Reached the end of grid
-				ok
 			ok
+
 		ok
 		
 	def MoveBackward()
@@ -255,24 +229,12 @@ Class stzGrid From stzObject
 		else
 			nNewRow = @nCurrentRow - 1
 			
-			if @nWrapMode = :Wrap
-				if nNewRow < 1
-					@nCurrentRow = @nRows
-				else
-					@nCurrentRow = nNewRow
-				ok
+			if nNewRow >= 1
+				@nCurrentRow = nNewRow
 				@nCurrentCol = @nCols
-				return self
-				
-			else # :NoWrap
-				if nNewRow >= 1
-					@nCurrentRow = nNewRow
-					@nCurrentCol = @nCols
-					return self
-				else
-					return NULL # Reached the beginning of grid
-				ok
+
 			ok
+
 		ok
 		
 	def MoveRight()
@@ -280,43 +242,17 @@ Class stzGrid From stzObject
 		
 		nNewCol = @nCurrentCol + 1
 		
-		if @nWrapMode = :Wrap
-			if nNewCol > @nCols
-				@nCurrentCol = 1
-			else
-				@nCurrentCol = nNewCol
-			ok
-			return self
-			
-		else # :NoWrap
-			if nNewCol <= @nCols
-				@nCurrentCol = nNewCol
-				return self
-			else
-				return NULL # Can't move further right
-			ok
+		if nNewCol <= @nCols
+			@nCurrentCol = nNewCol
 		ok
 		
 	def MoveLeft()
 		@cDirection = :Left
 		
 		nNewCol = @nCurrentCol - 1
-		
-		if @nWrapMode = :Wrap
-			if nNewCol < 1
-				@nCurrentCol = @nCols
-			else
-				@nCurrentCol = nNewCol
-			ok
-			return self
-			
-		else # :NoWrap
-			if nNewCol >= 1
-				@nCurrentCol = nNewCol
-				return self
-			else
-				return NULL # Can't move further left
-			ok
+	
+		if nNewCol >= 1
+			@nCurrentCol = nNewCol
 		ok
 		
 	def MoveUp()
@@ -324,21 +260,8 @@ Class stzGrid From stzObject
 		
 		nNewRow = @nCurrentRow - 1
 		
-		if @nWrapMode = :Wrap
-			if nNewRow < 1
-				@nCurrentRow = @nRows
-			else
-				@nCurrentRow = nNewRow
-			ok
-			return self
-			
-		else # :NoWrap
-			if nNewRow >= 1
-				@nCurrentRow = nNewRow
-				return self
-			else
-				return NULL # Can't move further up
-			ok
+		if nNewRow >= 1
+			@nCurrentRow = nNewRow
 		ok
 		
 	def MoveDown()
@@ -346,36 +269,26 @@ Class stzGrid From stzObject
 		
 		nNewRow = @nCurrentRow + 1
 		
-		if @nWrapMode = :Wrap
-			if nNewRow > @nRows
-				@nCurrentRow = 1
-			else
-				@nCurrentRow = nNewRow
-			ok
-			return self
-			
-		else # :NoWrap
-			if nNewRow <= @nRows
-				@nCurrentRow = nNewRow
-				return self
-			else
-				return NULL # Can't move further down
-			ok
+		if nNewRow <= @nRows
+			@nCurrentRow = nNewRow
 		ok
 		
 	#-- TRAVERSAL METHODS
 	
-	def Positions()
+	def Nodes()
 		aResult = []
 		
-		for i = 1 to @nRows
-			for j = 1 to @nCols
-				add(aResult, [i, j])
+		for i = 1 to @nCols
+			for j = 1 to @nRows
+				aResult +  [i, j]
 			next
 		next
 		
 		return aResult
 		
+		def Positions()
+			return This.Positions()
+
 	def ForEachPosition(pCode)
 		for i = 1 to @nRows
 			for j = 1 to @nCols
@@ -384,19 +297,17 @@ Class stzGrid From stzObject
 				call pCode(i, j)
 			next
 		next
-		return self
 		
 	def TraverseInDirection(cDirection, pCode)
-		oTemp = new stzGrid([@nRows, @nCols])
-		oTemp.GoTo(@nCurrentRow, @nCurrentCol)
+		oTemp = new stzGrid([@nCols, @nRows])
+		oTemp.GoTo(@nCurrentCol, @nCurrentRow)
 		oTemp.SetDirection(cDirection)
-		oTemp.SetWrapMode(@nWrapMode)
 		
 		while TRUE
 			nRow = oTemp.CurrentRow()
 			nCol = oTemp.CurrentColumn()
 			
-			call pCode(nRow, nCol)
+			call pCode(nCol, nRow)
 			
 			# Try to move to next position
 			oNext = oTemp.GoToNextPosition()
@@ -405,14 +316,7 @@ Class stzGrid From stzObject
 				exit
 			ok
 			
-			# Detect if we've completed a full cycle in Wrap mode
-			if @nWrapMode = :Wrap and
-			   nRow = oTemp.CurrentRow() and nCol = oTemp.CurrentColumn()
-				exit
-			ok
 		end
-		
-		return self
 		
 	#-- NEIGHBORS & RELATIVE POSITIONS
 	
@@ -420,88 +324,172 @@ Class stzGrid From stzObject
 		aResult = []
 		
 		# Check each of the 8 neighbors
-		aDirections = [ [-1,-1], [-1,0], [-1,1], 
-		                [0,-1],          [0,1],
-		                [1,-1],  [1,0],  [1,1] ]
+
+		aDirections = [
+			[-1,-1], [-1,0], [-1,1], 
+		      	[0,-1],          [0,1],
+		     	[1,-1],  [1,0],  [1,1]
+		]
 		
-		for aDir in aDirections
-			nRow = @nCurrentRow + aDir[1]
-			nCol = @nCurrentCol + aDir[2]
+		nLen = len(aDirections)
+
+		for i = 1 to nLen
+			nRow = @nCurrentRow + aDirections[i][1]
+			nCol = @nCurrentCol + aDirections[i][2]
 			
-			if IsValidPosition(nRow, nCol)
-				add(aResult, [nRow, nCol])
+			if IsValidPosition(nCol, nRow)
+				aResult +  [nCol, nRow]
 			ok
 		next
 		
 		return aResult
 		
-	def AdjacentNeighbors()
-		aResult = []
+		def AdjacentNodes()
+			return This.Neighbors()
 		
-		# Check the 4 adjacent neighbors (no diagonals)
-		aDirections = [ [0,-1], [-1,0], [1,0], [0,1] ]
-		
-		for aDir in aDirections
-			nRow = @nCurrentRow + aDir[1]
-			nCol = @nCurrentCol + aDir[2]
-			
-			if IsValidPosition(nRow, nCol)
-				add(aResult, [nRow, nCol])
-			ok
-		next
-		
-		return aResult
-		
-	def PositionAbove()
+		def AdjacentNeighbors()
+			return This.Neighbors()
+
+		def AdjacentPositions()
+			return This.Neighbors()
+
+	def NodeAbove()
+
+		nCol = @nCurrentCol
 		nRow = @nCurrentRow - 1
-		nCol = @nCurrentCol
 		
-		if IsValidPosition(nRow, nCol)
-			return [nRow, nCol]
+		if IsValidPosition(nCol, nRow)
+			return [nCol, nRow]
 		else
-			return NULL
+			StzRaise("No valid position above the current position!")
 		ok
-		
-	def PositionBelow()
-		nRow = @nCurrentRow + 1
-		nCol = @nCurrentCol
-		
-		if IsValidPosition(nRow, nCol)
-			return [nRow, nCol]
-		else
-			return NULL
-		ok
-		
-	def PositionToLeft()
-		nRow = @nCurrentRow
+
+		def PositionAbove()
+			return This.NodeAbove()
+
+	def NodeAboveLeft()
+
 		nCol = @nCurrentCol - 1
+		nRow = @nCurrentRow - 1
 		
-		if IsValidPosition(nRow, nCol)
-			return [nRow, nCol]
+		if IsValidPosition(nCol, nRow)
+			return [nCol, nRow]
 		else
-			return NULL
+			StzRaise("No valid position above the current position!")
 		ok
-		
-	def PositionToRight()
-		nRow = @nCurrentRow
+
+		def PositionAboveLeft()
+			return This.NodeAboveLeft()
+
+	def NodeAboveRight()
+
 		nCol = @nCurrentCol + 1
+		nRow = @nCurrentRow - 1
 		
-		if IsValidPosition(nRow, nCol)
-			return [nRow, nCol]
+		if IsValidPosition(nCol, nRow)
+			return [nCol, nRow]
 		else
-			return NULL
+			StzRaise("No valid position above the current position!")
+		ok
+
+		def PositionAboveRight()
+			return This.NodeAboveRight()
+
+	def NodeBelow()
+
+		nCol = @nCurrentCol
+		nRow = @nCurrentRow + 1
+		
+		if IsValidPosition(nCol, nRow)
+			return [nCol, nRow]
+		else
+			StzRaise("No valid position below the current position!")
 		ok
 		
-	def DistanceTo(nRow, nCol)
+		def PositionBelow()
+			return This.NodeBelow()
+
+	def NodeBelowLeft()
+
+		nCol = @nCurrentCol - 1
+		nRow = @nCurrentRow + 1
+		
+		if IsValidPosition(nCol, nRow)
+			return [nCol, nRow]
+		else
+			StzRaise("No valid position below the current position!")
+		ok
+
+		def PositionBelowLeft()
+			return This.NodeBelowLeft()
+
+	def NodeBelowRight()
+
+		nCol = @nCurrentCol + 1
+		nRow = @nCurrentRow + 1
+		
+		if IsValidPosition(nCol, nRow)
+			return [nCol, nRow]
+		else
+			StzRaise("No valid position below the current position!")
+		ok
+
+		def PositionBelowRight()
+			return This.NodeBelowRight()
+
+	def NodeToLeft()
+
+		nCol = @nCurrentCol - 1
+		nRow = @nCurrentRow
+		
+		if IsValidPosition(nCol, nRow)
+			return [nCol, nRow]
+		else
+			StzRaise("No valid position to the left of the current position!")
+		ok
+		
+		def PositionToLeft()
+			return This.NodeToLeft()
+
+	def NodeToRight()
+
+		nCol = @nCurrentCol + 1
+		nRow = @nCurrentRow
+		
+		if IsValidPosition(nCol, nRow)
+			return [nCol, nRow]
+		else
+			StzRaise("No valid position to the right of the current position!")
+		ok
+		
+		def PositionToRight()
+			return This.NodeToRight()
+
+	def DistanceTo(nCol, nRow)
 		# Manhattan distance (L1 norm)
-		return abs(@nCurrentRow - nRow) + abs(@nCurrentCol - nCol)
+		nResult = abs(@nCurrentCol - nCol) + abs(@nCurrentRow - nRow)
+		return nResult
 		
-	def EuclideanDistanceTo(nRow, nCol)
+		def DistanceToNode(nCol, nRow)
+			return This.DistanceTo(nCol, nRow)
+
+	def EuclideanDistanceTo(nCol, nRow)
 		# Euclidean distance (L2 norm)
-		nDeltaRow = @nCurrentRow - nRow
+
 		nDeltaCol = @nCurrentCol - nCol
-		return sqrt(nDeltaRow * nDeltaRow + nDeltaCol * nDeltaCol)
+		nDeltaRow = @nCurrentRow - nRow
 		
+		nResult =  sqrt(nDeltaRow * nDeltaRow + nDeltaCol * nDeltaCol)
+		
+		def EuclideanDistanceToNode(nCol, nRow)
+			return This.EuclideanDistanceTo(nCol, nRow)
+
+		def EucDistanceTo(nCol, nRow)
+			return This.EuclideanDistanceTo(nCol, nRow)
+
+		def EucDistTo(nCol, nRow)
+			return This.EuclideanDistanceTo(nCol, nRow)
+
 	#-- VISUALIZATION METHODS
 	
 	def Show()
@@ -563,6 +551,6 @@ Class stzGrid From stzObject
 		for x = 1 to @nCols
 			cResult += "──"
 		next
-		cResult += "─╯"
+		cResult += "─╯" + NL
 		
 		return cResult

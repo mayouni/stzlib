@@ -1,9 +1,8 @@
 load "../max/stzmax.ring"
 
 
-
 /*--- Testing basic grid initialization and movement
-*/
+
 pr()
 
 o1 = new stzGrid([5, 5])
@@ -18,12 +17,6 @@ o1 = new stzGrid([5, 5])
 
 # Current Position
 
-? o1.CurrentRow()
-#--> 1
-
-? o1.CurrentColumn()
-#--> 1
-
 ? @@(o1.CurrentPosition()) + NL
 #--> [ 1, 1 ]
 
@@ -31,15 +24,8 @@ o1 = new stzGrid([5, 5])
 
 o1.MoveDown()
 o1.MoveDown()
-
-? o1.CurrentRow()
-#--> 3
-
-? o1.CurrentColumn()
-#--> 1
-
 ? @@( o1.CurrentPosition() ) + NL
-#--> [ 3, 1 ]
+#--> [ 1, 3 ]
 
 #Moving right three times...
 
@@ -47,14 +33,8 @@ o1.MoveRight()
 o1.MoveRight()
 o1.MoveRight()
 
-? o1.CurrentRow()
-#--> 3
-
-? o1.CurrentColumn()
-#--> 4
-
 ? @@( o1.CurrentPosition() ) + NL
-#--> [ 3, 4 ]
+#--> [ 4, 3 ]
 
 o1.Show()
 #-->
@@ -70,60 +50,89 @@ o1.Show()
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*--- Testing wrap mode behavior
+/*--- Testing hitting the right boundary
 
 pr()
 
-o1 = new stzGrid([4, 6])
-? "Grid Size: " + o1.NumberOfRows() + "x" + o1.NumberOfColumns()
-? "Default Wrap Mode: " + o1.WrapMode()
+o1 = new stzGrid([6, 4])
+? @@( o1.SizeXY() )
+#--> [ 6, 4 ]
 
-? "Moving right to edge..."
-o1.GoTo(1, 5)
-o1.Show()
+# Moving right to edge
 
-? "Moving right one more (should hit boundary)..."
-result = o1.MoveRight()
-? "Result: " + (result = NULL ? "NULL (boundary hit)" : "Movement successful")
-o1.Show()
+o1.GoTo(6, 1)
+? @@(o1.Position())
+#--> [ 6, 1 ]
 
-? "Enabling wrap mode..."
-o1.EnableWrapping()
-? "New Wrap Mode: " + o1.WrapMode()
+# Moving right one more (hits boundary and does not move)
 
-? "Moving right one more (should wrap around)..."
 o1.MoveRight()
-? "New Position: " + o1.CurrentRow() + "," + o1.CurrentColumn()
-o1.Show()
+? @@(o1.Position())
+#--> [ 6, 1 ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Testing different movement directions
-
+*/
 pr()
 
 o1 = new stzGrid([5, 5])
-? "Grid Size: " + o1.NumberOfRows() + "x" + o1.NumberOfColumns()
+? @@(o1.SizeXY()) + NL
 
-? "Moving to center of grid..."
-o1.GoTo(2, 2)
-o1.Show()
+# Moving to center of grid
 
-? "Testing adjacent positions..."
-? "Position Above: " + o1.PositionAbove()[1] + "," + o1.PositionAbove()[2]
-? "Position Below: " + o1.PositionBelow()[1] + "," + o1.PositionBelow()[2]
-? "Position To Left: " + o1.PositionToLeft()[1] + "," + o1.PositionToLeft()[2]
-? "Position To Right: " + o1.PositionToRight()[1] + "," + o1.PositionToRight()[2]
+o1.GoTo(3, 3) + NL
+o1.Show() + NL
+#-->
+#     1 2 3 4 5 
+#   ╭─────v─────╮
+# 1 │ . . . . . │
+# 2 │ . . . . . │
+# 3 > . . x . . │
+# 4 │ . . . . . │
+# 5 │ . . . . . │
+#   ╰───────────╯
 
-? "Adjacent Neighbors:"
-aNeighbors = o1.AdjacentNeighbors()
-for i = 1 to len(aNeighbors)
-    ? "  Neighbor " + i + ": " + aNeighbors[i][1] + "," + aNeighbors[i][2]
-next
+# Ajacent positions (above, below, left, right)
 
-o1.Show()
+? @@( o1.NodeAboveLeft() )
+#--> [ 2, 2 ]
+
+? @@( o1.NodeAbove() )
+#--> [ 3, 2 ]
+
+? @@( o1.NodeAboveRight() ) + NL
+#--> [ 4, 2 ]
+
+#--
+
+? @@( o1.NodeToLeft() )
+#--> [ 2, 3 ]
+
+? @@( o1.NodeToRight() ) + NL
+#--> [ 4, 3 ]
+
+#--
+
+? @@( o1.NodeBelowLeft() )
+#--> [ 2, 4 ]
+
+? @@( o1.NodeBelow() )
+#--> [ 3, 4 ]
+
+? @@( o1.NodeBelowRight() ) + NL
+#--> [ 4, 4 ]
+
+# Adjacent Neighbors
+
+? @@( o1.AdjacentNodes() ) + NL
+#--> [ [ 2, 2 ], [ 2, 3 ], [ 2, 4 ], [ 3, 2 ], [ 3, 4 ], [ 4, 2 ], [ 4, 3 ], [ 4, 4 ] ]
+
+// o1.PaintNighbors() #TODO
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Testing forward/backward movement
 
