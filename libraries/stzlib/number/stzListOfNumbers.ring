@@ -3246,7 +3246,30 @@ class stzListOfNumbers from stzList
 		def Differences()
 			return This.Diff()
 
-	def DiffTo(n)
+	def AbsDiff()
+		anResult = []
+		nLen = len(@aContent)
+		if nLen = 1
+			StzRaise("Can't compute the Diffs! The ist must contain more then 1 number.")
+		ok
+
+		for i = 2 to nLen
+			anResult + @Abs( @aContent[i] - @aContent[i-1] )
+		next
+
+		return anResult
+
+		def AbsDiffs()
+			return This.AbsDiff()
+
+		def AbsoluteDifferences()
+			return This.AbsDiff()
+
+	  #-------------------------------------------------------------------#
+	 #  GETTING THE DIFFRERENCES BETWEEN A GIVEN NUMBER AND ALL NUMBERS  #
+	#-------------------------------------------------------------------#
+
+	def DiffWith(n)
 
 		if CheckParams() and NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")				
@@ -3259,16 +3282,93 @@ class stzListOfNumbers from stzList
 		ok
 
 		for i = 1 to nLen
-			anResult + ( n - @aContent[i] )
+			anResult + ( @aContent[i] - n )
 		next
 
 		return anResult
 
-		def DiffsTo(n)
-			return This.DiffTo(n)
+		def DiffsWith(n)
+			return This.DiffWith(n)
 
-		def DifferencesTo(n)
-			return This.DiffTo(n)
+		def DifferencesWith(n)
+			return This.DiffWith(n)
+
+	def AbsDiffWith(n)
+
+		if CheckParams() and NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")				
+		ok
+
+		anResult = []
+		nLen = len(@aContent)
+		if nLen = 1
+			StzRaise("Can't compute the Diffs! The ist must contain more then 1 number.")
+		ok
+
+		for i = 1 to nLen
+			anResult + @Abs( @aContent[i] - n )
+		next
+
+		return anResult
+
+		def AbsDiffsWith(n)
+			return This.AbsDiffWith(n)
+
+		def AbsoluteDifferencesWith(n)
+			return This.AbsDiffWith(n)
+
+	  #---------------------------------------------------#
+	 #  CLASSIFYING NUMBERS BY NEAREST TO GIVEN NUMBERS  #
+	#---------------------------------------------------#
+
+	def ClassifyByNearestTo(panNumbers)
+
+		if CheckParams() and
+		   NOT (isList(panNumbers) and @IsListOfNumbers(panNumbers))
+
+			StzRaise("Incorrect param type! panNumbers must be a list of numbers.")
+		ok
+
+		aResult = []
+		panNumbers = U(panNumbers)
+		nLenNumbers = len(panNumbers)
+
+		for i = 1 to nLenNumbers
+			aResult + [ panNumbers[i], [] ]
+		next
+
+		nLenContent = len(@aContent)
+
+		for j = 1 to nLenContent
+
+			nNumber = @aContent[j]
+			nMinDiff = NULL
+			nClosestPivot = NULL
+
+			for i = 1 to nLenNumbers
+
+				nPivot = panNumbers[i]
+				nDiff = @abs(nNumber - nPivot)
+
+				if nMinDiff = NULL or nDiff < nMinDiff
+					nMinDiff = nDiff
+					nClosestPivot = nPivot
+				ok
+
+			next
+
+			for i = 1 to len(aResult)
+
+				if ring_find(panNumbers, nNumber) = 0 and
+				   aResult[i][1] = nClosestPivot
+
+					aResult[i][2] + nNumber
+					exit
+				ok
+			next
+		next
+
+		return aResult
 
 	  #======================================================#
 	 #  LEAST COMMON NUMBER WITH AN OTHER LIST OF NUMBERS   #
