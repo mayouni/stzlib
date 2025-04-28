@@ -1,431 +1,275 @@
 load "../max/stzmax.ring"
 
-/*---------
 
+
+/*--- Testing basic grid initialization and movement
+*/
 pr()
 
-? Char(34)
-#--> "
+o1 = new stzGrid([5, 5])
 
-? @@( Char(34) )
-#--> '"'
+# Grid Size
 
-? @@( '"')
-#--> '"'
+? o1.NumberOfRows()
+#--> 5
 
-? @@( "'" )
-#--> "'"
+? o1.NumberOfColumns() + NL
+#--> 5
 
-? @@( "'ring'" )
-#--> "'ring'"
+# Current Position
 
-? @@( '"ring"' )
-#--> '"ring"'
+? o1.CurrentRow()
+#--> 1
 
-? @@( '"""ring"' )
-#--> '"""ring"'
+? o1.CurrentColumn()
+#--> 1
 
-pf()
-# Executed in 0.02 second(s)
+? @@(o1.CurrentPosition()) + NL
+#--> [ 1, 1 ]
 
-/*----------
+# Moving down twice...
 
-pr()
+o1.MoveDown()
+o1.MoveDown()
 
-o1 = new stzString(@@( [ " ", "!", "'+ char(34) +'", "#", "y"] ))
-o1.Replace( @@("'+ char(34) +'"), @@('"') )
+? o1.CurrentRow()
+#--> 3
 
-?o1.Content()
-#--> [ " ", "!", '"', "#", "y" ]
+? o1.CurrentColumn()
+#--> 1
+
+? @@( o1.CurrentPosition() ) + NL
+#--> [ 3, 1 ]
+
+#Moving right three times...
+
+o1.MoveRight()
+o1.MoveRight()
+o1.MoveRight()
+
+? o1.CurrentRow()
+#--> 3
+
+? o1.CurrentColumn()
+#--> 4
+
+? @@( o1.CurrentPosition() ) + NL
+#--> [ 3, 4 ]
+
+o1.Show()
+#-->
+#     1 2 3 4 5 
+#   ╭───────v───╮
+# 1 │ . . . . . │
+# 2 │ . . . . . │
+# 3 > . . . x . │
+# 4 │ . . . . . │
+# 5 │ . . . . . │
+#   ╰───────────╯
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
-# Executed in 0.02 second(s) in Ring 1.20
 
-/*----------
+/*--- Testing wrap mode behavior
 
 pr()
 
-? Rx(pat(:textWithNumberSuffix)).Match("day1")
-#--> TRUE
+o1 = new stzGrid([4, 6])
+? "Grid Size: " + o1.NumberOfRows() + "x" + o1.NumberOfColumns()
+? "Default Wrap Mode: " + o1.WrapMode()
+
+? "Moving right to edge..."
+o1.GoTo(1, 5)
+o1.Show()
+
+? "Moving right one more (should hit boundary)..."
+result = o1.MoveRight()
+? "Result: " + (result = NULL ? "NULL (boundary hit)" : "Movement successful")
+o1.Show()
+
+? "Enabling wrap mode..."
+o1.EnableWrapping()
+? "New Wrap Mode: " + o1.WrapMode()
+
+? "Moving right one more (should wrap around)..."
+o1.MoveRight()
+? "New Position: " + o1.CurrentRow() + "," + o1.CurrentColumn()
+o1.Show()
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
 
-/*----------
-
-pr()
-
-? @@( L("[1, 2, 3 ]") )
-#--> [ 1, 2, 3 ]
-
-? @@( L("1:3") )
-#--> [ 1, 2, 3 ]
-
-? @@( L("A:C") ) + NL
-#--> [ "A", "B", "C"]
-
-? @@( L("#1 : #3") )
-#--> [ "#1", "#2", "#3" ]
-
-? @@( L("day1 : day3") ) + nl
-#--> [ "day1", "day2", "day3" ]
-
-? @@( L("سامي1 : سامي3") )
-#o--> [ "سامي1", "سامي2", "سامي3" ]
-
-? @@( L('"A":"C"') )  + NL
-#--> [ '"A":"C"' ]
-
-
-? @@(  L(' "ا" : "ج" ') )
-#o--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
-
-? @@(  L('ا:ج') )
-#o--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
-
-pf()
-# Executed in 0.33 second(s) in Ring 1.22
-
-/*----------
+/*--- Testing different movement directions
 
 pr()
 
-? NumberOfCharsBetween("A", "B")
-#--> 2
+o1 = new stzGrid([5, 5])
+? "Grid Size: " + o1.NumberOfRows() + "x" + o1.NumberOfColumns()
 
-pf()
-#--> Executed in 0.01 second(s) in Ring 1.22
+? "Moving to center of grid..."
+o1.GoTo(2, 2)
+o1.Show()
 
-/*=======
+? "Testing adjacent positions..."
+? "Position Above: " + o1.PositionAbove()[1] + "," + o1.PositionAbove()[2]
+? "Position Below: " + o1.PositionBelow()[1] + "," + o1.PositionBelow()[2]
+? "Position To Left: " + o1.PositionToLeft()[1] + "," + o1.PositionToLeft()[2]
+? "Position To Right: " + o1.PositionToRight()[1] + "," + o1.PositionToRight()[2]
 
-pr()
-
-? @@( CharsBetween("A", :And = "E") )
-#--> [ "A", "B", "C", "D", "E" ]
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
-# Executed in 0.05 second(s) in Ring 1.20
-
-/*----- #TODO fix it!
-
-pr()
-
-o1 = new stzGrid(CharsBetween(" ", :And = "z") )
-? o1.HowManyHLines()
-#--> 11
+? "Adjacent Neighbors:"
+aNeighbors = o1.AdjacentNeighbors()
+for i = 1 to len(aNeighbors)
+    ? "  Neighbor " + i + ": " + aNeighbors[i][1] + "," + aNeighbors[i][2]
+next
 
 o1.Show()
 
 pf()
-#--> Executed in 0.02 second(s)
 
-/*---------------
-
-pr()
-
-? @@( CharsBetween("!", "p") )
-#--> [
-#	"!", '"', "#", "$", "%", "&", "'", "(", ")", "*",
-#	"+", ",", "-", ".", "/", "0", "1", "2", "3", "4",
-#	"5", "6", "7", "8", "9", ":", ";", "<", "=", ">",
-#	"?", "@", "A", "B", "C", "D", "E", "F", "G", "H",
-#	"I", "J", "K", "L", "M", "N", "O", "P", "Q", "R",
-#	"S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\",
-#	"]", "^", "_", "`", "a", "b", "c", "d", "e", "f",
-#	"g", "h", "i", "j", "k", "l", "m", "n", "o", "p"
-# ]
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
-# Executed in 0.04 second(s) in Ring 1.20
-
-/*=============
+/*--- Testing forward/backward movement
 
 pr()
 
-aList = [
-	[ "!", '"', "#", "$", "%", "&", "'", "(", ")", "*" ],
-	[ "+", ",", "-", ".", "/", "0", "1", "2", "3", "4" ],
-	[ "5", "6", "7", "8", "9", ":", ";", "<", "=", ">" ],
-	[ "?", "@", "A", "B", "C", "D", "E", "F", "G", "H" ],
-	[ "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R" ],
-	[ "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\" ],
-	[ "]", "^", "_", "`", "a", "b", "c", "d", "e", "f" ],
-	[ "g", "h", "i", "j", "k", "l", "m", "n", "o", "p" ]
-]
+o1 = new stzGrid([3, 4])
+? "Grid Size: " + o1.NumberOfRows() + "x" + o1.NumberOfColumns()
+? "Default Direction: " + o1.Direction()
 
-? IsListOfListsOfStrings(aList)
-#--> TRUE
+? "Starting position:"
+o1.Show()
 
-? StzListOfListsQ(aList).ListsHaveSameNumberOfItems()
-#--> TRUE
+? "Moving forward three times..."
+o1.MoveForward()
+o1.MoveForward()
+o1.MoveForward()
+? "New Position: " + o1.CurrentRow() + "," + o1.CurrentColumn()
+o1.Show()
+
+? "Moving backward twice..."
+o1.MoveBackward()
+o1.MoveBackward()
+? "New Position: " + o1.CurrentRow() + "," + o1.CurrentColumn()
+o1.Show()
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
 
-/*---------------
-*/
+/*--- Testing grid traversal and iteration
+
 pr()
 
-# Showing the chars between "!" and "p" in a grid of 10 by 8
+o1 = new stzGrid([3, 3])
+? "Grid Size: " + o1.NumberOfRows() + "x" + o1.NumberOfColumns()
 
-StzGridQ([10, 8]).FillWithQ( CharsBetween("!", "p") ).Show()
-#-->
-#   ! " # $ % & ' ( ) *
-#   + , - . / 0 1 2 3 4
-#   5 6 7 8 9 : ; < = >
-#   ? @ A B C D E F G H
-#   I J K L M N O P Q R
-#   S T U V W X Y Z [ \
-#   ] ^ _ ` a b c d e f
-#   g h i j k l m n o p
+? "Getting all positions:"
+aPositions = o1.Positions()
+for i = 1 to len(aPositions)
+    ? "  Position " + i + ": " + aPositions[i][1] + "," + aPositions[i][2]
+next
 
-# Note that if you provide a large grid, say 10X10, the supplementary
-# lines are left empty, as you can observe it here:
+? "Traversing grid in right direction from (0,0):"
+o1.GoTo(0, 0)
+o1.SetDirection(:right)
+o1.TraverseInDirection(:right, func(row, col)
+    ? "  Visit: " + row + "," + col
+    if col = 1  # Stop after column 1
+        return FALSE
+    ok
+    return TRUE
+})
 
-StzGridQ([10, 10]).FillWithQ( CharsBetween("!", "p") ).Show()
-#-->
-#   ! " # $ % & ' ( ) *
-#   + , - . / 0 1 2 3 4
-#   5 6 7 8 9 : ; < = >
-#   ? @ A B C D E F G H
-#   I J K L M N O P Q R
-#   S T U V W X Y Z [ \
-#   ] ^ _ ` a b c d e f
-#   g h i j k l m n o p
-#                      
-#                      
+o1.Show()
 
 pf()
-# Executed in 0.10 second(s)
 
-/*---------------
+/*--- Testing distance calculations
 
-# Create a grid of 10 by 10 nodes
-StzGridQ([ :Of = 10, :By = 10 ]) {
-
-	# Fill the grid with the chars between " " and "z"
-	FillWith( CharsBetween(" ", :And = "z") )
-
-	# Show the grid
-	Show()
-}
-
-#-->
-#   ! " # $ % & ' ( ) *
-#   + , - . / 0 1 2 3 4
-#   5 6 7 8 9 : ; < = >
-#   ? @ A B C D E F G H
-#   I J K L M N O P Q R
-#   S T U V W X Y Z [ \
-#   ] ^ _ ` a b c d e f
-#   g h i j k l m n o p
-
-pf()
-#--> Executed in 0.15 second(s)
-
-/*----------
-*/
 pr()
 
-o1 = new stzGrid(9)
-o1.Show()
-#-->
-# . . .
-# . . .
-# . . .
+o1 = new stzGrid([10, 10])
+? "Grid Size: " + o1.NumberOfRows() + "x" + o1.NumberOfColumns()
 
-o1.ReplaceAll("*")
+o1.GoTo(3, 3)
+? "Current Position: " + o1.CurrentRow() + "," + o1.CurrentColumn()
+
+targetRow = 7
+targetCol = 6
+? "Target Position: " + targetRow + "," + targetCol
+
+? "Manhattan Distance: " + o1.DistanceTo(targetRow, targetCol)
+? "Euclidean Distance: " + o1.EuclideanDistanceTo(targetRow, targetCol)
+
+? "Moving using MoveBy..."
+o1.MoveBy(4, 3)  # Move 4 rows down, 3 columns right
+? "New Position: " + o1.CurrentRow() + "," + o1.CurrentColumn()
+
 o1.Show()
-#-->
-# * * *
-# * * *
-# * * *
 
 pf()
-# Executed in 0.02 second(s)
 
-/*----------
+/*--- Testing edge cases and boundary conditions
 
-? StzGridQ([
-	[ ". ", " 1 ", " . ", " . ", " ." ],
-	[ "1 ", " 2 ", " 3 ", " 4 ", " 5" ],
-	[ ". ", " 3 ", " . ", " . ", " ." ],
-	[ ". ", " 4 ", " . ", " . ", " ." ],
-	[ ". ", " 5 ", " . ", " . ", " ." ]
-]).Show()
+pr()
 
-/*-------
+o1 = new stzGrid([2, 3])
+? "Grid Size: " + o1.NumberOfRows() + "x" + o1.NumberOfColumns()
 
-o1 = new stzGrid(12)
-? o1.Size() #--> [4, 3]
-? o1.NumberOfNodes() #--> 12
+? "Testing boundary movement (NoWrap mode):"
+o1.DisableWrapping()
+o1.GoTo(0, 0)
+? "Current Position: " + o1.CurrentRow() + "," + o1.CurrentColumn()
 o1.Show()
-#-->
-# . . .
-# . . .
-# . . .
-# . . .
 
-/*-------
+? "Moving left (should hit boundary)..."
+result = o1.MoveLeft()
+? "Result: " + (result = NULL ? "NULL (boundary hit)" : "Movement successful")
 
-o1 = new stzGrid([3,4])
-? o1.Size() #--> [4, 3]
-? o1.NumberOfNodes() #--> 12
+? "Moving up (should hit boundary)..."
+result = o1.MoveUp()
+? "Result: " + (result = NULL ? "NULL (boundary hit)" : "Movement successful")
 
-/*-------
-
-o1 = new StzGrid([
-	[ "A", "B", "C" ],
-	[ "E", "F", "G" ],
-	[ "H", "I", "J" ]
-])
-
-? o1.Size() #--> [3, 3]
-? o1.NumberOfNodes()
-#--> 9
-
+? "Going to bottom-right corner..."
+o1.GoTo(1, 2)
+? "Current Position: " + o1.CurrentRow() + "," + o1.CurrentColumn()
 o1.Show()
-#-->
-# A B C
-# E F G
-# H I J
 
-? o1.ShowXT([ :ShowCenter, :ShowRanks ]) #--> TODO
+? "Moving right (should hit boundary)..."
+result = o1.MoveRight()
+? "Result: " + (result = NULL ? "NULL (boundary hit)" : "Movement successful")
 
-/*-------
+? "Moving down (should hit boundary)..."
+result = o1.MoveDown()
+? "Result: " + (result = NULL ? "NULL (boundary hit)" : "Movement successful")
 
-# ? GridSep()
-#--> ":"
+pf()
 
-SetGridSep(" : ")
+/*--- Testing direction changes and movement combinations
 
-# ? GridSep()
-#--> " : "
+pr()
 
-o1 = new stzGrid("
-	. : 1 : . : . : .
-	1 : 2 : 3 : 4 : 5
-	. : 3 : . : . : .
-	. : 4 : . : . : .
-	. : 5 : . : . : .
-")
+o1 = new stzGrid([4, 4])
+? "Grid Size: " + o1.NumberOfRows() + "x" + o1.NumberOfColumns()
 
-? o1.Size() #--> [5, 5]
+? "Starting at center..."
+o1.GoTo(1, 1)
 o1.Show()
-#-->
-# . 1 . . .
-# 1 2 3 4 5
-# . 3 . . .
-# . 4 . . .
-# . 5 . . .
 
-/*-------------
+? "Current Direction: " + o1.Direction()
+? "Setting direction to :down"
+o1.SetDirection(:down)
+? "New Direction: " + o1.Direction()
 
-StzGridQ( [ 7, 7 ] ) { Show() }
-#-->
-# . . . . . . .
-# . . . . . . .
-# . . . . . . .
-# . . . . . . .
-# . . . . . . .
-# . . . . . . .
-# . . . . . . .
+? "Moving in current direction (down)..."
+o1.GoToNextPosition()
+? "New Position: " + o1.CurrentRow() + "," + o1.CurrentColumn()
+o1.Show()
 
-/*-------------------
+? "Going back to previous position (up)..."
+o1.GoToPreviousPosition()
+? "New Position: " + o1.CurrentRow() + "," + o1.CurrentColumn()
+o1.Show()
 
-StzGridQ( [ 7, 7 ] ) {
+? "Changing direction to :right and moving"
+o1.SetDirection(:right)
+o1.GoToNextPosition()
+? "New Position: " + o1.CurrentRow() + "," + o1.CurrentColumn()
+o1.Show()
 
-	@bShowCenter = TRUE
-	//@bShowRanks = TRUE #ERROR in case: TRUE (occurs in stzCounter)
-
-	SetNode(1, 1, "1")
-	SetNode(7, 1, "2")
-	SetNode(7, 7, "3")
-	SetNode(1, 7, "4")
-	Show() 	#--> 	1 . . . . . 2
-		# 	. . . . . . .
-		# 	. . . . . . .
-		# 	. . . + . . .
-		# 	. . . . . . .
-		# 	. . . . . . .
-		# 	4 . . . . . 3
-
-	ReverseHLines()
-	Show() 	#--> 	4 . . . . . 3
-		# 	. . . . . . .
-		# 	. . . . . . .
-		# 	. . . + . . .
-		# 	. . . . . . .
-		# 	. . . . . . .
-		# 	1 . . . . . 2
-
-}
-
-/*-------------------
-
-aGrid = [
-	[ "+", "-", "-", "-", "-", "-", "+" ],
-	[ "|", ".", "1", ".", ".", ".", "|" ],
-	[ "|", "1", "2", "3", "4", "5", "|" ],
-	[ "|", ".", "3", ".", ".", ".", "|" ],
-	[ "|", ".", "4", ".", ".", ".", "|" ],
-	[ "|", ".", "5", ".", ".", ".", "|" ],
-	[ "+", "-", "-", "-", "-", "-", "+" ]
-]
-
-StzGridQ(aGrid) {
-	Show()	#-->	+ - - - - - +
-		# 	| . 1 . . . |
-		# 	| 1 2 3 4 5 |
-		# 	| . 3 . . . |
-		# 	| . 4 . . . |
-		# 	| . 5 . . . |
-		# 	+ - - - - - +
-
-	SwapLines()
-	Show()  #--> 	+ | | | | | +
-		# 	- . 1 . . . -
-		# 	- 1 2 3 4 5 -
-		# 	- . 3 . . . -
-		# 	- . 4 . . . -
-		# 	- . 5 . . . -
-		# 	+ | | | | | +
-}
-
-/*-------------------------
-
-StzGridQ(9) {
-
-	# Showing the grid of 9 nodes
-	Show()
-	#--> . . .
-	#    . . .
-	#    . . .
-
-	# Setting the grid vline by Vline
-	SetVLine(1, "A":"C")
-	SetVLine(2, "1":"3")
-	SetVLine(3, "E":"G")
-	Show()
-	#--> A 1 E
-	#    B 2 F
-	#    C 3 G
-
-	# Swapping VLines and HLines
-	SwapLines()
-	Show()
-	#--> A B C
-	#    1 2 3
-	#    E F G
-
-	? @@( Diagonal1() )
-	#--> [ "A", "2", "G" ]
-
-	? @@( Diagonal2() )
-	#--> [ "C", "2", E" ]
-
-}
-
+pf()

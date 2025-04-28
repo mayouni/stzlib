@@ -3370,6 +3370,85 @@ class stzListOfNumbers from stzList
 
 		return aResult
 
+	  #==========================================#
+	 #  GETTING THE STEPS TAKNE BY THE NUMBERS  #
+	#==========================================#
+
+	# Returns the minimal repeating pattern of steps (differences)
+	# between consecutive numbers in the list
+
+	# Made for use with stzWalker classes
+
+	def Steps()
+
+		# EXAMPLES
+
+		# [1,2,3,4,5] returns [1] because the step is constantly 1
+		# [1,2,5,6,9,10] returns [1,3] because the pattern of steps is 1,3,1,3,1...
+		# [4,8,2,3,7,1,2] returns [4,-6,1,4,-6,1] because the steps pattern is 4,-6,1
+
+		if len(@aContent) <= 1
+			StzRaise("Can't compute steps! The list must contain at least 2 numbers.")
+  		ok
+    
+		# Calculate all differences
+
+		anDiffs = []
+
+		for i = 2 to len(@aContent)
+			anDiffs + (@aContent[i] - @aContent[i-1])
+		next
+
+		# Find shortest repeating pattern
+
+		nLen = len(anDiffs)
+
+		# Special case for [1,2,3,4,5]
+
+		if U(anDiffs) = anDiffs[1]
+			return [ anDiffs[1] ]
+		ok
+    
+		# Try to find the repeating pattern
+
+		for i = 1 to nLen
+
+			# Build pattern from first i elements
+
+			anPattern = []
+			for j = 1 to i
+				anPattern + anDiffs[j]
+			next
+
+			# Check if this pattern repeats throughout
+
+			bMatches = _TRUE_
+			nLenPattern = len(anPattern)
+
+			for j = 1 to nLen
+				if anDiffs[j] != anPattern[(j-1) % nLenPattern + 1]
+					bMatches = _FALSE_
+					exit
+  				ok
+			next
+
+			if bMatches
+				return anPattern
+			ok
+		next
+    
+    		return anDiffs
+
+	  #-------------------------------------------------------------------#
+	 #  REVERSE-ENGENEERING THE LIST OF NUMBERS INTO A STZWALKER OBJECT  #
+	#-------------------------------------------------------------------#
+
+	def Walker()
+		return new stzWalker(@aContent[1], @aContent[len(@aContent)], This.Steps())
+
+		def StzWalker()
+			return This.Walker()
+
 	  #======================================================#
 	 #  LEAST COMMON NUMBER WITH AN OTHER LIST OF NUMBERS   #
 	#======================================================#
