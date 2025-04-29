@@ -6282,6 +6282,9 @@ class stzNumber from stzObject
 		on "inverse"
 			nResult = 1 / n1
 
+		on "sqrt"
+			nResult = sqrt(n1)
+
 		# Special case: the result is a list of integers!
 		#--> Nothing to round: return the list of factors directly
 		on "factors"

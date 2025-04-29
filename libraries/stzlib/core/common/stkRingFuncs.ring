@@ -287,3 +287,6 @@ func ring_srandom(n)
 
 func ring_isvowel(c)
 	return isvowel(c)
+
+func ring_sqrt(n)
+	return sqrt(n)
