@@ -37,8 +37,8 @@ Class stzGrid From stzObject
 	@aObstacles = []
 	@aPath = []
 	@cObstacleChar = "■"
-	@cPathChar = "◌"
-	@cVisitedChar = "○"
+	@cPathChar = "○" // "●"
+
 	@cCurrentChar = "x"
 	@cEmptyChar = "."
 	@cNeighborChar = "N"
@@ -48,10 +48,10 @@ Class stzGrid From stzObject
 	@cUpChar = "x"
 	@cDownChar = "x"
 
-	@lShowCoordinates = TRUE
-	@lShowObstacles = TRUE
-	@lShowPath = TRUE
-	@lShowVisited = TRUE
+	@bShowCoordinates = TRUE
+	@bShowObstacles = TRUE
+	@bShowPath = TRUE
+
 
 	def init(panColRow)
 
@@ -909,16 +909,6 @@ def PaintNeighbors()
 	def PathChar()
 		return @cPathChar
 		
-	def SetVisitedChar(cChar)
-		if isString(cChar) and IsChar(cChar)
-			@cVisitedChar = cChar
-		else
-			stzRaise("Visited character must be a single character!")
-		ok
-		
-	def VisitedChar()
-		return @cVisitedChar
-		
 	def SetCurrentChar(cChar)
 		if isString(cChar) and IsChar(cChar)
 			@cCurrentChar = cChar
@@ -942,17 +932,14 @@ def PaintNeighbors()
 	#-- VISUALIZATION CONTROLS
 	
 	def ShowCoordinates(lShow)
-		@lShowCoordinates = lShow
+		@bShowCoordinates = lShow
 		
 	def ShowObstacles(lShow)
-		@lShowObstacles = lShow
+		@bShowObstacles = lShow
 		
 	def ShowPath(lShow)
-		@lShowPath = lShow
-		
-	def ShowVisited(lShow)
-		@lShowVisited = lShow
-		
+		@bShowPath = lShow
+			
 	#-- PATH FINDING ALGORITHMS
 
 	def ShortestPath(panStart, panEnd)
@@ -1744,7 +1731,7 @@ def PaintRegions()
     next
     
     # Add obstacles to the grid
-    if @lShowObstacles
+    if @bShowObstacles
         for i = 1 to len(@aObstacles)
             nObsCol = @aObstacles[i][1]
             nObsRow = @aObstacles[i][2]
@@ -1829,7 +1816,7 @@ def PaintRegionsXT(pacChars)
     # Add obstacles to the grid
     nLenObstacles = len(@aObstacles)
 
-    if @lShowObstacles
+    if @bShowObstacles
         for i = 1 to nLenObstacles
             nObsCol = @aObstacles[i][1]
             nObsRow = @aObstacles[i][2]
@@ -1871,7 +1858,7 @@ def DisplayCustomGrid(aCustomGrid)
     cResult = ""
     
     # Add X-axis labels if requested
-    if @lShowCoordinates
+    if @bShowCoordinates
         cResult += "    " # Space for alignment with the grid
         for x = 1 to @nCols
             if x % 10 = 0
@@ -1897,7 +1884,7 @@ def DisplayCustomGrid(aCustomGrid)
     # Add rows with Y-axis labels and borders
     for y = 1 to @nRows
         # Add Y indicator for current position - resetting at multiples of 10
-        if @lShowCoordinates
+        if @bShowCoordinates
             if y % 10 = 0
                 yLabel = "0"
             else
@@ -2193,7 +2180,7 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 				   NOT This.IsObstacle(nNewCol, nNewRow) and
 				   NOT This.IsInList(aVisited, nNewCol, nNewRow)
 					
-					# Add to queue and mark as visited
+					# Add to queue 		// and mark as visited
 					aQueue + [nNewCol, nNewRow]
 					aVisited + [nNewCol, nNewRow]
 				ok
@@ -2240,13 +2227,12 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 		# Returns a list of lists, each containing the positions in a region
 		
 		aRegions = []
-		aVisited = []
 		
 		# Check each position
 		for y = 1 to @nRows
 			for x = 1 to @nCols
-				# Skip if obstacle or already visited
-				if This.IsObstacle(x, y) or This.IsInList(aVisited, x, y)
+				# Skip if obstacle
+				if This.IsObstacle(x, y)
 					loop
 				ok
 				
@@ -2256,10 +2242,6 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 				# Add region to list
 				aRegions + aRegion
 				
-				# Mark all positions in region as visited
-				for i = 1 to len(aRegion)
-					aVisited + aRegion[i]
-				next
 			next
 		next
 		
@@ -2358,7 +2340,7 @@ def ToString()
     next
     
     # Add obstacles
-    if @lShowObstacles
+    if @bShowObstacles
         for i = 1 to len(@aObstacles)
             nObsCol = @aObstacles[i][1]
             nObsRow = @aObstacles[i][2]
@@ -2370,7 +2352,7 @@ def ToString()
     ok
     
     # Add path
-    if @lShowPath and len(@aPath) > 0
+    if @bShowPath and len(@aPath) > 0
         # Mark ALL path nodes with the path character
         for i = 1 to len(@aPath)
             nPathCol = @aPath[i][1]
@@ -2408,7 +2390,7 @@ def ToString()
 		cResult = ""
 		
 		# Add X-axis labels if requested
-		if @lShowCoordinates
+		if @bShowCoordinates
 			cResult += "    " # Space for alignment with the grid
 			for x = 1 to @nCols
 				if x % 10 = 0
@@ -2434,7 +2416,7 @@ def ToString()
 		# Add rows with Y-axis labels and borders
 		for y = 1 to @nRows
 			# Add Y indicator for current position - resetting at multiples of 10
-			if @lShowCoordinates
+			if @bShowCoordinates
 				if y % 10 = 0
 					yLabel = "0"
 				else
@@ -2470,16 +2452,12 @@ def ToString()
 		cResult = "Grid: " + @nCols + "x" + @nRows + " | "
 		cResult += "Current: " + @cCurrentChar + " | "
 		
-		if @lShowObstacles
+		if @bShowObstacles
 			cResult += "Obstacles: " + @cObstacleChar + " | "
 		ok
 		
-		if @lShowPath
+		if @bShowPath
 			cResult += "Path: " + @cPathChar + " | "
-		ok
-		
-		if @lShowVisited
-			cResult += "Visited: " + @cVisitedChar + " | "
 		ok
 		
 		# Add movement indicators

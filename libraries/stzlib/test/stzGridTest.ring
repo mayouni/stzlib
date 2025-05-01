@@ -514,7 +514,7 @@ pf()
 2. Path Management
 	2.1. Creating paths manually
 	2.2. Measuring path length
-	2.3. Setting path-related characters (path, visited, current, empty)
+	2.3. Setting path-related characters (path, current, empty)
 
 3. Pathfinding Algorithms
 	3.1. A* algorithm (ShortestPath)
@@ -650,7 +650,6 @@ StzGridQ([8, 6]) {
 	# Show the grid with path
 
 	ShowPath(TRUE) 		# Active by default, can be omitted
-	ShowVisited(TRUE)	# Idem
 
 	MoveTo(8, 4)
 	Show()
@@ -680,7 +679,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing path finding algorithms
-*/
+
 pr()
 
 StzGridQ([ 10, 6 ]) {
@@ -1003,7 +1002,7 @@ pf()
 # Executed in almost 0.12 second(s) in Ring 1.22
 
 /*--- Testing moving and hitting an obstacle
-
+*/
 pr()
 
 o1 = new stzGrid([10, 6])
@@ -1040,3 +1039,6 @@ o1.MoveRight()
 o1.MoveDown()
 o1.MoveRight()
 #--> ERROR: Can't move right! Hittes an obstacle.
+o1.Show()
+
+pf()
