@@ -43,11 +43,11 @@ Class stzGrid From stzObject
 	@cEmptyChar = "."
 	@cNeighborChar = "N"
 
-	@cRightChar = "x"
+/*	@cRightChar = "x"
 	@cLeftChar = "x"
 	@cUpChar = "x"
 	@cDownChar = "x"
-
+*/
 	@bShowCoordinates = TRUE
 	@bShowObstacles = TRUE
 	@bShowPath = TRUE
@@ -2370,7 +2370,7 @@ def ToString()
     # Mark current position with direction character or current char
     if IsValidPosition(@nCurrentCol, @nCurrentRow)
         # Use the appropriate direction character based on current direction
-        if @cDirection = :Right
+ /*       if @cDirection = :Right
             aGrid[@nCurrentRow][@nCurrentCol] = @cRightChar
         but @cDirection = :Left
             aGrid[@nCurrentRow][@nCurrentCol] = @cLeftChar
@@ -2383,9 +2383,9 @@ def ToString()
             aGrid[@nCurrentRow][@nCurrentCol] = @cCurrentChar
         ok
     ok
-    
-    # Remaining code remains the same...
-		
+  */  
+ 	aGrid[@nCurrentRow][@nCurrentCol] = @cCurrentChar
+   ok
 		# Convert grid to string representation
 		cResult = ""
 		
@@ -2460,7 +2460,7 @@ def ToString()
 			cResult += "Path: " + @cPathChar + " | "
 		ok
 		
-		# Add movement indicators
+/*		# Add movement indicators
 
 		cResult += "Direction: " + @cDirection + NL
 
@@ -2469,6 +2469,6 @@ def ToString()
 		cResult += "Left(" + @cLeftChar + ") "
 		cResult += "Up(" + @cUpChar + ") "
 		cResult += "Down(" + @cDownChar + ")"
-		
+*/		
 		return cResult
 	

@@ -679,7 +679,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing path finding algorithms
-
+*/
 pr()
 
 StzGridQ([ 10, 6 ]) {
@@ -836,7 +836,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Testing region management and connectivity
-
+*/
 pr()
 
 o1 = new stzGrid([10, 6])
@@ -1002,7 +1002,7 @@ pf()
 # Executed in almost 0.12 second(s) in Ring 1.22
 
 /*--- Testing moving and hitting an obstacle
-*/
+*
 pr()
 
 o1 = new stzGrid([10, 6])
