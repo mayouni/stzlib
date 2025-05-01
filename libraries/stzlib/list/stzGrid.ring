@@ -37,15 +37,16 @@ Class stzGrid From stzObject
 	@aObstacles = []
 	@aPath = []
 	@cObstacleChar = "■"
-	@cPathChar = "○"
-	@cVisitedChar = "●"
+	@cPathChar = "◌"
+	@cVisitedChar = "○"
 	@cCurrentChar = "x"
 	@cEmptyChar = "."
+	@cNeighborChar = "N"
 
-	@cRightChar = ">"
-	@cLeftChar = "<"
-	@cUpChar = "^"
-	@cDownChar = "v"
+	@cRightChar = "x"
+	@cLeftChar = "x"
+	@cUpChar = "x"
+	@cDownChar = "x"
 
 	@lShowCoordinates = TRUE
 	@lShowObstacles = TRUE
@@ -76,7 +77,7 @@ Class stzGrid From stzObject
 		def NumberOfNodes()
 			return This.Size()
 
-	def SizeXY()
+	def SizeXT()
 		return [ @nCols, @nRows ]
 
 	def NumberOfColumns()
@@ -341,7 +342,7 @@ Class stzGrid From stzObject
 		end
 		
 	#-- NEIGHBORS & RELATIVE POSITIONS
-	
+
 	def Neighbors()
 		aResult = []
 		
@@ -374,6 +375,8 @@ Class stzGrid From stzObject
 
 		def AdjacentPositions()
 			return This.Neighbors()
+def PaintNeighbors()
+	This.PaintNodes(This.Neighbors(), @cNeighborChar)
 
 	def NodeAbove()
 
@@ -812,6 +815,9 @@ Class stzGrid From stzObject
 	def ClearObstacles()
 		@aObstacles = []
 		
+		def RemoveObstacles()
+			@aObstacles = []
+
 	def IsObstacle(nCol, nRow)
 		for i = 1 to len(@aObstacles)
 			if @aObstacles[i][1] = nCol and @aObstacles[i][2] = nRow
@@ -881,12 +887,18 @@ Class stzGrid From stzObject
 	def ClearPath()
 		@aPath = []
 		
+		def RemovePath()
+			@aPath = []
+
 	def Path()
 		return @aPath
 		
 	def PathLength()
 		return len(@aPath)
 		
+		def PathLen()
+			return len(@aPath)
+
 	def SetPathChar(cChar)
 		if isString(cChar) and IsChar(cChar)
 			@cPathChar = cChar
@@ -943,19 +955,35 @@ Class stzGrid From stzObject
 		
 	#-- PATH FINDING ALGORITHMS
 
-	def FindShortestPath(nStartCol, nStartRow, nEndCol, nEndRow)
+	def ShortestPath(panStart, panEnd)
 		# Implementation of A* algorithm for path finding
+
+		if CheckParams()
+			if NOT (isList(panStart) and IsPairOfNumbers(panStart) and
+				isList(panEnd) and IsPairOfNumbers(panEnd))
+
+				StzRaise("Incorrect param type! panStart and panEnd must be pairs of numbers.")
+
+			ok
+		ok
+
+		nStartCol = panStart[1]
+		nStartRow = panStart[2]
+		nEndCol = panEnd[1]
+		nEndRow = panEnd[2]
 		
 		# Validate positions
+
 		if NOT IsValidPosition(nStartCol, nStartRow)
-			stzRaise("Invalid start position!")
+			StzRaise("Invalid start position!")
 		ok
 		
 		if NOT IsValidPosition(nEndCol, nEndRow)
-			stzRaise("Invalid end position!")
+			StzRaise("Invalid end position!")
 		ok
 		
 		# Check if start or end is an obstacle
+
 		if This.IsObstacle(nStartCol, nStartRow)
 			stzRaise("Start position is an obstacle!")
 		ok
@@ -965,6 +993,7 @@ Class stzGrid From stzObject
 		ok
 		
 		# Initialize data structures
+
 		aOpenSet = []          # Nodes to be evaluated
 		aClosedSet = []        # Nodes already evaluated
 		aCameFrom = []         # Map to reconstruct path
@@ -972,9 +1001,11 @@ Class stzGrid From stzObject
 		aFScore = []           # Estimated total cost from start to goal through current node
 		
 		# Initialize with start position
+
 		aOpenSet + [nStartCol, nStartRow]
 		
 		# Initialize gScore with infinity for all positions
+
 		for i = 1 to @nRows
 			for j = 1 to @nCols
 				aGScore + [[j, i], 999999]
@@ -983,17 +1014,22 @@ Class stzGrid From stzObject
 		next
 		
 		# Set scores for start position
+
 		This.SetScoreAt(aGScore, nStartCol, nStartRow, 0)
-		This.SetScoreAt(aFScore, nStartCol, nStartRow, This.HeuristicCost(nStartCol, nStartRow, nEndCol, nEndRow))
+		This.SetScoreAt(aFScore, nStartCol, nStartRow, This.HeuristicCost([nStartCol, nStartRow], [nEndCol, nEndRow]))
 		
 		# Main loop
+
 		while len(aOpenSet) > 0
+
 			# Get node with lowest fScore
-			nCurrentIdx = This.FindLowestFScore(aOpenSet, aFScore)
+
+			nCurrentIdx = This.LowestFScore(aOpenSet, aFScore)
 			nCurrentCol = aOpenSet[nCurrentIdx][1]
 			nCurrentRow = aOpenSet[nCurrentIdx][2]
 			
 			# Check if we reached the goal
+
 			if nCurrentCol = nEndCol and nCurrentRow = nEndRow
 				# Reconstruct path
 				@aPath = This.ReconstructPath(aCameFrom, nCurrentCol, nCurrentRow)
@@ -1001,47 +1037,87 @@ Class stzGrid From stzObject
 			ok
 			
 			# Remove current from open set and add to closed set
+
 			del(aOpenSet, nCurrentIdx)
 			aClosedSet + [nCurrentCol, nCurrentRow]
 			
 			# Check all neighbors
-			aNeighbors = This.GetWalkableNeighbors(nCurrentCol, nCurrentRow)
+
+			aNeighbors = This.WalkableNeighbors(nCurrentCol, nCurrentRow)
 			
 			for i = 1 to len(aNeighbors)
 				nNeighborCol = aNeighbors[i][1]
 				nNeighborRow = aNeighbors[i][2]
 				
 				# Skip if neighbor is in closed set
+
 				if This.IsInList(aClosedSet, nNeighborCol, nNeighborRow)
 					loop
 				ok
 				
 				# Calculate tentative gScore
+
 				nTentativeGScore = This.GetScoreAt(aGScore, nCurrentCol, nCurrentRow) + 1
 				
 				# Check if neighbor is not in open set
+
 				if NOT This.IsInList(aOpenSet, nNeighborCol, nNeighborRow)
 					aOpenSet + [nNeighborCol, nNeighborRow]
+
 				but nTentativeGScore >= This.GetScoreAt(aGScore, nNeighborCol, nNeighborRow)
 					# Not a better path
 					loop
 				ok
 				
 				# This path is better, record it
+
 				aCameFrom = This.SetCameFrom(aCameFrom, nNeighborCol, nNeighborRow, nCurrentCol, nCurrentRow)
 				This.SetScoreAt(aGScore, nNeighborCol, nNeighborRow, nTentativeGScore)
 				This.SetScoreAt(aFScore, nNeighborCol, nNeighborRow, 
-					nTentativeGScore + This.HeuristicCost(nNeighborCol, nNeighborRow, nEndCol, nEndRow))
+					nTentativeGScore + This.HeuristicCost([nNeighborCol, nNeighborRow], [nEndCol, nEndRow]))
 			next
 		end
 		
 		# No path found
+
 		return []
 
-	def FindManhattanPath(nStartCol, nStartRow, nEndCol, nEndRow)
+	def ManhattanPathXT(panStart, panEnd, cOption)
+		if chekParams()
+			if NOT isString(cOption)
+				StzRaise("Incorrect param type! cOption must be a string.")
+			ok
+		ok
+
+		if cOption = :HorizontalFirst or cOption = :Horizontal
+			return This.ManhattanPath(panStart, panEnd)
+
+		but cOption = :VerticalFirst or cOption = :Vertical
+			return This.ManhattanPathVerticalFirst(panStart, panEnd)
+
+		else
+			StzRaise("Incorrect param value! cOption must be either :VerticalFirst or :HorizontalFirst.")
+		ok
+
+	def ManhattanPath(panStart, panEnd)
 		# Creates a Manhattan path (horizontal then vertical)
-		
+
+		if CheckParams()
+			if NOT (isList(panStart) and IsPairOfNumbers(panStart) and
+				isList(panEnd) and IsPairOfNumbers(panEnd))
+
+				StzRaise("Incorrect param type! panStart and panEnd must be pairs of numbers.")
+
+			ok
+		ok
+
+		nStartCol = panStart[1]
+		nStartRow = panStart[2]
+		nEndCol = panEnd[1]
+		nEndRow = panEnd[2]
+
 		# Validate positions
+
 		if NOT IsValidPosition(nStartCol, nStartRow)
 			stzRaise("Invalid start position!")
 		ok
@@ -1051,17 +1127,22 @@ Class stzGrid From stzObject
 		ok
 		
 		# Clear existing path
+
 		This.ClearPath()
 		
 		# Start from start position
+
 		This.AddPathNode(nStartCol, nStartRow)
 		
 		# Current position
+
 		nCurrentCol = nStartCol
 		nCurrentRow = nStartRow
 		
 		# First move horizontally
+
 		while nCurrentCol != nEndCol
+
 			if nCurrentCol < nEndCol
 				nCurrentCol++
 			else
@@ -1069,7 +1150,9 @@ Class stzGrid From stzObject
 			ok
 			
 			# Check for obstacle
+
 			if This.IsObstacle(nCurrentCol, nCurrentRow)
+
 				# Try going around by moving vertically first
 				return This.FindManhattanPathVerticalFirst(nStartCol, nStartRow, nEndCol, nEndRow)
 			ok
@@ -1078,6 +1161,7 @@ Class stzGrid From stzObject
 		end
 		
 		# Then move vertically
+
 		while nCurrentRow != nEndRow
 			if nCurrentRow < nEndRow
 				nCurrentRow++
@@ -1086,16 +1170,21 @@ Class stzGrid From stzObject
 			ok
 			
 			# Check for obstacle
+
 			if This.IsObstacle(nCurrentCol, nCurrentRow)
+
 				# If we hit an obstacle, use A* algorithm for the rest of the path
-				aPartialPath = This.FindShortestPath(nCurrentCol, nCurrentRow - @IF(nCurrentRow > nEndRow, 1, -1), nEndCol, nEndRow)
+
+				aPartialPath = This.ShortestPath(nCurrentCol, nCurrentRow - @IF(nCurrentRow > nEndRow, 1, -1), nEndCol, nEndRow)
 				
 				# Remove first node to avoid duplication
+
 				if len(aPartialPath) > 0
 					del(aPartialPath, 1)
 				ok
 				
 				# Add the rest of the path
+
 				for i = 1 to len(aPartialPath)
 					This.AddPathNode(aPartialPath[i][1], aPartialPath[i][2])
 				next
@@ -1108,21 +1197,43 @@ Class stzGrid From stzObject
 		
 		return @aPath
 
-	def FindManhattanPathVerticalFirst(nStartCol, nStartRow, nEndCol, nEndRow)
+		def ManhattanPathHorizontalFirst(panStart, panEnd)
+			return This.ManhattanPath(panStart, panEnd)
+
+	def ManhattanPathVerticalFirst(panStart, panEnd)
 		# Creates a Manhattan path (vertical then horizontal)
+
+		if CheckParams()
+			if NOT (isList(panStart) and IsPairOfNumbers(panStart) and
+				isList(panEnd) and IsPairOfNumbers(panEnd))
+
+				StzRaise("Incorrect param type! panStart and panEnd must be pairs of numbers.")
+
+			ok
+		ok
+
+		nStartCol = panStart[1]
+		nStartRow = panStart[2]
+		nEndCol = panEnd[1]
+		nEndRow = panEnd[2]
 		
 		# Clear existing path
+
 		This.ClearPath()
 		
 		# Start from start position
+
 		This.AddPathNode(nStartCol, nStartRow)
 		
 		# Current position
+
 		nCurrentCol = nStartCol
 		nCurrentRow = nStartRow
 		
 		# First move vertically
+
 		while nCurrentRow != nEndRow
+
 			if nCurrentRow < nEndRow
 				nCurrentRow++
 			else
@@ -1130,16 +1241,20 @@ Class stzGrid From stzObject
 			ok
 			
 			# Check for obstacle
+
 			if This.IsObstacle(nCurrentCol, nCurrentRow)
+
 				# Try using A* algorithm for the entire path
-				return This.FindShortestPath(nStartCol, nStartRow, nEndCol, nEndRow)
+				return This.ShortestPath(nStartCol, nStartRow, nEndCol, nEndRow)
 			ok
 			
 			This.AddPathNode(nCurrentCol, nCurrentRow)
 		end
 		
 		# Then move horizontally
+
 		while nCurrentCol != nEndCol
+
 			if nCurrentCol < nEndCol
 				nCurrentCol++
 			else
@@ -1147,17 +1262,23 @@ Class stzGrid From stzObject
 			ok
 			
 			# Check for obstacle
+
 			if This.IsObstacle(nCurrentCol, nCurrentRow)
+
 				# If we hit an obstacle, use A* algorithm for the rest of the path
-				aPartialPath = This.FindShortestPath(nCurrentCol - @IF(nCurrentCol > nEndCol, 1, -1), nCurrentRow, nEndCol, nEndRow)
+				aPartialPath = This.ShortestPath(nCurrentCol - @IF(nCurrentCol > nEndCol, 1, -1), nCurrentRow, nEndCol, nEndRow)
 				
 				# Remove first node to avoid duplication
-				if len(aPartialPath) > 0
+
+				nLenPartial = len(aPartialPath)
+
+				if nLenPartial > 0
 					del(aPartialPath, 1)
 				ok
 				
 				# Add the rest of the path
-				for i = 1 to len(aPartialPath)
+
+				for i = 1 to nLenPartial
 					This.AddPathNode(aPartialPath[i][1], aPartialPath[i][2])
 				next
 				
@@ -1169,9 +1290,27 @@ Class stzGrid From stzObject
 		
 		return @aPath
 
-	def FindSpiralPath(nStartCol, nStartRow, nRings)
+	def SpiralPath(panStartNode, nRings)
 		# Creates a spiral path starting from the given position
+
+		if CheckParams()
+
+			if NOT (isList(panStartNode) and IsPairOfNumbers(panStartNode))
+				StzRaise("Incorrect param type! panStartNode must be a pair of numbers.")
+			ok
+
+			if isList(nRings) and StzListQ(nRings).IsRingsNamedParam()
+				nRings = nRings[2]
+			ok
+
+			if NOT isNumber(nRings)
+				StzRaise("Incorrect param type! nRings must be a number.")
+			ok
+		ok
 		
+		nStartCol = panStartNode[1]
+		nStartRow = panStartNode[2]
+
 		# Validate positions
 		if NOT IsValidPosition(nStartCol, nStartRow)
 			stzRaise("Invalid start position!")
@@ -1248,9 +1387,31 @@ Class stzGrid From stzObject
 		
 		return @aPath
 
-	def FindZigZagPath(nStartCol, nStartRow, nEndCol, nEndRow, nZigZagWidth)
+	def ZigZagPath(panStart, panEnd, nZigZagWidth)
 		# Creates a zig-zag path from start to end with the specified width
-		
+
+		if CheckParams()
+			if NOT (isList(panStart) and IsPairOfNumbers(panStart) and
+				isList(panEnd) and IsPairOfNumbers(panEnd))
+
+				StzRaise("Incorrect param type! panStart and panEnd must be pairs of numbers.")
+
+			ok
+
+			if isList(nZigZagWidth) and StzListQ(nZigZagWidth).IsWidthNamedParam()
+				nZigZagWidth = nZigZagWidth[2]
+			ok
+
+			if NOT isNumber(nZigZagWidth)
+				StzRaise("Incorrect param type! nZigZagWidth must be a number.")
+			ok
+		ok
+
+		nStartCol = panStart[1]
+		nStartRow = panStart[2]
+		nEndCol = panEnd[1]
+		nEndRow = panEnd[2]
+
 		# Validate positions
 		if NOT IsValidPosition(nStartCol, nStartRow)
 			stzRaise("Invalid start position!")
@@ -1262,7 +1423,7 @@ Class stzGrid From stzObject
 		
 		# Clear existing path
 		This.ClearPath()
-		
+	
 		# Start from start position
 		This.AddPathNode(nStartCol, nStartRow)
 		
@@ -1283,6 +1444,7 @@ Class stzGrid From stzObject
 		lVerticalDominant = (abs(nEndRow - nStartRow) > abs(nEndCol - nStartCol))
 		
 		if lVerticalDominant
+
 			# Vertical zig-zag
 			nZigZag = 0
 			lZigZagRight = TRUE
@@ -1305,7 +1467,7 @@ Class stzGrid From stzObject
 						nCurrentCol--
 					else
 						# Can't find a way around, use A* for the rest
-						aPartialPath = This.FindShortestPath(nCurrentCol, nCurrentRow - nDirRow, nEndCol, nEndRow)
+						aPartialPath = This.ShortestPath(nCurrentCol, nCurrentRow - nDirRow, nEndCol, nEndRow)
 						
 						# Remove first node to avoid duplication
 						if len(aPartialPath) > 0
@@ -1329,7 +1491,7 @@ Class stzGrid From stzObject
 					nZigZag = 0
 					
 					# Move horizontally in zigzag pattern
-					nHorizontalSteps = lZigZagRight ? 1 : -1
+					nHorizontalSteps = @IF(lZigZagRight, 1, -1)
 					
 					for i = 1 to 2  # Move 2 steps horizontally
 						nCurrentCol += nHorizontalSteps
@@ -1368,7 +1530,7 @@ Class stzGrid From stzObject
 				# Check for obstacle
 				if This.IsObstacle(nCurrentCol, nCurrentRow)
 					# Can't find a way around, use A* for the rest
-					aPartialPath = This.FindShortestPath(nCurrentCol - @IF(nCurrentCol > nEndCol, 1, -1), nCurrentRow, nEndCol, nEndRow)
+					aPartialPath = This.ShortestPath(nCurrentCol - @IF(nCurrentCol > nEndCol, 1, -1), nCurrentRow, nEndCol, nEndRow)
 					
 					# Remove first node to avoid duplication
 					if len(aPartialPath) > 0
@@ -1386,6 +1548,7 @@ Class stzGrid From stzObject
 				This.AddPathNode(nCurrentCol, nCurrentRow)
 			end
 		else
+
 			# Horizontal zig-zag
 			nZigZag = 0
 			lZigZagDown = TRUE
@@ -1408,7 +1571,7 @@ Class stzGrid From stzObject
 						nCurrentRow--
 					else
 						# Can't find a way around, use A* for the rest
-						aPartialPath = This.FindShortestPath(nCurrentCol - nDirCol, nCurrentRow, nEndCol, nEndRow)
+						aPartialPath = This.ShortestPath(nCurrentCol - nDirCol, nCurrentRow, nEndCol, nEndRow)
 						
 						# Remove first node to avoid duplication
 						if len(aPartialPath) > 0
@@ -1422,6 +1585,7 @@ Class stzGrid From stzObject
 						
 						return @aPath
 					ok
+
 				ok
 				
 				This.AddPathNode(nCurrentCol, nCurrentRow)
@@ -1432,7 +1596,7 @@ Class stzGrid From stzObject
 					nZigZag = 0
 					
 					# Move vertically in zigzag pattern
-					nVerticalSteps = lZigZagDown ? 1 : -1
+					nVerticalSteps = @if(lZigZagDown, 1, -1)
 					
 					for i = 1 to 2  # Move 2 steps vertically
 						nCurrentRow += nVerticalSteps
@@ -1471,7 +1635,7 @@ Class stzGrid From stzObject
 				# Check for obstacle
 				if This.IsObstacle(nCurrentCol, nCurrentRow)
 					# Can't find a way around, use A* for the rest
-					aPartialPath = This.FindShortestPath(nCurrentCol, nCurrentRow - @IF(nCurrentRow > nEndRow, 1, -1), nEndCol, nEndRow)
+					aPartialPath = This.ShortestPath(nCurrentCol, nCurrentRow - @IF(nCurrentRow > nEndRow, 1, -1), nEndCol, nEndRow)
 					
 					# Remove first node to avoid duplication
 					if len(aPartialPath) > 0
@@ -1492,36 +1656,44 @@ Class stzGrid From stzObject
 		
 		return @aPath
 
-	def DrawPath(aPath, cChar)
-		# Draw a path using the specified character
-		
-		if NOT isString(cChar) or len(cChar) != 1
-			stzRaise("Path character must be a single character!")
-		ok
-		
-		for i = 1 to len(aPath)
-			nCol = aPath[i][1]
-			nRow = aPath[i][2]
-			
-			if IsValidPosition(nCol, nRow)
-				This.AddPathNode(nCol, nRow)
-			ok
-		next
-		
-		# Temporarily set the path character
-		cOldPathChar = @cPathChar
-		@cPathChar = cChar
-		
-		# Show the grid with the path
-		This.Show()
-		
-		# Restore the original path character
-		@cPathChar = cOldPathChar
+
+def DrawPath(aPathToUse, cCustomChar)
+    # Store the original path character
+    cOriginalPathChar = @cPathChar
+    
+    # Set custom path character if provided
+    if cCustomChar != NULL
+        @cPathChar = cCustomChar
+    ok
+    
+    # Store the original path
+    aOriginalPath = @aPath
+    
+    # Use the provided path if given
+    if aPathToUse != NULL
+        @aPath = aPathToUse
+    ok
+    
+    # Instead of calling This.Show() directly, return the string representation
+    cResult = This.ToString()
+    
+    # Restore original path character and path
+    @cPathChar = cOriginalPathChar
+    @aPath = aOriginalPath
+    
+    # Print the result instead of calling Show()
+    ? cResult
+    
+    return cResult
+end
+
+	def PaintNode(nCol, nRow, cChar)
+		This.PaintNodes([ [nCol, nRow] ], cChar)
 
 	def PaintNodes(aNodes, cChar)
 		# Temporarily draw nodes with the specified character
 		
-		if NOT isString(cChar) or len(cChar) != 1
+		if NOT (isString(cChar) and IsChar(cChar))
 			stzRaise("Node character must be a single character!")
 		ok
 		
@@ -1548,13 +1720,244 @@ Class stzGrid From stzObject
 		# Restore original path
 		@aPath = aOldPath
 
+def PaintRegions()
+    # Paint multiple regions with different characters
+    aRegions = This.ConnectedRegions()
+    nLen = len(aRegions)
+    acChars = []
+    
+    for i = 1 to nLen
+        # Use modulo 10 to restart numbering at 0 when it reaches 10
+        acChars + (""+ (i % 10))
+    next
+    
+    # Store current grid state
+    aOldPath = @aPath
+    
+    # Create a temporary grid with empty cells
+    aGrid = list(@nRows)
+    for y = 1 to @nRows
+        aGrid[y] = list(@nCols)
+        for x = 1 to @nCols
+            aGrid[y][x] = @cEmptyChar
+        next
+    next
+    
+    # Add obstacles to the grid
+    if @lShowObstacles
+        for i = 1 to len(@aObstacles)
+            nObsCol = @aObstacles[i][1]
+            nObsRow = @aObstacles[i][2]
+            
+            if IsValidPosition(nObsCol, nObsRow)
+                aGrid[nObsRow][nObsCol] = @cObstacleChar
+            ok
+        next
+    ok
+    
+    # Add all regions to the grid
+    for i = 1 to nLen
+        aRegion = aRegions[i]
+        cChar = acChars[i]
+        
+        for j = 1 to len(aRegion)
+            nCol = aRegion[j][1]
+            nRow = aRegion[j][2]
+            
+            if IsValidPosition(nCol, nRow)
+                # Skip if it's an obstacle
+                if NOT This.IsObstacle(nCol, nRow)
+                    aGrid[nRow][nCol] = cChar
+                ok
+            ok
+        next
+    next
+    
+    # Display the grid with all regions
+    This.DisplayCustomGrid(aGrid)
+    
+    # Restore original path
+    @aPath = aOldPath
+end
+
+def PaintRegionsXT(pacChars)
+    # Paint multiple regions with custom characters
+    # pacChars: List of characters to use for each region (optional)
+    
+    if CheckParams()
+	if NOT (isList(pacChars) and IsListOfChars(pacChars))
+		StzRaise("Incorrect param type! pacChars must be a list of chars.")
+	ok
+    ok
+
+    aRegions = This.ConnectedRegions()
+    nLen = len(aRegions)
+    acChars = []
+    
+    nLenChars = len(pacChars)
+
+    # Use provided characters or generate them
+    if isList(pacChars) and nLenChars > 0
+        # Use provided characters (cycling if needed)
+        for i = 1 to nLen
+            cChar = pacChars[(i-1) % nLenChars + 1]
+            
+            # Ensure each character is a single character
+
+            
+            acChars + cChar
+        next
+    else
+        # Generate default characters (numbers 0-9 cycling)
+        for i = 1 to nLen
+            acChars + (""+ (i % 10))
+        next
+    ok
+    
+    # Store current grid state
+    aOldPath = @aPath
+    
+    # Create a temporary grid with empty cells
+    aGrid = list(@nRows)
+    for y = 1 to @nRows
+        aGrid[y] = list(@nCols)
+        for x = 1 to @nCols
+            aGrid[y][x] = @cEmptyChar
+        next
+    next
+    
+    # Add obstacles to the grid
+    nLenObstacles = len(@aObstacles)
+
+    if @lShowObstacles
+        for i = 1 to nLenObstacles
+            nObsCol = @aObstacles[i][1]
+            nObsRow = @aObstacles[i][2]
+            
+            if IsValidPosition(nObsCol, nObsRow)
+                aGrid[nObsRow][nObsCol] = @cObstacleChar
+            ok
+        next
+    ok
+    
+    # Add all regions to the grid
+    for i = 1 to nLen
+        aRegion = aRegions[i]
+        cChar = acChars[i]
+        nLenRegion = len(aRegion)
+
+        for j = 1 to nLenRegion
+            nCol = aRegion[j][1]
+            nRow = aRegion[j][2]
+            
+            if IsValidPosition(nCol, nRow)
+                # Skip if it's an obstacle
+                if NOT This.IsObstacle(nCol, nRow)
+                    aGrid[nRow][nCol] = cChar
+                ok
+            ok
+        next
+    next
+    
+    # Display the grid with all regions
+    This.DisplayCustomGrid(aGrid)
+    
+    # Restore original path
+    @aPath = aOldPath
+
+def DisplayCustomGrid(aCustomGrid)
+    # Display a custom grid without changing the internal grid state
+    
+    cResult = ""
+    
+    # Add X-axis labels if requested
+    if @lShowCoordinates
+        cResult += "    " # Space for alignment with the grid
+        for x = 1 to @nCols
+            if x % 10 = 0
+                cResult += "0 "
+            else
+                cResult += ""+ (x % 10) + " "
+            ok
+        next
+        cResult += NL()
+    ok
+    
+    # Add top border with rounded corners
+    cResult += "  ╭"
+    for x = 1 to @nCols
+        if x = @nCurrentCol
+            cResult += "─v─"
+        else
+            cResult += "──"
+        ok
+    next
+    cResult += "╮" + NL()
+    
+    # Add rows with Y-axis labels and borders
+    for y = 1 to @nRows
+        # Add Y indicator for current position - resetting at multiples of 10
+        if @lShowCoordinates
+            if y % 10 = 0
+                yLabel = "0"
+            else
+                yLabel = ""+ (y % 10)
+            ok
+        else
+            yLabel = " "
+        ok
+        
+        if y = @nCurrentRow
+            cResult += yLabel + " > "
+        else
+            cResult += yLabel + " │ "
+        ok
+        
+        for x = 1 to @nCols
+            cResult += ""+ aCustomGrid[y][x] + " "
+        next
+        cResult += "│" + NL()
+    next
+    
+    # Add bottom border with rounded corners
+    cResult += "  ╰"
+    for x = 1 to @nCols
+        cResult += "──"
+    next
+    cResult += "─╯" + NL()
+    
+    ? cResult
+
+
 	#-- HELPER FUNCTIONS FOR PATHFINDING
 
-	def HeuristicCost(nStartCol, nStartRow, nEndCol, nEndRow)
+	def HeuristicCost(panStart, panEnd)
+
+		if CheckParams()
+			if NOT (isList(panStart) and IsPairOfNumbers(panStart) and
+				isList(panEnd) and IsPairOfNumbers(panEnd))
+
+				StzRaise("Incorrect param type! panStart and panEnd must be pairs of numbers.")
+
+			ok
+		ok
+
+		nStartCol = panStart[1]
+		nStartRow = panStart[2]
+		nEndCol = panEnd[1]
+		nEndRow = panEnd[2]
+
 		# Manhattan distance heuristic
 		return abs(nStartCol - nEndCol) + abs(nStartRow - nEndRow)
 
-	def GetWalkableNeighbors(nCol, nRow)
+	def WalkableNeighbors(nCol, nRow)
+
+		if CheckParams()
+			if NOT (isNumber(nCol) and isNumber(nRow))
+				StzRaise("Incorrect param type! nCol and nRow must be numbers.")
+			ok
+		ok
+
 		# Get all valid neighbors that are not obstacles
 		aNeighbors = []
 		
@@ -1572,19 +1975,41 @@ Class stzGrid From stzObject
 		
 		return aNeighbors
 
+		def WalkableNeighborsOfNode(nCol, nRow)
+			return This.WalkableNeighbors(nCol, nRow)
+
+		def WalkableNeighborsOf(nCol, nRow)
+			return This.WalkableNeighbors(nCol, nRow)
+		
 	def IsInList(aList, nCol, nRow)
-		for i = 1 to len(aList)
+
+		if CheckParams()
+			if NOT isList(aList)
+				StzRaise("Incorrect param type! aList must be a list.")
+			ok
+
+			if NOT (isNumber(nCol) and isNumber(nRow))
+				StzRaise("Incorrect param type! nRow and nCol must be both numbers.")
+			ok
+		ok
+
+		nLen = len(aList)
+
+		for i = 1 to nLen
 			if aList[i][1] = nCol and aList[i][2] = nRow
 				return TRUE
 			ok
 		next
 		return FALSE
 
-	def FindLowestFScore(aOpenSet, aFScore)
+	def LowestFScore(aOpenSet, aFScore)
+
 		nLowestIdx = 1
 		nLowestScore = This.GetScoreAt(aFScore, aOpenSet[1][1], aOpenSet[1][2])
 		
-		for i = 2 to len(aOpenSet)
+		nLen = len(aOpenSet)
+
+		for i = 2 to nLen
 			nScore = This.GetScoreAt(aFScore, aOpenSet[i][1], aOpenSet[i][2])
 			if nScore < nLowestScore
 				nLowestScore = nScore
@@ -1595,7 +2020,10 @@ Class stzGrid From stzObject
 		return nLowestIdx
 
 	def GetScoreAt(aScores, nCol, nRow)
-		for i = 1 to len(aScores)
+
+		nLen = len(aScores)
+
+		for i = 1 to nLen
 			if aScores[i][1][1] = nCol and aScores[i][1][2] = nRow
 				return aScores[i][2]
 			ok
@@ -1603,7 +2031,10 @@ Class stzGrid From stzObject
 		return 999999  # Default to infinity
 
 	def SetScoreAt(aScores, nCol, nRow, nScore)
-		for i = 1 to len(aScores)
+
+		nLen = len(aScores)
+
+		for i = 1 to nLen
 			if aScores[i][1][1] = nCol and aScores[i][1][2] = nRow
 				aScores[i][2] = nScore
 				return aScores
@@ -1615,7 +2046,10 @@ Class stzGrid From stzObject
 		return aScores
 
 	def SetCameFrom(aCameFrom, nCol, nRow, nFromCol, nFromRow)
-		for i = 1 to len(aCameFrom)
+
+		nLen = len(aCameFrom)
+
+		for i = 1 to nLen
 			if aCameFrom[i][1][1] = nCol and aCameFrom[i][1][2] = nRow
 				aCameFrom[i][2] = [nFromCol, nFromRow]
 				return aCameFrom
@@ -1627,7 +2061,10 @@ Class stzGrid From stzObject
 		return aCameFrom
 
 	def GetCameFrom(aCameFrom, nCol, nRow)
-		for i = 1 to len(aCameFrom)
+
+		nLen = len(aCameFrom)
+
+		for i = 1 to nLen
 			if aCameFrom[i][1][1] = nCol and aCameFrom[i][1][2] = nRow
 				return aCameFrom[i][2]
 			ok
@@ -1654,7 +2091,7 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
         nCurrentRow = aPrev[2]
         
         # Add to path (at the beginning)
-        Insert(aPath, 1, [nCurrentCol, nCurrentRow])
+        insert(aPath, 1, [nCurrentCol, nCurrentRow])
     end
 
     return aPath
@@ -1664,7 +2101,9 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 	def PathComplexity()
 		# Analyze path complexity based on number of turns and direction changes
 		
-		if len(@aPath) <= 2
+		nLen = len(@aPath)
+		
+		if nLen <= 2
 			return 0  # Straight line or single point
 		ok
 		
@@ -1672,7 +2111,7 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 		nLastDirX = 0
 		nLastDirY = 0
 		
-		for i = 2 to len(@aPath)
+		for i = 2 to nLen
 			nDirX = @aPath[i][1] - @aPath[i-1][1]
 			nDirY = @aPath[i][2] - @aPath[i-1][2]
 			
@@ -1696,18 +2135,20 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 	def PathEfficiency()
 		# Calculate path efficiency compared to direct distance
 		
-		if len(@aPath) < 2
+		nLen = len(@aPath)
+
+		if nLen < 2
 			return 100  # Perfect efficiency for single point
 		ok
 		
 		nStart = @aPath[1]
-		nEnd = @aPath[len(@aPath)]
+		nEnd = @aPath[nLen]
 		
 		# Calculate direct Manhattan distance
 		nDirectDist = abs(nStart[1] - nEnd[1]) + abs(nStart[2] - nEnd[2])
 		
 		# Calculate efficiency
-		nEfficiency = (nDirectDist / (len(@aPath) - 1)) * 100
+		nEfficiency = (nDirectDist / (nLen - 1)) * 100
 		
 		# Cap at 100%
 		if nEfficiency > 100
@@ -1741,8 +2182,9 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 			
 			# Check all 4 adjacent positions
 			aDirections = [[0,1], [1,0], [0,-1], [-1,0]]
-			
-			for i = 1 to len(aDirections)
+			nLen = len(aDirections)
+
+			for i = 1 to nLen
 				nNewCol = nCol + aDirections[i][1]
 				nNewRow = nRow + aDirections[i][2]
 				
@@ -1760,9 +2202,23 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 		
 		return aResult
 	
-	def IsConnected(nCol1, nRow1, nCol2, nRow2)
+	def AreConnected(panNode1, panNode2)
 		# Check if two positions are connected (can reach each other without hitting obstacles)
 		
+		if CheckParams()
+			if NOT (isList(panNode1) and IsPairOfNumbers(panNode1) and
+				isList(panNode2) and IsPairOfNumbers(panNode2))
+
+				StzRaise("Incorrect param type! panNode1 and panNode2 must be both pairs of numbers.")
+			ok
+		ok
+
+		nCol1 = panNode1[1]
+		nRow1 = panNode1[2]
+
+		nCol2 = panNode2[1]
+		nRow2 = panNode2[2]
+
 		# Quick check for invalid positions
 		if NOT IsValidPosition(nCol1, nRow1) or NOT IsValidPosition(nCol2, nRow2)
 			return FALSE
@@ -1811,7 +2267,7 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 	
 	#-- RANDOM MAZE GENERATION
 	
-	def GenerateRandomMaze(nObstacleDensity)
+	def RandomMaze(nObstacleDensity)
 		# Generate a random maze with the given obstacle density (0-100%)
 		# 0% = no obstacles, 100% = completely blocked (except current position)
 		
@@ -1842,16 +2298,30 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 			next
 		next
 	
-	def GenerateMazeWithPath(nStartCol, nStartRow, nEndCol, nEndRow)
+	def MazeWithPath(panStart, panEnd)
 		# Generate a maze with a guaranteed path between start and end
-		
+
+		if CheckParams()
+			if NOT (isList(panStart) and IsPairOfNumbers(panStart) and
+				isList(panEnd) and IsPairOfNumbers(panEnd))
+
+				StzRaise("Incorrect param type! panStart and panEnd must be pairs of numbers.")
+
+			ok
+		ok
+
+		nStartCol = panStart[1]
+		nStartRow = panStart[2]
+		nEndCol = panEnd[1]
+		nEndRow = panEnd[2]
+	
 		# Clear obstacles
 		This.ClearObstacles()
 		
 		# Create a path first
 		This.ClearPath()
 		This.MoveTo(nStartCol, nStartRow)
-		This.FindShortestPath(nStartCol, nStartRow, nEndCol, nEndRow)
+		This.ShortestPath([nStartCol, nStartRow], [nEndCol, nEndRow])
 		
 		# Store path positions
 		aPathPositions = @aPath
@@ -1871,120 +2341,13 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 			next
 		next
 	
-	#-- GRID CONVERSION METHODS
-	
-	def ToListOfLists()
-		# Convert grid to a list of lists representation
-		
-		aResult = list(@nRows)
-		
-		for y = 1 to @nRows
-			aResult[y] = list(@nCols)
-			
-			for x = 1 to @nCols
-				# Default to empty
-				aResult[y][x] = @cEmptyChar
-				
-				# Check for obstacles
-				if This.IsObstacle(x, y)
-					aResult[y][x] = @cObstacleChar
-				ok
-				
-				# Check for path
-				for i = 1 to len(@aPath)
-					if @aPath[i][1] = x and @aPath[i][2] = y
-						aResult[y][x] = @cPathChar
-						exit
-					ok
-				next
-				
-				# Current position overrides
-				if x = @nCurrentCol and y = @nCurrentRow
-					aResult[y][x] = @cCurrentChar
-				ok
-			next
-		next
-		
-		return aResult
-	
-	def ToStringGrid()
-		# Convert grid to a string representation
-		
-		aGrid = This.ToListOfLists()
-		cResult = ""
-		
-		for y = 1 to @nRows
-			for x = 1 to @nCols
-				cResult += aGrid[y][x]
-			next
-			
-			if y < @nRows
-				cResult += NL()
-			ok
-		next
-		
-		return cResult
-	
-	def ExportToFile(cFilePath)
-		# Export grid to a text file
-		
-		cContent = This.ToStringGrid()
-		write(cFilePath, cContent)
-	
-	def ImportFromFile(cFilePath)
-		# Import grid from a text file
-		
-		if NOT fexists(cFilePath)
-			stzRaise("File not found: " + cFilePath)
-		ok
-		
-		cContent = read(cFilePath)
-		aLines = str2list(cContent)
-		
-		# Calculate grid size
-		nRows = len(aLines)
-		nCols = len(aLines[1])
-		
-		# Create new grid
-		This.init([nCols, nRows])
-		
-		# Clear obstacles and path
-		This.ClearObstacles()
-		This.ClearPath()
-		
-		# Parse file content
-		for y = 1 to nRows
-			for x = 1 to len(aLines[y])
-				if x > nCols
-					exit
-				ok
-				
-				cChar = aLines[y][x]
-				
-				# Check for obstacles
-				if cChar = @cObstacleChar
-					This.AddObstacle(x, y)
-				ok
-				
-				# Check for current position
-				if cChar = @cCurrentChar
-					This.MoveTo(x, y)
-				ok
-				
-				# Check for path
-				if cChar = @cPathChar or cChar = @cVisitedChar
-					This.AddPathNode(x, y)
-				ok
-			next
-		next
-
 	#-- VISUALIZING THE GRID
 	
 	def Show()
 		? This.ToString()
 
 
-	def ToString()
+def ToString()
     # Create an empty grid
     aGrid = list(@nRows)
     for y = 1 to @nRows
@@ -2008,29 +2371,18 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
     
     # Add path
     if @lShowPath and len(@aPath) > 0
-        # Mark intermediate nodes with visited char
-        for i = 1 to len(@aPath) - 1
+        # Mark ALL path nodes with the path character
+        for i = 1 to len(@aPath)
             nPathCol = @aPath[i][1]
             nPathRow = @aPath[i][2]
             
             if IsValidPosition(nPathCol, nPathRow)
                 # Skip if it's an obstacle
                 if NOT This.IsObstacle(nPathCol, nPathRow)
-                    if @lShowVisited
-                        aGrid[nPathRow][nPathCol] = @cVisitedChar
-                    ok
+                    aGrid[nPathRow][nPathCol] = @cPathChar
                 ok
             ok
         next
-        
-        # Mark final node in the path with the path char
-        nLastIdx = len(@aPath)
-        nLastCol = @aPath[nLastIdx][1]
-        nLastRow = @aPath[nLastIdx][2]
-        
-        if IsValidPosition(nLastCol, nLastRow) and NOT This.IsObstacle(nLastCol, nLastRow)
-            aGrid[nLastRow][nLastCol] = @cPathChar
-        ok
     ok
     
     # Mark current position with direction character or current char
@@ -2038,74 +2390,20 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
         # Use the appropriate direction character based on current direction
         if @cDirection = :Right
             aGrid[@nCurrentRow][@nCurrentCol] = @cRightChar
-        elseif @cDirection = :Left
+        but @cDirection = :Left
             aGrid[@nCurrentRow][@nCurrentCol] = @cLeftChar
-        elseif @cDirection = :Up
+        but @cDirection = :Up
             aGrid[@nCurrentRow][@nCurrentCol] = @cUpChar
-        elseif @cDirection = :Down
+        but @cDirection = :Down
             aGrid[@nCurrentRow][@nCurrentCol] = @cDownChar
         else
             # Default to current char for other directions
             aGrid[@nCurrentRow][@nCurrentCol] = @cCurrentChar
         ok
     ok
-/*
-		# Create an empty grid
-		aGrid = list(@nRows)
-		for y = 1 to @nRows
-			aGrid[y] = list(@nCols)
-			for x = 1 to @nCols
-				aGrid[y][x] = @cEmptyChar
-			next
-		next
+    
+    # Remaining code remains the same...
 		
-		# Add obstacles
-		if @lShowObstacles
-			for i = 1 to len(@aObstacles)
-				nObsCol = @aObstacles[i][1]
-				nObsRow = @aObstacles[i][2]
-				
-				if IsValidPosition(nObsCol, nObsRow)
-					aGrid[nObsRow][nObsCol] = @cObstacleChar
-				ok
-			next
-		ok
-		
-		# Add path
-		if @lShowPath
-			for i = 1 to len(@aPath)
-				nPathCol = @aPath[i][1]
-				nPathRow = @aPath[i][2]
-				
-				if IsValidPosition(nPathCol, nPathRow)
-					# Skip if it's an obstacle
-					if NOT This.IsObstacle(nPathCol, nPathRow)
-						# Mark visited nodes with visited char
-						if i < len(@aPath) and @lShowVisited
-							aGrid[nPathRow][nPathCol] = @cVisitedChar
-						ok
-					ok
-				ok
-			next
-		ok
-		
-		# Mark current position with direction character or current char
-		if IsValidPosition(@nCurrentCol, @nCurrentRow)
-			# Use the appropriate direction character based on current direction
-			if @cDirection = :Right
-				aGrid[@nCurrentRow][@nCurrentCol] = @cRightChar
-			elseif @cDirection = :Left
-				aGrid[@nCurrentRow][@nCurrentCol] = @cLeftChar
-			elseif @cDirection = :Up
-				aGrid[@nCurrentRow][@nCurrentCol] = @cUpChar
-			elseif @cDirection = :Down
-				aGrid[@nCurrentRow][@nCurrentCol] = @cDownChar
-			else
-				# Default to current char for other directions
-				aGrid[@nCurrentRow][@nCurrentCol] = @cCurrentChar
-			ok
-		ok
-*/		
 		# Convert grid to string representation
 		cResult = ""
 		

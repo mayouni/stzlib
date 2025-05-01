@@ -12,19 +12,19 @@ o1 = new stzGrid([5, 5])
 ? o1.NumberOfRows()
 #--> 5
 
-? o1.NumberOfColumns() + NL
+? o1.NumberOfColumns()
 #--> 5
 
 # Current Position
 
-? @@(o1.CurrentPosition()) + NL
+? @@(o1.CurrentPosition())
 #--> [ 1, 1 ]
 
 # Moving down twice...
 
 o1.MoveDown()
 o1.MoveDown()
-? @@( o1.CurrentPosition() ) + NL
+? @@( o1.CurrentPosition() )
 #--> [ 1, 3 ]
 
 #Moving right three times...
@@ -55,7 +55,7 @@ pf()
 pr()
 
 o1 = new stzGrid([6, 4])
-? @@( o1.SizeXY() )
+? @@( o1.SizeXT() )
 #--> [ 6, 4 ]
 
 # Moving right to edge
@@ -78,7 +78,7 @@ pf()
 pr()
 
 o1 = new stzGrid([5, 5])
-? @@(o1.SizeXY()) + NL
+? @@(o1.SizeXT()) + NL
 
 # Moving to center of grid
 
@@ -129,10 +129,19 @@ o1.Show() + NL
 ? @@( o1.AdjacentNodes() ) + NL
 #--> [ [ 2, 2 ], [ 2, 3 ], [ 2, 4 ], [ 3, 2 ], [ 3, 4 ], [ 4, 2 ], [ 4, 3 ], [ 4, 4 ] ]
 
-// o1.PaintNighbors() #TODO
+o1.PaintNeighbors()
+#-->
+#     1 2 3 4 5 
+#   ╭─────v─────╮
+# 1 │ . . . . . │
+# 2 │ . N N N . │
+# 3 > . N x N . │
+# 4 │ . N N N . │
+# 5 │ . . . . . │
+#   ╰───────────╯
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing forward/backward movement
 
@@ -194,46 +203,70 @@ pf()
 
 pr()
 
-o1 = new stzGrid([10, 10])
+StzGridQ([10, 10]) {
 
-o1.MoveTo(3, 3)
-? @@( o1.Position() )
-#--> [ 3, 3 ]
+	? @@( SizeXT() )
+	#--> [ 10, 10 ]
 
-# Manhattan Distance
+	? @@( CurrentPosition() ) + NL
+	#--> [1, 1]
 
-? o1.DistanceTo(7, 6)
-#--> 7
+	Show()
+	#-->
+	#     1 2 3 4 5 6 7 8 9 0 
+	#   ╭─v───────────────────╮
+	# 1 > x . . . . . . . . . │
+	# 2 │ . . . . . . . . . . │
+	# 3 │ . . . . . . . . . . │
+	# 4 │ . . . . . . . . . . │
+	# 5 │ . . . . . . . . . . │
+	# 6 │ . . . . . . . . . . │
+	# 7 │ . . . . . . . . . . │
+	# 8 │ . . . . . . . . . . │
+	# 9 │ . . . . . . . . . . │
+	# 0 │ . . . . . . . . . . │
+	#   ╰─────────────────────╯
+	
+	MoveTo(3, 3)
+	? @@( Position() )
+	#--> [ 3, 3 ]
+	
+	# Manhattan Distance
+	
+	? DistanceTo(7, 6)
+	#--> 7
+	
+	# Euclidean Distance
+	
+	? @@( EuclideanDistanceTo(7, 6) )
+	#--> 5
+	
+	# Moving using MoveBy
+	
+	MoveBy(4, 3)  # Move 4 columns right, 3 rows down
+	
+	# New Position
+	
+	? @@( Position() ) + NL
+	#--> [ 7, 6 ]
+	
+	Show()
+	#-->
+	#     1 2 3 4 5 6 7 8 9 0 
+	#   ╭─────────────v───────╮
+	# 1 │ . . . . . . . . . . │
+	# 2 │ . . . . . . . . . . │
+	# 3 │ . . . . . . . . . . │
+	# 4 │ . . . . . . . . . . │
+	# 5 │ . . . . . . . . . . │
+	# 6 > . . . . . . x . . . │
+	# 7 │ . . . . . . . . . . │
+	# 8 │ . . . . . . . . . . │
+	# 9 │ . . . . . . . . . . │
+	# 0 │ . . . . . . . . . . │
+	#   ╰─────────────────────╯
 
-# Euclidean Distance
-
-? @@( o1.EuclideanDistanceTo(7, 6) )
-#--> 5
-
-# Moving using MoveBy
-
-o1.MoveBy(4, 3)  # Move 4 columns right, 3 rows down
-
-# New Position
-
-? @@( o1.Position() ) + NL
-#--> [ 7, 6 ]
-
-o1.Show()
-#-->
-#     1 2 3 4 5 6 7 8 9 0 
-#   ╭─────────────v───────╮
-# 1 │ . . . . . . . . . . │
-# 2 │ . . . . . . . . . . │
-# 3 │ . . . . . . . . . . │
-# 4 │ . . . . . . . . . . │
-# 5 │ . . . . . . . . . . │
-# 6 > . . . . . . x . . . │
-# 7 │ . . . . . . . . . . │
-# 8 │ . . . . . . . . . . │
-# 9 │ . . . . . . . . . . │
-# 0 │ . . . . . . . . . . │
-#   ╰─────────────────────╯
+}
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
@@ -326,7 +359,7 @@ pf()
 pr()
 
 o1 = new stzGrid([6, 4])
-? @@( o1.SizeXY() )
+? @@( o1.SizeXT() )
 #--> [ 6, 4 ]
 
 # Starting position
@@ -351,7 +384,7 @@ pf()
 pr()
 
 o1 = new stzGrid([6, 4])
-? @@( o1.SizeXY() )
+? @@( o1.SizeXT() )
 #--> [ 6, 4 ]
 
 # Moving right to edge
@@ -372,7 +405,7 @@ pf()
 pr()
 
 o1 = new stzGrid([6, 4])
-? @@( o1.SizeXY() )
+? @@( o1.SizeXT() )
 #--> [ 6, 4 ]
 
 # Moving down 2 nodes
@@ -402,7 +435,7 @@ pf()
 pr()
 
 o1 = new stzGrid([6, 4])
-? @@( o1.SizeXY() )
+? @@( o1.SizeXT() )
 #--> [ 6, 4 ]
 
 # Set position and direction
@@ -439,7 +472,7 @@ pf()
 pr()
 
 o1 = new stzGrid([6, 4])
-? @@( o1.SizeXY() )
+? @@( o1.SizeXT() )
 #--> [ 6, 4 ]
 
 # Try to move beyond upper-left boundary (should stay at starting position)
@@ -484,7 +517,7 @@ pf()
 	2.3. Setting path-related characters (path, visited, current, empty)
 
 3. Pathfinding Algorithms
-	3.1. A* algorithm (FindShortestPath)
+	3.1. A* algorithm (ShortestPath)
 	3.2. Manhattan path (horizontal/vertical first)
 	3.3. Spiral path generation
 	3.4. ZigZag path creation
@@ -540,7 +573,7 @@ o1.AddObstacle(3, 2)
 
 # Show the grid with obstacles
 
-o1.ShowObstacles(TRUE)
+o1.ShowObstacles(TRUE) # Active by default, can be omitted
 o1.Show()
 #-->
 #     1 2 3 4 5 6 7 8 9 0 
@@ -549,6 +582,24 @@ o1.Show()
 # 2 │ . . ■ ■ ■ . . . . . │
 # 3 │ . . . . . . . . . . │
 # 4 │ . . ■ ■ ■ . . . . . │
+# 5 │ . . . . . . . . . . │
+# 6 │ . . . . . . . . . . │
+#   ╰─────────────────────╯
+
+# Change obstacle character
+
+o1.SetObstacleChar("B")
+? o1.ObstacleChar()
+#--> B
+
+o1.Show()
+#-->
+#     1 2 3 4 5 6 7 8 9 0 
+#   ╭─────────────────────╮
+# 1 │ x . . . . . . . . . │
+# 2 │ . . B B B . . . . . │
+# 3 │ . . . . . . . . . . │
+# 4 │ . . B B B . . . . . │
 # 5 │ . . . . . . . . . . │
 # 6 │ . . . . . . . . . . │
 #   ╰─────────────────────╯
@@ -564,11 +615,6 @@ o1.ClearObstacles()
 ? len(o1.Obstacles())
 #--> 0
 
-# Change obstacle character
-
-o1.SetObstacleChar("B")
-? o1.ObstacleChar()
-#--> B
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
@@ -603,8 +649,8 @@ StzGridQ([8, 6]) {
 	
 	# Show the grid with path
 
-	ShowPath(TRUE)
-	ShowVisited(TRUE)
+	ShowPath(TRUE) 		# Active by default, can be omitted
+	ShowVisited(TRUE)	# Idem
 
 	MoveTo(8, 4)
 	Show()
@@ -634,7 +680,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing path finding algorithms
-*/
+
 pr()
 
 StzGridQ([ 10, 6 ]) {
@@ -643,104 +689,93 @@ StzGridQ([ 10, 6 ]) {
 	AddObstacles([ [3, 2], [3, 3], [3, 4] ])
 	AddObstacles([ [6, 1], [6, 2], [6, 3] ])
 	AddObstacles([ [8, 3], [8, 4], [8, 5] ])
-
-	# Set visualization
-	ShowObstacles(TRUE)
-	ShowPath(TRUE)
-//	ShowVisited(TRUE)
 	
-	# Testing A* algorithm (FindShortestPath)
-	FindShortestPath(1, 1, 10, 6)
+	# Testing A* algorithm (ShortestPath)
+	ShortestPath([1, 1], [10, 6])
 	Show()
 	#-->
 	#     1 2 3 4 5 6 7 8 9 0 
-	#   ╭───────────────────v─╮
-	# 1 > * * * * * ■ * * * . │
-	# 2 │ . . ■ * * ■ . . . . │
-	# 3 │ . . ■ * * ■ . ■ . . │
-	# 4 │ . . ■ * . . . ■ . . │
-	# 5 │ . . . * . . . ■ * * │
-	# 6 │ . . . * * * * * * * │
+	#   ╭─v───────────────────╮
+	# 1 > x . . . . ■ . . . . │
+	# 2 │ ○ . ■ . . ■ . . . . │
+	# 3 │ ○ . ■ . . ■ . ■ . . │
+	# 4 │ ○ . ■ . . . . ■ . . │
+	# 5 │ ○ . . . . . . ■ . . │
+	# 6 │ ○ ○ ○ ○ ○ ○ ○ ○ ◌ ○ │
 	#   ╰─────────────────────╯
-	#  Path Length: 19 nodes
-	#  Start: [1,1] | End: [10,6] | Direct Distance: 15 | Path Efficiency: 78%
-/*	
+
+	#--
+
+	ClearObstacles()
 	ClearPath()
 	
-	? "Testing Manhattan path (horizontal first)"
-	FindManhattanPath(1, 1, 10, 6)
+	# Testing Manhattan path (horizontal first)
+
+	ManhattanPath([1, 1], [10, 6])
 	Show()
 	#-->
-	#    1 2 3 4 5 6 7 8 9 0 
-	#  ╭────────────────────v╮
-	# 1 > * * * * * . . . . . │
-	# 2 │ . . . . . . . . . * │
-	# 3 │ . . . . . . . . . * │
-	# 4 │ . . . . . . . . . * │
-	# 5 │ . . . . . . . . . * │
-	# 6 │ . . . . . . . . . * │
-	#  ╰────────────────────╯
-	#  Path Length: 14 nodes
-	#  Start: [1,1] | End: [10,6] | Direct Distance: 15 | Path Efficiency: 107%
-	
+	#     1 2 3 4 5 6 7 8 9 0 
+	#   ╭─v───────────────────╮
+	# 1 > x ○ ○ ○ ○ ○ ○ ○ ○ ○ │
+	# 2 │ . . . . . . . . . ○ │
+	# 3 │ . . . . . . . . . ○ │
+	# 4 │ . . . . . . . . . ○ │
+	# 5 │ . . . . . . . . . ○ │
+	# 6 │ . . . . . . . . . ◌ │
+	#   ╰─────────────────────╯
+
 	ClearPath()
 	
-	? "Testing Manhattan path (vertical first)"
-	FindManhattanPathVerticalFirst(1, 1, 10, 6)
+	# Testing Manhattan path (vertical first)
+	ManhattanPathXT([1, 1], [10, 6], :VerticalFirst)
 	Show()
 	#-->
-	#    1 2 3 4 5 6 7 8 9 0 
-	#  ╭────────────────────v╮
-	# 1 > . . . . . . . . . . │
-	# 2 │ * . . . . . . . . . │
-	# 3 │ * . . . . . . . . . │
-	# 4 │ * . . . . . . . . . │
-	# 5 │ * . . . . . . . . . │
-	# 6 │ * * * * * * * * * * │
-	#  ╰────────────────────╯
-	#  Path Length: 14 nodes
-	#  Start: [1,1] | End: [10,6] | Direct Distance: 15 | Path Efficiency: 107%
-	
+	#     1 2 3 4 5 6 7 8 9 0 
+	#   ╭─v───────────────────╮
+	# 1 > x . . . . . . . . . │
+	# 2 │ ○ . . . . . . . . . │
+	# 3 │ ○ . . . . . . . . . │
+	# 4 │ ○ . . . . . . . . . │
+	# 5 │ ○ . . . . . . . . . │
+	# 6 │ ○ ○ ○ ○ ○ ○ ○ ○ ○ ◌ │
+	#   ╰─────────────────────╯
+
 	ClearPath()
 	
-	? "Testing Spiral path"
-	FindSpiralPath(5, 3, 3)
+	# Testing Spiral path
+	SpiralPath([5, 3], :Rings = 3)
 	Show()
 	#-->
-	#    1 2 3 4 5 6 7 8 9 0 
-	#  ╭────────────────────v╮
-	# 1 │ . . . . . . . . . . │
-	# 2 │ . . . * * * * . . . │
-	# 3 │ . . . * x * * . . . │
-	# 4 │ . . . * * * . . . . │
-	# 5 │ . . . . . . . . . . │
+	#     1 2 3 4 5 6 7 8 9 0 
+	#   ╭─v───────────────────╮
+	# 1 > x . ○ ○ ○ ○ ◌ . . . │
+	# 2 │ . . ○ ○ ○ ○ ○ . . . │
+	# 3 │ . . ○ ○ ○ ○ ○ . . . │
+	# 4 │ . . ○ ○ ○ ○ ○ . . . │
+	# 5 │ . . ○ ○ ○ ○ ○ . . . │
 	# 6 │ . . . . . . . . . . │
-	#  ╰────────────────────╯
-	#  Path Length: 10 nodes
-	#  Start: [5,3] | End: [4,4] | Direct Distance: 2 | Path Efficiency: 20%
-	
+	#   ╰─────────────────────╯
+
 	ClearPath()
 	
-	? "Testing ZigZag path"
-	FindZigZagPath(1, 1, 10, 6, 2)
+	# Testing ZigZag path
+	ZigZagPath([1, 1], [10, 6], :Width = 2)
 	Show()
 	#-->
-	#    1 2 3 4 5 6 7 8 9 0 
-	#  ╭────────────────────v╮
-	# 1 > * * . . . . . . . . │
-	# 2 │ . * * . . . . . . . │
-	# 3 │ . . * * * . . . . . │
-	# 4 │ . . . . * * . . . . │
-	# 5 │ . . . . . * * * . . │
-	# 6 │ . . . . . . . * * * │
-	#  ╰────────────────────╯
-	#  Path Length: 15 nodes
-	#  Start: [1,1] | End: [10,6] | Direct Distance: 15 | Path Efficiency: 100%
-*/
+	#     1 2 3 4 5 6 7 8 9 0 
+	#   ╭─v───────────────────╮
+	# 1 > x ○ ○ . ○ ○ ○ . ○ ○ │
+	# 2 │ . . ○ . ○ . ○ . ○ ○ │
+	# 3 │ . . ○ ○ ○ . ○ ○ ○ ○ │
+	# 4 │ . . . . . . . . . ○ │
+	# 5 │ . . . . . . . . . ○ │
+	# 6 │ . . . . . . . . . ◌ │
+	#   ╰─────────────────────╯
+
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Testing path analysis and drawing utilities
 
@@ -749,56 +784,54 @@ pr()
 o1 = new stzGrid([10, 6])
 
 # Create a zigzag path
-o1.AddPathNode(1, 1)
-o1.AddPathNode(2, 1)
-o1.AddPathNode(3, 2)
-o1.AddPathNode(4, 3)
-o1.AddPathNode(3, 4)
-o1.AddPathNode(2, 5)
-o1.AddPathNode(3, 6)
-o1.AddPathNode(4, 5)
-o1.AddPathNode(5, 4)
-o1.AddPathNode(6, 3)
-o1.AddPathNode(7, 2)
-o1.AddPathNode(8, 1)
+o1.AddPathNodes([
+	[1, 1],
+	[2, 1],
+	[3, 2],
+	[4, 3],
+	[3, 4],
+	[2, 5],
+	[3, 6],
+	[4, 5],
+	[5, 4],
+	[6, 3],
+	[7, 2],
+	[8, 1]
+])
 
-o1.ShowPath(TRUE)
+# Path complexity (number of turns)
+? o1.PathComplexity()
+#--> 10
 
-? "Path complexity (number of turns): " + o1.PathComplexity()
-#--> Path complexity (number of turns): 10
-
-? "Path efficiency: " + o1.PathEfficiency() + "%"
-#--> Path efficiency: 70%
+? o1.PathEfficiency() # In %
+#--> 63.64
 
 # Draw path with custom character
-? "Drawing path with '+':"
+
 o1.DrawPath(o1.Path(), "+")
 #-->
-#    1 2 3 4 5 6 7 8 9 0 
-#  ╭────────────────────v╮
-# 1 │ + + . . . . . + . . │
+#     1 2 3 4 5 6 7 8 9 0 
+#   ╭─v───────────────────╮
+# 1 > x + . . . . . + . . │
 # 2 │ . . + . . . + . . . │
 # 3 │ . . . + . + . . . . │
 # 4 │ . . + . + . . . . . │
 # 5 │ . + . + . . . . . . │
 # 6 │ . . + . . . . . . . │
-#  ╰────────────────────╯
-#  Path Length: 12 nodes
-#  Start: [1,1] | End: [8,1] | Direct Distance: 7 | Path Efficiency: 58%
+#   ╰─────────────────────╯
 
-# Paint specific nodes
-? "Painting specific nodes with '%':"
+# Painting specific nodes with '%'
 o1.PaintNodes([[2,2], [3,3], [4,4], [5,5]], "%")
 #-->
-#    1 2 3 4 5 6 7 8 9 0 
-#  ╭────────────────────v╮
-# 1 │ . . . . . . . . . . │
+#     1 2 3 4 5 6 7 8 9 0 
+#   ╭─v───────────────────╮
+# 1 > x . . . . . . . . . │
 # 2 │ . % . . . . . . . . │
 # 3 │ . . % . . . . . . . │
 # 4 │ . . . % . . . . . . │
 # 5 │ . . . . % . . . . . │
 # 6 │ . . . . . . . . . . │
-#  ╰────────────────────╯
+#   ╰─────────────────────╯
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
@@ -810,176 +843,200 @@ pr()
 o1 = new stzGrid([10, 6])
 
 # Create some obstacles to form regions
-o1.AddObstacle(3, 1)
-o1.AddObstacle(3, 2)
-o1.AddObstacle(3, 3)
-o1.AddObstacle(3, 4)
-o1.AddObstacle(7, 2)
-o1.AddObstacle(7, 3)
-o1.AddObstacle(7, 4)
-o1.AddObstacle(7, 5)
-o1.AddObstacle(7, 6)
+o1.AddObstacles([
+	[3, 1],
+	[3, 2],
+	[3, 3],
+	[3, 4],
+	[3, 6],
 
-o1.ShowObstacles(TRUE)
+	[7, 1],
+	[7, 2],
+	[7, 3],
+	[7, 4],
+	[7, 5],
+	[7, 6]
+])
+
 o1.Show()
 #-->
-#    1 2 3 4 5 6 7 8 9 0 
-#  ╭────────────────────v╮
-# 1 │ x . # . . . . . . . │
-# 2 │ . . # . . . # . . . │
-# 3 │ . . # . . . # . . . │
-# 4 │ . . # . . . # . . . │
-# 5 │ . . . . . . # . . . │
-# 6 │ . . . . . . # . . . │
-#  ╰────────────────────╯
+#     1 2 3 4 5 6 7 8 9 0 
+#   ╭─v───────────────────╮
+# 1 > x . ■ . . . . . . . │
+# 2 │ . . ■ . . . ■ . . . │
+# 3 │ . . ■ . . . ■ . . . │
+# 4 │ . . ■ . . . ■ . . . │
+# 5 │ . . . . . . ■ . . . │
+# 6 │ . . . . . . ■ . . . │
+#   ╰─────────────────────╯
 
 # Test flood fill
-aRegion1 = o1.FloodFill(1, 1)
-? "Region 1 size: " + len(aRegion1)
-#--> Region 1 size: 12
 
-aRegion2 = o1.FloodFill(5, 3)
-? "Region 2 size: " + len(aRegion2)
-#--> Region 2 size: 18
+aRegion1 = o1.FloodFill(1, 1)
+? len(aRegion1)
+#--> 31
+
+aRegion2 = o1.FloodFill(10, 6)
+? len(aRegion2)
+#--> 18
 
 # Test connectivity
-? "Is (1,1) connected to (2,2)? " + o1.IsConnected(1, 1, 2, 2)
-#--> Is (1,1) connected to (2,2)? 1
+? o1.AreConnected([1, 1], [2, 2])
+#--> TRUE
 
-? "Is (1,1) connected to (4,1)? " + o1.IsConnected(1, 1, 4, 1)
-#--> Is (1,1) connected to (4,1)? 0
+? o1.AreConnected([1, 1], [5, 1])
+#--> TRUE
 
-? "Is (5,5) connected to (8,6)? " + o1.IsConnected(5, 5, 8, 6)
-#--> Is (5,5) connected to (8,6)? 1
+? o1.AreConnected([5, 5], [8, 6]) + NL
+#--> FALSE
 
-# Get all connected regions
+# Get all connected regions (list of lists of nodes)
+
 aRegions = o1.ConnectedRegions()
-? "Number of distinct regions: " + len(aRegions)
-#--> Number of distinct regions: 2
+? len(aRegions)
+#--> 2
 
 # Paint each region with different characters
-? "Region 1:"
+
 o1.PaintNodes(aRegions[1], "1")
 #-->
-#    1 2 3 4 5 6 7 8 9 0 
-#  ╭────────────────────v╮
-# 1 │ 1 1 # . . . . . . . │
-# 2 │ 1 1 # . . . # . . . │
-# 3 │ 1 1 # . . . # . . . │
-# 4 │ 1 1 # . . . # . . . │
-# 5 │ 1 1 1 . . . # . . . │
-# 6 │ 1 1 1 . . . # . . . │
-#  ╰────────────────────╯
+#     1 2 3 4 5 6 7 8 9 0 
+#   ╭─v───────────────────╮
+# 1 > x 1 ■ 1 1 1 ■ . . . │
+# 2 │ 1 1 ■ 1 1 1 ■ . . . │
+# 3 │ 1 1 ■ 1 1 1 ■ . . . │
+# 4 │ 1 1 ■ 1 1 1 ■ . . . │
+# 5 │ 1 1 1 1 1 1 ■ . . . │
+# 6 │ 1 1 ■ 1 1 1 ■ . . . │
+#   ╰─────────────────────╯
 
-? "Region 2:"
 o1.PaintNodes(aRegions[2], "2")
 #-->
-#    1 2 3 4 5 6 7 8 9 0 
-#  ╭────────────────────v╮
-# 1 │ . . # 2 2 2 2 2 2 2 │
-# 2 │ . . # 2 2 2 # 2 2 2 │
-# 3 │ . . # 2 2 2 # 2 2 2 │
-# 4 │ . . # 2 2 2 # 2 2 2 │
-# 5 │ . . . 2 2 2 # 2 2 2 │
-# 6 │ . . . 2 2 2 # 2 2 2 │
-#  ╰────────────────────╯
+#     1 2 3 4 5 6 7 8 9 0 
+#   ╭─v───────────────────╮
+# 1 > x . ■ . . . ■ 2 2 2 │
+# 2 │ . . ■ . . . ■ 2 2 2 │
+# 3 │ . . ■ . . . ■ 2 2 2 │
+# 4 │ . . ■ . . . ■ 2 2 2 │
+# 5 │ . . . . . . ■ 2 2 2 │
+# 6 │ . . ■ . . . ■ 2 2 2 │
+#   ╰─────────────────────╯
+
+# Paint the tow regions togethor
+
+o1.PaintRegions()
+#-->
+#     1 2 3 4 5 6 7 8 9 0 
+#   ╭─v───────────────────╮
+# 1 > 1 1 ■ 1 1 1 ■ 2 2 2 │
+# 2 │ 1 1 ■ 1 1 1 ■ 2 2 2 │
+# 3 │ 1 1 ■ 1 1 1 ■ 2 2 2 │
+# 4 │ 1 1 ■ 1 1 1 ■ 2 2 2 │
+# 5 │ 1 1 1 1 1 1 ■ 2 2 2 │
+# 6 │ 1 1 ■ 1 1 1 ■ 2 2 2 │
+#   ╰─────────────────────╯
+
+o1.PaintRegionsXT([ "A", "B" ])
+#-->
+#     1 2 3 4 5 6 7 8 9 0 
+#   ╭─v───────────────────╮
+# 1 > A A ■ A A A ■ B B B │
+# 2 │ A A ■ A A A ■ B B B │
+# 3 │ A A ■ A A A ■ B B B │
+# 4 │ A A ■ A A A ■ B B B │
+# 5 │ A A A A A A ■ B B B │
+# 6 │ A A ■ A A A ■ B B B │
+#   ╰─────────────────────╯
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.05 second(s) in Ring 1.22
 
 /*--- Testing maze generation
 
 pr()
 
-o1 = new stzGrid([15, 8])
+StzGridQ([15, 8]) {
 
-# Generate random maze
-? "Generating random maze (30% obstacle density):"
-o1.GenerateRandomMaze(30)
-o1.ShowObstacles(TRUE)
-o1.Show()
-# Result will be randomized but should have approximately 30% of cells as obstacles
+	# Generating random maze (30% obstacle density)
+	# ~> Result will be randomized but should have
+	# approximately 30% of cells as obstacles
 
-# Clear obstacles
-o1.ClearObstacles()
+	RandomMaze(30)
+	Show()
+	#-->
+	#     1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 
+	#   ╭─v─────────────────────────────╮
+	# 1 > x . . . . ■ . ■ . . ■ ■ ■ ■ . │
+	# 2 │ . . . ■ . . . . . ■ ■ . . . . │
+	# 3 │ . . ■ . ■ . . . . . ■ . . . ■ │
+	# 4 │ . . . ■ . . . . . . . . . . ■ │
+	# 5 │ . . ■ ■ ■ ■ . . ■ . . . . ■ ■ │
+	# 6 │ . ■ ■ . . . . . . . . . . ■ . │
+	# 7 │ ■ ■ . . ■ . ■ . . ■ ■ . ■ . . │
+	# 8 │ . ■ . . . . . . ■ . . . . ■ . │
+	#   ╰───────────────────────────────╯
 
-# Generate maze with guaranteed path
-? "Generating maze with guaranteed path:"
-o1.GenerateMazeWithPath(1, 1, 15, 8)
-o1.ShowPath(TRUE)
-o1.ShowObstacles(TRUE)
-o1.Show()
-# Result will show a path from (1,1) to (15,8) with obstacles that don't block the path
+	ClearObstacles()
+
+	# Generating maze with guaranteed path
+	# ~> Result will show a path from (1,1) to (15,8)
+	# with obstacles that don't block the path
+
+	MazeWithPath([1, 1], [15, 8])
+	Show()
+	#-->
+	#     1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 
+	#   ╭─v─────────────────────────────╮
+	# 1 > x . . ■ . . . . ■ ■ . ■ . . . │
+	# 2 │ ◌ . ■ . . . . . ■ . . . . . . │
+	# 3 │ ◌ . . . . . . . ■ . . . ■ . ■ │
+	# 4 │ ◌ ■ . . ■ . ■ ■ . . . . ■ . . │
+	# 5 │ ◌ . . . ■ ■ ■ . ■ . ■ . . . . │
+	# 6 │ ◌ . . ■ ■ . . . . . . . . . . │
+	# 7 │ ◌ . ■ . ■ . . . . ■ . . . . . │
+	# 8 │ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ │
+	#   ╰───────────────────────────────╯
+
+}
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in almost 0.12 second(s) in Ring 1.22
 
-/*--- Testing grid conversion and I/O
+/*--- Testing moving and hitting an obstacle
 
 pr()
 
-o1 = new stzGrid([5, 5])
+o1 = new stzGrid([10, 6])
 
-# Add obstacles and path
-o1.AddObstacle(2, 2)
-o1.AddObstacle(3, 3)
-o1.AddObstacle(4, 4)
+# Create some obstacles to form regions
+o1.AddObstacles([
+	[3, 1],
+	[3, 2],
+	[3, 3],
+	[3, 4],
+	[3, 6],
 
-o1.AddPathNode(1, 1)
-o1.AddPathNode(1, 2)
-o1.AddPathNode(1, 3)
-o1.AddPathNode(1, 4)
-o1.AddPathNode(1, 5)
-o1.AddPathNode(2, 5)
-o1.AddPathNode(3, 5)
-o1.AddPathNode(4, 5)
-o1.AddPathNode(5, 5)
-
-o1.ShowObstacles(TRUE)
-o1.ShowPath(TRUE)
-o1.MoveTo(5, 5)
+	[7, 1],
+	[7, 2],
+	[7, 3],
+	[7, 4],
+	[7, 5],
+	[7, 6]
+])
 
 o1.Show()
 #-->
-#    1 2 3 4 5 
-#  ╭────────v╮
-# 1 │ ○ . . . . │
-# 2 │ ○ # . . . │
-# 3 │ ○ . # . . │
-# 4 │ ○ . . # . │
-# 5 │ ○ ○ ○ ○ X │
-#  ╰──────────╯
-#  Path Length: 9 nodes
-#  Start: [1,1] | End: [5,5] | Direct Distance: 8 | Path Efficiency: 88%
+#     1 2 3 4 5 6 7 8 9 0 
+#   ╭─v───────────────────╮
+# 1 > x . ■ . . . . . . . │
+# 2 │ . . ■ . . . ■ . . . │
+# 3 │ . . ■ . . . ■ . . . │
+# 4 │ . . ■ . . . ■ . . . │
+# 5 │ . . . . . . ■ . . . │
+# 6 │ . . . . . . ■ . . . │
+#   ╰─────────────────────╯
 
-# Convert to list of lists
-aGrid = o1.ToListOfLists()
-? "Grid as list of lists (first row): " + @@(aGrid[1])
-#--> Grid as list of lists (first row): [ "○", ".", ".", ".", "." ]
-
-# Convert to string grid
-cGrid = o1.ToStringGrid()
-? "First 10 characters of string grid: " + left(cGrid, 10)
-#--> First 10 characters of string grid: ○....
-#○#...
-
-# Export to file and import back
-o1.ExportToFile("grid_test.txt")
-? "Grid exported to file"
-#--> Grid exported to file
-
-o2 = new stzGrid([5, 5])
-o2.ImportFromFile("grid_test.txt")
-? "Grid imported from file"
-#--> Grid imported from file
-
-o2.ShowObstacles(TRUE)
-o2.ShowPath(TRUE)
-o2.Show()
-# Should show the same grid as before
-
-# Clean up test file
-remove("grid_test.txt")
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+o1.MoveRight()
+o1.MoveDown()
+o1.MoveRight()
+#--> ERROR: Can't move right! Hittes an obstacle.
