@@ -680,7 +680,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing path finding algorithms
-
+*/
 pr()
 
 StzGridQ([ 10, 6 ]) {
