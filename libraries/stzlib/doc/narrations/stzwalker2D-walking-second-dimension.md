@@ -32,13 +32,13 @@ A 2D walker provides an abstraction over traditional nested loops, offering a co
 load "stzlib.ring"
 
 # Creating a 2D walker with step size 2 
-# (this controls iteration increment, not spatial movement)
 oWalker = new stzWalker2D([1, 1], [5, 5], 2)
 
 # Or using shorthand factory function
 oWalker = Wk2D([1, 1], [5, 5], 2)
 
 # See all traversable positions (index pairs)
+
 ? @@(oWalker.WalkablePositions())
 #--> [
 #	[ 1, 1 ], [ 3, 1 ], [ 5, 1 ],
@@ -64,7 +64,7 @@ The walker maintains complete awareness of current indices while providing flexi
 ? @@(oWalker.CurrentPosition())
 #--> [ 3, 1 ]
 
-# Direction refers to index progression, not spatial movement
+# Direction refers to index progression
 w = new stzWalker2D([5, 5], [1, 1], 1)
 
 ? w.Direction()
@@ -206,15 +206,15 @@ walkers2 = StzListOfWalkers2DQ([w1, w2, w3])
 walkers = Wks2D([
     Wk([1, 1], [3, 3], 1),
     Wk([2, 2], [4, 4], 1),
-    Wk([0, 0], [4, 4], 2)
+    Wk([1, 1], [5, 5], 2)
 ])
 
 # Adding and removing walkers
-walkers = Wks([ Wk([0, 0], [2, 2], 1) ])
-walkers.AddWalker(Wk([1, 1], [3, 3], 1))
+walkers = Wks([ Wk([1, 1], [3, 3, 1) ])
+walkers.AddWalker(Wk([2, 2], [4, 4], 1))
 walkers.AddWalkers([
-    Wk([0, 0], [4, 4], 2),
-    Wk([5, 5], [7, 7], 1)
+    Wk([1, 1], [5, 5], 2),
+    Wk([6, 6], [8, 8], 1)
 ])
 
 # Removing walkers

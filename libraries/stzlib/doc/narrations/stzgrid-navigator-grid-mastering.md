@@ -20,7 +20,7 @@ o1 = new stzGrid([5, 5])
 ? o1.SizeXT() #--> [5, 5]
 
 # Current Position
-? @@(o1.CurrentPosition())  #--> [1, 1]
+? o1.CurrentPosition()  #--> [1, 1]
 ```
 
 When visualized, our new grid looks like this:
@@ -48,12 +48,12 @@ StzGridQ([5, 5]) {
 	# Starting at [1,1]
 	MoveDown()  # Move down once
 	MoveDown()  # Move down again
-	? @@(CurrentPosition())  #--> [1, 3]
+	? CurrentPosition()  #--> [1, 3]
 
 	MoveRight() # Move right once
 	MoveRight() # Move right again
 	MoveRight() # Move right a third time
-	? @@(CurrentPosition())  #--> [4, 3]
+	? CurrentPosition()  #--> [4, 3]
 
 	Show()
 }
@@ -84,7 +84,7 @@ o1.MoveTo(6, 1)  # Position [6,1]
 
 # Try to move beyond boundary
 o1.MoveRight()   # Won't move
-? @@(o1.Position())  # Still [6,1]
+? o1.Position()  # Still [6,1]
 ```
 
 ### Precision Movement
@@ -97,7 +97,7 @@ o1.MoveTo(3, 3)  # Jump directly to position [3,3]
 
 # Now make a larger movement
 o1.MoveBy(4, 3)  # Move 4 columns right, 3 rows down
-? @@(o1.Position())  # [7, 6]
+? o1.Position()  # [7, 6]
 
 o1.Show()
 ```
@@ -139,11 +139,11 @@ StzGridQ([4, 4]) {
 
 	# Move in current direction (down)
 	MoveToNextPosition()
-	? @@(Position())  #--> [2, 3]
+	? Position()  #--> [2, 3]
 
 	# Move opposite direction (up)
 	MoveToPreviousPosition()
-	? @@(Position())  #--> [2, 2]
+	? Position()  #--> [2, 2]
 }
 ```
 
@@ -155,22 +155,22 @@ One of `stzGrid`'s most powerful features is its ability to analyze neighboring 
 
 ```ring
 o1 = new stzGrid([5, 5])
-o1.MoveTo(3, 3)  # Center of grid
+o1.MoveTo(3, 3)  #--> Center of grid
 
 # Adjacent positions
-? @@(o1.NodeAbove())      # [3, 2]
-? @@(o1.NodeBelow())      # [3, 4]
-? @@(o1.NodeToLeft())     # [2, 3]
-? @@(o1.NodeToRight())    # [4, 3]
+? o1.NodeAbove()      #--> [3, 2]
+? o1.NodeBelow()      #--> [3, 4]
+? o1.NodeToLeft()     #--> [2, 3]
+? o1.NodeToRight()    #--> [4, 3]
 
 # Diagonal positions
-? @@(o1.NodeAboveLeft())  # [2, 2]
-? @@(o1.NodeAboveRight()) # [4, 2]
-? @@(o1.NodeBelowLeft())  # [2, 4]
-? @@(o1.NodeBelowRight()) # [4, 4]
+? o1.NodeAboveLeft()  #--> [2, 2]
+? o1.NodeAboveRight() #--> [4, 2]
+? o1.NodeBelowLeft()  #--> [2, 4]
+? o1.NodeBelowRight() #--> [4, 4]
 
 # All surrounding nodes
-? @@(o1.AdjacentNodes())
+? o1.Neighbors()	# Or AdjacentNodes() if you prefer
 # [[2,2], [2,3], [2,4], [3,2], [3,4], [4,2], [4,3], [4,4]]
 
 o1.PaintNeighbors()
@@ -562,15 +562,15 @@ When compared to similar grid implementations in other languages and frameworks,
 
 | Feature | stzGrid (Softanza) | Python (NumPy/networkx) | JavaScript (Grid Libraries) | C++ (Grid Implementations) |
 |---------|-------------------|---------------------|---------------------------|-------------------------|
-| **API Intuitiveness** | Very high - methods like `MoveRight()` are self-explanatory | Moderate - requires understanding of array indexing | Varies by library | Typically low - requires understanding of implementation details |
-| **Visualization** | Built-in ASCII visualization | Requires matplotlib or other visualization libraries | Requires DOM manipulation or canvas | Requires external visualization libraries |
-| **Pathfinding** | Multiple built-in algorithms (A*, Manhattan, ZigZag, Spiral) | Requires networkx or custom implementation | Usually requires separate libraries | Requires custom implementation or libraries |
-| **Obstacle Handling** | Native support with collision detection | Must be manually implemented | Limited in most libraries | Must be manually implemented |
-| **Region Analysis** | Built-in flood fill and connectivity testing | Requires scipy or custom algorithms | Usually limited | Requires custom implementation |
-| **Movement Paradigm** | Rich directional movement with boundary awareness | Basic array indexing | Basic grid movement | Basic coordinate management |
-| **Maze Generation** | Built-in algorithms | Requires third-party libraries | Varies by library | Requires custom implementation |
-| **Learning Curve** | Gentle - intuitive naming conventions | Steeper - requires understanding of array operations | Varies by library | Steep - requires deep programming knowledge |
-| **Code Readability** | High - `o1.MoveToNextPosition()` is self-documenting | Moderate - `grid[x+1][y]` requires context | Varies by library | Often low due to implementation complexity |
+| **API Intuitiveness** | ✅ Very high - methods like `MoveRight()` are self-explanatory | Moderate - requires understanding of array indexing | Varies by library | Typically low - requires understanding of implementation details |
+| **Visualization** | ✅ Built-in ASCII visualization | Requires matplotlib or other visualization libraries | Requires DOM manipulation or canvas | Requires external visualization libraries |
+| **Pathfinding** | ✅ Multiple built-in algorithms (A*, Manhattan, ZigZag, Spiral) | Requires networkx or custom implementation | Usually requires separate libraries | Requires custom implementation or libraries |
+| **Obstacle Handling** | ✅ Native support with collision detection | Must be manually implemented | Limited in most libraries | Must be manually implemented |
+| **Region Analysis** | ✅ Built-in flood fill and connectivity testing | Requires scipy or custom algorithms | Usually limited | Requires custom implementation |
+| **Movement Paradigm** | ✅ Rich directional movement with boundary awareness | Basic array indexing | Basic grid movement | Basic coordinate management |
+| **Maze Generation** | ✅ Built-in algorithms | Requires third-party libraries | Varies by library | Requires custom implementation |
+| **Learning Curve** | ✅ Gentle - intuitive naming conventions | Steeper - requires understanding of array operations | Varies by library | Steep - requires deep programming knowledge |
+| **Code Readability** | ✅ High - `o1.MoveToNextPosition()` is self-documenting | Moderate - `grid[x+1][y]` requires context | Varies by library | Often low due to implementation complexity |
 
 
 ## Conclusion: The Power of Grid Navigation
