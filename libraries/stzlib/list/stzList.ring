@@ -90862,6 +90862,16 @@ fdef
 		def IsOtherwiseOrElseNamedParam()
 			return This.IsElseOrOtherwiseNamedParam()
 
+	def IsRingsNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Rings )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
 #WARNING: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.
 
