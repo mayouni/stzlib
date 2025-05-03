@@ -1608,35 +1608,36 @@ Class stzGrid From stzObject
 		return @aPath
 
 
-def DrawPath(aPathToUse, cCustomChar)
-    # Store the original path character
-    cOriginalPathChar = @cPathChar
-    
-    # Set custom path character if provided
-    if cCustomChar != NULL
-        @cPathChar = cCustomChar
-    ok
-    
-    # Store the original path
-    aOriginalPath = @aPath
-    
-    # Use the provided path if given
-    if aPathToUse != NULL
-        @aPath = aPathToUse
-    ok
-    
-    # Instead of calling This.Show() directly, return the string representation
-    cResult = This.ToString()
-    
-    # Restore original path character and path
-    @cPathChar = cOriginalPathChar
-    @aPath = aOriginalPath
-    
-    # Print the result instead of calling Show()
-    ? cResult
-    
-    return cResult
-end
+	def DrawPath(aPathToUse, cCustomChar)
+
+		# Store the original path character
+		cOriginalPathChar = @cPathChar
+
+		# Set custom path character if provided
+		if cCustomChar != NULL
+			@cPathChar = cCustomChar
+		ok
+
+		# Store the original path
+		aOriginalPath = @aPath
+
+		# Use the provided path if given
+		if aPathToUse != NULL
+			@aPath = aPathToUse
+		ok
+
+		# Instead of calling This.Show() directly, return the string representation
+		cResult = This.ToString()
+
+		# Restore original path character and path
+		@cPathChar = cOriginalPathChar
+		@aPath = aOriginalPath
+
+		# Print the result instead of calling Show()
+		? cResult
+
+		return cResult
+
 
 	def PaintNode(nCol, nRow, cChar)
 		This.PaintNodes([ [nCol, nRow] ], cChar)
@@ -1671,214 +1672,231 @@ end
 		# Restore original path
 		@aPath = aOldPath
 
-def PaintRegions()
-    # Paint multiple regions with different characters
-    aRegions = This.ConnectedRegions()
-    nLen = len(aRegions)
-    acChars = []
-    
-    for i = 1 to nLen
-        # Use modulo 10 to restart numbering at 0 when it reaches 10
-        acChars + (""+ (i % 10))
-    next
-    
-    # Store current grid state
-    aOldPath = @aPath
-    
-    # Create a temporary grid with empty cells
-    aGrid = list(@nRows)
-    for y = 1 to @nRows
-        aGrid[y] = list(@nCols)
-        for x = 1 to @nCols
-            aGrid[y][x] = @cEmptyChar
-        next
-    next
-    
-    # Add obstacles to the grid
-    if @bShowObstacles
-        for i = 1 to len(@aObstacles)
-            nObsCol = @aObstacles[i][1]
-            nObsRow = @aObstacles[i][2]
-            
-            if IsValidPosition(nObsCol, nObsRow)
-                aGrid[nObsRow][nObsCol] = @cObstacleChar
-            ok
-        next
-    ok
-    
-    # Add all regions to the grid
-    for i = 1 to nLen
-        aRegion = aRegions[i]
-        cChar = acChars[i]
-        
-        for j = 1 to len(aRegion)
-            nCol = aRegion[j][1]
-            nRow = aRegion[j][2]
-            
-            if IsValidPosition(nCol, nRow)
-                # Skip if it's an obstacle
-                if NOT This.IsObstacle(nCol, nRow)
-                    aGrid[nRow][nCol] = cChar
-                ok
-            ok
-        next
-    next
-    
-    # Display the grid with all regions
-    This.DisplayCustomGrid(aGrid)
-    
-    # Restore original path
-    @aPath = aOldPath
-end
+	def PaintRegions()
 
-def PaintRegionsXT(pacChars)
-    # Paint multiple regions with custom characters
-    # pacChars: List of characters to use for each region (optional)
-    
-    if CheckParams()
-	if NOT (isList(pacChars) and IsListOfChars(pacChars))
-		StzRaise("Incorrect param type! pacChars must be a list of chars.")
-	ok
-    ok
+		# Paint multiple regions with different characters
+		aRegions = This.ConnectedRegions()
+		nLen = len(aRegions)
+		acChars = []
 
-    aRegions = This.ConnectedRegions()
-    nLen = len(aRegions)
-    acChars = []
-    
-    nLenChars = len(pacChars)
+		for i = 1 to nLen
+			# Use modulo 10 to restart numbering at 0 when it reaches 10
+			acChars + (""+ (i % 10))
+		next
 
-    # Use provided characters or generate them
-    if isList(pacChars) and nLenChars > 0
-        # Use provided characters (cycling if needed)
-        for i = 1 to nLen
-            cChar = pacChars[(i-1) % nLenChars + 1]
-            
-            # Ensure each character is a single character
+		# Store current Grid state
+		aOldPath = @aPath
 
-            
-            acChars + cChar
-        next
-    else
-        # Generate default characters (numbers 0-9 cycling)
-        for i = 1 to nLen
-            acChars + (""+ (i % 10))
-        next
-    ok
-    
-    # Store current grid state
-    aOldPath = @aPath
-    
-    # Create a temporary grid with empty cells
-    aGrid = list(@nRows)
-    for y = 1 to @nRows
-        aGrid[y] = list(@nCols)
-        for x = 1 to @nCols
-            aGrid[y][x] = @cEmptyChar
-        next
-    next
-    
-    # Add obstacles to the grid
-    nLenObstacles = len(@aObstacles)
+		# Create a temporary Grid with empty cells
+		aGrid = list(@nRows)
 
-    if @bShowObstacles
-        for i = 1 to nLenObstacles
-            nObsCol = @aObstacles[i][1]
-            nObsRow = @aObstacles[i][2]
-            
-            if IsValidPosition(nObsCol, nObsRow)
-                aGrid[nObsRow][nObsCol] = @cObstacleChar
-            ok
-        next
-    ok
-    
-    # Add all regions to the grid
-    for i = 1 to nLen
-        aRegion = aRegions[i]
-        cChar = acChars[i]
-        nLenRegion = len(aRegion)
+		for y = 1 to @nRows
 
-        for j = 1 to nLenRegion
-            nCol = aRegion[j][1]
-            nRow = aRegion[j][2]
-            
-            if IsValidPosition(nCol, nRow)
-                # Skip if it's an obstacle
-                if NOT This.IsObstacle(nCol, nRow)
-                    aGrid[nRow][nCol] = cChar
-                ok
-            ok
-        next
-    next
-    
-    # Display the grid with all regions
-    This.DisplayCustomGrid(aGrid)
-    
-    # Restore original path
-    @aPath = aOldPath
+			aGrid[y] = list(@nCols)
 
-def DisplayCustomGrid(aCustomGrid)
-    # Display a custom grid without changing the internal grid state
-    
-    cResult = ""
-    
-    # Add X-axis labels if requested
-    if @bShowCoordinates
-        cResult += "    " # Space for alignment with the grid
-        for x = 1 to @nCols
-            if x % 10 = 0
-                cResult += "0 "
-            else
-                cResult += ""+ (x % 10) + " "
-            ok
-        next
-        cResult += NL()
-    ok
-    
-    # Add top border with rounded corners
-    cResult += "  ╭"
-    for x = 1 to @nCols
-        if x = @nCurrentCol
-            cResult += "─v─"
-        else
-            cResult += "──"
-        ok
-    next
-    cResult += "╮" + NL()
-    
-    # Add rows with Y-axis labels and borders
-    for y = 1 to @nRows
-        # Add Y indicator for current position - resetting at multiples of 10
-        if @bShowCoordinates
-            if y % 10 = 0
-                yLabel = "0"
-            else
-                yLabel = ""+ (y % 10)
-            ok
-        else
-            yLabel = " "
-        ok
-        
-        if y = @nCurrentRow
-            cResult += yLabel + " > "
-        else
-            cResult += yLabel + " │ "
-        ok
-        
-        for x = 1 to @nCols
-            cResult += ""+ aCustomGrid[y][x] + " "
-        next
-        cResult += "│" + NL()
-    next
-    
-    # Add bottom border with rounded corners
-    cResult += "  ╰"
-    for x = 1 to @nCols
-        cResult += "──"
-    next
-    cResult += "─╯" + NL()
-    
-    ? cResult
+			for x = 1 to @nCols
+				aGrid[y][x] = @cEmptyChar
+			next
+		next
 
+		# Add obstacles to the Grid
+		if @bShowObstacles
+			for i = 1 to len(@aObstacles)
+				nObsCol = @aObstacles[i][1]
+				nObsRow = @aObstacles[i][2]
+
+				if IsValidCell(nObsCol, nObsRow)
+					aGrid[nObsRow][nObsCol] = @cObstacleChar
+				ok
+			next
+		ok
+
+		# Add all regions to the Grid
+		for i = 1 to nLen
+			aRegion = aRegions[i]
+			cChar = acChars[i]
+
+			for j = 1 to len(aRegion)
+				nCol = aRegion[j][1]
+				nRow = aRegion[j][2]
+
+				if IsValidCell(nCol, nRow)
+					# Skip if it's an obstacle
+					if NOT This.IsObstacle(nCol, nRow)
+						aGrid[nRow][nCol] = cChar
+					ok
+				ok
+			next
+		next
+
+		# Display the Grid with all regions
+		This.DisplayCustomGrid(aGrid)
+
+		# Restore original path
+		@aPath = aOldPath
+
+
+	def PaintRegionsXT(pacChars)
+		# Paint multiple regions with custom characters
+		# pacChars: List of characters to use for each region (optional)
+
+		if CheckParams()
+			if NOT (isList(pacChars) and IsListOfChars(pacChars))
+				StzRaise("Incorrect param type! pacChars must be a list of chars.")
+			ok
+		ok
+
+		aRegions = This.ConnectedRegions()
+		nLen = len(aRegions)
+		acChars = []
+
+		nLenChars = len(pacChars)
+
+		# Use provided characters or generate them
+		if isList(pacChars) and nLenChars > 0
+			# Use provided characters (cycling if needed)
+
+			for i = 1 to nLen
+				cChar = pacChars[(i-1) % nLenChars + 1]
+
+				# Ensure each character is a single character            
+				acChars + cChar
+			next
+		else
+			# Generate default characters (numbers 0-9 cycling)
+			for i = 1 to nLen
+				acChars + (""+ (i % 10))
+			next
+		ok
+
+		# Store current Grid state
+		aOldPath = @aPath
+
+		# Create a temporary Grid with empty cells
+		aGrid = list(@nRows)
+
+		for y = 1 to @nRows
+			aGrid[y] = list(@nCols)
+			for x = 1 to @nCols
+				aGrid[y][x] = @cEmptyChar
+			next
+		next
+
+		# Add obstacles to the Grid
+		nLenObstacles = len(@aObstacles)
+
+		if @bShowObstacles
+
+			for i = 1 to nLenObstacles
+				nObsCol = @aObstacles[i][1]
+				nObsRow = @aObstacles[i][2]
+
+				if IsValidCell(nObsCol, nObsRow)
+					aGrid[nObsRow][nObsCol] = @cObstacleChar
+				ok
+			next
+
+		ok
+
+		# Add all regions to the Grid
+		for i = 1 to nLen
+			aRegion = aRegions[i]
+			cChar = acChars[i]
+			nLenRegion = len(aRegion)
+
+			for j = 1 to nLenRegion
+				nCol = aRegion[j][1]
+				nRow = aRegion[j][2]
+
+				if IsValidCell(nCol, nRow)
+					# Skip if it's an obstacle
+					if NOT This.IsObstacle(nCol, nRow)
+						aGrid[nRow][nCol] = cChar
+					ok
+				ok
+			next
+		next
+
+		# Display the Grid with all regions
+		This.DisplayCustomGrid(aGrid)
+
+		# Restore original path
+		@aPath = aOldPath
+
+	def DisplayCustomGrid(aCustomGrid)
+		# Display a custom Grid without changing the internal Grid state
+
+		cResult = ""
+
+		# Add X-axis labels if requested
+
+		if @bShowCoordinates
+			cResult += "    " # Space for alignment with the Grid
+
+			for x = 1 to @nCols
+				if x % 10 = 0
+					cResult += "0 "
+				else
+					cResult += ""+ (x % 10) + " "
+				ok
+			next
+
+			cResult += NL()
+		ok
+
+		# Add top border with rounded corners
+
+		cResult += "  ╭"
+
+		for x = 1 to @nCols
+			if x = @nCurrentCol
+				cResult += "─v─"
+			else
+				cResult += "──"
+			ok
+		next
+
+		cResult += "╮" + NL()
+
+		# Add rows with Y-axis labels and borders
+
+		for y = 1 to @nRows
+			# Add Y indicator for current Cell - resetting at multiples of 10
+
+			if @bShowCoordinates
+				if y % 10 = 0
+					yLabel = "0"
+				else
+					yLabel = ""+ (y % 10)
+				ok
+			else
+				yLabel = " "
+			ok
+
+			if y = @nCurrentRow
+				cResult += yLabel + " > "
+			else
+				cResult += yLabel + " │ "
+			ok
+
+			for x = 1 to @nCols
+				cResult += ""+ aCustomGrid[y][x] + " "
+			next
+
+			cResult += "│" + NL()
+		next
+
+		# Add bottom border with rounded corners
+
+		cResult += "  ╰"
+
+		for x = 1 to @nCols
+			cResult += "──"
+		next
+
+		cResult += "─╯" + NL()
+    
+		? cResult
 
 	#-- HELPER FUNCTIONS FOR PATHFINDING
 

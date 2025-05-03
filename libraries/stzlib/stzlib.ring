@@ -173,7 +173,7 @@ t0 = clock()
 	load "list/stzTable.ring"
 	load "list/stzTree.ring"
 	load "list/stzGrid.ring"
-
+	load "list/stzTile.ring"
 	load "list/stzItem.ring"
 
 	load "list/stzListParser.ring"
