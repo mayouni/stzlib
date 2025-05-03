@@ -37,21 +37,15 @@ Class stzGrid From stzObject
 	@aObstacles = []
 	@aPath = []
 	@cObstacleChar = "■"
-	@cPathChar = "○" // "●"
-
+	@cPathChar = "○"
+	@cFocusChar = "●"
 	@cCurrentChar = "x"
 	@cEmptyChar = "."
 	@cNeighborChar = "N"
 
-/*	@cRightChar = "x"
-	@cLeftChar = "x"
-	@cUpChar = "x"
-	@cDownChar = "x"
-*/
 	@bShowCoordinates = TRUE
 	@bShowObstacles = TRUE
 	@bShowPath = TRUE
-
 
 	def init(panColRow)
 
@@ -135,13 +129,13 @@ Class stzGrid From stzObject
 	#-- MOVEMENT METHODS
 	
 	def MoveToNode(nCol, nRow)
-		if IsValidPosition(nCol, nRow)
+		if NOT IsValidPosition(nCol, nRow)
+			StzRaise("Can't move! The provided position is not valid.")
+		ok
+
+		if NOT IsObstacle(nCol, nRow)
 			@nCurrentCol = nCol
 			@nCurrentRow = nRow
-
-		else
-			stzRaise("Invalid position! Column must be between 1 and " + @nCols + 
-			         ", and row between 1 and " + @nRows + ".")
 		ok
 
 		def Moveto(nCol, nRow)
@@ -154,10 +148,16 @@ Class stzGrid From stzObject
 			This.MoveToNode(1, 1)
 
 	def MoveToLastNode()
-		This.MoveTo(@nCols, @nRows)
+		This.MoveToNode(@nCols, @nRows)
 		
 		def MovetoLastPosition()
-			This.MoveTo(@nCols, @nRows)
+			This.MoveToNode(@nCols, @nRows)
+
+		def MoveToLast()
+			This.MoveToNode(@nCols, @nRows)
+
+		def MoveLast()
+			This.MoveToNode(@nCols, @nRows)
 
 	def MoveToNextNode()
 
@@ -184,6 +184,12 @@ Class stzGrid From stzObject
 		def MoveToNextPosition()
 			This.MoveToNextNode()
 
+		def MoveToNext()
+			This.MoveToNextNode()
+
+		def MoveNext()
+			This.MoveToNextNode()
+
 	def MoveToPreviousNode()
 		if @cDirection = :forward
 			This.MoveBackward()
@@ -208,94 +214,209 @@ Class stzGrid From stzObject
 		def MoveToPreviousPosition()
 			This.MoveToPreviousNode()
 
-	def Move(nCols, nRows)
+		def MoveToPrevious()
+			This.MoveToPreviousNode()
+
+		def MovePrevious()
+			This.MoveToPreviousNode()
+
+	def MoveBy(nCols, nRows)
 
 		nNewCols = @nCurrentCol + nCols
 		nNewRows = @nCurrentRow + nRows
 		
 
-		if IsValidPosition(nNewCols, nNewRows)
+		if NOT IsValidPosition(nNewCols, nNewRows)
+			StzRaise("Can't move! The provided position is not valid.")
+		ok
+
+		if NOT IsObstacle(nNewCols, nNewRows)
 			@nCurrentRow = nNewRows
 			@nCurrentCol = nNewCols
 		ok
-		
-		def MoveBy(nCols, nRows)
-			This.Move(nCols, nRows)
 
 		def MoveByNColsNRows(nCols, nRows)
-			This.Move(nCols, nRows)
+			This.MoveBy(nCols, nRows)
 
-	def MoveForward()
-		@cDirection = :Forward
+		def MoveFor(nCols, nRows)
+			This.MoveBy(nCols, nRows)
+
+		def MoveForNColsNRows(nCols, nRows)
+			This.MoveBy(nCols, nRows)
+
+	def MoveN(n)
+
+		if @cDirection = :Forward
+			This.MoveForwardN(n)
+
+		else // :Backward
+			This.MoveBackwardN(n)
+
+		ok
 		
-		nNewCol = @nCurrentCol + 1
-		if nNewCol <= @nCols
-			@nCurrentCol = nNewCol
+		def MoveNNodes(n)
+			This.MoveN(n)
 
+	def Move()
+		This.MoveN(1)
+
+	def MoveForwardN(n)
+
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		@cDirection = :Forward
+		nNewCol = @nCurrentCol + n
+
+		nTempCol = @nCurrentCol
+		nTempRow = @nCurrentRow
+
+		if nNewCol <= @nCols
+			nTempCol  = nNewCol
 		else
-			nNewRow = @nCurrentRow + 1
+			nNewRow = @nCurrentRow + n
 
 			if nNewRow <= @nRows
-				@nCurrentRow = nNewRow
-				@nCurrentCol = 1
+				nTempRow = nNewRow
+				nTempCol = 1
 			ok
 
 		ok
 		
-	def MoveBackward()
+		if NOT IsObstacle(nTempCol, nTempRow)
+			@nCurrentCol = nTempCol
+			@nCurrentRow = nTempRow
+		ok
+
+		def MoveForwardNNodes(n)
+			This.MoveForwardN(n)
+
+	def MoveForward()
+		This.MoveForwardN(1)
+
+	def MoveBackwardN(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
 		@cDirection = :Backward
-		
-		nNewCol = @nCurrentCol - 1
+		nNewCol = @nCurrentCol - n
+
+		nTempCol = @nCurrentCol
+		nTempRow = @nCurrentRow
+
 		if nNewCol >= 1
-			@nCurrentCol = nNewCol
-			return self
+			nTempCol = nNewCol
 		else
-			nNewRow = @nCurrentRow - 1
+			nNewRow = @nCurrentRow - n
 			
 			if nNewRow >= 1
-				@nCurrentRow = nNewRow
-				@nCurrentCol = @nCols
+				nTempRow = nNewRow
+				nTempCol = @nCols
 
 			ok
+		ok
 
+		if NOT IsObstacle(nTempCol, nTempRow)
+			@nCurrentCol = nTempCol
+			@nCurrentRow = nTempRow
 		ok
-		
-	def MoveRight()
+
+		def MoveBackwardNNodes(n)
+			This.MoveBackwardN(n)
+
+	def MoveBackward()
+		This.MoveBackwardN(1)
+
+	def MoveRightN(n)
+
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
 		@cDirection = :Right
+		nNewCol = @nCurrentCol + n
 		
-		nNewCol = @nCurrentCol + 1
-		
-		if nNewCol <= @nCols
+		if nNewCol <= @nCols and NOT IsObstacle(nNewCol, @nCurrentRow)
 			@nCurrentCol = nNewCol
 		ok
-		
-	def MoveLeft()
+
+		def MoveRightNNodes(n)
+			This.MoveRightN(n)
+
+	def MoveRight()
+		This.MoveRightN(1)
+
+	def MoveLeftN(n)
+
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
 		@cDirection = :Left
-		
-		nNewCol = @nCurrentCol - 1
+		nNewCol = @nCurrentCol - n
 	
-		if nNewCol >= 1
+		if nNewCol >= 1 and NOT IsObstacle(nNewCol, @nCurrentRow)
 			@nCurrentCol = nNewCol
 		ok
-		
-	def MoveUp()
+
+		def MoveLeftNNodes(n)
+			This.MoveLeftN(n)
+
+	def MoveLeft()
+		This.MoveLeftN(1)
+
+	def MoveUpN(n)
+
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
 		@cDirection = :Up
+		nNewRow = @nCurrentRow - n
 		
-		nNewRow = @nCurrentRow - 1
-		
-		if nNewRow >= 1
+		if nNewRow >= 1 and NOt IsObstacle(@nCurrentCol, nNewRow)
 			@nCurrentRow = nNewRow
 		ok
-		
-	def MoveDown()
+
+		def MoveUpNNodes(n)
+			This.MoveUpN(n)
+
+	def MoveUp()
+		This.MoveUpN(1)
+
+	def MoveDownN(n)
+
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
 		@cDirection = :Down
+		nNewRow = @nCurrentRow + n
 		
-		nNewRow = @nCurrentRow + 1
-		
-		if nNewRow <= @nRows
+		if nNewRow <= @nRows and NOT IsObstacle(@nCurrentCol, nNewRow)
 			@nCurrentRow = nNewRow
 		ok
-		
+
+		def MoveDownNNodes(n)
+			This.MoveDownN(n)
+
+	def MoveDown()
+		This.MoveDownN(1)
+
 	#-- TRAVERSAL METHODS
 	
 	def Nodes()
@@ -375,10 +496,11 @@ Class stzGrid From stzObject
 
 		def AdjacentPositions()
 			return This.Neighbors()
-def PaintNeighbors()
-	This.PaintNodes(This.Neighbors(), @cNeighborChar)
 
-	def NodeAbove()
+	def PaintNeighbors()
+		This.PaintNodes(This.Neighbors(), @cNeighborChar)
+
+	def NodeUp()
 
 		nCol = @nCurrentCol
 		nRow = @nCurrentRow - 1
@@ -389,10 +511,10 @@ def PaintNeighbors()
 			StzRaise("No valid position above the current position!")
 		ok
 
-		def PositionAbove()
-			return This.NodeAbove()
+		def PositionUp()
+			return This.NodeUp()
 
-	def NodeAboveLeft()
+	def NodeUpLeft()
 
 		nCol = @nCurrentCol - 1
 		nRow = @nCurrentRow - 1
@@ -403,10 +525,10 @@ def PaintNeighbors()
 			StzRaise("No valid position above the current position!")
 		ok
 
-		def PositionAboveLeft()
-			return This.NodeAboveLeft()
+		def PositionUpLeft()
+			return This.NodeUpLeft()
 
-	def NodeAboveRight()
+	def NodeUpRight()
 
 		nCol = @nCurrentCol + 1
 		nRow = @nCurrentRow - 1
@@ -417,10 +539,10 @@ def PaintNeighbors()
 			StzRaise("No valid position above the current position!")
 		ok
 
-		def PositionAboveRight()
-			return This.NodeAboveRight()
+		def PositionUpRight()
+			return This.NodeUpRight()
 
-	def NodeBelow()
+	def NodeDown()
 
 		nCol = @nCurrentCol
 		nRow = @nCurrentRow + 1
@@ -431,10 +553,10 @@ def PaintNeighbors()
 			StzRaise("No valid position below the current position!")
 		ok
 		
-		def PositionBelow()
-			return This.NodeBelow()
+		def PositionDown()
+			return This.NodeDown()
 
-	def NodeBelowLeft()
+	def NodeDownLeft()
 
 		nCol = @nCurrentCol - 1
 		nRow = @nCurrentRow + 1
@@ -445,10 +567,10 @@ def PaintNeighbors()
 			StzRaise("No valid position below the current position!")
 		ok
 
-		def PositionBelowLeft()
-			return This.NodeBelowLeft()
+		def PositionDownLeft()
+			return This.NodeDownLeft()
 
-	def NodeBelowRight()
+	def NodeDownRight()
 
 		nCol = @nCurrentCol + 1
 		nRow = @nCurrentRow + 1
@@ -459,8 +581,8 @@ def PaintNeighbors()
 			StzRaise("No valid position below the current position!")
 		ok
 
-		def PositionBelowRight()
-			return This.NodeBelowRight()
+		def PositionDownRight()
+			return This.NodeDownRight()
 
 	def NodeToLeft()
 
@@ -523,110 +645,8 @@ def PaintNeighbors()
 
 		def EucDistTo(nCol, nRow)
 			return This.EuclideanDistanceTo(nCol, nRow)
-
-	#-- ENHANCED N-NODE MOVEMENT METHODS
 	
-	def MoveNNodes(n)
-		for i = 1 to n
-			This.MoveToNextNode()
-		next
-		
-		def MoveNPositions(n)
-			This.MoveNNodes(n)
-	
-	def MoveForwardNNodes(n)
-		oldDirection = @cDirection
-		@cDirection = :Forward
-		
-		for i = 1 to n
-			This.MoveForward()
-		next
-		
-		@cDirection = oldDirection
-		
-		def MoveForwardNPositions(n)
-			This.MoveForwardNNodes(n)
-	
-	def MoveBackwardNNodes(n)
-		oldDirection = @cDirection
-		@cDirection = :Backward
-		
-		for i = 1 to n
-			This.MoveBackward()
-		next
-		
-		@cDirection = oldDirection
-		
-		def MoveBackwardNPositions(n)
-			This.MoveBackwardNNodes(n)
-	
-	def MoveLeftNNodes(n)
-		oldDirection = @cDirection
-		@cDirection = :Left
-		
-		for i = 1 to n
-			This.MoveLeft()
-		next
-		
-		@cDirection = oldDirection
-		
-		def MoveLeftNPositions(n)
-			This.MoveLeftNNodes(n)
-	
-	def MoveRightNNodes(n)
-		oldDirection = @cDirection
-		@cDirection = :Right
-		
-		for i = 1 to n
-			This.MoveRight()
-		next
-		
-		@cDirection = oldDirection
-		
-		def MoveRightNPositions(n)
-			This.MoveRightNNodes(n)
-	
-	def MoveUpNNodes(n)
-		oldDirection = @cDirection
-		@cDirection = :Up
-		
-		for i = 1 to n
-			This.MoveUp()
-		next
-		
-		@cDirection = oldDirection
-		
-		def MoveUpNPositions(n)
-			This.MoveUpNNodes(n)
-	
-	def MoveDownNNodes(n)
-		oldDirection = @cDirection
-		@cDirection = :Down
-		
-		for i = 1 to n
-			This.MoveDown()
-		next
-		
-		@cDirection = oldDirection
-		
-		def MoveDownNPositions(n)
-			This.MoveDownNNodes(n)
-	
-	def MoveToNextNthNode(n)
-		This.MoveNNodes(n)
-		
-		def MoveToNextNthPosition(n)
-			This.MoveToNextNthNode(n)
-	
-	def MoveToPreviousNthNode(n)
-		for i = 1 to n
-			This.MoveToPreviousNode()
-		next
-		
-		def MoveToPreviousNthPosition(n)
-			This.MoveToPreviousNthNode(n)
-	
-	#-- ENHANCED N-NODE RELATIVE POSITION METHODS
+	#-- N-NODE RELATIVE POSITION METHODS
 	
 	def NextNthNode(n)
 		# Save current position
@@ -678,7 +698,7 @@ def PaintNeighbors()
 		def PreviousNthPosition(n)
 			return This.PreviousNthNode(n)
 	
-	def NthNodeAbove(n)
+	def NthNodeUp(n)
 		nCol = @nCurrentCol
 		nRow = @nCurrentRow - n
 		
@@ -688,10 +708,10 @@ def PaintNeighbors()
 			StzRaise("No valid position " + n + " nodes above the current position!")
 		ok
 		
-		def NthPositionAbove(n)
-			return This.NthNodeAbove(n)
+		def NthPositionUp(n)
+			return This.NthNodeUp(n)
 	
-	def NthNodeBelow(n)
+	def NthNodeDown(n)
 		nCol = @nCurrentCol
 		nRow = @nCurrentRow + n
 		
@@ -701,10 +721,10 @@ def PaintNeighbors()
 			StzRaise("No valid position " + n + " nodes below the current position!")
 		ok
 		
-		def NthPositionBelow(n)
-			return This.NthNodeBelow(n)
+		def NthPositionDown(n)
+			return This.NthNodeDown(n)
 	
-	def NthNodeToLeft(n)
+	def NthNodeLeft(n)
 		nCol = @nCurrentCol - n
 		nRow = @nCurrentRow
 		
@@ -714,10 +734,10 @@ def PaintNeighbors()
 			StzRaise("No valid position " + n + " nodes to the left of the current position!")
 		ok
 		
-		def NthPositionToLeft(n)
-			return This.NthNodeToLeft(n)
+		def NthPositionLeft(n)
+			return This.NthNodeLeft(n)
 	
-	def NthNodeToRight(n)
+	def NthNodeRight(n)
 		nCol = @nCurrentCol + n
 		nRow = @nCurrentRow
 		
@@ -727,64 +747,8 @@ def PaintNeighbors()
 			StzRaise("No valid position " + n + " nodes to the right of the current position!")
 		ok
 		
-		def NthPositionToRight(n)
-			return This.NthNodeToRight(n)
-	
-	#-- MOVEMENT TO NTH NODE IN SPECIFIC DIRECTION
-	
-	def MoveToNthNodeAbove(n)
-		nCol = @nCurrentCol
-		nRow = @nCurrentRow - n
-		
-		if IsValidPosition(nCol, nRow)
-			@nCurrentRow = nRow
-		else
-			StzRaise("No valid position " + n + " nodes above the current position!")
-		ok
-		
-		def MoveToNthPositionAbove(n)
-			This.MoveToNthNodeAbove(n)
-	
-	def MoveToNthNodeBelow(n)
-		nCol = @nCurrentCol
-		nRow = @nCurrentRow + n
-		
-		if IsValidPosition(nCol, nRow)
-			@nCurrentRow = nRow
-		else
-			StzRaise("No valid position " + n + " nodes below the current position!")
-		ok
-		
-		def MoveToNthPositionBelow(n)
-			This.MoveToNthNodeBelow(n)
-	
-	def MoveToNthNodeToLeft(n)
-		nCol = @nCurrentCol - n
-		nRow = @nCurrentRow
-		
-		if IsValidPosition(nCol, nRow)
-			@nCurrentCol = nCol
-		else
-			StzRaise("No valid position " + n + " nodes to the left of the current position!")
-		ok
-		
-		def MoveToNthPositionToLeft(n)
-			This.MoveToNthNodeToLeft(n)
-	
-	def MoveToNthNodeToRight(n)
-		nCol = @nCurrentCol + n
-		nRow = @nCurrentRow
-		
-		if IsValidPosition(nCol, nRow)
-			@nCurrentCol = nCol
-		else
-			StzRaise("No valid position " + n + " nodes to the right of the current position!")
-		ok
-		
-		def MoveToNthPositionToRight(n)
-			This.MoveToNthNodeToRight(n)
-
-#----------------------------
+		def NthPositionRight(n)
+			return This.NthNodeRight(n)
 
 	#-- OBSTACLES MANAGEMENT
 	
@@ -2058,31 +2022,35 @@ def DisplayCustomGrid(aCustomGrid)
 		next
 		return NULL
 
-def ReconstructPath(aCameFrom, nEndCol, nEndRow)
-    aPath = []
-    nCurrentCol = nEndCol
-    nCurrentRow = nEndRow
-    
-    # Add end position
-    aPath + [nCurrentCol, nCurrentRow]
-    
-    # Trace back the path
-    while TRUE
-        aPrev = This.GetCameFrom(aCameFrom, nCurrentCol, nCurrentRow)
-        
-        if aPrev = NULL
-            exit
-        ok
-        
-        nCurrentCol = aPrev[1]
-        nCurrentRow = aPrev[2]
-        
-        # Add to path (at the beginning)
-        insert(aPath, 1, [nCurrentCol, nCurrentRow])
-    end
+	def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 
-    return aPath
-	
+		aPath = []
+		nCurrentCol = nEndCol
+		nCurrentRow = nEndRow
+
+		# Add end position
+
+		aPath + [nCurrentCol, nCurrentRow]
+
+		# Trace back the path
+
+		while TRUE
+
+			aPrev = This.GetCameFrom(aCameFrom, nCurrentCol, nCurrentRow)
+
+ 			if aPrev = NULL
+				exit
+			ok
+
+			nCurrentCol = aPrev[1]
+			nCurrentRow = aPrev[2]
+
+			# Add to path (at the beginning)
+			insert(aPath, 1, [nCurrentCol, nCurrentRow])
+		end
+
+		return aPath
+
 	#-- PATH COMPLEXITY ANALYSIS
 
 	def PathComplexity()
@@ -2099,10 +2067,12 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 		nLastDirY = 0
 		
 		for i = 2 to nLen
+
 			nDirX = @aPath[i][1] - @aPath[i-1][1]
 			nDirY = @aPath[i][2] - @aPath[i-1][2]
 			
 			# First direction, just store it
+
 			if i = 2
 				nLastDirX = nDirX
 				nLastDirY = nDirY
@@ -2110,6 +2080,7 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 			ok
 			
 			# Direction changed, count as a turn
+
 			if nDirX != nLastDirX or nDirY != nLastDirY
 				nTurns++
 				nLastDirX = nDirX
@@ -2180,7 +2151,7 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 				   NOT This.IsObstacle(nNewCol, nNewRow) and
 				   NOT This.IsInList(aVisited, nNewCol, nNewRow)
 					
-					# Add to queue 		// and mark as visited
+					# Add to queue and mark as visited
 					aQueue + [nNewCol, nNewRow]
 					aVisited + [nNewCol, nNewRow]
 				ok
@@ -2279,6 +2250,9 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 				ok
 			next
 		next
+
+		def Maze()
+			This.RandomMaze()
 	
 	def MazeWithPath(panStart, panEnd)
 		# Generate a maze with a guaranteed path between start and end
@@ -2329,94 +2303,116 @@ def ReconstructPath(aCameFrom, nEndCol, nEndRow)
 		? This.ToString()
 
 
-def ToString()
-    # Create an empty grid
-    aGrid = list(@nRows)
-    for y = 1 to @nRows
-        aGrid[y] = list(@nCols)
-        for x = 1 to @nCols
-            aGrid[y][x] = @cEmptyChar
-        next
-    next
-    
-    # Add obstacles
-    if @bShowObstacles
-        for i = 1 to len(@aObstacles)
-            nObsCol = @aObstacles[i][1]
-            nObsRow = @aObstacles[i][2]
-            
-            if IsValidPosition(nObsCol, nObsRow)
-                aGrid[nObsRow][nObsCol] = @cObstacleChar
-            ok
-        next
-    ok
-    
-    # Add path
-    if @bShowPath and len(@aPath) > 0
-        # Mark ALL path nodes with the path character
-        for i = 1 to len(@aPath)
-            nPathCol = @aPath[i][1]
-            nPathRow = @aPath[i][2]
-            
-            if IsValidPosition(nPathCol, nPathRow)
-                # Skip if it's an obstacle
-                if NOT This.IsObstacle(nPathCol, nPathRow)
-                    aGrid[nPathRow][nPathCol] = @cPathChar
-                ok
-            ok
-        next
-    ok
-    
-    # Mark current position with direction character or current char
-    if IsValidPosition(@nCurrentCol, @nCurrentRow)
-        # Use the appropriate direction character based on current direction
- /*       if @cDirection = :Right
-            aGrid[@nCurrentRow][@nCurrentCol] = @cRightChar
-        but @cDirection = :Left
-            aGrid[@nCurrentRow][@nCurrentCol] = @cLeftChar
-        but @cDirection = :Up
-            aGrid[@nCurrentRow][@nCurrentCol] = @cUpChar
-        but @cDirection = :Down
-            aGrid[@nCurrentRow][@nCurrentCol] = @cDownChar
-        else
-            # Default to current char for other directions
-            aGrid[@nCurrentRow][@nCurrentCol] = @cCurrentChar
-        ok
-    ok
-  */  
- 	aGrid[@nCurrentRow][@nCurrentCol] = @cCurrentChar
-   ok
-		# Convert grid to string representation
-		cResult = ""
-		
-		# Add X-axis labels if requested
-		if @bShowCoordinates
-			cResult += "    " # Space for alignment with the grid
+	def ToString()
+
+		# Create an empty grid
+
+		aGrid = list(@nRows)
+
+		for y = 1 to @nRows
+
+			aGrid[y] = list(@nCols)
+
 			for x = 1 to @nCols
+				aGrid[y][x] = @cEmptyChar
+			next
+		next
+    
+		# Add obstacles
+
+		if @bShowObstacles
+
+			nLen = len(@aObstacles)
+
+			for i = 1 to nLen
+
+				nObsCol = @aObstacles[i][1]
+				nObsRow = @aObstacles[i][2]
+
+				if IsValidPosition(nObsCol, nObsRow)
+					aGrid[nObsRow][nObsCol] = @cObstacleChar
+				ok
+			next
+		ok
+
+		# Add path
+
+		if @bShowPath and len(@aPath) > 0
+
+			# Mark ALL path nodes with the path character
+
+			for i = 1 to len(@aPath)
+
+				nPathCol = @aPath[i][1]
+				nPathRow = @aPath[i][2]
+
+				if IsValidPosition(nPathCol, nPathRow)
+					# Skip if it's an obstacle
+
+					if NOT This.IsObstacle(nPathCol, nPathRow)
+						if i = 1
+							aGrid[nPathRow][nPathCol] = @cFocusChar
+						else
+							aGrid[nPathRow][nPathCol] = @cPathChar
+						ok
+					ok
+				ok
+			next
+		ok
+
+		# Mark current position with direction character or current char
+
+		if IsValidPosition(@nCurrentCol, @nCurrentRow)
+
+			# Use the appropriate direction character based on current direction
+			aGrid[@nCurrentRow][@nCurrentCol] = @cCurrentChar
+		ok
+
+		# Convert grid to string representation
+
+		cResult = ""
+
+		# Add X-axis labels if requested
+
+		if @bShowCoordinates
+
+			cResult += "    " # Space for alignment with the grid
+
+			for x = 1 to @nCols
+
 				if x % 10 = 0
 					cResult += "0 "
 				else
 					cResult += ""+ (x % 10) + " "
 				ok
 			next
+
 			cResult += NL()
 		ok
 		
 		# Add top border with rounded corners and indicator for current X position
+
 		cResult += "  ╭"
+
 		for x = 1 to @nCols
+
 			if x = @nCurrentCol
 				cResult += "─v─"
 			else
 				cResult += "──"
 			ok
 		next
+
 		cResult += "╮" + NL()
-		
+
 		# Add rows with Y-axis labels and borders
+
 		for y = 1 to @nRows
+
 			# Add Y indicator for current position - resetting at multiples of 10
+
 			if @bShowCoordinates
+
 				if y % 10 = 0
 					yLabel = "0"
 				else
@@ -2425,50 +2421,45 @@ def ToString()
 			else
 				yLabel = " "
 			ok
-			
+
 			if y = @nCurrentRow
 				cResult += yLabel + " > "
 			else
 				cResult += yLabel + " │ "
 			ok
-			
+
 			for x = 1 to @nCols
 				cResult += ""+ aGrid[y][x] + " "
 			next
+
 			cResult += "│" + NL()
 		next
-		
+
 		# Add bottom border with rounded corners
+
 		cResult += "  ╰"
+
 		for x = 1 to @nCols
 			cResult += "──"
 		next
+
 		cResult += "─╯" + NL()
-		
+
 		return cResult
 
 	def Legend()
+
 		# Create a legend string with all relevant information
+
 		cResult = "Grid: " + @nCols + "x" + @nRows + " | "
 		cResult += "Current: " + @cCurrentChar + " | "
-		
+
 		if @bShowObstacles
 			cResult += "Obstacles: " + @cObstacleChar + " | "
 		ok
-		
+
 		if @bShowPath
 			cResult += "Path: " + @cPathChar + " | "
 		ok
-		
-/*		# Add movement indicators
 
-		cResult += "Direction: " + @cDirection + NL
-
-		cResult += "Movement: "
-		cResult += "Right(" + @cRightChar + ") "
-		cResult += "Left(" + @cLeftChar + ") "
-		cResult += "Up(" + @cUpChar + ") "
-		cResult += "Down(" + @cDownChar + ")"
-*/		
 		return cResult
-	
