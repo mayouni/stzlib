@@ -94,15 +94,15 @@ o1.Show() + NL
 # 5 │ . . . . . │
 #   ╰───────────╯
 
-# Ajacent positions (above, below, left, right)
+# Ajacent positions (up, down, left, right)
 
-? @@( o1.NodeAboveLeft() )
+? @@( o1.NodeUpLeft() )
 #--> [ 2, 2 ]
 
-? @@( o1.NodeAbove() )
+? @@( o1.NodeUp() )
 #--> [ 3, 2 ]
 
-? @@( o1.NodeAboveRight() ) + NL
+? @@( o1.NodeUpRight() ) + NL
 #--> [ 4, 2 ]
 
 #--
@@ -115,13 +115,13 @@ o1.Show() + NL
 
 #--
 
-? @@( o1.NodeBelowLeft() )
+? @@( o1.NodeDownLeft() )
 #--> [ 2, 4 ]
 
-? @@( o1.NodeBelow() )
+? @@( o1.NodeDown() )
 #--> [ 3, 4 ]
 
-? @@( o1.NodeBelowRight() ) + NL
+? @@( o1.NodeDownRight() ) + NL
 #--> [ 4, 4 ]
 
 # Adjacent Neighbors
@@ -419,11 +419,11 @@ o1.MoveRightNNodes(3)
 #--> [ 4, 3 ]
 
 # Getting the node 2 positions above (without moving)
-? @@(o1.NthNodeAbove(2))
+? @@(o1.NthNodeUp(2))
 #--> [ 4, 1 ]
 
 # Moving to that position
-o1.MoveToNthNodeAbove(2)
+o1.MoveToNthNodeUp(2)
 ? @@(o1.Position())
 #--> [ 4, 1 ]
 
@@ -545,7 +545,7 @@ pf()
 */
 
 /*--- Testing obstacles management
-
+*/
 pr()
 
 o1 = new stzGrid([10, 6])
@@ -679,7 +679,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing path finding algorithms
-*/
+
 pr()
 
 StzGridQ([ 10, 6 ]) {
@@ -749,7 +749,7 @@ StzGridQ([ 10, 6 ]) {
 	#   ╭─v───────────────────╮
 	# 1 > x . ○ ○ ○ ○ ◌ . . . │
 	# 2 │ . . ○ ○ ○ ○ ○ . . . │
-	# 3 │ . . ○ ○ ○ ○ ○ . . . │
+	# 3 │ . . ○ ○ ● ○ ○ . . . │
 	# 4 │ . . ○ ○ ○ ○ ○ . . . │
 	# 5 │ . . ○ ○ ○ ○ ○ . . . │
 	# 6 │ . . . . . . . . . . │
@@ -836,7 +836,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Testing region management and connectivity
-*/
+
 pr()
 
 o1 = new stzGrid([10, 6])
@@ -951,7 +951,7 @@ pf()
 # Executed in 0.05 second(s) in Ring 1.22
 
 /*--- Testing maze generation
-
+*/
 pr()
 
 StzGridQ([15, 8]) {
@@ -1002,7 +1002,7 @@ pf()
 # Executed in almost 0.12 second(s) in Ring 1.22
 
 /*--- Testing moving and hitting an obstacle
-*
+
 pr()
 
 o1 = new stzGrid([10, 6])
@@ -1037,8 +1037,22 @@ o1.Show()
 
 o1.MoveRight()
 o1.MoveDown()
-o1.MoveRight()
-#--> ERROR: Can't move right! Hittes an obstacle.
+o1.MoveDown()
 o1.Show()
+#-->
+#     1 2 3 4 5 6 7 8 9 0 
+#   ╭─v───────────────────╮
+# 1 > . . ■ . . . . . . . │
+# 2 │ . . ■ . . . ■ . . . │
+# 3 │ . x ■ . . . ■ . . . │
+# 4 │ . . ■ . . . ■ . . . │
+# 5 │ . . . . . . ■ . . . │
+# 6 │ . . . . . . ■ . . . │
+#   ╰─────────────────────╯
+
+o1.MoveRight() # Won't move, hitted an obstacle.
+? @@( o1.Position() )
+#--> [2, 3]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22

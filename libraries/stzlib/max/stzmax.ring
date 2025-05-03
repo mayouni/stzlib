@@ -3,6 +3,11 @@
 
 	load "../stzlib.ring"
 
+# Loading files related to the COMMON module
+
+	#TODO
+load "appserver/stzExterServer.ring"
+
 # Files related to MAX/NATURAL module
 
 	load "natural/stzChainOfValue.ring"
