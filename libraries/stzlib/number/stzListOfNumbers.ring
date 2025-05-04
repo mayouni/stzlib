@@ -4789,7 +4789,7 @@ class stzListOfNumbers from stzList
 		def ContiguousItemsToSections()
 			return This.ContiguousToSections()
 
-		def AdjascentToSections()
+		def AdjacentToSections()
 			return This.ContiguousToSections()
 
 		def AdjuscentItemsToSections()
