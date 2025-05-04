@@ -52,7 +52,7 @@ class stzListOfSections from stzLists
 			This.Update(paNewSections)
 
 	  #----------------------------------------------------------#
-	 #  MERGING THE ADJASCENT SECTIONS IN THE LIST OF SECTIONS  #
+	 #  MERGING THE Adjacent SECTIONS IN THE LIST OF SECTIONS  #
 	#----------------------------------------------------------#
 
 	def MergeContiguous() #ai #claude

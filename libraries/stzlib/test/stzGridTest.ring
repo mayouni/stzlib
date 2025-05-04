@@ -545,7 +545,7 @@ pf()
 */
 
 /*--- Testing obstacles management
-*/
+
 pr()
 
 o1 = new stzGrid([10, 6])
@@ -836,7 +836,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Testing region management and connectivity
-
+*/
 pr()
 
 o1 = new stzGrid([10, 6])
@@ -861,12 +861,12 @@ o1.Show()
 #-->
 #     1 2 3 4 5 6 7 8 9 0 
 #   ╭─v───────────────────╮
-# 1 > x . ■ . . . . . . . │
+# 1 > x . ■ . . . ■ . . . │
 # 2 │ . . ■ . . . ■ . . . │
 # 3 │ . . ■ . . . ■ . . . │
 # 4 │ . . ■ . . . ■ . . . │
 # 5 │ . . . . . . ■ . . . │
-# 6 │ . . . . . . ■ . . . │
+# 6 │ . . ■ . . . ■ . . . │
 #   ╰─────────────────────╯
 
 # Test flood fill
@@ -951,7 +951,7 @@ pf()
 # Executed in 0.05 second(s) in Ring 1.22
 
 /*--- Testing maze generation
-*/
+
 pr()
 
 StzGridQ([15, 8]) {

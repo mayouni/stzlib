@@ -44421,7 +44421,7 @@ fdef
 		def FindTheseContiguousItemsCS(paItems, pCaseSensitive)
 			return This.FindSubListCS(paItems, pCaseSensitive)
 
-		def FindTheseAdjascentItemsCS(paItems, pCaseSensitive)
+		def FindTheseAdjacentItemsCS(paItems, pCaseSensitive)
 			return This.FindSubListCS(paItems, pCaseSensitive)
 
 		#>
@@ -44437,7 +44437,7 @@ fdef
 		def FindTheseContiguousItems(paItems)
 			return This.FindSubList(paItems)
 
-		def FindTheseAdjascentItems(paItems)
+		def FindTheseAdjacentItems(paItems)
 			return This.FindSubList(paItems)
 
 		#>
@@ -44465,7 +44465,7 @@ fdef
 		def ContainsTheseContiguousItemsCS(paSubList, pCaseSensitive)
 			return This.ContainsSubListCS(paSubList, pCaseSensitive)
 
-		def ContainsTheseAdjascentItemsCS(paSubList, pCaseSensitive)
+		def ContainsTheseAdjacentItemsCS(paSubList, pCaseSensitive)
 			return This.ContainsSubListCS(paSubList, pCaseSensitive)
 
 		#>
@@ -44480,7 +44480,7 @@ fdef
 		def ContainsTheseContiguousItems(paSubList)
 			return This.ContainsSubList(paSubList)
 
-		def ContainsTheseAdjascentItems(paSubList)
+		def ContainsTheseAdjacentItems(paSubList)
 			return This.ContainsSubList(paSubList)
 
 		#>

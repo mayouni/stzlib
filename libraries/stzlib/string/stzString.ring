@@ -9427,13 +9427,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NumberOfAdjascentSubStringsOfNChars(n)
+		def NumberOfAdjacentSubStringsOfNChars(n)
 			return This.NumberOfConsecutiveSubStringsOfNChars(n)
 
 		def HowManyConsecutiveSubStringsOfNChars(n)
 			return This.NumberOfConsecutiveSubStringsOfNChars(n)
 
-		def HowManyAdjascentSubStringsOfNChars(n)
+		def HowManyAdjacentSubStringsOfNChars(n)
 			return This.NumberOfConsecutiveSubStringsOfNChars(n)
 
 		#>
@@ -9446,7 +9446,7 @@ class stzString from stzObject
 		anResult = U( This.FindConsecutiveSubStringsOfNCharsXT(n) )
 		return anResult
 
-		def FindAdjascentConsecutiveSubStringsOfNChars(n)
+		def FindAdjacentConsecutiveSubStringsOfNChars(n)
 			return This.FindConsecutiveSubStringsOfNChars(n)
 
 	#--
@@ -9488,7 +9488,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindAdjascentSubStringsOfNCharsXT(n)
+		def FindAdjacentSubStringsOfNCharsXT(n)
 			return This.FindConsecutiveSubStringsOfNChars(n)
 
 		#>
@@ -9535,7 +9535,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindAdjascentSubStringsOfNCharsZZ(n)
+		def FindAdjacentSubStringsOfNCharsZZ(n)
 			return This.FindConsecutiveSubStringsOfNCharsZZ(n)
 
 		#>
@@ -9581,7 +9581,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def AdjascentSubStringsOfNCharsZ(n)
+		def AdjacentSubStringsOfNCharsZ(n)
 			return This.ConsecutiveSubStringsOfNCharsZ(n)
 
 		#>
@@ -9627,7 +9627,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def AdjascentSubStringsOfNCharsZZ(n)
+		def AdjacentSubStringsOfNCharsZZ(n)
 			return This.ConsecutiveSubStringsOfNCharsZZ(n)
 
 		#>
@@ -9712,13 +9712,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NumberOfAdjascentSubStrings()
+		def NumberOfAdjacentSubStrings()
 			return This.NumberOfConsecutiveSubStrings()
 
 		def HowManyConsecutiveSubStrings()
 			return This.NumberOfConsecutiveSubStrings()
 
-		def HowManyAdjascentSubStrings()
+		def HowManyAdjacentSubStrings()
 			return This.NumberOfConsecutiveSubStrings()
 
 		#>
@@ -9731,7 +9731,7 @@ class stzString from stzObject
 		anResult = U( This.FindConsecutiveSubStringsXT() )
 		return anResult
 
-		def FindAdjascentSubStrings()
+		def FindAdjacentSubStrings()
 			return This.FindConsecutiveSubStrings()
 
 	#--
@@ -9758,7 +9758,7 @@ class stzString from stzObject
 
 		return anResult
 
-		def FindAdjascentSubStringsXT()
+		def FindAdjacentSubStringsXT()
 			return This.FindConsecutiveSubStringsXT()
 
 	  #-----------------------------------------------------------------------#
@@ -9786,7 +9786,7 @@ class stzString from stzObject
 
 		return aResult
 
-		def FindAdjascentSubStringsZZ()
+		def FindAdjacentSubStringsZZ()
 			return This.FindConsecutiveSubStringsZZ()
 
 	  #-------------------------------------------------------------------------------#
@@ -9814,7 +9814,7 @@ class stzString from stzObject
 
 		return aResult
 
-		def AdjascentSubStringsZ()
+		def AdjacentSubStringsZ()
 			return This.ConsecutiveSubStringsZ()
 
 	  #------------------------------------------------------------------------------#
@@ -9842,7 +9842,7 @@ class stzString from stzObject
 
 		return aResult
 
-		def AdjascentSubStringsZZ()
+		def AdjacentSubStringsZZ()
 			return This.ConsecutiveSubStringsZZ()
 
 	  #-------------------------------------------#
