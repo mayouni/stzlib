@@ -1012,7 +1012,10 @@ Class stzGrid From stzObject
 		else
 			stzRaise("Obstacle character must be a single character!")
 		ok
-		
+
+		def SetObstacleNode(cChar)
+			This.SetObstacleChar(cChar)
+
 	def ObstacleChar()
 		return @cObstacleChar
 		

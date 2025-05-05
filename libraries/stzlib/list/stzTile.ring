@@ -30,7 +30,16 @@ Class stzTile From stzGrid
 		super.init(panColRow)
 	
 
-	
+	def SetObstacleCell(cChar)
+		if isString(cChar) and StzStringQ(cChar).NumberOfChars() < 4
+			@cObstacleChar = cChar
+		else
+			StzRaise("Incorrect param value! cChar must be a string of maximum 3 chars.")
+		ok
+
+		def SetObstacleChar(cChar)
+			This.SetObstacleCell(cChar)
+
 	#-- VISUALIZING THE Tile
 	
 	def Show()
