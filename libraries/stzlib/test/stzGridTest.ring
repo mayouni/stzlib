@@ -130,7 +130,7 @@ o1.Show() + NL
 ? @@( o1.AdjacentNodes() ) + NL
 #--> [ [ 2, 2 ], [ 2, 3 ], [ 2, 4 ], [ 3, 2 ], [ 3, 4 ], [ 4, 2 ], [ 4, 3 ], [ 4, 4 ] ]
 
-o1.PaintNeighbors()
+o1.ShowNeighbors()
 #-->
 #     1 2 3 4 5 
 #   ╭─────v─────╮
@@ -525,8 +525,8 @@ pf()
 4. Path Analysis
 	4.1. Complexity measurement (number of turns)
 	4.2. Efficiency calculation
-	4.3. Custom path drawing
-	4.4. Painting specific nodes
+	4.3. Custom path showing
+	4.4. Showing specific nodes
 
 5. Region Management
 	5.1. Flood fill algorithm
@@ -571,7 +571,6 @@ o1.AddObstacle(3, 2)
 
 # Show the grid with obstacles
 
-o1.ShowObstacles(TRUE) # Active by default, can be omitted
 o1.Show()
 #-->
 #     1 2 3 4 5 6 7 8 9 0 
@@ -626,7 +625,6 @@ StzGridQ([8, 6]) {
 	# Add some obstacles
 
 	AddObstacles([ [3, 2], [3, 3], [3, 4], [5, 2], [5, 3], [5, 4] ])
-	ShowObstacles(TRUE) # By default ~ TRUE
 	
 	# Create a path manually
 
@@ -646,8 +644,6 @@ StzGridQ([8, 6]) {
 	#--> 13
 	
 	# Show the grid with path
-
-	ShowPath(TRUE) 		# Active by default, can be omitted
 
 	MoveTo(8, 4)
 	Show()
@@ -774,7 +770,7 @@ StzGridQ([ 10, 6 ]) {
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
-/*--- Testing path analysis and drawing utilities
+/*--- Testing path analysis and showing utilities
 
 pr()
 
@@ -804,9 +800,9 @@ o1.AddPathNodes([
 ? o1.PathEfficiency() # In %
 #--> 63.64
 
-# Draw path with custom character
+# Show path with custom character
 
-o1.DrawPath(o1.Path(), "+")
+o1.ShowPath(o1.Path(), "+")
 #-->
 #     1 2 3 4 5 6 7 8 9 0 
 #   ╭─v───────────────────╮
@@ -818,8 +814,8 @@ o1.DrawPath(o1.Path(), "+")
 # 6 │ . . + . . . . . . . │
 #   ╰─────────────────────╯
 
-# Painting specific nodes with '%'
-o1.PaintNodes([[2,2], [3,3], [4,4], [5,5]], "%")
+# Showing specific nodes with '%'
+o1.ShowNodes([[2,2], [3,3], [4,4], [5,5]], "%")
 #-->
 #     1 2 3 4 5 6 7 8 9 0 
 #   ╭─v───────────────────╮
@@ -835,7 +831,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Testing region management and connectivity
-*/
+
 pr()
 
 o1 = new stzGrid([10, 6])
@@ -894,9 +890,9 @@ aRegions = o1.ConnectedRegions()
 ? len(aRegions)
 #--> 2
 
-# Paint each region with different characters
+# Show each region with different characters
 
-o1.PaintNodes(aRegions[1], "1")
+o1.ShowNodes(aRegions[1], "1")
 #-->
 #     1 2 3 4 5 6 7 8 9 0 
 #   ╭─v───────────────────╮
@@ -908,7 +904,7 @@ o1.PaintNodes(aRegions[1], "1")
 # 6 │ 1 1 ■ 1 1 1 ■ . . . │
 #   ╰─────────────────────╯
 
-o1.PaintNodes(aRegions[2], "2")
+o1.ShowNodes(aRegions[2], "2")
 #-->
 #     1 2 3 4 5 6 7 8 9 0 
 #   ╭─v───────────────────╮
@@ -920,9 +916,9 @@ o1.PaintNodes(aRegions[2], "2")
 # 6 │ . . ■ . . . ■ 2 2 2 │
 #   ╰─────────────────────╯
 
-# Paint the tow regions togethor
+# Show the tow regions togethor
 
-o1.PaintRegions()
+o1.ShowRegions()
 #-->
 #     1 2 3 4 5 6 7 8 9 0 
 #   ╭─v───────────────────╮
@@ -934,7 +930,7 @@ o1.PaintRegions()
 # 6 │ 1 1 ■ 1 1 1 ■ 2 2 2 │
 #   ╰─────────────────────╯
 
-o1.PaintRegionsXT([ "A", "B" ])
+o1.ShowRegionsXT([ "A", "B" ])
 #-->
 #     1 2 3 4 5 6 7 8 9 0 
 #   ╭─v───────────────────╮
