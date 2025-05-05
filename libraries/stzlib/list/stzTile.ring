@@ -40,6 +40,12 @@ Class stzTile From stzGrid
 		def SetObstacleChar(cChar)
 			This.SetObstacleCell(cChar)
 
+	#-- ROOMS
+
+	def Rooms()
+		return This.ConnectedRegions()
+
+	
 	#-- VISUALIZING THE Tile
 	
 	def Show()

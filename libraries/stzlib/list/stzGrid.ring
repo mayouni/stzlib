@@ -601,20 +601,20 @@ Class stzGrid From stzObject
 		def AdjacentPositions()
 			return This.Neighbors()
 
-	def PaintNeighbors()
-		This.PaintNodes(This.Neighbors(), @cNeighborChar)
+	def ShowNeighbors()
+		This.ShowNodes(This.Neighbors(), @cNeighborChar)
 
-		def PaintAdjacent()
+		def ShowAdjacent()
 			This.PaintNeighbors()
 
-		def PaintAdjacents()
-			This.PaintNeighbors()
+		def ShowAdjacents()
+			This.ShowNeighbors()
 
-		def PaintAdjacentNodes()
-			This.PaintNeighbors()
+		def ShowAdjacentNodes()
+			This.ShowNeighbors()
 
-		def PaintAdjacentCells()
-			This.PaintNeighbors()
+		def ShowAdjacentCells()
+			This.ShowNeighbors()
 
 	def NodeUp()
 
@@ -1098,17 +1098,6 @@ Class stzGrid From stzObject
 		
 	def EmptyChar()
 		return @cEmptyChar
-		
-	#-- VISUALIZATION CONTROLS
-	
-	def ShowCoordinates(lShow)
-		@bShowCoordinates = lShow
-		
-	def ShowObstacles(lShow)
-		@bShowObstacles = lShow
-		
-	def ShowPath(lShow)
-		@bShowPath = lShow
 			
 	#-- PATH FINDING ALGORITHMS
 
@@ -1816,7 +1805,7 @@ Class stzGrid From stzObject
 		return @aPath
 
 
-	def DrawPath(aPathToUse, cCustomChar)
+	def ShowPath(aPathToUse, cCustomChar)
 
 		# Store the original path character
 		cOriginalPathChar = @cPathChar
@@ -1847,13 +1836,13 @@ Class stzGrid From stzObject
 		return cResult
 
 
-	def PaintNode(nCol, nRow, cChar)
-		This.PaintNodes([ [nCol, nRow] ], cChar)
+	def ShowNode(nCol, nRow, cChar)
+		This.ShowNodes([ [nCol, nRow] ], cChar)
 
-		def PaintCell(nCol, nRow, cChar)
-			This.PaintNode(nCol, nRow, cChar)
+		def ShowCell(nCol, nRow, cChar)
+			This.ShowNode(nCol, nRow, cChar)
 
-	def PaintNodes(aNodes, cChar)
+	def ShowNodes(aNodes, cChar)
 		# Temporarily draw nodes with the specified character
 		
 		if NOT (isString(cChar) and IsChar(cChar))
@@ -1878,16 +1867,16 @@ Class stzGrid From stzObject
 		next
 		
 		# Draw with the specified character
-		This.DrawPath(@aPath, cChar)
+		This.ShowPath(@aPath, cChar)
 		
 		# Restore original path
 		@aPath = aOldPath
 
-		def PaintCells(aNodes, cChar)
-			This.PaintNodes(aNodes, cChar)
+		def ShowCells(aNodes, cChar)
+			This.ShowNodes(aNodes, cChar)
 
 
-	def PaintRegions()
+	def ShowRegions()
 		# Paint multiple regions with different characters
 		aRegions = This.ConnectedRegions()
 		nLen = len(aRegions)
@@ -1947,12 +1936,12 @@ Class stzGrid From stzObject
 		ok
 	
 		# Display the Grid with all regions
-		This.DisplayCustomGrid(aGrid)
+		This.ShowCustomGrid(aGrid)
 	
 		# Restore original path
 		@aPath = aOldPath
 	
-	def PaintRegionsXT(pacChars)
+	def ShowRegionsXT(pacChars)
 		# Paint multiple regions with custom characters
 		# pacChars: List of characters to use for each region (optional)
 		
@@ -2026,85 +2015,85 @@ Class stzGrid From stzObject
 		ok
 		
 		# Display the Grid with all regions
-		This.DisplayCustomGrid(aGrid)
+		This.ShowCustomGrid(aGrid)
 		
 		# Restore original path
 		@aPath = aOldPath
 	
-		def DisplayCustomGrid(aCustomGrid)
-			# Display a custom Grid without changing the internal Grid state
-	
-			cResult = ""
-	
-			# Add X-axis labels if requested
-	
-			if @bShowCoordinates
-				cResult += "    " # Space for alignment with the Grid
-	
-				for x = 1 to @nCols
-					if x % 10 = 0
-						cResult += "0 "
-					else
-						cResult += ""+ (x % 10) + " "
-					ok
-				next
-	
-				cResult += NL()
-			ok
-	
-			# Add top border with rounded corners
-	
-			cResult += "  ╭"
-	
+	def ShowCustomGrid(aCustomGrid)
+		# Display a custom Grid without changing the internal Grid state
+
+		cResult = ""
+
+		# Add X-axis labels if requested
+
+		if @bShowCoordinates
+			cResult += "    " # Space for alignment with the Grid
+
 			for x = 1 to @nCols
-				if x = @nCurrentCol
-					cResult += "─v─"
+				if x % 10 = 0
+					cResult += "0 "
 				else
-					cResult += "──"
+					cResult += ""+ (x % 10) + " "
 				ok
 			next
-	
-			cResult += "╮" + NL()
-	
-			# Add rows with Y-axis labels and borders
-	
-			for y = 1 to @nRows
-				# Add Y indicator for current Cell - resetting at multiples of 10
-	
-				if @bShowCoordinates
-					if y % 10 = 0
-						yLabel = "0"
-					else
-						yLabel = ""+ (y % 10)
-					ok
-				else
-					yLabel = " "
-				ok
-	
-				if y = @nCurrentRow
-					cResult += yLabel + " > "
-				else
-					cResult += yLabel + " │ "
-				ok
-	
-				for x = 1 to @nCols
-					cResult += ""+ aCustomGrid[y][x] + " "
-				next
-	
-				cResult += "│" + NL()
-			next
-	
-			# Add bottom border with rounded corners
-	
-			cResult += "  ╰"
-	
-			for x = 1 to @nCols
+
+			cResult += NL()
+		ok
+
+		# Add top border with rounded corners
+
+		cResult += "  ╭"
+
+		for x = 1 to @nCols
+			if x = @nCurrentCol
+				cResult += "─v─"
+			else
 				cResult += "──"
+			ok
+		next
+
+		cResult += "╮" + NL()
+
+		# Add rows with Y-axis labels and borders
+
+		for y = 1 to @nRows
+			# Add Y indicator for current Cell - resetting at multiples of 10
+
+			if @bShowCoordinates
+				if y % 10 = 0
+					yLabel = "0"
+				else
+					yLabel = ""+ (y % 10)
+				ok
+			else
+				yLabel = " "
+			ok
+
+			if y = @nCurrentRow
+				cResult += yLabel + " > "
+			else
+				cResult += yLabel + " │ "
+			ok
+
+			for x = 1 to @nCols
+				cResult += ""+ aCustomGrid[y][x] + " "
 			next
-	
-			cResult += "─╯" + NL()
-	    
-			? cResult
+
+			cResult += "│" + NL()
+		next
+
+		# Add bottom border with rounded corners
+
+		cResult += "  ╰"
+
+		for x = 1 to @nCols
+			cResult += "──"
+		next
+
+		cResult += "─╯" + NL()
+    
+		? cResult
 
 	#-- HELPER FUNCTIONS FOR PATHFINDING
 
