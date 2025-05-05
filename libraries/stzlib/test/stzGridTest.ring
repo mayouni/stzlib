@@ -79,6 +79,7 @@ pr()
 
 o1 = new stzGrid([5, 5])
 ? @@(o1.SizeXT()) + NL
+#--> [ 5, 5 ]
 
 # Moving to center of grid
 
@@ -107,10 +108,10 @@ o1.Show() + NL
 
 #--
 
-? @@( o1.NodeToLeft() )
+? @@( o1.NodeLeft() )
 #--> [ 2, 3 ]
 
-? @@( o1.NodeToRight() ) + NL
+? @@( o1.NodeRight() ) + NL
 #--> [ 4, 3 ]
 
 #--
@@ -501,10 +502,9 @@ o1.MoveDownNNodes(1)
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
-##########################
+/*#########################
 #  ADVANCED TEST SAMPLE  #
-##########################
-/*
+#########################
 
 1. Obstacles Management
 	1.1. Adding and removing obstacles
@@ -541,8 +541,6 @@ pf()
 	7.1. Converting to list of lists
 	7.2. String grid representation
 	7.3. File export/import
-
-*/
 
 /*--- Testing obstacles management
 
@@ -679,7 +677,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing path finding algorithms
-
+*/
 pr()
 
 StzGridQ([ 10, 6 ]) {
@@ -700,7 +698,7 @@ StzGridQ([ 10, 6 ]) {
 	# 3 │ ○ . ■ . . ■ . ■ . . │
 	# 4 │ ○ . ■ . . . . ■ . . │
 	# 5 │ ○ . . . . . . ■ . . │
-	# 6 │ ○ ○ ○ ○ ○ ○ ○ ○ ◌ ○ │
+	# 6 │ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ │
 	#   ╰─────────────────────╯
 
 	#--
@@ -720,7 +718,7 @@ StzGridQ([ 10, 6 ]) {
 	# 3 │ . . . . . . . . . ○ │
 	# 4 │ . . . . . . . . . ○ │
 	# 5 │ . . . . . . . . . ○ │
-	# 6 │ . . . . . . . . . ◌ │
+	# 6 │ . . . . . . . . . ○ │
 	#   ╰─────────────────────╯
 
 	ClearPath()
@@ -736,7 +734,7 @@ StzGridQ([ 10, 6 ]) {
 	# 3 │ ○ . . . . . . . . . │
 	# 4 │ ○ . . . . . . . . . │
 	# 5 │ ○ . . . . . . . . . │
-	# 6 │ ○ ○ ○ ○ ○ ○ ○ ○ ○ ◌ │
+	# 6 │ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ │
 	#   ╰─────────────────────╯
 
 	ClearPath()
@@ -747,9 +745,9 @@ StzGridQ([ 10, 6 ]) {
 	#-->
 	#     1 2 3 4 5 6 7 8 9 0 
 	#   ╭─v───────────────────╮
-	# 1 > x . ○ ○ ○ ○ ◌ . . . │
+	# 1 > . . ○ ○ ○ ○ ○ . . . │
 	# 2 │ . . ○ ○ ○ ○ ○ . . . │
-	# 3 │ . . ○ ○ ● ○ ○ . . . │
+	# 3 │ . . ○ ○ x ○ ○ . . . │
 	# 4 │ . . ○ ○ ○ ○ ○ . . . │
 	# 5 │ . . ○ ○ ○ ○ ○ . . . │
 	# 6 │ . . . . . . . . . . │
@@ -798,10 +796,11 @@ o1.AddPathNodes([
 	[8, 1]
 ])
 
-# Path complexity (number of turns)
+# Analyze path complexity based on number of turns and direction changes
 ? o1.PathComplexity()
 #--> 10
 
+# Calculate path efficiency compared to direct distance
 ? o1.PathEfficiency() # In %
 #--> 63.64
 

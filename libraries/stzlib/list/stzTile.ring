@@ -55,6 +55,9 @@ Class stzTile From stzGrid
 				nObstacleRow = @aObstacles[i][2]
 	
 				if IsValidPosition(nObstacleCol, nObstacleRow)
+					if IsChar(@cObstacleChar) = 1
+						@cObstacleChar = " " + @cObstacleChar + " "
+					ok
 					aCells[nObstacleRow][nObstacleCol] = @cObstacleChar  # Use obstacle character
 				ok
 			next
@@ -70,11 +73,7 @@ Class stzTile From stzGrid
 				if IsValidPosition(nPathCol, nPathRow)
 					# Skip if it's a Obstacle
 					if NOT This.IsObstacle(nPathCol, nPathRow)
-						if i = 1
-							aCells[nPathRow][nPathCol] = @cFocusChar
-						else
-							aCells[nPathRow][nPathCol] = @cPathChar
-						ok
+						aCells[nPathRow][nPathCol] = @cPathChar
 					ok
 				ok
 			next

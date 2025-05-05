@@ -374,6 +374,8 @@ To let it move vertically-first, use ManhattanPathXT([1, 1], [10, 6], :Vertical)
   ╰─────────────────────╯
 ```
 
+> **Note** : The name "Manhattan distance" comes from the layout of Manhattan, New York City, which is famous for its grid-like street system. In this grid, streets typically run north-south and east-west, forming a rectangular pattern. When navigating such a city, a person or vehicle usually cannot move diagonally—only along the streets—so the shortest path between two points is the sum of the horizontal and vertical distances, not the straight-line (diagonal) distance.
+
 ### Special Path Types: Spiral and ZigZag
 
 Other advanced traversal strategies that may be useful in practice—such as **Spiral** and **ZigZag**—are also available.
@@ -524,10 +526,176 @@ This creates a maze with a valid solution that its guranteed to traverse the def
   ╰───────────────────────────────╯
 ```
 
+## Path Complexity Analysis: Measuring Path Quality
+
+Beyond basic path creation and finding, `stzGrid` offers sophisticated tools to analyze path characteristics, helping you evaluate and optimize your navigation solutions.
+
+### Understanding Path Complexity
+
+The `PathComplexity()` method counts the number of direction changes or "turns" in a path:
+
+```ring
+StzGridQ([8, 6]) {
+  # Create a simple path with several turns
+  AddPath([
+    [1, 1], [2, 1], [3, 1],  # Move right
+    [3, 2], [3, 3],          # Move down
+    [4, 3], [5, 3], [6, 3],  # Move right again
+    [6, 4], [6, 5]           # Move down again
+  ])
+  
+  # Check path complexity
+  ? PathComplexity()  #--> 3  (Three turns in the path)
+  Show()
+}
+```
+
+This creates a path with distinct turns:
+
+```
+    1 2 3 4 5 6 7 8 
+  ╭─v───────────────╮
+1 > ○ ○ ○ · · · · · │
+2 │ · · ○ · · · · · │  ← First turn (right to down)
+3 │ · · ○ ○ ○ ○ · · │  ← Second turn (down to right)
+4 │ · · · · · ○ · · │  ← Third turn (right to down)
+5 │ · · · · · ○ · · │
+6 │ · · · · · · · · │
+  ╰─────────────────╯
+```
+
+## Path Complexity Analysis: Measuring Path Quality
+
+Beyond basic path creation and finding, `stzGrid` offers sophisticated tools to analyze path characteristics, helping you evaluate and optimize your navigation solutions.
+
+### Understanding Path Complexity
+
+The `PathComplexity()` method counts the number of direction changes or "turns" in a path, providing a quantitative measure of navigational complexity:
+
+```ring
+StzGridQ([8, 6]) {
+  # Create a simple path with several turns
+  AddPath([
+    [1, 1], [2, 1], [3, 1],  # Move right
+    [3, 2], [3, 3],          # Move down
+    [4, 3], [5, 3], [6, 3],  # Move right again
+    [6, 4], [6, 5]           # Move down again
+  ])
+  
+  # Check path complexity
+  ? PathComplexity()  #--> 3  (Three turns in the path)
+  Show()
+}
+```
+
+This creates a path with distinct turns:
+
+```
+    1 2 3 4 5 6 7 8 
+  ╭─v───────────────╮
+1 > ○ ○ ○ · · · · · │
+2 │ · · ○ · · · · · │  ← First turn (right to down)
+3 │ · · ○ ○ ○ ○ · · │  ← Second turn (down to right)
+4 │ · · · · · ○ · · │  ← Third turn (right to down)
+5 │ · · · · · ○ · · │
+6 │ · · · · · · · · │
+  ╰─────────────────╯
+```
+
+When evaluating path complexity:
+
+* **0-1 turns**: Simple, direct paths suitable for straight-line navigation
+* **2-4 turns**: Moderately complex paths with reasonable navigation demands
+* **5+ turns**: Complex paths that may require more detailed instructions or waypoints
+
+The complexity value lets you compare multiple paths objectively—a path with 2 turns is inherently simpler to navigate than one with 6 turns covering similar distance.
+
+### Measuring Path Efficiency
+
+The `PathEfficiency()` method calculates how efficient a path is compared to the direct Manhattan distance, returning a percentage value:
+
+```ring
+StzGridQ([10, 6]) {
+  # First path - direct and efficient
+  AddPath([
+    [1, 1], [2, 1], [3, 1], [4, 1], [5, 1],
+    [5, 2], [5, 3]
+  ])
+  
+  ? PathEfficiency()  #--> 100.0  (Perfect efficiency)
+  Show()
+}
+```
+
+When visualized, the efficient path looks like this:
+
+```
+    1 2 3 4 5 6 7 8 9 0 
+  ╭─v───────────────────╮
+1 > ○ ○ ○ ○ ○ · · · · · │
+2 │ · · · · ○ · · · · · │  ← Direct path with no wasted steps
+3 │ · · · · ○ · · · · · │
+4 │ · · · · · · · · · · │
+5 │ · · · · · · · · · · │
+6 │ · · · · · · · · · · │
+  ╰─────────────────────╯
+```
+
+Now let's examine a less efficient path:
+
+```ring
+StzGridQ([10, 6]) {
+  # Second path - winding and less efficient
+  AddPath([
+    [1, 1], [2, 1], [3, 1],
+    [3, 2], [2, 2], [2, 3],
+    [3, 3], [4, 3], [5, 3]
+  ])
+  
+  ? PathEfficiency()  #--> 75.0  (Less efficient)
+  Show()
+}
+```
+
+This creates a meandering path with lower efficiency:
+
+```
+    1 2 3 4 5 6 7 8 9 0 
+  ╭─v───────────────────╮
+1 > ○ ○ ○ · · · · · · · │
+2 │ · ○ ○ · · · · · · · │  ← Path loops back on itself
+3 │ · ○ ○ ○ ○ · · · · · │
+4 │ · · · · · · · · · · │
+5 │ · · · · · · · · · · │
+6 │ · · · · · · · · · · │
+  ╰─────────────────────╯
+```
+
+Path efficiency provides a quantitative basis for comparing navigation solutions:
+
+* **100%**: Optimal path with no wasted movement
+* **75-99%**: Good efficiency, acceptable for most applications
+* **50-74%**: Moderate efficiency, may need optimization
+* **Below 50%**: Poor efficiency, likely contains unnecessary detours
+
+These analysis tools provide valuable metrics for evaluating and refining navigation strategies.
+
 ## Practical Applications of stzGrid
 
 As you could imagine, the `stzGrid` class offers solutions for a wide variety of practical problems:
 
+### Pathfinding and Navigation
+- **Robot Navigation**: Plan efficient paths for robots in warehouses
+- **Traffic Simulation**: Model vehicle movement through city grids
+- **Evacuation Planning**: Design optimal exit routes for buildings
+
+### Path Analysis and Optimization
+* **Path Complexity Analysis**: Quantify navigation complexity by measuring turns and direction changes
+* **Efficiency Benchmarking**: Compare path solutions based on optimality metrics
+* **NPC Movement Enhancement**: Design more natural character movement patterns in games
+* **Transportation Optimization**: Design routes with fewer turns to reduce congestion
+* **UX Flow Improvement**: Analyze and optimize user journeys by quantifying navigation steps
+* 
 ### Game Development
 - **Board Games**: Create chess, checkers, or Go boards with position tracking
 - **Roguelike Games**: Generate procedural dungeons with guaranteed paths
@@ -540,11 +708,6 @@ As you could imagine, the `stzGrid` class offers solutions for a wide variety of
 - **Cellular Automata**: Implement Conway's Game of Life or other cellular automata
 - **Flow Simulations**: Model fluid dynamics on a grid
 - **Population Models**: Create agent-based simulations with movement rules
-
-### Pathfinding and Navigation
-- **Robot Navigation**: Plan efficient paths for robots in warehouses
-- **Traffic Simulation**: Model vehicle movement through city grids
-- **Evacuation Planning**: Design optimal exit routes for buildings
 
 ### Image Processing
 - **Flood Fill**: Implement paint bucket tools

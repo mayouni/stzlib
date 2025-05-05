@@ -4,7 +4,7 @@ load "../appserver/stzAppServer.ring"
 oApp = new RingAppServer(8888)
 
 # Enable debug mode
-oApp.setDebug(_TRUE_)
+oApp.setDebug(TRUE)
 
 # Add middleware for logging
 oApp.use('
@@ -40,3 +40,4 @@ oApp.postt("/api/users", '
 
 # Start the server
 oApp.start()
+

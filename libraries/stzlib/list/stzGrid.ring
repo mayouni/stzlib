@@ -28,9 +28,8 @@ Class stzGrid From stzObject
 
 	@nRows
 	@nCols
-
-	@nCurrentRow
 	@nCurrentCol
+	@nCurrentRow
 
 	@cDirection = :Forward # :Forward, :Backward, :Left, :Right, :Up, :Down
 
@@ -38,7 +37,6 @@ Class stzGrid From stzObject
 	@aPath = []
 	@cObstacleChar = "■"
 	@cPathChar = "○"
-	@cFocusChar = "●"
 	@cCurrentChar = "x"
 	@cEmptyChar = "."
 	@cNeighborChar = "N"
@@ -87,7 +85,13 @@ Class stzGrid From stzObject
 		return [ @nCurrentCol, @nCurrentRow ]
 
 		def Position()
-			return This.CurrentPosition()
+			return [ @nCurrentCol, @nCurrentRow ]
+
+		def CurrentNode()
+			return [ @nCurrentCol, @nCurrentRow ]
+
+		def CurrentCell()
+			return [ @nCurrentCol, @nCurrentRow ]
 
 	def CurrentColumn()
 		return @nCurrentCol
@@ -140,7 +144,26 @@ Class stzGrid From stzObject
 			stzRaise("Invalid direction! Valid options are: :forward, :backward, :left, :right, :up, :down")
 		ok
 
-		
+	def SetCurrentNode(nCol, nRow)
+		if CheckParams()
+			if NOT (isNumber(nCol) and isNumber(nRow))
+				StzRaise("Incorrect param type! nCol and nRow must be both numbers.")
+			ok
+		ok
+
+		if (nCol < 1 or nCol > @nCols) or (nRow < 1 or nRow > @nRows)
+			stzRaise("Incorrect param value! nCol must be in the grid range of " + @nCols + " X " + @nRow + ".")
+		ok
+
+		@nCurrentCol = nCol
+		@nCurrentRow = nRow
+
+		def SetCurrentPosition(nCol, nRow)
+			This.SetCurrentNode(nCol, nRow)
+
+		def SetCurrenCell(nCol, nRow)
+			This.SetCurrentNode(nCol, nRow)
+
 	#-- MOVEMENT METHODS
 	
 	def MoveToNode(nCol, nRow)
@@ -718,11 +741,11 @@ Class stzGrid From stzObject
 			StzRaise("No valid position to the left of the current position!")
 		ok
 		
-		def PositionToLeft()
-			return This.NodeToLeft()
+		def PositionLeft()
+			return This.NodeLeft()
 
 		def CellLeft()
-			return This.NodeToLeft()
+			return This.NodeLeft()
 
 	def NodeRight()
 
@@ -735,11 +758,11 @@ Class stzGrid From stzObject
 			StzRaise("No valid position to the right of the current position!")
 		ok
 		
-		def PositionToRight()
-			return This.NodeToRight()
+		def PositionRight()
+			return This.NodeRight()
 
 		def CellRight()
-			return This.NodeToRight()
+			return This.NodeRight()
 
 	def DistanceTo(nCol, nRow)
 		# Manhattan distance (L1 norm)
@@ -1449,7 +1472,8 @@ Class stzGrid From stzObject
 		
 		# Clear existing path
 		This.ClearPath()
-		
+		This.SetCurrentNode(nStartCol, nStartRow)
+
 		# Start from start position
 		This.AddPathNode(nStartCol, nStartRow)
 		
@@ -1554,7 +1578,8 @@ Class stzGrid From stzObject
 		
 		# Clear existing path
 		This.ClearPath()
-	
+		This.SetCurrentNode(nStartCol, nStartRow)
+
 		# Start from start position
 		This.AddPathNode(nStartCol, nStartRow)
 		
@@ -2570,11 +2595,7 @@ Class stzGrid From stzObject
 					# Skip if it's an obstacle
 
 					if NOT This.IsObstacle(nPathCol, nPathRow)
-						if i = 1
-							aGrid[nPathRow][nPathCol] = @cFocusChar
-						else
-							aGrid[nPathRow][nPathCol] = @cPathChar
-						ok
+						aGrid[nPathRow][nPathCol] = @cPathChar
 					ok
 				ok
 			next

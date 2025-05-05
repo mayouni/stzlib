@@ -20,9 +20,9 @@ class RingAppServer
     # Configuration
     cHost = "localhost"
     nPort = 8080
-    lDebug = _FALSE_
+    bDebug = FALSE
     
-    func init cHostOrPort
+    def init(cHostOrPort)
         # Allow init with just port number
         if isNumber(cHostOrPort)
             nPort = cHostOrPort
@@ -33,31 +33,31 @@ class RingAppServer
         # Initialize HTTP server
         oServer = new Server
         
-    func route cMethod, cPath, cAction
+    def route cMethod, cPath, cAction
         aRoutes + [cMethod, cPath, cAction]
-        if lDebug see "Route added: " + cMethod + " " + cPath + nl ok
+        if bDebug see "Route added: " + cMethod + " " + cPath + nl ok
         
-    func gett(cPath, cAction)
+    def gett(cPath, cAction)
         oServer.route("Get", cPath, cAction)
         
-    func postt(cPath, cAction)
+    def postt(cPath, cAction)
         oServer.route("Post", cPath, cAction)
         
-    func use(cMiddleware)
+    def use(cMiddleware)
         aMiddleware + cMiddleware
-        if lDebug see "Middleware added" + nl ok
+        if bDebug see "Middleware added" + nl ok
         
-    func handleRequest()
+    def handleRequest()
         # Execute middleware chain
         for middleware in aMiddleware
             try 
                 eval(middleware)
             catch
-                if lDebug see "Middleware error: " + cCatchError + nl ok
+                if bDebug see "Middleware error: " + cCatchError + nl ok
             done
         next
         
-    func setupRoutes()
+    def setupRoutes()
         for route in aRoutes
             cMethod = route[1]
             cPath = route[2]
@@ -66,13 +66,13 @@ class RingAppServer
             oServer.route(cMethod, cPath, "app.handleRequest() " + cAction)
         next
         
-    func setDebug lValue
-        lDebug = lValue
+    def setDebug lValue
+        bDebug = lValue
         
-    func start
+    def start
         setupRoutes()
         
-        if lDebug
+        if bDebug
             ? "Server starting on " + cHost + ":" + nPort
             ? "Debug mode: ON"
             ? "Routes configured: " + len(aRoutes)
@@ -84,22 +84,22 @@ class RingAppServer
             ? "Server error: " + cCatchError
         done
         
-    func stop()
-        if lDebug ? "Server stopping..." ok
+    def stop()
+        if bDebug ? "Server stopping..." ok
         oServer.stop()
         
-    func response(cContent, cType)
+    def response(cContent, cType)
         oServer.setContent(cContent, cType)
         
-    func json(cData)
+    def json(cData)
         response(List2Json(cData), "application/json")
         
-    func html(cContent)
+    def html(cContent)
         response(cContent, "text/html")
         
     # Helper methods
-    func getQuery()
+    def getQuery()
         return oServer.Cookies()
         
-    func getParam(cName)
+    def getParam(cName)
         return oServer[cName]
