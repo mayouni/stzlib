@@ -236,7 +236,7 @@ Class stzTable from stzObject
 
 			# Reading the data from the file
 
-			cData = ring_read(paTable[2])
+			cData = ring_trim(ring_read(paTable[2]))
 			#TODO should we close the file handle?
 
 			# If the file is empty, make an empty table
@@ -270,7 +270,7 @@ Class stzTable from stzObject
 				qt = new QString2()
 				qt.append(cLine1)
 
-				acLine1Splits = QStringListToList( qt.split(",", 0, 0) )
+				acLine1Splits = QStringListToList( qt.split(";", 0, 0) )
 				nLen1 = len(acLine1Splits)
 
 				bMadeOfStrings = _TRUE_
