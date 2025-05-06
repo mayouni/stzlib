@@ -173,7 +173,7 @@ o1.MoveTo(3, 3)  #--> Center of grid
 ? o1.Neighbors()	# Or AdjacentNodes() if you prefer
 # [[2,2], [2,3], [2,4], [3,2], [3,4], [4,2], [4,3], [4,4]]
 
-o1.PaintNeighbors()
+o1.ShowNeighbors()
 ```
 
 This creates a visual representation of the neighborhood:
@@ -440,9 +440,7 @@ Let's analyze the connectivity of various node pairs within such a grid structur
 ? o1.AreConnected([1, 1], [8, 6])  #--> FALSE - different regions
 
 # Find and paint all connected regions
-aRegions = o1.ConnectedRegions()
-o1.PaintRegions()
-o1.PaintRegionsXT([ "A", "B" ])
+o1.ShowRegions()
 ```
 
 This visually identifies the regions:
@@ -459,7 +457,7 @@ This visually identifies the regions:
 ```
 If you want, you can paint the regions with your own characters, using the eXTended form of the same function:
 ```
-o1.PaintRegionsXT(["A", "B"])   
+o1.ShowRegionsXT(["A", "B"])   
 #--> 
     1 2 3 4 5 6 7 8 9 0 
   ╭─v───────────────────╮
@@ -702,7 +700,7 @@ As you could imagine, the `stzGrid` class offers solutions for a wide variety of
 - **Strategy Games**: Implement unit movement with pathfinding on terrain maps
 - **Puzzle Games**: Create grid-based puzzles like Sokoban or sliding puzzles
 
-> **Note**: In this particular case, using `stzTile`—the square-based counterpart of `stzGrid`—would be more suitable, as it aligns better with the map metaphor commonly used in platform games.
+> **Note**: In this particular case, using `stzTile`—the square-based counterpart of `stzGrid`—would be more suitable, as it aligns better with the map metaphor commonly used in platform games. See examples in the `stzTileTest.ring` file : [here](https://github.com/mayouni/stzlib/blob/main/libraries/stzlib/test/stzTileTest.ring).
 
 ### Simulations
 - **Cellular Automata**: Implement Conway's Game of Life or other cellular automata

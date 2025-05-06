@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 
 /*--- Testing basic grid initialization and movement
-
+*/
 pr()
 
 o1 = new stzGrid([5, 5])
@@ -673,7 +673,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing path finding algorithms
-*/
+
 pr()
 
 StzGridQ([ 10, 6 ]) {

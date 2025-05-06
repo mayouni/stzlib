@@ -2967,7 +2967,7 @@ func RandomNumberIn(panNumbers)
 
 			but oMax.IsReal()
 				nMax   = 0+ oMax.IntegerPart() 
-				nMax01 = 0+ oMax.DecimalPat()
+				nMax01 = 0+ oMax.DecimalPart()
 			ok
 
 			/* ... */

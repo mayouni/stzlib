@@ -206,7 +206,7 @@ Class stzTile From stzGrid
 		return cResult
 
 
-	def ShowCustomGrid(aCustomGrid)
+	def DisplayCustomGrid(aCustomGrid)
 		# Display a custom Grid without changing the internal Grid state
 		cResult = ""
 	
