@@ -3897,7 +3897,8 @@ o1 = new stzTable([
 #--> [ "palette3", "palette1", "palette2" ]
 
 pf()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*----------
 
@@ -5009,6 +5010,7 @@ o1 = new stzTable([
 #   ]
 
 pf()
+# Executed in 0.11 second(s) in Ring 1.22
 # Executed in 0.21 second(s) in Ring 1.20
 # Executed in 0.35 second(s) in Ring 1.17
 
@@ -5735,7 +5737,7 @@ pf()
 # Executed in 0.13 second(s)
 
 /*-----------
-
+*/
 pr()
 
 # Income in million dollars per year
@@ -6037,7 +6039,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*----
-*/
+
 pr()
 
 o1 = new stzTable([])
@@ -6059,4 +6061,4 @@ o1.FromCSV("tabdata.csv")
 #  180683     348711   08/27/2015          3   Alive
 
 pf()
-#--> Executed in 0.33 second(s) in Ring 1.22
+#--> Executed in 0.67 second(s) in Ring 1.22
