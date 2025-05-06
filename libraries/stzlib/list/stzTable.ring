@@ -11514,7 +11514,7 @@ Class stzTable from stzObject
 			This.AddColumns(paColNamesAndData)
 
 	  #===============#
-	 #  ADDING RAWS  #
+	 #  ADDING ROWS  #
 	#===============#
 
 	def AddRow(paRow)
@@ -12163,6 +12163,10 @@ Class stzTable from stzObject
 		def EraseCellsAtPositions(paCellsPos)
 			This.EraseCells(paCellsPos)
 
+	  #------------------------------#
+	 #  ERASING A SECTION OF CELLS  #
+	#------------------------------#
+
 	def EraseSection(paCellPos1, paCellPos2)
 		aCellsPso = This.SectionAsPositions()
 		This.EraseCells(aCellsPos)
@@ -12728,9 +12732,9 @@ Class stzTable from stzObject
 
 		#>
 
-	  #=============#
-	 #  SUBTABLES  #
-	#=============#
+	  #=============================================================#
+	 #  RETURNING THE SUBTABLE DEFINED BY THE GIVEN COLUMNS NAMES  #
+	#=============================================================#
 
 	def SubTable(pacColNames)
 		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
@@ -12773,9 +12777,9 @@ Class stzTable from stzObject
 				StzRaise("Unsupported return type!")
 			off
 
-	  #-----------------------#
-	 #  SUBSET OF THE TABLE  #
-	#-----------------------#
+	  #-----------------------------------------------------------------------#
+	 #  RETURNING A SUBSET OF THE TABLE DEFININED BY THE GIVEN ROWS NUMBERS  #
+	#-----------------------------------------------------------------------#
 
 	def SubSet(panRowsNumbers)
 		return This.TheseRows(panRowsNumbers)
@@ -12797,9 +12801,10 @@ Class stzTable from stzObject
 		ok
 
 		aResult = []
+		nLen = len(panRowsNumbers)
 
-		for n in panRowsNumbers
-			aResult + This.Row(n)
+		for i = 1 to nLen
+			aResult + This.Row(panRowsNumbers[i])
 		next
 
 		return aResult
@@ -14150,9 +14155,9 @@ Class stzTable from stzObject
 
 		return cString
 
-	  #-----------------------------------------------------------#
+	  #===========================================================#
 	 #  FILLING ALL THE TABLE WITH A GIVEN CELL, COLUMN, OR ROW  #
-	#-----------------------------------------------------------#
+	#===========================================================#
 
 	def Fill(pValue)
 		/*
