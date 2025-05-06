@@ -1,6 +1,7 @@
 <#
 .SYNOPSIS
-    Automated installation script for Softanza External Code Integration System (EXCIS)
+    Automated installation script for Softanza PolyServer, the polyglot application
+	server allowing Softanza External Code Integration System (EXCIS)
     Prioritizes Ring language and ensures clear documentation for non-expert users.
     This enhanced version includes dynamic downloads, SHA256 hash verification,
     optional component selection, system validation, service verification, and API testing.
