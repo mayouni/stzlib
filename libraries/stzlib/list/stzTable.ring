@@ -10809,7 +10809,7 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		nMin = Min([ len(paColData), This.NumberOfRows() ])
+		nMin = @Min([ len(paColData), This.NumberOfRows() ])
 		aTemp = []
 		for i = 1 to nMin
 			aTemp + paColData[i]
@@ -11125,7 +11125,7 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		nLenCols = Min([ len(paNewRow), len(@aContent) ])
+		nLenCols = @Min([ len(paNewRow), len(@aContent) ])
 		nLenRows = This.NumberOfRows()
 		aContent = This.Content()
 
@@ -12203,7 +12203,7 @@ Class stzTable from stzObject
 
 		nLenColData = len(paColData)
 		nRows = This.NumberOfRows()
-		nMin = Min([ nLenColData, nRows ])
+		nMin = @Min([ nLenColData, nRows ])
 
 		aColData = []
 
@@ -12311,7 +12311,7 @@ Class stzTable from stzObject
 		nCols = This.NumberOfCols()
 		nRows = This.NumberOfRows()
 		nRowData = len(parowData)
-		nMin = Min([nRowData , nCols ])
+		nMin = @Min([nRowData , nCols ])
 
 		# Filling the missing cells by _NULL_
 
@@ -12647,10 +12647,17 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! pacColNumbers muts be a list of numbers.")
 		ok
 
-		panColNumbers  = Q(panColNumbers).SortedInAscending()
+		nCols = This.NumberOfCols()
+
+		if NOT StzListQ(1:nCols).ContainsEach(panColNumbers)
+			StzRaise("Incorrect param type! numbers in panColNumbers must all be between 1 and " + nCols + ".")
+		ok
+
+		panColNumbers  = ring_sort(panColNumbers)
 		nLenColNumbers = len(panColNumbers)
 
 		pacColNames    = This.ColNames()
+
 		nNumCols       = len(pacColNames)
 		
 		if len(panColNumbers) > nNumCols
@@ -14629,7 +14636,7 @@ Class stzTable from stzObject
 		next		
 
 		aContent = This.Content()
-		ring_insert(@aContent, n, [ pcColName, aColData ])
+		aContent = ring_insert(aContent, n, [ pcColName, aColData ])
 		This.UpdateWith(aContent)
 		@anCalculatedCols + n
 
@@ -14712,7 +14719,7 @@ Class stzTable from stzObject
 		nLen = len(pacFormulas)
 		nCols = This.NumberOfCols()
 		nRows = This.NumberOfRows()
-		nMin = Min([ nRows, nLen ])
+		nMin = @Min([ nRows, nLen ])
 
 		# Preparing the list of formulas
 		
