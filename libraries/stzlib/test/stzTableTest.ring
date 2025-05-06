@@ -5737,7 +5737,7 @@ pf()
 # Executed in 0.13 second(s)
 
 /*-----------
-*/
+
 pr()
 
 # Income in million dollars per year
@@ -5879,23 +5879,20 @@ pf()
 
 pr()
 
-? @@( @SortListsOn(1, [ [ 2, 2 ], [ 2, 4 ] ] ) ) # You can put the list before and it worlks!
-#--> [ [ 2, 2 ], [ 2, 4 ] ]
-
-? @@( @SortLists([ [ 2, 4 ], [ 2, 2 ] ]) )
+? @@( @SortListsOn(2, [ [ 2, 2 ], [ 2, 4 ] ] ) ) # You can put the list before and it worlks!
 #--> [ [ 2, 2 ], [ 2, 4 ] ]
 
 ? @@( @SortLists([ [ 2, 2 ], [ 2, 4 ] ]) ) # Uses SortOn(1, )
 #--> [ [ 2, 2 ], [ 2, 4 ] ]
 
-? @@( StzListOfPairsQ([ [ 2, 2 ], [ 2, 4 ] ]).Sorted() ) + NL
+? @@( StzListOfPairsQ([ [ 2, 2 ], [ 2, 4 ] ]).SortedOn(2) ) + NL
 #--> [ [ 2, 2 ], [ 2, 4 ] ]
 
 # If the column of sort is the last column in the list, and
 # if it is made of the same item, then sort is performed
 # on the column just before
 
-? @@NL( SortListsOn( 3, [
+? @@NL( SortListsOn( 1, [
 
 	[ 2, 3, 1 ],
 	[ 4, 2, 1 ],
@@ -5903,12 +5900,12 @@ pr()
 
 ]) ) + NL
 #--> [
-#	[ 4, 2, 1 ],
 #	[ 2, 3, 1 ],
+#	[ 4, 2, 1 ],
 #	[ 7, 4, 1 ]
 # ]
 
-? @@NL( SortListsOn( 2, [
+? @@NL( SortListsOn( 3, [
 
 	[ 3, 1, 5 ],
 	[ 7, 1, 3 ],
@@ -5917,12 +5914,13 @@ pr()
 ]) ) + NL
 #--> [
 #	[ 2, 1, 3 ],
-#	[ 3, 1, 5 ],
-#	[ 7, 1, 3 ]
+#	[ 7, 1, 3 ],
+#	[ 3, 1, 5 ]
 # ]
 
 pf()
-# Executed in 0.11 second(s)
+# Executed in 0.06 second(s) in Ring 1.22
+# Executed in 0.11 second(s) in Ring 1.20
 
 /*---------- #narration
 
@@ -6039,7 +6037,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*----
-
+*/
 pr()
 
 o1 = new stzTable([])
