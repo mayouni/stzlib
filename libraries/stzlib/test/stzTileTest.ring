@@ -137,7 +137,7 @@ o1.Show() + NL
 ? @@( o1.AdjacentCells() ) + NL
 #--> [ [ 2, 2 ], [ 2, 3 ], [ 2, 4 ], [ 3, 2 ], [ 3, 4 ], [ 4, 2 ], [ 4, 3 ], [ 4, 4 ] ]
 
-o1.PaintNeighbors()
+o1.ShowNeighbors()
 #-->
 #     1   2   3   4   5   
 #   ╭───┬───┬─v─┬───┬───╮
@@ -218,7 +218,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Testing distance calculations
-
+*/
 pr()
 
 StzTileQ([10, 10]) {
@@ -566,7 +566,7 @@ pf()
 */
 
 /*--- Testing obstacles management
-
+*/
 pr()
 
 o1 = new stzTile([10, 6])
@@ -594,7 +594,6 @@ o1.AddObstacle(3, 2)
 
 # Show the Tile with obstacles
 
-o1.ShowObstacles(TRUE) # Active by default, can be omitted
 o1.Show()
 #-->
 #     1   2   3   4   5   6   7   8   9   0   
@@ -658,7 +657,6 @@ StzTileQ([8, 6]) {
 	# Add some obstacles
 
 	AddObstacles([ [3, 2], [3, 3], [3, 4], [5, 2], [5, 3], [5, 4] ])
-	ShowObstacles(TRUE) # By default ~ TRUE
 	
 	# Create a path manually
 
@@ -678,8 +676,6 @@ StzTileQ([8, 6]) {
 	#--> 13
 	
 	# Show the Tile with path
-
-	ShowPath(TRUE) 		# Active by default, can be omitted
 
 	MoveTo(8, 4)
 	Show()
@@ -715,7 +711,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing path finding algorithms
-
+*/
 pr()
 
 StzTileQ([ 10, 6 ]) {
@@ -838,7 +834,7 @@ pf()
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Testing path analysis and drawing utilities
-
+*/
 pr()
 
 o1 = new stzTile([10, 6])
@@ -868,7 +864,7 @@ o1.AddPathCells([
 
 # Draw path with custom character
 
-o1.DrawPath(o1.Path(), "+")
+o1.ShowPath(o1.Path(), "+")
 #-->
 #     1   2   3   4   5   6   7   8   9   0   
 #   ╭─v─┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
@@ -886,7 +882,7 @@ o1.DrawPath(o1.Path(), "+")
 #   ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
 
 # Painting specific Cells with '%'
-o1.PaintCells([[2,2], [3,3], [4,4], [5,5]], "%")
+o1.ShowCells([[2,2], [3,3], [4,4], [5,5]], "%")
 #-->
 #     1   2   3   4   5   6   7   8   9   0   
 #   ╭─v─┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
@@ -907,7 +903,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing region management and connectivity
-
+*/
 pr()
 
 o1 = new stzTile([10, 6])
@@ -973,7 +969,7 @@ aRegions = o1.ConnectedRegions()
 
 # Paint each region with different characters
 
-o1.PaintCells(aRegions[1], "1")
+o1.ShowCells(aRegions[1], "1")
 #-->
 #     1   2   3   4   5   6   7   8   9   0   
 #   ╭─v─┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
@@ -990,7 +986,7 @@ o1.PaintCells(aRegions[1], "1")
 # 6 │ 1 │ 1 │███│ 1 │ 1 │ 1 │███│   │   │   │
 #   ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
 
-o1.PaintCells(aRegions[2], "2")
+o1.ShowCells(aRegions[2], "2")
 #-->
 #     1   2   3   4   5   6   7   8   9   0   
 #   ╭─v─┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
@@ -1009,7 +1005,7 @@ o1.PaintCells(aRegions[2], "2")
 
 # Paint the tow regions togethor
 
-o1.PaintRegions()
+o1.ShowRegions()
 #-->
 #     1   2   3   4   5   6   7   8   9   0   
 #   ╭─v─┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
@@ -1026,7 +1022,7 @@ o1.PaintRegions()
 # 6 │ 1 │ 1 │███│ 1 │ 1 │ 1 │███│ 2 │ 2 │ 2 │
 #   ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
 
-o1.PaintRegionsXT([ "A", "B" ])
+o1.ShowRegionsXT([ "A", "B" ])
 #-->
 #     1   2   3   4   5   6   7   8   9   0   
 #   ╭─v─┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
@@ -1047,7 +1043,7 @@ pf()
 # Executed in 0.12 second(s) in Ring 1.22
 
 /*--- Testing maze generation
-
+*/
 pr()
 
 StzTileQ([15, 8]) {

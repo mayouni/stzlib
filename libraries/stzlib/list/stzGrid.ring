@@ -2347,7 +2347,7 @@ Class stzGrid From stzObject
 	
 	#-- REGION MANAGEMENT
 	
-	def FloodFill(nStartCol, nStartRow)
+	def Fill(nStartCol, nStartRow)
 		# Perform flood fill from start position, ignoring obstacles
 		# Returns a list of all reachable positions
 		
@@ -2389,7 +2389,10 @@ Class stzGrid From stzObject
 		end
 		
 		return aResult
-	
+
+		def FloodFill(nStartCol, nStartRow)
+			return This.Fill(nStartCol, nStartRow)
+
 	def AreConnected(panNode1, panNode2)
 		# Check if two positions are connected (can reach each other without hitting obstacles)
 		
@@ -2422,8 +2425,8 @@ Class stzGrid From stzObject
 		
 		# Check if second position is in the reachable list
 		return This.IsInList(aReachable, nCol2, nRow2)
-	
-	def ConnectedRegions()
+
+	def Regions()
 		# Find all connected regions separated by obstacles
 		# Returns a list of lists, each containing the positions in a region
 		
@@ -2454,7 +2457,10 @@ Class stzGrid From stzObject
 		next
 		
 		return aResult
-	
+
+		def ConnectedRegions()
+			return This.Regions()
+
 	#-- RANDOM MAZE GENERATION
 	
 	def RandomMaze(nObstacleDensity)
