@@ -123,7 +123,7 @@ This loads the table from a CSV file, automatically handling the column names an
 
 `stzTable` truly shines in its implementation of the **spreadsheet metaphor**, providing an intuitive way to navigate and manipulate your data. This section explores the comprehensive and thoughtfully designed API for accessing and inspecting your data.
 
-### Columns and Rows Navigation
+### 1. Columns and Rows Navigation
 
 `stzTable` offers a rich set of methods for working with columns and rows, making it easy to navigate your data structure:
 
@@ -175,7 +175,7 @@ o1 = new stzTable([
 
 What's remarkable about `stzTable` is the natural language approach to method naming. Methods like `HasColumn()`, `FindColumnByName()`, and `FindRowByValue()` read almost like English sentences, making the code self-explanatory and easy to understand.
 
-### Cell Access and Navigation
+### 2. Cell Access and Navigation
 
 `stzTable` provides powerful and flexible ways to access individual cells or groups of cells:
 
@@ -220,7 +220,7 @@ o1.Show()
 
 The API is designed to feel intuitive, following the mental model of how people think about spreadsheets. This makes working with `stzTable` feel more natural than traditional programming interfaces for tabular data.
 
-### Smart Position Handling
+### 3. Smart Position Handling
 
 A unique feature of `stzTable` is its flexible handling of positions and ranges:
 
@@ -265,7 +265,7 @@ This comprehensive approach to positional access makes it easy to navigate compl
 
 One of `stzTable`'s most powerful aspects is its extensive search capabilities. The class provides an impressively comprehensive system for finding and working with specific data points.
 
-### Finding Cells Throughout the Table
+### 1. Finding Cells Throughout the Table
 
 `stzTable` offers a multitude of methods for finding cells based on their values:
 
@@ -315,7 +315,7 @@ o1.Show()
     #--> 0
 ```
 
-### Finding Subvalues Inside Cells
+### 2. Finding Subvalues Inside Cells
 
 A particularly innovative feature is the ability to search for partial values within cells (full-search mechanism):
 
@@ -357,7 +357,7 @@ o1 = new stzTable([
 
 This subvalue search capability is exceptionally useful for text analysis and data exploration tasks, especially when working with free-form text fields.
 
-### Targeted Searching
+### 3. Targeted Searching
 
 `stzTable` takes searching to another level by allowing you to target specific columns, rows, or cell sections:
 
@@ -410,11 +410,11 @@ This subvalue search capability is exceptionally useful for text analysis and da
 The intuitive naming scheme extends to these search methods as well, with clear distinctions between searching for exact values (`FindInCol()`) and partial matches (`FindSubValueInCol()`).
 
 
-## Section 4: Data Manipulation - The Heart of `stzTable`
+## Data Manipulation - The Heart of `stzTable`
 
 While **navigation** and **search** are impressive, `stzTable` truly excels in **data manipulation**. Its rich set of methods allows you to transform your table in virtually any way imaginable, all with a natural, intuitive syntax.
 
-### Replacing Data
+### 1. Replacing Data
 
 `stzTable` offers numerous ways to replace data, from individual cells to entire sections:
 
@@ -438,7 +438,7 @@ o1.ReplaceRow(2, [20, "Daniel", 32000])  // Replaces an entire row
 
 The API follows a consistent pattern, making it easy to remember and use these methods effectively. The inclusion of extended ("XT") versions provides additional flexibility for complex operations.
 
-### Adding and Removing Data
+### 2. Adding and Removing Data
 
 `stzTable` makes it simple to modify your table structure by adding or removing elements:
 
@@ -458,7 +458,7 @@ o1.RemoveRowsExcept([1, 2])  // Keeps only specified rows
 
 The method names clearly indicate their purpose, making the code self-documenting and easy to maintain.
 
-### Restructuring Your Table
+### 3. Restructuring Your Table
 
 `stzTable` provides powerful methods for restructuring your table:
 
@@ -480,7 +480,7 @@ o1.RenameColumn(:EMPLOYEE, :NAME)  // Renames the EMPLOYEE column to NAME
 
 These restructuring operations make it easy to organize your data according to your needs, all with intuitive method calls.
 
-### Advanced Manipulation
+### 4. Advanced Manipulation
 
 `stzTable` goes beyond basic operations with advanced manipulation capabilities:
 
@@ -507,7 +507,7 @@ The distinction between removing (which changes the table structure) and erasing
 
 What sets `stzTable` apart from many other table implementations is its incorporation of spreadsheet-like functionality, allowing for calculations, sorting, and other advanced operations directly within your code.
 
-### Calculated Columns and Rows
+### 1. Calculated Columns and Rows
 
 One of `stzTable`'s most powerful features is the ability to add calculated columns and rows:
 
@@ -596,7 +596,7 @@ o1.AddCalculatedRow([
 
 This functionality essentially brings spreadsheet formulas into your code, allowing you to derive new data dynamically from existing columns or rows.
 
-### Excel-Like Functions
+### 2. Excel-Like Functions
 
 `stzTable` implements many familiar **spreadsheet functions** for performing calculations on ranges of cells.
 
@@ -632,7 +632,7 @@ o1 = new stzTable([
 
 These functions make it easy to perform common data analysis tasks without having to write complex loops or aggregation code.
 
-### Sorting Capabilities
+### 3. Sorting Capabilities
 
 `stzTable` provides comprehensive sorting options for organizing your data:
 
@@ -652,7 +652,7 @@ o1.SortOnBy(:NAME, '@len(@item1) < @len(@item2)')  // Sort by name length
 
 The sorting API is both powerful and flexible, allowing for simple sorting operations as well as complex custom sorting logic.
 
-### Creating Subtables
+### 4. Creating Subtables
 
 `stzTable` makes it easy to extract portions of your data as new tables:
 
@@ -693,9 +693,9 @@ o1.SubTableQRT([ :EMPLOYEE, :SALARY ], :stzTable).Show()
 
 This capability is invaluable for focusing on specific subsets of your data for further analysis or presentation.
 
-## Configuring the display of the table
+## Customizing Table Display
 
-The ShowXT() method, an eXTended form of the Show() method, enables you to personnalize the display of the table.
+The `ShowXT()` method — an extended version of `Show()` — allows you to customize the table’s display with greater flexibility.
 
 ```ring
 o1 = new stzTable([
@@ -739,9 +739,9 @@ o1.Show()
 #  5 | Red      | White    | Yellow     
 ```
 
-## Conditional Methods and Regex Support (future)
+## Conditional Methods, Regex Support and PivotTable (future)
 
-### Conditional Methods with W()
+### 1. Conditional Methods with W()
 
 `stzTable` includes a powerful "Conditional Method" system that adds a W() suffix to existing methods, enabling conditional filtering:
 
@@ -756,7 +756,7 @@ o1.Show()
 o1.ReplaceCellsInColW(:ID, 'isNumber(@Cell)', "ID-" + @Cell)
 ```
 
-### Regular Expression Support
+### 2. Regular Expression Support
 
 `stzTable` integrates with `stzRegex` and `stzListex` classes to provide powerful pattern matching capabilities. To use them, you just need to add the `RX` suffix to any method in the class.
 
@@ -773,9 +773,9 @@ o1.ReplaceInColXT(:EMPLOYEE, pat(:eMail), "***")
 
 > **Note**: In Softanza, pat(:eMail) returns the regex pattern of an email so you don't write it by hand. Dozens of other options are available in the `stzRegexData` file.
 
-## Foundation for stzPivotTable (future)
+### 3. Foundation for stzPivotTable
 
-`stzTable` serves as the foundation for the `stzPivotTable` class, designed for advanced data analytics and exploration:
+`stzTable` serves as the foundation for the `stzPivotTable` class, which is designed for advanced data analysis and interactive exploration.:
 
 ```ring
 // Create a pivot table from employee data
@@ -801,15 +801,9 @@ HR               |   85000  |   90000  |   95000  |  270000
 TOTAL            |  390000  |  425000  |  460000  | 1275000
 ```
 
-## Softanza Advantage
-
-When compared to similar tools in other languages, `stzTable` offers a unique combination of features:
-
-# "Code Meets Cells": The Spreadsheet Metaphor in Softanza's `stzTable`
-
 ## Softanza Advantage: A Comparative Analysis
 
-Softanza's `stzTable` "spreadsheet metaphor" approach stands out when compared to other table manipulation libraries and traditional data frames. This innovative approach bridges the gap between code and visual data management, offering an intuitive yet powerful programming experience.
+Softanza's `stzTable` "spreadsheet metaphor" approach stands out when compared to other table manipulation libraries and traditional data frames.
 
 | Feature | `stzTable` (Ring) | pandas (Python) | data.frame (R) | SQL Tables (SQLite) |
 |---------|-------------------|-----------------|----------------|---------------------|
@@ -826,7 +820,8 @@ Softanza's `stzTable` "spreadsheet metaphor" approach stands out when compared t
 | **Flexibility with Data Types** | ✅ **Seamless** mixed types | Requires type casting | Requires type casting | Schema enforcement |
 | **Integration with Regex** | ✅ **Direct** (RX methods) | Separate regex functions | Separate regex functions | Limited REGEXP support |
 
-While tools like pandas and R's data.frame may offer more statistical functions and optimization for very large datasets, `stzTable` stands out for its intuitive interface and comprehensive cell manipulation capabilities.
+This innovative approach bridges the gap between code and visual data management, offering an intuitive yet powerful programming experience.
+
 
 > **Note**: `stzLargeTable` is a planned feature designed to handle very large datasets with the same interface as `stzTable`, but built on top of the Apache Arrow C++ library.
 
