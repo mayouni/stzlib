@@ -3542,7 +3542,7 @@ pf()
 # Executed in 0.06 second(s)
 
 /*===============
-
+*/
 pr()
 
 o1 = new stzTable([
@@ -3590,7 +3590,7 @@ pf()
 # Executed in 0.74 second(s) in Ring 1.17
 
 /*==============
-
+*/
 pr()
 
 o1 = new stzTable([
@@ -5737,7 +5737,7 @@ pf()
 # Executed in 0.13 second(s)
 
 /*-----------
-
+*/
 pr()
 
 # Income in million dollars per year
@@ -5759,7 +5759,6 @@ o1 = new stzTable([
 
 o1.AddCalculatedCol(:PERCAPITA, '@(:INCOME) / @(:POPULATION)')
 ? o1.Show()
-
 #--> COUNTRY   INCOME   POPULATION   PERCAPITA
 #    -------- -------- ------------ ----------
 #        USA    25450          340       74.85
@@ -5770,6 +5769,14 @@ o1.AddCalculatedCol(:PERCAPITA, '@(:INCOME) / @(:POPULATION)')
 
 o1.InsertCalculatedCol(2, :CURRENCY, 'StzCountryQ(@(:COUNTRY)).CurrencyAbbreviation()')
 ? o1.Show()
+#-->
+# COUNTRY   CURRENCY   INCOME   POPULATION   PERCAPITA
+# -------- ---------- -------- ------------ ----------
+#     USA        USD    25450       340.10       74.83
+#   China        CNY    18150      1430.10       12.69
+#   Japan        JPY     5310       123.20       43.10
+# Germany        EUR     4490        83.30       53.90
+#   India        INR     3370      1430.20        2.36
 
 ? @@( o1.FindCalculatedCols() ) + NL
 #--> [ 2, 4 ]
