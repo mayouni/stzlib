@@ -95,7 +95,7 @@ Dania    Manager     50000
  Han     Doctor      62500
 ```
 
-This approach can be particularly clean when your data is already organized by columns.
+This approach can be particularly valuable when your data is already organized by columns.
 
 ### 5. Creating a Table from an External File
 
@@ -115,9 +115,12 @@ Tunisia   Arabic     Tunis     Africa
   Egypt   English    Cairo     Africa
 ```
 
-This loads the table from a CSV file, automatically handling the column names and data rows. For simplicityn Softanza supports this standar ";" separator based format:
+This loads the table from a CSV file, automatically handling the column names and data rows. For simplicity, Softanza supports this standard `;` separator based format:
 
 ![csv-format-stztable.png](../images/csv-format-stztable.png)
+
+> **Note**: Support for creating `stzTable` objects from JSON strings or files, HTML table markup, and SQL queries will be added in a future update.
+
 
 ## The Spreadsheet Metaphor - Navigating Your Data
 
@@ -173,7 +176,6 @@ o1 = new stzTable([
     #--> [ 3 ]
 ```
 
-What's remarkable about `stzTable` is the natural language approach to method naming. Methods like `HasColumn()`, `FindColumnByName()`, and `FindRowByValue()` read almost like English sentences, making the code self-explanatory and easy to understand.
 
 ### 2. Cell Access and Navigation
 
@@ -218,8 +220,6 @@ o1.Show()
 
 > **Note**: In the example above, if you need to get the cells of the column `:EMPLOYEE` without duplication of the string `"Ali"`, then use the `U()` small function like this: `U( o1.Col(:EMPLOYEE) )` to get just `[ "Ali", "Dania", "Han" ]`.
 
-The API is designed to feel intuitive, following the mental model of how people think about spreadsheets. This makes working with `stzTable` feel more natural than traditional programming interfaces for tabular data.
-
 ### 3. Smart Position Handling
 
 A unique feature of `stzTable` is its flexible handling of positions and ranges:
@@ -259,11 +259,9 @@ o1.Show()
 #--> [ [ 1, 2], [2, 2], [3, 2]
 ```
 
-This comprehensive approach to positional access makes it easy to navigate complex tables without cumbersome code, enhancing both readability and maintainability.
-
 ## Advanced Data Finding and Searching
 
-One of `stzTable`'s most powerful aspects is its extensive search capabilities. The class provides an impressively comprehensive system for finding and working with specific data points.
+provides various search capabilities for finding specific data points.
 
 ### 1. Finding Cells Throughout the Table
 
@@ -317,7 +315,7 @@ o1.Show()
 
 ### 2. Finding Subvalues Inside Cells
 
-A particularly innovative feature is the ability to search for partial values within cells (full-search mechanism):
+A notable feature is the ability to search for partial matches within cells:
 
 ```ring
 o1 = new stzTable([
@@ -356,6 +354,8 @@ o1 = new stzTable([
 ```
 
 This subvalue search capability is exceptionally useful for text analysis and data exploration tasks, especially when working with free-form text fields.
+
+> *Note*: In Softanza, case sensitivity is consistently supported across all library classes and functions—not just in string-related classes like `stzString`.
 
 ### 3. Targeted Searching
 
@@ -407,12 +407,12 @@ This subvalue search capability is exceptionally useful for text analysis and da
     #--> TRUE
 ```
 
-The intuitive naming scheme extends to these search methods as well, with clear distinctions between searching for exact values (`FindInCol()`) and partial matches (`FindSubValueInCol()`).
+The intuitive naming scheme embraced clearly distinguishes between searching for exact values — `Find(val)`, which locates entire cells equal to `val` — and partial matches — `FindInCells(subval)`, which finds any occurrence of `subval` within the content of the cells.
 
 
 ## Data Manipulation - The Heart of `stzTable`
 
-While **navigation** and **search** are impressive, `stzTable` truly excels in **data manipulation**. Its rich set of methods allows you to transform your table in virtually any way imaginable, all with a natural, intuitive syntax.
+Along with **navigation** and **search**, `stzTable` truly excels in **data manipulation**. Its rich set of methods allows you to transform your table in virtually any way imaginable...
 
 ### 1. Replacing Data
 
@@ -436,7 +436,11 @@ o1.ReplaceColumn(:SALARY, [40000, 35000, 42000, 38000])  // Replaces an entire c
 o1.ReplaceRow(2, [20, "Daniel", 32000])  // Replaces an entire row
 ```
 
-The API follows a consistent pattern, making it easy to remember and use these methods effectively. The inclusion of extended ("XT") versions provides additional flexibility for complex operations.
+It's possible to replace subvalues by adding the `In` to any of the methods above.For example:
+
+```ring
+o1.ReplaceInCol(:EMPLOYEE, "a", "A") // Replace all the lowercase "a"s in the EMPLOYEE column by an uppercase "A"
+```
 
 ### 2. Adding and Removing Data
 
@@ -456,7 +460,6 @@ o1.RemoveColsExcept([:ID, :EMPLOYEE])  // Keeps only specified columns
 o1.RemoveRowsExcept([1, 2])  // Keeps only specified rows
 ```
 
-The method names clearly indicate their purpose, making the code self-documenting and easy to maintain.
 
 ### 3. Restructuring Your Table
 
@@ -478,8 +481,6 @@ o1.SwapColumns(:ID, :SALARY)  // Swaps the ID and SALARY columns
 o1.RenameColumn(:EMPLOYEE, :NAME)  // Renames the EMPLOYEE column to NAME
 ```
 
-These restructuring operations make it easy to organize your data according to your needs, all with intuitive method calls.
-
 ### 4. Advanced Manipulation
 
 `stzTable` goes beyond basic operations with advanced manipulation capabilities:
@@ -487,8 +488,8 @@ These restructuring operations make it easy to organize your data according to y
 ```ring
 # Inserting at specific positions
 
-o1.InsertColumn(:DEPARTMENT, ["Sales", "IT", "HR", "Marketing"], 2)  // Inserts a column at position 2
-o1.InsertRow([50, "NewGuy", 30000, "Finance"], 3)  // Inserts a row at position 3
+o1.InsertColumn(:DEPARTMENT, ["Sales", "IT", "HR", "Marketing"], :At = 2)  // Inserts a column at position 2
+o1.InsertRow([50, "NewGuy", 30000, "Finance"], :At = 3)  // Inserts a row at position 3
 
 # Erasing (clearing) data without removing structure
 
@@ -498,14 +499,14 @@ o1.EraseSection([:ID, 2], [:SALARY, 4])  // Clears a section of the table
 
 # Filling with values
 
-o1.FillWithValue("N/A")  // Fills the entire table with "N/A"
+o1.Fill("N/A")  // Fills the entire table with "N/A"
 ```
 
-The distinction between removing (which changes the table structure) and erasing (which keeps the structure but clears values) highlights the thoughtful design of the API.
+The distinction between *removing* (which changes the table structure) and *erasing* (which keeps the structure but clears values) highlights the thoughtful design of the API.
 
 ## Spreadsheet-Like Functionality
 
-What sets `stzTable` apart from many other table implementations is its incorporation of spreadsheet-like functionality, allowing for calculations, sorting, and other advanced operations directly within your code.
+What sets `stzTable` apart from many other table implementations is its incorporation of **spreadsheet-like** functionality, allowing for calculations, sorting, and other advanced operations directly within your code.
 
 ### 1. Calculated Columns and Rows
 
@@ -536,7 +537,7 @@ o1.AddCalculatedCol(:PERCAPITA, '@(:INCOME) / @(:POPULATION)')
 #    Germany     4490        83.30       53.90
 #      India     3370         1430        2.36
 
-# Inserting a calculated column at position 2
+# Inserting a calculated column at position 2 (using the `stzCountry` class and its `CurrencyAbbreviation()` method)
 
 o1.InsertCalculatedCol(2, :CURRENCY, 'StzCountryQ(@(:COUNTRY)).CurrencyAbbreviation()')
 ? o1.Show()
@@ -567,7 +568,7 @@ After adding calculated columns you can find them easily:
 # ]
 ```
 
-Now let's do the same thing with calculated rows:
+The same thing can be done with calculated rows:
 
 ```ring
 # Adding a calculated row (at the end of the table)
@@ -593,8 +594,6 @@ o1.AddCalculatedRow([
 ? @@( o1.CalculatedRows() ) + NL
 #--> [ [ " ", " ", 56770, 3406.90, 37.38 ] ]
 ```
-
-This functionality essentially brings spreadsheet formulas into your code, allowing you to derive new data dynamically from existing columns or rows.
 
 ### 2. Excel-Like Functions
 
@@ -630,7 +629,7 @@ o1 = new stzTable([
 #--> 4
 ```
 
-These functions make it easy to perform common data analysis tasks without having to write complex loops or aggregation code.
+> **Note** : More functions are planned for future updates, aiming to deliver a fully Excel-like experience inside your Ring code.
 
 ### 3. Sorting Capabilities
 
@@ -644,13 +643,37 @@ o1.SortDown()  // Sorts in descending order
 // Sorting on specific columns
 o1.SortOn(:SALARY)  // Sorts the table based on the SALARY column
 o1.SortOnDown(:SALARY)  // Sorts in descending order based on SALARY
-
-// Advanced expression-based sorting
-o1.SortBy('@item1 > @item2')  // Custom comparison for sorting
-o1.SortOnBy(:NAME, '@len(@item1) < @len(@item2)')  // Sort by name length
 ```
 
-The sorting API is both powerful and flexible, allowing for simple sorting operations as well as complex custom sorting logic.
+It also supports an advanced expression-based sorting on a given column using `SortOnBy()` method, both in acending and descending orders:
+
+```ring
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Abdelkarim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+o1.SortOnBy(:NAME, 'len(@cell)')
+
+? o1.Show()
+#--> ID         NAME   AGE
+#    --- ------------ ----
+#    20        Hatem    46
+#    30      Abraham    48
+#    10   Abdelkarim    52
+
+o1.SortOnByDown(:NAME, 'len(@cell)')
+? o1.Show()
+#--> ID         NAME   AGE
+#    --- ------------ ----
+#    10   Abdelkarim    52
+#    30      Abraham    48
+#    20        Hatem    46
+```
+
 
 ### 4. Creating Subtables
 
@@ -691,7 +714,7 @@ o1.SubTableQRT([ :EMPLOYEE, :SALARY ], :stzTable).Show()
 #         Ben    25982
 ```
 
-This capability is invaluable for focusing on specific subsets of your data for further analysis or presentation.
+This capability is invaluable for isolating specific subsets of your data, returning them as `stzTable` objects ready for further analysis or presentation.
 
 ## Customizing Table Display
 
@@ -752,7 +775,7 @@ o1.Show()
 # Find employees with names shorter than 5 characters
 ? o1.FindInColW(:EMPLOYEE, 'isString(@Cell) and len(@Cell) < 5')
 
-// Replace only numeric cells in a column
+# Replace only numeric cells in a column
 o1.ReplaceCellsInColW(:ID, 'isNumber(@Cell)', "ID-" + @Cell)
 ```
 
@@ -771,7 +794,7 @@ o1.AddCalculatedColRX(:EMAIL, 'Rx(pat(:eMail).Matches(@(:EMPLOYEE))[1]')
 o1.ReplaceInColXT(:EMPLOYEE, pat(:eMail), "***")
 ```
 
-> **Note**: In Softanza, pat(:eMail) returns the regex pattern of an email so you don't write it by hand. Dozens of other options are available in the `stzRegexData` file.
+> **Note**: In Softanza, `pat(:eMail)` returns the regex pattern of an email so you don't have to write it by hand. Dozens of other named regexes are available through the `stzRegexData` class.
 
 ### 3. Foundation for stzPivotTable
 
