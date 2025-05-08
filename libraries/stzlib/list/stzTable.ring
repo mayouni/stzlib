@@ -13797,6 +13797,7 @@ Class stzTable from stzObject
 			:Alignment 	  = :Right,
 		
 			:UnderLineHeader  = _TRUE_,
+
 			:UnderLineChar 	  = "-",
 			:IntersectionChar = " ",
 		
@@ -14112,7 +14113,6 @@ Class stzTable from stzObject
 		if bUnderlineHeader
 			cUnderline = ""
 			if bShowRowNumbers
-				nTemp = len( ""+ This.NumberOfRows() )
 				cTemp = ""
 				for i = 1 to nTemp
 					cTemp += cUnderLineChar
@@ -14149,6 +14149,14 @@ Class stzTable from stzObject
 				ok
 	
 			next
+
+			if j = nRows and
+				( (isNumber(paOptions[:UpperLineLastRow]) and
+					paOptions[:UpperLineLastRow] = _TRUE_)  )
+
+				cString += (NL + cUnderline)
+
+			ok
 
 			cString += (NL + cRow)
 		next
