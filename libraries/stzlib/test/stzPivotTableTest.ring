@@ -1,17 +1,4 @@
-
-
 load "../max/stzmax.ring"
-
-pr()
-
-aList = 1:50_000_000
-
-
-for i = 1 to 50_000_000
-    aList[i] += 10
-next
-
-pf()
 
 /*---
 
@@ -181,7 +168,7 @@ pr()
 
 oTable = new stzTable([
 
-	[ :Department, :Location,   :Gender,  :Experience,  :Salary   ],
+	[ :Department, :Location,   :Gender,  :Experience,  "Salary"   ],
 	# ------------------------------------------------------------ #
 	[ "Sales",     "New York",  "Male",   "Junior",      45000    ],
 	[ "Sales",     "New York",  "Female", "Junior",      46000    ],
