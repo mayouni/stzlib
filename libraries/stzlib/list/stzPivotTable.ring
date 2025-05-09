@@ -13,7 +13,7 @@ class stzPivotTable
     @bShowTotalColumn = TRUE
     @cTotalLabel = "TOTAL"
     @cCellNullValue = ""
-    @cRowLabelsSeparator = " / "
+    @cRowLabelsSeparator = "_"
     
     # Cache for calculations
     @aCellCache = []
@@ -786,95 +786,822 @@ class stzPivotTable
         _showFormattedPivotTable()
 
 def _showFormattedPivotTable()
-    # Calculate column widths
-    aColWidths = []
-    for c = 1 to len(@aPivotData[1])
-        nMaxWidth = 0
-        # Check header width
-        if c <= len(@aRowLabels)
-            nMaxWidth = len(@aRowLabels[c])
-        else
-            nMaxWidth = len("" + @aPivotData[1][c])
-        ok
-        # Check data widths
+    # Prepare table dimensions and data
+    aDimensions = _preparePivotDimensions()
+    aFormatting = _calculateColumnWidths(aDimensions)
+    
+    # Start building the table
+    _renderTableHeaders(aDimensions, aFormatting)
+    _renderDataRows(aDimensions, aFormatting)
+    _renderTableFooter(aDimensions, aFormatting)
+    
+    see nl
+
+# Step 1: Prepare dimensions for the pivot table
+def _preparePivotDimensions()
+    aDimensions = []
+    
+    # Basic structure
+    aDimensions["nRowLabelCount"] = len(@aRowLabels)
+    aDimensions["nColLabelCount"] = len(@aColLabels)
+    
+    # Get unique values for each column dimension
+    aColDimValues = []
+    for i = 1 to aDimensions["nColLabelCount"]
+        aUnique = []
         for r = 2 to len(@aPivotData)
-            nCellWidth = len("" + @aPivotData[r][c])
+            for c = aDimensions["nRowLabelCount"] + 1 to len(@aPivotData[1])
+                cHeader = @aPivotData[1][c]
+                if cHeader = @cTotalLabel
+                    loop
+                ok
+                
+                aParts = split(cHeader, @cRowLabelsSeparator)
+                if len(aParts) >= i and not find(aUnique, aParts[i])
+                    add(aUnique, aParts[i])
+                ok
+            next
+        next
+        add(aColDimValues, aUnique)
+    next
+    
+    aDimensions["aColDimValues"] = aColDimValues
+    return aDimensions
+
+# Step 2: Calculate widths for all table elements
+def _calculateColumnWidths(aDimensions)
+    aFormatting = []
+    nRowLabelCount = aDimensions["nRowLabelCount"]
+    aColDimValues = aDimensions["aColDimValues"]
+    
+    // Calculate subcolumn widths
+    aSubColWidths = []
+    
+    // First initialize width based on header labels with padding
+    for dim1 in aColDimValues[1]
+        for dim2 in aColDimValues[2]
+            cKey = dim1 + @cRowLabelsSeparator + dim2
+            // Adding minimum spacing (2 spaces + value + 1 space)
+            aSubColWidths[cKey] = max([len(dim1), len(dim2)]) + 3
+        next
+    next
+    
+    // Find max width for actual data in each column (include total row)
+    for r = 2 to len(@aPivotData)
+        for c = nRowLabelCount + 1 to len(@aPivotData[1])
+            if @aPivotData[1][c] != @cTotalLabel
+                cValue = "" + @aPivotData[r][c]
+                // Need padding (2 space + value)
+                nValueLen = len(cValue) + 2
+                if nValueLen > aSubColWidths[@aPivotData[1][c]]
+                    aSubColWidths[@aPivotData[1][c]] = nValueLen
+                ok
+            ok
+        next
+    next
+    
+    // Calculate row label widths with extra padding
+    aRowWidths = []
+    for i = 1 to nRowLabelCount
+        nMaxWidth = len(@aRowLabels[i])
+        for r = 2 to len(@aPivotData)
+            nCellWidth = len("" + @aPivotData[r][i])
             if nCellWidth > nMaxWidth
                 nMaxWidth = nCellWidth
             ok
         next
-        aColWidths + Max([nMaxWidth, 10])  # Minimum width of 10
+        add(aRowWidths, nMaxWidth + 3) // Add 3 spaces padding (increased from 2)
     next
-
-    # Build header line
-    cHeaderLine = ""
-    for i = 1 to len(@aRowLabels)
-        cPadded = _padRight(@aRowLabels[i], aColWidths[i], " ")
-        cHeaderLine += cPadded + " "
-    next
-    cHeaderLine += "| "
-    for c = len(@aRowLabels)+1 to len(@aPivotData[1])
-        cPadded = _padRight('' + @aPivotData[1][c], aColWidths[c], " ")
-        cHeaderLine += cPadded + " "
-    next
-    ? @trim(cHeaderLine)
-
-    # Build separator line
-    cSepLine = ""
-    for c = 1 to len(@aRowLabels)
-        cPaddedSep = _padRight('', aColWidths[c], "-")
-        cSepLine += cPaddedSep + " "
-    next
-    cSepLine += "+ "
-    for c = len(@aRowLabels)+1 to len(@aPivotData[1])
-        cPaddedSep = _padRight('', aColWidths[c], "-")
-        cSepLine += cPaddedSep + " "
-    next
-    ? @trim(cSepLine)
-
-    # Print data rows
-    for r = 2 to len(@aPivotData)
-        if @bShowTotalRow and r = len(@aPivotData)
-            ? trim(cSepLine)  # Separator before total row
-        ok
-        cRowLine = ""
-        # Build left part (row labels)
-        for c = 1 to len(@aRowLabels)
-            cCell = "" + @aPivotData[r][c]
-            cPadded = _padRight(cCell, aColWidths[c], " ")
-            cRowLine += cPadded + " "
+    
+    // Calculate width for dimension groups
+    aDim1Widths = []
+    for dim1 in aColDimValues[1]
+        nGroupWidth = 0
+        
+        for dim2 in aColDimValues[2]
+            cKey = dim1 + @cRowLabelsSeparator + dim2
+            nGroupWidth += aSubColWidths[cKey]
         next
-        cRowLine = @trim(cRowLine) + " | "
-        # Build right part (data)
-        cDataPart = ""
-        for c = len(@aRowLabels)+1 to len(@aPivotData[r])
-            cCell = "" + @aPivotData[r][c]
-            if isNumber(@aPivotData[r][c])
-                cPadded = _padLeft(cCell, aColWidths[c], " ")
-            else
-                cPadded = _padRight(cCell, aColWidths[c], " ")
+        
+        add(aDim1Widths, nGroupWidth)
+    next
+    
+    // Calculate total column width if needed
+    nTotalColWidth = len(@cTotalLabel) + 2  // Add padding for AVERAGE
+    if @bShowTotalColumn
+        // Include last row (totals) in calculation
+        nLastRow = len(@aPivotData)
+        for r = 2 to nLastRow
+            nCellWidth = len("" + @aPivotData[r][len(@aPivotData[r])]) + 2
+            if nCellWidth > nTotalColWidth
+                nTotalColWidth = nCellWidth
             ok
-            cDataPart += cPadded + " "
         next
-        cRowLine += @trim(cDataPart)
-        ? cRowLine
+    ok
+    
+    // Calculate row labels section width
+    nRowLabelSectionWidth = 0
+    for i = 1 to nRowLabelCount
+        nRowLabelSectionWidth += aRowWidths[i]
+        if i < nRowLabelCount
+            nRowLabelSectionWidth += 3  // " | " separator
+        ok
     next
+    nRowLabelSectionWidth += 4  // Extra padding around section
+    
+    // Calculate left padding for consistent alignment
+    nLeftPadding = 28  // Increased from 26 for target example
+    
+    aFormatting["aSubColWidths"] = aSubColWidths
+    aFormatting["aRowWidths"] = aRowWidths
+    aFormatting["aDim1Widths"] = aDim1Widths
+    aFormatting["nTotalColWidth"] = nTotalColWidth
+    aFormatting["nRowLabelSectionWidth"] = nRowLabelSectionWidth
+    aFormatting["nLeftPadding"] = nLeftPadding
+    
+    return aFormatting
+
+def _renderTableHeaders(aDimensions, aFormatting)
+    nRowLabelCount = aDimensions["nRowLabelCount"]
+    aColDimValues = aDimensions["aColDimValues"]
+    aSubColWidths = aFormatting["aSubColWidths"]
+    aDim1Widths = aFormatting["aDim1Widths"]
+    nTotalColWidth = aFormatting["nTotalColWidth"]
+    nLeftPadding = aFormatting["nLeftPadding"]
+    aRowWidths = aFormatting["aRowWidths"]
+    nRowLabelSectionWidth = aFormatting["nRowLabelSectionWidth"]
+    
+    cLeftPad = copy(" ", nLeftPadding + 2)  // Add 2 more spaces for indentation
+    see nl
+    
+    // Top border of the table - aligned with row label end
+    cTopBorder = cLeftPad + "╭"
+    for i = 1 to len(aColDimValues[1])
+        cTopBorder += copy("─", aDim1Widths[i])
+        if i < len(aColDimValues[1])
+            cTopBorder += "┬"
+        ok
+    next
+    if @bShowTotalColumn
+        cTopBorder += "╮"
+    else
+        cTopBorder += "╮"
+    ok
+    ? cTopBorder
+    
+    // First header row - first dimension
+    cHeader1 = cLeftPad + "│"
+    for i = 1 to len(aColDimValues[1])
+        cDim1 = aColDimValues[1][i]
+        cCell = _center(cDim1, aDim1Widths[i])
+        cHeader1 += cCell + "│"
+    next
+    ? cHeader1
+    
+    // Separator after first header - using horizontal lines instead of crosses
+    cSep1 = cLeftPad + "│"
+    for i = 1 to len(aColDimValues[1])
+        cSep = ""
+        // Add horizontal lines for each subcolumn
+        for j = 1 to len(aColDimValues[2])
+            dim2 = aColDimValues[2][j]
+            cKey = aColDimValues[1][i] + @cRowLabelsSeparator + dim2
+            cSep += copy("─", aSubColWidths[cKey])
+            if j < len(aColDimValues[2])
+                cSep += "┬"
+            ok
+        next
+        cSep1 += cSep
+        if i < len(aColDimValues[1])
+            cSep1 += "┼"
+        ok
+    next
+    cSep1 += "│"
+    ? cSep1
+    
+    // Second header row - second dimension
+    cHeader2 = copy(" ", 3)
+    for i = 1 to nRowLabelCount
+        if i > 1
+            cHeader2 += " | "
+        ok
+        cHeader2 += _center(@aRowLabels[i], aRowWidths[i])
+    next
+    cHeader2 += " │"
+    
+    // Add second dimension values with better padding
+    for dim1 in aColDimValues[1]
+        for dim2 in aColDimValues[2]
+            cKey = dim1 + @cRowLabelsSeparator + dim2
+            cHeader2 += " " + dim2 + copy(" ", aSubColWidths[cKey] - len(dim2) - 2) + "│"
+        next
+    next
+    
+    if @bShowTotalColumn
+        cHeader2 += " " + @cTotalLabel + " "
+    ok
+    ? cHeader2
+    
+    // Main separator before data rows - use ┴ instead of ┼ for subcolumns
+    nRowLabelSectionWidth = aFormatting["nRowLabelSectionWidth"] - 2  // Adjust width
+    cMainSep = "╭" + copy("─", nRowLabelSectionWidth) + "┼"
+    
+    for i = 1 to len(aColDimValues[1])
+        // First add ─ for the first subcol width
+        dim1 = aColDimValues[1][i]
+        dim2First = aColDimValues[2][1]
+        cKeyFirst = dim1 + @cRowLabelsSeparator + dim2First
+        cMainSep += copy("─", aSubColWidths[cKeyFirst])
+        
+        // Then add ┴ separator and ─ for remaining subcols
+        for j = 2 to len(aColDimValues[2])
+            dim2 = aColDimValues[2][j]
+            cKey = dim1 + @cRowLabelsSeparator + dim2
+            cMainSep += "┴" + copy("─", aSubColWidths[cKey] - 1)
+        next
+        
+        if i < len(aColDimValues[1])
+            cMainSep += "┼"
+        ok
+    next
+    
+    if @bShowTotalColumn
+        cMainSep += "┼" + copy("─", nTotalColWidth)
+    ok
+    cMainSep += "╮"
+    ? cMainSep
+
+
+// Step 4: Render data rows - with adjusted department/location formatting
+def _renderDataRows(aDimensions, aFormatting)
+    nRowLabelCount = aDimensions["nRowLabelCount"]
+    aColDimValues = aDimensions["aColDimValues"]
+    aSubColWidths = aFormatting["aSubColWidths"]
+    aDim1Widths = aFormatting["aDim1Widths"]
+    nTotalColWidth = aFormatting["nTotalColWidth"]
+    nRowLabelSectionWidth = aFormatting["nRowLabelSectionWidth"] - 2  // Adjust width
+    aRowWidths = aFormatting["aRowWidths"]
+    
+    cCurrentDept = ""
+    for r = 2 to len(@aPivotData) - 1  // Skip header and total row
+        if @aPivotData[r][1] != cCurrentDept
+            cCurrentDept = @aPivotData[r][1]
+            if r > 2
+                // Empty row between departments
+                _renderEmptyRow(aDimensions, aFormatting)
+            ok
+            // Show department in first column
+            cRowData = "│ " + _padRight(cCurrentDept, aRowWidths[1] - 1)
+        else
+            // Leave department column empty for subsequent rows
+            cRowData = "│ " + copy(" ", aRowWidths[1] - 1)
+        ok
+        
+        if nRowLabelCount > 1
+            cRowData += " │ " + _padRight(@aPivotData[r][2], aRowWidths[2] - 1)
+        ok
+        
+        // Pad to full row label width
+        while len(cRowData) < nRowLabelSectionWidth + 1  // +1 for initial "│"
+            cRowData += " "
+        end
+        
+        cRowData += "│"
+        
+        // Add data cells by dimension groups
+        for dim1 in aColDimValues[1]
+            cGroupData = ""
+            for dim2 in aColDimValues[2]
+                cKey = dim1 + @cRowLabelsSeparator + dim2
+                nColIndex = 0
+                
+                // Find the column index for this combination
+                for c = nRowLabelCount + 1 to len(@aPivotData[1])
+                    if @aPivotData[1][c] = cKey
+                        nColIndex = c
+                        exit
+                    ok
+                next
+
+                // Add data with proper justification
+                if nColIndex > 0
+                    cValue = ""+ @aPivotData[r][nColIndex]
+                    nWidth = aSubColWidths[cKey]
+                    cFormattedValue = "  " + cValue + copy(" ", nWidth - len(cValue) - 2)
+                    cGroupData += cFormattedValue
+                else
+                    cGroupData += _padRight("", aSubColWidths[cKey])
+                ok
+            next
+            
+            cRowData += cGroupData + "│"
+        next
+ 
+        // Add total if enabled
+        if @bShowTotalColumn
+            cValue = ""+ @aPivotData[r][len(@aPivotData[r])]
+            cRowData += "  " + cValue + copy(" ", nTotalColWidth - len(cValue) - 2) + "│"
+        ok
+      
+        ? cRowData
+    next
+
+// Helper function to render empty row with adjusted formatting
+def _renderEmptyRow(aDimensions, aFormatting)
+    aColDimValues = aDimensions["aColDimValues"]
+    aDim1Widths = aFormatting["aDim1Widths"]
+    nTotalColWidth = aFormatting["nTotalColWidth"]
+    nRowLabelSectionWidth = aFormatting["nRowLabelSectionWidth"] - 2  // Adjust width
+    
+    cEmptyRow = "│" + copy(" ", nRowLabelSectionWidth) + "│"
+    
+    nLenDim = len(aDim1Widths)
+    for q = 1 to nLenDim
+        cEmptyData = copy(" ", aDim1Widths[q])
+        cEmptyRow += cEmptyData + "│"
+    next
+    
+    if @bShowTotalColumn
+        cEmptyRow += copy(" ", nTotalColWidth) + "│"
+    ok
+    ? cEmptyRow
+
+// Step 5: Render table footer with adjusted formatting
+def _renderTableFooter(aDimensions, aFormatting)
+    aColDimValues = aDimensions["aColDimValues"]
+    aDim1Widths = aFormatting["aDim1Widths"]
+    nTotalColWidth = aFormatting["nTotalColWidth"]
+    nRowLabelSectionWidth = aFormatting["nRowLabelSectionWidth"] - 2  // Adjust width
+    nLeftPadding = aFormatting["nLeftPadding"]
+    aSubColWidths = aFormatting["aSubColWidths"]
+    
+    // Bottom border before total row
+    cBottomBorder = "╰" + copy("─", nRowLabelSectionWidth) + "┴"
+    
+    for i = 1 to len(aColDimValues[1])
+        cBottomBorder += copy("─", aDim1Widths[i])
+        if i < len(aColDimValues[1])
+            cBottomBorder += "┴"
+        ok
+    next
+    
+    if @bShowTotalColumn
+        cBottomBorder += "┴" + copy("─", nTotalColWidth)
+    ok
+    cBottomBorder += "╯"
+    ? cBottomBorder
+    
+    // Total row if enabled
+    if @bShowTotalRow
+        _renderTotalRow(aDimensions, aFormatting)
+    ok
+/*
+// Helper function to render total row with adjusted padding
+def _renderTotalRow(aDimensions, aFormatting)
+    aColDimValues = aDimensions["aColDimValues"]
+    aSubColWidths = aFormatting["aSubColWidths"]
+    nTotalColWidth = aFormatting["nTotalColWidth"]
+    nLeftPadding = aFormatting["nLeftPadding"]
+    
+    nLastRow = len(@aPivotData)
+    // Add extra padding before AVERAGE text
+    cTotalRow = copy(" ", nLeftPadding - len(@cTotalLabel) + 1) + @cTotalLabel + " │"
+    
+    // Process column groups
+    for dim1 in aColDimValues[1]
+        cGroupTotal = ""
+        for dim2 in aColDimValues[2]
+            cKey = dim1 + @cRowLabelsSeparator + dim2
+            nColIndex = 0
+            
+            // Find the column index for this combination
+            for c = aDimensions["nRowLabelCount"] + 1 to len(@aPivotData[1])
+                if @aPivotData[1][c] = cKey
+                    nColIndex = c
+                    exit
+                ok
+            next
+            
+            if nColIndex > 0
+                cValue = ""+ @aPivotData[nLastRow][nColIndex]
+                cGroupTotal += " " + cValue + copy(" ", aSubColWidths[cKey] - len(cValue) - 1)
+            else
+                cGroupTotal += _padRight("", aSubColWidths[cKey])
+            ok
+        next
+        cTotalRow += cGroupTotal + "│"
+    next
+    
+    // Add grand total if enabled
+ //   if @bShowTotalColumn
+//        cTotalRow += " " + @aPivotData[nLastRow][len(@aPivotData[nLastRow])] + copy(" ", nTotalColWidth - len(@aPivotData[nLastRow][len(@aPivotData[nLastRow])]) - 1) + "│"
+//    ok
+    
+        if @bShowTotalColumn
+            cValue = ""+ @aPivotData[r][len(@aPivotData[r])]
+            cRowData += "  " + cValue + copy(" ", nTotalColWidth - len(cValue) - 2) + "│"
+        ok
+    ? cTotalRow
+*/
+
+/*
+# Step 2: Calculate widths for all table elements
+def _calculateColumnWidths(aDimensions)
+    aFormatting = []
+    nRowLabelCount = aDimensions["nRowLabelCount"]
+    aColDimValues = aDimensions["aColDimValues"]
+    
+    # Calculate subcolumn widths
+    aSubColWidths = []
+    
+    # First initialize width based on header labels with padding
+    for dim1 in aColDimValues[1]
+        for dim2 in aColDimValues[2]
+            cKey = dim1 + @cRowLabelsSeparator + dim2
+            # Adding minimum spacing (2 spaces + value + 1 space)
+            aSubColWidths[cKey] = max([len(dim1), len(dim2)]) + 3
+        next
+    next
+    
+    # Find max width for actual data in each column (include total row)
+    for r = 2 to len(@aPivotData)
+        for c = nRowLabelCount + 1 to len(@aPivotData[1])
+            if @aPivotData[1][c] != @cTotalLabel
+                cValue = "" + @aPivotData[r][c]
+                # Need padding (2 space + value)
+                nValueLen = len(cValue) + 2
+                if nValueLen > aSubColWidths[@aPivotData[1][c]]
+                    aSubColWidths[@aPivotData[1][c]] = nValueLen
+                ok
+            ok
+        next
+    next
+    
+    # Calculate row label widths
+    aRowWidths = []
+    for i = 1 to nRowLabelCount
+        nMaxWidth = len(@aRowLabels[i])
+        for r = 2 to len(@aPivotData)
+            nCellWidth = len("" + @aPivotData[r][i])
+            if nCellWidth > nMaxWidth
+                nMaxWidth = nCellWidth
+            ok
+        next
+        add(aRowWidths, nMaxWidth + 2) # Add 2 spaces padding (1 on each side)
+    next
+    
+    # Calculate width for dimension groups
+    aDim1Widths = []
+    for dim1 in aColDimValues[1]
+        nGroupWidth = 0
+        
+        for dim2 in aColDimValues[2]
+            cKey = dim1 + @cRowLabelsSeparator + dim2
+            nGroupWidth += aSubColWidths[cKey]
+        next
+        
+        add(aDim1Widths, nGroupWidth)
+    next
+    
+    # Calculate total column width if needed
+    nTotalColWidth = len(@cTotalLabel) + 2  # Add padding for AVERAGE
+    if @bShowTotalColumn
+        # Include last row (totals) in calculation
+        nLastRow = len(@aPivotData)
+        for r = 2 to nLastRow
+            nCellWidth = len("" + @aPivotData[r][len(@aPivotData[r])]) + 2
+            if nCellWidth > nTotalColWidth
+                nTotalColWidth = nCellWidth
+            ok
+        next
+    ok
+    
+    # Calculate row labels section width
+    nRowLabelSectionWidth = 0
+    for i = 1 to nRowLabelCount
+        nRowLabelSectionWidth += aRowWidths[i]
+        if i < nRowLabelCount
+            nRowLabelSectionWidth += 3  # " | " separator
+        ok
+    next
+    nRowLabelSectionWidth += 4  # Extra padding around section
+    
+    # Calculate left padding for consistent alignment
+    nLeftPadding = 26  # Adjusted for target example
+    
+    aFormatting["aSubColWidths"] = aSubColWidths
+    aFormatting["aRowWidths"] = aRowWidths
+    aFormatting["aDim1Widths"] = aDim1Widths
+    aFormatting["nTotalColWidth"] = nTotalColWidth
+    aFormatting["nRowLabelSectionWidth"] = nRowLabelSectionWidth
+    aFormatting["nLeftPadding"] = nLeftPadding
+    
+    return aFormatting
+
+
+# Step 3: Render table headers
+def _renderTableHeaders(aDimensions, aFormatting)
+    nRowLabelCount = aDimensions["nRowLabelCount"]
+    aColDimValues = aDimensions["aColDimValues"]
+    aSubColWidths = aFormatting["aSubColWidths"]
+    aDim1Widths = aFormatting["aDim1Widths"]
+    nTotalColWidth = aFormatting["nTotalColWidth"]
+    nLeftPadding = aFormatting["nLeftPadding"]
+    aRowWidths = aFormatting["aRowWidths"]
+    nRowLabelSectionWidth = aFormatting["nRowLabelSectionWidth"]
+    
+    cLeftPad = copy(" ", nLeftPadding)
+    see nl
+    
+    # Top border of the table - aligned with row label end
+    cTopBorder = cLeftPad + "╭"
+    for i = 1 to len(aColDimValues[1])
+        cTopBorder += copy("─", aDim1Widths[i])
+        if i < len(aColDimValues[1])
+            cTopBorder += "┬"
+        ok
+    next
+    if @bShowTotalColumn
+        cTopBorder += "╮"
+    else
+        cTopBorder += "╮"
+    ok
+    ? cTopBorder
+    
+    # First header row - first dimension
+    cHeader1 = cLeftPad + "│"
+    for i = 1 to len(aColDimValues[1])
+        cDim1 = aColDimValues[1][i]
+        cCell = _center(cDim1, aDim1Widths[i])
+        cHeader1 += cCell + "│"
+    next
+    ? cHeader1
+    
+    # Separator after first header
+    cSep1 = cLeftPad + "├"
+    for i = 1 to len(aColDimValues[1])
+        cSep = ""
+        # Add horizontal lines for each subcolumn
+        for j = 1 to len(aColDimValues[2])
+            dim2 = aColDimValues[2][j]
+            cKey = aColDimValues[1][i] + @cRowLabelsSeparator + dim2
+            cSep += copy("─", aSubColWidths[cKey])
+            if j < len(aColDimValues[2])
+                cSep += "┬"
+            ok
+        next
+        cSep1 += cSep
+        if i < len(aColDimValues[1])
+            cSep1 += "┼"
+        ok
+    next
+    cSep1 += "│"
+    ? cSep1
+    
+    # Second header row - second dimension
+    cHeader2 = copy(" ", 3)
+    for i = 1 to nRowLabelCount
+        if i > 1
+            cHeader2 += " | "
+        ok
+        cHeader2 += _center(@aRowLabels[i], aRowWidths[i])
+    next
+    cHeader2 += " │"
+    
+    # Add second dimension values
+    for dim1 in aColDimValues[1]
+        for dim2 in aColDimValues[2]
+            cKey = dim1 + @cRowLabelsSeparator + dim2
+            cHeader2 += " " + dim2 + " " + copy(" ", aSubColWidths[cKey] - len(dim2) - 2) + "│"
+        next
+    next
+    
+    if @bShowTotalColumn
+        cHeader2 += " " + @cTotalLabel + " "
+    ok
+    ? cHeader2
+    
+    # Main separator before data rows
+    nRowLabelSectionWidth = aFormatting["nRowLabelSectionWidth"]
+    cMainSep = "╭" + copy("─", nRowLabelSectionWidth) + "┼"
+    
+    for i = 1 to len(aColDimValues[1])
+        dim1Group = copy("─", aDim1Widths[i])
+        cMainSep += dim1Group
+        
+        if i < len(aColDimValues[1])
+            cMainSep += "┼"
+        ok
+    next
+    
+    if @bShowTotalColumn
+        cMainSep += "┼" + copy("─", nTotalColWidth)
+    ok
+    cMainSep += "╮"
+    ? cMainSep
+
+# Step 4: Render data rows
+def _renderDataRows(aDimensions, aFormatting)
+    nRowLabelCount = aDimensions["nRowLabelCount"]
+    aColDimValues = aDimensions["aColDimValues"]
+    aSubColWidths = aFormatting["aSubColWidths"]
+    aDim1Widths = aFormatting["aDim1Widths"]
+    nTotalColWidth = aFormatting["nTotalColWidth"]
+    nRowLabelSectionWidth = aFormatting["nRowLabelSectionWidth"]
+    aRowWidths = aFormatting["aRowWidths"]
+    
+    cCurrentDept = ""
+    for r = 2 to len(@aPivotData) - 1  # Skip header and total row
+        if @aPivotData[r][1] != cCurrentDept
+            cCurrentDept = @aPivotData[r][1]
+            if r > 2
+                # Empty row between departments
+                _renderEmptyRow(aDimensions, aFormatting)
+            ok
+        ok
+        
+        # Row data
+        cRowData = "│ " + _padRight(cCurrentDept, aRowWidths[1] - 1)
+        
+        if nRowLabelCount > 1
+            cRowData += " │ " + _padRight(@aPivotData[r][2], aRowWidths[2] - 1)
+        ok
+        
+        # Pad to full row label width
+        while len(cRowData) < nRowLabelSectionWidth + 1  # +1 for initial "│"
+            cRowData += " "
+        end
+        
+        cRowData += "│"
+        
+        # Add data cells by dimension groups
+        for dim1 in aColDimValues[1]
+            cGroupData = ""
+            for dim2 in aColDimValues[2]
+                cKey = dim1 + @cRowLabelsSeparator + dim2
+                nColIndex = 0
+                
+                # Find the column index for this combination
+                for c = nRowLabelCount + 1 to len(@aPivotData[1])
+                    if @aPivotData[1][c] = cKey
+                        nColIndex = c
+                        exit
+                    ok
+                next
+
+                # Add data with proper justification
+                if nColIndex > 0
+                    cValue = ""+ @aPivotData[r][nColIndex]
+
+																				nLen = len(aSubColWidths)
+																				for v = 1 to nLen
+																						if aSubColWidths[v][1] = cKey
+																							nPos = aSubColWidths[v][2]
+																				  	exit
+																				  ok
+																				next
+
+                    cFormattedValue = "  " + cValue + copy(" ", nPos - len(cValue) - 2)
+                    cGroupData += cFormattedValue
+                else
+                    cGroupData += _padRight("", aSubColWidths[cKey])
+                ok
+            next
+            
+            cRowData += cGroupData + "│"
+        next
+ 
+        # Add total if enabled
+        if @bShowTotalColumn
+            cValue = ""+ @aPivotData[r][len(@aPivotData[r])]
+            cRowData += "  " + cValue + copy(" ", nTotalColWidth - len(cValue) - 2) + "│"
+        ok
+      
+        ? cRowData
+    next
+
+# Helper function to render empty row
+def _renderEmptyRow(aDimensions, aFormatting)
+    aColDimValues = aDimensions["aColDimValues"]
+    aDim1Widths = aFormatting["aDim1Widths"]
+    nTotalColWidth = aFormatting["nTotalColWidth"]
+    nRowLabelSectionWidth = aFormatting["nRowLabelSectionWidth"]
+    
+    cEmptyRow = "│" + _padRight("", nRowLabelSectionWidth) + "│"
+    
+    nLenDim = len(aDim1Widths)
+    for q = 1 to nLenDim
+        cEmptyData = _padRight("", aDim1Widths[q])
+        cEmptyRow += cEmptyData + "│"
+    next
+    
+    if @bShowTotalColumn
+        cEmptyRow += _padRight("", nTotalColWidth) + "│"
+    ok
+    ? cEmptyRow
+
+# Step 5: Render table footer
+def _renderTableFooter(aDimensions, aFormatting)
+    aColDimValues = aDimensions["aColDimValues"]
+    aDim1Widths = aFormatting["aDim1Widths"]
+    nTotalColWidth = aFormatting["nTotalColWidth"]
+    nRowLabelSectionWidth = aFormatting["nRowLabelSectionWidth"]
+    nLeftPadding = aFormatting["nLeftPadding"]
+    aSubColWidths = aFormatting["aSubColWidths"]
+    
+    # Bottom border before total row
+    cBottomBorder = "╰" + copy("─", nRowLabelSectionWidth) + "┴"
+    
+    for i = 1 to len(aColDimValues[1])
+        cBottomBorder += copy("─", aDim1Widths[i])
+        if i < len(aColDimValues[1])
+            cBottomBorder += "┴"
+        ok
+    next
+    
+    if @bShowTotalColumn
+        cBottomBorder += "┴" + copy("─", nTotalColWidth)
+    ok
+    cBottomBorder += "╯"
+    ? cBottomBorder
+    
+    # Total row if enabled
+    if @bShowTotalRow
+        _renderTotalRow(aDimensions, aFormatting)
+    ok
+*/
+# Helper function to render total row
+def _renderTotalRow(aDimensions, aFormatting)
+    aColDimValues = aDimensions["aColDimValues"]
+    aSubColWidths = aFormatting["aSubColWidths"]
+    nTotalColWidth = aFormatting["nTotalColWidth"]
+    nLeftPadding = aFormatting["nLeftPadding"]
+    
+    nLastRow = len(@aPivotData)
+    cTotalRow = copy(" ", nLeftPadding - len(@cTotalLabel) - 3) + @cTotalLabel + " │"
+    
+    # Process column groups
+    for dim1 in aColDimValues[1]
+        cGroupTotal = ""
+        for dim2 in aColDimValues[2]
+            cKey = dim1 + @cRowLabelsSeparator + dim2
+            nColIndex = 0
+            
+            # Find the column index for this combination
+            for c = aDimensions["nRowLabelCount"] + 1 to len(@aPivotData[1])
+                if @aPivotData[1][c] = cKey
+                    nColIndex = c
+                    exit
+                ok
+            next
+            
+            if nColIndex > 0
+                cValue = ""+ @aPivotData[nLastRow][nColIndex]
+                cGroupTotal += " " + cValue + copy(" ", aSubColWidths[cKey] - len(cValue) - 2) + " "
+            else
+                cGroupTotal += _padRight("", aSubColWidths[cKey])
+            ok
+        next
+        cTotalRow += cGroupTotal + "│"
+    next
+    
+    # Add grand total if enabled
+    if @bShowTotalColumn
+        cTotalRow += _padRight(" " + @aPivotData[nLastRow][len(@aPivotData[nLastRow])], nTotalColWidth) + "│"
+    ok
+    
+    ? cTotalRow
+
+def _center(cText, nWidth)
+    nTextLen = len(cText)
+    if nTextLen >= nWidth
+        return cText
+    ok
+    
+    nLeftPad = floor((nWidth - nTextLen) / 2)
+    nRightPad = nWidth - nTextLen - nLeftPad
+    
+    return copy(" ", nLeftPad) + cText + copy(" ", nRightPad)
 end
 
-def _padRight(cText, nWidth, cPadChar)
+def _padRight(cText, nWidth)
     cResult = "" + cText
     while len(cResult) < nWidth
-        cResult += cPadChar
+        cResult += " "
     end
     return cResult
 end
 
-def _padLeft(cText, nWidth, cPadChar)
+def _padLeft(cText, nWidth)
     cResult = "" + cText
     while len(cResult) < nWidth
-        cResult = cPadChar + cResult
+        cResult = " " + cResult
     end
     return cResult
+end
+
+def _padCenter(cText, nWidth)
+    return _center(cText, nWidth)
 end
 
     def ShowXT(paOptions)
