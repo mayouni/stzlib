@@ -1,6 +1,5 @@
 load "../max/stzmax.ring"
-
-/*---
+/*
 
 pr()
 
@@ -203,28 +202,40 @@ oPivot = new stzPivotTable(oTable)
 
 oPivot {
 
-	SetRowLabels([ :Department, :Location ])
-	SetColumnLabels([ :Experience, :Gender ])
+	Analyze([ :Salary ], :AVERAGE)
+	SetRowsBy([ :Department, :Location ])
+	SetColsBy([ :Experience, :Gender ])
+	
 
-	SetValues([ :Salary ])
+//	SetRowLabels([ :Department, :Location ])
+//	SetColumnLabels([ :Experience, :Gender ])
+//	SetValues([ :Salary ])
+//	SetAggregateFunction("AVERAGE")
 
-	SetAggregateFunction("AVERAGE")
-	SetTotalLabel("AVERAGE")
+//	SetTotalLabel("AVERAGE")
 
 	Show()
-	#-->
-	#              JUNIOR   SENIOR     AVERAGE
-	# -------- ----------- -------- ----------
-	#   Sales    43666.67    74000   117666.67
-	#      IT       51500    84000      135500
-	#     HR       41500    67000      108500
-	# -------- ----------- -------- ----------
-	# AVERAGE   136666.67   225000   361666.67
+#-->
+#	╭───────────────────────┬─────────────────────┬─────────────────────┬─────────╮
+#	│                       │       Junior        │       Senior        │         │
+#	├────────────┬──────────┼──────────┬──────────┼──────────┬──────────┤         │
+#	│ Department │ Location │  Female  │   Male   │  Female  │   Male   │ AVERAGE │
+#	├────────────┼──────────┼──────────┼──────────┼──────────┼──────────┼─────────┤
+#	│ Sales      │ New York │    46000 │          │    76000 │    75000 │  197000 │
+#	│            │ Chicago  │    43000 │    42000 │    73000 │    72000 │  230000 │
+#	│            │          │          │          │          │          │         │
+#	│ IT         │ New York │    53000 │    52000 │    86000 │    85000 │  276000 │
+#	│            │ Chicago  │    51000 │    50000 │    83000 │    82000 │  266000 │
+#	│            │          │          │          │          │          │         │
+#	│ HR         │ New York │    43000 │    42000 │    69000 │    68000 │  222000 │
+#	│            │ Chicago  │    41000 │    40000 │    66000 │    65000 │  212000 │
+#	╰────────────┴──────────┴──────────┴──────────┴──────────┴──────────┴─────────╯
+#	                AVERAGE │   277000 │   226000 │   453000 │   447000 │ 1403000 
 
 }
 
 pf()
-# Executed in 0.18 second(s) in Ring 1.22
+# Executed in 0.16 second(s) in Ring 1.22
 
 /*
   Example 3: Different Aggregation Functions

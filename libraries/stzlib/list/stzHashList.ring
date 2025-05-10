@@ -40,6 +40,10 @@ func StzNamedHashList(paNamed)
 		return StzNamedHashList(paNamed)
 
 func IsHashList(paList)
+ 	if NOT isList(paList)
+		return FALSE
+	ok
+
 	oTempList = new stzList(paList)
 	return oTempList.IsHashList()
 

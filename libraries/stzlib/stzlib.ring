@@ -177,6 +177,7 @@ t0 = clock()
 	load "list/stzItem.ring"
 
 	load "list/stzPivotTable.ring"
+	load "list/stzPivotTableShow.ring"
 
 	load "list/stzListParser.ring"
 	load "list/stzListInString.ring"
