@@ -97,7 +97,7 @@ class stzPivotTable
 
 
     def SetAggregateFunction(pcFunction)
-        @cAggregationFunction = upper(pcFunction)
+        @cAggregationFunction = lower(pcFunction)
         @bIsGenerated = FALSE
 
 
@@ -168,8 +168,6 @@ class stzPivotTable
         @oResultTable = new stzTable(@aPivotData)
         @bIsGenerated = TRUE
         
-
-
     #-- 
     
     # Helper function to get all unique combinations of specified fields
@@ -299,78 +297,84 @@ class stzPivotTable
         return cResult
     
     # Generate all data rows based on row combinations
-    def _generateDataRows(aRowCombos, aColCombos)
-        for rowCombo in aRowCombos
-            aRow = []
-            aFlatRowCombo = _flattenArray(rowCombo)
-            
-            # Add row labels
-            for i = 1 to len(aFlatRowCombo)
-                if i <= len(@aRowLabels)
-                    aRow + aFlatRowCombo[i]
-                ok
-            next
-            
-            # Fill any missing row labels with empty strings
-            while len(aRow) < len(@aRowLabels)
-                aRow + ""
-            end
-            
-            nRowTotal = 0
-            
-            # Add values for each column combination
-            for colCombo in aColCombos
-                aFlatColCombo = _flattenArray(colCombo)
-                nCellValue = _calculateCellValueMulti(aFlatRowCombo, aFlatColCombo)
-                aRow + nCellValue
-                
-                if @bShowTotalColumn and isNumber(nCellValue)
-                    nRowTotal += nCellValue
-                ok
-            next
-            
-            # Add row total if needed
-            if @bShowTotalColumn
-                aRow + nRowTotal
+
+def _generateDataRows(aRowCombos, aColCombos)
+    for rowCombo in aRowCombos
+        aRow = []
+        aFlatRowCombo = _flattenArray(rowCombo)
+        
+        # Add row labels
+        for i = 1 to len(aFlatRowCombo)
+            if i <= len(@aRowLabels)
+                aRow + aFlatRowCombo[i]
             ok
-            
-            @aPivotData + aRow
         next
+        
+        # Fill any missing row labels with empty strings
+        while len(aRow) < len(@aRowLabels)
+            aRow + ""
+        end
+        
+        aRowValues = []
+        
+        # Add values for each column combination
+        for colCombo in aColCombos
+            aFlatColCombo = _flattenArray(colCombo)
+            nCellValue = _calculateCellValueMulti(aFlatRowCombo, aFlatColCombo)
+            aRow + nCellValue
+            
+            if @bShowTotalColumn and isNumber(nCellValue)
+                aRowValues + nCellValue
+            ok
+        next
+        
+        # Add row total if needed, using the current aggregation function
+        if @bShowTotalColumn
+            nRowTotal = _applyAggregateFunction(aRowValues)
+            aRow + nRowTotal
+        ok
+        
+        @aPivotData + aRow
+    next
     
     # Add total row
-    def _addTotalRow()
-        aTotalRow = []
+
+def _addTotalRow()
+    aTotalRow = []
+    
+    # Add label(s) for total row
+    for i = 1 to len(@aRowLabels)
+        if i = 1
+            aTotalRow + @cTotalLabel
+        else
+            aTotalRow + ""
+        ok
+    next
+    
+    # Calculate column totals
+    nColCount = len(@aPivotData[1])
+    nRowCount = len(@aPivotData)
+    
+    for c = len(@aRowLabels) + 1 to nColCount
+        aColValues = []
         
-        # Add label(s) for total row
-        for i = 1 to len(@aRowLabels)
-            if i = 1
-                aTotalRow + @cTotalLabel
-            else
-                aTotalRow + ""
+        # Collect values in this column (skip header row)
+        for r = 2 to nRowCount
+            if isNumber(@aPivotData[r][c])
+                aColValues + @aPivotData[r][c]
             ok
         next
         
-        # Calculate column totals
-        nColCount = len(@aPivotData[1])
-        nRowCount = len(@aPivotData)
-        
-        for c = len(@aRowLabels) + 1 to nColCount
-            nColTotal = 0
-            
-            # Sum values in this column (skip header row)
-            for r = 2 to nRowCount
-                if isNumber(@aPivotData[r][c])
-                    nColTotal += @aPivotData[r][c]
-                ok
-            next
-            
-            aTotalRow + nColTotal
-        next
-        
-        @aPivotData + aTotalRow
+        # Apply the chosen aggregation function to column values
+        nColTotal = _applyAggregateFunction(aColValues)
+        aTotalRow + nColTotal
+    next
     
+    @aPivotData + aTotalRow
+  
     # Calculate cell value for multiple row and column dimensions
     def _calculateCellValueMulti(aRowValues, aColValues)
+
         # Handle nested arrays (flatten them)
         aFlatRowValues = _flattenArray(aRowValues)
         aFlatColValues = _flattenArray(aColValues)
@@ -514,67 +518,67 @@ class stzPivotTable
     
     def _addToCache(cKey, value)
         @aCellCache + [cKey, value]
-    
-    def _applyAggregateFunction(aValues)
-        if len(aValues) = 0
-            return @cCellNullValue
-        ok
-        
-        switch @cAggregationFunction
-            on "SUM"
-                nResult = 0
-                for value in aValues
-                    nResult += value
-                next
-                return nResult
-                
-            on "AVERAGE"
-                nSum = 0
-                for value in aValues
-                    nSum += value
-                next
-                return nSum / len(aValues)
-                
-            on "COUNT"
-                return len(aValues)
-                
-            on "MIN"
-                nMin = aValues[1]
-                for value in aValues
-                    if value < nMin
-                        nMin = value
-                    ok
-                next
-                return nMin
-                
-            on "MAX"
-                nMax = aValues[1]
-                for value in aValues
-                    if value > nMax
-                        nMax = value
-                    ok
-                next
-                return nMax
-                
-            on "MEDIAN"
-                aValuesSorted = sort(aValues)
-                nLen = len(aValuesSorted)
-                
-                if nLen % 2 = 1
-                    return aValuesSorted[ceil(nLen/2)]
-                else
-                    return (aValuesSorted[nLen/2] + aValuesSorted[(nLen/2)+1]) / 2
+
+def _applyAggregateFunction(aValues)
+    if len(aValues) = 0
+        return @cCellNullValue
+    ok
+
+    switch lower(@cAggregationFunction)
+        on "sum"
+            nResult = 0
+            for value in aValues
+                nResult += value
+            next
+            return nResult
+            
+        on "average"
+            nSum = 0
+            for value in aValues
+                nSum += value
+            next
+            return nSum / len(aValues)
+            
+        on "count"
+            return len(aValues)
+            
+        on "min"
+            nMin = aValues[1]
+            for value in aValues
+                if value < nMin
+                    nMin = value
                 ok
-                
-            on "FIRST"
-                return aValues[1]
-                
-            on "LAST"
-                return aValues[len(aValues)]
-                
-            other
-                stzRaise("Unsupported aggregation function: " + @cAggregationFunction)
-        off
+            next
+            return nMin
+            
+        on "max"
+            nMax = aValues[1]
+            for value in aValues
+                if value > nMax
+                    nMax = value
+                ok
+            next
+            return nMax
+            
+        on "median"
+            aValuesSorted = sort(aValues)
+            nLen = len(aValuesSorted)
+            
+            if nLen % 2 = 1
+                return aValuesSorted[ceil(nLen/2)]
+            else
+                return (aValuesSorted[nLen/2] + aValuesSorted[(nLen/2)+1]) / 2
+            ok
+            
+        on "first"
+            return aValues[1]
+            
+        on "last"
+            return aValues[len(aValues)]
+            
+        other
+            stzRaise("Unsupported aggregation function: " + @cAggregationFunction)
+    off
 
     #--
 
@@ -794,7 +798,8 @@ class stzPivotTable
         if not @bIsGenerated
             Generate()
         ok
-        
+
+? @@NL(@aPivotData)
         # Create a formatted display that properly handles multi-dimensional data
 		if len(@aColLabels) <= 2 and len(@aRowLabels) <=2
        		_showFormattedPivotTable2D()
@@ -842,8 +847,8 @@ def _showFormattedPivotTable2D()
         colHeader = aHeaderRow[colIdx]
         
         if colHeader != ""
-            aParts = @split(colHeader, "_")
-            
+            aParts = split(colHeader, "_")
+
             dim1Value = aParts[1]
             dim2Value = aParts[2]
             
