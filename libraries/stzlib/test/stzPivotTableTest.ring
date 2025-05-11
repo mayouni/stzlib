@@ -127,7 +127,7 @@ oProductPivot {
 	SetRowLabels([:Product])
 	SetColumnLabels([:Quarter])
 	SetValues([:Sales])
-	SetAggregateFunction("SUM")
+	SetAggregateFunction("MEDIAN")
 
 	Show()
 	#-->
@@ -204,7 +204,8 @@ oPivot = new stzPivotTable(oTable)
 oPivot {
 
 	Analyze([ :Salary ], :AVERAGE)
-	SetRowsBy([ :Department, :Location ])
+SetRowsBy([ :Department, :Department ])
+//	SetRowsBy([ :Department, :Location ])
 	SetColsBy([ :Experience, :Gender ])
 
 	Show()
