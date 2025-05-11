@@ -1,5 +1,6 @@
 load "../max/stzmax.ring"
-/*
+
+/*---
 
 pr()
 
@@ -33,13 +34,13 @@ oSalesData.Show()
 # Pivot table of Sales by Region (rows) and Product (columns)
 oSalesPivot = new stzPivotTable(oSalesData)
 oSalesPivot {
-    SetRowLabel(:Region)
-    SetColumnLabel(:Product)
-    SetValue(:Sales)
-    SetAggregateFunction("SUM")
+	Analyze([:Sales], "SUM")
+	SetRowsBy([ :Region ])
+	SetColsBy([ :Product ])
+
     Show()
 }
-
+/*
 # Another view - Sales by Product (rows) and Quarter (columns)
 ? NL()
 oProductPivot = new stzPivotTable(oSalesData)
@@ -205,14 +206,6 @@ oPivot {
 	Analyze([ :Salary ], :AVERAGE)
 	SetRowsBy([ :Department, :Location ])
 	SetColsBy([ :Experience, :Gender ])
-	
-
-//	SetRowLabels([ :Department, :Location ])
-//	SetColumnLabels([ :Experience, :Gender ])
-//	SetValues([ :Salary ])
-//	SetAggregateFunction("AVERAGE")
-
-//	SetTotalLabel("AVERAGE")
 
 	Show()
 #-->
