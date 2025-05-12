@@ -141,7 +141,25 @@ func MaxOf(panNumbers)
 func FindMaxIn(panNumbers)
 	return FindMax(panNumbers) # Defined in SoftanzaCore
 
-#-- Multiple calculation
+#--
+
+func Median(panNumbers)
+
+	if CheckParams()
+		if NOT ( isList(panNumbers) and IsListOfNumbers(panNumbers) )
+			StzRaise("Incorrect param type! panNumbers must be a lis tof numbers.")
+		ok
+	ok
+
+	anValuesSorted = @sort(panNumbers)
+	nLen = len(anValuesSorted)
+	
+	if nLen % 2 = 1
+		return anValuesSorted[ring_ceil(nLen/2)]
+	else
+		return (anValuesSorted[nLen/2] + anValuesSorted[(nLen/2)+1]) / 2
+	ok
+
 
 func Sum(panNumbers)
 	if CheckingParams()
@@ -3655,6 +3673,16 @@ class stzListOfNumbers from stzList
 
 		def Average()
 			return Mean()
+
+	def Median()
+			aValuesSorted = @sort(This.Content())
+			nLen = len(aValuesSorted)
+			
+			if nLen % 2 = 1
+				return aValuesSorted[ring_ceil(nLen/2)]
+			else
+				return (aValuesSorted[nLen/2] + aValuesSorted[(nLen/2)+1]) / 2
+			ok
 
 	def MeanByCoefficient(paList)
 		// [ 16, 18, 20, 17 ]
