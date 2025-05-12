@@ -3590,7 +3590,7 @@ pf()
 # Executed in 0.74 second(s) in Ring 1.17
 
 /*==============
-*/
+
 pr()
 
 o1 = new stzTable([
@@ -3602,7 +3602,7 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? o1.ShowXT([ :ShowRowNumbers, :IntersectionChar = " " ])
+? o1.ShowXT([ :ShowRowNumbers, :IntersectionChar = "+" ])
 #--> # | PALETTE1 | PALETTE2 | PALETTE3
 #    -- ---------- ---------- ---------
 #    1 |      Red |    White |   Yellow
@@ -5737,7 +5737,7 @@ pf()
 # Executed in 0.13 second(s)
 
 /*-----------
-*/
+
 pr()
 
 # Income in million dollars per year
@@ -6067,3 +6067,139 @@ o1.FromCSV("tabdata.csv")
 
 pf()
 #--> Executed in 0.67 second(s) in Ring 1.22
+
+/*=== Filtering Tests for stzTable
+
+pr()
+
+o1 = new stzTable([
+
+    :Region = [
+		"North", "South", "East",
+		"West", "North", "South",
+		"East", "West"
+	],
+
+    :Product = [
+		"Product A", "Product A", "Product A",
+		"Product A", "Product B", "Product B",
+		"Product B", "Product B"
+	],
+
+    :Quarter = [
+		"Q1", "Q1", "Q1",
+		"Q1", "Q2", "Q1",
+		"Q2", "Q1"
+	],
+
+    :Sales = [ 10000, 15000, 11000, 13000, 8000, 9500, 7500, 9000 ],
+
+    :Unites = [ 100, 150, 110, 130, 80, 95, 75, 90 ]
+
+])
+
+# Filter by Single Region
+
+o1.FilterCQ([ :Region = "North", :Quarter = "Q2" ]).Show()
+
+#---> Returns a table with only East region rows
+# Full table display
+? o1.Show()
+
+# Filtered display (e.g., only North region)
+o1.Filter([ [ :Region, "North"] ])
+o1.Show()
+
+pf()
+
+/*--- Filter by Region and Quarter
+*/
+pr()
+
+o1 = new stzTable([
+
+    :Region = [
+		"North", "South", "East",
+		"West", "North", "South",
+		"East", "West"
+	],
+
+    :Product = [
+		"Product A", "Product A", "Product A",
+		"Product A", "Product B", "Product B",
+		"Product B", "Product B"
+	],
+
+    :Quarter = [
+		"Q1", "Q1", "Q1",
+		"Q1", "Q1", "Q1",
+		"Q1", "Q1"
+	],
+
+    :Sales = [ 10000, 15000, 11000, 13000, 8000, 9500, 7500, 9000 ],
+
+    :Unites = [ 100, 150, 110, 130, 80, 95, 75, 90 ]
+
+])
+
+# Returns a table with only East region, Q1 quarter rows
+
+o1.FilterCQ([
+    :Region = "East",
+    :Quarter = "Q1"
+]).Show()
+
+# Filter with Multiple Region Values
+
+o1.FilterCQ([ 
+    :Region = [ "East", "West" ], 
+    :Product = "Product A"
+]).Show()
+
+
+pf()
+
+#---> 
+
+
+#---> Returns a table with East and West regions, Product A rows
+
+/*--- Grouping Tests
+
+/*--- Group by Single Column
+o1.GroupBy(["Region"])
+#---> Aggregates data grouped by Region
+
+/*--- Group by Multiple Columns
+o1.GroupBy(["Region", "Product"])
+#---> Detailed grouping by Region and Product
+
+/*--- Aggregation Tests
+
+/*--- Single Column Aggregation
+o1.Aggregate([ [:Sales, :Sum] ])
+#---> Calculates total Sales
+
+/*--- Multiple Aggregations
+o1.Aggregate([
+    [:Sales, :Sum],
+    [:Units, :Average],
+    [:Product, :Count]
+])
+#---> Calculates Sum of Sales, Average of Units, Count of Products
+
+/*--- Display Tests
+
+/*--- Default Display
+o1.DisplayXT()
+#---> Displays table with default formatting
+
+/*--- Custom Display Options
+o1.DisplayXT([
+    :Separator = " | ",
+    :Alignment = :Right,
+    :ShowSummary = _TRUE_,
+    :HeaderStyle = :Uppercase,
+    :Precision = 2
+])
+#---> Displays table with custom formatting

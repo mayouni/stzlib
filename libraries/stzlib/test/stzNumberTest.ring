@@ -25,7 +25,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*======
-*/
+
 pr()
 
 ? @@( Q(462).PrimeDividors() ) + NL
@@ -130,9 +130,6 @@ next
 # Executed in 0.36 second(s) in Ring 1.21
 
 pf()
-
-/*----
-*/
 
 /*--- @ring
 
@@ -767,7 +764,7 @@ pr()
 pf()
 # Executed in 0.04 second(s)
 
-/*=============== ici
+/*=============== ici #TODO ERROR
 
 pr()
 
@@ -784,7 +781,7 @@ pf()
 # Executed in 0.11 second(s)
 
 /*--------------------
-
+*/
 pr()
 
 decimals(3)
