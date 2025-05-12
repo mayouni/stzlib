@@ -41,6 +41,19 @@ func StzStringClassName()
 
 #--
 
+func Capitalize(str)
+		return StzStringQ(str).Capitalized()
+
+		func Capitalise(str)
+			return StzStringQ(str).Capitalized()
+
+		func @Capitalize(str)
+			return StzStringQ(str).Capitalized()
+
+		func @Capitalise(str)
+			return StzStringQ(str).Capitalized()
+#--
+
 func IsInvisibleString(str)
 
 	if CheckParams()

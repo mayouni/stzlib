@@ -27,6 +27,21 @@ class stzPivotTable
 	# State tracking for generation status
 	@bIsGenerated = FALSE
 
+	# Define border characters
+	@aBorder = [
+		:TopLeft = "╭",
+		:TopRight = "╮",
+		:BottomLeft = "╰",
+		:BottomRight = "╯",
+		:Horizontal = "─",
+		:Vertical = "│",
+		:TeeRight = "├",
+		:TeeLeft = "┤",
+		:TeeDown = "┬",
+		:TeeUp = "┴",
+		:Cross = "┼"
+	]
+
 	  #-----------------------------#
 	 #  INITIALIZATION AND SETUP   #
 	#-----------------------------#
@@ -52,6 +67,12 @@ class stzPivotTable
 	#--------------------------#
 
 	def Analyze(paValues, pcFunc)
+		if CheckParams()
+			if isList(pcFunc) and StzListQ(pcFunc).IsWithOrUsingNamedParam()
+				pcFunc = pcFunc[2]
+			ok
+		ok
+
 		# Configure values and aggregation function for analysis
 		This.SetValues(paValues)
 		This.SetAggregateFunction(pcFunc)
@@ -817,19 +838,22 @@ class stzPivotTable
 			Generate()
 		ok
 
-_showFormattedPivotTable2D()
-/*
 		if len(@aCollabels) = 1 and len(@aRowlabels) = 1
-			_showFormattedPivotTable1D()
-
+		    _showFormattedPivotTable1D()
+	
+		but len(@aCollabels) = 1 and len(@aRowlabels) = 2
+		    _showFormattedPivotTable2DRows1DCols()  
+	
+		but len(@aCollabels) = 2 and len(@aRowlabels) = 1
+		    _showFormattedPivotTable1DRows2DCols()
+	
 		but len(@aCollabels) = 2 and len(@aRowlabels) = 2
-			_showFormattedPivotTable2D()
-
+		    _showFormattedPivotTable2D()
+	
 		else
-			_showFormattedPivotTable2DPlus()
-
+		    _showFormattedPivotTable2DPlus()
 		ok
-*/
+
 # 1D specialized method for simpler pivot tables
 def _showFormattedPivotTable1D()
 	# Display pivot table with formatted output - for 1D analysis (simpler format)
@@ -837,7 +861,7 @@ def _showFormattedPivotTable1D()
 	aRowDims = @aRowLabels
 	aColDims = @aColLabels
 	cTotalLabel = @cTotalLabel
-	
+
 	# Initialize column tracking
 	aRowLabelCols = []
 	aDataCols = []
@@ -899,47 +923,66 @@ def _showFormattedPivotTable1D()
 	next
 	nTotalColWidth += 2
 	
-	# Define border characters
-	aBorder = [
-		:TopLeft = "╭",
-		:TopRight = "╮",
-		:BottomLeft = "╰",
-		:BottomRight = "╯",
-		:Horizontal = "─",
-		:Vertical = "│",
-		:TeeRight = "├",
-		:TeeLeft = "┤",
-		:TeeDown = "┬",
-		:TeeUp = "┴",
-		:Cross = "┼"
-	]
+	# Calculate experience column width (sum of data column widths)
+	nExpWidth = 0
+	for i = 1 to len(aDataColWidths)
+		nExpWidth += aDataColWidths[i]
+	next
+	# Add separators length
+	nExpWidth += len(aDataCols) - 1
 	
 	# Build table output
 	cOutput = ""
 	
 	# Top border
-	cLine = aBorder[:TopLeft] + StrFill(nRowLabelWidth, aBorder[:Horizontal]) + aBorder[:TeeDown]
+	cLine = @aBorder[:TopLeft] + StrFill(nRowLabelWidth, @aBorder[:Horizontal]) + @aBorder[:TeeDown]
 	
+	# Experience column group
+	cLine += StrFill(nExpWidth, @aBorder[:Horizontal])
+	
+	# Total column
+	cLine += @aBorder[:TeeDown] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TopRight]
+	cOutput += cLine + nl()
+	
+	# Experience header row
+	cLine = @aBorder[:Vertical]
+	
+	# Column for row dimension
+	cLine += copy(" ", nRowLabelWidth) + @aBorder[:Vertical]
+
+	# Experience header
+	cLine += CenterText(Capitalize(aColDims[1]), nExpWidth) + @aBorder[:Vertical]
+	
+	# Median header
+	cLine += copy(" ", nTotalColWidth) + @aBorder[:Vertical]
+	cOutput += cLine + nl()
+	
+	# Separator after Experience row
+	cLine = @aBorder[:Vertical] + StrFill(nRowLabelWidth, " ") + @aBorder[:Vertical]
+	
+	# Sub-headers separator
+	pos = 0
 	for i = 1 to len(aDataCols)
-		cLine += StrFill(aDataColWidths[i], aBorder[:Horizontal])
+		cLine += StrFill(aDataColWidths[i], @aBorder[:Horizontal])
+		pos += aDataColWidths[i]
+		
 		if i < len(aDataCols)
-			cLine += aBorder[:TeeDown]
+			cLine += @aBorder[:TeeDown]
+			pos += 1
 		ok
 	next
 	
-	cLine += aBorder[:TeeDown] + StrFill(nTotalColWidth, aBorder[:Horizontal]) + aBorder[:TopRight]
+	cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
 	cOutput += cLine + nl()
 	
-	# Header row
-	cLine = aBorder[:Vertical]
+	# Sub-headers row (Junior, Senior)
+	cLine = @aBorder[:Vertical]
 	
-	# Column for row dimension
-	dimName = aRowDims[1]
-	oDim = StzStringQ(dimName)
-	capitalized = Upper(Left(dimName, 1)) + oDim.Section(2, oDim.NumberOfChars())
-	cLine += CenterText(capitalized, nRowLabelWidth) + aBorder[:Vertical]
-	
-	# Header for data columns
+	# Empty cell for Department column
+
+	cLine += CenterText(Capitalize(aRowDims[1]), nRowLabelWidth) + @aBorder[:Vertical]
+
+	# Sub-headers for experience columns
 	for i = 1 to len(aDataCols)
 		colIdx = aDataCols[i]
 		colHeader = aHeaderRow[colIdx]
@@ -948,33 +991,35 @@ def _showFormattedPivotTable1D()
 		cLine += CenterText(capitalized, aDataColWidths[i])
 		
 		if i < len(aDataCols)
-			cLine += aBorder[:Vertical]
+			cLine += @aBorder[:Vertical]
 		ok
 	next
 	
-	cLine += aBorder[:Vertical] + CenterText(Upper(cTotalLabel), nTotalColWidth) + aBorder[:Vertical]
+	# MEDIAN cell in this row
+
+	cLine += @aBorder[:Vertical] + CenterText(Upper(cTotalLabel), nTotalColWidth) + @aBorder[:Vertical]
 	cOutput += cLine + nl()
-	
+
 	# Separator before data
-	cLine = aBorder[:TeeRight] + StrFill(nRowLabelWidth, aBorder[:Horizontal]) + aBorder[:Cross]
+	cLine = @aBorder[:TeeRight] + StrFill(nRowLabelWidth, @aBorder[:Horizontal]) + @aBorder[:Cross]
 	
 	for i = 1 to len(aDataCols)
-		cLine += StrFill(aDataColWidths[i], aBorder[:Horizontal])
+		cLine += StrFill(aDataColWidths[i], @aBorder[:Horizontal])
 		if i < len(aDataCols)
-			cLine += aBorder[:Cross]
+			cLine += @aBorder[:Cross]
 		ok
 	next
 	
-	cLine += aBorder[:Cross] + StrFill(nTotalColWidth, aBorder[:Horizontal]) + aBorder[:TeeLeft]
+	cLine += @aBorder[:Cross] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TeeLeft]
 	cOutput += cLine + nl()
 	
 	# Data rows
 	for r = 2 to len(aPivotData) - 1
-		cLine = aBorder[:Vertical]
+		cLine = @aBorder[:Vertical]
 		
 		# Row label
 		rowValue = aPivotData[r][1]
-		cLine += " " + rowValue + StrFill(nRowLabelWidth - len(rowValue) - 1, " ") + aBorder[:Vertical]
+		cLine += " " + rowValue + StrFill(nRowLabelWidth - len(rowValue) - 1, " ") + @aBorder[:Vertical]
 		
 		# Data cells
 		for i = 1 to len(aDataCols)
@@ -991,7 +1036,7 @@ def _showFormattedPivotTable1D()
 			ok
 			
 			if i < len(aDataCols)
-				cLine += aBorder[:Vertical]
+				cLine += @aBorder[:Vertical]
 			ok
 		next
 		
@@ -1002,9 +1047,9 @@ def _showFormattedPivotTable1D()
 		ok
 		
 		if isNumber(totalValue) or (isString(totalValue) and totalValue != "" and isNumber(0 + totalValue))
-			cLine += aBorder[:Vertical] + " " + PadLeft(totalValue, nTotalColWidth - 2) + " " + aBorder[:Vertical]
+			cLine += @aBorder[:Vertical] + " " + PadLeft(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 		else
-			cLine += aBorder[:Vertical] + " " + PadRight(totalValue, nTotalColWidth - 2) + " " + aBorder[:Vertical]
+			cLine += @aBorder[:Vertical] + " " + PadRight(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 		ok
 		
 		cOutput += cLine + nl()
@@ -1012,22 +1057,26 @@ def _showFormattedPivotTable1D()
 	
 	# Separator before total row (only if there is a total row)
 	if len(aPivotData) > 1 and aPivotData[len(aPivotData)][1] = cTotalLabel
-		cLine = aBorder[:TeeRight] + StrFill(nRowLabelWidth, aBorder[:Horizontal]) + aBorder[:Cross]
+		cLine = @aBorder[:TeeRight] + StrFill(nRowLabelWidth, @aBorder[:Horizontal]) + @aBorder[:Vertical]
+		
+	# Bottom border (only add if we added a total row)
+	if len(aPivotData) > 1 and aPivotData[len(aPivotData)][1] = cTotalLabel
+		cLine = @aBorder[:BottomLeft] + StrFill(nRowLabelWidth, @aBorder[:Horizontal]) + @aBorder[:TeeUp]
 		
 		for i = 1 to len(aDataCols)
-			cLine += StrFill(aDataColWidths[i], aBorder[:Horizontal])
+			cLine += StrFill(aDataColWidths[i], @aBorder[:Horizontal])
 			if i < len(aDataCols)
-				cLine += aBorder[:Cross]
+				cLine += @aBorder[:TeeUp]
 			ok
 		next
 		
-		cLine += aBorder[:Cross] + StrFill(nTotalColWidth, aBorder[:Horizontal]) + aBorder[:TeeLeft]
+		cLine += @aBorder[:TeeUp] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:BottomRight]
 		cOutput += cLine + nl()
-		
+	ok		
 		# Total row
 		totalRow = aPivotData[len(aPivotData)]
 		
-		cLine = aBorder[:Vertical] + " " + PadLeft(Upper(totalRow[1]), nRowLabelWidth - 2) + " " + aBorder[:Vertical]
+		cLine = "  " + PadLeft(Upper(totalRow[1]), nRowLabelWidth - 2) + " " + @aBorder[:Vertical]
 		
 		for i = 1 to len(aDataCols)
 			colIdx = aDataCols[i]
@@ -1043,7 +1092,7 @@ def _showFormattedPivotTable1D()
 			ok
 			
 			if i < len(aDataCols)
-				cLine += aBorder[:Vertical]
+				cLine += @aBorder[:Vertical]
 			ok
 		next
 		
@@ -1053,44 +1102,32 @@ def _showFormattedPivotTable1D()
 		ok
 		
 		if isNumber(grandTotal) or (isString(grandTotal) and grandTotal != "" and isNumber(0 + grandTotal))
-			cLine += aBorder[:Vertical] + " " + PadLeft(grandTotal, nTotalColWidth - 2) + " " + aBorder[:Vertical]
+			cLine += @aBorder[:Vertical] + " " + PadLeft(grandTotal, nTotalColWidth - 2) + "  "
 		else
-			cLine += aBorder[:Vertical] + " " + PadRight(grandTotal, nTotalColWidth - 2) + " " + aBorder[:Vertical]
+			cLine += @aBorder[:Vertical] + " " + PadRight(grandTotal, nTotalColWidth - 2) + "  "
 		ok
 		
 		cOutput += cLine + nl()
 	else
 		# Bottom border if no total row
-		cLine = aBorder[:BottomLeft] + StrFill(nRowLabelWidth, aBorder[:Horizontal]) + aBorder[:TeeUp]
+		cLine = @aBorder[:BottomLeft] + StrFill(nRowLabelWidth, @aBorder[:Horizontal]) + @aBorder[:TeeUp]
 		
 		for i = 1 to len(aDataCols)
-			cLine += StrFill(aDataColWidths[i], aBorder[:Horizontal])
+			cLine += StrFill(aDataColWidths[i], @aBorder[:Horizontal])
 			if i < len(aDataCols)
-				cLine += aBorder[:TeeUp]
+				cLine += @aBorder[:TeeUp]
 			ok
 		next
 		
-		cLine += aBorder[:TeeUp] + StrFill(nTotalColWidth, aBorder[:Horizontal]) + aBorder[:BottomRight]
+		cLine += @aBorder[:TeeUp] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:BottomRight]
 		cOutput += cLine + nl()
 	ok
 	
-	# Bottom border (only add if we added a total row)
-	if len(aPivotData) > 1 and aPivotData[len(aPivotData)][1] = cTotalLabel
-		cLine = aBorder[:BottomLeft] + StrFill(nRowLabelWidth, aBorder[:Horizontal]) + aBorder[:TeeUp]
-		
-		for i = 1 to len(aDataCols)
-			cLine += StrFill(aDataColWidths[i], aBorder[:Horizontal])
-			if i < len(aDataCols)
-				cLine += aBorder[:TeeUp]
-			ok
-		next
-		
-		cLine += aBorder[:TeeUp] + StrFill(nTotalColWidth, aBorder[:Horizontal]) + aBorder[:BottomRight]
-		cOutput += cLine + nl()
-	ok
+
 	
 	? cOutput
 
+	#-----------
 
 	def _showFormattedPivotTable2D()
 		# Display 2D pivot table with formatted output
@@ -1209,35 +1246,20 @@ def _showFormattedPivotTable1D()
 		next
 		nRowLabelSectionWidth += len(aRowDims) - 1
 		
-		# Define border characters
-		aBorder = [
-			:TopLeft = "╭",
-			:TopRight = "╮",
-			:BottomLeft = "╰",
-			:BottomRight = "╯",
-			:Horizontal = "─",
-			:Vertical = "│",
-			:TeeRight = "├",
-			:TeeLeft = "┤",
-			:TeeDown = "┬",
-			:TeeUp = "┴",
-			:Cross = "┼"
-		]
-		
 		# Build table output
 		cOutput = ""
 		
 		# Top border
-		cLine = aBorder[:TopLeft]
+		cLine = @aBorder[:TopLeft]
 		
 		for i = 1 to len(aRowLabelWidths)
-			cLine += StrFill(aRowLabelWidths[i], aBorder[:Horizontal])
+			cLine += StrFill(aRowLabelWidths[i], @aBorder[:Horizontal])
 			if i < len(aRowLabelWidths)
-				cLine += aBorder[:Horizontal]
+				cLine += @aBorder[:Horizontal]
 			ok
 		next
 		
-		cLine += aBorder[:TeeDown]
+		cLine += @aBorder[:TeeDown]
 		
 		# Calculate first dimension widths
 		aDim1Widths = []
@@ -1258,17 +1280,17 @@ def _showFormattedPivotTable1D()
 		# Add dimension sections
 		for i = 1 to len(aColDim1Values)
 			dim1Value = aColDim1Values[i]
-			cLine += StrFill(aDim1Widths[dim1Value], aBorder[:Horizontal])
+			cLine += StrFill(aDim1Widths[dim1Value], @aBorder[:Horizontal])
 			if i < len(aColDim1Values)
-				cLine += aBorder[:TeeDown]
+				cLine += @aBorder[:TeeDown]
 			ok
 		next
 		
-		cLine += aBorder[:TeeDown] + StrFill(nTotalColWidth, aBorder[:Horizontal]) + aBorder[:TopRight]
+		cLine += @aBorder[:TeeDown] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TopRight]
 		cOutput += cLine + nl()
 		
 		# First header row
-		cLine = aBorder[:Vertical]
+		cLine = @aBorder[:Vertical]
 		
 		for i = 1 to len(aRowLabelWidths)
 			cLine += StrFill(aRowLabelWidths[i], " ")
@@ -1277,7 +1299,7 @@ def _showFormattedPivotTable1D()
 			ok
 		next
 		
-		cLine += aBorder[:Vertical]
+		cLine += @aBorder[:Vertical]
 		
 		for i = 1 to len(aColDim1Values)
 			dim1Value = aColDim1Values[i]
@@ -1285,48 +1307,45 @@ def _showFormattedPivotTable1D()
 			cLine += CenterText(dim1Display, aDim1Widths[dim1Value])
 			
 			if i < len(aColDim1Values)
-				cLine += aBorder[:Vertical]
+				cLine += @aBorder[:Vertical]
 			ok
 		next
 		
-		cLine += aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + aBorder[:Vertical]
+		cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
 		cOutput += cLine + nl()
 		
 		# Separator after first dimension
-		cLine = aBorder[:TeeRight]
+		cLine = @aBorder[:Vertical]
 		
 		for i = 1 to len(aRowLabelWidths)
-			cLine += StrFill(aRowLabelWidths[i], aBorder[:Horizontal])
-			if i < len(aRowLabelWidths)
-				cLine += aBorder[:TeeDown]
-			ok
+			cLine += StrFill(aRowLabelWidths[i], " ")
 		next
 		
-		cLine += aBorder[:Cross]
+		cLine += " " + @aBorder[:Vertical]
 		
 		for dim1Value in aColDim1Values
 			for dim2Value in aColDim2Values
 				key = dim1Value + "_" + dim2Value
 				if aDataColWidths[key] != NULL
 					dim2Width = aDataColWidths[key]
-					cLine += StrFill(dim2Width, aBorder[:Horizontal])
+					cLine += StrFill(dim2Width, @aBorder[:Horizontal])
 					
 					if dim2Value != aColDim2Values[len(aColDim2Values)]
-						cLine += aBorder[:TeeDown]
+						cLine += @aBorder[:TeeDown]
 					ok
 				ok
 			next
 			
 			if dim1Value != aColDim1Values[len(aColDim1Values)]
-				cLine += aBorder[:Cross]
+				cLine += @aBorder[:Cross]
 			ok
 		next
 		
-		cLine += aBorder[:TeeLeft] + StrFill(nTotalColWidth," ") + aBorder[:Vertical]
+		cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth," ") + @aBorder[:Vertical]
 		cOutput += cLine + nl()
 		
 		# Second dimension header
-		cLine = aBorder[:Vertical]
+		cLine = @aBorder[:Vertical]
 		
 		for i = 1 to len(aRowDims)
 			dim = aRowDims[i]
@@ -1335,11 +1354,11 @@ def _showFormattedPivotTable1D()
 			cLine += CenterText(capitalized, aRowLabelWidths[i])
 			
 			if i < len(aRowDims)
-				cLine += aBorder[:Vertical]
+				cLine += @aBorder[:Vertical]
 			ok
 		next
 		
-		cLine += aBorder[:Vertical]
+		cLine += @aBorder[:Vertical]
 		
 		for dim1Value in aColDim1Values
 			for dim2Value in aColDim2Values
@@ -1350,49 +1369,49 @@ def _showFormattedPivotTable1D()
 					cLine += CenterText(capitalizedDim2, aDataColWidths[key])
 					
 					if dim2Value != aColDim2Values[len(aColDim2Values)]
-						cLine += aBorder[:Vertical]
+						cLine += @aBorder[:Vertical]
 					ok
 				ok
 			next
 			
 			if dim1Value != aColDim1Values[len(aColDim1Values)]
-				cLine += aBorder[:Vertical]
+				cLine += @aBorder[:Vertical]
 			ok
 		next
 		
-		cLine += aBorder[:Vertical] + CenterText(Upper(cTotalLabel), nTotalColWidth) + aBorder[:Vertical]
+		cLine += @aBorder[:Vertical] + CenterText(Upper(cTotalLabel), nTotalColWidth) + @aBorder[:Vertical]
 		cOutput += cLine + nl()
 		
 		# Separator before data
-		cLine = aBorder[:TeeRight]
+		cLine = @aBorder[:TeeRight]
 		
 		for i = 1 to len(aRowLabelWidths)
-			cLine += StrFill(aRowLabelWidths[i], aBorder[:Horizontal])
+			cLine += StrFill(aRowLabelWidths[i], @aBorder[:Horizontal])
 			if i < len(aRowLabelWidths)
-				cLine += aBorder[:Cross]
+				cLine += @aBorder[:TeeDown]
 			ok
 		next
 		
-		cLine += aBorder[:Cross]
+		cLine += @aBorder[:Cross]
 		
 		for dim1Value in aColDim1Values
 			for dim2Value in aColDim2Values
 				key = dim1Value + "_" + dim2Value
 				if aDataColWidths[key] != NULL
-					cLine += StrFill(aDataColWidths[key], aBorder[:Horizontal])
+					cLine += StrFill(aDataColWidths[key], @aBorder[:Horizontal])
 					
 					if dim2Value != aColDim2Values[len(aColDim2Values)]
-						cLine += aBorder[:Cross]
+						cLine += @aBorder[:Cross]
 					ok
 				ok
 			next
 			
 			if dim1Value != aColDim1Values[len(aColDim1Values)]
-				cLine += aBorder[:Cross]
+				cLine += @aBorder[:Cross]
 			ok
 		next
 		
-		cLine += aBorder[:Cross] + StrFill(nTotalColWidth, aBorder[:Horizontal]) + aBorder[:TeeLeft]
+		cLine += @aBorder[:Cross] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TeeLeft]
 		cOutput += cLine + nl()
 		
 		# Data rows
@@ -1407,7 +1426,7 @@ def _showFormattedPivotTable1D()
 				cLastRowDim1 = cCurrentRowDim1
 			ok
 			
-			cLine = aBorder[:Vertical]
+			cLine = @aBorder[:Vertical]
 			
 			# First dimension
 			if cCurrentRowDim1 != aPivotData[r-1][1] or r = 2
@@ -1416,11 +1435,11 @@ def _showFormattedPivotTable1D()
 				cLine += StrFill(aRowLabelWidths[1], " ")
 			ok
 			
-			cLine += aBorder[:Vertical]
+			cLine += @aBorder[:Vertical]
 			
 			# Second dimension
 			cLine += " " + aPivotData[r][2] + StrFill(aRowLabelWidths[2] - len(aPivotData[r][2]) - 1, " ")
-			cLine += aBorder[:Vertical]
+			cLine += @aBorder[:Vertical]
 			
 			# Data cells
 			for dim1Value in aColDim1Values
@@ -1438,13 +1457,13 @@ def _showFormattedPivotTable1D()
 						ok
 						
 						if dim2Value != aColDim2Values[len(aColDim2Values)]
-							cLine += aBorder[:Vertical]
+							cLine += @aBorder[:Vertical]
 						ok
 					ok
 				next
 				
 				if dim1Value != aColDim1Values[len(aColDim1Values)]
-					cLine += aBorder[:Vertical]
+					cLine += @aBorder[:Vertical]
 				ok
 			next
 			
@@ -1452,18 +1471,18 @@ def _showFormattedPivotTable1D()
 			totalValue = @if(nTotalColIndex <= len(aPivotData[r]), aPivotData[r][nTotalColIndex], "")
 			
 			if isNumber(totalValue) or (isString(totalValue) and totalValue != "" and isNumber(0 + totalValue))
-				cLine += aBorder[:Vertical] + " " + PadLeft(totalValue, nTotalColWidth - 2) + " " + aBorder[:Vertical]
+				cLine += @aBorder[:Vertical] + " " + PadLeft(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 			else
-				cLine += aBorder[:Vertical] + " " + PadRight(totalValue, nTotalColWidth - 2) + " " + aBorder[:Vertical]
+				cLine += @aBorder[:Vertical] + " " + PadRight(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 			ok
 			
 			cOutput += cLine + nl()
 			
 			# Add empty line between categories
 			if r < len(aPivotData) - 1 and cCurrentRowDim1 != aPivotData[r+1][1] and aPivotData[r+1][1] != cTotalLabel
-				cLine = aBorder[:Vertical]
-				cLine += StrFill(aRowLabelWidths[1], " ") + aBorder[:Vertical]
-				cLine += StrFill(aRowLabelWidths[2], " ") + aBorder[:Vertical]
+				cLine = @aBorder[:Vertical]
+				cLine += StrFill(aRowLabelWidths[1], " ") + @aBorder[:Vertical]
+				cLine += StrFill(aRowLabelWidths[2], " ") + @aBorder[:Vertical]
 				
 				for dim1Value in aColDim1Values
 					for dim2Value in aColDim2Values
@@ -1472,53 +1491,53 @@ def _showFormattedPivotTable1D()
 							cLine += StrFill(aDataColWidths[key], " ")
 							
 							if dim2Value != aColDim2Values[len(aColDim2Values)]
-								cLine += aBorder[:Vertical]
+								cLine += @aBorder[:Vertical]
 							ok
 						ok
 					next
 					
 					if dim1Value != aColDim1Values[len(aColDim1Values)]
-						cLine += aBorder[:Vertical]
+						cLine += @aBorder[:Vertical]
 					ok
 				next
 				
-				cLine += aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + aBorder[:Vertical]
+				cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
 				cOutput += cLine + nl()
 			ok
 		next
 		
 		# Bottom border
-		cLine = aBorder[:BottomLeft]
+		cLine = @aBorder[:BottomLeft]
 		
 		for i = 1 to len(aRowLabelWidths)
-			cLine += StrFill(aRowLabelWidths[i], aBorder[:Horizontal])
+			cLine += StrFill(aRowLabelWidths[i], @aBorder[:Horizontal])
 			if i = 1
-				cLine += aBorder[:TeeUp]
+				cLine += @aBorder[:TeeUp]
 			but i < len(aRowLabelWidths)
-				cLine += aBorder[:Cross]
+				cLine += @aBorder[:Cross]
 			ok
 		next
 		
-		cLine += aBorder[:TeeUp]
+		cLine += @aBorder[:TeeUp]
 		
 		for dim1Value in aColDim1Values
 			for dim2Value in aColDim2Values
 				key = dim1Value + "_" + dim2Value
 				if aDataColWidths[key] != NULL
-					cLine += StrFill(aDataColWidths[key], aBorder[:Horizontal])
+					cLine += StrFill(aDataColWidths[key], @aBorder[:Horizontal])
 					
 					if dim2Value != aColDim2Values[len(aColDim2Values)]
-						cLine += aBorder[:TeeUp]
+						cLine += @aBorder[:TeeUp]
 					ok
 				ok
 			next
 			
 			if dim1Value != aColDim1Values[len(aColDim1Values)]
-				cLine += aBorder[:TeeUp]
+				cLine += @aBorder[:TeeUp]
 			ok
 		next
 		
-		cLine += aBorder[:TeeUp] + StrFill(nTotalColWidth, aBorder[:Horizontal]) + aBorder[:BottomRight]
+		cLine += @aBorder[:TeeUp] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:BottomRight]
 		cOutput += cLine + nl()
 		
 		# Totals row
@@ -1526,7 +1545,7 @@ def _showFormattedPivotTable1D()
 			totalRow = aPivotData[len(aPivotData)]
 			nTotalTextWidth = nRowLabelSectionWidth + 1
 			
-			cLine = " " + PadLeft(Upper(totalRow[1]+" "), nRowLabelSectionWidth) + aBorder[:Vertical]
+			cLine = " " + PadLeft(Upper(totalRow[1]+" "), nRowLabelSectionWidth) + @aBorder[:Vertical]
 			
 			for dim1Value in aColDim1Values
 				for dim2Value in aColDim2Values
@@ -1543,28 +1562,708 @@ def _showFormattedPivotTable1D()
 						ok
 						
 						if dim2Value != aColDim2Values[len(aColDim2Values)]
-							cLine += aBorder[:Vertical]
+							cLine += @aBorder[:Vertical]
 						ok
 					ok
 				next
 				
 				if dim1Value != aColDim1Values[len(aColDim1Values)]
-					cLine += aBorder[:Vertical]
+					cLine += @aBorder[:Vertical]
 				ok
 			next
 			
 			grandTotal = @if(nTotalColIndex <= len(totalRow), totalRow[nTotalColIndex], "")
 			
 			if isNumber(grandTotal) or (isString(grandTotal) and grandTotal != "" and isNumber(0 + grandTotal))
-				cLine += aBorder[:Vertical] + " " + PadLeft(grandTotal, nTotalColWidth - 2) + " " + aBorder[:Vertical]
+				cLine += @aBorder[:Vertical] + " " + PadLeft(grandTotal, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 			else
-				cLine += aBorder[:Vertical] + " " + PadRight(grandTotal, nTotalColWidth - 2) + " " + aBorder[:Vertical]
+				cLine += @aBorder[:Vertical] + " " + PadRight(grandTotal, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 			ok
 			
 			cOutput += cLine + nl()
 		ok
 
 		? StzStringQ(trim(cOutput)).LastCharRemoved() + NL
+
+	#-------
+
+def _showFormattedPivotTable1DRows2DCols()
+	# Display pivot table with 1D rows and 2D columns with formatted output
+	aPivotData = @aPivotData
+	aRowDims = @aRowLabels
+	aColDims = @aColLabels
+	cTotalLabel = @cTotalLabel
+
+	# Initialize column tracking
+	aRowLabelCols = []
+	aDataCols = []
+	nTotalColIndex = 0
+	
+	aHeaderRow = aPivotData[1]
+	
+	# Process row dimensions - only use the first row dimension
+	add(aRowLabelCols, 1)  # We only use the first row dimension
+	
+	# Process data columns
+	for i = 2 to len(aHeaderRow)  # Start from 2 since we only have 1 row dimension
+		if aHeaderRow[i] = cTotalLabel
+			nTotalColIndex = i
+		else
+			add(aDataCols, i)
+		ok
+	next
+	
+	# Parse column dimensions
+	aColDim1Values = []
+	aColDim2Values = []
+	aColGroups = []
+	
+	for i = 1 to len(aDataCols)
+		colIdx = aDataCols[i]
+		colHeader = aHeaderRow[colIdx]
+		
+		if colHeader != ""
+			aParts = split(colHeader, "_")
+			dim1Value = aParts[1]
+			dim2Value = aParts[2]
+			
+			if ring_find(aColDim1Values, dim1Value) = 0
+				add(aColDim1Values, dim1Value)
+			ok
+			
+			if ring_find(aColDim2Values, dim2Value) = 0
+				add(aColDim2Values, dim2Value)
+			ok
+			
+			key = dim1Value + "_" + dim2Value
+			aColGroups[key] = colIdx
+		ok
+	next
+	
+	# Calculate row label width
+	nRowLabelWidth = len(aRowDims[1])  # This is the first (and only) row dimension
+	
+	for r = 2 to len(aPivotData) - 1
+		cellValue = "" + aPivotData[r][1]
+		if len(cellValue) > nRowLabelWidth
+			nRowLabelWidth = len(cellValue)
+		ok
+	next
+	
+	nRowLabelWidth += 2  # Add padding
+	
+	# Calculate data column widths
+	aDataColWidths = []
+	nMinDataWidth = 10
+	
+	for dim1Value in aColDim1Values
+		for dim2Value in aColDim2Values
+			key = dim1Value + "_" + dim2Value
+			colIdx = aColGroups[key]
+			
+			if colIdx != NULL
+				maxWidth = len(dim2Value)
+				
+				for r = 2 to len(aPivotData)
+					if colIdx <= len(aPivotData[r])
+						cellValue = "" + aPivotData[r][colIdx]
+						if len(cellValue) > maxWidth
+							maxWidth = len(cellValue)
+						ok
+					ok
+				next
+				
+				aDataColWidths[key] = max([nMinDataWidth, maxWidth + 2])
+			ok
+		next
+	next
+	
+	# Calculate total column width
+	nTotalColWidth = len(cTotalLabel)
+	
+	for r = 2 to len(aPivotData)
+		if nTotalColIndex <= len(aPivotData[r])
+			cellValue = "" + aPivotData[r][nTotalColIndex]
+			if len(cellValue) > nTotalColWidth
+				nTotalColWidth = len(cellValue)
+			ok
+		ok
+	next
+	
+	nTotalColWidth += 2
+	
+	# Build table output
+	cOutput = ""
+	
+	# Top border
+	cLine = @aBorder[:TopLeft] + StrFill(nRowLabelWidth, @aBorder[:Horizontal]) + @aBorder[:TeeDown]
+	
+	# Calculate first dimension widths
+	aDim1Widths = []
+	for dim1Value in aColDim1Values
+		dim1Width = 0
+		for dim2Value in aColDim2Values
+			key = dim1Value + "_" + dim2Value
+			if aDataColWidths[key] != NULL
+				dim1Width += aDataColWidths[key]
+			ok
+		next
+		if len(aColDim2Values) > 1
+			dim1Width += len(aColDim2Values) - 1
+		ok
+		aDim1Widths[dim1Value] = dim1Width
+	next
+	
+	# Add dimension sections
+	for i = 1 to len(aColDim1Values)
+		dim1Value = aColDim1Values[i]
+		cLine += StrFill(aDim1Widths[dim1Value], @aBorder[:Horizontal])
+		if i < len(aColDim1Values)
+			cLine += @aBorder[:TeeDown]
+		ok
+	next
+	
+	cLine += @aBorder[:TeeDown] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TopRight]
+	cOutput += cLine + nl()
+	
+	# First header row - column dimension 1
+	# First cell is empty in the first row
+	cLine = @aBorder[:Vertical] + StrFill(nRowLabelWidth, " ") + @aBorder[:Vertical]
+	
+	for i = 1 to len(aColDim1Values)
+		dim1Value = aColDim1Values[i]
+		dim1Display = Upper(Left(dim1Value, 1)) + SubStr(dim1Value, 2)
+		cLine += CenterText(dim1Display, aDim1Widths[dim1Value])
+		
+		if i < len(aColDim1Values)
+			cLine += @aBorder[:Vertical]
+		ok
+	next
+	
+	# Last column in the first row should also be empty
+	cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
+	cOutput += cLine + nl()
+	
+	# Separator between column dimensions - hide the Department header cell's top border
+	cLine = @aBorder[:Vertical] + StrFill(nRowLabelWidth, " ") + @aBorder[:Vertical]
+	
+	for dim1Value in aColDim1Values
+		for dim2Value in aColDim2Values
+			key = dim1Value + "_" + dim2Value
+			if aDataColWidths[key] != NULL
+				dim2Width = aDataColWidths[key]
+				cLine += StrFill(dim2Width, @aBorder[:Horizontal])
+				
+				if dim2Value != aColDim2Values[len(aColDim2Values)]
+					cLine += @aBorder[:TeeDown]
+				ok
+			ok
+		next
+		
+		if dim1Value != aColDim1Values[len(aColDim1Values)]
+			cLine += @aBorder[:Vertical]
+		ok
+	next
+	
+	cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
+	cOutput += cLine + nl()
+	
+	# Second dimension header - row and column dimension 2
+	cLine = @aBorder[:Vertical]
+	
+	# Row dimension header
+	dim = aRowDims[1]
+	oDim = StzStringQ(dim)
+	capitalized = Upper(Left(dim, 1)) + oDim.Section(2, oDim.NumberOfChars())
+	cLine += CenterText(capitalized, nRowLabelWidth) + @aBorder[:Vertical]
+	
+	# Column dimension 2 headers
+	for dim1Value in aColDim1Values
+		for dim2Value in aColDim2Values
+			key = dim1Value + "_" + dim2Value
+			if aDataColWidths[key] != NULL
+				oDim2 = new stzString(dim2Value)
+				capitalizedDim2 = Upper(Left(dim2Value, 1)) + oDim2.Section(2, oDim2.NumberOfChars())
+				cLine += CenterText(capitalizedDim2, aDataColWidths[key])
+				
+				if dim2Value != aColDim2Values[len(aColDim2Values)]
+					cLine += @aBorder[:Vertical]
+				ok
+			ok
+		next
+		
+		if dim1Value != aColDim1Values[len(aColDim1Values)]
+			cLine += @aBorder[:Vertical]
+		ok
+	next
+	
+	cLine += @aBorder[:Vertical] + CenterText(Upper(cTotalLabel), nTotalColWidth) + @aBorder[:Vertical]
+	cOutput += cLine + nl()
+	
+	# Separator before data
+	cLine = @aBorder[:TeeRight] + StrFill(nRowLabelWidth, @aBorder[:Horizontal]) + @aBorder[:Cross]
+	
+	for dim1Value in aColDim1Values
+		for dim2Value in aColDim2Values
+			key = dim1Value + "_" + dim2Value
+			if aDataColWidths[key] != NULL
+				cLine += StrFill(aDataColWidths[key], @aBorder[:Horizontal])
+				
+				if dim2Value != aColDim2Values[len(aColDim2Values)]
+					cLine += @aBorder[:Cross]
+				ok
+			ok
+		next
+		
+		if dim1Value != aColDim1Values[len(aColDim1Values)]
+			cLine += @aBorder[:Cross]
+		ok
+	next
+	
+	cLine += @aBorder[:Cross] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TeeLeft]
+	cOutput += cLine + nl()
+	
+	# Data rows
+	for r = 2 to len(aPivotData) - 1
+		cLine = @aBorder[:Vertical] + " " + aPivotData[r][1] + StrFill(nRowLabelWidth - len(aPivotData[r][1]) - 1, " ") + @aBorder[:Vertical]
+		
+		# Data cells
+		for dim1Value in aColDim1Values
+			for dim2Value in aColDim2Values
+				key = dim1Value + "_" + dim2Value
+				colIdx = aColGroups[key]
+				
+				if colIdx != NULL
+					value = @if(colIdx <= len(aPivotData[r]), aPivotData[r][colIdx], "")
+					
+					if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
+						cLine += " " + PadLeft(value, aDataColWidths[key] - 2) + " "
+					else
+						cLine += " " + PadRight(value, aDataColWidths[key] - 2) + " "
+					ok
+					
+					if dim2Value != aColDim2Values[len(aColDim2Values)]
+						cLine += @aBorder[:Vertical]
+					ok
+				ok
+			next
+			
+			if dim1Value != aColDim1Values[len(aColDim1Values)]
+				cLine += @aBorder[:Vertical]
+			ok
+		next
+		
+		# Total column
+		totalValue = @if(nTotalColIndex <= len(aPivotData[r]), aPivotData[r][nTotalColIndex], "")
+		
+		if isNumber(totalValue) or (isString(totalValue) and totalValue != "" and isNumber(0 + totalValue))
+			cLine += @aBorder[:Vertical] + " " + PadLeft(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
+		else
+			cLine += @aBorder[:Vertical] + " " + PadRight(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
+		ok
+		
+		cOutput += cLine + nl()
+	next
+	
+	# Bottom border
+	cLine = @aBorder[:BottomLeft] + StrFill(nRowLabelWidth, @aBorder[:Horizontal]) + @aBorder[:TeeUp]
+	
+	for dim1Value in aColDim1Values
+		for dim2Value in aColDim2Values
+			key = dim1Value + "_" + dim2Value
+			if aDataColWidths[key] != NULL
+				cLine += StrFill(aDataColWidths[key], @aBorder[:Horizontal])
+				
+				if dim2Value != aColDim2Values[len(aColDim2Values)]
+					cLine += @aBorder[:TeeUp]
+				ok
+			ok
+		next
+		
+		if dim1Value != aColDim1Values[len(aColDim1Values)]
+			cLine += @aBorder[:TeeUp]
+		ok
+	next
+	
+	cLine += @aBorder[:TeeUp] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:BottomRight]
+	cOutput += cLine + nl()
+	
+	# Totals row
+	if len(aPivotData) > 1 and aPivotData[len(aPivotData)][1] = cTotalLabel
+		totalRow = aPivotData[len(aPivotData)]
+		
+		# Format the AVERAGE label with right alignment followed by a space
+		cLine = " " + PadLeft(Upper(totalRow[1]), nRowLabelWidth - 1) + " " + @aBorder[:Vertical]
+		
+		for dim1Value in aColDim1Values
+			for dim2Value in aColDim2Values
+				key = dim1Value + "_" + dim2Value
+				colIdx = aColGroups[key]
+				
+				if colIdx != NULL
+					value = @if(colIdx <= len(totalRow), totalRow[colIdx], "")
+					
+					if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
+						cLine += " " + PadLeft(value, aDataColWidths[key] - 2) + " "
+					else
+						cLine += " " + PadRight(value, aDataColWidths[key] - 2) + " "
+					ok
+					
+					if dim2Value != aColDim2Values[len(aColDim2Values)]
+						cLine += @aBorder[:Vertical]
+					ok
+				ok
+			next
+			
+			if dim1Value != aColDim1Values[len(aColDim1Values)]
+				cLine += @aBorder[:Vertical]
+			ok
+		next
+		
+		grandTotal = @if(nTotalColIndex <= len(totalRow), totalRow[nTotalColIndex], "")
+		
+		if isNumber(grandTotal) or (isString(grandTotal) and grandTotal != "" and isNumber(0 + grandTotal))
+			cLine += @aBorder[:Vertical] + " " + PadLeft(grandTotal, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
+		else
+			cLine += @aBorder[:Vertical] + " " + PadRight(grandTotal, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
+		ok
+		
+		cOutput += cLine + nl()
+		
+		# No final bottom border after totals
+	ok
+
+	? StzStringQ(trim(cOutput)).LastCharRemoved() + NL
+
+# Method for 2D rows + 1D columns
+def _showFormattedPivotTable2DRows1DCols()
+	# Display pivot table with formatted output - for mixed dimensions
+	aPivotData = @aPivotData
+	aRowDims = @aRowLabels
+	aColDims = @aColLabels
+	cTotalLabel = @cTotalLabel
+	
+	# Initialize column tracking
+	aRowLabelCols = []
+	aDataCols = []
+	nTotalColIndex = 0
+	
+	aHeaderRow = aPivotData[1]
+	
+	# Process row dimensions - for 2D we have two
+	add(aRowLabelCols, 1)
+	add(aRowLabelCols, 2)
+	
+	# Process data columns
+	for i = 3 to len(aHeaderRow)
+		if aHeaderRow[i] = cTotalLabel
+			nTotalColIndex = i
+		else
+			add(aDataCols, i)
+		ok
+	next
+	
+	# Calculate row label widths
+	aRowLabelWidths = [0, 0]  # One for each dimension
+	
+	# First dimension
+	maxLabelWidth = len(aRowDims[1])
+	for r = 2 to len(aPivotData) - 1
+		if r = 2  # Skip header row
+			loop
+		ok
+		cellValue = "" + aPivotData[r][1]
+		if len(cellValue) > maxLabelWidth
+			maxLabelWidth = len(cellValue)
+		ok
+	next
+	aRowLabelWidths[1] = maxLabelWidth + 2
+	
+	# Second dimension
+	maxLabelWidth = len(aRowDims[2])
+	for r = 2 to len(aPivotData) - 1
+		if r = 2  # Skip header row
+			loop
+		ok
+		cellValue = "" + aPivotData[r][2]
+		if len(cellValue) > maxLabelWidth
+			maxLabelWidth = len(cellValue)
+		ok
+	next
+	aRowLabelWidths[2] = maxLabelWidth + 2
+	
+	# Calculate data column widths
+	aDataColWidths = []
+	nMinDataWidth = 10
+	
+	for i = 1 to len(aDataCols)
+		colIdx = aDataCols[i]
+		maxWidth = len(aHeaderRow[colIdx])
+		
+		for r = 2 to len(aPivotData)
+			if colIdx <= len(aPivotData[r])
+				cellValue = "" + aPivotData[r][colIdx]
+				if len(cellValue) > maxWidth
+					maxWidth = len(cellValue)
+				ok
+			ok
+		next
+		
+		aDataColWidths + max([nMinDataWidth, maxWidth + 2])
+	next
+	
+	# Calculate total column width
+	nTotalColWidth = len(cTotalLabel)
+	for r = 2 to len(aPivotData)
+		if nTotalColIndex <= len(aPivotData[r])
+			cellValue = "" + aPivotData[r][nTotalColIndex]
+			if len(cellValue) > nTotalColWidth
+				nTotalColWidth = len(cellValue)
+			ok
+		ok
+	next
+	nTotalColWidth += 2
+	
+	# Build table output
+	cOutput = ""
+	
+	# Top border
+	cLine = @aBorder[:TopLeft]
+	for i = 1 to len(aRowLabelWidths)
+		cLine += StrFill(aRowLabelWidths[i], @aBorder[:Horizontal])
+		if i = 1
+			cLine += @aBorder[:Horizontal]
+		else
+			cLine += @aBorder[:TeeDown]
+		ok
+	next
+	
+	# Calculate combined width of data columns
+	nCombinedDataWidth = 0
+	for i = 1 to len(aDataColWidths)
+		nCombinedDataWidth += aDataColWidths[i]
+		if i < len(aDataColWidths)
+			nCombinedDataWidth += 1  # For the vertical border
+		ok
+	next
+	
+	# Add horizontal line for the combined data column header
+	cLine += StrFill(nCombinedDataWidth, @aBorder[:Horizontal])
+	cLine += @aBorder[:TeeDown] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TopRight]
+	cOutput += cLine + nl()
+	
+	# First header row with main label spanning data columns
+	cLine = @aBorder[:Vertical]
+	
+	# Columns for row dimensions
+	cRowDimsWidth = 0
+	for i = 1 to len(aRowLabelWidths)
+		cRowDimsWidth += aRowLabelWidths[i]
+	next
+	cRowDimsWidth += 1  # For the vertical separator
+	
+	cLine += StrFill(cRowDimsWidth, " ") + @aBorder[:Vertical]
+	
+	# The main raw label centered across all data columns
+
+	cLine += CenterText(Capitalize(aRowDims[1]), nCombinedDataWidth)
+	cLine += @aBorder[:Vertical] + copy(" ", nTotalColWidth) + @aBorder[:Vertical]
+	cOutput += cLine + nl()
+	
+	# Separator after main raw header
+	cLine = @aBorder[:Vertical]
+	for i = 1 to len(aRowLabelWidths)
+		cLine += StrFill(aRowLabelWidths[i], " ")
+		if i < len(aRowLabelWidths)
+			cLine += " "
+		else
+			cLine += @aBorder[:Vertical]
+		ok
+	next
+	
+	# Add horizontal line separators under the main raw label
+	for i = 1 to len(aDataCols)
+		cLine += StrFill(aDataColWidths[i], @aBorder[:Horizontal])
+		if i < len(aDataCols)
+			cLine += @aBorder[:TeeDown]
+		ok
+	next
+	
+	cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
+	cOutput += cLine + nl()
+	
+	# Second header row with dimension names
+	cLine = @aBorder[:Vertical]
+	
+	# Columns for row dimensions
+	for i = 1 to len(aRowDims)
+		dimName = aRowDims[i]
+		oDim = StzStringQ(dimName)
+		capitalized = Upper(Left(dimName, 1)) + oDim.Section(2, oDim.NumberOfChars())
+		cLine += CenterText(capitalized, aRowLabelWidths[i]) + @aBorder[:Vertical]
+	next
+	
+	# Header for data columns
+	for i = 1 to len(aDataCols)
+		colIdx = aDataCols[i]
+		colHeader = aHeaderRow[colIdx]
+		oDim = StzStringQ(colHeader)
+		capitalized = Upper(Left(colHeader, 1)) + oDim.Section(2, oDim.NumberOfChars())
+		cLine += CenterText(capitalized, aDataColWidths[i])
+		
+		if i < len(aDataCols)
+			cLine += @aBorder[:Vertical]
+		ok
+	next
+	
+	cLine += @aBorder[:Vertical] + CenterText(Upper(cTotalLabel), nTotalColWidth) + @aBorder[:Vertical]
+	cOutput += cLine + nl()
+	
+	# Separator before data
+	cLine = @aBorder[:TeeRight]
+	for i = 1 to len(aRowLabelWidths)
+		cLine += StrFill(aRowLabelWidths[i], @aBorder[:Horizontal])
+		if i < len(aRowLabelWidths)
+			cLine += @aBorder[:TeeDown]
+		else
+			cLine += @aBorder[:Cross]
+		ok
+	next
+	
+	for i = 1 to len(aDataCols)
+		cLine += StrFill(aDataColWidths[i], @aBorder[:Horizontal])
+		if i < len(aDataCols)
+			cLine += @aBorder[:Cross]
+		ok
+	next
+	
+	cLine += @aBorder[:Cross] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TeeLeft]
+	cOutput += cLine + nl()
+	
+	# Data rows
+	lastDim1Value = ""
+	for r = 3 to len(aPivotData) - 1
+		cLine = @aBorder[:Vertical]
+		
+		# Row labels - handle merging for first dimension
+		dim1Value = aPivotData[r][1]
+		if dim1Value = lastDim1Value
+			cLine += " " + StrFill(aRowLabelWidths[1] - 2, " ") + " " + @aBorder[:Vertical]
+		else
+			cLine += " " + dim1Value + StrFill(aRowLabelWidths[1] - len(dim1Value) - 1, " ") + @aBorder[:Vertical]
+			lastDim1Value = dim1Value
+		ok
+		
+		# Second dimension
+		dim2Value = aPivotData[r][2]
+		cLine += " " + dim2Value + StrFill(aRowLabelWidths[2] - len(dim2Value) - 1, " ") + @aBorder[:Vertical]
+		
+		# Data cells
+		for i = 1 to len(aDataCols)
+			colIdx = aDataCols[i]
+			value = ""
+			if colIdx <= len(aPivotData[r])
+				value = aPivotData[r][colIdx]
+			ok
+			
+			if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
+				cLine += " " + PadLeft(value, aDataColWidths[i] - 2) + " "
+			else
+				cLine += " " + PadRight(value, aDataColWidths[i] - 2) + " "
+			ok
+			
+			if i < len(aDataCols)
+				cLine += @aBorder[:Vertical]
+			ok
+		next
+		
+		# Total column
+		totalValue = ""
+		if nTotalColIndex <= len(aPivotData[r])
+			totalValue = aPivotData[r][nTotalColIndex]
+		ok
+		
+		if isNumber(totalValue) or (isString(totalValue) and totalValue != "" and isNumber(0 + totalValue))
+			cLine += @aBorder[:Vertical] + " " + PadLeft(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
+		else
+			cLine += @aBorder[:Vertical] + " " + PadRight(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
+		ok
+		
+		cOutput += cLine + nl()
+		
+		# Add subtotal separator if needed
+		if r < len(aPivotData) - 1 and aPivotData[r+1][1] != aPivotData[r][1] and aPivotData[r+1][1] != cTotalLabel
+			cLine = @aBorder[:Vertical] + StrFill(aRowLabelWidths[1], " ") + 
+			        @aBorder[:Vertical] + StrFill(aRowLabelWidths[2], " ") + @aBorder[:Vertical]
+			
+			for i = 1 to len(aDataCols)
+				cLine += StrFill(aDataColWidths[i], " ")
+				if i < len(aDataCols)
+					cLine += @aBorder[:Vertical]
+				ok
+			next
+			
+			cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
+			cOutput += cLine + nl()
+		ok
+	next
+	
+	# Bottom border
+	cLine = @aBorder[:BottomLeft]
+	for i = 1 to len(aRowLabelWidths)
+		cLine += StrFill(aRowLabelWidths[i], @aBorder[:Horizontal])
+		cLine += @aBorder[:TeeUp]
+	next
+	
+	for i = 1 to len(aDataCols)
+		cLine += StrFill(aDataColWidths[i], @aBorder[:Horizontal])
+		if i < len(aDataCols)
+			cLine += @aBorder[:TeeUp]
+		ok
+	next
+	
+	cLine += @aBorder[:TeeUp] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:BottomRight]
+	cOutput += cLine + nl()
+	
+	# Total row
+	totalRow = aPivotData[len(aPivotData)]
+	
+	cLine = "  " + PadLeft(Upper(totalRow[1]), aRowLabelWidths[1] + aRowLabelWidths[2] - 1) + " " + @aBorder[:Vertical]
+
+	for i = 1 to len(aDataCols)
+		colIdx = aDataCols[i]
+		value = ""
+		if colIdx <= len(totalRow)
+			value = totalRow[colIdx]
+		ok
+
+		if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
+			cLine += " " + PadLeft(value, aDataColWidths[i] - 2) + " "
+		else
+			cLine += " " + PadRight(value, aDataColWidths[i] - 2) + " "
+		ok
+		
+		if i < len(aDataCols)
+			cLine += @aBorder[:Vertical]
+		ok
+	next
+	
+	grandTotal = ""
+	if nTotalColIndex <= len(totalRow)
+		grandTotal = totalRow[nTotalColIndex]
+	ok
+	
+	if isNumber(grandTotal) or (isString(grandTotal) and grandTotal != "" and isNumber(0 + grandTotal))
+		cLine += @aBorder[:Vertical] + " " + PadLeft(grandTotal, nTotalColWidth - 2) + "  "
+	else
+		cLine += @aBorder[:Vertical] + " " + PadRight(grandTotal, nTotalColWidth - 2) + "  "
+	ok
+	
+	cOutput += cLine + nl()
+	
+	? cOutput
+
+	#------
 
 	def _showFormattedPivotTable2DPlus()
 		# Display pivot table for higher dimensions

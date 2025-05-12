@@ -1,7 +1,7 @@
 load "../max/stzmax.ring"
 
-/*---
 
+/*---
 pr()
 
 
@@ -203,11 +203,15 @@ oPivot = new stzPivotTable(oTable)
 
 oPivot {
 
-	Analyze([ :Salary ], :AVERAGE)
-SetRowsBy([ :Department, :Department ])
-//	SetRowsBy([ :Department, :Location ])
+	Analyze([ :Salary ], :Using = :MEDIAN)
+
+//SetRowsBy([ :Department ])
+
+	SetRowsBy([ :Department, :Location ])
+
 	SetColsBy([ :Experience, :Gender ])
 
+//SetColsBy([ :Experience ])
 	Show()
 #-->
 #	╭───────────────────────┬─────────────────────┬─────────────────────┬─────────╮

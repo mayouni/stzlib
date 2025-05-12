@@ -20,6 +20,8 @@ Softanza, the foundation library for the Ring programming language, has garnered
 
 > "Many of us are interested in Softanza Library and would like to add it to our toolbox ASAP."
 
+> "The table display looks beautiful, and these features will be very nice for generating reports :D"
+
 ---
 
 ## Outnull
@@ -38,6 +40,8 @@ Softanza, the foundation library for the Ring programming language, has garnered
 > "A very interesting observation about Unicode Character Tables.  
 > Lots of different languages have the same letter glyph but different Unicode hex values.  
 > Good detective work."
+
+> "Great Looking output of the stzPivotTable!!"
 
 ---
 
@@ -71,3 +75,7 @@ Softanza, the foundation library for the Ring programming language, has garnered
 
 > "Softanza appears to be very useful for this type of problem. Thank you!"  
 > *(In reference to dynamic string interpolation using `Interpolate()`)*
+
+--
+
+
