@@ -1,12 +1,12 @@
 #---------------------------------------------------------------------------#
-# 		    SOFTANZA LIBRARY (V1.0) - STZTABLE			    #
-#		An accelerative library for Ring applications		    #
+# 		    SOFTANZA LIBRARY (V1.0) - STZTABLE			                    #
+#		An accelerative library for Ring applications		                #
 #---------------------------------------------------------------------------#
-#									    #
-# 	Description	: The class for managing tables in SoftanzaLib      #
-#	Version		: V1.0 (2020-2024)				    #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
-#									    #
+#									                                        #
+# 	Description	: The class for managing tables in SoftanzaLib              #
+#	Version		: V1.0 (2020-2024)				                            #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)		                #
+#									                                        #
 #---------------------------------------------------------------------------#
 
 /*
@@ -70,6 +70,21 @@ Class stzTable from stzObject
 
 	@anCalculatedCols = []
 	@anCalculatedRows = []
+
+	# Define border characters
+	@aBorder = [
+		:TopLeft = "╭",
+		:TopRight = "╮",
+		:BottomLeft = "╰",
+		:BottomRight = "╯",
+		:Horizontal = "─",
+		:Vertical = "│",
+		:TeeRight = "├",
+		:TeeLeft = "┤",
+		:TeeDown = "┬",
+		:TeeUp = "┴",
+		:Cross = "┼"
+	]
 
 	def init(paTable)
 
@@ -2127,8 +2142,7 @@ Class stzTable from stzObject
 	#--------------------------------#
 
 	def NumberOfRows()
-		nResult = len(This.Table()[1][2])
-		return nResult
+		return len(@aContent[1][2])
 
 		def Size()
 			return NumberOfRows()
@@ -13773,396 +13787,6 @@ Class stzTable from stzObject
 
 		#>
 
-
-	  #=====================#
-	 #  SHOWING THE TABLE  #
-	#=====================#
-
-	def Show()
-		? This.ToString()
-	
-		#< @FuntionMisspelledForm
-
-		def Shwo()
-			This.Show()
-
-		#>
-
-	def ShowXT(paOptions)
-		? This.ToStringXT(paOptions)
-
-	def ToString()
-		aDefaultOptions = [
-			:Separator 	  = "   ",
-			:Alignment 	  = :Right,
-		
-			:UnderLineHeader  = _TRUE_,
-
-			:UnderLineChar 	  = "-",
-			:IntersectionChar = " ",
-		
-			:ShowRowNumbers   = _FALSE_
-		]
-
-		cResult = This.ToStringXT(aDefaultOptions)
-		return cResult
-
-	def ToStringXT(paOptions)
-		#wWARNING
-		# I wrote this function to show the "configurability"
-		# of Softanza as part of its "FLEXIBILITY" goal.
-		# But I'm not happy with its implementation, since it has
-		# many mooving parts. This goes against the "RELIABILITY"
-		# goal, because it complexifies the code and diminishes
-		# it's readbility and modifiability.
-		#TODO // Review this implentation!
-
-		/* EXAMPLE
-
-		? o1.toStringXT([
-			:Separator = " | ",
-			:Alignment = :Left,
-			:UnderLineHeader = _TRUE_,
-			:UnderLineChar = "-",
-			:IntersectionChar = " "
-			:ShowRowNumbers = _TRUE_
-		])
-
-		*/
-
-		# Accelerating access using just one option provided in a string
-		# inclunding when no option is provided at all
-		#--> ShowXT(_NULL_) or ShowXT([])
-
-		if isString(paOptions)
-			if isNull(paOptions)
-
-				return This.ToStringXT([])
-
-			but paOptions = :UnderLineHeader or
-			    paOptions = :AddLineUnderHeader or
-
-			    paOptions = :UnderLineColNames or
-			    paOptions = :AddLineUnderColNames or
-
-			    paOptions = :UnderLineColsNames or
-			    paOptions = :AddLineUnderColsNames or
-
-			    paOptions = :UnderLineColumnNames or
-			    paOptions = :AddLineUnderColumnNames or
-
-			    paOptions = :UnderLineColumnsNames or
-			    paOptions = :AddLineUnderColumnsNames
-
-				return This.ShowXT([ :UnderLineHeader = _TRUE_ ])
-
-			but paOptions = :ShowRowNumbers or	#TODO // Add those named params
-			    paOptions = :AddRowNumbers or	# to ShowXT([ ... ])
-			    paOptions = :WithRowNumbers or
-			    paOptions = :RowNumbers
-
-				return This.ToStringXT([ :ShowRowNumbers = _TRUE_ ])
-
-			but paOptions = :AlignedToLeft or
-			    paOptions = :AdjustedToLeft or
-			    paOptions = :ToLeft or
-			    paOptions = :Lefted
-
-				return This.ToStringXT([ :Alignment = :Left ])
-			
-			but paOptions = :AlignedToRight or
-			    paOptions = :AdjustedToRight or
-			    paOptions = :ToRight or
-			    paOptions = :Righted
-
-				return This.ToStringXT([ :Alignment = :Right ])
-
-			but paOptions = :AlignedToCenter or
-			    paOptions = :AdjustedToLeft or
-			    paOptions = :ToLeft or
-			    paOptions = :Lefted
-
-				return This.ToStringXT([ :Alignment = :Right ])
-			ok
-		ok
-
-		# Providing the options in a list
-
-		if NOT isList(paOptions)
-			StzRaise("Incorrect param type! paOptions must be a list.")
-		ok
-
-		if len(paOptions) = 0
-
-			cResult = This.ToStringXT([ 
-				:Separator = " | ",
-				:UnderLineChar = "-",
-				:IntersectionChar = "+",
-				:ShowRowNumbers = _TRUE_,
-				:Alignment = :Right
-			])
-
-			return cResult
-
-		ok
-
-		nLen = len(paOptions)
-		aOptions = []
-		for i = 1 to nLen
-
-			if isString(paOptions[i]) and
-			   ( paOptions[i] = :UnderLineHeader or paOptions[i] = :ShowRowNumbers )
-
-				aOptions + [ paOptions[i], _TRUE_ ]
-					
-			else
-				aOptions + paOptions[i]
-			ok
-		next
-
-		if NOT (len(aOptions) = 0 or Q(aOptions).IsHashList())
-			StzRaise("Incorrect param! paOptions must be either an empty list or a hashlist.")
-		ok
-
-		# Setting the default options
-
-		cSeparator = "   "
-		cAlignment = :Right
-		
-		bUnderlineHeader = _TRUE_
-		cUnderLineChar = "-"
-		cIntersectionChar = "+"
-
-		bShowRowNumbers = _TRUE_
-
-		# Reading the options provided by the user
-
-		pSeparator = aOptions[:Separator]
-
-		if pSeparator != _NULL_ and isString(pSeparator)
-			if pSeparator = :Default
-				cSeparator = "   "
-			else
-				cSeparator = pSeparator
-			ok
-
-		but pSeparator = _NULL_
-			pSeparator = " | "
-		ok
-
-		#--
-
-		pAlignment = aOptions[:Alignment]
-
-		if pAlignment != _NULL_ and isString(pAlignment)
-
-			if ( pAlignment = :Right or pAlignment = :Left or pAlignment = :Center)
-				cAlignment = pAlignment
-
-			but pAlignment = :Default
-				cAlignment = :Right
-			ok
-
-		but pAlignment = _NULL_
-			pAlignment = :Right
-		ok
-
-		#--
-
-		pUnderLineHeader = aOptions[:UnderLineHeader]
-
-		if isString(pUnderlineHeader) and pUnderLineHeader = _NULL_
-			bUnderLineHeader = _FALSE_
-
-		but isNumber(pUnderLineHeader) and ( pUnderLineHeader = 0 or pUnderLineHeader = 1 )
-			bUnderLineHeader = pUnderLineHeader
-
-		else
-			StzRaise("Incorrect param type! bUnderLineHeader must be a boolean.")
-		ok
-
-		#--
-
-		cUnderLineChar = aOptions[:UnderLineChar]
-
-		if NOT isString(cUnderLineChar)
-			StzRaise("Incorrect param type! You must provide a string in :UnderLineChar = ...")
-		ok
-
-		if cUnderLineChar != _NULL_
-			bUnderLineHeader = _TRUE_
-		ok
-
-		if bUnderLineHeader = _TRUE_ and cUnderLineChar = ""
-			cUnderLineChar = "-"
-		ok
-
-		#--
-
-		cIntersectionChar = aOptions[:IntersectionChar]
-
-		if NOT isString(cUnderLineChar)
-			StzRaise("Incorrect param type! You must provide a string in :InterSectionChar = ...")
-		ok
-
-		if cInterSectionChar != _NULL_
-			bUnderLineHeader = _TRUE_
-			if cUnderLineChar = ""
-				cUnderLineChar = "-"
-			ok
-			cInterSectionChar = cUnderLineChar + cInterSectionChar + cUnderLineChar
-
-			if aOptions[:Separator] = "" and
-			   cSeparator = "   "
-
-				cSeparator = " | "
-			ok
-
-		else
-			cInterSectionChar = "---"
-		ok
-
-		#--
-
-		pShowRowNumbers = aOptions[:ShowRowNumbers]
-
-		if isString(pShowRowNumbers) and pShowRowNumbers = _NULL_
-			bShowRowNumbers = _FALSE_
-
-		but isNumber(pShowRowNumbers)
-			if pShowRowNumbers = _TRUE_
-				bShowRowNumbers = _TRUE_
-
-			else pShowRowNumbers = _FALSE_
-				bShowRowNumbers = _FALSE_
-			ok
-
-		else
-			StzRaise("Incorrect param type! bShowRowNumbers must be _TRUE_ or _FALSE_.")
-		ok
-
-		# Doing the job
-
-		acAdjustedCols = []
-		nLen = This.NumberOfCols()
-		
-		# Adjusting the widths of all cells
-
-		for i = 1 to nLen
-
-			cName = This.ColName(i)
-			acCurrentColAdjusted = This.ColQ(i).Stringified() + cName
-
-			if bUnderLineHeader and cUnderLineChar != ""
-				oColXT = This.ColQ(i).AddItemQ(cName)
-
-				cUnderline = StzStringQ(cUnderLineChar).RepeatedNTimes( oColXT.StringifyQ().MaxSize() )
-				ring_insert(acCurrentColAdjusted, 1, cUnderline)
-			ok
-
-			oListOfStr = new stzListOfStrings(acCurrentColAdjusted)
-			acCurrentColAdjusted = oListOfStr.AdjustedTo(cAlignment)
-
-			acAdjustedCols + acCurrentColAdjusted
-	
-		next
-
-		# Putting the adjusted cells in a stzTable object
-
-		nLast = len(acAdjustedCols[1])
-
-		aTable = []
-		
-		for i = 1 to nLen
-			aTable + [ acAdjustedCols[i][nLast], Q(acAdjustedCols[i]).LastItemRemoved() ]
-		next
-		
-		oTable = new stzTable(aTable)
-		nCols = oTable.NumberOfCols()
-		nRows = oTable.NumberOfRows()
-
-		cString = ""
-
-		# Constructing the header()
-
-		if bUnderLineHeader = _TRUE_
-			acRowNumbers = (0 : (nRows-1)) + "#"
-		else
-			acRowNumbers = (1 : nRows ) + "#"
-		ok
-
-		acRowNumbersAdjusted  = Q(acRowNumbers).
-					StringifyQ().
-					ToStzListOfStrings().
-					AdjustedToRight()
-
-		if bShowRowNumbers
-			cString = acRowNumbersAdjusted[ len(acRowNumbersAdjusted) ] + cSeparator
-		ok
-		for i = 1 to nCols
-			cString += oTable.ColNameQ(i).Uppercased()
-			if i < nCols
-				cString += cSeparator
-			ok
-		next
-
-		# Constructing the underline
-
-		nStart = 1
-
-		if bUnderlineHeader
-			cUnderline = ""
-			if bShowRowNumbers
-				cTemp = ""
-				for i = 1 to nTemp
-					cTemp += cUnderLineChar
-				next
-				cUnderline = cTemp + cInterSectionChar
-			ok
-
-			for i = 1 to nCols
-				cUnderline += oTable.Cell(i, 1)
-				if i < nCols
-					cUnderline += cInterSectionChar
-				ok
-			next
-
-			cString += (NL + cUnderline)
-			nStart = 2
-		ok
-
-		# Constructing the rows
-
-		for j = nStart to nRows
-			cRow = ""
-			if bShowRowNumbers
-				cRow += acRowNumbersAdjusted[j] + cSeparator
-			ok
-
-			for i = 1 to nCols
-				cCell = oTable.Cell(i, j)
-
-				cRow += cCell
-				
-				if i < nCols
-					cRow += cSeparator
-				ok
-	
-			next
-
-			if j = nRows and
-				( (isNumber(paOptions[:UpperLineLastRow]) and
-					paOptions[:UpperLineLastRow] = _TRUE_)  )
-
-				cString += (NL + cUnderline)
-
-			ok
-
-			cString += (NL + cRow)
-		next
-
-		return cString
-
 	  #===========================================================#
 	 #  FILLING ALL THE TABLE WITH A GIVEN CELL, COLUMN, OR ROW  #
 	#===========================================================#
@@ -14894,3 +14518,454 @@ Class stzTable from stzObject
 		nResult = @Min(aCells)
 
 		return nResult
+
+#--------------------------------------------------------------------
+
+# Filters table rows based on specified conditions
+    def Filter(paValues)
+        # Validate input is a hash list
+        if NOT (isList(paValues) and Q(paValues).IsHashList())
+            StzRaise("Filter requires a hash list of filtering conditions")
+        ok
+
+        # Validate column existence and prepare filtering
+        for item in paValues
+            colName = item[1]
+            
+            # Check if column exists (case-insensitive)
+            nColIndex = This.FindCol(colName)
+            if nColIndex = 0
+                StzRaise("Column '" + colName + "' not found in the table")
+            ok
+        next
+
+        # Perform filtering
+        nRows = This.NumberOfRows()
+        aRowsToKeep = []
+
+        for nRow = 1 to nRows
+            lKeepRow = _TRUE_
+            
+            for item in paValues
+                colName = item[1]
+                filterValues = item[2]
+                
+                # Get column index
+                nColIndex = This.FindCol(colName)
+                
+                # Get cell value
+                cellValue = This.Cell(nColIndex, nRow)
+                
+                # Check if cell value matches filter conditions
+                # Support both single value and list of values
+                if isList(filterValues)
+                    lValueMatches = _FALSE_
+                    for value in filterValues
+                        if cellValue = value
+                            lValueMatches = _TRUE_
+                            exit
+                        ok
+					next
+                else
+                    lValueMatches = (cellValue = filterValues)
+                ok
+                
+                # If any condition fails, exclude the row
+                if NOT lValueMatches
+                    lKeepRow = _FALSE_
+                    exit
+                ok
+            next
+            
+            if lKeepRow
+                aRowsToKeep + This.Row(nRow)
+            ok
+        next
+
+        # Rebuild the table with filtered rows
+        aResult = []
+        
+        # Recreate columns with filtered data
+        nCols = This.NumberOfCols()
+        for nCol = 1 to nCols
+            colName = This.ColName(nCol)
+            colData = []
+            
+            for nRow = 1 to len(aRowsToKeep)
+                colData + aRowsToKeep[nRow][nCol]
+            next
+            
+            aResult + [colName, colData]
+        next
+
+        @aContent = aResult
+
+    # Fluent interface version
+    def FilterQ(paValues)
+        This.Filter(paValues)
+        return This
+
+	def FilterCQ(paValues)
+			oCopy = This.Copy()
+			oCopy.Filter(paValues)
+			return oCopy
+
+# Groups table rows by specified columns
+    def GroupBy(paColumns)
+        # Validate input is a list of column names
+        if NOT (isList(paColumns) and len(paColumns) > 0)
+            StzRaise("GroupBy requires a non-empty list of column names")
+        ok
+
+        # Validate column existence
+        for colName in paColumns
+            if This.FindCol(colName) = 0
+                StzRaise("Column '" + colName + "' not found in the table")
+            ok
+        next
+
+        # Prepare to group rows
+        nRows = This.NumberOfRows()
+        aGroupedRows = []
+        aGroupKeys = []
+
+        # Iterate through rows to create groups
+        for nRow = 1 to nRows
+            # Create group key from specified columns
+            aGroupKey = []
+            for colName in paColumns
+                nColIndex = This.FindCol(colName)
+                aGroupKey + This.Cell(nColIndex, nRow)
+            next
+
+            # Convert group key to string for easy comparison
+            cGroupKey = ""
+            for item in aGroupKey
+                cGroupKey += ""+ item + '|'
+            next
+
+            # Check if this group key exists
+            nGroupIndex = find(aGroupKeys, cGroupKey)
+
+            if nGroupIndex = 0
+                # New group, add to groups
+                aGroupKeys + cGroupKey
+                aGroupRows = [ This.Row(nRow) ]
+                aGroupedRows + [aGroupKey, aGroupRows]
+            else
+                # Existing group, append row
+                aGroupedRows[nGroupIndex][2] + This.Row(nRow)
+            ok
+        next
+
+        # Rebuild the table with grouped rows
+        @aContent = []
+        
+        # Include group columns and original columns
+        nCols = This.NumberOfCols()
+        
+        # Add group columns first
+        for nGroup = 1 to len(paColumns)
+            @aContent + [paColumns[nGroup], []]
+        next
+
+        # Add original columns
+        for nCol = 1 to nCols
+            colName = This.ColName(nCol)
+            
+            # Skip if already added as a group column
+            if find(paColumns, colName) = 0
+                @aContent + [colName, []]
+            ok
+        next
+
+        # Populate grouped data
+        for aGroup in aGroupedRows
+            aGroupKey = aGroup[1]
+            aRows = aGroup[2]
+
+            # Add group key values
+            for nGroup = 1 to len(paColumns)
+                @aContent[nGroup][2] + aGroupKey[nGroup]
+            next
+
+            # Add row values for other columns
+            nCurrentCol = len(paColumns) + 1
+            for nCol = 1 to nCols
+                colName = This.ColName(nCol)
+                
+                if find(paColumns, colName) = 0
+                    # Collect values for this column from first row in group
+                    @aContent[nCurrentCol][2] + aRows[1][nCol]
+                    nCurrentCol += 1
+                ok
+            next
+        next
+
+        return This
+
+    # Fluent interface version
+    def GroupByQ(paColumns)
+        This.GroupBy(paColumns)
+        return This
+
+# Aggregates table data based on specified columns and methods
+    def Aggregate(paAggregations)
+        # Validate input is a hash list
+        if NOT (isList(paAggregations) and Q(paAggregations).IsHashList())
+            StzRaise("Aggregate requires a hash list of aggregation specifications")
+        ok
+
+        # Predefined aggregation methods
+        aValidMethods = [
+            :Sum, 
+            :Average, 
+            :Count, 
+            :Max, 
+            :Min, 
+            :First, 
+            :Last
+        ]
+
+        # Validate and process aggregations
+        aProcessedAggs = []
+        for item in paAggregations
+            colName = item[1]
+            aggMethod = item[2]
+            
+            # Validate column existence
+            nColIndex = This.FindCol(colName)
+            if nColIndex = 0
+                StzRaise("Column '" + colName + "' not found in the table")
+            ok
+            
+            # Validate aggregation method
+            if ring_find(aValidMethods, aggMethod) = 0
+                StzRaise("Invalid aggregation method: " + aggMethod)
+            ok
+            
+            aProcessedAggs + [colName, aggMethod]
+        next
+
+        # Perform aggregation
+        aResult = []
+        
+        # Add columns for aggregation results
+        for item in aProcessedAggs
+            colName = item[1]
+            aggMethod = item[2]
+            
+            # Create aggregated column name
+            cAggColName = aggMethod + "(" + colName + ")"
+            
+            # Perform aggregation
+            nColIndex = This.FindCol(colName)
+            aColData = This.Col(nColIndex)
+            
+            nResult = 0
+            switch aggMethod
+                on :Sum
+                    for val in aColData
+                        nResult += val
+                    next
+                on :Average
+                    nSum = 0
+                    for val in aColData
+                        nSum += val
+                    next
+                    nResult = nSum / len(aColData)
+                on :Count
+                    nResult = len(aColData)
+                on :Max
+                    nResult = aColData[1]
+                    for val in aColData
+                        if val > nResult
+                            nResult = val
+                        ok
+                    next
+                on :Min
+                    nResult = aColData[1]
+                    for val in aColData
+                        if val < nResult
+                            nResult = val
+                        ok
+                    next
+                on :First
+                    nResult = aColData[1]
+                on :Last
+                    nResult = aColData[len(aColData)]
+            off
+            
+            # Add aggregated column
+            aResult + [cAggColName, [nResult]]
+        next
+
+		@aContent = aResult
+
+    	# Fluent interface version
+    	def AggregateQ(paAggregations)
+       	 This.Aggregate(paAggregations)
+        	return This
+
+	  #-----------#
+	 #  DSIPLAY  #
+	#-----------#
+
+	def Show()
+		? This._displayFullTable()
+
+	def ShowFilter(paFilterCriteria)
+		? _displayFilteredTable(paFilterCriteria)
+
+    # New display method to show table contents
+    def Display(paFilterCriteria)
+        # If no filter criteria provided, display full table
+        if paFilterCriteria = NULL
+            return This._displayFullTable()
+        else
+            return This._displayFilteredTable(paFilterCriteria)
+        ok
+
+    # Internal method to display full table
+    def _displayFullTable()
+        # Get column names and content
+        aColNames = This.ColNames()
+        aContent = This.Content()
+        
+        # Calculate column widths
+        aColWidths = []
+        nCols = len(aColNames)
+        
+        # First pass: calculate max width for each column header
+        for i = 1 to nCols
+            maxWidth = len(aColNames[i])
+            
+            # Check column values
+            aColData = aContent[i][2]
+            for j = 1 to len(aColData)
+                cellValue = "" + aColData[j]
+                if len(cellValue) > maxWidth
+                    maxWidth = len(cellValue)
+                ok
+            next
+            
+            aColWidths + (maxWidth + 2)  # Add padding
+        next
+        
+        # Build output string
+        cOutput = ""
+        
+        # Top border
+        cLine = @aBorder[:TopLeft]
+        for i = 1 to nCols
+            cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
+			if i < nCols
+				cLine += @aBorder[:TeeDown]
+			else
+				cLine += @aBorder[:TopRight]
+			ok
+        next
+        cOutput += cLine + nl()
+
+        # Header row
+        cLine = @aBorder[:Vertical]
+        for i = 1 to nCols
+            cLine += CenterText(Capitalise(aColNames[i]), aColWidths[i]) + @aBorder[:Vertical]
+        next
+        cOutput += cLine + nl()
+        
+        # Separator
+        cLine = @aBorder[:TeeRight]
+        for i = 1 to nCols
+            cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
+			if i < nCols
+				cLine += @aBorder[:Cross]
+			else
+				cLine += @aBorder[:TeeLeft]
+			ok
+        next
+        cOutput += cLine + nl()
+        
+        # Data rows
+        nRows = This.NumberOfRows()
+        for r = 1 to nRows
+            cLine = @aBorder[:Vertical]
+            for i = 1 to nCols
+                cellValue = "" + This.Content()[i][2][r]
+
+                # Right-align numbers, left-align strings
+                if isNumber(cellValue) or (isString(cellValue) and cellValue != "" and @IsNumberInString(cellValue))
+                    cLine += " " + PadLeft(cellValue, aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+                else
+                    cLine += " " + PadRight(cellValue, aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+                ok
+            next
+            cOutput += cLine + nl()
+        next
+        
+        # Bottom border
+        cLine = @aBorder[:BottomLeft]
+        for i = 1 to nCols
+            cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
+			if i < nCols
+				cLine += @aBorder[:TeeUp]
+			else
+				cLine += @aBorder[:BottomRight]
+			ok
+        next
+        cOutput += cLine + nl()
+        
+        return cOutput
+
+    # Internal method to display filtered table
+    def _displayFilteredTable(paFilterCriteria)
+        # Create a filtered copy of the table
+        oFilteredTable = This.FilterQ(paFilterCriteria)
+        
+        # Use the full table display method on the filtered table
+        return oFilteredTable.Display(NULL)
+
+	  #-----------------------------#
+	 #  UTILITY FUNCTIONS          #
+	#-----------------------------#
+
+	def PadRight(text, width)
+		# Pad text to the right
+		cStr = "" + text
+		nPad = width - len(cStr)
+		if nPad > 0
+			return cStr + @copy(" ", nPad)
+		else
+			return cStr
+		ok
+	
+	def PadLeft(text, width)
+		# Pad text to the left
+		cStr = "" + text
+		nPad = width - len(cStr)
+		if nPad > 0
+			return @copy(" ", nPad) + cStr
+		else
+			return cStr
+		ok
+	
+	def CenterText(text, width)
+		# Center text within width
+		cStr = "" + text
+		nPadTotal = width - len(cStr)
+		if nPadTotal <= 0
+			return cStr
+		ok
+		
+		nPadLeft = floor(nPadTotal / 2)
+		nPadRight = nPadTotal - nPadLeft
+		
+		return @copy(" ", nPadLeft) + cStr + @copy(" ", nPadRight)
+	
+	def StrFill(nCount, cChar)
+		# Create string of repeated character
+		cResult = ""
+		for i = 1 to nCount
+			cResult += cChar
+		next
+		return cResult

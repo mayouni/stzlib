@@ -261,6 +261,9 @@ func ring_substr2(str, substr1, substr2) # Replaces substr1 by substr2 in str
 func ring_copy(p1, p2)
 	return copy(p1, p2)
 
+	func @copy(p1, p2)
+		return copy(p1, p2)
+
 func ring_len(p)
 	return len(p)
 
