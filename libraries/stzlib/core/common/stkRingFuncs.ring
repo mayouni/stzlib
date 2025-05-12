@@ -290,3 +290,9 @@ func ring_isvowel(c)
 
 func ring_sqrt(n)
 	return sqrt(n)
+
+func ring_ceil(n)
+	return ceil(n)
+
+func ring_floor(n)
+	return floor(n)
