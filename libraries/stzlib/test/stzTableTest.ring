@@ -6052,68 +6052,122 @@ o1.FromCSV("tabdata.csv")
 ? o1.Show()
 
 #-->
-# TREE_ID   BLOCK_ID   CREATED_AT   TREE_DBH   ALIVE
-# -------- ---------- ------------ ---------- ------
-#  180683     348711   08/27/2015          3   Alive
-#  200540     315986   09/03/2015         21   Alive
-#  204026     218365   09/05/2015          3    Dead
-#  204337     217969   09/05/2015         10   Alive
-#  189565     223043   08/30/2015         21   Alive
-#  190422     106099   08/30/2015         11    Dead
-#  190426     106099   08/30/2015         11   Alive
-#  208649     103940   09/07/2015          9   Alive
-#  209610     407443   09/08/2015          6   Alive
-#  180683     348711   08/27/2015          3   Alive
+# ╭─────────┬──────────┬────────────┬──────────┬───────╮
+# │ Tree_id │ Block_id │ Created_at │ Tree_dbh │ Alive │
+# ├─────────┼──────────┼────────────┼──────────┼───────┤
+# │  180683 │   348711 │ 08/27/2015 │        3 │ Alive │
+# │  200540 │   315986 │ 09/03/2015 │       21 │ Alive │
+# │  204026 │   218365 │ 09/05/2015 │        3 │ Dead  │
+# │  204337 │   217969 │ 09/05/2015 │       10 │ Alive │
+# │  189565 │   223043 │ 08/30/2015 │       21 │ Alive │
+# │  190422 │   106099 │ 08/30/2015 │       11 │ Dead  │
+# │  190426 │   106099 │ 08/30/2015 │       11 │ Alive │
+# │  208649 │   103940 │ 09/07/2015 │        9 │ Alive │
+# │  209610 │   407443 │ 09/08/2015 │        6 │ Alive │
+# │  180683 │   348711 │ 08/27/2015 │        3 │ Alive │
+# ╰─────────┴──────────┴────────────┴──────────┴───────╯
 
 pf()
-#--> Executed in 0.67 second(s) in Ring 1.22
+#--> Executed in 0.60 second(s) in Ring 1.22
 
-/*=== Filtering Tests for stzTable
+/*=== Filtering stzTable
 
 pr()
 
+# Note: It's more efficient to provide the data in this hashlist format:
+#
+# o1 = new stzTable([
+#     :Region = [
+# 		"North", "South", "East",
+# 		"West", "North", "South",
+# 		"East", "West"
+# 	],
+# 
+#    :Product = [
+# 		"Product A", "Product A", "Product A",
+# 		"Product A", "Product B", "Product B",
+# 		"Product B", "Product B"
+# 	],
+# 
+#     :Quarter = [
+# 		"Q1", "Q1", "Q1",
+# 		"Q1", "Q2", "Q1",
+# 		"Q2", "Q1"
+# 	],
+# 
+#     :Sales = [ 10000, 15000, 11000, 13000, 8000, 9500, 7500, 9000 ],
+# 
+#     :Units = [ 100, 150, 110, 130, 80, 95, 75, 90 ]
+# ]
+# 
+# This is because the object internally stores its data in this format,
+# making it more performant.
+# 
+# However, in the following example, we use a more expressive structure
+# that's easier to read and understand.
+
+
 o1 = new stzTable([
 
-    :Region = [
-		"North", "South", "East",
-		"West", "North", "South",
-		"East", "West"
-	],
+	[ :Region,	:Product,	:Quarter,	:Sales,	:Units ],
 
-    :Product = [
-		"Product A", "Product A", "Product A",
-		"Product A", "Product B", "Product B",
-		"Product B", "Product B"
-	],
-
-    :Quarter = [
-		"Q1", "Q1", "Q1",
-		"Q1", "Q2", "Q1",
-		"Q2", "Q1"
-	],
-
-    :Sales = [ 10000, 15000, 11000, 13000, 8000, 9500, 7500, 9000 ],
-
-    :Unites = [ 100, 150, 110, 130, 80, 95, 75, 90 ]
-
+	[ "North",	"Product A",	"Q1",	10000,		100 ],
+	[ "South",  "Product A",	"Q1",	15000,		150	],
+	[ "East",	"Product A",	"Q1",	11000,		110 ],
+	[ "West",	"Product A",	"Q1",	13000,		130 ],
+	[ "North",	"Product B",	"Q2",	 8000,		 80 ],
+	[ "South",	"Product B",	"Q1",	 9500,		 95 ],
+	[ "East",	"Product B",	"Q2",	 7500,		 75 ],
+	[ "West",	"Product B",	"Q1",	 9000,		 90 ]
 ])
 
-# Filter by Single Region
+# Filter by Single Region (on a copy of the table ~> CQ extension)
+#~> The original content is not affected by the filter
 
 o1.FilterCQ([ :Region = "North", :Quarter = "Q2" ]).Show()
+#-->
+# ╭────────┬───────────┬─────────┬───────┬───────╮
+# │ Region │  Product  │ Quarter │ Sales │ Units │
+# ├────────┼───────────┼─────────┼───────┼───────┤
+# │ North  │ Product B │ Q2      │  8000 │    80 │
+# ╰────────┴───────────┴─────────┴───────┴───────╯
 
-#---> Returns a table with only East region rows
-# Full table display
-? o1.Show()
+# Full table display (because the filter above operated on
+# a copy of the table ane left the original content intact)
 
-# Filtered display (e.g., only North region)
-o1.Filter([ [ :Region, "North"] ])
 o1.Show()
+#-->
+# ╭────────┬───────────┬─────────┬───────┬───────╮
+# │ Region │  Product  │ Quarter │ Sales │ Units │
+# ├────────┼───────────┼─────────┼───────┼───────┤
+# │ North  │ Product A │ Q1      │ 10000 │   100 │
+# │ South  │ Product A │ Q1      │ 15000 │   150 │
+# │ East   │ Product A │ Q1      │ 11000 │   110 │
+# │ West   │ Product A │ Q1      │ 13000 │   130 │
+# │ North  │ Product B │ Q2      │  8000 │    80 │
+# │ South  │ Product B │ Q1      │  9500 │    95 │
+# │ East   │ Product B │ Q2      │  7500 │    75 │
+# │ West   │ Product B │ Q1      │  9000 │    90 │
+# ╰────────┴───────────┴─────────┴───────┴───────╯
+
+# Filtering the table only North region)
+#~> Now it's content is update to have only the filtered data
+
+o1.Filter([ :Region = "North" ])
+o1.Show()
+#-->
+# ╭────────┬───────────┬─────────┬───────┬───────╮
+# │ Region │  Product  │ Quarter │ Sales │ Units │
+# ├────────┼───────────┼─────────┼───────┼───────┤
+# │ North  │ Product A │ Q1      │ 10000 │   100 │
+# │ North  │ Product B │ Q2      │  8000 │    80 │
+# ╰────────┴───────────┴─────────┴───────┴───────╯
 
 pf()
+# Executed in 0.26 second(s) in Ring 1.22
 
 /*--- Filter by Region and Quarter
-*/
+
 pr()
 
 o1 = new stzTable([
@@ -6130,15 +6184,9 @@ o1 = new stzTable([
 		"Product B", "Product B"
 	],
 
-    :Quarter = [
-		"Q1", "Q1", "Q1",
-		"Q1", "Q1", "Q1",
-		"Q1", "Q1"
-	],
-
+    :Quarter = [ "Q1", "Q1", "Q1", "Q1", "Q1", "Q1", "Q1", "Q1" ],
     :Sales = [ 10000, 15000, 11000, 13000, 8000, 9500, 7500, 9000 ],
-
-    :Unites = [ 100, 150, 110, 130, 80, 95, 75, 90 ]
+    :Units = [ 100, 150, 110, 130, 80, 95, 75, 90 ]
 
 ])
 
@@ -6148,58 +6196,290 @@ o1.FilterCQ([
     :Region = "East",
     :Quarter = "Q1"
 ]).Show()
+#-->
+# ╭────────┬───────────┬─────────┬───────┬───────╮
+# │ Region │  Product  │ Quarter │ Sales │ Units │
+# ├────────┼───────────┼─────────┼───────┼───────┤
+# │ East   │ Product A │ Q1      │ 11000 │   110 │
+# │ East   │ Product B │ Q1      │  7500 │    75 │
+# ╰────────┴───────────┴─────────┴───────┴───────╯
 
-# Filter with Multiple Region Values
+# Filter with Multiple Region Values and a given product
 
 o1.FilterCQ([ 
     :Region = [ "East", "West" ], 
     :Product = "Product A"
 ]).Show()
-
+#-->
+# ╭────────┬───────────┬─────────┬───────┬───────╮
+# │ Region │  Product  │ Quarter │ Sales │ Units │
+# ├────────┼───────────┼─────────┼───────┼───────┤
+# │ East   │ Product A │ Q1      │ 11000 │   110 │
+# │ West   │ Product A │ Q1      │ 13000 │   130 │
+# ╰────────┴───────────┴─────────┴───────┴───────╯
 
 pf()
-
-#---> 
-
-
-#---> Returns a table with East and West regions, Product A rows
+# Executed in 0.13 second(s) in Ring 1.22
 
 /*--- Grouping Tests
 
-/*--- Group by Single Column
-o1.GroupBy(["Region"])
-#---> Aggregates data grouped by Region
+pr()
+
+o1 = new stzTable([
+
+	[ :Region,	:Product,	:Quarter,	:Sales,	:Units ],
+
+	[ "North",	"Product A",	"Q1",	10000,		100 ],
+	[ "South",  "Product A",	"Q1",	15000,		150	],
+	[ "East",	"Product A",	"Q1",	11000,		110 ],
+	[ "West",	"Product A",	"Q1",	13000,		130 ],
+	[ "North",	"Product B",	"Q2",	 8000,		 80 ],
+	[ "South",	"Product B",	"Q1",	 9500,		 95 ],
+	[ "East",	"Product B",	"Q2",	 7500,		 75 ],
+	[ "West",	"Product B",	"Q1",	 9000,		 90 ]
+])
+
+# Group by Single Column
+
+o1.GroupBy([ :Region ])
+
+o1.Show()
+#-->
+# ╭────────┬───────────┬─────────┬───────┬───────╮
+# │ Region │  Product  │ Quarter │ Sales │ Units │
+# ├────────┼───────────┼─────────┼───────┼───────┤
+# │ North  │ Product A │ Q1      │ 10000 │   100 │
+# │ South  │ Product A │ Q1      │ 15000 │   150 │
+# │ East   │ Product A │ Q1      │ 11000 │   110 │
+# │ West   │ Product A │ Q1      │ 13000 │   130 │
+# ╰────────┴───────────┴─────────┴───────┴───────╯
+
+pf()
+# Executed in 0.10 second(s) in Ring 1.22
 
 /*--- Group by Multiple Columns
-o1.GroupBy(["Region", "Product"])
-#---> Detailed grouping by Region and Product
+*/
+pr()
 
-/*--- Aggregation Tests
+o1 = new stzTable([
 
-/*--- Single Column Aggregation
-o1.Aggregate([ [:Sales, :Sum] ])
-#---> Calculates total Sales
+	[ :Region,	:Product,	:Quarter,	:Sales,	:Units ],
+
+	[ "North",	"Product A",	"Q1",	10000,		100 ],
+	[ "South",  "Product A",	"Q1",	15000,		150	],
+	[ "East",	"Product A",	"Q1",	11000,		110 ],
+	[ "West",	"Product A",	"Q1",	13000,		130 ],
+	[ "North",	"Product B",	"Q2",	 8000,		 80 ],
+	[ "South",	"Product B",	"Q1",	 9500,		 95 ],
+	[ "East",	"Product B",	"Q2",	 7500,		 75 ],
+	[ "West",	"Product B",	"Q1",	 9000,		 90 ]
+])
+
+# Detailed grouping by Region and Product
+
+o1.GroupBy([ :Product, :Region ], [ :Sales = :Sum, :Units = :Sum ])
+o1.Show()
+#-->
+# ╭────────┬───────────┬────────┬───────────┬─────────┬───────┬───────╮
+# │ Region │  Product  │ Region │  Product  │ Quarter │ Sales │ Units │
+# ├────────┼───────────┼────────┼───────────┼─────────┼───────┼───────┤
+# │ North  │ Product A │ North  │ Product A │ Q1      │ 10000 │   100 │
+# │ South  │ Product A │ South  │ Product A │ Q1      │ 15000 │   150 │
+# │ East   │ Product A │ East   │ Product A │ Q1      │ 11000 │   110 │
+# │ West   │ Product A │ West   │ Product A │ Q1      │ 13000 │   130 │
+# │ North  │ Product B │ North  │ Product B │ Q2      │  8000 │    80 │
+# │ South  │ Product B │ South  │ Product B │ Q1      │  9500 │    95 │
+# │ East   │ Product B │ East   │ Product B │ Q2      │  7500 │    75 │
+# │ West   │ Product B │ West   │ Product B │ Q1      │  9000 │    90 │
+# ╰────────┴───────────┴────────┴───────────┴─────────┴───────┴───────╯
+
+o1.ShowXT(:InterTotal = true, :GrandTotal = true)
+
+pf()
+# Executed in 0.25 second(s) in Ring 1.22
+
+/*--- Aggregation
+
+pr()
+
+o1 = new stzTable([
+
+	[ :Region,	:Product,	:Quarter,	:Sales,	:Units ],
+
+	[ "North",	"Product A",	"Q1",	10000,		100 ],
+	[ "South",  "Product A",	"Q1",	15000,		150	],
+	[ "East",	"Product A",	"Q1",	11000,		110 ],
+	[ "West",	"Product A",	"Q1",	13000,		130 ],
+	[ "North",	"Product B",	"Q2",	 8000,		 80 ],
+	[ "South",	"Product B",	"Q1",	 9500,		 95 ],
+	[ "East",	"Product B",	"Q2",	 7500,		 75 ],
+	[ "West",	"Product B",	"Q1",	 9000,		 90 ]
+])
+
+# Single Column Aggregation : Calculates total Sales
+
+o1.Aggregate([ Sales = 'SUM' ])
+o1.Show()
+#-->
+# ╭────────────╮
+# │ Sum(sales) │
+# ├────────────┤
+# │      83000 │
+# ╰────────────╯
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Multiple Aggregations
+
+pr()
+
+o1 = new stzTable([
+
+	[ :Region,	:Product,	:Quarter,	:Sales,	:Units ],
+
+	[ "North",	"Product A",	"Q1",	10000,		100 ],
+	[ "South",  "Product A",	"Q1",	15000,		150	],
+	[ "East",	"Product A",	"Q1",	11000,		110 ],
+	[ "West",	"Product A",	"Q1",	13000,		130 ],
+	[ "North",	"Product B",	"Q2",	 8000,		 80 ],
+	[ "South",	"Product B",	"Q1",	 9500,		 95 ],
+	[ "East",	"Product B",	"Q2",	 7500,		 75 ],
+	[ "West",	"Product B",	"Q1",	 9000,		 90 ]
+])
+
+# Calculating Sum of Sales, Average of Units, Count of Products
+
 o1.Aggregate([
+    :Sales 		= 'SUM',
+    :Units 		= 'AVERAGE',
+    :Product 	= 'COUNT'
+])
+
+o1.Show()
+#-->
+# ╭────────────┬────────────────┬────────────────╮
+# │ Sum(sales) │ Average(units) │ Count(product) │
+# ├────────────┼────────────────┼────────────────┤
+# │      83000 │         103.75 │              8 │
+# ╰────────────┴────────────────┴────────────────╯
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*================
+*/
+pr()
+
+# Example demonstrating the extended GroupByXT functionality
+
+# Creating a sales data table
+o1 = new stzTable([
+    [ :Region,  :Product,  :Quarter, :Sales,  :Units ],
+    
+    [ "North",  "Product A", "Q1",     10000,   100  ],
+    [ "North",  "Product A", "Q2",     12000,   120  ],
+    [ "North",  "Product B", "Q1",      8000,    80  ],
+    [ "North",  "Product B", "Q2",      9500,    95  ],
+    [ "South",  "Product A", "Q1",     15000,   150  ],
+    [ "South",  "Product A", "Q2",     16500,   165  ],
+    [ "South",  "Product B", "Q1",      9500,    95  ],
+    [ "South",  "Product B", "Q2",     11000,   110  ],
+    [ "East",   "Product A", "Q1",     11000,   110  ],
+    [ "East",   "Product A", "Q2",     12500,   125  ],
+    [ "East",   "Product B", "Q1",      7500,    75  ],
+    [ "East",   "Product B", "Q2",      8500,    85  ],
+    [ "West",   "Product A", "Q1",     13000,   130  ],
+    [ "West",   "Product A", "Q2",     14500,   145  ],
+    [ "West",   "Product B", "Q1",      9000,    90  ],
+    [ "West",   "Product B", "Q2",     10500,   105  ]
+])
+
+# Group by Region with sum aggregation
+
+oCopy = o1.Copy()
+
+oCopy.GroupBy([:Region], [
     [:Sales, :Sum],
-    [:Units, :Average],
-    [:Product, :Count]
+    [:Units, :Sum]
 ])
-#---> Calculates Sum of Sales, Average of Units, Count of Products
 
-/*--- Display Tests
+# Group by Region with Sales and Units summed
 
-/*--- Default Display
-o1.DisplayXT()
-#---> Displays table with default formatting
+oCopy.Show()
+#-->
+# ╭────────┬────────────┬───────────╮
+# │ Region │ Sum(Sales) │ Sum(Units)│
+# ├────────┼────────────┼───────────┤
+# │ North  │     39500  │       395 │
+# │ South  │     52000  │       520 │
+# │ East   │     39500  │       395 │
+# │ West   │     47000  │       470 │
+# ╰────────┴────────────┴───────────╯
 
-/*--- Custom Display Options
-o1.DisplayXT([
-    :Separator = " | ",
-    :Alignment = :Right,
-    :ShowSummary = _TRUE_,
-    :HeaderStyle = :Uppercase,
-    :Precision = 2
+# Group by Region and Product with multiple aggregations
+
+oCopy = o1.Copy()
+
+oCopy.GroupBy([:Region, :Product], [
+    [:Sales, :Sum],
+    [:Units, :Average]
 ])
-#---> Displays table with custom formatting
+
+# Group by Region and Product with sum of Sales and average Units
+
+oCopy.Show()
+#-->
+# ╭────────┬───────────┬────────────┬───────────────╮
+# │ Region │ Product   │ Sum(Sales) │ Average(Units)│
+# ├────────┼───────────┼────────────┼───────────────┤
+# │ North  │ Product A │     22000  │          110  │
+# │ North  │ Product B │     17500  │           87.5│
+# │ South  │ Product A │     31500  │          157.5│
+# │ South  │ Product B │     20500  │          102.5│
+# │ East   │ Product A │     23500  │          117.5│
+# │ East   │ Product B │     16000  │           80  │
+# │ West   │ Product A │     27500  │          137.5│
+# │ West   │ Product B │     19500  │           97.5│
+# ╰────────┴───────────┴────────────┴───────────────╯
+
+# Group by Quarter with min/max aggregations
+
+oCopy = o1.Copy()
+oCopy.GroupBy([:Quarter], [
+    [:Sales, :Max],
+    [:Sales, :Min],
+    [:Units, :Count]
+])
+
+# Group by Quarter with max/min Sales and count of Units
+oCopy.Show()
+#-->
+# ╭─────────┬────────────┬────────────┬─────────────╮
+# │ Quarter │ Max(Sales) │ Min(Sales) │ Count(Units)│
+# ├─────────┼────────────┼────────────┼─────────────┤
+# │ Q1      │     15000  │      7500  │           8 │
+# │ Q2      │     16500  │      8500  │           8 │
+# ╰─────────┴────────────┴────────────┴─────────────╯
+
+# Group by Product and Quarter
+
+oCopy = o1.Copy()
+oCopy.GroupBy(
+	[ :Product, :Quarter ], [ :Sales = :Sum, :Units = :Sum ]
+)
+
+# Group by Product and Quarter with sums"
+oCopy.Show()
+#-->
+# ╭───────────┬─────────┬────────────┬───────────╮
+# │ Product   │ Quarter │ Sum(Sales) │ Sum(Units)│
+# ├───────────┼─────────┼────────────┼───────────┤
+# │ Product A │ Q1      │     49000  │       490 │
+# │ Product A │ Q2      │     55500  │       555 │
+# │ Product B │ Q1      │     34000  │       340 │
+# │ Product B │ Q2      │     39500  │       395 │
+# ╰───────────┴─────────┴────────────┴───────────╯
+
+pf()
+# Executed in 0.44 second(s) in Ring 1.22

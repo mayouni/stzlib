@@ -204,7 +204,7 @@ oPivot = new stzPivotTable(oTable)
 
 oPivot {
 
-	Analyze([ :Salary ], :Using = :MEDIAN)
+	Analyze([ :Salary ], :Using = :SUM)
 
 //SetRowsBy([ :Department ])
 
