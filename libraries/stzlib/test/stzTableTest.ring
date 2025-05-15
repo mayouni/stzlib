@@ -1,5 +1,27 @@
 load "../max/stzmax.ring"
 
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE,	:SALARY,	:JOB 	],
+	[ 10,	"Ali",		35000,		"job1"	],
+	[ 20,	"Dan",		28900,		"job2"	],
+	[ 30,	"Ben",		25982,		"job3"	]
+])
+
+o1.Show()
+#-->
+
+# Getting the content of the subtable
+
+? @@NL( o1.SubTable([ :EMPLOYEE, :SALARY ]) ) + NL
+#--> [
+#	[ "employee", [ "Ali", "Dan", "Ben" ] ],
+#	[ "salary"  , [ 35000, 28900, 25982 ] ]
+# ]
+
+# Casting the subtable into a stzTable object and showing it
+
+o1.SubTableQRT([ :EMPLOYEE, :SALARY ], :stzTable).Show()
+
 /*---- #tODO
 pr()
 
@@ -6513,7 +6535,6 @@ pf()
 # Executed in 0.46 second(s) in Ring 1.22
 
 #=== Turning the table to a pivot table
-*/
 
 pr()
     
@@ -6555,15 +6576,12 @@ o1 = new stzTable([
 o1.ToStzPivotTable() {
 
 	Analyze([ :Salary ], :Using = :SUM)
-
-//SetRowsBy([ :Department ])
-
 	SetRowsBy([ :Department, :Location ])
-
 	SetColsBy([ :Experience, :Gender ])
 
-//SetColsBy([ :Experience ])
 	Show()
+
+}
 #-->
 #	╭───────────────────────┬─────────────────────┬─────────────────────┬─────────╮
 #	│                       │       Junior        │       Senior        │         │
@@ -6581,6 +6599,5 @@ o1.ToStzPivotTable() {
 #	╰────────────┴──────────┴──────────┴──────────┴──────────┴──────────┴─────────╯
 #	                AVERAGE │   277000 │   226000 │   453000 │   447000 │ 1403000 
 
-}
-
 pf()
+# Executed in 0.17 second(s) in Ring 1.22
