@@ -89,7 +89,7 @@ _aDaysOfWeek = [
 func StzDate(pDat)
 	return new stzDate(pDate)
 
-func StzDateQ(pDat)
+func StzDateQ(pDate)
 	return new stzDate(pDate)
 
 func DefaultDaysOfWeek()
@@ -97,6 +97,18 @@ func DefaultDaysOfWeek()
 
 func SysDate()
 	return date()
+
+func Month(cDate)
+	return StzDateQ(cDate).Month()
+
+	func @Month(cDate)
+		return return StzDateQ(cDate).Month()
+
+func Year(cDate)
+	return StzDateQ(cDate).Year()
+
+	func @Year(cDate)
+		return return StzDateQ(cDate).Year()
 
 func ring_addDays(cDate, n)
 	return addDays(cDate, n)
@@ -138,7 +150,10 @@ class stzDate from stzObject
 				         pDate[:Month] + "/"  +
 				         pDate[:Year]
 		ok
-		
+
+	def QDateObject()
+		return oQDate
+
 	def operator(op,v)
 
 		n = v
@@ -282,6 +297,8 @@ class stzDate from stzObject
 		This.cDate = Days() + "/" + Months() + "/" + nYears
 		return This.cDate
 
+	def Month()
+		return This.QDateObject().Month()
 
 	def Years()
 

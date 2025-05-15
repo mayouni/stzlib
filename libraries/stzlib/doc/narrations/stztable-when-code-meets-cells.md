@@ -716,51 +716,273 @@ o1.SubTableQRT([ :EMPLOYEE, :SALARY ], :stzTable).Show()
 
 This capability is invaluable for isolating specific subsets of your data, returning them as `stzTable` objects ready for further analysis or presentation.
 
-## Customizing Table Display
 
-The `ShowXT()` method — an extended version of `Show()` — allows you to customize the table’s display with greater flexibility.
+## Filtering Data in `stzTable`
+
+The `stzTable` class provides powerful filtering capabilities that let you extract specific subsets of data based on one or more conditions. This is similar to applying filters in spreadsheet applications, but with programmatic flexibility.
+
+### Basic Filtering
+
+The `Filter()` method permanently updates the table content to show only data that matches your specified criteria. If you want to preserve the original table while viewing filtered results, you can use the `FilterCQ()` method ("CQ" stands for "Copy Query"), which returns a new filtered table without modifying the original.
 
 ```ring
-o1 = new stzTable([
-	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
-
-	[     "Red",     "White",    "Yellow" ],
-	[    "Blue",       "Red",       "Red" ],
-	[    "Blue",     "Green",   "Magenta" ],
-	[   "White",      "Gray",     "Black" ],
-	[     "Red",     "White",    "Yellow" ]
-])
-
-# By default, the table is displayed like this
-
+# Filter by a single condition, modifying the original table
+o1.Filter([ :Region = "North" ])
 o1.Show()
-#-->
-# PALETTE1   PALETTE2   PALETTE3
-# --------- ---------- ---------
-#      Red      White     Yellow
-#     Blue        Red        Red
-#     Blue      Green    Magenta
-#    White       Gray      Black
-#      Red      White     Yellow
-
-# Add the XT suffix and change the options at your will
-
-? o1.ShowXT([
-	:Separator = " | ",
-	:IntersectionChar = "+",
-	:Alignment = :Left,
-	:UnderLineHeader,
-	:ShowRowNumbers
-])
-#-->
-#  # | PALETTE1 | PALETTE2 | PALETTE3
-# ---+----------+----------+----------
-#  1 | Red      | White    | Yellow   
-#  2 | Blue     | Red      | Red      
-#  3 | Blue     | Green    | Magenta  
-#  4 | White    | Gray     | Black    
-#  5 | Red      | White    | Yellow     
 ```
+
+Output:
+```
+╭────────┬───────────┬─────────┬───────┬───────╮
+│ Region │  Product  │ Quarter │ Sales │ Units │
+├────────┼───────────┼─────────┼───────┼───────┤
+│ North  │ Product A │ Q1      │ 10000 │   100 │
+│ North  │ Product B │ Q2      │  8000 │    80 │
+╰────────┴───────────┴─────────┴───────┴───────╯
+```
+
+```ring
+# Filter by a single condition, returning a new table without modifying the original
+o1.FilterCQ([ :Region = "North", :Quarter = "Q2" ]).Show()
+```
+
+Output:
+```
+╭────────┬───────────┬─────────┬───────┬───────╮
+│ Region │  Product  │ Quarter │ Sales │ Units │
+├────────┼───────────┼─────────┼───────┼───────┤
+│ North  │ Product B │ Q2      │  8000 │    80 │
+╰────────┴───────────┴─────────┴───────┴───────╯
+```
+
+The filtering criteria use an intuitive syntax where you specify column names and their expected values in a list. This human-readable approach makes your code more maintainable and easier to understand.
+
+### Advanced Filtering
+
+You can combine multiple conditions in a single filter operation, creating more complex queries:
+
+```ring
+# Filter with multiple columns as criteria
+o1.FilterCQ([ 
+    :Region = "East", 
+    :Quarter = "Q1"
+]).Show()
+```
+
+Output:
+```
+╭────────┬───────────┬─────────┬───────┬───────╮
+│ Region │  Product  │ Quarter │ Sales │ Units │
+├────────┼───────────┼─────────┼───────┼───────┤
+│ East   │ Product A │ Q1      │ 11000 │   110 │
+│ East   │ Product B │ Q1      │  7500 │    75 │
+╰────────┴───────────┴─────────┴───────┴───────╯
+```
+
+For even more flexibility, you can specify multiple acceptable values for a single column:
+
+```ring
+# Filter with multiple possible values for a column
+o1.FilterCQ([ 
+    :Region = [ "East", "West" ], 
+    :Product = "Product A"
+]).Show()
+```
+
+Output:
+```
+╭────────┬───────────┬─────────┬───────┬───────╮
+│ Region │  Product  │ Quarter │ Sales │ Units │
+├────────┼───────────┼─────────┼───────┼───────┤
+│ East   │ Product A │ Q1      │ 11000 │   110 │
+│ West   │ Product A │ Q1      │ 13000 │   130 │
+╰────────┴───────────┴─────────┴───────┴───────╯
+```
+
+This multi-value support lets you create sophisticated filtering criteria without having to chain multiple filter operations, making your code cleaner and more efficient.
+
+## Grouping Data in `stzTable`
+
+Grouping is a powerful technique for summarizing and analyzing data by categories. The `stzTable` class makes this process straightforward with its `GroupBy()` method.
+
+### Single Column Grouping
+
+You can group your data by a single column to organize related information:
+
+```ring
+# Group by Region
+o1.GroupBy([ :Region ])
+o1.Show()
+```
+
+Output:
+```
+╭────────┬───────────┬─────────┬───────┬───────╮
+│ Region │  Product  │ Quarter │ Sales │ Units │
+├────────┼───────────┼─────────┼───────┼───────┤
+│ North  │ Product A │ Q1      │ 10000 │   100 │
+│ South  │ Product A │ Q1      │ 15000 │   150 │
+│ East   │ Product A │ Q1      │ 11000 │   110 │
+│ West   │ Product A │ Q1      │ 13000 │   130 │
+╰────────┴───────────┴─────────┴───────┴───────╯
+```
+
+This transforms your table to show unique values in the specified column, with the first occurrence of each value displayed in the result.
+
+### Multi-Column Grouping with Aggregations
+
+For more sophisticated analysis, you can group by multiple columns and apply aggregation functions to numeric columns:
+
+```ring
+# Group by Product and Region with aggregations
+o1.GroupBy([ :Product, :Region ], [ :Sales = 'Sum', :Units = 'Average' ])
+o1.Show()
+```
+
+Output:
+```
+╭────────┬───────────┬────────┬───────────┬─────────┬───────┬───────╮
+│ Region │  Product  │ Region │  Product  │ Quarter │ Sales │ Units │
+├────────┼───────────┼────────┼───────────┼─────────┼───────┼───────┤
+│ North  │ Product A │ North  │ Product A │ Q1      │ 10000 │   100 │
+│ South  │ Product A │ South  │ Product A │ Q1      │ 15000 │   150 │
+│ East   │ Product A │ East   │ Product A │ Q1      │ 11000 │   110 │
+│ West   │ Product A │ West   │ Product A │ Q1      │ 13000 │   130 │
+│ North  │ Product B │ North  │ Product B │ Q2      │  8000 │    80 │
+│ South  │ Product B │ South  │ Product B │ Q1      │  9500 │    95 │
+│ East   │ Product B │ East   │ Product B │ Q2      │  7500 │    75 │
+│ West   │ Product B │ West   │ Product B │ Q1      │  9000 │    90 │
+╰────────┴───────────┴────────┴───────────┴─────────┴───────┴───────╯
+```
+
+This creates a hierarchical grouping with the primary column (Product) and secondary column (Region), while calculating the sum of Sales and the average of Units for each group.
+
+### Enhanced Visualization with Subtotals
+
+The `ShowXT()` method with the `:SubTotal` and `:GrandTotal` parameters provides a more comprehensive view of your grouped data:
+
+```ring
+o1.ShowXT(:SubTotal = TRUE, :GrandTotal = TRUE)
+```
+
+Output:
+```
+╭─────────────────┬────────┬────────────┬────────────╮
+│     Product     │ Region │ Sum(sales) │ Sum(units) │
+├─────────────────┼────────┼────────────┼────────────┤
+│ Product A       │ North  │      10000 │        100 │
+│ Product A       │ South  │      15000 │        150 │
+│ Product A       │ East   │      11000 │        110 │
+│ Product A       │ West   │      13000 │        130 │
+│ --------------- │ ------ │ ---------- │ ---------- │
+│       Sub-total │        │      49000 │        490 │
+│                 │        │            │            │
+│ Product B       │ North  │       8000 │         80 │
+│ Product B       │ South  │       9500 │         95 │
+│ Product B       │ East   │       7500 │         75 │
+│ Product B       │ West   │       9000 │         90 │
+│ --------------- │ ------ │ ---------- │ ---------- │
+│       Sub-total │        │      34000 │        340 │
+├─────────────────┼────────┼────────────┼────────────┤
+│     GRAND-TOTAL │        │      83000 │        830 │
+╰─────────────────┴────────┴────────────┴────────────╯
+```
+
+This displays intermediate subtotals for each primary group and a grand total at the bottom, making it easier to analyze hierarchical data relationships.
+
+## Aggregating Data in `stzTable`
+
+Aggregation functions allow you to perform calculations across rows to derive meaningful insights from your data. The `stzTable` class offers a variety of aggregation methods that work seamlessly with its other features.
+
+### Basic Aggregation
+
+The simplest form of aggregation calculates a single metric across all rows:
+
+```ring
+# Calculate the sum of Sales
+o1.Aggregate([ :Sales = 'SUM' ])
+o1.Show()
+```
+
+Output:
+```
+╭────────────╮
+│ Sum(sales) │
+├────────────┤
+│      83000 │
+╰────────────╯
+```
+
+This reduces your entire table to a single value—the total sales across all records.
+
+### Multiple Aggregations
+
+You can apply different aggregation functions to multiple columns simultaneously:
+
+```ring
+# Apply multiple aggregation functions
+o1.Aggregate([
+    :Sales   = 'SUM',
+    :Units   = 'AVERAGE',
+    :Product = 'COUNT'
+])
+o1.Show()
+```
+
+Output:
+```
+╭────────────┬────────────────┬────────────────╮
+│ Sum(sales) │ Average(units) │ Count(product) │
+├────────────┼────────────────┼────────────────┤
+│      83000 │         103.75 │              8 │
+╰────────────┴────────────────┴────────────────╯
+```
+
+This creates a concise summary table showing the total sales, average units, and count of products—all in a single operation.
+
+### Combined Grouping and Aggregation
+
+The true power of `stzTable` becomes evident when combining grouping and aggregation:
+
+```ring
+# Group by Region with sum aggregation
+oCopy.GroupBy([ :Region ], [ :Sales = 'Sum', :Units = 'Sum' ])
+oCopy.Show()
+```
+
+Output:
+```
+╭────────┬────────────┬───────────╮
+│ Region │ Sum(Sales) │ Sum(Units)│
+├────────┼────────────┼───────────┤
+│ North  │     39500  │       395 │
+│ South  │     52000  │       520 │
+│ East   │     39500  │       395 │
+│ West   │     47000  │       470 │
+╰────────┴────────────┴───────────╯
+```
+
+```ring
+# Group by Product and Quarter with sums
+oCopy.GroupBy([ :Product, :Quarter ], [ :Sales = 'Sum', :Units = 'Sum' ])
+oCopy.Show()
+```
+
+Output:
+```
+╭───────────┬─────────┬────────────┬───────────╮
+│ Product   │ Quarter │ Sum(Sales) │ Sum(Units)│
+├───────────┼─────────┼────────────┼───────────┤
+│ Product A │ Q1      │     49000  │       490 │
+│ Product A │ Q2      │     55500  │       555 │
+│ Product B │ Q1      │     34000  │       340 │
+│ Product B │ Q2      │     39500  │       395 │
+╰───────────┴─────────┴────────────┴───────────╯
+```
+
+These combinations let you create insightful data summaries that reveal patterns and trends across different dimensions of your data. Notice how the group-by columns and the aggregated columns are clearly separated in the output, making the results easy to interpret.
+
+Overall, `stzTable`'s filtering, grouping, and aggregation capabilities provide a comprehensive toolkit for data manipulation and analysis, all while maintaining the intuitive spreadsheet metaphor that makes complex operations accessible and understandable.
 
 ## Conditional Methods, Regex Support and PivotTable (future)
 
@@ -798,35 +1020,67 @@ o1.ReplaceInColXT(:EMPLOYEE, pat(:eMail), "***")
 
 ### 3. Foundation for stzPivotTable
 
-`stzTable` serves as the foundation for the `stzPivotTable` class, which is designed for advanced data analysis and interactive exploration.:
+`stzTable` serves as the foundation for the powerful `stzPivotTable` class, which enables sophisticated multi-dimensional data analysis and interactive exploration. With `stzPivotTable`, you can transform your tabular data into dynamic cross-tabulations with aggregated insights across multiple dimensions.
+
+The seamless integration between these classes lets you convert any `stzTable` object into a pivot table with a fluent interface that's both powerful and intuitive:
 
 ```ring
-// Create a pivot table from employee data
-pivot = new stzPivotTable(employeeTable)
+# Starting with employee data in a stzTable
+employeeData = new stzTable([
+    [ :Department, :Location,   :Gender,  :Experience,  :Salary   ],
+    # ------------------------------------------------------------ #
+    [ "Sales",     "New York",  "Male",   "Junior",      45000    ],
+    [ "Sales",     "New York",  "Female", "Junior",      46000    ],
+    [ "IT",        "Chicago",   "Male",   "Junior",      50000    ],
+    [ "IT",        "Chicago",   "Female", "Senior",      83000    ],
+    [ "HR",        "New York",  "Female", "Senior",      69000    ],
+    # ...and more records
+])
 
-// Configure pivot dimensions
-pivot.RowLabels([:DEPARTMENT])
-     .ColumnLabels([:YEAR])
-     .Values([:SALARY])
-     .AggregateFunction("SUM")
-
-// Display the pivot table
-pivot.Show()
+# Transform into a pivot table with multi-dimensional analysis
+employeeData.ToStzPivotTable() {
+    Analyze([ :Salary ], :Using = :SUM)       # What to analyze and how
+    SetRowsBy([ :Department, :Location ])     # Two-level row grouping
+    SetColsBy([ :Experience, :Gender ])       # Two-level column grouping
+    
+    Show()  # Display the formatted pivot table
+}
 ```
 
-Output:
+This produces a richly formatted pivot table with hierarchical row and column headers:
+
 ```
-DEPARTMENT/YEAR  |  2022    |  2023    |  2024    |  TOTAL
-----------------  ---------  ---------  ---------  ---------
-Sales            |  125000  |  140000  |  155000  |  420000
-IT               |  180000  |  195000  |  210000  |  585000
-HR               |   85000  |   90000  |   95000  |  270000
-TOTAL            |  390000  |  425000  |  460000  | 1275000
+╭───────────────────────┬─────────────────────┬─────────────────────┬─────────╮
+│                       │       Junior        │       Senior        │         │
+├────────────┬──────────┼──────────┬──────────┼──────────┬──────────┤         │
+│ Department │ Location │  Female  │   Male   │  Female  │   Male   │ AVERAGE │
+├────────────┼──────────┼──────────┼──────────┼──────────┼──────────┼─────────┤
+│ Sales      │ New York │    46000 │          │    76000 │    75000 │  197000 │
+│            │ Chicago  │    43000 │    42000 │    73000 │    72000 │  230000 │
+│            │          │          │          │          │          │         │
+│ IT         │ New York │    53000 │    52000 │    86000 │    85000 │  276000 │
+│            │ Chicago  │    51000 │    50000 │    83000 │    82000 │  266000 │
+│            │          │          │          │          │          │         │
+│ HR         │ New York │    43000 │    42000 │    69000 │    68000 │  222000 │
+│            │ Chicago  │    41000 │    40000 │    66000 │    65000 │  212000 │
+╰────────────┴──────────┴──────────┴──────────┴──────────┴──────────┴─────────╯
+                AVERAGE │   277000 │   226000 │   453000 │   447000 │ 1403000 
 ```
 
-## Softanza Advantage: A Comparative Analysis
+The `stzPivotTable` class supports various aggregation functions (SUM, AVG, MIN, MAX, COUNT), flexible dimension configuration, and automatic subtotals. This makes it an invaluable tool for data analysis tasks like:
 
-Softanza's `stzTable` "spreadsheet metaphor" approach stands out when compared to other table manipulation libraries and traditional data frames.
+- Comparing performance metrics across different business dimensions
+- Analyzing trends in hierarchical or categorical data
+- Creating financial summaries with multi-level breakdowns
+- Generating cross-tabulated reports with aggregated metrics
+
+The fluent interface style allows you to build complex pivot tables in a readable, chainable syntax that clearly expresses your analytical intent.
+
+
+## Softanza Advantage : A Comparative Analysis
+
+Softanza's `stzTable` "spreadsheet metaphor" approach stands out when compared to other table manipulation libraries and traditional data frames.
+
 
 | Feature | `stzTable` (Ring) | pandas (Python) | data.frame (R) | SQL Tables (SQLite) |
 |---------|-------------------|-----------------|----------------|---------------------|
@@ -838,17 +1092,20 @@ Softanza's `stzTable` "spreadsheet metaphor" approach stands out when compared t
 | **Positional Awareness** | ✅ **Native** (FirstCol, LastRow) | Index-based | Index-based | No direct positional access |
 | **Section Manipulation** | ✅ **Direct syntax** (Section, Range) | iloc slicing | Matrix notation | LIMIT/OFFSET combinations |
 | **Conditional Methods** | ✅ **W() suffix** for any method | query() or boolean indexing | subset() or boolean indexing | WHERE clauses |
+| **Pivot Table Support** | ✅ **Integrated fluent API** (ToStzPivotTable with chainable methods) | pivot_table() function with complex parameters | pivot_wider/pivot_longer with multiple steps | Complex GROUP BY with CASE statements |
+| **Multi-dimensional Analysis** | ✅ **Intuitive hierarchy** with nested row/column groupings | MultiIndex with less intuitive syntax | Requires add-on packages for full capability | Limited hierarchical support |
 | **Learning Curve** | ✅ **Gentle** (meaningful method names) | Steep (API complexity) | Steep (syntax) | Moderate (SQL knowledge required) |
 | **Implementation Complexity** | ✅ **Simple** (1-2 lines per operation) | Medium (multiple steps) | Medium (multiple steps) | SQL query construction |
 | **Flexibility with Data Types** | ✅ **Seamless** mixed types | Requires type casting | Requires type casting | Schema enforcement |
 | **Integration with Regex** | ✅ **Direct** (RX methods) | Separate regex functions | Separate regex functions | Limited REGEXP support |
-
-This innovative approach bridges the gap between code and visual data management, offering an intuitive yet powerful programming experience.
-
-
-> **Note**: `stzLargeTable` is a planned feature designed to handle very large datasets with the same interface as `stzTable`, but built on top of the Apache Arrow C++ library.
+| **Modern Display Formatting** | ✅ **Rich visual presentation** with automatic borders, alignment, and hierarchical formatting | Requires styling plugins or extra formatting code | Basic console output, requires additional packages | Plain text or requires external tools |
+| **Visual Orientation** | ✅ **Design priority** with spreadsheet-like presentation and intuitive visual output | Primarily functional with visual aspects secondary | Statistical focus with limited visual design | No inherent visual presentation |
 
 ## Conclusion
 
 `stzTable` transforms data manipulation in Ring with its intuitive, spreadsheet-like interface. Its comprehensive API covers everything from basic access to advanced calculations while maintaining an elegant, readable syntax.
-The addition of conditional methods, regex integration, and the foundation for stzPivotTable extends its capabilities for complex data analysis. Whether you're managing simple datasets or performing sophisticated analytics, `stzTable` provides a powerful yet approachable foundation for your data work.
+
+The class excels with its conditional methods, regex integration, and seamless pivot table capabilities through `stzPivotTable`, enabling sophisticated multi-dimensional analysis with a fluent, chainable interface. This integration provides an exceptional advantage for analytical tasks that would require multiple steps or additional packages in other frameworks.
+
+
+Whether you're managing simple datasets, performing sophisticated analytics, or creating complex hierarchical reports, the `stzTable` ecosystem provides a powerful yet approachable foundation for your data work, bridging the gap between code and visual data management in a way that prioritizes readability and intuitive design.
