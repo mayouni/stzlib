@@ -14519,20 +14519,27 @@ Class stzTable from stzObject
 
 		return nResult
 
-#--------------------------------------------------------------------
+	  #=======================#
+	 #  FILTERING THE TABLE  #
+	#=======================#
 
-# Filters table rows based on specified conditions
+	# Filters table rows based on specified conditions
+
     def Filter(paValues)
+
         # Validate input is a hash list
+
         if NOT (isList(paValues) and Q(paValues).IsHashList())
             StzRaise("Filter requires a hash list of filtering conditions")
         ok
 
         # Validate column existence and prepare filtering
+
         for item in paValues
             colName = item[1]
             
             # Check if column exists (case-insensitive)
+
             nColIndex = This.FindCol(colName)
             if nColIndex = 0
                 StzRaise("Column '" + colName + "' not found in the table")
@@ -14540,11 +14547,12 @@ Class stzTable from stzObject
         next
 
         # Perform filtering
+
         nRows = This.NumberOfRows()
         aRowsToKeep = []
 
         for nRow = 1 to nRows
-            lKeepRow = _TRUE_
+            bKeepRow = _TRUE_
             
             for item in paValues
                 colName = item[1]
@@ -14558,35 +14566,42 @@ Class stzTable from stzObject
                 
                 # Check if cell value matches filter conditions
                 # Support both single value and list of values
+
                 if isList(filterValues)
-                    lValueMatches = _FALSE_
+
+                    bValueMatches = _FALSE_
+
                     for value in filterValues
                         if cellValue = value
-                            lValueMatches = _TRUE_
+                            bValueMatches = _TRUE_
                             exit
                         ok
 					next
+
                 else
-                    lValueMatches = (cellValue = filterValues)
+                    bValueMatches = (cellValue = filterValues)
                 ok
                 
                 # If any condition fails, exclude the row
-                if NOT lValueMatches
-                    lKeepRow = _FALSE_
+                if NOT bValueMatches
+                    bKeepRow = _FALSE_
                     exit
                 ok
             next
             
-            if lKeepRow
+            if bKeepRow
                 aRowsToKeep + This.Row(nRow)
             ok
         next
 
         # Rebuild the table with filtered rows
+
         aResult = []
         
         # Recreate columns with filtered data
+
         nCols = This.NumberOfCols()
+
         for nCol = 1 to nCols
             colName = This.ColName(nCol)
             colData = []
@@ -14601,6 +14616,7 @@ Class stzTable from stzObject
         @aContent = aResult
 
     # Fluent interface version
+
     def FilterQ(paValues)
         This.Filter(paValues)
         return This
@@ -14610,284 +14626,329 @@ Class stzTable from stzObject
 			oCopy.Filter(paValues)
 			return oCopy
 
-# Groups table rows by specified columns
+	  #----------------------------------------------------------------------------#
+	 #  Aggregating (Grouping) table data based on specified columns and methods  #
+	#----------------------------------------------------------------------------#
 
-# Aggregates table data based on specified columns and methods
-def Aggregate(paAggregations)
-	# Validate input is a hash list
-	if NOT (isList(paAggregations) and Q(paAggregations).IsHashList())
-		StzRaise("Aggregate requires a hash list of aggregation specifications")
-	ok
-
-	# Predefined aggregation methods
-	aValidMethods = [
-		:Sum,
-		:Average,
-		:Count,
-		:Max,
-		:Min,
-		:First,
-		:Last
-	]
-
-	# Validate and process aggregations
-	aProcessedAggs = []
-
-	for item in paAggregations
-		colName = item[1]
-		aggMethod = lower(item[2])
-
-		# Validate column existence
-		nColIndex = This.FindCol(colName)
-		if nColIndex = 0
-			StzRaise("Column '" + colName + "' not found in the table")
+	def Aggregate(paAggregations)
+		# Validate input is a hash list
+		if NOT (isList(paAggregations) and Q(paAggregations).IsHashList())
+			StzRaise("Aggregate requires a hash list of aggregation specifications")
 		ok
-
-		# Validate aggregation method
-		if ring_find(aValidMethods, aggMethod) = 0
-			StzRaise("Invalid aggregation method: " + aggMethod)
-		ok
-
-		aProcessedAggs + [colName, aggMethod]
-	next
-
-	# Perform aggregation
-	aResult = []
-
-	# Add columns for aggregation results
-	for item in aProcessedAggs
-		colName = item[1]
-		aggMethod = item[2]
-
-		# Create aggregated column name
-		cAggColName = aggMethod + "(" + colName + ")"
-
+	
+		# Predefined aggregation methods
+		aValidMethods = [
+			:Sum,
+			:Average,
+			:Count,
+			:Max,
+			:Min,
+			:First,
+			:Last
+		]
+	
+		# Validate and process aggregations
+		aProcessedAggs = []
+	
+		for item in paAggregations
+			colName = item[1]
+			aggMethod = lower(item[2])
+	
+			# Validate column existence
+			nColIndex = This.FindCol(colName)
+			if nColIndex = 0
+				StzRaise("Column '" + colName + "' not found in the table")
+			ok
+	
+			# Validate aggregation method
+			if ring_find(aValidMethods, aggMethod) = 0
+				StzRaise("Invalid aggregation method: " + aggMethod)
+			ok
+	
+			aProcessedAggs + [colName, aggMethod]
+		next
+	
 		# Perform aggregation
-		nColIndex = This.FindCol(colName)
-		aColData = This.Col(nColIndex)
+		aResult = []
+	
+		# Add columns for aggregation results
+		for item in aProcessedAggs
+			colName = item[1]
+			aggMethod = item[2]
+	
+			# Create aggregated column name
+			cAggColName = aggMethod + "(" + colName + ")"
+	
+			# Perform aggregation
+			nColIndex = This.FindCol(colName)
+			aColData = This.Col(nColIndex)
+	
+			nResult = 0
+	
+			switch aggMethod
+			on :Sum
+				for val in aColData
+					nResult += val
+				next
+			on :Average
+				nSum = 0
+				for val in aColData
+					nSum += val
+				next
+				nResult = nSum / len(aColData)
+			on :Count
+				nResult = len(aColData)
+			on :Max
+				nResult = aColData[1]
+				for val in aColData
+					if val > nResult
+						nResult = val
+					ok
+				next
+			on :Min
+				nResult = aColData[1]
+				for val in aColData
+					if val < nResult
+						nResult = val
+					ok
+				next
+			on :First
+				nResult = aColData[1]
+			on :Last
+				nResult = aColData[len(aColData)]
+			off
+	
+			# Add aggregated column
+			aResult + [cAggColName, [nResult]]
+		next
+	
+		@aContent = aResult
+	
+		# Fluent interface version
+		def AggregateQ(paAggregations)
+			This.Aggregate(paAggregations)
+			return This
 
-		nResult = 0
+	  #---------------#
+	 #  GROUPING BY  #
+	#---------------#
 
-		switch aggMethod
-		on :Sum
-			for val in aColData
-				nResult += val
-			next
-		on :Average
-			nSum = 0
-			for val in aColData
-				nSum += val
-			next
-			nResult = nSum / len(aColData)
-		on :Count
-			nResult = len(aColData)
-		on :Max
-			nResult = aColData[1]
-			for val in aColData
-				if val > nResult
-					nResult = val
+	def GroupBy(paColumns, paAggregations)
+	
+		# Validate input is a list of column names
+	
+		if NOT (isList(paColumns) and len(paColumns) > 0)
+			StzRaise("GroupBy requires a non-empty list of column names")
+		ok
+	
+		# Validate column existence
+	
+		for colName in paColumns
+			if This.FindCol(colName) = 0
+				StzRaise("Column '" + colName + "' not found in the table")
+			ok
+		next
+	
+		# Default aggregation if none provided: First value for non-grouped columns
+	
+		if len(paAggregations) = 0
+			aColNames = This.ColNames()
+			for colName in aColNames
+				if NOT ring_find(paColumns, colName) > 0
+					paAggregations + [colName, :First]
 				ok
 			next
-		on :Min
-			nResult = aColData[1]
-			for val in aColData
-				if val < nResult
-					nResult = val
+		else
+	
+			# Validate aggregation input
+		
+			if NOT (isList(paAggregations) and @IsListOfPairsOfStrings(paAggregations))
+					StzRaise("Aggregations must be a hash list of [column, method] pairs")
+			ok
+		
+			# Valid aggregation methods
+		
+			aValidMethods = [ :Sum, :Average, :Count, :Max, :Min, :First, :Last ]
+		        
+			# Check each aggregation
+		
+			for item in paAggregations
+		
+				colName = item[1]
+				aggMethod = item[2]
+		
+				# Validate column exists
+		
+				if This.FindCol(colName) = 0
+					StzRaise("Column '" + colName + "' not found in the table")
+				ok
+		
+				# Validate method is supported
+		
+				if NOT ring_find(aValidMethods, aggMethod)
+					StzRaise("Invalid aggregation method: " + aggMethod)
+				ok
+		
+				# Validate column is not in grouping columns
+		
+				if ring_find(paColumns, colName) > 0
+					StzRaise("Cannot aggregate grouping column: " + colName)
 				ok
 			next
-		on :First
-			nResult = aColData[1]
-		on :Last
-			nResult = aColData[len(aColData)]
-		off
-
-		# Add aggregated column
-		aResult + [cAggColName, [nResult]]
-	next
-
-	@aContent = aResult
-
-	# Fluent interface version
-	def AggregateQ(paAggregations)
-		This.Aggregate(paAggregations)
-		return This
-
-def GroupBy(paColumns, paAggregations)
-    # Validate input is a list of column names
-    if NOT (isList(paColumns) and len(paColumns) > 0)
-        StzRaise("GroupBy requires a non-empty list of column names")
-    ok
-
-    # Validate column existence
-    for colName in paColumns
-        if This.FindCol(colName) = 0
-            StzRaise("Column '" + colName + "' not found in the table")
-        ok
-    next
-
-    # Default aggregation if none provided: First value for non-grouped columns
-    if len(paAggregations) = 0
-        aColNames = This.ColNames()
-        for colName in aColNames
-            if NOT ring_find(paColumns, colName) > 0
-                paAggregations + [colName, :First]
-            ok
-        next
-    else
-
-        # Validate aggregation input
-        if NOT (isList(paAggregations) and @IsListOfPairsOfStrings(paAggregations))
-            StzRaise("Aggregations must be a hash list of [column, method] pairs")
-        ok
-
-        # Valid aggregation methods
-        aValidMethods = [:Sum, :Average, :Count, :Max, :Min, :First, :Last]
-        
-        # Check each aggregation
-        for item in paAggregations
-            colName = item[1]
-            aggMethod = item[2]
-            
-            # Validate column exists
-            if This.FindCol(colName) = 0
-                StzRaise("Column '" + colName + "' not found in the table")
-            ok
-            
-            # Validate method is supported
-            if NOT ring_find(aValidMethods, aggMethod)
-                StzRaise("Invalid aggregation method: " + aggMethod)
-            ok
-            
-            # Validate column is not in grouping columns
-            if ring_find(paColumns, colName) > 0
-                StzRaise("Cannot aggregate grouping column: " + colName)
-            ok
-        next
-    ok
-
-    # Prepare to group rows
-    nRows = This.NumberOfRows()
-    aGroupedRows = []
-    aGroupKeys = []
-    aUniqueGroups = []
-
-    # Iterate through rows to create groups
-    for nRow = 1 to nRows
-        # Create group key from specified columns
-        aGroupKey = []
-        for colName in paColumns
-            nColIndex = This.FindCol(colName)
-            aGroupKey + This.Cell(nColIndex, nRow)
-        next
-
-        # Convert group key to string for easy comparison
-        cGroupKey = ""
-        for item in aGroupKey
-            cGroupKey += ""+ item + '|'
-        next
-
-        # Check if this group key exists
-        nGroupIndex = ring_find(aGroupKeys, cGroupKey)
-
-        if nGroupIndex = 0
-            # New group, add to groups
-            aGroupKeys + cGroupKey
-            aUniqueGroups + aGroupKey
-            aGroupRows = [ This.Row(nRow) ]
-            aGroupedRows + aGroupRows
-        else
-            # Existing group, append row
-            aGroupedRows[nGroupIndex] + This.Row(nRow)
-        ok
-    next
-
-    # Build result table structure
-    aResult = []
-    
-    # Add grouping columns first
-    for colName in paColumns
-        aResult + [colName, []]
-    next
-    
-    # Process aggregations and add aggregated columns
-    for item in paAggregations
-        colName = item[1]
-        aggMethod = item[2]
-        cAggColName = aggMethod + "(" + colName + ")"
-        aResult + [cAggColName, []]
-    next
-
-    # Perform aggregations for each group
-    for i = 1 to len(aUniqueGroups)
-        aGroupKey = aUniqueGroups[i]
-        aRows = aGroupedRows[i]
-        
-        # Add group key values to result
-        for j = 1 to len(paColumns)
-            aResult[j][2] + aGroupKey[j]
-        next
-        
-        # Calculate aggregations for this group
-        nColOffset = len(paColumns) + 1
-        for j = 1 to len(paAggregations)
-            colName = paAggregations[j][1]
-            aggMethod = paAggregations[j][2]
-            nColIndex = This.FindCol(colName)
-            
-            # Extract values for this column from group rows
-            aValues = []
-            for row in aRows
-                aValues + row[nColIndex]
-            next
-            
-            # Apply aggregation method
-            nResult = NULL
-            switch aggMethod
-                on :Sum
-                    nResult = 0
-                    for val in aValues
-                        nResult += val
-                    next
-                on :Average
-                    nSum = 0
-                    for val in aValues
-                        nSum += val
-                    next
-                    nResult = nSum / len(aValues)
-                on :Count
-                    nResult = len(aValues)
-                on :Max
-                    nResult = aValues[1]
-                    for val in aValues
-                        if val > nResult
-                            nResult = val
-                        ok
-                    next
-                on :Min
-                    nResult = aValues[1]
-                    for val in aValues
-                        if val < nResult
-                            nResult = val
-                        ok
-                    next
-                on :First
-                    nResult = aValues[1]
-                on :Last
-                    nResult = aValues[len(aValues)]
-            off
-            
-            # Add result to output
-            aResult[nColOffset][2] + nResult
-            nColOffset++
-        next
-    next
-
-    @aContent = aResult
-
-# Fluent interface version
-def GroupByQ(paColumns, paAggregations)
-    This.GroupBy(paColumns, paAggregations)
-    return This
+		ok
+	
+		# Prepare to group rows
+	
+		nRows = This.NumberOfRows()
+		aGroupedRows = []
+		aGroupKeys = []
+		aUniqueGroups = []
+	
+		# Iterate through rows to create groups
+	
+		for nRow = 1 to nRows
+	
+			# Create group key from specified columns
+	
+			aGroupKey = []
+	
+			for colName in paColumns
+				nColIndex = This.FindCol(colName)
+				aGroupKey + This.Cell(nColIndex, nRow)
+			next
+	
+			# Convert group key to string for easy comparison
+	
+			cGroupKey = ""
+	
+			for item in aGroupKey
+				cGroupKey += ""+ item + '|'
+			next
+	
+			# Check if this group key exists
+	
+			nGroupIndex = ring_find(aGroupKeys, cGroupKey)
+	
+			if nGroupIndex = 0
+	
+				# New group, add to groups
+				aGroupKeys + cGroupKey
+				aUniqueGroups + aGroupKey
+				aGroupRows = [ This.Row(nRow) ]
+				aGroupedRows + aGroupRows
+	
+			else
+				# Existing group, append row
+				aGroupedRows[nGroupIndex] + This.Row(nRow)
+			ok
+		next
+	
+		# Build result table structure
+		aResult = []
+	
+		# Add grouping columns first
+		for colName in paColumns
+			aResult + [colName, []]
+		next
+	
+		# Process aggregations and add aggregated columns
+	
+		for item in paAggregations
+			colName = item[1]
+			aggMethod = item[2]
+			cAggColName = aggMethod + "(" + colName + ")"
+			aResult + [cAggColName, []]
+		next
+	
+		# Perform aggregations for each group
+	
+		for i = 1 to len(aUniqueGroups)
+			aGroupKey = aUniqueGroups[i]
+			aRows = aGroupedRows[i]
+	
+			# Add group key values to result
+			for j = 1 to len(paColumns)
+				aResult[j][2] + aGroupKey[j]
+			next
+	
+			# Calculate aggregations for this group
+	
+			nColOffset = len(paColumns) + 1
+	
+			for j = 1 to len(paAggregations)
+	
+				colName = paAggregations[j][1]
+				aggMethod = paAggregations[j][2]
+				nColIndex = This.FindCol(colName)
+	
+				# Extract values for this column from group rows
+	
+				aValues = []
+				for row in aRows
+					aValues + row[nColIndex]
+				next
+	
+				# Apply aggregation method
+	
+				nResult = NULL
+	
+				switch aggMethod
+	
+					on :Sum
+						nResult = 0
+						for val in aValues
+							nResult += val
+						next
+	
+					on :Average
+						nSum = 0
+						for val in aValues
+							nSum += val
+						next
+						nResult = nSum / len(aValues)
+	
+					on :Count
+						nResult = len(aValues)
+	
+					on :Max
+						nResult = aValues[1]
+	
+						for val in aValues
+							if val > nResult
+								nResult = val
+							ok
+						next
+	
+					on :Min
+						nResult = aValues[1]
+	
+						for val in aValues
+							if val < nResult
+								nResult = val
+							ok
+						next
+	
+					on :First
+						nResult = aValues[1]
+	
+					on :Last
+						nResult = aValues[len(aValues)]
+				off
+	
+				# Add result to output
+	
+				aResult[nColOffset][2] + nResult
+				nColOffset++
+	
+			next
+		next
+	
+		@aContent = aResult
+	
+		# Fluent interface version
+		def GroupByQ(paColumns, paAggregations)
+			This.GroupBy(paColumns, paAggregations)
+			return This
 
 
 	  #-----------#
@@ -15008,9 +15069,9 @@ def GroupByQ(paColumns, paAggregations)
         # Use the full table display method on the filtered table
         return oFilteredTable.Display(NULL)
 
-	  #-----------------------------#
-	 #  UTILITY FUNCTIONS          #
-	#-----------------------------#
+	  #---------------------#
+	 #  UTILITY FUNCTIONS  #
+	#---------------------#
 
 	def PadRight(text, width)
 		# Pad text to the right
@@ -15054,276 +15115,284 @@ def GroupByQ(paColumns, paAggregations)
 		return cResult
 
 
-def ShowXT(pInterTotal, pGrandTotal)
-
-	if CheckParams()
-
-		if isList(pInterTotal) and StzListQ(pInterTotal).IsInterTotalNamedParam()
-			pInterTotal = pInterTotal[2]
+	def ShowXT(pSubTotal, pGrandTotal)
+	
+		if CheckParams()
+	
+			if isList(pSubTotal) and StzListQ(pSubTotal).IsSubTotalNamedParam()
+				pSubTotal = pSubTotal[2]
+			ok
+	
+			if isList(pGrandTotal) and StzListQ(pGrandTotal).IsGrandTotalNamedParam()
+				pGrandTotal = pGrandTotal[2]
+			ok
+	
+			if NOT (isNumber(pSubTotal) and isNumber(pGrandTotal))
+				StzRaise("Incorrect param types! pSubTotal and pGrandTotal must be both numbers.")
+			ok
+	
+			if NOT (IsBoolean(pSubTotal) and IsBoolean(pGrandTotal))
+				StzRaise("Incorrect param values! pSubTotal and pGrandTotal must be both booleans.")
+			ok
+	
 		ok
-
-		if isList(pGrandTotal) and StzListQ(pGrandTotal).IsGrandTotalNamedParam()
-			pGrandTotal = pGrandTotal[2]
-		ok
-
-		if NOT (isNumber(pInterTotal) and isNumber(pGrandTotal))
-			StzRaise("Incorrect param types! pInterTotal and pGrandTotal must be both numbers.")
-		ok
-
-		if NOT (IsBoolean(pInterTotal) and IsBoolean(pGrandTotal))
-			StzRaise("Incorrect param values! pInterTotal and pGrandTotal must be both booleans.")
-		ok
-
-	ok
-
-    # Get column names and content
-    aColNames = This.ColNames()
-    aContent = This.Content()
-    
-    # Calculate column widths
-    aColWidths = []
-    nCols = len(aColNames)
-    
-    # First pass: calculate max width for each column header
-    for i = 1 to nCols
-        maxWidth = len(aColNames[i])
-        
-        # Check column values
-        aColData = aContent[i][2]
-        for j = 1 to len(aColData)
-            cellValue = "" + aColData[j]
-            if len(cellValue) > maxWidth
-                maxWidth = len(cellValue)
-            ok
-        next
-        
-        # Account for "Total" text and extra space
-        if i = 1
-            if maxWidth < len("Product X Total")
-                maxWidth = len("Product X Total")
-            ok
-        ok
-        
-        # Account for "SUM" text
-        if i = 1 and pGrandTotal
-            if maxWidth < len("SUM")
-                maxWidth = len("SUM")
-            ok
-        ok
-        
-        aColWidths + (maxWidth + 2)  # Add padding
-    next
-    
-    # Build output string
-    cOutput = ""
-    
-    # Top border
-    cLine = @aBorder[:TopLeft]
-    for i = 1 to nCols
-        cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
-        if i < nCols
-            cLine += @aBorder[:TeeDown]
-        else
-            cLine += @aBorder[:TopRight]
-        ok
-    next
-    cOutput += cLine + nl()
-
-    # Header row
-    cLine = @aBorder[:Vertical]
-    for i = 1 to nCols
-        cLine += CenterText(Capitalise(aColNames[i]), aColWidths[i]) + @aBorder[:Vertical]
-    next
-    cOutput += cLine + nl()
-    
-    # Separator
-    cLine = @aBorder[:TeeRight]
-    for i = 1 to nCols
-        cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
-        if i < nCols
-            cLine += @aBorder[:Cross]
-        else
-            cLine += @aBorder[:TeeLeft]
-        ok
-    next
-    cOutput += cLine + nl()
-    
-    # Data rows with aggregation
-    nRows = This.NumberOfRows()
-    
-    # Find grouping column (assume first column is grouping column)
-    nGroupCol = 1
-    
-    # Keep track of groups and totals
-    cCurrentGroup = ""
-    aGroups = []
-    aGroupTotals = []  # Map of group -> column -> total
-    aGrandTotals = []  # Grand totals for each column
-    
-    # Initialize grand totals
-    for i = 1 to nCols
-        aGrandTotals + 0
-    next
-    
-    # First pass: gather groups and calculate totals
-    for r = 1 to nRows
-        # Get group
-        cGroup = "" + This.Content()[nGroupCol][2][r]
-        
-        # Add to group list if new
-        if NOT ring_find(aGroups, cGroup) > 0
-            aGroups + cGroup
-            aGroupTotals[cGroup] = []
-            
-            # Initialize group totals for each column
-            for i = 1 to nCols
-                aGroupTotals[cGroup] + 0
-            next
-        ok
-        
-        # Update totals for numeric columns
-        for i = 1 to nCols
-            cellValue = This.Content()[i][2][r]
-            if isNumber(cellValue) or (isString(cellValue) and cellValue != "" and @IsNumberInString(cellValue))
-                # Update group total
-                aGroupTotals[cGroup][i] += number(cellValue)
-                
-                # Update grand total
-                aGrandTotals[i] += number(cellValue)
-            ok
-        next
-    next
-    
-    # Second pass: display data with totals
-    cCurrentGroup = ""
-    
-    for r = 1 to nRows
-        cGroup = "" + This.Content()[nGroupCol][2][r]
-        
-        # If group changed and not first row, print group totals
-        if pInterTotal and cCurrentGroup != "" and cGroup != cCurrentGroup
-            # Separator before group total
-            cLine = @aBorder[:Vertical]
-            for i = 1 to nCols
-                cLine += " " + PadLeft(StrFill(10, "-"), aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-            next
-            cOutput += cLine + nl()
-            
-            # Group total line
-            cLine = @aBorder[:Vertical]
-            for i = 1 to nCols
-                if i = nGroupCol
-                    cLine += " " + PadLeft(cCurrentGroup + " Total", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-                but i = 2  # Second column is usually empty in totals
-                    cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-                else
-                    # Check if column has numeric data
-                    if isNumber(aGroupTotals[cCurrentGroup][i]) and aGroupTotals[cCurrentGroup][i] != 0
-                        cLine += " " + PadLeft("" + aGroupTotals[cCurrentGroup][i], aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-                    else
-                        cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-                    ok
-                ok
-            next
-            cOutput += cLine + nl()
-        ok
-        
-        # Update current group
-        cCurrentGroup = cGroup
-        
-        # Display current row
-        cLine = @aBorder[:Vertical]
-        for i = 1 to nCols
-            cellValue = "" + This.Content()[i][2][r]
-
-            # Right-align numbers, left-align strings
-            if isNumber(cellValue) or (isString(cellValue) and cellValue != "" and @IsNumberInString(cellValue))
-                cLine += " " + PadLeft(cellValue, aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-            else
-                cLine += " " + PadRight(cellValue, aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-            ok
-        next
-        cOutput += cLine + nl()
-        
-        # If last row, print final group totals
-        if pInterTotal and r = nRows
-            # Separator before group total
-            cLine = @aBorder[:Vertical]
-            for i = 1 to nCols
-                cLine += " " + PadLeft(StrFill(10, "-"), aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-            next
-            cOutput += cLine + nl()
-            
-            # Group total line
-            cLine = @aBorder[:Vertical]
-            for i = 1 to nCols
-                if i = nGroupCol
-                    cLine += " " + PadLeft(cCurrentGroup + " Total", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-                but i = 2  # Second column is usually empty in totals
-                    cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-                else
-                    # Check if column has numeric data
-                    if isNumber(aGroupTotals[cCurrentGroup][i]) and aGroupTotals[cCurrentGroup][i] != 0
-                        cLine += " " + PadLeft("" + aGroupTotals[cCurrentGroup][i], aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-                    else
-                        cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-                    ok
-                ok
-
-            next
-            cOutput += cLine + nl()
-        ok
-    next
-    
-    # Grand total if requested
-    if pGrandTotal
-        # Separator before grand total
-        cLine = @aBorder[:TeeRight]
-        for i = 1 to nCols
-            cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
-            if i < nCols
-                cLine += @aBorder[:Cross]
-            else
-                cLine += @aBorder[:TeeLeft]
-            ok
-        next
-        cOutput += cLine + nl()
-        
-        # Grand total line
-        cLine = @aBorder[:Vertical]
-        for i = 1 to nCols
-            if i = 1
-                cLine += CenterText("SUM", aColWidths[i]) + @aBorder[:Vertical]
-            but i = 2  # Second column is usually empty in totals
-                cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-            else
-                # Check if column has numeric data
-                if isNumber(aGrandTotals[i]) and aGrandTotals[i] != 0
-                    cLine += " " + PadLeft("" + aGrandTotals[i], aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-                else
-                    cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-                ok
-            ok
-        next
-        cOutput += cLine + nl()
-    ok
-    
-    # Bottom border
-    cLine = @aBorder[:BottomLeft]
-    for i = 1 to nCols
-        cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
-        if i < nCols
-            cLine += @aBorder[:TeeUp]
-        else
-            cLine += @aBorder[:BottomRight]
-        ok
-    next
-    cOutput += cLine + nl()
-    
-    ? cOutput
-    return cOutput
-
-# Fluent interface version
-def ShowXTQ(pInterTotal, pGrandTotal)
-    This.ShowXT(pInterTotal, pGrandTotal)
-    return This
+	
+	    # Get column names and content
+	    aColNames = This.ColNames()
+	    aContent = This.Content()
+	    
+	    # Calculate column widths
+	    aColWidths = []
+	    nCols = len(aColNames)
+	    
+	    # First pass: calculate max width for each column header
+	    for i = 1 to nCols
+	        maxWidth = len(aColNames[i])
+	        
+	        # Check column values
+	        aColData = aContent[i][2]
+	        for j = 1 to len(aColData)
+	            cellValue = "" + aColData[j]
+	            if len(cellValue) > maxWidth
+	                maxWidth = len(cellValue)
+	            ok
+	        next
+	        
+	        # Account for "Total" text and extra space
+	        if i = 1
+	            if maxWidth < len("Product X Total")
+	                maxWidth = len("Product X Total")
+	            ok
+	        ok
+	        
+	        # Account for "SUM" text
+	        if i = 1 and pGrandTotal
+	            if maxWidth < len("SUM")
+	                maxWidth = len("SUM")
+	            ok
+	        ok
+	        
+	        aColWidths + (maxWidth + 2)  # Add padding
+	    next
+	    
+	    # Build output string
+	    cOutput = ""
+	    
+	    # Top border
+	    cLine = @aBorder[:TopLeft]
+	    for i = 1 to nCols
+	        cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
+	        if i < nCols
+	            cLine += @aBorder[:TeeDown]
+	        else
+	            cLine += @aBorder[:TopRight]
+	        ok
+	    next
+	    cOutput += cLine + nl()
+	
+	    # Header row
+	    cLine = @aBorder[:Vertical]
+	    for i = 1 to nCols
+	        cLine += CenterText(Capitalise(aColNames[i]), aColWidths[i]) + @aBorder[:Vertical]
+	    next
+	    cOutput += cLine + nl()
+	    
+	    # Separator
+	    cLine = @aBorder[:TeeRight]
+	    for i = 1 to nCols
+	        cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
+	        if i < nCols
+	            cLine += @aBorder[:Cross]
+	        else
+	            cLine += @aBorder[:TeeLeft]
+	        ok
+	    next
+	    cOutput += cLine + nl()
+	    
+	    # Data rows with aggregation
+	    nRows = This.NumberOfRows()
+	    
+	    # Find grouping column (assume first column is grouping column)
+	    nGroupCol = 1
+	    
+	    # Keep track of groups and totals
+	    cCurrentGroup = ""
+	    aGroups = []
+	    aGroupTotals = []  # Map of group -> column -> total
+	    aGrandTotals = []  # Grand totals for each column
+	    
+	    # Initialize grand totals
+	    for i = 1 to nCols
+	        aGrandTotals + 0
+	    next
+	    
+	    # First pass: gather groups and calculate totals
+	    for r = 1 to nRows
+	        # Get group
+	        cGroup = "" + This.Content()[nGroupCol][2][r]
+	        
+	        # Add to group list if new
+	        if NOT ring_find(aGroups, cGroup) > 0
+	            aGroups + cGroup
+	            aGroupTotals[cGroup] = []
+	            
+	            # Initialize group totals for each column
+	            for i = 1 to nCols
+	                aGroupTotals[cGroup] + 0
+	            next
+	        ok
+	        
+	        # Update totals for numeric columns
+	        for i = 1 to nCols
+	            cellValue = This.Content()[i][2][r]
+	            if isNumber(cellValue) or (isString(cellValue) and cellValue != "" and @IsNumberInString(cellValue))
+	                # Update group total
+	                aGroupTotals[cGroup][i] += number(cellValue)
+	                
+	                # Update grand total
+	                aGrandTotals[i] += number(cellValue)
+	            ok
+	        next
+	    next
+	    
+	    # Second pass: display data with totals
+	    cCurrentGroup = ""
+	    
+	    for r = 1 to nRows
+	        cGroup = "" + This.Content()[nGroupCol][2][r]
+	        
+	        # If group changed and not first row, print group totals
+	        if pSubTotal and cCurrentGroup != "" and cGroup != cCurrentGroup
+	            # Separator before group total
+	            cLine = @aBorder[:Vertical]
+	            for i = 1 to nCols
+	                              cLine += " " + @Copy("-", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	            next
+	            cOutput += cLine + nl()
+	            
+	            # Group total line
+	            cLine = @aBorder[:Vertical]
+	            for i = 1 to nCols
+	                if i = nGroupCol
+	                    cLine += " " + PadLeft(" Sub-total", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	                but i = 2  # Second column is usually empty in totals
+	                    cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	                else
+	                    # Check if column has numeric data
+	                    if isNumber(aGroupTotals[cCurrentGroup][i]) and aGroupTotals[cCurrentGroup][i] != 0
+	                        cLine += " " + PadLeft("" + aGroupTotals[cCurrentGroup][i], aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	                    else
+	                        cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	                    ok
+	                ok
+	            next
+	            cOutput += cLine + nl()
+	
+				# adding an empty line after the subtotlal
+				for i = 1 to nCols
+	              cOutput += @aBorder[:Vertical] + " " + @Copy(" ", aColWidths[i] - 1 )
+				next
+				cOutput += @aBorder[:Vertical] +  nl()
+	
+	        ok
+	        
+	        # Update current group
+	        cCurrentGroup = cGroup
+	        
+	        # Display current row
+	        cLine = @aBorder[:Vertical]
+	        for i = 1 to nCols
+	            cellValue = "" + This.Content()[i][2][r]
+	
+	            # Right-align numbers, left-align strings
+	            if isNumber(cellValue) or (isString(cellValue) and cellValue != "" and @IsNumberInString(cellValue))
+	                cLine += " " + PadLeft(cellValue, aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	            else
+	                cLine += " " + PadRight(cellValue, aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	            ok
+	        next
+	        cOutput += cLine + nl()
+	        
+	        # If last row, print final group totals
+	        if pSubTotal and r = nRows
+	            # Separator before group total
+	            cLine = @aBorder[:Vertical]
+	            for i = 1 to nCols
+	                cLine += " " + @Copy("-", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	            next
+	            cOutput += cLine + nl()
+	            
+	            # Group total line
+	            cLine = @aBorder[:Vertical]
+	            for i = 1 to nCols
+	                if i = nGroupCol
+	                    cLine += " " + PadLeft(" Sub-total", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	                but i = 2  # Second column is usually empty in totals
+	                    cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	                else
+	                    # Check if column has numeric data
+	                    if isNumber(aGroupTotals[cCurrentGroup][i]) and aGroupTotals[cCurrentGroup][i] != 0
+	                        cLine += " " + PadLeft("" + aGroupTotals[cCurrentGroup][i], aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	                    else
+	                        cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	                    ok
+	                ok
+	
+	            next
+	            cOutput += cLine + nl()
+	
+	        ok
+	    next
+	    
+	    # Grand total if requested
+	    if pGrandTotal
+	        # Separator before grand total
+	        cLine = @aBorder[:TeeRight]
+	        for i = 1 to nCols
+	            cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
+	            if i < nCols
+	                cLine += @aBorder[:Cross]
+	            else
+	                cLine += @aBorder[:TeeLeft]
+	            ok
+	        next
+	        cOutput += cLine + nl()
+	        
+	        # Grand total line
+	        cLine = @aBorder[:Vertical]
+	        for i = 1 to nCols
+	            if i = 1
+	                cLine += CenterText("SUM", aColWidths[i]) + @aBorder[:Vertical]
+	            but i = 2  # Second column is usually empty in totals
+	                cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	            else
+	                # Check if column has numeric data
+	                if isNumber(aGrandTotals[i]) and aGrandTotals[i] != 0
+	                    cLine += " " + PadLeft("" + aGrandTotals[i], aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	                else
+	                    cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	                ok
+	            ok
+	        next
+	        cOutput += cLine + nl()
+	    ok
+	    
+	    # Bottom border
+	    cLine = @aBorder[:BottomLeft]
+	    for i = 1 to nCols
+	        cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
+	        if i < nCols
+	            cLine += @aBorder[:TeeUp]
+	        else
+	            cLine += @aBorder[:BottomRight]
+	        ok
+	    next
+	    cOutput += cLine + nl()
+	    
+	    ? cOutput
+	    return cOutput
+	
+	# Fluent interface version
+	def ShowXTQ(pSubTotal, pGrandTotal)
+	    This.ShowXT(pSubTotal, pGrandTotal)
+	    return This
