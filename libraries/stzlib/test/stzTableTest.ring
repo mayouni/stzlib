@@ -1,5 +1,13 @@
 load "../max/stzmax.ring"
 
+/*---- #tODO
+pr()
+
+? StzDateQ("27/08/2015").Month()
+
+
+pf()
+
 /*------- #ring
 
 pr()
@@ -5751,8 +5759,8 @@ o1 = new stzTable([
 	#-----------------------------------------------#
 	[ "USA",	   25450,	        340.1	],
 	[ "China",	   18150,	       1430.1	],
-	[ "Japan",	    5310,		123.2	],
-	[ "Germany",	    4490,	         83.3	],
+	[ "Japan",	    5310,			123.2	],
+	[ "Germany",    4490,	         83.3	],
 	[ "India",	    3370,	       1430.2	]
 
 ])
@@ -6049,7 +6057,7 @@ pr()
 
 o1 = new stzTable([])
 o1.FromCSV("tabdata.csv")
-? o1.Show()
+o1.Show()
 
 #-->
 # ╭─────────┬──────────┬────────────┬──────────┬───────╮
@@ -6066,6 +6074,8 @@ o1.FromCSV("tabdata.csv")
 # │  209610 │   407443 │ 09/08/2015 │        6 │ Alive │
 # │  180683 │   348711 │ 08/27/2015 │        3 │ Alive │
 # ╰─────────┴──────────┴────────────┴──────────┴───────╯
+
+o1.Show()
 
 pf()
 #--> Executed in 0.60 second(s) in Ring 1.22
@@ -6219,7 +6229,7 @@ o1.FilterCQ([
 # ╰────────┴───────────┴─────────┴───────┴───────╯
 
 pf()
-# Executed in 0.13 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.22
 
 /*--- Grouping Tests
 
@@ -6258,7 +6268,7 @@ pf()
 # Executed in 0.10 second(s) in Ring 1.22
 
 /*--- Group by Multiple Columns
-*/
+
 pr()
 
 o1 = new stzTable([
@@ -6275,9 +6285,11 @@ o1 = new stzTable([
 	[ "West",	"Product B",	"Q1",	 9000,		 90 ]
 ])
 
+o1.Show()
+
 # Detailed grouping by Region and Product
 
-o1.GroupBy([ :Product, :Region ], [ :Sales = :Sum, :Units = :Sum ])
+o1.GroupBy([ :Product, :Region ], [ :Sales = 'Sum', :Units = 'Average' ])
 o1.Show()
 #-->
 # ╭────────┬───────────┬────────┬───────────┬─────────┬───────┬───────╮
@@ -6312,7 +6324,7 @@ o1.ShowXT(:SubTotal = TRUE, :GrandTotal = TRUE)
 # │ --------------- │ ------ │ ---------- │ ---------- │
 # │       Sub-total │        │      34000 │        340 │
 # ├─────────────────┼────────┼────────────┼────────────┤
-# │       SUM       │        │      83000 │        830 │
+# │     GRAND-TOTAL │        │      83000 │        830 │
 # ╰─────────────────┴────────┴────────────┴────────────╯
 
 pf()
@@ -6338,7 +6350,7 @@ o1 = new stzTable([
 
 # Single Column Aggregation : Calculates total Sales
 
-o1.Aggregate([ Sales = 'SUM' ])
+o1.Aggregate([ :Sales = 'SUM' ])
 o1.Show()
 #-->
 # ╭────────────╮
@@ -6385,15 +6397,14 @@ o1.Show()
 # ╰────────────┴────────────────┴────────────────╯
 
 pf()
-# Executed in 0.04 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*================
-*/
+
 pr()
 
-# Example demonstrating the extended GroupByXT functionality
-
 # Creating a sales data table
+
 o1 = new stzTable([
     [ :Region,  :Product,  :Quarter, :Sales,  :Units ],
     
@@ -6419,10 +6430,7 @@ o1 = new stzTable([
 
 oCopy = o1.Copy()
 
-oCopy.GroupBy([:Region], [
-    [:Sales, :Sum],
-    [:Units, :Sum]
-])
+oCopy.GroupBy([ :Region ], [ :Sales = 'Sum', :Units = 'Sum' ] )
 
 # Group by Region with Sales and Units summed
 
@@ -6442,8 +6450,8 @@ oCopy.Show()
 oCopy = o1.Copy()
 
 oCopy.GroupBy([:Region, :Product], [
-    [:Sales, :Sum],
-    [:Units, :Average]
+    :Sales = 'Sum',
+    :Units = 'Average'
 ])
 
 # Group by Region and Product with sum of Sales and average Units
@@ -6467,9 +6475,9 @@ oCopy.Show()
 
 oCopy = o1.Copy()
 oCopy.GroupBy([:Quarter], [
-    [:Sales, :Max],
-    [:Sales, :Min],
-    [:Units, :Count]
+    :Sales = 'Max',
+    :Sales = 'Min',
+    :Units = 'Count'
 ])
 
 # Group by Quarter with max/min Sales and count of Units
@@ -6485,8 +6493,8 @@ oCopy.Show()
 # Group by Product and Quarter
 
 oCopy = o1.Copy()
-oCopy.GroupBy(
-	[ :Product, :Quarter ], [ :Sales = :Sum, :Units = :Sum ]
+oCopy.GroupBy([ :Product, :Quarter ],
+	[ :Sales = 'Sum', :Units = 'Sum' ]
 )
 
 # Group by Product and Quarter with sums"
@@ -6502,4 +6510,77 @@ oCopy.Show()
 # ╰───────────┴─────────┴────────────┴───────────╯
 
 pf()
-# Executed in 0.44 second(s) in Ring 1.22
+# Executed in 0.46 second(s) in Ring 1.22
+
+#=== Turning the table to a pivot table
+*/
+
+pr()
+    
+# Define employee data in a stzTable object
+
+o1 = new stzTable([
+
+	[ :Department, :Location,   :Gender,  :Experience,  "Salary"   ],
+	# ------------------------------------------------------------ #
+	[ "Sales",     "New York",  "Male",   "Junior",      45000    ],
+	[ "Sales",     "New York",  "Female", "Junior",      46000    ],
+	[ "Sales",     "New York",  "Male",   "Senior",      75000    ],
+	[ "Sales",     "New York",  "Female", "Senior",      76000    ],
+	[ "Sales",     "Chicago",   "Male",   "Junior",      42000    ],
+	[ "Sales",     "Chicago",   "Female", "Junior",      43000    ],
+	[ "Sales",     "Chicago",   "Male",   "Senior",      72000    ],
+	[ "Sales",     "Chicago",   "Female", "Senior",      73000    ],
+	[ "IT",        "New York",  "Male",   "Junior",      52000    ],
+	[ "IT",        "New York",  "Female", "Junior",      53000    ],
+	[ "IT",        "New York",  "Male",   "Senior",      85000    ],
+	[ "IT",        "New York",  "Female", "Senior",      86000    ],
+	[ "IT",        "Chicago",   "Male",   "Junior",      50000    ],
+	[ "IT",        "Chicago",   "Female", "Junior",      51000    ],
+	[ "IT",        "Chicago",   "Male",   "Senior",      82000    ],
+	[ "IT",        "Chicago",   "Female", "Senior",      83000    ],
+	[ "HR",        "New York",  "Male",   "Junior",      42000    ],
+	[ "HR",        "New York",  "Female", "Junior",      43000    ],
+	[ "HR",        "New York",  "Male",   "Senior",      68000    ],
+	[ "HR",        "New York",  "Female", "Senior",      69000    ],
+	[ "HR",        "Chicago",   "Male",   "Junior",      40000    ],
+	[ "HR",        "Chicago",   "Female", "Junior",      41000    ],
+	[ "HR",        "Chicago",   "Male",   "Senior",      65000    ],
+	[ "HR",        "Chicago",   "Female", "Senior",      66000    ]
+])
+    
+# Multi-dimensional pivot with Department/Location as rows and
+# Experience/Gender as columns
+
+o1.ToStzPivotTable() {
+
+	Analyze([ :Salary ], :Using = :SUM)
+
+//SetRowsBy([ :Department ])
+
+	SetRowsBy([ :Department, :Location ])
+
+	SetColsBy([ :Experience, :Gender ])
+
+//SetColsBy([ :Experience ])
+	Show()
+#-->
+#	╭───────────────────────┬─────────────────────┬─────────────────────┬─────────╮
+#	│                       │       Junior        │       Senior        │         │
+#	├────────────┬──────────┼──────────┬──────────┼──────────┬──────────┤         │
+#	│ Department │ Location │  Female  │   Male   │  Female  │   Male   │ AVERAGE │
+#	├────────────┼──────────┼──────────┼──────────┼──────────┼──────────┼─────────┤
+#	│ Sales      │ New York │    46000 │          │    76000 │    75000 │  197000 │
+#	│            │ Chicago  │    43000 │    42000 │    73000 │    72000 │  230000 │
+#	│            │          │          │          │          │          │         │
+#	│ IT         │ New York │    53000 │    52000 │    86000 │    85000 │  276000 │
+#	│            │ Chicago  │    51000 │    50000 │    83000 │    82000 │  266000 │
+#	│            │          │          │          │          │          │         │
+#	│ HR         │ New York │    43000 │    42000 │    69000 │    68000 │  222000 │
+#	│            │ Chicago  │    41000 │    40000 │    66000 │    65000 │  212000 │
+#	╰────────────┴──────────┴──────────┴──────────┴──────────┴──────────┴─────────╯
+#	                AVERAGE │   277000 │   226000 │   453000 │   447000 │ 1403000 
+
+}
+
+pf()
