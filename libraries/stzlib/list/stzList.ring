@@ -90882,6 +90882,16 @@ fdef
 			return _FALSE_
 		ok
 
+	def IsSubTotalNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :SubTotal )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
 	def IsGrandTotalNamedParam()
 
 		if This.NumberOfItems() = 2 and

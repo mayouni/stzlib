@@ -6293,10 +6293,30 @@ o1.Show()
 # │ West   │ Product B │ West   │ Product B │ Q1      │  9000 │    90 │
 # ╰────────┴───────────┴────────┴───────────┴─────────┴───────┴───────╯
 
-o1.ShowXT(:InterTotal = true, :GrandTotal = true)
+o1.ShowXT(:SubTotal = TRUE, :GrandTotal = TRUE)
+#-->
+# ╭─────────────────┬────────┬────────────┬────────────╮
+# │     Product     │ Region │ Sum(sales) │ Sum(units) │
+# ├─────────────────┼────────┼────────────┼────────────┤
+# │ Product A       │ North  │      10000 │        100 │
+# │ Product A       │ South  │      15000 │        150 │
+# │ Product A       │ East   │      11000 │        110 │
+# │ Product A       │ West   │      13000 │        130 │
+# │ --------------- │ ------ │ ---------- │ ---------- │
+# │       Sub-total │        │      49000 │        490 │
+# │                 │        │            │            │
+# │ Product B       │ North  │       8000 │         80 │
+# │ Product B       │ South  │       9500 │         95 │
+# │ Product B       │ East   │       7500 │         75 │
+# │ Product B       │ West   │       9000 │         90 │
+# │ --------------- │ ------ │ ---------- │ ---------- │
+# │       Sub-total │        │      34000 │        340 │
+# ├─────────────────┼────────┼────────────┼────────────┤
+# │       SUM       │        │      83000 │        830 │
+# ╰─────────────────┴────────┴────────────┴────────────╯
 
 pf()
-# Executed in 0.25 second(s) in Ring 1.22
+# Executed in 0.36 second(s) in Ring 1.22
 
 /*--- Aggregation
 
