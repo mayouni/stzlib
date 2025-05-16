@@ -12,7 +12,7 @@ class stzPivotTable
 	@aRowLabels = []
 	@aColLabels = []
 	@aValues = []
-	@cAggregationFunction = "SUM"
+	@cAggFunc = "SUM"
 	@aPivotData = []
 	@oResultTable
 	@bShowTotalRow = TRUE
@@ -41,6 +41,8 @@ class stzPivotTable
 		:TeeUp = "┴",
 		:Cross = "┼"
 	]
+
+	@aColumnOrder = []  # Will store custom column order if specified
 
 	  #-----------------------------#
 	 #  INITIALIZATION AND SETUP   #
@@ -130,7 +132,8 @@ class stzPivotTable
 
 	def SetAggregateFunction(pcFunction)
 		# Set aggregation function (e.g., SUM, AVG)
-		@cAggregationFunction = lower(pcFunction)
+		@cAggFunc = upper(pcFunction)
+		This.SetTotalLabel(@cAggFunc)
 		@bIsGenerated = FALSE
 
 	def SetRowLabelsSeparator(pcSeparator)
@@ -159,6 +162,9 @@ class stzPivotTable
 		# Set value for null/empty cells
 		@cCellNullValue = pcValue
 		@bIsGenerated = FALSE
+
+	def SetColumnOrder(paOrder)
+		@aColumnOrder = paOrder
 
 	  #-----------------------------#
 	 #  PIVOT TABLE GENERATION     #
@@ -208,73 +214,115 @@ class stzPivotTable
 	#--------------------------------#
 
 	def _getUniqueCombinations(paFields)
+
+		nRows = @oSourceTable.NumberOfRows()
+
 		# Get unique combinations of values for specified fields
-		if len(paFields) = 0
+
+		nLenFields = len(paFields)
+		if nLenFields = 0
 			return []
 		ok
-		
-		if len(paFields) = 1
+
+		if nLenFields = 1
+
 			# Handle single field
+
 			nColIndex = @oSourceTable.FindCol(paFields[1])
+
 			if nColIndex = 0
 				stzRaise("Column not found: " + paFields[1])
 			ok
-			
+
 			# Collect unique values
+
 			aCells = []
-			nRows = @oSourceTable.NumberOfRows()
+
 			for i = 2 to nRows
 				aCells + @oSourceTable.Cell(nColIndex, i)
 			next
-			
+
 			aUniqueValues = U(aCells)
+			nLenU = len(aUniqueValues)
+
+			# Apply custom ordering if available and this is a column field
+
+			nLenColOrder = len(@aColumnOrder)
+
+			if paFields = @aColLabels and nLenColOrder > 0
+				aOrdered = []
+
+				# First add values from the custom order
+
+				for i = 1 to nLenColOrder
+					if ring_find(aUniqueValues, @aColumnOrder[i]) > 0
+						aOrdered + @aColumnOrder[i]
+					ok
+				next
+
+				# Then add any values not in the custom order
+
+				for i = 1 to nLenU
+					cItem = aUniqueValues[i]
+					if not ring_find(aOrdered, cItem) > 0
+						aOrdered + cItem
+					ok
+				next
+
+				aUniqueValues = aOrdered
+			ok
+
+			nLenU = len(aUniqueValues)
 			aResult = []
-			
-			for value in aUniqueValues
-				aResult + [[value]]
+
+			for i = 1 to nLenU
+				aResult + [[ aUniqueValues[i] ]]
 			next
-			
+
 			return aResult
 		ok
-		
+
 		# Handle multiple fields
+
 		aAllCombos = []
 		aFieldIndices = []
-		
+
 		# Get column indices
-		for field in paFields
-			nColIndex = @oSourceTable.FindCol(field)
+
+		for i = 1 to nLenFields
+			nColIndex = @oSourceTable.FindCol(paFields[i])
 			if nColIndex = 0
-				stzRaise("Column not found: " + field)
+				StzRaise("Column not found: " + paFields[i])
 			ok
 			aFieldIndices + nColIndex
 		next
-		
+		nLenFieldIndices = len(aFieldIndices)
+
 		# Collect all combinations
-		nRowCount = @oSourceTable.NumberOfRows()
-		
-		for r = 2 to nRowCount
+
+		for r = 2 to nRows
 			aCombination = []
-			
-			for i = 1 to len(aFieldIndices)
+
+			for i = 1 to nLenFieldIndices
 				aCombination + @oSourceTable.Cell(aFieldIndices[i], r)
 			next
-			
+
 			# Check for duplicates
 			bExists = FALSE
-			
-			for existing in aAllCombos
-				if _arraysEqual(existing, aCombination)
+			nLenCombos = len(aAllCombos)
+
+			for i = 1 to nLenCombos
+				if _arraysEqual(aAllCombos[i], aCombination)
 					bExists = TRUE
 					exit
 				ok
 			next
-			
+
 			if not bExists
 				aAllCombos + aCombination
 			ok
 		next
-		
+
 		return aAllCombos
 
 	def _arraysEqual(a1, a2)
@@ -389,9 +437,10 @@ class stzPivotTable
 	def _addTotalRow()
 		# Add total row to pivot table
 		aTotalRow = []
-		
+		nLenRows = len(@aRowLabels)
+
 		# Add total label
-		for i = 1 to len(@aRowLabels)
+		for i = 1 to nLenRows
 			if i = 1
 				aTotalRow + @cTotalLabel
 			else
@@ -403,10 +452,11 @@ class stzPivotTable
 		nColCount = len(@aPivotData[1])
 		nRowCount = len(@aPivotData)
 		
-		for c = len(@aRowLabels) + 1 to nColCount
+		for c = nLenRows + 1 to nColCount
 			aColValues = []
 			
 			# Collect column values
+
 			for r = 2 to nRowCount
 				if isNumber(@aPivotData[r][c])
 					aColValues + @aPivotData[r][c]
@@ -598,7 +648,7 @@ class stzPivotTable
 			return @cCellNullValue
 		ok
 
-		switch lower(@cAggregationFunction)
+		switch lower(@cAggFunc)
 
 			on "sum"
 
@@ -641,7 +691,7 @@ class stzPivotTable
 				return aValues[len(aValues)]
 				
 			other
-				stzRaise("Unsupported aggregation function: " + @cAggregationFunction)
+				stzRaise("Unsupported aggregation function: " + @cAggFunc)
 		off
 
 	  #-----------------------------#
@@ -682,14 +732,18 @@ class stzPivotTable
 		
 		aFlatRowValues = _flattenArray(paRowValues)
 		aFlatColValues = _flattenArray(paColValues)
-		
+		nLenFlatRows = len(aFlatRowValues)
+
+		nLen = len(@aPivotData)
+		nRowLabels = len(@aRowLabels)
+
 		# Find row index
 		nRowIndex = 0
-		for r = 2 to len(@aPivotData)
+		for r = 2 to nLen
 			bMatch = TRUE
 			
-			for i = 1 to len(aFlatRowValues)
-				if i <= len(@aRowLabels) and @aPivotData[r][i] != aFlatRowValues[i]
+			for i = 1 to nLenFlatRows
+				if i <= nRowLabels and @aPivotData[r][i] != aFlatRowValues[i]
 					bMatch = FALSE
 					exit
 				ok
@@ -708,8 +762,10 @@ class stzPivotTable
 		# Find column index
 		nColIndex = 0
 		cColLabel = _combineLabels(aFlatColValues)
-		
-		for c = len(@aRowLabels) + 1 to len(@aPivotData[1])
+
+		nLen1 = len(@aPivotData[1])
+
+		for c =  nRowLabels+ 1 to nLen1
 			if @aPivotData[1][c] = cColLabel
 				nColIndex = c
 				exit
@@ -733,14 +789,18 @@ class stzPivotTable
 		ok
 		
 		aFlatRowValues = _flattenArray(paRowValues)
-		
+		nLenFlat = len(aFlatRowValues)
+
+		nRowLabels = len(@aRowLabels)
+
 		# Find row
 		nRowIndex = 0
-		for r = 2 to len(@aPivotData)
+		nLen = len(@aPivotData)
+		for r = 2 to nLen
 			bMatch = TRUE
 			
-			for i = 1 to len(aFlatRowValues)
-				if i <= len(@aRowLabels) and @aPivotData[r][i] != aFlatRowValues[i]
+			for i = 1 to nLenFlat
+				if i <= nRowLabels and @aPivotData[r][i] != aFlatRowValues[i]
 					bMatch = FALSE
 					exit
 				ok
@@ -813,7 +873,7 @@ class stzPivotTable
 			:RowLabels = @aRowLabels,
 			:ColLabels = @aColLabels,
 			:Values = @aValues,
-			:AggregationFunction = @cAggregationFunction,
+			:AggregationFunction = @cAggFunc,
 			:ShowTotalRow = @bShowTotalRow,
 			:ShowTotalColumn = @bShowTotalColumn,
 			:TotalLabel = @cTotalLabel,
@@ -836,7 +896,7 @@ class stzPivotTable
 		@aRowLabels = aData[:RowLabels]
 		@aColLabels = aData[:ColLabels]
 		@aValues = aData[:Values]
-		@cAggregationFunction = aData[:AggregationFunction]
+		@cAggFunc = aData[:AggregationFunction]
 		@bShowTotalRow = aData[:ShowTotalRow]
 		@bShowTotalColumn = aData[:ShowTotalColumn]
 		@cTotalLabel = aData[:TotalLabel]
@@ -862,6 +922,7 @@ class stzPivotTable
 		return @oResultTable
 
 	# Show Method
+
 	def Show()
 		# Display formatted pivot table
 		if not @bIsGenerated
@@ -884,9 +945,26 @@ class stzPivotTable
 			StzRaise("Can't display the pivot table! Only 2D columns/rows or less are displayable.")
 		ok
 
+	def ShowXT(pbSubTotal, pbGrandTotal)
+		# Display formatted pivot table
+		if not @bIsGenerated
+			Generate()
+		ok
+
+	
+		if len(@aCollabels) = 2 and len(@aRowlabels) = 1
+			_showFormattedPivotTable1DRows2DColsXT(pbSubTotal, pbGrandTotal)
+	
+		but len(@aCollabels) = 2 and len(@aRowlabels) = 2
+			_showFormattedPivotTable2DXT(pbSubTotal, pbGrandTotal)
+	
+		else
+			StzRaise("Can't display the pivot table! Only 2 column dimensions are displayable.")
+		ok
+
 	  #--------------------------#
 	 #  1D Pivot Table Display  #
-	#---------------------------#
+	#==========================#
 
 	def _showFormattedPivotTable1D()
 		# Display pivot table with formatted output - for 1D analysis (simpler format)
@@ -1082,7 +1160,7 @@ class stzPivotTable
 			if nTotalColIndex <= len(aPivotData[r])
 				totalValue = aPivotData[r][nTotalColIndex]
 			ok
-		
+
 			if isNumber(totalValue) or (isString(totalValue) and totalValue != "" and isNumber(0 + value))
 				cLine += @aBorder[:Vertical] + " " + PadLeft(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 			else
@@ -1136,7 +1214,7 @@ class stzPivotTable
 			if nTotalColIndex <= len(totalRow)
 				grandTotal = totalRow[nTotalColIndex]
 			ok
-		
+
 			if isNumber(grandTotal) or (isString(grandTotal) and grandTotal != "" and isNumber(0 + grandTotal))
 				cLine += @aBorder[:Vertical] + " " + PadLeft(grandTotal, nTotalColWidth - 2) + "  "
 			else
@@ -1163,7 +1241,7 @@ class stzPivotTable
 
 	  #---------------------------#
 	 #   2D Pivot Table Display  #
-	#---------------------------#
+	#===========================#
 
 	def _showFormattedPivotTable2D()
 		# Display 2D pivot table with formatted output
@@ -1665,14 +1743,704 @@ class stzPivotTable
 				cLine += @aBorder[:Vertical] + " " + PadRight(grandTotal, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 			ok
 			
-			cOutput += cLine//+ NL
+			cOutput += cLine
 		ok
 
 		? StzStringQ(trim(cOutput)).LastCharRemoved() + NL
 
+	#-------------------------------------#
+	#  2D PIVOT TABLE DISPLAY - eXTended  #
+	#-------------------------------------#
+
+def _showFormattedPivotTable2DXT(pSubTotal, pGrandTotal)
+	if CheckParams()
+
+		if isList(pSubTotal) and StzListQ(pSubTotal).IsSubTotalNamedParam()
+			pSubTotal = pSubTotal[2]
+		ok
+
+		if isList(pGrandTotal) and StzListQ(pGrandTotal).IsGrandTotalNamedParam()
+			pGrandTotal = pGrandTotal[2]
+		ok
+
+		if NOT (isBoolean(pSubTotal) and isBoolean(pGrandTotal))
+			StzRaise("Incorrect param values! pSubTotal and pGrandTotal must be both booleans.")
+		ok
+	ok
+
+	aPivotData = @aPivotData
+	aRowDims = @aRowLabels
+	aColDims = @aColLabels
+	cTotalLabel = @cTotalLabel
+
+	# Initialize column tracking
+	aRowLabelCols = []
+	aDataCols = []
+	nTotalColIndex = 0
+	
+	aHeaderRow = aPivotData[1]
+	
+	# Process row dimensions
+	nRowDimsLen = len(aRowDims)
+	for i = 1 to nRowDimsLen
+		aRowLabelCols + i
+	next
+	
+	# Process data columns
+	nHeaderLen = len(aHeaderRow)
+	for i = nRowDimsLen + 1 to nHeaderLen
+		if aHeaderRow[i] = cTotalLabel
+			nTotalColIndex = i
+		else
+			aDataCols + i
+		ok
+	next
+	
+	# Parse column dimensions
+	aColDim1Values = []
+	aColDim2Values = []
+	aColGroups = []
+	
+	nDataColsLen = len(aDataCols)
+	for i = 1 to nDataColsLen
+		colIdx = aDataCols[i]
+		colHeader = aHeaderRow[colIdx]
+		
+		if colHeader != ""
+			aParts = @split(colHeader, "_")
+			dim1Value = aParts[1]
+			dim2Value = aParts[2]
+			
+			if ring_find(aColDim1Values, dim1Value) = 0
+				aColDim1Values + dim1Value
+			ok
+			
+			if ring_find(aColDim2Values, dim2Value) = 0
+				aColDim2Values + dim2Value
+			ok
+			
+			key = dim1Value + "_" + dim2Value
+			aColGroups[key] = colIdx
+		ok
+	next
+	
+	# Calculate row label widths
+	aRowLabelWidths = []
+	for i = 1 to nRowDimsLen
+		maxWidth = len(aRowDims[i])
+		nPivotLen = len(aPivotData)
+		
+		# Account for "Sub-total" text if needed
+		if pSubTotal and i = 1
+			if maxWidth < len("Sub-total")
+				maxWidth = len("Sub-total")
+			ok
+		ok
+		
+		# Account for "GRAND-TOTAL" text if needed
+		if pGrandTotal and i = 1
+			if maxWidth < len("GRAND-TOTAL")
+				maxWidth = len("GRAND-TOTAL")
+			ok
+		ok
+		
+		for r = 2 to nPivotLen - 1
+			cellValue = "" + aPivotData[r][i]
+			if len(cellValue) > maxWidth
+				maxWidth = len(cellValue)
+			ok
+		next
+		
+		aRowLabelWidths + (maxWidth + 2)
+	next
+	
+	# Calculate data column widths
+	aDataColWidths = []
+	nMinDataWidth = 10
+	nColDim1ValuesLen = len(aColDim1Values)
+	nColDim2ValuesLen = len(aColDim2Values)
+	nPivotLen = len(aPivotData)
+	
+	for i1 = 1 to nColDim1ValuesLen
+		dim1Value = aColDim1Values[i1]
+		for i2 = 1 to nColDim2ValuesLen
+			dim2Value = aColDim2Values[i2]
+			key = dim1Value + "_" + dim2Value
+			colIdx = aColGroups[key]
+			
+			if colIdx != NULL
+				maxWidth = len(dim2Value)
+				
+				for r = 2 to nPivotLen
+					if colIdx <= len(aPivotData[r])
+						cellValue = "" + aPivotData[r][colIdx]
+						if len(cellValue) > maxWidth
+							maxWidth = len(cellValue)
+						ok
+					ok
+				next
+				
+				aDataColWidths[key] = max([nMinDataWidth, maxWidth + 2])
+			ok
+		next
+	next
+	
+	# Calculate total column width
+	nTotalColWidth = len(cTotalLabel)
+	
+	for r = 2 to nPivotLen
+		if nTotalColIndex <= len(aPivotData[r])
+			cellValue = "" + aPivotData[r][nTotalColIndex]
+			if len(cellValue) > nTotalColWidth
+				nTotalColWidth = len(cellValue)
+			ok
+		ok
+	next
+	
+	nTotalColWidth += 2
+	
+	# Calculate row label section width
+	nRowLabelSectionWidth = 0
+	nRowLabelWidthsLen = len(aRowLabelWidths)
+	for i = 1 to nRowLabelWidthsLen
+		nRowLabelSectionWidth += aRowLabelWidths[i]
+	next
+	nRowLabelSectionWidth += nRowDimsLen - 1
+	
+	# Initialize totals tracking for subtotals and grand totals
+	aGroupTotals = []
+	aGrandTotals = []
+	
+	# Initialize grand totals
+	for i = 1 to nColDim1ValuesLen
+		dim1Value = aColDim1Values[i]
+		for i2 = 1 to nColDim2ValuesLen
+			dim2Value = aColDim2Values[i2]
+			key = dim1Value + "_" + dim2Value
+			aGrandTotals[key] = 0
+		next
+	next
+	
+	# Add grand total for the total column
+	aGrandTotals["total"] = 0
+	
+	# First pass: calculate subtotals and grand totals
+	if pSubTotal or pGrandTotal
+		cCurrentGroup = ""
+		aGroups = []
+		
+		for r = 2 to nPivotLen - 1
+			cGroup = "" + aPivotData[r][1]
+			
+			# Add to group list if new
+			if NOT ring_find(aGroups, cGroup) > 0
+				aGroups + cGroup
+				aGroupTotals[cGroup] = []
+				
+				# Initialize group totals for each column combination
+				for i1 = 1 to nColDim1ValuesLen
+					dim1Value = aColDim1Values[i1]
+					for i2 = 1 to nColDim2ValuesLen
+						dim2Value = aColDim2Values[i2]
+						key = dim1Value + "_" + dim2Value
+						aGroupTotals[cGroup][key] = 0
+					next
+				next
+				
+				# Initialize group total for the total column
+				aGroupTotals[cGroup]["total"] = 0
+			ok
+			
+			# Update totals for each data column
+			for i1 = 1 to nColDim1ValuesLen
+				dim1Value = aColDim1Values[i1]
+				for i2 = 1 to nColDim2ValuesLen
+					dim2Value = aColDim2Values[i2]
+					key = dim1Value + "_" + dim2Value
+					colIdx = aColGroups[key]
+					
+					if colIdx != NULL and colIdx <= len(aPivotData[r])
+						cellValue = aPivotData[r][colIdx]
+						
+						if isNumber(cellValue) or (isString(cellValue) and cellValue != "" and @IsNumberInString(cellValue))
+							# Update group total
+							aGroupTotals[cGroup][key] += (0 + cellValue)
+							
+							# Update grand total
+							aGrandTotals[key] += (0 + cellValue)
+						ok
+					ok
+				next
+			next
+			
+			# Update totals for the total column
+			if nTotalColIndex <= len(aPivotData[r])
+				totalValue = aPivotData[r][nTotalColIndex]
+				
+				if isNumber(totalValue) or (isString(totalValue) and totalValue != "" and @IsNumberInString(totalValue))
+					# Update group total
+					aGroupTotals[cGroup]["total"] += (0 + totalValue)
+					
+					# Update grand total
+					aGrandTotals["total"] += (0 + totalValue)
+				ok
+			ok
+		next
+	ok
+	
+	# Build table output
+	cOutput = ""
+	
+	# Top border
+	cLine = @aBorder[:TopLeft] + @aBorder[:Horizontal]
+	
+	for i = 1 to nRowLabelWidthsLen
+		cLine += StrFill(aRowLabelWidths[i], @aBorder[:Horizontal])
+		if i > 1 and i < nRowLabelWidthsLen
+			cLine += @aBorder[:TeeDown]
+		ok
+	next
+	
+	cLine += @aBorder[:TeeDown]
+	
+	# Calculate first dimension widths
+	aDim1Widths = []
+	for i1 = 1 to nColDim1ValuesLen
+		dim1Value = aColDim1Values[i1]
+		dim1Width = 0
+		for i2 = 1 to nColDim2ValuesLen
+			dim2Value = aColDim2Values[i2]
+			key = dim1Value + "_" + dim2Value
+			if aDataColWidths[key] != NULL
+				dim1Width += aDataColWidths[key]
+			ok
+		next
+		if nColDim2ValuesLen > 1
+			dim1Width += nColDim2ValuesLen - 1
+		ok
+		aDim1Widths[dim1Value] = dim1Width
+	next
+	
+	# Add dimension sections
+	for i = 1 to nColDim1ValuesLen
+		dim1Value = aColDim1Values[i]
+		cLine += StrFill(aDim1Widths[dim1Value], @aBorder[:Horizontal])
+		if i < nColDim1ValuesLen
+			cLine += @aBorder[:TeeDown]
+		ok
+	next
+	
+	cLine += @aBorder[:TeeDown] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TopRight]
+	cOutput += cLine + NL
+	
+	# First header row
+	cLine = @aBorder[:Vertical]
+	
+	for i = 1 to nRowLabelWidthsLen
+		cLine += StrFill(aRowLabelWidths[i], " ")
+		if i < nRowLabelWidthsLen
+			cLine += " "
+		ok
+	next
+	
+	cLine += @aBorder[:Vertical]
+	
+	for i = 1 to nColDim1ValuesLen
+		dim1Value = aColDim1Values[i]
+		dim1Display = Upper(Left(dim1Value, 1)) + SubStr(dim1Value, 2)
+		cLine += CenterText(dim1Display, aDim1Widths[dim1Value])
+		
+		if i < nColDim1ValuesLen
+			cLine += @aBorder[:Vertical]
+		ok
+	next
+	
+	cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
+	cOutput += cLine + NL
+	
+	# Separator after first dimension
+	cLine = @aBorder[:Vertical]
+	
+	for i = 1 to nRowLabelWidthsLen
+		cLine += StrFill(aRowLabelWidths[i], " ")
+	next
+	
+	cLine += " " + @aBorder[:Vertical]
+	
+	for i1 = 1 to nColDim1ValuesLen
+		dim1Value = aColDim1Values[i1]
+		for i2 = 1 to nColDim2ValuesLen
+			dim2Value = aColDim2Values[i2]
+			key = dim1Value + "_" + dim2Value
+			if aDataColWidths[key] != NULL
+				dim2Width = aDataColWidths[key]
+				cLine += StrFill(dim2Width, @aBorder[:Horizontal])
+				
+				if i2 < nColDim2ValuesLen
+					cLine += @aBorder[:TeeDown]
+				ok
+			ok
+		next
+		
+		if i1 < nColDim1ValuesLen
+			cLine += @aBorder[:Cross]
+		ok
+	next
+	
+	cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth," ") + @aBorder[:Vertical]
+	cOutput += cLine + NL
+	
+	# Second dimension header
+	cLine = @aBorder[:Vertical]
+	
+	for i = 1 to nRowDimsLen
+		dim = aRowDims[i]
+		oDim = StzStringQ(dim)
+		capitalized = Upper(Left(dim, 1)) + oDim.Section(2, oDim.NumberOfChars())
+		cLine += CenterText(capitalized, aRowLabelWidths[i])
+		
+		if i < nRowDimsLen
+			cLine += @aBorder[:Vertical]
+		ok
+	next
+	
+	cLine += @aBorder[:Vertical]
+	
+	for i1 = 1 to nColDim1ValuesLen
+		dim1Value = aColDim1Values[i1]
+
+		for i2 = 1 to nColDim2ValuesLen
+			dim2Value = aColDim2Values[i2]
+
+			key = dim1Value + "_" + dim2Value
+			if aDataColWidths[key] != NULL
+				oDim2 = new stzString(dim2Value)
+				capitalizedDim2 = Upper(Left(dim2Value, 1)) + oDim2.Section(2, oDim2.NumberOfChars())
+				cLine += CenterText(capitalizedDim2, aDataColWidths[key])
+				
+				if i2 < nColDim2ValuesLen
+					cLine += @aBorder[:Vertical]
+				ok
+			ok
+		next
+		
+		if i1 < nColDim1ValuesLen
+			cLine += @aBorder[:Vertical]
+		ok
+	next
+	
+	cLine += @aBorder[:Vertical] + CenterText(Upper(cTotalLabel), nTotalColWidth) + @aBorder[:Vertical]
+	cOutput += cLine + NL
+	
+	# Separator before data
+	cLine = @aBorder[:TeeRight]
+	
+	for i = 1 to nRowLabelWidthsLen
+		cLine += StrFill(aRowLabelWidths[i], @aBorder[:Horizontal])
+
+		if i < nRowLabelWidthsLen
+			cLine += @aBorder[:TeeDown]
+		ok
+	next
+	
+	cLine += @aBorder[:Cross]
+	
+	for i1 = 1 to nColDim1ValuesLen
+		dim1Value = aColDim1Values[i1]
+
+		for i2 = 1 to nColDim2ValuesLen
+			dim2Value = aColDim2Values[i2]
+
+			key = dim1Value + "_" + dim2Value
+
+			if aDataColWidths[key] != NULL
+				cLine += StrFill(aDataColWidths[key], @aBorder[:Horizontal])
+				
+				if i2 < nColDim2ValuesLen
+					cLine += @aBorder[:Cross]
+				ok
+			ok
+		next
+		
+		if i1 < nColDim1ValuesLen
+			cLine += @aBorder[:Cross]
+		ok
+	next
+	
+	cLine += @aBorder[:Cross] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TeeLeft]
+	cOutput += cLine + NL
+	
+	# Data rows
+	cLastRowDim1 = NULL
+	nRowDim1Count = 0
+	
+	for r = 2 to nPivotLen - 1
+		cCurrentRowDim1 = aPivotData[r][1]
+		
+		# If group changed and not first row, print group totals
+		
+		if cCurrentRowDim1 != cLastRowDim1
+			nRowDim1Count++
+			cLastRowDim1 = cCurrentRowDim1
+		ok
+		
+		cLine = @aBorder[:Vertical]
+		
+		# First dimension
+		if cCurrentRowDim1 != aPivotData[r-1][1] or r = 2
+			cLine += " " + cCurrentRowDim1 + StrFill(aRowLabelWidths[1] - len(cCurrentRowDim1) - 1, " ")
+		else
+			cLine += StrFill(aRowLabelWidths[1], " ")
+		ok
+		
+		cLine += @aBorder[:Vertical]
+		
+		# Second dimension
+		cLine += " " + aPivotData[r][2] + StrFill(aRowLabelWidths[2] - len(aPivotData[r][2]) - 1, " ")
+		cLine += @aBorder[:Vertical]
+		
+		# Data cells
+		for i1 = 1 to nColDim1ValuesLen
+			dim1Value = aColDim1Values[i1]
+
+			for i2 = 1 to nColDim2ValuesLen
+				dim2Value = aColDim2Values[i2]
+
+				key = dim1Value + "_" + dim2Value
+				colIdx = aColGroups[key]
+				
+				if colIdx != NULL
+					value = @if(colIdx <= len(aPivotData[r]), aPivotData[r][colIdx], "")
+					
+					if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
+						cLine += " " + PadLeft(value, aDataColWidths[key] - 2) + " "
+					else
+						cLine += " " + PadRight(value, aDataColWidths[key] - 2) + " "
+					ok
+					
+					if i2 < nColDim2ValuesLen
+						cLine += @aBorder[:Vertical]
+					ok
+				ok
+			next
+			
+			if i1 < nColDim1ValuesLen
+				cLine += @aBorder[:Vertical]
+			ok
+		next
+		
+		# Total column
+		totalValue = @if(nTotalColIndex <= len(aPivotData[r]), aPivotData[r][nTotalColIndex], "")
+		
+		if isNumber(totalValue) or (isString(totalValue) and totalValue != "" and isNumber(0 + totalValue))
+			cLine += @aBorder[:Vertical] + " " + PadLeft(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
+		else
+			cLine += @aBorder[:Vertical] + " " + PadRight(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
+		ok
+		
+		cOutput += cLine + NL
+		
+		# Add SUM row for each group, including the last one
+		if (r < nPivotLen - 1 and cCurrentRowDim1 != aPivotData[r+1][1] and aPivotData[r+1][1] != cTotalLabel) or r = nPivotLen - 1
+			cLine = @aBorder[:Vertical]
+			cLine += StrFill(aRowLabelWidths[1], " ") + @aBorder[:Vertical]
+			cLine += StrFill(aRowLabelWidths[2], " ") + @aBorder[:Vertical]
+			
+			# Add dashes for data columns
+			for i1 = 1 to nColDim1ValuesLen
+				dim1Value = aColDim1Values[i1]
+
+				for i2 = 1 to nColDim2ValuesLen
+					dim2Value = aColDim2Values[i2]
+
+					key = dim1Value + "_" + dim2Value
+
+					if aDataColWidths[key] != NULL
+						cLine += " " + @Copy("-", aDataColWidths[key] - 2) + " "
+						
+						if i2 < nColDim2ValuesLen
+							cLine += @aBorder[:Vertical]
+						ok
+					ok
+				next
+				
+				if i1 < nColDim1ValuesLen
+					cLine += @aBorder[:Vertical]
+				ok
+			next
+			
+			cLine += @aBorder[:Vertical] + " " + @Copy("-", nTotalColWidth - 2) + " " + @aBorder[:Vertical]
+			cOutput += cLine + NL
+			
+			# Add SUM row
+			cLine = @aBorder[:Vertical]
+			
+			# First column
+			cLine += " " + PadLeft("SUM", aRowLabelWidths[1] - 2) + " " + @aBorder[:Vertical]
+			
+			# Second column empty but right-aligned
+			cLine += " " + PadRight("", aRowLabelWidths[2] - 2) + " " + @aBorder[:Vertical]
+			
+			# Add subtotal values for each data column
+			for i1 = 1 to nColDim1ValuesLen
+				dim1Value = aColDim1Values[i1]
+
+				for i2 = 1 to nColDim2ValuesLen
+					dim2Value = aColDim2Values[i2]
+
+					key = dim1Value + "_" + dim2Value
+					
+					if aDataColWidths[key] != NULL
+						value = aGroupTotals[cCurrentRowDim1][key]
+						
+						if isNumber(value) and value != 0
+							cLine += " " + PadLeft("" + value, aDataColWidths[key] - 2) + " "
+						else
+							cLine += " " + PadLeft("", aDataColWidths[key] - 2) + " "
+						ok
+						
+						if i2 < nColDim2ValuesLen
+							cLine += @aBorder[:Vertical]
+						ok
+					ok
+				next
+				
+				if i1 < nColDim1ValuesLen
+					cLine += @aBorder[:Vertical]
+				ok
+			next
+			
+			# Add subtotal for total column
+			value = aGroupTotals[cCurrentRowDim1]["total"]
+			
+			if isNumber(value) and value != 0
+				cLine += @aBorder[:Vertical] + " " + PadLeft("" + value, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
+			else
+				cLine += @aBorder[:Vertical] + " " + PadLeft("", nTotalColWidth - 2) + " " + @aBorder[:Vertical]
+			ok
+			
+			cOutput += cLine + NL
+			
+			# Add empty line after subtotals
+
+			cLine = @aBorder[:Vertical]
+			cLine += StrFill(aRowLabelWidths[1]+1, " ") //+ @aBorder[:Vertical]
+			cLine += StrFill(aRowLabelWidths[2]+1, " ") //+ @aBorder[:Vertical]
+			
+			for i1 = 1 to nColDim1ValuesLen
+				dim1Value = aColDim1Values[i1]
+
+				for i2 = 1 to nColDim2ValuesLen
+					dim2Value = aColDim2Values[i2]
+
+					key = dim1Value + "_" + dim2Value
+
+					if aDataColWidths[key] != NULL
+						cLine += StrFill(aDataColWidths[key], " ")
+						
+					ok
+				next
+				
+			next
+			
+			cLine += "  " + StrFill(nTotalColWidth+2, " ") + @aBorder[:Vertical]
+			cOutput += cLine + NL
+
+		ok
+	next
+	
+	# Bottom border
+	cLine = @aBorder[:BottomLeft]
+	
+	for i = 1 to nRowLabelWidthsLen
+		cLine += StrFill(aRowLabelWidths[i], @aBorder[:Horizontal])
+
+		if i = 1
+			cLine += @aBorder[:Horizontal]
+		but i < nRowLabelWidthsLen
+			cLine += @aBorder[:Cross]
+		ok
+	next
+	
+	cLine += @aBorder[:Horizontal]
+	
+	for i1 = 1 to nColDim1ValuesLen
+		dim1Value = aColDim1Values[i1]
+
+		for i2 = 1 to nColDim2ValuesLen
+			dim2Value = aColDim2Values[i2]
+
+			key = dim1Value + "_" + dim2Value
+
+			if aDataColWidths[key] != NULL
+				cLine += StrFill(aDataColWidths[key], @aBorder[:Horizontal])
+				
+				if i2 < nColDim2ValuesLen
+					cLine += @aBorder[:Horizontal]
+				ok
+			ok
+		next
+		
+		if i1 < nColDim1ValuesLen
+			cLine += @aBorder[:Horizontal]
+		ok
+	next
+	
+	cLine += @aBorder[:Horizontal] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:BottomRight]
+	cOutput += cLine + NL
+	
+	# Totals row
+	if nPivotLen > 1 and aPivotData[nPivotLen][1] = cTotalLabel
+		totalRow = aPivotData[nPivotLen]
+		nLenTotalRow = len(totalRow)
+
+		cLine = " " + PadLeft(Upper(totalRow[1]+" "), nRowLabelSectionWidth) + @aBorder[:Vertical]
+		
+		for i1 = 1 to nColDim1ValuesLen
+			dim1Value = aColDim1Values[i1]
+
+			for i2 = 1 to nColDim2ValuesLen
+				dim2Value = aColDim2Values[i2]
+
+				key = dim1Value + "_" + dim2Value
+				colIdx = aColGroups[key]
+				
+				if colIdx != NULL
+					value = @if(colIdx <= nLenTotalRow, totalRow[colIdx], "")
+					
+					if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
+						cLine += " " + PadLeft(value, aDataColWidths[key] - 2) + " "
+					else
+						cLine += " " + PadRight(value, aDataColWidths[key] - 2) + " "
+					ok
+					
+					if dim2Value != aColDim2Values[nColDim2ValuesLen]
+						cLine += @aBorder[:Vertical]
+					ok
+				ok
+			next
+			
+			if dim1Value != aColDim1Values[nColDim1ValuesLen]
+				cLine += @aBorder[:Vertical]
+			ok
+		next
+	
+		grandTotal = @if(nTotalColIndex <= nLenTotalRow, totalRow[nTotalColIndex], "")
+		
+		if isNumber(grandTotal) or (isString(grandTotal) and grandTotal != "" and isNumber(0 + grandTotal))
+			cLine += @aBorder[:Vertical] + " " + PadLeft(grandTotal, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
+		else
+			cLine += @aBorder[:Vertical] + " " + PadRight(grandTotal, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
+		ok
+		
+		cOutput += cLine
+	ok
+
+	? StzStringQ(trim(cOutput)).LastCharRemoved() + NL
+
 	  #------------------------------------------#
 	 #  1D Rows 2D Columns Pivot Table Display  #
-	#------------------------------------------#
+	#==========================================#
 
 	def _showFormattedPivotTable1DRows2DCols()
 		# Display pivot table with 1D rows and 2D columns with formatted output
@@ -2041,7 +2809,7 @@ class stzPivotTable
 			# Total column
 
 			totalValue = @if(nTotalColIndex <= len(aPivotData[r]), aPivotData[r][nTotalColIndex], "")
-		
+
 			if isNumber(totalValue) or (isString(totalValue) and totalValue != "" and isNumber(0 + value))
 				cLine += @aBorder[:Vertical] + " " + PadLeft(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 
@@ -2321,7 +3089,7 @@ class stzPivotTable
 	
 		# The main raw label centered across all data columns
 
-		cLine += CenterText(Capitalize(aRowDims[1]), nCombinedDataWidth)
+		cLine += CenterText(Capitalize(aColDims[1]), nCombinedDataWidth)
 		cLine += @aBorder[:Vertical] + copy(" ", nTotalColWidth) + @aBorder[:Vertical]
 		cOutput += cLine + NL
 	
@@ -2427,7 +3195,7 @@ class stzPivotTable
 		
 			# Row labels - handle merging for first dimension
 
-			dim1Value = aPivotData[r][1]
+			dim1Value = ''+ aPivotData[r][1]
 
 			if dim1Value = lastDim1Value
 				cLine += " " + StrFill(aRowLabelWidths[1] - 2, " ") + " " + @aBorder[:Vertical]
@@ -2438,7 +3206,7 @@ class stzPivotTable
 		
 			# Second dimension
 
-			dim2Value = aPivotData[r][2]
+			dim2Value = ''+ aPivotData[r][2]
 			cLine += " " + dim2Value + StrFill(aRowLabelWidths[2] - len(dim2Value) - 1, " ") + @aBorder[:Vertical]
 		
 			# Data cells

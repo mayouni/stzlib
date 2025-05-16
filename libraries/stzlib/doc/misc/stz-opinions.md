@@ -41,7 +41,9 @@ Softanza, the foundation library for the Ring programming language, has garnered
 > Lots of different languages have the same letter glyph but different Unicode hex values.  
 > Good detective work."
 
+> Very nice documentation on the stzTable.
 > "Great Looking output of the stzPivotTable!!"
+> "The stzPivotTable  feature is getting more impressive !!"
 
 ---
 
@@ -78,4 +80,7 @@ Softanza, the foundation library for the Ring programming language, has garnered
 
 --
 
+## Clement
+
+> Wow, this stzTable is really awesome, super useful for manipulating dataframes like having Excel functions in Ring programming!  Awesome, great work!
 

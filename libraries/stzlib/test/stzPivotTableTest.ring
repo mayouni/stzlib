@@ -29,6 +29,7 @@ aData = [
 
 # Create proper stzTable instance
 oSalesData = new stzTable(aData)
+
 oSalesData.Show()
 #-->
 # ╭────────┬───────────┬─────────┬───────┬───────╮
@@ -53,8 +54,9 @@ oSalesData.Show()
 # ╰────────┴───────────┴─────────┴───────┴───────╯
 
 # Pivot table of Sales by Region (rows) and Product (columns)
-oSalesPivot = new stzPivotTable(oSalesData)
-oSalesPivot {
+
+o1 = new stzPivotTable(oSalesData)
+o1 {
 	Analyze([:Sales], "SUM")
 	SetRowsBy([ :Region ])
 	SetColsBy([ :Product ])
@@ -77,25 +79,26 @@ oSalesPivot {
 
 # Another view - Sales by Product (rows) and Quarter (columns)
 
-oProductPivot = new stzPivotTable(oSalesData)
-oProductPivot {
+o1 = new stzPivotTable(oSalesData)
+o1 {
 
     SetRowLabel(:Product)
     SetColumnLabel(:Quarter)
     SetValue(:Sales)
     SetAggregateFunction("SUM")
+	SetColumnOrder(["Q1", "Q2"])  # Set the desired quarter order
 
     Show()
 	#-->
 # ╭───────────┬─────────────────────┬────────╮
 # │           │       Quarter       │        │
 # │           │──────────┬──────────│        │
-# │  Product  │    Q2    │    Q1    │ TOTAL  │
+# │  Product  │    Q1    │    Q2    │  SUM   │
 # ├───────────┼──────────┼──────────┼────────┤
-# │ Product A │    53000 │    39000 │  92000 │
-# │ Product B │    38000 │    34000 │  72000 │
+# │ Product A │    39000 │    53000 │  92000 │
+# │ Product B │    34000 │    38000 │  72000 │
 # ╰───────────┴──────────┴──────────┴────────╯
-#       TOTAL │    91000 │    73000 │ 164000  
+#         SUM │    73000 │    91000 │ 164000  
 
 	# Getting specific values from the pivot
 	# ~> Value for Product A in Q1	
@@ -116,13 +119,14 @@ oProductPivot {
 
 	? GrandTotal()
 	#--> 164000
+
 }
 
 pf()
-# Executed in 0.43 second(s) in Ring 1.22
+# Executed in 0.40 second(s) in Ring 1.22
 
 /*---  Using multiple dimensions for rows and columns
-
+*/
 pr()
     
 # Define employee data in a stzTable object
@@ -164,19 +168,22 @@ oPivot = new stzPivotTable(oTable)
 
 oPivot {
 
-	Analyze([ :Salary ], :Using = :SUM)
+  Analyze([ :Salary ], :Using = :SUM)
 
-	# 2 rows and 2 columns
+  # 2 rows and 2 columns
 
-	SetRowsBy([ :Department, :Location ])
-	SetColsBy([ :Experience, :Gender ])
-	Show()
+  SetRowsBy([ :Department, :Location ])
+  SetColsBy([ :Experience, :Gender ])
+  ShowXT(True, :GrandTotal=True)
+
+
+
 	#-->
 # ╭───────────────────────┬─────────────────────┬─────────────────────┬─────────╮
 # │                       │       Junior        │       Senior        │         │
-# ├────────────┬──────────┼──────────┬──────────┼──────────┬──────────┤         │
-# │ Department │ Location │  Female  │   Male   │  Female  │   Male   │ AVERAGE │
-# ├────────────┼──────────┼──────────┼──────────┼──────────┼──────────┼─────────┤
+# │                       │──────────┬──────────┼──────────┬──────────│         │
+# │ Department │ Location │  Female  │   Male   │  Female  │   Male   │   SUM   │
+# ├────────────┬──────────┼──────────┼──────────┼──────────┼──────────┼─────────┤
 # │ Sales      │ New York │    46000 │          │    76000 │    75000 │  197000 │
 # │            │ Chicago  │    43000 │    42000 │    73000 │    72000 │  230000 │
 # │            │          │          │          │          │          │         │
@@ -186,10 +193,10 @@ oPivot {
 # │ HR         │ New York │    43000 │    42000 │    69000 │    68000 │  222000 │
 # │            │ Chicago  │    41000 │    40000 │    66000 │    65000 │  212000 │
 # ╰────────────┴──────────┴──────────┴──────────┴──────────┴──────────┴─────────╯
-#	                AVERAGE │   277000 │   226000 │   453000 │   447000 │ 1403000 
+#                     SUM │   277000 │   226000 │   453000 │   447000 │ 1403000 
 
 	# 1 row and 2 columns
-
+/*
 	SetRowsBy([ :Department ])
 	SetColsBy([ :Experience, :Gender ])
 	Show()
@@ -199,11 +206,11 @@ oPivot {
 # │            │──────────┬──────────│──────────┬──────────│         │
 # │ Department │  Female  │   Male   │  Female  │   Male   │   SUM   │
 # ├────────────┼──────────┼──────────┼──────────┼──────────┼─────────┤
-# │ Sales      │    89000 │    42000 │   149000 │   147000 │  427000 │
-# │ IT         │   104000 │   102000 │   169000 │   167000 │  542000 │
-# │ HR         │    84000 │    82000 │   135000 │   133000 │  434000 │
+# │ Sales      │   131000 │   131000 │   296000 │   296000 │  854000 │
+# │ IT         │   206000 │   206000 │   336000 │   336000 │ 1084000 │
+# │ HR         │   166000 │   166000 │   268000 │   268000 │  868000 │
 # ╰────────────┴──────────┴──────────┴──────────┴──────────┴─────────╯
-#          SUM │   277000 │   226000 │   453000 │   447000 │ 1403000 
+#          SUM │   503000 │   503000 │   900000 │   900000 │ 2806000 
 
 	# 2 rows and 1 column
 
@@ -212,7 +219,7 @@ oPivot {
 	Show()
 	#-->
 # ╭───────────────────────┬─────────────────────┬─────────╮
-# │                       │     Department      │         │
+# │                       │     Experience      │         │
 # │                       │──────────┬──────────│         │
 # │ Department │ Location │  Junior  │  Senior  │   SUM   │
 # ├────────────┬──────────┼──────────┼──────────┼─────────┤
@@ -230,7 +237,7 @@ oPivot {
 
 	SetRowsBy([ :Department ])
 	SetColsBy([ :Experience ])
-	Show()
+	Show(true, true)
 	#--> 
 # ╭────────────┬─────────────────────┬─────────╮
 # │            │     Experience      │         │
@@ -242,14 +249,14 @@ oPivot {
 # │ HR         │   166000 │   268000 │  434000 │
 # ╰────────────┴──────────┴──────────┴─────────╯
 #          SUM │   503000 │   900000 │ 1403000  
-
+*/
 }
 
 pf()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*--- Various Aggregation Functions
-*/
+
 pr()
     
     # Define a product sales and ratings dataset
@@ -275,15 +282,11 @@ pr()
         [ "Table D",   "Furniture",   "East",     1180,        4.0,        2     ],
         [ "Table D",   "Furniture",   "West",     1420,        4.3,        1     ]
     ])
-    
-    # Original product data
-
-//    o1.Show()
 
 	# Pivoting the table and starting analyisis
 
     o1.ToStzPivotTable() {
-/*
+
     	# SUM aggregation (default)
 
 		SetRowLabels([:Product])
@@ -292,15 +295,37 @@ pr()
         SetAggregateFunction("SUM")
 
         Show()
+		#-->
+# ╭──────────┬───────────────────────────────────────────┬───────╮
+# │          │                  Region                   │       │
+# │          │──────────┬──────────┬──────────┬──────────│       │
+# │ Product  │  South   │   East   │   West   │  North   │  SUM  │
+# ├──────────┼──────────┼──────────┼──────────┼──────────┼───────┤
+# │ Laptop A │     3200 │     2800 │     3500 │          │  9500 │
+# │ Phone B  │     2100 │     1900 │     2300 │     1800 │  8100 │
+# │ Chair C  │      920 │      780 │      950 │      850 │  3500 │
+# │ Table D  │     1350 │     1180 │     1420 │     1200 │  5150 │
+# ╰──────────┴──────────┴──────────┴──────────┴──────────┴───────╯
+#        SUM │     7570 │     6660 │     8170 │     3850 │ 26250  
 
     	# AVERAGE aggregation
 
-    	SetRowLabels([:Category])
+     	SetRowLabels([:Category])
         SetColumnLabels([:Region])
         SetValues([:Rating])
         SetAggregateFunction("AVERAGE")
         Show()
-*/ 
+		#-->
+# ╭─────────────┬───────────────────────────────────────────┬─────────╮
+# │             │                  Region                   │         │
+# │             │──────────┬──────────┬──────────┬──────────│         │
+# │  Category   │  South   │   East   │   West   │  North   │ AVERAGE │
+# ├─────────────┼──────────┼──────────┼──────────┼──────────┼─────────┤
+# │ Electronics │     4.30 │     4.35 │     4.40 │     4.50 │    4.39 │
+# │ Furniture   │        4 │     3.85 │     4.15 │        4 │       4 │
+# ╰─────────────┴──────────┴──────────┴──────────┴──────────┴─────────╯
+#       AVERAGE │     4.15 │     4.10 │     4.28 │     4.25 │    4.19  
+
 		# Count of Products by Category and Region + NL
     
 		SetRowLabels([:Category])
@@ -308,7 +333,18 @@ pr()
         SetValues([:Product])
         SetAggregateFunction("COUNT")
         Show()
-/*   
+		#-->
+# ╭─────────────┬───────────────────────────────────────────┬───────╮
+# │             │                  Region                   │       │
+# │             │──────────┬──────────┬──────────┬──────────│       │
+# │  Category   │  South   │   East   │   West   │  North   │ COUNT │
+# ├─────────────┼──────────┼──────────┼──────────┼──────────┼───────┤
+# │ Electronics │        2 │        2 │        2 │        1 │     4 │
+# │ Furniture   │        2 │        2 │        2 │        2 │     4 │
+# ╰─────────────┴──────────┴──────────┴──────────┴──────────┴───────╯
+#         COUNT │        2 │        2 │        2 │        2 │     2  
+
+
 		# Maximum Returns by Product and Region
     
 		SetRowLabels([:Product])
@@ -316,20 +352,30 @@ pr()
 		SetValues([:Returns])
 		SetAggregateFunction("MAX")
 		Show()
-*/
+		#-->
+# ╭──────────┬───────────────────────────────────────────┬─────╮
+# │          │                  Region                   │     │
+# │          │──────────┬──────────┬──────────┬──────────│     │
+# │ Product  │  South   │   East   │   West   │  North   │ MAX │
+# ├──────────┼──────────┼──────────┼──────────┼──────────┼─────┤
+# │ Laptop A │        7 │        4 │        8 │          │   8 │
+# │ Phone B  │        1 │        3 │        2 │        2 │   3 │
+# │ Chair C  │        4 │        5 │        2 │        3 │   5 │
+# │ Table D  │        2 │        2 │        1 │        1 │   2 │
+# ╰──────────┴──────────┴──────────┴──────────┴──────────┴─────╯
+#        MAX │        7 │        5 │        8 │        3 │   8  
+
 }
 
 pf()
+# Executed in 0.22 second(s) in Ring 1.22
 
 /*---
+*/
+pr()
 
-  Example 4: Custom Display Options
-  Demonstrating custom display formatting
-
-func Example4()
-    
     # Simple financial data
-    financialData = new stzTable([
+    o1 = new stzTable([
         [ :Year,  :Quarter,  :Department,   :Revenue,    :Expenses,   :Profit  ],
         # ---------------------------------------------------------------------- #
         [ 2023,    "Q1",      "Sales",       120000,       85000,      35000   ],
@@ -353,41 +399,41 @@ func Example4()
     ])
     
     # Basic pivot with default display
-    profitPivot = new stzPivotTable(financialData)
-    profitPivot.RowLabels([:Year, :Quarter])
-             .ColumnLabels([:Department])
-             .Values([:Profit])
-             .AggregateFunction("SUM")
-    
-    See "Default display:" + NL
-    profitPivot.Show()
-    
-    # Custom display with borders
-    See NL + "Custom display with borders:" + NL
-    profitPivot.ShowXT([
-        :Separator = " | ",
-        :IntersectionChar = "+",
-        :ShowRowNumbers,
-        :UnderLineHeader
-    ])
-    
-    # Custom display with right alignment
-    See NL + "Custom display with right alignment:" + NL
-    profitPivot.ShowXT([
-        :Separator = " | ",
-        :IntersectionChar = "+",
-        :Alignment = :Right,
-        :UnderLineHeader
-    ])
-    
-    # Custom display with custom total label
-    See NL + "Custom display with custom total label:" + NL
-    profitPivot.TotalLabel("GRAND TOTAL")
-              .ShowXT([
-                  :Separator = " | ",
-                  :IntersectionChar = "+",
-                  :UnderLineHeader
-              ])
-    
-    return
+    o1.ToStzPivotTable() {
 
+		SetRowLabels([:Year, :Quarter])
+        SetColumnLabels([:Department])
+        SetValues([:Profit])
+        SetAggregateFunction("SUM")
+    
+
+		Show()
+ 		#-->
+# ╭────────────────┬───────────────────────────────────┬────────╮
+# │                │            Department             │        │
+# │                │───────────┬────────────┬──────────│        │
+# │ Year │ Quarter │ Marketing │ Operations │  Sales   │  SUM   │
+# ├──────┬─────────┼───────────┼────────────┼──────────┼────────┤
+# │ 2023 │ Q2      │      8000 │      18000 │    45000 │  71000 │
+# │      │ Q3      │     11000 │      20000 │    50000 │  81000 │
+# │      │ Q4      │     14000 │      22000 │    55000 │  91000 │
+# │      │         │           │            │          │        │
+# │ 2024 │ Q1      │      7000 │      17000 │    42000 │  66000 │
+# │      │ Q2      │     10000 │      19000 │    51000 │  80000 │
+# ╰──────┴─────────┴───────────┴────────────┴──────────┴────────╯
+#             SUM │     55000 │     111000 │   243000 │ 409000  
+
+
+		? Value("2024", "Marketing")
+		#--> 7000
+		
+		? Value(["2024", "Q2"], "Marketing")
+		#--> 10000
+		
+		? Value([ "2023", "Q3" ], "Sales")
+		#--> 50000
+
+	}
+
+pf()
+# Executed in 0.09 second(s) in Ring 1.22
