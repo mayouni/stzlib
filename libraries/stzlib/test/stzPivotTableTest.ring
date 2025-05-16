@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 
 /*---
-*/
+
 pr()
 
 
@@ -30,7 +30,27 @@ aData = [
 # Create proper stzTable instance
 oSalesData = new stzTable(aData)
 oSalesData.Show()
-? NL()
+#-->
+# ╭────────┬───────────┬─────────┬───────┬───────╮
+# │ Region │  Product  │ Quarter │ Sales │ Units │
+# ├────────┼───────────┼─────────┼───────┼───────┤
+# │ North  │ Product A │ Q1      │ 10000 │   100 │
+# │ North  │ Product A │ Q2      │ 12000 │   120 │
+# │ North  │ Product B │ Q1      │  8000 │    80 │
+# │ North  │ Product B │ Q2      │  9000 │    90 │
+# │ South  │ Product A │ Q1      │ 15000 │   150 │
+# │ South  │ Product A │ Q2      │ 14000 │   140 │
+# │ South  │ Product B │ Q1      │  9500 │    95 │
+# │ South  │ Product B │ Q2      │ 10500 │   105 │
+# │ East   │ Product A │ Q1      │ 11000 │   110 │
+# │ East   │ Product A │ Q2      │ 12500 │   125 │
+# │ East   │ Product B │ Q1      │  7500 │    75 │
+# │ East   │ Product B │ Q2      │  8500 │    85 │
+# │ West   │ Product A │ Q1      │ 13000 │   130 │
+# │ West   │ Product A │ Q2      │ 14500 │   145 │
+# │ West   │ Product B │ Q1      │  9000 │    90 │
+# │ West   │ Product B │ Q2      │ 10000 │   100 │
+# ╰────────┴───────────┴─────────┴───────┴───────╯
 
 # Pivot table of Sales by Region (rows) and Product (columns)
 oSalesPivot = new stzPivotTable(oSalesData)
@@ -40,115 +60,56 @@ oSalesPivot {
 	SetColsBy([ :Product ])
 
     Show()
+
 }
-/*
+#-->
+# ╭────────┬───────────────────────┬────────╮
+# │        │        Product        │        │
+# │        │───────────┬───────────│        │
+# │ Region │ Product A │ Product B │  SUM   │
+# ├────────┼───────────┼───────────┼────────┤
+# │ North  │     12000 │     17000 │  29000 │
+# │ South  │     29000 │     20000 │  49000 │
+# │ East   │     23500 │     16000 │  39500 │
+# │ West   │     27500 │     19000 │  46500 │
+# ╰────────┴───────────┴───────────┴────────╯
+#      SUM │     92000 │     72000 │ 164000  
+
 # Another view - Sales by Product (rows) and Quarter (columns)
-? NL()
+
 oProductPivot = new stzPivotTable(oSalesData)
 oProductPivot {
+
     SetRowLabel(:Product)
     SetColumnLabel(:Quarter)
     SetValue(:Sales)
     SetAggregateFunction("SUM")
+
     Show()
-}
-
-? NL()
-# Getting specific values from the pivot
-? "Value for Product A in Q1: " + oProductPivot.Value("Product A", "Q1")
-
-# Getting row and column totals
-? "Row total for Product A: " + oProductPivot.RowTotal("Product A")
-? "Column total for Q2: " + oProductPivot.ColumnTotal("Q2")
-? "Grand total: " + oProductPivot.GrandTotal()
-
-pf()
-
-/*--- Creating a simple sales analysis by region and product
-
-pr()
-
-oSalesData = new stzTable([
-	[ :Region,   :Product,   :Quarter,  :Sales,   :Units  ],
-	# ----------------------------------------------------- #
-	[ "North",   "Product A",    "Q1",    10000,    100    ],
-	[ "North",   "Product A",    "Q2",    12000,    120    ],
-	[ "North",   "Product B",    "Q1",     8000,     80    ],
-	[ "North",   "Product B",    "Q2",     9000,     90    ],
-	[ "South",   "Product A",    "Q1",    15000,    150    ],
-	[ "South",   "Product A",    "Q2",    14000,    140    ],
-	[ "South",   "Product B",    "Q1",     9500,     95    ],
-	[ "South",   "Product B",    "Q2",    10500,    105    ],
-	[ "East",    "Product A",    "Q1",    11000,    110    ],
-	[ "East",    "Product A",    "Q2",    12500,    125    ],
-	[ "East",    "Product B",    "Q1",     7500,     75    ],
-	[ "East",    "Product B",    "Q2",     8500,     85    ],
-	[ "West",    "Product A",    "Q1",    13000,    130    ],
-	[ "West",    "Product A",    "Q2",    14500,    145    ],
-	[ "West",    "Product B",    "Q1",     9000,     90    ],
-	[ "West",    "Product B",    "Q2",    10000,    100    ]
-])
-
-# Original sales data
-
-oSalesData.Show()
-? NL()
-    
-# Pivot table of Sales by Region (rows) and Product (columns)
-    
-oSalesPivot = new stzPivotTable(oSalesData)
-
-oSalesPivot {
-
-	SetRowLabels([:Region])
-	SetColumnLabels([:Product])
-	SetValues([:Sales])
-	SetAggregateFunction("SUM")
-
-	Show()
 	#-->
-	#         PRODUCT A   PRODUCT B    TOTAL
-	# ------ ----------- ----------- -------
-	# North       12000       17000    29000
-	# South       29000       20000    49000
-	#  East       23500       16000    39500
-	#  West       27500       19000    46500
-	# TOTAL       92000       72000   164000
-
-}
-
-# Another view - Sales by Product (rows) and Quarter (columns)
-
-? NL()
-
-oProductPivot = new stzPivotTable(oSalesData)
-
-oProductPivot {
-
-	SetRowLabels([:Product])
-	SetColumnLabels([:Quarter])
-	SetValues([:Sales])
-	SetAggregateFunction("MEDIAN")
-
-	Show()
-	#-->
-	#                Q1      Q2    TOTAL
-	# ---------- ------- ------- -------
-	# Product A   39000   53000    92000
-	# Product B   34000   38000    72000
-	#     TOTAL   73000   91000   164000
- 
-	? NL()
+# ╭───────────┬─────────────────────┬────────╮
+# │           │       Quarter       │        │
+# │           │──────────┬──────────│        │
+# │  Product  │    Q2    │    Q1    │ TOTAL  │
+# ├───────────┼──────────┼──────────┼────────┤
+# │ Product A │    53000 │    39000 │  92000 │
+# │ Product B │    38000 │    34000 │  72000 │
+# ╰───────────┴──────────┴──────────┴────────╯
+#       TOTAL │    91000 │    73000 │ 164000  
 
 	# Getting specific values from the pivot
+	# ~> Value for Product A in Q1	
 
 	? Value("Product A", "Q1")
 	#--> 39000
 
 	# Getting row and column totals
+	# ~> Row total for Product A
 
 	? RowTotal("Product A")
 	#--> 92000
+
+	# ~> Column total for Q2
 
 	? ColumnTotal("Q2")
 	#--> 91000
@@ -158,10 +119,9 @@ oProductPivot {
 }
 
 pf()
-# Executed in 0.57 second(s) in Ring 1.22
+# Executed in 0.43 second(s) in Ring 1.22
 
 /*---  Using multiple dimensions for rows and columns
-*/
 
 pr()
     
@@ -206,44 +166,96 @@ oPivot {
 
 	Analyze([ :Salary ], :Using = :SUM)
 
-//SetRowsBy([ :Department ])
+	# 2 rows and 2 columns
 
 	SetRowsBy([ :Department, :Location ])
-
 	SetColsBy([ :Experience, :Gender ])
-
-//SetColsBy([ :Experience ])
 	Show()
-#-->
-#	╭───────────────────────┬─────────────────────┬─────────────────────┬─────────╮
-#	│                       │       Junior        │       Senior        │         │
-#	├────────────┬──────────┼──────────┬──────────┼──────────┬──────────┤         │
-#	│ Department │ Location │  Female  │   Male   │  Female  │   Male   │ AVERAGE │
-#	├────────────┼──────────┼──────────┼──────────┼──────────┼──────────┼─────────┤
-#	│ Sales      │ New York │    46000 │          │    76000 │    75000 │  197000 │
-#	│            │ Chicago  │    43000 │    42000 │    73000 │    72000 │  230000 │
-#	│            │          │          │          │          │          │         │
-#	│ IT         │ New York │    53000 │    52000 │    86000 │    85000 │  276000 │
-#	│            │ Chicago  │    51000 │    50000 │    83000 │    82000 │  266000 │
-#	│            │          │          │          │          │          │         │
-#	│ HR         │ New York │    43000 │    42000 │    69000 │    68000 │  222000 │
-#	│            │ Chicago  │    41000 │    40000 │    66000 │    65000 │  212000 │
-#	╰────────────┴──────────┴──────────┴──────────┴──────────┴──────────┴─────────╯
+	#-->
+# ╭───────────────────────┬─────────────────────┬─────────────────────┬─────────╮
+# │                       │       Junior        │       Senior        │         │
+# ├────────────┬──────────┼──────────┬──────────┼──────────┬──────────┤         │
+# │ Department │ Location │  Female  │   Male   │  Female  │   Male   │ AVERAGE │
+# ├────────────┼──────────┼──────────┼──────────┼──────────┼──────────┼─────────┤
+# │ Sales      │ New York │    46000 │          │    76000 │    75000 │  197000 │
+# │            │ Chicago  │    43000 │    42000 │    73000 │    72000 │  230000 │
+# │            │          │          │          │          │          │         │
+# │ IT         │ New York │    53000 │    52000 │    86000 │    85000 │  276000 │
+# │            │ Chicago  │    51000 │    50000 │    83000 │    82000 │  266000 │
+# │            │          │          │          │          │          │         │
+# │ HR         │ New York │    43000 │    42000 │    69000 │    68000 │  222000 │
+# │            │ Chicago  │    41000 │    40000 │    66000 │    65000 │  212000 │
+# ╰────────────┴──────────┴──────────┴──────────┴──────────┴──────────┴─────────╯
 #	                AVERAGE │   277000 │   226000 │   453000 │   447000 │ 1403000 
+
+	# 1 row and 2 columns
+
+	SetRowsBy([ :Department ])
+	SetColsBy([ :Experience, :Gender ])
+	Show()
+	#-->
+# ╭────────────┬─────────────────────┬─────────────────────┬─────────╮
+# │            │       Junior        │       Senior        │         │
+# │            │──────────┬──────────│──────────┬──────────│         │
+# │ Department │  Female  │   Male   │  Female  │   Male   │   SUM   │
+# ├────────────┼──────────┼──────────┼──────────┼──────────┼─────────┤
+# │ Sales      │    89000 │    42000 │   149000 │   147000 │  427000 │
+# │ IT         │   104000 │   102000 │   169000 │   167000 │  542000 │
+# │ HR         │    84000 │    82000 │   135000 │   133000 │  434000 │
+# ╰────────────┴──────────┴──────────┴──────────┴──────────┴─────────╯
+#          SUM │   277000 │   226000 │   453000 │   447000 │ 1403000 
+
+	# 2 rows and 1 column
+
+	SetRowsBy([ :Department, :Location ])
+	SetColsBy([ :Experience ])
+	Show()
+	#-->
+# ╭───────────────────────┬─────────────────────┬─────────╮
+# │                       │     Department      │         │
+# │                       │──────────┬──────────│         │
+# │ Department │ Location │  Junior  │  Senior  │   SUM   │
+# ├────────────┬──────────┼──────────┼──────────┼─────────┤
+# │ Sales      │ Chicago  │    85000 │   145000 │  230000 │
+# │            │          │          │          │         │
+# │ IT         │ New York │   105000 │   171000 │  276000 │
+# │            │ Chicago  │   101000 │   165000 │  266000 │
+# │            │          │          │          │         │
+# │ HR         │ New York │    85000 │   137000 │  222000 │
+# │            │ Chicago  │    81000 │   131000 │  212000 │
+# ╰────────────┴──────────┴──────────┴──────────┴─────────╯
+#                     SUM │   503000 │   900000 │ 1403000  
+
+	# 1 row and 1 column
+
+	SetRowsBy([ :Department ])
+	SetColsBy([ :Experience ])
+	Show()
+	#--> 
+# ╭────────────┬─────────────────────┬─────────╮
+# │            │     Experience      │         │
+# │            │──────────┬──────────│         │
+# │ Department │  Junior  │  Senior  │   SUM   │
+# ├────────────┼──────────┼──────────┼─────────┤
+# │ Sales      │   131000 │   296000 │  427000 │
+# │ IT         │   206000 │   336000 │  542000 │
+# │ HR         │   166000 │   268000 │  434000 │
+# ╰────────────┴──────────┴──────────┴─────────╯
+#          SUM │   503000 │   900000 │ 1403000  
 
 }
 
 pf()
-# Executed in 0.16 second(s) in Ring 1.22
+# Executed in 0.32 second(s) in Ring 1.22
 
-/*
-  Example 3: Different Aggregation Functions
-  Demonstrating various aggregation functions
-
-func Example3()
+/*--- Various Aggregation Functions
+*/
+pr()
     
     # Define a product sales and ratings dataset
-    productData = new stzTable([
+
+    o1 = new stzTable([
+
         [ :Product,    :Category,    :Region,    :Sales,    :Rating,   :Returns  ],
         # ----------------------------------------------------------------- #
         [ "Laptop A",  "Electronics", "North",    2500,        4.2,        5     ],
@@ -264,52 +276,53 @@ func Example3()
         [ "Table D",   "Furniture",   "West",     1420,        4.3,        1     ]
     ])
     
-    See "Original product data:" + NL
-    productData.Show()
-    
-    # SUM aggregation (default)
-    See NL + "Sum of Sales by Product and Region:" + NL
-    
-    sumPivot = new stzPivotTable(productData)
-    sumPivot.RowLabels([:Product])
-          .ColumnLabels([:Region])
-          .Values([:Sales])
-          .AggregateFunction("SUM")
-          .Show()
-    
-    # AVERAGE aggregation
-    See NL + "Average Rating by Category and Region:" + NL
-    
-    avgPivot = new stzPivotTable(productData)
-    avgPivot.RowLabels([:Category])
-          .ColumnLabels([:Region])
-          .Values([:Rating])
-          .AggregateFunction("AVG")
-          .Show()
-    
-    # COUNT aggregation
-    See NL + "Count of Products by Category and Region:" + NL
-    
-    countPivot = new stzPivotTable(productData)
-    countPivot.RowLabels([:Category])
-            .ColumnLabels([:Region])
-            .Values([:Product])
-            .AggregateFunction("COUNT")
-            .Show()
-    
-    # MAX aggregation
-    See NL + "Maximum Returns by Product and Region:" + NL
-    
-    maxPivot = new stzPivotTable(productData)
-    maxPivot.RowLabels([:Product])
-          .ColumnLabels([:Region])
-          .Values([:Returns])
-          .AggregateFunction("MAX")
-          .Show()
-    
-    return
+    # Original product data
 
+//    o1.Show()
+
+	# Pivoting the table and starting analyisis
+
+    o1.ToStzPivotTable() {
 /*
+    	# SUM aggregation (default)
+
+		SetRowLabels([:Product])
+        SetColumnLabels([:Region])
+        SetValues([:Sales])
+        SetAggregateFunction("SUM")
+
+        Show()
+
+    	# AVERAGE aggregation
+
+    	SetRowLabels([:Category])
+        SetColumnLabels([:Region])
+        SetValues([:Rating])
+        SetAggregateFunction("AVERAGE")
+        Show()
+*/ 
+		# Count of Products by Category and Region + NL
+    
+		SetRowLabels([:Category])
+        SetColumnLabels([:Region])
+        SetValues([:Product])
+        SetAggregateFunction("COUNT")
+        Show()
+/*   
+		# Maximum Returns by Product and Region
+    
+		SetRowLabels([:Product])
+		SetColumnLabels([:Region])
+		SetValues([:Returns])
+		SetAggregateFunction("MAX")
+		Show()
+*/
+}
+
+pf()
+
+/*---
+
   Example 4: Custom Display Options
   Demonstrating custom display formatting
 

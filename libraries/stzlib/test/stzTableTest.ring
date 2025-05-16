@@ -1,27 +1,5 @@
 load "../max/stzmax.ring"
 
-o1 = new stzTable([
-	[ :ID,	:EMPLOYEE,	:SALARY,	:JOB 	],
-	[ 10,	"Ali",		35000,		"job1"	],
-	[ 20,	"Dan",		28900,		"job2"	],
-	[ 30,	"Ben",		25982,		"job3"	]
-])
-
-o1.Show()
-#-->
-
-# Getting the content of the subtable
-
-? @@NL( o1.SubTable([ :EMPLOYEE, :SALARY ]) ) + NL
-#--> [
-#	[ "employee", [ "Ali", "Dan", "Ben" ] ],
-#	[ "salary"  , [ 35000, 28900, 25982 ] ]
-# ]
-
-# Casting the subtable into a stzTable object and showing it
-
-o1.SubTableQRT([ :EMPLOYEE, :SALARY ], :stzTable).Show()
-
 /*---- #tODO
 pr()
 
