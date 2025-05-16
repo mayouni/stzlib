@@ -15046,6 +15046,7 @@ Class stzTable from stzObject
         ok
 
     # Internal method to display full table
+
     def _displayFullTable()
         # Get column names and content
         acColNames = This.cColNames()
@@ -15097,7 +15098,7 @@ Class stzTable from stzObject
 
         next
 
-        cOutput += cLine + nl()
+        cOutput += cLine + NL
 
         # Header row
 
@@ -15107,7 +15108,7 @@ Class stzTable from stzObject
             cLine += CenterText(Capitalise(acColNames[i]), aColWidths[i]) + @aBorder[:Vertical]
         next
 
-        cOutput += cLine + nl()
+        cOutput += cLine + NL
         
         # Separator
 
@@ -15125,7 +15126,7 @@ Class stzTable from stzObject
 
         next
 
-        cOutput += cLine + nl()
+        cOutput += cLine + NL
         
         # Data rows
 
@@ -15149,7 +15150,7 @@ Class stzTable from stzObject
 
             next
 
-            cOutput += cLine + nl()
+            cOutput += cLine + NL
 
         next
         
@@ -15169,7 +15170,7 @@ Class stzTable from stzObject
 
         next
 
-        cOutput += cLine + nl()
+        cOutput += cLine
         
         return cOutput
 
@@ -15285,7 +15286,7 @@ Class stzTable from stzObject
 
 	    next
 
-	    cOutput += cLine + nl()
+	    cOutput += cLine + NL
 	
 	    # Header row
 
@@ -15295,7 +15296,7 @@ Class stzTable from stzObject
 	        cLine += CenterText(Capitalise(acColNames[i]), aColWidths[i]) + @aBorder[:Vertical]
 	    next
 
-	    cOutput += cLine + nl()
+	    cOutput += cLine + NL
 	    
 	    # Separator
 
@@ -15312,7 +15313,7 @@ Class stzTable from stzObject
 	        ok
 
 	    next
-	    cOutput += cLine + nl()
+	    cOutput += cLine + NL
 
 	    # Data rows with aggregation
 
@@ -15395,7 +15396,7 @@ Class stzTable from stzObject
 					cLine += " " + @Copy("-", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
 				next
 
-				cOutput += cLine + nl()
+				cOutput += cLine + NL
 
 				# Group total line
 
@@ -15422,7 +15423,7 @@ Class stzTable from stzObject
 
 				next
 
-				cOutput += cLine + nl()
+				cOutput += cLine + NL
 
 				# adding an empty line after the subtotlal
 
@@ -15430,7 +15431,7 @@ Class stzTable from stzObject
 					cOutput += @aBorder[:Vertical] + " " + @Copy(" ", aColWidths[i] - 1 )
 				next
 
-				cOutput += @aBorder[:Vertical] +  nl()
+				cOutput += @aBorder[:Vertical] +  NL
 
 			ok
 
@@ -15453,7 +15454,7 @@ Class stzTable from stzObject
 
 			next
 
-			cOutput += cLine + nl()
+			cOutput += cLine + NL
 
 			# If last row, print final group totals
 
@@ -15466,7 +15467,7 @@ Class stzTable from stzObject
 					cLine += " " + @Copy("-", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
 				next
 
-				cOutput += cLine + nl()
+				cOutput += cLine + NL
 
 				# Group total line
 
@@ -15493,7 +15494,7 @@ Class stzTable from stzObject
 
 				next
 
-				cOutput += cLine + nl()
+				cOutput += cLine + NL
 
 			ok
 
@@ -15519,7 +15520,7 @@ Class stzTable from stzObject
 
 			next
 
-			cOutput += cLine + nl()
+			cOutput += cLine + NL
 
 			# Grand total line
 
@@ -15546,7 +15547,7 @@ Class stzTable from stzObject
 
 			next
 
-			cOutput += cLine + nl()
+			cOutput += cLine + NL
 
 		ok
 
@@ -15567,7 +15568,7 @@ Class stzTable from stzObject
 
 		next
 
-		cOutput += cLine + nl()
+		cOutput += cLine
 
 		? cOutput
 	

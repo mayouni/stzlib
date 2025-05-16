@@ -331,28 +331,43 @@ class stzPivotTable
 		return cResult
 
 	def _generateDataRows(aRowCombos, aColCombos)
+
 		# Generate data rows for pivot table
-		for rowCombo in aRowCombos
+
+		nLenRows = len(aRowCombos)
+		nLenRowsLabels = len(@aRowLabels)
+
+		for i = 1 to nLenRows
+
+			rowCombo = aRowCombos[i]
 			aRow = []
 			aFlatRowCombo = _flattenArray(rowCombo)
 			
 			# Add row labels
-			for i = 1 to len(aFlatRowCombo)
-				if i <= len(@aRowLabels)
-					aRow + aFlatRowCombo[i]
+
+			nLenFlat = len(aFlatRowCombo)
+
+			for j = 1 to nLenFlat
+				if j <= nLenRowsLabels
+					aRow + aFlatRowCombo[j]
 				ok
 			next
 			
 			# Fill missing labels
-			while len(aRow) < len(@aRowLabels)
+
+			while len(aRow) < nLenRowsLabels
 				aRow + ""
 			end
 			
 			aRowValues = []
 			
 			# Add values for each column combination
-			for colCombo in aColCombos
-				aFlatColCombo = _flattenArray(colCombo)
+
+			nLenCols = len(aColCombos)
+
+			for j = 1 to nLenCols
+
+				aFlatColCombo = _flattenArray(aColCombos[j])
 				nCellValue = _calculateCellValueMulti(aFlatRowCombo, aFlatColCombo)
 				aRow + nCellValue
 				
@@ -362,6 +377,7 @@ class stzPivotTable
 			next
 			
 			# Add row total
+
 			if @bShowTotalColumn
 				nRowTotal = _applyAggregateFunction(aRowValues)
 				aRow + nRowTotal
@@ -405,10 +421,14 @@ class stzPivotTable
 		@aPivotData + aTotalRow
 
 	def _calculateCellValueMulti(aRowValues, aColValues)
+
 		# Calculate cell value for given row and column combinations
 		aFlatRowValues = _flattenArray(aRowValues)
 		aFlatColValues = _flattenArray(aColValues)
-		
+
+		nLenFlatRows = len(aFlatRowValues)
+		nLenFlatCols = len(aFlatColValues)
+
 		# Check cache
 		cCacheKey = _getCacheKey(aFlatRowValues, aFlatColValues)
 		if _checkCache(cCacheKey)
@@ -426,19 +446,28 @@ class stzPivotTable
 		
 		# Get indices for row and column fields
 		aRowIndices = []
-		for field in @aRowLabels
-			nRowIndex = @oSourceTable.FindCol(field)
+		nLenRows = len(@aRowLabels)
+
+		for i = 1 to nLenRows
+
+			nRowIndex = @oSourceTable.FindCol(@aRowLabels[i])
+
 			if nRowIndex = 0
-				stzRaise("Row column not found: " + field)
+				stzRaise("Row column not found: " + @aRowLabels[i])
 			ok
+
 			aRowIndices + nRowIndex
+
 		next
 		
 		aColIndices = []
-		for field in @aColLabels
-			nColIndex = @oSourceTable.FindCol(field)
+		nLenCols = len(@aColLabels)
+
+		for i = 1 to nLenCols 
+
+			nColIndex = @oSourceTable.FindCol(@aColLabels[i])
 			if nColIndex = 0
-				stzRaise("Column not found: " + field)
+				stzRaise("Column not found: " + @aColLabels[i])
 			ok
 			aColIndices + nColIndex
 		next
@@ -451,12 +480,17 @@ class stzPivotTable
 			bColMatch = TRUE
 			
 			# Check row matches
-			for i = 1 to len(aRowIndices)
-				if i <= len(aFlatRowValues)
+			nLenRows = len(aRowIndices)
+
+			for i = 1 to nLenRows
+
+				if i <= nLenFlatRows
+
 					if @oSourceTable.Cell(aRowIndices[i], r) != aFlatRowValues[i]
 						bRowMatch = FALSE
 						exit
 					ok
+
 				ok
 			next
 			
@@ -465,13 +499,17 @@ class stzPivotTable
 			ok
 			
 			# Check column matches
-			for i = 1 to len(aColIndices)
-				if i <= len(aFlatColValues)
+			for i = 1 to nLenCols
+
+				if i <= nLenFlatRows
+
 					if @oSourceTable.Cell(aColIndices[i], r) != aFlatColValues[i]
 						bColMatch = FALSE
 						exit
 					ok
+
 				ok
+
 			next
 			
 			if not bColMatch
@@ -480,9 +518,8 @@ class stzPivotTable
 			
 			# Add matching value
 			value = @oSourceTable.Cell(nValueColIndex, r)
-			if isNumber(value)
-				aMatchingValues + value
-			ok
+			aMatchingValues + value
+
 		next
 		
 		# Apply aggregation and cache result
@@ -944,7 +981,7 @@ class stzPivotTable
 	
 		# Total column
 		cLine += @aBorder[:TeeDown] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TopRight]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# Experience header row
 		cLine = @aBorder[:Vertical]
@@ -957,7 +994,7 @@ class stzPivotTable
 	
 		# Median header
 		cLine += copy(" ", nTotalColWidth) + @aBorder[:Vertical]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# Separator after Experience row
 		cLine = @aBorder[:Vertical] + StrFill(nRowLabelWidth, " ") + @aBorder[:Vertical]
@@ -975,7 +1012,7 @@ class stzPivotTable
 		next
 	
 		cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# Sub-headers row
 		cLine = @aBorder[:Vertical]
@@ -998,7 +1035,7 @@ class stzPivotTable
 	
 		# MEDIAN cell in this row
 		cLine += @aBorder[:Vertical] + CenterText(Upper(cTotalLabel), nTotalColWidth) + @aBorder[:Vertical]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 
 		# Separator before data
 		cLine = @aBorder[:TeeRight] + StrFill(nRowLabelWidth, @aBorder[:Horizontal]) + @aBorder[:Cross]
@@ -1011,7 +1048,7 @@ class stzPivotTable
 		next
 	
 		cLine += @aBorder[:Cross] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TeeLeft]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# Data rows
 		for r = 2 to nPivotLen - 1
@@ -1052,7 +1089,7 @@ class stzPivotTable
 				cLine += @aBorder[:Vertical] + " " + PadRight(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 			ok
 		
-			cOutput += cLine + nl()
+			cOutput += cLine + NL
 		next
 	
 		# Check if there is a total row
@@ -1070,7 +1107,7 @@ class stzPivotTable
 			next
 		
 			cLine += @aBorder[:TeeUp] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:BottomRight]
-			cOutput += cLine + nl()
+			cOutput += cLine + NL
 
 			# Total row
 			totalRow = aPivotData[nPivotLen]
@@ -1106,7 +1143,7 @@ class stzPivotTable
 				cLine += @aBorder[:Vertical] + " " + PadRight(grandTotal, nTotalColWidth - 2) + "  "
 			ok
 		
-			cOutput += cLine + nl()
+			cOutput += cLine + NL
 		else
 			# Bottom border if no total row
 			cLine = @aBorder[:BottomLeft] + StrFill(nRowLabelWidth, @aBorder[:Horizontal]) + @aBorder[:TeeUp]
@@ -1119,7 +1156,7 @@ class stzPivotTable
 			next
 		
 			cLine += @aBorder[:TeeUp] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:BottomRight]
-			cOutput += cLine + nl()
+			cOutput += cLine
 		ok
 	
 		? cOutput
@@ -1299,7 +1336,7 @@ class stzPivotTable
 		next
 		
 		cLine += @aBorder[:TeeDown] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TopRight]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 		
 		# First header row
 		cLine = @aBorder[:Vertical]
@@ -1324,7 +1361,7 @@ class stzPivotTable
 		next
 		
 		cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 		
 		# Separator after first dimension
 		cLine = @aBorder[:Vertical]
@@ -1356,7 +1393,7 @@ class stzPivotTable
 		next
 		
 		cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth," ") + @aBorder[:Vertical]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 		
 		# Second dimension header
 		cLine = @aBorder[:Vertical]
@@ -1398,7 +1435,7 @@ class stzPivotTable
 		next
 		
 		cLine += @aBorder[:Vertical] + CenterText(Upper(cTotalLabel), nTotalColWidth) + @aBorder[:Vertical]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 		
 		# Separator before data
 		cLine = @aBorder[:TeeRight]
@@ -1436,7 +1473,7 @@ class stzPivotTable
 		next
 		
 		cLine += @aBorder[:Cross] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TeeLeft]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 		
 		# Data rows
 		cLastRowDim1 = NULL
@@ -1504,7 +1541,7 @@ class stzPivotTable
 				cLine += @aBorder[:Vertical] + " " + PadRight(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 			ok
 			
-			cOutput += cLine + nl()
+			cOutput += cLine + NL
 			
 			# Add empty line between categories
 			if r < nPivotLen - 1 and cCurrentRowDim1 != aPivotData[r+1][1] and aPivotData[r+1][1] != cTotalLabel
@@ -1535,7 +1572,7 @@ class stzPivotTable
 				next
 				
 				cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
-				cOutput += cLine + nl()
+				cOutput += cLine + NL
 			ok
 		next
 		
@@ -1577,10 +1614,9 @@ class stzPivotTable
 		next
 		
 		cLine += @aBorder[:TeeUp] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:BottomRight]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 		
 		# Totals row
-
 
 		if nPivotLen > 1 and aPivotData[nPivotLen][1] = cTotalLabel
 			totalRow = aPivotData[nPivotLen]
@@ -1629,7 +1665,7 @@ class stzPivotTable
 				cLine += @aBorder[:Vertical] + " " + PadRight(grandTotal, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 			ok
 			
-			cOutput += cLine + nl()
+			cOutput += cLine//+ NL
 		ok
 
 		? StzStringQ(trim(cOutput)).LastCharRemoved() + NL
@@ -1830,7 +1866,7 @@ class stzPivotTable
 		next
 	
 		cLine += @aBorder[:TeeDown] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TopRight]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# First header row - column dimension 1
 		# First cell is empty in the first row
@@ -1851,7 +1887,7 @@ class stzPivotTable
 		# Last column in the first row should also be empty
 
 		cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# Separator between column dimensions - hide the Department header cell's top border
 
@@ -1885,7 +1921,7 @@ class stzPivotTable
 		next
 	
 		cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# Second dimension header - row and column dimension 2
 		cLine = @aBorder[:Vertical]
@@ -1928,7 +1964,7 @@ class stzPivotTable
 		next
 	
 		cLine += @aBorder[:Vertical] + CenterText(Upper(cTotalLabel), nTotalColWidth) + @aBorder[:Vertical]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# Separator before data
 
@@ -1961,7 +1997,7 @@ class stzPivotTable
 		next
 	
 		cLine += @aBorder[:Cross] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TeeLeft]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# Data rows
 
@@ -2013,7 +2049,7 @@ class stzPivotTable
 				cLine += @aBorder[:Vertical] + " " + PadRight(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 			ok
 		
-			cOutput += cLine + nl()
+			cOutput += cLine + NL
 
 		next
 	
@@ -2047,7 +2083,7 @@ class stzPivotTable
 		next
 	
 		cLine += @aBorder[:TeeUp] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:BottomRight]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# Totals row
 
@@ -2103,7 +2139,7 @@ class stzPivotTable
 				cLine += @aBorder[:Vertical] + " " + PadRight(grandTotal, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 			ok
 		
-			cOutput += cLine + nl()
+			cOutput += cLine
 		
 			# No final bottom border after totals
 		ok
@@ -2267,7 +2303,7 @@ class stzPivotTable
 
 		cLine += StrFill(nCombinedDataWidth, @aBorder[:Horizontal])
 		cLine += @aBorder[:TeeDown] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TopRight]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# First header row with main label spanning data columns
 
@@ -2287,7 +2323,7 @@ class stzPivotTable
 
 		cLine += CenterText(Capitalize(aRowDims[1]), nCombinedDataWidth)
 		cLine += @aBorder[:Vertical] + copy(" ", nTotalColWidth) + @aBorder[:Vertical]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# Separator after main raw header
 
@@ -2314,7 +2350,7 @@ class stzPivotTable
 		next
 	
 		cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# Second header row with dimension names
 
@@ -2357,7 +2393,7 @@ class stzPivotTable
 		next
 	
 		cLine += @aBorder[:Vertical] + CenterText(Upper(cTotalLabel), nTotalColWidth) + @aBorder[:Vertical]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# Separator before data
 
@@ -2380,7 +2416,7 @@ class stzPivotTable
 		next
 	
 		cLine += @aBorder[:Cross] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:TeeLeft]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# Data rows
 
@@ -2442,7 +2478,7 @@ class stzPivotTable
 				cLine += @aBorder[:Vertical] + " " + PadRight(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 			ok
 		
-			cOutput += cLine + nl()
+			cOutput += cLine + NL
 		
 			# Add subtotal separator if needed
 
@@ -2462,7 +2498,7 @@ class stzPivotTable
 				next
 			
 				cLine += @aBorder[:Vertical] + StrFill(nTotalColWidth, " ") + @aBorder[:Vertical]
-				cOutput += cLine + nl()
+				cOutput += cLine + NL
 
 			ok
 		next
@@ -2487,7 +2523,7 @@ class stzPivotTable
 		next
 	
 		cLine += @aBorder[:TeeUp] + StrFill(nTotalColWidth, @aBorder[:Horizontal]) + @aBorder[:BottomRight]
-		cOutput += cLine + nl()
+		cOutput += cLine + NL
 	
 		# Total row
 
@@ -2530,9 +2566,9 @@ class stzPivotTable
 			cLine += @aBorder[:Vertical] + " " + PadRight(grandTotal, nTotalColWidth - 2) + "  "
 		ok
 	
-		cOutput += cLine + nl()
+		cOutput += cLine
 	
-		? cOutput
+		? cOutput + NL
 
 	  #-----------------------------#
 	 #  UTILITY FUNCTIONS          #
