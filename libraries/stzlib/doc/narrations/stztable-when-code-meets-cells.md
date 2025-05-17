@@ -154,40 +154,39 @@ o1 = new stzTable([
 
 # Getting basic information
 
-    ? o1.NumberOfColumns()
-    #--> 3
-    
-    ? o1.NumberOfRows()
-    #--> 4
-    
-    ? o1.Columns()
-    #--> :[ "id", "employee", "salary" ]
-    
-    ? o1.Rows()             
-    #--> [
-    #       [ 10,	 "Ali",		35000	],
-    #       [ 20,	 "Dania",	28900	],
-    #	    [ 30,	 "Han",		25982	],
-    #	    [ 40,	 "Ali",		12870	]
-    # ]
+? o1.NumberOfColumns()
+#--> 3
+
+? o1.NumberOfRows()
+#--> 4
+
+? o1.Columns()
+#--> :[ "id", "employee", "salary" ]
+
+? o1.Rows()             
+#--> [
+#       [ 10,	 "Ali",		35000	],
+#       [ 20,	 "Dania",	28900	],
+#	    [ 30,	 "Han",		25982	],
+#	    [ 40,	 "Ali",		12870	]
+# ]
 
 # Checking for specific columns
 
-	? o1.HasColumn(:EMPLOYEE)
-	#--> TRUE
+? o1.HasColumn(:EMPLOYEE)
+#--> TRUE
 
-	? o1.HasColumns([:ID, :SALARY])
-	#--> TRUE
+? o1.HasColumns([:ID, :SALARY])
+#--> TRUE
 
 # Finding columns and rows
 
-    ? o1.FindColumnByName(:SALARY)   # Or simply FindCol(:SALARY)
-    #--> [ 3 ]
-    
-    ? o1.FindRowByValue([ 30, "Han", 25982 ]) # Or simply FindRow(...)
-    #--> [ 3 ]
-```
+? o1.FindColumnByName(:SALARY)   # Or simply FindCol(:SALARY)
+#--> [ 3 ]
 
+? o1.FindRowByValue([ 30, "Han", 25982 ]) # Or simply FindRow(...)
+#--> [ 3 ]
+```
 
 ### Cell Access and Navigation
 
@@ -209,27 +208,27 @@ o1.Show()
 
 # Accessing individual cells
 
-	? o1.Cell(:SALARY, 2)  // Gets the value in the SALARY column, row 2
-    #--> 28900
+? o1.Cell(:SALARY, 2)  // Gets the value in the SALARY column, row 2
+#--> 28900
     
-	? o1.CellZ(:EMPLOYEE, 3)  // or CellAndPosition() ~> Gets both value and position
-	#--> [ "Han", [2, 3] ]
+? o1.CellZ(:EMPLOYEE, 3)  // or CellAndPosition() ~> Gets both value and position
+#--> [ "Han", [2, 3] ]
     
 # Getting a section or range of cells
 
-	? o1.Section([:ID, 1], [:EMPLOYEE, 2])  # Gets a rectangular section of cells
-    #--> [ 10, "Ali", 20, "Dania" ]
+? o1.Section([:ID, 1], [:EMPLOYEE, 2])  # Gets a rectangular section of cells
+#--> [ 10, "Ali", 20, "Dania" ]
     
-	? o1.Range(:SALARY, 1, 3)  # Gets a range of cells in a column
-	#--> [ 35000, 28900, 25982 ]
+? o1.Range(:SALARY, 1, 3)  # Gets a range of cells in a column
+#--> [ 35000, 28900, 25982 ]
     
 # Getting all cells in a column or row
 
-	? o1.Col(:EMPLOYEE)
-    #--> [ "Ali", "Dania", "Han", "Ali" ]
+? o1.Col(:EMPLOYEE)
+#--> [ "Ali", "Dania", "Han", "Ali" ]
     
-	? o1.Row(2)
-    #--> [ 20, "Dania", 28900 ]
+? o1.Row(2)
+#--> [ 20, "Dania", 28900 ]
 ```
 
 > **Note**: In the example above, if you need to get the cells of the column `:EMPLOYEE` without duplication of the string `"Ali"`, then use the `U()` small function like this: `U( o1.Col(:EMPLOYEE) )` to get just `[ "Ali", "Dania", "Han" ]`.
@@ -299,36 +298,36 @@ o1.Show()
 
 # Finding cells by value
 
-	? o1.Find("Ali")  	// Finds all positions where "Ali" appears
-    #--> [ [2, 1], [2, 4] ]
-    
-	? o1.FindMany(["Ali", 35000])  // Finds multiple values
-    #--> [ [2, 1], [3, 1], [2, 4 ] ]
-    
-	? o1.FindAllExcept(["Ali", "Dania"])  // Finds all cells except specified values
-	#--> [ [1, 1], [ 3,1], [1, 2], [3, 2], [1, 3], [2, 3], [3, 3], [1, 4], [3, 4] ]
-    
+? o1.Find("Ali")  	// Finds all positions where "Ali" appears
+#--> [ [2, 1], [2, 4] ]
+
+? o1.FindMany(["Ali", 35000])  // Finds multiple values
+#--> [ [2, 1], [3, 1], [2, 4 ] ]
+
+? o1.FindAllExcept(["Ali", "Dania"])  // Finds all cells except specified values
+#--> [ [1, 1], [ 3,1], [1, 2], [3, 2], [1, 3], [2, 3], [3, 3], [1, 4], [3, 4] ]
+
 # Finding by occurrence
 
-	? o1.FindNth("Ali", 2)  // Finds the 2nd occurrence of "Ali"
-    #--> [ 2, 4 ]
-    
-	? o1.FindFirst(35000)   // Finds the first occurrence of 35000
-    #--> [ 3, 1 ]
-    
-	? o1.FindLast("Dania")  // Finds the last occurrence of "Dania", which is also the only and first!
-	#--> [ 2, 2 ]
-    
+? o1.FindNth("Ali", 2)  // Finds the 2nd occurrence of "Ali"
+#--> [ 2, 4 ]
+
+? o1.FindFirst(35000)   // Finds the first occurrence of 35000
+#--> [ 3, 1 ]
+
+? o1.FindLast("Dania")  // Finds the last occurrence of "Dania", which is also the only and first!
+#--> [ 2, 2 ]
+
 # Counting occurrences using thre alternatives
 
-	? o1.NumberOfOccurrence("Ali")  // Counts occurrences of "Ali"
-    #--> 2
+? o1.NumberOfOccurrence("Ali")  // Counts occurrences of "Ali"
+#--> 2
 
-    ? Count("Dania")
-    #--> 1
+? Count("Dania")
+#--> 1
 
-    ? HowMany("Mansour")
-    #--> 0
+? HowMany("Mansour")
+#--> 0
 ```
 
 ### Finding Subvalues Inside Cells
@@ -382,47 +381,47 @@ This subvalue search capability is exceptionally useful for text analysis and da
 ```ring
 # Searching within columns (note how CS, for CaseSensitive, is FALSE)
 
-    ? o1.FindInColCS(:EMPLOYEE, "Ali", FALSE)  // Finds "Ali" in the EMPLOYEE column in whatever case
-    #-- [ [2, 1], [ 2, 4 ] ]
-    
-    ? o1.FindSubValueInColCS(:EMPLOYYE, "A", FALSE)  // Finds cells containing "A" or "a" in that column
-	#--> [
-    	[ [2, 1], [1] ],		// 1st char in "Ali" in cell [2, 1]
-        [ [2, 2], [2, 5] ], 	// 2nd and 5th chars in "Dania" in cell [2, 2]
-        [ [2, 4], [1]  ]		// 1st char in "ali" (because CS = FALSE) in cell [2, 4]		
-    ]
-    
+? o1.FindInColCS(:EMPLOYEE, "Ali", FALSE)  // Finds "Ali" in the EMPLOYEE column in whatever case
+#-- [ [2, 1], [ 2, 4 ] ]
+
+? o1.FindSubValueInColCS(:EMPLOYYE, "A", FALSE)  // Finds cells containing "A" or "a" in that column
+#--> [
+#	[ [2, 1], [1] ],		// 1st char in "Ali" in cell [2, 1]
+#	[ [2, 2], [2, 5] ], 	// 2nd and 5th chars in "Dania" in cell [2, 2]
+#	[ [2, 4], [1]  ]		// 1st char in "ali" (because CS = FALSE) in cell [2, 4]		
+# ]
+
 # Searching within rows
 
-	? o1.FindInRowCS(4, "ALI")  // Finds "ALI" (in whatever case it is written) in row 4
-    #--> [ [2, 4], [3, 4] ]
-    
-	? o1.FindSubValueInRow(4, "li")  // Finds cells containing "li" in row 4
-    #--> [
-    	[ [2, 4], 2 ], 	// "li" starts at position 2 in "ali" in cell [2, 4]
-        [ [3, 4], 2 ]	// "li" starts at position 2 in "Ali" in cell [3, 4]
-    ]
+? o1.FindInRowCS(4, "ALI")  // Finds "ALI" (in whatever case it is written) in row 4
+#--> [ [2, 4], [3, 4] ]
+
+? o1.FindSubValueInRow(4, "li")  // Finds cells containing "li" in row 4
+#--> [
+#	[ [2, 4], 2 ], 	// "li" starts at position 2 in "ali" in cell [2, 4]
+#	[ [3, 4], 2 ]	// "li" starts at position 2 in "Ali" in cell [3, 4]
+# ]
 
 # Searching "Ali" (in whatever case it is written) in a specific section
 
-	? o1.FindInSectionCS([:ID, 1], [:SALARY, 3], "ali", FALSE)
-    #--> [ [2, 1], [2, 4], [3, 4] ]
+? o1.FindInSectionCS([:ID, 1], [:SALARY, 3], "ali", FALSE)
+#--> [ [2, 1], [2, 4], [3, 4] ]
 
 # Finding a cell relative to other cells
 
-	? o1.FindNthInColCS(:EMPLOYEE, "Ali", 2, FALSE)  // Finds the 2nd "Ali" in EMPLOYEE column
-    #--> [ [2, 1], [2, 4] ]
-    
-	? o1.FindFirstInRow(3, "Ben")  // Finds the first occurrence of "Ben" in row 3
-	#--> [ 2, 3 ]
-    
+? o1.FindNthInColCS(:EMPLOYEE, "Ali", 2, FALSE)  // Finds the 2nd "Ali" in EMPLOYEE column
+#--> [ [2, 1], [2, 4] ]
+
+? o1.FindFirstInRow(3, "Ben")  // Finds the first occurrence of "Ben" in row 3
+#--> [ 2, 3 ]
+
 # Checking containement
 
-    ? o1.ColContains(:SALARY, 35000)  // Checks if SALARY column contains 35000
-    #--> TRUE
-    
-    ? o1.RowContains(2, "Dania")  // Checks if row 2 contains "Dania"
-    #--> TRUE
+? o1.ColContains(:SALARY, 35000)  // Checks if SALARY column contains 35000
+#--> TRUE
+
+? o1.RowContains(2, "Dania")  // Checks if row 2 contains "Dania"
+#--> TRUE
 ```
 
 The intuitive naming scheme embraced clearly distinguishes between searching for exact values — `Find(val)`, which locates entire cells equal to `val` — and partial matches — `FindInCells(subval)`, which finds any occurrence of `subval` within the content of the cells.
@@ -758,7 +757,7 @@ The `stzTable` class provides powerful filtering capabilities that let you extra
 
 ### Basic Filtering
 
-The `Filter()` method permanently updates the table content to show only data that matches your specified criteria. If you want to preserve the original table while viewing filtered results, you can use the `FilterCQ()` method ("CQ" stands for "Copy Query"), which returns a new filtered table without modifying the original.
+The `Filter()` method permanently updates the table content to show only data that matches your specified criteria. If you want to preserve the original table while viewing filtered results, you can use the `FilterCQ()` method ("C" stands for "Copy" and "Q" is used in Softanza to return an object for futrther processing), which returns a new filtered table without modifying the original.
 
 ```ring
 # Filter by a single condition, modifying the original table
@@ -1019,7 +1018,7 @@ These combinations let you create insightful data summaries that reveal patterns
 
 Overall, `stzTable`'s filtering, grouping, and aggregation capabilities provide a comprehensive toolkit for data manipulation and analysis, all while maintaining the intuitive spreadsheet metaphor that makes complex operations accessible and understandable.
 
-## Conditional Methods, Regex Support and PivotTable (future)
+## Conditional Methods, Regex Support and PivotTable
 
 ### Conditional Methods with W()
 
@@ -1111,11 +1110,9 @@ The `stzPivotTable` class supports various aggregation functions (SUM, AVG, MIN,
 
 The fluent interface style allows you to build complex pivot tables in a readable, chainable syntax that clearly expresses your analytical intent.
 
-
 ## Softanza Advantage : A Comparative Analysis
 
 Softanza's `stzTable` "spreadsheet metaphor" approach stands out when compared to other table manipulation libraries and traditional data frames.
-
 
 | Feature | `stzTable` (Ring) | pandas (Python) | data.frame (R) | SQL Tables (SQLite) |
 |---------|-------------------|-----------------|----------------|---------------------|
