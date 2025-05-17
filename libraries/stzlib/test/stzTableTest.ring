@@ -136,7 +136,7 @@ pf()
 # Executed in 0.47 second(s) in Ring 1.17
 
 /*---------
-
+*/
 # WAY 6: Creating a table from an external text file (EXPERIMENTAL)
 
 #NOTE
@@ -152,31 +152,35 @@ pr()
 # and the lines must be separated by semicolons.
 
 o1 = new stzTable(:FromFile = "mytable.csv")
-
-? o1.Show()
-
-#--> NATION   LANGUAGE   CAPITAL   CONTINENT
-#   -------- ---------- --------- ----------
-#   Tunisia     Arabic     Tunis      Africa
-#    France     French     Paris      Europe
-#     Egypt    English     Cairo      Africa
+? o1.ShowXT([ :RowNumber = TRUE ])
+#-->
+# ╭───┬─────────────────┬──────────┬─────────┬───────────╮
+# │ # │     Nation      │ Language │ Capital │ Continent │
+# ├───┼─────────────────┼──────────┼─────────┼───────────┤
+# │ 1 │ Tunisia         │ Arabic   │ Tunis   │ Africa    │
+# │ 2 │ France          │ French   │ Paris   │ Europe    │
+# │ 3 │ Egypt           │ English  │ Cairo   │ Africa    │
+# │ 4 │ Belgium         │ French   │ Brussel │ Europe    │
+# │ 5 │ Yemen           │ Arabic   │ Sanaa   │ Asia      │
+# ╰───┴─────────────────┴──────────┴─────────┴───────────╯
 
 o2 = new stzTable(:FromFile = "myHybridTable.txt")
-
-o2.Show()
-
-#--> NAME  AGE                         HOBBIES
-#   ----- ----- -------------------------------
-#   Hela    24             [ "Sport", "Music" ]
-#    Jon    32   [ "Games", "Travel", "Sport" ]
-#    Ali    22        [ "Painting", "Dansing" ]
-#  Foued    43            [ "Music", "Travel" ]
+o2.ShowXT([ :RowNumber = TRUE ])
+#-->
+# ╭───┬─────────────────┬─────┬────────────────────────────────╮
+# │ # │      Name       │ Age │            Hobbies             │
+# ├───┼─────────────────┼─────┼────────────────────────────────┤
+# │ 1 │ Hela            │  24 │ [ "Sport", "Music" ]           │
+# │ 2 │ Jon             │  32 │ [ "Games", "Travel", "Sport" ] │
+# │ 3 │ Ali             │  22 │ [ "Painting", "Dansing" ]      │
+# │ 4 │ Foued           │  43 │ [ "Music", "Travel" ]          │
+# ╰───┴─────────────────┴─────┴────────────────────────────────╯
 
 #~> #NOTE that numbers and lists are evaluated and retutned as native types
 #~> #NOTE lists in the text file must be take the form ['str1','str2','str3']
 
 pf()
-# Executed in 0.49 second(s)
+# Executed in 0.64 second(s)
 
 /*----------
 
