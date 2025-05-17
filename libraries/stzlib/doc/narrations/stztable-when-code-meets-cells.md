@@ -532,13 +532,13 @@ One of `stzTable`'s most powerful features is the ability to add calculated colu
 ```ring
 o1 = new stzTable([
 
-	[ "COUNTRY",	"INCOME",	"POPULATION" ],
-	#----------------------------------------#
-	[ "USA",		25450,			340.1	],
-	[ "China",		18150,			1430.1	],
-	[ "Japan",		5310,			123.2	],
-	[ "Germany",	4490,			83.3	],
-	[ "India",		3370,			1430.2	]
+	[ "COUNTRY",  "INCOME",	"POPULATION" ],
+	#------------------------------------#
+	[ "USA",         25450,       340.1	 ],
+	[ "China",       18150,      1430.1	 ],
+	[ "Japan",        5310,       123.2	 ],
+	[ "Germany",      4490,        83.3  ],
+	[ "India",        3370,      1430.2  ]
 
 ])
 
@@ -902,25 +902,25 @@ o1.ShowXT([ :RowNumber = TRUE, :SubTotal = TRUE, :GrandTotal = TRUE ])
 
 Output:
 ```
-╭─────────────────┬────────┬────────────┬────────────╮
+╭─────────────────────┬────────┬────────────┬────────────╮
 │ # │     Product     │ Region │ Sum(sales) │ Sum(units) │
-├────────────────────┼────────┼────────────┼────────────┤
+├─────────────────────┼────────┼────────────┼────────────┤
 │ 1 │ Product A       │ North  │      10000 │        100 │
 │ 2 │ Product A       │ South  │      15000 │        150 │
 │ 3 │ Product A       │ East   │      11000 │        110 │
 │ 4 │ Product A       │ West   │      13000 │        130 │
-│ ------------------ │ ------ │ ---------- │ ---------- │
-│          Sub-total │        │      49000 │        490 │
-│                    │        │            │            │
+│ ------------------- │ ------ │ ---------- │ ---------- │
+│           Sub-total │        │      49000 │        490 │
+│                     │        │            │            │
 │ 5 │ Product B       │ North  │       8000 │         80 │
 │ 6 │ Product B       │ South  │       9500 │         95 │
 │ 7 │ Product B       │ East   │       7500 │         75 │
 │ 8 │ Product B       │ West   │       9000 │         90 │
-│ ------------------ │ ------ │ ---------- │ ---------- │
-│       Sub-total │        │      34000 │        340 │
-├────────────────────┼────────┼────────────┼────────────┤
-│     GRAND-TOTAL │        │      83000 │        830 │
-╰────────────────────┴────────┴────────────┴────────────╯
+│ ------------------- │ ------ │ ---------- │ ---------- │
+│           Sub-total │        │      34000 │        340 │
+├─────────────────────┼────────┼────────────┼────────────┤
+│         GRAND-TOTAL │        │      83000 │        830 │
+╰─────────────────────┴────────┴────────────┴────────────╯
 ```
 
 This displays shows raws numbers, intermediate subtotals for each primary group and a grand total at the bottom, making it easier to analyze hierarchical data relationships.
