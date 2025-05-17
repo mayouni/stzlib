@@ -165,10 +165,10 @@ o1 = new stzTable([
 
 ? o1.Rows()             
 #--> [
-#       [ 10,	 "Ali",		35000	],
-#       [ 20,	 "Dania",	28900	],
-#	    [ 30,	 "Han",		25982	],
-#	    [ 40,	 "Ali",		12870	]
+#	[ 10,	 "Ali",		35000	],
+#	[ 20,	 "Dania",	28900	],
+#	[ 30,	 "Han",		25982	],
+#	[ 40,	 "Ali",		12870	]
 # ]
 
 # Checking for specific columns
@@ -618,7 +618,8 @@ o1.AddCalculatedRow([
 ? @@( o1.CalculatedRows() ) + NL
 #--> [ [ " ", " ", 56770, 3406.90, 37.38 ] ]
 ```
-
+> **Note**: There is a better way to display the table along with its total at the bottom—by using the `showXT()` function, as demonstrated later in the article.
+ 
 ### Excel-Like Functions
 
 `stzTable` implements many familiar **spreadsheet functions** for performing calculations on ranges of cells.
