@@ -892,38 +892,38 @@ Output:
 
 This creates a hierarchical grouping with the primary column (Product) and secondary column (Region), while calculating the sum of Sales and the average of Units for each group.
 
-### Enhanced Visualization with Subtotals
+### Enhanced Visualization with Row Numbers and Subtotals
 
 The `ShowXT()` method with the `:SubTotal` and `:GrandTotal` parameters provides a more comprehensive view of your grouped data:
 
 ```ring
-o1.ShowXT(:SubTotal = TRUE, :GrandTotal = TRUE)
+o1.ShowXT([ :RowNumber = TRUE, :SubTotal = TRUE, :GrandTotal = TRUE ])
 ```
 
 Output:
 ```
 ╭─────────────────┬────────┬────────────┬────────────╮
-│     Product     │ Region │ Sum(sales) │ Sum(units) │
-├─────────────────┼────────┼────────────┼────────────┤
-│ Product A       │ North  │      10000 │        100 │
-│ Product A       │ South  │      15000 │        150 │
-│ Product A       │ East   │      11000 │        110 │
-│ Product A       │ West   │      13000 │        130 │
-│ --------------- │ ------ │ ---------- │ ---------- │
-│       Sub-total │        │      49000 │        490 │
-│                 │        │            │            │
-│ Product B       │ North  │       8000 │         80 │
-│ Product B       │ South  │       9500 │         95 │
-│ Product B       │ East   │       7500 │         75 │
-│ Product B       │ West   │       9000 │         90 │
-│ --------------- │ ------ │ ---------- │ ---------- │
+│ # │     Product     │ Region │ Sum(sales) │ Sum(units) │
+├────────────────────┼────────┼────────────┼────────────┤
+│ 1 │ Product A       │ North  │      10000 │        100 │
+│ 2 │ Product A       │ South  │      15000 │        150 │
+│ 3 │ Product A       │ East   │      11000 │        110 │
+│ 4 │ Product A       │ West   │      13000 │        130 │
+│ ------------------ │ ------ │ ---------- │ ---------- │
+│          Sub-total │        │      49000 │        490 │
+│                    │        │            │            │
+│ 5 │ Product B       │ North  │       8000 │         80 │
+│ 6 │ Product B       │ South  │       9500 │         95 │
+│ 7 │ Product B       │ East   │       7500 │         75 │
+│ 8 │ Product B       │ West   │       9000 │         90 │
+│ ------------------ │ ------ │ ---------- │ ---------- │
 │       Sub-total │        │      34000 │        340 │
-├─────────────────┼────────┼────────────┼────────────┤
+├────────────────────┼────────┼────────────┼────────────┤
 │     GRAND-TOTAL │        │      83000 │        830 │
-╰─────────────────┴────────┴────────────┴────────────╯
+╰────────────────────┴────────┴────────────┴────────────╯
 ```
 
-This displays intermediate subtotals for each primary group and a grand total at the bottom, making it easier to analyze hierarchical data relationships.
+This displays shows raws numbers, intermediate subtotals for each primary group and a grand total at the bottom, making it easier to analyze hierarchical data relationships.
 
 ## Aggregating Data in `stzTable`
 
