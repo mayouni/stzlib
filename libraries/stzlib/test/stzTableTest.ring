@@ -6236,7 +6236,7 @@ pf()
 # Executed in 0.12 second(s) in Ring 1.22
 
 /*===
-*/
+
 pr()
 
 o1 = new stzString("Mansour Ayouni")
@@ -6248,6 +6248,8 @@ o1 = new stzString("Mansour Ayouni")
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
+
+#TODO Add the same feature in stzList
 
 /*---
 
@@ -6264,9 +6266,9 @@ o1 = new stzTable([
 ])
 
 o1.Show()
-o1.FilterWXT('@(:Productivity) > 8 and @(:Hour) >= 5')
-o1.Show()
-# Output:
+
+o1.FilterWQ('@(:Productivity) > 8').Show()
+#-->
 # ╭──────────────┬───────╮
 # │ Productivity │ Hours │
 # ├──────────────┼───────┤
@@ -6274,7 +6276,16 @@ o1.Show()
 # │            9 │     4 │
 # ╰──────────────┴───────╯
 
+o1.FilterWQ('@(:Productivity) > 8 and @(:Hours) >= 5').Show()
+#-->
+# ╭──────────────┬───────╮
+# │ Productivity │ Hours │
+# ├──────────────┼───────┤
+# │           10 │     5 │
+# ╰──────────────┴───────╯
+
 pf()
+# Executed in 0.09 second(s) in Ring 1.22
 
 /*--- Grouping Tests
 

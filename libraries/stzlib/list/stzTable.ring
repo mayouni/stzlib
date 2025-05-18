@@ -619,17 +619,24 @@ Class stzTable from stzObject
 	#====================================================#
 
 	def IsColName(pcName)
+
 		if NOT isString(pcName)
 			StzRaise("Incorrect param type! pcName must be a string.")
 		ok
 
+		if This.FindCol(pcName) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+/*
 		cName = ring_lower(pcName)
 
 		bResult = _FALSE_
 		if This.ColNamesQ().Contains(pcName)
 			bResult = _TRUE_
 		ok
-
+*/
 		return bResult
 
 		#< @FunctionAlternativeForm
@@ -14658,247 +14665,215 @@ Class stzTable from stzObject
 	 #  FILTERING THE TABLE BY A GIVEN CONDITION  #
 	#--------------------------------------------#
 
-def FilterW(pcCondition)
-    # Validate input is a string
-    if NOT isString(pcCondition)
-        StzRaise("Incorrect param type! pcCondition must be a string.")
-    ok
+	def FilterW(pcCondition)
 
-    if ring_trim(pcCondition) = ""
-        StzRaise("Can't proceed! You must provide a condition.")
-    ok
+		# Validate input is a string
 
-    # Prepare the condition expression
-    oCondition = new stzString(pcCondition)
-    nCols = This.NumberOfCols()
-    for i = 1 to nCols
-        cColName = This.ColName(i)
-        oCondition.ReplaceCS('@(:' + cColName + ')', 'This.Cell(' + i + ', nRow)', _FALSE_)
-    next
-    cCondition = oCondition.Content()
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
 
-    # Prepare evaluation code
-    cCode = "bResult = " + cCondition
+		if ring_trim(pcCondition) = ""
+			StzRaise("Can't proceed! You must provide a condition.")
+		ok
 
-    # Perform filtering
-    nRows = This.NumberOfRows()
-    aRowsToKeep = []
 
-    for nRow = 1 to nRows
-        # Evaluate the condition for the current row
-        eval(cCode)
-        if bResult
-            aRowsToKeep + This.Row(nRow)
-        ok
-    next
+		# Early check for complex condition
 
-    # Rebuild the table with filtered rows
-    aResult = []
-    nCols = This.NumberOfCols()
+		oCondition = new stzString(pcCondition)
+		if oCondition.NumberOfOccurrence('@(') > 1
+			This.FilterWXT(pcCondition)
+			return
+		ok
 
-    for nCol = 1 to nCols
-        cColName = This.ColName(nCol)
-        colData = []
-        nLenRowsToKeep = len(aRowsToKeep)
-        for nRow = 1 to nLenRowsToKeep
-            colData + aRowsToKeep[nRow][nCol]
-        next
-        aResult + [cColName, colData]
-    next
+		# Prepare the condition expression
 
-    @aContent = aResult
+		nCols = This.NumberOfCols()
 
-    #< @FunctionFluentForm
+		for i = 1 to nCols
+			cColName = This.ColName(i)
+			oCondition.ReplaceCS('@(:' + cColName + ')', 'This.Cell(' + i + ', nRow)', _FALSE_)
+		next
 
-    def FilterWQ(pcCondition)
-        This.FilterW(pcCondition)
-        return This
+		cCondition = oCondition.Content()
 
-    def FilterWCQ(pcCondition)
-        oCopy = This.Copy()
-        oCopy.FilterW(pcCondition)
-        return oCopy
+		# Prepare evaluation code
+		cCode = "bResult = " + cCondition
 
-    #>
+		# Perform filtering
+		nRows = This.NumberOfRows()
+		aRowsToKeep = []
 
-    #< @FunctionAlternativeForm
+		for nRow = 1 to nRows
+			# Evaluate the condition for the current row
+			eval(cCode)
+			if bResult
+				aRowsToKeep + This.Row(nRow)
+			ok
+		next
+		nLenRowsToKeep = len(aRowsToKeep)
 
-    def FilterByW(pcCondition)
-        This.FilterW(pcCondition)
+		# Rebuild the table with filtered rows
+		aResult = []
+		nCols = This.NumberOfCols()
 
-        def FilterByWQ(pcCondition)
-            return This.FilterWQ(pcCondition)
+		for nCol = 1 to nCols
 
-        def FilterByWCQ(pcCondition)
-            return This.FilterWCQ(pcCondition)
+			cColName = This.ColName(nCol)
+			colData = []
+			
 
-    #>
+			for nRow = 1 to nLenRowsToKeep
+				colData + aRowsToKeep[nRow][nCol]
+			next
 
-def FilterWXT(pcCondition)
-    # Validate input is a string
-    if NOT isString(pcCondition)
-        StzRaise("Incorrect param type! pcCondition must be a string.")
-    ok
+			aResult + [cColName, colData]
 
-    if ring_trim(pcCondition) = ""
-        StzRaise("Can't proceed! You must provide a condition.")
-    ok
+		next
 
-    # Extract column names and subconditions
-    oCondition = new stzString(pcCondition)
-    aColConditions = []
-    acColNames = This.ColNames()
-    nCols = This.NumberOfCols()
+		@aContent = aResult
 
-    # Find all @(:ColName) patterns and their positions
-    aMatches = oCondition.FindAll('@(:')
-    nLenMatches = len(aMatches)
+		#< @FunctionFluentForm
 
-    if nLenMatches = 0
-        StzRaise("Invalid condition! No column references found in: " + pcCondition)
-    ok
+		def FilterWQ(pcCondition)
+			This.FilterW(pcCondition)
+			return This
 
-    for i = 1 to nLenMatches
-        nStart = aMatches[i]
-        nEnd = oCondition.FindNext(')', nStart)
-        if nEnd = 0
-            StzRaise("Invalid condition! Unclosed @(:...) pattern at position " + nStart)
-        ok
+		def FilterWCQ(pcCondition)
+			oCopy = This.Copy()
+			oCopy.FilterW(pcCondition)
+			return oCopy
 
-        cColRef = oCondition.Section(nStart, nEnd)
-        cColName = oCondition.Section(nStart + 3, nEnd - 1) # Extract ColName from @(:ColName)
+		#>
 
-        # Validate column name
-        if NOT This.IsColName(cColName)
-            StzRaise("Invalid column name! The column '@(:" + cColName + ")' does not exist in the table.")
-        ok
+		#< @FunctionAlternativeForm
 
-        # Find the subcondition for this column
-        cSubCondition = ""
-        nNextStart = 0
-        if i < nLenMatches
-            nNextStart = aMatches[i + 1]
-            cSubCondition = ring_trim(oCondition.Section(nEnd + 1, nNextStart - 1))
-        else
-            cSubCondition = ring_trim(oCondition.Section(nEnd + 1, oCondition.Size()))
-        ok
+		def FilterByW(pcCondition)
+			This.FilterW(pcCondition)
 
-        # Extract logical operator (if any) and clean subcondition
-        cLogicalOp = ""
-        if i < nLenMatches
-            oSubCond = new stzString(cSubCondition)
-            if oSubCond.Contains(' and ')
-                cLogicalOp = 'and'
-                cSubCondition = ring_trim(oSubCond.Before(' and '))
-            but oSubCond.Contains(' or ')
-                cLogicalOp = 'or'
-                cSubCondition = ring_trim(oSubCond.Before(' or '))
-            else
-                StzRaise("Invalid condition! Missing logical operator (and/or) between subconditions: " + cSubCondition)
-            ok
-        ok
+		def FilterByWQ(pcCondition)
+			return This.FilterWQ(pcCondition)
 
-        # Store column index, subcondition, and logical operator
-        nColIndex = This.FindCol(cColName)
-        aColConditions + [ nColIndex, cColName, cSubCondition, cLogicalOp ]
-    next
+		def FilterByWCQ(pcCondition)
+			return This.FilterWCQ(pcCondition)
 
-    # Validate subconditions
-    for aCond in aColConditions
-        cSubCond = aCond[3]
-        if ring_trim(cSubCond) = ""
-            StzRaise("Invalid condition! Empty subcondition for column '@(:" + aCond[2] + ")'.")
-        ok
-    next
+		#>
 
-    # Perform filtering
-    nRows = This.NumberOfRows()
-    aRowsToKeep = []
+	  #----------------------------------------------#
+	 #  FILTERING THE TABLE BY A COMPLEX CONDITION  #
+	#----------------------------------------------#
 
-    for nRow = 1 to nRows
-        bKeepRow = _TRUE_
-        for i = 1 to len(aColConditions)
-            nColIndex = aColConditions[i][1]
-            cSubCond = aColConditions[i][3]
-            cellValue = This.Cell(nColIndex, nRow)
-
-            # Prepare subcondition for evaluation
-            cCode = "bSubResult = "
-            if isNumber(cellValue)
-                cCode += cellValue + " " + cSubCond
-            else
-                cCode += '"' + cellValue + '" ' + cSubCond
-            ok
-
-            # Evaluate subcondition
-            try
-                eval(cCode)
-            catch
-                StzRaise("Error evaluating subcondition: " + cSubCond + " for column '@(:" + aColConditions[i][2] + ")' at row " + nRow)
-            done
-
-            # Combine with previous results based on logical operator
-            if i = 1
-                bKeepRow = bSubResult
-            else
-                cLogicalOp = aColConditions[i - 1][4]
-                if cLogicalOp = 'and'
-                    bKeepRow = bKeepRow and bSubResult
-                but cLogicalOp = 'or'
-                    bKeepRow = bKeepRow or bSubResult
-                ok
-            ok
-
-            if NOT bKeepRow and aColConditions[i][4] != 'or'
-                exit # Early exit for 'and' if false
-            ok
-        next
-
-        if bKeepRow
-            aRowsToKeep + This.Row(nRow)
-        ok
-    next
-
-    # Rebuild the table with filtered rows
-    aResult = []
-    for nCol = 1 to nCols
-        cColName = This.ColName(nCol)
-        colData = []
-        nLenRowsToKeep = len(aRowsToKeep)
-        for nRow = 1 to nLenRowsToKeep
-            colData + aRowsToKeep[nRow][nCol]
-        next
-        aResult + [cColName, colData]
-    next
-
-    @aContent = aResult
-
-    #< @FunctionFluentForm
-
-    def FilterWXTQ(pcCondition)
-        This.FilterWXT(pcCondition)
-        return This
-
-    def FilterWXTCQ(pcCondition)
-        oCopy = This.Copy()
-        oCopy.FilterWXT(pcCondition)
-        return oCopy
-
-    #>
-
-    #< @FunctionAlternativeForm
-
-    def FilterByWXT(pcCondition)
-        This.FilterWXT(pcCondition)
-
-        def FilterByWXTQ(pcCondition)
-            return This.FilterXTQ(pcCondition)
-
-        def FilterByWXTCQ(pcCondition)
-            return This.FilterWXTCQ(pcCondition)
-
-    #>
-
+	def FilterWXT(pcCondition)
+	
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+	
+		if ring_trim(pcCondition) = ""
+			StzRaise("Can't proceed! You must provide a condition.")
+		ok
+	
+		# Validate that all referenced column names exist
+	
+		oConditionTemp = new stzString(pcCondition)
+		acColNames = This.ColNames()
+		nLenCols = len(acColNames)
+	
+		for i = 1 to nLenCols
+	
+			if oConditionTemp.ContainsCS('@(:' + acColNames[i] + ')', _FALSE_)
+				if NOT This.IsColName(acColNames[i])
+					StzRaise("Invalid column name! The column '@(:" + acColNames[i] + ")' does not exist in the table.")
+				ok
+			ok
+	
+		next
+	
+		# Prepare the condition expression
+	
+		oCondition = new stzString(pcCondition)
+		nCols = This.NumberOfCols()
+	
+		for i = 1 to nCols
+			cColName = This.ColName(i)
+			oCondition.ReplaceCS('@(:' + cColName + ')', 'This.Cell(' + i + ', nRow)', _FALSE_)
+		next
+	
+		cCondition = oCondition.Content()
+	
+		# Verify that no '@(:...)' patterns remain
+	
+		if Q(cCondition).Contains('@(:')
+			StzRaise("Invalid condition! Unresolved column reference found in: " + cCondition)
+		ok
+	
+		# Prepare evaluation code
+	
+		cCode = "bOk = " + cCondition
+	
+		# Perform filtering
+	
+		nRows = This.NumberOfRows()
+		aRowsToKeep = []
+	
+		for nRow = 1 to nRows
+			try
+				eval(cCode)
+				if bOk
+					aRowsToKeep + This.Row(nRow)
+				ok
+			catch
+				StzRaise("Error evaluating condition: " + cCondition + " at row " + nRow)
+			done
+		next
+	
+		# Rebuild the table with filtered rows
+	
+		aResult = []
+		nCols = This.NumberOfCols()
+	
+		for nCol = 1 to nCols
+	
+			cColName = This.ColName(nCol)
+			colData = []
+			nLenRowsToKeep = len(aRowsToKeep)
+	
+			for nRow = 1 to nLenRowsToKeep
+				colData + aRowsToKeep[nRow][nCol]
+			next
+	
+			aResult + [cColName, colData]
+	
+		next
+	
+		@aContent = aResult
+	
+		#< @FunctionFluentForm
+	
+		def FilterWXTQ(pcCondition)
+			This.FilterWXT(pcCondition)
+			return This
+	
+		def FilterWXTCQ(pcCondition)
+			oCopy = This.Copy()
+			oCopy.FilterWXT(pcCondition)
+			return oCopy
+	
+		#>
+	
+		#< @FunctionAlternativeForm
+	
+		def FilterByWXT(pcCondition)
+			This.FilterWXT(pcCondition)
+	
+			def FilterByWXTQ(pcCondition)
+				return This.FilterWXTQ(pcCondition)
+	
+			def FilterByWXTCQ(pcCondition)
+				return This.FilterWXTCQ(pcCondition)
+	
+		#>
+	
 	  #============================================================================#
 	 #  Aggregating (Grouping) table data based on specified columns and methods  #
 	#============================================================================#
