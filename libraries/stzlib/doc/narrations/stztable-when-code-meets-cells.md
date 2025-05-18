@@ -925,6 +925,71 @@ Output:
 
 This displays shows raws numbers, intermediate subtotals for each primary group and a grand total at the bottom, making it easier to analyze hierarchical data relationships.
 
+### Grouping on List-Valued Columns
+
+A powerful feature of `stzTable` is its built-in support for **grouping by values inside list-based cells**. In many real-world datasets, a single cell might contain multiple tags, roles, or labels—for example, a user’s skills, a product’s categories, or a task list. Rather than forcing you to pre-normalize your data, `stzTable` handles the heavy lifting automatically.
+
+Suppose you have a CSV file (`team.csv`) that looks like this:
+
+![team-csv.png](../images/team-csv.png)
+
+Load it into an `stzTable` and inspect:
+
+```ring
+o1 = new stzTable(:FromFile = "team.csv")
+o1.ShowXT([ :RowNumber = TRUE ])
+```
+Output:
+
+```ring
+╭───┬─────────────────┬───────────┬────────────────────────────────┬──────────────╮
+│ # │    Employee     │   Role    │              Task              │ Productivity │
+├───┼─────────────────┼───────────┼────────────────────────────────┼──────────────┤
+│ 1 │ Sara            │ Developer │ [ "Coding", "Debugging" ]      │         8.50 │
+│ 2 │ Mike            │ Manager   │ [ "Planning", "Review" ]       │         7.20 │
+│ 3 │ Lena            │ Designer  │ [ "UI", "Prototyping" ]        │            9 │
+│ 4 │ Omar            │ Developer │ [ "Coding", "Testing" ]        │            8 │
+│ 5 │ Tara            │ Manager   │ [ "Planning", "Coordination" ] │         7.80 │
+│ 6 │ Alex            │ Designer  │ [ "UI", "Animation" ]          │         8.70 │
+╰───┴─────────────────┴───────────┴────────────────────────────────┴──────────────╯
+```
+
+Now, if you call `GroupBy(:Task)`:
+
+```ring
+o1.GroupBy(:Task)
+o1.Show()
+```
+
+`stzTable` will **explode** the list in each cell of the `Task` column, and treat each individual entry as its own group:
+
+```ring
+╭──────────────┬──────────┬───────────┬──────────────╮
+│     Task     │ Employee │   Role    │ Productivity │
+├──────────────┼──────────┼───────────┼──────────────┤
+│ Coding       │ Sara     │ Developer │         8.50 │
+│ Coding       │ Omar     │ Developer │            8 │
+│ Debugging    │ Sara     │ Developer │         8.50 │
+│ Planning     │ Mike     │ Manager   │         7.20 │
+│ Planning     │ Tara     │ Manager   │         7.80 │
+│ Review       │ Mike     │ Manager   │         7.20 │
+│ UI           │ Lena     │ Designer  │            9 │
+│ UI           │ Alex     │ Designer  │         8.70 │
+│ Prototyping  │ Lena     │ Designer  │            9 │
+│ Testing      │ Omar     │ Developer │            8 │
+│ Coordination │ Tara     │ Manager   │         7.80 │
+│ Animation    │ Alex     │ Designer  │         8.70 │
+╰──────────────┴──────────┴───────────┴──────────────╯
+```
+
+This automatic “explode-and-group” behavior makes `stzTable` ideal for:
+
+* **Tag-based** analyses (e.g., keywords, categories)
+* **Multi-skill** or **multi-role** team reports
+* **Keyword** or **label** frequency counts
+
+Simply specify any column that holds lists of values—`GroupBy()` does the rest.
+
 ## Aggregating Data in `stzTable`
 
 Aggregation functions allow you to perform calculations across rows to derive meaningful insights from your data. The `stzTable` class offers a variety of aggregation methods that work seamlessly with its other features.

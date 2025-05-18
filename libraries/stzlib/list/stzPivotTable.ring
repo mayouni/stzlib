@@ -70,7 +70,7 @@ class stzPivotTable
 
 	def Analyze(paValues, pcFunc)
 		if CheckParams()
-			if isList(pcFunc) and StzListQ(pcFunc).IsWithOrUsingNamedParam()
+			if isList(pcFunc) and StzListQ(pcFunc).IsWithOrUsingOrInNamedParam()
 				pcFunc = pcFunc[2]
 			ok
 		ok
@@ -80,13 +80,34 @@ class stzPivotTable
 		This.SetAggregateFunction(pcFunc)
 		This.SetTotalLabel(pcFunc)
 
+	def By(paRows, paCols)
+
+		if isList(paCols) and StzListQ(paCols).IsAndNamedParam()
+				paCols = paCols[2]
+		ok
+
+		This.SetRowsBy(paRows)
+		This.SetColsBy(paCols)
+
 	def SetRowsBy(paLabels)
 		# Set row labels for pivot table
 		This.SetRowLabels(paLabels)
 
+		def InRowsPut(paLabels)
+			This.SetRowLabels(paLabels)
+
 	def SetColsBy(paLabels)
 		# Set column labels for pivot table
 		This.SetColumnLabels(paLabels)
+
+		def SetColumnsBy(paLabels)
+			This.SetColumnLabels(paLabels)
+
+		def InColsPut(paLabels)
+			This.SetColumnLabels(paLabels)
+
+		def InColumnsPut(paLabels)
+			This.SetColumnLabels(paLabels)
 
 	def SetRowLabels(paLabels)
 		# Configure row labels, accepting string or list
@@ -470,6 +491,7 @@ class stzPivotTable
 		
 		@aPivotData + aTotalRow
 
+
 	def _calculateCellValueMulti(aRowValues, aColValues)
 
 		# Calculate cell value for given row and column combinations
@@ -551,7 +573,7 @@ class stzPivotTable
 			# Check column matches
 			for i = 1 to nLenCols
 
-				if i <= nLenFlatRows
+				if i <= nLenFlatCols
 
 					if @oSourceTable.Cell(aColIndices[i], r) != aFlatColValues[i]
 						bColMatch = FALSE
@@ -654,13 +676,13 @@ class stzPivotTable
 
 				nResult = 0
 				nLen = len(aValues)
-
+	
 				for i = 1 to nLen
 					nResult += aValues[i]
 				next
-
+	
 				return nResult
-				
+
 			on "average"
 
 				nResult = 0

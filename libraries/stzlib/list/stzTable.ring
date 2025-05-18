@@ -183,13 +183,13 @@ Class stzTable from stzObject
 
 			aTempTable = []
 
-			accColNames = []
+			acColNames = []
 			for i = 1 to len(paTable[1])
-				accColNames + ("col" + i)
+				acColNames + ("col" + i)
 			next
 				
 
-			insert(paTable, 0, accColNames)
+			insert(paTable, 0, acColNames)
 			This.Init(paTable)
 			return
 
@@ -275,10 +275,10 @@ Class stzTable from stzObject
 
 			cLine1 = acLines[1]
 
-			bcColNamesProvided = _TRUE_
+			bColNamesProvided = _TRUE_
 
 			if ring_trim(cLine1) = ""
-				bcColNamesProvided = _FALSE_
+				bColNamesProvided = _FALSE_
 
 			else
 
@@ -299,11 +299,11 @@ Class stzTable from stzObject
 				next
 
 				if NOT bMadeOfStrings 
-					bcColNamesProvided = _FALSE_
+					bColNamesProvided = _FALSE_
 				ok
 			ok
 			#NOTE
-			# ~> we will use bcColNamesProvided later while
+			# ~> we will use bColNamesProvided later while
 			# constructing the header of the table
 
 			# Doing the job
@@ -365,7 +365,7 @@ Class stzTable from stzObject
 			# Composing the header of the table
 
 			for i = 1 to nMin
-				if bcColNamesProvided
+				if bColNamesProvided
 					@aContent + [ aTable[1][i], [] ]
 				else
 					@aContent + [ "col"+i, [] ]
@@ -375,7 +375,7 @@ Class stzTable from stzObject
 			# Composing the rows of the table
 
 			jStart = 1
-			if bcColNamesProvided
+			if bColNamesProvided
 				jStart = 2
 			ok
 
@@ -432,13 +432,13 @@ Class stzTable from stzObject
 		ok
 
 		cName = ring_lower(pcName)
-		bResult = This.cColNamesQ().Contains(cName)
+		bResult = This.ColNamesQ().Contains(cName)
 
 		return bResult
 
 		#< @FunctionAlternativeForms
 
-		def HascColName(pcName)
+		def HasColName(pcName)
 			return This.HasColumName(pcName)
 
 		def HasCol(pcName)
@@ -452,7 +452,7 @@ Class stzTable from stzObject
 		def ContainsColumName(pcName)
 			return This.HasColumName(pcName)
 
-		def ContainscColName(pcName)
+		def ContainsColName(pcName)
 			return This.HasColumName(pcName)
 
 		#>
@@ -461,7 +461,7 @@ Class stzTable from stzObject
 		nLen = len(pacNames)
 		bResult = _TRUE_
 		for i = 1 to nLen
-			if NOT This.HascColName(pacNames[i])
+			if NOT This.HasColName(pacNames[i])
 				bResult = _FALSE_
 				exit
 			ok
@@ -471,7 +471,7 @@ Class stzTable from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def HascColNames(pacNames)
+		def HasColNames(pacNames)
 			return This.HasColumnsNames(pacNames)
 
 		def HasColumns(pacNames)
@@ -485,7 +485,7 @@ Class stzTable from stzObject
 		def ContainsColumnsNames(pacNames)
 			return This.HasColumnsNames(pacNames)
 
-		def ContainscColNames(pacNames)
+		def ContainsColNames(pacNames)
 			return This.HasColumnsNames(pacNames)
 
 		#>
@@ -514,7 +514,7 @@ Class stzTable from stzObject
 		#< @FunctionFluentForm
 
 		def ColumnsNamesQ()
-			return This.ColumnsQRT( :stzList )
+			return This.ColumnsNamesQRT( :stzList )
 
 		def ColumnsNamesQRT(pcReturnType)
 			switch pcReturnType
@@ -576,6 +576,15 @@ Class stzTable from stzObject
 			def ColsNamesQRT(pcReturnType)
 				return This.ColumnsNamesQRT(pcReturnType)
 
+		def ColNames()
+				return This.ColumnsNames()
+
+			def ColNamesQ()
+				return This.ColumnsNamesQ()
+
+			def ColNamesQRT(pcReturnType)
+				return This.ColumnsNamesQRT(pcReturnType)
+
 		def AllColsNames() # Useful by contrast to TheseCols(paCols)
 			return This.ColumnsNames()
 
@@ -585,22 +594,13 @@ Class stzTable from stzObject
 			def AllColsNamesQRT(pcReturnType)
 				return This.ColsNamesQRT(pcReturnType)
 
-		def cColNames()
+		def AllColNames() # Useful by contrast to TheseCols(paCols)
 			return This.ColumnsNames()
 
-			def cColNamesQ()
-				return This.AllColsNamesQRT(:stzList)
+			def AllColNamesQ()
+				return This.ColsNamesQRT(:stzList)
 
-			def cColNamesQRT(pcReturnType)
-				return This.ColsNamesQRT(pcReturnType)
-
-		def AllcColNames()
-			return This.ColumnsNames()
-
-			def AllcColNamesQ()
-				return This.AllColsNamesQRT(:stzList)
-
-			def AllcColNamesQRT(pcReturnType)
+			def AllColNamesQRT(pcReturnType)
 				return This.ColsNamesQRT(pcReturnType)
 
 		def Header()
@@ -618,7 +618,7 @@ Class stzTable from stzObject
 	 #  CHECKING IF THE PROVIDED STRING IS A COLUMN NAME  #
 	#====================================================#
 
-	def IscColName(pcName)
+	def IsColName(pcName)
 		if NOT isString(pcName)
 			StzRaise("Incorrect param type! pcName must be a string.")
 		ok
@@ -626,7 +626,7 @@ Class stzTable from stzObject
 		cName = ring_lower(pcName)
 
 		bResult = _FALSE_
-		if This.cColNamesQ().Contains(pcName)
+		if This.ColNamesQ().Contains(pcName)
 			bResult = _TRUE_
 		ok
 
@@ -635,13 +635,13 @@ Class stzTable from stzObject
 		#< @FunctionAlternativeForm
 
 		def IsColumnName(pcName)
-			return This.IscColName(pcName)
+			return This.IsColName(pcName)
 
-		def IsAcColName(pcName)
-			return This.IscColName(pcName)
+		def IsAColName(pcName)
+			return This.IsColName(pcName)
 
 		def IsAColumnName(pcName)
-			return This.IscColName(pcName)
+			return This.IsColName(pcName)
 
 		#>
 
@@ -673,9 +673,9 @@ Class stzTable from stzObject
 	 #  CHECKING IF THE PROVIDED VALUE IS A COLUMN NUMBER OR NAME  #
 	#-------------------------------------------------------------#
 
-	def IscColNameOrNumber(pCol)
+	def IsColNameOrNumber(pCol)
 
-		if ( isString(pCol) and This.IscColName(pCol) ) or
+		if ( isString(pCol) and This.IsColName(pCol) ) or
 		   ( isNumber(pCol) and This.IsColNumber(pCol) )
 			return _TRUE_
 		else
@@ -685,55 +685,55 @@ Class stzTable from stzObject
 		#< @FunctionAlternativeForms
 
 		def IsCol(pCol)
-			return This.IscColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		def IsColmun(pcol)
-			return This.IscColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		def IsColNumberOrName(pCol)
-			return This.IscColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		def IsColIdentifier(pCol)
-			return This.IscColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		#--
 
 		def IsColumnNameOrNumber(pCol)
-			return This.IscColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		def IsColumnNumberOrName(pCol)
-			return This.IscColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		def IsColumnIdentifier(pCol)
-			return This.IscColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		#==
 
-		def IsAcColNameOrNumber(pCol)
-			return This.IscColNameOrNumber(pCol)
+		def IsAColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		def IsACol(pCol)
-			return This.IscColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		def IsAColmun(pcol)
-			return This.IscColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		def IsAColNumberOrName(pCol)
-			return This.IscColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		def IsAColIdentifier(pCol)
-			return This.IscColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		#--
 
 		def IsAColumnNameOrNumber(pCol)
-			return This.IscColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		def IsAColumnNumberOrName(pCol)
-			return This.IscColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		def IsAColumnIdentifier(pCol)
-			return This.IscColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
 
 		#>
 
@@ -741,7 +741,7 @@ Class stzTable from stzObject
 	 #  CHECKING IF THE PROVIDED VALUES ARE COLUMN NUMBERS OR NAMES  #
 	#---------------------------------------------------------------#
 
-	def ArecColNamesOrNumbers(paCols)
+	def AreColNamesOrNumbers(paCols)
 		oTemp = Q(paCols)
 
 		if NOT ( isList(paCols) and
@@ -756,7 +756,7 @@ Class stzTable from stzObject
 		nLen = len(paCols)
 
 		for i = 1 to nLen
-			if NOT This.IscColNameOrNumber(paCols[i])
+			if NOT This.IsColNameOrNumber(paCols[i])
 				bResult = _FALSE_
 				exit
 			ok
@@ -767,46 +767,46 @@ Class stzTable from stzObject
 		#< @FunctionAlternativeForms
 
 		def AreColNumbersOrNames(paCols)
-			return This.ArecColNamesOrNumbers(paCols)
+			return This.AreColNamesOrNumbers(paCols)
 
 		def AreColIdentifiers(paCols)
-			return This.ArecColNamesOrNumbers(paCols)
+			return This.AreColNamesOrNumbers(paCols)
 
 		def AreColID(paCols)
-			return This.ArecColNamesOrNumbers(paCols)
+			return This.AreColNamesOrNumbers(paCols)
 
 		#--
 
 		def AreColumnNamesOrNumbers(paCols)
-			return This.ArecColNamesOrNumbers(paCols)
+			return This.AreColNamesOrNumbers(paCols)
 
 		def AreColumnNumbersOrNames(paCols)
-			return This.ArecColNamesOrNumbers(paCols)
+			return This.AreColNamesOrNumbers(paCols)
 
 		def AreColumnIdentifiers(paCols)
-			return This.ArecColNamesOrNumbers(paCols)		
+			return This.AreColNamesOrNumbers(paCols)		
 
 		#==
 
 		def AreColsNamesOrNumbers(paCols)
-			return This.ArecColNamesOrNumbers(paCols)
+			return This.AreColNamesOrNumbers(paCols)
 
 		def AreColsNumbersOrNames(paCols)
-			return This.ArecColNamesOrNumbers(paCols)
+			return This.AreColNamesOrNumbers(paCols)
 
 		def AreColsIdentifiers(paCols)
-			return This.ArecColNamesOrNumbers(paCols)
+			return This.AreColNamesOrNumbers(paCols)
 
 		#--
 
 		def AreColumnsNamesOrNumbers(paCols)
-			return This.ArecColNamesOrNumbers(paCols)
+			return This.AreColNamesOrNumbers(paCols)
 
 		def AreColumnsNumbersOrNames(paCols)
-			return This.ArecColNamesOrNumbers(paCols)
+			return This.AreColNamesOrNumbers(paCols)
 
 		def AreColumnsIdentifiers(paCols)
-			return This.ArecColNamesOrNumbers(paCols)
+			return This.AreColNamesOrNumbers(paCols)
 
 		#>
 
@@ -814,109 +814,109 @@ Class stzTable from stzObject
 	 #  FINDING A COLUMN BY ITS NAME  #
 	#================================#
 
-	def FindColByName(pccColName)
+	def FindColByName(pcColName)
 
 		if CheckingParams()
 
-			if NOT isString(pccColName)
-				StzRaise("Incorrect param type! pccColName must be a string.")
+			if NOT isString(pcColName)
+				StzRaise("Incorrect param type! pcColName must be a string.")
 			ok
 
-			if ring_find([:First, :FirstCol, :FirstColumn], pccColName) > 0
-				pccColName = This.FirstcColName()
+			if ring_find([:First, :FirstCol, :FirstColumn], pcColName) > 0
+				pcColName = This.FirstColName()
 
-			but ring_find([:Last, :LastCol, :LastColumn], pccColName) > 0
-				pccColName = This.LastcColName()
+			but ring_find([:Last, :LastCol, :LastColumn], pcColName) > 0
+				pcColName = This.LastColName()
 			ok
 
 		ok
 
-		pccColName = ring_lower(pccColName)
-		n = ring_find( This.Header(), pccColName)
+		pcColName = ring_lower(pcColName)
+		n = ring_find( This.Header(), pcColName)
 		return n
 
 		#< @FunctionAlternativeForm
 
-		def FindColumnByName(pccColName)
-			return This.FindColByName(pccColName)
+		def FindColumnByName(pcColName)
+			return This.FindColByName(pcColName)
 
-		def FindCol(pccColName)
-			return This.FindColByName(pccColName)
+		def FindCol(pcColName)
+			return This.FindColByName(pcColName)
 
-		def FindColumn(pccColName)
-			return This.FindColByName(pccColName)
+		def FindColumn(pcColName)
+			return This.FindColByName(pcColName)
 
 		#>
 
-	def FindColsByName(paccColNames)
+	def FindColsByName(pacColNames)
 
 		if CheckingParams()
 
-			if NOT ( isList(paccColNames) and Q(paccColNames).IsListOfStrings() )
-				StzRaise("Incorrect param type! paccColNames must be a list of strings.")
+			if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+				StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 			ok
 
-			nLen = len(paccColNames)
+			nLen = len(pacColNames)
 			for i = 1 to nLen
-				if paccColNames[i] = :First 	 or
-				   paccColNames[i] = :FirstCol	 or
-				   paccColNames[i] = :FirstColumn
+				if pacColNames[i] = :First 	 or
+				   pacColNames[i] = :FirstCol	 or
+				   pacColNames[i] = :FirstColumn
 
-					paccColNames[i] = This.FirstcColName()
+					pacColNames[i] = This.FirstColName()
 
-				but paccColNames[i] = :Last 	 or
-				    paccColNames[i] = :LastCol	 or
-				    paccColNames[i] = :LastColumn 
+				but pacColNames[i] = :Last 	 or
+				    pacColNames[i] = :LastCol	 or
+				    pacColNames[i] = :LastColumn 
 
-					paccColNames[i] = This.LastcColName()
+					pacColNames[i] = This.LastColName()
 				ok
 			next
 
 		ok
 
-		anResult = Q( This.cColNames() ).FindMany(paccColNames)
+		anResult = Q( This.ColNames() ).FindMany(pacColNames)
 		return anResult
 
 		#< @FunctionAlternativeForm
 
-		def FindColsByNames(paccColNames)
-			return This.FindColsByName(paccColNames)
+		def FindColsByNames(pacColNames)
+			return This.FindColsByName(pacColNames)
 
-		def FindColumnsByNames(paccColNames)
-			return This.FindColsByName(paccColNames)
+		def FindColumnsByNames(pacColNames)
+			return This.FindColsByName(pacColNames)
 
-		def FindColumnsByName(paccColNames)
-			return This.FindColsByName(paccColNames)
+		def FindColumnsByName(pacColNames)
+			return This.FindColsByName(pacColNames)
 
 		#--
 
-		def FindManyColsByName(paccColNames)
-			return This.FindColsByName(paccColNames)
+		def FindManyColsByName(pacColNames)
+			return This.FindColsByName(pacColNames)
 
-		def FindManyColsByNames(paccColNames)
-			return This.FindColsByName(paccColNames)
+		def FindManyColsByNames(pacColNames)
+			return This.FindColsByName(pacColNames)
 
-		def FindManyColumnsByNames(paccColNames)
-			return This.FindColsByName(paccColNames)
+		def FindManyColumnsByNames(pacColNames)
+			return This.FindColsByName(pacColNames)
 
-		def FindManyColumnsByName(paccColNames)
-			return This.FindColsByName(paccColNames)
+		def FindManyColumnsByName(pacColNames)
+			return This.FindColsByName(pacColNames)
 
 		#==
 
-		def FindCols(paccColNames)
-			return This.FindColsByName(paccColNames)
+		def FindCols(pacColNames)
+			return This.FindColsByName(pacColNames)
 
-		def FindColumns(paccColNames)
-			return This.FindColsByName(paccColNames)
+		def FindColumns(pacColNames)
+			return This.FindColsByName(pacColNames)
 
 		#--
 
-		def FindManyCols(paccColNames)
-			return This.FindColsByName(paccColNames)
+		def FindManyCols(pacColNames)
+			return This.FindColsByName(pacColNames)
 
-		def FindManyColumns(paccColNames)
-			return This.FindColsByName(paccColNames)
+		def FindManyColumns(pacColNames)
+			return This.FindColsByName(pacColNames)
 
 		#>
 
@@ -1068,19 +1068,19 @@ Class stzTable from stzObject
 			return This.FindColsExceptAt(panColNumbers)
 
 
-	def FindColsExcept(paColNumbersOrcColNames)
+	def FindColsExcept(paColNumbersOrColNames)
 		if CheckingParams()
-			if NOT isList(paColNumbersOrcColNames)
-				StzRaise("Incorrect param type! paColNumbersOrcColNames must be a list.")
+			if NOT isList(paColNumbersOrColNames)
+				StzRaise("Incorrect param type! paColNumbersOrColNames must be a list.")
 			ok
 
-			if NOT ( @IsListOfNumbers(paColNumbersOrcColNames) or
-				 @IsListOfStrings(paColNumbersOrcColNames) )
-				StzRaise("Incorrect param type! paColNumbersOrcColNames must be a list of numbers or a list of strings.")
+			if NOT ( @IsListOfNumbers(paColNumbersOrColNames) or
+				 @IsListOfStrings(paColNumbersOrColNames) )
+				StzRaise("Incorrect param type! paColNumbersOrColNames must be a list of numbers or a list of strings.")
 			ok
 		ok
 
-		anResult = Q(1:This.NumberOfCols()) - These( This.FindCols(paColNumbersOrcColNames) )
+		anResult = Q(1:This.NumberOfCols()) - These( This.FindCols(paColNumbersOrColNames) )
 		// #TODO Make a more performant solution!
 
 		return anResult
@@ -1367,7 +1367,7 @@ Class stzTable from stzObject
 			but ring_find([ :Last, :LastCol, :LastColumn ], p) > 0
 				p = This.NumberOfColumns()
 
-			but This.HascColName(p)
+			but This.HasColName(p)
 				p = This.FindCol(p)
 			ok
 		ok
@@ -1487,7 +1487,7 @@ Class stzTable from stzObject
 	#------------------------------------------------#
 
 	def ColXT(p)
-		aResult = [ This.cColName(p) ]
+		aResult = [ This.ColName(p) ]
 
 		aCells = This.Col(p)
 		nLen = len(aCells)
@@ -1555,7 +1555,7 @@ Class stzTable from stzObject
 	 #   GETTING TTHE NAME OF THE NTH COLUMN   #
 	#=========================================#
 
-	def NthcColName(n)
+	def NthColName(n)
 		if isString(n)
 
 			if ring_find([ :First, :FirstCol, :FirstColumn ], n) > 0
@@ -1570,12 +1570,12 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		cResult = This.cColNames()[n]
+		cResult = This.ColNames()[n]
 
 		return cResult
 
 		def NthColumnName(n)
-			return This.NthcColName(n)
+			return This.NthColName(n)
 
 	  #------------------------------------------------#
 	 #  GETTING THE LIST OF CELLS IN THE NTH COLUMN   #
@@ -1640,11 +1640,11 @@ Class stzTable from stzObject
 	 #  GETTING THE NAME OF THE FIRST COLUMN  #
 	#========================================#
 
-	def FirstcColName()
-		return This.NthcColName(1)
+	def FirstColName()
+		return This.NthColName(1)
 
 		def FirstColumnName()
-			return This.FirstcColName()
+			return This.FirstColName()
 
 	  #------------------------------------------------------#
 	 #   GETTING FIRST COLUMN DATA (THE LIST OF ITS CELLS)  #
@@ -1677,11 +1677,11 @@ Class stzTable from stzObject
 	 #  GETTING THE NAME OF THE LAST COLUMN  #
 	#=======================================#
 
-	def LastcColName()
-		return This.NthcColName(This.NumberOfCols())
+	def LastColName()
+		return This.NthColName(This.NumberOfCols())
 
 		def LastColumnName()
-			return This.LastcColName()
+			return This.LastColName()
 
 	  #-----------------------------------------------------#
 	 #   GETTING LAST COLUMN DATA (THE LIST OF ITS CELLS)  #
@@ -1715,7 +1715,7 @@ Class stzTable from stzObject
 
 	def cColName(n)
 		if isString(n)
-			if This.HascColName(n)
+			if This.HasColName(n)
 				return n
 			else
 				StzRaise("Incorrect column name! The name you provided does not exist.")
@@ -1736,10 +1736,10 @@ Class stzTable from stzObject
 		return cResult
 
 		def cColNameQ(n)
-			return new stzString( This.cColName(n) )
+			return new stzString( This.ColName(n) )
 
 		def ColumnName(n)
-			return This.cColName(n)
+			return This.ColName(n)
 
 			def ColumnNameQ(n)
 				return new stzString( This.ColumnName(n) )
@@ -2504,7 +2504,7 @@ Class stzTable from stzObject
 				pCol = This.NumberOfColumns()
 
 			else
-				if NOT This.HascColName(pCol)
+				if NOT This.HasColName(pCol)
 					StzRaise("Syntax error in (" + pCol + ")! This column name is inexistant.")
 				ok
 			ok
@@ -3129,11 +3129,11 @@ Class stzTable from stzObject
 					panCellPos2[2] = This.NumberOfRows()
 				ok
 	
-				if isString(panCellPos1[1]) and This.IsAcColName((panCellPos1[1]))
+				if isString(panCellPos1[1]) and This.IsAColName((panCellPos1[1]))
 					panCellPos1[1] = This.ColToColNumber(panCellPos1[1])
 				ok
 	
-				if isString(panCellPos2[1]) and This.IsAcColName((panCellPos2[1]))
+				if isString(panCellPos2[1]) and This.IsAColName((panCellPos2[1]))
 					panCellPos2[1] = This.ColToColNumber(panCellPos2[1])
 				ok
 	
@@ -3289,7 +3289,7 @@ Class stzTable from stzObject
 				but ring_find([ :Last, :LastCol, :LastColumn ], pCol) > 0
 					pCol = This.NumberOfColumns()
 	
-				but This.HascColName(pCol)
+				but This.HasColName(pCol)
 					pCol = This.FindCol(pCol)
 				ok
 			ok
@@ -4471,7 +4471,7 @@ Class stzTable from stzObject
 		but oTempList.IsInCellsNamedParam()
 			nResult = This.NumberOfOccurrenceInCellsCS(pInCellsOrColOrRow[2], pValueOrSubValue, pCaseSensitive)
 
-		but oTempList.IsIncColNamedParam()
+		but oTempList.IsInColNamedParam()
 			nResult = This.NumberOfOccurrenceInColCS(pInCellsOrColOrRow[2], pValueOrSubValue, pCaseSensitive)
 
 		but oTempList.IsInColsNamedParam()
@@ -4667,7 +4667,7 @@ Class stzTable from stzObject
 		bResult = _FALSE_
 
 		if isList(paCol) and len(paCol) = 2 and
-		   isString(paCol[1]) and This.HascColName(paCol[1]) and
+		   isString(paCol[1]) and This.HasColName(paCol[1]) and
 		   isList(paCol[2]) and len(paCol[2]) = This.NumberOfRows()
 
 			cCol = paCol[1]
@@ -10546,7 +10546,7 @@ Class stzTable from stzObject
 		ok
 
 		if isString(paCol)
-			This.ReplacecColName(n, paCol)
+			This.ReplaceColName(n, paCol)
 			return
 		ok
 
@@ -10788,34 +10788,34 @@ Class stzTable from stzObject
 	 #  REPLACING A COLUMN BY AN OTHER PROVIDED AS A COLUMN NAME AND A LIST OF ROWS  #
 	#===============================================================================#
 
-	def ReplacecColNameAndData(pCol, pccColName, paColData)
+	def ReplaceColNameAndData(pCol, pcColName, paColData)
 		nCol = This.ColToColNumber(pCol)
-		This.ReplaceNthcColName(nCol, pccColName)
+		This.ReplaceNthColName(nCol, pcColName)
 		This.ReplaceNthCol(nCol, paColData)
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceColumnNamedAndData(pCol, pccColName, paColData)
-			This.ReplacecColNameAndData(pCol, pccColName, paColData)
+		def ReplaceColumnNamedAndData(pCol, pcColName, paColData)
+			This.ReplaceColNameAndData(pCol, pcColName, paColData)
 
 		#>
 
-	def ReplaceNthcColNamedAndData(n, pccColName, paColData)
+	def ReplaceNthColNamedAndData(n, pcColName, paColData)
 		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 
-			if isList(pccColName) and Q(pccColName).IsWithOrByOrUsingNamedParam()
-				pccColName = pccColName[2]
+			if isList(pcColName) and Q(pcColName).IsWithOrByOrUsingNamedParam()
+				pcColName = pcColName[2]
 			ok
 
 			if isList(paColData) and Q(paColData).IsAndNamedParam()
 				pacolData = paColData[2]
 			ok
 
-			if NOT isString(pccColName)
-				StzRaise("Incorrect param type! pccColName must be a string.")
+			if NOT isString(pcColName)
+				StzRaise("Incorrect param type! pcColName must be a string.")
 			ok
 
 			if NOT isList(paColData)
@@ -10830,7 +10830,7 @@ Class stzTable from stzObject
 		next
 
 		aContent = This.Content()
-		aContent[n][1] = pccColName
+		aContent[n][1] = pcColName
 		aContent[n][2] = aTemp
 
 		This.UpdateWith(aContent)
@@ -10838,14 +10838,14 @@ Class stzTable from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceNthColumnNamedAndData(n, pccColName, paColData)
-			This.ReplaceNthcColNamedAndData(n, pccColName, paColData)
+		def ReplaceNthColumnNamedAndData(n, pcColName, paColData)
+			This.ReplaceNthColNamedAndData(n, pcColName, paColData)
 
-		def ReplaceColNNamedAndData(n, pccColName, paColData)
-			This.ReplaceNthcColNamedAndData(n, pccColName, paColData)
+		def ReplaceColNNamedAndData(n, pcColName, paColData)
+			This.ReplaceNthColNamedAndData(n, pcColName, paColData)
 
-		def ReplaceColumnNNamedAndData(n, pccColName, paColData)
-			This.ReplaceNthcColNamedAndData(n, pccColName, paColData)
+		def ReplaceColumnNNamedAndData(n, pcColName, paColData)
+			This.ReplaceNthColNamedAndData(n, pcColName, paColData)
 
 		#>
 
@@ -10855,32 +10855,32 @@ Class stzTable from stzObject
 	# ~> XT : If paColData has fewer items than required, it will be
 	# supplemented with its items starting from the first one.
 
-	def ReplacecColNameAndDataXT(pCol, pccColName, paColData)
+	def ReplaceColNameAndDataXT(pCol, pcColName, paColData)
 		nCol = This.ColToColNumber(pCol)
-		This.ReplaceNthcColName(nCol, pccColName)
+		This.ReplaceNthColName(nCol, pcColName)
 		This.ReplaceNthColXT(nCol, paColData)
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceColumnNamedAndDataXT(pCol, pccColName, paColData)
-			This.ReplacecColNameAndDataXT(pCol, pccColName, paColData)
+		def ReplaceColumnNamedAndDataXT(pCol, pcColName, paColData)
+			This.ReplaceColNameAndDataXT(pCol, pcColName, paColData)
 
 		#>
 
-	def ReplaceNthcColNamedAndDataXT(n, pccColName, paColData)
-		This.ReplaceNthcColName(n, pccColName)
+	def ReplaceNthColNamedAndDataXT(n, pcColName, paColData)
+		This.ReplaceNthColName(n, pcColName)
 		This.ReplaceNthColXT(n, paColData)
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceNthColumnNamedAndDataXT(n, pccColName, paColData)
-			This.ReplaceNthcColNamedAndDataXT(n, pccColName, paColData)
+		def ReplaceNthColumnNamedAndDataXT(n, pcColName, paColData)
+			This.ReplaceNthColNamedAndDataXT(n, pcColName, paColData)
 
-		def ReplaceColNNamedAndDataXT(n, pccColName, paColData)
-			This.ReplaceNthcColNamedAndDataXT(n, pccColName, paColData)
+		def ReplaceColNNamedAndDataXT(n, pcColName, paColData)
+			This.ReplaceNthColNamedAndDataXT(n, pcColName, paColData)
 
-		def ReplaceColumnNNamedAndDataXT(n, pccColName, paColData)
-			This.ReplaceNthcColNamedAndDataXT(n, pccColName, paColData)
+		def ReplaceColumnNNamedAndDataXT(n, pcColName, paColData)
+			This.ReplaceNthColNamedAndDataXT(n, pcColName, paColData)
 
 		#>
 
@@ -11494,7 +11494,7 @@ Class stzTable from stzObject
 			StzRaise("Incorrect column format! pacColNameAndData must take the form :cColName = [ cell1, cell2, ... ].")
 		ok
 
-		if This.IscColName(pacColNameAndData[1])
+		if This.IsColName(pacColNameAndData[1])
 			StzRaise("Can't add the column! The name your provided already exists.")
 		ok
 
@@ -11670,7 +11670,7 @@ Class stzTable from stzObject
 			but ring_find([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 				pCol = This.NumberOfCols()
 
-			but This.HascColName(pCol)
+			but This.HasColName(pCol)
 				pCol = This.ColToColNumber(pCol)
 
 			else
@@ -11747,8 +11747,8 @@ Class stzTable from stzObject
 		def RemoveColumnAt(n)
 			This.RemoveNthCol(n)
 	
-	def RemoveColumn(pcColNameOrNumber)
-		nCol = This.ColToColNumber(pcColNameOrNumber)
+	def RemoveColumn(pColNameOrNumber)
+		nCol = This.ColToColNumber(pColNameOrNumber)
 
 		if This.NumberOfCols() = 1 and nCol = 1
 			This.UpdateWith( [ [ :COL1, [ _NULL_ ] ] ] )
@@ -11760,8 +11760,8 @@ Class stzTable from stzObject
 		This.UpdateWith(aContent)
 
 
-		def RemoveCol(pcColNameOrNumber)
-			This.RemoveColumn(pcColNameOrNumber)
+		def RemoveCol(pColNameOrNumber)
+			This.RemoveColumn(pColNameOrNumber)
 
 	  #------------------------------#
 	 #  REMOVING THE GIVEN COLUMNS  #
@@ -12099,12 +12099,12 @@ Class stzTable from stzObject
 	 #  ERASING COLUMNS  #
 	#-------------------#
 
-	def EraseColumn(pcColNameOrNumber)
-		aCellsPos = This.ColAsPositions(pcColNameOrNumber)
+	def EraseColumn(pColNameOrNumber)
+		aCellsPos = This.ColAsPositions(pColNameOrNumber)
 		This.EraseCells(aCellsPos)
 
-		def EraseCol(pcColNameOrNumber)
-			This.EraseColumn(pcColNameOrNumber)
+		def EraseCol(pColNameOrNumber)
+			This.EraseColumn(pColNameOrNumber)
 
 	def EraseColumns(pcColNamesOrNumbers)
 		nCols = This.TheseColsToColsNumbers(pcColNamesOrNumbers)
@@ -12139,10 +12139,10 @@ Class stzTable from stzObject
 
 	def EraseCell(pCol, pnRow)
 		if isNumber(pCol)
-			pCol = This.cColName(pCol)
+			pCol = This.ColName(pCol)
 		ok
 
-		if NOT ( isString(pCol) and This.HascColName(pCol) )
+		if NOT ( isString(pCol) and This.HasColName(pCol) )
 			StzRaise("Incorrect column name!")
 		ok
 
@@ -12216,7 +12216,7 @@ Class stzTable from stzObject
 
 		# Preparing the column name and data
 
-		ccColName = paColData[1]
+		cColName = paColData[1]
 		paColData = paColData[2]
 
 		nLenColData = len(paColData)
@@ -12238,7 +12238,7 @@ Class stzTable from stzObject
 		# Adding the column
 
 		aContent = This.Content()
-		@aContent + [ ccColName, aColData ]
+		@aContent + [ cColName, aColData ]
 		This.UpdateWith(aContent)
 
 
@@ -12594,39 +12594,39 @@ Class stzTable from stzObject
 	 #  GETTING THE LIST OF PROVIDED COLUMNS (THEIR NAMES AND THEIR CELLS)  #
 	#----------------------------------------------------------------------#
 
-	def TheseColumnsXT(pancColNamesOrNumbers)
+	def TheseColumnsXT(paColNamesOrNumbers)
 
-		if NOT ( isList(pancColNamesOrNumbers) and
-			 Q(pancColNamesOrNumbers).IsListOfStringsOrNumbers() )
+		if NOT ( isList(paColNamesOrNumbers) and
+			 Q(paColNamesOrNumbers).IsListOfStringsOrNumbers() )
 
-			StzRaise("Incorrect param type! pancColNamesOrNumbers must be a list of strings or numbers.")
+			StzRaise("Incorrect param type! paColNamesOrNumbers must be a list of strings or numbers.")
 		ok
 
-		nLen = len(pancColNamesOrNumbers)
+		nLen = len(paColNamesOrNumbers)
 		aResult = []
 
 		for i = 1 to nLen
-			p = pancColNamesOrNumbers[i]
-			aResult + [ This.cColName(p), This.ColData(p) ]
+			p = paColNamesOrNumbers[i]
+			aResult + [ This.ColName(p), This.ColData(p) ]
 		next
 
 		return aResult
 
 		#< @FunctionFluentForm
 
-		def TheseColumnsXTQ(pancColNamesOrNumbers)
-			return This.TheseColumnsXTQRT(pancColNamesOrNumbers, :stzList)
+		def TheseColumnsXTQ(paColNamesOrNumbers)
+			return This.TheseColumnsXTQRT(paColNamesOrNumbers, :stzList)
 
-		def TheseColumnsXTQRT(pancColNamesOrNumbers, pcReturnType)
+		def TheseColumnsXTQRT(paColNamesOrNumbers, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.TheseColumnsXT(pancColNamesOrNumbers) )
+				return new stzList( This.TheseColumnsXT(paColNamesOrNumbers) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.TheseColumnsXT(pancColNamesOrNumbers) )
+				return new stzListOfPairs( This.TheseColumnsXT(paColNamesOrNumbers) )
 
 			on :stzListOfLists
-				return new stzListOfLists( This.TheseColumnsXT(pancColNamesOrNumbers) )
+				return new stzListOfLists( This.TheseColumnsXT(paColNamesOrNumbers) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -12636,23 +12636,23 @@ Class stzTable from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def TheseColsXT(pancColNamesOrNumbers)
-			return This.TheseColumnsXT(pancColNamesOrNumbers)
+		def TheseColsXT(paColNamesOrNumbers)
+			return This.TheseColumnsXT(paColNamesOrNumbers)
 
-			def TheseColsXTQ(pancColNamesOrNumbers)
-				return This.TheseColsXTQRT(pancColNamesOrNumbers, :stzList)
+			def TheseColsXTQ(paColNamesOrNumbers)
+				return This.TheseColsXTQRT(paColNamesOrNumbers, :stzList)
 
-			def TheseColsXTQRT(pancColNamesOrNumbers, pcReturnType)
-				return This.TheseColsXT(pancColNamesOrNumbers, pcReturnType)
+			def TheseColsXTQRT(paColNamesOrNumbers, pcReturnType)
+				return This.TheseColsXT(paColNamesOrNumbers, pcReturnType)
 
-		def TheseColXT(pancColNamesOrNumbers)
-			return This.TheseColumnsXT(pancColNamesOrNumbers)
+		def TheseColXT(paColNamesOrNumbers)
+			return This.TheseColumnsXT(paColNamesOrNumbers)
 
-			def TheseColXTQ(pancColNamesOrNumbers)
-				return This.TheseColXTQRT(pancColNamesOrNumbers, :stzList)
+			def TheseColXTQ(paColNamesOrNumbers)
+				return This.TheseColXTQRT(paColNamesOrNumbers, :stzList)
 
-			def TheseColXTQRT(pancColNamesOrNumbers, pcReturnType)
-				return This.TheseColumnsXT(pancColNamesOrNumbers, pcReturnType)
+			def TheseColXTQRT(paColNamesOrNumbers, pcReturnType)
+				return This.TheseColumnsXT(paColNamesOrNumbers, pcReturnType)
 
 		#>
 
@@ -12660,7 +12660,7 @@ Class stzTable from stzObject
 	 #  GETTING THE NAMES OF THE PROVIDED COLUMNS AS DEFINED BY THEIR NUMBERS  #
 	#-------------------------------------------------------------------------#
 
-	def ThesecColNames(panColNumbers)
+	def TheseColNames(panColNumbers)
 		if NOT ( isList(panColNumbers) and Q(panColNumbers).IsListOfNumbers() )
 			StzRaise("Incorrect param type! pacColNumbers muts be a list of numbers.")
 		ok
@@ -12674,9 +12674,9 @@ Class stzTable from stzObject
 		panColNumbers  = ring_sort(panColNumbers)
 		nLenColNumbers = len(panColNumbers)
 
-		paccColNames    = This.cColNames()
+		pacColNames    = This.ColNames()
 
-		nNumCols       = len(paccColNames)
+		nNumCols       = len(pacColNames)
 		
 		if len(panColNumbers) > nNumCols
 			panColNumbers = Q(panColNumbers).Section( 1, nNumCols)
@@ -12685,16 +12685,16 @@ Class stzTable from stzObject
 		aResult = []
 
 		for i = 1 to nLenColNumbers
-			aResult + paccColNames[panColNumbers[i]]
+			aResult + pacColNames[panColNumbers[i]]
 		next
 
 		return aResult
 
 		def TheseColumsNames(panColNumbers)
-			return This.ThesecColNames(panColNumbers)
+			return This.TheseColNames(panColNumbers)
 
 		def TheseColsNames(panColNumbers)
-			return This.ThesecColNames(panColNumbers)
+			return This.TheseColNames(panColNumbers)
 
 	  #------------------------------------------------------------------#
 	 #  GETTING THE NAMES OF COLUMNS AS DEFINED BY THEIR GIVEN NUMBERS  #
@@ -12709,7 +12709,7 @@ Class stzTable from stzObject
 		aResult = []
 
 		for i = 1 to nLen
-			aResult + This.NthcColName(panColNumbers[i])
+			aResult + This.NthColName(panColNumbers[i])
 		next
 
 		return aResult
@@ -12718,16 +12718,16 @@ Class stzTable from stzObject
 	 #  GETTING THE NUMBERS OF COLUMNS AS DEFINED BY THEIR GIVEN NAMES  #
 	#------------------------------------------------------------------#
 
-	def cColNamesToNumbers(paccColNames)
-		if NOT ( isList(paccColNames) and Q(paccColNames).IsListOfStrings() )
-			StzRaise("Incorrect param type! paccColNames must be a list of strings.")
+	def cColNamesToNumbers(pacColNames)
+		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+			StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 		ok
 	
-		nLen = len(paccColNames)
+		nLen = len(pacColNames)
 		anResult = []
 
 		for i = 1 to nLen
-			n = This.FindColByName(paccColNames[i])
+			n = This.FindColByName(pacColNames[i])
 			anResult + n
 		next
 
@@ -12735,14 +12735,14 @@ Class stzTable from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def ColsNamesToNumbers(paccColNames)
-			return This.cColNamesToNumbers(paccColNames)
+		def ColsNamesToNumbers(pacColNames)
+			return This.ColNamesToNumbers(pacColNames)
 
-		def ColumnNamesToNumbers(paccColNames)
-			return This.cColNamesToNumbers(paccColNames)
+		def ColumnNamesToNumbers(pacColNames)
+			return This.ColNamesToNumbers(pacColNames)
 
-		def ColumnsNamesToNumbers(paccColNames)
-			return This.cColNamesToNumbers(paccColNames)
+		def ColumnsNamesToNumbers(pacColNames)
+			return This.ColNamesToNumbers(pacColNames)
 
 		#>
 
@@ -12750,42 +12750,42 @@ Class stzTable from stzObject
 	 #  RETURNING THE SUBTABLE DEFINED BY THE GIVEN COLUMNS NAMES  #
 	#=============================================================#
 
-	def SubTable(paccColNames)
-		if NOT ( isList(paccColNames) and Q(paccColNames).IsListOfStrings() )
-			StzRaise("Incorrect param type! paccColNames must be a list of string.")
+	def SubTable(pacColNames)
+		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+			StzRaise("Incorrect param type! pacColNames must be a list of string.")
 		ok
 
-		paccColNames = Q(paccColNames).Lowercased()
+		pacColNames = Q(pacColNames).Lowercased()
 
-		if This.HascColNames(paccColNames)
+		if This.HasColNames(pacColNames)
 			aResult = []
-			for ccColName in paccColNames
+			for cColName in pacColNames
 	
-				aResult + [ ccColName, This.Col(ccColName) ]
+				aResult + [ cColName, This.Col(cColName) ]
 			next
 	
 			return aResult	
 		ok
 
-		def SubTableQ(paccColNames)
-			return This.SubTableQRT(paccColNames, :stzList)
+		def SubTableQ(pacColNames)
+			return This.SubTableQRT(pacColNames, :stzList)
 
-		def SubTableQRT(paccColNames, pcReturnType)
+		def SubTableQRT(pacColNames, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.SubTable(paccColNames) )
+				return new stzList( This.SubTable(pacColNames) )
 
 			on :stzHashList
-				return new stzHashList( This.SubTable(paccColNames) )
+				return new stzHashList( This.SubTable(pacColNames) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.SubTable(paccColNames) )
+				return new stzListOfPairs( This.SubTable(pacColNames) )
 
 			on :stzListOfLists
-				return new stzListOfLists( This.SubTable(paccColNames) )
+				return new stzListOfLists( This.SubTable(pacColNames) )
 
 			on :stzTable
-				return new stzTable( This.SubTable(paccColNames) )
+				return new stzTable( This.SubTable(pacColNames) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -13051,11 +13051,11 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		if isString(pnFrom) and NOT This.HascColName(pnFrom)
+		if isString(pnFrom) and NOT This.HasColName(pnFrom)
 			StzRaise("Incorrect column name!")
 		ok
 
-		if isString(pnTo) and NOT This.HascColName(pnTo)
+		if isString(pnTo) and NOT This.HasColName(pnTo)
 			StzRaise("Incorrect column name!")
 		ok
 
@@ -13091,14 +13091,14 @@ Class stzTable from stzObject
 		bCol1IsValid = ( isNumber(pCol1) and
 				 pCol1 >= 1 and pCol1 <= This.NumberOfCol() )
 
-		bCol2IsValid = ( isString(pCol2) and This.HascColName(pCol2) )
+		bCol2IsValid = ( isString(pCol2) and This.HasColName(pCol2) )
 
 		if NOT ( bCol1IsValid or bCol2IsValid )
 			StzRaise("Incorrect params! pCol1 and pCol2 must be valid columns names or strings.")
 		ok
 
-		cName1 = This.cColName(pCol1)
-		cName2 = This.cColName(pCol2)
+		cName1 = This.ColName(pCol1)
+		cName2 = This.ColName(pCol2)
 
 		nCol1 = This.ColNumber(pCol1)
 		nCol2 = This.ColNumber(pCol2)
@@ -13197,49 +13197,49 @@ Class stzTable from stzObject
 	 #   REPLACING A COLUMN NAME   #
 	#=============================#
 
-	def ReplaceNthcColName(n, pcNewcColName)
+	def ReplaceNthColName(n, pcNewColName)
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		This.ReplacecColName(n, pcNewcColName)
+		This.ReplaceColName(n, pcNewColName)
 
-	def ReplacecColName(pCol, pcNewcColName)
-		if isList(pcNewcColName) and Q(pcNewcColName).IsWithOrByNamedParam()
-			pcNewcColName = pcNewcColName[2]
+	def ReplaceColName(pCol, pcNewColName)
+		if isList(pcNewColName) and Q(pcNewColName).IsWithOrByNamedParam()
+			pcNewColName = pcNewColName[2]
 		ok
 
-		if NOT isString(pcNewcColName)
-			StzRaise("Incorrect param type! pcNewcColName must be a string.")
+		if NOT isString(pcNewColName)
+			StzRaise("Incorrect param type! pcNewColName must be a string.")
 		ok
 
-		if This.IscColName(pcNewcColName)
-			StzRaise("Can't replace the column with this name (" + pcNewcColName + ")! Name you provided already exists.")
+		if This.IsColName(pcNewColName)
+			StzRaise("Can't replace the column with this name (" + pcNewColName + ")! Name you provided already exists.")
 		ok
 
 		aContent = This.Content()
 		n = This.ColNumber(pCol)
-		@aContent[n][1] = pcNewcColName
+		@aContent[n][1] = pcNewColName
 		This.UpdateWith(aContent)
 
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceColumnName(pCol, pcNewcColName)
-			This.ReplacecColName(pCol, pcNewcColName)
+		def ReplaceColumnName(pCol, pcNewColName)
+			This.ReplaceColName(pCol, pcNewColName)
 
 		#>
 
-	def ArecColNames(paccColNames)
-		if NOT ( isList(paccColNames) and Q(paccColNames).IsListOfStrings() )
-			StzRaise("Incorrect param type! paccColNames must be a list of strings.")
+	def AreColNames(pacColNames)
+		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+			StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 		ok
 
-		nLen = len(paccColNames)
+		nLen = len(pacColNames)
 		bResult = _TRUE_
 
 		for i = 1 to nLen
-			if NOT This.IscColName(paccColNames[i])
+			if NOT This.IsColName(pacColNames[i])
 				bResult = _FALSE_
 				exit
 			ok
@@ -13249,11 +13249,11 @@ Class stzTable from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def AreColumnNames(paccColNames)
-			This.ArecColNames(paccColNames)
+		def AreColumnNames(pacColNames)
+			This.AreColNames(pacColNames)
 
-		def AreColumnsNames(paccColNames)
-			This.ArecColNames(paccColNames)
+		def AreColumnsNames(pacColNames)
+			This.AreColNames(pacColNames)
 
 		#>
 
@@ -13886,7 +13886,7 @@ Class stzTable from stzObject
 	def ToStzHashList()
 		return new stzHashList( This.Table() )
 
-	def ColTocColName(p)
+	def ColToColName(p)
 		if isList(p) and
 		   Q(p).IsOneOfTheseNamedParams([
 			:Col, :InCol, :Cols, :InCols,
@@ -13908,7 +13908,7 @@ Class stzTable from stzObject
 			but ring_find([ :Last, :LastCol, :LastColumn ], p) > 0
 				p = This.NumberOfCols()
 
-			but This.HascColName(p)
+			but This.HasColName(p)
 				p = This.FindCol(p)
 
 			else
@@ -13916,22 +13916,22 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		cResult = This.cColName(p)
+		cResult = This.ColName(p)
 		return cResult
 
 		def ColumnToColumnName(p)
-			return This.ColTocColName(p)
+			return This.ColToColName(p)
 
 		def ColToName(p)
-			return This.ColTocColName(p)
+			return This.ColToColName(p)
 
 		def ColAsName(p)
-			return This.ColTocColName(p)
+			return This.ColToColName(p)
 
 		def ColumnAsName(p)
-			return This.ColTocColName(p)
+			return This.ColToColName(p)
 
-	def TheseColsTocColNames(paCols)
+	def TheseColsToColNames(paCols)
 		if NOT ( isList(paCols) and ( Q(paCols).IsListOfNumbers() or
 				Q(paCols).IsListOfStrings() or
 				Q(paCols).IsListOfNumbersAndStrings() ) )
@@ -13943,7 +13943,7 @@ Class stzTable from stzObject
 		acResult = []
 
 		for i = 1 to nLen
-			acResult + This.ColTocColName(paCols[i])
+			acResult + This.ColToColName(paCols[i])
 		next
 
 		return acResult
@@ -13951,51 +13951,51 @@ Class stzTable from stzObject
 		#< @FunctionAlternativeForms
 
 		def TheseColsToColsNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
 		def TheseColumnsToColumnNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
 		def TheseColumnsToColumnsNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
 		def TheseColsToNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
 		def TheseColumnsToNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
 		def TheseColsAsNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
 		def TheseColumnsAsNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
 		#--
 
-		def ColsTocColNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+		def ColsToColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
 		def ColsToColsNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
 		def ColsToColumnNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
 		def ColsToColumnsNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
-		def ColumnsTocColNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+		def ColumnsToColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
 		def ColumnsToColsNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
 		def ColumnsToColumnNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
 		def ColumnsToColumnsNames(paCols)
-			return This.TheseColsTocColNames(paCols)
+			return This.TheseColsToColNames(paCols)
 
 		#>
 
@@ -14016,8 +14016,8 @@ Class stzTable from stzObject
 			but ring_find([ :Last, :LastCol, :LastColumn ], p) > 0
 				p = This.NumberOfCols()
 
-			but This.HascColName(p)
-				p = This.cColNamesQ().FindFirst(p)
+			but This.HasColName(p)
+				p = This.ColNamesQ().FindFirst(p)
 
 			else
 				StzRaise("Incorrect param value! p must be a number or string. Allowed strings are :First, :FirstCol, :Last, :LastCol and any valid column name.")
@@ -14200,7 +14200,7 @@ Class stzTable from stzObject
 		ok
 
 		if isString(pacColNames)
-			if This.IsAcColName(pacColNames)
+			if This.IsAColName(pacColNames)
 				n = This.ColToColNumber(pacColNames)
 				return '( This.Cell(' + n + ', j) )'
 			else
@@ -14209,37 +14209,37 @@ Class stzTable from stzObject
 		ok
 
 		nLen = len(pacColNames)
-		accColNames = []
+		acColNames = []
 
 		if Q(pacColNames).IsListOfStrings()
 			for i = 1 to nLen
-				accColNames + [ pacColNames[i], [_NULL_] ]
+				acColNames + [ pacColNames[i], [_NULL_] ]
 			next
 
 		else // IsHashList()
 			for i = 1 to nLen
-				accColNames + [ pacColNames[i][1], [_NULL_] ]
+				acColNames + [ pacColNames[i][1], [_NULL_] ]
 			next
 		ok
 
-		This.AddCols(accColNames)
+		This.AddCols(acColNames)
 		This.RemoveCol(1)
 
 	  #==============================#
 	 #  ADDING A CALCULATED COLUMN  #
 	#==============================#
 
-	def InsertCalculatedCol(n, pccColName, pcFormula)
+	def InsertCalculatedCol(n, pcColName, pcFormula)
 		if CheckingParams()
-			if NOT @BothAreStrings(pccColName, pcFormula)
-				StzRaise("Incorrect param types! pccColName and pcFormula must be both strings.")
+			if NOT @BothAreStrings(pcColName, pcFormula)
+				StzRaise("Incorrect param types! pcColName and pcFormula must be both strings.")
 			ok
 	
-			if ring_trim(pccColName) = ""
+			if ring_trim(pcColName) = ""
 				StzRaise("Can't proceed! You must provide a name for the calculated column.")
 			ok
 	
-			if This.IsAcColName(pccColName)
+			if This.IsAColName(pcColName)
 				StzRaise("Can't proceed! The column name you provided already exists.")
 			ok
 	
@@ -14256,7 +14256,7 @@ Class stzTable from stzObject
 
 		oForumla = new stzString(pcFormula)
 		for i = 1 to nCols
-			oForumla.ReplaceCS( ('@(:'+ This.cColName(i)+')'), 'This.Cell(' + i + ', i)', _FALSE_)
+			oForumla.ReplaceCS( ('@(:'+ This.ColName(i)+')'), 'This.Cell(' + i + ', i)', _FALSE_)
 		next
 
 		pcFormula = oForumla.Content()
@@ -14273,30 +14273,30 @@ Class stzTable from stzObject
 		next		
 
 		aContent = This.Content()
-		aContent = ring_insert(aContent, n, [ pccColName, aColData ])
+		aContent = ring_insert(aContent, n, [ pcColName, aColData ])
 		This.UpdateWith(aContent)
 		@anCalculatedCols + n
 
 		#< @FunctionAlternativeForms
 
-		def InsertCalculatedColAt(n, pccColName, pcFormula)
-			This.InsertCalculatedCol(n, pccColName, pcFormula)
+		def InsertCalculatedColAt(n, pcColName, pcFormula)
+			This.InsertCalculatedCol(n, pcColName, pcFormula)
 
-		def InsertCalculatedColumn(n, pccColName, pcFormula)
-			This.InsertCalculatedCol(n, pccColName, pcFormula)
+		def InsertCalculatedColumn(n, pcColName, pcFormula)
+			This.InsertCalculatedCol(n, pcColName, pcFormula)
 
-		def InsertCalculatedColumnAt(n, pccColName, pcFormula)
-			This.InsertCalculatedCol(n, pccColName, pcFormula)
+		def InsertCalculatedColumnAt(n, pcColName, pcFormula)
+			This.InsertCalculatedCol(n, pcColName, pcFormula)
 
 		#>
 
-	def AddCalculatedCol(pccColName, pcFormula)
-		This.InsertCalculatedCol(This.NumberOfCols()+1, pccColName, pcFormula)
+	def AddCalculatedCol(pcColName, pcFormula)
+		This.InsertCalculatedCol(This.NumberOfCols()+1, pcColName, pcFormula)
 
 		#< @FunctionAlternativeForm
 
-		def AddCalculatedColumn(pccColName, pcFormula)
-			This.AddCalculatedCol(pccColName, pcFormula)
+		def AddCalculatedColumn(pcColName, pcFormula)
+			This.AddCalculatedCol(pcColName, pcFormula)
 
 		#>
 
@@ -14327,19 +14327,19 @@ Class stzTable from stzObject
 	 #  GETTING THE NAMES OF THE CALCULATED COLUMNS  #
 	#-----------------------------------------------#
 
-	def CalculatedcColNames()
+	def CalculatedColNames()
 		anPos = This.FindCalculatedCols()
-		acResult = This.ThesecColNames(anPos)
+		acResult = This.TheseColNames(anPos)
 		return acResult
 
 		def CalculatedColsNams()
-			return This.CalculatedcColNames()
+			return This.CalculatedColNames()
 
 		def CalculatedColumnNams()
-			return This.CalculatedcColNames()
+			return This.CalculatedColNames()
 
 		def CalculatedColumnsNams()
-			return This.CalculatedcColNames()
+			return This.CalculatedColNames()
 
 	  #===========================#
 	 #  ADDING A CALCULATED ROW  #
@@ -14363,8 +14363,8 @@ Class stzTable from stzObject
 		aoForumlas = StzListQ(pacFormulas).ToListOfStzStrings()
 		acCodes = []
 		for i = 1 to nMin
-			ccColName = This.cColName(i)
-			aoForumlas[i].ReplaceCS( ('@(:'+ ccColName +')'), 'This.Col(:' + ccColName + ')', _FALSE_)
+			cColName = This.ColName(i)
+			aoForumlas[i].ReplaceCS( ('@(:'+ cColName +')'), 'This.Col(:' + cColName + ')', _FALSE_)
 			cCode =  aoForumlas[i].Content()
 			if cCode != ""
 				cCode = 'value = ' + cCode
@@ -14616,7 +14616,7 @@ Class stzTable from stzObject
         nCols = This.NumberOfCols()
 
         for nCol = 1 to nCols
-            cColName = This.cColName(nCol)
+            cColName = This.ColName(nCol)
             colData = []
 
 			nLenRowsToKeep = len(aRowsToKeep)
@@ -14696,7 +14696,7 @@ Class stzTable from stzObject
 			cAggMethod = aProcessedAggs[i][2]
 	
 			# Create aggregated column name
-			cAggcColName = cAggMethod + "(" + cColName + ")"
+			cAggColName = cAggMethod + "(" + cColName + ")"
 	
 			# Perform aggregation
 			nColIndex = This.FindCol(cColName)
@@ -14754,7 +14754,7 @@ Class stzTable from stzObject
 			off
 	
 			# Add aggregated column
-			aResult + [ cAggcColName, [nResult] ]
+			aResult + [ cAggColName, [nResult] ]
 
 		next
 	
@@ -14767,11 +14767,112 @@ Class stzTable from stzObject
 			return This
 		#>
 
-	  #---------------#
-	 #  GROUPING BY  #
-	#---------------#
+	  #===============================================#
+	 #  GROUPING DATA (ROWS) BU A GIVEN VALUE (COL)  #
+	#===============================================#
 
-	def GroupBy(paCols, paAggregations)
+def GroupBy(paCols)
+	
+	if NOT isList(paCols)
+		if isString(paCols) This.IsCol(paCols) and IsListOfLists(This.Col(paCols))
+				This.GroupByListItems(paCols)
+				return
+		ok
+
+		aTemp = [] + paCols
+		paCols = aTemp
+	ok
+
+    # Validate input is a list of column names
+    if NOT (isList(paCols) and len(paCols) > 0)
+        StzRaise("GroupBy requires a non-empty list of column names")
+    ok
+    
+    # Validate column existence
+    nLen = len(paCols)
+    for i = 1 to nLen
+        if This.FindCol(paCols[i]) = 0
+            StzRaise("Column '" + paCols[i] + "' not found in the table")
+        ok
+    next
+    
+    # Prepare to group rows
+    nRows = This.NumberOfRows()
+    aGroupedRows = []
+    aGroupKeys = []
+    aUniqueGroups = []
+    
+    # Iterate through rows to create groups
+    nLenCols = len(paCols)
+    for nRow = 1 to nRows
+        # Create group key from specified columns
+        aGroupKey = []
+        for i = 1 to nLenCols
+            nColIndex = This.FindCol(paCols[i])
+            aGroupKey + This.Cell(nColIndex, nRow)
+        next
+        
+        # Convert group key to string for easy comparison
+        cGroupKey = ""
+        for i = 1 to len(aGroupKey)
+            cGroupKey += ""+ aGroupKey[i] + '|'
+        next
+        
+        # Check if this group key exists
+        nGroupIndex = ring_find(aGroupKeys, cGroupKey)
+        if nGroupIndex = 0
+            # New group, add to groups
+            aGroupKeys + cGroupKey
+            aUniqueGroups + aGroupKey
+            aGroupedRows + [ This.Row(nRow) ]
+        else
+            # Existing group, append row
+            aGroupedRows[nGroupIndex] + This.Row(nRow)
+        ok
+    next
+    
+    # Build result table structure
+    aResult = []
+    acColNames = This.ColNames()
+    
+    # Add all columns to result
+    for i = 1 to len(acColNames)
+        aResult + [ acColNames[i], [] ]
+    next
+    
+    # Add rows from each group to result
+    nLenGroups = len(aUniqueGroups)
+    for i = 1 to nLenGroups
+        aRows = aGroupedRows[i]
+        for j = 1 to len(aRows)
+            aRow = aRows[j]
+            # Add each value to its column
+            for k = 1 to len(aRow)
+                aResult[k][2] + aRow[k]
+            next
+        next
+    next
+    
+    @aContent = aResult
+
+
+		#< @FunctionFluentForm
+
+		def GroupByQ(paCols)
+			This.GroupBy(paCols)
+			return This
+
+		def GroupByCQ(paCols)
+				_oCopy_ = This.Copy()
+				_oCopy_.GroupBy(paCols)
+				return _oCopy_
+		#>
+
+	  #-------------------------------------------#
+	 #  GROUPING BY AND AGRREGATING -- EXTENDED  #
+	#-------------------------------------------#
+
+	def GroupByXT(paCols, paAggregations)
 	
 		# Validate input is a list of column names
 	
@@ -14801,7 +14902,7 @@ Class stzTable from stzObject
 
 		if nLenAgg = 0
 
-			acColNames = This.cColNames()
+			acColNames = This.ColNames()
 
 			for i = 1 to nLenAgg
 
@@ -14913,8 +15014,8 @@ Class stzTable from stzObject
 	for i = 1 to nLenAgg
 		cColName = paAggregations[i][1]
 		cAggMethod = paAggregations[i][2]
-		cAggcColName = cAggMethod + "(" + cColName + ")"
-		aResult + [ cAggcColName, [] ]
+		cAggColName = cAggMethod + "(" + cColName + ")"
+		aResult + [ cAggColName, [] ]
 	next
 
 	# Perform aggregations for each group
@@ -15010,17 +15111,145 @@ Class stzTable from stzObject
 				nColOffset++
 
 			next
+
 		next
 
 		@aContent = aResult
 
+
 		#< @FunctionFluentForm
 
-		def GroupByQ(paCols, paAggregations)
-			This.GroupBy(paCols, paAggregations)
+		def GroupByXTQ(paCols, paAggregations)
+			This.GroupByXT(paCols, paAggregations)
 			return This
 
 		#>
+
+		#< @FunctionAlternativeForm
+
+		def GroupByAndAggregate(paCols, paAggregations)
+			This.GroupByXT(paCols, paAggregations)
+
+			def GroupByAndAggregateQ(paCols, paAggregations)
+				return This.GroupByXTQ(paCols, paAggregations)
+
+		#>
+
+	  #---------------------------------------------#
+	 #  GROUPING DATA BY A COLUMN CONTAINING LIST  #
+	#---------------------------------------------#
+
+def GroupByListItems(paCols)
+	if NOT isList(paCols)
+		aTemp = [] + paCols
+		paCols = aTemp
+	ok
+    # Validate input is a list of column names
+    if NOT (isList(paCols) and len(paCols) > 0)
+        StzRaise("GroupByListItems requires a non-empty list of column names")
+    ok
+    
+    # Validate column existence
+    nLen = len(paCols)
+    for i = 1 to nLen
+        if This.FindCol(paCols[i]) = 0
+            StzRaise("Column '" + paCols[i] + "' not found in the table")
+        ok
+    next
+    
+    # Get the lists column we're grouping by
+    cListColumn = paCols[1]  # Use the first column as the list column
+    nListColIndex = This.FindCol(cListColumn)
+    
+    # Prepare to collect unique hobby values and associated rows
+    nRows = This.NumberOfRows()
+    aHobbyMap = []  # Will be a list of [hobby, [row1, row2, ...]] pairs
+    
+    # Process each row and collect unique hobby values
+    for nRow = 1 to nRows
+        vCellValue = This.Cell(nListColIndex, nRow)
+        
+        # Skip if not a list
+        if NOT isList(vCellValue)
+            loop
+        ok
+        
+        # Process each hobby in the list
+        for j = 1 to len(vCellValue)
+            cHobby = vCellValue[j]
+            
+            # Find this hobby in our map
+            nHobbyIndex = 0
+            for k = 1 to len(aHobbyMap)
+                if aHobbyMap[k][1] = cHobby
+                    nHobbyIndex = k
+                    exit
+                ok
+            next
+            
+            if nHobbyIndex = 0
+                # New hobby, add it with this row
+                aHobbyMap + [cHobby, [nRow]]
+            else
+                # Existing hobby, check if row already exists
+                bFound = FALSE
+                for r = 1 to len(aHobbyMap[nHobbyIndex][2])
+                    if aHobbyMap[nHobbyIndex][2][r] = nRow
+                        bFound = TRUE
+                        exit
+                    ok
+                next
+                
+                # Add row if not found
+                if NOT bFound
+                    aHobbyMap[nHobbyIndex][2] + nRow
+                ok
+            ok
+        next
+    next
+    
+    # Build the new table structure with hobbies as the first column
+    aNewColumns = [cListColumn]
+    acColNames = This.ColNames()
+    
+    # Add all other columns except the list column
+    for i = 1 to len(acColNames)
+        if acColNames[i] != cListColumn
+            aNewColumns + acColNames[i]
+        ok
+    next
+    
+    # Create the result table structure
+    aResult = []
+    for i = 1 to len(aNewColumns)
+        aResult + [aNewColumns[i], []]
+    next
+    
+    # Fill in the data for each hobby group
+    for i = 1 to len(aHobbyMap)
+        cHobby = aHobbyMap[i][1]
+        aRowIndices = aHobbyMap[i][2]
+        
+        # For each row that has this hobby
+        for j = 1 to len(aRowIndices)
+            nRowIndex = aRowIndices[j]
+            
+            # Add the hobby as the first column value
+            aResult[1][2] + cHobby
+            
+            # Add all other columns from the original row
+            nColOffset = 2  # Start from second column
+            for k = 1 to len(acColNames)
+                if acColNames[k] != cListColumn
+                    nColIndex = This.FindCol(acColNames[k])
+                    aResult[nColOffset][2] + This.Cell(nColIndex, nRowIndex)
+                    nColOffset++
+                ok
+            next
+        next
+    next
+    
+    @aContent = aResult
 
 	  #-----------#
 	 #  DSIPLAY  #
@@ -15049,7 +15278,7 @@ Class stzTable from stzObject
 
     def _displayFullTable()
         # Get column names and content
-        acColNames = This.cColNames()
+        acColNames = This.ColNames()
         aContent = This.Content()
         
         # Calculate column widths
@@ -15209,11 +15438,14 @@ Class stzTable from stzObject
 		
 		# Process parameters and ensure boolean values
 		processParameters(pParams, bRowNumber, bSubTotal, bGrandTotal)
+		bRowNumber = @if(not isNull(pParams[:RowNumber]), pParams[:RowNumber], FALSE)
+		bSubTotal = @if(not isNull(pParams[:SubTotal]), pParams[:SubTotal], FALSE)
+		bGrandTotal = @if(not isNull(pParams[:GrandTotal]), pParams[:GrandTotal], FALSE)
 		
 		# Get column names and content
-		acColNames = getColumnNames()
-		aContent = getContent()
-		
+		acColNames = This.ColNames()
+		aContent = This.Content()
+
 		# Calculate column widths
 		aColWidths = calculateColumnWidths(acColNames, aContent, bRowNumber, bGrandTotal)
 		
@@ -15276,13 +15508,6 @@ Class stzTable from stzObject
 		bSubTotal = @if(IsBoolean(bSubTotal), bSubTotal, FALSE)
 		bGrandTotal = @if(IsBoolean(bGrandTotal), bGrandTotal, FALSE)
 
-	# Submethod to get column names
-	def getColumnNames()
-		return This.cColNames()
-
-	# Submethod to get content
-	def getContent()
-		return This.Content()
 
 	# Submethod to calculate column widths
 	def calculateColumnWidths(acColNames, aContent, bRowNumber, bGrandTotal)
@@ -15327,6 +15552,7 @@ Class stzTable from stzObject
 
 	# Submethod to adjust column widths and names for row numbers
 	def adjustForRowNumbers(bRowNumber, aColWidths, acColNames)
+
 		if bRowNumber
 			nRowNumWidth = len("" + This.NumberOfRows()) + 2
 			aColWidths = ring_insert(aColWidths, 1, nRowNumWidth)
@@ -15407,7 +15633,9 @@ Class stzTable from stzObject
 		
 		# First pass: gather groups and calculate totals
 		for r = 1 to nRows
+
 			cGroup = "" + aContent[nGroupCol][2][r]
+
 			if NOT ring_find(aGroups, cGroup) > 0
 				aGroups + cGroup
 				aGroupTotals[cGroup] = []
