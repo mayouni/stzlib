@@ -126,7 +126,7 @@ pf()
 # Executed in 0.40 second(s) in Ring 1.22
 
 /*---  Using multiple dimensions for rows and columns
-*/
+
 pr()
     
 # Define employee data in a stzTable object
@@ -168,15 +168,13 @@ oPivot = new stzPivotTable(oTable)
 
 oPivot {
 
-  Analyze([ :Salary ], :Using = :SUM)
+	Analyze([ :Salary ], :Using = :SUM)
 
-  # 2 rows and 2 columns
+	# 2 rows and 2 columns
 
-  SetRowsBy([ :Department, :Location ])
-  SetColsBy([ :Experience, :Gender ])
-  ShowXT(True, :GrandTotal=True)
-
-
+	SetRowsBy([ :Department, :Location ])
+	SetColsBy([ :Experience, :Gender ])
+	ShowXT(True, :GrandTotal=True)
 
 	#-->
 # ╭───────────────────────┬─────────────────────┬─────────────────────┬─────────╮
@@ -256,7 +254,7 @@ pf()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*--- Various Aggregation Functions
-
+*/
 pr()
     
     # Define a product sales and ratings dataset

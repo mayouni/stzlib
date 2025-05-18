@@ -1,13 +1,13 @@
-#---------------------------------------------------------------------------#
-# 		   SOFTANZA LIBRARY (V1.0) - STZLIST			    #
-#	An accelerative library for Ring applications, and more!	    #
-#---------------------------------------------------------------------------#
-#									    #
-# 	Description	: The class for managing lists in Softanza          #
-#	Version		: V1.0 (2020-2024)				    #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
-#									    #
-#---------------------------------------------------------------------------#
+#-------------------------------------------------------------#
+# 		   SOFTANZA LIBRARY (V1.0) - STZLIST			      #
+#	An accelerative library for Ring applications, and more!  #
+#-------------------------------------------------------------#
+#									                          #
+# 	Description	: The class for managing lists in Softanza    #
+#	Version		: V1.0 (2020-2024)				              #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)       #
+#									                          #
+#-------------------------------------------------------------#
 
 #TODO Centralize all updading features in update() method
 # ~> It's important to have a single entry for this allover
@@ -89303,6 +89303,33 @@ fdef
 
 		def IsUsingOrWithOrByOrWhereNamedParams()
 			return This.IsUsingOrWithOrByOrWhereNamedParam()
+
+
+	def IsWithOrUsingOrInNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Using or This.Item(1) = :With or This.Item(1) = :In ) )
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+		def IsWithOrInOrUsingNamedParam()
+			return This.IsWithOrUsingOrInNamedParam()
+
+		def IsUsingOrWithOrInNamedParam()
+			return This.IsWithOrUsingOrInNamedParam()
+
+		def IsUsingOrInOrWithNamedParam()
+			return This.IsWithOrUsingOrInNamedParam()
+
+		def IsInOrWithOrUsingNamedParam()
+			return This.IsWithOrUsingOrInNamedParam()
+
+		def IsInOrUsingOrWithNamedParam()
+			return This.IsWithOrUsingOrInNamedParam()
 
 	def IsNextNamedParam()
 		if This.NumberOfItems() = 2 and

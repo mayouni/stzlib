@@ -136,7 +136,7 @@ pf()
 # Executed in 0.47 second(s) in Ring 1.17
 
 /*---------
-*/
+
 # WAY 6: Creating a table from an external text file (EXPERIMENTAL)
 
 #NOTE
@@ -171,13 +171,13 @@ o2.ShowXT([ :RowNumber = TRUE ])
 # │ # │      Name       │ Age │            Hobbies             │
 # ├───┼─────────────────┼─────┼────────────────────────────────┤
 # │ 1 │ Hela            │  24 │ [ "Sport", "Music" ]           │
-# │ 2 │ Jon             │  32 │ [ "Games", "Travel", "Sport" ] │
+# │ 2 │ John             │  32 │ [ "Games", "Travel", "Sport" ] │
 # │ 3 │ Ali             │  22 │ [ "Painting", "Dansing" ]      │
 # │ 4 │ Foued           │  43 │ [ "Music", "Travel" ]          │
 # ╰───┴─────────────────┴─────┴────────────────────────────────╯
 
 #~> #NOTE that numbers and lists are evaluated and retutned as native types
-#~> #NOTE lists in the text file must be take the form ['str1','str2','str3']
+#~> #NOTE lists in the text file must take the form ['str1','str2','str3']
 
 pf()
 # Executed in 0.64 second(s)
@@ -6558,8 +6558,8 @@ o1 = new stzTable([
 o1.ToStzPivotTable() {
 
 	Analyze([ :Salary ], :Using = :SUM)
-	SetRowsBy([ :Department, :Location ])
-	SetColsBy([ :Experience, :Gender ])
+	InRowsPut([ :Department, :Location ])
+	InColsPut([ :Experience, :Gender ])
 
 	Show()
 
@@ -6583,3 +6583,145 @@ o1.ToStzPivotTable() {
 
 pf()
 # Executed in 0.17 second(s) in Ring 1.22
+
+/*==== Grouping data by a column containing lists
+
+pr()
+
+o1 = new stzTable([
+	[
+		"name",
+		[ "Hela", "John  ", "Ali", "Foued" ]
+	],
+	[
+		"age",
+		[ 24, 32, 22, 43 ]
+	],
+	[
+		"hobbies",
+		[
+			[ "Sport", "Music" ],
+			[ "Games", "Travel", "Sport" ],
+			[ "Painting", "Dansing" ],
+			[ "Music", "Travel" ]
+		]
+	]
+])
+
+o1.ShowXT([ :RowNumber = TRUE ])
+#-->
+# ╭───┬─────────────────┬─────┬────────────────────────────────╮
+# │ # │      Name       │ Age │            Hobbies             │
+# ├───┼─────────────────┼─────┼────────────────────────────────┤
+# │ 1 │ Hela            │  24 │ [ "Sport", "Music" ]           │
+# │ 2 │ John            │  32 │ [ "Games", "Travel", "Sport" ] │
+# │ 3 │ Ali             │  22 │ [ "Painting", "Dansing" ]      │
+# │ 4 │ Foued           │  43 │ [ "Music", "Travel" ]          │
+# ╰───┴─────────────────┴─────┴────────────────────────────────╯
+
+o1.GroupBy(:Hobbies)
+o1.Show()
+#-->
+# ╭──────────┬────────┬─────╮
+# │ Hobbies  │  Name  │ Age │
+# ├──────────┼────────┼─────┤
+# │ Sport    │ Hela   │  24 │
+# │ Sport    │ John   │  32 │
+# │ Music    │ Hela   │  24 │
+# │ Music    │ Foued  │  43 │
+# │ Games    │ John   │  32 │
+# │ Travel   │ John   │  32 │
+# │ Travel   │ Foued  │  43 │
+# │ Painting │ Ali    │  22 │
+# │ Dansing  │ Ali    │  22 │
+# ╰──────────┴────────┴─────╯
+
+pf()
+# Executed in 0.21 second(s) in Ring 1.22
+
+/*----
+*/
+pr()
+
+/*
+Content of "team.csv" file:
+
+Employee;Role;Task;Productivity
+Sara;Developer;["Coding", "Debugging"];8.5
+Mike;Manager;["Planning", "Review"];7.2
+Lena;Designer;["UI", "Prototyping"];9.0
+Omar;Developer;["Coding", "Testing"];8.0
+Tara;Manager;["Planning", "Coordination"];7.8
+Alex;Designer;["UI", "Animation"];8.7
+
+*/
+
+o1 = new stzTable(:FromFile = "team.csv")
+o1.ShowXT([ :RowNumber = TRUE ])
+#-->
+# ╭───┬─────────────────┬───────────┬────────────────────────────────┬──────────────╮
+# │ # │    Employee     │   Role    │             Task              │ Productivity │
+# ├───┼─────────────────┼───────────┼────────────────────────────────┼──────────────┤
+# │ 1 │ Sara            │ Developer │ [ "Coding", "Debugging" ]      │         8.50 │
+# │ 2 │ Mike            │ Manager   │ [ "Planning", "Review" ]       │         7.20 │
+# │ 3 │ Lena            │ Designer  │ [ "UI", "Prototyping" ]        │            9 │
+# │ 4 │ Omar            │ Developer │ [ "Coding", "Testing" ]        │            8 │
+# │ 5 │ Tara            │ Manager   │ [ "Planning", "Coordination" ] │         7.80 │
+# │ 6 │ Alex            │ Designer  │ [ "UI", "Animation" ]          │         8.70 │
+# ╰───┴─────────────────┴───────────┴────────────────────────────────┴──────────────╯
+
+
+o1.GroupBy(:Task)
+o1.Show()
+#-->
+# ╭──────────────┬──────────┬───────────┬──────────────╮
+# │    Task     │ Employee │   Role    │ Productivity │
+# ├──────────────┼──────────┼───────────┼──────────────┤
+# │ Coding       │ Sara     │ Developer │         8.50 │
+# │ Coding       │ Omar     │ Developer │            8 │
+# │ Debugging    │ Sara     │ Developer │         8.50 │
+# │ Planning     │ Mike     │ Manager   │         7.20 │
+# │ Planning     │ Tara     │ Manager   │         7.80 │
+# │ Review       │ Mike     │ Manager   │         7.20 │
+# │ UI           │ Lena     │ Designer  │            9 │
+# │ UI           │ Alex     │ Designer  │         8.70 │
+# │ Prototyping  │ Lena     │ Designer  │            9 │
+# │ Testing      │ Omar     │ Developer │            8 │
+# │ Coordination │ Tara     │ Manager   │         7.80 │
+# │ Animation    │ Alex     │ Designer  │         8.70 │
+# ╰──────────────┴──────────┴───────────┴──────────────╯
+
+# Turining the table into a pivot table
+
+oPivot = o1.ToStzPivotTable()
+
+# Analyzing Productivity in avaerage by task and role
+
+oPivot {
+
+	Analyze([ :Productivity ], :In = :Average)
+	By([ :Task ], :And = [ :Role ])
+
+	Show()
+}
+#-->
+# ╭──────────────┬─────────────────────────────────┬─────────╮
+# │              │              Role               │         │
+# │              │───────────┬──────────┬──────────│         │
+# │     Task     │ Developer │ Manager  │ Designer │ AVERAGE │
+# ├──────────────┼───────────┼──────────┼──────────┼─────────┤
+# │ Coding       │         8 │          │          │       8 │
+# │ Debugging    │      8.50 │          │          │    8.50 │
+# │ Planning     │           │     7.50 │          │    7.50 │
+# │ Review       │           │     7.20 │          │    7.20 │
+# │ UI           │           │          │     8.85 │    8.85 │
+# │ Prototyping  │           │          │        9 │       9 │
+# │ Testing      │         8 │          │          │       8 │
+# │ Coordination │           │     7.80 │          │    7.80 │
+# │ Animation    │           │          │     8.70 │    8.70 │
+# ╰──────────────┴───────────┴──────────┴──────────┴─────────╯
+#        AVERAGE │      8.17 │     7.50 │     8.85 │    8.17  
+
+
+pf()
+# Executed in 0.78 second(s) in Ring 1.22
