@@ -247,7 +247,7 @@ oPivot {
 # │ HR         │   166000 │   268000 │  434000 │
 # ╰────────────┴──────────┴──────────┴─────────╯
 #          SUM │   503000 │   900000 │ 1403000  
-*/
+
 }
 
 pf()
@@ -329,7 +329,7 @@ pr()
 		SetRowLabels([:Category])
         SetColumnLabels([:Region])
         SetValues([:Product])
-        SetAggregateFunction("COUNT")
+        SetAggregateFunction("COUNT") #todo // check error un COUNT
         Show()
 		#-->
 # ╭─────────────┬───────────────────────────────────────────┬───────╮
