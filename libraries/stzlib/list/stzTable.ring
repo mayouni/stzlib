@@ -1713,7 +1713,7 @@ Class stzTable from stzObject
 	 #  GETTING COLUMN NAME  #
 	#=======================#
 
-	def cColName(n)
+	def ColName(n)
 		if isString(n)
 			if This.HasColName(n)
 				return n
@@ -1735,7 +1735,7 @@ Class stzTable from stzObject
 		cResult = @aContent[n][1]
 		return cResult
 
-		def cColNameQ(n)
+		def ColNameQ(n)
 			return new stzString( This.ColName(n) )
 
 		def ColumnName(n)
@@ -14530,22 +14530,22 @@ Class stzTable from stzObject
 	 #  FILTERING THE TABLE  #
 	#=======================#
 
-	# Filters table rows based on specified conditions
+	# Filters table rows based on specified column/value pairs
 
-    def Filter(paValues)
+    def Filter(paColValues)
 
         # Validate input is a hash list
 
-        if NOT (isList(paValues) and Q(paValues).IsHashList())
-            StzRaise("Filter requires a hash list of filtering conditions")
+        if NOT (isList(paColValues) and Q(paColValues).IsHashList())
+            StzRaise("Filter requires a hash list of filtering [ColName, ColValue] pairs.")
         ok
 
         # Validate column existence and prepare filtering
 
-		nLen = len(paValues)
+		nLen = len(paColValues)
 
 		for i = 1 to nLen
-            cColName = paValues[i][1]
+            cColName = paColValues[i][1]
             
             # Check if column exists (case-insensitive)
 
@@ -14562,11 +14562,11 @@ Class stzTable from stzObject
 
         for nRow = 1 to nRows
             bKeepRow = _TRUE_
-			nLenValues = len(paValues)
+			nLenValues = len(paColValues)
 
 			for v = 1 to nLenValues
-                cColName = paValues[v][1]
-                aFilterValues = paValues[v][2]
+                cColName = paColValues[v][1]
+                aFilterValues = paColValues[v][2]
                 
                 # Get column index
                 nColIndex = This.FindCol(cColName)
@@ -14631,20 +14631,277 @@ Class stzTable from stzObject
 
     #< @FunctionFluentForm
 
-    def FilterQ(paValues)
-        This.Filter(paValues)
+    def FilterQ(paColValues)
+        This.Filter(paColValues)
         return This
 
-	def FilterCQ(paValues)
+	def FilterCQ(paColValues)
 			oCopy = This.Copy()
-			oCopy.Filter(paValues)
+			oCopy.Filter(paColValues)
 			return oCopy
+	#>
+
+	#< @FunctionAlternativeForm
+
+	def FilterBy(paColValues)
+		This.Filter(paColValues)
+
+		def FilterByQ(paColValues)
+			return This.FilterQ(paColValues)
+
+		def FilterByCQ(paColValues)
+			return This.FilterCQ(paColValues)
 
 	#>
 
-	  #----------------------------------------------------------------------------#
+	  #--------------------------------------------#
+	 #  FILTERING THE TABLE BY A GIVEN CONDITION  #
+	#--------------------------------------------#
+
+def FilterW(pcCondition)
+    # Validate input is a string
+    if NOT isString(pcCondition)
+        StzRaise("Incorrect param type! pcCondition must be a string.")
+    ok
+
+    if ring_trim(pcCondition) = ""
+        StzRaise("Can't proceed! You must provide a condition.")
+    ok
+
+    # Prepare the condition expression
+    oCondition = new stzString(pcCondition)
+    nCols = This.NumberOfCols()
+    for i = 1 to nCols
+        cColName = This.ColName(i)
+        oCondition.ReplaceCS('@(:' + cColName + ')', 'This.Cell(' + i + ', nRow)', _FALSE_)
+    next
+    cCondition = oCondition.Content()
+
+    # Prepare evaluation code
+    cCode = "bResult = " + cCondition
+
+    # Perform filtering
+    nRows = This.NumberOfRows()
+    aRowsToKeep = []
+
+    for nRow = 1 to nRows
+        # Evaluate the condition for the current row
+        eval(cCode)
+        if bResult
+            aRowsToKeep + This.Row(nRow)
+        ok
+    next
+
+    # Rebuild the table with filtered rows
+    aResult = []
+    nCols = This.NumberOfCols()
+
+    for nCol = 1 to nCols
+        cColName = This.ColName(nCol)
+        colData = []
+        nLenRowsToKeep = len(aRowsToKeep)
+        for nRow = 1 to nLenRowsToKeep
+            colData + aRowsToKeep[nRow][nCol]
+        next
+        aResult + [cColName, colData]
+    next
+
+    @aContent = aResult
+
+    #< @FunctionFluentForm
+
+    def FilterWQ(pcCondition)
+        This.FilterW(pcCondition)
+        return This
+
+    def FilterWCQ(pcCondition)
+        oCopy = This.Copy()
+        oCopy.FilterW(pcCondition)
+        return oCopy
+
+    #>
+
+    #< @FunctionAlternativeForm
+
+    def FilterByW(pcCondition)
+        This.FilterW(pcCondition)
+
+        def FilterByWQ(pcCondition)
+            return This.FilterWQ(pcCondition)
+
+        def FilterByWCQ(pcCondition)
+            return This.FilterWCQ(pcCondition)
+
+    #>
+
+def FilterWXT(pcCondition)
+    # Validate input is a string
+    if NOT isString(pcCondition)
+        StzRaise("Incorrect param type! pcCondition must be a string.")
+    ok
+
+    if ring_trim(pcCondition) = ""
+        StzRaise("Can't proceed! You must provide a condition.")
+    ok
+
+    # Extract column names and subconditions
+    oCondition = new stzString(pcCondition)
+    aColConditions = []
+    acColNames = This.ColNames()
+    nCols = This.NumberOfCols()
+
+    # Find all @(:ColName) patterns and their positions
+    aMatches = oCondition.FindAll('@(:')
+    nLenMatches = len(aMatches)
+
+    if nLenMatches = 0
+        StzRaise("Invalid condition! No column references found in: " + pcCondition)
+    ok
+
+    for i = 1 to nLenMatches
+        nStart = aMatches[i]
+        nEnd = oCondition.FindNext(')', nStart)
+        if nEnd = 0
+            StzRaise("Invalid condition! Unclosed @(:...) pattern at position " + nStart)
+        ok
+
+        cColRef = oCondition.Section(nStart, nEnd)
+        cColName = oCondition.Section(nStart + 3, nEnd - 1) # Extract ColName from @(:ColName)
+
+        # Validate column name
+        if NOT This.IsColName(cColName)
+            StzRaise("Invalid column name! The column '@(:" + cColName + ")' does not exist in the table.")
+        ok
+
+        # Find the subcondition for this column
+        cSubCondition = ""
+        nNextStart = 0
+        if i < nLenMatches
+            nNextStart = aMatches[i + 1]
+            cSubCondition = ring_trim(oCondition.Section(nEnd + 1, nNextStart - 1))
+        else
+            cSubCondition = ring_trim(oCondition.Section(nEnd + 1, oCondition.Size()))
+        ok
+
+        # Extract logical operator (if any) and clean subcondition
+        cLogicalOp = ""
+        if i < nLenMatches
+            oSubCond = new stzString(cSubCondition)
+            if oSubCond.Contains(' and ')
+                cLogicalOp = 'and'
+                cSubCondition = ring_trim(oSubCond.Before(' and '))
+            but oSubCond.Contains(' or ')
+                cLogicalOp = 'or'
+                cSubCondition = ring_trim(oSubCond.Before(' or '))
+            else
+                StzRaise("Invalid condition! Missing logical operator (and/or) between subconditions: " + cSubCondition)
+            ok
+        ok
+
+        # Store column index, subcondition, and logical operator
+        nColIndex = This.FindCol(cColName)
+        aColConditions + [ nColIndex, cColName, cSubCondition, cLogicalOp ]
+    next
+
+    # Validate subconditions
+    for aCond in aColConditions
+        cSubCond = aCond[3]
+        if ring_trim(cSubCond) = ""
+            StzRaise("Invalid condition! Empty subcondition for column '@(:" + aCond[2] + ")'.")
+        ok
+    next
+
+    # Perform filtering
+    nRows = This.NumberOfRows()
+    aRowsToKeep = []
+
+    for nRow = 1 to nRows
+        bKeepRow = _TRUE_
+        for i = 1 to len(aColConditions)
+            nColIndex = aColConditions[i][1]
+            cSubCond = aColConditions[i][3]
+            cellValue = This.Cell(nColIndex, nRow)
+
+            # Prepare subcondition for evaluation
+            cCode = "bSubResult = "
+            if isNumber(cellValue)
+                cCode += cellValue + " " + cSubCond
+            else
+                cCode += '"' + cellValue + '" ' + cSubCond
+            ok
+
+            # Evaluate subcondition
+            try
+                eval(cCode)
+            catch
+                StzRaise("Error evaluating subcondition: " + cSubCond + " for column '@(:" + aColConditions[i][2] + ")' at row " + nRow)
+            done
+
+            # Combine with previous results based on logical operator
+            if i = 1
+                bKeepRow = bSubResult
+            else
+                cLogicalOp = aColConditions[i - 1][4]
+                if cLogicalOp = 'and'
+                    bKeepRow = bKeepRow and bSubResult
+                but cLogicalOp = 'or'
+                    bKeepRow = bKeepRow or bSubResult
+                ok
+            ok
+
+            if NOT bKeepRow and aColConditions[i][4] != 'or'
+                exit # Early exit for 'and' if false
+            ok
+        next
+
+        if bKeepRow
+            aRowsToKeep + This.Row(nRow)
+        ok
+    next
+
+    # Rebuild the table with filtered rows
+    aResult = []
+    for nCol = 1 to nCols
+        cColName = This.ColName(nCol)
+        colData = []
+        nLenRowsToKeep = len(aRowsToKeep)
+        for nRow = 1 to nLenRowsToKeep
+            colData + aRowsToKeep[nRow][nCol]
+        next
+        aResult + [cColName, colData]
+    next
+
+    @aContent = aResult
+
+    #< @FunctionFluentForm
+
+    def FilterWXTQ(pcCondition)
+        This.FilterWXT(pcCondition)
+        return This
+
+    def FilterWXTCQ(pcCondition)
+        oCopy = This.Copy()
+        oCopy.FilterWXT(pcCondition)
+        return oCopy
+
+    #>
+
+    #< @FunctionAlternativeForm
+
+    def FilterByWXT(pcCondition)
+        This.FilterWXT(pcCondition)
+
+        def FilterByWXTQ(pcCondition)
+            return This.FilterXTQ(pcCondition)
+
+        def FilterByWXTCQ(pcCondition)
+            return This.FilterWXTCQ(pcCondition)
+
+    #>
+
+	  #============================================================================#
 	 #  Aggregating (Grouping) table data based on specified columns and methods  #
-	#----------------------------------------------------------------------------#
+	#============================================================================#
 
 	def Aggregate(paAggregations)
 		# Validate input is a hash list
@@ -14765,6 +15022,16 @@ Class stzTable from stzObject
 		def AggregateQ(paAggregations)
 			This.Aggregate(paAggregations)
 			return This
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AggregateBy(paAggregations)
+			This.Aggregate(paAggregations)
+
+			def AggregateByQ(paAggregations)
+				return This.AggregateQ(paAggregation)
+
 		#>
 
 	  #===============================================#
@@ -15139,117 +15406,117 @@ Class stzTable from stzObject
 	 #  GROUPING DATA BY A COLUMN CONTAINING LIST  #
 	#---------------------------------------------#
 
-def GroupByListItems(paCols)
-	if NOT isList(paCols)
-		aTemp = [] + paCols
-		paCols = aTemp
-	ok
-    # Validate input is a list of column names
-    if NOT (isList(paCols) and len(paCols) > 0)
-        StzRaise("GroupByListItems requires a non-empty list of column names")
-    ok
-    
-    # Validate column existence
-    nLen = len(paCols)
-    for i = 1 to nLen
-        if This.FindCol(paCols[i]) = 0
-            StzRaise("Column '" + paCols[i] + "' not found in the table")
-        ok
-    next
-    
-    # Get the lists column we're grouping by
-    cListColumn = paCols[1]  # Use the first column as the list column
-    nListColIndex = This.FindCol(cListColumn)
-    
-    # Prepare to collect unique hobby values and associated rows
-    nRows = This.NumberOfRows()
-    aHobbyMap = []  # Will be a list of [hobby, [row1, row2, ...]] pairs
-    
-    # Process each row and collect unique hobby values
-    for nRow = 1 to nRows
-        vCellValue = This.Cell(nListColIndex, nRow)
-        
-        # Skip if not a list
-        if NOT isList(vCellValue)
-            loop
-        ok
-        
-        # Process each hobby in the list
-        for j = 1 to len(vCellValue)
-            cHobby = vCellValue[j]
-            
-            # Find this hobby in our map
-            nHobbyIndex = 0
-            for k = 1 to len(aHobbyMap)
-                if aHobbyMap[k][1] = cHobby
-                    nHobbyIndex = k
-                    exit
-                ok
-            next
-            
-            if nHobbyIndex = 0
-                # New hobby, add it with this row
-                aHobbyMap + [cHobby, [nRow]]
-            else
-                # Existing hobby, check if row already exists
-                bFound = FALSE
-                for r = 1 to len(aHobbyMap[nHobbyIndex][2])
-                    if aHobbyMap[nHobbyIndex][2][r] = nRow
-                        bFound = TRUE
-                        exit
-                    ok
-                next
-                
-                # Add row if not found
-                if NOT bFound
-                    aHobbyMap[nHobbyIndex][2] + nRow
-                ok
-            ok
-        next
-    next
-    
-    # Build the new table structure with hobbies as the first column
-    aNewColumns = [cListColumn]
-    acColNames = This.ColNames()
-    
-    # Add all other columns except the list column
-    for i = 1 to len(acColNames)
-        if acColNames[i] != cListColumn
-            aNewColumns + acColNames[i]
-        ok
-    next
-    
-    # Create the result table structure
-    aResult = []
-    for i = 1 to len(aNewColumns)
-        aResult + [aNewColumns[i], []]
-    next
-    
-    # Fill in the data for each hobby group
-    for i = 1 to len(aHobbyMap)
-        cHobby = aHobbyMap[i][1]
-        aRowIndices = aHobbyMap[i][2]
-        
-        # For each row that has this hobby
-        for j = 1 to len(aRowIndices)
-            nRowIndex = aRowIndices[j]
-            
-            # Add the hobby as the first column value
-            aResult[1][2] + cHobby
-            
-            # Add all other columns from the original row
-            nColOffset = 2  # Start from second column
-            for k = 1 to len(acColNames)
-                if acColNames[k] != cListColumn
-                    nColIndex = This.FindCol(acColNames[k])
-                    aResult[nColOffset][2] + This.Cell(nColIndex, nRowIndex)
-                    nColOffset++
-                ok
-            next
-        next
-    next
-    
-    @aContent = aResult
+	def GroupByListItems(paCols)
+		if NOT isList(paCols)
+			aTemp = [] + paCols
+			paCols = aTemp
+		ok
+	    # Validate input is a list of column names
+	    if NOT (isList(paCols) and len(paCols) > 0)
+	        StzRaise("GroupByListItems requires a non-empty list of column names")
+	    ok
+	    
+	    # Validate column existence
+	    nLen = len(paCols)
+	    for i = 1 to nLen
+	        if This.FindCol(paCols[i]) = 0
+	            StzRaise("Column '" + paCols[i] + "' not found in the table")
+	        ok
+	    next
+	    
+	    # Get the lists column we're grouping by
+	    cListColumn = paCols[1]  # Use the first column as the list column
+	    nListColIndex = This.FindCol(cListColumn)
+	    
+	    # Prepare to collect unique hobby values and associated rows
+	    nRows = This.NumberOfRows()
+	    aHobbyMap = []  # Will be a list of [hobby, [row1, row2, ...]] pairs
+	    
+	    # Process each row and collect unique hobby values
+	    for nRow = 1 to nRows
+	        vCellValue = This.Cell(nListColIndex, nRow)
+	        
+	        # Skip if not a list
+	        if NOT isList(vCellValue)
+	            loop
+	        ok
+	        
+	        # Process each hobby in the list
+	        for j = 1 to len(vCellValue)
+	            cHobby = vCellValue[j]
+	            
+	            # Find this hobby in our map
+	            nHobbyIndex = 0
+	            for k = 1 to len(aHobbyMap)
+	                if aHobbyMap[k][1] = cHobby
+	                    nHobbyIndex = k
+	                    exit
+	                ok
+	            next
+	            
+	            if nHobbyIndex = 0
+	                # New hobby, add it with this row
+	                aHobbyMap + [cHobby, [nRow]]
+	            else
+	                # Existing hobby, check if row already exists
+	                bFound = FALSE
+	                for r = 1 to len(aHobbyMap[nHobbyIndex][2])
+	                    if aHobbyMap[nHobbyIndex][2][r] = nRow
+	                        bFound = TRUE
+	                        exit
+	                    ok
+	                next
+	                
+	                # Add row if not found
+	                if NOT bFound
+	                    aHobbyMap[nHobbyIndex][2] + nRow
+	                ok
+	            ok
+	        next
+	    next
+	    
+	    # Build the new table structure with hobbies as the first column
+	    aNewColumns = [cListColumn]
+	    acColNames = This.ColNames()
+	    
+	    # Add all other columns except the list column
+	    for i = 1 to len(acColNames)
+	        if acColNames[i] != cListColumn
+	            aNewColumns + acColNames[i]
+	        ok
+	    next
+	    
+	    # Create the result table structure
+	    aResult = []
+	    for i = 1 to len(aNewColumns)
+	        aResult + [aNewColumns[i], []]
+	    next
+	    
+	    # Fill in the data for each hobby group
+	    for i = 1 to len(aHobbyMap)
+	        cHobby = aHobbyMap[i][1]
+	        aRowIndices = aHobbyMap[i][2]
+	        
+	        # For each row that has this hobby
+	        for j = 1 to len(aRowIndices)
+	            nRowIndex = aRowIndices[j]
+	            
+	            # Add the hobby as the first column value
+	            aResult[1][2] + cHobby
+	            
+	            # Add all other columns from the original row
+	            nColOffset = 2  # Start from second column
+	            for k = 1 to len(acColNames)
+	                if acColNames[k] != cListColumn
+	                    nColIndex = This.FindCol(acColNames[k])
+	                    aResult[nColOffset][2] + This.Cell(nColIndex, nRowIndex)
+	                    nColOffset++
+	                ok
+	            next
+	        next
+	    next
+	    
+	    @aContent = aResult
 
 	  #-----------#
 	 #  DSIPLAY  #
