@@ -35669,6 +35669,64 @@ class stzString from stzObject
 
 	#TODO : RangeZ(), RangeZZ(), RangeXT(), RangeXTZ(), and RangeXTZZ()
 
+	  #-------------------------------------------------------#
+	 #  GETTING THE PART OF STRING BEFORE A GIVEN SUBSTRING  #
+	#-------------------------------------------------------#
+
+	def BeforeCS(pcSubStr, pCaseSensitive)
+
+		if This.IsEmpty()
+			return ""
+		ok
+
+		nPos = This.FindFirstCS(pcSubStr, pCaseSensitive)
+		if nPos = 0
+			StzRaise("Can't proceed! The substring you provided does not exist in the string.")
+		ok
+
+		return This.Section(1, nPos-1)
+
+		def SubStringBeforeCS(pcSubStr, pCaseSensitive)
+			return This.BeforeCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def Before(pcSubStr)
+		return This.BeforeCS(pcSubStr, _TRUE_)
+
+		def SubStringBefore(pcSubStr)
+			return This.Before(pcSubStr)
+
+	  #------------------------------------------------------#
+	 #  GETTING THE PART OF STRING AFTER A GIVEN SUBSTRING  #
+	#------------------------------------------------------#
+
+	def AfterCS(pcSubStr, pCaseSensitive)
+
+		if This.IsEmpty()
+			return ""
+		ok
+
+		nPos = This.FindFirstCS(pcSubStr, pCaseSensitive)
+		if nPos = 0
+			StzRaise("Can't proceed! The substring you provided does not exist in the string.")
+
+		ok
+
+		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		return This.Section(nPos + nLenSubStr, This.NumberOfChars())
+
+		def SubStringAfterCS(pcSubStr, pCaseSensitive)
+			return This.AfterCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def After(pcSubStr)
+		return This.AfterCS(pcSubStr, _TRUE_)
+
+		def SubStringAfter(pcSubStr)
+			return This.After(pcSubStr)
+
 	  #-----------------------------------#
 	 #   GETTING A RANGE OF THE STRING   #
 	#===================================#

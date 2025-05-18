@@ -451,18 +451,18 @@ class stzPivotTable
 			if @bShowTotalColumn
 
 				if lower(@cAggFunc) = "count"
-					//nRawTotalForCount = aRowValues[1]
-					//aRow + nRawTotalForCount
 					aRow + aRowValues[1]
 				else
 
 					nRowTotal = _applyAggregateFunction(aRowValues)
 					aRow + nRowTotal
 				ok
+
 			ok
 			
 			@aPivotData + aRow
 		next
+
 
 	def _addTotalRow()
 		# Add total row to pivot table
@@ -496,7 +496,12 @@ class stzPivotTable
 			# Apply aggregation
 
 			if lower(@cAggFunc) = "count"
+				cOrigAggFunc = @cAggFunc
 				@cAggFunc = :Sum
+				nColTotal = _applyAggregateFunction(aColValues)
+				@cAggFunc = cOrigAggFunc
+			else
+				nColTotal = _applyAggregateFunction(aColValues)
 			ok
 
 			nColTotal = _applyAggregateFunction(aColValues)
@@ -613,6 +618,7 @@ class stzPivotTable
 		_addToCache(cCacheKey, result)
 		
 		return result
+
 
 	  #---------------------#
 	 #  CACHE MANAGEMENT   #

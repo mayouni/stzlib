@@ -6138,7 +6138,7 @@ o1 = new stzTable([
 # Filter by Single Region (on a copy of the table ~> CQ extension)
 #~> The original content is not affected by the filter
 
-o1.FilterCQ([ :Region = "North", :Quarter = "Q2" ]).Show()
+o1.FilterByCQ([ :Region = "North", :Quarter = "Q2" ]).Show()
 #-->
 # ╭────────┬───────────┬─────────┬───────┬───────╮
 # │ Region │  Product  │ Quarter │ Sales │ Units │
@@ -6167,7 +6167,7 @@ o1.Show()
 # Filtering the table only North region)
 #~> Now it's content is update to have only the filtered data
 
-o1.Filter([ :Region = "North" ])
+o1.FilterBy([ :Region = "North" ])
 o1.Show()
 #-->
 # ╭────────┬───────────┬─────────┬───────┬───────╮
@@ -6206,7 +6206,7 @@ o1 = new stzTable([
 
 # Returns a table with only East region, Q1 quarter rows
 
-o1.FilterCQ([
+o1.FilterByCQ([
     :Region = "East",
     :Quarter = "Q1"
 ]).Show()
@@ -6220,7 +6220,7 @@ o1.FilterCQ([
 
 # Filter with Multiple Region Values and a given product
 
-o1.FilterCQ([ 
+o1.FilterByCQ([ 
     :Region = [ "East", "West" ], 
     :Product = "Product A"
 ]).Show()
@@ -6234,6 +6234,47 @@ o1.FilterCQ([
 
 pf()
 # Executed in 0.12 second(s) in Ring 1.22
+
+/*===
+*/
+pr()
+
+o1 = new stzString("Mansour Ayouni")
+? o1.Before("Ayouni")
+#--> 'Mansour '
+
+? o1.After("Mansour")
+#--> ' Ayouni'
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*---
+
+/*--- Conditional filtering
+
+*/
+pr()
+
+o1 = new stzTable([
+    [ :Productivity, :Hours ],
+    [ 10, 5 ],
+    [ 7, 3 ],
+    [ 9, 4 ]
+])
+
+o1.Show()
+o1.FilterWXT('@(:Productivity) > 8 and @(:Hour) >= 5')
+o1.Show()
+# Output:
+# ╭──────────────┬───────╮
+# │ Productivity │ Hours │
+# ├──────────────┼───────┤
+# │           10 │     5 │
+# │            9 │     4 │
+# ╰──────────────┴───────╯
+
+pf()
 
 /*--- Grouping Tests
 
@@ -6403,7 +6444,7 @@ o1.Show()
 pf()
 # Executed in 0.03 second(s) in Ring 1.22
 
-/*================
+/*================ GROUP BY + AGGREGATE --> GroupByXT()
 
 pr()
 
@@ -6434,7 +6475,7 @@ o1 = new stzTable([
 
 oCopy = o1.Copy()
 
-oCopy.GroupByXT([ :Region = '@', :Sales = 'Sum', :Units = 'Sum' ] )
+oCopy.GroupByXT([ :Region ], [ :Sales = 'Sum', :Units = 'Sum' ] )
 
 # Group by Region with Sales and Units summed
 
@@ -6453,7 +6494,7 @@ oCopy.Show()
 
 oCopy = o1.Copy()
 
-oCopy.GroupBy([:Region, :Product], [
+oCopy.GroupByXT([:Region, :Product], [
     :Sales = 'Sum',
     :Units = 'Average'
 ])
@@ -6478,7 +6519,7 @@ oCopy.Show()
 # Group by Quarter with min/max aggregations
 
 oCopy = o1.Copy()
-oCopy.GroupBy([:Quarter], [
+oCopy.GroupByXT([:Quarter], [
     :Sales = 'Max',
     :Sales = 'Min',
     :Units = 'Count'
@@ -6497,7 +6538,7 @@ oCopy.Show()
 # Group by Product and Quarter
 
 oCopy = o1.Copy()
-oCopy.GroupBy([ :Product, :Quarter ],
+oCopy.GroupByXT([ :Product, :Quarter ],
 	[ :Sales = 'Sum', :Units = 'Sum' ]
 )
 
@@ -6694,7 +6735,7 @@ o1.Show()
 # Turining the table into a pivot table
 
 oPivot = o1.ToStzPivotTable()
-
+/*
 # Analyzing Productivity in avaerage by task and role
 
 oPivot {
@@ -6723,13 +6764,35 @@ oPivot {
 #        AVERAGE │      8.17 │     7.50 │     8.85 │    8.17  
 
 # Pivot Table: Task Distribution
-
+*/
 oPivot {
+
   Analyze([ :Employee ], :COUNT)
+
   SetRowsBy([ :Task ])
   SetColsBy([ :Role ])
+
   Show()
 }
+#-->
+# ╭──────────────┬─────────────────────────────────┬───────╮
+# │              │              Role               │       │
+# │              │───────────┬──────────┬──────────│       │
+# │     Task     │ Developer │ Manager  │ Designer │ COUNT │
+# ├──────────────┼───────────┼──────────┼──────────┼───────┤
+# │ Coding       │         1 │          │          │     1 │
+# │ Debugging    │         1 │          │          │     1 │
+# │ Planning     │           │        2 │          │     2 │
+# │ Review       │           │        1 │          │     1 │
+# │ UI           │           │          │        2 │     2 │
+# │ Prototyping  │           │          │        1 │     1 │
+# │ Testing      │         1 │          │          │     1 │
+# │ Coordination │           │        1 │          │     1 │
+# │ Animation    │           │          │        1 │     1 │
+# ╰──────────────┴───────────┴──────────┴──────────┴───────╯
+#         COUNT │         3 │        3 │        3 │     9  
+
+#TODO: Check why Coding/Developer is not returning 2
 
 pf()
 # Executed in 0.72 second(s) in Ring 1.22

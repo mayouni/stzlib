@@ -758,11 +758,11 @@ The `stzTable` class provides powerful filtering capabilities that let you extra
 
 ### Basic Filtering
 
-The `Filter()` method permanently updates the table content to show only data that matches your specified criteria. If you want to preserve the original table while viewing filtered results, you can use the `FilterCQ()` method ("C" stands for "Copy" and "Q" is used in Softanza to return an object for futrther processing), which returns a new filtered table without modifying the original.
+The `FilterBy()` method permanently updates the table content to show only data that matches your specified criteria. If you want to preserve the original table while viewing filtered results, you can use the `FilterByCQ()` method ("C" stands for "Copy" and "Q" is used in Softanza to return an object for futrther processing), which returns a new filtered table without modifying the original.
 
 ```ring
 # Filter by a single condition, modifying the original table
-o1.Filter([ :Region = "North" ])
+o1.FilterBy([ :Region = "North" ])
 o1.Show()
 ```
 
@@ -778,7 +778,7 @@ Output:
 
 ```ring
 # Filter by a single condition, returning a new table without modifying the original
-o1.FilterCQ([ :Region = "North", :Quarter = "Q2" ]).Show()
+o1.FilterByCQ([ :Region = "North", :Quarter = "Q2" ]).Show()
 ```
 
 Output:
@@ -798,7 +798,7 @@ You can combine multiple conditions in a single filter operation, creating more 
 
 ```ring
 # Filter with multiple columns as criteria
-o1.FilterCQ([ 
+o1.FilterByCQ([ 
     :Region = "East", 
     :Quarter = "Q1"
 ]).Show()
@@ -818,7 +818,7 @@ For even more flexibility, you can specify multiple acceptable values for a sing
 
 ```ring
 # Filter with multiple possible values for a column
-o1.FilterCQ([ 
+o1.FilterByCQ([ 
     :Region = [ "East", "West" ], 
     :Product = "Product A"
 ]).Show()
@@ -866,11 +866,11 @@ This transforms your table to show unique values in the specified column, with t
 
 ### Multi-Column Grouping with Aggregations
 
-For more sophisticated analysis, you can group by multiple columns and apply aggregation functions to numeric columns:
+For more advanced analysis, you can group by multiple columns and simultaneously apply aggregation functions to numeric columns using the extended form `GroupByXT(aCols, aAggregations)`, as shown below:
 
 ```ring
 # Group by Product and Region with aggregations
-o1.GroupBy([ :Product, :Region ], [ :Sales = 'Sum', :Units = 'Average' ])
+o1.GroupByXT([ :Product, :Region ], [ :Sales = 'Sum', :Units = 'Average' ])
 o1.Show()
 ```
 
@@ -1042,11 +1042,11 @@ This creates a concise summary table showing the total sales, average units, and
 
 ### Combined Grouping and Aggregation
 
-The true power of `stzTable` becomes evident when combining grouping and aggregation:
+The true power of `stzTable` becomes evident when combining grouping and aggregation, using the `GroupByXT(aColsToBeGroupped, aColsToBeAggregated)` function:
 
 ```ring
 # Group by Region with sum aggregation
-oCopy.GroupBy([ :Region ], [ :Sales = 'Sum', :Units = 'Sum' ])
+oCopy.GroupByXT([ :Region ], [ :Sales = 'Sum', :Units = 'Sum' ]) # Or GroupByAndAggregate() if you prefer
 oCopy.Show()
 ```
 
@@ -1064,7 +1064,7 @@ Output:
 
 ```ring
 # Group by Product and Quarter with sums
-oCopy.GroupBy([ :Product, :Quarter ], [ :Sales = 'Sum', :Units = 'Sum' ])
+oCopy.GroupByXT([ :Product, :Quarter ], [ :Sales = 'Sum', :Units = 'Sum' ])
 oCopy.Show()
 ```
 
