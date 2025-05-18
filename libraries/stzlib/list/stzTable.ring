@@ -14768,92 +14768,92 @@ Class stzTable from stzObject
 		#>
 
 	  #===============================================#
-	 #  GROUPING DATA (ROWS) BU A GIVEN VALUE (COL)  #
+	 #  GROUPING DATA (ROWS) BY A GIVEN VALUE (COL)  #
 	#===============================================#
 
-def GroupBy(paCols)
-	
-	if NOT isList(paCols)
-		if isString(paCols) This.IsCol(paCols) and IsListOfLists(This.Col(paCols))
+	def GroupBy(paCols)
+
+		if NOT isList(paCols)
+			if isString(paCols) This.IsCol(paCols) and IsListOfLists(This.Col(paCols))
 				This.GroupByListItems(paCols)
 				return
+			ok
+
+			aTemp = [] + paCols
+			paCols = aTemp
 		ok
 
-		aTemp = [] + paCols
-		paCols = aTemp
-	ok
+		# Validate input is a list of column names
+		if NOT (isList(paCols) and len(paCols) > 0)
+			StzRaise("GroupBy requires a non-empty list of column names")
+		ok
 
-    # Validate input is a list of column names
-    if NOT (isList(paCols) and len(paCols) > 0)
-        StzRaise("GroupBy requires a non-empty list of column names")
-    ok
-    
-    # Validate column existence
-    nLen = len(paCols)
-    for i = 1 to nLen
-        if This.FindCol(paCols[i]) = 0
-            StzRaise("Column '" + paCols[i] + "' not found in the table")
-        ok
-    next
-    
-    # Prepare to group rows
-    nRows = This.NumberOfRows()
-    aGroupedRows = []
-    aGroupKeys = []
-    aUniqueGroups = []
-    
-    # Iterate through rows to create groups
-    nLenCols = len(paCols)
-    for nRow = 1 to nRows
-        # Create group key from specified columns
-        aGroupKey = []
-        for i = 1 to nLenCols
-            nColIndex = This.FindCol(paCols[i])
-            aGroupKey + This.Cell(nColIndex, nRow)
-        next
-        
-        # Convert group key to string for easy comparison
-        cGroupKey = ""
-        for i = 1 to len(aGroupKey)
-            cGroupKey += ""+ aGroupKey[i] + '|'
-        next
-        
-        # Check if this group key exists
-        nGroupIndex = ring_find(aGroupKeys, cGroupKey)
-        if nGroupIndex = 0
-            # New group, add to groups
-            aGroupKeys + cGroupKey
-            aUniqueGroups + aGroupKey
-            aGroupedRows + [ This.Row(nRow) ]
-        else
-            # Existing group, append row
-            aGroupedRows[nGroupIndex] + This.Row(nRow)
-        ok
-    next
-    
-    # Build result table structure
-    aResult = []
-    acColNames = This.ColNames()
-    
-    # Add all columns to result
-    for i = 1 to len(acColNames)
-        aResult + [ acColNames[i], [] ]
-    next
-    
-    # Add rows from each group to result
-    nLenGroups = len(aUniqueGroups)
-    for i = 1 to nLenGroups
-        aRows = aGroupedRows[i]
-        for j = 1 to len(aRows)
-            aRow = aRows[j]
-            # Add each value to its column
-            for k = 1 to len(aRow)
-                aResult[k][2] + aRow[k]
-            next
-        next
-    next
-    
-    @aContent = aResult
+		# Validate column existence
+		nLen = len(paCols)
+		for i = 1 to nLen
+			if This.FindCol(paCols[i]) = 0
+				StzRaise("Column '" + paCols[i] + "' not found in the table")
+			ok
+		next
+
+		# Prepare to group rows
+		nRows = This.NumberOfRows()
+		aGroupedRows = []
+		aGroupKeys = []
+		aUniqueGroups = []
+
+		# Iterate through rows to create groups
+		nLenCols = len(paCols)
+		for nRow = 1 to nRows
+			# Create group key from specified columns
+			aGroupKey = []
+			for i = 1 to nLenCols
+				nColIndex = This.FindCol(paCols[i])
+				aGroupKey + This.Cell(nColIndex, nRow)
+			next
+
+			# Convert group key to string for easy comparison
+			cGroupKey = ""
+			for i = 1 to len(aGroupKey)
+				cGroupKey += ""+ aGroupKey[i] + '|'
+			next
+
+			# Check if this group key exists
+			nGroupIndex = ring_find(aGroupKeys, cGroupKey)
+			if nGroupIndex = 0
+				# New group, add to groups
+				aGroupKeys + cGroupKey
+				aUniqueGroups + aGroupKey
+				aGroupedRows + [ This.Row(nRow) ]
+			else
+				# Existing group, append row
+				aGroupedRows[nGroupIndex] + This.Row(nRow)
+			ok
+		next
+
+		# Build result table structure
+		aResult = []
+		acColNames = This.ColNames()
+
+		# Add all columns to result
+		for i = 1 to len(acColNames)
+			aResult + [ acColNames[i], [] ]
+		next
+
+		# Add rows from each group to result
+		nLenGroups = len(aUniqueGroups)
+		for i = 1 to nLenGroups
+			aRows = aGroupedRows[i]
+			for j = 1 to len(aRows)
+				aRow = aRows[j]
+				# Add each value to its column
+				for k = 1 to len(aRow)
+					aResult[k][2] + aRow[k]
+				next
+			next
+		next
+
+		@aContent = aResult
 
 
 		#< @FunctionFluentForm

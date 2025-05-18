@@ -6434,7 +6434,7 @@ o1 = new stzTable([
 
 oCopy = o1.Copy()
 
-oCopy.GroupBy([ :Region ], [ :Sales = 'Sum', :Units = 'Sum' ] )
+oCopy.GroupByXT([ :Region = '@', :Sales = 'Sum', :Units = 'Sum' ] )
 
 # Group by Region with Sales and Units summed
 
@@ -6675,7 +6675,7 @@ o1.GroupBy(:Task)
 o1.Show()
 #-->
 # ╭──────────────┬──────────┬───────────┬──────────────╮
-# │    Task     │ Employee │   Role    │ Productivity │
+# │    Task      │ Employee │   Role    │ Productivity │
 # ├──────────────┼──────────┼───────────┼──────────────┤
 # │ Coding       │ Sara     │ Developer │         8.50 │
 # │ Coding       │ Omar     │ Developer │            8 │
@@ -6722,6 +6722,14 @@ oPivot {
 # ╰──────────────┴───────────┴──────────┴──────────┴─────────╯
 #        AVERAGE │      8.17 │     7.50 │     8.85 │    8.17  
 
+# Pivot Table: Task Distribution
+
+oPivot {
+  Analyze([ :Employee ], :COUNT)
+  SetRowsBy([ :Task ])
+  SetColsBy([ :Role ])
+  Show()
+}
 
 pf()
-# Executed in 0.78 second(s) in Ring 1.22
+# Executed in 0.72 second(s) in Ring 1.22
