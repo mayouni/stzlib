@@ -836,6 +836,66 @@ Output:
 
 This multi-value support lets you create sophisticated filtering criteria without having to chain multiple filter operations, making your code cleaner and more efficient.
 
+### Conditional Filtering
+
+The `stzTable` class allows you to define conditions using a string that contains plain Ring code. To see this in action, let’s take a table `o1` with two columns: `Productivity` and `Hours`. After displaying the full dataset, we apply filters to extract the rows that meet specific criteria.
+
+```ring
+o1 = new stzTable([
+    [ :Productivity, :Hours ],
+    [ 10, 5 ],
+    [ 7, 3 ],
+    [ 9, 4 ]
+])
+
+o1.Show()
+```
+Output:
+```
+╭──────────────┬───────╮
+│ Productivity │ Hours │
+├──────────────┼───────┤
+│           10 │     5 │
+│            7 │     3 │
+│            9 │     4 │
+╰──────────────┴───────╯
+```
+
+First, we filter for rows where `Productivity` is greater than 8:
+
+```ring
+o1.FilterWQ('@(:Productivity) > 8').Show()
+```
+
+This returns only the rows with `Productivity` values of 10 and 9.
+
+```ring
+╭──────────────┬───────╮
+│ Productivity │ Hours │
+├──────────────┼───────┤
+│           10 │     5 │
+│            9 │     4 │
+╰──────────────┴───────╯
+```
+
+Then, we add a second condition: only include rows where `Hours` is also greater than or equal to 5:
+
+```
+o1.FilterWQ('@(:Productivity) > 8 and @(:Hours) >= 5').Show()
+```
+
+Now, only one row remains—where `Productivity` is 10 and `Hours` is 5.
+
+```ring
+╭──────────────┬───────╮
+│ Productivity │ Hours │
+├──────────────┼───────┤
+│           10 │     5 │
+╰──────────────┴───────╯
+```
+
+This demonstrates how **complex conditions** can be expressed in a clear and concise way using the `FilterW()` method.
+
 ## Grouping Data in `stzTable`
 
 Grouping is a powerful technique for summarizing and analyzing data by categories. The `stzTable` class makes this process straightforward with its `GroupBy()` method.
