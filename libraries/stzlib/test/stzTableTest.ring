@@ -6255,7 +6255,6 @@ pf()
 
 /*--- Conditional filtering
 
-*/
 pr()
 
 o1 = new stzTable([
@@ -6266,6 +6265,14 @@ o1 = new stzTable([
 ])
 
 o1.Show()
+#-->
+# ╭──────────────┬───────╮
+# │ Productivity │ Hours │
+# ├──────────────┼───────┤
+# │           10 │     5 │
+# │            7 │     3 │
+# │            9 │     4 │
+# ╰──────────────┴───────╯
 
 o1.FilterWQ('@(:Productivity) > 8').Show()
 #-->
@@ -6775,7 +6782,7 @@ oPivot {
 #        AVERAGE │      8.17 │     7.50 │     8.85 │    8.17  
 
 # Pivot Table: Task Distribution
-*/
+
 oPivot {
 
   Analyze([ :Employee ], :COUNT)
@@ -6804,6 +6811,24 @@ oPivot {
 #         COUNT │         3 │        3 │        3 │     9  
 
 #TODO: Check why Coding/Developer is not returning 2
+*/
+# High-productivity tasks
+
+o1.FilterW('@(:Productivity) > 8')
+o1.Show()
+
+# Critical tasks
+CrticalTasks = ["Coding", "Debugging", "Planning"]
+o1.AddCalculatedColumn(:Critical, ' @IF( Q(@(:Task)).ContainsOneOfThese(CrticalTasks), "YES", "no" )')
+o1.Show()
+
+
+o1.ToStzPivotTable() {
+  Analyze([ :Productivity ], :Average)
+  InRowsPut([ :Task ])
+  InColsPut([ :Role])
+  Show()
+}
 
 pf()
 # Executed in 0.72 second(s) in Ring 1.22
