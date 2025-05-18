@@ -1195,6 +1195,7 @@ Softanza's `stzTable` "spreadsheet metaphor" approach stands out when compared
 | **Learning Curve** | ✅ **Gentle** (meaningful method names) | Steep (API complexity) | Steep (syntax) | Moderate (SQL knowledge required) |
 | **Implementation Complexity** | ✅ **Simple** (1-2 lines per operation) | Medium (multiple steps) | Medium (multiple steps) | SQL query construction |
 | **Flexibility with Data Types** | ✅ **Seamless** mixed types | Requires type casting | Requires type casting | Schema enforcement |
+| **Grouping by Inner List Values** | ✅ **Automatic & Native** (`GroupBy(:ListColumn)`) | ❌ Requires explode() + groupby | ❌ Requires unnest() or manual flattening | ❌ Not supported; requires normalization |
 | **Integration with Regex** | ✅ **Direct** (RX methods) | Separate regex functions | Separate regex functions | Limited REGEXP support |
 | **Modern Display Formatting** | ✅ **Rich visual presentation** with automatic borders, alignment, and hierarchical formatting | Requires styling plugins or extra formatting code | Basic console output, requires additional packages | Plain text or requires external tools |
 | **Visual Orientation** | ✅ **Design priority** with spreadsheet-like presentation and intuitive visual output | Primarily functional with visual aspects secondary | Statistical focus with limited visual design | No inherent visual presentation |
