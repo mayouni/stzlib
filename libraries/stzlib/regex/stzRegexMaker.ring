@@ -42,7 +42,12 @@ func StzRegexLookaroundMakerQ()
 		return new stzRegexLookaroundMaker
 
 func rxp(pcPattName)
-	return RegexPatterns()[pcPattName]
+	cResult = RegexPatterns()[pcPattName]
+	if cResult = ""
+		StzRaise("The pattern name you provided does not exist in stzRegexData file.")
+	ok
+
+	return cResult
 
 	func pat(pcPattName)
 		return rxp(pcPattName)

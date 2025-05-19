@@ -1,13 +1,13 @@
-#-------------------------------------------------------------------------#
-# 		   SOFTANZA LIBRARY (V1.0) - STZSTRING		          #
-# 	An accelerative library for Ring applications, and more!	  #
-#-------------------------------------------------------------------------#
-#									  #
-# 	Description	: The class for managing Unicode strings          #
-#	Version		: V1.0 (2020-2024)				  #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)		  #
-#								          #
-#-------------------------------------------------------------------------#
+#-------------------------------------------------------------#
+# 		   SOFTANZA LIBRARY (V1.0) - STZSTRING                #
+# 	An accelerative library for Ring applications, and more!  #
+#-------------------------------------------------------------#
+#                                                             #
+# 	Description	: The class for managing Unicode strings      #
+#	Version		: V0.9 (2020-2025)                            #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)       #
+#                                                             #
+#-------------------------------------------------------------#
 
 /*
 	#TODO Add:
@@ -100840,3 +100840,355 @@ class stzString from stzObject
 			This.RemoveAllOccurrencesOfSubstring(pSubStr)
 			return This
 
+	  #=====================================================#
+	 #  DETECTING, FINDING AND READING HTML TABLE STRINGS  #
+	#=====================================================#
+
+	def IsHtmlTable()
+
+		#NOTE
+		# The method follows these key steps:
+		# - Basic tag presence check (bounded by <table and </table>)
+		# - Proper structure validation (contains <tr> and </tr>)
+		# - Cell content validation (contains <td> or <th>)
+		# - Normalized HTML processing
+		# - Row extraction using FindSubStringsBoundedByZZ
+		# - Validation of cell-to-row relationships
+		# - Comprehensive position checking for all elements
+
+		#TODO
+		# Document the method limitations
+
+	
+	    if This.TrimQ().IsBoundedBy(["<table", "</table>"])
+	    
+	        # Check if it has proper table structure (at least one row)
+	        if not ( This.Contains("<tr") and This.Contains("</tr>") )
+	            return FALSE
+	        ok
+	        
+	        # Check for cell content
+	        if not ( This.Contains("<td") or This.Contains("<th") )
+	            return FALSE
+	        ok
+	        
+	        # Normalize the HTML tags for better detection
+	        oHTML = This.Copy()
+	        oHTML.Trim()
+	        
+	        # IMPORTANT: First find all rows before modifying the HTML structure
+	        aRowSections = oHTML.FindSubStringsBoundedByZZ([ "<tr", "</tr>" ])
+	        
+	        
+	        # Now let's check the proper nesting and structure
+	        
+	        # 1. Get positions of all important elements
+	        aTableSection = [1, oHTML.NumberOfChars()]
+	        aTDSections = oHTML.FindSubStringsBoundedByZZ([ "<td", "</td>" ])
+	        aTHSections = oHTML.FindSubStringsBoundedByZZ([ "<th", "</th>" ])
+	        
+	        # Check if we have at least one row
+	        if len(aRowSections) < 1
+	            return FALSE
+	        ok
+	        
+	        # Check if we have at least one cell
+	        if len(aTDSections) + len(aTHSections) < 1
+	            return FALSE
+	        ok
+	        
+	        # Alternative approach: Check if each cell is inside at least one row by checking content
+	        bAllCellsValid = TRUE
+	        
+	        # Create a temporary string object for each row to check if it contains cells
+	        for i = 1 to len(aRowSections)
+	            aRowSection = aRowSections[i]
+	            nRowStart = aRowSection[1]
+	            nRowEnd = aRowSection[2]
+	            
+	            # Extract the row content
+	            cRowContent = oHTML.Section(nRowStart, nRowEnd - nRowStart + 1)
+	            
+	            # Check if this row has at least one cell
+	            if not ( ring_substr1(cRowContent, "<td") or  ring_substr1(cRowContent, "<th") )
+	               // ? "Row without cells: " + @@(aRowSection)
+	                bAllCellsValid = FALSE
+	                exit
+	            ok
+	        next
+	        
+	        if not bAllCellsValid
+	            return FALSE
+	        ok
+	        
+	        # If we reached here, table structure is valid
+	        return TRUE
+	    ok
+	    
+	    return FALSE
+    
+
+	#==
+	
+	def ContainsHTMLTable()
+
+		# Early check
+
+		if NOT This.Contains([ "<table", "</table>"])
+			return FALSE
+		ok
+
+		# Getting the table strings into a list of stzString objects
+
+		acSubStr = This.SubStringsBoundedByIB([ "<table", "</table>"])
+		nLen = len(acSubStr)
+
+		aoSubStr = []
+		for i = 1 to nLen
+			aoSubStr + new stzString(acSubStr[i])
+		next
+
+		# Checking for the existence of a html table
+
+		for i = 1 to nLen
+			if aoSubStr[i].IsHtmlTable()
+				return TRUE
+			ok
+		next
+
+		return FALSE
+
+#==
+
+	def NumberOfHTMLTables()
+		if not This.ContainsHTMLTable()
+			return 0
+		ok
+	
+		# Getting the table strings into a list of stzString objects
+
+		acSubStr = This.SubStringsBoundedByIB([ "<table", "</table>"])
+		nLen = len(acSubStr)
+
+		aoSubStr = []
+		for i = 1 to nLen
+			aoSubStr + new stzString(acSubStr[i])
+		next
+
+		# Counting the valid html tables
+
+		nResult = 0
+
+		for i = 1 to nLen
+			if aoSubStr[i].IsHtmlTable()
+				nResult++
+			ok
+		next
+
+		return nResult
+
+#==
+
+	def HTMLTables()
+
+		if not This.ContainsHTMLTable()
+			return 0
+		ok
+	
+		# Getting the table strings into a list of stzString objects
+
+		acSubStr = This.SubStringsBoundedByIB([ "<table", "</table>"])
+		nLen = len(acSubStr)
+
+		aoSubStr = []
+		for i = 1 to nLen
+			aoSubStr + new stzString(acSubStr[i])
+		next
+
+		# Counting the valid html tables
+
+		acResult = []
+
+		for i = 1 to nLen
+			if aoSubStr[i].IsHtmlTable()
+				acResult + aoSubStr[i].Content()
+			ok
+		next
+
+		return acResult
+
+#==
+
+	def FindHTMLTables()
+	
+		if not This.ContainsHTMLTable()
+			return 0
+		ok
+
+		aSections = This.FindSubStringsBoundedByIBZZ([ "<table", "</table>"])
+		nLen = len(aSections)
+
+		aoSubStr = []
+		for i = 1 to nLen
+			aoSubStr + new stzString(This.Section(aSections[i][1], aSections[i][2]))
+		next
+
+		anResult = []
+
+		for i = 1 to nLen
+			if aoSubStr[i].IsHtmlTable()
+				anResult + aSections[i][1]
+			ok
+		next
+
+		return anResult
+
+	def FindHTMLTablesZZ()
+	
+		if not This.ContainsHTMLTable()
+			return 0
+		ok
+
+		aSections = This.FindSubStringsBoundedByIBZZ([ "<table", "</table>"])
+
+		nLen = len(aSections)
+
+		aoSubStr = []
+		for i = 1 to nLen
+			aoSubStr + new stzString(This.Section(aSections[i][1], aSections[i][2]))
+		next
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			if aoSubStr[i].IsHtmlTable()
+				aResult + aSections[i]
+			ok
+		next
+
+		return aResult
+
+		def FindHTMLTablesAsSections()
+			return This.FindHTMLTablesZZ()
+
+
+
+#==
+
+	def HtmlToDataTable()
+
+		# First, validate that we have a valid HTML table
+
+		if not This.IsHTMLTable()
+			return NULL
+		ok
+
+		# Getting the column names
+
+		acSubStr = This.SubStringsBoundedBy([ "<th ", "/th" ])
+		nLen = len(acSubStr)
+
+		aoSubStr = []
+		for i = 1 to nLen
+			aoSubStr + new stzString(acSubStr[i])
+		next
+
+		acColNames = []
+
+		for i = 1 to nLen
+				nPos = ring_substr1(acSubStr[i], ">")
+				cColName = aoSubStr[i].Section( nPos+1, aoSubStr[i].NumberOfChars()-1 )
+				acColNames + cColName
+		next
+		nLenCols = len(acColNames)
+
+		# Preparing the table container (in the stzTable format)
+
+		aDataTable = []
+		for i = 1 to nLenCols
+			aDataTable + [ acColNames[i], [] ]
+		next
+
+		# Getting the rows
+
+		oTable = StzStringQ( This.SubStringsBoundedBy([ "<tbody>", "</tbody>" ])[1] )
+		oTable.Remove('<tr class="row">')
+		oTable.remove("<tr>")
+		
+		acBlocks = oTable.SplitAt("</tr>")
+
+		aoBlocks = []
+		for i = 1 to nLen
+			aoBlocks + new stzString(acBlocks[i])
+		next
+
+		for i = 1 to nLen
+
+			acItems = aoBlocks[i].SubStringsBoundedBy([ "<td>", "</td>" ])
+			nLenItems = len(acItems)
+
+			for j = 1 to nLenItems
+				aDataTable[j][2] + acItems[j]
+			next
+
+		next
+
+		return aDataTable
+
+		def HtmlToDataTableQ()
+			return new stzList(This.HtmlToDataTable())
+
+		def HtmlToDataTableQRT(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.HtmlToDataTable())
+
+			on :stzHashList
+				return new stzHashList(This.HtmlToDataTable())
+
+			on :stzTable
+				return new stzTable(This.HtmlToDataTable())
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+#==
+
+	def HtmlToDataTables()
+	
+		aSections = This.FindHtmlTablesZZ()
+		nLen = len(aSections)
+	
+		aoTables = []
+		for i = 1 to nLen
+			aoTables + new stzString(This.Section(aSections[i][1], aSections[i][2]))
+		next
+	
+		aResult = []
+	
+		for i = 1 to nLen
+			aResult + aoTables[i].HtmlToDataTable()
+		next
+	
+		return aResult
+
+
+		def HtmlToDataTablesQ()
+			return new stzList(This.HtmlToDataTables())
+
+		def HtmlToDataTablesQRT(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.HtmlToDataTables())
+
+			on :stzListOfHashLists
+				return new stzListOfHashLists(This.HtmlToDataTables())
+
+			on :stzListOfTables
+				return new stzListOfTable(This.HtmlToDataTables())
+
+			other
+				StzRaise("Unsupported return type!")
+			off
