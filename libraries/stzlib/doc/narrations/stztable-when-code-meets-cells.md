@@ -756,7 +756,7 @@ This capability is invaluable for isolating specific subsets of your data, retur
 
 The `stzTable` class provides powerful filtering capabilities that let you extract specific subsets of data based on one or more conditions. This is similar to applying filters in spreadsheet applications, but with programmatic flexibility.
 
-### Basic Filtering
+### Filtering by One Column
 
 The `FilterBy()` method permanently updates the table content to show only data that matches your specified criteria. If you want to preserve the original table while viewing filtered results, you can use the `FilterByCQ()` method ("C" stands for "Copy" and "Q" is used in Softanza to return an object for futrther processing), which returns a new filtered table without modifying the original.
 
@@ -792,7 +792,7 @@ Output:
 
 The filtering criteria use an intuitive syntax where you specify column names and their expected values in a list. This human-readable approach makes your code more maintainable and easier to understand.
 
-### Advanced Filtering
+### Filtering by Multiple Columns
 
 You can combine multiple conditions in a single filter operation, creating more complex queries:
 
