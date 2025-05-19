@@ -92,6 +92,17 @@ _$aRegexPatterns_ = [
 	:htmlId = "(?:\\s+id\\s*=\\s*(?:\" + char(34) + "[^\" + char(34) + "]*\" + char(34) + "|'[^']*'|[^'\" + char(34) + "\\s>]+))",   
 	:html5Color = "^#[A-Fa-f0-9]{3,6}$",
 
+	:htmlTableOpen = "<table((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)\\s*>",
+	:htmlTableClose = "</table>",
+	:htmlRowOpen = "<tr((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)\\s*>",
+	:htmlRowClose = "</tr>",
+	:htmlCellOpen = "<td((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)\\s*>",
+	:htmlCellClose = "</td>",
+	:htmlHeaderCellOpen = "<th((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)\\s*>",
+	:htmlHeaderCellClose = "</th>",
+	:htmlTableSectionOpen = "<(thead|tbody|tfoot)((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)\\s*>",
+	:htmlTableSectionClose = "</(thead|tbody|tfoot)>",
+
 	# CSS Patterns
 
 	:idSelector = "^#([a-zA-Z_][a-zA-Z\\d_-]*)$",
@@ -1273,6 +1284,106 @@ _$aRegexPatternsExplanations_ = [
 
 		"- Matches: `#fff`, `#000000`, `#12AB3F`" + NL +
 		"- Non-matches: `#12`, `#1234567`, `123456`"
+	],
+
+	:htmlTableOpen = [ "Matches HTML table opening tags with optional attributes",
+	
+	"- `<table`: Table opening sequence" + NL +
+	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., class, id) with optional double-quoted, single-quoted, or unquoted values" + NL +
+	"- `\\s*>`: Optional whitespace and closing bracket" + NL + NL +
+	
+	"- Matches: `<table>`, `<table class=\" + char(34) + "data\" + char(34) + " id='t1'>`" + NL +
+	"- Non-matches: `<tablee>`, `<table class>`"
+	
+	],
+	
+	:htmlTableClose = [ "Matches HTML table closing tags",
+	
+	"- `</table>`: Table closing sequence" + NL + NL +
+	
+	"- Matches: `</table>`" + NL +
+	"- Non-matches: `</tables>`, `</table >`"
+	
+	],
+	
+	:htmlRowOpen = [ "Matches HTML table row opening tags with optional attributes",
+	
+	"- `<tr`: Row opening sequence" + NL +
+	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., class, style) with optional double-quoted, single-quoted, or unquoted values" + NL +
+	"- `\\s*>`: Optional whitespace and closing bracket" + NL + NL +
+	
+	"- Matches: `<tr>`, `<tr class=\" + char(34) + "row\" + char(34) + " align='center'>`" + NL +
+	"- Non-matches: `<trr>`, `<tr class>`"
+	
+	],
+	
+	:htmlRowClose = [ "Matches HTML table row closing tags",
+	
+	"- `</tr>`: Row closing sequence" + NL + NL +
+	
+	"- Matches: `</tr>`" + NL +
+	"- Non-matches: `</trr>`, `</tr >`"
+	
+	],
+	
+	:htmlCellOpen = [ "Matches HTML table cell opening tags with optional attributes",
+	
+	"- `<td`: Cell opening sequence" + NL +
+	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., colspan, class) with optional double-quoted, single-quoted, or unquoted values" + NL +
+	"- `\\s*>`: Optional whitespace and closing bracket" + NL + NL +
+	
+	"- Matches: `<td>`, `<td colspan=\" + char(34) + "2\" + char(34) + " class='cell'>`" + NL +
+	"- Non-matches: `<tdd>`, `<td colspan>`"
+	
+	],
+	
+	:htmlCellClose = [ "Matches HTML table cell closing tags",
+	
+	"- `</td>`: Cell closing sequence" + NL + NL +
+	
+	"- Matches: `</td>`" + NL +
+	"- Non-matches: `</tdd>`, `</td >`"
+	
+	],
+	
+	:htmlHeaderCellOpen = [ "Matches HTML table header cell opening tags with optional attributes",
+	
+	"- `<th`: Header cell opening sequence" + NL +
+	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., scope, class) with optional double-quoted, single-quoted, or unquoted values" + NL +
+	"- `\\s*>`: Optional whitespace and closing bracket" + NL + NL +
+	
+	"- Matches: `<th>`, `<th scope=\" + char(34) + "col\" + char(34) + " class='header'>`" + NL +
+	"- Non-matches: `<thh>`, `<th scope>`"
+	
+	],
+	
+	:htmlHeaderCellClose = [ "Matches HTML table header cell closing tags",
+	
+	"- `</th>`: Header cell closing sequence" + NL + NL +
+	
+	"- Matches: `</th>`" + NL +
+	"- Non-matches: `</thh>`, `</th >`"
+	
+	],
+	
+	:htmlTableSectionOpen = [ "Matches HTML table section opening tags (thead, tbody, tfoot) with optional attributes",
+	
+	"- `<(thead|tbody|tfoot)`: Section opening sequence for thead, tbody, or tfoot" + NL +
+	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., class, id) with optional double-quoted, single-quoted, or unquoted values" + NL +
+	"- `\\s*>`: Optional whitespace and closing bracket" + NL + NL +
+	
+	"- Matches: `<thead>`, `<tbody class=\" + char(34) + "main\" + char(34) + ">`" + NL +
+	"- Non-matches: `<tbodyy>`, `<thead class>`"
+	
+	],
+	
+	:htmlTableSectionClose = [ "Matches HTML table section closing tags (thead, tbody, tfoot)",
+	
+	"- `</(thead|tbody|tfoot)>`: Section closing sequence for thead, tbody, or tfoot" + NL + NL +
+	
+	"- Matches: `</thead>`, `</tbody>`, `</tfoot>`" + NL +
+	"- Non-matches: `</tbodyy>`, `</thead >`"
+	
 	],
 
 	# CSS Patterns
