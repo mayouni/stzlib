@@ -5,7 +5,7 @@
 Data tables are essential for many programming tasks, from data storage to complex analyses. Softanza's `stzTable` class for the Ring programming language provides an intuitive and powerful way to work with tabular data.
 What makes `stzTable` unique is its **spreadsheet-like metaphor**, offering an extensive API with naturally-named methods that follow how people think about tables. This allows for concise, precise, and flexible data manipulation with a human-readable interface.
 
-## Creating Tables with `stzTable`
+## Creating Tables with stzTable
 
 One of the first things you'll appreciate about `stzTable` is the variety of ways you can create a table. This flexibility means you can choose the method that best suits your data and your workflow. Let's explore each creation method with examples.
 
@@ -133,8 +133,7 @@ This loads the table from a CSV file, automatically handling the column names an
 
 > **Note**: Support for creating `stzTable` objects from JSON strings or files, HTML table markup, and SQL queries will be added in a future update.
 
-
-## The Spreadsheet Metaphor - Navigating Your Data
+## Navigating and Querying Data
 
 `stzTable` truly shines in its implementation of the **spreadsheet metaphor**, providing an intuitive way to navigate and manipulate your data. This section explores the comprehensive and thoughtfully designed API for accessing and inspecting your data.
 
@@ -273,10 +272,6 @@ o1.Show()
 ? o1.FindCellsInRow(2)
 #--> [ [ 1, 2], [2, 2], [3, 2]
 ```
-
-## Advanced Data Finding and Searching
-
-provides various search capabilities for finding specific data points.
 
 ### Finding Cells Throughout the Table
 
@@ -426,333 +421,7 @@ This subvalue search capability is exceptionally useful for text analysis and da
 
 The intuitive naming scheme embraced clearly distinguishes between searching for exact values — `Find(val)`, which locates entire cells equal to `val` — and partial matches — `FindInCells(subval)`, which finds any occurrence of `subval` within the content of the cells.
 
-
-## Data Manipulation - The Heart of `stzTable`
-
-Along with **navigation** and **search**, `stzTable` truly excels in **data manipulation**. Its rich set of methods allows you to transform your table in virtually any way imaginable...
-
-### Replacing Data
-
-`stzTable` offers numerous ways to replace data, from individual cells to entire sections:
-
-```ring
-# Replacing individual cells
-
-o1.ReplaceCell(:SALARY, 2, 30000)  // Replaces a single cell value
-o1.ReplaceCells([[:SALARY, 2], [:SALARY, 3]], 30000)  // Replaces multiple cells with the same value
-o1.ReplaceCellsXT([[:SALARY, 2], [:SALARY, 3]], [30000, 31000])  // Replaces multiple cells with different values
-
-# Replacing based on value
-
-o1.ReplaceCellValue("Ali", "Alexander")  // Replaces all occurrences of "Ali" with "Alexander"
-o1.ReplaceNthCellValue("Ali", "Alexander", 2)  // Replaces the 2nd occurrence of "Ali"
-
-# Replacing columns and rows
-
-o1.ReplaceColumn(:SALARY, [40000, 35000, 42000, 38000])  // Replaces an entire column
-o1.ReplaceRow(2, [20, "Daniel", 32000])  // Replaces an entire row
-```
-
-It's possible to replace subvalues by adding the `In` to any of the methods above.For example:
-
-```ring
-o1.ReplaceInCol(:EMPLOYEE, "a", "A") // Replace all the lowercase "a"s in the EMPLOYEE column by an uppercase "A"
-```
-
-### Adding and Removing Data
-
-`stzTable` makes it simple to modify your table structure by adding or removing elements:
-
-```ring
-# Adding columns and rows
-
-o1.AddCol(:DEPARTMENT, ["Sales", "IT", "HR", "Marketing"])  // Adds a new column
-o1.AddRow([50, "NewGuy", 30000, "Finance"])  // Adds a new row
-
-# Removing columns and rows
-
-o1.RemoveCol(:SALARY)  // Removes the SALARY column
-o1.RemoveRow(3)  // Removes row 3
-o1.RemoveColsExcept([:ID, :EMPLOYEE])  // Keeps only specified columns
-o1.RemoveRowsExcept([1, 2])  // Keeps only specified rows
-```
-
-
-### Restructuring Your Table
-
-`stzTable` provides powerful methods for restructuring your table:
-
-```ring
-# Moving elements
-
-o1.MoveRow(2, 4)  // Moves row 2 to position 4
-o1.MoveColumn(:ID, 3)  // Moves the ID column to position 3
-
-# Swapping elements
-
-o1.SwapRows(1, 3)  // Swaps rows 1 and 3
-o1.SwapColumns(:ID, :SALARY)  // Swaps the ID and SALARY columns
-
-# Renaming columns
-
-o1.RenameColumn(:EMPLOYEE, :NAME)  // Renames the EMPLOYEE column to NAME
-```
-
-### Advanced Manipulation
-
-`stzTable` goes beyond basic operations with advanced manipulation capabilities:
-
-```ring
-# Inserting at specific positions
-
-o1.InsertColumn(:DEPARTMENT, ["Sales", "IT", "HR", "Marketing"], :At = 2)  // Inserts a column at position 2
-o1.InsertRow([50, "NewGuy", 30000, "Finance"], :At = 3)  // Inserts a row at position 3
-
-# Erasing (clearing) data without removing structure
-
-o1.EraseColumn(:NOTES)  // Clears all values in the NOTES column
-o1.EraseRow(4)  // Clears all values in row 4
-o1.EraseSection([:ID, 2], [:SALARY, 4])  // Clears a section of the table
-
-# Filling with values
-
-o1.Fill("N/A")  // Fills the entire table with "N/A"
-```
-
-The distinction between *removing* (which changes the table structure) and *erasing* (which keeps the structure but clears values) highlights the thoughtful design of the API.
-
-## Spreadsheet-Like Functionality
-
-What sets `stzTable` apart from many other table implementations is its incorporation of **spreadsheet-like** functionality, allowing for calculations, sorting, and other advanced operations directly within your code.
-
-### Calculated Columns and Rows
-
-One of `stzTable`'s most powerful features is the ability to add calculated columns and rows:
-
-```ring
-o1 = new stzTable([
-
-	[ "COUNTRY",  "INCOME",	"POPULATION" ],
-	#------------------------------------#
-	[ "USA",         25450,       340.1	 ],
-	[ "China",       18150,      1430.1	 ],
-	[ "Japan",        5310,       123.2	 ],
-	[ "Germany",      4490,        83.3  ],
-	[ "India",        3370,      1430.2  ]
-
-])
-
-# Adding a calculated row (at the end of the table)
-
-o1.AddCalculatedCol(:PERCAPITA, '@(:INCOME) / @(:POPULATION)')
-o1.Show()
-#-->
-# ╭─────────┬────────┬────────────┬───────────╮
-# │ Country │ Income │ Population │ Percapita │
-# ├─────────┼────────┼────────────┼───────────┤
-# │ USA     │  25450 │     340.10 │     74.83 │
-# │ China   │  18150 │    1430.10 │     12.69 │
-# │ Japan   │   5310 │     123.20 │     43.10 │
-# │ Germany │   4490 │      83.30 │     53.90 │
-# │ India   │   3370 │    1430.20 │      2.36 │
-# ╰─────────┴────────┴────────────┴───────────╯
-
-# Inserting a calculated column at position 2 (using the `stzCountry` class and its `CurrencyAbbreviation()` method)
-
-o1.InsertCalculatedCol(2, :CURRENCY, 'StzCountryQ(@(:COUNTRY)).CurrencyAbbreviation()')
-? o1.Show()
-#-->
-# ╭─────────┬──────────┬────────┬────────────┬───────────╮
-# │ Country │ Currency │ Income │ Population │ Percapita │
-# ├─────────┼──────────┼────────┼────────────┼───────────┤
-# │ USA     │ USD      │  25450 │     340.10 │     74.83 │
-# │ China   │ CNY      │  18150 │    1430.10 │     12.69 │
-# │ Japan   │ JPY      │   5310 │     123.20 │     43.10 │
-# │ Germany │ EUR      │   4490 │      83.30 │     53.90 │
-# │ India   │ INR      │   3370 │    1430.20 │      2.36 │
-# ╰─────────┴──────────┴────────┴────────────┴───────────╯
-```
-
-After adding calculated columns you can find them easily:
-
-```ring
-
-? @@( o1.FindCalculatedCols() ) + NL
-#--> [ 2, 4 ]
-
-? o1.CalculatedColNames()
-#--> [ "currency", "population" ]
-
-? @@NL( o1.CalculatedCols() ) + NL
-#--> [
-#	[ "USD", "CNY", "JPY", "EUR", "INR" ],
-#	[ 340.10, 1430.10, 123.20, 83.30, 1430.20 ]
-# ]
-```
-
-The same thing can be done with calculated rows:
-
-```ring
-# Adding a calculated row (at the end of the table)
-
-o1.AddCalculatedRow([
-'', '', '@Sum( @(:INCOME) )', '@Sum( @(:POPULATION) )', '@Average( @(:PERCAPITA) )'
-])
-
-? o1.Show()
-#-->
-# ╭─────────┬──────────┬────────┬────────────┬───────────╮
-# │ Country │ Currency │ Income │ Population │ Percapita │
-# ├─────────┼──────────┼────────┼────────────┼───────────┤
-# │ USA     │ USD      │  25450 │     340.10 │     74.83 │
-# │ China   │ CNY      │  18150 │    1430.10 │     12.69 │
-# │ Japan   │ JPY      │   5310 │     123.20 │     43.10 │
-# │ Germany │ EUR      │   4490 │      83.30 │     53.90 │
-# │ India   │ INR      │   3370 │    1430.20 │      2.36 │
-# │         │          │  56770 │    3406.90 │     37.38 │ ~> Here is the row we added
-# ╰─────────┴──────────┴────────┴────────────┴───────────╯
-
-? @@( o1.FindCalculatedRows() ) + NL
-#--> [ 6 ]
-
-? @@( o1.CalculatedRows() ) + NL
-#--> [ [ " ", " ", 56770, 3406.90, 37.38 ] ]
-```
-> **Note**: There is a better way to display the table along with its total at the bottom—by using the `showXT()` function, as demonstrated later in the article.
- 
-### Excel-Like Functions
-
-`stzTable` implements many familiar **spreadsheet functions** for performing calculations on ranges of cells.
-
-```ring
-o1 = new stzTable([
-
-	[ "A", "B", "C" ],
-
-	[  12,  10,   8 ],
-	[  10,  14,  24 ],
-	[   7,   4,   8 ]
-
-])
-
-? o1.KOUNT([ :A, 1 ], [ :C, 3 ]) # We use "K" because we have an other Count() method alternative of len()
-#--> 9
-
-? o1.SUM([ :A, 1 ], [ :C, 3 ])
-#--> 97
-
-? o1.AVERAGE([ :A, 1 ], [ :C, 3 ])
-#--> 10.78
-
-? o1.PRODUCT([ :A, 1 ], [ :C, 3 ])
-#--> 722_534_400
-
-? o1.MAX([ :A, 1 ], [ :C, 3 ])
-#--> 24
-
-? o1.MIN([ :A, 1 ], [ :C, 3 ])
-#--> 4
-```
-
-> **Note** : More functions are planned for future updates, aiming to deliver a fully Excel-like experience inside your Ring code.
-
-### Sorting Capabilities
-
-`stzTable` provides comprehensive sorting options for organizing your data:
-
-```ring
-// Basic sorting
-o1.Sort()  // Sorts the entire table in ascending order
-o1.SortDown()  // Sorts in descending order
-
-// Sorting on specific columns
-o1.SortOn(:SALARY)  // Sorts the table based on the SALARY column
-o1.SortOnDown(:SALARY)  // Sorts in descending order based on SALARY
-```
-
-It also supports an advanced expression-based sorting on a given column using `SortOnBy()` method, both in acending and descending orders:
-
-```ring
-o1 = new stzTable([
-	[ :ID,	:NAME,		:AGE 	],
-	#-------------------------------#
-	[ 10,	"Abdelkarim",	52   	],
-	[ 20,	"Hatem", 	46	],
-	[ 30,	"Abraham",	48	]
-])
-
-o1.SortOnBy(:NAME, 'len(@cell)')
-
-o1.Show()
-#-->
-# ╭────┬────────────┬─────╮
-# │ Id │    Name    │ Age │
-# ├────┼────────────┼─────┤
-# │ 20 │ Hatem      │  46 │
-# │ 30 │ Abraham    │  48 │
-# │ 10 │ Abdelkarim │  52 │
-# ╰────┴────────────┴─────╯
-
-o1.SortOnByDown(:NAME, 'len(@cell)')
-o1.Show()
-#-->
-# ╭────┬────────────┬─────╮
-# │ Id │    Name    │ Age │
-# ├────┼────────────┼─────┤
-# │ 10 │ Abdelkarim │  52 │
-# │ 30 │ Abraham    │  48 │
-# │ 20 │ Hatem      │  46 │
-# ╰────┴────────────┴─────╯
-```
-
-
-### Creating Subtables
-
-`stzTable` makes it easy to extract portions of your data as new tables:
-
-```ring
-o1 = new stzTable([
-	[ :ID,	:EMPLOYEE,	:SALARY,	:JOB 	],
-	[ 10,	"Ali",		35000,		"job1"	],
-	[ 20,	"Dan",		28900,		"job2"	],
-	[ 30,	"Ben",		25982,		"job3"	]
-])
-
-o1.Show()
-#-->
-# ╭────┬──────────┬────────┬──────╮
-# │ Id │ Employee │ Salary │ Job  │
-# ├────┼──────────┼────────┼──────┤
-# │ 10 │ Ali      │  35000 │ job1 │
-# │ 20 │ Dan      │  28900 │ job2 │
-# │ 30 │ Ben      │  25982 │ job3 │
-# ╰────┴──────────┴────────┴──────╯
-
-# Getting the content of the subtable
-
-? @@NL( o1.SubTable([ :EMPLOYEE, :SALARY ]) ) + NL
-#--> [
-#	[ "employee", [ "Ali", "Dan", "Ben" ] ],
-#	[ "salary"  , [ 35000, 28900, 25982 ] ]
-# ]
-
-# Casting the subtable into a stzTable object and showing it
-
-o1.SubTableQRT([ :EMPLOYEE, :SALARY ], :stzTable).Show()
-#-->
-# ╭──────────┬────────╮
-# │ Employee │ Salary │
-# ├──────────┼────────┤
-# │ Ali      │  35000 │
-# │ Dan      │  28900 │
-# │ Ben      │  25982 │
-# ╰──────────┴────────╯
-```
-
-This capability is invaluable for isolating specific subsets of your data, returning them as `stzTable` objects ready for further analysis or presentation.
-
-
-## Filtering Data in `stzTable`
+## Filtering Data
 
 The `stzTable` class provides powerful filtering capabilities that let you extract specific subsets of data based on one or more conditions. This is similar to applying filters in spreadsheet applications, but with programmatic flexibility.
 
@@ -850,6 +519,7 @@ o1 = new stzTable([
 
 o1.Show()
 ```
+
 Output:
 ```
 ╭──────────────┬───────╮
@@ -880,7 +550,7 @@ This returns only the rows with `Productivity` values of 10 and 9.
 
 Then, we add a second condition: only include rows where `Hours` is also greater than or equal to 5:
 
-```
+```ring
 o1.FilterWQ('@(:Productivity) > 8 and @(:Hours) >= 5').Show()
 ```
 
@@ -896,7 +566,345 @@ Now, only one row remains—where `Productivity` is 10 and `Hours` is 5.
 
 This demonstrates how **complex conditions** can be expressed in a clear and concise way using the `FilterW()` method.
 
-## Grouping Data in `stzTable`
+## Manipulating and Restructuring Data
+
+Along with **navigation** and **search**, `stzTable` truly excels in **data manipulation**. Its rich set of methods allows you to transform your table in virtually any way imaginable.
+
+### Replacing Data
+
+`stzTable` offers numerous ways to replace data, from individual cells to entire sections:
+
+```ring
+# Replacing individual cells
+
+o1.ReplaceCell(:SALARY, 2, 30000)  // Replaces a single cell value
+o1.ReplaceCells([[:SALARY, 2], [:SALARY, 3]], 30000)  // Replaces multiple cells with the same value
+o1.ReplaceCellsXT([[:SALARY, 2], [:SALARY, 3]], [30000, 31000])  // Replaces multiple cells with different values
+
+# Replacing based on value
+
+o1.ReplaceCellValue("Ali", "Alexander")  // Replaces all occurrences of "Ali" with "Alexander"
+o1.ReplaceNthCellValue("Ali", "Alexander", 2)  // Replaces the 2nd occurrence of "Ali"
+
+# Replacing columns and rows
+
+o1.ReplaceColumn(:SALARY, [40000, 35000, 42000, 38000])  // Replaces an entire column
+o1.ReplaceRow(2, [20, "Daniel", 32000])  // Replaces an entire row
+```
+
+It's possible to replace subvalues by adding the `In` to any of the methods above. For example:
+
+```ring
+o1.ReplaceInCol(:EMPLOYEE, "a", "A") // Replace all the lowercase "a"s in the EMPLOYEE column by an uppercase "A"
+```
+
+### Adding and Removing Data
+
+`stzTable` makes it simple to modify your table structure by adding or removing elements:
+
+```ring
+# Adding columns and rows
+
+o1.AddCol(:DEPARTMENT, ["Sales", "IT", "HR", "Marketing"])  // Adds a new column
+o1.AddRow([50, "NewGuy", 30000, "Finance"])  // Adds a new row
+
+# Removing columns and rows
+
+o1.RemoveCol(:SALARY)  // Removes the SALARY column
+o1.RemoveRow(3)  // Removes row 3
+o1.RemoveColsExcept([:ID, :EMPLOYEE])  // Keeps only specified columns
+o1.RemoveRowsExcept([1, 2])  // Keeps only specified rows
+```
+
+### Restructuring Your Table
+
+`stzTable` provides powerful methods for restructuring your table:
+
+```ring
+# Moving elements
+
+o1.MoveRow(2, 4)  // Moves row 2 to position 4
+o1.MoveColumn(:ID, 3)  // Moves the ID column to position 3
+
+# Swapping elements
+
+o1.SwapRows(1, 3)  // Swaps rows 1 and 3
+o1.SwapColumns(:ID, :SALARY)  // Swaps the ID and SALARY columns
+
+# Renaming columns
+
+o1.RenameColumn(:EMPLOYEE, :NAME)  // Renames the EMPLOYEE column to NAME
+```
+
+### Advanced Manipulation
+
+`stzTable` goes beyond basic operations with advanced manipulation capabilities:
+
+```ring
+# Inserting at specific positions
+
+o1.InsertColumn(:DEPARTMENT, ["Sales", "IT", "HR", "Marketing"], :At = 2)  // Inserts a column at position 2
+o1.InsertRow([50, "NewGuy", 30000, "Finance"], :At = 3)  // Inserts a row at position 3
+
+# Erasing (clearing) data without removing structure
+
+o1.EraseColumn(:NOTES)  // Clears all values in the NOTES column
+o1.EraseRow(4)  // Clears all values in row 4
+o1.EraseSection([:ID, 2], [:SALARY, 4])  // Clears a section of the table
+
+# Filling with values
+
+o1.Fill("N/A")  // Fills the entire table with "N/A"
+```
+
+The distinction between *removing* (which changes the table structure) and *erasing* (which keeps the structure but clears values) highlights the thoughtful design of the API.
+
+### Creating Subtables
+
+`stzTable` makes it easy to extract portions of your data as new tables:
+
+```ring
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE,	:SALARY,	:JOB 	],
+	[ 10,	"Ali",		35000,		"job1"	],
+	[ 20,	"Dan",		28900,		"job2"	],
+	[ 30,	"Ben",		25982,		"job3"	]
+])
+
+o1.Show()
+#-->
+# ╭────┬──────────┬────────┬──────╮
+# │ Id │ Employee │ Salary │ Job  │
+# ├────┼──────────┼────────┼──────┤
+# │ 10 │ Ali      │  35000 │ job1 │
+# │ 20 │ Dan      │  28900 │ job2 │
+# │ 30 │ Ben      │  25982 │ job3 │
+# ╰────┴──────────┴────────┴──────╯
+
+# Getting the content of the subtable
+
+? @@NL( o1.SubTable([ :EMPLOYEE, :SALARY ]) ) + NL
+#--> [
+#	[ "employee", [ "Ali", "Dan", "Ben" ] ],
+#	[ "salary"  , [ 35000, 28900, 25982 ] ]
+# ]
+
+# Casting the subtable into a stzTable object and showing it
+
+o1.SubTableQRT([ :EMPLOYEE, :SALARY ], :stzTable).Show()
+#-->
+# ╭──────────┬────────╮
+# │ Employee │ Salary │
+# ├──────────┼────────┤
+# │ Ali      │  35000 │
+# │ Dan      │  28900 │
+# │ Ben      │  25982 │
+# ╰────────┴────────╯
+```
+
+This capability is invaluable for isolating specific subsets of your data, returning them as `stzTable` objects ready for further analysis or presentation.
+
+### Conditional Methods
+
+`stzTable` includes a powerful "Conditional Method" system that adds a W() suffix to existing methods, enabling conditional filtering:
+
+```ring
+# Get all cells in the SALARY column where value is > 30000
+? o1.CellsW('ToNumber(@Cell) > 30000')
+
+# Find employees with names shorter than 5 characters
+? o1.FindInColW(:EMPLOYEE, 'isString(@Cell) and len(@Cell) < 5')
+
+# Replace only numeric cells in a column
+o1.ReplaceCellsInColW(:ID, 'isNumber(@Cell)', "ID-" + @Cell)
+```
+
+## Spreadsheet-Like Calculations and Sorting
+
+What sets `stzTable` apart from many other table implementations is its incorporation of **spreadsheet-like** functionality, allowing for calculations, sorting, and other advanced operations directly within your code.
+
+### Calculated Columns and Rows
+
+One of `stzTable`'s most powerful features is the ability to add calculated columns and rows:
+
+```ring
+o1 = new stzTable([
+
+	[ "COUNTRY",  "INCOME",	"POPULATION" ],
+	#------------------------------------#
+	[ "USA",         25450,       340.1	 ],
+	[ "China",       18150,      1430.1	 ],
+	[ "Japan",        5310,       123^.2	 ],
+	[ "Germany",      4490,        83.3  ],
+	[ "India",        3370,      1430.2  ]
+
+])
+
+# Adding a calculated row (at the end of the table)
+
+o1.AddCalculatedCol(:PERCAPITA, '@(:INCOME) / @(:POPULATION)')
+o1.Show()
+#-->
+# ╭─────────┬────────┬────────────┬───────────╮
+# │ Country │ Income │ Population │ Percapita │
+# ├─────────┼────────┼────────────┼───────────┤
+# │ USA     │  25450 │     340.10 │     74.83 │
+# │ China   │  18150 │    1430.10 │     12.69 │
+# │ Japan   │   5310 │     123.20 │     43.10 │
+# │ Germany │   4490 │      83.30 │     53.90 │
+# │ India   │   3370 │    1430.20 │      2.36 │
+# ╰─────────┴────────┴────────────┴───────────╯
+
+# Inserting a calculated column at position 2 (using the `stzCountry` class and its `CurrencyAbbreviation()` method)
+
+o1.InsertCalculatedCol(2, :CURRENCY, 'StzCountryQ(@(:COUNTRY)).CurrencyAbbreviation()')
+? o1.Show()
+#-->
+# ╭─────────┬──────────┬────────┬────────────┬───────────╮
+# │ Country │ Currency │ Income │ Population │ Percapita │
+# ├─────────┼──────────┼────────┼────────────┼───────────┤
+# │ USA     │ USD      │  25450 │     340.10 │     74.83 │
+# │ China   │ CNY      │  18150 │    1430.10 │     12.69 │
+# │ Japan   │ JPY      │   5310 │     123.20 │     43.10 │
+# │ Germany │ EUR      │   4490 │      83.30 │     53.90 │
+# │ India   │ INR      │   3370 │    1430.20 │      2.36 │
+# ╰─────────┴──────────┴────────┴────────────┴───────────╯
+```
+
+After adding calculated columns you can find them easily:
+
+```ring
+
+? @@( o1.FindCalculatedCols() ) + NL
+#--> [ 2, 4 ]
+
+? o1.CalculatedColNames()
+#--> [ "currency", "population" ]
+
+? @@NL( o1.CalculatedCols() ) + NL
+#--> [
+#	[ "USD", "CNY", "JPY", "EUR", "INR" ],
+#	[ 340.10, 1430.10, 123.20, 83.30, 1430.20 ]
+# ]
+```
+
+The same thing can be done with calculated rows:
+
+```ring
+# Adding a calculated row (at the end of the table)
+
+o1.AddCalculatedRow([
+'', '', '@Sum( @(:INCOME) )', '@Sum( @(:POPULATION) )', '@Average( @(:PERCAPITA) )'
+])
+
+? o1.Show()
+#-->
+# ╭─────────┬──────────┬────────┬────────────┬───────────╮
+# │ Country │ Currency │ Income │ Population │ Percapita │
+# ├─────────┼──────────┼────────┼────────────┼───────────┤
+# │ USA     │ USD      │  25450 │     340.10 │     74.83 │
+# │ China   │ CNY      │  18150 │    1430.10 │     12.69 │
+# │ Japan   │ JPY      │   5310 │     123.20 │     43.10 │
+# │ Germany │ EUR      │   4490 │      83.30 │     53.90 │
+# │ India   │ INR      │   3370 │    1430.20 │      2.36 │
+# │         │          │  56770 │    3406.90 │     37.38 │ ~> Here is the row we added
+# ╰─────────┴──────────┴────────┴────────────┴───────────╯
+
+? @@( o1.FindCalculatedRows() ) + NL
+#--> [ 6 ]
+
+? @@( o1.CalculatedRows() ) + NL
+#--> [ [ " ", " ", 56770, 3406.90, 37.38 ] ]
+```
+
+> **Note**: There is a better way to display the table along with its total at the bottom—by using the `showXT()` function, as demonstrated later in the article.
+
+### Excel-Like Functions
+
+`stzTable` implements many familiar **spreadsheet functions** for performing calculations on ranges of cells.
+
+```ring
+o1 = new stzTable([
+
+	[ "A", "B", "C" ],
+
+	[  12,  10,   8 ],
+	[  10,  14,  24 ],
+	[   7,   4,   8 ]
+
+])
+
+? o1.KOUNT([ :A, 1 ], [ :C, 3 ]) # We use "K" because we have an other Count() method alternative of len()
+#--> 9
+
+? o1.SUM([ :A, 1 ], [ :C, 3 ])
+#--> 97
+
+? o1.AVERAGE([ :A, 1 ], [ :C, 3 ])
+#--> 10.78
+
+? o1.PRODUCT([ :A, 1 ], [ :C, 3 ])
+#--> 722_534_400
+
+? o1.MAX([ :A, 1 ], [ :C, 3 ])
+#--> 24
+
+? o1.MIN([ :A, 1 ], [ :C, 3 ])
+#--> 4
+```
+
+> **Note** : More functions are planned for future updates, aiming to deliver a fully Excel-like experience inside your Ring code.
+
+### Sorting Capabilities
+
+`stzTable` provides comprehensive sorting options for organizing your data:
+
+```ring
+// Basic sorting
+o1.Sort()  // Sorts the entire table in ascending order
+o1.SortDown()  // Sorts in descending order
+
+// Sorting on specific columns
+o1.SortOn(:SALARY)  // Sorts the table based on the SALARY column
+o1.SortOnDown(:SALARY)  // Sorts in descending order based on SALARY
+```
+
+It also supports an advanced expression-based sorting on a given column using `SortOnBy()` method, both in acending and descending orders:
+
+```ring
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Abdelkarim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+o1.SortOnBy(:NAME, 'len(@cell)')
+
+o1.Show()
+#-->
+# ╭────┬────────────┬─────╮
+# │ Id │    Name    │ Age │
+# ├────┼────────────┼─────┤
+# │ 20 │ Hatem      │  46 │
+# │ 30 │ Abraham    │  48 │
+# │ 10 │ Abdelkarim │  52 │
+# ╰────┴────────────┴─────╯
+
+o1.SortOnByDown(:NAME, 'len(@cell)')
+o1.Show()
+#-->
+# ╭────┬────────────┬─────╮
+# │ Id │    Name    │ Age │
+# ├────┼────────────┼─────┤
+# │ 10 │ Abdelkarim │  52 │
+# │ 30 │ Abraham    │  48 │
+# │ 20 │ Hatem      │  46 │
+# ╰────┴────────────┴─────╯
+```
+
+## Grouping and Aggregating Data
 
 Grouping is a powerful technique for summarizing and analyzing data by categories. The `stzTable` class makes this process straightforward with its `GroupBy()` method.
 
@@ -999,6 +1007,7 @@ Load it into an `stzTable` and inspect:
 o1 = new stzTable(:FromFile = "team.csv")
 o1.ShowXT([ :RowNumber = TRUE ])
 ```
+
 Output:
 
 ```ring
@@ -1050,11 +1059,11 @@ This automatic “explode-and-group” behavior makes `stzTable` ideal for:
 
 Simply specify any column that holds lists of values—`GroupBy()` does the rest.
 
-## Aggregating Data in `stzTable`
+### Aggregating Data
 
 Aggregation functions allow you to perform calculations across rows to derive meaningful insights from your data. The `stzTable` class offers a variety of aggregation methods that work seamlessly with its other features.
 
-### Basic Aggregation
+#### Basic Aggregation
 
 The simplest form of aggregation calculates a single metric across all rows:
 
@@ -1075,7 +1084,7 @@ Output:
 
 This reduces your entire table to a single value—the total sales across all records.
 
-### Multiple Aggregations
+#### Multiple Aggregations
 
 You can apply different aggregation functions to multiple columns simultaneously:
 
@@ -1100,7 +1109,7 @@ Output:
 
 This creates a concise summary table showing the total sales, average units, and count of products—all in a single operation.
 
-### Combined Grouping and Aggregation
+#### Combined Grouping and Aggregation
 
 The true power of `stzTable` becomes evident when combining grouping and aggregation, using the `GroupByXT(aColsToBeGroupped, aColsToBeAggregated)` function:
 
@@ -1142,43 +1151,7 @@ Output:
 
 These combinations let you create insightful data summaries that reveal patterns and trends across different dimensions of your data. Notice how the group-by columns and the aggregated columns are clearly separated in the output, making the results easy to interpret.
 
-Overall, `stzTable`'s filtering, grouping, and aggregation capabilities provide a comprehensive toolkit for data manipulation and analysis, all while maintaining the intuitive spreadsheet metaphor that makes complex operations accessible and understandable.
-
-## Conditional Methods, Regex Support and PivotTable
-
-### Conditional Methods with W()
-
-`stzTable` includes a powerful "Conditional Method" system that adds a W() suffix to existing methods, enabling conditional filtering:
-
-```ring
-# Get all cells in the SALARY column where value is > 30000
-? o1.CellsW('ToNumber(@Cell) > 30000')
-
-# Find employees with names shorter than 5 characters
-? o1.FindInColW(:EMPLOYEE, 'isString(@Cell) and len(@Cell) < 5')
-
-# Replace only numeric cells in a column
-o1.ReplaceCellsInColW(:ID, 'isNumber(@Cell)', "ID-" + @Cell)
-```
-
-### Regular Expression Support
-
-`stzTable` integrates with `stzRegex` and `stzListex` classes to provide powerful pattern matching capabilities. To use them, you just need to add the `RX` suffix to any method in the class.
-
-```ring
-# Find all cells matching a regex pattern
-? o1.FindCellsRX("^A.*i$")  // Finds cells starting with "A" and ending with "i"
-
-# Extract email of EMLOYEE column using regex and storing it in a new column called EMAIL
-o1.AddCalculatedColRX(:EMAIL, 'Rx(pat(:eMail).Matches(@(:EMPLOYEE))[1]')
-
-# Obfuscating any email in the EMPLOYEE column using "***"
-o1.ReplaceInColXT(:EMPLOYEE, pat(:eMail), "***")
-```
-
-> **Note**: In Softanza, `pat(:eMail)` returns the regex pattern of an email so you don't have to write it by hand. Dozens of other named regexes are available through the `stzRegexData` class.
-
-### Foundation for stzPivotTable
+## Advanced Data Analysis with Pivot Tables
 
 `stzTable` serves as the foundation for the powerful `stzPivotTable` class, which enables sophisticated multi-dimensional data analysis and interactive exploration. With `stzPivotTable`, you can transform your tabular data into dynamic cross-tabulations with aggregated insights across multiple dimensions.
 
@@ -1236,29 +1209,60 @@ The `stzPivotTable` class supports various aggregation functions (SUM, AVG, MIN,
 
 The fluent interface style allows you to build complex pivot tables in a readable, chainable syntax that clearly expresses your analytical intent.
 
-## Softanza Advantage : A Comparative Analysis
+## Regular Expression Support
 
-Softanza's `stzTable` "spreadsheet metaphor" approach stands out when compared to other table manipulation libraries and traditional data frames.
+`stzTable` integrates with `stzRegex` and `stzListex` classes to provide powerful pattern matching capabilities. To use them, you just need to add the `RX` suffix to any method in the class.
+
+```ring
+# Find all cells matching a regex pattern
+? o1.FindCellsRX("^A.*i$")  // Finds cells starting with "A" and ending with "i"
+
+# Extract email of EMLOYEE column using regex and storing it in a new column called EMPLOYEE
+o1.AddCalculatedColRX(:EMAIL, 'Rx(pat(:eMail).Matches(@(:EMPLOYEE))[1]')
+
+# Obfuscating any email in the EMPLOYEE column using "***"
+o1.ReplaceInColXT(:EMPLOYEE, pat(:eMail), "***")
+```
+
+> **Note**: In Softanza, `pat(:eMail)` returns the regex pattern of an email so you don't have to write it by hand. Dozens of other named regexes are available through the `stzRegexData` class.
+
+## Softanza Advantage: A Comparative Analysis
+
+Softanza's `stzTable` "spreadsheet metaphor" approach stands out when compared to other table manipulation libraries and traditional data frames.
 
 | Feature | `stzTable` (Ring) | pandas (Python) | data.frame (R) | SQL Tables (SQLite) |
 |---------|-------------------|-----------------|----------------|---------------------|
+| **Core API and Usability** | | | | |
 | **Natural Language API** | ✅ **Comprehensive** (FindColumnByName, ReplaceCell) | Limited (loc, iloc) | Limited (subset) | SQL syntax (SELECT, WHERE) |
 | **Intuitive Method Naming** | ✅ **Self-explanatory** (AddRow, RemoveCol) | Technical (concat, drop) | Technical (rbind, cbind) | SQL keywords (INSERT, DELETE) |
-| **Spreadsheet Metaphor** | ✅ **Complete implementation** | Tabular focus only | Statistical focus | Query-based paradigm |
-| **Calculated Fields** | ✅ **Formula support** with @() syntax | Requires explicit apply() | Requires explicit apply() | SQL expressions |
-| **Subvalue Search** | ✅ **Built-in** (FindSubValueInCol) | Requires regex | Requires regex | LIKE operator with wildcards |
-| **Positional Awareness** | ✅ **Native** (FirstCol, LastRow) | Index-based | Index-based | No direct positional access |
-| **Section Manipulation** | ✅ **Direct syntax** (Section, Range) | iloc slicing | Matrix notation | LIMIT/OFFSET combinations |
-| **Conditional Methods** | ✅ **W() suffix** for any method | query() or boolean indexing | subset() or boolean indexing | WHERE clauses |
-| **Pivot Table Support** | ✅ **Integrated fluent API** (ToStzPivotTable with chainable methods) | pivot_table() function with complex parameters | pivot_wider/pivot_longer with multiple steps | Complex GROUP BY with CASE statements |
-| **Multi-dimensional Analysis** | ✅ **Intuitive hierarchy** with nested row/column groupings | MultiIndex with less intuitive syntax | Requires add-on packages for full capability | Limited hierarchical support |
 | **Learning Curve** | ✅ **Gentle** (meaningful method names) | Steep (API complexity) | Steep (syntax) | Moderate (SQL knowledge required) |
 | **Implementation Complexity** | ✅ **Simple** (1-2 lines per operation) | Medium (multiple steps) | Medium (multiple steps) | SQL query construction |
+| **Data Access and Navigation** | | | | |
+| **Positional Awareness** | ✅ **Native** (FirstCol, LastRow) | Index-based | Index-based | No direct positional access |
+| **Section Manipulation** | ✅ **Direct syntax** (Section, Range) | iloc slicing | Matrix notation | LIMIT/OFFSET combinations |
+| **Subvalue Search** | ✅ **Built-in** (FindSubValueInCol) | Requires regex | Requires regex | LIKE operator with wildcards |
+| **Automatic Column Name Generation** | ✅ **Auto-generated symbolic column names** (`:COL1`, `:COL2`) | Numeric or default names; less descriptive | Numeric or default names; similar to pandas | Requires explicit column definitions |
+| **Data Manipulation** | | | | |
+| **Calculated Fields** | ✅ **Formula support** with @() syntax | Requires explicit apply() | Requires explicit apply() | SQL expressions |
+| **Distinction Between Removing and Erasing** | ✅ **Distinct remove/erase operations** for structure vs. content | Combines via `drop` or assignment; less granular | Combines via subsetting or `NULL`; less granular | `DELETE`/`UPDATE` for content, `DROP` for structure |
+| **Subtable Creation** | ✅ **Native subtable creation** with `SubTable` returning `stzTable` | Column/row selection returns DataFrame; extra steps | Subsetting returns data.frame; similar to pandas | `SELECT` queries return result sets; not object-oriented |
 | **Flexibility with Data Types** | ✅ **Seamless** mixed types | Requires type casting | Requires type casting | Schema enforcement |
-| **Grouping by Inner List Values** | ✅ **Automatic & Native** (`GroupBy(:ListColumn)`) | ❌ Requires explode() + groupby | ❌ Requires unnest() or manual flattening | ❌ Not supported; requires normalization |
-| **Integration with Regex** | ✅ **Direct** (RX methods) | Separate regex functions | Separate regex functions | Limited REGEXP support |
-| **Modern Display Formatting** | ✅ **Rich visual presentation** with automatic borders, alignment, and hierarchical formatting | Requires styling plugins or extra formatting code | Basic console output, requires additional packages | Plain text or requires external tools |
-| **Visual Orientation** | ✅ **Design priority** with spreadsheet-like presentation and intuitive visual output | Primarily functional with visual aspects secondary | Statistical focus with limited visual design | No inherent visual presentation |
+| **Filtering and Searching** | | | | |
+| **FilterW() (Conditional Filtering)** | ✅ **Programmatic filtering** with Ring code (e.g., `@(:Productivity) > 8`) | `query()` or boolean indexing; less flexible syntax | `subset()` or boolean indexing; less flexible | `WHERE` clauses; query-based |
+| **Conditional Methods** | ✅ **W() suffix** for any method (e.g., FindInColW) | `query()` or boolean indexing | `subset()` or boolean indexing | `WHERE` clauses |
+| **Integration with Regex** | ✅ **Direct** (RX methods, e.g., FindCellsRX) | Separate regex functions | Separate regex functions | Limited REGEXP support |
+| **Grouping and Aggregation** | | | | |
+| **Grouping on List-Valued Columns** | ✅ **Automatic explode-and-group** (e.g., `GroupBy(:Task)` for lists) | ❌ Requires `explode()` + `groupby` | ❌ Requires `unnest()` or manual flattening | ❌ Not supported; requires normalization |
+| **Excel-Like Functions** | ✅ **Native Excel-like functions** (SUM, AVERAGE, MAX, etc.) | Requires `apply` or aggregation; less intuitive | Requires `sapply` or `aggregate`; not spreadsheet-oriented | Aggregate functions (SUM, AVG); query-based |
+| **Combined Grouping and Aggregation** | ✅ **Seamless** with `GroupByXT` for multi-column grouping | `groupby` with `agg`; complex syntax | `dplyr` or `aggregate`; multi-step | `GROUP BY` with aggregates; query-based |
+| **Advanced Analysis** | | | | |
+| **Pivot Table Support** | ✅ **Integrated fluent API** (ToStzPivotTable) | `pivot_table()` with complex parameters | `pivot_wider/pivot_longer` with multiple steps | Complex `GROUP BY` with `CASE` |
+| **Multi-dimensional Analysis** | ✅ **Intuitive hierarchy** with nested groupings | MultiIndex; less intuitive syntax | Requires add-on packages | Limited hierarchical support |
+| **Advanced Sorting Capabilities** | ✅ **Advanced sorting** with expression-based `SortOnBy` | Custom sorting via `sort_values(key=...)`; requires function | Custom sorting via `order`; requires logic | `ORDER BY` with expressions; query-based |
+| **Data Input and Presentation** | | | | |
+| **Support for External File Input** | ✅ **Direct CSV import** with planned JSON/HTML/SQL | Robust file import (`read_csv`, `read_json`); mature | File import (`read.csv`, `read_json`); similar to pandas | `IMPORT` or `COPY` for CSV; schema required |
+| **Modern Display Formatting** | ✅ **Rich visual presentation** with borders, alignment | Requires styling plugins | Basic console output | Plain text or external tools |
+| **Visual Orientation** | ✅ **Design priority** with spreadsheet-like output | Primarily functional | Statistical focus | No inherent visual presentation |
 
 ## Conclusion
 
