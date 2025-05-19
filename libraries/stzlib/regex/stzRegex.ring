@@ -103,6 +103,10 @@ class stzRegex
 			ok
 		ok
 
+		if @trim(pcPattern) = ""
+			StzRaise("Can't create the regex object! You must provide a non-empty pattern string.")
+		ok
+
 		This.SetPattern(pcPattern)
 
 	def SetPattern(pcPattern)
