@@ -27,6 +27,48 @@
 	link: https://ftfy.readthedocs.io
 */
 
+_acHtmlTags = [
+        # Structure tags
+        "html", "head", "body", "title", "meta", "link", "script", "style",
+        "header", "footer", "main", "nav", "aside", "section", "article", "div",
+        
+        # Text formatting
+        "p", "h1", "h2", "h3", "h4", "h5", "h6", "span", "strong", "em", 
+        "b", "i", "u", "s", "strike", "del", "ins", "mark", "small", "sub", 
+        "sup", "blockquote", "q", "cite", "abbr", "address", "pre", "code",
+        "samp", "kbd", "var", "dfn", "time",
+        
+        # Lists
+        "ul", "ol", "li", "dl", "dt", "dd",
+        
+        # Tables
+        "table", "caption", "thead", "tbody", "tfoot", "tr", "th", "td",
+        "colgroup", "col",
+        
+        # Forms
+        "form", "input", "button", "select", "option", "optgroup", "textarea",
+        "label", "fieldset", "legend", "datalist", "output", "progress", "meter",
+        
+        # Media
+        "img", "audio", "video", "source", "track", "canvas", "figure", 
+        "figcaption", "picture", "iframe", "embed", "object", "param",
+        
+        # Links
+        "a",
+        
+        # Other structural elements
+        "details", "summary", "dialog", "menu", "menuitem", "br", "hr", "wbr",
+        
+        # Less common elements
+        "ruby", "rt", "rp", "bdi", "bdo", "data", "template", "slot", "portal",
+        "map", "area"
+    ]
+
+func HtmlTags()
+	return _acHtmlTags
+
+	func @HtmlTags()
+
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -81233,9 +81275,306 @@ class stzString from stzObject
 		cResult = This.Copy().RemoveCharQ(pcChar).Content()
 		return cResult
 
+	  #---------------------------------------------------#
+	 #    FILLING A SECTION OF CHARS WITH A GIVEN CHAR   # 
+	#===================================================#
+	
+	// Fills a portion of the string defined by its start and end positions
+	def FillSection(n1, n2, pcChar)
+		#< @QtBased = _TRUE_ #>
+
+		if CheckingParams()
+
+			if NOT ( @IsNumberOrString(n1) and @IsNumberOrString(n2) )
+				StzRaise("Incorrect param type! n1 must be a number or string.")
+			ok
+
+			if isString(n1) and
+			   ring_find([
+				:First, :FirstChar, :StartOfString,
+				:Last,  :LastChar,  :EndOfString ], n1 ) = 0
+
+				StzRaise("Incorrect value! n1 can be a string containing one of these values: " +
+					":First, :FirstChar, :StartOfString, :Last,  :LastChar or :EndOfString.")
+
+			ok
+
+			if isString(n2) and
+			   ring_find([
+				:First, :FirstChar, :StartOfString,
+				:Last,  :LastChar,  :EndOfString ], n2 ) = 0
+
+				StzRaise("Incorrect value! n2 can be a string containing one of these values: " +
+					":First, :FirstChar, :StartOfString, :Last,  :LastChar or :EndOfString.")
+
+			ok
+
+			if n1 = :FirstChar or n1 = :StartOfString or n1 = :First
+				n1 = 1
+			ok
+	
+			if n1 = :LastChar  or n1 = :EndOfString or n1 = :Last
+				n1 = This.NumberOfChars()
+			ok
+
+			if n2 = :LastChar or n2 = :EndOfString or n2 = :Last
+				n2 = This.NumberOfChars()
+			ok
+	
+			if n2 = :FirstChar or n2 = :StartOfString or n2 = :First
+				n2 = 1
+			ok
+
+			#==
+
+			if isList(pcChar) and StzListQ(pcChar).IsWithOrByOrUsingNamedParam()
+				pcChar= pcChar[2]
+			ok
+
+			if NOT @IsChar(pcChar)
+				StzRaise("Incorrect param type! pcChar must be a char.")
+			ok
+
+		ok
+
+		# Doing the job
+
+		n = n2 - n1 + 1
+		cResult = This.QStringObject().replace(n1 - 1, n2 - n1 + 1, @Copy(pcChar, n))
+		This.Update(cResult)
+
+		def FillSectionQ(n1, n2, pcChar)
+			This.FillSection(n1, n2, pcChar)
+			return This
+
+	def SectionFilled(n1, n2, pcChar)
+		cResult = This.Copy().FillSectionQ(n1, n2, pcChar).Content()
+		return cResult
+	
+	  #---------------------------------------------------------#
+	 #    FILLING MANY SECTIONS OF CHARS WITH THE GIVEN CHAR   # 
+	#---------------------------------------------------------#
+
+	def FillManySections(paSections, pcChar)
+ 		/* EXAMPLE
+		
+		o1 = new stzString("**Word1***Word2**Word3***")
+
+		? o1.Sections([ [1,2], [8, 10], [16, 17], [23, 25] ])
+		#--> [ "**", "***", "**", "***" ]
+		
+		o1.FillSections([ 	[1,2], [8, 10], [16, 17], [23, 25] ], :With = "^")
+		
+		? o1.Content()
+		#--> "^^Word1^^^Word2^^Word3^^^"
+
+		*/
+
+		if CheckParams()
+
+			if NOT ( isList(paSections) and @IsListOfPairsOfNumbers(paSections) )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+		ok
+
+		_nLen_ = len(paSections)
+		if _nLen_ = 0
+			return
+		ok
+
+		# Merging any inclusive or overlapping sections
+
+		_aMerged_ = StzListOfSectionsQ(paSections).SortQ().Merged()
+		_nLen_ = len(_aMerged_)
+
+		# Doing the job
+
+		_oCopy_ = This.Copy()
+
+		# NOTE: Sections are not filled directly by altering the main object
+		# to maintain a clean history, which is stored in @aHisto.
+		# Instead, the history is updated only once after all 
+		# sections have been filled, using the UpdateWith() method.
+
+		for @i = _nLen_ to 1 step -1
+			_oCopy_.FillSection(_aMerged_[@i][1], _aMerged_[@i][2], pcChar)
+		next
+
+		This.UpdateWith(_oCopy_.Content())
+
+		#< @FunctionFluentForm
+
+		def FillManySectionsQ(paListOfSections, pcChar)
+			This.FillManySections(paListOfSections, pcChar)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def FillSections(paListOfSections, pcChar)
+			This.FillManySections(paListOfSections, pcChar)
+
+			def FillSectionsQ(paListOfSections, pcChar)
+				This.FillSections(paListOfSections, pcChar)
+				return This
+
+		#>
+
+	def ManySectionsFilld(paListOfSections, pcChar)
+		cResult = This.Copy().FillManySectionsQ(paListOfSections, pcChar).Content()
+		return This
+
+		def SectionsFilld(paListOfSections, pcChar)
+			return This.ManySectionsFilld(paListOfSections, pcChar)
+
+	  #---------------------------------#
+	 #    EARSING A SECTION OF CHARS   # 
+	#================================#
+	
+	// Erases a portion of the string defined by its start and end positions
+	def EraseSection(n1, n2)
+		#< @QtBased = _TRUE_ #>
+
+		if CheckingParams()
+
+			if NOT ( @IsNumberOrString(n1) and @IsNumberOrString(n2) )
+				StzRaise("Incorrect param type! n1 must be a number or string.")
+			ok
+
+			if isString(n1) and
+			   ring_find([
+				:First, :FirstChar, :StartOfString,
+				:Last,  :LastChar,  :EndOfString ], n1 ) = 0
+
+				StzRaise("Incorrect value! n1 can be a string containing one of these values: " +
+					":First, :FirstChar, :StartOfString, :Last,  :LastChar or :EndOfString.")
+
+			ok
+
+			if isString(n2) and
+			   ring_find([
+				:First, :FirstChar, :StartOfString,
+				:Last,  :LastChar,  :EndOfString ], n2 ) = 0
+
+				StzRaise("Incorrect value! n2 can be a string containing one of these values: " +
+					":First, :FirstChar, :StartOfString, :Last,  :LastChar or :EndOfString.")
+
+			ok
+
+			if n1 = :FirstChar or n1 = :StartOfString or n1 = :First
+				n1 = 1
+			ok
+	
+			if n1 = :LastChar  or n1 = :EndOfString or n1 = :Last
+				n1 = This.NumberOfChars()
+			ok
+
+			if n2 = :LastChar or n2 = :EndOfString or n2 = :Last
+				n2 = This.NumberOfChars()
+			ok
+	
+			if n2 = :FirstChar or n2 = :StartOfString or n2 = :First
+				n2 = 1
+			ok
+
+		ok
+
+		# Doing the job
+
+		n = n2 - n1 + 1
+		cResult = This.QStringObject().replace(n1 - 1, n2 - n1 + 1, @Copy(" ", n))
+		This.Update(cResult)
+
+		def EraseSectionQ(n1, n2)
+			This.EraseSection(n1, n2)
+			return This
+
+	def SectionErased(n1, n2)
+		cResult = This.Copy().EraseSectionQ(n1, n2).Content()
+		return cResult
+	
+	  #-------------------------------------------------------#
+	 #    ERASING MANY SECTIONS OF CHARS AT THE SAME TIME   # 
+	#-------------------------------------------------------#
+
+	def EraseManySections(paSections)
+ 		/* EXAMPLE
+		
+		o1 = new stzString("**Word1***Word2**Word3***")
+
+		? o1.Sections([ [1,2], [8, 10], [16, 17], [23, 25] ])
+		#--> [ "**", "***", "**", "***" ]
+		
+		o1.EraseSections([
+			[1,2], [8, 10], [16, 17], [23, 25]
+		])
+		
+		? o1.Content()
+		#--> "  Word1   Word2  Word3   "
+
+		*/
+		if CheckParams()
+
+			if NOT ( isList(paSections) and @IsListOfPairsOfNumbers(paSections) )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+		ok
+
+		_nLen_ = len(paSections)
+		if _nLen_ = 0
+			return
+		ok
+
+		# Merging any inclusive or overlapping sections
+
+		_aMerged_ = StzListOfSectionsQ(paSections).SortQ().Merged()
+		_nLen_ = len(_aMerged_)
+
+		# Doing the job
+
+		_oCopy_ = This.Copy()
+
+		# NOTE: Sections are not erased directly by altering the object
+		# to maintain a clean history, which is stored in @aHisto.
+		# Instead, the history is updated only once after all 
+		# sections have been erased, using the UpdateWith() method.
+
+		for @i = _nLen_ to 1 step -1
+			_oCopy_.EraseSection(_aMerged_[@i][1], _aMerged_[@i][2])
+		next
+
+		This.UpdateWith(_oCopy_.Content())
+
+		#< @FunctionFluentForm
+
+		def EraseManySectionsQ(paListOfSections)
+			This.EraseManySections(paListOfSections)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def EraseSections(paListOfSections)
+			This.EraseManySections(paListOfSections)
+
+			def EraseSectionsQ(paListOfSections)
+				This.EraseSections(paListOfSections)
+				return This
+
+		#>
+
+	def ManySectionsErased(paListOfSections)
+		cResult = This.Copy().EraseManySectionsQ(paListOfSections).Content()
+		return This
+
+		def SectionsErased(paListOfSections)
+			return This.ManySectionsErased(paListOfSections)
+
 	  #----------------------------------#
 	 #    REMOVING A SECTION OF CHARS   # 
-	#----------------------------------#
+	#==================================#
 	
 	// Removes a portion of the string defined by its start and end positions
 	def RemoveSection(n1, n2)
@@ -100859,56 +101198,54 @@ class stzString from stzObject
 		#TODO
 		# Document the method limitations
 
-	
 	    if This.TrimQ().IsBoundedBy(["<table", "</table>"])
-	    
+   
 	        # Check if it has proper table structure (at least one row)
 	        if not ( This.Contains("<tr") and This.Contains("</tr>") )
 	            return FALSE
 	        ok
-	        
+
 	        # Check for cell content
 	        if not ( This.Contains("<td") or This.Contains("<th") )
 	            return FALSE
 	        ok
-	        
+
 	        # Normalize the HTML tags for better detection
 	        oHTML = This.Copy()
 	        oHTML.Trim()
-	        
+
 	        # IMPORTANT: First find all rows before modifying the HTML structure
 	        aRowSections = oHTML.FindSubStringsBoundedByZZ([ "<tr", "</tr>" ])
-	        
-	        
+
 	        # Now let's check the proper nesting and structure
-	        
+
 	        # 1. Get positions of all important elements
 	        aTableSection = [1, oHTML.NumberOfChars()]
 	        aTDSections = oHTML.FindSubStringsBoundedByZZ([ "<td", "</td>" ])
 	        aTHSections = oHTML.FindSubStringsBoundedByZZ([ "<th", "</th>" ])
-	        
+
 	        # Check if we have at least one row
 	        if len(aRowSections) < 1
 	            return FALSE
 	        ok
-	        
+
 	        # Check if we have at least one cell
 	        if len(aTDSections) + len(aTHSections) < 1
 	            return FALSE
 	        ok
-	        
+
 	        # Alternative approach: Check if each cell is inside at least one row by checking content
 	        bAllCellsValid = TRUE
-	        
+
 	        # Create a temporary string object for each row to check if it contains cells
 	        for i = 1 to len(aRowSections)
 	            aRowSection = aRowSections[i]
 	            nRowStart = aRowSection[1]
 	            nRowEnd = aRowSection[2]
-	            
+
 	            # Extract the row content
 	            cRowContent = oHTML.Section(nRowStart, nRowEnd - nRowStart + 1)
-	            
+
 	            # Check if this row has at least one cell
 	            if not ( ring_substr1(cRowContent, "<td") or  ring_substr1(cRowContent, "<th") )
 	               // ? "Row without cells: " + @@(aRowSection)
@@ -100916,20 +101253,19 @@ class stzString from stzObject
 	                exit
 	            ok
 	        next
-	        
+
 	        if not bAllCellsValid
 	            return FALSE
 	        ok
-	        
+
 	        # If we reached here, table structure is valid
 	        return TRUE
 	    ok
-	    
+
 	    return FALSE
-    
 
 	#==
-	
+
 	def ContainsHTMLTable()
 
 		# Early check
@@ -100958,13 +101294,13 @@ class stzString from stzObject
 
 		return FALSE
 
-#==
+	#==
 
 	def NumberOfHTMLTables()
 		if not This.ContainsHTMLTable()
 			return 0
 		ok
-	
+
 		# Getting the table strings into a list of stzString objects
 
 		acSubStr = This.SubStringsBoundedByIB([ "<table", "</table>"])
@@ -100987,14 +101323,14 @@ class stzString from stzObject
 
 		return nResult
 
-#==
+	#==
 
 	def HTMLTables()
 
 		if not This.ContainsHTMLTable()
 			return 0
 		ok
-	
+
 		# Getting the table strings into a list of stzString objects
 
 		acSubStr = This.SubStringsBoundedByIB([ "<table", "</table>"])
@@ -101017,10 +101353,10 @@ class stzString from stzObject
 
 		return acResult
 
-#==
+	#==
 
 	def FindHTMLTables()
-	
+
 		if not This.ContainsHTMLTable()
 			return 0
 		ok
@@ -101044,13 +101380,12 @@ class stzString from stzObject
 		return anResult
 
 	def FindHTMLTablesZZ()
-	
+
 		if not This.ContainsHTMLTable()
 			return 0
 		ok
 
 		aSections = This.FindSubStringsBoundedByIBZZ([ "<table", "</table>"])
-
 		nLen = len(aSections)
 
 		aoSubStr = []
@@ -101061,7 +101396,6 @@ class stzString from stzObject
 		aResult = []
 
 		for i = 1 to nLen
-
 			if aoSubStr[i].IsHtmlTable()
 				aResult + aSections[i]
 			ok
@@ -101072,9 +101406,7 @@ class stzString from stzObject
 		def FindHTMLTablesAsSections()
 			return This.FindHTMLTablesZZ()
 
-
-
-#==
+	#==
 
 	def HtmlToDataTable()
 
@@ -101097,9 +101429,9 @@ class stzString from stzObject
 		acColNames = []
 
 		for i = 1 to nLen
-				nPos = ring_substr1(acSubStr[i], ">")
-				cColName = aoSubStr[i].Section( nPos+1, aoSubStr[i].NumberOfChars()-1 )
-				acColNames + cColName
+			nPos = ring_substr1(acSubStr[i], ">")
+			cColName = aoSubStr[i].Section( nPos+1, aoSubStr[i].NumberOfChars()-1 )
+			acColNames + cColName
 		next
 		nLenCols = len(acColNames)
 
@@ -101115,7 +101447,7 @@ class stzString from stzObject
 		oTable = StzStringQ( This.SubStringsBoundedBy([ "<tbody>", "</tbody>" ])[1] )
 		oTable.Remove('<tr class="row">')
 		oTable.remove("<tr>")
-		
+
 		acBlocks = oTable.SplitAt("</tr>")
 
 		aoBlocks = []
@@ -101154,24 +101486,24 @@ class stzString from stzObject
 				StzRaise("Unsupported return type!")
 			off
 
-#==
+	#==
 
 	def HtmlToDataTables()
-	
+
 		aSections = This.FindHtmlTablesZZ()
 		nLen = len(aSections)
-	
+
 		aoTables = []
 		for i = 1 to nLen
 			aoTables + new stzString(This.Section(aSections[i][1], aSections[i][2]))
 		next
-	
+
 		aResult = []
-	
+
 		for i = 1 to nLen
 			aResult + aoTables[i].HtmlToDataTable()
 		next
-	
+
 		return aResult
 
 
@@ -101187,8 +101519,696 @@ class stzString from stzObject
 				return new stzListOfHashLists(This.HtmlToDataTables())
 
 			on :stzListOfTables
-				return new stzListOfTable(This.HtmlToDataTables())
+				return new stzListOfTables(This.HtmlToDataTables())
 
 			other
 				StzRaise("Unsupported return type!")
 			off
+
+	  #----------------------------------------------#
+	 #  EXTENDED VERSION OF THE HTML TABLE METHODS  #
+	#==============================================#
+
+	#NOTE
+
+	# Extended versions of all the HTML table methods we have above
+	# with an "XT" suffix to handle inconsistent HTML syntax.
+	# These new methods aim to be more permissive and forgiving when
+	# parsing HTML tables from real-world web pages, similar to how
+	# browsers handle imperfect HTML.
+
+	def IsHtmlTableXT()
+		# Extended version that is more permissive with HTML inconsistencies
+		
+		# Normalize the HTML by making it lowercase for case-insensitive matching
+		oHTML = This.Copy()
+		oHTML.Trim()
+		cNormalizedHTML = oHTML.Content()
+		
+		# Case insensitive versions of key tags
+		cLowerHTML = lower(cNormalizedHTML)
+		
+		# Basic check for table-like structure - we'll be more permissive here
+		if not (ring_substr1(cLowerHTML, "<table") and ring_substr1(cLowerHTML, "</table"))
+			return FALSE
+		ok
+		
+		# Check for row indicators - be permissive with how rows are structured
+		# We'll accept either <tr> or just <tr (for malformed tags)
+		bHasRows = ring_substr1(cLowerHTML, "<tr") or ring_substr1(cLowerHTML, "<tr ")
+		if not bHasRows
+			return FALSE
+		ok
+		
+		# Check for cell indicators - accept various formats
+		bHasCells = ring_substr1(cLowerHTML, "<td") or 
+					ring_substr1(cLowerHTML, "<th") or
+					ring_substr1(cLowerHTML, " td>") or
+					ring_substr1(cLowerHTML, " th>")
+		
+		if not bHasCells
+			return FALSE
+		ok
+		
+		# Look for content inside cells - this would strongly indicate a table
+		# Try various patterns of cell content
+		aTableStarts = This.FindFirstZZ("<table")
+		aTableEnds = This.FindLastZZ("</table>")
+		
+		if len(aTableStarts) < 1 or len(aTableEnds) < 1
+			return FALSE
+		ok
+		
+		# Get the table content
+		nStart = aTableStarts[1]
+		nEnd = aTableEnds[2]
+		
+		# Extract table section
+		cTableContent = oHTML.Section(nStart, nEnd - nStart + 1)
+		oTableContent = new stzString(cTableContent)
+		
+		# Check for at least some content between cell markers
+		# More permissive approach: just check if there's something that looks like a cell
+		if oTableContent.Contains("<td") and oTableContent.Contains("</td")
+			return TRUE
+		ok
+		
+		if oTableContent.Contains("<th") and oTableContent.Contains("</th")
+			return TRUE 
+		ok
+		
+		# If we have rows and some form of content, it's probably a table
+		# This is where we're being more permissive
+		if bHasRows and bHasCells
+			return TRUE
+		ok
+		
+		return FALSE
+
+	#==
+
+	def ContainsHTMLTableXT()
+		# Early check - more permissive with different case and spacing
+		
+		cLowerHTML = lower(This.Content())
+		
+		if not (ring_substr1(cLowerHTML, "<table") and ring_substr1(cLowerHTML, "</table"))
+			return FALSE
+		ok
+		
+		# Try to find anything resembling a table
+		acSubStr = This.SubStringsBoundedByIB([ "<table", "</table>"])
+		
+		if len(acSubStr) = 0
+			# Try alternate patterns for malformed tables
+			acSubStr = This.SubStringsBoundedByIB([ "<TABLE", "</TABLE>"])
+		ok
+		
+		if len(acSubStr) = 0
+			acSubStr = This.SubStringsBoundedByIB([ "<Table", "</Table>"])
+		ok
+		
+		nLen = len(acSubStr)
+		
+		if nLen = 0
+			return FALSE
+		ok
+		
+		# Check each potential table using extended criteria
+		aoSubStr = []
+		for i = 1 to nLen
+			aoSubStr + new stzString(acSubStr[i])
+		next
+		
+		for i = 1 to nLen
+			if aoSubStr[i].IsHtmlTableXT()
+				return TRUE
+			ok
+		next
+		
+		return FALSE
+
+	#==
+
+	def NumberOfHTMLTablesXT()
+		if not This.ContainsHTMLTableXT()
+			return 0
+		ok
+		
+		# Getting all potential table strings with various case possibilities
+		acSubStr = []
+		
+		# Try standard format
+		acTemp = This.SubStringsBoundedByIB([ "<table", "</table>"])
+		for item in acTemp
+			acSubStr + item
+		next
+		
+		# Try uppercase format
+		acTemp = This.SubStringsBoundedByIB([ "<TABLE", "</TABLE>"])
+		for item in acTemp
+			acSubStr + item
+		next
+		
+		# Try mixed case format
+		acTemp = This.SubStringsBoundedByIB([ "<Table", "</Table>"])
+		for item in acTemp
+			acSubStr + item
+		next
+		
+		nLen = len(acSubStr)
+		
+		aoSubStr = []
+		for i = 1 to nLen
+			aoSubStr + new stzString(acSubStr[i])
+		next
+		
+		# Counting the valid html tables using extended criteria
+		nResult = 0
+		
+		for i = 1 to nLen
+			if aoSubStr[i].IsHtmlTableXT()
+				nResult++
+			ok
+		next
+		
+		return nResult
+
+	#==
+
+	def HTMLTablesXT()
+		if not This.ContainsHTMLTableXT()
+			return []
+		ok
+		
+		# Getting all potential table strings with case insensitivity
+		acSubStr = []
+		
+		# Try different case patterns
+		acPatterns = [
+			[ "<table", "</table>" ],
+			[ "<TABLE", "</TABLE>" ],
+			[ "<Table", "</Table>" ]
+		]
+		
+		for aPat in acPatterns
+			acTemp = This.SubStringsBoundedByIB(aPat)
+			for item in acTemp
+				acSubStr + item
+			next
+		next
+		
+		nLen = len(acSubStr)
+		
+		aoSubStr = []
+		for i = 1 to nLen
+			aoSubStr + new stzString(acSubStr[i])
+		next
+		
+		# Collecting valid HTML tables using extended criteria
+		acResult = []
+		
+		for i = 1 to nLen
+			if aoSubStr[i].IsHtmlTableXT()
+				acResult + aoSubStr[i].Content()
+			ok
+		next
+		
+		return acResult
+
+	#==
+
+	def FindHTMLTablesXT()
+		if not This.ContainsHTMLTableXT()
+			return []
+		ok
+		
+		# Try different case patterns
+		aSections = []
+		aPatterns = [
+			[ "<table", "</table>" ],
+			[ "<TABLE", "</TABLE>" ],
+			[ "<Table", "</Table>" ]
+		]
+		
+		for aPat in aPatterns
+			aTemp = This.FindSubStringsBoundedByIBZZ(aPat)
+			for item in aTemp
+				aSections + item
+			next
+		next
+		
+		nLen = len(aSections)
+		
+		aoSubStr = []
+		for i = 1 to nLen
+			aoSubStr + new stzString(This.Section(aSections[i][1], aSections[i][2]))
+		next
+		
+		anResult = []
+		
+		for i = 1 to nLen
+			if aoSubStr[i].IsHtmlTableXT()
+				anResult + aSections[i][1]
+			ok
+		next
+		
+		return anResult
+
+	def FindHTMLTablesXTZZ()
+		if not This.ContainsHTMLTableXT()
+			return []
+		ok
+		
+		# Try different case patterns
+		aSections = []
+		aPatterns = [
+			[ "<table", "</table>" ],
+			[ "<TABLE", "</TABLE>" ],
+			[ "<Table", "</Table>" ]
+		]
+		
+		for aPat in aPatterns
+			aTemp = This.FindSubStringsBoundedByIBZZ(aPat)
+			for item in aTemp
+				aSections + item
+			next
+		next
+		
+		nLen = len(aSections)
+		
+		aoSubStr = []
+		for i = 1 to nLen
+			aoSubStr + new stzString(This.Section(aSections[i][1], aSections[i][2]))
+		next
+		
+		aResult = []
+		
+		for i = 1 to nLen
+			if aoSubStr[i].IsHtmlTableXT()
+				aResult + aSections[i]
+			ok
+		next
+		
+		return aResult
+		
+		def FindHTMLTablesXTAsSections()
+			return This.FindHTMLTablesXTZZ()
+
+	#==
+
+	def HtmlToDataTableXT()
+		# Extended version with more permissive parsing
+		
+		# First, check if we have something resembling an HTML table
+		if not This.IsHtmlTableXT()
+			return NULL
+		ok
+		
+		# Normalize the HTML to work with
+		oHTML = This.Copy()
+		oHTML.Trim()
+		
+		# Get column headers - try multiple formats
+		acColNames = []
+		
+		# Try standard <th> format
+		acSubStr = oHTML.SubStringsBoundedBy([ "<th", "</th>" ])
+		
+		# If no headers found, try uppercase
+		if len(acSubStr) = 0
+			acSubStr = oHTML.SubStringsBoundedBy([ "<TH", "</TH>" ])
+		ok
+		
+		# If still no headers, look for alternative formats
+		if len(acSubStr) = 0
+			# Some tables use <td> in the header row instead of <th>
+			# Let's try to get the first row cells
+			aFirstRow = oHTML.SubStringBoundedBy([ "<tr", "</tr>" ])
+			if len(aFirstRow) > 0
+				oFirstRow = new stzString(aFirstRow[1])
+				acSubStr = oFirstRow.SubStringsBoundedBy([ "<td", "</td>" ])
+			ok
+		ok
+		
+		# Process headers to extract text content
+		nLen = len(acSubStr)
+		aoSubStr = []
+		
+		for i = 1 to nLen
+			aoSubStr + new stzString(acSubStr[i])
+		next
+		
+		for i = 1 to nLen
+			# Find the closing bracket of the opening tag
+			nPos = ring_substr1(acSubStr[i], ">")
+			if nPos > 0
+				# Extract text between > and <
+				cColName = aoSubStr[i].Section(nPos+1, aoSubStr[i].NumberOfChars()-1)
+				# Clean up the column name - remove any HTML tags
+				oColName = new stzString(cColName)
+				oColName.RemoveAllTags()
+				cColName = oColName.Trimmed()
+				
+				# If empty, provide a default name
+				if cColName = ""
+					cColName = "Column_" + i
+				ok
+				
+				acColNames + cColName
+			else
+				# Fallback if no > found
+				acColNames + "Column_" + i
+			ok
+		next
+	
+		# If no column names were found, create defaults
+		if len(acColNames) = 0
+			# Try to determine number of columns from first data row
+			aFirstDataRow = NULL
+			
+			if oHTML.Contains("<tbody")
+				cBody = oHTML.SubStringsBoundedBy([ "<tbody", "</tbody>" ])[1]
+				oBody = new stzString(cBody)
+				aFirstDataRow = oBody.SubStringsBoundedBy([ "<tr", "</tr>" ])[1]
+			else
+				# Skip first row (assume it's header) and get second row
+				aRows = oHTML.SubStringsBoundedBy([ "<tr", "</tr>" ])
+				if len(aRows) > 1
+					aFirstDataRow = aRows[2]
+				but len(aRows) = 1
+					aFirstDataRow = aRows[1]
+				ok
+			ok
+			
+			if aFirstDataRow != NULL
+				oRow = new stzString(aFirstDataRow)
+				aCells = oRow.SubStringsBoundedBy([ "<td", "</td>" ])
+				nNumCols = len(aCells)
+				
+				for i = 1 to nNumCols
+					acColNames + "Column_" + i
+				next
+			else
+				# Default to at least one column
+				acColNames + "Column_1"
+			ok
+		ok
+		
+		nLenCols = len(acColNames)
+		
+		# Preparing the table container
+		aDataTable = []
+		for i = 1 to nLenCols
+			aDataTable + [ acColNames[i], [] ]
+		next
+		
+		# Getting the rows - first try to find a tbody
+		cBody = ""
+		if oHTML.Contains("<tbody")
+			cBody = oHTML.SubStringBoundedBy([ "<tbody", "</tbody>" ])[1]
+		else
+			# If no tbody, use the whole table content
+			cBody = oHTML.Content()
+		ok
+		
+		oTable = new stzString(cBody)
+		
+		# Get all rows
+		aRows = oTable.SubStringsBoundedBy([ "<tr", "</tr>" ])
+		nRows = len(aRows)
+		
+		# Process each row
+		for i = 1 to nRows
+			oRow = new stzString(aRows[i])
+			
+			# Get cells - try different formats
+			acCells = oRow.SubStringsBoundedBy([ "<td", "</td>" ])
+			
+			# If no cells found with standard format, try uppercase
+			if len(acCells) = 0
+				acCells = oRow.SubStringsBoundedBy([ "<TD", "</TD>" ])
+			ok
+			
+			# Process cells
+			nCells = len(acCells)
+			
+			# Skip if it's likely a header row (first row with th tags)
+			if i = 1 and oHTML.Contains("<th") and nCells = 0
+				loop
+			ok
+			
+			# Process each cell in the row
+			for j = 1 to nCells
+				if j <= nLenCols  # Ensure we don't go beyond our column count
+					oCellContent = new stzString(acCells[j])
+					
+					# Find the closing bracket of the opening tag
+					nPos = ring_substr1(acCells[j], ">")
+					if nPos > 0
+						# Extract text content
+						cCellValue = oCellContent.Section(nPos+1, oCellContent.NumberOfChars()-1)
+						# Clean up - remove any HTML tags that might be nested
+						oCellValue = new stzString(cCellValue)
+						oCellValue.RemoveAllTags()
+						cCellValue = oCellValue.Trimmed()
+						
+						# Add to data table
+						aDataTable[j][2] + cCellValue
+					else
+						# Fallback if no > found
+						aDataTable[j][2] + ""
+					ok
+				ok
+			next
+			
+			# Handle tables with inconsistent number of cells by filling with empty values
+			for j = nCells + 1 to nLenCols
+				aDataTable[j][2] + ""
+			next
+		next
+		
+		return aDataTable
+		
+		def HtmlToDataTableXTQ()
+			return new stzList(This.HtmlToDataTableXT())
+			
+		def HtmlToDataTableXTQRT(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.HtmlToDataTableXT())
+				
+			on :stzHashList
+				return new stzHashList(This.HtmlToDataTableXT())
+				
+			on :stzTable
+				return new stzTable(This.HtmlToDataTableXT())
+				
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+	#==
+
+	def HtmlToDataTablesXT()
+		aSections = This.FindHtmlTablesXTZZ()
+		nLen = len(aSections)
+		
+		aoTables = []
+		for i = 1 to nLen
+			aoTables + new stzString(This.Section(aSections[i][1], aSections[i][2]))
+		next
+		
+		aResult = []
+		
+		for i = 1 to nLen
+			aTableData = aoTables[i].HtmlToDataTableXT()
+			if aTableData != NULL
+				aResult + aTableData
+			ok
+		next
+		
+		return aResult
+		
+		def HtmlToDataTablesXTQ()
+			return new stzList(This.HtmlToDataTablesXT())
+			
+		def HtmlToDataTablesXTQRT(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.HtmlToDataTablesXT())
+				
+			on :stzListOfHashLists
+				return new stzListOfHashLists(This.HtmlToDataTablesXT())
+				
+			on :stzListOfTables
+				return new stzListOfTables(This.HtmlToDataTablesXT())
+				
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+	  #----------------------#
+	 #  MANAGING HTML TAGS  #
+	#======================#
+
+	def FindHtmlTagsCSZZ(pCaseSensitive)
+
+/*		anResult = This.FindManyCS(@HtmlTags(), pCaseSensitive)
+		return anResult
+*/
+
+    # Use regular expression approach for best performance
+    
+    # First, find all self-closing tags (like <br/>, <img ... />)
+
+	oCopy = This.Copy()
+    aSectionsSelfCloseTags = Rx("<[^>]*/>").FindMatchesZZ(oContent.Content())
+
+	oCopy.EraseSections(aSectionsSelfCloseTags)
+	cContent = oCopy.Content()
+
+    # Now handle regular opening/closing tags
+    # Start with specific tags that might contain complex content
+
+	acTags = @HtmlTags()
+	nLen = len(acTags)
+
+	acRxOpenTag = []
+	acRxCloseTag = []
+
+	for i = 1 to nLen
+		acRxOpenTag + Rx( "<" + acTags[i] + "[^>]*>" )
+		acRxCloseTag + Rx( "</" + acTags[i] + ">" )
+	next
+
+	aSectionsOpenTag = []
+	aSectionsCloseTag = []
+
+    for i = 1 to nLen
+        # First find opening tags with attributes
+        aSectionsOpenTag + acRxOpenTag[i].FindMatchesZZ(cContent)
+        
+        # Then find simple closing tags
+        aSectionsOpenTag + acRxCloseTag[i].FindMatchesZZ(cContent)
+    next
+  
+	oCopy.EraseSections(aSectionsOpenTag)
+	oCopy.EraseSections(aSectionsOpenTag)
+	cContent = oCopy.Content()
+
+    # Final cleanup - catch any remaining tags with a general pattern
+    # This will handle any tags we missed in our list
+
+    aSectionsRemainingTags = Rx("<[^>]*>").FindMatchesZZ(cContent)
+
+	oCopy.EraseSections(aSectionsRemainingTags)
+	cContent = oCopy.Content()
+    
+    # Clean up any HTML entities
+
+    aSectionsHtmlEntities = Rx("&[a-zA-Z0-9#]+;").FindMatchesZZ(cContent)
+
+	# Joining the sections
+
+	aResult = Join([
+		aSectionsSelfCloseTags,
+		aSectionsOpenTag,
+		aSectionsOpenTag,
+		aSectionsRemainingTags,
+		aSectionsHtmlEntities
+	])
+
+	return aResult
+    
+
+    
+	return This
+
+	def FindHtmlTagsAsSectionsCS(pCaseSensitive)
+		return This.HtmlTagsCSZZ(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindHtmlTagsZZ()
+		return This.HtmlTagsCSZZ(_TRUE_)
+
+	def FindHtmlTagsAsSections()
+		return This.HtmlTagsCSZZ(_TRUE_)
+
+	#==
+
+
+	def HtmlTagsCS(pCaseSensitive)
+		acResult = U( This.Sections( This.FindHtmlTagsCSZZ(pCaseSensitive) ) )
+		return acResult
+
+	def HtmlTags()
+		return This.HtmlTagsCS(_TRUE_)
+
+	#--
+
+	def HtmlTagsCSZ(pCaseSensitive)
+		acTags = This.HtmlTags()
+		nLen = len(acTags)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ acTags[i], This.FindCS(acTags[i], pCaseSensitive) ]
+		next
+
+		return aResult
+
+	def HtmlTagsZ()
+		return This.HtmlTagsCSZ(_TRUE_)
+
+	#--
+
+	def HtmlTagsCSZZ(pCaseSensitive)
+		acTags = This.HtmlTags()
+		nLen = len(acTags)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ acTags[i], This.FindCSZZ(acTags[i], pCaseSensitive) ]
+		next
+
+		return aResult
+
+	def HtmlTagsZZ()
+		return This.HtmlTagsCSZZ(_TRUE_)
+
+	#==
+
+	def RemoveHtmlTagsCS(pCaseSensitive)
+		This.RemoveSections( This.FindHtmlTagsCSZZ(pCaseSensitive) )
+
+		def RemoveHTMLTagsCSQ(pCaseSensitive)
+			This.RemoveHtmlTagsCS(pCaseSensitive)
+			return This
+
+		def RemoveHtmlTagsCSCQ(pCaseSensitive)
+			oCopy = This.Copy()
+			oCopy.RemoveHtmlTagsCS(pCaseSensitive)
+			return oCopy
+
+	def HtmlTagsRemovedCS(pCaseSensitive)
+		cResult = This.Copy().RemoveHtmlTagsCSQ(pCaseSensitive).Content()
+		return cResult
+
+	#-- WTITHOUT CASESENSITIVITY
+
+	def RemoveHtmlTags()
+		This.RemoveHtmlTagsCS(_TRUE_)
+
+		def RemoveHtmlTagsQ()
+			return This.RemoveHtmlTagsCSQ(_TRUE_)
+
+		def RemoveHtmlTagsCQ()
+			return This.RemoveHtmlTagsCSCQ(_TRUE_)
+
+	def HtmlTagsRemoved()
+		return This.HtmlTagsRemovedCS(_TRUE_)
+

@@ -1549,25 +1549,6 @@ func IsListOfListsOfGrids(paList)
 
 	#>
 
-func IsListOfTables(paList)
-	if NOT isList(paList)
-		return _FALSE_
-	ok
-
-	return StzListQ(paList).IsListOfTables()
-
-	#< @FunctionAlternativeForms
-
-	func @IsListOfTables(paList)
-		return IsListOfTables(paList)
-
-	func IsAListOfTables(paList)
-		return IsListOfTables(paList)
-
-	func @IsAListOfTables(paList)
-		return IsListOfTables(paList)
-
-	#>
 
 func IsListOfListsOfTables(paList)
 	if NOT isList(paList)
