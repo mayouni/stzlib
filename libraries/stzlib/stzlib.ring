@@ -171,6 +171,8 @@ t0 = clock()
 	load "list/stzListOfSets.ring"
 
 	load "list/stzTable.ring"
+	load "list/stzListOfTables.ring"
+
 	load "list/stzTree.ring"
 	load "list/stzGrid.ring"
 	load "list/stzTile.ring"
