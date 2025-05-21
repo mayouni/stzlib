@@ -88,7 +88,8 @@ Class stzTable from stzObject
 
 	def init(paTable)
 
-		# A table can be created in 6 different ways
+		# A table can be created in many different ways
+		# Case where a string is provided
 
 		if NOT isList(paTable)
 			StzRaise("Incorrect param format! paTable must be a list.")
@@ -98,10 +99,10 @@ Class stzTable from stzObject
 
 		if len(paTable) = 0 or oParam.IsPairOfNumbers()
 	
-		# Way 1: new stzTable([])
+		# Example : new stzTable([])
 		#--> Creates an empty table with just a column and a row
 
-		# Way 2: new stzTable([3, 4])
+		# Example: new stzTable([3, 4])
 		#--> Creates a table of 3 columns and 4 rows, all cells are empty
 
 		# Both ways (1 and 2) are made by the following code:
@@ -128,7 +129,7 @@ Class stzTable from stzObject
 		but oParam.ItemsAreListsOfSameSize() and
 		    @IsListOfStrings(paTable[1])
 
-		# Way 3 (the more natural way) The table is described in a
+		# ~> (the more natural way) The table is described in a
 		# a list of lists that mimics the realworld presentation
 		# of a table (first line represents colums, and the other
 		# lines represent rows):
@@ -167,7 +168,7 @@ Class stzTable from stzObject
 		but oParam.ItemsAreListsOfSameSize() and
 		    oParam.IsNotHashList()
 
-		# WAY 4: Similar to way 3 but the line of column names is
+		# ~> Similar to way 3 but the line of column names is
 		# not provided. Means that you privided only the rows of
 		# your table!
 		#--> Softanza accepts the rows and adds automatically the
@@ -194,7 +195,7 @@ Class stzTable from stzObject
 			return
 
 		but oParam.IsHashList()
-		# Way 5: The table is provided in the same format of how
+		# ~> The table is provided in the same format of how
 		# it is implemented in this class: a hashlist.
 		# ~> the most performant way!
 
@@ -236,155 +237,6 @@ Class stzTable from stzObject
 				ok
 			next
 
-		but oParam.IsFromFileNamedParam()
-		# Way 5: The table is created from the content of a text file
-
-		#  ~> The first line of the file corrspond the column names
-
-		#  ~> If the first line is empty or contains a type other then
-		#     string, then Softanza adds column names :COL1, :COL2, etc.
-
-		#  ~> The lines are separated by a NL
-		#  ~> The cells are separated by a ;
-		#  ~> Numbers and lists are imported in their native types
-		#  ~> Lists in the file must be in the form [item1,item2,item3]
-
-			# Reading the data from the file
-
-			cData = ring_trim(ring_read(paTable[2]))
-			#TODO should we close the file handle?
-
-			# If the file is empty, make an empty table
-			#TODO should we raise an error instead?
-
-			if cData = ""
-				@aContent = [ :COL1 = [ ] ]
-				return
-			ok
-
-			# Splitting the lines
-
-			_oQCSV_ = new QString2()
-			_oQCSV_.append(cData)
-
-
-			acLines = QStringListToList( _oQCSV_.split(NL, 0, 0) )
-			nLen = len(acLines)
-
-			# Checking the first line
-
-			cLine1 = acLines[1]
-
-			bColNamesProvided = _TRUE_
-
-			if ring_trim(cLine1) = ""
-				bColNamesProvided = _FALSE_
-
-			else
-
-				qt = new QString2()
-				qt.append(cLine1)
-
-				acLine1Splits = QStringListToList( qt.split(";", 0, 0) )
-				nLen1 = len(acLine1Splits)
-
-				bMadeOfStrings = _TRUE_
-				for i = 1 to nLen1
-					if @IsNumberInString(acLine1Splits[i]) or
-					   @IsListInString(acLine1Splits[i])
-	
-						bMadeOfStrings = _FALSE_
-						exit
-					ok
-				next
-
-				if NOT bMadeOfStrings 
-					bColNamesProvided = _FALSE_
-				ok
-			ok
-			#NOTE
-			# ~> we will use bColNamesProvided later while
-			# constructing the header of the table
-
-			# Doing the job
-
-			anLens = []
-			aTable = []
-
-			for i = 1 to nLen
-				if acLines[i] = ""
-					i++
-				ok
-
-				acLine = ring_split(acLines[i], ";")
-
-				nLenLine = len(acLine)
-				anLens + nLenLine
-				nMin = @Min(anLens)
-
-				aRow = []
-
-				for j = 1 to nMin
-					cell = acLine[j]
-
-					if @IsNumberInString(cell)
-						cellValue = @Number(cell)
-
-					but @IsListInString(cell)
-						cCode = 'cellValue = ' + cell
-						eval(cCode)
-
-					else
-						cellValue = cell
-					ok
-
-					aRow + cellValue
-				next
-
-				aTable + aRow
-
-			next
-
-			# Construction the table content
-
-			# Defining the minimal number or rows provided
-
-			nLenTable = len(aTable)
-			nMin = 0
-			if nLenTable > 1
-				nMin = len(aTable[1])
-			ok
-
-			for i = 2 to nLenTable
-				nLenTemp = len(aTable[i])
-				if nLenTemp < nMin
-					nMin = nLenTemp
-				ok
-			next
-
-			# Composing the header of the table
-
-			for i = 1 to nMin
-				if bColNamesProvided
-					@aContent + [ aTable[1][i], [] ]
-				else
-					@aContent + [ "col"+i, [] ]
-				ok
-			next
-
-			# Composing the rows of the table
-
-			jStart = 1
-			if bColNamesProvided
-				jStart = 2
-			ok
-
-			for i = 1 to nMin
-				for j = jStart to nLenTable
-					@aContent[i][2] + aTable[j][i]
-				next
-			next
-
 		else
 			# If the param provided don't fit in any of the ways above
 			StzRaise("Incorrect param format! There are 5 possible ways in creating a table. " +
@@ -395,6 +247,7 @@ Class stzTable from stzObject
 		if KeepingHistory() = _TRUE_
 			This.AddHistoricValue(This.Content())
 		ok
+
 
 	def Content()
 		return @aContent
@@ -14420,27 +14273,6 @@ Class stzTable from stzObject
 		aResult = This.TheseRows(This.FindCalculatedRows())
 		return aResult
 
-	  #=================================#
-	 #  LAODING DATA FROM A TEXT FILE  #
-	#=================================#
-
-	def FromFile(pcFileName)
-		if CheckingParam()
-			if NOT isString(pcFileName)
-				StzRaise("Incorrect param file! pcString must be a string.")
-			ok
-		ok
-
-		oTempTable = new stzTable(:FromFile = pcFileName)
-
-		aContent = This.Content()
-		aContent = oTempTable.Content()
-		This.UpdateWith(aContent)
-
-
-		def FromCSV(pcFileName)
-			This.FromFile(pcFileName)
-
 	  #======================================================#
 	 #  EXCEL-LIKE FUNCTIONS APPLIED TO A SECTION OF CELLS  #
 	#=====================================================#
@@ -16070,3 +15902,36 @@ Class stzTable from stzObject
 			cResult += cChar
 		next
 		return cResult
+
+	  #=================================================================#
+	 #  IMPORTING TABLE CONTENT FROM AN EXTERNAL STRING (CSV OR HTML)  #
+	#=================================================================#
+
+	def FromCSV(pcCSV)
+
+		if NOT isString(pcCSV)
+			StzRaise("Incorrect param type! cData must be a string.")
+		ok
+
+		@aContent = StzStringQ(pcCSV).CSVToDataTable()
+
+		def FromCSVString(pcCSV)
+			This.FromCSV(pcCSV)
+
+	def FromHtml(pcHtml)
+		oTempStr = new stzString(pcHtml)
+		@aContent = oTempStr.FirstHtmlTableQ().ToDataTable()
+
+		def FromHtmlString(pcHtml)
+			This.FromHtml(pcHtml)
+
+	def FromHtmlTable(pcHtmlTable)
+
+		if NOT isString(pcHtmlTable)
+			StzRaise("Incorrect param type! cData must be a string.")
+		ok
+
+		@aContent = StzStringQ(pcHtmlTable).ToHtmlDataTable()
+
+		def FromHtmlTableString(pcHtmlTable)
+			This.FromHtmlTable(pcHtmlTable)

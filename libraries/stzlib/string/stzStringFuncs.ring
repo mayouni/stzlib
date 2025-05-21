@@ -1583,3 +1583,63 @@ func @SplitAt(cData, cSubStr)
 
 	func @Split(cData, cSubStr)
 		return @SplitAt(cData, cSubStr)
+
+func IsFileName(pcStr)
+	if NOT isString(pcStr)
+		return FALSE
+	ok
+
+	return Rx(pat(:fileName)).Match(pcStr)
+
+	
+func IsCsvFileName(pcStr)
+
+	if NOT isString(pcStr)
+		return FALSE
+	ok
+
+	if NOT Rx(pat(:fileName)).Match(pcStr)
+		return FALSE
+	ok
+
+	if lower( @split(pcStr, ".")[2] ) = "csv"
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsHtmlFileName(pcStr)
+	if NOT isString(pcStr)
+		return FALSE
+	ok
+
+	if NOT isString(pcStr)
+		return FALSE
+	ok
+
+	if NOT Rx(pat(:fileName)).Match(pcStr)
+		return FALSE
+	ok
+
+	cExtension = lower( @split(pcStr, ".")[2] )
+
+	if cExtension = "html" or cExtension = "htm"
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsCsvString(pcStr)
+	if NOT isString(pcStr)
+		return FALSE
+	ok
+
+	return StzStringQ(pcStr).IsCSV()
+
+func IsHtmlTableString(pcStr)
+
+	if NOT isString(pcStr)
+		return FALSE
+	ok
+
+	return StzStringQ(pcStr).IsHtmlTable()
