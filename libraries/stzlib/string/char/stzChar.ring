@@ -78,6 +78,12 @@ func IsInvisibleChar(c)
 	func @IsInvisibleChar(c)
 		return IsInvisibleChar(c)
 
+func Space(n)
+	return Copy(" ", n)
+
+	func @Space(n)
+		return Copy(" ", n)
+
 func DistanceZero() # See the stzDistanceZero class
 	return "🔻"
 
