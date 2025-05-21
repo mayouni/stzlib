@@ -1,7 +1,7 @@
 load "../max/stzmax.ring"
 
 /*=== TESTING ERASE AND FILL SECTIONS IN STZSTRINg
-*/
+
 pr()
 
 o1 = new stzString("[**Word1***Word2**Word3***]")
@@ -66,7 +66,8 @@ str = '
 '
 
 o1 = new stzString(str)
-? o1.IsHtmlTableXT()
+
+? o1.IsHtmlTable()
 #--> TRUE
 
 o1.HtmlToDataTableQRT(:stzTable).Show()
@@ -83,7 +84,7 @@ pf()
 # Executed in 0.10 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 cHtml = '
@@ -164,13 +165,13 @@ cHtml = '
 '
 
 o1 = new stzString(cHtml)
-? o1.ContainsHtmlTableXT()
+? o1.ContainsHtmlTable()
 #--> TRUE
 
-? o1.NumberOfHtmlTablesXT()
+? o1.NumberOfHtmlTables()
 #--> 3
 
-o1.HtmlToDataTablesXTQRT(:stzListOfTables).Show()
+o1.HtmlToDataTablesQRT(:stzListOfTables).Show()
 #-->
 # ╭─────────┬───────┬───────╮
 # │ Product │ Price │ Stock │
@@ -195,7 +196,38 @@ o1.HtmlToDataTablesXTQRT(:stzListOfTables).Show()
 # ╰─────────┴────────────┴─────────╯
 
 pf()
-# Executed in 0.06 second(s) in Ring 1.22
+# Executed in 0.42 second(s) in Ring 1.22
+
+/*==== TESTING CSV TABLES IN STZSTRING
+
+pr()
+
+cCSV = 'NATION;LANGUAGE;CAPITAL;CONTINENT
+Tunisia;Arabic;Tunis;Africa
+France;French;Paris;Europe
+Egypt;English;Cairo;Africa
+Belgium;French;Brussel;Europe
+Yemen;Arabic;Sanaa;Asia'
+
+o1 = new stzString(cCSV)
+
+? o1.IsCSVTable()
+#--> TRUE
+
+o1.CSVToDataTableQRT(:stzTable).Show()
+#-->
+# ╭─────────┬──────────┬─────────┬───────────╮
+# │ Nation  │ Language │ Capital │ Continent │
+# ├─────────┼──────────┼─────────┼───────────┤
+# │ Tunisia │ Arabic   │ Tunis   │ Africa    │
+# │ France  │ French   │ Paris   │ Europe    │
+# │ Egypt   │ English  │ Cairo   │ Africa    │
+# │ Belgium │ French   │ Brussel │ Europe    │
+# │ Yemen   │ Arabic   │ Sanaa   │ Asia      │
+# ╰─────────┴──────────┴─────────┴───────────╯
+
+pf()
+# Executed in 0.32 second(s) in Ring 1.22
 
 /*==== #tODO
 pr()
@@ -6072,20 +6104,33 @@ o1 = new stzTable([])
 
 ? o1.Show()
 
-#--> COL1
-#    ----
-#      ""
+#-->
+# ╭──────╮
+# │ Col1 │
+# ├──────┤
+# │      │
+# ╰──────╯
 
-o1.FromFile("mytable.txt")
+cCSV = 'NATION;LANGUAGE;CAPITAL;CONTINENT
+Tunisia;Arabic;Tunis;Africa
+France;French;Paris;Europe
+Egypt;English;Cairo;Africa
+Belgium;French;Brussel;Europe
+Yemen;Arabic;Sanaa;Asia'
+
+o1.FromCSV(cCSV)
 o1.Show()
 
-#-->  NATION   LANGUAGE   CAPITAL   CONTINENT
-#    -------- ---------- --------- ----------
-#    Tunisia     Arabic     Tunis      Africa
-#     France     French     Paris      Europe
-#      Egypt    English     Cairo      Africa
-#    Belgium     French   Brussel      Europe
-#      Yemen     Arabic     Sanaa        Asia
+#-->
+# ╭─────────┬──────────┬─────────┬───────────╮
+# │ Nation  │ Language │ Capital │ Continent │
+# ├─────────┼──────────┼─────────┼───────────┤
+# │ Tunisia │ Arabic   │ Tunis   │ Africa    │
+# │ France  │ French   │ Paris   │ Europe    │
+# │ Egypt   │ English  │ Cairo   │ Africa    │
+# │ Belgium │ French   │ Brussel │ Europe    │
+# │ Yemen   │ Arabic   │ Sanaa   │ Asia      │
+# ╰─────────┴──────────┴─────────┴───────────╯
 
 pf()
 # Executed in 0.23 second(s) without the Show() functions
@@ -6899,20 +6944,17 @@ pf()
 */
 pr()
 
-/*
-Content of "team.csv" file:
-
-Employee;Role;Task;Productivity
+cCSVTeam = 'Employee;Role;Task;Productivity
 Sara;Developer;["Coding", "Debugging"];8.5
 Mike;Manager;["Planning", "Review"];7.2
 Lena;Designer;["UI", "Prototyping"];9.0
 Omar;Developer;["Coding", "Testing"];8.0
 Tara;Manager;["Planning", "Coordination"];7.8
-Alex;Designer;["UI", "Animation"];8.7
+Alex;Designer;["UI", "Animation"];8.7'
 
-*/
+o1 = new stzTable([])
+o1.FromCSV(cCSVTeam)
 
-o1 = new stzTable(:FromFile = "team.csv")
 o1.ShowXT([ :RowNumber = TRUE ])
 #-->
 # ╭───┬─────────────────┬───────────┬────────────────────────────────┬──────────────╮
@@ -6950,7 +6992,7 @@ o1.Show()
 # Turining the table into a pivot table
 
 oPivot = o1.ToStzPivotTable()
-/*
+
 # Analyzing Productivity in avaerage by task and role
 
 oPivot {
@@ -7008,7 +7050,7 @@ oPivot {
 #         COUNT │         3 │        3 │        3 │     9  
 
 #TODO: Check why Coding/Developer is not returning 2
-*/
+
 # High-productivity tasks
 
 o1.FilterW('@(:Productivity) > 8')
@@ -7028,4 +7070,4 @@ o1.ToStzPivotTable() {
 }
 
 pf()
-# Executed in 0.72 second(s) in Ring 1.22
+# Executed in 1.29 second(s) in Ring 1.22

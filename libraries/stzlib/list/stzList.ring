@@ -3669,18 +3669,18 @@ func IsListOfListsOfSameSize(paList)
 
 	#>
 
-func IsListInString(cStr)
-	bResult = StzStringQ(cStr).IsListInString()
+func IsListInString(pcStr)
+	bResult = StzStringQ(pcStr).IsListInString()
 	return bResult
 
-	func IsAListInString(cStr)
-		return IsListInString(cStr)
+	func IsAListInString(pcStr)
+		return IsListInString(pcStr)
 
-	func @IsListInString(cStr)
-		return IsListInString(cStr)
+	func @IsListInString(pcStr)
+		return IsListInString(pcStr)
 
-	func @IsAListInString(cStr)
-		return IsListInString(cStr)
+	func @IsAListInString(pcStr)
+		return IsListInString(pcStr)
 
 
 #===
@@ -79227,16 +79227,6 @@ fdef
 			return _FALSE_
 		ok
 
-	def IsFromFileNamedParam()
-		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and  This.Item(1) = :FromFile
-
-			return _TRUE_
-
-		else
-			return _FALSE_
-		ok
-
 	def IsFromNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  (This.Item(1) = :From or This.Item(1) = :FromPosition)  )
@@ -90909,6 +90899,150 @@ fdef
 		else
 			return _FALSE_
 		ok
+
+
+	def IsFromFileNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and  This.Item(1) = :FromFile
+
+			return _TRUE_
+
+		else
+			return _FALSE_
+		ok
+
+	def IsFromCSVFileNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromCSVFile )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsFromHtmlFileNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromHtmlFile )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsFromJsonFileNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromJsonFile )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsFromCSVNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromCSV )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsFromHtmlNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromHtml )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsFromJsonNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromJson )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsFromCSVStringNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromCSVString )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsFromHtmlStringNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromHtmlString )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsFromJsonStringNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromJsonString )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsFromCSVOrCSVStringNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+		   ( This.Item(1) = :FromCSV or This.Item(1) = :FromCSVString ) )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+		def FromCSVStringORCSVNamedParam()
+			return This.IsFromCSVOrCSVStringNamedParam()
+
+	def IsFromHtmlOrHtmlStringNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+		   ( This.Item(1) = :FromHTML or This.Item(1) = :FromHTMLString ) )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+		def IsFromHtmlStringOrHtmlNamedParam()
+			return This.IsFromHtmlOrHtmlStringNamedParam()
+
+	def IsFromJsonOrJsonStringNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+		   ( This.Item(1) = :FromJSON or This.Item(1) = :FromJSONString ) )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+		def IsFromJsonStringOrJsonNamedParam()
+			return This.IsFromJsonOrJsonStringNamedParam()
+
 
 #WARNING: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.

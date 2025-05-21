@@ -152,7 +152,6 @@ _$aRegexPatterns_ = [
 
 	:numbersInString = "(?<!\w)-?\d+(?:\.\d+)?(?!\w)",
 
-
 	:numbersInParentheses = "\(\s*-?\d+(?:\.\d+)?\s*\)",
 	:numbersAfterEquals = "=\s*-?\d+(?:\.\d+)?\b",
 	:numbersInCSV = '(?<=,|;|\s|^)-?\d+(?:\.\d+)?(?=,|;|\s|$)',

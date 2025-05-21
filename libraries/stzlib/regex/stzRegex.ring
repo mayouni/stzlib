@@ -604,7 +604,7 @@ class stzRegex
 			if _cMatch_ != ""
 				
 				_nPos_ = _oQMatch_.capturedEnd(0) + 1
-				_aResults_ + [ _nPos, _nPos_ + _nLenMatch_ - 1 ]
+				_aResults_ + [ _nPos_, _nPos_ + _nLenMatch_ - 1 ]
 			else
 				break
 			ok
