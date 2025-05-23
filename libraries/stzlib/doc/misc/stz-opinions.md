@@ -84,3 +84,5 @@ Softanza, the foundation library for the Ring programming language, has garnered
 
 > Wow, this stzTable is really awesome, super useful for manipulating dataframes like having Excel functions in Ring programming!  Awesome, great work!
 
+> Amazing!  The code is so simple, can quickly show bar charts.
+
