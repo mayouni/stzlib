@@ -188,7 +188,7 @@ class stzBarChart from stzChart
     @bSetAverageLine = False
     @bShowValues = False
     @nBarWidth = 2
-    @nMaxWidth = 132
+    @nMaxWidth = 12
     @nBarInterSpace = 1
 	
     @cBarChar = "█"
@@ -611,15 +611,19 @@ class stzBarChart from stzChart
 
 class stzHBarChart from stzChart
 
+	@bSetXAxis = True
+	@bSetYAxis = True
     @bSetLabels = True
     @bSetAverageLine = False
     @bShowValues = False
     @nBarHeight = 1
     @nMaxHeight = 30
     @nBarInterSpace = 0
-    @nMaxLabelWidth = 12
-    
+    @nMaxLabelWidth = 12  # Now acts as true maximum width limit
+    @nLeftPadding = 0
+
     @cBarChar = "▇"
+	@cPartialBarChar = "░"
     @cXAxisChar = "─"
     @cYAxisChar = "│"
     @cXArrowChar = ">"
@@ -628,6 +632,16 @@ class stzHBarChart from stzChart
     
     def init(paData)
         super.init(paData)
+
+	def SetXAxis(bShow)
+		@bSetXAxis = bShow
+
+	def SetYAxis(bShow)
+		@bSetYAxis = bShow
+
+	def SetXYAxis(bShow)
+		@bSetXAxis = bShow
+		@bSetYAxis = bShow
 
     def SetXLabels(bShow)
         @bSetLabels = bShow
@@ -659,6 +673,9 @@ class stzHBarChart from stzChart
     def SetMaxHeight(nHeight)
         @nMaxHeight = nHeight
 
+	def SetMaxLabelWidth(n)
+		@nMaxLabelWidth = n
+
     def SetLabelWidth(nWidth)
         @nMaxLabelWidth = max([8, nWidth])
 
@@ -673,47 +690,73 @@ class stzHBarChart from stzChart
     def Show()
         ? This.ToString()
 
-def ToString()
-    nBars = len(@aDataSet)
-    nActualLabelWidth = 0
-
-    if @bSetLabels
-        for i = 1 to len(@acLabels)
-            nLen = len(@acLabels[i])
-            if nLen > nActualLabelWidth
-                nActualLabelWidth = nLen
-            ok
-        next
-        //nActualLabelWidth += 1  # Add small padding
-    else
+    def ToString()
+        nBars = len(@aDataSet)
         nActualLabelWidth = 0
-    ok
 
-    # Use actual label width instead of fixed @nMaxLabelWidth
-    @nMaxLabelWidth = nActualLabelWidth
+        if @bSetLabels
+            # Find the longest label
+            for i = 1 to len(@acLabels)
+                nLen = len(@acLabels[i])
+                if nLen > nActualLabelWidth
+                    nActualLabelWidth = nLen
+                ok
+            next
+            
+            # Apply maximum width limit if label exceeds it
+            if nActualLabelWidth > @nMaxLabelWidth
+                nActualLabelWidth = @nMaxLabelWidth
+            ok
+            
+            nActualLabelWidth += @nLeftPadding
+        else
+            nActualLabelWidth = 0
+        ok
 
-    nRequiredHeight = nBars * (@nBarHeight + @nBarInterSpace) + 3
-    @nHeight = min([nRequiredHeight, @nMaxHeight])
-    This._initCanvas()
-    nBarAreaWidth = @nWidth - @nMaxLabelWidth - 4
+        # Use the calculated actual width (no fixed container)
+        nLabelAreaWidth = nActualLabelWidth
 
-    This._drawYAxis()
-    This._drawXAxis(nBarAreaWidth)
-    This._drawBars(nBarAreaWidth)
+        # Calculate required height based on axes
+        nExtraHeight = 0
+        if @bSetXAxis
+            nExtraHeight = 2  # Space for X-axis
+        ok
 
-    if @bShowValues
-        This._drawValues(nBarAreaWidth)
-    ok
+        nRequiredHeight = nBars * (@nBarHeight + @nBarInterSpace) + nExtraHeight
+        @nHeight = min([nRequiredHeight, @nMaxHeight])
+        This._initCanvas()
+        
+        # Calculate max bar width for X-axis length
+        nRange = @nMaxValue - @nMinValue
+        if nRange = 0
+            nRange = 1
+        ok
+        nMaxBarWidth = @nWidth - nLabelAreaWidth - 4
+        nBarAreaWidth = nMaxBarWidth
 
-    if @bSetLabels
-        This._drawLabels()
-    ok
+        if @bSetYAxis
+            This._drawYAxis(nLabelAreaWidth)
+        ok
+        
+        if @bSetXAxis
+            This._drawXAxis(nLabelAreaWidth, nBarAreaWidth)
+        ok
+        
+        This._drawBars(nLabelAreaWidth, nBarAreaWidth)
 
-    if @bSetAverageLine
-        This._drawAverageLine(nBarAreaWidth)
-    ok
+        if @bShowValues
+            This._drawValues(nLabelAreaWidth, nBarAreaWidth)
+        ok
 
-    return This._buildOutput()
+        if @bSetLabels
+            This._drawLabels(nLabelAreaWidth)
+        ok
+
+        if @bSetAverageLine
+            This._drawAverageLine(nLabelAreaWidth, nBarAreaWidth)
+        ok
+
+        return This._buildOutput()
 
     def _initCanvas()
         @acCanvas = []
@@ -727,184 +770,236 @@ def ToString()
             @acCanvas + aRow
         next
 
-    def _drawYAxis()
-        nAxisCol = @nMaxLabelWidth + 2
+    def _drawYAxis(nLabelAreaWidth)
+        nAxisCol = nLabelAreaWidth + 2
         
-        # Vertical line
-        for row = 2 to @nHeight - 2
-            @acCanvas[row][nAxisCol] = @cYAxisChar
-        next
-        
-        # Arrow at top
-        @acCanvas[1][nAxisCol] = @cYArrowChar
-
-	def _drawXAxis(nBarAreaWidth)
-
-		nAxisRow = @nHeight - 1
-		nStartCol = @nMaxLabelWidth + 2
-		nEndCol = nStartCol + nBarAreaWidth + 1
-
-		for col = nStartCol to min([nEndCol, @nWidth])
-			@acCanvas[nAxisRow][col] = @cXAxisChar
-		next
-
-		@acCanvas[nAxisRow][nStartCol] = @cOriginChar
-
-		if nEndCol + 1 <= @nWidth
-			@acCanvas[nAxisRow][nEndCol + 1] = @cXArrowChar
-		ok
-
-def _drawBars(nBarAreaWidth)
-    nBars = len(@aDataSet)
-    nRange = @nMaxValue - @nMinValue
-    if nRange = 0
-        nRange = 1  # Prevent division by zero
-    ok
-    
-    nAxisCol = @nMaxLabelWidth + 2
-    
-    for i = 1 to nBars
-        # Calculate bar position
-        nBarRow = 2 + (i - 1) * (@nBarHeight + @nBarInterSpace)
-        
-        # Skip if exceeds canvas
-        if nBarRow + @nBarHeight - 1 >= @nHeight
-            exit
-        ok
-        
-        # Calculate exact bar width (with decimals)
-        nVal = @aDataSet[i]
-        nExactWidth = nBarAreaWidth * (nVal - @nMinValue) / nRange
-        nBarWidth = max([0, floor(nExactWidth)])
-        
-        # Determine if we need a partial character for visual granularity
-        nFractionalPart = nExactWidth - nBarWidth
-        bNeedsPartial = (nFractionalPart > 0.3)  # Threshold for showing partial
-        
-        # For very small values (like Spain 14), always show at least partial character
-        if nBarWidth = 0 and nVal >= @nMinValue
-            bNeedsPartial = True
-            # Don't set nBarWidth = 1 here, keep it 0 so we only show partial
-        ok
-        
-        # For values that round down significantly (like France 70 vs Egypt 73)
-        if nBarWidth > 0 and nFractionalPart < 0.7 and nVal < @nMaxValue
-            bNeedsPartial = True
-        ok
-        
-        # Draw bar
-        for h = 0 to @nBarHeight - 1
-            nCurrentRow = nBarRow + h
-            if nCurrentRow < @nHeight
-                # Draw full characters
-                for w = 1 to nBarWidth
-                    nCol = nAxisCol + 1 + w
-                    if nCol <= @nWidth
-                        @acCanvas[nCurrentRow][nCol] = @cBarChar
-                    ok
-                next
-                
-                # Draw partial character if needed
-                if bNeedsPartial
-                    nCol = nAxisCol + 1 + nBarWidth + 1
-                    if nCol <= @nWidth
-                        @acCanvas[nCurrentRow][nCol] = "░"  # Light shade for partial
-                    ok
-                ok
-            ok
-        next
-    next
-
-def _drawValues(nBarAreaWidth)
-    nBars = len(@aDataSet)
-    nRange = @nMaxValue - @nMinValue
-    if nRange = 0
-        nRange = 1
-    ok
-    
-    nAxisCol = @nMaxLabelWidth + 2
-    
-    for i = 1 to nBars
-        nBarRow = 2 + (i - 1) * (@nBarHeight + @nBarInterSpace)
-        
-        if nBarRow >= @nHeight
-            exit
-        ok
-        
-        nVal = @aDataSet[i]
-        # Calculate exact width to match _drawBars logic
-        nExactWidth = nBarAreaWidth * (nVal - @nMinValue) / nRange
-        nBarWidth = max([0, floor(nExactWidth)])
-        
-        # Check if we're showing a partial character
-        nFractionalPart = nExactWidth - nBarWidth
-        bHasPartial = (nFractionalPart > 0.3) or (nBarWidth = 0 and nVal > @nMinValue)
-        
-        cValue = "" + nVal
-        nValueLen = len(cValue)
-        
-        # Calculate value position - always one space after bar end
-        nValueCol = nAxisCol + 2 + nBarWidth
-        if bHasPartial
-            nValueCol += 1  # Account for partial character
-        ok
-        nValueCol += 1  # One space before value
-        
-        # Ensure value fits within canvas width
-        nRequiredWidth = nValueCol + nValueLen
-        if nRequiredWidth > @nWidth
-            # Expand canvas rows to accommodate larger width
-            nOldWidth = @nWidth
-            @nWidth = nRequiredWidth + 1
-            
-            # Extend existing rows
-            for row = 1 to len(@acCanvas)
-                for col = nOldWidth + 1 to @nWidth
-                    @acCanvas[row] + " "
-                next
+        # Only draw if we have enough height and X-axis is enabled
+        if @bSetXAxis
+            # Vertical line
+            for row = 2 to @nHeight - 2
+                @acCanvas[row][nAxisCol] = @cYAxisChar
             next
+            
+            # Arrow at top only if Y-axis is enabled
+            @acCanvas[1][nAxisCol] = @cYArrowChar
+        ok
+
+    def _drawXAxis(nLabelAreaWidth, nBarAreaWidth)
+        nAxisRow = @nHeight - 1
+        nStartCol = nLabelAreaWidth + 2
+        nEndCol = nStartCol + nBarAreaWidth + 1
+
+        for col = nStartCol to min([nEndCol, @nWidth])
+            @acCanvas[nAxisRow][col] = @cXAxisChar
+        next
+
+        # Only draw origin character if Y-axis is also enabled
+        if @bSetYAxis
+            @acCanvas[nAxisRow][nStartCol] = @cOriginChar
+        ok
+
+        if nEndCol + 1 <= @nWidth
+            @acCanvas[nAxisRow][nEndCol + 1] = @cXArrowChar
+        ok
+
+    def _drawBars(nLabelAreaWidth, nBarAreaWidth)
+        nBars = len(@aDataSet)
+        nRange = @nMaxValue - @nMinValue
+        if nRange = 0
+            nRange = 1  # Prevent division by zero
         ok
         
-        # Draw value
-        for j = 1 to nValueLen
-            nCol = nValueCol + j - 1
-            if nCol <= @nWidth and nCol > 0 and nBarRow <= @nHeight
-                @acCanvas[nBarRow][nCol] = cValue[j]
-            ok
-        next
-    next
-
-def _drawLabels()
-    nBars = len(@aDataSet)
-    
-    for i = 1 to nBars
-        if i <= len(@acLabels)
-            nBarRow = 2 + (i - 1) * (@nBarHeight + @nBarInterSpace)
+        nAxisCol = nLabelAreaWidth + 2
+        
+        # Adjust starting row based on axes
+        nStartRow = 1
+        if @bSetYAxis or @bSetXAxis
+            nStartRow = 2
+        ok
+        
+        for i = 1 to nBars
+            # Calculate bar position
+            nBarRow = nStartRow + (i - 1) * (@nBarHeight + @nBarInterSpace)
             
-            if nBarRow >= @nHeight
+            # Skip if exceeds canvas (accounting for X-axis space)
+            nMaxRow = @nHeight
+            if @bSetXAxis
+                nMaxRow = @nHeight - 1
+            ok
+            
+            if nBarRow + @nBarHeight - 1 >= nMaxRow
                 exit
             ok
             
-            cLabel = Capitalize(@acLabels[i])
-            nLabelLen = len(cLabel)
+            # Calculate exact bar width (with decimals)
+            nVal = @aDataSet[i]
+            nExactWidth = nBarAreaWidth * (nVal - @nMinValue) / nRange
+            nBarWidth = max([0, floor(nExactWidth)])
             
-            # Right-align label within actual space needed
-            nStartCol = @nMaxLabelWidth - nLabelLen + 1
-            if nStartCol < 1
-                nStartCol = 1
+            # Determine if we need a partial character for visual granularity
+            nFractionalPart = nExactWidth - nBarWidth
+            bNeedsPartial = (nFractionalPart > 0.3)  # Threshold for showing partial
+            
+            # For values that result in zero bar width, always show at least partial character
+            if nBarWidth = 0
+                bNeedsPartial = True
             ok
             
-            for j = 1 to nLabelLen
-                nCol = nStartCol + j - 1
-                if nCol <= @nMaxLabelWidth and nBarRow <= @nHeight
-                    @acCanvas[nBarRow][nCol] = cLabel[j]
+            # Draw bar
+            for h = 0 to @nBarHeight - 1
+                nCurrentRow = nBarRow + h
+                if nCurrentRow < nMaxRow
+                    # Calculate bar start position
+                    nBarStartCol = nAxisCol + 1
+                    if not @bSetYAxis
+                        nBarStartCol = nAxisCol
+                    ok
+                    
+                    # Draw full characters
+                    for w = 1 to nBarWidth
+                        nCol = nBarStartCol + w
+                        if nCol <= @nWidth
+                            @acCanvas[nCurrentRow][nCol] = @cBarChar
+                        ok
+                    next
+                    
+                    # Draw partial character if needed
+                    if bNeedsPartial
+                        nCol = nBarStartCol + nBarWidth + 1
+                        if nCol <= @nWidth
+                            @acCanvas[nCurrentRow][nCol] = @cPartialBarChar  # Light shade for partial
+                        ok
+                    ok
                 ok
             next
+        next
+
+    def _drawValues(nLabelAreaWidth, nBarAreaWidth)
+        nBars = len(@aDataSet)
+        nRange = @nMaxValue - @nMinValue
+        if nRange = 0
+            nRange = 1
         ok
-    next
+        
+        nAxisCol = nLabelAreaWidth + 2
+        
+        # Adjust starting row based on axes
+        nStartRow = 1
+        if @bSetYAxis or @bSetXAxis
+            nStartRow = 2
+        ok
+        
+        for i = 1 to nBars
+            nBarRow = nStartRow + (i - 1) * (@nBarHeight + @nBarInterSpace)
+            
+            # Skip if exceeds canvas (accounting for X-axis space)
+            nMaxRow = @nHeight
+            if @bSetXAxis
+                nMaxRow = @nHeight - 1
+            ok
+            
+            if nBarRow >= nMaxRow
+                exit
+            ok
+            
+            nVal = @aDataSet[i]
+            # Calculate exact width to match _drawBars logic
+            nExactWidth = nBarAreaWidth * (nVal - @nMinValue) / nRange
+            nBarWidth = max([0, floor(nExactWidth)])
+            
+            # Check if we're showing a partial character
+            nFractionalPart = nExactWidth - nBarWidth
+            bHasPartial = (nFractionalPart > 0.3) or (nBarWidth = 0)
+            
+            cValue = "" + nVal
+            nValueLen = len(cValue)
+            
+            # Calculate bar start column
+            nBarStartCol = nAxisCol + 1
+            if not @bSetYAxis
+                nBarStartCol = nAxisCol
+            ok
+            
+            # Calculate value position - always one space after bar end
+            nValueCol = nBarStartCol + nBarWidth + 1
+            if bHasPartial
+                nValueCol += 1  # Account for partial character
+            ok
+            nValueCol += 1  # One space before value
+            
+            # Ensure value fits within canvas width
+            nRequiredWidth = nValueCol + nValueLen
+            if nRequiredWidth > @nWidth
+                # Expand canvas rows to accommodate larger width
+                nOldWidth = @nWidth
+                @nWidth = nRequiredWidth + 1
+                
+                # Extend existing rows
+                for row = 1 to len(@acCanvas)
+                    for col = nOldWidth + 1 to @nWidth
+                        @acCanvas[row] + " "
+                    next
+                next
+            ok
+            
+            # Draw value
+            for j = 1 to nValueLen
+                nCol = nValueCol + j - 1
+                if nCol <= @nWidth and nCol > 0 and nBarRow < nMaxRow
+                    @acCanvas[nBarRow][nCol] = cValue[j]
+                ok
+            next
+        next
 
+    def _drawLabels(nLabelAreaWidth)
+        nBars = len(@aDataSet)
+        
+        # Adjust starting row based on axes
+        nStartRow = 1
+        if @bSetYAxis or @bSetXAxis
+            nStartRow = 2
+        ok
+        
+        for i = 1 to nBars
+            if i <= len(@acLabels)
+                nBarRow = nStartRow + (i - 1) * (@nBarHeight + @nBarInterSpace)
+                
+                # Skip if exceeds canvas (accounting for X-axis space)
+                nMaxRow = @nHeight
+                if @bSetXAxis
+                    nMaxRow = @nHeight - 1
+                ok
+                
+                if nBarRow >= nMaxRow
+                    exit
+                ok
+                
+                cOriginalLabel = @acLabels[i]
+                cLabel = Capitalize(cOriginalLabel)
+                
+                # Truncate label if it exceeds maximum width
+                if len(cLabel) > @nMaxLabelWidth
+                    cLabel = substr(cLabel, 1, @nMaxLabelWidth - 3) + "..."
+                ok
+                
+                nLabelLen = len(cLabel)
+                
+                # Right-align label within the actual label area (no fixed container)
+                nStartCol = nLabelAreaWidth - nLabelLen + 1
+                if nStartCol < 1
+                    nStartCol = 1
+                ok
+                
+                for j = 1 to nLabelLen
+                    nCol = nStartCol + j - 1
+                    if nCol <= nLabelAreaWidth and nBarRow < nMaxRow
+                        @acCanvas[nBarRow][nCol] = cLabel[j]
+                    ok
+                next
+            ok
+        next
 
-    def _drawAverageLine(nBarAreaWidth)
+    def _drawAverageLine(nLabelAreaWidth, nBarAreaWidth)
         # Calculate average
         nSum = 0
         for i = 1 to len(@aDataSet)
@@ -918,40 +1013,49 @@ def _drawLabels()
             nRange = 1
         ok
         
-        nAxisCol = @nMaxLabelWidth + 2
+        nAxisCol = nLabelAreaWidth + 2
         nAvgCol = nAxisCol + 1 + floor(nBarAreaWidth * (nAvg - @nMinValue) / nRange)
         
+        # Adjust row range based on axes
+        nStartRow = 1
+        nEndRow = @nHeight
+        if @bSetYAxis or @bSetXAxis
+            nStartRow = 2
+        ok
+        if @bSetXAxis
+            nEndRow = @nHeight - 1
+        ok
+        
         # Draw vertical line
-        for row = 2 to @nHeight - 2
-            if nAvgCol <= @nWidth
+        for row = nStartRow to nEndRow
+            if nAvgCol <= @nWidth and row < @nHeight
                 if @acCanvas[row][nAvgCol] != @cBarChar
                     @acCanvas[row][nAvgCol] = "|"
                 ok
             ok
         next
 
+    def _buildOutput()
+        cResult = ""
+        
+        # Determine the last row to output
+        nLastContentRow = @nHeight
+        if @bSetXAxis
+            nLastContentRow = @nHeight - 1
+        ok
+        
+        for row = 1 to nLastContentRow
+            cLine = ""
+            for col = 1 to @nWidth
+                cLine += @acCanvas[row][col]
+            next
+            # Remove trailing spaces for cleaner output
+            cLine = rtrim(cLine)
+            cResult += cLine + nl
+        next
+        
+        return cResult
 
-	def _buildOutput()
-		cResult = ""
-		nLastContentRow = 1
-		nBars = len(@aDataSet)
-		nLastBarRow = 2 + (nBars - 1) * (@nBarHeight + @nBarInterSpace) + @nBarHeight - 1
-		nAxisRow = @nHeight - 1
-		if nLastBarRow > nAxisRow
-			nLastContentRow = nAxisRow
-		else
-			nLastContentRow = nAxisRow
-		ok
-		for row = 1 to nLastContentRow
-			cLine = ""
-			for col = 1 to @nWidth
-				cLine += @acCanvas[row][col]
-			next
-			cResult += cLine + nl
-		next
-		return cResult
-
-
-	# Methods with no effect, left here for PX
-
+	# Methods with no effect, left here for compatibility
 	def SetBarWidth(n)
+		# No effect in horizontal bar chart

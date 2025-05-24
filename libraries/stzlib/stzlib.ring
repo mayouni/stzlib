@@ -240,6 +240,7 @@ t0 = clock()
 	load "data/stzConstraintsData.ring"
 	load "data/stzRandomData.ring"
 	load "data/stzCharData.ring"
+	load "data/stzBoxDrawCharsData.ring"
 	load "data/stzStringArtData.ring"
 
 	load "data/stzRegexData.ring"
