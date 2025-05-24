@@ -85,7 +85,7 @@ oChart = new stzHBarChart([
 	:SouthKorea = 34
 ])
 
-oChart { SetBarWidth(2) AddLabels() AddValues() Show() }
+oChart { SetYAxis(0) SetBarWidth(2) AddLabels() AddValues() Show() }
 #-->
 # ^            73                                         
 # │            ██                   70                    
@@ -96,6 +96,7 @@ oChart { SetBarWidth(2) AddLabels() AddValues() Show() }
 # │ ██   ██    ██     ██     ██     ██    ██       ██     
 # ╰──────────────────────────────────────────────────────>
 #  Mali Niger Egypt Bosnia Brazil France Qatar Southkorea
+# ┊
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22

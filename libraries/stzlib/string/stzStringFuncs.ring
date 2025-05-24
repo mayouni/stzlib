@@ -518,6 +518,18 @@ func StzTrimLeft(cStrOrList)
 	func @TrimLeft(cStrOrList)
 		return StzTrimLeft(cStrOrList)
 
+	func LeftTrim(cStrOrList)
+		return StzTrimLeft(cStrOrList)
+
+	func @LeftTrim(cStrOrList)
+		return StzTrimLeft(cStrOrList)
+
+	func ltrim(cStrOrList)
+		return StzTrimLeft(cStrOrList)
+
+	func @ltrim(cStrOrList)
+		return StzTrimLeft(cStrOrList)
+
 func StzTrimRight(cStrOrList)
 	if CheckParams()
 		if NOT (isString(cStrOrList) or isList(cStrOrList))
@@ -532,6 +544,18 @@ func StzTrimRight(cStrOrList)
 	ok
 
 	func @TrimRight(cStrOrList)
+		return StzTrimRight(cStrOrList)
+
+	func RightTrim(cStrOrList)
+		return StzTrimRight(cStrOrList)
+
+	func @RightTrim(cStrOrList)
+		return StzTrimRight(cStrOrList)
+
+	func rtrim(cStrOrList)
+		return StzTrimRight(cStrOrList)
+
+	func @rtrim(cStrOrList)
 		return StzTrimRight(cStrOrList)
 
 func StzTrimStart(cStrOrList)
