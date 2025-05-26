@@ -51,6 +51,8 @@ oChart.Show()
 # │ ███ ███ ███  
 # ╰────────────>
 
+? oChart.LargestBarWidth()
+
 pf()
 # Executed in almost 01 second(s) in Ring 1.22
 

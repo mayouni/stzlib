@@ -1,4 +1,3 @@
-
 /*
 A class for ascii-based charts, working with stzTable and stzPivotTable
 
@@ -555,6 +554,8 @@ class stzHBarChart from stzChart
 	@cXArrowChar = ">"
 	@cYArrowChar = "^"
 	@cOriginChar = "╰"
+	@nLargestBarWidth = 0
+
 	def init(paData)
 		super.init(paData)
 
@@ -637,87 +638,6 @@ class stzHBarChart from stzChart
 	def Show()
 		? This.ToString()
 
-	def ToString()
-		# Temp flags I'll use to let the axies be generated
-		# in any case, and then use those flags to retrive
-		# the FALSE axis by simple ring_substr()
-		bTempSetXAxis = TRUE
-		bTempSetYAxis = TRUE
-		if @bSetXAxis = FALSE
-			bTempSetXAxis = FALSE
-			@bSetXAxis = TRUE
-		ok
-		if @bSetYAxis = FALSE
-			bTempSetYAxis = FALSE
-			@bSetYAxis = TRUE
-		ok
-		# Start of the processing
-		nBars = len(@aDataSet)
-		nActualLabelWidth = 0
-		if @bSetLabels
-			# Find the longest label
-			for i = 1 to len(@acLabels)
-				nLen = len(@acLabels[i])
-				if nLen > nActualLabelWidth
-					nActualLabelWidth = nLen
-				ok
-			next
-			# Apply maximum width limit if label exceeds it
-			if nActualLabelWidth > @nMaxLabelWidth
-				nActualLabelWidth = @nMaxLabelWidth
-			ok
-			nActualLabelWidth += @nLeftPadding
-		else
-			nActualLabelWidth = 0
-		ok
-		# Use the calculated actual width
-		nLabelAreaWidth = nActualLabelWidth
-		# Calculate required height
-		nRequiredHeight = nBars + 2
-		if @bSetXAxis
-			nRequiredHeight += 1
-		ok
-		# Set height to exactly what's needed
-		@nHeight = nRequiredHeight
-		This._initCanvas()
-		# Calculate max bar width for X-axis length
-		nRange = @nMaxValue - @nMinValue
-		if nRange = 0
-			nRange = 1
-		ok
-		nMaxBarWidth = @nWidth - nLabelAreaWidth - 4
-		nBarAreaWidth = nMaxBarWidth
-		if @bSetYAxis
-			This._drawYAxis(nLabelAreaWidth)
-		ok
-		if @bSetXAxis
-			This._drawXAxis(nLabelAreaWidth, nBarAreaWidth)
-		ok
-		This._drawBars(nLabelAreaWidth, nBarAreaWidth)
-		if @bShowValues
-			This._drawValues(nLabelAreaWidth, nBarAreaWidth)
-		ok
-		if @bSetLabels
-			This._drawLabels(nLabelAreaWidth)
-		ok
-		if @bSetAverageLine
-			This._drawAverageLine(nLabelAreaWidth, nBarAreaWidth)
-		ok
-		cResult = This._buildOutput()
-		# Managing the axis display
-		if bTempSetXAxis = FALSE
-			cResult = ring_substr2(cResult, "^", "")
-			cResult = ring_substr2(cResult, "╰", "")
-			cResult = ring_substr2(cResult, "─", "")
-			cResult = ring_substr2(cResult, ">", "")
-		ok
-		if bTempSetYAxis = FALSE
-			cResult = ring_substr2(cResult, "^", "")
-			cResult = ring_substr2(cResult, "╰", "")
-			cResult = ring_substr2(cResult, "│", "")
-		ok
-		return cResult
-
 	def _initCanvas()
 		@acCanvas = []
 		# Create empty canvas
@@ -728,6 +648,10 @@ class stzHBarChart from stzChart
 			next
 			@acCanvas + aRow
 		next
+
+def LargestBarWidth()
+	return @nLargestBarWidth
+	
 
 	def _drawYAxis(nLabelAreaWidth)
 		nAxisCol = nLabelAreaWidth + 2
@@ -745,21 +669,8 @@ def _drawXAxis(nLabelAreaWidth, nBarAreaWidth)
 	nAxisRow = @nHeight - 1
 	nStartCol = nLabelAreaWidth + 2
 	
-	# Find the actual width of the longest bar
-	nRange = @nMaxValue - @nMinValue
-	if nRange = 0
-		nRange = 1
-	ok
-	
-	nLongestBarWidth = 0
-	for i = 1 to len(@aDataSet)
-		nVal = @aDataSet[i]
-		nExactWidth = nBarAreaWidth * (nVal - @nMinValue) / nRange
-		nBarWidth = max([1, floor(nExactWidth)])
-		if nBarWidth > nLongestBarWidth
-			nLongestBarWidth = nBarWidth
-		ok
-	next
+	# Use the LargestBarWidth() method to get actual largest bar width
+	nLongestBarWidth = This.LargestBarWidth()
 	
 	# X-axis extends one character beyond the longest actual bar
 	nEndCol = nStartCol + nLongestBarWidth + 1
@@ -776,12 +687,11 @@ def _drawXAxis(nLabelAreaWidth, nBarAreaWidth)
 		@acCanvas[nAxisRow][nEndCol + 1] = @cXArrowChar
 	ok
 
-
 def _drawBars(nLabelAreaWidth, nBarAreaWidth)
 	nBars = len(@aDataSet)
 	nAxisCol = nLabelAreaWidth + 2
 	nStartRow = 2
-	
+
 	# Draw each bar
 	for i = 1 to nBars
 		nBarRow = nStartRow + (i - 1)
@@ -797,9 +707,16 @@ def _drawBars(nLabelAreaWidth, nBarAreaWidth)
 		else
 			nBarWidth = max([1, ceil(nBarAreaWidth * nVal / @nMaxValue)])
 		ok
-		
-		# Calculate bar start position
+
+		if nBarWidth > @nLargestBarWidth
+			@nLargestBarWidth = nBarWidth
+		ok
+
+		# Calculate bar start position - add space after Y axis when enabled
 		nBarStartCol = nAxisCol + 1
+		if @bSetYAxis
+			nBarStartCol = nAxisCol + 2  # Add extra space after Y axis
+		ok
 		
 		# Draw bar characters
 		for w = 1 to nBarWidth
@@ -843,10 +760,10 @@ def _drawValues(nLabelAreaWidth, nBarAreaWidth)
 		cValue = "" + nVal
 		nValueLen = len(cValue)
 		
-		# Calculate bar start column
+		# Calculate bar start column - add space after Y axis when enabled
 		nBarStartCol = nAxisCol + 1
-		if not @bSetYAxis
-			nBarStartCol = nAxisCol
+		if @bSetYAxis
+			nBarStartCol = nAxisCol + 2  # Add extra space after Y axis
 		ok
 		
 		# Calculate value position - exactly one space after bar end
@@ -874,6 +791,103 @@ def _drawValues(nLabelAreaWidth, nBarAreaWidth)
 			ok
 		next
 	next
+
+def ToString()
+	# Temp flags I'll use to let the axies be generated
+	# in any case, and then use those flags to retrive
+	# the FALSE axis by simple ring_substr()
+	bTempSetXAxis = TRUE
+	bTempSetYAxis = TRUE
+	if @bSetXAxis = FALSE
+		bTempSetXAxis = FALSE
+		@bSetXAxis = TRUE
+	ok
+	if @bSetYAxis = FALSE
+		bTempSetYAxis = FALSE
+		@bSetYAxis = TRUE
+	ok
+	# Start of the processing
+	nBars = len(@aDataSet)
+	nActualLabelWidth = 0
+	if @bSetLabels
+		# Find the longest label
+		for i = 1 to len(@acLabels)
+			nLen = len(@acLabels[i])
+			if nLen > nActualLabelWidth
+				nActualLabelWidth = nLen
+			ok
+		next
+		# Apply maximum width limit if label exceeds it
+		if nActualLabelWidth > @nMaxLabelWidth
+			nActualLabelWidth = @nMaxLabelWidth
+		ok
+		nActualLabelWidth += @nLeftPadding
+	else
+		nActualLabelWidth = 0
+	ok
+	# Use the calculated actual width
+	nLabelAreaWidth = nActualLabelWidth
+	
+	# Calculate required width based on largest bar
+	nMinRequiredWidth = nLabelAreaWidth + 4 + This.LargestBarWidth() + 1
+	if @nWidth < nMinRequiredWidth
+		@nWidth = nMinRequiredWidth
+	ok
+	
+	# Calculate required height
+	nRequiredHeight = nBars + 2
+	if @bSetXAxis
+		nRequiredHeight += 1
+	ok
+	# Set height to exactly what's needed
+	@nHeight = nRequiredHeight
+	This._initCanvas()
+	
+	# Calculate max bar width for X-axis length
+	nRange = @nMaxValue - @nMinValue
+	if nRange = 0
+		nRange = 1
+	ok
+	nMaxBarWidth = @nWidth - nLabelAreaWidth - 4
+	if @bSetYAxis
+		nMaxBarWidth = @nWidth - nLabelAreaWidth - 5  # Extra space for Y axis
+	ok
+	nBarAreaWidth = nMaxBarWidth
+	
+	if @bSetYAxis
+		This._drawYAxis(nLabelAreaWidth)
+	ok
+	
+	# Draw bars BEFORE X-axis so LargestBarWidth() is populated
+	This._drawBars(nLabelAreaWidth, nBarAreaWidth)
+	
+	if @bSetXAxis
+		This._drawXAxis(nLabelAreaWidth, nBarAreaWidth)
+	ok
+	
+	if @bShowValues
+		This._drawValues(nLabelAreaWidth, nBarAreaWidth)
+	ok
+	if @bSetLabels
+		This._drawLabels(nLabelAreaWidth)
+	ok
+	if @bSetAverageLine
+		This._drawAverageLine(nLabelAreaWidth, nBarAreaWidth)
+	ok
+	cResult = This._buildOutput()
+	# Managing the axis display
+	if bTempSetXAxis = FALSE
+		cResult = ring_substr2(cResult, "^", "")
+		cResult = ring_substr2(cResult, "╰", "")
+		cResult = ring_substr2(cResult, "─", "")
+		cResult = ring_substr2(cResult, ">", "")
+	ok
+	if bTempSetYAxis = FALSE
+		cResult = ring_substr2(cResult, "^", "")
+		cResult = ring_substr2(cResult, "╰", "")
+		cResult = ring_substr2(cResult, "│", "")
+	ok
+	return cResult
 
 
 	def _drawLabels(nLabelAreaWidth)
@@ -939,23 +953,26 @@ def _drawValues(nLabelAreaWidth, nBarAreaWidth)
 			ok
 		next
 
-	def _buildOutput()
-		cResult = ""
-		# Determine the last row to output
-		nLastContentRow = @nHeight
-		if @bSetXAxis
-			nLastContentRow = @nHeight - 1
-		ok
-		for row = 1 to nLastContentRow
-			cLine = ""
-			for col = 1 to @nWidth
+def _buildOutput()
+	cResult = ""
+	# Determine the last row to output
+	nLastContentRow = min([@nHeight, len(@acCanvas)])
+	if @bSetXAxis and nLastContentRow > 0
+		nLastContentRow = min([nLastContentRow, @nHeight - 1])
+	ok
+	for row = 1 to nLastContentRow
+		cLine = ""
+		if row <= len(@acCanvas)
+			nMaxCol = min([@nWidth, len(@acCanvas[row])])
+			for col = 1 to nMaxCol
 				cLine += @acCanvas[row][col]
 			next
-			# Remove trailing spaces for cleaner output
-			cLine = rtrim(cLine)
-			cResult += cLine + nl
-		next
-		return cResult
+		ok
+		# Remove trailing spaces for cleaner output
+		cLine = rtrim(cLine)
+		cResult += cLine + nl
+	next
+	return cResult
 
 	# Methods with no effect, left here for compatibility
 	def SetBarWidth(n)
