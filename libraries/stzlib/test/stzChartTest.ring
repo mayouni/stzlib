@@ -1,7 +1,39 @@
 load "../max/stzmax.ring"
 
-/*--- 
+/*---
 
+pr()
+
+o1 = new stzString('           ^
+      Mali │ ▇▇▇▇▇▇▇▇▇▇▇▇░ 42
+     Niger │ ▇░ 18
+     Egypt │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 73
+    Bosnia │ ▇▇▇▇▇▇░ 29
+    Brazil │ ▇▇▇▇▇▇▇▇▇ 35
+    France │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇░ 70
+     Spain │ ░ 14
+           ╰───────────────────────────>')
+
+
+
+oCopy = o1.Copy()
+oCopy.RemoveMany([ "^", "│", "╰", "─", ">" ])
+? oCopy.Content()
+
+
+oCopy = o1.Copy()
+oCopy.RemoveMany([ "^", "│", "╰" ])
+? oCopy.Content()
+
+oCopy = o1.Copy()
+oCopy.RemoveMany([ "^", "╰", "─", ">" ])
+? oCopy.Content()
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- 
+*/
 pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
@@ -85,7 +117,7 @@ oChart = new stzHBarChart([
 	:SouthKorea = 34
 ])
 
-oChart { SetYAxis(0) SetBarWidth(2) AddLabels() AddValues() Show() }
+oChart { SetYXAxis([1, 0])  SetLabels(1) SetValues(0) Show() }
 #-->
 # ^            73                                         
 # │            ██                   70                    
