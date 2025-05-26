@@ -216,17 +216,19 @@ oChart.Show()
 # │ ██ ██ ██
 # │ ██ ██ ██
 # │ ██ ██ ██
+#
 #   A  B  C 
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Test 5: Y-axis disabled
-*/
+
 pr()
 
 oChart = new stzVBarChart([ :A = 5, :B = 8, :C = 3 ])
 oChart.SetYAxis(FALSE)
+oChart.SetLabels(TRUE)
 oChart.Show()
 #-->
 #     ██   
@@ -279,22 +281,51 @@ oChart.Show()
 # ╰──────────>
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Test 8: Average line enabled
+
+pr()
 
 oChart = new stzVBarChart([ :A = 5, :B = 8, :C = 3 ])
 oChart.SetAverageLine(TRUE)
 oChart.Show()
-# Expected: Chart with a horizontal line at the average value (5.33)
+#-->
+# ^    ██    
+# │    ██    
+# │ ---██--- 
+# │ ██ ██    
+# │ ██ ██    
+# │ ██ ██ ██ 
+# │ ██ ██ ██ 
+# │ ██ ██ ██ 
+# ╰─────────>
+#   A  B  C  
 
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Test 9: Values displayed
+*/
+pr()
 
 oChart = new stzVBarChart([ :A = 5, :B = 8, :C = 3 ])
 oChart.SetValues(TRUE)
 oChart.Show()
 # Expected: Chart with numerical values (5, 8, 3) above each bar
+#-->
+^    8█    
+│    ██    
+│ 5  ██    
+│ ██ ██    
+│ ██ ██ 3  
+│ ██ ██ ██ 
+│ ██ ██ ██ 
+│ ██ ██ ██ 
+╰─────────>
+  A  B  C  
 
+pf()
 
 /*--- Test 10: Custom bar width
 

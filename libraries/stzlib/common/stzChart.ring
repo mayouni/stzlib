@@ -265,17 +265,13 @@ class stzChart
 		cResult = ""
 		nLen = len(@acCanvas)
 
-		# Ignoring the trailing empty lines
-
-		nLen--
+		# When labels are disabled, exclude the empty last row
 		if @bSetLabels = FALSE
 			nLen--
 		ok
 
 		# Finalizing the canvas
-
 		for i = 1 to nLen
-
 			cLine = ""
 			nLenCurrent = len(@acCanvas[i])
 
@@ -283,7 +279,12 @@ class stzChart
 				cLine += @acCanvas[i][j]
 			next
 
-			cResult += cLine + nl
+			# Don't add newline after the last line
+			if i < nLen
+				cResult += cLine + nl
+			else
+				cResult += cLine
+			ok
 		next
 
 		return cResult
@@ -503,10 +504,15 @@ class stzVBarChart from stzChart
 			StzRaise("Chart width (" + nTotalWidth + ") exceeds maximum (" + @nMaxWidth + ")")
 		ok
 		
-		# Calculate height
-		nChartHeight = @nHeight
+		# Calculate height and positions
 		if @bSetLabels
-			nChartHeight += 1  # Extra row for labels
+			nChartHeight = @nHeight      # No extra height needed
+			nXAxisRow = @nHeight - 1     # X-axis at height - 1
+			nLabelsRow = @nHeight        # Labels on last row
+		else
+			nChartHeight = @nHeight
+			nXAxisRow = @nHeight - 1     # X-axis at bottom
+			nLabelsRow = @nHeight        # Not used when labels disabled
 		ok
 		
 		# Store layout information
@@ -515,10 +521,10 @@ class stzVBarChart from stzChart
 		oLayout.AddPair([:bars_end_col, nBarsEnd])
 		oLayout.AddPair([:x_axis_start_col, nXAxisStart])
 		oLayout.AddPair([:x_axis_end_col, nXAxisEnd])
-		oLayout.AddPair([:x_axis_row, nChartHeight - 1])
-		oLayout.AddPair([:labels_row, nChartHeight - 1])
+		oLayout.AddPair([:x_axis_row, nXAxisRow])
+		oLayout.AddPair([:labels_row, nLabelsRow])
 		oLayout.AddPair([:chart_height, nChartHeight])
-		oLayout.AddPair([:bars_area_height, nChartHeight - 3])  # Space for axes and labels
+		oLayout.AddPair([:bars_area_height, nXAxisRow - 1])  # Space for bars (excluding X-axis)
 		oLayout.AddPair([:total_width, nTotalWidth])
 		oLayout.AddPair([:element_widths, aElementWidths])
 		oLayout.AddPair([:bar_spacing, aBarSpacing])
@@ -678,7 +684,6 @@ class stzVBarChart from stzChart
 				
 				# Center label within element width
 				nLabelStartX = nCurrentX + floor((nElementWidth - nLabelLen) / 2)
-
 
 				# Draw label
 				for j = 1 to nLabelLen
