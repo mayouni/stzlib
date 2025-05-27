@@ -5,10 +5,8 @@ load "../max/stzmax.ring"
 
 pr()
 
-oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.SetBarWidth(3)
+oChart = new stzVBarChart([ :A = 5, :B = 8, :C = 3 ])
 oChart.AddValues()
-
 oChart.Show()
 #-->
 # ^      8       
@@ -20,32 +18,37 @@ oChart.Show()
 # │ ███ ███ ███  
 # ╰────────────>
 
-? oChart.LargestBarWidth()
+//? oChart.LargestBarWidth()
 
 pf()
 # Executed in almost 01 second(s) in Ring 1.22
 
 /*---
-
+*/
 pr()
 
-oChart = new stzHBarChart([ :Q1 = 10, :Q2 = 25, :Q3 = 15, :Q4 = 30, :Q5 = 20])
+oChart = new stzVBarChart([ :Q1 = 10, :Q2 = 25, :Q3 = 15, :Q4 = 30, :Q5 = 20])
 oChart {
 	AddLabels()
-//	AddAverage()
+	AddValues()
+	AddAverage()
 	SetBarWidth(1)
 	Show()
 }
 #-->
-# ^               
-# │         █     
-# │         █     
-# │   █     █     
-# │---█-----█--█- 
-# │   █     █  █  
-# │█  █  █  █  █  
-# ╰──────────────>
-#  Q1 Q2 Q3 Q4 Q5
+'
+^
+│          30    
+│    25    █     
+│    █     █  20 
+│----█-----█--█--- 18.7 
+│ 10 █  █  █  █  
+│ █  █  █  █  █  
+│ █  █  █  █  █  
+│ █  █  █  █  █  
+╰────────────────>
+  Q1 Q2 Q3 Q4 Q5 
+'
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
@@ -440,7 +443,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Test 12: Zero values
-*/
+
 pr()
 
 oChart = new stzVBarChart([ :Zero = 0, :Positive = 5, :AnotherZero = 0 ])
