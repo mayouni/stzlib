@@ -1,13 +1,13 @@
-#---------------------------------------------------------------------------#
-# 		    SOFTANZA LIBRARY (V1.0) - StzListOfNumbers		    #
-#		An accelerative library for Ring applications		    #
-#---------------------------------------------------------------------------#
-#									    #
-# 	Description	: The class for managing lists of numbers           #
-#	Version		: V1.0 (2020-2024)				    #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
-#									    #
-#---------------------------------------------------------------------------#
+#---------------------------------------------------------------#
+# 		    SOFTANZA LIBRARY (V1.0) - StzListOfNumbers          #
+#		An accelerative library for Ring applications           #
+#---------------------------------------------------------------#
+#                                                               #
+# 	Description	: The class for managing lists of numbers       #
+#	Version		: V1.0 (2020-2024)                              #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)         #
+#                                                               #
+#---------------------------------------------------------------#
 
 /*
 Short term objective:
@@ -58,6 +58,36 @@ func StzListOfNumbersQ(paListOfNumbers)
 
 	func StzNumbersQ(paListOfNumbers)
 		return StzListOfNumbersQ(paListOfNumbers)
+
+func IsListOfPositiveNumbers(paList)
+	if NOT isList(paList)
+		return _FALSE_
+	ok
+
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if not (isNumber(paList[i]) and paList[i] >= 0)
+			return _FALSE_
+		ok
+	next
+
+	return _TRUE_
+
+func IsListOfNegativeNumbers(paList)
+	if NOT isList(paList)
+		return _FALSE_
+	ok
+
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if not (isNumber(paList[i]) and paList[i] <= 0)
+			return _FALSE_
+		ok
+	next
+
+	return _TRUE_
 
 func NumbersUnicodes(anNumbers)
 	return StzListOfNumbersQ(anNumbers).Unicodes()

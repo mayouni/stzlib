@@ -855,6 +855,9 @@ func StzRound(p) # TODO use Round() from SoftanzaCore
 
 	return StzNumberQ(nNumber).RoundedTo(nRound)
 
+func RoundN(nNumber, nRound)
+	return StzNumberQ(nNumber).RoundedTo(nRound)
+
 func StzRoundXT(p)
 	if isList(p) and IsPair(p)
 		if isList(p[2]) and Q(p[2]).IsToNamedParam()
