@@ -468,6 +468,7 @@ class stzVBarChart from stzChart
 
 		return cResult
 
+
 	def _calculateLayout()
 		
 		nBars = len(@anValues)
@@ -479,17 +480,30 @@ class stzVBarChart from stzChart
 			aBarSpacing + @nBarInterSpace
 		next
 		
-		# Calculate element widths (bar or label, whichever is wider)
+		# Calculate element widths (bar, label, or value - whichever is wider)
 		aElementWidths = []
+		nSum = Sum(@anValues)  # For percentage calculations
+		
 		for i = 1 to nBars
 			nBarWidth = @nBarWidth
 			nLabelWidth = 0
+			nValueWidth = 0
 			
+			# Label width
 			if @bSetLabels and i <= len(@acLabels)
 				nLabelWidth = len(@acLabels[i])
 			ok
 			
-			nElementWidth = max([nBarWidth, nLabelWidth])
+			# Value width (if showing values or percentages)
+			if @bShowValues
+				nValueWidth = len("" + @anValues[i])
+			but @bShowPercent
+				nPercent = roundN((@anValues[i]/nSum)*100, 1)
+				nValueWidth = len("" + nPercent + '%')
+			ok
+			
+			# Element width is maximum of all components
+			nElementWidth = max([nBarWidth, nLabelWidth, nValueWidth])
 			aElementWidths + nElementWidth
 		next
 		
@@ -559,7 +573,7 @@ class stzVBarChart from stzChart
 		oLayout.AddPair([:bar_spacing, aBarSpacing])
 		
 		return oLayout
-
+	
 
 	def _drawYAxis(oLayout)
 		
@@ -571,7 +585,7 @@ class stzVBarChart from stzChart
 			@acCanvas[i][nAxisCol] = @cXAxisChar
 		next
 		
-		# Draw arrow at top
+		# Draw arfrow at top
 		@acCanvas[1][nAxisCol] = @cXArrowChar
 
 
@@ -667,9 +681,6 @@ class stzVBarChart from stzChart
 				nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
 			ok
 			
-			# Calculate bar position
-			nBarStartX = nCurrentX + floor((nElementWidth - @nBarWidth) / 2)
-			
 			# Calculate value position (above bar)
 			nValueRow = nAxisRow - nBarHeight - 1
 			if nValueRow < 1
@@ -683,84 +694,82 @@ class stzVBarChart from stzChart
 			
 			cValue = "" + nVal
 			nValueLen = len(cValue)
-			nValueStartX = nBarStartX + floor((@nBarWidth - nValueLen) / 2)
 			
-			# Draw value
+			# Center within element width (same logic as _drawXLabels)
+			nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
+			
+			# Draw value with bounds checking
 			for k = 1 to nValueLen
 				nCol = nValueStartX + k - 1
-				if nCol <= @nWidth and nCol >= 1
+				if nCol <= @nWidth and nCol >= 1 and nValueRow >= 1
 					@acCanvas[nValueRow][nCol] = cValue[k]
 				ok
 			next
 			
-			# Move to next position
+			# Move to next position (same logic as other drawing methods)
 			if i < nBars
 				nCurrentX += nElementWidth + aBarSpacing[i]
 			ok
 		next
 
-def _drawPercent(oLayout)
-	
-	nBars = len(@anValues)
-	nBarsStartCol = oLayout[:bars_start_col]
-	nAxisRow = oLayout[:x_axis_row] 
-	nBarsAreaHeight = oLayout[:bars_area_height]
-	aElementWidths = oLayout[:element_widths]
-	aBarSpacing = oLayout[:bar_spacing]
-	
-	nCurrentX = nBarsStartCol
-	nSum = Sum(@anValues)
 
-	for i = 1 to nBars
+	def _drawPercent(oLayout)
 		
-		nElementWidth = aElementWidths[i]
-		nVal = @anValues[i]
+		nBars = len(@anValues)
+		nBarsStartCol = oLayout[:bars_start_col]
+		nAxisRow = oLayout[:x_axis_row] 
+		nBarsAreaHeight = oLayout[:bars_area_height]
+		aElementWidths = oLayout[:element_widths]
+		aBarSpacing = oLayout[:bar_spacing]
 		
-		# Calculate bar height (same logic as _drawBars)
-		if @nMaxValue = 0 or nVal = 0
-			nBarHeight = 1
-		else
-			nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
-		ok
-		
-		# Calculate bar position
-		nBarStartX = nCurrentX + floor((nElementWidth - @nBarWidth) / 2)
-		
-		# Calculate value position (above bar)
-		nValueRow = nAxisRow - nBarHeight - 1
-		if nValueRow < 1
-			nValueRow = 1
-		ok
-		
-		# If value position conflicts with bar, move it above
-		if nValueRow >= nAxisRow - nBarHeight
-			nValueRow = max([1, nAxisRow - nBarHeight - 1])
-		ok
-		
-		# Format percentage with 1 decimal place to keep it shorter
-		nPercent = RoundN((nVal/nSum)*100, 1)
-		cValue = "" + nPercent + '%'
-		nValueLen = len(cValue)
-		
-		# Center within element width instead of bar width
-		nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
-		
-		# Ensure we don't go out of bounds
-		nValueStartX = max([1, nValueStartX])
-		
-		# Draw value
-		for k = 1 to nValueLen
-			nCol = nValueStartX + k - 1
-			if nCol <= @nWidth and nCol >= 1 and nValueRow >= 1
-				@acCanvas[nValueRow][nCol] = cValue[k]
+		nCurrentX = nBarsStartCol
+		nSum = Sum(@anValues)
+	
+		for i = 1 to nBars
+			
+			nElementWidth = aElementWidths[i]
+			nVal = @anValues[i]
+			
+			# Calculate bar height (same logic as _drawBars)
+			if @nMaxValue = 0 or nVal = 0
+				nBarHeight = 1
+			else
+				nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+			ok
+			
+			# Calculate value position (above bar)
+			nValueRow = nAxisRow - nBarHeight - 1
+			if nValueRow < 1
+				nValueRow = 1
+			ok
+			
+			# If value position conflicts with bar, move it above
+			if nValueRow >= nAxisRow - nBarHeight
+				nValueRow = max([1, nAxisRow - nBarHeight - 1])
+			ok
+			
+			# Format percentage with 1 decimal place
+			nPercent = RoundN((nVal/nSum)*100, 1)
+			cValue = "" + nPercent + '%'
+	
+			nValueLen = len(cValue)
+			
+			# Center within element width (same logic as _drawXLabels)
+			nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
+			
+			# Draw value with bounds checking
+			for k = 1 to nValueLen
+				nCol = nValueStartX + k - 1
+				if nCol <= @nWidth and nCol >= 1 and nValueRow >= 1
+					@acCanvas[nValueRow][nCol] = cValue[k]
+				ok
+			next
+			
+			# Move to next position (same logic as other drawing methods)
+			if i < nBars
+				nCurrentX += nElementWidth + aBarSpacing[i]
 			ok
 		next
-		
-		# Move to next position
-		if i < nBars
-			nCurrentX += nElementWidth + aBarSpacing[i]
-		ok
-	next
 
 
 	def _drawXLabels(oLayout)

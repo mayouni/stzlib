@@ -336,7 +336,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Test 9: Values displayed
-*/
+
 pr()
 
 oChart = new stzVBarChart([ :A = 7520, :B = 8898, :C = 32393 ])
@@ -345,20 +345,50 @@ oChart.Show()
 #-->
 '
 ^
-│    8     
-│    ██    
-│ 5  ██    
-│ ██ ██    
-│ ██ ██ 3  
-│ ██ ██ ██ 
-│ ██ ██ ██ 
-│ ██ ██ ██ 
-╰──────────>
-  A  B  C  
+│           32393 
+│            ██   
+│            ██   
+│            ██   
+│            ██   
+│ 7520 8898  ██   
+│  ██   ██   ██   
+│  ██   ██   ██   
+╰─────────────────>
+   A    B     C   
 '
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
+
+/*--- Test 9: Values displayed
+
+pr()
+
+oChart = new stzVBarChart([
+	:Green = 7520,
+	:BlackAndWhite = 8898,
+	:Blue = 32393
+])
+
+oChart.SetPercent(TRUE)
+oChart.Show()
+#-->
+'
+^
+│                     66.4% 
+│                      ██   
+│                      ██   
+│                      ██   
+│                      ██   
+│ 15.4%     18.2%      ██   
+│  ██        ██        ██   
+│  ██        ██        ██   
+╰───────────────────────────>
+  Green Blackandwhite Blue  
+'
+
+pf()
+# Executed in 0.14 second(s) in Ring 1.22
 
 /*--- Test 10: Custom bar width
 
@@ -410,7 +440,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Test 12: Zero values
-
+*/
 pr()
 
 oChart = new stzVBarChart([ :Zero = 0, :Positive = 5, :AnotherZero = 0 ])
@@ -431,6 +461,7 @@ oChart.Show()
 '
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Test 13: Single bar
 
@@ -454,7 +485,7 @@ oChart.Show()
 '
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Test 14: Large values with scaling
 
