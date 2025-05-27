@@ -70,7 +70,7 @@ class stzChart
 	@cXAxisChar = "│"
 	@cYAxisChar = "─"
 	@cXArrowChar = "^"
-	@cYArrowChar = ">"
+	@cYArrowChar = "─>"
 	@cOriginChar = "╰"
 	@cAverageChar = "-"
 
@@ -107,8 +107,8 @@ class stzChart
 		oHash = new stzHashList(paDataSet)
 		@anValues = oHash.Values()
 
-		if NOT IsListOfNumbers(@anValues)
-			StzRaise("Incorrect param value! The values in paDataSet must be numbers.")
+		if NOT IsListOfPositiveNumbers(@anValues)
+			StzRaise("Incorrect param value! You must privide only psoitive numbers.")
 		ok
 
 		@acLabels = oHash.Keys()
@@ -308,6 +308,7 @@ class stzVBarChart from stzChart
 	@bSetLabels = True
 	@bSetAverageLine = False
 	@bShowValues = False
+	@bShowPercent = False
 
 	@nBarWidth = 2
 	@nMaxWidth = 132
@@ -373,6 +374,18 @@ class stzVBarChart from stzChart
 	def AddValues()
 		This.SetValues(_TRUE_)
 
+	def SetPercent(bShow)
+		@bShowPercent = bShow
+
+		def SetPercentage(bShow)
+			@bShowPercent = bShow
+
+	def AddPercent()
+		@bShowPercent = _TRUE_
+
+		def AddPercentage()
+			@bShowPercent = _TRUE_
+
 	def SetBarWidth(nWidth)
 		@nBarWidth = max([1, nWidth])
 
@@ -432,6 +445,9 @@ class stzVBarChart from stzChart
 		
 		if @bShowValues
 			_drawValues(oLayout)
+
+		but @bShowPercent
+			_drawPercent(oLayout)
 		ok
 		
 		if @bSetLabels
@@ -442,8 +458,15 @@ class stzVBarChart from stzChart
 			_drawAverageLine(oLayout)
 		ok
 		
-		return _finalizeCanvas()
+		cResult = _finalizeCanvas()
 
+		# A hack to add a space at the top of the X Axis
+		if ring_substr1(cResult, @cXArrowChar) > 0
+			cResult = ring_substr2(cResult, @cXArrowChar, @cXAxisChar)
+			cResult = @cXArrowChar + NL + cResult
+		ok
+
+		return cResult
 
 	def _calculateLayout()
 		
@@ -524,7 +547,13 @@ class stzVBarChart from stzChart
 		oLayout.AddPair([:x_axis_row, nXAxisRow])
 		oLayout.AddPair([:labels_row, nLabelsRow])
 		oLayout.AddPair([:chart_height, nChartHeight])
-		oLayout.AddPair([:bars_area_height, nXAxisRow - 1])  # Space for bars (excluding X-axis)
+		# Calculate bars area height - reserve top space for values if needed
+		nBarsAreaHeight = nXAxisRow - 1
+		if @bShowValues or @bShowPercent
+			nBarsAreaHeight = nXAxisRow - 2  # Reserve top row for values
+		ok
+		
+		oLayout.AddPair([:bars_area_height, nBarsAreaHeight])
 		oLayout.AddPair([:total_width, nTotalWidth])
 		oLayout.AddPair([:element_widths, aElementWidths])
 		oLayout.AddPair([:bar_spacing, aBarSpacing])
@@ -585,8 +614,8 @@ class stzVBarChart from stzChart
 			nVal = @anValues[i]
 			
 			# Calculate bar height
-			if @nMaxValue = 0
-				nBarHeight = 1
+			if @nMaxValue = 0 or nVal = 0
+				nBarHeight = 0
 			else
 				nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
 			ok
@@ -595,16 +624,19 @@ class stzVBarChart from stzChart
 			nBarStartX = nCurrentX + floor((nElementWidth - @nBarWidth) / 2)
 			
 			# Draw bar
-			for j = 1 to nBarHeight
-				for k = 1 to @nBarWidth
-					nCol = nBarStartX + k - 1
-					nRow = nAxisRow - j
-					if nCol <= @nWidth and nRow >= 1
-						@acCanvas[nRow][nCol] = @cBarChar
-					ok
+			if nBarHeight > 0
+
+				for j = 1 to nBarHeight
+					for k = 1 to @nBarWidth
+						nCol = nBarStartX + k - 1
+						nRow = nAxisRow - j
+						if nCol <= @nWidth and nRow >= 1
+							@acCanvas[nRow][nCol] = @cBarChar
+						ok
+					next
 				next
-			next
-			
+			ok
+
 			# Move to next position
 			if i < nBars
 				nCurrentX += nElementWidth + aBarSpacing[i]
@@ -629,7 +661,7 @@ class stzVBarChart from stzChart
 			nVal = @anValues[i]
 			
 			# Calculate bar height (same logic as _drawBars)
-			if @nMaxValue = 0
+			if @nMaxValue = 0 or nVal = 0
 				nBarHeight = 1
 			else
 				nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
@@ -642,6 +674,11 @@ class stzVBarChart from stzChart
 			nValueRow = nAxisRow - nBarHeight - 1
 			if nValueRow < 1
 				nValueRow = 1
+			ok
+			
+			# If value position conflicts with bar, move it above
+			if nValueRow >= nAxisRow - nBarHeight
+				nValueRow = max([1, nAxisRow - nBarHeight - 1])
 			ok
 			
 			cValue = "" + nVal
@@ -661,6 +698,69 @@ class stzVBarChart from stzChart
 				nCurrentX += nElementWidth + aBarSpacing[i]
 			ok
 		next
+
+def _drawPercent(oLayout)
+	
+	nBars = len(@anValues)
+	nBarsStartCol = oLayout[:bars_start_col]
+	nAxisRow = oLayout[:x_axis_row] 
+	nBarsAreaHeight = oLayout[:bars_area_height]
+	aElementWidths = oLayout[:element_widths]
+	aBarSpacing = oLayout[:bar_spacing]
+	
+	nCurrentX = nBarsStartCol
+	nSum = Sum(@anValues)
+
+	for i = 1 to nBars
+		
+		nElementWidth = aElementWidths[i]
+		nVal = @anValues[i]
+		
+		# Calculate bar height (same logic as _drawBars)
+		if @nMaxValue = 0 or nVal = 0
+			nBarHeight = 1
+		else
+			nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+		ok
+		
+		# Calculate bar position
+		nBarStartX = nCurrentX + floor((nElementWidth - @nBarWidth) / 2)
+		
+		# Calculate value position (above bar)
+		nValueRow = nAxisRow - nBarHeight - 1
+		if nValueRow < 1
+			nValueRow = 1
+		ok
+		
+		# If value position conflicts with bar, move it above
+		if nValueRow >= nAxisRow - nBarHeight
+			nValueRow = max([1, nAxisRow - nBarHeight - 1])
+		ok
+		
+		# Format percentage with 1 decimal place to keep it shorter
+		nPercent = RoundN((nVal/nSum)*100, 1)
+		cValue = "" + nPercent + '%'
+		nValueLen = len(cValue)
+		
+		# Center within element width instead of bar width
+		nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
+		
+		# Ensure we don't go out of bounds
+		nValueStartX = max([1, nValueStartX])
+		
+		# Draw value
+		for k = 1 to nValueLen
+			nCol = nValueStartX + k - 1
+			if nCol <= @nWidth and nCol >= 1 and nValueRow >= 1
+				@acCanvas[nValueRow][nCol] = cValue[k]
+			ok
+		next
+		
+		# Move to next position
+		if i < nBars
+			nCurrentX += nElementWidth + aBarSpacing[i]
+		ok
+	next
 
 
 	def _drawXLabels(oLayout)

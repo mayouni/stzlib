@@ -899,7 +899,7 @@ func IsListOfNumbers(paList)
 	nLen = len(paList)
 
 	for i = 1 to nLen
-		if not isNumber(paList[1])
+		if not isNumber(paList[i])
 			return _FALSE_
 		ok
 	next
