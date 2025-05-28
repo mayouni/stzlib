@@ -482,7 +482,7 @@ pf()
 # Executed in 0.14 second(s) in Ring 1.22
 
 /*--- Test 10: Custom bar width with long label
-*/
+
 pr()
 
 oChart = new stzVBarChart([ :A = 5, :BColumnLableIsSoLong = 8, :C = 3 ])
@@ -507,7 +507,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Test 11: Multiple bars with varying values
-*/
+
 pr()
 
 oChart = new stzVBarChart([ :Q1 = 10, :Q2 = 25, :Q3 = 15, :Q4 = 30, :Q5 = 20 ])
@@ -612,19 +612,19 @@ pf()
 #------------------------------------------------------#
 
 /*--- Test 1: Basic horizontal bar chart
-
+*/
 pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.SetWidth(5) #TODO has no effect!
-
+//oChart.SetWidth(20) #TODO has no effect!
+oChart.AddPercent()
 oChart.Show()
 #-->
 '
  ^
-A│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
-B│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
-C│ ▇▇▇▇▇▇▇▇▇▇▇▇
+A│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 31.2%
+B│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 50%
+C│ ▇▇▇▇▇▇▇▇▇▇▇▇ 18.8%
  ╰─────────────────────────────────>
 '
 
