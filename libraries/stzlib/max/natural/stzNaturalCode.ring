@@ -32,7 +32,7 @@ func FutureOrder()
 	func @FutureOrder()
 		return FutureOrder()
 
-func SetFutureOrder(pcBeforeOrAfter) # Before or afer the action to be executed on an object
+func SetFutureOrder(pcBeforeOrAfter) # Before or after the action to be executed on an object
 	if NOT isString(pcBeforeOrAfter)
 		StzRaise("Incorrect param type! pcBeforeOrAfter must be a string.")
 	ok
