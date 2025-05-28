@@ -569,8 +569,6 @@ class stzBarChart from stzChart
 			_drawXAxis(oLayout)
 		ok
 		
-
-		
 		if @ShowAverage
 			_drawAverageLine(oLayout)
 		ok
@@ -716,6 +714,7 @@ class stzBarChart from stzChart
 		oLayout.AddPair([:x_axis_row, nXAxisRow])
 		oLayout.AddPair([:labels_row, nLabelsRow])
 		oLayout.AddPair([:chart_height, nChartHeight])
+
 		# Calculate bars area height - reserve top space for values if needed
 		nBarsAreaHeight = nXAxisRow - 1
 		if @bShowValues or @bShowPercent
@@ -728,7 +727,7 @@ class stzBarChart from stzChart
 		oLayout.AddPair([:bar_spacing, aBarSpacing])
 		
 		return oLayout
-	
+
 
 	def _drawYAxis(oLayout)
 		
@@ -1062,14 +1061,17 @@ class stzHBarChart from stzChart
 	@bShowXAxis = True
 	@bShowYAxis = True
 	@bShowLabels = True
-
 	@bShowValues = False
+	@bShowPercent = False
+	@ShowAverage = False
+
 	@nBarHeight = 1
 	@nBarInterSpace = 0
 	@nMaxLabelWidth = 12
 	@nLeftPadding = 0
 
 	@cBarChar = "▇"
+	@cAverageChar = "┊"
 
 	def init(paData)
 		super.init(paData)
@@ -1134,6 +1136,18 @@ class stzHBarChart from stzChart
 		def AddValues()
 			This.SetValues(_TRUE_)
 
+	def SetPercent(bShow)
+		@bShowPercent = bShow
+
+		def SetPercentage(bShow)
+			@bShowPercent = bShow
+
+	def AddPercent()
+		@bShowPercent = _TRUE_
+
+		def AddPercentage()
+			@bShowPercent = _TRUE_
+
 	def SetBarHeight(nHeight)
 		@nBarHeight = max([1, nHeight])
 
@@ -1185,20 +1199,43 @@ class stzHBarChart from stzChart
 		if @bShowXAxis  
 			_drawXAxis(oLayout)
 		ok
-		
+
+		if @ShowAverage
+			_drawAverageLine(oLayout)
+		ok
+
 		_drawBars(oLayout)
 		
 		if @bShowValues
 			_drawValues(oLayout)
 		ok
-		
+
+		if @bShowPercent
+       		_drawPercent(oLayout)
+    	ok
+
 		if @bShowLabels
 			_drawXLabels(oLayout)
 		ok
-		
+
+		if @bShowLabels
+			_drawLabels(oLayout)
+		ok
+
 		cResult = _finalizeCanvas()
 
+		# A hack to remove .0 from values and percentages
+		if @bShowValues
+			cResult = ring_substr2(cResult, ".0", "")
+
+		but @bShowPercent
+			cResult = ring_substr2(cResult, ".0%", "%")
+		ok
+
+
 		return cResult
+
+
 
 	def _calculateLayout()
 		
@@ -1235,17 +1272,27 @@ class stzHBarChart from stzChart
 				nMaxBarWidth = nBarWidth
 			ok
 		next
-		
+
+
 		# Calculate value area width if showing values
 		nValueAreaWidth = 0
 		if @bShowValues
-			for i = 1 to nBars
-				nValueLen = len("" + @anValues[i])
-				if nValueLen > nValueAreaWidth
-					nValueAreaWidth = nValueLen
-				ok
-			next
-			nValueAreaWidth += 1  # Space before value
+		    for i = 1 to nBars
+		        nValueLen = len("" + @anValues[i])
+		        if nValueLen > nValueAreaWidth
+		            nValueAreaWidth = nValueLen
+		        ok
+		    next
+		    nValueAreaWidth += 1  # Space before value
+		but @bShowPercent
+		    nSum = @Sum(@anValues)
+		    for i = 1 to nBars    
+		        nValueLen = len('' + RoundN((@anValues[i]/nSum)*100, 1) + "%")  # Include "%"
+		        if nValueLen > nValueAreaWidth
+		            nValueAreaWidth = nValueLen
+		        ok
+		    next
+		    nValueAreaWidth += 1  # Space before value
 		ok
 		
 		# Calculate positions
@@ -1277,7 +1324,7 @@ class stzHBarChart from stzChart
 		ok
 		
 		# Calculate total dimensions
-		nTotalWidth = nXAxisEnd + 2  # +2 for arrow
+		nTotalWidth = nXAxisEnd + 5  # +3 for 0% and +2 for arrow
 		nChartHeight = nBars + 2     # +2 for top/bottom margins
 		if @bShowXAxis
 			nChartHeight += 1        # +1 for X-axis
@@ -1407,7 +1454,82 @@ class stzHBarChart from stzChart
 			next
 		next
 
-	def _drawXLabels(oLayout)
+/*
+	def _drawPercent(oLayout)
+		
+		nBars = len(@anValues)
+		nBarsStartCol = oLayout[:bars_start_col]
+		nBarsStartRow = oLayout[:bars_start_row]
+		nMaxBarWidth = oLayout[:max_bar_width]
+		
+		nSum = @Sum(@anValues)
+
+		for i = 1 to nBars
+			
+			nBarRow = nBarsStartRow + (i - 1)
+			nVal = (@anValues[i] / nSum) * 100
+
+			# Calculate bar width (same as _drawBars)
+			if @nMaxValue = 0 or nVal = 0
+				nBarWidth = 1
+			else
+				nBarWidth = max([1, ceil(nMaxBarWidth * nVal / @nMaxValue)])
+			ok
+			
+			# Position value after bar
+			nValueStartCol = nBarsStartCol + nBarWidth + 1
+
+			if IsInteger(@anValues[i])
+				cValue = "" + nVal
+			else
+				cValue = ""+ RoundN(nVal, 1)
+			ok
+			
+			# Draw value
+			for k = 1 to len(cValue)
+				nCol = nValueStartCol + k - 1
+				if nCol <= @nWidth and nBarRow <= @nHight
+					@acCanvas[nBarRow][nCol] = cValue[k]
+				ok
+			next
+		next
+*/
+def _drawPercent(oLayout)
+    nBars = len(@anValues)
+    nBarsStartCol = oLayout[:bars_start_col]
+    nBarsStartRow = oLayout[:bars_start_row]
+    nMaxBarWidth = oLayout[:max_bar_width]
+    
+    nSum = @Sum(@anValues)
+
+    for i = 1 to nBars
+        nBarRow = nBarsStartRow + (i - 1)
+        nVal = @anValues[i]  # Use actual value for bar width
+
+        # Calculate bar width based on actual value (same as _drawBars)
+        if @nMaxValue = 0 or nVal = 0
+            nBarWidth = 0
+        else
+            nBarWidth = max([1, ceil(nMaxBarWidth * nVal / @nMaxValue)])
+        ok
+        
+        # Calculate percentage for display
+        nPercent = (nVal / nSum) * 100
+        cPercent = '' + RoundN(nPercent, 1) + "%"  # Format as "XX.X%"
+        
+        # Position percentage text after the bar
+        nValueStartCol = nBarsStartCol + nBarWidth + 1
+
+        # Draw percentage text
+        for k = 1 to len(cPercent)
+            nCol = nValueStartCol + k - 1
+            if nCol <= @nWidth and nBarRow <= @nHight
+                @acCanvas[nBarRow][nCol] = cPercent[k]
+            ok
+        next
+    next
+
+	def _drawLabels(oLayout)
 		
 		nBars = len(@anValues)
 		nLabelAreaWidth = oLayout[:label_area_width]
@@ -1444,6 +1566,11 @@ class stzHBarChart from stzChart
 			ok
 		next
 
+		def _drawXLabels(oLayout)
+			This._drawLabels(oLayout)
+
+
+
 	def _finalizeCanvas()
 		cResult = ""
 		nLen = len(@acCanvas)
@@ -1466,3 +1593,62 @@ class stzHBarChart from stzChart
 		next
 
 		return cResult
+
+
+	def _drawAverageLine(oLayout)
+		
+		# Calculate average
+		nAvg = This.Average()
+		
+		nBarsStartCol = oLayout[:bars_start_col]
+		nBarsEndCol = oLayout[:bars_end_col] 
+		nAxisRow = oLayout[:x_axis_row]
+		nBarsAreaHeight = oLayout[:bars_area_height]
+		nYAxisCol = oLayout[:y_axis_col]
+		
+		# Calculate average line position
+		if @nMaxValue = 0
+			nAvgRow = nAxisRow - 1
+		else
+			nAvgRow = nAxisRow - ceil(nBarsAreaHeight * nAvg / @nMaxValue)
+		ok
+		
+		# Start position: right after Y-axis if it exists, otherwise at bars start
+		nLineStart = nBarsStartCol
+		if @bShowYAxis
+			nLineStart = nYAxisCol + 1
+		ok
+		
+		# End position: one position beyond current end
+		nLineEnd = nBarsEndCol + 1
+		
+		# Draw average line
+		for i = nLineStart to nLineEnd
+			if i <= @nWidth and @acCanvas[nAvgRow][i] != @cBarChar
+				@acCanvas[nAvgRow][i] = @cAverageChar
+			ok
+		next
+		
+		# Add average value/percent to the right of the line
+		nSum = This.Sum()
+		if @bShowValues or @bShowPercent
+			cAvgText = ""
+			if @bShowValues
+				cAvgText = "" + RoundN(nAvg, 1)
+			but @bShowPercent
+				nAvgPercent = RoundN((nAvg/nSum)*100, 1)
+				cAvgText = "" + nAvgPercent + '%'
+			ok
+			
+			# Position text right after line end with a space
+			nTextStart = nLineEnd + 2
+			nTextLen = len(cAvgText)
+			
+			# Draw average text
+			for j = 1 to nTextLen
+				nCol = nTextStart + j - 1
+				if nCol <= @nWidth
+					@acCanvas[nAvgRow][nCol] = cAvgText[j]
+				ok
+			next
+		ok
