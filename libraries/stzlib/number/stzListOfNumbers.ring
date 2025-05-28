@@ -677,9 +677,30 @@ func DivideXT(panNumbers)
 
 #===
 
+	func @Mean100(panNumbers)
+		return Mean100(panNumbers)
+
+	func @Average100(panNumbers)
+		return Mean100(panNumbers)
+
 func Mean(panNumbers)
-	oListOfNumbers = new stzListOfNumbers(panNumbers)
-	return oListOfNumbers.Mean()
+	if CheckParams()
+		if NOT (isList(panNumbers) and IslistOfNumbers(panNumbers))
+			StzRaise("Incorrect param type! panNumbers must be a list of numbers.")
+		ok
+	ok
+
+	nLen = Len(panNumbers)
+	if nLen = 1
+		return panNumbers[1]
+	ok
+
+	nSum = 0
+	for i = 1 to nLen
+		nSum += panNumbers[i]
+	next
+
+	return nSum / nLen
 
 	#< @FunctionAlternativeForms
 

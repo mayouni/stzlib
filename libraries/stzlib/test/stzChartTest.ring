@@ -5,29 +5,58 @@ load "../max/stzmax.ring"
 
 pr()
 
-StzChartQ(:VBar, [ 10, 4, 3, 8, 7, 4, 2 ]) {
+StzChartQ(:VBar, [ 5, 4, 2, 5, 3, 2, 4 ]) {
 
-	SetHight(3)
+	# Default chart
+	SetHight(7)
+	Show()
+
+	# Personalized chart
+
+	SetTopBarChar("●")
 	SetBarChar("┃")
 	SetBarWidth(1)
+	
+	Show()
+
+	# Further personalization
+	SetBarWidth(2)
+	SetBarInterSpace(0)
 	Show()
 
 }
-#--> #TODO add SetTopBarChar()
+#-->
 '
 ^
-│ ●             
-│ ┃     ●       
-│ ┃     ┃ ●     
-│ ┃     ┃ ┃     
-│ ┃ ●   ┃ ┃ ●   
-│ ┃ ┃ ● ┃ ┃ ┃   
-│ ┃ ┃ ┃ ┃ ┃ ┃ ● 
+│ ██       ██          
+│ ██ ██    ██       ██ 
+│ ██ ██    ██ ██    ██ 
+│ ██ ██ ██ ██ ██ ██ ██ 
+│ ██ ██ ██ ██ ██ ██ ██ 
+╰──────────────────────>
+  1  2  3  4  5  6  7  
+
+^
+│ ●     ●       
+│ ┃ ●   ┃     ● 
+│ ┃ ┃   ┃ ●   ┃ 
+│ ┃ ┃ ● ┃ ┃ ● ┃ 
 │ ┃ ┃ ┃ ┃ ┃ ┃ ┃ 
 ╰───────────────>
   1 2 3 4 5 6 7 
+
+^
+│ ●●    ●●       
+│ ┃┃●●  ┃┃    ●● 
+│ ┃┃┃┃  ┃┃●●  ┃┃ 
+│ ┃┃┃┃●●┃┃┃┃●●┃┃ 
+│ ┃┃┃┃┃┃┃┃┃┃┃┃┃┃ 
+╰────────────────>
+  1 2 3 4 5 6 7  
 '
+
 pf()
+# Executed in 0.10 second(s) in Ring 1.22
 
 /*===============
 
@@ -46,7 +75,6 @@ oChart.Show()
 # │ ███ ███ ███  
 # ╰────────────>
 
-//? oChart.LargestBarWidth()
 
 pf()
 # Executed in almost 01 second(s) in Ring 1.22
@@ -55,24 +83,28 @@ pf()
 
 pr()
 
-oChart = new stzVBarChart([ :Q1 = 10, :Q2 = 25, :Q3 = 15, :Q4 = 30, :Q5 = 20])
+oChart = new stzVBarChart([
+	:Q1 = 9, :Q2 = 25, :Q3 = 15, :Q4 = 32, :Q5 = 20
+])
+
 oChart {
-	AddLabels()
 	AddValues()
 	AddAverage()
+
 	SetBarWidth(1)
+	SetTopbarChar("▲")
 	Show()
 }
 #-->
 '
 ^
-│          30    
-│    25    █     
-│    █     █  20 
-│ ---█-----█--█- #TODO show a value in Q3
-│ 10 █  █  █  █  
-│ █  █  █  █  █  
-│ █  █  █  █  █  
+│          32    
+│    25    ▲     
+│    ▲  15 █  20 
+│----█-----█--▲-- 20.2
+│    █  ▲  █  █  
+│ 9  █  █  █  █  
+│ ▲  █  █  █  █  
 │ █  █  █  █  █  
 ╰────────────────>
   Q1 Q2 Q3 Q4 Q5 
@@ -88,7 +120,7 @@ pr()
 oChart = new stzVBarChart([ 42, 18, 73, 29, 35, 70, 14, 34 ])
 
 oChart {
-	SetHight(3) #TODO // Has no effect!!
+	SetHight(3)
 	SetBarWidth(1)
 
 	Show()
@@ -147,7 +179,7 @@ pf()
 
 pr()
 
-oChart = new stzBarChartXT([ [ :Mali = 42, :Niger = 18 ], [ :Mali = 35, :Niger = 25 ] ])
+oChart = new stzMultiBarChart([ [ :Mali = 42, :Niger = 18 ], [ :Mali = 35, :Niger = 25 ] ])
 oChart {
     SetBarWidth(2)
     AddYLabels()
@@ -194,7 +226,7 @@ oChart.Show()
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
-/*--- Test 2: Custom width and height
+/*--- Test 2: Custom width and Hight
 
 pr()
 
@@ -368,7 +400,6 @@ oChart.Show()
 ╰──────────>
   A  B  C  
 '
-#TODO the average line must start right after the X axis
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
@@ -450,33 +481,33 @@ pf()
 pf()
 # Executed in 0.14 second(s) in Ring 1.22
 
-/*--- Test 10: Custom bar width
-
+/*--- Test 10: Custom bar width with long label
+*/
 pr()
 
-oChart = new stzVBarChart([ :A = 5, :B = 8, :C = 3 ])
+oChart = new stzVBarChart([ :A = 5, :BColumnLableIsSoLong = 8, :C = 3 ])
 oChart.SetBarWidth(5)
 oChart.Show()
 #-->
 '
 ^
-│       █████       
-│       █████       
-│       █████       
-│ █████ █████       
-│ █████ █████       
-│ █████ █████ █████ 
-│ █████ █████ █████ 
-│ █████ █████ █████ 
-╰───────────────────>
-    A     B     C   
+│          █████           
+│          █████           
+│          █████           
+│ █████    █████           
+│ █████    █████           
+│ █████    █████     █████ 
+│ █████    █████     █████ 
+│ █████    █████     █████ 
+╰──────────────────────────>
+    A   Bcolumnlab..   C   
 '
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Test 11: Multiple bars with varying values
-
+*/
 pr()
 
 oChart = new stzVBarChart([ :Q1 = 10, :Q2 = 25, :Q3 = 15, :Q4 = 30, :Q5 = 20 ])
@@ -602,7 +633,7 @@ C│ ▇▇▇▇▇▇▇▇▇▇▇▇
 pf()
 # Executed in 0.07 second(s) in Ring 1.22
 
-/*--- Test 2: Custom width and height
+/*--- Test 2: Custom width and Hight
 
 pr()
 
@@ -739,12 +770,12 @@ C│ ▇▇▇▇▇▇▇▇▇▇▇▇ 3
 pf()
 # Executed in 0.07 second(s) in Ring 1.22
 
-/*--- Test 9: Custom bar height
+/*--- Test 9: Custom bar Hight
 
 pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.SetBarHeight(2)
+oChart.SetBarHight(2)
 oChart.Show()
 # Expected: Current implementation do not support multi-row bars
 #-->

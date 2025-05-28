@@ -117,11 +117,11 @@ class stzChart
 	@acCanvas = []
 
 	@nWidth = 40
-	@nHeight = 10
+	@nHight = 10
 	@nMaxValue = 0
 	@nMinValue = 0
 
-	# 	@cBarChar = "█" ~> Defined by subclasses
+	# @cBarChar = "█" ~> Defined by subclasses
 	@cXAxisChar = "│"
 	@cYAxisChar = "─"
 	@cXArrowChar = "^"
@@ -129,6 +129,7 @@ class stzChart
 	@cOriginChar = "╰"
 	@cAverageChar = "-"
 
+	# @cFinalBarChar = "█"  ~> Defined by subclasses
 
 	def init(paDataSet)
 
@@ -179,7 +180,7 @@ class stzChart
 		ok
 
 		@nWidth = nWidth
-		@nHeight = nHeight
+		@nHight = nHeight
 
 		def SetDimensions(nWidth, nHeight)
 			This.SetSize(nWidth, nHeight)
@@ -310,7 +311,7 @@ class stzChart
 			aTempSpaces + " "
 		next
 
-		for i = 1 to @nHeight
+		for i = 1 to @nHight
 			@acCanvas + aTempSpaces
 		next
 
@@ -321,7 +322,7 @@ class stzChart
 		nLen = len(@acCanvas)
 
 		# When labels are disabled, exclude the empty last row
-		if @bSetLabels = FALSE
+		if @bShowLabels = FALSE
 			nLen--
 		ok
 
@@ -360,18 +361,20 @@ class stzVBarChart from stzBarChart
 
 class stzBarChart from stzChart
 
-	@bSetXAxis = True
-	@bSetYAxis = True
-	@bSetLabels = True
-	@bSetAverageLine = False
+	@bShowXAxis = True
+	@bShowYAxis = True
+	@bShowLabels = True
+	@ShowAverage = False
 	@bShowValues = False
 	@bShowPercent = False
 
 	@nBarWidth = 2
 	@nMaxWidth = 132
+	@nMaxLabelWidth = 12
 	@nBarInterSpace = 1
 
 	@cBarChar = "█"
+	@cFinalBarChar = ""
 
 	# Layout constants for consistent spacing
 	@nYAxisWidth = 1        # Width of Y-axis column
@@ -384,28 +387,28 @@ class stzBarChart from stzChart
 
 
 	def SetXAxis(bShow)
-		@bSetXAxis = bShow
+		@bShowXAxis = bShow
 
 		def SetHAxis(bShow)
-			@bSetXAxis = bShow
+			@bShowXAxis = bShow
 
 	def SetYAxis(bShow)
-		@bSetYAxis = bShow
+		@bShowYAxis = bShow
 
 		def SetVAxis(bShow)
-			@bSetYAxis = bShow
+			@bShowYAxis = bShow
 
 	def SetXYAxis(bShow)
 		if isList(bShow) and len(bShow) = 2
-			@bSetXAxis = bShow[1]
-			@bSetYAxis = bShow[2]
+			@bShowXAxis = bShow[1]
+			@bShowYAxis = bShow[2]
 		else
-			@bSetXAxis = bShow
-			@bSetYAxis = bShow
+			@bShowXAxis = bShow
+			@bShowYAxis = bShow
 		ok
 
 	def SetYLabels(bShow)
-		@bSetLabels = bShow
+		@bShowLabels = bShow
 
 		def SetLabels(bShow)
 			This.SetYLabels(bShow)
@@ -423,16 +426,16 @@ class stzBarChart from stzChart
 			This.SetYLabels(_TRUE_)
 
 	def SetAverageLine(bShow)
-		@bSetAverageLine = bShow
+		@ShowAverage = bShow
 
 		def SetAverage(bShow)
-			@bSetAverageLine = bShow
+			@ShowAverage = bShow
 
 		def AddAverage()
-			@bSetAverageLine = _TRUE_
+			@ShowAverage = _TRUE_
 
 		def AddAverageLine()
-			@bSetAverageLine = _TRUE_
+			@ShowAverage = _TRUE_
 
 	def SetValues(bShow)
 		@bShowValues = bShow
@@ -467,6 +470,7 @@ class stzBarChart from stzChart
 		def BarInterSpace()
 			return @nBarInterSpace
 	
+
 	def SetBarChar(c)
 		if CheckParams()
 			if not IsChar(c)
@@ -476,16 +480,35 @@ class stzBarChart from stzChart
 		@cBarChar = c
 
 
+	def SetFinalBarChar(c)
+	    if CheckParams()
+	        if not IsChar(c)
+	            StzRaise("Incorrect param type! c must be a char.")
+	        ok
+	    ok
+	    @cFinalBarChar = c
+	
+		def SetTopBarChar(c)
+			This.SetFinalBarChar(c)
+
+
+    def TopBarChar()
+        return @cFinalBarChar
+
+		def FinalBarChar()
+			return @cFinalBarChar
+
+
 	def SetYXAxis(bShow)
 
 		if isList(bShow) and IsPairOfNumbers(bShow)
-			@bSetYAxis = bShow[1]
-			@bSetXAxis = bShow[2]
+			@bShowYAxis = bShow[1]
+			@bShowXAxis = bShow[2]
 			return
 		ok
 
-		@bSetXAxis = bShow
-		@bSetYAxis = bShow
+		@bShowXAxis = bShow
+		@bShowYAxis = bShow
 
 		def SetVHAxis(bShow)
 			This.SetYXAxis(bShow)
@@ -506,6 +529,23 @@ class stzBarChart from stzChart
 		def XAxisWidth()
 			return @nXAxisWidth
 
+
+	def SetMaxLabelWidth(n)
+		@nMaxLabelWidth = n
+
+		def MaxLabelWidth(n)
+			return @nMaxLabelWidth
+
+	def Sum()
+		return @Sum(@anValues)
+	
+	def Average()
+		return @Average(@anValues)
+	
+	def NumberOfValues()
+		return len(@anValues)
+
+ 
 	def Show()
 		? This.ToString()
 
@@ -517,20 +557,26 @@ class stzBarChart from stzChart
 		
 		# Step 2: Initialize canvas with exact dimensions
 		@nWidth = oLayout[:total_width]
-		@nHeight = oLayout[:chart_height]
+		@nHight = oLayout[:chart_height]
 		_initCanvas()
 		
 		# Step 3: Draw components in order
-		if @bSetYAxis
+		if @bShowYAxis
 			_drawYAxis(oLayout)
 		ok
 		
-		if @bSetXAxis  
+		if @bShowXAxis  
 			_drawXAxis(oLayout)
 		ok
 		
-		_drawBars(oLayout)
+
 		
+		if @ShowAverage
+			_drawAverageLine(oLayout)
+		ok
+
+		_drawBars(oLayout)
+
 		if @bShowValues
 			_drawValues(oLayout)
 
@@ -538,20 +584,37 @@ class stzBarChart from stzChart
 			_drawPercent(oLayout)
 		ok
 		
-		if @bSetLabels
-			_drawXLabels(oLayout)
+		if @bShowLabels
+			_drawLabels(oLayout)
 		ok
 		
-		if @bSetAverageLine
-			_drawAverageLine(oLayout)
-		ok
-		
+
 		cResult = _finalizeCanvas()
 
 		# A hack to add a space at the top of the X Axis
 		if ring_substr1(cResult, @cXArrowChar) > 0
 			cResult = ring_substr2(cResult, @cXArrowChar, @cXAxisChar)
 			cResult = @cXArrowChar + NL + cResult
+		ok
+
+		# A hack to add the average value
+		if @ShowAverage
+			oTempStr = new stzString(cResult)
+			if @bShowValues
+
+				cValue = " " + RoundN(This.Average(), 1)
+				if cValue[len(cValue)] = "0"
+					cValue = ring_substr2(cValue, ".0", "")
+				ok
+
+				oTempStr.InsertAfterLast(@cAverageChar, cValue)
+
+			but @bShowPercent
+				cPercent = " 50%"
+				oTempStr.InsertAfterLast(@cAverageChar, cPercent)
+			ok
+
+			cResult = oTempStr.Content()
 		ok
 
 		return cResult
@@ -570,7 +633,7 @@ class stzBarChart from stzChart
 		
 		# Calculate element widths (bar, label, or value - whichever is wider)
 		aElementWidths = []
-		nSum = Sum(@anValues)  # For percentage calculations
+		nSum = This.Sum()  # For percentage calculations
 		
 		for i = 1 to nBars
 			nBarWidth = @nBarWidth
@@ -578,16 +641,20 @@ class stzBarChart from stzChart
 			nValueWidth = 0
 			
 			# Label width
-			if @bSetLabels and i <= len(@acLabels)
+			if @bShowLabels and i <= len(@acLabels)
 				nLabelWidth = len(@acLabels[i])
+				# Apply maximum width limit
+				if nLabelWidth > @nMaxLabelWidth
+					nLabelWidth = @nMaxLabelWidth
+				ok
 			ok
 			
 			# Value width (if showing values or percentages)
 			if @bShowValues
 				nValueWidth = len("" + @anValues[i])
 			but @bShowPercent
-				nPercent = roundN((@anValues[i]/nSum)*100, 1)
-				nValueWidth = len("" + nPercent + '%')
+				cPercent = roundN((@anValues[i]/nSum)*100, 1)
+				nValueWidth = len("" + cPercent + '%')
 			ok
 			
 			# Element width is maximum of all components
@@ -609,14 +676,14 @@ class stzBarChart from stzChart
 		nYAxisEnd = nYAxisStart + @nYAxisWidth - 1
 		
 		nBarsStart = nYAxisEnd + 1
-		if @bSetYAxis
+		if @bShowYAxis
 			nBarsStart += @nAxisPadding
 		ok
 		
 		nBarsEnd = nBarsStart + nBarsAreaWidth - 1
 		
 		nXAxisStart = nYAxisStart
-		if @bSetYAxis
+		if @bShowYAxis
 			nXAxisStart = nYAxisEnd + @nAxisPadding
 		ok
 		nXAxisEnd = nBarsEnd + @nAxisPadding
@@ -630,14 +697,14 @@ class stzBarChart from stzChart
 		ok
 		
 		# Calculate height and positions
-		if @bSetLabels
-			nChartHeight = @nHeight      # No extra height needed
-			nXAxisRow = @nHeight - 1     # X-axis at height - 1
-			nLabelsRow = @nHeight        # Labels on last row
+		if @bShowLabels
+			nChartHeight = @nHight      # No extra height needed
+			nXAxisRow = @nHight - 1     # X-axis at height - 1
+			nLabelsRow = @nHight        # Labels on last row
 		else
-			nChartHeight = @nHeight
-			nXAxisRow = @nHeight - 1     # X-axis at bottom
-			nLabelsRow = @nHeight        # Not used when labels disabled
+			nChartHeight = @nHight
+			nXAxisRow = @nHight - 1     # X-axis at bottom
+			nLabelsRow = @nHight        # Not used when labels disabled
 		ok
 		
 		# Store layout information
@@ -690,7 +757,7 @@ class stzBarChart from stzChart
 		next
 		
 		# Draw origin if Y-axis is present
-		if @bSetYAxis
+		if @bShowYAxis
 			@acCanvas[nAxisRow][nYAxisCol] = @cOriginChar
 		ok
 		
@@ -724,19 +791,23 @@ class stzBarChart from stzChart
 			
 			# Calculate bar position within element
 			nBarStartX = nCurrentX + floor((nElementWidth - @nBarWidth) / 2)
-			
+
 			# Draw bar
 			if nBarHeight > 0
-
-				for j = 1 to nBarHeight
-					for k = 1 to @nBarWidth
-						nCol = nBarStartX + k - 1
-						nRow = nAxisRow - j
-						if nCol <= @nWidth and nRow >= 1
-							@acCanvas[nRow][nCol] = @cBarChar
-						ok
-					next
-				next
+			    for j = 1 to nBarHeight
+			        for k = 1 to @nBarWidth
+			            nCol = nBarStartX + k - 1
+			            nRow = nAxisRow - j
+			            if nCol <= @nWidth and nRow >= 1
+			                # Use top bar character for the highest bar segment
+			                if j = nBarHeight and @cFinalBarChar != ""
+			                    @acCanvas[nRow][nCol] = @cFinalBarChar
+			                else
+			                    @acCanvas[nRow][nCol] = @cBarChar
+			                ok
+			            ok
+			        next
+			    next
 			ok
 
 			# Move to next position
@@ -755,6 +826,10 @@ class stzBarChart from stzChart
 		aElementWidths = oLayout[:element_widths]
 		aBarSpacing = oLayout[:bar_spacing]
 		
+		# Calculate average row for conflict avoidance
+		nAvg = This.Average()
+		nAvgRow = nAxisRow - ceil(nBarsAreaHeight * nAvg / @nMaxValue)
+		
 		nCurrentX = nBarsStartCol
 		
 		for i = 1 to nBars
@@ -780,10 +855,15 @@ class stzBarChart from stzChart
 				nValueRow = max([1, nAxisRow - nBarHeight - 1])
 			ok
 			
+			# Avoid average line conflict - move value up if necessary
+			if @ShowAverage and nValueRow = nAvgRow
+				nValueRow = max([1, nAvgRow - 1])
+			ok
+			
 			cValue = "" + nVal
 			nValueLen = len(cValue)
 			
-			# Center within element width (same logic as _drawXLabels)
+			# Center within element width
 			nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
 			
 			# Draw value with bounds checking
@@ -794,57 +874,66 @@ class stzBarChart from stzChart
 				ok
 			next
 			
-			# Move to next position (same logic as other drawing methods)
+			# Move to next position
 			if i < nBars
 				nCurrentX += nElementWidth + aBarSpacing[i]
 			ok
 		next
-
-
+	
+	
 	def _drawPercent(oLayout)
-		
+	
 		nBars = len(@anValues)
 		nBarsStartCol = oLayout[:bars_start_col]
 		nAxisRow = oLayout[:x_axis_row] 
 		nBarsAreaHeight = oLayout[:bars_area_height]
 		aElementWidths = oLayout[:element_widths]
 		aBarSpacing = oLayout[:bar_spacing]
-		
+	
+		# Calculate average row for conflict avoidance
+		nSum = This.Sum()
+		nAvg = nSum / len(@anValues)
+		nAvgRow = nAxisRow - ceil(nBarsAreaHeight * nAvg / @nMaxValue)
+	
 		nCurrentX = nBarsStartCol
-		nSum = Sum(@anValues)
 	
 		for i = 1 to nBars
-			
+	
 			nElementWidth = aElementWidths[i]
 			nVal = @anValues[i]
-			
+	
 			# Calculate bar height (same logic as _drawBars)
 			if @nMaxValue = 0 or nVal = 0
 				nBarHeight = 1
 			else
 				nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
 			ok
-			
+	
 			# Calculate value position (above bar)
 			nValueRow = nAxisRow - nBarHeight - 1
 			if nValueRow < 1
 				nValueRow = 1
 			ok
-			
+	
 			# If value position conflicts with bar, move it above
 			if nValueRow >= nAxisRow - nBarHeight
 				nValueRow = max([1, nAxisRow - nBarHeight - 1])
 			ok
-			
+	
+			# Avoid average line conflict - move value up if necessary
+			if @ShowAverage and nValueRow = nAvgRow
+				nValueRow = max([1, nAvgRow - 1])
+			ok
+	
 			# Format percentage with 1 decimal place
 			nPercent = RoundN((nVal/nSum)*100, 1)
 			cValue = "" + nPercent + '%'
 	
 			nValueLen = len(cValue)
-			
-			# Center within element width (same logic as _drawXLabels)
+	
+			# Center within element width (same logic as _drawLabels)
 			nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
-			
+	
 			# Draw value with bounds checking
 			for k = 1 to nValueLen
 				nCol = nValueStartX + k - 1
@@ -852,7 +941,7 @@ class stzBarChart from stzChart
 					@acCanvas[nValueRow][nCol] = cValue[k]
 				ok
 			next
-			
+	
 			# Move to next position (same logic as other drawing methods)
 			if i < nBars
 				nCurrentX += nElementWidth + aBarSpacing[i]
@@ -860,57 +949,61 @@ class stzBarChart from stzChart
 		next
 
 
-	def _drawXLabels(oLayout)
-		
+	def _drawLabels(oLayout)
+
 		nBars = len(@anValues)
 		nBarsStartCol = oLayout[:bars_start_col]
 		nLabelsRow = oLayout[:labels_row]
 		aElementWidths = oLayout[:element_widths]
 		aBarSpacing = oLayout[:bar_spacing]
-		
+
 		nCurrentX = nBarsStartCol
 		nLenCanvas = len(@acCanvas)
 
 		for i = 1 to nBars
-			
+	
 			if i <= len(@acLabels)
-				
+
 				nElementWidth = aElementWidths[i]
 				cLabel = Capitalize(@acLabels[i])
-				nLabelLen = len(cLabel)
-				
+				nLenLabel = len(cLabel)
+
+				# Truncate label if needed
+				if nLenLabel > @nMaxLabelWidth
+					nLenLabel = @nMaxLabelWidth
+					cLabel = StzStringQ(cLabel).Section(1, @nMaxLabelWidth - 2) + ".." 
+				ok
+
 				# Center label within element width
-				nLabelStartX = nCurrentX + floor((nElementWidth - nLabelLen) / 2)
+				nLabelStartX = nCurrentX + floor((nElementWidth - nLenLabel) / 2)
 
 				# Draw label
-				for j = 1 to nLabelLen
+				for j = 1 to nLenLabel
 				    nCol = nLabelStartX + j - 1
 				    if nCol <= @nWidth and nLabelsRow <= nLenCanvas
 				        @acCanvas[nLabelsRow][nCol] = cLabel[j]
 				    ok
 				next
 			ok
-			
+
 			# Move to next position
 			if i < nBars
 				nCurrentX += aElementWidths[i] + aBarSpacing[i]
 			ok
 		next
 
+	
 
 	def _drawAverageLine(oLayout)
 		
 		# Calculate average
-		nSum = 0
-		for i = 1 to len(@anValues)
-			nSum += @anValues[i]
-		next
-		nAvg = nSum / len(@anValues)
+		nAvg = This.Average()
 		
 		nBarsStartCol = oLayout[:bars_start_col]
 		nBarsEndCol = oLayout[:bars_end_col] 
 		nAxisRow = oLayout[:x_axis_row]
 		nBarsAreaHeight = oLayout[:bars_area_height]
+		nYAxisCol = oLayout[:y_axis_col]
 		
 		# Calculate average line position
 		if @nMaxValue = 0
@@ -919,14 +1012,46 @@ class stzBarChart from stzChart
 			nAvgRow = nAxisRow - ceil(nBarsAreaHeight * nAvg / @nMaxValue)
 		ok
 		
+		# Start position: right after Y-axis if it exists, otherwise at bars start
+		nLineStart = nBarsStartCol
+		if @bShowYAxis
+			nLineStart = nYAxisCol + 1
+		ok
+		
+		# End position: one position beyond current end
+		nLineEnd = nBarsEndCol + 1
+		
 		# Draw average line
-		for i = nBarsStartCol to nBarsEndCol
-			if @acCanvas[nAvgRow][i] != @cBarChar
+		for i = nLineStart to nLineEnd
+			if i <= @nWidth and @acCanvas[nAvgRow][i] != @cBarChar
 				@acCanvas[nAvgRow][i] = @cAverageChar
 			ok
 		next
-
-
+		
+		# Add average value/percent to the right of the line
+		nSum = This.Sum()
+		if @bShowValues or @bShowPercent
+			cAvgText = ""
+			if @bShowValues
+				cAvgText = "" + RoundN(nAvg, 1)
+			but @bShowPercent
+				nAvgPercent = RoundN((nAvg/nSum)*100, 1)
+				cAvgText = "" + nAvgPercent + '%'
+			ok
+			
+			# Position text right after line end with a space
+			nTextStart = nLineEnd + 2
+			nTextLen = len(cAvgText)
+			
+			# Draw average text
+			for j = 1 to nTextLen
+				nCol = nTextStart + j - 1
+				if nCol <= @nWidth
+					@acCanvas[nAvgRow][nCol] = cAvgText[j]
+				ok
+			next
+		ok
+	
 
 #------------------------------#
 #  HORIZONTAL BAR CHART CLASS  #
@@ -934,9 +1059,9 @@ class stzBarChart from stzChart
 
 class stzHBarChart from stzChart
 
-	@bSetXAxis = True
-	@bSetYAxis = True
-	@bSetLabels = True
+	@bShowXAxis = True
+	@bShowYAxis = True
+	@bShowLabels = True
 
 	@bShowValues = False
 	@nBarHeight = 1
@@ -950,50 +1075,50 @@ class stzHBarChart from stzChart
 		super.init(paData)
 
 	def SetXAxis(bShow)
-		@bSetXAxis = bShow
+		@bShowXAxis = bShow
 
 		def SetHAxis(bShow)
-			@bSetXAxis = bShow
+			@bShowXAxis = bShow
 
 	def SetYAxis(bShow)
-		@bSetYAxis = bShow
+		@bShowYAxis = bShow
 
 		def SetVAxis(bShow)
-			@bSetYAxis = bShow
+			@bShowYAxis = bShow
 
 	def SetXYAxis(bShow)
 		if isList(bShow) and IsPairOfNumbers(bShow)
-			@bSetXAxis = bShow[1]
-			@bSetYAxis = bShow[2]
+			@bShowXAxis = bShow[1]
+			@bShowYAxis = bShow[2]
 			return
 		ok
-		@bSetXAxis = bShow
-		@bSetYAxis = bShow
+		@bShowXAxis = bShow
+		@bShowYAxis = bShow
 
 		def SetHVAxis(bShow)
 			This.SetXYAxis(bShow)
 
 	def SetYXAxis(bShow)
 		if isList(bShow) and IsPairOfNumbers(bShow)
-			@bSetYAxis = bShow[1]
-			@bSetXAxis = bShow[2]
+			@bShowYAxis = bShow[1]
+			@bShowXAxis = bShow[2]
 			return
 		ok
 
-		@bSetXAxis = bShow
-		@bSetYAxis = bShow
+		@bShowXAxis = bShow
+		@bShowYAxis = bShow
 
 		def SetVHAxis(bShow)
 			This.SetYXAxis(bShow)
 
 	def SetXLabels(bShow)
-		@bSetLabels = bShow
+		@bShowLabels = bShow
 
 		def SetLabels(bShow)
-			@bSetLabels = bShow
+			@bShowLabels = bShow
 
 		def SetVLabels(bShow)
-			@bSetLabels = bShow
+			@bShowLabels = bShow
 
 		def AddXLabels()
 			This.SetXLabels(_TRUE_)
@@ -1012,8 +1137,20 @@ class stzHBarChart from stzChart
 	def SetBarHeight(nHeight)
 		@nBarHeight = max([1, nHeight])
 
+		def SetBarHight(nHeight)
+			This.SetBarHeight(nHeight)
+
+		def BarHight()
+			return @nBarHeight
+
+		def BarHeight()
+			return @nBarHeight
+
 	def SetMaxLabelWidth(n)
 		@nMaxLabelWidth = n
+
+		def MaxLabelWidth(n)
+			return @nMaxLabelWidth
 
 	def SetLabelWidth(nWidth)
 		@nMaxLabelWidth = max([8, nWidth])
@@ -1037,15 +1174,15 @@ class stzHBarChart from stzChart
 		
 		# Step 2: Initialize canvas with exact dimensions
 		@nWidth = oLayout[:total_width]
-		@nHeight = oLayout[:chart_height]
+		@nHight = oLayout[:chart_height]
 		_initCanvas()
 		
 		# Step 3: Draw components in order
-		if @bSetYAxis
+		if @bShowYAxis
 			_drawYAxis(oLayout)
 		ok
 		
-		if @bSetXAxis  
+		if @bShowXAxis  
 			_drawXAxis(oLayout)
 		ok
 		
@@ -1055,7 +1192,7 @@ class stzHBarChart from stzChart
 			_drawValues(oLayout)
 		ok
 		
-		if @bSetLabels
+		if @bShowLabels
 			_drawXLabels(oLayout)
 		ok
 		
@@ -1070,7 +1207,7 @@ class stzHBarChart from stzChart
 		
 		# Calculate label area width
 		nLabelAreaWidth = 0
-		if @bSetLabels
+		if @bShowLabels
 			# Find longest label
 			for i = 1 to len(@acLabels)
 				nLen = len(@acLabels[i])
@@ -1083,7 +1220,7 @@ class stzHBarChart from stzChart
 				nLabelAreaWidth = @nMaxLabelWidth
 			ok
 		ok
-		
+
 		# Calculate bar widths to determine maximum bar area needed
 		nMaxBarWidth = 0
 		for i = 1 to nBars
@@ -1121,7 +1258,7 @@ class stzHBarChart from stzChart
 		ok
 		
 		nBarsStart = nYAxisCol + 1
-		if @bSetYAxis
+		if @bShowYAxis
 			nBarsStart = nYAxisCol + 2  # Extra space after Y-axis
 		ok
 		
@@ -1131,7 +1268,7 @@ class stzHBarChart from stzChart
 		nValuesEnd = nValuesStart + nValueAreaWidth - 1
 		
 		nXAxisStart = nYAxisCol
-		if not @bSetYAxis
+		if not @bShowYAxis
 			nXAxisStart = nBarsStart - 1
 		ok
 		nXAxisEnd = nBarsEnd + 1
@@ -1142,7 +1279,7 @@ class stzHBarChart from stzChart
 		# Calculate total dimensions
 		nTotalWidth = nXAxisEnd + 2  # +2 for arrow
 		nChartHeight = nBars + 2     # +2 for top/bottom margins
-		if @bSetXAxis
+		if @bShowXAxis
 			nChartHeight += 1        # +1 for X-axis
 		ok
 		
@@ -1170,7 +1307,7 @@ class stzHBarChart from stzChart
 			aTempSpaces + " "
 		next
 
-		for i = 1 to @nHeight
+		for i = 1 to @nHight
 			@acCanvas + aTempSpaces
 		next
 
@@ -1201,7 +1338,7 @@ class stzHBarChart from stzChart
 		next
 		
 		# Draw origin if Y-axis is present
-		if @bSetYAxis
+		if @bShowYAxis
 			@acCanvas[nAxisRow][nYAxisCol] = @cOriginChar
 		ok
 		
@@ -1231,7 +1368,7 @@ class stzHBarChart from stzChart
 			if nBarWidth > 0
 				for j = 1 to nBarWidth
 					nCol = nBarsStartCol + j - 1
-					if nCol <= @nWidth and nBarRow <= @nHeight
+					if nCol <= @nWidth and nBarRow <= @nHight
 						@acCanvas[nBarRow][nCol] = @cBarChar
 					ok
 				next
@@ -1264,7 +1401,7 @@ class stzHBarChart from stzChart
 			# Draw value
 			for k = 1 to len(cValue)
 				nCol = nValueStartCol + k - 1
-				if nCol <= @nWidth and nBarRow <= @nHeight
+				if nCol <= @nWidth and nBarRow <= @nHight
 					@acCanvas[nBarRow][nCol] = cValue[k]
 				ok
 			next
@@ -1279,28 +1416,28 @@ class stzHBarChart from stzChart
 		for i = 1 to nBars
 			
 			if i <= len(@acLabels)
-				
+
 				nBarRow = nBarsStartRow + (i - 1)
 				cOriginalLabel = @acLabels[i]
 				cLabel = Capitalize(cOriginalLabel)
-				
+
 				# Truncate label if needed
 				if len(cLabel) > @nMaxLabelWidth
 					cLabel = StzStringQ(cLabel).Section(1, @nMaxLabelWidth - 2) + ".."
 				ok
-				
-				nLabelLen = len(cLabel)
+
+				nLenLabel = len(cLabel)
 				
 				# Right-align label within label area
-				nStartCol = nLabelAreaWidth - nLabelLen + 1
+				nStartCol = nLabelAreaWidth - nLenLabel + 1
 				if nStartCol < 1
 					nStartCol = 1
 				ok
 				
 				# Draw label
-				for j = 1 to nLabelLen
+				for j = 1 to nLenLabel
 					nCol = nStartCol + j - 1
-					if nCol <= nLabelAreaWidth and nBarRow <= @nHeight
+					if nCol <= nLabelAreaWidth and nBarRow <= @nHight
 						@acCanvas[nBarRow][nCol] = cLabel[j]
 					ok
 				next

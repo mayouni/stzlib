@@ -37285,7 +37285,7 @@ class stzString from stzObject
 	  #---------------------------------------------------#
 	 #    INSERTING A SUBSTRING AFTER A GIVEN POSITION   #
 	#---------------------------------------------------#
-	 
+
 	def InsertAfterCS(nPos, pcSubStr, pCaseSensitive)
 
 		if isList(nPos) and Q(nPos).IsPositionOrSubStringNamedParam()
@@ -37416,6 +37416,258 @@ class stzString from stzObject
 	def SubStringInsertedAfterPosition(nPos, pcSubStr)
 		cResult = This.Copy().InsertAfterPositionQ(nPos, pcSubStr).Content()
 		return cResult
+
+	  #--------------------------------------------------------------------#
+	 #  INSERTING A SUBBStriNG AFTER NTH OCCURRENCE OF A GIVEN SUBSTRING  #
+	#====================================================================#
+
+	def InsertAfterNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		nPos = This.FindNthCS(n, pcSubStr, pCaseSensitive)
+		This.InsertAfterPosition(nPos, pcNewSubStr)
+
+		def InsertAfterNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertAfterNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
+
+		def InsertAfterNthCSCQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			_oCopy_ = This.Copy()
+			_oCopy_.InsertAfterNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return _oCopy_
+
+	def InsertedAfterNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertAfterNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive).Content()
+		return cResult
+
+		def SubStringInsertedAfterNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.InsertedAfterNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def InsertAfterNth(n, pcSubStr, pcNewSubStr)
+		return This.InsertAfterNthCS(n, pcSubStr, pcNewSubStr, _TRUE_)
+
+		def InsertAfterNthQ(n, pcSubStr, pcNewSubStr)
+			return This.InsertAfterNthCSQ(n, pcSubStr, pcNewSubStr, _TRUE_)
+
+		def InsertAfterNthCQ(n, pcSubStr, pcNewSubStr)
+			return This.InsertAfterNthCSCQ(n, pcSubStr, pcNewSubStr, _TRUE_)
+
+	def InsertedAfterNth(n, pcSubStr, pcNewSubStr)
+		cResult = This.Copy().InsertAfterNthQ(n, pcSubStr, pcNewSubStr).Content()
+		return cResult
+
+		def SubStringInsertedAfterNth(n, pcSubStr, pcNewSubStr)
+			return This.InsertedAfterNth(n, pcSubStr, pcNewSubStr)
+
+	  #----------------------------------------------------------------------#
+	 #  INSERTING A SUBBStriNG AFTER FIRST OCCURRENCE OF A GIVEN SUBSTRING  #
+	#----------------------------------------------------------------------#
+
+	def InsertAfterFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		nPos = This.FindFirstCS(pcSubStr, pCaseSensitive)
+		This.InsertAfterPosition(nPos, pcNewSubStr)
+
+		def InsertAfterFirstCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertAfterFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
+
+		def InsertAfterFirstCSCQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+			_oCopy_ = This.Copy()
+			_oCopy_.InsertAfterFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return _oCopy_
+
+	def InsertedAfterFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertAfterFirstCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
+		return cResult
+
+		def SubStringInsertedAfterFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.InsertedAfterFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def InsertAfterFirst(pcSubStr, pcNewSubStr)
+		return This.InsertAfterFirstCS(pcSubStr, pcNewSubStr, _TRUE_)
+
+		def InsertAfterFirstQ(pcSubStr, pcNewSubStr)
+			return This.InsertAfterFirstCSQ(pcSubStr, pcNewSubStr, _TRUE_)
+
+		def InsertAfterFirstCQ(pcSubStr, pcNewSubStr)
+			return This.InsertAfterFirstCSCQ(pcSubStr, pcNewSubStr, _TRUE_)
+
+	def InsertedAfterFirst(pcSubStr, pcNewSubStr)
+		cResult = This.Copy().InsertAfterFirstQ(pcSubStr, pcNewSubStr).Content()
+		return cResult
+
+		def SubStringInsertedAfterFirst(pcSubStr, pcNewSubStr)
+			return This.InsertedAfterFirst(pcSubStr, pcNewSubStr)
+
+	  #----------------------------------------------------------------------#
+	 #  INSERTING A SUBBStriNG AFTER LAST  OCCURRENCE OF A GIVEN SUBSTRING  #
+	#----------------------------------------------------------------------#
+
+	def InsertAfterLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		nPos = This.FindLastCS(pcSubStr, pCaseSensitive)
+		This.InsertAfterPosition(nPos, pcNewSubStr)
+
+		def InsertAfterLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertAfterLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
+
+		def InsertAfterLastCSCQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+			_oCopy_ = This.Copy()
+			_oCopy_.InsertAfterLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return _oCopy_
+
+	def InsertedAfterLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertAfterLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
+		return cResult
+
+		def SubStringInsertedAfterLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.InsertedAfterLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def InsertAfterLast(pcSubStr, pcNewSubStr)
+		return This.InsertAfterLastCS(pcSubStr, pcNewSubStr, _TRUE_)
+
+		def InsertAfterLastQ(pcSubStr, pcNewSubStr)
+			return This.InsertAfterLastCSQ(pcSubStr, pcNewSubStr, _TRUE_)
+
+		def InsertAfterLastCQ(pcSubStr, pcNewSubStr)
+			return This.InsertAfterLastCSCQ(pcSubStr, pcNewSubStr, _TRUE_)
+
+	def InsertedAfterLast(pcSubStr, pcNewSubStr)
+		cResult = This.Copy().InsertAfterLastQ(pcSubStr, pcNewSubStr).Content()
+		return cResult
+
+		def SubStringInsertedAfterLast(pcSubStr, pcNewSubStr)
+			return This.InsertedAfterLast(pcSubStr, pcNewSubStr)
+
+	  #---------------------------------------------------------------------#
+	 #  INSERTING A SUBBStriNG BEFORE NTH OCCURRENCE OF A GIVEN SUBSTRING  #
+	#=====================================================================#
+
+	def InsertBeforeNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		nPos = This.FindNthCS(n, pcSubStr, pCaseSensitive)
+		This.InsertAfterPosition(nPos, pcNewSubStr)
+
+		def InsertBeforeNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertBeforeNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
+
+		def InsertBeforeNthCSCQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			_oCopy_ = This.Copy()
+			_oCopy_.InsertBeforeNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return _oCopy_
+
+	def InsertedBeforeNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertBeforeNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive).Content()
+		return cResult
+
+		def SubStringInsertedBeforeNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.InsertedBeforeNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def InsertBeforeNth(n, pcSubStr)
+		return This.InsertBeforeNthCS(n, pcSubStr, pcNewSubStr, _TRUE_)
+
+		def InsertBeforeNthQ(n, pcSubStr)
+			return This.InsertBeforeNthCSQ(n, pcSubStr, pcNewSubStr, _TRUE_)
+
+		def InsertBeforeNthCQ(n, pcSubStr)
+			return This.InsertBeforeNthCSCQ(n, pcSubStr, pcNewSubStr, _TRUE_)
+
+	def InsertedBeforeNth(n, pcSubStr)
+		cResult = This.Copy().InsertBeforeNthQ(n, pcSubStr, pcNewSubStr).Content()
+		return cResult
+
+		def SubStringInsertedBeforeNth(n, pcSubStr, pcNewSubStr)
+			return This.InsertedBeforeNth(n, pcSubStr, pcNewSubStr)
+
+	  #-----------------------------------------------------------------------#
+	 #  INSERTING A SUBBStriNG BEFORE FIRST OCCURRENCE OF A GIVEN SUBSTRING  #
+	#-----------------------------------------------------------------------#
+
+	def InsertBeforeFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		nPos = This.FindFirstCS(pcSubStr, pCaseSensitive)
+		This.InsertAfterPosition(nPos, pcNewSubStr)
+
+		def InsertBeforeFirstCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertBeforeFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
+
+		def InsertBeforeFirstCSCQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+			_oCopy_ = This.Copy()
+			_oCopy_.InsertBeforeFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return _oCopy_
+
+	def InsertedBeforeFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertBeforeFirstCSQ(pcSubStr, pcNewSubStr, pcNewSubStrpCaseSensitive).Content()
+		return cResult
+
+		def SubStringInsertedBeforeFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.InsertedBeforeFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def InsertBeforeFirst(pcSubStr, pcNewSubStr)
+		return This.InsertBeforeFirstCS(pcSubStr, pcNewSubStr, _TRUE_)
+
+		def InsertBeforeFirstQ(pcSubStr, pcNewSubStr)
+			return This.InsertBeforeFirstCSQ(pcSubStr, pcNewSubStr, _TRUE_)
+
+		def InsertBeforeFirstCQ(pcSubStr, pcNewSubStr)
+			return This.InsertBeforeFirstCSCQ(pcSubStr, pcNewSubStr, _TRUE_)
+
+	def InsertedBeforeFirst(pcSubStr, pcNewSubStr)
+		cResult = This.Copy().InsertBeforeFirstQ(pcSubStr, pcNewSubStr).Content()
+		return cResult
+
+		def SubStringInsertedBeforeFirst(pcSubStr, pcNewSubStr)
+			return This.InsertedBeforeFirst(pcSubStr, pcNewSubStr)
+
+	  #----------------------------------------------------------------------#
+	 #  INSERTING A SUBBStriNG BEFORE LAST  OCCURRENCE OF A GIVEN SUBSTRING  #
+	#----------------------------------------------------------------------#
+
+	def InsertBeforeLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		nPos = This.FindLastCS(pcSubStr, pCaseSensitive)
+		This.InsertAfterPosition(nPos, pcNewSubStr)
+
+		def InsertBeforeLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertBeforeLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
+
+		def InsertBeforeLastCSCQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+			_oCopy_ = This.Copy()
+			_oCopy_.InsertBeforeLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return _oCopy_
+
+	def InsertedBeforeLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertBeforeLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
+		return cResult
+
+		def SubStringInsertedBeforeLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.InsertedBeforeLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def InsertBeforeLast(pcSubStr, pcNewSubStr)
+		return This.InsertBeforeLastCS(pcSubStr, pcNewSubStr, _TRUE_)
+
+		def InsertBeforeLastQ(pcSubStr, pcNewSubStr)
+			return This.InsertBeforeLastCSQ(pcSubStr, pcNewSubStr, _TRUE_)
+
+		def InsertBeforeLastCQ(pcSubStr, pcNewSubStr)
+			return This.InsertBeforeLastCSCQ(pcSubStr, pcNewSubStr, _TRUE_)
+
+	def InsertedBeforeLast(pcSubStr, pcNewSubStr)
+		cResult = This.Copy().InsertBeforeLastQ(pcSubStr, pcNewSubStr).Content()
+		return cResult
+
+		def SubStringInsertedBeforeLast(pcSubStr, pcNewSubStr)
+			return This.InsertedBeforeLast(pcSubStr, pcNewSubStr)
 
 	   #-----------------------------------------------------------#
 	  #    INSERTING A SUBSTRING AFTER  A POSITION DEFINED BY A   #
