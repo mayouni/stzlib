@@ -55,6 +55,61 @@ https://dataplatform.cloud.ibm.com/docs/content/wsj/getting-started/welcome-main
 #  ABSTRACT BAR CHART CLASS  #
 #----------------------------#
 
+$aStzChartsTypes = [
+
+	:BarChart, :VBarChart, :VBar,
+	:VerticalBarChart, :VerticalBar,
+
+	:HBarChart, :HBar,
+	:HorizontalBarChart, :HorizontalBar
+
+]
+
+$aStzChartsClasses = [
+
+	:stzBarChart = [
+		:BarChart, :VBarChart, :VBar,
+		:VerticalBarChart, :VerticalBar,
+	],
+
+	:stzHBarChart = [
+		:HBarChart, :HBar,
+		:HorizontalBarChart, :HorizontalBar
+	]
+]
+
+func StzCharts()
+	return $aStzChartsTypes
+
+	func StzChartsTypes()
+		return $aStzChartsTypes
+
+func StzChartsClasses()
+	return $aStzChartsClasses
+
+
+func StzChartQ(pcChartType, paDataSet)
+
+		if NOT ring_find(StzChartsTypes(), pcChartType)
+			StzRaise("Insupported chart type!")
+		ok
+
+		aChartsClasses = StzChartsClasses()
+		oHash = new stzHashList(aChartsClasses)
+		aPos = oHash.FindInValues(pcChartType)
+		cChartClass = aChartsClasses[aPos[1][1]][1]
+
+		switch cChartClass
+
+		on :stzBarChart 
+			return new stzBarChart(paDataSet)
+
+		on :stzHBarChart
+			return new stzHBarChart(paDataSet)
+
+		off
+
+
 class stzChart
 
 	@anValues = []
@@ -301,7 +356,9 @@ class stzChart
 #  CLEAN VERTICAL BAR CHART    #
 #------------------------------#
 
-class stzVBarChart from stzChart
+class stzVBarChart from stzBarChart
+
+class stzBarChart from stzChart
 
 	@bSetXAxis = True
 	@bSetYAxis = True
@@ -380,8 +437,8 @@ class stzVBarChart from stzChart
 	def SetValues(bShow)
 		@bShowValues = bShow
 
-	def AddValues()
-		This.SetValues(_TRUE_)
+		def AddValues()
+			This.SetValues(_TRUE_)
 
 	def SetPercent(bShow)
 		@bShowPercent = bShow
@@ -401,6 +458,15 @@ class stzVBarChart from stzChart
 	def SetMaxWidth(nWidth)
 		@nMaxWidth = nWidth
 
+		def MaxWidth()
+			return @nMaxWidth
+
+	def SetBarInterSpace(n)
+		@nBarInterSpace = n
+	
+		def BarInterSpace()
+			return @nBarInterSpace
+	
 	def SetBarChar(c)
 		if CheckParams()
 			if not IsChar(c)
@@ -426,6 +492,19 @@ class stzVBarChart from stzChart
 
 		def SetHVAxis(bShow)
 			This.SetXYAxis(bShow)
+
+
+	def SetYAxisWidth(n)
+		@nYAxisWidth = n
+
+		def YAxisWidth()
+			return @nYAxisWidth
+
+	def SetXAxisWidth(n)
+		@nXAxisWidth = n
+
+		def XAxisWidth()
+			return @nXAxisWidth
 
 	def Show()
 		? This.ToString()
@@ -981,6 +1060,7 @@ class stzHBarChart from stzChart
 		ok
 		
 		cResult = _finalizeCanvas()
+
 		return cResult
 
 	def _calculateLayout()
@@ -1249,4 +1329,3 @@ class stzHBarChart from stzChart
 		next
 
 		return cResult
-

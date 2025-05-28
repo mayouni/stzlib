@@ -2244,6 +2244,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindThisItemInLists(pItem)
 			return This.FindItem(pItem)
 
+		def FindInValues(pItem)
+			return This.FindItem(pItem)
+
 		#>
 
 	def FindTheseItems(paItems)

@@ -1,6 +1,34 @@
 load "../max/stzmax.ring"
 
 
+/*---
+
+pr()
+
+StzChartQ(:VBar, [ 10, 4, 3, 8, 7, 4, 2 ]) {
+
+	SetHight(3)
+	SetBarChar("┃")
+	SetBarWidth(1)
+	Show()
+
+}
+#--> #TODO add SetTopBarChar()
+'
+^
+│ ●             
+│ ┃     ●       
+│ ┃     ┃ ●     
+│ ┃     ┃ ┃     
+│ ┃ ●   ┃ ┃ ●   
+│ ┃ ┃ ● ┃ ┃ ┃   
+│ ┃ ┃ ┃ ┃ ┃ ┃ ● 
+│ ┃ ┃ ┃ ┃ ┃ ┃ ┃ 
+╰───────────────>
+  1 2 3 4 5 6 7 
+'
+pf()
+
 /*===============
 
 pr()
@@ -24,7 +52,7 @@ pf()
 # Executed in almost 01 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 oChart = new stzVBarChart([ :Q1 = 10, :Q2 = 25, :Q3 = 15, :Q4 = 30, :Q5 = 20])
@@ -41,7 +69,7 @@ oChart {
 │          30    
 │    25    █     
 │    █     █  20 
-│----█-----█--█--- 18.7 
+│ ---█-----█--█- #TODO show a value in Q3
 │ 10 █  █  █  █  
 │ █  █  █  █  █  
 │ █  █  █  █  █  
@@ -57,10 +85,10 @@ pf()
 
 pr()
 
-oChart = new stzHBarChart([ 42, 18, 73, 29, 35, 70, 14, 34 ])
+oChart = new stzVBarChart([ 42, 18, 73, 29, 35, 70, 14, 34 ])
 
 oChart {
-	SetHight(8)
+	SetHight(3) #TODO // Has no effect!!
 	SetBarWidth(1)
 
 	Show()
@@ -74,9 +102,9 @@ oChart {
 # ╰─────────────────>
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in almost 0.03 second(s) in Ring 1.22
 
-/*---
+/*--- #TODO Add SetPercent() to horizontal chart
 
 pr()
 
@@ -91,7 +119,12 @@ oChart = new stzVBarChart([
 	:SouthKorea = 34
 ])
 
-oChart { SetYXAxis([1, 1])  SetLabels(1) SetValues(1) Show()  }
+oChart {
+	SetYXAxis([1, 1])
+	SetLabels(1)
+	SetPercent(1)
+	Show()
+}
 #-->
 # ^            73                                         
 # │            ██                   70                    
@@ -102,7 +135,8 @@ oChart { SetYXAxis([1, 1])  SetLabels(1) SetValues(1) Show()  }
 # │ ██   ██    ██     ██     ██     ██    ██       ██     
 # ╰──────────────────────────────────────────────────────>
 #  Mali Niger Egypt Bosnia Brazil France Qatar Southkorea
-# ┊
+
+#TODO Use ┊ in setAverage() in horizontal chart
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
@@ -334,6 +368,7 @@ oChart.Show()
 ╰──────────>
   A  B  C  
 '
+#TODO the average line must start right after the X axis
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
@@ -373,8 +408,19 @@ oChart = new stzVBarChart([
 	:Blue = 32393
 ])
 
-oChart.SetPercent(TRUE)
-oChart.Show()
+oChart {
+
+	SetPercent(TRUE)
+	Show()
+
+	SetValues(TRUE)
+	Show()
+
+}
+
+pf()
+# Executed in 0.13 second(s) in Ring 1.22
+
 #-->
 '
 ^
@@ -384,6 +430,17 @@ oChart.Show()
 │                      ██   
 │                      ██   
 │ 15.4%     18.2%      ██   
+│  ██        ██        ██   
+│  ██        ██        ██   
+╰───────────────────────────>
+  Green Blackandwhite Blue  
+^
+│                     32393 
+│                      ██   
+│                      ██   
+│                      ██   
+│                      ██   
+│ 7520      8898       ██   
 │  ██        ██        ██   
 │  ██        ██        ██   
 ╰───────────────────────────>
@@ -438,6 +495,11 @@ oChart.Show()
 ╰────────────────>
   Q1 Q2 Q3 Q4 Q5 
 '
+
+
+oChart.SetBarWidth(1)
+ochart.SetBarInterSpace(0) #TODO has no effect
+oChart.Show()
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
@@ -523,116 +585,290 @@ pf()
 pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
+oChart.SetWidth(5) #TODO has no effect!
+
 oChart.Show()
-# Expected: Horizontal bars for A, B, C with lengths proportional to 5, 8, 3, labels on the left
+#-->
+'
+ ^
+A│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+B│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+C│ ▇▇▇▇▇▇▇▇▇▇▇▇
+ ╰─────────────────────────────────>
+'
+
+#TODO Add a space after the labels
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Test 2: Custom width and height
 
 pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.SetSize(50, 10)
+oChart.SetSize(50, 10) #TODO Has no effect!
 oChart.Show()
-# Expected: Same chart with a width of 50 characters and height of 10 lines
+#-->
+'
+ ^
+A│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+B│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+C│ ▇▇▇▇▇▇▇▇▇▇▇▇
+ ╰─────────────────────────────────>
+'
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Test 3: Custom bar character
+
+pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
 oChart.SetBarChar("=")
 oChart.Show()
 # Expected: Bars made of '=' instead of default '▇'
+#-->
+'
+ ^
+A│ ===================
+B│ ==============================
+C│ ============
+ ╰─────────────────────────────────>
+'
 
+pf()
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Test 4: X-axis disabled
+
+pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
 oChart.SetXAxis(FALSE)
 oChart.Show()
 # Expected: Chart without the X-axis (bottom horizontal line)
+#--> #TODO Error
+'
+^
+A│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+B│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+C  ▇▇▇▇▇▇▇▇▇▇▇▇
+'
 
+pf()
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Test 5: Y-axis disabled
+
+pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
 oChart.SetYAxis(FALSE)
 oChart.Show()
 # Expected: Chart without the Y-axis (vertical line)
+#-->
+'
+A ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+B ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+C ▇▇▇▇▇▇▇▇▇▇▇▇
+ ─────────────────────────────────>
+'
 
+pf()
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Test 6: Both axes disabled
+
+pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
 oChart.SetXYAxis([FALSE, FALSE])
 oChart.Show()
 # Expected: Chart with no axes
+#-->
+'
+A ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+B ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+C ▇▇▇▇▇▇▇▇▇▇▇▇
+'
 
+pf()
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Test 7: Labels disabled
+
+pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
 oChart.SetLabels(FALSE)
 oChart.Show()
 # Expected: Chart without labels on the left side
+#-->
+'
+^
+│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+│ ▇▇▇▇▇▇▇▇▇▇▇▇
+╰─────────────────────────────────>
+'
 
+pf()
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*--- Test 8: Values displayed
+
+pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
 oChart.SetValues(TRUE)
 oChart.Show()
 # Expected: Chart with numerical values (5, 8, 3) next to each bar
+#-->
+'
+ ^
+A│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 5
+B│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 8
+C│ ▇▇▇▇▇▇▇▇▇▇▇▇ 3
+ ╰───────────────────────────────────>
+'
+#TODO the ^ arrow is
+#TODO Add percentages display
 
+pf()
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Test 9: Custom bar height
+
+pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
 oChart.SetBarHeight(2)
 oChart.Show()
-# Expected: Each bar occupies 2 rows (Note: Current implementation may not fully support multi-row bars)
+# Expected: Current implementation do not support multi-row bars
+#-->
+'
+ ^
+A│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+B│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+C│ ▇▇▇▇▇▇▇▇▇▇▇▇
+ ╰─────────────────────────────────>
+'
 
+pf()
 
 /*--- Test 10: Custom maximum label width
+
+pr()
 
 oChart = new stzHBarChart([ :LongLabel = 10, :AnotherLongLabel = 20 ])
 oChart.SetMaxLabelWidth(5)
 oChart.Show()
 # Expected: Labels truncated to 5 characters (e.g., "LongL..", "Anothe..")
+#-->
+'
+     ^
+Lon..│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+Ano..│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+     ╰─────────────────────────────────>
+'
 
+#TODO: Add SetMaxLabelWidth() to stzVBarChart
+
+pf()
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Test 11: Long labels
+
+pr()
 
 oChart = new stzHBarChart([ :ThisIsALongLabel = 15, :Short = 5 ])
 oChart.Show()
 # Expected: Long labels truncated to max width (12 by default) with ".." (e.g., "ThisIsALon..")
+#-->
+'
+            ^
+Thisisalon..│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+       Short│ ▇▇▇▇▇▇▇▇▇▇
+            ╰─────────────────────────────────>
+'
+#TODO Add the long lable trancation to stzVBarChart
 
+pf()
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Test 12: Multiple bars with varying values
+
+pr()
 
 oChart = new stzHBarChart([ :Q1 = 10, :Q2 = 25, :Q3 = 15, :Q4 = 30, :Q5 = 20 ])
 oChart.Show()
 # Expected: Five horizontal bars with lengths proportional to 10, 25, 15, 30, 20
+#-->
+'
+  ^
+Q1│ ▇▇▇▇▇▇▇▇▇▇
+Q2│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+Q3│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+Q4│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+Q5│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+  ╰─────────────────────────────────>
+'
 
+pf()
+# Executed in 0.09 second(s) in Ring 1.22
 
 /*--- Test 13: Zero values
 
+pr()
+
 oChart = new stzHBarChart([ :Zero = 0, :Positive = 5, :AnotherZero = 0 ])
 oChart.Show()
-# Expected: Bars for zero values have minimal length (1 unit), Positive bar at 5
+# Expected: Bars for zero values not displayed, Positive bar at 5
+#-->
+'
+           ^
+       Zero│
+   Positive│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+Anotherzero│
+           ╰─────────────────────────────────>
+'
 
+pf()
+# Executed in 0.09 second(s) in Ring 1.22
 
 /*--- Test 14: Single bar
+
+pr()
 
 oChart = new stzHBarChart([ :Single = 10 ])
 oChart.Show()
 # Expected: A single horizontal bar with length proportional to 10
+#-->
+'
+      ^
+Single│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+      ╰─────────────────────────────────>
+'
 
+pf()
+# Executed in 0.05 second(s) in Ring 1.22
 
 /*--- Test 15: Large values with scaling
+*/
+pr()
 
 oChart = new stzHBarChart([ :Small = 1, :Large = 1000 ])
 oChart.Show()
 # Expected: Two bars scaled to fit the chart, with Large much longer than Small
+#-->
+'
+     ^
+Small│ ▇
+Large│ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+     ╰─────────────────────────────────>
+'
+
+pf()
+# Executed in 0.07 second(s) in Ring 1.22
