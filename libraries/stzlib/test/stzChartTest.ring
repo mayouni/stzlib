@@ -611,12 +611,13 @@ pf()
 #  Test Suite for stzHBarChart (Horizontal Bar Chart)  #
 #------------------------------------------------------#
 
-/*--- Test 1: Basic horizontal bar chart
+/*--- Test 1: Basic horizontal bar chart, with percent values,
+# scaled down to 10 positions
 */
 pr()
 
-oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
-//oChart.SetWidth(20) #TODO has no effect!
+oChart = new stzHBarChart([ :Warda = 5, :Yessmina = 8, :Folla = 3 ])
+
 oChart.AddPercent()
 oChart.Show()
 #-->
@@ -628,10 +629,32 @@ C│ ▇▇▇▇▇▇▇▇▇▇▇▇ 18.8%
  ╰─────────────────────────────────>
 '
 
+oChart.SetWidth(10)
+oChart.Show()
+#-->
+'
+ ^
+A│ ▇▇▇▇▇▇▇ 31.2%
+B│ ▇▇▇▇▇▇▇▇▇▇ 50%
+C│ ▇▇▇▇ 18.8%
+ ╰───────────────────>
+'
+
+oChart.SetWidth(5)
+oChart.Show()
+#-->
+'
+ ^
+A│ ▇▇▇▇ 31.2%
+B│ ▇▇▇▇▇ 50%
+C│ ▇▇ 18.8%
+ ╰──────────────>
+'
+
 #TODO Add a space after the labels
 
 pf()
-# Executed in 0.07 second(s) in Ring 1.22
+# Executed in 0.15 second(s) in Ring 1.22
 
 /*--- Test 2: Custom width and Hight
 
