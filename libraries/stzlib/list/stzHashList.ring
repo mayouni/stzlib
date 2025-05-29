@@ -60,6 +60,66 @@ func IsHashList(paList)
 
 	#>
 
+func IsHashListOfNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	if NOT IsHashList(paList)
+		return FALSE
+	ok
+
+	if NOT IsListOfListsOfNumbers(StzHashListQ(paList).Values())
+		return FALSE
+	ok
+
+	return TRUE
+
+func IsHashListOfStrings(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	if NOT IsHashList(paList)
+		return FALSE
+	ok
+
+	if NOT IsListOfListsOfStrings(StzHashListQ(paList).Values())
+		return FALSE
+	ok
+
+	return TRUE
+
+func IsHashListOfLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	if NOT IsHashList(paList)
+		return FALSE
+	ok
+
+	if NOT IsListOfListsOfLists(StzHashListQ(paList).Values())
+		return FALSE
+	ok
+
+	return TRUE
+
+func IsHashListOfObjects(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	if NOT IsHashList(paList)
+		return FALSE
+	ok
+
+	if NOT IsListOfListsOfobjects(StzHashListQ(paList).Values())
+		return FALSE
+	ok
+
+	return TRUE
+
 func ShowHL(pValue)
 	if NOT (isList(pValue) and Q(pValue).IsHashList())
 		stzRaise("Incorrect param type! pValue must be a hashlist.")

@@ -2,6 +2,7 @@ load "../string/stkStringArt.ring"
 load "../data/stkStringArtData.ring"
 load "../string/stkstring.ring"
 
+
 decimals(3)
 t0 = clock()
 
@@ -55,7 +56,7 @@ SetStringArtStyle(:flower)
 # IS MORE BEAUTIFUL, YET POWERFUL WITH SOFTANZA!
 
 /*-----
-
+*/
 o1 = new stkStringArt("SOFTANZA")
 o1 {
 
@@ -215,13 +216,13 @@ SetStringArtStyle(:neon)
 # Executed in 0.018 seconds.
 
 /*~~~~~~
-
+*/
 # NOTE This sample (and the stkStringArt itself) is dedicated to
 # Mahmoud for the efforts he deployed in delivering V1.21 of Ring
 
 ? StringArt("THANK") + nl
 ? StringArt("YOU") + nl
-? StringArt("MAHMOUD!") + nl
+? StringArt("ANTONIO!") + nl
 
 #-->
 # ███████ ██░░░██ ░▄███▄░ ██░░░██ ██░░░██

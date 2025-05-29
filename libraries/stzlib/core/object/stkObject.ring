@@ -25,7 +25,7 @@ class stzCoreObject
 		return "stzobject"
 
 	def IsStzObject()
-		return _TRUE_
+		return TRUE
 
 	
 

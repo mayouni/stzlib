@@ -57,19 +57,27 @@ https://dataplatform.cloud.ibm.com/docs/content/wsj/getting-started/welcome-main
 
 $aStzChartsTypes = [
 
-	:BarChart, :VBarChart, :VBar,
-	:VerticalBarChart, :VerticalBar,
-
-	:HBarChart, :HBar,
-	:HorizontalBarChart, :HorizontalBar
-
-]
-
-$aStzChartsClasses = [
-
 	:stzBarChart = [
-		:BarChart, :VBarChart, :VBar,
+		:BarChart, :VBarChart, :VBar, :Bar,
 		:VerticalBarChart, :VerticalBar,
+		:VBarChart, :VBar
+	],
+
+	:stzMbarChart = [
+		:MultiBarChart, :MultiVBarChart, :MultiVBar, :MultiBar,
+		:MultiVerticalBarChart, :MultiVerticalBar,
+		:MultiVBarChart, :MultiVBar,
+	
+		:VMultiBarChart, :VMultiBar, :VMultiBar,
+		:VerticalMultiBarChart, :VerticalMultiBar,
+		:VMultiBarChart, :VMultiBar,
+	
+		:MBarChart, :MVBarChart, :MVBar, :MBar,
+		:MVerticalBarChart, :MVerticalBar,
+		:MVBarChart, :MVBar,
+	
+		:VMBarChart, :VMBar,
+		:VMBarChart, :VMBar
 	],
 
 	:stzHBarChart = [
@@ -78,14 +86,14 @@ $aStzChartsClasses = [
 	]
 ]
 
-func StzCharts()
-	return $aStzChartsTypes
+func StzChartsTypes()
+	return Flatten(StzHashListQ($aStzChartsTypes).Values())
 
-	func StzChartsTypes()
-		return $aStzChartsTypes
+	func StzCharts()
+		return StzCharsTypes()
 
 func StzChartsClasses()
-	return $aStzChartsClasses
+		return StzHashListQ($aStzChartsTypes).Keys()
 
 
 func StzChartQ(pcChartType, paDataSet)
@@ -95,14 +103,18 @@ func StzChartQ(pcChartType, paDataSet)
 		ok
 
 		aChartsClasses = StzChartsClasses()
-		oHash = new stzHashList(aChartsClasses)
+
+		oHash = new stzHashList($aStzChartsTypes)
 		aPos = oHash.FindInValues(pcChartType)
-		cChartClass = aChartsClasses[aPos[1][1]][1]
+		cChartClass = aChartsClasses[aPos[1][1]]
 
 		switch cChartClass
 
 		on :stzBarChart 
 			return new stzBarChart(paDataSet)
+
+		on :stzMBarChart
+			return new stzMBarChart(paDataSet)
 
 		on :stzHBarChart
 			return new stzHBarChart(paDataSet)
@@ -138,8 +150,16 @@ class stzChart
 
 		if CheckParams()
 
-			if NOT isList(paDataSet)
-				StzRaise("Can't create the stzChart object! paDataSet must be a list.")
+			if CheckParams()
+
+				if NOT isList(paDataSet)
+					StzRaise("Can't create the stzChart object! paDataSet must be a list.")
+				ok
+	
+				if NOT (IsListOfNumbers(paDataSet) or IsHashListOfNumbers(paDataSet))
+					StzRaise("Can't create the stzChart object! paDataSet must be a list of numbers or a hashlist containing numbers.")
+				ok
+	
 			ok
 
 			# In case a list of numbers is provided (the dataset
@@ -164,7 +184,7 @@ class stzChart
 		@anValues = oHash.Values()
 
 		if NOT IsListOfPositiveNumbers(@anValues)
-			StzRaise("Incorrect param value! You must privide only psoitive numbers.")
+			StzRaise("Incorrect param value! You must provide only psoitive numbers.")
 		ok
 
 		@acLabels = oHash.Keys()
@@ -372,7 +392,7 @@ class stzBarChart from stzChart
 	@bShowXAxis = True
 	@bShowYAxis = True
 	@bShowLabels = True
-	@ShowAverage = False
+	@bShowAverage = False
 	@bShowValues = False
 	@bShowPercent = False
 
@@ -434,16 +454,16 @@ class stzBarChart from stzChart
 			This.SetYLabels(_TRUE_)
 
 	def SetAverageLine(bShow)
-		@ShowAverage = bShow
+		@bShowAverage = bShow
 
 		def SetAverage(bShow)
-			@ShowAverage = bShow
+			@bShowAverage = bShow
 
 		def AddAverage()
-			@ShowAverage = _TRUE_
+			@bShowAverage = _TRUE_
 
 		def AddAverageLine()
-			@ShowAverage = _TRUE_
+			@bShowAverage = _TRUE_
 
 	def SetValues(bShow)
 		@bShowValues = bShow
@@ -570,7 +590,7 @@ class stzBarChart from stzChart
 			_drawXAxis(oLayout)
 		ok
 		
-		if @ShowAverage
+		if @bShowAverage
 			_drawAverageLine(oLayout)
 		ok
 
@@ -597,7 +617,7 @@ class stzBarChart from stzChart
 		ok
 
 		# A hack to add the average value
-		if @ShowAverage
+		if @bShowAverage
 			oTempStr = new stzString(cResult)
 			if @bShowValues
 
@@ -856,7 +876,7 @@ class stzBarChart from stzChart
 			ok
 			
 			# Avoid average line conflict - move value up if necessary
-			if @ShowAverage and nValueRow = nAvgRow
+			if @bShowAverage and nValueRow = nAvgRow
 				nValueRow = max([1, nAvgRow - 1])
 			ok
 			
@@ -921,7 +941,7 @@ class stzBarChart from stzChart
 			ok
 	
 			# Avoid average line conflict - move value up if necessary
-			if @ShowAverage and nValueRow = nAvgRow
+			if @bShowAverage and nValueRow = nAvgRow
 				nValueRow = max([1, nAvgRow - 1])
 			ok
 	
@@ -1552,28 +1572,28 @@ class stzHBarChart from stzChart
 			This._drawLabels(oLayout)
 
 
-def _finalizeCanvas()
-	cResult = ""
-	nLen = len(@acCanvas)
-
-	for i = 1 to nLen
-		cLine = ""
-		nLenCurrent = len(@acCanvas[i])
-
-		for j = 1 to nLenCurrent
-			cLine += @acCanvas[i][j]
+	def _finalizeCanvas()
+		cResult = ""
+		nLen = len(@acCanvas)
+	
+		for i = 1 to nLen
+			cLine = ""
+			nLenCurrent = len(@acCanvas[i])
+	
+			for j = 1 to nLenCurrent
+				cLine += @acCanvas[i][j]
+			next
+	
+			# Remove trailing spaces and add newline except for last line
+			cLine = rtrim(cLine)
+			if i < nLen
+				cResult += cLine + nl
+			else
+				cResult += cLine
+			ok
 		next
-
-		# Remove trailing spaces and add newline except for last line
-		cLine = rtrim(cLine)
-		if i < nLen
-			cResult += cLine + nl
-		else
-			cResult += cLine
-		ok
-	next
-
-	return cResult
+	
+		return cResult
 
 
 
@@ -1581,6 +1601,8 @@ def _finalizeCanvas()
 #-------------------------#
 #  MULTI-BAR CHART CLASS  #
 #-------------------------#
+
+class stzMBarChart from stzMultiBarChart
 
 class stzMultiBarChart from stzChart
 
@@ -1593,7 +1615,7 @@ class stzMultiBarChart from stzChart
 	@bShowXAxis = True
 	@bShowYAxis = True
 	@bShowLabels = True
-	@ShowAverage = False
+	@bShowAverage = False
 	@bShowValues = False
 	@bShowPercent = False
 	@bShowLegend = True
@@ -1731,8 +1753,20 @@ class stzMultiBarChart from stzChart
 	def SetValues(bShow)
 		@bShowValues = bShow
 
+		def AddValues()
+			@bShowValues = _TRUE_
+
 	def SetPercent(bShow)
 		@bShowPercent = bShow
+
+		def AddPercent()
+			@bShowPercent = _TRUE_
+
+	def SetAverage(bShow)
+		@bShowAverage = bShow
+
+		def AddAverage()
+			@bShowAverage = _TRUE_
 
 	def SetBarWidth(nWidth)
 		@nBarWidth = max([1, nWidth])
@@ -1771,7 +1805,7 @@ class stzMultiBarChart from stzChart
 			_drawXAxis(oLayout)
 		ok
 
-		if @ShowAverage
+		if @bShowAverage
 			_drawMultiAverageLine(oLayout)
 		ok
 
@@ -1780,6 +1814,10 @@ class stzMultiBarChart from stzChart
 		if @bShowValues
 			_drawMultiValues(oLayout)
 		but @bShowPercent
+			_drawMultiPercent(oLayout)
+		ok
+
+		if @bShowPercent
 			_drawMultiPercent(oLayout)
 		ok
 
@@ -1798,6 +1836,28 @@ class stzMultiBarChart from stzChart
 			cResult = ring_substr2(cResult, @cXArrowChar, @cXAxisChar)
 			cResult = @cXArrowChar + NL + cResult
 		ok
+
+	if @bShowAverage
+		oTempStr = new stzString(cResult)
+		if @bShowValues
+
+			cValue = " " + RoundN(_calculateOverallAverage(), 1)
+			if cValue[len(cValue)] = "0"
+				cValue = ring_substr2(cValue, ".0", "")
+			ok
+
+			oTempStr.InsertAfterLast(@cAverageChar, cValue)
+
+		but @bShowPercent
+			nOverallSum = _calculateOverallSum()
+			nOverallAvg = _calculateOverallAverage()
+			nAvgPercent = RoundN((nOverallAvg/nOverallSum)*100, 1)
+			cPercent = " " + nAvgPercent + "%"
+			oTempStr.InsertAfterLast(@cAverageChar, cPercent)
+		ok
+
+		cResult = oTempStr.Content()
+	ok
 
 		return cResult
 
@@ -1996,7 +2056,7 @@ class stzMultiBarChart from stzChart
 			if i <= len(@acCategories)
 
 				nCategoryWidth = aCategoryWidths[i]
-				cLabel = "" + @acCategories[i]
+				cLabel = "" + Capitalize(@acCategories[i])
 				nLabelLen = len(cLabel)
 
 				if nLabelLen > @nMaxLabelWidth
@@ -2031,8 +2091,11 @@ class stzMultiBarChart from stzChart
 	
 		# Build complete legend string first
 		cLegend = ""
+		nLenSeriesNames = len(@acSeriesNames)
+		nLenSeriesChars = len(@acSeriesChars)
+
 		for i = 1 to @nSeriesCount
-			if i <= len(@acSeriesNames) and i <= len(@acSeriesChars)
+			if i <= nLenSeriesNames and i <= nLenSeriesChars
 				if i > 1
 					cLegend += "   "
 				ok
@@ -2047,7 +2110,7 @@ class stzMultiBarChart from stzChart
 	
 		# Extend canvas row if needed to fit legend
 		nRequiredWidth = nStartCol + nLegendLen
-		nCurrentRowWidth = len(@acCanvas[nLegendRow])
+		nCurrentRowWidth = stzlen(@acCanvas[nLegendRow])
 		
 		if nRequiredWidth > nCurrentRowWidth
 			# Extend this row with spaces
@@ -2064,14 +2127,252 @@ class stzMultiBarChart from stzChart
 	
 
 	def _drawMultiValues(oLayout)
-		# Similar to single bar chart but handles multiple series
-		# Implementation would follow same pattern as _drawMultiBars
-		# Skipped for brevity - would position values above each bar
-
+		
+		nCategories = len(@acCategories)
+		nBarsStartCol = oLayout[:bars_start_col]
+		nAxisRow = oLayout[:x_axis_row] 
+		nBarsAreaHeight = oLayout[:bars_area_height]
+		aCategoryWidths = oLayout[:category_widths]
+		
+		# Calculate average row for conflict avoidance
+		nOverallAvg = _calculateOverallAverage()
+		nAvgRow = nAxisRow - ceil(nBarsAreaHeight * nOverallAvg / @nMaxValue)
+		
+		nCurrentX = nBarsStartCol
+		
+		for i = 1 to nCategories
+			
+			nCategoryWidth = aCategoryWidths[i]
+			
+			# Calculate bars positioning within category
+			nTotalBarsWidth = @nSeriesCount * @nBarWidth + (@nSeriesCount - 1) * @nSeriesSpace
+			nBarsStartX = nCurrentX + floor((nCategoryWidth - nTotalBarsWidth) / 2)
+			
+			# Draw values for each series in this category
+			for j = 1 to @nSeriesCount
+				
+				if j <= len(@aaMultiValues) and i <= len(@aaMultiValues[j])
+					
+					nVal = @aaMultiValues[j][i]
+					
+					# Calculate bar height (same logic as _drawMultiBars)
+					if @nMaxValue = 0 or nVal = 0
+						nBarHeight = 1
+					else
+						nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+					ok
+					
+					# Calculate this series bar position
+					nBarX = nBarsStartX + (j - 1) * (@nBarWidth + @nSeriesSpace)
+					
+					# Calculate value position (above bar)
+					nValueRow = nAxisRow - nBarHeight - 1
+					if nValueRow < 1
+						nValueRow = 1
+					ok
+					
+					# If value position conflicts with bar, move it above
+					if nValueRow >= nAxisRow - nBarHeight
+						nValueRow = max([1, nAxisRow - nBarHeight - 1])
+					ok
+					
+					# Avoid average line conflict - move value up if necessary
+					if @bShowAverage and nValueRow = nAvgRow
+						nValueRow = max([1, nAvgRow - 1])
+					ok
+					
+					cValue = "" + nVal
+					nValueLen = len(cValue)
+					
+					# Center within bar width
+					nValueStartX = nBarX + floor((@nBarWidth - nValueLen) / 2)
+					
+					# Draw value with bounds checking
+					for k = 1 to nValueLen
+						nCol = nValueStartX + k - 1
+						if nCol <= @nWidth and nCol >= 1 and nValueRow >= 1
+							@acCanvas[nValueRow][nCol] = cValue[k]
+						ok
+					next
+				ok
+			next
+			
+			# Move to next category
+			if i < nCategories
+				nCurrentX += nCategoryWidth + @nCategorySpace
+			ok
+		next
+	
 	def _drawMultiPercent(oLayout)
-		# Similar to _drawMultiValues but with percentage calculations
-		# Skipped for brevity
-
+		
+		nCategories = len(@acCategories)
+		nBarsStartCol = oLayout[:bars_start_col]
+		nAxisRow = oLayout[:x_axis_row] 
+		nBarsAreaHeight = oLayout[:bars_area_height]
+		aCategoryWidths = oLayout[:category_widths]
+		
+		# Calculate overall sum for percentage calculations
+		nOverallSum = _calculateOverallSum()
+		
+		# Calculate average row for conflict avoidance
+		nOverallAvg = nOverallSum / (_getTotalValueCount())
+		nAvgRow = nAxisRow - ceil(nBarsAreaHeight * nOverallAvg / @nMaxValue)
+		
+		nCurrentX = nBarsStartCol
+		
+		for i = 1 to nCategories
+			
+			nCategoryWidth = aCategoryWidths[i]
+			
+			# Calculate bars positioning within category
+			nTotalBarsWidth = @nSeriesCount * @nBarWidth + (@nSeriesCount - 1) * @nSeriesSpace
+			nBarsStartX = nCurrentX + floor((nCategoryWidth - nTotalBarsWidth) / 2)
+			
+			# Draw percentages for each series in this category
+			for j = 1 to @nSeriesCount
+				
+				if j <= len(@aaMultiValues) and i <= len(@aaMultiValues[j])
+					
+					nVal = @aaMultiValues[j][i]
+					
+					# Calculate bar height (same logic as _drawMultiBars)
+					if @nMaxValue = 0 or nVal = 0
+						nBarHeight = 1
+					else
+						nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+					ok
+					
+					# Calculate this series bar position
+					nBarX = nBarsStartX + (j - 1) * (@nBarWidth + @nSeriesSpace)
+					
+					# Calculate value position (above bar)
+					nValueRow = nAxisRow - nBarHeight - 1
+					if nValueRow < 1
+						nValueRow = 1
+					ok
+					
+					# If value position conflicts with bar, move it above
+					if nValueRow >= nAxisRow - nBarHeight
+						nValueRow = max([1, nAxisRow - nBarHeight - 1])
+					ok
+					
+					# Avoid average line conflict - move value up if necessary
+					if @bShowAverage and nValueRow = nAvgRow
+						nValueRow = max([1, nAvgRow - 1])
+					ok
+					
+					# Format percentage with 1 decimal place
+					nPercent = RoundN((nVal/nOverallSum)*100, 1)
+					cValue = "" + nPercent + '%'
+					nValueLen = len(cValue)
+					
+					# Center within bar width
+					nValueStartX = nBarX + floor((@nBarWidth - nValueLen) / 2)
+					
+					# Draw value with bounds checking
+					for k = 1 to nValueLen
+						nCol = nValueStartX + k - 1
+						if nCol <= @nWidth and nCol >= 1 and nValueRow >= 1
+							@acCanvas[nValueRow][nCol] = cValue[k]
+						ok
+					next
+				ok
+			next
+			
+			# Move to next category
+			if i < nCategories
+				nCurrentX += nCategoryWidth + @nCategorySpace
+			ok
+		next
+	
 	def _drawMultiAverageLine(oLayout)
-		# Calculate average across all series and draw line
-		# Skipped for brevity
+		
+		# Calculate overall average across all series
+		nOverallAvg = _calculateOverallAverage()
+		
+		nBarsStartCol = oLayout[:bars_start_col]
+		nBarsEndCol = oLayout[:bars_end_col] 
+		nAxisRow = oLayout[:x_axis_row]
+		nBarsAreaHeight = oLayout[:bars_area_height]
+		nYAxisCol = oLayout[:y_axis_col]
+		
+		# Calculate average line position
+		if @nMaxValue = 0
+			nAvgRow = nAxisRow - 1
+		else
+			nAvgRow = nAxisRow - ceil(nBarsAreaHeight * nOverallAvg / @nMaxValue)
+		ok
+		
+		# Start position: right after Y-axis if it exists, otherwise at bars start
+		nLineStart = nBarsStartCol
+		if @bShowYAxis
+			nLineStart = nYAxisCol + 1
+		ok
+		
+		# End position: one position beyond current end
+		nLineEnd = nBarsEndCol + 1
+		
+		# Draw average line
+		for i = nLineStart to nLineEnd
+			if i <= @nWidth and nAvgRow >= 1 and nAvgRow <= len(@acCanvas)
+				# Don't overwrite bars
+				if @acCanvas[nAvgRow][i] = " "
+					@acCanvas[nAvgRow][i] = @cAverageChar
+				ok
+			ok
+		next
+		
+		# Add average value/percent to the right of the line
+		nOverallSum = _calculateOverallSum()
+		if @bShowValues or @bShowPercent
+			cAvgText = ""
+			if @bShowValues
+				cAvgText = "" + RoundN(nOverallAvg, 1)
+			but @bShowPercent
+				nAvgPercent = RoundN((nOverallAvg/nOverallSum)*100, 1)
+				cAvgText = "" + nAvgPercent + '%'
+			ok
+			
+			# Position text right after line end with a space
+			nTextStart = nLineEnd + 2
+			nTextLen = len(cAvgText)
+			
+			# Draw average text
+			for j = 1 to nTextLen
+				nCol = nTextStart + j - 1
+				if nCol <= @nWidth and nAvgRow >= 1 and nAvgRow <= len(@acCanvas)
+					@acCanvas[nAvgRow][nCol] = cAvgText[j]
+				ok
+			next
+		ok
+	
+	# Helper methods for multi-series calculations
+	
+	def _calculateOverallAverage()
+		nSum = _calculateOverallSum()
+		nCount = _getTotalValueCount()
+		if nCount = 0
+			return 0
+		ok
+		return nSum / nCount
+	
+	def _calculateOverallSum()
+		nSum = 0
+		for i = 1 to @nSeriesCount
+			if i <= len(@aaMultiValues)
+				aCurrentSeries = @aaMultiValues[i]
+				for j = 1 to len(aCurrentSeries)
+					nSum += aCurrentSeries[j]
+				next
+			ok
+		next
+		return nSum
+	
+	def _getTotalValueCount()
+		nCount = 0
+		for i = 1 to @nSeriesCount
+			if i <= len(@aaMultiValues)
+				nCount += len(@aaMultiValues[i])
+			ok
+		next
+		return nCount

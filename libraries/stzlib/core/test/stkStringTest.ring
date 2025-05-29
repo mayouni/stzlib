@@ -83,7 +83,7 @@ o1 = new stkString("one and ONE makes two Ones")
 ? o1.Find("one")
 #--> [ 1 ]
 
-? o1.FindCS("one", _FALSE_)
+? o1.FindCS("one", FALSE)
 #--> [ 1, 9, 23 ]
 
 /*---
@@ -99,23 +99,23 @@ o1.InsertAt(6, "programming ")
 o1 = new stkString("بسم الله الرّحمان الرّحيم")
 
 ? o1.IsRightToLeft()
-#--> _TRUE_
+#--> TRUE
 
 ? o1.StartsWith("بسم")
-#--> _TRUE_
+#--> TRUE
 
 ? o1.EndsWith("الرّحيم") + NL
-#--> _TRUE_
+#--> TRUE
 
 #--
 
 o1 = new stkString("mMm...MMm")
 
-? o1.StartsWithCS("mmm", _FALSE_)
-#--> _TRUE_
+? o1.StartsWithCS("mmm", FALSE)
+#--> TRUE
 
-? o1.EndsWithCS("mmm", _FALSE_)
-#--> _TRUE_
+? o1.EndsWithCS("mmm", FALSE)
+#--> TRUE
 
 /*---
 
@@ -140,7 +140,7 @@ o1.Replace("one", "three")
 
 o1 = new stkString("one and ONE makes two Ones")
 
-o1.ReplaceCS("one", "three", _FALSE_)
+o1.ReplaceCS("one", "three", FALSE)
 ? o1.Content()
 #--> three and three makes two threes
 
@@ -155,7 +155,7 @@ o1.Remove("any")
 
 o1 = new stkString("one any two ANY any three")
 o1 {
-	removeCS("any", _FALSE_)
+	removeCS("any", FALSE)
 	Simplify()
 	? o1.Content()
 }
@@ -190,7 +190,7 @@ o1 = new stkString("ring/ruby/php/python")
 
 o1 = new stkString("ringMMMrubyMmmphpMmMpython")
 
-? o1.SplitCS("mmm", _FALSE_)
+? o1.SplitCS("mmm", FALSE)
 #--> [ "ring", "ruby", "php", "python" ]
 
 /*===
@@ -230,10 +230,10 @@ o1 = new stkString("<<<Ring>>>")
 # case in Softanza with the CS() prefix:
 
 ? o1.Contains("Ring")
-#--> _TRUE_
+#--> TRUE
 
-? o1.ContainsCS("RING", _FALSE_)
-#--> _TRUE_
+? o1.ContainsCS("RING", FALSE)
+#--> TRUE
 
 /*---
 
