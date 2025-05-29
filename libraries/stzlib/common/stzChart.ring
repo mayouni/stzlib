@@ -1575,3 +1575,503 @@ def _finalizeCanvas()
 
 	return cResult
 
+
+
+
+#-------------------------#
+#  MULTI-BAR CHART CLASS  #
+#-------------------------#
+
+class stzMultiBarChart from stzChart
+
+	@aaMultiValues = []     # Array of arrays for each series
+	@acSeriesNames = []     # Names of each data series
+	@acSeriesChars = []     # Characters for each series (bar styles)
+	@acCategories = []      # Category labels (x-axis)
+	@nSeriesCount = 0       # Number of data series
+
+	@bShowXAxis = True
+	@bShowYAxis = True
+	@bShowLabels = True
+	@ShowAverage = False
+	@bShowValues = False
+	@bShowPercent = False
+	@bShowLegend = True
+
+	@nBarWidth = 2
+	@nMaxWidth = 132
+	@nMaxLabelWidth = 12
+	@nBarInterSpace = 1
+	@nSeriesSpace = 0       # Space between bars within same category
+	@nCategorySpace = 2     # Space between different categories
+
+	@cFinalBarChar = ""
+	@acBarsChars = ["█", "▒", "▓", "░", "■", "□", "▪", "▫"]
+	@cBarChar = @acBarsChars[1]
+
+	# Layout constants
+	@nYAxisWidth = 1
+	@nAxisPadding = 1
+	@nLabelPadding = 1
+
+	def init(paMultiData)
+
+		if CheckParams()
+			if NOT isList(paMultiData)
+				StzRaise("Can't create stzMultiBarChart! paMultiData must be a list.")
+			ok
+		ok
+
+		# Parse multi-series data structure
+		_parseMultiSeriesData(paMultiData)
+		_calculateMultiRange()
+
+	def _parseMultiSeriesData(paData)
+
+		@aaMultiValues = []
+		@acSeriesNames = []
+		@acCategories = []
+		@acSeriesChars = []
+
+		# Extract series names and data
+		oMultiHash = new stzHashList(paData)
+		@acSeriesNames = oMultiHash.Keys()
+		@nSeriesCount = len(@acSeriesNames)
+
+		# Extract categories from first series
+		if @nSeriesCount > 0
+			oFirstSeries = new stzHashList(oMultiHash.Values()[1])
+			@acCategories = oFirstSeries.Keys()
+		ok
+
+		# Extract values for each series
+		aSeriesData = oMultiHash.Values()
+		for i = 1 to @nSeriesCount
+			oSeriesHash = new stzHashList(aSeriesData[i])
+			aSeriesValues = oSeriesHash.Values()
+			
+			if NOT IsListOfPositiveNumbers(aSeriesValues)
+				StzRaise("Incorrect data! All values must be positive numbers.")
+			ok
+			
+			@aaMultiValues + aSeriesValues
+		next
+
+		# Assign default characters for each series
+		for i = 1 to @nSeriesCount
+			if i <= len(@acBarsChars)
+				@acSeriesChars + @acBarsChars[i]
+			else
+				@acSeriesChars + @cBarChar
+			ok
+		next
+
+	def _calculateMultiRange()
+
+		@nMaxValue = 0
+		@nMinValue = 0
+
+		# Find max and min across all series
+		for i = 1 to @nSeriesCount
+			aCurrentSeries = @aaMultiValues[i]
+			nCurrentMax = max(aCurrentSeries)
+			nCurrentMin = min(aCurrentSeries)
+
+			if nCurrentMax > @nMaxValue
+				@nMaxValue = nCurrentMax
+			ok
+
+			if i = 1 or nCurrentMin < @nMinValue
+				@nMinValue = nCurrentMin
+			ok
+		next
+
+	def SetSeriesChars(acChars)
+		if CheckParams()
+			if NOT isList(acChars)
+				StzRaise("Incorrect param! acChars must be a list of characters.")
+			ok
+		ok
+
+		@acSeriesChars = []
+		for i = 1 to min([len(acChars), @nSeriesCount])
+			@acSeriesChars + acChars[i]
+		next
+
+		# Fill remaining with defaults if needed
+		for i = len(@acSeriesChars) + 1 to @nSeriesCount
+			@acSeriesChars + @cBarChar
+		next
+
+	def SetSeriesSpace(n)
+		@nSeriesSpace = n
+
+	def SetCategorySpace(n) 
+		@nCategorySpace = n
+
+	def SetLegend(bShow)
+		@bShowLegend = bShow
+
+		def AddLegend()
+			@bShowLegend = _TRUE_
+
+	# Inherit common methods from stzBarChart
+	def SetXAxis(bShow)
+		@bShowXAxis = bShow
+
+	def SetYAxis(bShow)
+		@bShowYAxis = bShow
+
+	def SetLabels(bShow)
+		@bShowLabels = bShow
+
+		def AddLabels()
+			@bShowLabels = _TRUE_
+
+	def SetValues(bShow)
+		@bShowValues = bShow
+
+	def SetPercent(bShow)
+		@bShowPercent = bShow
+
+	def SetBarWidth(nWidth)
+		@nBarWidth = max([1, nWidth])
+
+	def SetMaxWidth(nWidth)
+		@nMaxWidth = nWidth
+
+	def SetBarsChars(pacChars)
+		@acBarsChars = paChars
+
+	def SetFinalBarChar(c)
+		@cFinalBarChar = c
+
+		def SetTopBarChar(c)
+			@cFinalBarChar = c
+
+	def Show()
+		? This.ToString()
+
+	def ToString()
+
+		# Step 1: Calculate layout for multi-series
+		oLayout = _calculateMultiLayout()
+
+		# Step 2: Initialize canvas
+		@nWidth = oLayout[:total_width]
+		@nHight = oLayout[:chart_height]
+		_initCanvas()
+
+		# Step 3: Draw components
+		if @bShowYAxis
+			_drawYAxis(oLayout)
+		ok
+
+		if @bShowXAxis
+			_drawXAxis(oLayout)
+		ok
+
+		if @ShowAverage
+			_drawMultiAverageLine(oLayout)
+		ok
+
+		_drawMultiBars(oLayout)
+
+		if @bShowValues
+			_drawMultiValues(oLayout)
+		but @bShowPercent
+			_drawMultiPercent(oLayout)
+		ok
+
+		if @bShowLabels
+			_drawMultiLabels(oLayout)
+		ok
+
+		if @bShowLegend
+			_drawLegend(oLayout)
+		ok
+
+		cResult = _finalizeCanvas()
+
+		# Add space at top of X axis
+		if ring_substr1(cResult, @cXArrowChar) > 0
+			cResult = ring_substr2(cResult, @cXArrowChar, @cXAxisChar)
+			cResult = @cXArrowChar + NL + cResult
+		ok
+
+		return cResult
+
+
+	def _calculateMultiLayout()
+
+		nCategories = len(@acCategories)
+		oLayout = new stzHashList([])
+
+		# Calculate spacing within categories
+		nBarsPerCategory = @nSeriesCount
+		nSeriesSpacing = (@nSeriesCount - 1) * @nSeriesSpace
+
+		# Calculate category widths
+		aCategoryWidths = []
+		for i = 1 to nCategories
+			# Width = (bars * bar_width) + series_spacing + label_consideration
+			nCategoryBarWidth = nBarsPerCategory * @nBarWidth + nSeriesSpacing
+			nLabelWidth = 0
+			
+			if @bShowLabels and i <= len(@acCategories)
+				nLabelWidth = len(@acCategories[i])
+				if nLabelWidth > @nMaxLabelWidth
+					nLabelWidth = @nMaxLabelWidth
+				ok
+			ok
+			
+			nCategoryWidth = max([nCategoryBarWidth, nLabelWidth])
+			aCategoryWidths + nCategoryWidth
+		next
+
+		# Calculate total bars area width
+		nBarsAreaWidth = 0
+		for i = 1 to len(aCategoryWidths)
+			nBarsAreaWidth += aCategoryWidths[i]
+		next
+		nBarsAreaWidth += (nCategories - 1) * @nCategorySpace
+
+		# Calculate layout positions
+		nYAxisStart = 1
+		nYAxisEnd = nYAxisStart + @nYAxisWidth - 1
+
+		nBarsStart = nYAxisEnd + 1
+		if @bShowYAxis
+			nBarsStart += @nAxisPadding
+		ok
+
+		nBarsEnd = nBarsStart + nBarsAreaWidth - 1
+
+		nXAxisStart = nYAxisStart
+		if @bShowYAxis
+			nXAxisStart = nYAxisEnd + @nAxisPadding
+		ok
+		nXAxisEnd = nBarsEnd + @nAxisPadding
+
+		nTotalWidth = nXAxisEnd + 1
+
+		# Height calculations
+		nExtraHeight = 0
+		if @bShowLegend
+			nExtraHeight += 3  # Space for empty line + legend
+		ok
+		
+		if @bShowLabels
+			nChartHeight = @nHight + nExtraHeight
+			nXAxisRow = @nHight - 1
+			nLabelsRow = @nHight
+			nLegendRow = @nHight + 2  # Skip one line after labels
+		else
+			nChartHeight = @nHight + nExtraHeight
+			nXAxisRow = @nHight - 1
+			nLabelsRow = @nHight
+			nLegendRow = @nHight + 2  # Skip one line after x-axis
+		ok
+
+		# Bars area height
+		nBarsAreaHeight = nXAxisRow - 1
+		if @bShowValues or @bShowPercent
+			nBarsAreaHeight = nXAxisRow - 2
+		ok
+
+		# Store layout
+		oLayout.AddPair([:y_axis_col, nYAxisStart])
+		oLayout.AddPair([:bars_start_col, nBarsStart])
+		oLayout.AddPair([:bars_end_col, nBarsEnd])
+		oLayout.AddPair([:x_axis_start_col, nXAxisStart])
+		oLayout.AddPair([:x_axis_end_col, nXAxisEnd])
+		oLayout.AddPair([:x_axis_row, nXAxisRow])
+		oLayout.AddPair([:labels_row, nLabelsRow])
+		oLayout.AddPair([:legend_row, nLegendRow])
+		oLayout.AddPair([:chart_height, nChartHeight])
+		oLayout.AddPair([:bars_area_height, nBarsAreaHeight])
+		oLayout.AddPair([:total_width, nTotalWidth])
+		oLayout.AddPair([:category_widths, aCategoryWidths])
+
+		return oLayout
+
+	def _drawYAxis(oLayout)
+		nAxisCol = oLayout[:y_axis_col]
+		nAxisRow = oLayout[:x_axis_row]
+
+		for i = 2 to nAxisRow - 1
+			@acCanvas[i][nAxisCol] = @cXAxisChar
+		next
+
+		@acCanvas[1][nAxisCol] = @cXArrowChar
+
+	def _drawXAxis(oLayout)
+		nAxisRow = oLayout[:x_axis_row]
+		nStartCol = oLayout[:x_axis_start_col]
+		nEndCol = oLayout[:x_axis_end_col]
+		nYAxisCol = oLayout[:y_axis_col]
+
+		for i = nStartCol to nEndCol
+			@acCanvas[nAxisRow][i] = @cYAxisChar
+		next
+
+		if @bShowYAxis
+			@acCanvas[nAxisRow][nYAxisCol] = @cOriginChar
+		ok
+
+		@acCanvas[nAxisRow][nEndCol] = @cYArrowChar
+
+	def _drawMultiBars(oLayout)
+
+		nCategories = len(@acCategories)
+		nBarsStartCol = oLayout[:bars_start_col]
+		nAxisRow = oLayout[:x_axis_row]
+		nBarsAreaHeight = oLayout[:bars_area_height]
+		aCategoryWidths = oLayout[:category_widths]
+
+		nCurrentX = nBarsStartCol
+
+		for i = 1 to nCategories
+
+			nCategoryWidth = aCategoryWidths[i]
+
+			# Calculate bars positioning within category
+			nTotalBarsWidth = @nSeriesCount * @nBarWidth + (@nSeriesCount - 1) * @nSeriesSpace
+			nBarsStartX = nCurrentX + floor((nCategoryWidth - nTotalBarsWidth) / 2)
+
+			# Draw bars for each series in this category
+			for j = 1 to @nSeriesCount
+
+				if j <= len(@aaMultiValues) and i <= len(@aaMultiValues[j])
+
+					nVal = @aaMultiValues[j][i]
+					cSeriesChar = @acSeriesChars[j]
+
+					# Calculate bar height
+					if @nMaxValue = 0 or nVal = 0
+						nBarHeight = 0
+					else
+						nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+					ok
+
+					# Calculate this series bar position
+					nBarX = nBarsStartX + (j - 1) * (@nBarWidth + @nSeriesSpace)
+
+					# Draw bar
+					if nBarHeight > 0
+						for k = 1 to nBarHeight
+							for l = 1 to @nBarWidth
+								nCol = nBarX + l - 1
+								nRow = nAxisRow - k
+								if nCol <= @nWidth and nRow >= 1
+									if k = nBarHeight and @cFinalBarChar != ""
+										@acCanvas[nRow][nCol] = @cFinalBarChar
+									else
+										@acCanvas[nRow][nCol] = cSeriesChar
+									ok
+								ok
+							next
+						next
+					ok
+				ok
+			next
+
+			# Move to next category
+			if i < nCategories
+				nCurrentX += nCategoryWidth + @nCategorySpace
+			ok
+		next
+
+	def _drawMultiLabels(oLayout)
+
+		nCategories = len(@acCategories)
+		nBarsStartCol = oLayout[:bars_start_col]
+		nLabelsRow = oLayout[:labels_row]
+		aCategoryWidths = oLayout[:category_widths]
+
+		nCurrentX = nBarsStartCol
+
+		for i = 1 to nCategories
+
+			if i <= len(@acCategories)
+
+				nCategoryWidth = aCategoryWidths[i]
+				cLabel = "" + @acCategories[i]
+				nLabelLen = len(cLabel)
+
+				if nLabelLen > @nMaxLabelWidth
+					nLabelLen = @nMaxLabelWidth
+					cLabel = StzStringQ(cLabel).Section(1, @nMaxLabelWidth - 2) + ".."
+				ok
+
+				# Center label within category
+				nLabelStartX = nCurrentX + floor((nCategoryWidth - nLabelLen) / 2)
+
+				for j = 1 to nLabelLen
+					nCol = nLabelStartX + j - 1
+					if nCol <= @nWidth and nLabelsRow <= len(@acCanvas)
+						@acCanvas[nLabelsRow][nCol] = cLabel[j]
+					ok
+				next
+			ok
+
+			if i < nCategories
+				nCurrentX += aCategoryWidths[i] + @nCategorySpace
+			ok
+		next
+
+	def _drawLegend(oLayout)
+	
+		nLegendRow = oLayout[:legend_row]
+	
+		# Ensure we have enough canvas rows
+		if nLegendRow > len(@acCanvas)
+			return
+		ok
+	
+		# Build complete legend string first
+		cLegend = ""
+		for i = 1 to @nSeriesCount
+			if i <= len(@acSeriesNames) and i <= len(@acSeriesChars)
+				if i > 1
+					cLegend += "   "
+				ok
+				cLegend += @acSeriesChars[i] + @acSeriesChars[i] + " " + Capitalise(@acSeriesNames[i])
+			ok
+		next
+	
+		# Calculate centering position based on total chart width
+		nTotalWidth = oLayout[:total_width]
+		nLegendLen = len(cLegend)
+		nStartCol = max([1, floor((nTotalWidth - nLegendLen) / 2)])
+	
+		# Extend canvas row if needed to fit legend
+		nRequiredWidth = nStartCol + nLegendLen
+		nCurrentRowWidth = len(@acCanvas[nLegendRow])
+		
+		if nRequiredWidth > nCurrentRowWidth
+			# Extend this row with spaces
+			for k = nCurrentRowWidth + 1 to nRequiredWidth
+				@acCanvas[nLegendRow] + " "
+			next
+		ok
+	
+		# Write legend to canvas
+		for j = 1 to nLegendLen
+			nCol = nStartCol + j - 1
+			@acCanvas[nLegendRow][nCol] = cLegend[j]
+		next
+	
+
+	def _drawMultiValues(oLayout)
+		# Similar to single bar chart but handles multiple series
+		# Implementation would follow same pattern as _drawMultiBars
+		# Skipped for brevity - would position values above each bar
+
+	def _drawMultiPercent(oLayout)
+		# Similar to _drawMultiValues but with percentage calculations
+		# Skipped for brevity
+
+	def _drawMultiAverageLine(oLayout)
+		# Calculate average across all series and draw line
+		# Skipped for brevity

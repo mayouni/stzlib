@@ -176,27 +176,36 @@ pf()
 
 /*=== TODO
 
-
+*/
 pr()
 
-oChart = new stzMultiBarChart([ [ :Mali = 42, :Niger = 18 ], [ :Mali = 35, :Niger = 25 ] ])
+oChart = new stzMultiBarChart([
+	:Mali  	 = [ :2020 = 42, :2022 = 18, :2024 = 22 ],
+	:Niger 	 = [ :2020 = 87, :2022 = 40, :2024 = 18 ]
+])
 oChart {
-    SetBarWidth(2)
-    AddYLabels()
+    AddLabels()
     Show()
 }
 #-->
-# ^              
-# │ ████         
-# │ ████         
-# │ ████ ▒▒▒▒    
-# │ ████ ▒▒▒▒    
-# │ ████ ▒▒▒▒    
-# │ ████ ▒▒▒▒    
-# ╰─────────────>
-#  Mali  Niger  
+'
+^
+│   ▒▒             
+│   ▒▒             
+│   ▒▒             
+│   ▒▒             
+│ ██▒▒    ▒▒       
+│ ██▒▒    ▒▒  ██   
+│ ██▒▒  ██▒▒  ██▒▒ 
+│ ██▒▒  ██▒▒  ██▒▒ 
+╰──────────────────>
+  2020  2022  2024 
+                   
+██ Mali   ▒▒ Niger 
+'
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.22
 
 #----------------------------------------------------#
 #  Test Suite for stzVBarChart (Vertical Bar Chart)  #
