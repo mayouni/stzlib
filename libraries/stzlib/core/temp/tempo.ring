@@ -228,7 +228,7 @@ oBig { Add("5") Multiply("2") Subtract("3") Divide("2") }
 oBig = new stkBigNumber("100.001")
 ? (oBig.Compare("100") > 0)
 ? ""
-#--> _TRUE_
+#--> TRUE
 
 #----- Comparison
 

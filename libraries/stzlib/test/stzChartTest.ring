@@ -1,5 +1,40 @@
 load "../max/stzmax.ring"
 
+/*===
+
+pr()
+
+aMyList = [
+	:Mali  	 = [ 42, 18, 22 ],
+	:Niger 	 = [ 87, 40, 18 ]
+]
+
+? IsHashList(aMyList)
+#--> TRUE
+
+? IsHashListOfNumbers(aMyList)
+#--> TRUE
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+aMyList = [
+	:Mali  	 = [ :2020 = 42, :2022 = 18, :2024 = 22 ],
+	:Niger 	 = [ :2020 = 87, :2022 = 40, :2024 = 18 ]
+]
+
+? IsHashList(aMyList)
+#--> TRUE
+
+? IsHashListOfLists(aMyList)
+#--> TRUE
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*---
 
@@ -172,40 +207,6 @@ oChart {
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
-
-
-/*=== TODO
-
-*/
-pr()
-
-oChart = new stzMultiBarChart([
-	:Mali  	 = [ :2020 = 42, :2022 = 18, :2024 = 22 ],
-	:Niger 	 = [ :2020 = 87, :2022 = 40, :2024 = 18 ]
-])
-oChart {
-    AddLabels()
-    Show()
-}
-#-->
-'
-^
-│   ▒▒             
-│   ▒▒             
-│   ▒▒             
-│   ▒▒             
-│ ██▒▒    ▒▒       
-│ ██▒▒    ▒▒  ██   
-│ ██▒▒  ██▒▒  ██▒▒ 
-│ ██▒▒  ██▒▒  ██▒▒ 
-╰──────────────────>
-  2020  2022  2024 
-                   
-██ Mali   ▒▒ Niger 
-'
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
 
 #----------------------------------------------------#
 #  Test Suite for stzVBarChart (Vertical Bar Chart)  #
@@ -930,3 +931,318 @@ Large │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
 
 pf()
 # Executed in 0.07 second(s) in Ring 1.22
+
+#--------------------------------------------#
+#  TEST SUITE FOR THE MULTI-BAR CHART CLASS  #
+#--------------------------------------------#
+
+#--- Using the short form StzCharQ()
+
+pr()
+
+StzChartQ(:MultiBar, [
+	:Mali  	 = [ :2020 = 42, :2022 = 18, :2024 = 22 ],
+	:Niger 	 = [ :2020 = 87, :2022 = 40, :2024 = 18 ]
+])
+
+.Show()
+
+#-->
+'
+^
+│   ▒▒             
+│   ▒▒             
+│   ▒▒             
+│   ▒▒             
+│ ██▒▒    ▒▒       
+│ ██▒▒    ▒▒  ██   
+│ ██▒▒  ██▒▒  ██▒▒ 
+│ ██▒▒  ██▒▒  ██▒▒ 
+╰──────────────────>
+  2020  2022  2024 
+                   
+██ Mali   ▒▒ Niger 
+'
+
+pf()
+# Executed in 0.03 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+# Test 1: Basic Multi-Series Chart (same as previous sample but with new stz...)
+
+oChart = new stzMultiBarChart([
+	:Mali = [ :2020 = 42, :2022 = 18, :2024 = 22 ],
+	:Niger = [ :2020 = 87, :2022 = 40, :2024 = 18 ]
+])
+
+oChart.Show()
+'
+^
+│   ▒▒             
+│   ▒▒             
+│   ▒▒             
+│   ▒▒             
+│ ██▒▒    ▒▒       
+│ ██▒▒    ▒▒  ██   
+│ ██▒▒  ██▒▒  ██▒▒ 
+│ ██▒▒  ██▒▒  ██▒▒ 
+╰──────────────────>
+  2020  2022  2024 
+                   
+██ Mali   ▒▒ Niger 
+'
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*---
+*/
+
+pr()
+
+# Test 2: Customized Bar Width and Spacing
+
+oChart = new stzMultiBarChart([
+  :Sales = [ :Q1=25, :Q2=35, :Q3=30, :Q4=40 ],
+  :Costs = [ :Q1=15, :Q2=20, :Q3=18, :Q4=22 ],
+  :Profit = [ :Q1=10, :Q2=15, :Q3=12, :Q4=18 ]
+])
+
+oChart {
+	# A clean simple value-enabled chart
+	SetBarWidth(2)
+	SetSeriesSpace(1)
+	SetCategorySpace(3)
+	AddValues()
+	AddAverage()
+	SetLegend(FALSE)
+	Show()
+
+	# An elaborated %-enabled chart
+	SetBarWidth(3)
+	SetSeriesSpace(2)
+	SetCategorySpace(5)
+	AddPercent()
+	SetAverage(0)
+	SetLegend(TRUE)
+	Show()
+}
+
+
+#-->
+'
+^
+│                         █     
+│         █               █     
+│         █       █       █     
+│ █       █       █       █ ▒   
+│ █       █ ▒     █ ▒     █ ▒ ▓ 
+│ █ ▒     █ ▒ ▓   █ ▒ ▓   █ ▒ ▓ 
+│ █ ▒ ▓   █ ▒ ▓   █ ▒ ▓   █ ▒ ▓ 
+│ █ ▒ ▓   █ ▒ ▓   █ ▒ ▓   █ ▒ ▓ 
+╰───────────────────────────────>
+   Q1      Q2      Q3      Q4   
+                                
+██ Sales   ▒▒ Costs   ▓▓ Profit 
+'
+pf()
+
+/*---
+
+pr()
+
+# Test 3: Custom Series Characters
+? "=== Test 3: Custom Series Characters ==="
+
+oChart = new stzMultiBarChart([
+	:TeamA = [ :Jan = 45, :Feb = 52, :Mar = 38 ],
+	:TeamB = [ :Jan = 38, :Feb = 41, :Mar = 49 ],
+	:TeamC = [ :Jan = 29, :Feb = 35, :Mar = 42 ]
+])
+
+oChart {
+	SetSeriesChars(["●", "▲", "■"])
+	SetBarWidth(2)
+	Show()
+}
+
+pf()
+
+/*---
+
+pr()
+
+# Test 4: With Values Display
+? "=== Test 4: With Values Display ==="
+
+oChart = new stzMultiBarChart([
+	:Product1 = [ :Store1 = 12, :Store2 = 18, :Store3 = 15 ],
+	:Product2 = [ :Store1 = 20, :Store2 = 14, :Store3 = 22 ]
+])
+
+oChart {
+	SetValues(True)
+	SetBarWidth(2)
+	Show()
+}
+
+pf()
+
+/*---
+
+pr()
+
+# Test 5: With Percentage Display
+? "=== Test 5: With Percentage Display ==="
+
+oChart = new stzMultiBarChart([
+	:Desktop = [ :2021 = 65, :2022 = 58, :2023 = 52 ],
+	:Mobile = [ :2021 = 35, :2022 = 42, :2023 = 48 ]
+])
+
+oChart {
+	SetPercent(True)
+	SetBarWidth(1)
+	Show()
+}
+
+pf()
+
+/*---
+
+pr()
+
+# Test 6: Hide/Show Axes and Labels
+? "=== Test 6: Hide/Show Axes and Labels ==="
+
+oChart = new stzMultiBarChart([
+	:North = [ :Spring = 30, :Summer = 45, :Fall = 25, :Winter = 20 ],
+	:South = [ :Spring = 35, :Summer = 50, :Fall = 30, :Winter = 25 ]
+])
+
+# With full display
+oChart {
+	SetXAxis(True)
+	SetYAxis(True)  
+	SetLabels(True)
+	SetLegend(True)
+	Show()
+}
+
+? ""
+? "--- Same chart with minimal display ---"
+
+# With minimal display
+oChart {
+	SetXAxis(False)
+	SetYAxis(False)
+	SetLabels(False)
+	SetLegend(False)
+	Show()
+}
+
+pf()
+
+/*---
+
+pr()
+
+# Test 7: Compact Multi-Series
+? "=== Test 7: Compact Multi-Series ==="
+
+oChart = new stzMultiBarChart([
+	:A = [ :X = 8, :Y = 12, :Z = 6 ],
+	:B = [ :X = 15, :Y = 9, :Z = 18 ],
+	:C = [ :X = 11, :Y = 16, :Z = 13 ]
+])
+
+oChart {
+	SetBarWidth(1)
+	SetSeriesSpace(0)
+	SetCategorySpace(1)
+	SetMaxWidth(50)
+	Show()
+}
+
+pf()
+
+/*---
+
+pr()
+
+# Test 8: Large Dataset with Custom Characters
+? "=== Test 8: Large Dataset with Custom Characters ==="
+
+oChart = new stzMultiBarChart([
+	:Region1 = [ :Mon = 23, :Tue = 31, :Wed = 28, :Thu = 35, :Fri = 42 ],
+	:Region2 = [ :Mon = 18, :Tue = 25, :Wed = 33, :Thu = 29, :Fri = 38 ],
+	:Region3 = [ :Mon = 31, :Tue = 27, :Wed = 24, :Thu = 41, :Fri = 36 ],
+	:Region4 = [ :Mon = 26, :Tue = 39, :Wed = 31, :Thu = 33, :Fri = 28 ]
+])
+
+oChart {
+	SetSeriesChars(["█", "▓", "▒", "░"])
+	SetBarWidth(1)
+	SetSeriesSpace(0)
+	SetCategorySpace(2)
+	Show()
+}
+
+pf()
+
+/*---
+
+pr()
+
+# Test 9: Two Series Comparison
+? "=== Test 9: Two Series Comparison ==="
+
+oChart = new stzMultiBarChart([
+	:Before = [ :Feature1 = 45, :Feature2 = 38, :Feature3 = 52, :Feature4 = 29 ],
+	:After = [ :Feature1 = 62, :Feature2 = 48, :Feature3 = 59, :Feature4 = 41 ]
+])
+
+oChart {
+	SetSeriesChars(["▒", "█"])
+	SetBarWidth(2)
+	SetSeriesSpace(1)
+	AddLabels()
+	Show()
+}
+
+pf()
+
+/*---
+
+pr()
+
+# Test 10: Performance Metrics
+? "=== Test 10: Performance Metrics ==="
+
+oChart = new stzMultiBarChart([
+	:CPU = [ :Server1 = 75, :Server2 = 82, :Server3 = 68, :Server4 = 91 ],
+	:Memory = [ :Server1 = 65, :Server2 = 78, :Server3 = 72, :Server4 = 85 ],
+	:Disk = [ :Server1 = 45, :Server2 = 52, :Server3 = 48, :Server4 = 61 ]
+])
+
+oChart {
+	SetSeriesChars(["■", "▲", "●"])
+	SetBarWidth(1)
+	SetValues(True)
+	Show()
+}
+
+pf()
+
+# Expected outputs would show various multi-series bar charts demonstrating:
+# - Basic functionality with legend
+# - Different bar widths and spacing options  
+# - Custom series characters (bars, triangles, circles, etc.)
+# - Value and percentage displays
+# - Axis and label visibility controls
+# - Compact and expanded layouts
+# - Multiple series comparisons
+# - Real-world data scenarios

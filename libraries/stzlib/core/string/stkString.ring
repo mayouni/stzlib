@@ -6,7 +6,7 @@ load "LightGuiLib.ring"
 
 func StkReplaceCS(cStr, cSubStr, cNewSubStr, bCase)
 
-	if bCase = _TRUE_
+	if bCase = TRUE
 		return ring_substr2(cStr, cSubStr, cNewSubStr)
 	ok
 
@@ -17,7 +17,7 @@ func StkReplaceCS(cStr, cSubStr, cNewSubStr, bCase)
 	return ring_substr2(cStrLow, cSubStrLow, cNewSubStrLow)
 
 func StkReplace(cStr, cSubStr, cNewSubStr)
-	return StzReplaceCS(cStr, cSubStr, cNewSubStr, _TRUE_)
+	return StzReplaceCS(cStr, cSubStr, cNewSubStr, TRUE)
 
 # Split function (to use instead of the one provided by the standard library)
 
@@ -111,7 +111,7 @@ class stzCoreString from stzCoreObject
 		if substr = ""
 			return 0
 		ok
-		return @content.indexOf(substr, 0, _TRUE_) + 1
+		return @content.indexOf(substr, 0, TRUE) + 1
 
 	#--
 
@@ -125,7 +125,7 @@ class stzCoreString from stzCoreObject
 		if substr = ""
 			return 0
 		ok
-		return @content.lastIndexOf(substr, @content.size()-1, _TRUE_) + 1
+		return @content.lastIndexOf(substr, @content.size()-1, TRUE) + 1
 
 	#--
 
@@ -139,14 +139,14 @@ class stzCoreString from stzCoreObject
 		nSize = @TempQStr.size()
 
 		anResult = []
-		bContinue = _TRUE_
+		bContinue = TRUE
 	
 		nPos = 0  # Start from index 0
 	
 	   	while bContinue
 			nPos = @content.indexOf(substr, nPos, bCase)
 			if nPos = -1
-				bContinue = _FALSE_
+				bContinue = FALSE
 			else
 				anResult + (nPos + 1)  	# Add 1 to convert to 1-based index
 				nPos = nPos + nSize  	# Move to the next position after the found substring
@@ -160,7 +160,7 @@ class stzCoreString from stzCoreObject
 			return This.FindCS(substr, bCase)
 
 	def Find(substr)
-		return This.FindCS(substr, _TRUE_)
+		return This.FindCS(substr, TRUE)
 
 		def FindAll(substr)
 			return This.Find(substr)
@@ -177,7 +177,7 @@ class stzCoreString from stzCoreObject
 		nSize = @TempQStr.size()
 
 		nResult = 0
-		bContinue = _TRUE_
+		bContinue = TRUE
 	
 		nPos = 0  # Start from index 0
 		nTimes = 0
@@ -185,7 +185,7 @@ class stzCoreString from stzCoreObject
 	   	while bContinue
 			nPos = @content.indexOf(substr, nPos, bCase)
 			if nPos = -1
-				bContinue = _FALSE_
+				bContinue = FALSE
 			else
 				nTimes++ 
 				if nTimes = n
@@ -200,7 +200,7 @@ class stzCoreString from stzCoreObject
 		return nResult
 
 	def FindNth(n, substr)
-		return This.FindNthCS(n, substr, _TRUE_)
+		return This.FindNthCS(n, substr, TRUE)
 	
 	#-- INSERTING
 
@@ -216,7 +216,7 @@ class stzCoreString from stzCoreObject
 		This.Update(cResult)
 
 	def Replace(substr1, substr2)
-		This.Replace(substr1, substr2, _TRUE_)
+		This.Replace(substr1, substr2, TRUE)
 
 	#--
 
@@ -247,7 +247,7 @@ class stzCoreString from stzCoreObject
 		return acResult
 
 	def Split(substr)
-		return This.SplitCS(substr, _TRUE_)
+		return This.SplitCS(substr, TRUE)
 
 	#--
 
@@ -262,49 +262,49 @@ class stzCoreString from stzCoreObject
 
 	def ContainsCS(substr, bCase)
 		if substr = ""
-			return _FALSE_
+			return FALSE
 		ok
 
 		return @content.contains(substr, bCase)
 
 	def Contains(substr)
 		if substr = ""
-			return _FALSE_
+			return FALSE
 		ok
 
-		return @content.contains(substr, _TRUE_)
+		return @content.contains(substr, TRUE)
 
 	#==
 
 	def StartsWithCS(substr, bCase)
 		if substr = ""
-			return _FALSE_
+			return FALSE
 		ok
 
 		return @content.startsWith(substr, bCase)
 
 	def StartsWith(substr)
 		if substr = ""
-			return _FALSE_
+			return FALSE
 		ok
 
-		return @content.startsWith(substr, _TRUE_)
+		return @content.startsWith(substr, TRUE)
 
 	#--
 
 	def EndsWithCS(substr, bCase)
 		if substr = ""
-			return _FALSE_
+			return FALSE
 		ok
 
 		return @content.endsWith(substr, bCase)
 
 	def EndsWith(substr)
 		if substr = ""
-			return _FALSE_
+			return FALSE
 		ok
 
-		return @content.endsWith(substr, _TRUE_)
+		return @content.endsWith(substr, TRUE)
 
 	#--
 

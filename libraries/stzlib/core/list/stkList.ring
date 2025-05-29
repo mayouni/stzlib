@@ -200,27 +200,27 @@ class stkList from stkObject
 
 	def Contains(item)
 		if ring_find(@content, item) > 0
-			return _TRUE_
+			return TRUE
 		else
-			return _FALSE_
+			return FALSE
 		ok
 
 	#==
 
 	def StartsWith(item)
 		if @content[1] = item
-			return _TRUE_
+			return TRUE
 		else
-			return _FALSE_
+			return FALSE
 		ok
 
 	#--
 
 	def EndsWith(item)
 		if @content[ len(@content) ] = item
-			return _TRUE_
+			return TRUE
 		else
-			return _FALSE_
+			return FALSE
 		ok
 
 
