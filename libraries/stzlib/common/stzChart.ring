@@ -7,12 +7,12 @@ https://github.com/alincoop/obsidian-tinychart
 https://github.com/madnight/bitcoin-chart-cli
 
 
-^         ╭╮                                     
-│        ╭╯╰╮                                    
-│        │  ╰╮         
-│       ╭╯   ╰────╮
+^         ╭●╮                                     
+│        ╭╯ ╰╮                                    
+│        │   ╰╮         
+│       ╭╯    ╰──●╮
 │    ╭──╯         ╰╮   
-│   ╭╯             ╰──╮    
+│   ●╯             ╰──╮    
 │ ──╯                 ╰──────    
 ╰─────────────────────────────>
 
@@ -2688,9 +2688,16 @@ class stzMultiBarChart from stzChart
 #  CLEAN CURVE CHART           #
 #------------------------------#
 
-class stzCurveChart from stzChart
+class stzMCurveChart from stzMultiCurveChart
 
-	@anValues = []
+class stzMultiCurveChart from stzChart
+
+	# Multi-series container structure
+	@aaMultiValues = []     # Array of arrays for each curve series
+	@acSeriesNames = []     # Names of each curve series  
+	@acSeriesChars = []     # Point characters for each series
+	@acCategories = []      # X-axis category labels (shared across all series)
+	@nSeriesCount = 0       # Number of curve series
 
 	@bShowXAxis = True
 	@bShowYAxis = True
@@ -2698,13 +2705,14 @@ class stzCurveChart from stzChart
 	@bShowAverage = False
 	@bShowValues = False
 	@bShowPercent = False
+	@bShowLegend = True
 
 	@nMaxWidth = 132
 	@nMaxLabelWidth = 12
 	@nPointSpacing = 3  # Horizontal spacing between data points
 
-	# Curve drawing characters
-	@cPointChar = "●"
+	# Curve drawing characters for different series
+	@acPointChars = ["●", "○", "◆", "◇", "▲", "△", "■", "□"]
 	@cLineChar = "─"
 	@cCornerTL = "╭"  # Top-left corner
 	@cCornerTR = "╮"  # Top-right corner
@@ -2718,14 +2726,126 @@ class stzCurveChart from stzChart
 	@nAxisPadding = 1
 	@nLabelPadding = 1
 
-	def init(paData)
+	def init(paMultiData)
 		if CheckParams()
-			if NOT IsListOfHashLists(paData)
-				StzRaise("Can't create the stzCurveChart object! You must provide a list of hashlists.")
+			if NOT isList(paMultiData)
+				StzRaise("Can't create stzMultiCurveChart! paMultiData must be a list.")
 			ok
 		ok
 
-		@anValues = paData
+		# Parse multi-series data structure
+		_parseMultiSeriesData(paMultiData)
+		_calculateMultiRange()
+
+
+	def _parseMultiSeriesData(paMultiData)
+		# Expected formats:
+		# Single series: [ :Sales = [ :Jan = 15, :Feb = 28, :Mar = 23 ] ]
+		# Multi series: [ :Revenue = [...], :Profit = [...], :Expenses = [...] ]
+
+		@aaMultiValues = []
+		@acSeriesNames = []
+		@acCategories = []
+		@nSeriesCount = 0
+
+		# Handle hashlist input format
+		oHashList = new stzHashList(paMultiData)
+		aKeys = oHashList.Keys()
+		aValues = oHashList.Values()
+
+		for i = 1 to len(aKeys)
+			cSeriesName = aKeys[i]
+			aSeriesData = aValues[i]
+			
+			# Handle nested hashlist (category-value pairs)
+			if isList(aSeriesData) and len(aSeriesData) > 0 and isList(aSeriesData[1])
+				oSeriesHash = new stzHashList(aSeriesData)
+				aSeriesCategories = oSeriesHash.Keys()
+				aSeriesValues = oSeriesHash.Values()
+				
+				# Use categories from first series
+				if len(@acCategories) = 0
+					@acCategories = aSeriesCategories
+				ok
+				
+				@acSeriesNames + cSeriesName
+				@aaMultiValues + aSeriesValues
+				@nSeriesCount++
+			ok
+		next
+
+		# Generate default categories if still empty
+		if len(@acCategories) = 0 and @nSeriesCount > 0
+			nMaxPoints = 0
+			for aSeries in @aaMultiValues
+				if len(aSeries) > nMaxPoints
+					nMaxPoints = len(aSeries)
+				ok
+			next
+			
+			for i = 1 to nMaxPoints
+				@acCategories + ("" + i)
+			next
+		ok
+
+		# Assign default point characters for each series
+		@acSeriesChars = []
+		for i = 1 to @nSeriesCount
+			nCharIndex = ((i-1) % len(@acPointChars)) + 1
+			@acSeriesChars + @acPointChars[nCharIndex]
+		next
+
+
+	def _calculateMultiRange()
+		@nMaxValue = 0
+		@nMinValue = 0
+		
+		if @nSeriesCount > 0
+			# Find global min and max across all series
+			for aSeries in @aaMultiValues
+				for nValue in aSeries
+					if nValue > @nMaxValue
+						@nMaxValue = nValue
+					ok
+					if nValue < @nMinValue
+						@nMinValue = nValue
+					ok
+				next
+			next
+		ok
+
+		# Ensure we have a reasonable range
+		if @nMaxValue = @nMinValue
+			@nMaxValue = @nMinValue + 1
+		ok
+
+	def SeriesCount()
+		return @nSeriesCount
+
+	def SeriesNames()
+		return @acSeriesNames
+
+	def SeriesValues(nIndex)
+		if nIndex >= 1 and nIndex <= @nSeriesCount
+			return @aaMultiValues[nIndex]
+		ok
+		return []
+
+	def Categories()
+		return @acCategories
+
+	def SetSeriesPointChar(nSeriesIndex, cChar)
+		if nSeriesIndex >= 1 and nSeriesIndex <= @nSeriesCount
+			@acSeriesChars[nSeriesIndex] = cChar
+		ok
+
+	def SetAllSeriesPointChars(acChars)
+		if isList(acChars)
+			for i = 1 to min([len(acChars), @nSeriesCount])
+				@acSeriesChars[i] = acChars[i]
+			next
+		ok
+
 
 	def SetXAxis(bShow)
 		@bShowXAxis = bShow
@@ -2849,10 +2969,37 @@ class stzCurveChart from stzChart
 		ok
 		@cPointChar = c
 
-	def Show()
-		? This.ToString()
+
+	def _initCanvas()
+		@acCanvas = []
+		for i = 1 to @nHight
+			aRow = []
+			for j = 1 to @nWidth
+				aRow + " "
+			next
+			@acCanvas + aRow
+		next
+
+
+	def _finalizeCanvas()
+		cResult = ""
+		for i = 1 to len(@acCanvas)
+			for j = 1 to len(@acCanvas[i])
+				cResult += @acCanvas[i][j]
+			next
+			if i < len(@acCanvas)
+				cResult += nl
+			ok
+		next
+
+		return cResult
 
 	def ToString()
+		# Return empty chart if no data
+		if @nSeriesCount = 0
+			return "No data to display"
+		ok
+
 		# Step 1: Calculate layout dimensions
 		oLayout = _calculateLayout()
 		
@@ -2874,44 +3021,34 @@ class stzCurveChart from stzChart
 			_drawAverageLine(oLayout)
 		ok
 
-		_drawCurve(oLayout)
+		_drawMultiCurves(oLayout)
 
 		if @bShowValues
-			_drawValues(oLayout)
-		but @bShowPercent
-			_drawPercent(oLayout)
+			_drawMultiValues(oLayout)
 		ok
 		
 		if @bShowLabels
 			_drawLabels(oLayout)
 		ok
 
-		cResult = _finalizeCanvas()
+		return _finalizeCanvas()
 
-		# Handle average value display
-		if @bShowAverage
-			oTempStr = new stzString(cResult)
-			if @bShowValues
-				cValue = " " + RoundN(This.Average(), 1)
-				if cValue[len(cValue)] = "0"
-					cValue = ring_substr2(cValue, ".0", "")
-				ok
-				oTempStr.InsertAfterLast(@cAverageChar, cValue)
-			but @bShowPercent
-				cPercent = " 50%"
-				oTempStr.InsertAfterLast(@cAverageChar, cPercent)
-			ok
-			cResult = oTempStr.Content()
-		ok
-
-		return cResult
 
 	def _calculateLayout()
-		nPoints = len(@anValues)
+		if @nSeriesCount = 0 or len(@acCategories) = 0
+			return new stzHashList([
+				[:total_width, 20],
+				[:chart_height, 10],
+				[:curve_start_col, 5],
+				[:x_axis_row, 8]
+			])
+		ok
+
+		nPoints = len(@acCategories)
 		oLayout = new stzHashList([])
 		
 		# Calculate curve area width
-		nCurveAreaWidth = (nPoints - 1) * @nPointSpacing + 2  # +2 for padding
+		nCurveAreaWidth = (nPoints - 1) * @nPointSpacing + 4
 		
 		# Calculate layout positions
 		nYAxisStart = 1
@@ -2931,29 +3068,19 @@ class stzCurveChart from stzChart
 		nXAxisEnd = nCurveEnd + @nAxisPadding
 		
 		# Calculate total width
-		nTotalWidth = nXAxisEnd + 1
+		nTotalWidth = nXAxisEnd + 2
 		
-		# Validate against max width
-		if nTotalWidth > @nMaxWidth
-			StzRaise("Chart width (" + nTotalWidth + ") exceeds maximum (" + @nMaxWidth + ")")
-		ok
+		# Calculate height - reduce spacing
+		nChartHeight = 10
+		nXAxisRow = nChartHeight - 1
+		nLabelsRow = nChartHeight + 1  # Only 1 line gap
 		
-		# Calculate height
 		if @bShowLabels
-			nChartHeight = @nHight
-			nXAxisRow = @nHight - 1
-			nLabelsRow = @nHight
-		else
-			nChartHeight = @nHight
-			nXAxisRow = @nHight - 1
-			nLabelsRow = @nHight
+			nChartHeight = nLabelsRow
 		ok
 		
 		# Calculate curve area height
-		nCurveAreaHeight = nXAxisRow - 1
-		if @bShowValues or @bShowPercent
-			nCurveAreaHeight = nXAxisRow - 2
-		ok
+		nCurveAreaHeight = nXAxisRow - 2
 		
 		# Store layout information
 		oLayout.AddPair([:y_axis_col, nYAxisStart])
@@ -2975,11 +3102,15 @@ class stzCurveChart from stzChart
 		
 		# Draw vertical line
 		for i = 2 to nAxisRow - 1
-			@acCanvas[i][nAxisCol] = @cXAxisChar
+			if i <= len(@acCanvas) and nAxisCol <= len(@acCanvas[i])
+				@acCanvas[i][nAxisCol] = @cXAxisChar
+			ok
 		next
 		
 		# Draw arrow at top
-		@acCanvas[1][nAxisCol] = @cXArrowChar
+		if nAxisCol <= len(@acCanvas[1])
+			@acCanvas[1][nAxisCol] = @cXArrowChar
+		ok
 
 	def _drawXAxis(oLayout)
 		nAxisRow = oLayout[:x_axis_row]
@@ -2987,18 +3118,401 @@ class stzCurveChart from stzChart
 		nEndCol = oLayout[:x_axis_end_col]
 		nYAxisCol = oLayout[:y_axis_col]
 		
+		# Bounds check
+		if nAxisRow > len(@acCanvas)
+			return
+		ok
+		
 		# Draw horizontal line
-		for i = nStartCol to nEndCol
+		for i = nStartCol to min([nEndCol, len(@acCanvas[nAxisRow])])
 			@acCanvas[nAxisRow][i] = @cYAxisChar
 		next
 		
 		# Draw origin if Y-axis is present
-		if @bShowYAxis
+		if @bShowYAxis and nYAxisCol <= len(@acCanvas[nAxisRow])
 			@acCanvas[nAxisRow][nYAxisCol] = @cOriginChar
 		ok
 		
 		# Draw arrow at end
-		@acCanvas[nAxisRow][nEndCol] = @cYArrowChar
+		if nEndCol <= len(@acCanvas[nAxisRow])
+			@acCanvas[nAxisRow][nEndCol] = @cYArrowChar
+		ok
+
+	def _drawMultiCurves(oLayout)
+		# Draw each series
+		for nSeries = 1 to @nSeriesCount
+			_drawSingleCurve(nSeries, oLayout)
+		next
+
+	def _drawSingleCurve(nSeriesIndex, oLayout)
+		if nSeriesIndex > @nSeriesCount
+			return
+		ok
+		
+		aValues = @aaMultiValues[nSeriesIndex]
+		cPointChar = @acSeriesChars[nSeriesIndex]
+		
+		nPoints = len(aValues)
+		nCurveStartCol = oLayout[:curve_start_col]
+		nAxisRow = oLayout[:x_axis_row]
+		nCurveAreaHeight = oLayout[:curve_area_height]
+		
+		if nPoints < 1
+			return
+		ok
+		
+		# Calculate point positions
+		aPoints = []
+		for i = 1 to nPoints
+			nVal = aValues[i]
+			nX = nCurveStartCol + (i-1) * @nPointSpacing
+			
+			if @nMaxValue = 0 or nVal = 0
+				nY = nAxisRow - 1
+			else
+				nY = nAxisRow - ceil(nCurveAreaHeight * nVal / @nMaxValue)
+			ok
+			
+			aPoints + [nX, nY]
+		next
+		
+		# Draw curve lines between points
+		for i = 1 to len(aPoints) - 1
+			nX1 = aPoints[i][1]
+			nY1 = aPoints[i][2]
+			nX2 = aPoints[i+1][1]
+			nY2 = aPoints[i+1][2]
+			
+			_drawCurveSegment(nX1, nY1, nX2, nY2)
+		next
+		
+		# Draw points (after lines so they appear on top)
+		for i = 1 to nPoints
+			nX = aPoints[i][1]
+			nY = aPoints[i][2]
+			
+			if nY >= 1 and nY <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY])
+				@acCanvas[nY][nX] = cPointChar
+			ok
+		next
+
+def _drawCurveSegment(nX1, nY1, nX2, nY2)
+	# Draw curved lines between two points
+	if nX1 = nX2
+		# Vertical line
+		nStartY = min([nY1, nY2])
+		nEndY = max([nY1, nY2])
+		for nY = nStartY to nEndY
+			if nY >= 1 and nY <= len(@acCanvas) and nX1 >= 1 and nX1 <= len(@acCanvas[nY])
+				if @acCanvas[nY][nX1] = " "
+					@acCanvas[nY][nX1] = @cVerticalChar
+				ok
+			ok
+		next
+	else
+		# Curved horizontal connection
+		nStartX = min([nX1, nX2])
+		nEndX = max([nX1, nX2])
+		
+		if nY1 = nY2
+			# Pure horizontal line
+			for nX = nStartX to nEndX
+				if nY1 >= 1 and nY1 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY1])
+					if @acCanvas[nY1][nX] = " "
+						@acCanvas[nY1][nX] = @cHorizontalChar
+					ok
+				ok
+			next
+		else
+			# Curved connection between different Y levels
+			nMidX = nX1 + floor((nX2 - nX1) / 2)
+			
+			# Determine curve direction
+			bGoingUp = (nY2 < nY1)  # Lower Y values are higher on screen
+			bGoingRight = (nX2 > nX1)
+			
+			if bGoingRight
+				# Moving right
+				if bGoingUp
+					# Going right and up: use ╯ at start, ╭ at end
+					# Horizontal from start
+					for nX = nX1 to nMidX - 1
+						if nY1 >= 1 and nY1 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY1])
+							if @acCanvas[nY1][nX] = " "
+								@acCanvas[nY1][nX] = @cHorizontalChar
+							ok
+						ok
+					next
+					
+					# Corner at transition point
+					if nMidX >= 1 and nMidX <= @nWidth and nY1 >= 1 and nY1 <= len(@acCanvas)
+						@acCanvas[nY1][nMidX] = @cCornerBR  # ╯
+					ok
+					
+					# Vertical segment
+					nStartY = min([nY1, nY2])
+					nEndY = max([nY1, nY2])
+					for nY = nStartY + 1 to nEndY - 1
+						if nY >= 1 and nY <= len(@acCanvas) and nMidX >= 1 and nMidX <= len(@acCanvas[nY])
+							if @acCanvas[nY][nMidX] = " "
+								@acCanvas[nY][nMidX] = @cVerticalChar
+							ok
+						ok
+					next
+					
+					# Corner at end
+					if nMidX >= 1 and nMidX <= @nWidth and nY2 >= 1 and nY2 <= len(@acCanvas)
+						@acCanvas[nY2][nMidX] = @cCornerTL  # ╭
+					ok
+					
+					# Horizontal to end point
+					for nX = nMidX + 1 to nX2
+						if nY2 >= 1 and nY2 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY2])
+							if @acCanvas[nY2][nX] = " "
+								@acCanvas[nY2][nX] = @cHorizontalChar
+							ok
+						ok
+					next
+				else
+					# Going right and down: use ╮ at start, ╰ at end
+					# Horizontal from start
+					for nX = nX1 to nMidX - 1
+						if nY1 >= 1 and nY1 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY1])
+							if @acCanvas[nY1][nX] = " "
+								@acCanvas[nY1][nX] = @cHorizontalChar
+							ok
+						ok
+					next
+					
+					# Corner at transition point
+					if nMidX >= 1 and nMidX <= @nWidth and nY1 >= 1 and nY1 <= len(@acCanvas)
+						@acCanvas[nY1][nMidX] = @cCornerTR  # ╮
+					ok
+					
+					# Vertical segment
+					nStartY = min([nY1, nY2])
+					nEndY = max([nY1, nY2])
+					for nY = nStartY + 1 to nEndY - 1
+						if nY >= 1 and nY <= len(@acCanvas) and nMidX >= 1 and nMidX <= len(@acCanvas[nY])
+							if @acCanvas[nY][nMidX] = " "
+								@acCanvas[nY][nMidX] = @cVerticalChar
+							ok
+						ok
+					next
+					
+					# Corner at end
+					if nMidX >= 1 and nMidX <= @nWidth and nY2 >= 1 and nY2 <= len(@acCanvas)
+						@acCanvas[nY2][nMidX] = @cCornerBL  # ╰
+					ok
+					
+					# Horizontal to end point
+					for nX = nMidX + 1 to nX2
+						if nY2 >= 1 and nY2 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY2])
+							if @acCanvas[nY2][nX] = " "
+								@acCanvas[nY2][nX] = @cHorizontalChar
+							ok
+						ok
+					next
+				ok
+			else
+				# Moving left - mirror the logic
+				if bGoingUp
+					# Going left and up: use ╯ at start, ╭ at end
+					for nX = nX1 to nMidX + 1 step -1
+						if nY1 >= 1 and nY1 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY1])
+							if @acCanvas[nY1][nX] = " "
+								@acCanvas[nY1][nX] = @cHorizontalChar
+							ok
+						ok
+					next
+					
+					if nMidX >= 1 and nMidX <= @nWidth and nY1 >= 1 and nY1 <= len(@acCanvas)
+						@acCanvas[nY1][nMidX] = @cCornerBR  # ╯
+					ok
+					
+					nStartY = min([nY1, nY2])
+					nEndY = max([nY1, nY2])
+					for nY = nStartY + 1 to nEndY - 1
+						if nY >= 1 and nY <= len(@acCanvas) and nMidX >= 1 and nMidX <= len(@acCanvas[nY])
+							if @acCanvas[nY][nMidX] = " "
+								@acCanvas[nY][nMidX] = @cVerticalChar
+							ok
+						ok
+					next
+					
+					if nMidX >= 1 and nMidX <= @nWidth and nY2 >= 1 and nY2 <= len(@acCanvas)
+						@acCanvas[nY2][nMidX] = @cCornerTL  # ╭
+					ok
+					
+					for nX = nMidX - 1 to nX2 step -1
+						if nY2 >= 1 and nY2 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY2])
+							if @acCanvas[nY2][nX] = " "
+								@acCanvas[nY2][nX] = @cHorizontalChar
+							ok
+						ok
+					next
+				else
+					# Going left and down: use ╮ at start, ╰ at end
+					for nX = nX1 to nMidX + 1 step -1
+						if nY1 >= 1 and nY1 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY1])
+							if @acCanvas[nY1][nX] = " "
+								@acCanvas[nY1][nX] = @cHorizontalChar
+							ok
+						ok
+					next
+					
+					if nMidX >= 1 and nMidX <= @nWidth and nY1 >= 1 and nY1 <= len(@acCanvas)
+						@acCanvas[nY1][nMidX] = @cCornerTR  # ╮
+					ok
+					
+					nStartY = min([nY1, nY2])
+					nEndY = max([nY1, nY2])
+					for nY = nStartY + 1 to nEndY - 1
+						if nY >= 1 and nY <= len(@acCanvas) and nMidX >= 1 and nMidX <= len(@acCanvas[nY])
+							if @acCanvas[nY][nMidX] = " "
+								@acCanvas[nY][nMidX] = @cVerticalChar
+							ok
+						ok
+					next
+					
+					if nMidX >= 1 and nMidX <= @nWidth and nY2 >= 1 and nY2 <= len(@acCanvas)
+						@acCanvas[nY2][nMidX] = @cCornerBL  # ╰
+					ok
+					
+					for nX = nMidX - 1 to nX2 step -1
+						if nY2 >= 1 and nY2 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY2])
+							if @acCanvas[nY2][nX] = " "
+								@acCanvas[nY2][nX] = @cHorizontalChar
+							ok
+						ok
+					next
+				ok
+			ok
+		ok
+	ok
+
+	def _drawMultiValues(oLayout)
+		# Draw values for each series
+		for nSeries = 1 to @nSeriesCount
+			_drawSeriesValues(nSeries, oLayout)
+		next
+
+	def _drawSeriesValues(nSeriesIndex, oLayout)
+		if nSeriesIndex > @nSeriesCount
+			return
+		ok
+		
+		aValues = @aaMultiValues[nSeriesIndex]
+		nPoints = len(aValues)
+		nCurveStartCol = oLayout[:curve_start_col]
+		nAxisRow = oLayout[:x_axis_row]
+		nCurveAreaHeight = oLayout[:curve_area_height]
+		
+		for i = 1 to nPoints
+			nVal = aValues[i]
+			nX = nCurveStartCol + (i-1) * @nPointSpacing
+			
+			if @nMaxValue = 0 or nVal = 0
+				nPointY = nAxisRow - 1
+			else
+				nPointY = nAxisRow - ceil(nCurveAreaHeight * nVal / @nMaxValue)
+			ok
+			
+			# Position value above the point (offset by series to avoid overlap)
+			nValueY = max([1, nPointY - 1 - (nSeriesIndex-1)])
+			
+			cValue = "" + nVal
+			nValueLen = len(cValue)
+			nValueStartX = nX - floor(nValueLen / 2)
+			
+			# Draw value
+			for k = 1 to nValueLen
+				nCol = nValueStartX + k - 1
+				if nCol >= 1 and nCol <= @nWidth and nValueY >= 1 and nValueY <= len(@acCanvas)
+					@acCanvas[nValueY][nCol] = cValue[k]
+				ok
+			next
+		next
+
+	def _drawLabels(oLayout)
+		nPoints = len(@acCategories)
+		nCurveStartCol = oLayout[:curve_start_col]
+		nLabelsRow = oLayout[:labels_row]
+		
+		for i = 1 to nPoints
+			nX = nCurveStartCol + (i-1) * @nPointSpacing
+			
+			cLabel = @acCategories[i]
+			nLenLabel = len(cLabel)
+			
+			# Truncate label if needed
+			if nLenLabel > @nMaxLabelWidth
+				nLenLabel = @nMaxLabelWidth
+				cLabel = left(cLabel, @nMaxLabelWidth - 2) + ".."
+			ok
+			
+			# Center label under the point
+			nLabelStartX = nX - floor(nLenLabel / 2)
+			
+			# Draw label
+			for j = 1 to nLenLabel
+				nCol = nLabelStartX + j - 1
+				if nCol >= 1 and nCol <= @nWidth and nLabelsRow <= len(@acCanvas)
+					@acCanvas[nLabelsRow][nCol] = cLabel[j]
+				ok
+			next
+		next
+
+	def _drawAverageLine(oLayout)
+		# Calculate global average across all series
+		nTotalSum = 0
+		nTotalCount = 0
+		
+		for aSeries in @aaMultiValues
+			for nVal in aSeries
+				nTotalSum += nVal
+				nTotalCount++
+			next
+		next
+		
+		if nTotalCount = 0
+			return
+		ok
+		
+		nAvg = nTotalSum / nTotalCount
+		
+		nCurveStartCol = oLayout[:curve_start_col]
+		nCurveEndCol = oLayout[:curve_end_col]
+		nAxisRow = oLayout[:x_axis_row]
+		nCurveAreaHeight = oLayout[:curve_area_height]
+		nYAxisCol = oLayout[:y_axis_col]
+		
+		# Calculate average line position
+		if @nMaxValue = 0
+			nAvgRow = nAxisRow - 1
+		else
+			nAvgRow = nAxisRow - ceil(nCurveAreaHeight * nAvg / @nMaxValue)
+		ok
+		
+		# Start position
+		nLineStart = nCurveStartCol
+		if @bShowYAxis
+			nLineStart = nYAxisCol + 1
+		ok
+		
+		# End position
+		nLineEnd = nCurveEndCol
+		
+		# Draw average line
+		for i = nLineStart to nLineEnd
+			if i <= @nWidth and nAvgRow <= len(@acCanvas) and @acCanvas[nAvgRow][i] = " "
+				@acCanvas[nAvgRow][i] = @cAverageChar
+			ok
+		next
+
+	def Show()
+		? This.ToString()
+
 
 	def _drawCurve(oLayout)
 		nPoints = len(@anValues)
@@ -3035,71 +3549,6 @@ class stzCurveChart from stzChart
 			_drawCurveSegment(nX1, nY1, nX2, nY2)
 		next
 
-	def _drawCurveSegment(nX1, nY1, nX2, nY2)
-		# Draw smooth curve between two points
-		nDeltaX = nX2 - nX1
-		nDeltaY = nY2 - nY1
-		
-		if nDeltaX = 0
-			# Vertical line
-			if nY1 < nY2
-				for nY = nY1 to nY2
-					@acCanvas[nY][nX1] = @cVerticalChar
-				next
-			else
-				for nY = nY2 to nY1
-					@acCanvas[nY][nX1] = @cVerticalChar
-				next
-			ok
-			return
-		ok
-		
-		# Determine curve direction and draw appropriate segments
-		if nDeltaY = 0
-			# Horizontal line
-			for nX = nX1 to nX2
-				@acCanvas[nY1][nX] = @cHorizontalChar
-			next
-		else
-			# Curved line
-			nMidX = nX1 + floor(nDeltaX / 2)
-			
-			if nDeltaY > 0  # Going down
-				# First half: horizontal then down-right corner
-				for nX = nX1 to nMidX - 1
-					@acCanvas[nY1][nX] = @cHorizontalChar
-				next
-				@acCanvas[nY1][nMidX] = @cCornerTR
-				
-				# Vertical segment
-				for nY = nY1 + 1 to nY2 - 1
-					@acCanvas[nY][nMidX] = @cVerticalChar
-				next
-				
-				# Second half: down-left corner then horizontal
-				@acCanvas[nY2][nMidX] = @cCornerBL
-				for nX = nMidX + 1 to nX2
-					@acCanvas[nY2][nX] = @cHorizontalChar
-				next
-			else  # Going up (nDeltaY < 0)
-				# First half: horizontal then up-right corner
-				for nX = nX1 to nMidX - 1
-					@acCanvas[nY1][nX] = @cHorizontalChar
-				next
-				@acCanvas[nY1][nMidX] = @cCornerBR
-				
-				# Vertical segment
-				for nY = nY2 + 1 to nY1 - 1
-					@acCanvas[nY][nMidX] = @cVerticalChar
-				next
-				
-				# Second half: up-left corner then horizontal
-				@acCanvas[nY2][nMidX] = @cCornerTL
-				for nX = nMidX + 1 to nX2
-					@acCanvas[nY2][nX] = @cHorizontalChar
-				next
-			ok
-		ok
 
 	def _drawValues(oLayout)
 		nPoints = len(@anValues)
@@ -3165,68 +3614,4 @@ class stzCurveChart from stzChart
 					@acCanvas[nValueY][nCol] = cValue[k]
 				ok
 			next
-		next
-
-	def _drawLabels(oLayout)
-		nPoints = len(@anValues)
-		nCurveStartCol = oLayout[:curve_start_col]
-		nLabelsRow = oLayout[:labels_row]
-		
-		for i = 1 to nPoints
-			if i <= len(@acLabels)
-				nX = nCurveStartCol + (i-1) * @nPointSpacing
-				
-				cLabel = Capitalize(@acLabels[i])
-				nLenLabel = len(cLabel)
-				
-				# Truncate label if needed
-				if nLenLabel > @nMaxLabelWidth
-					nLenLabel = @nMaxLabelWidth
-					cLabel = StzStringQ(cLabel).Section(1, @nMaxLabelWidth - 2) + ".."
-				ok
-				
-				# Center label under the point
-				nLabelStartX = nX - floor(nLenLabel / 2)
-				
-				# Draw label
-				for j = 1 to nLenLabel
-					nCol = nLabelStartX + j - 1
-					if nCol >= 1 and nCol <= @nWidth and nLabelsRow <= len(@acCanvas)
-						@acCanvas[nLabelsRow][nCol] = cLabel[j]
-					ok
-				next
-			ok
-		next
-
-	def _drawAverageLine(oLayout)
-		# Calculate average
-		nAvg = This.Average()
-		
-		nCurveStartCol = oLayout[:curve_start_col]
-		nCurveEndCol = oLayout[:curve_end_col]
-		nAxisRow = oLayout[:x_axis_row]
-		nCurveAreaHeight = oLayout[:curve_area_height]
-		nYAxisCol = oLayout[:y_axis_col]
-		
-		# Calculate average line position
-		if @nMaxValue = 0
-			nAvgRow = nAxisRow - 1
-		else
-			nAvgRow = nAxisRow - ceil(nCurveAreaHeight * nAvg / @nMaxValue)
-		ok
-		
-		# Start position
-		nLineStart = nCurveStartCol
-		if @bShowYAxis
-			nLineStart = nYAxisCol + 1
-		ok
-		
-		# End position
-		nLineEnd = nCurveEndCol + 1
-		
-		# Draw average line
-		for i = nLineStart to nLineEnd
-			if i <= @nWidth and @acCanvas[nAvgRow][i] = " "
-				@acCanvas[nAvgRow][i] = @cAverageChar
-			ok
 		next

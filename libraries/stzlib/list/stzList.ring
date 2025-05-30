@@ -1882,21 +1882,6 @@ func IsListOfListsOfGrids(paList)
 
 	#>
 
-func IsListOfTables(paList)
-	if NOT isList(paList)
-		return _FALSE_
-	ok
-
-	bResult = _TRUE_
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsTable(paList[i])
-				bResult = FALSE
-				exit
-			ok
-	next
-
-	return bResult
 
 func IsListOfListsOfTables(paList)
 	if NOT isList(paList)
@@ -4022,21 +4007,10 @@ func IsPairOfNumberAndString(paList)
 		return _FALSE_
 	ok
 
-	nLen = len(paList)
-	_acTypes = []
-	for i = 1 to nLen
-		_acTypes_ + type(paList[i])
-	next
-
-	_acTypes = U(_acTypes)
-	if len(_acTypes) = 1
-		return _FALSE_
-	ok
-
-	if _acTypes_[1] = "NUMBER" and _acTypes_[2] = "STRING"
+	if isNumber(paList[1]) and isString(paList[2])
 		return _TRUE_
 	else
-		return _FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4087,22 +4061,12 @@ func IsPairOfStringAndNumber(paList)
 		return _FALSE_
 	ok
 
-	nLen = len(paList)
-	_acTypes = []
-	for i = 1 to nLen
-		_acTypes_ + type(paList[i])
-	next
-
-	_acTypes = U(_acTypes)
-	if len(_acTypes) = 1
+	if isString(paList[1]) and isNumber(paList[2])
+		return _TRUE_
+	else
 		return _FALSE_
 	ok
 
-	if _acTypes_[1] = "STRING" and _acTypes_[2] = "NUMBER"
-		return _TRUE_
-	else
-		return _FALSE
-	ok
 
 	#< @FunctionAlternativeForms
 
@@ -4152,21 +4116,10 @@ func IsPairOfNumberAndList(paList)
 		return _FALSE_
 	ok
 
-	nLen = len(paList)
-	_acTypes = []
-	for i = 1 to nLen
-		_acTypes_ + type(paList[i])
-	next
-
-	_acTypes = U(_acTypes)
-	if len(_acTypes) = 1
-		return _FALSE_
-	ok
-
-	if _acTypes_[1] = "NUMBER" and _acTypes_[2] = "LIST"
+	if isNumber(paList[1]) and isList(paList[2])
 		return _TRUE_
 	else
-		return _FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4217,21 +4170,10 @@ func IsPairOfListAndNumber(paList)
 		return _FALSE_
 	ok
 
-	nLen = len(paList)
-	_acTypes = []
-	for i = 1 to nLen
-		_acTypes_ + type(paList[i])
-	next
-
-	_acTypes = U(_acTypes)
-	if len(_acTypes) = 1
-		return _FALSE_
-	ok
-
-	if _acTypes_[1] = "LIST" and _acTypes_[2] = "NUMBER"
+	if isList(paList[1]) and isNumber(paList[2])
 		return _TRUE_
 	else
-		return _FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4282,21 +4224,10 @@ func IsPairOfNumberAndObject(paList)
 		return _FALSE_
 	ok
 
-	nLen = len(paList)
-	_acTypes = []
-	for i = 1 to nLen
-		_acTypes_ + type(paList[i])
-	next
-
-	_acTypes = U(_acTypes)
-	if len(_acTypes) = 1
-		return _FALSE_
-	ok
-
-	if _acTypes_[1] = "NUMBER" and _acTypes_[2] = "OBJECT"
+	if isNumber(paList[1]) and isObject(paList[2])
 		return _TRUE_
 	else
-		return _FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4347,21 +4278,10 @@ func IsPairOfObjectAndNumber(paList)
 		return _FALSE_
 	ok
 
-	nLen = len(paList)
-	_acTypes = []
-	for i = 1 to nLen
-		_acTypes_ + type(paList[i])
-	next
-
-	_acTypes = U(_acTypes)
-	if len(_acTypes) = 1
-		return _FALSE_
-	ok
-
-	if _acTypes_[1] = "OBJECT" and _acTypes_[2] = "NUMBER"
+	if isObject(paList[1]) and isNumber(paList[2])
 		return _TRUE_
 	else
-		return _FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4412,21 +4332,10 @@ func IsPairOfStringAndList(paList)
 		return _FALSE_
 	ok
 
-	nLen = len(paList)
-	_acTypes = []
-	for i = 1 to nLen
-		_acTypes_ + type(paList[i])
-	next
-
-	_acTypes = U(_acTypes)
-	if len(_acTypes) = 1
-		return _FALSE_
-	ok
-
-	if _acTypes_[1] = "STRING" and _acTypes_[2] = "LIST"
+	if isString(paList[1]) and isList(paList[2])
 		return _TRUE_
 	else
-		return _FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4477,21 +4386,10 @@ func IsPairOfListAndString(paList)
 		return _FALSE_
 	ok
 
-	nLen = len(paList)
-	_acTypes = []
-	for i = 1 to nLen
-		_acTypes_ + type(paList[i])
-	next
-
-	_acTypes = U(_acTypes)
-	if len(_acTypes) = 1
-		return _FALSE_
-	ok
-
-	if _acTypes_[1] = "LIST" and _acTypes_[2] = "STRING"
+	if isList(paList[1]) and isString(paList[2])
 		return _TRUE_
 	else
-		return _FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4542,21 +4440,10 @@ func IsPairOfStringAndObject(paList)
 		return _FALSE_
 	ok
 
-	nLen = len(paList)
-	_acTypes = []
-	for i = 1 to nLen
-		_acTypes_ + type(paList[i])
-	next
-
-	_acTypes = U(_acTypes)
-	if len(_acTypes) = 1
-		return _FALSE_
-	ok
-
-	if _acTypes_[1] = "STRING" and _acTypes_[2] = "OBJECT"
+	if isString(paList[1]) and isObject(paList[2])
 		return _TRUE_
 	else
-		return _FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4607,21 +4494,10 @@ func IsPairOfObjectAndString(paList)
 		return _FALSE_
 	ok
 
-	nLen = len(paList)
-	_acTypes = []
-	for i = 1 to nLen
-		_acTypes_ + type(paList[i])
-	next
-
-	_acTypes = U(_acTypes)
-	if len(_acTypes) = 1
-		return _FALSE_
-	ok
-
-	if _acTypes_[1] = "OBJECT" and _acTypes_[2] = "STRING"
+	if isObject(paList[1]) and isString(paList[2])
 		return _TRUE_
 	else
-		return _FALSE
+		return _FALSE_
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4672,22 +4548,12 @@ func IsPairOfListAndObject(paList)
 		return _FALSE_
 	ok
 
-	nLen = len(paList)
-	_acTypes = []
-	for i = 1 to nLen
-		_acTypes_ + type(paList[i])
-	next
-
-	_acTypes = U(_acTypes)
-	if len(_acTypes) = 1
+	if isList(paList[1]) and isobject(paList[2])
+		return _TRUE_
+	else
 		return _FALSE_
 	ok
 
-	if _acTypes_[1] = "LIST" and _acTypes_[2] = "OBJECT"
-		return _TRUE_
-	else
-		return _FALSE
-	ok
 
 	#< @FunctionAlternativeForms
 

@@ -187,7 +187,7 @@ oChart = new stzVBarChart([
 ])
 
 oChart {
-	SetYXAxis([1, 1])
+	SetYHAxis([1, 1])
 	SetLabels(1)
 	SetPercent(1)
 	Show()
@@ -296,7 +296,7 @@ pf()
 pr()
 
 oChart = new stzVBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.SetXAxis(FALSE)
+oChart.SetHAxis(FALSE)
 oChart.Show()
 #-->
 '
@@ -321,7 +321,7 @@ pf()
 pr()
 
 oChart = new stzVBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.SetYAxis(FALSE)
+oChart.SetVAxis(FALSE)
 oChart.SetLabels(TRUE)
 oChart.Show()
 #-->
@@ -346,7 +346,7 @@ pf()
 pr()
 
 oChart = new stzVBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.SetXYAxis([FALSE, FALSE])
+oChart.SetXVAxis([FALSE, FALSE])
 oChart.Show()
 #-->
 '
@@ -710,7 +710,7 @@ pf()
 pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.SetXAxis(FALSE)
+oChart.SetHAxis(FALSE)
 oChart.Show()
 #-->
 '
@@ -728,7 +728,7 @@ pf()
 pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.SetYAxis(FALSE)
+oChart.SetVAxis(FALSE)
 oChart.Show()
 # Expected: Chart without the Y-axis (vertical line)
 #-->
@@ -747,7 +747,7 @@ pf()
 pr()
 
 oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.SetXYAxis([FALSE, FALSE])
+oChart.SetXVAxis([FALSE, FALSE])
 oChart.Show()
 # Expected: Chart with no axes
 #-->
@@ -1183,8 +1183,8 @@ oChart = new stzMultiBarChart([
 
 # With full display
 oChart {
-	SetXAxis(True)
-	SetYAxis(True)  
+	SetHAxis(True)
+	SetVAxis(True)  
 	SetLabels(True)
 	SetLegend(True)
 	Show()
@@ -1195,8 +1195,8 @@ oChart {
 
 # With minimal display
 oChart {
-	SetXAxis(False)
-	SetYAxis(False)
+	SetHAxis(False)
+	SetVAxis(False)
 	SetLabels(False)
 	SetLegend(False)
 	Show()
@@ -1354,8 +1354,8 @@ pf()
 #  CURVE CHART TEST SAMPLES     #
 #------------------------------#
 
-/* Test 1: Basic curve with values
-*/
+/*===
+
 pr()
 
 aData = [
@@ -1363,14 +1363,23 @@ aData = [
 ]
 
 ? IsHashList(aData)
+#--> TRUE
 
 ? IsHashListOfLists(aData)
+#--> TRUE
 
-? IsHashListOfHashLists(aData)
+? IsListOfPairsOfStringAndNumber(aData[1][2])
+#--> TRUE
 
-/*
-oChart1 = new stzCurveChart([
-	:Sales = [ :Jan = 15, :Feb = 28, :Mar = 23, :Apr = 35, :May = 42, :Jun = 38 ]
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*=== Test 1: Basic curve with values
+*/
+pr()
+
+oChart1 = new stzMultiCurveChart([
+	:Sales = [ :Jan = 15, :Feb = 28, :Mar = 15, :Apr = 35, :May = 42, :Jun = 42 ]
 ])
 
 oChart1 {
@@ -1378,13 +1387,29 @@ oChart1 {
 	SetPointSpacing(4)
 	Show()
 }
-*/
+
+#-->
+'
+^                42  38      
+│            35 ╭─●───●      
+│    28     ╭─●─╯            
+│   ╭─●─╮23 │                
+│15 │   ╰─●─╯                
+│ ●─╯                        
+│                            
+│                            
+╰──────────────────────────>  
+                             
+ jan feb mar apr may jun   
+'
 pf()
 
-#------------------------------#
+/*------------------------------#
+
+pr()
 
 # Test 2: Multiple data series comparison
-oChart2 = new stzCurveChart([
+oChart2 = new stzMCurveChart([
 	:Revenue = [ :Q1 = 120, :Q2 = 145, :Q3 = 138, :Q4 = 162 ],
 	:Profit = [ :Q1 = 25, :Q2 = 38, :Q3 = 31, :Q4 = 44 ],
 	:Expenses = [ :Q1 = 95, :Q2 = 107, :Q3 = 107, :Q4 = 118 ]
@@ -1393,14 +1418,20 @@ oChart2 = new stzCurveChart([
 oChart2 {
 	AddValues()
 	AddAverage()
-	SetPointSpacing(6)
+	SetPointSpacing(12)
 	Show()
 }
+#--> ERROR: Array Access (Index out of range) 
+# In method _drawVAxis()
 
-#------------------------------#
+pf()
+
+/*------------------------------#
+
+pr()
 
 # Test 3: Temperature variations with percentages
-oChart3 = new stzCurveChart([
+oChart3 = new stzMCurveChart([
 	:Temperature = [ :Morning = 18, :Noon = 28, :Afternoon = 32, :Evening = 24, :Night = 16 ]
 ])
 
@@ -1411,39 +1442,52 @@ oChart3 {
 	Show()
 }
 
+
+pf()
+
 #------------------------------#
 
+pr()
+
 # Test 4: Stock price movements
-oChart4 = new stzCurveChart([
+oChart4 = new stzMCurveChart([
 	:StockPrice = [ :Mon = 85, :Tue = 92, :Wed = 88, :Thu = 96, :Fri = 103, :Sat = 98 ]
 ])
 
 oChart4 {
 	AddValues()
 	AddAverage()
-	SetPointSpacing(3)
+	SetPointSpacing(3) # Try with 3
 	SetMaxWidth(80)
 	Show()
 }
 
+pf()
+
 #------------------------------#
 
+pr()
+
 # Test 5: Website traffic pattern
-oChart5 = new stzCurveChart([
+oChart5 = new stzMCurveChart([
 	:Visitors = [ :Week1 = 1200, :Week2 = 1450, :Week3 = 1380, :Week4 = 1620, :Week5 = 1890 ]
 ])
 
 oChart5 {
 	AddPercentage()
-	WithoutXAxis()
+	WithoutHAxis()
 	SetPointSpacing(8)
 	Show()
 }
 
+pf()
+
 #------------------------------#
 
+pr()
+
 # Test 6: Minimal curve without axes
-oChart6 = new stzCurveChart([
+oChart6 = new stzMCurveChart([
 	:Growth = [ :Start = 10, :Mid = 25, :Peak = 40, :End = 30 ]
 ])
 
@@ -1455,10 +1499,14 @@ oChart6 {
 	Show()
 }
 
+pf()
+
 #------------------------------#
 
 # Test 7: Performance metrics with custom spacing
-oChart7 = new stzCurveChart([
+pr()
+
+oChart7 = new stzMCurveChart([
 	:Performance = [ :Jan = 78, :Feb = 82, :Mar = 85, :Apr = 79, :May = 88, :Jun = 92, :Jul = 90 ]
 ])
 
@@ -1470,10 +1518,14 @@ oChart7 {
 	Show()
 }
 
+pf()
+
 #------------------------------#
+*/
+pr()
 
 # Test 8: Energy consumption curve
-oChart8 = new stzCurveChart([
+oChart8 = new stzMCurveChart([
 	:Energy = [ :Summer = 320, :Fall = 280, :Winter = 450, :Spring = 310 ]
 ])
 
@@ -1484,3 +1536,5 @@ oChart8 {
 	SetPointSpacing(10)
 	Show()
 }
+
+pf()
