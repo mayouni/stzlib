@@ -999,7 +999,62 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*---
-*/
+
+pr()
+
+# Test 2: Customized Bar Width and Spacing
+
+oChart = new stzMultiBarChart([
+  :Sales = [ :Q1=25, :Q2=35, :Q3=30, :Q4=40 ],
+  :Costs = [ :Q1=15, :Q2=20, :Q3=18, :Q4=22 ],
+  :Profit = [ :Q1=10, :Q2=15, :Q3=12, :Q4=18 ]
+])
+
+oChart {
+
+	# Default display
+	Show()
+
+	# Personalsed display
+	SetBarWidth(1)
+	SetSeriesSpace(1)
+	SetCategorySpace(3)
+	SetLegend(FALSE)
+
+	Show()
+}
+#-->
+'
+^
+│                         ██     
+│         ██              ██     
+│         ██      ██      ██     
+│ ██      ██      ██      ██▒▒   
+│ ██      ██▒▒    ██▒▒    ██▒▒▓▓ 
+│ ██▒▒    ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓ 
+│ ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓ 
+│ ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓ 
+╰────────────────────────────────>
+    Q1      Q2      Q3      Q4   
+                                 
+██ Sales   ▒▒ Costs   ▓▓ Profit 
+
+^
+│                         █     
+│         █               █     
+│         █       █       █     
+│ █       █       █       █ ▒   
+│ █       █ ▒     █ ▒     █ ▒ ▓ 
+│ █ ▒     █ ▒ ▓   █ ▒ ▓   █ ▒ ▓ 
+│ █ ▒ ▓   █ ▒ ▓   █ ▒ ▓   █ ▒ ▓ 
+│ █ ▒ ▓   █ ▒ ▓   █ ▒ ▓   █ ▒ ▓ 
+╰───────────────────────────────>
+   Q1      Q2      Q3      Q4   
+'
+pf()
+
+/*---
+# Executed in 0.05 second(s) in Ring 1.22
 
 pr()
 
@@ -1013,18 +1068,20 @@ oChart = new stzMultiBarChart([
 
 oChart {
 	# A clean simple value-enabled chart
-	SetBarWidth(2)
-	SetSeriesSpace(1)
-	SetCategorySpace(3)
+//	SetBarWidth(2)
+//	SetSeriesSpace(1)
+//	SetCategorySpace(3)
+
 	AddValues()
 	AddAverage()
 	SetLegend(FALSE)
 	Show()
 
 	# An elaborated %-enabled chart
-	SetBarWidth(3)
-	SetSeriesSpace(2)
-	SetCategorySpace(5)
+//	SetBarWidth(3)
+//	SetSeriesSpace(2)
+//	SetCategorySpace(5)
+
 	AddPercent()
 	SetAverage(0)
 	SetLegend(TRUE)
@@ -1049,6 +1106,7 @@ oChart {
 ██ Sales   ▒▒ Costs   ▓▓ Profit 
 '
 pf()
+
 
 /*---
 
@@ -1246,3 +1304,183 @@ pf()
 # - Compact and expanded layouts
 # - Multiple series comparisons
 # - Real-world data scenarios
+
+/*====
+
+// Setting the legend layout to :Vertical
+pr()
+
+oChart = new stzMultiBarChart([
+	:Desktop = [ :Q1 = 45, :Q2 = 42 ],
+	:Mobile =  [ :Q1 = 35, :Q2=48 ],
+	:Tablet =  [ :Q1 = 15, :Q2 = 18 ]
+])
+
+oChart {
+	SetBarsChars([ "█", "|", "X" ])
+	SetBarWidth(3)
+	SetBarInterSpace(1)
+
+	AddValues()
+	SetLegendLayout(:Vertical)
+
+	Show()
+	SetLegend(False)
+
+}
+#-->
+'
+^
+│ 45         42 48    
+│ ██ 35      ██ ▒▒    
+│ ██ ▒▒      ██ ▒▒    
+│ ██ ▒▒      ██ ▒▒    
+│ ██ ▒▒ 15   ██ ▒▒ 18 
+│ ██ ▒▒ ▓▓   ██ ▒▒ ▓▓ 
+│ ██ ▒▒ ▓▓   ██ ▒▒ ▓▓ 
+│ ██ ▒▒ ▓▓   ██ ▒▒ ▓▓ 
+╰─────────────────────>
+     Q1         Q2    
+                      
+██ Desktop        
+▒▒ Mobile         
+▓▓ Tablet   
+'
+pf()
+#--> Executed in 0.03 second(s) in Ring 1.22
+
+
+#------------------------------#
+#  CURVE CHART TEST SAMPLES     #
+#------------------------------#
+
+/* Test 1: Basic curve with values
+*/
+pr()
+
+aData = [
+	:Sales = [ :Jan = 15, :Feb = 28, :Mar = 23, :Apr = 35, :May = 42, :Jun = 38 ]
+]
+
+? IsHashList(aData)
+
+? IsHashListOfLists(aData)
+
+? IsHashListOfHashLists(aData)
+
+/*
+oChart1 = new stzCurveChart([
+	:Sales = [ :Jan = 15, :Feb = 28, :Mar = 23, :Apr = 35, :May = 42, :Jun = 38 ]
+])
+
+oChart1 {
+	AddValues()
+	SetPointSpacing(4)
+	Show()
+}
+*/
+pf()
+
+#------------------------------#
+
+# Test 2: Multiple data series comparison
+oChart2 = new stzCurveChart([
+	:Revenue = [ :Q1 = 120, :Q2 = 145, :Q3 = 138, :Q4 = 162 ],
+	:Profit = [ :Q1 = 25, :Q2 = 38, :Q3 = 31, :Q4 = 44 ],
+	:Expenses = [ :Q1 = 95, :Q2 = 107, :Q3 = 107, :Q4 = 118 ]
+])
+
+oChart2 {
+	AddValues()
+	AddAverage()
+	SetPointSpacing(6)
+	Show()
+}
+
+#------------------------------#
+
+# Test 3: Temperature variations with percentages
+oChart3 = new stzCurveChart([
+	:Temperature = [ :Morning = 18, :Noon = 28, :Afternoon = 32, :Evening = 24, :Night = 16 ]
+])
+
+oChart3 {
+	AddPercentage()
+	SetPointChar("○")
+	SetPointSpacing(5)
+	Show()
+}
+
+#------------------------------#
+
+# Test 4: Stock price movements
+oChart4 = new stzCurveChart([
+	:StockPrice = [ :Mon = 85, :Tue = 92, :Wed = 88, :Thu = 96, :Fri = 103, :Sat = 98 ]
+])
+
+oChart4 {
+	AddValues()
+	AddAverage()
+	SetPointSpacing(3)
+	SetMaxWidth(80)
+	Show()
+}
+
+#------------------------------#
+
+# Test 5: Website traffic pattern
+oChart5 = new stzCurveChart([
+	:Visitors = [ :Week1 = 1200, :Week2 = 1450, :Week3 = 1380, :Week4 = 1620, :Week5 = 1890 ]
+])
+
+oChart5 {
+	AddPercentage()
+	WithoutXAxis()
+	SetPointSpacing(8)
+	Show()
+}
+
+#------------------------------#
+
+# Test 6: Minimal curve without axes
+oChart6 = new stzCurveChart([
+	:Growth = [ :Start = 10, :Mid = 25, :Peak = 40, :End = 30 ]
+])
+
+oChart6 {
+	WithoutAxises()
+	WithoutLabels()
+	AddValues()
+	SetPointSpacing(6)
+	Show()
+}
+
+#------------------------------#
+
+# Test 7: Performance metrics with custom spacing
+oChart7 = new stzCurveChart([
+	:Performance = [ :Jan = 78, :Feb = 82, :Mar = 85, :Apr = 79, :May = 88, :Jun = 92, :Jul = 90 ]
+])
+
+oChart7 {
+	AddValues()
+	AddAverage()
+	SetPointSpacing(4)
+	SetMaxLabelWidth(8)
+	Show()
+}
+
+#------------------------------#
+
+# Test 8: Energy consumption curve
+oChart8 = new stzCurveChart([
+	:Energy = [ :Summer = 320, :Fall = 280, :Winter = 450, :Spring = 310 ]
+])
+
+oChart8 {
+	AddPercentage()
+	AddAverage()
+	SetPointChar("●")
+	SetPointSpacing(10)
+	Show()
+}

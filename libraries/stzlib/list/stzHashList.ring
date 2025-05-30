@@ -105,6 +105,51 @@ func IsHashListOfLists(paList)
 
 	return TRUE
 
+func IsHashListOfHashLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	if NOT IsHashList(paList)
+		return FALSE
+	ok
+
+	if NOT IsListOfListsOfHashLists(StzHashListQ(paList).Values())
+		return FALSE
+	ok
+
+	return TRUE
+
+func IsHashListOfPairs(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	if NOT IsHashList(paList)
+		return FALSE
+	ok
+
+	if NOT IsListOfListsOfPairs(StzHashListQ(paList).Values())
+		return FALSE
+	ok
+
+	return TRUE
+
+func IsHashListOfPairsOfNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	if NOT IsHashList(paList)
+		return FALSE
+	ok
+
+	if NOT IsListOfListsOfPairsOfNumbers(StzHashListQ(paList).Values())
+		return FALSE
+	ok
+
+	return TRUE
+
 func IsHashListOfObjects(paList)
 	if NOT isList(paList)
 		return FALSE

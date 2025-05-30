@@ -973,7 +973,16 @@ func IsListOfListsOfNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfNumbers(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -993,7 +1002,20 @@ func IsListOfDecimalNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfDecimalNumbers()
+	if NOT isList(paList)
+		return _FALSE_
+	ok
+
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsDecimalNumber(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1013,7 +1035,20 @@ func IsListOfListsOfDecimalNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfDecimalNumbers()
+	if NOT isList(paList)
+		return _FALSE_
+	ok
+
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfDecimalNumbers(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1033,7 +1068,16 @@ func IsListOfBinaryNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfBinaryNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsBinaryNumber(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1053,7 +1097,16 @@ func IsListOfListsOfBinaryNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfBinaryNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfBinaryNumbers(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1073,7 +1126,16 @@ func IsListOfOctalNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfOctalNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsOctalNumber(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1088,12 +1150,20 @@ func IsListOfOctalNumbers(paList)
 
 	#>
 
-func IsListOfListsOfOctalNumbers(paList)
 	if NOT isList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfOctalNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfOctalNumbers(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1113,7 +1183,20 @@ func IsListOfHexNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfHexNumbers()
+	if NOT isList(paList)
+		return _FALSE_
+	ok
+
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsHexNumber(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1133,7 +1216,16 @@ func IsListOfListsOfHexNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfHexNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfHexNumbers(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1194,7 +1286,16 @@ func IsListOfListsOfStrings(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStrings()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStrings(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1244,7 +1345,16 @@ func IsListOfHybridLists(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfHybridLists()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsHybridList(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1264,7 +1374,16 @@ func IsListOfListsOfHybridLists(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfHybridLists()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfHybridLists(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1336,7 +1455,16 @@ func IsListOfListsOfObjects(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfObjects()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfObjects(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1352,11 +1480,20 @@ func IsListOfListsOfObjects(paList)
 	#>
 
 func IsListOfChars(pacList)
-	if NOT isList(pacList)
+	if NOT isList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(pacList).IsListOfChars()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsChar(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1376,7 +1513,16 @@ func IsListOfListsOfChars(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfChars()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfChars(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1396,7 +1542,16 @@ func IsListOfPairs(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairs()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsPair(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1416,7 +1571,16 @@ func IsListOfListsOfPairs(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfPairs()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfPairs(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1431,12 +1595,134 @@ func IsListOfListsOfPairs(paList)
 
 	#>
 
+
+func IsListOfListsOfPairsOfNumbers(paList)
+	if NOT isList(paList)
+		return _FALSE_
+	ok
+
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfPairsOfNumbers(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
+
+
+func IsListOfListsOfPairsOfStrings(paList)
+	if NOT isList(paList)
+		return _FALSE_
+	ok
+
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfPairsOfStrings(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
+
+
+func IsListOfListsOfPairsOfLists(paList)
+	if NOT isList(paList)
+		return _FALSE_
+	ok
+
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfPairsOfLists(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
+
+func IsPairOfPairs(paList)
+	if NOT isList(paList)
+		return _FALSE_
+	ok
+
+	if IsPair(paList[i][1]) and  IsPair(paList[2])
+		return _TRUE_
+	else
+		return _FALSE_
+	ok
+
+
+func IsListOfPairsOfPairs(paList)
+	if NOT isList(paList)
+		return _FALSE_
+	ok
+
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsPairOfPairs(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
+
+func IsListOfListsOfPairsOfPairs(paList)
+	if NOT isList(paList)
+		return _FALSE_
+	ok
+
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfPairsOfPairs(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
+
+
+func IsListOfListsOfPairsOfObjects(paList)
+	if NOT isList(paList)
+		return _FALSE_
+	ok
+
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfPairsOfObjects(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
+
+
 func IsListOfSets(paList)
 	if NOT isList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfSets()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsSet(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1456,7 +1742,16 @@ func IsListOfListsOfSets(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfSets()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfSets(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1476,7 +1771,16 @@ func IsListOfHashLists(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfHashLists()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsHashList(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1496,7 +1800,16 @@ func IsListOfListsOfHashLists(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfHashLists()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfHashLists(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1516,7 +1829,16 @@ func IsListOfGrids(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfGrids()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsGrid(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1536,7 +1858,16 @@ func IsListOfListsOfGrids(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfGrids()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfGrids(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1551,13 +1882,37 @@ func IsListOfListsOfGrids(paList)
 
 	#>
 
+func IsListOfTables(paList)
+	if NOT isList(paList)
+		return _FALSE_
+	ok
+
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsTable(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 func IsListOfListsOfTables(paList)
 	if NOT isList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfTables()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfTables(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1577,7 +1932,16 @@ func IsListOfTrees(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfTrees()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsTree(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1597,7 +1961,16 @@ func IsListOfListsOfTrees(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfTrees()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfTrees(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1617,7 +1990,16 @@ func IsListOfStzNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsStzNumber(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1637,7 +2019,16 @@ func IsListOfListsOfStzNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzNumbers(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1657,7 +2048,16 @@ func IsListOfStzDecimalNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzDecimalNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsStzDecimalNumber(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1677,7 +2077,16 @@ func IsListOfListsOfStzDecimalNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzDecimalNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzDecimalNumbers(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1697,7 +2106,16 @@ func IsListOfStzBinaryNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzBinaryNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsStzBinaryNumber(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1717,7 +2135,16 @@ func IsListOfListsOfStzBinaryNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzBinaryNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzBinaryNumbers(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1737,7 +2164,16 @@ func IsListOfStzOctalNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzOctalNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsStzOctalNumber(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1757,7 +2193,16 @@ func IsListOfListsOfStzOctalNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzOctalNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzOctalNumbers(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1777,7 +2222,16 @@ func IsListOfStzHexNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzHexNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if NOT IsStzHexNumber(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1797,7 +2251,16 @@ func IsListOfListsOfStzHexNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzHexNumbers()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzHexNumbers(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1817,7 +2280,16 @@ func IsListOfStzStrings(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzStrings()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsStzString(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1837,7 +2309,16 @@ func IsListOfListsOfStzStrings(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzStrings()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzStrings(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1856,7 +2337,17 @@ func IsListOfStzLists(paList)
 	if NOT isList(paList)
 		return _FALSE_
 	ok
-	return StzListQ(paList).IsListOfStzLists()
+
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsStzList(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1876,7 +2367,16 @@ func IsListOfListsOfStzLists(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzLists()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzLists(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1896,7 +2396,16 @@ func IsListOfStzObjects(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzObjects()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsStzObject(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1916,7 +2425,16 @@ func IsListOfListsOfStzObjects(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzObjects()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzObjects(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1936,7 +2454,16 @@ func IsListOfStzChars(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzChars()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsStzChar(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1956,7 +2483,16 @@ func IsListOfListsOfStzChars(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzChars()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzChars(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1976,7 +2512,16 @@ func IsListOfStzPairs(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzPairs()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsStzPair(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -1996,7 +2541,16 @@ func IsListOfListsOfStzPairs(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzPairs()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzPairs(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2016,7 +2570,16 @@ func IsListOfStzSets(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzSets()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsStzSet(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2036,7 +2599,16 @@ func IsListOfListsOfStzSets(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzSets()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzSets(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2056,7 +2628,16 @@ func IsListOfStzHashLists(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzHashLists()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsStzHashList(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2076,7 +2657,16 @@ func IsListOfListsOfStzHashLists(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzHashLists()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzHashLists(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2096,7 +2686,16 @@ func IsListOfStzGrids(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzGrids()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsStzGrid(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2116,7 +2715,16 @@ func IsListOfListsOfStzGrids(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzGrids()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzGrids(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2136,7 +2744,16 @@ func IsListOfStzTables(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzTables()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsStzTable(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2156,7 +2773,16 @@ func IsListOfListsOfStzTables(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzTables()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzTables(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2176,7 +2802,16 @@ func IsListOfStzTrees(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzTrees()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsStzTree(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2196,7 +2831,16 @@ func IsListOfListsOfStzTrees(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfStzTrees()
+	bResult = _TRUE_
+	nLen = len(paList)
+	for i = 1 to nLen
+			if Not IsListOfStzTrees(paList[i])
+				bResult = FALSE
+				exit
+			ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2213,19 +2857,54 @@ func IsListOfListsOfStzTrees(paList)
 
 #===
 
-func IsUniformList(paList) # Is made of the same item
+func IsUniformListCS(paList, pCaseSensitive) # Is made of the same item
 	if NOT isList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsUniform()
+	nLen = len(paList)
+	if nLen = 0
+		return _FALSE_
+	but nLen = 1
+		return _TRUE_
+	ok
 
-func IsDeepList(paList)
+	aStzObjects = []
+	for i = 1 to nLen
+		aStzObects + Q(paList[i])
+	next
+
+	bResult = _TRUE_
+	for i = 2 to nLen
+		if NOT paList[i].IsEqualToCS(paList[1], pCaseSensitive)
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
+
+	func IsUniformList(paList)
+		return IsUniformListCS(paList, _TRUE_)
+
+
+func IsDeepList(paList) // Contains at least an inner list
 	if NOT isList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsDeep()
+	bResult = _FALSE_
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if isList(paList[i])
+			bResult = _TRUE_
+			exit
+		ok
+	next
+
+	return bResult
+
 
 	#< @FunctionAlternativeForms
 
@@ -2240,12 +2919,29 @@ func IsDeepList(paList)
 
 	#>
 
-func IsHybridList(paList)
+func IsHybridList(paList) # Contains at least two different types
 	if NOT isList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsHybridList()
+	nLen = len(paList)
+	if nLen < 1
+		return _FALSE
+	ok
+
+	bResult = _TRUE_
+	_acTypes_ = []
+
+	for i = 1 to nLen
+		_acTypes_ + type(paList[i])
+	next
+
+	if len( U(_acTypes) ) != nLen
+		return _TRUE_
+	else
+		return _FALSE_
+	ok
+
 
 	#< @FunctionAlternativeForms
 
@@ -2260,12 +2956,28 @@ func IsHybridList(paList)
 
 	#>
 
-func IsPureList(paList)
+func IsPureList(paList) # Made of itmes of same type
 	if NOT isList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPureList()
+	nLen = len(paList)
+	if nLen < 1
+		return _FALSE
+	ok
+
+	bResult = _TRUE_
+	_acTypes_ = []
+
+	for i = 1 to nLen
+		_acTypes_ + type(paList[i])
+	next
+
+	if len( U(_acTypes) ) = 1
+		return _TRUE_
+	else
+		return _FALSE_
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -2285,7 +2997,7 @@ func IsOddList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsOdd()
+	return isOdd(len(paList))
 
 	#< @FunctionAlternativeForms
 
@@ -2314,12 +3026,12 @@ func IsOddList(paList)
 
 	#>
 
-func IsEvenList()
+func IsEvenList(paList)
 	if NOT isList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsEven()
+	return isEven(len(paList))
 
 	#< @FunctionAlternativeForms
 
@@ -2348,12 +3060,22 @@ func IsEvenList()
 
 	#>
 
-func IsListOfBits(paLists)
-	if NOT isList(paList)
+func IsListOfBits(paList)
+	if NOT ( isList(paList) and IsListOfNumbers(paList) )
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfBits()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsBit(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2368,23 +3090,39 @@ func IsListOfBits(paLists)
 
 	#>
 
-func IsListOfZerosAndOnes(paList)
-	if NOT isList(paList)
+func IsListOfBoleans(paList)
+	if NOT ( isList(paList) and IsListOfNumbers(paList) )
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfZerosAndOnes()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsBoolean(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
+	func IsListOfZerosAndOnes(paList)
+		return IsListOfBoleans(paList)
+
+	func @IsListOfBoleans(paList)
+		return IsListOfBoleans(paList)
+
 	func @IsListOfZerosAndOnes(paList)
-		return IsListOfZerosAndOnes(paList)
+		return IsListOfBoleans(paList)
 
 	func IsAListOfZerosAndOnes(paList)
-		return IsListOfZerosAndOnes(paList)
+		return IsListOfBoleans(paList)
 
 	func @IsAListOfZerosAndOnes(paList)
-		return IsListOfZerosAndOnes(paList)
+		return IsListOfBoleans(paList)
 
 	#>
 
@@ -2392,11 +3130,21 @@ func IsListOfZerosAndOnes(paList)
 #===
 
 func IsListOfLetters(paList)
-	if NOT isList(paList)
+	if NOT (isList(paList) and IsListOfStrings(paList) )
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfLetters()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsLetter(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2416,7 +3164,17 @@ func IsListOfQBytesLists(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfQBytesLists()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsQByteslist(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2431,12 +3189,39 @@ func IsListOfQBytesLists(paList)
 
 	#>
 
-func IsListOfStzListOfBytes(paList)
-	if NOT isList(paList)
+func IsListOfStzBytes(paList)
+	if NOT ( isList(paList) and IsListOfNumbers(paList) )
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStzListOfBytes()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsStzByte(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
+
+func IsListOfStzListOfBytes(paList)
+	if NOT ( isList(paList) and IsListOfNumbers(paList) )
+		return _FALSE_
+	ok
+
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsListOfStzBytes(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2470,7 +3255,7 @@ func IsListOfNumbersInStrings(paList)
 
 	return _TRUE_
 
-	#NOTE // Make all functions independent form Softanza classes
+	#TODO // Make all functions independent form Softanza classes
 
 	#< @FunctionAlternativeForms
 
@@ -2490,7 +3275,17 @@ func IsListOfNumbersOrStrings(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfNumbersOrStrings()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT (isNumber(paList[i]) or isString(paList[i]))
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2510,7 +3305,27 @@ func IsListOfNumbersAndStrings(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfNumbersAndStrings()
+	nLen = len(paList)
+	if nLen < 2
+		return _FALSE_
+	ok
+
+	_acTypes_ = []
+	for i = 1 to nLen
+		_acTypes_ + type(paList[i])
+	next
+
+	_acTypes_ = U(_acTypes_)
+
+	if len(_acTypes_) = 2 and
+		ring_substr1(_acTypes_, "NUMBER") > 0 and
+		ring_substr1(_acTypes_, "STRING") > 0
+
+			return _TRUE_
+	else
+			return _FALSE
+
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -2530,7 +3345,7 @@ func IsListOfNumbersOrListOfStrings(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfNumbersOrListOfStrings()
+	return IsListOfNumbers(paList) or IsListOfStrings(paList)
 
 	#< @FunctionAlternativeForms
 
@@ -2564,7 +3379,17 @@ func IsListOfStringsAndPairsOfStrings(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfStringsAndPairsOfStrings()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT (isString(paList[i]) or isPairOfStrings(paList[i]))
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2584,7 +3409,17 @@ func IsListOfNumbersAndPairsOfNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfNumbersAndPairsOfNumbers()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT (isNumber(paList[i]) or isPairOfNumbers(paList[i]))
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2604,7 +3439,17 @@ func IsListOfListsAndPairsOfLists(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsAndPairsOfLists()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT (isList(paList[i]) or IsPairOfLists(paList[i]))
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2624,7 +3469,17 @@ func IsListOfObjectsAndPairsOfObjects(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfObjectsAndPairsOfObjects()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT (isObject(paList[i]) or IsPairOfobjects(paList[i]))
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2666,7 +3521,17 @@ func IsListOfPairsOfStrings(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfStrings()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfStrings(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2709,7 +3574,17 @@ func IsListOfPairsOfNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfNumbers()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfNumbers(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2743,7 +3618,12 @@ func IsPairOfSections(paPair)
 		return _FALSE_
 	ok
 
-	return StzPairQ(paPair).IsPairOfSections()
+	if IsSection(paPair[1]) and IsSection(paPair[2])
+		return _TRUE_
+	else
+		return _FALSE_
+	ok
+
 
 	#< @FunctionAlternativeForms
 
@@ -2763,7 +3643,17 @@ func IsListOfPairsOfSections(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfSections()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfSections(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2806,7 +3696,17 @@ func IsListOfPairsOfLists(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfLists()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfLists(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2849,7 +3749,17 @@ func IsListOfPairsOfObjects(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfObjects()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfObjects(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2892,7 +3802,12 @@ func IsPairOfStzObjects(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfStzObjects()
+	if IsStzObject(paList[1]) and IsStzObject(paList[2])
+		return _TRUE_
+	else
+		return _FALSE_
+	ok
+
 
 	#< @FunctionAlternativeForms
 
@@ -2912,8 +3827,17 @@ func IsListOfPairsOfStzObjects(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfStzObjects()
+	nLen = len(paList)
+	bResult = _TRUE_
 
+	for i = 1 to nLen
+		if NOT IsPairOfStzObjects(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 	#< @FunctionAlternativeForms
 
 	func @IsListOfPairsOfStzObjects(paList)
@@ -2932,7 +3856,11 @@ func IsPairOfStzNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfStzNumbers()
+	if IsStzNumber(paList[1]) and IsStzNumber(paList[2])
+		return _TRUE_
+	else
+		return _FALSE_
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -2952,7 +3880,17 @@ func IsListOfPairsOfStzNumbers(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfStzNumbers()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfStzNumbers(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -2972,7 +3910,12 @@ func IsPairOfStzStrings(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfStzStrings()
+	if IsStzString(paList[1]) and IsStzString(paList[2])
+		return _TRUE_
+	else
+		return _FALSE_
+	ok
+
 
 	#< @FunctionAlternativeForms
 
@@ -2987,12 +3930,24 @@ func IsPairOfStzStrings(paList)
 
 	#>
 
+
 func IsListOfPairsOfStzStrings(paList)
 	if NOT isList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfStzStrings()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfStzStings(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
+
 
 	#< @FunctionAlternativeForms
 
@@ -3012,7 +3967,12 @@ func IsPairOfStzLists(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfStzLists()
+	if IsStzList(paList[1]) and IsStzList(paList[2])
+		return _TRUE_
+	else
+		return _FALSE_
+	ok
+
 
 	#< @FunctionAlternativeForms
 
@@ -3032,7 +3992,17 @@ func IsListOfPairsOfStzLists(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfStzLists()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfStzLists(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -3052,7 +4022,22 @@ func IsPairOfNumberAndString(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfNumberAndString()
+	nLen = len(paList)
+	_acTypes = []
+	for i = 1 to nLen
+		_acTypes_ + type(paList[i])
+	next
+
+	_acTypes = U(_acTypes)
+	if len(_acTypes) = 1
+		return _FALSE_
+	ok
+
+	if _acTypes_[1] = "NUMBER" and _acTypes_[2] = "STRING"
+		return _TRUE_
+	else
+		return _FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -3072,7 +4057,17 @@ func IsListOfPairsOfNumberAndString(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfNumberAndString()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfNumberAndString(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -3092,7 +4087,22 @@ func IsPairOfStringAndNumber(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfStringAndNumber()
+	nLen = len(paList)
+	_acTypes = []
+	for i = 1 to nLen
+		_acTypes_ + type(paList[i])
+	next
+
+	_acTypes = U(_acTypes)
+	if len(_acTypes) = 1
+		return _FALSE_
+	ok
+
+	if _acTypes_[1] = "STRING" and _acTypes_[2] = "NUMBER"
+		return _TRUE_
+	else
+		return _FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -3112,7 +4122,17 @@ func IsListOfPairsOfStringAndNumber(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfStringAndNumber()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfStringAndNumber(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -3132,7 +4152,22 @@ func IsPairOfNumberAndList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfNumberAndList()
+	nLen = len(paList)
+	_acTypes = []
+	for i = 1 to nLen
+		_acTypes_ + type(paList[i])
+	next
+
+	_acTypes = U(_acTypes)
+	if len(_acTypes) = 1
+		return _FALSE_
+	ok
+
+	if _acTypes_[1] = "NUMBER" and _acTypes_[2] = "LIST"
+		return _TRUE_
+	else
+		return _FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -3152,7 +4187,17 @@ func IsListOfPairsOfNumberAndList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfNumberAndList()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfNumberAndList(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -3172,7 +4217,22 @@ func IsPairOfListAndNumber(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfListAndNumber()
+	nLen = len(paList)
+	_acTypes = []
+	for i = 1 to nLen
+		_acTypes_ + type(paList[i])
+	next
+
+	_acTypes = U(_acTypes)
+	if len(_acTypes) = 1
+		return _FALSE_
+	ok
+
+	if _acTypes_[1] = "LIST" and _acTypes_[2] = "NUMBER"
+		return _TRUE_
+	else
+		return _FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -3192,7 +4252,17 @@ func IsListOfPairsOfListAndNumber(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfListAndNumber()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfListAndNumber(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -3212,7 +4282,22 @@ func IsPairOfNumberAndObject(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfNumberAndObject()
+	nLen = len(paList)
+	_acTypes = []
+	for i = 1 to nLen
+		_acTypes_ + type(paList[i])
+	next
+
+	_acTypes = U(_acTypes)
+	if len(_acTypes) = 1
+		return _FALSE_
+	ok
+
+	if _acTypes_[1] = "NUMBER" and _acTypes_[2] = "OBJECT"
+		return _TRUE_
+	else
+		return _FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -3232,7 +4317,17 @@ func IsListOfPairsOfNumberAndObject(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfNumberAndObject()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfNumberAndObject(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -3252,7 +4347,22 @@ func IsPairOfObjectAndNumber(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfObjectAndNumber()
+	nLen = len(paList)
+	_acTypes = []
+	for i = 1 to nLen
+		_acTypes_ + type(paList[i])
+	next
+
+	_acTypes = U(_acTypes)
+	if len(_acTypes) = 1
+		return _FALSE_
+	ok
+
+	if _acTypes_[1] = "OBJECT" and _acTypes_[2] = "NUMBER"
+		return _TRUE_
+	else
+		return _FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -3272,7 +4382,17 @@ func IsListOfPairsOfObjectAndNumber(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfObjectAndNumber()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfObjectAndNumber(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -3292,7 +4412,22 @@ func IsPairOfStringAndList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfStringAndList()
+	nLen = len(paList)
+	_acTypes = []
+	for i = 1 to nLen
+		_acTypes_ + type(paList[i])
+	next
+
+	_acTypes = U(_acTypes)
+	if len(_acTypes) = 1
+		return _FALSE_
+	ok
+
+	if _acTypes_[1] = "STRING" and _acTypes_[2] = "LIST"
+		return _TRUE_
+	else
+		return _FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -3312,7 +4447,17 @@ func IsListOfPairsOfStringAndList(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfStringAndList()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfStringAndList(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -3332,7 +4477,22 @@ func IsPairOfListAndString(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfListAndString()
+	nLen = len(paList)
+	_acTypes = []
+	for i = 1 to nLen
+		_acTypes_ + type(paList[i])
+	next
+
+	_acTypes = U(_acTypes)
+	if len(_acTypes) = 1
+		return _FALSE_
+	ok
+
+	if _acTypes_[1] = "LIST" and _acTypes_[2] = "STRING"
+		return _TRUE_
+	else
+		return _FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -3352,7 +4512,17 @@ func IsListOfPairsOfListAndString(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfListAndString()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfListAndString(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -3372,7 +4542,22 @@ func IsPairOfStringAndObject(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfStringAndObject()
+	nLen = len(paList)
+	_acTypes = []
+	for i = 1 to nLen
+		_acTypes_ + type(paList[i])
+	next
+
+	_acTypes = U(_acTypes)
+	if len(_acTypes) = 1
+		return _FALSE_
+	ok
+
+	if _acTypes_[1] = "STRING" and _acTypes_[2] = "OBJECT"
+		return _TRUE_
+	else
+		return _FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -3392,7 +4577,17 @@ func IsListOfPairsOfStringAndObject(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfStringAndObject()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfStringAndObject(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -3412,7 +4607,22 @@ func IsPairOfObjectAndString(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfObjectAndString()
+	nLen = len(paList)
+	_acTypes = []
+	for i = 1 to nLen
+		_acTypes_ + type(paList[i])
+	next
+
+	_acTypes = U(_acTypes)
+	if len(_acTypes) = 1
+		return _FALSE_
+	ok
+
+	if _acTypes_[1] = "OBJECT" and _acTypes_[2] = "STRING"
+		return _TRUE_
+	else
+		return _FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -3432,7 +4642,17 @@ func IsListOfPairsOfObjectAndString(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfObjectAndString()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfObjectAndString(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -3452,7 +4672,22 @@ func IsPairOfListAndObject(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsPairOfListAndObject()
+	nLen = len(paList)
+	_acTypes = []
+	for i = 1 to nLen
+		_acTypes_ + type(paList[i])
+	next
+
+	_acTypes = U(_acTypes)
+	if len(_acTypes) = 1
+		return _FALSE_
+	ok
+
+	if _acTypes_[1] = "LIST" and _acTypes_[2] = "OBJECT"
+		return _TRUE_
+	else
+		return _FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -3472,7 +4707,17 @@ func IsListOfPairsOfListAndObject(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfPairsOfListAndObject()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfListAndObject(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -3512,7 +4757,17 @@ func IsListOfPairsOfChars(paList)
 		return _FALSE_
 	ok
 
-	return StzPairQ(paList).IsListOfPairsOfChars()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsPairOfChars(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -3591,7 +4846,17 @@ func IsListOfNamedObjects(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfNamedObjects()
+	nLen = len(paList)
+	bResult = _TRUE_
+
+	for i = 1 to nLen
+		if NOT IsNamedObject(paList[i])
+			bResult = _FALSE_
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -3611,7 +4876,7 @@ func IsHashListOrListOfStrings(paList)
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsHashListOrListOfStrings()
+	return IsHashList(paList) or IsListOfStrings(paList)
 
 	#< @FunctionAlternativeForms
 
@@ -3652,11 +4917,20 @@ func IsListOfStringsOrPairsOfStrings(paList)
 		return IsListOfStringsOrPairsOfStrings(paList)
 
 func IsListOfListsOfSameSize(paList)
-	if NOT isList(paList)
+	if NOT ( isList(paList) and IsListOfLists(paList) )
 		return _FALSE_
 	ok
 
-	return StzListQ(paList).IsListOfListsOfSameSize()
+	nLen = len(paList)
+	anSizes = []
+	for i = 1 to nLen
+		nLenList = len(paList[i])
+		if ring_find(anSizes, nLenList)
+			return _FALSE_
+		ok
+	next
+
+	return _TRUE_
 
 	#< @FunctionAlternativeForms
 
@@ -18922,41 +20196,20 @@ class stzList from stzObject
 			return This.IsPureList()
 
 	def IsOddList()
-		oTempNumber = new stzNumber( This.NumberOfItems() )
-		if oTempNumber.IsOdd()
-			return _TRUE_
-		else
-			return _FALSE_
-		ok
+		return ring_isOdd(len(@aContent))
 
 		def IsAnOddList()
 			return This.IsOddList()
 
 	def IsEvenList()
-		if NOT This.IsOddList()
-			return _TRUE_
-		else
-			return _FALSE_
-		ok
+		return ring_isEven(len(@aContent))
 
 		def IsAnEvenList()
 			return This.IsEvenList()
 
 	// TODO: Maybe we should design a stzListOfBits class...
 	def IsListOfBits()
-		if This.NumberOfItems() = 0
-			return _FALSE_
-		ok
-
-		if This.IsListOfNumbers()
-			for n in This.List()
-				if NOT IsBit(n)
-					return _FALSE_
-				ok
-			end
-		ok
-
-		return _TRUE_
+		return @IsListOfBits(This.Content())
 
 		def IsAListOfBits()
 			return This.IsListOfBits()
@@ -21197,6 +22450,25 @@ class stzList from stzObject
 			return This.IsListOfListsOfPairs()
 
 		#>
+
+	#===
+
+	def IsListOfListsOfPairsOfNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return _FALSE_
+		ok
+
+		bResult = _TRUE_
+
+		for i = 1 to nLen
+			if NOT @IsListOfPairsOfNumbers(@aContent[i])
+				bResult = _FALSE_
+				exit
+			ok
+		next
+
+		return bResult
 
 	  #--------------------------------------------#
 	 #  CHECKING THAT THE LIST IS A LIST OF SETS  #
