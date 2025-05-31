@@ -2683,6 +2683,9 @@ class stzMultiBarChart from stzChart
 		return nCount
 
 
+#------------------------------#
+#  CLEAN CURVE CHART           #
+#------------------------------#
 
 #------------------------------#
 #  CLEAN CURVE CHART           #
@@ -2712,7 +2715,7 @@ class stzMultiCurveChart from stzChart
 	@nPointSpacing = 3  # Horizontal spacing between data points
 
 	# Curve drawing characters for different series
-	@acPointChars = ["●", "○", "◆", "◇", "▲", "△", "■", "□"]
+	@acPointChars = ["●", "○", "▲", "■", "□"]
 	@cLineChar = "─"
 	@cCornerTL = "╭"  # Top-left corner
 	@cCornerTR = "╮"  # Top-right corner
@@ -3615,3 +3618,4 @@ def _drawCurveSegment(nX1, nY1, nX2, nY2)
 				ok
 			next
 		next
+
