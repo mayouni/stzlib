@@ -1,21 +1,5 @@
 /*
 A class for ascii-based charts, working with stzTable and stzPivotTable
-
-Get inspiration from:
-https://www.bloomberg.com/graphics/year-ahead-2016/
-https://github.com/alincoop/obsidian-tinychart
-https://github.com/madnight/bitcoin-chart-cli
-
-
-^         ╭●╮                                     
-│        ╭╯ ╰╮                                    
-│        │   ╰╮         
-│       ╭╯    ╰──●╮
-│    ╭──╯         ╰╮   
-│   ●╯             ╰──╮    
-│ ──╯                 ╰──────    
-╰─────────────────────────────>
-
 # Softanza Chart System Design
 
 ## Core Philosophy
@@ -26,27 +10,7 @@ The Softanza Chart System is designed to create expressive ASCII-based visualiza
 3. **Clean yet expressive** - Modern ASCII design that conveys information clearly
 4. **Insightful** - Provides automatic insights and suggestions for further exploration
 
-## System Architecture
-
-stzChart (Abstract Base Class)
-├── stzComparisonChart
-│   ├── stzBarChart
-│   ├── stzColumnChart
-│   └── stzRadarChart
-├── stzRelationChart
-│   ├── stzScatterChart
-│   ├── stzLineChart
-│   └── stzHeatMapChart
-├── stzCompositionChart
-│   ├── stzPieChart
-│   ├── stzTreeMapChart
-│   └── stzStackedChart
-└── stzDistributionChart
-    ├── stzHistogramChart
-    ├── stzBoxPlotChart
-    └── stzAreaChart
-
-TODO: Learn from IBM offering for data anlytics to empower
+#TODO: Learn from IBM offering for data anlytics to empower
 Softanza designs and data analytics experience for entreprise
 https://dataplatform.cloud.ibm.com/docs/content/wsj/getting-started/welcome-main.html
 */
@@ -260,8 +224,15 @@ class stzChart
 
 		@cXAxisChar = c
 
+		def SetVAxis(c)
+			This.SetXAxisChar(c)
+
 		def XAxisChar()
 			return @cXAxisChar
+
+		def VAxisChar()
+			return @cXAxisChar
+
 
 	def SetYAxisChar(c)
 		if CheckParams()
@@ -272,7 +243,13 @@ class stzChart
 
 		@cYAxisChar = c
 
+		def SetHAxisChar(c)
+			This.SetYAxisChar(c)
+
 		def YAxisChar()
+			return @cYAxisChar
+
+		def HAxisChar()
 			return @cYAxisChar
 
 	def SetXArrowChar(c)
@@ -284,7 +261,13 @@ class stzChart
 
 		@cXArrowChar = c
 
+		def SetVArrowChar(c)
+			This.SetXArrowChar(c)
+
 		def XArrowChar()
+			return @cXArrowChar
+
+		def VArrowChar()
 			return @cXArrowChar
 
 	def SetYArrowChar(c)
@@ -296,7 +279,13 @@ class stzChart
 
 		@cYArrowChar = c
 
+		def SetHArrowChar(c)
+			This.SetYArrowChar(c)
+
 		def YArrowChar()
+			return @cYArrowChar
+
+		def HArrowChar()
 			return @cYArrowChar
 
 	def SetOriginChar(c)
@@ -852,6 +841,9 @@ class stzBarChart from stzChart
 		@acCanvas[1][nAxisCol] = @cXArrowChar
 
 
+		def _drawHAxis(oLayout)
+			This._drawYAxis(oLayout)
+
 	def _drawXAxis(oLayout)
 		
 		nAxisRow = oLayout[:x_axis_row]
@@ -873,6 +865,9 @@ class stzBarChart from stzChart
 
 		@acCanvas[nAxisRow][nEndCol] = @cYArrowChar
 
+
+		def _drawVAxis(oLayout)
+			This._drawXAxis(oLayout)
 
 	def _drawBars(oLayout)
 		
@@ -1684,8 +1679,6 @@ class stzHBarChart from stzChart
 		return cResult
 
 
-
-
 #-------------------------#
 #  MULTI-BAR CHART CLASS  #
 #-------------------------#
@@ -1923,8 +1916,14 @@ class stzMultiBarChart from stzChart
 	def SetXAxis(bShow)
 		@bShowXAxis = bShow
 
+		def SetVAxis(bShow)
+			@bShowXAxis = bShow
+
 	def SetYAxis(bShow)
 		@bShowYAxis = bShow
+
+		def SetHAxis(bShow)
+			@bShowYAxis = bShow
 
 	def SetLabels(bShow)
 		@bShowLabels = bShow
@@ -2683,437 +2682,627 @@ class stzMultiBarChart from stzChart
 		return nCount
 
 
-#------------------------------#
-#  CLEAN CURVE CHART           #
-#------------------------------#
 
-#------------------------------#
-#  CLEAN CURVE CHART           #
-#------------------------------#
+#-------------------------#
+#  HISTOGRAM CHART CLASS  #
+#-------------------------#
 
-class stzMCurveChart from stzMultiCurveChart
-
-class stzMultiCurveChart from stzChart
-
-	# Multi-series container structure
-	@aaMultiValues = []     # Array of arrays for each curve series
-	@acSeriesNames = []     # Names of each curve series  
-	@acSeriesChars = []     # Point characters for each series
-	@acCategories = []      # X-axis category labels (shared across all series)
-	@nSeriesCount = 0       # Number of curve series
+class stzHistogram from stzChart
 
 	@bShowXAxis = True
 	@bShowYAxis = True
 	@bShowLabels = True
-	@bShowAverage = False
-	@bShowValues = False
+	@bShowFrequency = False
 	@bShowPercent = False
-	@bShowLegend = True
+	@bShowStats = False  # Show mean, std dev, etc.
 
+	@nBinCount = 0       # Number of bins (0 = auto-calculate)
+	@nBinRange = 0       # Width of each bin (0 = auto-calculate)
+	@nBarWidth = 2
 	@nMaxWidth = 132
 	@nMaxLabelWidth = 12
-	@nPointSpacing = 3  # Horizontal spacing between data points
+	@nBarInterSpace = 1
+	@nLabelInterSpace = 1
 
-	# Curve drawing characters for different series
-	@acPointChars = ["●", "○", "▲", "■", "□"]
-	@cLineChar = "─"
-	@cCornerTL = "╭"  # Top-left corner
-	@cCornerTR = "╮"  # Top-right corner
-	@cCornerBL = "╰"  # Bottom-left corner
-	@cCornerBR = "╯"  # Bottom-right corner
-	@cVerticalChar = "│"
-	@cHorizontalChar = "─"
+	@cBarChar = "█"
+	@cFinalBarChar = ""
+
+	# Histogram-specific data
+	@aBinRanges = []     # [min, max] for each bin
+	@aBinCounts = []     # Frequency count for each bin
+	@aBinLabels = []     # Label for each bin (e.g., "20-30")
+	@anRawData = []      # Original data before binning
 
 	# Layout constants
 	@nYAxisWidth = 1
 	@nAxisPadding = 1
 	@nLabelPadding = 1
 
-	def init(paMultiData)
-		if CheckParams()
-			if NOT isList(paMultiData)
-				StzRaise("Can't create stzMultiCurveChart! paMultiData must be a list.")
-			ok
-		ok
+	# Histogram aggregation types
+	@cAggregationType = "frequency"  # frequency, sum, average, min, max
+	@bShowValues = FALSE # General flag to control value display for any aggregation
 
-		# Parse multi-series data structure
-		_parseMultiSeriesData(paMultiData)
-		_calculateMultiRange()
-
-
-	def _parseMultiSeriesData(paMultiData)
-		# Expected formats:
-		# Single series: [ :Sales = [ :Jan = 15, :Feb = 28, :Mar = 23 ] ]
-		# Multi series: [ :Revenue = [...], :Profit = [...], :Expenses = [...] ]
-
-		@aaMultiValues = []
-		@acSeriesNames = []
-		@acCategories = []
-		@nSeriesCount = 0
-
-		# Handle hashlist input format
-		oHashList = new stzHashList(paMultiData)
-		aKeys = oHashList.Keys()
-		aValues = oHashList.Values()
-
-		for i = 1 to len(aKeys)
-			cSeriesName = aKeys[i]
-			aSeriesData = aValues[i]
-			
-			# Handle nested hashlist (category-value pairs)
-			if isList(aSeriesData) and len(aSeriesData) > 0 and isList(aSeriesData[1])
-				oSeriesHash = new stzHashList(aSeriesData)
-				aSeriesCategories = oSeriesHash.Keys()
-				aSeriesValues = oSeriesHash.Values()
-				
-				# Use categories from first series
-				if len(@acCategories) = 0
-					@acCategories = aSeriesCategories
-				ok
-				
-				@acSeriesNames + cSeriesName
-				@aaMultiValues + aSeriesValues
-				@nSeriesCount++
-			ok
-		next
-
-		# Generate default categories if still empty
-		if len(@acCategories) = 0 and @nSeriesCount > 0
-			nMaxPoints = 0
-			for aSeries in @aaMultiValues
-				if len(aSeries) > nMaxPoints
-					nMaxPoints = len(aSeries)
-				ok
-			next
-			
-			for i = 1 to nMaxPoints
-				@acCategories + ("" + i)
-			next
-		ok
-
-		# Assign default point characters for each series
-		@acSeriesChars = []
-		for i = 1 to @nSeriesCount
-			nCharIndex = ((i-1) % len(@acPointChars)) + 1
-			@acSeriesChars + @acPointChars[nCharIndex]
-		next
-
-
-	def _calculateMultiRange()
-		@nMaxValue = 0
-		@nMinValue = 0
+	def init(paData)
 		
-		if @nSeriesCount > 0
-			# Find global min and max across all series
-			for aSeries in @aaMultiValues
-				for nValue in aSeries
-					if nValue > @nMaxValue
-						@nMaxValue = nValue
-					ok
-					if nValue < @nMinValue
-						@nMinValue = nValue
-					ok
-				next
-			next
+		# For histogram, we expect a simple list of numbers (raw data)
+		if CheckParams()
+			if NOT isList(paData)
+				StzRaise("Can't create stzHistogram! paData must be a list of numbers.")
+			ok
+
+			if NOT IsListOfNumbers(paData)
+				StzRaise("Can't create stzHistogram! paData must contain only numbers.")
+			ok
 		ok
 
-		# Ensure we have a reasonable range
-		if @nMaxValue = @nMinValue
-			@nMaxValue = @nMinValue + 1
+		@anRawData = paData
+		_calculateBins()
+		_processBinnedData()
+
+	def _calculateBins()
+		
+		if len(@anRawData) = 0
+			return
 		ok
 
-	def SeriesCount()
-		return @nSeriesCount
-
-	def SeriesNames()
-		return @acSeriesNames
-
-	def SeriesValues(nIndex)
-		if nIndex >= 1 and nIndex <= @nSeriesCount
-			return @aaMultiValues[nIndex]
+		@nMinValue = min(@anRawData)
+		@nMaxValue = max(@anRawData)
+		
+		# Auto-calculate bin count using Sturges' rule if not set
+		if @nBinCount = 0
+			@nBinCount = max([5, ceil(1 + log(len(@anRawData)) / log(2))])
 		ok
-		return []
-
-	def Categories()
-		return @acCategories
-
-	def SetSeriesPointChar(nSeriesIndex, cChar)
-		if nSeriesIndex >= 1 and nSeriesIndex <= @nSeriesCount
-			@acSeriesChars[nSeriesIndex] = cChar
+		
+		# Calculate bin width
+		nRange = @nMaxValue - @nMinValue
+		if nRange = 0
+			@nBinRange = 1
+		else
+			@nBinRange = nRange / @nBinCount
 		ok
 
-	def SetAllSeriesPointChars(acChars)
-		if isList(acChars)
-			for i = 1 to min([len(acChars), @nSeriesCount])
-				@acSeriesChars[i] = acChars[i]
-			next
+		# Create bin ranges
+		@aBinRanges = []
+		@aBinLabels = []
+		
+		for i = 1 to @nBinCount
+			nBinMin = @nMinValue + (i-1) * @nBinRange
+			nBinMax = @nMinValue + i * @nBinRange
+			
+			# Last bin includes the maximum value
+			if i = @nBinCount
+				nBinMax = @nMaxValue
+			ok
+			
+			@aBinRanges + [nBinMin, nBinMax]
+			
+			# Create labels
+			cLabel = RoundN(nBinMin, 1) + "-" + RoundN(nBinMax, 1)
+			@aBinLabels + cLabel
+		next
+
+
+
+	def _findBinIndex(nValue)
+		
+		for i = 1 to len(@aBinRanges)
+			nMin = @aBinRanges[i][1]
+			nMax = @aBinRanges[i][2]
+			
+			# Last bin includes maximum value
+			if i = len(@aBinRanges)
+				if nValue >= nMin and nValue <= nMax
+					return i
+				ok
+			else
+				if nValue >= nMin and nValue < nMax
+					return i
+				ok
+			ok
+		next
+		
+		return 0  # Should not happen with valid data
+
+	# Configuration methods
+	def SetBinCount(n)
+		if n > 0
+			@nBinCount = n
+			_calculateBins()
+			_processBinnedData()
 		ok
 
+	def SetBinRange(n)
+		if n > 0
+			@nBinRange = n
+			@nBinCount = ceil((@nMaxValue - @nMinValue) / n)
+			_calculateBins()
+			_processBinnedData()
+		ok
+
+def SetValues(bShow)
+	@bShowValues = bShow
+
+	def ShowValues()
+		@bShowValues = TRUE
+
+	def WithoutValues()
+		@bShowValues = FALSE
+
+	def SetAggregation(cType)
+	@cAggregationType = cType
+	@bShowValues = TRUE
+	_processBinnedData()
+
+
+	def AggregationType()
+		return @cAggregationType
+
+		def Aggregation()
+			return @cAggregationType
+
+	def AggrgationTypes()
+		return [ "frequency", "sum", "average", "min", "max" ]
+
+
+
+	def SetFrequency(bShow)
+		@cAggregationType = "frequency"
+		@bShowValues = TRUE
+		_processBinnedData()
+
+		def AddFrequency()
+			@bShowFrequency = TRUE
+
+		def ShowFrequency()
+			@bShowFrequency = TRUE
+
+	def SetStats(bShow) # Displays a recap of stats line at the bottom
+		@bShowStats = bShow
+
+		def AddStats()
+			@bShowStats = TRUE
+
+		def ShowStats()
+			@bShowStats = TRUE
+
+	# Inherit and adapt bar chart methods
 
 	def SetXAxis(bShow)
 		@bShowXAxis = bShow
 
-		def SetHAxis(bShow)
-			@bShowXAxis = bShow
-
 		def WithoutXAxis()
-			@bShowXAxis = FALSE
-
-		def WithoutHAxis()
 			@bShowXAxis = FALSE
 
 	def SetYAxis(bShow)
 		@bShowYAxis = bShow
 
-		def SetVAxis(bShow)
-			@bShowYAxis = bShow
-
 		def WithoutYAxis()
 			@bShowYAxis = FALSE
 
-		def WithoutVAxis()
-			@bShowYAxis = FALSE
-
-	def SetXYAxis(bShow)
-		if isList(bShow) and len(bShow) = 2
-			@bShowXAxis = bShow[1]
-			@bShowYAxis = bShow[2]
-		else
-			@bShowXAxis = bShow
-			@bShowYAxis = bShow
-		ok
-
-		def SetXYAxies(bShow)
-			This.SetXYAxis(bShow)
-
-		def SetYXAxis(bShow)
-			This.SetXYAxis(bShow)
-
-		def SetBothAxis(bShow)
-			This.SetXYAxis(bShow)
-
-		def WithoutAxises()
-			This.SetXYAxis(FALSE)
-
-		def WithoutXYAxis()
-			This.SetXYAxis(FALSE)
-
-	def SetYLabels(bShow)
+	def SetLabels(bShow)
 		@bShowLabels = bShow
 
-		def SetLabels(bShow)
-			This.SetYLabels(bShow)
-
-		def AddYLabels()
-			This.SetYLabels(_TRUE_)
-
 		def AddLabels()
-			This.SetYLabels(_TRUE_)
-
-		def WithoutYLabels()
-			@bShowLabels = FALSE
+			@bShowLabels = TRUE
 
 		def WithoutLabels()
 			@bShowLabels = FALSE
 
-	def SetAverageLine(bShow)
-		@bShowAverage = bShow
-
-		def SetAverage(bShow)
-			@bShowAverage = bShow
-
-		def AddAverage()
-			@bShowAverage = _TRUE_
-
-		def AddAverageLine()
-			@bShowAverage = _TRUE_
-
-	def SetValues(bShow)
-		@bShowValues = bShow
-
-		def AddValues()
-			This.SetValues(_TRUE_)
-
 	def SetPercent(bShow)
 		@bShowPercent = bShow
 
-		def SetPercentage(bShow)
-			@bShowPercent = bShow
-
 		def AddPercent()
-			@bShowPercent = _TRUE_
+			@bShowPercent = TRUE
 
-		def AddPercentage()
-			@bShowPercent = _TRUE_
-
-	def SetPointSpacing(n)
-		@nPointSpacing = max([2, n])
-
-		def PointSpacing()
-			return @nPointSpacing
+	def SetBarWidth(nWidth)
+		@nBarWidth = max([1, nWidth])
 
 	def SetMaxWidth(nWidth)
 		@nMaxWidth = nWidth
 
-		def MaxWidth()
-			return @nMaxWidth
+	def SetBarInterSpace(n)
+		@nBarInterSpace = n  # 0 = auto-calculate, >0 = fixed spacing
 
-	def SetMaxLabelWidth(n)
-		@nMaxLabelWidth = n
-
-		def MaxLabelWidth()
-			return @nMaxLabelWidth
-
-	def SetPointChar(c)
+	def SetBarChar(c)
 		if CheckParams()
 			if not IsChar(c)
 				StzRaise("Incorrect param type! c must be a char.")
 			ok
 		ok
-		@cPointChar = c
+		@cBarChar = c
 
+	def SetFinalBarChar(c)
+		if CheckParams()
+			if not IsChar(c)
+				StzRaise("Incorrect param type! c must be a char.")
+			ok
+		ok
+		@cFinalBarChar = c
 
-	def _initCanvas()
-		@acCanvas = []
-		for i = 1 to @nHight
-			aRow = []
-			for j = 1 to @nWidth
-				aRow + " "
-			next
-			@acCanvas + aRow
+		def SetTopBarChar(c)
+			This.SetFinalBarChar(c)
+
+	def SetLabelInterSpace(n)
+	    @nLabelInterSpace = n
+
+	# Statistical methods for histogram
+	def Mean()
+		if len(@anRawData) = 0
+			return 0
+		ok
+		nSum = 0
+		for nVal in @anRawData
+			nSum += nVal
 		next
+		return nSum / len(@anRawData)
 
+	def StandardDeviation()
+		if len(@anRawData) <= 1
+			return 0
+		ok
+		
+		nMean = This.Mean()
+		nSumSquares = 0
+		
+		for nVal in @anRawData
+			nSumSquares += pow(nVal - nMean, 2)
+		next
+		
+		return sqrt(nSumSquares / (len(@anRawData) - 1))
 
-	def _finalizeCanvas()
-		cResult = ""
-		for i = 1 to len(@acCanvas)
-			for j = 1 to len(@acCanvas[i])
-				cResult += @acCanvas[i][j]
-			next
-			if i < len(@acCanvas)
-				cResult += nl
+	def Median()
+		if len(@anRawData) = 0
+			return 0
+		ok
+		
+		aSorted = sort(@anRawData)
+		nLen = len(aSorted)
+		
+		if nLen % 2 = 1
+			return aSorted[ceil(nLen/2)]
+		else
+			nMid1 = aSorted[nLen/2]
+			nMid2 = aSorted[nLen/2 + 1]
+			return (nMid1 + nMid2) / 2
+		ok
+
+	def Mode()
+		# Find the bin with highest frequency
+		nMaxFreq = max(@aBinCounts)
+		nModeIndex = find(@aBinCounts, nMaxFreq)
+		
+		if nModeIndex > 0
+			return @aBinRanges[nModeIndex]
+		else
+			return [0, 0]
+		ok
+
+	def DataCount()
+		return len(@anRawData)
+
+	#--- AGGREGATION
+
+	def ShowSum()
+		@cAggregationType = "sum"
+		@bShowValues = TRUE
+		_processBinnedData()
+
+	def ShowAverage()
+		@cAggregationType = "average"
+		@bShowValues = TRUE
+		_processBinnedData()
+
+	def ShowMin()
+		@cAggregationType = "min"
+		@bShowValues = TRUE
+		_processBinnedData()
+
+	def ShowMax()
+		@cAggregationType = "max"
+		@bShowValues = TRUE
+		_processBinnedData()
+
+# Updated _processBinnedData method
+def _processBinnedData()
+	
+	# Initialize bin data based on aggregation type
+	@aBinCounts = []
+	
+	for i = 1 to @nBinCount
+		switch @cAggregationType
+		on "frequency"
+			@aBinCounts + 0
+		on "sum"
+			@aBinCounts + 0
+		on "average"
+			@aBinCounts + 0
+		on "min"
+			@aBinCounts + 0
+		on "max"
+			@aBinCounts + 0
+		off
+	next
+	
+	# Process each data point
+	for nValue in @anRawData
+		nBinIndex = _findBinIndex(nValue)
+		if nBinIndex > 0
+			switch @cAggregationType
+			on "frequency"
+				@aBinCounts[nBinIndex]++
+			on "sum"
+				@aBinCounts[nBinIndex] += nValue
+			on "average"
+				# Store sum first, calculate average later
+				@aBinCounts[nBinIndex] += nValue
+			on "min"
+				if @aBinCounts[nBinIndex] = 0
+					@aBinCounts[nBinIndex] = nValue
+				else
+					@aBinCounts[nBinIndex] = min([@aBinCounts[nBinIndex], nValue])
+				ok
+			on "max"
+				@aBinCounts[nBinIndex] = max([@aBinCounts[nBinIndex], nValue])
+			off
+		ok
+	next
+	
+	# Post-process for average
+	if @cAggregationType = "average"
+		for i = 1 to @nBinCount
+			nCount = _getFrequencyForBin(i)
+			if nCount > 0
+				@aBinCounts[i] = @aBinCounts[i] / nCount
+			else
+				@aBinCounts[i] = 0
 			ok
 		next
+	ok
+	
+	# Set up parent class data
+	@anValues = @aBinCounts
+	@acLabels = @aBinLabels
+	@nMaxValue = max(@aBinCounts)
+	@nMinValue = min(@aBinCounts)
 
-		return cResult
-
-	def ToString()
-		# Return empty chart if no data
-		if @nSeriesCount = 0
-			return "No data to display"
+# Helper method to get frequency count for a bin (needed for average calculation)
+def _getFrequencyForBin(nBinIndex)
+	nCount = 0
+	for nValue in @anRawData
+		if _findBinIndex(nValue) = nBinIndex
+			nCount++
 		ok
+	next
+	return nCount
 
-		# Step 1: Calculate layout dimensions
-		oLayout = _calculateLayout()
+# Update display methods to show appropriate labels
+def _drawFrequency(oLayout)
+	# Rename to _drawValues since it can show different aggregations
+	_drawValues(oLayout)
+
+def _drawValues(oLayout)
+	nBars = len(@anValues)
+	nBarsStartCol = oLayout[:bars_start_col]
+	nAxisRow = oLayout[:x_axis_row] 
+	nBarsAreaHeight = oLayout[:bars_area_height]
+	aElementWidths = oLayout[:element_widths]
+	aBarSpacing = oLayout[:bar_spacing]
+	
+	nCurrentX = nBarsStartCol
+	
+	for i = 1 to nBars
+		nElementWidth = aElementWidths[i]
+		nVal = @anValues[i]
 		
-		# Step 2: Initialize canvas
-		@nWidth = oLayout[:total_width]
-		@nHight = oLayout[:chart_height]
-		_initCanvas()
-		
-		# Step 3: Draw components
-		if @bShowYAxis
-			_drawYAxis(oLayout)
+		if @nMaxValue = 0 or nVal = 0
+			nBarHeight = 1
+		else
+			nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
 		ok
 		
-		if @bShowXAxis  
-			_drawXAxis(oLayout)
+		nValueRow = nAxisRow - nBarHeight - 1
+		if nValueRow < 1
+			nValueRow = 1
 		ok
 		
-		if @bShowAverage
-			_drawAverageLine(oLayout)
-		ok
-
-		_drawMultiCurves(oLayout)
-
-		if @bShowValues
-			_drawMultiValues(oLayout)
-		ok
+		# Format value based on aggregation type
+		switch @cAggregationType
+		on "frequency"
+			cValue = "" + nVal
+		on "sum"
+			cValue = "" + RoundN(nVal, 1)
+		on "average"
+			cValue = "" + RoundN(nVal, 2)
+		on "min"
+			cValue = "" + RoundN(nVal, 1)
+		on "max"
+			cValue = "" + RoundN(nVal, 1)
+		off
 		
-		if @bShowLabels
-			_drawLabels(oLayout)
+		nValueLen = len(cValue)
+		nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
+		
+		for k = 1 to nValueLen
+			nCol = nValueStartX + k - 1
+			if nCol <= @nWidth and nCol >= 1 and nValueRow >= 1
+				@acCanvas[nValueRow][nCol] = cValue[k]
+			ok
+		next
+		
+		if i < nBars
+			nCurrentX += nElementWidth + aBarSpacing[i]
 		ok
+	next
 
-		return _finalizeCanvas()
+	#--- DISPLAY
+
+	def Show()
+		? This.ToString()
+
+def ToString()
+	
+	# Use the same layout logic as bar chart
+	oLayout = _calculateLayout()
+	
+	@nWidth = oLayout[:total_width]
+	@nHight = oLayout[:chart_height]
+	_initCanvas()
+	
+	# Draw components
+	if @bShowYAxis
+		_drawYAxis(oLayout)
+	ok
+	
+	if @bShowXAxis  
+		_drawXAxis(oLayout)
+	ok
+	
+	_drawBars(oLayout)
+
+	if @bShowValues
+		_drawValues(oLayout)
+	but @bShowPercent
+		_drawPercent(oLayout)
+	ok
+	
+	if @bShowLabels
+		_drawLabels(oLayout)
+	ok
+	
+	cResult = _finalizeCanvas()
+
+	# Add arrow at top
+	if ring_substr1(cResult, @cXArrowChar) > 0
+		cResult = ring_substr2(cResult, @cXArrowChar, @cXAxisChar)
+		cResult = @cXArrowChar + NL + cResult
+	ok
+
+	# Add statistics if requested
+	if @bShowStats
+		cStats = NL + "Mean: " + RoundN(This.Mean(), 2) + 
+		         " | StdDev: " + RoundN(This.StandardDeviation(), 2) +
+		         " | Median: " + RoundN(This.Median(), 2) +
+		         " | Count: " + This.DataCount()
+		cResult += cStats
+	ok
+
+	return cResult
 
 
+	# Reuse bar chart drawing methods with minor adaptations
 	def _calculateLayout()
-		if @nSeriesCount = 0 or len(@acCategories) = 0
-			return new stzHashList([
-				[:total_width, 20],
-				[:chart_height, 10],
-				[:curve_start_col, 5],
-				[:x_axis_row, 8]
-			])
-		ok
-
-		nPoints = len(@acCategories)
+		# Delegate to bar chart logic - works the same for histograms
+		nBars = len(@anValues)
 		oLayout = new stzHashList([])
 		
-		# Calculate curve area width
-		nCurveAreaWidth = (nPoints - 1) * @nPointSpacing + 4
+		# First calculate all element widths
+		aElementWidths = []
+		nSum = This.DataCount()  # Total data points for percentage
 		
-		# Calculate layout positions
+		for i = 1 to nBars
+		    nBarWidth = @nBarWidth
+		    nLabelWidth = 0
+		    nValueWidth = 0
+		    
+		    if @bShowLabels and i <= len(@acLabels)
+		        # Calculate width for two-line labels (use the longer of the two values)
+		        cLabel1 = "" + RoundN(@aBinRanges[i][1], 1)
+		        cLabel2 = "" + RoundN(@aBinRanges[i][2], 1)
+		        nLabelWidth = max([len(cLabel1), len(cLabel2)])
+		        if nLabelWidth > @nMaxLabelWidth
+		            nLabelWidth = @nMaxLabelWidth
+		        ok
+		    ok
+		    
+		    if @bShowFrequency
+		        nValueWidth = len("" + @anValues[i])
+		    but @bShowPercent
+		        cPercent = roundN((@anValues[i]/nSum)*100, 1)
+		        nValueWidth = len("" + cPercent + '%')
+		    ok
+		    
+		    # Use bar width as minimum, but allow labels to determine spacing
+		    nElementWidth = max([nBarWidth, nLabelWidth, nValueWidth])
+		    aElementWidths + nElementWidth
+		next
+		
+		# Then calculate bar spacing using the calculated element widths
+	
+		aBarSpacing = []
+		for i = 1 to nBars - 1
+		    aBarSpacing + (@nBarInterSpace + @nLabelInterSpace)
+		next
+		
+		nBarsAreaWidth = 0
+		for i = 1 to len(aElementWidths)
+			nBarsAreaWidth += aElementWidths[i]
+		next
+		for i = 1 to len(aBarSpacing)
+			nBarsAreaWidth += aBarSpacing[i]
+		next
+		
 		nYAxisStart = 1
 		nYAxisEnd = nYAxisStart + @nYAxisWidth - 1
 		
-		nCurveStart = nYAxisEnd + 1
+		nBarsStart = nYAxisEnd + 1
 		if @bShowYAxis
-			nCurveStart += @nAxisPadding
+			nBarsStart += @nAxisPadding
 		ok
 		
-		nCurveEnd = nCurveStart + nCurveAreaWidth - 1
-		
+		nBarsEnd = nBarsStart + nBarsAreaWidth - 1
 		nXAxisStart = nYAxisStart
 		if @bShowYAxis
 			nXAxisStart = nYAxisEnd + @nAxisPadding
 		ok
-		nXAxisEnd = nCurveEnd + @nAxisPadding
+		nXAxisEnd = nBarsEnd + @nAxisPadding
+		nTotalWidth = nXAxisEnd + 1
 		
-		# Calculate total width
-		nTotalWidth = nXAxisEnd + 2
-		
-		# Calculate height - reduce spacing
-		nChartHeight = 10
-		nXAxisRow = nChartHeight - 1
-		nLabelsRow = nChartHeight + 1  # Only 1 line gap
-		
-		if @bShowLabels
-			nChartHeight = nLabelsRow
+		if nTotalWidth > @nMaxWidth
+			StzRaise("Histogram width (" + nTotalWidth + ") exceeds maximum (" + @nMaxWidth + ")")
 		ok
 		
-		# Calculate curve area height
-		nCurveAreaHeight = nXAxisRow - 2
+		if @bShowLabels
+			nChartHeight = @nHight + 1  # Add one more row for two-line labels
+			nXAxisRow = @nHight - 1
+			nLabelsRow = @nHight + 1
+		else
+			nChartHeight = @nHight
+			nXAxisRow = @nHight - 1
+			nLabelsRow = @nHight
+		ok
 		
-		# Store layout information
 		oLayout.AddPair([:y_axis_col, nYAxisStart])
-		oLayout.AddPair([:curve_start_col, nCurveStart])
-		oLayout.AddPair([:curve_end_col, nCurveEnd])
+		oLayout.AddPair([:bars_start_col, nBarsStart]) 
+		oLayout.AddPair([:bars_end_col, nBarsEnd])
 		oLayout.AddPair([:x_axis_start_col, nXAxisStart])
 		oLayout.AddPair([:x_axis_end_col, nXAxisEnd])
 		oLayout.AddPair([:x_axis_row, nXAxisRow])
 		oLayout.AddPair([:labels_row, nLabelsRow])
 		oLayout.AddPair([:chart_height, nChartHeight])
-		oLayout.AddPair([:curve_area_height, nCurveAreaHeight])
+	
+		nBarsAreaHeight = nXAxisRow - 1
+		if @bShowFrequency or @bShowPercent
+			nBarsAreaHeight = nXAxisRow - 2
+		ok
+		
+		oLayout.AddPair([:bars_area_height, nBarsAreaHeight])
 		oLayout.AddPair([:total_width, nTotalWidth])
+		oLayout.AddPair([:element_widths, aElementWidths])
+		oLayout.AddPair([:bar_spacing, aBarSpacing])
 		
 		return oLayout
 
+
+	# Delegate drawing methods to bar chart implementations
 	def _drawYAxis(oLayout)
 		nAxisCol = oLayout[:y_axis_col]
 		nAxisRow = oLayout[:x_axis_row]
 		
-		# Draw vertical line
 		for i = 2 to nAxisRow - 1
-			if i <= len(@acCanvas) and nAxisCol <= len(@acCanvas[i])
-				@acCanvas[i][nAxisCol] = @cXAxisChar
-			ok
+			@acCanvas[i][nAxisCol] = @cXAxisChar
 		next
 		
-		# Draw arrow at top
-		if nAxisCol <= len(@acCanvas[1])
-			@acCanvas[1][nAxisCol] = @cXArrowChar
-		ok
+		@acCanvas[1][nAxisCol] = @cXArrowChar
 
 	def _drawXAxis(oLayout)
 		nAxisRow = oLayout[:x_axis_row]
@@ -3121,501 +3310,147 @@ class stzMultiCurveChart from stzChart
 		nEndCol = oLayout[:x_axis_end_col]
 		nYAxisCol = oLayout[:y_axis_col]
 		
-		# Bounds check
-		if nAxisRow > len(@acCanvas)
-			return
-		ok
-		
-		# Draw horizontal line
-		for i = nStartCol to min([nEndCol, len(@acCanvas[nAxisRow])])
+		for i = nStartCol to nEndCol
 			@acCanvas[nAxisRow][i] = @cYAxisChar
 		next
 		
-		# Draw origin if Y-axis is present
-		if @bShowYAxis and nYAxisCol <= len(@acCanvas[nAxisRow])
+		if @bShowYAxis
 			@acCanvas[nAxisRow][nYAxisCol] = @cOriginChar
 		ok
 		
-		# Draw arrow at end
-		if nEndCol <= len(@acCanvas[nAxisRow])
-			@acCanvas[nAxisRow][nEndCol] = @cYArrowChar
-		ok
+		@acCanvas[nAxisRow][nEndCol] = @cYArrowChar
 
-	def _drawMultiCurves(oLayout)
-		# Draw each series
-		for nSeries = 1 to @nSeriesCount
-			_drawSingleCurve(nSeries, oLayout)
-		next
-
-	def _drawSingleCurve(nSeriesIndex, oLayout)
-		if nSeriesIndex > @nSeriesCount
-			return
-		ok
-		
-		aValues = @aaMultiValues[nSeriesIndex]
-		cPointChar = @acSeriesChars[nSeriesIndex]
-		
-		nPoints = len(aValues)
-		nCurveStartCol = oLayout[:curve_start_col]
+	def _drawBars(oLayout)
+		# Same logic as bar chart but for frequency data
+		nBars = len(@anValues)
+		nBarsStartCol = oLayout[:bars_start_col] 
 		nAxisRow = oLayout[:x_axis_row]
-		nCurveAreaHeight = oLayout[:curve_area_height]
+		nBarsAreaHeight = oLayout[:bars_area_height]
+		aElementWidths = oLayout[:element_widths]
+		aBarSpacing = oLayout[:bar_spacing]
 		
-		if nPoints < 1
-			return
-		ok
+		nCurrentX = nBarsStartCol
 		
-		# Calculate point positions
-		aPoints = []
-		for i = 1 to nPoints
-			nVal = aValues[i]
-			nX = nCurveStartCol + (i-1) * @nPointSpacing
+		for i = 1 to nBars
+			nElementWidth = aElementWidths[i]
+			nVal = @anValues[i]  # This is frequency count
 			
 			if @nMaxValue = 0 or nVal = 0
-				nY = nAxisRow - 1
+				nBarHeight = 0
 			else
-				nY = nAxisRow - ceil(nCurveAreaHeight * nVal / @nMaxValue)
+				nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
 			ok
 			
-			aPoints + [nX, nY]
-		next
-		
-		# Draw curve lines between points
-		for i = 1 to len(aPoints) - 1
-			nX1 = aPoints[i][1]
-			nY1 = aPoints[i][2]
-			nX2 = aPoints[i+1][1]
-			nY2 = aPoints[i+1][2]
-			
-			_drawCurveSegment(nX1, nY1, nX2, nY2)
-		next
-		
-		# Draw points (after lines so they appear on top)
-		for i = 1 to nPoints
-			nX = aPoints[i][1]
-			nY = aPoints[i][2]
-			
-			if nY >= 1 and nY <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY])
-				@acCanvas[nY][nX] = cPointChar
-			ok
-		next
+			nBarStartX = nCurrentX + floor((nElementWidth - @nBarWidth) / 2)
 
-def _drawCurveSegment(nX1, nY1, nX2, nY2)
-	# Draw curved lines between two points
-	if nX1 = nX2
-		# Vertical line
-		nStartY = min([nY1, nY2])
-		nEndY = max([nY1, nY2])
-		for nY = nStartY to nEndY
-			if nY >= 1 and nY <= len(@acCanvas) and nX1 >= 1 and nX1 <= len(@acCanvas[nY])
-				if @acCanvas[nY][nX1] = " "
-					@acCanvas[nY][nX1] = @cVerticalChar
-				ok
+			if nBarHeight > 0
+				for j = 1 to nBarHeight
+					for k = 1 to @nBarWidth
+						nCol = nBarStartX + k - 1
+						nRow = nAxisRow - j
+						if nCol <= @nWidth and nRow >= 1
+							if j = nBarHeight and @cFinalBarChar != ""
+								@acCanvas[nRow][nCol] = @cFinalBarChar
+							else
+								@acCanvas[nRow][nCol] = @cBarChar
+							ok
+						ok
+					next
+				next
 			ok
-		next
-	else
-		# Curved horizontal connection
-		nStartX = min([nX1, nX2])
-		nEndX = max([nX1, nX2])
-		
-		if nY1 = nY2
-			# Pure horizontal line
-			for nX = nStartX to nEndX
-				if nY1 >= 1 and nY1 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY1])
-					if @acCanvas[nY1][nX] = " "
-						@acCanvas[nY1][nX] = @cHorizontalChar
-					ok
-				ok
-			next
-		else
-			# Curved connection between different Y levels
-			nMidX = nX1 + floor((nX2 - nX1) / 2)
-			
-			# Determine curve direction
-			bGoingUp = (nY2 < nY1)  # Lower Y values are higher on screen
-			bGoingRight = (nX2 > nX1)
-			
-			if bGoingRight
-				# Moving right
-				if bGoingUp
-					# Going right and up: use ╯ at start, ╭ at end
-					# Horizontal from start
-					for nX = nX1 to nMidX - 1
-						if nY1 >= 1 and nY1 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY1])
-							if @acCanvas[nY1][nX] = " "
-								@acCanvas[nY1][nX] = @cHorizontalChar
-							ok
-						ok
-					next
-					
-					# Corner at transition point
-					if nMidX >= 1 and nMidX <= @nWidth and nY1 >= 1 and nY1 <= len(@acCanvas)
-						@acCanvas[nY1][nMidX] = @cCornerBR  # ╯
-					ok
-					
-					# Vertical segment
-					nStartY = min([nY1, nY2])
-					nEndY = max([nY1, nY2])
-					for nY = nStartY + 1 to nEndY - 1
-						if nY >= 1 and nY <= len(@acCanvas) and nMidX >= 1 and nMidX <= len(@acCanvas[nY])
-							if @acCanvas[nY][nMidX] = " "
-								@acCanvas[nY][nMidX] = @cVerticalChar
-							ok
-						ok
-					next
-					
-					# Corner at end
-					if nMidX >= 1 and nMidX <= @nWidth and nY2 >= 1 and nY2 <= len(@acCanvas)
-						@acCanvas[nY2][nMidX] = @cCornerTL  # ╭
-					ok
-					
-					# Horizontal to end point
-					for nX = nMidX + 1 to nX2
-						if nY2 >= 1 and nY2 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY2])
-							if @acCanvas[nY2][nX] = " "
-								@acCanvas[nY2][nX] = @cHorizontalChar
-							ok
-						ok
-					next
-				else
-					# Going right and down: use ╮ at start, ╰ at end
-					# Horizontal from start
-					for nX = nX1 to nMidX - 1
-						if nY1 >= 1 and nY1 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY1])
-							if @acCanvas[nY1][nX] = " "
-								@acCanvas[nY1][nX] = @cHorizontalChar
-							ok
-						ok
-					next
-					
-					# Corner at transition point
-					if nMidX >= 1 and nMidX <= @nWidth and nY1 >= 1 and nY1 <= len(@acCanvas)
-						@acCanvas[nY1][nMidX] = @cCornerTR  # ╮
-					ok
-					
-					# Vertical segment
-					nStartY = min([nY1, nY2])
-					nEndY = max([nY1, nY2])
-					for nY = nStartY + 1 to nEndY - 1
-						if nY >= 1 and nY <= len(@acCanvas) and nMidX >= 1 and nMidX <= len(@acCanvas[nY])
-							if @acCanvas[nY][nMidX] = " "
-								@acCanvas[nY][nMidX] = @cVerticalChar
-							ok
-						ok
-					next
-					
-					# Corner at end
-					if nMidX >= 1 and nMidX <= @nWidth and nY2 >= 1 and nY2 <= len(@acCanvas)
-						@acCanvas[nY2][nMidX] = @cCornerBL  # ╰
-					ok
-					
-					# Horizontal to end point
-					for nX = nMidX + 1 to nX2
-						if nY2 >= 1 and nY2 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY2])
-							if @acCanvas[nY2][nX] = " "
-								@acCanvas[nY2][nX] = @cHorizontalChar
-							ok
-						ok
-					next
-				ok
-			else
-				# Moving left - mirror the logic
-				if bGoingUp
-					# Going left and up: use ╯ at start, ╭ at end
-					for nX = nX1 to nMidX + 1 step -1
-						if nY1 >= 1 and nY1 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY1])
-							if @acCanvas[nY1][nX] = " "
-								@acCanvas[nY1][nX] = @cHorizontalChar
-							ok
-						ok
-					next
-					
-					if nMidX >= 1 and nMidX <= @nWidth and nY1 >= 1 and nY1 <= len(@acCanvas)
-						@acCanvas[nY1][nMidX] = @cCornerBR  # ╯
-					ok
-					
-					nStartY = min([nY1, nY2])
-					nEndY = max([nY1, nY2])
-					for nY = nStartY + 1 to nEndY - 1
-						if nY >= 1 and nY <= len(@acCanvas) and nMidX >= 1 and nMidX <= len(@acCanvas[nY])
-							if @acCanvas[nY][nMidX] = " "
-								@acCanvas[nY][nMidX] = @cVerticalChar
-							ok
-						ok
-					next
-					
-					if nMidX >= 1 and nMidX <= @nWidth and nY2 >= 1 and nY2 <= len(@acCanvas)
-						@acCanvas[nY2][nMidX] = @cCornerTL  # ╭
-					ok
-					
-					for nX = nMidX - 1 to nX2 step -1
-						if nY2 >= 1 and nY2 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY2])
-							if @acCanvas[nY2][nX] = " "
-								@acCanvas[nY2][nX] = @cHorizontalChar
-							ok
-						ok
-					next
-				else
-					# Going left and down: use ╮ at start, ╰ at end
-					for nX = nX1 to nMidX + 1 step -1
-						if nY1 >= 1 and nY1 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY1])
-							if @acCanvas[nY1][nX] = " "
-								@acCanvas[nY1][nX] = @cHorizontalChar
-							ok
-						ok
-					next
-					
-					if nMidX >= 1 and nMidX <= @nWidth and nY1 >= 1 and nY1 <= len(@acCanvas)
-						@acCanvas[nY1][nMidX] = @cCornerTR  # ╮
-					ok
-					
-					nStartY = min([nY1, nY2])
-					nEndY = max([nY1, nY2])
-					for nY = nStartY + 1 to nEndY - 1
-						if nY >= 1 and nY <= len(@acCanvas) and nMidX >= 1 and nMidX <= len(@acCanvas[nY])
-							if @acCanvas[nY][nMidX] = " "
-								@acCanvas[nY][nMidX] = @cVerticalChar
-							ok
-						ok
-					next
-					
-					if nMidX >= 1 and nMidX <= @nWidth and nY2 >= 1 and nY2 <= len(@acCanvas)
-						@acCanvas[nY2][nMidX] = @cCornerBL  # ╰
-					ok
-					
-					for nX = nMidX - 1 to nX2 step -1
-						if nY2 >= 1 and nY2 <= len(@acCanvas) and nX >= 1 and nX <= len(@acCanvas[nY2])
-							if @acCanvas[nY2][nX] = " "
-								@acCanvas[nY2][nX] = @cHorizontalChar
-							ok
-						ok
-					next
-				ok
-			ok
-		ok
-	ok
 
-	def _drawMultiValues(oLayout)
-		# Draw values for each series
-		for nSeries = 1 to @nSeriesCount
-			_drawSeriesValues(nSeries, oLayout)
-		next
-
-	def _drawSeriesValues(nSeriesIndex, oLayout)
-		if nSeriesIndex > @nSeriesCount
-			return
-		ok
-		
-		aValues = @aaMultiValues[nSeriesIndex]
-		nPoints = len(aValues)
-		nCurveStartCol = oLayout[:curve_start_col]
-		nAxisRow = oLayout[:x_axis_row]
-		nCurveAreaHeight = oLayout[:curve_area_height]
-		
-		for i = 1 to nPoints
-			nVal = aValues[i]
-			nX = nCurveStartCol + (i-1) * @nPointSpacing
-			
-			if @nMaxValue = 0 or nVal = 0
-				nPointY = nAxisRow - 1
-			else
-				nPointY = nAxisRow - ceil(nCurveAreaHeight * nVal / @nMaxValue)
-			ok
-			
-			# Position value above the point (offset by series to avoid overlap)
-			nValueY = max([1, nPointY - 1 - (nSeriesIndex-1)])
-			
-			cValue = "" + nVal
-			nValueLen = len(cValue)
-			nValueStartX = nX - floor(nValueLen / 2)
-			
-			# Draw value
-			for k = 1 to nValueLen
-				nCol = nValueStartX + k - 1
-				if nCol >= 1 and nCol <= @nWidth and nValueY >= 1 and nValueY <= len(@acCanvas)
-					@acCanvas[nValueY][nCol] = cValue[k]
-				ok
-			next
-		next
-
-	def _drawLabels(oLayout)
-		nPoints = len(@acCategories)
-		nCurveStartCol = oLayout[:curve_start_col]
-		nLabelsRow = oLayout[:labels_row]
-		
-		for i = 1 to nPoints
-			nX = nCurveStartCol + (i-1) * @nPointSpacing
-			
-			cLabel = @acCategories[i]
-			nLenLabel = len(cLabel)
-			
-			# Truncate label if needed
-			if nLenLabel > @nMaxLabelWidth
-				nLenLabel = @nMaxLabelWidth
-				cLabel = left(cLabel, @nMaxLabelWidth - 2) + ".."
-			ok
-			
-			# Center label under the point
-			nLabelStartX = nX - floor(nLenLabel / 2)
-			
-			# Draw label
-			for j = 1 to nLenLabel
-				nCol = nLabelStartX + j - 1
-				if nCol >= 1 and nCol <= @nWidth and nLabelsRow <= len(@acCanvas)
-					@acCanvas[nLabelsRow][nCol] = cLabel[j]
-				ok
-			next
-		next
-
-	def _drawAverageLine(oLayout)
-		# Calculate global average across all series
-		nTotalSum = 0
-		nTotalCount = 0
-		
-		for aSeries in @aaMultiValues
-			for nVal in aSeries
-				nTotalSum += nVal
-				nTotalCount++
-			next
-		next
-		
-		if nTotalCount = 0
-			return
-		ok
-		
-		nAvg = nTotalSum / nTotalCount
-		
-		nCurveStartCol = oLayout[:curve_start_col]
-		nCurveEndCol = oLayout[:curve_end_col]
-		nAxisRow = oLayout[:x_axis_row]
-		nCurveAreaHeight = oLayout[:curve_area_height]
-		nYAxisCol = oLayout[:y_axis_col]
-		
-		# Calculate average line position
-		if @nMaxValue = 0
-			nAvgRow = nAxisRow - 1
-		else
-			nAvgRow = nAxisRow - ceil(nCurveAreaHeight * nAvg / @nMaxValue)
-		ok
-		
-		# Start position
-		nLineStart = nCurveStartCol
-		if @bShowYAxis
-			nLineStart = nYAxisCol + 1
-		ok
-		
-		# End position
-		nLineEnd = nCurveEndCol
-		
-		# Draw average line
-		for i = nLineStart to nLineEnd
-			if i <= @nWidth and nAvgRow <= len(@acCanvas) and @acCanvas[nAvgRow][i] = " "
-				@acCanvas[nAvgRow][i] = @cAverageChar
+			if i < nBars
+				nCurrentX += nElementWidth + aBarSpacing[i]
 			ok
 		next
 
-	def Show()
-		? This.ToString()
 
-
-	def _drawCurve(oLayout)
-		nPoints = len(@anValues)
-		nCurveStartCol = oLayout[:curve_start_col]
-		nAxisRow = oLayout[:x_axis_row]
-		nCurveAreaHeight = oLayout[:curve_area_height]
-		
-		if nPoints < 2
-			return
-		ok
-		
-		# Calculate point positions
-		aPoints = []
-		for i = 1 to nPoints
-			nVal = @anValues[i]
-			nX = nCurveStartCol + (i-1) * @nPointSpacing
-			
-			if @nMaxValue = 0 or nVal = 0
-				nY = nAxisRow - 1
-			else
-				nY = nAxisRow - ceil(nCurveAreaHeight * nVal / @nMaxValue)
-			ok
-			
-			aPoints + [nX, nY]
-		next
-		
-		# Draw curve segments between points
-		for i = 1 to len(aPoints) - 1
-			nX1 = aPoints[i][1]
-			nY1 = aPoints[i][2]
-			nX2 = aPoints[i+1][1]
-			nY2 = aPoints[i+1][2]
-			
-			_drawCurveSegment(nX1, nY1, nX2, nY2)
-		next
-
-
-	def _drawValues(oLayout)
-		nPoints = len(@anValues)
-		nCurveStartCol = oLayout[:curve_start_col]
-		nAxisRow = oLayout[:x_axis_row]
-		nCurveAreaHeight = oLayout[:curve_area_height]
-		
-		for i = 1 to nPoints
-			nVal = @anValues[i]
-			nX = nCurveStartCol + (i-1) * @nPointSpacing
-			
-			if @nMaxValue = 0 or nVal = 0
-				nPointY = nAxisRow - 1
-			else
-				nPointY = nAxisRow - ceil(nCurveAreaHeight * nVal / @nMaxValue)
-			ok
-			
-			# Position value above the point
-			nValueY = max([1, nPointY - 1])
-			
-			cValue = "" + nVal
-			nValueLen = len(cValue)
-			nValueStartX = nX - floor(nValueLen / 2)
-			
-			# Draw value
-			for k = 1 to nValueLen
-				nCol = nValueStartX + k - 1
-				if nCol >= 1 and nCol <= @nWidth and nValueY >= 1
-					@acCanvas[nValueY][nCol] = cValue[k]
-				ok
-			next
-		next
 
 	def _drawPercent(oLayout)
-		nPoints = len(@anValues)
-		nCurveStartCol = oLayout[:curve_start_col]
-		nAxisRow = oLayout[:x_axis_row]
-		nCurveAreaHeight = oLayout[:curve_area_height]
-		nSum = This.Sum()
+		# Shows percentage of total data points in each bin
+		nBars = len(@anValues)
+		nBarsStartCol = oLayout[:bars_start_col]
+		nAxisRow = oLayout[:x_axis_row] 
+		nBarsAreaHeight = oLayout[:bars_area_height]
+		aElementWidths = oLayout[:element_widths]
+		aBarSpacing = oLayout[:bar_spacing]
 		
-		for i = 1 to nPoints
+		nTotalCount = This.DataCount()
+		nCurrentX = nBarsStartCol
+		
+		for i = 1 to nBars
+			nElementWidth = aElementWidths[i]
 			nVal = @anValues[i]
-			nX = nCurveStartCol + (i-1) * @nPointSpacing
 			
 			if @nMaxValue = 0 or nVal = 0
-				nPointY = nAxisRow - 1
+				nBarHeight = 1
 			else
-				nPointY = nAxisRow - ceil(nCurveAreaHeight * nVal / @nMaxValue)
+				nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
 			ok
 			
-			# Position percentage above the point
-			nValueY = max([1, nPointY - 1])
+			nValueRow = nAxisRow - nBarHeight - 1
+			if nValueRow < 1
+				nValueRow = 1
+			ok
 			
-			nPercent = RoundN((nVal/nSum)*100, 1)
+			nPercent = RoundN((nVal/nTotalCount)*100, 1)
 			cValue = "" + nPercent + '%'
 			nValueLen = len(cValue)
-			nValueStartX = nX - floor(nValueLen / 2)
+			nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
 			
-			# Draw percentage
 			for k = 1 to nValueLen
 				nCol = nValueStartX + k - 1
-				if nCol >= 1 and nCol <= @nWidth and nValueY >= 1
-					@acCanvas[nValueY][nCol] = cValue[k]
+				if nCol <= @nWidth and nCol >= 1 and nValueRow >= 1
+					@acCanvas[nValueRow][nCol] = cValue[k]
 				ok
 			next
+			
+			if i < nBars
+				nCurrentX += nElementWidth + aBarSpacing[i]
+			ok
 		next
 
+def _drawLabels(oLayout)
+	# Draw bin range labels in two rows
+	nBars = len(@anValues)
+	nBarsStartCol = oLayout[:bars_start_col]
+	nLabelsRow = oLayout[:labels_row]
+	aElementWidths = oLayout[:element_widths]
+	aBarSpacing = oLayout[:bar_spacing]
+
+	nCurrentX = nBarsStartCol
+	nLenCanvas = len(@acCanvas)
+
+	for i = 1 to nBars
+		if i <= len(@aBinRanges)
+			nElementWidth = aElementWidths[i]
+			
+			# First row: start values
+			cLabel1 = "" + RoundN(@aBinRanges[i][1], 1)
+			nLenLabel1 = len(cLabel1)
+			nLabelStartX1 = nCurrentX + floor((nElementWidth - nLenLabel1) / 2)
+
+			for j = 1 to nLenLabel1
+				nCol = nLabelStartX1 + j - 1
+				if nCol <= @nWidth and (nLabelsRow - 1) <= nLenCanvas
+					@acCanvas[nLabelsRow - 1][nCol] = cLabel1[j]
+				ok
+			next
+
+			# Second row: end values  
+			cLabel2 = "" + RoundN(@aBinRanges[i][2], 1)
+			nLenLabel2 = len(cLabel2)
+			nLabelStartX2 = nCurrentX + floor((nElementWidth - nLenLabel2) / 2)
+
+			for j = 1 to nLenLabel2
+				nCol = nLabelStartX2 + j - 1
+				if nCol <= @nWidth and nLabelsRow <= nLenCanvas
+					@acCanvas[nLabelsRow][nCol] = cLabel2[j]
+				ok
+			next
+		ok
+
+		if i < nBars
+			nCurrentX += aElementWidths[i] + aBarSpacing[i]
+		ok
+	next

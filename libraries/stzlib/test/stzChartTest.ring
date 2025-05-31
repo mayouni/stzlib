@@ -1,39 +1,5 @@
 load "../max/stzmax.ring"
 
-/*----
-
-pr()
-
-o1 = new stzString('
-^                42  42      
-│            35╭──●───●      
-│    28      ╭●╰             
-│    ╭●─╭   ╭╰               
-│  ╭─╰  ╯─╭╭╰                
-│ ●╰      ●╰                 
-│15      15                  
-│                            
-╰──────────────────────────>   
-')
-
-
-o1.Replace('╰','╯')
-o1.Replace('─╭', '─╮')
-o1.Replace('╯─', '╰─')
-
-? o1.Content()
-'
-^                42  42      
-│            35╭──●───●      
-│    28      ╭●╯             
-│    ╭●─╮   ╭╯               
-│  ╭─╯  ╰─╮╭╯                
-│ ●╯      ●╯                 
-│15      15                  
-│                            
-╰──────────────────────────>   
-'
-pf()
 
 /*===
 
@@ -1341,7 +1307,7 @@ pf()
 # - Real-world data scenarios
 
 /*====
-*/
+
 // Setting the legend layout to :Vertical
 pr()
 
@@ -1385,3 +1351,163 @@ pf()
 #--> Executed in 0.03 second(s) in Ring 1.22
 
 
+#--------------------------------------#
+#  TEST SAMPLE OF THE HISTOGRAM CHART  #
+#--------------------------------------#
+
+
+/*--- Basic histogram with student test scores
+*/
+pr()
+
+aScores = [85, 92, 78, 88, 95, 82, 90, 87, 93, 86, 79, 91, 84, 89, 96, 83, 88, 92, 87, 85]
+oChart = new stzHistogram(aScores)
+oChart {
+
+	SetBarInterSpace(1)
+	SetLabelInterSpace(2)
+    SetBinCount(5)
+
+	ShowSum()
+    AddLabels()
+    Show()
+}
+#-->
+'
+      ^
+    4 │
+      │ ██
+      │ ██
+    3 │ ██     ██
+      │ ██     ██
+      │ ██     ██     ██
+    2 │ ██     ██     ██
+      │ ██ ██  ██     ██
+    1 │ ██ ██  ██ ██  ██
+      ╰─────────────────────>
+        78-83 83-88 88-93 93-96
+'
+
+pf()
+
+
+/*--- Histogram with frequency display and statistics
+
+pr()
+
+aTemperatures = [72, 74, 76, 73, 75, 78, 79, 77, 74, 76, 75, 73, 77, 78, 76, 74, 75, 79, 78, 77]
+oChart = new stzHistogram(aTemperatures)
+oChart {
+    SetBinCount(4)
+    AddFrequency()
+    AddStats()
+    AddLabels()
+    Show()
+}
+#-->
+'
+      ^
+    6 │  6
+      │ ██
+      │ ██     5
+    4 │ ██    ██
+      │ ██    ██
+      │ ██    ██  4   5
+    2 │ ██    ██ ██  ██
+      │ ██    ██ ██  ██
+      ╰─────────────────────>
+        72-74 74-76 76-78 78-80
+
+Mean: 75.8 | StdDev: 2.1 | Median: 76.0 | Count: 20
+'
+
+pf()
+
+
+/*--- Histogram with percentage display
+
+pr()
+
+aSalaries = [45000, 52000, 48000, 67000, 55000, 49000, 58000, 62000, 51000, 46000, 
+             59000, 53000, 47000, 61000, 56000, 50000, 54000, 48000, 60000, 57000]
+oChart = new stzHistogram(aSalaries)
+oChart {
+    SetBinCount(6)
+    AddPercent()
+    AddLabels()
+    SetBarChar("▓")
+    Show()
+}
+#-->
+'
+        ^
+      │ 25.0%
+    4 │ ▓▓▓
+      │ ▓▓▓   20.0%  20.0%
+    3 │ ▓▓▓   ▓▓▓    ▓▓▓   15.0%
+      │ ▓▓▓   ▓▓▓    ▓▓▓   ▓▓▓   15.0%
+    2 │ ▓▓▓   ▓▓▓    ▓▓▓   ▓▓▓   ▓▓▓    5.0%
+      │ ▓▓▓   ▓▓▓    ▓▓▓   ▓▓▓   ▓▓▓    ▓▓▓
+    1 │ ▓▓▓   ▓▓▓    ▓▓▓   ▓▓▓   ▓▓▓    ▓▓▓
+      ╰─────────────────────────────────────────>
+        45k-48k 48k-52k 52k-55k 55k-59k 59k-62k 62k-67k
+'
+
+pf()
+
+/*--- Simple histogram without axes
+
+pr()
+aAges = [25, 34, 45, 28, 37, 42, 31, 39, 33, 46, 29, 38, 41, 35, 27, 44, 36, 32, 40, 43]
+oChart = new stzHistogram(aAges)
+oChart {
+    SetBinCount(4)
+    WithoutXAxis()
+    WithoutYAxis()
+    AddFrequency()
+    SetBarChar("■")
+    SetBarWidth(4)
+    Show()
+}
+#-->
+'
+     6
+    ■■■■
+    ■■■■     5      5      4
+    ■■■■    ■■■■   ■■■■   ■■■■
+    ■■■■    ■■■■   ■■■■   ■■■■
+    ■■■■    ■■■■   ■■■■   ■■■■
+    25-30   30-35  35-40  40-46
+'
+pf()
+
+/*--- Compact histogram with custom bin width
+*/
+
+pr()
+
+aWeights = [150, 155, 160, 152, 158, 162, 165, 159, 157, 161, 163, 156, 154, 164, 166, 153, 151, 167, 168, 149]
+oChart = new stzHistogram(aWeights)
+oChart {
+    SetBinWidth(5)
+    AddLabels()
+    SetBarWidth(2)
+    SetBarInterSpace(2)
+    WithoutLabels()
+    Show()
+}
+#-->
+'
+      ^
+    8 │
+      │ ██
+      │ ██
+    6 │ ██
+      │ ██
+      │ ██
+    4 │ ██    ██
+      │ ██    ██
+    2 │ ██    ██    ██    ██
+      │ ██    ██    ██    ██
+      ╰─────────────────────────>
+'
