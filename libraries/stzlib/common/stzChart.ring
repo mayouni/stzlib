@@ -2780,7 +2780,8 @@ class stzHistogram from stzChart
 			
 			# Create labels
 			nDecimals = iff(floor(nBinMin) = nBinMin and floor(nBinMax) = nBinMax, 0, 1)
-			cLabel = RoundN(nBinMin, nDecimals) + "-" + RoundN(nBinMax, nDecimals)
+//			cLabel = RoundN(nBinMin, nDecimals) + "-" + RoundN(nBinMax, nDecimals)
+			cLabel = _formatNumber(nBinMin) + "-" + _formatNumber(nBinMax)
 
 			@aBinLabels + cLabel
 		next
@@ -2835,7 +2836,7 @@ class stzHistogram from stzChart
 			@bShowValues = TRUE
 
 		def AddValues()
-			@bShowValues = FALSE
+			@bShowValues = TRUE
 
 		def WithoutValues()
 			@bShowValues = FALSE
@@ -3047,6 +3048,8 @@ class stzHistogram from stzChart
 		def DataSize()
 			return This.DataCount()
 
+		def Count()
+			return This.DataCount()
 
 	#--- AGGREGATION
 
@@ -3192,22 +3195,24 @@ class stzHistogram from stzChart
 			# Format value based on aggregation type
 
 			switch @cAggregationType
-
 			on "frequency"
-				cValue = "" + nVal
+			    cValue = "" + nVal
 
 			on "sum"
-				cValue = "" + RoundN(nVal, 1)
+			    nRounded = 0+ RoundN(nVal, 1)
+			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
 
 			on "average"
-				cValue = "" + RoundN(nVal, 2)
+			    nRounded = 0+ RoundN(nVal, 2)
+			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
 
 			on "min"
-				cValue = "" + RoundN(nVal, 1)
+			    nRounded = 0+ RoundN(nVal, 1)
+			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
 
 			on "max"
-				cValue = "" + RoundN(nVal, 1)
-
+			    nRounded = 0+ RoundN(nVal, 1)
+			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
 			off
 			
 			nValueLen = len(cValue)
@@ -3483,8 +3488,15 @@ class stzHistogram from stzChart
 				nValueRow = 1
 			ok
 			
-			nPercent = RoundN((nVal/nTotalCount)*100, 1)
-			cValue = "" + nPercent + '%'
+//			nPercent = RoundN((nVal/nTotalCount)*100, 1)
+//			cValue = "" + nPercent + '%'
+			nPercent = 0+ RoundN((nVal/nTotalCount)*100, 1)
+			if nPercent = floor(nPercent)
+			    cValue = "" + floor(nPercent) + '%'
+			else
+			    cValue = "" + nPercent + '%'
+			ok
+			
 			nValueLen = len(cValue)
 			nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
 			
@@ -3500,47 +3512,57 @@ class stzHistogram from stzChart
 			ok
 		next
 
-def _drawLabels(oLayout)
-	# Draw bin range labels in two rows
-	nBars = len(@anValues)
-	nBarsStartCol = oLayout[:bars_start_col]
-	nLabelsRow = oLayout[:labels_row]
-	aElementWidths = oLayout[:element_widths]
-	aBarSpacing = oLayout[:bar_spacing]
+	def _drawLabels(oLayout)
+		# Draw bin range labels in two rows
+		nBars = len(@anValues)
+		nBarsStartCol = oLayout[:bars_start_col]
+		nLabelsRow = oLayout[:labels_row]
+		aElementWidths = oLayout[:element_widths]
+		aBarSpacing = oLayout[:bar_spacing]
+	
+		nCurrentX = nBarsStartCol
+		nLenCanvas = len(@acCanvas)
+	
+		for i = 1 to nBars
+			if i <= len(@aBinRanges)
+				nElementWidth = aElementWidths[i]
+				
+				# First row: start values
+				//cLabel1 = "" + RoundN(@aBinRanges[i][1], 1)
+				cLabel1 = _formatNumber(@aBinRanges[i][1])
+				nLenLabel1 = len(cLabel1)
+				nLabelStartX1 = nCurrentX + floor((nElementWidth - nLenLabel1) / 2)
+	
+				for j = 1 to nLenLabel1
+					nCol = nLabelStartX1 + j - 1
+					if nCol <= @nWidth and (nLabelsRow - 1) <= nLenCanvas
+						@acCanvas[nLabelsRow - 1][nCol] = cLabel1[j]
+					ok
+				next
+	
+				# Second row: end values  
+				//cLabel2 = "" + RoundN(@aBinRanges[i][2], 1)
+				cLabel2 = _formatNumber(@aBinRanges[i][2])
+				nLenLabel2 = len(cLabel2)
+				nLabelStartX2 = nCurrentX + floor((nElementWidth - nLenLabel2) / 2)
+	
+				for j = 1 to nLenLabel2
+					nCol = nLabelStartX2 + j - 1
+					if nCol <= @nWidth and nLabelsRow <= nLenCanvas
+						@acCanvas[nLabelsRow][nCol] = cLabel2[j]
+					ok
+				next
+			ok
+	
+			if i < nBars
+				nCurrentX += aElementWidths[i] + aBarSpacing[i]
+			ok
+		next
 
-	nCurrentX = nBarsStartCol
-	nLenCanvas = len(@acCanvas)
 
-	for i = 1 to nBars
-		if i <= len(@aBinRanges)
-			nElementWidth = aElementWidths[i]
-			
-			# First row: start values
-			cLabel1 = "" + RoundN(@aBinRanges[i][1], 1)
-			nLenLabel1 = len(cLabel1)
-			nLabelStartX1 = nCurrentX + floor((nElementWidth - nLenLabel1) / 2)
-
-			for j = 1 to nLenLabel1
-				nCol = nLabelStartX1 + j - 1
-				if nCol <= @nWidth and (nLabelsRow - 1) <= nLenCanvas
-					@acCanvas[nLabelsRow - 1][nCol] = cLabel1[j]
-				ok
-			next
-
-			# Second row: end values  
-			cLabel2 = "" + RoundN(@aBinRanges[i][2], 1)
-			nLenLabel2 = len(cLabel2)
-			nLabelStartX2 = nCurrentX + floor((nElementWidth - nLenLabel2) / 2)
-
-			for j = 1 to nLenLabel2
-				nCol = nLabelStartX2 + j - 1
-				if nCol <= @nWidth and nLabelsRow <= nLenCanvas
-					@acCanvas[nLabelsRow][nCol] = cLabel2[j]
-				ok
-			next
-		ok
-
-		if i < nBars
-			nCurrentX += aElementWidths[i] + aBarSpacing[i]
-		ok
-	next
+	def _formatNumber(nNumber)
+	    if nNumber >= 1000
+	        return '' + RoundN(nNumber/1000, 1) + "K"
+	    else
+	        return "" + RoundN(nNumber, 0)
+	    ok

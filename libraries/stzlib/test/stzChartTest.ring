@@ -1357,10 +1357,15 @@ pf()
 
 
 /*--- Basic histogram with student test scores
-*/
+
 pr()
 
-aScores = [85, 92, 78, 88, 95, 82, 90, 87, 93, 86, 79, 91, 84, 89, 96, 83, 88, 92, 87, 85]
+aScores = [
+	85, 92, 78, 88, 95, 82, 90,
+	87, 93, 86, 79, 91, 84, 89,
+	96, 83, 88, 92, 87, 85
+]
+
 oChart = new stzHistogram(aScores)
 oChart {
 
@@ -1398,122 +1403,165 @@ pf()
 # Executed in 0.33 second(s) in Ring 1.22
 
 /*--- Histogram with frequency display and statistics
-*/
+
 pr()
 
-aTemperatures = [72, 74, 76, 73, 75, 78, 79, 77, 74, 76, 75, 73, 77, 78, 76, 74, 75, 79, 78, 77]
+aTemperatures = [
+	72, 74, 76, 73, 75, 78, 79,
+	77, 74, 76, 75, 73, 77, 78,
+	76, 74, 75, 79, 78, 77
+]
+
 oChart = new stzHistogram(aTemperatures)
 oChart {
     SetBinCount(4)
-    AddFrequency()
+    UseFrequency()
     AddStats()
-    AddLabels()
+	# ~> You can the stats directly using these functions:
+	# Mean() StandartDeviation() Median() Count()
+
     Show()
 }
 #-->
 '
-      ^
-    6 │  6
-      │ ██
-      │ ██     5
-    4 │ ██    ██
-      │ ██    ██
-      │ ██    ██  4   5
-    2 │ ██    ██ ██  ██
-      │ ██    ██ ██  ██
-      ╰─────────────────────>
-        72-74 74-76 76-78 78-80
+^
+│        ██    ██        
+│        ██    ██    ██  
+│        ██    ██    ██  
+│        ██    ██    ██  
+│  ██    ██    ██    ██  
+│  ██    ██    ██    ██  
+│  ██    ██    ██    ██  
+│  ██    ██    ██    ██  
+╰────────────────────────>
+  72.0  73.8  75.5  77.2 
+  73.8  75.5  77.2  79.0 
 
-Mean: 75.8 | StdDev: 2.1 | Median: 76.0 | Count: 20
+Mean: 75.80 | StdDev: 2.07 | Median: 76 | Count: 20
 '
 
 pf()
-
+# Executed in 0.63 second(s) in Ring 1.22
 
 /*--- Histogram with percentage display
 
 pr()
 
-aSalaries = [45000, 52000, 48000, 67000, 55000, 49000, 58000, 62000, 51000, 46000, 
-             59000, 53000, 47000, 61000, 56000, 50000, 54000, 48000, 60000, 57000]
+aSalaries = [
+	45000, 52000, 48000, 67000, 55000,
+	49000, 58000, 62000, 51000, 46000,
+	59000, 53000, 47000, 61000, 56000,
+	50000, 54000, 48000, 60000, 57000
+]
+
 oChart = new stzHistogram(aSalaries)
 oChart {
-    SetBinCount(6)
+
+    DivideToNGroups(6) # Or SetBinCount(6)
     AddPercent()
-    AddLabels()
+
     SetBarChar("▓")
     Show()
 }
 #-->
 '
-        ^
-      │ 25.0%
-    4 │ ▓▓▓
-      │ ▓▓▓   20.0%  20.0%
-    3 │ ▓▓▓   ▓▓▓    ▓▓▓   15.0%
-      │ ▓▓▓   ▓▓▓    ▓▓▓   ▓▓▓   15.0%
-    2 │ ▓▓▓   ▓▓▓    ▓▓▓   ▓▓▓   ▓▓▓    5.0%
-      │ ▓▓▓   ▓▓▓    ▓▓▓   ▓▓▓   ▓▓▓    ▓▓▓
-    1 │ ▓▓▓   ▓▓▓    ▓▓▓   ▓▓▓   ▓▓▓    ▓▓▓
-      ╰─────────────────────────────────────────>
-        45k-48k 48k-52k 52k-55k 55k-59k 59k-62k 62k-67k
+^
+│   25%                                                
+│   ▓▓       20%               20%                     
+│   ▓▓       ▓▓       15%      ▓▓       15%            
+│   ▓▓       ▓▓       ▓▓       ▓▓       ▓▓             
+│   ▓▓       ▓▓       ▓▓       ▓▓       ▓▓             
+│   ▓▓       ▓▓       ▓▓       ▓▓       ▓▓       5%    
+│   ▓▓       ▓▓       ▓▓       ▓▓       ▓▓       ▓▓    
+│   ▓▓       ▓▓       ▓▓       ▓▓       ▓▓       ▓▓    
+╰──────────────────────────────────────────────────────>
+   45.0K    48.7K    52.3K    56.0K    59.7K    63.3K  
+   48.7K    52.3K    56.0K    59.7K    63.3K    67.0K  
 '
 
 pf()
+# Executed in 0.81 second(s) in Ring 1.22
 
 /*--- Simple histogram without axes
 
 pr()
-aAges = [25, 34, 45, 28, 37, 42, 31, 39, 33, 46, 29, 38, 41, 35, 27, 44, 36, 32, 40, 43]
+
+aAges = [
+	25, 34, 45, 28, 37, 42, 31,
+	39, 33, 46, 29, 38, 41, 35,
+	27, 44, 36, 32, 40, 43
+]
+
 oChart = new stzHistogram(aAges)
 oChart {
+
     SetBinCount(4)
+	UseFrequency()
+	IncludeValues()
+
     WithoutXAxis()
     WithoutYAxis()
-    AddFrequency()
     SetBarChar("■")
     SetBarWidth(4)
+
     Show()
 }
 #-->
 '
-     6
-    ■■■■
-    ■■■■     5      5      4
-    ■■■■    ■■■■   ■■■■   ■■■■
-    ■■■■    ■■■■   ■■■■   ■■■■
-    ■■■■    ■■■■   ■■■■   ■■■■
-    25-30   30-35  35-40  40-46
+                    6   
+        5     5    ■■■■ 
+  4    ■■■■  ■■■■  ■■■■ 
+ ■■■■  ■■■■  ■■■■  ■■■■ 
+ ■■■■  ■■■■  ■■■■  ■■■■ 
+ ■■■■  ■■■■  ■■■■  ■■■■ 
+ ■■■■  ■■■■  ■■■■  ■■■■ 
+ ■■■■  ■■■■  ■■■■  ■■■■ 
+
+  25    30    36    41  
+  30    36    41    46  
 '
 pf()
+# Executed in 0.49 second(s) in Ring 1.22
 
 /*--- Compact histogram with custom bin width
 */
 
 pr()
 
-aWeights = [150, 155, 160, 152, 158, 162, 165, 159, 157, 161, 163, 156, 154, 164, 166, 153, 151, 167, 168, 149]
+aWeights = [
+	150, 155, 160, 152, 158, 162, 165,
+	159, 157, 161, 163, 156, 154, 164,
+	166, 153, 151, 167, 168, 149
+]
+
 oChart = new stzHistogram(aWeights)
 oChart {
-    SetBinWidth(5)
-    AddLabels()
-    SetBarWidth(2)
-    SetBarInterSpace(2)
-    WithoutLabels()
+
+	UseSum()
+	IncludeValues()
+
+    SetBarWidth(3)
+    SetBarInterSpace(1)
+	SetLabelInterSpace(0)
+
+
     Show()
 }
 #-->
 '
-      ^
-    8 │
-      │ ██
-      │ ██
-    6 │ ██
-      │ ██
-      │ ██
-    4 │ ██    ██
-      │ ██    ██
-    2 │ ██    ██    ██    ██
-      │ ██    ██    ██    ██
-      ╰─────────────────────────>
+^
+│  602                           666  
+│  ███               480   489   ███  
+│  ███   462   471   ███   ███   ███  
+│  ███   ███   ███   ███   ███   ███  
+│  ███   ███   ███   ███   ███   ███  
+│  ███   ███   ███   ███   ███   ███  
+│  ███   ███   ███   ███   ███   ███  
+│  ███   ███   ███   ███   ███   ███  
+╰─────────────────────────────────────>
+   149   152   155   158   162   165  
+   152   155   158   162   165   168  
 '
+
+pf()
+# Executed in 0.61 second(s) in Ring 1.22
