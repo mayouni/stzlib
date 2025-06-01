@@ -1364,35 +1364,41 @@ aScores = [85, 92, 78, 88, 95, 82, 90, 87, 93, 86, 79, 91, 84, 89, 96, 83, 88, 9
 oChart = new stzHistogram(aScores)
 oChart {
 
-	SetBarInterSpace(1)
-	SetLabelInterSpace(2)
-    SetBinCount(5)
+//	? @@(AggregationTypes())
+	#--> [ "frequency", "sum", "average", "min", "max" ]
 
-	ShowSum()
-    AddLabels()
+//	SetBarInterSpace(1)
+//	SetLabelInterSpace(2)
+
+//  SetBinCount(5) # Or DivideToNGroups(5)
+	# ~> # Auto-calculate bin count using Sturges' rule if not set
+
+	UseFrequency()
+	IncludeValues()
+
     Show()
 }
 #-->
 '
-      ^
-    4 │
-      │ ██
-      │ ██
-    3 │ ██     ██
-      │ ██     ██
-      │ ██     ██     ██
-    2 │ ██     ██     ██
-      │ ██ ██  ██     ██
-    1 │ ██ ██  ██ ██  ██
-      ╰─────────────────────>
-        78-83 83-88 88-93 93-96
+^
+│                    5               
+│              4     ██    4         
+│              ██    ██    ██    3   
+│              ██    ██    ██    ██  
+│  2     2     ██    ██    ██    ██  
+│  ██    ██    ██    ██    ██    ██  
+│  ██    ██    ██    ██    ██    ██  
+│  ██    ██    ██    ██    ██    ██  
+╰────────────────────────────────────>
+  78.0  81.0  84.0  87.0  90.0  93.0 
+  81.0  84.0  87.0  90.0  93.0  96.0 
 '
 
 pf()
-
+# Executed in 0.33 second(s) in Ring 1.22
 
 /*--- Histogram with frequency display and statistics
-
+*/
 pr()
 
 aTemperatures = [72, 74, 76, 73, 75, 78, 79, 77, 74, 76, 75, 73, 77, 78, 76, 74, 75, 79, 78, 77]
