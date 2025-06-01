@@ -1369,38 +1369,34 @@ aScores = [
 oChart = new stzHistogram(aScores)
 oChart {
 
-//	? @@(AggregationTypes())
+	# ? @@(AggregationTypes())
 	#--> [ "frequency", "sum", "average", "min", "max" ]
 
-//	SetBarInterSpace(1)
-//	SetLabelInterSpace(2)
-
-//  SetBinCount(5) # Or DivideToNGroups(5)
-	# ~> # Auto-calculate bin count using Sturges' rule if not set
+	# SetBinCount(5) # Or SetClassCount(5)
+	# ~> Auto-calculate bin count using Sturges' rule
+	# if not set
 
 	UseFrequency()
-	IncludeValues()
+	AddPercent()
 
     Show()
 }
 #-->
 '
-^
-│                    5               
-│              4     ██    4         
-│              ██    ██    ██    3   
-│              ██    ██    ██    ██  
-│  2     2     ██    ██    ██    ██  
-│  ██    ██    ██    ██    ██    ██  
-│  ██    ██    ██    ██    ██    ██  
-│  ██    ██    ██    ██    ██    ██  
-╰────────────────────────────────────>
-  78.0  81.0  84.0  87.0  90.0  93.0 
-  81.0  84.0  87.0  90.0  93.0  96.0 
+^                                          
+│                       25%                
+│                20%    ██     20%         
+│                ██     ██     ██     15%  
+│  10%    10%    ██     ██     ██     ██   
+│  ██     ██     ██     ██     ██     ██   
+│  ██     ██     ██     ██     ██     ██   
+╰──────────────────────────────────────────>
+   78     81     84     87     90     93   
+   81     84     87     90     93     96  
 '
 
 pf()
-# Executed in 0.33 second(s) in Ring 1.22
+# Executed in 0.48 second(s) in Ring 1.22
 
 /*--- Histogram with frequency display and statistics
 
@@ -1417,31 +1413,32 @@ oChart {
     SetBinCount(4)
     UseFrequency()
     AddStats()
-	# ~> You can the stats directly using these functions:
+	# ~> You can get the stats directly using these functions:
 	# Mean() StandartDeviation() Median() Count()
 
     Show()
 }
 #-->
-'
-^
+'^                        
+│                        
 │        ██    ██        
 │        ██    ██    ██  
 │        ██    ██    ██  
-│        ██    ██    ██  
-│  ██    ██    ██    ██  
 │  ██    ██    ██    ██  
 │  ██    ██    ██    ██  
 │  ██    ██    ██    ██  
 ╰────────────────────────>
-  72.0  73.8  75.5  77.2 
-  73.8  75.5  77.2  79.0 
+   72    74    76    77  
+   74    76    77    79  
 
-Mean: 75.80 | StdDev: 2.07 | Median: 76 | Count: 20
+Mean: 75.80
+StdDev: 2.07
+Median: 76
+Count: 20
 '
 
 pf()
-# Executed in 0.63 second(s) in Ring 1.22
+# Executed in 0.56 second(s) in Ring 1.22
 
 /*--- Histogram with percentage display
 
@@ -1456,8 +1453,7 @@ aSalaries = [
 
 oChart = new stzHistogram(aSalaries)
 oChart {
-
-    DivideToNGroups(6) # Or SetBinCount(6)
+    SetClassCount(6) # Or SetBinCount(6)
     AddPercent()
 
     SetBarChar("▓")
@@ -1465,14 +1461,12 @@ oChart {
 }
 #-->
 '
-^
+^                                                      
 │   25%                                                
 │   ▓▓       20%               20%                     
 │   ▓▓       ▓▓       15%      ▓▓       15%            
 │   ▓▓       ▓▓       ▓▓       ▓▓       ▓▓             
-│   ▓▓       ▓▓       ▓▓       ▓▓       ▓▓             
 │   ▓▓       ▓▓       ▓▓       ▓▓       ▓▓       5%    
-│   ▓▓       ▓▓       ▓▓       ▓▓       ▓▓       ▓▓    
 │   ▓▓       ▓▓       ▓▓       ▓▓       ▓▓       ▓▓    
 ╰──────────────────────────────────────────────────────>
    45.0K    48.7K    52.3K    56.0K    59.7K    63.3K  
@@ -1515,16 +1509,14 @@ oChart {
  ■■■■  ■■■■  ■■■■  ■■■■ 
  ■■■■  ■■■■  ■■■■  ■■■■ 
  ■■■■  ■■■■  ■■■■  ■■■■ 
- ■■■■  ■■■■  ■■■■  ■■■■ 
-
+                        
   25    30    36    41  
-  30    36    41    46  
+  30    36    41    46   
 '
 pf()
-# Executed in 0.49 second(s) in Ring 1.22
+# Executed in 0.51 second(s) in Ring 1.22
 
 /*--- Compact histogram with custom bin width
-*/
 
 pr()
 
@@ -1538,12 +1530,11 @@ oChart = new stzHistogram(aWeights)
 oChart {
 
 	UseSum()
-	IncludeValues()
+	AddValues()
 
     SetBarWidth(3)
     SetBarInterSpace(1)
 	SetLabelInterSpace(0)
-
 
     Show()
 }
@@ -1551,8 +1542,9 @@ oChart {
 '
 ^
 │  602                           666  
-│  ███               480   489   ███  
-│  ███   462   471   ███   ███   ███  
+│  ███                           ███  
+│  ███   462   471   480   489   ███  
+│  ███   ███   ███   ███   ███   ███  
 │  ███   ███   ███   ███   ███   ███  
 │  ███   ███   ███   ███   ███   ███  
 │  ███   ███   ███   ███   ███   ███  
@@ -1564,4 +1556,571 @@ oChart {
 '
 
 pf()
-# Executed in 0.61 second(s) in Ring 1.22
+# Executed in 0.60 second(s) in Ring 1.22
+
+
+#============================#
+#  TEST OF TREE CHART CLASS  #
+#============================#
+
+/*--- Basic 4-item test with percentages
+
+pr()
+
+oChart = new stzTreeChart([
+    :Sales = 45,
+    :Marketing = 25, 
+    :Dev = 20,
+    :Support = 10
+])
+
+oChart.AddPercent().AddLegend().AddValues().Show()
+'
+╭──────────────────────────┬───────────╮
+│                          │           │
+│          Sales           │   Dev     │
+│        45 (45%)          │ 20 (20%)  │
+│                          │           │
+│                          │           │
+│                          │           │
+├──────────────────────────┼───────────┤
+│        Marketing         │ Support   │
+│        25 (25%)          │ 10 (10%)  │
+│                          │           │
+╰──────────────────────────┴───────────╯
+'
+
+pf()
+# Executed in 0.06 second(s) in Ring 1.22
+
+/*--- 2-item comparison test
+
+pr()
+
+oChart2 = new stzTreeChart([
+    :Desktop = 75,
+    :Mobile = 25
+])
+oChart2.AddPercent().Show()
+#-->
+'
+╭────────────────────────────┬─────────╮
+│                            │         │
+│                            │         │
+│                            │         │
+│                            │         │
+│          Desktop           │ Mobile  │
+│            75%             │  25%    │
+│                            │         │
+│                            │         │
+│                            │         │
+│                            │         │
+╰────────────────────────────┴─────────╯
+'
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*--- 3-item test with values and percentages
+
+pr()
+
+oChart3 = new stzTreeChart([
+    :Frontend = 60,
+    :Backend = 30,
+    :DevOps = 10
+])
+oChart3.AddValues().AddPercent().Show()
+#-->
+'
+╭──────────────────────┬───────────────╮
+│                      │               │
+│                      │               │
+│                      │   Backend     │
+│                      │   30 (30%)    │
+│      Frontend        │               │
+│      60 (60%)        │               │
+│                      │               │
+│                      ├───────────────┤
+│                      │   10 (10%)    │
+│                      │               │
+╰──────────────────────┴───────────────╯
+'
+
+pf()
+# Executed in 0.05 second(s) in Ring 1.22
+
+/*--- 5-item test (recursive division)
+
+pr()
+
+oChart4 = new stzTreeChart([
+    :A = 40,
+    :B = 25,
+    :C = 15,
+    :D = 12,
+    :E = 8
+])
+oChart4.AddPercent().Show()
+#--> TODO Labels are not displayed!
+'
+╭──────────────┬─────────┬─────┬───────╮
+│              │         │     │       │
+│              │         │     │  D    │
+│              │         │     │ 12%   │
+│              │         │     │       │
+│      A       │   B     │ C   │       │
+│     40%      │  25%    │15%  │       │
+│              │         │     ├───────┤
+│              │         │     │  E    │
+│              │         │     │  8%   │
+│              │         │     │       │
+╰──────────────┴─────────┴─────┴───────╯
+'
+
+pf()
+# Executed in 0.08 second(s) in Ring 1.22
+
+/*--- Large dataset (6 items)
+
+pr()
+
+oChart5 = new stzTreeChart([
+    :North = 35,
+    :South = 30,
+    :East = 28,
+    :West = 18,
+    :Center = 30,
+    :Remote = 10
+])
+oChart5.AddPercent().Show()
+#-->
+'
+╭────────┬──────────────┬──────┬───────╮
+│        │              │      │       │
+│        │   South      │      │ West  │
+│        │   19.9%      │      │11.9%  │
+│        │              │      │       │
+│ North  │              │East  │       │
+│ 23.2%  ├──────────────┤8.5%  │       │
+│        │   Center     │      ├───────┤
+│        │   19.9%      │      │Remote │
+│        │              │      │ 6.6%  │
+│        │              │      │       │
+╰────────┴──────────────┴──────┴───────╯
+'
+
+pf()
+# Executed in 0.13 second(s) in Ring 1.22
+
+/*--- Equal values test
+
+pr()
+
+oChart6 = new stzTreeChart([
+    :Q1 = 25,
+    :Q2 = 25,
+    :Q3 = 25,
+    :Q4 = 25
+])
+oChart6 {
+	AddPercent()
+	Show()
+}
+#-->
+'
+╭───────────────────┬──────────────────╮
+│                   │                  │
+│        Q1         │       Q3         │
+│       25%         │       25%        │
+│                   │                  │
+│                   │                  │
+├───────────────────┼──────────────────┤
+│        Q2         │       Q4         │
+│       25%         │       25%        │
+│                   │                  │
+│                   │                  │
+╰───────────────────┴──────────────────╯
+'
+
+pf()
+
+/*--- Custom size test
+
+pr()
+
+oChart7 = new stzTreeChart([
+    :Red = 50,
+    :Blue = 30,
+    :Green = 20
+])
+oChart7.SetSize(60, 16).AddPercent().Show()
+#-->
+'
+╭─────────────────────────────┬────────────────────────────╮
+│                             │                            │
+│                             │                            │
+│                             │           Blue             │
+│                             │            30%             │
+│                             │                            │
+│                             │                            │
+│            Red              │                            │
+│            50%              │                            │
+│                             ├────────────────────────────┤
+│                             │                            │
+│                             │           Green            │
+│                             │            20%             │
+│                             │                            │
+│                             │                            │
+╰─────────────────────────────┴────────────────────────────╯
+'
+pf()
+# Executed in 0.05 second(s) in Ring 1.22
+
+/*--- Values only (no percentages)
+
+pr()
+
+oChart9 = new stzTreeChart([
+    :Server1 = 120,
+    :Server2 = 80,
+    :Server3 = 45,
+    :Server4 = 35
+])
+oChart9.AddValues().Show()
+#-->
+'
+╭───────────────────────────┬──────────╮
+│                           │          │
+│         Server1           │ Server3  │
+│           120             │   45     │
+│                           │          │
+│                           │          │
+│                           ├──────────┤
+├───────────────────────────│ Server4  │
+│         Server2           │   35     │
+│            80             │          │
+│                           │          │
+╰───────────────────────────┴──────────╯
+'
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*--- Single item test
+
+pr()
+
+oChart10 = new stzTreeChart([
+    :Total = 100
+])
+oChart10.AddPercent().Show()
+#-->
+'
+╭──────────────────────────────────────╮
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                Total                 │
+│                 100%                 │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+╰──────────────────────────────────────╯
+'
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*--- Large numbers test
+
+pr()
+
+oChart11 = new stzTreeChart([
+    :Revenue = 2500000,
+    :Costs = 1800000,
+    :Profit = 700000
+])
+oChart11.AddValues().AddPercent().Show()
+#-->
+'
+╭───────────────────┬──────────────────╮
+│                   │                  │
+│                   │                  │
+│                   │      Costs       │
+│                   │  1800000 (36%)   │
+│     Revenue       │                  │
+│  2500000 (50%)    │                  │
+│                   │                  │
+│                   ├──────────────────┤
+│                   │  700000 (14%)    │
+│                   │                  │
+╰───────────────────┴──────────────────╯
+'
+
+pf()
+# Executed in 0.05 second(s) in Ring 1.22
+
+/*--- 8-item complex test
+
+pr()
+
+oChart12 = new stzTreeChart([
+    :Chrome = 65,
+    :Safari = 19,
+    :Edge = 8,
+    :Firefox = 4,
+    :Opera = 2,
+    :Samsung = 1,
+    :UCBrowser = 0.5,
+    :Others = 0.5
+])
+oChart12.AddPercent().SetSize(80, 20).Show()
+#-->
+'
+╭────────────────────────────────────────────────────────────────┬─────────┬─┬─╮
+│                                                                │         │ │ │
+│                                                                │         │ │ │
+│                                                                │         │ │ │
+│                                                                │         │ │ │
+│                                                                │ Edge    │ │ │
+│                            Chrome                              │  8%     │ │ │
+│                              65%                               │         │ │ │
+│                                                                │         │ │ │
+│                                                                │         │ │ │
+│                                                                │         │ │ │
+│                                                                │         │ │ │
+│                                                                │         │ │ │
+│                                                                ├─────────┤ │ │
+├────────────────────────────────────────────────────────────────┤         ├─┼─┤
+│                            Safari                              │Firefox  │ │ │
+│                              19%                               │  4%     │ │ │
+│                                                                │         │ │ │
+│                                                                │         │ │ │
+╰────────────────────────────────────────────────────────────────┴─────────┴─┴─╯
+'
+pf()
+# Executed in 0.09 second(s) in Ring 1.22
+
+
+#----------------------------------------------------#
+# Test Suite for stzPlotChart (Scatter Plot Chart)  #
+#----------------------------------------------------#
+
+/*--- Test 1: Basic scatter plot with coordinate pairs
+
+pr()
+
+oChart = new stzPlotChart([[1,2], [3,5], [5,4], [7,8], [9,6]])
+oChart.Show()
+#-->
+'
+   8.6-^                      ●          
+       │                                 
+   6.8-│                             ●   
+       │         ●                       
+   5.0-│                                 
+       │               ●                 
+   3.2-│                                 
+       │  ●                              
+       ╰─────────────────────────────────>
+       0|2     2|6     5|0     7|4       
+'
+
+pf()
+# Executed in 0.15 second(s) in Ring 1.22
+
+/*--- Test 2: Named data points with labels
+
+pr()
+
+oChart = new stzPlotChart([ 
+	:Product1 = [10, 25], 
+	:Product2 = [15, 30], 
+	:Product3 = [20, 22], 
+	:Product4 = [25, 35] 
+])
+oChart.ShowLabels()
+oChart.Show()
+#-->
+'
+  36.3-^                             ●   
+       │                                 
+  32.4-│             product2            
+       │           ●                     
+  28.5-│    product1                     
+       │  ●                              
+  24.6-│                      product3   
+       │                    ●            
+       ╰─────────────────────────────────>
+       8|5    13|0    17|5    22|0       
+                                         
+'
+
+pf()
+# Executed in 0.14 second(s) in Ring 1.22
+
+/*--- Test 3: With trend line and grid
+
+pr()
+
+oChart = new stzPlotChart([[2,3], [4,5], [6,8], [8,9], [10,12]])
+oChart.ShowGrid()
+oChart.ShowTrendLine()
+oChart.Show()
+#-->
+'
+  12.9-^·····························●~~ 
+       │·    ·    ·    ·    ·    ~~~~ ·  
+  10.2-│·    ·    ·    ·    ·~●~~·    ·  
+       │·    ·    ·    ● ~~~~    ·    ·  
+   7.5-│·    ·    ·  ~~~~   ·    ·    ·  
+       │·········●~~~··················· 
+   4.8-│·    ~~~~ ·    ·    ·    ·    ·  
+       │~~●~~·    ·    ·    ·    ·    ·  
+       ╰─────────────────────────────────>
+       1|2     3|6     6|0     8|4       
+'
+
+pf()
+# Executed in 0.05 second(s) in Ring 1.22
+
+/*--- Test 4: X,Y array format with coordinate values
+
+pr()
+
+oChart = new stzPlotChart([[:X, [1,3,5,7]], [:Y, [2,6,4,8]]])
+oChart.ShowValues()
+oChart.Show()
+#-->
+'
+   8.6-^                       (7,8) ●   
+       │                                 
+   6.8-│           ● (3,6)               
+       │                                 
+   5.0-│                                 
+       │                    ● (5,4)      
+   3.2-│                                 
+       │  ● (1,2)                        
+       ╰─────────────────────────────────>
+       0|4     2|2     4|0     5|8       
+'
+
+pf()
+# Executed in 0.15 second(s) in Ring 1.22
+
+/*--- Test 5: Customized appearance
+
+pr()
+
+oChart = new stzPlotChart([[5,10], [10,15], [15,12], [20,18]])
+oChart.SetSize(18,14)
+oChart.SetPointChar("◆")
+
+oChart.SetTrendChar("═")
+oChart.ShowGrid()
+oChart.ShowTrendLine()
+
+oChart.Show()
+#-->
+'
+  18.8-^·····························◆·· 
+       │·    ·    ·    ·    ·    ·  ════ 
+  16.4-│·    ·    ·    ·    ·  ═════  ·  
+       │·    ·    ·◆   ·  ═════  ·    ·  
+  14.0-│·    ·    · ══════  ·    ·    ·  
+       │·······═════········◆··········· 
+  11.6-│· ═════   ·    ·    ·    ·    ·  
+       │══◆  ·    ·    ·    ·    ·    ·  
+       ╰─────────────────────────────────>
+       3|5     8|0    12|5    17|0      
+'
+
+pf()
+# Executed in 0.14 second(s) in Ring 1.22
+
+/*--- Test 6: Clean plot without axes
+
+pr()
+
+oChart = new stzPlotChart([[1,1], [2,4], [3,2], [4,5], [5,3]])
+oChart.WithoutXAxis()
+oChart.WithoutYAxis()
+oChart.Show()
+#-->
+'
+                               ●          
+                                         
+                 ●                       
+                                         
+                                     ●   
+                       ●                 
+                                         
+          ●                           
+'
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*--- Test 7: Performance data visualization
+
+pr()
+
+oChart = new stzPlotChart([
+	:Week1 = [100, 85],
+	:Week2 = [120, 90], 
+	:Week3 = [110, 88],
+	:Week4 = [140, 95]
+])
+oChart.ShowLabels()
+oChart.ShowTrendLine()
+//oChart.SetMaxSize(50, 30)
+oChart.Show()
+#-->
+'
+  96.0-^                            ~●~~ 
+       │                        ~~~~     
+  93.0-│                  week2~         
+       │                ●~~~             
+  90.0-│           week3                 
+       │        ~●~~                     
+  87.0-│    week1                        
+       │~~●~                             
+       ╰─────────────────────────────────>
+      96|0    10|.0   12|.0   13|.0    
+'
+
+pf()
+# Executed in 0.10 second(s) in Ring 1.22
+
+/*--- Test 8: Temperature correlation study
+
+pr()
+
+aData = [
+	[:Jan, [5, 32]], [:Feb, [8, 35]], [:Mar, [12, 50]], 
+	[:Apr, [18, 64]], [:May, [22, 72]], [:Jun, [28, 82]]
+]
+oChart = new stzPlotChart(aData)
+oChart.ShowLabels()
+oChart.ShowGrid()
+oChart.Show()
+#-->
+'
+  87.0-^························may··●·· 
+       │·    ·    ·    ·    · ●  ·    ·  
+  72.0-│·    ·    ·    ·   apr   ·    ·  
+       │·    ·    · mar· ●  ·    ·    ·  
+  57.0-│·    ·    ●    ·    ·    ·    ·  
+       │········feb····················· 
+  42.0-│·   jan   ·    ·    ·    ·    ·  
+       │· ●  ·    ·    ·    ·    ·    ·  
+       ╰─────────────────────────────────>
+       2|7     9|6    16|5    23|4       
+                                         
+'
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.22
