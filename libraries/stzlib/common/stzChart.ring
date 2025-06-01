@@ -687,7 +687,7 @@ class stzBarChart from stzChart
 
 		cResult = _finalizeCanvas()
 
-		# A hack to add a space at the top of the X Axis
+		# A hack to add an empty at the top of the X Axis
 		if ring_substr1(cResult, @cXArrowChar) > 0
 			cResult = ring_substr2(cResult, @cXArrowChar, @cXAxisChar)
 			cResult = @cXArrowChar + NL + cResult
@@ -1677,7 +1677,6 @@ class stzHBarChart from stzChart
 		next
 	
 		return cResult
-
 
 #-------------------------#
 #  MULTI-BAR CHART CLASS  #
@@ -2682,7 +2681,6 @@ class stzMultiBarChart from stzChart
 		return nCount
 
 
-
 #-------------------------#
 #  HISTOGRAM CHART CLASS  #
 #-------------------------#
@@ -2780,7 +2778,6 @@ class stzHistogram from stzChart
 			
 			# Create labels
 			nDecimals = iff(floor(nBinMin) = nBinMin and floor(nBinMax) = nBinMax, 0, 1)
-//			cLabel = RoundN(nBinMin, nDecimals) + "-" + RoundN(nBinMax, nDecimals)
 			cLabel = _formatNumber(nBinMin) + "-" + _formatNumber(nBinMax)
 
 			@aBinLabels + cLabel
@@ -2818,6 +2815,12 @@ class stzHistogram from stzChart
 		def SetBarCount(n)
 			This.SetBinCount(n)
 
+		def SetClassCount(n)
+			This.SetBinCount(n)
+
+		def DivideToNClasses(n)
+			This.SetBinCount(n)
+
 		def DivideToNGroups(n)
 			This.SetBinCount(n)
 
@@ -2828,6 +2831,10 @@ class stzHistogram from stzChart
 			_calculateBins()
 			_processBinnedData()
 		ok
+
+		def SetClassRange(n)
+			This.SetBinRange(n)
+
 
 	def SetValues(bShow)
 		@bShowValues = bShow
@@ -3072,7 +3079,7 @@ class stzHistogram from stzChart
 
 
 	def _processBinnedData()
-		
+
 		# Initialize bin data based on aggregation type
 		@aBinCounts = []
 		
@@ -3096,7 +3103,7 @@ class stzHistogram from stzChart
 
 			off
 		next
-		
+
 		# Process each data point
 		nLen = len(@anRawData)
 		for i = 1 to nLen
@@ -3164,72 +3171,6 @@ class stzHistogram from stzChart
 		return nCount
 
 	
-	def _drawValues(oLayout)
-
-		nBars = len(@anValues)
-
-		nBarsStartCol = oLayout[:bars_start_col]
-		nAxisRow = oLayout[:x_axis_row] 
-		nBarsAreaHeight = oLayout[:bars_area_height]
-		aElementWidths = oLayout[:element_widths]
-		aBarSpacing = oLayout[:bar_spacing]
-		
-		nCurrentX = nBarsStartCol
-		
-		for i = 1 to nBars
-
-			nElementWidth = aElementWidths[i]
-			nVal = @anValues[i]
-			
-			if @nMaxValue = 0 or nVal = 0
-				nBarHeight = 1
-			else
-				nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
-			ok
-			
-			nValueRow = nAxisRow - nBarHeight - 1
-			if nValueRow < 1
-				nValueRow = 1
-			ok
-			
-			# Format value based on aggregation type
-
-			switch @cAggregationType
-			on "frequency"
-			    cValue = "" + nVal
-
-			on "sum"
-			    nRounded = 0+ RoundN(nVal, 1)
-			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
-
-			on "average"
-			    nRounded = 0+ RoundN(nVal, 2)
-			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
-
-			on "min"
-			    nRounded = 0+ RoundN(nVal, 1)
-			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
-
-			on "max"
-			    nRounded = 0+ RoundN(nVal, 1)
-			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
-			off
-			
-			nValueLen = len(cValue)
-			nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
-			
-			for k = 1 to nValueLen
-				nCol = nValueStartX + k - 1
-				if nCol <= @nWidth and nCol >= 1 and nValueRow >= 1
-					@acCanvas[nValueRow][nCol] = cValue[k]
-				ok
-			next
-			
-			if i < nBars
-				nCurrentX += nElementWidth + aBarSpacing[i]
-			ok
-		next
-	
 	#--- DISPLAY
 
 	def Show()
@@ -3266,19 +3207,40 @@ class stzHistogram from stzChart
 		ok
 		
 		cResult = _finalizeCanvas()
-	
-		# Add arrow at top
-		if ring_substr1(cResult, @cXArrowChar) > 0
-			cResult = ring_substr2(cResult, @cXArrowChar, @cXAxisChar)
-			cResult = @cXArrowChar + NL + cResult
+
+		# A hack to remove an unncessary empty line from the top
+		if @bShowXAxis = FALSE
+
+			oStrTemp = new stzString(cResult)
+			nPos = oStrTemp.FindFirst(NL)
+			oStrTemp.RemoveSection(1, nPos)
+			cResult = oStrTemp.Content()
 		ok
-	
+
+		# A hack to add an empty at the top of the X Axis
+
+		if ring_substr1(cResult, @cXArrowChar) > 0
+
+			oStrTemp = new stzString(cResult)
+			nPos = oStrTemp.FindNth(1, NL)
+			bFirstLineIsEmpty = @trim(oStrTemp.Section(4, nPos-1)) = ""
+
+			if NOT bFirstLineIsEmpty # then add an empty line
+				cResult = ring_substr2(cResult, @cXArrowChar, @cXAxisChar)
+				cResult = @cXArrowChar + NL + cResult
+			ok
+
+		ok
+
 		# Add statistics if requested
 		if @bShowStats
-			cStats = NL + NL + "Mean: " + RoundN(This.Mean(), 2) + 
-			         " | StdDev: " + RoundN(This.StandardDeviation(), 2) +
-			         " | Median: " + RoundN(This.Median(), 2) +
-			         " | Count: " + This.DataCount()
+
+			cStats = NL + NL +
+				"Mean: " + RoundN(This.Mean(), 2) + NL +
+			    "StdDev: " + RoundN(This.StandardDeviation(), 2) + NL +
+			    "Median: " + RoundN(This.Median(), 2) + NL +
+			    "Count: " + This.DataCount()
+
 			cResult += cStats
 		ok
 	
@@ -3357,14 +3319,50 @@ class stzHistogram from stzChart
 			StzRaise("Histogram width (" + nTotalWidth + ") exceeds maximum (" + @nMaxWidth + ")")
 		ok
 		
+		# Estimate initial height for calculation
+		nEstimatedHeight = @nHight
+		if nEstimatedHeight = 0
+			nEstimatedHeight = 20  # Default estimate
+		ok
+		
+		# Calculate chart height based on requirements
 		if @bShowLabels
-			nChartHeight = @nHight + 1  # Add one more row for two-line labels
-			nXAxisRow = @nHight - 1
-			nLabelsRow = @nHight + 1
+			nChartHeight = nEstimatedHeight + 1  # Add one more row for two-line labels
+			nXAxisRow = nEstimatedHeight - 1
+			nLabelsRow = nEstimatedHeight + 1
 		else
-			nChartHeight = @nHight
-			nXAxisRow = @nHight - 1
-			nLabelsRow = @nHight
+			nChartHeight = nEstimatedHeight
+			nXAxisRow = nEstimatedHeight - 1  
+			nLabelsRow = nEstimatedHeight
+		ok
+		
+		# Calculate bars area height
+		nBarsAreaHeight = nXAxisRow - 1
+		if @bShowValues or @bShowPercent
+			nBarsAreaHeight = nXAxisRow - 2
+		ok
+		
+		# Now calculate required height based on actual bar heights
+		nRequiredHeight = This._getRequiredHeight(nBarsAreaHeight)
+		
+		# Recalculate final positions with correct height
+		if @bShowLabels
+			nChartHeight = nRequiredHeight + 1
+			nXAxisRow = nRequiredHeight - 1
+			nLabelsRow = nRequiredHeight + 1
+		else
+			nChartHeight = nRequiredHeight
+			nXAxisRow = nRequiredHeight - 1
+			nLabelsRow = nRequiredHeight
+		ok
+		
+		# Update @nHight to match calculated height
+		@nHight = nChartHeight
+		
+		# Recalculate bars area height with final positions
+		nBarsAreaHeight = nXAxisRow - 1
+		if @bShowValues or @bShowPercent
+			nBarsAreaHeight = nXAxisRow - 2
 		ok
 		
 		oLayout.AddPair([:y_axis_col, nYAxisStart])
@@ -3375,12 +3373,6 @@ class stzHistogram from stzChart
 		oLayout.AddPair([:x_axis_row, nXAxisRow])
 		oLayout.AddPair([:labels_row, nLabelsRow])
 		oLayout.AddPair([:chart_height, nChartHeight])
-	
-		nBarsAreaHeight = nXAxisRow - 1
-		if @bShowValues or @bShowPercent
-			nBarsAreaHeight = nXAxisRow - 2
-		ok
-		
 		oLayout.AddPair([:bars_area_height, nBarsAreaHeight])
 		oLayout.AddPair([:total_width, nTotalWidth])
 		oLayout.AddPair([:element_widths, aElementWidths])
@@ -3390,14 +3382,17 @@ class stzHistogram from stzChart
 
 
 	# Delegate drawing methods to bar chart implementations
+
 	def _drawYAxis(oLayout)
 		nAxisCol = oLayout[:y_axis_col]
 		nAxisRow = oLayout[:x_axis_row]
 		
+		# Draw axis from row 2 to avoid overwriting arrow
 		for i = 2 to nAxisRow - 1
 			@acCanvas[i][nAxisCol] = @cXAxisChar
 		next
 		
+		# Place arrow at the top (row 1)
 		@acCanvas[1][nAxisCol] = @cXArrowChar
 
 	def _drawXAxis(oLayout)
@@ -3416,8 +3411,10 @@ class stzHistogram from stzChart
 		
 		@acCanvas[nAxisRow][nEndCol] = @cYArrowChar
 
+
+
 	def _drawBars(oLayout)
-		# Same logic as bar chart but for frequency data
+		# Same logic as bar chart but with improved height calculation for histograms
 		nBars = len(@anValues)
 		nBarsStartCol = oLayout[:bars_start_col] 
 		nAxisRow = oLayout[:x_axis_row]
@@ -3431,10 +3428,17 @@ class stzHistogram from stzChart
 			nElementWidth = aElementWidths[i]
 			nVal = @anValues[i]  # This is frequency count
 			
-			if @nMaxValue = 0 or nVal = 0
+			# Improved height calculation for histograms
+			if nVal = 0
 				nBarHeight = 0
 			else
-				nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+				# Use 1:1 mapping if frequencies fit within available height
+				if @nMaxValue <= nBarsAreaHeight
+					nBarHeight = nVal  # Direct mapping: frequency 2 = height 2
+				else
+					# Only use proportional scaling when frequencies exceed available space
+					nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+				ok
 			ok
 			
 			nBarStartX = nCurrentX + floor((nElementWidth - @nBarWidth) / 2)
@@ -3460,9 +3464,97 @@ class stzHistogram from stzChart
 			ok
 		next
 
+	# Helper method to calculate actual required height
+	def _getRequiredHeight(nBarsAreaHeight)
+		nMaxBarHeight = 0
+		
+		for i = 1 to len(@anValues)
+			nVal = @anValues[i]
+			if nVal > 0
+				if @nMaxValue <= nBarsAreaHeight
+					nBarHeight = nVal
+				else
+					nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+				ok
+				nMaxBarHeight = max([nMaxBarHeight, nBarHeight])
+			ok
+		next
+		
+		# Add space for values above bars + axis + labels
+		nRequiredHeight = nMaxBarHeight + 2  # +1 for values above, +1 for axis
+		if @bShowLabels
+			nRequiredHeight += 2  # +2 for two-line labels
+		ok
+		
+		return nRequiredHeight
+
+
+	def _drawValues(oLayout)
+		nBars = len(@anValues)
+		nBarsStartCol = oLayout[:bars_start_col]
+		nAxisRow = oLayout[:x_axis_row] 
+		nBarsAreaHeight = oLayout[:bars_area_height]
+		aElementWidths = oLayout[:element_widths]
+		aBarSpacing = oLayout[:bar_spacing]
+		
+		nCurrentX = nBarsStartCol
+		
+		for i = 1 to nBars
+			nElementWidth = aElementWidths[i]
+			nVal = @anValues[i]
+			
+			# Use same height calculation as bars
+			if nVal = 0
+				nBarHeight = 0
+			else
+				if @nMaxValue <= nBarsAreaHeight
+					nBarHeight = nVal
+				else
+					nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+				ok
+			ok
+			
+			# Position value above the bar (one row above)
+			nValueRow = nAxisRow - nBarHeight - 1
+			if nValueRow < 1
+				nValueRow = 1
+			ok
+			
+			# Format value based on aggregation type
+			switch @cAggregationType
+			on "frequency"
+			    cValue = "" + nVal
+			on "sum"
+			    nRounded = 0+ RoundN(nVal, 1)
+			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
+			on "average"
+			    nRounded = 0+ RoundN(nVal, 2)
+			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
+			on "min"
+			    nRounded = 0+ RoundN(nVal, 1)
+			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
+			on "max"
+			    nRounded = 0+ RoundN(nVal, 1)
+			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
+			off
+			
+			nValueLen = len(cValue)
+			nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
+			
+			for k = 1 to nValueLen
+				nCol = nValueStartX + k - 1
+				if nCol <= @nWidth and nCol >= 1 and nValueRow >= 1
+					@acCanvas[nValueRow][nCol] = cValue[k]
+				ok
+			next
+			
+			if i < nBars
+				nCurrentX += nElementWidth + aBarSpacing[i]
+			ok
+		next
+
 
 	def _drawPercent(oLayout)
-		# Shows percentage of total data points in each bin
 		nBars = len(@anValues)
 		nBarsStartCol = oLayout[:bars_start_col]
 		nAxisRow = oLayout[:x_axis_row] 
@@ -3477,19 +3569,24 @@ class stzHistogram from stzChart
 			nElementWidth = aElementWidths[i]
 			nVal = @anValues[i]
 			
-			if @nMaxValue = 0 or nVal = 0
-				nBarHeight = 1
+			# Use same height calculation as bars
+			if nVal = 0
+				nBarHeight = 0
 			else
-				nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+				if @nMaxValue <= nBarsAreaHeight
+					nBarHeight = nVal
+				else
+					nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+				ok
 			ok
 			
+			# Position percentage above the bar (one row above)
 			nValueRow = nAxisRow - nBarHeight - 1
 			if nValueRow < 1
 				nValueRow = 1
 			ok
 			
-//			nPercent = RoundN((nVal/nTotalCount)*100, 1)
-//			cValue = "" + nPercent + '%'
+			# Calculate percentage based on frequency, not scaled bar height
 			nPercent = 0+ RoundN((nVal/nTotalCount)*100, 1)
 			if nPercent = floor(nPercent)
 			    cValue = "" + floor(nPercent) + '%'
@@ -3511,6 +3608,7 @@ class stzHistogram from stzChart
 				nCurrentX += nElementWidth + aBarSpacing[i]
 			ok
 		next
+
 
 	def _drawLabels(oLayout)
 		# Draw bin range labels in two rows
@@ -3566,3 +3664,1395 @@ class stzHistogram from stzChart
 	    else
 	        return "" + RoundN(nNumber, 0)
 	    ok
+
+#---------------------------------------#
+#  TREEMAP COMPOSITTION-ORIENTED CHART  #
+#---------------------------------------#
+
+class stzTreeChart from stzChart
+
+	@bShowPercent = FALSE
+	@bShowBorders = TRUE
+	@bShowLabels = TRUE
+	@bShowValues = FALSE
+
+	@nMinWidth = 40
+	@nMinHeight = 12
+	@nMaxWidth = 120
+	@nMaxHeight = 30
+	
+	@nWidth = 40
+	@nHeight = 12
+	@nMinLabelWidth = 3  # Minimum characters to show from label
+
+	# Border characters
+	@cTopLeft = "╭"
+	@cTopRight = "╮"
+	@cBottomLeft = "╰"
+	@cBottomRight = "╯"
+	@cHorizontal = "─"
+	@cVertical = "│"
+	@cTeeDown = "┬"
+	@cTeeUp = "┴"
+	@cTeeRight = "├"
+	@cTeeLeft = "┤"
+	@cCross = "┼"
+
+	@aRectangles = []
+	@nSum = 0
+	@anValues = []
+	@acLabels = []
+	@acCanvas = []
+	@bShowLegend = FALSE
+	@aLegend = []
+
+
+def init(paData)
+
+	if CheckParams()
+
+		if NOT isList(paData)
+			StzRaise("Can't create the stzChart object! paData must be a list.")
+		ok
+
+		if NOT (IsListOfNumbers(paData) or IsHashList(paData))
+			StzRaise("Can't create the stzChart object! paData must be a list of numbers or a hashlist.")
+		ok
+
+	ok
+
+	# In case a list of numbers is provided (the dataset
+	# contains no labels ~> Added automatically as :1, :2, etc.
+
+	if IsListOfNumbers(paData)
+
+		aTemp = []
+		nLen = len(paData)
+
+		for i = 1 to nLen
+			aTemp + [ ""+i, paData[i] ]
+		next
+
+		paData = aTemp
+	ok
+
+	# Forming the object container attributes from the hashlist
+
+	oHash = new stzHashList(paData)
+	@anValues = oHash.Values()
+	@acLabels = oHash.Keys()
+
+	if NOT IsListOfPositiveNumbers(@anValues)
+		StzRaise("Incorrect param value! You must provide only positive numbers.")
+	ok
+
+	@nSum = @Sum(@anValues)	
+	_calculateTreemap()
+
+
+	def AddPercent()
+		@bShowPercent = TRUE
+		return This
+
+		def SetPercent(bShow)
+			@bShowPercent = bShow
+			return This
+
+		def IncludePercent()
+			@bShowPercent = TRUE
+			return This
+
+	def AddValues()
+		@bShowValues = TRUE
+		return This
+
+		def SetValues(bShow)
+			@bShowValues = bShow
+			return This
+
+		def IncludeValues()
+			@bShowValues = TRUE
+			return This
+
+	def WithoutBorders()
+		@bShowBorders = FALSE
+		return This
+
+	def SetBorders(bShow)
+		@bShowBorders = bShow
+		return This
+
+	def WithoutLabels()
+		@bShowLabels = FALSE
+		return This
+
+	def SetLabels(bShow)
+		@bShowLabels = bShow
+		return This
+
+	def AddLegend()
+		@bShowLegend = TRUE
+		return This
+
+	def SetLegend(bShow)
+		@bShowLegend = bShow
+		return This
+
+	def IncludeLegend()
+		@bShowLegend = TRUE
+		return This
+
+	def SetSize(nWidth, nHeight)
+		if CheckParams()
+			if NOT (isNumber(nWidth) and isNumber(nHeight))
+				StzRaise("Incorrect param type! nWidth and nHeight must be both numbers.")
+			ok
+		ok
+
+		@nWidth = max([@nMinWidth, nWidth])
+		@nHeight = max([@nMinHeight, nHeight])
+		
+		if @nWidth > @nMaxWidth
+			@nWidth = @nMaxWidth
+		ok
+		
+		if @nHeight > @nMaxHeight
+			@nHeight = @nMaxHeight
+		ok
+
+		_calculateTreemap()
+		return This
+
+		def SetDimensions(nWidth, nHeight)
+			return This.SetSize(nWidth, nHeight)
+
+	def Show()
+		? This.ToString()
+
+	def ToString()
+		_autoResize()  # Auto-resize based on content needs
+		_calculateTreemap()
+		_initCanvas()
+		
+		if @bShowBorders
+			_drawBorders()
+			_connectBordersToOuter()
+		ok
+		
+		_drawContent()
+		
+		return _finalizeCanvas()
+
+	def _autoResize()
+		# Calculate minimum size needed for labels
+		nMaxLabelLen = 0
+		for i = 1 to len(@acLabels)
+			if len(@acLabels[i]) > nMaxLabelLen
+				nMaxLabelLen = len(@acLabels[i])
+			ok
+		next
+		
+		# Calculate minimum width needed
+		nMinNeededWidth = max([@nMinWidth, nMaxLabelLen + 4])  # +4 for borders and spacing
+		if @nWidth < nMinNeededWidth
+			@nWidth = min([nMinNeededWidth, @nMaxWidth])
+		ok
+		
+	def _initCanvas()
+		@acCanvas = []
+		for i = 1 to @nHeight
+			aRow = []
+			for j = 1 to @nWidth
+				aRow + " "
+			next
+			@acCanvas + aRow
+		next
+		
+	def _finalizeCanvas()
+		cResult = ""
+		for i = 1 to @nHeight
+			for j = 1 to @nWidth
+				cResult += @acCanvas[i][j]
+			next
+			if i < @nHeight
+				cResult += nl
+			ok
+		next
+		return cResult
+
+	def _calculateTreemap()
+		@aRectangles = []
+		nValues = len(@anValues)
+		
+		if nValues = 0
+			return
+		ok
+		
+		# Sort values by size (descending) for better layout
+		aSorted = []
+		for i = 1 to nValues
+			aSorted + [@anValues[i], @acLabels[i], i]
+		next
+		
+		# Simple bubble sort (descending)
+		for i = 1 to len(aSorted) - 1
+			for j = i + 1 to len(aSorted)
+				if aSorted[i][1] < aSorted[j][1]
+					temp = aSorted[i]
+					aSorted[i] = aSorted[j]
+					aSorted[j] = temp
+				ok
+			next
+		next
+		
+		# Calculate available area (excluding borders if shown)
+		nAvailWidth = @nWidth
+		nAvailHeight = @nHeight
+		
+		if @bShowBorders
+			nAvailWidth -= 2
+			nAvailHeight -= 2
+		ok
+		
+		nTotalArea = nAvailWidth * nAvailHeight
+		
+		# Calculate rectangles using squarified treemap algorithm (simplified)
+		_squarifyLayout(aSorted, 1, 1, nAvailWidth, nAvailHeight, nTotalArea)
+
+	def _squarifyLayout(aSorted, nX, nY, nWidth, nHeight, nTotalArea)
+		
+		nLen = len(aSorted)
+		if nLen = 0
+			return
+		ok
+		
+		if nLen = 1
+			# Single rectangle fills the space
+			nValue = aSorted[1][1]
+			cLabel = aSorted[1][2]
+			nIndex = aSorted[1][3]
+			
+			@aRectangles + [nX, nY, nWidth, nHeight, nValue, cLabel, nIndex]
+			return
+		ok
+		
+		# Improved treemap layout - better space utilization
+		if nLen <= 4
+			# Small number of rectangles - create a 2x2 or similar grid
+			_createGridLayout(aSorted, nX, nY, nWidth, nHeight)
+		else
+			# Larger number - use recursive division
+			_recursiveDivision(aSorted, nX, nY, nWidth, nHeight)
+		ok
+
+	def _createGridLayout(aSorted, nX, nY, nWidth, nHeight)
+		nLen = len(aSorted)
+		
+		if nLen = 2
+			# Two rectangles - divide by larger dimension
+			if nWidth > nHeight
+				# Split horizontally
+				nValue1 = aSorted[1][1]
+				nValue2 = aSorted[2][1]
+				nTotal = nValue1 + nValue2
+				nWidth1 = max([1, floor((nValue1 / nTotal) * nWidth)])
+				nWidth2 = nWidth - nWidth1
+				
+				@aRectangles + [nX, nY, nWidth1, nHeight, nValue1, aSorted[1][2], aSorted[1][3]]
+				@aRectangles + [nX + nWidth1, nY, nWidth2, nHeight, nValue2, aSorted[2][2], aSorted[2][3]]
+			else
+				# Split vertically
+				nValue1 = aSorted[1][1]
+				nValue2 = aSorted[2][1]
+				nTotal = nValue1 + nValue2
+				nHeight1 = max([1, floor((nValue1 / nTotal) * nHeight)])
+				nHeight2 = nHeight - nHeight1
+				
+				@aRectangles + [nX, nY, nWidth, nHeight1, nValue1, aSorted[1][2], aSorted[1][3]]
+				@aRectangles + [nX, nY + nHeight1, nWidth, nHeight2, nValue2, aSorted[2][2], aSorted[2][3]]
+			ok
+			
+		but nLen = 3
+			# Three rectangles - one large, two smaller
+			nLargest = aSorted[1][1]
+			nSecond = aSorted[2][1]
+			nThird = aSorted[3][1]
+			nTotal = nLargest + nSecond + nThird
+			
+			if nWidth > nHeight
+				# Horizontal layout: largest left, two on right
+				nWidth1 = max([1, floor((nLargest / nTotal) * nWidth)])
+				nWidth2 = nWidth - nWidth1
+				
+				# Largest rectangle on left
+				@aRectangles + [nX, nY, nWidth1, nHeight, nLargest, aSorted[1][2], aSorted[1][3]]
+				
+				# Two smaller on right, split vertically
+				nSubTotal = nSecond + nThird
+				nHeight1 = max([1, floor((nSecond / nSubTotal) * nHeight)])
+				nHeight2 = nHeight - nHeight1
+				
+				@aRectangles + [nX + nWidth1, nY, nWidth2, nHeight1, nSecond, aSorted[2][2], aSorted[2][3]]
+				@aRectangles + [nX + nWidth1, nY + nHeight1, nWidth2, nHeight2, nThird, aSorted[3][2], aSorted[3][3]]
+			else
+				# Vertical layout: largest top, two below
+				nHeight1 = max([1, floor((nLargest / nTotal) * nHeight)])
+				nHeight2 = nHeight - nHeight1
+				
+				# Largest rectangle on top
+				@aRectangles + [nX, nY, nWidth, nHeight1, nLargest, aSorted[1][2], aSorted[1][3]]
+				
+				# Two smaller below, split horizontally
+				nSubTotal = nSecond + nThird
+				nWidth1 = max([1, floor((nSecond / nSubTotal) * nWidth)])
+				nWidth2 = nWidth - nWidth1
+				
+				@aRectangles + [nX, nY + nHeight1, nWidth1, nHeight2, nSecond, aSorted[2][2], aSorted[2][3]]
+				@aRectangles + [nX + nWidth1, nY + nHeight1, nWidth2, nHeight2, nThird, aSorted[3][2], aSorted[3][3]]
+			ok
+			
+		else # nLen = 4
+			# Four rectangles - 2x2 grid
+			nSum1 = aSorted[1][1] + aSorted[2][1]
+			nSum2 = aSorted[3][1] + aSorted[4][1]
+			nTotal = nSum1 + nSum2
+			
+			if nWidth >= nHeight
+				# Split horizontally first
+				nWidth1 = max([1, floor((nSum1 / nTotal) * nWidth)])
+				nWidth2 = nWidth - nWidth1
+				
+				# Left column
+				nSubTotal1 = aSorted[1][1] + aSorted[2][1]
+				nHeight1 = max([1, floor((aSorted[1][1] / nSubTotal1) * nHeight)])
+				nHeight2 = nHeight - nHeight1
+				
+				@aRectangles + [nX, nY, nWidth1, nHeight1, aSorted[1][1], aSorted[1][2], aSorted[1][3]]
+				@aRectangles + [nX, nY + nHeight1, nWidth1, nHeight2, aSorted[2][1], aSorted[2][2], aSorted[2][3]]
+				
+				# Right column
+				nSubTotal2 = aSorted[3][1] + aSorted[4][1]
+				nHeight3 = max([1, floor((aSorted[3][1] / nSubTotal2) * nHeight)])
+				nHeight4 = nHeight - nHeight3
+				
+				@aRectangles + [nX + nWidth1, nY, nWidth2, nHeight3, aSorted[3][1], aSorted[3][2], aSorted[3][3]]
+				@aRectangles + [nX + nWidth1, nY + nHeight3, nWidth2, nHeight4, aSorted[4][1], aSorted[4][2], aSorted[4][3]]
+			else
+				# Split vertically first
+				nHeight1 = max([1, floor((nSum1 / nTotal) * nHeight)])
+				nHeight2 = nHeight - nHeight1
+				
+				# Top row
+				nSubTotal1 = aSorted[1][1] + aSorted[2][1]
+				nWidth1 = max([1, floor((aSorted[1][1] / nSubTotal1) * nWidth)])
+				nWidth2 = nWidth - nWidth1
+				
+				@aRectangles + [nX, nY, nWidth1, nHeight1, aSorted[1][1], aSorted[1][2], aSorted[1][3]]
+				@aRectangles + [nX + nWidth1, nY, nWidth2, nHeight1, aSorted[2][1], aSorted[2][2], aSorted[2][3]]
+				
+				# Bottom row
+				nSubTotal2 = aSorted[3][1] + aSorted[4][1]
+				nWidth3 = max([1, floor((aSorted[3][1] / nSubTotal2) * nWidth)])
+				nWidth4 = nWidth - nWidth3
+				
+				@aRectangles + [nX, nY + nHeight1, nWidth3, nHeight2, aSorted[3][1], aSorted[3][2], aSorted[3][3]]
+				@aRectangles + [nX + nWidth3, nY + nHeight1, nWidth4, nHeight2, aSorted[4][1], aSorted[4][2], aSorted[4][3]]
+			ok
+		ok
+
+	def _recursiveDivision(aSorted, nX, nY, nWidth, nHeight)
+		# For larger numbers, use simple recursive division
+		nLen = len(aSorted)
+		nMid = floor(nLen / 2)
+		
+		# Calculate sum for first half
+		nSum1 = 0
+		for i = 1 to nMid
+			nSum1 += aSorted[i][1]
+		next
+		
+		# Calculate sum for second half
+		nSum2 = 0
+		for i = nMid + 1 to nLen
+			nSum2 += aSorted[i][1]
+		next
+		
+		nTotal = nSum1 + nSum2
+		
+		if nWidth >= nHeight
+			# Divide horizontally
+			nWidth1 = max([1, floor((nSum1 / nTotal) * nWidth)])
+			nWidth2 = nWidth - nWidth1
+			
+			# First half
+			aFirst = []
+			for i = 1 to nMid
+				aFirst + aSorted[i]
+			next
+			_squarifyLayout(aFirst, nX, nY, nWidth1, nHeight, nWidth1 * nHeight)
+			
+			# Second half
+			aSecond = []
+			for i = nMid + 1 to nLen
+				aSecond + aSorted[i]
+			next
+			_squarifyLayout(aSecond, nX + nWidth1, nY, nWidth2, nHeight, nWidth2 * nHeight)
+		else
+			# Divide vertically
+			nHeight1 = max([1, floor((nSum1 / nTotal) * nHeight)])
+			nHeight2 = nHeight - nHeight1
+			
+			# First half
+			aFirst = []
+			for i = 1 to nMid
+				aFirst + aSorted[i]
+			next
+			_squarifyLayout(aFirst, nX, nY, nWidth, nHeight1, nWidth * nHeight1)
+			
+			# Second half
+			aSecond = []
+			for i = nMid + 1 to nLen
+				aSecond + aSorted[i]
+			next
+			_squarifyLayout(aSecond, nX, nY + nHeight1, nWidth, nHeight2, nWidth * nHeight2)
+		ok
+
+	def _drawBorders()
+		
+		# Draw outer border
+		# Top border
+		@acCanvas[1][1] = @cTopLeft
+		@acCanvas[1][@nWidth] = @cTopRight
+		for i = 2 to @nWidth - 1
+			@acCanvas[1][i] = @cHorizontal
+		next
+		
+		# Bottom border
+		@acCanvas[@nHeight][1] = @cBottomLeft
+		@acCanvas[@nHeight][@nWidth] = @cBottomRight
+		for i = 2 to @nWidth - 1
+			@acCanvas[@nHeight][i] = @cHorizontal
+		next
+		
+		# Side borders
+		for i = 2 to @nHeight - 1
+			@acCanvas[i][1] = @cVertical
+			@acCanvas[i][@nWidth] = @cVertical
+		next
+		
+		# Draw internal borders between rectangles
+		_drawInternalBorders()
+
+	def _connectBordersToOuter()
+	    # Check each position on outer border for connections
+	    
+	    # Top border connections
+	    for j = 2 to @nWidth - 1
+	        if @acCanvas[2][j] = @cVertical  # Internal border connects from below
+	            @acCanvas[1][j] = @cTeeDown
+	        ok
+	    next
+	    
+	    # Bottom border connections  
+	    for j = 2 to @nWidth - 1
+	        if @acCanvas[@nHeight-1][j] = @cVertical  # Internal border connects from above
+	            @acCanvas[@nHeight][j] = @cTeeUp
+	        ok
+	    next
+	    
+	    # Left border connections
+	    for i = 2 to @nHeight - 1
+	        if @acCanvas[i][2] = @cHorizontal  # Internal border connects from right
+	            @acCanvas[i][1] = @cTeeRight
+	        ok
+	    next
+	    
+	    # Right border connections
+	    for i = 2 to @nHeight - 1
+	        if @acCanvas[i][@nWidth-1] = @cHorizontal  # Internal border connects from left
+	            @acCanvas[i][@nWidth] = @cTeeLeft
+	        ok
+	    next
+
+
+def _drawInternalBorders()
+    
+    nLen = len(@aRectangles)
+    
+    # First pass: draw all borders without intersections
+    for i = 1 to nLen
+        aRect = @aRectangles[i]
+        nX = aRect[1]
+        nY = aRect[2] 
+        nW = aRect[3]
+        nH = aRect[4]
+        
+        # Adjust for outer border offset
+        if @bShowBorders
+            nX++
+            nY++
+        ok
+        
+        # Draw right border if not at edge
+        if nX + nW < @nWidth
+            for j = nY to nY + nH - 1
+                if j >= 1 and j <= @nHeight
+                    if @acCanvas[j][nX + nW] = " "
+                        @acCanvas[j][nX + nW] = @cVertical
+                    ok
+                ok
+            next
+        ok
+        
+        # Draw bottom border if not at edge
+        if nY + nH < @nHeight and nY + nH > 1
+            for j = nX to nX + nW - 1
+                if j >= 1 and j <= @nWidth
+                    if @acCanvas[nY + nH][j] = " "
+                        @acCanvas[nY + nH][j] = @cHorizontal
+                    ok
+                ok
+            next
+        ok
+    next
+    
+    # Second pass: fix all intersections
+    _fixBorderIntersections()
+
+
+def _fixBorderIntersections()
+	
+	for i = 1 to @nHeight
+		for j = 1 to @nWidth
+			
+			cCurrent = @acCanvas[i][j]
+			
+			# Only process positions that have border characters
+			if cCurrent = @cVertical or cCurrent = @cHorizontal
+			
+				# Check all four directions for connections
+				bUp = FALSE
+				bDown = FALSE
+				bLeft = FALSE
+				bRight = FALSE
+				
+				# Check up
+				if i > 1
+					cUp = @acCanvas[i-1][j]
+					bUp = (cUp = @cVertical or cUp = @cTeeDown or cUp = @cTeeUp or cUp = @cCross or cUp = @cTeeLeft or cUp = @cTeeRight)
+				ok
+				
+				# Check down
+				if i < @nHeight
+					cDown = @acCanvas[i+1][j]
+					bDown = (cDown = @cVertical or cDown = @cTeeDown or cDown = @cTeeUp or cDown = @cCross or cDown = @cTeeLeft or cDown = @cTeeRight)
+				ok
+				
+				# Check left
+				if j > 1
+					cLeft = @acCanvas[i][j-1]
+					bLeft = (cLeft = @cHorizontal or cLeft = @cTeeLeft or cLeft = @cTeeRight or cLeft = @cCross or cLeft = @cTeeDown or cLeft = @cTeeUp)
+				ok
+				
+				# Check right
+				if j < @nWidth
+					cRight = @acCanvas[i][j+1]
+					bRight = (cRight = @cHorizontal or cRight = @cTeeLeft or cRight = @cTeeRight or cRight = @cCross or cRight = @cTeeDown or cRight = @cTeeUp)
+				ok
+				
+				# Determine proper intersection character
+				nConnections = 0
+				if bUp: nConnections++ ok
+				if bDown: nConnections++ ok
+				if bLeft: nConnections++ ok
+				if bRight: nConnections++ ok
+				
+				# Apply appropriate intersection character
+				if nConnections >= 2
+					if bUp and bDown and bLeft and bRight
+						@acCanvas[i][j] = @cCross
+					but bUp and bDown and bRight and not bLeft
+						@acCanvas[i][j] = @cTeeRight
+					but bUp and bDown and bLeft and not bRight
+						@acCanvas[i][j] = @cTeeLeft
+					but bLeft and bRight and bDown and not bUp
+						@acCanvas[i][j] = @cTeeDown
+					but bLeft and bRight and bUp and not bDown
+						@acCanvas[i][j] = @cTeeUp
+					but bUp and bRight and not bDown and not bLeft
+						@acCanvas[i][j] = @cBottomLeft
+					but bUp and bLeft and not bDown and not bRight
+						@acCanvas[i][j] = @cBottomRight
+					but bDown and bRight and not bUp and not bLeft
+						@acCanvas[i][j] = @cTopLeft
+					but bDown and bLeft and not bUp and not bRight
+						@acCanvas[i][j] = @cTopRight
+					ok
+				ok
+			ok
+		next
+	next
+
+	
+	def _truncateLabel(cLabel, nMaxWidth)
+		if len(cLabel) <= nMaxWidth
+			return cLabel
+		ok
+		
+		if nMaxWidth <= @nMinLabelWidth
+			return left(cLabel, max([1, nMaxWidth - 1])) + "."
+		ok
+		
+		return left(cLabel, nMaxWidth - 1) + "."
+
+
+def _drawContent()
+    
+    nLen = len(@aRectangles)
+    
+    for i = 1 to nLen
+        aRect = @aRectangles[i]
+        nX = aRect[1]
+        nY = aRect[2]
+        nW = aRect[3]
+        nH = aRect[4]
+        nValue = aRect[5]
+        cLabel = Capitalise(aRect[6])
+        nOrigIndex = aRect[7]
+        
+        # Adjust for border offset
+        if @bShowBorders
+            nX++
+            nY++
+        ok
+        
+        # Calculate usable content area (avoiding borders)
+        nContentX = nX
+        nContentY = nY
+        nContentW = nW
+        nContentH = nH
+
+        if @bShowBorders
+            # Shrink content area to avoid internal borders
+            if nX + nW < @nWidth
+                nContentW -= 1  # Avoid right border
+            ok
+            if nY + nH < @nHeight
+                nContentH -= 1  # Avoid bottom border
+            ok
+        ok
+
+        # Only proceed if we have reasonable space
+        if nContentW < 3 or nContentH < 1
+            loop  # Skip this rectangle - too small for meaningful content
+        ok
+
+        # Build content lines
+        aContentLines = []
+
+        # Prepare label and value content
+        cMainContent = ""
+        cSubContent = ""
+
+        if @bShowLabels and len(cLabel) > 0
+            cMainContent = _truncateLabel(cLabel, nContentW)
+        ok
+
+        # Build value/percent string
+        cValueStr = ""
+        if @bShowValues
+            cValueStr = "" + _cleanNumber(nValue)
+        ok
+
+        if @bShowPercent
+            nPercent = _cleanNumber(RoundN((nValue / @nSum) * 100, 1))
+            cPercentStr = "" + nPercent + "%"
+            
+            if len(cValueStr) > 0
+                cSubContent = cValueStr + " (" + cPercentStr + ")"
+            else
+                cSubContent = cPercentStr
+            ok
+        but len(cValueStr) > 0
+            cSubContent = cValueStr
+        ok
+
+        # Ensure sub-content fits
+        if len(cSubContent) > nContentW
+            if nContentW > 3
+                cSubContent = left(cSubContent, nContentW - 1) + "."
+            else
+                cSubContent = left(cSubContent, nContentW)
+            ok
+        ok
+
+        # Determine layout - prioritize compact, clean display
+        bShowMain = (len(cMainContent) > 0 and len(cMainContent) <= nContentW)
+        bShowSub = (len(cSubContent) > 0 and len(cSubContent) <= nContentW)
+        
+        if bShowMain and bShowSub
+            if nContentH >= 2
+                # Multi-line: label on top, value below
+                aContentLines + cMainContent
+                aContentLines + cSubContent
+            but nContentW >= (len(cMainContent) + len(cSubContent) + 1)
+                # Single line if they fit together
+                aContentLines + cMainContent + " " + cSubContent
+            else
+                # Prioritize more important content
+                if @bShowPercent or @bShowValues
+                    aContentLines + cSubContent  # Values/percentages more important in compact view
+                else
+                    aContentLines + cMainContent
+                ok
+            ok
+        but bShowMain
+            aContentLines + cMainContent
+        but bShowSub
+            aContentLines + cSubContent
+        ok
+        
+        # Draw content lines centered in available space
+        if len(aContentLines) > 0
+            # Vertical centering
+            nStartY = nContentY + max([0, floor((nContentH - len(aContentLines)) / 2)])
+
+            for k = 1 to len(aContentLines)
+                cLine = aContentLines[k]
+                nLineLen = len(cLine)
+                nCurrentY = nStartY + k - 1
+                
+                # Horizontal centering
+                nCenterX = nContentX + max([0, floor((nContentW - nLineLen) / 2)])
+                
+                # Draw the line
+                if nCurrentY >= nContentY and nCurrentY < nContentY + nContentH and nCurrentY >= 1 and nCurrentY <= @nHeight
+                    for j = 1 to nLineLen
+                        nCol = nCenterX + j - 1
+                        if nCol >= nContentX and nCol < nContentX + nContentW and nCol >= 1 and nCol <= @nWidth
+                            if @acCanvas[nCurrentY][nCol] = " "
+                                @acCanvas[nCurrentY][nCol] = cLine[j]
+                            ok
+                        ok
+                    next
+                ok
+            next
+        ok
+    next
+	
+	
+	def _cleanNumber(nNum)
+	    cStr = "" + nNum
+	    # Remove .0 from end if it exists
+	    if right(cStr, 2) = ".0"
+	        return left(cStr, len(cStr) - 2)
+	    ok
+	    return cStr
+
+
+#-------------------#
+#  PLOTCHART CLASS  #
+#-------------------#
+
+class stzScatterChart from stzPlotChart
+class stzScatterPlotChart from stzPlotChart
+
+class stzPlotChart from stzChart
+
+	@anXValues = []
+	@anYValues = []
+	@acPointLabels = []
+
+	@bShowXAxis = True
+	@bShowYAxis = True
+	@bShowGrid = False
+	@bShowTrendLine = False
+	@bShowLabels = False
+	@bShowValues = False
+
+	# Reasonable console defaults
+	@nMaxWidth = 42 
+	@nMaxHeight = 12 
+	@nGridSpacing = 5
+	@nXAxisHeight = 2  # Space for X-axis labels
+	@nYAxisWidth = 8   # Space for Y-axis labels
+
+	@cPointChar = "●"
+	@cGridChar = "·"
+	@cTrendChar = "~"
+	@cXTickChar = "|"
+	@cYTickChar = "-"
+
+	@nXMin = 0
+	@nXMax = 0
+	@nYMin = 0
+	@nYMax = 0
+
+	def init(paDataSet)
+
+		if CheckParams()
+			if NOT isList(paDataSet)
+				StzRaise("Can't create stzPlotChart! paDataSet must be a list.")
+			ok
+
+			# Accept different formats:
+			# 1. List of pairs: [[x1,y1], [x2,y2], ...]
+			# 2. HashList with X,Y keys: [[:X, [vals]], [:Y, [vals]]]
+			# 3. HashList with point labels: [["point1", [x1,y1]], ["point2", [x2,y2]], ...]
+
+			if IsListOfPairs(paDataSet) and len(paDataSet) > 0 and IsListOfNumbers(paDataSet[1])
+				# Format 1: [[x1,y1], [x2,y2], ...]
+				@anXValues = []
+				@anYValues = []
+				@acPointLabels = []
+
+				for i = 1 to len(paDataSet)
+					if len(paDataSet[i]) >= 2
+						@anXValues + paDataSet[i][1]
+						@anYValues + paDataSet[i][2]
+						@acPointLabels + ("P" + i)
+					ok
+				next
+
+			but IsHashList(paDataSet)
+				oHash = new stzHashList(paDataSet)
+
+				aKeys = oHash.Keys()
+
+				if len(aKeys) = 2 and (aKeys[1] = "X" or aKeys[1] = :X) and (aKeys[2] = "Y" or aKeys[2] = :Y)
+					# Format 2: [[:X, [vals]], [:Y, [vals]]]
+					@anXValues = paDataSet[:X]
+					@anYValues = paDataSet[:y]
+	
+					if len(@anXValues) != len(@anYValues)
+						StzRaise("X and Y value arrays must have same length!")
+					ok
+
+					@acPointLabels = []
+					for i = 1 to len(@anXValues)
+						@acPointLabels + ("P" + i)
+					next
+
+				else
+					# Format 3: [["point1", [x1,y1]], ["point2", [x2,y2]], ...]
+					@anXValues = []
+					@anYValues = []
+					@acPointLabels = oHash.Keys()
+
+					aValues = oHash.Values()
+					for i = 1 to len(aValues)
+						if isList(aValues[i]) and len(aValues[i]) >= 2
+							@anXValues + aValues[i][1]
+							@anYValues + aValues[i][2]
+						ok
+					next
+				ok
+
+			else
+				StzRaise("Invalid data format! Use [[x1,y1], [x2,y2]] or hashlist format.")
+			ok
+		ok
+
+		if NOT (IsListOfNumbers(@anXValues) and IsListOfNumbers(@anYValues))
+			StzRaise("X and Y values must all be numbers!")
+		ok
+
+		_calculateRanges()
+
+	def XValues()
+		return @anXValues
+
+	def YValues()
+		return @anYValues
+
+	def PointLabels()
+		return @acPointLabels
+
+	def SetXAxis(bShow)
+		@bShowXAxis = bShow
+
+		def WithoutXAxis()
+			@bShowXAxis = FALSE
+
+	def SetYAxis(bShow)
+		@bShowYAxis = bShow
+
+		def WithoutYAxis()
+			@bShowYAxis = FALSE
+
+	def SetGrid(bShow)
+		@bShowGrid = bShow
+
+		def ShowGrid()
+			@bShowGrid = TRUE
+
+		def WithoutGrid()
+			@bShowGrid = FALSE
+
+	def SetTrendLine(bShow)
+		@bShowTrendLine = bShow
+
+		def ShowTrendLine()
+			@bShowTrendLine = TRUE
+
+		def AddTrendLine()
+			@bShowTrendLine = TRUE
+
+		def WithoutTrendLine()
+			@bShowTrendLine = FALSE
+
+	def SetLabels(bShow)
+		@bShowLabels = bShow
+
+		def ShowLabels()
+			@bShowLabels = TRUE
+
+		def WithoutLabels()
+			@bShowLabels = FALSE
+
+	def SetValues(bShow)
+		@bShowValues = bShow
+
+		def ShowValues()
+			@bShowValues = TRUE
+
+		def WithoutValues()
+			@bShowValues = FALSE
+
+	def SetPointChar(c)
+		if CheckParams()
+			if NOT (isString(c) and IsChar(c))
+				StzRaise("c must be a char.")
+			ok
+		ok
+		@cPointChar = c
+
+		def PointChar()
+			return @cPointChar
+
+	def SetGridChar(c)
+		if CheckParams()
+			if NOT (isString(c) and IsChar(c))
+				StzRaise("c must be a char.")
+			ok
+		ok
+		@cGridChar = c
+
+		def GridChar()
+			return @cGridChar
+
+	def SetTrendChar(c)
+		if CheckParams()
+			if NOT (isString(c) and IsChar(c))
+				StzRaise("c must be a char.")
+			ok
+		ok
+		@cTrendChar = c
+
+		def TrendChar()
+			return @cTrendChar
+
+	def SetGridSpacing(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("n must be a number.")
+			ok
+		ok
+		@nGridSpacing = max([1, n])
+
+	# Enhanced size configuration methods
+	def SetMaxSize(nWidth, nHeight)
+		if CheckParams()
+			if NOT (isNumber(nWidth) and isNumber(nHeight))
+				StzRaise("nWidth and nHeight must be numbers.")
+			ok
+		ok
+		@nMaxWidth = max([40, nWidth])  # Minimum 40 chars wide
+		@nMaxHeight = max([10, nHeight]) # Minimum 10 lines high
+
+	def SetWidth(nWidth)
+		if CheckParams()
+			if NOT isNumber(nWidth)
+				StzRaise("nWidth must be a number.")
+			ok
+		ok
+		@nMaxWidth = max([40, nWidth])
+
+	def SetHeight(nHeight)
+		if CheckParams()
+			if NOT isNumber(nHeight)
+				StzRaise("nHeight must be a number.")
+			ok
+		ok
+		@nMaxHeight = max([10, nHeight])
+
+	# Preset sizes for convenience
+	def SetSmallSize()
+		@nMaxWidth = 60
+		@nMaxHeight = 15
+
+	def SetMediumSize()
+		@nMaxWidth = 80
+		@nMaxHeight = 20
+
+	def SetLargeSize()
+		@nMaxWidth = 100
+		@nMaxHeight = 25
+
+	def SetCompactSize()
+		@nMaxWidth = 50
+		@nMaxHeight = 12
+
+	def Show()
+		? This.ToString()
+
+	def ToString()
+
+		# Calculate layout
+		oLayout = _calculateLayout()
+
+		# Initialize canvas
+		@nWidth = oLayout[:total_width]
+		@nHight = oLayout[:total_height]
+		_initCanvas()
+
+		# Draw components in order
+		if @bShowGrid
+			_drawGrid(oLayout)
+		ok
+
+		if @bShowYAxis
+			_drawYAxis(oLayout)
+		ok
+
+		if @bShowXAxis
+			_drawXAxis(oLayout)
+		ok
+
+		if @bShowTrendLine
+			_drawTrendLine(oLayout)
+		ok
+
+		_drawPoints(oLayout)
+
+		if @bShowLabels
+			_drawPointLabels(oLayout)
+		ok
+
+		if @bShowValues
+			_drawPointValues(oLayout)
+		ok
+
+		return _finalizeCanvas()
+
+	def _calculateRanges()
+
+		if len(@anXValues) = 0 or len(@anYValues) = 0
+			@nXMin = 0
+			@nXMax = 10
+			@nYMin = 0
+			@nYMax = 10
+			return
+		ok
+
+		@nXMin = min(@anXValues)
+		@nXMax = max(@anXValues)
+		@nYMin = min(@anYValues)
+		@nYMax = max(@anYValues)
+
+		# Add padding (10% of range)
+		nXRange = @nXMax - @nXMin
+		nYRange = @nYMax - @nYMin
+
+		if nXRange = 0
+			@nXMin = @nXMin - 1
+			@nXMax = @nXMax + 1
+		else
+			nXPadding = nXRange * 0.1
+			@nXMin = @nXMin - nXPadding
+			@nXMax = @nXMax + nXPadding
+		ok
+
+		if nYRange = 0
+			@nYMin = @nYMin - 1
+			@nYMax = @nYMax + 1
+		else
+			nYPadding = nYRange * 0.1
+			@nYMin = @nYMin - nYPadding
+			@nYMax = @nYMax + nYPadding
+		ok
+
+	def _calculateLayout()
+
+		oLayout = new stzHashList([])
+
+		# Calculate plot area dimensions
+		nPlotWidth = @nMaxWidth - @nYAxisWidth - 2
+		nPlotHeight = @nMaxHeight - @nXAxisHeight - 2
+
+		# Ensure minimum plot area
+		nPlotWidth = max([20, nPlotWidth])
+		nPlotHeight = max([8, nPlotHeight])
+
+		# Y-axis positioning
+		nYAxisCol = @nYAxisWidth
+		nPlotStartCol = nYAxisCol + 1
+		nPlotEndCol = nPlotStartCol + nPlotWidth - 1
+
+		# X-axis positioning  
+		nXAxisRow = nPlotHeight + 1
+		nPlotStartRow = 1
+		nPlotEndRow = nXAxisRow - 1
+
+		# Total dimensions
+		nTotalWidth = nPlotEndCol + 2
+		nTotalHeight = nXAxisRow + @nXAxisHeight
+
+		oLayout.AddPair([:plot_start_col, nPlotStartCol])
+		oLayout.AddPair([:plot_end_col, nPlotEndCol])
+		oLayout.AddPair([:plot_start_row, nPlotStartRow])
+		oLayout.AddPair([:plot_end_row, nPlotEndRow])
+		oLayout.AddPair([:plot_width, nPlotWidth])
+		oLayout.AddPair([:plot_height, nPlotHeight])
+		oLayout.AddPair([:y_axis_col, nYAxisCol])
+		oLayout.AddPair([:x_axis_row, nXAxisRow])
+		oLayout.AddPair([:total_width, nTotalWidth])
+		oLayout.AddPair([:total_height, nTotalHeight])
+
+		return oLayout
+
+	def _drawGrid(oLayout)
+
+		nStartCol = oLayout[:plot_start_col]
+		nEndCol = oLayout[:plot_end_col]
+		nStartRow = oLayout[:plot_start_row]
+		nEndRow = oLayout[:plot_end_row]
+
+		# Draw vertical grid lines
+		for i = nStartCol to nEndCol step @nGridSpacing
+			for j = nStartRow to nEndRow
+				if @acCanvas[j][i] = " "
+					@acCanvas[j][i] = @cGridChar
+				ok
+			next
+		next
+
+		# Draw horizontal grid lines
+		for j = nStartRow to nEndRow step @nGridSpacing
+			for i = nStartCol to nEndCol
+				if @acCanvas[j][i] = " "
+					@acCanvas[j][i] = @cGridChar
+				ok
+			next
+		next
+
+	def _drawYAxis(oLayout)
+
+		nAxisCol = oLayout[:y_axis_col]
+		nStartRow = oLayout[:plot_start_row]
+		nEndRow = oLayout[:plot_end_row]
+		nXAxisRow = oLayout[:x_axis_row]
+
+		# Draw vertical line
+		for i = nStartRow to nEndRow
+			@acCanvas[i][nAxisCol] = @cXAxisChar
+		next
+
+		# Draw arrow at top
+		@acCanvas[nStartRow][nAxisCol] = @cXArrowChar
+
+		# Draw origin
+		@acCanvas[nXAxisRow][nAxisCol] = @cOriginChar
+
+		# Draw Y-axis labels
+		nPlotHeight = oLayout[:plot_height]
+		# Fewer labels for smaller plots
+		nLabelCount = min([5, max([3, floor(nPlotHeight / 4)])])
+		nLabelSpacing = max([1, floor(nPlotHeight / nLabelCount)])
+
+		for i = nStartRow to nEndRow step nLabelSpacing
+			nYValue = @nYMax - (i - nStartRow) * (@nYMax - @nYMin) / nPlotHeight
+			cLabel = "" + RoundN(nYValue, 1)
+			nLabelLen = len(cLabel)
+
+			# Right-align label before axis
+			nLabelStart = nAxisCol - nLabelLen - 1
+			if nLabelStart >= 1
+				for j = 1 to nLabelLen
+					@acCanvas[i][nLabelStart + j - 1] = cLabel[j]
+				next
+				@acCanvas[i][nAxisCol - 1] = @cYTickChar
+			ok
+		next
+
+	def _drawXAxis(oLayout)
+
+		nAxisRow = oLayout[:x_axis_row]
+		nStartCol = oLayout[:plot_start_col]
+		nEndCol = oLayout[:plot_end_col]
+		nYAxisCol = oLayout[:y_axis_col]
+
+		# Draw horizontal line
+		for i = nStartCol to nEndCol
+			@acCanvas[nAxisRow][i] = @cYAxisChar
+		next
+
+		# Draw arrow at end
+		@acCanvas[nAxisRow][nEndCol + 1] = @cYArrowChar
+
+		# Draw origin
+		@acCanvas[nAxisRow][nYAxisCol] = @cOriginChar
+
+		# Draw X-axis labels
+		nPlotWidth = oLayout[:plot_width]
+		# Fewer labels for smaller plots
+		nLabelCount = min([8, max([4, floor(nPlotWidth / 10)])])
+		nLabelSpacing = max([1, floor(nPlotWidth / nLabelCount)])
+
+		for i = nStartCol to nEndCol step nLabelSpacing
+			nXValue = @nXMin + (i - nStartCol) * (@nXMax - @nXMin) / nPlotWidth
+			cLabel = "" + RoundN(nXValue, 1)
+			nLabelLen = len(cLabel)
+
+			# Center label below axis
+			nLabelStart = i - floor(nLabelLen / 2)
+			if nLabelStart >= 1 and nLabelStart + nLabelLen <= @nWidth
+				for j = 1 to nLabelLen
+					@acCanvas[nAxisRow + 1][nLabelStart + j - 1] = cLabel[j]
+				next
+				@acCanvas[nAxisRow + 1][i] = @cXTickChar
+			ok
+		next
+
+	def _drawTrendLine(oLayout)
+
+		if len(@anXValues) < 2
+			return
+		ok
+
+		# Calculate linear regression
+		nN = len(@anXValues)
+		nSumX = 0
+		nSumY = 0
+		nSumXY = 0
+		nSumX2 = 0
+
+		for i = 1 to nN
+			nSumX += @anXValues[i]
+			nSumY += @anYValues[i]
+			nSumXY += @anXValues[i] * @anYValues[i]
+			nSumX2 += @anXValues[i] * @anXValues[i]
+		next
+
+		# y = mx + b
+		nSlope = (nN * nSumXY - nSumX * nSumY) / (nN * nSumX2 - nSumX * nSumX)
+		nIntercept = (nSumY - nSlope * nSumX) / nN
+
+		# Draw trend line
+		nStartCol = oLayout[:plot_start_col]
+		nEndCol = oLayout[:plot_end_col]
+		nStartRow = oLayout[:plot_start_row]
+		nEndRow = oLayout[:plot_end_row]
+		nPlotWidth = oLayout[:plot_width]
+		nPlotHeight = oLayout[:plot_height]
+
+		for i = nStartCol to nEndCol
+			nXValue = @nXMin + (i - nStartCol) * (@nXMax - @nXMin) / nPlotWidth
+			nYValue = nSlope * nXValue + nIntercept
+
+			if nYValue >= @nYMin and nYValue <= @nYMax
+				nRow = nEndRow - floor((nYValue - @nYMin) * nPlotHeight / (@nYMax - @nYMin))
+				if nRow >= nStartRow and nRow <= nEndRow
+					if @acCanvas[nRow][i] = " " or @acCanvas[nRow][i] = @cGridChar
+						@acCanvas[nRow][i] = @cTrendChar
+					ok
+				ok
+			ok
+		next
+
+	def _drawPoints(oLayout)
+
+		nStartCol = oLayout[:plot_start_col]
+		nStartRow = oLayout[:plot_start_row]
+		nEndRow = oLayout[:plot_end_row]
+		nPlotWidth = oLayout[:plot_width]
+		nPlotHeight = oLayout[:plot_height]
+
+		for i = 1 to len(@anXValues)
+			nX = @anXValues[i]
+			nY = @anYValues[i]
+
+			# Convert to canvas coordinates
+			nCol = nStartCol + floor((nX - @nXMin) * nPlotWidth / (@nXMax - @nXMin))
+			nRow = nEndRow - floor((nY - @nYMin) * nPlotHeight / (@nYMax - @nYMin))
+
+			if nCol >= nStartCol and nCol <= @nWidth and nRow >= nStartRow and nRow <= nEndRow
+				@acCanvas[nRow][nCol] = @cPointChar
+			ok
+		next
+
+	def _drawPointLabels(oLayout)
+
+		nStartCol = oLayout[:plot_start_col]
+		nStartRow = oLayout[:plot_start_row]
+		nEndRow = oLayout[:plot_end_row]
+		nPlotWidth = oLayout[:plot_width]
+		nPlotHeight = oLayout[:plot_height]
+
+		for i = 1 to len(@anXValues)
+			if i <= len(@acPointLabels)
+				nX = @anXValues[i]
+				nY = @anYValues[i]
+				cLabel = @acPointLabels[i]
+
+				# Convert to canvas coordinates
+				nCol = nStartCol + floor((nX - @nXMin) * nPlotWidth / (@nXMax - @nXMin))
+				nRow = nEndRow - floor((nY - @nYMin) * nPlotHeight / (@nYMax - @nYMin))
+
+				# Place label offset from point
+				nLabelCol = nCol + 2
+				nLabelRow = nRow - 1
+
+				if nLabelRow < nStartRow
+					nLabelRow = nRow + 1
+				ok
+
+				if nLabelCol + len(cLabel) <= @nWidth and nLabelRow >= nStartRow and nLabelRow <= nEndRow
+					for j = 1 to len(cLabel)
+						@acCanvas[nLabelRow][nLabelCol + j - 1] = cLabel[j]
+					next
+				ok
+			ok
+		next
+
+	def _drawPointValues(oLayout)
+
+		nStartCol = oLayout[:plot_start_col]
+		nStartRow = oLayout[:plot_start_row]
+		nEndRow = oLayout[:plot_end_row]
+		nPlotWidth = oLayout[:plot_width]
+		nPlotHeight = oLayout[:plot_height]
+
+		for i = 1 to len(@anXValues)
+			nX = @anXValues[i]
+			nY = @anYValues[i]
+			cValue = "(" + nX + "," + nY + ")"
+
+			# Convert to canvas coordinates
+			nCol = nStartCol + floor((nX - @nXMin) * nPlotWidth / (@nXMax - @nXMin))
+			nRow = nEndRow - floor((nY - @nYMin) * nPlotHeight / (@nYMax - @nYMin))
+
+			# Place value offset from point
+			nValueCol = nCol + 2
+			nValueRow = nRow
+
+			if nValueCol + len(cValue) > @nWidth
+				nValueCol = nCol - len(cValue) - 1
+			ok
+
+			if nValueCol >= 1 and nValueCol + len(cValue) <= @nWidth and nValueRow >= nStartRow and nValueRow <= nEndRow
+				for j = 1 to len(cValue)
+					@acCanvas[nValueRow][nValueCol + j - 1] = cValue[j]
+				next
+			ok
+		next
