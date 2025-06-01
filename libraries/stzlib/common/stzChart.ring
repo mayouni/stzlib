@@ -2722,6 +2722,7 @@ class stzHistogram from stzChart
 	@cAggregationType = "frequency"  # frequency, sum, average, min, max
 	@bShowValues = FALSE # General flag to control value display for any aggregation
 
+
 	def init(paData)
 		
 		# For histogram, we expect a simple list of numbers (raw data)
@@ -2738,6 +2739,7 @@ class stzHistogram from stzChart
 		@anRawData = paData
 		_calculateBins()
 		_processBinnedData()
+
 
 	def _calculateBins()
 		
@@ -2777,10 +2779,11 @@ class stzHistogram from stzChart
 			@aBinRanges + [nBinMin, nBinMax]
 			
 			# Create labels
-			cLabel = RoundN(nBinMin, 1) + "-" + RoundN(nBinMax, 1)
+			nDecimals = iff(floor(nBinMin) = nBinMin and floor(nBinMax) = nBinMax, 0, 1)
+			cLabel = RoundN(nBinMin, nDecimals) + "-" + RoundN(nBinMax, nDecimals)
+
 			@aBinLabels + cLabel
 		next
-
 
 
 	def _findBinIndex(nValue)
@@ -2811,6 +2814,12 @@ class stzHistogram from stzChart
 			_processBinnedData()
 		ok
 
+		def SetBarCount(n)
+			This.SetBinCount(n)
+
+		def DivideToNGroups(n)
+			This.SetBinCount(n)
+
 	def SetBinRange(n)
 		if n > 0
 			@nBinRange = n
@@ -2819,20 +2828,21 @@ class stzHistogram from stzChart
 			_processBinnedData()
 		ok
 
-def SetValues(bShow)
-	@bShowValues = bShow
+	def SetValues(bShow)
+		@bShowValues = bShow
+	
+		def IncludeValues()
+			@bShowValues = TRUE
 
-	def ShowValues()
-		@bShowValues = TRUE
+		def AddValues()
+			@bShowValues = FALSE
 
-	def WithoutValues()
-		@bShowValues = FALSE
+		def WithoutValues()
+			@bShowValues = FALSE
 
 	def SetAggregation(cType)
-	@cAggregationType = cType
-	@bShowValues = TRUE
-	_processBinnedData()
-
+		@cAggregationType = cType
+		_processBinnedData()
 
 	def AggregationType()
 		return @cAggregationType
@@ -2840,21 +2850,16 @@ def SetValues(bShow)
 		def Aggregation()
 			return @cAggregationType
 
-	def AggrgationTypes()
+	def AggregationTypes()
 		return [ "frequency", "sum", "average", "min", "max" ]
 
 
-
-	def SetFrequency(bShow)
+	def UseFrequency()
 		@cAggregationType = "frequency"
-		@bShowValues = TRUE
 		_processBinnedData()
 
-		def AddFrequency()
-			@bShowFrequency = TRUE
-
-		def ShowFrequency()
-			@bShowFrequency = TRUE
+		def UseFreq()
+			This.UseFrequency()
 
 	def SetStats(bShow) # Displays a recap of stats line at the bottom
 		@bShowStats = bShow
@@ -2862,7 +2867,7 @@ def SetValues(bShow)
 		def AddStats()
 			@bShowStats = TRUE
 
-		def ShowStats()
+		def IncludeStats()
 			@bShowStats = TRUE
 
 	# Inherit and adapt bar chart methods
@@ -2870,14 +2875,55 @@ def SetValues(bShow)
 	def SetXAxis(bShow)
 		@bShowXAxis = bShow
 
+		def AddXAxis(bShow)
+			@bShowXAxis = bShow
+
+		def IncludeXAxis(bShow)
+			@bShowXAxis = bShow
+
 		def WithoutXAxis()
+			@bShowXAxis = FALSE
+
+		#--
+
+		def SetVAxis(bShow)
+			@bShowXAxis = bShow
+
+		def AddVAxis(bShow)
+			@bShowXAxis = bShow
+
+		def IncludeVAxis(bShow)
+			@bShowXAxis = bShow
+
+		def WithoutVAxis()
 			@bShowXAxis = FALSE
 
 	def SetYAxis(bShow)
 		@bShowYAxis = bShow
 
+		def AddYAxis(bShow)
+			@bShowXAxis = bShow
+
+		def IncludeYAxis(bShow)
+			@bShowYAxis = bShow
+
 		def WithoutYAxis()
 			@bShowYAxis = FALSE
+
+		#--
+
+		def SetHAxis(bShow)
+			@bShowYAxis = bShow
+
+		def AddHAxis(bShow)
+			@bShowYAxis = bShow
+
+		def IncludeHAxis(bShow)
+			@bShowYAxis = bShow
+
+		def WithoutHAxis()
+			@bShowYAxis = FALSE
+
 
 	def SetLabels(bShow)
 		@bShowLabels = bShow
@@ -2885,14 +2931,22 @@ def SetValues(bShow)
 		def AddLabels()
 			@bShowLabels = TRUE
 
+		def IncludeLabels()
+			@bShowLabels = TRUE
+
 		def WithoutLabels()
 			@bShowLabels = FALSE
+
 
 	def SetPercent(bShow)
 		@bShowPercent = bShow
 
 		def AddPercent()
 			@bShowPercent = TRUE
+
+		def IncludePercent()
+			@bShowPercent = TRUE
+
 
 	def SetBarWidth(nWidth)
 		@nBarWidth = max([1, nWidth])
@@ -2926,40 +2980,50 @@ def SetValues(bShow)
 	    @nLabelInterSpace = n
 
 	# Statistical methods for histogram
+
 	def Mean()
-		if len(@anRawData) = 0
+		nLen = len(@anRawData)
+
+		if nLen = 0
 			return 0
 		ok
+
 		nSum = 0
-		for nVal in @anRawData
-			nSum += nVal
+
+		for i = 1 to nLen
+			nSum += @anRawData[i]
 		next
-		return nSum / len(@anRawData)
+
+		return nSum / nlen
+
 
 	def StandardDeviation()
-		if len(@anRawData) <= 1
+		nLen = len(@anRawData)
+
+		if nLen <= 1
 			return 0
 		ok
 		
 		nMean = This.Mean()
 		nSumSquares = 0
 		
-		for nVal in @anRawData
-			nSumSquares += pow(nVal - nMean, 2)
+		for i = 1 to nLen
+			nSumSquares += pow(@anRawData[i] - nMean, 2)
 		next
 		
-		return sqrt(nSumSquares / (len(@anRawData) - 1))
+		return sqrt(nSumSquares / (nLen - 1))
 
 	def Median()
-		if len(@anRawData) = 0
+		nLen = len(@anRawData)
+		if nLen = 0
 			return 0
 		ok
 		
 		aSorted = sort(@anRawData)
-		nLen = len(aSorted)
 		
 		if nLen % 2 = 1
 			return aSorted[ceil(nLen/2)]
+
 		else
 			nMid1 = aSorted[nLen/2]
 			nMid2 = aSorted[nLen/2 + 1]
@@ -2969,7 +3033,7 @@ def SetValues(bShow)
 	def Mode()
 		# Find the bin with highest frequency
 		nMaxFreq = max(@aBinCounts)
-		nModeIndex = find(@aBinCounts, nMaxFreq)
+		nModeIndex = ring_find(@aBinCounts, nMaxFreq)
 		
 		if nModeIndex > 0
 			return @aBinRanges[nModeIndex]
@@ -2980,213 +3044,240 @@ def SetValues(bShow)
 	def DataCount()
 		return len(@anRawData)
 
+		def DataSize()
+			return This.DataCount()
+
+
 	#--- AGGREGATION
 
-	def ShowSum()
+	def UseSum()
 		@cAggregationType = "sum"
-		@bShowValues = TRUE
 		_processBinnedData()
 
-	def ShowAverage()
+	def UseAverage()
 		@cAggregationType = "average"
-		@bShowValues = TRUE
 		_processBinnedData()
 
-	def ShowMin()
+	def UseMin()
 		@cAggregationType = "min"
-		@bShowValues = TRUE
 		_processBinnedData()
 
-	def ShowMax()
+	def UseMax()
 		@cAggregationType = "max"
-		@bShowValues = TRUE
 		_processBinnedData()
 
-# Updated _processBinnedData method
-def _processBinnedData()
-	
-	# Initialize bin data based on aggregation type
-	@aBinCounts = []
-	
-	for i = 1 to @nBinCount
-		switch @cAggregationType
-		on "frequency"
-			@aBinCounts + 0
-		on "sum"
-			@aBinCounts + 0
-		on "average"
-			@aBinCounts + 0
-		on "min"
-			@aBinCounts + 0
-		on "max"
-			@aBinCounts + 0
-		off
-	next
-	
-	# Process each data point
-	for nValue in @anRawData
-		nBinIndex = _findBinIndex(nValue)
-		if nBinIndex > 0
+
+
+	def _processBinnedData()
+		
+		# Initialize bin data based on aggregation type
+		@aBinCounts = []
+		
+		for i = 1 to @nBinCount
+
 			switch @cAggregationType
 			on "frequency"
-				@aBinCounts[nBinIndex]++
+				@aBinCounts + 0
+
 			on "sum"
-				@aBinCounts[nBinIndex] += nValue
+				@aBinCounts + 0
+
 			on "average"
-				# Store sum first, calculate average later
-				@aBinCounts[nBinIndex] += nValue
+				@aBinCounts + 0
+
 			on "min"
-				if @aBinCounts[nBinIndex] = 0
-					@aBinCounts[nBinIndex] = nValue
-				else
-					@aBinCounts[nBinIndex] = min([@aBinCounts[nBinIndex], nValue])
-				ok
+				@aBinCounts + 0
+
 			on "max"
-				@aBinCounts[nBinIndex] = max([@aBinCounts[nBinIndex], nValue])
+				@aBinCounts + 0
+
 			off
+		next
+		
+		# Process each data point
+		nLen = len(@anRawData)
+		for i = 1 to nLen
+
+			nBinIndex = _findBinIndex(@anRawData[i])
+
+			if nBinIndex > 0
+
+				switch @cAggregationType
+				on "frequency"
+					@aBinCounts[nBinIndex]++
+
+				on "sum"
+					@aBinCounts[nBinIndex] += @anRawData[i]
+
+				on "average"
+					# Store sum first, calculate average later
+					@aBinCounts[nBinIndex] += @anRawData[i]
+
+				on "min"
+					if @aBinCounts[nBinIndex] = 0
+						@aBinCounts[nBinIndex] = @anRawData[i]
+
+					else
+						@aBinCounts[nBinIndex] = min([@aBinCounts[nBinIndex], @anRawData[i]])
+					ok
+
+				on "max"
+					@aBinCounts[nBinIndex] = max([@aBinCounts[nBinIndex], @anRawData[i]])
+
+				off
+			ok
+		next
+		
+		# Post-process for average
+		if @cAggregationType = "average"
+			for i = 1 to @nBinCount
+				nCount = _getFrequencyForBin(i)
+				if nCount > 0
+					@aBinCounts[i] = @aBinCounts[i] / nCount
+				else
+					@aBinCounts[i] = 0
+				ok
+			next
 		ok
-	next
+		
+		# Set up parent class data
+		@anValues = @aBinCounts
+		@acLabels = @aBinLabels
+		@nMaxValue = max(@aBinCounts)
+		@nMinValue = min(@aBinCounts)
 	
-	# Post-process for average
-	if @cAggregationType = "average"
-		for i = 1 to @nBinCount
-			nCount = _getFrequencyForBin(i)
-			if nCount > 0
-				@aBinCounts[i] = @aBinCounts[i] / nCount
+	# Helper method to get frequency count for a bin (needed for average calculation)
+	def _getFrequencyForBin(nBinIndex)
+
+		nCount = 0
+		nLen = len(@anRawData)
+
+		for i = 1 to nLen
+			if _findBinIndex(@anRawData[i]) = nBinIndex
+				nCount++
+			ok
+		next
+
+		return nCount
+
+	
+	def _drawValues(oLayout)
+
+		nBars = len(@anValues)
+
+		nBarsStartCol = oLayout[:bars_start_col]
+		nAxisRow = oLayout[:x_axis_row] 
+		nBarsAreaHeight = oLayout[:bars_area_height]
+		aElementWidths = oLayout[:element_widths]
+		aBarSpacing = oLayout[:bar_spacing]
+		
+		nCurrentX = nBarsStartCol
+		
+		for i = 1 to nBars
+
+			nElementWidth = aElementWidths[i]
+			nVal = @anValues[i]
+			
+			if @nMaxValue = 0 or nVal = 0
+				nBarHeight = 1
 			else
-				@aBinCounts[i] = 0
+				nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+			ok
+			
+			nValueRow = nAxisRow - nBarHeight - 1
+			if nValueRow < 1
+				nValueRow = 1
+			ok
+			
+			# Format value based on aggregation type
+
+			switch @cAggregationType
+
+			on "frequency"
+				cValue = "" + nVal
+
+			on "sum"
+				cValue = "" + RoundN(nVal, 1)
+
+			on "average"
+				cValue = "" + RoundN(nVal, 2)
+
+			on "min"
+				cValue = "" + RoundN(nVal, 1)
+
+			on "max"
+				cValue = "" + RoundN(nVal, 1)
+
+			off
+			
+			nValueLen = len(cValue)
+			nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
+			
+			for k = 1 to nValueLen
+				nCol = nValueStartX + k - 1
+				if nCol <= @nWidth and nCol >= 1 and nValueRow >= 1
+					@acCanvas[nValueRow][nCol] = cValue[k]
+				ok
+			next
+			
+			if i < nBars
+				nCurrentX += nElementWidth + aBarSpacing[i]
 			ok
 		next
-	ok
 	
-	# Set up parent class data
-	@anValues = @aBinCounts
-	@acLabels = @aBinLabels
-	@nMaxValue = max(@aBinCounts)
-	@nMinValue = min(@aBinCounts)
-
-# Helper method to get frequency count for a bin (needed for average calculation)
-def _getFrequencyForBin(nBinIndex)
-	nCount = 0
-	for nValue in @anRawData
-		if _findBinIndex(nValue) = nBinIndex
-			nCount++
-		ok
-	next
-	return nCount
-
-# Update display methods to show appropriate labels
-def _drawFrequency(oLayout)
-	# Rename to _drawValues since it can show different aggregations
-	_drawValues(oLayout)
-
-def _drawValues(oLayout)
-	nBars = len(@anValues)
-	nBarsStartCol = oLayout[:bars_start_col]
-	nAxisRow = oLayout[:x_axis_row] 
-	nBarsAreaHeight = oLayout[:bars_area_height]
-	aElementWidths = oLayout[:element_widths]
-	aBarSpacing = oLayout[:bar_spacing]
-	
-	nCurrentX = nBarsStartCol
-	
-	for i = 1 to nBars
-		nElementWidth = aElementWidths[i]
-		nVal = @anValues[i]
-		
-		if @nMaxValue = 0 or nVal = 0
-			nBarHeight = 1
-		else
-			nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
-		ok
-		
-		nValueRow = nAxisRow - nBarHeight - 1
-		if nValueRow < 1
-			nValueRow = 1
-		ok
-		
-		# Format value based on aggregation type
-		switch @cAggregationType
-		on "frequency"
-			cValue = "" + nVal
-		on "sum"
-			cValue = "" + RoundN(nVal, 1)
-		on "average"
-			cValue = "" + RoundN(nVal, 2)
-		on "min"
-			cValue = "" + RoundN(nVal, 1)
-		on "max"
-			cValue = "" + RoundN(nVal, 1)
-		off
-		
-		nValueLen = len(cValue)
-		nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
-		
-		for k = 1 to nValueLen
-			nCol = nValueStartX + k - 1
-			if nCol <= @nWidth and nCol >= 1 and nValueRow >= 1
-				@acCanvas[nValueRow][nCol] = cValue[k]
-			ok
-		next
-		
-		if i < nBars
-			nCurrentX += nElementWidth + aBarSpacing[i]
-		ok
-	next
-
 	#--- DISPLAY
 
 	def Show()
 		? This.ToString()
 
-def ToString()
+	def ToString()
+		
+		# Use the same layout logic as bar chart
+		oLayout = _calculateLayout()
+		
+		@nWidth = oLayout[:total_width]
+		@nHight = oLayout[:chart_height]
+		_initCanvas()
+		
+		# Draw components
+		if @bShowYAxis
+			_drawYAxis(oLayout)
+		ok
+		
+		if @bShowXAxis  
+			_drawXAxis(oLayout)
+		ok
+		
+		_drawBars(oLayout)
 	
-	# Use the same layout logic as bar chart
-	oLayout = _calculateLayout()
+		if @bShowValues
+			_drawValues(oLayout)
+		but @bShowPercent
+			_drawPercent(oLayout)
+		ok
+		
+		if @bShowLabels
+			_drawLabels(oLayout)
+		ok
+		
+		cResult = _finalizeCanvas()
 	
-	@nWidth = oLayout[:total_width]
-	@nHight = oLayout[:chart_height]
-	_initCanvas()
+		# Add arrow at top
+		if ring_substr1(cResult, @cXArrowChar) > 0
+			cResult = ring_substr2(cResult, @cXArrowChar, @cXAxisChar)
+			cResult = @cXArrowChar + NL + cResult
+		ok
 	
-	# Draw components
-	if @bShowYAxis
-		_drawYAxis(oLayout)
-	ok
+		# Add statistics if requested
+		if @bShowStats
+			cStats = NL + NL + "Mean: " + RoundN(This.Mean(), 2) + 
+			         " | StdDev: " + RoundN(This.StandardDeviation(), 2) +
+			         " | Median: " + RoundN(This.Median(), 2) +
+			         " | Count: " + This.DataCount()
+			cResult += cStats
+		ok
 	
-	if @bShowXAxis  
-		_drawXAxis(oLayout)
-	ok
-	
-	_drawBars(oLayout)
-
-	if @bShowValues
-		_drawValues(oLayout)
-	but @bShowPercent
-		_drawPercent(oLayout)
-	ok
-	
-	if @bShowLabels
-		_drawLabels(oLayout)
-	ok
-	
-	cResult = _finalizeCanvas()
-
-	# Add arrow at top
-	if ring_substr1(cResult, @cXArrowChar) > 0
-		cResult = ring_substr2(cResult, @cXArrowChar, @cXAxisChar)
-		cResult = @cXArrowChar + NL + cResult
-	ok
-
-	# Add statistics if requested
-	if @bShowStats
-		cStats = NL + "Mean: " + RoundN(This.Mean(), 2) + 
-		         " | StdDev: " + RoundN(This.StandardDeviation(), 2) +
-		         " | Median: " + RoundN(This.Median(), 2) +
-		         " | Count: " + This.DataCount()
-		cResult += cStats
-	ok
-
-	return cResult
+		return cResult
 
 
 	# Reuse bar chart drawing methods with minor adaptations
@@ -3281,7 +3372,7 @@ def ToString()
 		oLayout.AddPair([:chart_height, nChartHeight])
 	
 		nBarsAreaHeight = nXAxisRow - 1
-		if @bShowFrequency or @bShowPercent
+		if @bShowValues or @bShowPercent
 			nBarsAreaHeight = nXAxisRow - 2
 		ok
 		
@@ -3363,7 +3454,6 @@ def ToString()
 				nCurrentX += nElementWidth + aBarSpacing[i]
 			ok
 		next
-
 
 
 	def _drawPercent(oLayout)
