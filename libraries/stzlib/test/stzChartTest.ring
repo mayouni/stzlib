@@ -1905,15 +1905,17 @@ pf()
 # Executed in 0.09 second(s) in Ring 1.22
 
 
-#----------------------------------------------------#
-# Test Suite for stzPlotChart (Scatter Plot Chart)  #
-#----------------------------------------------------#
+#----------------------------------#
+# Test Suite for stzScatterChart   #
+#----------------------------------#
 
 /*--- Test 1: Basic scatter plot with coordinate pairs
 
 pr()
 
-oChart = new stzPlotChart([[1,2], [3,5], [5,4], [7,8], [9,6]])
+oChart = new stzScatterChart([[1,2], [3,5], [6,9], [5,4], [7,8], [9,6]])
+//oChart.AddGrid()
+
 oChart.Show()
 #-->
 '
@@ -1929,6 +1931,20 @@ oChart.Show()
        0|2     2|6     5|0     7|4       
 '
 
+'
+   ^                                 
+ 9 ┤---------------------●           
+   │                     ⁞           
+ 8 ┤---------------------⁞---●    
+ 6 ┤---------------------⁞---⁞-----●
+ 5 ┤---------●           ⁞   ⁞     ⁞
+   ┤---------⁞-------●   ⁞   ⁞     ⁞     
+ 2 ┤--●      ⁞       ⁞   ⁞   ⁞     ⁞     
+   │  ⁞      ⁞       ⁞   ⁞   ⁞     ⁞
+   ╰──┬──────┬───────┬───┬───┬─────┬─>
+      1      3       5   6   7     9   
+'
+
 pf()
 # Executed in 0.15 second(s) in Ring 1.22
 
@@ -1936,27 +1952,26 @@ pf()
 
 pr()
 
-oChart = new stzPlotChart([ 
+oChart = new stzScatterChart([ 
 	:Product1 = [10, 25], 
 	:Product2 = [15, 30], 
 	:Product3 = [20, 22], 
 	:Product4 = [25, 35] 
 ])
-oChart.ShowLabels()
+oChart.AddLabels()
 oChart.Show()
 #-->
 '
-  36.3-^                             ●   
-       │                                 
-  32.4-│             product2            
-       │           ●                     
-  28.5-│    product1                     
-       │  ●                              
-  24.6-│                      product3   
-       │                    ●            
-       ╰─────────────────────────────────>
-       8|5    13|0    17|5    22|0       
-                                         
+       ^                                 
+   36.3┤                            ●    
+       │             product2            
+   32.4┤           ●                     
+       │    product1                     
+   28.5┤                                 
+       │  ●                   product3   
+   24.6┤                   ●             
+       ╰┬───────┬───────┬───────┬───────>
+       8.5    13.0    17.5    22.0       
 '
 
 pf()
@@ -1966,9 +1981,9 @@ pf()
 
 pr()
 
-oChart = new stzPlotChart([[2,3], [4,5], [6,8], [8,9], [10,12]])
-oChart.ShowGrid()
-oChart.ShowTrendLine()
+oChart = new stzScatterChart([[2,3], [4,5], [6,8], [8,9], [10,12]])
+//oChart.AddGrid()
+//oChart.AddTrend()
 oChart.Show()
 #-->
 '
@@ -1991,8 +2006,9 @@ pf()
 
 pr()
 
-oChart = new stzPlotChart([[:X, [1,3,5,7]], [:Y, [2,6,4,8]]])
-oChart.ShowValues()
+oChart = new stzScatterChart([[:X, [1,3,5,7]], [:Y, [2,6,4,8]]])
+//oChart.AddValues()
+ochart.AddLabels()
 oChart.Show()
 #-->
 '
@@ -2015,27 +2031,29 @@ pf()
 
 pr()
 
-oChart = new stzPlotChart([[5,10], [10,15], [15,12], [20,18]])
-oChart.SetSize(18,14)
-oChart.SetPointChar("◆")
+oChart = new stzScatterChart([[5,10], [10,15], [15,12], [20,18]])
+oChart {
+	SetSize(18,14)
+//	SetTrendChar("═")
 
-oChart.SetTrendChar("═")
-oChart.ShowGrid()
-oChart.ShowTrendLine()
+//	AddGrid()
+//	AddTrend()
 
-oChart.Show()
+	Show()
+}
+
 #-->
 '
-  18.8-^·····························◆·· 
+  18.8-^·····························●·· 
        │·    ·    ·    ·    ·    ·  ════ 
   16.4-│·    ·    ·    ·    ·  ═════  ·  
-       │·    ·    ·◆   ·  ═════  ·    ·  
+       │·    ·    ·●   ·  ═════  ·    ·  
   14.0-│·    ·    · ══════  ·    ·    ·  
-       │·······═════········◆··········· 
+       │·······═════········●··········· 
   11.6-│· ═════   ·    ·    ·    ·    ·  
-       │══◆  ·    ·    ·    ·    ·    ·  
+       │══●  ·    ·    ·    ·    ·    ·  
        ╰─────────────────────────────────>
-       3|5     8|0    12|5    17|0      
+       3|5     8|0    12|5    17|0       
 '
 
 pf()
@@ -2045,7 +2063,7 @@ pf()
 
 pr()
 
-oChart = new stzPlotChart([[1,1], [2,4], [3,2], [4,5], [5,3]])
+oChart = new stzScatterChart([[1,1], [2,4], [3,2], [4,5], [5,3]])
 oChart.WithoutXAxis()
 oChart.WithoutYAxis()
 oChart.Show()
@@ -2068,14 +2086,14 @@ pf()
 
 pr()
 
-oChart = new stzPlotChart([
+oChart = new stzScatterChart([
 	:Week1 = [100, 85],
 	:Week2 = [120, 90], 
 	:Week3 = [110, 88],
 	:Week4 = [140, 95]
 ])
-oChart.ShowLabels()
-oChart.ShowTrendLine()
+oChart.AddLabels()
+//oChart.AddTrendLine()
 //oChart.SetMaxSize(50, 30)
 oChart.Show()
 #-->
@@ -2096,16 +2114,16 @@ pf()
 # Executed in 0.10 second(s) in Ring 1.22
 
 /*--- Test 8: Temperature correlation study
-
+*/
 pr()
 
 aData = [
 	[:Jan, [5, 32]], [:Feb, [8, 35]], [:Mar, [12, 50]], 
 	[:Apr, [18, 64]], [:May, [22, 72]], [:Jun, [28, 82]]
 ]
-oChart = new stzPlotChart(aData)
-oChart.ShowLabels()
-oChart.ShowGrid()
+oChart = new stzScatterChart(aData)
+//oChart.AddLabels()
+//oChart.AddGrid()
 oChart.Show()
 #-->
 '

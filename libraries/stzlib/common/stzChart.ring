@@ -4450,14 +4450,11 @@ def _drawContent()
 	    return cStr
 
 
-#-------------------#
-#  PLOTCHART CLASS  #
-#-------------------#
+#-----------------------#
+#  SCATTER CHART CLASS  #
+#-----------------------#
 
-class stzScatterChart from stzPlotChart
-class stzScatterPlotChart from stzPlotChart
-
-class stzPlotChart from stzChart
+class stzScatterChart from stzChart
 
 	@anXValues = []
 	@anYValues = []
@@ -4467,8 +4464,8 @@ class stzPlotChart from stzChart
 	@bShowYAxis = True
 	@bShowGrid = False
 	@bShowTrendLine = False
-	@bShowLabels = False
-	@bShowValues = False
+	@bShowLabels = false
+	@bShowValues = false
 
 	# Reasonable console defaults
 	@nMaxWidth = 42 
@@ -4478,10 +4475,11 @@ class stzPlotChart from stzChart
 	@nYAxisWidth = 8   # Space for Y-axis labels
 
 	@cPointChar = "●"
-	@cGridChar = "·"
+	@cVerticalGridChar = "⁞"
+	@cHorizontalGridChar = "."
 	@cTrendChar = "~"
-	@cXTickChar = "|"
-	@cYTickChar = "-"
+	@cXTickChar = "┬"  # Adjusted for desired output
+	@cYTickChar = "┤"  # Adjusted for desired output
 
 	@nXMin = 0
 	@nXMax = 0
@@ -4489,19 +4487,12 @@ class stzPlotChart from stzChart
 	@nYMax = 0
 
 	def init(paDataSet)
-
 		if CheckParams()
 			if NOT isList(paDataSet)
-				StzRaise("Can't create stzPlotChart! paDataSet must be a list.")
+				StzRaise("Can't create stzChart! paDataSet must be a list.")
 			ok
 
-			# Accept different formats:
-			# 1. List of pairs: [[x1,y1], [x2,y2], ...]
-			# 2. HashList with X,Y keys: [[:X, [vals]], [:Y, [vals]]]
-			# 3. HashList with point labels: [["point1", [x1,y1]], ["point2", [x2,y2]], ...]
-
 			if IsListOfPairs(paDataSet) and len(paDataSet) > 0 and IsListOfNumbers(paDataSet[1])
-				# Format 1: [[x1,y1], [x2,y2], ...]
 				@anXValues = []
 				@anYValues = []
 				@acPointLabels = []
@@ -4516,11 +4507,9 @@ class stzPlotChart from stzChart
 
 			but IsHashList(paDataSet)
 				oHash = new stzHashList(paDataSet)
-
 				aKeys = oHash.Keys()
 
 				if len(aKeys) = 2 and (aKeys[1] = "X" or aKeys[1] = :X) and (aKeys[2] = "Y" or aKeys[2] = :Y)
-					# Format 2: [[:X, [vals]], [:Y, [vals]]]
 					@anXValues = paDataSet[:X]
 					@anYValues = paDataSet[:y]
 	
@@ -4534,7 +4523,6 @@ class stzPlotChart from stzChart
 					next
 
 				else
-					# Format 3: [["point1", [x1,y1]], ["point2", [x2,y2]], ...]
 					@anXValues = []
 					@anYValues = []
 					@acPointLabels = oHash.Keys()
@@ -4583,7 +4571,7 @@ class stzPlotChart from stzChart
 	def SetGrid(bShow)
 		@bShowGrid = bShow
 
-		def ShowGrid()
+		def AddGrid()
 			@bShowGrid = TRUE
 
 		def WithoutGrid()
@@ -4592,19 +4580,25 @@ class stzPlotChart from stzChart
 	def SetTrendLine(bShow)
 		@bShowTrendLine = bShow
 
-		def ShowTrendLine()
-			@bShowTrendLine = TRUE
+		def SetTrend(bshow)
+			@bShowTrendLine = bShow
 
 		def AddTrendLine()
+			@bShowTrendLine = TRUE
+
+		def AddTrend()
 			@bShowTrendLine = TRUE
 
 		def WithoutTrendLine()
 			@bShowTrendLine = FALSE
 
+		def WithoutTrend()
+			@bShowTrendLine = FALSE
+
 	def SetLabels(bShow)
 		@bShowLabels = bShow
 
-		def ShowLabels()
+		def AddLabels()
 			@bShowLabels = TRUE
 
 		def WithoutLabels()
@@ -4613,7 +4607,7 @@ class stzPlotChart from stzChart
 	def SetValues(bShow)
 		@bShowValues = bShow
 
-		def ShowValues()
+		def AddValues()
 			@bShowValues = TRUE
 
 		def WithoutValues()
@@ -4630,16 +4624,27 @@ class stzPlotChart from stzChart
 		def PointChar()
 			return @cPointChar
 
-	def SetGridChar(c)
+	def SetVerticalGridChar(c)
 		if CheckParams()
 			if NOT (isString(c) and IsChar(c))
 				StzRaise("c must be a char.")
 			ok
 		ok
-		@cGridChar = c
+		@cVerticalGridChar = c
 
-		def GridChar()
-			return @cGridChar
+		def VerticalGridChar()
+			return @cVerticalGridChar
+
+	def SetHorizontalGridChar(c)
+		if CheckParams()
+			if NOT (isString(c) and IsChar(c))
+				StzRaise("c must be a char.")
+			ok
+		ok
+		@cHorizontalGridChar = c
+
+		def HorizontalGridChar()
+			return @cHorizontalGridChar
 
 	def SetTrendChar(c)
 		if CheckParams()
@@ -4660,15 +4665,14 @@ class stzPlotChart from stzChart
 		ok
 		@nGridSpacing = max([1, n])
 
-	# Enhanced size configuration methods
 	def SetMaxSize(nWidth, nHeight)
 		if CheckParams()
 			if NOT (isNumber(nWidth) and isNumber(nHeight))
 				StzRaise("nWidth and nHeight must be numbers.")
 			ok
 		ok
-		@nMaxWidth = max([40, nWidth])  # Minimum 40 chars wide
-		@nMaxHeight = max([10, nHeight]) # Minimum 10 lines high
+		@nMaxWidth = max([40, nWidth])
+		@nMaxHeight = max([10, nHeight])
 
 	def SetWidth(nWidth)
 		if CheckParams()
@@ -4686,7 +4690,6 @@ class stzPlotChart from stzChart
 		ok
 		@nMaxHeight = max([10, nHeight])
 
-	# Preset sizes for convenience
 	def SetSmallSize()
 		@nMaxWidth = 60
 		@nMaxHeight = 15
@@ -4707,16 +4710,21 @@ class stzPlotChart from stzChart
 		? This.ToString()
 
 	def ToString()
-
-		# Calculate layout
 		oLayout = _calculateLayout()
-
-		# Initialize canvas
 		@nWidth = oLayout[:total_width]
-		@nHight = oLayout[:total_height]
+		@nHeight = oLayout[:total_height]
 		_initCanvas()
 
-		# Draw components in order
+		if @bShowXAxis and @bShowYAxis
+			nYAxisCol = oLayout[:y_axis_col]
+			if len(@acCanvas) >= 2 and len(@acCanvas[2]) >= @nWidth
+				for i = nYAxisCol + 1 to @nWidth
+					@acCanvas[2][i] = " "
+				next
+				@acCanvas[2][nYAxisCol] = "│"
+			ok
+		ok
+
 		if @bShowGrid
 			_drawGrid(oLayout)
 		ok
@@ -4746,7 +4754,6 @@ class stzPlotChart from stzChart
 		return _finalizeCanvas()
 
 	def _calculateRanges()
-
 		if len(@anXValues) = 0 or len(@anYValues) = 0
 			@nXMin = 0
 			@nXMax = 10
@@ -4760,35 +4767,32 @@ class stzPlotChart from stzChart
 		@nYMin = min(@anYValues)
 		@nYMax = max(@anYValues)
 
-		# Add padding (10% of range)
-		nXRange = @nXMax - @nXMin
-		nYRange = @nYMax - @nYMin
-
-		if nXRange = 0
-			@nXMin = @nXMin - 1
-			@nXMax = @nXMax + 1
-		else
-			nXPadding = nXRange * 0.1
-			@nXMin = @nXMin - nXPadding
-			@nXMax = @nXMax + nXPadding
+		# No padding; use exact ranges
+		if _areAllIntegers(@anXValues)
+			@nXMin = floor(@nXMin)
+			@nXMax = ceil(@nXMax)
+		ok
+		if _areAllIntegers(@anYValues)
+			@nYMin = floor(@nYMin)
+			@nYMax = ceil(@nYMax)
 		ok
 
-		if nYRange = 0
-			@nYMin = @nYMin - 1
-			@nYMax = @nYMax + 1
-		else
-			nYPadding = nYRange * 0.1
-			@nYMin = @nYMin - nYPadding
-			@nYMax = @nYMax + nYPadding
-		ok
+	def _areAllIntegers(anList)
+		for n in anList
+			if NOT isNumber(n) or floor(n) != n
+				return FALSE
+			ok
+		next
+		return TRUE
+
+
 
 	def _calculateLayout()
-
 		oLayout = new stzHashList([])
 
 		# Calculate plot area dimensions
 		nPlotWidth = @nMaxWidth - @nYAxisWidth - 2
-		nPlotHeight = @nMaxHeight - @nXAxisHeight - 2
+		nPlotHeight = @nMaxHeight - @nXAxisHeight - 2  # Reduced from -3 to -2 to avoid extra row
 
 		# Ensure minimum plot area
 		nPlotWidth = max([20, nPlotWidth])
@@ -4799,14 +4803,18 @@ class stzPlotChart from stzChart
 		nPlotStartCol = nYAxisCol + 1
 		nPlotEndCol = nPlotStartCol + nPlotWidth - 1
 
-		# X-axis positioning  
-		nXAxisRow = nPlotHeight + 1
-		nPlotStartRow = 1
+		# X-axis positioning
+		nXAxisRow = nPlotHeight + 1  # Adjusted from +2 to +1 to fit within height
+		nPlotStartRow = 2  # Start after arrow
 		nPlotEndRow = nXAxisRow - 1
 
 		# Total dimensions
 		nTotalWidth = nPlotEndCol + 2
 		nTotalHeight = nXAxisRow + @nXAxisHeight
+
+		# Ensure minimum canvas size
+		nTotalWidth = max([40, nTotalWidth])
+		nTotalHeight = max([10, nTotalHeight])
 
 		oLayout.AddPair([:plot_start_col, nPlotStartCol])
 		oLayout.AddPair([:plot_end_col, nPlotEndCol])
@@ -4821,116 +4829,146 @@ class stzPlotChart from stzChart
 
 		return oLayout
 
-	def _drawGrid(oLayout)
 
+	def _drawGrid(oLayout)
 		nStartCol = oLayout[:plot_start_col]
 		nEndCol = oLayout[:plot_end_col]
 		nStartRow = oLayout[:plot_start_row]
 		nEndRow = oLayout[:plot_end_row]
+		nPlotWidth = oLayout[:plot_width]
+		nPlotHeight = oLayout[:plot_height]
 
-		# Draw vertical grid lines
-		for i = nStartCol to nEndCol step @nGridSpacing
-			for j = nStartRow to nEndRow
-				if @acCanvas[j][i] = " "
-					@acCanvas[j][i] = @cGridChar
-				ok
-			next
+		aUniqueX = U(@anXValues)
+		aUniqueY = U(@anYValues)
+
+		for nX in aUniqueX
+			nCol = nStartCol + floor((nX - @nXMin) * (nPlotWidth - 1) / (@nXMax - @nXMin))
+			if nCol >= nStartCol and nCol <= nEndCol
+				for j = nStartRow to nEndRow
+					if @acCanvas[j][nCol] = " "
+						@acCanvas[j][nCol] = @cVerticalGridChar
+					ok
+				next
+			ok
 		next
 
-		# Draw horizontal grid lines
-		for j = nStartRow to nEndRow step @nGridSpacing
-			for i = nStartCol to nEndCol
-				if @acCanvas[j][i] = " "
-					@acCanvas[j][i] = @cGridChar
-				ok
-			next
+		for nY in aUniqueY
+			nRow = nEndRow - floor((nY - @nYMin) * (nPlotHeight - 1) / (@nYMax - @nYMin))
+			if nRow >= nStartRow and nRow <= nEndRow
+				for i = nStartCol to nEndCol
+					if @acCanvas[nRow][i] = " "
+						@acCanvas[nRow][i] = @cHorizontalGridChar
+					ok
+				next
+			ok
 		next
+
 
 	def _drawYAxis(oLayout)
-
 		nAxisCol = oLayout[:y_axis_col]
 		nStartRow = oLayout[:plot_start_row]
 		nEndRow = oLayout[:plot_end_row]
 		nXAxisRow = oLayout[:x_axis_row]
+		nPlotHeight = oLayout[:plot_height]
+	
+		cVArrowChar = "^"
+		cHArrowChar = ">"
 
-		# Draw vertical line
 		for i = nStartRow to nEndRow
-			@acCanvas[i][nAxisCol] = @cXAxisChar
+			if i >= 1 and i <= len(@acCanvas) and nAxisCol >= 1 and nAxisCol <= len(@acCanvas[i])
+				@acCanvas[i][nAxisCol] = "│"
+			ok
 		next
 
-		# Draw arrow at top
-		@acCanvas[nStartRow][nAxisCol] = @cXArrowChar
+		if nStartRow - 1 >= 1 and nStartRow - 1 <= len(@acCanvas) and nAxisCol >= 1 and nAxisCol <= len(@acCanvas[nStartRow - 1])
+			@acCanvas[nStartRow - 1][nAxisCol] = cVArrowChar
+		ok
 
-		# Draw origin
-		@acCanvas[nXAxisRow][nAxisCol] = @cOriginChar
+		if nXAxisRow >= 1 and nXAxisRow <= len(@acCanvas) and nAxisCol >= 1 and nAxisCol <= len(@acCanvas[nXAxisRow])
+			@acCanvas[nXAxisRow][nAxisCol] = @cOriginChar
+		ok
 
-		# Draw Y-axis labels
-		nPlotHeight = oLayout[:plot_height]
-		# Fewer labels for smaller plots
-		nLabelCount = min([5, max([3, floor(nPlotHeight / 4)])])
-		nLabelSpacing = max([1, floor(nPlotHeight / nLabelCount)])
-
-		for i = nStartRow to nEndRow step nLabelSpacing
-			nYValue = @nYMax - (i - nStartRow) * (@nYMax - @nYMin) / nPlotHeight
-			cLabel = "" + RoundN(nYValue, 1)
-			nLabelLen = len(cLabel)
-
-			# Right-align label before axis
-			nLabelStart = nAxisCol - nLabelLen - 1
-			if nLabelStart >= 1
-				for j = 1 to nLabelLen
-					@acCanvas[i][nLabelStart + j - 1] = cLabel[j]
-				next
-				@acCanvas[i][nAxisCol - 1] = @cYTickChar
+		aUniqueY = U(@anYValues)
+		aUniqueY = ring_sort(aUniqueY)
+		for nY in aUniqueY
+			nRow = nEndRow - floor((nY - @nYMin) * (nPlotHeight - 1) / (@nYMax - @nYMin))
+			if nRow >= nStartRow and nRow <= nEndRow
+				cLabel = _formatValue(nY)
+				cLabel = Trim(cLabel)
+				nLabelLen = len(cLabel)
+				nLabelStart = nAxisCol - nLabelLen
+				if nLabelStart >= 1
+					for j = 1 to nLabelLen
+						@acCanvas[nRow][nLabelStart + j - 1] = cLabel[j]
+					next
+					@acCanvas[nRow][nAxisCol] = @cYTickChar
+				ok
 			ok
 		next
 
 	def _drawXAxis(oLayout)
-
 		nAxisRow = oLayout[:x_axis_row]
 		nStartCol = oLayout[:plot_start_col]
 		nEndCol = oLayout[:plot_end_col]
 		nYAxisCol = oLayout[:y_axis_col]
+		nPlotWidth = oLayout[:plot_width]
+		nTotalWidth = oLayout[:total_width]
+	
+		cHArrowChar = ">"
 
 		# Draw horizontal line
-		for i = nStartCol to nEndCol
-			@acCanvas[nAxisRow][i] = @cYAxisChar
-		next
+		if nAxisRow >= 1 and nAxisRow <= len(@acCanvas)
+			for i = nStartCol to nEndCol
+				if i >= 1 and i <= nTotalWidth
+					@acCanvas[nAxisRow][i] = "─"
+				ok
+			next
+		ok
 
 		# Draw arrow at end
-		@acCanvas[nAxisRow][nEndCol + 1] = @cYArrowChar
+		if nAxisRow >= 1 and nAxisRow <= len(@acCanvas) and nEndCol + 1 >= 1 and nEndCol + 1 <= nTotalWidth
+			@acCanvas[nAxisRow][nEndCol + 1] = cHArrowChar
+		ok
 
 		# Draw origin
-		@acCanvas[nAxisRow][nYAxisCol] = @cOriginChar
+		if nAxisRow >= 1 and nAxisRow <= len(@acCanvas) and nYAxisCol >= 1 and nYAxisCol <= nTotalWidth
+			@acCanvas[nAxisRow][nYAxisCol] = @cOriginChar
+		ok
 
 		# Draw X-axis labels
-		nPlotWidth = oLayout[:plot_width]
-		# Fewer labels for smaller plots
-		nLabelCount = min([8, max([4, floor(nPlotWidth / 10)])])
-		nLabelSpacing = max([1, floor(nPlotWidth / nLabelCount)])
-
-		for i = nStartCol to nEndCol step nLabelSpacing
-			nXValue = @nXMin + (i - nStartCol) * (@nXMax - @nXMin) / nPlotWidth
-			cLabel = "" + RoundN(nXValue, 1)
-			nLabelLen = len(cLabel)
-
-			# Center label below axis
-			nLabelStart = i - floor(nLabelLen / 2)
-			if nLabelStart >= 1 and nLabelStart + nLabelLen <= @nWidth
-				for j = 1 to nLabelLen
-					@acCanvas[nAxisRow + 1][nLabelStart + j - 1] = cLabel[j]
-				next
-				@acCanvas[nAxisRow + 1][i] = @cXTickChar
+		aUniqueX = U(@anXValues)
+		aUniqueX = ring_sort(aUniqueX)
+		for nX in aUniqueX
+			nCol = nStartCol + floor((nX - @nXMin) * (nPlotWidth - 1) / (@nXMax - @nXMin))
+			if nCol >= nStartCol and nCol <= nEndCol
+				cLabel = _formatValue(nX)
+				nLabelLen = len(cLabel)
+				nLabelStart = nCol - floor(nLabelLen / 2)
+				if nAxisRow + 1 >= 1 and nAxisRow + 1 <= len(@acCanvas) and
+				   nLabelStart >= 1 and nLabelStart + nLabelLen - 1 <= nTotalWidth
+					for j = 1 to nLabelLen
+						@acCanvas[nAxisRow + 1][nLabelStart + j - 1] = cLabel[j]
+					next
+					if nCol >= 1 and nCol <= nTotalWidth
+						@acCanvas[nAxisRow][nCol] = @cXTickChar
+					ok
+				ok
 			ok
 		next
 
-	def _drawTrendLine(oLayout)
 
+	def _formatValue(nValue)
+		if _areAllIntegers(@anXValues) and _areAllIntegers(@anYValues)
+			return "" + floor(nValue)
+		else
+			return "" + RoundN(nValue, 1)
+		ok
+
+	def _drawTrendLine(oLayout)
 		if len(@anXValues) < 2
 			return
 		ok
 
-		# Calculate linear regression
 		nN = len(@anXValues)
 		nSumX = 0
 		nSumY = 0
@@ -4944,11 +4982,9 @@ class stzPlotChart from stzChart
 			nSumX2 += @anXValues[i] * @anXValues[i]
 		next
 
-		# y = mx + b
 		nSlope = (nN * nSumXY - nSumX * nSumY) / (nN * nSumX2 - nSumX * nSumX)
 		nIntercept = (nSumY - nSlope * nSumX) / nN
 
-		# Draw trend line
 		nStartCol = oLayout[:plot_start_col]
 		nEndCol = oLayout[:plot_end_col]
 		nStartRow = oLayout[:plot_start_row]
@@ -4963,7 +4999,7 @@ class stzPlotChart from stzChart
 			if nYValue >= @nYMin and nYValue <= @nYMax
 				nRow = nEndRow - floor((nYValue - @nYMin) * nPlotHeight / (@nYMax - @nYMin))
 				if nRow >= nStartRow and nRow <= nEndRow
-					if @acCanvas[nRow][i] = " " or @acCanvas[nRow][i] = @cGridChar
+					if @acCanvas[nRow][i] = " " or @acCanvas[nRow][i] = @cHorizontalGridChar or @acCanvas[nRow][i] = @cVerticalGridChar
 						@acCanvas[nRow][i] = @cTrendChar
 					ok
 				ok
@@ -4971,8 +5007,8 @@ class stzPlotChart from stzChart
 		next
 
 	def _drawPoints(oLayout)
-
 		nStartCol = oLayout[:plot_start_col]
+		nEndCol = oLayout[:plot_end_col]
 		nStartRow = oLayout[:plot_start_row]
 		nEndRow = oLayout[:plot_end_row]
 		nPlotWidth = oLayout[:plot_width]
@@ -4982,17 +5018,17 @@ class stzPlotChart from stzChart
 			nX = @anXValues[i]
 			nY = @anYValues[i]
 
-			# Convert to canvas coordinates
-			nCol = nStartCol + floor((nX - @nXMin) * nPlotWidth / (@nXMax - @nXMin))
-			nRow = nEndRow - floor((nY - @nYMin) * nPlotHeight / (@nYMax - @nYMin))
-
-			if nCol >= nStartCol and nCol <= @nWidth and nRow >= nStartRow and nRow <= nEndRow
-				@acCanvas[nRow][nCol] = @cPointChar
+			nCol = nStartCol + floor((nX - @nXMin) * (nPlotWidth - 1) / (@nXMax - @nXMin))
+			nRow = nEndRow - floor((nY - @nYMin) * (nPlotHeight - 1) / (@nYMax - @nYMin))
+			
+			if nCol >= nStartCol and nCol <= nEndCol and nRow >= nStartRow and nRow <= nEndRow
+				if nRow >= 1 and nRow <= len(@acCanvas) and nCol >= 1 and nCol <= len(@acCanvas[nRow])
+					@acCanvas[nRow][nCol] = @cPointChar
+				ok
 			ok
 		next
 
 	def _drawPointLabels(oLayout)
-
 		nStartCol = oLayout[:plot_start_col]
 		nStartRow = oLayout[:plot_start_row]
 		nEndRow = oLayout[:plot_end_row]
@@ -5005,11 +5041,9 @@ class stzPlotChart from stzChart
 				nY = @anYValues[i]
 				cLabel = @acPointLabels[i]
 
-				# Convert to canvas coordinates
 				nCol = nStartCol + floor((nX - @nXMin) * nPlotWidth / (@nXMax - @nXMin))
 				nRow = nEndRow - floor((nY - @nYMin) * nPlotHeight / (@nYMax - @nYMin))
 
-				# Place label offset from point
 				nLabelCol = nCol + 2
 				nLabelRow = nRow - 1
 
@@ -5026,7 +5060,6 @@ class stzPlotChart from stzChart
 		next
 
 	def _drawPointValues(oLayout)
-
 		nStartCol = oLayout[:plot_start_col]
 		nStartRow = oLayout[:plot_start_row]
 		nEndRow = oLayout[:plot_end_row]
@@ -5038,11 +5071,9 @@ class stzPlotChart from stzChart
 			nY = @anYValues[i]
 			cValue = "(" + nX + "," + nY + ")"
 
-			# Convert to canvas coordinates
 			nCol = nStartCol + floor((nX - @nXMin) * nPlotWidth / (@nXMax - @nXMin))
 			nRow = nEndRow - floor((nY - @nYMin) * nPlotHeight / (@nYMax - @nYMin))
 
-			# Place value offset from point
 			nValueCol = nCol + 2
 			nValueRow = nRow
 
