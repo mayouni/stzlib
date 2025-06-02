@@ -1913,9 +1913,17 @@ pf()
 
 pr()
 
-oChart = new stzScatterChart([[1,2], [3,5], [6,9], [5,4], [7,8], [9,6]])
-//oChart.AddGrid()
+oChart = new stzScatterChart([
+	:Pr1 = [1,2],
+	:Pr2 = [3,5],
+	:Pr3 = [6,9],
+	:Pr4 = [5,4],
+	:Pr5 = [7,8],
+	:Pr6 = [9,6]
+])
 
+//oChart.AddGrid()
+oChart.AddLabels()
 oChart.Show()
 #-->
 '
@@ -1949,7 +1957,7 @@ pf()
 # Executed in 0.15 second(s) in Ring 1.22
 
 /*--- Test 2: Named data points with labels
-
+*/
 pr()
 
 oChart = new stzScatterChart([ 
@@ -2114,7 +2122,7 @@ pf()
 # Executed in 0.10 second(s) in Ring 1.22
 
 /*--- Test 8: Temperature correlation study
-*/
+
 pr()
 
 aData = [
