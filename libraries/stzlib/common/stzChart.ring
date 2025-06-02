@@ -4568,6 +4568,26 @@ class stzScatterChart from stzChart
 		def WithoutYAxis()
 			@bShowYAxis = FALSE
 
+	def SetXYAxis(bShow)
+		@bShowXAxis = bShow
+		@bShowYAxis = bShow
+
+		def SetYXAxis(bShow)
+			This.SetXYAxis(bShow)
+
+		def SetXYAxies(bShow)
+			This.SetXYAxis(bShow)
+
+		def SetYXAxies(bShow)
+			This.SetXYAxis(bShow)
+
+		def WithoutXYAxis()
+			This.SetXyAxis(FALSE)
+
+		def WithoutYXAxis()
+			This.SetXyAxis(FALSE)
+
+
 	def SetGrid(bShow)
 		@bShowGrid = bShow
 
@@ -4665,6 +4685,7 @@ class stzScatterChart from stzChart
 
 		return _finalizeCanvas()
 
+
 	def _calculateRanges()
 		if len(@anXValues) = 0 or len(@anYValues) = 0
 			@nXMin = 0
@@ -4701,10 +4722,23 @@ class stzScatterChart from stzChart
 		nYAxisSpace = iff(@bShowYAxis, @nYAxisWidth, 0)
 		nXAxisSpace = iff(@bShowXAxis, @nXAxisHeight, 0)
 		
-		# Reserve space for arrow characters
-		nRightMargin = 2  # For horizontal arrow
+		# Reserve space for arrow character
 		nTopMargin = 1    # For vertical arrow
 		
+		# Calculate right margin based on longest label
+		nLenPointLabels = len(@acPointLabels)
+		nRightMargin = 2  # Default minimum
+		if @bShowLabels
+		    nMaxLabelLen = 0
+		    for i = 1 to nLenPointLabels
+				nLenLabel = len(@acPointLabels[i])
+		        if nLenLabel > nMaxLabelLen
+		            nMaxLabelLen = nLenLabel
+		        ok
+		    next
+		    nRightMargin = nMaxLabelLen + 3  # Label length + spacing + buffer
+		ok
+
 		# Calculate plot dimensions with proper margins
 		nPlotWidth = @nMaxWidth - nYAxisSpace - nRightMargin
 		nPlotHeight = @nMaxHeight - nXAxisSpace - nTopMargin
@@ -4751,32 +4785,31 @@ class stzScatterChart from stzChart
 		nEndRow = oLayout[:plot_end_row]
 		nPlotWidth = oLayout[:plot_width]
 		nPlotHeight = oLayout[:plot_height]
-
-		# Draw horizontal lines for each Y value
-		aUniqueY = U(@anYValues)
-		for nY in aUniqueY
-			nRow = nEndRow - floor((nY - @nYMin) * (nPlotHeight - 1) / (@nYMax - @nYMin))
-			if nRow >= nStartRow and nRow <= nEndRow
-				for i = nStartCol to nEndCol
-					if @acCanvas[nRow][i] = " "
-						@acCanvas[nRow][i] = @cHorizontalGridChar
-					ok
-				next
-			ok
-		next
-
-		# Draw vertical lines for each X value
-		aUniqueX = U(@anXValues)
-		for nX in aUniqueX
+	
+		# Draw grid lines only from axis to each data point
+		for i = 1 to len(@anXValues)
+			nX = @anXValues[i]
+			nY = @anYValues[i]
+			
+			# Calculate point position
 			nCol = nStartCol + floor((nX - @nXMin) * (nPlotWidth - 1) / (@nXMax - @nXMin))
-			if nCol >= nStartCol and nCol <= nEndCol
-				for j = nStartRow to nEndRow
-					if @acCanvas[j][nCol] = " " or @acCanvas[j][nCol] = @cHorizontalGridChar
-						@acCanvas[j][nCol] = @cVerticalGridChar
-					ok
-				next
-			ok
+			nRow = nEndRow - floor((nY - @nYMin) * (nPlotHeight - 1) / (@nYMax - @nYMin))
+			
+			# Draw horizontal line from Y-axis to point
+			for j = nStartCol to nCol
+				if @acCanvas[nRow][j] = " "
+					@acCanvas[nRow][j] = @cHorizontalGridChar
+				ok
+			next
+			
+			# Draw vertical line from X-axis to point
+			for j = nRow to nEndRow
+				if @acCanvas[j][nCol] = " "
+					@acCanvas[j][nCol] = @cVerticalGridChar
+				ok
+			next
 		next
+	
 
 	def _drawYAxis(oLayout)
 		if NOT @bShowYAxis
@@ -4839,13 +4872,13 @@ class stzScatterChart from stzChart
 		nPlotWidth = oLayout[:plot_width]
 		nTotalWidth = oLayout[:total_width]
 	
-		cHArrowChar = ">"
+		cHArrowChar = @copy(@cYAxischar, 2) + @cYArrowChar
 
 		# Draw horizontal line
 		if nAxisRow >= 1 and nAxisRow <= len(@acCanvas)
 			for i = nStartCol to nEndCol
 				if i >= 1 and i <= nTotalWidth
-					@acCanvas[nAxisRow][i] = "─"
+					@acCanvas[nAxisRow][i] = @cYAxischar
 				ok
 			next
 		ok
@@ -4928,52 +4961,85 @@ class stzScatterChart from stzChart
 
 	def _drawPointLabels(oLayout)
 		nStartCol = oLayout[:plot_start_col]
+		nEndCol = oLayout[:plot_end_col]
 		nStartRow = oLayout[:plot_start_row]
 		nEndRow = oLayout[:plot_end_row]
 		nPlotWidth = oLayout[:plot_width]
 		nPlotHeight = oLayout[:plot_height]
-
-		for i = 1 to len(@anXValues)
-			if i <= len(@acPointLabels)
+	
+		nLenXVal = len(@anXValues)
+		nLenLabels = len(@acPointLabels)
+	
+		for i = 1 to nLenXVal
+			if i <= nLenLabels
 				nX = @anXValues[i]
 				nY = @anYValues[i]
-				cLabel = @acPointLabels[i]
-
-				nCol = nStartCol + floor((nX - @nXMin) * (nPlotWidth - 1) / (@nXMax - @nXMin))
-				nRow = nEndRow - floor((nY - @nYMin) * (nPlotHeight - 1) / (@nYMax - @nYMin))
-
-				nLabelCol = nCol + 2
-				nLabelRow = nRow - 1
-
-				if nLabelRow < nStartRow
-					nLabelRow = nRow + 1
+				cLabel = " " + Capitalise(@acPointLabels[i])
+	
+				# Calculate point position (same as in _drawPoints)
+				if @nXMax = @nXMin
+					nCol = nStartCol + floor(nPlotWidth / 2)
+				else
+					nCol = nStartCol + floor((nX - @nXMin) * (nPlotWidth - 1) / (@nXMax - @nXMin))
 				ok
-
-				if nLabelCol + len(cLabel) <= @nWidth and nLabelRow >= nStartRow and nLabelRow <= nEndRow
-					for j = 1 to len(cLabel)
-						@acCanvas[nLabelRow][nLabelCol + j - 1] = cLabel[j]
+				
+				if @nYMax = @nYMin
+					nRow = nStartRow + floor(nPlotHeight / 2)
+				else
+					nRow = nEndRow - floor((nY - @nYMin) * (nPlotHeight - 1) / (@nYMax - @nYMin))
+				ok
+	
+				# Position label right next to the point (1 space to the right)
+				nLabelCol = nCol + 1
+				nLabelRow = nRow
+	
+				# Check bounds and draw label
+				nLenLabel = len(cLabel)
+	
+				if nLabelRow >= 1 and nLabelRow <= @nHeight and 
+				   nLabelCol >= 1 and nLabelCol + nLenLabel - 1 <= @nWidth
+					for j = 1 to nLenLabel
+						if nLabelCol + j - 1 <= @nWidth
+							@acCanvas[nLabelRow][nLabelCol + j - 1] = cLabel[j]
+						ok
 					next
 				ok
 			ok
 		next
 
-def _initCanvas()
-	@acCanvas = []
-	for i = 1 to @nHeight
-		aRow = []
-		for j = 1 to @nWidth
-			aRow + " "
-		next
-		@acCanvas + aRow
-	next
 
-def _finalizeCanvas()
-	cResult = ""
-	for i = 1 to len(@acCanvas)
-		cLine = ""
-		for j = 1 to len(@acCanvas[i])
-			cLine += @acCanvas[i][j]
+	def _initCanvas()
+		@acCanvas = []
+		for i = 1 to @nHeight
+			aRow = []
+			for j = 1 to @nWidth
+				aRow + " "
+			next
+			@acCanvas + aRow
 		next
-		cResult += cLine + nl
-	next
-	return cResult
+	
+	def _finalizeCanvas()
+		cResult = ""
+		nLenCanvas = len(@acCanvas)
+		for i = 1 to nLenCanvas
+			cLine = ""
+			nLenCurrent = len(@acCanvas[i])
+			for j = 1 to nLenCurrent
+				cLine += @acCanvas[i][j]
+			next
+			cResult += cLine + nl
+		next
+
+		# A hack to remove unnecessary empty line
+		oTempStr = new stzString(cResult)
+		anPos = oTempStr.FindAll(NL)
+		nPos = anPos[len(anPos)-1]
+		oTempStr.RemoveSection(nPos, oTempStr.NumberOfChars())
+
+		# A hack to adjust marquers when grid is active
+		if @bShowGrid
+			oTempStr.ReplaceMany(["┬", "┤"], "┼")
+		ok
+		cResult = oTempStr.Content()
+
+		return cResult
