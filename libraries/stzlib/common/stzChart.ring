@@ -4465,18 +4465,22 @@ class stzScatterChart from stzChart
 	@bShowGrid = False
 	@bShowLabels = false
 
+	# X and Y letters at the end of the axies
+	@bShowXLetter = FALSE
+	@bShowYLetter = FALSE
+
 	# Console defaults
 	@nMaxWidth = 42 
 	@nMaxHeight = 12 
 	@nXAxisHeight = 2
-	@nYAxisWidth = 8
 
 	@cPointChar = "●"
 	@cVerticalGridChar = "⁞"
 	@cHorizontalGridChar = "-"
+
 	@cXTickChar = "┬"
+	@cXTickChar2 = "┼"
 	@cYTickChar = "┤"
-	@cOriginChar = "╰"
 
 	@nXMin = 0
 	@nXMax = 0
@@ -4547,6 +4551,9 @@ class stzScatterChart from stzChart
 
 		_calculateRanges()
 
+		@bShowXLetter = TRUE
+		@bShowYLetter = TRUE
+
 	def XValues()
 		return @anXValues
 
@@ -4587,6 +4594,43 @@ class stzScatterChart from stzChart
 		def WithoutYXAxis()
 			This.SetXyAxis(FALSE)
 
+
+	def SetXYLetters(bShow)
+		@bShowXLetter = bShow
+		@bShowYLetter = bShow
+
+		def SetXY(bShow)
+			This.SetXYLetters(bShow)
+
+		def WithoutXY()
+			This.SetXYLetters(FALSE)
+
+		def WithoutXYLetters()
+			This.SetXYLetters(FALSE)
+
+	def SetXLetter(bShow)
+		@bShowXLetter = bShow
+
+		def SetX(bShow)
+			@bShowXLetter = bShow
+
+		def WithoutX()
+			@bShowXLetter = FALSE
+
+		def WithXLetter()
+			@bShowXLetter = FALSE
+
+	def SetYLetter(bShow)
+		@bShowYLetter = bShow
+
+		def SetY(bShow)
+			@bShowYLetter = bShow
+
+		def WithoutY()
+			@bShowYLetter = FALSE
+
+		def WithoutYLetter()
+			@bShowYLetter = FALSE
 
 	def SetGrid(bShow)
 		@bShowGrid = bShow
@@ -4632,7 +4676,7 @@ class stzScatterChart from stzChart
 				StzRaise("nWidth must be a number.")
 			ok
 		ok
-		@nMaxWidth = max([40, nWidth])
+		@nMaxWidth = max([50, nWidth])
 
 	def SetHeight(nHeight)
 		if CheckParams()
@@ -4718,8 +4762,27 @@ class stzScatterChart from stzChart
 		return TRUE
 
 	def _calculateLayout()
+		# Calculate dynamic Y-axis width based on actual labels
+		nDynamicYAxisWidth = 0
+		if @bShowYAxis
+			aUniqueY = U(@anYValues)
+			aUniqueY = ring_sort(aUniqueY)
+			nMaxYLabelLen = 0
+			for nY in aUniqueY
+				cLabel = _formatValue(nY)
+				cLabel = Trim(cLabel)
+				if len(cLabel) > nMaxYLabelLen
+					nMaxYLabelLen = len(cLabel)
+				ok
+			next
+			# Y-axis width = max label length + space + tick mark + small buffer
+			nDynamicYAxisWidth = nMaxYLabelLen + 3
+			# Ensure minimum width for readability
+			nDynamicYAxisWidth = max([4, nDynamicYAxisWidth])
+		ok
+	
 		# Calculate available space for the plot area
-		nYAxisSpace = iff(@bShowYAxis, @nYAxisWidth, 0)
+		nYAxisSpace = nDynamicYAxisWidth
 		nXAxisSpace = iff(@bShowXAxis, @nXAxisHeight, 0)
 		
 		# Reserve space for arrow character
@@ -4738,7 +4801,7 @@ class stzScatterChart from stzChart
 		    next
 		    nRightMargin = nMaxLabelLen + 3  # Label length + spacing + buffer
 		ok
-
+	
 		# Calculate plot dimensions with proper margins
 		nPlotWidth = @nMaxWidth - nYAxisSpace - nRightMargin
 		nPlotHeight = @nMaxHeight - nXAxisSpace - nTopMargin
@@ -4763,7 +4826,7 @@ class stzScatterChart from stzChart
 		# Set instance variables
 		@nWidth = nTotalWidth
 		@nHeight = nTotalHeight
-
+	
 		oLayout = new stzHashList([])
 		oLayout.AddPair([:plot_start_col, nPlotStartCol])
 		oLayout.AddPair([:plot_end_col, nPlotEndCol])
@@ -4775,8 +4838,9 @@ class stzScatterChart from stzChart
 		oLayout.AddPair([:x_axis_row, nXAxisRow])
 		oLayout.AddPair([:total_width, nTotalWidth])
 		oLayout.AddPair([:total_height, nTotalHeight])
-
+	
 		return oLayout
+
 
 	def _drawCoordinateGrid(oLayout)
 		nStartCol = oLayout[:plot_start_col]
@@ -4822,12 +4886,12 @@ class stzScatterChart from stzChart
 		nXAxisRow = oLayout[:x_axis_row]
 		nPlotHeight = oLayout[:plot_height]
 	
-		cVArrowChar = "^"
+		cVArrowChar = @cXArrowChar
 
 		# Draw vertical line
 		for i = nStartRow to nEndRow
 			if i >= 1 and i <= len(@acCanvas) and nAxisCol >= 1 and nAxisCol <= len(@acCanvas[i])
-				@acCanvas[i][nAxisCol] = "│"
+				@acCanvas[i][nAxisCol] = @cXAxisChar
 			ok
 		next
 
@@ -5030,16 +5094,35 @@ class stzScatterChart from stzChart
 			cResult += cLine + nl
 		next
 
-		# A hack to remove unnecessary empty line
+		# A hack to remove unnecessary empty lines
 		oTempStr = new stzString(cResult)
+		if @bShowYAxis = FALSE
+			nPos = oTempStr.FindFirst(NL)
+			oTempStr.RemoveSection(1, nPos)
+		ok
+
 		anPos = oTempStr.FindAll(NL)
 		nPos = anPos[len(anPos)-1]
 		oTempStr.RemoveSection(nPos, oTempStr.NumberOfChars())
 
 		# A hack to adjust marquers when grid is active
 		if @bShowGrid
-			oTempStr.ReplaceMany(["┬", "┤"], "┼")
+			oTempStr.ReplaceMany([@cXTickChar, @cYTickChar], @cXTickChar2)
 		ok
+
+		# A hack to add X and Y letters if required
+		if @bShowXLetter and @bShowXAxis
+			nPos = oTempStr.FindFirst(@cXArrowChar)
+			cTemp = @copy(" ", nPos-1) + "X" + NL
+			oTempStr.InsertAt(1, ctemp)
+		ok
+
+		if @bShowYLetter and @bShowYAxis
+			nPos1 = oTempStr.FindFirst(@cYArrowChar) +2
+			nPos2 = oTempStr.FindLast(NL)-1
+			oTempStr.ReplaceSection(nPos1,nPos2," Y")
+		ok
+
 		cResult = oTempStr.Content()
 
 		return cResult
