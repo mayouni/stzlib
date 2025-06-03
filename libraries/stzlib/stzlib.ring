@@ -124,6 +124,7 @@ t0 = clock()
 	load "common/stzNamedParams.ring" #TODO // Use it instead of stzList methods
 
 	load "common/stzChart.ring"
+	load "common/stzBarChart.ring"
 
 # Loading files related to the OBJECT module
 
