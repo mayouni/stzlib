@@ -85,7 +85,7 @@ func StzChartQ(pcChartType, paDataSet)
 
 		off
 
-
+/*
 class stzChart
 
 	@anValues = []
@@ -3811,7 +3811,7 @@ def init(paData)
 
 		@nWidth = max([@nMinWidth, nWidth])
 		@nHeight = max([@nMinHeight, nHeight])
-		
+
 		if @nWidth > @nMaxWidth
 			@nWidth = @nMaxWidth
 		ok
@@ -4490,6 +4490,7 @@ class stzScatterChart from stzChart
 	@nWidth = 0
 	@nHeight = 0
 
+
 	def init(paDataSet)
 		if CheckParams()
 			if NOT isList(paDataSet)
@@ -4686,21 +4687,6 @@ class stzScatterChart from stzChart
 		ok
 		@nMaxHeight = max([10, nHeight])
 
-	def SetSmallSize()
-		@nMaxWidth = 60
-		@nMaxHeight = 15
-
-	def SetMediumSize()
-		@nMaxWidth = 80
-		@nMaxHeight = 20
-
-	def SetLargeSize()
-		@nMaxWidth = 100
-		@nMaxHeight = 25
-
-	def SetCompactSize()
-		@nMaxWidth = 50
-		@nMaxHeight = 12
 
 	def Show()
 		? This.ToString()

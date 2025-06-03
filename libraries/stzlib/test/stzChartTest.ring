@@ -44,12 +44,13 @@ pr()
 StzChartQ(:VBar, [ 5, 4, 2, 5, 3, 2, 4 ]) {
 
 	# Default chart
-	SetHight(7)
+	SetHeight(7)
+//	AddPercent()
 	Show()
 
 	# Personalized chart
 
-	SetTopBarChar("●")
+	SetTopChar("●")
 	SetBarChar("┃")
 	SetBarWidth(1)
 	
@@ -58,62 +59,62 @@ StzChartQ(:VBar, [ 5, 4, 2, 5, 3, 2, 4 ]) {
 	# Further personalization
 	SetBarWidth(2)
 	SetBarInterSpace(0)
+	WithoutAxisLabels()
 	Show()
 
 }
 #-->
 '
-^
-│ ██       ██          
-│ ██ ██    ██       ██ 
-│ ██ ██    ██ ██    ██ 
-│ ██ ██ ██ ██ ██ ██ ██ 
-│ ██ ██ ██ ██ ██ ██ ██ 
+↑                       
+│ ██ ██    ██       ██  
+│ ██ ██    ██ ██    ██  
+│ ██ ██ ██ ██ ██ ██ ██  
+│ ██ ██ ██ ██ ██ ██ ██  
 ╰──────────────────────>
-  1  2  3  4  5  6  7  
-
-^
-│ ●     ●       
-│ ┃ ●   ┃     ● 
-│ ┃ ┃   ┃ ●   ┃ 
-│ ┃ ┃ ● ┃ ┃ ● ┃ 
-│ ┃ ┃ ┃ ┃ ┃ ┃ ┃ 
-╰───────────────>
-  1 2 3 4 5 6 7 
-
-^
-│ ●●    ●●       
-│ ┃┃●●  ┃┃    ●● 
-│ ┃┃┃┃  ┃┃●●  ┃┃ 
-│ ┃┃┃┃●●┃┃┃┃●●┃┃ 
-│ ┃┃┃┃┃┃┃┃┃┃┃┃┃┃ 
+  B1 B2 B3 B4 B5 B6 B7  
+↑                       
+│ ●  ●     ●        ●   
+│ ┃  ┃     ┃  ●     ┃   
+│ ┃  ┃  ●  ┃  ┃  ●  ┃   
+│ ┃  ┃  ┃  ┃  ┃  ┃  ┃   
+╰──────────────────────>
+  B1 B2 B3 B4 B5 B6 B7  
+↑                 
+│ ●●●●  ●●    ●●  
+│ ┃┃┃┃  ┃┃●●  ┃┃  
+│ ┃┃┃┃●●┃┃┃┃●●┃┃  
+│ ┃┃┃┃┃┃┃┃┃┃┃┃┃┃  
 ╰────────────────>
-  1 2 3 4 5 6 7  
 '
 
 pf()
-# Executed in 0.10 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*===============
 
 pr()
 
-oChart = new stzVBarChart([ :A = 5, :B = 8, :C = 3 ])
+oChart = new stzBarChart([ :A = 5, :B = 8, :C = 3 ])
 oChart.AddValues()
 oChart.Show()
 #-->
-# ^      8       
-# │     ███      
-# │     ███      
-# │     ███      
-# │  5  ███      
-# │ ███ ███  3   
-# │ ███ ███ ███  
-# ╰────────────>
-
+'
+↑           
+│    8      
+│    ██     
+│    ██     
+│ 5  ██     
+│ ██ ██     
+│ ██ ██ 3   
+│ ██ ██ ██  
+│ ██ ██ ██  
+│ ██ ██ ██  
+╰──────────>
+  A  B  C   
+'
 
 pf()
-# Executed in almost 01 second(s) in Ring 1.22
+# Executed in almost 0.01 second(s) in Ring 1.22
 
 /*--- TODO/ERROR
 
@@ -128,22 +129,24 @@ oChart {
 	AddAverage()
 
 	SetBarWidth(1)
-	SetTopbarChar("▲")
+	SetTopChar("▲")
 	Show()
+
 }
 #-->
 '
-^
-│          32    
-│    25    ▲     
-│    ▲  15 █  20 
-│----█-----█--▲-- 20.2
-│    █  ▲  █  █  
-│ 9  █  █  █  █  
-│ ▲  █  █  █  █  
-│ █  █  █  █  █  
+↑                 
+│          32     
+│    25    ▲      
+│    ▲     █      
+│----█-----█--20--	#TODO: must be 20.2
+│    █  15 █  ▲   
+│ 9  █  ▲  █  █   
+│ ▲  █  █  █  █   
+│ █  █  █  █  █   
+│ █  █  █  █  █   
 ╰────────────────>
-  Q1 Q2 Q3 Q4 Q5 
+  Q1 Q2 Q3 Q4 Q5  
 '
 
 pf()
@@ -156,24 +159,30 @@ pr()
 oChart = new stzVBarChart([ 42, 18, 73, 29, 35, 70, 14, 34 ])
 
 oChart {
-	SetHight(3)
-	SetBarWidth(1)
+//	WithoutAxies()
+//	WithoutYAxis()
+//	WithoutXAxis()
+	WithoutAxisLabels()
+
+	SetHeight(2)
+	SetBarWidth(0)
+
 
 	Show()
 }
 #-->
-# ^                  
-# │     █            
-# │     █     █      
-# │     █     █      
-# │ █ █ █ █ █ █ █ █  
-# ╰─────────────────>
+'
+↑ 
+│ █   █     █      
+│ █ █ █ █ █ █ █ █  
+╰─────────────────>
+'
 
 pf()
 # Executed in almost 0.03 second(s) in Ring 1.22
 
 /*--- #TODO Add SetPercent() to horizontal chart
-
+*/
 pr()
 
 oChart = new stzVBarChart([
@@ -188,7 +197,6 @@ oChart = new stzVBarChart([
 ])
 
 oChart {
-	SetYHAxis([1, 1])
 	SetLabels(1)
 	SetPercent(1)
 	Show()
@@ -1950,6 +1958,7 @@ oChart = new stzScatterChart([
 ])
 oChart.AddGrid()
 oChart.AddLabels()
+
 oChart.Show()
 #-->
 '
@@ -2000,37 +2009,6 @@ oChart.Show()
 pf()
 # Executed in 0.03 second(s) in Ring 1.22
 
-/*--- Test 5: Customized appearance
-*/
-pr()
-
-oChart = new stzScatterChart([
-	[5,10], [10,15], [15,12], [20,18]
-])
-
-oChart {
-	SetSize(8,8) #TODO
-	Show()
-}
-
-#-->
-'
-       ^                                  
-    18 ┤                               ●  
-       │                                  
-       │                                  
-    15 ┤          ●                       
-       │                                  
-       │                                  
-    12 ┤                    ●             
-       │                                  
-    10 ┤●                                 
-       ╰┬─────────┬─────────┬──────────┬────> 
-        5        10        15         20  
-'
-
-pf()
-# Executed in 0.14 second(s) in Ring 1.22
 
 /*--- Test 6: Clean plot without axes
 
@@ -2043,7 +2021,6 @@ oChart.WithoutXYAxis()
 oChart.Show()
 #-->
 '
-                                          
                              ●            
                                           
          ●                   ●            
@@ -2054,11 +2031,11 @@ oChart.Show()
                                           
                    ●                      
                                           
-●                    
+●                
 '
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*---
 
@@ -2121,6 +2098,7 @@ oChart.Show()
              ● ●  ●  ●  ●  ●  ●  ●     ●  
 '
 pf()
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Test 7: Performance data visualization
 
@@ -2137,46 +2115,55 @@ oChart.AddLabels()
 oChart.Show()
 #-->
 '
-       ^                                  
-    95 ┤                         ● Week4  
-       │                                  
-       │                                  
-       │                                  
-    90 ┤            ● Week2               
-       │                                  
-    88 ┤      ● Week3                     
-       │                                  
-    85 ┤● Week1                           
-       ╰┬─────┬─────┬────────────┬───>    
+    X
+    ^                                     
+ 95 ┤                            ● Week4  
+    │                                     
+    │                                     
+    │                                     
+ 90 ┤              ● Week2                
+    │                                     
+ 88 ┤       ● Week3                       
+    │                                     
+ 85 ┤● Week1                              
+    ╰┬──────┬──────┬─────────────┬───> Y
+    100    110    120           140       
 '
 
 pf()
 # Executed in 0.10 second(s) in Ring 1.22
 
 /*--- Test 8: Temperature correlation study
-*/
+
 pr()
 
 aData = [
-	[:Jan, [5, 32]], [:Feb, [8, 35]], [:Mar, [12, 50]], 
-	[:Apr, [18, 64]], [:May, [22, 72]], [:Jun, [28, 82]]
+	[ :Jan, [5, 32] ],
+	[ :Feb, [8, 35] ],
+	[ :Mar, [12, 50] ], 
+	[ :Apr, [18, 64] ],
+	[ :May, [22, 72] ],
+	[ :Jun, [28, 82] ]
 ]
+
 oChart = new stzScatterChart(aData)
 oChart.AddLabels()
 oChart.Show()
 #-->
 '
-  87.0-^························may··●·· 
-       │·    ·    ·    ·    · ●  ·    ·  
-  72.0-│·    ·    ·    ·   apr   ·    ·  
-       │·    ·    · mar· ●  ·    ·    ·  
-  57.0-│·    ·    ●    ·    ·    ·    ·  
-       │········feb····················· 
-  42.0-│·   jan   ·    ·    ·    ·    ·  
-       │· ●  ·    ·    ·    ·    ·    ·  
-       ╰─────────────────────────────────>
-       2|7     9|6    16|5    23|4       
-                                         
+    X
+    ^                                     
+ 82 ┤                              ● Jun  
+    │                                     
+ 72 ┤                      ● May          
+ 64 ┤                ● Apr                
+    │                                     
+    │                                     
+ 50 ┤         ● Mar                       
+    │                                     
+ 35 ┤● Ja Feb                             
+    ╰┬──┬─────┬──────┬─────┬───────┬───> Y
+     5  8    12     18    22      28                                             
 '
 
 pf()
