@@ -19,6 +19,10 @@ aMyList = [
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
+#----------------------------------------------------#
+#  Test Suite for stzVBarChart (Vertical Bar Chart)  #
+#----------------------------------------------------#
+
 /*---
 
 pr()
@@ -37,15 +41,13 @@ aMyList = [
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*---
+/*===
 
 pr()
 
 StzChartQ(:VBar, [ 5, 4, 2, 5, 3, 2, 4 ]) {
 
 	# Default chart
-	SetHeight(7)
-//	AddPercent()
 	Show()
 
 	# Personalized chart
@@ -66,23 +68,34 @@ StzChartQ(:VBar, [ 5, 4, 2, 5, 3, 2, 4 ]) {
 #-->
 '
 ↑                       
+│ ██       ██           
 │ ██ ██    ██       ██  
+│ ██ ██    ██ ██    ██  
 │ ██ ██    ██ ██    ██  
 │ ██ ██ ██ ██ ██ ██ ██  
 │ ██ ██ ██ ██ ██ ██ ██  
+│ ██ ██ ██ ██ ██ ██ ██  
 ╰──────────────────────>
-  B1 B2 B3 B4 B5 B6 B7  
+  X1 X2 X3 X4 X5 X6 X7  
+
 ↑                       
-│ ●  ●     ●        ●   
+│ ●        ●            
+│ ┃  ●     ┃        ●   
 │ ┃  ┃     ┃  ●     ┃   
+│ ┃  ┃     ┃  ┃     ┃   
 │ ┃  ┃  ●  ┃  ┃  ●  ┃   
 │ ┃  ┃  ┃  ┃  ┃  ┃  ┃   
+│ ┃  ┃  ┃  ┃  ┃  ┃  ┃   
 ╰──────────────────────>
-  B1 B2 B3 B4 B5 B6 B7  
+  X1 X2 X3 X4 X5 X6 X7  
+
 ↑                 
-│ ●●●●  ●●    ●●  
+│ ●●    ●●        
+│ ┃┃●●  ┃┃    ●●  
 │ ┃┃┃┃  ┃┃●●  ┃┃  
+│ ┃┃┃┃  ┃┃┃┃  ┃┃  
 │ ┃┃┃┃●●┃┃┃┃●●┃┃  
+│ ┃┃┃┃┃┃┃┃┃┃┃┃┃┃  
 │ ┃┃┃┃┃┃┃┃┃┃┃┃┃┃  
 ╰────────────────>
 '
@@ -116,7 +129,7 @@ oChart.Show()
 pf()
 # Executed in almost 0.01 second(s) in Ring 1.22
 
-/*--- TODO/ERROR
+/*---
 
 pr()
 
@@ -135,22 +148,21 @@ oChart {
 }
 #-->
 '
-↑                 
-│          32     
-│    25    ▲      
-│    ▲     █      
-│----█-----█--20--	#TODO: must be 20.2
-│    █  15 █  ▲   
-│ 9  █  ▲  █  █   
-│ ▲  █  █  █  █   
-│ █  █  █  █  █   
-│ █  █  █  █  █   
-╰────────────────>
-  Q1 Q2 Q3 Q4 Q5  
+↑                       
+│          32           
+│    25    ▲            
+│    ▲     █  20        
+│----█--15-█--▲--- 20.2 
+│    █  ▲  █  █         
+│ 9  █  █  █  █         
+│ ▲  █  █  █  █         
+│ █  █  █  █  █         
+╰────────────────>      
+  Q1 Q2 Q3 Q4 Q5      
 '
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.10 second(s) in Ring 1.22
 
 /*---
 
@@ -159,30 +171,38 @@ pr()
 oChart = new stzVBarChart([ 42, 18, 73, 29, 35, 70, 14, 34 ])
 
 oChart {
-//	WithoutAxies()
-//	WithoutYAxis()
-//	WithoutXAxis()
-	WithoutAxisLabels()
 
 	SetHeight(2)
-	SetBarWidth(0)
-
-
+	SetBarWidth(1)
+	SetLabelChar(FALSE)
 	Show()
+	? ""
+
+	WithoutAxies()
+	Show()
+
+	# Try with
+//	WithoutYAxis()
+//	WithoutXAxis()
+//	WithoutAxisLabels()
 }
 #-->
 '
-↑ 
+↑                  
 │ █   █     █      
 │ █ █ █ █ █ █ █ █  
 ╰─────────────────>
+  1 2 3 4 5 6 7 8  
+
+█   █     █      
+█ █ █ █ █ █ █ █  
 '
 
 pf()
-# Executed in almost 0.03 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*--- #TODO Add SetPercent() to horizontal chart
-*/
+
 pr()
 
 oChart = new stzVBarChart([
@@ -197,55 +217,28 @@ oChart = new stzVBarChart([
 ])
 
 oChart {
-	SetLabels(1)
-	SetPercent(1)
+	AddLabels()
+	AddPercent()
+	SetHeight(5)
 	Show()
 }
 #-->
-# ^            73                                         
-# │            ██                   70                    
-# │            ██                   ██                    
-# │            ██                   ██                    
-# │ 42         ██            35     ██             34     
-# │ ██   18    ██     29     ██     ██    14       ██     
-# │ ██   ██    ██     ██     ██     ██    ██       ██     
-# ╰──────────────────────────────────────────────────────>
-#  Mali Niger Egypt Bosnia Brazil France Qatar Southkorea
-
-#TODO Use ┊ in setAverage() in horizontal chart
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
-
-#----------------------------------------------------#
-#  Test Suite for stzVBarChart (Vertical Bar Chart)  #
-#----------------------------------------------------#
-
-/*--- Test 1: Basic vertical bar chart
-
-pr()
-
-oChart = new stzVBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.Show()
-#-->
 '
-^
-│    ██    
-│    ██    
-│    ██    
-│ ██ ██    
-│ ██ ██    
-│ ██ ██ ██ 
-│ ██ ██ ██ 
-│ ██ ██ ██ 
-╰──────────>
-  A  B  C  
+↑                                                          
+│             23.2%               22.2%                    
+│              ██                   ██                     
+│ 13.3%        ██          11.1%    ██           10.8%     
+│  ██   5.7%   ██    9.2%    ██     ██             ██      
+│  ██    ██    ██     ██     ██     ██   4.4%      ██      
+│  ██    ██    ██     ██     ██     ██    ██       ██      
+╰─────────────────────────────────────────────────────────>
+  Mali  Niger Egypt Bosnia Brazil France Spain Southkorea  
 '
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.32 second(s) in Ring 1.22
 
-/*--- Test 2: Custom width and Hight
+/*--- Custom width and Hight
 
 pr()
 
@@ -254,28 +247,30 @@ oChart.SetSize(50, 15)
 oChart.Show()
 #-->
 '
-^
-│    ██    
-│    ██    
-│    ██    
-│    ██    
-│ ██ ██    
-│ ██ ██    
-│ ██ ██    
-│ ██ ██    
-│ ██ ██ ██ 
-│ ██ ██ ██ 
-│ ██ ██ ██ 
-│ ██ ██ ██ 
-│ ██ ██ ██ 
+↑           
+│    ██     
+│    ██     
+│    ██     
+│    ██     
+│    ██     
+│ ██ ██     
+│ ██ ██     
+│ ██ ██     
+│ ██ ██     
+│ ██ ██ ██  
+│ ██ ██ ██  
+│ ██ ██ ██  
+│ ██ ██ ██  
+│ ██ ██ ██  
+│ ██ ██ ██  
 ╰──────────>
-  A  B  C  
+  A  B  C   
 '
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
-/*--- Test 3: Custom bar character
+/*--- Custom bar character
 
 pr()
 
@@ -298,28 +293,26 @@ oChart.Show()
 '
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
-/*--- Test 4: X-axis disabled
+/*--- X-axis disabled
 
 pr()
 
 oChart = new stzVBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.SetHAxis(FALSE)
+oChart.SetXAxis(FALSE)
 oChart.Show()
 #-->
 '
-^
-│    ██    
-│    ██    
-│    ██    
-│ ██ ██    
-│ ██ ██    
-│ ██ ██ ██ 
-│ ██ ██ ██ 
-│ ██ ██ ██ 
-           
-  A  B  C  
+↑           
+│    ██     
+│    ██     
+│ ██ ██     
+│ ██ ██     
+│ ██ ██ ██  
+│ ██ ██ ██  
+│ ██ ██ ██  
+  A  B  C   
 '
 
 pf()
@@ -330,45 +323,20 @@ pf()
 pr()
 
 oChart = new stzVBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.SetVAxis(FALSE)
+oChart.SetYAxis(FALSE)
 oChart.SetLabels(TRUE)
 oChart.Show()
 #-->
 '
-    ██    
-    ██    
-    ██    
- ██ ██    
- ██ ██    
- ██ ██ ██ 
- ██ ██ ██ 
- ██ ██ ██ 
-──────────>
- A  B  C  
-'
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
-
-/*--- Test 6: Both axes disabled
-
-pr()
-
-oChart = new stzVBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.SetXVAxis([FALSE, FALSE])
-oChart.Show()
-#-->
-'
-    ██    
-    ██    
-    ██    
- ██ ██    
- ██ ██    
- ██ ██ ██ 
- ██ ██ ██ 
- ██ ██ ██ 
-          
- A  B  C  
+   ██     
+   ██     
+██ ██     
+██ ██     
+██ ██ ██  
+██ ██ ██  
+██ ██ ██  
+─────────>
+A  B  C   
 '
 
 pf()
@@ -383,45 +351,62 @@ oChart.SetLabels(FALSE)
 oChart.Show()
 #-->
 '
-^
-│    ██    
-│    ██    
-│    ██    
-│ ██ ██    
-│ ██ ██    
-│ ██ ██ ██ 
-│ ██ ██ ██ 
-│ ██ ██ ██ 
+↑           
+│    ██     
+│    ██     
+│ ██ ██     
+│ ██ ██     
+│ ██ ██ ██  
+│ ██ ██ ██  
+│ ██ ██ ██  
 ╰──────────>
 '
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Test 8: Average line enabled
 
 pr()
 
 oChart = new stzVBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.SetAverageLine(TRUE)
+oChart.SetAverage(TRUE)
 oChart.Show()
 #-->
 '
-^
-│    ██    
-│    ██    
-│ ---██--- 
-│ ██ ██    
-│ ██ ██    
-│ ██ ██ ██ 
-│ ██ ██ ██ 
-│ ██ ██ ██ 
-╰──────────>
-  A  B  C  
+↑                
+│    ██          
+│    ██          
+│-██-██-----     
+│ ██ ██          
+│ ██ ██ ██       
+│ ██ ██ ██       
+│ ██ ██ ██       
+╰──────────>     
+  A  B  C     
+'
+
+? ""
+
+oChart.AddValues()
+oChart.Show()
+#-->
+'
+↑                
+│    8           
+│    ██          
+│ 5  ██          
+│-██-██----- 5.3 
+│ ██ ██ 3        
+│ ██ ██ ██       
+│ ██ ██ ██       
+│ ██ ██ ██       
+╰──────────>     
+  A  B  C      
 '
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.15 second(s) in Ring 1.22
 
 /*--- Test 9: Values displayed
 
@@ -432,21 +417,21 @@ oChart.SetValues(TRUE)
 oChart.Show()
 #-->
 '
-^
-│           32393 
-│            ██   
-│            ██   
-│            ██   
-│            ██   
-│ 7520 8898  ██   
-│  ██   ██   ██   
-│  ██   ██   ██   
+↑                  
+│           32393  
+│            ██    
+│            ██    
+│            ██    
+│            ██    
+│ 7520 8898  ██    
+│  ██   ██   ██    
+│  ██   ██   ██    
 ╰─────────────────>
-   A    B     C   
+   A    B     C    
 '
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Test 9: Values displayed
 
@@ -463,6 +448,7 @@ oChart {
 	SetPercent(TRUE)
 	Show()
 
+	? ""
 	SetValues(TRUE)
 	Show()
 
@@ -473,32 +459,33 @@ pf()
 
 #-->
 '
-^
-│                     66.4% 
-│                      ██   
-│                      ██   
-│                      ██   
-│                      ██   
-│ 15.4%     18.2%      ██   
-│  ██        ██        ██   
-│  ██        ██        ██   
-╰───────────────────────────>
-  Green Blackandwhite Blue  
-^
-│                     32393 
-│                      ██   
-│                      ██   
-│                      ██   
-│                      ██   
-│ 7520      8898       ██   
-│  ██        ██        ██   
-│  ██        ██        ██   
-╰───────────────────────────>
-  Green Blackandwhite Blue  
+↑                           
+│                    66.4%  
+│                     ██    
+│                     ██    
+│                     ██    
+│                     ██    
+│ 15.4%    18.2%      ██    
+│  ██        ██       ██    
+│  ██        ██       ██    
+╰──────────────────────────>
+  Green Blackandwh.. Blue   
+
+↑                           
+│                    32393  
+│                     ██    
+│                     ██    
+│                     ██    
+│                     ██    
+│ 7520      8898      ██    
+│  ██        ██       ██    
+│  ██        ██       ██    
+╰──────────────────────────>
+  Green Blackandwh.. Blue   
 '
 
 pf()
-# Executed in 0.14 second(s) in Ring 1.22
+# Executed in 0.17 second(s) in Ring 1.22
 
 /*--- Test 10: Custom bar width with long label
 
@@ -523,7 +510,7 @@ oChart.Show()
 '
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.05 second(s) in Ring 1.22
 
 /*--- Test 11: Multiple bars with varying values
 
@@ -533,26 +520,37 @@ oChart = new stzVBarChart([ :Q1 = 10, :Q2 = 25, :Q3 = 15, :Q4 = 30, :Q5 = 20 ])
 oChart.Show()
 #-->
 '
-^
-│          ██    
-│    ██    ██    
-│    ██    ██ ██ 
-│    ██    ██ ██ 
-│    ██ ██ ██ ██ 
-│ ██ ██ ██ ██ ██ 
-│ ██ ██ ██ ██ ██ 
-│ ██ ██ ██ ██ ██ 
+↑                 
+│          ██     
+│    ██    ██     
+│    ██    ██ ██  
+│    ██ ██ ██ ██  
+│ ██ ██ ██ ██ ██  
+│ ██ ██ ██ ██ ██  
+│ ██ ██ ██ ██ ██  
 ╰────────────────>
-  Q1 Q2 Q3 Q4 Q5 
+  Q1 Q2 Q3 Q4 Q5  
 '
-
 
 oChart.SetBarWidth(1)
 ochart.SetBarInterSpace(0) #TODO has no effect
 oChart.Show()
+#-->
+'
+↑             
+│       █     
+│   █   █     
+│   █   █ █   
+│   █ █ █ █   
+│ █ █ █ █ █   
+│ █ █ █ █ █   
+│ █ █ █ █ █   
+╰────────────>
+  Q1Q2Q3Q4Q5  
+'
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Test 12: Zero values
 
@@ -562,21 +560,20 @@ oChart = new stzVBarChart([ :Zero = 0, :Positive = 5, :AnotherZero = 0 ])
 oChart.Show()
 #-->
 '
-^
-│         ██                
-│         ██                
-│         ██                
-│         ██                
-│         ██                
-│         ██                
-│         ██                
-│         ██                
-╰───────────────────────────>
-  Zero Positive Anotherzero 
+↑                            
+│         ██                 
+│         ██                 
+│         ██                 
+│         ██                 
+│         ██                 
+│         ██                 
+│         ██                 
+╰──────────────────────────>
+  Zero Positive Anotherzero  
 '
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Test 13: Single bar
 
@@ -603,7 +600,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Test 14: Large values with scaling
-
+*
 pr()
 
 oChart = new stzVBarChart([ :Small = 1, :Large = 1000 ])
@@ -624,7 +621,7 @@ oChart.Show()
 '
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
 
 #------------------------------------------------------#
 #  Test Suite for stzHBarChart (Horizontal Bar Chart)  #
