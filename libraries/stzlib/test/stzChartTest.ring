@@ -638,55 +638,79 @@ oChart.AddPercent()
 oChart.Show()
 #-->
 '
-          ^
-   Warda │ ▇▇▇▇▇▇▇▇▇▇▇▇▇ 31.2%
-Yessmina │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 50%
-   Folla │ ▇▇▇▇▇▇▇▇ 18.8%
-         ╰─────────────────────────────>
+         ^                         
+   Warda │ ▇▇▇▇▇▇▇▇▇▇▇▇ 31.2%      
+Yessmina │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 50%  
+   Folla │ ▇▇▇▇▇▇▇ 18.8%           
+         ╰───────────────────>   
 '
-#NOTE: By default, the width is set on 30
+#NOTE: By default, the width is set on 18
+? oChart.Width()
+#--> 18
 
 oChart.SetWidth(10)
 oChart.Show()
 #-->
 '
-         ^
-   Warda │ ▇▇▇▇▇▇▇ 31.2%
-Yessmina │ ▇▇▇▇▇▇▇▇▇▇ 50%
-   Folla │ ▇▇▇▇ 18.8%
-         ╰───────────────────>
+         ^                 
+   Warda │ ▇▇▇▇▇▇▇ 31.2%   
+Yessmina │ ▇▇▇▇▇▇▇▇▇▇ 50%  
+   Folla │ ▇▇▇▇ 18.8%      
+         ╰───────────>  
 '
 
 oChart.SetWidth(5)
 oChart.Show()
 #-->
 '
-   Warda │ ▇▇▇▇ 31.2%
-Yessmina │ ▇▇▇▇▇ 50%
-   Folla │ ▇▇ 18.8%
-         ╰──────────────>
+         ^                 
+   Warda │ ▇▇▇▇▇▇▇ 31.2%   
+Yessmina │ ▇▇▇▇▇▇▇▇▇▇ 50%  
+   Folla │ ▇▇▇▇ 18.8%      
+         ╰───────────>    
 '
 
 pf()
-# Executed in 0.45 second(s) in Ring 1.22
+# Executed in 0.32 second(s) in Ring 1.22
 
 /*--- Test 2: Custom width
-
+*/
 pr()
 
-oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3 ])
-oChart.Setwidth(50)
+oChart = new stzHBarChart([ :A = 5, :B = 8, :C = 3, :D = 2, :E = 4 ])
+oChart.Setwidth(40)
 oChart.Show()
 #-->
 '
-  ^
-A │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
-B │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
-C │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
-  ╰─────────────────────────────────────────────────────>
+  ^                                         
+A │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇               
+B │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+C │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇                         
+D │ ▇▇▇▇▇▇▇▇▇▇                              
+E │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇                    
+  ╰────────────────────────────────────────>
 '
 
 # Note: Hight can not changed with SetHight() in horizontal bars
+# but we can define a maximum number of horizontal bars with SetMawHight()
+
+? ""
+
+? oChart.MaxHeight()
+#--> 30
+
+oChart.SetMaxHeight(3)
+oChart.Show()
+#-->
+'
+  ^                                         
+A │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇               
+B │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+C │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇                         
+D │ ▇▇▇▇▇▇▇▇▇▇                              
+E │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇                    
+  ╰────────────────────────────────────────>
+'
 
 pf()
 # Executed in 0.10 second(s) in Ring 1.22
