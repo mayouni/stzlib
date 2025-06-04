@@ -163,38 +163,37 @@ class stzBarChart
 		def WithoutYAxis()
 			This.WithoutVAxis()
 
-	def SetHVAxis(bShow)
-		@bShowHAxis = bShow
-		@bShowVAxis = bShow
-		@bShowAxisLabels = bShow
+	def SetHVAxis(bHShow, bVShow)
+		@bShowHAxis = bHShow
+		@bShowVAxis = bVShow
 
-		def SetHVAxies(bShow)
-			This.SetHVAxis(bShow)
+		def SetHVAxies(bHShow, bVShow)
+			This.SetHVAxis(bHShow, bVShow)
 
 		def WithoutHVAxis()
-			This.SetHVAxis(FALSE)
+			This.SetHVAxis(FALSE, FALSE)
 
 		def WithoutHVAxies()
-			This.SetHVAxis(FALSE)
+			This.SetHVAxis(FALSE, FALSE)
 
 		def WithoutAxis()
-			This.SetHVAxis(FALSE)
+			This.SetHVAxis(FALSE, FALSE)
 
 		def WithoutAxies()
-			This.SetHVAxis(FALSE)
+			This.SetHVAxis(FALSE, FALSE)
 
 		# XY Aliases
-		def SetXYAxis(bShow)
-			This.SetHVAxis(bShow)
+		def SetXYAxis(bHShow, bVShow)
+			This.SetHVAxis(bHShow, bVShow)
 
-		def SetXYAxies(bShow)
-			This.SetHVAxis(bShow)
+		def SetXYAxies(bHShow, bVShow)
+			This.SetHVAxis(bHShow, bVShow)
 
 		def WithoutXYAxis()
-			This.SetHVAxis(FALSE)
+			This.SetHVAxis(FALSE, FALSE)
 
 		def WithoutXYAxies()
-			This.SetHVAxis(FALSE)
+			This.SetHVAxis(FALSE, FALSE)
 
 	def SetLabels(bShow)
 		@bShowLabels = bShow
@@ -248,7 +247,16 @@ class stzBarChart
 	def SetAxisLabels(bShow)
 		@bShowAxisLabels = bShow
 
+		def SetHAxisLabels(bShow)
+			This.SetAxisLabels(bShow)
+
+		def AddHAxisLabels(bShow)
+			This.SetAxisLabels(bShow)
+
 		def WithoutAxisLabels()
+			This.SetAxisLabels(FALSE)
+
+		def WithoutHAxisLabels()
 			This.SetAxisLabels(FALSE)
 
 	# Character customization with H/V naming
@@ -639,17 +647,21 @@ class stzBarChart
 			ok
 		next
 
+
 		# A hack for removing the │ from a last lin in:
 		# ^
 		# │    ██    
 		# │ ██ ██ ██  
 		# │ ██ ██ ██  
 		# │ A  B  C   
-		if @bShowVAxis and not @bShowHAxis
-			oTempStr = new stzString(cResult)
-			nPos = oTempStr.FindLast(@cVAxisChar)
-			oTempStr.ReplacecharAt(nPos, " ")
-			cResult = oTempStr.Content()
+
+		if classname(This) = "stzbarchart"
+			if @bShowVAxis and not @bShowHAxis
+				oTempStr = new stzString(cResult)
+				nPos = oTempStr.FindLast(@cVAxisChar)
+				oTempStr.ReplacecharAt(nPos, " ")
+				cResult = oTempStr.Content()
+			ok
 		ok
 
 		return cResult
