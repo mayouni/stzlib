@@ -920,7 +920,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Test 15: Large values with scaling
-*/
+
 pr()
 
 oChart = new stzHBarChart([ :Small = 1, :Large = 1000 ])
@@ -946,30 +946,29 @@ pr()
 
 StzChartQ(:MultiBar, [
 	:Mali  	 = [ :2020 = 42, :2022 = 18, :2024 = 22 ],
-	:Niger 	 = [ :2020 = 87, :2022 = 40, :2024 = 18 ]
+	:Niger 	 = [ :2020 = 87, :2022 = 40, :2024 = 16 ]
 ])
 
 .Show()
 
 #-->
 '
-^
-│   ▒▒             
-│   ▒▒             
-│   ▒▒             
-│   ▒▒             
-│ ██▒▒    ▒▒       
-│ ██▒▒    ▒▒  ██   
-│ ██▒▒  ██▒▒  ██▒▒ 
-│ ██▒▒  ██▒▒  ██▒▒ 
-╰──────────────────>
-  2020  2022  2024 
-                   
-██ Mali   ▒▒ Niger 
+↑                      
+│    ▒▒                
+│    ▒▒                
+│    ▒▒                
+│ ██ ▒▒     ▒▒         
+│ ██ ▒▒     ▒▒         
+│ ██ ▒▒  ██ ▒▒  ██ ▒▒  
+│ ██ ▒▒  ██ ▒▒  ██ ▒▒  
+╰─────────────────────>
+  2020   2022   2024   
+                       
+██ Mali   ▒▒ Niger     
 '
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*---
 
@@ -979,28 +978,27 @@ pr()
 
 oChart = new stzMultiBarChart([
 	:Mali = [ :2020 = 42, :2022 = 18, :2024 = 22 ],
-	:Niger = [ :2020 = 87, :2022 = 40, :2024 = 18 ]
+	:Niger = [ :2020 = 87, :2022 = 40, :2024 = 12 ]
 ])
 
 oChart.Show()
 '
-^
-│   ▒▒             
-│   ▒▒             
-│   ▒▒             
-│   ▒▒             
-│ ██▒▒    ▒▒       
-│ ██▒▒    ▒▒  ██   
-│ ██▒▒  ██▒▒  ██▒▒ 
-│ ██▒▒  ██▒▒  ██▒▒ 
-╰──────────────────>
-  2020  2022  2024 
-                   
-██ Mali   ▒▒ Niger 
+↑                      
+│    ▒▒                
+│    ▒▒                
+│    ▒▒                
+│ ██ ▒▒     ▒▒         
+│ ██ ▒▒     ▒▒         
+│ ██ ▒▒  ██ ▒▒  ██     
+│ ██ ▒▒  ██ ▒▒  ██ ▒▒  
+╰─────────────────────>
+  2020   2022   2024   
+                       
+██ Mali   ▒▒ Niger     
 '
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*---
 
@@ -1011,13 +1009,15 @@ pr()
 oChart = new stzMultiBarChart([
   :Sales = [ :Q1=25, :Q2=35, :Q3=30, :Q4=40 ],
   :Costs = [ :Q1=15, :Q2=20, :Q3=18, :Q4=22 ],
-  :Profit = [ :Q1=10, :Q2=15, :Q3=12, :Q4=18 ]
+  :Profit = [ :Q1=10, :Q2=15, :Q3=12, :Q4=14 ]
 ])
 
 oChart {
 
 	# Default display
+	SetInterBarSpace(0)
 	Show()
+	? ""
 
 	# Personalsed display
 	SetBarWidth(1)
@@ -1029,36 +1029,32 @@ oChart {
 }
 #-->
 '
-^
-│                         ██     
-│         ██              ██     
-│         ██      ██      ██     
-│ ██      ██      ██      ██▒▒   
-│ ██      ██▒▒    ██▒▒    ██▒▒▓▓ 
-│ ██▒▒    ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓ 
-│ ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓ 
-│ ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓ 
+↑                                 
+│         ██              ██      
+│         ██      ██      ██      
+│ ██      ██      ██      ██      
+│ ██      ██▒▒    ██▒▒    ██▒▒    
+│ ██▒▒    ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓  
+│ ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓  
+│ ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓  ██▒▒▓▓  
 ╰────────────────────────────────>
-    Q1      Q2      Q3      Q4   
-                                 
-██ Sales   ▒▒ Costs   ▓▓ Profit 
+    Q1      Q2      Q3      Q4    
 
-^
-│                         █     
-│         █               █     
-│         █       █       █     
-│ █       █       █       █ ▒   
-│ █       █ ▒     █ ▒     █ ▒ ▓ 
-│ █ ▒     █ ▒ ▓   █ ▒ ▓   █ ▒ ▓ 
-│ █ ▒ ▓   █ ▒ ▓   █ ▒ ▓   █ ▒ ▓ 
-│ █ ▒ ▓   █ ▒ ▓   █ ▒ ▓   █ ▒ ▓ 
+↑                                
+│         █               █      
+│         █       █       █      
+│ █       █       █       █      
+│ █       █ ▒     █ ▒     █ ▒    
+│ █ ▒     █ ▒ ▓   █ ▒ ▓   █ ▒ ▓  
+│ █ ▒ ▓   █ ▒ ▓   █ ▒ ▓   █ ▒ ▓  
+│ █ ▒ ▓   █ ▒ ▓   █ ▒ ▓   █ ▒ ▓  
 ╰───────────────────────────────>
-   Q1      Q2      Q3      Q4   
+   Q1      Q2      Q3      Q4    
 '
 pf()
+# # Executed in 0.08 second(s) in Ring 1.22
 
 /*---
-# Executed in 0.05 second(s) in Ring 1.22
 
 pr()
 
@@ -1067,27 +1063,25 @@ pr()
 oChart = new stzMultiBarChart([
   :Sales = [ :Q1=25, :Q2=35, :Q3=30, :Q4=40 ],
   :Costs = [ :Q1=15, :Q2=20, :Q3=18, :Q4=22 ],
-  :Profit = [ :Q1=10, :Q2=15, :Q3=12, :Q4=18 ]
+  :Profit = [ :Q1=10, :Q2=15, :Q3=12, :Q4=14 ]
 ])
 
 oChart {
 	# A clean simple value-enabled chart
-//	SetBarWidth(2)
-//	SetSeriesSpace(1)
-//	SetCategorySpace(3)
+	SetBarWidth(1)
+	SetBarSpace(2) # Or SetSeriesSpace()
+	SetCategorySpace(5)
 
 	AddValues()
-	AddAverage()
 	SetLegend(FALSE)
 	Show()
 
 	# An elaborated %-enabled chart
-//	SetBarWidth(3)
+	SetBarWidth(3)
 //	SetSeriesSpace(2)
 //	SetCategorySpace(5)
 
 	AddPercent()
-	SetAverage(0)
 	SetLegend(TRUE)
 	Show()
 }
@@ -1095,50 +1089,77 @@ oChart {
 
 #-->
 '
-^
-│                         █     
-│         █               █     
-│         █       █       █     
-│ █       █       █       █ ▒   
-│ █       █ ▒     █ ▒     █ ▒ ▓ 
-│ █ ▒     █ ▒ ▓   █ ▒ ▓   █ ▒ ▓ 
-│ █ ▒ ▓   █ ▒ ▓   █ ▒ ▓   █ ▒ ▓ 
-│ █ ▒ ▓   █ ▒ ▓   █ ▒ ▓   █ ▒ ▓ 
-╰───────────────────────────────>
-   Q1      Q2      Q3      Q4   
+↑                                              
+│            35                      40        
+│             █          30           █        
+│25           █           █           █        
+│ █           █ 20        █ 18        █ 22     
+│ █ 15        █  ▒ 15     █  ▒ 12     █  ▒ 14  
+│ █  ▒ 10     █  ▒  ▓     █  ▒  ▓     █  ▒  ▓  
+│ █  ▒  ▓     █  ▒  ▓     █  ▒  ▓     █  ▒  ▓  
+│ █  ▒  ▓     █  ▒  ▓     █  ▒  ▓     █  ▒  ▓  
+╰─────────────────────────────────────────────>
+    Q1          Q2          Q3          Q4     
                                 
+↑                                                                      
+│                  13.7%                               15.6%           
+│                   ███              11.7%              ███            
+│9.8%               ███               ███               ███            
+│ ███               ███ 7.8%          ███ 7.0%          ███ 8.6%       
+│ ███ 5.9%          ███  ▒▒▒ 5.9%     ███  ▒▒▒ 4.7%     ███  ▒▒▒ 5.5%  
+│ ███  ▒▒▒ 3.9%     ███  ▒▒▒  ▓▓▓     ███  ▒▒▒  ▓▓▓     ███  ▒▒▒  ▓▓▓  
+│ ███  ▒▒▒  ▓▓▓     ███  ▒▒▒  ▓▓▓     ███  ▒▒▒  ▓▓▓     ███  ▒▒▒  ▓▓▓  
+│ ███  ▒▒▒  ▓▓▓     ███  ▒▒▒  ▓▓▓     ███  ▒▒▒  ▓▓▓     ███  ▒▒▒  ▓▓▓  
+╰─────────────────────────────────────────────────────────────────────>
+       Q1                Q2                Q3                Q4        
+
 ██ Sales   ▒▒ Costs   ▓▓ Profit 
 '
 pf()
-
+# Executed in 0.51 second(s) in Ring 1.22
 
 /*---
 
 pr()
 
 # Test 3: Custom Series Characters
-? "=== Test 3: Custom Series Characters ==="
 
 oChart = new stzMultiBarChart([
-	:TeamA = [ :Jan = 45, :Feb = 52, :Mar = 38 ],
-	:TeamB = [ :Jan = 38, :Feb = 41, :Mar = 49 ],
-	:TeamC = [ :Jan = 29, :Feb = 35, :Mar = 42 ]
+	:Team_A = [ :Jan = 45, :Feb = 52, :Mar = 38 ],
+	:Team_B = [ :Jan = 38, :Feb = 41, :Mar = 49 ],
+	:Team_C = [ :Jan = 29, :Feb = 35, :Mar = 42 ]
 ])
 
 oChart {
-	SetSeriesChars(["●", "▲", "■"])
+	SetSeriesChars(["|", "X", "~"])
 	SetBarWidth(2)
+	SetCategorySpace(3)
 	Show()
 }
+#-->
+'
+↑                                  
+│ ||         ||            XX      
+│ || XX      || XX      || XX ~~   
+│ || XX      || XX ~~   || XX ~~   
+│ || XX ~~   || XX ~~   || XX ~~   
+│ || XX ~~   || XX ~~   || XX ~~   
+│ || XX ~~   || XX ~~   || XX ~~   
+│ || XX ~~   || XX ~~   || XX ~~   
+╰─────────────────────────────────>
+    Jan        Feb        Mar      
+                                   
+|| Team_a   XX Team_b   ~~ Team_c  
+'
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*---
 
 pr()
 
 # Test 4: With Values Display
-? "=== Test 4: With Values Display ==="
 
 oChart = new stzMultiBarChart([
 	:Product1 = [ :Store1 = 12, :Store2 = 18, :Store3 = 15 ],
@@ -1150,15 +1171,31 @@ oChart {
 	SetBarWidth(2)
 	Show()
 }
+#-->
+'
+↑                          
+│    20              22    
+│    ▒▒   18         ▒▒    
+│    ▒▒   ██ 14   15 ▒▒    
+│ 12 ▒▒   ██ ▒▒   ██ ▒▒    
+│ ██ ▒▒   ██ ▒▒   ██ ▒▒    
+│ ██ ▒▒   ██ ▒▒   ██ ▒▒    
+│ ██ ▒▒   ██ ▒▒   ██ ▒▒    
+│ ██ ▒▒   ██ ▒▒   ██ ▒▒    
+╰─────────────────────────>
+  Store1  Store2  Store3   
+                           
+██ Product1   ▒▒ Product2  
+'
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*---
 
 pr()
 
 # Test 5: With Percentage Display
-? "=== Test 5: With Percentage Display ==="
 
 oChart = new stzMultiBarChart([
 	:Desktop = [ :2021 = 65, :2022 = 58, :2023 = 52 ],
@@ -1170,22 +1207,39 @@ oChart {
 	SetBarWidth(1)
 	Show()
 }
+#--> #TODO: better automatic spacing
+'
+↑                       
+│21.7%  19.3%           
+│  █      █    1716.0%  
+│  █      14.0%  █ ▒    
+│  11.7%  █ ▒    █ ▒    
+│  █ ▒    █ ▒    █ ▒    
+│  █ ▒    █ ▒    █ ▒    
+│  █ ▒    █ ▒    █ ▒    
+│  █ ▒    █ ▒    █ ▒    
+╰──────────────────────>
+  2021   2022   2023    
+                        
+██ Desktop   ▒▒ Mobile  
+'
 
 pf()
+# Executed in 0.24 second(s) in Ring 1.22
 
 /*---
 
 pr()
 
 # Test 6: Hide/Show Axes and Labels
-? "=== Test 6: Hide/Show Axes and Labels ==="
 
 oChart = new stzMultiBarChart([
-	:North = [ :Spring = 30, :Summer = 45, :Fall = 25, :Winter = 20 ],
-	:South = [ :Spring = 35, :Summer = 50, :Fall = 30, :Winter = 25 ]
+	:North = [ :Spring = 30, :Summer = 40, :Fall = 25, :Winter = 20 ],
+	:South = [ :Spring = 35, :Summer = 50, :Fall = 36, :Winter = 25 ]
 ])
 
 # With full display
+
 oChart {
 	SetHAxis(True)
 	SetVAxis(True)  
@@ -1193,11 +1247,26 @@ oChart {
 	SetLegend(True)
 	Show()
 }
+#-->
+'
+↑                                
+│            ▒▒                  
+│         ██ ▒▒      ▒▒          
+│ ██ ▒▒   ██ ▒▒      ▒▒          
+│ ██ ▒▒   ██ ▒▒   ██ ▒▒     ▒▒   
+│ ██ ▒▒   ██ ▒▒   ██ ▒▒  ██ ▒▒   
+│ ██ ▒▒   ██ ▒▒   ██ ▒▒  ██ ▒▒   
+│ ██ ▒▒   ██ ▒▒   ██ ▒▒  ██ ▒▒   
+╰───────────────────────────────>
+  Spring  Summer  Fall   Winter  
+                                 
+██ North   ▒▒ South   
+'
 
 ? ""
-? "--- Same chart with minimal display ---"
 
-# With minimal display
+# Same chart with minimal display
+
 oChart {
 	SetHAxis(False)
 	SetVAxis(False)
@@ -1205,15 +1274,25 @@ oChart {
 	SetLegend(False)
 	Show()
 }
+#-->
+'
+          ▒▒                
+       ██ ▒▒     ▒▒         
+██ ▒▒  ██ ▒▒     ▒▒         
+██ ▒▒  ██ ▒▒  ██ ▒▒     ▒▒  
+██ ▒▒  ██ ▒▒  ██ ▒▒  ██ ▒▒  
+██ ▒▒  ██ ▒▒  ██ ▒▒  ██ ▒▒  
+██ ▒▒  ██ ▒▒  ██ ▒▒  ██ ▒▒  
+'
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*---
 
 pr()
 
 # Test 7: Compact Multi-Series
-? "=== Test 7: Compact Multi-Series ==="
 
 oChart = new stzMultiBarChart([
 	:A = [ :X = 8, :Y = 12, :Z = 6 ],
@@ -1225,18 +1304,30 @@ oChart {
 	SetBarWidth(1)
 	SetSeriesSpace(0)
 	SetCategorySpace(1)
+	SetHeight(3)
 	SetMaxWidth(50)
 	Show()
 }
+#-->
+'
+↑                   
+│  ▒    ▓  ▒▓       
+│ █▒▓ █▒▓  ▒▓       
+│ █▒▓ █▒▓ █▒▓       
+╰──────────────────>
+   X   Y   Z        
+                    
+██ A   ▒▒ B   ▓▓ C  
+'
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*---
 
 pr()
 
 # Test 8: Large Dataset with Custom Characters
-? "=== Test 8: Large Dataset with Custom Characters ==="
 
 oChart = new stzMultiBarChart([
 	:Region1 = [ :Mon = 23, :Tue = 31, :Wed = 28, :Thu = 35, :Fri = 42 ],
@@ -1252,15 +1343,30 @@ oChart {
 	SetCategorySpace(2)
 	Show()
 }
+#--> #TODO HAxis very long!
+'
+↑                                                  
+│          ░          ▒   █▓                       
+│   ▒   █  ░   ▓ ░  █ ▒░  █▓▒                      
+│   ▒░  █▓▒░  █▓ ░  █▓▒░  █▓▒░                     
+│ █ ▒░  █▓▒░  █▓▒░  █▓▒░  █▓▒░                     
+│ █▓▒░  █▓▒░  █▓▒░  █▓▒░  █▓▒░                     
+│ █▓▒░  █▓▒░  █▓▒░  █▓▒░  █▓▒░                     
+│ █▓▒░  █▓▒░  █▓▒░  █▓▒░  █▓▒░                     
+╰─────────────────────────────────────────────────>
+  Mon   Tue   Wed   Thu   Fri                      
+                                                   
+██ Region1   ▓▓ Region2   ▒▒ Region3   ░░ Region4  
+'
 
 pf()
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*---
 
 pr()
 
 # Test 9: Two Series Comparison
-? "=== Test 9: Two Series Comparison ==="
 
 oChart = new stzMultiBarChart([
 	:Before = [ :Feature1 = 45, :Feature2 = 38, :Feature3 = 52, :Feature4 = 29 ],
@@ -1274,15 +1380,30 @@ oChart {
 	AddLabels()
 	Show()
 }
+#-->
+'
+↑                                         
+│     ██                  ██              
+│  ▒▒ ██        ██     ▒▒ ██              
+│  ▒▒ ██     ▒▒ ██     ▒▒ ██        ██    
+│  ▒▒ ██     ▒▒ ██     ▒▒ ██     ▒▒ ██    
+│  ▒▒ ██     ▒▒ ██     ▒▒ ██     ▒▒ ██    
+│  ▒▒ ██     ▒▒ ██     ▒▒ ██     ▒▒ ██    
+│  ▒▒ ██     ▒▒ ██     ▒▒ ██     ▒▒ ██    
+╰────────────────────────────────────────>
+  Feature1  Feature2  Feature3  Feature4  
+                                          
+▒▒ Before   ██ After         
+'
 
 pf()
+# Executed in 0.05 second(s) in Ring 1.22
 
 /*---
 
 pr()
 
 # Test 10: Performance Metrics
-? "=== Test 10: Performance Metrics ==="
 
 oChart = new stzMultiBarChart([
 	:CPU = [ :Server1 = 75, :Server2 = 82, :Server3 = 68, :Server4 = 91 ],
@@ -1293,21 +1414,30 @@ oChart = new stzMultiBarChart([
 oChart {
 	SetSeriesChars(["■", "▲", "●"])
 	SetBarWidth(1)
+	SetBarInterSpace(2)
+	SetCategoryInterSpace(4)
 	SetValues(True)
 	Show()
 }
+#-->
+'
+↑                                           
+│           82                    91 85     
+│75          ■ 78      68 72       ■  ▲     
+│ ■ 65       ■  ▲       ■  ▲       ■  ▲ 61  
+│ ■  ▲ 45    ■  ▲ 52    ■  ▲ 48    ■  ▲  ●  
+│ ■  ▲  ●    ■  ▲  ●    ■  ▲  ●    ■  ▲  ●  
+│ ■  ▲  ●    ■  ▲  ●    ■  ▲  ●    ■  ▲  ●  
+│ ■  ▲  ●    ■  ▲  ●    ■  ▲  ●    ■  ▲  ●  
+│ ■  ▲  ●    ■  ▲  ●    ■  ▲  ●    ■  ▲  ●  
+╰──────────────────────────────────────────>
+  Server1    Server2    Server3    Server4  
+
+■■ Cpu   ▲▲ Memory   ●● Disk    
+'
 
 pf()
-
-# Expected outputs would show various multi-series bar charts demonstrating:
-# - Basic functionality with legend
-# - Different bar widths and spacing options  
-# - Custom series characters (bars, triangles, circles, etc.)
-# - Value and percentage displays
-# - Axis and label visibility controls
-# - Compact and expanded layouts
-# - Multiple series comparisons
-# - Real-world data scenarios
+# Executed in 0.05 second(s) in Ring 1.22
 
 /*====
 
@@ -1321,7 +1451,7 @@ oChart = new stzMultiBarChart([
 ])
 
 oChart {
-//	SetBarsChars([ "█", "|", "X" ])
+	SetBarsChars([ "█", "|", "X" ])
 	SetBarWidth(3)
 	SetBarInterSpace(1)
 
@@ -1334,24 +1464,22 @@ oChart {
 }
 #-->
 '
-^
-│ 45         42 48    
-│ ██ 35      ██ ▒▒    
-│ ██ ▒▒      ██ ▒▒    
-│ ██ ▒▒      ██ ▒▒    
-│ ██ ▒▒ 15   ██ ▒▒ 18 
-│ ██ ▒▒ ▓▓   ██ ▒▒ ▓▓ 
-│ ██ ▒▒ ▓▓   ██ ▒▒ ▓▓ 
-│ ██ ▒▒ ▓▓   ██ ▒▒ ▓▓ 
-╰─────────────────────>
-     Q1         Q2    
-                      
-██ Desktop        
-▒▒ Mobile         
-▓▓ Tablet   
+↑                                   
+│ 45           42  48               
+│ ███ 35       ███ |||              
+│ ███ |||      ███ |||              
+│ ███ |||      ███ |||              
+│ ███ ||| 15   ███ ||| 18           
+│ ███ ||| XXX  ███ ||| XXX          
+│ ███ ||| XXX  ███ ||| XXX          
+│ ███ ||| XXX  ███ ||| XXX          
+╰──────────────────────────────────>
+      Q1           Q2               
+                                    
+██ Desktop   || Mobile   XX Tablet   
 '
 pf()
-#--> Executed in 0.03 second(s) in Ring 1.22
+#--> Executed in 0.05 second(s) in Ring 1.22
 
 
 #--------------------------------------#

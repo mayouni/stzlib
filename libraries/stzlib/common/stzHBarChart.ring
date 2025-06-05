@@ -56,8 +56,14 @@ class stzHBarChart from stzBarChart
 	def SetBarHeight(nHeight)
 		@nBarHeight = max([1, nHeight])
 
-	def SetBarInterSpace(nSpacing)
-		@nBarInterSpace = max([0, nSpacing])
+	def SetBarInterSpace(n)
+		@nBarInterSpace = max([0, n])
+
+		def SetBarSpace(n)
+			This.SetBarInterSpace(n)
+
+		def SetInterBarSpace(n)
+			This.SetBarInterSpace(n)
 
 	def SetWidth(n)
 		@nWidth = max([10, n])
