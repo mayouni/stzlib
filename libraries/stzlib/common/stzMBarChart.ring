@@ -1,3 +1,4 @@
+
 class stzMultiBarChart from stzMBarChart
 class stzMBarChart from stzBarChart
 
@@ -139,14 +140,16 @@ class stzMBarChart from stzBarChart
 			@bShowLegend = True
 
 	def SetLegendLayout(cLayout)
-		if ring_find([:Horizontal, :Vertical, "horizontal", "vertical", "h", "v"], cLayout)
-			switch cLayout
-			on :Horizontal or "horizontal" or "h"
-				@cLegendLayout = :Horizontal
-			on :Vertical or "vertical" or "v"
-				@cLegendLayout = :Vertical
-			off
+		if NOT ring_find([:Horizontal, :Vertical, "horizontal", "vertical", "h", "v"], cLayout)
+			stzRaise("Incorrect legend layout value! Must be 'horizontal' or 'vertical'.")
 		ok
+
+		if cLayout = "horizontal" or cLayout = "h"
+				@cLegendLayout = :Horizontal
+		else
+				@cLegendLayout = :Vertical
+		ok
+
 
 	def SetAverage(bShow)
 		StzRaise("Unsupported feature in the current version.")
@@ -394,13 +397,16 @@ class stzMBarChart from stzBarChart
 					cValue = ""
 					if @bShowValues
 						if IsInteger(nValue)
+
 							cValue = "" + nValue
 						else
 							cValue = "" + RoundN(nValue, 1)
 						ok
+
 					but @bShowPercent and @nSum > 0
-						nPercent = RoundN((nValue * 100) / @nSum, 1)
-						cValue = '' + nPercent + "%"
+						cPercent = RoundN((nValue * 100) / @nSum, 1)
+						cPercent = ring_substr2(cPercent, ".0", "")
+						cValue = cPercent + "%"
 					ok
 					
 					# Calculate bar height to position value above it
@@ -438,6 +444,7 @@ class stzMBarChart from stzBarChart
 				nCurrentH += nElementWidth + @nCategorySpace
 			ok
 		next
+
 
 	def _drawMultiSeriesLabels(oLayout)
 		if not @bShowLabels or not @bShowAxisLabels or oLayout[:labels_row] = 0
@@ -481,7 +488,7 @@ class stzMBarChart from stzBarChart
 		ok
 
 		nStartRow = oLayout[:legend_start_row]
-		
+
 		if @cLegendLayout = :Horizontal
 			# Draw horizontal legend: "██ Series1   ▒▒ Series2   ..."
 			nCol = 1

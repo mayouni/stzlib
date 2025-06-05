@@ -1406,38 +1406,35 @@ pr()
 # Test 10: Performance Metrics
 
 oChart = new stzMultiBarChart([
-	:CPU = [ :Server1 = 75, :Server2 = 82, :Server3 = 68, :Server4 = 91 ],
-	:Memory = [ :Server1 = 65, :Server2 = 78, :Server3 = 72, :Server4 = 85 ],
-	:Disk = [ :Server1 = 45, :Server2 = 52, :Server3 = 48, :Server4 = 61 ]
+	:CPU = [ :Server1 = 23, :Server2 = 32, :Server3 = 78 ],
+	:Memory = [ :Server1 = 65, :Server2 = 78, :Server3 = 52],
+	:Disk = [ :Server1 = 45, :Server2 = 52, :Server3 = 28 ]
 ])
 
 oChart {
 	SetSeriesChars(["■", "▲", "●"])
-	SetBarWidth(1)
-	SetBarInterSpace(2)
-	SetCategoryInterSpace(4)
-	SetValues(True)
+	SetCategoryInterSpace(7)
+	SetBarInterSpace(3)
+	SetPercent(True)
 	Show()
 }
 #-->
 '
-↑                                           
-│           82                    91 85     
-│75          ■ 78      68 72       ■  ▲     
-│ ■ 65       ■  ▲       ■  ▲       ■  ▲ 61  
-│ ■  ▲ 45    ■  ▲ 52    ■  ▲ 48    ■  ▲  ●  
-│ ■  ▲  ●    ■  ▲  ●    ■  ▲  ●    ■  ▲  ●  
-│ ■  ▲  ●    ■  ▲  ●    ■  ▲  ●    ■  ▲  ●  
-│ ■  ▲  ●    ■  ▲  ●    ■  ▲  ●    ■  ▲  ●  
-│ ■  ▲  ●    ■  ▲  ●    ■  ▲  ●    ■  ▲  ●  
-╰──────────────────────────────────────────>
-  Server1    Server2    Server3    Server4  
-
-■■ Cpu   ▲▲ Memory   ●● Disk    
+↑                                                     
+│                       17.2%         17.2%           
+│    14.3%                ▲▲            ■■            
+│      ▲▲  9.9%           ▲▲ 11.5%      ■■ 11.5%      
+│      ▲▲   ●●            ▲▲   ●●       ■■   ▲▲       
+│5.1%  ▲▲   ●●      7.1%  ▲▲   ●●       ■■   ▲▲  6.2% 
+│ ■■   ▲▲   ●●       ■■   ▲▲   ●●       ■■   ▲▲   ●●  
+│ ■■   ▲▲   ●●       ■■   ▲▲   ●●       ■■   ▲▲   ●●  
+│ ■■   ▲▲   ●●       ■■   ▲▲   ●●       ■■   ▲▲   ●●  
+╰────────────────────────────────────────────────────>
+    Server1            Server2            Server3       
 '
 
 pf()
-# Executed in 0.05 second(s) in Ring 1.22
+# Executed in 0.38 second(s) in Ring 1.22
 
 /*====
 
@@ -1446,7 +1443,7 @@ pr()
 
 oChart = new stzMultiBarChart([
 	:Desktop = [ :Q1 = 45, :Q2 = 42 ],
-	:Mobile =  [ :Q1 = 35, :Q2=48 ],
+	:Mobile =  [ :Q1 = 35, :Q2 = 88 ],
 	:Tablet =  [ :Q1 = 15, :Q2 = 18 ]
 ])
 
@@ -1454,6 +1451,7 @@ oChart {
 	SetBarsChars([ "█", "|", "X" ])
 	SetBarWidth(3)
 	SetBarInterSpace(1)
+	SetCategorySpace(3)
 
 	AddValues()
 	SetLegendLayout(:Vertical)
@@ -1464,19 +1462,21 @@ oChart {
 }
 #-->
 '
-↑                                   
-│ 45           42  48               
-│ ███ 35       ███ |||              
-│ ███ |||      ███ |||              
-│ ███ |||      ███ |||              
-│ ███ ||| 15   ███ ||| 18           
-│ ███ ||| XXX  ███ ||| XXX          
-│ ███ ||| XXX  ███ ||| XXX          
-│ ███ ||| XXX  ███ ||| XXX          
-╰──────────────────────────────────>
-      Q1           Q2               
-                                    
-██ Desktop   || Mobile   XX Tablet   
+↑                            
+│                   88       
+│                   |||      
+│                   |||      
+│ 45            42  |||      
+│ ███ 35        ███ |||      
+│ ███ ||| 15    ███ ||| 18   
+│ ███ ||| XXX   ███ ||| XXX  
+│ ███ ||| XXX   ███ ||| XXX  
+╰───────────────────────────>
+      Q1            Q2       
+                             
+██ Desktop                   
+|| Mobile                    
+XX Tablet   
 '
 pf()
 #--> Executed in 0.05 second(s) in Ring 1.22
