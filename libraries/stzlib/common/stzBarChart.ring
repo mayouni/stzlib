@@ -124,8 +124,14 @@ class stzBarChart
 	def SetBarWidth(nWidth)
 		@nBarWidth = max([1, nWidth])
 
-	def SetBarInterSpace(nSpacing)
+	def SetBarInterSpace(n)
 		@nBarInterSpace = max([0, nSpacing])
+
+		def SetBarSpace(n)
+			This.SetBarInterSpace(n)
+
+		def SetInterBarSpace(n)
+			This.SetBarInterSpace(n)
 
 	def SetMaxLabelWidth(nWidth)
 		@nMaxLabelWidth = max([3, nWidth])
@@ -135,6 +141,9 @@ class stzBarChart
 
 	def SetWidth(n)
 		@nWidth = n
+
+	def SetMaxWidth(n)
+		@nMaxWidth = n
 
 	# Display options with H/V naming and XY aliases
 	def SetHAxis(bShow)
