@@ -1603,9 +1603,10 @@ oChart {
    45.0K    48.7K    52.3K    56.0K    59.7K    63.3K  
    48.7K    52.3K    56.0K    59.7K    63.3K    67.0K  
 '
+# Note how Softanza transforms thousands to Ks for better radability
 
 pf()
-# Executed in 0.81 second(s) in Ring 1.22
+# Executed in 0.95 second(s) in Ring 1.22
 
 /*--- Simple histogram without axes
 
@@ -1645,7 +1646,7 @@ oChart {
   30    36    41    46   
 '
 pf()
-# Executed in 0.51 second(s) in Ring 1.22
+# Executed in 0.54 second(s) in Ring 1.22
 
 /*--- Compact histogram with custom bin width
 
@@ -1689,7 +1690,6 @@ oChart {
 pf()
 # Executed in 0.60 second(s) in Ring 1.22
 
-
 #============================#
 #  TEST OF TREE CHART CLASS  #
 #============================#
@@ -1698,7 +1698,7 @@ pf()
 
 pr()
 
-oChart = new stzTreeChart([
+oChart = new stzSquareChart([
     :Sales = 45,
     :Marketing = 25, 
     :Dev = 20,
@@ -1722,13 +1722,13 @@ oChart.AddPercent().AddLegend().AddValues().Show()
 '
 
 pf()
-# Executed in 0.06 second(s) in Ring 1.22
+# Executed in 0.10 second(s) in Ring 1.22
 
 /*--- 2-item comparison test
 
 pr()
 
-oChart2 = new stzTreeChart([
+oChart2 = new stzSquareChart([
     :Desktop = 75,
     :Mobile = 25
 ])
@@ -1756,7 +1756,7 @@ pf()
 
 pr()
 
-oChart3 = new stzTreeChart([
+oChart3 = new stzSquareChart([
     :Frontend = 60,
     :Backend = 30,
     :DevOps = 10
@@ -1779,13 +1779,13 @@ oChart3.AddValues().AddPercent().Show()
 '
 
 pf()
-# Executed in 0.05 second(s) in Ring 1.22
+# Executed in 0.09 second(s) in Ring 1.22
 
 /*--- 5-item test (recursive division)
 
 pr()
 
-oChart4 = new stzTreeChart([
+oChart4 = new stzSquareChart([
     :A = 40,
     :B = 25,
     :C = 15,
@@ -1793,7 +1793,7 @@ oChart4 = new stzTreeChart([
     :E = 8
 ])
 oChart4.AddPercent().Show()
-#--> TODO Labels are not displayed!
+#--> 
 '
 ╭──────────────┬─────────┬─────┬───────╮
 │              │         │     │       │
@@ -1816,7 +1816,7 @@ pf()
 
 pr()
 
-oChart5 = new stzTreeChart([
+oChart5 = new stzSquareChart([
     :North = 35,
     :South = 30,
     :East = 28,
@@ -1842,13 +1842,13 @@ oChart5.AddPercent().Show()
 '
 
 pf()
-# Executed in 0.13 second(s) in Ring 1.22
+# Executed in 0.14 second(s) in Ring 1.22
 
 /*--- Equal values test
 
 pr()
 
-oChart6 = new stzTreeChart([
+oChart6 = new stzSquareChart([
     :Q1 = 25,
     :Q2 = 25,
     :Q3 = 25,
@@ -1875,12 +1875,13 @@ oChart6 {
 '
 
 pf()
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*--- Custom size test
 
 pr()
 
-oChart7 = new stzTreeChart([
+oChart7 = new stzSquareChart([
     :Red = 50,
     :Blue = 30,
     :Green = 20
@@ -1912,7 +1913,7 @@ pf()
 
 pr()
 
-oChart9 = new stzTreeChart([
+oChart9 = new stzSquareChart([
     :Server1 = 120,
     :Server2 = 80,
     :Server3 = 45,
@@ -1936,13 +1937,13 @@ oChart9.AddValues().Show()
 '
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*--- Single item test
 
 pr()
 
-oChart10 = new stzTreeChart([
+oChart10 = new stzSquareChart([
     :Total = 100
 ])
 oChart10.AddPercent().Show()
@@ -1969,7 +1970,7 @@ pf()
 
 pr()
 
-oChart11 = new stzTreeChart([
+oChart11 = new stzSquareChart([
     :Revenue = 2500000,
     :Costs = 1800000,
     :Profit = 700000
@@ -1992,13 +1993,13 @@ oChart11.AddValues().AddPercent().Show()
 '
 
 pf()
-# Executed in 0.05 second(s) in Ring 1.22
+# Executed in 0.09 second(s) in Ring 1.22
 
 /*--- 8-item complex test
 
 pr()
 
-oChart12 = new stzTreeChart([
+oChart12 = new stzSquareChart([
     :Chrome = 65,
     :Safari = 19,
     :Edge = 8,
@@ -2067,7 +2068,7 @@ oChart.Show()
 '
 
 pf()
-# Executed in 0.15 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*--- Test 2: Named data points with labels
 
@@ -2254,10 +2255,10 @@ oChart.Show()
 '
 
 pf()
-# Executed in 0.10 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Test 8: Temperature correlation study
-
+*/
 pr()
 
 aData = [

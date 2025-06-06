@@ -127,6 +127,9 @@ t0 = clock()
 	load "common/stzBarChart.ring"
 	load "common/stzHBarChart.ring"
 	load "common/stzMBarChart.ring"
+	load "common/stzHistogram.ring"
+	load "common/stzSquareChart.ring"
+	load "common/stzScatterChart.ring"
 
 # Loading files related to the OBJECT module
 
