@@ -45,8 +45,8 @@ class stzHistogram
 	# Axis characters
 	@cVAxisChar = "│"
 	@cHAxisChar = "─"
-	@cVArrowChar = "↑"
-	@cHArrowChar = ">"
+	@cVArrowChar = "▲"
+	@cHArrowChar = "►"
 	@cOriginChar = "╰"
 	@cAverageChar = "-"
 

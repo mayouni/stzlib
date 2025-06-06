@@ -720,61 +720,20 @@ class stzScatterChart
 		ok
 
 		# Add H and V letters if required (showing as X/Y for backward compatibility)
+
 		if @bShowHLetter and @bShowHAxis
-			# Place X letter at the end of horizontal axis
-			cResult = oTempStr.Content()
-			acLines = split(cResult, nl)
-			
-			# Find the line with horizontal axis and add X at the end
-			for i = 1 to len(acLines)
-				if ring_substr1(acLines[i], @cHArrowChar)  > 0
-					acLines[i] += " Y"  # Horizontal axis gets Y label
-					exit
-				ok
-			next
-			
-			cResult = ""
-			for i = 1 to len(acLines)
-				cResult += acLines[i]
-				if i < len(acLines)
-					cResult += nl
-				ok
-			next
-			oTempStr = new stzString(cResult)
+			# Place Y letter at the end of horizontal axis
+			oTempStr.Replace(@cHArrowChar, @cHAxisChar + @cHAxisChar + @cHArrowChar + " Y")
 		ok
 
 		if @bShowVLetter and @bShowVAxis
-			# Place X letter at the top of vertical axis
-			cResult = oTempStr.Content()
-			acLines = split(cResult, nl)
-			
-			# Find the line with vertical arrow and add X above it
-			for i = 1 to len(acLines)
-				if ring_substr1(acLines[i], @cVArrowChar) > 0
-					nArrowPos = ring_substr1(acLines[i], @cVArrowChar)
-					if nArrowPos > 0
-						# Create X line above the arrow
-						cXLine = @copy(" ", nArrowPos-1) + "X"
-						# Insert at the beginning
-						acNewLines = [cXLine]
-						for j = 1 to len(acLines)
-							acNewLines + acLines[j]
-						next
-						acLines = acNewLines
-					ok
-					exit
-				ok
-			next
-			
-			cResult = ""
-			for i = 1 to len(acLines)
-				cResult += acLines[i]
-				if i < len(acLines)
-					cResult += nl
-				ok
-			next
-			oTempStr = new stzString(cResult)
+			# Place X letter at the end of vertical axis
+			nPos = oTempStr.FindFirst(@cVArrowChar)
+			oTempStr.InsertAt(1, @copy(" ", nPos-1) + "X" + NL)
+
+			oTempStr.Replace(@cVArrowChar, @cVArrowChar + NL + @copy(" ", nPos-1) + @cVAxisChar)
 		ok
+
 
 		cResult = oTempStr.Content()
 		return cResult

@@ -2053,7 +2053,8 @@ oChart.Show()
 #-->
 '
    X
-   ^                                      
+   ▲
+   │                                      
  9 ┤                     ●                
    │                                      
  8 ┤                          ●           
@@ -2063,7 +2064,7 @@ oChart.Show()
  4 ┤                 ●                    
    │                                      
  2 ┤●                                     
-   ╰┬───────┬────────┬───┬────┬────────┬───> Y
+   ╰┬───────┬────────┬───┬────┬────────┬──► Y 
     1       3        5   6    7        9  
 '
 
@@ -2087,7 +2088,8 @@ oChart.Show()
 #-->
 '
     X
-    ^                                     
+    ▲
+    │                                     
  35 ┼----------------------------● Maiga  
     │                            ⁞        
     │                            ⁞        
@@ -2097,8 +2099,8 @@ oChart.Show()
     │         ⁞                  ⁞        
  25 ┼● Ali    ⁞                  ⁞        
  22 ┼⁞--------⁞--------● Tom     ⁞        
-    ╰┼────────┼────────┼─────────┼───> Y
-    10       15       20        25        
+    ╰┼────────┼────────┼─────────┼──► Y       
+    10       15       20        25       
 '
 
 pf()
@@ -2106,7 +2108,7 @@ pf()
 
 
 /*--- Test 4: X,Y array format with coordinate values
-
+*/
 pr()
 
 oChart = new stzScatterChart([[:X, [1,3,5,7]], [:Y, [2,6,4,8]]])
@@ -2116,7 +2118,8 @@ oChart.Show()
 #-->
 '
    X
-   ^                                      
+   ▲
+   │                                      
  8 ┤                                ● P4  
    │                                      
    │                                      
@@ -2126,22 +2129,23 @@ oChart.Show()
  4 ┤                     ● P3             
    │                                      
  2 ┤● P1                                  
-   ╰┬─────────┬──────────┬──────────┬───> Y
+   ╰┬─────────┬──────────┬──────────┬──► Y    
     1         3          5          7     
 '
+
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.22
 
 
 /*--- Test 6: Clean plot without axes
-
+*/
 pr()
 
 oChart = new stzScatterChart([
 	[1,1], [2, 5], [2,4], [3,2], [3, 4], [4,5], [4,6], [5,3]
 ])
-oChart.WithoutXYAxis()
+oChart.WithoutVHAxis()
 oChart.Show()
 #-->
 '
@@ -2179,7 +2183,7 @@ pf()
 # Executed in 0.03 second(s) in Ring 1.22
 
 /*--- In the Name of Allah
-
+*/
 pr()
 
 oChart = new stzScatterChart([
@@ -2225,7 +2229,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Test 7: Performance data visualization
-
+*/
 pr()
 
 oChart = new stzScatterChart([
@@ -2240,7 +2244,8 @@ oChart.Show()
 #-->
 '
     X
-    ^                                     
+    ▲
+    │                                     
  95 ┤                            ● Week4  
     │                                     
     │                                     
@@ -2250,15 +2255,26 @@ oChart.Show()
  88 ┤       ● Week3                       
     │                                     
  85 ┤● Week1                              
-    ╰┬──────┬──────┬─────────────┬───> Y
-    100    110    120           140       
+    ╰┬──────┬──────┬─────────────┬──► Y       
+    100    110    120           140         
 '
 
 pf()
-# Executed in 0.04 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
+
+/*===
+
+pr()
+
+str = "    ╰┬──┬─────┬──────┬─────┬───────┬►     "
+? @trimend(str)
+#--> "    ╰┬──┬─────┬──────┬─────┬───────┬►"
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Test 8: Temperature correlation study
-*/
+
 pr()
 
 aData = [
@@ -2276,7 +2292,8 @@ oChart.Show()
 #-->
 '
     X
-    ^                                     
+    ▲
+    │                                     
  82 ┤                              ● Jun  
     │                                     
  72 ┤                      ● May          
@@ -2286,9 +2303,9 @@ oChart.Show()
  50 ┤         ● Mar                       
     │                                     
  35 ┤● Ja Feb                             
-    ╰┬──┬─────┬──────┬─────┬───────┬───> Y
-     5  8    12     18    22      28                                             
+    ╰┬──┬─────┬──────┬─────┬───────┬──► Y     
+     5  8    12     18    22      28                                         
 '
 
 pf()
-# Executed in 0.04 second(s) in Ring 1.22
+# Executed in 0.05 second(s) in Ring 1.22
