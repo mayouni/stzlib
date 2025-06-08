@@ -1,6 +1,7 @@
 load "../max/stzmax.ring"
 
 
+
 /*===
 
 pr()
@@ -1690,9 +1691,9 @@ oChart {
 pf()
 # Executed in 0.60 second(s) in Ring 1.22
 
-#============================#
-#  TEST OF TREE CHART CLASS  #
-#============================#
+#==============================#
+#  TEST OF SQUARE CHART CLASS  #
+#==============================#
 
 /*--- Basic 4-item test with percentages
 
@@ -2108,7 +2109,7 @@ pf()
 
 
 /*--- Test 4: X,Y array format with coordinate values
-*/
+
 pr()
 
 oChart = new stzScatterChart([[:X, [1,3,5,7]], [:Y, [2,6,4,8]]])
@@ -2139,7 +2140,7 @@ pf()
 
 
 /*--- Test 6: Clean plot without axes
-*/
+
 pr()
 
 oChart = new stzScatterChart([
@@ -2183,7 +2184,7 @@ pf()
 # Executed in 0.03 second(s) in Ring 1.22
 
 /*--- In the Name of Allah
-*/
+
 pr()
 
 oChart = new stzScatterChart([
@@ -2229,7 +2230,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Test 7: Performance data visualization
-*/
+
 pr()
 
 oChart = new stzScatterChart([
@@ -2309,3 +2310,5 @@ oChart.Show()
 
 pf()
 # Executed in 0.05 second(s) in Ring 1.22
+
+

@@ -123,14 +123,6 @@ t0 = clock()
 	load "common/stzRingLibs.ring"
 	load "common/stzNamedParams.ring" #TODO // Use it instead of stzList methods
 
-	load "common/stzChart.ring"
-	load "common/stzBarChart.ring"
-	load "common/stzHBarChart.ring"
-	load "common/stzMBarChart.ring"
-	load "common/stzHistogram.ring"
-	load "common/stzSquareChart.ring"
-	load "common/stzScatterChart.ring"
-
 # Loading files related to the OBJECT module
 
 	load "object/stzObject.ring"
@@ -206,13 +198,24 @@ t0 = clock()
 	load "string/listofunicodes/stzListOfUnicodes.ring"
 	load "string/stringart/stzStringArt.ring"
 
-# Laoading files related to REGEX module
+# Loading files related to REGEX module
 
 
 	load "regex/stzRegex.ring"
 	load "regex/stzRegexMaker.ring"
 	load "regex/stzRegexuter.ring"
 	load "regex/stzListex.ring"
+
+# Loading files related to CHART module
+
+	load "chart/stzChart.ring"
+	load "chart/stzBarChart.ring"
+	load "chart/stzHBarChart.ring"
+	load "chart/stzMBarChart.ring"
+	load "chart/stzHistogram.ring"
+	load "chart/stzSquareChart.ring"
+	load "chart/stzScatterChart.ring"
+	load "chart/stzLineChart.ring"
 
 # Loading files related to ERROR module
 
