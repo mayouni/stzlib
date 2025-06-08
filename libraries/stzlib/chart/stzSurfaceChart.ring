@@ -1,8 +1,8 @@
-#--------------------------------------#
-#  SQUARE COMPOSITION-ORIENTED CHART   #
-#--------------------------------------#
+#---------------------------------------#
+#  SURFACE COMPOSITION-ORIENTED CHART   #
+#---------------------------------------#
 
-class stzSquareChart
+class stzSurfaceChart
 
 	@bShowPercent = FALSE
 	@bShowBorders = TRUE

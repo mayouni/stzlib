@@ -1692,14 +1692,14 @@ pf()
 # Executed in 0.60 second(s) in Ring 1.22
 
 #==============================#
-#  TEST OF SQUARE CHART CLASS  #
+#  TEST OF Surface CHART CLASS  #
 #==============================#
 
 /*--- Basic 4-item test with percentages
 
 pr()
 
-oChart = new stzSquareChart([
+oChart = new stzSurfaceChart([
     :Sales = 45,
     :Marketing = 25, 
     :Dev = 20,
@@ -1729,7 +1729,7 @@ pf()
 
 pr()
 
-oChart2 = new stzSquareChart([
+oChart2 = new stzSurfaceChart([
     :Desktop = 75,
     :Mobile = 25
 ])
@@ -1757,7 +1757,7 @@ pf()
 
 pr()
 
-oChart3 = new stzSquareChart([
+oChart3 = new stzSurfaceChart([
     :Frontend = 60,
     :Backend = 30,
     :DevOps = 10
@@ -1786,7 +1786,7 @@ pf()
 
 pr()
 
-oChart4 = new stzSquareChart([
+oChart4 = new stzSurfaceChart([
     :A = 40,
     :B = 25,
     :C = 15,
@@ -1817,7 +1817,7 @@ pf()
 
 pr()
 
-oChart5 = new stzSquareChart([
+oChart5 = new stzSurfaceChart([
     :North = 35,
     :South = 30,
     :East = 28,
@@ -1849,7 +1849,7 @@ pf()
 
 pr()
 
-oChart6 = new stzSquareChart([
+oChart6 = new stzSurfaceChart([
     :Q1 = 25,
     :Q2 = 25,
     :Q3 = 25,
@@ -1882,7 +1882,7 @@ pf()
 
 pr()
 
-oChart7 = new stzSquareChart([
+oChart7 = new stzSurfaceChart([
     :Red = 50,
     :Blue = 30,
     :Green = 20
@@ -1914,7 +1914,7 @@ pf()
 
 pr()
 
-oChart9 = new stzSquareChart([
+oChart9 = new stzSurfaceChart([
     :Server1 = 120,
     :Server2 = 80,
     :Server3 = 45,
@@ -1944,7 +1944,7 @@ pf()
 
 pr()
 
-oChart10 = new stzSquareChart([
+oChart10 = new stzSurfaceChart([
     :Total = 100
 ])
 oChart10.AddPercent().Show()
@@ -1971,7 +1971,7 @@ pf()
 
 pr()
 
-oChart11 = new stzSquareChart([
+oChart11 = new stzSurfaceChart([
     :Revenue = 2500000,
     :Costs = 1800000,
     :Profit = 700000
@@ -2000,7 +2000,7 @@ pf()
 
 pr()
 
-oChart12 = new stzSquareChart([
+oChart12 = new stzSurfaceChart([
     :Chrome = 65,
     :Safari = 19,
     :Edge = 8,

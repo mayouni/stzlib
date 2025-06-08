@@ -213,9 +213,8 @@ t0 = clock()
 	load "chart/stzHBarChart.ring"
 	load "chart/stzMBarChart.ring"
 	load "chart/stzHistogram.ring"
-	load "chart/stzSquareChart.ring"
+	load "chart/stzSurfaceChart.ring"
 	load "chart/stzScatterChart.ring"
-	load "chart/stzLineChart.ring"
 
 # Loading files related to ERROR module
 
