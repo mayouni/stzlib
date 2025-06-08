@@ -109,7 +109,7 @@ class stzHistogram
 			@aBinRanges + [nBinMin, nBinMax]
 			
 			# Create labels
-			cLabel = _formatNumber(nBinMin) + "-" + _formatNumber(nBinMax)
+			cLabel = StzNumberQ(nBinMin).CompactForm() + "-" + StzNumberQ(nBinMax).ToCompactForm()
 			@aBinLabels + cLabel
 		next
 
@@ -972,7 +972,7 @@ class stzHistogram
 				
 				# First row: start values
 				//cLabel1 = "" + RoundN(@aBinRanges[i][1], 1)
-				cLabel1 = _formatNumber(@aBinRanges[i][1])
+				cLabel1 = StzNumberQ(@aBinRanges[i][1]).ToCompactForm()
 				nLenLabel1 = len(cLabel1)
 				nLabelStartX1 = nCurrentX + floor((nElementWidth - nLenLabel1) / 2)
 	
@@ -985,7 +985,7 @@ class stzHistogram
 	
 				# Second row: end values  
 				//cLabel2 = "" + RoundN(@aBinRanges[i][2], 1)
-				cLabel2 = _formatNumber(@aBinRanges[i][2])
+				cLabel2 = StzNumberQ(@aBinRanges[i][2]).CompactForm()
 				nLenLabel2 = len(cLabel2)
 				nLabelStartX2 = nCurrentX + floor((nElementWidth - nLenLabel2) / 2)
 	
@@ -1001,11 +1001,3 @@ class stzHistogram
 				nCurrentX += aElementWidths[i] + aBarSpacing[i]
 			ok
 		next
-
-
-	def _formatNumber(nNumber)
-	    if nNumber >= 1000
-	        return '' + RoundN(nNumber/1000, 1) + "K"
-	    else
-	        return "" + RoundN(nNumber, 0)
-	    ok

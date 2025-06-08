@@ -155,7 +155,7 @@ class stzHexNumber from stzObject
 		oStzStr = new stzString(This.HexNumber())
 
 		if oStzStr.Contains(".")
-			return oStzStr.SplittedUsing(".")[1]
+			return oStzStr.Splitted(".")[1]
 		else
 			return oStzStr.Content()
 		ok
