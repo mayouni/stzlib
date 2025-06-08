@@ -305,24 +305,21 @@ oChart {
 ## Softanza Advantages
 
 ### Comparison with ASCII Charting Solutions
-
 | Feature | Softanza | UniPlot | asciicharts | spark | blessed | termgraph |
 |---------|----------|---------|-------------|-------|---------|-----------|
 | **Language** | Ring | Python | JavaScript | Various | Node.js | Python |
-| **Bar Charts** | ✓ Full | ✓ Basic | ✓ Basic | ✗ | ✓ Basic | ✓ Basic |
-| **Multi-Bar Charts** | ✓ Advanced | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **Histograms** | ✓ Full | ✓ Basic | ✗ | ✗ | ✗ | ✗ |
-| **Scatter Plots** | ✓ Full | ✓ Basic | ✗ | ✗ | ✗ | ✗ |
-| **Square Charts** | ✓ Unique | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **Automatic Formatting** | ✓ Advanced | ✗ | ✗ | ✗ | ✗ | ✓ Basic |
-| **Statistical Integration** | ✓ Built-in | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **Customizable Characters** | ✓ Full | ✓ Limited | ✓ Limited | ✗ | ✓ Limited | ✓ Basic |
-| **Grid Support** | ✓ | ✓ | ✗ | ✗ | ✓ | ✗ |
-| **Percentage Display** | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **Value Labels** | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **Average Lines** | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **Dependencies** | Ring runtime | Python libs | Node.js | None/Various | Node.js | Python libs |
-| **File Size** | Minimal | Medium | Small | Tiny | Large | Medium |
+| **Bar Charts** | ✅ Full | ✅ Basic | ✅ Basic | ❌ | ✅ Basic | ✅ Basic |
+| **Multi-Bar Charts** | ✅ Advanced | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Histograms** | ✅ Full | ✅ Basic | ❌ | ❌ | ❌ | ❌ |
+| **Scatter Plots** | ✅ Full | ✅ Basic | ❌ | ❌ | ❌ | ❌ |
+| **Square Charts** | ✅ Unique | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Automatic Formatting** | ✅ Advanced | ❌ | ❌ | ❌ | ❌ | ✅ Basic |
+| **Statistical Integration** | ✅ Built-in | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Customizable Characters** | ✅ Full | ✅ Limited | ✅ Limited | ❌ | ✅ Limited | ✅ Basic |
+| **Grid Support** | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ |
+| **Percentage Display** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Value Labels** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Average Lines** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ## Future Horizons: Expanding the Analytical Toolkit
 
