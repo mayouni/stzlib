@@ -114,7 +114,7 @@ oChart {
     Show()
 }
 ```
-
+This creates a normalized view that reveals relative proportions:
 ```
 ↑                                                          
 │             23.2%               22.2%                    
@@ -129,7 +129,7 @@ oChart {
 
 ## Horizontal Perspectives: Alternative Viewpoints
 
-Horizontal bar charts excel with long category names or when emphasizing ranking:
+Sometimes, the most insightful perspective comes from changing your viewpoint. Horizontal bar charts excel when category names are long or when you want to emphasize ranking:
 
 ```ring
 oChart = new stzHBarChart([ :Warda = 5, :Yessmina = 8, :Folla = 3 ])
@@ -144,6 +144,7 @@ Yessmina │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 50%
    Folla │ ▇▇▇▇▇▇▇ 18.8%           
          ╰───────────────────>   
 ```
+This format immediately highlights Yessmina's leadership position while maintaining clear proportional relationships.
 
 ## Multi-Dimensional Analysis: Complex Comparisons
 
@@ -165,7 +166,7 @@ oChart {
     Show()
 }
 ```
-
+This produces a comprehensive quarterly analysis:
 ```
 ↑                                              
 │            35                      40        
@@ -179,10 +180,11 @@ oChart {
 ╰─────────────────────────────────────────────>
     Q1          Q2          Q3          Q4     
 ```
+The visual immediately reveals that while sales grew consistently, the profit margin remained relatively stable, suggesting effective cost management.
 
 ## Compositional Insights: Understanding the Whole
 
-Surface charts provide treemap-like visualization for parts-to-whole relationships:
+When your goal shifts from comparison to understanding how parts relate to the whole, Softanza's square charts provide an innovative treemap-like visualization:
 
 ```ring
 oChart = new stzSurfaceChart([
@@ -190,7 +192,7 @@ oChart = new stzSurfaceChart([
 ])
 oChart.AddPercent().AddLegend().AddValues().Show()
 ```
-
+Output:
 ```
 ╭──────────────────────────┬───────────╮
 │                          │           │
@@ -205,10 +207,11 @@ oChart.AddPercent().AddLegend().AddValues().Show()
 │                          │           │
 ╰──────────────────────────┴───────────╯
 ```
+This format excels at showing organizational structure, budget allocation, or any scenario where understanding proportional relationships is crucial.
 
 ## Statistical Distribution: Histograms for Deep Insights
 
-Histograms reveal data distribution patterns:
+Moving beyond simple comparison and composition, Softanza addresses the critical need for understanding data distribution through sophisticated histogram functionality:
 
 ```ring
 aScores = [
@@ -223,7 +226,7 @@ oChart {
     Show()
 }
 ```
-
+Output:
 ```
 ^                                          
 │                       25%                
@@ -236,10 +239,11 @@ oChart {
    78     81     84     87     90     93   
    81     84     87     90     93     96  
 ```
+This histogram reveals the distribution shape, showing that most scores cluster around the 87-90 range, with the distribution being roughly normal. Such insights are impossible to glean from simple summary statistics alone.
 
 ## Relationship Analysis: Scatter Plots for Correlation
 
-Scatter plots visualize variable relationships:
+Understanding relationships between variables is fundamental to data analysis. Softanza's scatter plots provide clear correlation visualization:
 
 ```ring
 oChart = new stzScatterChart([ 
@@ -250,7 +254,7 @@ oChart.AddGrid()
 oChart.AddLabels()
 oChart.Show()
 ```
-
+Output:
 ```
     X
     ▲
@@ -267,10 +271,11 @@ oChart.Show()
     ╰┼────────┼────────┼─────────┼──► Y       
     10       15       20        25       
 ```
+The grid lines make it easy to read precise values while the overall pattern reveals correlations—in this case, Tom appears to be an outlier in the otherwise positive relationship between X and Y variables.
 
 ## Practical Intelligence: Automatic Formatting
 
-Automatic data formatting improves readability with large numbers:
+One of Softanza's most thoughtful features is its automatic data formatting. When dealing with large numbers, the system intelligently converts them to more readable formats:
 
 ```ring
 aSalaries = [
@@ -287,7 +292,7 @@ oChart {
     Show()
 }
 ```
-
+output:
 ```
 ^                                                      
 │   25%                                                
@@ -300,6 +305,7 @@ oChart {
    45.0K    48.7K    52.3K    56.0K    59.7K    63.3K  
    48.7K    52.3K    56.0K    59.7K    63.3K    67.0K  
 ```
+Notice how the system automatically converts thousands to "K" notation, dramatically improving readability without losing precision.
 
 ## Softanza Advantages
 
