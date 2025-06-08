@@ -499,16 +499,24 @@ class stzRegex
 		def CountMatchingValues()
 			return This.NumberOfMatches()
 
+	def NumberOfChars()
+		return This.QMatchObject().capturedLength(0)
+
+		def CapturedLength()
+			return This.NumberOfChars()
+
 	def FindMatches()
 		_anResults_ = []
 		_nPos_ = 1
-	
+		_nLen_ = This.QMatchObject().CapturedLength(0)
+
 		while This.MatchAt(@cStr, _nPos_)  # Search for a match at the current position
 			_oQMatch_ = This.QMatchObject()
-			
+			_cMatch_ = _oQMatch_.captured(0)
+
 			if _cMatch_ != ""
 				_nPos_ = _oQMatch_.capturedEnd(0) + 1  # Move past the last match
-				_anResults_ + _nPos_
+				_anResults_ + (_nPos_ - _nLen_)
 			else
 				break  # Stop if no match is found
 			ok
@@ -544,24 +552,8 @@ class stzRegex
 		#>
 
 	def MatchesZ()
+		? @@(This.FindMatches())
 
-		_aResults_ = []
-		_nPos_ = 1
-	
-		while This.MatchAt(@cStr, _nPos_)
-			_oQMatch_ = This.QMatchObject()
-			_cMatch_ = _oQMatch_.captured(0)
-			
-			if _cMatch_ != ""
-				
-				_nPos_ = _oQMatch_.capturedEnd(0) + 1
-				_aResults_ + [ _cMatch_, _nPos ]
-			else
-				break
-			ok
-		end
-	
-		return _aResults_
 
 		#< @FunctionAlternativeForms
 
@@ -594,17 +586,17 @@ class stzRegex
 
 		_aResults_ = []
 		_nPos_ = 1
-	
-		while This.MatchAt(@cStr, _nPos_)
+		_nLenCap_ = This.QMatchObject().CapturedLength(0)
+? _nLenCap_
 
+		while This.MatchAt(@cStr, _nPos_)
 			_oQMatch_ = This.QMatchObject()
 			_cMatch_ = _oQMatch_.captured(0)
-			_nLenMatch_ = StzStringQ(_cMatch_).NumberOfChars()
-
+			
 			if _cMatch_ != ""
 				
 				_nPos_ = _oQMatch_.capturedEnd(0) + 1
-				_aResults_ + [ _nPos_, _nPos_ + _nLenMatch_ - 1 ]
+				_aResults_ + [_nPos_ - _nLenCap_, _nPos_ ]
 			else
 				break
 			ok
@@ -643,17 +635,16 @@ class stzRegex
 
 		_aResults_ = []
 		_nPos_ = 1
-	
-		while This.MatchAt(@cStr, _nPos_)
+		_nLenCap_ = This.QMatchObject().CapturedLength(0)
 
+		while This.MatchAt(@cStr, _nPos_)
 			_oQMatch_ = This.QMatchObject()
 			_cMatch_ = _oQMatch_.captured(0)
-			_nLenMatch_ = StzStringQ(_cMatch_).NumberOfChars()
-
+			
 			if _cMatch_ != ""
 				
 				_nPos_ = _oQMatch_.capturedEnd(0) + 1
-				_aResults_ + [ _cMatch_, [ _nPos, _nPos_ + _nLenMatch_ - 1 ] ]
+				_aResults_ + [ _cMatch_, [_nPos_ - _nLenCap_, _nPos_ ] ]
 			else
 				break
 			ok

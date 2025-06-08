@@ -424,9 +424,9 @@ class stzStats
         if nCV < 15
             aInsights + "showing low variability (CV=" + nCV + "%) indicating consistent values"
         but nCV < 30
-            aInsights + "with moderate variability (CV=" + nCV + "%) suggesting normal spread"
+            aInsights + "with moderate variability (cv=" + nCV + "%) suggesting normal spread"
         else
-            aInsights + "exhibiting high variability (CV=" + nCV + "%) indicating diverse data points"
+            aInsights + "exhibiting high variability (cv=" + nCV + "%) indicating diverse data points"
         ok
         
         # Outlier impact
@@ -507,7 +507,9 @@ class stzStats
         return "Mixed dataset (numeric and categorical) with " + nUnique + " unique values out of " + nCount + " total. " +
                "Numeric analysis is limited due to mixed data types. Consider separating numeric and categorical components for meaningful analysis."
 
+
     def _JoinInsights(aInsights)
+
         if len(aInsights) = 0
             return "No specific insights available for this dataset."
         ok
@@ -525,7 +527,31 @@ class stzStats
             ok
         next
         
-        return cResult + "."
+		# A hack for better formatting
+		#TODO // Solve it radically
+
+		cResult = ring_substr2(cResult, " , ", "")
+		cResult = ring_substr2(cResult, ", )", ")")
+		cResult = ring_substr2(cResult, "=, ", "= ")
+		cResult = ring_substr2(cResult, "= ", "=")
+		cResult = ring_substr2(cResult, "=", " = ")
+		cResult = ring_substr2(cResult, "  =", " =")
+		cResult = ring_substr2(cResult, ", %", "%")
+		cResult = ring_substr2(cResult, ", and )", ")")
+
+		oTempStr = new stzString(cResult)
+		anPos = oTempStr.FinduppercaseChars()
+
+		nLen = len(anPos)
+		for i = 1 to nLen
+			anPos[i] -= 2
+		next
+
+		oTempStr.ReplaceCharsAt(anPos, ".")
+		cResult = oTempStr.Content()
+
+		return cResult
+		
 
     #==============================================================================
     #  EXTENSIBLE INSIGHT FRAMEWORK
