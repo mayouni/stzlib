@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 
 /*===
-*/
+
 pr()
 
 # Basic compact form
@@ -22,18 +22,6 @@ oNum = new stzNumber(1_290_800_280)
 pf()
 # Executed in 0.07 second(s) in Ring 1.22
 
-/*---
-
-# Integrated with full formatting
-? oNum.ApplyFormatXT([ 
-    :UseCompactForm = _TRUE_, 
-    :CompactOptions = [ :Precision = 2 ],
-    :Prefix = "$",
-    :ShowSign = _TRUE_
-])  # "+$1.25M"
-
-
-pf()
 
 /*===
 
@@ -1606,7 +1594,7 @@ pf()
 # Executed in 0.56 second(s) in Ring 1.22
 
 /*--- Histogram with percentage display
-
+*/
 pr()
 
 aSalaries = [

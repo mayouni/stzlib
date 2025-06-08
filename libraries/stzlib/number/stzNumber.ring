@@ -1107,7 +1107,7 @@ func GetUnitsDozensAndHundreds(pNumber)	// Or simplier : GetMicroStructure(pNumb
 			
 	on 3
 		cUnits = right(pcNumber,1)
-		cDozens = ring_substr2(pcNumber, 2, s1)
+		cDozens = StzStringQ(pcNumber).Section(2, 1)
 		cHundreds = left(pcNumber,1)
 	off
 
@@ -5363,11 +5363,19 @@ class stzNumber from stzObject
 	 #    FORMATTING    #
 	#------------------#
 
-	  #------------------#
-	 #    FORMATTING    #
-	#------------------#
+	def ApplyFormat()
+		return This.ApplyFormatXT([])
 
-	def ApplyFormatXT(paFormat)	# TODO: Add formatting strings like +99 999.99%
+		def Format()
+			return This.ApplyFormatXT([])
+
+	def FormatXT(paFormat)
+		return This.ApplyFormatXT(paFormat)
+
+	def ApplyFormatXT(paFormat)
+	#TODO// Add formatting strings like +99 999.99%
+	#TODO// Support Compact form (K, B, M) see methods below
+	#TODO// Review the overall accuracy of the formatting logic
 
 		# Setting default configs
 
@@ -5731,7 +5739,8 @@ class stzNumber from stzObject
 
 		return cNumber
 
-	def ToCompactForm()
+
+	def CompactForm()
 		nNumber = This.Value()
 	    if nNumber >= 1000 and nNumber < 1_000_000
 			return '' + RoundN(nNumber/1000, 1) + "K"
@@ -5743,7 +5752,11 @@ class stzNumber from stzObject
 			return '' + RoundN(nNumber/1000_000_000, 1) + "B"
 		ok
 
-	def ToKform()
+		def ToCompactForm()
+			return This.CompactForm()
+
+
+	def KForm()
 		nNumber = This.Value()
 	    if nNumber >= 1000
 	        return '' + RoundN(nNumber/1000, 1) + "K"
@@ -5751,7 +5764,11 @@ class stzNumber from stzObject
 	        return This.Content()
 	    ok
 
-	def ToMForm()
+		def ToKForm()
+			return This.KForm()
+
+
+	def MForm()
 		nNumber = This.Value()
 	    if nNumber >= 1_000_000
 	        return '' + RoundN(nNumber/1_000_000, 1) + "M"
@@ -5759,13 +5776,20 @@ class stzNumber from stzObject
 	        return This.Content()
 	    ok
 
-	def ToBForm()
+		def ToMForm()
+			return This.MForm()
+
+	def BForm()
 		nNumber = This.Value()
 	    if nNumber >= 1000_000_000
 	        return '' + RoundN(nNumber/1000_000_000, 1) + "B"
 	    else
 	        return This.Content()
 	    ok
+
+		def ToBForm()
+			return This.BForm()
+
 
 	def SetDefaultFormat() // TODO
 		StzRaise("Unsupported feature in this version!")

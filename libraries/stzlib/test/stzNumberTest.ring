@@ -1164,9 +1164,8 @@ o1 = new stzNumber("369900990099")
 ? o1.NumberOfDigitsInIntegerPart()
 ? o1.Round()
 
-/*--------------
+/*-------------- #TODO Review implementation
 
-*/
 pr()
 
 o1 = new stzNumber(12590)
@@ -1215,39 +1214,63 @@ o1 = new stzNumber(12590)
 
 pf()
 
-/*
-TODO in stzListOfNumbers() -> Applyformat
-	$     (15.600,00)
-	$       3.182,15
-	$         404,82
+/*---
 
-*/
+pr()
 
-/*
+#TODO in stzListOfNumbers() -> Applyformat
+#	$     (15.600,00)
+#	$       3.182,15
+#	$         404,82
+
+pf()
+
+/*---
+
+pr()
+
 ? StringToNumber("x12.34")
-/*
+#--> 18
+
+pf()
+# Executed in 0.03 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
 SetActiveRound(10)
 ? GetActiveRound()
 
-/*
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
 o1 = new stzNumber("4")
 ? o1.IsOneDigit()
+#--> TRUE
 
-/*
-o1 = new stzNumber("  12543 110 ")
-? o1.RemoveSpacesFrom(:TheLeft)
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*------
 
-o1 = new stzNumber("715")
+pr()
+
+o1 = new stzNumber("259715288")
 o1 {
 	? Number()
 
-	? UnitsInHundreds()
-	? DozensInHundreds()
-	? HundredsInHundreds()
+	? UnitsInHundreds() 	#--> 8
+	? DozensInHundreds()	#--> 28
+	? HundredsInHundreds()	#--> 2
 }
 
+pf()
+# Executed in 0.05 second(s) in Ring 1.22
 
 /*
 

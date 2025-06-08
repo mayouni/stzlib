@@ -135,8 +135,6 @@ t0 = clock()
 # Loading files related to the NUMBER module
 
 	load "number/stzNumber.ring"
-	load "number/stzNumberFormatConfig.ring"
-
 	load "number/stzDecimalToBinary.ring"
 
 	load "number/stzPairOfNumbers.ring"
