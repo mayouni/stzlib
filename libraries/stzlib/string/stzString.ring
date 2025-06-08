@@ -23619,7 +23619,7 @@ class stzString from stzObject
 		_cBeforeLastChar_ = This.QStringObject().mid( _nLen_ - 2, 1)
 
 		if StzStringQ(_cLastChar_).IsEqualToCS(_cBeforeLastChar_, pCaseSensitive) and
-		   StzStringQ(_c_).IsEqualToCS(_cLastChar_, pCaseSensitive)
+		   StzStringQ(c).IsEqualToCS(_cLastChar_, pCaseSensitive)
 
 			return _TRUE_
 		else

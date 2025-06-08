@@ -60,6 +60,24 @@ func IsHashList(paList)
 
 	#>
 
+func Keys(paList)
+	if NOT (isList(paList) and IsHashList(paList))
+		StzRaise("Incorrect param type! paList must be a hashlist.")
+	ok
+
+	acResult = []
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		acResult + paList[i][1]
+	next
+
+	return acResult
+
+	func @Keys(paList)
+		return Keys(paList)
+
+
 func IsHashListOfNumbers(paList)
 	if NOT isList(paList)
 		return FALSE
