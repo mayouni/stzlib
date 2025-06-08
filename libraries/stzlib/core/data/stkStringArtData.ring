@@ -1516,7 +1516,6 @@ $STZ_STR_ART_STYLE_004 = [
 	"   " ] ]
 ]
 
-
 # GLOBAL CONSTANT
 
 $STZ_STR_ART_STYLES_XT = [
