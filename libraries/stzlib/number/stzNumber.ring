@@ -1,12 +1,11 @@
-#---------------------------------------------------------------------------#
-# 			SOFTANZA LIBRARY (V1.0)                             #
-#---------------------------------------------------------------------------#
-#									    #
-# 	Description	: The class for managing softanza numbers           #
-#	Version		: V1.1.0.6 (March, 2023)			    #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
-#									    #
-#===========================================================================#
+#-------------------------------------------------------------#
+#                                                             #
+#   Class	    : stzNumber                                   #
+# 	Description	: The class for managing softanza numbers     #
+#	Version		: V0.9 (2019, 2023)                           #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)		  #
+#                                                             #
+#=============================================================#
 
 /*
 	This class expects you to provide it with a normal number or a
@@ -2913,6 +2912,7 @@ class stzNumber from stzObject
 
 		#< @FunctionAlternativeForms
 
+
 		def DecimalPartWithoutZeroDot()
 			return This.FractionalPartWithoutZeroDot()
 
@@ -5363,6 +5363,10 @@ class stzNumber from stzObject
 	 #    FORMATTING    #
 	#------------------#
 
+	  #------------------#
+	 #    FORMATTING    #
+	#------------------#
+
 	def ApplyFormatXT(paFormat)	# TODO: Add formatting strings like +99 999.99%
 
 		# Setting default configs
@@ -5373,7 +5377,7 @@ class stzNumber from stzObject
 			bRoundItWhenRestricted = _FALSE_
 			
 			# Round
-			bApplyRound = _FALSE_
+			bRounded = _FALSE_
 			nRoundTo = 0
 			
 			# Alignment
@@ -5430,7 +5434,7 @@ class stzNumber from stzObject
 			# Round
 
 			if paFormat[ :ApplyRound ] != _NULL_
-				bApplyRound = paFormat[ :ApplyRound ]
+				bRounded = paFormat[ :ApplyRound ]
 			ok
 
 			if paFormat[ :RoundTo ] != _NULL_
@@ -5534,9 +5538,9 @@ class stzNumber from stzObject
 		# Managing precision by computing the fractional part
 
 		if bRestrictFractionalPart = _FALSE_
-			cFractionalPart = This.FractionalPartWithoutDotZero()
+			cFractionalPart = This.FractionalPartWithoutZerodot()
 		else
-			cCurrentFractionalPart = This.FractionalPartWithoutDotZero()
+			cCurrentFractionalPart = This.FractionalPartWithoutZerodot()
 				
 			cFractionalPart = ""
 			for i = 1 to nNumberOfDigitsInFractionalPart
@@ -5561,7 +5565,7 @@ class stzNumber from stzObject
 
 				# Reading the rounded fraction part
 				cFractionalPart = ""
-				for i = ring_find(cTemNumber, ".") + 1 to len(cTempNumber)
+				for i = ring_find(cTempNumber, ".") + 1 to len(cTempNumber)
 					cFractionalPart += cTempNumber[i]
 				next
 			ok
@@ -5639,19 +5643,19 @@ class stzNumber from stzObject
 				cFormattedNumber += (cFractionalSep + cFractionalPart)
 			ok
 		else
-			oTempNumber = new stzNumber(This.RoundTo(nRound))
+			oTempNumber = new stzNumber(This.RoundTo(nRoundTo))
 
-			if oTempNumber.FractionalPartWithoutDotZero() != _NULL_
+			if oTempNumber.FractionalPartWithoutZerodot() != _NULL_
 
 				cFormattedNumber += cFractionalSep
 
-				if nNumberOfDigitsInFractionalPart <= len(oTempNumber.FractionalPartWithoutDotZero())
+				if nNumberOfDigitsInFractionalPart <= len(oTempNumber.FractionalPartWithoutZerodot())
 					for i = 1 to nNumberOfDigitsInFractionalPart
-						cFormattedNumber += oTempNumber.FractionalPartWithoutDotZero()[i]
+						cFormattedNumber += oTempNumber.FractionalPartWithoutZerodot()[i]
 					next
 
 				else 
-					nDiff = nNumberOfDigitsInFractionalPart - len(oTempNumber.FractionalPartWithoutDotZero())
+					nDiff = nNumberOfDigitsInFractionalPart - len(oTempNumber.FractionalPartWithoutZerodot())
 		
 					for i = 1 to nDiff
 						cFormattedNumber += "0"
@@ -5718,7 +5722,7 @@ class stzNumber from stzObject
 		ok
 
 		if oNumber.FractionalPart() != ""
-			cNumber += cFractionalSep + oNumber.FractionalPartWithoutDotZero()
+			cNumber += cFractionalSep + oNumber.FractionalPartWithoutZerodot()
 		ok
 
 		if bPercent = _TRUE_
@@ -5726,12 +5730,54 @@ class stzNumber from stzObject
 		ok
 
 		return cNumber
-			
+
+	def ToCompactForm()
+		nNumber = This.Value()
+	    if nNumber >= 1000 and nNumber < 1_000_000
+			return '' + RoundN(nNumber/1000, 1) + "K"
+
+		but nNumber >= 1_000_000 and nNumber < 1_000_000_000
+			return '' + RoundN(nNumber/1_000_000, 1) + "M"
+
+		but nNumber > 1_000_000_000
+			return '' + RoundN(nNumber/1000_000_000, 1) + "B"
+		ok
+
+	def ToKform()
+		nNumber = This.Value()
+	    if nNumber >= 1000
+	        return '' + RoundN(nNumber/1000, 1) + "K"
+	    else
+	        return This.Content()
+	    ok
+
+	def ToMForm()
+		nNumber = This.Value()
+	    if nNumber >= 1_000_000
+	        return '' + RoundN(nNumber/1_000_000, 1) + "M"
+	    else
+	        return This.Content()
+	    ok
+
+	def ToBForm()
+		nNumber = This.Value()
+	    if nNumber >= 1000_000_000
+	        return '' + RoundN(nNumber/1000_000_000, 1) + "B"
+	    else
+	        return This.Content()
+	    ok
+
 	def SetDefaultFormat() // TODO
 		StzRaise("Unsupported feature in this version!")
 
 	def ApplyLocale(pcLocale) // TODO
 		StzRaise("Unsupported feature in this version!")
+
+	  #------------------------------------------------------------------------#
+	 #  Generating a compact form of the number using K letter for thousands  #
+	#------------------------------------------------------------------------#
+
+
 
 	  #-----------------------------#
 	 #     OPERATORS OVERLOADING   #

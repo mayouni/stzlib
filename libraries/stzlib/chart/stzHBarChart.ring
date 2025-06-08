@@ -101,7 +101,9 @@ class stzHBarChart from stzBarChart
 		def WithoutVAxisLabels()
 			This.SetAxisLabels(FALSE)
 
-	# --- Horizontal Layout Calculation ---
+	  #---------------------------------#
+	 #  Horizontal Layout Calculation  #
+	#---------------------------------#
 
 	def _calculateLayout()
 	    nBars = len(@anValues)
@@ -210,8 +212,10 @@ class stzHBarChart from stzBarChart
 	        :bars_to_show = nBarsToShow,
 	        :annotation_row = nAnnotationRow
 	    ]
-	
-	# --- Horizontal Drawing Methods ---
+
+	  #------------------------------#
+	 #  Horizontal Drawing Methods  #
+	#------------------------------#
 
 	def _drawVAxis(oLayout)
 		if not @bShowVAxis or oLayout[:v_axis_col] = 0
@@ -334,7 +338,7 @@ class stzHBarChart from stzBarChart
 	            ok
 	        but @bShowPercent and @nSum > 0
 	            nPercent = RoundN((nValue * 100) / @nSum, 1)
-	            cValue = "" + nPercent + "%"
+	            cValue = '' + nPercent + "%"
 				cValue = ring_substr2(cValue, ".0%", "%")
 	        ok
 	        

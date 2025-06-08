@@ -1,6 +1,39 @@
 load "../max/stzmax.ring"
 
 
+/*===
+*/
+pr()
+
+# Basic compact form
+oNum = new stzNumber(1_290_800_280)
+? oNum.ToCompactForm()
+#--> 1.3B
+
+? oNum.ToKForm()
+#--> 1290800.3K
+
+? oNum.ToMForm()
+#--> 1290.8M
+
+? oNum.ToBForm()
+#--> 1.3B
+
+pf()
+# Executed in 0.07 second(s) in Ring 1.22
+
+/*---
+
+# Integrated with full formatting
+? oNum.ApplyFormatXT([ 
+    :UseCompactForm = _TRUE_, 
+    :CompactOptions = [ :Precision = 2 ],
+    :Prefix = "$",
+    :ShowSign = _TRUE_
+])  # "+$1.25M"
+
+
+pf()
 
 /*===
 

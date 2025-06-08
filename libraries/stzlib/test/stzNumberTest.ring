@@ -781,7 +781,7 @@ pf()
 # Executed in 0.11 second(s)
 
 /*--------------------
-*/
+
 pr()
 
 decimals(3)
@@ -799,7 +799,7 @@ StzNumberQ("81.8") {
 }
 
 pf()
-# Executed in 0.08 second(s)
+# Executed in 0.05 second(s)
 
 /*--------------------
 
@@ -928,23 +928,27 @@ pr()
 pf()
 # Executed in 0.03 second(s)
 
-/*----------------------- TODO: FIX
-*/
+/*-----------------------
+
 pr()
 
 ? Q(5.12).IsEqualTo(5.1200000000000001)
 #--> TRUE
 
 # Because the current round on the program is 2, as defined by default in Ring.
-# When Ring rounds the long number provide to 2, it will become 5.12
+# When Ring rounds the long number provided to 2, it will become 5.12
 
 ? Q(5.12).IsEqualTo("5.1200000000000001")
 #--> TRUE
 
+# But if we use the round that reads the very last 1 in the decimal part,
+# the two numbers will be identified as beeing different:
+
 ? Q(5.12).IsEqualTo([ 5.1200000000000001, :Round = 16 ])
+#--> FALSE
 
 pf()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*-----------------------
 
@@ -1162,6 +1166,9 @@ o1 = new stzNumber("369900990099")
 
 /*--------------
 
+*/
+pr()
+
 o1 = new stzNumber(12590)
 ? o1.ApplyFormatXT([
 	# Precision
@@ -1205,6 +1212,8 @@ o1 = new stzNumber(12590)
 	:ToIndian,
 	:ToRoman
 ])
+
+pf()
 
 /*
 TODO in stzListOfNumbers() -> Applyformat
