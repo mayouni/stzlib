@@ -8,11 +8,11 @@ At Softanza, we believe every chart should provide **actionable insight**, not j
 
 * **Bar Charts** are ideal for **comparison** – "Which value is bigger?"
 * **Multi-bar Charts** handle **complex comparisons** – "How do multiple metrics compare across categories?"
-* **Square Charts** highlight **composition** – "What are the parts of this whole?"
+* **Surface Charts** highlight **composition** – "What are the parts of this whole?"
 * **Histograms** show **distribution** – "How are values spread out?"
 * **Scatter Plots** uncover **relationships** – "How do variables relate to one another?"
 
-This article guides you through a **practical and pragmatic approach to data visualization**, grounded in over 15 years of experience in the field of data analytics.
+This article guides you through a **practical and pragmatic approach to data visualization**, grounded in many years of hand-on experience in the field of data analytics.
 
 
 ## The Foundation: Vertical Bar Charts for Comparison
@@ -20,9 +20,8 @@ This article guides you through a **practical and pragmatic approach to data vis
 Creating basic comparison visualizations is straightforward:
 
 ```ring
-o1 = new stzChart(:VBar, [ 5, 4, 2, 5, 3, 2, 4 ]) {
-    Show()
-}
+oChart = new stzChart([ 5, 4, 2, 5, 3, 2, 4 ])
+ochart.Show()
 ```
 
 This transforms data into recognizable patterns:
@@ -43,7 +42,7 @@ This transforms data into recognizable patterns:
 Customization options provide visual refinement:
 
 ```ring
-o1 {
+ochart {
     SetTopChar("●")
     SetBarChar("┃")
     SetBarWidth(1)
@@ -183,10 +182,10 @@ oChart {
 
 ## Compositional Insights: Understanding the Whole
 
-Square charts provide treemap-like visualization for parts-to-whole relationships:
+Surface charts provide treemap-like visualization for parts-to-whole relationships:
 
 ```ring
-oChart = new stzSquareChart([
+oChart = new stzSurfaceChart([
     :Sales = 45, :Marketing = 25, :Dev = 20, :Support = 10
 ])
 oChart.AddPercent().AddLegend().AddValues().Show()
