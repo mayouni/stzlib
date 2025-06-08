@@ -206,6 +206,10 @@ t0 = clock()
 	load "regex/stzRegexuter.ring"
 	load "regex/stzListex.ring"
 
+# Loading files related to STATS module
+
+	load "stats/stzStats.ring"
+
 # Loading files related to CHART module
 
 	load "chart/stzChart.ring"
