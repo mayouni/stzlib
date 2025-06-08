@@ -49776,6 +49776,53 @@ class stzString from stzObject
 		def FindCharsZ()
 			return This.FindChars()
 
+	  #------------------------------------------------------#
+	 #  FINDING THE POSITIONS OF UPPERCASE/LowERCASE CHARS  #
+	#======================================================#
+
+	def FindUppercaseChars()
+		anResult = []
+		acChars = This.Chars()
+		nLen = len(acChars)
+
+		for i = 1 to nLen
+			if ring_isupper(acChars[i])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def UppercaseChars()
+		return This.CharsAt(This.FindUppercaseChars())
+
+	def UppercaseCharsZ()
+		return Association([ This.UppercaseChars(), This.FindUpperCaseChars() ])
+
+	#--
+
+	def FindLowercaseChars()
+		anResult = []
+		acChars = This.Chars()
+		nLen = len(acChars)
+
+		for i = 1 to nLen
+			if ring_isupper(acChars[i])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def LowercaseChars()
+		return This.CharsAt(This.FindLowercaseChars())
+
+	def LowercaseCharsZ()
+		return Association([ This.LowercaseChars(), This.FindLowerCaseChars() ])
+
+
+
+
 	  #---------------------------------------------------#
 	 #  REMOVING CHARS AT GIVEN POSITIONS OF THE STRING  #
 	#===================================================#
