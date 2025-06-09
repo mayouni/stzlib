@@ -86,3 +86,9 @@ Softanza, the foundation library for the Ring programming language, has garnered
 
 > Amazing!  The code is so simple, can quickly show bar charts.
 
+--
+
+## Antonio on Softanza Dataviz
+
+It's impressive, Mansour. A good documentation on Softanza is needed for when I advertise it on the Spanish Ring channel.
+

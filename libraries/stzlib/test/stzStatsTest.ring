@@ -1,645 +1,475 @@
 load "../max/stzmax.ring"
 
-#-----------------------------------#
-#  TEST FILE OF THE stzStats CLASS  #
-#-----------------------------------#
+#-------------------------------------------------#
+#  COMPREHENSIVE TEST FILE FOR stzStats CLASS     #
+#-------------------------------------------------#
 
 /*
-#NOTE: The stzStats class provides solid statistical functionality across four main areas:
-
-- Descriptive Statistics: Mean, median, mode, standard deviation, variance, range
-- Distribution Analysis: Quartiles, percentiles, outlier detection  
-- Frequency Analysis: Frequency tables, relative/percentage frequencies
-- Data Quality: Normalization, standardization, completeness metrics
-
-Key Features Tested in this file:
-- Automatic data type detection (numeric/categorical/mixed)
-- Robust handling of edge cases (empty data, single values, mixed types)
-- Outlier detection using IQR method
-- Data quality metrics including completeness and diversity
-- Normalization (0-1 scale) and standardization (z-scores)
-
-The test samples cover typical analytics scenarios you'd encounter in the Softanza Charting System, from basic descriptive stats to advanced distribution analysis and data quality assessment.
+This test file validates:
+- Pillar 1: Comparison (Descriptive Statistics)
+- Pillar 2: Composition (Frequency & Categorical Analysis)
+- Pillar 3: Distribution (Shape & Spread Analysis)
+- Pillar 4: Relation (Correlation & Association Analysis)
+- Data Transformation & Normalization
+- Insight Generation with Custom Rules
+- Quality Assurance & Utility Methods
+- Edge Cases (Missing Values, Empty Data, Single Value)
 */
 
-/*===
+# Because we are dealing with statistics, let's work on that precesion
+decimals(4)
+
+/*-- Basic Numeric Data Analysis (Comparison Pillar)
 
 pr()
-
-rx = Rx(', [A-Z]')
-if rx.Match("Fine, Nice, Funny!")
-
-	 @@( rx.FindMatches() )
-	#--> [ 5, 11]
-
-	? @@(rx.MatchesZ())
-	#--> [ [ ", N", 5 ], [ ", F", 11 ] ]
-/*
-	? @@( rx.FindMatchesZZ() )
-	#--> [ [ 8, 8 ], [ 14, 14 ] ]
-
-	? @@( rx.MatchesZZ() )
-	#--> [ [ ", N", [ 8, 8 ] ], [ ", F", [ 14, 14 ] ] ]
-
-ok
-
-pf()
-
-/*--- Basic numeric data analysis with common statistical measures
-*/
-pr()
-
 oStats = new stzStats([10, 15, 20, 25, 30, 35, 40])
-
 oStats {
-        # Mean: Average value of the dataset, calculated as sum of values divided by count
-        ? Mean()
-        #--> 25
-
-        # Median: Middle value when data is ordered, splitting dataset into two equal parts
-        ? Median() 
-        #--> 25
-
-        # Standard Deviation: Measures spread of data around the mean (in same units as data)
-        ? StandardDeviation()
-        #--> 10.80
-
-        # Range: Difference between maximum and minimum values, showing data spread
-        ? Range()
-        #--> 30
-
-        # Sum: Total of all values in the dataset
-        ? Sum() + NL
-        #--> 175
-
-		? Insight()
-
-#--> The data is symmetrically distributed (mean ≈ median = , 25, ), exhibiting
-# high variability (CV=, 43.20, %) indicating diverse data points, Small sample
-# size (n=, 7, and ) limits statistical reliability.
-
+    ? Mean()           # Expected: 25
+    ? Median()         # Expected: 25
+    ? StandardDeviation() # Expected: 10.8012
+    ? Range()          # Expected: 30
+    ? Sum()            # Expected: 175
+    ? GeometricMean()  # Expected: 23.0823	Got: 22.7458
+    ? HarmonicMean()   # Expected: 21.3052	Got: 20.3742
+    ? CoefficientOfVariation() # Expected: 43.2048	Got: 100
 }
 
-# Manual Insight: The data is symmetrically distributed (mean = median = 25) with moderate spread (standard deviation 10.80) and a range of 30, indicating a balanced dataset with values evenly spaced from 10 to 40.
-
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.0020 second(s) in Ring 1.22
 
-
-/*--- Quartile analysis for distribution understanding
+/*--- Quartile and Percentile Analysis (Distribution Pillar)
 
 pr()
 
 oStats = new stzStats([1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
 oStats {
-        # Q1 (First Quartile): Value below which 25% of data lies
-        ? Q1()
-        #--> 8.75
-
-        # Q2 (Second Quartile): Same as median, 50% of data lies below this
-        ? Q2()
-        #--> 25
-
-        # Q3 (Third Quartile): Value below which 75% of data lies
-        ? Q3()
-        #--> 36.25
-
-        # IQR (Interquartile Range): Q3 - Q1, measures middle 50% spread
-        ? IQR()
-        #--> 27.50
-
-        # Quartiles: Array of Q1, Q2, Q3 for distribution summary
-        ? @@( Quartiles() )
-        #--> [ 8.75, 25, 36.25 ]
-
-		? Insight()
-#--> The data is symmetrically distributed (mean ≈ median = , 25.09, ), exhibiting
-# high variability (CV=, 65.50, and %) indicating diverse data points.
-
+    ? Q1()             # Expected: 10	Got: 8.75
+    ? Q2()             # Expected: 25
+    ? Q3()             # Expected: 40	Got: 36.25
+    ? IQR()            # Expected: 30	Got: 27.5
+    ? Percentile(90)   # Expected: 45	Got: 44.5
+    ? Skewness()       # Expected: 0 (approx, symmetric) Got 0.0027
+    ? Kurtosis()       # Expected: -1.2 (approx, platykurtic) Got: -3.8819
 }
 
-# Manual Insight: The data has a wide spread (IQR = 27.50) with a median of 25, showing a balanced distribution. The quartiles (8.75, 25, 36.25) indicate that the middle 50% of values are spread between 8.75 and 36.25, suggesting moderate variability.
-
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.0020 second(s) in Ring 1.22
 
-
-/*--- Outlier detection for data quality assessment
+/*--- Outlier Detection and Z-Scores (Distribution Pillar)
 
 pr()
 
 oStats = new stzStats([10, 12, 13, 15, 18, 20, 22, 25, 100])
+
 oStats {
-        # Outliers: Values outside 1.5 * IQR from Q1 or Q3, indicating unusual data points
-        ? @@( FindOutliers() )
-        #--> [100]
+    ? @@(FindOutliers()) # Expected: [100]
+    ? IsOutlier(100)   # Expected: TRUE
+    ? IsOutlier(15)    # Expected: FALSE
 
-        # IsOutlier: Checks if a value is an outlier based on IQR method
-        ? IsOutlier(100)
-        #--> TRUE
-
-        ? IsOutlier(15)
-        #--> FALSE
-
-        # Mean: Sensitive to outliers, pulled toward extreme values
-        ? Mean()
-        #--> 26.11
-
-        # Median: Robust to outliers, better represents central tendency here
-        ? Median()
-        #--> 18
-
-		? Insight()
-#--> The data is right-skewed with mean (, 26.11, ) > median (, 18, ), exhibiting
-# high variability (CV=, 107.77, %) indicating diverse data points, Significant
-# outliers (, 1,  values, , 11.11, %) heavily influence the mean, Consider using
-# median for central tendency due to outlier presence, Small sample size (n=, 9, and )
-# limits statistical reliability.
-
+    ? @@(ZScores())
+	# Expected: [-0.6633, -0.5926, -0.5572, -0.4865, -0.3805, -0.3098, -0.2391, -0.1331, 3.3623] (approx)
+	# Got: [ -0.5725, -0.5015, -0.4659, -0.3949, -0.2882, -0.2172, -0.1461, -0.0395, 2.6258 ]
 }
 
-# Manual Insight: The dataset is heavily skewed by an outlier (100), inflating
-# the mean (26.11) far above the median (18). Most values cluster tightly between
-# 10 and 25, indicating the outlier significantly distorts the average.
-
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.0020 second(s) in Ring 1.22
 
-/*--- Categorical data frequency analysis
+/*--- Categorical Data Frequency Analysis (Composition Pillar)
 
 pr()
 
 oStats = new stzStats(["Red", "Blue", "Red", "Green", "Blue", "Red", "Yellow"])
 oStats {
-        # Mode: Most frequent value in the dataset
-        ? Mode()
-        #--> "Red"
-
-        # Frequency Table: Counts occurrences of each unique value
-        ? @@(FrequencyTable() )
-        #--> [["Red", 3], ["Blue", 2], ["Green", 1], ["Yellow", 1]]
-
-        # Percentage Frequency: Frequency as percentage of total count
-        ? @@(PercentageFrequency())
-        #--> [["Red", 42.86], ["Blue", 28.57], ["Green", 14.29], ["Yellow", 14.29]]
-
-        # Unique Count: Number of distinct values in the dataset
-        ? UniqueCount()
-        #--> 4
-
-        # Diversity: Measure of variety, calculated as ratio of unique values to total count
-        ? Diversity() + NL
-        #--> 0.57
-
-		? Insight()
-#--> Moderate diversity (, 57.14, %) shows balanced category distribution,
-# ', Red, ' is the most common (, 42.86, and %) but distribution remains
-# fairly balanced.
-
+    ? Mode()           # Expected: "Red"
+    ? @@(FrequencyTable()) # Expected: [["Red", 3], ["Blue", 2], ["Green", 1], ["Yellow", 1]]
+    ? @@(PercentageFrequency()) # Expected: [["Red", 42.8571], ["Blue", 28.5714], ["Green", 14.2857], ["Yellow", 14.2857]]
+    ? Diversity()      # Expected: 0.5714
+    ? EntropyIndex()   # Expected: 1.8424
 }
 
-# Manual Insight: "Red" dominates the dataset (42.86% frequency), indicating a strong preference or occurrence. Moderate diversity (0.57) shows a mix of categories, but the distribution is uneven with "Red" and "Blue" being most common.
-
 pf()
-# Executed in 0.07 second(s) in Ring 1.22
+# Executed in 0.0150 second(s) in Ring 1.22
 
-/*--- Data normalization and standardization for comparison
+/*--- Data Normalization and Standardization (Transformation)
 
 pr()
 
 oStats = new stzStats([100, 200, 300, 400, 500])
 oStats {
-        # Normalize: Scales data to 0-1 range using (x - min) / (max - min)
-        ? @@( Normalize() )
-        #--> [0, 0.25, 0.5, 0.75, 1]
+    ? @@(Normalize())  # Expected: [0, 0.25, 0.5, 0.75, 1]
+    ? @@(Standardize()) # Expected: [-1.2649, -0.6325, 0, 0.6325, 1.2649] (approx)
 
-        # Standardize: Transforms data to have mean 0 and standard deviation 1 (z-scores)
-        ? @@( Standardize() )
-        #--> [-1.26, -0.63, 0, 0.63, 1.26]
-
-        # Mean: Central value of the dataset
-        ? Mean()
-        #--> 300
-
-        # Standard Deviation: Measure of data dispersion
-        ? StandardDeviation() + NL
-        #--> 158.11
-
-? Insight()
-#--> The data is symmetrically distributed (mean ≈ median = , 300, ),
-# exhibiting high variability (CV=, 52.70, %) indicating diverse data points,
-# Small sample size (n=, 5, and ) limits statistical reliability.
+    ? @@(RobustScale())
+	# Expected: [-1, -0.5, 0, 0.5, 1]
+	# Got: [ -0.8000, -0.4000, 0, 0.4000, 0.8000 ]
 
 }
 
-# Manual Insight: The data is evenly spaced (100 to 500) with a mean of 300 and
-# high variability (standard deviation 158.11). Normalized values show a linear
-# progression, and standardized z-scores confirm a symmetric distribution around
-# the mean.
-
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.0020 second(s) in Ring 1.22
 
-
-/*--- Data quality metrics for completeness assessment
+/*--- Correlation and Covariance (Relation Pillar)
 
 pr()
 
-oStats = new stzStats([10, 0, 20, NULL, 30, "", 40, 50])
-oStats {
-        # Count: Total number of values (including missing ones)
-        ? Count()
-        #--> 8
+oStats1 = new stzStats([1, 2, 3, 4, 5])
+oStats2 = new stzStats([2, 4, 6, 8, 10])
 
-        # Missing Count: Number of NULL or empty values
-        ? MissingCount()
-        #--> 2
-
-        # Completeness: Percentage of non-missing values
-        ? Completeness()
-        #--> 75
-
-        # Unique Count: Number of distinct non-missing values
-        ? UniqueCount()
-        #--> 6
-
-        # Diversity: Ratio of unique values to total non-missing count
-        ? Diversity() + NL
-        #--> 0.75
-
-	? Insight()
-#--> Mixed dataset (numeric and categorical) with 6 unique values
-# out of 8 total. Numeric analysis is limited due to mixed data types.
-# Consider separating numeric and categorical components for meaningful analysis.
-
-}
-
-# Manual Insight: The dataset has significant missing data (37.5% incomplete),
-# reducing reliability. High diversity (0.75) among non-missing values suggests
-# varied data, but the presence of NULL and empty entries requires
-# attention for analysis.
+? oStats1.CorrelationWith(oStats2)  # Expected: 1 (perfect positive correlation)
+? oStats1.CovarianceWith(oStats2)   # Expected: 5
+? oStats1.RankCorrelationWith(oStats2) # Expected: 1
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.0230 second(s) in Ring 1.22
 
-
-/*--- Percentile analysis for detailed distribution insights
-
-pr()
-
-oStats = new stzStats([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-oStats {
-        # Percentile: Value below which a given percentage of data lies
-        ? Percentile(10)
-        #--> 1
-
-        ? Percentile(50)
-        #--> 5
-
-        ? Percentile(90)
-        #--> 9
-
-        ? Percentile(95)
-        #--> 10
-
-        # Median: Middle value, same as 50th percentile
-        ? Median() + NL
-        #--> 5.5
-
-? Insight()
-#--> The data is symmetrically distributed (mean ≈ median = , 5.50, ),
-# exhibiting high variability (CV=, 55.05, and %) indicating diverse data points.
-
-}
-
-# Manual Insight: The data is uniformly distributed from 1 to 10, with
-# percentiles aligning closely with values (e.g., 50th percentile = 5, 90th = 9).
-# The median (5.5) confirms a balanced, evenly spaced dataset.
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
-
-/*--- Mixed data type handling and edge cases
-
-pr()
-
-oStats = new stzStats([1, "text", 3, 4, "another"])
-oStats {
-        # Mode: Most frequent value, treats numbers as strings in mixed data
-        ? Mode()
-        #--> 1
-
-        # Count: Total number of values
-        ? Count()
-        #--> 5
-
-        # Unique Count: Number of distinct values
-        ? UniqueCount()
-        #--> 5
-
-        # Mean: Returns 0 for mixed data as non-numeric values are ignored
-        ? Mean()
-        #--> 0
-
-        # Standard Deviation: Returns 0 when mean is 0 or data is non-numeric
-        ? StandardDeviation() + NL
-        #--> 0
-
-? Insight()
-#--> Mixed dataset (numeric and categorical) with 5 unique values
-# out of 5 total. Numeric analysis is limited due to mixed data types.
-# Consider separating numeric and categorical components for meaningful analysis.
-
-}
-# Manual Insight: The mixed dataset (numeric and text) has no repeated
-# values (unique count = 5), preventing meaningful numeric analysis (mean,
-# standard deviation = 0).
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
-
-/*--- Empty dataset handling
-
-pr()
-
-oStats = new stzStats([])
-oStats {
-        # Count: Returns 0 for empty dataset
-        ? Count()
-        #--> 0
-
-        # Mean: Returns 0 for empty dataset
-        ? Mean()
-        #--> 0
-
-        # Median: Returns 0 for empty dataset
-        ? Median()
-        #--> 0
-
-        # Mode: Returns NULL for empty dataset
-        ? @@(Mode())
-        #--> NULL
-
-        # Completeness: Returns 0 for empty dataset
-        ? Completeness() + NL
-        #--> 0
-
-? Insight()
-#--> Empty dataset provides no actionable information.
-# Data collection is required before meaningful analysis
-# can be performed.
-
-}
-
-# Manual Insight: The empty dataset provides no actionable information,
-# with all metrics (mean, median, mode, completeness) returning null or zero,
-# indicating a need for data collection before analysis.
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
-
-/*--- Single value dataset analysis
-
-pr()
-
-oStats = new stzStats([42])
-oStats {
-        # Mean: Equals the single value
-        ? Mean()
-        #--> 42
-
-        # Median: Equals the single value
-        ? Median()
-        #--> 42
-
-        # Mode: Equals the single value
-        ? Mode()
-        #--> 42
-
-        # Standard Deviation: 0 as there's no variation
-        ? StandardDeviation()
-        #--> 0
-
-        # Range: 0 as there's only one value
-        ? Range() + NL
-        #--> 0
-
-? Insight()
-#--> Single-value dataset offers no variability for meaningful statistical analysis.
-
-}
-
-# Manual Insight: The single-value dataset (42) has no variability
-# (standard deviation, range = 0), with all central tendency measures
-# (mean, median, mode) equal, offering limited analytical insight.
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
-
-/*--- Large dataset with repeated values for mode detection
-
-pr()
-
-oStats = new stzStats([1, 1, 1, 2, 2, 3, 3, 3, 3, 4, 5])
-oStats {
-        # Mode: Value with the highest frequency
-        ? Mode()
-        #--> 3
-
-        # Frequency Table: Counts occurrences of each unique value
-        ? @@( FrequencyTable() )
-        #--> [["1", 3], ["2", 2], ["3", 4], ["4", 1], ["5", 1]]
-
-        # Mean: Average of all values
-        ? Mean()
-        #--> 2.55
-
-        # Variance: Average of squared deviations from the mean, measures dispersion
-        ? Variance() + NL
-        #--> 1.67
-
-? Insight()
-#--> The data is left-skewed with mean (, 2.55, ) < median (, 3, ),
-# exhibiting high variability (CV=, 50.81, and %) indicating diverse data points.
-
-}
-
-# Manual Insight: The dataset is skewed toward lower values, with "3" being the most frequent (mode, 4 occurrences). Low mean (2.45) and variance (1.67) indicate a compact distribution with moderate variability.
-
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
-
-
-#==============================================================================
-#  AUTOMATED INSIGHTS TEST SAMPLES - Rule-Based Intelligence Examples
-#==============================================================================
-
-/*--- Basic symmetric distribution
-
-pr()
-
-oStats = new stzStats([10, 15, 20, 25, 30, 35, 40])
-? oStats.Insight()
-#--> The data is symmetrically distributed (mean ≈ median = , 25, ),
-# exhibiting high variability (CV=, 43.20, %) indicating diverse data points,
-# Small sample size (n=, 7, and ) limits statistical reliability.
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
-
-/*--- Right-skewed with outliers
+/*--- 7: Insight Generation for Numeric Data
 
 pr()
 
 oStats = new stzStats([10, 12, 13, 15, 18, 20, 22, 25, 100])
-? oStats.Insight()
-#--> The data is right-skewed with mean (, 26.11, ) > median (, 18, ),
-# exhibiting high variability (CV=, 107.77, %) indicating diverse data points,
-# Significant outliers (, 1,  values, , 11.11, %) heavily influence the mean,
-# Consider using median for central tendency due to outlier presence,
-# Small sample size (n=, 9, and ) limits statistical reliability.
+? @@NL(oStats.Insight())
+#--> [
+#	"Data shows positive skew (mean 26.1111 > median 18)",
+#	"High variability (CV = 100%) indicates diverse data points",
+#	"Light-tailed distribution (kurtosis = -3.3227) indicates fewer extreme values",
+#	"Contains 1 outlier(s) (11.1111% of data)",
+#	"High outlier proportion may distort mean-based statistics",
+#	"Small sample size (n = 9) limits statistical reliability"
+# ]
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.0030 second(s) in Ring 1.22
 
-/*--- Categorical data with dominant category
+/*--- Insight Generation for Categorical Data
 
 pr()
 
-oStats = new stzStats(["Red", "Blue", "Red", "Green", "Blue", "Red", "Yellow"])
-? oStats.Insight()
-#--> Moderate diversity (, 57.14, %) shows balanced category distribution,
-# ', Red, ' is the most common (, 42.86, and %) but distribution remains
-# fairly balanced.
+oStats = new stzStats(["A", "B", "A", "C", "A", "D"])
+? @@NL(oStats.Insight())
+#--> [
+#	"Moderate diversity (66.6700%) shows balanced distribution",
+#	"Information entropy (1.7925) indicates balanced category distribution",
+#	"'A' is most common (50%) but distribution remains balanced"
+# ]
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 0.0110 second(s) in Ring 1.22
 
-/*--- High diversity categorical
-
-pr()
-
-oStats = new stzStats(["A", "B", "C", "D", "E", "F", "G"])
-? oStats.Insight()
-#--> High diversity (, 100, %) suggests wide variety with minimal repetition,
-# No single category dominates, with ', A, ' being most frequent at , 14.29, %,
-# and All values are unique, indicating identifier-like data rather than categories.
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
-
-/*--- Low variability data
-
-pr()
-
-oStats = new stzStats([98, 99, 100, 101, 102])
-? oStats.Insight()
-#--> The data is symmetrically distributed (mean ≈ median = , 100, ),
-# showing low variability (CV=, 1.58, %) indicating consistent values,
-# Small sample size (n=, 5, and ) limits statistical reliability.
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
-
-/*--- Single value dataset
-
-pr()
-
-oStats = new stzStats([42])
-? oStats.Insight()
-#--> Single-value dataset offers no variability for meaningful statistical analysis.
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
-
-/*--- Empty dataset
-
-pr()
-
-oStats = new stzStats([])
-? oStats.Insight()
-#--> Empty dataset provides no actionable information.
-# Data collection is required before meaningful analysis can be performed.
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
-
-/*--- Mixed data types
+/*--- Mixed Data Type Handling
 
 pr()
 
 oStats = new stzStats([1, "text", 3, 4, "another"])
-? "Dataset: [1, 'text', 3, 4, 'another']"
-? "Insight: " + oStats.Insight()
-#--> Insight: Mixed dataset (numeric and categorical) with 5 unique
-# values out of 5 total. Numeric analysis is limited due to mixed data types.
-# Consider separating numeric and categorical components for meaningful analysis.
+? oStats.DataType()  #--> "mixed"
+? @@NL(oStats.Insight())
+#--> [
+#	"Mixed dataset containing both numeric and categorical data (5 unique values from 5 total)",
+#	"Consider separating data types for specialized analysis. Numeric methods apply only to numeric subset"
+# ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.0020 second(s) in Ring 1.22
 
-/*--- Small sample with high variability
+/*--- Empty Dataset Handling
 
 pr()
 
-oStats = new stzStats([1, 100])
+oStats = new stzStats([])
+? oStats.DataType()  # Expected: "empty"
+? oStats.Mean()      # Expected: 0
+? oStats.Median()    # Expected: 0
+? oStats.Mode()      # Expected: NULL
 ? oStats.Insight()
-#--> The data is symmetrically distributed (mean ≈ median = , 50.50, ),
-# exhibiting high variability (CV=, 138.62, %) indicating diverse data points,
-# Small sample size (n=, 2, and ) limits statistical reliability.
+#--> "Dataset is empty. No analysis possible without data."
+pf()
+# Executed in 0.0010 second(s) in Ring 1.22
+
+/*--- Single Value Dataset
+
+pr()
+oStats = new stzStats([42])
+? oStats.Mean()      # Expected: 42
+? oStats.Median()    # Expected: 42
+? oStats.StandardDeviation() # Expected: 0
+? @@NL(oStats.Insight())
+#--> [
+#	"The data is symmetrically distributed with mean 42 and median 42.",
+#	"The data shows low variability with a coefficient of variation of 0%, indicating consistent values.",
+#	"Small sample size (n = 1) limits statistical reliability"
+# ]
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.0030 second(s) in Ring 1.22
 
-/*--- Dominant category (>50%)
+/*--- 12: Missing Values Handling
 
 pr()
 
-oStats = new stzStats(["A", "A", "A", "A", "B", "C"])
-? oStats.Insight()
-#--> Moderate diversity (, 50, %) shows balanced category distribution,
-# ', A, ' dominates the dataset (, 66.67, %) indicating strong preference or
-# concentration, Limited categories (n=, 3, and ) suggest focused classification system.
+oStats = new stzStats([1, "NA", 3, "NULL", 5, "#N/A"])
+? @@(oStats.Data())  # Expected: [1, 3, 5]
+? oStats.Count()     # Expected: 3
+? oStats.Mean()      # Expected: 3
 
 pf()
+# Executed in 0.0010 second(s) in Ring 1.22
 
-/*--- Large dataset example (simulated)
+/*--- Data Validation
 
 pr()
 
-# Create a larger dataset for testing
-aLargeData = []
-for i = 1 to 150
-    aLargeData + random(100)
-next
-
-oStats = new stzStats(aLargeData)
-? oStats.Insight()
-# The data is symmetrically distributed (mean ≈ median = , 52.76, ),
-# exhibiting high variability (CV=, 52.72, %) indicating diverse data points,
-# Large sample size (n=, 150, and ) provides robust statistical foundation.
+oStats = new stzStats([1, 2, 3, 4, 5, 100])
+? @@(oStats.ValidateData())
+# Expected: ["High proportion of outliers detected"]
+# Got: [ "Data quality appears good" ]
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.0020 second(s) in Ring 1.22
 
-#==============================================================================
-#  EXTENSIBILITY DEMONSTRATION
-#==============================================================================
-
-/*--- Future domain-specific extensions example
+/*--- Recommendation for Analysis
 
 pr()
 
-# This shows how the framework could be extended for specific domains
-oStats = new stzStats([0.15, 0.23, 0.18, 0.31, 0.22])
+oStats = new stzStats([1, 2, 3, 4, 5, 100])
+? @@NL(oStats.RecommendAnalysis())
 
-# Add a financial domain rule (conceptual - not fully implemented yet)
-oStats.AddInsightRule("Finance", "CV > 0.2", "Portfolio shows moderate risk diversification")
+# Expected: [
+#	"Data is skewed - consider using median instead of mean",
+#	"Outliers detected - consider robust statistics",
+#	"High variability - segment analysis recommended"
+# ]
 
-? "Dataset: [0.15, 0.23, 0.18, 0.31, 0.22] (Financial Returns)"
-? "Base Insight: " + oStats.Insight()
-? "Domain Insight: " + oStats.ApplyDomainInsights("Finance")
+# Got: [
+#	"Small sample size - interpret results cautiously",
+#	"Outliers detected - consider robust statistics",
+#	"High variability - segment analysis recommended"
+# ]
+
+pf()
+# Executed in 0.0030 second(s) in Ring 1.22
+
+/*--- Custom Insight Rules
+
+pr()
+
+oStats = new stzStats([10, 20, 30, 40, 50])
+oStats {
+
+	AddInsightRule(
+		:Finance,
+		"Mean() > 20",
+		"Mean (" + Mean() + ") exceeds threshold (20) for financial analysis"
+	)
+
+	? Mean() #--> 30
+
+	? @@NL( DomainInsights(:Finance) )
+	#--> [ "Mean (30) exceeds threshold (20) for financial analysis" ]
+
+}
+
+pf()
+# Executed in 0.0060 second(s) in Ring 1.22
+
+/*--- Time Series Analysis (Moving Average)
+
+pr()
+
+oStats = new stzStats([1, 3, 5, 7, 9, 11])
+? @@(oStats.MovingAverage(3))  # Expected: [3, 5, 7, 9]
+
+pf()
+# Executed in 0.0010 second(s) in Ring 1.22
+
+/*--- Dataset Comparison
+
+pr()
+
+oStats1 = new stzStats([1, 2, 3, 4, 5])
+oStats2 = new stzStats([2, 4, 6, 8, 10])
+
+? @@NL(oStats1.CompareWith(oStats2))
+# Expected: [
+#	"Mean difference: -50%",
+#	"Similar variability patterns",
+#	"Strong positive correlation (1)"
+# ]
+
+# Got: [
+#	"Mean difference: -50%",
+#	"Dataset 2 shows higher variability",
+#	"Strong positive correlation (1)"
+# ]
+
+pf()
+# Executed in 0.0020 second(s) in Ring 1.22
+
+/*--- Similarity Score
+
+pr()
+
+oStats1 = new stzStats([1, 2, 3, 4, 5])
+oStats2 = new stzStats([1, 2, 3, 4, 5])
+
+? oStats1.SimilarityScore(oStats2)  # Expected: 1 (identical datasets)
+
+pf()
+# Executed in 0.0020 second(s) in Ring 1.22
+
+/*--- 19: Summary Generation
+
+pr()
+oStats = new stzStats([10, 20, 30, 40, 50])
+? oStats.Summary()  # Expected: Detailed summary including type, count, mean, median, etc., and insights
+#-->
+# === Dataset Summary ===
+# Type: numeric
+# Count: 5
+# Mean: 30
+# Median: 30
+# Standard Deviation: 15.8114
+# Range: 40 (10 to 50)
+# Quartiles: Q1=12.5000, Q2=30, Q3=37.5000
+
+# === Insights ===
+# • Data shows negative skew (mean 15.8114 < median 30)
+# • High variability (CV = 100%) indicates diverse data points
+# • Light-tailed distribution (kurtosis = -6.6961) indicates fewer extreme values
+# • Small sample size (n = 5) limits statistical reliability
+
+pf()
+# Executed in 0.0030 second(s) in Ring 1.22
+
+/*--- Export Functionality
+
+pr()
+
+oStats = new stzStats([10, 20, 30, 40, 50])
+? @@NL(oStats.Export())  # Expected: Structured hash list with statistical results
+#--> [
+#	[ "data_type", "numeric" ],
+#	[ "count", 5 ],
+#	[ "unique_count", 5 ],
+#	[ "mean", 30 ],
+#	[ "median", 30 ],
+#	[ "mode", "10" ],
+#	[ "standard_deviation", 15.8114 ],
+#	[ "variance", 501.6435 ],
+#	[ "range", 40 ],
+#	[ "min", 10 ],
+#	[ "max", 50 ],
+#	[ "quartiles", [ 12.5000, 30, 37.5000 ] ],
+#	[ "skewness", 0.3602 ],
+#	[ "kurtosis", -6.6974 ],
+#	[ "outliers", [ ] ]
+# ]
 
 pf()
 
+/*--- Precision Control
+
+pr()
+oStats = new stzStats([1.23456, 2.34567, 3.45678])
+oStats {
+	SetPrecision(2)
+	? Mean()  # Expected: 2.35 (rounded to 2 decimals)
+}
+
+pf()
+# Executed in 0.0010 second(s) in Ring 1.22
+
+/*--- Confidence Interval
+
+pr()
+
+oStats = new stzStats([10, 20, 30, 40, 50])
+? @@(oStats.ConfidenceInterval(95))
+# Expected: [17.6076, 42.3924] (approx with t=1.96)
+# Got : [ 16.1407, 43.8593 ]
+
+pf()
+# Executed in 0.0010 second(s) in Ring 1.22
+
+/*--- Trend Analysis
+
+pr()
+
+oStats = new stzStats([1, 3, 5, 7, 9])
+? oStats.TrendAnalysis()
+# Expected: "increasing"
+# Should give:
+# [ [ "inccreasing", 5 ] ]
+# Increasing over the 5 items of the dataset
+
+oStats = new stzStats([ 7, 4, 3, 1 ])
+? oStats.TrendAnalysis() # Gives "decreasing"
+# Should give:
+#--> [ "decreasing", 4 ]
+# Decreasing over the 4 items of the dataset
+
+oStats = new stzStats([ 7, 4, 3, 1, 5, 9, 12 ])
+? oStats.TrendAnalysis()
+#--> "increasing"
+#ERROR Should give:
+# [ [ "decreasing, 3 ] , [ :inflecting, 1 ], [ "increasing", 3 ] ]
+# Decreasing over 3 items, inflecting at 1 item (the 4th), and the increasing over the 3 remaining items.")
+
+
+pf()
+# Executed in 0.0010 second(s) in Ring 1.22
+
+#---------------------------------------------
+# Example: Chi-Square Test for Independence
+#---------------------------------------------
+*/
+pr()
+
+# Scenario: Testing if gender (Male/Female) is independent
+# of product preference (Like/Dislike)
+
+# Sample data
+aGender = ["Male", "Female", "Male", "Female", "Male", "Female", "Male", "Female", "Male", "Female"]
+aPreference = ["Like", "Like", "Dislike", "Dislike", "Like", "Like", "Dislike", "Like", "Dislike", "Like"]
+
+# Create stzStats objects
+oStats1 = new stzStats(aGender)
+oStats2 = new stzStats(aPreference)
+
+# Perform chi-square test
+
+# Chi-Square Statistic
+? oStats1.ChiSquareWith(oStats2)
+# Expected: 0.4762 (see calculation below)
+# Got: 1.6667
+
+	# Expected contingency table:
+	#           Like | Dislike
+	# Male    |  3   |   2
+	# Female  |  4   |   1
+	# 
+	# Row totals: Male = 5, Female = 5
+	# Col totals: Like = 7, Dislike = 3
+	# Grand total: 10
+	# 
+	# Expected frequencies:
+	# Male-Like: (5*7)/10 = 3.5
+	# Male-Dislike: (5*3)/10 = 1.5
+	# Female-Like: (5*7)/10 = 3.5
+	# Female-Dislike: (5*3)/10 = 1.5
+	# 
+	# Chi-Square = [(3-3.5)^2/3.5 + (2-1.5)^2/1.5 + (4-3.5)^2/3.5 + (1-1.5)^2/1.5]
+	#            = [0.0714 + 0.1667 + 0.0714 + 0.1667] = 0.4762 (rounded to 0.4762)
+	
+# Invalid case: Numeric data
+oStats3 = new stzStats([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+
+# Chi-Square with Numeric Data (Invalid)
+? oStats1.ChiSquareWith(oStats3)
+#--> 0
+
+# Invalid case: Different lengths
+oStats4 = new stzStats(["Like", "Dislike"])
+? oStats1.ChiSquareWith(oStats4)
+#--> 0
+
+pf()
+# Executed in 0.0030 second(s) in Ring 1.22

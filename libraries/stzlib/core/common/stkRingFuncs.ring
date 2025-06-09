@@ -299,3 +299,44 @@ func ring_ceil(n)
 
 func ring_floor(n)
 	return floor(n)
+
+#-- #TODO need InternetLib.ring to work! Test them
+
+func ring_md5(str)
+	return md5(str)
+
+func ring_sha1(str)
+	return sha1(str)
+
+func ring_sha256(str)
+	return sha256(str)
+
+func ring_sha384(str)
+	return sha384(str)
+
+func ring_sha224(str)
+	return sha224(str)
+
+func ring_sha512(str)
+	return sha512(str)
+
+func ring_supportedCiphers()
+	return SupportedCiphers()
+
+func ring_encrypt1(cString, cKey, cIV)
+	return encrypt(cString, cKey, cIV)
+
+func ring_encrypt2(cString, cKey, cIV, cCipherAlgorithmName)
+	return encrypt(cString, cKey, cIV, cCipherAlgorithmName)
+
+func ring_decrypt1(cString, cKey, cIV)
+	return decrypt(cString, cKey, cIV)
+
+func ring_decrypt2(cString, cKey, cIV, cCipherAlgorithmName)
+	return decrypt(cString, cKey, cIV, cCipherAlgorithmName)
+
+#--
+
+func ring_randbytes(n)
+	return randbytes(n)
+
