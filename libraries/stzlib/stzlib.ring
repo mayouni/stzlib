@@ -280,6 +280,8 @@ t0 = clock()
 
 _$SOFTNAZA_STARTUP_TIME_ = (clock()-t0)/clockspersecond()
 #--> 0.06 seconds (Ring 1.22 64-bit)
+? "Softanza started in " + _$SOFTNAZA_STARTUP_TIME_ + " second(s)."
+? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL
 
 func StzStartupTime()
 	return _$SOFTNAZA_STARTUP_TIME_

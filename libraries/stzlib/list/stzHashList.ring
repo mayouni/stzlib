@@ -1,13 +1,13 @@
-#---------------------------------------------------------------------------#
+#-----------------------------------------------------------#
 # 		    SOFTANZA LIBRARY (V1.0) - STZHASHLIST		    #
-#		An accelerative library for Ring applications		    #
-#---------------------------------------------------------------------------#
-#									    #
-# 	Description	: The class for managing hash lists                 #
-#	Version		: V1.0 (2020-2024)				    #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
-#									    #
-#---------------------------------------------------------------------------#
+#		An accelerative library for Ring applications		#
+#-----------------------------------------------------------#
+#                                                           #
+# 	Description	: The class for managing hash lists         #
+#	Version		: V1.0 (2020-2024)				            #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)	    #
+#                                                           #
+#-----------------------------------------------------------#
 
 /*
 	Example 1:
@@ -244,56 +244,45 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def init(p)
 
-		switch ring_type(p)
-		on "NUMBER"
-			aResult = []
-			for i = 1 to p
-				aResult + [ "k" + i , _NULL_ ]
-			next
-			@aContent = aResult
-
-		on "LIST"
-			
-			if @IsHashList(p)
-				/*
-				There is a bug in Ring 1.14 (4th, may. 2021)
-				Read about it here: https://groups.google.com/g/ring-lang/c/fY6Lh-LDwJg
-
-				The bug occurs when you provide a hashlist using the '=' syntax
-				and you have the keys containing numbers, like this:
-
-				aList = [
-					"1" = [ "text 1", 100 ],
-					"2" = [ "text 2", 200 ],
-					"3" = [ "text 3", 300 ]
-				]
-
-				In this case, the keys dissapear completely from the list.
-
-				So if you look for Content() or Keys() you don't find them.
-				More interestingly, if you won't be able to access the list using them 
-
-				UPDATE: This has been resolved in Ring 1.16 I think...
-				--> Check it and if so, remove this comment!
-				*/
-
-				# Lowercasing all the keys of the hashlist
-				#TODO // Is this really necessary?
-
-				nLen = len(p)
-				for i = 1 to nLen
-					p[i][1] = ring_lower(p[i][1])
-				next
-
-				@aContent = p
-
-			else
-				StzRaise("The list you provided is not a hash list!")
+		if CheckParams()
+			if NOT ( isList(p) and @IsHashList(p) )
+				StzRaise("Can't create the stzHashList object! You must provide a well formed hashlist.")
 			ok
+		ok
 
-		other
-			StzRaise("Unsupported form of the input of the hashlist!")
-		off
+		/*
+		There is a bug in Ring 1.14 (4th, may. 2021)
+		Read about it here: https://groups.google.com/g/ring-lang/c/fY6Lh-LDwJg
+
+		The bug occurs when you provide a hashlist using the '=' syntax
+		and you have the keys containing numbers, like this:
+
+		aList = [
+			"1" = [ "text 1", 100 ],
+			"2" = [ "text 2", 200 ],
+			"3" = [ "text 3", 300 ]
+		]
+
+		In this case, the keys dissapear completely from the list.
+
+		So if you look for Content() or Keys() you don't find them.
+		More interestingly, if you won't be able to access the list using them 
+
+		UPDATE: This has been resolved in Ring 1.16 I think...
+		--> Check it and if so, remove this comment!
+		*/
+
+		# Lowercasing all the keys of the hashlist
+		#TODO // Is this really necessary?
+
+		nLen = len(p)
+		for i = 1 to nLen
+			p[i][1] = ring_lower(p[i][1])
+		next
+
+		@aContent = p
+
+
 
 		if KeepingHistory() = _TRUE_
 			This.AddHistoricValue(This.Content())
@@ -562,13 +551,27 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.Key(n)
 	
 	def NthValue(n)
-		if isString(n)
-			if n = :First or n = :FirstValue
-				n = 1
 
-			but n = :Last or n = :LastValue
-				n = This.NumberOfValues()
+		if checkParams()
+
+			if isString(n)
+				if n = :First or n = :FirstValue
+					n = 1
+	
+				but n = :Last or n = :LastValue
+					n = This.NumberOfValues()
+				ok
 			ok
+	
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+		ok
+
+		nLen = len(This.Content())
+		if n > nLen or n < 1
+			StzRaise("Can't access item " + n + " in the hashlist! The hashlist contains only " + nLen + "pairs.")
 		ok
 
 		return This.Content()[n][2]
@@ -1281,6 +1284,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.FindKeys(pacKeys)
 
 	def FindKey(pcKey)
+
 		if isString(pcKey)
 			return ring_find( Keys(), pcKey)
 		ok
@@ -1289,6 +1293,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.Key(pcKey)
 
 	def HasKey(pcKey)
+
 		if isString(pcKey) and This.FindKey(pcKey) > 0
 			return _TRUE_
 		else
@@ -1299,6 +1304,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.HasKey(pcKey)
 		
 	def HasKeys(pacKeys)
+
 		oKeys = new stzList(pacKeys)
 		if oKeys.IsListOfStrings() and
 		   oKeys.IsEqualTo(This.Keys())
@@ -1342,6 +1348,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 
 	def ContainsPair(paPair)
+
 		if FindPair(paPair) > 0
 			return _TRUE_
 		else
@@ -1353,6 +1360,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-----------------------------------------------------#
 
 	def ContainsValueCS(pValue, pCaseSensitive)
+
 		if len( This.FindValueCS(pValue, pCaseSensitive) ) > 0
 			return _TRUE_
 		else
@@ -1434,7 +1442,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#---------------------#
 
 	def FindValueCS(pValue, pCaseSensitive)
-		anResult = ValuesQ().FindAllCS(pValue, pCaseSensitive)
+		anResult = This.ValuesQ().FindAllCS(pValue, pCaseSensitive)
 		return anResult
 
 		#< @FunctionAlternativeForms
