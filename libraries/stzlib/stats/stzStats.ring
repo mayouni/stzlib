@@ -7,11 +7,39 @@
 $aSTAT_MISSING_VALUES = [ "", "NA", "NULL", "n/a", "#N/A" ]
 $nSTAT_PRECISION = 4  # Decimal places for numeric outputs
 
+$aInsightRules = [
+    :Finance = [
+        [ "@CoVariance > 50", "High variability ({@CoVariance}) indicates investment risk." ],
+        [ "@Skewness > 1", "Positive skew ({@Skewness()}) suggests potential for extreme gains." ]
+    ],
+    :Healthcare = [
+        [ "Mean > 100", "Mean (@Mean) exceeds health metric threshold (100)." ]
+    ]
+]
+
+    
+func CreateStats(paData)
+	return new stzStats(paData)
+    
+func CompareDatasets(paData1, paData2)
+	oStats1 = new stzStats(paData1)
+	oStats2 = new stzStats(paData2)
+	return oStats1.CompareWith(oStats2)
+    
+func QuickSummary(paData)
+	oStats = new stzStats(paData)
+	return oStats.Summary()
+
+func StatInsight(paData)
+	oStats = new stzStats(paData)
+	return oStats.GenerateInsight()
+
 func MissingValues()
     return $aSTAT_MISSING_VALUES
 
 func StatPrecision()
     return $nSTAT_PRECISION
+
 
 class stzStats
 
@@ -20,7 +48,7 @@ class stzStats
     @bSorted = FALSE
     @anSortedData = []
     @aCache = []  # Standard Ring hash list as [ [:key, value], ... ]
-    @aInsightRules = []  # Custom insight rules
+
     @nMinSampleSize = 3  # Minimum for advanced statistics
 
     def init(paData)
@@ -37,10 +65,11 @@ class stzStats
     def _CleanData(paData)
         # Remove missing values and prepare data
         aCleanData = []
-        
-        for item in paData
-            if NOT This._IsMissing(item)
-                aCleanData + item
+        nLen = len(paData)
+
+        for i = 1 to nLen
+            if NOT This._IsMissing(paData[i])
+                aCleanData + paData[i]
             ok
         next
         
@@ -62,18 +91,19 @@ class stzStats
 
         nNumeric = 0
         nCategorical = 0
-        
-        for item in @anData
-            if IsNumber(item)
+        nLen = len(@anData)
+
+        for i = 1 to nLen
+            if IsNumber(@anData[i])
                 nNumeric++
             else
                 nCategorical++
             ok
         next
 
-        if nNumeric = len(@anData)
+        if nNumeric = nLen
             @cDataType = "numeric"
-        but nCategorical = len(@anData)
+        but nCategorical = nLen
             @cDataType = "categorical"
         else
             @cDataType = "mixed"
@@ -83,16 +113,18 @@ class stzStats
         @aCache = []
 
     def _GetCached(cKey)
-        for pair in @aCache
-            if pair[1] = cKey
-                return pair[2]
+		nLen = len(@aCache)
+        for i = 1 to nLen
+            if @aCache[i][1] = cKey
+                return @aCache[i][2]
             ok
         next
         return NULL
 
     def _SetCache(cKey, value)
         # Remove existing key if present to avoid duplicates
-        for i = 1 to len(@aCache)
+		nLen = len(@aCache)
+        for i = 1 to nLen
             if @aCache[i][1] = cKey
                 del(@aCache, i)
                 exit
@@ -110,9 +142,9 @@ class stzStats
         nMultiplier = pow(10, $nSTAT_PRECISION)
         return floor(nValue * nMultiplier + 0.5) / nMultiplier
 
-    #===================================================================#
-    #  PILLAR 1: COMPARISON - Descriptive Statistics                   #
-    #===================================================================#
+    #=================================================#
+    #  PILLAR 1: COMPARISON - Descriptive Statistics  #
+    #=================================================#
 
     def Mean()
         if @cDataType != "numeric" or len(@anData) = 0
@@ -135,6 +167,13 @@ class stzStats
         nMean = This._Round(nSum / nLen)
         This._SetCache(cKey, nMean)
         return nMean
+
+		def Average()
+			return This.Mean()
+
+		def Avrg()
+			return This.Mean()
+
 
     def Median()
         if @cDataType != "numeric" or len(@anData) = 0
@@ -174,24 +213,31 @@ class stzStats
             return cached
         ok
 
-        oFreq = new stzHashList([])
+		nLen = len(@anData)
 
-        for item in @anData
-            cItemKey = "" + item
-            if oFreq.ContainsKey(cItemKey)
+		aFreqHash = []
+
+		for i = 1 to nLen
+
+            cItemKey = "" + @anData[i]
+			if @HasKey(aFreqHash, cItemKey)
                 oFreq.@aContent[cItemKey]++
+				aFreqHash[cItemKey]++
+
             else
-                oFreq.AddPair([cItemKey, 1])
+				aFreqHash + [cItemKey, 1 ]
             ok
         next
 
         nMaxFreq = 0
         cModeKey = ""
-        
-        for pair in oFreq.HashList()
-            if pair[2] > nMaxFreq
-                nMaxFreq = pair[2]
-                cModeKey = pair[1]
+        aHash = []
+		nLen = len(aHash)
+
+		for i = 1 to nLen
+            if aHash[i][2] > nMaxFreq
+                nMaxFreq = aHash[i][2]
+                cModeKey = aHash[i][1]
             ok
         next
 
@@ -223,9 +269,19 @@ class stzStats
         This._SetCache(cKey, nStdDev)
         return nStdDev
 
+		def StdDev()
+			return This.StandardDeviation()
+
+
     def Variance()
         nStdDev = This.StandardDeviation()
         return This._Round(nStdDev * nStdDev)
+
+		def Var()
+			return This.Variance()
+
+		def V()
+			return This.Variance()
 
     def Range()
         if @cDataType != "numeric" or len(@anData) = 0
@@ -249,10 +305,12 @@ class stzStats
         if @cDataType != "numeric"
             return 0
         ok
-        
-        nSum = 0.0
-        for item in @anData
-            nSum += item
+
+		nLen = len(@anData)
+        nSum = 0
+
+        for i = 1 to nLen
+            nSum += @anData[i]
         next
         
         return This._Round(nSum)
@@ -264,22 +322,47 @@ class stzStats
         if @cDataType != "numeric" or len(@anData) = 0
             return 0
         ok
-        
+
+		nLen = len(@anData)
+
         # Check for non-positive values
-        for item in @anData
-            if item <= 0
+        for i = 1 to nLen
+            if @anData[i] <= 0
                 return 0  # Geometric mean undefined for non-positive values
             ok
         next
         
-        nProduct = 1.0
-        nLen = len(@anData)
-        
-        for item in @anData
-            nProduct *= item
+        nProduct = 1.0      
+        for i = 1 to nLen
+            nProduct *= @anData[i]
         next
         
         return This._Round(pow(nProduct, 1.0/nLen))
+
+		#< @FunctionAlternativeForms
+
+		def GeoMean()
+			return This.GeometricMean()
+
+		def GMean()
+			return This.GeometricMean()
+
+		def GeometricAverage()
+			return This.GeometricMean()
+
+		def GeoAverage()
+			return This.GeometricMean()
+
+		def GAverage()
+			return This.GeometricMean()
+
+		def GeoAvrg()
+			return This.GeometricMean()
+
+		def GAvrg()
+			return This.GeometricMean()
+
+		#>
 
     def HarmonicMean()
         if @cDataType != "numeric" or len(@anData) = 0
@@ -289,14 +372,39 @@ class stzStats
         nSum = 0.0
         nLen = len(@anData)
         
-        for item in @anData
-            if item = 0
+        for i = 1 to nLen
+            if @anData[i] = 0
                 return 0  # Harmonic mean undefined for zero values
             ok
-            nSum += (1.0 / item)
+            nSum += (1.0 / @anData[i])
         next
         
         return This._Round(nLen / nSum)
+
+		#< @FunctionAlternativeForms
+
+		def HarMean()
+			return This.HarmonicMean()
+
+		def HMean()
+			return This.HarmonicMean()
+
+		def HarmonicAverage()
+			return This.HarmonicMean()
+
+		def HarAverage()
+			return This.HarmonicMean()
+
+		def HAverage()
+			return This.HarmonicMean()
+
+		def HarAvrg()
+			return This.HarmonicMean()
+
+		def HAvrg()
+			return This.HarmonicMean()
+
+		#>
 
     def CoefficientOfVariation()
         if @cDataType != "numeric" or This.Mean() = 0
@@ -304,6 +412,121 @@ class stzStats
         ok
         
         return This._Round((This.StandardDeviation() / abs(This.Mean())) * 100)
+
+		def CoVar()
+			return This.CoefficientOfVariation()
+
+		def CoVariance()
+			return This.CoefficientOfVariation()
+
+		def CV()
+			return This.CoefficientOfVariation()
+
+	#---
+
+    def CompareWith(oOtherStats)
+        # Comprehensive comparison with another dataset
+        if oOtherStats.Count() = 0 or This.Count() = 0
+            return "Cannot compare with empty dataset"
+        ok
+        
+        aComparison = []
+        
+        if @cDataType = "numeric" and oOtherStats.DataType() = "numeric"
+            # Numeric comparison
+            nMean1 = This.Mean()
+            nMean2 = oOtherStats.Mean()
+            nMeanDiff = This._Round(((nMean1 - nMean2) / nMean2) * 100)
+            
+            aComparison + ("Mean difference: " + nMeanDiff + "%")
+            
+            nStd1 = This.StandardDeviation()
+            nStd2 = oOtherStats.StandardDeviation()
+            
+            if nStd1 > nStd2 * 1.5
+                aComparison + "Dataset 1 shows higher variability"
+            but nStd2 > nStd1 * 1.5
+                aComparison + "Dataset 2 shows higher variability"
+            else
+                aComparison + "Similar variability patterns"
+            ok
+            
+            # Correlation if same size
+            if This.Count() = oOtherStats.Count()
+                nCorr = This.CorrelationWith(oOtherStats)
+                if abs(nCorr) > 0.7
+                    cDirection = iff(nCorr > 0, "positive", "negative")
+                    aComparison + ( "Strong " + cDirection + " correlation (" + nCorr + ")" )
+                ok
+            ok
+        else
+            # Categorical or mixed comparison
+            nDiv1 = This.Diversity()
+            nDiv2 = oOtherStats.Diversity()
+            
+            if abs(nDiv1 - nDiv2) > 0.2
+                cHigher = iff(nDiv1 > nDiv2, "Dataset 1", "Dataset 2")
+                aComparison + ( cHigher + " shows higher diversity" )
+            else
+                aComparison + "Similar diversity levels"
+            ok
+        ok
+        
+        return aComparison
+
+		def CompareTo(oOtherStats)
+			return This.CompareWith(oOtherStats)
+
+		def Compare(oOtherStats)
+			if isList(oOtherStats) and StzListQ(oOtherStats).IsWithOrToNamedParam()
+				oOtherStats = oOtherStats[2]
+			ok
+
+			return This.CompareWith(oOtherStats)
+
+    def SimilarityScore(oOtherStats)
+        # Calculate similarity score between datasets (0-1 scale)
+        if oOtherStats.Count() = 0 or This.Count() = 0
+            return 0
+        ok
+        
+        if @cDataType != oOtherStats.DataType()
+            return 0  # Different data types
+        ok
+        
+        if @cDataType = "numeric"
+            # Numeric similarity based on statistical properties
+            nMeanSim = 1 - abs(This.Mean() - oOtherStats.Mean()) / (abs(This.Mean()) + abs(oOtherStats.Mean()) + 1)
+            nStdSim = 1 - abs(This.StandardDeviation() - oOtherStats.StandardDeviation()) / (This.StandardDeviation() + oOtherStats.StandardDeviation() + 1)
+            
+            return This._Round((nMeanSim + nStdSim) / 2)
+        else
+            # Categorical similarity based on overlap
+            aUnique1 = This.UniqueValues()
+            aUnique2 = oOtherStats.UniqueValues()
+            
+            nIntersection = 0
+			nLen = len(aUnique1)
+
+            for i = 1 to nLen
+                if ring_find(aUnique2, aUnique1[i]) > 0
+                    nIntersection++
+                ok
+            next
+            
+            nUnion = len(aUnique1) + len(aUnique2) - nIntersection
+            return This._Round(nIntersection / nUnion)
+        ok
+
+		def SimilarityScoreWith(oOtherStats)
+			return This.SimilarityScore(oOtherStats)
+
+		def SimScore(oOtherStats)
+			return This.SimilarityScore(oOtherStats)
+
+		def SimScoreWith(oOtherStats)
+			return SimilarityScore(oOtherStats)
+
 
     #============================================================#
     #  PILLAR 2: COMPOSITION - Frequency & Categorical Analysis  #
@@ -316,46 +539,60 @@ class stzStats
             return cached
         ok
 
-        oFreq = new stzHashList([])
-        
-        for item in @anData
-            cItemKey = "" + item
-            if oFreq.ContainsKey(cItemKey)
-                oFreq.@aContent[cItemKey]++
+        aFreqHash = []
+		nLen = len(@anData)
+
+		for i = 1 to nLen
+            cItemKey = "" + @anData[i]
+			if @HasKey(aFreqHash, cItemKey)
+                aFreqHash[cItemKey]++
             else
-                oFreq.AddPair([cItemKey, 1])
+                aFreqHash + [cItemKey, 1]
             ok
         next
 
-        aResult = oFreq.HashList()
-        This._SetCache(cKey, aResult)
-        return aResult
+        This._SetCache(cKey, aFreqHash)
+        return aFreqHash
 
     def RelativeFrequency()
         aFreqTable = This.FrequencyTable()
         nTotal = This.Count()
         aRelFreq = []
-        
-        for pair in aFreqTable
-            nRelativeFreq = This._Round((pair[2] * 1.0) / nTotal)
-            aRelFreq + [pair[1], nRelativeFreq]
+
+        nLen = len(aFreqTable)
+
+		for i = 1 to nLen
+            nRelativeFreq = This._Round((aFreqTable[i][2] * 1.0) / nTotal)
+            aRelFreq + [aFreqTable[i][1], nRelativeFreq]
         next
         
         return aRelFreq
 
+		def RelFreq()
+			return This.RelativeFrequency()
+
     def PercentageFrequency()
+
         aRelFreq = This.RelativeFrequency()
         aPercFreq = []
-        
-        for pair in aRelFreq
-            nPercentage = This._Round(pair[2] * 100.0)
-            aPercFreq + [pair[1], nPercentage]
+
+        nLen = len(aRelFreq)
+
+        for i = 1 to nLen
+            nPercentage = This._Round(aRelFreq[i][2] * 100.0)
+            aPercFreq + [aRelFreq[i][1], nPercentage]
         next
         
         return aPercFreq
 
+		def PercentFreq()
+			return This.PercentageFrequency()
+
     def UniqueCount()
         return len(This.UniqueValues())
+
+		def UCount()
+			return len(This.UniqueValues())
 
     def UniqueValues()
         cKey = "unique_values"
@@ -364,15 +601,20 @@ class stzStats
             return cached
         ok
 
+		nLen = len(@anData)
         aUnique = []
-        for item in @anData
-            if ring_find(aUnique, item) = 0
-                aUnique + item
+
+        for i = 1 to nLen
+            if ring_find(aUnique, @anData[i]) = 0
+                aUnique + @anData[i]
             ok
         next
         
         This._SetCache(cKey, aUnique)
         return aUnique
+
+		def UVals()
+			return This.UniqueValues()
 
     def Diversity()
         # Unique values / Total values
@@ -381,6 +623,9 @@ class stzStats
             return 0
         ok
         return This._Round((This.UniqueCount() * 1.0) / nTotal)
+
+		def DiversityIndex()
+			return This.Diversity()
 
     def EntropyIndex()
         # Shannon entropy for diversity measurement
@@ -392,14 +637,20 @@ class stzStats
         nTotal = This.Count()
         nEntropy = 0.0
         
-        for pair in aFreqTable
-            nProbability = (pair[2] * 1.0) / nTotal
+		nLen = len(aFreqTable)
+
+        for i = 1 to nLen
+            nProbability = (aFreqTable[i][2] * 1.0) / nTotal
             if nProbability > 0
                 nEntropy -= nProbability * log(nProbability) / log(2)
             ok
         next
         
         return This._Round(nEntropy)
+
+		def Entropy()
+			return This.EntropyIndex()
+
 
     #====================================================#
     #  PILLAR 3: DISTRIBUTION - Shape & Spread Analysis  #
@@ -448,7 +699,7 @@ class stzStats
     def Quartiles()
         return [This.Q1(), This.Q2(), This.Q3()]
 
-    def Skewness()
+    def Skew()
         if @cDataType != "numeric" or len(@anData) < @nMinSampleSize
             return 0
         ok
@@ -477,6 +728,9 @@ class stzStats
         nSkew = This._Round((nSum / nLen) * (nLen / ((nLen - 1) * (nLen - 2))))
         This._SetCache(cKey, nSkew)
         return nSkew
+
+		def Skewness()
+			return Skew()
 
     def Kurtosis()
         if @cDataType != "numeric" or len(@anData) < 4
@@ -511,7 +765,10 @@ class stzStats
         This._SetCache(cKey, nResult)
         return nResult
 
-    def FindOutliers()
+		def Kurtos()
+			return Kurtosis()
+
+    def Outliers()
         if @cDataType != "numeric"
             return []
         ok
@@ -541,7 +798,7 @@ class stzStats
         return aOutliers
 
     def IsOutlier(nValue)
-        aOutliers = This.FindOutliers()
+        aOutliers = This.Outliers()
         return ring_find(aOutliers, nValue) > 0
 
     def ZScores()
@@ -557,8 +814,9 @@ class stzStats
         ok
         
         aZScores = []
-        for item in @anData
-            nZScore = This._Round((item - nMean) / nStdDev)
+		nLen = len(@anData)
+        for i = 1 to nLen
+            nZScore = This._Round((@anData[i] - nMean) / nStdDev)
             aZScores + nZScore
         next
         
@@ -599,6 +857,16 @@ class stzStats
         
         return This._Round(nSumProduct / sqrt(nSumSq1 * nSumSq2))
 
+		def CorelWith()
+			return This.CorrelationWith(oOtherStats)
+
+		def Corel()
+			return This.CorrelationWith(oOtherStats)
+
+		def Cor()
+			return This.CorrelationWith(oOtherStats)
+
+
     def CovarianceWith(oOtherStats)
         if @cDataType != "numeric" or oOtherStats.DataType() != "numeric"
             return 0
@@ -620,6 +888,12 @@ class stzStats
         
         return This._Round(nSum / (nLen - 1))
 
+		def CovarWith(oOtherStats)
+			return This.CovarianceWith(oOtherStats)
+
+		def CVWith(oOtherStats)
+			return This.CovarianceWith(oOtherStats)
+
     def RankCorrelationWith(oOtherStats)
         # Spearman's rank correlation coefficient
         if @cDataType != "numeric" or oOtherStats.DataType() != "numeric"
@@ -640,6 +914,9 @@ class stzStats
         oRank2 = new stzStats(aRanks2)
         
         return oRank1.CorrelationWith(oRank2)
+
+		def RankCorelWith(oOtherStats)
+			return This.RankCorrelationWith(oOtherStats)
 
     def _GetRanks(aData)
         aIndexed = []
@@ -777,8 +1054,10 @@ class stzStats
         ok
         
         aNormalized = []
-        for item in @anData
-            nNormalized = This._Round((item - nMin) / nRange)
+		nLen = len(@anData)
+
+        for i = 1 to nLen
+            nNormalized = This._Round((@anData[i] - nMin) / nRange)
             aNormalized + nNormalized
         next
         
@@ -798,8 +1077,10 @@ class stzStats
         ok
         
         aStandardized = []
-        for item in @anData
-            nStandardized = This._Round((item - nMean) / nStdDev)
+		nLen = len(@anData)
+
+        for i = 1 to nLen
+            nStandardized = This._Round((@anData[i] - nMean) / nStdDev)
             aStandardized + nStandardized
         next
         
@@ -819,34 +1100,148 @@ class stzStats
         ok
         
         aScaled = []
-        for item in @anData
-            nScaled = This._Round((item - nMedian) / nIQR)
+		nLen = len(@anData)
+
+        for i = 1 to nLen
+            nScaled = This._Round((@anData[i] - nMedian) / nIQR)
             aScaled + nScaled
         next
         
         return aScaled
 
-    #=======================================#
-    #  ENHANCED INSIGHT GENERATION SYSTEM   #
-    #=======================================#
+    #================================#
+    #  ADVANCED STATISTICAL METHODS  #
+    #================================#
+
+    def ConfidenceInterval(nConfidence)
+        if nConfidence = 0
+            nConfidence = 95
+        ok
+
+        # Calculate confidence interval for the mean
+        if @cDataType != "numeric" or len(@anData) < 2
+            return [0, 0]
+        ok
+        
+        nMean = This.Mean()
+        nStdDev = This.StandardDeviation()
+        nLen = len(@anData)
+        
+        # Using t-distribution approximation
+        nAlpha = (100 - nConfidence) / 100.0
+        nTValue = 1.96  # Approximation for 95% confidence
+        
+        if nConfidence = 90
+            nTValue = 1.645
+        but nConfidence = 99
+            nTValue = 2.576
+        ok
+        
+        nMarginError = nTValue * (nStdDev / sqrt(nLen))
+        
+        return [This._Round(nMean - nMarginError), This._Round(nMean + nMarginError)]
+
+		def ConfInt()
+			return This.ConfidentialInterval()
+
+
+    def MovingAverage(nWindow)
+        if nWindow = 0
+            nWindow = 3
+        ok
+        # Calculate moving average with specified window
+        if @cDataType != "numeric" or nWindow <= 0
+            return @anData
+        ok
+        
+        if len(@anData) < nWindow
+            return @anData
+        ok
+        
+        aMovingAvg = []
+        nLen = len(@anData)
+        
+        for i = 1 to (nLen - nWindow + 1)
+            nSum = 0
+            for j = i to (i + nWindow - 1)
+                nSum += @anData[j]
+            next
+            aMovingAvg + This._Round(nSum / nWindow)
+        next
+        
+        return aMovingAvg
+
+		def MovAvrg()
+			return This.MovingAverage()
+
+		def MovingMean()
+			return This.MovingAverage()
+
+		def MovMean()
+			return This.MovingAverage()
+
+
+    def TrendAnalysis()
+        # Simple linear trend analysis
+        if @cDataType != "numeric" or len(@anData) < 3
+            return "insufficient data"
+        ok
+        
+        nLen = len(@anData)
+        nSumX = 0
+        nSumY = 0
+        nSumXY = 0
+        nSumX2 = 0
+        
+        for i = 1 to nLen
+            nSumX += i
+            nSumY += @anData[i]
+            nSumXY += i * @anData[i]
+            nSumX2 += i * i
+        next
+        
+        nSlope = (nLen * nSumXY - nSumX * nSumY) / (nLen * nSumX2 - nSumX * nSumX)
+        
+        if abs(nSlope) < 0.01
+            return "stable"
+        but nSlope > 0
+            return "increasing"
+        else
+            return "decreasing"
+        ok
+
+		def Trend()
+			return This.TrendAnalysis()
+
+
+    #========================================#
+    #  STATISTICS INSIGHT GENERATION SYSTEM  #
+    #========================================#
 
     def Insight()
         return This.GenerateInsight()
 
-    def GenerateInsight()
-        switch @cDataType
-        on "empty"
-            return "Dataset is empty. No analysis possible without data."
-        
-        on "numeric"
-            return This._GenerateNumericInsight()
-            
-        on "categorical"
-            return This._GenerateCategoricalInsight()
-            
-        on "mixed"
-            return This._GenerateMixedInsight()
-        off
+	def GenerateInsight()
+	    aAllInsights = []
+	    
+	    # Get base insights
+	    switch @cDataType
+	    on "numeric"
+	        aAllInsights = This._GenerateNumericInsight()
+	    on "categorical" 
+	        aAllInsights = This._GenerateCategoricalInsight()
+	    on "mixed"
+	    	aAllInsights = This._GenerateMixedInsight()
+	    off
+	    
+	    # Add Statistics domain rules
+	    aStatInsights = This.InsightsOfDomain(:Statistics)
+		nLen = len(aStatInsights)
+	    for i = 1 to nLen
+	        aAllInsights + aStatInsights[i]
+	    next
+	    
+	    return aAllInsights
 
     def _GenerateNumericInsight()
         aInsights = [] # Keep as list of complete sentences
@@ -896,7 +1291,7 @@ class stzStats
         ok
         
         # Outlier analysis
-        aOutliers = This.FindOutliers()
+        aOutliers = This.Outliers()
         if len(aOutliers) > 0
             nOutlierPercent = This._Round((len(aOutliers) * 100.0) / nCount)
             aInsights + ( "Contains " + len(aOutliers) + " outlier(s) (" + nOutlierPercent + "% of data)" )
@@ -946,9 +1341,11 @@ class stzStats
         
         # Modal analysis
         nModeFreq = 0
-        for pair in aPercFreq
-            if pair[1] = ("" + cMode)
-                nModeFreq = pair[2]
+		nLen = len(aPercFreq)
+
+		for i = 1 to nLen
+            if aPercFreq[i][1] = ("" + cMode)
+                nModeFreq = aPercFreq[i][2]
                 exit
             ok
         next
@@ -979,67 +1376,84 @@ class stzStats
         aInsights + ( "Consider separating data types for specialized analysis. Numeric methods apply only to numeric subset" )
         return aInsights # Return list directly
 
-    def _FormatInsights(aInsights)
-        if len(aInsights) = 0
-            return "No specific insights available for this dataset."
-        ok
-        
-        return aInsights  # Return the list directly instead of formatting as bullet points
 
-    #--- Utility methods for the Insight section
-
-    def Insights()
+    def Insights() # Native statistic-insights
         # Return insights as clean list of sentences
         return This.GenerateInsight()
+ 
+		def StatInsights()
+			 return This.GenerateInsight()
+
+		def StatsInsights()
+			 return This.GenerateInsight()
+
+		def NativeInsights()
+			 return This.GenerateInsight()
+
+	def InsightsXT() # stats and other domains insights
+
+		acResults = This.Insights()
+
+		nLen = len($aInsightRules)
+
+		for i = 1 to nLen
+
+			aDomain = $aInsightRules[i][2]
+			nLenDomain = len(aDomain)
+
+			for j = 1 to nLenDomain
+				if This._EvaluateCondition(aDomain[j][1])
+					acResults + aDomain[j][2]
+				ok
+			next
+
+		next
+
+	    return acResults
+
+		def StatAndDomainInsights()
+			 return This.InsightsXT()
+
+		def StatsAndDomainsInsights()
+			 return This.InsightsXT()
+
+		def NativeAndDomainInsights()
+			 return This.InsightsXT()
+		
+	def InsightsOfDomain(cDomain)
+
+	    acResults = []
+
+	    if HasKey($aInsightRules, cDomain)
+
+			nLen = len($aInsightRules[cDomain])
+
+			for i = 1 to nLen
+	            if This._EvaluateCondition($aInsightRules[cDomain][i][1])
+	                acResults + _EvaluateRule($aInsightRules[cDomain][i][2])
+	            ok
+	        next
+
+	    ok
+
+	    return acResults
+
+		def InsightsForDomain(cDomain)
+			return This.InsightsOfDomain(cDomain)
+
+
+    #========================================================#
+    #  DOMAIN-SPECIFIC RULE-BASED INSIGHT GENERATION SYSTEM  #
+    #========================================================#
     
-    def JoinInsights(cSeparator)
-        if cSeparator = NULL
-            cSeparator = " "
-        ok
-
-        aInsights = This.Insights()
-        cResult = ""
-
-        for i = 1 to len(aInsights)
-            if i = 1
-                cResult = aInsights[i]
-            else
-                cResult += cSeparator + aInsights[i]
-            ok
-        next
-
-        return cResult
-
-    #================================#
-    #  EXTENSIBLE INSIGHT FRAMEWORK  #
-    #================================#
-    
-    def AddInsightRule(cDomain, cCondition, cInsight)
-        # Add custom insight rule to the framework
-        
-        @aInsightRules + [cDomain, cCondition, cInsight]
+	def AddInsightRule(cDomain, cCondition, cInsight)
+	    if NOT HasKey($aInsightRules, cDomain)
+	        $aInsightRules[cDomain] = []
+	    ok
+	    $aInsightRules[cDomain] + [cCondition, cInsight]
 
     def AddRule(cDomain, cCondition, cInsight)
         This.AddInsightRule(cDomain, cCondition, cInsight)
-
-    def DomainInsights(cDomain)
-        # Apply domain-specific insights
-        aResults = []
-
-        for rule in @aInsightRules
-            if rule[1] = cDomain
-                if This._EvaluateCondition(rule[2])
-                   aResults + rule[3]
-                ok
-            ok
-        next
-        
-        if len(aResults) = 0
-            return "No domain-specific insights found for '" + cDomain + "'"
-        ok
-        
-        return This._FormatInsights(aResults)
-
 
     def _EvaluateCondition(cCondition)
         
@@ -1047,178 +1461,140 @@ class stzStats
 		eval(cCode)
 		return bResult       
 
-    #================================#
-    #  ADVANCED STATISTICAL METHODS  #
-    #================================#
+	#--
 
-    def ConfidenceInterval(nConfidence)
-        if nConfidence = 0
-            nConfidence = 95
-        ok
+	def AddWeightedRule(cDomain, cCondition, cInsight, nWeight)
+	    if nWeight = NULL nWeight = 1 ok
+	    if NOT HasKey($aInsightRules, cDomain)
+	        $aInsightRules[cDomain] = []
+	    ok
+	    $aInsightRules[cDomain] + [cCondition, cInsight, nWeight]
+	
+	def PrioritizedInsights(cDomain)
+	    aResults = []
 
-        # Calculate confidence interval for the mean
-        if @cDataType != "numeric" or len(@anData) < 2
-            return [0, 0]
-        ok
-        
-        nMean = This.Mean()
-        nStdDev = This.StandardDeviation()
-        nLen = len(@anData)
-        
-        # Using t-distribution approximation
-        nAlpha = (100 - nConfidence) / 100.0
-        nTValue = 1.96  # Approximation for 95% confidence
-        
-        if nConfidence = 90
-            nTValue = 1.645
-        but nConfidence = 99
-            nTValue = 2.576
-        ok
-        
-        nMarginError = nTValue * (nStdDev / sqrt(nLen))
-        
-        return [This._Round(nMean - nMarginError), This._Round(nMean + nMarginError)]
+	    if HasKey($aInsightRules, cDomain)
+			nLen = len($aInsightRules[cDomain])
 
-    def MovingAverage(nWindow)
-        if nWindow = 0
-            nWindow = 3
-        ok
-        # Calculate moving average with specified window
-        if @cDataType != "numeric" or nWindow <= 0
-            return @anData
-        ok
-        
-        if len(@anData) < nWindow
-            return @anData
-        ok
-        
-        aMovingAvg = []
-        nLen = len(@anData)
-        
-        for i = 1 to (nLen - nWindow + 1)
-            nSum = 0
-            for j = i to (i + nWindow - 1)
-                nSum += @anData[j]
-            next
-            aMovingAvg + This._Round(nSum / nWindow)
-        next
-        
-        return aMovingAvg
+			for i = 1 to nLen
+	            if This._EvaluateCondition($aInsightRules[cDomain][i][1])
+	                nWeight = iff(len($aInsightRules[cDomain][i]) > 2, rule[3], 1)
+	                aResults + [$aInsightRules[cDomain][i][2], nWeight]
+	            ok
+	        next
 
-    def TrendAnalysis()
-        # Simple linear trend analysis
-        if @cDataType != "numeric" or len(@anData) < 3
-            return "insufficient data"
-        ok
-        
-        nLen = len(@anData)
-        nSumX = 0
-        nSumY = 0
-        nSumXY = 0
-        nSumX2 = 0
-        
-        for i = 1 to nLen
-            nSumX += i
-            nSumY += @anData[i]
-            nSumXY += i * @anData[i]
-            nSumX2 += i * i
-        next
-        
-        nSlope = (nLen * nSumXY - nSumX * nSumY) / (nLen * nSumX2 - nSumX * nSumX)
-        
-        if abs(nSlope) < 0.01
-            return "stable"
-        but nSlope > 0
-            return "increasing"
-        else
-            return "decreasing"
-        ok
+	        # Sort by weight descending
+	        aResults = @SortOn(2, aResults, :Descending = TRUE)
+	    ok
+	    return aResults
 
-    #=========================#
-    #  COMPARISON UTILITIES   #
-    #=========================#
+    #=====================================#
+    #  QUALITY AND RECOMMANDATION SYSTEM  #
+    #=====================================#
 
-    def CompareWith(oOtherStats)
-        # Comprehensive comparison with another dataset
-        if oOtherStats.Count() = 0 or This.Count() = 0
-            return "Cannot compare with empty dataset"
-        ok
+    def ValidateData()
+        # Validate data integrity and quality
+        acIssues = []
         
-        aComparison = []
-        
-        if @cDataType = "numeric" and oOtherStats.DataType() = "numeric"
-            # Numeric comparison
-            nMean1 = This.Mean()
-            nMean2 = oOtherStats.Mean()
-            nMeanDiff = This._Round(((nMean1 - nMean2) / nMean2) * 100)
-            
-            aComparison + ("Mean difference: " + nMeanDiff + "%")
-            
-            nStd1 = This.StandardDeviation()
-            nStd2 = oOtherStats.StandardDeviation()
-            
-            if nStd1 > nStd2 * 1.5
-                aComparison + "Dataset 1 shows higher variability"
-            but nStd2 > nStd1 * 1.5
-                aComparison + "Dataset 2 shows higher variability"
-            else
-                aComparison + "Similar variability patterns"
-            ok
-            
-            # Correlation if same size
-            if This.Count() = oOtherStats.Count()
-                nCorr = This.CorrelationWith(oOtherStats)
-                if abs(nCorr) > 0.7
-                    cDirection = iff(nCorr > 0, "positive", "negative")
-                    aComparison + ( "Strong " + cDirection + " correlation (" + nCorr + ")" )
-                ok
-            ok
-        else
-            # Categorical or mixed comparison
-            nDiv1 = This.Diversity()
-            nDiv2 = oOtherStats.Diversity()
-            
-            if abs(nDiv1 - nDiv2) > 0.2
-                cHigher = iff(nDiv1 > nDiv2, "Dataset 1", "Dataset 2")
-                aComparison + ( cHigher + " shows higher diversity" )
-            else
-                aComparison + "Similar diversity levels"
-            ok
-        ok
-        
-        return This._FormatInsights(aComparison)
-
-    def SimilarityScore(oOtherStats)
-        # Calculate similarity score between datasets (0-1 scale)
-        if oOtherStats.Count() = 0 or This.Count() = 0
-            return 0
-        ok
-        
-        if @cDataType != oOtherStats.DataType()
-            return 0  # Different data types
+        if len(@anData) = 0
+            acIssues + "Dataset is empty"
+            return acIssues
         ok
         
         if @cDataType = "numeric"
-            # Numeric similarity based on statistical properties
-            nMeanSim = 1 - abs(This.Mean() - oOtherStats.Mean()) / (abs(This.Mean()) + abs(oOtherStats.Mean()) + 1)
-            nStdSim = 1 - abs(This.StandardDeviation() - oOtherStats.StandardDeviation()) / (This.StandardDeviation() + oOtherStats.StandardDeviation() + 1)
-            
-            return This._Round((nMeanSim + nStdSim) / 2)
-        else
-            # Categorical similarity based on overlap
-            aUnique1 = This.UniqueValues()
-            aUnique2 = oOtherStats.UniqueValues()
-            
-            nIntersection = 0
-            for item in aUnique1
-                if ring_find(aUnique2, item) > 0
-                    nIntersection++
+            # Check for infinite or NaN values
+			nLen = len(@anData)
+            for i = 1 to nLen
+                if isNull(@anData[i])
+                    aIssues + "Contains null values"
+                    exit
                 ok
             next
             
-            nUnion = len(aUnique1) + len(aUnique2) - nIntersection
-            return This._Round(nIntersection / nUnion)
+            # Check for extreme outliers
+            aOutliers = This.Outliers()
+            if len(aOutliers) > (This.Count() * 0.2)
+                acIssues + "High proportion of outliers detected"
+            ok
+            
+            # Check for variance
+            if This.StandardDeviation() = 0
+                acIssues + "No variance in data (all values identical)"
+            ok
         ok
+        
+        if len(acIssues) = 0
+            acIssues + "Data quality appears good"
+        ok
+        
+        return acIssues
+
+		def Validate()
+			return This.ValidateData()
+
+		def Issues()
+			return This.ValidateData()
+
+    def RecommendAnalysis()
+        # Suggest appropriate analysis methods based on data characteristics
+        acRecommendations = []
+        
+        nCount = This.Count()
+        if nCount < 10
+            acRecommendations + "Small sample size - interpret results cautiously"
+        ok
+        
+        if @cDataType = "numeric"
+
+            nSkew = This.Skewness()
+            if abs(nSkew) > 1
+                acRecommendations + "Data is skewed - consider using median instead of mean"
+            ok
+            
+            aOutliers = This.Outliers()
+            if len(aOutliers) > 0
+                acRecommendations + "Outliers detected - consider robust statistics"
+            ok
+            
+            if This.CoefficientOfVariation() > 50
+                acRecommendations + "High variability - segment analysis recommended"
+            ok
+
+        else
+            if This.Diversity() < 0.3
+                acRecommendations + "Low diversity - focus on dominant categories"
+            ok
+            
+            if This.UniqueCount() = This.Count()
+                acRecommendations + "All values unique - consider grouping or classification"
+            ok
+        ok
+        
+        if len(acRecommendations) = 0
+            acRecommendations + "Standard statistical analysis appropriate"
+        ok
+        
+        return acRecommendations
+
+		#< @AlternativeFunctionForms
+
+		def Recommandations()
+			return This.RecommendAnalysis()
+
+		def Advises()
+			return This.RecommendAnalysis()
+
+		def Advizes()
+			return This.RecommendAnalysis()
+
+		def Recommand()
+			return This.RecommendAnalysis()
+
+		def Advize()
+			return This.RecommendAnalysis()
+
+		#>
+
 
     #================================#
     #  UTILITY AND ACCESSOR METHODS  #
@@ -1251,7 +1627,7 @@ class stzStats
         # Comprehensive summary of the dataset
         cSummary = ""
         
-        cSummary += "=== Dataset Summary ===" + NL
+        cSummary += Boxify("Dataset Summary") + NL
         cSummary += "Type: " + @cDataType + NL
         cSummary += "Count: " + This.Count() + NL
         
@@ -1264,20 +1640,22 @@ class stzStats
             aQuartiles = This.Quartiles()
             cSummary += "Quartiles: Q1=" + aQuartiles[1] + ", Q2=" + aQuartiles[2] + ", Q3=" + aQuartiles[3] + NL
             
-            aOutliers = This.FindOutliers()
+            aOutliers = This.Outliers()
             if len(aOutliers) > 0
                 cSummary += "Outliers: " + len(aOutliers) + " detected" + NL
             ok
+
         else
             cSummary += "Unique Values: " + This.UniqueCount() + NL
             cSummary += "Diversity: " + This._Round(This.Diversity() * 100) + "%" + NL
             cSummary += "Most Common: " + This.Mode() + NL
         ok
         
-        cSummary += NL + "=== Insights ===" + NL
+        cSummary += NL + Boxify("Insights") + NL
         aInsights = This.GenerateInsight()
-        for insight in aInsights
-            cSummary += "• " + insight + NL
+		nLen = len(aInsights)
+        for i = 1 to nLen
+            cSummary += "• " + aInsights[i] + NL
         next
         
         return cSummary
@@ -1285,112 +1663,36 @@ class stzStats
     def Export()
         # Export statistical results as structured data
         oExport = new stzHashList([])
-        
-        oExport.AddPair(["data_type", @cDataType])
-        oExport.AddPair(["count", This.Count()])
-        oExport.AddPair(["unique_count", This.UniqueCount()])
+        aExport = []
+
+        aExport + ["data_type", @cDataType]
+        aExport + ["count", This.Count()]
+        aExport + ["unique_count", This.UniqueCount()]
         
         if @cDataType = "numeric"
-            oExport.AddPair(["mean", This.Mean()])
-            oExport.AddPair(["median", This.Median()])
-            oExport.AddPair(["mode", This.Mode()])
-            oExport.AddPair(["standard_deviation", This.StandardDeviation()])
-            oExport.AddPair(["variance", This.Variance()])
-            oExport.AddPair(["range", This.Range()])
-            oExport.AddPair(["min", This.Min()])
-            oExport.AddPair(["max", This.Max()])
-            oExport.AddPair(["quartiles", This.Quartiles()])
-            oExport.AddPair(["skewness", This.Skewness()])
-            oExport.AddPair(["kurtosis", This.Kurtosis()])
-            oExport.AddPair(["outliers", This.FindOutliers()])
+            aExport + ["mean", This.Mean()]
+            aExport + ["median", This.Median()]
+            aExport + ["mode", This.Mode()]
+            aExport + ["standard_deviation", This.StandardDeviation()]
+            aExport + ["variance", This.Variance()]
+            aExport + ["range", This.Range()]
+            aExport + ["min", This.Min()]
+            aExport + ["max", This.Max()]
+            aExport + ["quartiles", This.Quartiles()]
+            aExport + ["skewness", This.Skewness()]
+            aExport + ["kurtosis", This.Kurtosis()]
+            aExport + ["outliers", This.Outliers()]
+
         else
-            oExport.AddPair(["mode", This.Mode()])
-            oExport.AddPair(["diversity", This.Diversity()])
-            oExport.AddPair(["entropy", This.EntropyIndex()])
-            oExport.AddPair(["frequency_table", This.FrequencyTable()])
-        ok
-        
-        return oExport.Content()
+            aExport + ["mode", This.Mode()]
+            aExport + ["diversity", This.Diversity()]
+            aExport + ["entropy", This.EntropyIndex()]
+            aExport + ["frequency_table", This.FrequencyTable()]
 
-    #=============================#
-    #  QUALITY ASSURANCE METHODS  #
-    #=============================#
+        ok
+        
+        return aExport
 
-    def ValidateData()
-        # Validate data integrity and quality
-        aIssues = []
-        
-        if len(@anData) = 0
-            aIssues + "Dataset is empty"
-            return aIssues
-        ok
-        
-        if @cDataType = "numeric"
-            # Check for infinite or NaN values
-            for item in @anData
-                if isNull(item)
-                    aIssues + "Contains null values"
-                    exit
-                ok
-            next
-            
-            # Check for extreme outliers
-            aOutliers = This.FindOutliers()
-            if len(aOutliers) > (This.Count() * 0.2)
-                aIssues + "High proportion of outliers detected"
-            ok
-            
-            # Check for variance
-            if This.StandardDeviation() = 0
-                aIssues + "No variance in data (all values identical)"
-            ok
-        ok
-        
-        if len(aIssues) = 0
-            aIssues + "Data quality appears good"
-        ok
-        
-        return aIssues
-
-    def RecommendAnalysis()
-        # Suggest appropriate analysis methods based on data characteristics
-        aRecommendations = []
-        
-        nCount = This.Count()
-        
-        if nCount < 10
-            aRecommendations + "Small sample size - interpret results cautiously"
-        ok
-        
-        if @cDataType = "numeric"
-            nSkew = This.Skewness()
-            if abs(nSkew) > 1
-                aRecommendations + "Data is skewed - consider using median instead of mean"
-            ok
-            
-            aOutliers = This.FindOutliers()
-            if len(aOutliers) > 0
-                aRecommendations + "Outliers detected - consider robust statistics"
-            ok
-            
-            if This.CoefficientOfVariation() > 50
-                aRecommendations + "High variability - segment analysis recommended"
-            ok
-        else
-            if This.Diversity() < 0.3
-                aRecommendations + "Low diversity - focus on dominant categories"
-            ok
-            
-            if This.UniqueCount() = This.Count()
-                aRecommendations + "All values unique - consider grouping or classification"
-            ok
-        ok
-        
-        if len(aRecommendations) = 0
-            aRecommendations + "Standard statistical analysis appropriate"
-        ok
-        
-        return aRecommendations
 
     #==========================#
     #  PRIVATE HELPER METHODS  #
@@ -1410,45 +1712,3 @@ class stzStats
             return 0
         ok
         return nNumerator / nDenominator
-
-    def _JoinInsights(aInsights)
-        if len(aInsights) = 0
-            return "No insights available."
-        ok
-        
-        if len(aInsights) = 1
-            return aInsights[1] + "."
-        ok
-        
-        cResult = ""
-        for i = 1 to len(aInsights)
-            if i = 1
-                cResult = aInsights[i]
-            but i = len(aInsights)
-                cResult += ", and " + aInsights[i]
-            else
-                cResult += ", " + aInsights[i]
-            ok
-        next
-        
-        return cResult + "."
-
-    #====================================#
-    #  FACTORY FUNCTIONS AND UTILITIES   #
-    #====================================#
-    
-    func CreateStats(paData)
-        return new stzStats(paData)
-    
-    func CompareDatasets(paData1, paData2)
-        oStats1 = new stzStats(paData1)
-        oStats2 = new stzStats(paData2)
-        return oStats1.CompareWith(oStats2)
-    
-    func QuickSummary(paData)
-        oStats = new stzStats(paData)
-        return oStats.Summary()
-    
-    func StatInsight(paData)
-        oStats = new stzStats(paData)
-        return oStats.GenerateInsight()
