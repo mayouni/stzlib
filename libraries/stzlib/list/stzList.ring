@@ -61,6 +61,44 @@ func Listify(cStrInList)
 
 #===
 
+func HasKey(paList, pcKey)
+	if CheckParams()
+		if NOT isString(pcKey)
+			StzRaise("Incorrect param type! pcKey must be a string.")
+		ok
+
+		if NOT (isList(paList) and IsHashList(paList))
+			StzRaise("Incorrect param type! paList must be a hashlist.")
+		ok
+	ok
+
+	cKey = lower(pcKey)
+	nLen = len(pcKey)
+	acSeen = []
+	bResult = FALSE
+
+	for i = 1 to nLen
+		if ring_find(acSeen, cKey) = 0
+			acSeen + cKey
+		else
+			bResult = _TRUE_
+			exit
+		ok
+	next
+
+	return bResult
+
+	func @HasKey(paList, pcKey)
+		return HasKey(paList, pcKey)
+
+	def ContainsKey(paList, pcKey)
+		return HasKey(paList, pcKey)
+
+	def @ContainsKey(paList, pcKey)
+		return HasKey(paList, pcKey)
+
+#===
+
 func Slice(pStrOrList, n1, n2)
 	if CheckParams()
 		if NOT (isString(pStrOrList) or isList(pStrOrList))
@@ -20180,6 +20218,12 @@ class stzList from stzObject
 			return This.IsHashList()
 	
 		#>
+
+	def ContainsKey(pcKey)
+		return @HasLey(This.Content(), pcKey)
+
+		def HasKey(pcKey)
+			return This.ContainsKey(pcKey)
 
 
 	def IsHashListOrListOfStrings()
@@ -81741,6 +81785,17 @@ fdef
 		ok
 
 	#--
+
+	def IsWithOrToNamedParam()
+		if This.IsWithNamedParam() or This.IsToNamedParam()
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+		def IsToOrWithNamedParam()
+			return This.IsWithOrToNamedParam()
+
 
 	def IsWithOrWithNumberNamedParam()
 		if This.IsWithNamedParam() or This.IsWithNumberNamedParam()

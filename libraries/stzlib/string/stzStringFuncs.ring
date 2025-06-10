@@ -1667,3 +1667,9 @@ func IsHtmlTableString(pcStr)
 	ok
 
 	return StzStringQ(pcStr).IsHtmlTable()
+
+func Boxify(str)
+	return StzStringQ(str).Boxified()
+
+	func @Boxify(str)
+		return StzStringQ(str).Boxified()

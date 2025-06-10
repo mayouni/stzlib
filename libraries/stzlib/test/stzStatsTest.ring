@@ -62,7 +62,7 @@ pr()
 oStats = new stzStats([10, 12, 13, 15, 18, 20, 22, 25, 100])
 
 oStats {
-    ? @@(FindOutliers()) # Expected: [100]
+    ? @@(Outliers()) # Expected: [100]
     ? IsOutlier(100)   # Expected: TRUE
     ? IsOutlier(15)    # Expected: FALSE
 
@@ -122,7 +122,7 @@ oStats2 = new stzStats([2, 4, 6, 8, 10])
 pf()
 # Executed in 0.0230 second(s) in Ring 1.22
 
-/*--- 7: Insight Generation for Numeric Data
+/*--- Insight Generation for Numeric Data
 
 pr()
 
@@ -201,7 +201,7 @@ oStats = new stzStats([42])
 pf()
 # Executed in 0.0030 second(s) in Ring 1.22
 
-/*--- 12: Missing Values Handling
+/*--- Missing Values Handling
 
 pr()
 
@@ -221,6 +221,8 @@ oStats = new stzStats([1, 2, 3, 4, 5, 100])
 ? @@(oStats.ValidateData())
 # Expected: ["High proportion of outliers detected"]
 # Got: [ "Data quality appears good" ]
+
+#TODO: Check difference!
 
 pf()
 # Executed in 0.0020 second(s) in Ring 1.22
@@ -244,11 +246,13 @@ oStats = new stzStats([1, 2, 3, 4, 5, 100])
 #	"High variability - segment analysis recommended"
 # ]
 
+#TODO: Recommendations should be actionable!
+
 pf()
 # Executed in 0.0030 second(s) in Ring 1.22
 
 /*--- Custom Insight Rules
-
+*/
 pr()
 
 oStats = new stzStats([10, 20, 30, 40, 50])
@@ -256,14 +260,15 @@ oStats {
 
 	AddInsightRule(
 		:Finance,
-		"Mean() > 20",
-		"Mean (" + Mean() + ") exceeds threshold (20) for financial analysis"
+		"@Mean > 20",
+		"Mean (@Mean) exceeds threshold (20) for financial analysis"
 	)
 
 	? Mean() #--> 30
 
-	? @@NL( DomainInsights(:Finance) )
-	#--> [ "Mean (30) exceeds threshold (20) for financial analysis" ]
+	? InsightsXT()
+	#--> List of all the insights without caring about the domain
+
 
 }
 
@@ -473,3 +478,5 @@ oStats4 = new stzStats(["Like", "Dislike"])
 
 pf()
 # Executed in 0.0030 second(s) in Ring 1.22
+/*
+
