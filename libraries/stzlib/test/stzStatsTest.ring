@@ -252,7 +252,7 @@ pf()
 # Executed in 0.0030 second(s) in Ring 1.22
 
 /*--- Custom Insight Rules
-*/
+
 pr()
 
 oStats = new stzStats([10, 20, 30, 40, 50])
@@ -395,29 +395,27 @@ pf()
 # Executed in 0.0010 second(s) in Ring 1.22
 
 /*--- Trend Analysis
-
+*/
 pr()
 
 oStats = new stzStats([1, 3, 5, 7, 9])
-? oStats.TrendAnalysis()
-# Expected: "increasing"
-# Should give:
-# [ [ "inccreasing", 5 ] ]
-# Increasing over the 5 items of the dataset
+? @@( oStats.TrendAnalysis() )
+#--> [ [ "up", 5 ] ]
 
 oStats = new stzStats([ 7, 4, 3, 1 ])
-? oStats.TrendAnalysis() # Gives "decreasing"
-# Should give:
-#--> [ "decreasing", 4 ]
-# Decreasing over the 4 items of the dataset
+? @@( oStats.TrendAnalysis() )
+#--> [ "down", 4 ]
 
 oStats = new stzStats([ 7, 4, 3, 1, 5, 9, 12 ])
-? oStats.TrendAnalysis()
-#--> "increasing"
-#ERROR Should give:
-# [ [ "decreasing, 3 ] , [ :inflecting, 1 ], [ "increasing", 3 ] ]
-# Decreasing over 3 items, inflecting at 1 item (the 4th), and the increasing over the 3 remaining items.")
+? @@( oStats.TrendAnalysis() )
+# [ [ "down", 4 ] , [ "up", 4 ] ]
+# ERROR: Shoudl be
+# [ [ "down", 4 ] , [ "up", 3 ] ]
+#NOTE The sum 4 + 3 must be equal to the number of items 7
 
+oStats = new stzStats([ 7, 4, 3, 1, 1, 1, 5, 9, 12 ])
+? @@( oStats.TrendAnalysis() )
+#--> [ [ "down", 4 ], [ "stable", 2 ], [ "up", 3 ] ]
 
 pf()
 # Executed in 0.0010 second(s) in Ring 1.22
@@ -425,8 +423,7 @@ pf()
 #---------------------------------------------
 # Example: Chi-Square Test for Independence
 #---------------------------------------------
-*/
-pr()
+
 
 # Scenario: Testing if gender (Male/Female) is independent
 # of product preference (Like/Dislike)

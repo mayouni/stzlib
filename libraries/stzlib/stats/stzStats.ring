@@ -528,6 +528,40 @@ class stzStats
 			return SimilarityScore(oOtherStats)
 
 
+	#---
+
+    def ConfidenceInterval(nConfidence)
+        if nConfidence = 0
+            nConfidence = 95
+        ok
+
+        # Calculate confidence interval for the mean
+        if @cDataType != "numeric" or len(@anData) < 2
+            return [0, 0]
+        ok
+        
+        nMean = This.Mean()
+        nStdDev = This.StandardDeviation()
+        nLen = len(@anData)
+        
+        # Using t-distribution approximation
+        nAlpha = (100 - nConfidence) / 100.0
+        nTValue = 1.96  # Approximation for 95% confidence
+        
+        if nConfidence = 90
+            nTValue = 1.645
+        but nConfidence = 99
+            nTValue = 2.576
+        ok
+        
+        nMarginError = nTValue * (nStdDev / sqrt(nLen))
+        
+        return [This._Round(nMean - nMarginError), This._Round(nMean + nMarginError)]
+
+		def ConfInt()
+			return This.ConfidentialInterval()
+
+
     #============================================================#
     #  PILLAR 2: COMPOSITION - Frequency & Categorical Analysis  #
     #============================================================#
@@ -822,6 +856,143 @@ class stzStats
         
         return aZScores
 
+
+    def MovingAverage(nWindow)
+        if nWindow = 0
+            nWindow = 3
+        ok
+        # Calculate moving average with specified window
+        if @cDataType != "numeric" or nWindow <= 0
+            return @anData
+        ok
+        
+        if len(@anData) < nWindow
+            return @anData
+        ok
+        
+        aMovingAvg = []
+        nLen = len(@anData)
+        
+        for i = 1 to (nLen - nWindow + 1)
+            nSum = 0
+            for j = i to (i + nWindow - 1)
+                nSum += @anData[j]
+            next
+            aMovingAvg + This._Round(nSum / nWindow)
+        next
+        
+        return aMovingAvg
+
+		def MovAvrg()
+			return This.MovingAverage()
+
+		def MovingMean()
+			return This.MovingAverage()
+
+		def MovMean()
+			return This.MovingAverage()
+
+	#--- TREND ANALYSIS SECTION (PART OF PILLAR 3 - DITRIBUTION)
+
+	def TrendAnalysis()
+	    # Granular trend analysis detecting segments and inflection points
+	    if @cDataType != "numeric" or len(@anData) < 2
+	        return [ ["insufficient_data", len(@anData)] ]
+	    ok
+	    
+	    nLen = len(@anData)
+	    
+	    # For simple cases (2-3 points), use basic trend
+	    if nLen <= 3
+	        return This._SimpleSeriesTrend()
+	    ok
+	    
+	    # Calculate consecutive differences
+	    aDifferences = []
+	    for i = 2 to nLen
+	        aDifferences + (@anData[i] - @anData[i-1])
+	    next
+	    
+	    # Classify each difference
+	    aTrends = []
+	    nTolerance = This._CalculateTolerance()
+	    for i = 1 to len(aDifferences)
+	        aTrends + This._ClassifyDifference(aDifferences[i], nTolerance)
+	    next
+	    
+	    # Build segments - walker visits data positions without overlap
+	    aTrendSegments = []
+	    cCurrentTrend = aTrends[1]
+	    nSegmentStart = 1  # Start at first data position
+	    
+	    for i = 2 to len(aTrends)
+	        if aTrends[i] != cCurrentTrend
+	            # Trend change detected at difference i
+	            # Previous segment covers from nSegmentStart to position i
+	            nSegmentLength = i - nSegmentStart + 1
+	            aTrendSegments + [cCurrentTrend, nSegmentLength]
+	            cCurrentTrend = aTrends[i]
+	            nSegmentStart = i + 1  # Next segment starts AFTER transition point
+	        ok
+	    next
+	    
+	    # Add final segment
+	    nFinalLength = len(@anData) - nSegmentStart + 1
+	    aTrendSegments + [cCurrentTrend, nFinalLength]
+	    
+	    return aTrendSegments
+	
+	def _SimpleSeriesTrend()
+	    nLen = len(@anData)
+	    if nLen = 2
+	        nDiff = @anData[2] - @anData[1]
+	        nTolerance = This._CalculateTolerance()
+	        cTrend = This._ClassifyDifference(nDiff, nTolerance)
+	        return [[cTrend, 2]]
+	    ok
+	    
+	    # For 3 points, check if consistent trend
+	    nDiff1 = @anData[2] - @anData[1]
+	    nDiff2 = @anData[3] - @anData[2]
+	    nTolerance = This._CalculateTolerance()
+	    
+	    cTrend1 = This._ClassifyDifference(nDiff1, nTolerance)
+	    cTrend2 = This._ClassifyDifference(nDiff2, nTolerance)
+	    
+	    if cTrend1 = cTrend2
+	        return [[cTrend1, 3]]
+	    else
+	        return [[cTrend1, 2], [cTrend2, 2]]
+	    ok
+	
+	def _CalculateTolerance()
+	    # Calculate tolerance based on data scale and variability
+	    nRange = This.Range()
+	    nStdDev = This.StandardDeviation()
+	    
+	    # Use smaller of 1% of range or 10% of standard deviation
+	    nRangeTolerance = nRange * 0.01
+	    nStdTolerance = nStdDev * 0.1
+	    
+	    nTolerance = iff(nRangeTolerance < nStdTolerance and nRangeTolerance > 0, 
+	                    nRangeTolerance, nStdTolerance)
+	    
+	    # Ensure minimum tolerance to avoid over-sensitivity
+	    if nTolerance < 0.001
+	        nTolerance = 0.001
+	    ok
+	    
+	    return nTolerance
+	
+	def _ClassifyDifference(nDiff, nTolerance)
+	    if abs(nDiff) <= nTolerance
+	        return "stable"
+	    but nDiff > 0
+	        return "up"
+	    else
+	        return "down"
+	    ok
+
     #===========================================================#
     #  PILLAR 4: RELATION - Correlation & Association Analysis  #
     #===========================================================#
@@ -917,6 +1088,10 @@ class stzStats
 
 		def RankCorelWith(oOtherStats)
 			return This.RankCorrelationWith(oOtherStats)
+
+		def NonParametricCorrelation()
+			return This.RankCorrelationWith(oOtherStats)
+
 
     def _GetRanks(aData)
         aIndexed = []
@@ -1035,9 +1210,13 @@ class stzStats
 	    This._SetCache(cKey, nResult)
 	    return nResult
 
-    #=========================================#
-    #  DATA TRANSFORMATION & NORMALIZATION    #
-    #=========================================#
+		def CategoricalAssociationWith(oOtherStats)
+			return This.ChiSquareWith(oOtherStats)
+
+
+    #=====================#
+    #  DATA PROCESSING    #
+    #=====================#
 
     def Normalize()
         # Min-Max normalization (0-1 scale)
@@ -1085,7 +1264,7 @@ class stzStats
         next
         
         return aStandardized
-
+ 
     def RobustScale()
         # Scale using median and IQR (robust to outliers)
         if @cDataType != "numeric"
@@ -1109,114 +1288,117 @@ class stzStats
         
         return aScaled
 
-    #================================#
-    #  ADVANCED STATISTICAL METHODS  #
-    #================================#
 
-    def ConfidenceInterval(nConfidence)
-        if nConfidence = 0
-            nConfidence = 95
-        ok
+    #=============================#
+    #  DATA QUALITY AND GUIDANCE  #
+    #=============================#
 
-        # Calculate confidence interval for the mean
-        if @cDataType != "numeric" or len(@anData) < 2
-            return [0, 0]
+    def ValidateData()
+        # Validate data integrity and quality
+        acIssues = []
+        
+        if len(@anData) = 0
+            acIssues + "Dataset is empty"
+            return acIssues
         ok
         
-        nMean = This.Mean()
-        nStdDev = This.StandardDeviation()
-        nLen = len(@anData)
-        
-        # Using t-distribution approximation
-        nAlpha = (100 - nConfidence) / 100.0
-        nTValue = 1.96  # Approximation for 95% confidence
-        
-        if nConfidence = 90
-            nTValue = 1.645
-        but nConfidence = 99
-            nTValue = 2.576
-        ok
-        
-        nMarginError = nTValue * (nStdDev / sqrt(nLen))
-        
-        return [This._Round(nMean - nMarginError), This._Round(nMean + nMarginError)]
-
-		def ConfInt()
-			return This.ConfidentialInterval()
-
-
-    def MovingAverage(nWindow)
-        if nWindow = 0
-            nWindow = 3
-        ok
-        # Calculate moving average with specified window
-        if @cDataType != "numeric" or nWindow <= 0
-            return @anData
-        ok
-        
-        if len(@anData) < nWindow
-            return @anData
-        ok
-        
-        aMovingAvg = []
-        nLen = len(@anData)
-        
-        for i = 1 to (nLen - nWindow + 1)
-            nSum = 0
-            for j = i to (i + nWindow - 1)
-                nSum += @anData[j]
+        if @cDataType = "numeric"
+            # Check for infinite or NaN values
+			nLen = len(@anData)
+            for i = 1 to nLen
+                if isNull(@anData[i])
+                    aIssues + "Contains null values"
+                    exit
+                ok
             next
-            aMovingAvg + This._Round(nSum / nWindow)
-        next
-        
-        return aMovingAvg
-
-		def MovAvrg()
-			return This.MovingAverage()
-
-		def MovingMean()
-			return This.MovingAverage()
-
-		def MovMean()
-			return This.MovingAverage()
-
-
-    def TrendAnalysis()
-        # Simple linear trend analysis
-        if @cDataType != "numeric" or len(@anData) < 3
-            return "insufficient data"
+            
+            # Check for extreme outliers
+            aOutliers = This.Outliers()
+            if len(aOutliers) > (This.Count() * 0.2)
+                acIssues + "High proportion of outliers detected"
+            ok
+            
+            # Check for variance
+            if This.StandardDeviation() = 0
+                acIssues + "No variance in data (all values identical)"
+            ok
         ok
         
-        nLen = len(@anData)
-        nSumX = 0
-        nSumY = 0
-        nSumXY = 0
-        nSumX2 = 0
+        if len(acIssues) = 0
+            acIssues + "Data quality appears good"
+        ok
         
-        for i = 1 to nLen
-            nSumX += i
-            nSumY += @anData[i]
-            nSumXY += i * @anData[i]
-            nSumX2 += i * i
-        next
+        return acIssues
+
+		def Validate()
+			return This.ValidateData()
+
+		def Issues()
+			return This.ValidateData()
+
+    def RecommendAnalysis()
+        # Suggest appropriate analysis methods based on data characteristics
+        acRecommendations = []
         
-        nSlope = (nLen * nSumXY - nSumX * nSumY) / (nLen * nSumX2 - nSumX * nSumX)
+        nCount = This.Count()
+        if nCount < 10
+            acRecommendations + "Small sample size - interpret results cautiously"
+        ok
         
-        if abs(nSlope) < 0.01
-            return "stable"
-        but nSlope > 0
-            return "increasing"
+        if @cDataType = "numeric"
+
+            nSkew = This.Skewness()
+            if abs(nSkew) > 1
+                acRecommendations + "Data is skewed - consider using median instead of mean"
+            ok
+            
+            aOutliers = This.Outliers()
+            if len(aOutliers) > 0
+                acRecommendations + "Outliers detected - consider robust statistics"
+            ok
+            
+            if This.CoefficientOfVariation() > 50
+                acRecommendations + "High variability - segment analysis recommended"
+            ok
+
         else
-            return "decreasing"
+            if This.Diversity() < 0.3
+                acRecommendations + "Low diversity - focus on dominant categories"
+            ok
+            
+            if This.UniqueCount() = This.Count()
+                acRecommendations + "All values unique - consider grouping or classification"
+            ok
         ok
+        
+        if len(acRecommendations) = 0
+            acRecommendations + "Standard statistical analysis appropriate"
+        ok
+        
+        return acRecommendations
 
-		def Trend()
-			return This.TrendAnalysis()
+		#< @AlternativeFunctionForms
 
+		def Recommendations()
+			return This.RecommendAnalysis()
 
-    #========================================#
-    #  STATISTICS INSIGHT GENERATION SYSTEM  #
-    #========================================#
+		def Advises()
+			return This.RecommendAnalysis()
+
+		def Advizes()
+			return This.RecommendAnalysis()
+
+		def Recommend()
+			return This.RecommendAnalysis()
+
+		def Advize()
+			return This.RecommendAnalysis()
+
+		#>
+
+    #===============================================#
+    #  STATISTICS NATIVE INSIGHT GENERATION SYSTEM  #
+    #===============================================#
 
     def Insight()
         return This.GenerateInsight()
@@ -1442,9 +1624,9 @@ class stzStats
 			return This.InsightsOfDomain(cDomain)
 
 
-    #========================================================#
-    #  DOMAIN-SPECIFIC RULE-BASED INSIGHT GENERATION SYSTEM  #
-    #========================================================#
+    #====================================================================#
+    #  DOMAIN-SPECIFIC, RULE-BASED, WEIGTENED INSIGHT GENERATION SYSTEM  #
+    #====================================================================#
     
 	def AddInsightRule(cDomain, cCondition, cInsight)
 	    if NOT HasKey($aInsightRules, cDomain)
@@ -1487,113 +1669,6 @@ class stzStats
 	        aResults = @SortOn(2, aResults, :Descending = TRUE)
 	    ok
 	    return aResults
-
-    #=====================================#
-    #  QUALITY AND RECOMMANDATION SYSTEM  #
-    #=====================================#
-
-    def ValidateData()
-        # Validate data integrity and quality
-        acIssues = []
-        
-        if len(@anData) = 0
-            acIssues + "Dataset is empty"
-            return acIssues
-        ok
-        
-        if @cDataType = "numeric"
-            # Check for infinite or NaN values
-			nLen = len(@anData)
-            for i = 1 to nLen
-                if isNull(@anData[i])
-                    aIssues + "Contains null values"
-                    exit
-                ok
-            next
-            
-            # Check for extreme outliers
-            aOutliers = This.Outliers()
-            if len(aOutliers) > (This.Count() * 0.2)
-                acIssues + "High proportion of outliers detected"
-            ok
-            
-            # Check for variance
-            if This.StandardDeviation() = 0
-                acIssues + "No variance in data (all values identical)"
-            ok
-        ok
-        
-        if len(acIssues) = 0
-            acIssues + "Data quality appears good"
-        ok
-        
-        return acIssues
-
-		def Validate()
-			return This.ValidateData()
-
-		def Issues()
-			return This.ValidateData()
-
-    def RecommendAnalysis()
-        # Suggest appropriate analysis methods based on data characteristics
-        acRecommendations = []
-        
-        nCount = This.Count()
-        if nCount < 10
-            acRecommendations + "Small sample size - interpret results cautiously"
-        ok
-        
-        if @cDataType = "numeric"
-
-            nSkew = This.Skewness()
-            if abs(nSkew) > 1
-                acRecommendations + "Data is skewed - consider using median instead of mean"
-            ok
-            
-            aOutliers = This.Outliers()
-            if len(aOutliers) > 0
-                acRecommendations + "Outliers detected - consider robust statistics"
-            ok
-            
-            if This.CoefficientOfVariation() > 50
-                acRecommendations + "High variability - segment analysis recommended"
-            ok
-
-        else
-            if This.Diversity() < 0.3
-                acRecommendations + "Low diversity - focus on dominant categories"
-            ok
-            
-            if This.UniqueCount() = This.Count()
-                acRecommendations + "All values unique - consider grouping or classification"
-            ok
-        ok
-        
-        if len(acRecommendations) = 0
-            acRecommendations + "Standard statistical analysis appropriate"
-        ok
-        
-        return acRecommendations
-
-		#< @AlternativeFunctionForms
-
-		def Recommandations()
-			return This.RecommendAnalysis()
-
-		def Advises()
-			return This.RecommendAnalysis()
-
-		def Advizes()
-			return This.RecommendAnalysis()
-
-		def Recommand()
-			return This.RecommendAnalysis()
-
-		def Advize()
-			return This.RecommendAnalysis()
-
-		#>
 
 
     #================================#
