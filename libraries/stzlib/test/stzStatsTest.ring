@@ -171,16 +171,19 @@ pf()
 # Executed in 0.0020 second(s) in Ring 1.22
 
 /*--- Empty Dataset Handling
-
+*/
 pr()
 
 oStats = new stzStats([])
+
 ? oStats.DataType()  # Expected: "empty"
 ? oStats.Mean()      # Expected: 0
 ? oStats.Median()    # Expected: 0
-? oStats.Mode()      # Expected: NULL
-? oStats.Insight()
+? @@(oStats.Mode())  # Expected: NULL
+
+? @@(oStats.Insights())
 #--> "Dataset is empty. No analysis possible without data."
+
 pf()
 # Executed in 0.0010 second(s) in Ring 1.22
 
@@ -531,7 +534,7 @@ pf()
 #--> Executed in 0.0010 second(s) in Ring 1.22
 
 /*--- ClearCache() Test
-*/
+
 pr()
 
 oStats = new stzStats([10, 20, 30, 40, 50])
@@ -572,7 +575,10 @@ pf()
 # Executed in 0.0020 second(s) in Ring 1.22
 
 /*--- AddWeightedRule() and PrioritizedInsights() Test
+*/
+
 pr()
+
 oStats = new stzStats([10, 20, 30, 40, 50])
 oStats {
     AddWeightedRule(:Finance, "@Mean > 20", "High mean (@Mean) for investment.", 2)

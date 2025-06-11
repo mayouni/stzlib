@@ -220,8 +220,7 @@ class stzStats
 		for i = 1 to nLen
 
             cItemKey = "" + @anData[i]
-			if @HasKey(aFreqHash, cItemKey)
-                oFreq.@aContent[cItemKey]++
+			if isNumber(aFreqHash[cItemKey])
 				aFreqHash[cItemKey]++
 
             else
@@ -1469,10 +1468,18 @@ class stzStats
 	    switch @cDataType
 	    on "numeric"
 	        aAllInsights = This._GenerateNumericInsight()
+
 	    on "categorical" 
 	        aAllInsights = This._GenerateCategoricalInsight()
+
 	    on "mixed"
 	    	aAllInsights = This._GenerateMixedInsight()
+
+		on "empty"
+			aAllInsights = ["Dataset is empty. No analysis possible without data."]
+		other
+			StzRaise("Unknowan data type! Supported types are :Numberic, :Categorical, :Mixed, and :Empty.")
+
 	    off
 	    
 	    # Add Statistics domain rules
