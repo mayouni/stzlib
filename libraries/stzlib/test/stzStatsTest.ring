@@ -395,7 +395,7 @@ pf()
 # Executed in 0.0010 second(s) in Ring 1.22
 
 /*--- Trend Analysis
-*/
+
 pr()
 
 oStats = new stzStats([1, 3, 5, 7, 9])
@@ -475,5 +475,196 @@ oStats4 = new stzStats(["Like", "Dislike"])
 
 pf()
 # Executed in 0.0030 second(s) in Ring 1.22
-/*
 
+/*==========================#
+#  ADDITIONAL TEST SAMPLES  #
+#===========================#
+
+*/
+decimals(4)
+
+/*--- UniqueValues() Test
+
+pr()
+
+oStats = new stzStats(["Red", "Blue", "Red", "Green", "Blue", "Yellow"])
+? @@(oStats.UniqueValues()) # Or simply UValues()
+#--> ["Red", "Blue", "Green", "Yellow"]
+
+pf()
+# Executed in 0.0020 second(s) in Ring 1.22
+
+/*--- RelativeFrequency() Test
+*/
+pr()
+
+oStats = new stzStats(["Red", "Blue", "Red", "Green", "Blue", "Red", "Yellow"])
+? @@(oStats.RelativeFrequency())
+#--> [["Red", 0.4286], ["Blue", 0.2857], ["Green", 0.1429], ["Yellow", 0.1429]]
+
+pf()
+# Expected execution time: ~0.0020 second(s)
+
+/*--- Quartiles() Test
+pr()
+oStats = new stzStats([1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
+? @@(oStats.Quartiles())
+# Expected: [10, 25, 40]
+# Note: Adjust expectation based on interpolation method if necessary
+pf()
+# Expected execution time: ~0.0020 second(s)
+
+/*--- SortedData() Test
+pr()
+oStats = new stzStats([30, 10, 20, 50, 40])
+? @@(oStats.SortedData())
+# Expected: [10, 20, 30, 40, 50]
+pf()
+# Expected execution time: ~0.0010 second(s)
+
+/*--- ClearCache() Test
+pr()
+oStats = new stzStats([10, 20, 30, 40, 50])
+oStats.Mean()  # Cache mean
+oStats.ClearCache()
+? oStats.Mean()  # Should recompute, not use cache
+# Expected: 30 (verifies cache cleared by ensuring recomputation)
+pf()
+# Expected execution time: ~0.0020 second(s)
+
+/*--- AddWeightedRule() and PrioritizedInsights() Test
+pr()
+oStats = new stzStats([10, 20, 30, 40, 50])
+oStats {
+    AddWeightedRule(:Finance, "@Mean > 20", "High mean (@Mean) for investment.", 2)
+    AddWeightedRule(:Finance, "@StdDev > 10", "High volatility (@StdDev).", 1)
+    ? @@NL(PrioritizedInsights(:Finance))
+    # Expected: [
+    #   ["High mean (30) for investment.", 2],
+    #   ["High volatility (15.8114).", 1]
+    # ]
+}
+pf()
+# Expected execution time: ~0.0030 second(s)
+
+/*--- CompareDatasets() Test
+pr()
+? @@NL(CompareDatasets([1, 2, 3, 4, 5], [2, 4, 6, 8, 10]))
+# Expected: [
+#   "Mean difference: -50%",
+#   "Similar variability patterns",
+#   "Strong positive correlation (1)"
+# ]
+pf()
+# Expected execution time: ~0.0020 second(s)
+
+/*--- QuickSummary() Test
+pr()
+? QuickSummary([10, 20, 30, 40, 50])
+# Expected: Similar to oStats.Summary(), e.g.,
+# === Dataset Summary ===
+# Type: numeric
+# Count: 5
+# Mean: 30
+# Median: 30
+# ...
+pf()
+# Expected execution time: ~0.0030 second(s)
+
+/*--- StatInsight() Test
+pr()
+? @@NL(StatInsight([10, 20, 30, 40, 50]))
+# Expected: Similar to oStats.Insight(), e.g.,
+# [
+#   "The data is symmetrically distributed with mean 30 and median 30.",
+#   ...
+# ]
+pf()
+# Expected execution time: ~0.0030 second(s)
+
+/*--- MissingValues() Test
+pr()
+? @@(MissingValues())
+# Expected: ["", "NA", "NULL", "n/a", "#N/A"]
+pf()
+# Expected execution time: ~0.0010 second(s)
+
+/*--- StatPrecision() Test
+pr()
+? StatPrecision()
+# Expected: 4
+SetPrecision(2)
+? StatPrecision()
+# Expected: 2
+pf()
+# Expected execution time: ~0.0010 second(s)
+
+/*--- InsightsOfDomain() Test
+pr()
+oStats = new stzStats([10, 20, 30, 40, 50])
+oStats.AddInsightRule(:Finance, "@Mean > 20", "Mean (@Mean) exceeds threshold.")
+? @@NL(oStats.InsightsOfDomain(:Finance))
+# Expected: ["Mean (30) exceeds threshold."]
+pf()
+# Expected execution time: ~0.0030 second(s)
+
+/*--- Enhanced ValidateData() Test (Cover Outliers and Variance)
+pr()
+oStats = new stzStats([1, 2, 3, 4, 5, 1000])
+? @@(oStats.ValidateData())
+# Expected: ["High proportion of outliers detected"]
+oStats = new stzStats([5, 5, 5, 5, 5])
+? @@(oStats.ValidateData())
+# Expected: ["No variance in data (all values identical)"]
+pf()
+# Expected execution time: ~0.0020 second(s)
+
+/*--- Enhanced RecommendAnalysis() Test (Cover Skewness)
+pr()
+oStats = new stzStats([1, 2, 3, 4, 100])  # Highly skewed
+? @@NL(oStats.RecommendAnalysis())
+# Expected: Includes "Data is skewed - consider using median instead of mean"
+pf()
+# Expected execution time: ~0.0030 second(s)
+
+/*--- Enhanced ChiSquareWith() Test (Validate Calculation)
+pr()
+oStats1 = new stzStats(["A", "A", "B", "B", "A"])
+oStats2 = new stzStats(["X", "Y", "X", "Y", "X"])
+? oStats1.ChiSquareWith(oStats2)
+# Expected: Calculate manually based on contingency table
+# Contingency: A-X: 2, A-Y: 1, B-X: 1, B-Y: 1
+# Chi-square should match manual calculation
+pf()
+# Expected execution time: ~0.0020 second(s)
+
+/*--- Enhanced GeometricMean() and HarmonicMean() Test
+pr()
+oStats = new stzStats([2, 8, 32])
+? oStats.GeometricMean()
+# Expected: (2 * 8 * 32)^(1/3) ≈ 8
+? oStats.HarmonicMean()
+# Expected: 3 / (1/2 + 1/8 + 1/32) ≈ 4.8
+pf()
+# Expected execution time: ~0.0020 second(s)
+
+/*--- Enhanced ConfidenceInterval() Test
+pr()
+oStats = new stzStats([10, 20, 30, 40, 50])
+? @@(oStats.ConfidenceInterval(90))
+# Expected: Calculate with t=1.645
+? @@(oStats.ConfidenceInterval(99))
+# Expected: Calculate with t=2.576
+pf()
+# Expected execution time: ~0.0020 second(s)
+
+/*--- Enhanced TrendAnalysis() Test (Fix Segment Length Issue)
+pr()
+oStats = new stzStats([7, 4, 3, 1, 5, 9, 12])
+? @@(oStats.TrendAnalysis())
+# Expected: [["down", 4], ["up", 3]]
+oStats = new stzStats([1, 1, 1, 2, 3, 4])
+? @@(oStats.TrendAnalysis())
+# Expected: [["stable", 3], ["up", 3]]
+pf()
+# Expected execution time: ~0.0010 second(s)
