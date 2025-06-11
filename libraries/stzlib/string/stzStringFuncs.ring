@@ -1673,3 +1673,11 @@ func Boxify(str)
 
 	func @Boxify(str)
 		return StzStringQ(str).Boxified()
+
+func BoxifyRound(str)
+	oTempStr = new stzString(str)
+	oTempStr.BoxifyRound()
+	return otempStr.Content()
+
+	func @BoxifyRound(str)
+		return BoxifyRound(str)

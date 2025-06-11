@@ -483,6 +483,42 @@ func SortListsOn(paLists, n)
 
 	#>
 
+func SortOnUp(n, paList)
+	return SortOn(n, paList)
+
+	func @SortOnUp(n, paList)
+		return SortOnUp(n, paList)
+
+func SortOnDown(n, palist)
+	return reverse(SortOn(n, paList))
+
+	func @SortOnDown(n, palist)
+		return SortOnDown(n, palist)
+
+func SortOnXT(n, paList, pcDirection)
+	if CheckParams()
+		if isList(pcDirection) and StzListQ(pcDirection).IsDirectionOrGoingNamedParam()
+			pcDirection = pcDirection[2]
+		ok
+	ok
+
+	if NOT isString(pcDirection)
+		StzRaise("Incorrect param type! pcDirection must be a string.")
+	ok
+
+	if not ring_find([ "ascending", "descending", "up", "down" ], lower(pcDirection))
+		StzRaise("Incorrect param value! pcDirection can be :Forward or :Backward.")
+	ok
+
+	if pcDirection = "ascending" or pcDirection = "up"
+		return SortOn(n, paList)
+	else
+		return reverse( SortOn(n, paList) )
+	ok
+
+	func @SortOnXT(n, paList, pcDirection)
+		return SortOnXT(n, paList, pcDirection)
+
 func @SortList(paList)
 
 	if CheckingParams()
