@@ -506,35 +506,70 @@ pf()
 # Expected execution time: ~0.0020 second(s)
 
 /*--- Quartiles() Test
-*/
+
 pr()
+
 oStats = new stzStats([1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
 ? @@(oStats.Quartiles()) # same as QuartilesXT(:Interpolation)
 # Expected: [10, 25, 40]
-# Note: Adjust expectation based on interpolation method if necessary
 
-? @@(oStats.QuartilesXT(:Nearest))
+? @@(oStats.QuartilesXT(:Nearest)) # Or :NearestRank
+#--> [ 10, 25, 40 ]
 
 pf()
-# Expected execution time: ~0.0020 second(s)
+# Executed in 0.0020 second(s) in Ring 1.22
 
 /*--- SortedData() Test
+
 pr()
+
 oStats = new stzStats([30, 10, 20, 50, 40])
 ? @@(oStats.SortedData())
-# Expected: [10, 20, 30, 40, 50]
+#--> [ 10, 20, 30, 40, 50 ]
+
 pf()
-# Expected execution time: ~0.0010 second(s)
+#--> Executed in 0.0010 second(s) in Ring 1.22
 
 /*--- ClearCache() Test
+*/
 pr()
+
 oStats = new stzStats([10, 20, 30, 40, 50])
-oStats.Mean()  # Cache mean
-oStats.ClearCache()
-? oStats.Mean()  # Should recompute, not use cache
-# Expected: 30 (verifies cache cleared by ensuring recomputation)
+oStats {
+	# Initialize cache as an empty list
+	? @@(Cache())
+
+	# Calculate arithmetic mean and store result in cache
+	? Mean()
+	#--> 30
+
+	# Display cache containing the computed mean
+	? @@(Cache())
+	#--> [ [ "mean", 30 ] ]
+
+	# Manually modify cached mean value for testing purposes
+	@aCache[:Mean] = 77
+
+	# Retrieve mean from cache without recalculation
+	? Mean()
+	#--> 77
+
+	# Reset cache to empty state
+	ClearCache()
+	? @@(Cache())
+	#--> []
+
+	# Recalculate mean and update cache with new value
+	? Mean()
+	#--> 30
+
+	# Show updated cache with mean value
+	? @@(Cache())
+	#--> [ [ "mean", 30 ] ]
+}
+
 pf()
-# Expected execution time: ~0.0020 second(s)
+# Executed in 0.0020 second(s) in Ring 1.22
 
 /*--- AddWeightedRule() and PrioritizedInsights() Test
 pr()

@@ -1828,9 +1828,14 @@ class stzStats
         return aExport
 
 
+	def Cache()
+		return @aCache
+
     #==========================#
     #  PRIVATE HELPER METHODS  #
     #==========================#
+
+	PRIVATE
 
     def _IsVarDefined(cVarName)
         # Check if instance variable is defined
