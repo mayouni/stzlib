@@ -566,44 +566,52 @@ class stzStats
     #  PILLAR 2: COMPOSITION - Frequency & Categorical Analysis  #
     #============================================================#
 
-    def FrequencyTable()
-        cKey = "freq_table"
-        cached = This._GetCached(cKey)
-        if cached != NULL
-            return cached
-        ok
-
-        aFreqHash = []
-		nLen = len(@anData)
-
-		for i = 1 to nLen
-            cItemKey = "" + @anData[i]
-			if @HasKey(aFreqHash, cItemKey)
-                aFreqHash[cItemKey]++
-            else
-                aFreqHash + [cItemKey, 1]
-            ok
-        next
-
-        This._SetCache(cKey, aFreqHash)
-        return aFreqHash
-
-    def RelativeFrequency()
-        aFreqTable = This.FrequencyTable()
-        nTotal = This.Count()
-        aRelFreq = []
-
-        nLen = len(aFreqTable)
-
-		for i = 1 to nLen
-            nRelativeFreq = This._Round((aFreqTable[i][2] * 1.0) / nTotal)
-            aRelFreq + [aFreqTable[i][1], nRelativeFreq]
-        next
-        
-        return aRelFreq
-
-		def RelFreq()
-			return This.RelativeFrequency()
+	def FrequencyTable()
+	    cKey = "freq_table"
+	    cached = This._GetCached(cKey)
+	    if cached != NULL
+	        return cached
+	    ok
+	
+	    aFreqHash = []
+	    nLen = len(@anData)
+	
+	    for i = 1 to nLen
+	        cItemKey = "" + @anData[i]
+	
+	        if isNumber(aFreqHash[cItemKey])
+	            aFreqHash[cItemKey]++
+	        else
+	            aFreqHash[cItemKey] = 1
+	        ok
+	    next
+	
+	    # Convert hash to array of pairs
+	    aFreqTable = []
+	    for cKey in keys(aFreqHash)
+	        aFreqTable + [cKey, aFreqHash[cKey]]
+	    next
+	
+	    This._SetCache(cKey, aFreqTable)
+	    return aFreqTable
+	
+	def RelativeFrequency()
+	    aFreqTable = This.FrequencyTable()
+	
+	    nTotal = This.Count()
+	    aRelFreq = []
+	
+	    nLen = len(aFreqTable)
+	
+	    for i = 1 to nLen
+	        nRelativeFreq = This._Round((aFreqTable[i][2] * 1.0) / nTotal)
+	        aRelFreq + [aFreqTable[i][1], nRelativeFreq]
+	    next
+	    
+	    return aRelFreq
+	
+	def RelFreq()
+	    return This.RelativeFrequency()
 
     def PercentageFrequency()
 
