@@ -5,43 +5,35 @@
 
 # Global configuration for missing values
 $aSTAT_MISSING_VALUES = [ "", "NA", "NULL", "n/a", "#N/A" ]
-$nSTAT_PRECISION = 4  # Decimal places for numeric outputs
 
 $aInsightRules = [
+
     :Finance = [
-        [ "@CoVariance > 50", "High variability ({@CoVariance}) indicates investment risk." ],
-        [ "@Skewness > 1", "Positive skew ({@Skewness()}) suggests potential for extreme gains." ]
+//        [ "CoVariance() > 50", "High variability ({CoVariance()}) indicates investment risk.", 3 ],
+//        [ "Skewness() > 1", "Positive skew ({Skewness()}) suggests potential for extreme gains", 1 ]
     ],
+
     :Healthcare = [
-        [ "Mean > 100", "Mean (@Mean) exceeds health metric threshold (100)." ]
+//       [ "Mean() > 100", "Mean ({Mean()}) exceeds health metric threshold (100).", 3 ]
     ]
 ]
 
-    
-func CreateStats(paData)
-	return new stzStats(paData)
+func StzDataSetQ(paData)
+	return new stzDataSet(paData)
     
 func CompareDatasets(paData1, paData2)
-	oStats1 = new stzStats(paData1)
-	oStats2 = new stzStats(paData2)
+	oStats1 = new stzDataSet(paData1)
+	oStats2 = new stzDataSet(paData2)
 	return oStats1.CompareWith(oStats2)
-    
-func QuickSummary(paData)
-	oStats = new stzStats(paData)
-	return oStats.Summary()
-
-func StatInsight(paData)
-	oStats = new stzStats(paData)
-	return oStats.GenerateInsight()
 
 func MissingValues()
     return $aSTAT_MISSING_VALUES
 
-func StatPrecision()
-    return $nSTAT_PRECISION
+	func @MissingValues()
+		return $aSTAT_MISSING_VALUES
 
 
-class stzStats
+class stzDataSet
 
     @anData = []
     @cDataType = "numeric"  # numeric, categorical, mixed, empty
@@ -54,7 +46,7 @@ class stzStats
     def init(paData)
         if CheckParams()
             if NOT isList(paData)
-                StzRaise("stzStats requires a list of data")
+                StzRaise("stzDataSet requires a list of data")
             ok
         ok
 
@@ -139,7 +131,7 @@ class stzStats
         ok
 
     def _Round(nValue)
-        nMultiplier = pow(10, $nSTAT_PRECISION)
+        nMultiplier = pow(10, CurrentRound())
         return floor(nValue * nMultiplier + 0.5) / nMultiplier
 
     #=================================================#
@@ -1139,8 +1131,8 @@ class stzStats
         aRanks2 = This._GetRanks(aOtherData)
         
         # Calculate correlation of ranks
-        oRank1 = new stzStats(aRanks1)
-        oRank2 = new stzStats(aRanks2)
+        oRank1 = new stzDataSet(aRanks1)
+        oRank2 = new stzDataSet(aRanks2)
         
         return oRank1.CorrelationWith(oRank2)
 
@@ -1354,7 +1346,7 @@ class stzStats
     def ValidateData()
         # Validate data integrity and quality
         acIssues = []
-        
+
         if len(@anData) = 0
             acIssues + "Dataset is empty"
             return acIssues
@@ -1369,7 +1361,7 @@ class stzStats
                     exit
                 ok
             next
-            
+
             # Check for extreme outliers
             aOutliers = This.Outliers()
             if len(aOutliers) > (This.Count() * 0.2)
@@ -1622,8 +1614,7 @@ class stzStats
         aInsights = []
         aInsights + ( "Mixed dataset containing both numeric and categorical data (" + nUnique + " unique values from " + nCount + " total)" )
         aInsights + ( "Consider separating data types for specialized analysis. Numeric methods apply only to numeric subset" )
-        return aInsights # Return list directly
-
+        return aInsights # Return list directl
 
     def Insights() # Native statistic-insights
         # Return insights as clean list of sentences
@@ -1703,38 +1694,85 @@ class stzStats
     def AddRule(cDomain, cCondition, cInsight)
         This.AddInsightRule(cDomain, cCondition, cInsight)
 
-    def _EvaluateCondition(cCondition)
-        
+	def _EvaluateCondition(cCondition)
+	    # Replace method calls with actual values before eval
+
+
 		cCode = 'bResult = ' + cCondition
 		eval(cCode)
+
 		return bResult       
 
-	#--
+	def _Interpolate(cInsight)
+		# Transforms a dynamic insight string like this:
+		# "High mean ({Mean()}) for investment."
+		# to a concrete final string like this
+		# "High mean (10) for investment."	
+
+		oTempStr = new stzString(cInsight)
+		aSections = oTempStr.FindSubStringsBoundedByZZ([ "{", "}" ])
+		acMethods = oTempStr.Sections(aSections)
+		nLen = len(aSections)
+		
+		aValues = []
+		for i = 1 to nLen
+			cCode = 'value = ' + acMethods[i]
+			eval(cCode)
+			aValues + Stringify(value)
+		next
+
+		for i = 1 to nLen
+			aSections[i][1]--
+			aSections[i][2]++
+		next
+
+		oTempStr.ReplaceSectionsByMany(aSections, aValues)
+		
+		cResult = oTempStr.Content()
+
+		return cResult
 
 	def AddWeightedRule(cDomain, cCondition, cInsight, nWeight)
 	    if nWeight = NULL nWeight = 1 ok
 	    if NOT HasKey($aInsightRules, cDomain)
 	        $aInsightRules[cDomain] = []
 	    ok
+
+	    # Don't interpolate here - do it when evaluating
 	    $aInsightRules[cDomain] + [cCondition, cInsight, nWeight]
 	
 	def PrioritizedInsights(cDomain)
 	    aResults = []
-
+	
 	    if HasKey($aInsightRules, cDomain)
-			nLen = len($aInsightRules[cDomain])
+	        aRules = $aInsightRules[cDomain]
+			nLen = len(aRules)	
 
-			for i = 1 to nLen
-	            if This._EvaluateCondition($aInsightRules[cDomain][i][1])
-	                nWeight = iff(len($aInsightRules[cDomain][i]) > 2, rule[3], 1)
-	                aResults + [$aInsightRules[cDomain][i][2], nWeight]
+	        for i = 1 to nLen
+	            aRule = aRules[i]  # Get the rule array
+	            cCondition = aRule[1]  # Get condition
+	            
+	            if This._EvaluateCondition(cCondition)
+    				cInsight = This._Interpolate(aRule[2])
+    				nWeight = 1
+	
+    				if len(aRule) > 2
+        				nWeight = aRule[3]
+    				ok
+
+    				aResults + [cInsight, nWeight]
 	            ok
 	        next
-
-	        # Sort by weight descending
-	        aResults = @SortOn(2, aResults, :Descending = TRUE)
+	
+	        # Sort by weight descending  
+	        aResults = SortOnXT(2, aResults, :Descending)
 	    ok
+	    
 	    return aResults
+	
+	def _EvaluateRule(cInsight)
+	    # This method should interpolate dynamic content
+	    return This._Interpolate(cInsight)
 
 
     #================================#
@@ -1759,40 +1797,36 @@ class stzStats
         @bSorted = FALSE
         @anSortedData = []
 
-    def SetPrecision(nPrecision)
-        if nPrecision >= 0 and nPrecision <= 10
-            $nSTAT_PRECISION = nPrecision
-        ok
-
     def Summary()
         # Comprehensive summary of the dataset
-        cSummary = ""
-        
-        cSummary += Boxify("Dataset Summary") + NL
-        cSummary += "Type: " + @cDataType + NL
-        cSummary += "Count: " + This.Count() + NL
+        cSummary = BoxifyRound("Dataset Content") + NL
+		cSummary += @@(This.Content()) + NL + NL
+      
+        cSummary += BoxifyRound("Dataset Summary") + NL
+        cSummary += "• Type: " + @cDataType + NL
+        cSummary += "• Count: " + This.Count() + NL
         
         if @cDataType = "numeric"
-            cSummary += "Mean: " + This.Mean() + NL
-            cSummary += "Median: " + This.Median() + NL
-            cSummary += "Standard Deviation: " + This.StandardDeviation() + NL
-            cSummary += "Range: " + This.Range() + " (" + This.Min() + " to " + This.Max() + ")" + NL
+            cSummary += "• Mean: " + This.Mean() + NL
+            cSummary += "• Median: " + This.Median() + NL
+            cSummary += "• Standard Deviation: " + This.StandardDeviation() + NL
+            cSummary += "• Range: " + This.Range() + " (" + This.Min() + " to " + This.Max() + ")" + NL
             
             aQuartiles = This.Quartiles()
-            cSummary += "Quartiles: Q1=" + aQuartiles[1] + ", Q2=" + aQuartiles[2] + ", Q3=" + aQuartiles[3] + NL
+            cSummary += "• Quartiles: Q1=" + aQuartiles[1] + ", Q2=" + aQuartiles[2] + ", Q3=" + aQuartiles[3] + NL
             
             aOutliers = This.Outliers()
             if len(aOutliers) > 0
-                cSummary += "Outliers: " + len(aOutliers) + " detected" + NL
+                cSummary += "• Outliers: " + len(aOutliers) + " detected" + NL
             ok
 
         else
-            cSummary += "Unique Values: " + This.UniqueCount() + NL
-            cSummary += "Diversity: " + This._Round(This.Diversity() * 100) + "%" + NL
-            cSummary += "Most Common: " + This.Mode() + NL
+            cSummary += "• Unique Values: " + This.UniqueCount() + NL
+            cSummary += "• Diversity: " + This._Round(This.Diversity() * 100) + "%" + NL
+            cSummary += "• Most Common: " + This.Mode() + NL
         ok
         
-        cSummary += NL + Boxify("Insights") + NL
+        cSummary += NL + BoxifyRound("Dataset Insights") + NL
         aInsights = This.GenerateInsight()
 		nLen = len(aInsights)
         for i = 1 to nLen
@@ -1835,8 +1869,21 @@ class stzStats
         return aExport
 
 
+	def Values()
+		return @anData
+
+		def Content()
+			return @anData
+
+	def Copy()
+		return new stzDataSet(This.Content())
+
+	def Rules()
+		return $aInsightRules
+
 	def Cache()
 		return @aCache
+
 
     #==========================#
     #  PRIVATE HELPER METHODS  #
