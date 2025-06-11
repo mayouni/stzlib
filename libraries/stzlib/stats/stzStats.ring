@@ -698,48 +698,99 @@ class stzStats
     #  PILLAR 3: DISTRIBUTION - Shape & Spread Analysis  #
     #====================================================#
 
-    def Percentile(nPercent)
-        if @cDataType != "numeric" or len(@anData) = 0
-            return 0
-        ok
-        
-        This._SortIfNeeded()
-        nLen = len(@anSortedData)
-        nPosition = (nLen * nPercent) / 100.0
-        
-        if nPosition <= 1
-            return @anSortedData[1]
-        but nPosition >= nLen
-            return @anSortedData[nLen]
-        ok
-        
-        # Linear interpolation
-        nLower = floor(nPosition)
-        nUpper = nLower + 1
-        nFraction = nPosition - nLower
-        
-        if nUpper > nLen
-            return @anSortedData[nLower]
-        ok
-        
-        nLowerVal = @anSortedData[nLower]
-        nUpperVal = @anSortedData[nUpper]
-        return This._Round(nLowerVal + (nFraction * (nUpperVal - nLowerVal)))
+	#NOTE
 
-    def Q1()
-        return This.Percentile(25)
+	# Linear interpolation : Standard in most statistical
+	# software (R, Python, Excel). More accurate for continuous
+	# distributions and provides smoother results.
 
-    def Q2()
-        return This.Median()
+	# Nearest-rank: Simpler, always returns actual data values.
+	# Preferred in some educational contexts and when you need
+	# exact data points.
 
-    def Q3()
-        return This.Percentile(75)
+	def Percentile(nPercent)
+		return This.PercentileXT(nPercent, "interpolation")
 
-    def IQR()
-        return This._Round(This.Q3() - This.Q1())
+	def PercentileXT(nPercent, cMethod) # interpolation or nearest
+	    if @cDataType != "numeric" or len(@anData) = 0
+	        return 0
+	    ok
+	    
+	    # Default to interpolation method
+	    if cMethod = NULL
+	        cMethod = "interpolation"
+	    ok
+	    
+	    This._SortIfNeeded()
+	    nLen = len(@anSortedData)
+	    
+	    if cMethod = "nearest" or cMethod = "nearestrank"
+	        nRank = ceil((nLen * nPercent) / 100.0)
+	        
+	        if nRank < 1
+	            nRank = 1
+	        but nRank > nLen
+	            nRank = nLen
+	        ok
+	        
+	        return @anSortedData[nRank]
+	    else
+	        # Linear interpolation method (default)
+	        nPosition = (nLen * nPercent) / 100.0
+	        
+	        if nPosition <= 1
+	            return @anSortedData[1]
+	        but nPosition >= nLen
+	            return @anSortedData[nLen]
+	        ok
+	        
+	        # Linear interpolation
+	        nLower = floor(nPosition)
+	        nUpper = nLower + 1
+	        nFraction = nPosition - nLower
+	        
+	        if nUpper > nLen
+	            return @anSortedData[nLower]
+	        ok
+	        
+	        nLowerVal = @anSortedData[nLower]
+	        nUpperVal = @anSortedData[nUpper]
+	        return This._Round(nLowerVal + (nFraction * (nUpperVal - nLowerVal)))
+	    ok
 
-    def Quartiles()
-        return [This.Q1(), This.Q2(), This.Q3()]
+
+	def Q1()
+		return This.Percentile(25)
+
+		def Q1XT(cMethod)
+		    return This.PercentileXT(25, cMethod)
+	
+	def Q2()
+		return This.Median()
+
+		def Q2XT(cMethod)
+		    # Median is typically the same regardless of method
+		    return This.Median()
+	
+	def Q3()
+		return This.Percentile(75)
+
+		def Q3XT(cMethod)
+		    return This.PercentileXT(75, cMethod)
+	
+	def IQR()
+		return This._Round(This.Q3() - This.Q1())
+
+		def IQRXT(cMethod)
+		    return This._Round(This.Q3XT(cMethod) - This.Q1XT(cMethod))
+	
+	def Quartiles()
+		return [This.Q1(), This.Q2(), This.Q3()]
+
+	def QuartilesXT(cMethod)
+	    return [This.Q1XT(cMethod), This.Q2XT(cMethod), This.Q3XT(cMethod)]
+
+	#---
 
     def Skew()
         if @cDataType != "numeric" or len(@anData) < @nMinSampleSize

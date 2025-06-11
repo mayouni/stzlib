@@ -495,7 +495,7 @@ pf()
 # Executed in 0.0020 second(s) in Ring 1.22
 
 /*--- RelativeFrequency() Test
-*/
+
 pr()
 
 oStats = new stzStats(["Red", "Blue", "Red", "Green", "Blue", "Red", "Yellow"])
@@ -506,11 +506,15 @@ pf()
 # Expected execution time: ~0.0020 second(s)
 
 /*--- Quartiles() Test
+*/
 pr()
 oStats = new stzStats([1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
-? @@(oStats.Quartiles())
+? @@(oStats.Quartiles()) # same as QuartilesXT(:Interpolation)
 # Expected: [10, 25, 40]
 # Note: Adjust expectation based on interpolation method if necessary
+
+? @@(oStats.QuartilesXT(:Nearest))
+
 pf()
 # Expected execution time: ~0.0020 second(s)
 
