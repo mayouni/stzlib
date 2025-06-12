@@ -349,7 +349,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*-----
-*/
+
 pr()
 
 ? AllNumbersInQQX([ -2, -4, -21 ]).AreNegativeX()

@@ -7128,6 +7128,25 @@ func ListsHaveSameNumberOfItems(paList)
 	func @AllListsHaveSameSize(paList)
 		return ListsHaveSameNumberOfItems(paList)
 
+#==
+
+func AnyOf(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type!")
+		ok
+	ok
+
+	nLen = len(paList)
+	if nLen = 0
+		StzRaise("Can't return any item! The list you provided is empty.")
+	ok
+
+	return paList[RandomIn(1:nLen)]
+
+	func AnyItemOf(paList)
+		return AnyOf(paList)
+
   /////////////////
  ///   CLASS   ///
 /////////////////

@@ -944,7 +944,7 @@ func @NXT(n, pStrOrItem, pcInStrOrList)
 		_aResult_ = []
 	
 		for @i = 1 to n
-			_aResult_ + pStrOrItem
+			_aResult_ + pStrOrItem[@i]
 		next
 	
 		return _aResult_

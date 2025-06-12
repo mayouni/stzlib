@@ -13,7 +13,7 @@
 
 
 _nRingMaxRandom = 999_999_999 # Based on my testing of Ring random() function
-			      #NOTE: if you seed the Ring random() function
+			      #NOTE// if you seed the Ring random() function
 			      # with a value greater than that, you will get _NULL_
 			      # as a result! Example : random(9_999_999_999)
 
@@ -189,6 +189,9 @@ func SomeOneIn(paList)
 	#>
 
 	#< @FunctionAlternativeForms
+
+	func RandomIn(paList)
+		return SomeOneIn(paList)
 
 	func SomeOneOf(paList)
 		return SomeOneIn(paList)

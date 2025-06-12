@@ -101,38 +101,13 @@ class stzDataSet
             @cDataType = "mixed"
         ok
 
-    def _InitializeCache()
-        @aCache = []
 
-    def _GetCached(cKey)
-		nLen = len(@aCache)
-        for i = 1 to nLen
-            if @aCache[i][1] = cKey
-                return @aCache[i][2]
-            ok
-        next
-        return NULL
-
-    def _SetCache(cKey, value)
-        # Remove existing key if present to avoid duplicates
-		nLen = len(@aCache)
-        for i = 1 to nLen
-            if @aCache[i][1] = cKey
-                del(@aCache, i)
-                exit
-            ok
-        next
-        @aCache + [cKey, value]
 
     def _SortIfNeeded()
         if @cDataType = "numeric" and NOT @bSorted
             @anSortedData = sort(@anData)
             @bSorted = TRUE
         ok
-
-    def _Round(nValue)
-        nMultiplier = pow(10, CurrentRound())
-        return floor(nValue * nMultiplier + 0.5) / nMultiplier
 
     #=================================================#
     #  PILLAR 1: COMPARISON - Descriptive Statistics  #
@@ -145,18 +120,19 @@ class stzDataSet
         
         cKey = "mean"
         nCached = This._GetCached(cKey)
-        if nCached != NULL
+
+        if NOT IsNull(nCached)
             return nCached
         ok
         
-        nSum = 0.0
+        nSum = 0
         nLen = len(@anData)
         
         for i = 1 to nLen
             nSum += @anData[i]
         next
         
-        nMean = This._Round(nSum / nLen)
+        nMean = nSum / nLen
         This._SetCache(cKey, nMean)
         return nMean
 
@@ -174,7 +150,8 @@ class stzDataSet
         
         cKey = "median"
         nCached = This._GetCached(cKey)
-        if nCached != NULL
+
+        if NOT IsNull(nCached)
             return nCached
         ok
         
@@ -183,57 +160,53 @@ class stzDataSet
         
         nMedian = 0
         if nLen % 2 = 1
-            nMedian = @anSortedData[ceil(nLen/2.0)]
+            nMedian = @anSortedData[ceil(nLen/2)]
         else
             nMid1 = @anSortedData[nLen/2] 
             nMid2 = @anSortedData[nLen/2 + 1]
-            nMedian = (nMid1 + nMid2) / 2.0
+            nMedian = (nMid1 + nMid2) / 2
         ok
         
-        nMedian = This._Round(nMedian)
         This._SetCache(cKey, nMedian)
         return nMedian
 
-    def Mode()
-        if len(@anData) = 0
-            return NULL
-        ok
+	def Mode()
+	    if len(@anData) = 0
+	        return NULL
+	    ok
+	
+	    cKey = "mode"
+	    cached = This._GetCached(cKey)
 
-        cKey = "mode"
-        cached = This._GetCached(cKey)
-        if cached != NULL
-            return cached
-        ok
-
-		nLen = len(@anData)
-
-		aFreqHash = []
-
-		for i = 1 to nLen
-
-            cItemKey = "" + @anData[i]
-			if isNumber(aFreqHash[cItemKey])
-				aFreqHash[cItemKey]++
-
-            else
-				aFreqHash + [cItemKey, 1 ]
-            ok
-        next
-
-        nMaxFreq = 0
-        cModeKey = ""
-        aHash = []
-		nLen = len(aHash)
-
-		for i = 1 to nLen
-            if aHash[i][2] > nMaxFreq
-                nMaxFreq = aHash[i][2]
-                cModeKey = aHash[i][1]
-            ok
-        next
-
-        This._SetCache(cKey, cModeKey)
-        return cModeKey
+	    if NOT isNull(cached)
+	        return cached
+	    ok
+	
+	    nLen = len(@anData)
+	    aFreqHash = []
+	
+	    for i = 1 to nLen
+	        cItemKey = "" + @anData[i]
+	        if isNumber(aFreqHash[cItemKey])
+	            aFreqHash[cItemKey]++
+	        else
+	            aFreqHash + [cItemKey, 1]
+	        ok
+	    next
+	
+	    nMaxFreq = 0
+	    cModeKey = ""
+	    nLen = len(aFreqHash)  # Fixed: use aFreqHash length
+	
+	    for i = 1 to nLen
+	        if aFreqHash[i][2] > nMaxFreq  # Fixed: iterate through aFreqHash
+	            nMaxFreq = aFreqHash[i][2]
+	            cModeKey = aFreqHash[i][1]
+	        ok
+	    next
+	
+	    This._SetCache(cKey, cModeKey)
+	    return cModeKey
 
     def StandardDeviation()
         if @cDataType != "numeric" or len(@anData) <= 1
@@ -242,12 +215,13 @@ class stzDataSet
         
         cKey = "stddev"
         nCached = This._GetCached(cKey)
-        if nCached != NULL
+
+        if NOT IsNull(nCached)
             return nCached
         ok
         
         nMean = This.Mean()
-        nSumSquares = 0.0
+        nSumSquares = 0
         nLen = len(@anData)
         
         for i = 1 to nLen
@@ -256,17 +230,38 @@ class stzDataSet
         next
         
         nVariance = nSumSquares / (nLen - 1)
-        nStdDev = This._Round(sqrt(nVariance))
+        nStdDev = sqrt(nVariance)
         This._SetCache(cKey, nStdDev)
         return nStdDev
 
 		def StdDev()
 			return This.StandardDeviation()
 
+	def Variance()
+	    if @cDataType != "numeric" or len(@anData) <= 1
+	        return 0
+	    ok
+	    
+	    cKey = "variance"
+	    nCached = This._GetCached(cKey)
 
-    def Variance()
-        nStdDev = This.StandardDeviation()
-        return This._Round(nStdDev * nStdDev)
+	    if NOT isNull(nCached)
+	        return nCached
+	    ok
+	    
+	    nMean = This.Mean()
+
+	    nSumSquares = 0
+	    nLen = len(@anData)
+	    
+	    for i = 1 to nLen
+	        nDiff = @anData[i] - nMean
+	        nSumSquares += (nDiff * nDiff)
+	    next
+	    
+	    nVariance = nSumSquares / (nLen - 1)
+	    This._SetCache(cKey, nVariance)
+	    return nVariance
 
 		def Var()
 			return This.Variance()
@@ -278,7 +273,7 @@ class stzDataSet
         if @cDataType != "numeric" or len(@anData) = 0
             return 0
         ok
-        return This._Round(This.Max() - This.Min())
+        return This.Max() - This.Min()
 
     def Min()
         if @cDataType != "numeric" or len(@anData) = 0
@@ -304,7 +299,7 @@ class stzDataSet
             nSum += @anData[i]
         next
         
-        return This._Round(nSum)
+        return nSum
 
     def Count()
         return len(@anData)
@@ -323,12 +318,12 @@ class stzDataSet
             ok
         next
         
-        nProduct = 1.0      
+        nProduct = 1      
         for i = 1 to nLen
             nProduct *= @anData[i]
         next
         
-        return This._Round(pow(nProduct, 1.0/nLen))
+        return pow(nProduct, 1/nLen)
 
 		#< @FunctionAlternativeForms
 
@@ -360,17 +355,17 @@ class stzDataSet
             return 0
         ok
         
-        nSum = 0.0
+        nSum = 0
         nLen = len(@anData)
         
         for i = 1 to nLen
             if @anData[i] = 0
                 return 0  # Harmonic mean undefined for zero values
             ok
-            nSum += (1.0 / @anData[i])
+            nSum += (1 / @anData[i])
         next
         
-        return This._Round(nLen / nSum)
+        return nLen / nSum
 
 		#< @FunctionAlternativeForms
 
@@ -402,7 +397,7 @@ class stzDataSet
             return 0
         ok
         
-        return This._Round((This.StandardDeviation() / abs(This.Mean())) * 100)
+        return This.StandardDeviation() / abs(This.Mean()) * 100
 
 		def CoVar()
 			return This.CoefficientOfVariation()
@@ -427,7 +422,7 @@ class stzDataSet
             # Numeric comparison
             nMean1 = This.Mean()
             nMean2 = oOtherStats.Mean()
-            nMeanDiff = This._Round(((nMean1 - nMean2) / nMean2) * 100)
+            nMeanDiff = ((nMean1 - nMean2) / nMean2) * 100
             
             aComparison + ("Mean difference: " + nMeanDiff + "%")
             
@@ -490,7 +485,7 @@ class stzDataSet
             nMeanSim = 1 - abs(This.Mean() - oOtherStats.Mean()) / (abs(This.Mean()) + abs(oOtherStats.Mean()) + 1)
             nStdSim = 1 - abs(This.StandardDeviation() - oOtherStats.StandardDeviation()) / (This.StandardDeviation() + oOtherStats.StandardDeviation() + 1)
             
-            return This._Round((nMeanSim + nStdSim) / 2)
+            return (nMeanSim + nStdSim) / 2
         else
             # Categorical similarity based on overlap
             aUnique1 = This.UniqueValues()
@@ -506,7 +501,7 @@ class stzDataSet
             next
             
             nUnion = len(aUnique1) + len(aUnique2) - nIntersection
-            return This._Round(nIntersection / nUnion)
+            return nIntersection / nUnion
         ok
 
 		def SimilarityScoreWith(oOtherStats)
@@ -536,7 +531,7 @@ class stzDataSet
         nLen = len(@anData)
         
         # Using t-distribution approximation
-        nAlpha = (100 - nConfidence) / 100.0
+        nAlpha = (100 - nConfidence) / 100
         nTValue = 1.96  # Approximation for 95% confidence
         
         if nConfidence = 90
@@ -547,7 +542,7 @@ class stzDataSet
         
         nMarginError = nTValue * (nStdDev / sqrt(nLen))
         
-        return [This._Round(nMean - nMarginError), This._Round(nMean + nMarginError)]
+        return [nMean - nMarginError, nMean + nMarginError]
 
 		def ConfInt()
 			return This.ConfidentialInterval()
@@ -560,7 +555,8 @@ class stzDataSet
 	def FrequencyTable()
 	    cKey = "freq_table"
 	    cached = This._GetCached(cKey)
-	    if cached != NULL
+
+	    if NOT isNull(cached)
 	        return cached
 	    ok
 	
@@ -595,7 +591,7 @@ class stzDataSet
 	    nLen = len(aFreqTable)
 	
 	    for i = 1 to nLen
-	        nRelativeFreq = This._Round((aFreqTable[i][2] * 1.0) / nTotal)
+	        nRelativeFreq = aFreqTable[i][2] / nTotal
 	        aRelFreq + [aFreqTable[i][1], nRelativeFreq]
 	    next
 	    
@@ -612,7 +608,7 @@ class stzDataSet
         nLen = len(aRelFreq)
 
         for i = 1 to nLen
-            nPercentage = This._Round(aRelFreq[i][2] * 100.0)
+            nPercentage = aRelFreq[i][2] * 100
             aPercFreq + [aRelFreq[i][1], nPercentage]
         next
         
@@ -630,7 +626,8 @@ class stzDataSet
     def UniqueValues()
         cKey = "unique_values"
         cached = This._GetCached(cKey)
-        if cached != NULL
+
+        if NOT isNull(cached)
             return cached
         ok
 
@@ -655,7 +652,7 @@ class stzDataSet
         if nTotal = 0
             return 0
         ok
-        return This._Round((This.UniqueCount() * 1.0) / nTotal)
+        return This.UniqueCount() / nTotal
 
 		def DiversityIndex()
 			return This.Diversity()
@@ -668,18 +665,18 @@ class stzDataSet
         
         aFreqTable = This.FrequencyTable()
         nTotal = This.Count()
-        nEntropy = 0.0
+        nEntropy = 0
         
 		nLen = len(aFreqTable)
 
         for i = 1 to nLen
-            nProbability = (aFreqTable[i][2] * 1.0) / nTotal
+            nProbability = aFreqTable[i][2] / nTotal
             if nProbability > 0
                 nEntropy -= nProbability * log(nProbability) / log(2)
             ok
         next
         
-        return This._Round(nEntropy)
+        return nEntropy
 
 		def Entropy()
 			return This.EntropyIndex()
@@ -716,7 +713,7 @@ class stzDataSet
 	    nLen = len(@anSortedData)
 	    
 	    if cMethod = "nearest" or cMethod = "nearestrank"
-	        nRank = ceil((nLen * nPercent) / 100.0)
+	        nRank = ceil((nLen * nPercent) / 100)
 	        
 	        if nRank < 1
 	            nRank = 1
@@ -727,7 +724,7 @@ class stzDataSet
 	        return @anSortedData[nRank]
 	    else
 	        # Linear interpolation method (default)
-	        nPosition = (nLen * nPercent) / 100.0
+	        nPosition = (nLen * nPercent) / 100
 	        
 	        if nPosition <= 1
 	            return @anSortedData[1]
@@ -746,7 +743,7 @@ class stzDataSet
 	        
 	        nLowerVal = @anSortedData[nLower]
 	        nUpperVal = @anSortedData[nUpper]
-	        return This._Round(nLowerVal + (nFraction * (nUpperVal - nLowerVal)))
+	        return nLowerVal + (nFraction * (nUpperVal - nLowerVal))
 	    ok
 
 
@@ -770,10 +767,10 @@ class stzDataSet
 		    return This.PercentileXT(75, cMethod)
 	
 	def IQR()
-		return This._Round(This.Q3() - This.Q1())
+		return This.Q3() - This.Q1()
 
 		def IQRXT(cMethod)
-		    return This._Round(This.Q3XT(cMethod) - This.Q1XT(cMethod))
+		    return This.Q3XT(cMethod) - This.Q1XT(cMethod)
 	
 	def Quartiles()
 		return [This.Q1(), This.Q2(), This.Q3()]
@@ -790,7 +787,8 @@ class stzDataSet
         
         cKey = "skewness"
         nCached = This._GetCached(cKey)
-        if nCached != NULL
+
+        if NOT isNull(nCached)
             return nCached
         ok
         
@@ -802,14 +800,14 @@ class stzDataSet
         ok
         
         nLen = len(@anData)
-        nSum = 0.0
+        nSum = 0
         
         for i = 1 to nLen
             nStandardized = (@anData[i] - nMean) / nStdDev
             nSum += (nStandardized * nStandardized * nStandardized)
         next
         
-        nSkew = This._Round((nSum / nLen) * (nLen / ((nLen - 1) * (nLen - 2))))
+        nSkew = (nSum / nLen) * (nLen / ((nLen - 1) * (nLen - 2)))
         This._SetCache(cKey, nSkew)
         return nSkew
 
@@ -823,7 +821,8 @@ class stzDataSet
         
         cKey = "kurtosis"
         nCached = This._GetCached(cKey)
-        if nCached != NULL
+
+        if NOT isNull(nCached)
             return nCached
         ok
         
@@ -835,7 +834,7 @@ class stzDataSet
         ok
         
         nLen = len(@anData)
-        nSum = 0.0
+        nSum = 0
         
         for i = 1 to nLen
             nStandardized = (@anData[i] - nMean) / nStdDev
@@ -845,7 +844,7 @@ class stzDataSet
         nKurt = (nSum / nLen) * (nLen * (nLen + 1)) / ((nLen - 1) * (nLen - 2) * (nLen - 3))
         nAdjustment = (3 * (nLen - 1) * (nLen - 1)) / ((nLen - 2) * (nLen - 3))
         
-        nResult = This._Round(nKurt - nAdjustment)
+        nResult = nKurt - nAdjustment
         This._SetCache(cKey, nResult)
         return nResult
 
@@ -859,7 +858,8 @@ class stzDataSet
         
         cKey = "outliers"
         cached = This._GetCached(cKey)
-        if cached != NULL
+
+        if IsNull(cached)
             return cached
         ok
         
@@ -900,7 +900,7 @@ class stzDataSet
         aZScores = []
 		nLen = len(@anData)
         for i = 1 to nLen
-            nZScore = This._Round((@anData[i] - nMean) / nStdDev)
+            nZScore = (@anData[i] - nMean) / nStdDev
             aZScores + nZScore
         next
         
@@ -928,7 +928,7 @@ class stzDataSet
             for j = i to (i + nWindow - 1)
                 nSum += @anData[j]
             next
-            aMovingAvg + This._Round(nSum / nWindow)
+            aMovingAvg + (nSum / nWindow)
         next
         
         return aMovingAvg
@@ -1060,9 +1060,9 @@ class stzDataSet
         nMean1 = This.Mean()
         nMean2 = oOtherStats.Mean()
         nLen = len(@anData)
-        nSumProduct = 0.0
-        nSumSq1 = 0.0
-        nSumSq2 = 0.0
+        nSumProduct = 0
+        nSumSq1 = 0
+        nSumSq2 = 0
         
         for i = 1 to nLen
             nDiff1 = @anData[i] - nMean1
@@ -1076,7 +1076,7 @@ class stzDataSet
             return 0
         ok
         
-        return This._Round(nSumProduct / sqrt(nSumSq1 * nSumSq2))
+        return nSumProduct / sqrt(nSumSq1 * nSumSq2)
 
 		def CorelWith()
 			return This.CorrelationWith(oOtherStats)
@@ -1101,13 +1101,13 @@ class stzDataSet
         nMean1 = This.Mean()
         nMean2 = oOtherStats.Mean()
         nLen = len(@anData)
-        nSum = 0.0
+        nSum = 0
         
         for i = 1 to nLen
             nSum += (@anData[i] - nMean1) * (aOtherData[i] - nMean2)
         next
         
-        return This._Round(nSum / (nLen - 1))
+        return nSum / (nLen - 1)
 
 		def CovarWith(oOtherStats)
 			return This.CovarianceWith(oOtherStats)
@@ -1183,7 +1183,8 @@ class stzDataSet
 	    # Create cache key using stringified list
 	    cKey = "chi_square_" + @@(oOtherStats.Data())
 	    nCached = This._GetCached(cKey)
-	    if nCached != NULL
+
+	    if NOT isNull(nCached)
 	        return nCached
 	    ok
 	    
@@ -1245,18 +1246,18 @@ class stzDataSet
 	    ok
 	    
 	    # Calculate chi-square statistic
-	    nChiSquare = 0.0
+	    nChiSquare = 0
 	    for i = 1 to nRows
 	        for j = 1 to nCols
 	            nObserved = aContingency[i][j]
-	            nExpected = (aRowTotals[i] * aColTotals[j]) / (1.0 * nGrandTotal)
+	            nExpected = (aRowTotals[i] * aColTotals[j]) / nGrandTotal
 	            if nExpected > 0
 	                nChiSquare += ((nObserved - nExpected) * (nObserved - nExpected)) / nExpected
 	            ok
 	        next
 	    next
 	    
-	    nResult = This._Round(nChiSquare)
+	    nResult = nChiSquare
 	    This._SetCache(cKey, nResult)
 	    return nResult
 
@@ -1286,7 +1287,7 @@ class stzDataSet
 		nLen = len(@anData)
 
         for i = 1 to nLen
-            nNormalized = This._Round((@anData[i] - nMin) / nRange)
+            nNormalized = (@anData[i] - nMin) / nRange
             aNormalized + nNormalized
         next
         
@@ -1309,7 +1310,7 @@ class stzDataSet
 		nLen = len(@anData)
 
         for i = 1 to nLen
-            nStandardized = This._Round((@anData[i] - nMean) / nStdDev)
+            nStandardized = (@anData[i] - nMean) / nStdDev
             aStandardized + nStandardized
         next
         
@@ -1332,7 +1333,7 @@ class stzDataSet
 		nLen = len(@anData)
 
         for i = 1 to nLen
-            nScaled = This._Round((@anData[i] - nMedian) / nIQR)
+            nScaled = (@anData[i] - nMedian) / nIQR
             aScaled + nScaled
         next
         
@@ -1533,7 +1534,7 @@ class stzDataSet
         # Outlier analysis
         aOutliers = This.Outliers()
         if len(aOutliers) > 0
-            nOutlierPercent = This._Round((len(aOutliers) * 100.0) / nCount)
+            nOutlierPercent = (len(aOutliers) * 100) / nCount
             aInsights + ( "Contains " + len(aOutliers) + " outlier(s) (" + nOutlierPercent + "% of data)" )
             
             if nOutlierPercent > 10
@@ -1562,11 +1563,11 @@ class stzDataSet
         
         # Diversity insights
         if nDiversity < 0.3
-            aInsights + ( "Low diversity (" + This._Round(nDiversity * 100) + "%) indicates concentration in few categories" )
+            aInsights + ( "Low diversity (" + nDiversity * 100 + "%) indicates concentration in few categories" )
         but nDiversity < 0.7
-            aInsights + ( "Moderate diversity (" + This._Round(nDiversity * 100) + "%) shows balanced distribution" )
+            aInsights + ( "Moderate diversity (" + nDiversity * 100 + "%) shows balanced distribution" )
         else
-            aInsights + ( "High diversity (" + This._Round(nDiversity * 100) + "%) suggests wide variety" )
+            aInsights + ( "High diversity (" + nDiversity * 100 + "%) suggests wide variety" )
         ok
         
         # Entropy analysis
@@ -1775,6 +1776,64 @@ class stzDataSet
 	    return This._Interpolate(cInsight)
 
 
+	#=======================#
+	#  SIMPLE CACHE SYSTEM  #
+	#=======================#
+
+	def _InitializeCache()
+	    @aCache = []
+	
+	def _GetCached(cKey)
+	    return @aCache[cKey]
+
+	def _CacheKeys()
+		nLen = len(@aCache)
+		acKeys = []
+
+		for i = 1 to nLen
+			acKeys = @aCache[i]
+		next
+
+		return acKeys
+
+	def _KeyIsCached(cKey)
+
+		if NOT (isString(cKey) and @trim(cKey) != "")
+			StzRaise("Incorrect param type! cKey must be a non empty string.")
+		ok
+
+		if ring_find( This._CacheKeys(), lower(cKey))
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def _RemoveFromCache(cKey)
+		if NOT (isString(cKey) and @trim(cKey) != "")
+			StzRaise("Incorrect param type! cKey must be a non empty string.")
+		ok
+
+		n = ring_find(This._CacheKeys(), lower(cKey))
+		if n > 0
+			del(@aCache, n)
+		ok
+
+	def _SetCache(cKey, value)
+	    
+	    # Remove existing key if present
+		_RemoveFromCache(cKey)
+	    
+	    # Add new cache entry
+	    @aCache + [cKey, value]
+	
+	def ClearCache()
+	    @aCache = []
+        @bSorted = FALSE
+        @anSortedData = []
+
+	def Cache()
+	    return @aCache
+
     #================================#
     #  UTILITY AND ACCESSOR METHODS  #
     #================================#
@@ -1791,11 +1850,6 @@ class stzDataSet
             return @anSortedData
         ok
         return @anData
-
-    def ClearCache()
-        @aCache = []
-        @bSorted = FALSE
-        @anSortedData = []
 
     def Summary()
         # Comprehensive summary of the dataset
@@ -1822,7 +1876,7 @@ class stzDataSet
 
         else
             cSummary += "• Unique Values: " + This.UniqueCount() + NL
-            cSummary += "• Diversity: " + This._Round(This.Diversity() * 100) + "%" + NL
+            cSummary += "• Diversity: " + This.Diversity() * 100 + "%" + NL
             cSummary += "• Most Common: " + This.Mode() + NL
         ok
         
@@ -1881,8 +1935,6 @@ class stzDataSet
 	def Rules()
 		return $aInsightRules
 
-	def Cache()
-		return @aCache
 
 
     #==========================#
