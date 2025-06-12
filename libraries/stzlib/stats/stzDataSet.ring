@@ -582,6 +582,10 @@ class stzDataSet
 	    This._SetCache(cKey, aFreqTable)
 	    return aFreqTable
 	
+		def FreqTable()
+			return This.FrequencyTable()
+
+
 	def RelativeFrequency()
 	    aFreqTable = This.FrequencyTable()
 	
@@ -597,9 +601,9 @@ class stzDataSet
 	    
 	    return aRelFreq
 	
-	def RelFreq()
-	    return This.RelativeFrequency()
-
+		def RelFreq()
+		    return This.RelativeFrequency()
+	
     def PercentageFrequency()
 
         aRelFreq = This.RelativeFrequency()
@@ -646,6 +650,10 @@ class stzDataSet
 		def UVals()
 			return This.UniqueValues()
 
+		def UValues()
+			return This.UniqueValues()
+
+
     def Diversity()
         # Unique values / Total values
         nTotal = This.Count()
@@ -656,6 +664,7 @@ class stzDataSet
 
 		def DiversityIndex()
 			return This.Diversity()
+
 
     def EntropyIndex()
         # Shannon entropy for diversity measurement
@@ -724,7 +733,7 @@ class stzDataSet
 	        return @anSortedData[nRank]
 	    else
 	        # Linear interpolation method (default)
-	        nPosition = (nLen * nPercent) / 100
+	        nPosition = ((nLen - 1) * nPercent) / 100 + 1
 	        
 	        if nPosition <= 1
 	            return @anSortedData[1]
@@ -807,7 +816,7 @@ class stzDataSet
             nSum += (nStandardized * nStandardized * nStandardized)
         next
         
-        nSkew = (nSum / nLen) * (nLen / ((nLen - 1) * (nLen - 2)))
+        nSkew = nSum / ((nLen - 1) * (nLen - 2))
         This._SetCache(cKey, nSkew)
         return nSkew
 
@@ -859,7 +868,7 @@ class stzDataSet
         cKey = "outliers"
         cached = This._GetCached(cKey)
 
-        if IsNull(cached)
+        if NOT IsNull(cached)
             return cached
         ok
         
@@ -1078,13 +1087,13 @@ class stzDataSet
         
         return nSumProduct / sqrt(nSumSq1 * nSumSq2)
 
-		def CorelWith()
+		def CorelWith(oOtherStats)
 			return This.CorrelationWith(oOtherStats)
 
-		def Corel()
+		def Corel(oOtherStats)
 			return This.CorrelationWith(oOtherStats)
 
-		def Cor()
+		def Cor(oOtherStats)
 			return This.CorrelationWith(oOtherStats)
 
 
@@ -1809,8 +1818,13 @@ class stzDataSet
 		ok
 
 	def _RemoveFromCache(cKey)
-		if NOT (isString(cKey) and @trim(cKey) != "")
+
+		if NOT isString(cKey)
 			StzRaise("Incorrect param type! cKey must be a non empty string.")
+		ok
+
+		if @trim(cKey) = ""
+			return
 		ok
 
 		n = ring_find(This._CacheKeys(), lower(cKey))

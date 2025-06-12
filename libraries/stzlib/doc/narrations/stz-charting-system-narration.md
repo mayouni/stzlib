@@ -184,7 +184,7 @@ The visual immediately reveals that while sales grew consistently, the profit ma
 
 ## Compositional Insights: Understanding the Whole
 
-When your goal shifts from comparison to understanding how parts relate to the whole, Softanza's square charts provide an innovative treemap-like visualization:
+When your goal shifts from comparison to understanding how parts relate to the whole, Softanza's surface charts provide an innovative treemap-like visualization:
 
 ```ring
 oChart = new stzSurfaceChart([
@@ -317,7 +317,7 @@ Notice how the system automatically converts thousands to "K" notation, dramatic
 | **Multi-Bar Charts** | ✅ Advanced | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Histograms** | ✅ Full | ✅ Basic | ❌ | ❌ | ❌ | ❌ |
 | **Scatter Plots** | ✅ Full | ✅ Basic | ❌ | ❌ | ❌ | ❌ |
-| **Square Charts** | ✅ Unique | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Surface Charts** | ✅ Unique | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Automatic Formatting** | ✅ Advanced | ❌ | ❌ | ❌ | ❌ | ✅ Basic |
 | **Statistical Integration** | ✅ Built-in | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Customizable Characters** | ✅ Full | ✅ Limited | ✅ Limited | ❌ | ✅ Limited | ✅ Basic |
