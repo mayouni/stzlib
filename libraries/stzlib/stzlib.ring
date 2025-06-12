@@ -208,7 +208,7 @@ t0 = clock()
 
 # Loading files related to STATS module
 
-	load "stats/stzStats.ring"
+	load "stats/stzDataSet.ring"
 
 # Loading files related to CHART module
 
