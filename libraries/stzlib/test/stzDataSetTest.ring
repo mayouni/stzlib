@@ -7,11 +7,11 @@ decimals(4)
 
 
 /*--- Core descriptive statistics
-*/
+
 pr()
 
-oStats = new stzDataSet([10, 15, 20, 25, 30, 35, 40])
-oStats {
+o1 = new stzDataSet([10, 15, 20, 25, 30, 35, 40])
+o1 {
     ? Mean()
 	#--> 25
 
@@ -25,30 +25,56 @@ oStats {
 	#--> 10.8012
 
     ? Variance()
-	#--> ~116.67
-    ? Range()                  #--> 30
-    ? Sum()                      #--> 175
-    ? Min()                      #--> 10
-    ? Max()                      #--> 40
-    ? Count()                  #--> 7
-    ? UniqueCount()      #--> 7
+	#--> 116.6667
+
+    ? Range()
+	#--> 30
+
+    ? Sum()
+	#--> 175
+
+    ? Min()
+	#--> 10
+
+    ? Max()
+	#--> 40
+
+    ? Count()
+	#--> 7
+
+    ? UniqueCount()
+	#--> 7
 
 }
 
 pf()
+# Executed in 0.0030 second(s) in Ring 1.22
 
 /*--- Alternative means
 
-oStats = new stzDataSet([2, 8, 32])
-oStats {
-    ? "GeometricMean: " + GeometricMean()  #--> 8
-    ? "HarmonicMean: " + HarmonicMean()    #--> ~4.57
+pr()
+
+o1 = new stzDataSet([2, 8, 32])
+o1 {
+
+    ? GeometricMean()
+	#--> 8
+
+    ? HarmonicMean()
+	#--> 4.5714
+
 }
+
+pf()
+# Executed in 0.0010 second(s) in Ring 1.22
 
 /*--- Coefficient of variation
 
-oStats = new stzDataSet([10, 15, 20, 25, 30, 35, 40])
-? "CoefficientOfVariation: " + oStats.CoefficientOfVariation()
+pr()
+
+o1 = new stzDataSet([10, 15, 20, 25, 30, 35, 40])
+? o1.CoVar() # Or CoefficientOfVariation
+#--> 43.2049
 
 pf()
 
@@ -56,147 +82,268 @@ pf()
 #  2. DISTRIBUTION ANALYSIS                #
 #==========================================#
 
+
+/*--- Quartiles and percentiles
+
 pr()
-/*--- Distribution Analysis Tests ==="
 
-# Quartiles and percentiles
-oStats = new stzDataSet([1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
-oStats {
-    ? "Q1: " + Q1()                       #--> ~10
-    ? "Q2: " + Q2()                       #--> 25
-    ? "Q3: " + Q3()                       #--> ~40
-    ? "IQR: " + IQR()                     #--> ~30
-    ? @@("Quartiles: ", Quartiles())
-    ? @@("Quartiles (Nearest): ", QuartilesXT(:Nearest))
-    ? "Percentile(90): " + Percentile(90) #--> ~45
+o1 = new stzDataSet([1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
+o1 {
+    ? Q1()
+	#--> 12.5
+
+    ? Q2()
+	#--> 25
+
+    ? Q3()
+	#--> 37.5
+
+    ? IQR() + NL #--> ? ~30
+	#--> 25
+
+    ? @@( Quartiles() ) + NL # Or QuartilesXT(:Interpolation)
+	#--> [ 12.5, 25, 37.5 ]
+
+    ? @@(QuartilesXT(:Nearest)) + NL
+	#--> [ 10, 25, 40 ]
+
+    ? Percentile(90)
+	#--> 45
 }
-
-# Shape measures
-oStats {
-    ? "Skewness: " + Skewness()           #--> ~0 (symmetric)
-    ? "Kurtosis: " + Kurtosis()           #--> negative
-}
-
-# Outlier detection and z-scores
-oStats = new stzDataSet([10, 12, 13, 15, 18, 20, 22, 25, 100])
-oStats {
-    ? @@("Outliers: ", Outliers())
-    ? "IsOutlier(100): " + IsOutlier(100)
-    ? "IsOutlier(15): " + IsOutlier(15)
-    ? @@("ZScores: ", ZScores())
-}
-
-# Sorted data
-oStats = new stzDataSet([30, 10, 20, 50, 40])
-? @@("SortedData: ", oStats.SortedData())
 
 pf()
+# Executed in 0.0020 second(s) in Ring 1.22
+
+/*--- Shape measures
+
+pr()
+
+o1 = new stzDataSet([1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
+o1 {
+    ? Skewness() # ~> very low skewness because - nearly perfectly symmetric
+	#--> 0.0027
+
+    ? Kurtosis()
+	#--> -3.9006	~> platykurtic distribution (flatter than normal)
+
+}
+
+pf()
+# Executed in 0.0020 second(s) in Ring 1.22
+
+/*--- Outlier detection and z-scores
+
+pr()
+
+o1 = new stzDataSet([10, 12, 13, 15, 18, 20, 22, 25, 100])
+o1 {
+    ? @@( Outliers() )
+	#--> [ 100 ]
+
+    ? IsOutlier(100)
+	#--> TRUE
+
+    ? IsOutlier(15)
+	#--> FALSE
+
+    ? @@(ZScores())
+	#--> [ -0.5725, -0.5015, -0.4659, -0.3949, -0.2882, -0.2172, -0.1461, -0.0395, 2.6258 ]
+}
+
+pf()
+# Executed in 0.0020 second(s) in Ring 1.22
+
+/*--- Sorted data
+
+pr()
+
+o1 = new stzDataSet([30, 10, 20, 50, 40])
+? @@(o1.SortedData())
+#--> [ 10, 20, 30, 40, 50 ]
+
+pf()
+# Executed in 0.0010 second(s) in Ring 1.22
 
 #==========================================#
 #  3. CATEGORICAL DATA & FREQUENCY         #
 #==========================================#
 
-pr()
+
 /*--- Categorical Data Analysis Tests ==="
 
-oStats = new stzDataSet(["Red", "Blue", "Red", "Green", "Blue", "Red", "Yellow"])
-oStats {
-    ? "Mode: " + Mode()                   #--> "Red"
-    ? @@("FrequencyTable: ", FrequencyTable())
-    ? @@("PercentageFrequency: ", PercentageFrequency())
-    ? @@("RelativeFrequency: ", RelativeFrequency()) # Or RelFreq()
-    ? @@("UniqueValues: ", UniqueValues()) # Or UValues()
-    ? "Diversity: " + Diversity()
-    ? "EntropyIndex: " + EntropyIndex()
-}
+pr()
 
-# Data type detection
-oStats {
-    ? "DataType: " + DataType()           #--> "categorical"
+o1 = new stzDataSet(["Red", "Blue", "Red", "Green", "Blue", "Red", "Yellow"])
+o1 {
+    ? Mode()
+	#--> "Red"
+
+    ? @@(FreqTable()) + NL # Or FrequencyTable()
+	#--> [ [ "Red", 3 ], [ "Blue", 2 ], [ "Green", 1 ], [ "Yellow", 1 ] ]
+
+    ? @@(PercentFreq()) + NL # Or PercentageFrequency()
+	#--> [ [ "Red", 42.8571 ], [ "Blue", 28.5714 ], [ "Green", 14.2857 ], [ "Yellow", 14.2857 ] ]
+
+    ? @@(RelFreq()) + NL # OrRelativeFrequency()
+	#--> [ [ "Red", 0.4286 ], [ "Blue", 0.2857 ], [ "Green", 0.1429 ], [ "Yellow", 0.1429 ] ]
+
+    ? @@(UValues()) + NL # Or UniqueValues()
+	#--> [ "Red", "Blue", "Green", "Yellow" ]
+
+    ? Diversity() # Or DiversityIndex()
+	#--> 0.5714
+
+    ? Entropy() # Or EntropyIndex
+	#--> 1.8424
+
 }
 
 pf()
+# Executed in 0.0160 second(s) in Ring 1.22
+
+/*--- Data type detection
+
+pr()
+
+o1 = new stzDataSet(["Red", "Blue", "Red", "Green", "Blue", "Red", "Yellow"])
+? o1.DataType()
+#--> "categorical"
+
+pf()
+# Executed in 0.0010 second(s) in Ring 1.22
 
 #==========================================#
 #  4. DATA TRANSFORMATION                  #
 #==========================================#
 
-pr()
+
 /*--- Data Transformation Tests ==="
 
-oStats = new stzDataSet([100, 200, 300, 400, 500])
-oStats {
-    ? @@("Normalize: ", Normalize())      # Min-max normalization
-    ? @@("Standardize: ", Standardize())  # Z-score standardization
-    ? @@("RobustScale: ", RobustScale())  # Median and IQR based
-}
+pr()
 
-# Access to original data
-oStats {
-    ? @@("Data: ", Data())               # Original data
-    ? @@("Values: ", Values())           # Same as Data()
+o1 = new stzDataSet([100, 200, 300, 400, 500])
+o1 {
+	# Min-max normalization
+    ? @@(Normalize())
+	#--> [ 0, 0.2500, 0.5000, 0.7500, 1 ]
+
+	# Z-score standardization
+    ? @@(Standardize())
+	#--> [ -1.2649, -0.6325, 0, 0.6325, 1.2649 ]
+
+	# Robust Scale (Median and IQR based)
+    ? @@(RobustScale())
+	#--> [ -1, -0.5000, 0, 0.5000, 1 ]
 }
 
 pf()
+# Executed in 0.0020 second(s) in Ring 1.22
+
+/*--- Access to original data
+
+pr()
+
+o1 = new stzDataSet([100, 200, 300, 400, 500])
+o1 {
+    ? @@(Data())	# Original data
+	#--> [ 100, 200, 300, 400, 500 ]
+
+    ? @@(Values())	# Same as Data()
+	#--> [ 100, 200, 300, 400, 500 ]
+}
+
+pf()
+# Executed in 0.0010 second(s) in Ring 1.22
 
 #==========================================#
 #  5. CORRELATION & RELATIONSHIPS          #
 #==========================================#
 
-pr()
+
 /*--- Correlation Analysis Tests ==="
 
+pr()
+
 # Correlation measures
-oStats1 = new stzDataSet([1, 2, 3, 4, 5])
-oStats2 = new stzDataSet([2, 4, 6, 8, 10])
+o1 = new stzDataSet([1, 2, 3, 4, 5])
+o2 = new stzDataSet([2, 4, 6, 8, 10])
 
-? "CorrelationWith: " + oStats1.CorrelationWith(oStats2)
-? "CovarianceWith: " + oStats1.CovarianceWith(oStats2)
-? "RankCorrelationWith: " + oStats1.RankCorrelationWith(oStats2)
+? o1.Corelwith(o2) # Or CorrelationWith()
+#--> 1
 
-# Chi-square test for independence
-aGender = ["Male", "Female", "Male", "Female", "Male", "Female", "Male", "Female", "Male", "Female"]
-aPreference = ["Like", "Like", "Dislike", "Dislike", "Like", "Like", "Dislike", "Like", "Dislike", "Like"]
+? o1.CoVarwith(o2) # Or CovarianceWith()
+#--> 5
 
-oGender = new stzDataSet(aGender)
-oPreference = new stzDataSet(aPreference)
-? "ChiSquareWith: " + oGender.ChiSquareWith(oPreference)
-
-# Dataset comparison
-? @@NL("CompareWith: ", oStats1.CompareWith(oStats2))
-
-# Similarity measures
-oStats3 = new stzDataSet([1, 2, 3, 4, 5])
-? "SimilarityScore: " + oStats1.SimilarityScore(oStats3)
+? o1.RankCorelWith(o2) # Or RankCorrelationWith()
+#--> 1
 
 pf()
+# Executed in 0.0240 second(s) in Ring 1.22
+
+/*--- Chi-square test for independence
+
+pr()
+
+aGender = [
+	"Male", "Female", "Male", "Female", "Male",
+	"Female", "Male", "Female", "Male", "Female"
+]
+
+aPreference = [
+	"Like", "Like", "Dislike", "Dislike", "Like",
+	"Like", "Dislike", "Like", "Dislike", "Like"
+]
+
+oGend = new stzDataSet(aGender)
+oPref = new stzDataSet(aPreference)
+
+? oGend.ChiSquareWith(oPref)
+#--> 1.6667
+
+# Dataset comparison
+? @@NL(oGend.CompareWith(oPref))
+#--> [ "Similar diversity levels" ]
+
+pf()
+# Executed in 0.0030 second(s) in Ring 1.22
+
+/*--- Similarity measures
+*/
+pr()
+
+o1 = new stzDataSet([1, 2, 3, 4, 5])
+? o1.SimilarityScore(o1)
+#--> 1
+
+pf()
+# Executed in 0.0020 second(s) in Ring 1.22
 
 #==========================================#
 #  6. INSIGHT GENERATION                   #
 #==========================================#
 
-pr()
+
 /*--- Insight Generation Tests ==="
 
 # Basic insights
-oStats = new stzDataSet([10, 12, 13, 15, 18, 20, 22, 25, 100])
-? @@NL("Insight: ", oStats.Insight())
-? @@NL("Insights: ", oStats.Insights()) # Alternative method
+o1 = new stzDataSet([10, 12, 13, 15, 18, 20, 22, 25, 100])
+? @@NL("Insight: ", o1.Insight())
+? @@NL("Insights: ", o1.Insights()) # Alternative method
 
 # Categorical insights
-oStats = new stzDataSet(["A", "B", "A", "C", "A", "D"])
-? @@NL("Categorical Insights: ", oStats.Insight())
+o1 = new stzDataSet(["A", "B", "A", "C", "A", "D"])
+? @@NL("Categorical Insights: ", o1.Insight())
 
 # Custom insight rules
-oStats = new stzDataSet([10, 20, 30, 40, 50])
-oStats {
+o1 = new stzDataSet([10, 20, 30, 40, 50])
+o1 {
     AddInsightRule(:Finance, "Mean() > 20", "Mean ({Mean()}) exceeds threshold.")
     ? @@NL("InsightsOfDomain: ", InsightsOfDomain(:Finance))
     ? @@NL("InsightsXT: ", InsightsXT()) # All insights without domain filter
 }
 
 # Weighted rules
-oStats {
+o1 {
     AddWeightedRule(:Finance, "Mean() > 20", "High mean ({Mean()}).", 2)
     AddWeightedRule(:Finance, "StandardDeviation() > 10", "High volatility ({StandardDeviation()}).", 1)
     ? @@NL("PrioritizedInsights: ", PrioritizedInsights(:Finance))
@@ -214,22 +361,22 @@ pr()
 # Missing values
 ? @@("MissingValues: ", MissingValues()) # System-defined missing patterns
 
-oStats = new stzDataSet([1, "NA", 3, "NULL", 5, "#N/A"])
-? @@("Data after cleaning: ", oStats.Data())
-? "Count after cleaning: " + oStats.Count()
+o1 = new stzDataSet([1, "NA", 3, "NULL", 5, "#N/A"])
+? @@("Data after cleaning: ", o1.Data())
+? "Count after cleaning: " + o1.Count()
 
 # Data validation
-oStats = new stzDataSet([1, 2, 3, 4, 5, 100])
-? @@("ValidateData: ", oStats.ValidateData()) # Or Validate()
+o1 = new stzDataSet([1, 2, 3, 4, 5, 100])
+? @@("ValidateData: ", o1.ValidateData()) # Or Validate()
 
 # No variance case
-oStats = new stzDataSet([5, 5, 5, 5, 5])
-? @@("No variance validation: ", oStats.ValidateData())
+o1 = new stzDataSet([5, 5, 5, 5, 5])
+? @@("No variance validation: ", o1.ValidateData())
 
 # Analysis recommendations
-oStats = new stzDataSet([1, 2, 3, 4, 100])
-? @@NL("RecommendAnalysis: ", oStats.RecommendAnalysis())
-? @@NL("Recommendations: ", oStats.Recommendations()) # Alternative method
+o1 = new stzDataSet([1, 2, 3, 4, 100])
+? @@NL("RecommendAnalysis: ", o1.RecommendAnalysis())
+? @@NL("Recommendations: ", o1.Recommendations()) # Alternative method
 
 pf()
 
@@ -240,8 +387,8 @@ pf()
 pr()
 /*--- Statistical Inference Tests ==="
 
-oStats = new stzDataSet([10, 20, 30, 40, 50])
-oStats {
+o1 = new stzDataSet([10, 20, 30, 40, 50])
+o1 {
     ? @@("ConfidenceInterval(95): ", ConfidenceInterval(95))
     ? @@("ConfidenceInterval(90): ", ConfidenceInterval(90))
     ? @@("ConfidenceInterval(99): ", ConfidenceInterval(99))
@@ -257,8 +404,8 @@ pr()
 /*--- Time Series & Trend Tests ==="
 
 # Moving averages
-oStats = new stzDataSet([1, 3, 5, 7, 9, 11])
-? @@("MovingAverage(3): ", oStats.MovingAverage(3))
+o1 = new stzDataSet([1, 3, 5, 7, 9, 11])
+? @@("MovingAverage(3): ", o1.MovingAverage(3))
 
 # Trend analysis patterns
 patterns = [
@@ -270,8 +417,8 @@ patterns = [
 ]
 
 for aPattern in patterns
-    oStats = new stzDataSet(aPattern[1])
-    ? aPattern[2] + " TrendAnalysis: " + @@(oStats.TrendAnalysis())
+    o1 = new stzDataSet(aPattern[1])
+    ? aPattern[2] + " TrendAnalysis: " + @@(o1.TrendAnalysis())
 end
 
 pf()
@@ -283,8 +430,8 @@ pf()
 pr()
 /*--- Cache Management Tests ==="
 
-oStats = new stzDataSet([10, 20, 30, 40, 50])
-oStats {
+o1 = new stzDataSet([10, 20, 30, 40, 50])
+o1 {
     ? @@("Initial Cache: ", Cache())
     ? "Mean: " + Mean()  # Populates cache
     ? @@("Cache after Mean: ", Cache())
@@ -307,13 +454,13 @@ pf()
 pr()
 /*--- Export & Summary Tests ==="
 
-oStats = new stzDataSet([10, 20, 30, 40, 50])
+o1 = new stzDataSet([10, 20, 30, 40, 50])
 
 # Export structured data
-? @@NL("Export: ", oStats.Export())
+? @@NL("Export: ", o1.Export())
 
 # Complete summary
-? oStats.Summary()
+? o1.Summary()
 
 pf()
 
@@ -337,8 +484,8 @@ pr()
 /*--- Edge Cases Tests ==="
 
 # Empty dataset
-oStats = new stzDataSet([])
-oStats {
+o1 = new stzDataSet([])
+o1 {
     ? "Empty DataType: " + DataType()
     ? "Empty Mean: " + Mean()
     ? "Empty Median: " + Median()
@@ -347,28 +494,28 @@ oStats {
 }
 
 # Single value dataset
-oStats = new stzDataSet([42])
-oStats {
+o1 = new stzDataSet([42])
+o1 {
     ? "Single Mean: " + Mean()
     ? "Single StdDev: " + StandardDeviation()
-    ? @@NL("Single Insights: ", oStats.Insight())
+    ? @@NL("Single Insights: ", o1.Insight())
 }
 
 # Mixed data types
-oStats = new stzDataSet([1, "text", 3, 4, "another"])
-oStats {
+o1 = new stzDataSet([1, "text", 3, 4, "another"])
+o1 {
     ? "Mixed DataType: " + DataType()
     ? @@NL("Mixed Insights: ", Insight())
 }
 
 # Invalid correlation cases
-oStats1 = new stzDataSet(["A", "B", "C"])
-oStats2 = new stzDataSet([1, 2, 3, 4, 5]) # Different lengths
-? "Invalid correlation: " + oStats1.CorrelationWith(oStats2)
+o1 = new stzDataSet(["A", "B", "C"])
+o2 = new stzDataSet([1, 2, 3, 4, 5]) # Different lengths
+? "Invalid correlation: " + o1.CorrelationWith(o2)
 
-oStats3 = new stzDataSet([1, 2, 3])
-oStats4 = new stzDataSet(["X", "Y"]) # Different lengths
-? "Invalid chi-square: " + oStats3.ChiSquareWith(oStats4)
+o3 = new stzDataSet([1, 2, 3])
+o14 = new stzDataSet(["X", "Y"]) # Different lengths
+? "Invalid chi-square: " + o3.ChiSquareWith(o14)
 
 pf()
 

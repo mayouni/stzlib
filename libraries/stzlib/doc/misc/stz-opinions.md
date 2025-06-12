@@ -92,3 +92,11 @@ Softanza, the foundation library for the Ring programming language, has garnered
 
 It's impressive, Mansour. A good documentation on Softanza is needed for when I advertise it on the Spanish Ring channel.
 
+--
+
+## Bert Meriani : On Softanza Charts
+
+Impressive addition of useful functions to make numbers understandable at a glance by just looking at the visual chart !!
+
+Reacting to this article:
+https://github.com/mayouni/stzlib/blob/main/libraries/stzlib/doc/narrations/stz-charting-system-narration.md
