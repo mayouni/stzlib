@@ -1518,7 +1518,7 @@ class stzDataSet
         nMeanMedianRatio = iff(nMedian != 0, nMeanMedianDiff / abs(nMedian), 0)
         
         if nMeanMedianRatio < 0.05
-            aInsights + ( "The data is symmetrically distributed with mean " + nMean + " and median " + nMedian + "." )
+            aInsights + ( "The data is symmetrically distributed with mean " + nMean + " and median " + nMedian )
         but nMean > nMedian
             aInsights + ( "Data shows positive skew (mean " + nMean + " > median " + nMedian + ")" )
         else
@@ -1527,7 +1527,7 @@ class stzDataSet
         
         # Variability assessment
         if nCV < 15
-            aInsights + ( "The data shows low variability with a coefficient of variation of " + nCV + "%, indicating consistent values." )
+            aInsights + ( "The data shows low variability with a coefficient of variation of " + nCV + "%, indicating consistent values" )
         but nCV < 30
             aInsights + ( "Moderate variability (CV = " + nCV + "%) shows normal spread" )
         else
@@ -1913,6 +1913,21 @@ class stzDataSet
         next
         
         return cSummary
+
+	def SummaryXT() # Adding recommendations
+
+		cResult = This.Summary() + NL +
+				  BoxifyRound("Recommendations") + NL
+
+		acRecommendations = This.Recommendations()
+		nLen = len(acRecommendations)
+
+		for i = 1 to nLen
+			cResult += "• " + acRecommendations[i] + NL
+		next
+
+		return cResult
+
 
     def Export()
         # Export statistical results as structured data
