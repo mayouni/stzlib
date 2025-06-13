@@ -268,7 +268,7 @@ pr()
 o1 = new stzDataSet([1, 2, 3, 4, 5])
 o2 = new stzDataSet([2, 4, 6, 8, 10])
 
-? o1.Corelwith(o2) # Or CorrelationWith()
+? o1.CorelWith(o2) # Or CorrelationWith()
 #--> 1
 
 ? o1.CoVarwith(o2) # Or CovarianceWith()
@@ -546,12 +546,11 @@ pf()
 # Executed in 0.0010 second(s) in Ring 1.22
 
 #==========================================#
-#  11. EXPORT & SUMMARY FUNCTIONS          #
+#  11. SUMMARY AND EXPORT FUNCTIONS        #
 #==========================================#
-*
 
-/*--- Export & Summary Tests ==="
-*/
+pr()
+
 o1 = new stzDataSet([10, 20, 30, 40, 50])
 
 # Export structured data
@@ -601,84 +600,116 @@ o1 = new stzDataSet([10, 20, 30, 40, 50])
 • The data shows low variability with a coefficient of variation of 6.3246%, indicating consistent values.
 • Light-tailed distribution (kurtosis = -6.6400) indicates fewer extreme values
 • Small sample size (n = 5) limits statistical reliability
-
-
-Executed in 3.3790 second(s) in Ring 1.22
 '
-#TODO Add Recommendations
+
+# Use the eXTended version SummaryXT() and you get Recommendations also:
+'
+╭─────────────────╮
+│ Recommendations │
+╰─────────────────╯
+• Small sample size - interpret results cautiously
+• High variability - segment analysis recommended
+'
+
 pf()
+# Executed in 0.0440 second(s) in Ring 1.22
 
 #==========================================#
 #  12. UTILITY & STANDALONE FUNCTIONS      #
 #==========================================#
 
 pr()
-/*--- Utility Functions Tests ==="
 
 # Standalone comparison function
-? @@NL("CompareDatasets: ", CompareDatasets([1, 2, 3, 4, 5], [2, 4, 6, 8, 10]))
+
+? @@NL( CompareDatasets([1, 2, 3, 4, 5], [2, 4, 6, 8, 10]) )
+#--> [
+#	"Mean difference: -50%",
+#	"Dataset 2 shows higher variability",
+#	"Strong positive correlation (1)"
+# ]
 
 pf()
+# Executed in 0.0030 second(s) in Ring 1.22
 
 #==========================================#
 #  13. EDGE CASES & ERROR HANDLING         #
 #==========================================#
 
+/*--- Empty dataset
+
 pr()
-/*--- Edge Cases Tests ==="
 
-# Empty dataset
 o1 = new stzDataSet([])
+
 o1 {
-    ? "Empty DataType: " + DataType()
-    ? "Empty Mean: " + Mean()
-    ? "Empty Median: " + Median()
-    ? @@("Empty Mode: ", Mode())
-    ? @@("Empty Insights: ", Insights())
+    ? DataType() #--> empty
+    ? Mean() #--> 0
+    ? Median() #--> 0
+
+    ? @@(Mode()) #--> ""
+
+    ? @@(Insights())
+	#--> [ "Dataset is empty. No analysis possible without data." ]
+
 }
-
-# Single value dataset
-o1 = new stzDataSet([42])
-o1 {
-    ? "Single Mean: " + Mean()
-    ? "Single StdDev: " + StandardDeviation()
-    ? @@NL("Single Insights: ", o1.Insight())
-}
-
-# Mixed data types
-o1 = new stzDataSet([1, "text", 3, 4, "another"])
-o1 {
-    ? "Mixed DataType: " + DataType()
-    ? @@NL("Mixed Insights: ", Insight())
-}
-
-# Invalid correlation cases
-o1 = new stzDataSet(["A", "B", "C"])
-o2 = new stzDataSet([1, 2, 3, 4, 5]) # Different lengths
-? "Invalid correlation: " + o1.CorrelationWith(o2)
-
-o3 = new stzDataSet([1, 2, 3])
-o14 = new stzDataSet(["X", "Y"]) # Different lengths
-? "Invalid chi-square: " + o3.ChiSquareWith(o14)
 
 pf()
+# Executed in 0.0020 second(s) in Ring 1.22
 
-/*--- All stzDataSet Methods Tested ==="
+/*--- Single value dataset
 
-/*
-METHODS COVERED:
-Core Statistics: Mean, Median, Mode, StandardDeviation, Variance, Range, Sum, Min, Max, Count, UniqueCount
-Alternative Means: GeometricMean, HarmonicMean
-Distribution: Q1, Q2, Q3, IQR, Quartiles, QuartilesXT, Percentile, Skewness, Kurtosis
-Outliers: Outliers, IsOutlier, ZScores
-Categorical: FrequencyTable, PercentageFrequency, RelativeFrequency, UniqueValues, Diversity, EntropyIndex
-Transformation: Normalize, Standardize, RobustScale
-Correlation: CorrelationWith, CovarianceWith, RankCorrelationWith, ChiSquareWith
-Comparison: CompareWith, SimilarityScore
-Insights: Insight, Insights, InsightsXT, InsightsOfDomain, AddInsightRule, AddWeightedRule, PrioritizedInsights
-Quality: ValidateData, RecommendAnalysis, Recommendations
-Statistics: ConfidenceInterval
-Time Series: MovingAverage, TrendAnalysis
-Utility: Cache, ClearCache, Export, Summary, DataType, Data, Values, SortedData
-Standalone: CompareDatasets, MissingValues
+pr()
+
+o1 = new stzDataSet([42])
+o1 {
+    ? Mean() #-- 42
+    ? StandardDeviation() #--> 0
+
+    ? @@NL(o1.Insights())
+	#--> [
+	# "The data is symmetrically distributed with mean 42 and median 42",
+	# "The data shows low variability with a coefficient of variation of 0%, indicating consistent values",
+	# "Small sample size (n = 1) limits statistical reliability"
+	# ]
+
+}
+
+pf()
+# Executed in 0.0040 second(s) in Ring 1.22
+
+/*--- Mixed data types
+
+pr()
+
+o1 = new stzDataSet([1, "text", 3, 4, "another"])
+o1 {
+    ? DataType() # --> mixed
+
+    ? @@NL(Insights())
+	#--> [
+	# "Mixed dataset containing both numeric and categorical data (5 unique values from 5 total)",
+	# "Consider separating data types for specialized analysis. Numeric methods apply only to numeric subset"
+	# ]
+
+}
+
+pf()
+# Executed in 0.0020 second(s) in Ring 1.22
+
+/*--- Invalid correlation cases
 */
+pr()
+
+o1 = new stzDataSet(["A", "B", "C"])
+o2 = new stzDataSet([1, 2, 3, 4, 5]) # Different lengths
+? o1.CorrelationWith(o2) # Or CorelWith
+#--> 0
+
+o3 = new stzDataSet([1, 2, 3])
+o4 = new stzDataSet(["X", "Y"]) # Different lengths
+? o3.ChiSquareWith(o4)
+#--> 0
+
+pf()
+# Executed in 0.0010 second(s) in Ring 1.22
