@@ -3,54 +3,54 @@ AdverbRules = [
     # [pattern, replacement, type, priority, category]
     
     # Irregulars (priority 1)
-    ["^good$", "well", "exact", 1, "irregular"],
-    ["^fast$", "fast", "exact", 1, "irregular"],
-    ["^hard$", "hard", "exact", 1, "irregular"],
-    ["^late$", "late", "exact", 1, "irregular"],
-    ["^early$", "early", "exact", 1, "irregular"],
+    [ "^good$", "well", "exact", 1, "irregular" ],
+    [ "^fast$", "fast", "exact", 1, "irregular" ],
+    [ "^hard$", "hard", "exact", 1, "irregular" ],
+    [ "^late$", "late", "exact", 1, "irregular" ],
+    [ "^early$", "early", "exact", 1, "irregular" ],
     
     # Already adverbs (priority 2)
-    ["ly$", "", "keep", 2, "preserve"],
-    ["ward$", "", "keep", 2, "preserve"],
-    ["wise$", "", "keep", 2, "preserve"],
+    [ "ly$", "", "keep", 2, "preserve" ],
+    [ "ward$", "", "keep", 2, "preserve" ],
+    [ "wise$", "", "keep", 2, "preserve" ],
     
     # Domain patterns (priority 3)
-    ["^sales$", "sales-wise", "exact", 3, "domain"],
-    ["(education|educat).*", "educationally", "regex", 3, "domain"],
-    ["(finance|financ).*", "financially", "regex", 3, "domain"],
-    ["(science|scient).*", "scientifically", "regex", 3, "domain"],
-    ["(medicine|medic).*", "medically", "regex", 3, "domain"],
-    ["(technolog).*", "technologically", "regex", 3, "domain"],
-    ["(administrat).*", "administratively", "regex", 3, "domain"],
-    ["(econom).*", "economically", "regex", 3, "domain"],
-    ["(market).*", "from a marketing perspective", "regex", 3, "domain"],
-    ["(business).*", "business-wise", "regex", 3, "domain"],
-    ["(account).*", "from an accounting perspective", "regex", 3, "domain"],
+    [ "^sales$", "sales-wise", "exact", 3, "domain" ],
+    [ "(education|educat).*", "educationally", "regex", 3, "domain" ],
+    [ "(finance|financ).*", "financially", "regex", 3, "domain" ],
+    [ "(science|scient).*", "scientifically", "regex", 3, "domain" ],
+    [ "(medicine|medic).*", "medically", "regex", 3, "domain" ],
+    [ "(technolog).*", "technologically", "regex", 3, "domain" ],
+    [ "(administrat).*", "administratively", "regex", 3, "domain" ],
+    [ "(econom).*", "economically", "regex", 3, "domain" ],
+    [ "(market).*", "from a marketing perspective", "regex", 3, "domain" ],
+    [ "(business).*", "business-wise", "regex", 3, "domain" ],
+    [ "(account).*", "from an accounting perspective", "regex", 3, "domain" ],
     
     # Language/location patterns (priority 4)
-    ["(english|britain|uk)", "in English", "regex", 4, "language"],
-    ["(spanish|spain)", "in Spanish", "regex", 4, "language"],
-    ["(french|france)", "in French", "regex", 4, "language"],
-    ["(arabic|arab)", "in Arabic", "regex", 4, "language"],
-    ["(american?|usa?)", "in an American way", "regex", 4, "geographic"],
-    ["(european?)", "in a European way", "regex", 4, "geographic"],
+    [ "(english|britain|uk)", "in English", "regex", 4, "language" ],
+    [ "(spanish|spain)", "in Spanish", "regex", 4, "language" ],
+    [ "(french|france)", "in French", "regex", 4, "language" ],
+    [ "(arabic|arab)", "in Arabic", "regex", 4, "language" ],
+    [ "(american?|usa?)", "in an American way", "regex", 4, "geographic" ],
+    [ "(european?)", "in a European way", "regex", 4, "geographic" ],
     
     # Morphological patterns (priority 5)
-    ["(.+[aeiou])y$", "\\1ily", "regex", 5, "morphology"],
-    ["(.+[^aeiou])y$", "\\1ily", "regex", 5, "morphology"],
-    ["(.+)le$", "\\1ly", "regex", 5, "morphology"],
-    ["(.+)ic$", "\\1ically", "regex", 5, "morphology"],
-    ["(.+)ful$", "\\1fully", "regex", 5, "morphology"],
-    ["(.+)able$", "\\1ably", "regex", 5, "morphology"],
-    ["(.+)ible$", "\\1ibly", "regex", 5, "morphology"],
-    ["(.+)ent$", "\\1ently", "regex", 5, "morphology"],
-    ["(.+)ant$", "\\1antly", "regex", 5, "morphology"],
-    ["(.+)al$", "\\1ally", "regex", 5, "morphology"],
-    ["(.+)ous$", "\\1ously", "regex", 5, "morphology"],
-    ["(.+)ive$", "\\1ively", "regex", 5, "morphology"],
+    [ "(.+[aeiou])y$", "\\1ily", "regex", 5, "morphology" ],
+    [ "(.+[^aeiou])y$", "\\1ily", "regex", 5, "morphology" ],
+    [ "(.+)le$", "\\1ly", "regex", 5, "morphology" ],
+    [ "(.+)ic$", "\\1ically", "regex", 5, "morphology" ],
+    [ "(.+)ful$", "\\1fully", "regex", 5, "morphology" ],
+    [ "(.+)able$", "\\1ably", "regex", 5, "morphology" ],
+    [ "(.+)ible$", "\\1ibly", "regex", 5, "morphology" ],
+    [ "(.+)ent$", "\\1ently", "regex", 5, "morphology" ],
+    [ "(.+)ant$", "\\1antly", "regex", 5, "morphology" ],
+    [ "(.+)al$", "\\1ally", "regex", 5, "morphology" ],
+    [ "(.+)ous$", "\\1ously", "regex", 5, "morphology" ],
+    [ "(.+)ive$", "\\1ively", "regex", 5, "morphology" ],
     
     # Default (priority 6)
-    [".*", "ly", "default", 6, "fallback"]
+    [ ".*", "ly", "default", 6, "fallback" ]
 ]
 
 func Adverb(str)

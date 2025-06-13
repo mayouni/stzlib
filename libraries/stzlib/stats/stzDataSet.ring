@@ -10,12 +10,13 @@ $aInsightRules = [
 
     :Finance = [
 //        [ "CoVariance() > 50", "High variability ({CoVariance()}) indicates investment risk.", 3 ],
-//        [ "Skewness() > 1", "Positive skew ({Skewness()}) suggests potential for extreme gains", 1 ]
+//       [ "Skewness() > 1", "Positive skew ({Skewness()}) suggests potential for extreme gains", 1 ]
     ],
 
     :Healthcare = [
-//       [ "Mean() > 100", "Mean ({Mean()}) exceeds health metric threshold (100).", 3 ]
+       [ "Mean() > 100", "Mean ({Mean()}) exceeds health metric threshold (100).", 3 ]
     ]
+
 ]
 
 func StzDataSetQ(paData)
@@ -1000,7 +1001,11 @@ class stzDataSet
 	    aTrendSegments + [cCurrentTrend, nFinalLength]
 	    
 	    return aTrendSegments
-	
+
+		def Trend()
+			return This.TrendAnalysis()
+
+
 	def _SimpleSeriesTrend()
 	    nLen = len(@anData)
 	    if nLen = 2
@@ -1654,7 +1659,11 @@ class stzDataSet
 
 			for j = 1 to nLenDomain
 				if This._EvaluateCondition(aDomain[j][1])
-					acResults + Adverb() + ", " + This._EvaluateRule(aDomain[j][2])
+					acResults + (Capitalize(Adverb(cDomain)) + ", " + This._EvaluateRule(aDomain[j][2]) )
+
+					#WARNING #TODO // Adverb() funtion belong to MAX layer, so we don't have the right to
+					# call it here in BASIC layer ~~> Move STATS module to the MAX layer!
+
 				ok
 			next
 

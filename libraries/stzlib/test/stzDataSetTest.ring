@@ -356,7 +356,7 @@ pf()
 # Executed in 0.0080 second(s) in Ring 1.22
 
 /*--- Custom insight rules
-*/
+
 pr()
 
 o1 = new stzDataSet([10, 20, 30, 40, 50])
@@ -365,138 +365,247 @@ o1 {
     ? @@NL(InsightsOfDomain(:Finance)) + NL
 	#--> [ "Mean (30) exceeds threshold." ]
 
-    ? @@NL(InsightsXT()) # All insights without domain filter
+	 # All insights including domain insights at the end
+
+    ? @@NL(InsightsXT())
 	#--> [
 	# 	"The data is symmetrically distributed with mean 30 and median 30.",
 	# 	"High variability (CV = 52.70%) indicates diverse data points",
 	# 	"Light-tailed distribution (kurtosis = -6.26) indicates fewer extreme values",
 	# 	"Small sample size (n = 5) limits statistical reliability",
-	# 	"Mean (30) exceeds threshold."
+	# 	"Financially, Mean (30) exceeds threshold."
 	# ]
 }
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Weighted rules
+
+pr()
+
+o1 = new stzDataSet([ 10, 20, 30, 40, 50 ])
+
 o1 {
     AddWeightedRule(:Finance, "Mean() > 20", "High mean ({Mean()}).", 2)
     AddWeightedRule(:Finance, "StandardDeviation() > 10", "High volatility ({StandardDeviation()}).", 1)
-    ? @@NL("PrioritizedInsights: ", PrioritizedInsights(:Finance))
+    ? @@NL(PrioritizedInsights(:Finance))
 }
 
 pf()
+
+# Executed in 0.05 second(s) in Ring 1.22
 
 #==========================================#
 #  7. DATA QUALITY & VALIDATION            #
 #==========================================#
 
-pr()
+
 /*--- Data Quality Tests ==="
 
+pr()
+
 # Missing values
-? @@("MissingValues: ", MissingValues()) # System-defined missing patterns
+? @@(MissingValues()) # System-defined missing patterns
+#--> [ '', "NA", "NULL", "n/a", "#N/A" ]
 
 o1 = new stzDataSet([1, "NA", 3, "NULL", 5, "#N/A"])
-? @@("Data after cleaning: ", o1.Data())
-? "Count after cleaning: " + o1.Count()
+? @@(o1.Data())
+#--> [ 1, 3, 5 ]
 
-# Data validation
+? o1.Count()
+#--> 3
+
+pf()
+# Executed in 0.0010 second(s) in Ring 1.22
+
+/*--- Data validation
+
+pr()
+
 o1 = new stzDataSet([1, 2, 3, 4, 5, 100])
-? @@("ValidateData: ", o1.ValidateData()) # Or Validate()
+? @@(o1.ValidateData()) + NL # Or Validate()
+#--> [ "Data quality appears good" ]
 
 # No variance case
 o1 = new stzDataSet([5, 5, 5, 5, 5])
-? @@("No variance validation: ", o1.ValidateData())
+? @@(o1.ValidateData()) + NL
+#--> [ "No variance in data (all values identical)" ]
 
 # Analysis recommendations
 o1 = new stzDataSet([1, 2, 3, 4, 100])
-? @@NL("RecommendAnalysis: ", o1.RecommendAnalysis())
-? @@NL("Recommendations: ", o1.Recommendations()) # Alternative method
+? @@NL(o1.Recommendations())
+#--> [
+#	"Small sample size - interpret results cautiously",
+#	"Outliers detected - consider robust statistics",
+#	"High variability - segment analysis recommended"
+# ]
 
 pf()
+# Executed in 0.0050 second(s) in Ring 1.22
 
 #==========================================#
 #  8. CONFIDENCE INTERVALS & STATISTICAL   #
 #==========================================#
 
+
+/*--- Statistical Inference Tests
+
 pr()
-/*--- Statistical Inference Tests ==="
 
 o1 = new stzDataSet([10, 20, 30, 40, 50])
 o1 {
-    ? @@("ConfidenceInterval(95): ", ConfidenceInterval(95))
-    ? @@("ConfidenceInterval(90): ", ConfidenceInterval(90))
-    ? @@("ConfidenceInterval(99): ", ConfidenceInterval(99))
+
+    ? @@(ConfidenceInterval(95)) # Or ConfInt()
+	#--> [ 16.1407, 43.8593 ]
+
+    ? @@(ConfidenceInterval(90))
+	#--> [ 18.3681, 41.6319 ]
+
+    ? @@(ConfidenceInterval(99))
+	#--> [ -9.9910, 41.6138 ]
+
 }
 
 pf()
+# Executed in 0.0020 second(s) in Ring 1.22
 
 #==========================================#
 #  9. TIME SERIES & TREND ANALYSIS         #
 #==========================================#
 
+/*--- Moving averages
+
 pr()
-/*--- Time Series & Trend Tests ==="
 
-# Moving averages
 o1 = new stzDataSet([1, 3, 5, 7, 9, 11])
-? @@("MovingAverage(3): ", o1.MovingAverage(3))
-
-# Trend analysis patterns
-patterns = [
-    [[1, 3, 5, 7, 9], "Upward"],
-    [[7, 4, 3, 1], "Downward"],
-    [[7, 4, 3, 1, 5, 9, 12], "Mixed"],
-    [[7, 4, 3, 1, 1, 1, 5, 9, 12], "Complex"],
-    [[1, 1, 1, 2, 3, 4], "Stable-Up"]
-]
-
-for aPattern in patterns
-    o1 = new stzDataSet(aPattern[1])
-    ? aPattern[2] + " TrendAnalysis: " + @@(o1.TrendAnalysis())
-end
+? @@(o1.MovingAverage(3))
+#--> [ 3, 5, 7, 9 ]
 
 pf()
+
+/*--- Trend analysis patterns
+
+pr()
+
+? @@(StzDataSetQ([1, 3, 5, 7, 9]).Trend())
+#--> [ [ "up", 5 ] ]
+
+? @@(StzDataSetQ([7, 4, 3, 1]).Trend())
+#--> [ [ "down", 4 ] ]
+
+? @@(StzDataSetQ([7, 4, 3, 1, 5, 9, 12]).Trend())
+#--> [ [ "down", 4 ], [ "up", 3 ] ]
+
+? @@(StzDataSetQ([7, 4, 3, 1, 1, 1, 5, 9, 12]).Trend())
+#--> [ [ "down", 4 ], [ "stable", 2 ], [ "up", 3 ] ]
+
+? @@(StzDataSetQ([1, 1, 1, 2, 3, 4]).Trend())
+#--> [ [ "stable", 3 ], [ "up", 3 ] ]
+
+pf()
+# Executed in 0.0050 second(s) in Ring 1.22
 
 #==========================================#
 #  10. CACHE & PERFORMANCE                 #
 #==========================================#
 
 pr()
-/*--- Cache Management Tests ==="
 
 o1 = new stzDataSet([10, 20, 30, 40, 50])
 o1 {
-    ? @@("Initial Cache: ", Cache())
-    ? "Mean: " + Mean()  # Populates cache
-    ? @@("Cache after Mean: ", Cache())
-    
+	# Initial Cache
+    ? @@(Cache())
+	#--> [ ]
+
+	# Populates cache
+    ? Mean()
+	#--> 30
+
+    # Cache after Mean
+    ? @@(Cache())
+	#--> [ [ "mean", 30 ] ]
+
     # Manually modify cache for testing
     @aCache[:Mean] = 77
-    ? "Modified cached mean: " + Mean()
-    
+    # Modified cached mean
+	? Mean()
+    #--> 77
+
     ClearCache()
-    ? @@("Cache after clear: ", Cache())
-    ? "Recalculated mean: " + Mean()
+    # Cache after clear:
+	? @@(Cache())
+	#--> [ ]
+
+    # Recalculated mean:
+	? Mean()
+	#--> 30
 }
 
 pf()
+# Executed in 0.0010 second(s) in Ring 1.22
 
 #==========================================#
 #  11. EXPORT & SUMMARY FUNCTIONS          #
 #==========================================#
+*
 
-pr()
 /*--- Export & Summary Tests ==="
-
+*/
 o1 = new stzDataSet([10, 20, 30, 40, 50])
 
 # Export structured data
-? @@NL("Export: ", o1.Export())
+? @@NL(o1.Export()) + nl
+#--> [
+#	[ "data_type", "numeric" ],
+#	[ "count", 5 ],
+#	[ "unique_count", 5 ],
+#	[ "mean", 30 ],
+#	[ "median", 30 ],
+#	[ "mode", "10" ],
+#	[ "standard_deviation", 15.8114 ],
+#	[ "variance", 250 ],
+#	[ "range", 40 ],
+#	[ "min", 10 ],
+#	[ "max", 50 ],
+#	[ "quartiles", [ 20, 30, 40 ] ],
+#	[ "skewness", 0 ],
+#	[ "kurtosis", -6.2609 ],
+#	[ "outliers", [ ] ]
+# ]
 
 # Complete summary
 ? o1.Summary()
+#-->
+'
+╭─────────────────╮
+│ Dataset Content │
+╰─────────────────╯
+[ 10, 20, 30, 40, 50 ]
 
+╭─────────────────╮
+│ Dataset Summary │
+╰─────────────────╯
+• Type: numeric
+• Count: 5
+• Mean: 30
+• Median: 30
+• Standard Deviation: 15.8114
+• Range: 40 (10 to 50)
+• Quartiles: Q1=20, Q2=30, Q3=40
+
+╭──────────────────╮
+│ Dataset Insights │
+╰──────────────────╯
+• The data is symmetrically distributed with mean 30 and median 30.
+• The data shows low variability with a coefficient of variation of 6.3246%, indicating consistent values.
+• Light-tailed distribution (kurtosis = -6.6400) indicates fewer extreme values
+• Small sample size (n = 5) limits statistical reliability
+
+
+Executed in 3.3790 second(s) in Ring 1.22
+'
+#TODO Add Recommendations
 pf()
 
 #==========================================#
