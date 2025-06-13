@@ -308,7 +308,7 @@ pf()
 # Executed in 0.0030 second(s) in Ring 1.22
 
 /*--- Similarity measures
-*/
+
 pr()
 
 o1 = new stzDataSet([1, 2, 3, 4, 5])
@@ -322,27 +322,62 @@ pf()
 #  6. INSIGHT GENERATION                   #
 #==========================================#
 
+/*--- Basic insights
 
-/*--- Insight Generation Tests ==="
+pr()
 
-# Basic insights
 o1 = new stzDataSet([10, 12, 13, 15, 18, 20, 22, 25, 100])
-? @@NL("Insight: ", o1.Insight())
-? @@NL("Insights: ", o1.Insights()) # Alternative method
+? @@NL( o1.Insights() )
+#--> [
+#	"Data shows positive skew (mean 26.1111 > median 18)",
+#	"High variability (CV = 107.7703%) indicates diverse data points",
+#	"Light-tailed distribution (kurtosis = -3.3076) indicates fewer extreme values",
+#	"Contains 1 outlier(s) (11.1111% of data)",
+#	"High outlier proportion may distort mean-based statistics",
+#	"Small sample size (n = 9) limits statistical reliability"
+# ]
 
-# Categorical insights
+pf()
+# Executed in 0.0040 second(s) in Ring 1.22
+
+/*--- Categorical insights
+
+pr()
+
 o1 = new stzDataSet(["A", "B", "A", "C", "A", "D"])
-? @@NL("Categorical Insights: ", o1.Insight())
+? @@NL( o1.Insights() )
+#--> [
+#	"Moderate diversity (66.6667%) shows balanced distribution",
+#	"Information entropy (1.7925) indicates balanced category distribution",
+#	"'A' is most common (50%) but distribution remains balanced"
+# ]
 
-# Custom insight rules
+pf()
+# Executed in 0.0080 second(s) in Ring 1.22
+
+/*--- Custom insight rules
+*/
+pr()
+
 o1 = new stzDataSet([10, 20, 30, 40, 50])
 o1 {
     AddInsightRule(:Finance, "Mean() > 20", "Mean ({Mean()}) exceeds threshold.")
-    ? @@NL("InsightsOfDomain: ", InsightsOfDomain(:Finance))
-    ? @@NL("InsightsXT: ", InsightsXT()) # All insights without domain filter
+    ? @@NL(InsightsOfDomain(:Finance)) + NL
+	#--> [ "Mean (30) exceeds threshold." ]
+
+    ? @@NL(InsightsXT()) # All insights without domain filter
+	#--> [
+	# 	"The data is symmetrically distributed with mean 30 and median 30.",
+	# 	"High variability (CV = 52.70%) indicates diverse data points",
+	# 	"Light-tailed distribution (kurtosis = -6.26) indicates fewer extreme values",
+	# 	"Small sample size (n = 5) limits statistical reliability",
+	# 	"Mean (30) exceeds threshold."
+	# ]
 }
 
-# Weighted rules
+pf()
+
+/*--- Weighted rules
 o1 {
     AddWeightedRule(:Finance, "Mean() > 20", "High mean ({Mean()}).", 2)
     AddWeightedRule(:Finance, "StandardDeviation() > 10", "High volatility ({StandardDeviation()}).", 1)
