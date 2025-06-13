@@ -1493,7 +1493,8 @@ class stzDataSet
 	    
 	    return aAllInsights
 
-    def _GenerateNumericInsight()
+    def _GenerateNumericInsight() #TODO// Abstract the insights outside the method
+
         aInsights = [] # Keep as list of complete sentences
         
         # Basic descriptive insights
@@ -1560,7 +1561,7 @@ class stzDataSet
         
         return aInsights # Return list directly
 
-    def _GenerateCategoricalInsight()
+    def _GenerateCategoricalInsight() #TODO // Abstract insights ouside the code
         aInsights = []
         
         nCount = This.Count()
@@ -1617,7 +1618,7 @@ class stzDataSet
         
         return aInsights # Return list directly
 
-    def _GenerateMixedInsight()
+    def _GenerateMixedInsight() #TODO // Abstract the insights outside the method
         nCount = This.Count()
         nUnique = This.UniqueCount()
         
@@ -1647,12 +1648,13 @@ class stzDataSet
 
 		for i = 1 to nLen
 
+			cDomain = $aInsightRules[i][1]
 			aDomain = $aInsightRules[i][2]
 			nLenDomain = len(aDomain)
 
 			for j = 1 to nLenDomain
 				if This._EvaluateCondition(aDomain[j][1])
-					acResults + aDomain[j][2]
+					acResults + Adverb() + ", " + This._EvaluateRule(aDomain[j][2])
 				ok
 			next
 
