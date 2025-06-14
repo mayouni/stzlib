@@ -103,7 +103,6 @@ class stzDataSet
         ok
 
 
-
     def _SortIfNeeded()
         if @cDataType = "numeric" and NOT @bSorted
             @anSortedData = sort(@anData)
@@ -171,6 +170,7 @@ class stzDataSet
         This._SetCache(cKey, nMedian)
         return nMedian
 
+/*
 	def Mode()
 	    if len(@anData) = 0
 	        return NULL
@@ -208,6 +208,55 @@ class stzDataSet
 	
 	    This._SetCache(cKey, cModeKey)
 	    return cModeKey
+*/
+
+def Mode()
+    if len(@anData) = 0
+        return NULL
+    ok
+
+    cKey = "mode"
+    cached = This._GetCached(cKey)
+
+    if NOT isNull(cached)
+        return cached
+    ok
+
+    nLen = len(@anData)
+    aFreqHash = []
+
+    for i = 1 to nLen
+        cItemKey = "" + @anData[i]
+        bFound = FALSE
+        
+        # Search for existing key in frequency list
+        for j = 1 to len(aFreqHash)
+            if aFreqHash[j][1] = cItemKey
+                aFreqHash[j][2]++
+                bFound = TRUE
+                exit
+            ok
+        next
+        
+        # Add new key if not found
+        if NOT bFound
+            aFreqHash + [cItemKey, 1]
+        ok
+    next
+
+    nMaxFreq = 0
+    cModeKey = ""
+    nFreqLen = len(aFreqHash)
+
+    for i = 1 to nFreqLen
+        if aFreqHash[i][2] > nMaxFreq
+            nMaxFreq = aFreqHash[i][2]
+            cModeKey = aFreqHash[i][1]
+        ok
+    next
+
+    This._SetCache(cKey, cModeKey)
+    return cModeKey
 
     def StandardDeviation()
         if @cDataType != "numeric" or len(@anData) <= 1
@@ -549,6 +598,109 @@ class stzDataSet
 			return This.ConfidentialInterval()
 
 
+	#---
+
+	def WeightedMean(aWeights)
+	    if @cDataType != "numeric" or len(@anData) = 0
+	        return 0
+	    ok
+	    
+	    if NOT isList(aWeights) or len(aWeights) != len(@anData)
+	        StzRaise("Weights must be a list with same length as data")
+	    ok
+	    
+	    cKey = "weightedmean_" + This._HashList(aWeights)
+	    nCached = This._GetCached(cKey)
+	    
+	    if NOT IsNull(nCached)
+	        return nCached
+	    ok
+	    
+	    nWeightedSum = 0
+	    nWeightSum = 0
+	    nLen = len(@anData)
+	    
+	    for i = 1 to nLen
+	        nWeightedSum += @anData[i] * aWeights[i]
+	        nWeightSum += aWeights[i]
+	    next
+	    
+	    if nWeightSum = 0
+	        return 0
+	    ok
+	    
+	    nResult = nWeightedSum / nWeightSum
+	    This._SetCache(cKey, nResult)
+	    return nResult
+
+		def WMean(aWeights)
+			return This.WMean(aWeights)
+
+
+	def TrimmedMean(nTrimPercent)
+	    if @cDataType != "numeric" or len(@anData) = 0
+	        return 0
+	    ok
+	    
+	    if nTrimPercent < 0 or nTrimPercent >= 50
+	        StzRaise("Trim percentage must be between 0 and 50")
+	    ok
+	    
+	    cKey = "trimmedmean_" + nTrimPercent
+	    nCached = This._GetCached(cKey)
+	    
+	    if NOT IsNull(nCached)
+	        return nCached
+	    ok
+	    
+	    This._SortIfNeeded()
+	    nLen = len(@anSortedData)
+	    nTrimCount = floor((nLen * nTrimPercent) / 100)
+	    
+	    if nTrimCount * 2 >= nLen
+	        return This.Median()
+	    ok
+	    
+	    nSum = 0
+	    nStart = nTrimCount + 1
+	    nEnd = nLen - nTrimCount
+	    
+	    for i = nStart to nEnd
+	        nSum += @anSortedData[i]
+	    next
+	    
+	    nResult = nSum / (nEnd - nStart + 1)
+	    This._SetCache(cKey, nResult)
+	    return nResult
+	
+		def TMean(nTrimPercent)
+			return This.TrimmedMean(nTrimPercent)
+
+
+	def PercentileRank(nValue)
+	    if @cDataType != "numeric" or len(@anData) = 0
+	        return 0
+	    ok
+	    
+	    This._SortIfNeeded()
+	    nLen = len(@anSortedData)
+	    nBelow = 0
+	    nEqual = 0
+	    
+	    for i = 1 to nLen
+	        if @anSortedData[i] < nValue
+	            nBelow++
+	        but @anSortedData[i] = nValue
+	            nEqual++
+	        ok
+	    next
+	    
+	    return ((nBelow + (nEqual / 2)) / nLen) * 100
+
+		def PRank(nValue)
+			return This.PercentileRank(nValue)
+
+
     #============================================================#
     #  PILLAR 2: COMPOSITION - Frequency & Categorical Analysis  #
     #============================================================#
@@ -690,6 +842,81 @@ class stzDataSet
 
 		def Entropy()
 			return This.EntropyIndex()
+
+	#---
+
+	def ContingencyTable(oOtherDataSet)
+	    if NOT isObject(oOtherDataSet)
+	        StzRaise("ContingencyTable requires another stzDataSet object")
+	    ok
+	    
+	    aData1 = @anData
+	    aData2 = oOtherDataSet.Data()
+	    
+	    if len(aData1) != len(aData2)
+	        StzRaise("Both datasets must have same length")
+	    ok
+	    
+	    aUniqueX = This.UniqueValues()
+	    aUniqueY = oOtherDataSet.UniqueValues()
+	    aTable = []
+	    
+	    # Initialize table
+		nLenX = len(aUniqueX)
+		nLenY = len(aUniqueY)
+
+	    for i = 1 to nLenX
+	        aRow = []
+	        for j = 1 to nLenY
+	            aRow + 0
+	        next
+	        aTable + [aUniqueX[i], aRow]
+	    next
+	    
+	    # Count occurrences
+	    nLen = len(aData1)
+	    for k = 1 to nLen
+	        nXIndex = ring_find(aUniqueX, aData1[k])
+	        nYIndex = ring_find(aUniqueY, aData2[k])
+	        if nXIndex > 0 and nYIndex > 0
+	            aTable[nXIndex][2][nYIndex]++
+	        ok
+	    next
+	    
+	    return [aUniqueY, aTable]
+	
+		def ContingTable()
+			return This.ContingencyTable()
+
+
+	def ModeCount()
+	    if len(@anData) = 0
+	        return 0
+	    ok
+	    
+	    cKey = "modecount"
+	    nCached = This._GetCached(cKey)
+	    
+	    if NOT IsNull(nCached)
+	        return nCached
+	    ok
+	    
+	    aFreqTable = This.FrequencyTable()
+	    if len(aFreqTable) = 0
+	        return 0
+	    ok
+	    
+	    nMaxFreq = 0
+	    nLen = len(aFreqTable)
+	    
+	    for i = 1 to nLen
+	        if aFreqTable[i][2] > nMaxFreq
+	            nMaxFreq = aFreqTable[i][2]
+	        ok
+	    next
+	    
+	    This._SetCache(cKey, nMaxFreq)
+	    return nMaxFreq
 
 
     #====================================================#
@@ -861,6 +1088,10 @@ class stzDataSet
 		def Kurtos()
 			return Kurtosis()
 
+	def ContainsOutliers()
+		return len(This.Outliers()) > 0
+
+
     def Outliers()
         if @cDataType != "numeric"
             return []
@@ -960,23 +1191,24 @@ class stzDataSet
 	        return [ ["insufficient_data", len(@anData)] ]
 	    ok
 	    
-	    nLen = len(@anData)
+	    nLenData = len(@anData)
 	    
 	    # For simple cases (2-3 points), use basic trend
-	    if nLen <= 3
+	    if nLenData <= 3
 	        return This._SimpleSeriesTrend()
 	    ok
 	    
 	    # Calculate consecutive differences
 	    aDifferences = []
-	    for i = 2 to nLen
+	    for i = 2 to nLenData
 	        aDifferences + (@anData[i] - @anData[i-1])
 	    next
 	    
 	    # Classify each difference
 	    aTrends = []
 	    nTolerance = This._CalculateTolerance()
-	    for i = 1 to len(aDifferences)
+		nLenDiff = len(aDifferences)
+	    for i = 1 to nLenDiff
 	        aTrends + This._ClassifyDifference(aDifferences[i], nTolerance)
 	    next
 	    
@@ -984,8 +1216,9 @@ class stzDataSet
 	    aTrendSegments = []
 	    cCurrentTrend = aTrends[1]
 	    nSegmentStart = 1  # Start at first data position
-	    
-	    for i = 2 to len(aTrends)
+	    nLenTrends = len(aTrends)
+
+	    for i = 2 to nLenTrends
 	        if aTrends[i] != cCurrentTrend
 	            # Trend change detected at difference i
 	            # Previous segment covers from nSegmentStart to position i
@@ -997,7 +1230,7 @@ class stzDataSet
 	    next
 	    
 	    # Add final segment
-	    nFinalLength = len(@anData) - nSegmentStart + 1
+	    nFinalLength = nLenData - nSegmentStart + 1
 	    aTrendSegments + [cCurrentTrend, nFinalLength]
 	    
 	    return aTrendSegments
@@ -1056,6 +1289,131 @@ class stzDataSet
 	    else
 	        return "down"
 	    ok
+
+	#---
+
+	def Deciles()
+	    if @cDataType != "numeric" or len(@anData) = 0
+	        return []
+	    ok
+	    
+	    cKey = "deciles"
+	    aCached = This._GetCached(cKey)
+	    
+	    if NOT IsNull(aCached)
+	        return aCached
+	    ok
+	    
+	    aDeciles = []
+	    for i = 10 to 90 step 10
+	        aDeciles + This.Percentile(i)
+	    next
+	    
+	    This._SetCache(cKey, aDeciles)
+	    return aDeciles
+	
+	def BoxPlotStats()
+	    if @cDataType != "numeric" or len(@anData) = 0
+	        return []
+	    ok
+	    
+	    cKey = "boxplotstats"
+	    aCached = This._GetCached(cKey)
+	    
+	    if NOT IsNull(aCached)
+	        return aCached
+	    ok
+	    
+	    nQ1 = This.Q1()
+	    nQ2 = This.Q2()
+	    nQ3 = This.Q3()
+	    nIQR = This.IQR()
+	    
+	    nLowerFence = nQ1 - (1.5 * nIQR)
+	    nUpperFence = nQ3 + (1.5 * nIQR)
+	    
+	    This._SortIfNeeded()
+	    nWhiskerLow = @anSortedData[1]
+	    nWhiskerHigh = @anSortedData[len(@anSortedData)]
+	    
+	    # Find actual whisker values within fences
+	    nLen = len(@anSortedData)
+	    for i = 1 to nLen
+	        if @anSortedData[i] >= nLowerFence
+	            nWhiskerLow = @anSortedData[i]
+	            exit
+	        ok
+	    next
+	    
+	    for i = nLen to 1 step -1
+	        if @anSortedData[i] <= nUpperFence
+	            nWhiskerHigh = @anSortedData[i]
+	            exit
+	        ok
+	    next
+	    
+	    aResult = [
+	        [:min, This.Min()],
+	        [:q1, nQ1],
+	        [:median, nQ2],
+	        [:q3, nQ3],
+	        [:max, This.Max()],
+	        [:whisker_low, nWhiskerLow],
+	        [:whisker_high, nWhiskerHigh],
+	        [:iqr, nIQR]
+	    ]
+	    
+	    This._SetCache(cKey, aResult)
+	    return aResult
+	
+
+	def NormalityTest()
+	    # Simplified normality test based on skewness and kurtosis
+	    if @cDataType != "numeric" or len(@anData) < 4
+	        return [["test", "insufficient_data"], ["p_value", 0], ["is_normal", 0]]
+	    ok
+	    
+	    cKey = "normalitytest"
+	    aCached = This._GetCached(cKey)
+	    
+	    if NOT IsNull(aCached)
+	        return aCached
+	    ok
+	    
+	    nSkew = This.Skewness()
+	    nKurt = This.Kurtosis()  # Already excess kurtosis (normal = 0)
+	    
+	    # Normal distribution: skewness ≈ 0, excess kurtosis ≈ 0
+	    # Use stricter thresholds since your data shows high deviations
+	    bIsNormal = (abs(nSkew) < 1) and (abs(nKurt) < 1)
+	    
+	    # Calculate p-value based on combined deviation
+	    nSkewDev = abs(nSkew)
+	    nKurtDev = abs(nKurt) 
+	    nCombinedDev = sqrt(nSkewDev * nSkewDev + nKurtDev * nKurtDev)
+	    
+	    # Exponential decay for p-value
+	    nPValue = exp(-nCombinedDev)
+	    
+	    if nPValue > 1
+	        nPValue = 1
+	    ok
+	    
+	    nIsNormalFlag = 0
+	    if bIsNormal
+	        nIsNormalFlag = 1
+	    ok
+	    
+	    aResult = [
+	        ["test", "heuristic"],
+	        ["skewness", nSkew],
+	        ["kurtosis", nKurt],
+	        ["p_value", nPValue],
+	        ["is_normal", nIsNormalFlag]
+	    ]
+	    
+	    This._SetCache(cKey, aResult)
+	    return aResult
 
     #===========================================================#
     #  PILLAR 4: RELATION - Correlation & Association Analysis  #
@@ -1278,6 +1636,155 @@ class stzDataSet
 		def CategoricalAssociationWith(oOtherStats)
 			return This.ChiSquareWith(oOtherStats)
 
+	#---
+
+	def RegressionCoefficients(oOtherDataSet)
+	    if @cDataType != "numeric" or oOtherDataSet.DataType() != "numeric"
+	        return [[:slope, 0], [:intercept, 0], [:r_squared, 0]]
+	    ok
+	    
+	    aOtherData = oOtherDataSet.Data()
+	    if len(@anData) != len(aOtherData) or len(@anData) < 2
+	        return [[:slope, 0], [:intercept, 0], [:r_squared, 0]]
+	    ok
+	    
+	    nMeanX = This.Mean()
+	    nMeanY = oOtherDataSet.Mean()
+	    nLen = len(@anData)
+	    nSumXY = 0
+	    nSumXX = 0
+	    
+	    for i = 1 to nLen
+	        nDiffX = @anData[i] - nMeanX
+	        nDiffY = aOtherData[i] - nMeanY
+	        nSumXY += nDiffX * nDiffY
+	        nSumXX += nDiffX * nDiffX
+	    next
+	    
+	    if nSumXX = 0
+	        return [[:slope, 0], [:intercept, nMeanY], [:r_squared, 0]]
+	    ok
+	    
+	    nSlope = nSumXY / nSumXX
+	    nIntercept = nMeanY - (nSlope * nMeanX)
+	    nCorr = This.CorrelationWith(oOtherDataSet)
+	    nRSquared = nCorr * nCorr
+	    
+	    return [[:slope, nSlope], [:intercept, nIntercept], [:r_squared, nRSquared]]
+	
+		def RCoefficients(oOtherDataSet)
+			return This.RegressionCoefficients(oOtherDataSet)
+
+
+	def PartialCorrelation(oDataSetY, oDataSetZ)
+	    # Partial correlation between X and Y controlling for Z
+	    if @cDataType != "numeric" or oDataSetY.DataType() != "numeric" or oDataSetZ.DataType() != "numeric"
+	        return 0
+	    ok
+	    
+	    nRxy = This.CorrelationWith(oDataSetY)
+	    nRxz = This.CorrelationWith(oDataSetZ)
+	    nRyz = oDataSetY.CorrelationWith(oDataSetZ)
+	    
+	    nDenom = sqrt((1 - nRxz * nRxz) * (1 - nRyz * nRyz))
+	    
+	    if nDenom = 0
+	        return 0
+	    ok
+	    
+	    return (nRxy - nRxz * nRyz) / nDenom
+	
+		def PCorrelation(oDataSetY, oDataSetZ)
+			return This.PartialCorrelation(oDataSetY, oDataSetZ)
+
+		def PartCorrelation(oDataSetY, oDataSetZ)
+			return This.PartialCorrelation(oDataSetY, oDataSetZ)
+
+		def PartCorel(oDataSetY, oDataSetZ)
+			return This.PartialCorrelation(oDataSetY, oDataSetZ)
+
+
+	def MutualInformation(oOtherDataSet)
+	    # Simplified mutual information for categorical data
+	    aData1 = @anData
+	    aData2 = oOtherDataSet.Data()
+	    
+	    if len(aData1) != len(aData2) or len(aData1) = 0
+	        return 0
+	    ok
+	    
+	    # Create joint frequency table
+	    aJointFreq = []
+	    nTotal = len(aData1)
+	    
+	    for i = 1 to nTotal
+	        cPair = "" + aData1[i] + "_" + aData2[i]
+	        nIndex = This._FindInFreqList(aJointFreq, cPair)
+	        if nIndex = 0
+	            aJointFreq + [cPair, 1]
+	        else
+	            aJointFreq[nIndex][2]++
+	        ok
+	    next
+	    
+	    # Calculate marginal frequencies
+	    aFreq1 = This.FrequencyTable()
+	    aFreq2 = oOtherDataSet.FrequencyTable()
+	    
+	    # Calculate mutual information
+	    nMI = 0
+	    nJointLen = len(aJointFreq)
+	    
+	    for i = 1 to nJointLen
+	        nJointProb = aJointFreq[i][2] / nTotal
+	        
+	        # Extract individual values from pair
+	        aPair = split(aJointFreq[i][1], "_")
+	        cVal1 = aPair[1]
+	        cVal2 = aPair[2]
+	        
+	        nMarg1 = This._GetFreqValue(aFreq1, cVal1) / nTotal
+	        nMarg2 = This._GetFreqValue(aFreq2, cVal2) / nTotal
+	        
+	        if nJointProb > 0 and nMarg1 > 0 and nMarg2 > 0
+	            nMI += nJointProb * log(nJointProb / (nMarg1 * nMarg2)) / log(2)
+	        ok
+	    next
+	    
+	    return nMI
+	
+		def MutualInfo(oOtherDataSet)
+			return This.MutualInformation(oOtherDataSet)
+
+
+	# Helper methods for new functionality
+	
+	def _HashList(aList)
+	    cHash = ""
+	    nLen = len(aList)
+	    for i = 1 to nLen
+	        cHash += "" + aList[i] + "_"
+	    next
+	    return cHash
+	
+	def _FindInFreqList(aFreqList, cValue)
+	    nLen = len(aFreqList)
+	    for i = 1 to nLen
+	        if aFreqList[i][1] = cValue
+	            return i
+	        ok
+	    next
+	    return 0
+	
+	def _GetFreqValue(aFreqTable, cValue)
+	    nLen = len(aFreqTable)
+	    for i = 1 to nLen
+	        if aFreqTable[i][1] = cValue
+	            return aFreqTable[i][2]
+	        ok
+	    next
+	    return 0
+	
 
     #=====================#
     #  DATA PROCESSING    #
@@ -1330,6 +1837,10 @@ class stzDataSet
         
         return aStandardized
  
+		def Standardise()
+			return This.Standardize()
+
+
     def RobustScale()
         # Scale using median and IQR (robust to outliers)
         if @cDataType != "numeric"
@@ -1353,6 +1864,9 @@ class stzDataSet
         
         return aScaled
 
+
+		def RScale()
+			return This.RobustScale()
 
     #=============================#
     #  DATA QUALITY AND GUIDANCE  #
