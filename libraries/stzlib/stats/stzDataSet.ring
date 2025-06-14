@@ -3,21 +3,188 @@
 #  Four Pillars: Comparison | Composition | Distribution | Relation  #
 #====================================================================#
 
-# Global configuration for missing values
-$aSTAT_MISSING_VALUES = [ "", "NA", "NULL", "n/a", "#N/A" ]
+# Thresholds and Constants (used in conditions and templates)
+$nSmallSampleSizeThreshold = 10
+$nSkewnessThreshold = 1
+$nDiversityThreshold = 0.3
+$nEntropyThreshold = 1.5
+$nMeanDifferenceThreshold = 0.05
+$nVarThreshold = 50
+$nMovingAverageWindow = 3
+$nFinanceMeanThreshold = 100
+$nFinanceVolatilityThreshold = 20
+$nHealthcareStdDevThreshold = 50
 
-$aInsightRules = [
+# Insight Templates
+
+$aEmptyInsightTemplates = [
+	[ :condition = "nothing", :template = "Dataset is empty. No analysis possible without data." ]
+]
+
+$aMixedInsightTemplates = [ 
+
+	[
+		:condition = "nothing",
+		:template = "Mixed dataset containing both numeric and categorical data ({UniqueCount()} unique values from {Count()} total)"
+	],
+
+	[
+		:condition = "nothing",
+		:template = "Consider separating data types for specialized analysis. Numeric methods apply only to numeric subset"
+	]
+]
+
+
+$aNumericInsightTemplates = [
+    [
+        :condition = "abs(Mean() - Median()) / abs(Median()) < $nMeanDifferenceThreshold",
+        :template  = "The data is symmetrically distributed with mean {Mean()} and median {Median()}."
+    ],
+    [
+        :condition = "Mean() > Median()",
+        :template = "Data shows positive skew (mean {Mean()} > median {Median()})."
+    ],
+    [
+        :condition = "CoefficientOfVariation() > $nVarThreshold",
+        :template = "High variability (CV = {CoefficientOfVariation()}%) indicates diverse data points."
+    ]
+]
+
+$aCategoricalInsightTemplates = [
+    [
+        :condition = "Diversity() < $nDiversityThreshold",
+        :template = "Low diversity ({Diversity() * 100}%) indicates concentration in few categories."
+    ],
+    [
+        :condition = "Entropy() > $nEntropyThreshold",
+        :template = "Information entropy ({Entropy()}) indicates balanced category distribution."
+    ]
+]
+
+# General Recommendation Templates
+$aRecommendationActions = [
+    [
+        :condition = "Count() < $nSmallSampleSizeThreshold",
+        :recommendation = "Small sample size - interpret results cautiously.",
+        :action = "Consider using This.MovingAverage($nMovingAverageWindow) to smooth trends: {This.MovingAverage($nMovingAverageWindow)}",
+        :narration = "The dataset has few values ({Count()}). Smoothing with MovingAverage($nMovingAverageWindow) helps stabilize trends."
+    ],
+    [
+        :condition = "abs(Skewness()) > $nSkewnessThreshold",
+        :recommendation = "Data is skewed - consider using median instead of mean.",
+        :action = "Use This.Median() for central tendency: {This.Median()}",
+        :narration = "Skewness ({Skewness()}) indicates imbalance. Median ({This.Median()}) is a stable measure."
+    ],
+    [
+        :condition = "ContainsOutliers()",
+        :recommendation = "Outliers detected - consider robust statistics.",
+        :action = "Apply This.TrimmedMean(10) to reduce outlier impact: {This.TrimmedMean(10)}",
+        :narration = "Outliers distort results. TrimmedMean({This.TrimmedMean(10)}) excludes extremes for clarity."
+    ]
+]
+
+# Domain-Specific Insight Rules
+$aDomainInsightRules = [
 
     :Finance = [
-//        [ "CoVariance() > 50", "High variability ({CoVariance()}) indicates investment risk.", 3 ],
-//       [ "Skewness() > 1", "Positive skew ({Skewness()}) suggests potential for extreme gains", 1 ]
+        [
+            :condition = "Mean() > $nFinanceMeanThreshold",
+            :template = "Mean ({Mean()}) exceeds financial threshold."
+        ],
+        [
+            :condition = "CoefficientOfVariation() > $nFinanceVolatilityThreshold",
+            :template = "High volatility ({CoefficientOfVariation()}%) in financial data."
+        ]
     ],
 
     :Healthcare = [
-       [ "Mean() > 100", "Mean ({Mean()}) exceeds health metric threshold (100).", 3 ]
+        [
+            :condition = "StandardDeviation() > $nHealthcareStdDevThreshold",
+            :template = "High variability ({StandardDeviation()}) in health metrics."
+        ]
+    ],
+
+    :Education = [
+        [
+            :condition = "Median() < 50",
+            :template = "Median score ({Median()}) below passing threshold."
+        ],
+        [
+            :condition = "Diversity() > 0.5",
+            :template = "High diversity in responses indicates varied student performance."
+        ]
+    ]
+]
+
+# Class Capabilities Catalog
+$aStatFunctions = [
+    [
+        "method": "Mean",
+        "parameters": [],
+        "constraints": "DataType() = 'numeric'",
+        "output": "number",
+        "description": "Calculates the arithmetic mean of the dataset."
+    ],
+    [
+        "method": "Median",
+        "parameters": [],
+        "constraints": "DataType() = 'numeric'",
+        "output": "number",
+        "description": "Calculates the median of the dataset."
+    ],
+    [
+        "method": "TrimmedMean",
+        "parameters": ["nTrimPercent"],
+        "constraints": "DataType() = 'numeric' and nTrimPercent >= 0 and nTrimPercent < 50",
+        "output": "number",
+        "description": "Calculates the trimmed mean by removing a percentage of extreme values."
+    ],
+    [
+        "method": "MovingAverage",
+        "parameters": ["nWindow"],
+        "constraints": "DataType() = 'numeric' and nWindow > 0",
+        "output": "list",
+        "description": "Calculates the moving average over a specified window."
+    ],
+    [
+        "method": "CoefficientOfVariation",
+        "parameters": [],
+        "constraints": "DataType() = 'numeric'",
+        "output": "number",
+        "description": "Calculates the coefficient of variation as a percentage."
+    ],
+    [
+        "method": "Skewness",
+        "parameters": [],
+        "constraints": "DataType() = 'numeric'",
+        "output": "number",
+        "description": "Calculates the skewness of the dataset."
+    ],
+    [
+        "method": "Diversity",
+        "parameters": [],
+        "constraints": "DataType() = 'categorical'",
+        "output": "number",
+        "description": "Calculates the diversity index of categorical data."
+    ],
+    [
+        "method": "Entropy",
+        "parameters": [],
+        "constraints": "DataType() = 'categorical'",
+        "output": "number",
+        "description": "Calculates the information entropy of categorical data."
+    ],
+    [
+        "method": "ContainsOutliers",
+        "parameters": [],
+        "constraints": "DataType() = 'numeric'",
+        "output": "bool",
+        "description": "Checks if the dataset contains outliers."
     ]
 
+	#TODO // Add all the other statistical methods of the class
 ]
+
 
 func StzDataSetQ(paData)
 	return new stzDataSet(paData)
@@ -32,6 +199,36 @@ func MissingValues()
 
 	func @MissingValues()
 		return $aSTAT_MISSING_VALUES
+
+func DataSetTemplates()
+	return Flatten([
+		$aEmptyInsightTemplates,
+		$aNumericInsightTemplates,
+		$aCategoricalInsightTemplates,
+		$aMixedInsightTemplates
+	])
+
+func DataSetTemplatesXT(cType)
+	if CheckParams() and NOT isString(cType)
+		SteRaise("Incorrect param type! cType must be a string.")
+	ok
+
+	switch cType
+	on "empty"
+		return $aEmptyInsightTemplates
+
+	on "numeric"
+		return $aNumericInsightTemplates
+
+	on "categorical"
+		return $aCategoricalInsightTemplates
+
+	on "mixed"
+		return $aMixedInsightTemplates
+
+	other
+		return []
+	off
 
 
 class stzDataSet
@@ -170,7 +367,7 @@ class stzDataSet
         This._SetCache(cKey, nMedian)
         return nMedian
 
-/*
+
 	def Mode()
 	    if len(@anData) = 0
 	        return NULL
@@ -178,7 +375,7 @@ class stzDataSet
 	
 	    cKey = "mode"
 	    cached = This._GetCached(cKey)
-
+	
 	    if NOT isNull(cached)
 	        return cached
 	    ok
@@ -188,19 +385,29 @@ class stzDataSet
 	
 	    for i = 1 to nLen
 	        cItemKey = "" + @anData[i]
-	        if isNumber(aFreqHash[cItemKey])
-	            aFreqHash[cItemKey]++
-	        else
+	        bFound = FALSE
+	        
+	        # Search for existing key in frequency list
+	        for j = 1 to len(aFreqHash)
+	            if aFreqHash[j][1] = cItemKey
+	                aFreqHash[j][2]++
+	                bFound = TRUE
+	                exit
+	            ok
+	        next
+	        
+	        # Add new key if not found
+	        if NOT bFound
 	            aFreqHash + [cItemKey, 1]
 	        ok
 	    next
 	
 	    nMaxFreq = 0
 	    cModeKey = ""
-	    nLen = len(aFreqHash)  # Fixed: use aFreqHash length
+	    nFreqLen = len(aFreqHash)
 	
-	    for i = 1 to nLen
-	        if aFreqHash[i][2] > nMaxFreq  # Fixed: iterate through aFreqHash
+	    for i = 1 to nFreqLen
+	        if aFreqHash[i][2] > nMaxFreq
 	            nMaxFreq = aFreqHash[i][2]
 	            cModeKey = aFreqHash[i][1]
 	        ok
@@ -208,55 +415,7 @@ class stzDataSet
 	
 	    This._SetCache(cKey, cModeKey)
 	    return cModeKey
-*/
 
-def Mode()
-    if len(@anData) = 0
-        return NULL
-    ok
-
-    cKey = "mode"
-    cached = This._GetCached(cKey)
-
-    if NOT isNull(cached)
-        return cached
-    ok
-
-    nLen = len(@anData)
-    aFreqHash = []
-
-    for i = 1 to nLen
-        cItemKey = "" + @anData[i]
-        bFound = FALSE
-        
-        # Search for existing key in frequency list
-        for j = 1 to len(aFreqHash)
-            if aFreqHash[j][1] = cItemKey
-                aFreqHash[j][2]++
-                bFound = TRUE
-                exit
-            ok
-        next
-        
-        # Add new key if not found
-        if NOT bFound
-            aFreqHash + [cItemKey, 1]
-        ok
-    next
-
-    nMaxFreq = 0
-    cModeKey = ""
-    nFreqLen = len(aFreqHash)
-
-    for i = 1 to nFreqLen
-        if aFreqHash[i][2] > nMaxFreq
-            nMaxFreq = aFreqHash[i][2]
-            cModeKey = aFreqHash[i][1]
-        ok
-    next
-
-    This._SetCache(cKey, cModeKey)
-    return cModeKey
 
     def StandardDeviation()
         if @cDataType != "numeric" or len(@anData) <= 1
@@ -286,6 +445,7 @@ def Mode()
 
 		def StdDev()
 			return This.StandardDeviation()
+
 
 	def Variance()
 	    if @cDataType != "numeric" or len(@anData) <= 1
@@ -319,11 +479,13 @@ def Mode()
 		def V()
 			return This.Variance()
 
+
     def Range()
         if @cDataType != "numeric" or len(@anData) = 0
             return 0
         ok
         return This.Max() - This.Min()
+
 
     def Min()
         if @cDataType != "numeric" or len(@anData) = 0
@@ -331,11 +493,13 @@ def Mode()
         ok
         return @min(@anData)
 
+
     def Max()
         if @cDataType != "numeric" or len(@anData) = 0
             return NULL
         ok
         return @max(@anData)
+
 
     def Sum()
         if @cDataType != "numeric"
@@ -351,8 +515,10 @@ def Mode()
         
         return nSum
 
+
     def Count()
         return len(@anData)
+
 
     def GeometricMean()
         if @cDataType != "numeric" or len(@anData) = 0
@@ -400,6 +566,7 @@ def Mode()
 
 		#>
 
+
     def HarmonicMean()
         if @cDataType != "numeric" or len(@anData) = 0
             return 0
@@ -442,6 +609,7 @@ def Mode()
 
 		#>
 
+
     def CoefficientOfVariation()
         if @cDataType != "numeric" or This.Mean() = 0
             return 0
@@ -457,6 +625,7 @@ def Mode()
 
 		def CV()
 			return This.CoefficientOfVariation()
+
 
 	#---
 
@@ -520,6 +689,7 @@ def Mode()
 
 			return This.CompareWith(oOtherStats)
 
+
     def SimilarityScore(oOtherStats)
         # Calculate similarity score between datasets (0-1 scale)
         if oOtherStats.Count() = 0 or This.Count() = 0
@@ -562,7 +732,6 @@ def Mode()
 
 		def SimScoreWith(oOtherStats)
 			return SimilarityScore(oOtherStats)
-
 
 	#---
 
@@ -757,6 +926,7 @@ def Mode()
 		def RelFreq()
 		    return This.RelativeFrequency()
 	
+
     def PercentageFrequency()
 
         aRelFreq = This.RelativeFrequency()
@@ -774,11 +944,13 @@ def Mode()
 		def PercentFreq()
 			return This.PercentageFrequency()
 
+
     def UniqueCount()
         return len(This.UniqueValues())
 
 		def UCount()
 			return len(This.UniqueValues())
+
 
     def UniqueValues()
         cKey = "unique_values"
@@ -799,6 +971,7 @@ def Mode()
         
         This._SetCache(cKey, aUnique)
         return aUnique
+
 
 		def UVals()
 			return This.UniqueValues()
@@ -842,6 +1015,7 @@ def Mode()
 
 		def Entropy()
 			return This.EntropyIndex()
+
 
 	#---
 
@@ -889,6 +1063,7 @@ def Mode()
 			return This.ContingencyTable()
 
 
+
 	def ModeCount()
 	    if len(@anData) = 0
 	        return 0
@@ -933,8 +1108,10 @@ def Mode()
 	# Preferred in some educational contexts and when you need
 	# exact data points.
 
+
 	def Percentile(nPercent)
 		return This.PercentileXT(nPercent, "interpolation")
+
 
 	def PercentileXT(nPercent, cMethod) # interpolation or nearest
 	    if @cDataType != "numeric" or len(@anData) = 0
@@ -959,6 +1136,7 @@ def Mode()
 	        ok
 	        
 	        return @anSortedData[nRank]
+
 	    else
 	        # Linear interpolation method (default)
 	        nPosition = ((nLen - 1) * nPercent) / 100 + 1
@@ -1009,11 +1187,13 @@ def Mode()
 		def IQRXT(cMethod)
 		    return This.Q3XT(cMethod) - This.Q1XT(cMethod)
 	
+
 	def Quartiles()
 		return [This.Q1(), This.Q2(), This.Q3()]
 
 	def QuartilesXT(cMethod)
 	    return [This.Q1XT(cMethod), This.Q2XT(cMethod), This.Q3XT(cMethod)]
+
 
 	#---
 
@@ -1050,6 +1230,7 @@ def Mode()
 
 		def Skewness()
 			return Skew()
+
 
     def Kurtosis()
         if @cDataType != "numeric" or len(@anData) < 4
@@ -1088,9 +1269,9 @@ def Mode()
 		def Kurtos()
 			return Kurtosis()
 
+
 	def ContainsOutliers()
 		return len(This.Outliers()) > 0
-
 
     def Outliers()
         if @cDataType != "numeric"
@@ -1125,6 +1306,7 @@ def Mode()
     def IsOutlier(nValue)
         aOutliers = This.Outliers()
         return ring_find(aOutliers, nValue) > 0
+
 
     def ZScores()
         if @cDataType != "numeric"
@@ -1182,6 +1364,7 @@ def Mode()
 
 		def MovMean()
 			return This.MovingAverage()
+
 
 	#--- TREND ANALYSIS SECTION (PART OF PILLAR 3 - DITRIBUTION)
 
@@ -1290,6 +1473,7 @@ def Mode()
 	        return "down"
 	    ok
 
+
 	#---
 
 	def Deciles()
@@ -1312,7 +1496,9 @@ def Mode()
 	    This._SetCache(cKey, aDeciles)
 	    return aDeciles
 	
-	def BoxPlotStats()
+
+	def BoxPlotStats() # Prepare data series for stzBoxPlot
+
 	    if @cDataType != "numeric" or len(@anData) = 0
 	        return []
 	    ok
@@ -1366,6 +1552,9 @@ def Mode()
 	    This._SetCache(cKey, aResult)
 	    return aResult
 	
+		def BoxPlotData()
+			return This.BoxPlot()
+
 
 	def NormalityTest()
 	    # Simplified normality test based on skewness and kurtosis
@@ -1414,6 +1603,10 @@ def Mode()
 	    
 	    This._SetCache(cKey, aResult)
 	    return aResult
+
+		def Normality()
+			return This.NormalityTest()
+
 
     #===========================================================#
     #  PILLAR 4: RELATION - Correlation & Association Analysis  #
@@ -1814,6 +2007,7 @@ def Mode()
         
         return aNormalized
 
+
     def Standardize()
         # Z-score standardization
         if @cDataType != "numeric"
@@ -1979,172 +2173,22 @@ def Mode()
     #  STATISTICS NATIVE INSIGHT GENERATION SYSTEM  #
     #===============================================#
 
-    def Insight()
-        return This.GenerateInsight()
+	def _GenerateInsightXT(cType) # numeric, categorical, mixed, empty
 
-	def GenerateInsight()
-	    aAllInsights = []
-	    
-	    # Get base insights
-	    switch @cDataType
-	    on "numeric"
-	        aAllInsights = This._GenerateNumericInsight()
+		aTemplates = DataSetTemplatesXT(cType)
+		nLen = len(aTemplates)
 
-	    on "categorical" 
-	        aAllInsights = This._GenerateCategoricalInsight()
-
-	    on "mixed"
-	    	aAllInsights = This._GenerateMixedInsight()
-
-		on "empty"
-			aAllInsights = ["Dataset is empty. No analysis possible without data."]
-		other
-			StzRaise("Unknowan data type! Supported types are :Numberic, :Categorical, :Mixed, and :Empty.")
-
-	    off
-	    
-	    # Add Statistics domain rules
-	    aStatInsights = This.InsightsOfDomain(:Statistics)
-		nLen = len(aStatInsights)
-	    for i = 1 to nLen
-	        aAllInsights + aStatInsights[i]
-	    next
-	    
-	    return aAllInsights
-
-    def _GenerateNumericInsight() #TODO// Abstract the insights outside the method
-
-        aInsights = [] # Keep as list of complete sentences
-        
-        # Basic descriptive insights
-        nMean = This.Mean()
-        nMedian = This.Median()
-        nStdDev = This.StandardDeviation()
-        nCount = This.Count()
-        nCV = This.CoefficientOfVariation()
-        
-        # Distribution shape
-        nSkew = This.Skewness()
-        nKurt = This.Kurtosis()
-        
-        # Central tendency
-        nMeanMedianDiff = abs(nMean - nMedian)
-        nMeanMedianRatio = iff(nMedian != 0, nMeanMedianDiff / abs(nMedian), 0)
-        
-        if nMeanMedianRatio < 0.05
-            aInsights + ( "The data is symmetrically distributed with mean " + nMean + " and median " + nMedian )
-        but nMean > nMedian
-            aInsights + ( "Data shows positive skew (mean " + nMean + " > median " + nMedian + ")" )
-        else
-            aInsights + ( "Data shows negative skew (mean " + nMean + " < median " + nMedian + ")" )
-        ok
-        
-        # Variability assessment
-        if nCV < 15
-            aInsights + ( "The data shows low variability with a coefficient of variation of " + nCV + "%, indicating consistent values" )
-        but nCV < 30
-            aInsights + ( "Moderate variability (CV = " + nCV + "%) shows normal spread" )
-        else
-            aInsights + ( "High variability (CV = " + nCV + "%) indicates diverse data points" )
-        ok
-        
-        # Distribution shape insights
-        if abs(nSkew) > 1
-            cSkewDirection = iff(nSkew > 0, "right", "left")
-            aInsights + ( "Strong " + cSkewDirection + "-skew (skewness = " + nSkew + ") affects central tendency interpretation" )
-        ok
-        
-        if nKurt > 1
-            aInsights + ( "Heavy-tailed distribution (kurtosis = " + nKurt + ") suggests potential extreme values" )
-        but nKurt < -1
-            aInsights + ( "Light-tailed distribution (kurtosis = " + nKurt + ") indicates fewer extreme values" )
-        ok
-        
-        # Outlier analysis
-        aOutliers = This.Outliers()
-        if len(aOutliers) > 0
-            nOutlierPercent = (len(aOutliers) * 100) / nCount
-            aInsights + ( "Contains " + len(aOutliers) + " outlier(s) (" + nOutlierPercent + "% of data)" )
-            
-            if nOutlierPercent > 10
-                aInsights + ( "High outlier proportion may distort mean-based statistics" )
-            ok
-        ok
-        
-        # Sample size assessment
-        if nCount < 10
-            aInsights + ( "Small sample size (n = " + nCount + ") limits statistical reliability" )
-        but nCount > 100
-            aInsights + ( "Large sample size (n = " + nCount + ") provides robust statistical foundation" )
-        ok
-        
-        return aInsights # Return list directly
-
-    def _GenerateCategoricalInsight() #TODO // Abstract insights ouside the code
-        aInsights = []
-        
-        nCount = This.Count()
-        nUnique = This.UniqueCount()
-        nDiversity = This.Diversity()
-        cMode = This.Mode()
-        aPercFreq = This.PercentageFrequency()
-        nEntropy = This.EntropyIndex()
-        
-        # Diversity insights
-        if nDiversity < 0.3
-            aInsights + ( "Low diversity (" + nDiversity * 100 + "%) indicates concentration in few categories" )
-        but nDiversity < 0.7
-            aInsights + ( "Moderate diversity (" + nDiversity * 100 + "%) shows balanced distribution" )
-        else
-            aInsights + ( "High diversity (" + nDiversity * 100 + "%) suggests wide variety" )
-        ok
-        
-        # Entropy analysis
-        nMaxEntropy = log(nUnique) / log(2)
-        nEntropyRatio = iff(nMaxEntropy > 0, nEntropy / nMaxEntropy, 0)
-        
-        if nEntropyRatio > 0.8
-            aInsights + ( "Information entropy (" + nEntropy + ") indicates balanced category distribution" )
-        but nEntropyRatio < 0.5
-            aInsights + ( "Low entropy (" + nEntropy + ") suggests strong category concentration" )
-        ok
-        
-        # Modal analysis
-        nModeFreq = 0
-		nLen = len(aPercFreq)
+		acInsights = []
 
 		for i = 1 to nLen
-            if aPercFreq[i][1] = ("" + cMode)
-                nModeFreq = aPercFreq[i][2]
-                exit
-            ok
-        next
-        
-        if nModeFreq > 50
-            aInsights + ( "'" + cMode + "' dominates (" + nModeFreq + "%) indicating strong preference" )
-        but nModeFreq > 30
-            aInsights + ( "'" + cMode + "' is most common (" + nModeFreq + "%) but distribution remains balanced" )
-        else
-            aInsights + ( "No dominant category - '" + cMode + "' leads at " + nModeFreq + "%" )
-        ok
-        
-        # Category count assessment
-        if nUnique <= 3
-            aInsights + ( "Limited categories (n = " + nUnique + ") suggest focused classification" )
-        but nUnique = nCount
-            aInsights + ( "All values unique - resembles identifier data rather than categories" )
-        ok
-        
-        return aInsights # Return list directly
+	        if This._EvaluateCondition(aTemplates[:condition])
+	            acInsights + This._Interpolate(aTemplates[:template])
+	        ok
+	    next
 
-    def _GenerateMixedInsight() #TODO // Abstract the insights outside the method
-        nCount = This.Count()
-        nUnique = This.UniqueCount()
-        
-        aInsights = []
-        aInsights + ( "Mixed dataset containing both numeric and categorical data (" + nUnique + " unique values from " + nCount + " total)" )
-        aInsights + ( "Consider separating data types for specialized analysis. Numeric methods apply only to numeric subset" )
-        return aInsights # Return list directl
+	    return acInsights
+
+
 
     def Insights() # Native statistic-insights
         # Return insights as clean list of sentences
@@ -2163,12 +2207,12 @@ def Mode()
 
 		acResults = This.Insights()
 
-		nLen = len($aInsightRules)
+		nLen = len($aDomainInsightRules)
 
 		for i = 1 to nLen
 
-			cDomain = $aInsightRules[i][1]
-			aDomain = $aInsightRules[i][2]
+			cDomain = $aDomainInsightRules[i][1]
+			aDomain = $aDomainInsightRules[i][2]
 			nLenDomain = len(aDomain)
 
 			for j = 1 to nLenDomain
@@ -2198,13 +2242,13 @@ def Mode()
 
 	    acResults = []
 
-	    if HasKey($aInsightRules, cDomain)
+	    if HasKey($aDomainInsightRules, cDomain)
 
-			nLen = len($aInsightRules[cDomain])
+			nLen = len($aDomainInsightRules[cDomain])
 
 			for i = 1 to nLen
-	            if This._EvaluateCondition($aInsightRules[cDomain][i][1])
-	                acResults + _EvaluateRule($aInsightRules[cDomain][i][2])
+	            if This._EvaluateCondition($aDomainInsightRules[cDomain][i][1])
+	                acResults + _EvaluateRule($aDomainInsightRules[cDomain][i][2])
 	            ok
 	        next
 
@@ -2221,10 +2265,10 @@ def Mode()
     #====================================================================#
     
 	def AddInsightRule(cDomain, cCondition, cInsight)
-	    if NOT HasKey($aInsightRules, cDomain)
-	        $aInsightRules[cDomain] = []
+	    if NOT HasKey($aDomainInsightRules, cDomain)
+	        $aDomainInsightRules[cDomain] = []
 	    ok
-	    $aInsightRules[cDomain] + [cCondition, cInsight]
+	    $aDomainInsightRules[cDomain] + [cCondition, cInsight]
 
     def AddRule(cDomain, cCondition, cInsight)
         This.AddInsightRule(cDomain, cCondition, cInsight)
@@ -2269,18 +2313,18 @@ def Mode()
 
 	def AddWeightedRule(cDomain, cCondition, cInsight, nWeight)
 	    if nWeight = NULL nWeight = 1 ok
-	    if NOT HasKey($aInsightRules, cDomain)
-	        $aInsightRules[cDomain] = []
+	    if NOT HasKey($aDomainInsightRules, cDomain)
+	        $aDomainInsightRules[cDomain] = []
 	    ok
 
 	    # Don't interpolate here - do it when evaluating
-	    $aInsightRules[cDomain] + [cCondition, cInsight, nWeight]
+	    $aDomainInsightRules[cDomain] + [cCondition, cInsight, nWeight]
 	
 	def PrioritizedInsights(cDomain)
 	    aResults = []
 	
-	    if HasKey($aInsightRules, cDomain)
-	        aRules = $aInsightRules[cDomain]
+	    if HasKey($aDomainInsightRules, cDomain)
+	        aRules = $aDomainInsightRules[cDomain]
 			nLen = len(aRules)	
 
 	        for i = 1 to nLen
@@ -2487,7 +2531,7 @@ def Mode()
 		return new stzDataSet(This.Content())
 
 	def Rules()
-		return $aInsightRules
+		return $aDomainInsightRules
 
 
 
