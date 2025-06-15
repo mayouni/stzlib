@@ -725,13 +725,13 @@ pf()
 
 /*--- Summary and Export Functions
 # Provides a formatted summary and structured export.
-
+*/
 pr()
 
 o1 = new stzDataSet([ 10, 20, 30, 40, 50 ])
 
 # Export structured data
-? @@NL(o1.Export()) + nl
+//? @@NL(o1.Export()) + nl
 #--> [
 #	[ "data_type", "numeric" ],
 #	[ "count", 5 ],

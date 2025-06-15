@@ -1,9 +1,7 @@
-#====================================================================#
-#  SOFTANZA STATISTICS LAYER - Enhanced Analytics Framework          #
-#  Four Pillars: Comparison | Composition | Distribution | Relation  #
-#====================================================================#
+# Global configuration for missing values
+$aSTAT_MISSING_VALUES = [ "", "NA", "NULL", "n/a", "#N/A" ]
 
-# Thresholds and Constants (used in conditions and templates)
+# Thresholds and Constants
 $nSmallSampleSizeThreshold = 10
 $nSkewnessThreshold = 1
 $nDiversityThreshold = 0.3
@@ -16,24 +14,20 @@ $nFinanceVolatilityThreshold = 20
 $nHealthcareStdDevThreshold = 50
 
 # Insight Templates
-
 $aEmptyInsightTemplates = [
-	[ :condition = "nothing", :template = "Dataset is empty. No analysis possible without data." ]
+    [ :condition = "nothing", :template = "Dataset is empty. No analysis possible without data." ]
 ]
 
 $aMixedInsightTemplates = [ 
-
-	[
-		:condition = "nothing",
-		:template = "Mixed dataset containing both numeric and categorical data ({UniqueCount()} unique values from {Count()} total)"
-	],
-
-	[
-		:condition = "nothing",
-		:template = "Consider separating data types for specialized analysis. Numeric methods apply only to numeric subset"
-	]
+    [
+        :condition = "nothing",
+        :template = "Mixed dataset containing both numeric and categorical data ({UniqueCount()} unique values from {Count()} total)"
+    ],
+    [
+        :condition = "nothing",
+        :template = "Consider separating data types for specialized analysis. Numeric methods apply only to numeric subset"
+    ]
 ]
-
 
 $aNumericInsightTemplates = [
     [
@@ -61,31 +55,30 @@ $aCategoricalInsightTemplates = [
     ]
 ]
 
-# General Recommendation Templates
-$aRecommendationActions = [
+# Recommendation Templates
+$aRecommendations = [
     [
         :condition = "Count() < $nSmallSampleSizeThreshold",
         :recommendation = "Small sample size - interpret results cautiously.",
-        :action = "Consider using This.MovingAverage($nMovingAverageWindow) to smooth trends: {This.MovingAverage($nMovingAverageWindow)}",
-        :narration = "The dataset has few values ({Count()}). Smoothing with MovingAverage($nMovingAverageWindow) helps stabilize trends."
+        :action = "Consider using MovingAverage({$nMovingAverageWindow}) to smooth trends: {MovingAverage($nMovingAverageWindow)}",
+        :narration = "The dataset has few values ({Count()}). Smoothing with MovingAverage({$nMovingAverageWindow}) helps stabilize trends."
     ],
     [
         :condition = "abs(Skewness()) > $nSkewnessThreshold",
         :recommendation = "Data is skewed - consider using median instead of mean.",
-        :action = "Use This.Median() for central tendency: {This.Median()}",
-        :narration = "Skewness ({Skewness()}) indicates imbalance. Median ({This.Median()}) is a stable measure."
+        :action = "Use Median() for central tendency: {Median()}",
+        :narration = "Skewness ({Skewness()}) indicates imbalance. Median ({Median()}) is a stable measure."
     ],
     [
         :condition = "ContainsOutliers()",
         :recommendation = "Outliers detected - consider robust statistics.",
-        :action = "Apply This.TrimmedMean(10) to reduce outlier impact: {This.TrimmedMean(10)}",
-        :narration = "Outliers distort results. TrimmedMean({This.TrimmedMean(10)}) excludes extremes for clarity."
+        :action = "Apply TrimmedMean(10) to reduce outlier impact: {TrimmedMean(10)}",
+        :narration = "Outliers distort results. TrimmedMean({TrimmedMean(10)}) excludes extremes for clarity."
     ]
 ]
 
-# Domain-Specific Insight Rules
+# Domain-Specific Rules
 $aDomainInsightRules = [
-
     :Finance = [
         [
             :condition = "Mean() > $nFinanceMeanThreshold",
@@ -96,14 +89,12 @@ $aDomainInsightRules = [
             :template = "High volatility ({CoefficientOfVariation()}%) in financial data."
         ]
     ],
-
     :Healthcare = [
         [
             :condition = "StandardDeviation() > $nHealthcareStdDevThreshold",
             :template = "High variability ({StandardDeviation()}) in health metrics."
         ]
     ],
-
     :Education = [
         [
             :condition = "Median() < 50",
@@ -116,74 +107,171 @@ $aDomainInsightRules = [
     ]
 ]
 
+# Summary Templates
+$aSummaryTemplate = [
+    :format = "text",
+    :sections = [
+        [
+            :title = "Dataset Content",
+            :content = "{Content()}"
+        ],
+        [
+            :title = "Dataset Summary",
+            :content = [
+                "Type: {DataType()}",
+                "Count: {Count()}"
+            ]
+        ],
+        [
+            :condition = "DataType() = 'numeric'",
+            :content = [
+                "Mean: {Mean()}",
+                "Median: {Median()}",
+                "Standard Deviation: {StandardDeviation()}",
+                "Range: {Range()} ({Min()} to {Max()})",
+                "Quartiles: Q1={Quartiles()[1]}, Q2={Quartiles()[2]}, Q3={Quartiles()[3]}",
+                "Outliers: {len(Outliers())} detected"
+            ]
+        ],
+        [
+            :condition = "DataType() = 'categorical'",
+            :content = [
+                "Unique Values: {UniqueCount()}",
+                "Diversity: {Diversity() * 100}%",
+                "Most Common: {Mode()}"
+            ]
+        ],
+        [
+            :title = "Dataset Insights",
+            :content = "{Insights()}"
+        ]
+    ]
+]
+
+$aSummaryXTTemplate = [
+    :format = "text",
+    :sections = [
+        :inherit = "$aSummaryTemplate",
+        [
+            :title = "Recommendations",
+            :content = "{Recommendations()}"
+        ]
+    ]
+]
+
 # Class Capabilities Catalog
 $aStatFunctions = [
     [
-        "method": "Mean",
-        "parameters": [],
-        "constraints": "DataType() = 'numeric'",
-        "output": "number",
-        "description": "Calculates the arithmetic mean of the dataset."
+        :function = "Mean",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "number",
+        :description = "Calculates the arithmetic mean of the dataset."
     ],
     [
-        "method": "Median",
-        "parameters": [],
-        "constraints": "DataType() = 'numeric'",
-        "output": "number",
-        "description": "Calculates the median of the dataset."
+        :function = "Median",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "number",
+        :description = "Calculates the median of the dataset."
     ],
     [
-        "method": "TrimmedMean",
-        "parameters": ["nTrimPercent"],
-        "constraints": "DataType() = 'numeric' and nTrimPercent >= 0 and nTrimPercent < 50",
-        "output": "number",
-        "description": "Calculates the trimmed mean by removing a percentage of extreme values."
+        :function = "TrimmedMean",
+        :params = ["nTrimPercent"],
+        :condition = "DataType() = 'numeric' and nTrimPercent >= 0 and nTrimPercent < 50",
+        :output = "number",
+        :description = "Calculates the trimmed mean by removing a percentage of extreme values."
     ],
     [
-        "method": "MovingAverage",
-        "parameters": ["nWindow"],
-        "constraints": "DataType() = 'numeric' and nWindow > 0",
-        "output": "list",
-        "description": "Calculates the moving average over a specified window."
+        :function = "MovingAverage",
+        :params = ["nWindow"],
+        :condition = "DataType() = 'numeric' and nWindow > 0",
+        :output = "list",
+        :description = "Calculates the moving average over a specified window."
     ],
     [
-        "method": "CoefficientOfVariation",
-        "parameters": [],
-        "constraints": "DataType() = 'numeric'",
-        "output": "number",
-        "description": "Calculates the coefficient of variation as a percentage."
+        :function = "CoefficientOfVariation",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "number",
+        :description = "Calculates the coefficient of variation as a percentage."
     ],
     [
-        "method": "Skewness",
-        "parameters": [],
-        "constraints": "DataType() = 'numeric'",
-        "output": "number",
-        "description": "Calculates the skewness of the dataset."
+        :function = "Skewness",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "number",
+        :description = "Calculates the skewness of the dataset."
     ],
     [
-        "method": "Diversity",
-        "parameters": [],
-        "constraints": "DataType() = 'categorical'",
-        "output": "number",
-        "description": "Calculates the diversity index of categorical data."
+        :function = "Diversity",
+        :params = [],
+        :condition = "DataType() = 'categorical'",
+        :output = "number",
+        :description = "Calculates the diversity index of categorical data."
     ],
     [
-        "method": "Entropy",
-        "parameters": [],
-        "constraints": "DataType() = 'categorical'",
-        "output": "number",
-        "description": "Calculates the information entropy of categorical data."
+        :function = "Entropy",
+        :params = [],
+        :condition = "DataType() = 'categorical'",
+        :output = "number",
+        :description = "Calculates the information entropy of categorical data."
     ],
     [
-        "method": "ContainsOutliers",
-        "parameters": [],
-        "constraints": "DataType() = 'numeric'",
-        "output": "bool",
-        "description": "Checks if the dataset contains outliers."
+        :function = "ContainsOutliers",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "bool",
+        :description = "Checks if the dataset contains outliers."
     ]
 
 	#TODO // Add all the other statistical methods of the class
 ]
+
+# Helper Functions
+func MissingValues()
+    return $aSTAT_MISSING_VALUES
+
+func @MissingValues()
+    return $aSTAT_MISSING_VALUES
+
+func DataSetTemplates()
+    aResult = $aEmptyInsightTemplates
+    
+    nLen = len($aNumericInsightTemplates)
+    for i = 1 to nLen
+        aResult + $aNumericInsightTemplates[i]
+    next
+    
+    nLen = len($aCategoricalInsightTemplates)
+    for i = 1 to nLen
+        aResult + $aCategoricalInsightTemplates[i]
+    next
+    
+    nLen = len($aMixedInsightTemplates)
+    for i = 1 to nLen
+        aResult + $aMixedInsightTemplates[i]
+    next
+    
+    return aResult
+
+func DataSetTemplatesXT(cType)
+    if CheckParams() and NOT isString(cType)
+        SteRaise("Incorrect param type! cType must be a string.")
+    ok
+    
+    switch cType
+    on "empty"
+        return $aEmptyInsightTemplates
+    on "numeric"
+        return $aNumericInsightTemplates
+    on "categorical"
+        return $aCategoricalInsightTemplates
+    on "mixed"
+        return $aMixedInsightTemplates
+    other
+        return []
+    off
 
 
 func StzDataSetQ(paData)
@@ -194,41 +282,6 @@ func CompareDatasets(paData1, paData2)
 	oStats2 = new stzDataSet(paData2)
 	return oStats1.CompareWith(oStats2)
 
-func MissingValues()
-    return $aSTAT_MISSING_VALUES
-
-	func @MissingValues()
-		return $aSTAT_MISSING_VALUES
-
-func DataSetTemplates()
-	return Flatten([
-		$aEmptyInsightTemplates,
-		$aNumericInsightTemplates,
-		$aCategoricalInsightTemplates,
-		$aMixedInsightTemplates
-	])
-
-func DataSetTemplatesXT(cType)
-	if CheckParams() and NOT isString(cType)
-		SteRaise("Incorrect param type! cType must be a string.")
-	ok
-
-	switch cType
-	on "empty"
-		return $aEmptyInsightTemplates
-
-	on "numeric"
-		return $aNumericInsightTemplates
-
-	on "categorical"
-		return $aCategoricalInsightTemplates
-
-	on "mixed"
-		return $aMixedInsightTemplates
-
-	other
-		return []
-	off
 
 
 class stzDataSet
@@ -2109,249 +2162,371 @@ class stzDataSet
 		def Issues()
 			return This.ValidateData()
 
+
+    #============================#
+    #  INSIGHT GENERATION SYSTEM  #
+    #============================#
+
+    def _GenerateInsights()
+        aTemplates = DataSetTemplates()
+        nLen = len(aTemplates)
+        acInsights = []
+        
+        for i = 1 to nLen
+            if This._EvaluateCondition(aTemplates[i][:condition])
+                acInsights + This._InterpolateTemplate(aTemplates[i][:template])
+            ok
+        next
+        
+        return acInsights
+
+    def _GenerateInsightXT(cType)
+        aTemplates = DataSetTemplatesXT(cType)
+        nLen = len(aTemplates)
+        acInsights = []
+        
+        for i = 1 to nLen
+            if This._EvaluateCondition(aTemplates[i][:condition])
+                acInsights + This._InterpolateTemplate(aTemplates[i][:template])
+            ok
+        next
+        
+        return acInsights
+
+    def Insights()
+        return This._GenerateInsights()
+
+        def StatInsights()
+            return This._GenerateInsights()
+
+        def StatsInsights()
+            return This._GenerateInsights()
+
+        def NativeInsights()
+            return This._GenerateInsights()
+
+    def InsightsXT()
+        acResults = This.Insights()
+        
+        nLen = len($aDomainInsightRules)
+        
+        for i = 1 to nLen
+            cDomain = $aDomainInsightRules[i][1]
+            aDomain = $aDomainInsightRules[i][2]
+            nLenDomain = len(aDomain)
+            
+            for j = 1 to nLenDomain
+                if This._EvaluateCondition(aDomain[j][:condition])
+                    acResults + This._InterpolateTemplate(aDomain[j][:template])
+                ok
+            next
+        next
+        
+        return acResults
+
+    def InsightsOfDomain(cDomain)
+        acResults = []
+        
+        if HasKey($aDomainInsightRules, cDomain)
+            nLen = len($aDomainInsightRules[cDomain])
+            
+            for i = 1 to nLen
+                if This._EvaluateCondition($aDomainInsightRules[cDomain][i][:condition])
+                    acResults + This._InterpolateTemplate($aDomainInsightRules[cDomain][i][:template])
+                ok
+            next
+        ok
+        
+        return acResults
+
+
+    #===============================#
+    #  RECOMMENDATIONS SYSTEM       #
+    #===============================#
+
     def RecommendAnalysis()
-        # Suggest appropriate analysis methods based on data characteristics
-        acRecommendations = []
+        nLen = len($aRecommendations)
+        aResults = []
         
-        nCount = This.Count()
-        if nCount < 10
-            acRecommendations + "Small sample size - interpret results cautiously"
+        for i = 1 to nLen
+            aTemplate = $aRecommendations[i]
+            
+            if This._EvaluateCondition(aTemplate[:condition])
+                cRecommendation = This._InterpolateTemplate(aTemplate[:recommendation])
+                cAction = This._InterpolateTemplate(aTemplate[:action])
+                cNarration = This._InterpolateTemplate(aTemplate[:narration])
+                
+                aResults + [
+                    :recommendation = cRecommendation,
+                    :action = cAction,
+                    :narration = cNarration
+                ]
+            ok
+        next
+        
+        return aResults
+
+        def Recommendations()
+            return This.RecommendAnalysis()
+
+        def Advises()
+            return This.RecommendAnalysis()
+
+
+    #============================#
+    #  DYNAMIC REPORTING SYSTEM  #
+    #============================#
+
+    def Summary()
+        return This._GenerateReport($aSummaryTemplate)
+
+        def Report()
+            return This.Summary()
+
+    def SummaryXT()
+        return This._GenerateReport($aSummaryXTTemplate)
+
+        def ReportXT()
+            return This.SummaryXT()
+
+    def _GenerateReport(aTemplate)
+        cFormat = aTemplate[:format]
+        aSections = aTemplate[:sections]
+
+        cReport = ""
+        
+        for aSection in aSections
+            # Check for inheritance (first element is :inherit)
+            if len(aSection) >= 2 and aSection[1] = :inherit
+
+                # Handle inheritance
+                cInheritedTemplate = aSection[2]
+                eval("aInheritedSections = " + cInheritedTemplate + "[:sections]")
+           
+                for aInheritedSection in aInheritedSections
+                    cReport += This._ProcessSection(aInheritedSection, cFormat)
+                next
+
+            else
+                cReport += This._ProcessSection(aSection, cFormat)
+            ok
+        next
+        
+        return cReport
+
+    def _ProcessSection(aSection, cFormat)
+
+        cSectionContent = ""
+        
+        # Handle different section structures
+             
+        cKey = aSection[1][1]
+            
+        if cKey = :condition
+            if NOT This._EvaluateCondition(aSection[2][2])
+                return ""
+            ok
+        ok
+
+        if cKey = :title
+                cTitle = aSection[1][2]
+                
+                if cFormat = "text"
+                    cSectionContent += BoxifyRound(cTitle) + NL
+                but cFormat = "html"
+                    cSectionContent += "<h2>" + cTitle + "</h2>" + NL
+                but cFormat = "json"
+                    cSectionContent += '"' + cTitle + '": '
+                ok
+        ok
+
+        vContent = aSection[2][2]
+                
+        if isString(vContent)
+                    cContent = This._InterpolateContent(vContent)
+                    
+                    if cFormat = "text"
+                        cSectionContent += cContent + NL
+                    but cFormat = "html"
+                        cSectionContent += "<p>" + cContent + "</p>" + NL
+                    but cFormat = "json"
+                        cSectionContent += '"' + cContent + '"' + NL
+                    ok
+                    
+         but isList(vContent)
+                    if cFormat = "text"
+                        for cItem in vContent
+                            cSectionContent += "• " + This._InterpolateContent(cItem) + NL
+                        next
+                        
+                    but cFormat = "html"
+                        cSectionContent += "<ul>" + NL
+                        for cItem in vContent
+                            cSectionContent += "<li>" + This._InterpolateContent(cItem) + "</li>" + NL
+                        next
+                        cSectionContent += "</ul>" + NL
+                        
+                    but cFormat = "json"
+                        cSectionContent += "["
+                        for cItem in vContent
+                            cSectionContent += '"' + This._InterpolateContent(cItem) + '",'
+                        next
+                        if len(vContent) > 0
+                            cSectionContent = left(cSectionContent, len(cSectionContent) - 1)
+                        ok
+                        cSectionContent += "]" + NL
+                    ok
+          ok
+
+          return cSectionContent
+
+
+    #===============================#
+    #  CORE INTERPOLATION METHODS   #
+    #===============================#
+
+    def _EvaluateCondition(cCondition)
+        if cCondition = "" or cCondition = "nothing"
+            return TRUE
         ok
         
-        if @cDataType = "numeric"
+        try
+            cCode = 'bResult = (' + cCondition + ')'
+            eval(cCode)
+            return bResult
+        catch
+            return FALSE
+        done
 
-            nSkew = This.Skewness()
-            if abs(nSkew) > 1
-                acRecommendations + "Data is skewed - consider using median instead of mean"
-            ok
-            
-            aOutliers = This.Outliers()
-            if len(aOutliers) > 0
-                acRecommendations + "Outliers detected - consider robust statistics"
-            ok
-            
-            if This.CoefficientOfVariation() > 50
-                acRecommendations + "High variability - segment analysis recommended"
-            ok
+    def _InterpolateTemplate(cTemplate)
+        return This._InterpolateContent(cTemplate)
 
+    def _InterpolateContent(cContent)
+        if NOT isString(cContent)
+            return cContent
+        ok
+        
+        oTempStr = new stzString(cContent)
+        
+        # Handle special cases first
+        if oTempStr.Contains("{Insights()}")
+            acInsights = This.Insights()
+            cInsightText = ""
+            for cInsight in acInsights
+                cInsightText += "• " + cInsight + NL
+            next
+            oTempStr.Replace("{Insights()}", cInsightText)
+        ok
+        
+        if oTempStr.Contains("{Recommendations()}")
+            aRecommendations = This.Recommendations()
+            cRecommendText = ""
+            for aRecommend in aRecommendations
+                cRecommendText += "• " + aRecommend[:recommendation] + NL
+                cRecommendText += "  Action: " + aRecommend[:action] + NL
+                cRecommendText += "  Note: " + aRecommend[:narration] + NL + NL
+            next
+            oTempStr.Replace("{Recommendations()}", cRecommendText)
+        ok
+        
+        # Find all remaining method calls
+        aSections = oTempStr.FindSubStringsBoundedByZZ(["{", "}"])
+        
+        if len(aSections) = 0
+            return oTempStr.Content()
+        ok
+        
+        acMethods = oTempStr.Sections(aSections)
+        aValues = []
+        
+        for i = 1 to len(acMethods)
+            try
+                cCode = 'value = This.' + acMethods[i]
+                eval(cCode)
+                aValues + This._FormatValue(value)
+            catch
+                aValues + "{" + acMethods[i] + "}"
+            done
+        next
+        
+        # Adjust section positions for replacement
+        for i = 1 to len(aSections)
+            aSections[i][1]--
+            aSections[i][2]++
+        next
+        
+        oTempStr.ReplaceSectionsByMany(aSections, aValues)
+        
+        return oTempStr.Content()
+
+    def _FormatValue(value)
+        if isNumber(value)
+            if value = floor(value)
+                return "" + value
+            else
+                return sprintf("%.2f", value)
+            ok
+        but isString(value)
+            return value
+        but isList(value)
+            cResult = "["
+            for i = 1 to len(value)
+                cResult += This._FormatValue(value[i])
+                if i < len(value)
+                    cResult += ", "
+                ok
+            next
+            cResult += "]"
+            return cResult
         else
-            if This.Diversity() < 0.3
-                acRecommendations + "Low diversity - focus on dominant categories"
-            ok
-            
-            if This.UniqueCount() = This.Count()
-                acRecommendations + "All values unique - consider grouping or classification"
-            ok
+            return "" + value
         ok
-        
-        if len(acRecommendations) = 0
-            acRecommendations + "Standard statistical analysis appropriate"
+
+
+    #===============================#
+    #  RULE MANAGEMENT METHODS      #
+    #===============================#
+
+    def AddInsightRule(cDomain, cCondition, cInsight)
+        if NOT HasKey($aDomainInsightRules, cDomain)
+            $aDomainInsightRules[cDomain] = []
         ok
-        
-        return acRecommendations
-
-		#< @AlternativeFunctionForms
-
-		def Recommendations()
-			return This.RecommendAnalysis()
-
-		def Advises()
-			return This.RecommendAnalysis()
-
-		def Advizes()
-			return This.RecommendAnalysis()
-
-		def Recommend()
-			return This.RecommendAnalysis()
-
-		def Advize()
-			return This.RecommendAnalysis()
-
-		#>
-
-    #===============================================#
-    #  STATISTICS NATIVE INSIGHT GENERATION SYSTEM  #
-    #===============================================#
-
-	def _GenerateInsightXT(cType) # numeric, categorical, mixed, empty
-
-		aTemplates = DataSetTemplatesXT(cType)
-		nLen = len(aTemplates)
-
-		acInsights = []
-
-		for i = 1 to nLen
-	        if This._EvaluateCondition(aTemplates[:condition])
-	            acInsights + This._Interpolate(aTemplates[:template])
-	        ok
-	    next
-
-	    return acInsights
-
-
-
-    def Insights() # Native statistic-insights
-        # Return insights as clean list of sentences
-        return This.GenerateInsight()
- 
-		def StatInsights()
-			 return This.GenerateInsight()
-
-		def StatsInsights()
-			 return This.GenerateInsight()
-
-		def NativeInsights()
-			 return This.GenerateInsight()
-
-	def InsightsXT() # stats and other domains insights
-
-		acResults = This.Insights()
-
-		nLen = len($aDomainInsightRules)
-
-		for i = 1 to nLen
-
-			cDomain = $aDomainInsightRules[i][1]
-			aDomain = $aDomainInsightRules[i][2]
-			nLenDomain = len(aDomain)
-
-			for j = 1 to nLenDomain
-				if This._EvaluateCondition(aDomain[j][1])
-					acResults + (Capitalize(Adverb(cDomain)) + ", " + This._EvaluateRule(aDomain[j][2]) )
-
-					#WARNING #TODO // Adverb() funtion belong to MAX layer, so we don't have the right to
-					# call it here in BASIC layer ~~> Move STATS module to the MAX layer!
-
-				ok
-			next
-
-		next
-
-	    return acResults
-
-		def StatAndDomainInsights()
-			 return This.InsightsXT()
-
-		def StatsAndDomainsInsights()
-			 return This.InsightsXT()
-
-		def NativeAndDomainInsights()
-			 return This.InsightsXT()
-		
-	def InsightsOfDomain(cDomain)
-
-	    acResults = []
-
-	    if HasKey($aDomainInsightRules, cDomain)
-
-			nLen = len($aDomainInsightRules[cDomain])
-
-			for i = 1 to nLen
-	            if This._EvaluateCondition($aDomainInsightRules[cDomain][i][1])
-	                acResults + _EvaluateRule($aDomainInsightRules[cDomain][i][2])
-	            ok
-	        next
-
-	    ok
-
-	    return acResults
-
-		def InsightsForDomain(cDomain)
-			return This.InsightsOfDomain(cDomain)
-
-
-    #====================================================================#
-    #  DOMAIN-SPECIFIC, RULE-BASED, WEIGTENED INSIGHT GENERATION SYSTEM  #
-    #====================================================================#
-    
-	def AddInsightRule(cDomain, cCondition, cInsight)
-	    if NOT HasKey($aDomainInsightRules, cDomain)
-	        $aDomainInsightRules[cDomain] = []
-	    ok
-	    $aDomainInsightRules[cDomain] + [cCondition, cInsight]
+        $aDomainInsightRules[cDomain] + [:condition = cCondition, :template = cInsight]
 
     def AddRule(cDomain, cCondition, cInsight)
         This.AddInsightRule(cDomain, cCondition, cInsight)
 
-	def _EvaluateCondition(cCondition)
-	    # Replace method calls with actual values before eval
+    def AddWeightedRule(cDomain, cCondition, cInsight, nWeight)
+        if nWeight = NULL nWeight = 1 ok
+        if NOT HasKey($aDomainInsightRules, cDomain)
+            $aDomainInsightRules[cDomain] = []
+        ok
+        $aDomainInsightRules[cDomain] + [:condition = cCondition, :template = cInsight, :weight = nWeight]
 
-
-		cCode = 'bResult = ' + cCondition
-		eval(cCode)
-
-		return bResult       
-
-	def _Interpolate(cInsight)
-		# Transforms a dynamic insight string like this:
-		# "High mean ({Mean()}) for investment."
-		# to a concrete final string like this
-		# "High mean (10) for investment."	
-
-		oTempStr = new stzString(cInsight)
-		aSections = oTempStr.FindSubStringsBoundedByZZ([ "{", "}" ])
-		acMethods = oTempStr.Sections(aSections)
-		nLen = len(aSections)
-		
-		aValues = []
-		for i = 1 to nLen
-			cCode = 'value = ' + acMethods[i]
-			eval(cCode)
-			aValues + Stringify(value)
-		next
-
-		for i = 1 to nLen
-			aSections[i][1]--
-			aSections[i][2]++
-		next
-
-		oTempStr.ReplaceSectionsByMany(aSections, aValues)
-		
-		cResult = oTempStr.Content()
-
-		return cResult
-
-	def AddWeightedRule(cDomain, cCondition, cInsight, nWeight)
-	    if nWeight = NULL nWeight = 1 ok
-	    if NOT HasKey($aDomainInsightRules, cDomain)
-	        $aDomainInsightRules[cDomain] = []
-	    ok
-
-	    # Don't interpolate here - do it when evaluating
-	    $aDomainInsightRules[cDomain] + [cCondition, cInsight, nWeight]
-	
-	def PrioritizedInsights(cDomain)
-	    aResults = []
-	
-	    if HasKey($aDomainInsightRules, cDomain)
-	        aRules = $aDomainInsightRules[cDomain]
-			nLen = len(aRules)	
-
-	        for i = 1 to nLen
-	            aRule = aRules[i]  # Get the rule array
-	            cCondition = aRule[1]  # Get condition
-	            
-	            if This._EvaluateCondition(cCondition)
-    				cInsight = This._Interpolate(aRule[2])
-    				nWeight = 1
-	
-    				if len(aRule) > 2
-        				nWeight = aRule[3]
-    				ok
-
-    				aResults + [cInsight, nWeight]
-	            ok
-	        next
-	
-	        # Sort by weight descending  
-	        aResults = SortOnXT(2, aResults, :Descending)
-	    ok
-	    
-	    return aResults
-	
-	def _EvaluateRule(cInsight)
-	    # This method should interpolate dynamic content
-	    return This._Interpolate(cInsight)
+    def PrioritizedInsights(cDomain)
+        aResults = []
+        
+        if HasKey($aDomainInsightRules, cDomain)
+            aRules = $aDomainInsightRules[cDomain]
+            
+            for aRule in aRules
+                if This._EvaluateCondition(aRule[:condition])
+                    cInsight = This._InterpolateTemplate(aRule[:template])
+                    nWeight = 1
+                    
+                    if HasKey(aRule, :weight)
+                        nWeight = aRule[:weight]
+                    ok
+                    
+                    aResults + [cInsight, nWeight]
+                ok
+            next
+            
+            # Sort by weight descending
+            aResults = SortOnXT(2, aResults, :Descending)
+        ok
+        
+        return aResults
 
 
 	#=======================#
@@ -2433,58 +2608,6 @@ class stzDataSet
             return @anSortedData
         ok
         return @anData
-
-    def Summary()
-        # Comprehensive summary of the dataset
-        cSummary = BoxifyRound("Dataset Content") + NL
-		cSummary += @@(This.Content()) + NL + NL
-      
-        cSummary += BoxifyRound("Dataset Summary") + NL
-        cSummary += "• Type: " + @cDataType + NL
-        cSummary += "• Count: " + This.Count() + NL
-        
-        if @cDataType = "numeric"
-            cSummary += "• Mean: " + This.Mean() + NL
-            cSummary += "• Median: " + This.Median() + NL
-            cSummary += "• Standard Deviation: " + This.StandardDeviation() + NL
-            cSummary += "• Range: " + This.Range() + " (" + This.Min() + " to " + This.Max() + ")" + NL
-            
-            aQuartiles = This.Quartiles()
-            cSummary += "• Quartiles: Q1=" + aQuartiles[1] + ", Q2=" + aQuartiles[2] + ", Q3=" + aQuartiles[3] + NL
-            
-            aOutliers = This.Outliers()
-            if len(aOutliers) > 0
-                cSummary += "• Outliers: " + len(aOutliers) + " detected" + NL
-            ok
-
-        else
-            cSummary += "• Unique Values: " + This.UniqueCount() + NL
-            cSummary += "• Diversity: " + This.Diversity() * 100 + "%" + NL
-            cSummary += "• Most Common: " + This.Mode() + NL
-        ok
-        
-        cSummary += NL + BoxifyRound("Dataset Insights") + NL
-        aInsights = This.GenerateInsight()
-		nLen = len(aInsights)
-        for i = 1 to nLen
-            cSummary += "• " + aInsights[i] + NL
-        next
-        
-        return cSummary
-
-	def SummaryXT() # Adding recommendations
-
-		cResult = This.Summary() + NL +
-				  BoxifyRound("Recommendations") + NL
-
-		acRecommendations = This.Recommendations()
-		nLen = len(acRecommendations)
-
-		for i = 1 to nLen
-			cResult += "• " + acRecommendations[i] + NL
-		next
-
-		return cResult
 
 
     def Export()
