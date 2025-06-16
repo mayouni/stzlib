@@ -725,7 +725,7 @@ pf()
 
 /*--- Summary and Export Functions
 # Provides a formatted summary and structured export.
-*/
+
 pr()
 
 o1 = new stzDataSet([ 10, 20, 30, 40, 50 ])
@@ -759,36 +759,36 @@ o1 = new stzDataSet([ 10, 20, 30, 40, 50 ])
 ╭─────────────────╮
 │ Dataset Content │
 ╰─────────────────╯
-[ 10, 20, 30, 40, 50 ]
+[10, 20, 30, 40, 50]
 
 ╭─────────────────╮
 │ Dataset Summary │
 ╰─────────────────╯
 • Type: numeric
+
 • Count: 5
-• Mean: 30
-• Median: 30
-• Standard Deviation: 15.8114
-• Range: 40 (10 to 50)
-• Quartiles: Q1=20, Q2=30, Q3=40
 
 ╭──────────────────╮
 │ Dataset Insights │
 ╰──────────────────╯
-• The data is symmetrically distributed with mean 30 and median 30.
-• The data shows low variability with a coefficient of variation of 6.3246%, indicating consistent values.
-• Light-tailed distribution (kurtosis = -6.6400) indicates fewer extreme values
-• Small sample size (n = 5) limits statistical reliability
+• High variability (CV = 141.6539%) suggests heterogeneous data with significant spread.
+
+• Extreme kurtosis detected (-6.2609). Distribution has heavy tails and potential extreme values.
 
 ╭─────────────────╮
 │ Recommendations │
 ╰─────────────────╯
-• Small sample size - interpret results cautiously
-• High variability - segment analysis recommended
+• Small sample size (n=5) prone to outlier influence. Use non-parametric methods, bootstrap confidence intervals, TrimmedMean(), and interpret results cautiously.
+
+• Non-normal distribution violates test assumptions. Use non-parametric tests, percentile-based confidence intervals, or apply Normalize()/Standardize().
+
+• Extremely high variability (CV = 80.1488%) may indicate multiple populations. Consider subgroup analysis or use MovingAverage(5) to identify patterns.
+
+• Sequential data contains temporal patterns. Apply TrendAnalysis() and MovingAverage(5) to smooth fluctuations and identify trends.
 '
 
 pf()
-# Executed in 0.0510 second(s) in Ring 1.22
+# Executed in 0.1280 second(s) in Ring 1.22
 
 #======================================================================#
 #  Edge Cases and Validation                                           #
@@ -879,23 +879,23 @@ pf()
 #======================================================================#
 
 # Demonstrates a comprehensive analysis using multiple pillars.
-*/
+
 pr()
 
-// Setting up sales data for 10 months and their corresponding month numbers
+# Setting up sales data for 10 months and their corresponding month numbers
 oSales = new stzDataSet([ 100, 120, 140, 160, 180, 200, 220, 240, 260, 280 ])  // Sales figures from month 1 to 10
 oMonth = new stzDataSet([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])                     // Months numbered 1 to 10
 
-// Showing the average sales across all months
+# Showing the average sales across all months
 ? oSales.Mean()           			#--> 190  // Average sales is 190 units
 
-// Showing the average after removing 20% of extreme values (highs and lows)
+" Showing the average after removing 20% of extreme values (highs and lows)
 ? oSales.TrimmedMean(20)  			#--> 190  // Still 190, meaning no big outliers affect the average
 
-// Showing how much sales vary from the average (higher number = more variation)
+# Showing how much sales vary from the average (higher number = more variation)
 ? oSales.StandardDeviation() + NL 	#--> 60.5530  // Sales fluctuate by about 60.55 units
 
-// Summarizing sales spread (like a snapshot of how sales are distributed)
+" Summarizing sales spread (like a snapshot of how sales are distributed)
 ? @@NL( oSales.BoxPlotStats() ) + NL
 #--> [
 #	[ "min", 100 ],         // Lowest sales: 100 units
@@ -908,7 +908,7 @@ oMonth = new stzDataSet([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])                     /
 #	[ "iqr", 90 ]           // Middle 50% of sales range from 145 to 235 (spread of 90 units)
 # ]
 
-// Showing the sales trend over months (how sales change with time)
+# Showing the sales trend over months (how sales change with time)
 ? @@NL( oMonth.RegressionCoefficients(oSales) ) + NL
 #--> [
 #	[ "slope", 20 ],        // Sales grow by 20 units each month
@@ -916,7 +916,7 @@ oMonth = new stzDataSet([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])                     /
 #	[ "r_squared", 1 ]      // Perfect fit: sales follow this trend exactly
 # ]
 
-// Checking if sales follow a normal (bell-shaped) pattern
+# Checking if sales follow a normal (bell-shaped) pattern
 ? @@NL( oSales.NormalityTest() )
 #--> [
 #	[ "test", "heuristic" ],  // Method used to test the pattern
@@ -926,32 +926,637 @@ oMonth = new stzDataSet([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])                     /
 #	[ "is_normal", 0 ]        // Result: 0 means sales don’t follow a normal pattern
 # ]
 
-# NARRATION OF THE ANALYSIS (#TODO Automate it!)
-/*
-What This Means for Your Business
-
-Sales Overview: Your sales start at 100 units and grow steadily
-to 280 over 10 months, averaging 190 units per month.
-
-Consistency: The trimmed mean matching the average (190) shows
-no extreme highs or lows skewing your results. The standard
-deviation (60.55) indicates moderate month-to-month variation.
-
-Distribution: Most sales fall between 145 and 235 units,
-with the middle point at 190, giving you a clear picture
-of typical performance.
-
-Growth Trend: Sales increase by exactly 20 units each month,
-starting from a baseline of 80, and this pattern is
-perfectly consistent.
-
-Pattern Check: The data doesn’t fit a normal (bell-shaped) curve,
-which might matter if you’re using certain statistical tools,
-but the steady growth is the key takeaway here.
-
-This analysis shows a strong, predictable sales increase each
-month with no surprises, which is great for planning!
-*/
-
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
+
+#=========================================#
+#  TESTING THE ANALYTICS WORKFLOW SYSTEM  #
+#=========================================#
+
+/*--- EXAMPLE 1: Basic Data Exploration
+*/
+pr()
+
+# Sample sales data
+aSalesData = [120, 150, 89, 200, 175, 95, 180, 210, 165, 145, 190, 88, 220, 155, 170]
+
+oSales = new stzDataSet(aSalesData)
+
+# Simple workflow generation
+oWorkflow = oSales.GenerateWorkflow(:Understand)
+? oWorkflow[:name]          # "Exploratory Data Analysis"
+? oWorkflow[:total_steps]   # 9 (filtered based on data type)
+
+# Preview workflow without execution
+? oSales.WorkflowSummary(:Understand) + NL
+# Output:
+# 📋 Workflow: Exploratory Data Analysis
+# 🎯 Goal: Comprehensive data exploration and understanding
+# ⏱️  Estimated time: 1.4 seconds
+# 📊 Steps (9):
+# 
+#   1. Check data quality
+#   2. Identify data type
+#   3. Get sample size
+#   4. Central tendency
+#   5. Robust center
+#   6. Variability
+#   7. Distribution shape
+#   8. Asymmetry check
+#   9. Outlier detection
+
+# Full workflow execution
+//oResults = oSales.ExecuteWorkflow("EDA", TRUE)
+# Output:
+# 🔄 Executing Workflow: Exploratory Data Analysis
+# 📋 Description: Comprehensive data exploration and understanding
+# 📊 Steps: 9
+# 
+# Step 1/9: Check data quality
+#    ✅ ValidateData: completed
+# Step 2/9: Identify data type  
+#    ✅ Data type: numeric
+# Step 3/9: Get sample size
+#    ✅ Sample size: 15
+# Step 4/9: Central tendency
+#    ✅ Mean: 153.13
+# Step 5/9: Robust center
+#    ✅ Median: 155.00
+# Step 6/9: Variability
+#    ✅ Std Dev: 38.42
+# Step 7/9: Distribution shape
+#    ✅ Quartiles: 4 values
+# Step 8/9: Asymmetry check
+#    ✅ Skewness: -0.23
+# Step 9/9: Outlier detection
+#    ✅ Outliers present: FALSE
+# 
+# 🎯 Workflow completed: 9 successful steps, 0 errors
+
+pf()
+
+/*--- EXAMPLE 2: Quality Control Analysis
+# ==================================
+
+# Manufacturing process data (with some issues)
+aProcessData = [98.2, 99.1, 97.8, 101.5, 98.9, 99.3, 98.7, 110.2, 99.0, 98.5, 
+                99.4, 97.9, 98.8, 99.2, 98.6, 85.1, 99.1, 98.4, 99.7, 98.3]
+
+oProcess = new stzDataSet(aProcessData)
+
+# Quality control workflow
+oQCResults = oProcess.ExecuteWorkflow("quality control", TRUE)
+# This will automatically:
+# 1. Validate data integrity
+# 2. Calculate process center (mean)  
+# 3. Measure process variation (std dev)
+# 4. Assess consistency (CV)
+# 5. Detect anomalies (outliers)
+# 6. List out-of-control points
+# 7. Check process drift
+
+# Access specific results
+for aResult in oQCResults[:results]
+    if aResult[:function] = "CoefficientOfVariation"
+        if aResult[:result] > 5
+            ? "⚠️  High process variability detected: " + aResult[:result] + "%"
+        ok
+    ok
+    
+    if aResult[:function] = "ContainsOutliers" and aResult[:result] = TRUE
+        ? "🚨 Quality control alert: Outliers detected in process"
+    ok
+next
+
+
+/*--- EXAMPLE 3: Correlation Analysis Between Variables
+# ================================================
+
+# Temperature and ice cream sales data
+aTemperature = [72, 75, 80, 85, 90, 68, 78, 82, 88, 95, 70, 77, 83, 87, 92]
+aSales = [120, 145, 180, 220, 280, 95, 160, 200, 250, 320, 110, 155, 205, 240, 300]
+
+oTemp = new stzDataSet(aTemperature)
+oSalesTemp = new stzDataSet(aSales)
+
+# Correlation workflow (automatically chooses Pearson vs Spearman)
+oCorrelation = oTemp.ExecuteWorkflow("find relationships", FALSE)
+
+# Manual correlation with second dataset
+nCorr = oTemp.CorrelationWith(oSalesTemp)
+? "Temperature-Sales Correlation: " + @@(nCorr)  # Strong positive correlation expected
+
+
+/*--- EXAMPLE 4: Outlier Investigation
+# ================================
+
+# Customer satisfaction scores (with some extreme values)
+aSatisfaction = [8.2, 7.9, 8.5, 8.1, 7.8, 8.3, 8.0, 2.1, 8.4, 7.7, 
+                 8.6, 8.2, 7.9, 9.8, 8.1, 8.3, 7.8, 8.5, 8.0, 7.9]
+
+oSatisfaction = new stzDataSet(aSatisfaction)
+
+# Comprehensive outlier analysis
+oOutlierResults = oSatisfaction.ExecuteWorkflow("detect outliers", TRUE)
+
+# Extract actionable insights
+for aResult in oOutlierResults[:results]
+    if aResult[:function] = "Outliers"
+        ? "🎯 Outlier values requiring investigation: " + This._FormatList(aResult[:result])
+    ok
+    
+    if aResult[:function] = "TrimmedMean"
+        ? "📊 Robust average (outliers removed): " + @@(aResult[:result])
+    ok
+next
+
+
+/*--- EXAMPLE 5: Custom Workflow Creation
+# ===================================
+
+# Create a specialized financial analysis workflow
+aFinancialSteps = [
+    [ :function = "Mean", :required = TRUE, :description = "Average return" ],
+    [ :function = "StandardDeviation", :required = TRUE, :description = "Volatility measure" ],
+    [ :function = "CoefficientOfVariation", :required = TRUE, :description = "Risk-return ratio" ],
+    [ :function = "Skewness", :required = TRUE, :description = "Return asymmetry" ],
+    [ :condition = "Skewness() > 0", :function = "Percentile", :args = [5], :description = "Downside risk (5th percentile)" ],
+    [ :function = "ContainsOutliers", :required = TRUE, :description = "Extreme market events" ],
+    [ :condition = "ContainsOutliers()", :function = "Outliers", :description = "Crisis periods identification" ]
+]
+
+# Stock return data
+aReturns = [0.05, 0.02, -0.01, 0.08, -0.15, 0.03, 0.07, -0.02, 0.12, -0.08, 
+            0.04, 0.01, -0.03, 0.09, -0.20, 0.06, 0.02, -0.01, 0.11, -0.04]
+
+oReturns = new stzDataSet(aReturns)
+
+# Register custom workflow
+cCustomKey = oReturns.CreateCustomWorkflow("Financial Risk Analysis", 
+                                          "Comprehensive financial risk assessment", 
+                                          aFinancialSteps)
+
+# Execute custom workflow
+oFinancialResults = oReturns.ExecuteWorkflow(cCustomKey, TRUE)
+
+
+/*--- EXAMPLE 6: Trend Analysis for Time Series
+# =========================================
+
+# Monthly website visitors
+aVisitors = [1200, 1350, 1180, 1420, 1580, 1750, 1650, 1820, 1920, 1780, 2100, 2350]
+
+oVisitors = new stzDataSet(aVisitors)
+
+# Trend analysis workflow
+oTrendResults = oVisitors.ExecuteWorkflow("analyze trends", TRUE)
+
+# Extract trend insights
+for aResult in oTrendResults[:results]
+    if aResult[:function] = "TrendAnalysis"
+        ? "📈 Overall trend direction: " + aResult[:result]
+    ok
+    
+    if aResult[:function] = "MovingAverage"
+        ? "📊 Smoothed trend line available for visualization"
+    ok
+next
+
+
+/*--- EXAMPLE 7: Comparative Analysis Workflow
+# =======================================
+
+# Before/After performance data
+aBefore = [78, 82, 75, 80, 77, 83, 79, 81, 76, 84]
+aAfter = [85, 88, 84, 87, 89, 91, 86, 90, 87, 93]
+
+oBefore = new stzDataSet(aBefore)
+oAfter = new stzDataSet(aAfter)
+
+# Run EDA on both datasets
+oBeforeAnalysis = oBefore.ExecuteWorkflow("EDA", FALSE)
+oAfterAnalysis = oAfter.ExecuteWorkflow("EDA", FALSE)
+
+# Compare key metrics
+? "=== Performance Comparison ==="
+? "Before - Mean: " + @@(oBefore.Mean()) + ", Std: " + @@(oBefore.StandardDeviation())
+? "After  - Mean: " + @@(oAfter.Mean()) + ", Std: " + @@(oAfter.StandardDeviation())
+
+nImprovement = ((oAfter.Mean() - oBefore.Mean()) / oBefore.Mean()) * 100
+? "Improvement: " + @@(nImprovement) + "%"
+
+
+/*--- EXAMPLE 8: Smart Workflow Selection
+# ===================================
+
+# Function to automatically suggest best workflow based on data characteristics
+func SuggestWorkflow(paData)
+    oData = new stzDataSet(paData)
+    
+    cDataType = oData.DataType()
+    nCount = oData.Count()
+    bHasOutliers = oData.ContainsOutliers()
+    
+    if nCount < 10
+        return "EDA"  # Basic exploration for small samples
+    ok
+    
+    if bHasOutliers
+        return "OUTLIERS"  # Focus on outlier analysis
+    ok
+    
+    if cDataType = "numeric" and nCount >= 20
+        nCV = oData.CoefficientOfVariation()
+        if nCV > 30
+            return "QC"  # Quality control for high variability
+        else
+            return "NORMALITY"  # Test distribution assumptions
+        ok
+    ok
+    
+    return "EDA"  # Default fallback
+
+# Test with different datasets
+aNormalData = [98, 99, 100, 101, 99, 98, 100, 99, 101, 98]
+aSkewedData = [10, 11, 12, 11, 10, 45, 12, 11, 10, 11, 9, 12]
+aHighVarData = [50, 150, 75, 200, 25, 175, 100, 225, 60, 180]
+
+? "Normal data → " + SuggestWorkflow(aNormalData)     # "NORMALITY"
+? "Skewed data → " + SuggestWorkflow(aSkewedData)     # "OUTLIERS"  
+? "High variance → " + SuggestWorkflow(aHighVarData)  # "QC"
+
+
+/*--- EXAMPLE 9: Workflow Chaining (COMPLETED)
+# ============================
+
+# Execute multiple workflows in sequence
+func ChainWorkflows(paData, paWorkflowNames)
+    oData = new stzDataSet(paData)
+    aAllResults = []
+    
+    for cWorkflow in paWorkflowNames
+        ? "🔗 Executing: " + cWorkflow
+        oResult = oData.ExecuteWorkflow(cWorkflow, FALSE)
+        aAllResults + oResult
+    next
+    
+    return aAllResults
+
+/*--- EXAMPLE usage - comprehensive data analysis pipeline
+aProductionData = [95.2, 96.1, 94.8, 97.3, 95.9, 96.5, 95.1, 98.2, 96.0, 95.7,
+                   96.8, 94.9, 95.6, 96.3, 95.4, 99.1, 96.2, 95.8, 96.7, 95.3]
+
+aWorkflowChain = ["EDA", "QC", "OUTLIERS", "NORMALITY"]
+aChainedResults = ChainWorkflows(aProductionData, aWorkflowChain)
+
+? "📊 Pipeline completed: " + len(aChainedResults) + " workflows executed"
+
+
+/*--- EXAMPLE 10: Conditional Workflow Execution
+# ==========================================
+
+# Smart workflow that adapts based on intermediate results
+func AdaptiveAnalysis(paData)
+    oData = new stzDataSet(paData)
+    
+    # Start with basic exploration
+    oEDA = oData.ExecuteWorkflow("EDA", FALSE)
+    
+    # Extract key findings
+    nMean = oData.Mean()
+    nStdDev = oData.StandardDeviation()
+    nCV = oData.CoefficientOfVariation()
+    
+    # Conditional branching based on initial results
+    if nCV > 25
+        ? "⚠️  High variability detected, running quality control analysis..."
+        oQC = oData.ExecuteWorkflow("QC", TRUE)
+    ok
+    
+    if oData.ContainsOutliers()
+        ? "🔍 Outliers found, performing detailed outlier analysis..."
+        oOutliers = oData.ExecuteWorkflow("OUTLIERS", TRUE)
+    ok
+    
+    if oData.Count() >= 30
+        ? "📈 Sufficient sample size, testing normality assumptions..."
+        oNormality = oData.ExecuteWorkflow("NORMALITY", TRUE)
+    ok
+    
+    return TRUE
+
+# Test dataset with various characteristics
+aMixedData = [100, 98, 102, 99, 101, 97, 103, 95, 105, 99, 
+              98, 101, 96, 104, 100, 180, 99, 102, 98, 101,
+              97, 103, 100, 99, 102, 98, 101, 97, 104, 100]
+
+AdaptiveAnalysis(aMixedData)
+
+
+/*--- EXAMPLE 11: Batch Processing Multiple Datasets
+# ==============================================
+
+# Process multiple related datasets with consistent workflows
+func BatchAnalysis(paDatasets, cWorkflowType)
+    aBatchResults = []
+    nDatasetNum = 1
+    
+    for aDataset in paDatasets
+        ? "📋 Processing Dataset " + nDatasetNum + "..."
+        
+        oData = new stzDataSet(aDataset)
+        oResult = oData.ExecuteWorkflow(cWorkflowType, FALSE)
+        
+        # Store results with dataset identifier
+        oResult[:dataset_id] = nDatasetNum
+        aBatchResults + oResult
+        
+        nDatasetNum++
+    next
+    
+    return aBatchResults
+
+/*--- EXAMPLE: Analyze multiple product lines
+aProductA = [85, 87, 86, 88, 85, 89, 87, 86, 88, 87]
+aProductB = [92, 94, 91, 95, 93, 90, 94, 92, 96, 93]
+aProductC = [78, 80, 77, 82, 79, 76, 81, 78, 83, 80]
+
+aAllProducts = [aProductA, aProductB, aProductC]
+aBatchResults = BatchAnalysis(aAllProducts, "EDA")
+
+? "📊 Batch analysis completed for " + len(aAllProducts) + " product lines"
+
+
+/*--- EXAMPLE 12: Workflow Performance Monitoring
+# ===========================================
+
+# Monitor and log workflow execution times and success rates
+class stzWorkflowMonitor
+    aExecutionLog = []
+    
+    func LogExecution(cWorkflowName, nStartTime, nEndTime, bSuccess, cError)
+        aLogEntry = [
+            :workflow = cWorkflowName,
+            :start_time = nStartTime,
+            :end_time = nEndTime,
+            :duration = nEndTime - nStartTime,
+            :success = bSuccess,
+            :error = cError,
+            :timestamp = Date()
+        ]
+        
+        This.aExecutionLog + aLogEntry
+        
+    func GetPerformanceStats(cWorkflowName)
+        aFilteredLogs = []
+        for aEntry in This.aExecutionLog
+            if aEntry[:workflow] = cWorkflowName
+                aFilteredLogs + aEntry
+            ok
+        next
+        
+        if len(aFilteredLogs) = 0
+            return "No execution data for " + cWorkflowName
+        ok
+        
+        nTotal = len(aFilteredLogs)
+        nSuccessful = 0
+        nTotalDuration = 0
+        
+        for aEntry in aFilteredLogs
+            if aEntry[:success]
+                nSuccessful++
+            ok
+            nTotalDuration += aEntry[:duration]
+        next
+        
+        nSuccessRate = (nSuccessful / nTotal) * 100
+        nAvgDuration = nTotalDuration / nTotal
+        
+        return [
+            :total_executions = nTotal,
+            :success_rate = nSuccessRate,
+            :average_duration = nAvgDuration
+        ]
+
+# Usage example
+oMonitor = new stzWorkflowMonitor()
+
+func MonitoredWorkflow(paData, cWorkflowType)
+    nStart = clock()
+    
+    try
+        oData = new stzDataSet(paData)
+        oResult = oData.ExecuteWorkflow(cWorkflowType, FALSE)
+        nEnd = clock()
+        oMonitor.LogExecution(cWorkflowType, nStart, nEnd, TRUE, "")
+        return oResult
+    catch cError
+        nEnd = clock()
+        oMonitor.LogExecution(cWorkflowType, nStart, nEnd, FALSE, cError)
+        ? "❌ Workflow failed: " + cError
+        return NULL
+    done
+
+# Test monitoring
+aTestData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+MonitoredWorkflow(aTestData, "EDA")
+MonitoredWorkflow(aTestData, "OUTLIERS")
+
+? oMonitor.GetPerformanceStats("EDA")
+
+
+/*--- EXAMPLE 13: Dynamic Workflow Generation
+# =======================================
+
+# Generate workflows based on data characteristics and user goals
+func GenerateDynamicWorkflow(paData, cUserGoal, cDataContext)
+    oData = new stzDataSet(paData)
+    aCustomSteps = []
+    
+    # Base steps for all workflows
+    aCustomSteps + [ :function = "ValidateData", :required = TRUE, :description = "Data integrity check" ]
+    aCustomSteps + [ :function = "Count", :required = TRUE, :description = "Sample size" ]
+    
+    # Goal-specific steps
+    switch cUserGoal
+    case "process_improvement"
+        aCustomSteps + [ :function = "Mean", :required = TRUE, :description = "Process center" ]
+        aCustomSteps + [ :function = "StandardDeviation", :required = TRUE, :description = "Process variation" ]
+        aCustomSteps + [ :function = "CoefficientOfVariation", :required = TRUE, :description = "Relative variation" ]
+        aCustomSteps + [ :condition = "CoefficientOfVariation() > 15", :function = "ControlCharts", :description = "Process control analysis" ]
+        
+    case "financial_analysis"
+        aCustomSteps + [ :function = "Mean", :required = TRUE, :description = "Expected return" ]
+        aCustomSteps + [ :function = "StandardDeviation", :required = TRUE, :description = "Volatility" ]
+        aCustomSteps + [ :function = "Skewness", :required = TRUE, :description = "Return distribution shape" ]
+        aCustomSteps + [ :function = "Percentile", :args = [5], :required = TRUE, :description = "Value at Risk (5%)" ]
+        
+    case "quality_assessment"
+        aCustomSteps + [ :function = "Median", :required = TRUE, :description = "Robust center" ]
+        aCustomSteps + [ :function = "IQR", :required = TRUE, :description = "Middle 50% spread" ]
+        aCustomSteps + [ :function = "ContainsOutliers", :required = TRUE, :description = "Quality issues detection" ]
+        aCustomSteps + [ :condition = "ContainsOutliers()", :function = "Outliers", :description = "Problem identification" ]
+    off
+    
+    # Context-specific additions
+    if cDataContext = "manufacturing"
+        aCustomSteps + [ :function = "ProcessCapability", :description = "Cp/Cpk calculation" ]
+    elseif cDataContext = "sales"
+        aCustomSteps + [ :function = "TrendAnalysis", :description = "Sales trend identification" ]
+    elseif cDataContext = "survey"
+        aCustomSteps + [ :function = "ConfidenceInterval", :description = "Population estimate" ]
+    ok
+    
+    return aCustomSteps
+
+/*--- EXAMPLE usage
+aSalesPerformance = [120, 135, 118, 142, 156, 128, 149, 133, 157, 141]
+
+aDynamicSteps = GenerateDynamicWorkflow(aSalesPerformance, "process_improvement", "sales")
+oSales = new stzDataSet(aSalesPerformance)
+cDynamicKey = oSales.CreateCustomWorkflow("Dynamic Sales Analysis", 
+                                         "AI-generated workflow for sales performance", 
+                                         aDynamicSteps)
+
+oSales.ExecuteWorkflow(cDynamicKey, TRUE)
+
+
+/*--- EXAMPLE 14: Workflow Results Comparison
+# =======================================
+
+# Compare results across different workflows or datasets
+func CompareWorkflowResults(paResults1, paResults2, cComparisonName)
+    ? "🔍 " + cComparisonName + " Comparison"
+    ? "=" * (len(cComparisonName) + 12)
+    
+    # Find common functions between results
+    aFunctions1 = []
+    aFunctions2 = []
+    
+    for aResult in paResults1[:results]
+        aFunctions1 + aResult[:function]
+    next
+    
+    for aResult in paResults2[:results]
+        aFunctions2 + aResult[:function]
+    next
+    
+    # Compare common metrics
+    for cFunction in aFunctions1
+        if find(aFunctions2, cFunction) > 0
+            # Find values for this function in both results
+            nValue1 = NULL
+            nValue2 = NULL
+            
+            for aResult in paResults1[:results]
+                if aResult[:function] = cFunction
+                    nValue1 = aResult[:result]
+                ok
+            next
+            
+            for aResult in paResults2[:results]
+                if aResult[:function] = cFunction
+                    nValue2 = aResult[:result]
+                ok
+            next
+            
+            if nValue1 != NULL and nValue2 != NULL
+                nDifference = nValue2 - nValue1
+                nPercentChange = (nDifference / nValue1) * 100
+                
+                ? cFunction + ":"
+                ? "  Dataset 1: " + @@(nValue1)
+                ? "  Dataset 2: " + @@(nValue2)
+                ? "  Change: " + @@(nDifference) + " (" + @@(nPercentChange) + "%)"
+                ? ""
+            ok
+        ok
+    next
+
+/*--- EXAMPLE comparison
+aBeforeTraining = [72, 74, 71, 75, 73, 70, 76, 72, 74, 73]
+aAfterTraining = [78, 80, 77, 81, 79, 76, 82, 78, 80, 79]
+
+oBefore = new stzDataSet(aBeforeTraining)
+oAfter = new stzDataSet(aAfterTraining)
+
+oResultsBefore = oBefore.ExecuteWorkflow("EDA", FALSE)
+oResultsAfter = oAfter.ExecuteWorkflow("EDA", FALSE)
+
+CompareWorkflowResults(oResultsBefore, oResultsAfter, "Training Impact Analysis")
+
+
+/*--- EXAMPLE 15: Workflow Documentation Generator
+# ============================================
+
+# Automatically generate documentation for executed workflows
+func GenerateWorkflowReport(poResults, cTitle)
+    cReport = "# " + cTitle + " - Statistical Analysis Report" + nl + nl
+    cReport += "**Generated:** " + Date() + " " + Time() + nl
+    cReport += "**Workflow:** " + poResults[:name] + nl
+    cReport += "**Description:** " + poResults[:description] + nl + nl
+    
+    cReport += "## Executive Summary" + nl
+    cReport += "This analysis processed " + @@(len(poResults[:results])) + " statistical measures "
+    cReport += "with " + @@(poResults[:successful_steps]) + " successful calculations." + nl + nl
+    
+    cReport += "## Detailed Results" + nl + nl
+    
+    for aResult in poResults[:results]
+        cReport += "### " + aResult[:function] + nl
+        cReport += "**Value:** " + @@(aResult[:result]) + nl
+        
+        if aResult[:description] != NULL
+            cReport += "**Interpretation:** " + aResult[:description] + nl
+        ok
+        
+        cReport += "**Status:** " + (aResult[:success] ? "✅ Success" : "❌ Failed") + nl + nl
+    next
+    
+    cReport += "## Recommendations" + nl
+    cReport += GenerateRecommendations(poResults) + nl
+    
+    return cReport
+
+func GenerateRecommendations(poResults)
+    cRecommendations = ""
+    
+    # Look for specific patterns in results
+    for aResult in poResults[:results]
+        switch aResult[:function]
+        case "CoefficientOfVariation"
+            if aResult[:result] > 30
+                cRecommendations += "- **High Variability Alert:** Consider process standardization (CV: " + @@(aResult[:result]) + "%)" + nl
+            ok
+            
+        case "ContainsOutliers"
+            if aResult[:result] = TRUE
+                cRecommendations += "- **Data Quality:** Investigate outlying values for data entry errors or special causes" + nl
+            ok
+            
+        case "Skewness"
+            if abs(aResult[:result]) > 1
+                cRecommendations += "- **Distribution Shape:** Data is highly skewed, consider robust statistical methods" + nl
+            ok
+        off
+    next
+    
+    if cRecommendations = ""
+        cRecommendations = "- Data appears to be within normal parameters for standard analysis"
+    ok
+    
+    return cRecommendations
+
+/*--- EXAMPLE usage
+aQualityData = [98.1, 99.2, 97.8, 98.9, 99.1, 98.3, 99.0, 97.9, 98.7, 99.3,
+                98.5, 99.1, 98.2, 98.8, 99.2, 98.4, 99.0, 98.6, 99.1, 98.9]
+
+oQuality = new stzDataSet(aQualityData)
+oQualityResults = oQuality.ExecuteWorkflow("QC", FALSE)
+
+cReport = GenerateWorkflowReport(oQualityResults, "Monthly Quality Control Analysis")
+? cReport
+
+# Save report to file (if file system available)
+# write("quality_report.md", cReport)
