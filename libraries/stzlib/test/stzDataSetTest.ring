@@ -933,6 +933,24 @@ pf()
 #  TESTING THE ANALYTICS WORKFLOW SYSTEM  #
 #=========================================#
 
+pr()
+
+aStep = [ [ "function", "ValidateData" ], [ "required", 1 ], [ "description", "Check data quality" ] ]
+? HasKey(aStep, "condition")
+#--> FALSE
+
+? @@(aStep[:condition])
+#--> ""
+
+? HasKey(aStep, "required")
+
+? @@(aStep[:required])
+#--> 1
+
+pf()
+# Executed in 0.0020 second(s) in Ring 1.22
+
+
 /*--- EXAMPLE 1: Basic Data Exploration
 */
 pr()

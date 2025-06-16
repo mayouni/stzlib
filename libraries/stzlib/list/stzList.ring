@@ -72,21 +72,14 @@ func HasKey(paList, pcKey)
 		ok
 	ok
 
-	cKey = lower(pcKey)
-	nLen = len(pcKey)
-	acSeen = []
-	bResult = FALSE
+	nLen = len(paList)
+	acKeys = []
 
 	for i = 1 to nLen
-		if ring_find(acSeen, cKey) = 0
-			acSeen + cKey
-		else
-			bResult = _TRUE_
-			exit
-		ok
+		acKeys + lower(paList[i][1])
 	next
 
-	return bResult
+	return iff(ring_find(acKeys, lower(pcKey)), TRUE, FALSE)
 
 	func @HasKey(paList, pcKey)
 		return HasKey(paList, pcKey)
