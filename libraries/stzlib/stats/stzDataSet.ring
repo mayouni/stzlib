@@ -3178,9 +3178,9 @@ class stzDataSet
             StzRaise("Unknown workflow goal or template: " + cGoalOrTemplate)
         ok
 
-        aTemplate = $aWorkflowTemplates[cTemplate]
+        aTemplate = $aWorkflowTemplates[$aWorkflowGoals[cTemplate]]
         aExecutableSteps = This._FilterWorkflowSteps(aTemplate[:steps])
-        
+
         return [
             :template = cTemplate,
             :name = aTemplate[:name],
@@ -3340,8 +3340,8 @@ class stzDataSet
         cInput = Lower(@trim(cInput))
         
         # Check if it's a direct template key
-        if HasKey($aWorkflowTemplates, Upper(cInput))
-            return Upper(cInput)
+        if HasKey($aWorkflowTemplates, cInput)
+            return cInput
         ok
         
         # Check goal mappings
@@ -3362,23 +3362,29 @@ class stzDataSet
         aFiltered = []
         
         for aStep in aSteps
+
             bInclude = TRUE
-            
+? @@(aStep)         
             # Check if step has condition
             if HasKey(aStep, :condition)
+? "in condition"
                 bInclude = This._EvaluateCondition(aStep[:condition])
+? bInclude
             ok
             
             # Check if required step
             if HasKey(aStep, :required) and aStep[:required] = TRUE
+? "in required"
                 bInclude = TRUE
+? bInclude
             ok
             
             if bInclude
                 aFiltered + aStep
             ok
         next
-        
+? @@(aFiltered)
+ddf
         return aFiltered
     
     def _ExecuteWorkflowStep(aStep)
