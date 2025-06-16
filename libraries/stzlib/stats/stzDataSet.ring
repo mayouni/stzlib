@@ -966,6 +966,9 @@ class stzDataSet
     @anSortedData = []
     @aCache = []  # Standard Ring hash list as [ [:key, value], ... ]
 
+	@bChain = FALSE
+	@bFirstChain = FALSE
+
     @nMinSampleSize = 3  # Minimum for advanced statistics
 
     def init(paData)
@@ -3213,6 +3216,35 @@ class stzDataSet
 			return This.MakePlan(cNameOrGoalOrTemplate)
 
 
+	def ExecutePlans(acPlans)
+		if CheckParams()
+			if NOT ( isList(acPlans) and IsListOfStrings(acPlans) )
+				StzRaise("Incorrect param type! acPlans must be a list of strings.")
+			ok
+		ok
+		@bChain = TRUE
+		nLen = len(acPlans)
+		for i = 1 to nLen
+			if i = 1
+				@bFirstChain = TRUE
+			else
+				@bFirstChain = FALSE
+			ok
+
+			This.ExecutePlan(acPlans[i])
+			? ""
+		next
+
+		def RunPlans(acPlans)
+			This.ExecutePlans(acPlans)
+
+		def PerformPlans(acPlans)
+			This.ExecutePlans(acPlans)
+
+		def ChainPlans(acPlans)
+			This.ExecutePlans(acPlans)
+
+
 	def ExecutePlan(cNameOrGoalOrTemplate)
 		This.ExecutePlanXT(cNameOrGoalOrTemplate, TRUE)
 
@@ -3241,6 +3273,13 @@ class stzDataSet
         
         if bVerbose
             ? BoxRound("Executing Plan: " + aPlan[:title])
+
+		if @bChain = FALSE or
+			(@bChain = TRUE and @bFirstChain)
+
+				? "• Data: " + @@(This.Content())
+			ok
+
 			? "• Name: {" + aPlan[:name] + "}"
             ? "• Goal: " + aPlan[:description]
             ? "• Steps: " + aPlan[:total_steps] + NL
@@ -3266,15 +3305,15 @@ class stzDataSet
                     ? "╰─> " + This._FormatStepResult(aStep[:function], vResult) + NL
                 ok
                 
-            catch cError
+            catch
                 aErrors + [
                     :step = nStepNum,
                     :function = aStep[:function],
-                    :error = cError
+                    :error = cCatchError
                 ]
                 
                 if bVerbose
-                    ? "❌ Error: " + cError
+                    ? "❌ Error: " + cCatchError + NL
                 ok
             done
             
@@ -3284,7 +3323,7 @@ class stzDataSet
         if bVerbose
 			nTime = (clock() - nTime) / clockspersecond()
 
-            ? "( Plan completed in " + nTime + "s : " + len(aResults) + " successful steps, " + len(aErrors) + " errors )"
+            ? "( Plan completed in " + nTime + "s : " + len(aResults) + " successful step(s), " + len(aErrors) + " error(s) )"
         ok
         
         return [
@@ -3310,6 +3349,12 @@ class stzDataSet
 
         aPlan = This.GeneratePlan(cNameOrGoalOrTemplate)
         cSummary = BoxifyRound("Plan: " + oPlan[:title]) + NL
+
+		if @bChain = FALSE or
+			(@bChain = TRUE and @bFirstChain)
+
+			cSummary += "• Data: " + @@(This.Content()) + NL
+		ok
 
 		cSummary += "• Name: {" + aPlan[:name] + "}" + NL
         cSummary += "• Goal: " + aPlan[:description] + NL
@@ -3341,15 +3386,40 @@ class stzDataSet
  
 		
         cKey = "custom_" + lower(cName)
-        $aPlanTemplates[cKey] = [
-			:title = cName,
+        $aPlanTemplates[cName] = [
+			:name = cName,
             :title = cTitle,
             :description = cDescription,
             :steps = aSteps
         ]
         
-        return cKey
-    
+
+	def SuggestPlan()
+	    
+	    cDataType = This.DataType()
+	    nCount = This.Count()
+	    bHasOutliers = This.ContainsOutliers()
+	    
+	    if nCount < 10
+	        return :EDA  # Basic exploration for small samples
+	    ok
+	    
+	    if bHasOutliers
+	        return :OUTLIERS  # Focus on outlier analysis
+	    ok
+	    
+	    if cDataType = "numeric" and nCount >= 20
+	        nCV = oData.CoefficientOfVariation()
+	        if nCV > 30
+	            return :QUALITY  # Quality control for high variability
+	        else
+	            return :NORMALITY  # Test distribution assumptions
+	        ok
+	    ok
+	    
+	    return :EDA  # Default fallback
+	
+
     #===============================#
     #  Plan HELPER METHODS      #
     #===============================#
