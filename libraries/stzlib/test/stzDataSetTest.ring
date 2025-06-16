@@ -930,7 +930,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 #=========================================#
-#  TESTING THE ANALYTICS WORKFLOW SYSTEM  #
+#  TESTING THE ANALYTICS Plan SYSTEM  #
 #=========================================#
 
 pr()
@@ -955,61 +955,81 @@ pf()
 */
 pr()
 
-# Sample sales data
-aSalesData = [120, 150, 89, 200, 175, 95, 180, 210, 165, 145, 190, 88, 220, 155, 170]
+aSalesData = [
+	120, 150, 89, 200, 175,
+	95, 180, 210, 165, 145,
+	190, 88, 220, 155, 170
+]
 
 oSales = new stzDataSet(aSalesData)
 
-# Simple workflow generation
-oWorkflow = oSales.GenerateWorkflow(:Understand)
-? oWorkflow[:name]          # "Exploratory Data Analysis"
-? oWorkflow[:total_steps]   # 9 (filtered based on data type)
+# Making a plan for understanding data
 
-# Preview workflow without execution
-? oSales.WorkflowSummary(:Understand) + NL
-# Output:
-# 📋 Workflow: Exploratory Data Analysis
-# 🎯 Goal: Comprehensive data exploration and understanding
-# ⏱️  Estimated time: 1.4 seconds
-# 📊 Steps (9):
-# 
-#   1. Check data quality
-#   2. Identify data type
-#   3. Get sample size
-#   4. Central tendency
-#   5. Robust center
-#   6. Variability
-#   7. Distribution shape
-#   8. Asymmetry check
-#   9. Outlier detection
+oPlan = oSales.MakePlan(:Understand) # Or PreparePlan() or GeneratePlan()
 
-# Full workflow execution
-//oResults = oSales.ExecuteWorkflow("EDA", TRUE)
-# Output:
-# 🔄 Executing Workflow: Exploratory Data Analysis
-# 📋 Description: Comprehensive data exploration and understanding
-# 📊 Steps: 9
-# 
-# Step 1/9: Check data quality
-#    ✅ ValidateData: completed
-# Step 2/9: Identify data type  
-#    ✅ Data type: numeric
-# Step 3/9: Get sample size
-#    ✅ Sample size: 15
-# Step 4/9: Central tendency
-#    ✅ Mean: 153.13
-# Step 5/9: Robust center
-#    ✅ Median: 155.00
-# Step 6/9: Variability
-#    ✅ Std Dev: 38.42
-# Step 7/9: Distribution shape
-#    ✅ Quartiles: 4 values
-# Step 8/9: Asymmetry check
-#    ✅ Skewness: -0.23
-# Step 9/9: Outlier detection
-#    ✅ Outliers present: FALSE
-# 
-# 🎯 Workflow completed: 9 successful steps, 0 errors
+# Preview Plan without execution
+
+? oSales.PlanSummary(:Understand)
+#-->
+'
+╭─────────────────────────────────╮
+│ Plan: Exploratory Data Analysis │
+╰─────────────────────────────────╯
+• Name: {eda}
+• Goal: Comprehensive data exploration and understanding
+• Steps (9):
+  1. Check data quality
+  2. Identify data type
+  3. Get sample size
+  4. Central tendency (conditional)
+  5. Robust center (conditional)
+  6. Variability (conditional)
+  7. Distribution shape (conditional)
+  8. Asymmetry check (conditional)
+  9. Outlier detection (conditional)
+'
+
+# Full Plan execution
+
+oResults = oSales.ExecutePlan(:EDA) # Or RunPlan() or PerformPlan()
+#-->
+'
+╭───────────────────────────────────────────╮
+│ Executing Plan: Exploratory Data Analysis │
+╰───────────────────────────────────────────╯
+• Name: {eda}
+• Goal: Comprehensive data exploration and understanding
+• Steps: 9
+
+✅ Step 1/9: Check data quality
+╰─> ValidateData: 1 values
+
+✅ Step 2/9: Identify data type
+╰─> Data type: numeric
+
+✅ Step 3/9: Get sample size
+╰─> Sample size: 15
+
+✅ Step 4/9: Central tendency
+╰─> Mean: 156.8000
+
+✅ Step 5/9: Robust center
+╰─> Median: 165
+
+✅ Step 6/9: Variability
+╰─> Std Dev: 125.5495
+
+✅ Step 7/9: Distribution shape
+╰─> Quartiles: 3 values
+
+✅ Step 8/9: Asymmetry check
+╰─> Skewness: 0.0850
+
+✅ Step 9/9: Outlier detection
+╰─> Outliers present: 0
+
+( Plan completed in 0.0980s : 9 successful steps, 0 errors )
+'
 
 pf()
 
@@ -1022,8 +1042,8 @@ aProcessData = [98.2, 99.1, 97.8, 101.5, 98.9, 99.3, 98.7, 110.2, 99.0, 98.5,
 
 oProcess = new stzDataSet(aProcessData)
 
-# Quality control workflow
-oQCResults = oProcess.ExecuteWorkflow("quality control", TRUE)
+# Quality control Plan
+oQCResults = oProcess.ExecutePlan("quality control", TRUE)
 # This will automatically:
 # 1. Validate data integrity
 # 2. Calculate process center (mean)  
@@ -1057,8 +1077,8 @@ aSales = [120, 145, 180, 220, 280, 95, 160, 200, 250, 320, 110, 155, 205, 240, 3
 oTemp = new stzDataSet(aTemperature)
 oSalesTemp = new stzDataSet(aSales)
 
-# Correlation workflow (automatically chooses Pearson vs Spearman)
-oCorrelation = oTemp.ExecuteWorkflow("find relationships", FALSE)
+# Correlation Plan (automatically chooses Pearson vs Spearman)
+oCorrelation = oTemp.ExecutePlan("find relationships", FALSE)
 
 # Manual correlation with second dataset
 nCorr = oTemp.CorrelationWith(oSalesTemp)
@@ -1075,7 +1095,7 @@ aSatisfaction = [8.2, 7.9, 8.5, 8.1, 7.8, 8.3, 8.0, 2.1, 8.4, 7.7,
 oSatisfaction = new stzDataSet(aSatisfaction)
 
 # Comprehensive outlier analysis
-oOutlierResults = oSatisfaction.ExecuteWorkflow("detect outliers", TRUE)
+oOutlierResults = oSatisfaction.ExecutePlan("detect outliers", TRUE)
 
 # Extract actionable insights
 for aResult in oOutlierResults[:results]
@@ -1089,10 +1109,10 @@ for aResult in oOutlierResults[:results]
 next
 
 
-/*--- EXAMPLE 5: Custom Workflow Creation
+/*--- EXAMPLE 5: Custom Plan Creation
 # ===================================
 
-# Create a specialized financial analysis workflow
+# Create a specialized financial analysis Plan
 aFinancialSteps = [
     [ :function = "Mean", :required = TRUE, :description = "Average return" ],
     [ :function = "StandardDeviation", :required = TRUE, :description = "Volatility measure" ],
@@ -1109,13 +1129,13 @@ aReturns = [0.05, 0.02, -0.01, 0.08, -0.15, 0.03, 0.07, -0.02, 0.12, -0.08,
 
 oReturns = new stzDataSet(aReturns)
 
-# Register custom workflow
-cCustomKey = oReturns.CreateCustomWorkflow("Financial Risk Analysis", 
+# Register custom Plan
+cCustomKey = oReturns.AddPlan("Financial Risk Analysis", 
                                           "Comprehensive financial risk assessment", 
                                           aFinancialSteps)
 
-# Execute custom workflow
-oFinancialResults = oReturns.ExecuteWorkflow(cCustomKey, TRUE)
+# Execute custom Plan
+oFinancialResults = oReturns.ExecutePlan(cCustomKey, TRUE)
 
 
 /*--- EXAMPLE 6: Trend Analysis for Time Series
@@ -1126,8 +1146,8 @@ aVisitors = [1200, 1350, 1180, 1420, 1580, 1750, 1650, 1820, 1920, 1780, 2100, 2
 
 oVisitors = new stzDataSet(aVisitors)
 
-# Trend analysis workflow
-oTrendResults = oVisitors.ExecuteWorkflow("analyze trends", TRUE)
+# Trend analysis Plan
+oTrendResults = oVisitors.ExecutePlan("analyze trends", TRUE)
 
 # Extract trend insights
 for aResult in oTrendResults[:results]
@@ -1141,7 +1161,7 @@ for aResult in oTrendResults[:results]
 next
 
 
-/*--- EXAMPLE 7: Comparative Analysis Workflow
+/*--- EXAMPLE 7: Comparative Analysis Plan
 # =======================================
 
 # Before/After performance data
@@ -1152,8 +1172,8 @@ oBefore = new stzDataSet(aBefore)
 oAfter = new stzDataSet(aAfter)
 
 # Run EDA on both datasets
-oBeforeAnalysis = oBefore.ExecuteWorkflow("EDA", FALSE)
-oAfterAnalysis = oAfter.ExecuteWorkflow("EDA", FALSE)
+oBeforeAnalysis = oBefore.ExecutePlan("EDA", FALSE)
+oAfterAnalysis = oAfter.ExecutePlan("EDA", FALSE)
 
 # Compare key metrics
 ? "=== Performance Comparison ==="
@@ -1164,11 +1184,11 @@ nImprovement = ((oAfter.Mean() - oBefore.Mean()) / oBefore.Mean()) * 100
 ? "Improvement: " + @@(nImprovement) + "%"
 
 
-/*--- EXAMPLE 8: Smart Workflow Selection
+/*--- EXAMPLE 8: Smart Plan Selection
 # ===================================
 
-# Function to automatically suggest best workflow based on data characteristics
-func SuggestWorkflow(paData)
+# Function to automatically suggest best Plan based on data characteristics
+func SuggestPlan(paData)
     oData = new stzDataSet(paData)
     
     cDataType = oData.DataType()
@@ -1199,22 +1219,22 @@ aNormalData = [98, 99, 100, 101, 99, 98, 100, 99, 101, 98]
 aSkewedData = [10, 11, 12, 11, 10, 45, 12, 11, 10, 11, 9, 12]
 aHighVarData = [50, 150, 75, 200, 25, 175, 100, 225, 60, 180]
 
-? "Normal data → " + SuggestWorkflow(aNormalData)     # "NORMALITY"
-? "Skewed data → " + SuggestWorkflow(aSkewedData)     # "OUTLIERS"  
-? "High variance → " + SuggestWorkflow(aHighVarData)  # "QC"
+? "Normal data → " + SuggestPlan(aNormalData)     # "NORMALITY"
+? "Skewed data → " + SuggestPlan(aSkewedData)     # "OUTLIERS"  
+? "High variance → " + SuggestPlan(aHighVarData)  # "QC"
 
 
-/*--- EXAMPLE 9: Workflow Chaining (COMPLETED)
+/*--- EXAMPLE 9: Plan Chaining (COMPLETED)
 # ============================
 
-# Execute multiple workflows in sequence
-func ChainWorkflows(paData, paWorkflowNames)
+# Execute multiple Plans in sequence
+func ChainPlans(paData, paPlanNames)
     oData = new stzDataSet(paData)
     aAllResults = []
     
-    for cWorkflow in paWorkflowNames
-        ? "🔗 Executing: " + cWorkflow
-        oResult = oData.ExecuteWorkflow(cWorkflow, FALSE)
+    for cPlan in paPlanNames
+        ? "🔗 Executing: " + cPlan
+        oResult = oData.ExecutePlan(cPlan, FALSE)
         aAllResults + oResult
     next
     
@@ -1224,21 +1244,21 @@ func ChainWorkflows(paData, paWorkflowNames)
 aProductionData = [95.2, 96.1, 94.8, 97.3, 95.9, 96.5, 95.1, 98.2, 96.0, 95.7,
                    96.8, 94.9, 95.6, 96.3, 95.4, 99.1, 96.2, 95.8, 96.7, 95.3]
 
-aWorkflowChain = ["EDA", "QC", "OUTLIERS", "NORMALITY"]
-aChainedResults = ChainWorkflows(aProductionData, aWorkflowChain)
+aPlanChain = ["EDA", "QC", "OUTLIERS", "NORMALITY"]
+aChainedResults = ChainPlans(aProductionData, aPlanChain)
 
-? "📊 Pipeline completed: " + len(aChainedResults) + " workflows executed"
+? "📊 Pipeline completed: " + len(aChainedResults) + " Plans executed"
 
 
-/*--- EXAMPLE 10: Conditional Workflow Execution
+/*--- EXAMPLE 10: Conditional Plan Execution
 # ==========================================
 
-# Smart workflow that adapts based on intermediate results
+# Smart Plan that adapts based on intermediate results
 func AdaptiveAnalysis(paData)
     oData = new stzDataSet(paData)
     
     # Start with basic exploration
-    oEDA = oData.ExecuteWorkflow("EDA", FALSE)
+    oEDA = oData.ExecutePlan("EDA", FALSE)
     
     # Extract key findings
     nMean = oData.Mean()
@@ -1248,17 +1268,17 @@ func AdaptiveAnalysis(paData)
     # Conditional branching based on initial results
     if nCV > 25
         ? "⚠️  High variability detected, running quality control analysis..."
-        oQC = oData.ExecuteWorkflow("QC", TRUE)
+        oQC = oData.ExecutePlan("QC", TRUE)
     ok
     
     if oData.ContainsOutliers()
         ? "🔍 Outliers found, performing detailed outlier analysis..."
-        oOutliers = oData.ExecuteWorkflow("OUTLIERS", TRUE)
+        oOutliers = oData.ExecutePlan("OUTLIERS", TRUE)
     ok
     
     if oData.Count() >= 30
         ? "📈 Sufficient sample size, testing normality assumptions..."
-        oNormality = oData.ExecuteWorkflow("NORMALITY", TRUE)
+        oNormality = oData.ExecutePlan("NORMALITY", TRUE)
     ok
     
     return TRUE
@@ -1274,8 +1294,8 @@ AdaptiveAnalysis(aMixedData)
 /*--- EXAMPLE 11: Batch Processing Multiple Datasets
 # ==============================================
 
-# Process multiple related datasets with consistent workflows
-func BatchAnalysis(paDatasets, cWorkflowType)
+# Process multiple related datasets with consistent Plans
+func BatchAnalysis(paDatasets, cPlanType)
     aBatchResults = []
     nDatasetNum = 1
     
@@ -1283,7 +1303,7 @@ func BatchAnalysis(paDatasets, cWorkflowType)
         ? "📋 Processing Dataset " + nDatasetNum + "..."
         
         oData = new stzDataSet(aDataset)
-        oResult = oData.ExecuteWorkflow(cWorkflowType, FALSE)
+        oResult = oData.ExecutePlan(cPlanType, FALSE)
         
         # Store results with dataset identifier
         oResult[:dataset_id] = nDatasetNum
@@ -1305,16 +1325,16 @@ aBatchResults = BatchAnalysis(aAllProducts, "EDA")
 ? "📊 Batch analysis completed for " + len(aAllProducts) + " product lines"
 
 
-/*--- EXAMPLE 12: Workflow Performance Monitoring
+/*--- EXAMPLE 12: Plan Performance Monitoring
 # ===========================================
 
-# Monitor and log workflow execution times and success rates
-class stzWorkflowMonitor
+# Monitor and log Plan execution times and success rates
+class stzPlanMonitor
     aExecutionLog = []
     
-    func LogExecution(cWorkflowName, nStartTime, nEndTime, bSuccess, cError)
+    func LogExecution(cPlanName, nStartTime, nEndTime, bSuccess, cError)
         aLogEntry = [
-            :workflow = cWorkflowName,
+            :Plan = cPlanName,
             :start_time = nStartTime,
             :end_time = nEndTime,
             :duration = nEndTime - nStartTime,
@@ -1325,16 +1345,16 @@ class stzWorkflowMonitor
         
         This.aExecutionLog + aLogEntry
         
-    func GetPerformanceStats(cWorkflowName)
+    func GetPerformanceStats(cPlanName)
         aFilteredLogs = []
         for aEntry in This.aExecutionLog
-            if aEntry[:workflow] = cWorkflowName
+            if aEntry[:Plan] = cPlanName
                 aFilteredLogs + aEntry
             ok
         next
         
         if len(aFilteredLogs) = 0
-            return "No execution data for " + cWorkflowName
+            return "No execution data for " + cPlanName
         ok
         
         nTotal = len(aFilteredLogs)
@@ -1358,41 +1378,41 @@ class stzWorkflowMonitor
         ]
 
 # Usage example
-oMonitor = new stzWorkflowMonitor()
+oMonitor = new stzPlanMonitor()
 
-func MonitoredWorkflow(paData, cWorkflowType)
+func MonitoredPlan(paData, cPlanType)
     nStart = clock()
     
     try
         oData = new stzDataSet(paData)
-        oResult = oData.ExecuteWorkflow(cWorkflowType, FALSE)
+        oResult = oData.ExecutePlan(cPlanType, FALSE)
         nEnd = clock()
-        oMonitor.LogExecution(cWorkflowType, nStart, nEnd, TRUE, "")
+        oMonitor.LogExecution(cPlanType, nStart, nEnd, TRUE, "")
         return oResult
     catch cError
         nEnd = clock()
-        oMonitor.LogExecution(cWorkflowType, nStart, nEnd, FALSE, cError)
-        ? "❌ Workflow failed: " + cError
+        oMonitor.LogExecution(cPlanType, nStart, nEnd, FALSE, cError)
+        ? "❌ Plan failed: " + cError
         return NULL
     done
 
 # Test monitoring
 aTestData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-MonitoredWorkflow(aTestData, "EDA")
-MonitoredWorkflow(aTestData, "OUTLIERS")
+MonitoredPlan(aTestData, "EDA")
+MonitoredPlan(aTestData, "OUTLIERS")
 
 ? oMonitor.GetPerformanceStats("EDA")
 
 
-/*--- EXAMPLE 13: Dynamic Workflow Generation
+/*--- EXAMPLE 13: Dynamic Plan Generation
 # =======================================
 
-# Generate workflows based on data characteristics and user goals
-func GenerateDynamicWorkflow(paData, cUserGoal, cDataContext)
+# Generate Plans based on data characteristics and user goals
+func GenerateDynamicPlan(paData, cUserGoal, cDataContext)
     oData = new stzDataSet(paData)
     aCustomSteps = []
     
-    # Base steps for all workflows
+    # Base steps for all Plans
     aCustomSteps + [ :function = "ValidateData", :required = TRUE, :description = "Data integrity check" ]
     aCustomSteps + [ :function = "Count", :required = TRUE, :description = "Sample size" ]
     
@@ -1431,20 +1451,20 @@ func GenerateDynamicWorkflow(paData, cUserGoal, cDataContext)
 /*--- EXAMPLE usage
 aSalesPerformance = [120, 135, 118, 142, 156, 128, 149, 133, 157, 141]
 
-aDynamicSteps = GenerateDynamicWorkflow(aSalesPerformance, "process_improvement", "sales")
+aDynamicSteps = GenerateDynamicPlan(aSalesPerformance, "process_improvement", "sales")
 oSales = new stzDataSet(aSalesPerformance)
-cDynamicKey = oSales.CreateCustomWorkflow("Dynamic Sales Analysis", 
-                                         "AI-generated workflow for sales performance", 
+cDynamicKey = oSales.AddPlan("Dynamic Sales Analysis", 
+                                         "AI-generated Plan for sales performance", 
                                          aDynamicSteps)
 
-oSales.ExecuteWorkflow(cDynamicKey, TRUE)
+oSales.ExecutePlan(cDynamicKey, TRUE)
 
 
-/*--- EXAMPLE 14: Workflow Results Comparison
+/*--- EXAMPLE 14: Plan Results Comparison
 # =======================================
 
-# Compare results across different workflows or datasets
-func CompareWorkflowResults(paResults1, paResults2, cComparisonName)
+# Compare results across different Plans or datasets
+func ComparePlanResults(paResults1, paResults2, cComparisonName)
     ? "🔍 " + cComparisonName + " Comparison"
     ? "=" * (len(cComparisonName) + 12)
     
@@ -1499,20 +1519,20 @@ aAfterTraining = [78, 80, 77, 81, 79, 76, 82, 78, 80, 79]
 oBefore = new stzDataSet(aBeforeTraining)
 oAfter = new stzDataSet(aAfterTraining)
 
-oResultsBefore = oBefore.ExecuteWorkflow("EDA", FALSE)
-oResultsAfter = oAfter.ExecuteWorkflow("EDA", FALSE)
+oResultsBefore = oBefore.ExecutePlan("EDA", FALSE)
+oResultsAfter = oAfter.ExecutePlan("EDA", FALSE)
 
-CompareWorkflowResults(oResultsBefore, oResultsAfter, "Training Impact Analysis")
+ComparePlanResults(oResultsBefore, oResultsAfter, "Training Impact Analysis")
 
 
-/*--- EXAMPLE 15: Workflow Documentation Generator
+/*--- EXAMPLE 15: Plan Documentation Generator
 # ============================================
 
-# Automatically generate documentation for executed workflows
-func GenerateWorkflowReport(poResults, cTitle)
+# Automatically generate documentation for executed Plans
+func GeneratePlanReport(poResults, cTitle)
     cReport = "# " + cTitle + " - Statistical Analysis Report" + nl + nl
     cReport += "**Generated:** " + Date() + " " + Time() + nl
-    cReport += "**Workflow:** " + poResults[:name] + nl
+    cReport += "**Plan:** " + poResults[:name] + nl
     cReport += "**Description:** " + poResults[:description] + nl + nl
     
     cReport += "## Executive Summary" + nl
@@ -1571,9 +1591,9 @@ aQualityData = [98.1, 99.2, 97.8, 98.9, 99.1, 98.3, 99.0, 97.9, 98.7, 99.3,
                 98.5, 99.1, 98.2, 98.8, 99.2, 98.4, 99.0, 98.6, 99.1, 98.9]
 
 oQuality = new stzDataSet(aQualityData)
-oQualityResults = oQuality.ExecuteWorkflow("QC", FALSE)
+oQualityResults = oQuality.ExecutePlan("QC", FALSE)
 
-cReport = GenerateWorkflowReport(oQualityResults, "Monthly Quality Control Analysis")
+cReport = GeneratePlanReport(oQualityResults, "Monthly Quality Control Analysis")
 ? cReport
 
 # Save report to file (if file system available)
