@@ -1679,5 +1679,47 @@ func BoxifyRound(str)
 	oTempStr.BoxifyRound()
 	return otempStr.Content()
 
+	#< @FunctionAlternativeForms
+
+	func BoxRound(str)
+		return BoxifyRound(str)
+
+	func BoxRounded(str)
+		return BoxifyRound(str)
+
+	func BoxedRound(str)
+		return BoxifyRound(str)
+
+	func BoxedRounded(str)
+		return BoxifyRound(str)
+
+	func BoxifiedRound(str)
+		return BoxifyRound(str)
+
+	func BoxifiedRounded(str)
+		return BoxifyRound(str)
+
+	#--
+
 	func @BoxifyRound(str)
 		return BoxifyRound(str)
+
+	func @BoxRound(str)
+		return BoxifyRound(str)
+
+	func @BoxRounded(str)
+		return BoxifyRound(str)
+
+	func @BoxedRound(str)
+		return BoxifyRound(str)
+
+	func @BoxedRounded(str)
+		return BoxifyRound(str)
+
+	func @BoxifiedRound(str)
+		return BoxifyRound(str)
+
+	func @BoxifiedRounded(str)
+		return BoxifyRound(str)
+
+	#>

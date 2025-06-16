@@ -753,12 +753,13 @@ $aStatFunctions = [
     ]
 ]
 
-# Workflow Templates - Define common analysis patterns
-$aWorkflowTemplates = [
+# Plan Templates - Define common analysis patterns
+$aPlanTemplates = [
     
     # EXPLORATORY DATA ANALYSIS
     :EDA = [
-        :name = "Exploratory Data Analysis",
+		:name = "eda",
+        :title = "Exploratory Data Analysis",
         :description = "Comprehensive data exploration and understanding",
         :steps = [
             [ :function = "ValidateData", :required = TRUE, :description = "Check data quality" ],
@@ -777,7 +778,8 @@ $aWorkflowTemplates = [
     
     # NORMALITY ASSESSMENT
     :NORMALITY = [
-        :name = "Normality Assessment Workflow",
+		:name = "normality",
+        :title = "Normality Assessment Plan",
         :description = "Determine if data follows normal distribution",
         :steps = [
             [ :function = "Count", :required = TRUE, :description = "Check sample size adequacy" ],
@@ -791,7 +793,8 @@ $aWorkflowTemplates = [
     
     # CORRELATION ANALYSIS
     :CORRELATION = [
-        :name = "Correlation Analysis Workflow",
+		:name = "correlation",
+        :title = "Correlation Analysis Plan",
         :description = "Analyze relationships between variables",
         :steps = [
             [ :function = "DataType", :required = TRUE, :description = "Verify numeric data" ],
@@ -806,7 +809,8 @@ $aWorkflowTemplates = [
     
     # OUTLIER ANALYSIS
     :OUTLIERS = [
-        :name = "Outlier Detection and Analysis",
+		:name = "outliers",
+        :title = "Outlier Detection and Analysis",
         :description = "Comprehensive outlier identification and impact assessment",
         :steps = [
             [ :function = "ContainsOutliers", :required = TRUE, :description = "Initial outlier detection" ],
@@ -821,7 +825,8 @@ $aWorkflowTemplates = [
     
     # TREND ANALYSIS  
     :TRENDS = [
-        :name = "Time Series Trend Analysis",
+		:name = "trends",
+        :title = "Time Series Trend Analysis",
         :description = "Analyze temporal patterns and trends",
         :steps = [
             [ :function = "Count", :required = TRUE, :description = "Check sufficient data points" ],
@@ -834,8 +839,9 @@ $aWorkflowTemplates = [
     ],
     
     # QUALITY CONTROL
-    :QC = [
-        :name = "Quality Control Analysis",
+    :QUALITY = [
+		:name = "quality",
+        :title = "Quality Control Analysis",
         :description = "Statistical process control and quality assessment",
         :steps = [
             [ :function = "ValidateData", :required = TRUE, :description = "Data integrity check" ],
@@ -848,10 +854,11 @@ $aWorkflowTemplates = [
             [ :condition = "Count() >= 5", :function = "TrendAnalysis", :description = "Process drift detection" ]
         ]
     ]
+
 ]
 
-# Goal-based workflow mapping
-$aWorkflowGoals = [
+# Goal-based Plan mapping
+$aPlanGoals = [
     :understand = :EDA,
     :explore = :EDA,
     :summarize = :EDA,
@@ -874,10 +881,10 @@ $aWorkflowGoals = [
     :time_series = :TRENDS,
     :temporal_analysis = :TRENDS,
     
-    :quality_control = :QC,
-    :process_control = :QC,
-    :qc_analysis = :QC,
-    :quality_assessment = :QC
+    :quality_control = :QUALITY,
+    :process_control = :QUALITY,
+    :QUALITY_analysis = :QUALITY,
+    :quality_assessment = :QUALITY
 ]
 
 # Helper Functions
@@ -926,17 +933,17 @@ func DataSetTemplatesXT(cType)
     off
 
 # Convenience functions
-func GenerateWorkflowFor(paData, cGoal)
+func GeneratePlanFor(paData, cGoal)
     oStats = new stzDataSet(paData)
-    return oStats.GenerateWorkflow(cGoal)
+    return oStats.GeneratePlan(cGoal)
 
-func ExecuteWorkflowFor(paData, cGoal)
+func ExecutePlanFor(paData, cGoal)
     oStats = new stzDataSet(paData)
-    return oStats.ExecuteWorkflow(cGoal, TRUE)
+    return oStats.ExecutePlan(cGoal, TRUE)
 
-func WorkflowSummaryFor(paData, cGoal)
+func PlanSummaryFor(paData, cGoal)
     oStats = new stzDataSet(paData)
-    return oStats.WorkflowSummary(cGoal)
+    return oStats.PlanSummary(cGoal)
 
 # Factory function
 func StzDataSetQ(paData)
@@ -3162,63 +3169,91 @@ class stzDataSet
         
         return aResults
 
-    #===============================#
-    #  WORKFLOW GENERATION SYSTEM   #
-    #===============================#
+    #======================================#
+    #  Plan (Workflow) GENERATION SYSTEM   #
+    #======================================#
     
-    def GenerateWorkflow(cGoalOrTemplate)
+	# Generating the plan
+
+    def MakePlan(cNameOrGoalOrTemplate)
         /*
-        Generate a statistical workflow based on user goal or template name
+        Generate a statistical Plan based on user goal or template name
         @param cGoalOrTemplate: Either a goal description or template name
-        @return: Workflow object with steps and execution plan
+        @return: Plan object with steps and execution plan
         */
 
-        cTemplate = This._ResolveWorkflowTemplate(cGoalOrTemplate)
+        cTemplate = This._ResolvePlanTemplate(cNameOrGoalOrTemplate)
+
         if cTemplate = NULL
-            StzRaise("Unknown workflow goal or template: " + cGoalOrTemplate)
+            StzRaise("Unknown Plan name, goal or template: " + cNameOrGoalOrTemplate)
         ok
 
-        aTemplate = $aWorkflowTemplates[$aWorkflowGoals[cTemplate]]
-        aExecutableSteps = This._FilterWorkflowSteps(aTemplate[:steps])
+		n = ring_find(This._PlanNames(), cTemplate)
+
+		if n = 0
+			StzRaise("Inexistant Plan template name!")
+		ok
+
+        aTemplate = $aPlanTemplates[n][2]
+        aExecutableSteps = This._FilterPlanSteps(aTemplate[:steps])
 
         return [
             :template = cTemplate,
-            :name = aTemplate[:name],
+			:name = aTemplate[:name],
+            :title = aTemplate[:title],
             :description = aTemplate[:description],
             :steps = aExecutableSteps,
             :total_steps = len(aExecutableSteps),
-            :estimated_time = This._EstimateWorkflowTime(aExecutableSteps)
         ]
     
-    def ExecuteWorkflow(cGoalOrTemplate, bVerbose)
+		def GeneratePlan(cNameOrGoalOrTemplate)
+			return This.MakePlan(cNameOrGoalOrTemplate)
+
+		def PreparePlan(cNameOrGoalOrTemplate)
+			return This.MakePlan(cNameOrGoalOrTemplate)
+
+
+	def ExecutePlan(cNameOrGoalOrTemplate)
+		This.ExecutePlanXT(cNameOrGoalOrTemplate, TRUE)
+
+		def RunPlan(cNameOrGoalOrTemplate)
+			This.ExecutePlan(cNameOrGoalOrTemplate)
+
+		def PerformPlan(cNameOrGoalOrTemplate)
+			This.ExecutePlan(cNameOrGoalOrTemplate)
+
+
+    def ExecutePlanXT(cNameOrGoalOrTemplate, bVerbose)
         /*
-        Execute a complete workflow and return results
-        @param cGoalOrTemplate: Workflow to execute
+        Execute a complete Plan and return results
+        @param cNameOrGoalOrTemplate: Plan to execute
         @param bVerbose: Include step-by-step details
-        @return: Workflow execution results
+        @return: Plan execution results
         */
-        
+
+		nTime = clock()
+
         if bVerbose = NULL bVerbose = TRUE ok
         
-        oWorkflow = This.GenerateWorkflow(cGoalOrTemplate)
+        aPlan = This.GeneratePlan(cNameOrGoalOrTemplate)
         aResults = []
         aErrors = []
         
         if bVerbose
-            ? "🔄 Executing Workflow: " + oWorkflow[:name]
-            ? "📋 Description: " + oWorkflow[:description]
-            ? "📊 Steps: " + oWorkflow[:total_steps]
-            ? ""
+            ? BoxRound("Executing Plan: " + aPlan[:title])
+			? "• Name: {" + aPlan[:name] + "}"
+            ? "• Goal: " + aPlan[:description]
+            ? "• Steps: " + aPlan[:total_steps] + NL
         ok
         
         nStepNum = 1
-        for aStep in oWorkflow[:steps]
+        for aStep in aPlan[:steps]
             if bVerbose
-                ? "Step " + nStepNum + "/" + oWorkflow[:total_steps] + ": " + aStep[:description]
+                ? "✅ Step " + nStepNum + "/" + aPlan[:total_steps] + ": " + aStep[:description]
             ok
             
             try
-                vResult = This._ExecuteWorkflowStep(aStep)
+                vResult = This._ExecutePlanStep(aStep)
                 aResults + [
                     :step = nStepNum,
                     :function = aStep[:function],
@@ -3228,7 +3263,7 @@ class stzDataSet
                 ]
                 
                 if bVerbose
-                    ? "   ✅ " + This._FormatStepResult(aStep[:function], vResult)
+                    ? "╰─> " + This._FormatStepResult(aStep[:function], vResult) + NL
                 ok
                 
             catch cError
@@ -3239,7 +3274,7 @@ class stzDataSet
                 ]
                 
                 if bVerbose
-                    ? "   ❌ Error: " + cError
+                    ? "❌ Error: " + cError
                 ok
             done
             
@@ -3247,33 +3282,41 @@ class stzDataSet
         next
         
         if bVerbose
-            ? ""
-            ? "🎯 Workflow completed: " + len(aResults) + " successful steps, " + len(aErrors) + " errors"
+			nTime = (clock() - nTime) / clockspersecond()
+
+            ? "( Plan completed in " + nTime + "s : " + len(aResults) + " successful steps, " + len(aErrors) + " errors )"
         ok
         
         return [
-            :workflow = oWorkflow,
+            :Plan = aPlan,
             :results = aResults,
             :errors = aErrors,
-            :success_rate = (len(aResults) / oWorkflow[:total_steps]) * 100
+            :success_rate = (len(aResults) / aPlan[:total_steps]) * 100
         ]
     
-    def WorkflowSummary(cGoalOrTemplate)
-        """
-        Get a preview of workflow steps without execution
-        @param cGoalOrTemplate: Workflow to preview
-        @return: Formatted workflow summary
-        """
-        
-        oWorkflow = This.GenerateWorkflow(cGoalOrTemplate)
-        
-        cSummary = "📋 Workflow: " + oWorkflow[:name] + NL
-        cSummary += "🎯 Goal: " + oWorkflow[:description] + NL
-        cSummary += "⏱️  Estimated time: " + oWorkflow[:estimated_time] + " seconds" + NL
-        cSummary += "📊 Steps (" + oWorkflow[:total_steps] + "):" + NL + NL
+		def RunPlanXT(cNameOrGoalOrTemplate, bVerbose)
+			This.ExecutePlan(cNameOrGoalOrTemplate, bVerbose)
+
+		def PerformPlanXT(cNameOrGoalOrTemplate, bVerbose)
+			This.ExecutePlan(cNameOrGoalOrTemplate, bVerbose)
+
+
+    def PlanSummary(cNameOrGoalOrTemplate)
+        /*
+        Get a preview of Plan steps without execution
+        @param cNameOrGoalOrTemplate: Plan to preview
+        @return: Formatted Plan summary
+        */
+
+        aPlan = This.GeneratePlan(cNameOrGoalOrTemplate)
+        cSummary = BoxifyRound("Plan: " + oPlan[:title]) + NL
+
+		cSummary += "• Name: {" + aPlan[:name] + "}" + NL
+        cSummary += "• Goal: " + aPlan[:description] + NL
+        cSummary += "• Steps (" + aPlan[:total_steps] + "):" + NL
         
         nStep = 1
-        for aStep in oWorkflow[:steps]
+        for aStep in aPlan[:steps]
             cSummary += "  " + nStep + ". " + aStep[:description]
             if HasKey(aStep, :condition)
                 cSummary += " (conditional)"
@@ -3287,45 +3330,20 @@ class stzDataSet
         
         return cSummary
     
-    def AvailableWorkflows()
-        """
-        List all available workflow templates and goals
-        @return: Formatted list of workflows
-        """
-        
-        cList = "🔧 Available Statistical Workflows:" + NL + NL
-        
-        for cTemplate in Keys($aWorkflowTemplates)
-            aTemplate = $aWorkflowTemplates[cTemplate]
-            cList += "📊 " + aTemplate[:name] + NL
-            cList += "   Template: '" + cTemplate + "'" + NL
-            cList += "   Purpose: " + aTemplate[:description] + NL
-            cList += "   Steps: " + len(aTemplate[:steps]) + NL + NL
-        next
-        
-        cList += "💡 You can also use natural language goals like:" + NL
-        nCount = 0
-        for cGoal in Keys($aWorkflowGoals)
-            cList += "   • \"" + cGoal + "\""
-            nCount++
-            if nCount < len($aWorkflowGoals)
-                cList += NL
-            ok
-        next
-        
-        return cList
     
-    def CreateCustomWorkflow(cName, cDescription, aSteps)
-        """
-        Create a custom workflow template
-        @param cName: Workflow name
-        @param cDescription: Workflow description  
+    def AddPlan(cName, cTitle, cDescription, aSteps)
+        /*
+        Create a custom Plan template
+        @param cTitle: Plan title
+        @param cDescription: Plan description  
         @param aSteps: Array of step definitions
-        """
-        
-        cKey = "CUSTOM_" + Upper(cName)
-        $aWorkflowTemplates[cKey] = [
-            :name = cName,
+        */
+ 
+		
+        cKey = "custom_" + lower(cName)
+        $aPlanTemplates[cKey] = [
+			:title = cName,
+            :title = cTitle,
             :description = cDescription,
             :steps = aSteps
         ]
@@ -3333,61 +3351,85 @@ class stzDataSet
         return cKey
     
     #===============================#
-    #  WORKFLOW HELPER METHODS      #
+    #  Plan HELPER METHODS      #
     #===============================#
     
-    def _ResolveWorkflowTemplate(cInput)
+	def _PlanNames()
+		nLen = len($aPlanTemplates)
+		acResult = []
+
+		for i = 1 to nLen
+			acResult + $aPlanTemplates[i][1]
+		next
+
+		return acResult
+
+	def _PlanTemplates()
+		nLen = len($aPlanTemplates)
+		acResult = []
+
+		for i = 1 to nLen
+			acResult + $aPlanTemplates[i][2]
+		next
+
+		return acResult
+
+	def _PlanGoals()
+		nLen = len($aPlanGoals)
+		acResult = []
+
+		for i = 1 to nLen
+			acResult + $aPlanGoals[i][1]
+		next
+
+		return acResult
+
+    def _ResolvePlanTemplate(cInput)
         cInput = Lower(@trim(cInput))
-        
+
+		# Check if it's a Plan name
+		if ring_find(_PlanNames(), cInput)
+			return cInput
+		ok
+
         # Check if it's a direct template key
-        if HasKey($aWorkflowTemplates, cInput)
-            return cInput
-        ok
+		if ring_find(_PlanTemplates(), cInput)
+			return cInput
+		ok
         
         # Check goal mappings
-        if HasKey($aWorkflowGoals, cInput)
-            return $aWorkflowGoals[cInput]
-        ok
-        
-        # Check partial matches in goals
-        for cGoal in Keys($aWorkflowGoals)
-            if SubStr(cGoal, cInput) > 0
-                return $aWorkflowGoals[cGoal]
-            ok
-        next
+		if ring_find(_PlanGoals(), cInput)
+			return $aPlanGoals[cInput]
+		ok
         
         return NULL
     
-    def _FilterWorkflowSteps(aSteps)
+    def _FilterPlanSteps(aSteps)
+
         aFiltered = []
         
         for aStep in aSteps
 
             bInclude = TRUE
-? @@(aStep)         
+        
             # Check if step has condition
             if HasKey(aStep, :condition)
-? "in condition"
                 bInclude = This._EvaluateCondition(aStep[:condition])
-? bInclude
             ok
             
             # Check if required step
             if HasKey(aStep, :required) and aStep[:required] = TRUE
-? "in required"
                 bInclude = TRUE
-? bInclude
             ok
             
             if bInclude
                 aFiltered + aStep
             ok
         next
-? @@(aFiltered)
-ddf
+
         return aFiltered
     
-    def _ExecuteWorkflowStep(aStep)
+    def _ExecutePlanStep(aStep)
         cFunction = aStep[:function]
         aArgs = []
         
@@ -3414,49 +3456,44 @@ ddf
         switch cFunction
         on "DataType"
             return "Data type: " + vResult
+
         on "Count"
             return "Sample size: " + vResult
+
         on "Mean"
             return "Mean: " + @@(vResult)
+
         on "Median" 
             return "Median: " + @@(vResult)
+
         on "StandardDeviation"
             return "Std Dev: " + @@(vResult)
+
         on "ContainsOutliers"
             return "Outliers present: " + vResult
+
         on "NormalityTest"
             return "Normality p-value: " + @@(vResult[2])
+
         on "TrendAnalysis"
             return "Trend: " + vResult
+
         other
+
             if isNumber(vResult)
                 return cFunction + ": " + @@(vResult)
+
             but isString(vResult)
                 return cFunction + ": " + vResult
+
             but isList(vResult)
-                return cFunction + ": " + len(vResult) + " values"
+                return cFunction + ": " + len(vResult) + " value(s)"
+
             else
                 return cFunction + ": completed"
             ok
+
         off
-    
-    def _EstimateWorkflowTime(aSteps)
-        # Simple time estimation based on step count and complexity
-        nBaseTime = len(aSteps) * 0.1  # 0.1 seconds per step
-        
-        # Add extra time for complex operations
-        for aStep in aSteps
-            switch aStep[:function]
-            on "NormalityTest"
-                nBaseTime += 0.2
-            on "CorrelationWith"
-                nBaseTime += 0.15
-            on "RegressionCoefficients"
-                nBaseTime += 0.3
-            off
-        next
-        
-        return @@(nBaseTime)
     
     def _FormatArgs(aArgs)
         cResult = ""

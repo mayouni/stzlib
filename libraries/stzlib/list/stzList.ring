@@ -79,7 +79,7 @@ func HasKey(paList, pcKey)
 		acKeys + lower(paList[i][1])
 	next
 
-	return iff(ring_find(acKeys, lower(pcKey)), TRUE, FALSE)
+	return iff(ring_find(acKeys, lower(pcKey)) > 0, TRUE, FALSE)
 
 	func @HasKey(paList, pcKey)
 		return HasKey(paList, pcKey)
