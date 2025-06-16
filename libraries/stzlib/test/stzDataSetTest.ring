@@ -929,9 +929,9 @@ oMonth = new stzDataSet([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])                     /
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
-#=========================================#
+#=====================================#
 #  TESTING THE ANALYTICS Plan SYSTEM  #
-#=========================================#
+#=====================================#
 
 pr()
 
@@ -952,7 +952,7 @@ pf()
 
 
 /*--- EXAMPLE 1: Basic Data Exploration
-*/
+
 pr()
 
 aSalesData = [
@@ -1032,43 +1032,61 @@ oResults = oSales.ExecutePlan(:EDA) # Or RunPlan() or PerformPlan()
 '
 
 pf()
+# Executed in 0.1990 second(s) in Ring 1.22
 
 /*--- EXAMPLE 2: Quality Control Analysis
-# ==================================
 
 # Manufacturing process data (with some issues)
+
 aProcessData = [98.2, 99.1, 97.8, 101.5, 98.9, 99.3, 98.7, 110.2, 99.0, 98.5, 
                 99.4, 97.9, 98.8, 99.2, 98.6, 85.1, 99.1, 98.4, 99.7, 98.3]
 
 oProcess = new stzDataSet(aProcessData)
 
 # Quality control Plan
-oQCResults = oProcess.ExecutePlan("quality control", TRUE)
-# This will automatically:
-# 1. Validate data integrity
-# 2. Calculate process center (mean)  
-# 3. Measure process variation (std dev)
-# 4. Assess consistency (CV)
-# 5. Detect anomalies (outliers)
-# 6. List out-of-control points
-# 7. Check process drift
+oQCResults = oProcess.ExecutePlan(:quality)
+#-->
+'
+╭──────────────────────────────────────────╮
+│ Executing Plan: Quality Control Analysis │
+╰──────────────────────────────────────────╯
+• Name: {quality}
+• Goal: Statistical process control and quality assessment
+• Steps: 8
 
-# Access specific results
-for aResult in oQCResults[:results]
-    if aResult[:function] = "CoefficientOfVariation"
-        if aResult[:result] > 5
-            ? "⚠️  High process variability detected: " + aResult[:result] + "%"
-        ok
-    ok
-    
-    if aResult[:function] = "ContainsOutliers" and aResult[:result] = TRUE
-        ? "🚨 Quality control alert: Outliers detected in process"
-    ok
-next
+✅ Step 1/8: Data integrity check
+╰─> ValidateData: 1 value(s)
 
+✅ Step 2/8: Process center
+╰─> Mean: 98.7850
+
+✅ Step 3/8: Process variation
+╰─> Std Dev: 4.1642
+
+✅ Step 4/8: Process consistency
+╰─> CoefficientOfVariation: 100
+
+✅ Step 5/8: Process anomalies
+╰─> Outliers present: 1
+
+✅ Step 6/8: Out-of-control points
+╰─> Outliers: 3 value(s)
+
+✅ Step 7/8: Process spread
+╰─> Range: 25.1000
+
+✅ Step 8/8: Process drift detection
+❌ Error: Error (R21) : Using operator with values of incorrect type
+
+( Plan completed in 0.0750s : 8 successful step(s), 1 error(s) )
+'
+
+pf()
+# Executed in 3.7100 second(s) in Ring 1.22
 
 /*--- EXAMPLE 3: Correlation Analysis Between Variables
-# ================================================
+
+pr()
 
 # Temperature and ice cream sales data
 aTemperature = [72, 75, 80, 85, 90, 68, 78, 82, 88, 95, 70, 77, 83, 87, 92]
@@ -1078,15 +1096,45 @@ oTemp = new stzDataSet(aTemperature)
 oSalesTemp = new stzDataSet(aSales)
 
 # Correlation Plan (automatically chooses Pearson vs Spearman)
-oCorrelation = oTemp.ExecutePlan("find relationships", FALSE)
+oCorrelation = oTemp.ExecutePlan(:relation)
+#-->
+'
+╭───────────────────────────────────────────╮
+│ Executing Plan: Correlation Analysis Plan │
+╰───────────────────────────────────────────╯
+• Name: {correlation}
+• Goal: Analyze relationships between variables
+• Steps: 5
 
+✅ Step 1/5: Verify numeric data
+╰─> Data type: numeric
+
+✅ Step 2/5: Check sample size
+╰─> Sample size: 15
+
+✅ Step 3/5: Test normality assumption
+╰─> Normality p-value: [ "skewness", 0.0756 ]
+
+✅ Step 4/5: Spearman correlation (non-normal data)
+❌ Error: Error (R19) : Calling function with less number of parameters
+
+✅ Step 5/5: Covariance analysis
+❌ Error: Error (R19) : Calling function with less number of parameters
+
+( Plan completed in 0.0740s : 3 successful step(s), 2 error(s) )
+'
+
+? ""
 # Manual correlation with second dataset
-nCorr = oTemp.CorrelationWith(oSalesTemp)
-? "Temperature-Sales Correlation: " + @@(nCorr)  # Strong positive correlation expected
+? oTemp.CorrelationWith(oSalesTemp)
+#--> 0.1064  #TODO Strong positive correlation expected?
 
+pf()
+# Executed in 0.0760 second(s) in Ring 1.22
 
 /*--- EXAMPLE 4: Outlier Investigation
-# ================================
+
+pr()
 
 # Customer satisfaction scores (with some extreme values)
 aSatisfaction = [8.2, 7.9, 8.5, 8.1, 7.8, 8.3, 8.0, 2.1, 8.4, 7.7, 
@@ -1095,24 +1143,48 @@ aSatisfaction = [8.2, 7.9, 8.5, 8.1, 7.8, 8.3, 8.0, 2.1, 8.4, 7.7,
 oSatisfaction = new stzDataSet(aSatisfaction)
 
 # Comprehensive outlier analysis
-oOutlierResults = oSatisfaction.ExecutePlan("detect outliers", TRUE)
+oSatisfaction.ExecutePlan(:outliers)
+#-->
+'
+╭────────────────────────────────────────────────╮
+│ Executing Plan: Outlier Detection and Analysis │
+╰────────────────────────────────────────────────╯
+• Name: {outliers}
+• Goal: Comprehensive outlier identification and impact assessment
+• Steps: 7
 
-# Extract actionable insights
-for aResult in oOutlierResults[:results]
-    if aResult[:function] = "Outliers"
-        ? "🎯 Outlier values requiring investigation: " + This._FormatList(aResult[:result])
-    ok
-    
-    if aResult[:function] = "TrimmedMean"
-        ? "📊 Robust average (outliers removed): " + @@(aResult[:result])
-    ok
-next
+✅ Step 1/7: Initial outlier detection
+╰─> Outliers present: 1
 
+✅ Step 2/7: List outlier values
+╰─> Outliers: 2 value(s)
+
+✅ Step 3/7: Standardized scores
+╰─> ZScores: 20 value(s)
+
+✅ Step 4/7: Mean with outliers
+╰─> Mean: 7.9050
+
+✅ Step 5/7: Robust mean (10% trimmed)
+╰─> TrimmedMean: 8.1188
+
+✅ Step 6/7: Outlier-resistant center
+╰─> Median: 8.1000
+
+✅ Step 7/7: Outlier-resistant scaling
+╰─> RobustScale: 20 value(s)
+
+( Plan completed in 0.0790s : 7 successful step(s), 0 error(s) )
+'
+pf()
+# Executed in 0.0810 second(s) in Ring 1.22
 
 /*--- EXAMPLE 5: Custom Plan Creation
-# ===================================
+
+pr()
 
 # Create a specialized financial analysis Plan
+
 aFinancialSteps = [
     [ :function = "Mean", :required = TRUE, :description = "Average return" ],
     [ :function = "StandardDeviation", :required = TRUE, :description = "Volatility measure" ],
@@ -1130,39 +1202,93 @@ aReturns = [0.05, 0.02, -0.01, 0.08, -0.15, 0.03, 0.07, -0.02, 0.12, -0.08,
 oReturns = new stzDataSet(aReturns)
 
 # Register custom Plan
-cCustomKey = oReturns.AddPlan("Financial Risk Analysis", 
-                                          "Comprehensive financial risk assessment", 
-                                          aFinancialSteps)
+oReturns.AddPlan(
+	:FinRisk,
+	"Financial Risk Analysis",
+	"Comprehensive financial risk assessment", 
+    aFinancialSteps
+)
 
 # Execute custom Plan
-oFinancialResults = oReturns.ExecutePlan(cCustomKey, TRUE)
+oReturns.ExecutePlan(:FinRisk)
+#-->
+'
+╭─────────────────────────────────────────╮
+│ Executing Plan: Financial Risk Analysis │
+╰─────────────────────────────────────────╯
+• Name: {finrisk}
+• Goal: Comprehensive financial risk assessment
+• Steps: 6
 
+✅ Step 1/6: Average return
+╰─> Mean: 0.0080
+
+✅ Step 2/6: Volatility measure
+╰─> Std Dev: 0.0815
+
+✅ Step 3/6: Risk-return ratio
+╰─> CoefficientOfVariation: 100
+
+✅ Step 4/6: Return asymmetry
+╰─> Skewness: -0.0976
+
+✅ Step 5/6: Extreme market events
+╰─> Outliers present: 1
+
+✅ Step 6/6: Crisis periods identification
+╰─> Outliers: 1 value(s)
+
+( Plan completed in 0.0730s : 6 successful step(s), 0 error(s) )
+'
+
+pf()
+# Executed in 0.0740 second(s) in Ring 1.22
 
 /*--- EXAMPLE 6: Trend Analysis for Time Series
-# =========================================
+
+pr()
 
 # Monthly website visitors
 aVisitors = [1200, 1350, 1180, 1420, 1580, 1750, 1650, 1820, 1920, 1780, 2100, 2350]
-
 oVisitors = new stzDataSet(aVisitors)
 
 # Trend analysis Plan
-oTrendResults = oVisitors.ExecutePlan("analyze trends", TRUE)
+oVisitors.ExecutePlan(:trends)
+'
+╭────────────────────────────────────────────╮
+│ Executing Plan: Time Series Trend Analysis │
+╰────────────────────────────────────────────╯
+• Name: {trends}
+• Goal: Analyze temporal patterns and trends
+• Steps: 6
 
-# Extract trend insights
-for aResult in oTrendResults[:results]
-    if aResult[:function] = "TrendAnalysis"
-        ? "📈 Overall trend direction: " + aResult[:result]
-    ok
-    
-    if aResult[:function] = "MovingAverage"
-        ? "📊 Smoothed trend line available for visualization"
-    ok
-next
+✅ Step 1/6: Check sufficient data points
+╰─> Sample size: 12
 
+✅ Step 2/6: Overall trend direction
+❌ Error: Error (R21) : Using operator with values of incorrect type
+
+✅ Step 3/6: Smooth short-term fluctuations
+╰─> MovingAverage: 8 value(s)
+
+✅ Step 4/6: Long-term trend smoothing
+╰─> MovingAverage: 3 value(s)
+
+✅ Step 5/6: Trend stability assessment
+╰─> Std Dev: 354.8239
+
+✅ Step 6/6: Trend magnitude
+╰─> Range: 1170
+
+( Plan completed in 0.0690s : 6 successful step(s), 1 error(s) )
+'
+
+pf()
+# Executed in 0.0700 second(s) in Ring 1.22
 
 /*--- EXAMPLE 7: Comparative Analysis Plan
-# =======================================
+
+pr()
 
 # Before/After performance data
 aBefore = [78, 82, 75, 80, 77, 83, 79, 81, 76, 84]
@@ -1172,86 +1298,301 @@ oBefore = new stzDataSet(aBefore)
 oAfter = new stzDataSet(aAfter)
 
 # Run EDA on both datasets
-oBeforeAnalysis = oBefore.ExecutePlan("EDA", FALSE)
-oAfterAnalysis = oAfter.ExecutePlan("EDA", FALSE)
+oBefore.ExecutePlan(:EDA)
+#-->
+'
+╭───────────────────────────────────────────╮
+│ Executing Plan: Exploratory Data Analysis │
+╰───────────────────────────────────────────╯
+• Data: [ 78, 82, 75, 80, 77, 83, 79, 81, 76, 84 ]
+• Name: {eda}
+• Goal: Comprehensive data exploration and understanding
+• Steps: 9
 
+✅ Step 1/9: Check data quality
+╰─> ValidateData: 1 value(s)
+
+✅ Step 2/9: Identify data type
+╰─> Data type: numeric
+
+✅ Step 3/9: Get sample size
+╰─> Sample size: 10
+
+✅ Step 4/9: Central tendency
+╰─> Mean: 79.5000
+
+✅ Step 5/9: Robust center
+╰─> Median: 79.5000
+
+✅ Step 6/9: Variability
+╰─> Std Dev: 80.6658
+
+✅ Step 7/9: Distribution shape
+╰─> Quartiles: 3 value(s)
+
+✅ Step 8/9: Asymmetry check
+╰─> Skewness: 0.1188
+
+✅ Step 9/9: Outlier detection
+╰─> Outliers present: 0
+
+( Plan completed in 0.1060s : 9 successful step(s), 0 error(s) )
+'
+
+? ""
+oAfter.ExecutePlan(:EDA)
+#-->
+'
+╭───────────────────────────────────────────╮
+│ Executing Plan: Exploratory Data Analysis │
+╰───────────────────────────────────────────╯
+• Data: [ 85, 88, 84, 87, 89, 91, 86, 90, 87, 93 ]
+• Name: {eda}
+• Goal: Comprehensive data exploration and understanding
+• Steps: 9
+
+✅ Step 1/9: Check data quality
+╰─> ValidateData: 1 value(s)
+
+✅ Step 2/9: Identify data type
+╰─> Data type: numeric
+
+✅ Step 3/9: Get sample size
+╰─> Sample size: 10
+
+✅ Step 4/9: Central tendency
+╰─> Mean: 88
+
+✅ Step 5/9: Robust center
+╰─> Median: 87.5000
+
+✅ Step 6/9: Variability
+╰─> Std Dev: 89.8637
+
+✅ Step 7/9: Distribution shape
+╰─> Quartiles: 3 value(s)
+
+✅ Step 8/9: Asymmetry check
+╰─> Skewness: 0.1188
+
+✅ Step 9/9: Outlier detection
+╰─> Outliers present: 0
+
+( Plan completed in 0.1050s : 9 successful step(s), 0 error(s) )
+'
+
+? ""
 # Compare key metrics
-? "=== Performance Comparison ==="
+? Boxround("Performance Comparison")
 ? "Before - Mean: " + @@(oBefore.Mean()) + ", Std: " + @@(oBefore.StandardDeviation())
 ? "After  - Mean: " + @@(oAfter.Mean()) + ", Std: " + @@(oAfter.StandardDeviation())
-
 nImprovement = ((oAfter.Mean() - oBefore.Mean()) / oBefore.Mean()) * 100
 ? "Improvement: " + @@(nImprovement) + "%"
+#-->
+'
+Before - Mean: 80.6658, Std: 3.2675
+After  - Mean: 89.8637, Std: 3.4113
+Improvement: 11.4025%
+'
 
+pf()
+# Executed in 0.2360 second(s) in Ring 1.22
 
 /*--- EXAMPLE 8: Smart Plan Selection
-# ===================================
+
+pr()
 
 # Function to automatically suggest best Plan based on data characteristics
-func SuggestPlan(paData)
-    oData = new stzDataSet(paData)
-    
-    cDataType = oData.DataType()
-    nCount = oData.Count()
-    bHasOutliers = oData.ContainsOutliers()
-    
-    if nCount < 10
-        return "EDA"  # Basic exploration for small samples
-    ok
-    
-    if bHasOutliers
-        return "OUTLIERS"  # Focus on outlier analysis
-    ok
-    
-    if cDataType = "numeric" and nCount >= 20
-        nCV = oData.CoefficientOfVariation()
-        if nCV > 30
-            return "QC"  # Quality control for high variability
-        else
-            return "NORMALITY"  # Test distribution assumptions
-        ok
-    ok
-    
-    return "EDA"  # Default fallback
 
 # Test with different datasets
-aNormalData = [98, 99, 100, 101, 99, 98, 100, 99, 101, 98]
-aSkewedData = [10, 11, 12, 11, 10, 45, 12, 11, 10, 11, 9, 12]
-aHighVarData = [50, 150, 75, 200, 25, 175, 100, 225, 60, 180]
+oNormalData = new stzDataSet([98, 99, 100, 101, 99, 98, 100, 99, 101, 98])
+oSkewedData = new stzDataSet([10, 11, 12, 11, 10, 45, 12, 11, 10, 11, 9, 12])
+oHighVarData = new stzDataSet([50, 150, 75, 200, 25, 175, 100, 225, 60, 180])
 
-? "Normal data → " + SuggestPlan(aNormalData)     # "NORMALITY"
-? "Skewed data → " + SuggestPlan(aSkewedData)     # "OUTLIERS"  
-? "High variance → " + SuggestPlan(aHighVarData)  # "QC"
+? "Normal data → " + oNormalData.SuggestPlan()     # "NORMALITY"
+? "Skewed data → " + oSkewedData.SuggestPlan()     # "OUTLIERS"  
+? "High variance → " + oHighVarData.SuggestPlan()  # "QC"
+? ""
+# You can run any plan easily using its name
 
+oNormalData.RunPlan(:NORMALITY) # Or ExecutePlan()
+#-->
+'
+╭───────────────────────────────────────────╮
+│ Executing Plan: Normality Assessment Plan │
+╰───────────────────────────────────────────╯
+• Data: [ 98, 99, 100, 101, 99, 98, 100, 99, 101, 98 ]
+• Name: {normality}
+• Goal: Determine if data follows normal distribution
+• Steps: 5
 
-/*--- EXAMPLE 9: Plan Chaining (COMPLETED)
-# ============================
+✅ Step 1/5: Check sample size adequacy
+╰─> Sample size: 10
 
-# Execute multiple Plans in sequence
-func ChainPlans(paData, paPlanNames)
-    oData = new stzDataSet(paData)
-    aAllResults = []
-    
-    for cPlan in paPlanNames
-        ? "🔗 Executing: " + cPlan
-        oResult = oData.ExecutePlan(cPlan, FALSE)
-        aAllResults + oResult
-    next
-    
-    return aAllResults
+✅ Step 2/5: Formal normality test
+╰─> Normality p-value: [ "skewness", 0.0342 ]
 
-/*--- EXAMPLE usage - comprehensive data analysis pipeline
-aProductionData = [95.2, 96.1, 94.8, 97.3, 95.9, 96.5, 95.1, 98.2, 96.0, 95.7,
-                   96.8, 94.9, 95.6, 96.3, 95.4, 99.1, 96.2, 95.8, 96.7, 95.3]
+✅ Step 3/5: Check asymmetry
+╰─> Skewness: 0.1186
 
-aPlanChain = ["EDA", "QC", "OUTLIERS", "NORMALITY"]
-aChainedResults = ChainPlans(aProductionData, aPlanChain)
+✅ Step 4/5: Check tail behavior
+╰─> Kurtosis: -4.1624
 
-? "📊 Pipeline completed: " + len(aChainedResults) + " Plans executed"
+✅ Step 5/5: Visual normality indicators
+╰─> BoxPlotStats: 8 value(s)
 
+( Plan completed in 0.0580s : 5 successful step(s), 0 error(s) )
+'
+
+pf()
+# Executed in 0.0600 second(s) in Ring 1.22
+
+/*--- EXAMPLE 9: Plan Chaining
+
+pr()
+
+# Comprehensive data analysis pipeline
+pProductionData = new stzDataSet([
+	95.2, 96.1, 94.8, 97.3, 95.9, 96.5, 95.1, 98.2, 96.0, 95.7,
+    96.8, 94.9, 95.6, 96.3, 95.4, 99.1, 96.2, 95.8, 96.7, 95.3
+])
+
+pProductionData.ChainPlans([ "EDA", "QUALITY", "OUTLIERS", "NORMALITY" ])
+#-->
+'
+╭───────────────────────────────────────────╮
+│ Executing Plan: Exploratory Data Analysis │
+╰───────────────────────────────────────────╯
+• Data: [ 95.2000, 96.1000, 94.8000, 97.3000, 95.9000, 96.5000, 95.1000, 98.2000, 96, 95.7000, 96.8000, 94.9000, 95.6000, 96.3000, 95.4000, 99.1000, 96.2000, 95.8000, 96.7000, 95.3000 ]
+• Name: {eda}
+• Goal: Comprehensive data exploration and understanding
+• Steps: 9
+
+✅ Step 1/9: Check data quality
+╰─> ValidateData: 1 value(s)
+
+✅ Step 2/9: Identify data type
+╰─> Data type: numeric
+
+✅ Step 3/9: Get sample size
+╰─> Sample size: 20
+
+✅ Step 4/9: Central tendency
+╰─> Mean: 96.1450
+
+✅ Step 5/9: Robust center
+╰─> Median: 95.9500
+
+✅ Step 6/9: Variability
+╰─> Std Dev: 97.5325
+
+✅ Step 7/9: Distribution shape
+╰─> Quartiles: 3 value(s)
+
+✅ Step 8/9: Asymmetry check
+╰─> Skewness: 0.0542
+
+✅ Step 9/9: Outlier detection
+╰─> Outliers present: 1
+
+( Plan completed in 0.1050s : 9 successful step(s), 0 error(s) )
+
+╭──────────────────────────────────────────╮
+│ Executing Plan: Quality Control Analysis │
+╰──────────────────────────────────────────╯
+• Name: {quality}
+• Goal: Statistical process control and quality assessment
+• Steps: 8
+
+✅ Step 1/8: Data integrity check
+╰─> ValidateData: 1 value(s)
+
+✅ Step 2/8: Process center
+╰─> Mean: 97.5325
+
+✅ Step 3/8: Process variation
+╰─> Std Dev: 1.7917
+
+✅ Step 4/8: Process consistency
+╰─> CoefficientOfVariation: 1.8370
+
+✅ Step 5/8: Process anomalies
+╰─> Outliers present: 1
+
+✅ Step 6/8: Out-of-control points
+╰─> Outliers: 1 value(s)
+
+✅ Step 7/8: Process spread
+╰─> Range: 4.3000
+
+✅ Step 8/8: Process drift detection
+❌ Error: Error (R21) : Using operator with values of incorrect type
+
+( Plan completed in 0.0730s : 8 successful step(s), 1 error(s) )
+
+╭────────────────────────────────────────────────╮
+│ Executing Plan: Outlier Detection and Analysis │
+╰────────────────────────────────────────────────╯
+• Name: {outliers}
+• Goal: Comprehensive outlier identification and impact assessment
+• Steps: 7
+
+✅ Step 1/7: Initial outlier detection
+╰─> Outliers present: 1
+
+✅ Step 2/7: List outlier values
+╰─> Outliers: 1 value(s)
+
+✅ Step 3/7: Standardized scores
+╰─> ZScores: 20 value(s)
+
+✅ Step 4/7: Mean with outliers
+╰─> Mean: 1.7917
+
+✅ Step 5/7: Robust mean (10% trimmed)
+╰─> TrimmedMean: 95.9937
+
+✅ Step 6/7: Outlier-resistant center
+╰─> Median: 95.9500
+
+✅ Step 7/7: Outlier-resistant scaling
+╰─> RobustScale: 20 value(s)
+
+( Plan completed in 0.0770s : 7 successful step(s), 0 error(s) )
+
+╭───────────────────────────────────────────╮
+│ Executing Plan: Normality Assessment Plan │
+╰───────────────────────────────────────────╯
+• Name: {normality}
+• Goal: Determine if data follows normal distribution
+• Steps: 6
+
+✅ Step 1/6: Check sample size adequacy
+╰─> Sample size: 20
+
+✅ Step 2/6: Formal normality test
+╰─> Normality p-value: [ "skewness", 0.0542 ]
+
+✅ Step 3/6: Check asymmetry
+╰─> Skewness: 0.0542
+
+✅ Step 4/6: Check tail behavior
+╰─> Kurtosis: -3.4740
+
+✅ Step 5/6: Visual normality indicators
+╰─> BoxPlotStats: 8 value(s)
+
+✅ Step 6/6: Outlier impact on normality
+╰─> Outliers: 1 value(s)
+
+( Plan completed in 0.0610s : 6 successful step(s), 0 error(s) )
+'
+
+pf()
+# Executed in 0.3180 second(s) in Ring 1.22
 
 /*--- EXAMPLE 10: Conditional Plan Execution
-# ==========================================
+*/
 
 # Smart Plan that adapts based on intermediate results
 func AdaptiveAnalysis(paData)
