@@ -1,108 +1,212 @@
+#==========================================================================#
+#  stzDataSet Cass - Statistics Layer of the Softanza Analytics Framework  #
+#     Four Pillars: Comparison | Composition | Distribution | Relation     #
+#==========================================================================#
+
 # Global configuration for missing values
 $aSTAT_MISSING_VALUES = [ "", "NA", "NULL", "n/a", "#N/A" ]
 
 # Thresholds and Constants
-$nSmallSampleSizeThreshold = 10
-$nSkewnessThreshold = 1
+$nSmallSampleSizeThreshold = 30
+$nSkewnessThreshold = 0.5
+$nKurtosisThreshold = 3
 $nDiversityThreshold = 0.3
 $nEntropyThreshold = 1.5
 $nMeanDifferenceThreshold = 0.05
-$nVarThreshold = 50
-$nMovingAverageWindow = 3
-$nFinanceMeanThreshold = 100
-$nFinanceVolatilityThreshold = 20
-$nHealthcareStdDevThreshold = 50
+$nVarThreshold = 30
+$nCorrelationThreshold = 0.7
+$nOutlierThreshold = 0.1
+$nNormalityThreshold = 0.05
+$nMovingAverageWindow = 5
 
 # Insight Templates
 $aEmptyInsightTemplates = [
-    [ :condition = "nothing", :template = "Dataset is empty. No analysis possible without data." ]
+    [ :condition = "Count() = 0", :template = "Dataset is empty - No analysis possible without data." ]
 ]
 
 $aMixedInsightTemplates = [ 
     [
-        :condition = "nothing",
-        :template = "Mixed dataset containing both numeric and categorical data ({UniqueCount()} unique values from {Count()} total)"
-    ],
-    [
-        :condition = "nothing",
-        :template = "Consider separating data types for specialized analysis. Numeric methods apply only to numeric subset"
+        :condition = "DataType() = 'mixed'",
+        :template = "Mixed dataset containing both numeric and categorical data. Consider separating data types for specialized analysis."
     ]
 ]
 
 $aNumericInsightTemplates = [
+    # Central Tendency Analysis
     [
-        :condition = "abs(Mean() - Median()) / abs(Median()) < $nMeanDifferenceThreshold",
-        :template  = "The data is symmetrically distributed with mean {Mean()} and median {Median()}."
+        :condition = "abs(Mean() - Median()) / max(abs(Mean()), abs(Median()), 1) < $nMeanDifferenceThreshold",
+        :template = "Data shows symmetric distribution (mean {Mean()} ≈ median {Median()}), suggesting normal-like behavior."
     ],
     [
-        :condition = "Mean() > Median()",
-        :template = "Data shows positive skew (mean {Mean()} > median {Median()})."
+        :condition = "Mean() > Median() and abs(Skewness()) > $nSkewnessThreshold",
+        :template = "Right-skewed distribution detected (mean {Mean()} > median {Median()}, skewness {Skewness()}). Consider median-based analysis."
+    ],
+    [
+        :condition = "Mean() < Median() and abs(Skewness()) > $nSkewnessThreshold",
+        :template = "Left-skewed distribution detected (mean {Mean()} < median {Median()}, skewness {Skewness()}). Outliers may be affecting the mean."
+    ],
+    
+    # Variability Analysis
+    [
+        :condition = "CoefficientOfVariation() < 15",
+        :template = "Low variability (CV = {CoefficientOfVariation()}%) indicates consistent, homogeneous data."
     ],
     [
         :condition = "CoefficientOfVariation() > $nVarThreshold",
-        :template = "High variability (CV = {CoefficientOfVariation()}%) indicates diverse data points."
+        :template = "High variability (CV = {CoefficientOfVariation()}%) suggests heterogeneous data with significant spread."
+    ],
+    [
+        :condition = "IQR() > 0 and (Q3() - Q1()) / Range() > 0.5",
+        :template = "Data concentrated in middle 50% (IQR = {IQR()}, Range = {Range()}). Potential outliers at extremes."
+    ],
+    
+    # Distribution Shape Analysis
+    [
+        :condition = "abs(Kurtosis()) > $nKurtosisThreshold",
+        :template = "Extreme kurtosis detected ({Kurtosis()}). Distribution has heavy tails and potential extreme values."
+    ],
+    [
+        :condition = "ContainsOutliers() and len(Outliers()) / Count() > $nOutlierThreshold",
+        :template = "Significant outliers detected ({len(Outliers())} outliers, {len(Outliers()) / Count() * 100}% of data). Consider robust statistics."
+    ],
+    
+    # Sample Size Considerations
+    [
+        :condition = "Count() >= $nSmallSampleSizeThreshold and StandardDeviation() / sqrt(Count()) < Mean() * 0.1",
+        :template = "Large sample with stable mean estimate (n={Count()}, SEM={StandardDeviation() / sqrt(Count())}). High confidence in central tendency."
+    ],
+    
+    # Normality Assessment
+    [
+        :condition = "abs(Skewness()) < 0.5 and abs(Kurtosis()) < 1",
+        :template = "Near-normal distribution characteristics (skewness {Skewness()}, kurtosis {Kurtosis()}). Parametric methods appropriate."
     ]
 ]
 
 $aCategoricalInsightTemplates = [
     [
-        :condition = "Diversity() < $nDiversityThreshold",
-        :template = "Low diversity ({Diversity() * 100}%) indicates concentration in few categories."
+        :condition = "DataType() = 'categorical' and Diversity() < $nDiversityThreshold",
+        :template = "Low diversity ({Diversity() * 100}%) indicates dominant categories - {UniqueCount()} unique values from {Count()} observations."
     ],
     [
-        :condition = "Entropy() > $nEntropyThreshold",
-        :template = "Information entropy ({Entropy()}) indicates balanced category distribution."
+        :condition = "DataType() = 'categorical' and Diversity() > 0.8",
+        :template = "High diversity ({Diversity() * 100}%) suggests evenly distributed categories or many unique values."
+    ],
+    [
+        :condition = "DataType() = 'categorical' and EntropyIndex() > $nEntropyThreshold",
+        :template = "High information content (entropy = {EntropyIndex()}) indicates balanced categorical distribution."
+    ],
+    [
+        :condition = "DataType() = 'categorical' and ModeCount() / Count() > 0.5",
+        :template = "Single category dominates ({ModeCount() / Count() * 100}% are '{Mode()[1]}') - consider binary classification."
     ]
 ]
 
-# Recommendation Templates
+# Simplified Recommendation Templates
 $aRecommendations = [
+    # Sample Size Recommendations
     [
         :condition = "Count() < $nSmallSampleSizeThreshold",
-        :recommendation = "Small sample size - interpret results cautiously.",
-        :action = "Consider using MovingAverage({$nMovingAverageWindow}) to smooth trends: {MovingAverage($nMovingAverageWindow)}",
-        :narration = "The dataset has few values ({Count()}). Smoothing with MovingAverage({$nMovingAverageWindow}) helps stabilize trends."
+        :recommendation = "Small sample size (n={Count()}) prone to outlier influence. Use non-parametric methods, bootstrap confidence intervals, TrimmedMean(), and interpret results cautiously."
     ],
+    
+    # Skewness Handling
     [
-        :condition = "abs(Skewness()) > $nSkewnessThreshold",
-        :recommendation = "Data is skewed - consider using median instead of mean.",
-        :action = "Use Median() for central tendency: {Median()}",
-        :narration = "Skewness ({Skewness()}) indicates imbalance. Median ({Median()}) is a stable measure."
+        :condition = "abs(Skewness()) > $nSkewnessThreshold and DataType() = 'numeric'",
+        :recommendation = "Skewed data (skewness = {Skewness()}) makes mean unreliable. Use Median(), IQR(), and Quartiles() for robust central tendency analysis."
     ],
+    
+    # Outlier Management
     [
-        :condition = "ContainsOutliers()",
-        :recommendation = "Outliers detected - consider robust statistics.",
-        :action = "Apply TrimmedMean(10) to reduce outlier impact: {TrimmedMean(10)}",
-        :narration = "Outliers distort results. TrimmedMean({TrimmedMean(10)}) excludes extremes for clarity."
+        :condition = "ContainsOutliers() and len(Outliers()) / Count() > 0.05",
+        :recommendation = "Multiple outliers detected ({len(Outliers())} values) can distort statistics. Apply TrimmedMean(10) and RobustScale(), or investigate data quality."
+    ],
+    
+    # Normality Violations
+    [
+        :condition = "DataType() = 'numeric' and (abs(Skewness()) > 1 or abs(Kurtosis()) > 3)",
+        :recommendation = "Non-normal distribution violates test assumptions. Use non-parametric tests, percentile-based confidence intervals, or apply Normalize()/Standardize()."
+    ],
+    
+    # High Variability
+    [
+        :condition = "CoefficientOfVariation() > 50 and DataType() = 'numeric'",
+        :recommendation = "Extremely high variability (CV = {CoefficientOfVariation()}%) may indicate multiple populations. Consider subgroup analysis or use MovingAverage({$nMovingAverageWindow}) to identify patterns."
+    ],
+    
+    # Categorical Data Insights
+    [
+        :condition = "DataType() = 'categorical' and UniqueCount() / Count() > 0.9",
+        :recommendation = "Too many unique categories ({UniqueCount()}/{Count()}) creates sparse data problems. Group categories with frequency < 5% into 'Other' category."
+    ],
+    
+    # Trend Analysis
+    [
+        :condition = "DataType() = 'numeric' and Count() >= 5",
+        :recommendation = "Sequential data contains temporal patterns. Apply TrendAnalysis() and MovingAverage({$nMovingAverageWindow}) to smooth fluctuations and identify trends."
     ]
 ]
 
 # Domain-Specific Rules
 $aDomainInsightRules = [
+
     :Finance = [
         [
-            :condition = "Mean() > $nFinanceMeanThreshold",
-            :template = "Mean ({Mean()}) exceeds financial threshold."
+            :condition = "CoefficientOfVariation() > 25",
+            :template = "High financial volatility (CV = {CoefficientOfVariation()}%). Risk assessment required."
         ],
         [
-            :condition = "CoefficientOfVariation() > $nFinanceVolatilityThreshold",
-            :template = "High volatility ({CoefficientOfVariation()}%) in financial data."
+            :condition = "abs(Skewness()) > 1",
+            :template = "Asymmetric returns distribution (skewness = {Skewness()}). Consider VaR and tail risk measures."
+        ],
+        [
+            :condition = "ContainsOutliers()",
+            :template = "Extreme market events detected ({len(Outliers())} outliers). Stress testing recommended."
         ]
     ],
+
     :Healthcare = [
         [
-            :condition = "StandardDeviation() > $nHealthcareStdDevThreshold",
-            :template = "High variability ({StandardDeviation()}) in health metrics."
-        ]
-    ],
-    :Education = [
-        [
-            :condition = "Median() < 50",
-            :template = "Median score ({Median()}) below passing threshold."
+            :condition = "CoefficientOfVariation() > 30",
+            :template = "High variability in health metrics (CV = {CoefficientOfVariation()}%). Patient stratification needed."
         ],
         [
-            :condition = "Diversity() > 0.5",
-            :template = "High diversity in responses indicates varied student performance."
+            :condition = "ContainsOutliers()",
+            :template = "Outlier patients identified ({len(Outliers())} cases). Clinical review recommended."
+        ],
+        [
+            :condition = "abs(Skewness()) > 1",
+            :template = "Non-normal health distribution (skewness = {Skewness()}). Use percentile-based reference ranges."
+        ]
+    ],
+
+    :Education = [
+        [
+            :condition = "Median() < 60",
+            :template = "Below-average performance (median = {Median()}). Curriculum review needed."
+        ],
+        [
+            :condition = "CoefficientOfVariation() > 40",
+            :template = "High performance variability (CV = {CoefficientOfVariation()}%). Differentiated instruction required."
+        ],
+        [
+            :condition = "abs(Skewness()) > 0.5",
+            :template = "Skewed score distribution (skewness = {Skewness()}). Assessment difficulty may be inappropriate."
+        ]
+    ],
+
+    :Quality = [
+        [
+            :condition = "CoefficientOfVariation() < 5",
+            :template = "Excellent process control (CV = {CoefficientOfVariation()}%). Maintain current standards."
+        ],
+        [
+            :condition = "ContainsOutliers()",
+            :template = "Quality deviations detected ({len(Outliers())} outliers). Process investigation required."
+        ],
+        [
+            :condition = "Range() / Mean() > 0.2",
+            :template = "Wide quality range (Range/Mean = {Range() / Mean()}). Process capability study needed."
         ]
     ]
 ]
@@ -161,6 +265,7 @@ $aSummaryXTTemplate = [
 
 # Class Capabilities Catalog
 $aStatFunctions = [
+    # === DESCRIPTIVE STATISTICS (PILLAR 1: COMPARISON) ===
     [
         :function = "Mean",
         :params = [],
@@ -176,56 +281,603 @@ $aStatFunctions = [
         :description = "Calculates the median of the dataset."
     ],
     [
-        :function = "TrimmedMean",
-        :params = ["nTrimPercent"],
-        :condition = "DataType() = 'numeric' and nTrimPercent >= 0 and nTrimPercent < 50",
-        :output = "number",
-        :description = "Calculates the trimmed mean by removing a percentage of extreme values."
+        :function = "Mode",
+        :params = [],
+        :condition = "TRUE",
+        :output = "list",
+        :description = "Finds the most frequent value(s) in the dataset."
     ],
     [
-        :function = "MovingAverage",
-        :params = ["nWindow"],
-        :condition = "DataType() = 'numeric' and nWindow > 0",
-        :output = "list",
-        :description = "Calculates the moving average over a specified window."
+        :function = "StandardDeviation",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "number",
+        :description = "Computes the standard deviation for numeric data."
+    ],
+    [
+        :function = "Variance",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "number",
+        :description = "Computes the variance for numeric data."
+    ],
+    [
+        :function = "Range",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "number",
+        :description = "Returns the difference between maximum and minimum values."
+    ],
+    [
+        :function = "Min",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "number",
+        :description = "Returns the minimum value in the dataset."
+    ],
+    [
+        :function = "Max",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "number",
+        :description = "Returns the maximum value in the dataset."
+    ],
+    [
+        :function = "Sum",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "number",
+        :description = "Sums all numeric values in the dataset."
+    ],
+    [
+        :function = "Count",
+        :params = [],
+        :condition = "TRUE",
+        :output = "number",
+        :description = "Returns the number of data points in the dataset."
+    ],
+    [
+        :function = "GeometricMean",
+        :params = [],
+        :condition = "DataType() = 'numeric' and AllPositive()",
+        :output = "number",
+        :description = "Calculates the geometric mean for positive numeric data."
+    ],
+    [
+        :function = "HarmonicMean",
+        :params = [],
+        :condition = "DataType() = 'numeric' and NoZeros()",
+        :output = "number",
+        :description = "Calculates the harmonic mean for non-zero numeric data."
     ],
     [
         :function = "CoefficientOfVariation",
         :params = [],
+        :condition = "DataType() = 'numeric' and Mean() != 0",
+        :output = "number",
+        :description = "Computes the coefficient of variation as a percentage."
+    ],
+    [
+        :function = "CompareWith",
+        :params = ["oOtherStats"],
+        :condition = "DataType() = 'numeric' and oOtherStats.DataType() = 'numeric'",
+        :output = "list",
+        :description = "Compares datasets including mean, variability, and correlation."
+    ],
+    [
+        :function = "SimilarityScore",
+        :params = ["oOtherStats"],
+        :condition = "DataType() = oOtherStats.DataType()",
+        :output = "number",
+        :description = "Computes similarity score (0-1) between datasets."
+    ],
+    [
+        :function = "ConfidenceInterval",
+        :params = ["nConfidence"],
+        :condition = "DataType() = 'numeric' and nConfidence > 0 and nConfidence < 100",
+        :output = "list",
+        :description = "Calculates confidence interval for the mean."
+    ],
+    [
+        :function = "WeightedMean",
+        :params = ["aWeights"],
+        :condition = "DataType() = 'numeric' and len(aWeights) = Count()",
+        :output = "number",
+        :description = "Computes weighted mean with given weights."
+    ],
+    [
+        :function = "TrimmedMean",
+        :params = ["nTrimPercent"],
+        :condition = "DataType() = 'numeric' and nTrimPercent >= 0 and nTrimPercent < 50",
+        :output = "number",
+        :description = "Calculates mean after trimming extreme values."
+    ],
+    [
+        :function = "PercentileRank",
+        :params = ["nValue"],
         :condition = "DataType() = 'numeric'",
         :output = "number",
-        :description = "Calculates the coefficient of variation as a percentage."
+        :description = "Computes the percentile rank of a specific value."
+    ],
+
+    # === FREQUENCY & CATEGORICAL ANALYSIS (PILLAR 2: COMPOSITION) ===
+    [
+        :function = "FrequencyTable",
+        :params = [],
+        :condition = "TRUE",
+        :output = "list",
+        :description = "Generates frequency table for the dataset."
+    ],
+    [
+        :function = "RelativeFrequency",
+        :params = [],
+        :condition = "TRUE",
+        :output = "list",
+        :description = "Computes relative frequencies for all values."
+    ],
+    [
+        :function = "PercentageFrequency",
+        :params = [],
+        :condition = "TRUE",
+        :output = "list",
+        :description = "Computes percentage frequencies for all values."
+    ],
+    [
+        :function = "UniqueCount",
+        :params = [],
+        :condition = "TRUE",
+        :output = "number",
+        :description = "Counts the number of unique values in the dataset."
+    ],
+    [
+        :function = "UniqueValues",
+        :params = [],
+        :condition = "TRUE",
+        :output = "list",
+        :description = "Returns a list of unique values in the dataset."
+    ],
+    [
+        :function = "Diversity",
+        :params = [],
+        :condition = "TRUE",
+        :output = "number",
+        :description = "Calculates diversity index (unique values / total values)."
+    ],
+    [
+        :function = "EntropyIndex",
+        :params = [],
+        :condition = "DataType() = 'categorical'",
+        :output = "number",
+        :description = "Computes Shannon entropy for categorical data."
+    ],
+    [
+        :function = "ContingencyTable",
+        :params = ["oOtherDataSet"],
+        :condition = "TRUE",
+        :output = "list",
+        :description = "Creates contingency table with another dataset."
+    ],
+    [
+        :function = "ModeCount",
+        :params = [],
+        :condition = "TRUE",
+        :output = "number",
+        :description = "Returns the frequency of the mode value(s)."
+    ],
+
+    # === SHAPE & SPREAD ANALYSIS (PILLAR 3: DISTRIBUTION) ===
+    [
+        :function = "Percentile",
+        :params = ["nPercent"],
+        :condition = "DataType() = 'numeric' and nPercent >= 0 and nPercent <= 100",
+        :output = "number",
+        :description = "Computes percentile using interpolation method."
+    ],
+    [
+        :function = "PercentileXT",
+        :params = ["nPercent", "cMethod"],
+        :condition = "DataType() = 'numeric' and nPercent >= 0 and nPercent <= 100",
+        :output = "number",
+        :description = "Computes percentile with specified method (interpolation/nearest)."
+    ],
+    [
+        :function = "Q1",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "number",
+        :description = "Returns the first quartile (25th percentile)."
+    ],
+    [
+        :function = "Q2",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "number",
+        :description = "Returns the second quartile (50th percentile, median)."
+    ],
+    [
+        :function = "Q3",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "number",
+        :description = "Returns the third quartile (75th percentile)."
+    ],
+    [
+        :function = "IQR",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "number",
+        :description = "Computes the interquartile range (Q3 - Q1)."
+    ],
+    [
+        :function = "Quartiles",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "list",
+        :description = "Returns a list of all quartiles."
     ],
     [
         :function = "Skewness",
         :params = [],
         :condition = "DataType() = 'numeric'",
         :output = "number",
-        :description = "Calculates the skewness of the dataset."
+        :description = "Computes the skewness of numeric data."
     ],
     [
-        :function = "Diversity",
+        :function = "Kurtosis",
         :params = [],
-        :condition = "DataType() = 'categorical'",
+        :condition = "DataType() = 'numeric'",
         :output = "number",
-        :description = "Calculates the diversity index of categorical data."
-    ],
-    [
-        :function = "Entropy",
-        :params = [],
-        :condition = "DataType() = 'categorical'",
-        :output = "number",
-        :description = "Calculates the information entropy of categorical data."
+        :description = "Computes the excess kurtosis of numeric data."
     ],
     [
         :function = "ContainsOutliers",
         :params = [],
         :condition = "DataType() = 'numeric'",
         :output = "bool",
-        :description = "Checks if the dataset contains outliers."
-    ]
+        :description = "Checks for the presence of outliers in the dataset."
+    ],
+    [
+        :function = "Outliers",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "list",
+        :description = "Returns a list of outlier values."
+    ],
+    [
+        :function = "IsOutlier",
+        :params = ["nValue"],
+        :condition = "DataType() = 'numeric'",
+        :output = "bool",
+        :description = "Checks if a specific value is an outlier."
+    ],
+    [
+        :function = "ZScores",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "list",
+        :description = "Computes z-scores for all numeric data points."
+    ],
+    [
+        :function = "MovingAverage",
+        :params = ["nWindow"],
+        :condition = "DataType() = 'numeric' and nWindow > 0 and nWindow <= Count()",
+        :output = "list",
+        :description = "Calculates moving average over specified window size."
+    ],
+    [
+        :function = "TrendAnalysis",
+        :params = [],
+        :condition = "DataType() = 'numeric' and Count() >= 3",
+        :output = "string",
+        :description = "Detects trends (up, down, stable) in numeric data."
+    ],
+    [
+        :function = "Deciles",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "list",
+        :description = "Returns deciles of numeric data (10th, 20th, ..., 90th percentiles)."
+    ],
+    [
+        :function = "BoxPlotStats",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "list",
+        :description = "Prepares statistical values for box plot visualization."
+    ],
+    [
+        :function = "NormalityTest",
+        :params = [],
+        :condition = "DataType() = 'numeric' and Count() >= 8",
+        :output = "list",
+        :description = "Performs heuristic normality test using skewness and kurtosis."
+    ],
 
-	#TODO // Add all the other statistical methods of the class
+    # === CORRELATION & ASSOCIATION ANALYSIS (PILLAR 4: RELATION) ===
+    [
+        :function = "CorrelationWith",
+        :params = ["oOtherStats"],
+        :condition = "DataType() = 'numeric' and oOtherStats.DataType() = 'numeric' and Count() = oOtherStats.Count()",
+        :output = "number",
+        :description = "Computes Pearson correlation coefficient with another dataset."
+    ],
+    [
+        :function = "CovarianceWith",
+        :params = ["oOtherStats"],
+        :condition = "DataType() = 'numeric' and oOtherStats.DataType() = 'numeric' and Count() = oOtherStats.Count()",
+        :output = "number",
+        :description = "Computes covariance between datasets."
+    ],
+    [
+        :function = "RankCorrelationWith",
+        :params = ["oOtherStats"],
+        :condition = "DataType() = 'numeric' and oOtherStats.DataType() = 'numeric' and Count() = oOtherStats.Count()",
+        :output = "number",
+        :description = "Computes Spearman's rank correlation coefficient."
+    ],
+    [
+        :function = "ChiSquareWith",
+        :params = ["oOtherStats"],
+        :condition = "DataType() = 'categorical' and oOtherStats.DataType() = 'categorical'",
+        :output = "list",
+        :description = "Performs chi-square test for categorical data association."
+    ],
+    [
+        :function = "RegressionCoefficients",
+        :params = ["oOtherDataSet"],
+        :condition = "DataType() = 'numeric' and oOtherDataSet.DataType() = 'numeric' and Count() = oOtherDataSet.Count()",
+        :output = "list",
+        :description = "Computes linear regression coefficients (slope, intercept)."
+    ],
+    [
+        :function = "PartialCorrelation",
+        :params = ["oDataSetY", "oDataSetZ"],
+        :condition = "DataType() = 'numeric' and oDataSetY.DataType() = 'numeric' and oDataSetZ.DataType() = 'numeric' and Count() = oDataSetY.Count() and Count() = oDataSetZ.Count()",
+        :output = "number",
+        :description = "Computes partial correlation controlling for a third dataset."
+    ],
+    [
+        :function = "MutualInformation",
+        :params = ["oOtherDataSet"],
+        :condition = "DataType() = 'categorical' and oOtherDataSet.DataType() = 'categorical'",
+        :output = "number",
+        :description = "Computes mutual information for categorical data."
+    ],
+
+    # === DATA PROCESSING ===
+    [
+        :function = "Normalize",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "list",
+        :description = "Applies min-max normalization to scale data to 0-1 range."
+    ],
+    [
+        :function = "Standardize",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "list",
+        :description = "Applies z-score standardization (mean=0, std=1)."
+    ],
+    [
+        :function = "RobustScale",
+        :params = [],
+        :condition = "DataType() = 'numeric'",
+        :output = "list",
+        :description = "Scales data using median and IQR for outlier resistance."
+    ],
+
+    # === DATA QUALITY ===
+    [
+        :function = "ValidateData",
+        :params = [],
+        :condition = "TRUE",
+        :output = "list",
+        :description = "Checks data integrity (empty, nulls, outliers, variance)."
+    ],
+
+    # === DYNAMIC INSIGHT GENERATION ===
+    [
+        :function = "GenerateInsight",
+        :params = [],
+        :condition = "TRUE",
+        :output = "string",
+        :description = "Generates insights based on data type and templates."
+    ],
+    [
+        :function = "InsightsXT",
+        :params = [],
+        :condition = "TRUE",
+        :output = "list",
+        :description = "Generates insights including domain-specific rules."
+    ],
+    [
+        :function = "InsightsOfDomain",
+        :params = ["cDomain"],
+        :condition = "TRUE",
+        :output = "list",
+        :description = "Generates insights for a specific domain."
+    ],
+    [
+        :function = "AddInsightRule",
+        :params = ["cDomain", "cCondition", "cInsight"],
+        :condition = "TRUE",
+        :output = "void",
+        :description = "Adds a domain-specific insight rule."
+    ],
+    [
+        :function = "AddWeightedRule",
+        :params = ["cDomain", "cCondition", "cInsight", "nWeight"],
+        :condition = "nWeight > 0",
+        :output = "void",
+        :description = "Adds a weighted domain-specific insight rule."
+    ],
+    [
+        :function = "PrioritizedInsights",
+        :params = ["cDomain"],
+        :condition = "TRUE",
+        :output = "list",
+        :description = "Returns domain insights sorted by weight."
+    ],
+
+    # === DYNAMIC RECOMMENDATION SYSTEM ===
+    [
+        :function = "RecommendAnalysis",
+        :params = [],
+        :condition = "TRUE",
+        :output = "list",
+        :description = "Generates analysis recommendations based on data conditions."
+    ],
+
+    # === DYNAMIC REPORTING SYSTEM ===
+    [
+        :function = "Summary",
+        :params = [],
+        :condition = "TRUE",
+        :output = "string",
+        :description = "Generates standard summary report of the dataset."
+    ],
+    [
+        :function = "SummaryXT",
+        :params = [],
+        :condition = "TRUE",
+        :output = "string",
+        :description = "Generates extended summary with recommendations."
+    ],
+    [
+        :function = "Export",
+        :params = [],
+        :condition = "TRUE",
+        :output = "list",
+        :description = "Exports statistical results as structured data."
+    ]
+]
+
+# Workflow Templates - Define common analysis patterns
+$aWorkflowTemplates = [
+    
+    # EXPLORATORY DATA ANALYSIS
+    :EDA = [
+        :name = "Exploratory Data Analysis",
+        :description = "Comprehensive data exploration and understanding",
+        :steps = [
+            [ :function = "ValidateData", :required = TRUE, :description = "Check data quality" ],
+            [ :function = "DataType", :required = TRUE, :description = "Identify data type" ],
+            [ :function = "Count", :required = TRUE, :description = "Get sample size" ],
+            [ :condition = "DataType() = 'numeric'", :function = "Mean", :description = "Central tendency" ],
+            [ :condition = "DataType() = 'numeric'", :function = "Median", :description = "Robust center" ],
+            [ :condition = "DataType() = 'numeric'", :function = "StandardDeviation", :description = "Variability" ],
+            [ :condition = "DataType() = 'numeric'", :function = "Quartiles", :description = "Distribution shape" ],
+            [ :condition = "DataType() = 'numeric'", :function = "Skewness", :description = "Asymmetry check" ],
+            [ :condition = "DataType() = 'numeric'", :function = "ContainsOutliers", :description = "Outlier detection" ],
+            [ :condition = "DataType() = 'categorical'", :function = "FrequencyTable", :description = "Category distribution" ],
+            [ :condition = "DataType() = 'categorical'", :function = "Diversity", :description = "Category balance" ]
+        ]
+    ],
+    
+    # NORMALITY ASSESSMENT
+    :NORMALITY = [
+        :name = "Normality Assessment Workflow",
+        :description = "Determine if data follows normal distribution",
+        :steps = [
+            [ :function = "Count", :required = TRUE, :description = "Check sample size adequacy" ],
+            [ :condition = "Count() >= 8", :function = "NormalityTest", :description = "Formal normality test" ],
+            [ :function = "Skewness", :required = TRUE, :description = "Check asymmetry" ],
+            [ :function = "Kurtosis", :required = TRUE, :description = "Check tail behavior" ],
+            [ :function = "BoxPlotStats", :required = TRUE, :description = "Visual normality indicators" ],
+            [ :condition = "ContainsOutliers()", :function = "Outliers", :description = "Outlier impact on normality" ]
+        ]
+    ],
+    
+    # CORRELATION ANALYSIS
+    :CORRELATION = [
+        :name = "Correlation Analysis Workflow",
+        :description = "Analyze relationships between variables",
+        :steps = [
+            [ :function = "DataType", :required = TRUE, :description = "Verify numeric data" ],
+            [ :function = "Count", :required = TRUE, :description = "Check sample size" ],
+            [ :function = "NormalityTest", :description = "Test normality assumption" ],
+            [ :condition = "abs(Skewness()) < 0.5 and abs(Kurtosis()) < 1", :function = "CorrelationWith", :description = "Pearson correlation (normal data)" ],
+            [ :condition = "abs(Skewness()) >= 0.5 or abs(Kurtosis()) >= 1", :function = "RankCorrelationWith", :description = "Spearman correlation (non-normal data)" ],
+            [ :function = "CovarianceWith", :description = "Covariance analysis" ],
+            [ :condition = "abs(CorrelationWith(oOther)) > 0.3", :function = "RegressionCoefficients", :description = "Linear relationship modeling" ]
+        ]
+    ],
+    
+    # OUTLIER ANALYSIS
+    :OUTLIERS = [
+        :name = "Outlier Detection and Analysis",
+        :description = "Comprehensive outlier identification and impact assessment",
+        :steps = [
+            [ :function = "ContainsOutliers", :required = TRUE, :description = "Initial outlier detection" ],
+            [ :condition = "ContainsOutliers()", :function = "Outliers", :description = "List outlier values" ],
+            [ :condition = "ContainsOutliers()", :function = "ZScores", :description = "Standardized scores" ],
+            [ :function = "Mean", :required = TRUE, :description = "Mean with outliers" ],
+            [ :condition = "ContainsOutliers()", :function = "TrimmedMean", :args = [10], :description = "Robust mean (10% trimmed)" ],
+            [ :function = "Median", :required = TRUE, :description = "Outlier-resistant center" ],
+            [ :condition = "ContainsOutliers()", :function = "RobustScale", :description = "Outlier-resistant scaling" ]
+        ]
+    ],
+    
+    # TREND ANALYSIS  
+    :TRENDS = [
+        :name = "Time Series Trend Analysis",
+        :description = "Analyze temporal patterns and trends",
+        :steps = [
+            [ :function = "Count", :required = TRUE, :description = "Check sufficient data points" ],
+            [ :condition = "Count() >= 3", :function = "TrendAnalysis", :description = "Overall trend direction" ],
+            [ :condition = "Count() >= 5", :function = "MovingAverage", :args = [5], :description = "Smooth short-term fluctuations" ],
+            [ :condition = "Count() >= 10", :function = "MovingAverage", :args = [10], :description = "Long-term trend smoothing" ],
+            [ :function = "StandardDeviation", :description = "Trend stability assessment" ],
+            [ :function = "Range", :description = "Trend magnitude" ]
+        ]
+    ],
+    
+    # QUALITY CONTROL
+    :QC = [
+        :name = "Quality Control Analysis",
+        :description = "Statistical process control and quality assessment",
+        :steps = [
+            [ :function = "ValidateData", :required = TRUE, :description = "Data integrity check" ],
+            [ :function = "Mean", :required = TRUE, :description = "Process center" ],
+            [ :function = "StandardDeviation", :required = TRUE, :description = "Process variation" ],
+            [ :function = "CoefficientOfVariation", :required = TRUE, :description = "Process consistency" ],
+            [ :function = "ContainsOutliers", :required = TRUE, :description = "Process anomalies" ],
+            [ :condition = "ContainsOutliers()", :function = "Outliers", :description = "Out-of-control points" ],
+            [ :function = "Range", :description = "Process spread" ],
+            [ :condition = "Count() >= 5", :function = "TrendAnalysis", :description = "Process drift detection" ]
+        ]
+    ]
+]
+
+# Goal-based workflow mapping
+$aWorkflowGoals = [
+    :understand = :EDA,
+    :explore = :EDA,
+    :summarize = :EDA,
+    
+    :normality = :NORMALITY,
+    :normal_distribution = :NORMALITY,
+    :test_assumptions = :NORMALITY,
+    
+    :relationship = :CORRELATION,
+    :correlation = :CORRELATION,
+    :relation = :CORRELATION,
+    :association = :CORRELATION,
+    
+    :outliers = :OUTLIERS,
+    :anomalies = :OUTLIERS,
+    :unusual_values = :OUTLIERS,
+    
+    :trend = :TRENDS,
+	:trends = :TRENDS,
+    :time_series = :TRENDS,
+    :temporal_analysis = :TRENDS,
+    
+    :quality_control = :QC,
+    :process_control = :QC,
+    :qc_analysis = :QC,
+    :quality_assessment = :QC
 ]
 
 # Helper Functions
@@ -273,7 +925,20 @@ func DataSetTemplatesXT(cType)
         return []
     off
 
+# Convenience functions
+func GenerateWorkflowFor(paData, cGoal)
+    oStats = new stzDataSet(paData)
+    return oStats.GenerateWorkflow(cGoal)
 
+func ExecuteWorkflowFor(paData, cGoal)
+    oStats = new stzDataSet(paData)
+    return oStats.ExecuteWorkflow(cGoal, TRUE)
+
+func WorkflowSummaryFor(paData, cGoal)
+    oStats = new stzDataSet(paData)
+    return oStats.WorkflowSummary(cGoal)
+
+# Factory function
 func StzDataSetQ(paData)
 	return new stzDataSet(paData)
     
@@ -282,7 +947,9 @@ func CompareDatasets(paData1, paData2)
 	oStats2 = new stzDataSet(paData2)
 	return oStats1.CompareWith(oStats2)
 
-
+#-------------#
+#  THE CLASS  #
+#-------------#
 
 class stzDataSet
 
@@ -759,6 +1426,7 @@ class stzDataSet
             nStdSim = 1 - abs(This.StandardDeviation() - oOtherStats.StandardDeviation()) / (This.StandardDeviation() + oOtherStats.StandardDeviation() + 1)
             
             return (nMeanSim + nStdSim) / 2
+
         else
             # Categorical similarity based on overlap
             aUnique1 = This.UniqueValues()
@@ -808,6 +1476,7 @@ class stzDataSet
         
         if nConfidence = 90
             nTValue = 1.645
+
         but nConfidence = 99
             nTValue = 2.576
         ok
@@ -1114,7 +1783,6 @@ class stzDataSet
 	
 		def ContingTable()
 			return This.ContingencyTable()
-
 
 
 	def ModeCount()
@@ -2163,9 +2831,9 @@ class stzDataSet
 			return This.ValidateData()
 
 
-    #============================#
+    #=============================#
     #  INSIGHT GENERATION SYSTEM  #
-    #============================#
+    #=============================#
 
     def _GenerateInsights()
         aTemplates = DataSetTemplates()
@@ -2253,14 +2921,8 @@ class stzDataSet
             
             if This._EvaluateCondition(aTemplate[:condition])
                 cRecommendation = This._InterpolateTemplate(aTemplate[:recommendation])
-                cAction = This._InterpolateTemplate(aTemplate[:action])
-                cNarration = This._InterpolateTemplate(aTemplate[:narration])
                 
-                aResults + [
-                    :recommendation = cRecommendation,
-                    :action = cAction,
-                    :narration = cNarration
-                ]
+                aResults + [ :recommendation = cRecommendation ]
             ok
         next
         
@@ -2312,73 +2974,43 @@ class stzDataSet
             ok
         next
         
-        return cReport
+        return @trim(cReport)
 
-    def _ProcessSection(aSection, cFormat)
 
-        cSectionContent = ""
-        
-        # Handle different section structures
-             
-        cKey = aSection[1][1]
-            
-        if cKey = :condition
-            if NOT This._EvaluateCondition(aSection[2][2])
-                return ""
-            ok
-        ok
-
-        if cKey = :title
-                cTitle = aSection[1][2]
-                
-                if cFormat = "text"
-                    cSectionContent += BoxifyRound(cTitle) + NL
-                but cFormat = "html"
-                    cSectionContent += "<h2>" + cTitle + "</h2>" + NL
-                but cFormat = "json"
-                    cSectionContent += '"' + cTitle + '": '
-                ok
-        ok
-
-        vContent = aSection[2][2]
-                
-        if isString(vContent)
-                    cContent = This._InterpolateContent(vContent)
-                    
-                    if cFormat = "text"
-                        cSectionContent += cContent + NL
-                    but cFormat = "html"
-                        cSectionContent += "<p>" + cContent + "</p>" + NL
-                    but cFormat = "json"
-                        cSectionContent += '"' + cContent + '"' + NL
-                    ok
-                    
-         but isList(vContent)
-                    if cFormat = "text"
-                        for cItem in vContent
-                            cSectionContent += "• " + This._InterpolateContent(cItem) + NL
-                        next
-                        
-                    but cFormat = "html"
-                        cSectionContent += "<ul>" + NL
-                        for cItem in vContent
-                            cSectionContent += "<li>" + This._InterpolateContent(cItem) + "</li>" + NL
-                        next
-                        cSectionContent += "</ul>" + NL
-                        
-                    but cFormat = "json"
-                        cSectionContent += "["
-                        for cItem in vContent
-                            cSectionContent += '"' + This._InterpolateContent(cItem) + '",'
-                        next
-                        if len(vContent) > 0
-                            cSectionContent = left(cSectionContent, len(cSectionContent) - 1)
-                        ok
-                        cSectionContent += "]" + NL
-                    ok
-          ok
-
-          return cSectionContent
+	def _ProcessSection(aSection, cFormat)
+	    cSectionContent = ""
+	    
+	    cKey = aSection[1][1]
+	    if cKey = :condition
+	        if NOT This._EvaluateCondition(aSection[2][2])
+	            return ""
+	        ok
+	    ok
+	    if cKey = :title
+	        cTitle = aSection[1][2]
+	        if cFormat = "text"
+	            cSectionContent += (NL + BoxifyRound(cTitle) + NL)
+	        ok
+	    ok
+	    
+	    vContent = aSection[2][2]
+	    if isString(vContent)
+	        cSectionContent += This._InterpolateContent(vContent) + NL
+	
+	    but isList(vContent)
+	        if cFormat = "text"
+				nLen = len(vContent)
+				for i = 1 to nlen
+					cItem = vContent[i]
+	                cSectionContent += "• " + @trim(This._InterpolateContent(cItem)) + NL
+					if i < nLen
+						cSectionContent += NL
+					ok
+	            next
+	        ok
+	    ok
+	    
+	    return cSectionContent
 
 
     #===============================#
@@ -2386,8 +3018,8 @@ class stzDataSet
     #===============================#
 
     def _EvaluateCondition(cCondition)
-        if cCondition = "" or cCondition = "nothing"
-            return TRUE
+        if cCondition = @trim("")
+            StzRaise("Can't evaluate the condition! cCondition must not be be an empty string.")
         ok
         
         try
@@ -2401,73 +3033,75 @@ class stzDataSet
     def _InterpolateTemplate(cTemplate)
         return This._InterpolateContent(cTemplate)
 
-    def _InterpolateContent(cContent)
-        if NOT isString(cContent)
-            return cContent
-        ok
-        
-        oTempStr = new stzString(cContent)
-        
-        # Handle special cases first
-        if oTempStr.Contains("{Insights()}")
-            acInsights = This.Insights()
-            cInsightText = ""
-            for cInsight in acInsights
-                cInsightText += "• " + cInsight + NL
-            next
-            oTempStr.Replace("{Insights()}", cInsightText)
-        ok
-        
-        if oTempStr.Contains("{Recommendations()}")
-            aRecommendations = This.Recommendations()
-            cRecommendText = ""
-            for aRecommend in aRecommendations
-                cRecommendText += "• " + aRecommend[:recommendation] + NL
-                cRecommendText += "  Action: " + aRecommend[:action] + NL
-                cRecommendText += "  Note: " + aRecommend[:narration] + NL + NL
-            next
-            oTempStr.Replace("{Recommendations()}", cRecommendText)
-        ok
-        
-        # Find all remaining method calls
-        aSections = oTempStr.FindSubStringsBoundedByZZ(["{", "}"])
-        
-        if len(aSections) = 0
-            return oTempStr.Content()
-        ok
-        
-        acMethods = oTempStr.Sections(aSections)
-        aValues = []
-        
-        for i = 1 to len(acMethods)
-            try
-                cCode = 'value = This.' + acMethods[i]
-                eval(cCode)
-                aValues + This._FormatValue(value)
-            catch
-                aValues + "{" + acMethods[i] + "}"
-            done
-        next
-        
-        # Adjust section positions for replacement
-        for i = 1 to len(aSections)
-            aSections[i][1]--
-            aSections[i][2]++
-        next
-        
-        oTempStr.ReplaceSectionsByMany(aSections, aValues)
-        
-        return oTempStr.Content()
+
+	def _InterpolateContent(cContent)
+	    if NOT isString(cContent)
+	        return cContent
+	    ok
+	    
+	    oTempStr = new stzString(cContent)
+	    
+	    # Handle special cases first
+	    if oTempStr.Contains("{Insights()}")
+	        acInsights = This.Insights()
+	        cInsightText = ""
+	        nLen = len(acInsights)
+	
+	        for i = 1 to nLen
+	            cInsightText += "• " + acInsights[i]
+	            if i < nLen
+	                cInsightText += NL + NL  # Added extra NL
+	            ok
+	        next
+	        oTempStr.Replace("{Insights()}", cInsightText)
+	    ok
+	    
+	    if oTempStr.Contains("{Recommendations()}")
+	        aRecommendations = This.Recommendations()
+	        cRecommendText = ""
+	        for aRecommend in aRecommendations
+	            cRecommendText += "• " + aRecommend[:recommendation] + NL + NL  # Added extra NL
+	        next
+	        oTempStr.Replace("{Recommendations()}", cRecommendText)
+	    ok
+	  
+	    # Find all remaining method calls and replace them one by one
+	    nMaxIterations = 50
+	    nIterations = 0
+	    
+	    while oTempStr.Contains("{") and oTempStr.Contains("}") and nIterations < nMaxIterations
+	        nIterations++
+	        
+	        nStart = oTempStr.FindFirst("{")
+	        nEnd = oTempStr.FindNext("}", nStart)
+	        
+	        if nEnd = 0
+	            break
+	        ok
+	        
+	        # Extract method name without braces
+	        cMethod = oTempStr.Section(nStart + 1, nEnd - 1)
+	        cCode = 'value = ' + cMethod
+			eval(cCode)
+	        cValue = This._FormatValue(value)
+	        oTempStr.ReplaceSection(nStart, nEnd, cValue)
+
+	    end
+	    
+	    return oTempStr.Content()
+	
 
     def _FormatValue(value)
         if isNumber(value)
             if value = floor(value)
                 return "" + value
             else
-                return sprintf("%.2f", value)
+                return @@(value)
             ok
+
         but isString(value)
             return value
+
         but isList(value)
             cResult = "["
             for i = 1 to len(value)
@@ -2527,6 +3161,306 @@ class stzDataSet
         ok
         
         return aResults
+
+    #===============================#
+    #  WORKFLOW GENERATION SYSTEM   #
+    #===============================#
+    
+    def GenerateWorkflow(cGoalOrTemplate)
+        /*
+        Generate a statistical workflow based on user goal or template name
+        @param cGoalOrTemplate: Either a goal description or template name
+        @return: Workflow object with steps and execution plan
+        */
+
+        cTemplate = This._ResolveWorkflowTemplate(cGoalOrTemplate)
+        if cTemplate = NULL
+            StzRaise("Unknown workflow goal or template: " + cGoalOrTemplate)
+        ok
+
+        aTemplate = $aWorkflowTemplates[cTemplate]
+        aExecutableSteps = This._FilterWorkflowSteps(aTemplate[:steps])
+        
+        return [
+            :template = cTemplate,
+            :name = aTemplate[:name],
+            :description = aTemplate[:description],
+            :steps = aExecutableSteps,
+            :total_steps = len(aExecutableSteps),
+            :estimated_time = This._EstimateWorkflowTime(aExecutableSteps)
+        ]
+    
+    def ExecuteWorkflow(cGoalOrTemplate, bVerbose)
+        /*
+        Execute a complete workflow and return results
+        @param cGoalOrTemplate: Workflow to execute
+        @param bVerbose: Include step-by-step details
+        @return: Workflow execution results
+        */
+        
+        if bVerbose = NULL bVerbose = TRUE ok
+        
+        oWorkflow = This.GenerateWorkflow(cGoalOrTemplate)
+        aResults = []
+        aErrors = []
+        
+        if bVerbose
+            ? "🔄 Executing Workflow: " + oWorkflow[:name]
+            ? "📋 Description: " + oWorkflow[:description]
+            ? "📊 Steps: " + oWorkflow[:total_steps]
+            ? ""
+        ok
+        
+        nStepNum = 1
+        for aStep in oWorkflow[:steps]
+            if bVerbose
+                ? "Step " + nStepNum + "/" + oWorkflow[:total_steps] + ": " + aStep[:description]
+            ok
+            
+            try
+                vResult = This._ExecuteWorkflowStep(aStep)
+                aResults + [
+                    :step = nStepNum,
+                    :function = aStep[:function],
+                    :description = aStep[:description],
+                    :result = vResult,
+                    :status = "success"
+                ]
+                
+                if bVerbose
+                    ? "   ✅ " + This._FormatStepResult(aStep[:function], vResult)
+                ok
+                
+            catch cError
+                aErrors + [
+                    :step = nStepNum,
+                    :function = aStep[:function],
+                    :error = cError
+                ]
+                
+                if bVerbose
+                    ? "   ❌ Error: " + cError
+                ok
+            done
+            
+            nStepNum++
+        next
+        
+        if bVerbose
+            ? ""
+            ? "🎯 Workflow completed: " + len(aResults) + " successful steps, " + len(aErrors) + " errors"
+        ok
+        
+        return [
+            :workflow = oWorkflow,
+            :results = aResults,
+            :errors = aErrors,
+            :success_rate = (len(aResults) / oWorkflow[:total_steps]) * 100
+        ]
+    
+    def WorkflowSummary(cGoalOrTemplate)
+        """
+        Get a preview of workflow steps without execution
+        @param cGoalOrTemplate: Workflow to preview
+        @return: Formatted workflow summary
+        """
+        
+        oWorkflow = This.GenerateWorkflow(cGoalOrTemplate)
+        
+        cSummary = "📋 Workflow: " + oWorkflow[:name] + NL
+        cSummary += "🎯 Goal: " + oWorkflow[:description] + NL
+        cSummary += "⏱️  Estimated time: " + oWorkflow[:estimated_time] + " seconds" + NL
+        cSummary += "📊 Steps (" + oWorkflow[:total_steps] + "):" + NL + NL
+        
+        nStep = 1
+        for aStep in oWorkflow[:steps]
+            cSummary += "  " + nStep + ". " + aStep[:description]
+            if HasKey(aStep, :condition)
+                cSummary += " (conditional)"
+            ok
+            if HasKey(aStep, :args)
+                cSummary += " [params: " + This._FormatArgs(aStep[:args]) + "]"
+            ok
+            cSummary += NL
+            nStep++
+        next
+        
+        return cSummary
+    
+    def AvailableWorkflows()
+        """
+        List all available workflow templates and goals
+        @return: Formatted list of workflows
+        """
+        
+        cList = "🔧 Available Statistical Workflows:" + NL + NL
+        
+        for cTemplate in Keys($aWorkflowTemplates)
+            aTemplate = $aWorkflowTemplates[cTemplate]
+            cList += "📊 " + aTemplate[:name] + NL
+            cList += "   Template: '" + cTemplate + "'" + NL
+            cList += "   Purpose: " + aTemplate[:description] + NL
+            cList += "   Steps: " + len(aTemplate[:steps]) + NL + NL
+        next
+        
+        cList += "💡 You can also use natural language goals like:" + NL
+        nCount = 0
+        for cGoal in Keys($aWorkflowGoals)
+            cList += "   • \"" + cGoal + "\""
+            nCount++
+            if nCount < len($aWorkflowGoals)
+                cList += NL
+            ok
+        next
+        
+        return cList
+    
+    def CreateCustomWorkflow(cName, cDescription, aSteps)
+        """
+        Create a custom workflow template
+        @param cName: Workflow name
+        @param cDescription: Workflow description  
+        @param aSteps: Array of step definitions
+        """
+        
+        cKey = "CUSTOM_" + Upper(cName)
+        $aWorkflowTemplates[cKey] = [
+            :name = cName,
+            :description = cDescription,
+            :steps = aSteps
+        ]
+        
+        return cKey
+    
+    #===============================#
+    #  WORKFLOW HELPER METHODS      #
+    #===============================#
+    
+    def _ResolveWorkflowTemplate(cInput)
+        cInput = Lower(@trim(cInput))
+        
+        # Check if it's a direct template key
+        if HasKey($aWorkflowTemplates, Upper(cInput))
+            return Upper(cInput)
+        ok
+        
+        # Check goal mappings
+        if HasKey($aWorkflowGoals, cInput)
+            return $aWorkflowGoals[cInput]
+        ok
+        
+        # Check partial matches in goals
+        for cGoal in Keys($aWorkflowGoals)
+            if SubStr(cGoal, cInput) > 0
+                return $aWorkflowGoals[cGoal]
+            ok
+        next
+        
+        return NULL
+    
+    def _FilterWorkflowSteps(aSteps)
+        aFiltered = []
+        
+        for aStep in aSteps
+            bInclude = TRUE
+            
+            # Check if step has condition
+            if HasKey(aStep, :condition)
+                bInclude = This._EvaluateCondition(aStep[:condition])
+            ok
+            
+            # Check if required step
+            if HasKey(aStep, :required) and aStep[:required] = TRUE
+                bInclude = TRUE
+            ok
+            
+            if bInclude
+                aFiltered + aStep
+            ok
+        next
+        
+        return aFiltered
+    
+    def _ExecuteWorkflowStep(aStep)
+        cFunction = aStep[:function]
+        aArgs = []
+        
+        if HasKey(aStep, :args)
+            aArgs = aStep[:args]
+        ok
+        
+        # Build execution code
+        cCode = "result = " + cFunction + "("
+        if len(aArgs) > 0
+            for i = 1 to len(aArgs)
+                cCode += aArgs[i]
+                if i < len(aArgs)
+                    cCode += ", "
+                ok
+            next
+        ok
+        cCode += ")"
+        
+        eval(cCode)
+        return result
+    
+    def _FormatStepResult(cFunction, vResult)
+        switch cFunction
+        on "DataType"
+            return "Data type: " + vResult
+        on "Count"
+            return "Sample size: " + vResult
+        on "Mean"
+            return "Mean: " + @@(vResult)
+        on "Median" 
+            return "Median: " + @@(vResult)
+        on "StandardDeviation"
+            return "Std Dev: " + @@(vResult)
+        on "ContainsOutliers"
+            return "Outliers present: " + vResult
+        on "NormalityTest"
+            return "Normality p-value: " + @@(vResult[2])
+        on "TrendAnalysis"
+            return "Trend: " + vResult
+        other
+            if isNumber(vResult)
+                return cFunction + ": " + @@(vResult)
+            but isString(vResult)
+                return cFunction + ": " + vResult
+            but isList(vResult)
+                return cFunction + ": " + len(vResult) + " values"
+            else
+                return cFunction + ": completed"
+            ok
+        off
+    
+    def _EstimateWorkflowTime(aSteps)
+        # Simple time estimation based on step count and complexity
+        nBaseTime = len(aSteps) * 0.1  # 0.1 seconds per step
+        
+        # Add extra time for complex operations
+        for aStep in aSteps
+            switch aStep[:function]
+            on "NormalityTest"
+                nBaseTime += 0.2
+            on "CorrelationWith"
+                nBaseTime += 0.15
+            on "RegressionCoefficients"
+                nBaseTime += 0.3
+            off
+        next
+        
+        return @@(nBaseTime)
+    
+    def _FormatArgs(aArgs)
+        cResult = ""
+        for i = 1 to len(aArgs)
+            cResult += aArgs[i]
+            if i < len(aArgs)
+                cResult += ", "
+            ok
+        next
+        return cResult
 
 
 	#=======================#
@@ -2655,7 +3589,6 @@ class stzDataSet
 
 	def Rules()
 		return $aDomainInsightRules
-
 
 
     #==========================#
