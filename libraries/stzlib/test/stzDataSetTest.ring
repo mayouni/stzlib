@@ -1592,350 +1592,125 @@ pf()
 # Executed in 0.3180 second(s) in Ring 1.22
 
 /*--- EXAMPLE 10: Conditional Plan Execution
-*/
 
-# Smart Plan that adapts based on intermediate results
-func AdaptiveAnalysis(paData)
-    oData = new stzDataSet(paData)
-    
-    # Start with basic exploration
-    oEDA = oData.ExecutePlan("EDA", FALSE)
-    
-    # Extract key findings
-    nMean = oData.Mean()
-    nStdDev = oData.StandardDeviation()
-    nCV = oData.CoefficientOfVariation()
-    
-    # Conditional branching based on initial results
-    if nCV > 25
-        ? "⚠️  High variability detected, running quality control analysis..."
-        oQC = oData.ExecutePlan("QC", TRUE)
-    ok
-    
-    if oData.ContainsOutliers()
-        ? "🔍 Outliers found, performing detailed outlier analysis..."
-        oOutliers = oData.ExecutePlan("OUTLIERS", TRUE)
-    ok
-    
-    if oData.Count() >= 30
-        ? "📈 Sufficient sample size, testing normality assumptions..."
-        oNormality = oData.ExecutePlan("NORMALITY", TRUE)
-    ok
-    
-    return TRUE
+pr()
 
 # Test dataset with various characteristics
-aMixedData = [100, 98, 102, 99, 101, 97, 103, 95, 105, 99, 
-              98, 101, 96, 104, 100, 180, 99, 102, 98, 101,
-              97, 103, 100, 99, 102, 98, 101, 97, 104, 100]
+oMixedData = new stzDataSet([
+	100, 98, 102, 99, 101, 97, 103, 95, 105, 99, 
+	98, 101, 96, 104, 100, 180, 99, 102, 98, 101,
+	97, 103, 100, 99, 102, 98, 101, 97, 104, 100
+])
 
-AdaptiveAnalysis(aMixedData)
+oMixedData.AdaptiveAnalysis()
+#-->
+'
+~> Start with basic exploration...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+╭───────────────────────────────────────────╮
+│ Executing Plan: Exploratory Data Analysis │
+╰───────────────────────────────────────────╯
+• Data: [ 100, 98, 102, 99, 101, 97, 103, 95, 105, 99, 98, 101, 96, 104, 100, 180, 99, 102, 98, 101, 97, 103, 100, 99, 102, 98, 101, 97, 104, 100 ]
+• Name: {eda}
+• Goal: Comprehensive data exploration and understanding
+• Steps: 9
 
-/*--- EXAMPLE 11: Batch Processing Multiple Datasets
-# ==============================================
+✅ Step 1/9: Check data quality
+╰─> ValidateData: 1 value(s)
 
-# Process multiple related datasets with consistent Plans
-func BatchAnalysis(paDatasets, cPlanType)
-    aBatchResults = []
-    nDatasetNum = 1
-    
-    for aDataset in paDatasets
-        ? "📋 Processing Dataset " + nDatasetNum + "..."
-        
-        oData = new stzDataSet(aDataset)
-        oResult = oData.ExecutePlan(cPlanType, FALSE)
-        
-        # Store results with dataset identifier
-        oResult[:dataset_id] = nDatasetNum
-        aBatchResults + oResult
-        
-        nDatasetNum++
-    next
-    
-    return aBatchResults
+✅ Step 2/9: Identify data type
+╰─> Data type: numeric
 
-/*--- EXAMPLE: Analyze multiple product lines
-aProductA = [85, 87, 86, 88, 85, 89, 87, 86, 88, 87]
-aProductB = [92, 94, 91, 95, 93, 90, 94, 92, 96, 93]
-aProductC = [78, 80, 77, 82, 79, 76, 81, 78, 83, 80]
+✅ Step 3/9: Get sample size
+╰─> Sample size: 30
 
-aAllProducts = [aProductA, aProductB, aProductC]
-aBatchResults = BatchAnalysis(aAllProducts, "EDA")
+✅ Step 4/9: Central tendency
+╰─> Mean: 102.6333
 
-? "📊 Batch analysis completed for " + len(aAllProducts) + " product lines"
+✅ Step 5/9: Robust center
+╰─> Median: 100
 
+✅ Step 6/9: Variability
+╰─> Std Dev: 90.5341
 
-/*--- EXAMPLE 12: Plan Performance Monitoring
-# ===========================================
+✅ Step 7/9: Distribution shape
+╰─> Quartiles: 3 value(s)
 
-# Monitor and log Plan execution times and success rates
-class stzPlanMonitor
-    aExecutionLog = []
-    
-    func LogExecution(cPlanName, nStartTime, nEndTime, bSuccess, cError)
-        aLogEntry = [
-            :Plan = cPlanName,
-            :start_time = nStartTime,
-            :end_time = nEndTime,
-            :duration = nEndTime - nStartTime,
-            :success = bSuccess,
-            :error = cError,
-            :timestamp = Date()
-        ]
-        
-        This.aExecutionLog + aLogEntry
-        
-    func GetPerformanceStats(cPlanName)
-        aFilteredLogs = []
-        for aEntry in This.aExecutionLog
-            if aEntry[:Plan] = cPlanName
-                aFilteredLogs + aEntry
-            ok
-        next
-        
-        if len(aFilteredLogs) = 0
-            return "No execution data for " + cPlanName
-        ok
-        
-        nTotal = len(aFilteredLogs)
-        nSuccessful = 0
-        nTotalDuration = 0
-        
-        for aEntry in aFilteredLogs
-            if aEntry[:success]
-                nSuccessful++
-            ok
-            nTotalDuration += aEntry[:duration]
-        next
-        
-        nSuccessRate = (nSuccessful / nTotal) * 100
-        nAvgDuration = nTotalDuration / nTotal
-        
-        return [
-            :total_executions = nTotal,
-            :success_rate = nSuccessRate,
-            :average_duration = nAvgDuration
-        ]
+✅ Step 8/9: Asymmetry check
+╰─> Skewness: 0.0373
 
-# Usage example
-oMonitor = new stzPlanMonitor()
+✅ Step 9/9: Outlier detection
+╰─> Outliers present: 1
 
-func MonitoredPlan(paData, cPlanType)
-    nStart = clock()
-    
-    try
-        oData = new stzDataSet(paData)
-        oResult = oData.ExecutePlan(cPlanType, FALSE)
-        nEnd = clock()
-        oMonitor.LogExecution(cPlanType, nStart, nEnd, TRUE, "")
-        return oResult
-    catch cError
-        nEnd = clock()
-        oMonitor.LogExecution(cPlanType, nStart, nEnd, FALSE, cError)
-        ? "❌ Plan failed: " + cError
-        return NULL
-    done
+( Plan completed in 0.1030s : 9 successful step(s), 0 error(s) )
 
-# Test monitoring
-aTestData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-MonitoredPlan(aTestData, "EDA")
-MonitoredPlan(aTestData, "OUTLIERS")
+~> Outliers found, performing detailed outlier analysis...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-? oMonitor.GetPerformanceStats("EDA")
+╭────────────────────────────────────────────────╮
+│ Executing Plan: Outlier Detection and Analysis │
+╰────────────────────────────────────────────────╯
+• Name: {outliers}
+• Goal: Comprehensive outlier identification and impact assessment
+• Steps: 7
+
+✅ Step 1/7: Initial outlier detection
+╰─> Outliers present: 1
+
+✅ Step 2/7: List outlier values
+╰─> Outliers: 1 value(s)
+
+✅ Step 3/7: Standardized scores
+╰─> ZScores: 30 value(s)
+
+✅ Step 4/7: Mean with outliers
+╰─> Mean: 0.0373
+
+✅ Step 5/7: Robust mean (10% trimmed)
+╰─> TrimmedMean: 100.0833
+
+✅ Step 6/7: Outlier-resistant center
+╰─> Median: 100
+
+✅ Step 7/7: Outlier-resistant scaling
+╰─> RobustScale: 30 value(s)
+
+( Plan completed in 0.0750s : 7 successful step(s), 0 error(s) )
+
+~> Sufficient sample size, testing normality assumptions...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+╭───────────────────────────────────────────╮
+│ Executing Plan: Normality Assessment Plan │
+╰───────────────────────────────────────────╯
+• Name: {normality}
+• Goal: Determine if data follows normal distribution
+• Steps: 6
+
+✅ Step 1/6: Check sample size adequacy
+╰─> Sample size: 30
+
+✅ Step 2/6: Formal normality test
+╰─> Normality p-value: [ "skewness", 0.0375 ]
+
+✅ Step 3/6: Check asymmetry
+╰─> Skewness: 0.1462
+
+✅ Step 4/6: Check tail behavior
+╰─> Kurtosis: -2.4901
+
+✅ Step 5/6: Visual normality indicators
+╰─> BoxPlotStats: 8 value(s)
+
+✅ Step 6/6: Outlier impact on normality
+╰─> Outliers: 1 value(s)
+
+( Plan completed in 0.0610s : 6 successful step(s), 0 error(s) )
+'
+
+pf()
+# Executed in 0.2430 second(s) in Ring 1.22
 
 
-/*--- EXAMPLE 13: Dynamic Plan Generation
-# =======================================
 
-# Generate Plans based on data characteristics and user goals
-func GenerateDynamicPlan(paData, cUserGoal, cDataContext)
-    oData = new stzDataSet(paData)
-    aCustomSteps = []
-    
-    # Base steps for all Plans
-    aCustomSteps + [ :function = "ValidateData", :required = TRUE, :description = "Data integrity check" ]
-    aCustomSteps + [ :function = "Count", :required = TRUE, :description = "Sample size" ]
-    
-    # Goal-specific steps
-    switch cUserGoal
-    case "process_improvement"
-        aCustomSteps + [ :function = "Mean", :required = TRUE, :description = "Process center" ]
-        aCustomSteps + [ :function = "StandardDeviation", :required = TRUE, :description = "Process variation" ]
-        aCustomSteps + [ :function = "CoefficientOfVariation", :required = TRUE, :description = "Relative variation" ]
-        aCustomSteps + [ :condition = "CoefficientOfVariation() > 15", :function = "ControlCharts", :description = "Process control analysis" ]
-        
-    case "financial_analysis"
-        aCustomSteps + [ :function = "Mean", :required = TRUE, :description = "Expected return" ]
-        aCustomSteps + [ :function = "StandardDeviation", :required = TRUE, :description = "Volatility" ]
-        aCustomSteps + [ :function = "Skewness", :required = TRUE, :description = "Return distribution shape" ]
-        aCustomSteps + [ :function = "Percentile", :args = [5], :required = TRUE, :description = "Value at Risk (5%)" ]
-        
-    case "quality_assessment"
-        aCustomSteps + [ :function = "Median", :required = TRUE, :description = "Robust center" ]
-        aCustomSteps + [ :function = "IQR", :required = TRUE, :description = "Middle 50% spread" ]
-        aCustomSteps + [ :function = "ContainsOutliers", :required = TRUE, :description = "Quality issues detection" ]
-        aCustomSteps + [ :condition = "ContainsOutliers()", :function = "Outliers", :description = "Problem identification" ]
-    off
-    
-    # Context-specific additions
-    if cDataContext = "manufacturing"
-        aCustomSteps + [ :function = "ProcessCapability", :description = "Cp/Cpk calculation" ]
-    elseif cDataContext = "sales"
-        aCustomSteps + [ :function = "TrendAnalysis", :description = "Sales trend identification" ]
-    elseif cDataContext = "survey"
-        aCustomSteps + [ :function = "ConfidenceInterval", :description = "Population estimate" ]
-    ok
-    
-    return aCustomSteps
-
-/*--- EXAMPLE usage
-aSalesPerformance = [120, 135, 118, 142, 156, 128, 149, 133, 157, 141]
-
-aDynamicSteps = GenerateDynamicPlan(aSalesPerformance, "process_improvement", "sales")
-oSales = new stzDataSet(aSalesPerformance)
-cDynamicKey = oSales.AddPlan("Dynamic Sales Analysis", 
-                                         "AI-generated Plan for sales performance", 
-                                         aDynamicSteps)
-
-oSales.ExecutePlan(cDynamicKey, TRUE)
-
-
-/*--- EXAMPLE 14: Plan Results Comparison
-# =======================================
-
-# Compare results across different Plans or datasets
-func ComparePlanResults(paResults1, paResults2, cComparisonName)
-    ? "🔍 " + cComparisonName + " Comparison"
-    ? "=" * (len(cComparisonName) + 12)
-    
-    # Find common functions between results
-    aFunctions1 = []
-    aFunctions2 = []
-    
-    for aResult in paResults1[:results]
-        aFunctions1 + aResult[:function]
-    next
-    
-    for aResult in paResults2[:results]
-        aFunctions2 + aResult[:function]
-    next
-    
-    # Compare common metrics
-    for cFunction in aFunctions1
-        if find(aFunctions2, cFunction) > 0
-            # Find values for this function in both results
-            nValue1 = NULL
-            nValue2 = NULL
-            
-            for aResult in paResults1[:results]
-                if aResult[:function] = cFunction
-                    nValue1 = aResult[:result]
-                ok
-            next
-            
-            for aResult in paResults2[:results]
-                if aResult[:function] = cFunction
-                    nValue2 = aResult[:result]
-                ok
-            next
-            
-            if nValue1 != NULL and nValue2 != NULL
-                nDifference = nValue2 - nValue1
-                nPercentChange = (nDifference / nValue1) * 100
-                
-                ? cFunction + ":"
-                ? "  Dataset 1: " + @@(nValue1)
-                ? "  Dataset 2: " + @@(nValue2)
-                ? "  Change: " + @@(nDifference) + " (" + @@(nPercentChange) + "%)"
-                ? ""
-            ok
-        ok
-    next
-
-/*--- EXAMPLE comparison
-aBeforeTraining = [72, 74, 71, 75, 73, 70, 76, 72, 74, 73]
-aAfterTraining = [78, 80, 77, 81, 79, 76, 82, 78, 80, 79]
-
-oBefore = new stzDataSet(aBeforeTraining)
-oAfter = new stzDataSet(aAfterTraining)
-
-oResultsBefore = oBefore.ExecutePlan("EDA", FALSE)
-oResultsAfter = oAfter.ExecutePlan("EDA", FALSE)
-
-ComparePlanResults(oResultsBefore, oResultsAfter, "Training Impact Analysis")
-
-
-/*--- EXAMPLE 15: Plan Documentation Generator
-# ============================================
-
-# Automatically generate documentation for executed Plans
-func GeneratePlanReport(poResults, cTitle)
-    cReport = "# " + cTitle + " - Statistical Analysis Report" + nl + nl
-    cReport += "**Generated:** " + Date() + " " + Time() + nl
-    cReport += "**Plan:** " + poResults[:name] + nl
-    cReport += "**Description:** " + poResults[:description] + nl + nl
-    
-    cReport += "## Executive Summary" + nl
-    cReport += "This analysis processed " + @@(len(poResults[:results])) + " statistical measures "
-    cReport += "with " + @@(poResults[:successful_steps]) + " successful calculations." + nl + nl
-    
-    cReport += "## Detailed Results" + nl + nl
-    
-    for aResult in poResults[:results]
-        cReport += "### " + aResult[:function] + nl
-        cReport += "**Value:** " + @@(aResult[:result]) + nl
-        
-        if aResult[:description] != NULL
-            cReport += "**Interpretation:** " + aResult[:description] + nl
-        ok
-        
-        cReport += "**Status:** " + (aResult[:success] ? "✅ Success" : "❌ Failed") + nl + nl
-    next
-    
-    cReport += "## Recommendations" + nl
-    cReport += GenerateRecommendations(poResults) + nl
-    
-    return cReport
-
-func GenerateRecommendations(poResults)
-    cRecommendations = ""
-    
-    # Look for specific patterns in results
-    for aResult in poResults[:results]
-        switch aResult[:function]
-        case "CoefficientOfVariation"
-            if aResult[:result] > 30
-                cRecommendations += "- **High Variability Alert:** Consider process standardization (CV: " + @@(aResult[:result]) + "%)" + nl
-            ok
-            
-        case "ContainsOutliers"
-            if aResult[:result] = TRUE
-                cRecommendations += "- **Data Quality:** Investigate outlying values for data entry errors or special causes" + nl
-            ok
-            
-        case "Skewness"
-            if abs(aResult[:result]) > 1
-                cRecommendations += "- **Distribution Shape:** Data is highly skewed, consider robust statistical methods" + nl
-            ok
-        off
-    next
-    
-    if cRecommendations = ""
-        cRecommendations = "- Data appears to be within normal parameters for standard analysis"
-    ok
-    
-    return cRecommendations
-
-/*--- EXAMPLE usage
-aQualityData = [98.1, 99.2, 97.8, 98.9, 99.1, 98.3, 99.0, 97.9, 98.7, 99.3,
-                98.5, 99.1, 98.2, 98.8, 99.2, 98.4, 99.0, 98.6, 99.1, 98.9]
-
-oQuality = new stzDataSet(aQualityData)
-oQualityResults = oQuality.ExecutePlan("QC", FALSE)
-
-cReport = GeneratePlanReport(oQualityResults, "Monthly Quality Control Analysis")
-? cReport
-
-# Save report to file (if file system available)
-# write("quality_report.md", cReport)

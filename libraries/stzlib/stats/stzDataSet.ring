@@ -3384,7 +3384,6 @@ class stzDataSet
         @param aSteps: Array of step definitions
         */
  
-		
         cKey = "custom_" + lower(cName)
         $aPlanTemplates[cName] = [
 			:name = cName,
@@ -3419,6 +3418,52 @@ class stzDataSet
 	    
 	    return :EDA  # Default fallback
 	
+
+	# Smart Plan that adapts based on intermediate results
+	def AdaptiveAnalysis()
+
+	    # Start with basic exploration
+		? "~> Start with basic exploration..."
+		? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL
+
+		@bChain = TRUE
+		@bFirstChain = TRUE
+
+		This.ExecutePlan("EDA")
+
+	    # Extract key findings
+	    nMean = This.Mean()
+	    nStdDev = This.StandardDeviation()
+	    nCV = This.CoefficientOfVariation()
+
+	    # Conditional branching based on initial results
+
+		@bFirstChain = FALSE
+
+	    if nCV > 25
+			? ""
+	        ? "~> High variability detected, running quality control analysis..."
+			? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL
+
+	        This.ExecutePlan("QUALITY")
+	    ok
+
+	    if This.ContainsOutliers()
+			? ""
+	        ? "~> Outliers found, performing detailed outlier analysis..."
+			? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL
+
+	        This.ExecutePlan("OUTLIERS")
+	    ok
+
+	    if This.Count() >= 30
+			? ""
+	        ? "~> Sufficient sample size, testing normality assumptions..."
+			? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL
+
+	        This.ExecutePlan("NORMALITY")
+	    ok
+
 
     #===============================#
     #  Plan HELPER METHODS      #
