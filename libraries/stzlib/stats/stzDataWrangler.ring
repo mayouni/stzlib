@@ -26,10 +26,10 @@ $aWranglingPlanTemplates = [
         :title = "Basic Data Cleanup",
         :description = "Remove duplicates, handle missing values, normalize formats",
         :steps = [
-            [ :function = "RemoveDuplicates", :description = "Remove duplicate rows" ],
             [ :function = "HandleMissingValues", :description = "Fill or remove missing values" ],
             [ :function = "TrimWhitespace", :description = "Clean whitespace from text" ],
-            [ :function = "NormalizeCase", :description = "Standardize text case" ]
+            [ :function = "NormalizeCase", :description = "Standardize text case" ],
+			[ :function = "RemoveDuplicates", :description = "Remove duplicate rows" ],
         ]
     ],
     
@@ -83,7 +83,7 @@ $aWranglingGoals = [
 # stzDataRangler Class Definition
 # =============================================================================
 
-class stzDataRangler
+class stzDataWRangler
     # ATTRIBUTES
     # ==========
     @aData = []              # The dataset (list or 2D list)
@@ -99,21 +99,23 @@ class stzDataRangler
     # ==============
     
     def init(paData, paHeaders)
-        """
+        /*
         Initialize the data rangler with your dataset
         
         Usage:
             oRangler = new stzDataRangler(myData)           # For simple list
             oRangler = new stzDataRangler(myTable, headers) # For 2D table
-        """
+        */
+
         @aData = paData
         @aHeaders = paHeaders
         This._DetectDataStructure()
         This._InitializeDefaults()
-        This._LogTransformation("Data loaded", "Structure: " + @cDataStructure)
+        This._LogTransformation("Data loaded", " Structure: " + @cDataStructure )
 
     def _DetectDataStructure()
-        """Automatically detect if data is a simple list or 2D table"""
+        # Automatically detect if data is a simple list or 2D table
+
         if len(@aData) = 0
             @cDataStructure = "empty"
             return
@@ -132,7 +134,8 @@ class stzDataRangler
         ok
 
     def _InitializeDefaults()
-        """Set up default rules and configurations"""
+        # Set up default rules and configurations
+
         @aIssues = []
         @aTransformLog = []
         @aValidationRules = []
@@ -146,31 +149,20 @@ class stzDataRangler
     # ======================
     
     def RemoveDuplicates()
-        """
+        /*
         Remove duplicate rows from the dataset
         Returns: Number of duplicates removed
-        """
-        nOriginalSize = This._GetRowCount()
-        aCleanData = []
-        
-        if @cDataStructure = "list"
-            aCleanData = unique(@aData)
-        else
-            # For tables, compare entire rows
-            for row in @aData
-                if This._FindRowIndex(aCleanData, row) = 0
-                    aCleanData + row
-                ok
-            next
-        ok
-        
-        @aData = aCleanData
-        nRemoved = nOriginalSize - This._GetRowCount()
-        This._LogTransformation("RemoveDuplicates", nRemoved + " duplicates removed")
-        return nRemoved
+        */
+
+		n1 = len(@aData)
+		@aData = U(@aData)
+		n2 = len(@aData)
+
+		return n1 - n2
+
 
     def HandleMissingValues(cStrategy)
-        """
+        /*
         Handle missing values using specified strategy
         
         Strategies:
@@ -179,7 +171,7 @@ class stzDataRangler
             "fill_mean" - Fill with mean (numeric) or mode (categorical)
             "fill_zero" - Fill with zero or empty string
             "interpolate" - Linear interpolation for numeric sequences
-        """
+        */
 
 		if cStrategy = ""
 			cStrategy = "auto"
@@ -193,7 +185,7 @@ class stzDataRangler
             nFilled = This._HandleMissingInTable(cStrategy)
         ok
         
-        This._LogTransformation("HandleMissingValues", nFilled + " values processed with strategy: " + cStrategy)
+        This._LogTransformation("HandleMissingValues", ''+ nFilled + " values processed with strategy: " + cStrategy)
         return nFilled
 
     def _HandleMissingInList(cStrategy)
@@ -249,17 +241,21 @@ class stzDataRangler
         return nFilled
 
     def TrimWhitespace()
-        """Remove leading and trailing whitespace from text data"""
+        # Remove leading and trailing whitespace from text data
+
         nCleaned = 0
         
         if @cDataStructure = "list"
+
             for i = 1 to len(@aData)
                 if isString(@aData[i])
                     original = @aData[i]
-                    @aData[i] = trim(@aData[i])
+                    @aData[i] = @trim(@aData[i])
+
                     if original != @aData[i] nCleaned++ ok
                 ok
             next
+
         else
             for i = 1 to len(@aData)
                 for j = 1 to len(@aData[i])
@@ -271,15 +267,15 @@ class stzDataRangler
                 next
             next
         ok
-        
-        This._LogTransformation("TrimWhitespace", nCleaned + " values cleaned")
+
+        This._LogTransformation("TrimWhitespace", ''+ nCleaned + " values cleaned")
         return nCleaned
 
     def NormalizeCase(cMode)
-        """
+        /*
         Normalize text case
         Modes: "lower", "upper", "title", "sentence"
-        """
+        */
 
 		if @trim(cMode) = ""
 			cMode = "lower"
@@ -305,29 +301,35 @@ class stzDataRangler
             next
         ok
         
-        This._LogTransformation("NormalizeCase", nNormalized + " values normalized to " + cMode)
+        This._LogTransformation("NormalizeCase", ''+ nNormalized + " values normalized to " + cMode)
         return nNormalized
 
     # PILLAR 2: DATA VALIDATION
     # =========================
     
     def ValidateDataTypes()
-        """
+        /*
         Validate data type consistency within columns
         Returns: List of validation issues found
-        """
+        */
+
         aIssues = []
         
         if @cDataStructure = "table"
+
             for j = 1 to len(@aHeaders)
                 aColumnTypes = []
+
                 for i = 1 to len(@aData)
+
                     if NOT This._IsMissing(@aData[i][j])
                         cType = This._GetDataType(@aData[i][j])
+
                         if ring_find(aColumnTypes, cType) = 0
                             aColumnTypes + cType
                         ok
                     ok
+
                 next
                 
                 if len(aColumnTypes) > 1
@@ -338,16 +340,17 @@ class stzDataRangler
             next
         ok
         
-        This._LogTransformation("ValidateDataTypes", len(aIssues) + " type issues found")
+        This._LogTransformation("ValidateDataTypes", ''+ len(aIssues) + " type issues found")
         return aIssues
 
     def ValidateRanges(aRangeRules)
-        """
+        /*
         Validate numeric values against specified ranges
         
         Range rules format:
         [ ["column_name", min_value, max_value], ... ]
-        """
+        */
+
         aIssues = []
         
         if @cDataStructure = "table"
@@ -370,14 +373,14 @@ class stzDataRangler
             next
         ok
         
-        This._LogTransformation("ValidateRanges", len(aIssues) + " range violations found")
+        This._LogTransformation("ValidateRanges", ''+ len(aIssues) + " range violations found")
         return aIssues
 
     def DetectOutliers(nThreshold)
-        """
+        /*
         Detect statistical outliers using Z-score method
         Returns: List of outlier positions
-        """
+        */
 
 		if IsNull(nThreshold) or nThreshold = 0
 			nThreshold = $nWRANGLE_OUTLIER_THRESHOLD
@@ -408,20 +411,21 @@ class stzDataRangler
             next
         ok
         
-        This._LogTransformation("DetectOutliers", len(aOutliers) + " outliers detected")
+        This._LogTransformation("DetectOutliers", ''+ len(aOutliers) + " outliers detected")
         return aOutliers
 
     # PILLAR 3: DATA TRANSFORMATION
     # =============================
     
     def ConvertDataTypes(aConversionRules)
-        """
+        /*
         Convert data types based on rules or auto-detection
         
         Conversion rules format:
         [ ["column_name", "target_type"], ... ]
         Target types: "numeric", "string", "boolean", "date"
-        """
+        */
+
         nConverted = 0
         
         if @cDataStructure = "table"
@@ -444,14 +448,14 @@ class stzDataRangler
             next
         ok
         
-        This._LogTransformation("ConvertDataTypes", nConverted + " values converted")
+        This._LogTransformation("ConvertDataTypes", ''+ nConverted + " values converted")
         return nConverted
 
     def NormalizeNumeric(cMethod)
-        """
+        /*
         Normalize numeric columns
         Methods: "minmax" (0-1), "zscore" (mean=0, std=1), "robust" (median-based)
-        """
+        */
 
 		if IsNull(cMethod)
 			cMethod = "minmax"
@@ -478,14 +482,14 @@ class stzDataRangler
             next
         ok
         
-        This._LogTransformation("NormalizeNumeric", nNormalized + " values normalized using " + cMethod)
+        This._LogTransformation("NormalizeNumeric", ''+ nNormalized + " values normalized using " + cMethod)
         return nNormalized
 
     def EncodeCategories(cMethod)
-        """
+        /*
         Encode categorical variables for analysis
         Methods: "label" (0,1,2...), "onehot" (binary columns), "ordinal" (custom order)
-        """
+        */
 
 		if IsNull(cMethod)
 			cMethod = "label"
@@ -504,19 +508,20 @@ class stzDataRangler
             next
         ok
         
-        This._LogTransformation("EncodeCategories", nEncoded + " categorical values encoded")
+        This._LogTransformation("EncodeCategories", ''+ nEncoded + " categorical values encoded")
         return nEncoded
 
     # PILLAR 4: PLAN EXECUTION SYSTEM
     # ===============================
     
     def GeneratePlan(cGoalOrTemplate)
-        """
+        /*
         Generate a wrangling plan based on goal or template name
         
         Goals: "clean", "validate", "analyze", "export"
         Templates: "basic_cleanup", "data_validation", etc.
-        """
+        */
+
         cTemplate = This._ResolvePlanTemplate(cGoalOrTemplate)
         if cTemplate = NULL
             This._LogTransformation("GeneratePlan", "Unknown goal/template: " + cGoalOrTemplate)
@@ -539,19 +544,18 @@ class stzDataRangler
         return NULL
 
     def ExecutePlan(cGoalOrTemplate, bVerbose)
-        """
+        /*
         Execute a complete wrangling plan
         Returns: Execution summary with results and any errors
-        """
+        */
 
         @bVerbose = bVerbose
         aPlan = This.GeneratePlan(cGoalOrTemplate)
         if aPlan = NULL return NULL ok
         
         if @bVerbose
-            ? "🔧 Executing Plan: " + aPlan[:title]
-            ? "📝 " + aPlan[:description]
-            ? "⏱️  Estimated time: " + aPlan[:estimated_time] + " seconds"
+            ? "• Executing Plan: " + aPlan[:title]
+            ? "• " + aPlan[:description]
             ? ""
         ok
         
@@ -559,11 +563,15 @@ class stzDataRangler
         nStartTime = clock()
         
         for stepp in aPlan[:steps]
-            if @bVerbose
-                ? "▶️  " + stepp[:description] + "..."
-            ok
             
+			cTitle = ""
+			cMessage = ""
             try
+
+	            if @bVerbose
+	                cTitle = "✅ " + stepp[:description] + "..."
+	            ok
+
                 result = This._ExecutePlanStep(stepp)
                 aResults + [
                     :function = stepp[:function],
@@ -573,30 +581,40 @@ class stzDataRangler
                 ]
                 
                 if @bVerbose
-                    ? "   ✅ " + result
+                    cMessage = "╰─> " + result
                 ok
                 
             catch
+
+	            if @bVerbose
+	                cTitle = "❌ " + stepp[:description] + "..."
+	            ok
+
                 aResults + [
                     :function = stepp[:function],
                     :description = stepp[:description],
                     :error = cCatchError,
                     :status = "error"
                 ]
-                
-                if @bVerbose
-                    ? "   ❌ Error: " + cCatchError
-                ok
+
+	            if @bVerbose
+	                cMessage = "╰─> Error: " + cCatchError
+	            ok
+
             done
+
+			if cTitle != ""
+				? cTitle
+				? cMessage + NL
+			ok
+
         next
         
         nEndTime = clock()
-        nActualTime = (nEndTime - nStartTime)
+        nActualTime = (nEndTime - nStartTime) / clockspersecond()
         
         if @bVerbose
-            ? ""
-            ? "🎉 Plan execution completed in " + nActualTime + " seconds"
-            ? "📊 " + This._GetExecutionSummary(aResults)
+            ? "( Plan execution completed in " + ''+ nActualTime + " second(s): " + This._GetExecutionSummary(aResults) + " )"
         ok
         
         return [
@@ -610,10 +628,11 @@ class stzDataRangler
     # ================================
     
     def ExportForStzDataSet()
-        """
+        /*
         Export cleaned data in format suitable for stzDataSet
         Returns: Clean list or 2D array ready for statistical analysis
-        """
+        */
+
         if @cDataStructure = "list"
             return @aData
         else
@@ -622,10 +641,11 @@ class stzDataRangler
         ok
 
     def ExportForStzTable()
-        """
+        /*
         Export as structured table data for stzTable class
         Returns: [headers, data] format
-        """
+        */
+
         if @cDataStructure = "table"
             return [ @aHeaders, @aData ]
         else
@@ -637,10 +657,11 @@ class stzDataRangler
         ok
 
     def ExportForStzMatrix()
-        """
+        /*
         Export numeric data suitable for stzMatrix operations
         Returns: 2D numeric array
-        """
+        */
+
         if @cDataStructure = "table"
             # Extract only numeric columns
             aNumericData = []
@@ -671,7 +692,8 @@ class stzDataRangler
     # =========================
     
     def GetDataProfile()
-        """Generate comprehensive data profile report"""
+        # Generate comprehensive data profile report
+
         aProfile = [
             :structure = @cDataStructure,
             :rows = This._GetRowCount(),
@@ -686,29 +708,29 @@ class stzDataRangler
         return aProfile
 
     def GetTransformationLog()
-        """Return complete log of all transformations applied"""
+        # Return complete log of all transformations applied
         return @aTransformLog
 
     def GetIssues()
-        """Return all detected data quality issues"""
+        # Return all detected data quality issues
         return @aIssues
 
     def ShowReport()
-        """Display formatted data quality report"""
+        # Display formatted data quality report
         aProfile = This.GetDataProfile()
         
-        ? "📋 DATA WRANGLING REPORT"
-        ? "========================"
-        ? "Structure: " + aProfile[:structure]
-        ? "Dimensions: " + aProfile[:rows] + " rows × " + aProfile[:columns] + " columns"
-        ? "Issues Found: " + aProfile[:issues_found]
-        ? "Transformations: " + aProfile[:transformations_applied]
+        ? BoxRound("DATA WRANGLING REPORT")
+
+        ? "• Structure: " + aProfile[:structure]
+        ? "• Dimensions: " + aProfile[:rows] + " rows × " + aProfile[:columns] + " columns"
+        ? "• Issues Found: " + aProfile[:issues_found]
+        ? "• Transformations: " + aProfile[:transformations_applied]
         ? ""
         
         if len(@aIssues) > 0
             ? "🚨 ISSUES DETECTED:"
             for issue in @aIssues
-                ? "  • " + issue[:type] + ": " + issue[:description]
+                ? "╰─> " + issue[:type] + ": {" + issue[:description] + "}"
             next
             ? ""
         ok
@@ -716,7 +738,7 @@ class stzDataRangler
         if len(@aTransformLog) > 0
             ? "🔄 TRANSFORMATIONS APPLIED:"
             for transform in @aTransformLog
-                ? "  • " + transform[:operation] + ": " + transform[:details]
+                ? "╰─> " + transform[:operation] + ": {" + @trim(transform[:details]) + "}"
             next
         ok
 
@@ -724,6 +746,10 @@ class stzDataRangler
     # ==============
     
     def _IsMissing(value)
+		if not isString(value)
+			return FALSE
+		ok
+
         return isNull(value) or ring_find($aWRANGLE_MISSING_VALUES, "" + value) > 0
 
     def _GetFillValue(aData, cStrategy)
@@ -823,21 +849,32 @@ class stzDataRangler
         return cText
 
     def _GetDataType(value)
-        if isNumber(value) return "numeric" ok
-        if isString(value) 
+
+        if isNumber(value)
+			return "numeric"
+
+        but isString(value) 
             if This._IsBoolean(value) return "boolean" ok
             if This._IsDate(value) return "date" ok
             return "string"
-        ok
-        return "unknown"
+
+        but isList(value)
+			return "list"
+
+		but isObject(value)
+			return "object"
+
+		else
+        	return "unknown"
+		ok
 
     def _IsBoolean(cValue)
-        return ring_find($aWRANGLE_TRUE_VALUES + $aWRANGLE_FALSE_VALUES, lower(trim("" + cValue))) > 0
+        return ring_find($aWRANGLE_TRUE_VALUES + $aWRANGLE_FALSE_VALUES, lower(@trim("" + cValue))) > 0
 
     def _IsDate(cValue)
         # Simple date detection - could be enhanced
         cValue = "" + cValue
-        return (find(cValue, "/") > 0 or find(cValue, "-") > 0) and len(cValue) >= 8
+        return (ring_substr1(cValue, "/") > 0 or ring_substr1(cValue, "-") > 0) and len(cValue) >= 8
 
     def _ConvertValue(value, cTargetType)
         switch cTargetType
@@ -987,7 +1024,7 @@ next
             ok
         next
         
-        return nSuccessful + " successful, " + nErrors + " errors"
+        return ''+ nSuccessful + " successful, " + nErrors + " errors"
 
     def _GetDataTypesSummary()
         if @cDataStructure != "table" return [] ok
@@ -1202,7 +1239,7 @@ next
         return cResult
 
     def _StandardizeHeaders()
-        """Standardize column headers for export compatibility"""
+        # Standardize column headers for export compatibility
         nStandardized = 0
         
         for i = 1 to len(@aHeaders)
@@ -1236,7 +1273,7 @@ next
         return trim(cCleaned)
 
     def _FormatDates()
-        """Standardize date formats across the dataset"""
+        # Standardize date formats across the dataset
         nFormatted = 0
         
         if @cDataStructure = "table"
@@ -1279,7 +1316,7 @@ next
         return cNumber
 
     def _ValidateForExport()
-        """Final validation before export"""
+        # Final validation before export
         aIssues = []
         
         # Check for remaining missing values
@@ -1291,7 +1328,7 @@ next
         # Check for problematic characters in headers
         if @cDataStructure = "table"
             for header in @aHeaders
-                if find(header, " ") > 0 or find(header, "-") > 0
+                if ring_substr1(header, " ") > 0 or ring_substr1(header, "-") > 0
                     aIssues + "Header contains spaces/hyphens: " + header
                 ok
             next
@@ -1303,19 +1340,19 @@ next
     # =======================================
     
     def QuickClean()
-        """Perform basic cleaning operations quickly"""
+        # Perform basic cleaning operations quickly
         return This.ExecutePlan("clean", FALSE)
 
     def QuickValidate()
-        """Perform validation checks quickly"""  
+        # Perform validation checks quickly
         return This.ExecutePlan("validate", FALSE)
 
     def QuickPrepareForAnalysis()
-        """Prepare data for statistical analysis quickly"""
+        # Prepare data for statistical analysis quickly
         return This.ExecutePlan("analyze", FALSE)
 
     def QuickPrepareForExport()
-        """Prepare data for export quickly"""
+        # Prepare data for export quickly
         return This.ExecutePlan("export", FALSE)
 
     # CHAINABLE OPERATIONS
@@ -1341,25 +1378,25 @@ next
     # ==================
     
     def GetData()
-        """Return the current dataset"""
+        # Return the current dataset
         return @aData
 
     def GetHeaders()
-        """Return column headers"""
+        # Return column headers
         return @aHeaders
 
     def GetCleanData()
-        """Return data with basic cleaning applied"""
+        # Return data with basic cleaning applied
         oTempRangler = new stzDataRangler(@aData, @aHeaders)
         oTempRangler.QuickClean()
         return oTempRangler.GetData()
 
     def SetVerbose(bVerbose)
-        """Enable/disable verbose output"""
+        # Enable/disable verbose output
         @bVerbose = bVerbose
         return This
 
     def Reset()
-        """Reset to original data state"""
+        # Reset to original data state
         This._InitializeDefaults()
         return This

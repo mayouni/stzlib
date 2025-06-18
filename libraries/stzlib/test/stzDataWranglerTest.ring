@@ -1,3 +1,5 @@
+load "../max/stzmax.ring"
+
 #==============================#
 #  TEST SECTION 1: BASIC SETUP #
 #==============================#
@@ -6,95 +8,176 @@
 
 pr()
 
-# Simple list with mixed data quality issues
-aSimpleData = ["John", "  Mary  ", "", "BOB", "NULL", "alice", "John"]  # Duplicates, whitespace, missing values
+# Simple list with mixed data quality issues with # Duplicates, whitespace, missing values
+aSimpleData = [ "John", "  Mary  ", '', "BOB", "NULL", "alice", "John" ]
 
-o1 = new stzDataWrangler(aSimpleData)
+o1 = new stzDataWrangler(aSimpleData, [])
 
 # Check initial data profile
-? "=== INITIAL DATA PROFILE ==="
 o1.ShowReport()
+#-->
+'
+╭───────────────────────╮
+│ DATA WRANGLING REPORT │
+╰───────────────────────╯
+• Structure: list
+• Dimensions: 7 rows × 0 columns
+• Issues Found: 0
+• Transformations: 1
+
+🔄 TRANSFORMATIONS APPLIED:
+╰─> Data loaded: {Structure: list}
+'
 
 pf()
-# Execution time: ~0.02 seconds
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Testing initialization with 2D table data
 
 pr()
 
 # Sample customer data with various quality issues
-aCustomerHeaders = ["Name", "Age", "Email", "Salary", "Department"]
+
+aCustomerHeaders = [ "Name", "Age", "Email", "Salary", "Department" ]
+
 aCustomerData = [
-    ["John Smith", 25, "john@email.com", 50000, "Sales"],
-    ["  Mary Jones  ", "", "mary.jones@company.com", 65000, "marketing"],
-    ["Bob Wilson", 35, "bob@email", "NULL", "SALES"],
-    ["Alice Brown", 28, "alice@email.com", 55000, ""],
-    ["John Smith", 25, "john@email.com", 50000, "Sales"],  # Duplicate
-    ["", 45, "unknown@email.com", 75000, "Engineering"],
-    ["Tom Davis", -5, "tom@email.com", 999999, "sales"]    # Invalid age, potential outlier salary
+    [ "John Smith", 25, "john@email.com", 50000, "Sales" ],
+    [ "  Mary Jones  ", "", "mary.jones@company.com", 65000, "marketing" ],
+    [ "Bob Wilson", 35, "bob@email", "NULL", "SALES" ],
+    [ "Alice Brown", 28, "alice@email.com", 55000, "" ],
+    [ "John Smith", 25, "john@email.com", 50000, "Sales" ],  # Duplicate
+    [ "", 45, "unknown@email.com", 75000, "Engineering" ],
+    [ "Tom Davis", -5, "tom@email.com", 999999, "sales" ]    # Invalid age, potential outlier salary
 ]
 
-o2 = new stzDataWrangler(aCustomerData, aCustomerHeaders)
+o1 = new stzDataWrangler(aCustomerData, aCustomerHeaders)
 
 # Display initial data structure and profile
-? "=== TABLE DATA PROFILE ==="
-aProfile = o2.GetDataProfile()
-? "Structure: " + aProfile[:structure]
-? "Dimensions: " + aProfile[:rows] + " rows × " + aProfile[:columns] + " columns"
-? "Data Types Summary:"
+
+? BoxRound("TABLE DATA PROFILE")
+aProfile = o1.GetDataProfile()
+
+? "• Structure: " + aProfile[:structure]
+? "• Dimensions: " + aProfile[:rows] + " rows × " + aProfile[:columns] + " columns"
+? "• Data Types Summary:"
+
 aTypesSummary = aProfile[:data_types]
+
 for typeInfo in aTypesSummary
-    ? "  " + typeInfo[1] + ": " + This._JoinList(typeInfo[2], ", ")
+    ? " ─ " + typeInfo[1] + ": " + o1._JoinList(typeInfo[2], ", ")
 next
 
-pf()
-# Execution time: ~0.05 seconds
+#-->
+'
+╭────────────────────╮
+│ TABLE DATA PROFILE │
+╰────────────────────╯
+• Structure: table
+• Dimensions: 7 rows × 5 columns
+• Data Types Summary:
+ ─ Name: string
+ ─ Age: numeric
+ ─ Email: string
+ ─ Salary: numeric
+ ─ Department: string
+'
 
-#==============================#
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
+
+#================================#
 #  TEST SECTION 2: DATA CLEANING #
-#==============================#
+#================================#
 
 /*--- Testing duplicate removal
 
 pr()
 
-o3 = new stzDataWrangler(aCustomerData, aCustomerHeaders)
+aCustomerHeaders = [ "Name", "Age", "Email", "Salary", "Department" ]
 
-? "=== BEFORE DUPLICATE REMOVAL ==="
-? "Row count: " + o3._GetRowCount()
+aCustomerData = [
+    [ "John Smith", 25, "john@email.com", 50000, "Sales" ],
+    [ "  Mary Jones  ", '', "mary.jones@company.com", 65000, "marketing" ],
+    [ "Bob Wilson", 35, "bob@email", "NULL", "SALES" ],
+    [ "Alice Brown", 28, "alice@email.com", 55000, "" ],
+    [ "John Smith", 25, "john@email.com", 50000, "Sales" ],  # Duplicate
+    [ '', 45, "unknown@email.com", 75000, "Engineering" ],
+    [ "Tom Davis", -5, "tom@email.com", 999999, "sales" ]    # Invalid age, potential outlier salary
+]
+
+o1 = new stzDataWrangler(aCustomerData, aCustomerHeaders)
+
+# BEFORE DUPLICATE REMOVAL
+
+? "Initial row count: " + o1._GetRowCount()
 
 # Remove duplicates
-nDuplicatesRemoved = o3.RemoveDuplicates()
-? "=== AFTER DUPLICATE REMOVAL ==="
+
+nDuplicatesRemoved = o1.RemoveDuplicates()
+
+# AFTER DUPLICATE REMOVAL
+
 ? "Duplicates removed: " + nDuplicatesRemoved
-? "New row count: " + o3._GetRowCount()
+? "New row count: " + o1._GetRowCount()
+
+#-->
+'
+Initial row count: 7
+Duplicates removed: 1
+New row count: 6
+'
 
 pf()
-# Execution time: ~0.03 seconds
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing missing value handling with different strategies
 
 pr()
 
-o4 = new stzDataWrangler(aCustomerData, aCustomerHeaders)
+aCustomerHeaders = [ "Name", "Age", "Email", "Salary", "Department" ]
 
-? "=== MISSING VALUES BEFORE HANDLING ==="
-? "Missing values count: " + o4._CountMissingValues()
+aCustomerData = [
+    [ "John Smith", 25, "john@email.com", 50000, "Sales" ],
+    [ "  Mary Jones  ", '', "mary.jones@company.com", 65000, "marketing" ],
+    [ "Bob Wilson", 35, "bob@email", "NULL", "SALES" ],
+    [ "Alice Brown", 28, "alice@email.com", 55000, "" ],
+    [ "John Smith", 25, "john@email.com", 50000, "Sales" ],  # Duplicate
+    [ '', 45, "unknown@email.com", 75000, "Engineering" ],
+    [ "Tom Davis", -5, "tom@email.com", 999999, "sales" ]    # Invalid age, potential outlier salary
+]
+
+o1 = new stzDataWrangler(aCustomerData, aCustomerHeaders)
+
+# MISSING VALUES BEFORE HANDLING
+
+	? o1._CountMissingValues()
+	#--> 4
 
 # Handle missing values with auto strategy
-nProcessed = o4.HandleMissingValues("auto")
-? "=== AFTER AUTO MISSING VALUE HANDLING ==="
-? "Values processed: " + nProcessed
-? "Remaining missing values: " + o4._CountMissingValues()
 
-# Test different strategies
-o5 = new stzDataWrangler(aCustomerData, aCustomerHeaders)
-nFilled = o5.HandleMissingValues("fill_zero")
-? "=== FILL ZERO STRATEGY ==="
-? "Values filled with zero: " + nFilled
+	nProcessed = o1.HandleMissingValues("auto")
+
+# AFTER AUTO MISSING VALUE HANDLING:
+
+	# Values processed
+	? nProcessed
+	#--> 4
+	
+	# Remaining missing values
+	? o1._CountMissingValues()
+	#--> 0
+
+# Test different strategies (FILL ZERO STRATEGY)
+
+o2 = new stzDataWrangler(aCustomerData, aCustomerHeaders)
+nFilled = o2.HandleMissingValues("fill_zero")
+
+	# Values filled with zero
+	? nFilled
+	#--> 4
 
 pf()
-# Execution time: ~0.04 seconds
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing whitespace trimming and case normalization
 
@@ -102,106 +185,168 @@ pr()
 
 # Data with whitespace and case issues
 aMesyData = ["  John DOE  ", "mary smith", "  BOB WILSON  ", "alice BROWN"]
-o6 = new stzDataWrangler(aMesyData)
+o1 = new stzDataWrangler(aMesyData, [])
 
-? "=== BEFORE CLEANING ==="
-? "Original data:"
-for item in o6.GetData()
-    ? "  '" + item + "'"
-next
 
 # Trim whitespace
-nTrimmed = o6.TrimWhitespace()
-? "=== AFTER TRIMMING ==="
-? "Values trimmed: " + nTrimmed
-for item in o6.GetData()
-    ? "  '" + item + "'"
-next
+nTrimmed = o1.TrimWhitespace()
+
+	# Values trimmed
+	? nTrimmed
+	#--> 2
+
+	? @@(o1.GetData()) + NL
+	#--> [ "John DOE", "mary smith", "BOB WILSON", "alice BROWN" ]
 
 # Normalize case to title case
-nNormalized = o6.NormalizeCase("title")
-? "=== AFTER CASE NORMALIZATION ==="
-? "Values normalized: " + nNormalized
-for item in o6.GetData()
-    ? "  '" + item + "'"
-next
+nNormalized = o1.NormalizeCase("title")
+
+	# Values normalized
+	? nNormalized
+	#--> 2
+
+	# Normalised content
+	? @@(o1.GetData())
+	#--> [ "John Doe", "Mary Smith", "Bob Wilson", "Alice Brown" ]
 
 pf()
-# Execution time: ~0.02 seconds
+# Executed in 0.01 second(s) in Ring 1.22
 
-#==============================#
-#  TEST SECTION 3: DATA VALIDATION #
-#==============================#
+#===================================#
+#  TEST SECTION 3: DATA VALIDATION  #
+#===================================#
 
 /*--- Testing data type validation
 
 pr()
 
-o7 = new stzDataWrangler(aCustomerData, aCustomerHeaders)
+aCustomerHeaders = [ "Name", "Age", "Email", "Salary", "Department" ]
 
-? "=== DATA TYPE VALIDATION ==="
-aTypeIssues = o7.ValidateDataTypes()
+aCustomerData = [
+    [ "John Smith", 25, "john@email.com", 50000, "Sales" ],
+    [ "  Mary Jones  ", '', "mary.jones@company.com", 65000, "marketing" ],
+    [ "Bob Wilson", 35, "bob@email", "NULL", 911 ],
+    [ "Alice Brown", 28, "alice@email.com", 55000, "" ],
+    [ "John Smith", 25, "john@email.com", 50000, "Sales" ],  # Duplicate
+    [ '', "45", "unknown@email.com", 75000, "Engineering" ],
+    [ "Tom Davis", -5, "tom@email.com", 999999, ["sales"] ]    # Invalid age, potential outlier salary
+]
+
+o1 = new stzDataWrangler(aCustomerData, aCustomerHeaders)
+
+? BoxRound("DATA TYPE VALIDATION")
+aTypeIssues = o1.ValidateDataTypes()
+
 ? "Type inconsistencies found: " + len(aTypeIssues)
 for issue in aTypeIssues
     ? "  • " + issue
 next
 
+#-->
+'
+╭──────────────────────╮
+│ DATA TYPE VALIDATION │
+╰──────────────────────╯
+Type inconsistencies found: 2
+  • Column Age has mixed types: numeric, string
+  • Column Department has mixed types: string, numeric, list
+'
+
 pf()
-# Execution time: ~0.03 seconds
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing range validation
 
 pr()
 
-o8 = new stzDataWrangler(aCustomerData, aCustomerHeaders)
+aCustomerHeaders = [ "Name", "Age", "Email", "Salary", "Department" ]
 
-# Define range rules: [column_name, min_value, max_value]
-aRangeRules = [
-    ["Age", 18, 65],
-    ["Salary", 30000, 200000]
+aCustomerData = [
+    [ "John Smith", 25, "john@email.com", 50000, "Sales" ],
+    [ "  Mary Jones  ", '', "mary.jones@company.com", 65000, "marketing" ],
+    [ "Bob Wilson", 35, "bob@email", "NULL", 911 ],
+    [ "Alice Brown", 28, "alice@email.com", 55000, "" ],
+    [ "John Smith", 25, "john@email.com", 50000, "Sales" ],  # Duplicate
+    [ '', 45, "unknown@email.com", 75000, "Engineering" ],
+    [ "Tom Davis", -5, "tom@email.com", 999999, "sales" ]    # Invalid age, potential outlier salary
 ]
 
-? "=== RANGE VALIDATION ==="
-aRangeIssues = o8.ValidateRanges(aRangeRules)
+o1 = new stzDataWrangler(aCustomerData, aCustomerHeaders)
+
+# Define range rules: [ column_name, min_value, max_value ]
+
+aRangeRules = [
+    [ "Age", 18, 65 ],
+    [ "Salary", 30000, 200000 ]
+]
+
+? BoxRound("RANGE VALIDATION")
+
+aRangeIssues = o1.ValidateRanges(aRangeRules)
+
 ? "Range violations found: " + len(aRangeIssues)
+
 for issue in aRangeIssues
     ? "  • " + issue
 next
 
+#-->
+'
+╭──────────────────╮
+│ RANGE VALIDATION │
+╰──────────────────╯
+Range violations found: 2
+  • Row 7, Age: -5 outside range [18, 65]
+  • Row 7, Salary: 999999 outside range [30000, 200000]
+'
+
 pf()
-# Execution time: ~0.02 seconds
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing outlier detection
 
 pr()
 
 # Create data with clear outliers
+
 aOutlierData = [
     ["Product A", 100, 25.50],
     ["Product B", 150, 30.75],
     ["Product C", 120, 28.00],
+
     ["Product D", 9999, 500.00],  # Clear outlier
+
     ["Product E", 110, 26.25],
     ["Product F", 130, 29.50],
+
     ["Product G", -50, -10.00]    # Another outlier
 ]
-aOutlierHeaders = ["Product", "Quantity", "Price"]
 
-o9 = new stzDataWrangler(aOutlierData, aOutlierHeaders)
+aOutlierHeaders = [ "Product", "Quantity", "Price" ]
 
-? "=== OUTLIER DETECTION ==="
-aOutliers = o9.DetectOutliers(2.0)  # Using Z-score threshold of 2.0
+o1 = new stzDataWrangler(aOutlierData, aOutlierHeaders)
+
+? BoxRound("OUTLIER DETECTION")
+aOutliers = o1.DetectOutliers(2.0)  # Using Z-score threshold of 2.0
 ? "Outliers detected: " + len(aOutliers)
+
 for outlier in aOutliers
     ? "  • Row " + outlier[1] + ", " + aOutlierHeaders[outlier[2]] + ": " + outlier[3] + " (Z-score: " + outlier[4] + ")"
 next
 
-pf()
-# Execution time: ~0.04 seconds
+#-->
+'
+Outliers detected: 2
+  • Row 4, Quantity: 9999 (Z-score: 2.27)
+  • Row 4, Price: 500 (Z-score: 2.26)
+'
 
-#==============================#
-#  TEST SECTION 4: DATA TRANSFORMATION #
-#==============================#
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
+
+#=======================================#
+#  TEST SECTION 4: DATA TRANSFORMATION  #
+#=======================================#
 
 /*--- Testing data type conversion
 
@@ -215,14 +360,16 @@ aMixedData = [
 ]
 aMixedHeaders = ["Name", "Value", "Active", "Date"]
 
-o10 = new stzDataWrangler(aMixedData, aMixedHeaders)
+o1 = new stzDataWrangler(aMixedData, aMixedHeaders)
 
-? "=== BEFORE TYPE CONVERSION ==="
-aProfile = o10.GetDataProfile()
+? "BEFORE TYPE CONVERSION:"
+aProfile = o1.GetDataProfile()
 aTypesSummary = aProfile[:data_types]
 for typeInfo in aTypesSummary
-    ? "  " + typeInfo[1] + ": " + This._JoinList(typeInfo[2], ", ")
+    ? " • " + typeInfo[1] + ": " + o1._JoinList(typeInfo[2], ", ")
 next
+
+? ""
 
 # Define conversion rules
 aConversionRules = [
@@ -230,12 +377,26 @@ aConversionRules = [
     ["Active", "boolean"]
 ]
 
-nConverted = o10.ConvertDataTypes(aConversionRules)
-? "=== AFTER TYPE CONVERSION ==="
-? "Values converted: " + nConverted
+nConverted = o1.ConvertDataTypes(aConversionRules)
+? "AFTER TYPE CONVERSION:"
+? " • Values converted: " + nConverted
+? " • Ddata: " + @@(o1.GetData())
+
+#-->
+'
+BEFORE TYPE CONVERSION:
+ • Name: string
+ • Value: string
+ • Active: boolean, string
+ • Date: date
+
+AFTER TYPE CONVERSION:
+ • Values converted: 5
+ • Ddata: [ [ "Item1", 123, 1, "2023-01-15" ], [ "Item2", 456.78, "false", "2023-02-20" ], [ "Item3", 789, 1, "2023-03-10" ] ]
+'
 
 pf()
-# Execution time: ~0.03 seconds
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Testing numeric normalization
 
@@ -251,35 +412,49 @@ aNumericData = [
 ]
 aNumericHeaders = ["Sample", "Value1", "Value2"]
 
-o11 = new stzDataWrangler(aNumericData, aNumericHeaders)
+o1 = new stzDataWrangler(aNumericData, aNumericHeaders)
 
-? "=== BEFORE NORMALIZATION ==="
-? "Original Value1 column:"
+? BoxRound("BEFORE NORMALIZATION")
+
+aColumn = []
 for i = 1 to len(aNumericData)
-    ? "  " + aNumericData[i][2]
+    aColumn + aNumericData[i][2]
 next
+? "• Data: " + @@(aColumn) + NL
 
 # Normalize using min-max scaling
-nNormalized = o11.NormalizeNumeric("minmax")
-? "=== AFTER MIN-MAX NORMALIZATION ==="
-? "Values normalized: " + nNormalized
-? "Normalized Value1 column:"
-aCurrentData = o11.GetData()
-for i = 1 to len(aCurrentData)
-    ? "  " + aCurrentData[i][2]
-next
+nNormalized = o1.NormalizeNumeric("minmax")
+? BoxRound("AFTER MIN-MAX NORMALIZATION")
+? "• Values normalized: " + nNormalized
+? "• Normalized Value1 column:"
+? @@( o1.GetData() ) + NL
 
 # Test Z-score normalization
-o12 = new stzDataWrangler(aNumericData, aNumericHeaders)
-o12.NormalizeNumeric("zscore")
-? "=== Z-SCORE NORMALIZATION ==="
-aZScoreData = o12.GetData()
-for i = 1 to len(aZScoreData)
-    ? "  " + aZScoreData[i][2]
-next
+o2 = new stzDataWrangler(aNumericData, aNumericHeaders)
+o2.NormalizeNumeric("zscore")
+? BoxRound("Z-SCORE NORMALIZATION")
+? @@( o2.GetData() )
+
+#-->
+'
+╭──────────────────────╮
+│ BEFORE NORMALIZATION │
+╰──────────────────────╯
+[ 100, 200, 300, 150, 250 ]
+
+╭─────────────────────────────╮
+│ AFTER MIN-MAX NORMALIZATION │
+╰─────────────────────────────╯
+• Values normalized: 10
+• Normalized Value1 column:
+[ [ "Sample1", 0, 0 ], [ "Sample2", 0.50, 0.50 ], [ "Sample3", 1, 1 ], [ "Sample4", 0.25, 0.25 ], [ "Sample5", 0.75, 0.75 ] ]
+
+Z-SCORE NORMALIZATION:
+[ 0.50, 1.50, 2.50, 1, 2 ]
+'
 
 pf()
-# Execution time: ~0.04 seconds
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Testing categorical encoding
 
@@ -295,30 +470,49 @@ aCategoricalData = [
 ]
 aCategoricalHeaders = ["ID", "Color", "Size"]
 
-o13 = new stzDataWrangler(aCategoricalData, aCategoricalHeaders)
+o1 = new stzDataWrangler(aCategoricalData, aCategoricalHeaders)
 
-? "=== BEFORE CATEGORICAL ENCODING ==="
-? "Original Color column:"
+? BoxRound("BEFORE CATEGORICAL ENCODING")
+aColumn = []
 for i = 1 to len(aCategoricalData)
-    ? "  " + aCategoricalData[i][2]
+    aColumn + aCategoricalData[i][2]
 next
+? "• Data: " + @@(aColumn) + NL
 
 # Apply label encoding
-nEncoded = o13.EncodeCategories("label")
-? "=== AFTER LABEL ENCODING ==="
-? "Values encoded: " + nEncoded
-? "Encoded Color column:"
-aEncodedData = o13.GetData()
-for i = 1 to len(aEncodedData)
-    ? "  " + aEncodedData[i][2]
-next
+
+nEncoded = o1.EncodeCategories("label")
+#~> We support three possible strategies of categorical encoding:
+# - "label" (0,1,2...),
+" - "onehot" (binary columns),
+# - "ordinal" (custom order)
+
+? BoxRound("AFTER LABEL ENCODING")
+? "• Values encoded: " + nEncoded
+? "• Encoded Color column:"
+? @@(o1.GetData())
+
+#-->
+'
+╭─────────────────────────────╮
+│ BEFORE CATEGORICAL ENCODING │
+╰─────────────────────────────╯
+• Data: [ "Red", "Blue", "Green", "Red", "Blue" ]
+
+╭──────────────────────╮
+│ AFTER LABEL ENCODING │
+╰──────────────────────╯
+• Values encoded: 10
+• Encoded Color column:
+[ [ 0, 0, 0 ], [ 1, 1, 1 ], [ 2, 2, 2 ], [ 3, 0, 0 ], [ 4, 1, 2 ] ]
+'
 
 pf()
-# Execution time: ~0.03 seconds
+# Executed in 0.02 second(s) in Ring 1.22
 
-#==============================#
-#  TEST SECTION 5: PLAN EXECUTION #
-#==============================#
+#==================================#
+#  TEST SECTION 5: PLAN EXECUTION  #
+#==================================#
 
 /*--- Testing plan generation and execution
 
@@ -327,60 +521,165 @@ pr()
 # Create messy dataset for comprehensive plan testing
 aMesyDataset = [
     ["  John Doe  ", "25", "john@email.com", "50000", "sales"],
-    ["mary SMITH", "", "mary@company.com", "65000", "MARKETING"],
-    ["", "35", "invalid-email", "NULL", "Sales"],
+    ["mary SMITH", '', "mary@company.com", "65000", "MARKETING"],
+    ['', "35", "invalid-email", "NULL", "Sales"],
     ["John Doe", "25", "john@email.com", "50000", "sales"],  # Duplicate
     ["Bob Wilson", "-5", "bob@email.com", "999999", "engineering"],
-    ["Alice Brown", "28.5", "alice@email.com", "", "Sales"]
+    ["Alice Brown", "28.5", "alice@email.com", '', "Sales"]
 ]
 aMesyHeaders = ["Full_Name", "Age", "Email", "Salary", "Department"]
 
-o14 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+o1 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
 
-? "=== GENERATING BASIC CLEANUP PLAN ==="
-aPlan = o14.GeneratePlan("clean")
-? "Plan: " + aPlan[:title]
-? "Description: " + aPlan[:description]
-? "Estimated time: " + aPlan[:estimated_time] + " seconds"
-? "Steps:"
-for step in aPlan[:steps]
-    ? "  • " + step[:description]
+? BoxRound("GENERATING BASIC CLEANUP PLAN")
+aPlan = o1.GeneratePlan("clean")
+? " • Plan: " + aPlan[:title]
+? " • Description: " + aPlan[:description]
+? " • Steps:"
+for stepp in aPlan[:steps]
+    ? "  ─ " + stepp[:description]
 next
 
 ? ""
-? "=== EXECUTING BASIC CLEANUP PLAN ==="
-aResult = o14.ExecutePlan("clean", TRUE)
+? BoxRound("EXECUTING BASIC CLEANUP PLAN")
+aResult = o1.ExecutePlan("clean", TRUE)
 
 ? ""
-? "=== EXECUTION SUMMARY ==="
-? "Plan executed: " + aResult[:plan][:title]
-? "Execution time: " + aResult[:execution_time] + " seconds"
-? "Summary: " + aResult[:summary]
+? BoxRound("EXECUTION SUMMARY")
+? " • Plan executed: " + aResult[:plan]//[:title]
+? " • Execution time: " + aResult[:execution_time] + " seconds"
+? " • Summary: " + aResult[:summary]
+
+#-->
+'
+╭───────────────────────────────╮
+│ GENERATING BASIC CLEANUP PLAN │
+╰───────────────────────────────╯
+ • Plan: Basic Data Cleanup
+ • Description: Remove duplicates, handle missing values, normalize formats
+ • Steps:
+  ─ Fill or remove missing values
+  ─ Clean whitespace from text
+  ─ Standardize text case
+  ─ Remove duplicate rows
+
+╭──────────────────────────────╮
+│ EXECUTING BASIC CLEANUP PLAN │
+╰──────────────────────────────╯
+• Executing Plan: Basic Data Cleanup
+• Remove duplicates, handle missing values, normalize formats
+
+❌ Fill or remove missing values...
+╰─> Error: Error (R19) : Calling function with less number of parameters
+
+✅ Clean whitespace from text...
+╰─> Cleaned 1 text values
+
+❌ Standardize text case...
+╰─> Error: Error (R19) : Calling function with less number of parameters
+
+✅ Remove duplicate rows...
+╰─> Removed 1 duplicate rows
+
+
+( Plan execution completed in 0.03 second(s): 2 successful, 2 errors )
+
+╭───────────────────╮
+│ EXECUTION SUMMARY │
+╰───────────────────╯
+ • Plan executed: 
+ • Execution time:  seconds
+ • Summary: 
+'
 
 pf()
-# Execution time: ~0.08 seconds
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Testing different plan templates
 
 pr()
 
-o15 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+# Create messy dataset for comprehensive plan testing
+aMesyDataset = [
+    ["  John Doe  ", "25", "john@email.com", "50000", "sales"],
+    ["mary SMITH", '', "mary@company.com", "65000", "MARKETING"],
+    ['', "35", "invalid-email", "NULL", "Sales"],
+    ["John Doe", "25", "john@email.com", "50000", "sales"],  # Duplicate
+    ["Bob Wilson", "-5", "bob@email.com", "999999", "engineering"],
+    ["Alice Brown", "28.5", "alice@email.com", '', "Sales"]
+]
+aMesyHeaders = ["Full_Name", "Age", "Email", "Salary", "Department"]
 
-? "=== TESTING VALIDATION PLAN ==="
-aValidationResult = o15.ExecutePlan("validate", TRUE)
+o1 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+
+? BoxRound("TESTING VALIDATION PLAN")
+o1.ExecutePlan("validate", TRUE)
+#-->
+'
+╭─────────────────────────╮
+│ TESTING VALIDATION PLAN │
+╰─────────────────────────╯
+• Executing Plan: Data Quality Validation
+• Validate data types, formats, and constraints
+
+✅ Check data type consistency...
+╰─> Found 1 type inconsistencies
+
+❌ Check numeric ranges...
+╰─> Error: Error (R19) : Calling function with less number of parameters
+
+✅ Validate text formats...
+╰─> Format validation completed
+
+❌ Identify potential outliers...
+╰─> Error: Error (R19) : Calling function with less number of parameters
+
+
+( Plan execution completed in 0.00 second(s): 2 successful, 2 errors )
+'
 
 ? ""
-? "=== TESTING ANALYSIS PREPARATION PLAN ==="
-o16 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
-aAnalysisResult = o16.ExecutePlan("analyze", TRUE)
+? BoxRound("TESTING ANALYSIS PREPARATION PLAN")
+o2 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+o2.ExecutePlan("analyze", TRUE)
+#-->
+'
+╭───────────────────────────────────╮
+│ TESTING ANALYSIS PREPARATION PLAN │
+╰───────────────────────────────────╯
+'
+
 
 ? ""
-? "=== TESTING EXPORT PREPARATION PLAN ==="
-o17 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
-aExportResult = o17.ExecutePlan("export", TRUE)
+? BoxRound("TESTING EXPORT PREPARATION PLAN")
+o3 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+o3.ExecutePlan("export", TRUE)
+#-->
+'
+╭─────────────────────────────────╮
+│ TESTING EXPORT PREPARATION PLAN │
+╰─────────────────────────────────╯
+• Executing Plan: Prepare for Export
+• Format data for external systems
+
+❌ Clean column names...
+╰─> Error: Bad parameter type!
+
+❌ Replace with export-friendly values...
+╰─> Error: Error (R19) : Calling function with less number of parameters
+
+❌ Standardize date formats...
+╰─> Error: Bad parameter type!
+
+✅ Final validation check...
+╰─> Export validation - 2 issues found
+
+
+( Plan execution completed in 0.00 second(s): 1 successful, 3 errors )
+'
 
 pf()
-# Execution time: ~0.12 seconds
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Testing goal-based plan execution
 
@@ -405,9 +704,9 @@ aValidateResult = o18.ExecutePlan("validate", FALSE)
 pf()
 # Execution time: ~0.06 seconds
 
-#==============================#
-#  TEST SECTION 6: EXPORT METHODS #
-#==============================#
+#==================================#
+#  TEST SECTION 6: EXPORT METHODS  #
+#==================================#
 
 /*--- Testing export to different Softanza classes
 
@@ -422,129 +721,263 @@ aCleanData = [
 ]
 aCleanHeaders = ["Name", "Age", "Salary"]
 
-o19 = new stzDataWrangler(aCleanData, aCleanHeaders)
+o1 = new stzDataWrangler(aCleanData, aCleanHeaders)
 
-? "=== EXPORT FOR stzDataSet ==="
-aDataSetExport = o19.ExportForStzDataSet()
-? "Exported data structure: " + len(aDataSetExport) + " rows"
-? "Sample data:"
-for i = 1 to min(3, len(aDataSetExport))
-    ? "  Row " + i + ": " + This._JoinList(aDataSetExport[i], ", ")
+? BoxRound("EXPORT FOR stzDataSet")
+
+aDataSetExport = o1.ExportForStzDataSet()
+? "• Class name: " + StzDataSetQ(aDataSetExport).ClassName()
+? "• Exported data structure: " + len(aDataSetExport) + " rows"
+? "• Sample data:"
+for i = 1 to min([3, len(aDataSetExport)])
+    ? " ─ Row " + i + ": " + o1._JoinList(aDataSetExport[i], ", ")
 next
+#-->
+'
+╭───────────────────────╮
+│ EXPORT FOR stzDataSet │
+╰───────────────────────╯
+• Class name: stzdataset
+• Exported data structure: 4 rows
+• Sample data:
+ ─ Row 1: Alice, 25, 55000
+ ─ Row 2: Bob, 30, 60000
+ ─ Row 3: Carol, 28, 58000
+'
+
+#---
 
 ? ""
-? "=== EXPORT FOR stzTable ==="
-aTableExport = o19.ExportForStzTable()
-? "Headers: " + This._JoinList(aTableExport[1], ", ")
-? "Data rows: " + len(aTableExport[2])
+? BoxRound("EXPORT FOR stzTable")
+aTableExport = o1.ExportForStzTable()
+? "• Headers: " + o1._JoinList(aTableExport[1], ", ")
+? "• Data rows: " + len(aTableExport[2])
+#-->
+'
+╭─────────────────────╮
+│ EXPORT FOR stzTable │
+╰─────────────────────╯
+• Headers: Name, Age, Salary
+• Data rows: 4
+'
+
+#---
 
 ? ""
-? "=== EXPORT FOR stzMatrix ==="
-aMatrixExport = o19.ExportForStzMatrix()
-? "Matrix dimensions: " + len(aMatrixExport) + " × " + len(aMatrixExport[1])
-? "Sample numeric data:"
-for i = 1 to min(3, len(aMatrixExport))
-    ? "  " + This._JoinList(aMatrixExport[i], ", ")
+? BoxRound("EXPORT FOR stzMatrix")
+aMatrixExport = o1.ExportForStzMatrix()
+
+? "• Class name: " + StzMatrixQ(aDataSetExport).ClassName()
+? "• Matrix dimensions: " + len(aMatrixExport) + " × " + len(aMatrixExport[1])
+? "• Sample numeric data:"
+
+for i = 1 to min([3, len(aMatrixExport)])
+
+	if i = 1
+		cSepLeft = "╭"
+		cSepRight = "╮"
+	but i = 2
+		cSepLeft = "│"
+		cSepRight = "│"
+	but i = 3
+		cSepLeft = "╰"
+		cSepRight = "╯"
+	ok
+
+    ? ' ' + cSepLeft + " " + o1._JoinList(aMatrixExport[i], ", ") + " " + cSepRight
+
 next
+
+#-->
+'
+╭──────────────────────╮
+│ EXPORT FOR stzMatrix │
+╰──────────────────────╯
+• Class name: stzmatrix
+• Matrix dimensions: 4 × 3
+• Sample numeric data:
+ ╭ 0, 25, 55000 ╮
+ │ 0, 30, 60000 │
+ ╰ 0, 28, 58000 ╯
+'
 
 pf()
-# Execution time: ~0.03 seconds
+# Executed in 0.06 second(s) in Ring 1.22
 
-#==============================#
-#  TEST SECTION 7: CONVENIENCE METHODS #
-#==============================#
+#=======================================#
+#  TEST SECTION 7: CONVENIENCE METHODS  #
+#=======================================#
 
 /*--- Testing quick operation methods
 
 pr()
 
-o20 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+aMesyDataset = [
+    ["  John Doe  ", "25", "john@email.com", "50000", "sales"],
+    ["mary SMITH", '', "mary@company.com", "65000", "MARKETING"],
+    ['', "35", "invalid-email", "NULL", "Sales"],
+    ["John Doe", "25", "john@email.com", "50000", "sales"],  # Duplicate
+    ["Bob Wilson", "-5", "bob@email.com", "999999", "engineering"],
+    ["Alice Brown", "28.5", "alice@email.com", '', "Sales"]
+]
+aMesyHeaders = ["Full_Name", "Age", "Email", "Salary", "Department"]
 
-? "=== QUICK OPERATIONS (NON-VERBOSE) ==="
+o1 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+
+# QUICK OPERATIONS (NON-VERBOSE)
 
 ? "Quick Clean..."
-aQuickClean = o20.QuickClean()
+aQuickClean = o1.QuickClean()
 ? "Result: " + aQuickClean[:summary]
 
 ? ""
 ? "Quick Validate..."
-aQuickValidate = o20.QuickValidate()
+aQuickValidate = o1.QuickValidate()
 ? "Result: " + aQuickValidate[:summary]
 
 ? ""
 ? "Quick Prepare for Analysis..."
-o21 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
-aQuickAnalysis = o21.QuickPrepareForAnalysis()
-? "Result: " + aQuickAnalysis[:summary]
+o2 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+aQuickAnalysis = o2.QuickPrepareForAnalysis()
+if isList(aQuickAnalysis)
+	? "Result: " + aQuickAnalysis[:summary]
+ok
 
 ? ""
 ? "Quick Prepare for Export..."
-o22 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
-aQuickExport = o22.QuickPrepareForExport()
+o3 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+aQuickExport = o3.QuickPrepareForExport()
 ? "Result: " + aQuickExport[:summary]
 
+#-->
+'
+Quick Clean...
+Result: 2 successful, 2 errors
+
+Quick Validate...
+Result: 2 successful, 2 errors
+
+Quick Prepare for Analysis...
+
+Quick Prepare for Export...
+Result: 1 successful, 3 errors
+'
+
 pf()
-# Execution time: ~0.08 seconds
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Testing chainable operations
 
 pr()
 
-o23 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+aMesyDataset = [
+    [ "  John Doe  ", "25", "john@email.com", "50000", "sales" ],
+    [ "mary SMITH", '', "mary@company.com", "65000", "MARKETING" ],
+    [ '', "35", "invalid-email", "NULL", "Sales" ],
+    [ "John Doe", "25", "john@email.com", "50000", "sales" ],  # Duplicate
+    [ "Bob Wilson", "-5", "bob@email.com", "999999", "engineering" ],
+    [ "Alice Brown", "28.5", "alice@email.com", '', "Sales" ]
+]
+aMesyHeaders = ["Full_Name", "Age", "Email", "Salary", "Department"]
 
-? "=== CHAINABLE OPERATIONS ==="
-? "Performing: Clean() -> Validate() -> Transform() -> Export()"
+o1 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+
+
+? BoxRound("CHAINABLE OPERATIONS")
+? "• Performing: Clean() -> Validate() -> Transform() -> Export()"
 
 # Chain operations together
-o23.Clean().Validate().Transform().Export()
+o1.Clean().Validate().Transform().Export()
 
-? "Final data profile:"
-aFinalProfile = o23.GetDataProfile()
-? "Issues found: " + aFinalProfile[:issues_found]
-? "Transformations applied: " + aFinalProfile[:transformations_applied]
+? "• Final data profile:"
+aFinalProfile = o1.GetDataProfile()
+? " ─ Issues found: " + aFinalProfile[:issues_found]
+? " ─ Transformations applied: " + aFinalProfile[:transformations_applied]
 
 # Show transformation log
 ? ""
-? "Transformation log:"
-aTransformLog = o23.GetTransformationLog()
+? "• Transformation log:"
+aTransformLog = o1.GetTransformationLog()
 for transform in aTransformLog
-    ? "  • " + transform[:operation] + ": " + transform[:details]
+    ? " ─ " + transform[:operation] + ": " + transform[:details]
 next
 
-pf()
-# Execution time: ~0.10 seconds
+? ""
+? @@(o1.GetData())
+#--> See why the data is not altered
 
-#==============================#
-#  TEST SECTION 8: REPORTING & DIAGNOSTICS #
-#==============================#
+pf()
+# Executed in 0.05 second(s) in Ring 1.22
+
+#===========================================#
+#  TEST SECTION 8: REPORTING & DIAGNOSTICS  #
+#===========================================#
 
 /*--- Testing comprehensive reporting
 
 pr()
 
-o24 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+aMesyDataset = [
+    ["  John Doe  ", "25", "john@email.com", "50000", "sales"],
+    ["mary SMITH", '', "mary@company.com", "65000", "MARKETING"],
+    ['', "35", "invalid-email", "NULL", "Sales"],
+    ["John Doe", "25", "john@email.com", "50000", "sales"],  # Duplicate
+    ["Bob Wilson", "-5", "bob@email.com", "999999", "engineering"],
+    ["Alice Brown", "28.5", "alice@email.com", '', "Sales"]
+]
+aMesyHeaders = ["Full_Name", "Age", "Email", "Salary", "Department"]
 
-? "=== COMPREHENSIVE DATA REPORT ==="
-o24.ShowReport()
+
+o1 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+
+# COMPREHENSIVE DATA REPORT
+o1.ShowReport()
 
 ? ""
-? "=== DETAILED PROFILE INFORMATION ==="
-aDetailedProfile = o24.GetDataProfile()
-? "Structure: " + aDetailedProfile[:structure]
-? "Dimensions: " + aDetailedProfile[:rows] + " rows × " + aDetailedProfile[:columns] + " columns"
-? "Missing values: " + aDetailedProfile[:missing_values]
-? "Duplicate count: " + aDetailedProfile[:duplicates]
+? BoxRound("DETAILED PROFILE INFORMATION")
+aDetailedProfile = o1.GetDataProfile()
+? "• Structure: " + aDetailedProfile[:structure]
+? "• Dimensions: " + aDetailedProfile[:rows] + " rows × " + aDetailedProfile[:columns] + " columns"
+? "• Missing values: " + aDetailedProfile[:missing_values]
+? "• Duplicate count: " + aDetailedProfile[:duplicates]
 
 ? ""
-? "=== ISSUES BREAKDOWN ==="
-aIssues = o24.GetIssues()
+? BoxRound("ISSUES BREAKDOWN")
+aIssues = o1.GetIssues()
 if len(aIssues) > 0
     for issue in aIssues
-        ? "  • [" + issue[:type] + "] " + issue[:description]
+        ? "• [" + issue[:type] + "] " + issue[:description]
     next
 else
     ? "No issues detected in original data"
 ok
+
+#-->
+'
+╭───────────────────────╮
+│ DATA WRANGLING REPORT │
+╰───────────────────────╯
+• Structure: table
+• Dimensions: 6 rows × 5 columns
+• Issues Found: 0
+• Transformations: 1
+
+🔄 TRANSFORMATIONS APPLIED:
+╰─> Data loaded: {{ Structure: table }}
+
+╭──────────────────────────────╮
+│ DETAILED PROFILE INFORMATION │
+╰──────────────────────────────╯
+• Structure: table
+• Dimensions: 6 rows × 5 columns
+• Missing values: 4
+• Duplicate count: 0
+
+╭──────────────────╮
+│ ISSUES BREAKDOWN │
+╰──────────────────╯
+No issues detected in original data
+'
 
 pf()
 # Execution time: ~0.04 seconds
@@ -553,33 +986,65 @@ pf()
 
 pr()
 
-o25 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+aMesyDataset = [
+    ["John Doe", "25", "john@email.com", "50000", "sales"],
+    ["mary SMITH", '', "mary@company.com", "65000", "MARKETING"],
+    ['', "35", "invalid-email", "NULL", "Sales"],
+    ["John Doe", "25", "john@email.com", "50000", "sales"],  # Duplicate
+    ["Bob Wilson", "-5", "bob@email.com", "999999", "engineering"],
+    ["Alice Brown", "28.5", "alice@email.com", '', "Sales"]
+]
+aMesyHeaders = ["Full_Name", "Age", "Email", "Salary", "Department"]
 
-? "=== BEFORE AND AFTER COMPARISON ==="
-? "BEFORE transformations:"
-aInitialProfile = o25.GetDataProfile()
-? "  Missing values: " + aInitialProfile[:missing_values]
-? "  Duplicate count: " + aInitialProfile[:duplicates]
+o1 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
+
+? BoxRound("BEFORE ANY TRNASFORMATION")
+
+aInitialProfile = o1.GetDataProfile()
+? "• Missing values: " + aInitialProfile[:missing_values]
+? "• Duplicate count: " + aInitialProfile[:duplicates]
 
 # Apply comprehensive cleaning
-o25.ExecutePlan("clean", FALSE)
+o1.ExecutePlan("clean", FALSE)
 
 ? ""
-? "AFTER cleaning transformations:"
-aFinalProfile = o25.GetDataProfile()
-? "  Missing values: " + aFinalProfile[:missing_values]
-? "  Duplicate count: " + aFinalProfile[:duplicates]
-? "  Transformations applied: " + aFinalProfile[:transformations_applied]
+? BoxRound("AFTER CLEANING THE DATA")
+aFinalProfile = o1.GetDataProfile()
+? "• Missing values: " + aFinalProfile[:missing_values]
+? "• Duplicate count: " + aFinalProfile[:duplicates]
+? "• Transformations applied: " + aFinalProfile[:transformations_applied]
 
 ? ""
-? "Detailed transformation log:"
-aTransformLog = o25.GetTransformationLog()
+? BoxRound("DETAILED TRANSFORMATION LOG")
+aTransformLog = o1.GetTransformationLog()
 for transform in aTransformLog
-    ? "  [" + transform[:timestamp] + "] " + transform[:operation] + " - " + transform[:details]
+    ? "• [" + transform[:timestamp] + "] " + transform[:operation] + " - " + transform[:details]
 next
 
+#-->
+'
+╭───────────────────────────╮
+│ BEFORE ANY TRNASFORMATION │
+╰───────────────────────────╯
+• Missing values: 4
+• Duplicate count: 1
+
+╭─────────────────────────╮
+│ AFTER CLEANING THE DATA │
+╰─────────────────────────╯
+• Missing values: 4
+• Duplicate count: 0
+• Transformations applied: 2
+
+╭─────────────────────────────╮
+│ DETAILED TRANSFORMATION LOG │
+╰─────────────────────────────╯
+• [18/06/2025 15:07:44] Data loaded - { Structure: table }
+• [18/06/2025 15:07:44] TrimWhitespace - 0 values cleaned
+'
+
 pf()
-# Execution time: ~0.06 seconds
+# Executed in 0.09 second(s) in Ring 1.22
 
 #==============================#
 #  TEST SECTION 9: EDGE CASES #
@@ -589,91 +1054,144 @@ pf()
 
 pr()
 
-? "=== TESTING WITH EMPTY DATASET ==="
-aEmptyData = []
-o26 = new stzDataWrangler(aEmptyData)
+# TESTING WITH EMPTY DATASET
 
-aEmptyProfile = o26.GetDataProfile()
-? "Empty data structure: " + aEmptyProfile[:structure]
-? "Row count: " + aEmptyProfile[:rows]
+aEmptyData = []
+aHeaders = []
+
+o1 = new stzDataWrangler(aEmptyData, aHeaders)
+
+aEmptyProfile = o1.GetDataProfile()
+? "• Empty data structure: " + aEmptyProfile[:structure]
+? "• Row count: " + aEmptyProfile[:rows]
+#-->
+'
+• Empty data structure: empty
+• Row count: 0
+'
 
 # Try to execute plan on empty data
-aEmptyResult = o26.ExecutePlan("clean", FALSE)
-? "Plan execution on empty data: " + aEmptyResult[:summary]
+? ""
+aEmptyResult = o1.ExecutePlan("clean", FALSE)
+? "• Plan execution on empty data: " + aEmptyResult[:summary]
 
 pf()
-# Execution time: ~0.02 seconds
+# • Plan execution on empty data: 2 successful, 2 errorss
 
 /*--- Testing with single column data
 
 pr()
 
-? "=== TESTING WITH SINGLE COLUMN ==="
+# TESTING WITH SINGLE COLUMN
+
 aSingleColumnData = [
-    ["Value1"],
-    ["Value2"],
-    [""],
-    ["Value1"],  # Duplicate
-    ["Value3"]
+    [ "Value1" ],
+    [ "Value2" ],
+    [ "" ],
+    [ "Value1" ],  # Duplicate
+    [ "Value3" ]
 ]
 aSingleColumnHeaders = ["OnlyColumn"]
 
-o27 = new stzDataWrangler(aSingleColumnData, aSingleColumnHeaders)
+o1 = new stzDataWrangler(aSingleColumnData, aSingleColumnHeaders)
 
-? "Initial profile:"
-o27.ShowReport()
+# Initial profile
+o1.ShowReport()
+#-->
+'
+╭───────────────────────╮
+│ DATA WRANGLING REPORT │
+╰───────────────────────╯
+• Structure: table
+• Dimensions: 5 rows × 1 columns
+• Issues Found: 0
+• Transformations: 1
+
+🔄 TRANSFORMATIONS APPLIED:
+╰─> Data loaded: {Structure: table}
+'
 
 ? ""
-? "Executing cleanup:"
-aSingleResult = o27.ExecutePlan("clean", TRUE)
+? BoxRound("Executing cleanup:")
+o1.ExecutePlan("clean", TRUE)
+#-->
+'
+╭────────────────────╮
+│ Executing cleanup: │
+╰────────────────────╯
+• Executing Plan: Basic Data Cleanup
+• Remove duplicates, handle missing values, normalize formats
 
+❌ Fill or remove missing values...
+╰─> Error: Error (R19) : Calling function with less number of parameters
+
+✅ Clean whitespace from text...
+╰─> Cleaned 0 text values
+
+❌ Standardize text case...
+╰─> Error: Error (R19) : Calling function with less number of parameters
+
+✅ Remove duplicate rows...
+╰─> Removed 1 duplicate rows
+
+( Plan execution completed in 0.01 second(s): 2 successful, 2 errors )
+'
 pf()
-# Execution time: ~0.04 seconds
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Testing with all missing values
 
 pr()
 
-? "=== TESTING WITH ALL MISSING VALUES ==="
-aAllMissingData = [
-    ["", "NULL", ""],
-    ["NA", "", "n/a"],
-    ["", "NULL", ""]
-]
-aAllMissingHeaders = ["Col1", "Col2", "Col3"]
+# TESTING WITH ALL MISSING VALUES
 
-o28 = new stzDataWrangler(aAllMissingData, aAllMissingHeaders)
+aAllMissingData = [
+    [ '', "NULL", "" ],
+    [ "NA", '', "n/a" ],
+    [ '', "NULL", "" ]
+]
+aAllMissingHeaders = [ "Col1", "Col2", "Col3" ]
+
+o1 = new stzDataWrangler(aAllMissingData, aAllMissingHeaders)
 
 ? "Profile before handling missing values:"
-aBeforeMissing = o28.GetDataProfile()
-? "Missing values: " + aBeforeMissing[:missing_values]
+aBeforeMissing = o1.GetDataProfile()
+? "• Missing values: " + aBeforeMissing[:missing_values]
 
 # Try different missing value strategies
-nProcessed = o28.HandleMissingValues("fill_zero")
+nProcessed = o1.HandleMissingValues("fill_zero")
 ? ""
 ? "After filling with zeros:"
-? "Values processed: " + nProcessed
-aAfterMissing = o28.GetDataProfile()
-? "Remaining missing values: " + aAfterMissing[:missing_values]
+? "• Values processed: " + nProcessed
+aAfterMissing = o1.GetDataProfile()
+? "• Remaining missing values: " + aAfterMissing[:missing_values]
+
+#-->
+'
+Profile before handling missing values:
+• Missing values: 9
+
+After filling with zeros:
+• Values processed: 9
+• Remaining missing values: 0
+'
 
 pf()
-# Execution time: ~0.03 seconds
+# Executed in almost 0 second(s) in Ring 1.22
 
-#==============================#
+#===============================#
 #  TEST SECTION 10: PERFORMANCE #
-#==============================#
+#===============================#
 
 /*--- Testing with larger dataset
 
 pr()
 
-? "=== PERFORMANCE TEST WITH LARGER DATASET ==="
-
 # Generate larger dataset for performance testing
 aLargeHeaders = ["ID", "Name", "Score", "Category", "Date"]
 aLargeData = []
 
-for i = 1 to 1000
+for i = 1 to 100_000
     aRow = []
     aRow + i  # ID
     aRow + "User" + i  # Name
@@ -694,31 +1212,31 @@ next
 
 ? "Generated dataset: " + len(aLargeData) + " rows × " + len(aLargeHeaders) + " columns"
 
-o29 = new stzDataWrangler(aLargeData, aLargeHeaders)
+o1 = new stzDataWrangler(aLargeData, aLargeHeaders)
 
 ? "Executing comprehensive analysis plan..."
 nStartTime = clock()
-aLargeResult = o29.ExecutePlan("analyze", FALSE)
+aLargeResult = o1.ExecutePlan("analyze", FALSE)
 nEndTime = clock()
-nExecutionTime = nEndTime - nStartTime
+nExecutionTime = (nEndTime - nStartTime) / clockspersecond()
 
 ? "Performance results:"
-? "  Execution time: " + nExecutionTime + " seconds"
-? "  Processing rate: " + (len(aLargeData) / nExecutionTime) + " rows/second"
-? "  Plan result: " + aLargeResult[:summary]
+? "• Execution time: " + nExecutionTime + " seconds"
+? "• Processing rate: " + (len(aLargeData) / nExecutionTime) + " rows/second"
+
+
+//? "• Plan result: " + aLargeResult[:summary] #TODO See why aLargeResult = ""!
 
 pf()
-# Execution time: ~2.5 seconds (estimated)
+# Executed in 2.02 second(s) in Ring 1.22
 
-#==============================#
-#  TEST SECTION 11: REAL-WORLD SCENARIOS #
-#==============================#
+#=========================================#
+#  TEST SECTION 11: REAL-WORLD SCENARIOS  #
+#=========================================#
 
 /*--- Customer database cleanup scenario
 
 pr()
-
-? "=== REAL-WORLD SCENARIO: CUSTOMER DATABASE CLEANUP ==="
 
 # Realistic customer data with common issues
 aCustomerDB = [
@@ -733,34 +1251,111 @@ aCustomerDB = [
 
 aCustomerHeaders = ["Name", "Email", "Phone", "City", "State", "ZIP", "JoinDate"]
 
-o30 = new stzDataWrangler(aCustomerDB, aCustomerHeaders)
+o1 = new stzDataWrangler(aCustomerDB, aCustomerHeaders)
 
 ? "Initial customer database analysis:"
-o30.ShowReport()
+o1.ShowReport()
 
 ? ""
 ? "Executing comprehensive cleanup..."
-aCustomerResult = o30.ExecutePlan("clean", TRUE)
+aCustomerResult = o1.ExecutePlan("clean", TRUE)
 
 ? ""
 ? "Final cleaned data sample:"
-aCleanedCustomers = o30.GetData()
-for i = 1 to min(5, len(aCleanedCustomers))
+aCleanedCustomers = o1.GetData()
+for i = 1 to min([5, len(aCleanedCustomers)])
     ? "Customer " + i + ":"
     for j = 1 to len(aCustomerHeaders)
-        ? "  " + aCustomerHeaders[j] + ": " + aCleanedCustomers[i][j]
+        ? "• " + aCustomerHeaders[j] + ": " + aCleanedCustomers[i][j]
     next
     ? ""
 next
 
+#-->
+'
+Initial customer database analysis:
+╭───────────────────────╮
+│ DATA WRANGLING REPORT │
+╰───────────────────────╯
+• Structure: table
+• Dimensions: 7 rows × 7 columns
+• Issues Found: 0
+• Transformations: 1
+
+🔄 TRANSFORMATIONS APPLIED:
+╰─> Data loaded: {Structure: table}
+
+Executing comprehensive cleanup...
+• Executing Plan: Basic Data Cleanup
+• Remove duplicates, handle missing values, normalize formats
+
+❌ Fill or remove missing values...
+╰─> Error: Error (R19) : Calling function with less number of parameters
+
+✅ Clean whitespace from text...
+╰─> Cleaned 1 text values
+
+❌ Standardize text case...
+╰─> Error: Error (R19) : Calling function with less number of parameters
+
+✅ Remove duplicate rows...
+╰─> Removed 1 duplicate rows
+
+( Plan execution completed in 0.05 second(s): 2 successful, 2 errors )
+
+Final cleaned data sample:
+Customer 1:
+• Name: John Smith
+• Email: john.smith@email.com
+• Phone: 555-1234
+• City: New York
+• State: NY
+• ZIP: 10001
+• JoinDate: 2020-01-15
+
+Customer 2:
+• Name: mary johnson
+• Email: MARY@COMPANY.COM
+• Phone: (555) 567-8901
+• City: los angeles
+• State: ca
+• ZIP: 90210
+• JoinDate: 2019-03-22
+
+Customer 3:
+• Name: 
+• Email: bob.wilson@email.com
+• Phone: 555.234.5678
+• City: Chicago
+• State: IL
+• ZIP: 
+• JoinDate: 
+
+Customer 4:
+• Name: Alice Brown
+• Email: alice@email
+• Phone: 5551234567
+• City: Houston
+• State: TX
+• ZIP: 77001
+• JoinDate: 2021-06-10
+
+Customer 5:
+• Name: Tom Davis
+• Email: tom@email.com
+• Phone: 555-999-0000
+• City: Phoenix
+• State: AZ
+• ZIP: 85001
+• JoinDate: 2022-12-01
+'
+
 pf()
-# Execution time: ~0.08 seconds
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Sales data preparation for analysis
 
 pr()
-
-? "=== REAL-WORLD SCENARIO: SALES DATA PREPARATION ==="
 
 # Sales transaction data needing preparation for analysis
 aSalesData = [
@@ -775,30 +1370,61 @@ aSalesData = [
 
 aSalesHeaders = ["TransactionID", "Date", "Product", "Category", "Price", "Quantity", "Customer"]
 
-o31 = new stzDataWrangler(aSalesData, aSalesHeaders)
+o1 = new stzDataWrangler(aSalesData, aSalesHeaders)
 
-? "Sales data preparation workflow:"
+? BoxRound("Sales data preparation workflow")
 ? "1. Data validation and profiling"
-aValidationResult = o31.ExecutePlan("validate", TRUE)
+aValidationResult = o1.ExecutePlan("validate", TRUE)
 
 ? ""
 ? "2. Data cleaning and preparation for analysis"
-o32 = new stzDataWrangler(aSalesData, aSalesHeaders)
-aAnalysisResult = o32.ExecutePlan("analyze", TRUE)
+o2 = new stzDataWrangler(aSalesData, aSalesHeaders)
+aAnalysisResult = o2.ExecutePlan("analyze", TRUE)
 
 ? ""
 ? "3. Final dataset ready for statistical analysis:"
-aFinalSalesData = o32.ExportForStzDataSet()
+aFinalSalesData = o2.ExportForStzDataSet()
 ? "Prepared " + len(aFinalSalesData) + " transaction records"
+
+#-->
+'
+╭─────────────────────────────────╮
+│ Sales data preparation workflow │
+╰─────────────────────────────────╯
+1. Data validation and profiling
+• Executing Plan: Data Quality Validation
+• Validate data types, formats, and constraints
+
+✅ Check data type consistency...
+╰─> Found 1 type inconsistencies
+
+❌ Check numeric ranges...
+╰─> Error: Error (R19) : Calling function with less number of parameters
+
+✅ Validate text formats...
+╰─> Format validation completed
+
+❌ Identify potential outliers...
+╰─> Error: Error (R19) : Calling function with less number of parameters
+
+( Plan execution completed in 0.00 second(s): 2 successful, 2 errors )
+
+2. Data cleaning and preparation for analysis
+
+3. Final dataset ready for statistical analysis:
+Prepared 7 transaction records
+
+Executed in 0.02 second(s) in Ring 1.22
+'
 
 pf()
 # Execution time: ~0.10 seconds
 
 /*--- Survey response data standardization
-
+*/
 pr()
 
-? "=== REAL-WORLD SCENARIO: SURVEY RESPONSE STANDARDIZATION ==="
+# REAL-WORLD SCENARIO: SURVEY RESPONSE STANDARDIZATION
 
 # Survey responses with inconsistent formats
 aSurveyData = [
@@ -813,9 +1439,9 @@ aSurveyData = [
 
 aSurveyHeaders = ["ResponseID", "Age", "Gender", "Subscribe", "Satisfaction", "Education", "Income"]
 
-o33 = new stzDataWrangler(aSurveyData, aSurveyHeaders)
+o1 = new stzDataWrangler(aSurveyData, aSurveyHeaders)
 
-? "Survey data standardization process:"
+? BoxRound("Survey data standardization process")
 
 # Custom validation rules for survey data
 aCustomRules = [
@@ -825,16 +1451,49 @@ aCustomRules = [
 
 ? ""
 ? "1. Range validation with custom rules:"
-aRangeIssues = o33.ValidateRanges(aCustomRules)
+aRangeIssues = o1.ValidateRanges(aCustomRules)
 for issue in aRangeIssues
-    ? "  • " + issue
+    ? " • " + issue
 next
 
 ? ""
 ? "2. Comprehensive standardization:"
-aStandardizationResult = o33.ExecutePlan("export", TRUE)
+aStandardizationResult = o1.ExecutePlan("export", TRUE)
 
 ? ""
 ? "3. Export-ready survey data:"
-aStandardizedSurvey = o33.ExportForStzTable()
-? "Headers: " +
+aStandardizedSurvey = o1.ExportForStzTable()
+? StzTableQ(aStandardizedSurvey).ClassName()
+
+#-->
+'
+╭─────────────────────────────────────╮
+│ Survey data standardization process │
+╰─────────────────────────────────────╯
+
+1. Range validation with custom rules:
+
+2. Comprehensive standardization:
+• Executing Plan: Prepare for Export
+• Format data for external systems
+
+❌ Clean column names...
+╰─> Error: Bad parameter type!
+
+❌ Replace with export-friendly values...
+╰─> Error: Error (R19) : Calling function with less number of parameters
+
+❌ Standardize date formats...
+╰─> Error: Bad parameter type!
+
+✅ Final validation check...
+╰─> Export validation - 2 issues found
+
+( Plan execution completed in 0.00 second(s): 1 successful, 3 errors )
+
+3. Export-ready survey data:
+stztable
+
+'
+pf()
+# Executed in 0.02 second(s) in Ring 1.22

@@ -6,7 +6,7 @@ func stzPivotTable(pSource)
 	# Creates a new instance of stzPivotTable with the provided source data	# data
 	return new stzPivotTable(pSource)
 
-class stzPivotTable
+class stzPivotTable from stzList
 	# Instance variables for pivot table configuration and state
 	@oSourceTable
 	@aRowLabels = []
@@ -63,6 +63,12 @@ class stzPivotTable
 		
 		# Initialize cache
 		@aCellCache = []
+
+	def ClassName() #TODO // Add it to all the classes in Softanza
+		return "stzpivottable"
+
+		def KlassName()
+			return "stzpivottable"
 
 	  #--------------------------#
 	 #  CONFIGURATION METHODS   #
