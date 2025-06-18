@@ -52,7 +52,7 @@ https://betterprogramming.pub/pandas-illustrated-the-definitive-visual-guide-to-
 func StzTableQ(paTable)
 	return new stzTable( paTable )
 
-Class stzTable from stzObject
+Class stzTable from stzList
 	@aContent = []
 
 	# Table content is stored as a hashlist where keys are col names
@@ -248,6 +248,11 @@ Class stzTable from stzObject
 			This.AddHistoricValue(This.Content())
 		ok
 
+	def ClassName()
+		return "stztable"
+
+		def KlassName()
+			return "stztable"
 
 	def Content()
 		return @aContent

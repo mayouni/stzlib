@@ -958,7 +958,7 @@ func CompareDatasets(paData1, paData2)
 #  THE CLASS  #
 #-------------#
 
-class stzDataSet
+class stzDataSet from stzList
 
     @anData = []
     @cDataType = "numeric"  # numeric, categorical, mixed, empty
@@ -982,6 +982,13 @@ class stzDataSet
         This._DetectDataType()
         This._InitializeCache()
 
+	def ClassName()
+		return "stzdataset"
+
+		def KlassName()
+			return "stzdataset"
+
+
     def _CleanData(paData)
         # Remove missing values and prepare data
         aCleanData = []
@@ -1000,7 +1007,7 @@ class stzDataSet
             return TRUE
         ok
         
-        cStr = "" + item
+        cStr = "" + @@(item)
         return ring_find($aSTAT_MISSING_VALUES, cStr) > 0
 
     def _DetectDataType()

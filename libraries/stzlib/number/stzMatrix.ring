@@ -206,6 +206,12 @@ class stzMatrix
 
 	# Raw matrix access
 
+	def ClassName()
+		return "stzmatrix"
+
+		def KlassName()
+			return "stzmatrix"
+
 	def Content()
 		return @aMatrix
 
