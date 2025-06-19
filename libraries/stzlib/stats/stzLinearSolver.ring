@@ -1,11 +1,11 @@
 /*
-	stzLinear - Linear Programming Component for Softanza
+	stzLinearSolver - Linear Programming Component for Softanza
 	Provides simple yet practical linear optimization capabilities
 	Author: Softanza Team
 	Version: 1.0
 */
 
-class stzLinear from stzObject
+class stzLinearSolver from stzObject
 
 	@variables = []
 	@constraints = []
@@ -39,6 +39,21 @@ class stzLinear from stzObject
 			stzRaise("Variable name must be a string!")
 		ok
 
+		if isString(lowerBound) and lowerBound = ""
+			lowerBound = upperBound
+		ok
+
+		if isString(upperBound) and upperBound = ""
+			upperBound = lowerBound
+		ok
+
+		if isString(lowerBound) and lowerBound = "" and
+		    isString(upperBound) and upperBound = ""
+
+				lowerBound = 0
+				upperBound = 0
+		ok
+
 		if NOT (isNumber(lowerBound) and isNumber(upperBound))
 			stzRaise("Bounds must be numbers!")
 		ok
@@ -47,14 +62,14 @@ class stzLinear from stzObject
 			stzRaise("Upper bound must be >= lower bound!")
 		ok
 
-		oVar = new stzHashList([
+		aVar = [
 			:name = varName,
 			:lowerBound = lowerBound,
 			:upperBound = upperBound,
 			:type = "continuous"  # "continuous", "integer", "binary"
-		])
+		]
 
-		@variables + oVar
+		@variables + aVar
 		return this
 
 	def addIntegerVariable(varName, lowerBound, upperBound)
@@ -88,11 +103,22 @@ class stzLinear from stzObject
 		# value: number
 
 		if NOT isString(expression)
-			stzRaise("Expression must be a string!")
+			StzRaise("Expression must be a string!")
+		ok
+
+		if NOT isString(operator)
+			StzRaise("Operator must be a string!")
 		ok
 
 		if NOT (operator = "<=" or operator = ">=" or operator = "=")
 			stzRaise("Operator must be '<=', '>=', or '='!")
+		ok
+
+		if isString(value)
+			value = @variables[value]
+			if @trim(value) = ""
+				value = 0
+			ok
 		ok
 
 		if NOT isNumber(value)
@@ -402,6 +428,8 @@ class stzLinear from stzObject
 	def extractCoefficient(cExpression, cVarName)
 		# Simple coefficient extraction
 		# Look for patterns like "5*x" or "-3*y" or just "x"
+		#TODO // Use stzRegex instead for full solution
+
 		cPattern = cVarName
 		nPos = ring_substr1(cExpression, cPattern)
 		
@@ -441,7 +469,7 @@ class stzLinear from stzObject
 		
 		return nTotalCost
 
-	def calculateMaxPossibleValue(cVarName, aSolution)
+	def CalculateMaxPossibleValue(cVarName, aSolution)
 		# Calculate maximum possible value considering constraints
 		nMinLimit = 999999
 		nLen = len(@constraints)
@@ -476,7 +504,7 @@ class stzLinear from stzObject
 		
 		return max([ 0, floor(nMinLimit) ])
 
-	def getSolutionValue(aSolution, cVarName)
+	def GetSolutionValue(aSolution, cVarName)
 		nLen = len(aSolution)
 		for i = 1 to nLen
 			if aSolution[i][1] = cVarName
@@ -485,7 +513,7 @@ class stzLinear from stzObject
 		next
 		return 0
 
-	def evaluateSolution(aSolution)
+	def EvaluateSolution(aSolution)
 		# Evaluate objective function value
 		nValue = 0
 		aCoeffs = this.parseObjectiveCoefficients()
@@ -506,24 +534,24 @@ class stzLinear from stzObject
 			return nValue1 < nValue2
 		ok
 
-	def buildSimplexTableau()
+	def BuildSimplexTableau() #TODO // Impplement a full solution
 		# Build initial simplex tableau (simplified)
 		# This is a basic implementation for educational purposes
 		return [[1, 2, 3], [4, 5, 6]]  # Placeholder
 
-	def hasNegativeCoefficient(aTableau)
+	def HasNegativeCoefficient(aTableau)
 		return FALSE  # Simplified
 
-	def findPivotColumn(aTableau)
+	def FindPivotColumn(aTableau)
 		return 1  # Simplified
 
-	def findPivotRow(aTableau, nCol)
+	def FindPivotRow(aTableau, nCol)
 		return 1  # Simplified
 
-	def pivotTableau(aTableau, nRow, nCol)
+	def PivotTableau(aTableau, nRow, nCol)
 		return aTableau  # Simplified
 
-	def extractSimplexSolution(aTableau)
+	def ExtractSimplexSolution(aTableau)
 		# Extract solution from final tableau
 		aSolution = []
 		aVarNames = this.variableNames()
@@ -535,16 +563,16 @@ class stzLinear from stzObject
 		
 		return aSolution
 
-	def createRelaxedProblem()
+	def CreateRelaxedProblem()
 		# Create LP relaxation for integer problem
-		oRelaxed = new stzLinear()
+		oRelaxed = new stzLinearSolver()
 		
 		# Copy variables as continuous
 		nLen = len(@variables)
 
 		for i = 1 to nLen
 			aVar = @variables[i]
-
+			
 			oRelaxed.addVariable(
 				aVar[:name], 
 				aVar[:lowerBound], 
@@ -559,7 +587,7 @@ class stzLinear from stzObject
 			oRelaxed.addConstraint(
 				aConst[:expression],
 				aConst[:operator],
-				oConst[:value]
+				aConst[:value]
 			)
 		next
 		
@@ -582,7 +610,7 @@ class stzLinear from stzObject
 		next
 		return TRUE
 
-	def isFeasible(aSolution)
+	def IsFeasible(aSolution)
 		# Check if solution satisfies all constraints
 		nLen = len(@constraints)
 
@@ -609,7 +637,7 @@ class stzLinear from stzObject
 		next
 		return TRUE
 
-	def evaluateConstraintLeft(cExpression, aSolution)
+	def EvaluateConstraintLeft(cExpression, aSolution)
 		# Evaluate left side of constraint
 		nValue = 0
 		aVarNames = this.variableNames()
@@ -623,7 +651,7 @@ class stzLinear from stzObject
 		
 		return nValue
 
-	def findFractionalVariable(aSolution)
+	def FindFractionalVariable(aSolution)
 		nLen = len(aSolution)
 		for i = 1 to nLen
 			nValue = aSolution[i][2]
@@ -633,7 +661,7 @@ class stzLinear from stzObject
 		next
 		return ""
 
-	def addBranchConstraint(aSolution, cVarName, cOperator, nValue)
+	def AddBranchConstraint(aSolution, cVarName, cOperator, nValue)
 		# This would create a new subproblem with additional constraint
 		# Simplified implementation returns modified solution
 		aNewSolution = []
@@ -652,7 +680,7 @@ class stzLinear from stzObject
 		next
 		return aNewSolution
 
-	def initializePopulation(nSize)
+	def InitializePopulation(nSize)
 		aPopulation = []
 		aVarNames = this.variableNames()
 		
@@ -670,7 +698,7 @@ class stzLinear from stzObject
 		
 		return aPopulation
 
-	def calculateFitness(aIndividual)
+	def CalculateFitness(aIndividual)
 		# Fitness = objective value - penalty for constraint violations
 		nObjectiveValue = this.evaluateSolution(aIndividual)
 		nPenalty = this.calculatePenalty(aIndividual)
@@ -681,13 +709,13 @@ class stzLinear from stzObject
 			return -nObjectiveValue - nPenalty
 		ok
 
-	def calculatePenalty(aIndividual)
+	def CalculatePenalty(aIndividual)
 		nPenalty = 0
 		nLen = len(@constraints)
 
 		for i = 1 to nLen
 			aConst = @constraints[i]
-			nLeftSide = this.evaluateConstraintLeft(oConst[:expression], aIndividual)
+			nLeftSide = this.evaluateConstraintLeft(aConst[:expression], aIndividual)
 			nRightSide = aConst[:value]
 			cOperator = aConst[:operator]
 			
@@ -707,18 +735,26 @@ class stzLinear from stzObject
 		
 		return nPenalty
 
-	def tournamentSelection(aPopulation, aFitness)
+	def TournamentSelection(aPopulation, aFitness)
+
 		nSize = len(aPopulation)
-		nIndex1 = random(nSize) + 1
-		nIndex2 = random(nSize) + 1
-		
+		nIndex1 = random(nSize)
+		if nIndex1 = 0
+			nIndex1 = 1
+		ok
+
+		nIndex2 = random(nSize)
+		if nIndex2 = 0
+			nIndex2 = 1
+		ok
+
 		if aFitness[nIndex1] > aFitness[nIndex2]
 			return aPopulation[nIndex1]
 		else
 			return aPopulation[nIndex2]
 		ok
 
-	def crossover(aParent1, aParent2)
+	def Crossover(aParent1, aParent2)
 		aChild = []
 		nLen = len(aParent1)
 		for i = 1 to nLen
@@ -730,8 +766,12 @@ class stzLinear from stzObject
 		next
 		return aChild
 
-	def mutate(aIndividual)
-		nIndex = random(len(aIndividual)) + 1
+	def Mutate(aIndividual)
+		nIndex = random(len(aIndividual))
+		if nIndex = 0
+			nIndex = 1
+		ok
+
 		cVarName = aIndividual[nIndex][1]
 		
 		# Mutate the selected variable
@@ -752,16 +792,17 @@ class stzLinear from stzObject
 	 # SOLUTION ACCESS #
 	#-----------------#
 
-	def solution()
+	def Solution()
 		return @aSolution
 
 	def solutionValue(varName)
 		return @aSolution[varName]
 
 	def objectiveValue()
+
 		# Calculate objective value from current solution
 		cExpression = @objective
-		
+
 		# Substitute variable values
 		nLen = len(@variables)
 		for i = 1 to nLen
@@ -777,7 +818,8 @@ class stzLinear from stzObject
 		# Simple expression evaluator
 		# In practice, would use a proper math parser
 		try
-			nResult = eval(cExpression)
+			cCode = 'nResult = (' + cExpression + ')'
+			eval(cCode)
 			return nResult
 		catch
 			return 0
@@ -797,45 +839,50 @@ class stzLinear from stzObject
 	#-------------------------#
 
 	def show()
-		? BoxRound("Linear Programming Problem")
-		? "Variables:"
+		? BoxRound("Problem")
+		? "• Variables:"
 		nLen = len(@variables)
+
 		for i = 1 to nLen
 			aVar = @variables[i]
-			? "  " + aVar[:name] + " ∈ [" + 
-			  aVar[:lowerBound] + ", " + 
-			  aVar[:upperBound] + "] (" + 
-			  aVar[:type] + ")"
+			if @trim(aVar[:name]) != ""
+				? " ─ " + aVar[:name] + " ∈ [" + 
+				  aVar[:lowerBound] + ", " + 
+				  aVar[:upperBound] + "] (" + 
+				  aVar[:type] + ")"
+			ok
 		next
 
 		? ""
-		? "Constraints:"
+		? "• Constraints:"
 		nLen = len(@constraints)
 		for i = 1 to nLen
 			aConst = @constraints[i]
-			? "  " + aConst[:expression] + " " + 
+			? " ─ " + aConst[:expression] + " " + 
 			  aConst[:operator] + " " + 
 			  aConst[:value]
 		next
 
 		? ""
-		? "Objective:"
+		? "• Objective:"
 		? "  " + upper(@objectiveType) + " " + @objective
 
 		if @status != ""
 			? ""
-			? "========== Solution =========="
-			? "Status: " + @status
-			? "Solved in " + @solveTime + " seconds"
-			? "Iterations: " + @iterations
+			? BoxRound("Solution")
+			? "• Status: " + @status
+			? "• Solved in " + @solveTime + " second(s)"
+			? "• Iterations: " + @iterations
 			? ""
-			? "Variable Values:"
+			? "• Variable Values:"
 			nLen = len(@aSolution)
 			for i = 1 to nLen
-				? "  " + @aSolution[i][1] + " = " + @aSolution[i][2]
+				if @trim(@aSolution[i][1]) != ""
+					? " ─ " + @aSolution[i][1] + " = " + @aSolution[i][2]
+				ok
 			next
 			? ""
-			? "Objective Value: " + this.objectiveValue()
+			? "• Objective Value: " + this.objectiveValue()
 		ok
 
 	def exportToCSV(cFileName)
