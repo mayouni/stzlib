@@ -2,33 +2,33 @@
 	stzLinearSolver - Linear Programming Component for Softanza
 	Provides simple yet practical linear optimization capabilities
 	Author: Softanza Team
-	Version: 1.0
+	Version: 0.9
 */
 
 class stzLinearSolver from stzObject
 
-	@variables = []
-	@constraints = []
-	@objective = ""
-	@objectiveType = "maximize"  # "maximize" or "minimize"
+	@aVariables = []
+	@aConstraints = []
+	@cObjective = ""
+	@cObjectiveType = "maximize"  # "maximize" or "minimize"
 	@aSolution = []
-	@status = ""
-	@iterations = 0
-	@solveTime = 0
+	@cStatus = ""
+	@nIterations = 0
+	@nSolveTime = 0
 
 	def init()
 		# Initialize with empty problem
 		This.clear()
 
 	def clear()
-		@variables = []
-		@constraints = []
-		@objective = ""
-		@objectiveType = "maximize"
+		@aVariables = []
+		@aConstraints = []
+		@cObjective = ""
+		@cObjectiveType = "maximize"
 		@aSolution = []
-		@status = ""
-		@iterations = 0
-		@solveTime = 0
+		@cStatus = ""
+		@nIterations = 0
+		@nSolveTime = 0
 
 	  #------------------------#
 	 #  VARIABLES MANAGEMENT  #
@@ -69,27 +69,27 @@ class stzLinearSolver from stzObject
 			:type = "continuous"  # "continuous", "integer", "binary"
 		]
 
-		@variables + aVar
+		@aVariables + aVar
 		return this
 
 	def addIntegerVariable(varName, lowerBound, upperBound)
 		This.addVariable(varName, lowerBound, upperBound)
 
-		@variables + [:type, "integer"]
+		@aVariables + [:type, "integer"]
 		return this
 
 	def addBinaryVariable(varName)
 		This.addVariable(varName, 0, 1)
-		@variables + [:type, "binary"]
+		@aVariables + [:type, "binary"]
 		return this
 
 	def variables()
-		return @variables
+		return @aVariables
 
 	def variableNames()
 		aNames = []
-		for i = 1 to len(@variables)
-			aNames + @variables[i][:name]
+		for i = 1 to len(@aVariables)
+			aNames + @aVariables[i][:name]
 		next
 		return aNames
 
@@ -115,7 +115,7 @@ class stzLinearSolver from stzObject
 		ok
 
 		if isString(value)
-			value = @variables[value]
+			value = @aVariables[value]
 			if @trim(value) = ""
 				value = 0
 			ok
@@ -131,31 +131,31 @@ class stzLinearSolver from stzObject
 			:value = value
 		]
 
-		@constraints + aConstraint
+		@aConstraints + aConstraint
 		return this
 
 	def constraints()
-		return @constraints
+		return @aConstraints
 
 	  #----------------------#
 	 #  OBJECTIVE FUNCTION  #
 	#----------------------#
 
 	def maximize(expression)
-		@objective = expression
-		@objectiveType = "maximize"
+		@cObjective = expression
+		@cObjectiveType = "maximize"
 		return this
 
 	def minimize(expression)
-		@objective = expression
-		@objectiveType = "minimize"
+		@cObjective = expression
+		@cObjectiveType = "minimize"
 		return this
 
 	def objective()
-		return @objective
+		return @cObjective
 
 	def objectiveType()
-		return @objectiveType
+		return @cObjectiveType
 
 	  #-----------#
 	 #  SOLVING  #
@@ -166,10 +166,10 @@ class stzLinearSolver from stzObject
 	        cSolver = "greedy"
 	    ok
 	    nStartTime = clock()
-	    if len(@variables) = 0
+	    if len(@aVariables) = 0
 	        StzRaise("No variables defined!")
 	    ok
-	    if @objective = ""
+	    if @cObjective = ""
 	        StzRaise("No objective function defined!")
 	    ok
 	    
@@ -180,7 +180,7 @@ class stzLinearSolver from stzObject
 	    
 	    aSolution = This.solveWithGreedy()
 	    
-	    @solveTime = (clock() - nStartTime) / clockspersecond()
+	    @nSolveTime = (clock() - nStartTime) / clockspersecond()
 	    @aSolution = aSolution
 	    return this
 
@@ -190,10 +190,10 @@ class stzLinearSolver from stzObject
 
 	def SolveWithGreedy()
 
-		@status = "optimal"
+		@cStatus = "optimal"
 
-		nLenVar = len(@variables)
-		@iterations = nLenVar
+		nLenVar = len(@aVariables)
+		@nIterations = nLenVar
 
 		aCoeffs = This.parseObjectiveCoefficients()
 		aVarNames = This.variableNames()
@@ -202,34 +202,43 @@ class stzLinearSolver from stzObject
 		aSolution = []
 
 		for i = 1 to nLenVar
-			aSolution + [aVarNames[i], @variables[i][:lowerBound]]
+			aSolution + [aVarNames[i], @aVariables[i][:lowerBound]]
 		next
+
 		nLenSol = len(aSolution)
 
 		aEfficiency = []
 
 		for i = 1 to nLenVarNames
+
 			nCoeff = aCoeffs[i]
 			nResourceCost = This.calculateResourceCost(aVarNames[i])
 			nEfficiency = 0
+
 			if nResourceCost > 0
 				nEfficiency = nCoeff / nResourceCost
 			ok
+
 			aEfficiency + [aVarNames[i], nEfficiency, i]
+
 		next
-		if @objectiveType = "maximize"
+
+		if @cObjectiveType = "maximize"
 			aEfficiency = sorton(aEfficiency, 2)  # Use This.sorton
 			aEfficiency = reverse(aEfficiency)
+
 		else
 			aEfficiency = sorton(aEfficiency, 2)  # Use This.sorton
 		ok
 
 		nLenEff = len(aEfficiency)
+
 		for i = 1 to nLenEff
+
 			cVarName = aEfficiency[i][1]
 			nVarIndex = aEfficiency[i][3]
 			nMaxPossible = 0+ This.calculateMaxPossibleValue(cVarName, aSolution)  # Fixed case
-			nUpperBound = 0+ @variables[nVarIndex][:upperBound]
+			nUpperBound = 0+ @aVariables[nVarIndex][:upperBound]
 			nValue = min([nMaxPossible, 0+nUpperBound])
 
 			for j = 1 to nLenSol
@@ -238,20 +247,22 @@ class stzLinearSolver from stzObject
 					exit
 				ok
 			next
+
 		next
+
 		return aSolution
 
 	def solveWithSimplex()
 		# Simplified Simplex method for small problems
-		@status = "optimal"
-		@iterations = 0
+		@cStatus = "optimal"
+		@nIterations = 0
 		
 		# Convert to standard form
 		aTableau = This.buildSimplexTableau()
 		
 		# Simplex iterations
 		while This.hasNegativeCoefficient(aTableau)
-			@iterations++
+			@nIterations++
 			
 			# Find pivot column (most negative coefficient)
 			nPivotCol = This.findPivotColumn(aTableau)
@@ -260,7 +271,7 @@ class stzLinearSolver from stzObject
 			nPivotRow = This.findPivotRow(aTableau, nPivotCol)
 			
 			if nPivotRow = -1
-				@status = "unbounded"
+				@cStatus = "unbounded"
 				exit
 			ok
 			
@@ -268,8 +279,8 @@ class stzLinearSolver from stzObject
 			aTableau = This.pivotTableau(aTableau, nPivotRow, nPivotCol)
 			
 			# Prevent infinite loops
-			if @iterations > 1000
-				@status = "iteration_limit"
+			if @nIterations > 1000
+				@cStatus = "iteration_limit"
 				exit
 			ok
 		end
@@ -279,8 +290,8 @@ class stzLinearSolver from stzObject
 
 	def solveWithBranchAndBound()
 		# Branch and bound for integer problems
-		@status = "optimal"
-		@iterations = 0
+		@cStatus = "optimal"
+		@nIterations = 0
 		
 		# First solve LP relaxation
 		oRelaxed = This.createRelaxedProblem()
@@ -297,8 +308,8 @@ class stzLinearSolver from stzObject
 		
 		aBranches = [aSolution]
 		
-		while len(aBranches) > 0 and @iterations < 100
-			@iterations++
+		while len(aBranches) > 0 and @nIterations < 100
+			@nIterations++
 			
 			# Get next branch
 			aCurrentSolution = aBranches[1]
@@ -337,8 +348,8 @@ class stzLinearSolver from stzObject
 
 	def solveWithGenetic()
 		# Genetic algorithm for complex problems
-		@status = "optimal"
-		@iterations = 0
+		@cStatus = "optimal"
+		@nIterations = 0
 		
 		nPopSize = 50
 		nGenerations = 100
@@ -350,11 +361,12 @@ class stzLinearSolver from stzObject
 		nBestFitness = This.calculateFitness(aBestSolution)
 		
 		for nGen = 1 to nGenerations
-			@iterations++
+			@nIterations++
 			
 			# Evaluate fitness for all individuals
 			aFitness = []
 			nLen = len(aPopulation)
+
 			for i = 1 to nLen
 				nFit = This.calculateFitness(aPopulation[i])
 				aFitness + nFit
@@ -402,7 +414,7 @@ class stzLinearSolver from stzObject
 
 		for i = 1 to nLen
 			cVar = aVarNames[i]
-			nCoeff = This.extractCoefficient(@objective, cVar)
+			nCoeff = This.extractCoefficient(@cObjective, cVar)
 			aCoeffs + nCoeff
 		next
 		
@@ -431,22 +443,23 @@ class stzLinearSolver from stzObject
 	def calculateResourceCost(cVarName)
 		# Calculate total resource cost for one unit of variable
 		nTotalCost = 0
-		nLen = len(@constraints)
+		nLen = len(@aConstraints)
 		for i = 1 to nLen
-			aConst = @constraints[i]
+			aConst = @aConstraints[i]
 			nCoeff = This.extractCoefficient(aConst[:expression], cVarName)
 			nTotalCost += abs(nCoeff)
 		next
 		
 		return nTotalCost
 
-/*
+
 	def CalculateMaxPossibleValue(cVarName, aSolution)
 		# Calculate maximum possible value considering constraints
 		nMinLimit = 999999
-		nLen = len(@constraints)
+		nLen = len(@aConstraints)
+		
 		for i = 1 to nLen
-			aConst = @constraints[i]
+			aConst = @aConstraints[i]
 			nCoeff = This.extractCoefficient(aConst[:expression], cVarName)
 			
 			if nCoeff != 0
@@ -454,6 +467,7 @@ class stzLinearSolver from stzObject
 				nUsedResources = 0
 				aVarNames = This.variableNames()
 				nLenVar = len(aVarNames)
+				
 				for j = 1 to nLenVar
 					if aVarNames[j] != cVarName
 						nVarCoeff = This.extractCoefficient(aConst[:expression], aVarNames[j])
@@ -465,98 +479,62 @@ class stzLinearSolver from stzObject
 				# Calculate remaining capacity
 				nRemainingCapacity = aConst[:value] - nUsedResources
 				
-				if nCoeff > 0
-					nLimit = nRemainingCapacity / nCoeff
-					if nLimit < nMinLimit
-						nMinLimit = nLimit
+				# Handle different constraint operators
+				switch aConst[:operator]
+				on "="
+					# For equality constraints, the remaining capacity divided by coefficient
+					# gives the exact value this variable must take
+					if nCoeff > 0
+						nLimit = nRemainingCapacity / nCoeff
+						if nLimit < nMinLimit
+							nMinLimit = nLimit
+						ok
 					ok
-				ok
+				on "<="
+					# For <= constraints, variable is limited by remaining capacity
+					if nCoeff > 0
+						nLimit = nRemainingCapacity / nCoeff
+						if nLimit < nMinLimit
+							nMinLimit = nLimit
+						ok
+					ok
+				on ">="
+					# For >= constraints, check if we can satisfy the minimum requirement
+					if nCoeff > 0 and nRemainingCapacity < 0
+						# If remaining capacity is negative, we need at least |remaining|/coeff
+						nMinRequired = abs(nRemainingCapacity) / nCoeff
+						# But this is handled by the lower bound, so we don't limit here
+					ok
+				off
 			ok
 		next
 		
-		return max([ 0, floor(nMinLimit) ])
-*/
-def CalculateMaxPossibleValue(cVarName, aSolution)
-	# Calculate maximum possible value considering constraints
-	nMinLimit = 999999
-	nLen = len(@constraints)
-	
-	for i = 1 to nLen
-		aConst = @constraints[i]
-		nCoeff = This.extractCoefficient(aConst[:expression], cVarName)
+		# Ensure the result is within variable bounds and non-negative
+		nVarIndex = 0
+		aVarNames = This.variableNames()
+		nLenVar = len(aVarNames)
 		
-		if nCoeff != 0
-			# Calculate used resources by other variables
-			nUsedResources = 0
-			aVarNames = This.variableNames()
-			nLenVar = len(aVarNames)
+		for j = 1 to nLenVar
+			if aVarNames[j] = cVarName
+				nVarIndex = j
+				exit
+			ok
+		next
+		
+		if nVarIndex > 0
+			nLowerBound = 0+ @aVariables[nVarIndex][:lowerBound]
+			nUpperBound = 0+ @aVariables[nVarIndex][:upperBound]
 			
-			for j = 1 to nLenVar
-				if aVarNames[j] != cVarName
-					nVarCoeff = This.extractCoefficient(aConst[:expression], aVarNames[j])
-					nVarValue = This.getSolutionValue(aSolution, aVarNames[j])
-					nUsedResources += nVarCoeff * nVarValue
-				ok
-			next
+			# Return the minimum of: calculated limit, upper bound
+			# But at least the lower bound
+			nResult = min([nMinLimit, nUpperBound])
+			nResult = max([nResult, nLowerBound])
 			
-			# Calculate remaining capacity
-			nRemainingCapacity = aConst[:value] - nUsedResources
-			
-			# Handle different constraint operators
-			switch aConst[:operator]
-			on "="
-				# For equality constraints, the remaining capacity divided by coefficient
-				# gives the exact value this variable must take
-				if nCoeff > 0
-					nLimit = nRemainingCapacity / nCoeff
-					if nLimit < nMinLimit
-						nMinLimit = nLimit
-					ok
-				ok
-			on "<="
-				# For <= constraints, variable is limited by remaining capacity
-				if nCoeff > 0
-					nLimit = nRemainingCapacity / nCoeff
-					if nLimit < nMinLimit
-						nMinLimit = nLimit
-					ok
-				ok
-			on ">="
-				# For >= constraints, check if we can satisfy the minimum requirement
-				if nCoeff > 0 and nRemainingCapacity < 0
-					# If remaining capacity is negative, we need at least |remaining|/coeff
-					nMinRequired = abs(nRemainingCapacity) / nCoeff
-					# But this is handled by the lower bound, so we don't limit here
-				ok
-			off
+			return max([0, nResult])
 		ok
-	next
-	
-	# Ensure the result is within variable bounds and non-negative
-	nVarIndex = 0
-	aVarNames = This.variableNames()
-	nLenVar = len(aVarNames)
-	
-	for j = 1 to nLenVar
-		if aVarNames[j] = cVarName
-			nVarIndex = j
-			exit
-		ok
-	next
-	
-	if nVarIndex > 0
-		nLowerBound = 0+ @variables[nVarIndex][:lowerBound]
-		nUpperBound = 0+ @variables[nVarIndex][:upperBound]
 		
-		# Return the minimum of: calculated limit, upper bound
-		# But at least the lower bound
-		nResult = min([nMinLimit, nUpperBound])
-		nResult = max([nResult, nLowerBound])
-		
-		return max([0, nResult])
-	ok
+		return max([0, nMinLimit])
 	
-	return max([0, nMinLimit])
 
 	def GetSolutionValue(aSolution, cVarName)
 		for i = 1 to len(aSolution)
@@ -581,7 +559,7 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 		return nValue
 
 	def isBetter(nValue1, nValue2)
-		if @objectiveType = "maximize"
+		if @cObjectiveType = "maximize"
 			return nValue1 > nValue2
 		else
 			return nValue1 < nValue2
@@ -621,10 +599,10 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 		oRelaxed = new stzLinearSolver()
 		
 		# Copy variables as continuous
-		nLen = len(@variables)
+		nLen = len(@aVariables)
 
 		for i = 1 to nLen
-			aVar = @variables[i]
+			aVar = @aVariables[i]
 			
 			oRelaxed.addVariable(
 				aVar[:name], 
@@ -634,9 +612,9 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 		next
 		
 		# Copy constraints
-		nLen = len(@constraints)
+		nLen = len(@aConstraints)
 		for i = 1 to nLen
-			aConst = @constraints[i]
+			aConst = @aConstraints[i]
 			oRelaxed.addConstraint(
 				aConst[:expression],
 				aConst[:operator],
@@ -645,10 +623,10 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 		next
 		
 		# Copy objective
-		if @objectiveType = "maximize"
-			oRelaxed.maximize(@objective)
+		if @cObjectiveType = "maximize"
+			oRelaxed.maximize(@cObjective)
 		else
-			oRelaxed.minimize(@objective)
+			oRelaxed.minimize(@cObjective)
 		ok
 		
 		return oRelaxed
@@ -665,10 +643,10 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 
 	def IsFeasible(aSolution)
 		# Check if solution satisfies all constraints
-		nLen = len(@constraints)
+		nLen = len(@aConstraints)
 
 		for i = 1 to nLen
-			aConst = @constraints[i]
+			aConst = @aConstraints[i]
 			nLeftSide = This.evaluateConstraintLeft(aConst[:expression], aSolution)
 			nRightSide = aConst[:value]
 			cOperator = aConst[:operator]
@@ -741,8 +719,8 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 			aIndividual = []
 			nLen = len(aVarNames)
 			for j = 1 to nLen
-				nLower = @variables[j][:lowerBound]  
-				nUpper = @variables[j][:upperBound]
+				nLower = @aVariables[j][:lowerBound]  
+				nUpper = @aVariables[j][:upperBound]
 				nValue = nLower + random(nUpper - nLower)
 				aIndividual + [aVarNames[j], nValue]
 			next
@@ -756,7 +734,7 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 		nObjectiveValue = This.evaluateSolution(aIndividual)
 		nPenalty = This.calculatePenalty(aIndividual)
 		
-		if @objectiveType = "maximize"
+		if @cObjectiveType = "maximize"
 			return nObjectiveValue - nPenalty
 		else
 			return -nObjectiveValue - nPenalty
@@ -764,10 +742,10 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 
 	def CalculatePenalty(aIndividual)
 		nPenalty = 0
-		nLen = len(@constraints)
+		nLen = len(@aConstraints)
 
 		for i = 1 to nLen
-			aConst = @constraints[i]
+			aConst = @aConstraints[i]
 			nLeftSide = This.evaluateConstraintLeft(aConst[:expression], aIndividual)
 			nRightSide = aConst[:value]
 			cOperator = aConst[:operator]
@@ -810,6 +788,7 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 	def Crossover(aParent1, aParent2)
 		aChild = []
 		nLen = len(aParent1)
+
 		for i = 1 to nLen
 			if random(2) = 1
 				aChild + aParent1[i]
@@ -817,6 +796,7 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 				aChild + aParent2[i] 
 			ok
 		next
+
 		return aChild
 
 	def Mutate(aIndividual)
@@ -828,15 +808,18 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 		cVarName = aIndividual[nIndex][1]
 		
 		# Mutate the selected variable
-		nLen = len(@variables)
+		nLen = len(@aVariables)
+
 		for i = 1 to nLen
-			if @variables[i][:name] = cVarName
-				nLower = @variables[i][:lowerBound]
-				nUpper = @variables[i][:upperBound]
+
+			if @aVariables[i][:name] = cVarName
+				nLower = @aVariables[i][:lowerBound]
+				nUpper = @aVariables[i][:upperBound]
 				nNewValue = nLower + random(nUpper - nLower)
 				aIndividual[nIndex][2] = nNewValue
 				exit
 			ok
+
 		next
 		
 		return aIndividual
@@ -853,12 +836,14 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 
 	def objectiveValue()
 		nResult = 0
-		for i = 1 to len(@variables)
-			cVarName = @variables[i][:name]
+
+		for i = 1 to len(@aVariables)
+			cVarName = @aVariables[i][:name]
 			nValue = This.getSolutionValue(@aSolution, cVarName)
-			nCoeff = This.extractCoefficient(@objective, cVarName)
+			nCoeff = This.extractCoefficient(@cObjective, cVarName)
 			nResult += nCoeff * nValue
 		next
+
 		return nResult
 
 		# Evaluate expression (simplified)
@@ -871,15 +856,16 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 			cCode = 'nResult = (' + cExpression + ')'
 			eval(cCode)
 			return nResult
+
 		catch
 			return 0
 		done
 
 	def status()
-		return @status
+		return @cStatus
 
 	def iterations()
-		return @iterations
+		return @nIterations
 
 	def solveTime()
 		return @solveTime
@@ -889,25 +875,30 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 	#-------------------------#
 
 	def show()
+
 		? BoxRound("Problem")
 		? "• Variables:"
-		nLen = len(@variables)
+		nLen = len(@aVariables)
 
 		for i = 1 to nLen
-			aVar = @variables[i]
+
+			aVar = @aVariables[i]
+
 			if @trim(aVar[:name]) != ""
 				? " ─ " + aVar[:name] + " ∈ [" + 
 				  aVar[:lowerBound] + ", " + 
 				  aVar[:upperBound] + "] (" + 
 				  aVar[:type] + ")"
 			ok
+
 		next
 
 		? ""
 		? "• Constraints:"
-		nLen = len(@constraints)
+		nLen = len(@aConstraints)
+
 		for i = 1 to nLen
-			aConst = @constraints[i]
+			aConst = @aConstraints[i]
 			? " ─ " + aConst[:expression] + " " + 
 			  aConst[:operator] + " " + 
 			  aConst[:value]
@@ -915,31 +906,38 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 
 		? ""
 		? "• Objective:"
-		? "  " + upper(@objectiveType) + " " + @objective
+		? "  " + upper(@cObjectiveType) + " " + @cObjective
 
-		if @status != ""
+		if @cStatus != ""
 			? ""
 			? BoxRound("Solution")
-			? "• Status: " + @status
-			? "• Solved in " + @solveTime + " second(s)"
-			? "• Iterations: " + @iterations
+			? "• Status: " + @cStatus
+			? "• Solved in " + @nSolveTime + " second(s)"
+			? "• Iterations: " + @nIterations
 			? ""
 			? "• Variable Values:"
+
 			nLen = len(@aSolution)
+
 			for i = 1 to nLen
 				if @trim(@aSolution[i][1]) != ""
 					? " ─ " + @aSolution[i][1] + " = " + @aSolution[i][2]
 				ok
 			next
+
 			? ""
 			? "• Objective Value: " + This.objectiveValue()
+
 		ok
 
 	def exportToCSV(cFileName)
+
 		# Export solution to CSV file
 		oFile = new stzFile(cFileName)
+
 		cContent = "Variable,Value" + nl
 		nLen = len(@aSolution)
+
 		for i = 1 to nLen
 			cContent += @aSolution[i][1] + "," + @aSolution[i][2] + nl
 		next
@@ -949,25 +947,24 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 	def exportReport(cFileName)
 		# Export full report
 		oFile = new stzFile(cFileName)
-		cContent = "Linear Programming Problem Report" + nl
-		cContent += "=================================" + nl + nl
+		cContent = BoxRound("Linear Programming Problem Report") + nl
 		
-		cContent += "Problem Definition:" + nl
-		cContent += "Variables: " + len(@variables) + nl
-		cContent += "Constraints: " + len(@constraints) + nl
-		cContent += "Objective: " + upper(@objectiveType) + " " + @objective + nl + nl
+		cContent += "• Problem Definition:" + nl
+		cContent += " ─ Variables: " + len(@aVariables) + nl
+		cContent += " ─ Constraints: " + len(@aConstraints) + nl
+		cContent += " ─ Objective: " + upper(@cObjectiveType) + " " + @cObjective + nl + nl
 		
-		if @status != ""
-			cContent += "Solution:" + nl
-			cContent += "Status: " + @status + nl
-			cContent += "Solve Time: " + @solveTime + " seconds" + nl
-			cContent += "Iterations: " + @iterations + nl
-			cContent += "Objective Value: " + This.objectiveValue() + nl + nl
+		if @cStatus != ""
+			cContent += "• Solution:" + nl
+			cContent += " ─ Status: " + @cStatus + nl
+			cContent += " ─ Solve Time: " + @nSolveTime + " seconds" + nl
+			cContent += " ─ Iterations: " + @nIterations + nl
+			cContent += " ─ Objective Value: " + This.objectiveValue() + nl + nl
 			
-			cContent += "Variable Values:" + nl
+			cContent += "• Variable Values:" + nl
 			nLen = len(@aSolution)
 			for i = 1 to nLen
-				cContent += @aSolution[i][1] + " = " + @aSolution[i][2] + nl
+				cContent += " ─ " + @aSolution[i][1] + " = " + @aSolution[i][2] + nl
 			next
 		ok
 
@@ -979,21 +976,24 @@ def CalculateMaxPossibleValue(cVarName, aSolution)
 
 	def isValidVariableName(cName)
 		# Check if variable name is valid
-		nLen = len(@variables)
+		nLen = len(@aVariables)
+
 		for i = 1 to nLen
-			if @variables[i][:name] = cName
+			if @aVariables[i][:name] = cName
 				return TRUE
 			ok
 		next
+
 		return FALSE
 
 	def validateProblem()
+
 		# Validate problem definition
-		if len(@variables) = 0
+		if len(@aVariables) = 0
 			return FALSE
 		ok
 
-		if @objective = ""
+		if @cObjective = ""
 			return FALSE
 		ok
 
