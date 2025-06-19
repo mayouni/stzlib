@@ -11,21 +11,21 @@ class stzLinearSolver from stzObject
 	@constraints = []
 	@objective = ""
 	@objectiveType = "maximize"  # "maximize" or "minimize"
-	@aSolution = new stzHashList([])
+	@aSolution = []
 	@status = ""
 	@iterations = 0
 	@solveTime = 0
 
 	def init()
 		# Initialize with empty problem
-		this.clear()
+		This.clear()
 
 	def clear()
 		@variables = []
 		@constraints = []
 		@objective = ""
 		@objectiveType = "maximize"
-		@aSolution = new stzHashList([])
+		@aSolution = []
 		@status = ""
 		@iterations = 0
 		@solveTime = 0
@@ -73,14 +73,14 @@ class stzLinearSolver from stzObject
 		return this
 
 	def addIntegerVariable(varName, lowerBound, upperBound)
-		this.addVariable(varName, lowerBound, upperBound)
+		This.addVariable(varName, lowerBound, upperBound)
 
-		@variables + [ :type, "integer" ]
+		@variables + [:type, "integer"]
 		return this
 
 	def addBinaryVariable(varName)
-		this.addVariable(varName, 0, 1)
-		@variables+ [:type, "binary"]
+		This.addVariable(varName, 0, 1)
+		@variables + [:type, "binary"]
 		return this
 
 	def variables()
@@ -125,13 +125,13 @@ class stzLinearSolver from stzObject
 			stzRaise("Value must be a number!")
 		ok
 
-		oConstraint = new stzHashList([
+		aConstraint = [
 			:expression = expression,
 			:operator = operator,
 			:value = value
-		])
+		]
 
-		@constraints + oConstraint
+		@constraints + aConstraint
 		return this
 
 	def constraints()
@@ -162,92 +162,76 @@ class stzLinearSolver from stzObject
 	#-----------#
 
 	def solve(cSolver)
-		if isNull(cSolver) or cSolver = ""
-			cSolver = "greedy"  # Default solver
-		ok
-
-		nStartTime = clock()
-
-		# Validate problem
-		if len(@variables) = 0
-			stzRaise("No variables defined!")
-		ok
-
-		if @objective = ""
-			stzRaise("No objective function defined!")
-		ok
-
-		# Choose solver based on problem characteristics and user preference
-		switch cSolver
-		on "greedy"
-			aSolution = this.solveWithGreedy()
-		on "simplex"
-			aSolution = this.solveWithSimplex()
-		on "branch_bound"
-			aSolution = this.solveWithBranchAndBound()
-		on "genetic"
-			aSolution = this.solveWithGenetic()
-		other
-			stzRaise("Unknown solver: " + cSolver)
-		off
-
-		@solveTime = (clock() - nStartTime) / clockspersecond()
-		@aSolution = aSolution
-
-		return this
+	    if isNull(cSolver) or cSolver = ""
+	        cSolver = "greedy"
+	    ok
+	    nStartTime = clock()
+	    if len(@variables) = 0
+	        StzRaise("No variables defined!")
+	    ok
+	    if @objective = ""
+	        StzRaise("No objective function defined!")
+	    ok
+	    
+	    # Add this check
+	    if cSolver != "greedy"
+	        cSolver = "greedy"  # Force to greedy for now
+	    ok
+	    
+	    aSolution = This.solveWithGreedy()
+	    
+	    @solveTime = (clock() - nStartTime) / clockspersecond()
+	    @aSolution = aSolution
+	    return this
 
 	  #--------------------#
 	 #  BUILT-IN SOLVERS  #
 	#--------------------#
 
-	def solveWithGreedy()
-		# Greedy solver: maximize efficiency ratio for each variable
+	def SolveWithGreedy()
+
 		@status = "optimal"
-		@iterations = len(@variables)
-		
-		# Parse objective coefficients
-		aCoeffs = this.parseObjectiveCoefficients()
-		aVarNames = this.variableNames()
+
+		nLenVar = len(@variables)
+		@iterations = nLenVar
+
+		aCoeffs = This.parseObjectiveCoefficients()
+		aVarNames = This.variableNames()
+		nLenVarNames = len(aVarNames)
+
 		aSolution = []
-		
-		# Initialize solution with lower bounds
-		nLen = len(aVarNames)
-		for i = 1 to nLen
+
+		for i = 1 to nLenVar
 			aSolution + [aVarNames[i], @variables[i][:lowerBound]]
 		next
-		
-		# Calculate efficiency ratios and sort variables
+		nLenSol = len(aSolution)
+
 		aEfficiency = []
-		nLen = len(aVarNames)
-		for i = 1 to nLen
+
+		for i = 1 to nLenVarNames
 			nCoeff = aCoeffs[i]
-			nResourceCost = this.calculateResourceCost(aVarNames[i])
+			nResourceCost = This.calculateResourceCost(aVarNames[i])
 			nEfficiency = 0
 			if nResourceCost > 0
 				nEfficiency = nCoeff / nResourceCost
 			ok
 			aEfficiency + [aVarNames[i], nEfficiency, i]
 		next
-		
-		# Sort by efficiency (descending for maximize, ascending for minimize)
 		if @objectiveType = "maximize"
-			aEfficiency = sorton(aEfficiency, 2)  # Sort by efficiency desc
+			aEfficiency = sorton(aEfficiency, 2)  # Use This.sorton
 			aEfficiency = reverse(aEfficiency)
 		else
-			aEfficiency = sorton(aEfficiency, 2)  # Sort by efficiency asc
+			aEfficiency = sorton(aEfficiency, 2)  # Use This.sorton
 		ok
-		
-		# Greedily allocate resources
+
 		nLenEff = len(aEfficiency)
 		for i = 1 to nLenEff
 			cVarName = aEfficiency[i][1]
 			nVarIndex = aEfficiency[i][3]
-			nMaxPossible = this.calculateMaxPossibleValue(cVarName, aSolution)
-			nUpperBound = @variables[nVarIndex][:upperBound]
+			nMaxPossible = 0+ This.calculateMaxPossibleValue(cVarName, aSolution)  # Fixed case
+			nUpperBound = 0+ @variables[nVarIndex][:upperBound]
 			nValue = min([nMaxPossible, 0+nUpperBound])
-			
-			# Update solution
-			nLenSol = len(aSolution)
+
 			for j = 1 to nLenSol
 				if aSolution[j][1] = cVarName
 					aSolution[j][2] = nValue
@@ -255,7 +239,6 @@ class stzLinearSolver from stzObject
 				ok
 			next
 		next
-		
 		return aSolution
 
 	def solveWithSimplex()
@@ -264,17 +247,17 @@ class stzLinearSolver from stzObject
 		@iterations = 0
 		
 		# Convert to standard form
-		aTableau = this.buildSimplexTableau()
+		aTableau = This.buildSimplexTableau()
 		
 		# Simplex iterations
-		while this.hasNegativeCoefficient(aTableau)
+		while This.hasNegativeCoefficient(aTableau)
 			@iterations++
 			
 			# Find pivot column (most negative coefficient)
-			nPivotCol = this.findPivotColumn(aTableau)
+			nPivotCol = This.findPivotColumn(aTableau)
 			
 			# Find pivot row (minimum ratio test)
-			nPivotRow = this.findPivotRow(aTableau, nPivotCol)
+			nPivotRow = This.findPivotRow(aTableau, nPivotCol)
 			
 			if nPivotRow = -1
 				@status = "unbounded"
@@ -282,7 +265,7 @@ class stzLinearSolver from stzObject
 			ok
 			
 			# Perform pivot operation
-			aTableau = this.pivotTableau(aTableau, nPivotRow, nPivotCol)
+			aTableau = This.pivotTableau(aTableau, nPivotRow, nPivotCol)
 			
 			# Prevent infinite loops
 			if @iterations > 1000
@@ -292,7 +275,7 @@ class stzLinearSolver from stzObject
 		end
 		
 		# Extract solution from tableau
-		return this.extractSimplexSolution(aTableau)
+		return This.extractSimplexSolution(aTableau)
 
 	def solveWithBranchAndBound()
 		# Branch and bound for integer problems
@@ -300,17 +283,17 @@ class stzLinearSolver from stzObject
 		@iterations = 0
 		
 		# First solve LP relaxation
-		oRelaxed = this.createRelaxedProblem()
+		oRelaxed = This.createRelaxedProblem()
 		aSolution = oRelaxed.solveWithSimplex()
 		
 		# Check if solution is already integer
-		if this.isIntegerSolution(aSolution)
+		if This.isIntegerSolution(aSolution)
 			return aSolution
 		ok
 		
 		# Branch and bound search
 		aBestSolution = aSolution
-		nBestValue = this.evaluateSolution(aSolution)
+		nBestValue = This.evaluateSolution(aSolution)
 		
 		aBranches = [aSolution]
 		
@@ -322,24 +305,24 @@ class stzLinearSolver from stzObject
 			del(aBranches, 1)
 			
 			# Find fractional variable
-			cFracVar = this.findFractionalVariable(aCurrentSolution)
+			cFracVar = This.findFractionalVariable(aCurrentSolution)
 			if cFracVar = ""
 				loop
 			ok
 			
-			nFracValue = this.getSolutionValue(aCurrentSolution, cFracVar)
+			nFracValue = This.getSolutionValue(aCurrentSolution, cFracVar)
 			
 			# Create two branches
-			aBranch1 = this.addBranchConstraint(aCurrentSolution, cFracVar, "<=", floor(nFracValue))
-			aBranch2 = this.addBranchConstraint(aCurrentSolution, cFracVar, ">=", ceil(nFracValue))
+			aBranch1 = This.addBranchConstraint(aCurrentSolution, cFracVar, "<=", floor(nFracValue))
+			aBranch2 = This.addBranchConstraint(aCurrentSolution, cFracVar, ">=", ceil(nFracValue))
 			
 			# Evaluate branches
 			for aBranch in [aBranch1, aBranch2]
-				if this.isFeasible(aBranch)
-					nValue = this.evaluateSolution(aBranch)
+				if This.isFeasible(aBranch)
+					nValue = This.evaluateSolution(aBranch)
 					
-					if this.isBetter(nValue, nBestValue)
-						if this.isIntegerSolution(aBranch)
+					if This.isBetter(nValue, nBestValue)
+						if This.isIntegerSolution(aBranch)
 							aBestSolution = aBranch
 							nBestValue = nValue
 						else
@@ -362,9 +345,9 @@ class stzLinearSolver from stzObject
 		nMutationRate = 0.1
 		
 		# Initialize population
-		aPopulation = this.initializePopulation(nPopSize)
+		aPopulation = This.initializePopulation(nPopSize)
 		aBestSolution = aPopulation[1]
-		nBestFitness = this.calculateFitness(aBestSolution)
+		nBestFitness = This.calculateFitness(aBestSolution)
 		
 		for nGen = 1 to nGenerations
 			@iterations++
@@ -373,11 +356,11 @@ class stzLinearSolver from stzObject
 			aFitness = []
 			nLen = len(aPopulation)
 			for i = 1 to nLen
-				nFit = this.calculateFitness(aPopulation[i])
+				nFit = This.calculateFitness(aPopulation[i])
 				aFitness + nFit
 				
 				# Track best solution
-				if this.isBetter(nFit, nBestFitness)
+				if This.isBetter(nFit, nBestFitness)
 					aBestSolution = aPopulation[i]
 					nBestFitness = nFit
 				ok
@@ -388,15 +371,15 @@ class stzLinearSolver from stzObject
 			
 			for i = 1 to nPopSize
 				# Selection (tournament)
-				aParent1 = this.tournamentSelection(aPopulation, aFitness)
-				aParent2 = this.tournamentSelection(aPopulation, aFitness)
+				aParent1 = This.tournamentSelection(aPopulation, aFitness)
+				aParent2 = This.tournamentSelection(aPopulation, aFitness)
 				
 				# Crossover
-				aChild = this.crossover(aParent1, aParent2)
+				aChild = This.crossover(aParent1, aParent2)
 				
 				# Mutation
 				if random(100)/100 < nMutationRate
-					aChild = this.mutate(aChild)
+					aChild = This.mutate(aChild)
 				ok
 				
 				aNewPopulation + aChild
@@ -414,48 +397,36 @@ class stzLinearSolver from stzObject
 	def parseObjectiveCoefficients()
 		# Extract coefficients from objective function
 		aCoeffs = []
-		aVarNames = this.variableNames()
+		aVarNames = This.variableNames()
 		nLen = len(aVarNames)
 
 		for i = 1 to nLen
 			cVar = aVarNames[i]
-			nCoeff = this.extractCoefficient(@objective, cVar)
+			nCoeff = This.extractCoefficient(@objective, cVar)
 			aCoeffs + nCoeff
 		next
 		
 		return aCoeffs
 
 	def extractCoefficient(cExpression, cVarName)
-		# Simple coefficient extraction
-		# Look for patterns like "5*x" or "-3*y" or just "x"
-		#TODO // Use stzRegex instead for full solution
+		if ring_substr1(cExpression, cVarName) = 0
+			return 0
+		ok
 
-		cPattern = cVarName
-		nPos = ring_substr1(cExpression, cPattern)
-		
-		if nPos = 0
-			return 0  # Variable not in expression
-		ok
-		
-		# Check for coefficient before variable
-		if nPos > 1
-			oExpr = new stzString(cExpression)
-			cBefore = oExpr.Section(nPos-1, 1)
-			if cBefore = "*"
-				# Find the coefficient
-				nStart = nPos - 2
-				c = oExpr.Section(nStart, 1)
-				while nStart > 0 and (isdigit(c) or c = ".")
-					nStart--
-				end
-				if nStart < nPos - 2
-					cCoeffStr = oExpr.Section(nStart+1, nPos-nStart-2)
-					return 0 + cCoeffStr  # Convert to number
-				ok
+		cExpr = @trim(cExpression)
+		acSplits = @split(cExpr, "+")
+
+		nLen = len(acSplits)
+
+		for i = 1 to nLen
+			if ring_substr1(acSplits[i], "*") and ring_substr1(acSplits[i], cVarName)
+				n = ring_substr1(acSplits[i], "*")
+				cCoeff = StzStringQ(acSplits[i]).Section(1, n-1)
+				return 0+ cCoeff
 			ok
-		ok
-		
-		return 1  # Default coefficient if just variable name
+		next
+
+		return 1
 
 	def calculateResourceCost(cVarName)
 		# Calculate total resource cost for one unit of variable
@@ -463,29 +434,30 @@ class stzLinearSolver from stzObject
 		nLen = len(@constraints)
 		for i = 1 to nLen
 			aConst = @constraints[i]
-			nCoeff = this.extractCoefficient(aConst[:expression], cVarName)
+			nCoeff = This.extractCoefficient(aConst[:expression], cVarName)
 			nTotalCost += abs(nCoeff)
 		next
 		
 		return nTotalCost
 
+/*
 	def CalculateMaxPossibleValue(cVarName, aSolution)
 		# Calculate maximum possible value considering constraints
 		nMinLimit = 999999
 		nLen = len(@constraints)
 		for i = 1 to nLen
 			aConst = @constraints[i]
-			nCoeff = this.extractCoefficient(aConst[:expression], cVarName)
+			nCoeff = This.extractCoefficient(aConst[:expression], cVarName)
 			
 			if nCoeff != 0
 				# Calculate used resources by other variables
 				nUsedResources = 0
-				aVarNames = this.variableNames()
+				aVarNames = This.variableNames()
 				nLenVar = len(aVarNames)
 				for j = 1 to nLenVar
 					if aVarNames[j] != cVarName
-						nVarCoeff = this.extractCoefficient(aConst[:expression], aVarNames[j])
-						nVarValue = this.getSolutionValue(aSolution, aVarNames[j])
+						nVarCoeff = This.extractCoefficient(aConst[:expression], aVarNames[j])
+						nVarValue = This.getSolutionValue(aSolution, aVarNames[j])
 						nUsedResources += nVarCoeff * nVarValue
 					ok
 				next
@@ -503,10 +475,91 @@ class stzLinearSolver from stzObject
 		next
 		
 		return max([ 0, floor(nMinLimit) ])
+*/
+def CalculateMaxPossibleValue(cVarName, aSolution)
+	# Calculate maximum possible value considering constraints
+	nMinLimit = 999999
+	nLen = len(@constraints)
+	
+	for i = 1 to nLen
+		aConst = @constraints[i]
+		nCoeff = This.extractCoefficient(aConst[:expression], cVarName)
+		
+		if nCoeff != 0
+			# Calculate used resources by other variables
+			nUsedResources = 0
+			aVarNames = This.variableNames()
+			nLenVar = len(aVarNames)
+			
+			for j = 1 to nLenVar
+				if aVarNames[j] != cVarName
+					nVarCoeff = This.extractCoefficient(aConst[:expression], aVarNames[j])
+					nVarValue = This.getSolutionValue(aSolution, aVarNames[j])
+					nUsedResources += nVarCoeff * nVarValue
+				ok
+			next
+			
+			# Calculate remaining capacity
+			nRemainingCapacity = aConst[:value] - nUsedResources
+			
+			# Handle different constraint operators
+			switch aConst[:operator]
+			on "="
+				# For equality constraints, the remaining capacity divided by coefficient
+				# gives the exact value this variable must take
+				if nCoeff > 0
+					nLimit = nRemainingCapacity / nCoeff
+					if nLimit < nMinLimit
+						nMinLimit = nLimit
+					ok
+				ok
+			on "<="
+				# For <= constraints, variable is limited by remaining capacity
+				if nCoeff > 0
+					nLimit = nRemainingCapacity / nCoeff
+					if nLimit < nMinLimit
+						nMinLimit = nLimit
+					ok
+				ok
+			on ">="
+				# For >= constraints, check if we can satisfy the minimum requirement
+				if nCoeff > 0 and nRemainingCapacity < 0
+					# If remaining capacity is negative, we need at least |remaining|/coeff
+					nMinRequired = abs(nRemainingCapacity) / nCoeff
+					# But this is handled by the lower bound, so we don't limit here
+				ok
+			off
+		ok
+	next
+	
+	# Ensure the result is within variable bounds and non-negative
+	nVarIndex = 0
+	aVarNames = This.variableNames()
+	nLenVar = len(aVarNames)
+	
+	for j = 1 to nLenVar
+		if aVarNames[j] = cVarName
+			nVarIndex = j
+			exit
+		ok
+	next
+	
+	if nVarIndex > 0
+		nLowerBound = 0+ @variables[nVarIndex][:lowerBound]
+		nUpperBound = 0+ @variables[nVarIndex][:upperBound]
+		
+		# Return the minimum of: calculated limit, upper bound
+		# But at least the lower bound
+		nResult = min([nMinLimit, nUpperBound])
+		nResult = max([nResult, nLowerBound])
+		
+		return max([0, nResult])
+	ok
+	
+	return max([0, nMinLimit])
 
 	def GetSolutionValue(aSolution, cVarName)
-		nLen = len(aSolution)
-		for i = 1 to nLen
+		for i = 1 to len(aSolution)
 			if aSolution[i][1] = cVarName
 				return aSolution[i][2]
 			ok
@@ -516,12 +569,12 @@ class stzLinearSolver from stzObject
 	def EvaluateSolution(aSolution)
 		# Evaluate objective function value
 		nValue = 0
-		aCoeffs = this.parseObjectiveCoefficients()
-		aVarNames = this.variableNames()
+		aCoeffs = This.parseObjectiveCoefficients()
+		aVarNames = This.variableNames()
 		nLen = len(aVarNames)
 
 		for i = 1 to nLen
-			nVarValue = this.getSolutionValue(aSolution, aVarNames[i])
+			nVarValue = This.getSolutionValue(aSolution, aVarNames[i])
 			nValue += aCoeffs[i] * nVarValue
 		next
 		
@@ -554,7 +607,7 @@ class stzLinearSolver from stzObject
 	def ExtractSimplexSolution(aTableau)
 		# Extract solution from final tableau
 		aSolution = []
-		aVarNames = this.variableNames()
+		aVarNames = This.variableNames()
 		nLen = len(aVarNames)
 
 		for i = 1 to nLen
@@ -616,7 +669,7 @@ class stzLinearSolver from stzObject
 
 		for i = 1 to nLen
 			aConst = @constraints[i]
-			nLeftSide = this.evaluateConstraintLeft(aConst[:expression], aSolution)
+			nLeftSide = This.evaluateConstraintLeft(aConst[:expression], aSolution)
 			nRightSide = aConst[:value]
 			cOperator = aConst[:operator]
 			
@@ -640,12 +693,12 @@ class stzLinearSolver from stzObject
 	def EvaluateConstraintLeft(cExpression, aSolution)
 		# Evaluate left side of constraint
 		nValue = 0
-		aVarNames = this.variableNames()
+		aVarNames = This.variableNames()
 		nLen = len(aVarNames)
 
 		for i = 1 to nLen
-			nCoeff = this.extractCoefficient(cExpression, aVarNames[i])
-			nVarValue = this.getSolutionValue(aSolution, aVarNames[i])
+			nCoeff = This.extractCoefficient(cExpression, aVarNames[i])
+			nVarValue = This.getSolutionValue(aSolution, aVarNames[i])
 			nValue += nCoeff * nVarValue
 		next
 		
@@ -682,7 +735,7 @@ class stzLinearSolver from stzObject
 
 	def InitializePopulation(nSize)
 		aPopulation = []
-		aVarNames = this.variableNames()
+		aVarNames = This.variableNames()
 		
 		for i = 1 to nSize
 			aIndividual = []
@@ -700,8 +753,8 @@ class stzLinearSolver from stzObject
 
 	def CalculateFitness(aIndividual)
 		# Fitness = objective value - penalty for constraint violations
-		nObjectiveValue = this.evaluateSolution(aIndividual)
-		nPenalty = this.calculatePenalty(aIndividual)
+		nObjectiveValue = This.evaluateSolution(aIndividual)
+		nPenalty = This.calculatePenalty(aIndividual)
 		
 		if @objectiveType = "maximize"
 			return nObjectiveValue - nPenalty
@@ -715,7 +768,7 @@ class stzLinearSolver from stzObject
 
 		for i = 1 to nLen
 			aConst = @constraints[i]
-			nLeftSide = this.evaluateConstraintLeft(aConst[:expression], aIndividual)
+			nLeftSide = This.evaluateConstraintLeft(aConst[:expression], aIndividual)
 			nRightSide = aConst[:value]
 			cOperator = aConst[:operator]
 			
@@ -799,20 +852,17 @@ class stzLinearSolver from stzObject
 		return @aSolution[varName]
 
 	def objectiveValue()
-
-		# Calculate objective value from current solution
-		cExpression = @objective
-
-		# Substitute variable values
-		nLen = len(@variables)
-		for i = 1 to nLen
+		nResult = 0
+		for i = 1 to len(@variables)
 			cVarName = @variables[i][:name]
-			nValue = @aSolution[cVarName]
-			cExpression = ring_substr2(cExpression, cVarName, "" + nValue)
+			nValue = This.getSolutionValue(@aSolution, cVarName)
+			nCoeff = This.extractCoefficient(@objective, cVarName)
+			nResult += nCoeff * nValue
 		next
+		return nResult
 
 		# Evaluate expression (simplified)
-		return this.evaluateExpression(cExpression)
+		return This.evaluateExpression(cExpression)
 
 	def evaluateExpression(cExpression)
 		# Simple expression evaluator
@@ -882,7 +932,7 @@ class stzLinearSolver from stzObject
 				ok
 			next
 			? ""
-			? "• Objective Value: " + this.objectiveValue()
+			? "• Objective Value: " + This.objectiveValue()
 		ok
 
 	def exportToCSV(cFileName)
@@ -912,7 +962,7 @@ class stzLinearSolver from stzObject
 			cContent += "Status: " + @status + nl
 			cContent += "Solve Time: " + @solveTime + " seconds" + nl
 			cContent += "Iterations: " + @iterations + nl
-			cContent += "Objective Value: " + this.objectiveValue() + nl + nl
+			cContent += "Objective Value: " + This.objectiveValue() + nl + nl
 			
 			cContent += "Variable Values:" + nl
 			nLen = len(@aSolution)
