@@ -1,13 +1,13 @@
-#---------------------------------------------------------------------------#
-# 		    SOFTANZA LIBRARY (V1.0) - STZCHAR			    #
-#		An accelerative library for Ring applications		    #
-#---------------------------------------------------------------------------#
-#									    #
+#-------------------------------------------------------------------#
+# 		        SOFTANZA LIBRARY (V1.0) - STZCHAR                   #
+#		 An accelerative library for Ring applications              #
+#-------------------------------------------------------------------#
+#                                                                   #
 # 	Description	: The class for managing Unicode chars in Softanza  #
-#	Version		: V1.0 (2020-2024)				    #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
-#									    #
-#---------------------------------------------------------------------------#
+#	Version		: V1.0 (2020-2024)                                  #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)             #
+#                                                                   #
+#-------------------------------------------------------------------#
 
 /*
 
@@ -56,6 +56,19 @@ or 'unavoidable' Qt feature.
   /////////////////////
  ///   FUNCTIONS   ///
 /////////////////////
+
+func IsDigit(c)
+	If (isNumber(c) and c >= 0 and c <= 9) or
+	   (isString(c) and IsChar(c) and IsNumberInString(c))
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func @IsDigit(c)
+		return IsDigit(c)
+
 
 func IsInvisibleChar(c)
 

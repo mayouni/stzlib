@@ -1203,17 +1203,38 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return this
 
 	def ReplaceNthValue(n, pNewValue)
+
 		if CheckingParam()
+			if NOT isNumber(n) and isNumber(pNewValue)
+				temp = n
+				n = pNewValue
+				pNewValue = temp
+			ok
+
 			if isList(pNewValue) and Q(pNewValue).IsWithOrByNamedParam()
 				pNewValue = pNewValue[2]
 			ok
 		ok
 
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
 		This.NthPair(n)[2] = pNewValue
+
+		#NOTE // Normally Set... does not belong to Softanza semantics,
+		# we use Replace instead. Here I use to cope with AI-generated
+		# code which tend to be alligned with the Set keyword
+		def SetValueAt(n, pNewValue)
+			This.ReplaceNthValue(n, pNewValue)
 
 		def ReplaceNthValueQ(n, pNewValue)
 			This.ReplaceNthValue(n, pNewValue)
 			return This
+
+		def SetValueAtQ(n, pNewValue)
+			return This.ReplaceNthValueQ(n, pNewValue)
+
 
 	def ReplaceFirstValue(pNewValue)
 		This.ReplaceNthValue(1, pNewValue)
