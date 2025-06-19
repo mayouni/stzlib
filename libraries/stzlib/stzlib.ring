@@ -210,6 +210,7 @@ t0 = clock()
 
 	load "stats/stzDataSet.ring"
 	load "stats/stzDataWrangler.ring"
+	load "stats/stzLinear.ring"
 
 # Loading files related to CHART module
 
