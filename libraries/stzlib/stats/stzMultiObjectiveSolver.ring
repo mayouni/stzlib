@@ -19,8 +19,11 @@ class stzMultiObjectiveSolver from stzObject
     @nMutationRate = 0.1
     @nCrossoverRate = 0.9
 
+	@oCoeffExtractor
+
     def init()
         This.clear()
+		@oCoeffExtractor = new stzCoeffExtractor(This.VariableNames())
 
     def clear()
         @aVariables = []
@@ -50,16 +53,23 @@ class stzMultiObjectiveSolver from stzObject
         @aVariables[len(@aVariables)][:type] = "binary"
         return this
 
-    def variables()
+    def Variables()
         return @aVariables
 
-    def variableNames()
+		def Vars()
+			return @aVariables
+
+
+    def VariableNames()
         aNames = []
         nVarLen = len(@aVariables)
         for i = 1 to nVarLen
             aNames + @aVariables[i][:name]
         next
         return aNames
+
+		def VarNames()
+			return This.VariableNames()
 
     # Constraints Management (inherited from stzLinearSolver)
     def addConstraint(expression, operator, value)
@@ -122,40 +132,6 @@ class stzMultiObjectiveSolver from stzObject
         @cStatus = "optimal"
         return this
 
-/*
-    def solveWithNSGAII()
-        @nIterations = @nGenerations
-        aPopulation = This.initializePopulation()
-        
-        for gen = 1 to @nGenerations
-            # Evaluate objectives for all individuals
-            nPopLen = len(aPopulation)
-            for i = 1 to nPopLen
-                if len(aPopulation[i][:solution]) > 0
-                    aPopulation[i][:objectives] = This.evaluateObjectives(aPopulation[i][:solution])
-                ok
-            next
-            
-            # Non-dominated sorting and crowding distance
-            aFronts = This.nonDominatedSort(aPopulation)
-            aPopulation = This.calculateCrowdingDistance(aFronts, aPopulation)
-            
-            # Create new population
-            aNewPopulation = This.createNewPopulation(aPopulation)
-            aPopulation = aNewPopulation
-        next
-        
-        # Extract Pareto front
-        aParetoFront = []
-        nPopLen = len(aPopulation)
-        for i = 1 to nPopLen
-            if len(aPopulation[i]) > 0 and aPopulation[i][:rank] = 1
-                aParetoFront + aPopulation[i]
-            ok
-        next
-        
-        return aParetoFront
-*/
 
 	def solveWithNSGAII()
 	    @nIterations = @nGenerations
@@ -714,58 +690,14 @@ class stzMultiObjectiveSolver from stzObject
 
     # Utility Methods (inherited from stzLinearSolver)
 
-/*
     def extractCoefficient(cExpression, cVarName)
-        if ring_substr1(cExpression, cVarName) = 0 return 0 ok
-        cExpr = trim(cExpression)
-        acSplits = split(cExpr, "+")
-        nSplitsLen = len(acSplits)
-        for i = 1 to nSplitsLen
-            split = acSplits[i]
-            if ring_substr1(split, "*") and ring_substr1(split, cVarName)
-                n = ring_substr1(split, "*")
-                cCoeff = StzStringQ(split).Section(1, n-1)
-                return 0+ cCoeff
-            ok
-        next
-        return 1
+        return @oCoeffExtractor.extractCoefficient(cExpression, cVarName)
+	
+/*
+    def parseObjectiveCoefficients(cExpression)
+		@oCoeffExtractor.SetVariableNames(This.VariableNames())
+        return @oCoeffExtractor.extractAllCoefficients(cExpression)
 */
-
-	def extractCoefficient(cExpression, cVarName)
-	    if ring_substr1(cExpression, cVarName) = 0 return 0 ok
-	    
-	    cExpr = trim(cExpression)
-	    
-	    # Handle simple cases first
-	    if cExpr = cVarName return 1 ok
-	    if cExpr = "-" + cVarName return -1 ok
-	    
-	    # Replace - with +- to split negative terms
-	    cExpr = substr(cExpr, " ", "")  # Remove spaces
-	    cExpr = substr(cExpr, "-", "+-")
-	    acSplits = split(cExpr, "+")
-	    
-	    nSplitsLen = len(acSplits)
-	    for i = 1 to nSplitsLen
-	        split = trim(acSplits[i])
-	        if split = "" loop ok
-	        
-	        if ring_substr1(split, cVarName)
-	            if ring_substr1(split, "*")
-	                # Extract coefficient before *
-	                n = ring_substr1(split, "*")
-	                cCoeff = trim(substr(split, 1, n-1))
-	                if cCoeff = "" or cCoeff = "+" return 1 ok
-	                if cCoeff = "-" return -1 ok
-	                return 0 + cCoeff
-	            else
-	                # Variable appears without * (coefficient is 1 or -1)
-	                if left(split, 1) = "-" return -1 ok
-	                return 1
-	            ok
-	        ok
-	    next
-	    return 0
 
     def getSolutionValue(aSolution, cVarName)
         nSolLen = len(aSolution)

@@ -261,7 +261,6 @@ o1 = new StzCoefficientExtractor(["production", "production_cost"])
 pf()
 
 /*--- Spaces and formatting
-*/
 
 pr()
 
@@ -272,5 +271,23 @@ o1 = new StzCoefficientExtractor(["x", "y"])
 
 ? o1.extractCoefficient(cExpr, "y")
 #--> 3
+
+pf()
+
+/*---
+*/
+pr()
+
+cExpr = "0.15*stocks + 0.04*bonds"
+o1 = new StzCoefficientExtractor(["x", "y"])
+? o1.extractCoefficient(cExpr, "stocks")
+#--> 0.15
+
+? o1.extractCoefficient(cExpr, "bonds")
+#--> 0.04
+
+o1.SetVariableNames([ "stocks", "bonds" ])
+? @@(o1.extractAllCoefficients(cExpr))
+#--> [ 0.1500, 0.0400 ]
 
 pf()

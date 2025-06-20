@@ -24,7 +24,7 @@ class stzStochasticSolver
 
     def init()
         This.clear()
-		@oCoefficientExtractor = new stzCoeffExtractor(This.variableNames())
+		@oCoeffExtractor = new stzCoeffExtractor(This.variableNames())
 
     def clear()
         @aVariables = []
@@ -68,6 +68,13 @@ class stzStochasticSolver
             aNames + var[:name]
         next
         return aNames
+
+		def VarNames()
+			return This.VariableNames()
+
+	def SetVariableNames(pacNames)
+		#TODO // Add more checks here
+		@aVariables = pacNames
 
     # Scenario Management
     def addScenario(name, description, parameters, probability)
@@ -360,8 +367,6 @@ class stzStochasticSolver
             nExpectedCoeff = 0
             for scenario in @aScenarios
                 cModifiedObjective = This.applyScenarioParameters(@cObjective, scenario[:parameters])
-? @@(cModifiedObjective)
-? @@(varName) + NL
                nCoeff = This.extractCoefficient(cModifiedObjective, varName)
                 if @cObjectiveType = "minimize" nCoeff = -nCoeff ok
                 nExpectedCoeff += nCoeff * scenario[:probability]
@@ -444,6 +449,7 @@ class stzStochasticSolver
 	
 
     def parseObjectiveCoefficients(cExpression)
+		@oCoeffExtractor.SetVariableNames(This.VariableNames())
         return @oCoeffExtractor.extractAllCoefficients(cExpression)
 
     def calculateExpectedResourceCost(cVarName)
@@ -746,7 +752,7 @@ class stzStochasticSolver
         
         aResults = This.analyzeScenarios()
         for result in aResults
-            cFeasible = result[:feasible] ? "Yes" : "No"
+            cFeasible = iff(result[:feasible], "Yes", "No")
             cContent += result[:scenario] + "," + result[:probability] + "," + result[:objectiveValue] + "," + cFeasible + nl
         next
         

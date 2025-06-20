@@ -110,7 +110,7 @@ pf()
 /*--- Delivery optimization balancing cost and speed
 # Scenario: Choose shipping methods to minimize cost while minimizing delivery time
 # Method: Epsilon-constraint — systematic exploration of trade-offs
-
+*/
 pr()
 
 o1 = new stzMultiObjectiveSolver()
@@ -259,13 +259,13 @@ o3 {
 │ Solutions │
 ╰───────────╯
 • Status: optimal
-• Solved in 41.61 second(s)
+• Solved in 21.72 second(s)
 • Iterations: 60
 
 • Pareto Solutions Found: 0
 '
 pf()
-# Executed in 41.63 second(s) in Ring 1.22
+# Executed in 21.75 second(s) in Ring 1.22
 
 #==========================#
 #   RESOURCE ALLOCATIO     #

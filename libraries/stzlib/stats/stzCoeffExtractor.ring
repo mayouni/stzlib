@@ -4,7 +4,7 @@
 # - Simple linear: Basic a*x + b*y forms
 # - Negative coefficients: Handling minus signs
 # - Implicit coefficients: Variables without explicit multipliers
-# - Complex functions: min/max, division, powers, abs, sqrt
+# - Complex functions: min/max, division, power, abs, sqrt
 # - Edge cases: Zero coefficients, substring variables, formatting
 # - Batch operations: All coefficients at once
 # - Validation: Expression correctness checking
@@ -18,20 +18,21 @@
 class StzCoefficientExtractor from stzCoeffExtractor
 
 class stzCoeffExtractor from stzObject
-	aVariableNames = []
-	nPerturbationDelta = 0.001
+	@aVars = []
+	@nPerturbationDelta = 0.001
 	
-	def init(paVariableNames)
-		aVariableNames = paVariableNames
+	def init(p@aVars)
+		@aVars = p@aVars
 	
-	def setVariableNames(paVariableNames)
-		aVariableNames = paVariableNames
+	def setVariableNames(p@aVars)
+		@aVars = p@aVars
 			
 	def setPerturbationDelta(pnDelta)
-		nPerturbationDelta = pnDelta
+		@nPerturbationDelta = pnDelta
 	
 	# Main method: Extract coefficient
 	def extract(cExpression, cVarName)
+
 		if not ring_substr1(cExpression, cVarName)
 			return 0
 		ok
@@ -129,11 +130,11 @@ class stzCoeffExtractor from stzObject
 		nBaseValue = This.evaluateExpression(cExpression, aTestValues)
 		
 		# Perturb the target variable and evaluate again
-		aTestValues[cVarName] = aTestValues[cVarName] + nPerturbationDelta
+		aTestValues[cVarName] = aTestValues[cVarName] + @nPerturbationDelta
 		nPerturbedValue = This.evaluateExpression(cExpression, aTestValues)
 		
 		# Calculate numerical derivative (coefficient)
-		nCoeff = (nPerturbedValue - nBaseValue) / nPerturbationDelta
+		nCoeff = (nPerturbedValue - nBaseValue) / @nPerturbationDelta
 		
 		# Round to handle floating point precision issues
 		return This.roundCoefficient(nCoeff)
@@ -141,7 +142,7 @@ class stzCoeffExtractor from stzObject
 
 	def createTestValues()
 		aValues = []
-		for cVarName in aVariableNames
+		for cVarName in @aVars
 			aValues[cVarName] = 10.0  # Use 10.0 to avoid min() saturation
 		next
 		return aValues
@@ -152,7 +153,7 @@ class stzCoeffExtractor from stzObject
 	    acSubStr = []
 		acNewSubStr = []
 
-	    for cVarName in aVariableNames
+	    for cVarName in @aVars
 	        if ring_substr1(cExpression, cVarName)
 	            acSubStr + cVarName
 				acNewSubStr + @@(aVarValues[cVarName])
@@ -178,10 +179,26 @@ class stzCoeffExtractor from stzObject
 		
 		return nRounded
 	
+
+	def VarNames()
+		nLen = len(@aVars)
+		acResult = []
+
+		for i = 1 to nLen
+			acResult + @aVars[i]
+		next
+
+		return acResult
+
+		def VariableNames()
+			return This.VarNames()
+
 	# Batch extraction for all variables
 	def extractAllCoefficients(cExpression)
 		aCoeffs = []
-		for cVarName in aVariableNames
+		acVarNames = This.VarNames()
+
+		for cVarName in acVarNames
 			aCoeffs + This.extractCoefficient(cExpression, cVarName)
 		next
 		return aCoeffs
