@@ -210,7 +210,11 @@ t0 = clock()
 
 	load "stats/stzDataSet.ring"
 	load "stats/stzDataWrangler.ring"
+
+	load "stats/stzCoeffExtractor.ring"
 	load "stats/stzLinearSolver.ring"
+	load "stats/stzMultiObjectiveSolver.ring"
+	load "stats/stzStochasticSolver.ring"
 
 # Loading files related to CHART module
 
