@@ -79,9 +79,9 @@ o1 {
 
 # Solution should be:
 '
-╭─────────╮
+╭──────────╮
 │ Solution │
-╰─────────╯
+╰──────────╯
 • Status: optimal
 • Solver: expected
 • Variable Values:
@@ -123,7 +123,7 @@ pf()
 /*--- Portfolio optimization with robust approach
 # Scenario: Minimize risk under worst-case market conditions
 # Method: Robust solver — focuses on worst-case scenario performance
-
+*/
 pr()
 
 o2 = new stzStochasticSolver()

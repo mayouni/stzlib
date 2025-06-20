@@ -87,7 +87,7 @@ o1 {
 pf()
 # Executed in 0.09 second(s) in Ring 1.22
 
-/*--- Restaurant menu planning
+/*--- Restaurant menu planning"
 
 pr()
 
@@ -121,13 +121,8 @@ o1 {
 
     # Solve the problem using the greedy algorithm (fast, good-enough solution)
     Solve("greedy")
+	Show()
 
-    # Output the recommended daily menu and expected profit
-    ? "Daily menu recommendation:"
-    ? "• Pizza: " + SolutionValue("pizza") + " portions"
-    ? "• Pasta: " + SolutionValue("pasta") + " portions" 
-    ? "• Salad: " + SolutionValue("salad") + " portions"
-    ? "• Expected profit: $" + ObjectiveValue()
 }
 
 #-->
@@ -328,7 +323,7 @@ pf()
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Budget allocation across departments
-*/
+
 pr()
 
 # Corporate budget distribution with minimum requirements
@@ -516,7 +511,7 @@ pf()
 /*--- RPG Character Build Optimization
 #    Goal: Allocate character attribute points to maximize combat effectiveness
 #    under certain balance constraints using a genetic solver for complex preferences
-
+*/
 pr()
 
 o1 = new stzLinearSolver()

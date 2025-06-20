@@ -16,9 +16,12 @@ class stzLinearSolver from stzObject
 	@nIterations = 0
 	@nSolveTime = 0
 
+	@oCoeffExtractor
+
 	def init()
 		# Initialize with empty problem
 		This.clear()
+		@oCoeffExtractor = new stzCoeffExtractor(This.variableNames())
 
 	def clear()
 		@aVariables = []
@@ -86,12 +89,20 @@ class stzLinearSolver from stzObject
 	def variables()
 		return @aVariables
 
-	def variableNames()
+		def Vars()
+			return @aVariables
+
+	def VariableNames()
 		aNames = []
-		for i = 1 to len(@aVariables)
+		nLen = len(@aVariables)
+
+		for i = 1 to nLen
 			aNames + @aVariables[i][:name]
 		next
 		return aNames
+
+		def VarNames()
+			return This.VariableNames()
 
 	  #--------------------------#
 	 #  CONSTRAINTS MANAGEMENT  #
@@ -406,39 +417,13 @@ class stzLinearSolver from stzObject
 	 #  SOLVER HELPER METHODS  #
 	#-------------------------#
 
-	def parseObjectiveCoefficients()
-		# Extract coefficients from objective function
-		aCoeffs = []
-		aVarNames = This.variableNames()
-		nLen = len(aVarNames)
+    def extractCoefficient(cExpression, cVarName)
+        return @oCoeffExtractor.extractCoefficient(cExpression, cVarName)
+	
 
-		for i = 1 to nLen
-			cVar = aVarNames[i]
-			nCoeff = This.extractCoefficient(@cObjective, cVar)
-			aCoeffs + nCoeff
-		next
-		
-		return aCoeffs
-
-	def extractCoefficient(cExpression, cVarName)
-		if ring_substr1(cExpression, cVarName) = 0
-			return 0
-		ok
-
-		cExpr = @trim(cExpression)
-		acSplits = @split(cExpr, "+")
-
-		nLen = len(acSplits)
-
-		for i = 1 to nLen
-			if ring_substr1(acSplits[i], "*") and ring_substr1(acSplits[i], cVarName)
-				n = ring_substr1(acSplits[i], "*")
-				cCoeff = StzStringQ(acSplits[i]).Section(1, n-1)
-				return 0+ cCoeff
-			ok
-		next
-
-		return 1
+    def parseObjectiveCoefficients()
+		@oCoeffExtractor.SetVariableNames(This.VariableNames())
+        return @oCoeffExtractor.extractAllCoefficients(@cObjective)
 
 	def calculateResourceCost(cVarName)
 		# Calculate total resource cost for one unit of variable
