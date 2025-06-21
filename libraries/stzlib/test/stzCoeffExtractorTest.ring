@@ -1,5 +1,5 @@
 load "../max/stzmax.ring"
-decimals(4)
+//decimals(4)
 
 /*---
 
@@ -71,7 +71,7 @@ o1 = new StzCoefficientExtractor(["x", "y", "z"])
 #--> -1
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.0050 second(s) in Ring 1.22
 
 /*--- Decimal coefficients
 
@@ -87,10 +87,10 @@ o1 = new StzCoeffExtractor(["price", "quantity"])
 #--> 0.8
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.0050 second(s) in Ring 1.22
 
 /*--- Complex expression with min/max functions
-
+*/
 pr()
 
 cExpr = "min([ beds_dept1 / 20, 1 ]) * 100 + min([ beds_dept2 / 15, 1 ]) * 100"
@@ -99,9 +99,10 @@ o1 = new StzCoefficientExtractor(["beds_dept1", "beds_dept2"])
 #--> 5.0
 
 ? o1.extract(cExpr, "beds_dept2")
-#--> 6.666667
+#--> 6.6667
 
 pf()
+# Executed in 0.0320 second(s) in Ring 1.22
 
 /*--- Expression with division
 
@@ -118,6 +119,7 @@ o1 = new StzCoefficientExtractor(["staff_count", "overtime_hours"])
 #--> 0.25
 
 pf()
+# Executed in 0.0360 second(s) in Ring 1.22
 
 /*--- Expression with power operations
 
@@ -126,17 +128,18 @@ pr()
 # cExpr = "x^2 + 3*y^2 + 2*z" --> should be ringified like this
 cExpr = "pow(x, 2) + 3 * pow(y, 2) + 2*z"
 
-o1 = new StzCoefficientExtractor(["x", "y", "z"])
+o1 = new StzCoefficientExtractor([ "x", "y", "z" ])
 ? o1.extractCoefficient(cExpr, "x")
-#--> 2.0
+#--> 2.0 (but it returned 20.001)
 
 ? o1.extractCoefficient(cExpr, "y")
-#--> 6.0
+#--> 6.0 (but it returned 60.003)
 
 ? o1.extractCoefficient(cExpr, "z")
 #--> 2
 
 pf()
+# Executed in 0.0490 second(s) in Ring 1.22
 
 /*--- Expression with absolute values
 
@@ -146,44 +149,51 @@ cExpr = "abs(demand - supply) + 0.5*inventory"
 o1 = new StzCoefficientExtractor(["demand", "supply", "inventory"])
 
 ? o1.extractCoefficient(cExpr, "demand")
-#--> 1.0
+#--> 1
 
 ? o1.extractCoefficient(cExpr, "supply")
-#--> -1.0
+#--> -1 (but it returned 1)
 
 ? o1.extractCoefficient(cExpr, "inventory")
 #--> 0.5
 
 pf()
+# Executed in 0.0510 second(s) in Ring 1.22
 
 /*--- Expression with square root
 
 pr()
+
 cExpr = "sqrt(area) + 2*perimeter"
 o1 = new StzCoefficientExtractor(["area", "perimeter"])
 ? o1.extractCoefficient(cExpr, "area")
-#--> 0.5
+#--> 0.5 (but it returned 0.1581)
 
 ? o1.extractCoefficient(cExpr, "perimeter")
 #--> 2
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*--- Complex multi-term expression
 
 pr()
+
 cExpr = "max([ 0, profit - 1000 ]) + min([ revenue / 100, 50 ]) + cost * 0.1"
 o1 = new StzCoefficientExtractor(["profit", "revenue", "cost"])
-? o1.extractCoefficient(cExpr, "profit")
-#--> 1.0
+o1 {
+	? Extract(cExpr, "profit")
+	#--> 1.0 (but it returned 0)
 
-? o1.extractCoefficient(cExpr, "revenue")
-#--> 0.01
+	? Extract(cExpr, "revenue")
+	#--> 0.01
 
-? o1.extractCoefficient(cExpr, "cost")
-#--> 0.1
+	? ExtractCoefficient(cExpr, "cost")
+	#--> 0.1
+}
 
 pf()
+# Executed in 0.052 second(s) in Ring 1.22
 
 /*--- Expression with parentheses
 
@@ -207,7 +217,6 @@ pf()
 
 /*--- Zero coefficient case
 
-
 pr()
 
 cExpr = "a + b"
@@ -216,6 +225,7 @@ o1 = new StzCoefficientExtractor(["a", "b", "c"])
 #--> 0
 
 pf()
+# Executed in 0.002 second(s) in Ring 1.22
 
 /*--- Batch extraction
 
@@ -227,9 +237,9 @@ o1 = new StzCoefficientExtractor(["x", "y", "z"])
 #--> [2, 3, -1]
 
 pf()
+# Executed in 0.0060 second(s) in Ring 1.22
 
 /*--- Expression validation
-
 
 pr()
 
@@ -241,9 +251,10 @@ o1 = new StzCoefficientExtractor(["x", "y"])
 
 cExpr = "2*x + 3*y"
 ? o1.validateExpression(cExpr)
-#--> TRUE #TODO #ERROR returned FALSE!
+#--> TRUE
 
 pf()
+# Executed in 0.0020 second(s) in Ring 1.22
 
 /*--- Variables as substrings (edge case)
 
@@ -259,6 +270,7 @@ o1 = new StzCoefficientExtractor(["production", "production_cost"])
 #--> 1
 
 pf()
+# Executed in 0.0030 second(s) in Ring 1.22
 
 /*--- Spaces and formatting
 
@@ -273,6 +285,7 @@ o1 = new StzCoefficientExtractor(["x", "y"])
 #--> 3
 
 pf()
+# Executed in 0.0050 second(s) in Ring 1.22
 
 /*---
 */
@@ -291,3 +304,4 @@ o1.SetVariableNames([ "stocks", "bonds" ])
 #--> [ 0.1500, 0.0400 ]
 
 pf()
+# Executed in 0.0090 second(s) in Ring 1.22

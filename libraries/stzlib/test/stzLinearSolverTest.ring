@@ -127,11 +127,35 @@ o1 {
 
 #-->
 '
-Daily menu recommendation:
-• Pizza: 100 portions
-• Pasta: 0 portions
-• Salad: 100 portions
-• Expected profit: $1800
+╭─────────╮
+│ Problem │
+╰─────────╯
+• Variables:
+ ─ pizza ∈ [0, 200] (continuous)
+ ─ pasta ∈ [0, 150] (continuous)
+ ─ salad ∈ [0, 100] (continuous)
+
+• Constraints:
+ ─ 15*pizza + 10*pasta + 5*salad <= 2000
+ ─ 3*pizza + 2*pasta + 1*salad <= 400
+ ─ pizza + pasta <= 250
+
+• Objective:
+  MAXIMIZE 12*pizza + 8*pasta + 6*salad
+
+╭──────────╮
+│ Solution │
+╰──────────╯
+• Status: optimal
+• Solved in 0.4540 second(s)
+• Iterations: 3
+
+• Variable Values:
+ ─ pizza = 100
+ ─ pasta = 0
+ ─ salad = 100
+
+• Objective Value: 1800
 '
 
 pf()
@@ -146,7 +170,7 @@ pf()
 # Goal: Decide how many chairs, tables, and desks to make 
 # to maximize profit, using limited resources.
 # Integer variables mean you can't produce fractional furniture.
-
+*/
 pr()
 
 o1 = new stzLinearSolver()
