@@ -126,19 +126,9 @@ class stzDataModel from stzObject
         # Remove _id suffix and pluralize
         if right(cForeignKeyField, 3) = "_id"
             cBaseName = left(cForeignKeyField, len(cForeignKeyField) - 3)
-            return This.Pluralize(cBaseName)
+            return Plural(cBaseName) # From the MAX layer
         ok
         return ""
-
-    def Pluralize(cSingular)
-        # Simple pluralization rules
-        if right(cSingular, 1) = "y"
-            return left(cSingular, len(cSingular) - 1) + "ies"
-        but right(cSingular, 1) = "s" or right(cSingular, 2) = "sh" or right(cSingular, 2) = "ch"
-            return cSingular + "es"
-        else
-            return cSingular + "s"
-        ok
 
     def RelationshipSummary()
         aResult = []
