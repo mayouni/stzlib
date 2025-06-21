@@ -67,6 +67,12 @@ func Plural(str)
 	func PluralOf(str)
 		return Plural(str)
 
+	func Pluralize(str)
+		return Plural(str)
+
+	func Pluralise(str)
+		return Plural(str)
+
 func SortPluralRulesByPriority(rules)
     n = len(rules)
     for i = 1 to n-1
