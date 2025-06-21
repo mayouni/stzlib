@@ -10,9 +10,9 @@ AdverbRules = [
     [ "^early$", "early", "exact", 1, "irregular" ],
     
     # Already adverbs (priority 2)
-    [ "ly$", "", "keep", 2, "preserve" ],
-    [ "ward$", "", "keep", 2, "preserve" ],
-    [ "wise$", "", "keep", 2, "preserve" ],
+    [ "ly$", '', "keep", 2, "preserve" ],
+    [ "ward$", '', "keep", 2, "preserve" ],
+    [ "wise$", '', "keep", 2, "preserve" ],
     
     # Domain patterns (priority 3)
     [ "^sales$", "sales-wise", "exact", 3, "domain" ],
@@ -28,13 +28,20 @@ AdverbRules = [
     [ "(account).*", "from an accounting perspective", "regex", 3, "domain" ],
     
     # Language/location patterns (priority 4)
-    [ "(english|britain|uk)", "in English", "regex", 4, "language" ],
-    [ "(spanish|spain)", "in Spanish", "regex", 4, "language" ],
-    [ "(french|france)", "in French", "regex", 4, "language" ],
-    [ "(arabic|arab)", "in Arabic", "regex", 4, "language" ],
-    [ "(american?|usa?)", "in an American way", "regex", 4, "geographic" ],
-    [ "(european?)", "in a European way", "regex", 4, "geographic" ],
-    
+    [ "(english|britain|uk)", "english", "regex", 4, "language" ],
+    [ "(spanish|spain)", "spanish", "regex", 4, "language" ],
+    [ "(french|france)", "french", "regex", 4, "language" ],
+    [ "(arabic|arab)", "arabic", "regex", 4, "language" ],
+    [ "(american?|usa?)", "american", "regex", 4, "geographic" ],
+    [ "(european?)", "european", "regex", 4, "geographic" ],
+	[ "(africa?)", "african", "regex", "4", "goegraphic"],
+	[ "(asia?)", "asian", "regex", "4", "geographic"],
+	[ "(australia?)","australian", "regex", "4", "geographic"],
+	[ "(north?)","northern", "regex", "4", "geographic"],
+    [ "(south?)","southern", "regex", "4", "geographic"],
+	[ "(east)","eastern", "regex", "4", "geographic"],
+	[ "(west?)","western", "regex", "4", "geographic"],
+
     # Morphological patterns (priority 5)
     [ "(.+[aeiou])y$", "\\1ily", "regex", 5, "morphology" ],
     [ "(.+[^aeiou])y$", "\\1ily", "regex", 5, "morphology" ],
@@ -54,10 +61,11 @@ AdverbRules = [
 ]
 
 func Adverb(str)
+
     cWord = lower(trim(str))
     
     # Sort rules by priority
-    aSortedRules = SortRulesByPriority(AdverbRules)
+    aSortedRules = SortAdverbRulesByPriority(AdverbRules)
     nLenRules = len(aSortedRules)
 
 	for i = 1 to nLenRules
@@ -101,7 +109,10 @@ func Adverb(str)
     
     return cWord + "ly"
 
-func SortRulesByPriority(rules)
+	func AdverbOf(str)
+		return Adverb(str)
+
+func SortAdverbRulesByPriority(rules)
     # Simple bubble sort by priority (index 4)
     n = len(rules)
     for i = 1 to n-1
@@ -119,10 +130,10 @@ func SortRulesByPriority(rules)
 func AddAdverbRule(pattern, replacement, type, priority, category)
     AdverbRules + [pattern, replacement, type, priority, category]
 
-func LoadRulesFromFile(filename)
+func LoadAdverbRulesFromFile(filename)
     # Load rules from external file for easy maintenance
     
-func GetRulesByCategory(category) 
+func GetAdverbRulesByCategory(category) 
     result = []
     for rule in AdverbRules
         if rule[5] = category

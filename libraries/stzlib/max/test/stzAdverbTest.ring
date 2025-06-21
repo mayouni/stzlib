@@ -1,4 +1,4 @@
-1ily# Test of the data-driven Adverb() function
+# Test of the data-driven Adverb() function
 
 load "../stzmax.ring"
 
@@ -49,15 +49,23 @@ pf()
 # Executed in 0.45 second(s) in Ring 1.22
 
 /*--- Geographic/Cultural (priority 3)
-
+*/
 pr()
 
-? Adverb("france")	#--> in a French
-? Adverb("english")	#--> in English
-? Adverb("arab")	#--> in Arabic
+? Adverb("france")		#--> french
+? Adverb("english")		#--> english
+? Adverb("arab")			#--> arabic
+
+? Adverb("africa")		#--> african
+? Adverb("asia")			#--> asian
+? Adverb("australia")		#--> australian
+? Adverb("north")			#--> northern
+? Adverb("south")			#--> southern
+? Adverb("east")			#--> eastern
+? Adverb("west")			#--> western
 
 pf()
-# Executed in 0.21 second(s) in Ring 1.22
+# Executed in 1.08 second(s) in Ring 1.22
 
 /*--- Testing priority system
 
@@ -86,8 +94,8 @@ pf()
 
 pr()
 
-? len(GetRulesByCategory("domain"))		#--> 11
-? len(GetRulesByCategory("morphology"))	#--> 12
+? len(GetAdverbRulesByCategory("domain"))		#--> 11
+? len(GetAdverbRulesByCategory("morphology"))	#--> 12
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
