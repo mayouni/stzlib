@@ -1,51 +1,96 @@
 # A utility class used by the various class solvers
 # to extract the coefficient of a given variable in an expression
 
-# - Simple linear: Basic a*x + b*y forms
-# - Negative coefficients: Handling minus signs
-# - Implicit coefficients: Variables without explicit multipliers
-# - Complex functions: min/max, division, power, abs, sqrt
-# - Edge cases: Zero coefficients, substring variables, formatting
-# - Batch operations: All coefficients at once
-# - Validation: Expression correctness checking
+# What works well:
+#-----------------
 
-#NOTE The numerical differentiation approach handles the complex
-# cases that pattern matching can't, while the fast path efficiently
-# processes simple linear expressions.
+# Use simple math formulas (called *linear expressions*).  
+# They give clear and constant values for each variable.
+
+# Examples:
+   "5*x + 3*y - 2*z"       # x = 5, y = 3, z = -2  
+   "x + 2.5*price"         # x = 1, price = 2.5  
+   "staff/8 + overtime/4"  # staff = 0.125, overtime = 0.25  
+
+# What can confuse you:
+#----------------------
+
+# Some formulas are *nonlinear* or *conditional*, so results change
+# depending on the value of the variables.
+
+# Examples:
+   "pow(x, 2)"             # x² → result changes with x (at x=10, rate = 20)  
+   "sqrt(area)"                # rate changes depending on area  
+   "max([0, profit-1000])"     # rate is 0 if profit < 1000, 1 if profit > 1000
+
+# Important to know:
+#-------------------
+
+# These advanced formulas are tested using the number 10 for each variable.  
+# If you change the test number, the result changes too.
+
+# Advice:
+#--------
+
+# Think of the result as showing 'how sensitive' the output is when
+# you change each variable 'a little bit'.
+
+# This is helpful for 'analysis', but not for 'pure linear optimization'.
+
+# For safe use:
+#--------------
+
+# Stick to simple formulas if you're doing classic optimization.
+
 
 # See stzCoeffExtractorTest.ring file for samples.
+
+
+# A utility class used by the various class solvers
+# to extract the coefficient of a given variable in an expression
+
+
 
 class StzCoefficientExtractor from stzCoeffExtractor
 
 class stzCoeffExtractor from stzObject
 	@aVars = []
 	@nPerturbationDelta = 0.001
-	
+
+	@nInternalPrecision = 4
+	@nOutsidePrecision = CurrentRound()
+
 	def init(p@aVars)
+		decimals(@nInternalPrecision)
 		@aVars = p@aVars
-	
+
 	def setVariableNames(p@aVars)
 		@aVars = p@aVars
 			
 	def setPerturbationDelta(pnDelta)
 		@nPerturbationDelta = pnDelta
 	
+	def BraceEnd()
+		decimals(@nOutsidePrecision)
+
 	# Main method: Extract coefficient
 	def extract(cExpression, cVarName)
 
+		nResult = 0
+
 		if not ring_substr1(cExpression, cVarName)
-			return 0
+			return nResult
 		ok
 		
 		# Try simple pattern matching first (for performance)
 		nSimpleCoeff = This.trySimpleExtraction(cExpression, cVarName)
 		if nSimpleCoeff != NULL
-			return nSimpleCoeff
+			nResult = nSimpleCoeff
 		ok
 		
 		# Fall back to numerical differentiation
-		return This.numericalDerivative(cExpression, cVarName)
-	
+		nResult = This.numericalDerivative(cExpression, cVarName)
+		return nResult
 	
 		def ExtractCoefficient(cExpression, cVarName)
 			return This.Extract(cExpression, cVarName)
@@ -161,10 +206,10 @@ class stzCoeffExtractor from stzObject
 	    next
 	    
 	    # Use StzStringQ for safe replacement
-	    cEvalExpr = "nResult = (" +
-			StzStringQ(cExpression).ManyReplaced(acSubStr, acNewSubStr) + " )"
+		cEvalExpr = "nResult = " +
+    	StzStringQ(cExpression).ManyReplaced(acSubStr, acNewSubStr)
 
-	    eval(cEvalExpr)
+		eval(cEvalExpr)
 	    return nResult
 
 	
