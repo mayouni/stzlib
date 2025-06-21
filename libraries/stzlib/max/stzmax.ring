@@ -6,7 +6,7 @@
 # Loading files related to the COMMON module
 
 	#TODO
-load "appserver/stzExterServer.ring"
+	load "appserver/stzExterServer.ring"
 
 # Files related to MAX/NATURAL module
 
@@ -14,8 +14,11 @@ load "appserver/stzExterServer.ring"
 	load "natural/stzChainOfTruth.ring"
 	load "natural/stzEntity.ring"
 	load "natural/stzListOfEntities.ring"
+
 	load "natural/stzText.ring"
 	load "natural/stzAdverb.ring"
+	load "natural/stzPlural.ring"
+
 	load "natural/stzConstraints.ring"
 	load "natural/stzCCode.ring"
 	load "natural/stzNatural.ring"
