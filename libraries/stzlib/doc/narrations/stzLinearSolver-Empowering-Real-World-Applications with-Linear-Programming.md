@@ -38,8 +38,8 @@ oSolver {
 
     # Resource constraints
     AddConstraint("15*pizza + 5*salad", "<=", 2000) # Prep time
-    AddConstraint("3*pizza + 1*salad", "<=", 400)    # Chef capacity
-    AddConstraint("pizza", "<=", 250)                # Oven limit
+    AddConstraint("3*pizza + 1*salad", "<=", 400)   # Chef capacity
+    AddConstraint("pizza", "<=", 250)               # Oven limit
 
     # Objective: Maximize profit
     Maximize("12*pizza + 6*salad")
