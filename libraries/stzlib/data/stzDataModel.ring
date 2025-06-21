@@ -28,6 +28,34 @@ class stzDataModel from stzObject
         @performance_hints = []
         @validation_errors = []
 
+	# Getting the content of the class data containers
+
+	def SchemaName()
+		return @schema_name
+
+	def SchemaVersion()
+		return @schema_version
+
+	def Tables()
+		return @tables
+
+	def Relationships()
+		return @relationships
+
+	def Constraints()
+		return @constraints
+
+	def PerformanceHints()
+		return @performance_hints
+
+		def Perfhints()
+			return @performance_hints
+
+	def ValidationErrors()
+			return @validation_errors
+
+	# Designing the data model
+
     def DefineTable(cTableName, aFields)
         if not isString(cTableName) or cTableName = ""
             raise("Table name must be a non-empty string")
