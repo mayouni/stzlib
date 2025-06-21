@@ -261,6 +261,8 @@ t0 = clock()
 
 	load "data/stzRegexData.ring"
 
+	load "data/stzDataModel.ring"
+
 # Loading files related to the IO module
 
 	load "io/stzFile.ring"
