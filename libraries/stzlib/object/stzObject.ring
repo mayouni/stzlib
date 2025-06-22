@@ -1,12 +1,12 @@
-#---------------------------------------------------------------------------#
-# 			SOFTANZA LIBRARY (V1.0)                             #
-#---------------------------------------------------------------------------#
-#									    #
-# 	Description	: The class for managing softanza objects           #
-#	Version		: V1.1.0.6 (2019, 2024)			            #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
-#									    #
-#===========================================================================#
+#---------------------------------------------------------------#
+# 			     SOFTANZA LIBRARY (V0.9)                        #
+#---------------------------------------------------------------#
+#                                                               #
+# 	Description	: The class for managing softanza objects       #
+#	Version		: V1.1.0.6 (2019, 2024)                         #
+#	Author		: Mansour Ayouni (kalidianow@gmail.com)         #
+#                                                               #
+#===============================================================#
 
 /*
 	Mainly, this class servers as a parent for the common features
@@ -5676,3 +5676,9 @@ class stzObject
 
 		def AddExecutionTime()
 			This.AddTimeValue()
+
+	def ExistsIn(paList)
+		return StzListQ(paList).Contains(This.Content())
+
+		def Inn(paList)
+			return This.ExistsIn(paList)

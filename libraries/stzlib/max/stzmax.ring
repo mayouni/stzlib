@@ -18,6 +18,8 @@
 	load "natural/stzText.ring"
 	load "natural/stzAdverb.ring"
 	load "natural/stzPlural.ring"
+	load "natural/stzSingular.ring"
+
 
 	load "natural/stzConstraints.ring"
 	load "natural/stzCCode.ring"

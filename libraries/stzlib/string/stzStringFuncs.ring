@@ -1668,11 +1668,21 @@ func IsHtmlTableString(pcStr)
 
 	return StzStringQ(pcStr).IsHtmlTable()
 
+
 func Boxify(str)
-	return StzStringQ(str).Boxified()
+	oTempStr = new stzString(str)
+	oTempStr.Boxify()
+	return otempStr.Content()
+
+	func Box(str)
+		return Boxify(str)
 
 	func @Boxify(str)
-		return StzStringQ(str).Boxified()
+		return Boxify(str)
+
+	func @Box(str)
+		return Boxify(str)
+
 
 func BoxifyRound(str)
 	oTempStr = new stzString(str)
@@ -1748,3 +1758,10 @@ func @substr(str, p1, p2) #TODO // Move to stzExtCode
 	else
 		return substr(str, p1, p2)
 	ok
+
+func stzleft(str, n)
+		return StringSection(str, 1, n)
+
+func stzRight(str, n)
+		nLen = stzlen(str)
+		return StringSection(str, nLen-n+1, nLen)

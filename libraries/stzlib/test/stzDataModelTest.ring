@@ -1,4 +1,3 @@
-
 # stzDataModel Test Suite - Educational Samples
 # Demonstrating practical usage patterns and design workflows
 
@@ -8,297 +7,455 @@ load "../max/stzmax.ring"
 # BASIC SCHEMA DEFINITION #
 #=========================#
 
-/*--- Starting simple: defining tables with intelligent conventions
-
-pr()
+/*---
 
 # Problem: You need to quickly model a basic e-commerce system without boilerplate
 # Solution: Use stzDataModel's convention-over-configuration approach
+
+pr()
 
 o1 = new stzDataModel("ecommerce_basic")
 o1 {
     # Define customers table with smart field types
     DefineTable("customers", [
-        ["id", :primary_key],
-        ["name", :required],
-        ["email", :email],
-        ["created_at", :timestamp]
+        [ "id", :primary_key ],
+        [ "name", :required ],
+        [ "email", :email ],
+        [ "created_at", :timestamp ]
     ])
     
     # Define orders table - foreign keys auto-inferred
     DefineTable("orders", [
-        ["id", :primary_key],
-        ["customer_id", :foreign_key],  # Automatically links to customers.id
-        ["total", :decimal],
-        ["status", "varchar(50)"],
-        ["created_at", :timestamp]
+        [ "id", :primary_key ],
+        [ "customer_id", :foreign_key ],  # Automatically links to customers.id
+        [ "total", :decimal ],
+        [ "status", "varchar(50)" ],
+        [ "created_at", :timestamp]
     ])
     
-    ? "Schema created with automatic relationship inference:"
-    ? @@( RelationshipSummary() ) + NL
-    #--> [
-    #      [:from = "orders", :to = "customers", :type = "belongs_to", :inferred = true],
-    #      [:from = "customers", :to = "orders", :type = "has_many", :inferred = true]
-    #    ]
+    # Schema created with automatic relationship inference
+    ? @@NL( Relationships() )
+
 }
+#-->
+'
+[
+	[
+		[ "from", "orders" ],
+		[ "to", "customers" ],
+		[ "type", "belongs_to" ],
+		[ "inferred", 1 ],
+		[ "field", "customer_id" ],
+		[
+			"semantic_meaning",
+			"Each order belongs to one customer"
+		]
+	],
+	[
+		[ "from", "customers" ],
+		[ "to", "orders" ],
+		[ "type", "has_many" ],
+		[ "inferred", 1 ],
+		[ "field", "customer_id" ],
+		[
+			"semantic_meaning",
+			"Each customer can have many orders"
+		]
+	]
+]
 
-
-# Validating your schema before proceeding
-
-
-# Problem: You want to catch schema errors early, before runtime
-# Solution: Use comprehensive validation with clear error messages
-
-o1 {
-    # Validate the complete model
-    validation_result = Validate()
-    
-    if validation_result[:valid]
-        ? "✓ Model validation successful!"
-        ? "Tables defined: " + len(@tables)
-        ? "Relationships inferred: " + len(@relationships)
-    else
-        ? "✗ Validation errors:"
-        for error in validation_result[:errors]
-            ? "  - " + error
-        next
-    ok
-    #--> ✓ Model validation successful!
-    #    Tables defined: 2
-    #    Relationships inferred: 2
-}
+'
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.36 second(s) in Ring 1.22
 
 #==================================#
 #  EXPLICIT RELATIONSHIP MODELING  #
 #==================================#
 
-/*--- When conventions aren't enough: explicit relationship declaration
-
-pr()
+/*---
 
 # Problem: Complex relationships that can't be inferred from naming
 # Solution: Use explicit Link() method for precise control
+
+pr()
 
 o1 = new stzDataModel("inventory_system")
 o1 {
     # Define product categories (self-referencing hierarchy)
     DefineTable("categories", [
-        ["id", :primary_key],
-        ["name", :required],
-        ["parent_id", :foreign_key],
-        ["slug", :unique]
+        [ "id", :primary_key ],
+        [ "name", :required ],
+        [ "parent_id", :foreign_key ], 	# Inferred a "parents" table that does not exist!
+										# What's the impact on the model consistency:
+										# should we go forward and define the table or
+										# be conservative and generate a warning?
+										# Or may be we can be flexible and allow both
+										# options through a smart default and explicit config?
+
+										#ANSWER
+										# When category_id is found:
+										# 1. Extract "category" from "category_id" 
+										# 2. Pluralize to "categories"
+										# 3. Create belongs_to: products → categories
+										# 4. Create has_many: categories → products
+
+# SetForeignKeyInferenceMode("strict") - Fail if target table doesn't exist
+# SetForeignKeyInferenceMode("smart") - Warn but continue (default)
+# SetForeignKeyInferenceMode("permissive") - Auto-create placeholder tables
+
+        [ "slug", :unique ]
     ])
     
     # Define products
     DefineTable("products", [
-        ["id", :primary_key],
-        ["name", :required],
-        ["category_id", :foreign_key],
-        ["price", :decimal],
-        ["active", :boolean]
+        [ "id", :primary_key ],
+        [ "name", :required ],
+        [ "category_id", :foreign_key ], # Inferred a link to "categories"
+										 # I need to undersdans how the fellowing
+										 # link has been inferred:
+										 # :from products :to categories :belongs_to
+										 # ~> I mean how this semantic relationship has
+										 # been programmatically inferred?
+        [ "price", :decimal ],
+        [ "active", :boolean]
     ])
     
     # Define tags for flexible categorization
     DefineTable("tags", [
-        ["id", :primary_key],
-        ["name", :unique]
+        [ "id", :primary_key ],
+        [ "name", :unique]
     ])
     
     # Explicit many-to-many relationship
-    Link("products", "tags", "many_to_many", [:through = "product_tags"])
+    Link("products", "tags", "many_to_many", [ :via = "product_tags" ])
     
     # Self-referencing hierarchy
-    Hierarchy("categories", [:parent_field = "parent_id"])
-    
-    ? "Explicit relationships defined:"
+    Hierarchy("categories", [ :parent_field = "parent_id"] )
 
- 	relationship_summary = GetRelationshipSummary()
+	# Further explaining this hierarchy modeling concept:
+    # Hierarchy Modeling: Self-referencing relationships where records in
+	# the same table can be parents/children of each other, forming tree
+	# structures like organizational charts or category hierarchies.
 
-	for rel in relationship_summary
-		if rel[:inferred] = 0
-			? "  " + rel[:from] + " → " + rel[:to] + " (" + rel[:type] + ")"
-		ok
-	next
+    # Explicit relationships defined
+    ? @@NL( Relationships() )
 
-    #-->
-	# products → tags (many_to_many)
-  	# categories → categories (hierarchy)
 }
+#-->
+'
+[
+	[
+		[ "from", "products" ],
+		[ "to", "categories" ],
+		[ "type", "belongs_to" ],
+		[ "inferred", 1 ],
+		[ "field", "category_id" ],
+		[
+			"semantic_meaning",
+			"Each product belongs to one category"
+		]
+	],
+	[
+		[ "from", "categories" ],
+		[ "to", "products" ],
+		[ "type", "has_many" ],
+		[ "inferred", 1 ],
+		[ "field", "category_id" ],
+		[
+			"semantic_meaning",
+			"Each category can have many products"
+		]
+	],
+	[
+		[ "from", "products" ],
+		[ "to", "tags" ],
+		[ "type", "many_to_many" ],
+		[ "inferred", 0 ],
+		[
+			"options",
+			[
+				[ "via", "product_tags" ]
+			]
+		]
+	],
+	[
+		[ "from", "categories" ],
+		[ "to", "categories" ],
+		[ "type", "hierarchy" ],
+		[ "inferred", 0 ],
+		[
+			"options",
+			[
+				[ "parent_field", "parent_id" ]
+			]
+		],
+		[
+			"semantic_meaning",
+			"Each category can have a parent and multiple children, forming a tree structure"
+		]
+	]
+]
+'
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 0.15 second(s) in Ring 1.22
 
-/*--- Handling complex domain models with multiple relationship types
-
-pr()
+/*---
 
 # Problem: Social network with users, posts, follows, and likes
 # Solution: Combine different relationship types for comprehensive modeling
+
+pr()
 
 o1 = new stzDataModel("social_network")
 o1 {
     # Core entities
     DefineTable("users", [
-        ["id", :primary_key],
-        ["username", :unique],
-        ["email", :email],
-        ["profile_image", :url]
+        [ "id", :primary_key ],
+        [ "username", :unique ],
+        [ "email", :email ],
+        [ "profile_image", :url ]
     ])
-    
+
     DefineTable("posts", [
-        ["id", :primary_key],
-        ["user_id", :foreign_key],
-        ["content", :text],
-        ["created_at", :timestamp]
+        [ "id", :primary_key ],
+        [ "user_id", :foreign_key ],
+        [ "content", :text ],
+        [ "created_at", :timestamp ]
     ])
 
     DefineTable("likes", [
-        ["id", :primary_key],
-        ["user_id", :foreign_key],
-        ["post_id", :foreign_key],
-        ["created_at", :timestamp]
+        [ "id", :primary_key ],
+        [ "user_id", :foreign_key ],
+        [ "post_id", :foreign_key ],
+        [ "created_at", :timestamp ]
     ])
     
     # Network relationship for following
-    Network("users", "follows", [:bidirectional = false])
+    Network("users", "follows", [ :bidirectional = false ]) # Explain this modling concept
     
-    # Many-to-many through likes table
-    Link("users", "posts", "many_to_many", [:through = "likes", :as = "liked_posts"])
+    # Many-to-many via likes table
+    Link("users", "posts", "many_to_many", [:via = "likes", :as = "liked_posts"]) # Further explain the syntax
     
-    ? "Social network model relationships:"
-    relationship_summary = GetRelationshipSummary()
-    for rel in relationship_summary
-        ? "  " + rel[:from] + " → " + rel[:to] + " (" + rel[:type] + ")"
-    next
-    #-->
-	# posts → users (belongs_to)
-	# users → posts (has_many)
-	# likes → users (belongs_to)
-	# users → likes (has_many)
-	# likes → posts (belongs_to)
-	# posts → likes (has_many)
-	# users → users (network)
-	# users → posts (many_to_many)
-
+    # Social network model relationships
+    ? @@NL( Relationships() )
 }
+#-->
+'
+[
+	[
+		[ "from", "posts" ],
+		[ "to", "users" ],
+		[ "type", "belongs_to" ],
+		[ "inferred", 1 ],
+		[ "field", "user_id" ],
+		[
+			"semantic_meaning",
+			"Each post belongs to one user"
+		]
+	],
+	[
+		[ "from", "users" ],
+		[ "to", "posts" ],
+		[ "type", "has_many" ],
+		[ "inferred", 1 ],
+		[ "field", "user_id" ],
+		[
+			"semantic_meaning",
+			"Each user can have many posts"
+		]
+	],
+	[
+		[ "from", "likes" ],
+		[ "to", "users" ],
+		[ "type", "belongs_to" ],
+		[ "inferred", 1 ],
+		[ "field", "user_id" ],
+		[
+			"semantic_meaning",
+			"Each like belongs to one user"
+		]
+	],
+	[
+		[ "from", "users" ],
+		[ "to", "likes" ],
+		[ "type", "has_many" ],
+		[ "inferred", 1 ],
+		[ "field", "user_id" ],
+		[
+			"semantic_meaning",
+			"Each user can have many likes"
+		]
+	],
+	[
+		[ "from", "likes" ],
+		[ "to", "posts" ],
+		[ "type", "belongs_to" ],
+		[ "inferred", 1 ],
+		[ "field", "post_id" ],
+		[
+			"semantic_meaning",
+			"Each like belongs to one post"
+		]
+	],
+	[
+		[ "from", "posts" ],
+		[ "to", "likes" ],
+		[ "type", "has_many" ],
+		[ "inferred", 1 ],
+		[ "field", "post_id" ],
+		[
+			"semantic_meaning",
+			"Each post can have many likes"
+		]
+	],
+	[
+		[ "from", "users" ],
+		[ "to", "users" ],
+		[ "type", "network" ],
+		[ "name", "follows" ],
+		[ "inferred", 0 ],
+		[
+			"options",
+			[
+				[ "bidirectional", 0 ]
+			]
+		]
+	],
+	[
+		[ "from", "users" ],
+		[ "to", "posts" ],
+		[ "type", "many_to_many" ],
+		[ "inferred", 0 ],
+		[
+			"options",
+			[
+				[ "via", "likes" ],
+				[ "as", "liked_posts" ]
+			]
+		]
+	]
+]
+'
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 1.08 second(s) in Ring 1.22
 
 #================================#
 #  SCHEMA EVOLUTION & MIGRATION  #
 #================================#
 
-
-/*--- Safe schema changes with impact analysis
+/*--- Security: Prevent breaking changes via validation
 
 pr()
 
-# Problem: You need to add a field to existing schema without breaking things
-# Solution: Use impact analysis before making changes
-
 o1 = new stzDataModel("inventory_system")
 o1 {
-    # Define product categories (self-referencing hierarchy)
     DefineTable("categories", [
-        ["id", :primary_key],
-        ["name", :required],
-        ["parent_id", :foreign_key],
-        ["slug", :unique]
+        [ "id", :primary_key ],
+        [ "name", :required ],
+        [ "parent_id", :foreign_key ],
+        [ "ref", :unique ]
     ])
-    
-    # Define products
-    DefineTable("products", [
-        ["id", :primary_key],
-        ["name", :required],
-        ["category_id", :foreign_key],
-        ["price", :decimal],
-        ["active", :boolean]
-    ])
-    
-    # Define tags for flexible categorization
-    DefineTable("tags", [
-        ["id", :primary_key],
-        ["name", :unique]
-    ])
-    
-    # Explicit many-to-many relationship
-    Link("products", "tags", "many_to_many", [:through = "product_tags"])
-    
-    # Self-referencing hierarchy
-    Hierarchy("categories", [:parent_field = "parent_id"])
-}
 
-o1 {
+    DefineTable("products", [
+        [ "id", :primary_key ],
+        [ "name", :required ],
+        [ "category_id", :foreign_key ],
+        [ "price", :decimal ],
+        [ "active", :boolean ]
+    ])
+
+    DefineTable("tags", [
+        [ "id", :primary_key ],
+        [ "name", :unique ]
+    ])
+    
+    Link("products", "tags", "many_to_many", [ :via = "product_tags" ])
+    Hierarchy("categories", [ :parent_field = "parent_id" ])
+    
     # Analyze impact of adding a new field
     impact = AddField("products", "description", :text, [:nullable = true])
-    
     ? "Impact analysis for adding 'description' field:"
-    ? "─ Breaking changes: " + impact[:breaking_changes]
-    ? "─ Performance impact: " + impact[:performance_impact]
-    ? "─ Migration complexity: " + impact[:migration_complexity]
-    #--> Breaking changes: 0
-    #    Performance impact: minimal
-    #    Migration complexity: simple
+    ? @@NL( impact ) + NL
     
-	? ""
     # Try to remove a critical field (this should warn us)
     try
-        impact2 = RemoveField("products", "category_id")
+        impact = RemoveField("products", "category_id")
         ? "Field removal impact:"
-        ? "  Breaking changes: " + impact2[:breaking_changes]
-
+        ? @@NL( impact )
     catch
-        ? "✓ System prevented breaking change:"
-        ? "  Cannot remove field 'category_id' - it would break relationships"
+        ? "Breaking change prevented: Cannot remove field 'category_id' - breaks relationships"
     done
-    #--> ✓ System prevented breaking change:
-    #      Cannot remove field 'category_id' - it would break relationships
 }
+#--> ERROR: Unexpected result
+'
+Impact analysis for adding 'description' field:
+[
+	[ "breaking_changes", 0 ],
+	[ "performance_impact", "low" ],
+	[ "migration_complexity", "simple" ],
+	[
+		"affected_relationships",
+		[ ]
+	],
+	[
+		"recommendations",
+		[
+			"Large text fields may impact query performance"
+		]
+	]
+]
+
+Breaking change prevented: Cannot remove field 'category_id' - breaks relationships
+'
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.43 second(s) in Ring 1.22
 
 /*--- Version control for schema evolution
 
 pr()
 
-# Problem: Track schema changes over time for team collaboration
-# Solution: Version-aware model definition with change tracking
-
-o1 = new stzDataModel(["blog_platform", "2.1"])
+o1 = new stzDataModel([ "blog_platform", "2.1"])
 o1 {
-    # Define initial schema
     DefineTable("authors", [
-        ["id", :primary_key],
-        ["name", :required],
-        ["email", :email],
-        ["bio", :text]
+        [ "id", :primary_key ],
+        [ "name", :required ],
+        [ "email", :email ],
+        [ "bio", :text ]
     ])
     
     DefineTable("articles", [
-        ["id", :primary_key],
-        ["author_id", :foreign_key],
-        ["title", :required],
-        ["content", :text],
-        ["published_at", :timestamp],
-        ["view_count", "integer"]  # Added in v2.1
+        [ "id", :primary_key ],
+        [ "author_id", :foreign_key ],
+        [ "title", :required ],
+        [ "content", :text ],
+        [ "published_at", :timestamp ],
+        [ "view_count", "integer" ]  # Added in v2.1
     ])
     
-    ? "Schema version: " + @schema_version
-    ? "Model evolution tracking enabled"
-    #--> Schema version: 2.1
-    #    Model evolution tracking enabled
+    ? "Schema: " + SchemaName() + " v" + SchemaVersion()
+    ? @@NL( Explain() )
 }
+#--> Other then adding the version, the sample does not show how versioning
+# of the data model is used (and useful) in practice:
+'
+Schema: blog_platform v2.1
+"Data Model: blog_platform (v2.1)
 
-#NOTE It's not clear for in the example me how versioning is made
-# and how it is useful in practice
+This model contains 2 tables:
+- authors: 4 fields, 2 relationships
+- articles: 6 fields, 2 relationships
+
+Key relationships:
+- articles belongs_to authors
+- authors has_many articles
+'
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.68 second(s) in Ring 1.22
 
 #============================#
 #  PERFORMANCE OPTIMIZATION  #
@@ -308,189 +465,148 @@ pf()
 
 pr()
 
-# Problem: Your queries are slow and you need optimization guidance
-# Solution: Use built-in performance analysis
-
-o1 = new stzDataModel(["blog_platform", "2.1"])
+o1 = new stzDataModel("blog_platform")
 o1 {
-    # Define initial schema
     DefineTable("authors", [
-        ["id", :primary_key],
-        ["name", :required],
-        ["email", :email],
-        ["bio", :text]
+        [ "id", :primary_key ],
+        [ "name", :required ],
+        [ "email", :email ],
+        [ "bio", :text]
     ])
     
     DefineTable("articles", [
-        ["id", :primary_key],
-        ["author_id", :foreign_key],
-        ["title", :required],
-        ["content", :text],
-        ["published_at", :timestamp],
-        ["view_count", "integer"]  # Added in v2.1
+        [ "id", :primary_key ],
+        [ "author_id", :foreign_key ],
+        [ "title", :required ],
+        [ "content", :text ],
+        [ "published_at", :timestamp ],
+        [ "view_count", "integer"]
     ])
     
-
     # Analyze current model for performance issues
     performance_hints = AnalyzePerformance()
+    ? BoxRound("Performance optimization hints")
+    ? @@NL( performance_hints ) + NL
     
-    ? "Performance optimization hints:"
-    for hint in performance_hints
-        ? "  ⚠ " + hint
-    next
-    #--> ⚠ Consider adding index on posts.user_id
-    #    ⚠ Consider adding index on likes.user_id  
-    #    ⚠ Consider adding index on likes.post_id
-    #    ⚠ Consider eager loading for users has_many posts to avoid N+1 queries
-    
-    # Show table-specific recommendations
-    tables_summary = GetTableSummary()
-    for table_info in tables_summary
-        if len(table_info[:relationships]) > 2
-            ? "  💡 Table '" + table_info[:name] + "' has " + len(table_info[:relationships]) + " relationships - consider indexing strategy"
-        ok
-    next
-    #--> 💡 Table 'users' has 4 relationships - consider indexing strategy
+    # Show table-specific analysis
+    table_analysis = GetTableAnalysis() # This method does not exist!
+    ? BoxRound("Table analysis")
+    ? @@NL( table_analysis )
 }
-
-#ERROR returned
-# Performance optimization hints:
-#  ⚠ Consider eager loading for 
-#  ⚠ authors
-#  ⚠  
-#  ⚠ has_many
-#  ⚠  
-#  ⚠ articles
-#  ⚠  to avoid N+1 queries
+'
+╭────────────────────────────────╮
+│ Performance optimization hints │
+╰────────────────────────────────╯
+[
+	[
+		[ "type", "query_optimization" ],
+		[ "priority", "high" ],
+		[
+			"message",
+			"Potential N+1 query problem detected"
+		],
+		[ "table", "authors" ],
+		[ "related_table", "articles" ],
+		[ "relationship", "has_many" ],
+		[
+			"reason",
+			"Loading authors records may trigger multiple queries for articles"
+		],
+		[
+			"action",
+			"Use eager loading or joins when querying authors with articles"
+		]
+	]
+]
+'
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
 
 #=============================#
 #  DEBUGGING & VISUALIZATION  #
 #=============================#
 
-/*--- Understanding your model structure visually
+/*--- Understanding your model structure
 
 pr()
 
-# Problem: Complex model is hard to understand and debug
-# Solution: Use visualization and explanation tools
-
-o1 = new stzDataModel(["blog_platform", "2.1"])
+o1 = new stzDataModel("blog_platform")
 o1 {
-    # Define initial schema
     DefineTable("authors", [
-        ["id", :primary_key],
-        ["name", :required],
-        ["email", :email],
-        ["bio", :text]
+        [ "id", :primary_key ],
+        [ "name", :required ],
+        [ "email", :email ],
+        [ "bio", :text]
     ])
     
     DefineTable("articles", [
-        ["id", :primary_key],
-        ["author_id", :foreign_key],
-        ["title", :required],
-        ["content", :text],
-        ["published_at", :timestamp],
-        ["view_count", "integer"]  # Added in v2.1
+        [ "id", :primary_key ],
+        [ "author_id", :foreign_key ],
+        [ "title", :required ],
+        [ "content", :text ],
+        [ "published_at", :timestamp ],
+        [ "view_count", "integer"]
     ])
     
     # Get comprehensive model explanation
-    explanation = Explain()
-    
-    ? BoxRound("MODEL STRUCTURE ANALYSIS")
-	? @@NL(explanation)
+    ? Explain()
 
 }
-#-->
 '
-[
-	[
-		"tables",
-		[
-			[
-				[ "name", "authors" ],
-				[ "fields", 4 ],
-				[ "relationships", 2 ]
-			],
-			[
-				[ "name", "articles" ],
-				[ "fields", 6 ],
-				[ "relationships", 2 ]
-			]
-		]
-	],
-	[
-		"relationships",
-		[
-			[
-				[ "from", "articles" ],
-				[ "to", "authors" ],
-				[ "type", "belongs_to" ],
-				[ "inferred", 1 ],
-				[ "field", "author_id" ]
-			],
-			[
-				[ "from", "authors" ],
-				[ "to", "articles" ],
-				[ "type", "has_many" ],
-				[ "inferred", 1 ],
-				[ "field", "author_id" ]
-			]
-		]
-	],
-	[
-		"performance_hints",
-		[
-			"Consider eager loading for ",
-			"authors",
-			" ",
-			"has_many",
-			" ",
-			"articles",
-			" to avoid N+1 queries"
-		]
-	]
-]
-'
-#ERROR: performance hints carries no conrete info
+Data Model: blog_platform (v1.0)
 
+This model contains 2 tables:
+- authors: 4 fields, 2 relationships
+- articles: 6 fields, 2 relationships
+
+Key relationships:
+- articles belongs_to authors
+- authors has_many articles
+'
 pf()
-# Executed in 0.06 second(s) in Ring 1.22
+# Executed in 0.35 second(s) in Ring 1.22
 
-/*--- Visual relationship diagram generation
+/*---
 
 pr()
 
-# Problem: Need to share model structure with non-technical stakeholders
-# Solution: Generate visual ER diagram
+? stzlen("softanza")
+#--> 8
 
-o1 = new stzDataModel(["blog_platform", "2.1"])
+? stzleft("softanza", 4)
+#--> soft
+
+? stzright("softanza", 4)
+#--> anza
+
+pf()
+
+/*--- Diagram generation
+
+pr()
+
+o1 = new stzDataModel("blog_platform")
 o1 {
-    # Define initial schema
     DefineTable("authors", [
-        ["id", :primary_key],
-        ["name", :required],
-        ["email", :email],
-        ["bio", :text]
+        [ "id", :primary_key ],
+        [ "name", :required ],
+        [ "email", :email ],
+        [ "bio", :text]
     ])
     
     DefineTable("articles", [
-        ["id", :primary_key],
-        ["author_id", :foreign_key],
-        ["title", :required],
-        ["content", :text],
-        ["published_at", :timestamp],
-        ["view_count", "integer"]  # Added in v2.1
+        [ "id", :primary_key ],
+        [ "author_id", :foreign_key ],
+        [ "title", :required ],
+        [ "content", :text ],
+        [ "published_at", :timestamp ],
+        [ "view_count", "integer"]
     ])
-    
 
-    # Generate entity-relationship diagram
-    erd_info = Visualize()
-  	? @@NL(erd_info)
-}
-#--> is this a well formed standard ERD that we can use in any tool?
+    # Generate entity-relationship diagram data
+    erd_data = DiagramData()
+	? @@NL( erd_data )
+	#-->
 '
 [
 	[
@@ -498,11 +614,13 @@ o1 {
 		[
 			[
 				[ "name", "authors" ],
-				[ "field_count", 4 ]
+				[ "field_count", 4 ],
+				[ "type", "table" ]
 			],
 			[
 				[ "name", "articles" ],
-				[ "field_count", 6 ]
+				[ "field_count", 6 ],
+				[ "type", "table" ]
 			]
 		]
 	],
@@ -512,26 +630,28 @@ o1 {
 			[
 				[ "from", "articles" ],
 				[ "to", "authors" ],
-				[ "type", "belongs_to" ]
+				[ "type", "belongs_to" ],
+				[ "inferred", 1 ]
 			],
 			[
 				[ "from", "authors" ],
 				[ "to", "articles" ],
-				[ "type", "has_many" ]
+				[ "type", "has_many" ],
+				[ "inferred", 1 ]
 			]
 		]
 	],
-	[ "complexity", "simple" ]
+	[ "complexity", "simple" ],
+	[
+		"self_referencing",
+		[ ]
+	]
 ]
 '
+}
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.22
-
-#TODO add a stzDataDiagram class that accepts an ERD data and generates
-# an ascii-art-based string with the actual diagram. Keep it simple
-# and adapted to veiwing it in the console like the other stzChart...,
-# stzTable, stzGrid, and similar Softanza Show() features.
+# Executed in 0.38 second(s) in Ring 1.22
 
 #=============================#
 #  ADVANCED PATTERN MATCHING  #
@@ -541,76 +661,85 @@ pf()
 
 pr()
 
-# Problem: Need to access tables dynamically based on user input
-# Solution: Use method_missing for natural table access
-
-#ERORO this sample makes no sense for me: what it does exactly?
-# I don't see how it is related to the problem/solution stated!
-# And it uses inecistajt methods and wrong syntax "this."
-# Add an o1 = new stzDataModle() with the necessary tables
-
+o1 = new stzDataModel("ecommerce_basic")
 o1 {
-    # Access tables naturally (this uses method_missing internally)
-    try {
-        customers_table = This.customers  # Same as This.Table("customers")
-        ? "✓ Dynamic table access works:"
-        ? "  Table name: " + customers_table.table.name()
-        ? "  Field count: " + customers_table.table.field_count()
-        #--> ✓ Dynamic table access works:
-        #      Table name: customers
-        #      Field count: 4
-        
-        # Try accessing non-existent table
-        invalid_table = This.nonexistent
-    }
-    catch {
-        ? "✓ Error prevention works:"
-        ? "  Invalid table access caught and prevented"
-        #--> ✓ Error prevention works:
-        #      Invalid table access caught and prevented
-    }
+    DefineTable("customers", [
+        [ "id", :primary_key ],
+        [ "name", :required ],
+        [ "email", :email ],
+        [ "created_at", :timestamp]
+    ])
+    
+    DefineTable("orders", [
+        [ "id", :primary_key ],
+        [ "customer_id", :foreign_key ],
+        [ "total", :decimal ],
+        [ "status", "varchar(50)" ],
+        [ "created_at", :timestamp]
+    ])
+    
+    # Access tables dynamically
+
+    customers_table = GetTable("customers")
+
+    # Dynamic table access
+
+    ? @@([ :name = customers_table.Name(), :fields = customers_table.FieldCount() ])
+    #--> [ [ "name", "customers" ], [ "fields", 4 ] ]
+
+    # Try accessing non-existent table
+
+    try
+        invalid_table = GetTable("nonexistent")
+		? invalid_table.Name()
+
+    catch
+        ? "Invalid table access prevented"
+    done
+	#--> Invalid table access prevented
+
 }
 
 pf()
-# Execution time: ~8ms (dynamic access with safety checks)
+# Executed in 0.37 second(s) in Ring 1.22
 
 /*--- Field-level validation and constraints
 
 pr()
 
-# Problem: Need custom validation rules beyond basic types
-# Solution: Add field-level constraints and validation
-
 o1 = new stzDataModel("user_management")
 o1 {
     DefineTable("users", [
-        ["id", :primary_key],
-        ["username", :required],
-        ["email", :email],
-        ["age", "integer"],
-        ["status", "varchar(20)"]
+        [ "id", :primary_key ],
+        [ "username", :required ],
+        [ "email", :email ],
+        [ "age", "integer" ],
+        [ "status", "varchar(20)"]
     ])
     
     # Add custom constraints
-    users_table = GetTable("users")
+    AddConstraint("users", "age", "CHECK (age >= 18 AND age <= 120)")
+    AddConstraint("users", "status", "CHECK (status IN ('active', 'inactive', 'suspended'))")
     
     # Validate the enhanced model
     validation = Validate()
-    ? @@NL(validation)
- 
+    ? "Validation result:"
+    ? @@NL( validation )
 }
 #-->
 '
+Validation result:
 [
 	[ "valid", 1 ],
 	[
 		"errors",
 		[ ]
-	]
+	],
+	[ "error_count", 0 ],
+	[ "tables_validated", 1 ],
+	[ "relationships_validated", 0 ]
 ]
 '
-
-#TODO: Is this correct? how to interpret it?
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
@@ -623,284 +752,342 @@ pf()
 
 pr()
 
-# Problem: Model a complete e-commerce system with complex relationships
-# Solution: Combine all stzDataModel features for comprehensive solution
-
-o1 = new stzDataModel(["ecommerce_complete", "3.0"])
+o1 = new stzDataModel([ "ecommerce_complete", "3.0"])
 o1 {
     # Customer management with hierarchy
     DefineTable("customers", [
-        ["id", :primary_key],
-        ["parent_id", :foreign_key],      # For B2B hierarchies
-        ["name", :required],
-        ["email", :email],
-        ["type", "varchar(20)"]           # individual, business
+        [ "id", :primary_key ],
+        [ "parent_id", :foreign_key ],      # For B2B hierarchies
+        [ "name", :required ],
+        [ "email", :email ],
+        [ "type", "varchar(20)"]           	# individual, business
     ])
     
     # Product catalog with categories
     DefineTable("categories", [
-        ["id", :primary_key],
-        ["parent_id", :foreign_key],
-        ["name", :required],
-        ["path", "varchar(500)"]
+        [ "id", :primary_key ],
+        [ "parent_id", :foreign_key ],
+        [ "name", :required ],
+        [ "path", "varchar(500)"]
     ])
     
     DefineTable("products", [
-        ["id", :primary_key],
-        ["category_id", :foreign_key],
-        ["name", :required],
-        ["price", :decimal],
-        ["inventory_count", "integer"]
+        [ "id", :primary_key ],
+        [ "category_id", :foreign_key ],
+        [ "name", :required ],
+        [ "price", :decimal ],
+        [ "inventory_count", "integer"]
     ])
     
     # Order processing
     DefineTable("orders", [
-        ["id", :primary_key],
-        ["customer_id", :foreign_key],
-        ["status", "varchar(50)"],
-        ["total", :decimal],
-        ["created_at", :timestamp]
+        [ "id", :primary_key ],
+        [ "customer_id", :foreign_key ],
+        [ "status", "varchar(50)" ],
+        [ "total", :decimal ],
+        [ "created_at", :timestamp]
     ])
     
     DefineTable("order_items", [
-        ["id", :primary_key],
-        ["order_id", :foreign_key],
-        ["product_id", :foreign_key],
-        ["quantity", "integer"],
-        ["unit_price", :decimal]
+        [ "id", :primary_key ],
+        [ "order_id", :foreign_key ],
+        [ "product_id", :foreign_key ],
+        [ "quantity", "integer" ],
+        [ "unit_price", :decimal]
     ])
     
     # Define explicit relationships
     Hierarchy("customers", [:parent_field = "parent_id"])     # B2B customer hierarchies
     Hierarchy("categories", [:parent_field = "parent_id"])    # Product categories
-    Link("orders", "products", "many_to_many", [:through = "order_items"])
+    Link("orders", "products", "many_to_many", [:via = "order_items"])
     
     # Comprehensive analysis
-    ? BoxRound("COMPLETE E-COMMERCE MODEL")
     explanation = Explain()
- //   ? @@NL(explanation)
-
-    ? "📊 Model Statistics:"
-    ? "  Tables: " + len(explanation[:tables])
-    ? "  Relationships: " + len(explanation[:relationships])
-    ? "  Performance hints: " + len(explanation[:performance_hints])
-    #--> 📊 Model Statistics:
-    #      Tables: 5
-    #      Relationships: 8
-    #      Performance hints: 6
+    ? "Complete e-commerce model:"
+    ? @@NL( explanation )
     
     validation = Validate()
-    if validation[:valid]
-        ? "✅ Complete model validation: PASSED"
-        ? "🚀 Ready for production use"
-    else
-		? ""
-        ? "❌ Validation issues found:"
-        ? @@NL(validation[:errors])
+    ? "Validation result:"
+    ? @@NL( validation )
 
-    ok
 }
 #-->
 '
+Complete e-commerce model:
+"Data Model: ecommerce_complete (v3.0)
+
+This model contains 5 tables:
+- customers: 5 fields, 3 relationships
+- categories: 4 fields, 3 relationships
+- products: 5 fields, 5 relationships
+- orders: 5 fields, 5 relationships
+- order_items: 5 fields, 4 relationships
+
+Key relationships:
+- products belongs_to categories
+- categories has_many products
+- orders belongs_to customers
+- customers has_many orders
+- order_items belongs_to orders
+- orders has_many order_items
+- order_items belongs_to products
+- products has_many order_items
+- customers hierarchy customers
+- categories hierarchy categories
+- orders many_to_many products
+"
+Validation result:
 [
-	"Relationship references non-existent table: ",
-	"parents",
-	"Relationship references non-existent table: ",
-	"parents",
-	"Relationship references non-existent table: ",
-	"parents",
-	"Relationship references non-existent table: ",
-	"parents"
+	[ "valid", 1 ],
+	[
+		"errors",
+		[ ]
+	],
+	[ "error_count", 0 ],
+	[ "tables_validated", 5 ],
+	[ "relationships_validated", 11 ]
 ]
 '
-#TODO May a better container be in the form of [ [ "error mesage...", "tablename" ])
-# or even [ "tablename", [ "error message1..", "error message2..." ], ... ] to make
-# it accessible and analyzable
-
 pf()
-# Execution time: ~35ms (comprehensive model requires thorough validation)
+# Executed in 1.45 second(s) in Ring 1.22
 
 /*--- Migration workflow for production systems
-*/
+
 pr()
 
-# Problem: Safely evolve production schema without downtime
-# Solution: Use staged migration approach with rollback capability
-
-o1 = new stzDataModel(["ecommerce_complete", "3.0"])
+o1 = new stzDataModel([ "ecommerce_complete", "3.0"])
 o1 {
-    # Customer management with hierarchy
     DefineTable("customers", [
-        ["id", :primary_key],
-        ["parent_id", :foreign_key],      # For B2B hierarchies
-        ["name", :required],
-        ["email", :email],
-        ["type", "varchar(20)"]           # individual, business
+        [ "id", :primary_key ],
+        [ "parent_id", :foreign_key ],
+        [ "name", :required ],
+        [ "email", :email ],
+        [ "type", "varchar(20)"]
     ])
     
-    # Product catalog with categories
     DefineTable("categories", [
-        ["id", :primary_key],
-        ["parent_id", :foreign_key],
-        ["name", :required],
-        ["path", "varchar(500)"]
+        [ "id", :primary_key ],
+        [ "parent_id", :foreign_key ],
+        [ "name", :required ],
+        [ "path", "varchar(500)"]
     ])
     
     DefineTable("products", [
-        ["id", :primary_key],
-        ["category_id", :foreign_key],
-        ["name", :required],
-        ["price", :decimal],
-        ["inventory_count", "integer"]
+        [ "id", :primary_key ],
+        [ "category_id", :foreign_key ],
+        [ "name", :required ],
+        [ "price", :decimal ],
+        [ "inventory_count", "integer"]
     ])
     
-    # Order processing
     DefineTable("orders", [
-        ["id", :primary_key],
-        ["customer_id", :foreign_key],
-        ["status", "varchar(50)"],
-        ["total", :decimal],
-        ["created_at", :timestamp]
+        [ "id", :primary_key ],
+        [ "customer_id", :foreign_key ],
+        [ "status", "varchar(50)" ],
+        [ "total", :decimal ],
+        [ "created_at", :timestamp]
     ])
     
     DefineTable("order_items", [
-        ["id", :primary_key],
-        ["order_id", :foreign_key],
-        ["product_id", :foreign_key],
-        ["quantity", "integer"],
-        ["unit_price", :decimal]
+        [ "id", :primary_key ],
+        [ "order_id", :foreign_key ],
+        [ "product_id", :foreign_key ],
+        [ "quantity", "integer" ],
+        [ "unit_price", :decimal]
     ])
     
-    # Define explicit relationships
-    Hierarchy("customers", [:parent_field = "parent_id"])     # B2B customer hierarchies
-    Hierarchy("categories", [:parent_field = "parent_id"])    # Product categories
-    Link("orders", "products", "many_to_many", [:through = "order_items"])
+    Hierarchy("customers", [:parent_field = "parent_id"])
+    Hierarchy("categories", [:parent_field = "parent_id"])
+    Link("orders", "products", "many_to_many", [:via = "order_items"])
     
-
-    ? BoxRound("PRODUCTION MIGRATION WORKFLOW")
-    
-    # Stage 1: Analyze current state
+    # Stage 1: Current state analysis
     current_state = Explain()
-    ? "📋 Current state: " + len(current_state[:tables]) + " tables, " + len(current_state[:relationships]) + " relationships"
+    ? BoxRound("Current state")
+    ? @@NL( current_state ) + nl
     
-    # Stage 2: Plan changes
-    ? "📝 Planning migration: Add customer preferences table"
-    
-    # Stage 3: Impact analysis
+    # Stage 2: Impact analysis for new field
     impact = AddField("customers", "preferences", :text, [:nullable = true])
-    ? "📊 Impact analysis:"
-    ? "  Breaking changes: " + impact[:breaking_changes]
-    ? "  Migration complexity: " + impact[:migration_complexity]
-    #--> 📊 Impact analysis:
-    #      Breaking changes: 0
-    #      Migration complexity: simple
+    ? BoxRound("Migration impact analysis")
+    ? @@NL( impact ) + NL
     
-    # Stage 4: Performance check
+    # Stage 3: Performance analysis
     performance_hints = AnalyzePerformance()
-    ? "⚡ Performance review: " + len(performance_hints) + " optimization opportunities"
-? @@nL(performance_hints)
-    # Stage 5: Final validation
+    ? BoxRound("Performance analysis")
+    ? @@NL( performance_hints ) + NL
+    
+    # Stage 4: Final validation
     final_validation = Validate()
-    if final_validation[:valid]
-        ? "✅ Migration ready for deployment"
-        ? "🎯 All systems green - proceed with confidence"
-    ok
-    #--> ✅ Migration ready for deployment
-    #    🎯 All systems green - proceed with confidence
+    ? BoxRound("Final validation")
+    ? @@NL( final_validation )
 }
-
-#TODO when we inspect performance_hints we get a non readable data structure:
 #-->
 '
+╭───────────────╮
+│ Current state │
+╰───────────────╯
+"Data Model: ecommerce_complete (v3.0)
+
+This model contains 5 tables:
+- customers: 5 fields, 3 relationships
+- categories: 4 fields, 3 relationships
+- products: 5 fields, 5 relationships
+- orders: 5 fields, 5 relationships
+- order_items: 5 fields, 4 relationships
+
+Key relationships:
+- products belongs_to categories
+- categories has_many products
+- orders belongs_to customers
+- customers has_many orders
+- order_items belongs_to orders
+- orders has_many order_items
+- order_items belongs_to products
+- products has_many order_items
+- customers hierarchy customers
+- categories hierarchy categories
+- orders many_to_many products
+"
+
+╭───────────────────────────╮
+│ Migration impact analysis │
+╰───────────────────────────╯
 [
-	"Consider eager loading for ",
-	"parents",
-	" ",
-	"has_many",
-	" ",
-	"customers",
-	" to avoid N+1 queries",
-	"Consider eager loading for ",
-	"parents",
-	" ",
-	"has_many",
-	" ",
-	"categories",
-	" to avoid N+1 queries",
-	"Consider eager loading for ",
-	"categories",
-	" ",
-	"has_many",
-	" ",
-	"products",
-	" to avoid N+1 queries",
-	"Consider eager loading for ",
-	"customers",
-	" ",
-	"has_many",
-	" ",
-	"orders",
-	" to avoid N+1 queries",
-	"Consider eager loading for ",
-	"orders",
-	" ",
-	"has_many",
-	" ",
-	"order_items",
-	" to avoid N+1 queries",
-	"Consider eager loading for ",
-	"products",
-	" ",
-	"has_many",
-	" ",
-	"order_items",
-	" to avoid N+1 queries"
+	[ "breaking_changes", 0 ],
+	[ "performance_impact", "low" ],
+	[ "migration_complexity", "simple" ],
+	[
+		"affected_relationships",
+		[ ]
+	],
+	[
+		"recommendations",
+		[
+			"Large text fields may impact query performance"
+		]
+	]
+]
+
+╭──────────────────────╮
+│ Performance analysis │
+╰──────────────────────╯
+[
+	[
+		[ "type", "query_optimization" ],
+		[ "priority", "high" ],
+		[
+			"message",
+			"Potential N+1 query problem detected"
+		],
+		[ "table", "categories" ],
+		[ "related_table", "products" ],
+		[ "relationship", "has_many" ],
+		[
+			"reason",
+			"Loading categories records may trigger multiple queries for products"
+		],
+		[
+			"action",
+			"Use eager loading or joins when querying categories with products"
+		]
+	],
+	[
+		[ "type", "query_optimization" ],
+		[ "priority", "high" ],
+		[
+			"message",
+			"Potential N+1 query problem detected"
+		],
+		[ "table", "customers" ],
+		[ "related_table", "orders" ],
+		[ "relationship", "has_many" ],
+		[
+			"reason",
+			"Loading customers records may trigger multiple queries for orders"
+		],
+		[
+			"action",
+			"Use eager loading or joins when querying customers with orders"
+		]
+	],
+	[
+		[ "type", "query_optimization" ],
+		[ "priority", "high" ],
+		[
+			"message",
+			"Potential N+1 query problem detected"
+		],
+		[ "table", "orders" ],
+		[ "related_table", "order_items" ],
+		[ "relationship", "has_many" ],
+		[
+			"reason",
+			"Loading orders records may trigger multiple queries for order_items"
+		],
+		[
+			"action",
+			"Use eager loading or joins when querying orders with order_items"
+		]
+	],
+	[
+		[ "type", "query_optimization" ],
+		[ "priority", "high" ],
+		[
+			"message",
+			"Potential N+1 query problem detected"
+		],
+		[ "table", "products" ],
+		[ "related_table", "order_items" ],
+		[ "relationship", "has_many" ],
+		[
+			"reason",
+			"Loading products records may trigger multiple queries for order_items"
+		],
+		[
+			"action",
+			"Use eager loading or joins when querying products with order_items"
+		]
+	]
+]
+
+╭──────────────────╮
+│ Final validation │
+╰──────────────────╯
+[
+	[ "valid", 1 ],
+	[
+		"errors",
+		[ ]
+	],
+	[ "error_count", 0 ],
+	[ "tables_validated", 5 ],
+	[ "relationships_validated", 11 ]
 ]
 '
-# I would like to see somthing as clear as this:
-# [
-#	"performance hint in clear terms",
-#	"cause of perofmance problem in simple terms",
-#	[ "table1", "table2" ] # tables implicated in the peformance problem
-#	[ "rel1", "rel2" ] # relations implicated in the perf problem
-#	[ "query1", "..." ] # queries and any other asset or useful data related to the problem
-#	[ "action1", "action2", ... ] # steps of actions as a plan for solution
-# ]
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 1.47 second(s) in Ring 1.22
 
 #=======================#
 #  EDUCATIONAL SUMMARY  #
 #=======================#
 
 # KEY LEARNING POINTS:
-
+#
 # 1. START SIMPLE: Use naming conventions for automatic relationship inference
-# 2. BE EXPLICIT: Use Link(), Hierarchy(), Network() for complex relationships
+# 2. BE EXPLICIT: Use Link(), Hierarchy(), Network() for complex relationships  
 # 3. VALIDATE EARLY: Always run Validate() before production deployment
 # 4. EVOLVE SAFELY: Use impact analysis for schema changes
 # 5. OPTIMIZE SMART: Follow performance hints to prevent slow queries
-# 6. DEBUG VISUALLY: Use Explain() and Visualize() for model understanding
+# 6. DEBUG VISUALLY: Use Explain() and GetERDData() for model understanding
 # 7. PLAN MIGRATIONS: Use staged approach for production schema changes
 
-# WHEN TO USE EACH FEATURE
-
+# WHEN TO USE EACH FEATURE:
+#
 # • DefineTable(): Basic schema definition with smart defaults
-# • Link(): Complex relationships that can't be auto-inferred
+# • Link(): Complex relationships that can't be auto-inferred  
 # • Hierarchy(): Parent-child trees (categories, org charts)
 # • Network(): Peer-to-peer connections (social networks, graphs)
 # • Validate(): Before any production deployment or major change
 # • AnalyzePerformance(): When queries become slow
 # • Explain(): When debugging complex models or onboarding new developers
-# • Visualize(): When communicating with non-technical stakeholders
-
-# DESIGN WORKFLOW
-
-# 1. Model core entities with DefineTable()
-# 2. Let auto-inference handle obvious relationships
-# 3. Add explicit relationships for complex cases
-# 4. Validate and fix any issues
-# 5. Analyze performance and add optimizations
-# 6. Document with Explain() and Visualize()
-# 7. Plan evolution with impact analysis
+# • GetERDData(): When generating documentation or visual diagrams

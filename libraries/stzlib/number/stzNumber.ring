@@ -4964,6 +4964,9 @@ class stzNumber from stzObject
 	def ExistsIn(paList)
 		return StzListQ(paList).Contains(This.NumericValue())
 
+		def Inn(paList)
+			return ExistsIn(paList)
+
 	def ContainsZeros()
 		return This.Contains("0")
 
