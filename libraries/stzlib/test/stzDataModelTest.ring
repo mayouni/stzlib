@@ -462,7 +462,7 @@ pf()
 #============================#
 
 /*--- Getting performance hints for better query optimization
-
+*/
 pr()
 
 o1 = new stzDataModel("blog_platform")

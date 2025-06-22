@@ -11,6 +11,9 @@ class stzDataModel from stzObject
     @validation_errors
     @fk_inference_mode  # New: controls foreign key inference behavior
 
+	@oPerfRuleEngine = new stzDataPerfRuleEngine()
+	@performance_plan  # New: references active performance plan
+
     def init(p)
         if isString(p)
             @schema_name = p
@@ -29,6 +32,7 @@ class stzDataModel from stzObject
         @performance_hints = []
         @validation_errors = []
         @fk_inference_mode = "smart"  # Options: "strict", "smart", "permissive"
+		@performance_plan = "default"
 
     # Configuration methods
     def SetForeignKeyInferenceMode(cMode)
@@ -774,54 +778,6 @@ class stzDataModel from stzObject
         next
         return NULL
 
-    def AnalyzePerformance()
-        @performance_hints = []
-        
-        # Check for missing indexes on foreign keys
-        nLen = len(@relationships)
-        for i = 1 to nLen
-            if @relationships[i][:type] = "belongs_to" and find(@relationships[i], :field) > 0
-                cFromTable = @relationships[i][:from]
-                cField = @relationships[i][:field]
-                cToTable = @relationships[i][:to]
-                
-                oHint = [
-                    :type = "index_suggestion",
-                    :priority = "medium",
-                    :message = "Consider adding index on foreign key field",
-                    :table = cFromTable,
-                    :field = cField,
-                    :related_table = cToTable,
-                    :reason = "Foreign key lookups will be faster with index",
-                    :action = "CREATE INDEX idx_" + cFromTable + "_" + cField + " ON " + cFromTable + "(" + cField + ")"
-                ]
-                @performance_hints + oHint
-            ok
-        next
-        
-        # Check for N+1 query potential
-        
-        for i = 1 to nLen
-            if @relationships[i][:type] = "has_many"
-                cFromTable = @relationships[i][:from]
-                cToTable = @relationships[i][:to]
-                
-                oHint = [
-                    :type = "query_optimization",
-                    :priority = "high",
-                    :message = "Potential N+1 query problem detected",
-                    :table = cFromTable,
-                    :related_table = cToTable,
-                    :relationship = @relationships[i][:type],
-                    :reason = "Loading " + cFromTable + " records may trigger multiple queries for " + cToTable,
-                    :action = "Use eager loading or joins when querying " + cFromTable + " with " + cToTable
-                ]
-                @performance_hints + oHint
-            ok
-        next
-        
-        return @performance_hints
-
     def CountTableConnections(cTableName)
         nCount = 0
         nLen = len(@relationships)
@@ -937,6 +893,175 @@ class stzDataModel from stzObject
         next
         return aResult
 
+
+    # Performance Plan Configuration
+    def SetPerformancePlan(cPlanName)
+        @performance_plan = cPlanName
+        @oPerfRuleEngine.SetActivePlan(cPlanName)
+        return This
+    
+    def GetPerformancePlan()
+        return @performance_plan
+    
+    def GetAvailablePerformancePlans()
+        aPlans = []
+        aRuleSets = @oPerfRuleEngine.rule_sets
+        nLen = len(aRuleSets)
+        for i = 1 to nLen
+            aPlans + [
+                :name = aRuleSets[i][:name],
+                :context = @oPerfRuleEngine.GetPlanContext(aRuleSets[i][:name])
+            ]
+        next
+        return aPlans
+    
+    def CreateCustomPerformancePlan(cPlanName, aRules, cContext)
+        aRulePlan = [
+            :context = cContext,
+            :priority_focus = ["custom"],
+            :rules = aRules
+        ]
+        @oPerfRuleEngine.DefineRulePlan(cPlanName, aRulePlan)
+        return This
+
+    # Enhanced Performance Analysis with Rule Engine
+    def AnalyzePerformance()
+        @performance_hints = []
+        
+        # Get model data for rule evaluation
+        aModelData = This.GetModelSummary()
+        
+        # Get active rules from rule engine
+        aActiveRules = @oPerfRuleEngine.GetActiveRules()
+        
+        # Evaluate each rule
+        nLen = len(aActiveRules)
+        for i = 1 to nLen
+            aRule = aActiveRules[i]
+            aRuleMatches = @oPerfRuleEngine.EvaluateRule(aRule, aModelData)
+            
+            # Generate hints for each match
+            nMatchLen = len(aRuleMatches)
+            for j = 1 to nMatchLen
+                aMatch = aRuleMatches[j]
+                cAction = @oPerfRuleEngine.GenerateActionFromTemplate(aRule[:action_template], aMatch)
+                
+                oHint = [
+                    :rule_id = aRule[:id],
+                    :type = aRule[:type],
+                    :priority = aRule[:priority],
+                    :performance_plan = @performance_plan,
+                    :message = aRule[:message],
+                    :action = cAction,
+                    :performance_impact = aRule[:performance_impact],
+                    :applies_to = aRule[:applies_to],
+                    :context_data = aMatch
+                ]
+                
+                # Add table/field specific information
+                if find(aMatch, :table) > 0
+                    oHint[:table] = aMatch[:table]
+                ok
+                if find(aMatch, :field) > 0
+                    oHint[:field] = aMatch[:field]
+                ok
+                if find(aMatch, :from_table) > 0
+                    oHint[:from_table] = aMatch[:from_table]
+                ok
+                if find(aMatch, :to_table) > 0
+                    oHint[:to_table] = aMatch[:to_table]
+                ok
+                
+                @performance_hints + oHint
+            next
+        next
+        
+        return @performance_hints
+    
+    def GetPerformanceReport()
+        This.AnalyzePerformance()
+        
+        aReport = [
+            :performance_plan = [
+                :name = @performance_plan,
+                :context = @oPerfRuleEngine.GetPlanContext(@performance_plan)
+            ],
+            :summary = [
+                :total_hints = stzlen(@performance_hints),
+                :critical_issues = This.CountHintsByPriority("critical"),
+                :high_priority = This.CountHintsByPriority("high"),
+                :medium_priority = This.CountHintsByPriority("medium"),
+                :low_priority = This.CountHintsByPriority("low")
+            ],
+            :hints_by_category = This.GroupHintsByType(),
+            :detailed_hints = @performance_hints,
+            :recommendations = This.GenerateTopRecommendations()
+        ]
+        
+        return aReport
+    
+    def CountHintsByPriority(cPriority)
+        nCount = 0
+        nLen = len(@performance_hints)
+        for i = 1 to nLen
+            if @performance_hints[i][:priority] = cPriority
+                nCount++
+            ok
+        next
+        return nCount
+    
+    def GroupHintsByType()
+        aGrouped = []
+        aTypes = []
+        
+        # Collect unique types
+        nLen = len(@performance_hints)
+        for i = 1 to nLen
+            cType = @performance_hints[i][:type]
+            if find(aTypes, cType) = 0
+                aTypes + cType
+            ok
+        next
+        
+        # Group hints by type
+        nTypeLen = len(aTypes)
+        for i = 1 to nTypeLen
+            cType = aTypes[i]
+            aHintsForType = []
+            
+            for j = 1 to nLen
+                if @performance_hints[j][:type] = cType
+                    aHintsForType + @performance_hints[j]
+                ok
+            next
+            
+            aGrouped + [
+                :type = cType,
+                :count = stzlen(aHintsForType),
+                :hints = aHintsForType
+            ]
+        next
+        
+        return aGrouped
+    
+    def GenerateTopRecommendations()
+        aRecommendations = []
+        
+        # Get critical and high priority hints
+        nLen = len(@performance_hints)
+        for i = 1 to nLen
+            aHint = @performance_hints[i]
+            if aHint[:priority] = "critical" or aHint[:priority] = "high"
+                aRecommendations + [
+                    :priority = aHint[:priority],
+                    :impact = aHint[:performance_impact],
+                    :recommendation = aHint[:message],
+                    :action = aHint[:action]
+                ]
+            ok
+        next
+        
+        return aRecommendations
 
 # Supporting classes remain the same
 class stzDataTable from stzObject
