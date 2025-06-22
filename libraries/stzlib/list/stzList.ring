@@ -42662,6 +42662,12 @@ class stzList from stzObject
 		def AreIncludedInCS(paOtherList, pCaseSensitive)
 			return This.EachItemExistsInCS(paOtherList, pCaseSensitive)
 
+		def InCS(paOtherList, pCaseSensitive)
+			return This.EachItemExistsInCS(paOtherList, pCaseSensitive)
+
+		def InnCS(paOtherList, pCaseSensitive)
+			return This.EachItemExistsInCS(paOtherList, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVI
@@ -42687,6 +42693,9 @@ class stzList from stzObject
 			return This.EachItemExistsIn(paOtherList)
 
 		def AreIncludedIn(paOtherList)
+			return This.EachItemExistsIn(paOtherList)
+
+		def Inn(paOtherList)
 			return This.EachItemExistsIn(paOtherList)
 
 		#>

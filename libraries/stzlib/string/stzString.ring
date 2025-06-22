@@ -54820,6 +54820,9 @@ class stzString from stzObject
 		def ExistsInCS(pcOtherStr, pCaseSensitive)
 			return This.IsContainedInCS(pcOtherStr, pCaseSensitive)
 
+		def InnCS(pcOtherStr, pCaseSensitive)
+			return This.IsContainedInCS(pcOtherStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -54833,6 +54836,9 @@ class stzString from stzObject
 			return This.IsContainedIn(pcOtherStr)
 
 		def ExistsIn(pcOtherStr)
+			return This.IsContainedIn(pcOtherStr)
+
+		def Inn(pcOtherStr)
 			return This.IsContainedIn(pcOtherStr)
 
 		#>
