@@ -461,7 +461,7 @@ pf()
 #  PERFORMANCE OPTIMIZATION  #
 #============================#
 
-/*--- Getting performance hints for better query optimization
+/*--- Basic Data Model with Default Performance Plan
 */
 pr()
 
@@ -471,7 +471,7 @@ o1 {
         [ "id", :primary_key ],
         [ "name", :required ],
         [ "email", :email ],
-        [ "bio", :text]
+        [ "bio", :text ]
     ])
     
     DefineTable("articles", [
@@ -480,47 +480,22 @@ o1 {
         [ "title", :required ],
         [ "content", :text ],
         [ "published_at", :timestamp ],
-        [ "view_count", "integer"]
+        [ "view_count", "integer" ]
     ])
     
-    # Analyze current model for performance issues
-    performance_hints = AnalyzePerformance()
-    ? BoxRound("Performance optimization hints")
-    ? @@NL( performance_hints ) + NL
+    # Set the default performance plan (already set by init)
+    SetPerformancePlan("default")
     
-    # Show table-specific analysis
-    table_analysis = GetTableAnalysis() # This method does not exist!
-    ? BoxRound("Table analysis")
-    ? @@NL( table_analysis )
+    # Analyze performance
+    performance_hints = AnalyzePerformance()
+    ? BoxRound("Performance optimization hints (Default Plan)")
+    ? @@NL( performance_hints ) + NL
 }
-'
-╭────────────────────────────────╮
-│ Performance optimization hints │
-╰────────────────────────────────╯
-[
-	[
-		[ "type", "query_optimization" ],
-		[ "priority", "high" ],
-		[
-			"message",
-			"Potential N+1 query problem detected"
-		],
-		[ "table", "authors" ],
-		[ "related_table", "articles" ],
-		[ "relationship", "has_many" ],
-		[
-			"reason",
-			"Loading authors records may trigger multiple queries for articles"
-		],
-		[
-			"action",
-			"Use eager loading or joins when querying authors with articles"
-		]
-	]
-]
-'
 
 pf()
+
+/*---
+
 
 #=============================#
 #  DEBUGGING & VISUALIZATION  #
