@@ -285,20 +285,20 @@ pf()
 # Executed in 0.21 second(s) in Ring 1.21
 
 /*-----------
-*/
+
 pr()
 
 o1 = new stzHashList([
 	:Zero	= 0,
-	:One	= "One",
+	:One		= "One",
 	:Two  	= [ :is, :will, :can, :some, :can ],
 	:Three	= "Three",
 	:Four	= [ :can, :will ],
 	:Five	= [ :will ],
-	:Six	= 6,
+	:Six		= 6,
 	:Seven	= 7,
 
-	:Ten	= NullObject(),
+	:Ten		= NullObject(),
 	:Eleven	= ATRUEObject(),
 	:Twelve	= AFALSEObject(),
 
@@ -441,17 +441,17 @@ o1 = new stzHashList([
 ? o1.HowManyKlassInLists()
 #--> 9
 
-? @@( o1.KlassifyItemsInLists() ) # Or KlassifyInLists()
+? @@NL( o1.KlassifyItemsInLists() ) # Or KlassifyInLists()
 #--> [
-#	[ "will", 	 [ [ 2, [ 1 ] ], [ 3, [ 4 ] ], [ 5, [ 4 ] ] ] ],
-#	[ "be", 	 [ [ 2, [ 2 ] ], [ 3, [ 5 ] ], [ 5, [ 5 ] ] ] ],
-#	[ "classified",  [ [ 2, [ 3 ] ], [ 5, [ 6 ] ] ] ],
-#	[ "this", 	 [ [ 3, [ 1 ] ], [ 5, [ 3 ] ] ] ],
-#	[ "one", 	 [ [ 3, [ 2 ] ] ] ],
-#	[ "also", 	 [ [ 3, [ 3 ] ] ] ],
+#	[ "will", 	[ [ 2, [ 1 ] ], [ 3, [ 4 ] ], [ 5, [ 4 ] ] ] ],
+#	[ "be", 	 	[ [ 2, [ 2 ] ], [ 3, [ 5 ] ], [ 5, [ 5 ] ] ] ],
+#	[ "classified",[ [ 2, [ 3 ] ], [ 5, [ 6 ] ] ] ],
+#	[ "this", 	[ [ 3, [ 1 ] ], [ 5, [ 3 ] ] ] ],
+#	[ "one", 		[ [ 3, [ 2 ] ] ] ],
+#	[ "also", 	[ [ 3, [ 3 ] ] ] ],
 #	[ "classsified", [ [ 3, [ 6 ] ] ] ],
-#	[ "guess", 	 [ [ 5, [ 1 ] ] ] ],
-#	[ "if", 	 [ [ 5, [ 2 ] ] ] ]
+#	[ "guess", 	 	[ [ 5, [ 1 ] ] ] ],
+#	[ "if", 	 	[ [ 5, [ 2 ] ] ] ]
 # ]
 
 pf()
@@ -563,7 +563,7 @@ pf()
 # Executed in 0.88 second(s)
 
 /*---------------- #narration
-
+*/
 pr()
 
 # While working with stzHashLists, there may be a special need where you
@@ -624,7 +624,7 @@ pr()
 	# ]
 
 pf()
-# Executed in 0.04 second(s)
+# Executed in 0.09 second(s) in Ring 1.22
 
 /*==================
 
