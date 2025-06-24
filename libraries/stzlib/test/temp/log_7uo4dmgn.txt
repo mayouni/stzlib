@@ -1,3 +1,0 @@
-  File "D:\GitHub\stzlib\libraries\stzlib\test\temp\temp_7uo4dmgn.py", line 298
-    //            return extract_from_litellm_response(response)
-IndentationError: expected an indented block after 'if' statement on line 297

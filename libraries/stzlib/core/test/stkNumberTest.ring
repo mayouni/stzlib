@@ -1,12 +1,24 @@
 
-load "../Common/stkRingLibs.ring"
-load "../common/stkNumberCommons.ring"
-load "../number/stkNumber.ring"
-load "../error/stkError.ring"
+# Load all the CORE layer
+#	load "../stklib.ring"
 
-load "../number/stkSciNumber.ring"
+# Or just the modules needed in this test file
+	load "../common/stkRingLibs.ring"
+	load "../common/stkRingFuncs.ring"
+	load "../common/stkProfiler.ring"
+
+	load "../common/stkNumberCommons.ring"
+	load "../number/stkNumber.ring"
+	load "../number/stkSciNumber.ring"
+
+	load "../error/stkError.ring"
+
+
+
 
 /*===
+
+pr()
 
 # Ring native function EvenOrOdd(n) may be confusing
 
@@ -21,7 +33,12 @@ load "../number/stkSciNumber.ring"
 ? IsOdd(7)
 #--> TRUE
 
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
 /*== Flexible initialisation
+*/
+pr()
 
 # The object is initialised with a number
 

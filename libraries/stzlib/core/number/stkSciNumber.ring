@@ -81,7 +81,6 @@ func Sci2Number(cNumberInStr)
 	return nResult
 	
 class stzCoreSciNumber from stkSciNumber
-
 class stkSciNumber
 	@nBase
 	@nExp

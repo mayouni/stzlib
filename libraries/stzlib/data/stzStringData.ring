@@ -1,3 +1,0 @@
-_aLetters = "A":"B"
-
-

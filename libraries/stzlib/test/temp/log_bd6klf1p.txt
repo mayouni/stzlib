@@ -1,8 +1,0 @@
-Python script starting...
-Traceback (most recent call last):
-  File "D:\GitHub\stzlib\libraries\stzlib\test\temp\temp_bd6klf1p.py", line 105, in <module>
-    traverse_and_replace_iterative(deep_list, "\u2665", "\u2605")
-  File "D:\GitHub\stzlib\libraries\stzlib\test\temp\temp_bd6klf1p.py", line 62, in traverse_and_replace_iterative
-    return count # Return the modified list
-           ^^^^^
-NameError: name 'count' is not defined. Did you mean: 'round'?
