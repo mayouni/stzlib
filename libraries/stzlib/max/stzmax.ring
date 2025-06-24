@@ -15,28 +15,23 @@
 # Loading files related to the DATA module
 
 	load "data/stzBoxDrawCharsData.ring"
-	load "data/stzCharData.ring"
 	load "data/stzConstraintsData.ring"
 	load "data/stzLocaleData.ring"
-	load "data/stzRandomData.ring"
-	load "data/stzRegexData.ring"
 	load "data/stzStopWordsData.ring"
 	load "data/stzStringArtData.ring"
-	load "data/stzUnicodeData.ring"
 
 # Loading files related to the DATAPHORE module
 
 	load "dataphore/stzDataModel.ring"
+	load "dataphore/stzDataModel.ring"
 
 # Loading files related to the ERROR module
 
-	load "error/stzCharError.ring"
 	load "error/stzCountryError.ring"
 	load "error/stzCurrencyError.ring"
 	load "error/stzEntityError.ring"
 	load "error/stzGridError.ring"
 	load "error/stzLanguageError.ring"
-	load "error/stzListOfCharsError.ring"
 	load "error/stzListOfEntitiesError.ring"
 	load "error/stzListOfSetsError.ring"
 	load "error/stzLocaleError.ring"
@@ -45,9 +40,25 @@
 	load "error/stzSetError.ring"
 	load "error/stzTextEncodingSystemError.ring"
 
+# Loading files related to the EXCIS module
+
+	load "excis/stzExtCodeTransFuncs.ring"
+	load "excis/stzExtCodeXT.ring"
+	load "excis/stzJuliaCode.ring"
+	load "excis/stzPrologCode.ring"
+	load "excis/stzPythonCode.ring"
+	load "excis/stzRCode.ring"
+
 # Loading files related to the GEO module
 
 	load "geo/stzGeoMap.ring"
+
+
+# Loading files related to the GRID module
+
+	load "grid/stzGrid.ring"
+	load "grid/stzListOfGrids.ring"
+	load "grid/stzTile.ring"
 
 # Loading files related to the I18N module
 
@@ -60,19 +71,9 @@
 	load "i18n/stzStopWords.ring"
 	load "i18n/stzTime.ring"
 
-# Loading files related to the EXCIS module
+# Loading files related to the IO module
 
 	load "io/stzBinaryFile.ring"
-
-# Loading files related to the EXCIS module
-
-	load "excis/stzExtCode.ring"
-	load "excis/stzExtCodeTransFuncs.ring"
-	load "excis/stzExtCodeXT.ring"
-	load "excis/stzJuliaCode.ring"
-	load "excis/stzPrologCode.ring"
-	load "excis/stzPythonCode.ring"
-	load "excis/stzRCode.ring"
 
 # Loading files related to the LIST module
 
@@ -82,28 +83,15 @@
 	load "list/stzListProvidedAsString.ring"
 	load "list/stzSortedList.ring"
 
-# Loading files related to the TREE module
+# Loading files related to the MATH module
 
-	load "tree/stzTree.ring"
-
-# Loading files related to the GRID module
-
-	load "grid/stzGrid.ring"
-//	load "grid/stzListOfGrids.ring"
-	load "grid/stzTile.ring"
-
-# Loading files related to the TABLE module
-
-	load "table/stzTable.ring"
-	load "table/stzListOfTables.ring"
-
-	load "table/stzPivotTable.ring"
-	load "table/stzPivotTableShow.ring"
+	load "math/stzMatrix.ring"
+	load "math/stzFastPro.ring"
+	load "math/stzFastProBinary.ring"
 
 # Loading files related to the NATURAL module
 
 	load "natural/stzAdverb.ring"
-	load "natural/stzCCode.ring"
 	load "natural/stzChainOfTruth.ring"
 
 	load "natural/stzChainOfValue.ring"
@@ -129,10 +117,36 @@
 	load "number/stzNumberLowLevelType.ring"
 	load "number/stzPairOfNumbers.ring"
 
-# Loading files related to the MATH module
 
-	load "math/stzMatrix.ring"
-	load "math/stzRandom.ring"
+# Loading files related to OBJECT module
+
+	#TODO // Abstract stzTrueObject, stzFalseObject, stzNullObject,
+	# and stzNamedObject here in the MAX layer
+
+# Loading files related to PLOT module
+
+	load "plot/stzPlot.ring"
+	load "plot/stzBarPlot.ring"
+	load "plot/stzHBarPlot.ring"
+	load "plot/stzHistogram.ring"
+	load "plot/stzMBarPlot.ring"
+	load "plot/stzScatterPlot.ring"
+	load "plot/stzSurfacePlot.ring"
+
+# Loading files related to PLUGINS module
+	load "plugins/stzPluginSystem.ring"
+
+# Loading files related to the TREE module
+
+	load "tree/stzTree.ring"
+
+# Loading files related to the TABLE module
+
+	load "table/stzTable.ring"
+	load "table/stzListOfTables.ring"
+
+	load "table/stzPivotTable.ring"
+	load "table/stzPivotTableShow.ring"
 
 # Loading files related to the STATS module
 
@@ -150,12 +164,6 @@
 	load "perf/stzFastProBinary.ring"
 
 	load "perf/stzDataPerfEngine.ring" 	# Used by /dataphore/stzDataModel.ring
-
-# Loading files related to OBJECT module
-
-	#TODO // Abstract stzTrueObject, stzFalseObject, stzNullObject,
-	# and stzNamedObject here in the MAX layer
-
 
 # Loading files related to STRING module
 
@@ -177,15 +185,6 @@
 	load "systems/stzRingStateSystem.ring"
 	load "systems/stzTextEncodingSystem.ring"
 
-	# load "systems/stzCodeAnalysisSystem.ring"
-	# load "systems/stzCoordinateSystem.ring"
-	# load "systems/stzErrorSystem.ring"
-	# load "systems/stzEventSystem.ring"
-	# load "systems/stzMarketSystem.ring"
-	# load "systems/stzPluginSystem.ring"
-	# load "systems/stzSimulationSystem.ring"
-	# load "systems/stzSocialSystem.ring"
-	# load "systems/stzTranslationSystem.ring"
 
 # Loading files related to the TEST module
 

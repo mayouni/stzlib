@@ -23,7 +23,7 @@ pr()
 #--> TRUE
 
 pf()
-# Executed in 0.08 second(s) in Ring 1.21
+# Executed in 0.11 second(s) in Ring 1.22
 # Executed in 0.24 second(s) in Ring 1.19
 
 /*-----------
@@ -192,6 +192,8 @@ pf()
 
 /*---
 
+pr()
+
 o1 = new stzSplitter(12)
 ? @@( o1.SplitToPartsOfNPositions(5) )
 #--> [ [ 1, 5 ], [ 6, 10 ], [ 11, 12 ] ]
@@ -257,7 +259,7 @@ o1 = new stzList( 1:10 )
 #--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ], [ 10 ] ]
 
 pf()
-# Executed in 0.60 second(s) in Ring 1.21
+# Executed in 0.82 second(s) in Ring 1.22
 
 /*==================
 */

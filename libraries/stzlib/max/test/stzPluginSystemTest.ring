@@ -45,7 +45,7 @@ And then implement the function in the file by changing its body.
 */
 
 # loading plugins files from plugin folder (just the data about them)
-# ~> plugins are run only when they are request
+# ~> plugins are run only when they are requested
 # ~> plugins are discovered dynamically from the \plugins\ folder
 
 _aPlugins = LoadPlugins()
@@ -55,7 +55,7 @@ _aPlugins = LoadPlugins()
 #	[ "reverse", 		"plugin_string_reverse.ring" ]
 # ]
 
-profon()
+pf()
 
 	o1 = new XString("Hello Ring in Ring!")
 	
@@ -65,7 +65,7 @@ profon()
 	# ~> Just to say that they are available in the pluguable
 	# version of the object (XString) by inheritance
 
-	? o1.size() 	#--> 19
+	? o1.size() 		#--> 19
 	? o1.upp() + NL	#--> HELLO RING IN RING!
 	
 	? "---" + NL
@@ -237,7 +237,7 @@ profon()
 	? "---" + NL
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-	#   CHECKING VOTH FAILED AND SUCCEEDED PLUGIN-BASED CALLS  #
+	#   CHECKING BOTH FAILED AND SUCCEEDED PLUGIN-BASED CALLS  #
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 	# We can check the number of erronous calls
