@@ -1,4 +1,0 @@
-Python script starting...
-Data before transformation: 5
-Data after transformation: 5
-Data written to file

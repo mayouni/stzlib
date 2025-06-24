@@ -1,4 +1,4 @@
-load "LightGuiLib.ring"
+# Requires LightGuiLib
 
 #~~~~~~~~~~~~~~~~~~~#
 #  STZ CORE STRING  #
@@ -64,6 +64,11 @@ class stzCoreString from stzCoreObject
 
 	def Content()
 		return @content.mid(0, @content.size())
+
+	def Update(cStr)
+		cContent = This.Content()
+		cNewContent = ring_substr2(cContent, cContent, cStr)
+		@content.replace_2(cContent, cNewContent, 1) # 1 ~> CaseSensitive
 
 	#--
 
@@ -216,7 +221,7 @@ class stzCoreString from stzCoreObject
 		This.Update(cResult)
 
 	def Replace(substr1, substr2)
-		This.Replace(substr1, substr2, TRUE)
+		This.ReplaceCS(substr1, substr2, TRUE)
 
 	#--
 
@@ -242,7 +247,7 @@ class stzCoreString from stzCoreObject
 
 	#== SPLITTING
 
-	def SplitCS(substr, bCase)
+	def SplitCS(cSubStr, bCase)
 		acResult = StkSplitCS(This.Content(), cSubStr, bCase)
 		return acResult
 

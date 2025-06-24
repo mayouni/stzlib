@@ -1,4 +1,0 @@
-Python script starting...
-Data before transformation: '<class 'list'>'
-Data after transformation: ''<class 'list'>''
-Data written to file

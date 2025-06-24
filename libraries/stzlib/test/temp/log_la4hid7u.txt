@@ -1,3 +1,0 @@
-  File "D:\GitHub\stzlib\libraries\stzlib\test\temp\temp_la4hid7u.py", line 224
-    return transform_api_response(response)
-TabError: inconsistent use of tabs and spaces in indentation

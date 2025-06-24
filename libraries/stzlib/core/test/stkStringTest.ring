@@ -5,13 +5,20 @@
 
 # You either load the hole SoftanzaCore library (all classes)
 
-//	load "../stklib.ring" # or /SoftanzaCoreLib.ring to be expressive
+	load "../stklib.ring" # or /SoftanzaCoreLib.ring to be expressive
 
 # Or just the files you actually need
 
+/*
+	load "LightGuiLib.ring"
+
 	load "../object/stkObject.ring"
-	load "../string/stkString.ring"
+	load "../string/stkChar.ring"
+
 	load "../error/stkError.ring"
+	load "../common/stkProfiler.ring"
+	load "../common/stkRingFuncs.ring"
+*/
 
 #----------------#
 #  TEST SAMPLES  #
@@ -21,6 +28,8 @@ decimals(3)
 t0 = clock()
 
 /*-----
+
+pr()
 
 o1 = new stzCoreString("Hello in ") # stkString() with <<k>> meaning Kore ;)
 
@@ -32,7 +41,12 @@ o1 + "Core!"
 ? o1.Content()
 #--> Hello in Softanza Core!
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*---
+
+pr()
 
 o1 = new stkString("مرحبا بكم في رينغ")
 
@@ -49,8 +63,12 @@ next
 ? str + NL
 #o--> رينغ
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*===
-*/
+
+pr()
 
 cStr = " line1 line1 line1 
 line2 line2 line2
@@ -63,7 +81,12 @@ line3 line3 line3"
 #	"line3 line3 line3"
 # ]
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*===
+
+pr()
 
 o1 = new stkString("one and one makes two ones")
 
@@ -76,7 +99,12 @@ o1 = new stkString("one and one makes two ones")
 ? o1.FindLast("one")
 #--> 23
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*--
+
+pr()
 
 o1 = new stkString("one and ONE makes two Ones")
 
@@ -86,7 +114,12 @@ o1 = new stkString("one and ONE makes two Ones")
 ? o1.FindCS("one", FALSE)
 #--> [ 1, 9, 23 ]
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*---
+
+pr()
 
 o1 = new stkString("Ring language")
 
@@ -94,7 +127,12 @@ o1.InsertAt(6, "programming ")
 ? o1.Content()
 #--> Ring programming language
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*---
+
+pr()
 
 o1 = new stkString("بسم الله الرّحمان الرّحيم")
 
@@ -117,7 +155,12 @@ o1 = new stkString("mMm...MMm")
 ? o1.EndsWithCS("mmm", FALSE)
 #--> TRUE
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*---
+
+pr()
 
 o1 = new stkString("one      two three   four  five")
 
@@ -125,7 +168,12 @@ o1.Simplify()
 ? o1.Content()
 #--> one two three four five
 
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
 /*---
+
+pr()
 
 o1 = new stkString("one and one make two ones")
 
@@ -136,7 +184,12 @@ o1.Replace("one", "three")
 ? o1.Content()
 #--> three and three make two threes
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*--
+
+pr()
 
 o1 = new stkString("one and ONE makes two Ones")
 
@@ -144,14 +197,24 @@ o1.ReplaceCS("one", "three", FALSE)
 ? o1.Content()
 #--> three and three makes two threes
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*---
+
+pr()
 
 o1 = new stkString("oneany anytwo three")
 o1.Remove("any")
 ? o1.Content()
 # one two three
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*---
+
+pr()
 
 o1 = new stkString("one any two ANY any three")
 o1 {
@@ -161,7 +224,12 @@ o1 {
 }
 #--> one two three
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*===
+
+pr()
 
 o1 = new stkString("AB345C")
 
@@ -172,28 +240,51 @@ o1.RemoveSection(3, 5)
 ? o1.Content()
 #--> ABC
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*----
+
+pr()
 
 o1 = new stkString("AB345F")
 o1.ReplaceSection(3, 5, "CDE")
 ? o1.Content()
 #--> ABCDEF
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
+
+pf()
+
 /*===
+
+pr()
 
 o1 = new stkString("ring/ruby/php/python")
 
 ? o1.split("/")
 #--> [ "ring", "ruby", "php", "python" ]
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*---
+
+pr()
 
 o1 = new stkString("ringMMMrubyMmmphpMmMpython")
 
 ? o1.SplitCS("mmm", FALSE)
 #--> [ "ring", "ruby", "php", "python" ]
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*===
+
+pf()
 
 o1 = new stkString("<<<Ring>>>")
 
@@ -208,7 +299,7 @@ o1 = new stkString("<<<Ring>>>")
 
 # In these two cases above (left() and right() functions), there is
 # no need to wrapp them in stzCoreString because they natively
-# offer the same semantics and east of use of Softanza.
+# offer the same semantics and ease of use of Softanza.
 # ~> Minimalism design principle of SoftanzaCore.
 
 # In the contrary, getting a section is tedious in Qt:
@@ -235,7 +326,12 @@ o1 = new stkString("<<<Ring>>>")
 ? o1.ContainsCS("RING", FALSE)
 #--> TRUE
 
+pf()
+# Executed in 0.403 second(s) in Ring 1.22
+
 /*---
+
+pr()
 
 # Some basic functions are not part of RingQt QString class,
 # but stzCoreString offers them, like:
@@ -245,7 +341,12 @@ o1 = new stkString("ring")
 ? o1.Chars()
 #--> [ "r", "i", "n", "g" ]
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*---
+
+pr()
 
 # Some Qt QString constructs go against the programming experience
 # we want to offer in Sofantza.
@@ -271,7 +372,12 @@ o1 = new stkString("Ring")
 
 # which is, of course, unailable in Qt String.
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*===
+*/
+pr()
 
 # stzCoreString has a useful bridge to stzCoreChar, so you can
 # start from a string (based on Qt QString class), then continue
@@ -285,11 +391,9 @@ o1 = new stzCoreString("輪")
 ? classname( o1.ToQChar(1) )
 #--> qchar
 
-# If you must how Qt QChar works, then you can directly use it.
+# If you master how Qt QChar works, then you can directly use it.
 # Otherwise, if you prefer a Softanza experience, use the
 # stzCoreChar class, like this:
-
-load "../string/stkChar.ring" # Load it only when you need it!
 
 o2 = new stkChar( o1.Content() )
 ? o2.Content()
@@ -297,9 +401,5 @@ o2 = new stkChar( o1.Content() )
 
 # Discover other features of stzCoreChar in "../core/test/stkChar.ring"
 
-#~~~~~~
-*/
-? NL + "~~~~~~~"
-
-t = (clock() - t0) / clockspersecond()
-? "Executed in " + t + " seconds."
+pf()
+# Executed in 0.001 second(s) in Ring 1.22

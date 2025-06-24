@@ -2,17 +2,21 @@
 #  LOADING THE CORE LIBRARY  #
 #----------------------------#
 
+decimals(3)
+
 # You either load the hole SoftanzaCore library (all classes)
 
-//	load "../stklib.ring" # or /SoftanzaCoreLib.ring to be expressive
+//	load "../stklib.ring" # or /stzcore.ring to be expressive
 
 # Or just the files you actually need
 
-	load "../common/stkRingFuncs.ring"	# Wrappers of Ring functions for scope protection
-
 	load "../object/stkObject.ring"
 	load "../list/stkList.ring"
+
 	load "../error/stkError.ring"
+	load "../common/stkProfiler.ring"
+	load "../common/stkRingFuncs.ring"
+
 
 #----------------#
 #  TEST SAMPLES  #
@@ -23,7 +27,7 @@
 # Errors are kept minimal, as anything else in SoftanzaCore library.
 # Here a short code is returned telling you an error of type 1 is raised:
 
-/o1 = new stkList("salu")
+o1 = new stkList("salu")
 #--> ERR-1
 
 # Innternally, things are even more elementary!
@@ -41,6 +45,8 @@
 
 /*---
 
+pr()
+
 o1 = new stkList(1:3)
 ? o1.Content()
 #--> [ 1, 2, 3 ]
@@ -48,7 +54,12 @@ o1 = new stkList(1:3)
 ? o1.Size()
 #--> 3
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*---
+
+pr()
 
 o1 = new stkList(1:3)
 o1 + 4
@@ -59,7 +70,12 @@ o1.Append(5)
 ? o1.Content()
 #--> [ 1, 2, 3, 4, 5 ]
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*---
+
+pr()
 
 o1 = new stkList("A":"E")
 
@@ -72,12 +88,17 @@ o1 = new stkList("A":"E")
 ? o1[3]
 #--> C
 
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
 /*===
+
+pr()
 
 o1 = new stkList([ "one", "and", "one", "makes", "two", "ones" ])
 
 ? o1.Find("one")
-#--> 1
+#--> [ 1, 3 ]
 
 ? o1.FindFirst("one")
 #--> 1
@@ -85,7 +106,12 @@ o1 = new stkList([ "one", "and", "one", "makes", "two", "ones" ])
 ? o1.FindLast("one")
 #--> 3
 
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
 /*---
+
+pr()
 
 o1 = new stkList([ "Ring", "language" ])
 
@@ -93,7 +119,12 @@ o1.InsertAt(2, "programming ")
 ? o1.Content()
 #--> [ "Ring", "programming", "language" ]
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*---
+
+pr()
 
 o1 = new stkList([ "بسم", "الله", "الرّحمان", "الرّحيم" ])
 
@@ -103,7 +134,12 @@ o1 = new stkList([ "بسم", "الله", "الرّحمان", "الرّحيم" ])
 ? o1.EndsWith("الرّحيم") + NL
 #--> TRUE
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*---
+*/
+pr()
 
 o1 = new stkList([ "one", "and", "one", "make", "two", "one", "s" ])
 
@@ -114,7 +150,12 @@ o1.Replace("one", "three")
 ? o1.Content()
 #--> [ "three", "and", "three", "make", "two", "three", "s" ]
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*----
+
+pr()
 
 o1 = new stkList([ "one", "any", "any", "two", "any", "three", "more" ])
 o1.Remove("any")
@@ -123,9 +164,14 @@ o1.Remove("any")
 
 o1.RemoveAt( o1.Size() )
 ? o1.Content()
-#--> #--> [ "one", "two", "three", "more" ]
+#--> [ "one", "two", "three", "more" ]
+
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
 
 /*===
+
+pr()
 
 o1 = new stkList([ "A", "B", "3", "4", "5", "C" ])
 
@@ -136,10 +182,17 @@ o1.RemoveSection(3, 5)
 ? o1.Content()
 #--> [ "A", "B", "C" ]
 
+pf()
+# Executed in 0.001 second(s) in Ring 1.22
+
 /*----
-*/
+
+pr()
 
 o1 = new stkList([ "A", "B", "3", "4", "5", "F" ])
 o1.ReplaceSection(3, 5, "*")
 ? o1.Content()
 #--> [ "A", "B", "*", "*", "*", "F" ]
+
+pf()
+# Executed in 0.001 second(s) in Ring 1.22

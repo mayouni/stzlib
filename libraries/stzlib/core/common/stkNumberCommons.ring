@@ -238,8 +238,8 @@ func Val(cNumberInStr)
 		raise("ERR-" + StkError(:IncorrectParamType))
 	ok
 
-	if ring_substr2(cNumberInStr, "_") > 0
-		cNumberInStr = trim( ring_substr2(cNumberInStr, "_", "") )
+	if ring_substr1(cNumberInStr, "_") > 0
+		cNumberInStr = @trim( ring_substr2(cNumberInStr, "_", "") )
 	ok
 
 	nResult = 0+ cNumberInStr
@@ -257,7 +257,7 @@ func Val(cNumberInStr)
 
 func NStringify(nNumber, cSpaceChar, nSpaceStep, nRound)
 
-	if not ( isNumber(nNumber) and isString(cSpaceChar) and isNumber(nRound) )s
+	if not ( isNumber(nNumber) and isString(cSpaceChar) and isNumber(nRound) )
 		raise("ERR-" + StkError(:IncorrectParamType) + NL)
 	ok
 

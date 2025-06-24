@@ -1,1 +1,0 @@
-[['total_revenue', 6612.5], ['average_price', 11.625], ['best_seller', 'C']]

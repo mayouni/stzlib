@@ -1,5 +1,4 @@
-load "LightGuiLib.ring"
-
+# Requires LightGuiLib
 
 func DoubleQuote()
         return char(34)  # "

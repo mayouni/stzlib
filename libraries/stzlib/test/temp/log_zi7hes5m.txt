@@ -1,4 +1,0 @@
-Python script starting...
-Data before transformation: {'replacements_made': 90}
-Data after transformation: [['replacements_made', 90]]
-Data written to file
