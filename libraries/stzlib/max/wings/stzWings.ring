@@ -1,9 +1,17 @@
 
+	#-- Loading files related to BIGDATOR module
+
 	#-- Loading files related to BIZDATA module
+
+	#-- Loading files related to BIZBASE module
 
 	#-- Loading files related to BIZLIB module
 
-	#-- Loading files related to CLOUD module
+	#-- Loading files related to KLOUDUP module
+
+	#-- Loading files related to KOLLAB module
+
+	#-- Loading files related to SOCIALNET module
 
 	#-- Loading files related to DATABASE module
 
@@ -46,9 +54,13 @@
 
 	#-- Loading files files related to MATH module
 
+	#-- Loading files related to MESSAGEER module
+
 	#-- Loading files related to METAKODE module
 
 	#-- Loading files related to MOBILE module
+
+	#-- Loading files files related to NOTIFIED module
 
 	#-- Loading files files related to NATURAL module
 
@@ -57,6 +69,8 @@
 	#-- Loading files files related to PLUGUINS module
 
 	#-- Loading files files related to PROJEKTIS module
+
+	#-- Loading files related to REAKTOR module
 
 	#-- Loading files related to SEKURE module
 
@@ -75,6 +89,8 @@
 	#-- Loading files related to UI module
 
 	#-- Loading files related to USER module
+
+	#-- Loading files files related to VERSIONIZER module
 
 	#-- Loading files files related to WEB module
 
