@@ -1,6 +1,4 @@
-load "../string/stkStringArt.ring"
-load "../data/stkStringArtData.ring"
-load "../string/stkstring.ring"
+load "../stzmax.ring"
 
 
 decimals(3)
@@ -57,7 +55,7 @@ SetStringArtStyle(:flower)
 
 /*-----
 */
-o1 = new stkStringArt("SOFTANZA")
+o1 = new stzStringArt("SOFTANZA")
 o1 {
 
 	? "~> " + Style() + NL # Default style
@@ -103,7 +101,7 @@ o1 {
 
 /*-----
 
-o1 = new stkStringArt("ANTONIO")
+o1 = new stzStringArt("ANTONIO")
 o1 {
 
 	? "~> " + Style() + NL
@@ -217,7 +215,7 @@ SetStringArtStyle(:neon)
 
 /*~~~~~~
 */
-# NOTE This sample (and the stkStringArt itself) is dedicated to
+# NOTE This sample (and the stzStringArt itself) is dedicated to
 # Mahmoud for the efforts he deployed in delivering V1.21 of Ring
 
 ? StringArt("THANK") + nl

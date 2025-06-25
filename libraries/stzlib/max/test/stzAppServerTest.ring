@@ -1,4 +1,4 @@
-load "../appserver/stzAppServer.ring"
+load "../stzmax.ring"
 
 # Create server instance
 oApp = new RingAppServer(8888)

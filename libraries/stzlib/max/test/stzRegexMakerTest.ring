@@ -1,4 +1,4 @@
-load "../max/stzmax.ring"
+load "../stzmax.ring"
 
 /*=============================================================#
 #  CALLING PATTERNS BU THEIR NAMES FROM THE STZ-REGEX LIBRARY  #

@@ -194,6 +194,10 @@ func IsBoolean(n)
 	func @NumberIsABoolean(n)
 		return IsBoolean(n)
 
+	#--
+
+	def IsLogical(n)
+		return IsBoolean(n)
 	#>
 
 func MaxNumberOfDigitsInUnsignedInteger()

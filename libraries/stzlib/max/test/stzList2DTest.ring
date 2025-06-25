@@ -1,7 +1,7 @@
-load "../max/stzmax.ring"
+load "../stzmax.ring"
 
 /*---
-
+*/
 pr()
 
 o1 = new stzList2D([

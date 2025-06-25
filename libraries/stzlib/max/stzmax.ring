@@ -53,7 +53,6 @@
 
 	load "geo/stzGeoMap.ring"
 
-
 # Loading files related to the GRID module
 
 	load "grid/stzGrid.ring"
@@ -78,7 +77,6 @@
 # Loading files related to the LIST module
 
 	load "list/stzList2D.ring"
-	load "list/stzListFormatter.ring"
 	load "list/stzListParser.ring"
 	load "list/stzListProvidedAsString.ring"
 	load "list/stzSortedList.ring"
@@ -134,61 +132,45 @@
 	load "plot/stzSurfacePlot.ring"
 
 # Loading files related to PLUGINS module
+
 	load "plugins/stzPluginSystem.ring"
 
-# Loading files related to the TREE module
+# Loading files related to REGEX module
 
-	load "tree/stzTree.ring"
-
-# Loading files related to the TABLE module
-
-	load "table/stzTable.ring"
-	load "table/stzListOfTables.ring"
-
-	load "table/stzPivotTable.ring"
-	load "table/stzPivotTableShow.ring"
-
-# Loading files related to the STATS module
-
-	load "stats/stzDataSet.ring"
-	load "stats/stzDataWrangler.ring"
+	load "regex/stzListex.ring"
+	load "regex/stzRegexuter.ring"
 
 # Loading files related to the SOLVERS module
 
 	load "solvers/stzLinearSolver.ring"
 	load "solvers/stzCoeffExtractor.ring"
 
-# Loading files related to PERF module
 
-	load "perf/stzFastPro.ring" 				# Used by /math/stzMatrix.ring
-	load "perf/stzFastProBinary.ring"
+# Loading files related to the STATS module
 
-	load "perf/stzDataPerfEngine.ring" 	# Used by /dataphore/stzDataModel.ring
+	load "stats/stzDataSet.ring"
+	load "stats/stzDataWrangler.ring"
 
 # Loading files related to STRING module
 
 	load "string/stzMultiString.ring"
 	load "string/stzSringConstraints.ring"
+	load "string/stzTextEncoding.ring"
 
-# Loading files related to REGEX module
 
-	load "regex/stzRegex.ring"
-	load "regex/stzRegexMaker.ring"
-	load "regex/stzListex.ring"
-	load "regex/stzRegexuter.ring"
-	#NOTE // we hava also stzRegexData.ring in /data/ folder
+# Loading files related to the TABLE module
 
-# Loading files related to the SYSTEMS module
-
-	load "systems/stzArchitectureSystem.ring"
-	load "systems/stzProfilingSystem.ring"
-	load "systems/stzRingStateSystem.ring"
-	load "systems/stzTextEncodingSystem.ring"
+	load "table/stzPivotTable.ring"
+	load "table/stzPivotTableShow.ring"
 
 
 # Loading files related to the TEST module
 
 	load "test/stzTestoor.ring"
+
+# Loading files related to the TREE module
+
+	load "tree/stzTree.ring"
 
 # Loading files related to the WEB module
 
@@ -198,4 +180,4 @@
 
 # Loading files related to the ZAI module
 
-	# load "zai/nothing.ring"
+	# load "zai/stzZai.ring"

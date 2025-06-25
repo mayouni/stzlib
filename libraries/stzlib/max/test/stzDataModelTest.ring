@@ -1,7 +1,7 @@
 # stzDataModel Test Suite - Educational Samples
 # Demonstrating practical usage patterns and design workflows
 
-load "../max/stzmax.ring"
+load "../stzmax.ring"
 
 #=========================#
 # BASIC SCHEMA DEFINITION #

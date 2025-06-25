@@ -1,4 +1,4 @@
-load "../max/stzmax.ring"
+load "../stzmax.ring"
 
 /*====================================#
 #   LISTEX - TESTING MATCHES CAPTURE  #
@@ -23,7 +23,7 @@ next
 ? @@NL(aValues)
 
 /*--- GETTING MATCHED VALUES AFTER MATHCH IS DONE
-*/
+
 pr()
 
 Lx = Lx('[ @N, [ @S, [ @N, [ @S, @N ] ] ] ]')
@@ -39,11 +39,12 @@ Lx = Lx('[ @N, [ @S, [ @N, [ @S, @N ] ] ] ]')
 
 
 pf()
+# Executed in 0.14 second(s) in Ring 1.22
 
 /*======================================================#
 #   LISTEX - AUTOMATED TEST SUITE FOR PATTERN MATCHING  #
 #=======================================================#
-
+*/
 pr()
 
 ? "#----------------------------------------#"
