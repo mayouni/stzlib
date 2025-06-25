@@ -1,4 +1,4 @@
-load "../max/stzmax.ring"
+load "../stzmax.ring"
 
 # Example usage in your code
 

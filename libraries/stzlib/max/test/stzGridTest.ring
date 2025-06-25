@@ -1,4 +1,4 @@
-load "../max/stzmax.ring"
+load "../stzmax.ring"
 
 
 /*--- Testing basic grid initialization and movement

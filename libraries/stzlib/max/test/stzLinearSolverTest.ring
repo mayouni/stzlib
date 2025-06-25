@@ -4,7 +4,7 @@
 	Author: Softanza Team
 */
 
-load "../max/stzmax.ring"
+load "../stzmax.ring"
 
 #=========================#
 #   RESOURCE ALLOCATION   #

@@ -1,4 +1,4 @@
-load "../max/stzmax.ring"
+load "../stzmax.ring"
 
 #TODO Add tests for creating a stzRingState object
 

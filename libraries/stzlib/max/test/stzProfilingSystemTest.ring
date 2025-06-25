@@ -277,7 +277,7 @@ proff()
 
 #NOTE
 # To test this sample, and be able to use the Q() small function,
-# you need to load "../max/stzmax.ring" in the top the file and not just
+# you need to load "../stzmax.ring" in the top the file and not just
 # "stzprosys.ring".
 
 profon()

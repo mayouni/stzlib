@@ -28,7 +28,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Domain-specific (priority 2)
-
+*/
 pr()
 
 ? Adverb("finance")			#--> financially
@@ -49,23 +49,23 @@ pf()
 # Executed in 0.45 second(s) in Ring 1.22
 
 /*--- Geographic/Cultural (priority 3)
-*/
+
 pr()
 
 ? Adverb("france")		#--> french
 ? Adverb("english")		#--> english
-? Adverb("arab")			#--> arabic
+? Adverb("arab")		#--> arabic
 
 ? Adverb("africa")		#--> african
-? Adverb("asia")			#--> asian
-? Adverb("australia")		#--> australian
-? Adverb("north")			#--> northern
-? Adverb("south")			#--> southern
-? Adverb("east")			#--> eastern
-? Adverb("west")			#--> western
+? Adverb("asia")		#--> asian
+? Adverb("australia")	#--> australian
+? Adverb("north")		#--> northern
+? Adverb("south")		#--> southern
+? Adverb("east")		#--> eastern
+? Adverb("west")		#--> western
 
 pf()
-# Executed in 1.08 second(s) in Ring 1.22
+# Executed in 0.80 second(s) in Ring 1.22
 
 /*--- Testing priority system
 

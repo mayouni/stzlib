@@ -1,4 +1,4 @@
-load "../max/stzmax.ring"
+load "../stzmax.ring"
 
 #NOTE Most of the tesyt samples of Path Managemnt in stzList
 # are here in this file #TODO Relocate them to stzListTest or

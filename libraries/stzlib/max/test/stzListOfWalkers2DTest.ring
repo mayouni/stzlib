@@ -1,5 +1,5 @@
 
-load "../max/stzmax.ring"
+load "../stzmax.ring"
 
 /*--- Initialize with factory functions Wks2D() and StzListOfWalkers2DQ()
 

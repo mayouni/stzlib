@@ -1,5 +1,5 @@
 
-load "../max/stzmax.ring"
+load "../stzmax.ring"
 load "gamelib.ring"
 
 /*-----

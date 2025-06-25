@@ -1,4 +1,4 @@
-load "../max/stzmax.ring"
+load "../stzmax.ring"
 
 #==============================#
 #  TEST SECTION 1: BASIC SETUP #

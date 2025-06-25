@@ -1,4 +1,4 @@
-load "../max/stzmax.ring"
+load "../stzmax.ring"
 
 /*=====================================#
 #  PYTHON LANGUAGE EXAMPLES -- PART 1  #

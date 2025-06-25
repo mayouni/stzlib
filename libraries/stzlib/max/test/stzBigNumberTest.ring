@@ -49,6 +49,7 @@ oBig = new stzBigNumber("124_280_400.68")
 
 /*-------
 
+pr()
 
 oBig = new stzBigNumber("324_987_182_091_876_345.078")
 
@@ -63,7 +64,9 @@ oBig.Add("122_333_987_337_132_339.987653")
 	? oBig.Round() + NL
 	#--> 6
 
-oBig.Subtract("122_333_987_337_132_339.987653")
+#TODO
+
+/*oBig.Subtract("122_333_987_337_132_339.987653")
 	? oBig.SValue()
 	#--> 324_987_182_091_876_345.078
 	? oBig.Round() + NL
@@ -87,7 +90,8 @@ oBig.Divide("2")
 	? oBig.Round() + NL
 	#--> 5
 
-# Executed in 0.039 seconds.
+pf()
+# Executed in 0.008 second(s) in Ring 1.22
 
 /*-------
 
