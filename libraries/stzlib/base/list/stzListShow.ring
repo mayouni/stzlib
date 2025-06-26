@@ -216,11 +216,11 @@ func FormatListSmart(aList, cSep, cIndent)
     
     # Otherwise, use regular expanded formatting
     cResult = "[" + cSep
-    
-    for i = 1 to len(aList)
+    nLen = len(aList)
+    for i = 1 to nLen
         cResult += cIndent + $cIndentChar + FormatValueSmart(aList[i], cSep, cIndent + $cIndentChar)
         
-        if i < len(aList)
+        if i < nLen
             cResult += ","
         ok
         cResult += cSep
@@ -265,13 +265,14 @@ func FormatListSmartNL(aList, cSep, cIndent)
     if bShouldExpand
         cResult = "[" + cSep
         cNextIndent = cIndent + $cIndentChar
-        
-        for i = 1 to len(aList)
+        nLen = len(aList)
+
+        for i = 1 to nLen
             # For each item, decide whether to keep it compact or not
             cFormattedItem = FormatItemForNL(aList[i], cNextIndent)
             cResult += cNextIndent + cFormattedItem
             
-            if i < len(aList)
+            if i < nLen
                 cResult += ","
             ok
             cResult += cSep
@@ -348,8 +349,9 @@ func CanCompactList(aList)
 
 func EstimateInlineWidth(aList)
     nWidth = 4  # [ and ]
-    
-    for i = 1 to len(aList)
+    nLen = len(aList)
+
+    for i = 1 to nLen
         if i > 1
             nWidth += 2  # ", "
         ok
@@ -380,11 +382,12 @@ func EstimateItemWidth(pValue)
 
 func FormatCompactList(aList)
     cResult = "[ "
-    
-    for i = 1 to len(aList)
+    nLen = len(aList)
+
+    for i = 1 to nLen
         cResult += FormatValueCompact(aList[i])
         
-        if i < len(aList)
+        if i < nLen
             cResult += ", "
         ok
     next
@@ -477,11 +480,12 @@ func FormatList(aList, cSep, cIndent)
     ok
     
     cResult = "[" + cSep
-    
-    for i = 1 to len(aList)
+    nLen = len(aList)
+
+    for i = 1 to nLen
         cResult += FormatValue(aList[i], cSep + cIndent, cIndent)
         
-        if i < len(aList)
+        if i < nLen
             cResult += "," + cSep
         ok
     next
