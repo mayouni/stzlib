@@ -74,6 +74,20 @@
 
 	#-- Loading files files related to NATURAL module (NLP and language engeneering)
 
+		load "natural/stzEntity.ring"
+		load "natural/stzListOfEntities.ring"
+
+		load "natural/stzAdverb.ring"
+		load "natural/stzChainOfTruth.ring"
+		load "natural/stzChainOfValue.ring"
+		load "natural/stzConstraints.ring"
+
+		load "natural/stzNaturally.ring"
+		load "natural/stzNaturalCode.ring"
+		load "natural/stzPlural.ring"
+		load "natural/stzSingular.ring"
+		load "natural/stzText.ring"
+
 	#-- Loading files files related to PLOT module (ritch plotting system)
 
 	#-- Loading files files related to PLUGMA module (plugins system)

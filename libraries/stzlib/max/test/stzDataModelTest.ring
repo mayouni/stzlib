@@ -3,6 +3,7 @@
 
 load "../stzmax.ring"
 
+
 #=========================#
 # BASIC SCHEMA DEFINITION #
 #=========================#
