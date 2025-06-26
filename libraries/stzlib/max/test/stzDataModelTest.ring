@@ -17,16 +17,16 @@ pr()
 
 o1 = new stzDataModel("ecommerce_basic")
 o1 {
-    # Define customers table with smart field types
-    DefineTable("customers", [
+    # Add customers table with smart field types
+    AddTable("customers", [
         [ "id", :primary_key ],
         [ "name", :required ],
         [ "email", :email ],
         [ "created_at", :timestamp ]
     ])
     
-    # Define orders table - foreign keys auto-inferred
-    DefineTable("orders", [
+    # Add orders table - foreign keys auto-inferred
+    AddTable("orders", [
         [ "id", :primary_key ],
         [ "customer_id", :foreign_key ],  # Automatically links to customers.id
         [ "total", :decimal ],
@@ -83,13 +83,13 @@ pr()
 
 o1 = new stzDataModel("inventory_system")
 o1 {
-    # Define product categories (self-referencing hierarchy)
-    DefineTable("categories", [
+    # Add product categories (self-referencing hierarchy)
+    AddTable("categories", [
         [ "id", :primary_key ],
         [ "name", :required ],
         [ "parent_id", :foreign_key ], 	# Inferred a "parents" table that does not exist!
 										# What's the impact on the model consistency:
-										# should we go forward and define the table or
+										# should we go forward and Add the table or
 										# be conservative and generate a warning?
 										# Or may be we can be flexible and allow both
 										# options through a smart default and explicit config?
@@ -108,8 +108,8 @@ o1 {
         [ "slug", :unique ]
     ])
     
-    # Define products
-    DefineTable("products", [
+    # Add products
+    AddTable("products", [
         [ "id", :primary_key ],
         [ "name", :required ],
         [ "category_id", :foreign_key ], # Inferred a link to "categories"
@@ -122,8 +122,8 @@ o1 {
         [ "active", :boolean]
     ])
     
-    # Define tags for flexible categorization
-    DefineTable("tags", [
+    # Add tags for flexible categorization
+    AddTable("tags", [
         [ "id", :primary_key ],
         [ "name", :unique]
     ])
@@ -139,7 +139,7 @@ o1 {
 	# the same table can be parents/children of each other, forming tree
 	# structures like organizational charts or category hierarchies.
 
-    # Explicit relationships defined
+    # Explicit relationships Addd
     ? @@NL( Relationships() )
 
 }
@@ -212,21 +212,21 @@ pr()
 o1 = new stzDataModel("social_network")
 o1 {
     # Core entities
-    DefineTable("users", [
+    AddTable("users", [
         [ "id", :primary_key ],
         [ "username", :unique ],
         [ "email", :email ],
         [ "profile_image", :url ]
     ])
 
-    DefineTable("posts", [
+    AddTable("posts", [
         [ "id", :primary_key ],
         [ "user_id", :foreign_key ],
         [ "content", :text ],
         [ "created_at", :timestamp ]
     ])
 
-    DefineTable("likes", [
+    AddTable("likes", [
         [ "id", :primary_key ],
         [ "user_id", :foreign_key ],
         [ "post_id", :foreign_key ],
@@ -353,14 +353,14 @@ pr()
 
 o1 = new stzDataModel("inventory_system")
 o1 {
-    DefineTable("categories", [
+    AddTable("categories", [
         [ "id", :primary_key ],
         [ "name", :required ],
         [ "parent_id", :foreign_key ],
         [ "ref", :unique ]
     ])
 
-    DefineTable("products", [
+    AddTable("products", [
         [ "id", :primary_key ],
         [ "name", :required ],
         [ "category_id", :foreign_key ],
@@ -368,7 +368,7 @@ o1 {
         [ "active", :boolean ]
     ])
 
-    DefineTable("tags", [
+    AddTable("tags", [
         [ "id", :primary_key ],
         [ "name", :unique ]
     ])
@@ -421,14 +421,14 @@ pr()
 
 o1 = new stzDataModel([ "blog_platform", "2.1"])
 o1 {
-    DefineTable("authors", [
+    AddTable("authors", [
         [ "id", :primary_key ],
         [ "name", :required ],
         [ "email", :email ],
         [ "bio", :text ]
     ])
     
-    DefineTable("articles", [
+    AddTable("articles", [
         [ "id", :primary_key ],
         [ "author_id", :foreign_key ],
         [ "title", :required ],
@@ -468,14 +468,14 @@ pr()
 
 o1 = new stzDataModel("blog_platform")
 o1 {
-    DefineTable("authors", [
+    AddTable("authors", [
         [ "id", :primary_key ],
         [ "name", :required ],
         [ "email", :email ],
         [ "bio", :text ]
     ])
     
-    DefineTable("articles", [
+    AddTable("articles", [
         [ "id", :primary_key ],
         [ "author_id", :foreign_key ],
         [ "title", :required ],
@@ -497,7 +497,6 @@ pf()
 
 /*---
 
-
 #=============================#
 #  DEBUGGING & VISUALIZATION  #
 #=============================#
@@ -508,14 +507,14 @@ pr()
 
 o1 = new stzDataModel("blog_platform")
 o1 {
-    DefineTable("authors", [
+    AddTable("authors", [
         [ "id", :primary_key ],
         [ "name", :required ],
         [ "email", :email ],
         [ "bio", :text]
     ])
     
-    DefineTable("articles", [
+    AddTable("articles", [
         [ "id", :primary_key ],
         [ "author_id", :foreign_key ],
         [ "title", :required ],
@@ -563,14 +562,14 @@ pr()
 
 o1 = new stzDataModel("blog_platform")
 o1 {
-    DefineTable("authors", [
+    AddTable("authors", [
         [ "id", :primary_key ],
         [ "name", :required ],
         [ "email", :email ],
         [ "bio", :text]
     ])
     
-    DefineTable("articles", [
+    AddTable("articles", [
         [ "id", :primary_key ],
         [ "author_id", :foreign_key ],
         [ "title", :required ],
@@ -639,14 +638,14 @@ pr()
 
 o1 = new stzDataModel("ecommerce_basic")
 o1 {
-    DefineTable("customers", [
+    AddTable("customers", [
         [ "id", :primary_key ],
         [ "name", :required ],
         [ "email", :email ],
         [ "created_at", :timestamp]
     ])
     
-    DefineTable("orders", [
+    AddTable("orders", [
         [ "id", :primary_key ],
         [ "customer_id", :foreign_key ],
         [ "total", :decimal ],
@@ -685,7 +684,7 @@ pr()
 
 o1 = new stzDataModel("user_management")
 o1 {
-    DefineTable("users", [
+    AddTable("users", [
         [ "id", :primary_key ],
         [ "username", :required ],
         [ "email", :email ],
@@ -731,7 +730,7 @@ pr()
 o1 = new stzDataModel([ "ecommerce_complete", "3.0"])
 o1 {
     # Customer management with hierarchy
-    DefineTable("customers", [
+    AddTable("customers", [
         [ "id", :primary_key ],
         [ "parent_id", :foreign_key ],      # For B2B hierarchies
         [ "name", :required ],
@@ -740,14 +739,14 @@ o1 {
     ])
     
     # Product catalog with categories
-    DefineTable("categories", [
+    AddTable("categories", [
         [ "id", :primary_key ],
         [ "parent_id", :foreign_key ],
         [ "name", :required ],
         [ "path", "varchar(500)"]
     ])
     
-    DefineTable("products", [
+    AddTable("products", [
         [ "id", :primary_key ],
         [ "category_id", :foreign_key ],
         [ "name", :required ],
@@ -756,7 +755,7 @@ o1 {
     ])
     
     # Order processing
-    DefineTable("orders", [
+    AddTable("orders", [
         [ "id", :primary_key ],
         [ "customer_id", :foreign_key ],
         [ "status", "varchar(50)" ],
@@ -764,7 +763,7 @@ o1 {
         [ "created_at", :timestamp]
     ])
     
-    DefineTable("order_items", [
+    AddTable("order_items", [
         [ "id", :primary_key ],
         [ "order_id", :foreign_key ],
         [ "product_id", :foreign_key ],
@@ -772,7 +771,7 @@ o1 {
         [ "unit_price", :decimal]
     ])
     
-    # Define explicit relationships
+    # Add explicit relationships
     Hierarchy("customers", [:parent_field = "parent_id"])     # B2B customer hierarchies
     Hierarchy("categories", [:parent_field = "parent_id"])    # Product categories
     Link("orders", "products", "many_to_many", [:via = "order_items"])
@@ -833,7 +832,7 @@ pr()
 
 o1 = new stzDataModel([ "ecommerce_complete", "3.0"])
 o1 {
-    DefineTable("customers", [
+    AddTable("customers", [
         [ "id", :primary_key ],
         [ "parent_id", :foreign_key ],
         [ "name", :required ],
@@ -841,14 +840,14 @@ o1 {
         [ "type", "varchar(20)"]
     ])
     
-    DefineTable("categories", [
+    AddTable("categories", [
         [ "id", :primary_key ],
         [ "parent_id", :foreign_key ],
         [ "name", :required ],
         [ "path", "varchar(500)"]
     ])
     
-    DefineTable("products", [
+    AddTable("products", [
         [ "id", :primary_key ],
         [ "category_id", :foreign_key ],
         [ "name", :required ],
@@ -856,7 +855,7 @@ o1 {
         [ "inventory_count", "integer"]
     ])
     
-    DefineTable("orders", [
+    AddTable("orders", [
         [ "id", :primary_key ],
         [ "customer_id", :foreign_key ],
         [ "status", "varchar(50)" ],
@@ -864,7 +863,7 @@ o1 {
         [ "created_at", :timestamp]
     ])
     
-    DefineTable("order_items", [
+    AddTable("order_items", [
         [ "id", :primary_key ],
         [ "order_id", :foreign_key ],
         [ "product_id", :foreign_key ],
@@ -1043,6 +1042,10 @@ Key relationships:
 pf()
 # Executed in 1.47 second(s) in Ring 1.22
 
+#=== #TODO
+
+Test AnalyzeFieldAdditionImpact and other untesed methods
+
 #=======================#
 #  EDUCATIONAL SUMMARY  #
 #=======================#
@@ -1059,7 +1062,7 @@ pf()
 
 # WHEN TO USE EACH FEATURE:
 #
-# • DefineTable(): Basic schema definition with smart defaults
+# • AddTable(): Basic schema definition with smart defaults
 # • Link(): Complex relationships that can't be auto-inferred  
 # • Hierarchy(): Parent-child trees (categories, org charts)
 # • Network(): Peer-to-peer connections (social networks, graphs)
