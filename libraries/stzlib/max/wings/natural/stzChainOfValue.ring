@@ -1,21 +1,21 @@
 
-$bRandomPass = _TRUE_
-$pStopValue = _NULL_
+$bRandomPass = TRUE
+$pStopValue = NULL
 
-$bExecuteCode = _FALSE_
+$bExecuteCode = FALSE
 
-$cValueInitiator = _NULL_
+$cValueInitiator = NULL
 
 $cOneOrManyLoops = :One
-$bRequiresStopValue = _FALSE_
+$bRequiresStopValue = FALSE
 
 func Whatever(p)
 	$cValueInitiator = :Whatever
 
 	$cOneOrManyLoops = :One
-	$bRequiresStopValue = _FALSE_
+	$bRequiresStopValue = FALSE
 
-	$bExecuteCode = _TRUE_
+	$bExecuteCode = TRUE
 
 	return new stzChainOfValue(p)
 

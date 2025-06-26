@@ -7,6 +7,8 @@ $nMaxInlineWidth = 50          # Maximum width for keeping lists inline
 $nMaxCompactWidth = 35         # Maximum width for compact nested lists
 $nMaxComplexityThreshold = 30  # Complexity threshold for expansion
 
+$cIndentChar = TAB
+
 #--- Core Configuration Functions ---
 
 func MinShortForm()
@@ -54,7 +56,7 @@ func ComputableFormNL(pValue)
     if isList(pValue)
         # Always use smart formatting for lists in NL mode
         # The smart formatter will decide internally whether to expand or compact
-        return FormatValueSmartNL(pValue, NL, TAB)
+        return FormatValueSmartNL(pValue, NL, "")
     else
         return ComputableForm(pValue)
     ok
@@ -182,23 +184,6 @@ func GetMaxDepth(aList)
     
     return nMaxDepth
 
-# Smart formatting that compacts simple nested structures
-func FormatValueSmart(pValue, cSep, cIndent)
-    if isNumber(pValue)
-        return "" + pValue
-        
-    but isString(pValue)
-        return FormatString(pValue)
-        
-    but isList(pValue)
-        return FormatListSmart(pValue, cSep, cIndent)
-        
-    but isObject(pValue)
-        return ObjectVarName(pValue)
-        
-    else
-        raise("Unsupported value type")
-    ok
 
 # Smart formatting specifically for NL mode - always considers expansion
 func FormatValueSmartNL(pValue, cSep, cIndent)
@@ -218,6 +203,7 @@ func FormatValueSmartNL(pValue, cSep, cIndent)
         raise("Unsupported value type")
     ok
 
+
 func FormatListSmart(aList, cSep, cIndent)
     if len(aList) = 0
         return "[ ]"
@@ -232,7 +218,7 @@ func FormatListSmart(aList, cSep, cIndent)
     cResult = "[" + cSep
     
     for i = 1 to len(aList)
-        cResult += cIndent + FormatValueSmart(aList[i], cSep, cIndent + TAB)
+        cResult += cIndent + $cIndentChar + FormatValueSmart(aList[i], cSep, cIndent + $cIndentChar)
         
         if i < len(aList)
             cResult += ","
@@ -240,8 +226,9 @@ func FormatListSmart(aList, cSep, cIndent)
         cResult += cSep
     next
     
-    cResult += "]"
+    cResult += cIndent + "]"
     return cResult
+
 
 # Smart list formatting specifically for NL mode
 func FormatListSmartNL(aList, cSep, cIndent)
@@ -277,11 +264,12 @@ func FormatListSmartNL(aList, cSep, cIndent)
     
     if bShouldExpand
         cResult = "[" + cSep
+        cNextIndent = cIndent + $cIndentChar
         
         for i = 1 to len(aList)
             # For each item, decide whether to keep it compact or not
-            cFormattedItem = FormatItemForNL(aList[i], cIndent + TAB)
-            cResult += cIndent + cFormattedItem
+            cFormattedItem = FormatItemForNL(aList[i], cNextIndent)
+            cResult += cNextIndent + cFormattedItem
             
             if i < len(aList)
                 cResult += ","
@@ -289,12 +277,13 @@ func FormatListSmartNL(aList, cSep, cIndent)
             cResult += cSep
         next
         
-        cResult += "]"
+        cResult += cIndent + "]"
         return cResult
     ok
     
     # If it's simple enough, keep it compact
     return FormatCompactList(aList)
+
 
 # Format individual items in NL mode
 func FormatItemForNL(pValue, cBaseIndent)
@@ -322,6 +311,7 @@ func FormatItemForNL(pValue, cBaseIndent)
     else
         raise("Unsupported value type")
     ok
+
 
 # Check if a list contains nested lists
 func ContainsNestedLists(aList)
@@ -544,10 +534,10 @@ func FormatShortString(cStr, nItems)
 func @@(pValue)
     return ComputableForm(pValue)
 
-func @@NLXT(pValue)
+func @@NL(pValue)
     return ComputableFormNL(pValue)
 
-func @@NL(pValue)
+func @@NL1(pValue)
 	cResult = "[" + NL
 	nLen = len(pValue)
 	for i = 1 to nLen
