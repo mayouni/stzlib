@@ -483,7 +483,7 @@ o1 {
         [ "published_at", :timestamp ],
         [ "view_count", "integer" ]
     ])
-    
+
     # Set the default performance plan (already set by init)
     SetPerformancePlan("default")
     
@@ -492,10 +492,57 @@ o1 {
     ? BoxRound("Performance optimization hints (Default Plan)")
     ? @@NL( performance_hints ) + NL
 }
+#-->
+'
+[
+	[
+		[ "rule_id", "basic_fk_index" ],
+		[ "type", "index_optimization" ],
+		[ "priority", "medium" ],
+		[ "performance_plan", "default" ],
+		[
+			"message",
+			"Consider adding index on foreign key field"
+		],
+		[ "action", "" ],
+		[ "performance_impact", "medium" ],
+		[ "applies_to", "all_foreign_keys" ],
+		[
+			"description_data",
+			[
+				[ "table", "articles" ],
+				[ "field", "author_id" ],
+				[ "related_table", "authors" ],
+				[ "relationship_type", "belongs_to" ]
+			]
+		]
+	],
+	[
+		[ "rule_id", "query_awareness" ],
+		[ "type", "query_optimization" ],
+		[ "priority", "low" ],
+		[ "performance_plan", "default" ],
+		[
+			"message",
+			"Be aware of potential N+1 query issues"
+		],
+		[ "action", "" ],
+		[ "performance_impact", "medium" ],
+		[ "applies_to", "has_many_relationships" ],
+		[
+			"description_data",
+			[
+				[ "from_table", "authors" ],
+				[ "to_table", "articles" ],
+				[ "relationship_type", "has_many" ]
+			]
+		]
+	]
+]
+'
 
 pf()
-
-/*---
+# Executed in 0.34 second(s) in Ring 1.22
 
 #=============================#
 #  DEBUGGING & VISUALIZATION  #

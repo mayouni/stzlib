@@ -1,5 +1,5 @@
 # Global performance rules abstracted into configurable containers
-$aPerfs = [
+$aPerfPlans = [
 
         # Default balanced plan
         :default = [
@@ -174,52 +174,71 @@ $aPerfs = [
 ]
 
 class stzDataPerfEngine from stzObject
-    @aRuleSets
+    @aPlans
     @cActivePlan
     @aDescriptionRules
     @aThresholds
     
     def init()
-        @aRuleSets = []
+        @aPlans = []
         @cActivePlan = "default"
         @aDescriptionRules = []
+        
+        # UPDATED THRESHOLDS - More realistic detection values
         @aThresholds = [
             :table_field_count_high = 20,
-            :table_field_count_moderate = 10,
-            :table_relationship_count_high = 10,
-            :table_relationship_count_moderate = 5,
+            :table_field_count_moderate = 6,       # Lowered from 10 to 6
+            :table_relationship_count_high = 5,    # Lowered from 10 to 5  
+            :table_relationship_count_moderate = 2, # Lowered from 5 to 2
             :query_depth_warning = 3,
             :index_cardinality_threshold = 1000
         ]
-        This.InitRules()
+        This.InitPlans()
     
-    def InitRules()
-        # Web Application Optimization Plan
-         @aRuleSets = [
-            [
-                :name = "default",
-                :plan = $aPerfs[:default]
+    # FIXED InitPlans METHOD
+    def InitPlans()
+        # Clear existing plans
+        @aPlans = []
+        
+        # Load plans from global variable with proper structure
+        nLen = len($aPerfPlans)
+        for i = 1 to nLen
+            cPlanName = $aPerfPlans[i][1]
+            aPlanData = $aPerfPlans[i][2]
+            
+            @aPlans + [
+                :name = cPlanName,
+                :plan = aPlanData  # Store the entire plan data, not just rules
             ]
-        ]
-    
-    def AddRulePlan(cPlanName, aRulePlan)
-        @aRuleSets + [
+        next
+
+	def Plans()
+		return @aPlans
+
+    def AddPlan(cPlanName, aRulePlan)
+        @aPlans + [
             :name = cPlanName,
             :plan = aRulePlan
         ]
     
+		def AddRulePlan(cPlanName, aRulePlan)
+			This.AddPlan(cPlanName, aRulePlan)
+
     def SetActivePlan(cPlanName)
         @cActivePlan = cPlanName
-        return This
     
     def ActivePlan()
         return @cActivePlan
     
+    # FIXED RulesForPlan METHOD
     def RulesForPlan(cPlanName)
-        nLen = len(@aRuleSets)
+        nLen = len(@aPlans)
         for i = 1 to nLen
-            if @aRuleSets[i][:name] = cPlanName
-                return @aRuleSets[i][:plan][:rules]
+            if @aPlans[i][:name] = cPlanName
+                aPlan = @aPlans[i][:plan]
+                if HasKey(aPlan, :rules)
+                    return aPlan[:rules]
+                ok
             ok
         next
         return []
@@ -227,19 +246,23 @@ class stzDataPerfEngine from stzObject
     def ActiveRules()
         return This.RulesForPlan(@cActivePlan)
     
+    # FIXED PlanDescription METHOD
     def PlanDescription(cPlanName)
-        nLen = len(@aRuleSets)
+        nLen = len(@aPlans)
         for i = 1 to nLen
-            if @aRuleSets[i][:name] = cPlanName
-                return @aRuleSets[i][:plan][:Description]
+            if @aPlans[i][:name] = cPlanName
+                aPlan = @aPlans[i][:plan]
+                if HasKey(aPlan, :Description)
+                    return aPlan[:Description]
+                ok
             ok
         next
-        return "Unknown Description"
+        return "Unknown plan"
     
 		def PlanXT(cPlanName)
 			return This.PlanDescription(cPlanName)
 
-
+    # UPDATED EvalRule METHOD with missing handler
     def EvalRule(aRule, aModelData)
         # Evaluate if rule condition is met given model data
         cCondition = aRule[:condition]
@@ -256,7 +279,7 @@ class stzDataPerfEngine from stzObject
             return This.CheckLargeResultSets(aModelData)
 
         on "large_text_fields"
-            return This.CheckLarextFields(aModelData)
+            return This.CheckLargestFields(aModelData)
 
         on "frequent_updates"
             return This.CheckFrequentUpdates(aModelData)
@@ -266,6 +289,10 @@ class stzDataPerfEngine from stzObject
 
         on "large_time_series_data"
             return This.CheckTimeSeriesData(aModelData)
+
+        # ADDED MISSING HANDLER:
+        on "frequent_column_combinations"
+            return This.CheckFrequentColumnCombinations(aModelData)
 
         other
             return []  # No matches found
@@ -358,7 +385,7 @@ class stzDataPerfEngine from stzObject
 
         return aResults
     
-    def CheckLarextFields(aModelData)
+    def CheckLargestFields(aModelData)
 
         aResults = []
 
@@ -476,6 +503,62 @@ class stzDataPerfEngine from stzObject
         ok
 
         return aResults
+
+    # NEW METHOD: CheckFrequentColumnCombinations
+    def CheckFrequentColumnCombinations(aModelData)
+        aResults = []
+        
+        # Look for tables with multiple indexed/searchable fields
+        # that would benefit from covering indexes
+        
+        if HasKey(aModelData, :tables) > 0
+            aTables = aModelData[:tables]
+            nLen = len(aTables)
+            
+            for i = 1 to nLen
+                aTable = aTables[i]
+                
+                # Analytics workloads often query on multiple columns
+                # If table has foreign keys + other searchable fields, suggest covering indexes
+                if HasKey(aTable, :fields) > 0
+                    aFields = aTable[:fields]
+                    nForeignKeys = 0
+                    nSearchableFields = 0
+                    acSearchableFields = []
+                    
+                    nFieldLen = len(aFields)
+                    for j = 1 to nFieldLen
+                        aField = aFields[j]
+                        
+                        if HasKey(aField, :type) > 0
+                            if aField[:type] = "foreign_key"
+                                nForeignKeys++
+                                acSearchableFields + aField[:name]
+                            ok
+                            
+                            # Common searchable/filterable field types
+                            if aField[:type] = "string" or aField[:type] = "timestamp" or 
+                               aField[:type] = "integer" or aField[:type] = "decimal"
+                                nSearchableFields++
+                                acSearchableFields + aField[:name]
+                            ok
+                        ok
+                    next
+                    
+                    # If table has multiple searchable fields, suggest covering indexes
+                    if (nForeignKeys + nSearchableFields) >= 3
+                        aResults + [
+                            :table = aTable[:name],
+                            :searchable_field_count = (nForeignKeys + nSearchableFields),
+                            :suggested_fields = acSearchableFields,
+                            :reason = "multiple_searchable_columns"
+                        ]
+                    ok
+                ok
+            next
+        ok
+        
+        return aResults
     
     def GenerateActionFromTemplate(cTemplate, aData)
         cAction = cTemplate
@@ -501,10 +584,13 @@ class stzDataPerfEngine from stzObject
     
     def SetThreshold(cThresholdName, nValue)
         @aThresholds[cThresholdName] = nValue
-        return This
+        
     
     def Threshold(cThresholdName)
         if HasKey(@aThresholds, cThresholdName) > 0
             return @aThresholds[cThresholdName]
         ok
         return 0
+
+	def Thresholds()
+		return @aThresholds
