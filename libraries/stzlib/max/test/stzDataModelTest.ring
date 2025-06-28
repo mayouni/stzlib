@@ -42,33 +42,21 @@ o1 {
 '
 [
 	[
+		[ "type", "belongs_to" ],
 		[ "from", "orders" ],
 		[ "to", "customers" ],
-		[ "type", "belongs_to" ],
-		[ "inferred", 1 ],
-		[ "field", "customer_id" ],
-		[
-			"semantic_meaning",
-			"Each order belongs to one customer"
-		]
+		[ "field", "customer_id" ]
 	],
 	[
-		[ "from", "customers" ],
-		[ "to", "orders" ],
 		[ "type", "has_many" ],
-		[ "inferred", 1 ],
-		[ "field", "customer_id" ],
-		[
-			"semantic_meaning",
-			"Each customer can have many orders"
-		]
+		[ "from", "customers" ],
+		[ "to", "orders" ]
 	]
 ]
-
 '
 
 pf()
-# Executed in 0.36 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.22
 
 #==================================#
 #  EXPLICIT RELATIONSHIP MODELING  #
@@ -87,23 +75,23 @@ o1 {
     AddTable("categories", [
         [ "id", :primary_key ],
         [ "name", :required ],
-        [ "parent_id", :foreign_key ], 	# Inferred a "parents" table that does not exist!
-										# What's the impact on the model consistency:
-										# should we go forward and Add the table or
-										# be conservative and generate a warning?
-										# Or may be we can be flexible and allow both
-										# options through a smart default and explicit config?
+        [ "parent_id", :foreign_key ],	# Inferred a "parents" table that does not exist!
+								# What's the impact on the model consistency:
+								# should we go forward and Add the table or
+								# be conservative and generate a warning?
+								# Or may be we can be flexible and allow both
+								# options through a smart default and explicit config?
 
-										#ANSWER
-										# When category_id is found:
-										# 1. Extract "category" from "category_id" 
-										# 2. Pluralize to "categories"
-										# 3. Create belongs_to: products → categories
-										# 4. Create has_many: categories → products
+								#ANSWER
+								# When category_id is found:
+								# 1. Extract "category" from "category_id" 
+								# 2. Pluralize to "categories"
+								# 3. Create belongs_to: products → categories
+								# 4. Create has_many: categories → products
 
-# SetForeignKeyInferenceMode("strict") - Fail if target table doesn't exist
-# SetForeignKeyInferenceMode("smart") - Warn but continue (default)
-# SetForeignKeyInferenceMode("permissive") - Auto-create placeholder tables
+	# SetForeignKeyInferenceMode("strict") - Fail if target table doesn't exist
+	# SetForeignKeyInferenceMode("smart") - Warn but continue (default)
+	# SetForeignKeyInferenceMode("permissive") - Auto-create placeholder tables
 
         [ "slug", :unique ]
     ])
@@ -112,12 +100,12 @@ o1 {
     AddTable("products", [
         [ "id", :primary_key ],
         [ "name", :required ],
-        [ "category_id", :foreign_key ], # Inferred a link to "categories"
-										 # I need to undersdans how the fellowing
-										 # link has been inferred:
-										 # :from products :to categories :belongs_to
-										 # ~> I mean how this semantic relationship has
-										 # been programmatically inferred?
+        [ "category_id", :foreign_key ], 	# Inferred a link to "categories"
+									# I need to undersdans how the fellowing
+									# link has been inferred:
+									# :from products :to categories :belongs_to
+									# ~> I mean how this semantic relationship has
+									# been programmatically inferred?
         [ "price", :decimal ],
         [ "active", :boolean]
     ])
@@ -128,14 +116,14 @@ o1 {
         [ "name", :unique]
     ])
     
-    # Explicit many-to-many relationship
-    Link("products", "tags", "many_to_many", [ :via = "product_tags" ])
-    
-    # Self-referencing hierarchy
-    Hierarchy("categories", [ :parent_field = "parent_id"] )
+	# Explicit many-to-many relationship
+	Link("products", "tags", "many_to_many", [ :via = "product_tags" ])
+
+	# Self-referencing hierarchy
+	Hierarchy("categories", [ :parent_field = "parent_id"] )
 
 	# Further explaining this hierarchy modeling concept:
-    # Hierarchy Modeling: Self-referencing relationships where records in
+	# Hierarchy Modeling: Self-referencing relationships where records in
 	# the same table can be parents/children of each other, forming tree
 	# structures like organizational charts or category hierarchies.
 
@@ -147,26 +135,26 @@ o1 {
 '
 [
 	[
-		[ "from", "products" ],
-		[ "to", "categories" ],
 		[ "type", "belongs_to" ],
-		[ "inferred", 1 ],
-		[ "field", "category_id" ],
-		[
-			"semantic_meaning",
-			"Each product belongs to one category"
-		]
+		[ "from", "categories" ],
+		[ "to", "parents" ],
+		[ "field", "parent_id" ]
 	],
 	[
-		[ "from", "categories" ],
-		[ "to", "products" ],
 		[ "type", "has_many" ],
-		[ "inferred", 1 ],
-		[ "field", "category_id" ],
-		[
-			"semantic_meaning",
-			"Each category can have many products"
-		]
+		[ "from", "parents" ],
+		[ "to", "categories" ]
+	],
+	[
+		[ "type", "belongs_to" ],
+		[ "from", "products" ],
+		[ "to", "categorys" ],
+		[ "field", "category_id" ]
+	],
+	[
+		[ "type", "has_many" ],
+		[ "from", "categorys" ],
+		[ "to", "products" ]
 	],
 	[
 		[ "from", "products" ],
@@ -200,7 +188,7 @@ o1 {
 '
 
 pf()
-# Executed in 0.15 second(s) in Ring 1.22
+# Executed in 0.11 second(s) in Ring 1.22
 
 /*---
 
@@ -246,70 +234,37 @@ o1 {
 '
 [
 	[
+		[ "type", "belongs_to" ],
 		[ "from", "posts" ],
 		[ "to", "users" ],
-		[ "type", "belongs_to" ],
-		[ "inferred", 1 ],
-		[ "field", "user_id" ],
-		[
-			"semantic_meaning",
-			"Each post belongs to one user"
-		]
+		[ "field", "user_id" ]
 	],
 	[
-		[ "from", "users" ],
-		[ "to", "posts" ],
 		[ "type", "has_many" ],
-		[ "inferred", 1 ],
-		[ "field", "user_id" ],
-		[
-			"semantic_meaning",
-			"Each user can have many posts"
-		]
+		[ "from", "users" ],
+		[ "to", "posts" ]
 	],
 	[
+		[ "type", "belongs_to" ],
 		[ "from", "likes" ],
 		[ "to", "users" ],
-		[ "type", "belongs_to" ],
-		[ "inferred", 1 ],
-		[ "field", "user_id" ],
-		[
-			"semantic_meaning",
-			"Each like belongs to one user"
-		]
+		[ "field", "user_id" ]
 	],
 	[
-		[ "from", "users" ],
-		[ "to", "likes" ],
 		[ "type", "has_many" ],
-		[ "inferred", 1 ],
-		[ "field", "user_id" ],
-		[
-			"semantic_meaning",
-			"Each user can have many likes"
-		]
+		[ "from", "users" ],
+		[ "to", "likes" ]
 	],
 	[
+		[ "type", "belongs_to" ],
 		[ "from", "likes" ],
 		[ "to", "posts" ],
-		[ "type", "belongs_to" ],
-		[ "inferred", 1 ],
-		[ "field", "post_id" ],
-		[
-			"semantic_meaning",
-			"Each like belongs to one post"
-		]
+		[ "field", "post_id" ]
 	],
 	[
-		[ "from", "posts" ],
-		[ "to", "likes" ],
 		[ "type", "has_many" ],
-		[ "inferred", 1 ],
-		[ "field", "post_id" ],
-		[
-			"semantic_meaning",
-			"Each post can have many likes"
-		]
+		[ "from", "posts" ],
+		[ "to", "likes" ]
 	],
 	[
 		[ "from", "users" ],
@@ -341,14 +296,14 @@ o1 {
 '
 
 pf()
-# Executed in 1.08 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.22
 
 #================================#
 #  SCHEMA EVOLUTION & MIGRATION  #
 #================================#
 
 /*--- Security: Prevent breaking changes via validation
-
+*/
 pr()
 
 o1 = new stzDataModel("inventory_system")
@@ -390,17 +345,14 @@ o1 {
         ? "Breaking change prevented: Cannot remove field 'category_id' - breaks relationships"
     done
 }
-#--> ERROR: Unexpected result
+#-->
 '
-Impact analysis for adding 'description' field:
+Impact analysis for adding "description" field:
 [
 	[ "breaking_changes", 0 ],
-	[ "perfimpact", "low" ],
+	[ "perf_impact", "low" ],
 	[ "migration_complexity", "simple" ],
-	[
-		"affected_relationships",
-		[ ]
-	],
+	[ "affected_relationships", [  ] ],
 	[
 		"recommendations",
 		[
@@ -409,11 +361,11 @@ Impact analysis for adding 'description' field:
 	]
 ]
 
-Breaking change prevented: Cannot remove field 'category_id' - breaks relationships
+Breaking change prevented: Cannot remove field "category_id" - breaks relationships
 '
 
 pf()
-# Executed in 0.43 second(s) in Ring 1.22
+# Executed in 0.10 second(s) in Ring 1.22
 
 /*--- Version control for schema evolution
 
@@ -436,15 +388,15 @@ o1 {
         [ "published_at", :timestamp ],
         [ "view_count", "integer" ]  # Added in v2.1
     ])
-    
-    ? "Schema: " + SchemaName() + " v" + SchemaVersion()
-    ? @@NL( Explain() )
+
+    ? "Schema: " + SchemaName() + " v" + SchemaVersion() + nl
+
+    ? Explain()
 }
 #--> Other then adding the version, the sample does not show how versioning
 # of the data model is used (and useful) in practice:
 '
 Schema: blog_platform v2.1
-"Data Model: blog_platform (v2.1)
 
 This model contains 2 tables:
 - authors: 4 fields, 2 relationships
@@ -456,14 +408,14 @@ Key relationships:
 '
 
 pf()
-# Executed in 0.68 second(s) in Ring 1.22
+# Executed in 0.10 second(s) in Ring 1.22
 
 #============================#
 #  PERFORMANCE OPTIMIZATION  #
 #============================#
 
 /*--- Basic Data Model with Default Performance Plan
-*/
+
 pr()
 
 o1 = new stzDataModel("blog_platform")
@@ -488,61 +440,41 @@ o1 {
     UsePerfPlan("default")
     
     # Analyze performance
-    perfhints = PerfHints()
+
     ? BoxRound("Performance optimization hints (Default Plan)")
-    ? @@NL( perfhints ) + NL
+    ? @@NL( PerfHints() ) + NL
 }
 #-->
 '
+╭───────────────────────────────────────────────╮
+│ Performance optimization hints (Default Plan) │
+╰───────────────────────────────────────────────╯
 [
 	[
-		[ "rule_id", "basic_fk_index" ],
-		[ "type", "index_optimization" ],
-		[ "priority", "medium" ],
-		[ "perfplan", "default" ],
 		[
 			"message",
-			"Consider adding index on foreign key field"
+			"Consider adding index on articles.author_id"
 		],
-		[ "action", "" ],
-		[ "perfimpact", "medium" ],
-		[ "applies_to", "all_foreign_keys" ],
 		[
-			"description_data",
-			[
-				[ "table", "articles" ],
-				[ "field", "author_id" ],
-				[ "related_table", "authors" ],
-				[ "relationship_type", "belongs_to" ]
-			]
+			"action",
+			"CREATE INDEX idx_articles_author_id ON articles(author_id)"
 		]
 	],
 	[
-		[ "rule_id", "query_awareness" ],
-		[ "type", "query_optimization" ],
-		[ "priority", "low" ],
-		[ "perfplan", "default" ],
 		[
 			"message",
-			"Be aware of potential N+1 query issues"
+			"Monitor N+1 queries for authors -> articles"
 		],
-		[ "action", "" ],
-		[ "perfimpact", "medium" ],
-		[ "applies_to", "has_many_relationships" ],
 		[
-			"description_data",
-			[
-				[ "from_table", "authors" ],
-				[ "to_table", "articles" ],
-				[ "relationship_type", "has_many" ]
-			]
+			"action",
+			"Use eager loading for authors -> articles"
 		]
 	]
 ]
 '
 
 pf()
-# Executed in 0.34 second(s) in Ring 1.22
+# Executed in 0.11 second(s) in Ring 1.22
 
 #=============================#
 #  DEBUGGING & VISUALIZATION  #
@@ -571,22 +503,24 @@ o1 {
     ])
     
     # Get comprehensive model explanation
+	? BoxRound("Data Model : " + Name() + " (v" + Version() + ")")
     ? Explain()
 
 }
 '
-Data Model: blog_platform (v1.0)
-
+╭───────────────────────────────────╮
+│ Data Model : blog_platform (v1.0) │
+╰───────────────────────────────────╯
 This model contains 2 tables:
-- authors: 4 fields, 2 relationships
-- articles: 6 fields, 2 relationships
+• authors: 4 fields, 2 relationships
+• articles: 6 fields, 2 relationships
 
 Key relationships:
-- articles belongs_to authors
-- authors has_many articles
+• articles belongs_to authors
+• authors has_many articles
 '
 pf()
-# Executed in 0.35 second(s) in Ring 1.22
+# Executed in 0.10 second(s) in Ring 1.22
 
 /*---
 
@@ -603,7 +537,7 @@ pr()
 
 pf()
 
-/*--- Diagram generation
+/*--- Diagram generation: for use wit hexternal tool to visualize the diagram
 
 pr()
 
@@ -636,12 +570,100 @@ o1 {
 		[
 			[
 				[ "name", "authors" ],
-				[ "field_count", 4 ],
+				[
+					"field_count",
+					[
+						[
+							[ "name", "id" ],
+							[ "type", "integer" ],
+							[ "options", [  ] ],
+							[ "is_primary_key", 1 ],
+							[ "is_required", 1 ],
+							[ "is_unique", 1 ]
+						],
+						[
+							[ "name", "name" ],
+							[ "type", "varchar(255)" ],
+							[ "options", [  ] ],
+							[ "is_primary_key", 0 ],
+							[ "is_required", 1 ],
+							[ "is_unique", 0 ]
+						],
+						[
+							[ "name", "email" ],
+							[ "type", "varchar(255)" ],
+							[ "options", [  ] ],
+							[ "is_primary_key", 0 ],
+							[ "is_required", 0 ],
+							[ "is_unique", 0 ]
+						],
+						[
+							[ "name", "bio" ],
+							[ "type", "text" ],
+							[ "options", [  ] ],
+							[ "is_primary_key", 0 ],
+							[ "is_required", 0 ],
+							[ "is_unique", 0 ]
+						]
+					]
+				],
 				[ "type", "table" ]
 			],
 			[
 				[ "name", "articles" ],
-				[ "field_count", 6 ],
+				[
+					"field_count",
+					[
+						[
+							[ "name", "id" ],
+							[ "type", "integer" ],
+							[ "options", [  ] ],
+							[ "is_primary_key", 1 ],
+							[ "is_required", 1 ],
+							[ "is_unique", 1 ]
+						],
+						[
+							[ "name", "author_id" ],
+							[ "type", "integer" ],
+							[ "options", [  ] ],
+							[ "is_primary_key", 0 ],
+							[ "is_required", 0 ],
+							[ "is_unique", 0 ]
+						],
+						[
+							[ "name", "title" ],
+							[ "type", "varchar(255)" ],
+							[ "options", [  ] ],
+							[ "is_primary_key", 0 ],
+							[ "is_required", 1 ],
+							[ "is_unique", 0 ]
+						],
+						[
+							[ "name", "content" ],
+							[ "type", "text" ],
+							[ "options", [  ] ],
+							[ "is_primary_key", 0 ],
+							[ "is_required", 0 ],
+							[ "is_unique", 0 ]
+						],
+						[
+							[ "name", "published_at" ],
+							[ "type", "timestamp" ],
+							[ "options", [  ] ],
+							[ "is_primary_key", 0 ],
+							[ "is_required", 0 ],
+							[ "is_unique", 0 ]
+						],
+						[
+							[ "name", "view_count" ],
+							[ "type", "integer" ],
+							[ "options", [  ] ],
+							[ "is_primary_key", 0 ],
+							[ "is_required", 0 ],
+							[ "is_unique", 0 ]
+						]
+					]
+				],
 				[ "type", "table" ]
 			]
 		]
@@ -663,67 +685,18 @@ o1 {
 			]
 		]
 	],
-	[ "complexity", "simple" ],
-	[
-		"self_referencing",
-		[ ]
-	]
+	[ "self_referencing", [  ] ]
 ]
 '
 }
 
 pf()
-# Executed in 0.38 second(s) in Ring 1.22
+# Executed in 0.10 second(s) in Ring 1.22
 
-#=============================#
-#  ADVANCED PATTERN MATCHING  #
-#=============================#
+#==================================#
+#  ADVANCED VALIDATION AND EXPORY  #
+#==================================#
 
-/*--- Dynamic table access for flexible querying
-
-pr()
-
-o1 = new stzDataModel("ecommerce_basic")
-o1 {
-    AddTable("customers", [
-        [ "id", :primary_key ],
-        [ "name", :required ],
-        [ "email", :email ],
-        [ "created_at", :timestamp]
-    ])
-    
-    AddTable("orders", [
-        [ "id", :primary_key ],
-        [ "customer_id", :foreign_key ],
-        [ "total", :decimal ],
-        [ "status", "varchar(50)" ],
-        [ "created_at", :timestamp]
-    ])
-    
-    # Access tables dynamically
-
-    customers_table = GetTable("customers")
-
-    # Dynamic table access
-
-    ? @@([ :name = customers_table.Name(), :fields = customers_table.FieldCount() ])
-    #--> [ [ "name", "customers" ], [ "fields", 4 ] ]
-
-    # Try accessing non-existent table
-
-    try
-        invalid_table = GetTable("nonexistent")
-		? invalid_table.Name()
-
-    catch
-        ? "Invalid table access prevented"
-    done
-	#--> Invalid table access prevented
-
-}
-
-pf()
-# Executed in 0.37 second(s) in Ring 1.22
 
 /*--- Field-level validation and constraints
 
@@ -745,26 +718,53 @@ o1 {
     
     # Validate the enhanced model
     validation = Validate()
-    ? "Validation result:"
-    ? @@NL( validation )
+    ? BoxRound("Validation result")
+    ? @@NL( validation ) + NL
+
+	? BoxRound("DDL script")
+	? ExportDDL()
+
+	#NOTE //Data definition language (DDL) describes the portion
+	# of SQL that creates, alters, and deletes database objects.
+
 }
 #-->
-'
-Validation result:
+"
+╭───────────────────╮
+│ Validation result │
+╰───────────────────╯
 [
 	[ "valid", 1 ],
-	[
-		"errors",
-		[ ]
-	],
+	[ "errors", [  ] ],
 	[ "error_count", 0 ],
 	[ "tables_validated", 1 ],
-	[ "relationships_validated", 0 ]
+	[ "constraints_validated", 5 ],
+	[ "relationships_validated", 0 ],
+	[
+		"summary",
+		"Validation completed: All checks passed"
+	]
 ]
-'
+
+╭────────────╮
+│ DDL script │
+╰────────────╯
+CREATE TABLE users (
+    id primary_key,
+    username required,
+    email email,
+    age integer,
+    status varchar(20)
+);
+
+ALTER TABLE users ADD CONSTRAINT NOT NULL;
+ALTER TABLE users ADD CONSTRAINT CHECK (email LIKE '%@%');
+ALTER TABLE users ADD CONSTRAINT CHECK (age >= 18 AND age <= 120);
+ALTER TABLE users ADD CONSTRAINT CHECK (status IN ('active', 'inactive', 'suspended'));
+"
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.22
 
 #================================#
 #  REAL-WORLD WORKFLOW PATTERNS  #
@@ -823,58 +823,56 @@ o1 {
     Hierarchy("categories", [:parent_field = "parent_id"])    # Product categories
     Link("orders", "products", "many_to_many", [:via = "order_items"])
     
-    # Comprehensive analysis
-    explanation = Explain()
-    ? "Complete e-commerce model:"
-    ? @@NL( explanation )
+    # Comprehensive explanation
+
+    ? BoxRound("Complete e-commerce model:")
+    ? Explain() + NL
     
-    validation = Validate()
-    ? "Validation result:"
-    ? @@NL( validation )
+	# Detailed validation
+
+    ? BoxRound("Validation result:")
+    ? @@NL( Validate() )
 
 }
 #-->
 '
-Complete e-commerce model:
-"Data Model: ecommerce_complete (v3.0)
-
+╭────────────────────────────╮
+│ Complete e-commerce model: │
+╰────────────────────────────╯
 This model contains 5 tables:
-- customers: 5 fields, 3 relationships
-- categories: 4 fields, 3 relationships
-- products: 5 fields, 5 relationships
-- orders: 5 fields, 5 relationships
-- order_items: 5 fields, 4 relationships
+• customers: 5 fields, 1 relationships
+• categories: 4 fields, 1 relationships
+• products: 5 fields, 1 relationships
+• orders: 5 fields, 1 relationships
+• order_items: 5 fields, 0 relationships
 
 Key relationships:
-- products belongs_to categories
-- categories has_many products
-- orders belongs_to customers
-- customers has_many orders
-- order_items belongs_to orders
-- orders has_many order_items
-- order_items belongs_to products
-- products has_many order_items
-- customers hierarchy customers
-- categories hierarchy categories
-- orders many_to_many products
-"
-Validation result:
+• customers hierarchy customers
+• categories hierarchy categories
+• orders many_to_many products
+
+
+╭────────────────────╮
+│ Validation result: │
+╰────────────────────╯
 [
 	[ "valid", 1 ],
-	[
-		"errors",
-		[ ]
-	],
+	[ "errors", [  ] ],
 	[ "error_count", 0 ],
 	[ "tables_validated", 5 ],
-	[ "relationships_validated", 11 ]
+	[ "constraints_validated", 9 ],
+	[ "relationships_validated", 0 ],
+	[
+		"summary",
+		"Validation completed: All checks passed"
+	]
 ]
 '
 pf()
-# Executed in 1.45 second(s) in Ring 1.22
+# Executed in 0.17 second(s) in Ring 1.22
 
 /*--- Migration workflow for production systems
-
+*/
 pr()
 
 o1 = new stzDataModel([ "ecommerce_complete", "3.0"])
@@ -923,9 +921,9 @@ o1 {
     Link("orders", "products", "many_to_many", [:via = "order_items"])
     
     # Stage 1: Current state analysis
-    current_state = Explain()
+
     ? BoxRound("Current state")
-    ? @@NL( current_state ) + nl
+    ? Explain() + nl
     
     # Stage 2: Impact analysis for new field
     impact = AddField("customers", "preferences", :text, [:nullable = true])
@@ -933,157 +931,18 @@ o1 {
     ? @@NL( impact ) + NL
     
     # Stage 3: Performance analysis
-    perfhints = PerfHints()
+
     ? BoxRound("Performance analysis")
-    ? @@NL( perfhints ) + NL
+    ? @@NL( PerfHints() ) + NL
     
     # Stage 4: Final validation
-    final_validation = Validate()
+
     ? BoxRound("Final validation")
-    ? @@NL( final_validation )
+    ? @@NL( Validate() )
 }
 #-->
 '
-╭───────────────╮
-│ Current state │
-╰───────────────╯
-"Data Model: ecommerce_complete (v3.0)
 
-This model contains 5 tables:
-- customers: 5 fields, 3 relationships
-- categories: 4 fields, 3 relationships
-- products: 5 fields, 5 relationships
-- orders: 5 fields, 5 relationships
-- order_items: 5 fields, 4 relationships
-
-Key relationships:
-- products belongs_to categories
-- categories has_many products
-- orders belongs_to customers
-- customers has_many orders
-- order_items belongs_to orders
-- orders has_many order_items
-- order_items belongs_to products
-- products has_many order_items
-- customers hierarchy customers
-- categories hierarchy categories
-- orders many_to_many products
-"
-
-╭───────────────────────────╮
-│ Migration impact analysis │
-╰───────────────────────────╯
-[
-	[ "breaking_changes", 0 ],
-	[ "perfimpact", "low" ],
-	[ "migration_complexity", "simple" ],
-	[
-		"affected_relationships",
-		[ ]
-	],
-	[
-		"recommendations",
-		[
-			"Large text fields may impact query performance"
-		]
-	]
-]
-
-╭──────────────────────╮
-│ Performance analysis │
-╰──────────────────────╯
-[
-	[
-		[ "type", "query_optimization" ],
-		[ "priority", "high" ],
-		[
-			"message",
-			"Potential N+1 query problem detected"
-		],
-		[ "table", "categories" ],
-		[ "related_table", "products" ],
-		[ "relationship", "has_many" ],
-		[
-			"reason",
-			"Loading categories records may trigger multiple queries for products"
-		],
-		[
-			"action",
-			"Use eager loading or joins when querying categories with products"
-		]
-	],
-	[
-		[ "type", "query_optimization" ],
-		[ "priority", "high" ],
-		[
-			"message",
-			"Potential N+1 query problem detected"
-		],
-		[ "table", "customers" ],
-		[ "related_table", "orders" ],
-		[ "relationship", "has_many" ],
-		[
-			"reason",
-			"Loading customers records may trigger multiple queries for orders"
-		],
-		[
-			"action",
-			"Use eager loading or joins when querying customers with orders"
-		]
-	],
-	[
-		[ "type", "query_optimization" ],
-		[ "priority", "high" ],
-		[
-			"message",
-			"Potential N+1 query problem detected"
-		],
-		[ "table", "orders" ],
-		[ "related_table", "order_items" ],
-		[ "relationship", "has_many" ],
-		[
-			"reason",
-			"Loading orders records may trigger multiple queries for order_items"
-		],
-		[
-			"action",
-			"Use eager loading or joins when querying orders with order_items"
-		]
-	],
-	[
-		[ "type", "query_optimization" ],
-		[ "priority", "high" ],
-		[
-			"message",
-			"Potential N+1 query problem detected"
-		],
-		[ "table", "products" ],
-		[ "related_table", "order_items" ],
-		[ "relationship", "has_many" ],
-		[
-			"reason",
-			"Loading products records may trigger multiple queries for order_items"
-		],
-		[
-			"action",
-			"Use eager loading or joins when querying products with order_items"
-		]
-	]
-]
-
-╭──────────────────╮
-│ Final validation │
-╰──────────────────╯
-[
-	[ "valid", 1 ],
-	[
-		"errors",
-		[ ]
-	],
-	[ "error_count", 0 ],
-	[ "tables_validated", 5 ],
-	[ "relationships_validated", 11 ]
-]
 '
 
 pf()
@@ -1091,7 +950,7 @@ pf()
 
 #=== #TODO
 
-Test AnalyzeFieldAdditionImpact and other untesed methods
+//Test AnalyzeFieldAdditionImpact and other untesed methods
 
 #=======================#
 #  EDUCATIONAL SUMMARY  #

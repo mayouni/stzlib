@@ -81,6 +81,7 @@ func iif(pCondition, pTrue, pFalse)
 	# pCondition is a string
 
 	cCode = 'bOk = (' + cCondition + ')'
+
 	eval(cCode)
 
 	if bOk
