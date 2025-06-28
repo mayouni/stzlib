@@ -395,7 +395,7 @@ o1 {
 Impact analysis for adding 'description' field:
 [
 	[ "breaking_changes", 0 ],
-	[ "performance_impact", "low" ],
+	[ "perfimpact", "low" ],
 	[ "migration_complexity", "simple" ],
 	[
 		"affected_relationships",
@@ -485,12 +485,12 @@ o1 {
     ])
 
     # Set the default performance plan (already set by init)
-    SetPerformancePlan("default")
+    UsePerfPlan("default")
     
     # Analyze performance
-    performance_hints = AnalyzePerformance()
+    perfhints = PerfHints()
     ? BoxRound("Performance optimization hints (Default Plan)")
-    ? @@NL( performance_hints ) + NL
+    ? @@NL( perfhints ) + NL
 }
 #-->
 '
@@ -499,13 +499,13 @@ o1 {
 		[ "rule_id", "basic_fk_index" ],
 		[ "type", "index_optimization" ],
 		[ "priority", "medium" ],
-		[ "performance_plan", "default" ],
+		[ "perfplan", "default" ],
 		[
 			"message",
 			"Consider adding index on foreign key field"
 		],
 		[ "action", "" ],
-		[ "performance_impact", "medium" ],
+		[ "perfimpact", "medium" ],
 		[ "applies_to", "all_foreign_keys" ],
 		[
 			"description_data",
@@ -521,13 +521,13 @@ o1 {
 		[ "rule_id", "query_awareness" ],
 		[ "type", "query_optimization" ],
 		[ "priority", "low" ],
-		[ "performance_plan", "default" ],
+		[ "perfplan", "default" ],
 		[
 			"message",
 			"Be aware of potential N+1 query issues"
 		],
 		[ "action", "" ],
-		[ "performance_impact", "medium" ],
+		[ "perfimpact", "medium" ],
 		[ "applies_to", "has_many_relationships" ],
 		[
 			"description_data",
@@ -933,9 +933,9 @@ o1 {
     ? @@NL( impact ) + NL
     
     # Stage 3: Performance analysis
-    performance_hints = AnalyzePerformance()
+    perfhints = PerfHints()
     ? BoxRound("Performance analysis")
-    ? @@NL( performance_hints ) + NL
+    ? @@NL( perfhints ) + NL
     
     # Stage 4: Final validation
     final_validation = Validate()
@@ -975,7 +975,7 @@ Key relationships:
 ╰───────────────────────────╯
 [
 	[ "breaking_changes", 0 ],
-	[ "performance_impact", "low" ],
+	[ "perfimpact", "low" ],
 	[ "migration_complexity", "simple" ],
 	[
 		"affected_relationships",
@@ -1114,6 +1114,6 @@ Test AnalyzeFieldAdditionImpact and other untesed methods
 # • Hierarchy(): Parent-child trees (categories, org charts)
 # • Network(): Peer-to-peer connections (social networks, graphs)
 # • Validate(): Before any production deployment or major change
-# • AnalyzePerformance(): When queries become slow
+# • PerfHints(): When queries become slow
 # • Explain(): When debugging complex models or onboarding new developers
 # • GetERDData(): When generating documentation or visual diagrams
