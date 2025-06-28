@@ -45,18 +45,21 @@ o1 {
 		[ "type", "belongs_to" ],
 		[ "from", "orders" ],
 		[ "to", "customers" ],
-		[ "field", "customer_id" ]
+		[ "field", "customer_id" ],
+		[ "inferred", 1 ]
 	],
 	[
 		[ "type", "has_many" ],
 		[ "from", "customers" ],
-		[ "to", "orders" ]
+		[ "to", "orders" ],
+		[ "field", "customer_id" ],
+		[ "inferred", 1 ]
 	]
 ]
 '
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.22
 
 #==================================#
 #  EXPLICIT RELATIONSHIP MODELING  #
@@ -136,25 +139,17 @@ o1 {
 [
 	[
 		[ "type", "belongs_to" ],
-		[ "from", "categories" ],
-		[ "to", "parents" ],
-		[ "field", "parent_id" ]
-	],
-	[
-		[ "type", "has_many" ],
-		[ "from", "parents" ],
-		[ "to", "categories" ]
-	],
-	[
-		[ "type", "belongs_to" ],
 		[ "from", "products" ],
-		[ "to", "categorys" ],
-		[ "field", "category_id" ]
+		[ "to", "categories" ],
+		[ "field", "category_id" ],
+		[ "inferred", 1 ]
 	],
 	[
 		[ "type", "has_many" ],
-		[ "from", "categorys" ],
-		[ "to", "products" ]
+		[ "from", "categories" ],
+		[ "to", "products" ],
+		[ "field", "category_id" ],
+		[ "inferred", 1 ]
 	],
 	[
 		[ "from", "products" ],
@@ -188,7 +183,7 @@ o1 {
 '
 
 pf()
-# Executed in 0.11 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*---
 
@@ -237,34 +232,43 @@ o1 {
 		[ "type", "belongs_to" ],
 		[ "from", "posts" ],
 		[ "to", "users" ],
-		[ "field", "user_id" ]
+		[ "field", "user_id" ],
+		[ "inferred", 1 ]
 	],
 	[
 		[ "type", "has_many" ],
 		[ "from", "users" ],
-		[ "to", "posts" ]
+		[ "to", "posts" ],
+		[ "field", "user_id" ],
+		[ "inferred", 1 ]
 	],
 	[
 		[ "type", "belongs_to" ],
 		[ "from", "likes" ],
 		[ "to", "users" ],
-		[ "field", "user_id" ]
+		[ "field", "user_id" ],
+		[ "inferred", 1 ]
 	],
 	[
 		[ "type", "has_many" ],
 		[ "from", "users" ],
-		[ "to", "likes" ]
+		[ "to", "likes" ],
+		[ "field", "user_id" ],
+		[ "inferred", 1 ]
 	],
 	[
 		[ "type", "belongs_to" ],
 		[ "from", "likes" ],
 		[ "to", "posts" ],
-		[ "field", "post_id" ]
+		[ "field", "post_id" ],
+		[ "inferred", 1 ]
 	],
 	[
 		[ "type", "has_many" ],
 		[ "from", "posts" ],
-		[ "to", "likes" ]
+		[ "to", "likes" ],
+		[ "field", "post_id" ],
+		[ "inferred", 1 ]
 	],
 	[
 		[ "from", "users" ],
@@ -303,7 +307,7 @@ pf()
 #================================#
 
 /*--- Security: Prevent breaking changes via validation
-*/
+
 pr()
 
 o1 = new stzDataModel("inventory_system")
@@ -358,6 +362,14 @@ Impact analysis for adding "description" field:
 		[
 			"Large text fields may impact query performance"
 		]
+	],
+	[
+		"field_info",
+		[
+			[ "table", "products" ],
+			[ "field", "description" ],
+			[ "type", "text" ]
+		]
 	]
 ]
 
@@ -365,7 +377,7 @@ Breaking change prevented: Cannot remove field "category_id" - breaks relationsh
 '
 
 pf()
-# Executed in 0.10 second(s) in Ring 1.22
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Version control for schema evolution
 
@@ -393,7 +405,7 @@ o1 {
 
     ? Explain()
 }
-#--> Other then adding the version, the sample does not show how versioning
+#--> #TODO Other then adding the version, the sample does not show how versioning
 # of the data model is used (and useful) in practice:
 '
 Schema: blog_platform v2.1
@@ -474,7 +486,7 @@ o1 {
 '
 
 pf()
-# Executed in 0.11 second(s) in Ring 1.22
+# Executed in 0.06 second(s) in Ring 1.22
 
 #=============================#
 #  DEBUGGING & VISUALIZATION  #
@@ -520,7 +532,7 @@ Key relationships:
 • authors has_many articles
 '
 pf()
-# Executed in 0.10 second(s) in Ring 1.22
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*---
 
@@ -538,7 +550,7 @@ pr()
 pf()
 
 /*--- Diagram generation: for use wit hexternal tool to visualize the diagram
-
+*/
 pr()
 
 o1 = new stzDataModel("blog_platform")
@@ -560,9 +572,9 @@ o1 {
     ])
 
     # Generate entity-relationship diagram data
-    erd_data = DiagramData()
-	? @@NL( erd_data )
-	#-->
+    erd_script = ToMermaidERD()
+	? erd_script
+#-->
 '
 [
 	[
@@ -689,6 +701,8 @@ o1 {
 ]
 '
 }
+
+#NOTE Go to https://www.mermaidchart.com/ and paste the script in the editor to see the diagram
 
 pf()
 # Executed in 0.10 second(s) in Ring 1.22

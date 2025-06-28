@@ -1,4 +1,5 @@
-# Enhanced stzDataModel Implementation - Hashlist-Based Data Interchange
+
+# Enhanced stzDataModel Implementation - Fixed Issues
 # Performance optimized with pure Ring data types
 
 func IsDataTableHashlist(paTable)
@@ -45,7 +46,7 @@ func IsListOfFieldHashlists(paList)
 class stzDataModel from stzObject
 	@cSchemaName
 	@cSchemaVersion
-	@aTables           # Changed from @aDataTables - now pure hashlists
+	@aTables           
 	@aRelationships
 	@aConstraints
 	@aPerfHints
@@ -53,8 +54,8 @@ class stzDataModel from stzObject
 	@cForeignKeyMode # Can be "smart", "strict", or "permissive"
 	@cActivePerfPlan
 
-	@oPerfEngine # Hosts an instance of stzDataPerfEngine class
-	@cActivePerfPlan  # Rreferences active performance plan (default, web, mobile, analytics...)
+	@oPerfEngine 
+	@cActivePerfPlan  
 	
 	def init(p)
 		if isString(p)
@@ -111,45 +112,6 @@ class stzDataModel from stzObject
 	#  Table management with hashlists  #
 	#===================================#
 
-/*
-	def AddTable(cTableName, aFields)
-		# Convert field definitions to hashlists if needed
-		aProcessedFields = []
-		for aField in aFields
-			if isList(aField) and len(aField) >= 2
-				# Convert array format [name, type, options] to hashlist
-				aOptions = []
-				if len(aField) > 2
-					aOptions = aField[3]
-				ok
-
-				aFieldHashlist = [
-					:name = aField[1],
-					:type = This.ProcessFieldType(aField[2]),
-					:options = aOptions,
-					:is_primary_key = (aField[2] = :primary_key),
-					:is_required = (aField[2] = :required or aField[2] = :primary_key),
-					:is_unique = (aField[2] = :unique or aField[2] = :primary_key)
-				]
-				aProcessedFields + aFieldHashlist
-			but IsFieldHashlist(aField)
-				aProcessedFields + aField
-			else
-				stzraise("Invalid field format in table " + cTableName)
-			ok
-		next
-
-		# Create table hashlist
-		aTableHashlist = [
-			:name = cTableName,
-			:fields = aProcessedFields,
-			:created_at = Timestamp()
-		]
-
-		@aTables + aTableHashlist
-		This.InferRelationshipsForTable(aTableHashlist)
-		return This
-*/
     # Add a table with field definitions (can be names or [name, type] pairs)
     def AddTable(cTableName, aFields)
         aProcessedFields = []
@@ -179,7 +141,10 @@ class stzDataModel from stzObject
         
         aTable = [ :name = cTableName, :fields = aProcessedFields ]
         @aTables + aTable
-
+        
+        # Auto-infer relationships for this table
+        This.InferRelationshipsForTable(aTable)
+        return This
 
 	def Table(cTableName)
 		for aTable in @aTables
@@ -215,7 +180,7 @@ class stzDataModel from stzObject
             :from = cFromTable,
             :to = cToTable,
             :type = cType,
-            :inferred = false,
+            :inferred = FALSE,
             :options = aOptions
         ]
         @aRelationships + aRelationship
@@ -227,12 +192,11 @@ class stzDataModel from stzObject
         ok
         
         # Hierarchy is a self-referencing relationship
-        # Each record can have a parent (belongs_to self) and children (has_many self)
         aRelationship = [
             :from = cTable,
             :to = cTable,
             :type = "hierarchy",
-            :inferred = false,
+            :inferred = FALSE,
             :options = aOptions,
             :semantic_meaning = "Each " + SingularOf(cTable) + " can have a parent and multiple children, forming a tree structure"
         ]
@@ -241,7 +205,7 @@ class stzDataModel from stzObject
 
     def Network(cTable, cRelationName, aOptions)
         if aOptions = NULL
-            aOptions = [:bidirectional = true]
+            aOptions = [:bidirectional = TRUE]
         ok
         
         aRelationship = [
@@ -249,15 +213,13 @@ class stzDataModel from stzObject
             :to = cTable,
             :type = "network",
             :name = cRelationName,
-            :inferred = false,
+            :inferred = FALSE,
             :options = aOptions
         ]
         @aRelationships + aRelationship
         return This
 
-
-
-	# Field management with hashlists
+	# Field management with hashlists - FIXED VERSION
 	def AddField(cTableName, cFieldName, cFieldType, aOptions)
 		if aOptions = NULL
 			aOptions = []
@@ -286,13 +248,14 @@ class stzDataModel from stzObject
 		# Add to table's fields
 		aTable[:fields] + aFieldHashlist
 
-		# Handle foreign key inference
-		if cFieldType = :foreign_key
+		# Handle foreign key inference - this will add relationships
+		if cFieldType = :foreign_key or right(cFieldName, 3) = "_id"
 			This.InferRelationsFromFK(cTableName, cFieldName)
 		ok
 
 		return This.AnalyzeFieldAdditionImpact(cTableName, cFieldName, cFieldType, aOptions)
 
+	# FIXED RemoveField - now properly detects breaking changes
 	def RemoveField(cTableName, cFieldName)
 		aTable = This.Table(cTableName)
 		
@@ -339,36 +302,43 @@ class stzDataModel from stzObject
 		next
 		return NULL
 
-	# Relationship management with hashlists
+	# FIXED relationship inference
 	def InferRelationshipsForTable(aTable)
 		for aField in aTable[:fields]
 			cFieldName = aField[:name]
+			# Check if it's a foreign key field
 			if right(cFieldName, 3) = "_id" and cFieldName != "id"
-				cRelatedTable = left(cFieldName, len(cFieldName) - 3)
+				cRelatedTableSingular = left(cFieldName, len(cFieldName) - 3)
+				cRelatedTable = PluralOf(cRelatedTableSingular)
 				
-				# Add belongs_to relationship
-				@aRelationships + [
-					:type = "belongs_to",
-					:from = aTable[:name],
-					:to = PluralOf(cRelatedTable),
-					:field = cFieldName,
-					:inferred = TRUE
-				]
-				
-				# Add corresponding has_many relationship
-				@aRelationships + [
-					:type = "has_many",
-					:from = PluralOf(cRelatedTable),
-					:to = aTable[:name],
-					:field = cFieldName,
-					:inferred = TRUE
-				]
+				# Only add relationship if target table exists
+				if This.TableExists(cRelatedTable)
+					# Add belongs_to relationship
+					@aRelationships + [
+						:type = "belongs_to",
+						:from = aTable[:name],
+						:to = cRelatedTable,
+						:field = cFieldName,
+						:inferred = TRUE
+					]
+					
+					# Add corresponding has_many relationship
+					@aRelationships + [
+						:type = "has_many",
+						:from = cRelatedTable,
+						:to = aTable[:name],
+						:field = cFieldName,
+						:inferred = TRUE
+					]
+				ok
 			ok
 		next
 
 	def InferRelationsFromFK(cFromTable, cForeignKeyField)
-		cReferencedTable = This.TableNameFromFK(cForeignKeyField)
-		if cReferencedTable != ""
+		cReferencedTableSingular = This.TableNameFromFK(cForeignKeyField)
+		cReferencedTable = PluralOf(cReferencedTableSingular)
+		
+		if cReferencedTable != "" and This.TableExists(cReferencedTable)
 			@aRelationships + [
 				:from = cFromTable,
 				:to = cReferencedTable,
@@ -398,14 +368,28 @@ class stzDataModel from stzObject
 		next
 		@aRelationships = aNewRelationships
 
-	# Analysis methods returning hashlists
+	# FIXED analysis methods - now provide better impact assessment
 	def AnalyzeFieldAdditionImpact(cTableName, cFieldName, cFieldType, aOptions)
+		aRecommendations = []
+		cPerfImpact = "minimal"
+		
+		# Analyze based on field type
+		if cFieldType = :text or cFieldType = "text"
+			aRecommendations + "Large text fields may impact query performance"
+			cPerfImpact = "low"
+		but cFieldType = :decimal
+			aRecommendations + "Consider indexing decimal fields used in calculations"
+		but cFieldType = :foreign_key or right(cFieldName, 3) = "_id"
+			aRecommendations + "Foreign key fields should be indexed for performance"
+			cPerfImpact = "low"
+		ok
+		
 		return [
 			:breaking_changes = 0,
-			:perf_impact = "minimal",
+			:perf_impact = cPerfImpact,
 			:migration_complexity = "simple",
 			:affected_relationships = [],
-			:recommendations = [],
+			:recommendations = aRecommendations,
 			:field_info = [
 				:table = cTableName,
 				:field = cFieldName,
@@ -413,6 +397,7 @@ class stzDataModel from stzObject
 			]
 		]
 
+	# FIXED removal impact analysis - now properly detects relationships
 	def AnalyzeFieldRemovalImpact(cTableName, cFieldName)
 		aImpact = [
 			:breaking_changes = 0,
@@ -429,13 +414,13 @@ class stzDataModel from stzObject
 		ok
 		
 		# Check if it's a primary key
-		if aField[:is_primary_key]
+		if HasKey(aField, :is_primary_key) and aField[:is_primary_key]
 			aImpact[:breaking_changes]++
 			aImpact[:breaking_reasons] + "field is primary key"
 			aImpact[:migration_complexity] = "complex"
 		ok
 		
-		# Check relationships
+		# Check relationships - FIXED to properly detect FK relationships
 		for aRel in @aRelationships
 			if HasKey(aRel, :field) and aRel[:field] = cFieldName and aRel[:from] = cTableName
 				aImpact[:breaking_changes]++
@@ -493,19 +478,7 @@ class stzDataModel from stzObject
         ]
 
 	def Explain()
-
-		# Generate a narration of aSummary like this:
-		'
-		This model contains 2 tables:
-		- authors: 4 fields, 2 relationships
-		- articles: 6 fields, 2 relationships
-		
-		Key relationships:
-		- articles belongs_to authors
-		- authors has_many articles
-		'
-
-	cText = "This model contains " + This.CountTables() + " tables:" + nl
+		cText = "This model contains " + This.CountTables() + " tables:" + nl
         for aTable in @aTables
             cTableName = aTable[:name]
             nFields = len(aTable[:fields])
@@ -524,7 +497,6 @@ class stzDataModel from stzObject
 	def Version()
 		return @cSchemaVersion
 
-
 	def TableFields(cTableName)
 		aTable = This.Table(cTableName)
 		return aTable[:fields]
@@ -536,13 +508,13 @@ class stzDataModel from stzObject
 			return This.TableFields(cTableName)
 
 	def CountTableFields(cTableName)
-		return len(TableFields(cTableName))
+		return len(This.TableFields(cTableName))
 
 		def CountFieldsForTable(cTableName)
-			return This.TableFields(cTableName)
+			return This.CountTableFields(cTableName)
 
-		def countFieldsInTable(cTableName)
-			return This.TableFields(cTableName)
+		def CountFieldsInTable(cTableName)
+			return This.CountTableFields(cTableName)
 
 	def TableFieldsXT(cTableName)
 		return This.TableFields(cTableName)  # Already returns hashlists
@@ -556,110 +528,9 @@ class stzDataModel from stzObject
 		next
 		return nCount
 
-/*	# Validation with hashlist results
-	def Validate()
-		@aValidationErrors = []
-		
-		if len(@aTables) = 0
-			@aValidationErrors + [
-				:type = "schema",
-				:severity = "error",
-				:message = "Model has no tables",
-				:table = "",
-				:suggestions = ["Add at least one table using AddTable()"]
-			]
-		ok
-		
-		for aTable in @aTables
-			This.ValidateTable(aTable)
-		next
-		
-		for aRel in @aRelationships
-			This.ValidateRelationship(aRel)
-		next
-		
-		return [
-			:valid = (len(@aValidationErrors) = 0),
-			:errors = @aValidationErrors,
-			:error_count = len(@aValidationErrors),
-			:tables_validated = len(@aTables),
-			:relationships_validated = len(@aRelationships)
-		]
-*/
-	def ValidateTable(aTable)
-		cTableName = aTable[:name]
-		
-		if cTableName = ""
-			@aValidationErrors + [
-				:type = "table",
-				:severity = "error",
-				:message = "Table has no name",
-				:table = "",
-				:suggestions = ["Use SetName() to assign a table name"]
-			]
-		ok
-		
-		if len(aTable[:fields]) = 0
-			@aValidationErrors + [
-				:type = "table",
-				:severity = "error",
-				:message = "Table has no fields",
-				:table = cTableName,
-				:suggestions = ["Add fields using AddField()"]
-			]
-		ok
-		
-		# Check for primary key
-		nPrimaryKeys = 0
-		for aField in aTable[:fields]
-			if aField[:is_primary_key]
-				nPrimaryKeys++
-			ok
-		next
-		
-		if nPrimaryKeys = 0
-			@aValidationErrors + [
-				:type = "table",
-				:severity = "warning",
-				:message = "Table has no primary key",
-				:table = cTableName,
-				:suggestions = ["Add a primary key field"]
-			]
-		but nPrimaryKeys > 1
-			@aValidationErrors + [
-				:type = "table",
-				:severity = "error",
-				:message = "Table has multiple primary keys",
-				:table = cTableName,
-				:suggestions = ["Use composite primary key or single primary key"]
-			]
-		ok
-
-	def ValidateRelationship(aRel)
-		cFromTable = aRel[:from]
-		cToTable = aRel[:to]
-		
-		if not This.TableExists(cFromTable)
-			@aValidationErrors + [
-				:type = "relationship",
-				:severity = "error",
-				:message = "Relationship references non-existent table",
-				:table = cFromTable,
-				:related_table = cToTable,
-				:suggestions = ["Create table '" + cFromTable + "'"]
-			]
-		ok
-		
-		if not This.TableExists(cToTable)
-			@aValidationErrors + [
-				:type = "relationship",
-				:severity = "error",
-				:message = "Relationship references non-existent table",
-				:table = cToTable,
-				:related_table = cFromTable,
-				:suggestions = ["Create table '" + cToTable + "'"]
-			]
-		ok
+	# Return relationships as expected format
+	def Relationships()
+		return @aRelationships
 
 	# Utility methods
 	def TableExists(cTableName)
@@ -702,9 +573,164 @@ class stzDataModel from stzObject
 		ok
 		if right(cForeignKeyField, 3) = "_id"
 			cBaseName = left(cForeignKeyField, len(cForeignKeyField) - 3)
-			return This.PluralOf(cBaseName)
+			return cBaseName  # Return singular form
 		ok
 		return ""
+
+	#===========================#
+	#  CONSTRAINTS ENFORCEMENT  #
+	#===========================#
+
+    # Add a constraint to a table's field
+    def AddConstraint(cTableName, cFieldName, cConstraint)
+        aConstraintDef = [
+            :table = cTableName,
+            :field = cFieldName,
+            :constraint = cConstraint,
+            :type = This.ConstraintType(cConstraint)
+        ]
+        @aConstraints + aConstraintDef
+        
+        # Track relationships for foreign keys
+        if aConstraintDef[:type] = "foreign_key"
+            aRefInfo = This.ParseForeignKey(cConstraint)
+            if aRefInfo != NULL
+                @aRelationships + [
+                    :from_table = cTableName,
+                    :from_field = cFieldName,
+                    :to_table = aRefInfo[:table],
+                    :to_field = aRefInfo[:field]
+                ]
+            ok
+        ok
+
+    # Enhanced constraint type detection
+    def ConstraintType(cConstraint)
+        cUpper = upper(cConstraint)
+        if substr(cUpper, "PRIMARY KEY") > 0
+            return "primary_key"
+        but substr(cUpper, "FOREIGN KEY") > 0 or substr(cUpper, "REFERENCES") > 0
+            return "foreign_key"
+        but substr(cUpper, "UNIQUE") > 0
+            return "unique"
+        but substr(cUpper, "NOT NULL") > 0
+            return "not_null"
+        but substr(cUpper, "CHECK") > 0
+            return "check"
+        but substr(cUpper, "DEFAULT") > 0
+            return "default"
+        else
+            return "custom"
+        ok
+
+    # Improved foreign key parsing
+    def ParseForeignKey(cConstraint)
+        cUpper = upper(cConstraint)
+        nRefPos = substr(cUpper, "REFERENCES ")
+        if nRefPos > 0
+            cAfterRef = substr(cConstraint, nRefPos + 11)
+            # Find table name (up to opening parenthesis or space)
+            nParenPos = substr(cAfterRef, "(")
+            nSpacePos = substr(cAfterRef, " ")
+            
+            nEndPos = nParenPos
+            if nSpacePos > 0 and (nSpacePos < nParenPos or nParenPos = 0)
+                nEndPos = nSpacePos
+            ok
+            
+            if nEndPos > 0
+                cRefTable = trim(substr(cAfterRef, 1, nEndPos - 1))
+                
+                # Extract field name from parentheses
+                nOpenParen = substr(cAfterRef, "(")
+                nCloseParen = substr(cAfterRef, ")")
+                if nOpenParen > 0 and nCloseParen > nOpenParen
+                    cRefField = trim(substr(cAfterRef, nOpenParen + 1, nCloseParen - nOpenParen - 1))
+                    return [ :table = cRefTable, :field = cRefField ]
+                ok
+            ok
+        ok
+        return NULL
+
+	#==========================#
+	#   VALIDATION MECHANISM   #
+	#==========================#
+
+    # Enhanced validation with detailed reporting
+    def Validate()
+        @aValidationErrors = []
+        nTablesValidated = 0
+        nConstraintsValidated = 0
+        nRelationshipsValidated = 0
+        
+        # Table validation
+        for aTable in @aTables
+            nTablesValidated++
+            if aTable[:name] = "" or aTable[:name] = NULL
+                @aValidationErrors + [ :type = "table", :severity = "error", 
+                                     :message = "Table has no name", :table = "" ]
+                loop
+            ok
+            
+            if len(aTable[:fields]) = 0
+                @aValidationErrors + [ :type = "table", :severity = "error",
+                                     :message = "Table '" + aTable[:name] + "' has no fields", 
+                                     :table = aTable[:name] ]
+            ok
+            
+            # Check for duplicate field names
+            aFieldNames = []
+            for aField in aTable[:fields]
+                cFieldName = aField[:name]
+                if find(aFieldNames, cFieldName) > 0
+                    @aValidationErrors + [ :type = "table", :severity = "error",
+                                         :message = "Duplicate field '" + cFieldName + "' in table '" + aTable[:name] + "'",
+                                         :table = aTable[:name], :field = cFieldName ]
+                else
+                    aFieldNames + cFieldName
+                ok
+            next
+        next
+        
+        return [
+            :valid = (len(@aValidationErrors) = 0),
+            :errors = @aValidationErrors,
+            :error_count = len(@aValidationErrors),
+            :tables_validated = nTablesValidated,
+            :constraints_validated = nConstraintsValidated,
+            :relationships_validated = nRelationshipsValidated,
+            :summary = This.ValidationSummary()
+        ]
+
+    # Generate validation summary
+    def ValidationSummary()
+        nErrors = 0
+        nWarnings = 0
+        
+        for aError in @aValidationErrors
+            if aError[:severity] = "error"
+                nErrors++
+            but aError[:severity] = "warning"
+                nWarnings++
+            ok
+        next
+        
+        cSummary = "Validation completed: "
+        if nErrors = 0 and nWarnings = 0
+            cSummary += "All checks passed"
+        else
+            if nErrors > 0
+                cSummary += "" + nErrors + " error(s)"
+            ok
+            if nWarnings > 0
+                if nErrors > 0
+                    cSummary += ", "
+                ok
+                cSummary += "" + nWarnings + " warning(s)"
+            ok
+        ok
+        
+        return cSummary
 
 #===============================#
 #  PERFORMANCE PLAN MANAGEMENT  #
@@ -847,258 +873,6 @@ class stzDataModel from stzObject
         ok
         return "general"
 
-
-    def SelfReferencingTables()
-        aResult = []
-		nLen = len(@aRelationships)
-        for i = 1 to nLen
-            if @aRelationships[i][:from] = @aRelationships[i][:to]
-                aResult + [
-                    :table = @aRelationships[i][:from],
-                    :type = @aRelationships[i][:type]
-                ]
-            ok
-        next
-        return aResult
-
-	#===========================#
-	#  CONSTRAINTS ENFORCEMENT  #
-	#===========================#
-
-    # Add a constraint to a table's field
-    def AddConstraint(cTableName, cFieldName, cConstraint)
-        aConstraintDef = [
-            :table = cTableName,
-            :field = cFieldName,
-            :constraint = cConstraint,
-            :type = This.ConstraintType(cConstraint)
-        ]
-        @aConstraints + aConstraintDef
-        
-        # Track relationships for foreign keys
-        if aConstraintDef[:type] = "foreign_key"
-            aRefInfo = This.ParseForeignKey(cConstraint)
-            if aRefInfo != NULL
-                @aRelationships + [
-                    :from_table = cTableName,
-                    :from_field = cFieldName,
-                    :to_table = aRefInfo[:table],
-                    :to_field = aRefInfo[:field]
-                ]
-            ok
-        ok
-
-    # Enhanced constraint type detection
-    def ConstraintType(cConstraint)
-        cUpper = upper(cConstraint)
-        if substr(cUpper, "PRIMARY KEY") > 0
-            return "primary_key"
-        but substr(cUpper, "FOREIGN KEY") > 0 or substr(cUpper, "REFERENCES") > 0
-            return "foreign_key"
-        but substr(cUpper, "UNIQUE") > 0
-            return "unique"
-        but substr(cUpper, "NOT NULL") > 0
-            return "not_null"
-        but substr(cUpper, "CHECK") > 0
-            return "check"
-        but substr(cUpper, "DEFAULT") > 0
-            return "default"
-        else
-            return "custom"
-        ok
-
-    # Improved foreign key parsing
-    def ParseForeignKey(cConstraint)
-        cUpper = upper(cConstraint)
-        nRefPos = substr(cUpper, "REFERENCES ")
-        if nRefPos > 0
-            cAfterRef = substr(cConstraint, nRefPos + 11)
-            # Find table name (up to opening parenthesis or space)
-            nParenPos = substr(cAfterRef, "(")
-            nSpacePos = substr(cAfterRef, " ")
-            
-            nEndPos = nParenPos
-            if nSpacePos > 0 and (nSpacePos < nParenPos or nParenPos = 0)
-                nEndPos = nSpacePos
-            ok
-            
-            if nEndPos > 0
-                cRefTable = trim(substr(cAfterRef, 1, nEndPos - 1))
-                
-                # Extract field name from parentheses
-                nOpenParen = substr(cAfterRef, "(")
-                nCloseParen = substr(cAfterRef, ")")
-                if nOpenParen > 0 and nCloseParen > nOpenParen
-                    cRefField = trim(substr(cAfterRef, nOpenParen + 1, nCloseParen - nOpenParen - 1))
-                    return [ :table = cRefTable, :field = cRefField ]
-                ok
-            ok
-        ok
-        return NULL
-
-
-	#==========================#
-	#   VALIDATION MECHANISM   #
-	#==========================#
-
-    # Enhanced validation with detailed reporting
-    def Validate()
-        @aValidationErrors = []
-        nTablesValidated = 0
-        nConstraintsValidated = 0
-        nRelationshipsValidated = 0
-        
-        # Table validation
-        for aTable in @aTables
-            nTablesValidated++
-            if aTable[:name] = "" or aTable[:name] = NULL
-                @aValidationErrors + [ :type = "table", :severity = "error", 
-                                     :message = "Table has no name", :table = "" ]
-                loop
-            ok
-            
-            if len(aTable[:fields]) = 0
-                @aValidationErrors + [ :type = "table", :severity = "error",
-                                     :message = "Table '" + aTable[:name] + "' has no fields", 
-                                     :table = aTable[:name] ]
-            ok
-            
-            # Check for duplicate field names
-            aFieldNames = []
-            for aField in aTable[:fields]
-                cFieldName = aField[:name]
-                if find(aFieldNames, cFieldName) > 0
-                    @aValidationErrors + [ :type = "table", :severity = "error",
-                                         :message = "Duplicate field '" + cFieldName + "' in table '" + aTable[:name] + "'",
-                                         :table = aTable[:name], :field = cFieldName ]
-                else
-                    aFieldNames + cFieldName
-                ok
-            next
-        next
-        
-        # Constraint validation
-        for aConstraint in @aConstraints
-            nConstraintsValidated++
-            cTableName = aConstraint[:table]
-            cFieldName = aConstraint[:field]
-            cType = aConstraint[:type]
-            aTable = This.FindTable(cTableName)
-            
-            if aTable = NULL
-                @aValidationErrors + [ :type = "constraint", :severity = "error",
-                                     :message = "Table '" + cTableName + "' does not exist for constraint",
-                                     :table = cTableName, :constraint_type = cType ]
-                loop
-            ok
-            
-            if not This.FieldExists(aTable, cFieldName)
-                @aValidationErrors + [ :type = "constraint", :severity = "error",
-                                     :message = "Field '" + cFieldName + "' does not exist in table '" + cTableName + "'",
-                                     :table = cTableName, :field = cFieldName, :constraint_type = cType ]
-                loop
-            ok
-            
-            # Foreign key validation
-            if cType = "foreign_key"
-                nRelationshipsValidated++
-                aRefInfo = This.ParseForeignKey(aConstraint[:constraint])
-                if aRefInfo != NULL
-                    aRefTable = This.FindTable(aRefInfo[:table])
-                    if aRefTable = NULL
-                        @aValidationErrors + [ :type = "constraint", :severity = "error",
-                                             :message = "Referenced table '" + aRefInfo[:table] + "' does not exist",
-                                             :table = cTableName, :field = cFieldName, 
-                                             :referenced_table = aRefInfo[:table] ]
-                    else
-                        if not This.FieldExists(aRefTable, aRefInfo[:field])
-                            @aValidationErrors + [ :type = "constraint", :severity = "error",
-                                                 :message = "Referenced field '" + aRefInfo[:field] + 
-                                                           "' does not exist in table '" + aRefInfo[:table] + "'",
-                                                 :table = cTableName, :field = cFieldName,
-                                                 :referenced_table = aRefInfo[:table], 
-                                                 :referenced_field = aRefInfo[:field] ]
-                        ok
-                    ok
-                else
-                    @aValidationErrors + [ :type = "constraint", :severity = "warning",
-                                         :message = "Could not parse foreign key constraint: " + aConstraint[:constraint],
-                                         :table = cTableName, :field = cFieldName ]
-                ok
-            ok
-            
-            # Check constraint syntax validation
-            if cType = "check"
-                if not This.ValidateCheckConstraint(aConstraint[:constraint])
-                    @aValidationErrors + [ :type = "constraint", :severity = "warning",
-                                         :message = "Potentially invalid CHECK constraint syntax",
-                                         :table = cTableName, :field = cFieldName,
-                                         :constraint = aConstraint[:constraint] ]
-                ok
-            ok
-        next
-        
-        return [
-            :valid = (len(@aValidationErrors) = 0),
-            :errors = @aValidationErrors,
-            :error_count = len(@aValidationErrors),
-            :tables_validated = nTablesValidated,
-            :constraints_validated = nConstraintsValidated,
-            :relationships_validated = nRelationshipsValidated,
-            :summary = This.ValidationSummary()
-        ]
-
-    # Basic check constraint validation
-    def ValidateCheckConstraint(cConstraint)
-        cUpper = upper(cConstraint)
-        # Basic syntax checks
-        if substr(cUpper, "CHECK") = 0
-            return FALSE
-        ok
-        
-        # Check for balanced parentheses
-        nOpenParens = 0
-        nCloseParens = 0
-        for i = 1 to len(cConstraint)
-            if cConstraint[i] = "("
-                nOpenParens++
-            but cConstraint[i] = ")"
-                nCloseParens++
-            ok
-        next
-        
-        return (nOpenParens = nCloseParens)
-
-    # Generate validation summary
-    def ValidationSummary()
-        nErrors = 0
-        nWarnings = 0
-        
-        for aError in @aValidationErrors
-            if aError[:severity] = "error"
-                nErrors++
-            but aError[:severity] = "warning"
-                nWarnings++
-            ok
-        next
-        
-        cSummary = "Validation completed: "
-        if nErrors = 0 and nWarnings = 0
-            cSummary += "All checks passed"
-        else
-            if nErrors > 0
-                cSummary += "" + nErrors + " error(s)"
-            ok
-            if nWarnings > 0
-                if nErrors > 0
-                    cSummary += ", "
-                ok
-                cSummary += "" + nWarnings + " warning(s)"
-            ok
-        ok
-        
-        return cSummary
-
 	#=================#
 	#  OTHER METHODS  #
 	#=================#
@@ -1110,50 +884,13 @@ class stzDataModel from stzObject
                 return aTable
             ok
         next
-        return NULL
-
-    # Get table schema information
-    def TableSchema(cTableName)
-        aTable = This.FindTable(cTableName)
-        if aTable = NULL
-            return NULL
-        ok
-        
-        aSchema = [
-            :name = aTable[:name],
-            :fields = aTable[:fields],
-            :constraints = [],
-            :relationships = []
-        ]
-        
-        # Add constraints for this table
-        for aConstraint in @aConstraints
-            if aConstraint[:table] = cTableName
-                aSchema[:constraints] + aConstraint
-            ok
-        next
-        
-        # Add relationships
-        for aRel in @aRelationships
-            if aRel[:from_table] = cTableName or aRel[:to_table] = cTableName
-                aSchema[:relationships] + aRel
-            ok
-        next
-        
-        return aSchema
-
-    # Get all relationships in the model
-    def Relationships()
-        return @aRelationships
+        return stzraise("Inexistant table name!")
 
 	#=========#
 	# EXPORT  #
 	#=========#
 
     # Export model as DDL (basic implementation)
-	#NOTE //Data definition language (DDL) describes the portion
-	# of SQL that creates, alters, and deletes database objects.
-
     def DDL()
         cDDL = ""
         
@@ -1184,60 +921,234 @@ class stzDataModel from stzObject
         return cDDL
 
 		def ExportDDL()
-			return This.DDl()
+			return This.DDL()
 
 		def ExportToDDL()
-			return This.DDl()
+			return This.DDL()
 
 		def ToDDL()
-			return This.DDl()
+			return This.DDL()
 
-	# Exproting the data model as an ERD diagram structure
-	# ~> for use with visualization tools
 
-    def DiagramData()
-        aEntities = []
-        aConnections = []
-        
-        # Create entities from tables
-		nLen = len(@aTables)
-        for i = 1 to nLen
-            aEntity = [
-                :name = @aTables[i][:name],
-                :field_count = this.CountFieldsInTable(@aTables[i][:name]),
-                :type = "table"
-            ]
-            aEntities + aEntity
-        next
-        
-        # Create connections from relationships
+    def SelfReferencingTables()
+        aResult = []
 		nLen = len(@aRelationships)
         for i = 1 to nLen
-            if @aRelationships[i][:from] != @aRelationships[i][:to]  # Skip self-referencing for main diagram
-                aConnection = [
-                    :from = @aRelationships[i][:from],
-                    :to = @aRelationships[i][:to],
-                    :type = @aRelationships[i][:type],
-                    :inferred = @aRelationships[i][:inferred]
+            if @aRelationships[i][:from] = @aRelationships[i][:to]
+                aResult + [
+                    :table = @aRelationships[i][:from],
+                    :type = @aRelationships[i][:type]
                 ]
-                aConnections + aConnection
+            ok
+        next
+        return aResult
+
+# Enhanced DiagramData() method for better ERD tool compatibility
+def DiagramData()
+    aEntities = []
+    aRelationships = []
+    
+    # Create detailed entities with field information
+    for aTable in @aTables
+        aFields = []
+        for aField in aTable[:fields]
+            aFieldInfo = [
+                :name = aField[:name],
+                :type = aField[:type],
+                :is_primary = (aField[:type] = "integer" and aField[:name] = "id"),
+                :is_foreign = (right(aField[:name], 3) = "_id" and aField[:name] != "id"),
+                :nullable = !(HasKey(aField, :is_required) and aField[:is_required]),
+                :unique = (HasKey(aField, :is_unique) and aField[:is_unique])
+            ]
+            aFields + aFieldInfo
+        next
+        
+        aEntity = [
+            :name = aTable[:name],
+            :display_name = Capitalize(aTable[:name]),
+            :fields = aFields,
+            :field_count = len(aFields),
+            :type = "entity"
+        ]
+        aEntities + aEntity
+    next
+    
+    # Create standardized relationships
+    aProcessedRels = []
+    for aRel in @aRelationships
+        # Skip duplicate relationships (keep only one direction for ERD)
+        cRelKey = aRel[:from] + "->" + aRel[:to] + ":" + aRel[:type]
+        if find(aProcessedRels, cRelKey) = 0
+            aProcessedRels + cRelKey
+            
+            aRelationship = [
+                :id = "rel_" + len(aRelationships) + 1,
+                :from_entity = aRel[:from],
+                :to_entity = aRel[:to],
+                :relationship_type = aRel[:type],
+                :cardinality = This.GetCardinality(aRel[:type]),
+                :foreign_key = iff(HasKey(aRel, :field), aRel[:field], ""),
+                :is_identifying = (aRel[:type] = "belongs_to"),
+                :label = This.GetRelationshipLabel(aRel[:type])
+            ]
+            aRelationships + aRelationship
+        ok
+    next
+    
+    return [
+        :schema_name = @cSchemaName,
+        :entities = aEntities,
+        :relationships = aRelationships,
+        :metadata = [
+            :entity_count = len(aEntities),
+            :relationship_count = len(aRelationships),
+            :generated_at = date() + " " + time(),
+            :format_version = "1.0"
+        ]
+    ]
+
+    def ERDData()
+        return This.DiagramData()
+
+	def ERD()
+		return This.DiagramData()
+
+	def ToERD()
+		return This.DiagramData()
+
+# Helper methods for ERD data generation
+def GetCardinality(cRelType)
+    switch cRelType
+    on "has_many"
+        return "1:N"
+    on "belongs_to"
+        return "N:1"
+    on "has_one"
+        return "1:1"
+    on "many_to_many"
+        return "M:N"
+    other
+        return "1:N"
+    off
+
+def GetRelationshipLabel(cRelType)
+    switch cRelType
+    on "has_many"
+        return "has"
+    on "belongs_to"
+        return "belongs to"
+    on "has_one"
+        return "has one"
+    on "many_to_many"
+        return "associated with"
+    other
+        return cRelType
+    off
+
+# Export methods for different ERD tools
+def ToMermaidERD()
+    cMermaid = "erDiagram" + nl
+    
+    # Add entities with fields
+    for aEntity in This.DiagramData()[:entities]
+        cMermaid += "    " + aEntity[:name] + " {" + nl
+        for aField in aEntity[:fields]
+            cFieldDef = "        " + aField[:type] + " " + aField[:name]
+            if aField[:is_primary]
+                cFieldDef += " PK"
+            but aField[:is_foreign]
+                cFieldDef += " FK"
+            ok
+            if !aField[:nullable]
+                cFieldDef += " NOT NULL"
+            ok
+            cMermaid += cFieldDef + nl
+        next
+        cMermaid += "    }" + nl + nl
+    next
+    
+    # Add relationships
+    for aRel in This.DiagramData()[:relationships]
+        if aRel[:from_entity] != aRel[:to_entity]  # Skip self-referencing for basic ERD
+            cMermaid += "    " + aRel[:from_entity] + " ||--o{ " + aRel[:to_entity] + ' : "' + aRel[:label] + '"' + nl
+        ok
+    next
+    
+    return cMermaid
+
+def ToPlantUMLERD()
+    cPlantUML = "@startuml" + nl
+    cPlantUML += "!define ENTITY class" + nl + nl
+    
+    # Add entities
+    for aEntity in This.DiagramData()[:entities]
+        cPlantUML += "ENTITY " + aEntity[:name] + " {" + nl
+        for aField in aEntity[:fields]
+            cLine = "  "
+            if aField[:is_primary]
+                cLine += "**" + aField[:name] + "** : " + aField[:type] + " <<PK>>"
+            but aField[:is_foreign]
+                cLine += aField[:name] + " : " + aField[:type] + " <<FK>>"
+            else
+                cLine += aField[:name] + " : " + aField[:type]
+            ok
+            cPlantUML += cLine + nl
+        next
+        cPlantUML += "}" + nl + nl
+    next
+    
+    # Add relationships
+    for aRel in This.DiagramData()[:relationships]
+        if aRel[:from_entity] != aRel[:to_entity]
+            cPlantUML += aRel[:from_entity] + " ||--o{ " + aRel[:to_entity] + nl
+        ok
+    next
+    
+    cPlantUML += "@enduml"
+    return cPlantUML
+
+def ToJSONERD()
+    # JSON format for tools like draw.io, Lucidchart APIs
+    aERDData = This.DiagramData()
+    cJSON = "{"
+    cJSON += '"schema": "' + aERDData[:schema_name] + '",'
+    cJSON += '"entities": ['
+    
+    for i = 1 to len(aERDData[:entities])
+        aEntity = aERDData[:entities][i]
+        cJSON += '{"name": "' + aEntity[:name] + '",'
+        cJSON += '"fields": ['
+        
+        for j = 1 to len(aEntity[:fields])
+            aField = aEntity[:fields][j]
+            cJSON += '{"name": "' + aField[:name] + '",'
+            cJSON += '"type": "' + aField[:type] + '",'
+            cJSON += '"primary": ' + iff(aField[:is_primary], "true", "false") + ','
+            cJSON += '"foreign": ' + iff(aField[:is_foreign], "true", "false") + '}'
+            if j < len(aEntity[:fields])
+                cJSON += ","
             ok
         next
         
-        return [
-            :entities = aEntities,
-            :connections = aConnections,
-            :self_referencing = This.SelfReferencingTables()
-        ]
-
-	    def VizData()
-	        return this.DiagramData()
-	
-	    def ERDData()
-	        return This.DiagramData()
-
-		def ERD()
-			return This.DiagramData()
-
-		def ToERD()
-			return This.DiagramData()
+        cJSON += "]}"
+        if i < len(aERDData[:entities])
+            cJSON += ","
+        ok
+    next
+    
+    cJSON += '],'
+    cJSON += '"relationships": ['
+    
+    for i = 1 to len(aERDData[:relationships])
+        aRel = aERDData[:relationships][i]
+        cJSON += '{"from": "' + aRel[:from_entity] + '",'
+        cJSON += '"to": "' + aRel[:to_entity] + '",'
+        cJSON += '"type": "' + aRel[:relationship_type] + '",'
+        cJSON += '"cardinality": "' + aRel[:cardinality] + '"}'
+        if i < len(aERDData[:relationships])
+            cJSON += ","
+        ok
+    next
+    
+    cJSON += "]}"
+    return cJSON
