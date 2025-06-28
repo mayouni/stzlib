@@ -29,12 +29,12 @@ o1 {
     
     # Relationships are auto-inferred from foreign keys
     # Set the default Perf plan (already set by init)
-    SetPerfPlan("default")
+    UsePerfPlan("default")
     
     # Analyze Perf
-    Perf_hints = AnalyzePerf()
+
     ? BoxRound("Perf Hints - Default Plan")
-    ? @@NL( Perf_hints ) + NL
+    ? @@NL( PerfHints() )
 }
 #-->
 '
@@ -46,21 +46,21 @@ o1 {
 		[ "rule_id", "basic_fk_index" ],
 		[ "type", "index_optimization" ],
 		[ "priority", "medium" ],
-		[ "Perf_plan", "default" ],
 		[
 			"message",
-			"Consider adding index on foreign key field"
+			"Consider adding index on articles.author_id"
 		],
-		[ "action", "" ],
-		[ "Perf_impact", "medium" ],
-		[ "applies_to", "all_foreign_keys" ],
 		[
-			"Description_data",
+			"action",
+			"CREATE INDEX idx_articles_author_id ON articles(author_id)"
+		],
+		[ "impact", "medium" ],
+		[
+			"data",
 			[
 				[ "table", "articles" ],
 				[ "field", "author_id" ],
-				[ "related_table", "authors" ],
-				[ "relationship_type", "belongs_to" ]
+				[ "related_table", "authors" ]
 			]
 		]
 	],
@@ -68,20 +68,20 @@ o1 {
 		[ "rule_id", "query_awareness" ],
 		[ "type", "query_optimization" ],
 		[ "priority", "low" ],
-		[ "Perf_plan", "default" ],
 		[
 			"message",
-			"Be aware of potential N+1 query issues"
+			"Monitor N+1 queries for authors -> articles"
 		],
-		[ "action", "" ],
-		[ "Perf_impact", "medium" ],
-		[ "applies_to", "has_many_relationships" ],
 		[
-			"Description_data",
+			"action",
+			"Use eager loading for authors -> articles"
+		],
+		[ "impact", "medium" ],
+		[
+			"data",
 			[
 				[ "from_table", "authors" ],
-				[ "to_table", "articles" ],
-				[ "relationship_type", "has_many" ]
+				[ "to_table", "articles" ]
 			]
 		]
 	]
@@ -89,7 +89,7 @@ o1 {
 '
 
 pf()
-# Executed in 0.34 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*--- Web Application Perf Plan
 
@@ -128,24 +128,73 @@ o1 {
         [ "price", "decimal" ],
         [ "stock_quantity", "integer" ]
     ])
-    
+
+	? BoxRound("Relationships (inferred automatically)")
+	? @@NL(Relationships()) + NL
+
     # Set web Perf plan for critical FK indexing and N+1 prevention
-    SetPerfPlan("web")
+    UsePerfPlan("web")
     
     ? BoxRound("Perf Hints - Web Plan")
     ? @@NL( PerfHints() ) + NL
 
-	 ? BoxRound("Perf Hints - Web Plan - Extended")
-	? @@NL( PerfHintsXT() )
+    ? BoxRound("Perf Hints - Web Plan - Extended")
+    ? @@NL( PerfHintsXT() ) + NL
+
 }
-#--> #TODO See why it returns no optimisations! fix the engine or change the example
+#-->
 '
+╭────────────────────────────────────────╮
+│ Relationships (inferred automatically) │
+╰────────────────────────────────────────╯
+[
+	[
+		[ "type", "belongs_to" ],
+		[ "from", "orders" ],
+		[ "to", "customers" ],
+		[ "field", "customer_id" ]
+	],
+	[
+		[ "type", "has_many" ],
+		[ "from", "customers" ],
+		[ "to", "orders" ]
+	],
+	[
+		[ "type", "belongs_to" ],
+		[ "from", "order_items" ],
+		[ "to", "orders" ],
+		[ "field", "order_id" ]
+	],
+	[
+		[ "type", "has_many" ],
+		[ "from", "orders" ],
+		[ "to", "order_items" ]
+	],
+	[
+		[ "type", "belongs_to" ],
+		[ "from", "order_items" ],
+		[ "to", "products" ],
+		[ "field", "product_id" ]
+	],
+	[
+		[ "type", "has_many" ],
+		[ "from", "products" ],
+		[ "to", "order_items" ]
+	]
+]
+
 ╭───────────────────────╮
 │ Perf Hints - Web Plan │
 ╰───────────────────────╯
 [
-	"Foreign key fields must have indexes for web performance",
-	"N+1 queries will severely impact web response times"
+	"Foreign key orders.customer_id must have index for web performance",
+	"Foreign key order_items.order_id must have index for web performance",
+	"Foreign key order_items.product_id must have index for web performance",
+	"N+1 queries will impact customers -> orders performance",
+	"N+1 queries will impact orders -> order_items performance",
+	"N+1 queries will impact products -> order_items performance",
+	"Table orders needs pagination strategy",
+	"Table order_items needs pagination strategy"
 ]
 
 ╭──────────────────────────────────╮
@@ -156,21 +205,21 @@ o1 {
 		[ "rule_id", "fk_index_mandatory" ],
 		[ "type", "index_optimization" ],
 		[ "priority", "high" ],
-		[ "performance_plan", "web" ],
 		[
 			"message",
-			"Foreign key fields must have indexes for web performance"
+			"Foreign key orders.customer_id must have index for web performance"
 		],
-		[ "action", "" ],
-		[ "performance_impact", "high" ],
-		[ "applies_to", "all_foreign_keys" ],
 		[
-			"description_data",
+			"action",
+			"CREATE INDEX idx_orders_customer_id ON orders(customer_id)"
+		],
+		[ "impact", "high" ],
+		[
+			"data",
 			[
 				[ "table", "orders" ],
 				[ "field", "customer_id" ],
-				[ "related_table", "customers" ],
-				[ "relationship_type", "belongs_to" ]
+				[ "related_table", "customers" ]
 			]
 		]
 	],
@@ -178,21 +227,21 @@ o1 {
 		[ "rule_id", "fk_index_mandatory" ],
 		[ "type", "index_optimization" ],
 		[ "priority", "high" ],
-		[ "performance_plan", "web" ],
 		[
 			"message",
-			"Foreign key fields must have indexes for web performance"
+			"Foreign key order_items.order_id must have index for web performance"
 		],
-		[ "action", "" ],
-		[ "performance_impact", "high" ],
-		[ "applies_to", "all_foreign_keys" ],
 		[
-			"description_data",
+			"action",
+			"CREATE INDEX idx_order_items_order_id ON order_items(order_id)"
+		],
+		[ "impact", "high" ],
+		[
+			"data",
 			[
 				[ "table", "order_items" ],
 				[ "field", "order_id" ],
-				[ "related_table", "orders" ],
-				[ "relationship_type", "belongs_to" ]
+				[ "related_table", "orders" ]
 			]
 		]
 	],
@@ -200,21 +249,21 @@ o1 {
 		[ "rule_id", "fk_index_mandatory" ],
 		[ "type", "index_optimization" ],
 		[ "priority", "high" ],
-		[ "performance_plan", "web" ],
 		[
 			"message",
-			"Foreign key fields must have indexes for web performance"
+			"Foreign key order_items.product_id must have index for web performance"
 		],
-		[ "action", "" ],
-		[ "performance_impact", "high" ],
-		[ "applies_to", "all_foreign_keys" ],
 		[
-			"description_data",
+			"action",
+			"CREATE INDEX idx_order_items_product_id ON order_items(product_id)"
+		],
+		[ "impact", "high" ],
+		[
+			"data",
 			[
 				[ "table", "order_items" ],
 				[ "field", "product_id" ],
-				[ "related_table", "products" ],
-				[ "relationship_type", "belongs_to" ]
+				[ "related_table", "products" ]
 			]
 		]
 	],
@@ -222,20 +271,20 @@ o1 {
 		[ "rule_id", "n_plus_one_prevention" ],
 		[ "type", "query_optimization" ],
 		[ "priority", "critical" ],
-		[ "performance_plan", "web" ],
 		[
 			"message",
-			"N+1 queries will severely impact web response times"
+			"N+1 queries will impact customers -> orders performance"
 		],
-		[ "action", "" ],
-		[ "performance_impact", "critical" ],
-		[ "applies_to", "has_many_relationships" ],
 		[
-			"description_data",
+			"action",
+			"Implement eager loading for customers -> orders"
+		],
+		[ "impact", "critical" ],
+		[
+			"data",
 			[
 				[ "from_table", "customers" ],
-				[ "to_table", "orders" ],
-				[ "relationship_type", "has_many" ]
+				[ "to_table", "orders" ]
 			]
 		]
 	],
@@ -243,20 +292,20 @@ o1 {
 		[ "rule_id", "n_plus_one_prevention" ],
 		[ "type", "query_optimization" ],
 		[ "priority", "critical" ],
-		[ "performance_plan", "web" ],
 		[
 			"message",
-			"N+1 queries will severely impact web response times"
+			"N+1 queries will impact orders -> order_items performance"
 		],
-		[ "action", "" ],
-		[ "performance_impact", "critical" ],
-		[ "applies_to", "has_many_relationships" ],
 		[
-			"description_data",
+			"action",
+			"Implement eager loading for orders -> order_items"
+		],
+		[ "impact", "critical" ],
+		[
+			"data",
 			[
 				[ "from_table", "orders" ],
-				[ "to_table", "order_items" ],
-				[ "relationship_type", "has_many" ]
+				[ "to_table", "order_items" ]
 			]
 		]
 	],
@@ -264,20 +313,59 @@ o1 {
 		[ "rule_id", "n_plus_one_prevention" ],
 		[ "type", "query_optimization" ],
 		[ "priority", "critical" ],
-		[ "performance_plan", "web" ],
 		[
 			"message",
-			"N+1 queries will severely impact web response times"
+			"N+1 queries will impact products -> order_items performance"
 		],
-		[ "action", "" ],
-		[ "performance_impact", "critical" ],
-		[ "applies_to", "has_many_relationships" ],
 		[
-			"description_data",
+			"action",
+			"Implement eager loading for products -> order_items"
+		],
+		[ "impact", "critical" ],
+		[
+			"data",
 			[
 				[ "from_table", "products" ],
-				[ "to_table", "order_items" ],
-				[ "relationship_type", "has_many" ]
+				[ "to_table", "order_items" ]
+			]
+		]
+	],
+	[
+		[ "rule_id", "pagination_requirement" ],
+		[ "type", "data_access" ],
+		[ "priority", "high" ],
+		[
+			"message",
+			"Table orders needs pagination strategy"
+		],
+		[ "action", "Implement pagination for orders" ],
+		[ "impact", "high" ],
+		[
+			"data",
+			[
+				[ "table", "orders" ],
+				[ "relationship_count", 4 ]
+			]
+		]
+	],
+	[
+		[ "rule_id", "pagination_requirement" ],
+		[ "type", "data_access" ],
+		[ "priority", "high" ],
+		[
+			"message",
+			"Table order_items needs pagination strategy"
+		],
+		[
+			"action",
+			"Implement pagination for order_items"
+		],
+		[ "impact", "high" ],
+		[
+			"data",
+			[
+				[ "table", "order_items" ],
+				[ "relationship_count", 4 ]
 			]
 		]
 	]
@@ -285,7 +373,7 @@ o1 {
 '
 
 pf()
-# Executed in 1.01 second(s) in Ring 1.22
+# Executed in 0.10 second(s) in Ring 1.22
 
 /*--- Analytics/Reporting Perf Plan
 
@@ -328,7 +416,7 @@ o1 {
     ])
     
     # Set analytics plan for covering indexes and partitioning
-    SetPerfPlan("analytics")
+    UsePerfPlan("analytics")
     
     ? BoxRound("Perf Hints - Analytics Plan")
     ? @@NL( PerfHints() ) + NL
@@ -343,7 +431,16 @@ o1 {
 │ Perf Hints - Analytics Plan │
 ╰─────────────────────────────╯
 [
-	"Consider denormalization for frequently joined data"
+	[
+		[
+			"message",
+			"Table sales_data involved in complex joins"
+		],
+		[
+			"action",
+			"Consider denormalization for sales_data"
+		]
+	]
 ]
 
 ╭────────────────────────────────────────╮
@@ -351,23 +448,23 @@ o1 {
 ╰────────────────────────────────────────╯
 [
 	[
-		[ "rule_id", "denormalization_consideration" ],
+		[ "rule_id", "complex_join_optimization" ],
 		[ "type", "schema_optimization" ],
 		[ "priority", "medium" ],
-		[ "performance_plan", "analytics" ],
 		[
 			"message",
-			"Consider denormalization for frequently joined data"
+			"Table sales_data involved in complex joins"
 		],
-		[ "action", "" ],
-		[ "performance_impact", "medium" ],
-		[ "applies_to", "complex_relationship_chains" ],
 		[
-			"description_data",
+			"action",
+			"Consider denormalization for sales_data"
+		],
+		[ "impact", "medium" ],
+		[
+			"data",
 			[
 				[ "table", "sales_data" ],
-				[ "relationship_count", 6 ],
-				[ "complexity", "high" ]
+				[ "relationship_count", 6 ]
 			]
 		]
 	]
@@ -375,250 +472,8 @@ o1 {
 '
 
 pf()
-# Executed in 1.06 second(s) in Ring 1.22
+# Executed in 0.05 second(s) in Ring 1.22
 
-/*---
-*/
-pr()
-
-oPerfEngine = new stzDataPerfEngine()
-oPerfEngine.SetActivePlan("mobile")
-
-# Simulate the model data that would be generated
-aTestModelData = [
-    :tables = [
-        [
-            :name = "users",
-            :fields = [
-                [:name = "id", :type = "primary_key"],
-                [:name = "username", :type = "string"], 
-                [:name = "email", :type = "email"],
-                [:name = "profile_image", :type = "text"],  # Large field
-                [:name = "bio", :type = "text"],           # Large field  
-                [:name = "last_sync", :type = "timestamp"]
-            ],
-            :field_count = 6,
-            :relationship_count = 0
-        ],
-        [
-            :name = "messages", 
-            :fields = [
-                [:name = "id", :type = "primary_key"],
-                [:name = "sender_id", :type = "foreign_key"],
-                [:name = "recipient_id", :type = "foreign_key"],
-                [:name = "content", :type = "text"],        # Large field
-                [:name = "attachments", :type = "longtext"], # Large field
-                [:name = "sent_at", :type = "timestamp"]
-            ],
-            :field_count = 6,
-            :relationship_count = 2
-        ],
-        [
-            :name = "notifications",
-            :fields = [
-                [:name = "id", :type = "primary_key"],
-                [:name = "user_id", :type = "foreign_key"], 
-                [:name = "type", :type = "string"],
-                [:name = "message", :type = "text"],        # Large field
-                [:name = "read", :type = "boolean"],
-                [:name = "created_at", :type = "timestamp"]
-            ],
-            :field_count = 6,
-            :relationship_count = 1
-        ]
-    ],
-    :relationships = [
-        [:type = "belongs_to", :from = "messages", :to = "users", :field = "sender_id"],
-        [:type = "belongs_to", :from = "messages", :to = "users", :field = "recipient_id"],
-        [:type = "belongs_to", :from = "notifications", :to = "users", :field = "user_id"],
-        [:type = "has_many", :from = "users", :to = "messages"],
-        [:type = "has_many", :from = "users", :to = "notifications"]
-    ]
-]
-
-# Test the performance evaluation
-? "=== Testing Mobile Plan Performance Hints ==="
-? "Active Plan: " + oPerfEngine.ActivePlan()
-? "Plan Description: " + oPerfEngine.PlanDescription("mobile")
-? ""
-
-aActiveRules = oPerfEngine.ActiveRules()
-? "Number of active rules: " + len(aActiveRules)
-
-for i = 1 to len(aActiveRules)
-    aRule = aActiveRules[i]
-    ? "Rule " + i + ": " + aRule[:id] + " - " + aRule[:condition]
-    
-    aResults = oPerfEngine.EvalRule(aRule, aTestModelData)
-    ? "  Results found: " + len(aResults)
-    
-    for j = 1 to len(aResults)
-        ? "    " + @@(aResults[j])
-    next
-    ? ""
-next
-
-pf()
-
-/*--- Mobile Application Perf Plan
-*/
-pr()
-
-o1 = new stzDataModel("mobile_app")
-o1 {
-    AddTable("users", [
-        [ "id", :primary_key ],
-        [ "username", :required ],
-        [ "email", :email ],
-        [ "profile_image", :text ],  # Large field - triggers mobile optimization
-        [ "bio", :text ],            # Another large field
-        [ "last_sync", :timestamp ]
-    ])
-    
-    AddTable("messages", [
-        [ "id", :primary_key ],
-        [ "sender_id", :foreign_key ],
-        [ "recipient_id", :foreign_key ],
-        [ "content", :text ],
-        [ "attachments", :longtext ], # Large field
-        [ "sent_at", :timestamp ]
-    ])
-    
-    AddTable("notifications", [
-        [ "id", :primary_key ],
-        [ "user_id", :foreign_key ],
-        [ "type", :string ],
-        [ "message", :text ],
-        [ "read", :boolean ],
-        [ "created_at", :timestamp ]
-    ])
-    
-    # Set mobile plan for data transfer optimization
-    SetPerfPlan("mobile")
-    
-    Perf_hints = PerfHints()
-    ? BoxRound("Perf Hints - Mobile Plan")
-    ? @@NL( Perf_hints )
-}
-
-# Idem
-
-pf()
-
-/*--- Custom Perf Plan
-
-pr()
-
-
-o1 = new stzDataModel("custom_optimized")
-o1 {
-
-	AddPerfPlan("gaming", "Real-time gaming application", [
-
-		# Rule 1
-		[
-			:id = "realtime_index",
-			:type = "index_optimization",
-			:priority = "critical",
-			:condition = "foreign_key_without_index",
-			:message = "Gaming requires immediate index creation on all foreign keys",
-			:action = [
-				:SQL = "CREATE INDEX CONCURRENTLY idx_{table}_{field} ON {table}({field})",
-				:Ring = 'This.AddRealtimeIndex("{table}", "{field}")'
-			],
-			:Perf_impact = "critical",
-			:applies_to = "all_foreign_keys"
-		],
-
-		# Rule 2
-		[
-			:id = "cache_strategy",
-			:type = "caching",
-			:priority = "high",
-			:condition = "has_many_relationship",
-			:message = "Implement aggressive caching for gaming relationships",
-			:action = [
-				:SQL = "SET UP REDIS CACHE FOR {from_table} -> {to_table}",
-				:Ring = 'This.SetupRedisCache("{from_table}", "{to_table}")'
-			],
-			:Perf_impact = "high",
-			:applies_to = "has_many_relationships"
-		]
-
-	])
-
-    AddTable("players", [
-        [ "id", :primary_key ],
-        [ "username", :required ],
-        [ "level", "integer" ],
-        [ "experience", "integer" ]
-    ])
-    
-    AddTable("game_sessions", [
-        [ "id", :primary_key ],
-        [ "player_id", :foreign_key ],
-        [ "start_time", :timestamp ],
-        [ "end_time", :timestamp ],
-        [ "score", "integer" ]
-    ])
-    
-    SetPerfPlan("gaming")
-    
-    Perf_hints = AnalyzePerf()
-    ? BoxRound("Perf Hints - Custom Gaming Plan")
-    ? @@NL( Perf_hints ) + NL
-}
-#-->
-'
-[
-	[
-		[ "rule_id", "realtime_index" ],
-		[ "type", "index_optimization" ],
-		[ "priority", "critical" ],
-		[ "Perf_plan", "gaming" ],
-		[
-			"message",
-			"Gaming requires immediate index creation on all foreign keys"
-		],
-		[ "action", "" ],
-		[ "Perf_impact", "critical" ],
-		[ "applies_to", "all_foreign_keys" ],
-		[
-			"description_data",
-			[
-				[ "table", "game_sessions" ],
-				[ "field", "player_id" ],
-				[ "related_table", "players" ],
-				[ "relationship_type", "belongs_to" ]
-			]
-		]
-	],
-	[
-		[ "rule_id", "cache_strategy" ],
-		[ "type", "caching" ],
-		[ "priority", "high" ],
-		[ "Perf_plan", "gaming" ],
-		[
-			"message",
-			"Implement aggressive caching for gaming relationships"
-		],
-		[ "action", "" ],
-		[ "Perf_impact", "high" ],
-		[ "applies_to", "has_many_relationships" ],
-		[
-			"description_data",
-			[
-				[ "from_table", "players" ],
-				[ "to_table", "game_sessions" ],
-				[ "relationship_type", "has_many" ]
-			]
-		]
-	]
-]
-'
-
-pf()
-# Executed in 0.34 second(s) in Ring 1.22
 
 /*--- Explicit Many-to-Many with Perf Analysis
 
@@ -648,49 +503,65 @@ o1 {
     # Explicit many-to-many relationship
     Link("posts", "tags", "many_to_many", [ :via = "post_tags" ])
     
-    SetPerfPlan("web")
+    UsePerfPlan("web")
     
-    Perf_hints = AnalyzePerf()
     ? BoxRound("Perf Hints - Many-to-Many Relationships")
-    ? @@NL( Perf_hints ) + NL
+    ? @@NL( PerfHints() ) + NL
     
     # Show inferred relationships
     ? BoxRound("Inferred Relationships")
     ? @@NL( Relationships() )
 }
 
-#--> #TODO see why no optimisations are returned
+#-->
 '
-╭────────────────────────────────────────────────╮
+╭─────────────────────────────────────────╮
 │ Perf Hints - Many-to-Many Relationships │
-╰────────────────────────────────────────────────╯
-[ ]
+╰─────────────────────────────────────────╯
+[
+	[
+		[
+			"message",
+			"Foreign key posts.user_id must have index for web performance"
+		],
+		[
+			"action",
+			"CREATE INDEX idx_posts_user_id ON posts(user_id)"
+		]
+	],
+	[
+		[
+			"message",
+			"N+1 queries will impact users -> posts performance"
+		],
+		[
+			"action",
+			"Implement eager loading for users -> posts"
+		]
+	],
+	[
+		[
+			"message",
+			"Table posts needs pagination strategy"
+		],
+		[ "action", "Implement pagination for posts" ]
+	]
+]
 
 ╭────────────────────────╮
 │ Inferred Relationships │
 ╰────────────────────────╯
 [
 	[
+		[ "type", "belongs_to" ],
 		[ "from", "posts" ],
 		[ "to", "users" ],
-		[ "type", "belongs_to" ],
-		[ "inferred", 1 ],
-		[ "field", "user_id" ],
-		[
-			"semantic_meaning",
-			"Each post belongs to one user"
-		]
+		[ "field", "user_id" ]
 	],
 	[
-		[ "from", "users" ],
-		[ "to", "posts" ],
 		[ "type", "has_many" ],
-		[ "inferred", 1 ],
-		[ "field", "user_id" ],
-		[
-			"semantic_meaning",
-			"Each user can have many posts"
-		]
+		[ "from", "users" ],
+		[ "to", "posts" ]
 	],
 	[
 		[ "from", "posts" ],
@@ -708,7 +579,7 @@ o1 {
 '
 
 pf()
-# Executed in 0.36 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Hierarchical Data with Perf Considerations
 
@@ -742,16 +613,52 @@ o1 {
     # Add hierarchy explicitly
     Hierarchy("categories", [ :parent_field = "parent_id" ])
     
-    SetPerfPlan("analytics")
+    UsePerfPlan("analytics")
     
-    Perf_hints = AnalyzePerf()
     ? BoxRound("Perf Hints - Hierarchical Data")
-    ? @@NL( Perf_hints ) + NL
+    ? @@NL( PerfHints() )
 }
-#--> TODO see why no perf optimisations are returned
+#-->
+'
+╭────────────────────────────────╮
+│ Perf Hints - Hierarchical Data │
+╰────────────────────────────────╯
+[
+	[
+		[
+			"message",
+			"Large text field categories.description impacts performance"
+		],
+		[
+			"action",
+			"Consider lazy loading for categories.description"
+		]
+	],
+	[
+		[
+			"message",
+			"Large text field articles.content impacts performance"
+		],
+		[
+			"action",
+			"Consider lazy loading for articles.content"
+		]
+	],
+	[
+		[
+			"message",
+			"Large text field authors.bio impacts performance"
+		],
+		[
+			"action",
+			"Consider lazy loading for authors.bio"
+		]
+	]
+]
+'
 
 pf()
-# Executed in 0.64 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.22
 
 /*--- Perf Threshold Customization
 
@@ -781,31 +688,41 @@ o1 {
         [ "data", :text ]
     ])
     
-    SetPerfPlan("analytics")
+    UsePerfPlan("analytics")
     
-    Perf_hints = AnalyzePerf()
     ? BoxRound("Perf Hints - Custom Thresholds")
-    ? @@NL( Perf_hints ) + NL
+    ? @@NL( PerfHints() ) + NL
     
     # Show current thresholds
     ? "Perf Thresholds:"
-    ? "  Field Count High: " + PerfThreshold("table_field_count_high")
-    ? "  Relationship Count High: " + PerfThreshold("table_relationship_count_high")
+    ? "~> Field Count High: " + PerfThreshold("table_field_count_high")
+    ? "~> Relationship Count High: " + PerfThreshold("table_relationship_count_high")
 }
 #--> TODO see why no perf optimisations are returned
 '
 ╭────────────────────────────────╮
 │ Perf Hints - Custom Thresholds │
 ╰────────────────────────────────╯
-[ ]
+[
+	[
+		[
+			"message",
+			"Large text field related_entity.data impacts performance"
+		],
+		[
+			"action",
+			"Consider lazy loading for related_entity.data"
+		]
+	]
+]
 
 Perf Thresholds:
-  Field Count High: 15
-  Relationship Count High: 8
+~> Field Count High: 15
+~> Relationship Count High: 8
 '
 
 pf()
-# Executed in 0.31 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Perf Plan Comparison
 
@@ -832,38 +749,21 @@ o1 {
     plans = ["default", "web", "analytics", "mobile"]
     
     for plan in plans
-        SetPerfPlan(plan)
-        hints = AnalyzePerf()
-        ? BoxRound("Plan: " + plan + " (" + len(hints) + " recommendations)")
-        ? "Description: " + PerfPlanDescription(plan)
-        ? ""
+        UsePerfPlan(plan)
+        hints = PerfHints()
+        ? ("- Plan " + plan + ": " + len(hints) + " recommendations")
     next
 }
-#--> TODO: chech why 3 last plans return no optimisation recommendations
+#-->
 '
-╭───────────────────────────────────╮
-│ Plan: default (2 recommendations) │
-╰───────────────────────────────────╯
-Description: General purpose application
-
-╭───────────────────────────────╮
-│ Plan: web (0 recommendations) │
-╰───────────────────────────────╯
-Description: Unknown Description
-
-╭─────────────────────────────────────╮
-│ Plan: analytics (0 recommendations) │
-╰─────────────────────────────────────╯
-Description: Unknown Description
-
-╭──────────────────────────────────╮
-│ Plan: mobile (0 recommendations) │
-╰──────────────────────────────────╯
-Description: Unknown Description
+- Plan default: 2 recommendations
+- Plan web: 2 recommendations
+- Plan analytics: 2 recommendations
+- Plan mobile: 0 recommendations
 '
 
 pf()
-# Executed in 0.37 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*--- Generated Actions and SQL
 
@@ -891,188 +791,68 @@ o1 {
         [ "location", :string ]
     ])
     
-    SetPerfPlan("web")
+    UsePerfPlan("web")
 
-    Perf_hints = PerfHints()
     ? BoxRound("Generated Actions")
-   	? @@NL(perf_hints)
+   	? @@NL(PerfHints())
 
 }
-#--> Idem (nothing returned)
+#-->
 '
 ╭───────────────────╮
 │ Generated Actions │
 ╰───────────────────╯
 [
 	[
-		[ "rule_id", "fk_index_mandatory" ],
-		[ "type", "index_optimization" ],
-		[ "priority", "high" ],
-		[ "performance_plan", "web" ],
 		[
 			"message",
-			"Foreign key fields must have indexes for web performance"
+			"Foreign key inventory.product_id must have index for web performance"
 		],
-		[ "action", "" ],
-		[ "performance_impact", "high" ],
-		[ "applies_to", "all_foreign_keys" ],
 		[
-			"description_data",
-			[
-				[ "table", "inventory" ],
-				[ "field", "product_id" ],
-				[ "related_table", "products" ],
-				[ "relationship_type", "belongs_to" ]
-			]
+			"action",
+			"CREATE INDEX idx_inventory_product_id ON inventory(product_id)"
 		]
 	],
 	[
-		[ "rule_id", "fk_index_mandatory" ],
-		[ "type", "index_optimization" ],
-		[ "priority", "high" ],
-		[ "performance_plan", "web" ],
 		[
 			"message",
-			"Foreign key fields must have indexes for web performance"
+			"Foreign key inventory.warehouse_id must have index for web performance"
 		],
-		[ "action", "" ],
-		[ "performance_impact", "high" ],
-		[ "applies_to", "all_foreign_keys" ],
 		[
-			"description_data",
-			[
-				[ "table", "inventory" ],
-				[ "field", "warehouse_id" ],
-				[ "related_table", "warehouses" ],
-				[ "relationship_type", "belongs_to" ]
-			]
+			"action",
+			"CREATE INDEX idx_inventory_warehouse_id ON inventory(warehouse_id)"
 		]
 	],
 	[
-		[ "rule_id", "n_plus_one_prevention" ],
-		[ "type", "query_optimization" ],
-		[ "priority", "critical" ],
-		[ "performance_plan", "web" ],
 		[
 			"message",
-			"N+1 queries will severely impact web response times"
+			"N+1 queries will impact products -> inventory performance"
 		],
-		[ "action", "" ],
-		[ "performance_impact", "critical" ],
-		[ "applies_to", "has_many_relationships" ],
 		[
-			"description_data",
-			[
-				[ "from_table", "products" ],
-				[ "to_table", "inventory" ],
-				[ "relationship_type", "has_many" ]
-			]
+			"action",
+			"Implement eager loading for products -> inventory"
 		]
 	],
 	[
-		[ "rule_id", "n_plus_one_prevention" ],
-		[ "type", "query_optimization" ],
-		[ "priority", "critical" ],
-		[ "performance_plan", "web" ],
 		[
 			"message",
-			"N+1 queries will severely impact web response times"
+			"N+1 queries will impact warehouses -> inventory performance"
 		],
-		[ "action", "" ],
-		[ "performance_impact", "critical" ],
-		[ "applies_to", "has_many_relationships" ],
 		[
-			"description_data",
-			[
-				[ "from_table", "warehouses" ],
-				[ "to_table", "inventory" ],
-				[ "relationship_type", "has_many" ]
-			]
+			"action",
+			"Implement eager loading for warehouses -> inventory"
 		]
+	],
+	[
+		[
+			"message",
+			"Table inventory needs pagination strategy"
+		],
+		[ "action", "Implement pagination for inventory" ]
 	]
 ]
 '
 
 pf()
-# Executed in 0.57 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.22
 
-/*--- Perf Engine Direct Usage
-
-pr()
-
-# Test Perf engine directly
-oEngine = new stzDataPerfEngine()
-
-# Load preAddd plans
-oEngine.AddPlan("web", $aPerfs[:web])
-oEngine.AddPlan("analytics", $aPerfs[:analytics])
-oEngine.AddPlan("mobile", $aPerfs[:mobile])
-
-# Sample model data
-aModelData = [
-    :tables = [
-        [
-            :name = "orders",
-            :field_count = 8,
-            :relationship_count = 3,
-            :fields = [
-                [ :name = "id", :type = "integer" ],
-                [ :name = "customer_id", :type = "integer" ],
-                [ :name = "description", :type = "text" ],
-                [ :name = "notes", :type = "longtext" ],
-                [ :name = "created_at", :type = "timestamp" ]
-            ]
-        ]
-    ],
-    :relationships = [
-        [ :type = "belongs_to", :from = "orders", :to = "customers", :field = "customer_id" ],
-        [ :type = "has_many", :from = "customers", :to = "orders", :field = "customer_id" ]
-    ]
-]
-
-? BoxRound("Direct Engine Usage")
-
-# Test plans
-for plan in ["default", "web", "mobile"]
-    oEngine.SetActivePlan(plan)
-    ? "Plan: " + plan
-    ? "Description: " + oEngine.PlanDescription(plan)
-    
-    aRules = oEngine.ActiveRules()
-    ? "Rules: " + len(aRules)
-    
-    # Evaluate rules
-    for rule in aRules
-        aMatches = oEngine.EvaluateRule(rule, aModelData)
-        if len(aMatches) > 0
-            ? "Rule '" + rule[:id] + "' triggered"
-        ok
-    next
-    ? "---"
-next
-#-->
-"
-╭─────────────────────╮
-│ Direct Engine Usage │
-╰─────────────────────╯
-Plan: default
-Description: General purpose application
-Rules: 2
-Rule 'basic_fk_index' triggered
-Rule 'query_awareness' triggered
----
-Plan: web
-Description: Web application with OLTP workload
-Rules: 3
-Rule 'fk_index_mandatory' triggered
-Rule 'n_plus_one_prevention' triggered
----
-Plan: mobile
-Description: Mobile application with limited bandwidth/resources
-Rules: 2
-Rule 'minimal_payload' triggered
----
-"
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.22

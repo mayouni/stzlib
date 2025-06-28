@@ -71,65 +71,10 @@ class stzDataModel from stzObject
     def Constraints()
         return @aConstraints
 
-    def PerfHintsXT()
-		This.AnalyzePerformance()
-        return @aPerfHints
-
-	    def PerformanceHintsXT()
-	        return This.PerfHintsXT()
-
-		def PerfRecommendationsXT()
-			return This.PerfHintsXT()
-
-		def PerformanceRecommendationsXT()
-			return This.PerfHintsXT()
-
-
     def ValidationErrors()
 		This.Validate()
         return @aValidationErrors
 
-    # Designing the data model
-    def AddTable(cTableName, aFields)
-        if not isString(cTableName) or cTableName = ""
-            raise("Table name must be a non-empty string")
-        ok
-        
-        if not isList(aFields) or stzlen(aFields) = 0
-            raise("Fields must be a non-empty list")
-        ok
-        
-        # Create table definition
-        oTable = new stzDataTable()
-        oTable.SetName(cTableName)
-        
-        # Process each field
-        nLen = len(aFields)
-
-        for i = 1 to nLen
-            if not isList(aFields[i]) or stzlen(aFields[i]) < 2
-                raise("Each field must be [name, type] or [name, type, options]")
-            ok
-            
-            cFieldName = aFields[i][1]
-            cFieldType = aFields[i][2]
-            aOptions = []
-            if stzlen(aFields[i]) > 2
-                aOptions = aFields[i][3]
-            ok
-            
-            # Create field with proper name and type
-            oField = new stzField(cFieldName, cFieldType, aOptions)
-            oTable.AddField(oField)
-            
-            # Enhanced foreign key inference with mode awareness
-            if cFieldType = :foreign_key
-                This.InferRelationsFromFK(cTableName, cFieldName)
-            ok
-        next
-        
-        @aoTables + oTable
-        return This
 
     # NEW METHOD: AddField - Add a field to an existing table
     def AddField(cTableName, cFieldName, cFieldType, aOptions)
@@ -200,7 +145,7 @@ class stzDataModel from stzObject
 
     # NEW METHOD: Check if field exists in table
     def FieldExists(oTable, cFieldName)
-        nLen = oTable.FieldCount()
+        nLen = oTable.CountFields()
         for i = 1 to nLen
             oField = oTable.Field(i)
             if oField.Name() = cFieldName
@@ -213,7 +158,7 @@ class stzDataModel from stzObject
     def FieldAdditionImpact(cTableName, cFieldName, cFieldType, aOptions)
         aImpact = [
             :breaking_changes = 0,
-            :performance_impact = "minimal",
+            :perf_impact = "minimal",
             :migration_complexity = "simple",
             :affected_relationships = [],
             :recommendations = []
@@ -245,7 +190,7 @@ class stzDataModel from stzObject
         
         # Performance considerations
         if cFieldType = :text or cFieldType = "text"
-            aImpact[:performance_impact] = "low"
+            aImpact[:perf_impact] = "low"
             aImpact[:recommendations] + "Large text fields may impact query performance"
         ok
         
@@ -311,7 +256,7 @@ class stzDataModel from stzObject
 
     # NEW METHOD:  field from table by name
     def FieldFromTable(oTable, cFieldName)
-        nLen = oTable.FieldCount()
+        nLen = oTable.CountFields()
         for i = 1 to nLen
             oField = oTable.Field(i)
             if oField.Name() = cFieldName
@@ -319,6 +264,32 @@ class stzDataModel from stzObject
             ok
         next
         return NULL
+
+
+	def InferRelationshipsForTable(oTable)
+
+	    for aField in oTable.Fields()
+	        cFieldName = aField[:name]
+	        if right(cFieldName, 3) = "_id" and cFieldName != "id"
+	            # Extract table name from foreign key field
+	            cRelatedTable = left(cFieldName, len(cFieldName) - 3)
+	            
+	            # Add belongs_to relationship
+	            @aRelationships + [
+	                :type = "belongs_to",
+	                :from = oTable.Name(),
+	                :to = cRelatedTable + "s", # Pluralize
+	                :field = cFieldName
+	            ]
+	            
+	            # Add corresponding has_many relationship
+	            @aRelationships + [
+	                :type = "has_many", 
+	                :from = cRelatedTable + "s",
+	                :to = oTable.Name()
+	            ]
+	        ok
+	    next
 
     # NEW METHOD: Remove relationships that depend on a field
     def RemoveRelationsForField(cTableName, cFieldName)
@@ -344,6 +315,7 @@ class stzDataModel from stzObject
 
 		def RemoveRelForField(cTableName, cFieldName)
 			This.RemoveRelationsForField(cTableName, cFieldName)
+
 
     def InferRelationsFromFK(cFromTable, cForeignKeyField)
         # Extract referenced table name from foreign key field
@@ -467,63 +439,9 @@ class stzDataModel from stzObject
             return "custom"
         ok
 
-    # Missing method: TableAnalysis
-    def TableAnalysis()
-        aAnalysis = []
-        
-        nLen = len(@aoTables)
-
-        for i = 1 to nLen
-            cTableName = @aoTables[i].Name()
-            nFieldCount = @aoTables[i].FieldCount()
-            nRelationshipCount = This.NumberOfRelationsInTable(cTableName)
-            
-            # Analyze table complexity
-            cComplexity = "simple"
-            if nFieldCount > 10 or nRelationshipCount > 5
-                cComplexity = "moderate"
-            ok
-            if nFieldCount > 20 or nRelationshipCount > 10
-                cComplexity = "complex"
-            ok
-            
-            # Check for potential issues
-            aIssues = []
-            if nFieldCount = 1  # Only primary key
-                aIssues + "Table has minimal fields - may need more attributes"
-            ok
-            if nRelationshipCount = 0
-                aIssues + "Table is isolated - consider relationships with other tables"
-            ok
-            if nRelationshipCount > 8
-                aIssues + "Table has many relationships - consider normalization"
-            ok
-            
-            aTableAnalysis = [
-                :table = cTableName,
-                :field_count = nFieldCount,
-                :relationship_count = nRelationshipCount,
-                :complexity = cComplexity,
-                :issues = aIssues,
-                :primary_keys = This.NumberOfPrimaryKeysInTable(@aoTables[i]),
-                :foreign_keys = This.NumberOftForeignKeysInTable(@aoTables[i])
-            ]
-            aAnalysis + aTableAnalysis
-        next
-        
-        return aAnalysis
-
-	def TablesNames()
-		acResult = []
-		nLen = len(@aoTables)
-		for i = 1 to nLen
-			acResult + @aoTables[i].Name()
-		next
-		return acResult
-
     def NumberOfPrimaryKeysInTable(oTable)
         nCount = 0
-        for i = 1 to oTable.FieldCount()
+        for i = 1 to oTable.CountFields()
             oField = oTable.Field(i)
             if oField.IsPrimaryKey()
                 nCount++
@@ -543,7 +461,7 @@ class stzDataModel from stzObject
 
     def NumberOfFKInTable(oTable)
         nCount = 0
-        for i = 1 to oTable.FieldCount()
+        for i = 1 to oTable.CountFields()
             oField = oTable.Field(i)
             if right(oField.Name(), 3) = "_id" and not oField.IsPrimaryKey()
                 nCount++
@@ -580,7 +498,7 @@ class stzDataModel from stzObject
 	            :name = cTableName,
 	            :field_count = len(oTable.Fields()),  # Adjust based on your table structure
 	            :relationship_count = This.CountRelationsForTable(cTableName),
-	            :fields = This.TablesFieldsForAnalysis(cTableName)
+	            :fields = This.TablesFields(cTableName)
 	        ]
 
 	        aModelData[:tables] + aTableData
@@ -598,7 +516,7 @@ class stzDataModel from stzObject
 
         for i = 1 to nLen
             cTableName = @aoTables[i].Name()
-            nFields = @aoTables[i].FieldCount()
+            nFields = @aoTables[i].CountFields()
             nRels = This.NumberOfRelationsInTable(cTableName)
             
             cExplanation += "- " + cTableName + ": " + nFields + " fields, " + nRels + " relationships" + NL
@@ -751,7 +669,7 @@ class stzDataModel from stzObject
             ]
         ok
         
-        if oTable.FieldCount() = 0
+        if oTable.CountFields() = 0
             @aValidationErrors + [
                 :type = "table",
                 :severity = "error", 
@@ -763,7 +681,7 @@ class stzDataModel from stzObject
         
         # Check for primary key
         nPrimaryKeys = 0
-        for i = 1 to oTable.FieldCount()
+        for i = 1 to oTable.CountFields()
             oField = oTable.Field(i)
             if oField.IsPrimaryKey()
                 nPrimaryKeys++
@@ -818,6 +736,7 @@ class stzDataModel from stzObject
 		def ValidateRelationship(aRel)
 			This.ValidateRelation(aRel)
 
+
     def TableExists(cTableName)
         nLen = len(@aoTables)
         for i = 1 to nLen
@@ -826,15 +745,6 @@ class stzDataModel from stzObject
             ok
         next
         return false
-
-    def Table(cTableName)
-        nLen = len(@aoTables)
-        for i = 1 to nLen
-            if @aoTables[i].Name() = cTableName
-                return @aoTables[i]
-            ok
-        next
-        return NULL
 
     def CountTableConnections(cTableName)
         nCount = 0
@@ -849,23 +759,28 @@ class stzDataModel from stzObject
 		def NumberOfTableConnections(cTableName)
 			return This.CountTableConnections(cTableName)
 
-    def TableFieldsInfo(oTable)
+
+	def TableFields(pcTableName)
+		return This.Table(pcTableName).Fields()
+
+    def TableFieldsXT(pcTableName)
+		oTable = This.Table(pcTableName)
         aFields = []
-        nLen = oTable.FieldCount()
+        nLen = oTable.CountFields()
         for i = 1 to nLen
             oField = oTable.Field(i)
             aFieldInfo = [
                 :name = oField.Name(),
                 :type = oField.Type(),
                 :is_primary_key = oField.IsPrimaryKey(),
-                :is_required = oField.IsRequired(),
-                :is_unique = oField.IsUnique()
+                :bIsRequired = oField.IsRequired(),
+                :bIsUnique = oField.IsUnique()
             ]
             aFields + aFieldInfo
         next
         return aFields
 
-    def NumberOfRelationsInTable(cTableName)
+    def NumberOfRelationshipsInTable(cTableName)
         nCount = 0
         nLen = len(@aRelationships)
         for i = 1 to nLen
@@ -874,130 +789,6 @@ class stzDataModel from stzObject
             ok
         next
         return nCount
-
-		def NumberOfRelationshipsInTable(cTableName)
-			return This.NumberOfRelationsInTable(cTableName)
-
-		def NumberOfRelsInTable(cTableName)
-			return This.NumberOfRelationsInTable(cTableName)
-
-		def CountRelationshipsInTable(cTableName)
-			return This.NumberOfRelationsInTable(cTableName)
-
-		def CountRelationsInTable(cTableName)
-			return This.NumberOfRelationsInTable(cTableName)
-
-		def CountRelsInTable(cTableName)
-			return This.NumberOfRelationsInTable(cTableName)
-
-
-	def NumberOfRelationsForTable(cTableName)
-	    nCount = 0
-	    nLen = len(@aRelationships)
-	    for i = 1 to nLen
-	        aRel = @aRelationships[i]
-	        if aRel[:from] = cTableName or aRel[:to] = cTableName
-	            nCount++
-	        ok
-	    next
-	    return nCount
-	
-		def CountRelationshipsForTable(cTableName)
-			return This.NumberOfRelationsForTable(cTableName)
-	
-		def CountRelationsForTable(cTableName)
-			return This.NumberOfRelationsForTable(cTableName)
-	
-		def CountRelsForTable(cTableName)
-			return This.NumberOfRelationsForTable(cTableName)
-	
-		def NumberOfRelsForTable(cTableName)
-			return This.NumberOfRelationsForTable(cTableName)
-	
-
-	def TablesFieldsForAnalysis(cTableName)
-	    # Return field structure that matches what the perf engine expects
-
-		nLen = len(@aoTables)
-	    aFields = []
-	    
-	    for i = 1 to nLen
-
-	        oTable = @aoTables[i]
-	        
-	        # Get the raw field definitions from the table
-	        aTableFields = oTable.Fields()  # Assuming this returns the field array
-	        nLenTable = len(aTableFields)
-
-	        for j = 1 to nLenTable
-
-	            aFieldDef = aTableFields[j].Content()
-	            
-	            # Convert from stzDataModel format to perf engine format
-	            # Input format: [ "field_name", :field_type ] or [ "field_name", "field_type" ]
-	            cFieldName = aFieldDef[1]  # First element is field name
-	            cFieldType = aFieldDef[2]  # Second element is field type
-	            
-	            # Convert symbolic types to string types for perf engine
-	            if isString(cFieldType)
-	                cTypeString = cFieldType
-	            else
-	                # Handle symbolic field types like :primary_key, :foreign_key, etc.
-
-	                switch cFieldType
-
-	                on :primary_key
-	                    cTypeString = "integer"
-
-	                on :foreign_key  
-	                    cTypeString = "integer"
-
-	                on :required
-	                    cTypeString = "string"
-
-	                on :email
-	                    cTypeString = "string"
-
-	                on :text
-	                    cTypeString = "text"
-
-	                on :longtext
-	                    cTypeString = "longtext"
-
-	                on :timestamp
-	                    cTypeString = "timestamp"
-
-	                on :datetime
-	                    cTypeString = "datetime"
-
-	                on :boolean
-	                    cTypeString = "boolean"
-
-	                on :unique
-	                    cTypeString = "string"
-
-	                other
-	                    cTypeString = "string"  # Default fallback
-	                off
-
-	            ok
-	            
-	            # Add field in format expected by perf engine
-	            aFields + [
-	                :name = cFieldName,
-	                :type = cTypeString
-	            ]
-
-	        next
-	    next
-	    
-	    return aFields
-	
-		def TablesFieldsXT()
-			return This.TablesFieldsForAnalysis()
-
-		def TablesFields()
-			return This.TablesFieldsForAnalysis()
 
 
     def DiagramData()
@@ -1009,7 +800,7 @@ class stzDataModel from stzObject
         for i = 1 to nLen
             aEntity = [
                 :name = @aoTables[i].Name(),
-                :field_count = @aoTables[i].FieldCount(),
+                :field_count = @aoTables[i].CountFields(),
                 :type = "table"
             ]
             aEntities + aEntity
@@ -1061,7 +852,7 @@ class stzDataModel from stzObject
         for i = 1 to nLen
             aTableInfo = [
                 :name = @aoTables[i].Name(),
-                :field_count = @aoTables[i].FieldCount(),
+                :field_count = @aoTables[i].CountFields(),
                 :relationships = []
             ]
             
@@ -1077,342 +868,6 @@ class stzDataModel from stzObject
         next
         return aResult
 
-
-    # Performance Plan Configuration
-    def SetPerfPlan(cPlanName)
-        @cActivePerfPlan = cPlanName
-        @oPerfEngine.SetActivePlan(cPlanName)
-        return This
-    
-		def SetPerformancePlan(cPlanName)
-			return This.SetPerfPlan(cPlanName)
-
-    def PerfPlan()
-        return @cActivePerfPlan
-    
-		def PerformancePlan()
-			 return @cActivePerfPlan
-
-    def PerfPlans()
-        aPlans = []
-        aRuleSets = @oPerfEngine.rule_sets
-        nLen = len(aRuleSets)
-        for i = 1 to nLen
-            aPlans + [
-                :name = aRuleSets[i][:name],
-                :Description = @oPerfEngine.PlanDescription(aRuleSets[i][:name])
-            ]
-        next
-        return aPlans
-    
-		def PerfmancePlans()
-			return This.PerfPlans()
-
-
-    def AddPerfPlan(cPlanName, cDescription, aRules)
-        aRulePlan = [
-            :Description = cDescription,
-            :priority_focus = ["custom"],
-            :rules = aRules
-        ]
-        @oPerfEngine.AddPlan(cPlanName, aRulePlan)
-        return This
-
-		def AddPerformancePlan(cPlanName, cDescription, aRules)
-			This.AddPerfPlan(cPlanName, cDescription, aRules)
-
-
-	def SetPerfThreshold(cName, nValue)
-		@oPerfEngine.SetThreshold(cName, nValue)
-
-		def SetPerformanceThreshold(cName, nValue)
-			This.SetPerfThreshold(cName, nValue)
-
-	def PerfThreshold(cName)
-		return @oPerfEngine.Threshold(cName)
-
-		def PerformanceThreshold(cName)
-			return This.PerfThreshold(cName)
-
-	def PerfThresholds()
-		return @oPerfEngine.Thresholds()
-
-		def PerformanceThresholds()
-			return This.PerfThresholds()
-
-	def PerfPlanDescription(cPlanName)
-		return @oPerfEngine.PlanDescription(cPlanName)
-
-		def PerformancePlanDescription(cPlanName)
-			return This.PerfPlanDescription(cPlanName)
-
-
-    # Enhanced Performance Analysis with Rule Engine
-    def AnalyzePerformance()
-        @aPerfHints = []
-        
-        #  model data for rule evaluation
-        aModelData = This.Summary()
-   
-        #  active rules from rule engine
-        aActiveRules = @oPerfEngine.ActiveRules()
-
-        # Evaluate each rule
-        nLen = len(aActiveRules)
-        for i = 1 to nLen
-            aRule = aActiveRules[i]
-            aRuleMatches = @oPerfEngine.EvaluateRule(aRule, aModelData)
-            
-            # Generate hints for each match
-            nMatchLen = len(aRuleMatches)
-            for j = 1 to nMatchLen
-                aMatch = aRuleMatches[j]
-
-				cAction = ""  # Initialize empty since action_template doesn't exist in the rule structure
-				if HasKey(aRule, :action) and HasKey(aRule[:action], :Ring)
-                	cAction = @oPerfEngine.GenerateActionFromTemplate(aRule[:action_template], aMatch)
-                ok
-
-                aHint = [
-                    :rule_id = aRule[:id],
-                    :type = aRule[:type],
-                    :priority = aRule[:priority],
-                    :performance_plan = @cActivePerfPlan,
-                    :message = aRule[:message],
-                    :action = cAction,
-                    :performance_impact = aRule[:performance_impact],
-                    :applies_to = aRule[:applies_to],
-                    :Description_data = aMatch
-                ]
-                
-                # Add table/field specific information
-                if find(aMatch, :table) > 0
-                    aHint[:table] = aMatch[:table]
-                ok
-                if find(aMatch, :field) > 0
-                    aHint[:field] = aMatch[:field]
-                ok
-                if find(aMatch, :from_table) > 0
-                    aHint[:from_table] = aMatch[:from_table]
-                ok
-                if find(aMatch, :to_table) > 0
-                    aHint[:to_table] = aMatch[:to_table]
-                ok
-                
-                @aPerfHints + aHint
-            next
-        next
-        
-        return @aPerfHints
-    
-		def AnalyzePerf()
-			return This.AnalyzePerformance()
-
-		def PerformanceAnalysis()
-			return This.AnalyzePerformance()
-
-		def PerfAnalysis()
-			return This.AnalyzePerformance()
-
-    def PerfReport()
-        This.AnalyzePerformance()
-        
-        aReport = [
-            :performance_plan = [
-                :name = @cActivePerfPlan,
-                :Description = @oPerfEngine.PlanDescription(@cActivePerfPlan)
-            ],
-            :summary = [
-                :total_hints = stzlen(@aPerfHints),
-                :critical_issues = This.CountHintsByPriority("critical"),
-                :high_priority = This.CountHintsByPriority("high"),
-                :medium_priority = This.CountHintsByPriority("medium"),
-                :low_priority = This.CountHintsByPriority("low")
-            ],
-            :hints_by_category = This.GroupHintsByType(),
-            :detailed_hints = @aPerfHints,
-            :recommendations = This.TopRecommendations()
-        ]
-        
-        return aReport
-
-		def PerformanceReport()
-			return This.PerfReport()
- 
-/*   
-	def PerfHints()
-		This.AnalyzePerformance()
-		nLen = len(@aPerfHints)
-		acResult = []
-		for i = 1 to nLen
-			acResult + @aPerfHints[i][:message]
-		next
-		return U(acResult)
-
-		def PerformanceRecommendations()
-			return This.PerfHints()
-
-		def PerformanceHints()
-			return This.PerfHints()
-
-		def PerfRecommendations()
-			return This.PerfHints()
-*/
-
-def PerfEngine()
-	return @oPerfEngine
-
-def PerfHints()
-    # Get the performance engine
-    oPerfEngine = This.PerfEngine()
-    
-    # Build model data structure that the perf engine expects
-    aModelData = [
-        :tables = This.BuildTablesData(),
-        :relationships = This.BuildRelationshipsData()
-    ]
-    
-    # Get active rules from the performance engine
-    aActiveRules = oPerfEngine.ActiveRules()
-    
-    # Evaluate each rule and collect hints
-    aHints = []
-    
-    nLen = len(aActiveRules)
-    for i = 1 to nLen
-        aRule = aActiveRules[i]
-        
-        # Evaluate the rule against our model data
-        aRuleResults = oPerfEngine.EvalRule(aRule, aModelData)
-        
-        # If rule found issues, generate hints
-        nResultLen = len(aRuleResults)
-        for j = 1 to nResultLen
-            aResult = aRuleResults[j]
-            
-            # Generate the hint message
-            cHint = aRule[:message]
-            
-            # Generate SQL and Ring actions
-            cSQLAction = ""
-            cRingAction = ""
-            
-            if HasKey(aRule, :action) > 0
-                if HasKey(aRule[:action], :SQL) > 0
-                    cSQLAction = oPerfEngine.GenerateActionFromTemplate(aRule[:action][:SQL], aResult)
-                ok
-                
-                if HasKey(aRule[:action], :Ring) > 0
-                    cRingAction = oPerfEngine.GenerateActionFromTemplate(aRule[:action][:Ring], aResult)
-                ok
-            ok
-            
-            # Add complete hint
-            aHints + [
-                :rule_id = aRule[:id],
-                :priority = aRule[:priority],
-                :message = cHint,
-                :table = iff(HasKey(aResult, :table), aResult[:table], ""),
-                :field = iff(HasKey(aResult, :field), aResult[:field], ""),
-                :sql_action = cSQLAction,
-                :ring_action = cRingAction,
-                :performance_impact = aRule[:performance_impact],
-                :details = aResult
-            ]
-        next
-    next
-    
-    return aHints
-
-def TableFields(pcTableName)
-	return This.Table(pcTableName).Fields()
-
-# Helper method to build tables data for performance engine
-def BuildTablesData()
-    aTables = []
-    
-    # Get all tables from the model
-    aTablesNames = This.TablesNames()
-    
-    nLen = len(aTablesNames)
-    for i = 1 to nLen
-        cTableName = aTablesNames[i]
-        
-        # Get table fields
-        aTableFields = This.TableFields(cTableName)
-        aFields = []
-        
-        # Convert fields to performance engine format
-        nFieldLen = len(aTableFields)
-        for j = 1 to nFieldLen
-            aField = aTableFields[j].Content()
-            aFields + [
-                :name = aField[1],  # Field name
-                :type = aField[2]   # Field type
-            ]
-        next
-        
-        # Count relationships for this table
-        nRelCount = This.CountRelationshipsForTable(cTableName)
-        
-        aTables + [
-            :name = cTableName,
-            :fields = aFields,
-            :field_count = len(aFields),
-            :relationship_count = nRelCount
-        ]
-    next
-    
-    return aTables
-
-# Helper method to build relationships data for performance engine  
-def BuildRelationshipsData()
-    aRelationships = []
-    
-    # This would extract relationship data from the model
-    # For now, we'll build it based on foreign key fields
-    
-    aTablesNames = This.TablesNames()
-    nLen = len(aTablesNames)
-    
-    for i = 1 to nLen
-        cTableName = aTablesNames[i]
-        aTableFields = This.TableFields(cTableName)
-        
-        nFieldLen = len(aTableFields)
-        for j = 1 to nFieldLen
-            aField = aTableFields[j].Content()
-            
-            # If field is foreign key, create belongs_to relationship
-            if aField[2] = :foreign_key
-                cFieldName = aField[1]
-                
-                # Extract related table name from field name (convention: table_id -> table)
-                cRelatedTable = ""
-                if substr(cFieldName, len(cFieldName)-2, 3) = "_id"
-                    cRelatedTable = substr(cFieldName, 1, len(cFieldName)-3)
-                ok
-                
-                if cRelatedTable != ""
-                    aRelationships + [
-                        :type = "belongs_to",
-                        :from = cTableName,
-                        :to = cRelatedTable,
-                        :field = cFieldName
-                    ]
-                    
-                    # Also add the inverse has_many relationship
-                    aRelationships + [
-                        :type = "has_many", 
-                        :from = cRelatedTable,
-                        :to = cTableName
-                    ]
-                ok
-            ok
-        next
-    next
-    
-    return aRelationships
 
     def CountHintsByPriority(cPriority)
         nCount = 0
@@ -1472,7 +927,7 @@ def BuildRelationshipsData()
             if aHint[:priority] = "critical" or aHint[:priority] = "high"
                 aRecommendations + [
                     :priority = aHint[:priority],
-                    :impact = aHint[:performance_impact],
+                    :impact = aHint[:perf_impact],
                     :recommendation = aHint[:message],
                     :action = aHint[:action]
                 ]
@@ -1485,57 +940,252 @@ def BuildRelationshipsData()
 			return This.TopRecommendations()
 
 
-# Supporting classes remain the same
+#===============================#
+#  PERFORMANCE PLAN MANAGEMENT  #
+#===============================#
+
+    # Performance Plan Management - simplified API
+    def UsePerfPlan(cPlanName)
+        @oPerfEngine.SetActivePlan(cPlanName)
+        return This
+
+    def PerfPlan()
+        return @oPerfEngine.Plan()
+
+    # Core Performance Analysis - single clear method
+    def PerfHintsXT()
+        aModelData = This.ModelSummary()
+        return @oPerfEngine.AnalyzeModel(aModelData)
+
+	def PerfHints()
+		acResult = []
+		aHints = This.PerfHintsXT()
+		nLen = len(aHints)
+
+		for i = 1 to nLen
+
+			acResult + [
+				:message = aHints[i][:message],
+				:action = aHints[i][:action]
+			]
+
+		next
+
+		return acResult
+
+    # Performance report for management - different purpose than hints
+    def PerfReport()
+        aHints = This.PerfHints()
+        
+        return [
+            :plan = [
+                :name = @oPerfEngine.Plan(),
+                :description = This.PlanDescription()
+            ],
+            :summary = [
+                :total_hints = len(aHints),
+                :by_priority = This.GroupByPriority(aHints),
+                :by_type = This.GroupByType(aHints)
+            ],
+            :critical_actions = This.CriticalActions(aHints)
+        ]
+
+    def SetPerfThreshold(cName, nValue)
+        @oPerfEngine.SetThreshold(cName, nValue)
+        return This
+    
+    def PerfThreshold(cName)
+       return @oPerfEngine.Threshold(cName)
+    
+    def Thresholds()
+        return @oPerfEngine.Thresholds()
+
+
+    # Helper methods - internal use
+    def ModelSummary()
+        return [
+            :tables = This.BuildTablesData(),
+            :relationships = This.BuildRelationshipsData()
+        ]
+
+    def BuildTablesData()
+        aTables = []
+        for oTable in @aoTables
+            nRelCount = This.CountRelationshipsForTable(oTable.Name())
+            
+            aTables + [
+                :name = oTable.Name(),
+                :field_count = len(oTable.Fields()),
+                :relationship_count = nRelCount,
+                :fields = oTable.Fields()
+            ]
+        next
+        return aTables
+
+    def BuildRelationshipsData()
+        return @aRelationships
+
+    def GroupByPriority(aHints)
+        aGrouped = []
+        aPriorities = ["critical", "high", "medium", "low"]
+        
+        for cPriority in aPriorities
+            nCount = 0
+            for aHint in aHints
+                if aHint[:priority] = cPriority
+                    nCount++
+                ok
+            next
+            if nCount > 0
+                aGrouped + [ :priority = cPriority, :count = nCount ]
+            ok
+        next
+        
+        return aGrouped
+
+    def GroupByType(aHints)
+        aTypes = []
+        aGrouped = []
+        
+        # Collect unique types
+        for aHint in aHints
+            if find(aTypes, aHint[:type]) = 0
+                aTypes + aHint[:type]
+            ok
+        next
+        
+        # Count by type
+        for cType in aTypes
+            nCount = 0
+            for aHint in aHints
+                if aHint[:type] = cType
+                    nCount++
+                ok
+            next
+            aGrouped + [ :type = cType, :count = nCount ]
+        next
+        
+        return aGrouped
+
+    def PerfCriticalActions(aHints)
+        aActions = []
+        for aHint in aHints
+            if aHint[:priority] = "critical" or aHint[:priority] = "high"
+                aActions + [
+                    :priority = aHint[:priority],
+                    :message = aHint[:message],
+                    :action = aHint[:action]
+                ]
+            ok
+        next
+        return aActions
+
+    def AppliesTo(cRuleId)
+        # Map rule IDs to what they apply to
+        aAppliesMap = [
+            "basic_fk_index" = "foreign_keys",
+            "fk_index_mandatory" = "foreign_keys", 
+            "covering_indexes" = "multi_column_queries",
+            "denormalization_consideration" = "complex_joins",
+            "n_plus_one_prevention" = "has_many_relationships"
+        ]
+        
+        if HasKey(aAppliesMap, cRuleId)
+            return aAppliesMap[cRuleId]
+        ok
+        return "general"
+
+    # Table Management - simplified
+	def AddTable(cTableName, aFields)
+
+	    oTable = new stzDataTable(cTableName, aFields)
+	    @aoTables + oTable
+	    
+	    # Auto-infer relationships from foreign keys
+	    This.InferRelationshipsForTable(oTable)
+	    
+	    return This
+
+    def Table(cTableName)
+        for oTable in @aoTables
+            if oTable.Name() = cTableName
+                return oTable
+            ok
+        next
+        stzraise("Table not found: " + cTableName)
+
+    def TablesNames()
+        acNames = []
+        for oTable in @aoTables
+            acNames + oTable.Name()
+        next
+        return acNames
+
+    def CountRelationshipsForTable(cTableName)
+        nCount = 0
+        for aRel in @aRelationships
+            if aRel[:from] = cTableName or aRel[:to] = cTableName
+                nCount++
+            ok
+        next
+        return nCount
+
+
 class stzDataTable from stzObject
     @cName
     @aFields
     
-    def init()
-        @cName = ""
-        @aFields = []
-    
-    def SetName(cName)
+    def init(cName, aFields)
         @cName = cName
+        @aFields = aFields
     
     def Name()
         return @cName
     
-    def AddField(oField)
-        @aFields + oField
-    
-    def FieldCount()
-        return stzlen(@aFields)
-    
-    def Field(nIndex)
-        if nIndex >= 1 and nIndex <= stzlen(@aFields)
-            return @aFields[nIndex]
-        ok
-        return NULL
-    
     def Fields()
-        return @aFields
+        aResult = []
+        for aField in @aFields
+            cName = aField[1]
+            cType = aField[2]
+            aResult + [
+                :name = cName,
+                :type = cType
+            ]
+        next
+        return aResult
 
 class stzField from stzObject
     @cName
     @cType
     @aOptions
     @bIsPrimaryKey
-    @is_required
-    @is_unique
+    @bIsRequired
+    @bIsUnique
     
+	def Content()
+		return [
+			:Name = @cName,
+			:Type = @cType,
+			:Options = @aOptions,
+			:IsPrimaryKey = @bIsPrimaryKey,
+			:IsRequired = @bIsRequired,
+			:IsUnique = @bIsUnique
+		]
+
     def init(cName, cType, aOptions)
         @cName = cName
         @cType = This.ProcessFieldType(cType)
         
-        if aOptions = NULL
+        if isString(aOptions) and aOptions = NULL
             aOptions = []
         ok
+
         @aOptions = aOptions
         
         # Set flags based on type and options
         @bIsPrimaryKey = (cType = :primary_key)
-        @is_required = (cType = :required or @bIsPrimaryKey)
-        @is_unique = (cType = :unique or @bIsPrimaryKey)
+        @bIsRequired = (cType = :required or @bIsPrimaryKey)
+        @bIsUnique = (cType = :unique or @bIsPrimaryKey)
     
     def ProcessFieldType(cType)
         # Convert symbols to appropriate SQL types
@@ -1584,7 +1234,9 @@ class stzField from stzObject
         return @bIsPrimaryKey
     
     def IsRequired()
-        return @is_required
+        return @bIsRequired
     
     def IsUnique()
-        return @is_unique
+        return @bIsUnique
+
+
