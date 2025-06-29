@@ -257,19 +257,24 @@ class stzDataModel from stzObject
 
 	# FIXED RemoveField - now properly detects breaking changes
 	def RemoveField(cTableName, cFieldName)
+
 		aTable = This.Table(cTableName)
 		
 		# Analyze impact before removal
+
 		aImpact = This.AnalyzeFieldRemovalImpact(cTableName, cFieldName)
 		
 		if aImpact[:breaking_changes] > 0
+
 			cReasons = ""
+
 			for i = 1 to len(aImpact[:breaking_reasons])
 				cReasons += aImpact[:breaking_reasons][i]
 				if i < len(aImpact[:breaking_reasons])
 					cReasons += ", "
 				ok
 			next
+
 			stzraise("Breaking change prevented: Cannot remove field '" + cFieldName + "' - " + cReasons)
 		ok
 
@@ -286,35 +291,66 @@ class stzDataModel from stzObject
 		This.RemoveRelationshipsForField(cTableName, cFieldName)
 		return aImpact
 
+
 	def FieldExists(aTable, cFieldName)
-		for aField in aTable[:fields]
+
+		aFields = aTable[:fields]
+		nLen = len(aFieùs)
+
+		for i = 1 to nLen
+
+			aField = aFields[i]
+
 			if aField[:name] = cFieldName
 				return TRUE
 			ok
 		next
+
 		return FALSE
 
 	def FieldFromTable(aTable, cFieldName)
-		for aField in aTable[:fields]
+
+		aFields = aTable[:fields]
+		nLen = len(aFields)
+
+		for i = 1 to nLen
+
+			aField = aFields[i]
+
 			if aField[:name] = cFieldName
 				return aField
 			ok
-		next
-		return NULL
 
-	# FIXED relationship inference
+		next
+
+		stzraise("Inexistant field!")
+
+
 	def InferRelationshipsForTable(aTable)
-		for aField in aTable[:fields]
+
+		aFields = aTable[:fields]
+		nLen = len(aFields)
+
+		for i = 1 to nLen
+
+			aField = aFields[i]
 			cFieldName = aField[:name]
+
 			# Check if it's a foreign key field
+
 			if right(cFieldName, 3) = "_id" and cFieldName != "id"
+
 				cRelatedTableSingular = left(cFieldName, len(cFieldName) - 3)
 				cRelatedTable = PluralOf(cRelatedTableSingular)
 				
 				# Only add relationship if target table exists
+
 				if This.TableExists(cRelatedTable)
+
 					# Add belongs_to relationship
+
 					@aRelationships + [
+
 						:type = "belongs_to",
 						:from = aTable[:name],
 						:to = cRelatedTable,
@@ -323,6 +359,7 @@ class stzDataModel from stzObject
 					]
 					
 					# Add corresponding has_many relationship
+
 					@aRelationships + [
 						:type = "has_many",
 						:from = cRelatedTable,
@@ -330,15 +367,19 @@ class stzDataModel from stzObject
 						:field = cFieldName,
 						:inferred = TRUE
 					]
+
 				ok
 			ok
 		next
 
+
 	def InferRelationsFromFK(cFromTable, cForeignKeyField)
+
 		cReferencedTableSingular = This.TableNameFromFK(cForeignKeyField)
 		cReferencedTable = PluralOf(cReferencedTableSingular)
 		
 		if cReferencedTable != "" and This.TableExists(cReferencedTable)
+
 			@aRelationships + [
 				:from = cFromTable,
 				:to = cReferencedTable,
@@ -346,6 +387,7 @@ class stzDataModel from stzObject
 				:inferred = TRUE,
 				:field = cForeignKeyField
 			]
+
 			@aRelationships + [
 				:from = cReferencedTable,
 				:to = cFromTable,
@@ -355,31 +397,46 @@ class stzDataModel from stzObject
 			]
 		ok
 
+
 	def RemoveRelationshipsForField(cTableName, cFieldName)
+
 		aNewRelationships = []
-		for aRel in @aRelationships
+		nLen = len(@aRelationships)
+
+		for i = 1 to nLen
+
+			aRel = @aRelationships[i]
 			bKeep = TRUE
+
 			if HasKey(aRel, :field) and aRel[:field] = cFieldName and aRel[:from] = cTableName
 				bKeep = FALSE
 			ok
+
 			if bKeep
 				aNewRelationships + aRel
 			ok
+
 		next
+
 		@aRelationships = aNewRelationships
 
-	# FIXED analysis methods - now provide better impact assessment
+
 	def AnalyzeFieldAdditionImpact(cTableName, cFieldName, cFieldType, aOptions)
+
 		aRecommendations = []
 		cPerfImpact = "minimal"
 		
 		# Analyze based on field type
 		if cFieldType = :text or cFieldType = "text"
+
 			aRecommendations + "Large text fields may impact query performance"
 			cPerfImpact = "low"
+
 		but cFieldType = :decimal
 			aRecommendations + "Consider indexing decimal fields used in calculations"
+
 		but cFieldType = :foreign_key or right(cFieldName, 3) = "_id"
+
 			aRecommendations + "Foreign key fields should be indexed for performance"
 			cPerfImpact = "low"
 		ok
@@ -390,6 +447,7 @@ class stzDataModel from stzObject
 			:migration_complexity = "simple",
 			:affected_relationships = [],
 			:recommendations = aRecommendations,
+
 			:field_info = [
 				:table = cTableName,
 				:field = cFieldName,
@@ -398,7 +456,9 @@ class stzDataModel from stzObject
 		]
 
 	# FIXED removal impact analysis - now properly detects relationships
+
 	def AnalyzeFieldRemovalImpact(cTableName, cFieldName)
+
 		aImpact = [
 			:breaking_changes = 0,
 			:affected_relationships = [],
@@ -415,43 +475,63 @@ class stzDataModel from stzObject
 		
 		# Check if it's a primary key
 		if HasKey(aField, :is_primary_key) and aField[:is_primary_key]
+
 			aImpact[:breaking_changes]++
 			aImpact[:breaking_reasons] + "field is primary key"
 			aImpact[:migration_complexity] = "complex"
 		ok
 		
-		# Check relationships - FIXED to properly detect FK relationships
-		for aRel in @aRelationships
+		# Check relationships
+
+		nLen = len(@aRelationships)
+
+		for i = 1 to nLen
+
+			aRel = @aRelationships[i]
+
 			if HasKey(aRel, :field) and aRel[:field] = cFieldName and aRel[:from] = cTableName
 				aImpact[:breaking_changes]++
 				aImpact[:breaking_reasons] + "breaks relationship with " + aRel[:to]
 				aImpact[:affected_relationships] + aRel
 				aImpact[:migration_complexity] = "complex"
 			ok
+
 		next
 		
 		return aImpact
 
 	# Summary and reporting methods
+
 	def SummaryXT()
+
 		aTables = []
-		for aTable in @aTables
+		nLen = len(@aTables)
+
+		for i = 1 to nLen
+
+			aTable = @aTables[i]
+
 			aTableData = [
 				:name = aTable[:name],
 				:field_count = len(aTable[:fields]),
 				:relationship_count = This.CountRelationshipsForTable(aTable[:name]),
 				:fields = aTable[:fields]
 			]
+
 			aTables + aTableData
+
 		next
 		
 		return [
+
 			:schema = [
 				:name = @cSchemaName,
 				:version = @cSchemaVersion
 			],
+
 			:tables = aTables,
 			:relationships = @aRelationships,
+
 			:stats = [
 				:table_count = len(@aTables),
 				:total_fields = This.CountFields(),
@@ -459,15 +539,22 @@ class stzDataModel from stzObject
 			]
 		]
 
-	def Summary()
-		aTablesInfo = []
 
-        for aTable in @aTables
+	def Summary()
+
+		aTablesInfo = []
+		nLen = len(@aTables)
+
+        for i = 1 to nLen
+
+			aTable = @aTables[i]
             cTableName = aTable[:name]
             nFields = len(aTable[:fields])
+
             nRelations = This.CountRelationshipsForTable(cTableName)
             aTableInfo = [ cTableName, [ [ "fieldscount", nFields ], [ "relationscount", nRelations ] ] ]
             aTablesInfo + aTableInfo
+
         next
 
         return [
@@ -477,18 +564,33 @@ class stzDataModel from stzObject
             [ "tables", aTablesInfo ]
         ]
 
+
 	def Explain()
-		cText = "This model contains " + This.CountTables() + " tables:" + nl
-        for aTable in @aTables
+
+		nLen = len(@aTables)
+		cText = "This model contains " + nLen + " tables:" + nl
+		
+        for i = 1 to nLen
+
+			aTable = @aTables[i]
+
             cTableName = aTable[:name]
             nFields = len(aTable[:fields])
             nRelations = This.CountRelationshipsForTable(cTableName)
+
             cText += "• " + cTableName + ": " + nFields + " fields, " + nRelations + " relationships" + nl
+
         next
+
         cText += NL + "Key relationships:" + nl
-        for aRel in @aRelationships
+
+		nLen = len(@aRelationships)
+
+        for i = 1 to nLen
+			aRel = @aRelationships[i]
             cText += "• " + aRel[:from] + " " + aRel[:type] + " " + aRel[:to] + nl
         next
+
         return cText
 
 	def Name()
@@ -498,6 +600,7 @@ class stzDataModel from stzObject
 		return @cSchemaVersion
 
 	def TableFields(cTableName)
+
 		aTable = This.Table(cTableName)
 		return aTable[:fields]
 
@@ -520,61 +623,85 @@ class stzDataModel from stzObject
 		return This.TableFields(cTableName)  # Already returns hashlists
 
 	def CountRelationshipsForTable(cTableName)
+
 		nCount = 0
-		for aRel in @aRelationships
-			if aRel[:from] = cTableName or aRel[:to] = cTableName
+		nLen = len(@aRelationships)
+
+		for i = 1 to nLen
+			if @aRelationships[i][:from] = cTableName or @aRelationships[i][:to] = cTableName
 				nCount++
 			ok
 		next
+
 		return nCount
 
 	# Return relationships as expected format
+
 	def Relationships()
 		return @aRelationships
 
 	# Utility methods
+
 	def TableExists(cTableName)
-		for aTable in @aTables
-			if aTable[:name] = cTableName
+
+		nLen = len(@aTables)
+
+		for i = 1 to nLen
+			if @aTables[i][:name] = cTableName
 				return TRUE
 			ok
 		next
+
 		return FALSE
 
 	def ProcessFieldType(cType)
+
 		switch cType
 		on :primary_key
 			return "integer"
+
 		on :required
 			return "varchar(255)"
+
 		on :email
 			return "varchar(255)"
+
 		on :timestamp
 			return "timestamp"
+
 		on :decimal
 			return "decimal(10,2)"
+
 		on :text
 			return "text"
+
 		on :boolean
 			return "boolean"
+
 		on :url
 			return "varchar(500)"
+
 		on :foreign_key
 			return "integer"
+
 		on :unique
 			return "varchar(255)"
+
 		other
 			return cType
 		off
 
 	def TableNameFromFK(cForeignKeyField)
+
 		if cForeignKeyField = "parent_id"
 			return ""
 		ok
+
 		if right(cForeignKeyField, 3) = "_id"
 			cBaseName = left(cForeignKeyField, len(cForeignKeyField) - 3)
 			return cBaseName  # Return singular form
 		ok
+
 		return ""
 
 	#===========================#
@@ -582,43 +709,58 @@ class stzDataModel from stzObject
 	#===========================#
 
     # Add a constraint to a table's field
+
     def AddConstraint(cTableName, cFieldName, cConstraint)
+
         aConstraintDef = [
             :table = cTableName,
             :field = cFieldName,
             :constraint = cConstraint,
             :type = This.ConstraintType(cConstraint)
         ]
+
         @aConstraints + aConstraintDef
         
         # Track relationships for foreign keys
         if aConstraintDef[:type] = "foreign_key"
+
             aRefInfo = This.ParseForeignKey(cConstraint)
+
             if aRefInfo != NULL
+
                 @aRelationships + [
                     :from_table = cTableName,
                     :from_field = cFieldName,
                     :to_table = aRefInfo[:table],
                     :to_field = aRefInfo[:field]
                 ]
+
             ok
         ok
 
     # Enhanced constraint type detection
     def ConstraintType(cConstraint)
+
         cUpper = upper(cConstraint)
+
         if substr(cUpper, "PRIMARY KEY") > 0
             return "primary_key"
+
         but substr(cUpper, "FOREIGN KEY") > 0 or substr(cUpper, "REFERENCES") > 0
             return "foreign_key"
+
         but substr(cUpper, "UNIQUE") > 0
             return "unique"
+
         but substr(cUpper, "NOT NULL") > 0
             return "not_null"
+
         but substr(cUpper, "CHECK") > 0
             return "check"
+
         but substr(cUpper, "DEFAULT") > 0
             return "default"
+
         else
             return "custom"
         ok
@@ -628,7 +770,7 @@ class stzDataModel from stzObject
         cUpper = upper(cConstraint)
         nRefPos = substr(cUpper, "REFERENCES ")
         if nRefPos > 0
-            cAfterRef = substr(cConstraint, nRefPos + 11)
+            cAfterRef = @substr(cConstraint, nRefPos + 11)
             # Find table name (up to opening parenthesis or space)
             nParenPos = substr(cAfterRef, "(")
             nSpacePos = substr(cAfterRef, " ")
@@ -645,44 +787,62 @@ class stzDataModel from stzObject
                 nOpenParen = substr(cAfterRef, "(")
                 nCloseParen = substr(cAfterRef, ")")
                 if nOpenParen > 0 and nCloseParen > nOpenParen
-                    cRefField = trim(substr(cAfterRef, nOpenParen + 1, nCloseParen - nOpenParen - 1))
+                    cRefField = trim(@substr(cAfterRef, nOpenParen + 1, nCloseParen - nOpenParen - 1))
                     return [ :table = cRefTable, :field = cRefField ]
                 ok
             ok
         ok
         return NULL
 
-	#==========================#
-	#   VALIDATION MECHANISM   #
-	#==========================#
+	#=================================#
+	#   VALIDATION OF THE DATA MODEL  #
+	#=================================#
 
     # Enhanced validation with detailed reporting
+
     def Validate()
+
         @aValidationErrors = []
         nTablesValidated = 0
         nConstraintsValidated = 0
         nRelationshipsValidated = 0
         
         # Table validation
-        for aTable in @aTables
+
+		nLen = len(@aTables)
+
+        for i = 1 to nLen
+
+			aTable = @aTables[i]
             nTablesValidated++
+
             if aTable[:name] = "" or aTable[:name] = NULL
+
                 @aValidationErrors + [ :type = "table", :severity = "error", 
                                      :message = "Table has no name", :table = "" ]
                 loop
             ok
             
-            if len(aTable[:fields]) = 0
+			aFields = aTable[:fields]
+			nLenF = len(aFields)
+
+            if nLenF = 0
+
                 @aValidationErrors + [ :type = "table", :severity = "error",
                                      :message = "Table '" + aTable[:name] + "' has no fields", 
                                      :table = aTable[:name] ]
             ok
             
             # Check for duplicate field names
+
             aFieldNames = []
-            for aField in aTable[:fields]
+			for j = 1 to nLenF
+
+				aField = aFields[j]
                 cFieldName = aField[:name]
+
                 if find(aFieldNames, cFieldName) > 0
+
                     @aValidationErrors + [ :type = "table", :severity = "error",
                                          :message = "Duplicate field '" + cFieldName + "' in table '" + aTable[:name] + "'",
                                          :table = aTable[:name], :field = cFieldName ]
@@ -693,11 +853,17 @@ class stzDataModel from stzObject
         next
         
         # Constraint validation
-        for aConstraint in @aConstraints
+
+		nLenC = len(@aConstraints)
+
+		for i = 1 to nLenC
+
+			aConstraint = @aConstraints[i]
             nConstraintsValidated++
             cTableName = aConstraint[:table]
             cFieldName = aConstraint[:field]
             cType = aConstraint[:type]
+
             aTable = This.FindTable(cTableName)
             
             if aTable = NULL
@@ -715,18 +881,27 @@ class stzDataModel from stzObject
             ok
             
             # Foreign key validation
+
             if cType = "foreign_key"
+
                 nRelationshipsValidated++
+
                 aRefInfo = This.ParseForeignKey(aConstraint[:constraint])
+
                 if aRefInfo != NULL
                     aRefTable = This.FindTable(aRefInfo[:table])
+
                     if aRefTable = NULL
+
                         @aValidationErrors + [ :type = "constraint", :severity = "error",
                                              :message = "Referenced table '" + aRefInfo[:table] + "' does not exist",
                                              :table = cTableName, :field = cFieldName, 
                                              :referenced_table = aRefInfo[:table] ]
+
                     else
+
                         if not This.FieldExists(aRefTable, aRefInfo[:field])
+
                             @aValidationErrors + [ :type = "constraint", :severity = "error",
                                                  :message = "Referenced field '" + aRefInfo[:field] + 
                                                            "' does not exist in table '" + aRefInfo[:table] + "'",
@@ -735,85 +910,31 @@ class stzDataModel from stzObject
                                                  :referenced_field = aRefInfo[:field] ]
                         ok
                     ok
+
                 else
+
                     @aValidationErrors + [ :type = "constraint", :severity = "warning",
                                          :message = "Could not parse foreign key constraint: " + aConstraint[:constraint],
                                          :table = cTableName, :field = cFieldName ]
                 ok
+
             ok
             
             # Check constraint syntax validation
+
             if cType = "check"
+
                 if not This.ValidateCheckConstraint(aConstraint[:constraint])
+
                     @aValidationErrors + [ :type = "constraint", :severity = "warning",
                                          :message = "Potentially invalid CHECK constraint syntax",
                                          :table = cTableName, :field = cFieldName,
                                          :constraint = aConstraint[:constraint] ]
                 ok
             ok
+
         next
-        
-        # Constraint validation
-        for aConstraint in @aConstraints
-            nConstraintsValidated++
-            cTableName = aConstraint[:table]
-            cFieldName = aConstraint[:field]
-            cType = aConstraint[:type]
-            aTable = This.FindTable(cTableName)
-            
-            if aTable = NULL
-                @aValidationErrors + [ :type = "constraint", :severity = "error",
-                                     :message = "Table '" + cTableName + "' does not exist for constraint",
-                                     :table = cTableName, :constraint_type = cType ]
-                loop
-            ok
-            
-            if not This.FieldExists(aTable, cFieldName)
-                @aValidationErrors + [ :type = "constraint", :severity = "error",
-                                     :message = "Field '" + cFieldName + "' does not exist in table '" + cTableName + "'",
-                                     :table = cTableName, :field = cFieldName, :constraint_type = cType ]
-                loop
-            ok
-            
-            # Foreign key validation
-            if cType = "foreign_key"
-                nRelationshipsValidated++
-                aRefInfo = This.ParseForeignKey(aConstraint[:constraint])
-                if aRefInfo != NULL
-                    aRefTable = This.FindTable(aRefInfo[:table])
-                    if aRefTable = NULL
-                        @aValidationErrors + [ :type = "constraint", :severity = "error",
-                                             :message = "Referenced table '" + aRefInfo[:table] + "' does not exist",
-                                             :table = cTableName, :field = cFieldName, 
-                                             :referenced_table = aRefInfo[:table] ]
-                    else
-                        if not This.FieldExists(aRefTable, aRefInfo[:field])
-                            @aValidationErrors + [ :type = "constraint", :severity = "error",
-                                                 :message = "Referenced field '" + aRefInfo[:field] + 
-                                                           "' does not exist in table '" + aRefInfo[:table] + "'",
-                                                 :table = cTableName, :field = cFieldName,
-                                                 :referenced_table = aRefInfo[:table], 
-                                                 :referenced_field = aRefInfo[:field] ]
-                        ok
-                    ok
-                else
-                    @aValidationErrors + [ :type = "constraint", :severity = "warning",
-                                         :message = "Could not parse foreign key constraint: " + aConstraint[:constraint],
-                                         :table = cTableName, :field = cFieldName ]
-                ok
-            ok
-            
-            # Check constraint syntax validation
-            if cType = "check"
-                if not This.ValidateCheckConstraint(aConstraint[:constraint])
-                    @aValidationErrors + [ :type = "constraint", :severity = "warning",
-                                         :message = "Potentially invalid CHECK constraint syntax",
-                                         :table = cTableName, :field = cFieldName,
-                                         :constraint = aConstraint[:constraint] ]
-                ok
-            ok
-        next
-        
+   
         return [
             :valid = (len(@aValidationErrors) = 0),
             :errors = @aValidationErrors,
