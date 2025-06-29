@@ -1796,3 +1796,12 @@ func Chars(str)
 
 	func @Chars(str)
 		return Chars(str)
+
+
+func Lines(str)
+	acResult = @split(str, NL)
+	return acResult
+
+	func @Lines(str)
+		return Lines(str)
+		

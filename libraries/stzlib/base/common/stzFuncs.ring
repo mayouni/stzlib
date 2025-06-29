@@ -4648,6 +4648,9 @@ func StzLen(p)
 	func @StzLen(p)
 		return StzLen(p)
 
+	func @len(p)
+		return stzlen(p)
+
 func HowMany(paList)
 
 	if NOT isList(paList)

@@ -100,7 +100,7 @@ class stzDataModel from stzObject
                 but aFields[i][2] = :email
                     This.AddConstraint(cTableName, aFields[i][1], "CHECK (email LIKE '%@%')")
 
-                but isString(aFields[i][2]) and substr(upper(aFields[i][2]), "VARCHAR") > 0
+                but isString(aFields[i][2]) and @substr(upper(aFields[i][2]), "VARCHAR", []) > 0
                     # VARCHAR constraint already embedded in type
 
                 ok
@@ -765,22 +765,22 @@ class stzDataModel from stzObject
 
         cUpper = upper(cConstraint)
 
-        if substr(cUpper, "PRIMARY KEY") > 0
+        if @substr(cUpper, "PRIMARY KEY", []) > 0
             return "primary_key"
 
-        but substr(cUpper, "FOREIGN KEY") > 0 or substr(cUpper, "REFERENCES") > 0
+        but @substr(cUpper, "FOREIGN KEY", []) > 0 or substr(cUpper, "REFERENCES") > 0
             return "foreign_key"
 
-        but substr(cUpper, "UNIQUE") > 0
+        but @substr(cUpper, "UNIQUE", []) > 0
             return "unique"
 
-        but substr(cUpper, "NOT NULL") > 0
+        but @substr(cUpper, "NOT NULL", []) > 0
             return "not_null"
 
-        but substr(cUpper, "CHECK") > 0
+        but @substr(cUpper, "CHECK", []) > 0
             return "check"
 
-        but substr(cUpper, "DEFAULT") > 0
+        but @substr(cUpper, "DEFAULT", []) > 0
             return "default"
 
         else
@@ -789,13 +789,17 @@ class stzDataModel from stzObject
 
     # Improved foreign key parsing
     def ParseForeignKey(cConstraint)
+
         cUpper = upper(cConstraint)
-        nRefPos = substr(cUpper, "REFERENCES ")
+        nRefPos = @substr(cUpper, "REFERENCES ", [])
+
         if nRefPos > 0
-            cAfterRef = @substr(cConstraint, nRefPos + 11)
+
+            cAfterRef = @substr(cConstraint, nRefPos + 11, [])
+
             # Find table name (up to opening parenthesis or space)
-            nParenPos = substr(cAfterRef, "(")
-            nSpacePos = substr(cAfterRef, " ")
+            nParenPos = @substr(cAfterRef, "(", [])
+            nSpacePos = @substr(cAfterRef, " ", [])
             
             nEndPos = nParenPos
             if nSpacePos > 0 and (nSpacePos < nParenPos or nParenPos = 0)
@@ -803,17 +807,18 @@ class stzDataModel from stzObject
             ok
             
             if nEndPos > 0
-                cRefTable = trim(substr(cAfterRef, 1, nEndPos - 1))
+                cRefTable = @trim(@substr(cAfterRef, 1, nEndPos - 1, []))
                 
                 # Extract field name from parentheses
-                nOpenParen = substr(cAfterRef, "(")
-                nCloseParen = substr(cAfterRef, ")")
+                nOpenParen = @substr(cAfterRef, "(", [])
+                nCloseParen = @substr(cAfterRef, ")", [])
                 if nOpenParen > 0 and nCloseParen > nOpenParen
-                    cRefField = trim(@substr(cAfterRef, nOpenParen + 1, nCloseParen - nOpenParen - 1))
+                    cRefField = @trim(@substr(cAfterRef, nOpenParen + 1, nCloseParen - nOpenParen - 1))
                     return [ :table = cRefTable, :field = cRefField ]
                 ok
             ok
         ok
+
         return NULL
 
 	#=================================#
@@ -971,7 +976,7 @@ class stzDataModel from stzObject
     def ValidateCheckConstraint(cConstraint)
         cUpper = upper(cConstraint)
         # Basic syntax checks
-        if substr(cUpper, "CHECK") = 0
+        if @substr(cUpper, "CHECK", []) = 0
             return FALSE
         ok
         
@@ -994,35 +999,48 @@ class stzDataModel from stzObject
     def ValidationSummary()
         nErrors = 0
         nWarnings = 0
-        
-        for aError in @aValidationErrors
+        nLen = len(@aValidationErrors)
+
+		for i = 1 to nLen
+
+			aError = @aValidationErrors[i]
+
             if aError[:severity] = "error"
                 nErrors++
+
             but aError[:severity] = "warning"
                 nWarnings++
             ok
+
         next
         
         cSummary = "Validation completed: "
+
         if nErrors = 0 and nWarnings = 0
             cSummary += "All checks passed"
+
         else
+
             if nErrors > 0
-                cSummary += "" + nErrors + " error(s)"
+                cSummary += '' + nErrors + " error(s)"
             ok
+
             if nWarnings > 0
+
                 if nErrors > 0
                     cSummary += ", "
                 ok
-                cSummary += "" + nWarnings + " warning(s)"
+
+                cSummary += '' + nWarnings + " warning(s)"
             ok
+
         ok
         
         return cSummary
 
-#===============================#
-#  PERFORMANCE PLAN MANAGEMENT  #
-#===============================#
+	#===============================#
+	#  PERFORMANCE PLAN MANAGEMENT  #
+	#===============================#
 
     # Performance Plan Management - simplified API
     def UsePerfPlan(cPlanName)
@@ -1664,7 +1682,7 @@ class stzDataModel from stzObject
         but cType = "timestamp"
             return "TIMESTAMP"
 
-        but isString(cType) and substr(upper(cType), "VARCHAR") > 0
+        but isString(cType) and @substr(upper(cType), "VARCHAR", []) > 0
             return upper(cType)
 
         else
@@ -1697,10 +1715,10 @@ class stzDataModel from stzObject
                 but cType = "default"
                     # Extract default value from constraint
                     cUpper = upper(aConstraint[:constraint])
-                    nPos = substr(cUpper, "DEFAULT ")
+                    nPos = @substr(cUpper, "DEFAULT ", [])
 
                     if nPos > 0
-                        cDefaultValue = trim(substr(aConstraint[:constraint], nPos + 8))
+                        cDefaultValue = @trim(@substr(aConstraint[:constraint], nPos + 8, []))
                         aInlineConstraints + "DEFAULT " + cDefaultValue
                     ok
                 ok
@@ -1724,7 +1742,7 @@ class stzDataModel from stzObject
 	    bInEntity = FALSE
 	    
 	    for cLine in acLines
-	        cLine = trim(cLine)
+	        cLine = @trim(cLine)
 	        
 	        if cLine = "erDiagram"
 	            loop
@@ -1732,7 +1750,7 @@ class stzDataModel from stzObject
 	        
 	        # Entity definition
 	        if right(cLine, 1) = "{" and !bInEntity
-	            cCurrentEntity = trim(left(cLine, len(cLine) - 1))
+	            cCurrentEntity = @trim(left(cLine, len(cLine) - 1))
 	            bInEntity = TRUE
 	            This.AddTable(cCurrentEntity)
 	            loop
@@ -1786,7 +1804,7 @@ class stzDataModel from stzObject
 	        ok
 	        
 	        # Relationship definition
-	        if substr(cLine, "||--") > 0 or substr(cLine, "--o{") > 0
+	        if @substr(cLine, "||--", []) > 0 or @substr(cLine, "--o{", []) > 0
 	            # Parse relationship: EntityA ||--o{ EntityB : "label"
 
 	            acParts = str2list(cLine, " ")
@@ -1797,12 +1815,12 @@ class stzDataModel from stzObject
 	                
 	                # Extract label if present
 	                cLabel = ""
-	                nQuotePos = substr(cLine, '"')
+	                nQuotePos = @substr(cLine, '"', [])
 
 	                if nQuotePos > 0
 
-	                    cRest = substr(cLine, nQuotePos + 1)
-	                    nEndQuote = substr(cRest, '"')
+	                    cRest = @substr(cLine, nQuotePos + 1, [])
+	                    nEndQuote = @substr(cRest, '"', [])
 
 	                    if nEndQuote > 0
 	                        cLabel = left(cRest, nEndQuote - 1)
@@ -1826,12 +1844,12 @@ class stzDataModel from stzObject
 		nLen = len(acLines)
 		for i = 1 to nLen
 			
-	        cLine = trim(acLines[i])
+	        cLine = @trim(acLines[i])
 	        
 	        if left(cLine, 6) = "ENTITY" and right(cLine, 1) = "{"
 	            # Extract entity name
-	            cEntityDef = trim(substr(cLine, 7, len(cLine) - 7))
-	            cCurrentEntity = trim(left(cEntityDef, len(cEntityDef) - 1))
+	            cEntityDef = @trim( @substr( cLine, 7, len(cLine) - 7 ) )
+	            cCurrentEntity = @trim(left(cEntityDef, len(cEntityDef) - 1))
 	            bInEntity = TRUE
 	            This.AddTable(cCurrentEntity)
 	            loop
@@ -1845,7 +1863,7 @@ class stzDataModel from stzObject
 	        
 	        # Field definition
 	        if bInEntity and cLine != '' and left(cLine, 2) = "  "
-	            cFieldDef = trim(cLine)
+	            cFieldDef = @trim(cLine)
 	            
 	            # Parse field: "name : type" or "**name** : type <<PK>>"
 	            cName = ""
@@ -1853,39 +1871,39 @@ class stzDataModel from stzObject
 	            bIsPK = FALSE
 	            bIsFK = FALSE
 	            
-	            if substr(cFieldDef, "**") > 0
+	            if @substr(cFieldDef, "**", []) > 0
 	                # Primary key field
-	                nStart = substr(cFieldDef, "**") + 2
-	                nEnd = substr(cFieldDef, "**", nStart)
+	                nStart = @substr(cFieldDef, "**", []) + 2
+	                nEnd = @substr(cFieldDef, "**", nStart)
 	                if nEnd > 0
-	                    cName = substr(cFieldDef, nStart, nEnd - nStart)
+	                    cName = @substr(cFieldDef, nStart, nEnd - nStart)
 	                    bIsPK = TRUE
 	                ok
 
 	            else
 	                # Regular field
-	                nColonPos = substr(cFieldDef, " : ")
+	                nColonPos = @substr(cFieldDef, " : ", [])
 	                if nColonPos > 0
-	                    cName = trim(left(cFieldDef, nColonPos - 1))
+	                    cName = @trim(left(cFieldDef, nColonPos - 1))
 	                ok
 	            ok
 	            
 	            # Extract type
-	            nColonPos = substr(cFieldDef, " : ")
+	            nColonPos = @substr(cFieldDef, " : ", [])
 
 	            if nColonPos > 0
-	                cRest = trim(substr(cFieldDef, nColonPos + 3))
-	                nSpacePos = substr(cRest, " ")
+	                cRest = @trim(@substr(cFieldDef, nColonPos + 3, []))
+	                nSpacePos = @substr(cRest, " ", [])
 
 	                if nSpacePos > 0
-	                    cType = trim(left(cRest, nSpacePos - 1))
+	                    cType = @trim(left(cRest, nSpacePos - 1))
 	                else
 	                    cType = cRest
 	                ok
 	            ok
 	            
 	            # Check for constraints
-	            if substr(cFieldDef, "<<FK>>") > 0
+	            if @substr(cFieldDef, "<<FK>>", []) > 0
 	                bIsFK = TRUE
 	            ok
 	            
@@ -1899,7 +1917,7 @@ class stzDataModel from stzObject
 	        ok
 	        
 	        # Relationship
-	        if substr(cLine, "||--o{") > 0
+	        if @substr(cLine, "||--o{", []) > 0
 
 	            acParts = str2list(cLine, " ")
 
@@ -1976,14 +1994,14 @@ class stzDataModel from stzObject
 	def FromDBML(cDBML)
 	    This.ClearModel()
 	    
-	    acLines = str2list(cDBML)
+	    acLines = Lines(cDBML)
 	    cCurrentTable = ""
 	    bInTable = FALSE
 
 		nLen = len(acLines)
 
 		for i = 1 to nLen
-	        cLine = trim(acLines[i])
+	        cLine = @trim(acLines[i])
 	        
 	        # Skip project definition and comments
 	        if left(cLine, 7) = "Project" or left(cLine, 1) = "//"
@@ -1992,8 +2010,8 @@ class stzDataModel from stzObject
 	        
 	        # Table definition
 	        if left(cLine, 5) = "Table" and right(cLine, 1) = "{"
-	            cTableDef = trim(substr(cLine, 6, len(cLine) - 6))
-	            cCurrentTable = trim(left(cTableDef, len(cTableDef) - 1))
+	            cTableDef = @trim(@substr(cLine, 6, len(cLine) - 6))
+	            cCurrentTable = @trim(left(cTableDef, len(cTableDef) - 1))
 	            bInTable = TRUE
 	            This.AddTable(cCurrentTable)
 	            loop
@@ -2007,7 +2025,7 @@ class stzDataModel from stzObject
 	        
 	        # Field definition in table
 	        if bInTable and cLine != "" and left(cLine, 2) = "  "
-	            cFieldDef = trim(cLine)
+	            cFieldDef = @trim(cLine)
 	            
 	            # Parse: "field_name type [constraints]"
 	            acParts = str2list(cFieldDef, " ")
@@ -2019,18 +2037,18 @@ class stzDataModel from stzObject
 	                This.AddField(cCurrentTable, cName, This.MapDBMLTypeToInternal(cType))
 	                
 	                # Parse constraints in brackets
-	                nBracketPos = substr(cFieldDef, "[")
+	                nBracketPos = @substr(cFieldDef, "[", [])
 
 	                if nBracketPos > 0
-	                    nEndBracket = substr(cFieldDef, "]", nBracketPos)
+	                    nEndBracket = @substr(cFieldDef, "]", nBracketPos)
 
 	                    if nEndBracket > 0
-	                        cConstraints = substr(cFieldDef, nBracketPos + 1, nEndBracket - nBracketPos - 1)
+	                        cConstraints = @substr(cFieldDef, nBracketPos + 1, nEndBracket - nBracketPos - 1)
 	                        acConstraints = str2list(cConstraints, ",")
 							nLen = len(acConstraints)
 
 							for i = 1 to nLen
-	                            cConstraint = trim(acConstraints[i])
+	                            cConstraint = @trim(acConstraints[i])
 
 	                            if cConstraint = "pk"
 	                                This.AddConstraint(cCurrentTable, cName, "primary_key", "PRIMARY KEY")
@@ -2053,22 +2071,22 @@ class stzDataModel from stzObject
 
 	        if left(cLine, 4) = "Ref:"
 	            # Parse: "Ref: table1.field > table2.field"
-	            cRelDef = trim(substr(cLine, 5))
+	            cRelDef = @trim(@substr(cLine, 5, []))
 	            
-	            nArrowPos = substr(cRelDef, " > ")
+	            nArrowPos = @substr(cRelDef, " > ", [])
 
 	            if nArrowPos > 0
-	                cFromPart = trim(left(cRelDef, nArrowPos - 1))
-	                cToPart = trim(substr(cRelDef, nArrowPos + 3))
+	                cFromPart = @trim(left(cRelDef, nArrowPos - 1))
+	                cToPart = @trim(@substr(cRelDef, nArrowPos + 3, []))
 	                
 	                # Extract table names
-	                nDotPos1 = substr(cFromPart, ".")
-	                nDotPos2 = substr(cToPart, ".")
+	                nDotPos1 = @substr(cFromPart, ".", [])
+	                nDotPos2 = @substr(cToPart, ".", [])
 	                
 	                if nDotPos1 > 0 and nDotPos2 > 0
 	                    cFromTable = left(cFromPart, nDotPos1 - 1)
 	                    cToTable = left(cToPart, nDotPos2 - 1)
-	                    cFromField = substr(cFromPart, nDotPos1 + 1)
+	                    cFromField = @substr(cFromPart, nDotPos1 + 1, [])
 	                    
 	                    This.AddRelationship(cFromTable, cToTable, "belongs_to", cFromField)
 	                ok
@@ -2086,7 +2104,7 @@ class stzDataModel from stzObject
 	    nLen = len(acStatements)
 
 		for i = 1 to nLen
-	        cStatement = trim(acStatements[i])
+	        cStatement = @trim(acStatements[i])
 	        cUpper = upper(cStatement)
 	        
 	        # CREATE TABLE statement
@@ -2105,15 +2123,15 @@ class stzDataModel from stzObject
 	    cUpper = upper(cStatement)
 	    
 	    # Extract table name
-	    nTablePos = substr(cUpper, "CREATE TABLE ") + 13
+	    nTablePos = @substr(cUpper, "CREATE TABLE ", []) + 13
 	    nParenPos = @substr(cStatement, "(", nTablePos)
 	    
 	    if nParenPos > 0
-	        cTableName = trim(@substr(cStatement, nTablePos, nParenPos - nTablePos))
+	        cTableName = @trim(@substr(cStatement, nTablePos, nParenPos - nTablePos))
 	        This.AddTable(cTableName)
 	        
 	        # Extract field definitions
-	        cFieldsPart = @substr(cStatement, nParenPos + 1)
+	        cFieldsPart = @substr(cStatement, nParenPos + 1, [])
 	        nLastParen = This.FindLastChar(cFieldsPart, ")")
 	        if nLastParen > 0
 	            cFieldsPart = left(cFieldsPart, nLastParen - 1)
@@ -2123,7 +2141,7 @@ class stzDataModel from stzObject
 	        nLen = len(acFields)
 
 	        for i = 1 to nLen
-	            cFieldDef = trim(acFields[i])
+	            cFieldDef = @trim(acFields[i])
 	            acParts = str2list(cFieldDef, " ")
 	            
 	            if len(acParts) >= 2
@@ -2134,15 +2152,15 @@ class stzDataModel from stzObject
 	                
 	                # Parse inline constraints
 	                cDefUpper = upper(cFieldDef)
-	                if substr(cDefUpper, "PRIMARY KEY") > 0
+	                if @substr(cDefUpper, "PRIMARY KEY", []) > 0
 	                    This.AddConstraint(cTableName, cFieldName, "primary_key", "PRIMARY KEY")
 	                ok
 
-	                if substr(cDefUpper, "NOT NULL") > 0
+	                if @substr(cDefUpper, "NOT NULL", []) > 0
 	                    This.AddConstraint(cTableName, cFieldName, "not_null", "NOT NULL")
 	                ok
 
-	                if substr(cDefUpper, "UNIQUE") > 0
+	                if @substr(cDefUpper, "UNIQUE", []) > 0
 	                    This.AddConstraint(cTableName, cFieldName, "unique", "UNIQUE")
 	                ok
 
@@ -2155,12 +2173,12 @@ class stzDataModel from stzObject
 	    cUpper = upper(cStatement)
 	    
 	    # Extract table name
-	    nTablePos = substr(cUpper, "ALTER TABLE ") + 12
-	    nAddPos = substr(cUpper, " ADD ", nTablePos)
+	    nTablePos = @substr(cUpper, "ALTER TABLE ", []) + 12
+	    nAddPos = @substr(cUpper, " ADD ", nTablePos)
 	    
 	    if nAddPos > 0
-	        cTableName = trim(substr(cStatement, nTablePos, nAddPos - nTablePos))
-	        cConstraintPart = trim(substr(cStatement, nAddPos + 5))
+	        cTableName = @trim(@substr(cStatement, nTablePos, nAddPos - nTablePos))
+	        cConstraintPart = @trim(@substr(cStatement, nAddPos + 5, []))
 	        
 	        # Parse constraint
 	        if left(upper(cConstraintPart), 10) = "CONSTRAINT"
@@ -2182,34 +2200,46 @@ class stzDataModel from stzObject
 	
 	# Helper methods for type mapping
 	def MapDBMLTypeToInternal(cDBMLType)
+
 	    switch lower(cDBMLType)
 	    on "int"
 	        return "integer"
+
 	    on "varchar(255)"
 	        return "varchar(255)"
+
 	    on "text"
 	        return "text"
+
 	    on "timestamp"
 	        return "timestamp"
+
 	    on "boolean"
 	        return "boolean"
+
 	    other
 	        return cDBMLType
 	    off
 	
 	def MapSQLTypeToInternal(cSQLType)
+
 	    cUpper = upper(cSQLType)
+
 	    switch cUpper
 	    on "INTEGER"
 	        return "integer"
+
 	    on "TEXT"
 	        return "text"
+
 	    on "TIMESTAMP"
 	        return "timestamp"
+
 	    on "BOOLEAN"
 	        return "boolean"
+
 	    other
-	        if substr(cUpper, "VARCHAR") > 0
+	        if @substr(cUpper, "VARCHAR", []) > 0
 	            return lower(cSQLType)
 	        else
 	            return "text"
@@ -2217,9 +2247,10 @@ class stzDataModel from stzObject
 	    off
 	
 	# Helper method for simple JSON parsing (Ring-specific)
-	def ParseSimpleJSON(cJSON)
+
+	def ParseSimpleJSON(cJSON) #TODO Use JSONLib
 	    # This is a simplified JSON parser for basic structures
-	    # In a real implementation, you'd use a proper JSON library
+
 	    aResult = []
 	    
 	    # Remove whitespace and split by common patterns
@@ -2231,16 +2262,19 @@ class stzDataModel from stzObject
 	    return aResult
 	
 	def RemoveJSONWhitespace(cJSON)
+
 	    cResult = ""
-	    lInString = FALSE
-	    
-	    for i = 1 to len(cJSON)
-	        cChar = cJSON[i]
-	        if cChar = '"' and (i = 1 or cJSON[i-1] != '\')
-	            lInString = !lInString
+	    bInString = FALSE
+		acChars = Chars(cJSON)
+		nLen = len(acChars)
+
+	    for i = 1 to nLen
+	        cChar = acChars[i]
+	        if cChar = '"' and (i = 1 or acChars[i-1] != '\')
+	            bInString = !bInString
 	        ok
 	        
-	        if lInString or (cChar != " " and cChar != tab and cChar != nl)
+	        if bInString or (cChar != " " and cChar != tab and cChar != nl)
 	            cResult += cChar
 	        ok
 	    next
@@ -2248,15 +2282,22 @@ class stzDataModel from stzObject
 	    return cResult
 	
 	def FindLastChar(cStr, cChar)
-	    for i = len(cStr) to 1 step -1
-	        if cStr[i] = cChar
+
+		acChars = Chars(cStr)
+		nLen = len(acChars)
+
+	    for i = nLen to 1 step -1
+	        if acChars[i] = cChar
 	            return i
 	        ok
 	    next
+
 	    return 0
 	
 	# Helper method to clear the model
+
 	def ClearModel()
+
 	    @aTables = []
 	    @aRelationships = []
 	    @aConstraints = []
@@ -2264,11 +2305,13 @@ class stzDataModel from stzObject
 	
 	
 	def AddRelationship(cFromTable, cToTable, cType, cField)
-	    if isNull(cField)
+
+	    if IsNull(cField)
 	        cField = ""
 	    ok
 	    
 	    aRelationship = [
+
 	        :from = cFromTable,
 	        :to = cToTable,
 	        :from_table = cFromTable,
@@ -2278,4 +2321,5 @@ class stzDataModel from stzObject
 	        :from_field = cField,
 	        :to_field = "id"
 	    ]
+
 	    @aRelationships + aRelationship
