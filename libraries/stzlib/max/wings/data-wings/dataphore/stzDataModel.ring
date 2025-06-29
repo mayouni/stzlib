@@ -1737,7 +1737,7 @@ class stzDataModel from stzObject
 	def FromMermaidERD(cMermaidERD)
 	    This.ClearModel()
 	    
-	    acLines = str2list(cMermaidERD)
+	    acLines = Lines(cMermaidERD)
 	    cCurrentEntity = ""
 	    bInEntity = FALSE
 	    
@@ -1752,7 +1752,7 @@ class stzDataModel from stzObject
 	        if right(cLine, 1) = "{" and !bInEntity
 	            cCurrentEntity = @trim(left(cLine, len(cLine) - 1))
 	            bInEntity = TRUE
-	            This.AddTable(cCurrentEntity)
+	            This.AddTable(cCurrentEntity, [])
 	            loop
 	        ok
 	        
@@ -1765,7 +1765,7 @@ class stzDataModel from stzObject
 	        
 	        # Field definition within entity
 	        if bInEntity and cLine != ""
-	            aFieldParts = str2list(cLine, " ")
+	            aFieldParts = @split(cLine, " ")
 	            if len(aFieldParts) >= 2
 	                cType = aFieldParts[1]
 	                cName = aFieldParts[2]
@@ -1807,7 +1807,7 @@ class stzDataModel from stzObject
 	        if @substr(cLine, "||--", []) > 0 or @substr(cLine, "--o{", []) > 0
 	            # Parse relationship: EntityA ||--o{ EntityB : "label"
 
-	            acParts = str2list(cLine, " ")
+	            acParts = @split(cLine, " ")
 
 	            if len(acParts) >= 3
 	                cFromEntity = acParts[1]
@@ -1837,7 +1837,7 @@ class stzDataModel from stzObject
 	def FromPlantUMLERD(cPlantUML)
 	    This.ClearModel()
 	    
-	    acLines = str2list(cPlantUML)
+	    acLines = Lines(cPlantUML)
 	    cCurrentEntity = ""
 	    bInEntity = FALSE
 	    
@@ -1851,7 +1851,7 @@ class stzDataModel from stzObject
 	            cEntityDef = @trim( @substr( cLine, 7, len(cLine) - 7 ) )
 	            cCurrentEntity = @trim(left(cEntityDef, len(cEntityDef) - 1))
 	            bInEntity = TRUE
-	            This.AddTable(cCurrentEntity)
+	            This.AddTable(cCurrentEntity, [])
 	            loop
 	        ok
 	        
@@ -1919,7 +1919,7 @@ class stzDataModel from stzObject
 	        # Relationship
 	        if @substr(cLine, "||--o{", []) > 0
 
-	            acParts = str2list(cLine, " ")
+	            acParts = @split(cLine, " ")
 
 	            if len(acParts) >= 3
 	                cFromEntity = acParts[1]
@@ -1947,7 +1947,7 @@ class stzDataModel from stzObject
 				for i = 1 to nLen
 					aTable = aTables[i]
 	                cTableName = aTable[:name]
-	                This.AddTable(cTableName)
+	                This.AddTable(cTableName, [])
 	                
 	                # Import fields
 					
@@ -2013,7 +2013,7 @@ class stzDataModel from stzObject
 	            cTableDef = @trim(@substr(cLine, 6, len(cLine) - 6))
 	            cCurrentTable = @trim(left(cTableDef, len(cTableDef) - 1))
 	            bInTable = TRUE
-	            This.AddTable(cCurrentTable)
+	            This.AddTable(cCurrentTable, [])
 	            loop
 	        ok
 	        
@@ -2028,7 +2028,7 @@ class stzDataModel from stzObject
 	            cFieldDef = @trim(cLine)
 	            
 	            # Parse: "field_name type [constraints]"
-	            acParts = str2list(cFieldDef, " ")
+	            acParts = @split(cFieldDef, " ")
 
 	            if len(acParts) >= 2
 	                cName = acParts[1]
@@ -2044,7 +2044,7 @@ class stzDataModel from stzObject
 
 	                    if nEndBracket > 0
 	                        cConstraints = @substr(cFieldDef, nBracketPos + 1, nEndBracket - nBracketPos - 1)
-	                        acConstraints = str2list(cConstraints, ",")
+	                        acConstraints = @split(cConstraints, ",")
 							nLen = len(acConstraints)
 
 							for i = 1 to nLen
@@ -2100,7 +2100,7 @@ class stzDataModel from stzObject
 	def FromDDL(cDDL)
 	    This.ClearModel()
 	    
-	    acStatements = str2list(cDDL, ";")
+	    acStatements = @split(cDDL, ";")
 	    nLen = len(acStatements)
 
 		for i = 1 to nLen
@@ -2128,40 +2128,40 @@ class stzDataModel from stzObject
 	    
 	    if nParenPos > 0
 	        cTableName = @trim(@substr(cStatement, nTablePos, nParenPos - nTablePos))
-	        This.AddTable(cTableName)
+	        This.AddTable(cTableName, [])
 	        
 	        # Extract field definitions
-	        cFieldsPart = @substr(cStatement, nParenPos + 1, [])
+	        cFieldsPart = @substr(cStatement, nParenPos + 1, len(cStatement) - nParenPos)
 	        nLastParen = This.FindLastChar(cFieldsPart, ")")
 	        if nLastParen > 0
 	            cFieldsPart = left(cFieldsPart, nLastParen - 1)
 	        ok
 	        
-	        acFields = str2list(cFieldsPart, ",")
+	        acFields = @split(cFieldsPart, ",")
 	        nLen = len(acFields)
 
 	        for i = 1 to nLen
 	            cFieldDef = @trim(acFields[i])
-	            acParts = str2list(cFieldDef, " ")
+	            acParts = @split(cFieldDef, " ")
 	            
 	            if len(acParts) >= 2
 	                cFieldName = acParts[1]
 	                cFieldType = acParts[2]
 	                
-	                This.AddField(cTableName, cFieldName, This.MapSQLTypeToInternal(cFieldType))
+	                This.AddField(cTableName, cFieldName, This.MapSQLTypeToInternal(cFieldType), [])
 	                
 	                # Parse inline constraints
 	                cDefUpper = upper(cFieldDef)
 	                if @substr(cDefUpper, "PRIMARY KEY", []) > 0
-	                    This.AddConstraint(cTableName, cFieldName, "primary_key", "PRIMARY KEY")
+	                    This.AddConstraint(cTableName, cFieldName, "primary_key")
 	                ok
 
 	                if @substr(cDefUpper, "NOT NULL", []) > 0
-	                    This.AddConstraint(cTableName, cFieldName, "not_null", "NOT NULL")
+	                    This.AddConstraint(cTableName, cFieldName, "not_null")
 	                ok
 
 	                if @substr(cDefUpper, "UNIQUE", []) > 0
-	                    This.AddConstraint(cTableName, cFieldName, "unique", "UNIQUE")
+	                    This.AddConstraint(cTableName, cFieldName, "unique")
 	                ok
 
 	            ok
@@ -2178,21 +2178,21 @@ class stzDataModel from stzObject
 	    
 	    if nAddPos > 0
 	        cTableName = @trim(@substr(cStatement, nTablePos, nAddPos - nTablePos))
-	        cConstraintPart = @trim(@substr(cStatement, nAddPos + 5, []))
+	        cConstraintPart = @trim(@substr(cStatement, nAddPos + 5, len(cStatement) - nAddPos))
 	        
 	        # Parse constraint
 	        if left(upper(cConstraintPart), 10) = "CONSTRAINT"
 	            # Named constraint
-	            acParts = str2list(cConstraintPart, " ")
+	            acParts = @split(cConstraintPart, " ")
 	            if len(acParts) >= 3
 	                cConstraintName = acParts[2]
 	                cConstraintType = acParts[3]
 	                
 	                # Extract field name from constraint name (table_field_type format)
-	                acNameParts = str2list(cConstraintName, "_")
+	                acNameParts = @split(cConstraintName, "_")
 	                if len(acNameParts) >= 3
 	                    cFieldName = acNameParts[2]
-	                    This.AddConstraint(cTableName, cFieldName, lower(cConstraintType), cConstraintPart)
+	                    This.AddConstraint(cTableName, cFieldName, cConstraintPart)
 	                ok
 	            ok
 	        ok

@@ -1765,6 +1765,7 @@ func @substr(str, p1, p2) #TODO // Move to stzExtCode
 		return substr(str, p1)
 
 	else
+
 		return substr(str, p1, p2)
 	ok
 
