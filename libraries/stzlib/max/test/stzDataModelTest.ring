@@ -4,14 +4,10 @@
 load "../stzmax.ring"
 
 /*---
-*/
+
 pr()
 
-str = 'ring
-programming
-language'
-
-? @@( Lines(str) )
+? @@( Lines(str) ) # Or use str2list() from Ring StdLib
 #--> [ "ring", "programming", "language" ]
 
 pf()
@@ -550,7 +546,7 @@ pf()
 
 
 /*--- Diagram generation: for use wit hexternal tool to visualize the diagram
-*/
+
 pr()
 
 o1 = new stzDataModel("blog_platform")
@@ -658,7 +654,7 @@ authors ||--o{ articles
 	? BoxRound("JSON Diagram Data (other tools)")
 	? ToJsonERD()
 #-->
-/*
+'
 ╭─────────────────────────────────╮
 │ JSON Diagram Data (other tools) │
 ╰─────────────────────────────────╯
@@ -749,7 +745,7 @@ authors ||--o{ articles
 		}
 	]
 }
-*/
+'
 
 }
 
@@ -758,6 +754,37 @@ authors ||--o{ articles
 
 pf()
 # Executed in 0.12 second(s) in Ring 1.22
+
+/*---
+*/
+pr()
+
+cMyDDL = "
+CREATE TABLE authors (
+    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY NOT NULL,
+    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY
+);
+
+CREATE TABLE articles (
+    author_id TEXT,
+    author_id TEXT,
+    author_id TEXT NOT NULL,
+    author_id TEXT,
+    author_id TEXT,
+    author_id TEXT
+);
+
+ALTER TABLE authors ADD CONSTRAINT authors_email_check CHECK (email LIKE '%@%');
+"
+
+o1 = new stzDataModel("imported_schema")
+o1.FromDDL(cMyDDL)
+? @@NL( o1.Summary() )
+
+
+pf()
 
 #==================================#
 #  ADVANCED VALIDATION AND EXPORY  #
