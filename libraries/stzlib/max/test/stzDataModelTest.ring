@@ -549,8 +549,80 @@ pr()
 
 pf()
 
-/*--- Diagram generation: for use wit hexternal tool to visualize the diagram
+/*---
+*/
+pr()
 
+# Ring's del(): modifies the list variable bur returns nothing
+
+aList = [ "one", "two", "x", "three" ]
+? @@( del(aList, 3) ) #--> NULL
+? @@(aList) #--> [ "one", "two", "three" ]
+
+# Softanza alterbative: Modidies the list variable and returns it at the same time()
+? ""
+aList = [ "one", "two", "x", "three" ]
+? @@( ring_del(aList, 3) ) #--> [ "one", "two", "three" ]
+? @@(aList) #--> [ "one", "two", "three" ]
+
+pf()
+
+/*--
+*/
+pr()
+
+# Ring's default substr(): returns new string, str unchanged
+
+str = "I love pizza"
+? substr(str, "pizza", "couscous")
+#--> I love pizza
+
+? str
+#--> I love pizza
+
+# Softanza: updates and returns in one step
+
+str = "I love pizza"
+str = ring_substr2(str, "pizza", "couscous")
+? str
+#--> I love couscous
+
+pf()
+
+/*--- stzExtCode #todo quick-narration
+*/
+pr()
+
+# Softanza simplifies the use of substr() which has
+# many forms in Ring and outside Ring (if you ar generating
+# code from LLMs that are ususally influenced by pyhton and
+# C syntax of substr()). You only need
+# to add @ before substr() and let Softanza manage
+# all the possible cases:
+
+# Case 1 : Replacing a substring by an other
+
+? @substr("one five three", "five", "two")
+#--> one two three
+
+# Case 2 : Finding the first occurrence of a substring
+? @substr("one two three", "two", []) # [] can also be 0
+#--> 5
+
+# Case 3 : Getting a section from the string
+? @substr("one two three", 6, 8)
+#--> two
+
+# Case 4 : Finding the first occurrence of a substring
+# starting at a give position
+
+? @substr("one two three two", "two", 10)
+#--> 15
+
+pf()
+
+/*--- Diagram generation: for use wit hexternal tool to visualize the diagram
+*/
 pr()
 
 o1 = new stzDataModel("blog_platform")
@@ -658,7 +730,7 @@ authors ||--o{ articles
 	? BoxRound("JSON Diagram Data (other tools)")
 	? ToJsonERD()
 #-->
-'
+/*
 ╭─────────────────────────────────╮
 │ JSON Diagram Data (other tools) │
 ╰─────────────────────────────────╯
@@ -749,7 +821,7 @@ authors ||--o{ articles
 		}
 	]
 }
-'
+*/
 
 }
 
@@ -765,7 +837,7 @@ pf()
 
 
 /*--- Field-level validation and constraints
-*/
+
 pr()
 
 o1 = new stzDataModel("user_management")

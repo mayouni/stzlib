@@ -1,49 +1,10 @@
+#----------------------#
+#  stzDataModel class  #
+#----------------------#
 
-# Enhanced stzDataModel Implementation - Fixed Issues
-# Performance optimized with pure Ring data types
-
-func IsDataTableHashlist(paTable)
-	if NOT isList(paTable)
-		return FALSE
-	ok
-	
-	aRequiredKeys = [:name, :fields]
-	for cKey in aRequiredKeys
-		if NOT HasKey(paTable, cKey)
-			return FALSE
-		ok
-	next
-	
-	return TRUE
-
-func IsFieldHashlist(paField)
-	if NOT isList(paField)
-		return FALSE
-	ok
-	
-	aRequiredKeys = [:name, :type]
-	for cKey in aRequiredKeys
-		if NOT HasKey(paField, cKey)
-			return FALSE
-		ok
-	next
-	
-	return TRUE
-
-func IsListOfFieldHashlists(paList)
-	if NOT isList(paList)
-		return FALSE
-	ok
-	
-	for paField in paList
-		if NOT IsFieldHashlist(paField)
-			return FALSE
-		ok
-	next
-	
-	return TRUE
 
 class stzDataModel from stzObject
+
 	@cSchemaName
 	@cSchemaVersion
 	@aTables           
@@ -58,15 +19,19 @@ class stzDataModel from stzObject
 	@cActivePerfPlan  
 	
 	def init(p)
+
 		if isString(p)
 			@cSchemaName = p
 			@cSchemaVersion = "1.0"
+
 		but isList(p) and len(p) = 2
 			@cSchemaName = p[1]
 			@cSchemaVersion = p[2]
+
 		else
 			@cSchemaName = "default"
 			@cSchemaVersion = "1.0"
+
 		ok
 		
 		@aTables = []
@@ -114,29 +79,45 @@ class stzDataModel from stzObject
 
     # Add a table with field definitions (can be names or [name, type] pairs)
     def AddTable(cTableName, aFields)
+
         aProcessedFields = []
-        for field in aFields
-            if isList(field) and len(field) >= 2
+		nLen = len(aFields)
+
+		for i = 1 to nLen
+
+            if isList(aFields[i]) and len(aFields[i]) >= 2
+
                 # Handle [fieldname, type] format
-                aProcessedFields + [ :name = field[1], :type = field[2], :constraints = [] ]
+                aProcessedFields + [ :name = aFields[i][1], :type = aFields[i][2], :constraints = [] ]
+
                 # Auto-add constraints based on type
-                if field[2] = :primary_key
-                    This.AddConstraint(cTableName, field[1], "PRIMARY KEY")
-                but field[2] = :required
-                    This.AddConstraint(cTableName, field[1], "NOT NULL")
-                but field[2] = :email
-                    This.AddConstraint(cTableName, field[1], "CHECK (email LIKE '%@%')")
-                but isString(field[2]) and substr(upper(field[2]), "VARCHAR") > 0
+                if aFields[i][2] = :primary_key
+                    This.AddConstraint(cTableName, aFields[i][1], "PRIMARY KEY")
+
+                but aFields[i][2] = :required
+                    This.AddConstraint(cTableName, aFields[i][1], "NOT NULL")
+
+                but aFields[i][2] = :email
+                    This.AddConstraint(cTableName, aFields[i][1], "CHECK (email LIKE '%@%')")
+
+                but isString(aFields[i][2]) and substr(upper(aFields[i][2]), "VARCHAR") > 0
                     # VARCHAR constraint already embedded in type
+
                 ok
+
             else
+
                 # Handle simple field name
-                cFieldName = field
-                if isList(field)
-                    cFieldName = field[1]
+                cFieldName = aFields[i]
+
+                if isList(aFields[i])
+                    cFieldName = aFields[i][1]
                 ok
+
                 aProcessedFields + [ :name = cFieldName, :type = "text", :constraints = [] ]
+
             ok
+
         next
         
         aTable = [ :name = cTableName, :fields = aProcessedFields ]
@@ -146,32 +127,57 @@ class stzDataModel from stzObject
         This.InferRelationshipsForTable(aTable)
         return This
 
+
+
 	def Table(cTableName)
-		for aTable in @aTables
-			if aTable[:name] = cTableName
-				return aTable
+
+		nLen = len(@aTables)
+
+		for i = 1 to nLen
+			if @aTables[i][:name] = cTableName
+				return @aTables[i]
 			ok
 		next
+
 		stzraise("Table not found: " + cTableName)
 
+
 	def TablesNames()
+
 		acNames = []
-		for aTable in @aTables
-			acNames + aTable[:name]
+		nLen = len(@aTables)
+
+		for i = 1 to nLen
+			acNames + @aTables[i][:name]
 		next
+
 		return acNames
+
 
 	def CountTables()
 		return len(@aTables)
 
+		def NumberOfTables()
+			return len(@aTables)
+
+
 	def CountFields()
+
 		nResult = 0
-		for aTable in @aTables
-			nResult += len(aTable[:fields])
+		nLen = len(@aTables)
+
+		for i = 1 to nLen
+			nResult += len(@aTables[i][:fields])
 		next
+
 		return nResult
 
+		def NumberOfFields()
+			return This.CountFields()
+
+
     def Link(cFromTable, cToTable, cType, aOptions)
+
         if aOptions = NULL
             aOptions = []
         ok
@@ -183,10 +189,12 @@ class stzDataModel from stzObject
             :inferred = FALSE,
             :options = aOptions
         ]
+
         @aRelationships + aRelationship
         return This
 
     def Hierarchy(cTable, aOptions)
+
         if aOptions = NULL
             aOptions = [:parent_field = "parent_id"]
         ok
@@ -200,10 +208,13 @@ class stzDataModel from stzObject
             :options = aOptions,
             :semantic_meaning = "Each " + SingularOf(cTable) + " can have a parent and multiple children, forming a tree structure"
         ]
+
         @aRelationships + aRelationship
         return This
 
+
     def Network(cTable, cRelationName, aOptions)
+
         if aOptions = NULL
             aOptions = [:bidirectional = TRUE]
         ok
@@ -216,11 +227,15 @@ class stzDataModel from stzObject
             :inferred = FALSE,
             :options = aOptions
         ]
+
         @aRelationships + aRelationship
+
         return This
 
-	# Field management with hashlists - FIXED VERSION
+	# Field management with hashlists
+
 	def AddField(cTableName, cFieldName, cFieldType, aOptions)
+
 		if aOptions = NULL
 			aOptions = []
 		ok
@@ -255,7 +270,7 @@ class stzDataModel from stzObject
 
 		return This.AnalyzeFieldAdditionImpact(cTableName, cFieldName, cFieldType, aOptions)
 
-	# FIXED RemoveField - now properly detects breaking changes
+
 	def RemoveField(cTableName, cFieldName)
 
 		aTable = This.Table(cTableName)
@@ -268,9 +283,12 @@ class stzDataModel from stzObject
 
 			cReasons = ""
 
-			for i = 1 to len(aImpact[:breaking_reasons])
-				cReasons += aImpact[:breaking_reasons][i]
-				if i < len(aImpact[:breaking_reasons])
+			aBreakingReasons = aImpact[:breaking_reasons]
+			nLen = len(aBreakingReasons)
+
+			for i = 1 to nLen
+				cReasons += aBreakingReasons[i]
+				if i < nLen
 					cReasons += ", "
 				ok
 			next
@@ -280,7 +298,12 @@ class stzDataModel from stzObject
 
 		# Remove field from table
 		aNewFields = []
-		for aField in aTable[:fields]
+
+		aFields = aTable[:fields]
+		nLen = len(aFields)
+
+		for i = 1 to nLen
+			aField = aFields[i]
 			if aField[:name] != cFieldName
 				aNewFields + aField
 			ok
@@ -295,7 +318,7 @@ class stzDataModel from stzObject
 	def FieldExists(aTable, cFieldName)
 
 		aFields = aTable[:fields]
-		nLen = len(aFieùs)
+		nLen = len(aFields)
 
 		for i = 1 to nLen
 
@@ -455,7 +478,6 @@ class stzDataModel from stzObject
 			]
 		]
 
-	# FIXED removal impact analysis - now properly detects relationships
 
 	def AnalyzeFieldRemovalImpact(cTableName, cFieldName)
 
@@ -1552,10 +1574,12 @@ class stzDataModel from stzObject
 	#--- EXPORT TO DDL SQL SCRIPT FORMAT
 
     def ToDDL()
+
         cDDL = ""
         nLen = len(@aTables)
 
         for i = 1 to nLen
+
 			aTable = @aTables[i]
             cDDL += "CREATE TABLE " + aTable[:name] + " (" + nl
             
@@ -1565,12 +1589,15 @@ class stzDataModel from stzObject
 			nLenF = len(aFields)
 
             for j = 1 to nLenF
+
 				aField = aFields[j]
                 acFieldConstraints = This.GetFieldInlineConstraints(aTable[:name], aField[:name])
                 acInlineConstraints + acFieldConstraints
+
             next
             
             for j = 1 to nLenF
+
                 aField = aTable[:fields][i]
                 cFieldDef = "    " + aField[:name] + " " + This.MapFieldType(aField[:type])
                 
@@ -1585,7 +1612,9 @@ class stzDataModel from stzObject
                 if j < nLenF
                     cFieldDef += ","
                 ok
+
                 cDDL += cFieldDef + nl
+
             next
             
             cDDL += ");" + nl + nl
@@ -1601,10 +1630,13 @@ class stzDataModel from stzObject
             cType = aConstraint[:type]
 
             if cType = "check" or cType = "foreign_key"
+
                 cConstraintName = aConstraint[:table] + "_" + aConstraint[:field] + "_" + cType
+
                 cDDL += "ALTER TABLE " + aConstraint[:table] + 
                        " ADD CONSTRAINT " + cConstraintName + " " + 
                        aConstraint[:constraint] + ";" + nl
+
             ok
 
         next
@@ -1613,47 +1645,637 @@ class stzDataModel from stzObject
 
     # Map Softanza field types to SQL types
     def MapFieldType(cType)
+
         if cType = :primary_key
             return "INTEGER PRIMARY KEY"
+
         but cType = :required
             return "VARCHAR(255) NOT NULL"
+
         but cType = :email
             return "VARCHAR(255)"
+
         but cType = "integer"
             return "INTEGER"
+
         but cType = "text"
             return "TEXT"
+
         but cType = "timestamp"
             return "TIMESTAMP"
+
         but isString(cType) and substr(upper(cType), "VARCHAR") > 0
             return upper(cType)
+
         else
             return "TEXT"
+
         ok
 
     # Get inline constraints for a field (PRIMARY KEY, NOT NULL, etc.)
     def GetFieldInlineConstraints(cTableName, cFieldName)
+
         aInlineConstraints = []
-        
-        for aConstraint in @aConstraints
+        nLen = len(@aConstraints)
+
+		for i = 1 to nLen
+
+			aConstraint = @aConstraints[i]
+
             if aConstraint[:table] = cTableName and aConstraint[:field] = cFieldName
                 cType = aConstraint[:type]
+
                 if cType = "primary_key"
                     # Already handled in field type mapping
+
                 but cType = "not_null"
                     aInlineConstraints + "NOT NULL"
+
                 but cType = "unique"
                     aInlineConstraints + "UNIQUE"
+
                 but cType = "default"
                     # Extract default value from constraint
                     cUpper = upper(aConstraint[:constraint])
                     nPos = substr(cUpper, "DEFAULT ")
+
                     if nPos > 0
                         cDefaultValue = trim(substr(aConstraint[:constraint], nPos + 8))
                         aInlineConstraints + "DEFAULT " + cDefaultValue
                     ok
                 ok
             ok
+
         next
         
         return aInlineConstraints
+
+
+	#=========#
+	# IMPORT  #
+	#=========#
+	
+	# Import from Mermaid ERD format
+	def FromMermaidERD(cMermaidERD)
+	    This.ClearModel()
+	    
+	    acLines = str2list(cMermaidERD)
+	    cCurrentEntity = ""
+	    bInEntity = FALSE
+	    
+	    for cLine in acLines
+	        cLine = trim(cLine)
+	        
+	        if cLine = "erDiagram"
+	            loop
+	        ok
+	        
+	        # Entity definition
+	        if right(cLine, 1) = "{" and !bInEntity
+	            cCurrentEntity = trim(left(cLine, len(cLine) - 1))
+	            bInEntity = TRUE
+	            This.AddTable(cCurrentEntity)
+	            loop
+	        ok
+	        
+	        # End of entity
+	        if cLine = "}" and bInEntity
+	            bInEntity = FALSE
+	            cCurrentEntity = ""
+	            loop
+	        ok
+	        
+	        # Field definition within entity
+	        if bInEntity and cLine != ""
+	            aFieldParts = str2list(cLine, " ")
+	            if len(aFieldParts) >= 2
+	                cType = aFieldParts[1]
+	                cName = aFieldParts[2]
+	                
+	                # Handle constraints
+	                bIsPK = FALSE
+	                bIsFK = FALSE
+	                bNotNull = FALSE
+	                nLen = len(aFieldParts)
+
+	                for i = 3 to nLen
+
+	                    cPart = upper(aFieldParts[i])
+
+	                    if cPart = "PK"
+	                        bIsPK = TRUE
+	                    but cPart = "FK"
+	                        bIsFK = TRUE
+	                    but cPart = "NOT" and i < nLen and upper(aFieldParts[i+1]) = "NULL"
+	                        bNotNull = TRUE
+	                    ok
+
+	                next
+	                
+	                This.AddField(cCurrentEntity, cName, cType)
+	                
+	                if bIsPK
+	                    This.AddConstraint(cCurrentEntity, cName, "primary_key", "PRIMARY KEY")
+	                ok
+
+	                if bNotNull
+	                    This.AddConstraint(cCurrentEntity, cName, "not_null", "NOT NULL")
+	                ok
+
+	            ok
+	        ok
+	        
+	        # Relationship definition
+	        if substr(cLine, "||--") > 0 or substr(cLine, "--o{") > 0
+	            # Parse relationship: EntityA ||--o{ EntityB : "label"
+
+	            acParts = str2list(cLine, " ")
+
+	            if len(acParts) >= 3
+	                cFromEntity = acParts[1]
+	                cToEntity = acParts[3]
+	                
+	                # Extract label if present
+	                cLabel = ""
+	                nQuotePos = substr(cLine, '"')
+
+	                if nQuotePos > 0
+
+	                    cRest = substr(cLine, nQuotePos + 1)
+	                    nEndQuote = substr(cRest, '"')
+
+	                    if nEndQuote > 0
+	                        cLabel = left(cRest, nEndQuote - 1)
+	                    ok
+	                ok
+	                
+	                This.AddRelationship(cFromEntity, cToEntity, "has_many")
+	            ok
+	        ok
+	    next
+	
+	# Import from PlantUML ERD format
+
+	def FromPlantUMLERD(cPlantUML)
+	    This.ClearModel()
+	    
+	    acLines = str2list(cPlantUML)
+	    cCurrentEntity = ""
+	    bInEntity = FALSE
+	    
+		nLen = len(acLines)
+		for i = 1 to nLen
+			
+	        cLine = trim(acLines[i])
+	        
+	        if left(cLine, 6) = "ENTITY" and right(cLine, 1) = "{"
+	            # Extract entity name
+	            cEntityDef = trim(substr(cLine, 7, len(cLine) - 7))
+	            cCurrentEntity = trim(left(cEntityDef, len(cEntityDef) - 1))
+	            bInEntity = TRUE
+	            This.AddTable(cCurrentEntity)
+	            loop
+	        ok
+	        
+	        if cLine = "}" and bInEntity
+	            bInEntity = FALSE
+	            cCurrentEntity = ""
+	            loop
+	        ok
+	        
+	        # Field definition
+	        if bInEntity and cLine != '' and left(cLine, 2) = "  "
+	            cFieldDef = trim(cLine)
+	            
+	            # Parse field: "name : type" or "**name** : type <<PK>>"
+	            cName = ""
+	            cType = ""
+	            bIsPK = FALSE
+	            bIsFK = FALSE
+	            
+	            if substr(cFieldDef, "**") > 0
+	                # Primary key field
+	                nStart = substr(cFieldDef, "**") + 2
+	                nEnd = substr(cFieldDef, "**", nStart)
+	                if nEnd > 0
+	                    cName = substr(cFieldDef, nStart, nEnd - nStart)
+	                    bIsPK = TRUE
+	                ok
+
+	            else
+	                # Regular field
+	                nColonPos = substr(cFieldDef, " : ")
+	                if nColonPos > 0
+	                    cName = trim(left(cFieldDef, nColonPos - 1))
+	                ok
+	            ok
+	            
+	            # Extract type
+	            nColonPos = substr(cFieldDef, " : ")
+
+	            if nColonPos > 0
+	                cRest = trim(substr(cFieldDef, nColonPos + 3))
+	                nSpacePos = substr(cRest, " ")
+
+	                if nSpacePos > 0
+	                    cType = trim(left(cRest, nSpacePos - 1))
+	                else
+	                    cType = cRest
+	                ok
+	            ok
+	            
+	            # Check for constraints
+	            if substr(cFieldDef, "<<FK>>") > 0
+	                bIsFK = TRUE
+	            ok
+	            
+	            if cName != "" and cType != ""
+	                This.AddField(cCurrentEntity, cName, cType)
+	                
+	                if bIsPK
+	                    This.AddConstraint(cCurrentEntity, cName, "primary_key", "PRIMARY KEY")
+	                ok
+	            ok
+	        ok
+	        
+	        # Relationship
+	        if substr(cLine, "||--o{") > 0
+
+	            acParts = str2list(cLine, " ")
+
+	            if len(acParts) >= 3
+	                cFromEntity = acParts[1]
+	                cToEntity = acParts[3]
+	                This.AddRelationship(cFromEntity, cToEntity, "has_many")
+	            ok
+
+	        ok
+	    next
+	
+	# Import from JSON ERD format
+
+	def FromJSONERD(cJSON)
+	    This.ClearModel()
+	    
+	    try
+	        # Parse JSON (simplified parsing for Ring)
+	        oJSON = This.ParseSimpleJSON(cJSON)
+	        
+	        # Import tables
+	        if HasKey(oJSON, :tables)
+				aTables = oJSON[:tables]
+				nLen = len(aTables)
+
+				for i = 1 to nLen
+					aTable = aTables[i]
+	                cTableName = aTable[:name]
+	                This.AddTable(cTableName)
+	                
+	                # Import fields
+					
+	                if HasKey(aTable, :fields)
+						aFields = aTable[:fields]
+						nLenF = len(aFields)
+
+						for j = 1 to nLenF
+	                        This.AddField(cTableName, aFields[j][:name], aFields[j][:type])
+	                    next
+	                ok
+	                
+	                # Import constraints
+	                if HasKey(aTable, :constraints)
+						aConstraints = aTable[:constraints]
+						nLenC = len(aConstraints)
+
+						for j = 1 to nLenC
+							aConstraint = aConstraints[j]
+	                        This.AddConstraint(cTableName, aConstraint[:field], 
+	                                         aConstraint[:type], aConstraint[:constraint])
+	                    next
+
+	                ok
+
+	            next
+	        ok
+	        
+	        # Import relationships
+	        if HasKey(oJSON, :relationships)
+				aRels = oJSON[:relationships]
+				nLenR = len(aRels)
+
+				for i = 1 to nLenR
+	                This.AddRelationship(aRels[i][:from_table], aRels[i][:to_table], "has_many", aRels[i][:from_field])
+	            next
+	        ok
+	        
+	    catch
+	        StzRaise("Invalid JSON format")
+	    done
+	
+	# Import from DBML format
+	def FromDBML(cDBML)
+	    This.ClearModel()
+	    
+	    acLines = str2list(cDBML)
+	    cCurrentTable = ""
+	    bInTable = FALSE
+
+		nLen = len(acLines)
+
+		for i = 1 to nLen
+	        cLine = trim(acLines[i])
+	        
+	        # Skip project definition and comments
+	        if left(cLine, 7) = "Project" or left(cLine, 1) = "//"
+	            loop
+	        ok
+	        
+	        # Table definition
+	        if left(cLine, 5) = "Table" and right(cLine, 1) = "{"
+	            cTableDef = trim(substr(cLine, 6, len(cLine) - 6))
+	            cCurrentTable = trim(left(cTableDef, len(cTableDef) - 1))
+	            bInTable = TRUE
+	            This.AddTable(cCurrentTable)
+	            loop
+	        ok
+	        
+	        if cLine = "}" and bInTable
+	            bInTable = FALSE
+	            cCurrentTable = ""
+	            loop
+	        ok
+	        
+	        # Field definition in table
+	        if bInTable and cLine != "" and left(cLine, 2) = "  "
+	            cFieldDef = trim(cLine)
+	            
+	            # Parse: "field_name type [constraints]"
+	            acParts = str2list(cFieldDef, " ")
+
+	            if len(acParts) >= 2
+	                cName = acParts[1]
+	                cType = acParts[2]
+	                
+	                This.AddField(cCurrentTable, cName, This.MapDBMLTypeToInternal(cType))
+	                
+	                # Parse constraints in brackets
+	                nBracketPos = substr(cFieldDef, "[")
+
+	                if nBracketPos > 0
+	                    nEndBracket = substr(cFieldDef, "]", nBracketPos)
+
+	                    if nEndBracket > 0
+	                        cConstraints = substr(cFieldDef, nBracketPos + 1, nEndBracket - nBracketPos - 1)
+	                        acConstraints = str2list(cConstraints, ",")
+							nLen = len(acConstraints)
+
+							for i = 1 to nLen
+	                            cConstraint = trim(acConstraints[i])
+
+	                            if cConstraint = "pk"
+	                                This.AddConstraint(cCurrentTable, cName, "primary_key", "PRIMARY KEY")
+
+	                            but cConstraint = "unique"
+	                                This.AddConstraint(cCurrentTable, cName, "unique", "UNIQUE")
+
+	                            but cConstraint = "not null"
+	                                This.AddConstraint(cCurrentTable, cName, "not_null", "NOT NULL")
+
+	                            ok
+
+	                        next
+	                    ok
+	                ok
+	            ok
+	        ok
+
+	        # Relationship definition
+
+	        if left(cLine, 4) = "Ref:"
+	            # Parse: "Ref: table1.field > table2.field"
+	            cRelDef = trim(substr(cLine, 5))
+	            
+	            nArrowPos = substr(cRelDef, " > ")
+
+	            if nArrowPos > 0
+	                cFromPart = trim(left(cRelDef, nArrowPos - 1))
+	                cToPart = trim(substr(cRelDef, nArrowPos + 3))
+	                
+	                # Extract table names
+	                nDotPos1 = substr(cFromPart, ".")
+	                nDotPos2 = substr(cToPart, ".")
+	                
+	                if nDotPos1 > 0 and nDotPos2 > 0
+	                    cFromTable = left(cFromPart, nDotPos1 - 1)
+	                    cToTable = left(cToPart, nDotPos2 - 1)
+	                    cFromField = substr(cFromPart, nDotPos1 + 1)
+	                    
+	                    This.AddRelationship(cFromTable, cToTable, "belongs_to", cFromField)
+	                ok
+	            ok
+	        ok
+
+	    next
+	
+	# Import from DDL SQL format
+
+	def FromDDL(cDDL)
+	    This.ClearModel()
+	    
+	    acStatements = str2list(cDDL, ";")
+	    nLen = len(acStatements)
+
+		for i = 1 to nLen
+	        cStatement = trim(acStatements[i])
+	        cUpper = upper(cStatement)
+	        
+	        # CREATE TABLE statement
+	        if left(cUpper, 12) = "CREATE TABLE"
+	            This.ParseCreateTable(cStatement)
+	        ok
+	        
+	        # ALTER TABLE statement for constraints
+	        if left(cUpper, 11) = "ALTER TABLE"
+	            This.ParseAlterTable(cStatement)
+	        ok
+	    next
+	
+	# Helper method to parse CREATE TABLE statement
+	def ParseCreateTable(cStatement)
+	    cUpper = upper(cStatement)
+	    
+	    # Extract table name
+	    nTablePos = substr(cUpper, "CREATE TABLE ") + 13
+	    nParenPos = @substr(cStatement, "(", nTablePos)
+	    
+	    if nParenPos > 0
+	        cTableName = trim(@substr(cStatement, nTablePos, nParenPos - nTablePos))
+	        This.AddTable(cTableName)
+	        
+	        # Extract field definitions
+	        cFieldsPart = @substr(cStatement, nParenPos + 1)
+	        nLastParen = This.FindLastChar(cFieldsPart, ")")
+	        if nLastParen > 0
+	            cFieldsPart = left(cFieldsPart, nLastParen - 1)
+	        ok
+	        
+	        acFields = str2list(cFieldsPart, ",")
+	        nLen = len(acFields)
+
+	        for i = 1 to nLen
+	            cFieldDef = trim(acFields[i])
+	            acParts = str2list(cFieldDef, " ")
+	            
+	            if len(acParts) >= 2
+	                cFieldName = acParts[1]
+	                cFieldType = acParts[2]
+	                
+	                This.AddField(cTableName, cFieldName, This.MapSQLTypeToInternal(cFieldType))
+	                
+	                # Parse inline constraints
+	                cDefUpper = upper(cFieldDef)
+	                if substr(cDefUpper, "PRIMARY KEY") > 0
+	                    This.AddConstraint(cTableName, cFieldName, "primary_key", "PRIMARY KEY")
+	                ok
+
+	                if substr(cDefUpper, "NOT NULL") > 0
+	                    This.AddConstraint(cTableName, cFieldName, "not_null", "NOT NULL")
+	                ok
+
+	                if substr(cDefUpper, "UNIQUE") > 0
+	                    This.AddConstraint(cTableName, cFieldName, "unique", "UNIQUE")
+	                ok
+
+	            ok
+	        next
+	    ok
+	
+	# Helper method to parse ALTER TABLE statement
+	def ParseAlterTable(cStatement)
+	    cUpper = upper(cStatement)
+	    
+	    # Extract table name
+	    nTablePos = substr(cUpper, "ALTER TABLE ") + 12
+	    nAddPos = substr(cUpper, " ADD ", nTablePos)
+	    
+	    if nAddPos > 0
+	        cTableName = trim(substr(cStatement, nTablePos, nAddPos - nTablePos))
+	        cConstraintPart = trim(substr(cStatement, nAddPos + 5))
+	        
+	        # Parse constraint
+	        if left(upper(cConstraintPart), 10) = "CONSTRAINT"
+	            # Named constraint
+	            acParts = str2list(cConstraintPart, " ")
+	            if len(acParts) >= 3
+	                cConstraintName = acParts[2]
+	                cConstraintType = acParts[3]
+	                
+	                # Extract field name from constraint name (table_field_type format)
+	                acNameParts = str2list(cConstraintName, "_")
+	                if len(acNameParts) >= 3
+	                    cFieldName = acNameParts[2]
+	                    This.AddConstraint(cTableName, cFieldName, lower(cConstraintType), cConstraintPart)
+	                ok
+	            ok
+	        ok
+	    ok
+	
+	# Helper methods for type mapping
+	def MapDBMLTypeToInternal(cDBMLType)
+	    switch lower(cDBMLType)
+	    on "int"
+	        return "integer"
+	    on "varchar(255)"
+	        return "varchar(255)"
+	    on "text"
+	        return "text"
+	    on "timestamp"
+	        return "timestamp"
+	    on "boolean"
+	        return "boolean"
+	    other
+	        return cDBMLType
+	    off
+	
+	def MapSQLTypeToInternal(cSQLType)
+	    cUpper = upper(cSQLType)
+	    switch cUpper
+	    on "INTEGER"
+	        return "integer"
+	    on "TEXT"
+	        return "text"
+	    on "TIMESTAMP"
+	        return "timestamp"
+	    on "BOOLEAN"
+	        return "boolean"
+	    other
+	        if substr(cUpper, "VARCHAR") > 0
+	            return lower(cSQLType)
+	        else
+	            return "text"
+	        ok
+	    off
+	
+	# Helper method for simple JSON parsing (Ring-specific)
+	def ParseSimpleJSON(cJSON)
+	    # This is a simplified JSON parser for basic structures
+	    # In a real implementation, you'd use a proper JSON library
+	    aResult = []
+	    
+	    # Remove whitespace and split by common patterns
+	    cJSON = This.RemoveJSONWhitespace(cJSON)
+	    
+	    # This is a placeholder - implement proper JSON parsing based on Ring's capabilities
+	    # or use an external JSON library if available
+	    
+	    return aResult
+	
+	def RemoveJSONWhitespace(cJSON)
+	    cResult = ""
+	    lInString = FALSE
+	    
+	    for i = 1 to len(cJSON)
+	        cChar = cJSON[i]
+	        if cChar = '"' and (i = 1 or cJSON[i-1] != '\')
+	            lInString = !lInString
+	        ok
+	        
+	        if lInString or (cChar != " " and cChar != tab and cChar != nl)
+	            cResult += cChar
+	        ok
+	    next
+	    
+	    return cResult
+	
+	def FindLastChar(cStr, cChar)
+	    for i = len(cStr) to 1 step -1
+	        if cStr[i] = cChar
+	            return i
+	        ok
+	    next
+	    return 0
+	
+	# Helper method to clear the model
+	def ClearModel()
+	    @aTables = []
+	    @aRelationships = []
+	    @aConstraints = []
+	    @aValidationErrors = []
+	
+	
+	def AddRelationship(cFromTable, cToTable, cType, cField)
+	    if isNull(cField)
+	        cField = ""
+	    ok
+	    
+	    aRelationship = [
+	        :from = cFromTable,
+	        :to = cToTable,
+	        :from_table = cFromTable,
+	        :to_table = cToTable,
+	        :type = cType,
+	        :field = cField,
+	        :from_field = cField,
+	        :to_field = "id"
+	    ]
+	    @aRelationships + aRelationship
