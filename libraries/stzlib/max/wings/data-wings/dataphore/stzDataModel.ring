@@ -886,50 +886,6 @@ class stzDataModel from stzObject
         next
         return stzraise("Inexistant table name!")
 
-	#=========#
-	# EXPORT  #
-	#=========#
-
-    # Export model as DDL (basic implementation)
-    def DDL()
-        cDDL = ""
-        
-        for aTable in @aTables
-            cDDL += "CREATE TABLE " + aTable[:name] + " (" + nl
-            
-            for i = 1 to len(aTable[:fields])
-                aField = aTable[:fields][i]
-                cDDL += "    " + aField[:name] + " " + aField[:type]
-                
-                if i < len(aTable[:fields])
-                    cDDL += ","
-                ok
-                cDDL += nl
-            next
-            
-            cDDL += ");" + nl + nl
-        next
-        
-        # Add constraints
-        for aConstraint in @aConstraints
-            if aConstraint[:type] != "primary_key"  # PKs usually inline
-                cDDL += "ALTER TABLE " + aConstraint[:table] + 
-                       " ADD CONSTRAINT " + aConstraint[:constraint] + ";" + nl
-            ok
-        next
-        
-        return cDDL
-
-		def ExportDDL()
-			return This.DDL()
-
-		def ExportToDDL()
-			return This.DDL()
-
-		def ToDDL()
-			return This.DDL()
-
-
     def SelfReferencingTables()
         aResult = []
 		nLen = len(@aRelationships)
@@ -943,69 +899,73 @@ class stzDataModel from stzObject
         next
         return aResult
 
-# Enhanced DiagramData() method for better ERD tool compatibility
-def DiagramData()
-    aEntities = []
-    aRelationships = []
-    
-    # Create detailed entities with field information
-    for aTable in @aTables
-        aFields = []
-        for aField in aTable[:fields]
-            aFieldInfo = [
-                :name = aField[:name],
-                :type = aField[:type],
-                :is_primary = (aField[:type] = "integer" and aField[:name] = "id"),
-                :is_foreign = (right(aField[:name], 3) = "_id" and aField[:name] != "id"),
-                :nullable = !(HasKey(aField, :is_required) and aField[:is_required]),
-                :unique = (HasKey(aField, :is_unique) and aField[:is_unique])
-            ]
-            aFields + aFieldInfo
-        next
-        
-        aEntity = [
-            :name = aTable[:name],
-            :display_name = Capitalize(aTable[:name]),
-            :fields = aFields,
-            :field_count = len(aFields),
-            :type = "entity"
-        ]
-        aEntities + aEntity
-    next
-    
-    # Create standardized relationships
-    aProcessedRels = []
-    for aRel in @aRelationships
-        # Skip duplicate relationships (keep only one direction for ERD)
-        cRelKey = aRel[:from] + "->" + aRel[:to] + ":" + aRel[:type]
-        if find(aProcessedRels, cRelKey) = 0
-            aProcessedRels + cRelKey
-            
-            aRelationship = [
-                :id = "rel_" + len(aRelationships) + 1,
-                :from_entity = aRel[:from],
-                :to_entity = aRel[:to],
-                :relationship_type = aRel[:type],
-                :cardinality = This.GetCardinality(aRel[:type]),
-                :foreign_key = iff(HasKey(aRel, :field), aRel[:field], ""),
-                :is_identifying = (aRel[:type] = "belongs_to"),
-                :label = This.GetRelationshipLabel(aRel[:type])
-            ]
-            aRelationships + aRelationship
-        ok
-    next
-    
-    return [
-        :schema_name = @cSchemaName,
-        :entities = aEntities,
-        :relationships = aRelationships,
-        :metadata = [
-            :entity_count = len(aEntities),
-            :relationship_count = len(aRelationships),
-            :generated_at = date() + " " + time(),
-            :format_version = "1.0"
-        ]
-    ]
+	#=========#
+	# EXPORT  #
+	#=========#
+
+	# Enhanced DiagramData() method for better ERD tool compatibility
+	def DiagramData()
+	    aEntities = []
+	    aRelationships = []
+	    
+	    # Create detailed entities with field information
+	    for aTable in @aTables
+	        aFields = []
+	        for aField in aTable[:fields]
+	            aFieldInfo = [
+	                :name = aField[:name],
+	                :type = aField[:type],
+	                :is_primary = (aField[:type] = "integer" and aField[:name] = "id"),
+	                :is_foreign = (right(aField[:name], 3) = "_id" and aField[:name] != "id"),
+	                :nullable = !(HasKey(aField, :is_required) and aField[:is_required]),
+	                :unique = (HasKey(aField, :is_unique) and aField[:is_unique])
+	            ]
+	            aFields + aFieldInfo
+	        next
+	        
+	        aEntity = [
+	            :name = aTable[:name],
+	            :display_name = Capitalize(aTable[:name]),
+	            :fields = aFields,
+	            :field_count = len(aFields),
+	            :type = "entity"
+	        ]
+	        aEntities + aEntity
+	    next
+	    
+	    # Create standardized relationships
+	    aProcessedRels = []
+	    for aRel in @aRelationships
+	        # Skip duplicate relationships (keep only one direction for ERD)
+	        cRelKey = aRel[:from] + "->" + aRel[:to] + ":" + aRel[:type]
+	        if find(aProcessedRels, cRelKey) = 0
+	            aProcessedRels + cRelKey
+	            
+	            aRelationship = [
+	                :id = "rel_" + len(aRelationships) + 1,
+	                :from_entity = aRel[:from],
+	                :to_entity = aRel[:to],
+	                :relationship_type = aRel[:type],
+	                :cardinality = This.GetCardinality(aRel[:type]),
+	                :foreign_key = iff(HasKey(aRel, :field), aRel[:field], ""),
+	                :is_identifying = (aRel[:type] = "belongs_to"),
+	                :label = This.GetRelationshipLabel(aRel[:type])
+	            ]
+	            aRelationships + aRelationship
+	        ok
+	    next
+	    
+	    return [
+	        :schema_name = @cSchemaName,
+	        :entities = aEntities,
+	        :relationships = aRelationships,
+	        :metadata = [
+	            :entity_count = len(aEntities),
+	            :relationship_count = len(aRelationships),
+	            :generated_at = date() + " " + time(),
+	            :format_version = "1.0"
+	        ]
+	    ]
 
     def ERDData()
         return This.DiagramData()
@@ -1016,139 +976,418 @@ def DiagramData()
 	def ToERD()
 		return This.DiagramData()
 
-# Helper methods for ERD data generation
-def GetCardinality(cRelType)
-    switch cRelType
-    on "has_many"
-        return "1:N"
-    on "belongs_to"
-        return "N:1"
-    on "has_one"
-        return "1:1"
-    on "many_to_many"
-        return "M:N"
-    other
-        return "1:N"
-    off
+	# Helper methods for ERD data generation
+	def GetCardinality(cRelType)
+	    switch cRelType
+	    on "has_many"
+	        return "1:N"
+	    on "belongs_to"
+	        return "N:1"
+	    on "has_one"
+	        return "1:1"
+	    on "many_to_many"
+	        return "M:N"
+	    other
+	        return "1:N"
+	    off
+	
+	def GetRelationshipLabel(cRelType)
+	    switch cRelType
+	    on "has_many"
+	        return "has"
+	    on "belongs_to"
+	        return "belongs to"
+	    on "has_one"
+	        return "has one"
+	    on "many_to_many"
+	        return "associated with"
+	    other
+	        return cRelType
+	    off
 
-def GetRelationshipLabel(cRelType)
-    switch cRelType
-    on "has_many"
-        return "has"
-    on "belongs_to"
-        return "belongs to"
-    on "has_one"
-        return "has one"
-    on "many_to_many"
-        return "associated with"
-    other
-        return cRelType
-    off
+	#--- EXPORT TO MERMAIDERD FORMAT
 
-# Export methods for different ERD tools
-def ToMermaidERD()
-    cMermaid = "erDiagram" + nl
-    
-    # Add entities with fields
-    for aEntity in This.DiagramData()[:entities]
-        cMermaid += "    " + aEntity[:name] + " {" + nl
-        for aField in aEntity[:fields]
-            cFieldDef = "        " + aField[:type] + " " + aField[:name]
-            if aField[:is_primary]
-                cFieldDef += " PK"
-            but aField[:is_foreign]
-                cFieldDef += " FK"
-            ok
-            if !aField[:nullable]
-                cFieldDef += " NOT NULL"
-            ok
-            cMermaid += cFieldDef + nl
-        next
-        cMermaid += "    }" + nl + nl
-    next
-    
-    # Add relationships
-    for aRel in This.DiagramData()[:relationships]
-        if aRel[:from_entity] != aRel[:to_entity]  # Skip self-referencing for basic ERD
-            cMermaid += "    " + aRel[:from_entity] + " ||--o{ " + aRel[:to_entity] + ' : "' + aRel[:label] + '"' + nl
-        ok
-    next
-    
-    return cMermaid
+	def ToMermaidERD()
+	
+	    cMermaid = "erDiagram" + nl
+		aDiagramData = This.DiagramData()
+	    aEntities = aDiagramData[:entities]
+		nLen = len(aEntities)
+	
+	    # Add entities with fields
+	
+		for i = 1 to nLen
+			aEntity = aEntities[i]
+	        cMermaid += "    " + aEntity[:name] + " {" + nl
+	
+			aFields = aEntity[:fields]
+			nLenF = len(aFields)
+	
+	        for j = 1 to nLenF
+				aField = aFields[j]
+	 
+	            cFieldDef = "        " + aField[:type] + " " + aField[:name]
+	            if aField[:is_primary]
+	                cFieldDef += " PK"
+	            but aField[:is_foreign]
+	                cFieldDef += " FK"
+	            ok
+	            if !aField[:nullable]
+	                cFieldDef += " NOT NULL"
+	            ok
+	            cMermaid += cFieldDef + nl
+	        next
+	        cMermaid += "    }" + nl + nl
+	    next
+	    
+	    # Add relationships
+		aRels = aDiagramData[:relationships]
+		nLen = len(aRels)
+	
+	    for i = 1 to nLen
+			aRel = aRels[i] 
+	        if aRel[:from_entity] != aRel[:to_entity]  # Skip self-referencing for basic ERD
+	            cMermaid += "    " + aRel[:from_entity] + " ||--o{ " + aRel[:to_entity] + ' : "' + aRel[:label] + '"' + nl
+	        ok
+	    next
+	    
+	    return cMermaid
+	
+	#--- EXPORT TO PLANTUML FORMAT
 
-def ToPlantUMLERD()
-    cPlantUML = "@startuml" + nl
-    cPlantUML += "!define ENTITY class" + nl + nl
-    
-    # Add entities
-    for aEntity in This.DiagramData()[:entities]
-        cPlantUML += "ENTITY " + aEntity[:name] + " {" + nl
-        for aField in aEntity[:fields]
-            cLine = "  "
-            if aField[:is_primary]
-                cLine += "**" + aField[:name] + "** : " + aField[:type] + " <<PK>>"
-            but aField[:is_foreign]
-                cLine += aField[:name] + " : " + aField[:type] + " <<FK>>"
-            else
-                cLine += aField[:name] + " : " + aField[:type]
-            ok
-            cPlantUML += cLine + nl
-        next
-        cPlantUML += "}" + nl + nl
-    next
-    
-    # Add relationships
-    for aRel in This.DiagramData()[:relationships]
-        if aRel[:from_entity] != aRel[:to_entity]
-            cPlantUML += aRel[:from_entity] + " ||--o{ " + aRel[:to_entity] + nl
-        ok
-    next
-    
-    cPlantUML += "@enduml"
-    return cPlantUML
+	def ToPlantUMLERD()
+	    cPlantUML = "@startuml" + nl
+	    cPlantUML += "!define ENTITY class" + nl + nl
+	   
+	    # Add entities
+		aDiagramData = This.DiagramData()
+	
+		aEntities = aDiagramData[:entities]
+		nLen = len(aEntities)
+	
+	    for i = 1 to nLen
+			aEntity = aentities[i] 
+	        cPlantUML += "ENTITY " + aEntity[:name] + " {" + nl
+	
+			aFields = aEntity[:fields]
+			nLenF = len(aFields)
+	
+	        for j = 1 to nLenF
+				aField = aFields[j]
+	            cLine = "  "
+	
+	            if aField[:is_primary]
+	                cLine += "**" + aField[:name] + "** : " + aField[:type] + " <<PK>>"
+	
+	            but aField[:is_foreign]
+	                cLine += aField[:name] + " : " + aField[:type] + " <<FK>>"
+	
+	            else
+	                cLine += aField[:name] + " : " + aField[:type]
+	
+	            ok
+	
+	            cPlantUML += cLine + nl
+	        next
+	
+	        cPlantUML += "}" + nl + nl
+	    next
+	    
+	    # Add relationships
+		aRels = aDiagramData[:relationships]
+		nLen = len(aRels)
+	
+	    for i = 1 to nLen
+			aRel = aRels[i]
+	
+	        if aRel[:from_entity] != aRel[:to_entity]
+	            cPlantUML += aRel[:from_entity] + " ||--o{ " + aRel[:to_entity] + nl
+	        ok
+	    next
+	    
+	    cPlantUML += "@enduml"
+	    return cPlantUML
+	
+	#--- EXPORT TO JSON FORMAT
 
-def ToJSONERD()
-    # JSON format for tools like draw.io, Lucidchart APIs
-    aERDData = This.DiagramData()
-    cJSON = "{"
-    cJSON += '"schema": "' + aERDData[:schema_name] + '",'
-    cJSON += '"entities": ['
-    
-    for i = 1 to len(aERDData[:entities])
-        aEntity = aERDData[:entities][i]
-        cJSON += '{"name": "' + aEntity[:name] + '",'
-        cJSON += '"fields": ['
-        
-        for j = 1 to len(aEntity[:fields])
-            aField = aEntity[:fields][j]
-            cJSON += '{"name": "' + aField[:name] + '",'
-            cJSON += '"type": "' + aField[:type] + '",'
-            cJSON += '"primary": ' + iff(aField[:is_primary], "true", "false") + ','
-            cJSON += '"foreign": ' + iff(aField[:is_foreign], "true", "false") + '}'
-            if j < len(aEntity[:fields])
+    # Export model as JSON ERD with proper indentation
+    def ToJSONERD()
+
+        cJSON = "{" + nl
+        cJSON += TAB + '"tables": [' + nl
+        nLen = len(@aTables)
+		nLenC = len(@aConstraints)
+
+        for i = 1 to nLen
+            aTable = @aTables[i]
+            cJSON += TAB + TAB + "{" + nl
+            cJSON += TAB + TAB + TAB + '"name": "' + aTable[:name] + '",' + nl
+            cJSON += TAB + TAB + TAB + '"fields": [' + nl
+            
+			aFields = aTable[:fields]
+			nLenF = len(aFields)
+
+            for j = 1 to nLenF
+                aField = aTable[:fields][j]
+                cJSON += TAB + TAB + TAB + TAB + "{" + nl
+                cJSON += TAB + TAB + TAB + TAB + TAB + '"name": "' + aField[:name] + '",' + nl
+                cJSON += TAB + TAB + TAB + TAB + TAB + '"type": "' + aField[:type] + '"' + nl
+                cJSON += TAB + TAB + TAB + TAB + "}"
+                if j < nLenF
+                    cJSON += ","
+                ok
+                cJSON += nl
+            next
+            
+            cJSON += TAB + TAB + TAB + "]," + nl
+            cJSON += TAB + TAB + TAB + '"constraints": [' + nl
+            
+            # Add constraints for this table
+            aTableConstraints = []
+
+			for j = 1 to nLenC
+                if @aConstraints[j][:table] = aTable[:name]
+                    aTableConstraints + @aConstraints[j]
+                ok
+            next
+            
+			nLenC = len(aTableConstraints)
+            for j = 1 to nLenC
+                aConstraint = aTableConstraints[j]
+                cJSON += TAB + TAB + TAB + TAB + "{" + nl
+                cJSON += TAB + TAB + TAB + TAB + TAB + '"field": "' + aConstraint[:field] + '",' + nl
+                cJSON += TAB + TAB + TAB + TAB + TAB + '"type": "' + aConstraint[:type] + '",' + nl
+                cJSON += TAB + TAB + TAB + TAB + TAB + '"constraint": "' + aConstraint[:constraint] + '"' + nl
+                cJSON += TAB + TAB + TAB + TAB + "}"
+                if j < nLenC
+                    cJSON += ","
+                ok
+                cJSON += nl
+            next
+            
+            cJSON += TAB + TAB + TAB + "]" + nl
+            cJSON += TAB + TAB + "}"
+            if i < nLen
                 cJSON += ","
             ok
+            cJSON += nl
         next
         
-        cJSON += "]}"
-        if i < len(aERDData[:entities])
-            cJSON += ","
+        cJSON += TAB + "]," + nl
+        cJSON += TAB + '"relationships": [' + nl
+        nLenR = len(@aRelationships)
+
+        for i = 1 to nLenR
+            aRel = @aRelationships[i]
+            cJSON += TAB + TAB + "{" + nl
+            cJSON += TAB + TAB + TAB + '"from_table": "' + aRel[:from_table] + '",' + nl
+            cJSON += TAB + TAB + TAB + '"from_field": "' + aRel[:from_field] + '",' + nl
+            cJSON += TAB + TAB + TAB + '"to_table": "' + aRel[:to_table] + '",' + nl
+            cJSON += TAB + TAB + TAB + '"to_field": "' + aRel[:to_field] + '"' + nl
+            cJSON += TAB + TAB + "}"
+            if i < nLenR
+                cJSON += ","
+            ok
+            cJSON += nl
+        next
+        
+        cJSON += TAB + "]" + nl
+        cJSON += "}"
+        
+        return cJSON
+
+	#--- EXPORT RO DBML SCRIPT FORMAT
+
+	def ToDBML()
+	    # Database Markup Language format for dbdiagram.io
+	    cDBML = "Project " + @cSchemaName + " {" + nl
+	    cDBML += "  database_type: 'Generic'" + nl
+	    cDBML += "  Note: 'Generated from stzDataModel'" + nl
+	    cDBML += "}" + nl + nl
+	    
+	    # Add tables
+	    for aTable in @aTables
+	        cDBML += "Table " + aTable[:name] + " {" + nl
+	        
+	        for aField in aTable[:fields]
+	            cLine = "  " + aField[:name] + " " + This.MapTypeToDBML(aField[:type])
+	            
+	            # Add constraints
+	            aConstraints = []
+	            if aField[:is_primary]
+	                aConstraints + "pk"
+	            ok
+	            if HasKey(aField, :is_unique) and aField[:is_unique]
+	                aConstraints + "unique"
+	            ok
+	            if HasKey(aField, :is_required) and aField[:is_required]
+	                aConstraints + "not null"
+	            ok
+	            
+	            if len(aConstraints) > 0
+	                cLine += " ["
+	                for i = 1 to len(aConstraints)
+	                    cLine += aConstraints[i]
+	                    if i < len(aConstraints)
+	                        cLine += ", "
+	                    ok
+	                next
+	                cLine += "]"
+	            ok
+	            
+	            cDBML += cLine + nl
+	        next
+	        
+	        cDBML += "}" + nl + nl
+	    next
+	    
+	    # Add relationships
+	
+	    for aRel in @aRelationships
+	        if aRel[:type] = "belongs_to" and aRel[:from] != aRel[:to]
+	            cDBML += "Ref: " + aRel[:from] + "."
+	            if HasKey(aRel, :foreign_key) and aRel[:foreign_key] != ""
+	                cDBML += aRel[:foreign_key]
+	            else
+	                cDBML += This.GuessFK(aRel[:to])
+	            ok
+	            cDBML += " > " + aRel[:to] + ".id" + nl
+	        ok
+	    next
+	    
+	    return cDBML
+	
+	def MapTypeToDBML(cType)
+	    # Map Ring/SQL types to DBML types
+	    switch lower(cType)
+	    on "integer"
+	        return "int"
+	    on "varchar(255)"
+	        return "varchar(255)"
+	    on "varchar(500)"
+	        return "varchar(500)"
+	    on "text"
+	        return "text"
+	    on "timestamp"
+	        return "timestamp"
+	    on "decimal(10,2)"
+	        return "decimal(10,2)"
+	    on "boolean"
+	        return "boolean"
+	    other
+	        return cType
+	    off
+	
+	def GuessFK(cTableName)
+	    # Convert table name to likely foreign key field name
+	    cSingular = SingularOf(cTableName)
+	    return cSingular + "_id"
+
+	#--- EXPORT TO DDL SQL SCRIPT FORMAT
+
+    def ToDDL()
+        cDDL = ""
+        nLen = len(@aTables)
+
+        for i = 1 to nLen
+			aTable = @aTables[i]
+            cDDL += "CREATE TABLE " + aTable[:name] + " (" + nl
+            
+            # Collect inline constraints for each field
+            acInlineConstraints = []
+			aFields = aTable[:fields]
+			nLenF = len(aFields)
+
+            for j = 1 to nLenF
+				aField = aFields[j]
+                acFieldConstraints = This.GetFieldInlineConstraints(aTable[:name], aField[:name])
+                acInlineConstraints + acFieldConstraints
+            next
+            
+            for j = 1 to nLenF
+                aField = aTable[:fields][i]
+                cFieldDef = "    " + aField[:name] + " " + This.MapFieldType(aField[:type])
+                
+                # Add inline constraints for this field
+                acFieldConstraints = acInlineConstraints[j]
+				nLenFC = len(acFieldConstraints)
+
+				for q = 1 to nLenFC
+                    cFieldDef += " " + acFieldConstraints[q]
+                next
+                
+                if j < nLenF
+                    cFieldDef += ","
+                ok
+                cDDL += cFieldDef + nl
+            next
+            
+            cDDL += ");" + nl + nl
+        next
+        
+        # Add table-level constraints (CHECK, FOREIGN KEY)
+		nLen = len(@aConstraints)
+
+		for i = 1 to nLen
+
+			aConstraint = @aConstraints[i]
+
+            cType = aConstraint[:type]
+
+            if cType = "check" or cType = "foreign_key"
+                cConstraintName = aConstraint[:table] + "_" + aConstraint[:field] + "_" + cType
+                cDDL += "ALTER TABLE " + aConstraint[:table] + 
+                       " ADD CONSTRAINT " + cConstraintName + " " + 
+                       aConstraint[:constraint] + ";" + nl
+            ok
+
+        next
+        
+        return cDDL
+
+    # Map Softanza field types to SQL types
+    def MapFieldType(cType)
+        if cType = :primary_key
+            return "INTEGER PRIMARY KEY"
+        but cType = :required
+            return "VARCHAR(255) NOT NULL"
+        but cType = :email
+            return "VARCHAR(255)"
+        but cType = "integer"
+            return "INTEGER"
+        but cType = "text"
+            return "TEXT"
+        but cType = "timestamp"
+            return "TIMESTAMP"
+        but isString(cType) and substr(upper(cType), "VARCHAR") > 0
+            return upper(cType)
+        else
+            return "TEXT"
         ok
-    next
-    
-    cJSON += '],'
-    cJSON += '"relationships": ['
-    
-    for i = 1 to len(aERDData[:relationships])
-        aRel = aERDData[:relationships][i]
-        cJSON += '{"from": "' + aRel[:from_entity] + '",'
-        cJSON += '"to": "' + aRel[:to_entity] + '",'
-        cJSON += '"type": "' + aRel[:relationship_type] + '",'
-        cJSON += '"cardinality": "' + aRel[:cardinality] + '"}'
-        if i < len(aERDData[:relationships])
-            cJSON += ","
-        ok
-    next
-    
-    cJSON += "]}"
-    return cJSON
+
+    # Get inline constraints for a field (PRIMARY KEY, NOT NULL, etc.)
+    def GetFieldInlineConstraints(cTableName, cFieldName)
+        aInlineConstraints = []
+        
+        for aConstraint in @aConstraints
+            if aConstraint[:table] = cTableName and aConstraint[:field] = cFieldName
+                cType = aConstraint[:type]
+                if cType = "primary_key"
+                    # Already handled in field type mapping
+                but cType = "not_null"
+                    aInlineConstraints + "NOT NULL"
+                but cType = "unique"
+                    aInlineConstraints + "UNIQUE"
+                but cType = "default"
+                    # Extract default value from constraint
+                    cUpper = upper(aConstraint[:constraint])
+                    nPos = substr(cUpper, "DEFAULT ")
+                    if nPos > 0
+                        cDefaultValue = trim(substr(aConstraint[:constraint], nPos + 8))
+                        aInlineConstraints + "DEFAULT " + cDefaultValue
+                    ok
+                ok
+            ok
+        next
+        
+        return aInlineConstraints

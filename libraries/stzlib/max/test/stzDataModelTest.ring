@@ -571,141 +571,193 @@ o1 {
         [ "view_count", "integer"]
     ])
 
-    # Generate entity-relationship diagram data
-    erd_script = ToMermaidERD()
-	? erd_script
+    # Generate entity-relationship diagram script for the Mermaid online tool
+	? BoxRound("DDL SCRIPT")
+    ? ToDDL() + NL
+	#-->
+"
+╭────────────╮
+│ DDL SCRIPT │
+╰────────────╯
+CREATE TABLE authors (
+    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY NOT NULL,
+    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY
+);
+
+CREATE TABLE articles (
+    author_id TEXT,
+    author_id TEXT,
+    author_id TEXT NOT NULL,
+    author_id TEXT,
+    author_id TEXT,
+    author_id TEXT
+);
+
+ALTER TABLE authors ADD CONSTRAINT authors_email_check CHECK (email LIKE '%@%');
+"
+
+	? BoxRound("MermaidERD Tool Script")
+	? ToMermaidERD() + NL
 #-->
 '
-[
-	[
-		"entities",
-		[
-			[
-				[ "name", "authors" ],
-				[
-					"field_count",
-					[
-						[
-							[ "name", "id" ],
-							[ "type", "integer" ],
-							[ "options", [  ] ],
-							[ "is_primary_key", 1 ],
-							[ "is_required", 1 ],
-							[ "is_unique", 1 ]
-						],
-						[
-							[ "name", "name" ],
-							[ "type", "varchar(255)" ],
-							[ "options", [  ] ],
-							[ "is_primary_key", 0 ],
-							[ "is_required", 1 ],
-							[ "is_unique", 0 ]
-						],
-						[
-							[ "name", "email" ],
-							[ "type", "varchar(255)" ],
-							[ "options", [  ] ],
-							[ "is_primary_key", 0 ],
-							[ "is_required", 0 ],
-							[ "is_unique", 0 ]
-						],
-						[
-							[ "name", "bio" ],
-							[ "type", "text" ],
-							[ "options", [  ] ],
-							[ "is_primary_key", 0 ],
-							[ "is_required", 0 ],
-							[ "is_unique", 0 ]
-						]
-					]
-				],
-				[ "type", "table" ]
-			],
-			[
-				[ "name", "articles" ],
-				[
-					"field_count",
-					[
-						[
-							[ "name", "id" ],
-							[ "type", "integer" ],
-							[ "options", [  ] ],
-							[ "is_primary_key", 1 ],
-							[ "is_required", 1 ],
-							[ "is_unique", 1 ]
-						],
-						[
-							[ "name", "author_id" ],
-							[ "type", "integer" ],
-							[ "options", [  ] ],
-							[ "is_primary_key", 0 ],
-							[ "is_required", 0 ],
-							[ "is_unique", 0 ]
-						],
-						[
-							[ "name", "title" ],
-							[ "type", "varchar(255)" ],
-							[ "options", [  ] ],
-							[ "is_primary_key", 0 ],
-							[ "is_required", 1 ],
-							[ "is_unique", 0 ]
-						],
-						[
-							[ "name", "content" ],
-							[ "type", "text" ],
-							[ "options", [  ] ],
-							[ "is_primary_key", 0 ],
-							[ "is_required", 0 ],
-							[ "is_unique", 0 ]
-						],
-						[
-							[ "name", "published_at" ],
-							[ "type", "timestamp" ],
-							[ "options", [  ] ],
-							[ "is_primary_key", 0 ],
-							[ "is_required", 0 ],
-							[ "is_unique", 0 ]
-						],
-						[
-							[ "name", "view_count" ],
-							[ "type", "integer" ],
-							[ "options", [  ] ],
-							[ "is_primary_key", 0 ],
-							[ "is_required", 0 ],
-							[ "is_unique", 0 ]
-						]
-					]
-				],
-				[ "type", "table" ]
-			]
-		]
-	],
-	[
-		"connections",
-		[
-			[
-				[ "from", "articles" ],
-				[ "to", "authors" ],
-				[ "type", "belongs_to" ],
-				[ "inferred", 1 ]
-			],
-			[
-				[ "from", "authors" ],
-				[ "to", "articles" ],
-				[ "type", "has_many" ],
-				[ "inferred", 1 ]
-			]
-		]
-	],
-	[ "self_referencing", [  ] ]
-]
+╭────────────────────────╮
+│ MermaidERD Tool Script │
+╰────────────────────────╯
+erDiagram
+    authors {
+        primary_key id
+        required name
+        email email
+        text bio
+    }
+
+    articles {
+        primary_key id
+        foreign_key author_id FK
+        required title
+        text content
+        timestamp published_at
+        integer view_count
+    }
+
+    articles ||--o{ authors : "belongs to"
+    authors ||--o{ articles : "has"
 '
+	? BoxRound("PlantUmlERD Tool Script")
+	? ToPlantUmlERD() + NL
+#-->
+'
+╭─────────────────────────╮
+│ PlantUmlERD Tool Script │
+╰─────────────────────────╯
+@startuml
+!define ENTITY class
+
+ENTITY authors {
+  id : primary_key
+  name : required
+  email : email
+  bio : text
+}
+
+ENTITY articles {
+  id : primary_key
+  author_id : foreign_key <<FK>>
+  title : required
+  content : text
+  published_at : timestamp
+  view_count : integer
+}
+
+articles ||--o{ authors
+authors ||--o{ articles
+@enduml
+'
+	? BoxRound("JSON Diagram Data (other tools)")
+	? ToJsonERD()
+#-->
+'
+╭─────────────────────────────────╮
+│ JSON Diagram Data (other tools) │
+╰─────────────────────────────────╯
+{
+	"tables": [
+		{
+			"name": "authors",
+			"fields": [
+				{
+					"name": "id",
+					"type": "primary_key"
+				},
+				{
+					"name": "name",
+					"type": "required"
+				},
+				{
+					"name": "email",
+					"type": "email"
+				},
+				{
+					"name": "bio",
+					"type": "text"
+				}
+			],
+			"constraints": [
+				{
+					"field": "id",
+					"type": "primary_key",
+					"constraint": "PRIMARY KEY"
+				},
+				{
+					"field": "name",
+					"type": "not_null",
+					"constraint": "NOT NULL"
+				},
+				{
+					"field": "email",
+					"type": "check",
+					"constraint": "CHECK (email LIKE '%@%')"
+				}
+			]
+		},
+		{
+			"name": "articles",
+			"fields": [
+				{
+					"name": "id",
+					"type": "primary_key"
+				},
+				{
+					"name": "author_id",
+					"type": "foreign_key"
+				},
+				{
+					"name": "title",
+					"type": "required"
+				},
+				{
+					"name": "content",
+					"type": "text"
+				},
+				{
+					"name": "published_at",
+					"type": "timestamp"
+				},
+				{
+					"name": "view_count",
+					"type": "integer"
+				}
+			],
+			"constraints": [
+			]
+		}
+	],
+	"relationships": [
+		{
+			"from_table": "",
+			"from_field": "",
+			"to_table": "",
+			"to_field": ""
+		},
+		{
+			"from_table": "",
+			"from_field": "",
+			"to_table": "",
+			"to_field": ""
+		}
+	]
+}
+'
+
 }
 
 #NOTE Go to https://www.mermaidchart.com/ and paste the script in the editor to see the diagram
+# Do the same with the other formats
 
 pf()
-# Executed in 0.10 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.22
 
 #==================================#
 #  ADVANCED VALIDATION AND EXPORY  #
