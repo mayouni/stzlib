@@ -1748,12 +1748,21 @@ func StringSection(str, n1, n2)
 	oQStr = new QString2()
 	oQStr.append(str)
 	
-	cResult = oQStr.mid( (n1 - 1) , (n2 - n1 + 1) )
+	cResult = oQStr.mid( (n1 - 2) , (n2 - n1 + 1) )
 	return cResult
 
 func @substr(str, p1, p2) #TODO // Move to stzExtCode
+
 	if isNumber(p1) and isNumber(p2)
 		return StringSection(str, p1, p2)
+
+	but isString(p1) and isNumber(p2)
+		oStr = new stzString(str)
+		nResult = oStr.FindFirstST(p1, p2)
+		return nResult
+
+	but isString(p1) and ( (isList(p2) and len(p2)=0) or (isNumber(p2) and p2 = 0) )
+		return substr(str, p1)
 
 	else
 		return substr(str, p1, p2)
