@@ -692,6 +692,128 @@ class stzDataModel from stzObject
             next
         next
         
+        # Constraint validation
+        for aConstraint in @aConstraints
+            nConstraintsValidated++
+            cTableName = aConstraint[:table]
+            cFieldName = aConstraint[:field]
+            cType = aConstraint[:type]
+            aTable = This.FindTable(cTableName)
+            
+            if aTable = NULL
+                @aValidationErrors + [ :type = "constraint", :severity = "error",
+                                     :message = "Table '" + cTableName + "' does not exist for constraint",
+                                     :table = cTableName, :constraint_type = cType ]
+                loop
+            ok
+            
+            if not This.FieldExists(aTable, cFieldName)
+                @aValidationErrors + [ :type = "constraint", :severity = "error",
+                                     :message = "Field '" + cFieldName + "' does not exist in table '" + cTableName + "'",
+                                     :table = cTableName, :field = cFieldName, :constraint_type = cType ]
+                loop
+            ok
+            
+            # Foreign key validation
+            if cType = "foreign_key"
+                nRelationshipsValidated++
+                aRefInfo = This.ParseForeignKey(aConstraint[:constraint])
+                if aRefInfo != NULL
+                    aRefTable = This.FindTable(aRefInfo[:table])
+                    if aRefTable = NULL
+                        @aValidationErrors + [ :type = "constraint", :severity = "error",
+                                             :message = "Referenced table '" + aRefInfo[:table] + "' does not exist",
+                                             :table = cTableName, :field = cFieldName, 
+                                             :referenced_table = aRefInfo[:table] ]
+                    else
+                        if not This.FieldExists(aRefTable, aRefInfo[:field])
+                            @aValidationErrors + [ :type = "constraint", :severity = "error",
+                                                 :message = "Referenced field '" + aRefInfo[:field] + 
+                                                           "' does not exist in table '" + aRefInfo[:table] + "'",
+                                                 :table = cTableName, :field = cFieldName,
+                                                 :referenced_table = aRefInfo[:table], 
+                                                 :referenced_field = aRefInfo[:field] ]
+                        ok
+                    ok
+                else
+                    @aValidationErrors + [ :type = "constraint", :severity = "warning",
+                                         :message = "Could not parse foreign key constraint: " + aConstraint[:constraint],
+                                         :table = cTableName, :field = cFieldName ]
+                ok
+            ok
+            
+            # Check constraint syntax validation
+            if cType = "check"
+                if not This.ValidateCheckConstraint(aConstraint[:constraint])
+                    @aValidationErrors + [ :type = "constraint", :severity = "warning",
+                                         :message = "Potentially invalid CHECK constraint syntax",
+                                         :table = cTableName, :field = cFieldName,
+                                         :constraint = aConstraint[:constraint] ]
+                ok
+            ok
+        next
+        
+        # Constraint validation
+        for aConstraint in @aConstraints
+            nConstraintsValidated++
+            cTableName = aConstraint[:table]
+            cFieldName = aConstraint[:field]
+            cType = aConstraint[:type]
+            aTable = This.FindTable(cTableName)
+            
+            if aTable = NULL
+                @aValidationErrors + [ :type = "constraint", :severity = "error",
+                                     :message = "Table '" + cTableName + "' does not exist for constraint",
+                                     :table = cTableName, :constraint_type = cType ]
+                loop
+            ok
+            
+            if not This.FieldExists(aTable, cFieldName)
+                @aValidationErrors + [ :type = "constraint", :severity = "error",
+                                     :message = "Field '" + cFieldName + "' does not exist in table '" + cTableName + "'",
+                                     :table = cTableName, :field = cFieldName, :constraint_type = cType ]
+                loop
+            ok
+            
+            # Foreign key validation
+            if cType = "foreign_key"
+                nRelationshipsValidated++
+                aRefInfo = This.ParseForeignKey(aConstraint[:constraint])
+                if aRefInfo != NULL
+                    aRefTable = This.FindTable(aRefInfo[:table])
+                    if aRefTable = NULL
+                        @aValidationErrors + [ :type = "constraint", :severity = "error",
+                                             :message = "Referenced table '" + aRefInfo[:table] + "' does not exist",
+                                             :table = cTableName, :field = cFieldName, 
+                                             :referenced_table = aRefInfo[:table] ]
+                    else
+                        if not This.FieldExists(aRefTable, aRefInfo[:field])
+                            @aValidationErrors + [ :type = "constraint", :severity = "error",
+                                                 :message = "Referenced field '" + aRefInfo[:field] + 
+                                                           "' does not exist in table '" + aRefInfo[:table] + "'",
+                                                 :table = cTableName, :field = cFieldName,
+                                                 :referenced_table = aRefInfo[:table], 
+                                                 :referenced_field = aRefInfo[:field] ]
+                        ok
+                    ok
+                else
+                    @aValidationErrors + [ :type = "constraint", :severity = "warning",
+                                         :message = "Could not parse foreign key constraint: " + aConstraint[:constraint],
+                                         :table = cTableName, :field = cFieldName ]
+                ok
+            ok
+            
+            # Check constraint syntax validation
+            if cType = "check"
+                if not This.ValidateCheckConstraint(aConstraint[:constraint])
+                    @aValidationErrors + [ :type = "constraint", :severity = "warning",
+                                         :message = "Potentially invalid CHECK constraint syntax",
+                                         :table = cTableName, :field = cFieldName,
+                                         :constraint = aConstraint[:constraint] ]
+                ok
+            ok
+        next
+        
         return [
             :valid = (len(@aValidationErrors) = 0),
             :errors = @aValidationErrors,
@@ -701,6 +823,29 @@ class stzDataModel from stzObject
             :relationships_validated = nRelationshipsValidated,
             :summary = This.ValidationSummary()
         ]
+
+    # Basic check constraint validation
+    def ValidateCheckConstraint(cConstraint)
+        cUpper = upper(cConstraint)
+        # Basic syntax checks
+        if substr(cUpper, "CHECK") = 0
+            return FALSE
+        ok
+        
+        # Check for balanced parentheses
+        nOpenParens = 0
+        nCloseParens = 0
+        for i = 1 to len(cConstraint)
+            if cConstraint[i] = "("
+                nOpenParens++
+            but cConstraint[i] = ")"
+                nCloseParens++
+            ok
+        next
+        
+        return (nOpenParens = nCloseParens)
+
+
 
     # Generate validation summary
     def ValidationSummary()

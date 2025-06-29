@@ -550,7 +550,7 @@ pr()
 pf()
 
 /*--- Diagram generation: for use wit hexternal tool to visualize the diagram
-*/
+
 pr()
 
 o1 = new stzDataModel("blog_platform")
@@ -765,7 +765,7 @@ pf()
 
 
 /*--- Field-level validation and constraints
-
+*/
 pr()
 
 o1 = new stzDataModel("user_management")
@@ -781,21 +781,22 @@ o1 {
     # Add custom constraints
     AddConstraint("users", "age", "CHECK (age >= 18 AND age <= 120)")
     AddConstraint("users", "status", "CHECK (status IN ('active', 'inactive', 'suspended'))")
-    
+    ? len(@aConstraints)
+? @@NL(@aConstraints)
     # Validate the enhanced model
     validation = Validate()
     ? BoxRound("Validation result")
     ? @@NL( validation ) + NL
 
 	? BoxRound("DDL script")
-	? ExportDDL()
+	? ToDDL()
 
 	#NOTE //Data definition language (DDL) describes the portion
 	# of SQL that creates, alters, and deletes database objects.
 
 }
 #-->
-"
+'
 ╭───────────────────╮
 │ Validation result │
 ╰───────────────────╯
@@ -811,7 +812,8 @@ o1 {
 		"Validation completed: All checks passed"
 	]
 ]
-
+'
+"
 ╭────────────╮
 │ DDL script │
 ╰────────────╯
