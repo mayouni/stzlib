@@ -2,6 +2,7 @@
 
 	#-- Loading files files related to DATA wings modules (data modeling)
 
+		load "../data/stzDataModelData.ring"
 		load "data-wings/dataphore/stzDataModel.ring"
 
 		load "data-wings/dataphore/stzDatabaseModel.ring"

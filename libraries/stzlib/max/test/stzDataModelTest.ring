@@ -1823,7 +1823,7 @@ pf()
 # Executed in 0.15 second(s) in Ring 1.22
 
 /*--- Creating blog platform model from template
-
+*/
 pr()
 
 o1 = new stzDataModel("BlogPlatform")
@@ -1868,6 +1868,8 @@ pf()
 #================================#
 #  ADVANCED COMBINATION EXAMPLE  #
 #================================#
+
+/*---
 
 pr()
 
@@ -2137,10 +2139,12 @@ pr()
 # You can get a more elaborated help by using the XT-version instead
 ? BoxRound("Full help (Actions + Usecase advice)") + NL
 ? HelpXT(:stzDataModel)
-#--> "
+#-->
+"
 ╭──────────────────────────────────────╮
 │ Full help (Actions + Usecase advice) │
 ╰──────────────────────────────────────╯
+
 1. START SIMPLE: Use naming conventions for automatic relationship inference
    - Example: 'customer_id' in 'orders' auto-links to 'customers.id'
 
@@ -2161,6 +2165,7 @@ pr()
 
 7. PLAN MIGRATIONS: Use staged approach for production schema changes
    - Example: Analyze, assess impact, check performance, validate
+
 WHEN TO USE EACH FEATURE:
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -2188,6 +2193,10 @@ WHEN TO USE EACH FEATURE:
 • GetERDData(): When generating documentation or visual diagrams
   - Use to create ERD scripts for external visualization tools
 "
+
+#NOTE The help() function can also be called from inside the object:
+# o1 = new stzDataModel("...")
+# ? o1.Help()
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
