@@ -1,5 +1,60 @@
 $acDataModelValidationModes = ["strict", "warning", "permissive"]
 
+$cDataModelHelp = "
+1. START SIMPLE: Use naming conventions for automatic relationship inference
+   - Example: 'customer_id' in 'orders' auto-links to 'customers.id'
+
+2. BE EXPLICIT: Use Link(), Hierarchy(), Network() for complex relationships  
+   - Example: Many-to-many via Link(), hierarchies via Hierarchy()
+
+3. VALIDATE EARLY: Always run Validate() before production deployment
+   - Example: Catch errors like duplicate fields or invalid constraints
+
+4. EVOLVE SAFELY: Use impact analysis for schema changes
+   - Example: Check impact before adding/removing fields
+
+5. OPTIMIZE SMART: Follow performance hints to prevent slow queries
+   - Example: Add indexes, use eager loading based on PerfHints()
+
+6. DEBUG VISUALLY: Use Explain() and GetERDData() for model understanding
+   - Example: Generate summaries and ERD scripts for visualization
+
+7. PLAN MIGRATIONS: Use staged approach for production schema changes
+   - Example: Analyze, assess impact, check performance, validate
+"
+
+$cDataModelHelpXT = "
+WHEN TO USE EACH FEATURE:
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+• AddTable(): Basic schema definition with smart defaults
+  - Use for initial table creation with inferred relationships
+
+• Link(): Complex relationships that can't be auto-inferred  
+  - Use for many-to-many or custom relationships
+
+• Hierarchy(): Parent-child trees (categories, org charts)
+  - Use for self-referencing hierarchical structures
+
+• Network(): Peer-to-peer connections (social networks, graphs)
+  - Use for complex, non-hierarchical relationships
+
+• Validate(): Before any production deployment or major change
+  - Use to ensure model integrity and catch errors
+
+• PerfHints(): When queries become slow
+  - Use to get optimization recommendations
+
+• Explain(): When debugging complex models or onboarding new developers
+  - Use for quick model summaries and understanding
+
+• GetERDData(): When generating documentation or visual diagrams
+  - Use to create ERD scripts for external visualization tools
+"
+
+$aGlobalHelp + [ "stzdatamodel", [ @trim($cDataModelHelp), @trim($cDataModelHelpXT) ] ]
+
+
 func DataModelValidationModes()
 	return $acDataModelValidationModes
 
@@ -153,6 +208,10 @@ class stzDataModel from stzObject
 
         return @aValidationErrors
 
+		def ValidationXT()
+			return This.ValidateXT()
+
+
     def Validate()
         This.ValidateXT()
 
@@ -170,6 +229,9 @@ class stzDataModel from stzObject
             :errors_count = nErrors,
             :warnings_count = nWarnings
         ]
+
+		def Validation()
+			return This.Validate()
 
     #================================#
     #  TABLE MANAGEMENT             #
@@ -877,3 +939,9 @@ class stzDataModel from stzObject
         other
             return cRelType
         off
+
+	def Help()
+		return $cDataModelHelp
+
+	def HelpXT()
+		return $cDataModelHelp + NL + $cDataModelHelpXT
