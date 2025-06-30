@@ -1,62 +1,8 @@
-$acDataModelValidationModes = ["strict", "warning", "permissive"]
+#====================#
+# stzDataModel class #
+#====================#
 
-$cDataModelHelp = "
-1. START SIMPLE: Use naming conventions for automatic relationship inference
-   - Example: 'customer_id' in 'orders' auto-links to 'customers.id'
-
-2. BE EXPLICIT: Use Link(), Hierarchy(), Network() for complex relationships  
-   - Example: Many-to-many via Link(), hierarchies via Hierarchy()
-
-3. VALIDATE EARLY: Always run Validate() before production deployment
-   - Example: Catch errors like duplicate fields or invalid constraints
-
-4. EVOLVE SAFELY: Use impact analysis for schema changes
-   - Example: Check impact before adding/removing fields
-
-5. OPTIMIZE SMART: Follow performance hints to prevent slow queries
-   - Example: Add indexes, use eager loading based on PerfHints()
-
-6. DEBUG VISUALLY: Use Explain() and GetERDData() for model understanding
-   - Example: Generate summaries and ERD scripts for visualization
-
-7. PLAN MIGRATIONS: Use staged approach for production schema changes
-   - Example: Analyze, assess impact, check performance, validate
-"
-
-$cDataModelHelpXT = "
-WHEN TO USE EACH FEATURE:
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-• AddTable(): Basic schema definition with smart defaults
-  - Use for initial table creation with inferred relationships
-
-• Link(): Complex relationships that can't be auto-inferred  
-  - Use for many-to-many or custom relationships
-
-• Hierarchy(): Parent-child trees (categories, org charts)
-  - Use for self-referencing hierarchical structures
-
-• Network(): Peer-to-peer connections (social networks, graphs)
-  - Use for complex, non-hierarchical relationships
-
-• Validate(): Before any production deployment or major change
-  - Use to ensure model integrity and catch errors
-
-• PerfHints(): When queries become slow
-  - Use to get optimization recommendations
-
-• Explain(): When debugging complex models or onboarding new developers
-  - Use for quick model summaries and understanding
-
-• GetERDData(): When generating documentation or visual diagrams
-  - Use to create ERD scripts for external visualization tools
-"
-
-$aGlobalHelp + [ "stzdatamodel", [ @trim($cDataModelHelp), @trim($cDataModelHelpXT) ] ]
-
-
-func DataModelValidationModes()
-	return $acDataModelValidationModes
+# Depends on data loaded in stzDataModelData.ring
 
 class stzDataModel from stzObject
 
@@ -181,7 +127,7 @@ class stzDataModel from stzObject
 
     def ValidateXT()
         @aValidationErrors = []
-
+		
         for table in @aTables
             if table[:name] = "" or table[:name] = NULL
                 if @cValidationMode = "strict"
@@ -818,37 +764,34 @@ class stzDataModel from stzObject
         cJSON += "}"
         return cJSON
 
-    #================================#
-    #  TEMPLATE SYSTEM              #
-    #================================#
+    #===================#
+    #  TEMPLATE SYSTEM  #
+    #===================#
 
     def UseTemplate(cTemplateName)
-        switch cTemplateName
-        on "ecommerce_basic"
-            This.AddTable("customers", [ ["id", "integer"], ["name", "text"] ])
-            This.AddTable("orders", [ ["id", "integer"], ["customer_id", "integer"] ])
-            This.AddTable("products", [ ["id", "integer"], ["name", "text"] ])
-            This.Link("orders", "customers", "belongs_to", [])
-            This.Link("orders", "products", "has_many", [])
 
-        on "social_network"
-            This.AddTable("users", [ ["id", "integer"], ["username", "text"] ])
-            This.AddTable("posts", [ ["id", "integer"], ["user_id", "integer"] ])
-            This.AddTable("follows", [ ["follower_id", "integer"], ["followed_id", "integer"] ])
-            This.Link("posts", "users", "belongs_to", [])
-            This.Link("users", "follows", "many_to_many", [ :via = "follows" ])
-
-        on "blog_platform"
-            This.AddTable("authors", [ ["id", "integer"], ["name", "text"] ])
-            This.AddTable("articles", [ ["id", "integer"], ["author_id", "integer"] ])
-            This.AddTable("categories", [ ["id", "integer"], ["name", "text"] ])
-            This.Link("articles", "authors", "belongs_to", [])
-            This.Link("articles", "categories", "has_many", [])
-
-        other
-            stzraise("Unknown template: " + cTemplateName)
-        off
-        return This
+	    aTemplate = FindTemplateByName(cTemplateName)
+	    if aTemplate = NULL
+	        stzraise("Unknown template: " + cTemplateName)
+	    ok
+	
+	    # Apply tables
+	    aTables = aTemplate[2][1][2]  # Get tables array
+	    for aTable in aTables
+	        cTableName = aTable[1]
+	        aColumns = aTable[2]
+	        This.AddTable(cTableName, aColumns)
+	    next
+	
+	    # Apply relations
+	    aRelations = aTemplate[2][2][2]  # Get relations array
+	    for aRelation in aRelations
+	        cFromTable = aRelation[1]
+	        cToTable = aRelation[2][1]
+	        cRelationType = aRelation[2][2]
+	        aOptions = aRelation[2][3]
+	        This.Link(cFromTable, cToTable, cRelationType, aOptions)
+	    next
 
     #================================#
     #  UTILITY METHODS              #
