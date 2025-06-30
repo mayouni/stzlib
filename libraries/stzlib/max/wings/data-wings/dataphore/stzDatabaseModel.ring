@@ -16,7 +16,7 @@ class stzDatabaseModel from stzDataModel
         @aPerfHints = []
         @cForeignKeyMode = "smart"
         @cActivePerfPlan = "default"
-        @oPerfEngine = new stzDataPerfEngine()
+        @oPerfEngine = new stzDatabasePerfEngine()
 
     # Configuration methods
     def SetForeignKeyInferenceMode(cMode)

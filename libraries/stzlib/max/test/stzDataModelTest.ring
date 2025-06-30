@@ -458,7 +458,7 @@ o1 {
     ])
 
     # Set the default performance plan (already set by init)
-    UsePerfPlan("default")
+    UsePerfPlan("default") # other plans include "web", "mobile", and "data_analytics"
     
     # Analyze performance
 
@@ -784,7 +784,7 @@ pf()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*=== Importing a DDL definition script
-
+*/
 pr()
 
 cMyDDL = "
@@ -1084,7 +1084,7 @@ pf()
 # Executed in 0.41 second(s) in Ring 1.22
 
 /*--- Migration workflow for production systems
-*/
+
 pr()
 
 o1 = new stzDatabaseModel([ "ecommerce_complete", "3.0"])
@@ -1313,6 +1313,410 @@ pf()
 #=== #TODO
 
 //Test AnalyzeFieldAdditionImpact and other untesed methods
+
+#=============================================#
+#  AUTOMATIC DATA MODEL VALIDATION (3 MODES)  #
+#=============================================#
+
+
+/*--- Validation the data model with STRICT mode
+
+pr()
+
+# Create model with strict validation
+o1 = new stzDataModel("StrictModel")
+o1 {
+	SetValidationMode("strict")
+
+	# Add problematic data to test validation
+	o1.AddTable("", [['id', 'integer']])  # Empty table name
+	o1.AddTable("users", [["name", "text"], ["name", "text"]])  # Duplicate field
+	
+	# Validate the model in the strict mode
+	? BoxRound("Active Validation Mode")
+	? ValidationMode() + NL
+
+	# A summary of the validation
+	? BoxRound("How Many Errors and Warnings")
+	? @@NL( Validate() ) + NL
+
+	# Detailed info about the validation
+	? BoxRound("Detailed Errors and Warnings")
+	? @@NL( ValidateXT() ) + NL
+
+	? BoxRound("Only Errors")
+	? @@NL( Errors() ) + NL
+
+	? BoxRound("Only Warnings")
+	? @@NL( Warnings() )
+}
+#-->
+'
+╭────────────────────────╮
+│ Active Validation Mode │
+╰────────────────────────╯
+strict
+
+╭──────────────────────────────╮
+│ How Many Errors and Warnings │
+╰──────────────────────────────╯
+[
+	[ "errors_count", 2 ],
+	[ "warnings_count", 0 ]
+]
+
+╭──────────────────────────────╮
+│ Detailed Errors and Warnings │
+╰──────────────────────────────╯
+[
+	[
+		[ "type", "table" ],
+		[ "severity", "error" ],
+		[ "message", "Table has no name" ]
+	],
+	[
+		[ "type", "field" ],
+		[ "severity", "error" ],
+		[ "message", "Duplicate field: name" ]
+	]
+]
+
+╭─────────────╮
+│ Only Errors │
+╰─────────────╯
+[
+	[
+		[ "type", "table" ],
+		[ "severity", "error" ],
+		[ "message", "Table has no name" ]
+	],
+	[
+		[ "type", "field" ],
+		[ "severity", "error" ],
+		[ "message", "Duplicate field: name" ]
+	]
+]
+
+╭───────────────╮
+│ Only Warnings │
+╰───────────────╯
+[ ]
+'
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*--- Validation the data model with WARNING mode
+
+pr()
+
+o1 = new stzDataModel("WarningModel")
+o1 {
+	SetValidationMode("warning")
+
+	# Adding a table with an invalid empty name
+	AddTable('', [["id", "integer"]])
+
+	# Adding a table with a dublicated field
+	AddTable("users", [["name", "text"], ["name", "text"]])
+
+	# Validate the model in the Warning mode
+	? BoxRound("Active Validation Mode")
+	? ValidationMode() + NL
+
+	# A summary of the validation
+	? BoxRound("How Many Errors and Warnings")
+	? @@NL( Validate() ) + NL
+
+	# Detailed info about the validation
+	? BoxRound("Detailed Errors and Warnings")
+	? @@NL( ValidateXT() ) + NL
+
+	? BoxRound("Only Errors")
+	? @@NL( Errors() ) + NL
+
+	? BoxRound("Only Warnings")
+	? @@NL( Warnings() )
+
+}
+#-->
+'
+╭────────────────────────╮
+│ Active Validation Mode │
+╰────────────────────────╯
+warning
+
+╭──────────────────────────────╮
+│ How Many Errors and Warnings │
+╰──────────────────────────────╯
+[
+	[ "errors_count", 1 ],
+	[ "warnings_count", 1 ]
+]
+
+╭──────────────────────────────╮
+│ Detailed Errors and Warnings │
+╰──────────────────────────────╯
+[
+	[
+		[ "type", "table" ],
+		[ "severity", "warning" ],
+		[ "message", "Table has no name" ]
+	],
+	[
+		[ "type", "field" ],
+		[ "severity", "error" ],
+		[ "message", "Duplicate field: name" ]
+	]
+]
+
+╭─────────────╮
+│ Only Errors │
+╰─────────────╯
+[
+	[
+		[ "type", "field" ],
+		[ "severity", "error" ],
+		[ "message", "Duplicate field: name" ]
+	]
+]
+
+╭───────────────╮
+│ Only Warnings │
+╰───────────────╯
+[
+	[
+		[ "type", "table" ],
+		[ "severity", "warning" ],
+		[ "message", "Table has no name" ]
+	]
+]
+'
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.22
+
+
+/*--- Validation the data model with PERMISSIVE mode
+*/
+pr()
+
+o1 = new stzDataModel("PermissiveModel")
+o1 {
+	SetValidationMode("permissive")
+
+	AddTable("", [["id", "integer"]])  # Will be auto-fixed
+	AddTable("users", [["email", "text"]])
+
+	# Setting the model validation on the PERMISSIVE mode
+	? ValidationMode()
+	#--> permissive
+
+	# Tables names before validation
+	? @@( TablesNames() ) + NL
+	#--> [ "", "users" ]
+
+	# Performing the validation (no errors nor warnings are raised)
+	? @@( Validate() ) + NL
+	#--> [ [ "errors_count", 0 ], [ "warnings_count", 0 ] ]
+
+	# Tables names after validation (autofixed due to PERMISSIVE mode)
+
+	? @@( TablesNames() )
+	#--> [ "unnamed_table_2", "users" ]
+
+}
+
+#TODO Add more interesting configurable autofixes plans
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+
+# ===========================================
+# 2. RELATIONSHIP METADATA EXAMPLE
+# ===========================================
+
+? "\n=== RELATIONSHIP METADATA DEMO ==="
+
+# Create a social media model with rich metadata
+social = new stzDataModel("SocialMediaPlatform")
+social.SetValidationMode("warning")
+
+# Add tables
+social.AddTable("users", [
+    ["id", "integer"],
+    ["username", "text"],
+    ["email", "text"],
+    ["created_at", "datetime"]
+])
+
+social.AddTable("posts", [
+    ["id", "integer"],
+    ["user_id", "integer"],
+    ["content", "text"],
+    ["created_at", "datetime"]
+])
+
+social.AddTable("likes", [
+    ["id", "integer"],
+    ["user_id", "integer"],
+    ["post_id", "integer"],
+    ["created_at", "datetime"]
+])
+
+social.AddTable("follows", [
+    ["id", "integer"],
+    ["follower_id", "integer"],
+    ["followed_id", "integer"],
+    ["created_at", "datetime"]
+])
+
+# Add relationships with rich metadata
+social.Link("posts", "users", "belongs_to", [
+    :via = "user_id",
+    :semantic = "Each post belongs to exactly one user",
+    :business_rule = "Posts cannot exist without a valid user"
+])
+
+social.Link("users", "posts", "has_many", [
+    :via = "user_id",
+    :semantic = "Users can create multiple posts",
+    :business_rule = "Users can have unlimited posts"
+])
+
+social.Link("users", "likes", "many_to_many", [
+    :via = "likes",
+    :semantic = "Users can like multiple posts, posts can be liked by multiple users",
+    :business_rule = "Users cannot like their own posts"
+])
+
+social.Link("users", "follows", "many_to_many", [
+    :via = "follows",
+    :semantic = "Users can follow other users bidirectionally",
+    :business_rule = "Users cannot follow themselves"
+])
+
+? "Social media model created with rich relationship metadata"
+? "Validation: " + social.ValidationSummary()
+
+# ===========================================
+# 3. TEMPLATE SYSTEM EXAMPLE
+# ===========================================
+
+? "\n=== TEMPLATE SYSTEM DEMO ==="
+
+# E-commerce template
+? "Creating e-commerce model from template..."
+ecommerce = new stzDataModel("EcommerceStore")
+ecommerce.UseTemplate("ecommerce_basic")
+ecommerce.SetValidationMode("strict")
+
+? "E-commerce template loaded"
+? "Validation: " + ecommerce.ValidationSummary()
+
+# Social network template
+? "\nCreating social network model from template..."
+social_net = new stzDataModel("SocialNetwork")
+social_net.UseTemplate("social_network")
+social_net.SetValidationMode("warning")
+
+? "Social network template loaded"
+? "Validation: " + social_net.ValidationSummary()
+
+# Blog platform template
+? "\nCreating blog platform model from template..."
+blog = new stzDataModel("BlogPlatform")
+blog.UseTemplate("blog_platform")
+blog.SetValidationMode("permissive")
+
+? "Blog platform template loaded"
+? "Validation: " + blog.ValidationSummary()
+
+# ===========================================
+# 4. ADVANCED COMBINATION EXAMPLE
+# ===========================================
+
+? "\n=== ADVANCED COMBINATION DEMO ==="
+
+# Start with template and customize
+advanced = new stzDataModel("AdvancedEcommerce")
+advanced.SetValidationMode("strict")
+advanced.UseTemplate("ecommerce_basic")
+
+# Add custom fields to existing tables
+advanced.AddField("customers", "email", "text", [:required = true])
+advanced.AddField("customers", "phone", "text", [:optional = true])
+advanced.AddField("products", "price", "decimal", [:required = true, :min = 0])
+advanced.AddField("products", "category_id", "integer", [:foreign_key = "categories"])
+
+# Add new tables
+advanced.AddTable("categories", [
+    ["id", "integer"],
+    ["name", "text"],
+    ["description", "text"]
+])
+
+advanced.AddTable("order_items", [
+    ["id", "integer"],
+    ["order_id", "integer"],
+    ["product_id", "integer"],
+    ["quantity", "integer"],
+    ["unit_price", "decimal"]
+])
+
+# Add relationships with metadata
+advanced.Link("products", "categories", "belongs_to", [
+    :via = "category_id",
+    :semantic = "Products are organized into categories",
+    :business_rule = "All products must belong to a category"
+])
+
+advanced.Link("orders", "order_items", "has_many", [
+    :via = "order_id",
+    :semantic = "Orders contain multiple line items",
+    :business_rule = "Orders must have at least one item"
+])
+
+advanced.Link("order_items", "products", "belongs_to", [
+    :via = "product_id",
+    :semantic = "Each order item references a specific product",
+    :business_rule = "Order items must reference valid products"
+])
+
+? "Advanced e-commerce model created"
+? "Final validation: " + advanced.ValidationSummary()
+
+# ===========================================
+# 5. ERROR HANDLING EXAMPLE
+# ===========================================
+
+? "\n=== ERROR HANDLING DEMO ==="
+
+error_model = new stzDataModel("ErrorDemo")
+
+# Try invalid validation mode
+try
+    error_model.SetValidationMode("invalid_mode")
+catch
+    ? "✓ Caught invalid validation mode error"
+done
+
+# Try unknown template
+try
+    error_model.UseTemplate("nonexistent_template")
+catch
+    ? "✓ Caught unknown template error"
+done
+
+# Try accessing non-existent table
+try
+    error_model.Table("nonexistent_table")
+catch
+    ? "✓ Caught table not found error"
+done
+
+? "\nAll examples completed successfully!"
 
 #=======================#
 #  EDUCATIONAL SUMMARY  #
