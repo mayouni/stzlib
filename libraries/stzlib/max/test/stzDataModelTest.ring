@@ -68,7 +68,7 @@ o1 {
 '
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.06 second(s) in Ring 1.22
 
 #==================================#
 #  EXPLICIT RELATIONSHIP MODELING  #
@@ -192,7 +192,7 @@ o1 {
 '
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.16 second(s) in Ring 1.22
 
 /*---
 
@@ -309,7 +309,7 @@ o1 {
 '
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.15 second(s) in Ring 1.22
 
 #================================#
 #  SCHEMA EVOLUTION & MIGRATION  #
@@ -386,7 +386,7 @@ Breaking change prevented: Cannot remove field "category_id" - breaks relationsh
 '
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.16 second(s) in Ring 1.22
 
 /*--- Version control for schema evolution
 
@@ -429,7 +429,7 @@ Key relationships:
 '
 
 pf()
-# Executed in 0.10 second(s) in Ring 1.22
+# Executed in 0.06 second(s) in Ring 1.22
 
 #============================#
 #  PERFORMANCE OPTIMIZATION  #
@@ -439,7 +439,7 @@ pf()
 
 pr()
 
-o1 = new stzDataModel("blog_platform")
+o1 = new stzDatabaseModel("blog_platform")
 o1 {
     AddTable("authors", [
         [ "id", :primary_key ],
@@ -544,12 +544,11 @@ pf()
 # Executed in 0.06 second(s) in Ring 1.22
 
 
-
 /*--- Diagram generation: for use wit hexternal tool to visualize the diagram
 
 pr()
 
-o1 = new stzDataModel("blog_platform")
+o1 = new stzDatabaseModel("blog_platform")
 o1 {
     AddTable("authors", [
         [ "id", :primary_key ],
@@ -694,7 +693,7 @@ authors ||--o{ articles
 				{
 					"field": "email",
 					"type": "check",
-					"constraint": "CHECK (email LIKE '%@%')"
+					"constraint": "CHECK (email LIKE `%@%`)"
 				}
 			]
 		},
@@ -747,55 +746,179 @@ authors ||--o{ articles
 }
 '
 
+    # Generate entity-relationship diagram script for the Mermaid online tool
+	? BoxRound("DBML SCRIPT")
+    ? ToDBML()
+	#-->
+"
+Project blog_platform {
+  database_type: 'Generic'
+  Note: 'Generated from stzDataModel'
+}
+
+Table authors {
+  id primary_key
+  name required
+  email email
+  bio text
+}
+
+Table articles {
+  id primary_key
+  author_id foreign_key
+  title required
+  content text
+  published_at timestamp
+  view_count int
+}
+
+Ref: articles.author_id > authors.id
+"
+
 }
 
 #NOTE Go to https://www.mermaidchart.com/ and paste the script in the editor to see the diagram
 # Do the same with the other formats
 
 pf()
-# Executed in 0.12 second(s) in Ring 1.22
+# Executed in 0.32 second(s) in Ring 1.22
 
-/*---
-*/
+/*=== Importing a DDL definition script
+
 pr()
 
 cMyDDL = "
 CREATE TABLE authors (
     id INTEGER PRIMARY KEY,
-    id INTEGER PRIMARY KEY NOT NULL,
-    id INTEGER PRIMARY KEY,
-    id INTEGER PRIMARY KEY
+	name TEXT REQUIRED,
+	email EMAIL,
+	bio TEXT
 );
 
 CREATE TABLE articles (
-    author_id TEXT,
-    author_id TEXT,
-    author_id TEXT NOT NULL,
-    author_id TEXT,
-    author_id TEXT,
-    author_id TEXT
+    author_id TEXT FOREIGN KEY,
+	title TEXT REQUIRED,
+    content TEXT NOT NULL,
+    published_at TIMESTAMP,
+    view_count INTEGER
 );
 
-ALTER TABLE authors ADD CONSTRAINT authors_email_check CHECK (email LIKE '%@%');
+ALTER TABLE authors ADD CONSTRAINT authors_email_check CHECK (email LIKE " + SingleQuote() + "%@%" + SingleQuote() + ");
 "
 
-o1 = new stzDataModel("imported_schema")
+o1 = new stzDatabaseModel("imported_schema")
 o1.FromDDL(cMyDDL)
 ? @@NL( o1.Summary() )
-
+#-->
+'
+[
+	[ "name", "imported_schema" ],
+	[ "version", "1.0" ],
+	[ "tablescount", 2 ],
+	[
+		"tables",
+		[
+			[
+				[
+					"authors",
+					[
+						[ "fieldscount", 4 ],
+						[ "relationscount", 2 ]
+					]
+				]
+			],
+			[
+				[
+					"articles",
+					[
+						[ "fieldscount", 5 ],
+						[ "relationscount", 2 ]
+					]
+				]
+			]
+		]
+	]
+]
+'
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.22
+
+/*--- Importing a MermaidERD diagram
+
+pr()
+
+cMyMermaid = '
+erDiagram
+    authors {
+        primary_key id
+        required name
+        email email
+        text bio
+    }
+
+    articles {
+        primary_key id
+        foreign_key author_id FK
+        required title
+        text content
+        timestamp published_at
+        integer view_count
+    }
+
+    articles ||--o{ authors : "belongs to"
+    authors ||--o{ articles : "has"
+'
+
+o1 = new stzDatabaseModel("imported_schema")
+o1.FromMermaid(cMyMermaid)
+
+? @@NL( o1.Summary() )
+#-->
+'
+[
+	[ "name", "imported_schema" ],
+	[ "version", "1.0" ],
+	[ "tablescount", 2 ],
+	[
+		"tables",
+		[
+			[
+				[
+					"authors",
+					[
+						[ "fieldscount", 4 ],
+						[ "relationscount", 2 ]
+					]
+				]
+			],
+			[
+				[
+					"articles",
+					[
+						[ "fieldscount", 6 ],
+						[ "relationscount", 2 ]
+					]
+				]
+			]
+		]
+	]
+]
+'
+
+pf()
+# Executed in 0.03 second(s) in Ring 1.22
+
 
 #==================================#
 #  ADVANCED VALIDATION AND EXPORY  #
 #==================================#
 
-
 /*--- Field-level validation and constraints
 
 pr()
 
-o1 = new stzDataModel("user_management")
+o1 = new stzDatabaseModel("user_management")
 o1 {
     AddTable("users", [
         [ "id", :primary_key ],
@@ -808,8 +931,7 @@ o1 {
     # Add custom constraints
     AddConstraint("users", "age", "CHECK (age >= 18 AND age <= 120)")
     AddConstraint("users", "status", "CHECK (status IN ('active', 'inactive', 'suspended'))")
-    ? len(@aConstraints)
-? @@NL(@aConstraints)
+
     # Validate the enhanced model
     validation = Validate()
     ? BoxRound("Validation result")
@@ -831,13 +953,7 @@ o1 {
 	[ "valid", 1 ],
 	[ "errors", [  ] ],
 	[ "error_count", 0 ],
-	[ "tables_validated", 1 ],
-	[ "constraints_validated", 5 ],
-	[ "relationships_validated", 0 ],
-	[
-		"summary",
-		"Validation completed: All checks passed"
-	]
+	[ "tables_validated", 1 ]
 ]
 '
 "
@@ -845,17 +961,16 @@ o1 {
 │ DDL script │
 ╰────────────╯
 CREATE TABLE users (
-    id primary_key,
-    username required,
-    email email,
-    age integer,
-    status varchar(20)
+    id INTEGER PRIMARY KEY,
+    username VARCHAR(255) NOT NULL NOT NULL,
+    email VARCHAR(255),
+    age INTEGER,
+    status VARCHAR(20)
 );
 
-ALTER TABLE users ADD CONSTRAINT NOT NULL;
-ALTER TABLE users ADD CONSTRAINT CHECK (email LIKE '%@%');
-ALTER TABLE users ADD CONSTRAINT CHECK (age >= 18 AND age <= 120);
-ALTER TABLE users ADD CONSTRAINT CHECK (status IN ('active', 'inactive', 'suspended'));
+ALTER TABLE users ADD CONSTRAINT users_email_check CHECK (email LIKE '%@%');
+ALTER TABLE users ADD CONSTRAINT users_age_check CHECK (age >= 18 AND age <= 120);
+ALTER TABLE users ADD CONSTRAINT users_status_check CHECK (status IN ('active', 'inactive', 'suspended'));
 "
 
 pf()
@@ -920,7 +1035,7 @@ o1 {
     
     # Comprehensive explanation
 
-    ? BoxRound("Complete e-commerce model:")
+    ? BoxRound("Complete e-commerce model")
     ? Explain() + NL
     
 	# Detailed validation
@@ -931,17 +1046,25 @@ o1 {
 }
 #-->
 '
-╭────────────────────────────╮
-│ Complete e-commerce model: │
-╰────────────────────────────╯
+╭───────────────────────────╮
+│ Complete e-commerce model │
+╰───────────────────────────╯
 This model contains 5 tables:
-• customers: 5 fields, 1 relationships
-• categories: 4 fields, 1 relationships
-• products: 5 fields, 1 relationships
-• orders: 5 fields, 1 relationships
-• order_items: 5 fields, 0 relationships
+• customers: 5 fields, 3 relationships
+• categories: 4 fields, 3 relationships
+• products: 5 fields, 5 relationships
+• orders: 5 fields, 5 relationships
+• order_items: 5 fields, 4 relationships
 
 Key relationships:
+• products belongs_to categories
+• categories has_many products
+• orders belongs_to customers
+• customers has_many orders
+• order_items belongs_to orders
+• orders has_many order_items
+• order_items belongs_to products
+• products has_many order_items
 • customers hierarchy customers
 • categories hierarchy categories
 • orders many_to_many products
@@ -954,23 +1077,17 @@ Key relationships:
 	[ "valid", 1 ],
 	[ "errors", [  ] ],
 	[ "error_count", 0 ],
-	[ "tables_validated", 5 ],
-	[ "constraints_validated", 9 ],
-	[ "relationships_validated", 0 ],
-	[
-		"summary",
-		"Validation completed: All checks passed"
-	]
+	[ "tables_validated", 5 ]
 ]
 '
 pf()
-# Executed in 0.17 second(s) in Ring 1.22
+# Executed in 0.41 second(s) in Ring 1.22
 
 /*--- Migration workflow for production systems
 */
 pr()
 
-o1 = new stzDataModel([ "ecommerce_complete", "3.0"])
+o1 = new stzDatabaseModel([ "ecommerce_complete", "3.0"])
 o1 {
     AddTable("customers", [
         [ "id", :primary_key ],
@@ -1037,11 +1154,161 @@ o1 {
 }
 #-->
 '
+╭───────────────╮
+│ Current state │
+╰───────────────╯
+This model contains 5 tables:
+• customers: 5 fields, 5 relationships
+• categories: 4 fields, 5 relationships
+• products: 5 fields, 9 relationships
+• orders: 5 fields, 9 relationships
+• order_items: 5 fields, 8 relationships
 
+Key relationships:
+• products belongs_to categories
+• categories has_many products
+• products belongs_to categories
+• categories has_many products
+• orders belongs_to customers
+• customers has_many orders
+• orders belongs_to customers
+• customers has_many orders
+• order_items belongs_to orders
+• orders has_many order_items
+• order_items belongs_to products
+• products has_many order_items
+• order_items belongs_to orders
+• orders has_many order_items
+• order_items belongs_to products
+• products has_many order_items
+• customers hierarchy customers
+• categories hierarchy categories
+• orders many_to_many products
+
+
+╭───────────────────────────╮
+│ Migration impact analysis │
+╰───────────────────────────╯
+[
+	[ "breaking_changes", 0 ],
+	[ "perf_impact", "low" ],
+	[ "migration_complexity", "simple" ],
+	[ "affected_relationships", [  ] ],
+	[
+		"recommendations",
+		[
+			"Large text fields may impact query performance"
+		]
+	],
+	[
+		"field_info",
+		[
+			[ "table", "customers" ],
+			[ "field", "preferences" ],
+			[ "type", "text" ]
+		]
+	]
+]
+
+╭──────────────────────╮
+│ Performance analysis │
+╰──────────────────────╯
+[
+	[
+		[
+			"message",
+			"Consider adding index on products.category_id"
+		],
+		[
+			"action",
+			"CREATE INDEX idx_products_category_id ON products(category_id)"
+		]
+	],
+	[
+		[
+			"message",
+			"Consider adding index on orders.customer_id"
+		],
+		[
+			"action",
+			"CREATE INDEX idx_orders_customer_id ON orders(customer_id)"
+		]
+	],
+	[
+		[
+			"message",
+			"Consider adding index on order_items.order_id"
+		],
+		[
+			"action",
+			"CREATE INDEX idx_order_items_order_id ON order_items(order_id)"
+		]
+	],
+	[
+		[
+			"message",
+			"Consider adding index on order_items.product_id"
+		],
+		[
+			"action",
+			"CREATE INDEX idx_order_items_product_id ON order_items(product_id)"
+		]
+	],
+	[
+		[
+			"message",
+			"Monitor N+1 queries for categories -> products"
+		],
+		[
+			"action",
+			"Use eager loading for categories -> products"
+		]
+	],
+	[
+		[
+			"message",
+			"Monitor N+1 queries for customers -> orders"
+		],
+		[
+			"action",
+			"Use eager loading for customers -> orders"
+		]
+	],
+	[
+		[
+			"message",
+			"Monitor N+1 queries for orders -> order_items"
+		],
+		[
+			"action",
+			"Use eager loading for orders -> order_items"
+		]
+	],
+	[
+		[
+			"message",
+			"Monitor N+1 queries for products -> order_items"
+		],
+		[
+			"action",
+			"Use eager loading for products -> order_items"
+		]
+	]
+]
+
+╭──────────────────╮
+│ Final validation │
+╰──────────────────╯
+[
+	[ "valid", 1 ],
+	[ "errors", [  ] ],
+	[ "error_count", 0 ],
+	[ "tables_validated", 5 ]
+]
 '
 
 pf()
-# Executed in 1.47 second(s) in Ring 1.22
+# Executed in 0.70 second(s) in Ring 1.22
 
 #=== #TODO
 

@@ -9,7 +9,7 @@ load "../stzmax.ring"
 
 pr()
 
-o1 = new stzDataModel("blog_platform")
+o1 = new stzDatabaseModel("blog_platform")
 o1 {
     AddTable("authors", [
         [ "id", :primary_key ],
@@ -43,9 +43,6 @@ o1 {
 ╰───────────────────────────╯
 [
 	[
-		[ "rule_id", "basic_fk_index" ],
-		[ "type", "index_optimization" ],
-		[ "priority", "medium" ],
 		[
 			"message",
 			"Consider adding index on articles.author_id"
@@ -53,21 +50,9 @@ o1 {
 		[
 			"action",
 			"CREATE INDEX idx_articles_author_id ON articles(author_id)"
-		],
-		[ "impact", "medium" ],
-		[
-			"data",
-			[
-				[ "table", "articles" ],
-				[ "field", "author_id" ],
-				[ "related_table", "authors" ]
-			]
 		]
 	],
 	[
-		[ "rule_id", "query_awareness" ],
-		[ "type", "query_optimization" ],
-		[ "priority", "low" ],
 		[
 			"message",
 			"Monitor N+1 queries for authors -> articles"
@@ -75,27 +60,19 @@ o1 {
 		[
 			"action",
 			"Use eager loading for authors -> articles"
-		],
-		[ "impact", "medium" ],
-		[
-			"data",
-			[
-				[ "from_table", "authors" ],
-				[ "to_table", "articles" ]
-			]
 		]
 	]
 ]
 '
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.22
 
 /*--- Web Application Perf Plan
 
 pr()
 
-o1 = new stzDataModel("ecommerce_web")
+o1 = new stzDatabaseModel("ecommerce_web")
 o1 {
     AddTable("customers", [
         [ "id", :primary_key ],
@@ -152,34 +129,57 @@ o1 {
 		[ "type", "belongs_to" ],
 		[ "from", "orders" ],
 		[ "to", "customers" ],
-		[ "field", "customer_id" ]
+		[ "field", "customer_id" ],
+		[ "inferred", 1 ]
 	],
 	[
 		[ "type", "has_many" ],
 		[ "from", "customers" ],
-		[ "to", "orders" ]
+		[ "to", "orders" ],
+		[ "field", "customer_id" ],
+		[ "inferred", 1 ]
+	],
+	[
+		[ "from", "orders" ],
+		[ "to", "customers" ],
+		[ "type", "belongs_to" ],
+		[ "inferred", 1 ],
+		[ "field", "customer_id" ]
+	],
+	[
+		[ "from", "customers" ],
+		[ "to", "orders" ],
+		[ "type", "has_many" ],
+		[ "inferred", 1 ],
+		[ "field", "customer_id" ]
 	],
 	[
 		[ "type", "belongs_to" ],
 		[ "from", "order_items" ],
 		[ "to", "orders" ],
-		[ "field", "order_id" ]
+		[ "field", "order_id" ],
+		[ "inferred", 1 ]
 	],
 	[
 		[ "type", "has_many" ],
 		[ "from", "orders" ],
-		[ "to", "order_items" ]
+		[ "to", "order_items" ],
+		[ "field", "order_id" ],
+		[ "inferred", 1 ]
 	],
 	[
-		[ "type", "belongs_to" ],
 		[ "from", "order_items" ],
-		[ "to", "products" ],
-		[ "field", "product_id" ]
+		[ "to", "orders" ],
+		[ "type", "belongs_to" ],
+		[ "inferred", 1 ],
+		[ "field", "order_id" ]
 	],
 	[
+		[ "from", "orders" ],
+		[ "to", "order_items" ],
 		[ "type", "has_many" ],
-		[ "from", "products" ],
-		[ "to", "order_items" ]
+		[ "inferred", 1 ],
+		[ "field", "order_id" ]
 	]
 ]
 
@@ -187,20 +187,74 @@ o1 {
 │ Perf Hints - Web Plan │
 ╰───────────────────────╯
 [
-	"Foreign key orders.customer_id must have index for web performance",
-	"Foreign key order_items.order_id must have index for web performance",
-	"Foreign key order_items.product_id must have index for web performance",
-	"N+1 queries will impact customers -> orders performance",
-	"N+1 queries will impact orders -> order_items performance",
-	"N+1 queries will impact products -> order_items performance",
-	"Table orders needs pagination strategy",
-	"Table order_items needs pagination strategy"
+	[
+		[
+			"message",
+			"Foreign key orders.customer_id must have index for web performance"
+		],
+		[
+			"action",
+			"CREATE INDEX idx_orders_customer_id ON orders(customer_id)"
+		]
+	],
+	[
+		[
+			"message",
+			"Foreign key order_items.order_id must have index for web performance"
+		],
+		[
+			"action",
+			"CREATE INDEX idx_order_items_order_id ON order_items(order_id)"
+		]
+	],
+	[
+		[
+			"message",
+			"N+1 queries will impact customers -> orders performance"
+		],
+		[
+			"action",
+			"Implement eager loading for customers -> orders"
+		]
+	],
+	[
+		[
+			"message",
+			"N+1 queries will impact orders -> order_items performance"
+		],
+		[
+			"action",
+			"Implement eager loading for orders -> order_items"
+		]
+	]
 ]
 
 ╭──────────────────────────────────╮
 │ Perf Hints - Web Plan - Extended │
 ╰──────────────────────────────────╯
 [
+	[
+		[ "rule_id", "fk_index_mandatory" ],
+		[ "type", "index_optimization" ],
+		[ "priority", "high" ],
+		[
+			"message",
+			"Foreign key orders.customer_id must have index for web performance"
+		],
+		[
+			"action",
+			"CREATE INDEX idx_orders_customer_id ON orders(customer_id)"
+		],
+		[ "impact", "high" ],
+		[
+			"data",
+			[
+				[ "table", "orders" ],
+				[ "field", "customer_id" ],
+				[ "related_table", "customers" ]
+			]
+		]
+	],
 	[
 		[ "rule_id", "fk_index_mandatory" ],
 		[ "type", "index_optimization" ],
@@ -251,19 +305,40 @@ o1 {
 		[ "priority", "high" ],
 		[
 			"message",
-			"Foreign key order_items.product_id must have index for web performance"
+			"Foreign key order_items.order_id must have index for web performance"
 		],
 		[
 			"action",
-			"CREATE INDEX idx_order_items_product_id ON order_items(product_id)"
+			"CREATE INDEX idx_order_items_order_id ON order_items(order_id)"
 		],
 		[ "impact", "high" ],
 		[
 			"data",
 			[
 				[ "table", "order_items" ],
-				[ "field", "product_id" ],
-				[ "related_table", "products" ]
+				[ "field", "order_id" ],
+				[ "related_table", "orders" ]
+			]
+		]
+	],
+	[
+		[ "rule_id", "n_plus_one_prevention" ],
+		[ "type", "query_optimization" ],
+		[ "priority", "critical" ],
+		[
+			"message",
+			"N+1 queries will impact customers -> orders performance"
+		],
+		[
+			"action",
+			"Implement eager loading for customers -> orders"
+		],
+		[ "impact", "critical" ],
+		[
+			"data",
+			[
+				[ "from_table", "customers" ],
+				[ "to_table", "orders" ]
 			]
 		]
 	],
@@ -315,57 +390,18 @@ o1 {
 		[ "priority", "critical" ],
 		[
 			"message",
-			"N+1 queries will impact products -> order_items performance"
+			"N+1 queries will impact orders -> order_items performance"
 		],
 		[
 			"action",
-			"Implement eager loading for products -> order_items"
+			"Implement eager loading for orders -> order_items"
 		],
 		[ "impact", "critical" ],
 		[
 			"data",
 			[
-				[ "from_table", "products" ],
+				[ "from_table", "orders" ],
 				[ "to_table", "order_items" ]
-			]
-		]
-	],
-	[
-		[ "rule_id", "pagination_requirement" ],
-		[ "type", "data_access" ],
-		[ "priority", "high" ],
-		[
-			"message",
-			"Table orders needs pagination strategy"
-		],
-		[ "action", "Implement pagination for orders" ],
-		[ "impact", "high" ],
-		[
-			"data",
-			[
-				[ "table", "orders" ],
-				[ "relationship_count", 4 ]
-			]
-		]
-	],
-	[
-		[ "rule_id", "pagination_requirement" ],
-		[ "type", "data_access" ],
-		[ "priority", "high" ],
-		[
-			"message",
-			"Table order_items needs pagination strategy"
-		],
-		[
-			"action",
-			"Implement pagination for order_items"
-		],
-		[ "impact", "high" ],
-		[
-			"data",
-			[
-				[ "table", "order_items" ],
-				[ "relationship_count", 4 ]
 			]
 		]
 	]
@@ -373,13 +409,13 @@ o1 {
 '
 
 pf()
-# Executed in 0.10 second(s) in Ring 1.22
+# Executed in 0.34 second(s) in Ring 1.22
 
-/*--- Analytics/Reporting Perf Plan
+/*--- Analytics/Reporting Perf Plan #TODO chek empty output
 
 pr()
 
-o1 = new stzDataModel("sales_analytics")
+o1 = new stzDatabaseModel("sales_analytics")
 o1 {
     AddTable("sales_data", [
         [ "id", :primary_key ],
@@ -479,7 +515,7 @@ pf()
 
 pr()
 
-o1 = new stzDataModel("social_platform")
+o1 = new stzDatabaseModel("social_platform")
 o1 {
     AddTable("users", [
         [ "id", :primary_key ],
@@ -538,13 +574,6 @@ o1 {
 			"action",
 			"Implement eager loading for users -> posts"
 		]
-	],
-	[
-		[
-			"message",
-			"Table posts needs pagination strategy"
-		],
-		[ "action", "Implement pagination for posts" ]
 	]
 ]
 
@@ -556,12 +585,29 @@ o1 {
 		[ "type", "belongs_to" ],
 		[ "from", "posts" ],
 		[ "to", "users" ],
-		[ "field", "user_id" ]
+		[ "field", "user_id" ],
+		[ "inferred", 1 ]
 	],
 	[
 		[ "type", "has_many" ],
 		[ "from", "users" ],
-		[ "to", "posts" ]
+		[ "to", "posts" ],
+		[ "field", "user_id" ],
+		[ "inferred", 1 ]
+	],
+	[
+		[ "from", "posts" ],
+		[ "to", "users" ],
+		[ "type", "belongs_to" ],
+		[ "inferred", 1 ],
+		[ "field", "user_id" ]
+	],
+	[
+		[ "from", "users" ],
+		[ "to", "posts" ],
+		[ "type", "has_many" ],
+		[ "inferred", 1 ],
+		[ "field", "user_id" ]
 	],
 	[
 		[ "from", "posts" ],
@@ -579,13 +625,13 @@ o1 {
 '
 
 pf()
-# Executed in 0.04 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.22
 
 /*--- Hierarchical Data with Perf Considerations
 
 pr()
 
-o1 = new stzDataModel("content_hierarchy")
+o1 = new stzDatabaseModel("content_hierarchy")
 o1 {
     AddTable("categories", [
         [ "id", :primary_key ],
@@ -658,13 +704,13 @@ o1 {
 '
 
 pf()
-# Executed in 0.12 second(s) in Ring 1.22
+# Executed in 0.36 second(s) in Ring 1.22
 
 /*--- Perf Threshold Customization
 
 pr()
 
-o1 = new stzDataModel("threshold_testing")
+o1 = new stzDatabaseModel("threshold_testing")
 o1 {
     # Customize Perf thresholds
     SetPerfThreshold("table_field_count_high", 15)
@@ -722,13 +768,13 @@ Perf Thresholds:
 '
 
 pf()
-# Executed in 0.04 second(s) in Ring 1.22
+# Executed in 0.08 second(s) in Ring 1.22
 
 /*--- Perf Plan Comparison
 
 pr()
 
-o1 = new stzDataModel("plan_comparison")
+o1 = new stzDatabaseModel("plan_comparison")
 o1 {
     AddTable("users", [
         [ "id", :primary_key ],
@@ -763,13 +809,13 @@ o1 {
 '
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.22
 
-/*--- Generated Actions and SQL
-
+/*--- Generated Actions #TODO returns no hints
+*/
 pr()
 
-o1 = new stzDataModel("action_generation")
+o1 = new stzDatabaseModel("action_generation")
 o1 {
     AddTable("inventory", [
         [ "id", :primary_key ],

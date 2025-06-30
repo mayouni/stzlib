@@ -1734,23 +1734,6 @@ func BoxifyRound(str)
 
 	#>
 
-func StringSection(str, n1, n2)
-	if CheckParams()
-		if NOT isString(str)
-			StzRaise("Incorrect param type! str must be a string.")
-		ok
-
-		if NOT (isNumber(n1) and isNumber(n2))
-			StzRaise("Incorrect param type! Both n1 and n2 must be numbers.")
-		ok
-	ok
-
-	oQStr = new QString2()
-	oQStr.append(str)
-	
-	cResult = oQStr.mid( (n1 - 2) , (n2 - n1 + 1) )
-	return cResult
-
 func @substr(str, p1, p2) #TODO // Move to stzExtCode
 
 	if isNumber(p1) and isNumber(p2)
@@ -1768,6 +1751,23 @@ func @substr(str, p1, p2) #TODO // Move to stzExtCode
 
 		return substr(str, p1, p2)
 	ok
+
+func StringSection(str, n1, n2)
+	if CheckParams()
+		if NOT isString(str)
+			StzRaise("Incorrect param type! str must be a string.")
+		ok
+
+		if NOT (isNumber(n1) and isNumber(n2))
+			StzRaise("Incorrect param type! Both n1 and n2 must be numbers.")
+		ok
+	ok
+
+	oQStr = new QString2()
+	oQStr.append(str)
+	
+	cResult = oQStr.mid( (n1 - 2) , (n2 - n1 + 1) )
+	return cResult
 
 func stzleft(str, n)
 		return StringSection(str, 1, n)
