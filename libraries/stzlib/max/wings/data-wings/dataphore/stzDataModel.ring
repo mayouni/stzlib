@@ -1,8 +1,13 @@
-#----------------------#
-#  stzDataModel class  #
-#----------------------#
+$acDataModelValidationModes = ["strict", "warning", "permissive"]
+
+func DataModelValidationModes()
+	return $acDataModelValidationModes
 
 class stzDataModel from stzObject
+
+    #================================#
+    #  INSTANCE VARIABLES            #
+    #================================#
 
     @cSchemaName
     @cSchemaVersion
@@ -10,6 +15,12 @@ class stzDataModel from stzObject
     @aRelationships
     @aValidationErrors
     @cRelationInferenceMode # Can be "smart", "strict", or "permissive"
+    @cValidationMode # Can be "warning", "strict", "permissive" (~> with autofixing)
+    @aValidationErrors
+
+    #================================#
+    #  INITIALIZATION                #
+    #================================#
 
     def init(p)
         if isString(p)
@@ -26,16 +37,34 @@ class stzDataModel from stzObject
         @aRelationships = []
         @aValidationErrors = []
         @cRelationInferenceMode = "smart"
+        @cValidationMode = "warning"  # Default validation mode
 
-    # Configuration methods
+    #================================#
+    #  CONFIGURATION METHODS         #
+    #================================#
+
     def SetRelationInferenceMode(cMode)
         @cRelationInferenceMode = cMode
         return This
 
+    def SetValidationMode(cMode)
+        if find( DataModelValidationModes(), cMode) > 0
+            @cValidationMode = cMode
+        else
+            stzraise("Invalid validation mode: " + cMode)
+        ok
+        return This
+
+    def ValidationMode()
+        return @cValidationMode
+
     def RelationMode()
         return @cRelationInferenceMode
 
-    # Core getters - return pure data
+    #================================#
+    #  SCHEMA INFORMATION           #
+    #================================#
+
     def SchemaName()
         return @cSchemaName
 
@@ -48,13 +77,103 @@ class stzDataModel from stzObject
     def Relations()
         return @aRelationships
 
-    def ValidationErrors()
+    def Name()
+        return @cSchemaName
+
+    def Version()
+        return @cSchemaVersion
+
+    #================================#
+    #  VALIDATION MANAGEMENT        #
+    #================================#
+
+    def ErrorsXT()
         This.Validate()
         return @aValidationErrors
 
-    #===================================#
-    #  Table management with hashlists  #
-    #===================================#
+    def ValidationErrorsXT()
+        return This.ErrorsXT()
+
+    def Errors()
+        aErrorsXT = This.ErrorsXT()
+        nLen = len(aErrorsXT)
+
+        aResult = []
+        for i = 1 to nLen
+            if aErrorsXT[i][:severity] = "error"
+                aResult + aErrorsXT[i]
+            ok
+        next
+        return aResult
+
+    def ValidationErrors()
+        return This.Errors()
+
+    def Warnings()
+        aErrorsXT = This.ErrorsXT()
+        nLen = len(aErrorsXT)
+
+        aResult = []
+        for i = 1 to nLen
+            if aErrorsXT[i][:severity] = "warning"
+                aResult + aErrorsXT[i]
+            ok
+        next
+        return aResult
+
+    def ValidationWarnings()
+        return This.Warnings()
+
+    def ValidateXT()
+        @aValidationErrors = []
+
+        for table in @aTables
+            if table[:name] = "" or table[:name] = NULL
+                if @cValidationMode = "strict"
+                    @aValidationErrors + [ :type = "table", :severity = "error", :message = "Table has no name" ]
+                but @cValidationMode = "warning"
+                    @aValidationErrors + [ :type = "table", :severity = "warning", :message = "Table has no name" ]
+                but @cValidationMode = "permissive"
+                    table[:name] = "unnamed_table_" + len(@aTables)  # Auto-fix
+                ok
+            ok
+
+            aFieldNames = []
+
+            for field in table[:fields]
+                if find(aFieldNames, field[:name]) > 0
+                    if @cValidationMode = "strict" or @cValidationMode = "warning"
+                        @aValidationErrors + [ :type = "field", :severity = "error", :message = "Duplicate field: " + field[:name] ]
+                    ok
+                else
+                    aFieldNames + field[:name]
+                ok
+            next
+        next
+
+        return @aValidationErrors
+
+    def Validate()
+        This.ValidateXT()
+
+        nErrors = 0
+        nWarnings = 0
+        for error in @aValidationErrors
+            if error[:severity] = "error"
+                nErrors++
+            but error[:severity] = "warning"
+                nWarnings++
+            ok
+        next
+        
+        return [
+            :errors_count = nErrors,
+            :warnings_count = nWarnings
+        ]
+
+    #================================#
+    #  TABLE MANAGEMENT             #
+    #================================#
 
     def AddTable(cTableName, aFields)
         aProcessedFields = []
@@ -95,8 +214,8 @@ class stzDataModel from stzObject
     def CountTables()
         return len(@aTables)
 
-        def NumberOfTables()
-            return len(@aTables)
+    def NumberOfTables()
+        return len(@aTables)
 
     def CountFields()
         nResult = 0
@@ -106,8 +225,8 @@ class stzDataModel from stzObject
         next
         return nResult
 
-        def NumberOfFields()
-            return This.CountFields()
+    def NumberOfFields()
+        return This.CountFields()
 
     def TableExists(cTableName)
         nLen = len(@aTables)
@@ -118,6 +237,124 @@ class stzDataModel from stzObject
         next
         return FALSE
 
+    def FindTable(cTableName)
+        for aTable in @aTables
+            if aTable[:name] = cTableName
+                return aTable
+            ok
+        next
+        return stzraise("Inexistant table name!")
+
+    #================================#
+    #  FIELD MANAGEMENT             #
+    #================================#
+
+    def AddField(cTableName, cFieldName, cFieldType, aOptions)
+        if aOptions = NULL
+            aOptions = []
+        ok
+
+        nTableIndex = 0
+        for i = 1 to len(@aTables)
+            if @aTables[i][:name] = cTableName
+                nTableIndex = i
+                exit
+            ok
+        next
+
+        if nTableIndex = 0
+            stzraise("Table '" + cTableName + "' not found")
+        ok
+
+        aFieldHashlist = [
+            :name = cFieldName,
+            :type = This.ProcessFieldType(cFieldType),
+            :options = aOptions,
+            :constraints = []
+        ]
+
+        @aTables[nTableIndex][:fields] + aFieldHashlist
+        return This.AnalyzeFieldAdditionImpact(cTableName, cFieldName, cFieldType, aOptions)
+
+    def RemoveField(cTableName, cFieldName)
+        aTable = This.Table(cTableName)
+        aImpact = This.AnalyzeFieldRemovalImpact(cTableName, cFieldName)
+
+        if aImpact[:breaking_changes] > 0
+            cReasons = ""
+            aBreakingReasons = aImpact[:breaking_reasons]
+            nLen = len(aBreakingReasons)
+            for i = 1 to nLen
+                cReasons += aBreakingReasons[i]
+                if i < nLen
+                    cReasons += ", "
+                ok
+            next
+            stzraise("Breaking change prevented: Cannot remove field '" + cFieldName + "' - " + cReasons)
+        ok
+
+        aNewFields = []
+        aFields = aTable[:fields]
+        nLen = len(aFields)
+        for i = 1 to nLen
+            aField = aFields[i]
+            if aField[:name] != cFieldName
+                aNewFields + aField
+            ok
+        next
+
+        aTable[:fields] = aNewFields
+        This.RemoveRelationshipsForField(cTableName, cFieldName)
+        return aImpact
+
+    def FieldExists(aTable, cFieldName)
+        aFields = aTable[:fields]
+        nLen = len(aFields)
+        for i = 1 to nLen
+            aField = aFields[i]
+            if aField[:name] = cFieldName
+                return TRUE
+            ok
+        next
+        return FALSE
+
+    def FieldFromTable(aTable, cFieldName)
+        aFields = aTable[:fields]
+        nLen = len(aFields)
+        for i = 1 to nLen
+            aField = aFields[i]
+            if aField[:name] = cFieldName
+                return aField
+            ok
+        next
+        stzraise("Inexistant field!")
+
+    def TableFields(cTableName)
+        aTable = This.Table(cTableName)
+        return aTable[:fields]
+
+    def FieldsForTable(cTableName)
+        return This.TableFields(cTableName)
+
+    def FieldsInTable(cTableName)
+        return This.TableFields(cTableName)
+
+    def CountTableFields(cTableName)
+        return len(This.TableFields(cTableName))
+
+    def CountFieldsForTable(cTableName)
+        return This.CountTableFields(cTableName)
+
+    def CountFieldsInTable(cTableName)
+        return This.CountTableFields(cTableName)
+
+    def TableFieldsXT(cTableName)
+        return This.TableFields(cTableName)
+
+    #================================#
+    #  RELATIONSHIP MANAGEMENT      #
+    #================================#
+
     def Link(cFromTable, cToTable, cType, aOptions)
         if aOptions = NULL
             aOptions = []
@@ -127,13 +364,13 @@ class stzDataModel from stzObject
             :to = cToTable,
             :type = cType,
             :inferred = FALSE,
-            :options = aOptions
+            :options = aOptions # Supports metadata like :via, :semantic, :business_rule
         ]
         @aRelationships + aRelationship
         return This
 
-        def AddRelationship(cFromTable, cToTable, cType, aOptions)
-            This.Link(cFromTable, cToTable, cType, aOptions)
+    def AddRelationship(cFromTable, cToTable, cType, aOptions)
+        This.Link(cFromTable, cToTable, cType, aOptions)
 
     def Hierarchy(cTable, aOptions)
         if aOptions = NULL
@@ -164,80 +401,6 @@ class stzDataModel from stzObject
         ]
         @aRelationships + aRelationship
         return This
-
-    # Field management with hashlists
-    def AddField(cTableName, cFieldName, cFieldType, aOptions)
-        if aOptions = NULL
-            aOptions = []
-        ok
-        nTableIndex = 0
-        for i = 1 to len(@aTables)
-            if @aTables[i][:name] = cTableName
-                nTableIndex = i
-                exit
-            ok
-        next
-        if nTableIndex = 0
-            stzraise("Table '" + cTableName + "' not found")
-        ok
-        aFieldHashlist = [
-            :name = cFieldName,
-            :type = This.ProcessFieldType(cFieldType),
-            :options = aOptions,
-            :constraints = []
-        ]
-        @aTables[nTableIndex][:fields] + aFieldHashlist
-        return This.AnalyzeFieldAdditionImpact(cTableName, cFieldName, cFieldType, aOptions)
-
-    def RemoveField(cTableName, cFieldName)
-        aTable = This.Table(cTableName)
-        aImpact = This.AnalyzeFieldRemovalImpact(cTableName, cFieldName)
-        if aImpact[:breaking_changes] > 0
-            cReasons = ""
-            aBreakingReasons = aImpact[:breaking_reasons]
-            nLen = len(aBreakingReasons)
-            for i = 1 to nLen
-                cReasons += aBreakingReasons[i]
-                if i < nLen
-                    cReasons += ", "
-                ok
-            next
-            stzraise("Breaking change prevented: Cannot remove field '" + cFieldName + "' - " + cReasons)
-        ok
-        aNewFields = []
-        aFields = aTable[:fields]
-        nLen = len(aFields)
-        for i = 1 to nLen
-            aField = aFields[i]
-            if aField[:name] != cFieldName
-                aNewFields + aField
-            ok
-        next
-        aTable[:fields] = aNewFields
-        This.RemoveRelationshipsForField(cTableName, cFieldName)
-        return aImpact
-
-    def FieldExists(aTable, cFieldName)
-        aFields = aTable[:fields]
-        nLen = len(aFields)
-        for i = 1 to nLen
-            aField = aFields[i]
-            if aField[:name] = cFieldName
-                return TRUE
-            ok
-        next
-        return FALSE
-
-    def FieldFromTable(aTable, cFieldName)
-        aFields = aTable[:fields]
-        nLen = len(aFields)
-        for i = 1 to nLen
-            aField = aFields[i]
-            if aField[:name] = cFieldName
-                return aField
-            ok
-        next
-        stzraise("Inexistant field!")
 
     def InferRelationshipsForTable(aTable)
         aFields = aTable[:fields]
@@ -281,6 +444,36 @@ class stzDataModel from stzObject
             ok
         next
         @aRelationships = aNewRelationships
+
+    def CountRelationshipsForTable(cTableName)
+        nCount = 0
+        nLen = len(@aRelationships)
+        for i = 1 to nLen
+            if @aRelationships[i][:from] = cTableName or @aRelationships[i][:to] = cTableName
+                nCount++
+            ok
+        next
+        return nCount
+
+    def Relationships()
+        return @aRelationships
+
+    def SelfReferencingTables()
+        aResult = []
+        nLen = len(@aRelationships)
+        for i = 1 to nLen
+            if @aRelationships[i][:from] = @aRelationships[i][:to]
+                aResult + [
+                    :table = @aRelationships[i][:from],
+                    :type = @aRelationships[i][:type]
+                ]
+            ok
+        next
+        return aResult
+
+    #================================#
+    #  IMPACT ANALYSIS              #
+    #================================#
 
     def AnalyzeFieldAdditionImpact(cTableName, cFieldName, cFieldType, aOptions)
         aRecommendations = []
@@ -336,7 +529,10 @@ class stzDataModel from stzObject
         next
         return aImpact
 
-    # Summary and reporting methods
+    #================================#
+    #  REPORTING AND EXPORT         #
+    #================================#
+
     def SummaryXT()
         aTables = []
         nLen = len(@aTables)
@@ -405,179 +601,13 @@ class stzDataModel from stzObject
         next
         return cText
 
-    def Name()
-        return @cSchemaName
-
-    def Version()
-        return @cSchemaVersion
-
-    def TableFields(cTableName)
-        aTable = This.Table(cTableName)
-        return aTable[:fields]
-
-        def FieldsForTable(cTableName)
-            return This.TableFields(cTableName)
-
-        def FieldsInTable(cTableName)
-            return This.TableFields(cTableName)
-
-    def CountTableFields(cTableName)
-        return len(This.TableFields(cTableName))
-
-        def CountFieldsForTable(cTableName)
-            return This.CountTableFields(cTableName)
-
-        def CountFieldsInTable(cTableName)
-            return This.CountTableFields(cTableName)
-
-    def TableFieldsXT(cTableName)
-        return This.TableFields(cTableName)
-
-    def CountRelationshipsForTable(cTableName)
-        nCount = 0
-        nLen = len(@aRelationships)
-        for i = 1 to nLen
-            if @aRelationships[i][:from] = cTableName or @aRelationships[i][:to] = cTableName
-                nCount++
-            ok
-        next
-        return nCount
-
-    def Relationships()
-        return @aRelationships
-
-    # Utility methods
-    def ProcessFieldType(cType)
-        switch cType
-        on :primary_key
-            return "integer"
-        on :required
-            return "varchar(255)"
-        on :email
-            return "varchar(255)"
-        on :timestamp
-            return "timestamp"
-        on :decimal
-            return "decimal(10,2)"
-        on :text
-            return "text"
-        on :boolean
-            return "boolean"
-        on :url
-            return "varchar(500)"
-        on :foreign_key
-            return "integer"
-        on :unique
-            return "varchar(255)"
-        other
-            return cType
-        off
-
-    def TableNameFromReference(cReferenceField)
-        if cReferenceField = "parent_id"
-            return ""
-        ok
-        if right(cReferenceField, 3) = "_id"
-            cBaseName = left(cReferenceField, len(cReferenceField) - 3)
-            return cBaseName
-        ok
-        return ""
-
-    def FindTable(cTableName)
-        for aTable in @aTables
-            if aTable[:name] = cTableName
-                return aTable
-            ok
-        next
-        return stzraise("Inexistant table name!")
-
-    def SelfReferencingTables()
-        aResult = []
-        nLen = len(@aRelationships)
-        for i = 1 to nLen
-            if @aRelationships[i][:from] = @aRelationships[i][:to]
-                aResult + [
-                    :table = @aRelationships[i][:from],
-                    :type = @aRelationships[i][:type]
-                ]
-            ok
-        next
-        return aResult
-
-    # Validation
-    def Validate()
-        @aValidationErrors = []
-        nTablesValidated = 0
-        nLen = len(@aTables)
-        for i = 1 to nLen
-            aTable = @aTables[i]
-            nTablesValidated++
-            if aTable[:name] = "" or aTable[:name] = NULL
-                @aValidationErrors + [ :type = "table", :severity = "error", 
-                                     :message = "Table has no name", :table = "" ]
-                loop
-            ok
-            aFields = aTable[:fields]
-            nLenF = len(aFields)
-            if nLenF = 0
-                @aValidationErrors + [ :type = "table", :severity = "error",
-                                     :message = "Table '" + aTable[:name] + "' has no fields", 
-                                     :table = aTable[:name] ]
-            ok
-            aFieldNames = []
-            for j = 1 to nLenF
-                aField = aFields[j]
-                cFieldName = aField[:name]
-                if find(aFieldNames, cFieldName) > 0
-                    @aValidationErrors + [ :type = "table", :severity = "error",
-                                         :message = "Duplicate field '" + cFieldName + "' in table '" + aTable[:name] + "'",
-                                         :table = aTable[:name], :field = cFieldName ]
-                else
-                    aFieldNames + cFieldName
-                ok
-            next
-        next
-        return [
-            :valid = (len(@aValidationErrors) = 0),
-            :errors = @aValidationErrors,
-            :error_count = len(@aValidationErrors),
-            :tables_validated = nTablesValidated
-        ]
-
-    def ValidationSummary()
-        nErrors = 0
-        nWarnings = 0
-        nLen = len(@aValidationErrors)
-        for i = 1 to nLen
-            aError = @aValidationErrors[i]
-            if aError[:severity] = "error"
-                nErrors++
-            but aError[:severity] = "warning"
-                nWarnings++
-            ok
-        next
-        cSummary = "Validation completed: "
-        if nErrors = 0 and nWarnings = 0
-            cSummary += "All checks passed"
-        else
-            if nErrors > 0
-                cSummary += '' + nErrors + " error(s)"
-            ok
-            if nWarnings > 0
-                if nErrors > 0
-                    cSummary += ", "
-                ok
-                cSummary += '' + nWarnings + " warning(s)"
-            ok
-        ok
-        return cSummary
-
-    # Export methods
     def DiagramData()
         aEntities = []
         aRelationships = []
+
         for aTable in @aTables
             aFields = []
+
             for aField in aTable[:fields]
                 aFieldInfo = [
                     :name = aField[:name],
@@ -589,6 +619,7 @@ class stzDataModel from stzObject
                 ]
                 aFields + aFieldInfo
             next
+
             aEntity = [
                 :name = aTable[:name],
                 :display_name = Capitalize(aTable[:name]),
@@ -598,7 +629,9 @@ class stzDataModel from stzObject
             ]
             aEntities + aEntity
         next
+
         aProcessedRels = []
+
         for aRel in @aRelationships
             cRelKey = aRel[:from] + "->" + aRel[:to] + ":" + aRel[:type]
             if find(aProcessedRels, cRelKey) = 0
@@ -616,6 +649,7 @@ class stzDataModel from stzObject
                 aRelationships + aRelationship
             ok
         next
+
         return [
             :schema_name = @cSchemaName,
             :entities = aEntities,
@@ -642,6 +676,7 @@ class stzDataModel from stzObject
         aDiagramData = This.DiagramData()
         aEntities = aDiagramData[:entities]
         nLen = len(aEntities)
+
         for i = 1 to nLen
             aEntity = aEntities[i]
             cMermaid += "    " + aEntity[:name] + " {" + nl
@@ -662,6 +697,7 @@ class stzDataModel from stzObject
             next
             cMermaid += "    }" + nl + nl
         next
+
         aRels = aDiagramData[:relationships]
         nLen = len(aRels)
         for i = 1 to nLen
@@ -670,6 +706,7 @@ class stzDataModel from stzObject
                 cMermaid += "    " + aRel[:from_entity] + " ||--o{ " + aRel[:to_entity] + ' : "' + aRel[:label] + '"' + nl
             ok
         next
+
         return cMermaid
 
     def ToJSONERD()
@@ -719,7 +756,78 @@ class stzDataModel from stzObject
         cJSON += "}"
         return cJSON
 
-    # Utility methods
+    #================================#
+    #  TEMPLATE SYSTEM              #
+    #================================#
+
+    def UseTemplate(cTemplateName)
+        switch cTemplateName
+        on "ecommerce_basic"
+            This.AddTable("customers", [ ["id", "integer"], ["name", "text"] ])
+            This.AddTable("orders", [ ["id", "integer"], ["customer_id", "integer"] ])
+            This.AddTable("products", [ ["id", "integer"], ["name", "text"] ])
+            This.Link("orders", "customers", "belongs_to", [])
+            This.Link("orders", "products", "has_many", [])
+
+        on "social_network"
+            This.AddTable("users", [ ["id", "integer"], ["username", "text"] ])
+            This.AddTable("posts", [ ["id", "integer"], ["user_id", "integer"] ])
+            This.AddTable("follows", [ ["follower_id", "integer"], ["followed_id", "integer"] ])
+            This.Link("posts", "users", "belongs_to", [])
+            This.Link("users", "follows", "many_to_many", [ :via = "follows" ])
+
+        on "blog_platform"
+            This.AddTable("authors", [ ["id", "integer"], ["name", "text"] ])
+            This.AddTable("articles", [ ["id", "integer"], ["author_id", "integer"] ])
+            This.AddTable("categories", [ ["id", "integer"], ["name", "text"] ])
+            This.Link("articles", "authors", "belongs_to", [])
+            This.Link("articles", "categories", "has_many", [])
+
+        other
+            stzraise("Unknown template: " + cTemplateName)
+        off
+        return This
+
+    #================================#
+    #  UTILITY METHODS              #
+    #================================#
+
+    def ProcessFieldType(cType)
+        switch cType
+        on :primary_key
+            return "integer"
+        on :required
+            return "varchar(255)"
+        on :email
+            return "varchar(255)"
+        on :timestamp
+            return "timestamp"
+        on :decimal
+            return "decimal(10,2)"
+        on :text
+            return "text"
+        on :boolean
+            return "boolean"
+        on :url
+            return "varchar(500)"
+        on :foreign_key
+            return "integer"
+        on :unique
+            return "varchar(255)"
+        other
+            return cType
+        off
+
+    def TableNameFromReference(cReferenceField)
+        if cReferenceField = "parent_id"
+            return ""
+        ok
+        if right(cReferenceField, 3) = "_id"
+            cBaseName = left(cReferenceField, len(cReferenceField) - 3)
+            return cBaseName
+        ok
+        return ""
+
     def FindInList(aList, cItem)
         for i = 1 to len(aList)
             if aList[i] = cItem

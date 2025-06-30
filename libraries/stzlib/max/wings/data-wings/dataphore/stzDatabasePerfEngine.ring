@@ -82,7 +82,7 @@ $aPerfPlans = [
 
 
 # Simplified stzDataPerfEngine with cleaner design
-class stzDataPerfEngine from stzObject
+class stzDatabasePerfEngine from stzObject
     @cActivePlan
     @aThresholds
     

@@ -5,7 +5,7 @@
 		load "data-wings/dataphore/stzDataModel.ring"
 
 		load "data-wings/dataphore/stzDatabaseModel.ring"
-		load "data-wings/dataphore/stzDataPerfEngine.ring"
+		load "data-wings/dataphore/stzDatabasePerfEngine.ring"
 
 	#-- Loading files files related to INTEGRATION wings modules
 
