@@ -12,6 +12,8 @@
 	load "common/stzListOfWalkers2D.ring"
 	load "common/stzParser.ring"
 
+	load "common/stzGlobalHelp.ring"
+
 # Loading files related to the DATA module
 
 	load "data/stzBoxDrawCharsData.ring"

@@ -784,7 +784,7 @@ pf()
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*=== Importing a DDL definition script
-*/
+
 pr()
 
 cMyDDL = "
@@ -1498,7 +1498,7 @@ pf()
 
 
 /*--- Validation the data model with PERMISSIVE mode
-*/
+
 pr()
 
 o1 = new stzDataModel("PermissiveModel")
@@ -1533,11 +1533,11 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 
-# ===========================================
-# 2. RELATIONSHIP METADATA EXAMPLE
-# ===========================================
+#========================#
+# RELATIONSHIP METADATA  #
+#========================#
 
-? "\n=== RELATIONSHIP METADATA DEMO ==="
+pr()
 
 # Create a social media model with rich metadata
 social = new stzDataModel("SocialMediaPlatform")
@@ -1597,67 +1597,300 @@ social.Link("users", "follows", "many_to_many", [
     :business_rule = "Users cannot follow themselves"
 ])
 
-? "Social media model created with rich relationship metadata"
-? "Validation: " + social.ValidationSummary()
 
-# ===========================================
-# 3. TEMPLATE SYSTEM EXAMPLE
-# ===========================================
+? BoxRound("Model Relations (with ritch semantic metadata)")
+? @@NL( social.Relations() )
+#-->
+'
+╭────────────────────────────────────────────────╮
+│ Model Relations (with ritch semantic metadata) │
+╰────────────────────────────────────────────────╯
+[
+	[
+		[ "type", "belongs_to" ],
+		[ "from", "posts" ],
+		[ "to", "users" ],
+		[ "field", "user_id" ],
+		[ "inferred", 1 ]
+	],
+	[
+		[ "type", "has_many" ],
+		[ "from", "users" ],
+		[ "to", "posts" ],
+		[ "field", "user_id" ],
+		[ "inferred", 1 ]
+	],
+	[
+		[ "type", "belongs_to" ],
+		[ "from", "likes" ],
+		[ "to", "users" ],
+		[ "field", "user_id" ],
+		[ "inferred", 1 ]
+	],
+	[
+		[ "type", "has_many" ],
+		[ "from", "users" ],
+		[ "to", "likes" ],
+		[ "field", "user_id" ],
+		[ "inferred", 1 ]
+	],
+	[
+		[ "type", "belongs_to" ],
+		[ "from", "likes" ],
+		[ "to", "posts" ],
+		[ "field", "post_id" ],
+		[ "inferred", 1 ]
+	],
+	[
+		[ "type", "has_many" ],
+		[ "from", "posts" ],
+		[ "to", "likes" ],
+		[ "field", "post_id" ],
+		[ "inferred", 1 ]
+	],
+	[
+		[ "from", "posts" ],
+		[ "to", "users" ],
+		[ "type", "belongs_to" ],
+		[ "inferred", 0 ],
+		[
+			"options",
+			[
+				[ "via", "user_id" ],
+				[
+					"semantic",
+					"Each post belongs to exactly one user"
+				],
+				[
+					"business_rule",
+					"Posts cannot exist without a valid user"
+				]
+			]
+		]
+	],
+	[
+		[ "from", "users" ],
+		[ "to", "posts" ],
+		[ "type", "has_many" ],
+		[ "inferred", 0 ],
+		[
+			"options",
+			[
+				[ "via", "user_id" ],
+				[ "semantic", "Users can create multiple posts" ],
+				[
+					"business_rule",
+					"Users can have unlimited posts"
+				]
+			]
+		]
+	],
+	[
+		[ "from", "users" ],
+		[ "to", "likes" ],
+		[ "type", "many_to_many" ],
+		[ "inferred", 0 ],
+		[
+			"options",
+			[
+				[ "via", "likes" ],
+				[
+					"semantic",
+					"Users can like multiple posts, posts can be liked by multiple users"
+				],
+				[
+					"business_rule",
+					"Users cannot like their own posts"
+				]
+			]
+		]
+	],
+	[
+		[ "from", "users" ],
+		[ "to", "follows" ],
+		[ "type", "many_to_many" ],
+		[ "inferred", 0 ],
+		[
+			"options",
+			[
+				[ "via", "follows" ],
+				[
+					"semantic",
+					"Users can follow other users bidirectionally"
+				],
+				[
+					"business_rule",
+					"Users cannot follow themselves"
+				]
+			]
+		]
+	]
+]
+'
 
-? "\n=== TEMPLATE SYSTEM DEMO ==="
+pf()
+# Executed in 0.22 second(s) in Ring 1.22
 
-# E-commerce template
-? "Creating e-commerce model from template..."
+#=====================================#
+# DATA MODELS TEMPLATE SYSTEM EXAMPLE #
+#=====================================#
+
+/*--- Creating e-commerce from template
+
+pr()
+
 ecommerce = new stzDataModel("EcommerceStore")
 ecommerce.UseTemplate("ecommerce_basic")
 ecommerce.SetValidationMode("strict")
 
-? "E-commerce template loaded"
-? "Validation: " + ecommerce.ValidationSummary()
+? BoxRound("E-commerce template loaded...")
+? ecommerce.Explain()
 
-# Social network template
-? "\nCreating social network model from template..."
-social_net = new stzDataModel("SocialNetwork")
-social_net.UseTemplate("social_network")
-social_net.SetValidationMode("warning")
+? BoxRound("Data model validation (STRIC mode)")
+? @@NL(ecommerce.Validate())
+#-->
+'
+╭───────────────────────────────╮
+│ E-commerce template loaded... │
+╰───────────────────────────────╯
+This model contains 3 tables:
+• customers: 2 fields, 3 relationships
+• orders: 2 fields, 4 relationships
+• products: 2 fields, 1 relationships
 
-? "Social network template loaded"
-? "Validation: " + social_net.ValidationSummary()
+Key relationships:
+• orders belongs_to customers
+• customers has_many orders
+• orders belongs_to customers
+• orders has_many products
 
-# Blog platform template
-? "\nCreating blog platform model from template..."
-blog = new stzDataModel("BlogPlatform")
-blog.UseTemplate("blog_platform")
-blog.SetValidationMode("permissive")
+╭────────────────────────────────────╮
+│ Data model validation (STRIC mode) │
+╰────────────────────────────────────╯
+[
+	[ "errors_count", 0 ],
+	[ "warnings_count", 0 ]
+]
+'
 
-? "Blog platform template loaded"
-? "Validation: " + blog.ValidationSummary()
+pf()
+# Executed in 0.06 second(s) in Ring 1.22
 
-# ===========================================
-# 4. ADVANCED COMBINATION EXAMPLE
-# ===========================================
+/*--- Creating social network model from template
 
-? "\n=== ADVANCED COMBINATION DEMO ==="
+pr()
+
+oMySocialDataModel = new stzDataModel("SocialNetwork")
+
+oMySocialDataModel {
+
+	UseTemplate("social_network")
+	SetValidationMode("warning")
+
+	? BoxRound("Social network template loaded...")
+	? Explain()
+
+	? BoxRound("Data model validation (WARNING mode)")
+	? @@NL(Validate())
+
+}
+#-->
+'
+╭───────────────────────────────╮
+│ E-commerce template loaded... │
+╰───────────────────────────────╯
+This model contains 3 tables:
+• users: 2 fields, 4 relationships
+• posts: 2 fields, 3 relationships
+• follows: 2 fields, 1 relationships
+
+Key relationships:
+• posts belongs_to users
+• users has_many posts
+• posts belongs_to users
+• users many_to_many follows
+
+╭────────────────────────────────────╮
+│ Data model validation (STRIC mode) │
+╰────────────────────────────────────╯
+[
+	[ "errors_count", 0 ],
+	[ "warnings_count", 0 ]
+]
+'
+
+pf()
+# Executed in 0.15 second(s) in Ring 1.22
+
+/*--- Creating blog platform model from template
+
+pr()
+
+o1 = new stzDataModel("BlogPlatform")
+
+o1.UseTemplate("blog_platform")
+o1.SetValidationMode("permissive")
+
+? BoxRound("Blog template loaded...")
+? o1.Explain()
+
+? BoxRound("Data model validation (PERMISSIVE mode)")
+? @@NL(o1.Validate())
+
+#-->
+'
+╭─────────────────────────╮
+│ Blog template loaded... │
+╰─────────────────────────╯
+This model contains 3 tables:
+• authors: 2 fields, 3 relationships
+• articles: 2 fields, 4 relationships
+• categories: 2 fields, 1 relationships
+
+Key relationships:
+• articles belongs_to authors
+• authors has_many articles
+• articles belongs_to authors
+• articles has_many categories
+
+╭─────────────────────────────────────────╮
+│ Data model validation (PERMISSIVE mode) │
+╰─────────────────────────────────────────╯
+[
+	[ "errors_count", 0 ],
+	[ "warnings_count", 0 ]
+]
+'
+
+pf()
+# Executed in 0.06 second(s) in Ring 1.22
+
+#================================#
+#  ADVANCED COMBINATION EXAMPLE  #
+#================================#
+
+pr()
 
 # Start with template and customize
-advanced = new stzDataModel("AdvancedEcommerce")
-advanced.SetValidationMode("strict")
-advanced.UseTemplate("ecommerce_basic")
+
+o1 = new stzDataModel("AdvancedEcommerce")
+o1.SetValidationMode("strict")
+o1.UseTemplate("ecommerce_basic")
 
 # Add custom fields to existing tables
-advanced.AddField("customers", "email", "text", [:required = true])
-advanced.AddField("customers", "phone", "text", [:optional = true])
-advanced.AddField("products", "price", "decimal", [:required = true, :min = 0])
-advanced.AddField("products", "category_id", "integer", [:foreign_key = "categories"])
+o1.AddField("customers", "email", "text", [:required = true])
+o1.AddField("customers", "phone", "text", [:optional = true])
+o1.AddField("products", "price", "decimal", [:required = true, :min = 0])
+o1.AddField("products", "category_id", "integer", [:foreign_key = "categories"])
 
 # Add new tables
-advanced.AddTable("categories", [
+o1.AddTable("categories", [
     ["id", "integer"],
     ["name", "text"],
     ["description", "text"]
 ])
 
-advanced.AddTable("order_items", [
+o1.AddTable("order_items", [
     ["id", "integer"],
     ["order_id", "integer"],
     ["product_id", "integer"],
@@ -1666,32 +1899,166 @@ advanced.AddTable("order_items", [
 ])
 
 # Add relationships with metadata
-advanced.Link("products", "categories", "belongs_to", [
+o1.Link("products", "categories", "belongs_to", [
     :via = "category_id",
     :semantic = "Products are organized into categories",
     :business_rule = "All products must belong to a category"
 ])
 
-advanced.Link("orders", "order_items", "has_many", [
+o1.Link("orders", "order_items", "has_many", [
     :via = "order_id",
     :semantic = "Orders contain multiple line items",
     :business_rule = "Orders must have at least one item"
 ])
 
-advanced.Link("order_items", "products", "belongs_to", [
+o1.Link("order_items", "products", "belongs_to", [
     :via = "product_id",
     :semantic = "Each order item references a specific product",
     :business_rule = "Order items must reference valid products"
 ])
 
-? "Advanced e-commerce model created"
-? "Final validation: " + advanced.ValidationSummary()
+? @@( o1.validation() ) + NL
+#--> [ [ "errors_count", 0 ], [ "warnings_count", 0 ] ]
 
-# ===========================================
-# 5. ERROR HANDLING EXAMPLE
-# ===========================================
+? BoxRound("E-commerce model created: Final validation")
+? @@Nl( o1.Summary() ) + NL
 
-? "\n=== ERROR HANDLING DEMO ==="
+? BoxRound("Mode relations")
+? @@NL( o1.Relations() )
+
+#-->
+'
+╭────────────────╮
+│ Mode relations │
+╰────────────────╯
+[
+	[
+		[ "type", "belongs_to" ],
+		[ "from", "orders" ],
+		[ "to", "customers" ],
+		[ "field", "customer_id" ],
+		[ "inferred", 1 ]
+	],
+	[
+		[ "type", "has_many" ],
+		[ "from", "customers" ],
+		[ "to", "orders" ],
+		[ "field", "customer_id" ],
+		[ "inferred", 1 ]
+	],
+	[
+		[ "from", "orders" ],
+		[ "to", "customers" ],
+		[ "type", "belongs_to" ],
+		[ "inferred", 0 ],
+		[ "options", [  ] ]
+	],
+	[
+		[ "from", "orders" ],
+		[ "to", "products" ],
+		[ "type", "has_many" ],
+		[ "inferred", 0 ],
+		[ "options", [  ] ]
+	],
+	[
+		[ "type", "belongs_to" ],
+		[ "from", "order_items" ],
+		[ "to", "orders" ],
+		[ "field", "order_id" ],
+		[ "inferred", 1 ]
+	],
+	[
+		[ "type", "has_many" ],
+		[ "from", "orders" ],
+		[ "to", "order_items" ],
+		[ "field", "order_id" ],
+		[ "inferred", 1 ]
+	],
+	[
+		[ "type", "belongs_to" ],
+		[ "from", "order_items" ],
+		[ "to", "products" ],
+		[ "field", "product_id" ],
+		[ "inferred", 1 ]
+	],
+	[
+		[ "type", "has_many" ],
+		[ "from", "products" ],
+		[ "to", "order_items" ],
+		[ "field", "product_id" ],
+		[ "inferred", 1 ]
+	],
+	[
+		[ "from", "products" ],
+		[ "to", "categories" ],
+		[ "type", "belongs_to" ],
+		[ "inferred", 0 ],
+		[
+			"options",
+			[
+				[ "via", "category_id" ],
+				[
+					"semantic",
+					"Products are organized into categories"
+				],
+				[
+					"business_rule",
+					"All products must belong to a category"
+				]
+			]
+		]
+	],
+	[
+		[ "from", "orders" ],
+		[ "to", "order_items" ],
+		[ "type", "has_many" ],
+		[ "inferred", 0 ],
+		[
+			"options",
+			[
+				[ "via", "order_id" ],
+				[
+					"semantic",
+					"Orders contain multiple line items"
+				],
+				[
+					"business_rule",
+					"Orders must have at least one item"
+				]
+			]
+		]
+	],
+	[
+		[ "from", "order_items" ],
+		[ "to", "products" ],
+		[ "type", "belongs_to" ],
+		[ "inferred", 0 ],
+		[
+			"options",
+			[
+				[ "via", "product_id" ],
+				[
+					"semantic",
+					"Each order item references a specific product"
+				],
+				[
+					"business_rule",
+					"Order items must reference valid products"
+				]
+			]
+		]
+	]
+]
+'
+
+pf()
+# Executed in 0.17 second(s) in Ring 1.22
+
+#=========================#
+# ERROR HANDLING EXAMPLE  #
+#=========================#
+
+pr()
 
 error_model = new stzDataModel("ErrorDemo")
 
@@ -1716,29 +2083,111 @@ catch
     ? "✓ Caught table not found error"
 done
 
-? "\nAll examples completed successfully!"
+? NL + "All examples completed successfully!"
+#-->
+'
+✓ Caught invalid validation mode error
+✓ Caught unknown template error
+✓ Caught table not found error
 
-#=======================#
-#  EDUCATIONAL SUMMARY  #
-#=======================#
+All examples completed successfully!
+'
 
-# KEY LEARNING POINTS:
-#
-# 1. START SIMPLE: Use naming conventions for automatic relationship inference
-# 2. BE EXPLICIT: Use Link(), Hierarchy(), Network() for complex relationships  
-# 3. VALIDATE EARLY: Always run Validate() before production deployment
-# 4. EVOLVE SAFELY: Use impact analysis for schema changes
-# 5. OPTIMIZE SMART: Follow performance hints to prevent slow queries
-# 6. DEBUG VISUALLY: Use Explain() and GetERDData() for model understanding
-# 7. PLAN MIGRATIONS: Use staged approach for production schema changes
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
-# WHEN TO USE EACH FEATURE:
-#
-# • AddTable(): Basic schema definition with smart defaults
-# • Link(): Complex relationships that can't be auto-inferred  
-# • Hierarchy(): Parent-child trees (categories, org charts)
-# • Network(): Peer-to-peer connections (social networks, graphs)
-# • Validate(): Before any production deployment or major change
-# • PerfHints(): When queries become slow
-# • Explain(): When debugging complex models or onboarding new developers
-# • GetERDData(): When generating documentation or visual diagrams
+#======================================#
+#  EDUCATIONAL HINT : ASKING FOR HELP  #
+#======================================#
+*/
+pr()
+
+# Get actionable hints of best practices
+
+? BoxRound("Basic Help (action-oriented)") + NL
+? Help(:stzDataModel) + NL
+#-->
+"
+╭──────────────────────────────╮
+│ Basic Help (action-oriented) │
+╰──────────────────────────────╯
+
+1. START SIMPLE: Use naming conventions for automatic relationship inference
+   - Example: 'customer_id' in 'orders' auto-links to 'customers.id'
+
+2. BE EXPLICIT: Use Link(), Hierarchy(), Network() for complex relationships  
+   - Example: Many-to-many via Link(), hierarchies via Hierarchy()
+
+3. VALIDATE EARLY: Always run Validate() before production deployment
+   - Example: Catch errors like duplicate fields or invalid constraints
+
+4. EVOLVE SAFELY: Use impact analysis for schema changes
+   - Example: Check impact before adding/removing fields
+
+5. OPTIMIZE SMART: Follow performance hints to prevent slow queries
+   - Example: Add indexes, use eager loading based on PerfHints()
+
+6. DEBUG VISUALLY: Use Explain() and GetERDData() for model understanding
+   - Example: Generate summaries and ERD scripts for visualization
+
+7. PLAN MIGRATIONS: Use staged approach for production schema changes
+   - Example: Analyze, assess impact, check performance, validate
+"
+
+# You can get a more elaborated help by using the XT-version instead
+? BoxRound("Full help (Actions + Usecase advice)") + NL
+? HelpXT(:stzDataModel)
+#--> "
+╭──────────────────────────────────────╮
+│ Full help (Actions + Usecase advice) │
+╰──────────────────────────────────────╯
+1. START SIMPLE: Use naming conventions for automatic relationship inference
+   - Example: 'customer_id' in 'orders' auto-links to 'customers.id'
+
+2. BE EXPLICIT: Use Link(), Hierarchy(), Network() for complex relationships  
+   - Example: Many-to-many via Link(), hierarchies via Hierarchy()
+
+3. VALIDATE EARLY: Always run Validate() before production deployment
+   - Example: Catch errors like duplicate fields or invalid constraints
+
+4. EVOLVE SAFELY: Use impact analysis for schema changes
+   - Example: Check impact before adding/removing fields
+
+5. OPTIMIZE SMART: Follow performance hints to prevent slow queries
+   - Example: Add indexes, use eager loading based on PerfHints()
+
+6. DEBUG VISUALLY: Use Explain() and GetERDData() for model understanding
+   - Example: Generate summaries and ERD scripts for visualization
+
+7. PLAN MIGRATIONS: Use staged approach for production schema changes
+   - Example: Analyze, assess impact, check performance, validate
+WHEN TO USE EACH FEATURE:
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+• AddTable(): Basic schema definition with smart defaults
+  - Use for initial table creation with inferred relationships
+
+• Link(): Complex relationships that can't be auto-inferred  
+  - Use for many-to-many or custom relationships
+
+• Hierarchy(): Parent-child trees (categories, org charts)
+  - Use for self-referencing hierarchical structures
+
+• Network(): Peer-to-peer connections (social networks, graphs)
+  - Use for complex, non-hierarchical relationships
+
+• Validate(): Before any production deployment or major change
+  - Use to ensure model integrity and catch errors
+
+• PerfHints(): When queries become slow
+  - Use to get optimization recommendations
+
+• Explain(): When debugging complex models or onboarding new developers
+  - Use for quick model summaries and understanding
+
+• GetERDData(): When generating documentation or visual diagrams
+  - Use to create ERD scripts for external visualization tools
+"
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
