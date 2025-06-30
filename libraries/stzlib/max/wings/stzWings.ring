@@ -3,6 +3,8 @@
 	#-- Loading files files related to DATA wings modules (data modeling)
 
 		load "data-wings/dataphore/stzDataModel.ring"
+
+		load "data-wings/dataphore/stzDatabaseModel.ring"
 		load "data-wings/dataphore/stzDataPerfEngine.ring"
 
 	#-- Loading files files related to INTEGRATION wings modules

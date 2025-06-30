@@ -22,7 +22,7 @@
 $oWorldEntities = new stzListOfEntities
 
 func WorldEntities()
-	return oWorldEntities
+	return $oWorldEntities
 
 # Initiates the chain of value by accepting a value
 # and returns a ChainOfTruth object that we can work on

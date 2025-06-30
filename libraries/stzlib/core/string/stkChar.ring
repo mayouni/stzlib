@@ -1,10 +1,5 @@
 # Requires LightGuiLib
 
-func DoubleQuote()
-        return char(34)  # "
-
-func SingleQuote()
-        return char(39)  # '
 
 #~~~~~~~~~~~~~~~~~#
 #  STZ CORE CHAR  #

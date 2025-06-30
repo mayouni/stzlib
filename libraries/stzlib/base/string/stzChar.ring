@@ -208,6 +208,18 @@ func IsLetter(pcStr)
 
 	#>
 
+func QuotationMark()
+	return '"'
+
+	func DoubleQuote()
+		return '"'
+
+func Apostrophe()
+	return "'"
+
+	func SingleQuote()
+		return "'"
+
 func CharName(c)
 	return StzCharQ(c).Name()
 
