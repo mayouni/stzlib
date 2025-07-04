@@ -412,7 +412,7 @@ o1 {
 
     ? "Schema: " + SchemaName() + " v" + SchemaVersion() + nl
 
-    ? Explain()
+    ? TextSummary()
 }
 #--> #TODO Other then adding the version, the sample does not show how versioning
 # of the data model is used (and useful) in practice:
@@ -495,7 +495,7 @@ o1 {
 '
 
 pf()
-# Executed in 0.06 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.22
 
 #=============================#
 #  DEBUGGING & VISUALIZATION  #
@@ -525,7 +525,7 @@ o1 {
     
     # Get comprehensive model explanation
 	? BoxRound("Data Model : " + Name() + " (v" + Version() + ")")
-    ? Explain()
+    ? TextSummary()
 
 }
 '
@@ -576,18 +576,18 @@ o1 {
 ╰────────────╯
 CREATE TABLE authors (
     id INTEGER PRIMARY KEY,
-    id INTEGER PRIMARY KEY NOT NULL,
-    id INTEGER PRIMARY KEY,
-    id INTEGER PRIMARY KEY
+    name VARCHAR(255) NOT NULL NOT NULL,
+    email VARCHAR(255),
+    bio TEXT
 );
 
 CREATE TABLE articles (
+    id INTEGER PRIMARY KEY,
     author_id TEXT,
-    author_id TEXT,
-    author_id TEXT NOT NULL,
-    author_id TEXT,
-    author_id TEXT,
-    author_id TEXT
+    title VARCHAR(255) NOT NULL NOT NULL,
+    content TEXT,
+    published_at TIMESTAMP,
+    view_count INTEGER
 );
 
 ALTER TABLE authors ADD CONSTRAINT authors_email_check CHECK (email LIKE '%@%');
@@ -783,7 +783,7 @@ Ref: articles.author_id > authors.id
 pf()
 # Executed in 0.32 second(s) in Ring 1.22
 
-/*=== Importing a DDL definition script
+/*=== Importing a DDL definition script #TODO Error in relation_count = 0 (shoud be 2)
 
 pr()
 
@@ -1036,7 +1036,7 @@ o1 {
     # Comprehensive explanation
 
     ? BoxRound("Complete e-commerce model")
-    ? Explain() + NL
+    ? TextSummary() + NL
     
 	# Detailed validation
 
@@ -1084,7 +1084,7 @@ pf()
 # Executed in 0.41 second(s) in Ring 1.22
 
 /*--- Migration workflow for production systems
-
+*/
 pr()
 
 o1 = new stzDatabaseModel([ "ecommerce_complete", "3.0"])
@@ -1135,7 +1135,7 @@ o1 {
     # Stage 1: Current state analysis
 
     ? BoxRound("Current state")
-    ? Explain() + nl
+    ? TextSummary() + nl
     
     # Stage 2: Impact analysis for new field
     impact = AddField("customers", "preferences", :text, [:nullable = true])
@@ -1517,17 +1517,20 @@ o1 {
 	#--> [ "", "users" ]
 
 	# Performing the validation (no errors nor warnings are raised)
-	? @@( Validate() ) + NL
-	#--> [ [ "errors_count", 0 ], [ "warnings_count", 0 ] ]
+	? @@NL( Validate() ) + NL
+	#--> [
+	# 	[ "errors_count", 1 ],
+	# 	[ "warnings_count", 0 ],
+	# 	[ "fixes_applied", 1 ],
+	# 	[ "active_plans", [ "default" ] ]
+	# ]
 
 	# Tables names after validation (autofixed due to PERMISSIVE mode)
 
 	? @@( TablesNames() )
-	#--> [ "unnamed_table_2", "users" ]
+	#--> [ "unnamed_table_1", "users" ]
 
 }
-
-#TODO Add more interesting configurable autofixes plans
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
@@ -1744,7 +1747,7 @@ ecommerce.UseTemplate("ecommerce_basic")
 ecommerce.SetValidationMode("strict")
 
 ? BoxRound("E-commerce template loaded...")
-? ecommerce.Explain()
+? ecommerce.TextSummary()
 
 ? BoxRound("Data model validation (STRIC mode)")
 ? @@NL(ecommerce.Validate())
@@ -1754,9 +1757,9 @@ ecommerce.SetValidationMode("strict")
 │ E-commerce template loaded... │
 ╰───────────────────────────────╯
 This model contains 3 tables:
-• customers: 2 fields, 3 relationships
-• orders: 2 fields, 4 relationships
-• products: 2 fields, 1 relationships
+• customers: 3 fields, 3 relationships
+• orders: 3 fields, 4 relationships
+• products: 3 fields, 1 relationships
 
 Key relationships:
 • orders belongs_to customers
@@ -1788,7 +1791,7 @@ oMySocialDataModel {
 	SetValidationMode("warning")
 
 	? BoxRound("Social network template loaded...")
-	? Explain()
+	? TextSummary()
 
 	? BoxRound("Data model validation (WARNING mode)")
 	? @@NL(Validate())
@@ -1800,8 +1803,8 @@ oMySocialDataModel {
 │ E-commerce template loaded... │
 ╰───────────────────────────────╯
 This model contains 3 tables:
-• users: 2 fields, 4 relationships
-• posts: 2 fields, 3 relationships
+• users: 3 fields, 4 relationships
+• posts: 3 fields, 3 relationships
 • follows: 2 fields, 1 relationships
 
 Key relationships:
@@ -1823,7 +1826,7 @@ pf()
 # Executed in 0.15 second(s) in Ring 1.22
 
 /*--- Creating blog platform model from template
-*/
+
 pr()
 
 o1 = new stzDataModel("BlogPlatform")
@@ -1832,7 +1835,7 @@ o1.UseTemplate("blog_platform")
 o1.SetValidationMode("permissive")
 
 ? BoxRound("Blog template loaded...")
-? o1.Explain()
+? o1.TextSummary()
 
 ? BoxRound("Data model validation (PERMISSIVE mode)")
 ? @@NL(o1.Validate())
@@ -1843,9 +1846,9 @@ o1.SetValidationMode("permissive")
 │ Blog template loaded... │
 ╰─────────────────────────╯
 This model contains 3 tables:
-• authors: 2 fields, 3 relationships
-• articles: 2 fields, 4 relationships
-• categories: 2 fields, 1 relationships
+• authors: 3 fields, 3 relationships
+• articles: 4 fields, 4 relationships
+• categories: 3 fields, 1 relationships
 
 Key relationships:
 • articles belongs_to authors
@@ -1858,7 +1861,12 @@ Key relationships:
 ╰─────────────────────────────────────────╯
 [
 	[ "errors_count", 0 ],
-	[ "warnings_count", 0 ]
+	[ "warnings_count", 0 ],
+	[ "fixes_applied", 0 ],
+	[
+		"active_plans",
+		[ "default", "api" ]
+	]
 ]
 '
 
@@ -1919,8 +1927,13 @@ o1.Link("order_items", "products", "belongs_to", [
     :business_rule = "Order items must reference valid products"
 ])
 
-? @@( o1.validation() ) + NL
+? BoxRound("Data Model Validation")
+? @@NL( o1.Validation() ) + NL
 #--> [ [ "errors_count", 0 ], [ "warnings_count", 0 ] ]
+
+aErrors = o1.Errors()
+? BoxRound("Vaidation Errors (" + len(aErrors) + ")")
+? @@NL( aErrors ) + NL
 
 ? BoxRound("E-commerce model created: Final validation")
 ? @@Nl( o1.Summary() ) + NL
@@ -1930,6 +1943,94 @@ o1.Link("order_items", "products", "belongs_to", [
 
 #-->
 '
+╭───────────────────────╮
+│ Data Model Validation │
+╰───────────────────────╯
+[
+	[ "errors_count", 2 ],
+	[ "warnings_count", 0 ],
+	[ "fixes_applied", 0 ],
+	[
+		"active_plans",
+		[ "default" ]
+	]
+]
+
+╭──────────────────────╮
+│ Vaidation Errors (2) │
+╰──────────────────────╯
+[
+	[
+		[ "type", "field" ],
+		[ "severity", "error" ],
+		[ "message", "Duplicate field: email" ]
+	],
+	[
+		[ "type", "field" ],
+		[ "severity", "error" ],
+		[ "message", "Duplicate field: price" ]
+	]
+]
+
+╭────────────────────────────────────────────╮
+│ E-commerce model created: Final validation │
+╰────────────────────────────────────────────╯
+[
+	[ "name", "AdvancedEcommerce" ],
+	[ "version", "1.0" ],
+	[ "tablescount", 5 ],
+	[
+		"tables",
+		[
+			[
+				[
+					"customers",
+					[
+						[ "fieldscount", 5 ],
+						[ "relationscount", 3 ]
+					]
+				]
+			],
+			[
+				[
+					"orders",
+					[
+						[ "fieldscount", 3 ],
+						[ "relationscount", 7 ]
+					]
+				]
+			],
+			[
+				[
+					"products",
+					[
+						[ "fieldscount", 5 ],
+						[ "relationscount", 5 ]
+					]
+				]
+			],
+			[
+				[
+					"categories",
+					[
+						[ "fieldscount", 3 ],
+						[ "relationscount", 1 ]
+					]
+				]
+			],
+			[
+				[
+					"order_items",
+					[
+						[ "fieldscount", 5 ],
+						[ "relationscount", 6 ]
+					]
+				]
+			]
+		]
+	]
+]
+
 ╭────────────────╮
 │ Mode relations │
 ╰────────────────╯
@@ -2060,6 +2161,8 @@ pf()
 # ERROR HANDLING EXAMPLE  #
 #=========================#
 
+/*---
+
 pr()
 
 error_model = new stzDataModel("ErrorDemo")
@@ -2098,10 +2201,265 @@ All examples completed successfully!
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
+#=====================================================================#
+#  DATA MODEL AUTOMATIC FIX EXAMPLES (IN PERMISSIVE VALIDATION MODE)  #
+#=====================================================================#
+
+/*--- Example 1: Default context with problematic data
+
+pr()
+
+# Create a data model
+oModel = new stzDataModel("my_model")
+oModel.SetValidationMode("permissive")
+
+oModel.AddTable("", [  # Empty table name
+    [ "id", "integer" ],
+    [ "name", "string" ],
+    [ "name", "string" ]  # Duplicate field
+])
+
+oModel.AddTable("user data", [  # Invalid name with space
+    [ '', "string" ],  # Empty field name
+    [ "email", NULL ]  # Missing type
+])
+
+# Validate and see fixes
+aResult = oModel.Validate() # ERROR returned no errors nor fixes
+
+? "Errors: " + aResult[:errors_count]
+? "Warnings: " + aResult[:warnings_count] 
+? "Fixes applied: " + aResult[:fixes_applied]
+
+aFixes = oModel.GetAppliedFixes()
+for fix in aFixes
+    ? fix[:type] + " fix: " + fix[:description]
+    ? "  " + fix[:old_value] + " -> " + fix[:new_value]
+next
+
+pf()
+
+/*--- Example 2: Database context with reserved keywords
+
+pr()
+
+oModelDB = new stzDataModel("mymodel")
+oModelDB.LoadFixPlans("database")
+oModelDB.SetValidationMode("permissive")
+
+oModelDB.AddTable("table", [  # Reserved keyword
+    [ "select", "string" ],  # Reserved keyword field
+    [ "user-id", "integer" ]  # Invalid characters
+])
+
+aResult = oModelDB.Validate()
+? @@(aResult)
+
+aFixes = oModelDB.GetAppliedFixes()
+for fix in aFixes
+    ? "DB fix: " + fix[:old_value] + " -> " + fix[:new_value]
+next
+
+pf()
+
+/*--- Example 3: API context with naming conventions
+*/
+pr()
+
+o1 = new stzDataModel("mymodel")
+o1.LoadFixPlan("api")
+o1.SetValidationMode("permissive")
+
+o1.AddTable("user_profile", [  # Snake case (should be camelCase)
+    [ "first_name", "string" ],
+    [ "last_name", "string" ],
+    [ "first_name", "string" ]  # Duplicate
+])
+
+# Getting a concise text summary of the model
+? BoxRound("Model before validation")
+? o1.TextSummary() + NL
+
+# Recalling the current validation mode
+? BoxRound("Current validation mode")
+? o1.ValidationMode() + NL
+
+# Validating the model
+
+? BoxRound("Model validation")
+? @@NL( o1.Validate() ) + NL
+
+# Checking the model after validation
+? BoxRound("Model after validation")
+? @@NL( o1.Tables() ) + NL
+
+# Getting the detected errors
+? BoxRound("Detectd errors")
+? @@NL( o1.ErrorsXT() ) + NL
+
+# Getting the fixes and applying them
+
+? BoxRound("Applied fixes")
+? @@NL(o1.AppliedFixes()) + NL
+
+# Validating the model again
+
+? NL + BoxRound("Validate the model again")
+?  @@NL(o1.Validate()) + NL
+
+? "Check the errors:"
+
+? @@NL( o1.Errors() )
+
+#-->
+'
+╭─────────────────────────╮
+│ Model before validation │
+╰─────────────────────────╯
+This model contains 1 table(s):
+• user_profile: 3 field(s), 0 relationship(s)
+
+╭─────────────────────────╮
+│ Current validation mode │
+╰─────────────────────────╯
+permissive
+
+╭──────────────────╮
+│ Model validation │
+╰──────────────────╯
+[
+	[ "errors_count", 0 ],
+	[ "warnings_count", 0 ],
+	[ "fixes_applied", 1 ],
+	[
+		"active_plans",
+		[ "default", "api" ]
+	]
+]
+
+╭────────────────────────╮
+│ Model after validation │
+╰────────────────────────╯
+[
+	[
+		[ "name", "user_profile" ],
+		[
+			"fields",
+			[
+				[
+					[ "name", "first_name" ],
+					[ "type", "string" ],
+					[ "constraints", [  ] ]
+				],
+				[
+					[ "name", "last_name" ],
+					[ "type", "string" ],
+					[ "constraints", [  ] ]
+				],
+				[
+					[ "name", "first_name_1" ],
+					[ "type", "string" ],
+					[ "constraints", [  ] ]
+				]
+			]
+		]
+	]
+]
+
+╭────────────────╮
+│ Detectd errors │
+╰────────────────╯
+[
+	[
+		[ "type", "error" ],
+		[ "severity", "error" ],
+		[ "category", "field" ],
+		[ "message", "Duplicate field: first_name" ],
+		[ "table", "user_profile" ],
+		[ "field", "first_name" ],
+		[ "field_index", 3 ],
+		[ "fixed", 1 ]
+	]
+]
+
+╭───────────────╮
+│ Applied fixes │
+╰───────────────╯
+[
+	[
+		[ "type", "fix" ],
+		[ "plan", "default" ],
+		[ "condition", "duplicate_field" ],
+		[ "description", "Renamed duplicate field" ],
+		[ "old_value", "first_name" ],
+		[ "new_value", "first_name_1" ],
+		[ "table", "user_profile" ],
+		[ "field_index", 3 ]
+	]
+]
+
+
+╭──────────────────────────╮
+│ Validate the model again │
+╰──────────────────────────╯
+[
+	[ "errors_count", 0 ],
+	[ "warnings_count", 0 ],
+	[ "fixes_applied", 0 ],
+	[
+		"active_plans",
+		[ "default", "api" ]
+	]
+]
+
+Check the errors:
+[ ]
+'
+
+pf()
+# Executed in 0.06 second(s) in Ring 1.22
+
+/*--- Example 4: Custom fix plans
+aCustomFixes = [
+    :table_fixes = [
+        [
+            :condition = "legacy_prefix",
+            :check = "left(table[:name], 4) = 'old_'",
+            :action = "table[:name] = 'new_' + substr(table[:name], 5, len(table[:name]))",
+            :description = "Update legacy table prefix"
+        ]
+    ],
+    :field_fixes = [
+        [
+            :condition = "uppercase_field",
+            :check = "table[:name] = upper(table[:name])",
+            :action = "field[:name] = lower(field[:name])",
+            :description = "Convert uppercase fields to lowercase"
+        ]
+    ]
+]
+
+oModelCustom = new stzDataModel
+oModelCustom.SetFixPlans(aCustomFixes)
+oModelCustom.SetValidationMode("permissive")
+
+oModelCustom.AddTable("old_users", [
+    [ :name = "NAME", :type = "string" ],
+    [ :name = "EMAIL", :type = "string" ]
+])
+
+aResult = oModelCustom.Validate()
+aFixes = oModelCustom.GetAppliedFixes()
+for fix in aFixes
+    ? "Custom fix: " + fix[:old_value] + " -> " + fix[:new_value]
+next
+
 #======================================#
 #  EDUCATIONAL HINT : ASKING FOR HELP  #
 #======================================#
-*/
+
+/*---
+
 pr()
 
 # Get actionable hints of best practices
@@ -2129,7 +2487,7 @@ pr()
 5. OPTIMIZE SMART: Follow performance hints to prevent slow queries
    - Example: Add indexes, use eager loading based on PerfHints()
 
-6. DEBUG VISUALLY: Use Explain() and GetERDData() for model understanding
+6. DEBUG VISUALLY: Use TextSummary() and GetERDData() for model understanding
    - Example: Generate summaries and ERD scripts for visualization
 
 7. PLAN MIGRATIONS: Use staged approach for production schema changes
@@ -2160,7 +2518,7 @@ pr()
 5. OPTIMIZE SMART: Follow performance hints to prevent slow queries
    - Example: Add indexes, use eager loading based on PerfHints()
 
-6. DEBUG VISUALLY: Use Explain() and GetERDData() for model understanding
+6. DEBUG VISUALLY: Use TextSummary() and GetERDData() for model understanding
    - Example: Generate summaries and ERD scripts for visualization
 
 7. PLAN MIGRATIONS: Use staged approach for production schema changes
@@ -2187,7 +2545,7 @@ WHEN TO USE EACH FEATURE:
 • PerfHints(): When queries become slow
   - Use to get optimization recommendations
 
-• Explain(): When debugging complex models or onboarding new developers
+• TextSummary(): When debugging complex models or onboarding new developers
   - Use for quick model summaries and understanding
 
 • GetERDData(): When generating documentation or visual diagrams

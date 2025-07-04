@@ -537,6 +537,147 @@ $aDataModelTemplates = [
     ]
 ]
 
+#=======================================================#
+#  AUTOMATIC FIX PLANS (IN PERMISSIVE VALIDATION MODE)  #
+#=======================================================#
+
+# Global Fix Plans Container
+$aFixPlans = [
+    :default = [
+        :table_fixes = [
+            [
+                :condition = "empty_name",
+                :check = "table[:name] = '' or table[:name] = NULL",
+                :action = "table[:name] = 'table_' + i",
+                :description = "Generate name for unnamed table"
+            ],
+            [
+                :condition = "invalid_name",
+                :check = "not This.IsValidTableName(table[:name])",
+                :action = "table[:name] = This.SanitizeTableName(table[:name])",
+                :description = "Sanitize invalid table name"
+            ]
+        ],
+        :field_fixes = [
+            [
+                :condition = "duplicate_field",
+                :check = "find(aFieldNames, field[:name]) > 0",
+                :action = "field[:name] = field[:name] + '_' + nDuplicateCounter",
+                :description = "Rename duplicate field"
+            ],
+            [
+                :condition = "empty_field_name",
+                :check = "field[:name] = '' or field[:name] = NULL",
+                :action = "field[:name] = 'field_' + j",
+                :description = "Generate name for unnamed field"
+            ],
+            [
+                :condition = "missing_type",
+                :check = "not islist(field[:type]) and field[:type] = NULL",
+                :action = "field[:type] = 'string'",
+                :description = "Set default type for untyped field"
+            ]
+        ]
+    ],
+    :database = [
+        :table_fixes = [
+            [
+                :condition = "empty_name",
+                :check = "table[:name] = '' or table[:name] = NULL",
+                :action = "table[:name] = 'tbl_' + i",
+                :description = "Generate database-friendly table name"
+            ],
+            [
+                :condition = "reserved_keyword",
+                :check = "This.IsReservedKeyword(table[:name])",
+                :action = "table[:name] = 'tbl_' + table[:name]",
+                :description = "Prefix reserved keyword table names"
+            ],
+            [
+                :condition = "special_chars",
+                :check = "This.HasSpecialChars(table[:name])",
+                :action = "table[:name] = This.RemoveSpecialChars(table[:name])",
+                :description = "Remove special characters"
+            ]
+        ],
+        :field_fixes = [
+            [
+                :condition = "duplicate_field",
+                :check = "find(aFieldNames, field[:name]) > 0",
+                :action = "field[:name] = field[:name] + '_' + nDuplicateCounter",
+                :description = "Rename duplicate field"
+            ],
+            [
+                :condition = "invalid_field_name",
+                :check = "not This.IsValidFieldName(field[:name])",
+                :action = "field[:name] = This.SanitizeFieldName(field[:name])",
+                :description = "Sanitize invalid field name"
+            ]
+        ]
+    ],
+    :api = [
+        :table_fixes = [
+            [
+                :condition = "empty_name",
+                :check = "table[:name] = '' or table[:name] = NULL",
+                :action = "table[:name] = 'resource_' + i",
+                :description = "Generate API resource name"
+            ],
+            [
+                :condition = "snake_case_table",
+                :check = "This.IsSnakeCase(table[:name])",
+                :action = "table[:name] = This.ToCamelCase(table[:name])",
+                :description = "Convert to camelCase for API"
+            ]
+        ],
+        :field_fixes = [
+            [
+                :condition = "duplicate_field",
+                :check = "find(aFieldNames, field[:name]) > 0",
+                :action = "field[:name] = field[:name] + nDuplicateCounter",
+                :description = "Append number to duplicate field"
+            ],
+            [
+                :condition = "snake_case_field",
+                :check = "This.IsSnakeCase(field[:name])",
+                :action = "field[:name] = This.ToCamelCase(field[:name])",
+                :description = "Convert snake_case to camelCase"
+            ]
+        ]
+    ],
+    :import = [
+        :table_fixes = [
+            [
+                :condition = "empty_name",
+                :check = "table[:name] = '' or table[:name] = NULL",
+                :action = "table[:name] = 'imported_' + substr(Timestamp(), 1, 8) + '_' + i",
+                :description = "Generate timestamped import table name"
+            ],
+            [
+                :condition = "whitespace_table",
+                :check = "This.HasWhitespace(table[:name])",
+                :action = "table[:name] = This.ReplaceWhitespace(table[:name], '_')",
+                :description = "Replace whitespace in table names"
+            ]
+        ],
+        :field_fixes = [
+            [
+                :condition = "duplicate_field",
+                :check = "find(aFieldNames, field[:name]) > 0",
+                :action = "field[:name] = field[:name] + '_copy' + nDuplicateCounter",
+                :description = "Add copy suffix to duplicate fields"
+            ],
+            [
+                :condition = "whitespace_field",
+                :check = "This.HasWhitespace(field[:name])",
+                :action = "field[:name] = This.ReplaceWhitespace(field[:name], '_')",
+                :description = "Replace whitespace in field names"
+            ]
+        ]
+    ]
+]
+
+
 #================#
 #  HELP STRING   #
 #================#
