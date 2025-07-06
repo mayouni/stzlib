@@ -9,6 +9,7 @@ class stzDatabaseModel from stzDataModel
     @cForeignKeyMode # Can be "smart", "strict", or "permissive"
     @cActivePerfPlan
     @oPerfEngine
+	@aRelations
 
     def init(p)
         super.init(p)
@@ -17,11 +18,12 @@ class stzDatabaseModel from stzDataModel
         @cForeignKeyMode = "smart"
         @cActivePerfPlan = "default"
         @oPerfEngine = new stzDatabasePerfEngine()
+        @aRelations = []
 
     # Configuration methods
     def SetForeignKeyInferenceMode(cMode)
         @cForeignKeyMode = cMode
-        return This
+        
 
     def ForeignKeyMode()
         return @cForeignKeyMode
@@ -54,17 +56,17 @@ class stzDatabaseModel from stzDataModel
         cReferencedTableSingular = This.TableNameFromFK(cForeignKeyField)
         cReferencedTable = PluralOf(cReferencedTableSingular)
         if cReferencedTable != "" and This.TableExists(cReferencedTable)
-            @aRelationships + [
+            @aRelations + [
+                :type = "belongs_to",
                 :from = cFromTable,
                 :to = cReferencedTable,
-                :type = "belongs_to",
                 :inferred = TRUE,
                 :field = cForeignKeyField
             ]
-            @aRelationships + [
+            @aRelations + [
+                :type = "has_many",
                 :from = cReferencedTable,
                 :to = cFromTable,
-                :type = "has_many",
                 :inferred = TRUE,
                 :field = cForeignKeyField
             ]
@@ -96,7 +98,7 @@ class stzDatabaseModel from stzDataModel
         if aConstraintDef[:type] = "foreign_key"
             aRefInfo = This.ParseForeignKey(cConstraint)
             if aRefInfo != NULL
-                @aRelationships + [
+                @aRelations + [
                     :from_table = cTableName,
                     :from_field = cFieldName,
                     :to_table = aRefInfo[:table],
@@ -190,7 +192,7 @@ class stzDatabaseModel from stzDataModel
     # Performance plan management
     def UsePerfPlan(cPlanName)
         @oPerfEngine.SetActivePlan(cPlanName)
-        return This
+        
 
     def PerfEngine()
         return @oPerfEngine
@@ -215,7 +217,7 @@ class stzDatabaseModel from stzDataModel
 
     def SetPerfThreshold(cName, nValue)
         @oPerfEngine.SetThreshold(cName, nValue)
-        return This
+        
 
     def PerfThreshold(cName)
         return @oPerfEngine.Threshold(cName)
@@ -224,9 +226,39 @@ class stzDatabaseModel from stzDataModel
         return @oPerfEngine.Thresholds()
 
     def ModelSummary()
+        # Enhanced to provide relationship data with correct field names
+        aRelationships = []
+        
+        # Add relationships from @aRelations with correct structure
+        for aRel in @aRelations
+            aRelationships + [
+                :type = aRel[:type],
+                :from = aRel[:from],
+                :to = aRel[:to],
+                :field = aRel[:field]
+            ]
+        next
+        
+        # Add enhanced table data with relationship counts
+        aEnhancedTables = []
+        for aTable in @aTables
+            nRelCount = 0
+            for aRel in @aRelations
+                if aRel[:from] = aTable[:name] or aRel[:to] = aTable[:name]
+                    nRelCount++
+                ok
+            next
+            
+            aEnhancedTables + [
+                :name = aTable[:name],
+                :fields = aTable[:fields],
+                :relationship_count = nRelCount
+            ]
+        next
+        
         return [
-            :tables = @aTables,
-            :relationships = @aRelationships
+            :tables = aEnhancedTables,
+            :relationships = aRelationships  # Changed from :relations to :relationships
         ]
 
     def GroupByPriority(aHints)
@@ -283,7 +315,7 @@ class stzDatabaseModel from stzDataModel
             "fk_index_mandatory" = "foreign_keys", 
             "covering_indexes" = "multi_column_queries",
             "denormalization_consideration" = "complex_joins",
-            "n_plus_one_prevention" = "has_many_relationships"
+            "n_plus_one_prevention" = "has_many_relations"
         ]
         if HasKey(aAppliesMap, cRuleId)
             return aAppliesMap[cRuleId]
@@ -316,7 +348,7 @@ class stzDatabaseModel from stzDataModel
             next
             cPlantUML += "}" + nl + nl
         next
-        aRels = aDiagramData[:relationships]
+        aRels = aDiagramData[:relations]
         nLen = len(aRels)
         for i = 1 to nLen
             aRel = aRels[i]
@@ -360,7 +392,7 @@ class stzDatabaseModel from stzDataModel
             next
             cDBML += "}" + nl + nl
         next
-        for aRel in @aRelationships
+        for aRel in @aRelations
             if aRel[:type] = "belongs_to" and aRel[:from] != aRel[:to]
                 cDBML += "Ref: " + aRel[:from] + "."
                 if HasKey(aRel, :foreign_key) and aRel[:foreign_key] != ""
@@ -434,7 +466,7 @@ class stzDatabaseModel from stzDataModel
                 This.ParseAlterTable(cStatement)
             ok
         next
-        return This
+        
 
     def FromSQL(cSQL)
         return This.FromDDL(cSQL)
@@ -480,7 +512,7 @@ class stzDatabaseModel from stzDataModel
                 ok
             next
         ok
-        return This
+        
 
     def ParseAlterTable(cStatement)
         cUpper = upper(cStatement)
@@ -742,11 +774,13 @@ class stzDatabaseModel from stzDataModel
             but isString(cFieldType) and @substr(upper(cFieldType), "VARCHAR", []) > 0
                 # VARCHAR constraint already embedded in type
             ok
-            if cFieldType = :foreign_key or right(cFieldName, 3) = "_id"
+
+            if @bUseRelInfere and (cFieldType = :foreign_key or right(cFieldName, 3) = "_id")
                 This.InferRelationsFromFK(cTableName, cFieldName)
             ok
+
         next
-        return This
+        
 
     # Import from Mermaid ERD format
     def FromMermaid(cMermaidERD)
@@ -789,8 +823,8 @@ class stzDatabaseModel from stzDataModel
                 if len(acParts) >= 3
                     cFromEntity = acParts[1]
                     cToEntity = acParts[3]
-                    This.AddRelationship(cFromEntity, cToEntity, "has_many", [])
+                    This.AddRelation(cFromEntity, cToEntity, "has_many", [])
                 ok
             ok
         next
-        return This
+        
