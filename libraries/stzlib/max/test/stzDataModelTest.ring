@@ -43,8 +43,8 @@ o1 {
         [ "created_at", :timestamp]
     ])
     
-    # Schema created with automatic relationship inference
-    ? @@NL( Relationships() )
+    # Schema created with automatic Relation inference
+    ? @@NL( Relations() )
 
 }
 #-->
@@ -68,15 +68,15 @@ o1 {
 '
 
 pf()
-# Executed in 0.06 second(s) in Ring 1.22
+# Executed in 0.05 second(s) in Ring 1.22
 
 #==================================#
-#  EXPLICIT RELATIONSHIP MODELING  #
+#  EXPLICIT Relation MODELING  #
 #==================================#
 
 /*---
 
-# Problem: Complex relationships that can't be inferred from naming
+# Problem: Complex Relations that can't be inferred from naming
 # Solution: Use explicit Link() method for precise control
 
 pr()
@@ -116,7 +116,7 @@ o1 {
 									# I need to undersdans how the fellowing
 									# link has been inferred:
 									# :from products :to categories :belongs_to
-									# ~> I mean how this semantic relationship has
+									# ~> I mean how this semantic Relation has
 									# been programmatically inferred?
         [ "price", :decimal ],
         [ "active", :boolean]
@@ -128,19 +128,19 @@ o1 {
         [ "name", :unique]
     ])
     
-	# Explicit many-to-many relationship
+	# Explicit many-to-many Relation
 	Link("products", "tags", "many_to_many", [ :via = "product_tags" ])
 
 	# Self-referencing hierarchy
 	Hierarchy("categories", [ :parent_field = "parent_id"] )
 
 	# Further explaining this hierarchy modeling concept:
-	# Hierarchy Modeling: Self-referencing relationships where records in
+	# Hierarchy Modeling: Self-referencing Relations where records in
 	# the same table can be parents/children of each other, forming tree
 	# structures like organizational charts or category hierarchies.
 
-    # Explicit relationships Addd
-    ? @@NL( Relationships() )
+    # Explicit Relations Addd
+    ? @@NL( Relations() )
 
 }
 #-->
@@ -161,43 +161,29 @@ o1 {
 		[ "inferred", 1 ]
 	],
 	[
+		[ "type", "many_to_many" ],
 		[ "from", "products" ],
 		[ "to", "tags" ],
-		[ "type", "many_to_many" ],
-		[ "inferred", 0 ],
-		[
-			"options",
-			[
-				[ "via", "product_tags" ]
-			]
-		]
+		[ "field", "" ],
+		[ "inferred", 0 ]
 	],
 	[
+		[ "type", "hierarchy" ],
 		[ "from", "categories" ],
 		[ "to", "categories" ],
-		[ "type", "hierarchy" ],
-		[ "inferred", 0 ],
-		[
-			"options",
-			[
-				[ "parent_field", "parent_id" ]
-			]
-		],
-		[
-			"semantic_meaning",
-			"Each category can have a parent and multiple children, forming a tree structure"
-		]
+		[ "field", "" ],
+		[ "inferred", 0 ]
 	]
 ]
 '
 
 pf()
-# Executed in 0.16 second(s) in Ring 1.22
+# Executed in 0.09 second(s) in Ring 1.22
 
 /*---
 
 # Problem: Social network with users, posts, follows, and likes
-# Solution: Combine different relationship types for comprehensive modeling
+# Solution: Combine different Relation types for comprehensive modeling
 
 pr()
 
@@ -225,14 +211,14 @@ o1 {
         [ "created_at", :timestamp ]
     ])
     
-    # Network relationship for following
+    # Network Relation for following
     Network("users", "follows", [ :bidirectional = false ]) # Explain this modling concept
     
     # Many-to-many via likes table
     Link("users", "posts", "many_to_many", [:via = "likes", :as = "liked_posts"]) # Further explain the syntax
     
-    # Social network model relationships
-    ? @@NL( Relationships() )
+    # Social network model Relations
+    ? @@NL( Relations() )
 }
 #-->
 '
@@ -280,36 +266,24 @@ o1 {
 		[ "inferred", 1 ]
 	],
 	[
+		[ "type", "network" ],
 		[ "from", "users" ],
 		[ "to", "users" ],
-		[ "type", "network" ],
-		[ "name", "follows" ],
-		[ "inferred", 0 ],
-		[
-			"options",
-			[
-				[ "bidirectional", 0 ]
-			]
-		]
+		[ "field", "" ],
+		[ "inferred", 0 ]
 	],
 	[
+		[ "type", "many_to_many" ],
 		[ "from", "users" ],
 		[ "to", "posts" ],
-		[ "type", "many_to_many" ],
-		[ "inferred", 0 ],
-		[
-			"options",
-			[
-				[ "via", "likes" ],
-				[ "as", "liked_posts" ]
-			]
-		]
+		[ "field", "" ],
+		[ "inferred", 0 ]
 	]
 ]
 '
 
 pf()
-# Executed in 0.15 second(s) in Ring 1.22
+# Executed in 0.14 second(s) in Ring 1.22
 
 #================================#
 #  SCHEMA EVOLUTION & MIGRATION  #
@@ -355,7 +329,7 @@ o1 {
         ? "Field removal impact:"
         ? @@NL( impact )
     catch
-        ? "Breaking change prevented: Cannot remove field 'category_id' - breaks relationships"
+        ? "Breaking change prevented: Cannot remove field 'category_id' - breaks Relations"
     done
 }
 #-->
@@ -365,7 +339,7 @@ Impact analysis for adding "description" field:
 	[ "breaking_changes", 0 ],
 	[ "perf_impact", "low" ],
 	[ "migration_complexity", "simple" ],
-	[ "affected_relationships", [  ] ],
+	[ "affected_Relations", [  ] ],
 	[
 		"recommendations",
 		[
@@ -382,11 +356,11 @@ Impact analysis for adding "description" field:
 	]
 ]
 
-Breaking change prevented: Cannot remove field "category_id" - breaks relationships
+Breaking change prevented: Cannot remove field "category_id" - breaks Relations
 '
 
 pf()
-# Executed in 0.16 second(s) in Ring 1.22
+# Executed in 0.10 second(s) in Ring 1.22
 
 /*--- Version control for schema evolution
 
@@ -420,10 +394,10 @@ o1 {
 Schema: blog_platform v2.1
 
 This model contains 2 tables:
-- authors: 4 fields, 2 relationships
-- articles: 6 fields, 2 relationships
+- authors: 4 fields, 2 Relations
+- articles: 6 fields, 2 Relations
 
-Key relationships:
+Key Relations:
 - articles belongs_to authors
 - authors has_many articles
 '
@@ -533,19 +507,134 @@ o1 {
 │ Data Model : blog_platform (v1.0) │
 ╰───────────────────────────────────╯
 This model contains 2 tables:
-• authors: 4 fields, 2 relationships
-• articles: 6 fields, 2 relationships
+• authors: 4 fields, 2 Relations
+• articles: 6 fields, 2 Relations
 
-Key relationships:
+Key Relations:
 • articles belongs_to authors
 • authors has_many articles
 '
 pf()
-# Executed in 0.06 second(s) in Ring 1.22
+# Executed in 0.09 second(s) in Ring 1.22
 
+/*=== Activating and deactivating infered relations
+*/
+pr()
+
+# By default, relation auto-inference is deactivated.
+
+# Unless we define relations explicietly using Link()
+# (also called AddRelation()) no relations are added:
+
+o1 = new stzDataModel("blog_platform")
+o1 {
+
+	? RelationInference()
+	#--> FALSE
+
+    AddTable("authors", [
+        [ "id", :primary_key ],
+        [ "name", :required ],
+        [ "email", :email ],
+        [ "bio", :text]
+    ])
+    
+    AddTable("articles", [
+        [ "id", :primary_key ],
+        [ "author_id", :foreign_key ],
+        [ "title", :required ],
+        [ "content", :text ],
+        [ "published_at", :timestamp ],
+        [ "view_count", "integer"]
+    ])
+
+
+	? @@NL( Relations() ) + NL
+	#--> []
+
+	AddRelation("has_many", :From = "authors", :To = "articles", :Via = "author_id")
+
+	? @@NL( Relations() ) + NL
+	#--> [
+	# 	[
+	# 		[ "type", "has_many" ],
+	# 		[ "from", "authors" ],
+	# 		[ "to", "articles" ],
+	# 		[ "field", "author_id" ],
+	# 		[ "inferred", 0 ]
+	# 	]
+	# ]
+
+}
+
+# Now let's take the other case where automatic relations
+# inference is activated
+
+? "---" + NL
+
+o1 = new stzDataModel("blog_platform")
+o1 {
+
+	? RelationInference()
+	#--> FALSE
+
+	UseRelationInference()
+	? RelationInference()
+	#--> TRUE
+
+    AddTable("authors", [
+        [ "id", :primary_key ],
+        [ "name", :required ],
+        [ "email", :email ],
+        [ "bio", :text]
+    ])
+    
+    AddTable("articles", [
+        [ "id", :primary_key ],
+        [ "author_id", :foreign_key ],
+        [ "title", :required ],
+        [ "content", :text ],
+        [ "published_at", :timestamp ],
+        [ "view_count", "integer"]
+    ])
+
+
+	? @@NL( Relations() ) + NL
+	#--> [
+	# 	[
+	# 		[ "type", "belongs_to" ],
+	# 		[ "from", "articles" ],
+	# 		[ "to", "authors" ],
+	# 		[ "field", "author_id" ],
+	# 		[ "inferred", 1 ]
+	# 	],
+	# 	[
+	# 		[ "type", "has_many" ],
+	# 		[ "from", "authors" ],
+	# 		[ "to", "articles" ],
+	# 		[ "field", "author_id" ],
+	# 		[ "inferred", 1 ]
+	# 	]
+	# ]
+
+	#NOTE1
+	# If you look closely, you find that the same relation is added, but from two
+	# opposite directions... This desin choice is made consciously to simplify
+	# queries (e.g., article.author, author.articles), enhance visual ERD clarity,
+	# and aligns with ORM conventions.
+
+	#NOTE // If you try to define relations in this mode you get an error
+
+	# AddRelation("has_many", :From = "authors", :To = "articles", :Via = "author_id")
+	#--> Can't define relations when automatic inference is activated! Use SetRelationInference(FALSE) and try again.
+
+}
+
+pf()
+# Executed in 0.00 second(s) in Ring 1.22
 
 /*--- Diagram generation: for use wit hexternal tool to visualize the diagram
-
+*/
 pr()
 
 o1 = new stzDatabaseModel("blog_platform")
@@ -566,7 +655,7 @@ o1 {
         [ "view_count", "integer"]
     ])
 
-    # Generate entity-relationship diagram script for the Mermaid online tool
+    # Generate entity-Relation diagram script for the Mermaid online tool
 	? BoxRound("DDL SCRIPT")
     ? ToDDL() + NL
 	#-->
@@ -729,7 +818,7 @@ authors ||--o{ articles
 			]
 		}
 	],
-	"relationships": [
+	"Relations": [
 		{
 			"from_table": "",
 			"from_field": "",
@@ -746,7 +835,7 @@ authors ||--o{ articles
 }
 '
 
-    # Generate entity-relationship diagram script for the Mermaid online tool
+    # Generate entity-Relation diagram script for the Mermaid online tool
 	? BoxRound("DBML SCRIPT")
     ? ToDBML()
 	#-->
@@ -781,7 +870,7 @@ Ref: articles.author_id > authors.id
 # Do the same with the other formats
 
 pf()
-# Executed in 0.32 second(s) in Ring 1.22
+# Executed in 0.23 second(s) in Ring 1.22
 
 /*=== Importing a DDL definition script #TODO Error in relation_count = 0 (shoud be 2)
 
@@ -980,7 +1069,7 @@ pf()
 #  REAL-WORLD WORKFLOW PATTERNS  #
 #================================#
 
-/*--- Complete e-commerce system with all relationship types
+/*--- Complete e-commerce system with all Relation types
 
 pr()
 
@@ -1028,7 +1117,7 @@ o1 {
         [ "unit_price", :decimal]
     ])
     
-    # Add explicit relationships
+    # Add explicit Relations
     Hierarchy("customers", [:parent_field = "parent_id"])     # B2B customer hierarchies
     Hierarchy("categories", [:parent_field = "parent_id"])    # Product categories
     Link("orders", "products", "many_to_many", [:via = "order_items"])
@@ -1050,13 +1139,13 @@ o1 {
 │ Complete e-commerce model │
 ╰───────────────────────────╯
 This model contains 5 tables:
-• customers: 5 fields, 3 relationships
-• categories: 4 fields, 3 relationships
-• products: 5 fields, 5 relationships
-• orders: 5 fields, 5 relationships
-• order_items: 5 fields, 4 relationships
+• customers: 5 fields, 3 Relations
+• categories: 4 fields, 3 Relations
+• products: 5 fields, 5 Relations
+• orders: 5 fields, 5 Relations
+• order_items: 5 fields, 4 Relations
 
-Key relationships:
+Key Relations:
 • products belongs_to categories
 • categories has_many products
 • orders belongs_to customers
@@ -1084,7 +1173,7 @@ pf()
 # Executed in 0.41 second(s) in Ring 1.22
 
 /*--- Migration workflow for production systems
-*/
+
 pr()
 
 o1 = new stzDatabaseModel([ "ecommerce_complete", "3.0"])
@@ -1157,14 +1246,14 @@ o1 {
 ╭───────────────╮
 │ Current state │
 ╰───────────────╯
-This model contains 5 tables:
-• customers: 5 fields, 5 relationships
-• categories: 4 fields, 5 relationships
-• products: 5 fields, 9 relationships
-• orders: 5 fields, 9 relationships
-• order_items: 5 fields, 8 relationships
+This model contains 5 table(s):
+• customers: 5 field(s), 5 Relation(s)
+• categories: 4 field(s), 5 Relation(s)
+• products: 5 field(s), 9 Relation(s)
+• orders: 5 field(s), 9 Relation(s)
+• order_items: 5 field(s), 8 Relation(s)
 
-Key relationships:
+Key Relations:
 • products belongs_to categories
 • categories has_many products
 • products belongs_to categories
@@ -1185,7 +1274,6 @@ Key relationships:
 • categories hierarchy categories
 • orders many_to_many products
 
-
 ╭───────────────────────────╮
 │ Migration impact analysis │
 ╰───────────────────────────╯
@@ -1193,7 +1281,7 @@ Key relationships:
 	[ "breaking_changes", 0 ],
 	[ "perf_impact", "low" ],
 	[ "migration_complexity", "simple" ],
-	[ "affected_relationships", [  ] ],
+	[ "affected_Relations", [  ] ],
 	[
 		"recommendations",
 		[
@@ -1300,10 +1388,14 @@ Key relationships:
 │ Final validation │
 ╰──────────────────╯
 [
-	[ "valid", 1 ],
-	[ "errors", [  ] ],
-	[ "error_count", 0 ],
-	[ "tables_validated", 5 ]
+	[ "errors_count", 0 ],
+	[ "warnings_count", 0 ],
+	[ "fixes_applied", 0 ],
+	[ "tables_validated", 5 ],
+	[
+		"active_plans",
+		[ "default" ]
+	]
 ]
 '
 
@@ -1340,10 +1432,6 @@ o1 {
 	? BoxRound("How Many Errors and Warnings")
 	? @@NL( Validate() ) + NL
 
-	# Detailed info about the validation
-	? BoxRound("Detailed Errors and Warnings")
-	? @@NL( ValidateXT() ) + NL
-
 	? BoxRound("Only Errors")
 	? @@NL( Errors() ) + NL
 
@@ -1362,22 +1450,12 @@ strict
 ╰──────────────────────────────╯
 [
 	[ "errors_count", 2 ],
-	[ "warnings_count", 0 ]
-]
-
-╭──────────────────────────────╮
-│ Detailed Errors and Warnings │
-╰──────────────────────────────╯
-[
+	[ "warnings_count", 0 ],
+	[ "fixes_applied", 0 ],
+	[ "tables_validated", 2 ],
 	[
-		[ "type", "table" ],
-		[ "severity", "error" ],
-		[ "message", "Table has no name" ]
-	],
-	[
-		[ "type", "field" ],
-		[ "severity", "error" ],
-		[ "message", "Duplicate field: name" ]
+		"active_plans",
+		[ "default" ]
 	]
 ]
 
@@ -1386,14 +1464,23 @@ strict
 ╰─────────────╯
 [
 	[
-		[ "type", "table" ],
+		[ "type", "error" ],
 		[ "severity", "error" ],
-		[ "message", "Table has no name" ]
+		[ "category", "table" ],
+		[ "message", "Empty table name" ],
+		[ "table", "" ],
+		[ "table_index", 1 ],
+		[ "fixed", 0 ]
 	],
 	[
-		[ "type", "field" ],
+		[ "type", "error" ],
 		[ "severity", "error" ],
-		[ "message", "Duplicate field: name" ]
+		[ "category", "field" ],
+		[ "message", "Duplicate field: name" ],
+		[ "table", "users" ],
+		[ "field", "name" ],
+		[ "field_index", 2 ],
+		[ "fixed", 0 ]
 	]
 ]
 
@@ -1407,7 +1494,7 @@ pf()
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Validation the data model with WARNING mode
-
+*/
 pr()
 
 o1 = new stzDataModel("WarningModel")
@@ -1427,10 +1514,6 @@ o1 {
 	# A summary of the validation
 	? BoxRound("How Many Errors and Warnings")
 	? @@NL( Validate() ) + NL
-
-	# Detailed info about the validation
-	? BoxRound("Detailed Errors and Warnings")
-	? @@NL( ValidateXT() ) + NL
 
 	? BoxRound("Only Errors")
 	? @@NL( Errors() ) + NL
@@ -1537,7 +1620,7 @@ pf()
 
 
 #========================#
-# RELATIONSHIP METADATA  #
+# Relation METADATA  #
 #========================#
 
 pr()
@@ -1575,7 +1658,7 @@ social.AddTable("follows", [
     ["created_at", "datetime"]
 ])
 
-# Add relationships with rich metadata
+# Add Relations with rich metadata
 social.Link("posts", "users", "belongs_to", [
     :via = "user_id",
     :semantic = "Each post belongs to exactly one user",
@@ -1757,11 +1840,11 @@ ecommerce.SetValidationMode("strict")
 │ E-commerce template loaded... │
 ╰───────────────────────────────╯
 This model contains 3 tables:
-• customers: 3 fields, 3 relationships
-• orders: 3 fields, 4 relationships
-• products: 3 fields, 1 relationships
+• customers: 3 fields, 3 Relations
+• orders: 3 fields, 4 Relations
+• products: 3 fields, 1 Relations
 
-Key relationships:
+Key Relations:
 • orders belongs_to customers
 • customers has_many orders
 • orders belongs_to customers
@@ -1803,11 +1886,11 @@ oMySocialDataModel {
 │ E-commerce template loaded... │
 ╰───────────────────────────────╯
 This model contains 3 tables:
-• users: 3 fields, 4 relationships
-• posts: 3 fields, 3 relationships
-• follows: 2 fields, 1 relationships
+• users: 3 fields, 4 Relations
+• posts: 3 fields, 3 Relations
+• follows: 2 fields, 1 Relations
 
-Key relationships:
+Key Relations:
 • posts belongs_to users
 • users has_many posts
 • posts belongs_to users
@@ -1846,11 +1929,11 @@ o1.SetValidationMode("permissive")
 │ Blog template loaded... │
 ╰─────────────────────────╯
 This model contains 3 tables:
-• authors: 3 fields, 3 relationships
-• articles: 4 fields, 4 relationships
-• categories: 3 fields, 1 relationships
+• authors: 3 fields, 3 Relations
+• articles: 4 fields, 4 Relations
+• categories: 3 fields, 1 Relations
 
-Key relationships:
+Key Relations:
 • articles belongs_to authors
 • authors has_many articles
 • articles belongs_to authors
@@ -1908,7 +1991,7 @@ o1.AddTable("order_items", [
     ["unit_price", "decimal"]
 ])
 
-# Add relationships with metadata
+# Add Relations with metadata
 o1.Link("products", "categories", "belongs_to", [
     :via = "category_id",
     :semantic = "Products are organized into categories",
@@ -2317,7 +2400,7 @@ o1.AddTable("user_profile", [  # Snake case (should be camelCase)
 │ Model before validation │
 ╰─────────────────────────╯
 This model contains 1 table(s):
-• user_profile: 3 field(s), 0 relationship(s)
+• user_profile: 3 field(s), 0 Relation(s)
 
 ╭─────────────────────────╮
 │ Current validation mode │
@@ -2472,10 +2555,10 @@ pr()
 │ Basic Help (action-oriented) │
 ╰──────────────────────────────╯
 
-1. START SIMPLE: Use naming conventions for automatic relationship inference
+1. START SIMPLE: Use naming conventions for automatic Relation inference
    - Example: 'customer_id' in 'orders' auto-links to 'customers.id'
 
-2. BE EXPLICIT: Use Link(), Hierarchy(), Network() for complex relationships  
+2. BE EXPLICIT: Use Link(), Hierarchy(), Network() for complex Relations  
    - Example: Many-to-many via Link(), hierarchies via Hierarchy()
 
 3. VALIDATE EARLY: Always run Validate() before production deployment
@@ -2503,10 +2586,10 @@ pr()
 │ Full help (Actions + Usecase advice) │
 ╰──────────────────────────────────────╯
 
-1. START SIMPLE: Use naming conventions for automatic relationship inference
+1. START SIMPLE: Use naming conventions for automatic Relation inference
    - Example: 'customer_id' in 'orders' auto-links to 'customers.id'
 
-2. BE EXPLICIT: Use Link(), Hierarchy(), Network() for complex relationships  
+2. BE EXPLICIT: Use Link(), Hierarchy(), Network() for complex Relations  
    - Example: Many-to-many via Link(), hierarchies via Hierarchy()
 
 3. VALIDATE EARLY: Always run Validate() before production deployment
@@ -2528,16 +2611,16 @@ WHEN TO USE EACH FEATURE:
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 • AddTable(): Basic schema definition with smart defaults
-  - Use for initial table creation with inferred relationships
+  - Use for initial table creation with inferred Relations
 
-• Link(): Complex relationships that can't be auto-inferred  
-  - Use for many-to-many or custom relationships
+• Link(): Complex Relations that can't be auto-inferred  
+  - Use for many-to-many or custom Relations
 
 • Hierarchy(): Parent-child trees (categories, org charts)
   - Use for self-referencing hierarchical structures
 
 • Network(): Peer-to-peer connections (social networks, graphs)
-  - Use for complex, non-hierarchical relationships
+  - Use for complex, non-hierarchical Relations
 
 • Validate(): Before any production deployment or major change
   - Use to ensure model integrity and catch errors

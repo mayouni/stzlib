@@ -8,14 +8,10 @@
 
 class stzDataModel from stzObject
 
-    #================================#
-    #  INSTANCE VARIABLES            #
-    #================================#
-
     @cSchemaName
     @cSchemaVersion
     @aTables           
-    @aRelationships
+    @aRelations
 
     @cRelationInferenceMode # Can be "smart", "strict", or "permissive"
     @cValidationMode # Can be "warning", "strict", "permissive" (~> with autofixing)
@@ -23,12 +19,13 @@ class stzDataModel from stzObject
     @aActiveFixPlans
     @bAutoFix
     @aStructureSnapshot
-
 	@aValidationResult
 
-    #================================#
-    #  INITIALIZATION                #
-    #================================#
+	@bUseRelInfere
+
+      #==================#
+     #  INITIALIZATION  #
+    #==================#
 
     def init(p)
 
@@ -46,21 +43,20 @@ class stzDataModel from stzObject
         ok
 
         @aTables = []
-        @aRelationships = []
-//        @aValidationErrors = []
-@aValidationResult = []
+        @aRelations = []
+
+		@aValidationResult = []
         @cRelationInferenceMode = "smart"
         @cValidationMode = "warning"  # Default validation mode
-
         @aActiveFixPlans = ["default"]
-//        @aAppliedFixes = []
-//        @aFixHistory = []
         @bAutoFix = True
-//        @aStructureSnapshot = []
+        @aStructureSnapshot = []
 
-    #================================#
-    #  CONFIGURATION METHODS         #
-    #================================#
+		@bUseRelInfere = FALSE
+
+      #==========================#
+     #  CONFIGURATION METHODS   #
+    #==========================#
 
     def SetRelationInferenceMode(cMode)
         @cRelationInferenceMode = cMode
@@ -86,9 +82,28 @@ class stzDataModel from stzObject
 		def ActiveRelationMode()
         	return @cRelationInferenceMode
 
-    #================================#
-    #  SCHEMA INFORMATION           #
-    #================================#
+	def UseRelationInference()
+		@bUseRelInfere = TRUE
+
+		def UseRelInfere()
+			@bUseRelInfere = TRUE
+
+	def RelationInference()
+		return @bUseRelInfere
+
+		def RelInfere()
+			return @bUseRelInfere
+
+	def SetRelInfere(bValue)
+		if CheckParams() and NOT ISBoolean(bValue)
+			StzRaise("Incorrect param type! bValue must be TRUE or FALSE.")
+		ok
+
+   		@bUseRelInfere = bValue
+
+      #=======================#
+     #  SCHEMA INFORMATION   #
+    #=======================#
 
     def SchemaName()
         return @cSchemaName
@@ -100,7 +115,7 @@ class stzDataModel from stzObject
         return @aTables
 
     def Relations()
-        return @aRelationships
+        return @aRelations
 
     def Name()
         return @cSchemaName
@@ -108,8 +123,8 @@ class stzDataModel from stzObject
     def Version()
         return @cSchemaVersion
 
-    #=========================#
-    #  VALIDATION MANAGEMENT  #
+      #=========================#
+     #  VALIDATION MANAGEMENT  #
     #=========================#
 
     # Get all errors (including fixed ones)
@@ -395,8 +410,8 @@ class stzDataModel from stzObject
         return aFixes
 
 
-    #====================#
-    #  TABLE MANAGEMENT  #
+      #====================#
+     #  TABLE MANAGEMENT  #
     #====================#
 
     def AddTable(cTableName, aFields)
@@ -432,9 +447,29 @@ class stzDataModel from stzObject
 
         aTable = [ :name = cTableName, :fields = aProcessedFields ]
         @aTables + aTable
-        This.InferRelationshipsForTable(aTable)
 
+		if @bUseRelInfere
+        	This.InferRelationsForTable(aTable)
+		ok
         
+
+	def IsValidTableName(cTableName)
+
+		bResult = FALSE
+        nLen = len(@aTables)
+
+        for i = 1 to nLen
+            if @aTables[i][:name] = cTableName
+                bResult = TRUE
+				exit
+            ok
+        next
+
+        return bResult
+
+
+		def TableNameExists(cTableName)
+			return This.IsValidTableName(cTableName)
 
     def Table(cTableName)
 
@@ -508,8 +543,8 @@ class stzDataModel from stzObject
         return stzraise("Inexistant table name!")
 
 
-    #====================#
-    #  FIELD MANAGEMENT  #
+      #====================#
+     #  FIELD MANAGEMENT  #
     #====================#
 
     def AddField(cTableName, cFieldName, cFieldType, aOptions)
@@ -586,7 +621,7 @@ class stzDataModel from stzObject
 
 
         aTable[:fields] = aNewFields
-        This.RemoveRelationshipsForField(cTableName, cFieldName)
+        This.RemoveRelationsForField(cTableName, cFieldName)
         return aImpact
 
 
@@ -655,115 +690,177 @@ class stzDataModel from stzObject
         return This.TableFields(cTableName)
 
 
-    #===========================#
-    #  RELATIONSHIP MANAGEMENT  #
-    #===========================#
+      #=======================#
+     #  Relation MANAGEMENT  #
+    #=======================#
 
-    def Link(cFromTable, cToTable, cType, aOptions)
+	# Helper method to check if relation exists
+	def RelationExists(cType, cFrom, cTo, cField)
+	    nLen = len(@aRelations)
+	    for i = 1 to nLen
+	        aExisting = @aRelations[i]
+	        if aExisting[:type] = cType and
+	           aExisting[:from] = cFrom and
+	           aExisting[:to] = cTo and
+	           aExisting[:field] = cField
+	            return true
+	        ok
+	    next
+	    return false
 
-        if aOptions = NULL
-            aOptions = []
-        ok
 
-        aRelationship = [
-            :from = cFromTable,
-            :to = cToTable,
-            :type = cType,
-            :inferred = FALSE,
-            :options = aOptions # Supports metadata like :via, :semantic, :business_rule
-        ]
+	def Link(cType, cFromTable, cToTable, aOptions)
 
-        @aRelationships + aRelationship
+		if @bUseRelInfere
+			StzRaise("Can't define relations when automatic inference is activated! Use SetRelationInference(FALSE) and try again.")
+		ok
+
+		if CheckParams()
+
+			if NOT isString(cType)
+				StzRaise("Incorrect param type! cType must be a string.")
+			ok
+	
+			if isString(aOptions) and aOptions = NULL
+				aOptions = []
+			ok
+	
+			if not isList(aOptions)
+				StzRaise("Incorrect param type! aOptions must be a list.")
+			ok
+	
+			if len(aOptions) = 2 and isString(aOptions[1]) and
+			   (aOptions[1] = "via" or aOptions[1] = "using") and
+			   isString(aOptions[2])
+
+				aTemp = []
+				aTemp + [ "field", aOptions[2]]
+				aOptions = aTemp
+			ok
+	
+			if isList(cFromTable) and StzListQ(cFromTable).IsFromNamedParam()
+				cFromTable = cFromTable[2]
+			ok
+	
+			if NOT isString(cFromTable)
+				StzRaise("Incorrect param type! cFromTable must be a string.")
+			ok
+	
+			if isList(cToTable) and StzListQ(cToTable).IsToNamedParam()
+				cToTable = cToTable[2]
+			ok
+	
+			if NOT isString(cToTable)
+				StzRaise("Incorrect param type! cToTable must be a string.")
+			ok
+		ok
+
+		# Checking tables names
+
+		if NOT This.IsValidTableName(cFromTable)
+			StzRaise("Invalid table name (" + cFromTable + ")!")
+		ok
+
+		if NOT This.IsValidTableName(cToTable)
+			StzRaise("Invalid table name (" + cToTable + ")!")
+		ok
+
+		# Doing the job
+
+	    cField = iff(HasKey(aOptions, :field), aOptions[:field], "")
+	    if not This.RelationExists(cType, cFromTable, cToTable, cField)
+	        aStandardRelation = [
+	            [ "type", cType ],
+	            [ "from", cFromTable ],
+	            [ "to", cToTable ],
+	            [ "field", cField ],
+	            [ "inferred", 0 ]
+	        ]
+	        @aRelations + aStandardRelation
+	    ok
+
+
+	def AddRelation(cFromTable, cToTable, cType, aOptions)
+	    This.Link(cFromTable, cToTable, cType, aOptions)
+
+
+	def Hierarchy(cTable, aOptions)
+	    if aOptions = NULL
+	        aOptions = [:parent_field = "parent_id"]
+	    ok
+	    cField = iff(HasKey(aOptions, :parent_field), aOptions[:parent_field], "parent_id")
+	    if not This.RelationExists("hierarchy", cTable, cTable, cField)
+	        aStandardRelation = [
+	            [ "type", "hierarchy" ],
+	            [ "from", cTable ],
+	            [ "to", cTable ],
+	            [ "field", cField ],
+	            [ "inferred", 0 ]
+	        ]
+	        @aRelations + aStandardRelation
+	    ok
         
 
-
-    def AddRelationship(cFromTable, cToTable, cType, aOptions)
-        This.Link(cFromTable, cToTable, cType, aOptions)
-
-
-    def Hierarchy(cTable, aOptions)
-
-        if aOptions = NULL
-            aOptions = [:parent_field = "parent_id"]
-        ok
-
-        aRelationship = [
-            :from = cTable,
-            :to = cTable,
-            :type = "hierarchy",
-            :inferred = FALSE,
-            :options = aOptions,
-            :semantic_meaning = "Each " + SingularOf(cTable) + " can have a parent and multiple children, forming a tree structure"
-        ]
-
-        @aRelationships + aRelationship
-        
+	def Network(cTable, cRelationName, aOptions)
+	    if aOptions = NULL
+	        aOptions = [:bidirectional = TRUE]
+	    ok
+	    cField = iff(HasKey(aOptions, :field), aOptions[:field], "")
+	    if not This.RelationExists("network", cTable, cTable, cField)
+	        aStandardRelation = [
+	            [ "type", "network" ],
+	            [ "from", cTable ],
+	            [ "to", cTable ],
+	            [ "field", cField ],
+	            [ "inferred", 0 ]
+	        ]
+	        @aRelations + aStandardRelation
+	    ok
 
 
-    def Network(cTable, cRelationName, aOptions)
+	def InferRelationsForTable(aTable)
+	    aFields = aTable[:fields]
+	    nLen = len(aFields)
+	    for i = 1 to nLen
+	        aField = aFields[i]
+	        cFieldName = aField[:name]
+	        if right(cFieldName, 3) = "_id" and cFieldName != "id"
+	            cRelatedTableSingular = left(cFieldName, len(cFieldName) - 3)
+	            cRelatedTable = PluralOf(cRelatedTableSingular)
+	            if This.TableExists(cRelatedTable)
+	                if not This.RelationExists("belongs_to", aTable[:name], cRelatedTable, cFieldName)
+	                    aStandardRelation = [
+	                        [ "type", "belongs_to" ],
+	                        [ "from", aTable[:name] ],
+	                        [ "to", cRelatedTable ],
+	                        [ "field", cFieldName ],
+	                        [ "inferred", 1 ]
+	                    ]
+	                    @aRelations + aStandardRelation
+	                ok
+	                if not This.RelationExists("has_many", cRelatedTable, aTable[:name], cFieldName)
+	                    aStandardRelation = [
+	                        [ "type", "has_many" ],
+	                        [ "from", cRelatedTable ],
+	                        [ "to", aTable[:name] ],
+	                        [ "field", cFieldName ],
+	                        [ "inferred", 1 ]
+	                    ]
+	                    @aRelations + aStandardRelation
+	                ok
+	            ok
+	        ok
+	    next
 
-        if aOptions = NULL
-            aOptions = [:bidirectional = TRUE]
-        ok
 
-        aRelationship = [
-            :from = cTable,
-            :to = cTable,
-            :type = "network",
-            :name = cRelationName,
-            :inferred = FALSE,
-            :options = aOptions
-        ]
+    def RemoveRelationsForField(cTableName, cFieldName)
 
-        @aRelationships + aRelationship
-        
-
-
-    def InferRelationshipsForTable(aTable)
-
-        aFields = aTable[:fields]
-        nLen = len(aFields)
+        aNewRelations = []
+        nLen = len(@aRelations)
 
         for i = 1 to nLen
 
-            aField = aFields[i]
-            cFieldName = aField[:name]
-
-            if right(cFieldName, 3) = "_id" and cFieldName != "id"
-
-                cRelatedTableSingular = left(cFieldName, len(cFieldName) - 3)
-                cRelatedTable = PluralOf(cRelatedTableSingular)
-
-                if This.TableExists(cRelatedTable)
-
-                    @aRelationships + [
-                        :type = "belongs_to",
-                        :from = aTable[:name],
-                        :to = cRelatedTable,
-                        :field = cFieldName,
-                        :inferred = TRUE
-                    ]
-
-                    @aRelationships + [
-                        :type = "has_many",
-                        :from = cRelatedTable,
-                        :to = aTable[:name],
-                        :field = cFieldName,
-                        :inferred = TRUE
-                    ]
-
-                ok
-            ok
-        next
-
-    def RemoveRelationshipsForField(cTableName, cFieldName)
-
-        aNewRelationships = []
-        nLen = len(@aRelationships)
-
-        for i = 1 to nLen
-
-            aRel = @aRelationships[i]
+            aRel = @aRelations[i]
             bKeep = TRUE
 
             if HasKey(aRel, :field) and aRel[:field] = cFieldName and aRel[:from] = cTableName
@@ -771,21 +868,21 @@ class stzDataModel from stzObject
             ok
 
             if bKeep
-                aNewRelationships + aRel
+                aNewRelations + aRel
             ok
 
         next
 
-        @aRelationships = aNewRelationships
+        @aRelations = aNewRelations
 
 
-    def CountRelationshipsForTable(cTableName)
+    def CountRelationsForTable(cTableName)
 
         nCount = 0
-        nLen = len(@aRelationships)
+        nLen = len(@aRelations)
 
         for i = 1 to nLen
-            if @aRelationships[i][:from] = cTableName or @aRelationships[i][:to] = cTableName
+            if @aRelations[i][:from] = cTableName or @aRelations[i][:to] = cTableName
                 nCount++
             ok
         next
@@ -793,21 +890,17 @@ class stzDataModel from stzObject
         return nCount
 
 
-    def Relationships()
-        return @aRelationships
-
-
     def SelfReferencingTables()
 
         aResult = []
-        nLen = len(@aRelationships)
+        nLen = len(@aRelations)
 
         for i = 1 to nLen
 
-            if @aRelationships[i][:from] = @aRelationships[i][:to]
+            if @aRelations[i][:from] = @aRelations[i][:to]
                 aResult + [
-                    :table = @aRelationships[i][:from],
-                    :type = @aRelationships[i][:type]
+                    :table = @aRelations[i][:from],
+                    :type = @aRelations[i][:type]
                 ]
             ok
 
@@ -815,8 +908,8 @@ class stzDataModel from stzObject
 
         return aResult
 
-    #===================#
-    #  IMPACT ANALYSIS  #
+      #===================#
+     #  IMPACT ANALYSIS  #
     #===================#
 
     def AnalyzeFieldAdditionImpact(cTableName, cFieldName, cFieldType, aOptions)
@@ -841,7 +934,7 @@ class stzDataModel from stzObject
             :breaking_changes = 0,
             :perf_impact = cPerfImpact,
             :migration_complexity = "simple",
-            :affected_relationships = [],
+            :affected_Relations = [],
             :recommendations = aRecommendations,
             :field_info = [
                 :table = cTableName,
@@ -856,7 +949,7 @@ class stzDataModel from stzObject
 
         aImpact = [
             :breaking_changes = 0,
-            :affected_relationships = [],
+            :affected_Relations = [],
             :migration_complexity = "simple",
             :breaking_reasons = []
         ]
@@ -874,16 +967,16 @@ class stzDataModel from stzObject
             aImpact[:migration_complexity] = "complex"
         ok
 
-        nLen = len(@aRelationships)
+        nLen = len(@aRelations)
 
         for i = 1 to nLen
 
-            aRel = @aRelationships[i]
+            aRel = @aRelations[i]
 
             if HasKey(aRel, :field) and aRel[:field] = cFieldName and aRel[:from] = cTableName
                 aImpact[:breaking_changes]++
-                aImpact[:breaking_reasons] + "breaks relationship with " + aRel[:to]
-                aImpact[:affected_relationships] + aRel
+                aImpact[:breaking_reasons] + "breaks Relation with " + aRel[:to]
+                aImpact[:affected_Relations] + aRel
                 aImpact[:migration_complexity] = "complex"
             ok
 
@@ -892,8 +985,8 @@ class stzDataModel from stzObject
         return aImpact
 
 
-    #========================#
-    #  REPORTING AND EXPORT  #
+      #========================#
+     #  REPORTING AND EXPORT  #
     #========================#
 
     def SummaryXT()
@@ -908,7 +1001,7 @@ class stzDataModel from stzObject
             aTableData = [
                 :name = aTable[:name],
                 :field_count = len(aTable[:fields]),
-                :relationship_count = This.CountRelationshipsForTable(aTable[:name]),
+                :Relation_count = This.CountRelationsForTable(aTable[:name]),
                 :fields = aTable[:fields]
             ]
 
@@ -924,12 +1017,12 @@ class stzDataModel from stzObject
             ],
 
             :tables = aTables,
-            :relationships = @aRelationships,
+            :Relations = @aRelations,
 
             :stats = [
                 :table_count = len(@aTables),
                 :total_fields = This.CountFields(),
-                :relationship_count = len(@aRelationships)
+                :Relation_count = len(@aRelations)
             ]
 
         ]
@@ -981,20 +1074,20 @@ class stzDataModel from stzObject
             aTable = @aTables[i]
             cTableName = aTable[:name]
             nFields = len(aTable[:fields])
-            nRelations = This.CountRelationshipsForTable(cTableName)
-            cText += "• " + cTableName + ": " + nFields + " field(s), " + nRelations + " relationship(s)"
+            nRelations = This.CountRelationsForTable(cTableName)
+            cText += "• " + cTableName + ": " + nFields + " field(s), " + nRelations + " Relation(s)"
 			if i < nLen
 				cText += NL
 			ok
 
         next
 
-        nLen = len(@aRelationships)
+        nLen = len(@aRelations)
 
 		if nLen > 0
-			cText += NL + NL + "Key relationships:" + nl
+			cText += NL + NL + "Key Relations:" + nl
 	        for i = 1 to nLen
-	            aRel = @aRelationships[i]
+	            aRel = @aRelations[i]
 	            cText += "• " + aRel[:from] + " " + aRel[:type] + " " + aRel[:to]
 				if i < nLen
 					cText += NL
@@ -1008,7 +1101,7 @@ class stzDataModel from stzObject
     def DiagramData()
 
         aEntities = []
-        aRelationships = []
+        aRelations = []
 		nLen = len(@aTables)
 
 		for i = 1 to nLen
@@ -1043,10 +1136,10 @@ class stzDataModel from stzObject
         next
 
         aProcessedRels = []
-		nLenR = len(@aRelationships)
+		nLenR = len(@aRelations)
 
 		for i = 1 to nLenR
-        	aRel = @aRelationships[i]
+        	aRel = @aRelations[i]
 
             cRelKey = aRel[:from] + "->" + aRel[:to] + ":" + aRel[:type]
 
@@ -1054,18 +1147,18 @@ class stzDataModel from stzObject
 
                 aProcessedRels + cRelKey
 
-                aRelationship = [
-                    :id = "rel_" + len(aRelationships) + 1,
+                aRelation = [
+                    :id = "rel_" + len(aRelations) + 1,
                     :from_entity = aRel[:from],
                     :to_entity = aRel[:to],
-                    :relationship_type = aRel[:type],
+                    :Relation_type = aRel[:type],
                     :cardinality = This.GetCardinality(aRel[:type]),
                     :foreign_key = iff(HasKey(aRel, :field), aRel[:field], ""),
                     :is_identifying = (aRel[:type] = "belongs_to"),
-                    :label = This.GetRelationshipLabel(aRel[:type])
+                    :label = This.GetRelationLabel(aRel[:type])
                 ]
 
-                aRelationships + aRelationship
+                aRelations + aRelation
             ok
 
         next
@@ -1073,10 +1166,10 @@ class stzDataModel from stzObject
         return [
             :schema_name = @cSchemaName,
             :entities = aEntities,
-            :relationships = aRelationships,
+            :Relations = aRelations,
             :metadata = [
                 :entity_count = len(aEntities),
-                :relationship_count = len(aRelationships),
+                :Relation_count = len(aRelations),
                 :generated_at = date() + " " + time(),
                 :format_version = "1.0"
             ]
@@ -1130,7 +1223,7 @@ class stzDataModel from stzObject
 
         next
 
-        aRels = aDiagramData[:relationships]
+        aRels = aDiagramData[:Relations]
         nLen = len(aRels)
 
         for i = 1 to nLen
@@ -1190,12 +1283,12 @@ class stzDataModel from stzObject
         next
 
         cJSON += TAB + "]," + nl
-        cJSON += TAB + '"relationships": [' + nl
-        nLenR = len(@aRelationships)
+        cJSON += TAB + '"Relations": [' + nl
+        nLenR = len(@aRelations)
 
         for i = 1 to nLenR
 
-            aRel = @aRelationships[i]
+            aRel = @aRelations[i]
             cJSON += TAB + TAB + "{" + nl
             cJSON += TAB + TAB + TAB + '"from_table": "' + aRel[:from] + '",' + nl
             cJSON += TAB + TAB + TAB + '"to_table": "' + aRel[:to] + '"' + nl
@@ -1215,8 +1308,8 @@ class stzDataModel from stzObject
         return cJSON
 
 
-    #===================#
-    #  TEMPLATE SYSTEM  #
+      #===================#
+     #  TEMPLATE SYSTEM  #
     #===================#
 
     def UseTemplate(cTemplateName)
@@ -1249,8 +1342,8 @@ class stzDataModel from stzObject
 	    next
 
 
-    #===================#
-    #  UTILITY METHODS  #
+      #===================#
+     #  UTILITY METHODS  #
     #===================#
 
     def ProcessFieldType(cType)
@@ -1319,28 +1412,10 @@ class stzDataModel from stzObject
         return 0
 
 
-    def CountRelationsForTable(cTableName)
-
-        nCount = 0
-		nLen = len(@aRelationships)
-
-		for i = 1 to nLen
-
-        	aRel = @aRelationships[i]
-
-            if aRel[:from] = cTableName or aRel[:to] = cTableName
-                nCount++
-            ok
-
-        next
-
-        return nCount
-
-
     def ClearModel()
 
         @aTables = []
-        @aRelationships = []
+        @aRelations = []
         @aValidationErrors = []
 
 
@@ -1364,7 +1439,7 @@ class stzDataModel from stzObject
         off
 
 
-    def GetRelationshipLabel(cRelType)
+    def GetRelationLabel(cRelType)
 
         switch cRelType
         on "has_many"
@@ -1392,8 +1467,8 @@ class stzDataModel from stzObject
 		return $cDataModelHelp + NL + $cDataModelHelpXT
 
 
-	#================================================#
-	#  FIX MANAGEMENT IN PERMISSIVE VALIDATION MODE  #
+      #================================================#
+     #  FIX MANAGEMENT IN PERMISSIVE VALIDATION MODE  #
 	#================================================#
 
     def SetAutoFix(lEnabled)
@@ -1454,8 +1529,8 @@ class stzDataModel from stzObject
         @aActiveFixPlans = aRequired
         
 
-	#---------------------------#
-    #  Analysis helper methods  #
+  	  #---------------------------#
+     #  Analysis helper methods  #
 	#---------------------------#
 
     def HasReservedKeywords(aTable)
@@ -1517,14 +1592,9 @@ class stzDataModel from stzObject
 
         return False
 
+	  #------------------------------#
+	 #  Validation utility methods  #
 	#------------------------------#
-	#  Validation utility methods  #
-	#------------------------------#
-
-
-    def IsValidTableName(cName)
-        return len(cName) > 0 and isalpha(cName[1])
-
 
     def SanitizeTableName(cName)
         return "tbl_" + cName
