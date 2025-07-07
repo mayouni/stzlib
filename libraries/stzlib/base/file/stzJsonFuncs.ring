@@ -51,8 +51,8 @@ func IsJsonList(aList)
 
 # Convert Ring list to JSON string
 func ListToJson(aList)
-    if not isList(aList)
-        return ""
+    if not (isList(aList) and IsJsonList(aList))
+        StzRaise("Incorrect param type! aList must be a well-formatted JSON list.")
     ok
     
     nLen = len(aList)
@@ -72,8 +72,8 @@ func ListToJson(aList)
 
 # Convert Ring list to JSON string with indentation
 func ListToJsonXT(aList)
-    if not isList(aList)
-        return ""
+    if not (isList(aList) and IsJsonList(aList))
+        StzRaise("Incorrect param type! aList must be a well-formatted JSON list.")
     ok
     
     nLen = len(aList)
@@ -260,6 +260,27 @@ func _ValueToJsonString(vValue)
         return "null"
     ok
 
+func _ValueToJsonStringXT(vValue, nIndent)
+    if isString(vValue)
+        return char(34) + _EscapeJsonString(vValue) + char(34)
+    but isNumber(vValue)
+        return "" + vValue
+    but isNULL(vValue)
+        return "null"
+    but vValue = TRUE
+        return "true"
+    but vValue = FALSE
+        return "false"
+    but isList(vValue)
+        if IsHashList(vValue) or _IsValidDeepHashList(vValue)
+            return _HashListToJsonStringXT(vValue, nIndent)
+        else
+            return _ListToJsonArrayXT(vValue, nIndent)
+        ok
+    else
+        return "null"
+    ok
+
 func _HashListToJsonStringXT(aList, nIndent)
     cResult = "{" + char(10)
     nLen = len(aList)
@@ -310,26 +331,7 @@ func _ListToJsonArrayXT(aList, nIndent)
     cResult += char(10) + _GetIndent(nIndent) + "]"
     return cResult
 
-func _ValueToJsonStringXT(vValue, nIndent)
-    if isString(vValue)
-        return char(34) + _EscapeJsonString(vValue) + char(34)
-    but isNumber(vValue)
-        return "" + vValue
-    but isNULL(vValue)
-        return "null"
-    but vValue = TRUE
-        return "true"
-    but vValue = FALSE
-        return "false"
-    but isList(vValue)
-        if IsHashList(vValue) or _IsValidDeepHashList(vValue)
-            return _HashListToJsonStringXT(vValue, nIndent)
-        else
-            return _ListToJsonArrayXT(vValue, nIndent)
-        ok
-    else
-        return "null"
-    ok
+
 
 func _GetIndent(nLevel)
     cResult = ""
@@ -427,8 +429,7 @@ func _JsonHashToList(cJson)
         vValue = aValueResult[1]
         nPos = aValueResult[2]
         
-        aResult + cKey
-        aResult + vValue
+        aResult + [ cKey, vValue ]
         
         # Skip whitespace and comma
         while nPos <= nLen and (_IsWhitespace(cJson[nPos]) or cJson[nPos] = ",")

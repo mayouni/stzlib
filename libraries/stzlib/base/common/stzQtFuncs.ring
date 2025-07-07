@@ -527,3 +527,63 @@ func IsQObject(p)
 		return IsQObject(p)
 
 	#>
+
+/* 
+    Function: QVariantContent(oQVariantObject)
+    Description: Converts a QVariant object's content to a native Ring type (number, string, boolean, list, or HashList).
+    Parameters:
+        oQVariantObject - A QVariant object from RingQt
+    Returns: The converted Ring value (number, string, boolean, list, or HashList) or NULL if unsupported
+*/
+
+func QVariantContent(oQVariantObject)
+    if not ( isObject(oQVariantObject) and classname(oQVariantObject) = "qvariant" )
+        StzRaise("Error: Parameter must be a QVariant object")
+    ok
+
+    # Check if the QVariant is null or invalid
+    if oQVariantObject.isNull()
+        return NULL
+    ok
+
+    # Try converting to basic types
+    if oQVariantObject.canConvert(10) # QVariant::String
+        return oQVariantObject.toString()
+    ok
+
+    if oQVariantObject.canConvert(2) # QVariant::Int
+        return oQVariantObject.toInt()
+    ok
+
+    if oQVariantObject.canConvert(6) # QVariant::Double
+        return oQVariantObject.toDouble()
+    ok
+
+    if oQVariantObject.canConvert(1) # QVariant::Bool
+        return oQVariantObject.toBool()
+    ok
+
+    # Handle QVariantList (converts to Ring list)
+    if oQVariantObject.canConvert(19) # QVariant::List
+        aQVariantList = oQVariantObject.toList()
+        aResult = []
+        for oItem in aQVariantList
+            aResult + QVariantContent(oItem) # Recursive conversion
+        next
+        return aResult
+    ok
+
+    # Handle QVariantMap (converts to Ring HashList: [["key1", value1], ["key2", value2]])
+    if oQVariantObject.canConvert(8) # QVariant::Map
+        oQVariantMap = oQVariantObject.toMap()
+        aKeys = QStringListToList(oQVariantMap.keys())
+        aResult = []
+        for cKey in aKeys
+            oValue = oQVariantMap.value(cKey)
+            aResult + [cKey, QVariantContent(oValue)] # Recursive conversion
+        next
+        return aResult
+    ok
+
+    # If type is unsupported, return NULL
+    return NULL
