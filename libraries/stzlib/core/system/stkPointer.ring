@@ -2,6 +2,8 @@
 # Universal abstraction for Ring pointer operations with C/C++ libraries
 # Handles all Ring pointer types with safety and educational clarity
 
+#NOTE Class made in collaboration with Claude and Grock AIs
+
 # Utility functions for common pointer operations
 func StkPointerQ(pParams)
     return new stkPointer(pParams)
@@ -23,6 +25,8 @@ class stkPointer
     # Core pointer data - Ring pointers are lists: [address, type, status]
     @pointer = NULL      	# The actual Ring pointer object (list of 3 items)
     @originalValue = NULL 	# Keep reference to prevent garbage collection
+    @buffer = NULL          # Buffer for memory management (separate from originalValue)
+    @logicalType = ""       # The logical type we created (int, double, char, object)
     @metadata = []       	# Additional info: [size, encoding, allocated_by_us]
     
     # Safety and state tracking
@@ -31,7 +35,6 @@ class stkPointer
     @createdFrom = ""    	# Track creation source for debugging
     
     # Constructor - unified interface for all pointer creation scenarios
-
     def init(pParams)
         @metadata = [0, "utf8", false]  # [size, encoding, allocated_by_us]
         @createdFrom = "init"
@@ -56,9 +59,11 @@ class stkPointer
         else
             this.createFromValue(pValue, cType, nOptions)
         ok
+    
     # Create a null pointer
     def createNullPointer()
         @pointer = nullpointer()
+        @logicalType = "null"
         @isValid = true
         @isManaged = false
         @createdFrom = "null"
@@ -69,24 +74,28 @@ class stkPointer
 			cType = :auto
 		ok
 		if isNull(nOptions)
-			noptions = []
+			nOptions = []
 		ok
 
         # Auto-detect type if needed
         if cType = :auto
             cType = this.detectOptimalType(pValue)
         ok
-        
+
+        # Store the logical type
+        @logicalType = cType
+
         try
             switch cType
             on "int"
-                @originalValue = pValue
-                @pointer = varptr("@originalValue", "int")
+                @originalValue = pValue  # Store the original numeric value
+                # Create string buffer and use memcpy approach
+                @pointer = this.createNumericPointer(pValue, "int")
                 @metadata[1] = 4  # int size
                 
             on "double" 
-                @originalValue = pValue
-                @pointer = varptr("@originalValue", "double")
+                @originalValue = pValue  # Store the original numeric value
+                @pointer = this.createNumericPointer(pValue, "double")
                 @metadata[1] = 8  # double size
                 
             on "char"
@@ -108,8 +117,36 @@ class stkPointer
         catch
             @isValid = false
             @pointer = nullpointer()
-            raise("Pointer creation failed: " + CatchError())
+            raise("Pointer creation failed: " + cCatchError)
         done
+    
+    # Create numeric pointer using space() and direct assignment
+    def createNumericPointer(nValue, cType)
+        if cType = "int"
+            # Create 4-byte buffer for int
+            @buffer = space(4)
+            # Convert int to bytes manually (little-endian)
+            nVal = nValue
+            @buffer[1] = char(nVal % 256)
+            nVal = floor(nVal / 256)
+            @buffer[2] = char(nVal % 256)
+            nVal = floor(nVal / 256)
+            @buffer[3] = char(nVal % 256)
+            nVal = floor(nVal / 256)
+            @buffer[4] = char(nVal % 256)
+            
+            return varptr("@buffer", "char")
+            
+        but cType = "double"
+            # For double, store as string representation in buffer
+            @buffer = space(32)  # Enough space for double representation
+            cDoubleStr = "" + nValue
+            for i = 1 to len(cDoubleStr)
+                @buffer[i] = cDoubleStr[i]
+            next
+            
+            return varptr("@buffer", "char")
+        ok
     
     # Specialized string pointer creation with buffer management
     def createStringPointer(cString, nOptions)
@@ -135,17 +172,19 @@ class stkPointer
         if nBufferSize < nNeededSize nBufferSize = nNeededSize ok
         
         # Allocate buffer and copy string
-        @originalValue = space(nBufferSize)
+        @buffer = space(nBufferSize)
         if nBufferSize > 0
             for i = 1 to len(cString)
-                @originalValue[i] = cString[i]
+                @buffer[i] = cString[i]
             next
             if lNullTerminate and len(cString) < nBufferSize
-                @originalValue[len(cString) + 1] = char(0)
+                @buffer[len(cString) + 1] = char(0)
             ok
         ok
         
-        @pointer = varptr("@originalValue", "char")
+        @originalValue = cString
+        @logicalType = "char"
+        @pointer = varptr("@buffer", "char")
         @metadata = [nBufferSize, cEncoding, true]
     
     # Smart type detection based on Ring value
@@ -181,6 +220,11 @@ class stkPointer
     # Get pointer type
     def getType()
         this.validatePointer()
+        if not isNull(@logicalType) and @logicalType != ""
+            return @logicalType
+        ok
+        
+        # Fallback to Ring pointer type
         if isNull(@pointer) return "null" ok
         if len(@pointer) >= 2 return @pointer[2] ok
         return "unknown"
@@ -201,26 +245,36 @@ class stkPointer
         return isNull(@pointer) or this.getAddress() = 0
     
     # Convert pointer back to Ring value
+
     def toRingValue()
         this.validatePointer()
         
-        cType = this.getType()
-        switch cType
+        # Use logical type directly
+        switch @logicalType
         on "char"
-            return this.pointerToString()
-        on "object" on "OBJECTPOINTER"
+            return this.pointerToString(0, -1)
+        on "object"
             return pointer2object(@pointer)
-        on "int" on "double"
-            # For numeric pointers, we need the original value
-            if not isNull(@originalValue)
-                return @originalValue
+        on "int"
+            # Read integer from buffer
+            if not isNull(@buffer) and len(@buffer) >= 4
+                # Convert bytes back to integer (little-endian)
+                nVal = 0
+                nVal += ascii(@buffer[4]) * 256 * 256 * 256
+                nVal += ascii(@buffer[3]) * 256 * 256
+                nVal += ascii(@buffer[2]) * 256
+                nVal += ascii(@buffer[1])
+                return nVal
             else
-                raise("Cannot convert numeric pointer without original value reference")
+                return @originalValue
             ok
-        on "NULLPOINTER"
+        on "double"
+            # For double, return original value (complex byte conversion not implemented)
+            return @originalValue
+        on "null"
             return NULL
         other
-            raise("Unsupported pointer type for conversion: " + cType)
+            raise("Unsupported pointer type for conversion: " + @logicalType)
         off
     
     # Convert char pointer to string with options
@@ -266,6 +320,39 @@ class stkPointer
         
         return nMaxScan
     
+    # Memory copy operation
+    def memcpy(pDestPointer, cSourceString, nSize)
+        this.validatePointer()
+        if isObject(pDestPointer) and classname(pDestPointer) = "stkpointer"
+            pDestPointer = pDestPointer.getRawPointer()
+        ok
+        memcpy(pDestPointer, cSourceString, nSize)
+    
+    # Copy from this pointer to another
+    def copyTo(pDestPointer, nSize)
+        this.validatePointer()
+        if isNull(nSize) nSize = @metadata[1] ok
+        if nSize > 0
+            cData = pointer2string(@pointer, 0, nSize)
+            if isObject(pDestPointer) and classname(pDestPointer) = "stkpointer"
+                pDestPointer = pDestPointer.getRawPointer()
+            ok
+            memcpy(pDestPointer, cData, nSize)
+        ok
+    
+    # Copy from another pointer to this one
+    def copyFrom(pSourcePointer, nSize)
+        this.validatePointer()
+        if isNull(nSize) nSize = @metadata[1] ok
+        if nSize > 0
+            if isObject(pSourcePointer) and classname(pSourcePointer) = "stkpointer"
+                cData = pSourcePointer.pointerToString(0, nSize)
+            else
+                cData = pointer2string(pSourcePointer, 0, nSize)
+            ok
+            memcpy(@pointer, cData, nSize)
+        ok
+    
     # Compare two pointers
     def equals(oOther)
         if isObject(oOther) and classname(oOther) = "stkpointer"
@@ -291,6 +378,8 @@ class stkPointer
         oNew = new stkPointer()
         oNew.@pointer = @pointer
         oNew.@originalValue = @originalValue
+        oNew.@buffer = @buffer
+        oNew.@logicalType = @logicalType
         oNew.@metadata = @metadata
         oNew.@isValid = @isValid
         oNew.@isManaged = false  # Copy is not managed
@@ -310,10 +399,19 @@ class stkPointer
         aInfo + ["Encoding", @metadata[2]]
         return aInfo
     
+    # Debug method to see internal state
+    def debug()
+        ? "=== DEBUG INFO ==="
+        ? "logicalType: " + @logicalType
+        ? "originalValue: " + @originalValue
+        ? "getType(): " + this.getType()
+        ? "isValid: " + @isValid
+        ? "=================="
+    
     # Display pointer information
     def show()
         aInfo = this.getInfo()
-        ? "=== stzPointer Info ==="
+        ? "=== stkPointer Info ==="
         for i = 1 to len(aInfo) step 2
             ? aInfo[i] + ": " + aInfo[i+1]
         next
@@ -331,6 +429,7 @@ class stkPointer
     def free()
         if @isManaged and @isValid
             @originalValue = NULL  # Let Ring GC handle it
+            @buffer = NULL
             @pointer = nullpointer()
             @isValid = false
             @isManaged = false
@@ -339,5 +438,3 @@ class stkPointer
     # Destructor
     def destroy()
         this.free()
-
-

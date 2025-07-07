@@ -4,116 +4,171 @@ load "../stklib.ring"
 # Covers all use cases including C/C++ library integration scenarios
 
 /*--- TestSuite 1: Basic Pointer Operations
-*/
+
 pr()
     
-    # Integer pointers
-    oInt = new stkPointer(42)
-    ? oInt.toRingValue()
-	? oInt.getType()
- /*   
+	# Integer pointers
+    o1 = new stkPointer(42)
+    ? o1.toRingValue()				#--> 42
+	? o1.getType() + NL				#--> int
+
     # Double pointers  
-    oDouble = new stkPointer(3.14159)
-    ? "Double: " + oDouble.toRingValue() + " | Type: " + oDouble.getType()
-    
+    o2 = new stkPointer(3.14)
+    ? o2.toRingValue()				#--> 3.14
+	? o2.getType() + NL				#--> double
+
     # String pointers
-    oString = new stkPointer("Hello World")
-    ? "String: '" + oString.toRingValue() + "' | Length: " + oString.detectStringLength()
-    
+    o3 = new stkPointer("Hello Ring")
+    ? o3.toRingValue()				#--> "Hello Ring"
+	? o3.detectStringLength() + NL	#--> 10
+
     # Null pointers
-    oNull = new stkPointer(NULL)
-    ? "Null valid: " + oNull.isValidPointer() + " | Is null: " + oNull.isNullPointer()
-*/
+    o4 = new stkPointer(NULL)
+    ? o4.isValidPointer()			#--> FALSE
+	? o4.isNullPointer()			#--> TRUE
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- TestSuite 2: Advanced String Buffer Management
-func testStringBuffers()
-    ? "=== STRING BUFFER MANAGEMENT ==="
-    
+*/
+pr()
     # Fixed-size buffer
-    oBuffer = stzStringPointer("Hello", 20)
-    ? "Buffer size: " + oBuffer.@metadata[1] + " | Content: '" + oBuffer.toRingValue() + "'"
+    o1 = StkStringPointerQ("Hello", 20)
+    # Buffer size:
+	? o1.@metadata[1]			#--> 20
+	? o1.toRingValue() + NL		#--> Hello
     
     # Multi-byte character handling
-    oUtf8 = new stkPointer("こんにちは", "char", [20, true, "utf8"])
-    ? "UTF-8 string: '" + oUtf8.toRingValue() + "'"
+    o2 = new stkPointer(["こんにちは", "char", [20, true, "utf8"]])
+    ? o2.toRingValue() + NL		#--> こんにちは	(Hello in Japaneese)
     
     # Buffer with no null terminator
-    oNoNull = new stkPointer("TEST", "char", [4, false])
-    ? "No null terminator: '" + oNoNull.pointerToString(0, 4) + "'"
-    
-    ? ""
+    o3 = new stkPointer(["TEST", "char", [4, false]])
+    ? o3.pointerToString(0, 4)	#--> TEST
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- TestSuite 3: Object and List Pointers
-func testObjectPointers()
-    ? "=== OBJECT AND LIST POINTERS ==="
-    
+
+pr()
     # List pointer
-    aList = ["apple", "banana", "cherry"]
-    oListPtr = new stkPointer(aList)
-    aRetrieved = oListPtr.toRingValue()
-    ? "Original list: " + @@(aList)
-    ? "Retrieved list: " + @@(aRetrieved)
+    o1 = new stkPointer(["apple", "banana", "cherry"])
+    ? "Original list: " + @@(["apple", "banana", "cherry"])
+    ? "Retrieved list: " + @@(o1.toRingValue()) + NL
     
     # Object pointer
     oObj = new Person("John", 30)
-    oObjPtr = new stkPointer(oObj)
-    oRetrieved = oObjPtr.toRingValue()
+    o2 = new stkPointer(oObj)
     ? "Original object: " + classname(oObj)
-    ? "Retrieved object: " + classname(oRetrieved)
+    ? "Retrieved object: " + classname(o2.toRingValue()) + NL
     
     # Nested structure
     aComplex = [
         "data" = ["x" = 10, "y" = 20],
         "config" = ["debug" = true, "version" = "1.0"]
     ]
-    oComplexPtr = new stkPointer(aComplex)
-    aComplexRetrieved = oComplexPtr.toRingValue()
-    ? "Complex structure maintained: " + (@@(aComplex) = @@(aComplexRetrieved))
-    
-    ? ""
+    o3 = new stkPointer(aComplex)
+    ? "Complex structure maintained: " + (@@(aComplex) = @@(o3.toRingValue()))
+
+pf()
 
 /*--- TestSuite 4: Pointer Arithmetic and Memory Operations
-func testPointerArithmetic()
-    ? "=== POINTER ARITHMETIC ==="
-    
+
+pr()
     # String traversal
-    oStr = new stkPointer("ABCDEFGH")
-    ? "Original: " + oStr.getAddressHex() + " -> '" + oStr.pointerToString(0, 8) + "'"
+    o1 = new stkPointer("ABCDEFGH")
+    ? "Original: " + o1.getAddressHex() + " -> '" + o1.pointerToString(0, 8) + "'"
     
     # Create offset pointers
-    oOffset2 = oStr.copy()
-    oOffset2.offsetBy(2)
-    ? "Offset +2: " + oOffset2.getAddressHex() + " -> '" + oOffset2.pointerToString(0, 6) + "'"
+    o2 = o1.copy()
+    o2.offsetBy(2)
+    ? "Offset +2: " + o2.getAddressHex() + " -> '" + o2.pointerToString(0, 6) + "'"
     
-    oOffset4 = oStr.copy()  
-    oOffset4.offsetBy(4)
-    ? "Offset +4: " + oOffset4.getAddressHex() + " -> '" + oOffset4.pointerToString(0, 4) + "'"
+    o3 = o1.copy()  
+    o3.offsetBy(4)
+    ? "Offset +4: " + o3.getAddressHex() + " -> '" + o3.pointerToString(0, 4) + "'"
     
     # Pointer comparison
-    ? "Pointers equal: " + oStr.equals(oOffset2)
-    ? "Address difference: " + (oOffset2.getAddress() - oStr.getAddress())
-    
-    ? ""
+    ? "Pointers equal: " + o1.equals(o2)
+    ? "Address difference: " + (o2.getAddress() - o1.getAddress())
 
-/*--- TestSuite 5: C Library Integration Simulation
-func testCLibraryIntegration()
-    ? "=== C LIBRARY INTEGRATION SIMULATION ==="
+pf()
+
+/*--- TestSuite 5: Memory Copy Operations (Didactic)
+
+pr()
+    # Create source and destination buffers
+    o1 = new stkPointer("SOURCE_DATA")
+    o2 = StkStringPointerQ("", 20)  # Empty destination buffer
     
+    ? "Before memcpy:"
+    ? "Source: '" + o1.toRingValue() + "'"
+    ? "Destination: '" + o2.toRingValue() + "'"
+    
+    # Perform memory copy
+    o2.copyFrom(o1, 6)  # Copy first 6 bytes
+    
+    ? "After copying 6 bytes:"
+    ? "Source: '" + o1.toRingValue() + "'"
+    ? "Destination: '" + o2.toRingValue() + "'" + NL
+    
+    # Demonstrate copyTo method
+    o3 = StkStringPointerQ("", 15)
+    o1.copyTo(o3, 11)  # Copy all 11 bytes
+    
+    ? "Using copyTo method:"
+    ? "Source copied to new buffer: '" + o3.toRingValue() + "'"
+    
+    # Show memory addresses during copy
+    ? "Memory addresses:"
+    ? "Source: " + o1.getAddressHex()
+    ? "Dest1: " + o2.getAddressHex()
+    ? "Dest2: " + o3.getAddressHex()
+
+pf()
+
+/*--- TestSuite 6: Debug Method Testing
+
+pr()
+    # Integer pointer debug
+    o1 = new stkPointer(42)
+    ? "Integer pointer debug:"
+    o1.debug()
+    
+    # String pointer debug
+    o2 = new stkPointer("Hello Ring")
+    ? "String pointer debug:"
+    o2.debug()
+    
+    # Object pointer debug
+    o3 = new stkPointer(["a", "b", "c"])
+    ? "List pointer debug:"
+    o3.debug()
+    
+    # Null pointer debug
+    o4 = new stkPointer(NULL)
+    ? "Null pointer debug:"
+    o4.debug()
+
+pf()
+
+/*--- TestSuite 7: C Library Integration Simulation
+
+pr()
     # Simulate passing string to C function
-    cFilename = "test.txt"
-    oFilenamePtr = new stkPointer(cFilename)
-    ? "C function parameter: " + oFilenamePtr.getAddressHex()
-    ? "Would pass to C: char* filename = " + oFilenamePtr.toRingValue()
+    o1 = new stkPointer("test.txt")
+    ? "C function parameter: " + o1.getAddressHex()
+    ? "Would pass to C: char* filename = " + o1.toRingValue() + NL
     
     # Simulate C function that fills a buffer
-    oBuffer = stzStringPointer("", 256)  # Empty buffer
-    ? "C buffer allocated: " + oBuffer.@metadata[1] + " bytes at " + oBuffer.getAddressHex()
+    o2 = StkStringPointerQ("", 256)  # Empty buffer
+    ? "C buffer allocated: " + o2.@metadata[1] + " bytes at " + o2.getAddressHex() + NL
     
     # Simulate array of integers for C function
-    aNumbers = [1, 2, 3, 4, 5]
-    oArrayPtr = new stkPointer(aNumbers)
-    ? "Integer array pointer: " + oArrayPtr.getAddressHex()
+    o3 = new stkPointer([1, 2, 3, 4, 5])
+    ? "Integer array pointer: " + o3.getAddressHex() + NL
     
     # Simulate struct-like object for C
     aStruct = [
@@ -121,15 +176,14 @@ func testCLibraryIntegration()
         "name" = "Component A",
         "active" = true
     ]
-    oStructPtr = new stkPointer(aStruct)
-    ? "Struct pointer: " + oStructPtr.getAddressHex()
-    
-    ? ""
+    o4 = new stkPointer(aStruct)
+    ? "Struct pointer: " + o4.getAddressHex()
 
-/*--- TestSuite 6: Qt QVariant Integration
-func testQtIntegration()
-    ? "=== QT QVARIANT INTEGRATION ==="
-    
+pf()
+
+/*--- TestSuite 8: Qt QVariant Integration
+
+pr()
     # Simulate QVariant scenarios
     testValues = [
         42,              # QVariant(int)
@@ -140,92 +194,88 @@ func testQtIntegration()
     ]
     
     for i = 1 to len(testValues)
-        oQtPtr = new stkPointer(testValues[i])
-        ? "QVariant #" + i + ": " + oQtPtr.getType() + " at " + oQtPtr.getAddressHex()
-        ? "  Value: " + oQtPtr.toRingValue()
+        o1 = new stkPointer(testValues[i])
+        ? "QVariant #" + i + ": " + o1.getType() + " at " + o1.getAddressHex()
+        ? "  Value: " + o1.toRingValue()
     next
-    
-    ? ""
 
-/*--- TestSuite 7: Error Handling and Edge Cases
-func testErrorHandling()
-    ? "=== ERROR HANDLING ==="
-    
-    /*--- Testinvalid operations
-    oNull = new stkPointer(NULL)
+pf()
+
+/*--- TestSuite 9: Error Handling and Edge Cases
+
+pr()
+    # Test null operations
+    o1 = new stkPointer(NULL)
     
     try
-        cResult = oNull.toRingValue()
+        cResult = o1.toRingValue()
         ? "Null conversion: " + cResult
     catch cError
         ? "Expected error caught: " + cError
     done
     
-    /*--- Testpointer invalidation
-    oTemp = new stkPointer("temporary")
-    oTemp.free()
+    # Test pointer invalidation
+    o2 = new stkPointer("temporary")
+    o2.free()
     
     try
-        nAddr = oTemp.getAddress()
+        nAddr = o2.getAddress()
         ? "Address after free: " + nAddr
     catch cError
         ? "Expected error after free: " + cError
-    done
+    done + NL
     
-    /*--- Testtype mismatch
-    oInt = new stkPointer(42)
+    # Test type mismatch
+    o3 = new stkPointer(42)
     try
-        cStr = oInt.pointerToString()
+        cStr = o3.pointerToString()
         ? "String from int: " + cStr
     catch cError
         ? "Expected type error: " + cError
     done
-    
-    ? ""
 
-/*--- TestSuite 8: Performance and Memory Management
-func testMemoryManagement()
-    ? "=== MEMORY MANAGEMENT ==="
+pf()
+
+/*--- TestSuite 10: Memory Management
+
+pr()
+    # Test large buffer allocation
+    o1 = StkStringPointerQ("", 1024)
+    ? "Large buffer: " + o1.@metadata[1] + " bytes" + NL
     
-    /*--- Testlarge buffer allocation
-    oLargeBuffer = stzStringPointer("", 1024)
-    ? "Large buffer: " + oLargeBuffer.@metadata[1] + " bytes"
-    
-    /*--- Testmultiple pointers to same data
+    # Test multiple pointers to same data
     cSharedData = "Shared String"
-    oPtr1 = new stkPointer(cSharedData)
-    oPtr2 = new stkPointer(cSharedData)
+    o2 = new stkPointer(cSharedData)
+    o3 = new stkPointer(cSharedData)
     
-    ? "Pointer 1: " + oPtr1.getAddressHex()
-    ? "Pointer 2: " + oPtr2.getAddressHex()
-    ? "Same data: " + (oPtr1.toRingValue() = oPtr2.toRingValue())
+    ? "Pointer 1: " + o2.getAddressHex()
+    ? "Pointer 2: " + o3.getAddressHex()
+    ? "Same data: " + (o2.toRingValue() = o3.toRingValue()) + NL
     
-    /*--- Testmanaged vs unmanaged
-    oManaged = new stkPointer("managed")
-    oUnmanaged = oManaged.copy()
+    # Test managed vs unmanaged
+    o4 = new stkPointer("managed")
+    o5 = o4.copy()
     
-    ? "Managed status - Original: " + oManaged.@isManaged + ", Copy: " + oUnmanaged.@isManaged
+    ? "Managed status - Original: " + o4.@isManaged + ", Copy: " + o5.@isManaged()
     
     # Cleanup
-    oLargeBuffer.free()
-    oManaged.free()
-    
-    ? ""
+    o1.free()
+    o4.free()
 
-/*--- TestSuite 9: Real-world Scenarios
-func testRealWorldScenarios()
-    ? "=== REAL-WORLD SCENARIOS ==="
-    
+pf()
+
+/*--- TestSuite 11: Real-world Scenarios
+
+pr()
     # Scenario 1: File I/O with C library
     ? "Scenario 1: File I/O"
-    cMode = "rb"
-    oModePtr = new stkPointer(cMode)
-    ? "File mode pointer: " + oModePtr.getAddressHex()
+    o1 = new stkPointer("rb")
+    ? "File mode pointer: " + o1.getAddressHex() + NL
     
     # Scenario 2: Network buffer
     ? "Scenario 2: Network Buffer"
-    oNetBuffer = stzStringPointer("", 4096)
-    ? "Network buffer: " + oNetBuffer.@metadata[1] + " bytes ready"
+    o2 = StkStringPointerQ("", 4096)
+    ? "Network buffer: " + o2.@metadata[1] + " bytes ready" + NL
     
     # Scenario 3: Graphics pixel data
     ? "Scenario 3: Graphics Data"
@@ -233,8 +283,8 @@ func testRealWorldScenarios()
     for i = 1 to 100
         aPixelData + random(255)
     next
-    oPixelPtr = new stkPointer(aPixelData)
-    ? "Pixel data: " + len(oPixelPtr.toRingValue()) + " pixels"
+    o3 = new stkPointer(aPixelData)
+    ? "Pixel data: " + len(o3.toRingValue()) + " pixels" + NL
     
     # Scenario 4: Configuration data
     ? "Scenario 4: Configuration"
@@ -249,46 +299,44 @@ func testRealWorldScenarios()
             "ttl" = 3600
         ]
     ]
-    oConfigPtr = new stkPointer(aConfig)
-    ? "Config pointer: " + oConfigPtr.getAddressHex()
-    aRetrievedConfig = oConfigPtr.toRingValue()
+    o4 = new stkPointer(aConfig)
+    ? "Config pointer: " + o4.getAddressHex()
+    aRetrievedConfig = o4.toRingValue()
     ? "Config preserved: " + (aRetrievedConfig["database"]["host"] = "localhost")
-    
-    ? ""
 
-/*--- TestSuite 10: Educational Examples
-func testEducationalExamples()
-    ? "=== EDUCATIONAL EXAMPLES ==="
-    
+pf()
+
+/*--- TestSuite 12: Educational Examples
+
+pr()
     # Example 1: Understanding pointer structure
     ? "Example 1: Pointer Structure"
-    oExample = new stkPointer("Learning")
-    aRawPointer = oExample.getRawPointer()
+    o1 = new stkPointer("Learning")
+    aRawPointer = o1.getRawPointer()
     ? "Raw pointer structure: " + @@(aRawPointer)
     ? "Address: " + aRawPointer[1] + " (hex: " + upper(hex(aRawPointer[1])) + ")"
     ? "Type: " + aRawPointer[2]
-    ? "Status: " + aRawPointer[3]
+    ? "Status: " + aRawPointer[3] + NL
     
     # Example 2: Memory layout visualization
     ? "Example 2: Memory Layout"
-    cData = "ABCD"
-    oDataPtr = new stkPointer(cData)
-    ? "String '" + cData + "' in memory:"
-    for i = 0 to len(cData) - 1
-        cByte = oDataPtr.pointerToString(i, 1)
+    o2 = new stkPointer("ABCD")
+    ? "String 'ABCD' in memory:"
+    for i = 0 to 3
+        cByte = o2.pointerToString(i, 1)
         ? "  Offset " + i + ": '" + cByte + "' (ASCII " + ascii(cByte) + ")"
     next
     
     # Example 3: Pointer lifecycle
     ? "Example 3: Pointer Lifecycle"
-    oLife = new stkPointer("lifecycle")
-    ? "Created: " + oLife.@createdFrom
-    ? "Valid: " + oLife.isValidPointer()
-    ? "Managed: " + oLife.@isManaged
-    oLife.free()
-    ? "After free - Valid: " + oLife.isValidPointer()
-    
-    ? ""
+    o3 = new stkPointer("lifecycle")
+    ? "Created: " + o3.@createdFrom
+    ? "Valid: " + o3.isValidPointer()
+    ? "Managed: " + o3.@isManaged
+    o3.free()
+    ? "After free - Valid: " + o3.isValidPointer()
+
+pf()
 
 # Helper class for testing
 class Person
@@ -296,4 +344,3 @@ class Person
     func init(cName, nAge)
         @name = cName
         @age = nAge
-
