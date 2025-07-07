@@ -110,6 +110,10 @@
 	load "system/stzFile.ring"
 	load "system/stzFolder.ring"
 
+# Loading files related to the FILE module
+
+	load "file/stzJson.ring"
+
 # Loading files related to the ERROR module
 
 	load "error/stzObjectError.ring"

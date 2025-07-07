@@ -160,6 +160,16 @@ func QByteArrayToListOfUnicodes(oQByteArray)
 	func QByteArrayObjectToListOfBytecodes(oQByteArray)
 		return QByteArrayToListOfUnicodes(oQByteArray)
 
+func QByteArrayToString(oQByteArray)
+	oListOfBytes = new stzListOfBytes(oQByteArray)
+	return oListOfBytes.ToStzString().Content()
+
+func StringToQByteArray(cStr)
+	_oStr_ = new stzString(cStr)
+	_oQByteArray_ = new QByteArray()
+	_oQByteArray_.append(cStr)
+	return _oQByteArray_
+
 func QByteArrayToListOfChars(oQByteArray)
 	/*
 	Can also be solved like this:
