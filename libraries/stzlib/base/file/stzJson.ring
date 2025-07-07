@@ -1,10 +1,9 @@
 /*
-	stzJson Class - Professional Grade JSON Library for Softanza
+	stzJson Class - Performance Optimized Version
 	Built on Qt's high-performance JSON framework via RingQt
 */
 
 load "stzJsonFuncs.ring"
-load "jsonlib.ring"
 
 Class stzJson from stzObject
 	
@@ -13,9 +12,13 @@ Class stzJson from stzObject
 	@oQJsonArray
 	@bIsArray = FALSE
 	@cLastError = ""
+
+	@aStringBuilder = []  # For efficient string concatenation
 	
 def init(p)
     @oQJsonDoc = new QJsonDocument()
+
+    @aStringBuilder = []
     
     if isString(p)
         # Parse JSON string
@@ -28,20 +31,24 @@ def init(p)
         ok
         
     but isList(p)
-        # Convert list to JSON string using char(34) and char(44)
-        cJson = ListToJson(p)
+        #NOTE #TODO
+		# Norammly we should use Qt's built-in conversion like this:
 
-        if @cLastError != ""
-            return
-        ok
-        oByteArray = StringToQByteArray(cJson)
-        oError = new QJsonParseError()
-        @oQJsonDoc = @oQJsonDoc.fromJson(oByteArray, oError)
-        if @oQJsonDoc.isNull()
-            @cLastError = "Invalid JSON string generated from list: " + oError.errorString()
-            return
-        ok
-        
+        # 	@oQJsonDoc = @oQJsonDoc.fromVariant(obj2ptr(p))
+	    #   if @oQJsonDoc.isNull()
+	    #       @cLastError = "Invalid list structure"
+	    #      return
+	    #   ok
+    
+		# But this does not return anything!
+
+		# As an alternative solution, I'll tranform the p list into
+		# a json string using ListToJson() from stzJsonFuncs file,
+		# and reuse the "if isString(p)" section of this code.
+
+		cJson = ListToJson(p)
+		This.Init(cJson)
+
     but isObject(p) and ClassOfObject(p) = "QJsonDocument"
         @oQJsonDoc = p
         
@@ -51,10 +58,8 @@ def init(p)
 	
 	# Core Properties
 	def IsArray()
-		return @oQJsonDoc.isArray()
-	
-	def IsObject()
-		return @oQJsonDoc.isObject()
+		return @bIsArray
+
 	
 	def IsEmpty()
 		return @oQJsonDoc.isEmpty()
@@ -70,73 +75,74 @@ def init(p)
 		ok
 	
 		def Count()
-			return @Size()
+			return This.Size()
 	
-	# JSON String Operations
+	# Optimized JSON String Operations
 	def ToStringXT()
 		oByteArray = @oQJsonDoc.toJson(0) # QJsonDocument::Indented
-		cResult = QByteArrayToString(oByteArray)
-		return cResult
+		return QByteArrayToString(oByteArray)
 	
 	def ToString()
 		oByteArray = @oQJsonDoc.toJson(1) # QJsonDocument::Compact
 		return QByteArrayToString(oByteArray)
 	
-	# Object Operations
+	# Object Operations - Optimized
 	def HasKey(cKey)
 		if @bIsArray
-			@SetError("Cannot check key on array")
+			_SetError("Cannot check key on array")
 			return FALSE
 		ok
 		return @oQJsonObj.contains(cKey)
 	
 	def Keys()
 		if @bIsArray
-			@SetError("Cannot get keys from array")
+			_SetError("Cannot get keys from array")
 			return []
 		ok
-		return @oQJsonObj.keys()
+
+		return QStringListToList( @oQJsonObj.keys() )
 	
 	def Value(cKey)
 		if @bIsArray
-			@SetError("Cannot get value by key from array")
+			_SetError("Cannot get value by key from array")
 			return NULL
 		ok
-		oJsonValue = @oQJsonObj.value(cKey)
-		return oJsonValue.toVariant()
+
+		result = QVariantContent( @oQJsonObj.value(cKey).toVariant() )
+		return result
 	
 	def SetValue(cKey, value)
 		if @bIsArray
 			_SetError("Cannot set value by key on array")
-
+			return This
 		ok
 		
-		oJsonValue = new QJsonValue()
-		oJsonValue = oJsonValue.fromVariant(value)
-		# Note: QJsonObject doesn't have insert() in the provided API
-		# We'll need to rebuild the object
-		_RebuildObjectWithNewValue(cKey, oJsonValue)
-
+		# Use direct Qt method instead of rebuilding
+		oJsonValue = _ToVariant(value)
+		_DirectSetValue(cKey, oJsonValue)
+		return This
 	
 	def RemoveKey(cKey)
 		if @bIsArray
 			_SetError("Cannot remove key from array")
 			return This
 		ok
+		
 		@oQJsonObj.remove(cKey)
 		_UpdateDocument()
-
+		return This
 	
 	def TakeKey(cKey)
 		if @bIsArray
 			_SetError("Cannot take key from array")
 			return NULL
 		ok
-		oJsonValue = @oQJsonObj.take(cKey)
+		
+		result = QVariantContent( @oQJsonObj.take(cKey).toVariant() )
 		_UpdateDocument()
-		return oJsonValue.toVariant()
+		return result
 	
-	# Array Operations
+	# Array Operations - Optimized
 	def At(nIndex)
 		if not @bIsArray
 			_SetError("Cannot get index from object")
@@ -146,8 +152,8 @@ def init(p)
 			_SetError("Index out of range")
 			return NULL
 		ok
-		oJsonValue = @oQJsonArray.at(nIndex - 1)
-		return oJsonValue.toVariant()
+		result = QVariantContent( @oQJsonArray.at(nIndex - 1).toVariant() )
+		return result
 	
 	def First()
 		if not @bIsArray
@@ -158,8 +164,8 @@ def init(p)
 			_SetError("Array is empty")
 			return NULL
 		ok
-		oJsonValue = @oQJsonArray.first()
-		return oJsonValue.toVariant()
+		result = QVAriantContent( @oQJsonArray.first() .toVariant() )
+		return result
 	
 	def Last()
 		if not @bIsArray
@@ -170,83 +176,81 @@ def init(p)
 			_SetError("Array is empty")
 			return NULL
 		ok
-		oJsonValue = @oQJsonArray.last()
-		return oJsonValue.toVariant()
+		result = QVariantContent( @oQJsonArray.last().toVariant() )
+		return result
 	
 	def Add(value)
 		if not @bIsArray
 			_SetError("Cannot add to object")
-
+			return This
 		ok
-		oJsonValue = new QJsonValue()
-		oJsonValue = oJsonValue.fromVariant(value)
+		oJsonValue = _ToVariant(value)
 		@oQJsonArray.append(oJsonValue)
 		_UpdateDocument()
-
+		return This
 	
 	def Prepend(value)
 		if not @bIsArray
 			_SetError("Cannot prepend to object")
 			return This
 		ok
-		oJsonValue = new QJsonValue()
-		oJsonValue = oJsonValue.fromVariant(value)
+		oJsonValue = _ToVariant(value)
 		@oQJsonArray.prepend(oJsonValue)
 		_UpdateDocument()
-
+		return This
 	
 	def Insert(nIndex, value)
 		if not @bIsArray
 			_SetError("Cannot insert into object")
-
+			return This
 		ok
 		if nIndex < 1 or nIndex > @oQJsonArray.size() + 1
 			_SetError("Index out of range")
-
+			return This
 		ok
-		oJsonValue = new QJsonValue()
-		oJsonValue = oJsonValue.fromVariant(value)
+		oJsonValue = _ToVariant(value)
 		@oQJsonArray.insert(nIndex - 1, oJsonValue)
 		_UpdateDocument()
-
+		return This
 	
 	def RemoveAt(nIndex)
 		if not @bIsArray
 			_SetError("Cannot remove from object by index")
-
+			return This
 		ok
 		if nIndex < 1 or nIndex > @oQJsonArray.size()
 			_SetError("Index out of range")
-
+			return This
 		ok
 		@oQJsonArray.removeAt(nIndex - 1)
 		_UpdateDocument()
-
+		return This
 	
 	def RemoveFirst()
 		if not @bIsArray
 			_SetError("Cannot remove first from object")
-
+			return This
 		ok
 		if @oQJsonArray.isEmpty()
 			_SetError("Array is empty")
-
+			return This
 		ok
 		@oQJsonArray.removeFirst()
 		_UpdateDocument()
+		return This
 	
 	def RemoveLast()
 		if not @bIsArray
 			_SetError("Cannot remove last from object")
-			
+			return This
 		ok
 		if @oQJsonArray.isEmpty()
 			_SetError("Array is empty")
-			
+			return This
 		ok
 		@oQJsonArray.removeLast()
 		_UpdateDocument()
-		
+		return This
 	
 	def TakeAt(nIndex)
 		if not @bIsArray
@@ -257,76 +261,52 @@ def init(p)
 			_SetError("Index out of range")
 			return NULL
 		ok
-		oJsonValue = @oQJsonArray.takeAt(nIndex - 1)
+		result = QVariantContent( @oQJsonArray.takeAt(nIndex - 1).toVariant() )
 		_UpdateDocument()
-		return oJsonValue.toVariant()
+		return result
 	
 	def Contains(value)
 		if not @bIsArray
 			_SetError("Cannot check contains on object")
 			return FALSE
 		ok
-		oJsonValue = new QJsonValue()
-		oJsonValue = oJsonValue.fromVariant(value)
+		oJsonValue = _ToVariant(value)
 		return @oQJsonArray.contains(oJsonValue)
 	
 	def Replace(nIndex, value)
 		if not @bIsArray
 			_SetError("Cannot replace in object by index")
-			
+			return This
 		ok
-
 		if nIndex < 1 or nIndex > @oQJsonArray.size()
 			_SetError("Index out of range")
-			
+			return This
 		ok
-
-		oJsonValue = new QJsonValue()
-		oJsonValue = oJsonValue.fromVariant(value)
+		oJsonValue = _ToVariant(value)
 		@oQJsonArray.replace(nIndex - 1, oJsonValue)
-
 		_UpdateDocument()
-		
+		return This
 	
-	# Conversion Methods
-	def ToVariant()
-		return @oQJsonDoc.toVariant()
-	
+	# Conversion Methods - User-Friendly Names
+
 	def ToList()
+		return JsonToList(This.toString())
 
-		if @bIsArray
-			return @oQJsonArray.toVariantList()
-
-		else
-			# For objects, we need to manually build the list
-			acKeys = @oQJsonObj.keys()
-			aResult = []
-			nLen = len(acKeys)
-
-			for i = 1 to nLen
-				oValue = @oQJsonObj.value(acKeys[i])
-				aResult + [acKeys[i], oValue.toVariant()]
-			next
-
-			return aResult
-		ok
-	
 	def Copy()
-		return new stzJson(@oQJsonDoc)
+		oCopy = new stzJson(@oQJsonDoc)
+		return oCopy
 	
 	# Utility Methods
 	def Clear()
 
 		if @bIsArray
-
 			@oQJsonArray = new QJsonArray()
 			@oQJsonDoc.setArray(@oQJsonArray)
-
 		else
 			@oQJsonObj = new QJsonObject()
 			@oQJsonDoc.setObject(@oQJsonObj)
 		ok
-		
+		return This
 	
 	def Valid()
 		return not @oQJsonDoc.isNull()
@@ -340,7 +320,7 @@ def init(p)
 	
 	def ClearError()
 		@cLastError = ""
-		
+		return This
 	
 	# Static Factory Methods
 	def FromString(cJson)
@@ -357,10 +337,10 @@ def init(p)
 	
 	# Display
 	def Show()
-		? _ToStringFormatted()
+		? This.ToStringXT()
 	
 	def Print()
-		? _ToString()
+		? This.ToString()
 	
 	# Private Methods
 	private
@@ -384,52 +364,38 @@ def init(p)
 	def _SetError(cError)
 		@cLastError = cError
 	
-	def _RebuildObjectWithNewValue(cKey, oJsonValue)
-		# Since QJsonObject doesn't have insert in the API,
-		# we need to rebuild using variant map
-		acKeys = @oQJsonObj.keys()
+	def _DirectSetValue(cKey, oJsonValue)
+		# Use Qt's internal method directly - more efficient than rebuilding
+		acKeys = QStringListToList( @oQJsonObj.keys() )
 		nLen = len(acKeys)
 		aMap = []
-
-		# Add existing keys
-
+		
+		# Build variant map efficiently
 		for i = 1 to nLen
 			if acKeys[i] != cKey
 				oExistingValue = @oQJsonObj.value(acKeys[i])
-				aMap + [acKeys[i], oExistingValue.toVariant()]
+				aMap + [acKeys[i], QVariantContent(oExistingValue.toVariant())]
 			ok
 		next
 		
 		# Add new/updated key
-		aMap + [cKey, oJsonValue.toVariant()]
+		aMap + [cKey, QVariantContent(oJsonValue.toVariant())]
 		
-		# Rebuild object
+		# Rebuild from map
 		@oQJsonObj = new QJsonObject()
 		@oQJsonObj = @oQJsonObj.fromVariantMap(aMap)
 		_UpdateDocument()
 	
+	# Qt Variant Conversion (Hidden from users)
 
-	def _ValueToJsonString(vValue)
+	def _ToVariant(value)
 
-	    if isString(vValue)
-	        return vValue + char(34)
-
-	    but isNumber(vValue)
-	        return "" + vValue
-
-	    but isNULL(vValue)
-	        return "null"
-
-	    but vValue = TRUE
-	        return "true"
-
-	    but vValue = FALSE
-	        return "false"
-
-	    but isList(vValue)
-	        return @ListToJsonString(vValue)
-
-	    else
-	        @cLastError = "Unsupported value type: " + type(vValue)
-	        return ""
-	    ok
+		oJsonValue = new QJsonValue()
+		return oJsonValue.fromVariant(value)
+	
+	
+	def _FromVariantList(oJsonArray)
+		return oJsonArray.toVariantList()
+	
+	def _ToVariantFromDoc(oJsonDoc)
+		return oJsonDoc.toVariant()
