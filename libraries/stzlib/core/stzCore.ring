@@ -39,6 +39,8 @@
 	load "string/stkString.ring"
 	load "string/stkChar.ring"
 
+# Loading files in SystEM module
 
+	load "system/stkPointer.ring"
 
 

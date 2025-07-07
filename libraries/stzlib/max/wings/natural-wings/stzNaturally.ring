@@ -51,8 +51,8 @@ class stzNatural
 		# RING ERROR MESSAGE:
 		# Error (R24) : Using uninitialized variable: home
 
-		if left(cCatchError,11) = "Error (R24)"
-			cUndefinded = trim(split(cCatchError, ":")[3])
+		if left(CatchError(),11) = "Error (R24)"
+			cUndefinded = trim(split(CatchError(), ":")[3])
 			@aUndefined + cUndefinded
 		ok
 
