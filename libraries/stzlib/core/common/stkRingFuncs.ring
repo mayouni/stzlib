@@ -319,3 +319,5 @@ func ring_decrypt2(cString, cKey, cIV, cCipherAlgorithmName)
 func ring_randbytes(n)
 	return randbytes(n)
 
+func CatchError()
+	return cCatchError

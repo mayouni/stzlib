@@ -107,12 +107,13 @@
 
 	load "system/stzProfilingTimer.ring"
 
-	load "system/stzFile.ring"
-	load "system/stzFolder.ring"
+	load "system/stzPointer.ring"
 
 # Loading files related to the FILE module
 
 	load "file/stzJson.ring"
+	load "file/stzFile.ring"
+	load "file/stzFolder.ring"
 
 # Loading files related to the ERROR module
 

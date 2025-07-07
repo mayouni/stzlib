@@ -485,7 +485,7 @@ class StzExtCodeXT
 			return result
 
 		catch
-			? "Eval error: " + cCatchError + NL
+			? "Eval error: " + CatchError() + NL
 			? "Log content: " + This.Log()
 			return cContent
 
