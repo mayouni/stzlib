@@ -35,30 +35,52 @@ class stkPointer
     @createdFrom = ""    	# Track creation source for debugging
     
     # Constructor - unified interface for all pointer creation scenarios
-    def init(pParams)
-        @metadata = [0, "utf8", false]  # [size, encoding, allocated_by_us]
-        @createdFrom = "init"
-        
-        # Handle parameter variations
-        pValue = NULL
-        cType = :auto
-        nOptions = []
-        
-        if isList(pParams)
-            # Extract parameters from list
-            pValue = pParams[1]
-            if len(pParams) > 1 cType = pParams[2] ok
-            if len(pParams) > 2 nOptions = pParams[3] ok
-        else
-            # Single parameter - treat as pValue
-            pValue = pParams
-        ok
-        
-        if isNull(pValue)
-            this.createNullPointer()
-        else
-            this.createFromValue(pValue, cType, nOptions)
-        ok
+	def init(pParams)
+	    @metadata = [0, "utf8", false]  # [size, encoding, allocated_by_us]
+	    @createdFrom = "init"
+	    
+	    # Handle parameter variations
+	    pValue = NULL
+	    cType = :auto
+	    nOptions = []
+	    
+	    if isList(pParams)
+	        # Check if this looks like a parameter specification or data
+	        # Parameter spec: [value, type_string, options]
+	        # Data: any other list structure
+	        bIsParamSpec = false
+	        
+	        if len(pParams) >= 2 and len(pParams) <= 3
+	            # Could be param spec - check if second element is a type string
+	            cSecondElement = pParams[2]
+	            if isString(cSecondElement)
+	                aValidTypes = ["int", "double", "number", "char", "string", "list", "object", "auto"]
+	                if find(aValidTypes, cSecondElement) > 0
+	                    bIsParamSpec = true
+	                ok
+	            ok
+	        ok
+	        
+	        if bIsParamSpec
+	            # Extract parameters from list
+	            pValue = pParams[1]
+	            cType = pParams[2]
+	            if len(pParams) > 2 nOptions = pParams[3] ok
+	        else
+	            # Treat entire list as data value
+	            pValue = pParams
+	            cType = :auto
+	        ok
+	    else
+	        # Single parameter - treat as pValue
+	        pValue = pParams
+	    ok
+	    
+	    if isNull(pValue)
+	        this.createNullPointer()
+	    else
+	        this.createFromValue(pValue, cType, nOptions)
+	    ok
     
     # Create a null pointer
     def createNullPointer()
@@ -87,24 +109,45 @@ class stkPointer
 
         try
             switch cType
-            on "int"
-                @originalValue = pValue  # Store the original numeric value
-                # Create string buffer and use memcpy approach
-                @pointer = this.createNumericPointer(pValue, "int")
-                @metadata[1] = 4  # int size
+		on "number"
+		    if floor(pValue) = pValue and pValue >= -2147483648 and pValue <= 2147483647
+		        @logicalType = "int"
+		        @originalValue = pValue
+		        @pointer = this.createNumericPointer(pValue, "int")
+		        @metadata[1] = 4
+		    else
+		        @logicalType = "double" 
+		        @originalValue = pValue
+		        @pointer = this.createNumericPointer(pValue, "double")
+		        @metadata[1] = 8
+		    ok
+
+		on "int"
+		    @originalValue = pValue
+		    @pointer = this.createNumericPointer(pValue, "int")
+		    @metadata[1] = 4
+
+		on "double"
+		    @originalValue = pValue
+		    @pointer = this.createNumericPointer(pValue, "double")
+		    @metadata[1] = 8
+
+		on "string"
+		    this.createStringPointer(pValue, nOptions)
+
+		on "char"
+		    this.createStringPointer(pValue, nOptions)  # Keep for C compatibility
+
+		on "list"
+		    @originalValue = pValue
+		    @pointer = object2pointer(pValue)
+		    @metadata[1] = -1  # variable size
+		    @logicalType = "list"  # Keep list type distinct from object
                 
-            on "double" 
-                @originalValue = pValue  # Store the original numeric value
-                @pointer = this.createNumericPointer(pValue, "double")
-                @metadata[1] = 8  # double size
-                
-            on "char"
-                this.createStringPointer(pValue, nOptions)
-                
-            on "object"
-                @originalValue = pValue
-                @pointer = object2pointer(pValue)
-                @metadata[1] = -1  # variable size
+		on "object"
+		    @originalValue = pValue
+		    @pointer = object2pointer(pValue)
+		    @metadata[1] = -1  # variable size
                 
             other
                 raise("Unsupported pointer type: " + cType)
@@ -188,20 +231,18 @@ class stkPointer
         @metadata = [nBufferSize, cEncoding, true]
     
     # Smart type detection based on Ring value
-    def detectOptimalType(pValue)
-        if isNumber(pValue)
-            if floor(pValue) = pValue and pValue >= -2147483648 and pValue <= 2147483647
-                return "int"
-            else
-                return "double"
-            ok
-        but isString(pValue)
-            return "char"
-        but isList(pValue) or isObject(pValue)
-            return "object"
-        else
-            raise("Cannot detect appropriate pointer type")
-        ok
+	def detectOptimalType(pValue)
+	    if isNumber(pValue)
+	        return "number"
+	    but isString(pValue)
+	        return "string"
+	    but isList(pValue)
+	        return "list"
+	    but isObject(pValue)
+	        return "object"
+	    else
+	        raise("Cannot detect appropriate pointer type")
+	    ok
     
     # Get the raw Ring pointer (list of 3 items)
     def getRawPointer()
@@ -221,7 +262,14 @@ class stkPointer
     def getType()
         this.validatePointer()
         if not isNull(@logicalType) and @logicalType != ""
-            return @logicalType
+            # Return high-level Ring semantics
+            if @logicalType = "int" or @logicalType = "double"
+                return "number"
+            but @logicalType = "char"
+                return "string"
+            else
+                return @logicalType
+            ok
         ok
         
         # Fallback to Ring pointer type
@@ -244,39 +292,57 @@ class stkPointer
     def isNullPointer()
         return isNull(@pointer) or this.getAddress() = 0
     
-    # Convert pointer back to Ring value
 
+    # Convert pointer back to Ring value
     def toRingValue()
         this.validatePointer()
         
         # Use logical type directly
         switch @logicalType
-        on "char"
-            return this.pointerToString(0, -1)
-        on "object"
-            return pointer2object(@pointer)
-        on "int"
-            # Read integer from buffer
-            if not isNull(@buffer) and len(@buffer) >= 4
-                # Convert bytes back to integer (little-endian)
-                nVal = 0
-                nVal += ascii(@buffer[4]) * 256 * 256 * 256
-                nVal += ascii(@buffer[3]) * 256 * 256
-                nVal += ascii(@buffer[2]) * 256
-                nVal += ascii(@buffer[1])
-                return nVal
-            else
-                return @originalValue
-            ok
-        on "double"
-            # For double, return original value (complex byte conversion not implemented)
-            return @originalValue
-        on "null"
-            return NULL
-        other
-            raise("Unsupported pointer type for conversion: " + @logicalType)
-        off
-    
+	   	on "string"
+    			return this.pointerToString(0, -1)
+	   	on "char"
+    			return this.pointerToString(0, -1)
+
+		on "list"
+		    if not isNull(@originalValue)
+		        return @originalValue
+		    else
+		        return pointer2object(@pointer)
+		    ok
+
+		on "object"
+		    if not isNull(@originalValue)
+		        return @originalValue
+		    else
+		        return pointer2object(@pointer)
+		    ok
+
+        	on "int"
+            	# Read integer from buffer
+            	if not isNull(@buffer) and len(@buffer) >= 4
+                	# Convert bytes back to integer (little-endian)
+                	nVal = 0
+               	 nVal += ascii(@buffer[4]) * 256 * 256 * 256
+               	 nVal += ascii(@buffer[3]) * 256 * 256
+               	 nVal += ascii(@buffer[2]) * 256
+               	 nVal += ascii(@buffer[1])
+                	return nVal
+           	 else
+                	return @originalValue
+            	ok
+
+        	on "double"
+            	# For double, return original value (complex byte conversion not implemented)
+            	return @originalValue
+
+       	on "null"
+            	return NULL
+
+        	other
+            	raise("Unsupported pointer type for conversion: " + @logicalType)
+       	 off
+
     # Convert char pointer to string with options
     def pointerToString(nStart, nCount)
 		if isNull(nStart)
@@ -287,9 +353,11 @@ class stkPointer
 		ok
 
         this.validatePointer()
-        if this.getType() != "char"
-            raise("pointerToString() only works with char pointers")
-        ok
+		cType = This.getType()
+
+	    if not (cType = "string" or cType = "char")
+	        raise("pointerToString() only works with string/char pointers")
+	    ok
         
         if nCount = -1
             nCount = this.detectStringLength()
@@ -301,7 +369,7 @@ class stkPointer
     
     # Detect string length for char pointers
     def detectStringLength()
-        if this.getType() != "char" return 0 ok
+        if @logicalType != "char" return 0 ok
         
         nMaxScan = 1024
         if @metadata[1] > 0 and @metadata[1] < nMaxScan
@@ -375,7 +443,7 @@ class stkPointer
     
     # Create a copy of this pointer
     def copy()
-        oNew = new stkPointer()
+        oNew = new stkPointer([])
         oNew.@pointer = @pointer
         oNew.@originalValue = @originalValue
         oNew.@buffer = @buffer
@@ -390,7 +458,8 @@ class stkPointer
     def getInfo()
         aInfo = []
         aInfo + ["Address", this.getAddressHex()]
-        aInfo + ["Type", this.getType()]
+        aInfo + ["Ring Type", this.getType()]
+	   aInfo + ["Internal Type", this.@logicalType]
         aInfo + ["Status", this.getStatus()]
         aInfo + ["Valid", this.isValidPointer()]
         aInfo + ["Managed", @isManaged]
@@ -400,13 +469,17 @@ class stkPointer
         return aInfo
     
     # Debug method to see internal state
-    def debug()
-        ? "=== DEBUG INFO ==="
-        ? "logicalType: " + @logicalType
-        ? "originalValue: " + @originalValue
-        ? "getType(): " + this.getType()
-        ? "isValid: " + @isValid
-        ? "=================="
+	def debug()
+	    ? "=== DEBUG INFO ==="
+	    ? "logicalType: " + @logicalType
+	    if isList(@originalValue) or isObject(@originalValue)
+	        ? "originalValue: [complex object/list]"
+	    else
+	        ? "originalValue: " + @originalValue
+	    ok
+	    ? "getType(): " + this.getType()
+	    ? "isValid: " + @isValid
+	    ? "=================="
     
     # Display pointer information
     def show()

@@ -31,7 +31,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- TestSuite 2: Advanced String Buffer Management
-*/
+
 pr()
     # Fixed-size buffer
     o1 = StkStringPointerQ("Hello", 20)
@@ -52,30 +52,52 @@ pf()
 
 /*--- TestSuite 3: Object and List Pointers
 
+#NOTE This sample use the peerson class defined at the end of the file
+#~> Ensure it is not commented for the sample to work
+
 pr()
+
     # List pointer
     o1 = new stkPointer(["apple", "banana", "cherry"])
-    ? "Original list: " + @@(["apple", "banana", "cherry"])
-    ? "Retrieved list: " + @@(o1.toRingValue()) + NL
-    
+
+	# Retrieved list:
+    	? o1.toRingValue()
+	#--> [ "apple", "banana", "cherry" ]
+
+	? o1.getType() + NL
+	#--> list
+
+
     # Object pointer
+
     oObj = new Person("John", 30)
     o2 = new stkPointer(oObj)
-    ? "Original object: " + classname(oObj)
-    ? "Retrieved object: " + classname(o2.toRingValue()) + NL
-    
+
+    # Original object
+	? classname(oObj) #--> person
+	? o2.getType() #--> object
+
+    # Retrieved object
+	? classname(o2.toRingValue()) + NL
+    	#--> person
+
     # Nested structure
+
     aComplex = [
         "data" = ["x" = 10, "y" = 20],
         "config" = ["debug" = true, "version" = "1.0"]
     ]
+
+    # Ensuring that complex structure ismaintained
     o3 = new stkPointer(aComplex)
-    ? "Complex structure maintained: " + (@@(aComplex) = @@(o3.toRingValue()))
+    ? (list2str(aComplex) = list2str(o3.toRingValue()))
+    #--> TRUE
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- TestSuite 4: Pointer Arithmetic and Memory Operations
-
+*/
 pr()
     # String traversal
     o1 = new stkPointer("ABCDEFGH")
@@ -306,7 +328,75 @@ pr()
 
 pf()
 
-/*--- TestSuite 12: Educational Examples
+/*--- TestSuite 12: Number Type Detection and C/C++ Interop
+
+pr()
+
+   # Auto-detection: Ring-like simplicity
+   # Ring automatically chooses optimal storage type
+   o1 = new stkPointer(42)
+   ? o1.getType()              #--> number (high-level Ring semantics)
+   ? o1.@logicalType           #--> int (actual storage: 4-byte int)
+   ? o1.toRingValue() + NL     #--> 42
+  
+   # Floating point auto-detected as double
+   o2 = new stkPointer(3.14159)
+   ? o2.getType()              #--> number (Ring semantics)
+   ? o2.@logicalType           #--> double (actual storage: 8-byte double)
+   ? o2.toRingValue() + NL     #--> 3.14159
+ 
+   # Explicit C/C++ interop: override auto-detection
+   # Force 32-bit int for C functions expecting int*
+   o3 = new stkPointer([42, "int"])
+   ? o3.getType()              #--> int (explicit type)
+   ? o3.@metadata[1]  + NL     #--> 4 (memory footprint in bytes)
+ 
+   # Force 64-bit double for C functions expecting double*
+   o4 = new stkPointer([42.0, "double"])  
+   ? o4.getType()              #--> double (explicit type)
+   ? o4.@metadata[1] + NL      #--> 8 (memory footprint in bytes)
+  
+   # Memory efficiency: int vs double storage
+   oInt = new stkPointer([1000, "int"])      # Compact: 4 bytes
+   oDouble = new stkPointer([1000, "double"]) # Larger: 8 bytes
+   ? ''+ oInt.@metadata[1] + " vs " + oDouble.@metadata[1]  #--> 4 vs 8
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+
+pr()
+   # Auto-detection: Ring-like string semantics
+   o1 = new stkPointer("Hello World")
+   ? o1.getType()              #--> string (Ring semantics)
+   ? o1.@logicalType           #--> string (actual storage type)
+   ? o1.toRingValue() + NL         #--> Hello World
+   
+   # Explicit C interop: char* for C functions
+   o2 = new stkPointer(["Hello", "char"])
+   ? o2.getType()              #--> char (C-style char* pointer)
+   ? o2.toRingValue() + NL     #--> Hello
+   
+   # Buffer management: Ring string vs C char array
+   o3 = new stkPointer(["Text", "string", [10, true]])  # Ring semantics
+   ? o3.@metadata[1] + NL      #--> 10 (buffer size)
+   
+   o4 = new stkPointer(["Text", "char", [10, true]])    # C semantics  
+   ? o4.@metadata[1] + NL      #--> 10 (C-style buffer)
+   
+   # Both work with string operations
+   ? o3.pointerToString(0, 4)  	#--> Text
+   ? o4.pointerToString(0, 4) + NL #--> Text
+   
+   # Encoding support (both types)
+   o5 = new stkPointer(["こんにちは", "string", [20, true, "utf8"]])
+   ? o5.getType()              #--> string
+   ? o5.toRingValue()          #--> こんにちは
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- TestSuite 14: Educational Examples
 
 pr()
     # Example 1: Understanding pointer structure
@@ -337,7 +427,8 @@ pr()
     ? "After free - Valid: " + o3.isValidPointer()
 
 pf()
-
+/*---
+*/
 # Helper class for testing
 class Person
     @name @age
