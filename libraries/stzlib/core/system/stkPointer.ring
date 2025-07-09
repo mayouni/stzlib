@@ -1,5 +1,5 @@
-# stkPointer.ring - CORRECTED VERSION
-# Simplified pointer abstraction fixing synchronization issues
+# stkPointer.ring
+# Simplified pointer abstraction for Softanza library
 
 func StkPointerQ(pParams)
     return new stkPointer(pParams)

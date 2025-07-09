@@ -42,5 +42,5 @@
 # Loading files in SystEM module
 
 	load "system/stkPointer.ring"
-
+	load "system/stkBuffer.ring"
 
