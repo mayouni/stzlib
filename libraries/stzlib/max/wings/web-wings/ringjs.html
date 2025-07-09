@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ring Language Runtime</title>
+    <style>
+        :root {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #252526;
+            --bg-tertiary: #2d2d30;
+            --border-color: #3e3e42;
+            --text-primary: #cccccc;
+            --text-secondary: #9d9d9d;
+            --accent: #007acc;
+            --accent-hover: #1177bb;
+            --success: #4caf50;
+            --error: #f44336;
+            --warning: #ff9800;
+            --editor-bg: #1e1e1e;
+            --output-bg: #1e1e1e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .ide-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 48px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(45deg, var(--accent), #0099ff);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: #404040;
+        }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 500;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .examples-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .example-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+            font-size: 13px;
+        }
+
+        .example-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .example-item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .example-title {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .example-description {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        /* Editor area */
+        .editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-tabs {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            height: 35px;
+        }
+
+        .tab {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-radius: 4px 4px 0 0;
+            margin-right: 4px;
+        }
+
+        .tab.active {
+            background: var(--editor-bg);
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--editor-bg);
+        }
+
+        .editor-container {
+            flex: 1;
+            display: flex;
+        }
+
+        .code-editor {
+            flex: 1;
+            background: var(--editor-bg);
+            color: var(--text-primary);
+            border: none;
+            padding: 16px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            tab-size: 4;
+        }
+
+        .code-editor::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .output-panel {
+            width: 40%;
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-secondary);
+        }
+
+        .output-header {
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-tertiary);
+        }
+
+        .output {
+            flex: 1;
+            background: var(--output-bg);
+            color: var(--text-primary);
+            padding: 16px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        .status-bar {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 4px 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 24px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Syntax highlighting */
+        .keyword { color: #569cd6; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .comment { color: #6a9955; }
+        .operator { color: #d4d4d4; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .output-panel {
+                width: 50%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 200px;
+            }
+            
+            .output-panel {
+                width: 100%;
+                height: 40%;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="ide-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">R</div>
+                <span>Ring Language Runtime</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn" onclick="runCode()">
+                    <span>▶</span> Run
+                </button>
+                <button class="btn btn-secondary" onclick="clearOutput()">
+                    <span>🗑</span> Clear
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-header">Examples</div>
+                <div class="examples-list" id="examplesList">
+                    <!-- Examples will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Editor Area -->
+            <div class="editor-area">
+                <div class="editor-tabs">
+                    <div class="tab active">main.ring</div>
+                </div>
+                
+                <div class="editor-container">
+                    <textarea class="code-editor" id="codeEditor" placeholder="# Write your Ring code here...
+# Example:
+see &quot;Hello, Ring World!&quot;
+x = 10
+y = 20
+result = x + y
+see &quot;Result: &quot; + result">see "Hello, Ring World!"
+x = 10
+y = 20
+result = x + y
+see "Result: " + result
+
+# List example
+numbers = [1, 2, 3, 4, 5]
+see "Numbers: " + numbers
+
+# Loop example
+for i = 1 to 5
+    see "Count: " + i
+next</textarea>
+
+                    <div class="output-panel">
+                        <div class="output-header">
+                            <span>Output</span>
+                            <span id="executionTime"></span>
+                        </div>
+                        <div class="output" id="output">Ready to execute Ring code...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span>Ring Runtime v1.0</span>
+            </div>
+            <div class="status-item">
+                <span id="lineCol">Line 1, Column 1</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class EnhancedRingRuntime {
+            constructor() {
+                this.variables = new Map();
+                this.functions = new Map();
+                this.classes = new Map();
+                this.output = [];
+                this.operators = {
+                    '+': (a, b) => {
+                        // Ring's implicit conversion rules
+                        if (typeof a === 'string' && typeof b === 'number') {
+                            return a + String(b);
+                        }
+                        if (typeof a === 'number' && typeof b === 'string') {
+                            const num = parseFloat(b);
+                            return isNaN(num) ? String(a) + b : a + num;
+                        }
+                        if (typeof a === 'string' || typeof b === 'string') {
+                            return String(a) + String(b);
+                        }
+                        return Number(a) + Number(b);
+                    },
+                    '-': (a, b) => Number(a) - Number(b),
+                    '*': (a, b) => Number(a) * Number(b),
+                    '/': (a, b) => Number(a) / Number(b),
+                    '%': (a, b) => Number(a) % Number(b),
+                    '**': (a, b) => Math.pow(Number(a), Number(b)),
+                    '=': (a, b) => a == b,
+                    '!=': (a, b) => a != b,
+                    '>': (a, b) => a > b,
+                    '<': (a, b) => a < b,
+                    '>=': (a, b) => a >= b,
+                    '<=': (a, b) => a <= b,
+                    'and': (a, b) => a && b,
+                    'or': (a, b) => a || b,
+                    '&&': (a, b) => a && b,
+                    '||': (a, b) => a || b
+                };
+            }
+
+            log(message) {
+                this.output.push(String(message));
+            }
+
+            error(message) {
+                this.output.push(`ERROR: ${message}`);
+            }
+
+            tokenize(code) {
+                const tokens = [];
+                const lines = code.split('\n');
+                
+                for (let lineNum = 0; lineNum < lines.length; lineNum++) {
+                    let line = lines[lineNum].trim();
+                    if (!line || line.startsWith('#') || line.startsWith('//')) continue;
+                    
+                    // Enhanced tokenization with better operator and string handling
+                    const regex = /"[^"]*"|'[^']*'|`[^`]*`|\b\w+\b|[+\-*/%=<>!&|^~()[\],{}]|\*\*|!=|>=|<=|&&|\|\||<<|>>/g;
+                    const parts = line.match(regex) || [];
+                    
+                    if (parts.length > 0) {
+                        tokens.push({ line: lineNum, tokens: parts });
+                    }
+                }
+                
+                return tokens;
+            }
+
+            parseValue(token) {
+                if (!token) return "";
+                
+                token = String(token);
+                
+                // String literals
+                if ((token.startsWith('"') && token.endsWith('"')) ||
+                    (token.startsWith("'") && token.endsWith("'")) ||
+                    (token.startsWith('`') && token.endsWith('`'))) {
+                    return token.slice(1, -1);
+                }
+                
+                // Numbers
+                if (/^-?\d+(\.\d+)?$/.test(token)) {
+                    return parseFloat(token);
+                }
+                
+                // Booleans
+                if (token.toLowerCase() === 'true') return true;
+                if (token.toLowerCase() === 'false') return false;
+                
+                // Special constants
+                if (token.toLowerCase() === 'nl') return '\n';
+                if (token.toLowerCase() === 'null') return null;
+                
+                // Variables (case-insensitive)
+                const value = this.getVariable(token);
+                return value !== undefined ? value : token;
+            }
+
+            evaluateExpression(tokens) {
+                if (!tokens || tokens.length === 0) return "";
+                
+                tokens = tokens.filter(t => t !== undefined && t !== null);
+                
+                if (tokens.length === 1) {
+                    return this.parseValue(tokens[0]);
+                }
+
+                // Handle parentheses and operator precedence
+                return this.evaluateWithPrecedence(tokens);
+            }
+
+            evaluateWithPrecedence(tokens) {
+                // Simple left-to-right evaluation for now
+                // TODO: Implement proper operator precedence
+                let result = this.parseValue(tokens[0]);
+                
+                for (let i = 1; i < tokens.length; i += 2) {
+                    if (i + 1 >= tokens.length) break;
+                    
+                    const operator = tokens[i];
+                    const operand = this.parseValue(tokens[i + 1]);
+                    
+                    if (this.operators[operator]) {
+                        result = this.operators[operator](result, operand);
+                    }
+                }
+                
+                return result;
+            }
+
+            executeStatement(tokens) {
+                if (!tokens || tokens.length === 0) return;
+                
+                const cmd = tokens[0] ? tokens[0].toLowerCase() : '';
+                
+                switch (cmd) {
+                    case 'see':
+                    case 'print':
+                    case '?':
+                        const seeExpr = tokens.slice(1);
+                        const seeValue = this.evaluateExpression(seeExpr);
+                        this.log(seeValue);
+                        break;
+                        
+                    case 'put':
+                        const putExpr = tokens.slice(1);
+                        const putValue = this.evaluateExpression(putExpr);
+                        // Put doesn't add newline
+                        if (this.output.length === 0) this.output.push('');
+                        this.output[this.output.length - 1] += putValue;
+                        break;
+                        
+                    case 'give':
+                    case 'get':
+                        const varName = tokens[1];
+                        const inputValue = prompt(`Enter value for ${varName}:`) || "";
+                        this.setVariable(varName, inputValue);
+                        break;
+
+                    case 'func':
+                    case 'def':
+                        // Function definition - store for later
+                        const funcName = tokens[1];
+                        this.functions.set(funcName.toLowerCase(), {
+                            name: funcName,
+                            params: tokens.slice(2),
+                            body: [] // Would need to collect body in real implementation
+                        });
+                        break;
+                        
+                    default:
+                        // Variable assignment
+                        if (tokens.includes('=')) {
+                            const eqIndex = tokens.indexOf('=');
+                            const varName = tokens[0];
+                            const expression = tokens.slice(eqIndex + 1);
+                            const value = this.evaluateExpression(expression);
+                            this.setVariable(varName, value);
+                        }
+                        // List creation
+                        else if (tokens.includes('[')) {
+                            const varName = tokens[0];
+                            const listStart = tokens.indexOf('[');
+                            const listEnd = tokens.indexOf(']');
+                            const listItems = tokens.slice(listStart + 1, listEnd)
+                                .filter(t => t && t !== ',')
+                                .map(t => this.parseValue(t));
+                            this.setVariable(varName, listItems);
+                        }
+                        // Range creation (e.g., 1:10)
+                        else if (tokens.includes(':')) {
+                            const colonIndex = tokens.indexOf(':');
+                            if (colonIndex > 0 && colonIndex < tokens.length - 1) {
+                                const start = this.parseValue(tokens[colonIndex - 1]);
+                                const end = this.parseValue(tokens[colonIndex + 1]);
+                                const range = [];
+                                for (let i = start; i <= end; i++) {
+                                    range.push(i);
+                                }
+                                this.setVariable(tokens[0], range);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            setVariable(name, value) {
+                this.variables.set(name.toLowerCase(), value);
+            }
+
+            getVariable(name) {
+                return this.variables.get(name.toLowerCase());
+            }
+
+            execute(code) {
+                this.output = [];
+                const tokenLines = this.tokenize(code);
+                let i = 0;
+                
+                while (i < tokenLines.length) {
+                    const { tokens } = tokenLines[i];
+                    const cmd = tokens[0]?.toLowerCase();
+                    
+                    // Handle control structures
+                    if (cmd === 'for') {
+                        i = this.executeForLoop(tokenLines, i);
+                        continue;
+                    }
+                    
+                    if (cmd === 'while') {
+                        i = this.executeWhileLoop(tokenLines, i);
+                        continue;
+                    }
+                    
+                    if (cmd === 'if') {
+                        i = this.executeIfStatement(tokenLines, i);
+                        continue;
+                    }
+                    
+                    if (cmd === 'switch') {
+                        i = this.executeSwitchStatement(tokenLines, i);
+                        continue;
+                    }
+                    
+                    // Skip control structure endings
+                    if (['next', 'end', 'ok', 'off', 'else', 'but', 'elseif'].includes(cmd)) {
+                        i++;
+                        continue;
+                    }
+                    
+                    this.executeStatement(tokens);
+                    i++;
+                }
+                
+                return this.output.join('\n');
+            }
+
+            executeForLoop(tokenLines, startIndex) {
+                const tokens = tokenLines[startIndex].tokens;
+                const loopVar = tokens[1];
+                const fromValue = this.parseValue(tokens[4]);
+                const toValue = this.parseValue(tokens[6]);
+                
+                // Find matching 'next'
+                let nextIndex = this.findBlockEnd(tokenLines, startIndex, 'for', 'next');
+                
+                // Execute loop body
+                for (let loopVal = fromValue; loopVal <= toValue; loopVal++) {
+                    this.setVariable(loopVar, loopVal);
+                    for (let j = startIndex + 1; j < nextIndex; j++) {
+                        if (tokenLines[j] && tokenLines[j].tokens) {
+                            this.executeStatement(tokenLines[j].tokens);
+                        }
+                    }
+                }
+                
+                return nextIndex + 1;
+            }
+
+            executeWhileLoop(tokenLines, startIndex) {
+                const tokens = tokenLines[startIndex].tokens;
+                const condition = tokens.slice(1);
+                
+                let endIndex = this.findBlockEnd(tokenLines, startIndex, 'while', 'end');
+                
+                while (this.evaluateExpression(condition)) {
+                    for (let j = startIndex + 1; j < endIndex; j++) {
+                        if (tokenLines[j] && tokenLines[j].tokens) {
+                            this.executeStatement(tokenLines[j].tokens);
+                        }
+                    }
+                }
+                
+                return endIndex + 1;
+            }
+
+            executeIfStatement(tokenLines, startIndex) {
+                const tokens = tokenLines[startIndex].tokens;
+                const condition = tokens.slice(1);
+                
+                let endIndex = this.findBlockEnd(tokenLines, startIndex, 'if', ['ok', 'end']);
+                let conditionMet = this.evaluateExpression(condition);
+                
+                if (conditionMet) {
+                    for (let j = startIndex + 1; j < endIndex; j++) {
+                        if (tokenLines[j] && tokenLines[j].tokens) {
+                            const cmd = tokenLines[j].tokens[0]?.toLowerCase();
+                            if (['but', 'elseif', 'else'].includes(cmd)) break;
+                            this.executeStatement(tokenLines[j].tokens);
+                        }
+                    }
+                }
+                
+                return endIndex + 1;
+            }
+
+            executeSwitchStatement(tokenLines, startIndex) {
+                // Basic switch implementation
+                let endIndex = this.findBlockEnd(tokenLines, startIndex, 'switch', 'off');
+                return endIndex + 1;
+            }
+
+            findBlockEnd(tokenLines, startIndex, startKeyword, endKeywords) {
+                if (typeof endKeywords === 'string') endKeywords = [endKeywords];
+                
+                let depth = 1;
+                let i = startIndex + 1;
+                
+                while (i < tokenLines.length && depth > 0) {
+                    const cmd = tokenLines[i].tokens[0]?.toLowerCase();
+                    if (cmd === startKeyword) depth++;
+                    if (endKeywords.includes(cmd)) depth--;
+                    i++;
+                }
+                
+                return i - 1;
+            }
+        }
+
+        // Initialize runtime
+        const runtime = new EnhancedRingRuntime();
+        let currentExample = 'basic';
+
+        // Examples
+        const examples = {
+            basic: {
+                title: 'Basic Operations',
+                description: 'Variables and arithmetic',
+                code: `see "Hello, Ring World!"
+x = 10
+y = 20
+result = x + y
+see "Result: " + result
+
+# String concatenation
+name = "Ring"
+version = "1.0"
+see "Language: " + name + " v" + version`
+            },
+            loops: {
+                title: 'Loops',
+                description: 'For and while loops',
+                code: `see "Counting from 1 to 10:"
+for i = 1 to 10
+    see "Number: " + i
+next
+
+see "Countdown:"
+x = 5
+while x > 0
+    see "T-minus " + x
+    x = x - 1
+end
+see "Blast off!"`
+            },
+            lists: {
+                title: 'Lists',
+                description: 'Working with lists',
+                code: `# Creating lists
+numbers = [1, 2, 3, 4, 5]
+see "Numbers: " + numbers
+
+names = ["Alice", "Bob", "Charlie"]
+see "Names: " + names
+
+# List operations
+mixed = [1, "hello", 3.14, true]
+see "Mixed list: " + mixed`
+            },
+            conditionals: {
+                title: 'Conditionals',
+                description: 'If statements and conditions',
+                code: `x = 15
+
+if x > 10
+    see "x is greater than 10"
+ok
+
+if x = 15
+    see "x equals 15"
+else
+    see "x does not equal 15"
+ok
+
+# Nested conditions
+if x > 0
+    if x < 20
+        see "x is between 0 and 20"
+    ok
+ok`
+            },
+            strings: {
+                title: 'String Operations',
+                description: 'String manipulation',
+                code: `# String operations
+text = "Hello World"
+see "Original: " + text
+
+# String concatenation
+greeting = "Hello"
+name = "Ring"
+message = greeting + " " + name + "!"
+see "Message: " + message
+
+# Multi-line strings
+poem = "Roses are red
+Violets are blue
+Ring is great
+And so are you!"
+see poem`
+            },
+            functions: {
+                title: 'Functions',
+                description: 'Function definitions',
+                code: `# Function example (basic implementation)
+see "Function demonstration:"
+
+# Simple calculations
+func add x y
+    return x + y
+
+# Would call: result = add(5, 3)
+x = 5
+y = 3
+result = x + y
+see "Sum of " + x + " and " + y + " is: " + result
+
+# Factorial simulation
+n = 5
+factorial = 1
+for i = 1 to n
+    factorial = factorial * i
+next
+see "Factorial of " + n + " is: " + factorial`
+            },
+            advanced: {
+                title: 'Advanced Features',
+                description: 'Complex operations',
+                code: `# Advanced Ring features
+see "Advanced Ring Programming Demo"
+
+# Multiple variable assignments
+a = 10
+b = 20
+c = 30
+sum = a + b + c
+see "Sum of a, b, c: " + sum
+
+# Working with different types
+numbers = [1, 2, 3, 4, 5]
+total = 0
+for i = 1 to 5
+    total = total + numbers[i-1]  # Note: would need proper list indexing
+next
+
+# String and number mixing
+message = "Total: " + total
+see message
+
+# Boolean operations
+flag1 = true
+flag2 = false
+see "flag1 and flag2: " + (flag1 and flag2)
+see "flag1 or flag2: " + (flag1 or flag2)`
+            }
+        };
+
+        // Initialize UI
+        function initializeUI() {
+            const examplesList = document.getElementById('examplesList');
+            
+            Object.entries(examples).forEach(([key, example]) => {
+                const item = document.createElement('div');
+                item.className = 'example-item';
+                item.onclick = () => loadExample(key);
+                
+                item.innerHTML = `
+                    <div class="example-title">${example.title}</div>
+                    <div class="example-description">${example.description}</div>
+                `;
+                
+                examplesList.appendChild(item);
+            });
+            
+            // Load initial example
+            loadExample('basic');
+        }
+
+        function loadExample(key) {
+            if (examples[key]) {
+                document.getElementById('codeEditor').value = examples[key].code;
+                currentExample = key;
+                
+                // Update active example
+                document.querySelectorAll('.example-item').forEach((item, index) => {
+                    item.classList.toggle('active', Object.keys(examples)[index] === key);
+                });
+                
+                // Auto-run the example
+                runCode();
+            }
+        }
+
+        function runCode() {
+            const code = document.getElementById('codeEditor').value;
+            const outputEl = document.getElementById('output');
+            const timeEl = document.getElementById('executionTime');
+            
+            const startTime = performance.now();
+            
+            try {
+                const result = runtime.execute(code);
+                const endTime = performance.now();
+                const executionTime = (endTime - startTime).toFixed(2);
+                
+                outputEl.textContent = result || 'Program completed successfully.';
+                timeEl.textContent = `${executionTime}ms`;
+            } catch (error) {
+                outputEl.textContent = `Runtime Error: ${error.message}`;
+                timeEl.textContent = 'Error';
+            }
+        }
+
+        function clearOutput() {
+            document.getElementById('output').textContent = 'Ready to execute Ring code...';
+            document.getElementById('executionTime').textContent = '';
+        }
+
+        // Update line/column indicator
+        function updateLineCol() {
+            const editor = document.getElementById('codeEditor');
+            const lines = editor.value.substr(0, editor.selectionStart).split('\n');
+            const line = lines.length;
+            const col = lines[lines.length - 1].length + 1;
+            document.getElementById('lineCol').textContent = `Line ${line}, Column ${col}`;
+        }
+
+        // Event listeners
+        document.getElementById('codeEditor').addEventListener('keyup', updateLineCol);
+        document.getElementById('codeEditor').addEventListener('click', updateLineCol);
+        document.getElementById('codeEditor').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                runCode();
+            }
+        });
+
+// Initialize
+        document.addEventListener('DOMContentLoaded', initializeUI);
+
+        // Enhanced Ring Runtime improvements
+        class ImprovedRingRuntime extends EnhancedRingRuntime {
+            constructor() {
+                super();
+                this.initializeBuiltinFunctions();
+            }
+
+
+            initializeBuiltinFunctions() {
+                // Built-in functions for Ring
+                this.builtins = {
+                    len: (obj) => {
+                        if (typeof obj === 'string') return obj.length;
+                        if (Array.isArray(obj)) return obj.length;
+                        return 0;
+                    },
+                    upper: (str) => String(str).toUpperCase(),
+                    lower: (str) => String(str).toLowerCase(),
+                    substr: (str, start, length) => String(str).substr(start - 1, length),
+                    trim: (str) => String(str).trim(),
+                    add: (list, item) => {
+                        if (Array.isArray(list)) {
+                            list.push(item);
+                            return list;
+                        }
+                        return [item];
+                    },
+                    del: (list, index) => {
+                        if (Array.isArray(list) && index > 0 && index <= list.length) {
+                            list.splice(index - 1, 1);
+                        }
+                        return list;
+                    },
+                    find: (list, item) => {
+                        if (Array.isArray(list)) {
+                            const index = list.indexOf(item);
+                            return index >= 0 ? index + 1 : 0; // Ring uses 1-based indexing
+                        }
+                        return 0;
+                    },
+                    sort: (list) => {
+                        if (Array.isArray(list)) {
+                            return [...list].sort((a, b) => {
+                                if (typeof a === 'number' && typeof b === 'number') return a - b;
+                                return String(a).localeCompare(String(b));
+                            });
+                        }
+                        return list;
+                    },
+                    reverse: (list) => {
+                        if (Array.isArray(list)) {
+                            return [...list].reverse();
+                        }
+                        return list;
+                    }
+                };
+            }
+
+            parseValue(token) {
+                if (!token) return "";
+                
+                token = String(token);
+                
+                // Check for function calls first
+                if (token.includes('(') && token.includes(')')) {
+                    return this.evaluateFunctionCall(token);
+                }
+                
+                // List indexing (e.g., list[1])
+                if (token.includes('[') && token.includes(']')) {
+                    const bracketStart = token.indexOf('[');
+                    const bracketEnd = token.indexOf(']');
+                    const varName = token.substring(0, bracketStart);
+                    const indexExpr = token.substring(bracketStart + 1, bracketEnd);
+                    const list = this.getVariable(varName);
+                    const index = this.parseValue(indexExpr);
+                    
+                    if (Array.isArray(list) && typeof index === 'number') {
+                        return list[index - 1]; // Ring uses 1-based indexing
+                    }
+                    return "";
+                }
+                
+                return super.parseValue(token);
+            }
+
+            evaluateFunctionCall(token) {
+                const parenStart = token.indexOf('(');
+                const parenEnd = token.lastIndexOf(')');
+                const funcName = token.substring(0, parenStart).toLowerCase();
+                const argsStr = token.substring(parenStart + 1, parenEnd);
+                
+                // Parse arguments
+                const args = argsStr ? argsStr.split(',').map(arg => this.parseValue(arg.trim())) : [];
+                
+                // Check built-in functions
+                if (this.builtins[funcName]) {
+                    return this.builtins[funcName](...args);
+                }
+                
+                // Check user-defined functions
+                if (this.functions.has(funcName)) {
+                    return this.executeUserFunction(funcName, args);
+                }
+                
+                return "";
+            }
+
+            executeUserFunction(funcName, args) {
+                const func = this.functions.get(funcName);
+                // For now, return empty string - would need proper function body execution
+                return "";
+            }
+
+            // Enhanced tokenization for better Ring syntax support
+            tokenize(code) {
+                const tokens = [];
+                const lines = code.split('\n');
+                
+                for (let lineNum = 0; lineNum < lines.length; lineNum++) {
+                    let line = lines[lineNum].trim();
+                    if (!line || line.startsWith('#') || line.startsWith('//')) continue;
+                    
+                    // Handle Ring-specific syntax
+                    line = this.preprocessRingLine(line);
+                    
+                    // Enhanced regex for Ring tokens including function calls and list indexing
+                    const regex = /"[^"]*"|'[^']*'|`[^`]*`|\w+\([^)]*\)|\w+\[[^\]]*\]|\b\w+\b|[+\-*/%=<>!&|^~()[\],{}]|\*\*|!=|>=|<=|&&|\|\||<<|>>/g;
+                    const parts = line.match(regex) || [];
+                    
+                    if (parts.length > 0) {
+                        tokens.push({ line: lineNum, tokens: parts });
+                    }
+                }
+                
+                return tokens;
+            }
+
+            preprocessRingLine(line) {
+                // Handle Ring-specific syntax transformations
+                line = line.replace(/\bnl\b/g, '"\\n"'); // Convert nl to newline
+                line = line.replace(/\s+to\s+/g, ' to '); // Normalize 'to' keyword spacing
+                line = line.replace(/\s+step\s+/g, ' step '); // Handle step in for loops
+                
+                return line;
+            }
+
+            // Enhanced for loop handling with step support
+            executeForLoop(tokenLines, startIndex) {
+                const tokens = tokenLines[startIndex].tokens;
+                const loopVar = tokens[1];
+                
+                // Handle different for loop patterns
+                if (tokens.includes('to')) {
+                    const toIndex = tokens.indexOf('to');
+                    const fromValue = this.parseValue(tokens[3]); // after '='
+                    const toValue = this.parseValue(tokens[toIndex + 1]);
+                    
+                    let stepValue = 1;
+                    if (tokens.includes('step')) {
+                        const stepIndex = tokens.indexOf('step');
+                        stepValue = this.parseValue(tokens[stepIndex + 1]);
+                    }
+                    
+                    const nextIndex = this.findBlockEnd(tokenLines, startIndex, 'for', 'next');
+                    
+                    // Execute loop with step support
+                    if (stepValue > 0) {
+                        for (let loopVal = fromValue; loopVal <= toValue; loopVal += stepValue) {
+                            this.setVariable(loopVar, loopVal);
+                            for (let j = startIndex + 1; j < nextIndex; j++) {
+                                if (tokenLines[j] && tokenLines[j].tokens) {
+                                    this.executeStatement(tokenLines[j].tokens);
+                                }
+                            }
+                        }
+                    } else {
+                        for (let loopVal = fromValue; loopVal >= toValue; loopVal += stepValue) {
+                            this.setVariable(loopVar, loopVal);
+                            for (let j = startIndex + 1; j < nextIndex; j++) {
+                                if (tokenLines[j] && tokenLines[j].tokens) {
+                                    this.executeStatement(tokenLines[j].tokens);
+                                }
+                            }
+                        }
+                    }
+                    
+                    return nextIndex + 1;
+                }
+                
+                // Handle for-in loops (for item in list)
+                if (tokens.includes('in')) {
+                    const inIndex = tokens.indexOf('in');
+                    const loopVar = tokens[1];
+                    const listName = tokens[inIndex + 1];
+                    const list = this.getVariable(listName);
+                    
+                    const nextIndex = this.findBlockEnd(tokenLines, startIndex, 'for', 'next');
+                    
+                    if (Array.isArray(list)) {
+                        for (const item of list) {
+                            this.setVariable(loopVar, item);
+                            for (let j = startIndex + 1; j < nextIndex; j++) {
+                                if (tokenLines[j] && tokenLines[j].tokens) {
+                                    this.executeStatement(tokenLines[j].tokens);
+                                }
+                            }
+                        }
+                    }
+                    
+                    return nextIndex + 1;
+                }
+                
+                return startIndex + 1;
+            }
+
+            // Enhanced expression evaluation with proper precedence
+            evaluateWithPrecedence(tokens) {
+                if (tokens.length === 1) {
+                    return this.parseValue(tokens[0]);
+                }
+                
+                // Handle parentheses first
+                tokens = this.resolveParentheses(tokens);
+                
+                // Handle function calls
+                tokens = this.resolveFunctionCalls(tokens);
+                
+                // Operator precedence levels (highest to lowest)
+                const precedence = [
+                    ['**'], // Exponentiation
+                    ['*', '/', '%'], // Multiplication, Division, Modulo
+                    ['+', '-'], // Addition, Subtraction
+                    ['<', '>', '<=', '>='], // Relational
+                    ['=', '!='], // Equality
+                    ['and', '&&'], // Logical AND
+                    ['or', '||'] // Logical OR
+                ];
+                
+                // Process operators by precedence
+                for (const ops of precedence) {
+                    tokens = this.processOperators(tokens, ops);
+                }
+                
+                return tokens.length === 1 ? tokens[0] : tokens.join(' ');
+            }
+
+            resolveParentheses(tokens) {
+                // Simple parentheses resolution
+                while (tokens.includes('(')) {
+                    const openIndex = tokens.lastIndexOf('(');
+                    const closeIndex = tokens.indexOf(')', openIndex);
+                    
+                    if (closeIndex === -1) break;
+                    
+                    const innerTokens = tokens.slice(openIndex + 1, closeIndex);
+                    const result = this.evaluateWithPrecedence(innerTokens);
+                    
+                    tokens = [
+                        ...tokens.slice(0, openIndex),
+                        result,
+                        ...tokens.slice(closeIndex + 1)
+                    ];
+                }
+                
+                return tokens;
+            }
+
+            resolveFunctionCalls(tokens) {
+                // Process function calls in tokens
+                return tokens.map(token => {
+                    if (typeof token === 'string' && token.includes('(') && token.includes(')')) {
+                        return this.evaluateFunctionCall(token);
+                    }
+                    return token;
+                });
+            }
+
+            processOperators(tokens, operators) {
+                for (let i = 1; i < tokens.length - 1; i += 2) {
+                    if (operators.includes(tokens[i])) {
+                        const left = this.parseValue(tokens[i - 1]);
+                        const operator = tokens[i];
+                        const right = this.parseValue(tokens[i + 1]);
+                        
+                        if (this.operators[operator]) {
+                            const result = this.operators[operator](left, right);
+                            tokens = [
+                                ...tokens.slice(0, i - 1),
+                                result,
+                                ...tokens.slice(i + 2)
+                            ];
+                            i = Math.max(0, i - 2); // Adjust index after replacement
+                        }
+                    }
+                }
+                
+                return tokens;
+            }
+
+            // Enhanced variable assignment with list indexing support
+            executeStatement(tokens) {
+                if (!tokens || tokens.length === 0) return;
+                
+                const cmd = tokens[0] ? tokens[0].toLowerCase() : '';
+                
+                // Handle list indexing assignment (e.g., list[1] = value)
+                if (tokens[0] && tokens[0].includes('[') && tokens.includes('=')) {
+                    const eqIndex = tokens.indexOf('=');
+                    const leftSide = tokens[0];
+                    const bracketStart = leftSide.indexOf('[');
+                    const bracketEnd = leftSide.indexOf(']');
+                    
+                    const varName = leftSide.substring(0, bracketStart);
+                    const indexExpr = leftSide.substring(bracketStart + 1, bracketEnd);
+                    const index = this.parseValue(indexExpr);
+                    const value = this.evaluateExpression(tokens.slice(eqIndex + 1));
+                    
+                    const list = this.getVariable(varName);
+                    if (Array.isArray(list) && typeof index === 'number') {
+                        list[index - 1] = value; // Ring uses 1-based indexing
+                        this.setVariable(varName, list);
+                    }
+                    return;
+                }
+                
+                // Handle enhanced see/print with multiple expressions
+                if (['see', 'print', '?'].includes(cmd)) {
+                    const expressions = this.splitExpressions(tokens.slice(1));
+                    const values = expressions.map(expr => this.evaluateExpression(expr));
+                    this.log(values.join(' '));
+                    return;
+                }
+                
+                // Call parent implementation for other statements
+                super.executeStatement(tokens);
+            }
+
+            splitExpressions(tokens) {
+                // Split tokens by comma for multiple expressions
+                const expressions = [];
+                let current = [];
+                
+                for (const token of tokens) {
+                    if (token === ',') {
+                        if (current.length > 0) {
+                            expressions.push(current);
+                            current = [];
+                        }
+                    } else {
+                        current.push(token);
+                    }
+                }
+                
+                if (current.length > 0) {
+                    expressions.push(current);
+                }
+                
+                return expressions.length > 0 ? expressions : [tokens];
+            }
+        }
+
+        // Replace the original runtime with the improved version
+        const improvedRuntime = new ImprovedRingRuntime();
+
+        // Update the runCode function to use the improved runtime
+        function runCode() {
+            const code = document.getElementById('codeEditor').value;
+            const outputEl = document.getElementById('output');
+            const timeEl = document.getElementById('executionTime');
+            
+            const startTime = performance.now();
+            
+            try {
+                const result = improvedRuntime.execute(code);
+                const endTime = performance.now();
+                const executionTime = (endTime - startTime).toFixed(2);
+                
+                outputEl.textContent = result || 'Program completed successfully.';
+                timeEl.textContent = `${executionTime}ms`;
+            } catch (error) {
+                outputEl.textContent = `Runtime Error: ${error.message}`;
+                timeEl.textContent = 'Error';
+                console.error('Ring Runtime Error:', error);
+            }
+        }
+
+        // Add more comprehensive examples
+        const additionalExamples = {
+            builtins: {
+                title: 'Built-in Functions',
+                description: 'String and list functions',
+                code: `# String functions
+text = "Hello Ring World"
+see "Original: " + text
+see "Length: " + len(text)
+see "Upper: " + upper(text)
+see "Lower: " + lower(text)
+see "Substring: " + substr(text, 7, 4)
+
+# List functions
+numbers = [3, 1, 4, 1, 5, 9]
+see "Original list: " + numbers
+see "Length: " + len(numbers)
+see "Sorted: " + sort(numbers)
+see "Reversed: " + reverse(numbers)
+
+# List manipulation
+fruits = ["apple", "banana"]
+add(fruits, "orange")
+see "After adding orange: " + fruits
+see "Find banana: " + find(fruits, "banana")`
+            },
+            indexing: {
+                title: 'List Indexing',
+                description: 'Working with list indices',
+                code: `# List indexing (1-based in Ring)
+colors = ["red", "green", "blue", "yellow"]
+see "Colors: " + colors
+see "First color: " + colors[1]
+see "Third color: " + colors[3]
+
+# Modifying list elements
+colors[2] = "purple"
+see "After changing second color: " + colors
+
+# Loop through list with indices
+for i = 1 to len(colors)
+    see "Color " + i + ": " + colors[i]
+next`
+            },
+            advanced_loops: {
+                title: 'Advanced Loops',
+                description: 'For-in and step loops',
+                code: `# For-in loop
+animals = ["cat", "dog", "bird", "fish"]
+see "Animals:"
+for animal in animals
+    see "- " + animal
+next
+
+# For loop with step
+see "Even numbers from 2 to 10:"
+for i = 2 to 10 step 2
+    see i
+next
+
+see "Countdown by 2:"
+for i = 10 to 2 step -2
+    see i
+next`
+            }
+        };
+
+        // Merge additional examples
+        Object.assign(examples, additionalExamples);
+
+        // Enhanced syntax highlighting (basic)
+        function applySyntaxHighlighting(code) {
+            return code
+                .replace(/\b(see|print|for|to|next|if|else|ok|while|end|func|def|class|new|and|or|not|step|in)\b/g, '<span class="keyword">$1</span>')
+                .replace(/"[^"]*"/g, '<span class="string">$&</span>')
+                .replace(/\b\d+(\.\d+)?\b/g, '<span class="number">$&</span>')
+                .replace(/#.*$/gm, '<span class="comment">$&</span>');
+        }
+
+    </script>s
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'951796ff19da5bcc',t:'MTc1MDIxNjE4Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
