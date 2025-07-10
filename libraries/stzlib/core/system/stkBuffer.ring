@@ -47,52 +47,54 @@ class stkBuffer
         @bIsValid = TRUE
 
 
-    def Write(nOffset, pData)
-        This.ValidateBuffer()
-        
-        if nOffset < 0
-            raise("Negative offset not allowed")
-        ok
-        
-        if IsNull(pData)
-            raise("Cannot write null data")
-        ok
-        
-        cData = ""
-        if IsString(pData)
-            cData = pData
-        else
-            cData = string(pData)
-        ok
-        
-        nDataLen = len(cData)
-        nRequiredSize = nOffset + nDataLen
-        
-        if nRequiredSize > @nCapacity
-            This.Resize(nRequiredSize)
-        ok
-        
-        if nRequiredSize > @nSize
-            @nSize = nRequiredSize
-        ok
-        
-        # Update buffer with new data
-        cNewBuffer = ""
-        
-        # Copy existing data up to offset
-        if nOffset > 0
-            cNewBuffer += left(@buffer, nOffset)
-        ok
-        
-        # Add new data
-        cNewBuffer += cData
-        
-        # Copy remaining data if any
-        if len(@buffer) > nOffset + nDataLen
-            cNewBuffer += right(@buffer, len(@buffer) - (nOffset + nDataLen))
-        ok
-        
-        @buffer = cNewBuffer
+	def Write(nOffset, pData)
+	    This.ValidateBuffer()
+	    
+	    if nOffset < 0
+	        raise("Negative offset not allowed")
+	    ok
+	    
+	    if IsNull(pData)
+	        raise("Cannot write null data")
+	    ok
+	    
+	    cData = ""
+	    if IsString(pData)
+	        cData = pData
+	    else
+	        cData = string(pData)
+	    ok
+	    
+	    nDataLen = len(cData)
+	    nRequiredSize = nOffset + nDataLen
+	    
+	    if nRequiredSize > @nCapacity
+	        This.Resize(nRequiredSize)
+	    ok
+	    
+	    if nRequiredSize > @nSize
+	        @nSize = nRequiredSize
+	    ok
+	    
+	    # Update buffer with new data
+	    cNewBuffer = ""
+	    
+	    # Copy existing data up to offset
+	    if nOffset > 0
+	        cNewBuffer += left(@buffer, nOffset)
+	    ok
+	    
+	    # Add new data
+	    cNewBuffer += cData
+	    
+	    # Copy remaining data if any
+	    if len(@buffer) > nOffset + nDataLen
+	        cNewBuffer += right(@buffer, len(@buffer) - (nOffset + nDataLen))
+	    ok
+	    
+	    @buffer = cNewBuffer
+	    # FIX: Update capacity to match actual buffer size
+	    @nCapacity = len(@buffer)
 
 
     def Read(nOffset, nLength)
@@ -123,7 +125,9 @@ class stkBuffer
 		cNewBuffer = @oMemory.Allocate(nNewSize)
 
         if nNewSize > len(@buffer)
-            cNewBuffer = @buffer + @oMemory.Set(NULL, 0, nNewSize - len(@buffer))
+		cPadding = @oMemory.Set("", 0, nNewSize - len(@buffer))
+		cNewBuffer = @buffer + cPadding
+		
         but nNewSize < len(@buffer)
             cNewBuffer = left(@buffer, nNewSize)
         else
@@ -134,8 +138,8 @@ class stkBuffer
         @buffer = cNewBuffer
         @capacity = nNewSize
         
-        if @size > nNewSize
-            @size = nNewSize
+        if @nSize > nNewSize
+            @nSize = nNewSize
         ok
 
 
