@@ -3,10 +3,11 @@
 #  FUNCTIONS  #
 #~~~~~~~~~~~~~#
 
+
 func FindMin(anNumbers)
 
-	if NOT (isList(anNumbers) and IsListOfNumbers(anNumbers))
-		stzraise("Incorrect param type! anNumbers must be a list of numbers.")
+	if NOT isList(anNumbers)
+		stzraise("Incorrect param type! anNumbers must be a list.")
 	ok
 
 	_nLen_ = len(anNumbers)

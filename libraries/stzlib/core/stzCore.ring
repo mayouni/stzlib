@@ -43,4 +43,4 @@
 
 	load "system/stkPointer.ring"
 	load "system/stkBuffer.ring"
-
+	load "system/stkMemory.ring"

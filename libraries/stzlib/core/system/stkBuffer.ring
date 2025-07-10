@@ -1,12 +1,14 @@
 class stkBuffer
 
     @buffer = NULL
-    @size = 0
-    @capacity = 0
+    @nSize = 0
+    @nCapacity = 0
     @bIsValid = FALSE
-
+	@oMemory = NULL
 
     def init(pSizeOrData)
+		@oMemory = new stkMemory()
+
         if IsNumber(pSizeOrData)
             This.InitWithSize(pSizeOrData)
         else
@@ -19,9 +21,9 @@ class stkBuffer
             raise("Buffer size must be positive")
         ok
         
-        @size = nSize
-        @capacity = nSize
-        @buffer = space(nSize)
+        @nSize = 0
+        @nCapacity = nSize
+        @buffer = @oMemory.Allocate(nSize)
         @bIsValid = TRUE
         This.Clear()
 
@@ -38,8 +40,9 @@ class stkBuffer
             cData = string(pData)
         ok
         
-        @size = len(cData)
-        @capacity = @size
+        @nSize = len(cData)
+        @nCapacity = @nSize
+		@buffer = @oMemory.Allocate(@nSize)
         @buffer = cData
         @bIsValid = TRUE
 
@@ -65,12 +68,12 @@ class stkBuffer
         nDataLen = len(cData)
         nRequiredSize = nOffset + nDataLen
         
-        if nRequiredSize > @capacity
+        if nRequiredSize > @nCapacity
             This.Resize(nRequiredSize)
         ok
         
-        if nRequiredSize > @size
-            @size = nRequiredSize
+        if nRequiredSize > @nSize
+            @nSize = nRequiredSize
         ok
         
         # Update buffer with new data
@@ -99,7 +102,7 @@ class stkBuffer
             raise("Negative offset or length not allowed")
         ok
         
-        if nOffset + nLength > @size
+        if nOffset + nLength > @nSize
             raise("Buffer overflow prevented!")
         ok
         
@@ -107,7 +110,7 @@ class stkBuffer
             return ""
         ok
         
-        return substr(@buffer, nOffset + 1, nLength)
+       return substr(@buffer, nOffset + 1, nLength)
 
 
     def Resize(nNewSize)
@@ -117,12 +120,18 @@ class stkBuffer
             raise("New size must be positive")
         ok
         
+		cNewBuffer = @oMemory.Allocate(nNewSize)
+
         if nNewSize > len(@buffer)
-            @buffer += space(nNewSize - len(@buffer))
+            cNewBuffer = @buffer + @oMemory.Set(NULL, 0, nNewSize - len(@buffer))
         but nNewSize < len(@buffer)
-            @buffer = left(@buffer, nNewSize)
+            cNewBuffer = left(@buffer, nNewSize)
+        else
+            cNewBuffer = @buffer
         ok
         
+        @oMemory.Deallocate(@buffer)
+        @buffer = cNewBuffer
         @capacity = nNewSize
         
         if @size > nNewSize
@@ -135,7 +144,7 @@ class stkBuffer
             raise("Cannot append null data")
         ok
         
-        This.Write(@size, pData)
+        This.Write(@nSize, pData)
 
 
     def Prepend(pData)
@@ -151,12 +160,12 @@ class stkBuffer
         ok
         
         @buffer = cData + @buffer
-        @size += len(cData)
-        @capacity = len(@buffer)
+        @nSize += len(cData)
+        @nCapacity = len(@buffer)
 
 
     def Insert(nOffset, pData)
-        if nOffset < 0 or nOffset > @size
+        if nOffset < 0 or nOffset > @nSize
             raise("Invalid offset for insertion")
         ok
         
@@ -173,8 +182,8 @@ class stkBuffer
         
         cNewBuffer = left(@buffer, nOffset) + cData + right(@buffer, len(@buffer) - nOffset)
         @buffer = cNewBuffer
-        @size += len(cData)
-        @capacity = len(@buffer)
+        @nSize += len(cData)
+        @nCapacity = len(@buffer)
 
 
     def Remove(nOffset, nLength)
@@ -182,7 +191,7 @@ class stkBuffer
             raise("Negative offset or length not allowed")
         ok
         
-        if nOffset + nLength > @size
+        if nOffset + nLength > @nSize
             raise("Cannot remove beyond buffer size")
         ok
         
@@ -191,8 +200,8 @@ class stkBuffer
         ok
         
         @buffer = left(@buffer, nOffset) + right(@buffer, len(@buffer) - (nOffset + nLength))
-        @size -= nLength
-        @capacity = len(@buffer)
+        @nSize -= nLength
+        @nCapacity = len(@buffer)
 
 
 	def IndexOf(pPattern)
@@ -223,7 +232,7 @@ class stkBuffer
             nStartOffset = 0
         ok
         
-        if nStartOffset < 0 or nStartOffset >= @size
+        if nStartOffset < 0 or nStartOffset >= @nSize
             return -1
         ok
         
@@ -292,14 +301,14 @@ class stkBuffer
         ok
         
         if IsNull(nLength)
-            nLength = @size - nOffset
+            nLength = @nSize - nOffset
         ok
         
         if nOffset < 0 or nLength < 0
             raise("Negative offset or length not allowed")
         ok
         
-        if nOffset + nLength > @size
+        if nOffset + nLength > @nSize
             raise("Slice beyond buffer size")
         ok
         
@@ -334,8 +343,8 @@ class stkBuffer
 			return This.Section(n1-1, n2-1)
 
     def Copy()
-        oNewBuffer = new stkBuffer(@size)
-        oNewBuffer.Write(0, This.Read(0, @size))
+        oNewBuffer = new stkBuffer(@nSize)
+        oNewBuffer.Write(0, This.Read(0, @nSize))
         return oNewBuffer
 
 
@@ -348,7 +357,7 @@ class stkBuffer
             return FALSE
         ok
         
-        if @size != oOther.Size()
+        if @nSize != oOther.Size()
             return FALSE
         ok
         
@@ -356,11 +365,11 @@ class stkBuffer
 
 
     def Size()
-        return @size
+        return @nSize
 
 
     def Capacity()
-        return @capacity
+        return @nCapacity
 
 
     def RawData()
@@ -372,17 +381,19 @@ class stkBuffer
             nOffset = 0
         ok
         
-        if nOffset < 0 or nOffset >= @size
+        if nOffset < 0 or nOffset >= @nSize
             raise("Invalid offset for pointer")
         ok
         
         cSliceData = right(@buffer, len(@buffer) - nOffset)
         return new stkPointer([cSliceData, "string", len(cSliceData)])
 
+    def Memory()
+        return @oMemory
 
     def Clear()
-        @buffer = space(@capacity)
-        @size = 0
+        @buffer = space(@nCapacity)
+        @nSize = 0
 
 
     def Fill(nValue, nOffset, nLength)
@@ -392,14 +403,14 @@ class stkBuffer
         ok
         
         if IsNull(nLength)
-            nLength = @capacity - nOffset
+            nLength = @nCapacity - nOffset
         ok
         
         if nOffset < 0 or nLength < 0
             raise("Negative offset or length not allowed")
         ok
         
-        if nOffset + nLength > @capacity
+        if nOffset + nLength > @nCapacity
             raise("Fill beyond buffer capacity")
         ok
         
@@ -410,13 +421,13 @@ class stkBuffer
 
 
     def Compact()
-        if @size < @capacity and @size > 0
-            This.Resize(@size)
+        if @nSize < @nCapacity and @nSize > 0
+            This.Resize(@nSize)
         ok
 
 
     def Show()
-        ? "stkBuffer(size=" + @size + ", capacity=" + @capacity + ")"
+        ? "stkBuffer(size=" + @nSize + ", capacity=" + @nCapacity + ")"
 
 
     def IsValid()
@@ -425,8 +436,8 @@ class stkBuffer
 
     def Destroy()
         @buffer = NULL
-        @size = 0
-        @capacity = 0
+        @nSize = 0
+        @nCapacity = 0
         @bIsValid = FALSE
 
 
