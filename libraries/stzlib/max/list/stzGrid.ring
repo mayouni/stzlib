@@ -225,6 +225,8 @@ Class stzGrid From stzObject
 		but @cDirection = :down
 			This.MoveDown()
 
+		else
+			StzRaise("Can't move! Unsupported direction.")
 		ok
 
 		def MoveToNextPosition()
@@ -258,6 +260,8 @@ Class stzGrid From stzObject
 		but @cDirection = :down
 			This.MoveUp()
 
+		else
+			StzRaise("Can't move! Unsupported direction.")
 		ok
 		
 		def MoveToPreviousPosition()
@@ -271,6 +275,94 @@ Class stzGrid From stzObject
 
 		def MoveToPreviousCell()
 			This.MoveToPreviousNode()
+
+	#--
+
+	def MoveToNthNode(n)
+		if @cDirection = :forward
+			This.MoveToNthNodeBackward()
+
+		but @cDirection = :backward
+			This.MoveToNthNodeForward()
+
+		but @cDirection = :left
+			This.MoveToNthNodeRight()
+
+		but @cDirection = :right
+			This.MoveMoveToNthNodeLeft()
+
+		but @cDirection = :up
+			This.MoveToNthNodeDown()
+
+		but @cDirection = :down
+			This.MoveToNthNodeUp()
+
+		else
+			StzRaise("Can't move! Unsupported direction.")
+		ok
+
+		def MoveToNthPosition(n)
+			This.MoveToNthNode(n)
+
+		def MoveToNthCell(n)
+			This.MoveToNthNode(n)
+
+	def MoveToNextNthNode(n)
+		aNode = This.NextNthNode(n)
+		This.MoveToNode(aNode[1], aNode[2])
+
+		def MoveToNthNextNode(n)
+			This.MoveToNextNthNode(n)
+
+		def MoveToNthNext(n)
+			This.MoveToNextNthNode(n)
+
+		def MoveToNextNth(n)
+			This.MoveToNextNthNode(n)
+
+
+		def MoveToNextNthPosition(n)
+			This.MoveToNextNthNode(n)
+
+		def MoveToNthNextPosition(n)
+			This.MoveToNextNthNode(n)
+
+
+		def MoveToNextNthCell(n)
+			This.MoveToNextNthNode(n)
+
+		def MoveToNthNextCell(n)
+			This.MoveToNextNthNode(n)
+
+	#--
+
+	def MoveToPreviousNthNode(n)
+		This.MoveToNode(This.PreviousNthNode(n))
+
+		def MoveToNthPreviousNode(n)
+			This.MoveToPreviousNthNode(n)
+
+		def MoveToNthPrevious(n)
+			This.MoveToPreviousNthNode(n)
+
+		def MoveToPreviousNth(n)
+			This.MoveToPreviousNthNode(n)
+
+
+		def MoveToPreviousNthPosition(n)
+			This.MoveToPreviousNthNode(n)
+
+		def MoveToNthPreviousPosition(n)
+			This.MoveToPreviousNthNode(n)
+
+
+		def MoveToPreviousNthCell(n)
+			This.MoveToPreviousNthNode(n)
+
+		def MoveToNthPreviousCell(n)
+			This.MoveToPreviousNthNode(n)
+
+	#--
 
 	def MoveBy(nCols, nRows)
 
@@ -301,9 +393,23 @@ Class stzGrid From stzObject
 		if @cDirection = :Forward
 			This.MoveForwardN(n)
 
-		else // :Backward
+		but @cDirection = :Backward
 			This.MoveBackwardN(n)
 
+		but @cDirection = :Up
+			This.MoveUpN(n)
+
+		but @cDirection = :Down
+			This.MoveDownN(n)
+
+		but @cDirection = :Left
+			This.MoveLeftN(n)
+
+		but @cDirection = :Right
+			This.MoveRightN(n)
+
+		else
+			StzRaise("Can't move! Unsupported direction.")
 		ok
 		
 		def MoveNNodes(n)
@@ -1099,6 +1205,8 @@ Class stzGrid From stzObject
 	def EmptyChar()
 		return @cEmptyChar
 			
+	#TODO // Add this method AddRandomPath()
+
 	#-- PATH FINDING ALGORITHMS
 
 	def ShortestPath(panStart, panEnd)
@@ -2129,8 +2237,9 @@ Class stzGrid From stzObject
 		
 		# Check all 4 directions (up, right, down, left)
 		aDirections = [[-1,0], [0,1], [1,0], [0,-1]]
-		
-		for i = 1 to len(aDirections)
+		nLen = len(aDirections)
+
+		for i = 1 to nLen
 			nNewCol = nCol + aDirections[i][1]
 			nNewRow = nRow + aDirections[i][2]
 			

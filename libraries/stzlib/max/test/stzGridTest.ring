@@ -2,7 +2,7 @@ load "../stzmax.ring"
 
 
 /*--- Testing basic grid initialization and movement
-*/
+
 pr()
 
 o1 = new stzGrid([5, 5])
@@ -279,7 +279,7 @@ pr()
 o1 = new stzGrid([3, 2])
 
 o1.MoveTo(0, 0)
-#--> ERROR: Invalid position! Column must be between 1 and 3, and row between 1 and 2.
+#--> ERROR: Can't move! The provided position is not valid.
 
 pf()
 
@@ -658,7 +658,7 @@ StzGridQ([8, 6]) {
 	# 6 │ · · · · · · · · │
 	#   ╰─────────────────╯
 	
-	? PathEfficiency() # %
+	? PathEfficiency() # in %
 	#--> 83.33
 
 	# Clear path
@@ -670,10 +670,10 @@ StzGridQ([8, 6]) {
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Testing path finding algorithms
-
+*/
 pr()
 
 StzGridQ([ 10, 6 ]) {
