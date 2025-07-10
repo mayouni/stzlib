@@ -125,7 +125,7 @@ class stkBuffer
 	    
 	    if nNewSize > len(@buffer)
 	        # Extend with null bytes, not spaces
-	        cNewBuffer = @buffer + copy(char(0), nNewSize - len(@buffer))
+	        cNewBuffer = @buffer + @copy(char(0), nNewSize - len(@buffer))
 	    but nNewSize < len(@buffer)
 	        cNewBuffer = left(@buffer, nNewSize)
 	    else
