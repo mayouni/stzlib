@@ -28,23 +28,22 @@ class stkBuffer
         This.Clear()
 
 
-    def InitWithData(pData)
-        if IsNull(pData)
-            raise("Cannot initialize buffer with null data")
-        ok
-        
-        cData = ""
-        if IsString(pData)
-            cData = pData
-        else
-            cData = string(pData)
-        ok
-        
-        @nSize = len(cData)
-        @nCapacity = @nSize
-		@buffer = @oMemory.Allocate(@nSize)
-        @buffer = cData
-        @bIsValid = TRUE
+	def InitWithData(pData)
+	    if IsNull(pData)
+	        raise("Cannot initialize buffer with null data")
+	    ok
+	    
+	    cData = ""
+	    if IsString(pData)
+	        cData = pData
+	    else
+	        cData = string(pData)
+	    ok
+	    
+	    @nSize = len(cData)
+	    @nCapacity = @nSize
+	    @buffer = cData
+	    @bIsValid = TRUE
 
 
 	def Write(nOffset, pData)
@@ -114,33 +113,31 @@ class stkBuffer
         
        return substr(@buffer, nOffset + 1, nLength)
 
-
-    def Resize(nNewSize)
-        This.ValidateBuffer()
-        
-        if nNewSize <= 0
-            raise("New size must be positive")
-        ok
-        
-		cNewBuffer = @oMemory.Allocate(nNewSize)
-
-        if nNewSize > len(@buffer)
-		cPadding = @oMemory.Set("", 0, nNewSize - len(@buffer))
-		cNewBuffer = @buffer + cPadding
-		
-        but nNewSize < len(@buffer)
-            cNewBuffer = left(@buffer, nNewSize)
-        else
-            cNewBuffer = @buffer
-        ok
-        
-        @oMemory.Deallocate(@buffer)
-        @buffer = cNewBuffer
-        @capacity = nNewSize
-        
-        if @nSize > nNewSize
-            @nSize = nNewSize
-        ok
+	
+	def Resize(nNewSize)
+	    This.ValidateBuffer()
+	    
+	    if nNewSize <= 0
+	        raise("New size must be positive")
+	    ok
+	    
+	    cNewBuffer = ""
+	    
+	    if nNewSize > len(@buffer)
+	        # Extend with null bytes, not spaces
+	        cNewBuffer = @buffer + copy(char(0), nNewSize - len(@buffer))
+	    but nNewSize < len(@buffer)
+	        cNewBuffer = left(@buffer, nNewSize)
+	    else
+	        cNewBuffer = @buffer
+	    ok
+	    
+	    @buffer = cNewBuffer
+	    @nCapacity = nNewSize
+	    
+	    if @nSize > nNewSize
+	        @nSize = nNewSize
+	    ok
 
 
     def Append(pData)
@@ -380,17 +377,17 @@ class stkBuffer
         return @buffer
 
 
-    def GetPointer(nOffset)
-        if IsNull(nOffset)
-            nOffset = 0
-        ok
-        
-        if nOffset < 0 or nOffset >= @nSize
-            raise("Invalid offset for pointer")
-        ok
-        
-        cSliceData = right(@buffer, len(@buffer) - nOffset)
-        return new stkPointer([cSliceData, "string", len(cSliceData)])
+	def GetPointer(nOffset)
+	    if IsNull(nOffset)
+	        nOffset = 0
+	    ok
+	    
+	    if nOffset < 0 or nOffset >= @nSize
+	        raise("Invalid offset for pointer")
+	    ok
+
+ 	   cSliceData = right(@buffer, @nSize - nOffSet)
+	   return new stkPointer([cSliceData, "string", len(cSliceData)+1])
 
     def Memory()
         return @oMemory
