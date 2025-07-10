@@ -43,7 +43,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Test 3: Write operations and buffer growth
-*/
+
 pr()
 
 oBuffer3 = new stkBuffer(10)
@@ -58,7 +58,6 @@ oBuffer3.Write(5, " World")	# writes 6 characters at position 5
 
 ? oBuffer3.Capacity()
 #--> 11
-
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
@@ -109,14 +108,29 @@ oBuffer6 = new stkBuffer("Hello World Hello")
 ? oBuffer6.IndexOf([ "Hello", 1 ])
 #--> 12
 
-? oBuffer6.IndexOf("Missing")
+? oBuffer6.IndexOf("Missing") + NL
 #--> -1
 
+# By default, these methods use the lower level 0-index positions.
+# If you prefere staying at the high level and use Ring 1-index instead,
+# just add 1 at the end of these methods (and any other position method):
+
+? oBuffer6.IndexOf1("Hello")
+#--> 1
+
+? oBuffer6.IndexOf1([ "Hello", 1 ])
+#--> 13
+
+? oBuffer6.IndexOf1("Missing")
+#--> 0
+
+#NOTE that you can use IndexOf0() as an alternative to IndexOf(), and you
+# can use FindFirst() instead of IndexOf() to cope with Softanza semantics
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Test 7: Slice and copy operations
-
+*/
 pr()
 
 oBuffer7 = new stkBuffer("Hello World")
@@ -129,8 +143,38 @@ oCopy = oBuffer7.Copy()
 ? oCopy.RawData()
 #--> Hello World
 
-? oCopy.Equals(oBuffer7)
+? oCopy.Equals(oBuffer7) + NL
 #--> TRUE
+
+#NOTE To cope with Softanza semanctics, you can use Range() instead of Slice
+
+? oBuffer7.Range(6, 5).RawData()
+#--> World
+
+# Also, you can use Section(nStart, nEnd)
+
+? oBuffer7.Section(6, 10).RawData() + NL
+#--> World
+
+# By default, Slice(), Range() and Section(), and other position methods
+# like IndexOf() / FindFirst(), all use 0-index positioning bu=y default.
+# Which is what we should expect when working with sutch a low level construct.
+# But you can easily chnage this by opting for the higher level Ring 1-index
+# positiong, by just adding 1 to the end of the methods, like this:
+
+? oBuffer7.Range1(7, 5).RawData() # Note 7 instead of 6
+#--> World
+
+? oBuffer7.Section1(7, 11).RawData() + NL
+#--> World
+
+# Of course, you can add 0 to the methods and still get the default behavoir:
+
+? oBuffer7.Range0(6, 5).RawData() # Note how we switched back to 0-index with 6
+#--> World
+
+? oBuffer7.Section0(6, 10).RawData()
+#--> World
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
