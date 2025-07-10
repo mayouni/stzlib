@@ -47,10 +47,10 @@ pf()
 pr()
 
 oBuffer3 = new stkBuffer(10)
-oBuffer3.Write(0, "Hello")
-oBuffer3.Write(5, " World")
+oBuffer3.Write(0, "Hello")	# writes 5 characters at position 0
+oBuffer3.Write(5, " World")	# writes 6 characters at position 5
 
-? oBuffer3.Size()
+? oBuffer3.Size()	# Total length: 5 + 6 = 11 characters
 #--> 11
 
 ? oBuffer3.RawData()
@@ -58,6 +58,7 @@ oBuffer3.Write(5, " World")
 
 ? oBuffer3.Capacity()
 #--> 11
+
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
