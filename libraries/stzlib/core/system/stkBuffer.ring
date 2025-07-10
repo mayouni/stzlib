@@ -338,7 +338,7 @@ class stkBuffer
 
 
 	def Section(n1, n2)
-		return This.Range(n1, n1 + n2 - 1)
+		return This.Range(n1, n2 - n1 + 1)
 
 		def Section0(n1, n2)
 			return This.Section(n1, n2)
