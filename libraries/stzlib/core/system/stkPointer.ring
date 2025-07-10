@@ -17,20 +17,20 @@ class stkPointer
     @nBufferSize = 0
     @bIsValid = FALSE
     @bIsManaged = FALSE
+	@oMemory = NULL
 
 
-    def init(pParams)
-
-        if IsNull(pParams)
-            This.CreateNullPointer()
-
-        but isList(pParams) and len(pParams) >= 2
-            This.CreateFromParams(pParams)
-
-        else
-            This.CreateFromValue(pParams)
-        ok
-
+	def init(pParams)
+	    @oMemory = new stkMemory()
+	    
+	    if IsNull(pParams)
+	        This.CreateNullPointer()
+	    but isList(pParams) and len(pParams) >= 2
+	        This.CreateFromParams(pParams)
+	    else
+	        This.CreateFromValue(pParams)
+	    ok
+	
 
     def CreateNullPointer()
 
@@ -102,35 +102,53 @@ class stkPointer
         @bIsManaged = TRUE
 
 
-    def CreateStringPointer(cString, nSize)
+	def CreateStringPointer(cString, nSize)
+	    if nSize = 0
+	        nSize = len(cString) + 1
+	    ok
+	    
+	    @nBufferSize = nSize
+	    
+	    # Use memory allocation
+	    @buffer = @oMemory.Allocate(nSize)
+	    @oMemory.Set(@buffer, 0, nSize)  # Initialize with zeros
+	    
+	    # Copy string data
+	    if len(cString) > 0
+	        nCopySize = min([len(cString), nSize - 1])
+	        for i = 1 to nCopySize
+	            @buffer[i] = cString[i]
+	        next
+	    ok
+	    
+	    @pointer = varptr("@buffer", "char")
 
-        if nSize = 0
-			nSize = len(cString) + 1
-		ok
 
-        @nBufferSize = nSize
-        
-        # Use Ring's string handling directly
-
-        @buffer = cString
-        @pointer = varptr("@buffer", "char")
-
-
-    def CreateIntPointer(nValue)
-
-        @buffer = nValue
-        @pointer = varptr("@buffer", "int")
-        @nBufferSize = 4
-
-
-    def CreateDoublePointer(nValue)
-
-        @buffer = nValue
-        @pointer = varptr("@buffer", "double")
-        @nBufferSize = 8
+	def CreateIntPointer(nValue)
+	    @buffer = @oMemory.Allocate(4)
+	    @oMemory.Set(@buffer, 0, 4)
+	    
+	    # Store the integer value
+	    @buffer = nValue
+	    @pointer = varptr("@buffer", "int")
+	    @nBufferSize = 4
+	
+	def CreateDoublePointer(nValue)
+	    @buffer = @oMemory.Allocate(8)
+	    @oMemory.Set(@buffer, 0, 8)
+	    
+	    # Store the double value
+	    @buffer = nValue
+	    @pointer = varptr("@buffer", "double")
+	    @nBufferSize = 8
 
 
     def CreateObjectPointer(pObject)
+
+		#NOTE // For objects, we don't need memory allocation since
+		# Ring manages object memory automatically - we just store
+		# the object reference directly and use object2pointer()
+		# to get the pointer
 
         @buffer = pObject
         @pointer = object2pointer(pObject)
@@ -163,80 +181,71 @@ class stkPointer
 
     # Proper CopyFrom implementation
 
-    def CopyFrom(pSource, nSize)
-
-        This.ValidatePointer()
-
-        if IsNull(nSize)
-			nSize = @nBufferSize
-		ok
-
-        # Get source data properly
-
-        cSourceData = ""
-
-        if isObject(pSource) and classname(pSource) = "stkpointer"
-            cSourceData = pSource.RingValue()
-
-        else
-            cSourceData = pointer2string(pSource, 0, nSize)
-
-        ok
-
-        # For string pointers, merge with existing buffer
-
-        if @cLogicalType = "string"
-
-            cCurrentBuffer = @buffer
-            cNewBuffer = ""
-
-            # Copy specified bytes from source
-
-            for i = 1 to nSize
-
-                if i <= len(cSourceData)
-                    cNewBuffer += cSourceData[i]
-
-                else
-                    cNewBuffer += char(0)
-                ok
-
-            next
-
-            # Append remaining original data
-
-            if len(cCurrentBuffer) > nSize
-                cNewBuffer += right(cCurrentBuffer, len(cCurrentBuffer) - nSize)
-            ok
-
-            @buffer = cNewBuffer
-
-            # ReCreate pointer to updated buffer
-
-            @pointer = varptr("@buffer", "char")
-
-        else
-            # For other types, use Ring's built-in memory functions
-            memcpy(@pointer, pSource, nSize)
-
-        ok
-
+	def CopyFrom(pSource, nSize)
+	    This.ValidatePointer()
 	    
-    def CopyTo(pDest, nSize)
-
-        This.ValidatePointer()
-
-        if IsNull(nSize)
-			nSize = @nBufferSize
-		ok
-
-        if isObject(pDest) and classname(pDest) = "stkpointer"
-            pDest.CopyFrom(This, nSize)
-
-        else
-            memcpy(pDest, @pointer, nSize)
-        ok
-
+	    if IsNull(nSize)
+	        nSize = @nBufferSize
+	    ok
+	    
+	    # Get source data properly
+	    cSourceData = ""
+	    
+	    if isObject(pSource) and classname(pSource) = "stkpointer"
+	        cSourceData = pSource.RingValue()
+	    else
+	        cSourceData = pointer2string(pSource, 0, nSize)
+	    ok
+	    
+	    # For string pointers, merge with existing buffer
+	    if @cLogicalType = "string"
+	        cCurrentBuffer = @buffer
+	        cNewBuffer = ""
+	        
+	        # Copy specified bytes from source to beginning of buffer
+	        for i = 1 to nSize
+	            if i <= len(cSourceData)
+	                cNewBuffer += cSourceData[i]
+	            else
+	                cNewBuffer += char(0)
+	            ok
+	        next
+	        
+	        # Append remaining original data after the copied portion
+	        if len(cCurrentBuffer) > nSize
+	            cNewBuffer += right(cCurrentBuffer, len(cCurrentBuffer) - nSize)
+	        ok
+	        
+	        @buffer = cNewBuffer
+	        @pointer = varptr("@buffer", "char")
+	    else
+	        # For other types, use Ring's built-in memory functions
+	        memcpy(@pointer, pSource, nSize)
+	    ok
+	
+	
+	def CopyTo(pDest, nSize)
+	    This.ValidatePointer()
+	    
+	    if IsNull(nSize)
+	        nSize = @nBufferSize
+	    ok
+	    
+	    if isObject(pDest) and classname(pDest) = "stkpointer"
+	        pDest.CopyFrom(This, nSize)
+	    else
+	        # Use memory copy for Ring types
+	        if @cLogicalType = "string"
+	            cData = @oMemory.Copy(@buffer, NULL, nSize)
+	            memcpy(pDest, varptr("cData", "char"), nSize)
+	        else
+	            memcpy(pDest, @pointer, nSize)
+	        ok
+	    ok
+	
+	def Memory()
+	    return @oMemory
+	
 
     def RingValue()
 
@@ -357,14 +366,14 @@ class stkPointer
         ok
 
 
-    def Free()
-
-        if @bIsManaged
-            @buffer = NULL
-            @pointer = nullpointer()
-            @bIsValid = FALSE
-            @bIsManaged = FALSE
-        ok
+	def Free()
+	    if @bIsManaged
+	        @oMemory.Deallocate(@buffer)
+	        @buffer = NULL
+	        @pointer = nullpointer()
+	        @bIsValid = FALSE
+	        @bIsManaged = FALSE
+	    ok
 
 
     	def Destroy()

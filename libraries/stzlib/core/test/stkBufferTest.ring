@@ -9,14 +9,17 @@ pr()
 
 oBuffer1 = new stkBuffer(20)
 
-? oBuffer1.Size() #ERROR returned 0
-#--> 20
+? oBuffer1.Size() # Size starts at 0 since the buffer is still empty
+#--> 0
 
 ? oBuffer1.Capacity()
 #--> 20
 
 ? oBuffer1.IsValid()
 #--> TRUE
+
+#NOTE // Size represents actual data written, while capacity represents
+# total allocated space.
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
@@ -40,7 +43,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Test 3: Write operations and buffer growth
-
+*/
 pr()
 
 oBuffer3 = new stkBuffer(10)
