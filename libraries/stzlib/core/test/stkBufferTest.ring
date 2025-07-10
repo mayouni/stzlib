@@ -181,7 +181,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Test 8: Fill operations
-*/
+
 pr()
 
 o1 = new stkBuffer(10)
@@ -195,7 +195,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Test 9: Pointer integration
-*/
+
 pr()
 
 oBuffer = new stkBuffer("Hello World")
@@ -217,7 +217,7 @@ pr()
 try
     o10 = new stkBuffer(-5)
 catch
-    ? "Expected error: " + cCatchError
+    ? "Expected error: " + CatchError()
     #--> Expected error: Buffer size must be positive
 done
 
@@ -225,7 +225,7 @@ try
     o11 = new stkBuffer(10)
     o11.Read(5, 10)
 catch
-    ? "Expected error: " + cCatchError
+    ? "Expected error: " + CatchError()
     #--> Expected error: Buffer overflow prevented!
 done
 
