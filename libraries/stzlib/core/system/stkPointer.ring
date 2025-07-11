@@ -352,20 +352,6 @@ class stkPointer
             [ "ring_value", This.RingValue() ]
         ]
 
-
-	#--------------------------------#
-	#  PRIVATE KITCHEN OF THE CLASS  #
-	#--------------------------------#
-
-    PRIVATE
-
-
-    def ValidatePointer()
-        if not @bIsValid
-            raise("Invalid pointer")
-        ok
-
-
 	def Free()
 	    if @bIsManaged and @oMemory != NULL
 	        if @oMemory.IsAllocated(@buffer)
@@ -380,3 +366,15 @@ class stkPointer
 
     	def Destroy()
         	This.Free()
+
+	#--------------------------------#
+	#  PRIVATE KITCHEN OF THE CLASS  #
+	#--------------------------------#
+
+    PRIVATE
+
+
+    def ValidatePointer()
+        if not @bIsValid
+            raise("Invalid pointer")
+        ok
