@@ -1,5 +1,6 @@
 class stkMemory
     @bIsValid = TRUE
+    @aAllocatedBuffers = []  # Track allocations
 
 	def init()
 		# Does nothing
@@ -10,6 +11,7 @@ class stkMemory
         ok
         
         cBuffer = space(nSize)
+        @aAllocatedBuffers + cBuffer # Track allocation
         return cBuffer
 
     def Deallocate(pBuffer)
@@ -17,18 +19,31 @@ class stkMemory
             raise("Cannot deallocate a null pointer")
         ok
         
-        # In Ring, memory is automatically managed
-        # This method exists for API compatibility
-        return TRUE
+        nIndex = find(@aAllocatedBuffers, pBuffer)
+        if nIndex > 0
+            del(@aAllocatedBuffers, nIndex)
+        	# In Ring, memory is automatically managed
+        	# This method exists for API compatibility
+            return TRUE
+        else
+            # In Ring, this is just a warning, not an error
+            return FALSE
+        ok
 
-    def Copy(pSrc, pDest, nSize)
-        if IsNull(pSrc) or IsNull(pDest)
-            raise("Source or destination is null")
-        ok
-        
-        if nSize <= 0
-            return
-        ok
+	def Copy(pSrc, pDest, nSize)
+	    if IsNull(pSrc)
+	        raise("Source is null")
+	    ok
+	    
+	    if nSize <= 0
+	        return ""
+	    ok
+	    
+	    if IsString(pSrc)
+	        return left(pSrc, nSize)
+	    else
+	        raise("Unsupported source type for copy")
+	    ok
         
         # Ring string-based copy
         if IsString(pSrc)

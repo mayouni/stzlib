@@ -435,11 +435,17 @@ class stkBuffer
         return @bIsValid
 
 
-    def Destroy()
-        @buffer = NULL
-        @nSize = 0
-        @nCapacity = 0
-        @bIsValid = FALSE
+	def Free()
+	    if @bIsValid and @oMemory != NULL
+	        @oMemory.Deallocate(@buffer)
+	        @buffer = NULL
+	        @nSize = 0
+	        @nCapacity = 0
+	        @bIsValid = FALSE
+	    ok
+	
+		def Destroy()
+		    This.Free()
 
 
     #--------------------------------#

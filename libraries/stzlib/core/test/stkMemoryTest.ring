@@ -3,7 +3,7 @@ load "../stklib.ring"
 # Enhanced Examples of Use - stkBuffer, stkMemory, and stkPointer Synergy
 
 /*--- Example 1: Basic Buffer Operations
-*/
+
 pr()
 
 # Create a buffer of size 100
@@ -58,21 +58,32 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 2: Buffer with Pointer Integration
+
+pr()
+
 # Create a buffer with initial data
 buf = new stkBuffer("Initial data for testing")
 
 # Get a pointer to a specific position in the buffer
-ptr = buf.GetPointer(8)  // Points to "data for testing"
+ptr = buf.GetPointer(8)  # Points to "data for testing"
 
 # Access data through the pointer
 data = ptr.RingValue()
-? data  // Outputs: "data for testing"
+? data
+#--> "data for testing"
 
 # Create another pointer from string data
 strPtr = new stkPointer(["Hello from pointer", "string"])
-? strPtr.RingValue()  // Outputs: "Hello from pointer"
+? strPtr.RingValue()
+#--> "Hello from pointer"
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 3: Memory Management and Copying
+*/
+pr()
+
 # Create memory manager instance
 mem = new stkMemory()
 
@@ -96,6 +107,8 @@ result = mem.Compare("Hello", "Hello", 5)
 # Deallocate memory
 mem.Deallocate(block1)
 mem.Deallocate(block2)
+
+pf()
 
 /*--- Example 4: Advanced Buffer Operations with Search
 # Create buffer with sample data

@@ -367,8 +367,10 @@ class stkPointer
 
 
 	def Free()
-	    if @bIsManaged
-	        @oMemory.Deallocate(@buffer)
+	    if @bIsManaged and @oMemory != NULL
+	        if @oMemory.IsAllocated(@buffer)
+	            @oMemory.Deallocate(@buffer)
+	        ok
 	        @buffer = NULL
 	        @pointer = nullpointer()
 	        @bIsValid = FALSE
