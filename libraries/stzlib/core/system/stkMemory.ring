@@ -30,6 +30,14 @@ class stkMemory
             return FALSE
         ok
 
+	def IsAllocated(pBuffer)
+	    if IsNull(pBuffer)
+	        return FALSE
+	    ok
+	    
+	    nIndex = find(@aAllocatedBuffers, pBuffer)
+	    return nIndex > 0
+
 	def Copy(pSrc, pDest, nSize)
 	    if IsNull(pSrc)
 	        raise("Source is null")

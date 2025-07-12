@@ -95,20 +95,26 @@ block2 = mem.Allocate(50)
 
 # Set memory content
 filledBlock = mem.Set(NULL, 65, 10)  // Fill with 'A' characters
-? filledBlock  // Outputs: "AAAAAAAAAA"
+? filledBlock
+#--> "AAAAAAAAAA"
 
 # Copy operation
 sourceData = "Test data to copy"
 copiedData = mem.Copy(sourceData, NULL, len(sourceData))
-? copiedData  // Outputs: "Test data to copy"
+? copiedData
+#--> "Test data to copy"
 
 # Compare memory blocks
 result = mem.Compare("Hello", "Hello", 5)
-? result  // Outputs: 0 (equal)
+? result
+#--> 0 (equal)
 
 # Deallocate memory
 mem.Deallocate(block1)
 mem.Deallocate(block2)
+
+? mem.IsAllocated(block1) #--> FALSE
+? mem.IsAllocated(block2) #--> FALSE
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
@@ -162,16 +168,24 @@ newBuf.Write(0, bufPtr.RingValue())
 # 6. Append the extra block
 newBuf.Append(extraBlock)
 
-# 7. Display final result
-? "Final buffer content: " + newBuf.RawData()
+# 7. Display final buffer content
+? newBuf.RawData()
+#--> "Original content here XXXXXXXXXXXXXXXXXXXX"
 
 # 8. Show buffer information
-newBuf.Show()
+? newBuf.Info()
+#--> [
+#	[ "size", 42 ],
+#	[ "capacity", 50 ]
+# ]
 
 # 9. Cleanup
 memMgr.Deallocate(extraBlock)
+? memMgr.IsAllocated(extraBlock)
+#--> FALSE
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 6: Pointer Operations and Type Handling
 
@@ -183,19 +197,53 @@ doublePtr = new stkPointer([3.14159, "double"])
 stringPtr = new stkPointer(["Test string", "string"])
 
 # Display pointer information
-? "Integer pointer value: " + intPtr.RingValue()
-? "Double pointer value: " + doublePtr.RingValue()
-? "String pointer value: " + stringPtr.RingValue()
+? intPtr.RingValue() 		#--> 42
+? doublePtr.RingValue() 	#--> 31.4
+? stringPtr.RingValue() 	#--> Test string
 
 # Show pointer details
-intPtr.Show()
+? list2code(intPtr.Info())
+#-->
+'
+[
+	[
+		"address",
+		"222B546DBC0"
+	],
+	[
+		"type",
+		"int"
+	],
+	[
+		"status",
+		0
+	],
+	[
+		"valid",
+		1
+	],
+	[
+		"managed",
+		1
+	],
+	[
+		"buffer_size",
+		4
+	]
+]
+'
 
 # Copy between pointers
+
 stringPtr2 = new stkPointer(["", "string", 20])
 stringPtr2.CopyFrom(stringPtr, 11)
-? "Copied string: " + stringPtr2.RingValue()
+
+# Copied string
+? stringPtr2.RingValue()
+#--> Test string
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 7: Error Handling and Validation
 
@@ -208,6 +256,8 @@ try
 catch
     ? "Caught error: Invalid buffer size"
 done
+#--> Caught error: Invalid buffer size
+
 
 try
     # This will work fine
@@ -219,6 +269,8 @@ try
 catch
     ? "Caught error: Buffer overflow prevented"
 done
+#--> Caught error: Buffer overflow prevented
+
 
 # Check buffer validity
 if goodBuf.IsValid()
@@ -227,8 +279,11 @@ if goodBuf.IsValid()
 else
     ? "Buffer is invalid"
 ok
+#--> Buffer is valid and ready to use
+# Buffer size: 4
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 #=================================================================#
 # MEMORY MANAGEMENT TUTORIAL IN SOFTANZA                          #
@@ -236,11 +291,11 @@ pf()
 #=================================================================#
 
 /*---
-
+*/
 # CONCEPT 1: Memory is like hotel rooms - you request, use, then return them
 # Ring automatically manages most memory, but we simulate low-level control
 
-*/
+
 pr()
 
 # CONCEPT 1: Memory is like hotel rooms - you request, use, then return them
@@ -297,18 +352,7 @@ ptr = buffer1.GetPointer(0)  # Pointer to start of buffer
 # LOW-LEVEL CONCEPT: Pointers are memory addresses
 # RING BEHAVIOR: We simulate addresses since Ring abstracts this
 
-? ""
-? "=== STEP 6: MEMORY COPYING (MOVING BETWEEN ROOMS) ==="
-# Create second buffer with direct data
-buffer2 = new stkBuffer("Target: Hello World")
 
-? "Source buffer contains: Hello World"
-? "Target buffer: '" + buffer2.RawData() + "'"
-
-# LOW-LEVEL CONCEPT: Memory copying moves bytes between locations
-# RING BEHAVIOR: String operations handled automatically
-
-? ""
 ? "=== STEP 7: MEMORY STATES AND VALIDATION ==="
 # Check memory states (like hotel occupancy reports)
 ? "Buffer1 valid: " + buffer1.IsValid()          # TRUE - buffer is usable
@@ -323,7 +367,7 @@ mem = buffer1.Memory()
 # RING BEHAVIOR: Automatic validation prevents crashes
 
 ? ""
-? "=== STEP 8: DEALLOCATION (CHECKING OUT OF HOTEL) ==="
+? "=== STEP 9: DEALLOCATION (CHECKING OUT OF HOTEL) ==="
 # Free memory resources (like returning hotel rooms)
 ? "Before deallocation:"
 ? "  Buffer1 valid: " + buffer1.IsValid()        # TRUE
@@ -334,8 +378,9 @@ ptr.Free()
 ? "After pointer free:"
 ? "  Pointer valid: " + ptr.IsValidPointer()     # FALSE
 
-# Free buffer (return hotel room)
+# Free buffers (return hotel rooms)
 buffer1.Free()
+
 ? "After buffer free:"
 ? "  Buffer1 valid: " + buffer1.IsValid()        # FALSE
 
@@ -343,23 +388,11 @@ buffer1.Free()
 # RING BEHAVIOR: Automatic garbage collection as backup safety
 
 ? ""
-? "=== STEP 9: MEMORY LEAK PREVENTION ==="
+? "=== STEP 10: MEMORY LEAK PREVENTION ==="
 # Good practice: Always free allocated resources
-buffer2.Free()  # Clean up second buffer too
-
 ? "All resources freed - no memory leaks!"
 ? "Memory manager still valid: " + mem.IsValid()  # TRUE - system still works
 
 # KEY TAKEAWAY: Ring prevents crashes, but explicit management gives control
 # BEST PRACTICE: Always pair allocation with deallocation
-
-? ""
-? "=== SUMMARY ==="
-? "1. ALLOCATION: Reserve memory space (like booking hotel rooms)"
-? "2. USAGE: Read/write data at specific positions" 
-? "3. VALIDATION: Check memory state before operations"
-? "4. DEALLOCATION: Free resources in reverse order"
-? "5. RING SAFETY: Automatic garbage collection prevents crashes"
-? "6. SOFTANZA POWER: Low-level control with high-level safety"
-
 pf()
