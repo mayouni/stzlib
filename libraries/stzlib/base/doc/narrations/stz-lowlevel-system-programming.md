@@ -266,42 +266,6 @@ oBuffer.Compact()
 ? oBuffer.Capacity()  # --> 5 (fits exactly)
 ```
 
-## The Performance Secret: Why Buffers Are Game-Changers
-
-Here's the hidden truth about performance: **high-level convenience often comes at a steep cost**. Every time you manipulate strings or arrays in high-level languages, there's overhead happening behind the scenes.
-
-### String Processing: Normal Ring vs. Softanza Buffer
-
-**Normal Ring approach** (convenient but slow):
-```ring
-# Processing a large text file - the "easy" way
-text = read("large_file.txt")  # Load entire file into string
-words = str2list(text, " ")    # Split into words (creates new strings)
-processed = []
-for word in words
-    if len(word) > 3
-        processed.add(upper(word))  # More string creation
-    ok
-next
-result = list2str(processed, " ")  # Final string creation
-```
-
-**Buffer Softanza approach** (same result, better performance):
-```ring
-# Load file directly into buffer
-fileBuffer = new stzBuffer()
-fileBuffer.LoadFromFile("large_file.txt")
-
-# Process in-place without creating temporary strings
-resultBuffer = new stzBuffer(fileBuffer.Size())
-# ... process directly in buffer memory ...
-```
-
-**Performance gains you can expect**:
-- **String processing**: 3-10x faster (less garbage collection)
-- **File operations**: 2-5x faster (direct buffer I/O)
-- **Memory usage**: 50-80% reduction (no object wrappers)
-
 ## Understanding the "Why" Behind the Rules
 
 ### Why Pointers Are Powerful and Dangerous
