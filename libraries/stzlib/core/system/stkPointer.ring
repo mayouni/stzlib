@@ -338,10 +338,6 @@ class stkPointer
         ]
 
 
-    def Show()
-        ? list2code(This.Info())
-
-
     def debug()
 
         return [

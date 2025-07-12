@@ -67,6 +67,12 @@ func ring_split(str, sep)
 func ring_read(filePath)
 	return read(filePath)
 
+func ring_write(cFilePath, pcStr)
+	return write(cFilePath, pcStr)
+
+func ring_writeline(cFilePath, pcStr)
+	return writeline(cFilePath, pcStr) #TODO // check that it exists in Ring!
+
 func ring_insert(paList, n, item)
 	#NOTE
 	# We change the behaviour of the Ring function, since
