@@ -60,7 +60,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 2: Buffer with Pointer Integration
-*/
+
 pr()
 
 # Create a buffer with initial data
@@ -145,7 +145,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 5: Complete Workflow - All Classes Together
-*/
+
 pr()
 
 # 1. Create buffer with data
@@ -291,7 +291,7 @@ pf()
 #=================================================================#
 
 /*---
-*/
+
 # CONCEPT 1: Memory is like hotel rooms - you request, use, then return them
 # Ring automatically manages most memory, but we simulate low-level control
 
@@ -395,4 +395,318 @@ buffer1.Free()
 
 # KEY TAKEAWAY: Ring prevents crashes, but explicit management gives control
 # BEST PRACTICE: Always pair allocation with deallocation
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
+
+#============================================#
+#  SAMPLES OF THE SOFTANZA LOWLEVEL ARTICLE  #
+#============================================#
+
+/*---
+
+pr()
+
+# Create a buffer - like a box that holds 50 bytes
+oBuffer = new stkBuffer(50)
+
+# It's empty at first
+? oBuffer.Size()        #--> 0 (nothing in it yet)
+? oBuffer.Capacity()    #--> 50 (but it can hold 50 bytes)
+
+# Put some data in it
+oBuffer.Write(0, "Hello")
+? oBuffer.Size()        #--> 5 (now it has 5 bytes)
+
+# Read it back
+? oBuffer.Read(0, 5)    #--> "Hello"
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+oBuffer = new stkBuffer("Hello World")
+
+# 0-based indexing (systems programming style)
+? oBuffer.Read(0, 5)    #--> "Hello"
+? oBuffer.Read(6, 5)    #--> "World"
+? ""
+
+# 1-based indexing (Ring style)
+? oBuffer.Read1(1, 5)   #--> "Hello"
+? oBuffer.Read1(7, 5)   #--> "World"
+? ""
+
+# Alternative semantic methods
+? oBuffer.Range(0, 5)   # --> "Hello"
+? oBuffer.Section(6, 10) # --> "World"
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+# Create a pointer to some data
+oPointer = new stkPointer("Secret Data")
+
+# See where it "points" (simulated address)
+? oPointer.AddressHex()  #--> "1B70A91DC24"
+
+# Access the data through the pointer
+? oPointer.RingValue()   #--> "Secret Data"
+
+# Create from buffer range
+oBuffer = new stkBuffer("Hello World")
+oPointer = oBuffer.RangeToPointer(6, 5)
+? oPointer.RingValue()   #--> "World"
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+oMemory = new stkMemory()
+block1 = oMemory.Allocate(100)  # "Give me 100 bytes"
+block2 = oMemory.Allocate(200)  # "Give me 200 bytes"
+
+# Use the memory - Fill returns the modified buffer
+block1 = oMemory.Fill(block1, 65, 100)    # Fill with 'A' characters
+data = oMemory.Read(block1, 10)  # Read first 10 bytes
+? data
+#--> AAAAAAAAAA
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+
+/*--- Example 1: Building a Simple Text Buffer
+
+pr()
+
+# Create a text editor's internal buffer
+textBuffer = new stkBuffer(200)
+
+# Add text piece by piece
+textBuffer.Write(0, "Hello ")
+textBuffer.Write(6, "World!")
+
+# Read the whole thing
+? textBuffer.Read(0, 12)  # --> "Hello World!"
+#--> Hello World!
+
+# Insert text in the middle (real text editors do this)
+textBuffer.Insert(6, "Beautiful ")
+? textBuffer.RawData()    # --> "Hello Beautiful World!"
+#--> Hello Beautiful World!
+
+# Remove text
+textBuffer.Remove(6, 10)  # Remove "Beautiful "
+? textBuffer.RawData()    # --> "Hello World!"
+#--> Hello World!
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Example 2: Safe Buffer Operations with Error Handling
+
+pr()
+
+# The framework protects you from dangerous operations
+oBuffer = new stkBuffer("Hello")
+
+try
+    # Try to read beyond the buffer
+    oBuffer.Read(10, 5)  # Reading beyond buffer size
+catch
+    ? "Buffer overflow caught safely!"
+    ? "Error: " + CatchError()
+    # --> ERROR: Offset (10) beyond buffer size (5)
+done
+#--> Buffer overflow caught safely!
+# Error: ERROR: Offset (10) beyond buffer size (5)
+
+? ""
+# Safe way to check bounds
+if oBuffer.Size() >= 15
+    data = oBuffer.Read(10, 5)
+else
+    ? "Not enough data - buffer only has " + oBuffer.Size() + " bytes"
+ok
+#--> Not enough data - buffer only has 5 bytes
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Example 3: File Operations - Loading and Saving
+
+pr()
+
+# Create a test file
+write("test.txt", "Hello from file!")
+
+# Load entire file into buffer
+oBuffer = new stkBuffer(" ")
+oBuffer.LoadFromFile("test.txt")
+? oBuffer.RawData()
+#--> "Hello from file!"
+
+# Partial loading
+? ""
+oBuffer2 = new stkBuffer(" ")
+oBuffer2.LoadFromFileXT("test.txt", 6, 4)  # Load "from"
+? oBuffer2.RawData()
+#--> "from"
+
+# Save buffer to file
+oBuffer.SaveToFileAll("output.txt")
+# INFO: Successfully saved 16 bytes to 'output.txt'
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Example 4: Network Packet Construction
+
+pr()
+
+# Practical example: building network packets
+
+# Using the packet builder
+packet = new NetworkPacket()
+headerSize = packet.AddHeader(6, "192.168.1.1", "192.168.1.2")
+packet.AddPayload(headerSize, "Hello Network!")
+? packet.GetPacket()  # --> Complete packet data
+#--> 192.192.Hello Network!
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+class NetworkPacket
+    buffer = new stkBuffer(1500)  # Standard Ethernet MTU
+
+	def init()
+
+    def AddHeader(protocol, source, dest)
+        # Protocol header (simplified)
+        buffer.Write(0, char(protocol))
+        buffer.Write(1, source)
+        buffer.Write(5, dest)
+        return 9  # Header size
+    
+    def AddPayload(headerSize, data)
+        buffer.Write(headerSize, data)
+        
+    def GetPacket()
+        return buffer.RawData()
+
+/*--- Example 5: Understanding Memory Layout
+
+pr()
+
+# Demonstrate how arrays work under the hood
+oBuffer = new stkBuffer(20)
+
+# Manually store integers as bytes (simplified)
+oBuffer.Write(0, char(42))     # array[0] = 42
+oBuffer.Write(1, char(17))     # array[1] = 17  
+oBuffer.Write(2, char(99))     # array[2] = 99
+
+# Read them back
+? ascii(oBuffer.Read(0, 1))  #--> 42
+? ascii(oBuffer.Read(1, 1))  #--> 17
+? ascii(oBuffer.Read(2, 1))  #--> 99
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Search and Pattern Matching
+
+pr()
+
+oBuffer = new stkBuffer("Hello World Hello")
+
+# 0-based search (systems programming style)
+? oBuffer.IndexOf("Hello")      #--> 0
+? oBuffer.IndexOfXT("Hello", 5) #--> 12
+? oBuffer.IndexOf("xyz")        #--> -1
+? ""
+
+# 1-based search (Ring style)
+? oBuffer.IndexOf1("Hello")     #--> 1
+? oBuffer.IndexOf1("xyz")       #--> 0
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Buffer Manipulation
+
+pr()
+
+oBuffer = new stkBuffer("World")
+
+# Prepend and append
+oBuffer.Prepend("Hello ")
+oBuffer.Append("!")
+? oBuffer.RawData()
+#--> "Hello World!"
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Fill operations
+
+pr()
+
+oBuffer2 = new stkBuffer(10)
+oBuffer2.Fill(65, 0, 5)  # Fill with 'A' (ASCII 65)
+oBuffer2.Fill(66, 5, 5)  # Fill with 'B' (ASCII 66)
+? oBuffer2.RawData()
+#--> "AAAAABBBBB"
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Memory Management
+
+pr()
+
+oBuffer = new stkBuffer(10)
+oBuffer.Write(0, "Hello")
+
+? oBuffer.Capacity()  #--> 10
+? oBuffer.Size()      #--> 5
+
+# Resize buffer
+oBuffer.Resize(20)
+? oBuffer.Capacity()  #--> 20
+
+# Compact to minimum size
+oBuffer.Compact()
+? oBuffer.Capacity()  #--> 5 (fits exactly)
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---
+*/
+pr()
+
+# Why Pointers Are Powerful and Dangerous.
+# Pointers let you have multiple "names" for the same data
+
+original = new stkPointer("Shared Data")
+alias = original  # Now both point to the same memory
+
+# Change through one pointer
+original.Update("Modified!")
+
+# See the change through the other
+? alias.RingValue()  # --> "Modified!"
+
 pf()

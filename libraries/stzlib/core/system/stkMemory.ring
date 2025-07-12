@@ -61,24 +61,32 @@ class stkMemory
             raise("Unsupported source type for copy")
         ok
 
-	def Set(pBuffer, nValue, nSize)
+	def Fill(pBuffer, nValue, nSize)
 	    if nSize <= 0
-	        if IsNull(pBuffer)
-	            return ""
-	        else
-	            return pBuffer
-	        ok
+	        return pBuffer
 	    ok
 	    
 	    cFillChar = char(nValue)
+	    cFilledBuffer = @copy(cFillChar, nSize)
 	    
-	    if IsNull(pBuffer)
-	        # Create new buffer filled with the character
-	        return @copy(cFillChar, nSize)
-	    else
-	        # This would be for setting existing buffer, but Ring handles strings differently
-	        return @copy(cFillChar, nSize)
+	    # Update the buffer in our tracking array
+	    nIndex = find(@aAllocatedBuffers, pBuffer)
+	    if nIndex > 0
+	        @aAllocatedBuffers[nIndex] = cFilledBuffer
 	    ok
+	    
+	    return cFilledBuffer
+
+	def Read(pBuffer, nSize)
+	    if IsNull(pBuffer)
+	        raise("Cannot read from null buffer")
+	    ok
+	    
+	    if nSize <= 0
+	        return ""
+	    ok
+	    
+	    return left(pBuffer, nSize)
 
     def Compare(pBuffer1, pBuffer2, nSize)
         if IsNull(pBuffer1) or IsNull(pBuffer2)

@@ -1,1 +1,1 @@
-Save this content
+Hello from file!
