@@ -60,7 +60,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 2: Buffer with Pointer Integration
-
+*/
 pr()
 
 # Create a buffer with initial data
@@ -145,7 +145,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Example 5: Complete Workflow - All Classes Together
-
+*/
 pr()
 
 # 1. Create buffer with data
