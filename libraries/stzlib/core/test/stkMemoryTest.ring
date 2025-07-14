@@ -552,14 +552,14 @@ pr()
 write("test.txt", "Hello from file!")
 
 # Load entire file into buffer
-oBuffer = new stkBuffer(" ")
+oBuffer = new stkBuffer(1) # A buffer must contain at least one memory position
 oBuffer.LoadFromFile("test.txt")
 ? oBuffer.RawData()
 #--> "Hello from file!"
 
 # Partial loading
 ? ""
-oBuffer2 = new stkBuffer(" ")
+oBuffer2 = new stkBuffer(1)
 oBuffer2.LoadFromFileXT("test.txt", 6, 4)  # Load "from"
 ? oBuffer2.RawData()
 #--> "from"
