@@ -50,9 +50,24 @@ func Transpose(aList2D)
 
     return aTransposed
 
+	#< @FunctionAlternativeForms
+
+	func SwapColsAndRows(aList2D)
+		return Transpose(aList2D)
+
+	func SwitchColsAndRows(aList2D)
+		return Transpose(aList2D)
+
 	func @Transpose(aList2D)
 		return Transpose(aList2D)
 
+	func @SwapColsAndRows(aList2D)
+		return Transpose(aList2D)
+
+	func @SwitchColsAndRows(aList2D)
+		return Transpose(aList2D)
+
+	#>
 
 class stz2DList from stzList2D
 
@@ -78,6 +93,8 @@ class stzList2D from stzListOfLists
 		def List2D()
 			return super.Content()
 
+	# Swappingg columns and rows
+
 	def Transpose()
 	    This.UpdateWith(@Transpose(This.Content()))
 
@@ -85,5 +102,48 @@ class stzList2D from stzListOfLists
 			This.Transpose()
 			return This
 
+		def Turn()
+			This.Transpose()
+
+			def TurnQ()
+				return This.TransposeQ()
+
+		def SwapColsAndRows()
+			This.Transpose()
+
+			def SwapColsAndRowsQ()
+				return This.TransposeQ()
+
+		def SwapRowsAndCols()
+			This.Transpose()
+
+			def SwapRowsAndColsQ()
+				return This.TransposeQ()
+		
+
+		def SwitchColsAndRows()
+			This.Transpose()
+
+			def SwitchColsAndRowsQ()
+				return This.TransposeQ()
+
+		def SwitchRowsAndCols()
+			This.Transpose()
+
+			def SwitchRowsAndColsQ()
+				return This.TransposeQ()
+
 	def Transposed()
 		return @Transpose(This.Content())
+
+		def ColsAndRowsSwapped()
+			return This.Transposed()
+
+		def RowsAndColsSwapped()
+			return This.Transposed()
+
+		def ColsAndRowsSwitched()
+			return This.Transposed()
+
+		def RowsAndColsSwitched()
+			return This.Transposed()
