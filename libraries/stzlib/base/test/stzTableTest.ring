@@ -1,5 +1,6 @@
-load "../max/stzmax.ring"
-
+load "../stzbase.ring"
+load "../../max/list/stzPivotTable.ring" # some samples use stzPivotTable from the MAX layer
+load "../../max/list/stzlist2D.ring" # 
 /*=== TESTING ERASE AND FILL SECTIONS IN STZSTRINg
 
 pr()
@@ -6940,8 +6941,8 @@ o1.Show()
 pf()
 # Executed in 0.21 second(s) in Ring 1.22
 
-/*----
-*/
+/*---- #TODO Make a narration
+
 pr()
 
 cCSVTeam = 'Employee;Role;Task;Productivity
@@ -7058,7 +7059,7 @@ o1.Show()
 
 # Critical tasks
 CrticalTasks = ["Coding", "Debugging", "Planning"]
-o1.AddCalculatedColumn(:Critical, ' @IF( Q(@(:Task)).ContainsOneOfThese(CrticalTasks), "YES", "no" )')
+o1.AddCalculatedColumn(:Critical, ' @IF( Q(@(:Task)).ContainsOneOfThese(CrticalTasks), "YES", "NO" )')
 o1.Show()
 
 
@@ -7070,4 +7071,28 @@ o1.ToStzPivotTable() {
 }
 
 pf()
-# Executed in 1.29 second(s) in Ring 1.22
+# Executed in 1.06 second(s) in Ring 1.22
+
+/*--- Transposing a table (swapping columns and rows)
+*/
+pr()
+
+
+o1 = new stzTable([
+	[ :ID,	 :EMPLOYEE,    :SALARY	],
+	#----------------------------------#
+	[ 10,	 "Ali",		35000	],
+	[ 20,	 "Dania",		28900	],
+	[ 30,	 "Han",		25982	],
+	[ 40,	 "Ali",		12870	]
+])
+
+o1.Show()
+
+o1.TransposeXT()
+o1.Show()
+
+o1.TransposeBack()
+o1.Show()
+
+pf()

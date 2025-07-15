@@ -1,13 +1,13 @@
-#---------------------------------------------------------------------------#
-# 		    SOFTANZA LIBRARY (V1.0) - STZTABLE			                    #
-#		An accelerative library for Ring applications		                #
-#---------------------------------------------------------------------------#
-#									                                        #
-# 	Description	: The class for managing tables in SoftanzaLib              #
-#	Version		: V1.0 (2020-2024)				                            #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)		                #
-#									                                        #
-#---------------------------------------------------------------------------#
+#---------------------------------------------------------------------#
+#             SOFTANZA LIBRARY (V0.9) - STZTABLE                      #
+#         An accelerative library for Ring applications               #
+#---------------------------------------------------------------------#
+#                                                                     #
+#    Description    : The class for managing tables in SoftanzaLib    #
+#    Version        : V1.0 (2020-2024)                                #
+#    Author         : Mansour Ayouni (kalidianow@gmail.com)	          #
+#                                                                     #
+#---------------------------------------------------------------------#
 
 /*
 
@@ -85,6 +85,11 @@ Class stzTable from stzList
 		:TeeUp = "┴",
 		:Cross = "┼"
 	]
+
+	# Attributes used by the Transpose() method
+
+	@bTransposedWithHeaders = FALSE # tracks when headers were preserved during transpose
+	@aOriginalColNames = [] # stores the original column names internally
 
 	def init(paTable)
 
@@ -14367,6 +14372,9 @@ Class stzTable from stzList
 	 #  CASTING THE TABLE INTO A STZTABLE OBJECT  #
 	#============================================#
 
+	#NOTE // stzPivotTable belongs to the MAX layer of StzLib
+	# For the fellowing method to work, you must load "stzmax.ring"
+
 	def ToStzPivotTable()
 		return new stzPivotTable(This)
 
@@ -14853,7 +14861,7 @@ Class stzTable from stzList
 	def GroupBy(paCols)
 
 		if NOT isList(paCols)
-			if isString(paCols) This.IsCol(paCols) and IsListOfLists(This.Col(paCols))
+			if isString(paCols) This.IsCol(paCols) and @IsListOfLists(This.Col(paCols))
 				This.GroupByListItems(paCols)
 				return
 			ok
@@ -15417,7 +15425,7 @@ Class stzTable from stzList
         cLine = @aBorder[:Vertical]
 
         for i = 1 to nCols
-            cLine += CenterText(Capitalise(acColNames[i]), aColWidths[i]) + @aBorder[:Vertical]
+            cLine += CenterText(@Capitalise(acColNames[i]), aColWidths[i]) + @aBorder[:Vertical]
         next
 
         cOutput += cLine + NL
@@ -15658,7 +15666,7 @@ Class stzTable from stzList
 		# Header row
 		cLine = @aBorder[:Vertical]
 		for i = 1 to nCols
-			cLine += CenterText(Capitalise(acColNames[i]), aColWidths[i]) + @aBorder[:Vertical]
+			cLine += CenterText(@Capitalise(acColNames[i]), aColWidths[i]) + @aBorder[:Vertical]
 		next
 		cOutput += cLine + NL
 		
@@ -15849,6 +15857,153 @@ Class stzTable from stzList
 		cOutput += cLine + NL
 		
 		return cOutput
+
+	#---------------------------------#
+	#  TRANSPOSINT THE TABLE CONTENT  #
+	#---------------------------------#
+
+
+	def Transpose()
+
+	    # Get dimensions directly from @aContent
+	    nCols = len(@aContent)
+	    if nCols = 0
+	        return
+	    ok
+	    nRows = len(@aContent[1][2])
+	    
+	    # Generate new column names
+	    acNewColNames = []
+	    for i = 1 to nRows
+	        acNewColNames + ("COL" + i)
+	    next
+	    
+	    # Build new content directly in target format
+	    aNewContent = []
+	    for i = 1 to nRows
+	        aNewRow = []
+	        for j = 1 to nCols
+	            aNewRow + @aContent[j][2][i]
+	        next
+	        aNewContent + [acNewColNames[i], aNewRow]
+	    next
+	    
+	    This.UpdateWith(aNewContent)
+	    
+	    # Reset calculated data
+	    @anCalculatedCols = []
+	    @anCalculatedRows = []
+
+
+		def TransposeQ()
+			This.Transpose()
+			return This
+
+
+		def Turn()
+			This.Transpose()
+
+		def SwapColsAndRows()
+			This.Transpose()
+
+		def SwapRowsAndCols()
+			This.Transpose()
+
+		def SwitchColsAndRows()
+			This.Transpose()
+
+		def SwithRowsAndCols()
+			This.Transpose()
+
+
+	def TransposeXT() # Keeps original colnames
+
+	    # Get dimensions and column names directly from @aContent
+	    nCols = len(@aContent)
+	    if nCols = 0
+	        return
+	    ok
+	    nRows = len(@aContent[1][2])
+	    
+	    # Set internal flag to track header preservation
+	    @bTransposedWithHeaders = True
+	    @aOriginalColNames = []
+	    for i = 1 to nCols
+	        @aOriginalColNames + @aContent[i][1]
+	    next
+	    
+	    # Generate new column names (all follow COL pattern)
+	    acNewColNames = []
+	    for i = 1 to nRows
+	        acNewColNames + ("COL" + i)
+	    next
+	    
+	    # Build new content
+	    aNewContent = []
+	    
+	    # First column contains original headers
+	    aFirstColumn = []
+	    for i = 1 to nCols
+	        aFirstColumn + @aContent[i][1]
+	    next
+	    aNewContent + [acNewColNames[1], aFirstColumn]
+	    
+	    # Remaining columns contain transposed data
+	    for i = 1 to nRows
+	        aNewRow = []
+	        for j = 1 to nCols
+	            aNewRow + @aContent[j][2][i]
+	        next
+	        aNewContent + [("COL" + (i+1)), aNewRow]
+	    next
+	    
+	    This.UpdateWith(aNewContent)
+	    
+	    # Reset calculated data
+	    @anCalculatedCols = []
+	    @anCalculatedRows = []
+
+		def TransposeWithColNames()
+			This.TansposeXT()
+
+	def TransposeBack()
+	    # Only works if table was transposed with headers
+	    if not @bTransposedWithHeaders or @aOriginalColNames = []
+	        raise("Cannot transpose back: no header information found")
+	    ok
+	    
+	    # Get data columns (skip first column which contains headers)
+	    aDataColumns = []
+	    for i = 2 to len(@aContent)
+	        aDataColumns + @aContent[i][2]
+	    next
+	    
+	    # Transpose back
+	    nOriginalCols = len(@aOriginalColNames)
+	    nOriginalRows = len(aDataColumns)
+	    
+	    aNewContent = []
+	    for i = 1 to nOriginalCols
+	        aNewRow = []
+	        for j = 1 to nOriginalRows
+	            aNewRow + aDataColumns[j][i]
+	        next
+	        aNewContent + [@aOriginalColNames[i], aNewRow]
+	    next
+	    
+	    This.UpdateWith(aNewContent)
+	    
+	    # Clear transpose flags
+	    @bTransposedWithHeaders = False
+	    @aOriginalColNames = []
+	    
+	    # Reset calculated data
+	    @anCalculatedCols = []
+	    @anCalculatedRows = []
+	
+	def CanTransposeBack()
+	    return (@bTransposedWithHeaders and @aOriginalColNames != [])
+	
 
 	  #---------------------#
 	 #  UTILITY FUNCTIONS  #
