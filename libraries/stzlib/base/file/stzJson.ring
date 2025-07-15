@@ -34,7 +34,7 @@ def init(p)
         #NOTE #TODO
 		# Norammly we should use Qt's built-in conversion like this:
 
-        # 	@oQJsonDoc = @oQJsonDoc.fromVariant(obj2ptr(p))
+         # 	@oQJsonDoc = @oQJsonDoc.fromVariant(obj2ptr(p))
 	    #   if @oQJsonDoc.isNull()
 	    #       @cLastError = "Invalid list structure"
 	    #      return
@@ -308,7 +308,7 @@ def init(p)
 		ok
 		return This
 	
-	def Valid()
+	def IsValid()
 		return not @oQJsonDoc.isNull()
 	
 	# Error Handling

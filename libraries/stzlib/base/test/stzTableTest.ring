@@ -201,7 +201,7 @@ pf()
 # Executed in 0.42 second(s) in Ring 1.22
 
 /*--- stzString first and last non-space chars
-*/
+
 pr()
 
 o1 = new stzString("   RING  ")
@@ -212,6 +212,38 @@ o1 = new stzString("   RING  ")
 ? o1.LastNonSpaceChar()		#--> G
 ? o1.FindLastNonSpaceChar()	#--> 7
 
+pf()
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*---
+*/
+pr()
+
+cJson = '{
+	"product": [
+		"Apple",
+		"Orange",
+		"Banana"
+	],
+	"price": [
+		"$1.50",
+		"$1.20",
+		"$0.80"
+	],
+	"stock": [
+		"100",
+		"150",
+		"200"
+	]
+}'
+
+
+? IsJson(cJson)
+/*
+o1 = new stzTable([])
+o1.FromJson(cJson)
+o1.Show()
+*/
 pf()
 
 /*---
@@ -264,8 +296,21 @@ o1 = new stzTable([])
 
 o1.FromHtml(cHtmlStr)
 o1.Show()
+#-->
+'
+╭─────────┬───────┬───────╮
+│ Product │ Price │ Stock │
+├─────────┼───────┼───────┤
+│ Apple   │ $1.50 │   100 │
+│ Orange  │ $1.20 │   150 │
+│ Banana  │ $0.80 │   200 │
+╰─────────┴───────┴───────╯
+'
+
+? o1.ToJsonXT()
 
 pf()
+# Executed in 0.10 second(s) in Ring 1.22
 
 /*==== TESTING CSV TABLES IN STZSTRING
 

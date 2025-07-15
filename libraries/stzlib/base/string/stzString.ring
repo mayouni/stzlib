@@ -101450,9 +101450,24 @@ class stzString from stzObject
 			This.RemoveAllOccurrencesOfSubstring(pSubStr)
 			return This
 
+
 	  #===========================================#
-	 #  CHECKING IF THE STRING IS IN CSV FORMAT  #
+	 #  CHECKING IF THE STRING IS IN JSON FORMAT  #
 	#===========================================#
+
+	def IsJson()
+		return @IsJsonString(This.Content())
+
+	#TODO // Implement these methods
+
+	def ContainsJson()
+		raise("Not yet implemented!")
+
+	def Jsons()
+		raise("Not yet implemented!")
+
+		def JsonSubStrings()
+			return This.Jsons()
 
 	  #=====================================================#
 	 #  DETECTING, FINDING AND READING HTML TABLE STRINGS  #
@@ -101687,7 +101702,7 @@ class stzString from stzObject
 
 	def FirstHtmlTable()
 		if This.IsHtmlTable()
-			return [This.FindFirstNonSpaceChar(), This.FindLastNonSpaceChar()]
+			return @trim(This.Content())
 		ok
 
 		aSection = This.FindFirstHtmlTableZZ()
@@ -101703,7 +101718,7 @@ class stzString from stzObject
 	def FindHTMLTablesZZ()
 
 		if not This.ContainsHTMLTable()
-			return 0
+			return []
 		ok
 
 		if This.IsHtmlTable()
