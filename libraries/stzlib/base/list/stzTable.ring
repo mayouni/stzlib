@@ -15226,7 +15226,7 @@ Class stzTable from stzList
 	 #  GROUPING DATA BY A COLUMN CONTAINING LIST  #
 	#---------------------------------------------#
 
-	def GroupByListItems(paCols)
+	def GroupByListItems(paCols) #TODO // check why there is a dependance with "HOBBY"!
 		if NOT isList(paCols)
 			aTemp = [] + paCols
 			paCols = aTemp
@@ -15872,6 +15872,13 @@ Class stzTable from stzList
 	    ok
 	    nRows = len(@aContent[1][2])
 	    
+	    # Set internal flag to track header preservation
+	    @bTransposedWithHeaders = FALSE
+	    @aOriginalColNames = []
+	    for i = 1 to nCols
+	        @aOriginalColNames + @aContent[i][1]
+	    next
+
 	    # Generate new column names
 	    acNewColNames = []
 	    for i = 1 to nRows
@@ -15968,7 +15975,7 @@ Class stzTable from stzList
 
 	def TransposeBack()
 	    # Only works if table was transposed with headers
-	    if not @bTransposedWithHeaders or @aOriginalColNames = []
+	    if len(@aOriginalColNames) = 0
 	        raise("Cannot transpose back: no header information found")
 	    ok
 	    
@@ -16073,14 +16080,14 @@ Class stzTable from stzList
 			StzRaise("Incorrect param type! cData must be a string.")
 		ok
 
-		@aContent = StzStringQ(pcCSV).CSVToDataTable()
+		@aContent = StzStringQ(pcCSV).CSVToTable()
 
 		def FromCSVString(pcCSV)
 			This.FromCSV(pcCSV)
 
 	def FromHtml(pcHtml)
 		oTempStr = new stzString(pcHtml)
-		@aContent = oTempStr.FirstHtmlTableQ().ToDataTable()
+		@aContent = oTempStr.FirstHtmlTableQ().HtmlToTable()
 
 		def FromHtmlString(pcHtml)
 			This.FromHtml(pcHtml)
@@ -16091,7 +16098,7 @@ Class stzTable from stzList
 			StzRaise("Incorrect param type! cData must be a string.")
 		ok
 
-		@aContent = StzStringQ(pcHtmlTable).ToHtmlDataTable()
+		@aContent = StzStringQ(pcHtmlTable).HtmlToTable()
 
 		def FromHtmlTableString(pcHtmlTable)
 			This.FromHtmlTable(pcHtmlTable)

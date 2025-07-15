@@ -1,13 +1,14 @@
-#-------------------------------------------------------------#
-# 		   SOFTANZA LIBRARY (V1.0) - STZSTRING                #
+#--------------------------------------------------------------#
+#              SOFTANZA LIBRARY (V1.0) - STZSTRING             #
 # 	An accelerative library for Ring applications, and more!  #
-#-------------------------------------------------------------#
-#                                                             #
-# 	Description	: The class for managing Unicode strings      #
-#	Version		: V0.9 (2020-2025)                            #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)       #
-#                                                             #
-#-------------------------------------------------------------#
+#--------------------------------------------------------------#
+#                                                              #
+#    Description  : The class for managing Unicode strings     #
+#    Version      : V0.9 (2020-2025)                           #
+#    Author       : Mansour Ayouni (kalidianow@gmail.com)      #
+#                                                              #
+#--------------------------------------------------------------#
+
 
 /*
 	#TODO Add:
@@ -101628,9 +101629,35 @@ class stzString from stzObject
 		return acResult
 
 
+	#== FIRST AND LAST NON SPACE CHARS
+
+	def FindFirstNonSpaceChar()
+
+		cFirstNonSpaceChar = This.Copy().TrimQ().Char(1)
+		nResult = ring_substr1(This.Content(), cFirstNonSpaceChar)
+
+		return nResult
+
+	def FirstNonSpaceChar()
+		return This.Copy().TrimQ().Char(1)
+
+	def FindLastNonSpaceChar()
+
+		cFirstNonSpaceChar = This.Copy().TrimQ().LastChar()
+		nPosRev = ring_substr1(@reverse(This.Content()), cFirstNonSpaceChar)
+		nResult = This.NumberOfChars() - nPosRev + 1
+
+		return nResult
+
+	def LastNonSpaceChar()
+		return This.Copy().TrimQ().LastChar()
+
 	#==
 
 	def FindFirstHTMLTableZZ()
+		if This.IsHtmlTable()
+			return This.FindFirstNonSpaceChar()
+		ok
 
 		# Early check
 
@@ -101645,7 +101672,7 @@ class stzString from stzObject
 
 		aoSubStr = []
 		for i = 1 to nLen
-			aoSubStr + new stzString(acSubStr[i])
+			aoSubStr + new stzString(acSubStrZZ[i][1])
 		next
 
 		# Checking for the existence of a html table
@@ -101659,6 +101686,10 @@ class stzString from stzObject
 		return []
 
 	def FirstHtmlTable()
+		if This.IsHtmlTable()
+			return [This.FindFirstNonSpaceChar(), This.FindLastNonSpaceChar()]
+		ok
+
 		aSection = This.FindFirstHtmlTableZZ()
 		if len(aSection) = 0
 			return ""
@@ -101673,6 +101704,10 @@ class stzString from stzObject
 
 		if not This.ContainsHTMLTable()
 			return 0
+		ok
+
+		if This.IsHtmlTable()
+			return [ [This.FindFirstNonSpaceChar(), This.FindLastNonSpaceChar()] ]
 		ok
 
 		aSections = This.FindSubStringsBoundedByIBZZ([ "<table", "</table>"])
@@ -101777,6 +101812,15 @@ class stzString from stzObject
 				StzRaise("Unsupported return type!")
 			off
 
+		def HtmlToTable()
+			return This.HtmlToDataTable()
+
+			def HtmlToTableQ()
+				return This.HtmlToDataTableQ()
+
+			def HtmlToTableQRT(pcReturnType)
+				return This.HtmlToDataTableQRT(pcReturnType)
+
 	#==
 
 	def HtmlToDataTables()
@@ -101815,6 +101859,15 @@ class stzString from stzObject
 			other
 				StzRaise("Unsupported return type!")
 			off
+
+		def HtmlToTables()
+			return This.HtmlToDataTables()
+
+			def ToHtmlTablesQ()
+				return This.ToHtmlDataTablesQ()
+
+			def ToHtmlTablesQR(pcReturnType)
+				return This.ToHtmlDataTablesQR(pcReturnType)
 
 	  #=====================================================#
 	 #  DETECTING, FINDING AND READING CSV STRING CONTENT  #
