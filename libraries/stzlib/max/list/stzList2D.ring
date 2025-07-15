@@ -12,6 +12,47 @@ func StzList2D(paList)
 	func Stz2DListQ(paList)
 		return new stzList2D(paList)
 
+func Transpose(aList2D)
+
+	if NOT isList(aList2D)
+		StzRaise("Incorrect param type! aList2D must be a list.")
+	ok
+
+    # Handle edge cases
+    nRows = len(aList2D)
+    if nRows = 0
+        StzRaise("Can't transpose an empty list!")
+    ok
+
+	if NOT isList(aList2D[1])
+		StzRaise("Can't transpose the list! Incorrect format.")
+	ok
+
+    nCols = len(aList2D[1])
+
+    # Verify all sublists have the same length
+
+	for i = 1 to nRows
+        if not (isList(aList2D[i]) and len(aList2D[i]) = nCols)
+           StzRaise("Can't transpose the list! Incorrect format.")
+        ok
+    next
+
+    # Initialize the transposed matrix: nCols rows, each with nRows elements
+    aTransposed = []
+    for i = 1 to nCols
+        aNewRow = []
+        for j = 1 to nRows
+            aNewRow + aList2D[j][i]
+        next
+        aTransposed + aNewRow
+    next
+
+    return aTransposed
+
+	func @Transpose(aList2D)
+		return Transpose(aList2D)
+
 
 class stz2DList from stzList2D
 
@@ -36,3 +77,13 @@ class stzList2D from stzListOfLists
 
 		def List2D()
 			return super.Content()
+
+	def Transpose()
+	    This.UpdateWith(@Transpose(This.Content()))
+
+		def TransposeQ()
+			This.Transpose()
+			return This
+
+	def Transposed()
+		return @Transpose(This.Content())
