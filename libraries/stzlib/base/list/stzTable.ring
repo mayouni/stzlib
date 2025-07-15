@@ -16070,24 +16070,56 @@ Class stzTable from stzList
 		next
 		return cResult
 
-	  #=================================================================#
-	 #  IMPORTING TABLE CONTENT FROM AN EXTERNAL STRING (CSV OR HTML)  #
-	#=================================================================#
+	  #======================================================================#
+	 #  IMPORTING TABLE CONTENT FROM AN EXTERNAL STRING (CSV, JSON OR HTML)  #
+	#========================================================================#
+
+	def ToCSV() #TODO
+		raise("Not implemented yet!")
 
 	def FromCSV(pcCSV)
 
 		if NOT isString(pcCSV)
-			StzRaise("Incorrect param type! cData must be a string.")
+			StzRaise("Incorrect param type! pcCSV must be a string.")
 		ok
 
-		@aContent = StzStringQ(pcCSV).CSVToTable()
+		This.UpdateWith(StzStringQ(pcCSV).CSVToTable())
 
 		def FromCSVString(pcCSV)
 			This.FromCSV(pcCSV)
 
+
+	#--
+
+	def ToJSON() # Compact Json (without NL and TAB indendtaion)
+		return ListToJson(This.Content())
+
+	def ToJsonXT() # Json with NL and TAB-indentation
+		return ListToJsonXT(This.Content())
+
+	def FromJson(pcJsonStr) #TODO Test it
+		if NOT isString(pcJsonStr)
+			StzRaise("Incorrect param type! pcJsonStr must be a string.")
+		ok
+
+		if NOT @IsJson(pcJsonStr)
+			StzRaise("Can't proceed! This string you provided is not in JSON.")
+		ok
+
+		aData = JsonToList(pcJsonStr)
+		if Not ( @IsHashList(aData) and @IsTable(aData) )
+			StzRaise("Can't proceed! The Json structure does not correspond to a stzTable structure.")
+		ok
+
+		This.UpdateWith(aData)
+
+	#---
+
+	def ToHtml()
+
 	def FromHtml(pcHtml)
 		oTempStr = new stzString(pcHtml)
-		@aContent = oTempStr.FirstHtmlTableQ().HtmlToTable()
+		This.Updatewith(oTempStr.FirstHtmlTableQ().HtmlToTable())
 
 		def FromHtmlString(pcHtml)
 			This.FromHtml(pcHtml)
@@ -16095,10 +16127,10 @@ Class stzTable from stzList
 	def FromHtmlTable(pcHtmlTable)
 
 		if NOT isString(pcHtmlTable)
-			StzRaise("Incorrect param type! cData must be a string.")
+			StzRaise("Incorrect param type! pcHtmlTable must be a string.")
 		ok
 
-		@aContent = StzStringQ(pcHtmlTable).HtmlToTable()
+		This.UpdateWith(StzStringQ(pcHtmlTable).HtmlToTable())
 
 		def FromHtmlTableString(pcHtmlTable)
 			This.FromHtmlTable(pcHtmlTable)

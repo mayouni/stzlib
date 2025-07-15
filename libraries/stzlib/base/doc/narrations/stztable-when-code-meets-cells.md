@@ -131,7 +131,72 @@ This loads the table from a CSV file, automatically handling the column names an
 
 ![csv-format-stztable.png](../images/csv-format-stztable.png)
 
-> **Note**: Support for creating `stzTable` objects from JSON strings or files, HTML table markup, and SQL queries will be added in a future update.
+> **Note**: Support for creating `stzTable` objects from JSON strings or files, as well as SQL queries will be added in a future update.
+
+### Importing HTML Tables
+
+The `stzTable` class supports importing HTML tables, enabling integration of web-based data into Ring applications. Using `stzString`, you can verify HTML table markup and convert it into an `stzTable` object with the `FromHtml()` method, which extracts column headers from `<thead>` and data from `<tbody>`.
+
+```ring
+cHtmlStr = '
+    <table class="data" id="products">
+        <thead>
+            <tr>
+                <th scope="col">Product</th>
+                <th scope="col">Price</th>
+                <th scope="col">Stock</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="row">
+                <td>Apple</td>
+                <td>$1.50</td>
+                <td>100</td>
+            </tr>
+            <tr class="row">
+                <td>Orange</td>
+                <td>$1.20</td>
+                <td>150</td>
+            </tr>
+            <tr class="row">
+                <td>Banana</td>
+                <td>$0.80</td>
+                <td>200</td>
+            </tr>
+            <tr class="row">
+                <td>Grape</td>
+                <td>$2.00</td>
+                <td>80</td>
+            </tr>
+            <tr class="row">
+                <td>Mango</td>
+                <td>$3.00</td>
+                <td>50</td>
+            </tr>
+        </tbody>
+    </table>
+'
+
+? Q(cHtmlStr).IsHtmlTable()
+#--> TRUE
+
+o1 = new stzTable([])
+o1.FromHtml(cHtmlStr)
+o1.Show()
+#-->
+# ╭─────────┬───────┬───────╮
+# │ Product │ Price │ Stock │
+# ├─────────┼───────┼───────┤
+# │ Apple   │ $1.50 │   100 │
+# │ Orange  │ $1.20 │   150 │
+# │ Banana  │ $0.80 │   200 │
+# │ Grape   │ $2.00 │    80 │
+# │ Mango   │ $3.00 │    50 │
+# ╰─────────┴───────┴───────╯
+```
+
+The `IsHtmlTable()` method validates the HTML table, and `FromHtml()` creates an `stzTable` object, ready for further manipulation and analysis, ideal for web-scraped data or HTML reports.
+
 
 ## Navigating and Querying Data
 
@@ -635,6 +700,57 @@ o1.SwapColumns(:ID, :SALARY)  // Swaps the ID and SALARY columns
 
 o1.RenameColumn(:EMPLOYEE, :NAME)  // Renames the EMPLOYEE column to NAME
 ```
+
+### Transposing Tables
+
+The `stzTable` class offers a flexible `Transpose()` method to swap rows and columns, enabling you to reorient your data for analysis or presentation. This is particularly useful when you need to change the perspective of your dataset, such as switching between row-based and column-based views.
+
+```ring
+o1 = new stzTable([
+	[ :ID,	 :AGE,    :SALARY	],
+	#----------------------------------#
+	[ 10,	 32,		35000	],
+	[ 20,	 27,		28900	],
+	[ 30,	 24,		25982	],
+	[ 40,	 22,		12870	]
+])
+
+o1.Show()
+#-->
+# ╭────┬─────┬────────╮
+# │ Id │ Age │ Salary │
+# ├────┼─────┼────────┤
+# │ 10 │  32 │  35000 │
+# │ 20 │  27 │  28900 │
+# │ 30 │  24 │  25982 │
+# │ 40 │  22 │  12870 │
+# ╰────┴─────┴────────╯
+
+o1.Transpose()
+o1.Show()
+#-->
+# ╭────────┬───────┬───────┬───────┬───────╮
+# │  Col1  │ Col2  │ Col3  │ Col4  │ Col5  │
+# ├────────┼───────┼───────┼───────┼───────┤
+# │ id     │    10 │    20 │    30 │    40 │
+# │ age    │    32 │    27 │    24 │    22 │
+# │ salary │ 35000 │ 28900 │ 25982 │ 12870 │
+# ╰────────┴───────┴───────┴───────┴───────╯
+
+o1.TransposeBack()
+o1.Show()
+#-->
+# ╭────┬─────┬────────╮
+# │ Id │ Age │ Salary │
+# ├────┼─────┼────────┤
+# │ 10 │  32 │  35000 │
+# │ 20 │  27 │  28900 │
+# │ 30 │  24 │  25982 │
+# │ 40 │  22 │  12870 │
+# ╰────┴─────┴────────╯
+```
+
+For cases where you want to include the original column names in the transposition, the `TransposeXT()` method extends this functionality by incorporating the column names as part of the transposed data. This ensures that the table's metadata remains intact, making it ideal for scenarios where preserving column context is crucial for reporting or further processing. The `TransposeBack()` method allows you to revert to the original table structure, providing flexibility to experiment with different data orientations without losing the initial configuration.
 
 ### Advanced Manipulation
 

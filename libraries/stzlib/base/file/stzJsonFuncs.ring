@@ -1,4 +1,4 @@
-# JSON Utility Functions for stzJson Class - FIXED
+# JSON Utility Functions for stzJson Class 
 #------------------------------------------
 
 func IsJson(cStrOrList)
@@ -11,6 +11,9 @@ func IsJson(cStrOrList)
 	else
 		return IsJsonList(cStrOrList)
 	ok
+
+	func @IsJson(cStrOrList)
+		return IsJson(cStrOrList)
 
 # Check if a string is valid JSON
 func IsJsonString(cStr)
@@ -32,6 +35,9 @@ func IsJsonString(cStr)
         return FALSE
     done
 
+	func @IsJsonString(cStr)
+		return  IsJsonString(cStr)
+
 # Check if a list represents a valid DeepHashList structure
 func IsJsonList(aList)
     if not isList(aList)
@@ -45,9 +51,14 @@ func IsJsonList(aList)
     
     return IsHashList(aList) or _IsValidDeepHashList(aList)
 
-	def IsDeepHashList(aList)
+	func IsDeepHashList(aList)
 		return IsJsonList(aList)
 
+	func @IsJsonList(aList)
+		return IsJsonList(aList)
+
+	func @IsDeepHashList(aList)
+		return IsJsonList(aList)
 
 # Convert Ring list to JSON string
 func ListToJson(aList)
@@ -67,7 +78,13 @@ func ListToJson(aList)
         return _ListToJsonArray(aList)
     ok
 
-	def ListToJsonString(aList)
+	func ListToJsonString(aList)
+		return ListToJson(aList)
+
+	func @ListToJson(aList)
+		return ListToJson(aList)
+
+	func @ListToJsonString(aList)
 		return ListToJson(aList)
 
 # Convert Ring list to JSON string with indentation
@@ -87,6 +104,9 @@ func ListToJsonXT(aList)
     else
         return _ListToJsonArrayXT(aList, 0)
     ok
+
+	func @ListToJsonXT(aList)
+		return ListToJsonXT(aList)
 
 # Convert JSON string to Ring list
 func JsonToList(cJson)
@@ -111,7 +131,10 @@ func JsonToList(cJson)
         return [ _ParseJsonValue(cJson) ]
     ok
 
-	def JsonStringToList(cJson)
+	func JsonStringToList(cJson)
+		return JsonToList(cJson)
+
+	func @JsonToList(cJson)
 		return JsonToList(cJson)
 
 #--- helper functions
