@@ -1,6 +1,7 @@
 load "../stzbase.ring"
 load "../../max/list/stzPivotTable.ring" # some samples use stzPivotTable from the MAX layer
-load "../../max/list/stzlist2D.ring" # 
+load "../../max/list/stzlist2D.ring" #TODO // Should be relocated in BASE layer
+
 /*=== TESTING ERASE AND FILL SECTIONS IN STZSTRINg
 
 pr()
@@ -198,6 +199,73 @@ o1.HtmlToDataTablesQRT(:stzListOfTables).Show()
 
 pf()
 # Executed in 0.42 second(s) in Ring 1.22
+
+/*--- stzString first and last non-space chars
+*/
+pr()
+
+o1 = new stzString("   RING  ")
+
+? o1.FirstNonSpaceChar()		#--> R
+? o1.FindFirstNonSpaceChar()	#--> 4
+
+? o1.LastNonSpaceChar()		#--> G
+? o1.FindLastNonSpaceChar()	#--> 7
+
+pf()
+
+/*---
+*/
+pr()
+
+cHtmlStr = '
+    <table class="data" id="products">
+        <thead>
+            <tr>
+                <th scope="col">Product</th>
+                <th scope="col">Price</th>
+                <th scope="col">Stock</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="row">
+                <td>Apple</td>
+                <td>$1.50</td>
+                <td>100</td>
+            </tr>
+            <tr class="row">
+                <td>Orange</td>
+                <td>$1.20</td>
+                <td>150</td>
+            </tr>
+            <tr class="row">
+                <td>Banana</td>
+                <td>$0.80</td>
+                <td>200</td>
+            </tr>
+            <tr class="row">
+                <td>Grape</td>
+                <td>$2.00</td>
+                <td>80</td>
+            </tr>
+            <tr class="row">
+                <td>Mango</td>
+                <td>$3.00</td>
+                <td>50</td>
+            </tr>
+        </tbody>
+    </table>
+'
+
+? Q(cHtmlStr).IsHtmlTable()
+#--> TRUE
+
+o1 = new stzTable([])
+
+o1.FromHtml(cHtmlStr)
+o1.Show()
+
+pf()
 
 /*==== TESTING CSV TABLES IN STZSTRING
 
@@ -7073,26 +7141,60 @@ o1.ToStzPivotTable() {
 pf()
 # Executed in 1.06 second(s) in Ring 1.22
 
+
 /*--- Transposing a table (swapping columns and rows)
 */
 pr()
 
 
 o1 = new stzTable([
-	[ :ID,	 :EMPLOYEE,    :SALARY	],
+	[ :ID,	 :AGE,    :SALARY	],
 	#----------------------------------#
-	[ 10,	 "Ali",		35000	],
-	[ 20,	 "Dania",		28900	],
-	[ 30,	 "Han",		25982	],
-	[ 40,	 "Ali",		12870	]
+	[ 10,	 32,		35000	],
+	[ 20,	 27,		28900	],
+	[ 30,	 24,		25982	],
+	[ 40,	 22,		12870	]
 ])
 
 o1.Show()
+#-->
+'
+╭────┬─────┬────────╮
+│ Id │ Age │ Salary │
+├────┼─────┼────────┤
+│ 10 │  32 │  35000 │
+│ 20 │  27 │  28900 │
+│ 30 │  24 │  25982 │
+│ 40 │  22 │  12870 │
+╰────┴─────┴────────╯
+'
 
-o1.TransposeXT()
+o1.TransposeXT() # XT ~> Colnames are also transposed
 o1.Show()
+#-->
+'
+╭────────┬───────┬───────┬───────┬───────╮
+│  Col1  │ Col2  │ Col3  │ Col4  │ Col5  │
+├────────┼───────┼───────┼───────┼───────┤
+│ id     │    10 │    20 │    30 │    40 │
+│ age    │    32 │    27 │    24 │    22 │
+│ salary │ 35000 │ 28900 │ 25982 │ 12870 │
+╰────────┴───────┴───────┴───────┴───────╯
+'
 
 o1.TransposeBack()
 o1.Show()
+#-->
+'
+╭────┬─────┬────────╮
+│ Id │ Age │ Salary │
+├────┼─────┼────────┤
+│ 10 │  32 │  35000 │
+│ 20 │  27 │  28900 │
+│ 30 │  24 │  25982 │
+│ 40 │  22 │  12870 │
+╰────┴─────┴────────╯
+'
 
 pf()
+# Executed in 0.20 second(s) in Ring 1.22
