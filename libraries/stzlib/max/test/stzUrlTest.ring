@@ -3,7 +3,6 @@
 
 load "../stzmax.ring"
 
-pr()
 
 #-------------------------------#
 #  BASIC OBJECT CREATION        #
@@ -451,6 +450,14 @@ pf()
 #-------------------------------#
 #  ERROR HANDLING               #
 #-------------------------------#
+*/
+pr()
+
+o1 = new stzUrl("ht tp://invalid space.com")
+? o1.IsValid()    #--> FALSE
+? o1.Error()      #--> Detailed error message about the invalid format
+
+pf()
 
 /*--- Invalid URL handling
 

@@ -1,3 +1,6 @@
+func StzUrlQ(pUrl)
+	return new stzUrl(pUrl)
+
 Class stzUrl from stzObject
 
 	@oQUrl
