@@ -3,18 +3,13 @@
 
 load "../stzmax.ring"
 
+/*---
+
 pr()
 
-# Age { Child, Teenager, Adult, Senior, Other }
-# Gender { Male, Female, Unknown }
-
-
-o1 = new QURL("/home/user/file.txt")
-? o1.isRelative()
-#--> TRUE
-
-o1.SetUrl("www.stz.lib", 1)
-? o1.IsRelative()
+o1 = new stzString("123*567*91*1")
+? o1.FindFirstST("*", 5)
+#--> 8
 
 pf()
 
@@ -38,7 +33,7 @@ o1 = new stzHtml("")
 pf()
 
 /*--- Creating stzHtml with simple HTML string
-*/
+
 pr()
 
 o1 = new stzHtml("<p>Hello World</p>")
@@ -88,7 +83,7 @@ pf()
 #-------------------------------#
 
 /*--- Parsing HTML with DOCTYPE declaration
-
+*/
 pr()
 
 o1 = new stzHtml("<!DOCTYPE html><html><body><h1>Title</h1></body></html>")

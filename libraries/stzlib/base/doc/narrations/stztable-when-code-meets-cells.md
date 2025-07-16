@@ -105,7 +105,7 @@ Output:
 
 This approach can be particularly valuable when your data is already organized by columns.
 
-### Creating a Table from an External File
+### Importing and exporting CSV
 
 In real-world applications, data often comes from external sources like CSV files. `stzTable` can load data directly from such files, making it easy to work with existing datasets.
 
@@ -131,9 +131,42 @@ This loads the table from a CSV file, automatically handling the column names an
 
 ![csv-format-stztable.png](../images/csv-format-stztable.png)
 
-> **Note**: Support for creating `stzTable` objects from JSON strings or files, as well as SQL queries will be added in a future update.
+#todo add CSV export
 
-### Importing HTML Tables
+### Importing and Exporting JSON
+
+The `stzTable` class enables seamless JSON import and export for integration with JSON-based data sources. The `ToJson()` method converts an `stzTable` into a compact JSON string, while `FromJson()` creates a table from a valid JSON string.
+
+```ring
+aData = [
+	[ "product", [ "Apple", "Orange", "Banana" ] ],
+	[ "price",   [ "$1.50", "$1.20", "$0.80" ] ],
+	[ "stock",   [ "100", "150", "200" ] ]
+]
+
+o1 = new stzTable(aData)
+? o1.ToJson()
+#--> {"product":["Apple","Orange","Banana"],"price":["$1.50","$1.20","$0.80"],"stock":["100","150","200"]}
+
+cJson = '{"product":["Apple","Orange","Banana"],"price":["$1.50","$1.20","$0.80"],"stock":["100","150","200"]}'
+
+o1 = new stzTable([])
+o1.FromJson(cJson)
+o1.Show()
+#-->
+# ╭─────────┬───────┬───────╮
+# │ Product │ Price │ Stock │
+# ├─────────┼───────┼───────┤
+# │ Apple   │ $1.50 │   100 │
+# │ Orange  │ $1.20 │   150 │
+# │ Banana  │ $0.80 │   200 │
+# ╰─────────┴───────┴───────╯
+```
+
+The `ToJson()` method generates a compact JSON string, preserving column names and data. For a formatted output with newlines and indentation, use `ToJsonXT()`. The `IsJson()` function, available via `stzString` (e.g., `Q(cJson).IsJson()`), validates JSON input before import. These methods facilitate working with APIs or JSON files, streamlining data integration into `stzTable` for further analysis.
+
+
+### Importing and exporting HTML Tables
 
 The `stzTable` class supports importing HTML tables, enabling integration of web-based data into Ring applications. Using `stzString`, you can verify HTML table markup and convert it into an `stzTable` object with the `FromHtml()` method, which extracts column headers from `<thead>` and data from `<tbody>`.
 
@@ -197,6 +230,7 @@ o1.Show()
 
 The `IsHtmlTable()` method validates the HTML table, and `FromHtml()` creates an `stzTable` object, ready for further manipulation and analysis, ideal for web-scraped data or HTML reports.
 
+#todo add HTML export
 
 ## Navigating and Querying Data
 
