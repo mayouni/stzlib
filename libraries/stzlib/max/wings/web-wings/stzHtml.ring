@@ -2,7 +2,7 @@
 # Provides comprehensive HTML parsing, manipulation, and generation capabilities
 
 
-class stzHtml from stzString
+class stzHtml from stzObject
 
 	# Internal data structures
 	@aElements = []      # Main elements container (hashlist structure)
@@ -15,19 +15,19 @@ class stzHtml from stzString
 	@lParsed = false
 	@aParseErrors = []
 	@aNamespaces = []
-	@oConfig = new stzHashList([
+	@oConfig = [
 		:pretty_print = true,
 		:indent_size = 2,
 		:self_closing_tags = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"],
 		:validate = true,
 		:preserve_whitespace = false,
 		:encoding = "UTF-8"
-	])
+	]
 
 	def init(cHtml)
 		if isString(cHtml) and not @isNull(cHtml)
 			@cOriginalHtml = cHtml
-			this.parse(cHtml)
+			This.Parse(cHtml)
 		ok
 
 	# Core parsing methods
@@ -41,17 +41,17 @@ class stzHtml from stzString
 		@nCurrentPos = 1
 		@lParsed = false
 
-		this.parseDocument(cHtml)
+		This.ParseDocument(cHtml)
 		@lParsed = true
 
 	def parseDocument(cHtml)
-		cHtml = this.normalizeHtml(cHtml)
+		cHtml = This.normalizeHtml(cHtml)
 		oHtml = new stzString(cHtml)
 
 		# Extract DOCTYPE
 		if oHtml.Contains("<!DOCTYPE")
 			nStart = oHtml.FindFirst("<!DOCTYPE")
-			nEnd = oHtml.findFirstST(">", nStart)
+			nEnd = oHtml.FindFirstST(">", nStart)
 			if nEnd > 0
 				@cDoctype = oHtml.Section(nStart, nEnd)
 				cHtml = oHtml.SectionRemoved(nStart, nEnd)
@@ -59,22 +59,22 @@ class stzHtml from stzString
 		ok
 
 		# Parse elements recursively
-		this.parseElements(cHtml, @aElements)
+		This.ParseElements(cHtml, @aElements)
 
 	def parseElements(cHtml, aContainer)
 		nPos = 1
 		nLen = len(cHtml)
-		oHtml = new stzHtml
+		oHtml = new stzString(chtml)
 
 		while nPos <= nLen
 			# Find next tag
-			nTagStart = oHtml.findFirstST("<", nPos)
+			nTagStart = oHtml.FindFirstST("<", nPos)
 			
 			if nTagStart = 0
 				# No more tags, add remaining text
 				cText = oHtml.Range(nPos, nLen)
 				if not @isNull(@trim(cText))
-					aContainer + this.createTextNode(cText)
+					aContainer + This.createTextNode(cText)
 				ok
 				exit
 			ok
@@ -83,12 +83,12 @@ class stzHtml from stzString
 			if nTagStart > nPos
 				cText = oHtml.Section(nPos, nTagStart - 1)
 				if not @isNull(@trim(cText))
-					aContainer + this.createTextNode(cText)
+					aContainer + This.createTextNode(cText)
 				ok
 			ok
 			
 			# Parse tag
-			oElement = this.parseTag(cHtml, nTagStart)
+			oElement = This.ParseTag(cHtml, nTagStart)
 			if oElement != null
 				aContainer + oElement
 				nPos = oElement[:end_pos] + 1
@@ -100,7 +100,7 @@ class stzHtml from stzString
 	def parseTag(cHtml, nStart)
 		# Find tag end
 		oHtml = new stzstring(cHtml)
-		nEnd = this.oHtml.FindfirstST(">", nStart)
+		nEnd = oHtml.FindfirstST(">", nStart)
 		if nEnd = 0
 			return null
 		ok
@@ -108,34 +108,34 @@ class stzHtml from stzString
 		cTag = oHtml.Section(nStart, nEnd)
 		
 		# Handle comments
-		if oHtml.startsWith(cTag, "<!--")
-			return this.parseComment(cTag, nStart, nEnd)
+		if left(cTag, 4) = "<!--"
+			return This.ParseComment(cTag, nStart, nEnd)
 		ok
 		
 		# Handle self-closing tags
-		if oHtml.endsWith(cTag, "/>")
-			return this.parseSelfClosingTag(cTag, nStart, nEnd)
+		if right(cTag, 2) = "/>"
+			return This.ParseSelfClosingTag(cTag, nStart, nEnd)
 		ok
 		
 		# Handle closing tags
-		if oHtml.startsWith(cTag, "</")
+		if left(cTag, 2) = "</"
 			return null # Will be handled by opening tag parser
 		ok
 		
 		# Handle opening tags
-		return this.parseOpeningTag(cHtml, nStart, nEnd)
+		return This.ParseOpeningTag(cHtml, nStart, nEnd)
 
 	def parseOpeningTag(cHtml, nStart, nEnd)
 		oHtml = new stzString(cHtml)
 		cTag = oHtml.Section(nStart, nEnd)
 		
 		# Extract tag name and attributes
-		aTagInfo = this.parseTagInfo(cTag)
+		aTagInfo = This.ParseTagInfo(cTag)
 		cTagName = aTagInfo[1]
 		aAttributes = aTagInfo[2]
 		
 		# Create element
-		oElement = new stzHashList([
+		oElement = [
 			:type = "element",
 			:name = cTagName,
 			:attributes = aAttributes,
@@ -145,10 +145,10 @@ class stzHtml from stzString
 			:end_pos = nEnd,
 			:text_content = "",
 			:inner_html = ""
-		])
+		]
 		
 		# Find closing tag
-		nClosingStart = this.findClosingTag(cHtml, cTagName, nEnd + 1)
+		nClosingStart = This.FindClosingTag(cHtml, cTagName, nEnd + 1)
 		if nClosingStart > 0
 			nClosingEnd = oHtml.FindFirstST(">", nClosingStart)
 			cInnerHtml = oHtml.Section(nEnd + 1, nClosingStart - 1)
@@ -157,7 +157,7 @@ class stzHtml from stzString
 			oElement[:end_pos] = nClosingEnd
 			
 			# Parse children
-			this.parseElements(cInnerHtml, oElement[:children])
+			This.ParseElements(cInnerHtml, oElement[:children])
 			
 			# Set parent references
 			for oChild in oElement[:children]
@@ -170,11 +170,11 @@ class stzHtml from stzString
 		return oElement
 
 	def parseSelfClosingTag(cTag, nStart, nEnd)
-		aTagInfo = this.parseTagInfo(cTag)
+		aTagInfo = This.ParseTagInfo(cTag)
 		cTagName = aTagInfo[1]
 		aAttributes = aTagInfo[2]
 		
-		return new stzHashList([
+		return [
 			:type = "element",
 			:name = cTagName,
 			:attributes = aAttributes,
@@ -185,43 +185,51 @@ class stzHtml from stzString
 			:self_closing = true,
 			:text_content = "",
 			:inner_html = ""
-		])
+		]
 
 	def parseComment(cTag, nStart, nEnd)
-		cContent = this.substring(cTag, 5, len(cTag) - 3) # Remove <!-- and -->
+		cContent = This.substring(cTag, 5, len(cTag) - 3) # Remove <!-- and -->
 		
-		return new stzHashList([
+		return [
 			:type = "comment",
 			:content = cContent,
 			:start_pos = nStart,
 			:end_pos = nEnd
-		])
+		]
 
 	def parseTagInfo(cTag)
 		# Remove < and > or />
-		cTag = this.removeFromStart(cTag, "<")
-		if this.endsWith(cTag, "/>")
-			cTag = this.removeFromEnd(cTag, "/>")
+		oTag = new stzString(cTag)
+		cTag = oTag.RemoveThisFirstChar("<")
+		cTage = oTag.Content()
+
+		if right(cTag, 2) = "/>"
+			oTag.RemoveFromEnd("/>")
 		else
-			cTag = this.removeFromEnd(cTag, ">")
+			oTag.removeFromEnd(">")
 		ok
-		
+		cTage = oTag.Content()
+
 		# Split by spaces to get tag name and attributes
-		aParts = this.split(cTag, " ")
+		aParts = @split(cTag, " ")
 		cTagName = lower(aParts[1])
 		aAttributes = []
-		
+		nLenParts = len(aParts)
+
 		# Parse attributes
-		for i = 2 to len(aParts)
+		for i = 2 to nLenParts
 			cAttr = aParts[i]
-			if this.contains(cAttr, "=")
-				nEqPos = this.find(cAttr, "=")
-				cAttrName = lower(this.substring(cAttr, 1, nEqPos - 1))
-				cAttrValue = this.substring(cAttr, nEqPos + 1, len(cAttr))
+			nPos = ring_substr1(cAttr, "=")
+			if  nPos > 0
+				nEqPos = nPos
+				cAttrName = lower(@substr(cAttr, 1, nEqPos - 1))
+				cAttrValue = @substr(cAttr, nEqPos + 1, len(cAttr))
 				
 				# Remove quotes
-				if this.startsWith(cAttrValue, '"') and this.endsWith(cAttrValue, '"')
-					cAttrValue = this.substring(cAttrValue, 2, len(cAttrValue) - 1)
+				if cAttrValue[1] = '"' and
+					ring_reverse(cAttrValue[1]) = '"'
+
+					cAttrValue = @substr(cAttrValue, 2, len(cAttrValue) - 1)
 				ok
 				
 				aAttributes + [cAttrName, cAttrValue]
@@ -233,21 +241,21 @@ class stzHtml from stzString
 		return [cTagName, aAttributes]
 
 	def createTextNode(cText)
-		return new stzHashList([
+		return [
 			:type = "text",
 			:content = cText,
 			:parent = null
-		])
+		]
 
 	# Query methods
 	def find(cSelector)
-		return this.querySelector(cSelector)
+		return This.querySelector(cSelector)
 
 	def findAll(cSelector)
-		return this.querySelectorAll(cSelector)
+		return This.querySelectorAll(cSelector)
 
 	def querySelector(cSelector)
-		aResults = this.querySelectorAll(cSelector)
+		aResults = This.querySelectorAll(cSelector)
 		if len(aResults) > 0
 			return aResults[1]
 		ok
@@ -257,36 +265,44 @@ class stzHtml from stzString
 		aResults = []
 		
 		# Simple selector parsing (can be extended)
-		if this.startsWith(cSelector, "#")
+		if cSelector[1] = "#"
 			# ID selector
-			cId = this.substring(cSelector, 2, len(cSelector))
-			this.findById(cId, @aElements, aResults)
+			cId = @substr(cSelector, 2, len(cSelector))
+			This.FindById(cId, @aElements, aResults)
 		
-		elseif this.startsWith(cSelector, ".")
+		but cSelector[1] = "."
 			# Class selector
-			cClass = this.substring(cSelector, 2, len(cSelector))
-			this.findByClass(cClass, @aElements, aResults)
+			cClass = @substr(cSelector, 2, len(cSelector))
+			This.FindByClass(cClass, @aElements, aResults)
 		
 		else
 			# Tag selector
-			this.findByTag(cSelector, @aElements, aResults)
+			This.FindByTag(cSelector, @aElements, aResults)
 		ok
 		
 		return aResults
 
 	def findById(cId, aElements, aResults)
-		for oElement in aElements
-			if oElement[:type] = "element"
-				aAttributes = oElement[:attributes]
-				for i = 1 to len(aAttributes) step 2
+		nLenElm = len(aElements)
+
+		for i = 1 to nLenElm
+			
+			if aElements[i][:type] = "element"
+
+				aAttributes = aElements[i][:attributes]
+				nLenAtt = len(aAttributes)
+
+				for i = 1 to nLenAtt step 2
+
 					if aAttributes[i] = "id" and aAttributes[i + 1] = cId
-						aResults + oElement
+						aResults + aElements[i]
 						return
 					ok
+
 				next
 				
 				# Search children
-				this.findById(cId, oElement[:children], aResults)
+				This.FindById(cId, aElements[i][:children], aResults)
 			ok
 		next
 
@@ -296,7 +312,7 @@ class stzHtml from stzString
 				aAttributes = oElement[:attributes]
 				for i = 1 to len(aAttributes) step 2
 					if aAttributes[i] = "class"
-						aClasses = this.split(aAttributes[i + 1], " ")
+						aClasses = This.split(aAttributes[i + 1], " ")
 						for cElementClass in aClasses
 							if cElementClass = cClass
 								aResults + oElement
@@ -307,7 +323,7 @@ class stzHtml from stzString
 				next
 				
 				# Search children
-				this.findByClass(cClass, oElement[:children], aResults)
+				This.FindByClass(cClass, oElement[:children], aResults)
 			ok
 		next
 
@@ -318,7 +334,7 @@ class stzHtml from stzString
 			ok
 			
 			if oElement[:type] = "element"
-				this.findByTag(cTag, oElement[:children], aResults)
+				This.FindByTag(cTag, oElement[:children], aResults)
 			ok
 		next
 
@@ -336,7 +352,7 @@ class stzHtml from stzString
 			cInnerHtml = ""
 		ok
 		
-		oElement = new stzHashList([
+		oElement = [
 			:type = "element",
 			:name = lower(cTagName),
 			:attributes = aAttributes,
@@ -346,10 +362,10 @@ class stzHtml from stzString
 			:end_pos = 0,
 			:text_content = "",
 			:inner_html = cInnerHtml
-		])
+		]
 		
 		if not isEmpty(cInnerHtml)
-			this.parseElements(cInnerHtml, oElement[:children])
+			This.ParseElements(cInnerHtml, oElement[:children])
 		ok
 		
 		return oElement
@@ -365,12 +381,14 @@ class stzHtml from stzString
 		return this
 
 	def removeChild(oParent, oChild)
-		if not isObject(oParent) or not isObject(oChild)
+		if not(  isObject(oParent) and isObject(oChild))
 			raise("Both parent and child must be elements")
 		ok
 		
 		aChildren = oParent[:children]
-		for i = 1 to len(aChildren)
+		nLen = len(aChildren)
+
+		for i = 1 to nLen
 			if aChildren[i] = oChild
 				del(aChildren, i)
 				oChild[:parent] = null
@@ -386,17 +404,18 @@ class stzHtml from stzString
 		ok
 		
 		aAttributes = oElement[:attributes]
-		lFound = false
-		
-		for i = 1 to len(aAttributes) step 2
+		bFound = false
+		nLen = len(aAttributes)
+
+		for i = 1 to nLen step 2
 			if aAttributes[i] = lower(cName)
 				aAttributes[i + 1] = cValue
-				lFound = true
+				bFound = true
 				exit
 			ok
 		next
 		
-		if not lFound
+		if not bFound
 			aAttributes + [lower(cName), cValue]
 		ok
 		
@@ -408,7 +427,9 @@ class stzHtml from stzString
 		ok
 		
 		aAttributes = oElement[:attributes]
-		for i = 1 to len(aAttributes) step 2
+		nLen = len(aAttributes)
+
+		for i = 1 to nLen step 2
 			if aAttributes[i] = lower(cName)
 				return aAttributes[i + 1]
 			ok
@@ -422,7 +443,9 @@ class stzHtml from stzString
 		ok
 		
 		aAttributes = oElement[:attributes]
-		for i = 1 to len(aAttributes) step 2
+		nLen = len(aAttributes)
+
+		for i = 1 to nLen step 2
 			if aAttributes[i] = lower(cName)
 				del(aAttributes, i)
 				del(aAttributes, i)
@@ -433,55 +456,60 @@ class stzHtml from stzString
 		return this
 
 	def addClass(oElement, cClass)
-		cCurrentClass = this.getAttribute(oElement, "class")
+		cCurrentClass = This.GetAttribute(oElement, "class")
 		if cCurrentClass = null
 			cCurrentClass = ""
 		ok
 		
-		aClasses = this.split(cCurrentClass, " ")
-		
+		aClasses = @split(cCurrentClass, " ")
+		nLen = len(aClasses)
+
 		# Check if class already exists
-		for cExistingClass in aClasses
-			if cExistingClass = cClass
+
+		for i = 1 to nLen
+			if aClasses[i] = cClass
 				return this
 			ok
 		next
 		
 		aClasses + cClass
-		cNewClass = this.join(aClasses, " ")
-		this.setAttribute(oElement, "class", cNewClass)
+		cNewClass = @joinXT(aClasses, " ")
+		This.setAttribute(oElement, "class", cNewClass)
 		
 		return this
 
 	def removeClass(oElement, cClass)
-		cCurrentClass = this.getAttribute(oElement, "class")
+		cCurrentClass = This.GetAttribute(oElement, "class")
 		if cCurrentClass = null
 			return this
 		ok
 		
-		aClasses = this.split(cCurrentClass, " ")
+		aClasses = @split(cCurrentClass, " ")
 		aNewClasses = []
-		
-		for cExistingClass in aClasses
-			if cExistingClass != cClass
-				aNewClasses + cExistingClass
+		nLen = len(aClasses)
+
+		for i = 1 to nLen
+			if aClasses[i] != cClass
+				aNewClasses + aClasses[i]
 			ok
 		next
 		
-		cNewClass = this.join(aNewClasses, " ")
-		this.setAttribute(oElement, "class", cNewClass)
+		cNewClass = @joinXT(aNewClasses, " ")
+		This.setAttribute(oElement, "class", cNewClass)
 		
 		return this
 
 	def hasClass(oElement, cClass)
-		cCurrentClass = this.getAttribute(oElement, "class")
+		cCurrentClass = This.GetAttribute(oElement, "class")
 		if cCurrentClass = null
 			return false
 		ok
 		
-		aClasses = this.split(cCurrentClass, " ")
-		for cExistingClass in aClasses
-			if cExistingClass = cClass
+		aClasses = @split(cCurrentClass, " ")
+		nLen = len(aClasses)
+
+		for i = 1 to nLen
+			if aClasses[i] = cClass
 				return true
 			ok
 		next
@@ -490,7 +518,7 @@ class stzHtml from stzString
 
 	# Generation methods
 	def toString()
-		return this.generateHtml()
+		return This.generateHtml()
 
 	def generateHtml()
 		cHtml = ""
@@ -501,15 +529,17 @@ class stzHtml from stzString
 		ok
 		
 		# Generate elements
-		for oElement in @aElements
-			cHtml += this.generateElement(oElement, 0)
+		nLen = len(@aElements)
+
+		for i = 1 to nLen
+			cHtml += This.generateElement(@aElements[i], 0)
 		next
 		
 		return cHtml
 
 	def generateElement(oElement, nIndent)
 		cHtml = ""
-		cIndent = this.getIndent(nIndent)
+		cIndent = This.GetIndent(nIndent)
 		
 		switch oElement[:type]
 		on "element"
@@ -517,12 +547,13 @@ class stzHtml from stzString
 			
 			# Add attributes
 			aAttributes = oElement[:attributes]
-			for i = 1 to len(aAttributes) step 2
+			nLen = len(aAttributes)
+			for i = 1 to nLen step 2
 				cHtml += ' ' + aAttributes[i] + '="' + aAttributes[i + 1] + '"'
 			next
 			
 			# Check if self-closing
-			if oElement.contains(:self_closing) and oElement[:self_closing]
+			if NOT IsNull(oElement[:self_closing])
 				cHtml += " />"
 			else
 				cHtml += ">"
@@ -530,8 +561,10 @@ class stzHtml from stzString
 				# Add children
 				if len(oElement[:children]) > 0
 					cHtml += nl
-					for oChild in oElement[:children]
-						cHtml += this.generateElement(oChild, nIndent + 1)
+					nLenElm = len(oElement[:children])
+
+					for j = 1 to nLenElm
+						cHtml += This.generateElement(oElement[:children][j], nIndent + 1)
 					next
 					cHtml += cIndent
 				ok
@@ -542,13 +575,13 @@ class stzHtml from stzString
 			cHtml += nl
 		
 		on "text"
-			cContent = trim(oElement[:content])
+			cContent = @trim(oElement[:content])
 			if not isEmpty(cContent)
-				cHtml += cIndent + cContent + nl
+				cHtml += (cIndent + cContent + nl)
 			ok
 		
 		on "comment"
-			cHtml += cIndent + "<!-- " + oElement[:content] + " -->" + nl
+			cHtml += (cIndent + "<!-- " + oElement[:content] + " -->" + nl)
 		
 		off
 		
@@ -560,7 +593,9 @@ class stzHtml from stzString
 		ok
 		
 		cIndent = ""
-		for i = 1 to nLevel * @oConfig[:indent_size]
+		nLen = nLevel * @oConfig[:indent_size]
+
+		for i = 1 to nLen
 			cIndent += " "
 		next
 		
@@ -578,10 +613,13 @@ class stzHtml from stzString
 	def findClosingTag(cHtml, cTagName, nStart)
 		nPos = nStart
 		nOpenCount = 1
-		
-		while nPos <= len(cHtml)
-			nOpenPos = this.findSubstring(cHtml, "<" + cTagName, nPos)
-			nClosePos = this.findSubstring(cHtml, "</" + cTagName, nPos)
+		oHtml = new stzString(cHtml)
+		nLen = oHtml.NumberOfChars()
+		nLenTag = stzlen(cTagName)
+
+		while nPos <= nLen
+			nOpenPos  = oHtml.FindFirstST( ("<" + cTagName), nPos)
+			nClosePos = oHtml.FindFirstST( ("</" + cTagName), nPos)
 			
 			if nClosePos = 0
 				return 0
@@ -590,14 +628,14 @@ class stzHtml from stzString
 			if nOpenPos > 0 and nOpenPos < nClosePos
 				# Found another opening tag
 				nOpenCount++
-				nPos = nOpenPos + len(cTagName) + 1
+				nPos = nOpenPos + nLenTag + 1
 			else
 				# Found closing tag
 				nOpenCount--
 				if nOpenCount = 0
 					return nClosePos
 				ok
-				nPos = nClosePos + len(cTagName) + 3
+				nPos = nClosePos + nLenTag + 3
 			ok
 		end
 		
@@ -616,16 +654,18 @@ class stzHtml from stzString
 		@aParseErrors = []
 		
 		if @oConfig[:validate]
-			this.validateElements(@aElements)
+			This.validateElements(@aElements)
 		ok
 		
 		return len(@aParseErrors) = 0
 
 	def validateElements(aElements)
-		for oElement in aElements
-			if oElement[:type] = "element"
-				this.validateElement(oElement)
-				this.validateElements(oElement[:children])
+		nLen = len(aElements)
+
+		for i = 1 to nLen
+			if aElements[i][:type] = "element"
+				This.validateElement(aElements[i])
+				This.validateElements(aElements[i][:children])
 			ok
 		next
 
@@ -635,11 +675,11 @@ class stzHtml from stzString
 		# Check for required attributes
 		switch cTagName
 		on "img"
-			if this.getAttribute(oElement, "alt") = null
+			if This.GetAttribute(oElement, "alt") = null
 				@aParseErrors + "img element missing alt attribute"
 			ok
 		on "a"
-			if this.getAttribute(oElement, "href") = null
+			if This.GetAttribute(oElement, "href") = null
 				@aParseErrors + "a element missing href attribute"
 			ok
 		off
@@ -652,28 +692,32 @@ class stzHtml from stzString
 		return @lParsed
 
 	def getElementCount()
-		return this.countElements(@aElements)
+		return This.countElements(@aElements)
 
 	def countElements(aElements)
 		nCount = 0
-		for oElement in aElements
-			if oElement[:type] = "element"
+		nLen = len(aElements)
+
+		for i = 1 to nLen
+			if aElements[i][:type] = "element"
 				nCount++
-				nCount += this.countElements(oElement[:children])
+				nCount += This.countElements(aElements[i][:children])
 			ok
 		next
 		return nCount
 
 	def getTextContent()
-		return this.extractTextContent(@aElements)
+		return This.extractTextContent(@aElements)
 
 	def extractTextContent(aElements)
 		cText = ""
-		for oElement in aElements
-			if oElement[:type] = "text"
-				cText += oElement[:content]
-			elseif oElement[:type] = "element"
-				cText += this.extractTextContent(oElement[:children])
+		nLen = len(aElements)
+
+		for i = 1 to nLen
+			if aElements[i][:type] = "text"
+				cText += aElements[i][:content]
+			elseif aElements[i][:type] = "element"
+				cText += This.extractTextContent(aElements[i][:children])
 			ok
 		next
 		return cText
@@ -681,17 +725,17 @@ class stzHtml from stzString
 	# Pretty printing
 	def pretty()
 		@oConfig[:pretty_print] = true
-		return this.generateHtml()
+		return This.generateHtml()
 
 	def minify()
 		@oConfig[:pretty_print] = false
-		return this.generateHtml()
+		return This.generateHtml()
 
 	# Debugging methods
 	def debug()
 		? "=== stzHtml Debug Information ==="
 		? "Parsed: " + @lParsed
-		? "Element count: " + this.getElementCount()
+		? "Element count: " + This.GetElementCount()
 		? "Parse errors: " + len(@aParseErrors)
 		if len(@aParseErrors) > 0
 			for cError in @aParseErrors

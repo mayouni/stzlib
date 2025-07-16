@@ -454,8 +454,14 @@ pf()
 pr()
 
 o1 = new stzUrl("ht tp://invalid space.com")
-? o1.IsValid()    #--> FALSE
-? o1.Error()      #--> Detailed error message about the invalid format
+? o1.IsValid()
+#--> FALSE
+
+? o1.Error()
+#--> Relative URLs path component contains ':' before any '/';
+# source was "ht tp://invalid space.com";
+# path = "ht tp://invalid space.com"
+
 
 pf()
 
