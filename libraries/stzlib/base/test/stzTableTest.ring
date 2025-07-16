@@ -215,8 +215,52 @@ o1 = new stzString("   RING  ")
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
+/*=== JSON
+
+pr()
+
+aData = [
+	[
+		"product",
+		[ "Apple", "Orange", "Banana" ]
+	],
+	[
+		"price",
+		[ "$1.50", "$1.20", "$0.80" ]
+	],
+	[
+		"stock",
+		[ "100", "150", "200" ]
+	]
+]
+
+o1 = new stzTable(aData)
+? o1.ToJsonXT()
+'
+{
+	"product": [
+		"Apple",
+		"Orange",
+		"Banana"
+	],
+	"price": [
+		"$1.50",
+		"$1.20",
+		"$0.80"
+	],
+	"stock": [
+		"100",
+		"150",
+		"200"
+	]
+}
+'
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
+
 /*---
-*/
+
 pr()
 
 cJson = '{
@@ -239,15 +283,27 @@ cJson = '{
 
 
 ? IsJson(cJson)
-/*
+#--> TRUE
+
+
 o1 = new stzTable([])
 o1.FromJson(cJson)
 o1.Show()
-*/
+'
+╭─────────┬───────┬───────╮
+│ Product │ Price │ Stock │
+├─────────┼───────┼───────┤
+│ Apple   │ $1.50 │   100 │
+│ Orange  │ $1.20 │   150 │
+│ Banana  │ $0.80 │   200 │
+╰─────────┴───────┴───────╯
+'
+
 pf()
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 cHtmlStr = '
@@ -308,9 +364,121 @@ o1.Show()
 '
 
 ? o1.ToJsonXT()
+'
+{
+	"product": [
+		"Apple",
+		"Orange",
+		"Banana"
+	],
+	"price": [
+		"$1.50",
+		"$1.20",
+		"$0.80"
+	],
+	"stock": [
+		"100",
+		"150",
+		"200"
+	]
+}
+'
 
 pf()
 # Executed in 0.10 second(s) in Ring 1.22
+
+/*---
+*/
+pr()
+
+cHtmlStr = '
+<table class="data" id="products">
+  <thead>
+    <tr>
+      <th>product</th>
+      <th>price</th>
+      <th>stock</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Apple</td>
+      <td>$1.50</td>
+      <td>100</td>
+    </tr>
+    <tr>
+      <td>Orange</td>
+      <td>$1.20</td>
+      <td>150</td>
+    </tr>
+    <tr>
+      <td>Banana</td>
+      <td>$0.80</td>
+      <td>200</td>
+    </tr>
+  </tbody>
+</table>
+'
+
+o1 = new stzTable([])
+o1.FromHtml(cHtmlStr)
+o1.Show()
+
+pf()
+
+/*---
+
+pr()
+
+aData = [
+	[
+		"product",
+		[ "Apple", "Orange", "Banana" ]
+	],
+	[
+		"price",
+		[ "$1.50", "$1.20", "$0.80" ]
+	],
+	[
+		"stock",
+		[ "100", "150", "200" ]
+	]
+]
+
+o1 = new stzTable(aData)
+? o1.ToHtmlXT() # Without XT you get a compact versio of the html string
+#-->
+'
+<table border="1" cellpadding="5" cellspacing="0">
+  <thead>
+    <tr>
+      <th>product</th>
+      <th>price</th>
+      <th>stock</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Apple</td>
+      <td>$1.50</td>
+      <td>100</td>
+    </tr>
+    <tr>
+      <td>Orange</td>
+      <td>$1.20</td>
+      <td>150</td>
+    </tr>
+    <tr>
+      <td>Banana</td>
+      <td>$0.80</td>
+      <td>200</td>
+    </tr>
+  </tbody>
+</table>
+'
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*==== TESTING CSV TABLES IN STZSTRING
 

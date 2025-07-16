@@ -75,13 +75,18 @@ pf()
 
 pr()
 
-? IsHashList([["name", "John"], ["age", 30]])
+aList = [["name", "John"], ["age", 30]]
+
+? IsHashList(aList)
 #--> TRUE
 
-? ListToJson([["name", "John"], ["age", 30]]) + NL
+? IsJsonList(aList) # Or simply IsJson()
+#--> TRUE
+
+? ListToJson(aList) + NL
 #--> {"name":"John","age":30}
 
-? ListToJsonXT([["name", "John"], ["age", 30]]) + Nl
+? ListToJsonXT(aList) + Nl
 #-->
 '
 {
@@ -110,6 +115,26 @@ pf()
 
 pr()
 
+cJsonStr = '
+{
+	"name": "John",
+	"age": 30,
+	"hobbies": [
+		"sport",
+		"cinema"
+	]
+}
+'
+
+? IsJsonString(cJsonStr) # Or simply IsJson()
+#--> TRUE
+
+pf()
+
+/*---
+
+pr()
+
 ? @@NL( JsonToList('{"name": "John", "age": 30 }') )
 #-->
 '
@@ -127,8 +152,8 @@ pf()
 pr()
 
 #NOTE: JSON specification does not impose ordering preservation
-# of JSON members, and so does Qt, on wich stzJson is based.
-# This ensure parsing of large JSON files is done efficiently.
+# of JSON members, and so does Qt, on witch stzJson is based.
+# This ensures parsing of large JSON files is done efficiently.
 
 # From JSON string
 oJson = new stzJson('{"name": "John", "age": 30 }')
@@ -180,13 +205,13 @@ oJson = new stzJson('{"name": "John", "age": 30 }')
 '
 
 pf()
-# Executed in 0.04 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.22
 
 #========================#
 #  STZJSON TEST SAMPLES  #
 #========================#
 
-load "stzJson.ring"
+
 
 /*--- Basic Initialization from JSON String
 

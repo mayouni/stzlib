@@ -52,6 +52,22 @@ https://betterprogramming.pub/pandas-illustrated-the-definitive-visual-guide-to-
 func StzTableQ(paTable)
 	return new stzTable( paTable )
 
+func IsTable(paTable)
+	if NOT isList(paTable)
+		return FALSE
+	ok
+
+	try
+		new stzTable(paTable)
+		return TRUE
+	catch
+		return FALSE
+	done
+
+	func @IsTable(paTable)
+		return IsTable(paTable)
+
+
 Class stzTable from stzList
 	@aContent = []
 
@@ -16116,6 +16132,68 @@ Class stzTable from stzList
 	#---
 
 	def ToHtml()
+		return @Simplify(This.ToHtmlXT())
+
+		def ToHtmlTable()
+			return This.ToHtml()
+
+
+	def ToHtmlXT()
+
+	    data = This.Content()
+		if len(data) = 0
+			return '<table class="data"><thead><tr></tr></thead><tbody></tbody></table>'
+		ok
+		
+		# Ensure all columns have exactly the same number of values
+		# This is critical for the buggy parser
+		nRows = 0
+		for i = 1 to len(data)
+			if len(data[i][2]) > nRows
+				nRows = len(data[i][2])
+			ok
+		next
+		
+		# Pad shorter columns with empty strings to match longest column
+		for i = 1 to len(data)
+			while len(data[i][2]) < nRows
+				data[i][2] + ""
+			end
+		next
+		
+		cHtml = '<table class="data" id="products">' + nl
+		cHtml += '<thead>' + nl
+		cHtml += '<tr>' + nl
+		
+		# Generate header row - ensure format matches parser expectations
+		for i = 1 to len(data)
+			cHtml += '<th scope="col">' + data[i][1] + '</th>' + nl
+		next
+		
+		cHtml += '</tr>' + nl
+		cHtml += '</thead>' + nl
+		cHtml += '<tbody>' + nl
+		
+		# Generate body rows - use exact format the parser expects
+		for nRowIndex = 1 to nRows
+			cHtml += '<tr class="row">' + nl
+			
+			# For each column, get the value at this row index
+			for nColIndex = 1 to len(data)
+				cValue = data[nColIndex][2][nRowIndex]
+				cHtml += '<td>' + cValue + '</td>' + nl
+			next
+			
+			cHtml += '</tr>' + nl
+		next
+		
+		cHtml += '</tbody>' + nl
+		cHtml += '</table>' + nl
+		
+	return cHtml
+	
+		def ToHtmlTableXT()
+			return This.ToHtmlXT()
 
 	def FromHtml(pcHtml)
 		oTempStr = new stzString(pcHtml)

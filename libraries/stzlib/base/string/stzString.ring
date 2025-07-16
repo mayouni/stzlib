@@ -101792,11 +101792,12 @@ class stzString from stzObject
 		acBlocks = oTable.SplitAt("</tr>")
 
 		aoBlocks = []
-		for i = 1 to nLen
+		nLenBlocks = len(acBlocks)
+		for i = 1 to nLenBlocks
 			aoBlocks + new stzString(acBlocks[i])
 		next
 
-		for i = 1 to nLen
+		for i = 1 to nLenBlocks
 
 			acItems = aoBlocks[i].SubStringsBoundedBy([ "<td>", "</td>" ])
 			nLenItems = len(acItems)

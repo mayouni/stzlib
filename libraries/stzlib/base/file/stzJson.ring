@@ -32,7 +32,7 @@ def init(p)
         
     but isList(p)
         #NOTE #TODO
-		# Norammly we should use Qt's built-in conversion like this:
+		# Normally we should use Qt's built-in conversion like this:
 
          # 	@oQJsonDoc = @oQJsonDoc.fromVariant(obj2ptr(p))
 	    #   if @oQJsonDoc.isNull()
@@ -42,7 +42,7 @@ def init(p)
     
 		# But this does not return anything!
 
-		# As an alternative solution, I'll tranform the p list into
+		# As an alternative solution, I'll transform the p list into
 		# a json string using ListToJson() from stzJsonFuncs file,
 		# and reuse the "if isString(p)" section of this code.
 
@@ -118,8 +118,9 @@ def init(p)
 		ok
 		
 		# Use direct Qt method instead of rebuilding
-		oJsonValue = _ToVariant(value)
-		_DirectSetValue(cKey, oJsonValue)
+		oJsonValue = _ToJsonValue(value)
+		@oQJsonObj.insert(cKey, oJsonValue)
+		_UpdateDocument()
 		return This
 	
 	def RemoveKey(cKey)

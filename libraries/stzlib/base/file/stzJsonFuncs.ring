@@ -27,13 +27,8 @@ func IsJsonString(cStr)
         return FALSE
     ok
     
-    # Try to parse and catch any errors
-    try
-        JsonToList(cStr)
-        return TRUE
-    catch
-        return FALSE
-    done
+    # Use a simpler validation approach
+    return _IsValidJsonStructure(cStr)
 
 	func @IsJsonString(cStr)
 		return  IsJsonString(cStr)
@@ -138,6 +133,167 @@ func JsonToList(cJson)
 		return JsonToList(cJson)
 
 #--- helper functions
+
+# Better JSON structure validation
+func _IsValidJsonStructure(cJson)
+    cJson = _TrimJson(cJson)
+    nLen = len(cJson)
+    
+    if nLen = 0
+        return FALSE
+    ok
+    
+    cFirst = left(cJson, 1)
+    cLast = right(cJson, 1)
+    
+    # Check basic structure
+    if cFirst = "{" and cLast = "}"
+        return _ValidateJsonObject(cJson)
+    but cFirst = "[" and cLast = "]"
+        return _ValidateJsonArray(cJson)
+    but cFirst = char(34) and cLast = char(34)
+        return _ValidateJsonString(cJson)
+    but cJson = "null" or cJson = "true" or cJson = "false"
+        return TRUE
+    but _IsValidJsonNumber(cJson)
+        return TRUE
+    else
+        return FALSE
+    ok
+
+func _ValidateJsonObject(cJson)
+    nLen = len(cJson)
+    if nLen < 2
+        return FALSE
+    ok
+    
+    # Basic bracket matching
+    nBraces = 0
+    bInString = FALSE
+    bEscaped = FALSE
+    
+    for i = 1 to nLen
+        cChar = cJson[i]
+        
+        if bEscaped
+            bEscaped = FALSE
+            loop
+        ok
+        
+        if cChar = "\"
+            bEscaped = TRUE
+            loop
+        ok
+        
+        if cChar = char(34)  # Quote
+            bInString = not bInString
+            loop
+        ok
+        
+        if not bInString
+            if cChar = "{"
+                nBraces++
+            but cChar = "}"
+                nBraces--
+                if nBraces < 0
+                    return FALSE
+                ok
+            ok
+        ok
+    next
+    
+    return nBraces = 0
+
+func _ValidateJsonArray(cJson)
+    nLen = len(cJson)
+    if nLen < 2
+        return FALSE
+    ok
+    
+    # Basic bracket matching
+    nBrackets = 0
+    bInString = FALSE
+    bEscaped = FALSE
+    
+    for i = 1 to nLen
+        cChar = cJson[i]
+        
+        if bEscaped
+            bEscaped = FALSE
+            loop
+        ok
+        
+        if cChar = "\"
+            bEscaped = TRUE
+            loop
+        ok
+        
+        if cChar = char(34)  # Quote
+            bInString = not bInString
+            loop
+        ok
+        
+        if not bInString
+            if cChar = "["
+                nBrackets++
+            but cChar = "]"
+                nBrackets--
+                if nBrackets < 0
+                    return FALSE
+                ok
+            ok
+        ok
+    next
+    
+    return nBrackets = 0
+
+func _ValidateJsonString(cJson)
+    nLen = len(cJson)
+    if nLen < 2
+        return FALSE
+    ok
+    
+    # Check if properly quoted
+    if left(cJson, 1) != char(34) or right(cJson, 1) != char(34)
+        return FALSE
+    ok
+    
+    # Check for proper escaping
+    bEscaped = FALSE
+    for i = 2 to nLen - 1
+        cChar = cJson[i]
+        
+        if bEscaped
+            bEscaped = FALSE
+            loop
+        ok
+        
+        if cChar = "\"
+            bEscaped = TRUE
+        ok
+    next
+    
+    return TRUE
+
+func _IsValidJsonNumber(cJson)
+    if not isString(cJson)
+        return FALSE
+    ok
+    
+    cJson = _TrimJson(cJson)
+    
+    # Check for valid number format
+    if cJson = ""
+        return FALSE
+    ok
+    
+    # Simple number validation
+    try
+        nValue = 0 + cJson
+        return TRUE
+    catch
+        return FALSE
+    done
 
 func _IsValidDeepHashList(aList)
     nLen = len(aList)
@@ -354,8 +510,6 @@ func _ListToJsonArrayXT(aList, nIndent)
     cResult += char(10) + _GetIndent(nIndent) + "]"
     return cResult
 
-
-
 func _GetIndent(nLevel)
     cResult = ""
     for i = 1 to nLevel
@@ -393,17 +547,24 @@ func _EscapeJsonString(cStr)
     return cResult
 
 func _TrimJson(cJson)
-    cResult = ""
-    nLen = len(cJson)
+    nStart = 1
+    nEnd = len(cJson)
     
-    for i = 1 to nLen
-        cChar = cJson[i]
-        if not (cChar = " " or cChar = char(9) or cChar = char(10) or cChar = char(13))
-            cResult += cChar
-        ok
-    next
+    # Trim leading whitespace
+    while nStart <= nEnd and _IsWhitespace(cJson[nStart])
+        nStart++
+    end
     
-    return cResult
+    # Trim trailing whitespace
+    while nEnd >= nStart and _IsWhitespace(cJson[nEnd])
+        nEnd--
+    end
+    
+    if nStart > nEnd
+        return ""
+    ok
+    
+    return substr(cJson, nStart, nEnd - nStart + 1)
 
 func _JsonHashToList(cJson)
     aResult = []
@@ -512,10 +673,29 @@ func _ParseJsonValueAt(cJson, nStartPos)
         cValue = ""
         
         while nPos <= nLen and cJson[nPos] != char(34)
-            if cJson[nPos] = "\"
+            if cJson[nPos] = "\" and nPos < nLen
                 nPos++
                 if nPos <= nLen
-                    cValue += cJson[nPos]
+                    # Handle escape sequences
+                    cEscChar = cJson[nPos]
+                    switch cEscChar
+                        on "n"
+                            cValue += char(10)
+                        on "r"
+                            cValue += char(13)
+                        on "t"
+                            cValue += char(9)
+                        on "b"
+                            cValue += char(8)
+                        on "f"
+                            cValue += char(12)
+                        on "\"
+                            cValue += "\"
+                        on char(34)
+                            cValue += char(34)
+                        other
+                            cValue += cEscChar
+                    off
                 ok
             else
                 cValue += cJson[nPos]
@@ -530,34 +710,82 @@ func _ParseJsonValueAt(cJson, nStartPos)
         nBraces = 1
         nStartHash = nPos
         nPos++
+        bInString = FALSE
+        bEscaped = FALSE
         
         while nPos <= nLen and nBraces > 0
-            if cJson[nPos] = "{"
-                nBraces++
-            but cJson[nPos] = "}"
-                nBraces--
+            cCurrentChar = cJson[nPos]
+            
+            if bEscaped
+                bEscaped = FALSE
+                nPos++
+                loop
+            ok
+            
+            if cCurrentChar = "\"
+                bEscaped = TRUE
+                nPos++
+                loop
+            ok
+            
+            if not bInString
+                if cCurrentChar = char(34)  # Quote
+                    bInString = TRUE
+                but cCurrentChar = "{"
+                    nBraces++
+                but cCurrentChar = "}"
+                    nBraces--
+                ok
+            else
+                if cCurrentChar = char(34)  # Quote
+                    bInString = FALSE
+                ok
             ok
             nPos++
         end
         
-        cHashJson = @substr(cJson, nStartHash, nPos - nStartHash)
+        cHashJson = substr(cJson, nStartHash, nPos - nStartHash)
         return [_JsonHashToList(cHashJson), nPos]
         
     but cChar = "["  # Array
         nBrackets = 1
         nStartArr = nPos
         nPos++
+        bInString = FALSE
+        bEscaped = FALSE
         
         while nPos <= nLen and nBrackets > 0
-            if cJson[nPos] = "["
-                nBrackets++
-            but cJson[nPos] = "]"
-                nBrackets--
+            cCurrentChar = cJson[nPos]
+            
+            if bEscaped
+                bEscaped = FALSE
+                nPos++
+                loop
+            ok
+            
+            if cCurrentChar = "\"
+                bEscaped = TRUE
+                nPos++
+                loop
+            ok
+            
+            if not bInString
+                if cCurrentChar = char(34)  # Quote
+                    bInString = TRUE
+                but cCurrentChar = "["
+                    nBrackets++
+                but cCurrentChar = "]"
+                    nBrackets--
+                ok
+            else
+                if cCurrentChar = char(34)  # Quote
+                    bInString = FALSE
+                ok
             ok
             nPos++
         end
         
-        cArrJson = @substr(cJson, nStartArr, nPos - nStartArr)
+        cArrJson = substr(cJson, nStartArr, nPos - nStartArr)
         return [_JsonArrayToList(cArrJson), nPos]
         
     else  # Number, boolean, or null
@@ -580,7 +808,7 @@ func _ParseJsonValue(cValue)
         return TRUE
     but cValue = "false"
         return FALSE
-    but isNumber(0 + cValue)
+    but _IsValidJsonNumber(cValue)
         return 0 + cValue
     else
         return cValue
