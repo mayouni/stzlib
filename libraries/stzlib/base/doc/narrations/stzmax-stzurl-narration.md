@@ -9,15 +9,18 @@ The `stzUrl` class is part of the **web-wings module** in the MAX layer of the *
 Creating URL objects is straightforward:
 
 ```ring
+# From URL string
+o1 = new stzUrl("https://www.google.com")
+? o1.IsValid()     #--> TRUE
+? o1.Content()     #--> https://www.google.com
+
 # Empty URL object
 o1 = new stzUrl("")
 ? o1.IsEmpty()     #--> TRUE
 ? o1.IsValid()     #--> FALSE
 
-# From URL string
-o1 = new stzUrl("https://www.google.com")
-? o1.IsValid()     #--> TRUE
-? o1.Content()     #--> https://www.google.com
+o1.SetUrl("www.site.com")
+? o1.IsValid()	   #--> TRUE
 ```
 
 The class intelligently validates URLs and provides clear feedback about their structure and validity.
@@ -59,19 +62,54 @@ The library recognizes various URL types and provides specialized validation:
 
 ```ring
 aUrls = [
-    "https://www.google.com",      # Standard HTTPS
-    "http://localhost:3000",       # Local development
-    "ftp://files.example.com",     # FTP protocol
-    "file:///C:/docs/file.txt",    # Local file
-    "../relative/path",            # Relative path
+	"https://www.google.com",
+	"http://localhost:3000",
+	"ftp://files.example.com",
+	"file:///C:/docs/file.txt",
+	"../relative/path",
+	"invalid url with spaces"
 ]
 
 for cUrl in aUrls
-    o1 = new stzUrl(cUrl)
-    ? "Valid: " + o1.IsValid()
-    ? "Relative: " + o1.IsRelative()
-    ? "Local File: " + o1.IsLocalFile()
+	o1 = new stzUrl(cUrl)
+	? "URL: " + cUrl
+	? "  Valid: " + o1.IsValid()
+	? "  Relative: " + o1.IsRelative()
+	? "  Local File: " + o1.IsLocalFile()
+	? ""
 next
+```
+Output:
+```
+URL: https://www.google.com
+  Valid: 1
+  Relative: 0
+  Local File: 0
+
+URL: http://localhost:3000
+  Valid: 1
+  Relative: 0
+  Local File: 0
+
+URL: ftp://files.example.com
+  Valid: 1
+  Relative: 0
+  Local File: 0
+
+URL: file:///C:/docs/file.txt
+  Valid: 1
+  Relative: 0
+  Local File: 1
+
+URL: ../relative/path
+  Valid: 1
+  Relative: 1
+  Local File: 0
+
+URL: invalid url with spaces
+  Valid: 1
+  Relative: 1
+  Local File: 0
 ```
 
 ### Protocol-Specific Checks
@@ -79,11 +117,13 @@ next
 Built-in methods for common protocols:
 
 ```ring
-? new stzUrl("https://secure.com").IsHttps()        #--> TRUE
-? new stzUrl("http://regular.com").IsHttp()         #--> TRUE
-? new stzUrl("ftp://files.com").IsFtp()             #--> TRUE
-? new stzUrl("file:///local.txt").IsFileScheme()    #--> TRUE
+? StzUrlQ("https://secure.com").IsHttps()        #--> TRUE
+? StzUrlQ("http://regular.com").IsHttp()         #--> TRUE
+? StzUrlQ("ftp://files.com").IsFtp()             #--> TRUE
+? StzUrlQ("file:///local.txt").IsFileScheme()    #--> TRUE
 ```
+
+> **NOTE**: The `StzUrlQ()` function creates a `stzUrl` object and return it so we can directly call any method on it.
 
 ## Building URLs Programmatically
 
@@ -214,8 +254,12 @@ The library provides comprehensive error reporting for invalid URLs:
 
 ```ring
 o1 = new stzUrl("ht tp://invalid space.com")
-? o1.IsValid()    #--> FALSE
-? o1.Error()      #--> Detailed error message about the invalid format
+
+? o1.IsValid()
+#--> FALSE
+? o1.Error()
+
+#--> Relative URL's path component contains ':' before any '/'; source was "ht tp://invalid space.com"; path = "ht tp://invalid space.com"
 ```
 
 Common error scenarios are handled gracefully, with descriptive messages that help developers identify and fix issues quickly.
@@ -239,11 +283,18 @@ for aEndpoint in aEndpoints
     ? o1.Content()
 next
 ```
+Output:
+```
+Building multiple URLs:
+  https://api1.service.com/v1/users
+  https://api2.service.com/v1/products
+  https://api3.service.com/v1/orders
+```
 
 ## Best Practices
 
 1. **Always validate URLs** before processing with `IsValid()`
-2. **Use semantic methods** like `Domain()` and `Protocol()` for clarity
+2. **Use expressive methods** like `Domain()` and `Protocol()` for clarity
 3. **Leverage the Copy() method** when creating URL variants
 4. **Handle errors gracefully** using the `Error()` method
 5. **Reuse objects** for performance in batch operations
