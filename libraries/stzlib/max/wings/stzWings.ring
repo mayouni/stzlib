@@ -47,3 +47,8 @@
 		load "natural-wings/stzPlural.ring"
 		load "natural-wings/stzSingular.ring"
 		load "natural-wings/stzText.ring"
+
+	#-- Loading files files related to WEb wings modules
+
+		load "web-wings/stzHtml.ring"
+		load "web-wings/stzUrl.ring"
