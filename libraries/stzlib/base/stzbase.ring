@@ -32,6 +32,8 @@
 # Loading files related to the OBJECT module
 
 	load "object/stzObject.ring"
+	load "object/stzObjectHistory.ring"
+
 	load "object/stzListOfObjects.ring"
 	load "object/stzListOfNamedObjects.ring"
 	load "object/stzNullObject.ring"
@@ -114,6 +116,8 @@
 	load "file/stzJson.ring"
 	load "file/stzFile.ring"
 	load "file/stzFolder.ring"
+	load "file/stzCSV.ring"
+	load "file/stzHtml.ring"
 
 # Loading files related to the ERROR module
 

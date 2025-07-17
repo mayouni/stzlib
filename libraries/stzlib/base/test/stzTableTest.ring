@@ -303,7 +303,7 @@ pf()
 # Executed in 0.06 second(s) in Ring 1.22
 
 /*---
-
+*/
 pr()
 
 cHtmlStr = '
@@ -384,47 +384,11 @@ o1.Show()
 }
 '
 
+? @@NL( o1.Content() )
+
 pf()
 # Executed in 0.10 second(s) in Ring 1.22
 
-/*---
-*/
-pr()
-
-cHtmlStr = '
-<table class="data" id="products">
-  <thead>
-    <tr>
-      <th>product</th>
-      <th>price</th>
-      <th>stock</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Apple</td>
-      <td>$1.50</td>
-      <td>100</td>
-    </tr>
-    <tr>
-      <td>Orange</td>
-      <td>$1.20</td>
-      <td>150</td>
-    </tr>
-    <tr>
-      <td>Banana</td>
-      <td>$0.80</td>
-      <td>200</td>
-    </tr>
-  </tbody>
-</table>
-'
-
-o1 = new stzTable([])
-o1.FromHtml(cHtmlStr)
-o1.Show()
-
-pf()
 
 /*---
 
@@ -449,31 +413,41 @@ o1 = new stzTable(aData)
 ? o1.ToHtmlXT() # Without XT you get a compact versio of the html string
 #-->
 '
-<table border="1" cellpadding="5" cellspacing="0">
-  <thead>
-    <tr>
-      <th>product</th>
-      <th>price</th>
-      <th>stock</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Apple</td>
-      <td>$1.50</td>
-      <td>100</td>
-    </tr>
-    <tr>
-      <td>Orange</td>
-      <td>$1.20</td>
-      <td>150</td>
-    </tr>
-    <tr>
-      <td>Banana</td>
-      <td>$0.80</td>
-      <td>200</td>
-    </tr>
-  </tbody>
+<table class="data" id="products">
+<thead>
+
+<tr>
+            <th scope="col">product</th>
+            <th scope="col">price</th>
+            <th scope="col">stock</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr class="row">
+        <td>Apple</td>
+        <td>$1.50</td>
+        <td>100</td>
+
+</tr>
+
+<tr class="row">
+        <td>Orange</td>
+        <td>$1.20</td>
+        <td>150</td>
+
+</tr>
+
+<tr class="row">
+        <td>Banana</td>
+        <td>$0.80</td>
+        <td>200</td>
+
+</tr>
+
+</tbody>
 </table>
 '
 

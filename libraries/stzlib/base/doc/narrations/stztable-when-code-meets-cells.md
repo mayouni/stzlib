@@ -138,15 +138,6 @@ This loads the table from a CSV file, automatically handling the column names an
 The `stzTable` class enables seamless JSON import and export for integration with JSON-based data sources. The `ToJson()` method converts an `stzTable` into a compact JSON string, while `FromJson()` creates a table from a valid JSON string.
 
 ```ring
-aData = [
-	[ "product", [ "Apple", "Orange", "Banana" ] ],
-	[ "price",   [ "$1.50", "$1.20", "$0.80" ] ],
-	[ "stock",   [ "100", "150", "200" ] ]
-]
-
-o1 = new stzTable(aData)
-? o1.ToJson()
-#--> {"product":["Apple","Orange","Banana"],"price":["$1.50","$1.20","$0.80"],"stock":["100","150","200"]}
 
 cJson = '{"product":["Apple","Orange","Banana"],"price":["$1.50","$1.20","$0.80"],"stock":["100","150","200"]}'
 
@@ -165,7 +156,41 @@ o1.Show()
 
 The `ToJson()` method generates a compact JSON string, preserving column names and data. For a formatted output with newlines and indentation, use `ToJsonXT()`. The `IsJson()` function, available via `stzString` (e.g., `Q(cJson).IsJson()`), validates JSON input before import. These methods facilitate working with APIs or JSON files, streamlining data integration into `stzTable` for further analysis.
 
+```
+aData = [
+	[ "product", [ "Apple", "Orange", "Banana" ] ],
+	[ "price",   [ "$1.50", "$1.20", "$0.80" ] ],
+	[ "stock",   [ "100", "150", "200" ] ]
+]
 
+o1 = new stzTable(aData)
+
+? o1.ToJson()
+#--> {"product":["Apple","Orange","Banana"],"price":["$1.50","$1.20","$0.80"],"stock":["100","150","200"]}
+
+
+
+? o1.ToJsonXT()
+'
+{
+	"product": [
+		"Apple",
+		"Orange",
+		"Banana"
+	],
+	"price": [
+		"$1.50",
+		"$1.20",
+		"$0.80"
+	],
+	"stock": [
+		"100",
+		"150",
+		"200"
+	]
+}
+'
+```
 ### Importing and exporting HTML Tables
 
 The `stzTable` class supports importing HTML tables, enabling integration of web-based data into Ring applications. Using `stzString`, you can verify HTML table markup and convert it into an `stzTable` object with the `FromHtml()` method, which extracts column headers from `<thead>` and data from `<tbody>`.
@@ -230,7 +255,65 @@ o1.Show()
 
 The `IsHtmlTable()` method validates the HTML table, and `FromHtml()` creates an `stzTable` object, ready for further manipulation and analysis, ideal for web-scraped data or HTML reports.
 
-#todo add HTML export
+In a similar fashion, `stzTable` is capable of exporting its content to HTML with ease:
+```
+aData = [
+	[
+		"product",
+		[ "Apple", "Orange", "Banana" ]
+	],
+	[
+		"price",
+		[ "$1.50", "$1.20", "$0.80" ]
+	],
+	[
+		"stock",
+		[ "100", "150", "200" ]
+	]
+]
+
+o1 = new stzTable(aData)
+? o1.ToHtmlXT() # Without XT you get a compact versio of the html string
+#-->
+'
+<table class="data" id="products">
+<thead>
+
+<tr>
+            <th scope="col">product</th>
+            <th scope="col">price</th>
+            <th scope="col">stock</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr class="row">
+        <td>Apple</td>
+        <td>$1.50</td>
+        <td>100</td>
+
+</tr>
+
+<tr class="row">
+        <td>Orange</td>
+        <td>$1.20</td>
+        <td>150</td>
+
+</tr>
+
+<tr class="row">
+        <td>Banana</td>
+        <td>$0.80</td>
+        <td>200</td>
+
+</tr>
+
+</tbody>
+</table>
+'
+```
 
 ## Navigating and Querying Data
 

@@ -8449,9 +8449,10 @@ class stzList from stzObject
 
 		@aContent = paNewList
 
-		# Tracing object history
-
-		@TraceObjectHistory(This)
+	    # Tracing the history of updates (only if not already in history update)
+	    if _bInHistoryUpdate = _FALSE_
+	        @TraceObjectHistory(This)
+	    ok
 
 		# Checking object constraints (#TODO)
 
