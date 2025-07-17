@@ -1,4 +1,4 @@
-# Beyond File Modes: The Softanza Intent-Based File API Paradigm Shift
+# Beyond File Modes: The Softanza Intent-Based Paradigm
 
 ## Abstract
 
