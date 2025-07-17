@@ -6344,7 +6344,7 @@ pf()
 # Executed in 0.15 second(s)
 
 #=================
-*/
+
 pr()
 
 o1 = new stzTable([])
@@ -6563,11 +6563,31 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*----
-
+*/
 pr()
 
+str = 'tree_id;block_id;created_at;tree_dbh;alive
+180683;348711;08/27/2015;3;Alive
+200540;315986;09/03/2015;21;Alive
+204026;218365;09/05/2015;3;Dead
+204337;217969;09/05/2015;10;Alive
+189565;223043;08/30/2015;21;Alive
+190422;106099;08/30/2015;11;Dead
+190426;106099;08/30/2015;11;Alive
+208649;103940;09/07/2015;9;Alive
+209610;407443;09/08/2015;6;Alive
+180683;348711;08/27/2015;3;Alive
+'
+
+str = read("tabdata.csv")
+
+oFile = new stzFile("tabdata.csv", :ReadOnly)
+str = oFile.Content()
+
+
 o1 = new stzTable([])
-o1.FromCSV("tabdata.csv")
+o1.FromCSV(str)
+
 o1.Show()
 
 #-->
