@@ -31,7 +31,7 @@ class stzHtml from stzObject
 		ok
 
 	# Core parsing methods
-	def parse(cHtml)
+	def Parse(cHtml)
 		@cOriginalHtml = cHtml
 		@aElements = []
 		@aTextNodes = []
@@ -44,7 +44,7 @@ class stzHtml from stzObject
 		This.ParseDocument(cHtml)
 		@lParsed = true
 
-	def parseDocument(cHtml)
+	def ParseDocument(cHtml)
 		cHtml = This.normalizeHtml(cHtml)
 		oHtml = new stzString(cHtml)
 
@@ -61,7 +61,7 @@ class stzHtml from stzObject
 		# Parse elements recursively
 		This.ParseElements(cHtml, @aElements)
 
-	def parseElements(cHtml, aContainer)
+	def ParseElements(cHtml, aContainer)
 		nPos = 1
 		nLen = len(cHtml)
 		oHtml = new stzString(chtml)
@@ -72,7 +72,7 @@ class stzHtml from stzObject
 			
 			if nTagStart = 0
 				# No more tags, add remaining text
-				cText = oHtml.Range(nPos, nLen)
+				cText = oHtml.Section(nPos, nLen)
 				if not @isNull(@trim(cText))
 					aContainer + This.createTextNode(cText)
 				ok
@@ -97,7 +97,7 @@ class stzHtml from stzObject
 			ok
 		end
 
-	def parseTag(cHtml, nStart)
+	def ParseTag(cHtml, nStart)
 		# Find tag end
 		oHtml = new stzstring(cHtml)
 		nEnd = oHtml.FindfirstST(">", nStart)
@@ -119,13 +119,13 @@ class stzHtml from stzObject
 		
 		# Handle closing tags
 		if left(cTag, 2) = "</"
-			return null # Will be handled by opening tag parser
+			return null # Will be handled by opening tag Parser
 		ok
 		
 		# Handle opening tags
 		return This.ParseOpeningTag(cHtml, nStart, nEnd)
 
-	def parseOpeningTag(cHtml, nStart, nEnd)
+	def ParseOpeningTag(cHtml, nStart, nEnd)
 		oHtml = new stzString(cHtml)
 		cTag = oHtml.Section(nStart, nEnd)
 		
@@ -169,7 +169,7 @@ class stzHtml from stzObject
 		
 		return oElement
 
-	def parseSelfClosingTag(cTag, nStart, nEnd)
+	def ParseSelfClosingTag(cTag, nStart, nEnd)
 		aTagInfo = This.ParseTagInfo(cTag)
 		cTagName = aTagInfo[1]
 		aAttributes = aTagInfo[2]
@@ -187,8 +187,8 @@ class stzHtml from stzObject
 			:inner_html = ""
 		]
 
-	def parseComment(cTag, nStart, nEnd)
-		cContent = This.substring(cTag, 5, len(cTag) - 3) # Remove <!-- and -->
+	def ParseComment(cTag, nStart, nEnd)
+		cContent = @substr(cTag, 5, len(cTag) - 3) # Remove <!-- and -->
 		
 		return [
 			:type = "comment",
@@ -197,18 +197,18 @@ class stzHtml from stzObject
 			:end_pos = nEnd
 		]
 
-	def parseTagInfo(cTag)
+	def ParseTagInfo(cTag)
 		# Remove < and > or />
 		oTag = new stzString(cTag)
-		cTag = oTag.RemoveThisFirstChar("<")
-		cTage = oTag.Content()
+		oTag.RemoveThisFirstChar("<")
+		cTag = oTag.Content()
 
 		if right(cTag, 2) = "/>"
 			oTag.RemoveFromEnd("/>")
 		else
 			oTag.removeFromEnd(">")
 		ok
-		cTage = oTag.Content()
+		cTag = oTag.Content()
 
 		# Split by spaces to get tag name and attributes
 		aParts = @split(cTag, " ")

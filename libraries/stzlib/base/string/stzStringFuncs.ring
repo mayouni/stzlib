@@ -1752,6 +1752,47 @@ func @substr(str, p1, p2) #TODO // Move to stzExtCode
 		return substr(str, p1, p2)
 	ok
 
+func substrXT(paParams)
+	if NOt isList(paParams)
+		StzRaise("Incorrect param type! paParams must be a list.")
+	ok
+
+	nLen = len(paParams)
+	if nLen < 2 or nLen > 3
+		StzRaise("Incorrect param! paParams list size must be 2, or 3.")
+	ok
+
+	if NOT isString(paParams[1])
+		StzRaise("Incorrect param value! The first item in the paParams list must be a string.")
+	ok
+
+	if nLen = 2
+		 cType = type(paParams[2])
+		if cType = "STRING"
+			return ring_substr1(paParams[1], paParams[2])
+
+		else
+			StzRaise("Unsupported format of the @substrXT() function.")
+		ok
+
+	else // nLen = 3
+		if isNumber(paParams[2]) and isNumber(paParams[3])
+			return StringSection(paParams[1], paParams[2], paParams[3])
+
+		but isString(paParams[2]) and isString(paParams[3])
+			return ring_substr2(paParams[1], paParams[2], paParams[3])
+
+		but isString(paParams[2]) and isNumber(paParams[3])
+			return @substr(paParams[1], paParams[2], paParams[3])
+
+		else
+			StzRaise("Unsupported format of the @substrXT() function.")
+		ok
+	ok
+
+	func @substrXT(paParams)
+		return substrXT(paParams)
+
 func StringSection(str, n1, n2)
 	if CheckParams()
 		if NOT isString(str)
@@ -1766,7 +1807,7 @@ func StringSection(str, n1, n2)
 	oQStr = new QString2()
 	oQStr.append(str)
 	
-	cResult = oQStr.mid( (n1 - 2) , (n2 - n1 + 1) )
+	cResult = oQStr.mid( (n1 - 1) , (n2 - n1 + 1) )
 	return cResult
 
 func stzleft(str, n)

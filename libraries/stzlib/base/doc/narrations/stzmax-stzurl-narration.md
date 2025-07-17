@@ -259,7 +259,9 @@ o1 = new stzUrl("ht tp://invalid space.com")
 #--> FALSE
 ? o1.Error()
 
-#--> Relative URL's path component contains ':' before any '/'; source was "ht tp://invalid space.com"; path = "ht tp://invalid space.com"
+#--> Relative URL's path component contains ':' before any '/';
+# source was "ht tp://invalid space.com";
+# path = "ht tp://invalid space.com"
 ```
 
 Common error scenarios are handled gracefully, with descriptive messages that help developers identify and fix issues quickly.
