@@ -127,11 +127,24 @@ Output:
 ╰─────────┴──────────┴─────────┴───────────╯
 ```
 
-This loads the table from a CSV file, automatically handling the column names and data rows. For simplicity, Softanza supports this standard `;` separator based format:
+This loads the table from a CSV string, automatically handling the column names and data rows. For simplicity, Softanza supports this standard `;` separator based format:
 
 ![csv-format-stztable.png](../images/csv-format-stztable.png)
 
-#todo add CSV export
+To export the content of the table back in a CSV string, you just do:
+```
+? o1.ToCSV()
+#-->
+'nation;language;capital;continent
+Tunisia;Arabic;Tunis;Africa
+France;French;Paris;Europe
+Egypt;English;Cairo;Africa
+Belgium;French;Brussel;Europe
+Yemen;Arabic;Sanaa;Asia'
+```
+> **Note:** `stzTable` does not deal directly with files. To read the content of a file named `"mydata.csv"`, first load it into a string variable using `str = read("mydata.csv")`, then pass that string to the `stzTable` object. Similarly, after exporting the content of a `stzTable` object to a CSV-formatted string, you can save it to a file using `write("mydata.csv", str)`.
+
+> Or you can use the `stzCSVFile` class to do that in an object-oriented way.
 
 ### Importing and Exporting JSON
 

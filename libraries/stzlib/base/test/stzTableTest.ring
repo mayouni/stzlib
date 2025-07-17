@@ -303,7 +303,7 @@ pf()
 # Executed in 0.06 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 cHtmlStr = '
@@ -6344,7 +6344,7 @@ pf()
 # Executed in 0.15 second(s)
 
 #=================
-
+*/
 pr()
 
 o1 = new stzTable([])
@@ -6387,6 +6387,15 @@ o1.Show()
 # │ Belgium │ French   │ Brussel │ Europe    │
 # │ Yemen   │ Arabic   │ Sanaa   │ Asia      │
 # ╰─────────┴──────────┴─────────┴───────────╯
+
+? o1.ToCSV()
+#-->
+'nation;language;capital;continent
+Tunisia;Arabic;Tunis;Africa
+France;French;Paris;Europe
+Egypt;English;Cairo;Africa
+Belgium;French;Brussel;Europe
+Yemen;Arabic;Sanaa;Asia'
 
 pf()
 # Executed in 0.23 second(s) without the Show() functions
