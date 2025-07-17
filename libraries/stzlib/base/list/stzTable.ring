@@ -16090,20 +16090,25 @@ Class stzTable from stzList
 	 #  IMPORTING TABLE CONTENT FROM AN EXTERNAL STRING (CSV, JSON OR HTML)  #
 	#========================================================================#
 
-	def ToCSV() #TODO
-		raise("Not implemented yet!")
+	def ToCSV()
+		return ListToCSV(This.Content())
+
+	def ToCSVXT(pcSep)
+		return ListToCSVXT(This.Content(), pcSep)
+
+	#---
 
 	def FromCSV(pcCSV)
-
-		if NOT isString(pcCSV)
-			StzRaise("Incorrect param type! pcCSV must be a string.")
-		ok
-
-		This.UpdateWith(StzStringQ(pcCSV).CSVToTable())
+		This.UpdateWith(CSVToList(pcCSV))
 
 		def FromCSVString(pcCSV)
 			This.FromCSV(pcCSV)
 
+	def FromCSVXT(pcCSV, pcSep)
+		This.UpdateWith(CSVToListXT(pcCSV, pcSep))
+
+		def FromCSVStringXT(pcCSV, pcSep)
+			This.FromCSVXT(pcCSV, pcSep)
 
 	#--
 
@@ -16137,72 +16142,69 @@ Class stzTable from stzList
 		def ToHtmlTable()
 			return This.ToHtml()
 
-
 	def ToHtmlXT()
-
 	    data = This.Content()
-		if len(data) = 0
-			return '<table class="data"><thead><tr></tr></thead><tbody></tbody></table>'
-		ok
-		
-		# Ensure all columns have exactly the same number of values
-		# This is critical for the buggy parser
-		nRows = 0
-		for i = 1 to len(data)
-			if len(data[i][2]) > nRows
-				nRows = len(data[i][2])
-			ok
-		next
-		
-		# Pad shorter columns with empty strings to match longest column
-		for i = 1 to len(data)
-			while len(data[i][2]) < nRows
-				data[i][2] + ""
-			end
-		next
-		
-		cHtml = '<table class="data" id="products">' + nl
-		cHtml += '<thead>' + nl
-		cHtml += '<tr>' + nl
-		
-		# Generate header row - ensure format matches parser expectations
-		for i = 1 to len(data)
-			cHtml += '<th scope="col">' + data[i][1] + '</th>' + nl
-		next
-		
-		cHtml += '</tr>' + nl
-		cHtml += '</thead>' + nl
-		cHtml += '<tbody>' + nl
-		
-		# Generate body rows - use exact format the parser expects
-		for nRowIndex = 1 to nRows
-			cHtml += '<tr class="row">' + nl
-			
-			# For each column, get the value at this row index
-			for nColIndex = 1 to len(data)
-				cValue = data[nColIndex][2][nRowIndex]
-				cHtml += '<td>' + cValue + '</td>' + nl
-			next
-			
-			cHtml += '</tr>' + nl
-		next
-		
-		cHtml += '</tbody>' + nl
-		cHtml += '</table>' + nl
-		
-	return cHtml
+	    if len(data) = 0
+	        return '<table class="data"><thead><tr></tr></thead><tbody></tbody></table>'
+	    ok
+	    
+	    # Ensure all columns have exactly the same number of values
+	    # This is critical for the buggy parser
+	    nRows = 0
+	    for i = 1 to len(data)
+	        if len(data[i][2]) > nRows
+	            nRows = len(data[i][2])
+	        ok
+	    next
+	    
+	    # Pad shorter columns with empty strings to match longest column
+	    for i = 1 to len(data)
+	        while len(data[i][2]) < nRows
+	            data[i][2] + ""
+	        end
+	    next
+	    
+	    cHtml = '<table class="data" id="products">' + nl
+	    cHtml += '<thead>' + nl
+	    cHtml += nl
+	    cHtml += '<tr>' + nl
+	    
+	    # Generate header row - ensure format matches parser expectations
+	    for i = 1 to len(data)
+	        cHtml += '            ' + '<th scope="col">' + data[i][1] + '</th>' + nl
+	    next
+	    
+	    cHtml += '</tr>' + nl
+	    cHtml += nl
+	    cHtml += '</thead>' + nl
+	    cHtml += nl
+	    cHtml += '<tbody>' + nl
+	    cHtml += nl
+	    
+	    # Generate body rows - use exact format the parser expects
+	    for nRowIndex = 1 to nRows
+	        cHtml += '<tr class="row">' + nl
+	        
+	        # For each column, get the value at this row index
+	        for nColIndex = 1 to len(data)
+	            cValue = data[nColIndex][2][nRowIndex]
+	            cHtml += '        ' + '<td>' + cValue + '</td>' + nl
+	        next
+	        
+	        cHtml += nl
+	        cHtml += '</tr>' + nl
+	        cHtml += nl
+	    next
+	    
+	    cHtml += '</tbody>' + nl
+	    cHtml += '</table>' + nl
+			return cHtml
 	
-		def ToHtmlTableXT()
-			return This.ToHtmlXT()
+			def ToHtmlTableXT()
+				return This.ToHtmlXT()
 
-	def FromHtml(pcHtml)
-		oTempStr = new stzString(pcHtml)
-		This.Updatewith(oTempStr.FirstHtmlTableQ().HtmlToTable())
 
-		def FromHtmlString(pcHtml)
-			This.FromHtml(pcHtml)
-
-	def FromHtmlTable(pcHtmlTable)
+	def FromHtml(pcHtmlTable)
 
 		if NOT isString(pcHtmlTable)
 			StzRaise("Incorrect param type! pcHtmlTable must be a string.")
@@ -16210,5 +16212,3 @@ Class stzTable from stzList
 
 		This.UpdateWith(StzStringQ(pcHtmlTable).HtmlToTable())
 
-		def FromHtmlTableString(pcHtmlTable)
-			This.FromHtmlTable(pcHtmlTable)

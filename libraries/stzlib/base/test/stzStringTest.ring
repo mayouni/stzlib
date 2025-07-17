@@ -4547,7 +4547,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*============= #perf
-*/
+
 StartProfiler()
 
 oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
@@ -17279,20 +17279,20 @@ pf()
 # Executed in almost 0 second(s).
 
 /*--------------- #todo write a narration about it
-*/
+
 pr()
 
 o1 = new stzString("🐨")
 
 ? o1.SizeInBytes()
-#--> 491
+#--> 624
 
 ? @@NL( o1.SizeInBytesXT() )
 #--> [
 #	[ "RING_64BIT_LIST_STRUCTURE_SIZE", 80 ],
-#	[ "RING_64BIT_ITEM_STRUCTURE_SIZE * 7", 168 ],
-#	[ "RING_64BIT_ITEMS_STRUCTURE_SIZE * 7", 224 ],
-#	[ "RING_64BIT_ITEMS_CONTENT_SIZE", 19 ]
+#	[ "RING_64BIT_ITEM_STRUCTURE_SIZE * 8", 192 ],
+#	[ "RING_64BIT_ITEMS_STRUCTURE_SIZE * 8", 256 ],
+#	[ "RING_64BIT_ITEMS_CONTENT_SIZE", 96 ]
 # ]
 
 pf()
@@ -17309,7 +17309,7 @@ pf()
 # Executed in 0.01 second(s).
 
 /*=============
-*/
+
 pr()
 
 ? Heart()
@@ -17359,7 +17359,7 @@ pf()
 # Executed in 0.02 second(s).
 
 /*---------------- Used to enable constraint-oriented programming
-
+*/
 pr()
 
 o1 = new stzString("MustHave@32@CharsAnd@8@Spaces")

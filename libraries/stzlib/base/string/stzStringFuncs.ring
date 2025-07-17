@@ -1740,8 +1740,14 @@ func @substr(str, p1, p2) #TODO // Move to stzExtCode
 		return StringSection(str, p1, p2)
 
 	but isString(p1) and isNumber(p2)
-		oStr = new stzString(str)
-		nResult = oStr.FindFirstST(p1, p2)
+
+		oQStr = new QString2()
+		oQStr.append(str)
+		nLen = oQStr.size()
+
+		cStrRight = right(str, nLen-p2+1)
+		nResult = ring_substr1(cStrRight, p1) + p2 - 1
+
 		return nResult
 
 	but isString(p1) and ( (isList(p2) and len(p2)=0) or (isNumber(p2) and p2 = 0) )
@@ -1811,11 +1817,14 @@ func StringSection(str, n1, n2)
 	return cResult
 
 func stzleft(str, n)
-		return StringSection(str, 1, n)
+	return StringSection(str, 1, n)
 
 func stzRight(str, n)
-		nLen = stzlen(str)
-		return StringSection(str, nLen-n+1, nLen)
+	oQStr = new QString2()
+	oQStr.append(str)
+	nLen = oQStr.size()
+
+	return StringSection(str, nLen-n+1, nLen)
 
 
 func Chars(str)

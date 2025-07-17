@@ -1,11 +1,11 @@
-#-------------------------------------------------------------#
-#                                                             #
-#   Class	    : stzNumber                                   #
-# 	Description	: The class for managing softanza numbers     #
-#	Version		: V0.9 (2019, 2023)                           #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)		  #
-#                                                             #
-#=============================================================#
+#------------------------------------------------------------#
+#                                                            #
+#   Class        : stzNumber                                 #
+#   Description  : The class for managing softanza numbers   #
+#   Version      : V0.9 (2019, 2025)                         #
+#   Author       : Mansour Ayouni (kalidianow@gmail.com)     #
+#                                                            #
+#============================================================#
 
 /*
 	This class expects you to provide it with a normal number or a
@@ -1718,9 +1718,10 @@ class stzNumber from stzObject
 			@nRound = StzCurrentRound()
 		ok
 
-		# Tracing object history
-
-		@TraceObjectHistory(This)
+	    # Tracing the history of updates (only if not already in history update)
+	    if _bInHistoryUpdate = _FALSE_
+	        @TraceObjectHistory(This)
+	    ok
 
 		# Checking object constraints (#TODO)
 

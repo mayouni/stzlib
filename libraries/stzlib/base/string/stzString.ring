@@ -28,13 +28,6 @@
 	link: https://ftfy.readthedocs.io
 */
 
-_cCSVSep = ";"
-
-func CSVSep()
-	return _cCSVSep
-
-	func CSVSeparator()
-
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -43762,27 +43755,47 @@ class stzString from stzObject
 		ok
 
 
+	#----------------------#
+	#  HISTORY MANAGEMENT  #
+	#----------------------#
+
+	def AddHistoricValueInternal(value)
+		# Add to history without triggering TraceObjectHistory
+		# This should directly manipulate the internal history array
+		if _aHisto = NULL
+			_aHisto = []
+		ok
+		_aHisto + value
+
+	def AddHistoricValueXTInternal(aHistoryData)
+		# Add to extended history without triggering TraceObjectHistory
+		# This should directly manipulate the internal history array
+		if _aHistoXT = NULL
+			_aHistoXT = []
+		ok
+		_aHistoXT + aHistoryData
+
 	  #-----------------------#
 	 #  UPDATING THE STRING  #
 	#-----------------------#
 
 	def Update(pcNewStr)
-		#< QtBased | Uses QString.clear() and QString.append() >
-
-		if CheckingParams() = _TRUE_
-			if isList(pcNewStr) and Q(pcNewStr).IsWithOrByOrUsingNamedParam()
-				pcNewStr = pcNewStr[2]
-			ok
-		ok
-
-		# Updating the object content
-
-		QStringObject().clear()
-		QStringObject().append(pcNewStr)
-
-		# Tracing the history of updates
-
-		@TraceObjectHistory(This)
+	    #< QtBased | Uses QString.clear() and QString.append() >
+	
+	    if CheckingParams() = _TRUE_
+	        if isList(pcNewStr) and Q(pcNewStr).IsWithOrByOrUsingNamedParam()
+	            pcNewStr = pcNewStr[2]
+	        ok
+	    ok
+	
+	    # Updating the object content
+	    QStringObject().clear()
+	    QStringObject().append(pcNewStr)
+	
+	    # Tracing the history of updates (only if not already in history update)
+	    if _bInHistoryUpdate = _FALSE_
+	        @TraceObjectHistory(This)
+	    ok
 
 		# Verifying constraints (#TODO)
 
@@ -89574,6 +89587,7 @@ class stzString from stzObject
 	
 			def AdjustToQC(cDirection)
 				return This.AlignQC(cDirection)
+
 		#>
 		
 	def Aligned(cDirection)
@@ -101474,7 +101488,6 @@ class stzString from stzObject
 	#=====================================================#
 
 	def IsHtmlTable()
-
 		#NOTE
 		# The method follows these key steps:
 		# - Basic tag presence check (bounded by <table and </table>)
@@ -101890,112 +101903,14 @@ class stzString from stzObject
 	#=====================================================#
 
 	def IsCSV()
-
-		oCopy = This.Copy()
-		oCopy.Trim()
-		cContent = oCopy.Content()
-
-		if cContent = ""
-			return FALSE
-		ok
-
-		cSep = CSVSep()
-		acLines = oCopy.SplitAt(NL)
-		nLen = len(acLines)
-
-		aoStrLines = []
-
-		for i = 1 to nLen
-			aoStrLines + new stzString(acLines[i])
-		next
-
-		nSep = aoStrLines[1].NumberOfOccurrence(cSep)
-
-		for i = 2 to nLen
-			if nSep != aoStrLines[1].NumberOfOccurrence(cSep)
-				return FALSE
-			ok
-		next
-
-		return TRUE
+		return @IsCSV(This.Content()) # From stzCSV.ring
 
 		def IsCSVTable()
 			return This.IsCSV()
 
 	def CsvToDataTable()
+		return @CSVTolist(This.Content())
 
-		if NOT This.IsCsvTable()
-			StzRaise("Can't proceed! The string must be in CSV format.")
-		ok
-
-		oCopy = This.Copy()
-		oCopy.Trim()
-		cContent = oCopy.Content()
-
-		if cContent = ""
-			return FALSE
-		ok
-
-		cSep = CSVSep()
-		acLines = oCopy.SplitAt(NL)
-		nLen = len(acLines)
-
-		# First line
-
-		acItemsInFirstLine = @split(acLines[1], cSep)
-		nCols = len(acItemsInFirstLine)
-		bColNamesProvided = TRUE
-
-		for i = 1 to nCols
-
-			if @IsNumberInString(acItemsInFirstLine[i]) or
-			   @IsListInString(acItemsInFirstLine[i]) #TODO // Check for perfmance
-				bColNamesProvided = FALSE
-				exit
-			ok
-
-		next
-
-		aResult = []
-
-		if NOT bColNamesProvided
-			for i = 1 to nCols
-				aResult + [ ("COL"+i), acItemsInFirstLine[i] ]
-			next
-
-		else
-			for i = 1 to nCols
-				aResult + [ acItemsInFirstLine[i], []]
-			next
-
-		ok
-	
-		# Other lines
-
-		for i = 2 to nLen
-
-			acItems = @Split(acLines[i], cSep)
-
-			for j = 1 to nCols
-
-				item = acItems[j]
-
-				if @IsNumberInString(item)
-					item = 0+ acItems[j]
-
-				but @IsListInString(item)
-					cCode = 'item = ' + acItems[j]
-					eval(cCode)
-				ok
-
-				aResult[j][2] + item
-			next
-
-		next
-
-		return aResult
-
-	
 		def CsvToDataTableQ()
 			return new stzList(This.CsvToDataTable())
 		
