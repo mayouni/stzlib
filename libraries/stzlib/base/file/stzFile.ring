@@ -24,19 +24,21 @@ file names):
 
 Softanza provides just three easy-to-recognize modes of opening files,
 based on a subset of what is possible with RingQt (so we take advantage
-from its support of UNICODE file names among other features):
+from its support of UNICODE file names, universal End-Of-Line encodings,
+# among other features):
+
 UPDATE - Ring 1.16 supports UNICODE names for files!
 
-	:ReadOnly	Reads file content	    ->	Works only for existing files (TODO: why?!)
-	:WriteToEnd	Writes to the end of file   ->	If file do not exist, creates it
-	:EraseAndWrite	Erases the file and writes  ->	If file do not exist, creates it
+	:ReadOnly		Reads file content	    		->	Works only for existing files
+	:WriteToEnd	Writes to the end of file   	->	If file do not exist, creates it
+	:EraseAndWrite	Erases the file and writes  	->	If file do not exist, creates it
 
 */
 
 _aFileOpeningModes = [
-	:ReadOnly	= "QIODevice_ReadOnly", // Works only for existing files
-	:WriteToEnd	= "QIODevice_Append",	// If file do not exist, creates it
-	:EraseAndWrite	= "QIODevice_WriteOnly" // If file do not exist, creates it
+	:ReadOnly	= "QIODevice_ReadOnly", 		# Works only for existing files
+	:WriteToEnd	= "QIODevice_Append",	# If file do not exist, creates it
+	:EraseAndWrite	= "QIODevice_WriteOnly"	# If file do not exist, creates it
 ]
 
 func IsDir(cDir)
@@ -140,9 +142,9 @@ class stzFile from stzObject
 	#-------------------#
 
 	/* This method behaves differently depending on the opening mode
-	   	- :ReadOnly	 --> No effect
-		- :WriteToEnd	 --> Appends the file
-		- :EraseAndWrite --> Erases the file content and writes in it
+	   	- :ReadOnly		--> No effect
+		- :WriteToEnd	 	--> Appends the file
+		- :EraseAndWrite 	--> Erases the file content and writes in it
 	*/
 
 	def Write(pcText)
