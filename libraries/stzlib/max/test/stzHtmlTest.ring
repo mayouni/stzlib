@@ -3,6 +3,27 @@
 
 load "../stzmax.ring"
 
+/*--- #Toso add a quicker narratio: on substr() to rule them all!
+*/
+pr()
+
+# Finding positon of a substring inside the string
+? substrXT([ "Ring", "n" ])
+#--> 3
+
+# Returning the specified sectio of the sstring
+? substrXT([ "Ring", 2, 4 ])
+#--> ing
+
+# Finding the first occurrence of a substring starting at a given position
+? substrXT([ "Ring Programming", "i", 6 ])
+
+# Replacing a substring with an other inside the mainb string
+? substrXT([ "Rin--g", "--", "" ])
+#--> Ring
+
+pf()
+
 /*---
 
 pr()
@@ -18,7 +39,7 @@ pf()
 #-------------------------------#
 
 /*--- Creating an empty stzHtml object
-
+*
 pr()
 
 o1 = new stzHtml("")
@@ -48,7 +69,7 @@ o1 = new stzHtml("<p>Hello World</p>")
 pf()
 
 /*--- Creating stzHtml with complex HTML (declarative style)
-*/
+
 pr()
 
 cHtml = '<!DOCTYPE html>
@@ -72,11 +93,12 @@ o1 {
     ? getElementCount()
     #--> 7
     
-    ? getParseErrors()
+    ? @@(getParseErrors())
     #--> []
 }
 
 pf()
+# Executed in 0.06 second(s) in Ring 1.22
 
 #-------------------------------#
 #  PARSING AND VALIDATION       #
@@ -100,7 +122,7 @@ o1 = new stzHtml("<!DOCTYPE html><html><body><h1>Title</h1></body></html>")
 pf()
 
 /*--- Parsing self-closing tags
-
+*/
 pr()
 
 o1 = new stzHtml('<div><img src="image.jpg" alt="Picture" /><br/><hr></div>')
