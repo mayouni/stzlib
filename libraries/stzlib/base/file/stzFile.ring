@@ -15,33 +15,14 @@ Philosophy:
 - Natural mental model: "I can always see what's in the file"
 */
 
-_aFileOpeningModes = [
-	:ReadOnly	= "QIODevice_ReadOnly", 		# Works only for existing files
-	:WriteToEnd	= "QIODevice_Append",	# If file do not exist, creates it
-	:EraseAndWrite	= "QIODevice_WriteOnly"	# If file do not exist, creates it
-]
-
-func IsDir(cDir)
-	return dirExists(cDir)
-
-func StzFile(cFile)
-	return new stzFile(cFile)
-
-func StzFileQ(cFile)
-	return new stzFile(cFile)
-
-func FileExists(pcFileName)
-	oQFile = new QFile()
-	oQFile.setFileName(pcFileName)
-
-	bResult = oQFile.exists()
-	oQfile.close()
-
-	return bResult
 
 #==================================#
 # FACTORY FUNCTIONS (INTENT-BASED) #
 #==================================#
+
+func FileExists(cFileName)
+    oInfo = new stzFileInfo(cFileName)
+    return oInfo.Exists()
 
 func FileRead(cFileName)
     # Pure reading intent - read-only access
@@ -114,6 +95,83 @@ func FileSize(cFileName)
     ok
     oFile = new QFile(cFileName)
     return oFile.size()
+
+#=================================================#
+# META INFORMATION ABOUT FILE WITHOUT OPENING IT  #
+#=================================================#
+
+# The fellowing class uses QFileInfo exclusively, avoiding
+# the overhead of opening files with QFile. This keeps it
+# lightweight and focused on metadata retrieval
+
+class stzFileInfo from stzObject
+    @cFileName
+    @oQFileInfo
+
+    def init(cFileName)
+        @cFileName = cFileName
+        @oQFileInfo = new QFileInfo()
+        @oQFileInfo.setFile(cFileName)
+
+    def Exists()
+        return @oQFileInfo.exists()
+
+    def Size()
+        return @oQFileInfo.size()
+
+    def IsWritable()
+        return @oQFileInfo.isWritable()
+
+    def IsReadable()
+        return @oQFileInfo.isReadable()
+
+    def IsExecutable()
+        return @oQFileInfo.isExecutable()
+
+    def IsHidden()
+        return @oQFileInfo.isHidden()
+
+    def CreationTime()
+        return @oQFileInfo.created().toString("dd/MM/yyyy hh:mm:ss")
+
+    def LastModificationTime()
+        return @oQFileInfo.lastModified().toString("dd/MM/yyyy hh:mm:ss")
+
+    def LastReadingTime()
+        return @oQFileInfo.lastRead().toString("dd/MM/yyyy hh:mm:ss")
+
+    def FilePath()
+        return @oQFileInfo.filePath()
+
+    def AbsoluteFilePath()
+        return @oQFileInfo.absoluteFilePath()
+
+    def CanonicalFilePath()
+        return @oQFileInfo.canonicalFilePath()
+
+    def DirPath()
+        return @oQFileInfo.dir().path()
+
+    def BaseName()
+        return @oQFileInfo.baseName()
+
+    def CompleteBaseName()
+        return @oQFileInfo.completeBaseName()
+
+    def Suffix()
+        return @oQFileInfo.suffix()
+
+    def CompleteSuffix()
+        return @oQFileInfo.completeSuffix()
+
+    def IsSymLink()
+        return @oQFileInfo.isSymLink()
+
+    def SymLinkTarget()
+        return @oQFileInfo.symLinkTarget()
+
+    def Refresh()
+        @oQFileInfo.refresh()
 
 #====================================#
 # BASE READING CAPABILITIES (MIXIN)  #
@@ -535,17 +593,23 @@ class stzFileUpdater from stzFileReadingMixin
         
         # First read the existing content
         oReader = new QFile()
-	   oReader.setFileName(cFileName)
+        oReader.setFileName(cFileName)
         oReader.open_3(QIODevice_ReadOnly | QIODevice_Text)
         @cOriginalContent = oReader.readAll().data()
         oReader.close()
         
-        # Parse into lines for easy manipulation
-        @aOriginalLines = @Lines(@cOriginalContent)
-        
+        # Handle empty file case
+        if @cOriginalContent = NULL or len(@cOriginalContent) = 0
+            @cOriginalContent = ""
+            @aOriginalLines = []
+        else
+            # Parse into lines for easy manipulation
+            @aOriginalLines = @Lines(@cOriginalContent)
+        ok
+
         # Now open for read/write
         @oQFile = new QFile()
-	   @oQFile.setFileName(cFileName)
+        @oQFile.setFileName(cFileName)
         @oQFile.open_3(QIODevice_ReadWrite | QIODevice_Text)
     
     # ACCESS TO ORIGINAL STATE
@@ -558,488 +622,214 @@ class stzFileUpdater from stzFileReadingMixin
     def OriginalSize()
         return len(@cOriginalContent)
     
-		def OriginalSizeInBytes()
-			return This.OriginalSize()
+    def OriginalSizeInBytes()
+        return This.OriginalSize()
 
     def OriginalLineCount()
-        return len(This.aOriginalLines)
+        return len(@aOriginalLines)
     
-		def NumberOfOriginalLines()
-			return This.OriginalLineCount()
+    def NumberOfOriginalLines()
+        return This.OriginalLineCount()
 
     # SOPHISTICATED UPDATE METHODS
     def ReplaceAllContent(cNewContent)
-        @oQFile.resize(0)  # Truncate to zero
+        @oQFile.seek(0)  # Go to beginning
+        @oQFile.resize(@cFileName, 0)  # Truncate to zero using filename
         @oQFile.write(cNewContent, len(cNewContent))
-        @oQFile.flush()
+        # Remove the flush() call - it expects no parameters in RingQt
 
-		def ReplaceAllContentQ(cNewContent)
-			This.ReplaceAllContent()
-			return This
+	    def ReplaceAllContentQ(cNewContent)
+	        This.ReplaceAllContent(cNewContent)
+	        return This
     
-		def RepaceAll(cNewContent)
-			This.ReplaceAllContent(cNewContent)
-	
-			def RepalceAllQ(cNewContent)
-				This.ReplaceAll(cNewContent)
-				return this
+    def ReplaceAll(cNewContent)
+        This.ReplaceAllContent(cNewContent)
 
-		def Update(cNEwContent)
-			This.ReplaceAllContent(cNewContent)
+	    def ReplaceAllQ(cNewContent)
+	        This.ReplaceAll(cNewContent)
+	        return This
 
-			def UpdateQ(cNewContent)
-				return This.RepalceAllQ(cNewContent)
+    def Update(cNewContent)
+        This.ReplaceAllContent(cNewContent)
 
-		def UpdateWith(cNewContent)
-			This.ReplaceAllContent(cNewContent)
+	    def UpdateQ(cNewContent)
+	        return This.ReplaceAllQ(cNewContent)
 
-			def UpdateWithQ(cNewContent)
-				return This.RepalceAllQ(cNewContent)
+    def UpdateWith(cNewContent)
+        This.ReplaceAllContent(cNewContent)
+
+	    def UpdateWithQ(cNewContent)
+	        return This.ReplaceAllQ(cNewContent)
 
     def ReplaceLine(nLineNumber, cNewLine)
-
-        aLines = This.aOriginalLines
+        aLines = This.OriginalLines()
         aLines[nLineNumber] = cNewLine
-        cNewContent = Join(aLines)
-
+        cNewContent = JoinXT(aLines, NL)
         This.ReplaceAllContent(cNewContent)
     
-		def ReplaceLineQ(nLineNumber, cNewLine)
-			This.ReplaceLine(cLineNumber, cNewLine)
-			return This
+	    def ReplaceLineQ(nLineNumber, cNewLine)
+	        This.ReplaceLine(nLineNumber, cNewLine)
+	        return This
 
-    def InsertLineAt(nPosition, cNewLine)
-        aLines = This.aOriginalLines
-        insert(aLines, nPosition, cNewLine)
-        cNewContent = Join(aLines)
-        This.ReplaceAllContent(cNewContent)
-    
-		def InsertLineAtQ(nposition, nNewLine)
-			This.InsertLineAtQ(nPosition, nNewLine)
-			return This
+
+	def InsertLineAt(nPos, cNewLine)
+	    aLines = @aOriginalLines
+	    nLen = len(aLines)
+
+	    # Handle empty file case
+	    if nLen = 0
+	        StzRaise("Cannot insert line in empty file - use ReplaceAllContent() instead")
+	    ok
+	    
+	    # Ensure position is valid for non-empty files
+	    if nPos < 1
+	        nPos = 1
+	    ok
+
+	    if nPos > nLen
+	        aLines + cNewLine
+		else
+		   ring_insert(aLines, nPos, cNewLine)
+
+		ok
+	    
+	    cNewContent = JoinXT(aLines, NL)  # Add newline separator
+	    This.ReplaceAllContent(cNewContent)
+
+
+	    def InsertLineAtQ(nPos, cNewLine)
+	        This.InsertLineAt(nPos, cNewLine)
+	        return This
 
     def InsertLineAtBeginning(cNewLine)
         This.InsertLineAt(1, cNewLine)
     
-		def InsertLineAtBeginningQ(cNewLine)
-			This.InsertLineAtBeginning(cNewLine)
-			return this
+	    def InsertLineAtBeginningQ(cNewLine)
+	        This.InsertLineAtBeginning(cNewLine)
+	        return This
+	 
+	def InsertLineAtEnd(cNewLine)
+	    aLines = @aOriginalLines
+  
+	    # Handle empty file case
+	    if len(aLines) = 0
+	        StzRaise("Cannot insert line in empty file - use ReplaceAllContent() instead")
+	    ok
+	    
+	    This.InsertLineAt(len(aLines) + 1, cNewLine)
 
-    def InsertLineAtEnd(cNewLine)
-        This.InsertLineAt(len(This.aOriginalLines) + 1, cNewLine)
- 
-		def InsertLineAtEndQ(cNewLine)
+		#< @FunctionFluentForm
+
+	    def InsertLineAtEndQ(cNewLine)
+	        This.InsertLineAtEnd(cNewLine)
+	        return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def AppendWithLine(cNewLine)
 			This.InsertLineAtEnd(cNewLine)
-			return This
+	
+			def AppendWithLineQ(cNewLine)
+				return This.InsertLineAtEndQ(cNewLine)
+		#>
+
 
     def InsertAfterLine(nLineNumber, cNewLine)
         This.InsertLineAt(nLineNumber + 1, cNewLine)
     
-		def InsertAfterLineQ(nLineNumber, cNewLine)
-			This.InsertAfterLine(nLineNumber, cNewLine)
-			return This
+	    def InsertAfterLineQ(nLineNumber, cNewLine)
+	        This.InsertAfterLine(nLineNumber, cNewLine)
+	        return This
 
     def InsertBeforeLine(nLineNumber, cNewLine)
         return This.InsertLineAt(nLineNumber, cNewLine)
     
-		def InsertBeforeLineQ(nLineNumber, cNewLine)
-			This.InsertBeforeLine(nLineNumber, cNewLine)
-			return This
+	    def InsertBeforeLineQ(nLineNumber, cNewLine)
+	        This.InsertBeforeLine(nLineNumber, cNewLine)
+	        return This
 
     def RemoveLine(nLineNumber)
-        aLines = This.aOriginalLines
-        del(aLines, nLineNumber)
-        cNewContent = Join(aLines)
-        This.ReplaceAllContent(cNewContent)
+        aLines = @aOriginalLines
+        if nLineNumber >= 1 and nLineNumber <= len(aLines)
+            del(aLines, nLineNumber)
+            cNewContent = JoinXT(aLines, NL)
+            This.ReplaceAllContent(cNewContent)
+        ok
     
-		def RemoveLineQ(nLineNumber)
-			This.RemoveLine(nLineNumber)
-			return This
+	    def RemoveLineQ(nLineNumber)
+	        This.RemoveLine(nLineNumber)
+	        return This
 
     def RemoveFirstLine()
-         This.RemoveLine(1)
-    
-		def RemoveFirstLineQ()
-			This.RemovefirstLine()
-			return this
+        This.RemoveLine(1)
+	    
+	    def RemoveFirstLineQ()
+	        This.RemoveFirstLine()
+	        return This
 
     def RemoveLastLine()
-        This.RemoveLine(len(This.aOriginalLines))
+        This.RemoveLine(len(@aOriginalLines))
     
-		def RemoveLastLineQ()
-			This.RemoveLine()
-			return This
+	    def RemoveLastLineQ()
+	        This.RemoveLastLine()
+	        return This
 
     def RemoveLinesContaining(cSearchText)
         aLines = @aOriginalLines
-	   nLen = len(aLines)
+        nLen = len(aLines)
 
         aNewLines = []
         for i = 1 to nLen
-            if substr(alines[i], cSearchText) = 0
+            if substr(aLines[i], cSearchText) = 0
                 aNewLines + aLines[i]
             ok
         next
 
-        cNewContent = Join(aNewLines)
+        cNewContent = JoinLines(aNewLines)
         This.ReplaceAllContent(cNewContent)
     
-		def RemoveLinesContainingQ(cSearchText)
-			This.RemoveLinesContaining(cSearchText)
-			return This
-
+	    def RemoveLinesContainingQ(cSearchText)
+	        This.RemoveLinesContaining(cSearchText)
+	        return This
 
     def Replace(cOldText, cNewText)
-        cNewContent = substr(This.cOriginalContent, cOldText, cNewText)
+        cNewContent = substr(@cOriginalContent, cOldText, cNewText)
         This.ReplaceAllContent(cNewContent)
 
-		def ReplaceQ(cOldText, cNewText)
-			This.Replace(cOldText, cNewText)
-			return This
+    def ReplaceQ(cOldText, cNewText)
+        This.Replace(cOldText, cNewText)
+        return This
 
     def ReplaceInLine(nLineNumber, cOldText, cNewText)
-        aLines = This.aOriginalLines
+        aLines = This.OriginalLines()
         aLines[nLineNumber] = substr(aLines[nLineNumber], cOldText, cNewText)
-        cNewContent = Join(aLines)
+        cNewContent = JoinLines(aLines)
         This.ReplaceAllContent(cNewContent)
 
-		def ReplaceInLineQ(nLineNumber, cOldText, cNewText)
-			This.ReplaceInLine(nLineNumber, cOldText, cNewText)
-			return This
+	    def ReplaceInLineQ(nLineNumber, cOldText, cNewText)
+	        This.ReplaceInLine(nLineNumber, cOldText, cNewText)
+	        return This
 
-    def ReplaceLineContaining(cSubstr, cNewLine)
-        # Update first line that contains the substring
-        aLines = @aOriginalLines
-	   nLen = len(aLines)
-
-        for i = 1 to nLen
-            if substr(aLines[i], csubStr) > 0
-                aLines[i] = cNewLine
-                exit
-            ok
-        next
-
-        cNewContent = Join(aLines)
-        This.ReplaceAllContent(cNewContent)
+	def ReplaceLineContaining(cSubstr, cNewLine)
+	    # Update first line that contains the substring
+	    aLines = @aOriginalLines
+	    nLen = len(aLines)
+	
+	    for i = 1 to nLen
+	        if substr(aLines[i], cSubstr) > 0
+	            aLines[i] = cNewLine
+	            exit
+	        ok
+	    next
+	
+	    cNewContent = JoinXT(aLines, NL)  # Add newline separator
+	    This.ReplaceAllContent(cNewContent)
     
-		def ReplaceLineContainingQ(cSubStr, cNewLine)
-			This.ReplaceLineContaining(cSubStr, cNewLine)
-			return This
+	    def ReplaceLineContainingQ(cSubStr, cNewLine)
+	        This.ReplaceLineContaining(cSubStr, cNewLine)
+	        return This
 
     def Close()
         @oQFile.close()
     
-
-#======================================================================================
-
-/*
-
-While Ring provides the following C-standard modes:
-
-	"r" : Reading (The file must exist)
-	"w" : writing (create empty file / overwrite)
-	"a" : Appends (create file if it doesn’t exist)
-	"r+": update (reading/writing)
-	"w+": Create empty file (reading/writing)
-	"a+": Reading & appending
-
-And RingQt provides these modes for QFile and other QIODevice-based classes (supports unicode
-file names):
-
-	QIODevice_NotOpen
-	QIODevice_ReadOnly
-	QIODevice_WriteOnly
-	QIODevice_ReadWrite
-	return QIODevice_Append
-	return QIODevice_Truncate
-	return QIODevice_Text
-	return QIODevice_Unbuffered
-
-Softanza provides just three easy-to-recognize modes of opening files,
-based on a subset of what is possible with RingQt (so we take advantage
-from its support of UNICODE file names, universal End-Of-Line encodings,
-# among other features):
-
-UPDATE - Ring 1.16 supports UNICODE names for files!
-
-	:ReadOnly		Reads file content	    		->	Works only for existing files
-	:WriteToEnd	Writes to the end of file   	->	If file do not exist, creates it
-	:EraseAndWrite	Erases the file and writes  	->	If file do not exist, creates it
-
-*/
-
-class stzFile from stzObject
-	cFile
-	cOpenMode
-	fPointer
-
-	oQFile
-	oQFileInfo
-
-	oQTextStream
-
-	  #---------------#
-	 #   FILE INIT   #
-	#---------------#
-
-	def init(pcFile, pcOpenMode) # :ReadOnly :WriteToEnd :EraseAndWrite
-		// Create the QFile object
-		oQFile = new QFile()
-		oQFile.setFileName(pcFile)
-
-		switch pcOpenMode
-		on :ReadOnly
-			// Works only for existing files
-			oQFile.open_3(QIODevice_ReadOnly | QIODevice_Text)
-
-		on :WriteToEnd
-			// If file do not exist, creates it
-			oQFile.open_3(QIODevice_Append | QIODevice_Text)
-
-		on :EraseAndWrite
-			// If file do not exist, creates it
-			oQFile.open_3(QIODevice_WriteOnly | QIODevice_Text)
-		other
-			StzRaise(stzFileError(:CanNotProceedWithOpeningMode))
-		off
-	
-		// In all cases (file exists and has been successfully opened,
-		// or it does not exist and it has been successfully created),
-		// update the file object attributes...
-
-		cFile = pcFile
-		cOpenMode = pcOpenMode
-		fPointer = oQFile.pObject
-	
-		// Create a QFileInfo object (used in the INFO section of the class)
-		oQFileInfo = new QFileInfo()
-		oQFileInfo.setFile(pcFile)
-
-	  #-----------------------#
-	 #   READ FILE CONTENT   #
-	#-----------------------#
-
-	// Returns the entire file content as a string
-	def ReadAll()
-		if This.IsReadable()
-			return oQFile.readAll().data()
-		else
-			StzRaise(stzFileError(:CanNotReadFileContent))
-		ok
-
-		def Content()
-			return This.ReadAll()
-
-		def Value()
-			return Content()
-
-	// Returns the entire file content as a list of bytes
-	def ReadAllAsListOfBytes()
-		return new stzListOfBytes(This.ReadAll())
-
-	// Returns the lines of the file content in a list
-	def Lines()
-		return @Lines(This.Content())
-
-	// Returns the nth line of the file content
-	def ReadLine(n)
-		return This.Lines()[n]
-
-	  #-------------------#
-	 #   WRITE IN FILE   #
-	#-------------------#
-
-	/* This method behaves differently depending on the opening mode
-	   	- :ReadOnly		--> No effect
-		- :WriteToEnd	 	--> Appends the file
-		- :EraseAndWrite 	--> Erases the file content and writes in it
-	*/
-
-	def Write(pcText)
-		if This.IsWritable()
-			n = stzStringLen(pcText)
-			oQFile.write(pcText,n)
-		else
-			StzRaise(stzFileError(:CanNotWriteToFile))
-		ok
-
-	def WriteLine(pcText)
-		if This.IsWritable()
-			pcText + NL
-			This.Write(pcText)
-		else
-			StzRaise(stzFileError(:CanNotWriteToFile))
-		ok
-	/*
-	INFO:
-	Currently, reading and writing work on the file directly (on QFile and
-	on QIODevice in the background). In the future, use QStream instead.
-	*/
-
-	  #---------------------------#
-	 #   RENAME, REMOVE & COPY   #
-	#---------------------------#
-
-	// Thes functions Work regardless of the opening mode used
-
-	def Rename(pcNewName)
-		if This.Exists()
-			return oQfile.rename(pcNewName)
-		else
-			StzRaise(stzFileError(:CanNotRenameInexistantFile))
-		ok
-
-	def Remove()
-		if This.Exists()
-			return oQFile.remove()
-		else
-			StzRaise(stzFileError(:CanNotRemoveInexistantFile))
-		ok
-
-	def CopyAs(pcNewName)
-		if FileExists(pcNewName)
-			StzRaise(stzFileError(:CanNotCopyFileToExistantName))
-		ok
-		if This.Exists()
-			return oQFile.copy(pcNewName)
-		else
-			StzRaise(stzFileError(:CanNotCopyInexistantFile))
-		ok
-
-	  #----------#
-	 #   ِCLOSE  #
-	#----------#
-
-	def Close()
-		try
-			oQFile.close()
-			return _TRUE_
-		catch
-			return _FALSE_
-		done
-
-	  #---------------#
-	 #   FILE INFO   #
-	#---------------#
-
-	def Exists()
-		return oQFile.exists()
-
-	def Refresh()
-		oQFileInfo.refresh()
-
-	def OpeningMode()
-		return cOpenMode
-
-	def Pointer()
-		return fPointer
-
-	def File()
-		return cFile
-
-	def Size()
-		return oQFile.size()
-
-		def SizeInBytes()
-			return This.Size()
-
-	def IsWritable()
-		return oQFile.isWritable()
-
-	def IsReadable()
-		return oQFile.isReadable()
-
-	def IsExecutable()
-		return oQFileInfo.isExecutable()
-
-	def IsHidden()
-		return oQFileInfo.isHidden()
-
-	def IsShortcut()
-		# Shortcuts only exist on Windows and are typically .lnk files
-		return oQFileInfo.isShortcut()
-
-	def ShortcutTarget()
-		return oQFileInfo.symLinkTarget()
-
-	def IsSymLink()
-		# Symbolic links exist on Unix (including macOS and iOS) and Windows
-		return oQFileInfo.isSymLink()
-
-	def SymLinkTarget()
-		return oQFileInfo.symLinkTarget()
-
-	  #--------------------------------------------#
-	 #   CREATION, MODIFICATION, & READING TIME   #
-	#--------------------------------------------#
-
-	def CreationTime()
-		return oQFileInfo.created().toString("dd/MM/yyyy hh:mm:ss")
-
-	def LastModificationTime()
-		return oQFileInfo.lastModified().toString("dd/MM/yyyy hh:mm:ss")
-
-	def LastReadingTime()
-		return oQFileInfo.lastRead().toString("dd/MM/yyyy hh:mm:ss")
-
-	  #----------------#
-	 #   PATH & DIR   #
-	#----------------#
-
-	def FilePath()
-		return oQFileInfo.dir().filePath(cFile)
-
-	def FileAbsolutePath()
-		return oQFileInfo.absoluteFilePath()
-
-	def FileCanonicalPath()
-		return oQFileInfo.canonicalFilePath()
-
-	def DirName()
-		return oQFileInfo.dir().dirname()
-
-	def DirPath()
-		return oQFileInfo.dir().path()
-
-	def DirAbsolutePath()
-		return oQFileInfo.absolutedir().AbsolutePath()
-
-	def DirCanonicalPath()
-		return oQFileInfo.canonicalPath()
-
-#######################
-	def IsRelative()
-		return oQFileInfo.isRelative()
-
-	def IsAbsolute()
-		return oQFileInfo.isAbsolute()
-
-	def IsRoot()
-		return oQFileInfo.isRoot()
-######################
-
-	  #-----------------------#
-	 #   BASENAME & SUFFIX   #
-	#-----------------------#
-
-	def BaseName()
-		# Example: "/tmp/archive.tar" --> "archive"
-		return oQFileInfo.basename()
-
-	def CompleteBaseName()
-		# Example: "/tmp/archive.tar.gz" --> "archive.tar"
-		return oQFileInfo.completeBaseName()
-
-	def Suffix()
-		# Example: "/tmp/archive.tar" --> "tar"
-		return oQFileInfo.suffix()
-
-	def CompleteSuffix()
-		# Example: "/tmp/archive.tar.gz" --> "tar.gz"
-		return oQFileInfo.completeSuffix()
-
-	  #--------------------------#
-	 #   ZIPPING & EXTRACTING   #TODO
-	#--------------------------#
-
-	// See : https://ring-lang.sourceforge.io/doc1.15/ringzip.html

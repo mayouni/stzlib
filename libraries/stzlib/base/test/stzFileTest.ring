@@ -78,7 +78,6 @@ oAppender.Close()
 17/07/2025-23:57:40 - New event occurred
 ==================================================
 '
-
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
@@ -99,6 +98,17 @@ oCreator = FileCreate("settings.txt")
     oCreator.WriteLine("DebugMode=true")
     ? oCreator.Size()  # Check current size
 	#--> 146
+    ? oCreator.Content()
+#-->
+'
+# Configuration Settings
+# Created: 18/07/2025-10:42:30
+#========================
+
+DatabaseHost=localhost
+DatabasePort=5432
+DebugMode=true
+'
 
 oCreator.Close()
 
@@ -142,32 +152,85 @@ pf()
 */
 pr()
 
+# The file "settings.txt" should have been created and contain:
+'
+# Configuration Settings
+# Created: 18/07/2025-11:04:19
+#========================
+DatabaseHost=localhost
+DatabasePort=5432
+DebugMode=true
+ObsoleteSetting=remove_me
+'
+
+# Create it manually (or by code) before runnin the sample
+
 oUpdater = FileUpdate("settings.txt")
     # Can read original and current content
     aOriginalLines = oUpdater.OriginalLines()
     cCurrentContent = oUpdater.Content()
     
-	? cCurrentContent + NL
+	# Checking original content
 
-    # Check what we're working with
+	? cCurrentContent + NL
+#-->
+'
+# Configuration Settings
+# Created: 18/07/2025-11:04:19
+#========================
+DatabaseHost=localhost
+DatabasePort=5432
+DebugMode=true
+ObsoleteSetting=remove_me
+'
+
+    # Replace a line containing a given text
+
     if oUpdater.ContainsText("DatabaseHost")
         oUpdater.ReplaceLineContaining("DatabaseHost", "DatabaseHost=newserver")
+	   ? oUpdater.Content() + NL
     ok
-    
-    # Sophisticated updates
-    oUpdater.InsertLineAtEnd("NewSetting=DefaultValue")
-    oUpdater.RemoveLinesContaining("ObsoleteSetting")
-    
-    # Can verify our changes
-    aNewLines = oUpdater.Lines()
-    nChanges = len(aNewLines) - len(aOriginalLines)
+#-->
+'
+# Configuration Settings
+# Created: 18/07/2025-11:04:19
+#========================
+DatabaseHost=newserver		#<-- Change happened here
+DatabasePort=5432
+DebugMode=true
+ObsoleteSetting=remove_me
+'
 
-	? oUpdater.Content()
+    # Sophisticated updates
+    oUpdater.InsertLineAtEnd("NewSetting=DefaultValue") # Or AppendWithLine()
+	? oUpdater.Content() + NL
+#-->
+'
+# Configuration Settings
+# Created: 18/07/2025-11:04:19
+#========================
+DatabaseHost=localhost
+DatabasePort=5432
+DebugMode=true
+ObsoleteSetting=remove_me
+NewSetting=DefaultValue		#<-- The line is inserted here
+'
+
+    oUpdater.RemoveLinesContaining("ObsoleteSetting")
+	? oUpdater.Content() + NL
+#-->
+'
+# Configuration Settings
+# Created: 18/07/2025-11:04:19
+#========================
+DatabaseHost=localhost
+DatabasePort=5432
+DebugMode=true
+'
+
 
 oUpdater.Close()
 
 pf()
-
-# All handlers provide universal read access!
-# This reflects the natural mental model of file interaction.
+# Executed in 0.01 second(s) in Ring 1.22
 
