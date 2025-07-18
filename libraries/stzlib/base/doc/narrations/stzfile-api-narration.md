@@ -504,21 +504,15 @@ Softanza enables:
 
 ## Implementation Foundation: RingQt Integration
 
-Softanza’s intent-based file API is built on RingQt, leveraging Qt’s robust file handling system for production-ready applications. Each of the seven intentions is implemented as a dedicated class, supported by a common mixin class, `stzFileReadingMixin`, which provides shared functionality to all other classes:
+Softanza’s intent-based file API is built on RingQt, leveraging Qt’s robust file handling system for production-ready applications. Each of the seven intentions is implemented as a dedicated class:
 
 - **stzFileInfo**: Retrieves metadata (e.g., `Exists()`, `IsWritable()`, `Size()`) without opening the file, enabling informed decisions about file operations.
 - **stzFileRead**: Facilitates content reading with methods like `Lines()`, `FirstLine()`, and `ContainsText()` for efficient querying.
 - **stzFileAppend**: Supports appending content (e.g., `WriteLogEntryWithTimestamp()`, `WriteSeparator()`) with read access for context-aware logging.
 - **stzFileCreate**: Creates new files with formatted writing methods (e.g., `WriteHeader()`, `WriteBlankLine()`) and checks to prevent overwriting.
 - **stzFileOverwrite**: Replaces file content while allowing access to original content via `OriginalLines()`.
-- **stzFileUpdate**: Enables targeted modifications (e.g., `UpdateLineMatching()`, `InsertAfterLine()`) with read access to the original state.
+- **stzFileModify**: Enables targeted modifications (e.g., `UpdateLineMatching()`, `InsertAfterLine()`) with read access to the original state.
 - **stzFileManage**: Handles file system operations (e.g., `CopyTo()`, `MoveTo()`, `SplitByLines()`) for disk-level management.
-
-The `stzFileReadingMixin` mixin provides shared features, including:
-- Universal read access (where applicable)
-- Automatic error handling (e.g., try-catch blocks)
-- Fluent method chaining for readable code
-- Efficient buffering for performance
 
 This RingQt foundation delivers:
 - **Battle-tested reliability** through Qt’s mature file handling system
