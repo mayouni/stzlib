@@ -507,12 +507,12 @@ Softanza enables:
 Softanza’s intent-based file API is built on RingQt, leveraging Qt’s robust file handling system for production-ready applications. Each of the seven intentions is implemented as a dedicated class:
 
 - **stzFileInfo**: Retrieves metadata (e.g., `Exists()`, `IsWritable()`, `Size()`) without opening the file, enabling informed decisions about file operations.
-- **stzFileRead**: Facilitates content reading with methods like `Lines()`, `FirstLine()`, and `ContainsText()` for efficient querying.
-- **stzFileAppend**: Supports appending content (e.g., `WriteLogEntryWithTimestamp()`, `WriteSeparator()`) with read access for context-aware logging.
-- **stzFileCreate**: Creates new files with formatted writing methods (e.g., `WriteHeader()`, `WriteBlankLine()`) and checks to prevent overwriting.
-- **stzFileOverwrite**: Replaces file content while allowing access to original content via `OriginalLines()`.
-- **stzFileModify**: Enables targeted modifications (e.g., `UpdateLineMatching()`, `InsertAfterLine()`) with read access to the original state.
-- **stzFileManage**: Handles file system operations (e.g., `CopyTo()`, `MoveTo()`, `SplitByLines()`) for disk-level management.
+- **stzFileReader**: Facilitates content reading with methods like `Lines()`, `FirstLine()`, and `ContainsText()` for efficient querying.
+- **stzFileAppender**: Supports appending content (e.g., `WriteLogEntryWithTimestamp()`, `WriteSeparator()`) with read access for context-aware logging.
+- **stzFileCreater**: Creates new files with formatted writing methods (e.g., `WriteHeader()`, `WriteBlankLine()`) and checks to prevent overwriting.
+- **stzFileOverwriter**: Replaces file content while allowing access to original content via `OriginalLines()`.
+- **stzFileModifier**: Enables targeted modifications (e.g., `UpdateLineMatching()`, `InsertAfterLine()`) with read access to the original state.
+- **stzFileManager**: Handles file system operations (e.g., `CopyTo()`, `MoveTo()`, `SplitByLines()`, `ZipAs()`) for disk-level management.
 
 This RingQt foundation delivers:
 - **Battle-tested reliability** through Qt’s mature file handling system
