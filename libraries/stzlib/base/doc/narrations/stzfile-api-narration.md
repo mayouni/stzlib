@@ -503,15 +503,30 @@ Softanza enables:
 4. Write expressive, maintainable code
 
 ## Implementation Foundation: RingQt Integration
+Softanza’s intent-based file API is built on RingQt, leveraging Qt’s robust file handling system for production-ready applications. Each of the seven intentions is implemented as a dedicated class, supported by a common mixin class, `stzFileBase`, which provides shared functionality such as read access, error handling, and fluent interfaces. This design ensures consistency and extensibility, with the following classes:
 
-Softanza’s intent-based file API is implemented on RingQt, providing critical advantages for production-level applications:
+- **stzFileInfo**: Retrieves metadata (e.g., `Exists()`, `IsWritable()`, `Size()`) without opening the file, enabling informed decisions about file operations.
+- **stzFileRead**: Facilitates content reading with methods like `Lines()`, `FirstLine()`, and `ContainsText()` for efficient querying.
+- **stzFileAppend**: Supports appending content (e.g., `WriteLogEntryWithTimestamp()`, `WriteSeparator()`) with read access for context-aware logging.
+- **stzFileCreate**: Creates new files with formatted writing methods (e.g., `WriteHeader()`, `WriteBlankLine()`) and checks to prevent overwriting.
+- **stzFileOverwrite**: Replaces file content while allowing access to original content via `OriginalLines()`.
+- **stzFileUpdate**: Enables targeted modifications (e.g., `UpdateLineMatching()`, `InsertAfterLine()`) with read access to the original state.
+- **stzFileManage**: Handles file system operations (e.g., `CopyTo()`, `MoveTo()`, `SplitByLines()`) for disk-level management.
+
+The `stzFileBase` mixin provides shared features, including:
+- Universal read access (where applicable)
+- Automatic error handling (e.g., try-catch blocks)
+- Fluent method chaining for readable code
+- Efficient buffering for performance
+
+This RingQt foundation delivers:
 - **Battle-tested reliability** through Qt’s mature file handling system
 - **Comprehensive Unicode support** for filenames and content across platforms
 - **Seamless cross-platform behavior**, eliminating manual handling of platform-specific details
 - **High-performance operations** on large files via efficient buffering
-- **TextStream integration** for cloud-oriented file management (future)
+- **TextStream integration** for future cloud-oriented file management
 
-This Qt-based foundation extends Softanza (future) to support remote file access, network streams, and cloud storage APIs, making it an enterprise-ready file handling system.
+This class-based architecture, combined with RingQt, prepares Softanza for future extensions like remote file access, network streams, and cloud storage APIs, making it an enterprise-ready file handling system for both local and distributed environments.
 
 ## Conclusion
 
