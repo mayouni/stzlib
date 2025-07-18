@@ -1,0 +1,6 @@
+# Configuration Settings
+# Created: 18/07/2025-11:04:19
+#========================
+DatabaseHost=localhost
+DatabasePort=5432
+DebugMode=true

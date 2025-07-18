@@ -116,6 +116,12 @@ func ConcatenateXT(pacListOfStr, pcSep)
 
 	#==
 
+	func JoinLines(acListOfStr)
+		return ConcatenateXT(acListofStr, NL)
+
+		func @JoinLines(acListOfStr)
+			return JoinLines(acListOfStr)
+
 	func JoinXT(acListOfStr, cSep)
 		return ConcatenateXT(acListOfStr, cSep)
 

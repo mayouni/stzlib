@@ -1,8 +1,23 @@
+func IsFolder(cDir)
+	return dirExists(cDir)
+
+	func IsDir(cDir)
+		return dirExists(cDir)
+
+	func @IsFolder(cDir)
+		return dirExists(cDir)
+
+	func @IsDir(cDir)
+		return dirExists(cDir)
 
 
 func StzFolderQ(cDir)
 	return new stzFolder(cDir)
 
+	func StzDirQ(cDir)
+		return new stzFolder(cDir)
+
+class stzDir from stzFolder
 class stzFolder from stzObject
 	oQDir
 
@@ -12,7 +27,7 @@ class stzFolder from stzObject
 		// oQDir.mkdir(pcDirPath)
 		oQDir.setPath(pcDirPath)
 	
-	def DirName()
+	def Name()
 		return oQDir.dirname()
 
 	def Path()
@@ -47,3 +62,12 @@ class stzFolder from stzObject
 
 	def IsFolder() # required by stzChainOfTruth
 		return _TRUE_
+
+		def IsAFolder()
+			return _TRUE_
+
+		def IsDir()
+			return _TRUE_
+
+		def IsADir()
+			return _TRUE_
