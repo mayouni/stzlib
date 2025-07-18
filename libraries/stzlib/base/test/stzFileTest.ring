@@ -2,7 +2,7 @@ load "../stzbase.ring"
 load "../../max/wings/international-wings/stzTime.ring"
 
 /*--- GETTiNG INFORMATION ABOUT FILES
-*/
+
 pr()
 
 FileInfo("stzFileTest.ring") {
@@ -16,9 +16,10 @@ FileInfo("stzFileTest.ring") {
 }
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*--- READING FILES (pure intent)
-
+*/
 pr()
 
 oReader = FileRead("tabdata.csv") # No write methods available - pure reading intent

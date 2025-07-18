@@ -503,7 +503,8 @@ Softanza enables:
 4. Write expressive, maintainable code
 
 ## Implementation Foundation: RingQt Integration
-Softanza’s intent-based file API is built on RingQt, leveraging Qt’s robust file handling system for production-ready applications. Each of the seven intentions is implemented as a dedicated class, supported by a common mixin class, `stzFileBase`, which provides shared functionality such as read access, error handling, and fluent interfaces. This design ensures consistency and extensibility, with the following classes:
+
+Softanza’s intent-based file API is built on RingQt, leveraging Qt’s robust file handling system for production-ready applications. Each of the seven intentions is implemented as a dedicated class, supported by a common mixin class, `stzFileReadingMixin`, which provides shared functionality to all other classes:
 
 - **stzFileInfo**: Retrieves metadata (e.g., `Exists()`, `IsWritable()`, `Size()`) without opening the file, enabling informed decisions about file operations.
 - **stzFileRead**: Facilitates content reading with methods like `Lines()`, `FirstLine()`, and `ContainsText()` for efficient querying.
@@ -513,7 +514,7 @@ Softanza’s intent-based file API is built on RingQt, leveraging Qt’s robust 
 - **stzFileUpdate**: Enables targeted modifications (e.g., `UpdateLineMatching()`, `InsertAfterLine()`) with read access to the original state.
 - **stzFileManage**: Handles file system operations (e.g., `CopyTo()`, `MoveTo()`, `SplitByLines()`) for disk-level management.
 
-The `stzFileBase` mixin provides shared features, including:
+The `stzFileReadingMixin` mixin provides shared features, including:
 - Universal read access (where applicable)
 - Automatic error handling (e.g., try-catch blocks)
 - Fluent method chaining for readable code
