@@ -28,6 +28,10 @@ func FileRead(cFileName)
     # Pure reading intent - read-only access
     return new stzFileReader(cFileName)
 
+func FileInfo(cFileName)
+	# Intent to get information without opening file
+	return new stzFileInfo(cFileName)
+
 func FileAppend(cFileName) 
     # Intent to add to end - can read + append
     return new stzFileAppender(cFileName)
@@ -40,9 +44,9 @@ func FileOverwrite(cFileName)
     # Intent to replace entirely - can read + overwrite
     return new stzFileOverwriter(cFileName)
 
-func FileUpdate(cFileName)
+func FileModify(cFileName)
     # Intent to modify existing - can read + sophisticated updates
-    return new stzFileUpdater(cFileName)
+    return new stzFileModify(cFileName)
 
 #==================================#
 # IMMEDIATE OPERATIONS (NO OBJECT) #
@@ -104,6 +108,11 @@ func FileSize(cFileName)
 # the overhead of opening files with QFile. This keeps it
 # lightweight and focused on metadata retrieval
 
+# Purpose: Provides metadata (e.g., existence, size, permissions)
+# without opening the file
+
+# Intent: "I want to get information about this file"
+
 class stzFileInfo from stzObject
     @cFileName
     @oQFileInfo
@@ -131,14 +140,21 @@ class stzFileInfo from stzObject
     def IsHidden()
         return @oQFileInfo.isHidden()
 
-    def CreationTime()
-        return @oQFileInfo.created().toString("dd/MM/yyyy hh:mm:ss")
+    def CreationTime() #TODO// Ask Mahmoud to add it to RingQt
+        # return @oQFileInfo.created().toString("dd/MM/yyyy hh:mm:ss")
+		StzRaise("Insupported feature!")
 
     def LastModificationTime()
         return @oQFileInfo.lastModified().toString("dd/MM/yyyy hh:mm:ss")
 
+		def LastModified()
+			return This.LastModificationTime()
+
     def LastReadingTime()
         return @oQFileInfo.lastRead().toString("dd/MM/yyyy hh:mm:ss")
+
+		def LastRead()
+			return This.LastReadingTime()
 
     def FilePath()
         return @oQFileInfo.filePath()
@@ -177,9 +193,11 @@ class stzFileInfo from stzObject
 # BASE READING CAPABILITIES (MIXIN)  #
 #====================================#
 
+# Purpose: This mixin provides universal reading
+# capabilities to all file handler classes
+
 class stzFileReadingMixin from stzObject
-    # This mixin provides universal reading capabilities
-    # to all file handler classes
+
     
     def Content()
         # Get current content from file
@@ -281,6 +299,11 @@ class stzFileReadingMixin from stzObject
 # READER CLASS - PURE READING INTENT #
 #====================================#
 
+# Purpose: Enables reading file content with rich
+# querying methods (e.g., Lines(), NumberOfLines())
+
+# Intent: "I want to get information about this file"
+
 class stzFileReader from stzFileReadingMixin
     @cFileName
     @oQFile
@@ -301,6 +324,12 @@ class stzFileReader from stzFileReadingMixin
 #========================================#
 # APPENDER CLASS - READ + APPEND INTENT  #
 #========================================#
+
+# Intent: "I want to add to the end of this file"
+
+# Purpose: Supports adding content (e.g., logs) with
+# methods like WriteLogEntry() and read access for
+# context-aware operations.
 
 class stzFileAppender from stzFileReadingMixin
     @cFileName
@@ -386,6 +415,11 @@ class stzFileAppender from stzFileReadingMixin
 #=======================================#
 # CREATOR CLASS - READ + CREATE INTENT  #
 #=======================================#
+
+# Purpose: Creates a new file with write methods and
+# read access, ensuring it doesn’t already exists
+
+# Intent: "I want to create a new file"
 
 class stzFileCreator from stzFileReadingMixin
     @cFileName
@@ -475,6 +509,11 @@ class stzFileCreator from stzFileReadingMixin
 #=============================================#
 # OVERWRITER CLASS - READ + OVERWRITE INTENT  #
 #=============================================#
+
+# Intent: "I want to replace this file's contents"
+
+# Purpose: Replaces all content while allowing access
+# to the original content before overwriting
 
 class stzFileOverwriter from stzFileReadingMixin
     @cFileName
@@ -574,11 +613,16 @@ class stzFileOverwriter from stzFileReadingMixin
     def Close()
         @oQFile.close()
 
-#=====================================================#
-# UPDATER CLASS - READ + SOPHISTICATED UPDATE INTENT  #
-#=====================================================#
+#=======================================================#
+# MODIFYIER CLASS - READ + SOPHISTICATED UPDATE INTENT  #
+#=======================================================#
 
-class stzFileUpdater from stzFileReadingMixin
+# Purpose: Modifies specific parts of a file (e.g., updating lines)
+# with read access to the original state
+
+# Intent: "I want to modify parts of this existing file"
+
+class stzFileModify from stzFileReadingMixin
     @cFileName
     @oQFile
     @cOriginalContent
@@ -833,3 +877,16 @@ class stzFileUpdater from stzFileReadingMixin
     def Close()
         @oQFile.close()
     
+#==========================#
+#  MANAGING FILES ON DISK  #
+#==========================#
+
+# Intent: "I want to manage this file on the disk"
+
+# Purpose: Handles disk-level operations (e.g., copying,
+# renaming, splitting) without requiring content access
+
+# Note: Like FileInfo(), it lacks read access, which
+# fits its focus on file system operations rather than
+# content manipulation
+

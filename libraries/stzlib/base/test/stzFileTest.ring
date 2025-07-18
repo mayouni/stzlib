@@ -1,6 +1,22 @@
 load "../stzbase.ring"
 load "../../max/wings/international-wings/stzTime.ring"
 
+/*--- GETTiNG INFORMATION ABOUT FILES
+*/
+pr()
+
+FileInfo("stzFileTest.ring") {
+
+    ? Exists()			#--> TRUE
+    ? IsWritable()		#--> TRUE
+    ? SizeInBytes()		#--> 140
+    ? LastModified()	#--> 18/07/2025 20:28:51
+    ? IsExecutable()	#--> FALSE
+
+}
+
+pf()
+
 /*--- READING FILES (pure intent)
 
 pr()
@@ -149,7 +165,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- UPDATING FILES (read + sophisticated update intent)
-*/
+
 pr()
 
 # The file "settings.txt" should have been created and contain:
@@ -165,7 +181,7 @@ ObsoleteSetting=remove_me
 
 # Create it manually (or by code) before runnin the sample
 
-oUpdater = FileUpdate("settings.txt")
+oUpdater = FileModify("settings.txt")
     # Can read original and current content
     aOriginalLines = oUpdater.OriginalLines()
     cCurrentContent = oUpdater.Content()
