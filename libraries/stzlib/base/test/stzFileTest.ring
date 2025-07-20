@@ -19,7 +19,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- READING FILES (pure intent)
-*/
+
 pr()
 
 oReader = FileRead("tabdata.csv") # No write methods available - pure reading intent
@@ -58,7 +58,7 @@ tree_id;block_id;created_at;tree_dbh;alive
 ]
 '
 
-? oReader.Size()
+? oReader.Size() # Or SizeInBytes()
 #--> 385
 
 oReader.Close()
@@ -67,27 +67,33 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- APPENDING TO FILES (read + append intent)
-
+*/
 pr()
 
-oAppender = FileAppend("log.txt")
+#TODO Add:
+FileRemove("log.txt")
+#	- FileErase("log.txt")
+
+
+FileAppend("log.txt") {
     # Can read existing content
-    if oAppender.IsEmpty()
-        oAppender.WriteLine("=== Log Started ===")
+    if IsEmpty()
+        WriteLine("=== Log Started ===")
     ok
     
     # Can examine existing content before appending
-    if not oAppender.ContainsText("Session started")
-        oAppender.WriteLogEntry("Session started")
+    if not ContainsText("Session started")
+        WriteLogEntry("Session started")
     ok
     
     # Append new content
-    oAppender.WriteLogEntry("New event occurred")
-    oAppender.WriteSeparator("=")
+    WriteLogEntry("New event occurred")
+    WriteSeparator("=")
 
-	? oAppender.Content()
+	? Content()
 
-oAppender.Close()
+	Close()
+}
 #-->
 '
 === Log Started ===
@@ -96,7 +102,7 @@ oAppender.Close()
 ==================================================
 '
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in almost 0.01 second(s) in Ring 1.22
 
 /*--- CREATING NEW FILES (read + create intent)
 

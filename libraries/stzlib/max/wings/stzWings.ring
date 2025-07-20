@@ -51,3 +51,4 @@
 	#-- Loading files files related to WEb wings modules
 
 		load "web-wings/stzUrl.ring"
+		load "web-wings/stzHtml.ring"
