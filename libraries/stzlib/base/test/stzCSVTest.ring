@@ -2,7 +2,7 @@ load "../stzbase.ring"
 load "../../max/list/stzList2D.ring"
 
 /*---
-
+*/
 pr()
 
 aMyList = [

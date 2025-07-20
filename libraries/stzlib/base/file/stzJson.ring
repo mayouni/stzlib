@@ -108,7 +108,7 @@ def init(p)
 			return NULL
 		ok
 
-		result = QVariantContent( @oQJsonObj.value(cKey).toVariant() )
+		result = QVariantToRing( @oQJsonObj.value(cKey).toVariant() )
 		return result
 	
 	def SetValue(cKey, value)
@@ -139,7 +139,7 @@ def init(p)
 			return NULL
 		ok
 		
-		result = QVariantContent( @oQJsonObj.take(cKey).toVariant() )
+		result = QVariantToRing( @oQJsonObj.take(cKey).toVariant() )
 		_UpdateDocument()
 		return result
 	
@@ -153,7 +153,7 @@ def init(p)
 			_SetError("Index out of range")
 			return NULL
 		ok
-		result = QVariantContent( @oQJsonArray.at(nIndex - 1).toVariant() )
+		result = QVariantToRing( @oQJsonArray.at(nIndex - 1).toVariant() )
 		return result
 	
 	def First()
@@ -165,7 +165,7 @@ def init(p)
 			_SetError("Array is empty")
 			return NULL
 		ok
-		result = QVAriantContent( @oQJsonArray.first() .toVariant() )
+		result = QVariantToRing( @oQJsonArray.first() .toVariant() )
 		return result
 	
 	def Last()
@@ -177,7 +177,7 @@ def init(p)
 			_SetError("Array is empty")
 			return NULL
 		ok
-		result = QVariantContent( @oQJsonArray.last().toVariant() )
+		result = QVariantToRing( @oQJsonArray.last().toVariant() )
 		return result
 	
 	def Add(value)
@@ -262,7 +262,7 @@ def init(p)
 			_SetError("Index out of range")
 			return NULL
 		ok
-		result = QVariantContent( @oQJsonArray.takeAt(nIndex - 1).toVariant() )
+		result = QVariantToRing( @oQJsonArray.takeAt(nIndex - 1).toVariant() )
 		_UpdateDocument()
 		return result
 	
@@ -375,12 +375,12 @@ def init(p)
 		for i = 1 to nLen
 			if acKeys[i] != cKey
 				oExistingValue = @oQJsonObj.value(acKeys[i])
-				aMap + [acKeys[i], QVariantContent(oExistingValue.toVariant())]
+				aMap + [acKeys[i], QVariantToRing(oExistingValue.toVariant())]
 			ok
 		next
 		
 		# Add new/updated key
-		aMap + [cKey, QVariantContent(oJsonValue.toVariant())]
+		aMap + [cKey, QVariantToRing(oJsonValue.toVariant())]
 		
 		# Rebuild from map
 		@oQJsonObj = new QJsonObject()

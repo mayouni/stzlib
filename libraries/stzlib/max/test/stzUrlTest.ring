@@ -1,8 +1,8 @@
+
 # stzUrl Class - Comprehensive Test Suite
 # Demonstrates all URL manipulation features with didactic progression
 
 load "../stzmax.ring"
-
 
 #-------------------------------#
 #  BASIC OBJECT CREATION        #
@@ -287,7 +287,7 @@ o1.SetPassword("secret")
 
 # Add query parameters
 
-SetQuery("page=1&size=20")
+o1.SetQuery("page=1&size=20")
 ? o1.Content()
 #--> https://apiuser:secret@www.example.com/products?page=1&size=20
 
@@ -450,7 +450,9 @@ pf()
 #-------------------------------#
 #  ERROR HANDLING               #
 #-------------------------------#
-*/
+
+/*---
+
 pr()
 
 o1 = new stzUrl("ht tp://invalid space.com")

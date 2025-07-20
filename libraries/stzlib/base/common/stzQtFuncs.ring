@@ -529,14 +529,14 @@ func IsQObject(p)
 	#>
 
 /* 
-    Function: QVariantContent(oQVariantObject)
+    Function: QVariantToRing(oQVariantObject)
     Description: Converts a QVariant object's content to a native Ring type (number, string, boolean, list, or HashList).
     Parameters:
         oQVariantObject - A QVariant object from RingQt
     Returns: The converted Ring value (number, string, boolean, list, or HashList) or NULL if unsupported
 */
 
-func QVariantContent(oQVariantObject)
+func QVariantToRing(oQVariantObject)
     if not ( isObject(oQVariantObject) and classname(oQVariantObject) = "qvariant" )
         StzRaise("Error: Parameter must be a QVariant object")
     ok
@@ -568,7 +568,7 @@ func QVariantContent(oQVariantObject)
         aQVariantList = oQVariantObject.toList()
         aResult = []
         for oItem in aQVariantList
-            aResult + QVariantContent(oItem) # Recursive conversion
+            aResult + QVariantToRing(oItem) # Recursive conversion
         next
         return aResult
     ok
@@ -580,10 +580,31 @@ func QVariantContent(oQVariantObject)
         aResult = []
         for cKey in aKeys
             oValue = oQVariantMap.value(cKey)
-            aResult + [cKey, QVariantContent(oValue)] # Recursive conversion
+            aResult + [cKey, QVariantToRing(oValue)] # Recursive conversion
         next
         return aResult
     ok
 
     # If type is unsupported, return NULL
     return NULL
+
+	func @QVariantToRing(oQVariantObject)
+		return QVariantToRing(oQVariantObject)
+
+	func QVariantToRingData(oQVariantObject)
+		return QVariantToRing(oQVariantObject)
+
+	func @QVariantToRingData(oQVariantObject)
+		return QVariantToRing(oQVariantObject)
+
+	func QVariantToRingVar(oQVariantObject)
+		return QVariantToRing(oQVariantObject)
+
+	func @QVariantToRingVar(oQVariantObject)
+		return QVariantToRing(oQVariantObject)
+
+	func QVariantToRingVariable(oQVariantObject)
+		return QVariantToRing(oQVariantObject)
+
+	func @QVariantToRingVariable(oQVariantObject)
+		return QVariantToRing(oQVariantObject)

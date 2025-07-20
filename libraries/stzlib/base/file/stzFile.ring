@@ -17,89 +17,204 @@ Philosophy:
 */
 
 
-#==================================#
-# FACTORY FUNCTIONS (INTENT-BASED) #
-#==================================#
-
 func FileExists(cFileName)
     oInfo = new stzFileInfo(cFileName)
     return oInfo.Exists()
 
-func FileRead(cFileName)
+func FileReadQ(cFileName)
     # Pure reading intent - read-only access
     return new stzFileReader(cFileName)
 
-func FileInfo(cFileName)
+func FileRead(cFileName)
+	return FileReadQ(cFileName).Content()
+
+func FileInfoQ(cFileName)
 	# Intent to get information without opening file
 	return new stzFileInfo(cFileName)
 
-func FileAppend(cFileName) 
-    # Intent to add to end - can read + append
-    return new stzFileAppender(cFileName)
+func FileInfo(cFileName)
+	return FileInfoQ(cFileName).Info()
+
+func FileInfoXT(cFileName)
+	return FileInfoQ(cFileName).InfoXT()
+
+
+# Appending an exsistant file
+# Intent to create new - can read + write (fails if file does not exist)
+
+func FileAppend(cFileName, cAdditionalText)
+
+	if NOT FileExists(cFileName)
+		StzRaise("Can't append a non-existing file: " + cFileName)
+	ok
+
+	if CheckParams()
+		if isList(cAdditionalText) and StzListQ(cAdditionalText).IsWithNamedParam()
+			cAdditionalText = cAdditionalText[2]
+		ok
+	ok
+
+	oFileAppender = new stzFileAppender(cFileName)
+	oFileAppender.Append(cAdditionalText)
+	return _TRUE_
+
+	func FileAppendQ(cFileName, cAdditionalText)
+		if NOT FileExists(cFileName)
+			StzRaise("Can't append a non-existing file: " + cFileName)
+		ok
+	
+		oFile = new stzFileAppender(cFileName)
+		oFile.Append(cAdditionalText)
+		return oFile
+
 
 func FileCreate(cFileName)
-    # Intent to create new - can read + write (fails if exists)
-    return new stzFileCreator(cFileName)
+	if FileExists(cFileName)
+		StzRaise("Can't proceed! The file already exists: " + cFileName)
+	ok
+	oFile = new stzFileCreator(cFileName)
+	oFile.Close()
 
-func FileOverwrite(cFileName)
-    # Intent to replace entirely - can read + overwrite
-    return new stzFileOverwriter(cFileName)
+	func FileCreateQ(cFileName)
+		if FileExists(cFileName)
+			StzRaise("Can't proceed! The file already exists: " + cFileName)
+		ok
+		oFile = new stzFileCreator(cFileName)
+		return oFile
 
-func FileModify(cFileName)
-    # Intent to modify existing - can read + sophisticated updates
-    return new stzFileModify(cFileName)
+# Overwriting an existing file-------------------------
 
-#==================================#
-# IMMEDIATE OPERATIONS (NO OBJECT) #
-#==================================#
+#NOTE #SMANTIC-PRECISION-GOAL
 
-func FileReplace(cFileName, cNewContent)
+# Sotanza file semantics does not include "Update" and "Repalce" at all,
+# because those are dedicated to the string semantics. Instead, the file
+# API uses two clear terms: "Overwrite" for chaning all the content
+# of a file, and "Modify" to change only parts of that file.
+
+
+func FileOverwrite(cFileName, cNewContent)
+    oFile = FileOverwite(cFileName, cNewContent)
+	oFile.Close()
+	return _TRUE_
+
+func FileOverwiteQ(cFileName, cNewContent)
     # Immediate operation - replaces entire file content
     if not FileExists(cFileName)
-        StzRaise("Cannot replace content of non-existent file: " + cFileName)
+        StzRaise("Cannot overwrite content of non-existent file: " + cFileName)
     ok
     
-    oFile = new QFile(cFileName)
-    oFile.open_3(QIODevice_WriteOnly | QIODevice_Truncate | QIODevice_Text)
-    oFile.write(cNewContent, len(cNewContent))
-    oFile.close()
-    return _TRUE_
+    oQFile = new QFile()
+	oQFile.setFileName(cFileName)
+
+    oQFile.open_3(QIODevice_WriteOnly | QIODevice_Truncate | QIODevice_Text)
+    oQFile.write(cNewContent, len(cNewContent))
+	return oQFile
+
+	func FileOverriteQ(cFileName, cNewContent)
+		return FileOverwriteQ(cFileName, cNewContent)
+
+func FileErase(cFileName)
+    if not FileExists(cSource)
+        StzRaise("Cannot erase non-existent file: " + cSource)
+    ok
+	oFile = new stzFileEraser(cFileName)
+	oFile.Erase()
+	return _TRUE_
+
+	func FileEraseQ(cFileName)
+	    if not FileExists(cSource)
+	        StzRaise("Cannot erase non-existent file: " + cSource)
+	    ok
+		oFile = new stzFileEraser(cFileName)
+		oFile.Erase()
+		return FileAppend(cFileName)
+
+func FileSafeErase(cFileName)
+
+    if not FileExists(cSource)
+        StzRaise("Cannot erase non-existent file: " + cSource)
+    ok
+
+	FileBackup(cFileName)
+
+	oFile = new stzFileEraser(cFileName)
+	oFile.Erase()
+	return _TRUE_
+
+	func FileSafeEraseQ(cFileName)
+
+	    if not FileExists(cSource)
+	        StzRaise("Cannot erase non-existent file: " + cSource)
+	    ok
+
+		FileBackup(cFileName)
+
+		oFile = new stzFileEraser(cFileName)
+		oFile.Erase()
+		return FileAppend(cFileName)
+
+func FileBackup(cFileName)
+    if NOT FileExists(cFileName)
+		StzRaise("Cannot backup a non-existent file: " + cFileName)
+	ok
+
+    ofileManager = new stz FileManager(cFileName)
+	oFileManager.Backup()
+	return _TRUE_
+
 
 func FileSafeOverwrite(cFileName, cNewContent)
     # Creates timestamped backup before overwriting
-    if FileExists(cFileName)
-        cBackup = cFileName + ".backup." + TimeStamp()
-        FileCopy(cFileName, cBackup)
-    ok
-    return FileReplace(cFileName, cNewContent)
+	FileBackup(cFileName)
+    FileOverwrite(cFileName, cNewContent)
+	return _TRUE_
+
+		
+func FileModify(cFileName, cOldContent, cNewContent)
+    if NOT FileExists(cFileName)
+		StzRaise("Cannot modify a non-existent file: " + cSource)
+	ok
+
+	oFileModifier = new stzFileModifier(cFileName)
+	oFileModifier.Modify(cOldContent, cNewContent)
+	return _TRUE_
+
 
 func FileCopy(cSource, cDestination)
     if not FileExists(cSource)
         StzRaise("Cannot copy non-existent file: " + cSource)
     ok
-    oSource = new QFile(cSource)
+    oSource = new QFile()
+	oSource.setFileName(cSource)
     return oSource.copy(cDestination)
 
 func FileMove(cSource, cDestination)
     if not FileExists(cSource)
         StzRaise("Cannot move non-existent file: " + cSource)
     ok
-    oSource = new QFile(cSource)
-    return oSource.rename(cDestination)
+    oSource = new QFile()
+	oSource.setFileName(cSource)
+    return oSource.rename(cDestination) #TODO // Check that rename implies move in Qt
 
 func FileRemove(cFileName)
     if not FileExists(cFileName)
         StzRaise("Cannot Remove non-existent file: " + cFileName)
     ok
-    oFile = new QFile(cFileName)
-    return oFile.remove()
+    oQFile = new QFile()
+	oQFile.setFileName(cFileName)
+    return oQFile.remove()
 
 func FileSize(cFileName)
     if not FileExists(cFileName)
         StzRaise("Cannot get size of non-existent file: " + cFileName)
     ok
-    oFile = new QFile(cFileName)
+    oQFile = new QFile()
+	oQFile.setFileName(cFileName)
     return oFile.size()
+
+	func FileSizeInBytes(cFileName)
+		return FileSize(cFileName)
+
 
 #=================================================#
 # META INFORMATION ABOUT FILE WITHOUT OPENING IT  #
@@ -122,6 +237,65 @@ class stzFileInfo from stzObject
         @cFileName = cFileName
         @oQFileInfo = new QFileInfo()
         @oQFileInfo.setFile(cFileName)
+
+
+	# CONDTITIONS AND CAPABILITIES
+
+	def Conditions()
+		return [
+			:FilesExists = TRUE
+		]
+
+	def Capabilities()
+		return [
+			:Read = FALSE,
+			:Append = FALSE,
+			:Create = FALSE,
+			:Overwrite = FALSE,
+			:Modify = FALSE
+		]
+
+		def Skills()
+			return This.Capabilities()
+
+	# SUMMARISED INFO
+
+   def Info()
+        return [
+            :name = This.BaseName(),
+            :size = This.Size(),
+            :suffix = This.Suffix(),
+            :path = This.FilePath(),
+            :exists = This.Exists(),
+            :isWritable = This.IsWritable(),
+            :isReadable = This.IsReadable(),
+            :lastModified = This.LastModified()
+        ]
+
+    def InfoXT()
+        return [
+            :name = This.BaseName(),
+            :completeName = This.CompleteBaseName(),
+            :size = This.Size(),
+            :suffix = This.Suffix(),
+            :completeSuffix = This.CompleteSuffix(),
+            :path = This.FilePath(),
+            :absolutePath = This.AbsoluteFilePath(),
+            :canonicalPath = This.CanonicalFilePath(),
+            :directory = This.DirPath(),
+            :exists = This.Exists(),
+            :isWritable = This.IsWritable(),
+            :isReadable = This.IsReadable(),
+            :isExecutable = This.IsExecutable(),
+            :isHidden = This.IsHidden(),
+            :isSymLink = This.IsSymLink(),
+            :symLinkTarget = This.SymLinkTarget(),
+            :lastModified = This.LastModified(),
+            :lastRead = This.LastRead()
+            # CreationTime omitted due to unsupported feature
+        ]
+
+	# DETAILED INFO METHODS
 
     def Exists()
         return @oQFileInfo.exists()
@@ -190,6 +364,7 @@ class stzFileInfo from stzObject
     def Refresh()
         @oQFileInfo.refresh()
 
+
 #====================================#
 # BASE READING CAPABILITIES (MIXIN)  #
 #====================================#
@@ -199,7 +374,6 @@ class stzFileInfo from stzObject
 
 class stzFileReadingMixin from stzObject
 
-    
     def Content()
         # Get current content from file
         nCurrentPos = @oQFile.pos()
@@ -316,11 +490,28 @@ class stzFileReader from stzFileReadingMixin
         
         @cFileName = cFileName
         @oQFile = new QFile()
-	   @oQfile.setFileName(cFileName)
+	    @oQfile.setFileName(cFileName)
         @oQFile.open_3(QIODevice_ReadOnly | QIODevice_Text)
     
     def Close()
         @oQFile.close()
+
+	def Conditions()
+		return [
+			:FileExists = TRUE
+		]
+
+	def Capabilities()
+		return [
+			:Read = TRUE,
+			:Append = FALSE,
+			:Create = FALSE,
+			:Overwrite = FALSE,
+			:Modify = FALSE
+		]
+
+		def Skills()
+			return This.Capabilities()
 
 #========================================#
 # APPENDER CLASS - READ + APPEND INTENT  #
@@ -337,14 +528,36 @@ class stzFileAppender from stzFileReadingMixin
     @oQFile
     
     def init(cFileName)
-        @cFileName = cFileName
-        @oQFile = new QFile()
-	   @oQFile.setFileName(cFileName)
+        if not FileExists(cFileName)
+            StzRaise("Cannot append non-existent file: " + cFileName)
+        ok
+
+		@cFileName = cFileName
+		@oQFile = new QFile()
+		@oQFile.setFileName(cFileName)
         @oQFile.open_3(QIODevice_ReadWrite | QIODevice_Append | QIODevice_Text)
     
+	def Conditions()
+		return [
+			:FileExists = TRUE
+		]
+
+	def Capabilities()
+		return [
+			:Read = TRUE,
+			:Append = TRUE,
+			:Create = FALSE,
+			:Overwrite = FALSE,
+			:Modify = FALSE
+		]
+
+		def Skills()
+			return This.Capabilities()
+
     # WRITE METHODS (intent-specific)
     def Write(cText)
         @oQFile.write(cText, len(cText))
+		return _TRUE_
 
 		def WrtiteQ(cText)
 			This.Write(cText)
@@ -352,25 +565,28 @@ class stzFileAppender from stzFileReadingMixin
     
     def WriteLine(cText)
         This.Write(cText + NL)
-    
+    	return _TRUE_
+
 		def WriteLineQ(cText)
-		This.WriteLine(cText)
-		return This
+			This.WriteLine(cText)
+			return This
 
     def WriteLines(aLines)
 	   nLen = len(aLines)
         for i = 1 to nlen
             This.WriteLine(aLines[i])
         next
-        
+        return _TRUE_
+
 	   def WrtiteLinesQ(aLines)
-		This.WriteLines(aLines)
-		return This
+			This.WriteLines(aLines)
+			return This
     
     def WriteTimestamp()
         cTimeStamp = TimeStamp()
         This.Write(cTimeStamp + ": ")
-    
+    	return _TRUE_
+
 	   def WriteTimeStampQ()
 		This.WriteTimeStamp()
 		return This
@@ -378,7 +594,8 @@ class stzFileAppender from stzFileReadingMixin
     def WriteLogEntry(cMessage)
         cTimeStamp = TimeStamp()
         This.WriteLine(cTimeStamp + " - " + cMessage)
-    
+    	return _TRUE_
+
 	   def WriteLogEntryQ(cMessage)
 		This.WriteLogEntryQ(cMessage)
 		return This
@@ -388,14 +605,16 @@ class stzFileAppender from stzFileReadingMixin
             cChar = "-"
         ok
         This.WriteLine(@Copy(cChar, 50))
-    
+    	return _TRUE_
+
 	   def WriteSeparatorQ(cChar)
 		This.WriteSeparator(cChar)
 		return This
 
     def WriteBlankLine()
         This.WriteLine("")
-    
+    	return _TRUE_
+
 	   def WriteBlankLineQ()
 		This.WriteBlankLine()
 		return This
@@ -412,6 +631,7 @@ class stzFileAppender from stzFileReadingMixin
     
     def Close()
         @oQFile.close()
+		return _TRUE_
 
 #=======================================#
 # CREATOR CLASS - READ + CREATE INTENT  #
@@ -433,12 +653,32 @@ class stzFileCreator from stzFileReadingMixin
         
         @cFileName = cFileName
         @oQFile = new QFile()
-	   @oQFile.setFileName(cFileName)
+	    @oQFile.setFileName(cFileName)
         @oQFile.open_3(QIODevice_ReadWrite | QIODevice_Text)
     
+	# CONDTITIONS AND CAPABILITIES
+
+	def Conditions()
+		return [
+			:FileExists = FALSE
+		]
+
+	def Capabilities()
+		return [
+			:Read = TRUE,
+			:Append = FALSE,
+			:Create = TRUE,
+			:Overwrite = FALSE,
+			:Modify = FALSE
+		]
+
+		def Skills()
+			return This.Capabilities()
+
     # WRITE METHODS (intent-specific)
     def Write(cText)
         @oQFile.write(cText, len(cText))
+		return _TRUE_
 
 	   def WriteQ(cText)
 		This.Write(cText)
@@ -446,16 +686,18 @@ class stzFileCreator from stzFileReadingMixin
     
     def WriteLine(cText)
         This.Write(cText + NL)
-    
+    	return _TRUE_
+
 	   def WriteLineQ(cText)
 		This.WriteLine(cText)
 		return This
 
     def WriteLines(aLines)
-	   nLen = len(aLines)
+	   	nLen = len(aLines)
         for i = 1 to nLen
             This.WriteLine(aLines[i])
         next
+		return _TRUE_
 
 	  def WriteLinesQ(aLines)
 		This.WriteLines(aLines)
@@ -466,14 +708,16 @@ class stzFileCreator from stzFileReadingMixin
         This.WriteLine("# Created: " + TimeStamp())
         This.WriteLine("#" + @Copy("=", len(cTitle) + 2))
         This.WriteBlankLine()
-    
+    	return _TRUE_
+
 	  def WriteHeaderQ(cTitle)
 		This.WriteHeader(cTitle)
 		return This
 
     def WriteBlankLine()
         This.WriteLine("")
-    
+    	return _TRUE_
+
 	   def WriteBlankLineQ()
 		This.WriteBlankLine()
 		return This
@@ -485,24 +729,27 @@ class stzFileCreator from stzFileReadingMixin
             This.WriteHeader("Log File")
             This.WriteLine("# Log entries will appear below")
             This.WriteBlankLine()
+			return _TRUE_
 
         on "config"
             This.WriteHeader("Configuration File")
             This.WriteLine("# Add your configuration settings below")
             This.WriteBlankLine()
+			return _TRUE_
 
         on "data"
             This.WriteHeader("Data File")
             This.WriteLine("# Data entries will appear below")
             This.WriteBlankLine()
+			return _TRUE_
 
         other
             This.WriteHeader("File: " + This.cFileName)
         off
 
 	   def WriteTemplateQ(cTemplateType)
-		This.WriteTemplate(cTemplateType)
-		return This
+			This.WriteTemplate(cTemplateType)
+			return This
     
     def Close()
         @oQFile.close()
@@ -516,7 +763,11 @@ class stzFileCreator from stzFileReadingMixin
 # Purpose: Replaces all content while allowing access
 # to the original content before overwriting
 
+# NOTE: Can't erase the file (overwriding it with an
+# empty conte). To do so, use FileErase().
+
 class stzFileOverwriter from stzFileReadingMixin
+
     @cFileName
     @oQFile
     @cOriginalContent  # Preserve original content for reading
@@ -525,9 +776,10 @@ class stzFileOverwriter from stzFileReadingMixin
         @cFileName = cFileName
         
         # First, preserve original content if file exists
+
         if FileExists(cFileName)
             oReader = new QFile()
-		  oreader.setFileName(cFileName)
+		  	oreader.setFileName(cFileName)
             oReader.open_3(QIODevice_ReadOnly | QIODevice_Text)
             @cOriginalContent = oReader.readAll().data()
             oReader.close()
@@ -536,10 +788,30 @@ class stzFileOverwriter from stzFileReadingMixin
         ok
         
         # Now open for read/write with truncation
+
         @oQFile = new QFile()
-	   @oQFile.setFileName(cFileName)
+	    @oQFile.setFileName(cFileName)
         @oQFile.open_3(QIODevice_ReadWrite | QIODevice_Truncate | QIODevice_Text)
-    
+
+	# CONDTITIONS AND CAPABILITIES
+
+	def Conditions()
+		return [
+			:FileExists = TRUE
+		]
+
+	def Capabilities()
+		return [
+			:Read = TRUE,
+			:Append = FALSE,
+			:Create = FALSE,
+			:Overwrite = TRUE,
+			:Modify = FALSE
+		]
+
+		def Skills()
+			return This.Capabilities()
+
     # READING METHODS (access to original content)
     def OriginalContent()
         return @cOriginalContent
@@ -560,8 +832,14 @@ class stzFileOverwriter from stzFileReadingMixin
 			return This.OriginalLineCount()
 
     # WRITE METHODS (intent-specific)
+
     def Write(cText)
+		if NOT (isString(cText) and cText != "")
+			StzRaise("Can't write to the file! You must provide a non empty string.")
+		ok
+
         @oQFile.write(cText, len(cText))
+		return _TRUE_
 
 		def WriteQ(cText)
 			This.Write(cText)
@@ -569,7 +847,8 @@ class stzFileOverwriter from stzFileReadingMixin
     
     def WriteLine(cText)
         This.Write(cText + NL)
-    
+    	return _TRUE_
+
 		def WriteLineQ(cText)
 			This.WriteLine(cText)
 			return This
@@ -579,25 +858,27 @@ class stzFileOverwriter from stzFileReadingMixin
         for i = 1 to nLen
             This.WriteLine(aLines[i])
         next
+		return _TRUE_
 
 		def WriteLinesQ(aLines)
 			This.WriteLines(aLines)
 			return This
     
     def WriteHeader(cTitle)
-
         This.WriteLine("# " + cTitle)
         This.WriteLine("# Updated: " + TimeStamp())
         This.WriteLine("#" + @Copy("=", len(cTitle) + 2))
         This.WriteBlankLine()
-    
+    	return _TRUE_
+
 		def WriteHeaderQ(cTile)
 			This.WriteHeader(cTitle)
 			return This
 
     def WriteBlankLine()
         This.WriteLine("")
-    
+    	return _TRUE_
+
 		def WriteBlankLineQ()
 			This.WriteBlankLine()
 			return This
@@ -606,6 +887,7 @@ class stzFileOverwriter from stzFileReadingMixin
         # Write original content back, then add modification
         This.Write(This.cOriginalContent)
         This.Write(cModification)
+		return _TRUE_
 
 		def PreserveAndModifyQ(cModification)
 			This.PreserveAndModify(cModification)
@@ -614,16 +896,94 @@ class stzFileOverwriter from stzFileReadingMixin
     def Close()
         @oQFile.close()
 
-#=======================================================#
-# MODIFYIER CLASS - READ + SOPHISTICATED UPDATE INTENT  #
-#=======================================================#
+# SPECIAL CASE OF THE OVERWRITE INTENT
+
+class stzEaraser from stzObject
+    @cFileName
+    @oQFile
+    @cOriginalContent  # Preserve original content for reading
+    
+    def init(cFileName)
+        @cFileName = cFileName
+        
+        # First, preserve original content if file exists
+
+        if FileExists(cFileName)
+            oReader = new QFile()
+		  	oreader.setFileName(cFileName)
+            oReader.open_3(QIODevice_ReadOnly | QIODevice_Text)
+            @cOriginalContent = oReader.readAll().data()
+            oReader.close()
+        else
+            @cOriginalContent = ""
+        ok
+        
+        # Now open for read/write with truncation
+
+        @oQFile = new QFile()
+	    @oQFile.setFileName(cFileName)
+        @oQFile.open_3(QIODevice_ReadWrite | QIODevice_Truncate | QIODevice_Text)
+
+	# CONDTITIONS AND CAPABILITIES
+
+	def Conditions()
+		return [
+			:FileExists = TRUE
+		]
+
+	def Capabilities()
+		return [
+			:Read = TRUE,
+			:Append = TRUE,
+			:Create = FALSE,
+			:Overwrite = TRUE,
+			:Modify = FALSE
+		]
+
+		def Skills()
+			return This.Capabilities()
+
+    # READING METHODS (access to original content)
+    def OriginalContent()
+        return @cOriginalContent
+    
+    def OriginalLines()
+        return @Lines(@cOriginalContent)
+    
+    def OriginalSize()
+        return len(@cOriginalContent)
+ 
+		def OriginalSizeInBytes()
+			return This.OriginalSize()
+
+    def OriginalLineCount()
+        return len(This.OriginalLines())
+    
+		def OriginalNumberOfLines()
+			return This.OriginalLineCount()
+
+    # WRITE METHODS (intent-specific)
+
+    def Erase()
+        @oQFile.write("", 0)
+		return _TRUE_
+
+		def EraseQ(cText)
+			This.Erase()
+			@oQFile.close()
+			return FileAppend(@cFileName)
+
+#======================================================#
+# MODIFIER CLASS - READ + SOPHISTICATED UPDATE INTENT  #
+#======================================================#
 
 # Purpose: Modifies specific parts of a file (e.g., updating lines)
 # with read access to the original state
 
 # Intent: "I want to modify parts of this existing file"
 
-class stzFileModify from stzFileReadingMixin
+class stzFileModifier from stzFileReadingMixin
+
     @cFileName
     @oQFile
     @cOriginalContent
@@ -656,7 +1016,26 @@ class stzFileModify from stzFileReadingMixin
         @oQFile = new QFile()
         @oQFile.setFileName(cFileName)
         @oQFile.open_3(QIODevice_ReadWrite | QIODevice_Text)
-    
+
+	# CONDTITIONS AND CAPABILITIES
+
+	def Conditions()
+		return [
+			:FileExists = TRUE
+		]
+
+	def Capabilities()
+		return [
+			:Read = TRUE,
+			:Append = FALSE,
+			:Create = FALSE,
+			:Overwrite = FALSE,
+			:Modify = TRUE
+		]
+
+		def Skills()
+			return This.Capabilities()
+
     # ACCESS TO ORIGINAL STATE
     def OriginalContent()
         return @cOriginalContent
@@ -677,45 +1056,33 @@ class stzFileModify from stzFileReadingMixin
         return This.OriginalLineCount()
 
     # SOPHISTICATED UPDATE METHODS
-    def ReplaceAllContent(cNewContent)
+    def ModifyAllContent(cNewContent)
         @oQFile.seek(0)  # Go to beginning
         @oQFile.resize(@cFileName, 0)  # Truncate to zero using filename
         @oQFile.write(cNewContent, len(cNewContent))
-        # Remove the flush() call - it expects no parameters in RingQt
+        # Remo	ve the flush() call - it expects no parameters in RingQt
+		return _TRUE_
 
-	    def ReplaceAllContentQ(cNewContent)
-	        This.ReplaceAllContent(cNewContent)
-	        return This
-    
-    def ReplaceAll(cNewContent)
-        This.ReplaceAllContent(cNewContent)
-
-	    def ReplaceAllQ(cNewContent)
-	        This.ReplaceAll(cNewContent)
+	    def ModifyAllContentQ(cNewContent)
+	        This.ModifyAllContent(cNewContent)
 	        return This
 
-    def Update(cNewContent)
-        This.ReplaceAllContent(cNewContent)
+    def ModifyAllContentWith(cNewContent)
+        This.ModifyAllContent(cNewContent)
 
-	    def UpdateQ(cNewContent)
-	        return This.ReplaceAllQ(cNewContent)
+	    def ModifyAllContentWithQ(cNewContent)
+	        return This.ModifyAllContentQ(cNewContent)
 
-    def UpdateWith(cNewContent)
-        This.ReplaceAllContent(cNewContent)
-
-	    def UpdateWithQ(cNewContent)
-	        return This.ReplaceAllQ(cNewContent)
-
-    def ReplaceLine(nLineNumber, cNewLine)
+    def ModifyLine(nLineNumber, cNewLine)
         aLines = This.OriginalLines()
         aLines[nLineNumber] = cNewLine
         cNewContent = JoinXT(aLines, NL)
-        This.ReplaceAllContent(cNewContent)
-    
-	    def ReplaceLineQ(nLineNumber, cNewLine)
-	        This.ReplaceLine(nLineNumber, cNewLine)
-	        return This
+        This.ModifyAllContent(cNewContent)
+    	return _TRUE_
 
+	    def ModifyLineQ(nLineNumber, cNewLine)
+	        This.ModifyLine(nLineNumber, cNewLine)
+	        return This
 
 	def InsertLineAt(nPos, cNewLine)
 	    aLines = @aOriginalLines
@@ -739,18 +1106,26 @@ class stzFileModify from stzFileReadingMixin
 		ok
 	    
 	    cNewContent = JoinXT(aLines, NL)  # Add newline separator
-	    This.ReplaceAllContent(cNewContent)
-
+	    This.ModifyAllContent(cNewContent)
+		return _TRue_
 
 	    def InsertLineAtQ(nPos, cNewLine)
 	        This.InsertLineAt(nPos, cNewLine)
 	        return This
 
-    def InsertLineAtBeginning(cNewLine)
+		def InsertLine(nPos, cNewLine)
+			This.InsertLineAt(nPos, nNewLine)
+
+			def InertLineQ(nPos, cNewLine)
+				return This.InsertLineAtQ(nPos, cNewLine)
+
+
+    def InsertLineAtStart(cNewLine)
         This.InsertLineAt(1, cNewLine)
-    
-	    def InsertLineAtBeginningQ(cNewLine)
-	        This.InsertLineAtBeginning(cNewLine)
+    	return _TRUE_
+
+	    def InsertLineAtStartQ(cNewLine)
+	        This.InsertLineAtStart(cNewLine)
 	        return This
 	 
 	def InsertLineAtEnd(cNewLine)
@@ -762,6 +1137,7 @@ class stzFileModify from stzFileReadingMixin
 	    ok
 	    
 	    This.InsertLineAt(len(aLines) + 1, cNewLine)
+		return _TRUE_
 
 		#< @FunctionFluentForm
 
@@ -774,7 +1150,8 @@ class stzFileModify from stzFileReadingMixin
 
 		def AppendWithLine(cNewLine)
 			This.InsertLineAtEnd(cNewLine)
-	
+			return _TRUE_
+
 			def AppendWithLineQ(cNewLine)
 				return This.InsertLineAtEndQ(cNewLine)
 		#>
@@ -782,14 +1159,16 @@ class stzFileModify from stzFileReadingMixin
 
     def InsertAfterLine(nLineNumber, cNewLine)
         This.InsertLineAt(nLineNumber + 1, cNewLine)
-    
+    	return _TRUE_
+
 	    def InsertAfterLineQ(nLineNumber, cNewLine)
 	        This.InsertAfterLine(nLineNumber, cNewLine)
 	        return This
 
     def InsertBeforeLine(nLineNumber, cNewLine)
-        return This.InsertLineAt(nLineNumber, cNewLine)
-    
+        This.InsertLineAt(nLineNumber, cNewLine)
+    	return _TRUE_
+
 	    def InsertBeforeLineQ(nLineNumber, cNewLine)
 	        This.InsertBeforeLine(nLineNumber, cNewLine)
 	        return This
@@ -799,26 +1178,57 @@ class stzFileModify from stzFileReadingMixin
         if nLineNumber >= 1 and nLineNumber <= len(aLines)
             del(aLines, nLineNumber)
             cNewContent = JoinXT(aLines, NL)
-            This.ReplaceAllContent(cNewContent)
+            This.ModifyAllContent(cNewContent)
+			return _TRUE_
         ok
-    
+    	return _False_
+
 	    def RemoveLineQ(nLineNumber)
 	        This.RemoveLine(nLineNumber)
 	        return This
 
     def RemoveFirstLine()
         This.RemoveLine(1)
-	    
+	    return _TRUE_
+
 	    def RemoveFirstLineQ()
 	        This.RemoveFirstLine()
 	        return This
 
     def RemoveLastLine()
         This.RemoveLine(len(@aOriginalLines))
-    
+    	return _TRUE_
+
 	    def RemoveLastLineQ()
 	        This.RemoveLastLine()
 	        return This
+
+	def FindLinesContaining(cSearchText)
+        aLines = @aOriginalLines
+        nLen = len(aLines)
+
+        anResult = []
+        for i = 1 to nLen
+            if substr(aLines[i], cSearchText) = 0
+                anResult + i
+            ok
+        next
+
+		return anResult
+
+	def LinesContaining(cSearchText)
+        acLines = @aOriginalLines
+        nLen = len(acLines)
+
+        acResult = []
+        for i = 1 to nLen
+            if substr(acLines[i], cSearchText) = 0
+                acResult + acLines[i]
+            ok
+        next
+
+		return acResult
+
 
     def RemoveLinesContaining(cSearchText)
         aLines = @aOriginalLines
@@ -832,19 +1242,41 @@ class stzFileModify from stzFileReadingMixin
         next
 
         cNewContent = JoinLines(aNewLines)
-        This.ReplaceAllContent(cNewContent)
-    
+        This.ModifyAllContent(cNewContent)
+    	return _TRUE_
+
 	    def RemoveLinesContainingQ(cSearchText)
 	        This.RemoveLinesContaining(cSearchText)
 	        return This
 
-    def Replace(cOldText, cNewText)
-        cNewContent = substr(@cOriginalContent, cOldText, cNewText)
-        This.ReplaceAllContent(cNewContent)
+    def Modify(cOldText, cNewText)
+		if CheckParams()
+			if NoT isString(cOldText)
+				StzRaise("Incorrect param type! cOldText must be a string.")
+			ok
 
-    def ReplaceQ(cOldText, cNewText)
-        This.Replace(cOldText, cNewText)
-        return This
+			if isList(cNewText) and StzListQ(cNewText).IsWithNamedParam()
+				cNexText = cNewText[2]
+			ok
+
+			if NoT isString(cNewText)
+				StzRaise("Incorrect param type! cNewText must be a string.")
+			ok
+		ok
+
+        cNewContent = substr(@cOriginalContent, cOldText, cNewText)
+        This.ModifyAllContent(cNewContent)
+		return _TRUE_
+
+	    def ModifyQ(cOldText, cNewText)
+	        This.Modify(cOldText, cNewText)
+	        return This
+
+		def ModifyText(cOldText, cNewText)
+			This.Modify(cOldText, cNewText)
+			return _TRUE_
+
+
 
     def ReplaceInLine(nLineNumber, cOldText, cNewText)
         aLines = This.OriginalLines()
@@ -900,6 +1332,31 @@ class stzFileManager from stzObject
         @oQFile = new QFile(cFileName)
         @oQFileInfo = new QFileInfo(cFileName)
     
+	# CONDTITIONS AND CAPABILITIES
+
+	def Conditions()
+		return [
+			:FileExists = TRUE
+		]
+
+	def Capabilities()
+		return [
+			:Copy = TRUE,
+			:Move = TRUE,
+			:Rename = TRUE,
+			:Delete = TRUE,
+			:Backup = TRUE,
+			:Split = TRUE,
+			:Zip = TRUE,
+			:MakeReadOnly = TRUE,
+			:MakeWritable = TRUE,
+			:MakeExecutable = TRUE,
+			:EncryptDecrypt = TRUE
+		]
+
+		def Skills()
+			return This.Capabilities()
+
     # COPY OPERATIONS
     def CopyTo(cDestinationPath)
         if not substr(cDestinationPath, -1, 1) = "/"
@@ -981,6 +1438,13 @@ class stzFileManager from stzObject
             This.RenameAs(cNewFileName)
             return This
     
+	# BACKUP OPERATION
+
+	def Backup()
+        cBackup = @cFileName + ".backup." + TimeStamp()
+        FileCopy(@cFileName, cBackup) #TODO // use internal methods to the object
+		return _TRUE_
+
     # SPLIT OPERATIONS
     def SplitByLines(nLinesPerFile)
         oReader = FileRead(@cFileName)
@@ -1109,6 +1573,7 @@ class stzFileManager from stzObject
             return This
     
     # ZIP OPERATIONS (Delegated to stzZipFile)
+
     def ZipAs(cZipFileName)
         # Create zip containing this file
         oZip = new stzZipFile(cZipFileName)
@@ -1255,6 +1720,10 @@ class stzFileManager from stzObject
             This.MakeExecutable()
             return This
     
+	# ENCRYPT/DECRYPT OPERATIONS (from stzCrypto) #TODO
+
+	
+
     # UTILITY METHODS
     def FileName()
         return @cFileName

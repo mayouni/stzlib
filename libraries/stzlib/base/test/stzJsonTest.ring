@@ -147,7 +147,7 @@ pr()
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*--- Example provided by Bert
+/*--- Example provided by Bert Meriani
 */
 pr()
 
