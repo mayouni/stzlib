@@ -1,256 +1,138 @@
+#======================================#
+#  STZFOLDER CLASS - SOFTANZA LIBRARY  #
+#======================================#
+
+# DESIGN NOTE: stzFolder Implementation Strategy
+#
+# This class maintains a "visible files only" abstraction by design:
+#
+# 1. HIDDEN FILES: Excluded by default to match user expectations
+#    - Most users work with visible files/folders only
+#    - System/temp files are typically irrelevant to folder operations
+#
+# 2. DUAL API STRATEGY:
+#    - Qt (QDir): Used for navigation, permissions, path operations, folder creation
+#      * Robust cross-platform path handling
+#      * Reliable folder operations (mkdir, rmdir, exists)
+#      * Navigation methods (cdUp, isRoot, absolutePath)
+#    
+#    - Ring (ring_dir): Used for file/folder enumeration  
+#      * Overcomes Qt entries bug
+#      * Consistent hidden file filtering
+#      * Direct file system access
+#
+# 3. CONSISTENCY RULE: 
+#    Count() = CountFiles() + CountFolders() 
+#    This ensures Count() matches len(Files()) + len(Folders())
+#    Avoids Qt's raw entry count that includes "." + ".." + hidden files
+#
+# 4. ABSTRACTION LEVEL: High-level, intuitive behavior
+#    - Users expect empty folder to show Count()=0, IsEmpty()=true
+#    - Technical details (Qt entries, system files) handled internally
+#
+
+# Enhanced Functions - Global scope helpers
 func IsFolder(cDir)
 	return dirExists(cDir)
-
-	func IsDir(cDir)
-		return dirExists(cDir)
-
-	func @IsFolder(cDir)
-		return dirExists(cDir)
-
-	func @IsDir(cDir)
-		return dirExists(cDir)
 
 func StzFolderQ(cDir)
 	return new stzFolder(cDir)
 
-	func StzDirQ(cDir)
-		return new stzFolder(cDir)
-
-class stzDir from stzFolder
-
 class stzFolder from stzObject
 	@oQDir
+	@cOriginalPath
 
 	def init(pcDirPath)
 		@oQDir = new QDir()
-		if pcDirPath != NULL and pcDirPath != ""
-			@oQDir.setPath(pcDirPath)
+		@cOriginalPath = pcDirPath
+		
+		if pcDirPath = NULL or pcDirPath = ""
+			@oQDir.setPath(".")
+			@cOriginalPath = "."
+			return
 		end
-	
-	  #-----------#
-	 #  CONTENT  #
-	#-----------#
+		
+		cCleanPath = QDir_cleanPath(NULL, pcDirPath)
+		
+		# If exists, just use it
+		if dirExists(cCleanPath)
+			@oQDir.setPath(cCleanPath)
+			return
+		end
+		
+		# Create if doesn't exist
+		try
+			oTempDir = new QDir()
+			bCreated = oTempDir.mkpath(cCleanPath)
+			
+			if bCreated
+				@oQDir.setPath(cCleanPath)
+			else
+				cParentPath = QDir_cleanPath(NULL, cCleanPath + "/..")
+				if not dirExists(cParentPath)
+					raise("Cannot create folder '" + cCleanPath + "' - parent folder '" + 
+					      cParentPath + "' doesn't exist.")
+				else
+					raise("Cannot create folder '" + cCleanPath + 
+					      "' - insufficient permissions or invalid path.")
+				end
+			end
+			
+		catch
+			raise("Failed to create folder '" + cCleanPath + "': " + CatchError())
+		end
+
+		if not dirExists(cCleanPath)
+			raise("Folder creation failed - '" + cCleanPath + "' doesn't exist after creation attempt.")
+		end
+
+	  #--------------------#
+	 #  CONTENT & STATUS  #
+	#--------------------#
 
 	def Name()
 		return @oQDir.dirName()
 
-		def DirName()
-			return @oQDir.dirName()
-
-
 	def Path()
 		return @oQDir.path()
-
-		def DirPath()
-			return @oQDir.path()
-
 
 	def AbsolutePath()
 		return @oQDir.absolutePath()
 
 		def FullPath()
-			return @oQDir.absolutePath()
-
-	def CanonicalPath()
-		return @oQDir.canonicalPath()
-
-	def RelativePath(cFile)
-		return @oQDir.relativeFilePath(cFile)
-
-		def RelativeFilePath(cFile)
-			return @oQDir.relativeFilePath(cFile)
-
-	def AbsoluteFilePath(cFile)
-		return @oQDir.absoluteFilePath(cFile)
-
-		def FullFilePath(cFile)
-			return @oQDir.absoluteFilePath(cFile)
-
-	def FilePath(cFile)
-		return @oQDir.filePath(cFile)
-
-	  #---------------------#
-	 #  NAVIGATION METHODS #
-	#---------------------#
-
-	def cd(cDir)
-		@oQDir.cd(cDir)
-		return _TRUE_
-
-		def ChangeDir(cDir)
-			return This.cd(cDir)
-
-		def ChangeTo(cDir)
-			return This.cd(cDir)
-
-		def GoTo(cDir)
-			return This.cd(cDir)
-
-		def MoveTo(cDir)
-			return This.cd(cDir)
-
-	def cdUp()
-		@oQDir.cdUp()
-		return _TRUE_
-
-		def GoUp()
-			return This.cdUp()
-
-		def MoveUp()
-			return This.cdUp()
-
-		def Up()
-			return This.cdUp()
-
-	def SetPath(cPath)
-		@oQDir.setPath(cPath)
-		return _TRUE_
-
-		def ChangePath(cPath)
-			return This.SetPath(cPath)
-	
-
-	  #------------------#
-	 #  CREATION METHODS #
-	#------------------#
-
-	def mkdir(pcDirName)
-		@oQDir.mkdir(pcDirName)
-		return _TRUE_
-
-		def CreateDir(pcDirName)
-			return This.mkdir(pcDirName)
-
-		def CreateFolder(pcDirName)
-			return This.mkdir(pcDirName)
-
-		def Make(pcDirName)
-			return This.mkdir(pcDirName)
-
-		def Create(pcDirName)
-			return This.mkdir(pcDirName)
-
-	def mkpath(pcDirPath)
-		@oQDir.mkpath(pcDirPath)
-		return _TRUE_
-
-		def CreatePath(pcDirPath)
-			return This.mkpath(pcDirPath)
-
-		def MakePath(pcDirPath)
-			return This.mkpath(pcDirPath)
-
-		def CreateFullPath(pcDirPath)
-			return This.mkpath(pcDirPath)
-
-	  #------------------#
-	 #  REMOVAL METHODS #
-	#------------------#
-
-	def rmdir(cDirName)
-		if cDirName = NULL or cDirName = ""
-			@oQDir.rmdir(".")
-		else
-			@oQDir.rmdir(cDirName)
-		end
-		return _TRUE_
-
-		def RemoveDir(cDirName)
-			return This.rmdir(cDirName)
-
-		def DeleteDir(cDirName)
-			return This.rmdir(cDirName)
-
-		def Remove(cDirName)
-			return This.rmdir(cDirName)
-
-		def Delete(cDirName)
-			return This.rmdir(cDirName)
-
-	def rmpath(cPath)
-		@oQDir.rmpath(cPath)
-		return _TRUE_
-
-		def RemovePath(cPath)
-			return This.rmpath(cPath)
-
-		def DeletePath(cPath)
-			return This.rmpath(cPath)
-
-	def RemoveRecursively()
-		@oQDir.removeRecursively()
-		return _TRUE_
-
-		def DeleteRecursively()
-			return This.RemoveRecursively()
-
-		def RemoveAll()
-			return This.RemoveRecursively()
-
-		def DeleteAll()
-			return This.RemoveRecursively()
-
-	def DeleteFile(cFile)
-		@oQDir.remove(cFile)
-		return _TRUE_
-
-		def RemoveFile(cFile)
-			return This.DeleteFile(cFile)
-
-	def Rename(cOldName, cNewName)
-		@oQDir.rename(cOldName, cNewName)
-		return _TRUE_
-
-		def RenameFile(cOldName, cNewName)
-			return This.Rename(cOldName, cNewName)
-
-	  #-----------------#
-	 #  LISTING METHODS #
-	#-----------------#
+			return This.AbsolutePath()
 
 	def Count()
-		return @oQDir.count()
+		return This.CountFiles() + This.CountFolders()
 
-		def CountFoldersAndFiles()
-			return @oQDir.count()
+		def Size()
+			return This.Count()
 
-		def CountFilesAndFolders()
-			return @oQDir.count()
+	def IsEmpty()
+		return This.Count() = 0
 
-		def HowManyFoldersAndFiles()
-			return @oQDir.count()
+		def Empty()
+			return This.IsEmpty()
 
-		def HowManyFilesAndFolders()
-			return return @oQDir.count()
+	def IsReadable()
+		return @oQDir.isReadable()
 
-		#--
+	def IsRoot()
+		return @oQDir.isRoot()
 
-		def CountDirsAndFiles()
-			return @oQDir.count()
+	def IsAbsolute()
+		return @oQDir.isAbsolute()
 
-		def CountFilesAndDirs()
-			return @oQDir.count()
+	def Exists(cPath)
+		if cPath = NULL or cPath = ""
+			return @oQDir.exists_2()
+		else
+			return @oQDir.exists(cPath)
+		end
 
-		def HowManyDirsAndFiles()
-			return @oQDir.count()
-
-		def HowManyFilesAndDirs()
-			return return @oQDir.count()
-
-		#--
-
-		def CountDirectoriesAndFiles()
-			return @oQDir.count()
-
-		def CountFilesAndDirectories()
-			return @oQDir.count()
-
-		def HowManyDirectoriesAndFiles()
-			return @oQDir.count()
-
-		def HowManyFilesAndDirectories()
-			return return @oQDir.count()
-
+	  #------------------#
+	 #  FILE OPERATIONS #
+	#------------------#
 
 	def Files()
 		mylist = ring_dir(@oQDir.path())
@@ -264,21 +146,12 @@ class stzFolder from stzObject
 		
 		return aResult
 
-	def CountFiles()
-		return len(This.Files())
-
-		def HowManyFiles()
-			return This.CountFiles()
-
-		def NumberOfFiles()
-			return This.CountFiles()
-
 	def Folders()
 		mylist = ring_dir(@oQDir.path())
 		aResult = []
 		
 		for entry in mylist
-			if entry[2] = 1  # Directory
+			if entry[2] = 1 and entry[1] != "." and entry[1] != ".."
 				aResult + entry[1]
 			end
 		next
@@ -288,42 +161,270 @@ class stzFolder from stzObject
 		def Dirs()
 			return This.Folders()
 
-		def Directories()
+		def SubFolders()
 			return This.Folders()
+
+	def CountFiles()
+		return len(This.Files())
 
 	def CountFolders()
 		return len(This.Folders())
 
-		def HowManyFolders()
-			return This.CountFiles()
-
-		def NumberOfFolders()
-			return This.CountFiles()
-
 		def CountDirs()
-			return This.CountFiles()
+			return This.CountFolders()
 
-		def NumberOfDirs()
-			return This.CountFiles()
+	def HasFiles()
+		return This.CountFiles() > 0
 
-		def HowManyDirs()
-			return This.CountFiles()
+		def ContainsFiles()
+			return This.HasFiles()
 
-		def CountDirectories()
-			return This.CountFiles()
+	def HasFolders()
+		return This.CountFolders() > 0
 
-		def NumberOfDirectories()
-			return This.CountFiles()
+		def ContainsFolders()
+			return This.HasFolders()
 
-		def HowManyDirectories()
-			return This.CountFiles()
+		def HasDirs()
+			return This.HasFolders()
+
+		def ContainsDirs()
+			return This.HasFolders()
+
+	def Contains(cName)
+		# Check both files and folders
+		aFiles = This.Files()
+		aFolders = This.Folders()
+		return (find(aFiles, cName) > 0) or (find(aFolders, cName) > 0)
+
+		def Has(cName)
+			return This.Contains(cName)
+
+	def ContainsFile(cFileName)
+		aFiles = This.Files()
+		return find(aFiles, cFileName) > 0
+
+	def ContainsFolder(cFolderName)
+		aFolders = This.Folders()
+		return find(aFolders, cFolderName) > 0
+
+		def ContainsDir(cFolderName)
+			return This.ContainsFolder(cFolderName)
+
+	  #--------------------#
+	 #  NAVIGATION        #
+	#--------------------#
+
+	def GoTo(cDir)
+		if cDir = ".."
+			return This.GoUp()
+		end
+		
+		if not IsAbsolutePath(cDir)
+			cFullPath = This.Path() + "/" + cDir
+		else
+			cFullPath = cDir
+		end
+		
+		if not dirExists(cFullPath)
+			raise("Cannot go to '" + cDir + "' - folder doesn't exist.")
+		end
+		
+		@oQDir.setPath(cFullPath)
+		return This
+
+		def MoveTo(cDir)
+			return This.GoTo(cDir)
+
+		def cd(cDir)
+			return This.GoTo(cDir)
+
+	def GoUp()
+		if This.IsRoot()
+			raise("Already at root - cannot go up further.")
+		end
+		
+		@oQDir.cdUp()
+		return This
+
+		def Up()
+			return This.GoUp()
+
+		def cdUp()
+			return This.GoUp()
+
+	def GoHome()
+		@oQDir.setPath(QDir_homePath())
+		return This
+
+	  #--------------------#
+	 #  FOLDER CREATION   #
+	#--------------------#
+
+	def CreateFolder(pcDirName)
+		if pcDirName = NULL or pcDirName = ""
+			raise("Folder name cannot be empty.")
+		end
+		
+		cFullPath = This.Path() + "/" + pcDirName
+		
+		if dirExists(cFullPath)
+			return new stzFolder(cFullPath)  # Return existing folder
+		end
+		
+		bSuccess = @oQDir.mkdir(pcDirName)
+		if not bSuccess
+			raise("Could not create folder '" + pcDirName + "'")
+		end
+		
+		return new stzFolder(cFullPath)
+
+		def mkdir(pcDirName)
+			return This.CreateFolder(pcDirName)
+
+		def MakeFolder(pcDirName)
+			return This.CreateFolder(pcDirName)
+
+	def CreateFolders(acDirNames)
+		aCreated = []
+		for cName in acDirNames
+			try
+				oNewFolder = This.CreateFolder(cName)
+				aCreated + oNewFolder
+			catch cError
+				raise("Failed creating folder '" + cName + "': " + cError)
+			end
+		next
+		return aCreated
+
+	def CreatePath(pcFullPath)
+		if pcFullPath = NULL or pcFullPath = ""
+			raise("Path cannot be empty.")
+		end
+		
+		bSuccess = @oQDir.mkpath(pcFullPath)
+		if not bSuccess
+			raise("Could not create path: " + pcFullPath)
+		end
+		
+		return new stzFolder(pcFullPath)
+
+		def mkpath(pcFullPath)
+			return This.CreatePath(pcFullPath)
+
+	  #--------------------#
+	 #  FOLDER REMOVAL    #
+	#--------------------#
+
+	def RemoveFolder(cFolderName)
+		if cFolderName = NULL or cFolderName = ""
+			raise("Please specify folder name to remove.")
+		end
+		
+		if not This.ContainsFolder(cFolderName)
+			raise("Folder '" + cFolderName + "' doesn't exist here.")
+		end
+		
+		# Check if target folder is empty
+		oTargetFolder = new stzFolder(This.Path() + "/" + cFolderName)
+		if not oTargetFolder.IsEmpty()
+			raise("Cannot remove '" + cFolderName + "' - folder not empty.")
+		end
+		
+		bSuccess = @oQDir.rmdir(cFolderName)
+		if not bSuccess
+			raise("Could not remove folder '" + cFolderName + "'")
+		end
+		
+		return This
+
+		def rmdir(cFolderName)
+			return This.RemoveFolder(cFolderName)
+
+		def DeleteFolder(cFolderName)
+			return This.RemoveFolder(cFolderName)
+
+	def RemoveFile(cFileName)
+		if cFileName = NULL or cFileName = ""
+			raise("Please specify file name to remove.")
+		end
+		
+		if not This.ContainsFile(cFileName)
+			raise("File '" + cFileName + "' doesn't exist here.")
+		end
+		
+		bSuccess = @oQDir.remove(cFileName)
+		if not bSuccess
+			raise("Could not remove file '" + cFileName + "'")
+		end
+		
+		return This
+
+		def DeleteFile(cFileName)
+			return This.RemoveFile(cFileName)
+
+	def RemoveRecursively()
+		# Dangerous operation - keep serious name
+		cMyPath = This.Path()
+		
+		bSuccess = @oQDir.removeRecursively()
+		if not bSuccess
+			raise("Could not remove folder and contents at '" + cMyPath + "'")
+		end
+		
+		@oQDir = NULL  # Object invalid after removal
+		return _TRUE_
+
+		def DeleteRecursively()
+			return This.RemoveRecursively()
+
+	  #--------------------#
+	 #  SEARCH & FILTER   #
+	#--------------------#
+
+	def Find(cPattern)
+		# Search both files and folders
+		aFiles = This.FindFiles(cPattern)
+		aFolders = This.FindFolders(cPattern) 
+		return [:Files = aFiles, :Folders = aFolders]
+
+	def FindFiles(cPattern)
+		if cPattern = NULL or cPattern = ""
+			return This.Files()
+		end
+		
+		aAllFiles = This.Files()
+		aMatches = []
+		
+		for cFile in aAllFiles
+			if This.Matches(cPattern, cFile)
+				aMatches + cFile
+			end
+		next
+		
+		return aMatches
+
+	def FindFolders(cPattern)
+		if cPattern = NULL or cPattern = ""
+			return This.Folders()
+		end
+		
+		aAllFolders = This.Folders()
+		aMatches = []
+		
+		for cFolder in aAllFolders
+			if This.Matches(cPattern, cFolder)
+				aMatches + cFolder
+			end
+		next
+		
+		return aMatches
 
 	def FilesByExtension(cExt)
 		if left(cExt, 1) != "."
 			cExt = "." + cExt
 		end
 		
-		# Use Ring's ring_dir() function
 		mylist = ring_dir(@oQDir.path())
 		aResult = []
 		
@@ -331,7 +432,6 @@ class stzFolder from stzObject
 			cFileName = entry[1]
 			nType = entry[2]
 			
-			# Check if it's a file (type 0) and has correct extension
 			if nType = 0 and right(cFileName, len(cExt)) = cExt
 				aResult + cFileName
 			end
@@ -339,279 +439,26 @@ class stzFolder from stzObject
 		
 		return aResult
 
-		def FilesByXT(cExt)
-			return FilesByExtension(cExt)
-
 	  #--------------------#
-	 #  FILTERING METHODS #
+	 #  DISPLAY & INFO    #
 	#--------------------#
-
-	def SetFilter(nFilter)
-		@oQDir.setFilter(nFilter)
-		return _TRUE_
-
-	def Filter()
-		@oQDir.filter()
-		return _TRUE_
-
-	def SetNameFilters(aFilters)
-		oStringList = new QStringList()
-		for cFilter in aFilters
-			oStringList.append(cFilter)
-		next
-		@oQDir.setNameFilters(oStringList)
-		return _TRUE_
-
-		def SetFilters(aFilters)
-			return This.SetNameFilters(aFilters)
-
-	def NameFilters()
-		oStringList = @oQDir.nameFilters()
-		aResult = []
-		for i = 0 to oStringList.size() - 1
-			aResult + oStringList.at(i)
-		next
-		return aResult
-
-		def Filters()
-			return NameFilters()
-
-	  #------------------#
-	 #  SORTING METHODS #
-	#------------------#
-
-	def SetSorting(nSort)
-		@oQDir.setSorting(nSort)
-		return _TRUE_
-
-	def Sorting()
-		return @oQDir.sorting()
-
-	  #-----------------#
-	 #  STATUS METHODS #
-	#-----------------#
-
-	def Exists(cPath)
-		if cPath = NULL or cPath = ""
-			return @oQDir.exists_2()
-		else
-			return @oQDir.exists(cPath)
-		end
-
-		def PathExists(cPath)
-			return Exists(cPath)
-
-		def DirExists(cPath)
-			return Exists(cPath)
-
-		def FolderExists(cPath)
-			return Exists(cPath)
-
-	def IsAbsolute()
-		return @oQDir.isAbsolute()
-
-		def IsAbsolutePath()
-			return @oQDir.isAbsolute()
-
-	def IsRelative()
-		return @oQDir.isRelative()
-
-		def IsRelativePath()
-			return @oQDir.isRelative()
-
-	def IsReadable()
-		return @oQDir.isReadable()
-
-		def CanRead()
-			return @oQDir.isReadable()
-
-	def IsRoot()
-		return @oQDir.isRoot()
-
-		def IsRootDir()
-			return @oQDir.isRoot()
-
-	def MakeAbsolute()
-		return @oQDir.makeAbsolute()
-
-		def ToAbsolute()
-			return @oQDir.makeAbsolute()
-
-	def Refresh()
-		@oQDir.refresh()
-		return _TRUE_
-	
-
-	  #-----------------#
-	 #  STATIC METHODS #
-	#-----------------#
-
-	def CurrentPath()
-		return QDir_currentPath(@oQDir.ObjectPointer())
-
-		def CurrentDir()
-			return QDir_currentPath(@oQDir.ObjectPointer())
-
-	def HomePath()
-		return QDir_homePath(@oQDir.ObjectPointer())
-
-		def HomeDir()
-			return QDir_homePath(@oQDir.ObjectPointer())
-
-	def TempPath()
-		return QDir_tempPath(@oQDir.ObjectPointer())
-
-		def TempDir()
-			return QDir_tempPath(@oQDir.ObjectPointer())
-
-		def TemporaryPath()
-			return QDir_tempPath(@oQDir.ObjectPointer())
-
-	def RootPath()
-		return QDir_rootPath(@oQDir.ObjectPointer())
-
-		def RootDir()
-			return QDir_rootPath(@oQDir.ObjectPointer())
-
-	def SetCurrentPath(cPath)
-		QDir_setCurrent(@oQDir.ObjectPointer(), cPath)
-		return _TRUE_
-
-		def SetCurrentDir(cPath)
-			return QDir_setCurrent(@oQDir.ObjectPointer(), cPath)
-
-	def CleanPath(cPath)
-		QDir_cleanPath(@oQDir.ObjectPointer(), cPath)
-		return _TRUE_
-
-		def NormalizePath(cPath)
-			return QDir_cleanPath(@oQDir.ObjectPointer(), cPath)
-
-	def FromNativeSeparators(cPath)
-		return QDir_fromNativeSeparators(@oQDir.ObjectPointer(), cPath)
-
-	def ToNativeSeparators(cPath)
-		return QDir_toNativeSeparators(@oQDir.ObjectPointer(), cPath)
-
-	def Separator()
-		oChar = QDir_separator(@oQDir.ObjectPointer())
-		return oChar.unicode()
-
-		def PathSeparator()
-			oChar = QDir_separator(@oQDir.ObjectPointer())
-			return oChar.unicode()
-
-	def IsAbsolutePathXT(cPath)
-		return QDir_isAbsolutePath(@oQDir.ObjectPointer(), cPath)
-
-	def IsRelativePathXT(cPath)
-		return QDir_isRelativePath(@oQDir.ObjectPointer(), cPath)
-
-	def Match(cFilter, cFileName)
-		return QDir_match(@oQDir.ObjectPointer(), cFilter, cFileName)
-
-		def Matches(cFilter, cFileName)
-			return QDir_match(@oQDir.ObjectPointer(), cFilter, cFileName)
-
-		def FileMatches(cFilter, cFileName)
-			return QDir_match(@oQDir.ObjectPointer(), cFilter, cFileName)
-
-	  #------------------------#
-	 #  SOFTANZA ENHANCEMENTS #
-	#------------------------#
-
-	def Show()
-		? "Folder: " + This.Name()
-		? "Path: " + This.Path()
-		? "Absolute path: " + This.AbsolutePath()
-		? "Entries count: " + This.Count()
-
-
-		def Display()
-			return Show()
-
-		def Print()
-			return Show()
 
 	def Info()
 		aInfo = [
 			:Name = This.Name(),
 			:Path = This.Path(),
 			:AbsolutePath = This.AbsolutePath(),
-			:CanonicalPath = This.CanonicalPath(),
 			:Count = This.Count(),
-			:IsAbsolute = This.IsAbsolute(),
+			:Files = This.CountFiles(),
+			:Folders = This.CountFolders(),
+			:IsEmpty = This.IsEmpty(),
 			:IsReadable = This.IsReadable(),
 			:IsRoot = This.IsRoot(),
 			:Exists = This.Exists("")
 		]
 		return aInfo
 
-		def DirInfo()
-			return Info()
-
-	def IsEmpty()
-		return This.Count() = 0
-
-		def Empty()
-			return This.Count() = 0
-
-	def IsNotEmpty()
-		return This.Count() > 0
-
-		def NotEmpty()
-			return This.Count() > 0
-
-		def HasContent()
-			return This.Count() > 0
-
-	def HasFiles()
-		aFiles = This.FilesOnly()
-		return len(aFiles) > 0
-
-		def ContainsFiles()
-			return HasFiles()
-
-	def HasFolders()
-		aFolders = This.FoldersOnly()
-		return len(aFolders) > 0
-
-		def HasSubDirs()
-			return HasFolders()
-
-		def ContainsFolders()
-			return HasFolders()
-
-		def ContainsSubDirs()
-			return HasFolders()
-
-	def FindFiles(cPattern)
-		return EntryList([cPattern], 1, 0)
-
-		def Search(cPattern)
-			return FindFiles(cPattern)
-
-		def Find(cPattern)
-			return FindFiles(cPattern)
-
-	def FindFolders(cPattern)
-		return EntryList([cPattern], 2, 0)
-
-		def FindDirs(cPattern)
-			return FindFolders(cPattern)
-
-	def Copy()
-		return new stzFolder(This.Path())
-
-		def Clone()
-			return Copy()
-
-	def SizeInBytes()
-		# This would require recursive calculation
-		# For now, return number of entries
-		return This.Count()
-
-	def TreeView(nLevel)
+	def Show(nLevel)
 		if nLevel = NULL
 			nLevel = 0
 		end
@@ -620,55 +467,32 @@ class stzFolder from stzObject
 		? cIndent + "📁 " + This.Name()
 		
 		# Show files
-		aFiles = This.FilesOnly()
+		aFiles = This.Files()
 		for cFile in aFiles
 			? cIndent + "  📄 " + cFile
 		next
 		
-		# Show subdirectories
-		aFolders = This.FoldersOnly()
+		# Show subfolders
+		aFolders = This.Folders()
 		for cFolder in aFolders
-			if cFolder != "." and cFolder != ".."
-				oSubFolder = new stzFolder(This.Path() + "/" + cFolder)
-				oSubFolder.TreeView(nLevel + 1)
-			end
+			oSubFolder = new stzFolder(This.Path() + "/" + cFolder)
+			oSubFolder.Show(nLevel + 1)
 		next
-		
 
-		def Tree(nLevel)
-			return TreeView(nLevel)
+	  #--------------------#
+	 #  UTILITY METHODS   #
+	#--------------------#
 
-	#---------------------#
-	# Qt internal method  #
-	#---------------------#
+	def Copy()
+		return new stzFolder(This.Path())
 
-	PRIVATE
+		def Clone()
+			return This.Copy()
 
-	def EntryList(aNameFilters, nFilters, nSort)
-		if aNameFilters = NULL
-			aNameFilters = []
-		end
-		if nFilters = NULL
-			nFilters = 0
-		end
-		if nSort = NULL
-			nSort = 0
-		end
-	
-		# Convert Ring array to QStringList for entryList(P1,P2,P3)
-		oStringListFilters = new QStringList()
-		for cFilter in aNameFilters
-			oStringListFilters.append(cFilter)
-		next
-	
-		# Use entryList(P1,P2,P3) method - requires QStringList, int, int
-		oStringList = @oQDir.entryList(oStringListFilters, nFilters, nSort)
-		aResult = []
-		for i = 0 to oStringList.size() - 1
-			aResult + oStringList.at(i)
-		next
-		return aResult
+	def Refresh()
+		@oQDir.refresh()
+		return This
 
-
-		def Entries(aNameFilters, nFilters, nSort)
-			return EntryList(aNameFilters, nFilters, nSort)
+	# Internal helper
+	def Matches(cFilter, cFileName)
+		return QDir_match(@oQDir.ObjectPointer(), cFilter, cFileName)
