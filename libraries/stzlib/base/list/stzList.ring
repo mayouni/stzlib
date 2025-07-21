@@ -58,6 +58,88 @@ func Listify(cStrInList)
 
 #===
 
+func FirstN(n, aList)
+	if CheckParams()
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! aList must be a list.")
+		ok
+
+		if NOT isList(aList)
+			StzRaise("Incorrect param type! aList must be a list.")
+		ok
+	ok
+
+	aResult = []
+	nLen = len(aList)
+	if n >= nLen
+		return aList
+	ok
+
+	for i = 1 to n
+		aResult + aList[i]
+	next
+
+	return aResult
+
+	#< @FunctionAlternativeForms
+
+	func FirstNItems(aList)
+		return FirstN(n, aList)
+
+	func @FirstN(n, aList)
+		return FirstN(n, aList)
+
+	func @FirstNItems(n, aList)
+		return FirstN(n, aList)
+
+	func NFirst(n, aList)
+		return FirstN(n, aList)
+
+	#--
+
+	func NFirstItems(aList)
+		return FirstN(n, aList)
+
+	func @NFirst(n, aList)
+		return FirstN(n, aList)
+
+	func @NFirstItems(n, aList)
+		return FirstN(n, aList)
+
+	#>
+
+func First3(aList)
+	return FirstN(3, aList)
+
+	#< @FunctionAlternativeForms
+
+	func First3Items(aList)
+		return First3(aList)
+
+	func @First3(aList)
+		return First3(aList)
+
+	func @First3Items(aList)
+		return First3(aList)
+
+	func 3First(aList)
+		return First3(aList)
+
+	#--
+
+	func 3FirstItems(aList)
+		return First3(aList)
+
+	func @3First(aList)
+		return FirstN(n, aList)
+
+	func @3FirstItems(aList)
+		return First3(aList)
+
+	#>
+
+#===
+
 func HasKey(paList, pcKey)
 	if CheckParams()
 		if NOT isString(pcKey)

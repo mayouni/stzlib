@@ -18,9 +18,9 @@ Main thematic sections of this test file:
 
 */
 
-#==================================#
-#  BASIC FOLDER CREATION & INFO    #
-#==================================#
+#================================#
+#  BASIC FOLDER CREATION & INFO  #
+#================================#
 
 /*--- Basic Folder Creation and Information
 
@@ -29,8 +29,8 @@ pr()
 o1 = new stzFolder("C:\MyTestFolder")
 o1 {
 
-     ? @@NL( Info() )
-     #-->
+    ? @@NL( Info() )
+    #-->
 	' [
 		[ "name", "MyTestFolder" ],
 		[ "path", "C:/MyTestFolder" ],
@@ -43,16 +43,16 @@ o1 {
 		[ "isroot", 0 ],
 		[ "exists", 1 ]
 	]'
-     
+    
 
 	? Name()
-     #--> MyTestFolder
-     
-     ? IsEmpty()
-     #--> TRUE
-     
-     ? Count() # Or Size()
-     #--> 0
+    #--> MyTestFolder
+    
+    ? IsEmpty()
+    #--> TRUE
+    
+    ? Count() # Or Size()
+    #--> 0
 }
 
 pf()
@@ -65,50 +65,49 @@ pr()
 o1 = new stzFolder("C:\MyTestFolder\Documents\Projects")
 o1 {
 
-     ? Name()
-     #--> Projects
-     
-     ? Path()
-     #--> C:\Users\John\Documents\Projects
-     
-     ? FullPath() # Or AbsolutePath()
-     #--> C:\Users\John\Documents\Projects
-     
-     ? IsAbsolute()
-     #--> TRUE
-     
-     ? IsRoot()
-     #--> FALSE
+    ? Name()
+    #--> Projects
+    
+    ? Path()
+    #--> C:\Users\John\Documents\Projects
+    
+    ? FullPath() # Or AbsolutePath()
+    #--> C:\Users\John\Documents\Projects
+    
+    ? IsAbsolute()
+    #--> TRUE
+    
+    ? IsRoot()
+    #--> FALSE
 }
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Folder Status Checks
-*/
+
 pr()
 
 o1 = new stzFolder("C:\Windows")
 o1 {
-     ? IsReadable()
-     #--> TRUE
-     
-     ? Exists("System32")
-     #--> TRUE
-     
-     ? HasFiles() # Or ContainsFiles()
-     #--> TRUE
-     
-     ? HasFolders() # Or HasDirs()
-     #--> Has folders: TRUE
-}
+    ? IsReadable()
+    #--> TRUE
+    
+    ? Exists("System32")
+    #--> TRUE
+    
+    ? HasFiles() # Or ContainsFiles()
+    #--> TRUE
+    
+    ? HasFolders() # Or HasDirs()
+    #--> TRUE
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
-#==================================#
-#  FOLDER NAVIGATION               #
-#==================================#
+#=====================#
+#  FOLDER NAVIGATION  #
+#=====================#
 
 /*--- Basic Navigation
 
@@ -116,26 +115,28 @@ pr()
 
 o1 = new stzFolder("C:\Users")
 o1 {
-     ? "Current path: " + Path()
-     #--> Current path: C:\Users
-     
-     GoTo("Public") # Or MoveTo() or cd()
-     ? "After GoTo('Public'): " + Path()
-     #--> After GoTo('Public'): C:\Users\Public
-     
-     Up() # Or GoUp() or cdUp()
-     ? "After Up(): " + Path()
-     #--> After Up(): C:\Users
-     
-     GoHome()
-     ? "After GoHome(): " + Path()
-     #--> After GoHome(): C:\Users\[Username]
+    # Current path
+	? Path()
+    #--> C:\Users
+    
+    GoTo("Public") # Or MoveTo() or cd()
+	? Path()
+    #--> C:\Users\Public
+    
+    Up() # Or GoUp() or cdUp()
+    ? Path()
+    #--> C:\Users
+    
+    GoHome()
+    ? Path()
+    #--> C:\Users\[Username]
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 #==================================#
-#  FILE & FOLDER OPERATIONS        #
+#  FILE & FOLDER OPERATIONS       #
 #==================================#
 
 /*--- Listing Files and Folders
@@ -144,49 +145,41 @@ pr()
 
 o1 = new stzFolder("C:\Windows\System32")
 o1 {
-     aFiles = Files()
-     ? "Number of files: " + len(aFiles)
-     #--> Number of files: 3247
-     
-     ? "First 3 files:"
-     for i = 1 to 3
-          ? "  " + aFiles[i]
-     next
-     #--> First 3 files:
-     #     calc.exe
-     #     notepad.exe
-     #     cmd.exe
-     
-     aFolders = Folders() # Or Dirs() or SubFolders()
-     ? "Number of folders: " + len(aFolders)
-     #--> Number of folders: 156
-     
-     ? "First 3 folders:"
-     for i = 1 to 3
-          ? "  " + aFolders[i]
-     next
-     #--> First 3 folders:
-     #     drivers
-     #     config
-     #     Tasks
+
+	? CountFiles()
+
+    aFiles = Files()
+	? First3(aFiles)
+    #--> calc.exe
+    #    notepad.exe
+    #    cmd.exe
+    
+	CountFolders()
+
+    aFolders = Folders() # Or Dirs() or SubFolders()
+	? First3(aFolders)
+    #--> drivers
+    #    config
+    #    Tasks
 }
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Counting Contents
-
+*/
 pr()
 
 o1 = new stzFolder("C:\Program Files")
 o1 {
-     ? "Total count: " + Count()
-     #--> Total count: 87
-     
-     ? "Files count: " + CountFiles()
-     #--> Files count: 3
-     
-     ? "Folders count: " + CountFolders() # Or CountDirs()
-     #--> Folders count: 84
+    ? "Total count: " + Count()
+    #--> Total count: 87
+    
+    ? "Files count: " + CountFiles()
+    #--> Files count: 3
+    
+    ? "Folders count: " + CountFolders() # Or CountDirs()
+    #--> Folders count: 84
 }
 
 pf()
@@ -197,20 +190,20 @@ pr()
 
 o1 = new stzFolder("C:\Windows")
 o1 {
-     ? "Contains 'System32': " + Contains("System32") # Or Has()
-     #--> Contains 'System32': TRUE
-     
-     ? "ContainsFile 'explorer.exe': " + ContainsFile("explorer.exe")
-     #--> ContainsFile 'explorer.exe': TRUE
-     
-     ? "ContainsFolder 'System32': " + ContainsFolder("System32") # Or ContainsDir()
-     #--> ContainsFolder 'System32': TRUE
+    ? "Contains 'System32': " + Contains("System32") # Or Has()
+    #--> Contains 'System32': TRUE
+    
+    ? "ContainsFile 'explorer.exe': " + ContainsFile("explorer.exe")
+    #--> ContainsFile 'explorer.exe': TRUE
+    
+    ? "ContainsFolder 'System32': " + ContainsFolder("System32") # Or ContainsDir()
+    #--> ContainsFolder 'System32': TRUE
 }
 
 pf()
 
 #==================================#
-#  FOLDER CREATION & REMOVAL       #
+#  FOLDER CREATION & REMOVAL      #
 #==================================#
 
 /*--- Creating Single Folders
@@ -219,10 +212,10 @@ pr()
 
 o1 = new stzFolder("C:\TestArea")
 o1 {
-     ? "Creating new folder..."
-     oNewFolder = CreateFolder("TestSubFolder") # Or mkdir() or MakeFolder()
-     ? "Created: " + oNewFolder.Name()
-     #--> Created: TestSubFolder
+    ? "Creating new folder..."
+    oNewFolder = CreateFolder("TestSubFolder") # Or mkdir() or MakeFolder()
+    ? "Created: " + oNewFolder.Name()
+    #--> Created: TestSubFolder
 }
 
 pf()
@@ -233,19 +226,19 @@ pr()
 
 o1 = new stzFolder("C:\TestArea")
 o1 {
-     ? "Creating multiple folders..."
-     aFolders = ["Docs", "Images", "Videos", "Music"]
-     aCreated = CreateFolders(aFolders)
-     
-     ? "Created folders:"
-     for oFolder in aCreated
-          ? "  " + oFolder.Name()
-     next
-     #--> Created folders:
-     #     Docs
-     #     Images
-     #     Videos
-     #     Music
+    ? "Creating multiple folders..."
+    aFolders = ["Docs", "Images", "Videos", "Music"]
+    aCreated = CreateFolders(aFolders)
+    
+    ? "Created folders:"
+    for oFolder in aCreated
+        ? "  " + oFolder.Name()
+    next
+    #--> Created folders:
+    #    Docs
+    #    Images
+    #    Videos
+    #    Music
 }
 
 pf()
@@ -256,10 +249,10 @@ pr()
 
 o1 = new stzFolder("C:\")
 o1 {
-     ? "Creating deep path..."
-     oDeepFolder = CreatePath("TestArea\Level1\Level2\Level3") # Or mkpath()
-     ? "Created path ending at: " + oDeepFolder.Name()
-     #--> Created path ending at: Level3
+    ? "Creating deep path..."
+    oDeepFolder = CreatePath("TestArea\Level1\Level2\Level3") # Or mkpath()
+    ? "Created path ending at: " + oDeepFolder.Name()
+    #--> Created path ending at: Level3
 }
 
 pf()
@@ -270,19 +263,19 @@ pr()
 
 o1 = new stzFolder("C:\TestArea")
 o1 {
-     # Create test content first
-     CreateFolder("ToDelete")
-     
-     ? "Before removal - folders: " + CountFolders()
-     #--> Before removal - folders: 8
-     
-     RemoveFolder("ToDelete") # Or rmdir() or DeleteFolder()
-     ? "After RemoveFolder - folders: " + CountFolders()
-     #--> After RemoveFolder - folders: 7
-     
-     # Test file removal
-     RemoveFile("test.txt") # Or DeleteFile()
-     ? "File removed successfully"
+    # Create test content first
+    CreateFolder("ToDelete")
+    
+    ? "Before removal - folders: " + CountFolders()
+    #--> Before removal - folders: 8
+    
+    RemoveFolder("ToDelete") # Or rmdir() or DeleteFolder()
+    ? "After RemoveFolder - folders: " + CountFolders()
+    #--> After RemoveFolder - folders: 7
+    
+    # Test file removal
+    RemoveFile("test.txt") # Or DeleteFile()
+    ? "File removed successfully"
 }
 
 pf()
@@ -293,19 +286,19 @@ pr()
 
 o1 = new stzFolder("C:\TestArea\Level1")
 o1 {
-     ? "Current path before removal: " + Path()
-     #--> Current path before removal: C:\TestArea\Level1
-     
-     ? "Removing recursively..."
-     bSuccess = RemoveRecursively() # Or DeleteRecursively()
-     ? "Removal successful: " + bSuccess
-     #--> Removal successful: TRUE
+    ? "Current path before removal: " + Path()
+    #--> Current path before removal: C:\TestArea\Level1
+    
+    ? "Removing recursively..."
+    bSuccess = RemoveRecursively() # Or DeleteRecursively()
+    ? "Removal successful: " + bSuccess
+    #--> Removal successful: TRUE
 }
 
 pf()
 
 #==================================#
-#  SEARCH & FILTERING              #
+#  SEARCH & FILTERING            #
 #==================================#
 
 /*--- Basic Search Operations
@@ -314,23 +307,23 @@ pr()
 
 o1 = new stzFolder("C:\Windows\System32")
 o1 {
-     ? "Finding all .exe files..."
-     aResults = Find("*.exe")
-     ? "Found files: " + len(aResults[:Files])
-     ? "Found folders: " + len(aResults[:Folders])
-     #--> Found files: 247
-     #--> Found folders: 0
-     
-     ? "First 5 .exe files:"
-     for i = 1 to 5
-          ? "  " + aResults[:Files][i]
-     next
-     #--> First 5 .exe files:
-     #     calc.exe
-     #     notepad.exe
-     #     cmd.exe
-     #     ping.exe
-     #     ipconfig.exe
+    ? "Finding all .exe files..."
+    aResults = Find("*.exe")
+    ? "Found files: " + len(aResults[:Files])
+    ? "Found folders: " + len(aResults[:Folders])
+    #--> Found files: 247
+    #--> Found folders: 0
+    
+    ? "First 5 .exe files:"
+    for i = 1 to 5
+        ? "  " + aResults[:Files][i]
+    next
+    #--> First 5 .exe files:
+    #    calc.exe
+    #    notepad.exe
+    #    cmd.exe
+    #    ping.exe
+    #    ipconfig.exe
 }
 
 pf()
@@ -341,21 +334,21 @@ pr()
 
 o1 = new stzFolder("C:\Windows\System32")
 o1 {
-     ? "Finding .dll files..."
-     aDlls = FindFiles("*.dll")
-     ? "DLL files found: " + len(aDlls)
-     #--> DLL files found: 1847
-     
-     ? "Finding folders starting with 'config'..."
-     aConfigFolders = FindFolders("config*")
-     ? "Config folders: " + len(aConfigFolders)
-     #--> Config folders: 2
-     
-     for folder in aConfigFolders
-          ? "  " + folder
-     next
-     #--> config
-     #     Configuration
+    ? "Finding .dll files..."
+    aDlls = FindFiles("*.dll")
+    ? "DLL files found: " + len(aDlls)
+    #--> DLL files found: 1847
+    
+    ? "Finding folders starting with 'config'..."
+    aConfigFolders = FindFolders("config*")
+    ? "Config folders: " + len(aConfigFolders)
+    #--> Config folders: 2
+    
+    for folder in aConfigFolders
+        ? "  " + folder
+    next
+    #--> config
+    #    Configuration
 }
 
 pf()
@@ -366,21 +359,21 @@ pr()
 
 o1 = new stzFolder("C:\Windows\System32")
 o1 {
-     ? "Getting .exe files..."
-     aExeFiles = FilesByExtension(".exe")
-     ? "EXE files count: " + len(aExeFiles)
-     #--> EXE files count: 247
-     
-     ? "Getting .dll files (without dot)..."
-     aDllFiles = FilesByExtension("dll")  # Extension with or without dot works
-     ? "DLL files count: " + len(aDllFiles)
-     #--> DLL files count: 1847
+    ? "Getting .exe files..."
+    aExeFiles = FilesByExtension(".exe")
+    ? "EXE files count: " + len(aExeFiles)
+    #--> EXE files count: 247
+    
+    ? "Getting .dll files (without dot)..."
+    aDllFiles = FilesByExtension("dll")  # Extension with or without dot works
+    ? "DLL files count: " + len(aDllFiles)
+    #--> DLL files count: 1847
 }
 
 pf()
 
 #==================================#
-#  INFORMATION & DISPLAY           #
+#  INFORMATION & DISPLAY         #
 #==================================#
 
 /*--- Detailed Information
@@ -389,23 +382,23 @@ pr()
 
 o1 = new stzFolder("C:\Windows")
 o1 {
-     ? "Getting detailed info..."
-     aInfo = Info()
-     
-     ? "Name: " + aInfo[:Name]
-     ? "Path: " + aInfo[:Path]
-     ? "Absolute Path: " + aInfo[:AbsolutePath]
-     ? "Total Count: " + aInfo[:Count]
-     ? "Is Empty: " + aInfo[:IsEmpty]
-     ? "Is Readable: " + aInfo[:IsReadable]
-     ? "Is Root: " + aInfo[:IsRoot]
-     #--> Name: Windows
-     #     Path: C:\Windows
-     #     Absolute Path: C:\Windows
-     #     Total Count: 156
-     #     Is Empty: FALSE
-     #     Is Readable: TRUE
-     #     Is Root: FALSE
+    ? "Getting detailed info..."
+    aInfo = Info()
+    
+    ? "Name: " + aInfo[:Name]
+    ? "Path: " + aInfo[:Path]
+    ? "Absolute Path: " + aInfo[:AbsolutePath]
+    ? "Total Count: " + aInfo[:Count]
+    ? "Is Empty: " + aInfo[:IsEmpty]
+    ? "Is Readable: " + aInfo[:IsReadable]
+    ? "Is Root: " + aInfo[:IsRoot]
+    #--> Name: Windows
+    #    Path: C:\Windows
+    #    Absolute Path: C:\Windows
+    #    Total Count: 156
+    #    Is Empty: FALSE
+    #    Is Readable: TRUE
+    #    Is Root: FALSE
 }
 
 pf()
@@ -416,22 +409,22 @@ pr()
 
 o1 = new stzFolder("C:\TestArea")
 o1 {
-     ? "Tree view (level 2):"
-     Show(2)
-     #--> 📁 TestArea
-     #       📁 Docs
-     #       📁 Images
-     #         📁 Thumbnails
-     #       📁 Videos
-     #       📁 Music
-     #         📁 Rock
-     #         📁 Jazz
+    ? "Tree view (level 2):"
+    Show(2)
+    #--> 📁 TestArea
+    #      📁 Docs
+    #      📁 Images
+    #        📁 Thumbnails
+    #      📁 Videos
+    #      📁 Music
+    #        📁 Rock
+    #        📁 Jazz
 }
 
 pf()
 
 #==================================#
-#  UTILITY METHODS                 #
+#  UTILITY METHODS              #
 #==================================#
 
 /*--- Copy and Clone
@@ -458,15 +451,15 @@ pr()
 
 o1 = new stzFolder("C:\TestArea")
 o1 {
-     ? "Count before refresh: " + Count()
-     #--> Count before refresh: 4
-     
-     # Simulate external changes to folder
-     CreateFolder("NewlyAdded")
-     
-     Refresh()
-     ? "Count after refresh: " + Count()
-     #--> Count after refresh: 5
+    ? "Count before refresh: " + Count()
+    #--> Count before refresh: 4
+    
+    # Simulate external changes to folder
+    CreateFolder("NewlyAdded")
+    
+    Refresh()
+    ? "Count after refresh: " + Count()
+    #--> Count after refresh: 5
 }
 
 pf()
@@ -477,20 +470,20 @@ pr()
 
 o1 = new stzFolder("C:\")
 o1 {
-     GoTo("Windows").GoTo("System32").Up().GoTo("Temp")
-     ? "Final path after chaining: " + Path()
-     #--> Final path after chaining: C:\Windows\Temp
-     
-     # Chain with creation
-     CreateFolder("ChainTest").GoTo("ChainTest").CreateFolder("SubTest")
-     ? "Path after create chain: " + Path()
-     #--> Path after create chain: C:\Windows\Temp\ChainTest
+    GoTo("Windows").GoTo("System32").Up().GoTo("Temp")
+    ? "Final path after chaining: " + Path()
+    #--> Final path after chaining: C:\Windows\Temp
+    
+    # Chain with creation
+    CreateFolder("ChainTest").GoTo("ChainTest").CreateFolder("SubTest")
+    ? "Path after create chain: " + Path()
+    #--> Path after create chain: C:\Windows\Temp\ChainTest
 }
 
 pf()
 
 #==================================#
-#  COMPREHENSIVE WORKFLOW          #
+#  COMPREHENSIVE WORKFLOW        #
 #==================================#
 
 /*--- Complete Folder Management Workflow
@@ -502,56 +495,56 @@ pr()
 # 1. Create main project folder
 oProject = new stzFolder("C:\MyProject")
 oProject {
-     Info()
-     
-     # 2. Create project structure
-     ? ""
-     ? "Creating project structure..."
-     aFolders = ["src", "docs", "tests", "build", "assets"]
-     CreateFolders(aFolders)
-     
-     ? "Project structure created. Contents:"
-     for folder in Folders()
-          ? "  " + folder
-     next
-     
-     # 3. Navigate and create sub-structure
-     ? ""
-     ? "Creating sub-structures..."
-     GoTo("src")
-     CreateFolders(["models", "views", "controllers"])
-     
-     Up()
-     GoTo("assets")
-     CreateFolders(["images", "css", "js"])
-     
-     # 4. Go back to root and show final structure
-     Up()
-     ? ""
-     ? "Final project tree:"
-     Show(2)
-     
-     # 5. Get comprehensive info
-     ? ""
-     ? "Project statistics:"
-     aInfo = Info()
-     ? "Total items: " + aInfo[:Count]
-     ? "Folders: " + CountFolders()
-     ? "Files: " + CountFiles()
-     
-     # 6. Search for specific patterns
-     ? ""
-     ? "Searching for all folders containing 'view':"
-     aViewFolders = FindFolders("*view*")
-     for folder in aViewFolders
-          ? "  " + folder
-     next
-     
-     # 7. Cleanup (commented out for safety)
-     # ? ""
-     # ? "Cleaning up project..."
-     # bRemoved = RemoveRecursively()
-     # ? "Cleanup successful: " + bRemoved
+    Info()
+    
+    # 2. Create project structure
+    ? ""
+    ? "Creating project structure..."
+    aFolders = ["src", "docs", "tests", "build", "assets"]
+    CreateFolders(aFolders)
+    
+    ? "Project structure created. Contents:"
+    for folder in Folders()
+        ? "  " + folder
+    next
+    
+    # 3. Navigate and create sub-structure
+    ? ""
+    ? "Creating sub-structures..."
+    GoTo("src")
+    CreateFolders(["models", "views", "controllers"])
+    
+    Up()
+    GoTo("assets")
+    CreateFolders(["images", "css", "js"])
+    
+    # 4. Go back to root and show final structure
+    Up()
+    ? ""
+    ? "Final project tree:"
+    Show(2)
+    
+    # 5. Get comprehensive info
+    ? ""
+    ? "Project statistics:"
+    aInfo = Info()
+    ? "Total items: " + aInfo[:Count]
+    ? "Folders: " + CountFolders()
+    ? "Files: " + CountFiles()
+    
+    # 6. Search for specific patterns
+    ? ""
+    ? "Searching for all folders containing 'view':"
+    aViewFolders = FindFolders("*view*")
+    for folder in aViewFolders
+        ? "  " + folder
+    next
+    
+    # 7. Cleanup (commented out for safety)
+    # ? ""
+    # ? "Cleaning up project..."
+    # bRemoved = RemoveRecursively()
+    # ? "Cleanup successful: " + bRemoved
 }
 
 pf()
