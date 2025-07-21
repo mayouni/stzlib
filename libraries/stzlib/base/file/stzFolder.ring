@@ -38,6 +38,9 @@ func IsFolder(cDir)
 func StzFolderQ(cDir)
 	return new stzFolder(cDir)
 
+func IsAbsolutePath(cDir)
+	return cDir = StzFolderQ(cDir).AbsolutePath()
+
 class stzFolder from stzObject
 	@oQDir
 	@cOriginalPath
@@ -254,7 +257,7 @@ class stzFolder from stzObject
 			return This.GoUp()
 
 	def GoHome()
-		@oQDir.setPath(QDir_homePath())
+		@oQDir.setPath(@oQDir.homePath())
 		return This
 
 	  #--------------------#
