@@ -105,9 +105,6 @@
  //   FUNCTIONS   //
 ///////////////////
 
-# A global attribute that holds the history
-# of the actions made on a chain of actions
-
 func StzObjectQ(pObject)
 	return new stzObject(pObject)
 
@@ -200,8 +197,6 @@ func ObjectIsUnnamed(pObject)
 
 #--
 
-
-	
 func PluralOfRingType(cType)
 	if CheckingParams()
 		if NOT IsString(cPlural)
