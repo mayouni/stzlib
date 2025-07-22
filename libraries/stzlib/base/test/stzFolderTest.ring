@@ -277,7 +277,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Removing Files and Folders
-*/
+
 pr()
 
 o1 = new stzFolder("C:\TestArea")
@@ -300,11 +300,11 @@ o1 {
 
 	CreateFile("test.txt")
 	? FileExists("test.txt") #--> TRUE
-
 	
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Recursive Removal
 
@@ -312,20 +312,23 @@ pr()
 
 o1 = new stzFolder("C:\TestArea\Level1")
 o1 {
-    ? "Current path before removal: " + Path()
-    #--> Current path before removal: C:\TestArea\Level1
+    # Current path before removal
+	? Path()
+    #--> C:\TestArea\Level1
     
-    ? "Removing recursively..."
-    bSuccess = RemoveRecursively() # Or DeleteRecursively()
-    ? "Removal successful: " + bSuccess
+    # Removing all the folder and its subfolders (recursively)
+
+    bSuccess = DeepRemoveAll() # Or DeleteRecursively()
+    ? bSuccess
     #--> Removal successful: TRUE
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
-#==================================#
-#  SEARCH & FILTERING            #
-#==================================#
+#======================#
+#  SEARCH & FILTERING  #
+#======================#
 
 /*--- Basic Search Operations
 
@@ -333,19 +336,13 @@ pr()
 
 o1 = new stzFolder("C:\Windows\System32")
 o1 {
-    ? "Finding all .exe files..."
-    aResults = Find("*.exe")
-    ? "Found files: " + len(aResults[:Files])
-    ? "Found folders: " + len(aResults[:Folders])
-    #--> Found files: 247
-    #--> Found folders: 0
-    
-    ? "First 5 .exe files:"
-    for i = 1 to 5
-        ? "  " + aResults[:Files][i]
-    next
-    #--> First 5 .exe files:
-    #    calc.exe
+    # Finding all .exe files
+
+    acExeFiles = FindFiles("*.exe")
+    ? CountFiles() #--> 4696
+
+    ? @FirstN(5, acExeFiles)
+    #--> calc.exe
     #    notepad.exe
     #    cmd.exe
     #    ping.exe
@@ -353,31 +350,32 @@ o1 {
 }
 
 pf()
+# Executed in 0.17 second(s) in Ring 1.23
+# Executed in 0.19 second(s) in Ring 1.22
 
 /*--- Specialized Search Methods
-
+*/
 pr()
 
 o1 = new stzFolder("C:\Windows\System32")
 o1 {
-    ? "Finding .dll files..."
+    # Finding .dll files
     aDlls = FindFiles("*.dll")
-    ? "DLL files found: " + len(aDlls)
-    #--> DLL files found: 1847
+    ? len(aDlls)
+    #--> 3611
     
-    ? "Finding folders starting with 'config'..."
+    # Finding folders starting with 'config'
     aConfigFolders = FindFolders("config*")
-    ? "Config folders: " + len(aConfigFolders)
+    ? len(aConfigFolders)
     #--> Config folders: 2
     
-    for folder in aConfigFolders
-        ? "  " + folder
-    next
-    #--> config
-    #    Configuration
+    ? @@(aConfigFolders)
+    #--> [ "config", "Configuration" ]
 }
 
 pf()
+# Executed in 0.17 second(s) in Ring 1.23
+# Executed in 0.18 second(s) in Ring 1.22
 
 /*--- Files by Extension
 

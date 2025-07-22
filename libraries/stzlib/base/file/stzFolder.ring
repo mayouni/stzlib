@@ -573,7 +573,7 @@ class stzFolder from stzObject
 			return This.RemoveFolder(cFolderName)
 
 
-	def RemoveRecursively()
+	def RemoveRecursivelyAll()
 		# Dangerous operation - keep serious name
 		cMyPath = This.Path()
 		
@@ -585,8 +585,14 @@ class stzFolder from stzObject
 		@oQDir = NULL  # Object invalid after removal
 		return TRUE
 
-		def DeleteRecursively()
-			return This.RemoveRecursively()
+		def DeleteRecursivelyAll()
+			return This.RemoveRecursivelyAll()
+
+		def DeepRemoveAll()
+			return This.RemoveRecursivelyAll()
+
+		def DeepDeleteAll()
+			return This.RemoveRecursivelyAll()
 
 	  #--------------------#
 	 #  SEARCH & FILTER   #
@@ -597,6 +603,9 @@ class stzFolder from stzObject
 		aFiles = This.FindFiles(cPattern)
 		aFolders = This.FindFolders(cPattern) 
 		return [:Files = aFiles, :Folders = aFolders]
+
+		def FindFilesAndFolders(cPattern)
+			return This.Find(cPattern)
 
 	def FindFiles(cPattern)
 		if cPattern = NULL or cPattern = ""
