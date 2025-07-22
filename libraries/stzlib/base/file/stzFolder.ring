@@ -133,6 +133,28 @@ class stzFolder from stzObject
 			return @oQDir.exists(cPath)
 		end
 
+	  #-------------------#
+	 #  RECURSIVE COUNT  #
+	#-------------------#
+
+	def CountFilesXT()
+	    return This.CountFilesRecursive(This.Path())
+	
+		def DeepCountFiles()
+			return This.CountFilesXT()
+
+	def CountFoldersXT() 
+	    return This.CountFoldersRecursive(This.Path())
+	
+		def DeepCountFolders()
+			return This.CountFoldersXT()
+
+	def CountXT()
+	    return This.CountFilesXT() + This.CountFoldersXT()
+	
+		def DeepCount()
+			return This.CountXT()
+
 	  #------------------#
 	 #  FILE OPERATIONS #
 	#------------------#
@@ -194,25 +216,56 @@ class stzFolder from stzObject
 		def ContainsDirs()
 			return This.HasFolders()
 
+	#---
+
 	def Contains(cName)
 		# Check both files and folders
 		aFiles = This.Files()
 		aFolders = This.Folders()
-		return (find(aFiles, cName) > 0) or (find(aFolders, cName) > 0)
+		return (ring_find(aFiles, cName) > 0) or (ring_find(aFolders, cName) > 0)
 
 		def Has(cName)
 			return This.Contains(cName)
 
 	def ContainsFile(cFileName)
 		aFiles = This.Files()
-		return find(aFiles, cFileName) > 0
+		return ring_find(aFiles, cFileName) > 0
 
 	def ContainsFolder(cFolderName)
 		aFolders = This.Folders()
-		return find(aFolders, cFolderName) > 0
+		return ring_find(aFolders, cFolderName) > 0
 
 		def ContainsDir(cFolderName)
 			return This.ContainsFolder(cFolderName)
+
+	#---
+
+	def ContainsXT(cName)
+	   return This.ContainsFileXT(cName) or This.ContainsFolderXT(cName)
+	
+	   def HasXT(cName)
+	       return This.ContainsXT(cName)
+	
+		def DeepContains(cName)
+			return This.ContainsXT(cName)
+
+	def ContainsFileXT(cFileName)
+	   return This.ContainsFileRecursive(This.Path(), cFileName)
+	
+		def DeepContainsFile(cName)
+			return This.ContainsFileXT(cName)
+
+	def ContainsFolderXT(cFolderName)
+	   return This.ContainsFolderRecursive(This.Path(), cFolderName)
+	
+	   def ContainsDirXT(cFolderName)
+	       return This.ContainsFolderXT(cFolderName)
+	
+		def DeepContainsFolder(cName)
+			return This.ContainsXT(cName)
+
+		def DeepContainsDir(cName)
+			return This.ContainsXT(cName)
 
 	  #--------------------#
 	 #  NAVIGATION        #
@@ -315,6 +368,178 @@ class stzFolder from stzObject
 		def mkpath(pcFullPath)
 			return This.CreatePath(pcFullPath)
 
+	def ResolvePath(cPath)
+	    if cPath = NULL or cPath = ""
+	        raise("Path cannot be empty")
+	    end
+	    
+	    # If already absolute, return as-is
+	    if IsAbsolutePath(cPath)
+	        return cPath
+	    end
+	    
+	    # If relative, combine with current folder path
+	    cCurrentPath = This.AbsolutePath()
+	    
+	    # Handle path separators
+	    if right(cCurrentPath, 1) != "/" and right(cCurrentPath, 1) != "\"
+	        cCurrentPath += "/"
+	    end
+	    
+	    return cCurrentPath + cPath
+
+	#------------------#
+	#  MANAGING FILES  #
+	#------------------#
+
+	def FileExists(cFile)
+		return @FileExists(This.ResolvePath(cFile))
+
+	def FileRead(cFile)
+		return @FileRead(This.ResolvePath(cFile))
+
+		def ReadFile(cFile)
+			return This.FileRead(cFile)
+
+	def FileReadQ(cFile)
+		return @FileReadQ(This.ResolvePath(cFile))
+
+		def ReadFileQ(cFile)
+			return This.FileReadQ(cFile)
+
+	def FileInfo(cFile)
+		return @FileInfo(This.ResolvePath(cFile))
+
+		def FileInfoQ(cFile)
+			return @FileInfoQ(This.ResolvePath(cFile))
+
+	def FileInfoXT(cFile)
+		return @FileInfoXT(This.ResolvePath(cFile))
+
+	def FileAppend(cFile, cAdditionalText)
+		return @FileAppend(This.ResolvePath(cFile), cAdditionalText)
+
+		def FileAppendQ(cFile, cAdditionalText)
+			return @FileAppendQ(This.ResolvePath(cFile), cAdditionalText)
+
+		def AppendFile(cFile, cAdditionalText)
+			return FileAppend(cFile, cAdditionalText)
+
+			def AppendFileQ(cFile, cAdditionalText)
+				return FileAppendQ(cFile, cAdditionalText)
+
+	def FileCreate(cFile)
+		return @FileCreate(This.ResolvePath(cFile))
+
+		def FileCreateQ(cFile)
+			return @FileCreateQ(This.ResolvePath(cFile))
+	
+		def CreateFile(cFile)
+			return This.FileCreate(cFile)
+
+			def CreateFileQ(cFile)
+				return This.FileCreateQ(cFile)
+
+	def FileOverwrite(cFile, cNewContent)
+		return @FileOverwrite(This.ResolvePath(cFile), cNewContent)
+
+		def FileOverwiteQ(cFile, cNewContent)
+			return @FileOverwriteQ(This.ResolvePath(cFile), cNewContent)
+
+		def OverwriteFile(cFile, cNewContent)
+			return This.FileOverwrite(cFile, cNewContent)
+
+		def OverwriteFileQ(cFile, cNewContent)
+			return This.FileOverwriteQ(cFile, cNewContent)
+
+	def FileErase(cFile)
+		return @FileErase(This.ResolvePath(cFile))
+
+		def FileEraseQ(cFile)
+			return @FileEraseQ(This.ResolvePath(cFile))
+
+		def EraseFile(cFile)
+			return This.FileErase(cFile)
+
+		def EraseFileQ(cFile)
+			return This.FileEraseQ(cFile)
+
+	def FileSafeErase(cFile)
+		return @FileSafeErase(This.ResolvePath(cFile))
+
+		def FileSafeEraseQ(cFile)
+			return @FileSafeEraseQ(This.ResolvePath(cFile))
+	
+		def SafeEraseFile(cFile)
+			return This.FileSafeErase(cFile)
+
+		def SafeEraseFileQ(cFile)
+			return @FileSafeEraseQ(This.ResolvePath(cFile))
+	
+	def FileRemove(cFile)
+
+		if cFile = ""
+			StzRaise("Please specify file name to remove.")
+		end
+
+		cFile = This.ResolvePath(cFile)
+
+		if not This.ContainsFile(cFile)
+			StzRaise("File '" + cFile + "' doesn't exist here.")
+		end
+		
+		bSuccess = @oQDir.remove(cFile)
+		if not bSuccess
+			raise("Could not remove file '" + cFile + "'")
+		end
+		
+		return _TRUE_
+
+		def FileDelete(cFile)
+			return This.FileRemove(cFile)
+
+		def RemoveFile(cFile)
+			return This.FileRemove(cFile)
+
+		def DeleteFile(cFile)
+			return This.FileRemove(cFile)
+
+	def FileBackup(cFile)
+		return @FileBackup(This.ResolvePath(cFile))
+
+		def BackupFile(cFile)
+			return This.FileBackup(cfile)
+
+	def FileSafeOverwrite(cFile, cNewContent)
+		return @FileSafeOverwrite(This.ResolvePath(cFile), cNewContent)
+
+		def SafeOverwriteFile(cFile, cNewContent)
+			return This.FileSafeOverwrite(cFile, cNewContent)
+
+	def FileModify(cFile, cOldContent, cNewContent)
+		return @FileModify(This.ResolvePath(cFile), cOldContent, cNewContent)
+
+		def ModifyFile(cFile, cOldContent, cNewContent)
+			return This.FileModify(cFile, cOldContent, cNewContent)
+
+	def FileCopy(cSource, cDestination)
+		return @FileCopy(This.ResolvePath(cSource), This.ResolvePath(cDestination))
+
+		def CopyFile(cSource, cDestination)
+			return this.FileCopy(cSource, cDestination)
+
+	def FileMove(cSource, cDestination)
+		return @FileMove(This.ResolvePath(cSource), This.ResolvePath(cDestination))
+
+		def MoveFile(cSource, cDestination)
+			return this.FileMove(cSource, cDestination)
+
+	def FileSize(cFile)
+		return @FileSize(This.ResolvePath(cFile))
+
+		def FileSizeInBytes(cFile)
+			return this.FileSize(cFile)
+
 	  #--------------------#
 	 #  FOLDER REMOVAL    #
 	#--------------------#
@@ -347,24 +572,6 @@ class stzFolder from stzObject
 		def DeleteFolder(cFolderName)
 			return This.RemoveFolder(cFolderName)
 
-	def RemoveFile(cFileName)
-		if cFileName = NULL or cFileName = ""
-			raise("Please specify file name to remove.")
-		end
-		
-		if not This.ContainsFile(cFileName)
-			raise("File '" + cFileName + "' doesn't exist here.")
-		end
-		
-		bSuccess = @oQDir.remove(cFileName)
-		if not bSuccess
-			raise("Could not remove file '" + cFileName + "'")
-		end
-		
-		return This
-
-		def DeleteFile(cFileName)
-			return This.RemoveFile(cFileName)
 
 	def RemoveRecursively()
 		# Dangerous operation - keep serious name
@@ -376,7 +583,7 @@ class stzFolder from stzObject
 		end
 		
 		@oQDir = NULL  # Object invalid after removal
-		return _TRUE_
+		return TRUE
 
 		def DeleteRecursively()
 			return This.RemoveRecursively()
@@ -499,3 +706,108 @@ class stzFolder from stzObject
 	# Internal helper
 	def Matches(cFilter, cFileName)
 		return QDir_match(@oQDir.ObjectPointer(), cFilter, cFileName)
+
+
+	  #-----------------------------#
+	 #  Private recursive helpers  #
+	#-----------------------------#
+
+	PRIVATE
+	
+	def CountFilesRecursive(cPath)
+
+	    nCount = 0
+
+	    try
+	        aList = ring_dir(cPath)
+	    catch
+	        return 0  # Skip inaccessible directories
+	    end
+
+	    nLen = len(aList)
+
+		for i = 1 to nLen
+
+	        if aList[i][2] = 0  # File
+	            nCount++
+
+	        but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
+	            nCount += This.CountFilesRecursive(cPath + "/" + aList[i][1])
+	        end
+
+	    next
+	    
+	    return nCount
+	
+	def CountFoldersRecursive(cPath)
+	    nCount = 0
+
+	    try
+	        aList = ring_dir(cPath)
+	    catch
+	        return 0  # Skip inaccessible directories
+	    end
+
+	    nLen = len(aList)
+
+		for i = 1 to nLen
+
+	        if aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
+	            nCount++
+	            nCount += This.CountFoldersRecursive(cPath + "/" + aList[i][1])
+	        end
+
+	    next
+	    
+	    return nCount
+
+
+	def ContainsFileRecursive(cPath, cFileName)
+	   try
+	       aList = ring_dir(cPath)
+	   catch
+	       return FALSE
+	   end
+	   nLen = len(aList)
+	
+		for i = 1 to nLen
+	
+	       if aList[i][2] = 0 and
+
+		aList[i][1] = cFileName  # File found
+
+
+	           return TRUE
+
+	       but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1][1] != ".."  # Subfolder
+	           if This.ContainsFileRecursive(cPath + "/" + aList[i][1], cFileName)
+	               return TRUE
+	           end
+	       end
+	
+	   next
+	   
+	   return FALSE
+
+
+	def ContainsFolderRecursive(cPath, cFolderName)
+	   try
+	       aList = ring_dir(cPath)
+	   catch
+	       return FALSE
+	   end
+	   nLen = len(aList)
+	
+		for i = 1 to nLen
+	
+	       if aList[i][2] = 1 and aList[i][1] = cFolderName  # Folder found
+	           return TRUE
+	
+	       but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
+	           if This.ContainsFolderRecursive(cPath + "/" + aList[i][1], cFolderName)
+	               return TRUE
+	           end
+	       end
+	   next
+	   
+	   return FALSE

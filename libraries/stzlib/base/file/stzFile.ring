@@ -14,30 +14,54 @@ Philosophy:
 - Write capabilities are intent-specific and clearly named
 - Safety through explicit intent, not artificial restrictions
 - Natural mental model: "I can always see what's in the file"
+
+#NOTE #SMANTIC-PRECISION-GOAL
+
+# Sotanza file semantics does not include "Update" and "Repalce" at all,
+# because those are dedicated to the string semantics. Instead, the file
+# API uses two clear terms: "Overwrite" for chaning all the content
+# of a file, and "Modify" to change only parts of that file.
 */
 
 
-func FileExists(cFileName)
-    oInfo = new stzFileInfo(cFileName)
+func FileExists(cFile)
+    oInfo = new stzFileInfo(cFile)
     return oInfo.Exists()
 
-func FileReadQ(cFileName)
+	func @FileExists(cFile)
+		return FileExists(cFile)
+
+func FileReadQ(cFile)
     # Pure reading intent - read-only access
-    return new stzFileReader(cFileName)
+    return new stzFileReader(cFile)
 
-func FileRead(cFileName)
-	return FileReadQ(cFileName).Content()
+	func @FileReadQ(cFile)
+		return FileReadQ(cFile)
 
-func FileInfoQ(cFileName)
+func FileRead(cFile)
+	return FileReadQ(cFile).Content()
+
+	func @FileRead(cFile)
+		return FileRead(cFile)
+
+func FileInfoQ(cFile)
 	# Intent to get information without opening file
-	return new stzFileInfo(cFileName)
+	return new stzFileInfo(cFile)
 
-func FileInfo(cFileName)
-	return FileInfoQ(cFileName).Info()
+	func @FileInfoQ(cFile)
+		return FileInfoQ(cFile)
 
-func FileInfoXT(cFileName)
-	return FileInfoQ(cFileName).InfoXT()
+func FileInfo(cFile)
+	return FileInfoQ(cFile).Info()
 
+	func @FileInfo(cFile)
+		return FileInfo(cFile)
+
+func FileInfoXT(cFile)
+	return FileInfoQ(cFile).InfoXT()
+
+	func @FileInfoXT(cFile)
+		return FileInfoQ(cFile)
 
 # Appending an exsistant file
 # Intent to create new - can read + write (fails if file does not exist)
@@ -58,6 +82,8 @@ func FileAppend(cFileName, cAdditionalText)
 	oFileAppender.Append(cAdditionalText)
 	return _TRUE_
 
+	#< @FunctionFluentForm
+
 	func FileAppendQ(cFileName, cAdditionalText)
 		if NOT FileExists(cFileName)
 			StzRaise("Can't append a non-existing file: " + cFileName)
@@ -67,6 +93,31 @@ func FileAppend(cFileName, cAdditionalText)
 		oFile.Append(cAdditionalText)
 		return oFile
 
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func AppendFile(cFileName)
+		return FileAppend(cFileName)
+
+	func AppendFileQ(cFileName)
+		return FileAppendQ(cFileName)
+
+	#--
+
+	func @FileAppend(cFileName, cAdditionalText)
+		return FileAppend(cFileName, cAdditionalText)
+
+		func @FileAppendQ(cFileName, cAdditionalText)
+			return FileAppendQ(cFileName, cAdditionalText)
+
+	func @AppendFile(cFileName)
+		return FileAppend(cFileName)
+
+		func @AppendFileQ(cFileName)
+			return FileAppendQ(cFileName)
+
+	#>
 
 func FileCreate(cFileName)
 	if FileExists(cFileName)
@@ -74,6 +125,9 @@ func FileCreate(cFileName)
 	ok
 	oFile = new stzFileCreator(cFileName)
 	oFile.Close()
+	return _TRUE_
+
+	#< @FunctionFluentForm
 
 	func FileCreateQ(cFileName)
 		if FileExists(cFileName)
@@ -81,22 +135,56 @@ func FileCreate(cFileName)
 		ok
 		oFile = new stzFileCreator(cFileName)
 		return oFile
+	#>
 
-# Overwriting an existing file-------------------------
+	#< @FunctionAlternativeForms
 
-#NOTE #SMANTIC-PRECISION-GOAL
+	func CreateFile(cFileName)
+		return FileCreate(cFileName)
 
-# Sotanza file semantics does not include "Update" and "Repalce" at all,
-# because those are dedicated to the string semantics. Instead, the file
-# API uses two clear terms: "Overwrite" for chaning all the content
-# of a file, and "Modify" to change only parts of that file.
+		func CreateFileQ(cFileName)
+			return FileCreateQ(cFileName)
 
+	func @FileCreate(cFileName)
+		return FileCreate(cFileName)
+
+		func @FileCreateQ(cFileName)
+			return FileCreateQ(cFileName)
+
+	func @CreateFile(cFileName)
+		return FileCreate(cFileName)
+
+		func @CreateFileQ(cFileName)
+			return FileCreate(cFileName)
+	#>
 
 func FileOverwrite(cFileName, cNewContent)
     oFile = FileOverwite(cFileName, cNewContent)
 	oFile.Close()
 	return _TRUE_
 
+	#< @FunctionAlternativeForms
+
+	func FileOverrite(cFileName, cNewContent)
+		return FileOverwrite(cFileName, cNewContent)
+
+	func OverwriteFile(cFileName, cNewContent)
+		return FileOverwrite(cFileName, cNewContent)
+
+	#--
+
+	func @FileOverwrite(cFileName, cNewContent)
+		return FileOverwrite(cFileName, cNewContent)
+
+	func @FileOverrite(cFileName, cNewContent)
+		return FileOverwrite(cFileName, cNewContent)
+
+	func @OverwriteFile(cFileName, cNewContent)
+		return FileOverwrite(cFileName, cNewContent)
+
+	#>
+
+	
 func FileOverwiteQ(cFileName, cNewContent)
     # Immediate operation - replaces entire file content
     if not FileExists(cFileName)
@@ -110,8 +198,32 @@ func FileOverwiteQ(cFileName, cNewContent)
     oQFile.write(cNewContent, len(cNewContent))
 	return oQFile
 
+	#< #< @FunctionAlternativeForms
+
 	func FileOverriteQ(cFileName, cNewContent)
 		return FileOverwriteQ(cFileName, cNewContent)
+
+	func OverwriteFileQ(cFileName, cNewContent)
+		return FileOverwrite(cFileName, cNewContent)
+
+	func OverriteFileQ(cFileName, cNewContent)
+		return FileOverwrite(cFileName, cNewContent)
+
+	#--
+
+	func @FileOverwriteQ(cFileName, cNewContent)
+		return FileOverwriteQ(cFileName, cNewContent)
+
+	func @FileOverriteQ(cFileName, cNewContent)
+		return FileOverwriteQ(cFileName, cNewContent)
+
+	func @OverwriteFileQ(cFileName, cNewContent)
+		return FileOverwrite(cFileName, cNewContent)
+
+	func @OverriteFileQ(cFileName, cNewContent)
+		return FileOverwrite(cFileName, cNewContent)
+
+	#>
 
 func FileErase(cFileName)
     if not FileExists(cSource)
@@ -121,6 +233,8 @@ func FileErase(cFileName)
 	oFile.Erase()
 	return _TRUE_
 
+	#< @FunctionFluentForm
+
 	func FileEraseQ(cFileName)
 	    if not FileExists(cSource)
 	        StzRaise("Cannot erase non-existent file: " + cSource)
@@ -128,6 +242,32 @@ func FileErase(cFileName)
 		oFile = new stzFileEraser(cFileName)
 		oFile.Erase()
 		return FileAppend(cFileName)
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func EraseFile(cFileName)
+		return FileErase(cFileName)
+
+		func EraseFileQ(cFileName)
+			return FileEraseQ(cFileName)
+
+	#--
+
+	func @FileErase(cFileName)
+		return FileErase(cFileName)
+
+		func @FileEraseQ(cFileName)
+			return FileEraseQ(cFileName)
+
+	func @EraseFile(cFileName)
+		return FileErase(cFileName)
+
+		func @EraseFileQ(cFileName)
+			return FileEraseQ(cFileName)
+
+	#>
 
 func FileSafeErase(cFileName)
 
@@ -141,6 +281,8 @@ func FileSafeErase(cFileName)
 	oFile.Erase()
 	return _TRUE_
 
+	#< @FunctionFluentForm
+
 	func FileSafeEraseQ(cFileName)
 
 	    if not FileExists(cSource)
@@ -152,6 +294,31 @@ func FileSafeErase(cFileName)
 		oFile = new stzFileEraser(cFileName)
 		oFile.Erase()
 		return FileAppend(cFileName)
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func SafEraseFile(cFileName)
+		return FileSafeErase(cFileName)
+
+		func SafeEraseFileQ(cFileName)
+			return FileSafeEraseQ(cFileName)
+
+	#--
+
+	func @FileSafeErase(cFileName)
+		return FileSafeErase(cFileName)
+
+		func @FileSafeEraseQ(cFileName)
+			return FileSafeEraseQ(cFileName)
+
+	func @SafEraseFile(cFileName)
+		return FileSafeErase(cFileName)
+
+		func @SafeEraseFileQ(cFileName)
+			return FileSafeEraseQ(cFileName)
+
+	#>
 
 func FileBackup(cFileName)
     if NOT FileExists(cFileName)
@@ -162,6 +329,14 @@ func FileBackup(cFileName)
 	oFileManager.Backup()
 	return _TRUE_
 
+	func BackupFile(cFileName)
+		return FileBackup(cFileName)
+
+	func @FileBackup(cFileName)
+		return FileBackup(cFileName)
+
+	func @BackupFile(cFileName)
+		return FileBackup(cFileName)
 
 func FileSafeOverwrite(cFileName, cNewContent)
     # Creates timestamped backup before overwriting
@@ -169,7 +344,33 @@ func FileSafeOverwrite(cFileName, cNewContent)
     FileOverwrite(cFileName, cNewContent)
 	return _TRUE_
 
-		
+	#< @FunctionAlternativeForms
+
+	func SafeOverwriteFile(cFileName, cNewContent)
+		return FileSafeOverwrite(cFileName, cNewContent)
+
+	func FileSafeOverrite(cFileName, cNewContent)
+		return FileSafeOverwrite(cFileName, cNewContent)
+
+	func SafeOverriteFile(cFileName, cNewContent)
+		return FileSafeOverwrite(cFileName, cNewContent)
+
+	#--
+
+	func @FileSafeOverwrite(cFileName, cNewContent)
+		return FileSafeOverwrite(cFileName, cNewContent)
+
+	func @SafeOverwriteFile(cFileName, cNewContent)
+		return FileSafeOverwrite(cFileName, cNewContent)
+
+	func @FileSafeOverrite(cFileName, cNewContent)
+		return FileSafeOverwrite(cFileName, cNewContent)
+
+	func @SafeOverriteFile(cFileName, cNewContent)
+		return FileSafeOverwrite(cFileName, cNewContent)
+
+	#>
+
 func FileModify(cFileName, cOldContent, cNewContent)
     if NOT FileExists(cFileName)
 		StzRaise("Cannot modify a non-existent file: " + cSource)
@@ -179,6 +380,14 @@ func FileModify(cFileName, cOldContent, cNewContent)
 	oFileModifier.Modify(cOldContent, cNewContent)
 	return _TRUE_
 
+	func ModifyFile(cFileName, cOldContent, cNewContent)
+		return FileModify(cFileName, cOldContent, cNewContent)
+
+	func @FileModify(cFileName, cOldContent, cNewcontent)
+		return FileModify(cFileName, cOldContent, cNewContent)
+
+	func @ModifyFile(cFileName, cOldContent, cNewContent)
+		return FileModify(cFileName, cOldContent, cNewContent)
 
 func FileCopy(cSource, cDestination)
     if not FileExists(cSource)
@@ -188,6 +397,15 @@ func FileCopy(cSource, cDestination)
 	oSource.setFileName(cSource)
     return oSource.copy(cDestination)
 
+	func CopyFile(cSource, cDestination)
+		return FileCopy(cSource, cDestination)
+
+	func @FileCopy(cSource, cDestination)
+		return FileCopy(cSource, cDestination)
+
+	func @CopyFile(cSource, cDestination)
+		return FileCopy(cSource, cDestination)
+
 func FileMove(cSource, cDestination)
     if not FileExists(cSource)
         StzRaise("Cannot move non-existent file: " + cSource)
@@ -196,6 +414,15 @@ func FileMove(cSource, cDestination)
 	oSource.setFileName(cSource)
     return oSource.rename(cDestination) #TODO // Check that rename implies move in Qt
 
+	func MoveFile(cSource, cDestination)
+		return FileMove(cSource, cDestination)
+
+	func @FileMove(cSource, cDestination)
+		return FileMove(cSource, cDestination)
+
+	func @MoveFile(cSource, cDestination)
+		return FileMove(cSource, cDestination)
+
 func FileRemove(cFileName)
     if not FileExists(cFileName)
         StzRaise("Cannot Remove non-existent file: " + cFileName)
@@ -203,6 +430,15 @@ func FileRemove(cFileName)
     oQFile = new QFile()
 	oQFile.setFileName(cFileName)
     return oQFile.remove()
+
+	func RemoveFile(cFileName)
+		return FileRemove(cFileName)
+
+	func @FileRemove(cFileName)
+		return FileRemove(cFileName)
+
+	func @RemoveFile(cFileName)
+		return FileRemove(cFileName)
 
 func FileSize(cFileName)
     if not FileExists(cFileName)

@@ -167,22 +167,38 @@ pf()
 # Executed in 0.07 second(s) in Ring 1.22
 
 /*--- Counting Contents
-*/
+
 pr()
 
 o1 = new stzFolder("C:\Program Files")
 o1 {
-    ? "Total count: " + Count()
-    #--> Total count: 87
+
+	# Counting files and forlders at the current level
+
+    ? Count() # Or CountFilesAndFolders()
+    #--> 42
     
-    ? "Files count: " + CountFiles()
-    #--> Files count: 3
+    ? CountFiles()
+    #--> 1
     
-    ? "Folders count: " + CountFolders() # Or CountDirs()
-    #--> Folders count: 84
+    ? CountFolders() + NL # Or CountDirs()
+    #--> 41
+
+	# Counting files and folders indepth/recursively
+
+	? CountXT() # or DeepCount()
+	#--> 16309
+
+	? CountFilesXT() # or DeepCountFiles()
+	#--> 14392
+
+	? CountFoldersXT() # Or DeepCountFolders()
+	#--> 1917
+
 }
 
 pf()
+# Executed in 0.74 second(s) in Ring 1.22
 
 /*--- Checking for Specific Content
 
@@ -190,21 +206,25 @@ pr()
 
 o1 = new stzFolder("C:\Windows")
 o1 {
-    ? "Contains 'System32': " + Contains("System32") # Or Has()
-    #--> Contains 'System32': TRUE
+    ? Contains("System32") # Or Has()
+    #--> TRUE
     
-    ? "ContainsFile 'explorer.exe': " + ContainsFile("explorer.exe")
-    #--> ContainsFile 'explorer.exe': TRUE
+    ? ContainsFile("explorer.exe")
+    #--> TRUE
     
-    ? "ContainsFolder 'System32': " + ContainsFolder("System32") # Or ContainsDir()
-    #--> ContainsFolder 'System32': TRUE
+    ? ContainsFolder("System32") + NL # Or ContainsDir()
+    #--> TRUE
+
+	? DeepContains("Boot") # Takes most of the execution time!
+	#--> TRUE
 }
 
 pf()
+# Executed in 8.45 second(s) in Ring 1.22
 
-#==================================#
-#  FOLDER CREATION & REMOVAL      #
-#==================================#
+#=============================#
+#  FOLDER CREATION & REMOVAL  #
+#=============================#
 
 /*--- Creating Single Folders
 
@@ -212,13 +232,13 @@ pr()
 
 o1 = new stzFolder("C:\TestArea")
 o1 {
-    ? "Creating new folder..."
     oNewFolder = CreateFolder("TestSubFolder") # Or mkdir() or MakeFolder()
-    ? "Created: " + oNewFolder.Name()
-    #--> Created: TestSubFolder
+    ? oNewFolder.Name()
+    #--> TestSubFolder
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Creating Multiple Folders
 
@@ -226,22 +246,20 @@ pr()
 
 o1 = new stzFolder("C:\TestArea")
 o1 {
-    ? "Creating multiple folders..."
-    aFolders = ["Docs", "Images", "Videos", "Music"]
-    aCreated = CreateFolders(aFolders)
+
+    aCreated = CreateFolders([ "Docs", "Images", "Videos", "Music" ])
     
-    ? "Created folders:"
     for oFolder in aCreated
-        ? "  " + oFolder.Name()
+        ? oFolder.Name()
     next
-    #--> Created folders:
-    #    Docs
+    #--> Docs
     #    Images
     #    Videos
     #    Music
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Creating Folder Paths
 
@@ -249,33 +267,41 @@ pr()
 
 o1 = new stzFolder("C:\")
 o1 {
-    ? "Creating deep path..."
+    # Creating deep path...
     oDeepFolder = CreatePath("TestArea\Level1\Level2\Level3") # Or mkpath()
-    ? "Created path ending at: " + oDeepFolder.Name()
-    #--> Created path ending at: Level3
+    ? oDeepFolder.Name()
+    #--> Level3
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Removing Files and Folders
-
+*/
 pr()
 
 o1 = new stzFolder("C:\TestArea")
 o1 {
     # Create test content first
     CreateFolder("ToDelete")
-    
-    ? "Before removal - folders: " + CountFolders()
-    #--> Before removal - folders: 8
+	? CountFolders()
+    #--> 6
     
     RemoveFolder("ToDelete") # Or rmdir() or DeleteFolder()
-    ? "After RemoveFolder - folders: " + CountFolders()
-    #--> After RemoveFolder - folders: 7
+    ? CountFolders()
+    #--> 5
     
     # Test file removal
-    RemoveFile("test.txt") # Or DeleteFile()
-    ? "File removed successfully"
+
+	? FileExists("test.txt") #--> FALSE
+
+	# RemoveFile("test.txt") # Or DeleteFile()
+    #--> ERROR: File 'test.txt' doesn't exist here.
+
+	CreateFile("test.txt")
+	? FileExists("test.txt") #--> TRUE
+
+	
 }
 
 pf()
