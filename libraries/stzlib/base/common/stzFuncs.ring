@@ -448,7 +448,13 @@ func KeepingTime()
 	return _bKeepTime
 
 	func KeepingExecutionTime()
-		return KeepingTime()
+		return _bKeepTime
+
+	func ObjectKeepingTime()
+		return _bKeepTime
+
+	func KeepingObjectTime()
+		return _bKeepTime
 
 func SetKeepingTimeTo(bTrueOrFalse)
 	if CheckParams()
@@ -470,6 +476,12 @@ func SetKeepingTimeTo(bTrueOrFalse)
 		SetKeepingTimeTo(bTrueOrFalse)
 
 	func SetKeepTime(bTrueOrFalse)
+		SetKeepingTimeTo(bTrueOrFalse)
+
+	func SetObjectKeepingTimeTo(bTrueOrFalse)
+		SetKeepingTimeTo(bTrueOrFalse)
+
+	func SetKeepingObjectTimeTo(bTrueOrFalse)
 		SetKeepingTimeTo(bTrueOrFalse)
 
 	#>

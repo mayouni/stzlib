@@ -6,31 +6,32 @@ func KeepingHistory()
 	return _bKeepHisto
 
 	func KeepingHisto()
-		return KeepingHistory()
+		return _bKeepHisto
 
 	func KeepingObjectHistory()
-		return KeepingHistory()
+		return _bKeepHisto
 
 	func KeepingObjectHisto()
-		return KeepingHistory()
+		return_bKeepHisto
 
 	func KeepingObjHist()
-		return KeepingHistory()
+		return _bKeepHisto
+
 
 func KeepingHistoryXT()
 	return _aKeepHistoXT[1]
 
 	func KeepingHistoXT()
-		return KeepingHistoryXT()
+		return _aKeepHistoXT[1]
 
 	func KeepingObjectHistoryXT()
-		return KeepingHistoryXT()
+		return _aKeepHistoXT[1]
 
 	func KeepingObjectHistoXT()
-		return KeepingHistoryXT()
+		return _aKeepHistoXT[1]
 
 	func KeepingObjHistXT()
-		return KeepingHistoryXT()
+		return _aKeepHistoXT[1]
 
 #-- Enhanced History Control Functions
 
@@ -38,25 +39,25 @@ func KeepHistoryON()
 	_bKeepHisto = _TRUE_
 
 	func KeepHistory()
-		KeepHistoryON()
+		_bKeepHisto = _TRUE_
 
 	func KeepHistoON()
-		KeepHistoryON()
+		_bKeepHisto = _TRUE_
 
 	func KeepHisto()
-		KeepHistoryON()
+		_bKeepHisto = _TRUE_
 
 func KeepHistoryOFF()
 	_bKeepHisto = _FALSE_
 
 	func DontKeepHistory()
-		KeepHistoryOFF()
+		_bKeepHisto = _FALSE_
 
 	func KeepHistoOFF()
-		KeepHistoryOFF()
+		_bKeepHisto = _FALSE_
 
 	func DontKeepHisto()
-		KeepHistoryOFF()
+		_bKeepHisto = _FALSE_
 
 #-- Enhanced TraceObjectHistory with Recursion Prevention
 

@@ -160,6 +160,7 @@ class stzFolder from stzObject
 	#------------------#
 
 	def Files()
+
 		mylist = ring_dir(@oQDir.path())
 		aResult = []
 		
@@ -311,7 +312,15 @@ class stzFolder from stzObject
 
 	def GoHome()
 		@oQDir.setPath(@oQDir.homePath())
-		return This
+
+		def GoToHome()
+			@oQDir.setPath(@oQDir.homePath())
+
+		def GoToRoot()
+			@oQDir.setPath(@oQDir.homePath())
+
+		def GoRoot()
+			@oQDir.setPath(@oQDir.homePath())
 
 	  #--------------------#
 	 #  FOLDER CREATION   #
@@ -574,16 +583,37 @@ class stzFolder from stzObject
 
 
 	def RemoveRecursivelyAll()
-		# Dangerous operation - keep serious name
-		cMyPath = This.Path()
-		
-		bSuccess = @oQDir.removeRecursively()
-		if not bSuccess
-			raise("Could not remove folder and contents at '" + cMyPath + "'")
-		end
-		
-		@oQDir = NULL  # Object invalid after removal
-		return TRUE
+	    # Remove all files and folders inside, but keep the folder itself
+	    
+	    try
+	        # Remove all files
+	        aFiles = This.Files()
+			nLen = len(aFiles)
+
+			for i = 1 to nLen
+	            bSuccess = @oQDir.remove(aFiles[i])
+	            if not bSuccess
+	                raise("Could not remove file '" + aFiles[i] + "'")
+	            end
+	        next
+	        
+	        # Remove all subfolders recursively
+	        aFolders = This.Folders()
+			nLen = len(aFolders)
+
+			for i = 1 to nLen
+	            oSubFolder = new stzFolder(This.Path() + "/" + aFolders[i])
+	            bSuccess = oSubFolder.@oQDir.removeRecursively()
+	            if not bSuccess
+	                raise("Could not remove subfolder '" + aFolders[i] + "'")
+	            end
+	        next
+	        
+	    catch
+	        raise("Could not empty folder '" + This.Path() + "': " + CatchError())
+	    end
+
+		#< @FunctionAlterativeForms
 
 		def DeleteRecursivelyAll()
 			return This.RemoveRecursivelyAll()
@@ -593,6 +623,20 @@ class stzFolder from stzObject
 
 		def DeepDeleteAll()
 			return This.RemoveRecursivelyAll()
+
+		def RemoveAllContent()
+			return This.RemoveRecursivelyAll()
+
+		def DeepRemoveContent()
+			return This.RemoveRecursivelyAll()
+
+		def DeleteAllContent()
+			return This.RemoveRecursivelyAll()
+
+		def DeepDeleteContent()
+			return This.RemoveRecursivelyAll()
+
+		#>
 
 	  #--------------------#
 	 #  SEARCH & FILTER   #
@@ -677,25 +721,28 @@ class stzFolder from stzObject
 		]
 		return aInfo
 
-	def Show(nLevel)
+	def Show()
+		This.ShowXT(3)
+
+	def ShowXT(nLevel)
 		if nLevel = NULL
 			nLevel = 0
 		end
 		
-		cIndent = copy("  ", nLevel)
-		? cIndent + "📁 " + This.Name()
+		cIndent = @copy("  ", nLevel)
+		? cIndent + "╰─📁 " + This.Name()
 		
 		# Show files
 		aFiles = This.Files()
 		for cFile in aFiles
-			? cIndent + "  📄 " + cFile
+			? cIndent + "   ╰─📄 " + cFile
 		next
 		
 		# Show subfolders
 		aFolders = This.Folders()
 		for cFolder in aFolders
 			oSubFolder = new stzFolder(This.Path() + "/" + cFolder)
-			oSubFolder.Show(nLevel + 1)
+			oSubFolder.ShowXT(nLevel + 1)
 		next
 
 	  #--------------------#

@@ -354,7 +354,7 @@ pf()
 # Executed in 0.19 second(s) in Ring 1.22
 
 /*--- Specialized Search Methods
-*/
+
 pr()
 
 o1 = new stzFolder("C:\Windows\System32")
@@ -383,73 +383,71 @@ pr()
 
 o1 = new stzFolder("C:\Windows\System32")
 o1 {
-    ? "Getting .exe files..."
+    # Getting .exe files
     aExeFiles = FilesByExtension(".exe")
-    ? "EXE files count: " + len(aExeFiles)
-    #--> EXE files count: 247
+    ? len(aExeFiles)
+    #--> 642
     
-    ? "Getting .dll files (without dot)..."
+    # Getting .dll files (without dot)
     aDllFiles = FilesByExtension("dll")  # Extension with or without dot works
-    ? "DLL files count: " + len(aDllFiles)
-    #--> DLL files count: 1847
+    ? len(aDllFiles)
+    #--> 3382
 }
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.22
 
-#==================================#
-#  INFORMATION & DISPLAY         #
-#==================================#
+#==========================#
+#  INFORMATION & DISPLAY   #
+#==========================#
 
 /*--- Detailed Information
 
 pr()
 
 o1 = new stzFolder("C:\Windows")
-o1 {
-    ? "Getting detailed info..."
-    aInfo = Info()
-    
-    ? "Name: " + aInfo[:Name]
-    ? "Path: " + aInfo[:Path]
-    ? "Absolute Path: " + aInfo[:AbsolutePath]
-    ? "Total Count: " + aInfo[:Count]
-    ? "Is Empty: " + aInfo[:IsEmpty]
-    ? "Is Readable: " + aInfo[:IsReadable]
-    ? "Is Root: " + aInfo[:IsRoot]
-    #--> Name: Windows
-    #    Path: C:\Windows
-    #    Absolute Path: C:\Windows
-    #    Total Count: 156
-    #    Is Empty: FALSE
-    #    Is Readable: TRUE
-    #    Is Root: FALSE
-}
+? @@NL(o1.Info())
+#-->'
+[
+	[ "name", "Windows" ],
+	[ "path", "C:/Windows" ],
+	[ "absolutepath", "C:/Windows" ],
+	[ "count", 118 ],
+	[ "files", 32 ],
+	[ "folders", 86 ],
+	[ "isempty", 0 ],
+	[ "isreadable", 1 ],
+	[ "isroot", 0 ],
+	[ "exists", 1 ]
+]
+'
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Tree Display
 
 pr()
 
 o1 = new stzFolder("C:\TestArea")
-o1 {
-    ? "Tree view (level 2):"
-    Show(2)
-    #--> 📁 TestArea
-    #      📁 Docs
-    #      📁 Images
-    #        📁 Thumbnails
-    #      📁 Videos
-    #      📁 Music
-    #        📁 Rock
-    #        📁 Jazz
-}
+o1.ShowXT()
+#--> #TODO
+'
+📁 TestArea
+│╰─📄 test.txt
+├─📁 Docs (23)
+├─📁 Images
+│  ╰─📄 image.png
+├─📁 Music
+╰─📁 Videos
+'
 
 pf()
 
-#==================================#
-#  UTILITY METHODS              #
-#==================================#
+#===================#
+#  UTILITY METHODS  #
+#===================#
+
 
 /*--- Copy and Clone
 
@@ -458,16 +456,16 @@ pr()
 o1 = new stzFolder("C:\Windows\System32")
 o2 = o1.Copy() # Or Clone()
 
-? "Original path: " + o1.Path()
-#--> Original path: C:\Windows\System32
+# Original path
+? o1.Path()
+#--> C:\Windows\System32
 
-? "Copy path: " + o2.Path()
-#--> Copy path: C:\Windows\System32
-
-? "Are they the same object: " + (o1 = o2)
-#--> Are they the same object: FALSE
+# Copy path
+? o2.Path()
+#--> C:\Windows\System32
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Refresh Operation
 
@@ -475,66 +473,85 @@ pr()
 
 o1 = new stzFolder("C:\TestArea")
 o1 {
-    ? "Count before refresh: " + Count()
-    #--> Count before refresh: 4
+    # Count before refresh
+	? Count() # or CountFilesAndFolders()
+    #-->  5
     
-    # Simulate external changes to folder
     CreateFolder("NewlyAdded")
     
     Refresh()
-    ? "Count after refresh: " + Count()
-    #--> Count after refresh: 5
+    ? Count()
+    #--> 6
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.02 second(s) in Ring 1.22
 
-/*--- Method Chaining
+/*--- Folder creation and navigation logic
+   Demonstrates how to use the stzFolder class to navigate the file system,
+   create folders, and track the current path. Highlights support for
+   both sequential navigation and scoped (block-based) folder creation.
 
 pr()
 
-o1 = new stzFolder("C:\")
+o1 = new stzFolder("C:\")  # Start from root directory
 o1 {
-    GoTo("Windows").GoTo("System32").Up().GoTo("Temp")
-    ? "Final path after chaining: " + Path()
-    #--> Final path after chaining: C:\Windows\Temp
-    
-    # Chain with creation
-    CreateFolder("ChainTest").GoTo("ChainTest").CreateFolder("SubTest")
-    ? "Path after create chain: " + Path()
-    #--> Path after create chain: C:\Windows\Temp\ChainTest
+
+    GoTo("Windows")        # Navigate into 'Windows' folder
+    GoTo("System32")       # Further descend into 'System32' (example of deep navigation)
+    Up()                   # Move one level up (back to 'Windows')
+    GoTo("Temp")           # Enter 'Temp' folder — final target before creation
+
+	# Confirm current path before folder operations
+    ? Path()
+    #--> C:/Windows/Temp
+
+    # Chain folder creation without changing the current location
+    CreateFolder("ChainTest")  
+    # Creates 'ChainTest' inside 'Temp' — current path remains at 'Temp'
+
+    GoTo("ChainTest")       
+    # Manually enter 'ChainTest' after creation
+
+    CreateFolder("SubTest") {  
+        # Create 'SubTest' inside 'ChainTest' and *immediately* enter it via block scope
+        ? Path() 
+        # Outputs full path from inside the 'SubTest' block
+    }
+
+    # After the block, we are still inside 'SubTest'
+    ? Path()
+    #--> C:/Windows/Temp/ChainTest/SubTest
+    # Confirms persistent navigation after block exit
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.22
 
-#==================================#
-#  COMPREHENSIVE WORKFLOW        #
-#==================================#
+#==========================#
+#  COMPREHENSIVE WORKFLOW  #
+#==========================#
 
 /*--- Complete Folder Management Workflow
-
+*/
 pr()
-
-? "=== COMPREHENSIVE FOLDER WORKFLOW ==="
 
 # 1. Create main project folder
 oProject = new stzFolder("C:\MyProject")
 oProject {
-    Info()
+
+    ? @@NL( Info() ) + NL
     
     # 2. Create project structure
-    ? ""
-    ? "Creating project structure..."
+
     aFolders = ["src", "docs", "tests", "build", "assets"]
     CreateFolders(aFolders)
-    
-    ? "Project structure created. Contents:"
-    for folder in Folders()
-        ? "  " + folder
-    next
+   
+	? @@( Folders() ) + NL
     
     # 3. Navigate and create sub-structure
-    ? ""
-    ? "Creating sub-structures..."
+
     GoTo("src")
     CreateFolders(["models", "views", "controllers"])
     
@@ -542,35 +559,26 @@ oProject {
     GoTo("assets")
     CreateFolders(["images", "css", "js"])
     
-    # 4. Go back to root and show final structure
+    # Go back to root and show final structure
     Up()
-    ? ""
-    ? "Final project tree:"
-    Show(2)
+
+    # Final project tree
+    ShowXT(2)
     
     # 5. Get comprehensive info
     ? ""
-    ? "Project statistics:"
-    aInfo = Info()
-    ? "Total items: " + aInfo[:Count]
-    ? "Folders: " + CountFolders()
-    ? "Files: " + CountFiles()
+    ? @@NL( Info() ) + NL
     
     # 6. Search for specific patterns
-    ? ""
-    ? "Searching for all folders containing 'view':"
-    aViewFolders = FindFolders("*view*")
-    for folder in aViewFolders
-        ? "  " + folder
-    next
+
+    ? @@NL( FindFolders("*view*") )
     
     # 7. Cleanup (commented out for safety)
-    # ? ""
-    # ? "Cleaning up project..."
-    # bRemoved = RemoveRecursively()
-    # ? "Cleanup successful: " + bRemoved
+
+    ? DeepRemoveAll() # TRUE
+    ? Count() #--> 0 #Now the folder is empy!
+
 }
 
 pf()
-
-? "=== ALL TESTS COMPLETED ==="
+# Executed in 0.01 second(s) in Ring 1.23
