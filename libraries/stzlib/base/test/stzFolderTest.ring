@@ -397,6 +397,33 @@ o1 {
 pf()
 # Executed in 0.04 second(s) in Ring 1.22
 
+/*--- Specialized Search Methods
+
+pr()
+
+o1 = new stzFolder("C:\Windows\System32") #TODO Error
+o1 {
+    # Finding .dll files
+    ? VizFindFiles("*.dll")
+    
+    # Finding folders starting with 'config'
+    ? FindFolders("config*")
+
+}
+
+pf()
+
+/*---
+*/
+pr()
+
+o1 = new stzFolder("D:\GitHub\stzlib\libraries\stzlib\core\")
+//? @@(o1.DeepFindFiles("*memory*"))
+
+? o1.VizFindFiles("*memory*")
+
+pf()
+
 #==========================#
 #  INFORMATION & DISPLAY   #
 #==========================#
@@ -425,22 +452,59 @@ o1 = new stzFolder("C:\Windows")
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
-/*--- Tree Display
+/*--- Folder Tree Display
 
 pr()
 
 o1 = new stzFolder("C:\TestArea")
-o1.ShowXT()
-#--> #TODO
+
+o1.SetDisplayOrder(:SystemOrder)
+? o1.Show() + NL
+#-->
 '
 📁 TestArea
-│╰─📄 test.txt
-├─📁 Docs (23)
+├─📄 test.txt
+├─📁 Docs
 ├─📁 Images
-│  ╰─📄 image.png
+│  ├─📄 image.png
+│  ╰─📄 test.txt
 ├─📁 Music
+├─📁 NewlyAdded
 ╰─📁 Videos
 '
+
+
+//o1.SetDisplayStatPattern('@CountFiles files, @CountFolders folders')
+? o1.ShowXT()
+#-->
+'
+📁 TestArea (1 files, 5 folders)
+├─📄 test.txt
+├─📁 Docs (0 files, 0 folders)
+├─📁 Images (2 files, 0 folders)
+│  ├─📄 image.png
+│  ╰─📄 test.txt
+├─📁 Music (0 files, 0 folders)
+├─📁 NewlyAdded (0 files, 0 folders)
+╰─📁 Videos (0 files, à folders)
+'
+
+pf()
+# Executed in 0.07 second(s) in Ring 1.22
+
+/*---- VISUAL FINDING
+*/
+pr()
+
+o1 = new stzFolder("C:\TestArea")
+
+# Vizfinding images in png format
+
+? o1.VizFindFiles("*.png") + NL
+
+# Vizfinding folders with an 'i' letter in their name
+
+? o1.VizFindFolders("*i*")
 
 pf()
 
