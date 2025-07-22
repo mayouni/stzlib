@@ -31,9 +31,30 @@
 #    - Technical details (Qt entries, system files) handled internally
 #
 
+_nMaxTreeDisplayLevel = 5 #TODO //Move it to stzTree.ring and use it there
+
+func DefaultMaxTreeDisplayLevel()
+	return _nMaxTreeDisplayLevel
+
+func SetDefaultMaxTreeDisplayLevel(n)
+	if NOT isNumber(n)
+		StzRaise("Incorrect param type! n must be a number.")
+	ok
+
+	_nMaxTreeDisplayLevel = n
+
 # Enhanced Functions - Global scope helpers
 func IsFolder(cDir)
-	return dirExists(cDir)
+	return dirExists(cDir) # A native Ring function
+
+	func IsDir(cDir)
+		return dirExists(cDir)
+
+	func @IsFolder(cDir)
+		return dirExists(cDir)
+
+	func @IsDir(cDir)
+		return dirExists(cDir)
 
 func StzFolderQ(cDir)
 	return new stzFolder(cDir)
@@ -42,8 +63,14 @@ func IsAbsolutePath(cDir)
 	return cDir = StzFolderQ(cDir).AbsolutePath()
 
 class stzFolder from stzObject
+
 	@oQDir
 	@cOriginalPath
+
+	@nMaxDisplayLevel = DefaultMaxTreeDisplayLevel()
+	@acStatKeywords = [ "@count", "@countfiles", "@countfolders" ]
+	@cDisplayStatPattern = "@count"
+	@cDisplayOrder = "systemorder"
 
 	def init(pcDirPath)
 		@oQDir = new QDir()
@@ -74,10 +101,10 @@ class stzFolder from stzObject
 				cParentPath = QDir_cleanPath(NULL, cCleanPath + "/..")
 				if not dirExists(cParentPath)
 					raise("Cannot create folder '" + cCleanPath + "' - parent folder '" + 
-					      cParentPath + "' doesn't exist.")
+						   cParentPath + "' doesn't exist.")
 				else
 					raise("Cannot create folder '" + cCleanPath + 
-					      "' - insufficient permissions or invalid path.")
+						   "' - insufficient permissions or invalid path.")
 				end
 			end
 			
@@ -138,19 +165,19 @@ class stzFolder from stzObject
 	#-------------------#
 
 	def CountFilesXT()
-	    return This.CountFilesRecursive(This.Path())
+		 return This.CountFilesRecursive(This.Path())
 	
 		def DeepCountFiles()
 			return This.CountFilesXT()
 
 	def CountFoldersXT() 
-	    return This.CountFoldersRecursive(This.Path())
+		 return This.CountFoldersRecursive(This.Path())
 	
 		def DeepCountFolders()
 			return This.CountFoldersXT()
 
 	def CountXT()
-	    return This.CountFilesXT() + This.CountFoldersXT()
+		 return This.CountFilesXT() + This.CountFoldersXT()
 	
 		def DeepCount()
 			return This.CountXT()
@@ -242,25 +269,25 @@ class stzFolder from stzObject
 	#---
 
 	def ContainsXT(cName)
-	   return This.ContainsFileXT(cName) or This.ContainsFolderXT(cName)
+		return This.ContainsFileXT(cName) or This.ContainsFolderXT(cName)
 	
-	   def HasXT(cName)
-	       return This.ContainsXT(cName)
+		def HasXT(cName)
+		    return This.ContainsXT(cName)
 	
 		def DeepContains(cName)
 			return This.ContainsXT(cName)
 
 	def ContainsFileXT(cFileName)
-	   return This.ContainsFileRecursive(This.Path(), cFileName)
+		return This.ContainsFileRecursive(This.Path(), cFileName)
 	
 		def DeepContainsFile(cName)
 			return This.ContainsFileXT(cName)
 
 	def ContainsFolderXT(cFolderName)
-	   return This.ContainsFolderRecursive(This.Path(), cFolderName)
+		return This.ContainsFolderRecursive(This.Path(), cFolderName)
 	
-	   def ContainsDirXT(cFolderName)
-	       return This.ContainsFolderXT(cFolderName)
+		def ContainsDirXT(cFolderName)
+		    return This.ContainsFolderXT(cFolderName)
 	
 		def DeepContainsFolder(cName)
 			return This.ContainsXT(cName)
@@ -378,24 +405,24 @@ class stzFolder from stzObject
 			return This.CreatePath(pcFullPath)
 
 	def ResolvePath(cPath)
-	    if cPath = NULL or cPath = ""
-	        raise("Path cannot be empty")
-	    end
-	    
-	    # If already absolute, return as-is
-	    if IsAbsolutePath(cPath)
-	        return cPath
-	    end
-	    
-	    # If relative, combine with current folder path
-	    cCurrentPath = This.AbsolutePath()
-	    
-	    # Handle path separators
-	    if right(cCurrentPath, 1) != "/" and right(cCurrentPath, 1) != "\"
-	        cCurrentPath += "/"
-	    end
-	    
-	    return cCurrentPath + cPath
+		 if cPath = NULL or cPath = ""
+		     raise("Path cannot be empty")
+		 end
+		 
+		 # If already absolute, return as-is
+		 if IsAbsolutePath(cPath)
+		     return cPath
+		 end
+		 
+		 # If relative, combine with current folder path
+		 cCurrentPath = This.AbsolutePath()
+		 
+		 # Handle path separators
+		 if right(cCurrentPath, 1) != "/" and right(cCurrentPath, 1) != "\"
+		     cCurrentPath += "/"
+		 end
+		 
+		 return cCurrentPath + cPath
 
 	#------------------#
 	#  MANAGING FILES  #
@@ -583,35 +610,35 @@ class stzFolder from stzObject
 
 
 	def RemoveRecursivelyAll()
-	    # Remove all files and folders inside, but keep the folder itself
-	    
-	    try
-	        # Remove all files
-	        aFiles = This.Files()
+		 # Remove all files and folders inside, but keep the folder itself
+		 
+		 try
+		     # Remove all files
+		     aFiles = This.Files()
 			nLen = len(aFiles)
 
 			for i = 1 to nLen
-	            bSuccess = @oQDir.remove(aFiles[i])
-	            if not bSuccess
-	                raise("Could not remove file '" + aFiles[i] + "'")
-	            end
-	        next
-	        
-	        # Remove all subfolders recursively
-	        aFolders = This.Folders()
+		         bSuccess = @oQDir.remove(aFiles[i])
+		         if not bSuccess
+		             raise("Could not remove file '" + aFiles[i] + "'")
+		         end
+		     next
+		     
+		     # Remove all subfolders recursively
+		     aFolders = This.Folders()
 			nLen = len(aFolders)
 
 			for i = 1 to nLen
-	            oSubFolder = new stzFolder(This.Path() + "/" + aFolders[i])
-	            bSuccess = oSubFolder.@oQDir.removeRecursively()
-	            if not bSuccess
-	                raise("Could not remove subfolder '" + aFolders[i] + "'")
-	            end
-	        next
-	        
-	    catch
-	        raise("Could not empty folder '" + This.Path() + "': " + CatchError())
-	    end
+		         oSubFolder = new stzFolder(This.Path() + "/" + aFolders[i])
+		         bSuccess = oSubFolder.@oQDir.removeRecursively()
+		         if not bSuccess
+		             raise("Could not remove subfolder '" + aFolders[i] + "'")
+		         end
+		     next
+		     
+		 catch
+		     raise("Could not empty folder '" + This.Path() + "': " + CatchError())
+		 end
 
 		#< @FunctionAlterativeForms
 
@@ -702,6 +729,71 @@ class stzFolder from stzObject
 		
 		return aResult
 
+	  #-----------------#
+	 #  VISUAL SEARCH  #
+	#-----------------#
+
+	def VizFind(cPattern)
+		# Search both files and folders and visualize results
+		aFiles = This.FindFiles(cPattern)
+		aFolders = This.FindFolders(cPattern)
+		
+		cFolderName = This.Name()
+		if cFolderName = ""
+			cFolderName = This.Path()
+		end
+		
+		nTotalMatches = len(aFiles) + len(aFolders)
+		cResult = "📁 " + cFolderName + " (🔍 " + nTotalMatches + " matches for '" + cPattern + "')" + nl
+		
+		cResult += This.GenerateVizTreeString(
+			This.Path(), "", _TRUE_, cPattern, "both", 0,
+			This.MaxDisplayLevel())
+			
+		return cResult
+
+		def VizFindFilesAndFolders(cPattern)
+			return This.VizFind(cPattern)
+
+	def VizFindFiles(cPattern)
+		# Search files only and visualize results
+		aFiles = This.FindFiles(cPattern)
+		
+		cFolderName = This.Name()
+		if cFolderName = ""
+			cFolderName = This.Path()
+		end
+		
+		nMatches = len(aFiles)
+		cResult = "📁 " + cFolderName + " (🔍 " + nMatches + " file matches for '" + cPattern + "')" + nl
+		
+		cResult += This.GenerateVizTreeString(
+			This.Path(), "", _TRUE_, cPattern, "files", 0,
+			This.MaxDisplayLevel())
+			
+		return cResult
+
+	def VizFindFolders(cPattern)
+		# Search folders only and visualize results
+		aFolders = This.FindFolders(cPattern)
+		
+		cFolderName = This.Name()
+		if cFolderName = ""
+			cFolderName = This.Path()
+		end
+		
+		nMatches = len(aFolders)
+		cResult = "📁 " + cFolderName + " (🔍 " + nMatches + " folder matches for '" + cPattern + "')" + nl
+		
+		cResult += This.GenerateVizTreeString(
+			This.Path(), "", _TRUE_, cPattern, "folders", 0,
+			This.MaxDisplayLevel())
+			
+		return cResult
+
+		def VizFindDirs(cPattern)
+			return This.VizFindFolders(cPattern)
+
 	  #--------------------#
 	 #  DISPLAY & INFO    #
 	#--------------------#
@@ -721,29 +813,115 @@ class stzFolder from stzObject
 		]
 		return aInfo
 
-	def Show()
-		This.ShowXT(3)
+	def MaxDisplayLevel()
+		return @nMaxDisplayLevel
 
-	def ShowXT(nLevel)
-		if nLevel = NULL
-			nLevel = 0
-		end
-		
-		cIndent = @copy("  ", nLevel)
-		? cIndent + "╰─📁 " + This.Name()
-		
-		# Show files
-		aFiles = This.Files()
-		for cFile in aFiles
-			? cIndent + "   ╰─📄 " + cFile
+	def SetMaxDisplayLevel(n)
+		if not isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		@nMaxDisplayLevel = n
+
+	def DisplayStatPattern()
+		return @cDisplayStatPattern
+
+	def SetDisplayStatPattern(cPattern)
+		if NOT isString(cPattern)
+			StzRaise("Incorrect param type! cPattern must be a string.")
+		ok
+
+		if NOT This.IsStatPattern(cPattern)
+			StzRaise("Incorrect stat pattern! cPattern must contain at least" +
+					 " one of these keywords: " + @@(This.StatKeywords()) )
+		ok
+
+		@cDisplayStatPattern = cPattern
+
+	def StatKeywords()
+		return @acStatKeywords
+
+	def IsStatPattern(cPattern)
+
+		if Not isstring(cPattern)
+			return _FALSE_
+		ok
+
+		cPattern = lower(cpattern)
+
+		acKeywords = This.StatKeywords()
+
+		nLen = len(acKeywords)
+		bResult = _FALSE_
+
+		for i = 1 to nLen
+			if substr(cPattern, acKeywords[i]) > 0
+				bResult = _TRUE_
+				exit
+			ok
 		next
+
+		return bResult
+
+	def DisplayOrder()
+		return @cDisplayOrder
+
+	def SetDisplayOrder(cOrder)
+		if NOT isString(cOrder)
+			StzRaise("Incorrect param type! cOrder must be a string.")
+		ok
 		
-		# Show subfolders
-		aFolders = This.Folders()
-		for cFolder in aFolders
-			oSubFolder = new stzFolder(This.Path() + "/" + cFolder)
-			oSubFolder.ShowXT(nLevel + 1)
-		next
+		acValidOrders = [
+			"systemorder",
+			"filefirstascending", 
+			"filefirstdescending",
+			"folderfirstascending",
+			"folderfirstdescending"
+		]
+		
+		if NOT ring_find(acValidOrders, lower(cOrder))
+			StzRaise("Invalid display order! Must be one of: " + @@(acValidOrders))
+		ok
+		
+		@cDisplayOrder = lower(cOrder)
+
+	def Show()
+	    cFolderName = This.Name()
+	    if cFolderName = ""
+	        cFolderName = This.Path()
+	    end
+	    
+	    cResult = "📁 " + cFolderName + nl
+
+	    cResult += This.GenerateTreeString(
+			This.Path(), "", _TRUE_, '', 0,
+			This.MaxDisplayLevel())
+
+	    return cResult
+
+	def ShowXT()
+		cStatPattern = This.DisplayStatPattern()
+		if cStatPattern = ""
+			cStatPattern = This.DisplayStatPattern()
+		ok
+
+	    if cStatPattern = NULL
+	        cStatPattern = ""
+	    end
+	    
+	    cFolderName = This.Name()
+	    if cFolderName = ""
+	        cFolderName = This.Path()
+	    end
+	    
+	    cStats = trim(This.FormatStats(This, cStatPattern))
+	    cResult = "📁 " + cFolderName + " " + cStats + nl
+
+	    cResult += This.GenerateTreeString(
+			This.Path(), "", _TRUE_, cStatPattern, 0,
+			This.MaxDisplayLevel() )
+
+	    return cResult	
 
 	  #--------------------#
 	 #  UTILITY METHODS   #
@@ -759,10 +937,8 @@ class stzFolder from stzObject
 		@oQDir.refresh()
 		return This
 
-	# Internal helper
 	def Matches(cFilter, cFileName)
 		return QDir_match(@oQDir.ObjectPointer(), cFilter, cFileName)
-
 
 	  #-----------------------------#
 	 #  Private recursive helpers  #
@@ -772,98 +948,393 @@ class stzFolder from stzObject
 	
 	def CountFilesRecursive(cPath)
 
-	    nCount = 0
+		 nCount = 0
 
-	    try
-	        aList = ring_dir(cPath)
-	    catch
-	        return 0  # Skip inaccessible directories
-	    end
+		 try
+		     aList = ring_dir(cPath)
+		 catch
+		     return 0  # Skip inaccessible directories
+		 end
 
-	    nLen = len(aList)
+		 nLen = len(aList)
 
 		for i = 1 to nLen
 
-	        if aList[i][2] = 0  # File
-	            nCount++
+		     if aList[i][2] = 0  # File
+		         nCount++
 
-	        but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
-	            nCount += This.CountFilesRecursive(cPath + "/" + aList[i][1])
-	        end
+		     but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
+		         nCount += This.CountFilesRecursive(cPath + "/" + aList[i][1])
+		     end
 
-	    next
-	    
-	    return nCount
+		 next
+		 
+		 return nCount
 	
 	def CountFoldersRecursive(cPath)
-	    nCount = 0
+		 nCount = 0
 
-	    try
-	        aList = ring_dir(cPath)
-	    catch
-	        return 0  # Skip inaccessible directories
-	    end
+		 try
+		     aList = ring_dir(cPath)
+		 catch
+		     return 0  # Skip inaccessible directories
+		 end
 
-	    nLen = len(aList)
+		 nLen = len(aList)
 
 		for i = 1 to nLen
 
-	        if aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
-	            nCount++
-	            nCount += This.CountFoldersRecursive(cPath + "/" + aList[i][1])
-	        end
+		     if aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
+		         nCount++
+		         nCount += This.CountFoldersRecursive(cPath + "/" + aList[i][1])
+		     end
 
-	    next
-	    
-	    return nCount
+		 next
+		 
+		 return nCount
 
 
 	def ContainsFileRecursive(cPath, cFileName)
-	   try
-	       aList = ring_dir(cPath)
-	   catch
-	       return FALSE
-	   end
-	   nLen = len(aList)
+		try
+		    aList = ring_dir(cPath)
+		catch
+		    return FALSE
+		end
+		nLen = len(aList)
 	
 		for i = 1 to nLen
 	
-	       if aList[i][2] = 0 and
+		    if aList[i][2] = 0 and
 
 		aList[i][1] = cFileName  # File found
 
 
-	           return TRUE
+		        return TRUE
 
-	       but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1][1] != ".."  # Subfolder
-	           if This.ContainsFileRecursive(cPath + "/" + aList[i][1], cFileName)
-	               return TRUE
-	           end
-	       end
+		    but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1][1] != ".."  # Subfolder
+		        if This.ContainsFileRecursive(cPath + "/" + aList[i][1], cFileName)
+		            return TRUE
+		        end
+		    end
 	
-	   next
-	   
-	   return FALSE
+		next
+		
+		return FALSE
 
 
 	def ContainsFolderRecursive(cPath, cFolderName)
-	   try
-	       aList = ring_dir(cPath)
-	   catch
-	       return FALSE
-	   end
-	   nLen = len(aList)
+		try
+		    aList = ring_dir(cPath)
+		catch
+		    return FALSE
+		end
+		nLen = len(aList)
 	
 		for i = 1 to nLen
 	
-	       if aList[i][2] = 1 and aList[i][1] = cFolderName  # Folder found
-	           return TRUE
+		    if aList[i][2] = 1 and aList[i][1] = cFolderName  # Folder found
+		        return TRUE
 	
-	       but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
-	           if This.ContainsFolderRecursive(cPath + "/" + aList[i][1], cFolderName)
-	               return TRUE
-	           end
-	       end
-	   next
-	   
-	   return FALSE
+		    but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
+		        if This.ContainsFolderRecursive(cPath + "/" + aList[i][1], cFolderName)
+		            return TRUE
+		        end
+		    end
+		next
+		
+		return FALSE
+
+	#--- Private methods for folder display
+
+	def GenerateTreeString(cPath, cPrefix, bIsLast, cStatPattern, nCurrentLevel, nMaxLevels)
+	    if nCurrentLevel >= nMaxLevels
+	        return ""
+	    end
+	    
+	    cResult = ""
+	    
+	    try
+	        mylist = ring_dir(cPath)
+	    catch
+	        return ""
+	    end
+	    
+	    # Separate files and folders
+	    aFiles = []
+	    aFolders = []
+	    
+	    for entry in mylist
+	        if entry[2] = 0  # File
+	            aFiles + entry[1]
+	        elseif entry[2] = 1 and entry[1] != "." and entry[1] != ".."  # Folder
+	            aFolders + entry[1]
+	        end
+	    next
+	    
+	    # Apply sorting based on display order
+	    aItems = This.SortItemsByDisplayOrder(aFiles, aFolders, cPath)
+	    
+	    nTotalItems = len(aItems)
+	    
+	    # Display items in sorted order
+	    for i = 1 to nTotalItems
+	        aItem = aItems[i]
+	        cItemName = aItem[1]
+	        cItemType = aItem[2]  # "file" or "folder"
+	        bIsLastItem = (i = nTotalItems)
+	        
+	        if cItemType = "file"
+	            if bIsLastItem
+	                cResult += cPrefix + "╰─📄 " + cItemName + nl
+	            else
+	                cResult += cPrefix + "├─📄 " + cItemName + nl
+	            end
+	        else  # folder
+	            oSubFolder = new stzFolder(cPath + "/" + cItemName)
+	            cSubStats = This.FormatStats(oSubFolder, cStatPattern)
+	            
+	            if bIsLastItem
+	                cResult += cPrefix + "╰─📁 " + cItemName + cSubStats + nl
+	                cNewPrefix = cPrefix + "   "
+	            else
+	                cResult += cPrefix + "├─📁 " + cItemName + cSubStats + nl
+	                cNewPrefix = cPrefix + "│  "
+	            end
+	            
+	            # Recurse into subfolder
+	            if nCurrentLevel + 1 < nMaxLevels
+	                cResult += This.GenerateTreeString(cPath + "/" + cItemName, cNewPrefix, bIsLastItem, cStatPattern, nCurrentLevel + 1, nMaxLevels)
+	            end
+	        end
+	    next
+	    
+	    return cResult
+
+	def SortItemsByDisplayOrder(aFiles, aFolders, cPath)
+	    aItems = []
+	    
+	    switch @cDisplayOrder
+	        case "systemorder"
+
+	            # Use Qt's system order
+
+				# By "systemorder" we mean the natural filesystem
+				# order, not Windows Explorer's (or equivalent in
+				# other OSs) current display order.
+
+				oQDirTemp = new QDir()
+	            oQDirTemp.setPath(cPath)
+	            oQDirTemp.setSorting(0)  # QDir::Unsorted for natural system order
+	            aQtEntries = oQDirTemp.entryList_2(3, 0) #   # QDir::Files | QDir::Dirs, QDir::Unsorted
+	            
+	            for i = 0 to aQtEntries.size() - 1
+	                cEntryName = aQtEntries.at(i)
+	                if cEntryName != "." and cEntryName != ".."
+	                    cFullPath = cPath + "/" + cEntryName
+	                    if isdir(cFullPath)
+	                        aItems + [cEntryName, "folder"]
+	                    else
+	                        aItems + [cEntryName, "file"]
+	                    end
+	                end
+	            next
+	            
+	        case "filefirstascending"
+	            aFilesSorted = sort(aFiles)
+	            aFoldersSorted = sort(aFolders)
+	            for cFile in aFilesSorted
+	                aItems + [cFile, "file"]
+	            next
+	            for cFolder in aFoldersSorted
+	                aItems + [cFolder, "folder"]
+	            next
+	            
+	        case "filefirstdescending"
+	            aFilesSorted = reverse(sort(aFiles))
+	            aFoldersSorted = reverse(sort(aFolders))
+	            for cFile in aFilesSorted
+	                aItems + [cFile, "file"]
+	            next
+	            for cFolder in aFoldersSorted
+	                aItems + [cFolder, "folder"]
+	            next
+	            
+	        case "folderfirstascending"
+	            aFilesSorted = sort(aFiles)
+	            aFoldersSorted = sort(aFolders)
+	            for cFolder in aFoldersSorted
+	                aItems + [cFolder, "folder"]
+	            next
+	            for cFile in aFilesSorted
+	                aItems + [cFile, "file"]
+	            next
+	            
+	        case "folderfirstdescending"
+	            aFilesSorted = reverse(sort(aFiles))
+	            aFoldersSorted = reverse(sort(aFolders))
+	            for cFolder in aFoldersSorted
+	                aItems + [cFolder, "folder"]
+	            next
+	            for cFile in aFilesSorted
+	                aItems + [cFile, "file"]
+	            next
+	    end
+	    
+	    return aItems
+
+	def OrderFilesFirst(aFiles, aFolders)
+	    aResult = []
+	    for cFile in aFiles
+	        aResult + [:name = cFile, :type = "file"]
+	    next
+	    for cFolder in aFolders  
+	        aResult + [:name = cFolder, :type = "folder"]
+	    next
+	    return aResult
+	
+	def OrderFoldersFirst(aFiles, aFolders)
+	    aResult = []
+	    for cFolder in aFolders
+	        aResult + [:name = cFolder, :type = "folder"] 
+	    next
+	    for cFile in aFiles
+	        aResult + [:name = cFile, :type = "file"]
+	    next
+	    return aResult
+	
+	def GetPhysicalOrder(cPath)
+	    mylist = ring_dir(cPath)
+	    aResult = []
+	    for entry in mylist
+	        if entry[2] = 0
+	            aResult + [:name = entry[1], :type = "file"]
+	        elseif entry[2] = 1 and entry[1] != "." and entry[1] != ".."
+	            aResult + [:name = entry[1], :type = "folder"]
+	        end
+	    next
+	    return aResult
+	
+	def FormatStats(oFolder, cStatPattern)
+		if cStatPattern = ""
+		    return ""
+		end
+		
+		cStats = cStatPattern
+		acKeys = reverse( sort(This.StatKeywords()) )
+		nLen = len(ackeys)
+
+		for i = 1 to nLen
+			cCode = 'nStatValue = oFolder.' + acKeys[i] + '()'
+			cCode = substr(cCode, "@", "")
+
+			eval(cCode)
+
+			if substr(lower(cStats), acKeys[i])
+			    cStats = substr(lower(cStats), acKeys[i], ("" + nStatValue) )
+			end
+		next
+
+		
+		# Handle special cases
+		if cStats = "..."
+		    return " (...)"
+		end
+		
+		return " (" + cStats + ")"
+
+	#--- Private method for visual search tree generation
+
+	def GenerateVizTreeString(cPath, cPrefix, bIsLast, cPattern, cSearchType, nCurrentLevel, nMaxLevels)
+		if nCurrentLevel >= nMaxLevels
+			return ""
+		end
+		
+		cResult = ""
+		
+		try
+			mylist = ring_dir(cPath)
+		catch
+			return ""
+		end
+		
+		# Separate files and folders
+		aFiles = []
+		aFolders = []
+		
+		for entry in mylist
+			if entry[2] = 0  # File
+				aFiles + entry[1]
+			elseif entry[2] = 1 and entry[1] != "." and entry[1] != ".."  # Folder
+				aFolders + entry[1]
+			end
+		next
+		
+		# Apply sorting based on display order
+		aItems = This.SortItemsByDisplayOrder(aFiles, aFolders, cPath)
+		
+		nTotalItems = len(aItems)
+		
+		# Display items with visual search hints
+		for i = 1 to nTotalItems
+			aItem = aItems[i]
+			cItemName = aItem[1]
+			cItemType = aItem[2]  # "file" or "folder"
+			bIsLastItem = (i = nTotalItems)
+			
+			# Check if item matches search criteria
+			bMatches = This.Matches(cPattern, cItemName)
+			bShowItem = (cSearchType = "both") or 
+						(cSearchType = "files" and cItemType = "file") or
+						(cSearchType = "folders" and cItemType = "folder")
+			
+			if cItemType = "file"
+				cIcon = "📄"
+				if bMatches and bShowItem
+					cIcon = "🎯📄"  # Highlighted file match
+				end
+				
+				if bIsLastItem
+					cResult += cPrefix + "╰─" + cIcon + " " + cItemName + nl
+				else
+					cResult += cPrefix + "├─" + cIcon + " " + cItemName + nl
+				end
+				
+			else  # folder
+				oSubFolder = new stzFolder(cPath + "/" + cItemName)
+				
+				# Check if subfolder contains matches
+				bSubfolderHasMatches = _FALSE_
+				if cSearchType = "both" or cSearchType = "files"
+					if len(oSubFolder.FindFiles(cPattern)) > 0
+						bSubfolderHasMatches = _TRUE_
+					end
+				end
+				if cSearchType = "both" or cSearchType = "folders"
+					if len(oSubFolder.FindFolders(cPattern)) > 0
+						bSubfolderHasMatches = _TRUE_
+					end
+				end
+				
+				cIcon = "📁"
+				if bMatches and bShowItem
+					cIcon = "🎯📁"  # Direct folder match
+				elseif bSubfolderHasMatches
+					cIcon = "🔍📁"  # Folder contains matches
+				end
+				
+				if bIsLastItem
+					cResult += cPrefix + "╰─" + cIcon + " " + cItemName + nl
+					cNewPrefix = cPrefix + "   "
+				else
+					cResult += cPrefix + "├─" + cIcon + " " + cItemName + nl
+					cNewPrefix = cPrefix + "│  "
+				end
+				
+				# Recurse into subfolder
+				if nCurrentLevel + 1 < nMaxLevels
+					cResult += This.GenerateVizTreeString(cPath + "/" + cItemName, cNewPrefix, bIsLastItem, cPattern, cSearchType, nCurrentLevel + 1, nMaxLevels)
+				end
+			end
+		next
+		
+		return cResult
