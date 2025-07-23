@@ -411,18 +411,18 @@ o1 {
 
 }
 
+
 pf()
 
 /*---
-*/
+
 pr()
 
 o1 = new stzFolder("D:\GitHub\stzlib\libraries\stzlib\core\")
-//? @@(o1.DeepFindFiles("*memory*"))
-
 ? o1.VizFindFiles("*memory*")
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.22
 
 #==========================#
 #  INFORMATION & DISPLAY   #
@@ -453,7 +453,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Folder Tree Display
-
+*/
 pr()
 
 o1 = new stzFolder("C:\TestArea")
@@ -474,7 +474,8 @@ o1.SetDisplayOrder(:SystemOrder)
 '
 
 
-//o1.SetDisplayStatPattern('@CountFiles files, @CountFolders folders')
+o1.SetDisplayStatPattern('@CountFiles files, @CountFolders folders')
+
 ? o1.ShowXT()
 #-->
 '
@@ -499,8 +500,19 @@ pr()
 o1 = new stzFolder("C:\TestArea")
 
 # Vizfinding images in png format
-
+o1.SetDisplayOrder(:FileFirstAscending)
 ? o1.VizFindFiles("*.png") + NL
+#-->
+"
+📁 TestArea (🔍 0 file matches for '*.png')
+├─📁 Docs
+├─🔍📁 Images
+│  ╰─🎯📄 image.png
+├─📁 Music
+├─📁 NewlyAdded
+├─📁 Videos
+╰─📄 test.txt
+"
 
 # Vizfinding folders with an 'i' letter in their name
 
