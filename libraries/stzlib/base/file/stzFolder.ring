@@ -68,9 +68,49 @@ class stzFolder from stzObject
 	@cOriginalPath
 
 	@nMaxDisplayLevel = DefaultMaxTreeDisplayLevel()
+
 	@acStatKeywords = [ "@count", "@countfiles", "@countfolders" ]
 	@cDisplayStatPattern = "@count"
-	@cDisplayOrder = "systemorder"
+	@cDisplayOrder = :FileFirstAscending
+
+	@bExpandAll = _FALSE_
+	@acExpandFolders = []
+	@bCollapseAll = _FALSE_
+	@acCollapseFolders = []
+	
+	@acDisplayChars = [
+
+		# The folder tree lines use these chars
+		:VerticlalChar = "│",
+		:VerticalCharTick = "├",
+		:ClosingChar = "╰",
+
+		# File always has this icon
+		:File = " 🗋",
+		:FileFound = "📄",
+
+		# The root folder has this icon
+		:FolderRoot = "📁",
+
+		# An expanded folder has this icon
+		:FolderOpened = "🗁",
+
+		# When a folder is collapsed and is empty use
+		:FolderClosedEmpty = "🗀",
+
+		# Otherwise, when the folder is closed and has file, use
+		:FolderClosedFull = "🖿",
+
+		# After a VizFind use this icon in the root stat label
+		:FolderRootSearch = "",
+
+		# A folder that contains found files uses this icon
+		:FolderOpenedFound = "📂",
+
+		# Each found file is proceeded by this icon
+		:FileFoundSymbol = "👉"
+
+	]
 
 	def init(pcDirPath)
 		@oQDir = new QDir()
@@ -735,16 +775,19 @@ class stzFolder from stzObject
 
 	def VizFind(cPattern)
 		# Search both files and folders and visualize results
-		aFiles = This.FindFiles(cPattern)
-		aFolders = This.FindFolders(cPattern)
+		nTotalFileMatches = This.CountFileMatchesRecursive(This.Path(), cPattern)
+		nTotalFolderMatches = This.CountFolderMatchesRecursive(This.Path(), cPattern)
+		nTotalMatches = nTotalFileMatches + nTotalFolderMatches
 		
 		cFolderName = This.Name()
 		if cFolderName = ""
 			cFolderName = This.Path()
 		end
 		
-		nTotalMatches = len(aFiles) + len(aFolders)
-		cResult = "📁 " + cFolderName + " (🔍 " + nTotalMatches + " matches for '" + cPattern + "')" + nl
+		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName + " (" +
+			@acDisplayChars[:FolderRootSearch] + "" +
+			 nTotalMatches + " matches for '" +
+			cPattern + "')" + nl
 		
 		cResult += This.GenerateVizTreeString(
 			This.Path(), "", _TRUE_, cPattern, "both", 0,
@@ -756,34 +799,43 @@ class stzFolder from stzObject
 			return This.VizFind(cPattern)
 
 	def VizFindFiles(cPattern)
-		# Search files only and visualize results
-		aFiles = This.FindFiles(cPattern)
+		# Search files only and visualize results with focused display
+		nTotalMatches = This.CountFileMatchesRecursive(This.Path(), cPattern)
 		
 		cFolderName = This.Name()
 		if cFolderName = ""
 			cFolderName = This.Path()
 		end
 		
-		nMatches = len(aFiles)
-		cResult = "📁 " + cFolderName + " (🔍 " + nMatches + " file matches for '" + cPattern + "')" + nl
+		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName +
+			" (" + @acDisplayChars[:FolderRootSearch] + "" + nTotalMatches +
+			" file matches for '" +
+			cPattern + "')" + nl
+		
+		# Force focused display - collapse all then expand only folders with matches
+		This.CollapseAll()
+		acFoldersWithMatches = This.GetFoldersContainingFileMatches(This.Path(), cPattern)
+		if len(acFoldersWithMatches) > 0
+			This.ExpandFolders(acFoldersWithMatches)
+		end
 		
 		cResult += This.GenerateVizTreeString(
-			This.Path(), "", _TRUE_, cPattern, "files", 0,
+			This.Path(), "",
+			_TRUE_, cPattern, "files", 0,
 			This.MaxDisplayLevel())
-			
+
 		return cResult
 
 	def VizFindFolders(cPattern)
 		# Search folders only and visualize results
-		aFolders = This.FindFolders(cPattern)
+		nTotalMatches = This.CountFolderMatchesRecursive(This.Path(), cPattern)
 		
 		cFolderName = This.Name()
 		if cFolderName = ""
 			cFolderName = This.Path()
 		end
 		
-		nMatches = len(aFolders)
-		cResult = "📁 " + cFolderName + " (🔍 " + nMatches + " folder matches for '" + cPattern + "')" + nl
+		cResult = "📁 " + cFolderName + " (🔍 " + nTotalMatches + " folder matches for '" + cPattern + "')" + nl
 		
 		cResult += This.GenerateVizTreeString(
 			This.Path(), "", _TRUE_, cPattern, "folders", 0,
@@ -794,9 +846,9 @@ class stzFolder from stzObject
 		def VizFindDirs(cPattern)
 			return This.VizFindFolders(cPattern)
 
-	  #--------------------#
-	 #  DISPLAY & INFO    #
-	#--------------------#
+	  #--------------#
+	 #  FOLDER NFO  #
+	#--------------#
 
 	def Info()
 		aInfo = [
@@ -812,6 +864,36 @@ class stzFolder from stzObject
 			:Exists = This.Exists("")
 		]
 		return aInfo
+
+	  #-----------------------#
+	 #  FOLDER TREE DISPLAY  #
+	#-----------------------#
+
+	def ExpandAll()
+		@bExpandAll = _TRUE_
+		@bCollapseAll = _FALSE_
+		@acCollapseFolders = []
+	
+	def ExpandFolders(acFolders)
+		if isString(acFolders)
+			@acExpandFolders = [acFolders]
+		else
+			@acExpandFolders = acFolders
+		end
+		@bCollapseAll = _FALSE_
+	
+	def CollapseAll()
+		@bCollapseAll = _TRUE_
+		@bExpandAll = _FALSE_
+		@acExpandFolders = []
+	
+	def CollapseFolders(acFolders)
+		if isString(acFolders)
+			@acCollapseFolders = [acFolders]
+		else
+			@acCollapseFolders = acFolders
+		end
+		@bExpandAll = _FALSE_
 
 	def MaxDisplayLevel()
 		return @nMaxDisplayLevel
@@ -893,8 +975,9 @@ class stzFolder from stzObject
 	    
 	    cResult = "📁 " + cFolderName + nl
 
-	    cResult += This.GenerateTreeString(
-			This.Path(), "", _TRUE_, '', 0,
+	    cResult += This.GenerateVizTreeString(
+			This.Path(), "", _TRUE_, '',
+			"", 0,
 			This.MaxDisplayLevel())
 
 	    return cResult
@@ -917,8 +1000,9 @@ class stzFolder from stzObject
 	    cStats = trim(This.FormatStats(This, cStatPattern))
 	    cResult = "📁 " + cFolderName + " " + cStats + nl
 
-	    cResult += This.GenerateTreeString(
-			This.Path(), "", _TRUE_, cStatPattern, 0,
+	    cResult += This.GenerateVizTreeString(
+			This.Path(), "", _TRUE_, cStatPattern,
+			"", 0,
 			This.MaxDisplayLevel() )
 
 	    return cResult	
@@ -939,6 +1023,80 @@ class stzFolder from stzObject
 
 	def Matches(cFilter, cFileName)
 		return QDir_match(@oQDir.ObjectPointer(), cFilter, cFileName)
+
+def GetFoldersContainingFileMatches(cPath, cPattern)
+	aAllPaths = []
+	This.CollectFoldersWithFileMatches(cPath, cPattern, aAllPaths)
+	
+	# Extract all unique folder names from paths
+	aFolderNames = []
+	for cFullPath in aAllPaths
+		acPathParts = This.GetPathHierarchy(cFullPath)
+		for cFolderName in acPathParts
+			if ring_find(aFolderNames, cFolderName) = 0
+				aFolderNames + cFolderName
+			end
+		next
+	next
+	
+	return aFolderNames
+
+def GetPathHierarchy(cPath)
+	acParts = []
+	cRelativePath = substr(cPath, This.Path() + "/", "")
+	if cRelativePath = cPath  # No substitution occurred
+		return []
+	end
+	
+	acSegments = @split(cRelativePath, "/")
+	for cSegment in acSegments
+		if cSegment != ""
+			acParts + cSegment
+		end
+	next
+	
+	return acParts
+	
+def CollectFoldersWithFileMatches(cPath, cPattern, aFoldersWithMatches)
+   try
+   	mylist = ring_dir(cPath)
+   catch
+   	return
+   end
+   
+   bHasFileMatches = _FALSE_
+   
+   # Check files in current folder
+   for entry in mylist
+   	if entry[2] = 0  # File
+   		if This.Matches(cPattern, entry[1])
+   			bHasFileMatches = _TRUE_
+   			exit
+   		end
+   	end
+   next
+   
+   # If current folder has matches, add its full path
+   if bHasFileMatches
+   	aFoldersWithMatches + cPath
+   end
+   
+   # Recurse into subfolders
+   for entry in mylist
+   	if entry[2] = 1 and entry[1] != "." and entry[1] != ".."
+   		This.CollectFoldersWithFileMatches(cPath + "/" + entry[1], cPattern, aFoldersWithMatches)
+   	end
+   next
+	
+	def GetFolderNameFromPath(cPath)
+		if cPath = This.Path()
+			return ""
+		end
+		nPos = max([substr(cPath, "/"), substr(cPath, "\")])
+		if nPos > 0
+			return right(cPath, len(cPath) - nPos)
+		end
+		return cPath
 
 	  #-----------------------------#
 	 #  Private recursive helpers  #
@@ -1046,69 +1204,6 @@ class stzFolder from stzObject
 
 	#--- Private methods for folder display
 
-	def GenerateTreeString(cPath, cPrefix, bIsLast, cStatPattern, nCurrentLevel, nMaxLevels)
-	    if nCurrentLevel >= nMaxLevels
-	        return ""
-	    end
-	    
-	    cResult = ""
-	    
-	    try
-	        mylist = ring_dir(cPath)
-	    catch
-	        return ""
-	    end
-	    
-	    # Separate files and folders
-	    aFiles = []
-	    aFolders = []
-	    
-	    for entry in mylist
-	        if entry[2] = 0  # File
-	            aFiles + entry[1]
-	        elseif entry[2] = 1 and entry[1] != "." and entry[1] != ".."  # Folder
-	            aFolders + entry[1]
-	        end
-	    next
-	    
-	    # Apply sorting based on display order
-	    aItems = This.SortItemsByDisplayOrder(aFiles, aFolders, cPath)
-	    
-	    nTotalItems = len(aItems)
-	    
-	    # Display items in sorted order
-	    for i = 1 to nTotalItems
-	        aItem = aItems[i]
-	        cItemName = aItem[1]
-	        cItemType = aItem[2]  # "file" or "folder"
-	        bIsLastItem = (i = nTotalItems)
-	        
-	        if cItemType = "file"
-	            if bIsLastItem
-	                cResult += cPrefix + "╰─📄 " + cItemName + nl
-	            else
-	                cResult += cPrefix + "├─📄 " + cItemName + nl
-	            end
-	        else  # folder
-	            oSubFolder = new stzFolder(cPath + "/" + cItemName)
-	            cSubStats = This.FormatStats(oSubFolder, cStatPattern)
-	            
-	            if bIsLastItem
-	                cResult += cPrefix + "╰─📁 " + cItemName + cSubStats + nl
-	                cNewPrefix = cPrefix + "   "
-	            else
-	                cResult += cPrefix + "├─📁 " + cItemName + cSubStats + nl
-	                cNewPrefix = cPrefix + "│  "
-	            end
-	            
-	            # Recurse into subfolder
-	            if nCurrentLevel + 1 < nMaxLevels
-	                cResult += This.GenerateTreeString(cPath + "/" + cItemName, cNewPrefix, bIsLastItem, cStatPattern, nCurrentLevel + 1, nMaxLevels)
-	            end
-	        end
-	    next
-	    
-	    return cResult
 
 	def SortItemsByDisplayOrder(aFiles, aFolders, cPath)
 	    aItems = []
@@ -1244,97 +1339,205 @@ class stzFolder from stzObject
 
 	#--- Private method for visual search tree generation
 
-	def GenerateVizTreeString(cPath, cPrefix, bIsLast, cPattern, cSearchType, nCurrentLevel, nMaxLevels)
-		if nCurrentLevel >= nMaxLevels
-			return ""
-		end
-		
-		cResult = ""
+	def CountFileMatchesRecursive(cPath, cPattern)
+		nCount = 0
 		
 		try
-			mylist = ring_dir(cPath)
+			aList = ring_dir(cPath)
 		catch
-			return ""
+			return 0
 		end
 		
-		# Separate files and folders
-		aFiles = []
-		aFolders = []
+		nLen = len(aList)
 		
-		for entry in mylist
-			if entry[2] = 0  # File
-				aFiles + entry[1]
-			elseif entry[2] = 1 and entry[1] != "." and entry[1] != ".."  # Folder
-				aFolders + entry[1]
+		for i = 1 to nLen
+			if aList[i][2] = 0  # File
+				if This.Matches(cPattern, aList[i][1])
+					nCount++
+				end
+			but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
+				nCount += This.CountFileMatchesRecursive(cPath + "/" + aList[i][1], cPattern)
 			end
 		next
 		
-		# Apply sorting based on display order
-		aItems = This.SortItemsByDisplayOrder(aFiles, aFolders, cPath)
+		return nCount
+
+	def CountFolderMatchesRecursive(cPath, cPattern)
+		nCount = 0
 		
-		nTotalItems = len(aItems)
+		try
+			aList = ring_dir(cPath)
+		catch
+			return 0
+		end
 		
-		# Display items with visual search hints
-		for i = 1 to nTotalItems
-			aItem = aItems[i]
-			cItemName = aItem[1]
-			cItemType = aItem[2]  # "file" or "folder"
-			bIsLastItem = (i = nTotalItems)
-			
-			# Check if item matches search criteria
-			bMatches = This.Matches(cPattern, cItemName)
-			bShowItem = (cSearchType = "both") or 
-						(cSearchType = "files" and cItemType = "file") or
-						(cSearchType = "folders" and cItemType = "folder")
-			
-			if cItemType = "file"
-				cIcon = "📄"
-				if bMatches and bShowItem
-					cIcon = "🎯📄"  # Highlighted file match
+		nLen = len(aList)
+		
+		for i = 1 to nLen
+			if aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
+				if This.Matches(cPattern, aList[i][1])
+					nCount++
 				end
-				
-				if bIsLastItem
-					cResult += cPrefix + "╰─" + cIcon + " " + cItemName + nl
-				else
-					cResult += cPrefix + "├─" + cIcon + " " + cItemName + nl
-				end
-				
-			else  # folder
-				oSubFolder = new stzFolder(cPath + "/" + cItemName)
-				
-				# Check if subfolder contains matches
-				bSubfolderHasMatches = _FALSE_
-				if cSearchType = "both" or cSearchType = "files"
-					if len(oSubFolder.FindFiles(cPattern)) > 0
-						bSubfolderHasMatches = _TRUE_
-					end
-				end
-				if cSearchType = "both" or cSearchType = "folders"
-					if len(oSubFolder.FindFolders(cPattern)) > 0
-						bSubfolderHasMatches = _TRUE_
-					end
-				end
-				
-				cIcon = "📁"
-				if bMatches and bShowItem
-					cIcon = "🎯📁"  # Direct folder match
-				elseif bSubfolderHasMatches
-					cIcon = "🔍📁"  # Folder contains matches
-				end
-				
-				if bIsLastItem
-					cResult += cPrefix + "╰─" + cIcon + " " + cItemName + nl
-					cNewPrefix = cPrefix + "   "
-				else
-					cResult += cPrefix + "├─" + cIcon + " " + cItemName + nl
-					cNewPrefix = cPrefix + "│  "
-				end
-				
-				# Recurse into subfolder
-				if nCurrentLevel + 1 < nMaxLevels
-					cResult += This.GenerateVizTreeString(cPath + "/" + cItemName, cNewPrefix, bIsLastItem, cPattern, cSearchType, nCurrentLevel + 1, nMaxLevels)
-				end
+				nCount += This.CountFolderMatchesRecursive(cPath + "/" + aList[i][1], cPattern)
 			end
 		next
 		
-		return cResult
+		return nCount
+
+def GenerateVizTreeString(cPath, cPrefix, bIsRoot, cPattern, cSearchType, nCurrentLevel, nMaxLevels)
+    if nCurrentLevel >= nMaxLevels
+        return ""
+    end
+    
+    cResult = ""
+    
+    try
+        mylist = ring_dir(cPath)
+    catch
+        return ""
+    end
+    
+    # Separate files and folders
+    aFiles = []
+    aFolders = []
+    
+    for entry in mylist
+        if entry[2] = 0  # File
+            aFiles + entry[1]
+        elseif entry[2] = 1 and entry[1] != "." and entry[1] != ".."  # Folder
+            aFolders + entry[1]
+        end
+    next
+    
+    # Apply sorting based on display order
+    aItems = This.SortItemsByDisplayOrder(aFiles, aFolders, cPath)
+    
+    nTotalItems = len(aItems)
+    
+    # Display items in sorted order
+    for i = 1 to nTotalItems
+        aItem = aItems[i]
+        cItemName = aItem[1]
+        cItemType = aItem[2]  # "file" or "folder"
+        bIsLastItem = (i = nTotalItems)
+        
+        if cItemType = "file"
+            # Check if file matches the search pattern
+            bFileMatches = _FALSE_
+            if cSearchType = "files" or cSearchType = "both"
+                bFileMatches = This.Matches(cPattern, cItemName)
+            end
+            
+            # Show ALL files in expanded folders
+            cIcon = @acDisplayChars[:File]  # Default file icon
+            
+            # Add found indicator if file matches
+            if bFileMatches
+                cIcon += @acDisplayChars[:FileFoundSymbol]  # Found file gets 🎯📄
+            end
+            
+            # Use correct connector based on position
+            if bIsLastItem
+                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "─" + cIcon + " " + cItemName + nl
+            else
+                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "─" + cIcon + " " + cItemName + nl
+            end
+            
+        else  # folder
+            cItemPath = cPath + "/" + cItemName
+            oSubFolder = new stzFolder(cItemPath)
+            
+            # Check if folder matches the search pattern
+            bFolderMatches = _FALSE_
+            if cSearchType = "folders" or cSearchType = "both"
+                bFolderMatches = This.Matches(cPattern, cItemName)
+            end
+            
+            # Check if subfolder contains matches
+            nSubfolderFileMatches = 0
+            nSubfolderFolderMatches = 0
+            bSubfolderHasMatches = _FALSE_
+            
+            if cSearchType = "files" or cSearchType = "both"
+                nSubfolderFileMatches = This.CountFileMatchesRecursive(cItemPath, cPattern)
+                if nSubfolderFileMatches > 0
+                    bSubfolderHasMatches = _TRUE_
+                end
+            end
+            
+            if cSearchType = "folders" or cSearchType = "both"
+                nSubfolderFolderMatches = This.CountFolderMatchesRecursive(cItemPath, cPattern)
+                if nSubfolderFolderMatches > 0
+                    bSubfolderHasMatches = _TRUE_
+                end
+            end
+            
+            # Determine if folder should be expanded (only if it contains matches)
+            bShouldExpand = bSubfolderHasMatches
+            bHasFiles = oSubFolder.CountFiles() > 0
+            bHasFolders = oSubFolder.CountFolders() > 0
+            bIsEmpty = (not bHasFiles and not bHasFolders)
+            
+            # Choose correct folder icon
+            cIcon = ""
+            if bShouldExpand
+                cIcon = @acDisplayChars[:FolderOpenedFound]  # 📂 - Expanded folder with matches
+            elseif bIsEmpty
+                cIcon = @acDisplayChars[:FolderClosedEmpty]  # 🗀 - Empty folder (collapsed)
+            else
+                cIcon = @acDisplayChars[:FolderClosedFull]   # 🖿 - Non-empty folder (collapsed)
+            end
+            
+            # Add found indicator if folder itself matches
+            if bFolderMatches
+                cIcon += @acDisplayChars[:FileFoundSymbol]
+            end
+            
+            # Build match count display (only for folders with matches)
+            cMatchCount = ""
+            nTotalMatches = nSubfolderFileMatches + nSubfolderFolderMatches
+            if nTotalMatches > 0
+                cMatchCount = " (" + nTotalMatches + ")"
+            end
+            
+            # Build the line - use correct connector based on position
+            if bIsLastItem
+                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "─" + cIcon + " " + cItemName + cMatchCount + nl
+                cNewPrefix = cPrefix + "  "  # No vertical line continuation for last item
+            else
+                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "─" + cIcon + " " + cItemName + cMatchCount + nl
+                cNewPrefix = cPrefix + @acDisplayChars[:VerticlalChar] + " "  # Continue vertical line
+            end
+            
+            # Recurse into subfolder ONLY if it contains matches (should be expanded)
+            if bShouldExpand and nCurrentLevel + 1 < nMaxLevels
+                cResult += This.GenerateVizTreeString(cItemPath, cNewPrefix, _FALSE_, cPattern, cSearchType, nCurrentLevel + 1, nMaxLevels)
+            end
+        end
+    next
+    
+    return cResult
+
+	def ShouldExpandFolder(cFolderName)
+		if @bCollapseAll
+			return _FALSE_
+		end
+		
+		if @bExpandAll
+			# Check if specifically collapsed
+			for cPattern in @acCollapseFolders
+				if This.Matches(cPattern, cFolderName)
+					return _FALSE_
+				end
+			next
+			return _TRUE_
+		end
+		
+		# Check if specifically expanded
+		for cPattern in @acExpandFolders
+			if This.Matches(cPattern, cFolderName)
+				return _TRUE_
+			end
+		next
+		
+		return _FALSE_  # Default behavior
