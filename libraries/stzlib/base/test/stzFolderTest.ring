@@ -1,3 +1,4 @@
+
 load "../stzbase.ring"
 
 /*
@@ -456,39 +457,270 @@ pf()
 */
 pr()
 
+# Softanza embraces a visual grammer for folder tree display
+# that is both expressive and practical.
+
+# the grammer can be understood from the @aDisplatChars attribute
+# you can find in the class and here is its content:
+/*
+	@acDisplayChars = [
+
+		# The folder tree lines use these chars
+		:VerticlalChar = "│",
+		:VerticalCharTick = "├",
+		:ClosingChar = "╰",
+
+		# File uses one of these two icons
+		:File = " 🗋",		# file icon by default
+		:FileFound = "📄",	# file icon when a file is found
+
+		# Root folder uses one of these two icons
+		:FolderRoot = "🗀",		# folder icon by default (when Show() is used)
+		:FolderRootXT = "📁",	# folder icon when ShowXT() is used and an info
+								# is added between parenthesis to the right
+
+		# An expanded folder uses one of these two icons
+		:FolderOpened = "🗁",		# when no found files exists inside it
+		:FolderOpenedFound = "📂",	# when files are found inside it
+
+		# A closed folder uses one of these two icons
+		:FolderClosedEmpty = "🗀", 	# when the folder is empty
+		:FolderClosedFull = "🖿",	# when the folder contains files
+
+		# After a VizFind use this icon in the root stat label
+		:FolderRootSearchSymbol = "",
+
+		# Each found file is proceeded by this icon
+		:FileFoundSymbol = "👉"
+
+	]
+*/
+
+# Here is an example:
+
 o1 = new stzFolder("C:\TestArea")
 
-o1.SetDisplayOrder(:SystemOrder)
+# Immedialtely we can get this:
 ? o1.Show() + NL
 #-->
 '
-📁 TestArea
-├─📄 test.txt
-├─📁 Docs
-├─📁 Images
-│  ├─📄 image.png
-│  ╰─📄 test.txt
-├─📁 Music
-├─📁 NewlyAdded
-╰─📁 Videos
+🗀 TestArea
+├─🗀 Docs
+├─🖿 Images
+├─🗀 Music
+├─🗀 Videos
+├─🖿 tempo
+╰─ 🗋 test.txt
 '
 
+# Visually we can induce that the folder is made of one file
+# at its roor (test.tx) and 5 subfolders. Three of them are
+# empty (Docs, Music, and Videos) as indicated by 🗀. The two
+# others (Images and Temp) are not empty as indicated by 🖿.
 
-o1.SetDisplayStatPattern('@CountFiles files, @CountFolders folders')
+# Sure, we can do this easilty for small structures, butwhat if
+# we had more files and folders. Softanza will do the visual count
+# for your and adds useful information to the visual tree just
+# by using the eXTended form of Show:
 
 ? o1.ShowXT()
 #-->
 '
-📁 TestArea (1 files, 5 folders)
-├─📄 test.txt
-├─📁 Docs (0 files, 0 folders)
-├─📁 Images (2 files, 0 folders)
-│  ├─📄 image.png
-│  ╰─📄 test.txt
-├─📁 Music (0 files, 0 folders)
-├─📁 NewlyAdded (0 files, 0 folders)
-╰─📁 Videos (0 files, à folders)
+📁 TestArea (6)
+├─ 🗋 test.txt
+├─🗀 Docs
+├─🖿 Images(3)
+├─🗀 Music
+├─🗀 Videos
+╰─🖿 tempo(2)
 '
+
+# The first thing to note is the visual hint introduced by
+# the use of the 📁 insitead of 🗀 as a root folder ico,
+# to accentiate the fact that we are in XT information
+# added mode (and hence you are called tp pay attention
+# to the additional metat data Softanza will add.
+
+# In this case, just the stat of number of inner elements
+# inside each non-empty folder are added between parenthesis.
+# Which helps a lot, but what if wanted to configure the
+# meta data by ourselves and add more granular stats about
+# the cout of files and subfolders inside each folder?
+
+# Very easy to do: you call SetDisplayStat() and tell it
+# to compute whatever stat you need, like this:
+
+o1.SetDisplayStat('@CountFiles files, @CountFolders folders')
+
+# And you call ShowXT() again:
+
+? o1.ShowXT()
+'
+📁 TestArea (1 files, 6 folders) # <-- Your stats added here
+├─ 🗋 test.txt
+├─🗀 Docs
+├─🖿 Images(2 files, 1 folders)	# <-- and here
+├─🗀 Music
+├─🗀 Videos
+├─🗀 notes
+╰─🖿 tempo(2 files, 0 folders)	# <-- and here
+'
+
+# At any momement of the journey, with extended stats or not,
+# yoou can instuct Softanza to show you all the deep structure
+# of the folder tree by using ExpandAll()
+
+o1.ExpandAll()
+
+# And show the full tree in simple Show() mode
+? o1.Show()
+#-->
+'
+🗀 TestArea
+├─ 🗋 test.txt
+├─🗀 Docs
+├─🗁 Images
+│ ├─ 🗋 image1.png
+│ ├─ 🗋 image2.png
+│ ╰─🖿 notes
+├─🗀 Music
+├─🗀 Videos
+├─🗀 notes
+╰─🗁 tempo
+  ├─ 🗋 temp1.txt
+  ╰─ 🗋 temp2.txt
+'
+
+# or the full strcture in eXTended stats-augmented ShowXT() mode:
+? o1.ShowXT()
+#-->
+'
+📁 TestArea (1 files, 6 folders)
+├─ 🗋 test.txt
+├─🗀 Docs
+├─🗁 Images(4 files, 2 folders)
+│ ├─ 🗋 image1.png
+│ ├─ 🗋 image2.png
+│ ╰─🖿 notes(2 files)
+├─🗀 Music
+├─🗀 Videos
+├─🗀 notes
+╰─🗁 tempo(2 files)
+  ├─ 🗋 temp1.txt
+  ╰─ 🗋 temp2.txt
+'
+
+# You would say that's great! Yes, it is true, but it is not enough!
+# Softanza has more in the buket to cope to the most granular needs
+# in your file and folder exploration experience!
+
+# So let's collapse all and go back to the origin state before I show you
+# the next feature in this narration:
+
+o1.CollapseAll()
+? o1.Show()
+#-->
+'
+🗀 TestArea
+├─ 🗋 test.txt
+├─🗀 Docs
+├─🖿 Images
+├─🗀 Music
+├─🗀 Videos
+├─🗀 notes
+╰─🖿 tempo
+'
+
+# What if you want to expand a particular folder not all the folders
+# like it is possible with ExpandAll()? Easy as usuale:
+
+o1.ExpandFolder("Images")
+? o1.Show()
+#-->
+'
+🗀 TestArea
+├─ 🗋 test.txt
+├─🗀 Docs
+├─🗁 Images		# <-- Only this folder is expanded as requested
+│ ├─ 🗋 image1.png
+│ ├─ 🗋 image2.png
+│ ╰─🖿 notes	# <-- Note that this subfolder of Images is not expanded by default
+├─🗀 Music
+├─🗀 Videos
+├─🗀 notes
+╰─🖿 tempo'
+
+# To expand Images along with it's subfolder Notes, you just add it
+# to the ExpandFolders() list of params:
+
+o1.ExplandFolders([ "Images", "Notes" ])
+? o1.Show()
+
+# But you can also expand the folder and all its deep subfolders
+# by using the DeepExpandFolder() at the first place:
+
+o1.DeepExpandFolder("Images")
+? o1.Show()
+#-->
+'
+🗀 TestArea
+├─ 🗋 test.txt
+├─🗀 Docs
+├─🗁 Images
+│ ├─ 🗋 image1.png
+│ ├─ 🗋 image2.png
+│ ╰─🗁 notes
+│   ├─ 🗋 howto.txt
+│   ╰─ 🗋 sources.txt
+├─🗀 Music
+├─🗀 Videos
+├─🗀 notes
+╰─🖿 tempo
+'
+
+# And of cource, the same logic applies with statics-augmented display
+# using ShowXT(). Sof for example to instruct Softanza expand only
+# the Temp folder in that mode we say:
+
+o1.CollapseAll()
+o1.ExpandFolder("tempo")
+? o1.ShowXT()
+#-->
+'
+📁 TestArea (1:7 files, 6:7 folders)
+├─ 🗋 test.txt
+├─🗀 Docs
+├─🗁 Images (2:4 files, 1 folder)
+│ ├─ 🗋 image1.png
+│ ├─ 🗋 image2.png
+│ ╰─🗁 notes (2 files)
+│   ├─ 🗋 howto.txt
+│   ╰─ 🗋 sources.txt
+├─🗀 Music
+├─🗀 Videos
+├─🗀 notes
+╰─🖿 tempo (2 files)
+'
+
+# Let's take a moment to understand ho wthe meta-statistics should be read:
+
+# This first line 📁 TestArea (1:7 files, 6:7 folders) means that the
+# root folder contains 1 file on root and 7 totally in all level. Similariliy,
+# concerning subfolders, it contains 6 of them directly under the roor, and
+# an other one sitting deeper in the structure (visibly Images/Notes) making
+# a totla number of 7 folders.
+
+# In the same way you read ├─🗁 Images (2:4 files, 1 folder) as the Images
+# folder containing 3 files on its root, and a total of 4 in all its structure.
+# the folder conatins only 1 subfolder.
+
+# For ╰─🗁 notes (2 files) it's easy since not subfolfer are involved and
+# the Notes folder contain purely purely 2 files.
+
+# Does this visual exploration ended here? No, I still have a unique feature
+# to show you: visually finding files and folders in a folder tree!
+
+
 
 pf()
 # Executed in 0.07 second(s) in Ring 1.22
