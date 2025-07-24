@@ -113,9 +113,12 @@
 
 # Loading files related to the FILE module
 
-	load "file/stzJson.ring"
 	load "file/stzFile.ring"
+	load "file/stzZipFile.ring"
+
 	load "file/stzFolder.ring"
+
+	load "file/stzJson.ring"
 	load "file/stzCSV.ring"
 	load "file/stzHtml.ring"
 
