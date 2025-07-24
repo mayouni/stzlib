@@ -1,5 +1,5 @@
 	
-load "ziplib.ring" # Required by stzZipFile
+load "ziplib.ring" # A ring library, Required by stzZipFile
 
 /*
 Intent-Based File API for Softanza v2.0
@@ -21,6 +21,19 @@ Philosophy:
 # because those are dedicated to the string semantics. Instead, the file
 # API uses two clear terms: "Overwrite" for chaning all the content
 # of a file, and "Modify" to change only parts of that file.
+
+# Also, Softanza uses "Delete" a file run then "Remove". The term "Remove"
+# is dedicated to string and list domain and is not used here for file.
+# In fact, "removing" a file would be ambiguous and mean many thing:
+# deleting, moving it elsewhere, or removing a reference of that file
+# from  (e.g., from a list, array, index).
+
+# "RemoveLine" however can be used in Softanza File API, since it's
+# actually a string removal operation happening inside a file!
+
+# Of course, Softanza "FLEXIBILITY" goal let it be permissive to keep
+# the other alternatives too for whom feels confortable with them.
+
 */
 
 
@@ -423,22 +436,41 @@ func FileMove(cSource, cDestination)
 	func @MoveFile(cSource, cDestination)
 		return FileMove(cSource, cDestination)
 
-func FileRemove(cFileName)
+func FileDelete(cFileName)
     if not FileExists(cFileName)
         StzRaise("Cannot Remove non-existent file: " + cFileName)
     ok
+
     oQFile = new QFile()
 	oQFile.setFileName(cFileName)
     return oQFile.remove()
+
+	#< @FunctionAlternativeForms
+
+	func DeleteFile(cFileName)
+		return FileRemove(cFileName)
+
+	func @FileDelete(cFileName)
+		return FileDelete(cFileName)
+
+	func @DeleteFile(cFileName)
+		return FileDelete(cFileName)
+
+	#--
+
+	def FileRemove(cFileName)
+		This.FileDelete(cFileName)
 
 	func RemoveFile(cFileName)
 		return FileRemove(cFileName)
 
 	func @FileRemove(cFileName)
-		return FileRemove(cFileName)
+		return FileDelete(cFileName)
 
 	func @RemoveFile(cFileName)
-		return FileRemove(cFileName)
+		return FileDelete(cFileName)
+
+	#>
 
 func FileSize(cFileName)
     if not FileExists(cFileName)
@@ -1423,6 +1455,12 @@ class stzFileModifier from stzFileReadingMixin
 	        This.RemoveLine(nLineNumber)
 	        return This
 
+		def DeleteLine(nLineNumber)
+			This.RemoveLine(nLineNumber)
+
+			def DeleteLineQ(nLineNumber)
+				return This.RemoveLineQ(nLineNumber)
+
     def RemoveFirstLine()
         This.RemoveLine(1)
 	    return _TRUE_
@@ -1431,6 +1469,12 @@ class stzFileModifier from stzFileReadingMixin
 	        This.RemoveFirstLine()
 	        return This
 
+		def DeleteFirstLine()
+			return This.RemoveFirstLine()
+
+		def DeleteFirstLineQ()
+			return This.RemoveFirstLineQ()
+
     def RemoveLastLine()
         This.RemoveLine(len(@aOriginalLines))
     	return _TRUE_
@@ -1438,6 +1482,12 @@ class stzFileModifier from stzFileReadingMixin
 	    def RemoveLastLineQ()
 	        This.RemoveLastLine()
 	        return This
+
+		def DeleteLastLine()
+			return This.RemoveLastLine()
+
+		def DeleteLastLineQ()
+			return This.RemoveLastLineQ()
 
 	def FindLinesContaining(cSearchText)
         aLines = @aOriginalLines
@@ -1485,6 +1535,12 @@ class stzFileModifier from stzFileReadingMixin
 	        This.RemoveLinesContaining(cSearchText)
 	        return This
 
+		def DeleteLinesContaining(cSearchText)
+			return This.RemoveLinesContaining(cSearchText)
+
+		def DeleteLinesContainingQ(cSearchText)
+			return This.RemoveLinesContainingQ(cSearchText)
+
     def Modify(cOldText, cNewText)
 		if CheckParams()
 			if NoT isString(cOldText)
@@ -1511,7 +1567,6 @@ class stzFileModifier from stzFileReadingMixin
 		def ModifyText(cOldText, cNewText)
 			This.Modify(cOldText, cNewText)
 			return _TRUE_
-
 
 
     def ReplaceInLine(nLineNumber, cOldText, cNewText)
@@ -1594,6 +1649,7 @@ class stzFileManager from stzObject
 			return This.Capabilities()
 
     # COPY OPERATIONS
+
     def CopyTo(cDestinationPath)
         if not substr(cDestinationPath, -1, 1) = "/"
             cDestinationPath = cDestinationPath + "/"
@@ -1627,6 +1683,7 @@ class stzFileManager from stzObject
             return This
     
     # MOVE OPERATIONS
+
     def MoveTo(cDestinationPath)
         if not substr(cDestinationPath, -1, 1) = "/"
             cDestinationPath = cDestinationPath + "/"
@@ -1660,6 +1717,7 @@ class stzFileManager from stzObject
             return This
     
     # RENAME OPERATIONS
+
     def RenameAs(cNewFileName)
         cDestFile = @oQFileInfo.dir().path() + "/" + cNewFileName
         bResult = @oQFile.rename(cDestFile)
@@ -1682,6 +1740,7 @@ class stzFileManager from stzObject
 		return _TRUE_
 
     # SPLIT OPERATIONS
+
     def SplitByLines(nLinesPerFile)
         oReader = FileRead(@cFileName)
         aLines = oReader.Lines()
@@ -1879,6 +1938,7 @@ class stzFileManager from stzObject
             return This
     
     # BACKUP OPERATIONS
+
     def CreateBackup()
         cBaseName = @oQFileInfo.completeBaseName()
         cSuffix = @oQFileInfo.suffix()
@@ -1915,13 +1975,20 @@ class stzFileManager from stzObject
             return This
     
     # DELETE OPERATIONS
+
     def Delete()
         return @oQFile.remove()
     
         def DeleteQ()
             This.Delete()
             return This
-    
+ 
+			def Remove()
+				This.Delete()
+
+			def RemoveQ()
+				return This.DeleteQ()
+
     def SafeDelete()
         cBackupPath = This.CreateBackup()
         if cBackupPath != ""
@@ -1934,7 +2001,14 @@ class stzFileManager from stzObject
             This.SafeDelete()
             return This
     
+		def SafeRemove()
+			This.SafeDelete()
+
+			def SafeRemoveQ()
+				return This.SafeDeleteQ()
+
     # PERMISSION OPERATIONS
+
     def MakeReadOnly()
         return @oQFile.setPermissions(QFile_ReadOwner | QFile_ReadGroup | QFile_ReadOther)
     
@@ -1958,18 +2032,19 @@ class stzFileManager from stzObject
     
 	# ENCRYPT/DECRYPT OPERATIONS (from stzCrypto) #TODO
 
-	
+	/* ... */
 
     # UTILITY METHODS
+
     def FileName()
         return @cFileName
     
-    def FileSize()
+    def Size()
         return @oQFileInfo.size()
     
-    def FileExists()
+    def Exists()
         return @oQFileInfo.exists()
-    
+
     def IsReadOnly()
         return not @oQFileInfo.isWritable()
     
@@ -1983,271 +2058,5 @@ class stzFileManager from stzObject
         return @oQFileInfo.lastModified().toString("dd/MM/yyyy hh:mm:ss")
     
     def Close()
+		@oQFile.close()
         return _TRUE_
-
-#=========================================#
-# ZIP FILE CLASS - ARCHIVE OPERATIONS     #
-#=========================================#
-
-func ZipFile(cZipFileName)
-    return new stzZipFile(cZipFileName)
-
-class stzZipFile from stzObject
-    @cZipFileName
-    @oQFileInfo
-    
-    def init(cZipFileName)
-        @cZipFileName = cZipFileName
-        @oQFileInfo = new QFileInfo(cZipFileName)
-    
-    # CREATION OPERATIONS
-    def CreateFrom(aFiles)
-        # Create zip from list of files
-        if not islist(aFiles)
-            StzRaise("Files parameter must be a list")
-        ok
-        
-        oZip = zip_openfile(@cZipFileName, 'w')
-        if oZip = NULL
-            StzRaise("Cannot create zip file: " + @cZipFileName)
-        ok
-        
-        nLen = len(aFiles)
-        for i = 1 to nLen
-            if FileExists(aFiles[i])
-                zip_addfile(oZip, aFiles[i])
-            ok
-        next
-        
-        zip_close(oZip)
-        return @cZipFileName
-    
-        def CreateFromQ(aFiles)
-            This.CreateFrom(aFiles)
-            return This
-    
-    def CreateFromSingleFile(cFileName)
-        # Create zip from single file
-        return This.CreateFrom([cFileName])
-    
-        def CreateFromSingleFileQ(cFileName)
-            This.CreateFromSingleFile(cFileName)
-            return This
-    
-    def CreateFromDirectory(cDirPath)
-        # Create zip from all files in directory
-        if not DirExists(cDirPath)
-            StzRaise("Directory does not exist: " + cDirPath)
-        ok
-        
-        aFiles = FilesInDir(cDirPath)
-        nLen = len(aFiles)
-        for i = 1 to nLen
-            aFiles[i] = cDirPath + "/" + aFiles[i]
-        next
-        
-        return This.CreateFrom(aFiles)
-    
-        def CreateFromDirectoryQ(cDirPath)
-            This.CreateFromDirectory(cDirPath)
-            return This
-    
-    # MODIFICATION OPERATIONS
-    def AddFile(cFileName)
-        # Add file to existing zip
-        if not FileExists(cFileName)
-            StzRaise("File does not exist: " + cFileName)
-        ok
-        
-        oZip = zip_openfile(@cZipFileName, 'a')
-        if oZip = NULL
-            StzRaise("Cannot open zip file for appending: " + @cZipFileName)
-        ok
-        
-        zip_addfile(oZip, cFileName)
-        zip_close(oZip)
-        return @cZipFileName
-    
-        def AddFileQ(cFileName)
-            This.AddFile(cFileName)
-            return This
-    
-    def AddFiles(aFiles)
-        # Add multiple files to existing zip
-        if not islist(aFiles)
-            StzRaise("Files parameter must be a list")
-        ok
-        
-        oZip = zip_openfile(@cZipFileName, 'a')
-        if oZip = NULL
-            StzRaise("Cannot open zip file for appending: " + @cZipFileName)
-        ok
-        
-        nLen = len(aFiles)
-        for i = 1 to nLen
-            if FileExists(aFiles[i])
-                zip_addfile(oZip, aFiles[i])
-            ok
-        next
-        
-        zip_close(oZip)
-        return @cZipFileName
-    
-        def AddFilesQ(aFiles)
-            This.AddFiles(aFiles)
-            return This
-    
-    def AddString(cEntryName, cContent)
-        # Add string content as file entry
-        oZip = zip_openfile(@cZipFileName, 'a')
-        if oZip = NULL
-            StzRaise("Cannot open zip file for appending: " + @cZipFileName)
-        ok
-        
-        oEntry = zip_newentry(oZip)
-        zip_entry_open(oEntry, cEntryName)
-        zip_entry_writestring(oEntry, cContent)
-        zip_entry_close(oEntry)
-        
-        zip_close(oZip)
-        return @cZipFileName
-    
-        def AddStringQ(cEntryName, cContent)
-            This.AddString(cEntryName, cContent)
-            return This
-    
-    # EXTRACTION OPERATIONS
-    def ExtractTo(cTargetDir)
-        # Extract all files to target directory
-        if not This.Exists()
-            StzRaise("Zip file does not exist: " + @cZipFileName)
-        ok
-        
-        zip_extract_allfiles(@cZipFileName, cTargetDir)
-        return cTargetDir
-    
-        def ExtractToQ(cTargetDir)
-            This.ExtractTo(cTargetDir)
-            return This
-    
-    def ExtractHere()
-        # Extract to same directory as zip file
-        cDirPath = @oQFileInfo.dir().path()
-        return This.ExtractTo(cDirPath)
-    
-        def ExtractHereQ()
-            This.ExtractHere()
-            return This
-    
-    def ExtractToNewFolder()
-        # Extract to new folder with zip file's base name
-        cBaseName = @oQFileInfo.completeBaseName()
-        cDirPath = @oQFileInfo.dir().path()
-        cTargetDir = cDirPath + "/" + cBaseName
-        
-        return This.ExtractTo(cTargetDir)
-    
-        def ExtractToNewFolderQ()
-            This.ExtractToNewFolder()
-            return This
-    
-    # INSPECTION OPERATIONS
-    def ListContents()
-        # List all files in zip
-        if not This.Exists()
-            StzRaise("Zip file does not exist: " + @cZipFileName)
-        ok
-        
-        oZip = zip_openfile(@cZipFileName, 'r')
-        if oZip = NULL
-            StzRaise("Cannot open zip file: " + @cZipFileName)
-        ok
-        
-        aFiles = []
-        nCount = zip_filescount(oZip)
-        for i = 1 to nCount
-            aFiles + zip_getfilenamebyindex(oZip, i)
-        next
-        
-        zip_close(oZip)
-        return aFiles
-    
-        def ListContentsQ()
-            This.ListContents()
-            return This
-    
-    def FileCount()
-        # Return number of files in zip
-        if not This.Exists()
-            return 0
-        ok
-        
-        oZip = zip_openfile(@cZipFileName, 'r')
-        if oZip = NULL
-            return 0
-        ok
-        
-        nCount = zip_filescount(oZip)
-        zip_close(oZip)
-        return nCount
-    
-    def Contains(cFileName)
-        # Check if zip contains specific file
-        aContents = This.ListContents()
-        nLen = len(aContents)
-        for i = 1 to nLen
-            if aContents[i] = cFileName
-                return _TRUE_
-            ok
-        next
-        return _FALSE_
-    
-    def IsEmpty()
-        # Check if zip is empty
-        return (This.FileCount() = 0)
-    
-    def Size()
-        # Get zip file size
-        if not This.Exists()
-            return 0
-        ok
-        return @oQFileInfo.size()
-    
-    # UTILITY OPERATIONS
-    def FileName()
-        return @cZipFileName
-    
-    def Exists()
-        return @oQFileInfo.exists()
-    
-    def Delete()
-        # Delete zip file
-        oQFile = new QFile(@cZipFileName)
-        return oQFile.remove()
-    
-        def DeleteQ()
-            This.Delete()
-            return This
-    
-    def CopyTo(cDestination)
-        # Copy zip file to destination
-        oQFile = new QFile(@cZipFileName)
-        return oQFile.copy(cDestination)
-    
-        def CopyToQ(cDestination)
-            This.CopyTo(cDestination)
-            return This
-    
-    def MoveTo(cDestination)
-        # Move zip file to destination
-        oQFile = new QFile(@cZipFileName)
-        bResult = oQFile.rename(cDestination)
-        if bResult
-            @cZipFileName = cDestination
-            @oQFileInfo = new QFileInfo(@cZipFileName)
-        ok
-        return bResult
-    
-        def MoveToQ(cDestination)
-            This.MoveTo(cDestination)
-            return This

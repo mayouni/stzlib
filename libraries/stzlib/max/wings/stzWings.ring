@@ -19,7 +19,7 @@
 
 	#-- Loading files files related to TURBO wings modules
 
-	load "turbo-wings/geo/stzGeoMap.ring"
+		load "turbo-wings/geo/stzGeoMap.ring"
 
 	#-- Loading files files related to INTERNATIONAL wings modules
 
@@ -51,3 +51,9 @@
 	#-- Loading files files related to WEb wings modules
 
 		load "web-wings/stzUrl.ring"
+
+	#-- Loading files related to SECURITY wings modules
+
+		load "security-wings/krypto/stzCrypto.ring"
+		load "security-wings/krypto/stzCryptoString.ring"
+		load "security-wings/krypto/stzCryptoFile.ring"

@@ -187,13 +187,13 @@ o1 {
 
 	# Counting files and folders indepth/recursively
 
-	? CountXT() # or DeepCount()
+	? DeepCount()
 	#--> 16309
 
-	? CountFilesXT() # or DeepCountFiles()
+	? DeepCountFiles()
 	#--> 14392
 
-	? CountFoldersXT() # Or DeepCountFolders()
+	? DeepCountFolders()
 	#--> 1917
 
 }
@@ -319,7 +319,7 @@ o1 {
     
     # Removing all the folder and its subfolders (recursively)
 
-    bSuccess = DeepRemoveAll() # Or DeleteRecursively()
+    bSuccess = DeepRemoveAll()
     ? bSuccess
     #--> Removal successful: TRUE
 }
@@ -405,7 +405,7 @@ pr()
 o1 = new stzFolder("C:\Windows\System32") #TODO Error
 o1 {
     # Finding .dll files
-    ? VizFindFiles("*.dll")
+    ? VizSearchFiles("*.dll")
     
     # Finding folders starting with 'config'
     ? FindFolders("config*")
@@ -420,7 +420,7 @@ pf()
 pr()
 
 o1 = new stzFolder("D:\GitHub\stzlib\libraries\stzlib\core\")
-? o1.VizFindFiles("*memory*")
+? o1.VizSearchFiles("*memory*")
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
@@ -487,7 +487,7 @@ pr()
 		:FolderClosedEmpty = "🗀", 	# when the folder is empty
 		:FolderClosedFull = "🖿",	# when the folder contains files
 
-		# After a VizFind use this icon in the root stat label
+		# After a VizSearch use this icon in the root stat label
 		:FolderRootSearchSymbol = "",
 
 		# Each found file is proceeded by this icon
@@ -499,7 +499,7 @@ pr()
 # Here is an example:
 
 o1 = new stzFolder("C:\TestArea")
-
+/*
 # Immedialtely we can get this:
 ? o1.Show() + NL
 #-->
@@ -653,7 +653,7 @@ o1.ExpandFolder("Images")
 # To expand Images along with it's subfolder Notes, you just add it
 # to the ExpandFolders() list of params:
 
-o1.ExplandFolders([ "Images", "Notes" ])
+o1.ExpandFolders([ "Images", "Notes" ])
 ? o1.Show()
 
 # But you can also expand the folder and all its deep subfolders
@@ -720,6 +720,27 @@ o1.ExpandFolder("tempo")
 # Does this visual exploration ended here? No, I still have a unique feature
 # to show you: visually finding files and folders in a folder tree!
 
+# To do that, let's me first tell you that Softanza allows finding files and
+# folders inside a stzFolder object, without visuality, in a natural and
+# powerful way (power comes from the inderlining C++ backend brought form
+# the Qt and RingQt foundation of the class implementation).
+*/
+
+? @@( o1.FindFiles("*.txt") )
+#--> [ "test.txt" ]
+
+? @@( o1.SearchFiles("*.txt") )
+
+FindFolders
+SearchFolders
+
+Find
+Search
+
+# Now let's see how visual search could be applied to these methods
+# by adding the Viz prefix to them:
+
+o1.VizSearchFiles("")
 
 
 pf()
@@ -731,9 +752,9 @@ pr()
 
 o1 = new stzFolder("C:\TestArea")
 
-# Vizfinding images in png format
+# VizSearching images in png format
 o1.SetDisplayOrder(:FileFirstAscending)
-? o1.VizFindFiles("*.png") + NL
+? o1.VizSearchFiles("*.png") + NL
 #-->
 "
 📁 TestArea (🔍 0 file matches for '*.png')
@@ -746,9 +767,9 @@ o1.SetDisplayOrder(:FileFirstAscending)
 ╰─📄 test.txt
 "
 
-# Vizfinding folders with an 'i' letter in their name
+# VizSearching folders with an 'i' letter in their name
 
-? o1.VizFindFolders("*i*")
+? o1.VizSearchFolders("*i*")
 
 pf()
 

@@ -102,7 +102,7 @@ class stzFolder from stzObject
 		:FolderClosedEmpty = "🗀", 	# when the folder is empty
 		:FolderClosedFull = "🖿",	# when the folder contains files
 
-		# After a VizFind use this icon in the root stat label
+		# After a VizSearch use this icon in the root stat label
 		:FolderRootSearchSymbol = "",
 
 		# Each found file is proceeded by this icon
@@ -191,38 +191,19 @@ class stzFolder from stzObject
 	def IsAbsolute()
 		return @oQDir.isAbsolute()
 
-	def Exists(cPath)
+	def ContainsPath(cPath)
 		if cPath = NULL or cPath = ""
 			return @oQDir.exists_2()
 		else
 			return @oQDir.exists(cPath)
 		end
 
+		def Exists(cPath)
+			return This.ContainsPath(cPath)
+
 	  #-------------------#
-	 #  RECURSIVE COUNT  #
+	 #  FILE OPERATIONS  #
 	#-------------------#
-
-	def CountFilesXT()
-		 return This.CountFilesRecursive(This.Path())
-	
-		def DeepCountFiles()
-			return This.CountFilesXT()
-
-	def CountFoldersXT() 
-		 return This.CountFoldersRecursive(This.Path())
-	
-		def DeepCountFolders()
-			return This.CountFoldersXT()
-
-	def CountXT()
-		 return This.CountFilesXT() + This.CountFoldersXT()
-	
-		def DeepCount()
-			return This.CountXT()
-
-	  #------------------#
-	 #  FILE OPERATIONS #
-	#------------------#
 
 	def Files()
 
@@ -252,11 +233,74 @@ class stzFolder from stzObject
 		def Dirs()
 			return This.Folders()
 
-		def SubFolders()
-			return This.Folders()
+	  #------------------------------#
+	 #  COUNTING FILES AND FOLDERS  #
+	#------------------------------#
 
 	def CountFiles()
 		return len(This.Files())
+
+		def NumberOfFiles()
+			return len(This.Files())
+
+		def HowManyFiles()
+			return len(This.Files())
+
+	def CountFile(cFileName)
+		return len(This.FindFile(cFileName))
+
+	#--- DEEP COUNT IN THE DEEP STRUCTURE OF THE FOLDER
+
+	def DeepCount()
+		 return This.DeepCountFiles() + This.DeepCountFolders()
+
+		def DeepCountFilesAndFolders()
+			return This.DeepCount()
+
+		def DeepCountFoldersAndFiles()
+			return This.DeepCount()
+
+	def DeepCountFile(cFileName)
+		return len(This.SearchFile(cFileName))
+
+	def DeepCountFileIn(cFileName, cPath)
+		return len(This.SearchFileIn(cFileName, cPath))
+
+	def DeepCountTheseFiles(acFilesNames)
+		return len(This.DeepCountTheseFilesIn(acFilesNames, cPath))
+
+	def DeepCountTheseFilesIn(acFilesNames, cPath)
+		return len(This.SearchTheseFilesIn(acFilesNames, cPath))
+
+	def DeepCountFiles()
+		 return This.DeepCountFilesIn(This.Path())
+
+	def DeepCountFilesIn(cPath)
+
+		 nCount = 0
+
+		 try
+		     aList = ring_dir(cPath)
+		 catch
+		     return 0  # Skip inaccessible directories
+		 end
+
+		 nLen = len(aList)
+
+		for i = 1 to nLen
+
+		     if aList[i][2] = 0  # File
+		         nCount++
+
+		     but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
+		         nCount += This.DeepCountFilesIn(cPath + "/" + aList[i][1])
+		     end
+
+		 next
+		 
+		 return nCount
+
+	#=== FOLDERS
 
 	def CountFolders()
 		return len(This.Folders())
@@ -264,25 +308,46 @@ class stzFolder from stzObject
 		def CountDirs()
 			return This.CountFolders()
 
-	def HasFiles()
-		return This.CountFiles() > 0
+	def CountFolder(cFolderName)
+		return len(This.FindFolder(cFolderName))
 
-		def ContainsFiles()
-			return This.HasFiles()
+	def DeepCountFolder(cFolderName)
+		return len(This.SearchFolder(cFolderName))
 
-	def HasFolders()
-		return This.CountFolders() > 0
+	def DeepCountFolderIn(cFolderName, cPath)
+		return len(This.SearchFolderIn(cFolderName, cPath))
 
-		def ContainsFolders()
-			return This.HasFolders()
+	def DeepCountTheseFoldersIn(acFoldersNames, cPath)
+		return len(This.SearchTheseFoldersIn(acFoldersNames, cPath))
 
-		def HasDirs()
-			return This.HasFolders()
+	def DeepCountFolders() 
+		 return This.DeepCountFoldersIn(This.Path())
 
-		def ContainsDirs()
-			return This.HasFolders()
+	def DeepCountFoldersIn(cPath)
+		 nCount = 0
 
-	#---
+		 try
+		     aList = ring_dir(cPath)
+		 catch
+		     return 0  # Skip inaccessible directories
+		 end
+
+		 nLen = len(aList)
+
+		for i = 1 to nLen
+
+		     if aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
+		         nCount++
+		         nCount += This.DeepCountFoldersIn(cPath + "/" + aList[i][1])
+		     end
+
+		 next
+		 
+		 return nCount
+
+	  #---------------------------------------------#
+	 #  CHECKING CONTAINMENT OF FILES AND FOLDERS  #
+	#---------------------------------------------#
 
 	def Contains(cName)
 		# Check both files and folders
@@ -291,6 +356,12 @@ class stzFolder from stzObject
 		return (ring_find(aFiles, cName) > 0) or (ring_find(aFolders, cName) > 0)
 
 		def Has(cName)
+			return This.Contains(cName)
+
+		def ContainsFileOrFolder(cName)
+			return This.Contains(cName)
+
+		def ContainsFolderOrFile(cName)
 			return This.Contains(cName)
 
 	def ContainsFile(cFileName)
@@ -304,38 +375,212 @@ class stzFolder from stzObject
 		def ContainsDir(cFolderName)
 			return This.ContainsFolder(cFolderName)
 
+	def ContainsFiles()
+		return This.CountFiles() > 0
+
+		def HasFiles()
+			return This.ContainsFiles()
+
+	def ContainsFolders()
+		return This.CountFolders() > 0
+
+		def HasFolders()
+			return This.ContainsFolders()
+
+		def HasDirs()
+			return This.ContainsFolders()
+
+		def ContainsDirs()
+			return This.ContainsFolders()
+
+	  #--------------------------------------------------#
+	 #  CHECKING DEEP-CONTAINMENT OF FILES AND FOLDERS  #
+	#--------------------------------------------------#
+
+	def DeepContains(cName)
+		if This.DeepContainsFileIn(cName, This.Path()) or
+		   This.DeepContainsFolderIn(cName, This.Path())
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def DeepContainsFileOrFolder(cName)
+			return This.DeepContains(cName)
+
+		def DeepContainsFolderOrFile(cName)
+			return This.DeepContains(cName)
+
+	def DeepContainsIn(cName, cPath)
+		if This.DeepContainsFileIn(cName, cPath) or
+		   This.DeepContainsFolderIn(cName,cPath)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def DeepContainsFileOrFolderIn(cName, cPath)
+			return This.DeepContainsIn(cName, cPath)
+
+		def DeepContainsFolderOrFileIn(cName, cPath)
+			return This.DeepContainsIn(cName, cPath)
+
+	def DeepContainsFile(cFileName)
+		return This.DeepContainsFileIn(cFileName, This.Path())
+
+	def DeepContainsFileIn(cFileName, cPath)
+		try
+		    aList = ring_dir(cPath)
+		catch
+		    return FALSE
+		end
+		nLen = len(aList)
+	
+		for i = 1 to nLen
+	
+		    if aList[i][2] = 0 and
+				aList[i][1] = cFileName  # File found
+
+		        return TRUE
+
+		    but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1][1] != ".."  # Subfolder
+		        if This.DeepContainsFileIn(cFileName, cPath + "/" + aList[i][1])
+		            return TRUE
+		        end
+		    end
+	
+		next
+		
+		return FALSE
+
+	#--
+
+	def DeepContainsTheseFiles(acFilesNames)
+		return This.DeepContainsTheseFilesIn(acFilesnames, This.Path())
+
+	def DeepContainsTheseFilesIn(acFilesNames, cPath)
+		if CheckParams()
+			if NOT ( isList(acFilesNames) and @IsListOfStrings(acFilesNames) )
+				StzRaise("Incorrect param type! acFilesNames must be a list of strings.")
+			ok
+		ok
+
+		nLen = len(acFilesNames)
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT This.DeepContainsFileIn(acFilesNames[i], cPath)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
 	#---
 
-	def ContainsXT(cName)
-		return This.ContainsFileXT(cName) or This.ContainsFolderXT(cName)
-	
-		def HasXT(cName)
-		    return This.ContainsXT(cName)
-	
-		def DeepContains(cName)
-			return This.ContainsXT(cName)
+	def DeepContainsOneOfTheseFiles(acFilesNames)
+		return This.DeepContainsTheseFilesIn(acFilesnames, This.Path())
 
-	def ContainsFileXT(cFileName)
-		return This.ContainsFileRecursive(This.Path(), cFileName)
-	
-		def DeepContainsFile(cName)
-			return This.ContainsFileXT(cName)
+	def DeepContainsOneOfTheseFilesIn(acFilesNames, cPath)
+		if CheckParams()
+			if NOT ( isList(acFilesNames) and @IsListOfStrings(acFilesNames) )
+				StzRaise("Incorrect param type! acFilesNames must be a list of strings.")
+			ok
+		ok
 
-	def ContainsFolderXT(cFolderName)
-		return This.ContainsFolderRecursive(This.Path(), cFolderName)
-	
-		def ContainsDirXT(cFolderName)
-		    return This.ContainsFolderXT(cFolderName)
-	
-		def DeepContainsFolder(cName)
-			return This.ContainsXT(cName)
+		nLen = len(acFilesNames)
+		bResult = FALSE
 
-		def DeepContainsDir(cName)
-			return This.ContainsXT(cName)
+		for i = 1 to nLen
+			if This.DeepContainsFileIn(acFilesNames[i], cPath)
+				bResult = TRUE
+				exit
+			ok
+		next
 
-	  #--------------------#
-	 #  NAVIGATION        #
-	#--------------------#
+		return bResult
+
+	#==
+
+	def DeepContainsFolder(cFolderName)
+		return This.DeepContainsFolderIn(cFolderName, This.Path())
+
+	def DeepContainsFolderIn(cFolderName, cPath)
+		try
+		    aList = ring_dir(cPath)
+		catch
+		    return FALSE
+		end
+		nLen = len(aList)
+	
+		for i = 1 to nLen
+	
+		    if aList[i][2] = 1 and aList[i][1] = cFolderName  # Folder found
+		        return TRUE
+	
+		    but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
+		        if This.DeepContainsFolderIn(cFolderName, cPath + "/" + aList[i][1])
+		            return TRUE
+		        end
+		    end
+		next
+		
+		return FALSE
+
+	#--
+
+	def DeepContainsTheseFolders(acFoldersNames)
+		return This.DeepContainsTheseFoldersIn(acFoldersnames, This.Path())
+
+	def DeepContainsTheseFoldersIn(acFoldersNames, cPath)
+		if CheckParams()
+			if NOT ( isList(acFoldersNames) and @IsListOfStrings(acFoldersNames) )
+				StzRaise("Incorrect param type! acFoldersNames must be a list of strings.")
+			ok
+		ok
+
+		nLen = len(acFoldersNames)
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT This.DeepContainsFolderIn(acFoldersNames[i], cPath)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	#---
+
+	def DeepContainsOneOfTheseFolders(acFoldersNames)
+		return This.DeepContainsTheseFoldersIn(acFoldersnames, This.Path())
+
+	def DeepContainsOneOfTheseFoldersIn(acFoldersNames, cPath)
+		if CheckParams()
+			if NOT ( isList(acFoldersNames) and @IsListOfStrings(acFoldersNames) )
+				StzRaise("Incorrect param type! acFoldersNames must be a list of strings.")
+			ok
+		ok
+
+		nLen = len(acFoldersNames)
+		bResult = FALSE
+
+		for i = 1 to nLen
+			if This.DeepContainsFolderIn(acFoldersNames[i], cPath)
+				bResult = TRUE
+				exit
+			ok
+		next
+
+		return bResult
+
+	  #--------------#
+	 #  NAVIGATION  #
+	#--------------#
 
 	def GoTo(cDir)
 		if cDir = ".."
@@ -462,8 +707,8 @@ class stzFolder from stzObject
 		 
 		 return cCurrentPath + cPath
 
-	#------------------#
-	#  MANAGING FILES  #
+	  #------------------#
+	 #  MANAGING FILES  #
 	#------------------#
 
 	def FileExists(cFile)
@@ -614,11 +859,11 @@ class stzFolder from stzObject
 		def FileSizeInBytes(cFile)
 			return this.FileSize(cFile)
 
-	  #--------------------#
-	 #  FOLDER REMOVAL    #
-	#--------------------#
+	  #---------------------------#
+	 #  REMOVING A GIVEN FOLDER  #
+	#---------------------------#
 
-	def RemoveFolder(cFolderName)
+	def DeleteFolder(cFolderName)
 		if cFolderName = NULL or cFolderName = ""
 			raise("Please specify folder name to remove.")
 		end
@@ -641,15 +886,19 @@ class stzFolder from stzObject
 		return This
 
 		def rmdir(cFolderName)
-			return This.RemoveFolder(cFolderName)
+			return This.DeleteFolder(cFolderName)
 
-		def DeleteFolder(cFolderName)
-			return This.RemoveFolder(cFolderName)
+		def RemoveFolder(cFolderName)
+			return This.deleteFolder(cFolderName)
 
+	  #-----------------------------#
+	 #  ERASING FOLDER COMPLETELY  #
+	#-----------------------------#
 
-	def RemoveRecursivelyAll()
+	def Erase()
 		 # Remove all files and folders inside, but keep the folder itself
-		 
+		 # Dangerous operation! Use it responsibely.
+
 		 try
 		     # Remove all files
 		     aFiles = This.Files()
@@ -678,75 +927,30 @@ class stzFolder from stzObject
 		     raise("Could not empty folder '" + This.Path() + "': " + CatchError())
 		 end
 
-		#< @FunctionAlterativeForms
-
-		def DeleteRecursivelyAll()
-			return This.RemoveRecursivelyAll()
-
 		def DeepRemoveAll()
-			return This.RemoveRecursivelyAll()
+			This.Erase()
 
-		def DeepDeleteAll()
-			return This.RemoveRecursivelyAll()
+	  #------------------------------#
+	 #  FINDING FILES AND FOLDERS   #
+	#------------------------------#
 
-		def RemoveAllContent()
-			return This.RemoveRecursivelyAll()
+	def Find(cName)
+		/* ... */
 
-		def DeepRemoveContent()
-			return This.RemoveRecursivelyAll()
+	def FindFile(cFileName)
+		/* ... */
 
-		def DeleteAllContent()
-			return This.RemoveRecursivelyAll()
+	def FindFiles(acFilesNames)
+		/* ... */
 
-		def DeepDeleteContent()
-			return This.RemoveRecursivelyAll()
-
-		#>
-
-	  #--------------------#
-	 #  SEARCH & FILTER   #
-	#--------------------#
-
-	def Find(cPattern)
-		# Search both files and folders
-		aFiles = This.FindFiles(cPattern)
-		aFolders = This.FindFolders(cPattern) 
-		return [:Files = aFiles, :Folders = aFolders]
-
-		def FindFilesAndFolders(cPattern)
-			return This.Find(cPattern)
-
-	def FindFiles(cPattern)
-		if cPattern = NULL or cPattern = ""
-			return This.Files()
-		end
-		
-		aAllFiles = This.Files()
-		aMatches = []
-		
-		for cFile in aAllFiles
-			if This.Matches(cPattern, cFile)
-				aMatches + cFile
-			end
-		next
-		
-		return aMatches
+	def FindFolder(cFolderName)
+		/* ... */
 
 	def FindFolders(cPattern)
-		if cPattern = NULL or cPattern = ""
-			return This.Folders()
-		end
-		
-		aAllFolders = This.Folders()
-		aMatches = []
-		
-		for cFolder in aAllFolders
-			if This.Matches(cPattern, cFolder)
-				aMatches + cFolder
-			end
-		next
-		
-		return aMatches
+		/* ... */
+
+	def FindFilesByExtension(cExt)
+		/* ... */
 
 	def FilesByExtension(cExt)
 		if left(cExt, 1) != "."
@@ -767,11 +971,120 @@ class stzFolder from stzObject
 		
 		return aResult
 
+	#---
+
+	def DeepFind(cFileOrFolderName)
+		/* ... */
+
+		def DeepFindFileOrFolder(cFileOrFolderName)
+			return This.DeepFind(cFileOrFolderName)
+
+	def DeepFindFile(cFileName)
+		/* ... */
+
+		def DeepFindThisFile(cFileName)
+			return This.DeepFindFile(cFileName)
+
+	def DeepFindFolder(cFolderName)
+		/* ... */
+
+		def DeepFindThisFolder(cFolderName)
+			return This.DeepFindFolder(cFolderName)
+
+	def DeepFindFiles(acFilesNames)
+		/* ... */
+
+		def DeepFindTheseFiles(acFilesNames)
+			return This.DeepFindFiles(acFilesNames)
+
+	def DeepFindFolders(acFoldersNames)
+		/* ... */
+
+		def DeepFindTheseFolders(acFoldersNames)
+			return this.DeepFindFolders(acFoldersNames)
+
+	#---
+
+	def Search(cPattern)
+		return This.SearchIn(cPattern, This.Path())
+
+		def SearchFilesOrFolders(cPattern)
+			return This.Search(cPattern)
+
+		def SearchFoldersOrFiles(cPattern)
+			return This.Search(cPattern)
+
+	def SearchFiles(cPattern)
+		return This.SearchFilesIn(cPattern, This.Path())
+
+	def SearchFilesIn(cPath)
+
+		 acResult = []
+
+		 try
+		     aList = ring_dir(cPath)
+		 catch
+		     return []  # Skip inaccessible directories
+		 end
+
+		 nLen = len(aList)
+
+		for i = 1 to nLen
+
+		     if aList[i][2] = 0  # File
+		         nCount++
+
+		     but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
+		        acTemp = This.SearchFilesIn(cPath + "/" + aList[i][1])
+				nLenTemp = len(acTemp)
+				for j = 1 to nLenTemp
+					acResult + acTemp[j]
+				next
+		     end
+
+		 next
+
+		 return acResult
+
+	#--
+
+	def SearchFolders(cPattern)
+		return This.SearchFoldersIn(cPattern, This.Path())
+
+	def SearchFoldersIn(cPath)
+
+		 acResult = []
+
+		 try
+		     aList = ring_dir(cPath)
+		 catch
+		     return []  # Skip inaccessible directories
+		 end
+
+		 nLen = len(aList)
+
+		for i = 1 to nLen
+
+		     if aList[i][2] = 0  # File
+		         nCount++
+
+		     but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
+		        acTemp = This.SearchFoldersIn(cPath + "/" + aList[i][1])
+				nLenTemp = len(acTemp)
+				for j = 1 to nLenTemp
+					acResult + acTemp[j]
+				next
+		     end
+
+		 next
+
+		 return acResult
+
 	  #-----------------#
 	 #  VISUAL SEARCH  #
 	#-----------------#
 
-	def VizFind(cPattern)
+	def VizSearch(cPattern)
 		# Search both files and folders and visualize results
 		nTotalFileMatches = This.CountFileMatchesRecursive(This.Path(), cPattern)
 		nTotalFolderMatches = This.CountFolderMatchesRecursive(This.Path(), cPattern)
@@ -793,10 +1106,10 @@ class stzFolder from stzObject
 			
 		return cResult
 
-		def VizFindFilesAndFolders(cPattern)
-			return This.VizFind(cPattern)
+		def VizSearchFilesAndFolders(cPattern)
+			return This.VizSearch(cPattern)
 
-	def VizFindFiles(cPattern)
+	def VizSearchFiles(cPattern)
 		# Search files only and visualize results with focused display
 		nTotalMatches = This.CountFileMatchesRecursive(This.Path(), cPattern)
 		
@@ -824,7 +1137,7 @@ class stzFolder from stzObject
 
 		return cResult
 
-	def VizFindFolders(cPattern)
+	def VizSearchFolders(cPattern)
 		# Search folders only and visualize results
 		nTotalMatches = This.CountFolderMatchesRecursive(This.Path(), cPattern)
 		
@@ -843,8 +1156,8 @@ class stzFolder from stzObject
 			
 		return cResult
 
-		def VizFindDirs(cPattern)
-			return This.VizFindFolders(cPattern)
+		def VizSearchDirs(cPattern)
+			return This.VizSearchFolders(cPattern)
 
 	  #--------------#
 	 #  FOLDER NFO  #
@@ -1138,104 +1451,6 @@ def CollectFoldersWithFileMatches(cPath, cPattern, aFoldersWithMatches)
 
 	PRIVATE
 	
-	def CountFilesRecursive(cPath)
-
-		 nCount = 0
-
-		 try
-		     aList = ring_dir(cPath)
-		 catch
-		     return 0  # Skip inaccessible directories
-		 end
-
-		 nLen = len(aList)
-
-		for i = 1 to nLen
-
-		     if aList[i][2] = 0  # File
-		         nCount++
-
-		     but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
-		         nCount += This.CountFilesRecursive(cPath + "/" + aList[i][1])
-		     end
-
-		 next
-		 
-		 return nCount
-	
-	def CountFoldersRecursive(cPath)
-		 nCount = 0
-
-		 try
-		     aList = ring_dir(cPath)
-		 catch
-		     return 0  # Skip inaccessible directories
-		 end
-
-		 nLen = len(aList)
-
-		for i = 1 to nLen
-
-		     if aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
-		         nCount++
-		         nCount += This.CountFoldersRecursive(cPath + "/" + aList[i][1])
-		     end
-
-		 next
-		 
-		 return nCount
-
-
-	def ContainsFileRecursive(cPath, cFileName)
-		try
-		    aList = ring_dir(cPath)
-		catch
-		    return FALSE
-		end
-		nLen = len(aList)
-	
-		for i = 1 to nLen
-	
-		    if aList[i][2] = 0 and
-
-		aList[i][1] = cFileName  # File found
-
-
-		        return TRUE
-
-		    but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1][1] != ".."  # Subfolder
-		        if This.ContainsFileRecursive(cPath + "/" + aList[i][1], cFileName)
-		            return TRUE
-		        end
-		    end
-	
-		next
-		
-		return FALSE
-
-
-	def ContainsFolderRecursive(cPath, cFolderName)
-		try
-		    aList = ring_dir(cPath)
-		catch
-		    return FALSE
-		end
-		nLen = len(aList)
-	
-		for i = 1 to nLen
-	
-		    if aList[i][2] = 1 and aList[i][1] = cFolderName  # Folder found
-		        return TRUE
-	
-		    but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."  # Subfolder
-		        if This.ContainsFolderRecursive(cPath + "/" + aList[i][1], cFolderName)
-		            return TRUE
-		        end
-		    end
-		next
-		
-		return FALSE
-
 	#--- Private methods for folder display
 
 
