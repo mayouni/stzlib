@@ -454,7 +454,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Folder Tree Display
-*/
+
 pr()
 
 # Softanza embraces a visual grammer for folder tree display
@@ -462,44 +462,43 @@ pr()
 
 # the grammer can be understood from the @aDisplatChars attribute
 # you can find in the class and here is its content:
-/*
-	@acDisplayChars = [
-
-		# The folder tree lines use these chars
-		:VerticlalChar = "│",
-		:VerticalCharTick = "├",
-		:ClosingChar = "╰",
-
-		# File uses one of these two icons
-		:File = " 🗋",		# file icon by default
-		:FileFound = "📄",	# file icon when a file is found
-
-		# Root folder uses one of these two icons
-		:FolderRoot = "🗀",		# folder icon by default (when Show() is used)
-		:FolderRootXT = "📁",	# folder icon when ShowXT() is used and an info
-								# is added between parenthesis to the right
-
-		# An expanded folder uses one of these two icons
-		:FolderOpened = "🗁",		# when no found files exists inside it
-		:FolderOpenedFound = "📂",	# when files are found inside it
-
-		# A closed folder uses one of these two icons
-		:FolderClosedEmpty = "🗀", 	# when the folder is empty
-		:FolderClosedFull = "🖿",	# when the folder contains files
-
-		# After a VizSearch use this icon in the root stat label
-		:FolderRootSearchSymbol = "",
-
-		# Each found file is proceeded by this icon
-		:FileFoundSymbol = "👉"
-
-	]
-*/
+#
+#	@acDisplayChars = [
+#
+#		# The folder tree lines use these chars
+#		:VerticlalChar = "│",
+#		:VerticalCharTick = "├",
+#		:ClosingChar = "╰",
+#
+#		# File uses one of these two icons
+#		:File = " 🗋",		# file icon by default
+#		:FileFound = "📄",	# file icon when a file is found
+#
+#		# Root folder uses one of these two icons
+#		:FolderRoot = "🗀",		# folder icon by default (when Show() is used)
+#		:FolderRootXT = "📁",	# folder icon when ShowXT() is used and an info
+#								# is added between parenthesis to the right
+#
+#		# An expanded folder uses one of these two icons
+#		:FolderOpened = "🗁",		# when no found files exists inside it
+#		:FolderOpenedFound = "📂",	# when files are found inside it
+#
+#		# A closed folder uses one of these two icons
+#		:FolderClosedEmpty = "🗀", 	# when the folder is empty
+#		:FolderClosedFull = "🖿",	# when the folder contains files
+#
+#		# After a VizSearch use this icon in the root stat label
+#		:FolderRootSearchSymbol = "",
+#
+#		# Each found file is proceeded by this icon
+#		:FileFoundSymbol = "👉"
+#
+#	]
 
 # Here is an example:
 
 o1 = new stzFolder("C:\TestArea")
-/*
+
 # Immedialtely we can get this:
 ? o1.Show() + NL
 #-->
@@ -724,23 +723,98 @@ o1.ExpandFolder("tempo")
 # folders inside a stzFolder object, without visuality, in a natural and
 # powerful way (power comes from the inderlining C++ backend brought form
 # the Qt and RingQt foundation of the class implementation).
+
+...
+
+# Now let's see how visual search could be applied to these methods
+# by adding the Viz prefix to them:
+
+//o1.VizSearchFiles("")
+
+#TODO Complete the narration
+
+/*---
 */
 
-? @@( o1.FindFiles("*.txt") )
+o1 = new stzFolder("C:\TestArea")
+
+? @@NL( o1.Files() ) + NL
+#--> [ "/test.txt" ]
+
+? @@NL( o1.FilesXT() ) + NL
+#-->
+'
+[
+	"/Images/image1.png",
+	"/Images/image2.png",
+	"/Images/notes/howto.txt",
+	"/Images/notes/sources.txt",
+	"/tempo/temp1.txt",
+	"/tempo/temp2.txt",
+	"/test.txt"
+]
+'
+
+? @@NL( o1.Folders() ) + NL
+#-->
+'
+[
+	"/Docs/",
+	"/Images/",
+	"/Music/",
+	"/notes/",
+	"/tempo/",
+	"/Videos/"
+]
+'
+
+? @@NL( o1.FoldersXT() ) # Or DeepFolders()
+#-->
+'
+[
+	"/Docs/",
+	"/Images/",
+	"/Images/more/",
+	"/Music/",
+	"/notes/",
+	"/tempo/",
+	"/Videos/"
+]
+'
+
+//? @@( o1.FindFiles(["test.txt"]) )
 #--> [ "test.txt" ]
 
-? @@( o1.SearchFiles("*.txt") )
+? @@NL( o1.FindFiles("*.txt") )
+#-->
+'
+[
+	"../Images/image1.png",
+	"../Images/image2.png",
+	"../Images/notes/howto.txt",
+	"../Images/notes/sources.txt",
+	"../tempo/temp1.txt",
+	"../tempo/temp2.txt",
+	"../test.txt"
+]
+'
+? @@NL( o1.FindFolders("*m*") )
+#-->
+'[
+	"../Images/",
+	"../Images/more/",
+	"../Music/",
+	"../tempo/"
+]'
 
+/*
 FindFolders
 SearchFolders
 
 Find
 Search
+*/
 
-# Now let's see how visual search could be applied to these methods
-# by adding the Viz prefix to them:
-
-o1.VizSearchFiles("")
 
 
 pf()
