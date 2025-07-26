@@ -454,7 +454,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Folder Tree Display
-
+*/
 pr()
 
 # Softanza embraces a visual grammer for folder tree display
@@ -499,17 +499,19 @@ pr()
 
 o1 = new stzFolder("C:\TestArea")
 
-# Immedialtely we can get this:
+# Immedialtely we can get this (collapsed at the 1st level by default):
 ? o1.Show() + NL
 #-->
 '
 🗀 TestArea
+├─ 🗋 test.txt
 ├─🗀 Docs
 ├─🖿 Images
 ├─🗀 Music
 ├─🗀 Videos
-├─🖿 tempo
-╰─ 🗋 test.txt
+├─🗀 more
+├─🗀 notes
+╰─🖿 tempo
 '
 
 # Visually we can induce that the folder is made of one file
@@ -525,12 +527,14 @@ o1 = new stzFolder("C:\TestArea")
 ? o1.ShowXT()
 #-->
 '
-📁 TestArea (6)
+📁 TestArea (8)
 ├─ 🗋 test.txt
 ├─🗀 Docs
-├─🖿 Images(3)
+├─🖿 Images(4)
 ├─🗀 Music
 ├─🗀 Videos
+├─🗀 more
+├─🗀 notes
 ╰─🖿 tempo(2)
 '
 
@@ -555,12 +559,13 @@ o1.SetDisplayStat('@CountFiles files, @CountFolders folders')
 
 ? o1.ShowXT()
 '
-📁 TestArea (1 files, 6 folders) # <-- Your stats added here
+📁 TestArea (1 files, 7 folders)	# <-- Your stats added here
 ├─ 🗋 test.txt
 ├─🗀 Docs
-├─🖿 Images(2 files, 1 folders)	# <-- and here
+├─🖿 Images(2 files, 2 folders)	# <-- and here
 ├─🗀 Music
 ├─🗀 Videos
+├─🗀 more
 ├─🗀 notes
 ╰─🖿 tempo(2 files, 0 folders)	# <-- and here
 '
@@ -569,23 +574,25 @@ o1.SetDisplayStat('@CountFiles files, @CountFolders folders')
 # yoou can instuct Softanza to show you all the deep structure
 # of the folder tree by using ExpandAll()
 
-o1.ExpandAll()
+o1.Expand()
 
-# And show the full tree in simple Show() mode
+# And show the tree expanded at the 1st level in simple Show() mode
 ? o1.Show()
 #-->
 '
 🗀 TestArea
 ├─ 🗋 test.txt
 ├─🗀 Docs
-├─🗁 Images
+├─🗁 Images		# <-- Expanded because it is at the first level
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
-│ ╰─🖿 notes
+│ ├─🗀 more
+│ ╰─🖿 notes	# <-- Non expanded because it is at the second level
 ├─🗀 Music
 ├─🗀 Videos
+├─🗀 more
 ├─🗀 notes
-╰─🗁 tempo
+╰─🗁 tempo		# <-- Expanded because it is at the first level
   ├─ 🗋 temp1.txt
   ╰─ 🗋 temp2.txt
 '
@@ -594,21 +601,31 @@ o1.ExpandAll()
 ? o1.ShowXT()
 #-->
 '
-📁 TestArea (1 files, 6 folders)
+📁 TestArea (1 files, 7 folders)
 ├─ 🗋 test.txt
 ├─🗀 Docs
-├─🗁 Images(4 files, 2 folders)
+├─🗁 Images(2 files, 2 folders)
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
-│ ╰─🖿 notes(2 files)
+│ ├─🗀 more
+│ ╰─🖿 notes(2 files, 0 folders)
 ├─🗀 Music
 ├─🗀 Videos
+├─🗀 more
 ├─🗀 notes
-╰─🗁 tempo(2 files)
+╰─🗁 tempo(2 files, 0 folders)
   ├─ 🗋 temp1.txt
   ╰─ 🗋 temp2.txt
 '
 
+# You may wander what to do if wa want to expand all the files and
+# subfolders at any level of the deep structure of the tree...
+# Well, we hava DeepExapnd() to do jus that:
+
+o1.DeepExpand()
+o1.Show()
+
+/*
 # You would say that's great! Yes, it is true, but it is not enough!
 # Softanza has more in the buket to cope to the most granular needs
 # in your file and folder exploration experience!
@@ -616,7 +633,7 @@ o1.ExpandAll()
 # So let's collapse all and go back to the origin state before I show you
 # the next feature in this narration:
 
-o1.CollapseAll()
+o1.Collapse()
 ? o1.Show()
 #-->
 '
@@ -626,6 +643,7 @@ o1.CollapseAll()
 ├─🖿 Images
 ├─🗀 Music
 ├─🗀 Videos
+├─🗀 more
 ├─🗀 notes
 ╰─🖿 tempo
 '
@@ -640,24 +658,42 @@ o1.ExpandFolder("Images")
 🗀 TestArea
 ├─ 🗋 test.txt
 ├─🗀 Docs
-├─🗁 Images		# <-- Only this folder is expanded as requested
+├─🗁 Images # <-- Only this folder is expanded as requested
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
-│ ╰─🖿 notes	# <-- Note that this subfolder of Images is not expanded by default
+│ ├─🗀 more
+│ ╰─🖿 notes # <-- Note that this subfolder of Images is not expanded by default
 ├─🗀 Music
 ├─🗀 Videos
+├─🗀 more
 ├─🗀 notes
-╰─🖿 tempo'
-
+╰─🖿 tempo
+'
 # To expand Images along with it's subfolder Notes, you just add it
 # to the ExpandFolders() list of params:
 
-o1.ExpandFolders([ "Images", "Notes" ])
+o1.ExpandFolders([ "Images", "Images/Notes" ]) #TODO #ERROR
 ? o1.Show()
+'
+🗀 TestArea
+├─ 🗋 test.txt
+├─🗀 Docs
+├─🗁 Images
+│ ├─ 🗋 image1.png
+│ ├─ 🗋 image2.png
+│ ├─🗀 more
+│ ╰─🖿 notes
+├─🗀 Music
+├─🗀 Videos
+├─🗀 more
+├─🗀 notes
+╰─🖿 tempo
+'
 
 # But you can also expand the folder and all its deep subfolders
 # by using the DeepExpandFolder() at the first place:
 
+o1.Collapse()
 o1.DeepExpandFolder("Images")
 ? o1.Show()
 #-->
@@ -668,11 +704,13 @@ o1.DeepExpandFolder("Images")
 ├─🗁 Images
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
+│ ├─🗁 more
 │ ╰─🗁 notes
 │   ├─ 🗋 howto.txt
 │   ╰─ 🗋 sources.txt
 ├─🗀 Music
 ├─🗀 Videos
+├─🗀 more
 ├─🗀 notes
 ╰─🖿 tempo
 '
@@ -686,19 +724,17 @@ o1.ExpandFolder("tempo")
 ? o1.ShowXT()
 #-->
 '
-📁 TestArea (1:7 files, 6:7 folders)
+📁 TestArea (1 files, 7 folders)
 ├─ 🗋 test.txt
 ├─🗀 Docs
-├─🗁 Images (2:4 files, 1 folder)
-│ ├─ 🗋 image1.png
-│ ├─ 🗋 image2.png
-│ ╰─🗁 notes (2 files)
-│   ├─ 🗋 howto.txt
-│   ╰─ 🗋 sources.txt
+├─🖿 Images(2 files, 2 folders)
 ├─🗀 Music
 ├─🗀 Videos
+├─🗀 more
 ├─🗀 notes
-╰─🖿 tempo (2 files)
+╰─🗁 tempo(2 files, 0 folders)
+  ├─ 🗋 temp1.txt
+  ╰─ 🗋 temp2.txt
 '
 
 # Let's take a moment to understand ho wthe meta-statistics should be read:
@@ -724,7 +760,7 @@ o1.ExpandFolder("tempo")
 # powerful way (power comes from the inderlining C++ backend brought form
 # the Qt and RingQt foundation of the class implementation).
 
-...
+// ...
 
 # Now let's see how visual search could be applied to these methods
 # by adding the Viz prefix to them:
@@ -732,57 +768,106 @@ o1.ExpandFolder("tempo")
 //o1.VizSearchFiles("")
 
 #TODO Complete the narration
+*/
+
+pf()
+
+/*---
+
+pr()
+
+o1 = new stzFolder("c:/testarea")
+
+# Geetting the files at the root with a simplified path
+? @@( o1.Files() )
+#--> [ "/test.txt" ]
+
+# The same thing but with complete path
+
+? @@( o1.FilesXT() )
+#--> [ "c:/testarea/test.txt" ]
+
+# Now we check the list of all files at any level
+
+? @@NL( o1.DeepFiles() )
+#--> a list of simlified paths
+'
+[
+	"/test.txt",
+	"/Images/image1.png",
+	"/Images/image2.png",
+	"/tempo/temp1.txt",
+	"/tempo/temp2.txt",
+	"/Images/notes/howto.txt",
+	"/Images/notes/sources.txt"
+]
+'
+
+# We add the XT extension and we get files with full path
+
+? @@NL( o1.DeepFilesXT() )
+#-->
+'
+[
+	"c:/testarea/test.txt",
+	"c:/testarea/Images/image1.png",
+	"c:/testarea/Images/image2.png",
+	"c:/testarea/tempo/temp1.txt",
+	"c:/testarea/tempo/temp2.txt",
+	"c:/testarea/Images/notes/howto.txt",
+	"c:/testarea/Images/notes/sources.txt"
+]
+'
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*---
+
+pr()
+
+o1 = new stzFolder("c:/testarea")
+? @@NL( o1.FilesXT() )
+
+
+? o1.IsFile("test.txt")
+#--> FALSE
+
+? o1.IsFile("c:/testarea/test.txt")
+
+
+pf()
+
+#--
+
+pr()
+
+o1 = new stzFolder("c:/testarea")
+
+? o1.NormalizefileName("test.txt")
+#--> /test.txt
+
+? o1.NormalizeFolderName("images") + NL
+#--> /images/
+
+? o1.Folders()
+
+? o1.IsFolderPath("/images")
+#--> TRUE
+
+? o1.IsFolderPath("images")
+#--> TRUE
+
+pf()
 
 /*---
 */
 
+pr()
+
 o1 = new stzFolder("C:\TestArea")
 
-? @@NL( o1.Files() ) + NL
-#--> [ "/test.txt" ]
-
-? @@NL( o1.FilesXT() ) + NL
-#-->
-'
-[
-	"/Images/image1.png",
-	"/Images/image2.png",
-	"/Images/notes/howto.txt",
-	"/Images/notes/sources.txt",
-	"/tempo/temp1.txt",
-	"/tempo/temp2.txt",
-	"/test.txt"
-]
-'
-
-? @@NL( o1.Folders() ) + NL
-#-->
-'
-[
-	"/Docs/",
-	"/Images/",
-	"/Music/",
-	"/notes/",
-	"/tempo/",
-	"/Videos/"
-]
-'
-
-? @@NL( o1.FoldersXT() ) # Or DeepFolders()
-#-->
-'
-[
-	"/Docs/",
-	"/Images/",
-	"/Images/more/",
-	"/Music/",
-	"/notes/",
-	"/tempo/",
-	"/Videos/"
-]
-'
-
-//? @@( o1.FindFiles(["test.txt"]) )
+? @@( o1.FindFiles(["test.txt"]) )
 #--> [ "test.txt" ]
 
 ? @@NL( o1.FindFiles("*.txt") )
