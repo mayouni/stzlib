@@ -66,16 +66,24 @@ class stzFolder from stzObject
 	@oQDir
 	@cOriginalPath
 	@nMaxDisplayLevel = DefaultMaxTreeDisplayLevel()
-	@acStatKeywords = [ "@count", "@countfiles", "@countfolders" ]
-	@cDisplayStatPattern = "@count"
+
+	@acStatKeywords = [	# must be in lowercase
+		"@count",
+		"@countfiles", "@countfolders",
+		"@deepcountfiles", "@deepcountfolders"
+	]
+
+	@cDisplayStat = "@count"
+
 	@cDisplayOrder = :FileFirstAscending
 
-	@bExpandAll = _FALSE_
+	@bExpand = _FALSE_
+	@bDeepExpandAll = _FALSE_
+	@acDeepExpandFolders = []
+
 	@acExpandFolders = []
 	@bCollapseAll = _FALSE_
 	@acCollapseFolders = []
-	
-	@acDeepExpandFolders = []
 
 	@acDisplayChars = [
 		:VerticlalChar = "│",
@@ -223,6 +231,7 @@ def FileExists(cFileName)
 def FolderExists(cFolderName)
     # Alias for IsFolder - checks if folder exists  
     return This.IsFolder(cFolderName)
+
 
 #=====================#
 #  NORMALIZING PATHS  #
@@ -624,6 +633,9 @@ def MissingPathsAmong(acPaths)
 	def CountFolder(cFolderName)
 		return len(This.FindFolder(cFolderName))
 
+
+	#---
+
 	def Contains(cName)
 		aFiles = This.Files()
 		aFolders = This.Folders()
@@ -708,6 +720,27 @@ def MissingPathsAmong(acPaths)
 		return acResult
 
 	#== Deep Content Management ==#
+
+	def DeepCountFiles()
+		return len(This.DeepFiles())
+
+		def NumberOfDeepFiles()
+			return len(This.DeepFiles())
+
+		def HowManyDeepFiles()
+			return len(This.DeepFiles())
+
+	def DeepCountFile(cFileName)
+		return len(This.DeepFindFile(cFileName))
+
+	def DeepCountFolders()
+		return len(This.DeepFolders())
+
+		def DeepCountDirs()
+			return This.DeepCountFolders()
+
+	def DeepCountFolder(cFolderName)
+		return len(This.DeepFindFolder(cFolderName))
 
 def DeepFiles() # With simplified paths
 	aResult = []
@@ -812,9 +845,6 @@ def DeepFolders() # With simplified paths
 		def DeepCountFoldersAndFiles()
 			return This.DeepCount()
 
-	def DeepCountFile(cFileName)
-		return len(This.FindFile(cFileName))
-
 	def DeepCountFileIn(cFileName, cPath)
 		return len(This.FindFileIn(cFileName, cPath))
 
@@ -823,9 +853,6 @@ def DeepFolders() # With simplified paths
 
 	def DeepCountTheseFilesIn(acFilesNames, cPath)
 		return len(This.SearchTheseFilesIn(acFilesNames, cPath))
-
-	def DeepCountFiles()
-		return This.DeepCountFilesIn(This.Path())
 
 	def DeepCountFilesIn(cPath)
 		nCount = 0
@@ -864,17 +891,11 @@ def DeepFolders() # With simplified paths
 		next
 		return nCount
 
-	def DeepCountFolder(cFolderName)
-		return len(This.FindFolder(cFolderName))
-
 	def DeepCountFolderIn(cFolderName, cPath)
 		return len(This.FindFolderIn(cFolderName, cPath))
 
 	def DeepCountTheseFoldersIn(acFoldersNames, cPath)
 		return len(This.SearchTheseFoldersIn(acFoldersNames, cPath))
-
-	def DeepCountFolders()
-		return This.DeepCountFoldersIn(This.Path())
 
 	def DeepCountFoldersIn(cPath)
 		nCount = 0
@@ -2158,13 +2179,18 @@ def DeepFolders() # With simplified paths
 		cResult += This.GenerateVizTreeString(This.Path(), "", _TRUE_, cStatPattern, "showxt", 0, This.MaxDisplayLevel() )
 		return cResult
 
+
+
+
 	#== Display Configuration ==#
 
 	def Expand()
-		@bExpandAll = _TRUE_
+		@bExpand = _TRUE_
+		@bDeepExpandAll = _FALSE_
+		@acDeepExpandFolders = []
+
 		@bCollapseAll = _FALSE_
 		@acCollapseFolders = []
-		@acDeepExpandFolders = []
 
 	def ExpandFolder(cFolder)
 		This.ExpandFolders([cFolder])
@@ -2191,34 +2217,48 @@ def DeepFolders() # With simplified paths
 
 	#--
 
-def DeepExpandFolder(cFolder)
-	This.DeepExpandFolders([cFolder])
+	def DeepExpandAll()
+		@bExpand = _FALSE_
+		@bDeepExpandAll = _TRUE_
+		@acDeepExpandFolders = []
 
-	def DeepExpandThisFolder(cFolder)
+		@bCollapseAll = _FALSE_
+		@acCollapseFolders = []
+
+		def DeepExpand()
+			This.DeepExpandAll()
+
+	def DeepExpandFolder(cFolder)
 		This.DeepExpandFolders([cFolder])
+	
+		def DeepExpandThisFolder(cFolder)
+			This.DeepExpandFolders([cFolder])
+	
+		def DeepExpandThis(cFolder)
+			This.DeepExpandFolders([cFolder])
+	
+	def DeepExpandFolders(acFolders)
+		if isString(acFolders)
+			@acDeepExpandFolders = [acFolders]
+		else
+			@acDeepExpandFolders = acFolders
+		end
+		@bCollapseAll = _FALSE_
+		@bDeepExpandAll = _FALSE_
 
-	def DeepExpandThis(cFolder)
-		This.DeepExpandFolders([cFolder])
-
-def DeepExpandFolders(acFolders)
-	if isString(acFolders)
-		@acDeepExpandFolders = [acFolders]
-	else
-		@acDeepExpandFolders = acFolders
-	end
-	@bCollapseAll = _FALSE_
-
-	def DeepExpandTheseFolders(acFolders)
-		This.DeepExpandFolders(acFolders)
-
-	def DeepExpandThese(acFolders)
-		This.DeepExpandTheseFolders(acFolders)
+		def DeepExpandTheseFolders(acFolders)
+			This.DeepExpandFolders(acFolders)
+	
+		def DeepExpandThese(acFolders)
+			This.DeepExpandTheseFolders(acFolders)
 
 	#--
 
 	def CollapseAll()
 		@bCollapseAll = _TRUE_
-		@bExpandAll = _FALSE_
+		@bExpand = _FALSE_
+		@bDeepExpandAll = _FALSE_
+
 		@acExpandFolders = []
 		@acDeepExpandFolders = []
 
@@ -2231,7 +2271,8 @@ def DeepExpandFolders(acFolders)
 		else
 			@acCollapseFolders = acFolders
 		end
-		@bExpandAll = _FALSE_
+		@bExpand = _FALSE_
+		@bDeepExpandAll = _FALSE_
 
 		def CollapseTheseFolders(acFolders)
 			This.CollapseFolders(acFolders)
@@ -2239,6 +2280,7 @@ def DeepExpandFolders(acFolders)
 		def CollapseThese(acFolders)
 			This.CollapseFolders(acFolders)
 
+	#---
 
 	def MaxDisplayLevel()
 		return @nMaxDisplayLevel
@@ -2250,16 +2292,18 @@ def DeepExpandFolders(acFolders)
 		@nMaxDisplayLevel = n
 
 	def DisplayStatPattern()
-		return @cDisplayStatPattern
+		return @cDisplayStat
 
 	def SetDisplayStat(cPattern)
 		if NOT isString(cPattern)
 			StzRaise("Incorrect param type! cPattern must be a string.")
 		ok
+
 		if NOT This.IsStatPattern(cPattern)
-			StzRaise("Incorrect stat pattern! cPattern must contain at least one of these keywords: " + @@(This.StatKeywords()) )
+			StzRaise("Incorrect start pattern!")
 		ok
-		@cDisplayStatPattern = cPattern
+
+		@cDisplayStat = cPattern
 
 		def SetDisplayStartPattern(cPattern)
 			This.SetDisplayStat(cPattern)
@@ -2268,13 +2312,15 @@ def DeepExpandFolders(acFolders)
 		return @acStatKeywords
 
 	def IsStatPattern(cPattern)
-		if Not isstring(cPattern)
+		if Not isString(cPattern)
 			return _FALSE_
 		ok
+
 		cPattern = lower(cpattern)
 		acKeywords = This.StatKeywords()
 		nLen = len(acKeywords)
 		bResult = _FALSE_
+
 		for i = 1 to nLen
 			if substr(cPattern, acKeywords[i]) > 0
 				bResult = _TRUE_
@@ -2282,6 +2328,8 @@ def DeepExpandFolders(acFolders)
 			ok
 		next
 		return bResult
+
+
 
 	def DisplayOrder()
 		return @cDisplayOrder
@@ -2297,6 +2345,7 @@ def DeepExpandFolders(acFolders)
 		@cDisplayOrder = lower(cOrder)
 
 	#== Utility Methods ==#
+
 	def Copy()
 		return new stzFolder(This.Path())
 
@@ -2582,25 +2631,227 @@ def IsSecurePath(cPath)
 		next
 		return aResult
 
+/*
 	def FormatStats(oFolder, cStatPattern)
-		if cStatPattern = ""
+		# Get direct counts for this folder level
+		nThisLevelFiles = oFolder.CountFiles()
+		nThisLevelFolders = oFolder.CountFolders()
+		
+		# Get recursive counts for all sublevels
+		nAllSubLevelFiles = oFolder.DeepCountFiles()
+		nAllSubLevelFolders = oFolder.DeepCountFolders()
+
+		cResult = "("
+		
+		# Files display logic
+		if nThisLevelFiles > 0 or nAllSubLevelFiles > nThisLevelFiles
+			if nAllSubLevelFiles > nThisLevelFiles
+				cResult += ''+ nThisLevelFiles + ":" + nAllSubLevelFiles + " files"
+			else
+				cResult += ''+ nThisLevelFiles + " files"
+			end
+			
+			# Add comma if we also have folders
+			if nThisLevelFolders > 0 or nAllSubLevelFolders > nThisLevelFolders
+				cResult += ", "
+			end
+		end
+		
+		# Folders display logic
+		if nThisLevelFolders > 0 or nAllSubLevelFolders > nThisLevelFolders
+			if nAllSubLevelFolders > nThisLevelFolders
+				cResult += ''+ nThisLevelFolders + ":" + nAllSubLevelFolders + " folders"
+			else
+				cResult += ''+ nThisLevelFolders + " folders"
+			end
+		end
+		
+		cResult += ")"
+		
+		# If no files or folders, return empty string to avoid showing "()"
+		if nThisLevelFiles = 0 and nThisLevelFolders = 0 and nAllSubLevelFiles = 0 and nAllSubLevelFolders = 0
 			return ""
 		end
-		cStats = cStatPattern
-		acKeys = reverse( sort(This.StatKeywords()) )
-		nLen = len(ackeys)
-		for i = 1 to nLen
-			cCode = 'nStatValue = oFolder.' + acKeys[i] + '()'
-			cCode = substr(cCode, "@", "")
-			eval(cCode)
-			if substr(lower(cStats), acKeys[i])
-				cStats = substr(lower(cStats), acKeys[i], ("" + nStatValue) )
+		
+		return cResult
+		end
+		
+		# If DeepExpandAll is enabled, expand all non-empty folders
+		if @bDeepExpandAll
+			if This.IsFolderEmpty(cFolderName)
+				return _FALSE_
+			else
+				return _TRUE_
+			end
+		end
+		
+		if @bExpand
+			for cPattern in @acCollapseFolders
+				if This.Matches(cPattern, cFolderName)
+					return _FALSE_
+				end
+			next
+			if This.IsFolderEmpty(cFolderName)
+				return _FALSE_
+			else
+				return _TRUE_
+			end
+		end
+		for cPattern in @acExpandFolders
+			if This.Matches(cPattern, cFolderName)
+				return _TRUE_
 			end
 		next
-		if cStats = "..."
-			return " (...)"
+		return _FALSE_
+*/
+
+	def FormatStats(oFolder, cStatPattern)
+		# Handle @count pattern specifically
+		if cStatPattern = "@count"
+			nTotal = oFolder.CountFiles() + oFolder.CountFolders()
+			if nTotal > 0
+				return "(" + nTotal + ")"
+			else
+				return ""
+			end
+		ok
+		
+		# Handle custom patterns by replacing tokens
+		cResult = lower(cStatPattern)
+		
+		# Replace pattern tokens with actual values
+		nThisLevelFiles = oFolder.CountFiles()
+		nThisLevelFolders = oFolder.CountFolders()
+		nAllSubLevelFiles = oFolder.DeepCountFiles()
+		nAllSubLevelFolders = oFolder.DeepCountFolders()
+	
+		if substr(cResult, "@countfiles")
+			cResult = substr(cResult, "@countfiles", "" + nThisLevelFiles)
+		ok
+		
+		if substr(cResult, "@deepcountfiles")
+			cResult = substr(cResult, "@deepcountfiles", "" + nAllSubLevelFiles)
+		ok
+		
+		if substr(cResult, "@countfolders")
+			cResult = substr(cResult, "@countfolders", "" + nThisLevelFolders)
+		ok
+		
+		if substr(cResult, "@deepcountfolders")
+			cResult = substr(cResult, "@deepcountfolders", "" + nAllSubLevelFolders)
+		ok
+		
+		# If no tokens were replaced, fall back to original logic
+		if cResult = cStatPattern
+			# Get direct counts for this folder level
+			nThisLevelFiles = oFolder.CountFiles()
+			nThisLevelFolders = oFolder.CountFolders()
+			
+			# Get recursive counts for all sublevels
+			nAllSubLevelFiles = oFolder.DeepCountFiles()
+			nAllSubLevelFolders = oFolder.DeepCountFolders()
+
+			cResult = "("
+			
+			# Files display logic
+			if nThisLevelFiles > 0 or nAllSubLevelFiles > nThisLevelFiles
+				if nAllSubLevelFiles > nThisLevelFiles
+					cResult += ''+ nThisLevelFiles + ":" + nAllSubLevelFiles + " files"
+				else
+					cResult += ''+ nThisLevelFiles + " files"
+				end
+				
+				# Add comma if we also have folders
+				if nThisLevelFolders > 0 or nAllSubLevelFolders > nThisLevelFolders
+					cResult += ", "
+				end
+			end
+			
+			# Folders display logic
+			if nThisLevelFolders > 0 or nAllSubLevelFolders > nThisLevelFolders
+				if nAllSubLevelFolders > nThisLevelFolders
+					cResult += ''+ nThisLevelFolders + ":" + nAllSubLevelFolders + " folders"
+				else
+					cResult += ''+ nThisLevelFolders + " folders"
+				end
+			end
+			
+			cResult += ")"
+			
+			# If no files or folders, return empty string to avoid showing "()"
+			if nThisLevelFiles = 0 and nThisLevelFolders = 0 and nAllSubLevelFiles = 0 and nAllSubLevelFolders = 0
+				return ""
+			end
+		else
+			# Wrap custom pattern result in parentheses
+			if cResult != ""
+				cResult = "(" + cResult + ")"
+			ok
 		end
-		return " (" + cStats + ")"
+		
+		return cResult
+
+
+	def GetFolderStats(cFolderName)
+		# Get stats for a specific subfolder
+		cFolderPath = @oQDir.absolutePath() + "/" + cFolderName
+		
+		if @cDisplayStat = "@count"
+			# Simple count for default pattern
+			try
+				mylist = ring_dir(cFolderPath)
+			catch
+				return ""
+			end
+			
+			nCount = 0
+			for entry in mylist
+				if entry[1] != "." and entry[1] != ".."
+					nCount++
+				end
+			next
+			
+			if nCount > 0
+				return "" + nCount
+			else
+				return ""
+			ok
+		else
+			# Use pattern for custom display
+			return This.FormatStatsForFolder(cFolderName, @cDisplayStat)
+		ok
+
+	def FormatStatsForFolder(cFolderName, cPattern)
+		# Format stats for a specific folder
+		cResult = cPattern
+		cFolderPath = @oQDir.absolutePath() + "/" + cFolderName
+		
+		# Get actual counts for this folder
+		nFiles = This.CountFilesIn(cFolderPath)
+		nFolders = This.CountFoldersIn(cFolderPath)
+		nDeepFiles = This.DeepCountFilesIn(cFolderPath)
+		nDeepFolders = This.DeepCountFoldersIn(cFolderPath)
+		
+		# Replace patterns
+		if substr(cResult, "@countfiles") or substr(cResult, "@countfiles")
+			cResult = substr(cResult, "@countfiles", "" + nFiles)
+			cResult = substr(cResult, "@countfiles", "" + nFiles)
+		ok
+		
+		if substr(cResult, "@deepcountfiles")
+			cResult = substr(cResult, "@deepcountfiles", "" + nDeepFiles)
+		ok
+		
+		if substr(cResult, "@countfolders") or substr(cResult, "@countfolders")
+			cResult = substr(cResult, "@countfolders", "" + nFolders)
+			cResult = substr(cResult, "@countfolders", "" + nFolders)
+		ok
+		
+		if substr(cResult, "@deepcountfolders")
+			cResult = substr(cResult, "@deepcountfolders", "" + nDeepFolders)
+		ok
+		
+		return cResult
 
 	def CountFileMatchesRecursive(cPath, cPattern)
 		nCount = 0
@@ -2640,21 +2891,38 @@ def IsSecurePath(cPath)
 		return nCount
 
 	def ShouldExpandFolder(cFolderName)
+
 		if @bCollapseAll
 			return _FALSE_
 		end
-		if @bExpandAll
-			for cPattern in @acCollapseFolders
-				if This.Matches(cPattern, cFolderName)
-					return _FALSE_
-				end
-			next
+
+		# If DeepExpandAll is enabled, expand all non-empty folders
+		if @bDeepExpandAll
+
 			if This.IsFolderEmpty(cFolderName)
 				return _FALSE_
 			else
 				return _TRUE_
 			end
+
 		end
+
+		if @bExpand
+
+			for cPattern in @acCollapseFolders
+				if This.Matches(cPattern, cFolderName)
+					return _FALSE_
+				end
+			next
+
+			if This.IsFolderEmpty(cFolderName)
+				return _FALSE_
+			else
+				return _TRUE_
+			end
+
+		end
+
 		for cPattern in @acExpandFolders
 			if This.Matches(cPattern, cFolderName)
 				return _TRUE_
@@ -2800,10 +3068,13 @@ def IsSecurePath(cPath)
 	                cMatchCount = " (" + nTotalMatches + ")"
 	            end
 	            
-	            # FIX 2: Add stats for ShowXT mode for non-empty folders
+	            # Add stats for ShowXT mode for non-empty folders
 	            cFolderStats = ""
 	            if cSearchType = "showxt" and not bIsEmpty
-	                cFolderStats = trim(This.FormatStats(oSubFolder, cPattern))
+	                cStats = trim(This.FormatStats(oSubFolder, cPattern))
+	                if cStats != ""
+	                    cFolderStats = " " + cStats
+	                end
 	            end
 	            
 	            # Build the line - use correct connector based on position
@@ -2825,25 +3096,33 @@ def IsSecurePath(cPath)
 	    return cResult
 
 
-def ShouldDeepExpandFolder(cFolderPath)
-	if @acDeepExpandFolders = NULL
-		return _FALSE_
-	end
-	
-	for cDeepExpandFolder in @acDeepExpandFolders
-		# Check if current folder is under a deep expand folder
-		if This.IsSubfolderOf(cFolderPath, cDeepExpandFolder)
+	def ShouldDeepExpandFolder(cFolderPath)
+		# If DeepExpandAll is enabled, expand all folders
+		if @bDeepExpandAll
 			return _TRUE_
 		end
-	next
+		
+		if @acDeepExpandFolders = NULL
+			return _FALSE_
+		end
+		
+		for cDeepExpandFolder in @acDeepExpandFolders
+			# Check if current folder is under a deep expand folder
+			if This.IsSubfolderOf(cFolderPath, cDeepExpandFolder)
+				return _TRUE_
+			end
+		next
+		
+		return _FALSE_
+		
+		return _FALSE_
 	
-	return _FALSE_
-
-# Helper method to check if a path is a subfolder of another path:
-def IsSubfolderOf(cChildPath, cParentFolder)
-	# Normalize paths for comparison
-	cNormalizedChild = This.NormalizePathXT(cChildPath)
-	cNormalizedParent = This.NormalizePathXT(This.Path() + "/" + cParentFolder)
+	# Helper method to check if a path is a subfolder of another path:
+	def IsSubfolderOf(cChildPath, cParentFolder)
+		# Normalize paths for comparison
+		cNormalizedChild = This.NormalizePathXT(cChildPath)
+		cNormalizedParent = This.NormalizePathXT(This.Path() + "/" + cParentFolder)
+		
+		# Check if child path starts with parent path
+		return left(cNormalizedChild, len(cNormalizedParent)) = cNormalizedParent
 	
-	# Check if child path starts with parent path
-	return left(cNormalizedChild, len(cNormalizedParent)) = cNormalizedParent
