@@ -453,11 +453,41 @@ o1 = new stzFolder("C:\Windows")
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
+/*--- Softanza use "/" as a separator but gives access to system separaor
+*/
+pr()
+
+o1 = new stzFolder("c:/testarea")
+
+? o1.Separator()
+#--> "/"
+
+? o1.SystemSeparator() # I'm on windows
+#--> "\"
+
+? o1.Path() # All outputs use the "/" separator
+# c:/testarea
+
+# NOTE: You can use any separator in entering paths '/' or '\'
+# and Softanza will understand them indifferently
+
+? @@( o1.FindFile("/test.txt") )
+#--> [ "/test.txt" ]
+
+? @@( o1.FindFile("\test.txt") )
+#--> [ "/test.txt" ]
+
+pf()
+
 /*--- Short and long folders and files names
 */
 pr()
 
 o1 = new stzFolder("c:/testarea")
+
+? o1.Path()
+
+
 # This method returns the folder original path
 
 ? o1.Path()	# Or Home() or Root() or Folder()
@@ -487,7 +517,7 @@ o1 = new stzFolder("c:/testarea")
 ]
 '
 # And you can add the long paths with XT()
-
+/*
 ? @@NL( o1.FoldersXT() )
 #-->
 '
@@ -537,7 +567,7 @@ o1 = new stzFolder("c:/testarea")
 	"c:/testarea/Images/notes/sources.txt"
 ]
 '
-
+*/
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
