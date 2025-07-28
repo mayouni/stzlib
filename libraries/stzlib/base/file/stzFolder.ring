@@ -108,7 +108,7 @@ class stzFolder from stzObject
 				StzRaise("Incorrect param type! pcDirPath must be a string.")
 			ok
 		ok
-		pcDirPath = substr(pcDirPath, "\", This.Separator())
+
 		@oQDir = new QDir()
 		@cOriginalPath = pcDirPath
 		
@@ -156,7 +156,10 @@ class stzFolder from stzObject
 #===============================#
 
 def Separator()
-	return @oQDir.separator().unicode()
+	return "/"
+
+def SystemSeparator()
+	return Char(@oQDir.separator().unicode())
 
 	def PathSeparator()
 		return This.Separator()
@@ -1054,6 +1057,7 @@ def MissingPathsAmong(acPaths)
 		next
 
 		return nCount
+
 
 	def DeepCountFilesWithProgress(cPath, nCurrentLevel, nMaxLevel)
 		if CheckParams()
@@ -2120,7 +2124,7 @@ def MissingPathsAmong(acPaths)
 			next
 		else
 			for cFile in aFiles
-				if lower(cFile) = lower(cNormalized)
+				if lower(cFile) = lower(cPattern)
 					acResult + cFile
 				ok
 			next
