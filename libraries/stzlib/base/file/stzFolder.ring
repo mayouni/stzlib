@@ -108,7 +108,7 @@ class stzFolder from stzObject
 				StzRaise("Incorrect param type! pcDirPath must be a string.")
 			ok
 		ok
-		pcDirPath = substr(pcDirPath, "\", "/")
+		pcDirPath = substr(pcDirPath, "\", This.Separator())
 		@oQDir = new QDir()
 		@cOriginalPath = pcDirPath
 		
@@ -158,7 +158,15 @@ class stzFolder from stzObject
 def Separator()
 	return @oQDir.separator().unicode()
 
+	def PathSeparator()
+		return This.Separator()
+
 Func IsInside(cPath)
+
+    if NOT ( isString(cPath) and cPath != "" )
+        raise("Incorrect param type! cPath must be non-empty a string.")
+    ok
+
 	# Get the absolute path of the main folder
 	cMainPath = @oQDir.absolutePath()
 	
@@ -222,7 +230,7 @@ def IsOutside(cPath)
 
 def IsFile(cPath)
     # Checks if cPath represents a valid existing file within the folder scope
-    # Checks if cPath represents a valid existing folder within the folder scope
+
     if NOT ( isString(cPath) and cPath != "" )
         raise("Incorrect param type! cPath must be non-empty a string.")
     ok
@@ -243,15 +251,14 @@ def IsFile(cPath)
 
 def IsFolder(cPath)
     # Checks if cPath represents a valid existing folder within the folder scope
+
     if NOT ( isString(cPath) and cPath != "" )
         raise("Incorrect param type! cPath must be non-empty a string.")
     ok
 
-   
-   if left(cPath, 1) != "/"
-		cPath = "/" + cPath
+   if left(cPath, 1) != This.Separator()
+		cPath = This.Separator() + cPath
    ok
-
 
 	if ring_find(This.Folders(), cPath) > 0
 		return _TRUE_
@@ -303,9 +310,12 @@ def FolderExists(cFolderName)
 #=====================#
 
 def NormalizePath(cPath)
-    if NOT isString(cPath)
-        return ""
-    ok
+
+	if CheckParams()
+		if NOT ( isString(cPath) and trim(cPath) != "" )
+			StzRaise("Incorrect param type! cPath must be a non-empty string.")
+		ok
+	ok
     
     # Create temp QDir for the path
     oTempDir = new QDir
@@ -317,10 +327,15 @@ def NormalizePath(cPath)
     
     return lower(cResult)
 
+
+
 def NormalizePathXT(cPath)
-    if NOT isString(cPath)
-        return ""
-    ok
+
+	if CheckParams()
+		if NOT ( isString(cPath) and trim(cPath) != "" )
+			StzRaise("Incorrect param type! cPath must be a non-empty string.")
+		ok
+	ok
     
     cBasePath = @oQDir.absolutePath()
     
@@ -338,16 +353,21 @@ def NormalizePathXT(cPath)
     return lower(cResult)
 
 def NormalizeFileName(cName)
-    if NOT isString(cName)
-        StzRaise("Incorrect param type! cName must be a string.")
-    ok
+	if CheckParams()
+		if NOT ( isString(cName) and trim(cName) != "" )
+			StzRaise("Incorrect param type! cName must be a non-empty string.")
+		ok
+	ok
     
     return lower(@oQDir.cleanPath(trim(cName)))
 
+
 def NormalizeFileNameXT(cName)
-    if NOT isString(cName)
-        StzRaise("Incorrect param type! cName must be a string.")
-    ok
+	if CheckParams()
+		if NOT ( isString(cName) and trim(cName) != "" )
+			StzRaise("Incorrect param type! cName must be a non-empty string.")
+		ok
+	ok
     
     cBasePath = @oQDir.absolutePath()
     cCleanName = @oQDir.cleanPath(trim(cName))
@@ -384,6 +404,12 @@ def NormalizeFolderNameXT(cName)
 
 def PathType(cPath)
 
+	if CheckParams()
+		if NOT ( isString(cPath) and trim(cPath) != "" )
+			StzRaise("Incorrect param type! cPath must be a non-empty string.")
+		ok
+	ok
+
     # Returns the type of path: "file", "folder", or "none"
 
     if This.IsFile(cPath)
@@ -399,11 +425,11 @@ def PathType(cPath)
 
 def PathInfo(cPath)
 
-    # Returns detailed information about the path
-
-    if NOT isString(cPath)
-        StzRaise("Incorrect param type! cPath must be a string.")
-    ok
+	if CheckParams()
+		if NOT ( isString(cPath) and trim(cPath) != "" )
+			StzRaise("Incorrect param type! cPath must be a non-empty string.")
+		ok
+	ok
     
     cNormalizedPath = This.NormalizePath(cPath)
 
@@ -425,19 +451,18 @@ def PathInfo(cPath)
         :type, cType,
         :is_file, (cType = "file"),
         :is_folder, (cType = "folder"),
-        :is_relative, (left(cPath, 1) != "/" AND substr(cPath, ":/") = 0 AND substr(cPath, ":\\") = 0),
+        :is_relative, (left(cPath, 1) != This.Separator() AND substr(cPath, ":/") = 0 AND substr(cPath, ":\\") = 0),
         :parent_folder, This.ParentFolder(cPath)
     ]
     
     return aInfo
 
 def ParentFolder(cPath)
-
-    # Returns the parent folder of the given path
-
-    if NOT isString(cPath)
-        return ""
-    ok
+	if CheckParams()
+		if NOT ( isString(cPath) and trim(cPath) != "" )
+			StzRaise("Incorrect param type! cPath must be a non-empty string.")
+		ok
+	ok
 
     cNormalizedPath = This.NormalizePath(cPath)
 
@@ -451,7 +476,7 @@ def ParentFolder(cPath)
 
     nLastSep = 0
     for i = len(cNormalizedPath) to 1 step -1
-        if cNormalizedPath[i] = "/"
+        if cNormalizedPath[i] = This.Separator()
             nLastSep = i
             exit
         ok
@@ -471,9 +496,11 @@ def AreFiles(acPaths)
 
     # Checks if all paths in the list are valid files
 
-    if NOT isList(acPaths)
-        StzRaise("Incorrect param type! acPaths must be a list.")
-    ok
+	if CheckParams()
+		if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
+			StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+		ok
+	ok
     
     for cPath in acPaths
         if NOT This.IsFile(cPath)
@@ -487,9 +514,11 @@ def AreFolders(acPaths)
 
     # Checks if all paths in the list are valid folders
 
-    if NOT isList(acPaths)
-        StzRaise("Incorrect param type! acPaths must be a list.")
-    ok
+	if CheckParams()
+		if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
+			StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+		ok
+	ok
     
     for cPath in acPaths
         if NOT This.IsFolder(cPath)
@@ -503,9 +532,11 @@ def AllExist(acPaths)
 
     # Checks if all paths in the list exist (files or folders)
 
-    if NOT isList(acPaths)
-        StzRaise("Incorrect param type! acPaths must be a list.")
-    ok
+	if CheckParams()
+		if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
+			StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+		ok
+	ok
     
     for cPath in acPaths
         if NOT This.Exists(cPath)
@@ -519,9 +550,11 @@ def ExistingPathsAmong(acPaths)
 
     # Returns only the paths that exist from the given list
 
-    if NOT isList(acPaths)
-        StzRaise("Incorrect param type! acPaths must be a list.")
-    ok
+	if CheckParams()
+		if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
+			StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+		ok
+	ok
     
     acResult = []
 
@@ -538,9 +571,11 @@ def MissingPathsAmong(acPaths)
 
     # Returns only the paths that don't exist from the given list
 
-    if NOT isList(acPaths)
-        StzRaise("Incorrect param type! acPaths must be a list.")
-    ok
+	if CheckParams()
+		if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
+			StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+		ok
+	ok
     
     acMissing = []
     for cPath in acPaths
@@ -630,7 +665,7 @@ def MissingPathsAmong(acPaths)
 
 		for _aEntry_ in _aList_
 			if _aEntry_[2] = 0
-				aResult + (@oQDir.path() + "/" + lower(_aEntry_[1]))
+				aResult + (@oQDir.path() + This.Separator() + lower(_aEntry_[1]))
 			end
 		next
 
@@ -643,7 +678,7 @@ def MissingPathsAmong(acPaths)
 
 		for _aEntry_ in _aList_
 			if _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."
-				aResult + (@oQDir.path() + "/" + lower(_aEntry_[1]) + "/")
+				aResult + (@oQDir.path() + This.Separator() + lower(_aEntry_[1]) + This.Separator())
 			end
 		next
 
@@ -656,7 +691,7 @@ def MissingPathsAmong(acPaths)
 
 		for _aEntry_ in _aList_
 			if _aEntry_[2] = 0
-				aResult + ("/" + lower(_aEntry_[1]))
+				aResult + (This.Separator() + lower(_aEntry_[1]))
 			end
 		next
 
@@ -669,7 +704,7 @@ def MissingPathsAmong(acPaths)
 
 		for _aEntry_ in _aList_
 			if _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."
-				aResult + ("/" + lower(_aEntry_[1]) + "/")
+				aResult + (This.Separator() + lower(_aEntry_[1]) + This.Separator())
 			end
 		next
 
@@ -703,6 +738,11 @@ def MissingPathsAmong(acPaths)
 	#---
 
 	def Contains(cName)
+		if CheckParams()
+			if NOT ( isString(cName) and trim(cName) != "" )
+				StzRaise("Incorrect param type! cName must be a non-empty string.")
+			ok
+		ok
 
 		aFiles = This.Files()
 		aFolders = This.Folders()
@@ -721,12 +761,24 @@ def MissingPathsAmong(acPaths)
 
 
 	def ContainsFile(cFileName)
+		if CheckParams()
+			if NOT ( isString(cFileName) and trim(cFileName) != "" )
+				StzRaise("Incorrect param type! cFileName must be a non-empty string.")
+			ok
+		ok
+
 		cFile = This.NormalizeFileName(cFileName)
 		aFiles = This.Files()
 
 		return ring_find(aFiles, cFileName) > 0
 
 	def ContainsFolder(cFolderName)
+		if CheckParams()
+			if NOT ( isString(cFolderName) and trim(cFolderName) != "" )
+				StzRaise("Incorrect param type! cFolderName must be a non-empty string.")
+			ok
+		ok
+
 		cFolderName = NormalizeFolderName(cFolderName)
 		aFolders = This.Folders()
 
@@ -756,6 +808,13 @@ def MissingPathsAmong(acPaths)
 	#--
 
 	def FilesIn(cPath)
+
+		if CheckParams()
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
+		ok
+
 		if NOT This.Exists(cPath)
 			StzRaise("Incorrect path!")
 		ok
@@ -773,7 +832,15 @@ def MissingPathsAmong(acPaths)
 
 		return acResult
 
+
 	def FoldersIn(cPath)
+
+		if CheckParams()
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
+		ok
+
 		if NOT This.Exists(cPath)
 			StzRaise("Incorrect path!")
 		ok
@@ -830,17 +897,17 @@ def MissingPathsAmong(acPaths)
 
 				if _aEntry_[2] = 0  # It's a file
 
-					cFullPath = cCurrentPath + "/" + lower(_aEntry_[1])
+					cFullPath = cCurrentPath + This.Separator() + lower(_aEntry_[1])
 					cRelativePath = substr(cFullPath, len(cBasePath) + 1)
 
-					if left(cRelativePath, 1) != "/"
-						cRelativePath = "/" + cRelativePath
+					if left(cRelativePath, 1) != This.Separator()
+						cRelativePath = This.Separator() + cRelativePath
 					end
 
 					aResult + cRelativePath
 					
 				but _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."  # It's a directory
-					aToProcess + (cCurrentPath + "/" + _aEntry_[1])
+					aToProcess + (cCurrentPath + This.Separator() + _aEntry_[1])
 				end
 
 			next
@@ -866,15 +933,15 @@ def MissingPathsAmong(acPaths)
 
 				if _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."  # It's a directory
 
-					cFullPath = cCurrentPath + "/" + lower(_aEntry_[1])
+					cFullPath = cCurrentPath + This.Separator() + lower(_aEntry_[1])
 					cRelativePath = substr(cFullPath, len(cBasePath) + 1)
 
-					if left(cRelativePath, 1) != "/"
-						cRelativePath = "/" + cRelativePath
+					if left(cRelativePath, 1) != This.Separator()
+						cRelativePath = This.Separator() + cRelativePath
 					end
 
-					aResult + (cRelativePath + "/")
-					aToProcess + (cCurrentPath + "/" + _aEntry_[1])
+					aResult + (cRelativePath + This.Separator())
+					aToProcess + (cCurrentPath + This.Separator() + _aEntry_[1])
 				end
 
 			next
@@ -897,10 +964,10 @@ def MissingPathsAmong(acPaths)
 			for _aEntry_ in _aList_
 
 				if _aEntry_[2] = 0  # It's a file
-					aResult + (cCurrentPath + "/" + lower(_aEntry_[1]))
+					aResult + (cCurrentPath + This.Separator() + lower(_aEntry_[1]))
 					
 				but _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."  # It's a directory
-					aToProcess + (cCurrentPath + "/" + _aEntry_[1])
+					aToProcess + (cCurrentPath + This.Separator() + _aEntry_[1])
 				end
 
 			next
@@ -926,9 +993,9 @@ def MissingPathsAmong(acPaths)
 
 				if _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."  # It's a directory
 
-					cFullPath = cCurrentPath + "/" + lower(_aEntry_[1]) + "/"
+					cFullPath = cCurrentPath + This.Separator() + lower(_aEntry_[1]) + This.Separator()
 					aResult + cFullPath
-					aToProcess + (cCurrentPath + "/" + _aEntry_[1])
+					aToProcess + (cCurrentPath + This.Separator() + _aEntry_[1])
 
 				end
 
@@ -953,9 +1020,24 @@ def MissingPathsAmong(acPaths)
 		return len(This.DeepCountTheseFilesIn(acFilesNames, cPath))
 
 	def DeepCountTheseFilesIn(acFilesNames, cPath)
+		if CheckParams()
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
+
+			if NOT ( isList(acFilesNames) and @IsListOfStrings(acFilesNames) )
+				StzRaise("Incorrect param type! acFilesNames must be a list of strings.")
+			ok
+		ok
+
 		return len(This.SearchTheseFilesIn(acFilesNames, cPath))
 
 	def DeepCountFilesIn(cPath)
+		if CheckParams()
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
+		ok
 
 		nCount = 0
 		aList = ring_dir(cPath)
@@ -966,7 +1048,7 @@ def MissingPathsAmong(acPaths)
 			if aList[i][2] = 0
 				nCount++
 			but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
-				nCount += This.DeepCountFilesIn(cPath + "/" + aList[i][1])
+				nCount += This.DeepCountFilesIn(cPath + This.Separator() + aList[i][1])
 			end
 
 		next
@@ -974,6 +1056,11 @@ def MissingPathsAmong(acPaths)
 		return nCount
 
 	def DeepCountFilesWithProgress(cPath, nCurrentLevel, nMaxLevel)
+		if CheckParams()
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
+		ok
 
 		if nCurrentLevel > nMaxLevel
 			return 0
@@ -989,7 +1076,7 @@ def MissingPathsAmong(acPaths)
 				nCount++
 
 			but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
-				nCount += This.DeepCountFilesWithProgress(cPath + "/" + aList[i][1], nCurrentLevel + 1, nMaxLevel)
+				nCount += This.DeepCountFilesWithProgress(cPath + This.Separator() + aList[i][1], nCurrentLevel + 1, nMaxLevel)
 			ok
 
 		next
@@ -998,12 +1085,27 @@ def MissingPathsAmong(acPaths)
 
 
 	def DeepCountFolderIn(cFolderName, cPath)
+		if CheckParams()
+			if NOT ( isString(cFolderName) and trim(cFolderName) != "" )
+				StzRaise("Incorrect param type! cFolderName must be a non-empty string.")
+			ok
+
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
+		ok
+
 		return len(This.FindFolderIn(cFolderName, cPath))
 
 	def DeepCountTheseFoldersIn(acFoldersNames, cPath)
 		return len(This.SearchTheseFoldersIn(acFoldersNames, cPath))
 
 	def DeepCountFoldersIn(cPath)
+		if CheckParams()
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
+		ok
 
 		nCount = 0
 		aList = ring_dir(cPath)
@@ -1013,12 +1115,13 @@ def MissingPathsAmong(acPaths)
 
 			if aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
 				nCount++
-				nCount += This.DeepCountFoldersIn(cPath + "/" + aList[i][1])
+				nCount += This.DeepCountFoldersIn(cPath + This.Separator() + aList[i][1])
 			end
 
 		next
 
 		return nCount
+
 
 	def DeepContains(cName)
 
@@ -1035,6 +1138,7 @@ def MissingPathsAmong(acPaths)
 			return This.DeepContains(cName)
 
 	def DeepContainsIn(cName, cPath)
+
 		if This.DeepContainsFileIn(cName, cPath) or This.DeepContainsFolderIn(cName,cPath)
 			return TRUE
 		else
@@ -1052,6 +1156,16 @@ def MissingPathsAmong(acPaths)
 
 	def DeepContainsFileIn(cFileName, cPath)
 
+		if CheckParams()
+			if NOT ( isString(cFileName) and trim(cFileName) != "" )
+				StzRaise("Incorrect param type! cFileName must be a non-empty string.")
+			ok
+
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
+		ok
+
 		aList = ring_dir(cPath)
 		nLen = len(aList)
 
@@ -1062,7 +1176,7 @@ def MissingPathsAmong(acPaths)
 
 			but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
 
-				if This.DeepContainsFileIn(cFileName, cPath + "/" + aList[i][1])
+				if This.DeepContainsFileIn(cFileName, cPath + This.Separator() + aList[i][1])
 					return TRUE
 				end
 
@@ -1078,6 +1192,10 @@ def MissingPathsAmong(acPaths)
 	def DeepContainsTheseFilesIn(acFilesNames, cPath)
 
 		if CheckParams()
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
+
 			if NOT ( isList(acFilesNames) and @IsListOfStrings(acFilesNames) )
 				StzRaise("Incorrect param type! acFilesNames must be a list of strings.")
 			ok
@@ -1100,9 +1218,15 @@ def MissingPathsAmong(acPaths)
 	def DeepContainsOneOfTheseFiles(acFilesNames)
 		return This.DeepContainsTheseFilesIn(acFilesNames, This.Path())
 
+
+
 	def DeepContainsOneOfTheseFilesIn(acFilesNames, cPath)
 
 		if CheckParams()
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
+
 			if NOT ( isList(acFilesNames) and @IsListOfStrings(acFilesNames) )
 				StzRaise("Incorrect param type! acFilesNames must be a list of strings.")
 			ok
@@ -1125,7 +1249,19 @@ def MissingPathsAmong(acPaths)
 	def DeepContainsFolder(cFolderName)
 		return This.DeepContainsFolderIn(cFolderName, This.Path())
 
+
+
 	def DeepContainsFolderIn(cFolderName, cPath)
+
+		if CheckParams()
+			if NOT ( isString(cFolderName) and trim(cFolderName) != "" )
+				StzRaise("Incorrect param type! cFolderNAme must be a non-empty string.")
+			ok
+
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
+		ok
 
 		aList = ring_dir(cPath)
 		nLen = len(aList)
@@ -1137,7 +1273,7 @@ def MissingPathsAmong(acPaths)
 
 			but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
 
-				if This.DeepContainsFolderIn(cFolderName, cPath + "/" + aList[i][1])
+				if This.DeepContainsFolderIn(cFolderName, cPath + This.Separator() + aList[i][1])
 					return TRUE
 				end
 
@@ -1153,6 +1289,10 @@ def MissingPathsAmong(acPaths)
 	def DeepContainsTheseFoldersIn(acFoldersNames, cPath)
 
 		if CheckParams()
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
+
 			if NOT ( isList(acFoldersNames) and @IsListOfStrings(acFoldersNames) )
 				StzRaise("Incorrect param type! acFoldersNames must be a list of strings.")
 			ok
@@ -1212,7 +1352,7 @@ def MissingPathsAmong(acPaths)
 		end
 
 		if not IsAbsolutePath(cDir)
-			cFullPath = This.Path() + "/" + cDir
+			cFullPath = This.Path() + This.Separator() + cDir
 		else
 			cFullPath = cDir
 		end
@@ -1364,10 +1504,12 @@ def MissingPathsAmong(acPaths)
 	
 		def DeepDeleteFolder(cFolderName)
 	
-		    if NOT isString(cFolderName)
-		        StzRaise("Incorrect param type! cFolderName must be a string.")
-		    ok
-	
+			if CheckParams()
+				if NOT ( isString(cFolderName) and trim(cFolderNAme) != "" )
+					StzRaise("Incorrect param type! cFolderName must be a non-empty string.")
+				ok
+			ok
+
 		    acFolderPaths = This.DeepFindFolder(cFolderName)
 	
 		    # Sort by depth (deepest first) using Ring's sort
@@ -1412,6 +1554,12 @@ def MissingPathsAmong(acPaths)
 
 	def FileRead(cFile)
 
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
 		cFile = This.NormaliseFileNameXT(cFile)
 
 		if NOT This.Inside(cFile)
@@ -1428,6 +1576,13 @@ def MissingPathsAmong(acPaths)
 			return This.FileRead(cFile)
 
 	def FileReadQ(cFile)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
 		cFile = This.NormaliseFileNameXT(cFile)
 
 		if NOT This.Inside(cFile)
@@ -1441,11 +1596,24 @@ def MissingPathsAmong(acPaths)
 		return @FileReadQ(cFile)
 
 		def ReadFileQ(cFile)
+
+			if CheckParams()
+				if NOT ( isString(cFile) and trim(cFile) != "" )
+					StzRaise("Incorrect param type! cFile must be a non-empty string.")
+				ok
+			ok
+
 			return This.FileReadQ(cFile)
 
 	#--
 
 	def FileInfo(cFile)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
 
 		cFile = This.NormaliseFileNameXT(cFile)
 
@@ -1473,6 +1641,13 @@ def MissingPathsAmong(acPaths)
 			return @FileInfoQ(cFile)
 
 	def FileInfoXT(cFile)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
 		cFile = This.NormaliseFileNameXT(cFile)
 
 		if NOT This.Inside(cFile)
@@ -1489,6 +1664,13 @@ def MissingPathsAmong(acPaths)
 
 	def FileAppend(cFile, cAdditionalText)
 
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
+
 		cFile = This.NormaliseFileNameXT(cFile)
 
 		if NOT This.Inside(cFile)
@@ -1501,7 +1683,16 @@ def MissingPathsAmong(acPaths)
 
 		return @FileAppend(cFile, cAdditionalText)
 
+
+
 		def FileAppendQ(cFile, cAdditionalText)
+
+			if CheckParams()
+				if NOT ( isString(cFile) and trim(cFile) != "" )
+					StzRaise("Incorrect param type! cFile must be a non-empty string.")
+				ok
+			ok
+
 			cFile = This.NormaliseFileNameXT(cFile)
 	
 			if NOT This.Inside(cFile)
@@ -1523,6 +1714,13 @@ def MissingPathsAmong(acPaths)
 	#--
 
 	def FileCreate(cFile)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
 		cFile = This.NormaliseFileNameXT(cFile)
 
 		if This.IsPathOutside(cFile)
@@ -1536,6 +1734,13 @@ def MissingPathsAmong(acPaths)
 		return @FileCreate(cFile)
 
 		def FileCreateQ(cFile)
+	
+			if CheckParams()
+				if NOT ( isString(cFile) and trim(cFile) != "" )
+					StzRaise("Incorrect param type! cFile must be a non-empty string.")
+				ok
+			ok
+
 			cFile = This.NormaliseFileNameXT(cFile)
 	
 			if This.IsPathOutside(cFile)
@@ -1561,6 +1766,7 @@ def MissingPathsAmong(acPaths)
 				StzRaise("Incorrect param type! acFileNames must be a list of strings.")
 			ok
 		ok
+
 		acCreated = []
 		acFailed = []
 
@@ -1582,6 +1788,13 @@ def MissingPathsAmong(acPaths)
 			return This.FilesCreate(acFileNames)
 
 	def FileOverwrite(cFile, cNewContent)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
 		cFile = This.NormaliseFileNameXT(cFile)
 
 		if NOT This.Inside(cFile)
@@ -1594,7 +1807,15 @@ def MissingPathsAmong(acPaths)
 
 		return @FileOverwrite(cFile, cNewContent)
 
+
 		def FileOverwriteQ(cFile, cNewContent)
+
+			if CheckParams()
+				if NOT ( isString(cFile) and trim(cFile) != "" )
+					StzRaise("Incorrect param type! cFile must be a non-empty string.")
+				ok
+			ok
+
 			cFile = This.NormaliseFileNameXT(cFile)
 	
 			if NOT This.Inside(cFile)
@@ -1614,6 +1835,13 @@ def MissingPathsAmong(acPaths)
 			return This.FileOverwriteQ(cFile, cNewContent)
 
 	def FileErase(cFile)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
 		cFile = This.NormaliseFileNameXT(cFile)
 
 		if NOT This.Inside(cFile)
@@ -1626,7 +1854,15 @@ def MissingPathsAmong(acPaths)
 
 		return @FileErase(cFile)
 
+
 		def FileEraseQ(cFile)
+
+			if CheckParams()
+				if NOT ( isString(cFile) and trim(cFile) != "" )
+					StzRaise("Incorrect param type! cFile must be a non-empty string.")
+				ok
+			ok
+
 			cFile = This.NormaliseFileNameXT(cFile)
 	
 			if NOT This.Inside(cFile)
@@ -1646,6 +1882,13 @@ def MissingPathsAmong(acPaths)
 			return This.FileEraseQ(cFile)
 
 	def FileSafeErase(cFile)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
 		cFile = This.NormaliseFileNameXT(cFile)
 
 		if NOT This.Inside(cFile)
@@ -1658,7 +1901,16 @@ def MissingPathsAmong(acPaths)
 
 		return @FileSafeErase(This.cFile)
 
+
+
 		def FileSafeEraseQ(cFile)
+
+			if CheckParams()
+				if NOT ( isString(cFile) and trim(cFile) != "" )
+					StzRaise("Incorrect param type! cFile must be a non-empty string.")
+				ok
+			ok
+
 			cFile = This.NormaliseFileNameXT(cFile)
 	
 			if NOT This.Inside(cFile)
@@ -1678,6 +1930,13 @@ def MissingPathsAmong(acPaths)
 			return This.FileSafeEraseQ(cFile)
 
 	def FileRemove(cFile)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
 		cFile = This.NormaliseFileNameXT(cFile)
 
 		if NOT This.Inside(cFile)
@@ -1701,6 +1960,13 @@ def MissingPathsAmong(acPaths)
 			return This.FileRemove(cFile)
 
 	def FileBackup(cFile)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
 		cFile = This.NormaliseFileNameXT(cFile)
 
 		if NOT This.Inside(cFile)
@@ -1717,6 +1983,13 @@ def MissingPathsAmong(acPaths)
 			return This.FileBackup(cfile)
 
 	def FileSafeOverwrite(cFile, cNewContent)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
 		cFile = This.NormaliseFileNameXT(cFile)
 
 		if NOT This.Inside(cFile)
@@ -1733,6 +2006,14 @@ def MissingPathsAmong(acPaths)
 			return This.FileSafeOverwrite(cFile, cNewContent)
 
 	def FileModify(cFile, cOldContent, cNewContent)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
+
 		cFile = This.NormaliseFileNameXT(cFile)
 
 		if NOT This.Inside(cFile)
@@ -1749,10 +2030,11 @@ def MissingPathsAmong(acPaths)
 			return This.FileModify(cFile, cOldContent, cNewContent)
 
 	def FileCopy(cSource, cDest)
+
 		cSource = This.NormaliseFileNameXT(cSource)
 		cDest = This.NormaliseFileNameXT(cDest)
 
-		if NOT ( This.Inside(cFile) and This.Inside(cDest) )
+		if NOT ( This.Inside(cSource) and This.Inside(cDest) )
 			raise("Can't navigate outside the folder! Check that cSource and cDest are both inside.")
 		ok
 
@@ -1770,7 +2052,8 @@ def MissingPathsAmong(acPaths)
 			return this.FileCopy(cSource, cDest)
 
 	def FileMove(cSource, cDest)
-		cFile = This.NormaliseFileNameXT(cFile)
+
+		cFile = This.NormaliseFileNameXT(csource)
 		cDest = This.NormaliseFileNameXT(cDest)
 
 		if NOT ( This.Inside(cSource) and This.Inside(cDest) )
@@ -1793,6 +2076,12 @@ def MissingPathsAmong(acPaths)
 	#--
 
 	def FileSize(cFile)
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
 		cFile = This.NormaliseFileNameXT(cFile)
 
 		if NOT This.Inside(cFile)
@@ -1811,12 +2100,17 @@ def MissingPathsAmong(acPaths)
 	#== Finding Operations ==#
 
 	def FindFiles(cPattern)
-		if NOT isString(cPattern)
-			StzRaise("Incorrect param type! cPattern must be a string.")
+
+		if CheckParams()
+			if NOT ( isString(cPattern) and trim(cPattern) != "" )
+				StzRaise("Incorrect param type! cPattern must be a non-empty string.")
+			ok
 		ok
-		cNormalized = This.NormalizeFileName(cPattern)
+
+		cPattern = This.NormalizeFileName(cPattern)
 		aFiles = This.Files()
 		acResult = []
+
 		if substr(cPattern, "*") > 0
 			cPattern = substr(cPattern, "*", "")
 			for cFile in aFiles
@@ -1840,18 +2134,27 @@ def MissingPathsAmong(acPaths)
 			return This.FindFiles(cFileName)
 
 	def FindFolders(cPattern)
-		if NOT isString(cPattern)
-			StzRaise("Incorrect param type! cPattern must be a string.")
+
+		if CheckParams()
+			if NOT ( isString(cPattern) and trim(cPattern) != "" )
+				StzRaise("Incorrect param type! cPattern must be a non-empty string.")
+			ok
 		ok
+
+		cPattern = This.NormalizeFileName(cPattern)
 		acFolders = This.Folders()
 		acResult = []
+
 		if substr(cPattern, "*") > 0
+
 			cPattern = substr(cPattern, "*", "")
+
 			for cFolder in acFolders
 				if substr(lower(cFolder), lower(cPattern)) > 0
 					acResult + cFolder
 				ok
 			next
+
 		else
 			for cFolder in acFolders
 				if lower(cFolder) = lower(cPattern)
@@ -1859,6 +2162,7 @@ def MissingPathsAmong(acPaths)
 				ok
 			next
 		ok
+
 		return acResult
 
 		def FindFolder(cFolderName)
@@ -1868,9 +2172,12 @@ def MissingPathsAmong(acPaths)
 			return This.FindFolders(cFolderName)
 
 	def FindFilesByExtension(cExt)
-		if NOT isString(cExt)
-			StzRaise("Incorrect param type! cExt must be a string.")
+		if CheckParams()
+			if NOT ( isString(cExt) and trim(cExt) != "" )
+				StzRaise("Incorrect param type! cExt must be a non-empty string.")
+			ok
 		ok
+
 		if left(cExt, 1) != "."
 			cExt = "." + cExt
 		ok
@@ -1937,11 +2244,11 @@ def MissingPathsAmong(acPaths)
 				if a_aEntry_[2] = 0
 					if bWildcard
 						if substr(lower(a_aEntry_[1]), lower(cPattern)) > 0
-							acFound + (cDir + "/" + a_aEntry_[1])
+							acFound + (cDir + This.Separator() + a_aEntry_[1])
 						ok
 					else
 						if lower(a_aEntry_[1]) = lower(cPattern)
-							acFound + (cDir + "/" + a_aEntry_[1])
+							acFound + (cDir + This.Separator() + a_aEntry_[1])
 						ok
 					ok
 				ok
@@ -1971,11 +2278,11 @@ def MissingPathsAmong(acPaths)
 				if a_aEntry_[2] = 1 and a_aEntry_[1] != "." and a_aEntry_[1] != ".."
 					if bWildcard
 						if substr(lower(a_aEntry_[1]), lower(cPattern)) > 0
-							acFound + (cDir + "/" + a_aEntry_[1])
+							acFound + (cDir + This.Separator() + a_aEntry_[1])
 						ok
 					else
 						if lower(a_aEntry_[1]) = lower(cPattern)
-							acFound + (cDir + "/" + a_aEntry_[1])
+							acFound + (cDir + This.Separator() + a_aEntry_[1])
 						ok
 					ok
 				ok
@@ -2045,7 +2352,7 @@ def MissingPathsAmong(acPaths)
 			StzRaise("Incorrect param types! Both parameters must be strings.")
 		ok
 		acLineNumbers = []
-		cFullPath = @oQDir.path() + "/" + cFile
+		cFullPath = @oQDir.path() + This.Separator() + cFile
 		if fexists(cFullPath)
 			cFileContent = read(cFullPath)
 			acLines = str2list(cFileContent)
@@ -2084,12 +2391,12 @@ def MissingPathsAmong(acPaths)
 			StzRaise("Incorrect param types! Both parameters must be strings.")
 		ok
 		acResults = []
-		cFolderPath = @oQDir.path() + "/" + cFolder
+		cFolderPath = @oQDir.path() + This.Separator() + cFolder
 		if isdir(cFolderPath)
 			aEntries = dir(cFolderPath)
 			for a_aEntry_ in aEntries
 				if a_aEntry_[2] = 0
-					cFilePath = cFolderPath + "/" + a_aEntry_[1]
+					cFilePath = cFolderPath + This.Separator() + a_aEntry_[1]
 					if fexists(cFilePath)
 						cFileContent = read(cFilePath)
 						acLines = str2list(cFileContent)
@@ -2134,7 +2441,7 @@ def MissingPathsAmong(acPaths)
 			aEntries = dir(cDir)
 			for a_aEntry_ in aEntries
 				if a_aEntry_[2] = 0
-					cFilePath = cDir + "/" + a_aEntry_[1]
+					cFilePath = cDir + This.Separator() + a_aEntry_[1]
 					if fexists(cFilePath)
 						cFileContent = read(cFilePath)
 						acLines = str2list(cFileContent)
@@ -2200,7 +2507,7 @@ def MissingPathsAmong(acPaths)
 				aEntries = dir(cFolderPath)
 				for a_aEntry_ in aEntries
 					if a_aEntry_[2] = 0
-						cFilePath = cFolderPath + "/" + a_aEntry_[1]
+						cFilePath = cFolderPath + This.Separator() + a_aEntry_[1]
 						if fexists(cFilePath)
 							cFileContent = read(cFilePath)
 							acLines = str2list(cFileContent)
@@ -2239,7 +2546,7 @@ def MissingPathsAmong(acPaths)
 		if NOT isString(cFile) or NOT isString(cContent) or NOT isString(cNewContent)
 			StzRaise("Incorrect param types! All parameters must be strings.")
 		ok
-		cFullPath = @oQDir.path() + "/" + cFile
+		cFullPath = @oQDir.path() + This.Separator() + cFile
 		if fexists(cFullPath)
 			cFileContent = read(cFullPath)
 			cModifiedContent = substr(cFileContent, cContent, cNewContent)
@@ -2265,12 +2572,12 @@ def MissingPathsAmong(acPaths)
 			StzRaise("Incorrect param types! All parameters must be strings.")
 		ok
 		nModified = 0
-		cFolderPath = @oQDir.path() + "/" + cFolder
+		cFolderPath = @oQDir.path() + This.Separator() + cFolder
 		if isdir(cFolderPath)
 			aEntries = dir(cFolderPath)
 			for a_aEntry_ in aEntries
 				if a_aEntry_[2] = 0
-					cFilePath = cFolderPath + "/" + a_aEntry_[1]
+					cFilePath = cFolderPath + This.Separator() + a_aEntry_[1]
 					if fexists(cFilePath)
 						cFileContent = read(cFilePath)
 						cModifiedContent = substr(cFileContent, cContent, cNewContent)
@@ -2342,7 +2649,7 @@ def MissingPathsAmong(acPaths)
 				aEntries = dir(cFolderPath)
 				for a_aEntry_ in aEntries
 					if a_aEntry_[2] = 0
-						cFilePath = cFolderPath + "/" + a_aEntry_[1]
+						cFilePath = cFolderPath + This.Separator() + a_aEntry_[1]
 						if fexists(cFilePath)
 							cFileContent = read(cFilePath)
 							cModifiedContent = substr(cFileContent, cContent, cNewContent)
@@ -2375,7 +2682,7 @@ def MissingPathsAmong(acPaths)
 			aEntries = dir(cDir)
 			for a_aEntry_ in aEntries
 				if a_aEntry_[2] = 0
-					cFilePath = cDir + "/" + a_aEntry_[1]
+					cFilePath = cDir + This.Separator() + a_aEntry_[1]
 					if fexists(cFilePath)
 						cFileContent = read(cFilePath)
 						cModifiedContent = substr(cFileContent, cContent, cNewContent)
@@ -2673,7 +2980,7 @@ def MissingPathsAmong(acPaths)
 		nPos = 0
 		nLen = len(cPath)
 		for i = nLen to 1 step -1
-			if cPath[i] = "/"
+			if cPath[i] = This.Separator()
 				nPos = i
 				exit
 			ok
@@ -2720,11 +3027,11 @@ def MissingPathsAmong(acPaths)
 
 	def GetPathHierarchy(cPath)
 		acParts = []
-		cRelativePath = substr(cPath, This.Path() + "/", "")
+		cRelativePath = substr(cPath, This.Path() + This.Separator(), "")
 		if cRelativePath = cPath
 			return []
 		end
-		acSegments = @split(cRelativePath, "/")
+		acSegments = @split(cRelativePath, This.Separator())
 		for cSegment in acSegments
 			if cSegment != ""
 				acParts + cSegment
@@ -2752,7 +3059,7 @@ def MissingPathsAmong(acPaths)
 		end
 		for _aEntry_ in _aList_
 			if _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."
-				This.CollectFoldersWithFileMatches(cPath + "/" + _aEntry_[1], cPattern, aFoldersWithMatches)
+				This.CollectFoldersWithFileMatches(cPath + This.Separator() + _aEntry_[1], cPattern, aFoldersWithMatches)
 			end
 		next
 
@@ -2760,7 +3067,7 @@ def MissingPathsAmong(acPaths)
 			if cPath = This.Path()
 				return ""
 			end
-			nPos = max([substr(cPath, "/"), substr(cPath, "\")])
+			nPos = max([substr(cPath, This.Separator()), substr(cPath, "\")])
 			if nPos > 0
 				return right(cPath, len(cPath) - nPos)
 			end
@@ -2865,7 +3172,7 @@ def MissingPathsAmong(acPaths)
 				for i = 0 to aQtEntries.size() - 1
 					c_aEntry_Name = aQtEntries.at(i)
 					if c_aEntry_Name != "." and c_aEntry_Name != ".."
-						cFullPath = cPath + "/" + c_aEntry_Name
+						cFullPath = cPath + This.Separator() + c_aEntry_Name
 						if isdir(cFullPath)
 							aItems + [c_aEntry_Name, "folder"]
 						else
@@ -3034,7 +3341,7 @@ def MissingPathsAmong(acPaths)
 
 	def GetFolderStats(cFolderName)
 		# Get stats for a specific subfolder
-		cFolderPath = @oQDir.absolutePath() + "/" + cFolderName
+		cFolderPath = @oQDir.absolutePath() + This.Separator() + cFolderName
 		
 		if @cDisplayStat = "@count"
 			# Simple count for default pattern
@@ -3064,7 +3371,7 @@ def MissingPathsAmong(acPaths)
 	def FormatStatsForFolder(cFolderName, cPattern)
 		# Format stats for a specific folder
 		cResult = cPattern
-		cFolderPath = @oQDir.absolutePath() + "/" + cFolderName
+		cFolderPath = @oQDir.absolutePath() + This.Separator() + cFolderName
 		
 		# Get actual counts for this folder
 		nFiles = This.CountFilesIn(cFolderPath)
@@ -3107,7 +3414,7 @@ def MissingPathsAmong(acPaths)
 					nCount++
 				end
 			but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
-				nCount += This.CountFileMatchesRecursive(cPath + "/" + aList[i][1], cPattern)
+				nCount += This.CountFileMatchesRecursive(cPath + This.Separator() + aList[i][1], cPattern)
 			end
 		next
 		return nCount
@@ -3125,7 +3432,7 @@ def MissingPathsAmong(acPaths)
 				if This.Matches(cPattern, aList[i][1])
 					nCount++
 				end
-				nCount += This.CountFolderMatchesRecursive(cPath + "/" + aList[i][1], cPattern)
+				nCount += This.CountFolderMatchesRecursive(cPath + This.Separator() + aList[i][1], cPattern)
 			end
 		next
 		return nCount
@@ -3171,7 +3478,7 @@ def MissingPathsAmong(acPaths)
 		return _FALSE_
 
 	def IsFolderEmpty(cFolderName)
-		cFolderPath = This.Path() + "/" + cFolderName
+		cFolderPath = This.Path() + This.Separator() + cFolderName
 		oTempFolder = new stzFolder(cFolderPath)
 		bHasFiles = oTempFolder.CountFiles() > 0
 		bHasFolders = oTempFolder.CountFolders() > 0
@@ -3258,7 +3565,7 @@ def MissingPathsAmong(acPaths)
 	            end
 	            
 	        else  # folder
-	            cItemPath = cPath + "/" + cItemName
+	            cItemPath = cPath + This.Separator() + cItemName
 	            oSubFolder = new stzFolder(cItemPath)
 	            
 	            # Check if folder matches the search pattern
@@ -3361,7 +3668,7 @@ def MissingPathsAmong(acPaths)
 	def IsSubfolderOf(cChildPath, cParentFolder)
 		# Normalize paths for comparison
 		cNormalizedChild = This.NormalizePathXT(cChildPath)
-		cNormalizedParent = This.NormalizePathXT(This.Path() + "/" + cParentFolder)
+		cNormalizedParent = This.NormalizePathXT(This.Path() + This.Separator() + cParentFolder)
 		
 		# Check if child path starts with parent path
 		return left(cNormalizedChild, len(cNormalizedParent)) = cNormalizedParent
