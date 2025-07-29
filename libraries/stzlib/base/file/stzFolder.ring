@@ -16,7 +16,7 @@
 #      * Reliable folder operations (mkdir, rmdir, exists)
 #      * Navigation methods (cdUp, isRoot, absolutePath)
 #    
-#    - Ring (ring_dir): Used for file/folder enumeration  
+#    - Ring (@dir): Used for file/folder enumeration  
 #      * Overcomes Qt entries bug
 #      * Consistent hidden file filtering
 #      * Direct file system access
@@ -682,7 +682,7 @@ def MissingPathsAmong(acPaths)
 
 	def FilesXT()
 
-		_aList_ = ring_dir(@oQDir.path())
+		_aList_ = @dir(@oQDir.path())
 		aResult = []
 
 		for _aaEntry_ in _aList_
@@ -695,7 +695,7 @@ def MissingPathsAmong(acPaths)
 	
 	def FoldersXT()
 
-		_aList_ = ring_dir(@oQDir.path())
+		_aList_ = @dir(@oQDir.path())
 		aResult = []
 
 		for _aaEntry_ in _aList_
@@ -708,7 +708,7 @@ def MissingPathsAmong(acPaths)
 
 	def Files()
 
-		_aList_ = ring_dir(@oQDir.path())
+		_aList_ = @dir(@oQDir.path())
 		aResult = []
 
 		for _aaEntry_ in _aList_
@@ -721,7 +721,7 @@ def MissingPathsAmong(acPaths)
 
 	def Folders()
 
-		_aList_ = ring_dir(@oQDir.path())
+		_aList_ = @dir(@oQDir.path())
 		aResult = []
 
 		for _aaEntry_ in _aList_
@@ -841,7 +841,7 @@ def MissingPathsAmong(acPaths)
 			StzRaise("Incorrect path!")
 		ok
 
-		acList = ring_dir(cPath)
+		acList = @dir(cPath)
 		nLen = len(acList)
 
 		acResult = []
@@ -867,7 +867,7 @@ def MissingPathsAmong(acPaths)
 			StzRaise("Incorrect path!")
 		ok
 
-		acList = ring_dir(cPath)
+		acList = @dir(cPath)
 		nLen = len(acList)
 
 		acResult = []
@@ -913,7 +913,7 @@ def MissingPathsAmong(acPaths)
 			cCurrentPath = aToProcess[1]
 			del(aToProcess, 1)
 			
-			_aList_ = ring_dir(cCurrentPath)
+			_aList_ = @dir(cCurrentPath)
 
 			for _aaEntry_ in _aList_
 
@@ -949,7 +949,7 @@ def MissingPathsAmong(acPaths)
 			cCurrentPath = aToProcess[1]
 			del(aToProcess, 1)
 			
-			_aList_ = ring_dir(cCurrentPath)
+			_aList_ = @dir(cCurrentPath)
 
 			for _aaEntry_ in _aList_
 
@@ -981,7 +981,7 @@ def MissingPathsAmong(acPaths)
 			cCurrentPath = aToProcess[1]
 			del(aToProcess, 1)
 			
-			_aList_ = ring_dir(cCurrentPath)
+			_aList_ = @dir(cCurrentPath)
 
 			for _aaEntry_ in _aList_
 
@@ -1009,7 +1009,7 @@ def MissingPathsAmong(acPaths)
 			cCurrentPath = aToProcess[1]
 			del(aToProcess, 1)
 			
-			_aList_ = ring_dir(cCurrentPath)
+			_aList_ = @dir(cCurrentPath)
 
 			for _aaEntry_ in _aList_
 
@@ -1062,7 +1062,7 @@ def MissingPathsAmong(acPaths)
 		ok
 
 		nCount = 0
-		aList = ring_dir(cPath)
+		aList = @dir(cPath)
 		nLen = len(aList)
 
 		for i = 1 to nLen
@@ -1090,7 +1090,7 @@ def MissingPathsAmong(acPaths)
 		ok
 
 		nCount = 0
-		aList = ring_dir(cPath)
+		aList = @dir(cPath)
 		nLen = len(aList)
 
 		for i = 1 to nLen
@@ -1131,7 +1131,7 @@ def MissingPathsAmong(acPaths)
 		ok
 
 		nCount = 0
-		aList = ring_dir(cPath)
+		aList = @dir(cPath)
 		nLen = len(aList)
 
 		for i = 1 to nLen
@@ -1189,7 +1189,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		aList = ring_dir(cPath)
+		aList = @dir(cPath)
 		nLen = len(aList)
 
 		for i = 1 to nLen
@@ -1286,7 +1286,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		aList = ring_dir(cPath)
+		aList = @dir(cPath)
 		nLen = len(aList)
 
 		for i = 1 to nLen
@@ -2847,11 +2847,19 @@ def MissingPathsAmong(acPaths)
 			This.ExpandFolders([cFolders])
 
 	def ExpandFolders(acFolders)
-		if isString(acFolders)
-			@acExpandFolders = [acFolders]
-		else
-			@acExpandFolders = acFolders
-		end
+		if CheckParams()
+			if Not (isList(acFolders) and IsListOfStrings(acFolders))
+				StzRaise("Incorrect param type! acFolders must be a list of strings.")
+			ok
+		ok
+
+		# Lowercasing the names/paths of folders
+		nLen = len(acFolders)
+		for i = 1 to nLen
+			acFolders[i] = lower(acFolders[i])
+		next
+
+		@acExpandFolders = acFolders
 		@bCollapseAll = _FALSE_
 	
 		def ExpandTheseFolders(acFolders)
@@ -3068,7 +3076,7 @@ def MissingPathsAmong(acPaths)
 
 	def CollectFoldersWithFileMatches(cPath, cPattern, aFoldersWithMatches)
 		try
-			_aList_ = ring_dir(cPath)
+			_aList_ = @dir(cPath)
 		catch
 			return
 		end
@@ -3171,7 +3179,7 @@ def MissingPathsAmong(acPaths)
 	def CountFolderMatches(cPath, cPattern)
 		nCount = 0
 		try
-			aList = ring_dir(cPath)
+			aList = @dir(cPath)
 		catch
 			return 0
 		end
@@ -3267,7 +3275,7 @@ def MissingPathsAmong(acPaths)
 		return aResult
 
 	def GetPhysicalOrder(cPath)
-		_aList_ = ring_dir(cPath)
+		_aList_ = @dir(cPath)
 		aResult = []
 		for _aaEntry_ in _aList_
 			if _aaEntry_[2] = 0
@@ -3394,7 +3402,7 @@ def MissingPathsAmong(acPaths)
 		if @cDisplayStatPattern = "@count"
 			# Simple count for default pattern
 			try
-				_aList_ = ring_dir(cFolderPath)
+				_aList_ = @dir(cFolderPath)
 			catch
 				return ""
 			end
@@ -3451,7 +3459,7 @@ def MissingPathsAmong(acPaths)
 	def CountFileMatchesRecursive(cPath, cPattern)
 		nCount = 0
 		try
-			aList = ring_dir(cPath)
+			aList = @dir(cPath)
 		catch
 			return 0
 		end
@@ -3470,7 +3478,7 @@ def MissingPathsAmong(acPaths)
 	def CountFolderMatchesRecursive(cPath, cPattern)
 		nCount = 0
 		try
-			aList = ring_dir(cPath)
+			aList = @dir(cPath)
 		catch
 			return 0
 		end
@@ -3559,7 +3567,7 @@ def MissingPathsAmong(acPaths)
 	    end
 	    
 	    cResult = ""
-	    _aList_ = ring_dir(cPath)
+	    _aList_ = @dir(cPath)
 
 	    
 	    # Separate files and folders
