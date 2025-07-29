@@ -569,7 +569,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Ring dir() and Softanza @dir()
-*/
+
 pr()
 
 # In Ring, the dir() functions returns the folders
@@ -632,7 +632,7 @@ pr()
 #		:ClosingChar = "╰",
 #
 #		# File uses one of these two icons
-#		:File = " 🗋",		# file icon by default
+#		:File = " 🗋",		# file icon by default with a space to enforce it's not a folder
 #		:FileFound = "📄",	# file icon when a file is found
 #
 #		# Root folder uses one of these two icons
@@ -656,6 +656,9 @@ pr()
 #
 #	]
 
+#NOTE Softanza enforce the files and folders names to be all in lowercase,
+# regardless of the actual case they have on the file system!
+
 # Here is an example:
 
 o1 = new stzFolder("c:/testarea")
@@ -665,13 +668,13 @@ o1 = new stzFolder("c:/testarea")
 ? o1.Show()
 #-->
 '
-🗀 TestArea
+🗀 testarea
 ├─ 🗋 test.txt
-├─🗀 Docs	# <-- 🗀 means the folder is empty
-├─🖿 Images # <-- 🖿 means the folder is not empty
-├─🗀 Music
-├─🗀 Videos
-╰─🖿 tempo
+├─🗀 docs	# <-- 🗀 means the folder is empty
+├─🖿 images # <-- 🖿 means the folder is not empty
+├─🗀 music
+├─🖿 tempo
+╰─🗀 videos
 '
 
 # Showing meta-statistics
@@ -679,15 +682,14 @@ o1 = new stzFolder("c:/testarea")
 ? o1.ShowXT()
 #-->
 '
-📁 TestArea (6) # <-- 📁~> XT mode / contains 6 elements at its root (files + folders)
+📁 testarea (6) # <-- 📁~> XT mode / contains 6 elements at its root (files + folders)
 ├─ 🗋 test.txt
 ├─🗀 Docs
-├─🖿 Images (4) # This subfolder contains 4 elements at its root
-├─🗀 Music
-├─🗀 Videos
-╰─🖿 tempo (2)
+├─🖿 images (4) # This subfolder contains 4 elements at its root
+├─🗀 music
+├─🖿 tempo (2)
+╰─🗀 videos
 '
-
 
 # The (6)n (4) and (2) are actually calucolated base on a default stat pattern
 
@@ -699,13 +701,13 @@ o1 = new stzFolder("c:/testarea")
 o1.SetDisplayStat('@CountFiles files, @CountFolders folders')
 ? o1.ShowXT()
 '
-📁 TestArea (1 files, 5 folders)	# <-- Your stats added here
+📁 testarea (1 files, 5 folders)	# <-- Your stats added here
 ├─ 🗋 test.txt
-├─🗀 Docs
-├─🖿 Images (2 files, 2 folders)	# <-- and here
-├─🗀 Music
-├─🗀 Videos
-╰─🖿 tempo (2 files)				# <-- and here
+├─🗀 docs
+├─🖿 images (2 files, 2 folders)	# <-- and here
+├─🗀 music
+├─🖿 tempo (2 files)				# <-- and here
+╰─🗀 videos
 '
 
 # More granular dipaly pattern
@@ -720,34 +722,34 @@ o1.SetDisplayStat('
 '
 📁 testarea (1:7 files, 5:7 folders)
 ├─ 🗋 test.txt
-├─🗀 Docs
-├─🖿 Images (2:4 files, 2:2 folders)
-├─🗀 Music
-├─🗀 Videos
-╰─🖿 tempo (2:2 files)
+├─🗀 docs
+├─🖿 images (2:4 files, 2:2 folders)
+├─🗀 music
+├─🖿 tempo (2:2 files)
+╰─🗀 videos
 '
 #~> The maine folder contains 7 files in all levels, 1 of them is in the root.
 #~> And it contains 7 sibfolders in all levels, 5 of them are in the root.
 
 # Expanding the Image folder
 
-o1.ExpandFolder("Images")
+o1.ExpandFolder("images")
 ? o1.ShowXT()
 #-->
 '
 📁 testarea (1:7 files, 5:7 folders)
 ├─ 🗋 test.txt
-├─🗀 Docs
-├─🗁 Images (2:4 files, 2:2 folders) # Only this folder is expanded
+├─🗀 docs
+├─🗁 images (2:4 files, 2:2 folders) # Only this folder is expanded
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
-│ ├─🗀 more
-│ ╰─🖿 notes (2:2 files) # Sunfolders of Images are not expanded
-├─🗀 Music
-├─🗀 Videos
-╰─🖿 tempo (2:2 files)
+│ ├─🗀 more				 # Subfolder "more" is not expanded (empty)
+│ ╰─🖿 notes (2:2 files) # Subfolders of Images are not expanded
+├─🗀 music
+├─🖿 tempo (2:2 files)
+╰─🗀 videos
 '
-
+/*
 # Expanding both "Images" and "Tempo" (without stats this time)
 
 o1.ExpandFolders([ "Images", "tempo" ])
@@ -873,7 +875,7 @@ o1.CollapseAll() # Same as collapse()
 ├─🗀 notes
 ╰─🖿 tempo (2:2 files)
 '
-
+*/
 pf()
 
 /*---
