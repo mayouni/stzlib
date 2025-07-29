@@ -454,7 +454,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Softanza use "/" as a separator but gives access to system separaor
-*/
+
 pr()
 
 o1 = new stzFolder("c:/testarea")
@@ -480,13 +480,10 @@ o1 = new stzFolder("c:/testarea")
 pf()
 
 /*--- Short and long folders and files names
-*/
+
 pr()
 
 o1 = new stzFolder("c:/testarea")
-
-? o1.Path()
-
 
 # This method returns the folder original path
 
@@ -496,7 +493,7 @@ o1 = new stzFolder("c:/testarea")
 # The name itself is just the name of the folder
 # without any path noise
 
-? o1.Name()
+? o1.Name() + NL
 #--> testarea
 
 # Now, Softanza enforces a convention when listing
@@ -517,7 +514,7 @@ o1 = new stzFolder("c:/testarea")
 ]
 '
 # And you can add the long paths with XT()
-/*
+
 ? @@NL( o1.FoldersXT() )
 #-->
 '
@@ -567,7 +564,7 @@ o1 = new stzFolder("c:/testarea")
 	"c:/testarea/Images/notes/sources.txt"
 ]
 '
-*/
+
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
@@ -619,7 +616,7 @@ o1 = new stzFolder("c:/testarea")
 
 # Showing the tree structure (first level folders collapsed by default)
 
-? o1.Show() + NL
+? o1.Show()
 #-->
 '
 🗀 TestArea
@@ -636,16 +633,22 @@ o1 = new stzFolder("c:/testarea")
 ? o1.ShowXT()
 #-->
 '
-📁 TestArea (6) # <-- 📁 ~> XT mode / contains 8 elements at its root (files + folders)
+📁 TestArea (6) # <-- 📁~> XT mode / contains 6 elements at its root (files + folders)
 ├─ 🗋 test.txt
 ├─🗀 Docs
-├─🖿 Images (4)
+├─🖿 Images (4) # This subfolder contains 4 elements at its root
 ├─🗀 Music
 ├─🗀 Videos
 ╰─🖿 tempo (2)
 '
 
-# change the stats pattern
+
+# The (6)n (4) and (2) are actually calucolated base on a default stat pattern
+
+? o1.DisplayStat() + NL
+#--> '@count'
+
+# Let's change that stats pattern
 
 o1.SetDisplayStat('@CountFiles files, @CountFolders folders')
 ? o1.ShowXT()
@@ -658,7 +661,7 @@ o1.SetDisplayStat('@CountFiles files, @CountFolders folders')
 ├─🗀 Videos
 ╰─🖿 tempo (2 files, 0 folders)		# <-- and here
 '
-
+/*
 # More interestingly, we can show the ratio of root count over the deep count:
 
 o1.SetDisplayStat('@CountFiles:@DeepCountFiles files, @CountFolders:@DeepCountFolders folders')
@@ -800,6 +803,7 @@ o1.DeepExpandAll()
   ├─ 🗋 temp1.txt
   ╰─ 🗋 temp2.txt
 '
+*/
 
 pf()
 

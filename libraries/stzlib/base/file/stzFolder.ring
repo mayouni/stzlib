@@ -24,7 +24,7 @@
 # 3. CONSISTENCY RULE: 
 #    Count() = CountFiles() + CountFolders() 
 #    This ensures Count() matches len(Files()) + len(Folders())
-#    Avoids Qt's raw _aEntry_ count that includes "." + ".." + hidden files
+#    Avoids Qt's raw _aaEntry_ count that includes "." + ".." + hidden files
 #
 # 4. ABSTRACTION LEVEL: High-level, intuitive behavior
 #    - Users expect empty folder to show Count()=0, IsEmpty()=true
@@ -73,7 +73,7 @@ class stzFolder from stzObject
 		"@deepcountfiles", "@deepcountfolders"
 	]
 
-	@cDisplayStat = "@count"
+	@cDisplayStatPattern = "@count"
 
 	@cDisplayOrder = :FileFirstAscending
 
@@ -666,9 +666,9 @@ def MissingPathsAmong(acPaths)
 		_aList_ = ring_dir(@oQDir.path())
 		aResult = []
 
-		for _aEntry_ in _aList_
-			if _aEntry_[2] = 0
-				aResult + (@oQDir.path() + This.Separator() + lower(_aEntry_[1]))
+		for _aaEntry_ in _aList_
+			if _aaEntry_[2] = 0
+				aResult + (@oQDir.path() + This.Separator() + lower(_aaEntry_[1]))
 			end
 		next
 
@@ -679,9 +679,9 @@ def MissingPathsAmong(acPaths)
 		_aList_ = ring_dir(@oQDir.path())
 		aResult = []
 
-		for _aEntry_ in _aList_
-			if _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."
-				aResult + (@oQDir.path() + This.Separator() + lower(_aEntry_[1]) + This.Separator())
+		for _aaEntry_ in _aList_
+			if _aaEntry_[2] = 1 and _aaEntry_[1] != "." and _aaEntry_[1] != ".."
+				aResult + (@oQDir.path() + This.Separator() + lower(_aaEntry_[1]) + This.Separator())
 			end
 		next
 
@@ -692,9 +692,9 @@ def MissingPathsAmong(acPaths)
 		_aList_ = ring_dir(@oQDir.path())
 		aResult = []
 
-		for _aEntry_ in _aList_
-			if _aEntry_[2] = 0
-				aResult + (This.Separator() + lower(_aEntry_[1]))
+		for _aaEntry_ in _aList_
+			if _aaEntry_[2] = 0
+				aResult + (This.Separator() + lower(_aaEntry_[1]))
 			end
 		next
 
@@ -705,9 +705,9 @@ def MissingPathsAmong(acPaths)
 		_aList_ = ring_dir(@oQDir.path())
 		aResult = []
 
-		for _aEntry_ in _aList_
-			if _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."
-				aResult + (This.Separator() + lower(_aEntry_[1]) + This.Separator())
+		for _aaEntry_ in _aList_
+			if _aaEntry_[2] = 1 and _aaEntry_[1] != "." and _aaEntry_[1] != ".."
+				aResult + (This.Separator() + lower(_aaEntry_[1]) + This.Separator())
 			end
 		next
 
@@ -896,11 +896,11 @@ def MissingPathsAmong(acPaths)
 			
 			_aList_ = ring_dir(cCurrentPath)
 
-			for _aEntry_ in _aList_
+			for _aaEntry_ in _aList_
 
-				if _aEntry_[2] = 0  # It's a file
+				if _aaEntry_[2] = 0  # It's a file
 
-					cFullPath = cCurrentPath + This.Separator() + lower(_aEntry_[1])
+					cFullPath = cCurrentPath + This.Separator() + lower(_aaEntry_[1])
 					cRelativePath = substr(cFullPath, len(cBasePath) + 1)
 
 					if left(cRelativePath, 1) != This.Separator()
@@ -909,8 +909,8 @@ def MissingPathsAmong(acPaths)
 
 					aResult + cRelativePath
 					
-				but _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."  # It's a directory
-					aToProcess + (cCurrentPath + This.Separator() + _aEntry_[1])
+				but _aaEntry_[2] = 1 and _aaEntry_[1] != "." and _aaEntry_[1] != ".."  # It's a directory
+					aToProcess + (cCurrentPath + This.Separator() + _aaEntry_[1])
 				end
 
 			next
@@ -932,11 +932,11 @@ def MissingPathsAmong(acPaths)
 			
 			_aList_ = ring_dir(cCurrentPath)
 
-			for _aEntry_ in _aList_
+			for _aaEntry_ in _aList_
 
-				if _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."  # It's a directory
+				if _aaEntry_[2] = 1 and _aaEntry_[1] != "." and _aaEntry_[1] != ".."  # It's a directory
 
-					cFullPath = cCurrentPath + This.Separator() + lower(_aEntry_[1])
+					cFullPath = cCurrentPath + This.Separator() + lower(_aaEntry_[1])
 					cRelativePath = substr(cFullPath, len(cBasePath) + 1)
 
 					if left(cRelativePath, 1) != This.Separator()
@@ -944,7 +944,7 @@ def MissingPathsAmong(acPaths)
 					end
 
 					aResult + (cRelativePath + This.Separator())
-					aToProcess + (cCurrentPath + This.Separator() + _aEntry_[1])
+					aToProcess + (cCurrentPath + This.Separator() + _aaEntry_[1])
 				end
 
 			next
@@ -964,13 +964,13 @@ def MissingPathsAmong(acPaths)
 			
 			_aList_ = ring_dir(cCurrentPath)
 
-			for _aEntry_ in _aList_
+			for _aaEntry_ in _aList_
 
-				if _aEntry_[2] = 0  # It's a file
-					aResult + (cCurrentPath + This.Separator() + lower(_aEntry_[1]))
+				if _aaEntry_[2] = 0  # It's a file
+					aResult + (cCurrentPath + This.Separator() + lower(_aaEntry_[1]))
 					
-				but _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."  # It's a directory
-					aToProcess + (cCurrentPath + This.Separator() + _aEntry_[1])
+				but _aaEntry_[2] = 1 and _aaEntry_[1] != "." and _aaEntry_[1] != ".."  # It's a directory
+					aToProcess + (cCurrentPath + This.Separator() + _aaEntry_[1])
 				end
 
 			next
@@ -992,13 +992,13 @@ def MissingPathsAmong(acPaths)
 			
 			_aList_ = ring_dir(cCurrentPath)
 
-			for _aEntry_ in _aList_
+			for _aaEntry_ in _aList_
 
-				if _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."  # It's a directory
+				if _aaEntry_[2] = 1 and _aaEntry_[1] != "." and _aaEntry_[1] != ".."  # It's a directory
 
-					cFullPath = cCurrentPath + This.Separator() + lower(_aEntry_[1]) + This.Separator()
+					cFullPath = cCurrentPath + This.Separator() + lower(_aaEntry_[1]) + This.Separator()
 					aResult + cFullPath
-					aToProcess + (cCurrentPath + This.Separator() + _aEntry_[1])
+					aToProcess + (cCurrentPath + This.Separator() + _aaEntry_[1])
 
 				end
 
@@ -2244,15 +2244,15 @@ def MissingPathsAmong(acPaths)
 		ok
 		for cDir in acAllDirs
 			aEntries = dir(cDir)
-			for a_aEntry_ in aEntries
-				if a_aEntry_[2] = 0
+			for a_aaEntry_ in aEntries
+				if a_aaEntry_[2] = 0
 					if bWildcard
-						if substr(lower(a_aEntry_[1]), lower(cPattern)) > 0
-							acFound + (cDir + This.Separator() + a_aEntry_[1])
+						if substr(lower(a_aaEntry_[1]), lower(cPattern)) > 0
+							acFound + (cDir + This.Separator() + a_aaEntry_[1])
 						ok
 					else
-						if lower(a_aEntry_[1]) = lower(cPattern)
-							acFound + (cDir + This.Separator() + a_aEntry_[1])
+						if lower(a_aaEntry_[1]) = lower(cPattern)
+							acFound + (cDir + This.Separator() + a_aaEntry_[1])
 						ok
 					ok
 				ok
@@ -2278,15 +2278,15 @@ def MissingPathsAmong(acPaths)
 		ok
 		for cDir in acAllDirs
 			aEntries = dir(cDir)
-			for a_aEntry_ in aEntries
-				if a_aEntry_[2] = 1 and a_aEntry_[1] != "." and a_aEntry_[1] != ".."
+			for a_aaEntry_ in aEntries
+				if a_aaEntry_[2] = 1 and a_aaEntry_[1] != "." and a_aaEntry_[1] != ".."
 					if bWildcard
-						if substr(lower(a_aEntry_[1]), lower(cPattern)) > 0
-							acFound + (cDir + This.Separator() + a_aEntry_[1])
+						if substr(lower(a_aaEntry_[1]), lower(cPattern)) > 0
+							acFound + (cDir + This.Separator() + a_aaEntry_[1])
 						ok
 					else
-						if lower(a_aEntry_[1]) = lower(cPattern)
-							acFound + (cDir + This.Separator() + a_aEntry_[1])
+						if lower(a_aaEntry_[1]) = lower(cPattern)
+							acFound + (cDir + This.Separator() + a_aaEntry_[1])
 						ok
 					ok
 				ok
@@ -2398,9 +2398,9 @@ def MissingPathsAmong(acPaths)
 		cFolderPath = @oQDir.path() + This.Separator() + cFolder
 		if isdir(cFolderPath)
 			aEntries = dir(cFolderPath)
-			for a_aEntry_ in aEntries
-				if a_aEntry_[2] = 0
-					cFilePath = cFolderPath + This.Separator() + a_aEntry_[1]
+			for a_aaEntry_ in aEntries
+				if a_aaEntry_[2] = 0
+					cFilePath = cFolderPath + This.Separator() + a_aaEntry_[1]
 					if fexists(cFilePath)
 						cFileContent = read(cFilePath)
 						acLines = str2list(cFileContent)
@@ -2411,7 +2411,7 @@ def MissingPathsAmong(acPaths)
 							ok
 						next
 						if len(acLineNumbers) > 0
-							acResults + [a_aEntry_[1], acLineNumbers]
+							acResults + [a_aaEntry_[1], acLineNumbers]
 						ok
 					ok
 				ok
@@ -2443,9 +2443,9 @@ def MissingPathsAmong(acPaths)
 		acAllDirs = This.DeepFolders()
 		for cDir in acAllDirs
 			aEntries = dir(cDir)
-			for a_aEntry_ in aEntries
-				if a_aEntry_[2] = 0
-					cFilePath = cDir + This.Separator() + a_aEntry_[1]
+			for a_aaEntry_ in aEntries
+				if a_aaEntry_[2] = 0
+					cFilePath = cDir + This.Separator() + a_aaEntry_[1]
 					if fexists(cFilePath)
 						cFileContent = read(cFilePath)
 						acLines = str2list(cFileContent)
@@ -2509,9 +2509,9 @@ def MissingPathsAmong(acPaths)
 		for cFolderPath in acFolderPaths
 			if isdir(cFolderPath)
 				aEntries = dir(cFolderPath)
-				for a_aEntry_ in aEntries
-					if a_aEntry_[2] = 0
-						cFilePath = cFolderPath + This.Separator() + a_aEntry_[1]
+				for a_aaEntry_ in aEntries
+					if a_aaEntry_[2] = 0
+						cFilePath = cFolderPath + This.Separator() + a_aaEntry_[1]
 						if fexists(cFilePath)
 							cFileContent = read(cFilePath)
 							acLines = str2list(cFileContent)
@@ -2579,9 +2579,9 @@ def MissingPathsAmong(acPaths)
 		cFolderPath = @oQDir.path() + This.Separator() + cFolder
 		if isdir(cFolderPath)
 			aEntries = dir(cFolderPath)
-			for a_aEntry_ in aEntries
-				if a_aEntry_[2] = 0
-					cFilePath = cFolderPath + This.Separator() + a_aEntry_[1]
+			for a_aaEntry_ in aEntries
+				if a_aaEntry_[2] = 0
+					cFilePath = cFolderPath + This.Separator() + a_aaEntry_[1]
 					if fexists(cFilePath)
 						cFileContent = read(cFilePath)
 						cModifiedContent = substr(cFileContent, cContent, cNewContent)
@@ -2651,9 +2651,9 @@ def MissingPathsAmong(acPaths)
 		for cFolderPath in acFolderPaths
 			if isdir(cFolderPath)
 				aEntries = dir(cFolderPath)
-				for a_aEntry_ in aEntries
-					if a_aEntry_[2] = 0
-						cFilePath = cFolderPath + This.Separator() + a_aEntry_[1]
+				for a_aaEntry_ in aEntries
+					if a_aaEntry_[2] = 0
+						cFilePath = cFolderPath + This.Separator() + a_aaEntry_[1]
 						if fexists(cFilePath)
 							cFileContent = read(cFilePath)
 							cModifiedContent = substr(cFileContent, cContent, cNewContent)
@@ -2684,9 +2684,9 @@ def MissingPathsAmong(acPaths)
 		acAllDirs = This.DeepFolders()
 		for cDir in acAllDirs
 			aEntries = dir(cDir)
-			for a_aEntry_ in aEntries
-				if a_aEntry_[2] = 0
-					cFilePath = cDir + This.Separator() + a_aEntry_[1]
+			for a_aaEntry_ in aEntries
+				if a_aaEntry_[2] = 0
+					cFilePath = cDir + This.Separator() + a_aaEntry_[1]
 					if fexists(cFilePath)
 						cFileContent = read(cFilePath)
 						cModifiedContent = substr(cFileContent, cContent, cNewContent)
@@ -2780,31 +2780,32 @@ def MissingPathsAmong(acPaths)
 
 	def Show()
 		cFolderName = This.Name()
-		if cFolderName = ""
-			cFolderName = This.Path()
-		end
-		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName + nl
-		cResult += This.GenerateVizTreeString(This.Path(), "", _TRUE_, '', "", 0, This.MaxDisplayLevel())
+		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName + NL
+
+		cResult += This.GenerateVizTreeString(
+			This.Path(), '', _TRUE_,
+			'', "", 0, This.MaxDisplayLevel()
+		)
+
 		return cResult
 
 	def ShowXT()
 		cStatPattern = This.DisplayStatPattern()
 		if cStatPattern = ""
-			cStatPattern = This.DisplayStatPattern()
+			cStatPattern = cStatPattern = "@count"
 		ok
-		if cStatPattern = NULL
-			cStatPattern = ""
-		end
+
 		cFolderName = This.Name()
-		if cFolderName = ""
-			cFolderName = This.Path()
-		end
 		cStats = trim(This.FormatStats(This, cStatPattern))
-		cResult = @acDisplayChars[:FolderRootXT] + " " + cFolderName + " " + cStats + nl
-		cResult += This.GenerateVizTreeString(This.Path(), "", _TRUE_, cStatPattern, "showxt", 0, This.MaxDisplayLevel() )
+
+		cResult = @acDisplayChars[:FolderRootXT] + " " + cFolderName + " " + cStats + NL
+
+		cResult += This.GenerateVizTreeString(
+			This.Path(), '', _TRUE_, cStatPattern,
+			"showxt", 0, This.MaxDisplayLevel()
+		)
+
 		return cResult
-
-
 
 
 	#== Display Configuration ==#
@@ -2917,7 +2918,10 @@ def MissingPathsAmong(acPaths)
 		@nMaxDisplayLevel = n
 
 	def DisplayStatPattern()
-		return @cDisplayStat
+		return @cDisplayStatPattern
+
+		def DisplayStat()
+			return @cDisplayStatPattern
 
 	def SetDisplayStat(cPattern)
 		if NOT isString(cPattern)
@@ -2928,7 +2932,7 @@ def MissingPathsAmong(acPaths)
 			StzRaise("Incorrect start pattern!")
 		ok
 
-		@cDisplayStat = cPattern
+		@cDisplayStatPattern = cPattern
 
 		def SetDisplayStartPattern(cPattern)
 			This.SetDisplayStat(cPattern)
@@ -3050,9 +3054,9 @@ def MissingPathsAmong(acPaths)
 			return
 		end
 		bHasFileMatches = _FALSE_
-		for _aEntry_ in _aList_
-			if _aEntry_[2] = 0
-				if This.Matches(cPattern, _aEntry_[1])
+		for _aaEntry_ in _aList_
+			if _aaEntry_[2] = 0
+				if This.Matches(cPattern, _aaEntry_[1])
 					bHasFileMatches = _TRUE_
 					exit
 				end
@@ -3061,9 +3065,9 @@ def MissingPathsAmong(acPaths)
 		if bHasFileMatches
 			aFoldersWithMatches + cPath
 		end
-		for _aEntry_ in _aList_
-			if _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."
-				This.CollectFoldersWithFileMatches(cPath + This.Separator() + _aEntry_[1], cPattern, aFoldersWithMatches)
+		for _aaEntry_ in _aList_
+			if _aaEntry_[2] = 1 and _aaEntry_[1] != "." and _aaEntry_[1] != ".."
+				This.CollectFoldersWithFileMatches(cPath + This.Separator() + _aaEntry_[1], cPattern, aFoldersWithMatches)
 			end
 		next
 
@@ -3172,15 +3176,15 @@ def MissingPathsAmong(acPaths)
 				oQDirTemp = new QDir()
 				oQDirTemp.setPath(cPath)
 				oQDirTemp.setSorting(0)
-				aQtEntries = oQDirTemp._aEntry_List_2(3, 0)
+				aQtEntries = oQDirTemp._aaEntry_List_2(3, 0)
 				for i = 0 to aQtEntries.size() - 1
-					c_aEntry_Name = aQtEntries.at(i)
-					if c_aEntry_Name != "." and c_aEntry_Name != ".."
-						cFullPath = cPath + This.Separator() + c_aEntry_Name
+					c_aaEntry_Name = aQtEntries.at(i)
+					if c_aaEntry_Name != "." and c_aaEntry_Name != ".."
+						cFullPath = cPath + This.Separator() + c_aaEntry_Name
 						if isdir(cFullPath)
-							aItems + [c_aEntry_Name, "folder"]
+							aItems + [c_aaEntry_Name, "folder"]
 						else
-							aItems + [c_aEntry_Name, "file"]
+							aItems + [c_aaEntry_Name, "file"]
 						end
 					end
 				next
@@ -3246,11 +3250,11 @@ def MissingPathsAmong(acPaths)
 	def GetPhysicalOrder(cPath)
 		_aList_ = ring_dir(cPath)
 		aResult = []
-		for _aEntry_ in _aList_
-			if _aEntry_[2] = 0
-				aResult + [:name = _aEntry_[1], :type = "file"]
-			but _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."
-				aResult + [:name = _aEntry_[1], :type = "folder"]
+		for _aaEntry_ in _aList_
+			if _aaEntry_[2] = 0
+				aResult + [:name = _aaEntry_[1], :type = "file"]
+			but _aaEntry_[2] = 1 and _aaEntry_[1] != "." and _aaEntry_[1] != ".."
+				aResult + [:name = _aaEntry_[1], :type = "folder"]
 			end
 		next
 		return aResult
@@ -3292,8 +3296,35 @@ def MissingPathsAmong(acPaths)
 			cResult = substr(cResult, "@deepcountfolders", "" + nAllSubLevelFolders)
 		ok
 		
-		# If no tokens were replaced, fall back to original logic
-		if cResult = cStatPattern
+		# If tokens were replaced (custom pattern), handle zero filtering
+		if cResult != cStatPattern
+			# Split by comma and filter out zero values
+			aTokens = @split(cResult, ",")
+			acFiltered = []
+			
+			for cToken in aTokens
+				cToken = trim(cToken)
+				# Check if this token contains "0 files" or "0 folders"
+				if not (substr(cToken, "0 files") or substr(cToken, "0 folders"))
+					acFiltered + cToken
+				ok
+			next
+			
+			# Rebuild the result
+			cResult = "("
+			nLenF = len(acFiltered)
+
+			for i = 1 to nLenF
+				cResult += acFiltered[i]
+				if i < nLenF
+					cResult += ", "
+				ok
+			next
+
+			cResult += ")"
+
+		else
+			# If no tokens were replaced, fall back to original logic
 			# Get direct counts for this folder level
 			nThisLevelFiles = oFolder.CountFiles()
 			nThisLevelFolders = oFolder.CountFolders()
@@ -3301,11 +3332,11 @@ def MissingPathsAmong(acPaths)
 			# Get recursive counts for all sublevels
 			nAllSubLevelFiles = oFolder.DeepCountFiles()
 			nAllSubLevelFolders = oFolder.DeepCountFolders()
-
+	
 			cResult = "("
 			
 			# Files display logic
-			if nThisLevelFiles > 0 or nAllSubLevelFiles > nThisLevelFiles
+			if nThisLevelFiles > 0
 				if nAllSubLevelFiles > nThisLevelFiles
 					cResult += ''+ nThisLevelFiles + ":" + nAllSubLevelFiles + " files"
 				else
@@ -3319,7 +3350,7 @@ def MissingPathsAmong(acPaths)
 			end
 			
 			# Folders display logic
-			if nThisLevelFolders > 0 or nAllSubLevelFolders > nThisLevelFolders
+			if nThisLevelFolders > 0
 				if nAllSubLevelFolders > nThisLevelFolders
 					cResult += ''+ nThisLevelFolders + ":" + nAllSubLevelFolders + " folders"
 				else
@@ -3333,31 +3364,25 @@ def MissingPathsAmong(acPaths)
 			if nThisLevelFiles = 0 and nThisLevelFolders = 0 and nAllSubLevelFiles = 0 and nAllSubLevelFolders = 0
 				return ""
 			end
-		else
-			# Wrap custom pattern result in parentheses
-			if cResult != ""
-				cResult = "(" + cResult + ")"
-			ok
 		end
 		
 		return cResult
-
 
 	def GetFolderStats(cFolderName)
 		# Get stats for a specific subfolder
 		cFolderPath = @oQDir.absolutePath() + This.Separator() + cFolderName
 		
-		if @cDisplayStat = "@count"
+		if @cDisplayStatPattern = "@count"
 			# Simple count for default pattern
 			try
-				mylist = ring_dir(cFolderPath)
+				_aList_ = ring_dir(cFolderPath)
 			catch
 				return ""
 			end
 			
 			nCount = 0
-			for entry in mylist
-				if entry[1] != "." and entry[1] != ".."
+			for aEntry in _aList_
+				if aEntry[1] != "." and aEntry[1] != ".."
 					nCount++
 				end
 			next
@@ -3369,7 +3394,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		else
 			# Use pattern for custom display
-			return This.FormatStatsForFolder(cFolderName, @cDisplayStat)
+			return This.FormatStatsForFolder(cFolderName, @cDisplayStatPattern)
 		ok
 
 	def FormatStatsForFolder(cFolderName, cPattern)
@@ -3515,28 +3540,23 @@ def MissingPathsAmong(acPaths)
 	    end
 	    
 	    cResult = ""
-	    
-	    try
-	        mylist = ring_dir(cPath)
-	    catch
-	        return ""
-	    end
+	    _aList_ = ring_dir(cPath)
+
 	    
 	    # Separate files and folders
 	    aFiles = []
 	    aFolders = []
 	    
-	    for entry in mylist
-	        if entry[2] = 0  # File
-	            aFiles + entry[1]
-	        elseif entry[2] = 1 and entry[1] != "." and entry[1] != ".."  # Folder
-	            aFolders + entry[1]
+	    for aEntry in _aList_
+	        if aEntry[2] = 0  # File
+	            aFiles + aEntry[1]
+	        but aEntry[2] = 1 and aEntry[1] != "." and aEntry[1] != ".."  # Folder
+	            aFolders + aEntry[1]
 	        end
 	    next
 	    
 	    # Apply sorting based on display order
 	    aItems = This.SortItemsByDisplayOrder(aFiles, aFolders, cPath)
-	    
 	    nTotalItems = len(aItems)
 	    
 	    # Display items in sorted order
