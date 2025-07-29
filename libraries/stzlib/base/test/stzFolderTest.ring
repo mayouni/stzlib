@@ -568,6 +568,52 @@ o1 = new stzFolder("c:/testarea")
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
+/*--- Ring dir() and Softanza @dir()
+*/
+pr()
+
+# In Ring, the dir() functions returns the folders
+# in the same case they have in the file system
+
+? @@NL( ring_dir("c:/testarea") )
+#-->
+'
+[
+	[ "Docs", 1 ],
+	[ "Images", 1 ],
+	[ "more", 1 ],
+	[ "Music", 1 ],
+	[ "notes", 1 ],
+	[ "tempo", 1 ],
+	[ "test.txt", 0 ],
+	[ "Videos", 1 ]
+]
+'
+
+# While in Softanza, the same function is tuned to return
+# all the folders in lowercase by using @dir() instead
+
+? @@NL( @dir("c:/testarea") )
+#-->
+'
+[
+	[ "docs", 1 ],
+	[ "images", 1 ],
+	[ "more", 1 ],
+	[ "music", 1 ],
+	[ "notes", 1 ],
+	[ "tempo", 1 ],
+	[ "test.txt", 0 ],
+	[ "videos", 1 ]
+]
+'
+
+# NOTE: 1 means the entry is a folder and 0 means it is a file.
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+
 /*--- Folder Tree Display
 */
 pr()
@@ -659,12 +705,16 @@ o1.SetDisplayStat('@CountFiles files, @CountFolders folders')
 ├─🖿 Images (2 files, 2 folders)	# <-- and here
 ├─🗀 Music
 ├─🗀 Videos
-╰─🖿 tempo (2 files, 0 folders)		# <-- and here
+╰─🖿 tempo (2 files)				# <-- and here
 '
-/*
-# More interestingly, we can show the ratio of root count over the deep count:
 
-o1.SetDisplayStat('@CountFiles:@DeepCountFiles files, @CountFolders:@DeepCountFolders folders')
+# More granular dipaly pattern
+
+o1.SetDisplayStat('
+	@CountFiles:@DeepCountFiles files,
+	@CountFolders:@DeepCountFolders folders
+')
+
 ? o1.ShowXT()
 #-->
 '
@@ -674,8 +724,10 @@ o1.SetDisplayStat('@CountFiles:@DeepCountFiles files, @CountFolders:@DeepCountFo
 ├─🖿 Images (2:4 files, 2:2 folders)
 ├─🗀 Music
 ├─🗀 Videos
-╰─🖿 tempo (2:2 files, 0:0 folders)
+╰─🖿 tempo (2:2 files)
 '
+#~> The maine folder contains 7 files in all levels, 1 of them is in the root.
+#~> And it contains 7 sibfolders in all levels, 5 of them are in the root.
 
 # Expanding the Image folder
 
@@ -686,17 +738,17 @@ o1.ExpandFolder("Images")
 📁 testarea (1:7 files, 5:7 folders)
 ├─ 🗋 test.txt
 ├─🗀 Docs
-├─🗁 Images (2:4 files, 2:2 folders)
+├─🗁 Images (2:4 files, 2:2 folders) # Only this folder is expanded
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
 │ ├─🗀 more
-│ ╰─🖿 notes (2:2 files, 0:0 folders)
+│ ╰─🖿 notes (2:2 files) # Sunfolders of Images are not expanded
 ├─🗀 Music
 ├─🗀 Videos
-╰─🖿 tempo (2:2 files, 0:0 folders)
+╰─🖿 tempo (2:2 files)
 '
 
-# Expanding both "Images" and "Tempo" (without stats)
+# Expanding both "Images" and "Tempo" (without stats this time)
 
 o1.ExpandFolders([ "Images", "tempo" ])
 ? o1.Show()
@@ -716,6 +768,7 @@ o1.ExpandFolders([ "Images", "tempo" ])
   ├─ 🗋 temp1.txt
   ╰─ 🗋 temp2.txt
 '
+
 # NOTE: if you you show the tree again it maintaines the last
 # display options and displays the same thing
 
@@ -739,7 +792,7 @@ o1.ExpandFolders([ "Images", "tempo" ])
 # Expanding "Images" and its "notes" subfolder
 
 o1.Collapse()
-o1.ExpandFolders([ "Images", "notes" ])
+o1.ExpandFolders([ "Images", "notes" ]) #TODO // All must be lowercase!
 ? o1.Show()
 #-->
 '
@@ -758,8 +811,8 @@ o1.ExpandFolders([ "Images", "notes" ])
 ╰─🖿 tempo
 '
 
-# Laternatively you exapand the folder Imaages and all it's subfolder1
-# in one call using DeepExpand() method like this:
+# Aternatively we can exapand the folder Imaages and all it's subfolders
+# in one call using DeepExpandFolder() method like this:
 
 o1.Collapse()
 o1.DeepExpandFolder("Images")
@@ -794,16 +847,32 @@ o1.DeepExpandAll()
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
 │ ├─🗁 more
-│ ╰─🗁 notes (2:2 files, 0:0 folders)
+│ ╰─🗁 notes (2:2 files)
 │   ├─ 🗋 howto.txt
 │   ╰─ 🗋 sources.txt
 ├─🗁 Music
 ├─🗁 Videos
-╰─🗁 tempo (2:2 files, 0:0 folders)
+╰─🗁 tempo (2:2 files)
   ├─ 🗋 temp1.txt
   ╰─ 🗋 temp2.txt
 '
-*/
+
+# And collapse everything again to finish with the status we started with
+
+o1.CollapseAll() # Same as collapse()
+? o1.ShowXT()
+#-->
+'
+📁 testarea (1:7 files, 7:9 folders)
+├─ 🗋 test.txt
+├─🗀 Docs
+├─🖿 Images (2:4 files, 2:2 folders)
+├─🗀 Music
+├─🗀 Videos
+├─🗀 more
+├─🗀 notes
+╰─🖿 tempo (2:2 files)
+'
 
 pf()
 
