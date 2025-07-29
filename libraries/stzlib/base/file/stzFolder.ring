@@ -44,23 +44,42 @@ func SetDefaultMaxTreeDisplayLevel(n)
 
 #== Global Helper Functions ==#
 
-func IsFolder(cDir)
-	return dirExists(cDir)
+func IsFolder(cPath)
+	return dirExists(cPath)
 
-	func IsDir(cDir)
-		return dirExists(cDir)
+	func IsDir(cPath)
+		return dirExists(cPath)
 
-	func @IsFolder(cDir)
-		return dirExists(cDir)
+	func @IsFolder(cPath)
+		return dirExists(cPath)
 
-	func @IsDir(cDir)
-		return dirExists(cDir)
+	func @IsDir(cPath)
+		return dirExists(cPath)
 
-func StzFolderQ(cDir)
-	return new stzFolder(cDir)
+func StzFolderQ(cPath)
+	return new stzFolder(cPath)
 
-func IsAbsolutePath(cDir)
-	return cDir = StzFolderQ(cDir).AbsolutePath()
+func IsAbsolutePath(cPath)
+	return cDir = StzFolderQ(cPath).AbsolutePath()
+
+func @dir(cPath) # Same as Ring dir() but in lowercase
+	if CheckParams()
+		if NOT ( isString(cPath) and cPath != "" )
+			StzRaise("Incorrect param type! cPath must be non-empty string.")
+		ok
+	ok
+
+	#TODO // Add security checks
+
+	aRingResult = dir(cPath)
+	nLen = len(aRingResult)
+
+	aResult = []
+	for i = 1 to nLen
+		aResult + [ lower(aRingResult[i][1]), aRingResult[i][2] ]
+	next
+
+	return aResult
 
 class stzFolder from stzObject
 	@oQDir
