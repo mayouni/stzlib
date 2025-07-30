@@ -568,6 +568,32 @@ o1 = new stzFolder("c:/testarea")
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
+/*---
+
+pr()
+
+o1 = new stzFolder("c:/testarea")
+? @@NL( o1.DeepFolders() )
+
+pf()
+
+/*---
+
+pr()
+
+o1 = new stzFolder("c:/testarea")
+o1.DeepExpandFolder("/images")
+? o1.Show()
+
+? o1.IsDeepFolder("/images/notes/")
+#--> TRUE
+
+? o1.DeepExists("/images/notes/")
+#--> TRUE
+
+pf()
+# Executed in 0.07 second(s) in Ring 1.22
+
 /*--- Ring dir() and Softanza @dir()
 
 pr()
@@ -733,7 +759,7 @@ o1.SetDisplayStat('
 
 # Expanding the Image folder
 
-o1.ExpandFolder("images")
+o1.ExpandFolder("/images/")
 ? o1.ShowXT()
 #-->
 '
@@ -749,26 +775,26 @@ o1.ExpandFolder("images")
 ├─🖿 tempo (2:2 files)
 ╰─🗀 videos
 '
-/*
+
 # Expanding both "Images" and "Tempo" (without stats this time)
 
-o1.ExpandFolders([ "Images", "tempo" ])
+o1.ExpandFolders([ "images", "tempo" ])
 ? o1.Show()
 #-->
 '
 🗀 testarea
 ├─ 🗋 test.txt
-├─🗀 Docs
-├─🗁 Images
+├─🗀 docs
+├─🗁 images
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
 │ ├─🗀 more
 │ ╰─🖿 notes
-├─🗀 Music
-├─🗀 Videos
-╰─🗁 tempo
-  ├─ 🗋 temp1.txt
-  ╰─ 🗋 temp2.txt
+├─🗀 music
+├─🗁 tempo
+│ ├─ 🗋 temp1.txt
+│ ╰─ 🗋 temp2.txt
+╰─🗀 videos
 '
 
 # NOTE: if you you show the tree again it maintaines the last
@@ -778,39 +804,39 @@ o1.ExpandFolders([ "Images", "tempo" ])
 '
 🗀 testarea
 ├─ 🗋 test.txt
-├─🗀 Docs
-├─🗁 Images
+├─🗀 docs
+├─🗁 images
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
 │ ├─🗀 more
 │ ╰─🖿 notes
-├─🗀 Music
-├─🗀 Videos
-╰─🗁 tempo
-  ├─ 🗋 temp1.txt
-  ╰─ 🗋 temp2.txt
+├─🗀 music
+├─🗁 tempo
+│ ├─ 🗋 temp1.txt
+│ ╰─ 🗋 temp2.txt
+╰─🗀 videos
 '
 
 # Expanding "Images" and its "notes" subfolder
 
 o1.Collapse()
-o1.ExpandFolders([ "Images", "notes" ]) #TODO // All must be lowercase!
+o1.ExpandFolders([ "/images/", "/images/notes/" ]) #TODO // All must be lowercase!
 ? o1.Show()
 #-->
 '
 🗀 testarea
 ├─ 🗋 test.txt
-├─🗀 Docs
-├─🗁 Images
+├─🗀 docs
+├─🗁 images
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
 │ ├─🗀 more
 │ ╰─🗁 notes
 │   ├─ 🗋 howto.txt
 │   ╰─ 🗋 sources.txt
-├─🗀 Music
-├─🗀 Videos
-╰─🖿 tempo
+├─🗀 music
+├─🖿 tempo
+╰─🗀 videos
 '
 
 # Aternatively we can exapand the folder Imaages and all it's subfolders
@@ -844,19 +870,19 @@ o1.DeepExpandAll()
 '
 📁 testarea (1:7 files, 5:7 folders)
 ├─ 🗋 test.txt
-├─🗁 Docs
-├─🗁 Images (2:4 files, 2:2 folders)
+├─🗁 docs
+├─🗁 images (2:4 files, 2:2 folders)
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
 │ ├─🗁 more
 │ ╰─🗁 notes (2:2 files)
 │   ├─ 🗋 howto.txt
 │   ╰─ 🗋 sources.txt
-├─🗁 Music
-├─🗁 Videos
-╰─🗁 tempo (2:2 files)
-  ├─ 🗋 temp1.txt
-  ╰─ 🗋 temp2.txt
+├─🗁 music
+├─🗁 tempo (2:2 files)
+│ ├─ 🗋 temp1.txt
+│ ╰─ 🗋 temp2.txt
+╰─🗁 videos
 '
 
 # And collapse everything again to finish with the status we started with
@@ -865,18 +891,17 @@ o1.CollapseAll() # Same as collapse()
 ? o1.ShowXT()
 #-->
 '
-📁 testarea (1:7 files, 7:9 folders)
+📁 testarea (1:7 files, 5:7 folders)
 ├─ 🗋 test.txt
-├─🗀 Docs
-├─🖿 Images (2:4 files, 2:2 folders)
-├─🗀 Music
-├─🗀 Videos
-├─🗀 more
-├─🗀 notes
-╰─🖿 tempo (2:2 files)
+├─🗀 docs
+├─🖿 images (2:4 files, 2:2 folders)
+├─🗀 music
+├─🖿 tempo (2:2 files)
+╰─🗀 videos
 '
-*/
+
 pf()
+# Executed in 0.24 second(s) in Ring 1.22
 
 /*---
 
