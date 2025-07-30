@@ -820,7 +820,7 @@ o1.ExpandFolders([ "images", "tempo" ])
 # Expanding "Images" and its "notes" subfolder
 
 o1.Collapse()
-o1.ExpandFolders([ "/images/", "/images/notes/" ]) #TODO // All must be lowercase!
+o1.ExpandFolders([ "/images/", "/images/notes/" ])
 ? o1.Show()
 #-->
 '

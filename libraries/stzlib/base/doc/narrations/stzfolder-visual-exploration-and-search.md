@@ -64,12 +64,12 @@ o1.SetDisplayStat('@CountFiles files, @CountFolders folders')
 ```
 Output:
 ```
-📁 testarea (1 files, 5 folders)	# Your stats displayed here
+📁 testarea (1 files, 5 folders)   # Your stats displayed here
 ├─ 🗋 test.txt
 ├─🗀 docs
-├─🖿 images (2 files, 2 folders)	# And here
+├─🖿 images (2 files, 2 folders)   # And here
 ├─🗀 music
-├─🖿 tempo (2 files)				# And here
+├─🖿 tempo (2 files)               # And here
 ╰─🗀 videos
 ```
 
@@ -112,11 +112,11 @@ Output:
 📁 testarea (1:7 files, 5:7 folders)
 ├─ 🗋 test.txt
 ├─🗀 docs
-├─🗁 images (2:4 files, 2:2 folders)	# Only this folder expanded
+├─🗁 images (2:4 files, 2:2 folders)   # Only this folder expanded
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
 │ ├─🗀 more
-│ ╰─🖿 notes (2:2 files)				# It's subfolder are kept collapsed
+│ ╰─🖿 notes (2:2 files)               # It's subfolder are kept collapsed
 ├─🗀 music
 ├─🖿 tempo (2:2 files)
 ╰─🗀 videos
@@ -137,13 +137,13 @@ Output:
 🗀 testarea
 ├─ 🗋 test.txt
 ├─🗀 docs
-├─🗁 images		# Expanded
+├─🗁 images         # Expanded
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
 │ ├─🗀 more
 │ ╰─🖿 notes
 ├─🗀 music
-├─🗁 tempo			# Also expanded
+├─🗁 tempo          # Also expanded
 │ ├─ 🗋 temp1.txt
 │ ╰─ 🗋 temp2.txt
 ╰─🗀 videos
@@ -174,11 +174,11 @@ Output:
 🗀 testarea
 ├─ 🗋 test.txt
 ├─🗀 docs
-├─🗁 images		# Expanded
+├─🗁 images         # Expanded
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
 │ ├─🗀 more
-│ ╰─🗁 notes		# Also expanded
+│ ╰─🗁 notes        # Also expanded
 │   ├─ 🗋 howto.txt
 │   ╰─ 🗋 sources.txt
 ├─🗀 music
@@ -186,7 +186,7 @@ Output:
 ╰─🗀 videos
 ```
 
-## Recursive Expansion: Branch-Level Exploration
+## Deep Expansion: Branch-Level Exploration
 
 When you need to see everything within a specific branch:
 
@@ -200,11 +200,11 @@ Output:
 🗀 testarea
 ├─ 🗋 test.txt
 ├─🗀 Docs
-├─🗁 Images			# Folder expanded
+├─🗁 Images            # Folder expanded
 │ ├─ 🗋 image1.png
 │ ├─ 🗋 image2.png
-│ ├─🗁 more			# As well as it's subfolders (even when they are empty)
-│ ╰─🗁 notes			# This one is expanded and it's not empty
+│ ├─🗁 more            # As well as this (empty) subfolder
+│ ╰─🗁 notes           # Idem
 │   ├─ 🗋 howto.txt
 │   ╰─ 🗋 sources.txt
 ├─🗀 Music
@@ -251,9 +251,9 @@ Output:
 🗀 testarea (🎯 1 matches for '*.txt') # We've got 1 file at the root
 ├─ 🗋👉 test.txt
 ├─🗀 docs
-├─📂 images	# May contain matches by the search here concerns only files on the root!
+├─📂 images  # May contain matches search covers only the root!
 ├─🗀 music
-├─📂 tempo		" Idem, see next section ot see how search can cover these subfolders
+├─📂 tempo   # Idem, see next section for searching deep in the tree...
 ╰─🗀 videos
 ```
 
@@ -261,7 +261,7 @@ The search results maintain the tree structure while highlighting matches with t
 
 ## Deep Search: Comprehensive File Discovery
 
-For searches across the entire directory hierarchy we add "Deep" to the search:
+For searches across the entire directory hierarchy we add `Deep` to the search method:
 
 ```ring
 ? o1.VizDeepSearch("*.txt")
@@ -287,6 +287,7 @@ Output:
 
 The deep search reveals all matching files throughout the hierarchy, automatically expanding necessary folders and highlighting each match. The statistics update to show the total count across all levels.
 
+> **Note:** All `VizSearch` methods also work without the `Viz` prefix, in which case they return a simple list of paths. This behavior will be covered in a separate article.
 
 ## Clean Reset: Back to Beginning
 
@@ -323,7 +324,7 @@ Softanza's approach to directory navigation stands apart from conventional file 
 | **Tree Visualization** | Built-in formatted output | Manual formatting | Manual formatting | Manual formatting | Manual formatting |
 | **Visual Search** | Integrated search with highlighting (👉) | Separate search utilities | Separate search utilities | Separate search utilities | Separate search utilities |
 
-*Note: The `stzFolder` class also provides comprehensive file and folder management operations including add, append, delete, move, copy, and content search functionality, which will be covered in a separate article.*
+> **Note**: The `stzFolder` class also provides comprehensive file and folder management operations including add, append, delete, move, copy, and content search functionality, which will be covered in a separate article.
 
 ## Summary
 
