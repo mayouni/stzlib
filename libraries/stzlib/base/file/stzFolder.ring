@@ -301,6 +301,50 @@ class stzFolder from stzObject
 	    def IsExistingDirectory(cPath)
 	        return This.IsFolder(cPath)
 	
+	def IsDeep(cPath)
+		if This.IsDeepFile(cPath) or This.IsDeepFolder(cPath)
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+	
+		def IsDeepPath(cPath)
+			IsDeep(cPath)
+	
+	def IsDeepFile(cPath)
+		cPath = This.NormalizePath(cPath)
+		cSep = This.Separator()
+	
+		if right(cPath, 1) = cSep # It's a folder not a file!
+			return _FALSE_
+		ok
+	
+		if StzStringQ(cpath).NumberOfOccurrence(cSep) > 1
+			return _true_
+		else
+			return _false_
+		ok
+	
+		def IsDeepFilePath(cPath)
+			return This.IsDeepFile(cPath)
+	
+	def IsDeepFolder(cPath)
+		cPath = This.NormalizePath(cPath)
+		cSep = This.Separator()
+	
+		if right(cPath, 1) != cSep # It's a file not a folder!
+			return _FALSE_
+		ok
+	
+		if StzStringQ(cpath).NumberOfOccurrence(cSep) > 2
+			return _true_
+		else
+			return _false_
+		ok
+	
+		def IsDeepFolderPath(cPath)
+			return This.IsDeepFolder(cPath)
+
 	#---
 	
 	def Exists(cPath)
@@ -705,6 +749,21 @@ class stzFolder from stzObject
 
 		def Folder()
 			return @cOriginalPath
+
+	def RootXT()
+		return This.AbsolutePath()
+
+		def RootPathXT()
+			return This.AbsolutePath()
+
+		def HomeXT()
+			return This.AbsolutePath()
+
+		def HomePathXT()
+			return This.AbsolutePath()
+
+		def FolderXT()
+			return This.AbsolutePath()
 
 	def Info()
 
@@ -2320,16 +2379,16 @@ class stzFolder from stzObject
 			cPattern = substr(cPattern, "*", "")
 		ok
 		for cDir in acAllDirs
-			aEntries = dir(cDir)
-			for a_aaEntry_ in aEntries
-				if a_aaEntry_[2] = 0
+			aEntries = @dir(cDir)
+			for _aEntry_ in aEntries
+				if _aEntry_[2] = 0
 					if bWildcard
-						if substr(lower(a_aaEntry_[1]), lower(cPattern)) > 0
-							acFound + (cDir + This.Separator() + a_aaEntry_[1])
+						if substr(lower(_aEntry_[1]), lower(cPattern)) > 0
+							acFound + (cDir + This.Separator() + _aEntry_[1])
 						ok
 					else
-						if lower(a_aaEntry_[1]) = lower(cPattern)
-							acFound + (cDir + This.Separator() + a_aaEntry_[1])
+						if lower(_aEntry_[1]) = lower(cPattern)
+							acFound + (cDir + This.Separator() + _aEntry_[1])
 						ok
 					ok
 				ok
@@ -2354,16 +2413,16 @@ class stzFolder from stzObject
 			cPattern = substr(cPattern, "*", "")
 		ok
 		for cDir in acAllDirs
-			aEntries = dir(cDir)
-			for a_aaEntry_ in aEntries
-				if a_aaEntry_[2] = 1 and a_aaEntry_[1] != "." and a_aaEntry_[1] != ".."
+			aEntries = @dir(cDir)
+			for _aEntry_ in aEntries
+				if _aEntry_[2] = 1 and _aEntry_[1] != "." and _aEntry_[1] != ".."
 					if bWildcard
-						if substr(lower(a_aaEntry_[1]), lower(cPattern)) > 0
-							acFound + (cDir + This.Separator() + a_aaEntry_[1])
+						if substr(lower(_aEntry_[1]), lower(cPattern)) > 0
+							acFound + (cDir + This.Separator() + _aEntry_[1])
 						ok
 					else
-						if lower(a_aaEntry_[1]) = lower(cPattern)
-							acFound + (cDir + This.Separator() + a_aaEntry_[1])
+						if lower(_aEntry_[1]) = lower(cPattern)
+							acFound + (cDir + This.Separator() + _aEntry_[1])
 						ok
 					ok
 				ok
@@ -2474,10 +2533,10 @@ class stzFolder from stzObject
 		acResults = []
 		cFolderPath = @oQDir.path() + This.Separator() + cFolder
 		if isdir(cFolderPath)
-			aEntries = dir(cFolderPath)
-			for a_aaEntry_ in aEntries
-				if a_aaEntry_[2] = 0
-					cFilePath = cFolderPath + This.Separator() + a_aaEntry_[1]
+			aEntries = @dir(cFolderPath)
+			for _aEntry_ in aEntries
+				if _aEntry_[2] = 0
+					cFilePath = cFolderPath + This.Separator() + _aEntry_[1]
 					if fexists(cFilePath)
 						cFileContent = read(cFilePath)
 						acLines = str2list(cFileContent)
@@ -2488,7 +2547,7 @@ class stzFolder from stzObject
 							ok
 						next
 						if len(acLineNumbers) > 0
-							acResults + [a_aaEntry_[1], acLineNumbers]
+							acResults + [_aEntry_[1], acLineNumbers]
 						ok
 					ok
 				ok
@@ -2516,13 +2575,29 @@ class stzFolder from stzObject
 		if NOT isString(cContent)
 			StzRaise("Incorrect param type! cContent must be a string.")
 		ok
-		acResults = []
-		acAllDirs = This.DeepFolders()
+
+		acAllDirs = [ This.RootXT() ]
+/*		AcRootFolders = This.FoldersXT()
+		nLen = len(acRootFolders)
+
+		for i = 1 to nLen
+			acAllDirs + AcRootFolders[i]
+		next
+*/
+		acDeepFolders = This.DeepFoldersXT()
+		nLen = len(acDeepFolders)
+
+		for i = 1 to nLen
+			acAllDirs + acDeepFolders[i]
+		next
+
+		acResult = []
+
 		for cDir in acAllDirs
-			aEntries = dir(cDir)
-			for a_aaEntry_ in aEntries
-				if a_aaEntry_[2] = 0
-					cFilePath = cDir + This.Separator() + a_aaEntry_[1]
+			aEntries = @dir(cDir)
+			for _aEntry_ in aEntries
+				if _aEntry_[2] = 0
+					cFilePath = substr( cDir + This.Separator() + _aEntry_[1], "//", "/")
 					if fexists(cFilePath)
 						cFileContent = read(cFilePath)
 						acLines = str2list(cFileContent)
@@ -2533,13 +2608,13 @@ class stzFolder from stzObject
 							ok
 						next
 						if len(acLineNumbers) > 0
-							acResults + [cFilePath, acLineNumbers]
+							acResult + [cFilePath, acLineNumbers]
 						ok
 					ok
 				ok
 			next
 		next
-		return acResults
+		return acResult
 
 	def DeepSearchInFile(cFile, cContent)
 		if NOT isString(cFile) or NOT isString(cContent)
@@ -2585,10 +2660,10 @@ class stzFolder from stzObject
 		acFolderPaths = This.DeepFindFolders(cFolder)
 		for cFolderPath in acFolderPaths
 			if isdir(cFolderPath)
-				aEntries = dir(cFolderPath)
-				for a_aaEntry_ in aEntries
-					if a_aaEntry_[2] = 0
-						cFilePath = cFolderPath + This.Separator() + a_aaEntry_[1]
+				aEntries = @dir(cFolderPath)
+				for _aEntry_ in aEntries
+					if _aEntry_[2] = 0
+						cFilePath = cFolderPath + This.Separator() + _aEntry_[1]
 						if fexists(cFilePath)
 							cFileContent = read(cFilePath)
 							acLines = str2list(cFileContent)
@@ -2655,10 +2730,10 @@ class stzFolder from stzObject
 		nModified = 0
 		cFolderPath = @oQDir.path() + This.Separator() + cFolder
 		if isdir(cFolderPath)
-			aEntries = dir(cFolderPath)
-			for a_aaEntry_ in aEntries
-				if a_aaEntry_[2] = 0
-					cFilePath = cFolderPath + This.Separator() + a_aaEntry_[1]
+			aEntries = @dir(cFolderPath)
+			for _aEntry_ in aEntries
+				if _aEntry_[2] = 0
+					cFilePath = cFolderPath + This.Separator() + _aEntry_[1]
 					if fexists(cFilePath)
 						cFileContent = read(cFilePath)
 						cModifiedContent = substr(cFileContent, cContent, cNewContent)
@@ -2727,10 +2802,10 @@ class stzFolder from stzObject
 		acFolderPaths = This.DeepFindFolder(cFolder)
 		for cFolderPath in acFolderPaths
 			if isdir(cFolderPath)
-				aEntries = dir(cFolderPath)
-				for a_aaEntry_ in aEntries
-					if a_aaEntry_[2] = 0
-						cFilePath = cFolderPath + This.Separator() + a_aaEntry_[1]
+				aEntries = @dir(cFolderPath)
+				for _aEntry_ in aEntries
+					if _aEntry_[2] = 0
+						cFilePath = cFolderPath + This.Separator() + _aEntry_[1]
 						if fexists(cFilePath)
 							cFileContent = read(cFilePath)
 							cModifiedContent = substr(cFileContent, cContent, cNewContent)
@@ -2760,10 +2835,10 @@ class stzFolder from stzObject
 		nModified = 0
 		acAllDirs = This.DeepFolders()
 		for cDir in acAllDirs
-			aEntries = dir(cDir)
-			for a_aaEntry_ in aEntries
-				if a_aaEntry_[2] = 0
-					cFilePath = cDir + This.Separator() + a_aaEntry_[1]
+			aEntries = @dir(cDir)
+			for _aEntry_ in aEntries
+				if _aEntry_[2] = 0
+					cFilePath = cDir + This.Separator() + _aEntry_[1]
 					if fexists(cFilePath)
 						cFileContent = read(cFilePath)
 						cModifiedContent = substr(cFileContent, cContent, cNewContent)
@@ -2907,49 +2982,6 @@ class stzFolder from stzObject
 		def ExpandThis(cFolder)
 			This.ExpandFolders([cFolders])
 
-def IsDeep(cPath)
-	if This.IsDeepFile(cPath) or This.IsDeepFolder(cPath)
-		return _TRUE_
-	else
-		return _FALSE_
-	ok
-
-	def IsDeepPath(cPath)
-		IsDeep(cPath)
-
-def IsDeepFile(cPath)
-	cPath = This.NormalizePath(cPath)
-	cSep = This.Separator()
-
-	if right(cPath, 1) = cSep # It's a folder not a file!
-		return _FALSE_
-	ok
-
-	if StzStringQ(cpath).NumberOfOccurrence(cSep) > 1
-		return _true_
-	else
-		return _false_
-	ok
-
-	def IsDeepFilePath(cPath)
-		return This.IsDeepFile(cPath)
-
-def IsDeepFolder(cPath)
-	cPath = This.NormalizePath(cPath)
-	cSep = This.Separator()
-
-	if right(cPath, 1) != cSep # It's a file not a folder!
-		return _FALSE_
-	ok
-
-	if StzStringQ(cpath).NumberOfOccurrence(cSep) > 2
-		return _true_
-	else
-		return _false_
-	ok
-
-	def IsDeepFolderPath(cPath)
-		return This.IsDeepFolder(cPath)
 
 	def ExpandFolders(acFolders)
 	    if CheckParams()
@@ -3279,14 +3311,22 @@ def IsDeepFolder(cPath)
 	def HasNoPathInjection(cPath)
 		return This.IsSecurePath(cPath)
 
+	def CountFileMatches(cPath, cPattern)
+		nCount = 0
+		aList = @dir(cPath)
+		nLen = len(aList)
+		for i = 1 to nLen
+			if aList[i][2] = 0
+				if This.Matches(cPattern, aList[i][1])
+					nCount++
+				end
+			end
+		next
+		return nCount
 
 	def CountFolderMatches(cPath, cPattern)
 		nCount = 0
-		try
-			aList = @dir(cPath)
-		catch
-			return 0
-		end
+		aList = @dir(cPath)
 		nLen = len(aList)
 		for i = 1 to nLen
 			if aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
