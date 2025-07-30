@@ -900,8 +900,70 @@ o1.CollapseAll() # Same as collapse()
 ╰─🗀 videos
 '
 
+# Softanza does visual exploration as well as visual search!
+
+? o1.VizSearch("*.txt")
+#-->
+"
+🗀 testarea (🎯 1 matches for '*.txt')
+├─ 🗋👉 test.txt # It's here
+├─🗀 docs
+├─📂 images (2)
+├─🗀 music
+├─📂 tempo (2)
+╰─🗀 videos
+"
+
+# But there are more txt files deeper in the tree!
+
+? o1.VizDeepSearch("*.txt")
+#-->
+"
+🗀 testarea (🎯5 matches for '*.txt')
+├─ 🗋👉 test.txt	
+├─🗀 docs
+├─📂 images (2)
+│ ├─ 🗋 image1.png
+│ ├─ 🗋 image2.png
+│ ├─🗀 more
+│ ╰─📂 notes (2)
+│   ├─ 🗋👉 howto.txt
+│   ╰─ 🗋👉 sources.txt
+├─🗀 music
+├─📂 tempo (2)
+│ ├─ 🗋👉 temp1.txt
+│ ╰─ 🗋👉 temp2.txt
+╰─🗀 videos
+"
+
+
 pf()
 # Executed in 0.24 second(s) in Ring 1.22
+
+/*---
+
+# we can even search inside text files for the word program
+# (restults return the path of the file and the numbers of lines)
+
+? @@NL( o1.DeepSearchInFiles("program") )
+#-->
+'
+[
+	[
+		"c:/testarea/test.txt",
+		[ 1, 3, 5 ]
+	],
+	[
+		"c:/testarea/tempo/temp1.txt",
+		[ 1, 3, 5 ]
+	],
+	[
+		"c:/testarea/tempo/temp2.txt",
+		[ 2 ]
+	]
+]
+'
+
 
 /*---
 
