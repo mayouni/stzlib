@@ -99,8 +99,8 @@ class stzFolder from stzObject
 	@bExpand = _FALSE_
 	@bDeepExpandAll = _FALSE_
 	@acDeepExpandFolders = []
-
 	@acExpandFolders = []
+
 	@bCollapseAll = _FALSE_
 	@acCollapseFolders = []
 
@@ -170,443 +170,501 @@ class stzFolder from stzObject
 #==================================================================================
 
 
-#===============================#
-#  FILE AND FOLDER VALIDATION   #
-#===============================#
-
-def Separator()
-	return "/"
-
-def SystemSeparator()
-	return Char(@oQDir.separator().unicode())
-
-	def PathSeparator()
-		return This.Separator()
-
-Func IsInside(cPath)
-
-    if NOT ( isString(cPath) and cPath != "" )
-        raise("Incorrect param type! cPath must be non-empty a string.")
-    ok
-
-	# Get the absolute path of the main folder
-	cMainPath = @oQDir.absolutePath()
+	#===============================#
+	#  FILE AND FOLDER VALIDATION   #
+	#===============================#
 	
-	# Create a temporary QDir object for the provided path
-	oTempDir = new QDir
-	oTempDir.setPath(cPath)
+	def Separator()
+		return "/"
 	
-	# Get the absolute path of the provided path
-	cAbsolutePath = oTempDir.absolutePath()
+	def SystemSeparator()
+		return Char(@oQDir.separator().unicode())
 	
-	# Clean both paths to normalize separators and remove redundant elements
-	cMainPath = @oQDir.cleanPath(cMainPath)
-	cAbsolutePath = @oQDir.cleanPath(cAbsolutePath)
+		def PathSeparator()
+			return This.Separator()
 	
-	# Ensure paths end with separator for proper comparison
-	cSeparator = @oQDir.separator().unicode()
-
-	if right(cMainPath, 1) != cSeparator
-		cMainPath += cSeparator
-	ok
-	if right(cAbsolutePath, 1) != cSeparator
-		cAbsolutePath += cSeparator
-	ok
+	Func IsInside(cPath)
 	
-	# Check if the absolute path starts with the main path
-
-	nMainPathLen = Len(cMainPath)
-
-	if Len(cAbsolutePath) >= nMainPathLen
-
-		if Left(cAbsolutePath, nMainPathLen) = cMainPath
-
-			# Additional check: ensure it's not the same path
-			if cAbsolutePath != cMainPath
-				return True
+	    if NOT ( isString(cPath) and cPath != "" )
+	        raise("Incorrect param type! cPath must be non-empty a string.")
+	    ok
+	
+		# Get the absolute path of the main folder
+		cMainPath = @oQDir.absolutePath()
+		
+		# Create a temporary QDir object for the provided path
+		oTempDir = new QDir
+		oTempDir.setPath(cPath)
+		
+		# Get the absolute path of the provided path
+		cAbsolutePath = oTempDir.absolutePath()
+		
+		# Clean both paths to normalize separators and remove redundant elements
+		cMainPath = @oQDir.cleanPath(cMainPath)
+		cAbsolutePath = @oQDir.cleanPath(cAbsolutePath)
+		
+		# Ensure paths end with separator for proper comparison
+		cSeparator = Char(@oQDir.separator().unicode())
+	
+		if right(cMainPath, 1) != cSeparator
+			cMainPath += cSeparator
+		ok
+		if right(cAbsolutePath, 1) != cSeparator
+			cAbsolutePath += cSeparator
+		ok
+		
+		# Check if the absolute path starts with the main path
+	
+		nMainPathLen = Len(cMainPath)
+	
+		if Len(cAbsolutePath) >= nMainPathLen
+	
+			if Left(cAbsolutePath, nMainPathLen) = cMainPath
+	
+				# Additional check: ensure it's not the same path
+				if cAbsolutePath != cMainPath
+					return True
+				ok
+	
 			ok
-
 		ok
-	ok
+		
+		# Clean up temporary object
+		oTempDir.delete()
+		
+		return False
 	
-	# Clean up temporary object
-	oTempDir.delete()
+		def IsPathInside(cPath)
+			return This.IsInside(cPath)
 	
-	return False
-
-	def IsPathInside(cPath)
-		return This.IsInside(cPath)
-
-	def PathIsInside(cPath)
-		return This.IsInside(cPath)
-
-def IsOutside(cPath)
-	return NOT This.IsInside(cPath)
-
-	def IsPathOutside(cPath)
-		return This.IsOutside(cPath)
-
-	def PathIsOutside(cPath)
-		return This.IsOutside(cPath)
-
-
-def IsFile(cPath)
-    # Checks if cPath represents a valid existing file within the folder scope
-
-    if NOT ( isString(cPath) and cPath != "" )
-        raise("Incorrect param type! cPath must be non-empty a string.")
-    ok
-
-    cNormalizedPath = This.NormalizePathXT(cPath)
-
-	if ring_find(This.FilesXT(), cNormalizedPath) > 0
-		return _TRUE_
-	else
-		return _FALSE_
-	ok
-
-    def IsValidFile(cPath)
-        return This.IsFile(cPath)
-
-    def IsExistingFile(cPath)
-        return This.IsFile(cPath)
-
-def IsFolder(cPath)
-    # Checks if cPath represents a valid existing folder within the folder scope
-
-    if NOT ( isString(cPath) and cPath != "" )
-        raise("Incorrect param type! cPath must be non-empty a string.")
-    ok
-
-   if left(cPath, 1) != This.Separator()
-		cPath = This.Separator() + cPath
-   ok
-
-	if ring_find(This.Folders(), cPath) > 0
-		return _TRUE_
-	else
-		return _FALSE_
-	ok
-
-    def IsValidFolder(cPath)
-        return This.IsFolder(cPath)
-
-    def IsExistingFolder(cPath)
-        return This.IsFolder(cPath)
-
-    def IsDirectory(cPath)
-        return This.IsFolder(cPath)
-
-    def IsValidDirectory(cPath)
-        return This.IsFolder(cPath)
-
-    def IsExistingDirectory(cPath)
-        return This.IsFolder(cPath)
-
-#---
-
-def Exists(cPath)
-    # Checks if cPath exists (file or folder) within the folder scope
-    return This.IsFile(cPath) OR This.IsFolder(cPath)
-
-    def PathExists(cPath)
-        return This.Exists(cPath)
-
-    def IsValidPath(cPath)
-        return This.Exists(cPath)
-
-	def ContainsPath(cPath)
-		return This.Exists(cPath)
-
-def FileExists(cFileName)
-    # Alias for IsFile - checks if file exists
-    return This.IsFile(cFileName)
-
-def FolderExists(cFolderName)
-    # Alias for IsFolder - checks if folder exists  
-    return This.IsFolder(cFolderName)
-
-
-#=====================#
-#  NORMALIZING PATHS  #
-#=====================#
-
-def NormalizePath(cPath)
-
-	if CheckParams()
-		if NOT ( isString(cPath) and trim(cPath) != "" )
-			StzRaise("Incorrect param type! cPath must be a non-empty string.")
+		def PathIsInside(cPath)
+			return This.IsInside(cPath)
+	
+	def IsOutside(cPath)
+		return NOT This.IsInside(cPath)
+	
+		def IsPathOutside(cPath)
+			return This.IsOutside(cPath)
+	
+		def PathIsOutside(cPath)
+			return This.IsOutside(cPath)
+	
+	
+	def IsFile(cPath)
+	    # Checks if cPath represents a valid existing file within the folder scope
+	
+	    if NOT ( isString(cPath) and cPath != "" )
+	        raise("Incorrect param type! cPath must be non-empty a string.")
+	    ok
+	
+	    cNormalizedPath = This.NormalizePathXT(cPath)
+	
+		if ring_find(This.FilesXT(), cNormalizedPath) > 0
+			return _TRUE_
+		else
+			return _FALSE_
 		ok
-	ok
-    
-    # Create temp QDir for the path
-    oTempDir = new QDir
-    oTempDir.setPath(cPath)
-    
-    # Get absolute path and clean it
-    cResult = @oQDir.cleanPath(oTempDir.absolutePath())
-    oTempDir.delete()
-    
-    return lower(cResult)
-
-
-
-def NormalizePathXT(cPath)
-
-	if CheckParams()
-		if NOT ( isString(cPath) and trim(cPath) != "" )
-			StzRaise("Incorrect param type! cPath must be a non-empty string.")
+	
+	    def IsValidFile(cPath)
+	        return This.IsFile(cPath)
+	
+	    def IsExistingFile(cPath)
+	        return This.IsFile(cPath)
+	
+	def IsFolder(cPath)
+	    # Checks if cPath represents a valid existing folder within the folder scope
+	
+	    if NOT ( isString(cPath) and cPath != "" )
+	        raise("Incorrect param type! cPath must be non-empty a string.")
+	    ok
+	
+		cPath = This.NormalizeFolderPath(cPath)
+	
+		if ring_find(This.Folders(), cPath) > 0
+			return _TRUE_
+		else
+			return _FALSE_
 		ok
-	ok
-    
-    cBasePath = @oQDir.absolutePath()
-    
-    # If already absolute, clean and return
-    if @oQDir.isAbsolutePath(cPath)
-        return lower(@oQDir.cleanPath(cPath))
-    ok
-    
-    # For relative paths, combine with base path
-    oTempDir = new QDir
-    oTempDir.setPath(cBasePath)
-    cResult = @oQDir.cleanPath(oTempDir.absoluteFilePath(cPath))
-    oTempDir.delete()
-    
-    return lower(cResult)
+	
+	    def IsValidFolder(cPath)
+	        return This.IsFolder(cPath)
+	
+	    def IsExistingFolder(cPath)
+	        return This.IsFolder(cPath)
+	
+	    def IsDirectory(cPath)
+	        return This.IsFolder(cPath)
+	
+	    def IsValidDirectory(cPath)
+	        return This.IsFolder(cPath)
+	
+	    def IsExistingDirectory(cPath)
+	        return This.IsFolder(cPath)
+	
+	#---
+	
+	def Exists(cPath)
+	    # Checks if cPath exists (file or folder) within the folder scope
+	    return This.IsFile(cPath) OR This.IsFolder(cPath)
+	
+	    def PathExists(cPath)
+	        return This.Exists(cPath)
+	
+	    def IsValidPath(cPath)
+	        return This.Exists(cPath)
+	
+		def ContainsPath(cPath)
+			return This.Exists(cPath)
+	
+	def FileExists(cFileName)
+	    # Alias for IsFile - checks if file exists
+	    return This.IsFile(cFileName)
+	
+	def FolderExists(cFolderName)
+	    # Alias for IsFolder - checks if folder exists  
+	    return This.IsFolder(cFolderName)
+	
+	#--
 
-def NormalizeFileName(cName)
-	if CheckParams()
-		if NOT ( isString(cName) and trim(cName) != "" )
-			StzRaise("Incorrect param type! cName must be a non-empty string.")
+	def DeepExists(cPath)
+		return This.IsDeepFile(cPath) OR This.IsDeepFolder(cPath)
+
+	    def PathDeepExists(cPath)
+	        return This.DeepExists(cPath)
+	
+	    def IsValidDeepPath(cPath)
+	        return This.DeepExists(cPath)
+	
+		def ContainsDeepPath(cPath)
+			return This.DeepExists(cPath)
+
+	def DeepFileExists(cFileName)
+	    # Alias for IsFile - checks if file exists
+	    return This.IsDeepFile(cFileName)
+	
+	def DeepFolderExists(cFolderName)
+	    # Alias for IsFolder - checks if folder exists  
+	    return This.IsDeepFolder(cFolderName)
+
+	#=====================#
+	#  NORMALIZING PATHS  #
+	#=====================#
+	
+	def NormalizePath(cPath)
+	
+		if CheckParams()
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
 		ok
-	ok
-    
-    return lower(@oQDir.cleanPath(trim(cName)))
 
-
-def NormalizeFileNameXT(cName)
-	if CheckParams()
-		if NOT ( isString(cName) and trim(cName) != "" )
-			StzRaise("Incorrect param type! cName must be a non-empty string.")
+		if This.IsFilePath(cPath)
+			return This.NormalizeFilePath(cPath)
+		else
+			return This.NormalizeFolderPath(cPath)
 		ok
-	ok
-    
-    cBasePath = @oQDir.absolutePath()
-    cCleanName = @oQDir.cleanPath(trim(cName))
-    
-    # If not absolute, make it relative to base path
-    if NOT @oQDir.isAbsolutePath(cCleanName)
-        oTempDir = new QDir
-        oTempDir.setPath(cBasePath)
-        cCleanName = oTempDir.absoluteFilePath(cCleanName)
-        oTempDir.delete()
-    ok
-    
-    return lower(@oQDir.cleanPath(cCleanName))
 
-def NormalizeFolderName(cName)
-    cName = This.NormalizeFileName(cName)
-    cSeparator = @oQDir.separator().unicode()
-    if len(cName) > 0 and right(cName, 1) != cSeparator
-        cName += cSeparator
-    ok
-    return cName
 
-def NormalizeFolderNameXT(cName)
-    cName = This.NormalizeFileNameXT(cName)
-    cSeparator = @oQDir.separator().unicode()
-    if len(cName) > 0 and right(cName, 1) != cSeparator
-        cName += cSeparator
-    ok
-    return cName
-
-#==========================#
-#  DETAILED PATH ANALYSIS  #
-#==========================#
-
-def PathType(cPath)
-
-	if CheckParams()
-		if NOT ( isString(cPath) and trim(cPath) != "" )
-			StzRaise("Incorrect param type! cPath must be a non-empty string.")
+		def NormalisePath(cPath)
+			return THis.NormalizePath(cPath)
+	
+	def NormalizePathXT(cPath)
+	
+		if CheckParams()
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
 		ok
-	ok
-
-    # Returns the type of path: "file", "folder", or "none"
-
-    if This.IsFile(cPath)
-        return "file"
-
-    but This.IsFolder(cPath)
-        return "folder"
-
-    else
-        return "none"
-    ok
-
-
-def PathInfo(cPath)
-
-	if CheckParams()
-		if NOT ( isString(cPath) and trim(cPath) != "" )
-			StzRaise("Incorrect param type! cPath must be a non-empty string.")
+	   
+		if This.IsFilePath(cPath)
+			return This.NormalizeFilePathXT(cPath)
+		else
+			return This.NormalizeFolderPathXT(cPath)
 		ok
-	ok
-    
-    cNormalizedPath = This.NormalizePath(cPath)
 
-	# Ensire the provided path exists in the folder
-
-	if NOT This.Exists(cNormalizedPath)
-		raise("Incorrect path!")
-	ok
-
-	# Doing the job
-
-    cType = This.PathType(cNormalizedPath)
-    bExists = (cType != "none")
-    
-    aInfo = [
-        :path, cPath,
-        :normalized_path, cNormalizedPath,
-        :exists, bExists,
-        :type, cType,
-        :is_file, (cType = "file"),
-        :is_folder, (cType = "folder"),
-        :is_relative, (left(cPath, 1) != This.Separator() AND substr(cPath, ":/") = 0 AND substr(cPath, ":\\") = 0),
-        :parent_folder, This.ParentFolder(cPath)
-    ]
-    
-    return aInfo
-
-def ParentFolder(cPath)
-	if CheckParams()
-		if NOT ( isString(cPath) and trim(cPath) != "" )
-			StzRaise("Incorrect param type! cPath must be a non-empty string.")
+/* 
+	    cBasePath = @oQDir.absolutePath()
+	    
+	    # If already absolute, clean and return
+	    if @oQDir.isAbsolutePath(cPath)
+	        return lower(@oQDir.cleanPath(cPath))
+	    ok
+	    
+	    # For relative paths, combine with base path
+	    oTempDir = new QDir
+	    oTempDir.setPath(cBasePath)
+	    cResult = @oQDir.cleanPath(oTempDir.absoluteFilePath(cPath))
+	    oTempDir.delete()
+	    
+	    return lower(cResult)
+*/
+		def NormalisePathXT(cPath)
+			return This.NormalizeXT(cPAth)
+	
+	def NormalizeFilePath(cName)
+		if CheckParams()
+			if NOT ( isString(cName) and trim(cName) != "" )
+				StzRaise("Incorrect param type! cName must be a non-empty string.")
+			ok
 		ok
-	ok
+	    
+	    cResult = "/" + lower(@oQDir.cleanPath(trim(cName)))
+		cResult = substr(cResult, "//", "/")
+		return cResult
 
-    cNormalizedPath = This.NormalizePath(cPath)
-
-	# Ensire the provided path exists in the folder
-
-	if NOT This.Exists(cNormalizedPath)
-		raise("Incorrect path!")
-	ok
-
-    # Find last separator
-
-    nLastSep = 0
-    for i = len(cNormalizedPath) to 1 step -1
-        if cNormalizedPath[i] = This.Separator()
-            nLastSep = i
-            exit
-        ok
-    next
-    
-    if nLastSep > 0
-        return left(cNormalizedPath, nLastSep - 1)
-    else
-        return @oQDir.path()
-    ok
-
-#============================#
-#  BATCH VALIDATION METHODS  #
-#============================#
-
-def AreFiles(acPaths)
-
-    # Checks if all paths in the list are valid files
-
-	if CheckParams()
-		if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
-			StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+		def NormaliseFilePath(cName)
+			return This.NormalizeFilePath(cName)
+	
+	def NormalizeFilePathXT(cName)
+		if CheckParams()
+			if NOT ( isString(cName) and trim(cName) != "" )
+				StzRaise("Incorrect param type! cName must be a non-empty string.")
+			ok
 		ok
-	ok
-    
-    for cPath in acPaths
-        if NOT This.IsFile(cPath)
-            return FALSE
-        ok
-    next
-    
-    return TRUE
-
-def AreFolders(acPaths)
-
-    # Checks if all paths in the list are valid folders
-
-	if CheckParams()
-		if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
-			StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+	    
+	    cBasePath = @oQDir.absolutePath()
+	    cCleanName = @oQDir.cleanPath(trim(cName))
+	    
+	    # If not absolute, make it relative to base path
+	    if NOT @oQDir.isAbsolutePath(cCleanName)
+	        oTempDir = new QDir
+	        oTempDir.setPath(cBasePath)
+	        cCleanName = oTempDir.absoluteFilePath(cCleanName)
+	        oTempDir.delete()
+	    ok
+	    
+	    cResult = lower(@oQDir.cleanPath(cCleanName))
+		cSeparator = This.Separator()
+		if right(cResult, 1) != cSeparator
+			cResult += cSeparator
 		ok
-	ok
-    
-    for cPath in acPaths
-        if NOT This.IsFolder(cPath)
-            return FALSE
-        ok
-    next
-    
-    return TRUE
 
-def AllExist(acPaths)
+		cResult = substr(cResult, "//", "/")
+		return cResult
 
-    # Checks if all paths in the list exist (files or folders)
+		def NormaliseFilePathXT(cName)
+			return This.NormalizeFilePathXT(cName)
+	
+	def NormalizeFolderPath(cName)
 
-	if CheckParams()
-		if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
-			StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+	    cName = This.NormalizeFilePath(cName)
+	    cSeparator = This.Separator()
+
+		if cName[1] != cSeparator
+			cName = cSeparator + cName
 		ok
-	ok
-    
-    for cPath in acPaths
-        if NOT This.Exists(cPath)
-            return FALSE
-        ok
-    next
-    
-    return TRUE
 
-def ExistingPathsAmong(acPaths)
+	    if right(cName, 1) != cSeparator
+	        cName += cSeparator
+	    ok
 
-    # Returns only the paths that exist from the given list
+		cName = substr(cName, "//", "/")
+	    return cName
+	
+		def NormaliseFolderPath(cName)
+			return This.NormalizeFolderPath(cName)
+	
+	def NormalizeFolderPathXT(cName)
+	    cName = This.NormalizeFilePathXT(cName)
+	    cSeparator = This.Separator()
 
-	if CheckParams()
-		if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
-			StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+	    if right(cName, 1) != cSeparator
+	        cName += cSeparator
+	    ok
+
+		cName = substr(cName, "//", "/")
+	    return cName
+	
+		def NormaliseFolderPathXT(cName)
+			return This.NormalizeFolderPathXT(cName)
+	
+	#==========================#
+	#  DETAILED PATH ANALYSIS  #
+	#==========================#
+	
+	def PathType(cPath)
+	
+		if CheckParams()
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
 		ok
-	ok
-    
-    acResult = []
-
-    for cPath in acPaths
-        if This.Exists(cPath)
-            acResult + cPath
-        ok
-    next
-    
-    return acResult
-
-
-def MissingPathsAmong(acPaths)
-
-    # Returns only the paths that don't exist from the given list
-
-	if CheckParams()
-		if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
-			StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+	
+	    # Returns the type of path: "file", "folder", or "none"
+	
+	    if This.IsFile(cPath)
+	        return "file"
+	
+	    but This.IsFolder(cPath)
+	        return "folder"
+	
+	    else
+	        return "none"
+	    ok
+	
+	
+	def PathInfo(cPath)
+	
+		if CheckParams()
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
 		ok
-	ok
-    
-    acMissing = []
-    for cPath in acPaths
-        if NOT This.Exists(cPath)
-            acMissing + cPath
-        ok
-    next
-    
-    return acMissing
+	    
+	    cNormalizedPath = This.NormalizePath(cPath)
+	
+		# Ensire the provided path exists in the folder
+	
+		if NOT This.Exists(cNormalizedPath)
+			raise("Incorrect path!")
+		ok
+	
+		# Doing the job
+	
+	    cType = This.PathType(cNormalizedPath)
+	    bExists = (cType != "none")
+	    
+	    aInfo = [
+	        :path, cPath,
+	        :normalized_path, cNormalizedPath,
+	        :exists, bExists,
+	        :type, cType,
+	        :is_file, (cType = "file"),
+	        :is_folder, (cType = "folder"),
+	        :is_relative, (left(cPath, 1) != This.Separator() AND substr(cPath, ":/") = 0 AND substr(cPath, ":\\") = 0),
+	        :parent_folder, This.ParentFolder(cPath)
+	    ]
+	    
+	    return aInfo
+	
+	def ParentFolder(cPath)
+		if CheckParams()
+			if NOT ( isString(cPath) and trim(cPath) != "" )
+				StzRaise("Incorrect param type! cPath must be a non-empty string.")
+			ok
+		ok
+	
+	    cNormalizedPath = This.NormalizePath(cPath)
+	
+		# Ensire the provided path exists in the folder
+	
+		if NOT This.Exists(cNormalizedPath)
+			raise("Incorrect path!")
+		ok
+	
+	    # Find last separator
+	
+	    nLastSep = 0
+	    for i = len(cNormalizedPath) to 1 step -1
+	        if cNormalizedPath[i] = This.Separator()
+	            nLastSep = i
+	            exit
+	        ok
+	    next
+	    
+	    if nLastSep > 0
+	        return left(cNormalizedPath, nLastSep - 1)
+	    else
+	        return @oQDir.path()
+	    ok
+	
+	#============================#
+	#  BATCH VALIDATION METHODS  #
+	#============================#
+	
+	def AreFiles(acPaths)
+	
+	    # Checks if all paths in the list are valid files
+	
+		if CheckParams()
+			if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
+				StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+			ok
+		ok
+	    
+	    for cPath in acPaths
+	        if NOT This.IsFile(cPath)
+	            return FALSE
+	        ok
+	    next
+	    
+	    return TRUE
+	
+	def AreFolders(acPaths)
+	
+	    # Checks if all paths in the list are valid folders
+	
+		if CheckParams()
+			if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
+				StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+			ok
+		ok
+	    
+	    for cPath in acPaths
+	        if NOT This.IsFolder(cPath)
+	            return FALSE
+	        ok
+	    next
+	    
+	    return TRUE
+	
+	def AllExist(acPaths)
+	
+	    # Checks if all paths in the list exist (files or folders)
+	
+		if CheckParams()
+			if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
+				StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+			ok
+		ok
+	    
+	    for cPath in acPaths
+	        if NOT This.Exists(cPath)
+	            return FALSE
+	        ok
+	    next
+	    
+	    return TRUE
+	
+	def ExistingPathsAmong(acPaths)
+	
+	    # Returns only the paths that exist from the given list
+	
+		if CheckParams()
+			if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
+				StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+			ok
+		ok
+	    
+	    acResult = []
+	
+	    for cPath in acPaths
+	        if This.Exists(cPath)
+	            acResult + cPath
+	        ok
+	    next
+	    
+	    return acResult
+	
+	
+	def MissingPathsAmong(acPaths)
+	
+	    # Returns only the paths that don't exist from the given list
+	
+		if CheckParams()
+			if NOT ( isList(acPaths) and IsListOfstrings(acPaths) )
+				StzRaise("Incorrect param type! cFolderName must be a list of strings.")
+			ok
+		ok
+	    
+	    acMissing = []
+	    for cPath in acPaths
+	        if NOT This.Exists(cPath)
+	            acMissing + cPath
+	        ok
+	    next
+	    
+	    return acMissing
 
 #==================================================================================
 
@@ -789,7 +847,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cFile = This.NormalizeFileName(cFileName)
+		cFile = This.NormalizeFilePath(cFileName)
 		aFiles = This.Files()
 
 		return ring_find(aFiles, cFileName) > 0
@@ -801,7 +859,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cFolderName = NormalizeFolderName(cFolderName)
+		cFolderName = NormalizeFolderPath(cFolderName)
 		aFolders = This.Folders()
 
 		return ring_find(aFolders, cFolderName) > 0
@@ -1538,7 +1596,7 @@ def MissingPathsAmong(acPaths)
 		    # Sort by depth (deepest first) using Ring's sort
 		    acSortedPaths = []
 		    for cPath in acFolderPaths
-		        nDepth = len(@split(cPath, @oQDir.separator().unicode()))
+		        nDepth = len(@split(cPath, This.Separator()))
 		        acSortedPaths + [nDepth, cPath]
 		    next
 	
@@ -1583,7 +1641,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cFile = This.NormaliseFileNameXT(cFile)
+		cFile = This.NormaliseFilePathXT(cFile)
 
 		if NOT This.Inside(cFile)
 			raise("Can't navigate outside the folder!")
@@ -1606,7 +1664,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cFile = This.NormaliseFileNameXT(cFile)
+		cFile = This.NormaliseFilePathXT(cFile)
 
 		if NOT This.Inside(cFile)
 			raise("Can't navigate outside the folder!")
@@ -1638,7 +1696,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cFile = This.NormaliseFileNameXT(cFile)
+		cFile = This.NormaliseFilePathXT(cFile)
 
 		if NOT This.Inside(cFile)
 			raise("Can't navigate outside the folder!")
@@ -1651,7 +1709,7 @@ def MissingPathsAmong(acPaths)
 		return @FileInfo(cFile)
 
 		def FileInfoQ(cFile)
-			cFile = This.NormaliseFileNameXT(cFile)
+			cFile = This.NormaliseFilePathXT(cFile)
 	
 			if NOT This.Inside(cFile)
 				raise("Can't navigate outside the folder!")
@@ -1671,7 +1729,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cFile = This.NormaliseFileNameXT(cFile)
+		cFile = This.NormaliseFilePathXT(cFile)
 
 		if NOT This.Inside(cFile)
 			raise("Can't navigate outside the folder!")
@@ -1694,7 +1752,7 @@ def MissingPathsAmong(acPaths)
 		ok
 
 
-		cFile = This.NormaliseFileNameXT(cFile)
+		cFile = This.NormaliseFilePathXT(cFile)
 
 		if NOT This.Inside(cFile)
 			raise("Can't navigate outside the folder!")
@@ -1716,7 +1774,7 @@ def MissingPathsAmong(acPaths)
 				ok
 			ok
 
-			cFile = This.NormaliseFileNameXT(cFile)
+			cFile = This.NormaliseFilePathXT(cFile)
 	
 			if NOT This.Inside(cFile)
 				raise("Can't navigate outside the folder!")
@@ -1744,7 +1802,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cFile = This.NormaliseFileNameXT(cFile)
+		cFile = This.NormaliseFilePathXT(cFile)
 
 		if This.IsPathOutside(cFile)
 			raise("Can't navigate outside the folder!")
@@ -1764,7 +1822,7 @@ def MissingPathsAmong(acPaths)
 				ok
 			ok
 
-			cFile = This.NormaliseFileNameXT(cFile)
+			cFile = This.NormaliseFilePathXT(cFile)
 	
 			if This.IsPathOutside(cFile)
 				raise("Can't navigate outside the folder!")
@@ -1818,7 +1876,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cFile = This.NormaliseFileNameXT(cFile)
+		cFile = This.NormaliseFilePathXT(cFile)
 
 		if NOT This.Inside(cFile)
 			raise("Can't navigate outside the folder!")
@@ -1839,7 +1897,7 @@ def MissingPathsAmong(acPaths)
 				ok
 			ok
 
-			cFile = This.NormaliseFileNameXT(cFile)
+			cFile = This.NormaliseFilePathXT(cFile)
 	
 			if NOT This.Inside(cFile)
 				raise("Can't navigate outside the folder!")
@@ -1865,7 +1923,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cFile = This.NormaliseFileNameXT(cFile)
+		cFile = This.NormaliseFilePathXT(cFile)
 
 		if NOT This.Inside(cFile)
 			raise("Can't navigate outside the folder!")
@@ -1886,7 +1944,7 @@ def MissingPathsAmong(acPaths)
 				ok
 			ok
 
-			cFile = This.NormaliseFileNameXT(cFile)
+			cFile = This.NormaliseFilePathXT(cFile)
 	
 			if NOT This.Inside(cFile)
 				raise("Can't navigate outside the folder!")
@@ -1912,7 +1970,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cFile = This.NormaliseFileNameXT(cFile)
+		cFile = This.NormaliseFilePathXT(cFile)
 
 		if NOT This.Inside(cFile)
 			raise("Can't navigate outside the folder!")
@@ -1934,7 +1992,7 @@ def MissingPathsAmong(acPaths)
 				ok
 			ok
 
-			cFile = This.NormaliseFileNameXT(cFile)
+			cFile = This.NormaliseFilePathXT(cFile)
 	
 			if NOT This.Inside(cFile)
 				raise("Can't navigate outside the folder!")
@@ -1960,7 +2018,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cFile = This.NormaliseFileNameXT(cFile)
+		cFile = This.NormaliseFilePathXT(cFile)
 
 		if NOT This.Inside(cFile)
 			raise("Can't navigate outside the folder!")
@@ -1990,7 +2048,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cFile = This.NormaliseFileNameXT(cFile)
+		cFile = This.NormaliseFilePathXT(cFile)
 
 		if NOT This.Inside(cFile)
 			raise("Can't navigate outside the folder!")
@@ -2013,7 +2071,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cFile = This.NormaliseFileNameXT(cFile)
+		cFile = This.NormaliseFilePathXT(cFile)
 
 		if NOT This.Inside(cFile)
 			raise("Can't navigate outside the folder!")
@@ -2037,7 +2095,7 @@ def MissingPathsAmong(acPaths)
 		ok
 
 
-		cFile = This.NormaliseFileNameXT(cFile)
+		cFile = This.NormaliseFilePathXT(cFile)
 
 		if NOT This.Inside(cFile)
 			raise("Can't navigate outside the folder!")
@@ -2054,8 +2112,8 @@ def MissingPathsAmong(acPaths)
 
 	def FileCopy(cSource, cDest)
 
-		cSource = This.NormaliseFileNameXT(cSource)
-		cDest = This.NormaliseFileNameXT(cDest)
+		cSource = This.NormaliseFilePathXT(cSource)
+		cDest = This.NormaliseFilePathXT(cDest)
 
 		if NOT ( This.Inside(cSource) and This.Inside(cDest) )
 			raise("Can't navigate outside the folder! Check that cSource and cDest are both inside.")
@@ -2076,8 +2134,8 @@ def MissingPathsAmong(acPaths)
 
 	def FileMove(cSource, cDest)
 
-		cFile = This.NormaliseFileNameXT(csource)
-		cDest = This.NormaliseFileNameXT(cDest)
+		cFile = This.NormaliseFilePathXT(csource)
+		cDest = This.NormaliseFilePathXT(cDest)
 
 		if NOT ( This.Inside(cSource) and This.Inside(cDest) )
 			raise("Can't navigate outside the folder! Check that cSource and cDest are both inside.")
@@ -2105,7 +2163,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cFile = This.NormaliseFileNameXT(cFile)
+		cFile = This.NormaliseFilePathXT(cFile)
 
 		if NOT This.Inside(cFile)
 			raise("Can't navigate outside the folder!")
@@ -2130,7 +2188,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cPattern = This.NormalizeFileName(cPattern)
+		cPattern = This.NormalizeFilePath(cPattern)
 		aFiles = This.Files()
 		acResult = []
 
@@ -2164,7 +2222,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 
-		cPattern = This.NormalizeFileName(cPattern)
+		cPattern = This.NormalizeFilePath(cPattern)
 		acFolders = This.Folders()
 		acResult = []
 
@@ -2837,6 +2895,9 @@ def MissingPathsAmong(acPaths)
 		@bCollapseAll = _FALSE_
 		@acCollapseFolders = []
 
+		def ExpandAll()
+			This.Expand()
+
 	def ExpandFolder(cFolder)
 		This.ExpandFolders([cFolder])
 
@@ -2846,21 +2907,69 @@ def MissingPathsAmong(acPaths)
 		def ExpandThis(cFolder)
 			This.ExpandFolders([cFolders])
 
-	def ExpandFolders(acFolders)
-		if CheckParams()
-			if Not (isList(acFolders) and IsListOfStrings(acFolders))
-				StzRaise("Incorrect param type! acFolders must be a list of strings.")
-			ok
-		ok
+def IsDeep(cPath)
+	if This.IsDeepFile(cPath) or This.IsDeepFolder(cPath)
+		return _TRUE_
+	else
+		return _FALSE_
+	ok
 
-		# Lowercasing the names/paths of folders
+	def IsDeepPath(cPath)
+		IsDeep(cPath)
+
+def IsDeepFile(cPath)
+	cPath = This.NormalizePath(cPath)
+	cSep = This.Separator()
+
+	if right(cPath, 1) = cSep # It's a folder not a file!
+		return _FALSE_
+	ok
+
+	if StzStringQ(cpath).NumberOfOccurrence(cSep) > 1
+		return _true_
+	else
+		return _false_
+	ok
+
+	def IsDeepFilePath(cPath)
+		return This.IsDeepFile(cPath)
+
+def IsDeepFolder(cPath)
+	cPath = This.NormalizePath(cPath)
+	cSep = This.Separator()
+
+	if right(cPath, 1) != cSep # It's a file not a folder!
+		return _FALSE_
+	ok
+
+	if StzStringQ(cpath).NumberOfOccurrence(cSep) > 2
+		return _true_
+	else
+		return _false_
+	ok
+
+	def IsDeepFolderPath(cPath)
+		return This.IsDeepFolder(cPath)
+
+	def ExpandFolders(acFolders)
+	    if CheckParams()
+	        if Not (isList(acFolders) and IsListOfStrings(acFolders))
+	            StzRaise("Incorrect param type! acFolders must be a list of strings.")
+	        ok
+	    ok
+	
 		nLen = len(acFolders)
+
 		for i = 1 to nLen
-			acFolders[i] = lower(acFolders[i])
+			cPath = This.NormalizeFolderPath(acFolders[i])
+			if This.IsDeepFolder(cPath)
+				@acDeepExpandFolders + cPath
+			else
+				@acExpandFolders + cPath
+			ok
 		next
 
-		@acExpandFolders = acFolders
-		@bCollapseAll = _FALSE_
+	    @bCollapseAll = _FALSE_
 	
 		def ExpandTheseFolders(acFolders)
 			This.ExpandFolders(acFolders)
@@ -3124,12 +3233,7 @@ def MissingPathsAmong(acPaths)
 		ok
 		
 	
-		cPath = This.NormaliseFolderName(cPath)
-	
-		# Check if the path tries to go outside the root folder
-		if NOT This.Exists(cPath)
-			raise("Incorrect path!")
-		ok
+		cPath = This.NormaliseFolderPath(cPath)
 	
 		if ring_find( This.Files(), cPath ) > 0
 			return _TRUE_
@@ -3144,7 +3248,7 @@ def MissingPathsAmong(acPaths)
 			ok
 		ok
 	
-		cPath = This.NormaliseFolderName(cPath)
+		cPath = This.NormaliseFolderPath(cPath)
 	
 		# Check for path injection attempts
 		if NOT IsSecurePath(cPath)
@@ -3499,6 +3603,8 @@ def MissingPathsAmong(acPaths)
 			return _FALSE_
 		end
 
+		cFolderName = This.NormalizeFolderPath(cFolderName)
+
 		# If DeepExpandAll is enabled, expand all non-empty folders
 		if @bDeepExpandAll
 
@@ -3533,14 +3639,15 @@ def MissingPathsAmong(acPaths)
 		next
 		return _FALSE_
 
-	def IsFolderEmpty(cFolderName)
-		cFolderPath = This.Path() + This.Separator() + cFolderName
+	def IsFolderEmpty(cFolderPath)
+
+		cFolderName = This.NormalizeFolderPath(cFolderPath)
 		oTempFolder = new stzFolder(cFolderPath)
 		bHasFiles = oTempFolder.CountFiles() > 0
 		bHasFolders = oTempFolder.CountFolders() > 0
 		return (not bHasFiles and not bHasFolders)
 
-	def GetFolderIconForExpanded(cFolderName, bSubfolderHasMatches, bIsEmpty)
+	def GetFolderIconForExpanded(bSubfolderHasMatches, bIsEmpty)
 		if bSubfolderHasMatches
 			return @acDisplayChars[:FolderOpenedFound]
 		else
@@ -3554,9 +3661,9 @@ def MissingPathsAmong(acPaths)
 			return @acDisplayChars[:FolderClosedFull]
 		end
 
-	def ChooseFolderIcon(cFolderName, bShouldExpand, bSubfolderHasMatches, bIsEmpty)
+	def ChooseFolderIcon(bShouldExpand, bSubfolderHasMatches, bIsEmpty)
 		if bShouldExpand
-			return This.GetFolderIconForExpanded(cFolderName, bSubfolderHasMatches, bIsEmpty)
+			return This.GetFolderIconForExpanded(bSubfolderHasMatches, bIsEmpty)
 		else
 			return This.GetFolderIconForCollapsed(bIsEmpty)
 		end
@@ -3652,7 +3759,7 @@ def MissingPathsAmong(acPaths)
 	            bIsEmpty = (not bHasFiles and not bHasFolders)
 	            
 	            # Choose correct folder icon using dedicated method
-	            cIcon = This.ChooseFolderIcon(cItemName, bShouldExpand, bSubfolderHasMatches, bIsEmpty)
+	            cIcon = This.ChooseFolderIcon(bShouldExpand, bSubfolderHasMatches, bIsEmpty)
 	            
 	            # Add found indicator if folder itself matches
 	            if bFolderMatches
@@ -3695,6 +3802,7 @@ def MissingPathsAmong(acPaths)
 
 
 	def ShouldDeepExpandFolder(cFolderPath)
+
 		# If DeepExpandAll is enabled, expand all folders
 		if @bDeepExpandAll
 			return _TRUE_
