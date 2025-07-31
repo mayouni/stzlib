@@ -1698,24 +1698,33 @@ class stzFolder from stzObject
 
 	    return @oQDir.mkpath(pcFolderName)
 	
+
 	def DeleteFolder(cFolderName)
+
 	    if CheckParams()
 	        if NOT (isString(cFolderName) and cFolderName != "")
 	            raise("Incorrect param type! cFolderName must be a non-empty string.")
 	        ok
 	    end
-	
-	    if NOT This.IsInside(cFolderName)
+
+		cPath = This.NormalizeFolderPath(pcPath)
+
+	    if NOT This.IsInside(cPath)
 	        raise("Can't navigate outside the folder!")
 	    ok
-	
+
+		if not this.IsBatchMode()
+			This.GoTo(cPath)
+		ok
+
 	    oTempDir = new QDir()
-	    oTempDir.setPath(@oQDir.absoluteFilePath(cFolderName))
+	    oTempDir.setPath(@oQDir.absoluteFilePath(cPath))
 	    bSuccess = oTempDir.removeRecursively()
 	    oTempDir.delete()
 	    
 	    return bSuccess
-	
+
+
 	def DeleteAll()
 	    try
 	        # Delete all files
@@ -1737,6 +1746,8 @@ class stzFolder from stzObject
 	            oSubDir.delete()
 	        next
 	
+			This.GoHome()
+
 	    catch
 	        raise("Could not empty folder '" + This.Path() + "': " + CatchError())
 	    end
@@ -1753,6 +1764,10 @@ class stzFolder from stzObject
 	    
 	    return nDeleted
 	
+		def RemoveFiles()
+			return This.Erase()
+
+
 	def DeepErase()
 	    nDeleted = 0
 	    acFiles = This.DeepFilesXT()
