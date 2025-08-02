@@ -121,8 +121,8 @@ Different operations have intuitive navigation behaviors:
 Creating folders and files automatically moves you to their location:
 
 ```ring
-oFolder.CreateFolder("api/routes")     # Navigate TO: /webapp/api/routes/
-oFolder.CreateFile("users.ring")       # Navigate TO: /webapp/api/routes/
+oFolder.CreateFolder("api/routes")     # Navigate to: /webapp/api/routes/
+oFolder.CreateFile("users.ring")       # Navigate to: /webapp/api/routes/
 ```
 
 ### File Operations
@@ -130,17 +130,17 @@ oFolder.CreateFile("users.ring")       # Navigate TO: /webapp/api/routes/
 File operations position you at the target location:
 
 ```ring
-oFolder.FileRead("data/users.json")    # Navigate TO: /webapp/data/
+oFolder.FileRead("data/users.json")    # Navigate to: /webapp/data/
 oFolder.FileCopy("src/app.ring", "backup/app.ring")    # Navigate TO: /webapp/backup/
 ```
 
 ### Deletion Operations
 
-Deletion operations intelligently handle where you end up:
+Deletion operations naturally handle where you end up:
 
 ```ring
-oFolder.DeleteFolder("old-version")    # Navigate TO: parent folder
-oFolder.DeleteFile("temp.log")         # Navigate TO: file's containing folder
+oFolder.DeleteFolder("old-version")    # Navigate to: parent folder
+oFolder.DeleteFile("temp.log")         # Navigate to: file's containing folder
 ```
 
 ## Batch Mode: Multiple Operations Without Moving
@@ -200,14 +200,17 @@ oFolder {
 Softanza includes built-in safety measures for navigation:
 
 ```ring
+oFolder = new stzFolder("/mycontent")
+
 # Cannot navigate outside the folder boundary
 oFolder.CreateFolder("../system")      # Raises error: "Can't navigate outside the folder!"
 
 # File operations validate existence before navigation
 oFolder.FileRead("missing.txt")        # Raises error: "cFile does not exist in the folder."
 
-# Deletion operations handle edge cases gracefully  
-oFolder.DeleteFolder("docs")           # Safely navigates to parent after deletion
+# Deletion operations handle edge cases gracefully
+# (Assuming /mycontent/docs/) exists
+oFolder.DeleteFolder("docs")           # Safely navigates to parent /mycontent/ after deletion
 ```
 
 ## The Result
