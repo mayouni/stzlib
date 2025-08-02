@@ -36,6 +36,9 @@ Philosophy:
 
 */
 
+# TODO
+# All the methofs of the class must be wrapped here in global functions
+# because those functions makes it easy to mange files inside a stzFolder object
 
 func FileExists(cFile)
     oInfo = new stzFileInfo(cFile)
@@ -402,6 +405,7 @@ func FileModify(cFileName, cOldContent, cNewContent)
 	func @ModifyFile(cFileName, cOldContent, cNewContent)
 		return FileModify(cFileName, cOldContent, cNewContent)
 
+
 func FileCopy(cSource, cDestination)
     if not FileExists(cSource)
         StzRaise("Cannot copy non-existent file: " + cSource)
@@ -418,6 +422,7 @@ func FileCopy(cSource, cDestination)
 
 	func @CopyFile(cSource, cDestination)
 		return FileCopy(cSource, cDestination)
+
 
 func FileMove(cSource, cDestination)
     if not FileExists(cSource)
