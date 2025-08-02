@@ -8,6 +8,8 @@ In Softanza, **your mental location follows your actions**. When you perform an 
 
 Think of working in a real office. When you walk to the filing cabinet to create a new folder, you're naturally "at" the filing cabinet afterward:
 
+Here's how this natural navigation works in practice:
+
 ```ring
 # Start at your project root
 oFolder = new stzFolder("/my-project")
@@ -34,6 +36,8 @@ When you perform an action somewhere, that becomes your new "here."
 
 You can always navigate explicitly when required:
 
+Here are the explicit navigation methods available:
+
 ```ring
 oFolder = new stzFolder("/my-project")
 
@@ -53,6 +57,8 @@ oFolder.GoBack()                        # Return to previous location
 ```
 
 ### Combining Both Approaches
+
+This example shows how natural and explicit navigation work together seamlessly:
 
 ```ring
 oFolder = new stzFolder("/webapp")
@@ -74,27 +80,20 @@ oFolder.GoBack()                        # Back to: /webapp/api/users/
 Standard Ring file operations, like all other languages, require constant manual path management:
 
 ```ring
-# Classical Ring - explicit navigation everywhere
-chdir("/my-project")
-see "Create src directory: " + nl
+# Standard Ring - explicit navigation everywhere
+
+# Create src directory
 if not direxists("/my-project/src")
-    ? fopen("/my-project/src", "w")  # Using fopen to create directory
+    # Ring requires explicit path construction
+    system("mkdir /my-project/src")
 ok
+write("/my-project/src/main.ring", "# Main file")
 
-chdir("/my-project/src")
-write("main.ring", "# Main file")
-
-# Manual navigation for each operation
-chdir("/my-project")
+# Manual path construction for each operation
 if not direxists("/my-project/docs")
-    ? fopen("/my-project/docs", "w")  # Create docs directory
+    system("mkdir /my-project/docs")
 ok
-
-chdir("/my-project/docs")
-write("README.md", "# Documentation")
-
-# You constantly track location manually
-see "Current directory operations complete" + nl
+write("/my-project/docs/README.md", "# Documentation")
 ```
 
 Softanza's natural navigation follows your actions:
@@ -102,12 +101,13 @@ Softanza's natural navigation follows your actions:
 ```ring
 # Softanza - location follows intent
 oFolder = new stzFolder("/my-project")
+oFolder {}
+	CreateFolder("src")          # Now in: /my-project/src/
+	CreateFile("main.ring")      # Creates in current location
 
-oFolder.CreateFolder("src")          # Now in: /my-project/src/
-oFolder.CreateFile("main.ring")      # Creates in current location
-
-oFolder.CreateFolder("docs")         # Now in: /my-project/docs/  
-oFolder.CreateFile("README.md")      # Creates in current location
+	CreateFolder("docs")         # Now in: /my-project/docs/  
+	CreateFile("README.md")      # Creates in current location
+}
 ```
 
 The key difference: **action first, then navigation** vs. **navigate first, then action**.
@@ -118,6 +118,8 @@ Different operations have intuitive navigation behaviors:
 
 ### Creation Operations
 
+Creating folders and files automatically moves you to their location:
+
 ```ring
 oFolder.CreateFolder("api/routes")     # Navigate TO: /webapp/api/routes/
 oFolder.CreateFile("users.ring")       # Navigate TO: /webapp/api/routes/
@@ -125,12 +127,16 @@ oFolder.CreateFile("users.ring")       # Navigate TO: /webapp/api/routes/
 
 ### File Operations
 
+File operations position you at the target location:
+
 ```ring
 oFolder.FileRead("data/users.json")    # Navigate TO: /webapp/data/
 oFolder.FileCopy("src/app.ring", "backup/app.ring")    # Navigate TO: /webapp/backup/
 ```
 
 ### Deletion Operations
+
+Deletion operations intelligently handle where you end up:
 
 ```ring
 oFolder.DeleteFolder("old-version")    # Navigate TO: parent folder
@@ -172,6 +178,8 @@ oFolder.CreateFolder("src")
 
 ## Practical Example: Project Setup
 
+Here's how natural navigation simplifies setting up a web project structure:
+
 ```ring
 # Setting up a web project structure
 oFolder = new stzFolder("/webapp")
@@ -188,6 +196,8 @@ oFolder {
 ```
 
 ## Error Handling and Safety
+
+Softanza includes built-in safety measures for navigation:
 
 ```ring
 # Cannot navigate outside the folder boundary
