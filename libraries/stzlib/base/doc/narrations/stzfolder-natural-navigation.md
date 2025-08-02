@@ -101,7 +101,7 @@ Softanza's natural navigation follows your actions:
 ```ring
 # Softanza - location follows intent
 oFolder = new stzFolder("/my-project")
-oFolder {}
+oFolder {
 	CreateFolder("src")          # Now in: /my-project/src/
 	CreateFile("main.ring")      # Creates in current location
 
