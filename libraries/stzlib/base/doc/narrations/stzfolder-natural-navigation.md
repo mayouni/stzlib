@@ -71,23 +71,30 @@ oFolder.GoBack()                        # Back to: /webapp/api/users/
 
 ## Natural vs Classical Navigation
 
-Standard Ring file operations require constant manual path management:
+Standard Ring file operations, like all other languages, require constant manual path management:
 
 ```ring
 # Classical Ring - explicit navigation everywhere
 chdir("/my-project")
-system("mkdir src")
+see "Create src directory: " + nl
+if not direxists("/my-project/src")
+    ? fopen("/my-project/src", "w")  # Using fopen to create directory
+ok
+
 chdir("/my-project/src")
 write("main.ring", "# Main file")
 
 # Manual navigation for each operation
 chdir("/my-project")
-system("mkdir docs")
+if not direxists("/my-project/docs")
+    ? fopen("/my-project/docs", "w")  # Create docs directory
+ok
+
 chdir("/my-project/docs")
 write("README.md", "# Documentation")
 
 # You constantly track location manually
-cCurrentPath = getCurrentDir()
+see "Current directory operations complete" + nl
 ```
 
 Softanza's natural navigation follows your actions:
@@ -110,18 +117,21 @@ The key difference: **action first, then navigation** vs. **navigate first, then
 Different operations have intuitive navigation behaviors:
 
 ### Creation Operations
+
 ```ring
 oFolder.CreateFolder("api/routes")     # Navigate TO: /webapp/api/routes/
 oFolder.CreateFile("users.ring")       # Navigate TO: /webapp/api/routes/
 ```
 
 ### File Operations
+
 ```ring
 oFolder.FileRead("data/users.json")    # Navigate TO: /webapp/data/
 oFolder.FileCopy("src/app.ring", "backup/app.ring")    # Navigate TO: /webapp/backup/
 ```
 
 ### Deletion Operations
+
 ```ring
 oFolder.DeleteFolder("old-version")    # Navigate TO: parent folder
 oFolder.DeleteFile("temp.log")         # Navigate TO: file's containing folder
