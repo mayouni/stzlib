@@ -1680,50 +1680,80 @@ class stzFolder from stzObject
 	#=====================#
 
 	def CreateFolder(pcPath)
+
 	    if CheckParams()
 	        if NOT (isString(pcPath) and pcPath != "")
 	            raise("Incorrect param type! pcPath must be a non-empty string.")
 	        ok
 	    end
 	
-		cPath = This.NormalizeFolderPath(pcPath)
-
+	    # Resolve relative paths against current position
+	    if not @oQDir.isAbsolutePath(pcPath)
+	        pcPath = This.CurrentPath() + pcPath
+	    ok
+	
+	    cPath = This.NormalizeFolderPath(pcPath)
+	
 	    if NOT This.IsInside(cPath)
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-		if not this.IsBatchMode()
-			This.GoTo(pcPath)
-		ok
-
-	    return @oQDir.mkpath(pcFolderName)
+	    # Create the folder first
+	    bResult = @oQDir.mkpath(cPath)
 	
+	    # Then navigate there (intelligent navigation)
+	    if not this.IsBatchMode()
+	        This.GoTo(cPath)
+	    ok
+	
+	    return bResult
 
-	def DeleteFolder(cFolderName)
+		def FolderCreate()
+			return This.CreateFolder()
+
+
+	def DeleteFolder(cFolder)
 
 	    if CheckParams()
-	        if NOT (isString(cFolderName) and cFolderName != "")
-	            raise("Incorrect param type! cFolderName must be a non-empty string.")
+	        if NOT (isString(cFolder) and cFolder != "")
+	            StzRaise("Incorrect param type! cFolder must be a non-empty string.")
 	        ok
-	    end
-
-		cPath = This.NormalizeFolderPath(pcPath)
-
-	    if NOT This.IsInside(cPath)
+	    ok
+	
+	    # Resolve relative paths against current position
+	    if not @oQDir.isAbsolutePath(cFolder)
+	        cFolder = This.CurrentPath() + cFolder
+	    ok
+	
+	    cFolder = This.NormalizeFolderPathXT(cFolder)
+	
+	    if This.IsPathOutside(cFolder)
 	        raise("Can't navigate outside the folder!")
 	    ok
-
-		if not this.IsBatchMode()
-			This.GoTo(cPath)
-		ok
-
-	    oTempDir = new QDir()
-	    oTempDir.setPath(@oQDir.absoluteFilePath(cPath))
-	    bSuccess = oTempDir.removeRecursively()
-	    oTempDir.delete()
+	
+	    if not This.Exists(cFolder)
+	        raise("Folder does not exist.")
+	    ok
+	
+	    # Delete the folder first
+	    bResult = @oQDir.removeRecursively(cFolder)
 	    
-	    return bSuccess
+	    # Then navigate to parent folder (intelligent navigation)
+	    if not this.IsBatchMode()
+	        cParentDir = This.GetDirectoryPath(cFolder)
+	        This.GoTo(cParentDir)
+	    ok
+	
+	    return bResult
 
+		def FolderDelete()
+			return This.DeleteFolder()
+
+		def RemoveFolder()
+			return This.DeleteFolder()
+
+		def FolderRemove()
+			return This.DeleteFolder()
 
 	def DeleteAll()
 	    try
@@ -1746,12 +1776,46 @@ class stzFolder from stzObject
 	            oSubDir.delete()
 	        next
 	
+			# After clearing everything, go home (natural mental position)
 			This.GoHome()
 
 	    catch
 	        raise("Could not empty folder '" + This.Path() + "': " + CatchError())
 	    end
-	
+
+		#< @FunctionAlternativeForms
+
+		def DeleteAllFiles()
+			return This.DeleteAll()
+
+		def DeepDeleteFiles()
+			return This.DeleteAll()
+
+		def FilesDeepDelete()
+			return This.DeleteAll()
+
+		def AllFilesDeepDelete()
+			return This.DeleteAll()
+
+		#--
+
+		def RemoveAll()
+			This.DeleteAll()
+
+		def RemoveAllFiles()
+			return This.DeleteAll()
+
+		def DeepRemoveFiles()
+			return This.DeleteAll()
+
+		def FilesDeepRemove()
+			return This.DeleteAll()
+
+		def AllFilesDeepRemove()
+			return This.DeleteAll()
+
+		#>
+
 	def Erase()
 	    nDeleted = 0
 	    acFiles = This.FilesXT()
@@ -1761,7 +1825,8 @@ class stzFolder from stzObject
 	            nDeleted++
 	        ok
 	    next
-	    
+
+	    # Stay in current folder - just cleaned it up
 	    return nDeleted
 	
 		def RemoveFiles()
@@ -1778,6 +1843,7 @@ class stzFolder from stzObject
 	        ok
 	    next
 	    
+	    # Stay in current folder - performed deep operation from here
 	    return nDeleted
 	
 	def DeepDeleteFile(cFileName)
@@ -1800,54 +1866,72 @@ class stzFolder from stzObject
 	        ok
 	    next
 	
+		# Stay in current folder - deep operations initiated from here
 	    return nDeleted > 0
 	
-		def DeepDeleteFolder(cFolderName)
-	
-			if CheckParams()
-				if NOT ( isString(cFolderName) and trim(cFolderNAme) != "" )
-					StzRaise("Incorrect param type! cFolderName must be a non-empty string.")
-				ok
-			ok
 
-		    acFolderPaths = This.DeepFindFolder(cFolderName)
-	
-		    # Sort by depth (deepest first) using Ring's sort
-		    acSortedPaths = []
-		    for cPath in acFolderPaths
-		        nDepth = len(@split(cPath, This.Separator()))
-		        acSortedPaths + [nDepth, cPath]
-		    next
-	
-		    # Sort by depth descending (deepest first)
-		    acSortedPaths = @sorton(acSortedPaths, 1)
-		    acSortedPaths = reverse(acSortedPaths)
-	
-		    # Delete folders using Qt
-	
-			bResult = TRUE
-	
-		    for aPathInfo in acSortedPaths
-		        cFolderPath = aPathInfo[2]
-	
-		        oTempDir = new QDir()
-		        oTempDir.setPath(cFolderPath)
-	
-		        if oTempDir.exists_2()  # Check if directory exists
-		            if NOT oTempDir.removeRecursively()  # Qt's safe recursive removal
-		                bResult = FALSE
-						exit
-		            ok
-		        ok
-	
-		        oTempDir.delete()
-		    next
+		def FileDeepDelete(cFileName)
+			return This.DeepDeleteFile(cFileName)
+
+		def DeepRemoveFile(cFileName)
+			return This.DeepDeleteFile(cFileName)
+
+		def FileDeepRemove(cFileName)
+			return This.DeepDeleteFile(cFileName)
+
+
+	def DeepDeleteFolder(cFolderName)
+
+		if CheckParams()
+			if NOT ( isString(cFolderName) and trim(cFolderName) != "" )  # Fixed: cFolderNAme typo
+				StzRaise("Incorrect param type! cFolderName must be a non-empty string.")
+			ok
+		ok
+
+	    acFolderPaths = This.DeepFindFolder(cFolderName)
+
+	    # Sort by depth (deepest first) using Ring's sort
+	    acSortedPaths = []
+	    for cPath in acFolderPaths
+	        nDepth = len(@split(cPath, This.Separator()))
+	        acSortedPaths + [nDepth, cPath]
+	    next
+
+	    # Sort by depth descending (deepest first)
+	    acSortedPaths = @sorton(acSortedPaths, 1)
+	    acSortedPaths = reverse(acSortedPaths)
+
+	    # Delete folders using Qt
+		bResult = TRUE
+
+	    for aPathInfo in acSortedPaths
+	        cFolderPath = aPathInfo[2]
+
+	        oTempDir = new QDir()
+	        oTempDir.setPath(cFolderPath)
+
+	        if oTempDir.exists_2()  # Check if directory exists
+	            if NOT oTempDir.removeRecursively()  # Qt's safe recursive removal
+	                bResult = FALSE
+					exit
+	            ok
+	        ok
+
+	        oTempDir.delete()
+	    next
 		
-		    return bResult
+		# Stay in current folder - deep operation initiated from here
+	    return bResult
+
+		def DeepRemoveFolder(cFolderName)
+			return This.DeepDeleteFolder(cFolderName)
 	
-			def DeepRemoveFolder(cFolderName)
-				return This.DeepDeleteFolder(cFolderName)
-	
+
+		def FolderDeepDelete(cFolderName)
+			return This.DeepDeleteFile(cFolderName)
+
+		def FolderDeepRemove(cFolderName)
+			return This.DeepRemoveFile(cFolderName)
 
 	#===================#
 	#  File Operations  #
@@ -1855,28 +1939,45 @@ class stzFolder from stzObject
 
 	def FileRead(cFile)
 
-		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
-				StzRaise("Incorrect param type! cFile must be a non-empty string.")
-			ok
-		ok
+	    if CheckParams()
+	        if NOT ( isString(cFile) and trim(cFile) != "" )
+	            StzRaise("Incorrect param type! cFile must be a non-empty string.")
+	        ok
+	    ok
+	
+	    # Resolve relative paths against current position
+	    if not @oQDir.isAbsolutePath(cFile)
+	        cFile = This.CurrentPath() + cFile
+	    ok
+	
+	    cFile = This.NormaliseFilePathXT(cFile)
+	
+	    if This.IsPathOutside(cFile)
+	        raise("Can't navigate outside the folder!")
+	    ok
+	
+	    if not This.Exists(cFile)
+	        raise("cFile does not exist in the folder.")
+	    ok
+	
+	    # Read the file first
+	    cResult = @FileRead(cFile)
+	    
+	    # Then navigate to its folder (intelligent navigation)
+	    if not this.IsBatchMode()
+	        cFileDir = This.GetDirectoryPath(cFile)
+	        This.GoTo(cFileDir)
+	    ok
+	
+	    return cResult
 
-		cFile = This.NormaliseFilePathXT(cFile)
-
-		if NOT This.Inside(cFile)
-			raise("Can't navigate outside the folder!")
-		ok
-
-		if NOT This.Exists(cFile)
-			raise("Can't read this file! cFile does not exist in the folder.")
-		ok
-
-		return @FileRead(cFile)
 
 		def ReadFile(cFile)
 			return This.FileRead(cFile)
 
-	def FileReadQ(cFile)
+	#--
+
+	def FileAppend(cFile, cAdditionalText)
 
 		if CheckParams()
 			if NOT ( isString(cFile) and trim(cFile) != "" )
@@ -1891,12 +1992,22 @@ class stzFolder from stzObject
 		ok
 
 		if NOT This.Exists(cFile)
-			raise("Can't read this file! cFile does not exist in the folder.")
+			raise("Can't append this file! cFile does not exist in the folder.")
 		ok
 
-		return @FileReadQ(cFile)
+		# Navigate to file's folder (intelligent navigation)
+		if not this.IsBatchMode()
+			cFileDir = This.GetDirectoryPath(cFile)
+			This.GoTo(cFileDir)
+		ok
 
-		def ReadFileQ(cFile)
+		return @FileAppend(cFile, cAdditionalText)
+
+		def AppendFile(cFile, cAdditionalText)
+			return FileAppend(cFile, cAdditionalText)
+
+
+		def FileAppendQ(cFile, cAdditionalText)
 
 			if CheckParams()
 				if NOT ( isString(cFile) and trim(cFile) != "" )
@@ -1904,9 +2015,588 @@ class stzFolder from stzObject
 				ok
 			ok
 
-			return This.FileReadQ(cFile)
+			cFile = This.NormaliseFilePathXT(cFile)
+	
+			if NOT This.Inside(cFile)
+				raise("Can't navigate outside the folder!")
+			ok
+	
+			if NOT This.Exists(cFile)
+				raise("Can't append this file! cFile does not exist in the folder.")
+			ok
+
+			# Navigate to file's folder (intelligent navigation)
+			if not this.IsBatchMode()
+				cFileDir = This.GetDirectoryPath(cFile)
+				This.GoTo(cFileDir)
+			ok
+
+			return @FileAppendQ(cFile, cAdditionalText)
+
+
+			def AppendFileQ(cFile, cAdditionalText)
+				return FileAppendQ(cFile, cAdditionalText)
 
 	#--
+
+	def FileCreate(cFile) #TODO // Provide also the content FileCreate(cFile, cContent)
+
+	    if CheckParams()
+	        if NOT ( isString(cFile) and trim(cFile) != "" )
+	            StzRaise("Incorrect param type! cFile must be a non-empty string.")
+	        ok
+	    ok
+	
+	    # Resolve relative paths against current position
+
+	    if not @oQDir.isAbsolutePath(cFile)
+	        cFile = This.CurrentPath() + cFile
+	    ok
+	
+	    cFile = This.NormaliseFilePathXT(cFile)
+	
+	    if This.IsPathOutside(cFile)
+	        raise("Can't navigate outside the folder!")
+	    ok
+	
+	    if This.Exists(cFile)
+	        raise("Can't create this file! cFile already exists in the folder.")
+	    ok
+	
+	    # Create the file first
+	    bResult = @FileCreate(cFile)
+	    
+	    # Then navigate to its folder (intelligent navigation)
+	    if not this.IsBatchMode()
+	        cFileDir = This.GetDirectoryPath(cFile)
+	        This.GoTo(cFileDir)
+	    ok
+	
+	    return bResult
+
+		def CreateFile(cFile)
+			return This.FileCreate(cFile)
+
+
+		def FileCreateQ(cFile)
+	
+		    if CheckParams()
+		        if NOT ( isString(cFile) and trim(cFile) != "" )
+		            StzRaise("Incorrect param type! cFile must be a non-empty string.")
+		        ok
+		    ok
+		
+		    # Resolve relative paths against current position
+	
+		    if not @oQDir.isAbsolutePath(cFile)
+		        cFile = This.CurrentPath() + cFile
+		    ok
+		
+		    cFile = This.NormaliseFilePathXT(cFile)
+		
+		    if This.IsPathOutside(cFile)
+		        raise("Can't navigate outside the folder!")
+		    ok
+		
+		    if This.Exists(cFile)
+		        raise("Can't create this file! cFile already exists in the folder.")
+		    ok
+		
+		    # Create the file first
+		    oResult = @FileCreateQ(cFile)
+		    
+		    # Then navigate to its folder (intelligent navigation)
+		    if not this.IsBatchMode()
+		        cFileDir = This.GetDirectoryPath(cFile)
+		        This.GoTo(cFileDir)
+		    ok
+		
+		    return oResult
+
+			def CreateFileQ(cFile)
+				return This.FileCreateQ(cFile)
+
+	
+	def FilesCreate(acFileNames) #TODO // [ [ cFileName1, cFileContent1 ], [ ]... ]
+
+		if CheckParams()
+			if NOT (isList(acFileNames) and @IsListOfStrings(acFileNames))
+				StzRaise("Incorrect param type! acFileNames must be a list of strings.")
+			ok
+		ok
+
+		acCreated = []
+		acFailed = []
+		cLastSuccessfulDir = ""
+
+		for cFileName in acFileNames
+			try
+				This.CreateFile(cFileName)
+				acCreated + cFileName
+				# Track last successful creation for intelligent navigation
+				cLastSuccessfulDir = This.GetDirectoryPath(cFileName)
+			catch
+				acFailed + [cFileName, CatchError()]
+			end
+		next
+
+		# Navigate to last successful creation folder (intelligent navigation)
+		if not this.IsBatchMode() and cLastSuccessfulDir != ""
+			This.GoTo(cLastSuccessfulDir)
+		ok
+
+		return [
+			:Created = acCreated,
+			:Failed = acFailed
+		]
+
+		def CreateFiles(acFileNames)
+			return This.FilesCreate(acFileNames)
+
+
+	def FileOverwrite(cFile, cNewContent)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
+		cFile = This.NormaliseFilePathXT(cFile)
+
+		if NOT This.Inside(cFile)
+			raise("Can't navigate outside the folder!")
+		ok
+
+		if NOT This.Exists(cFile)
+			raise("Can't overwrite this file! cFile does not exist in the folder.")
+		ok
+
+		# Navigate to file's folder (intelligent navigation)
+		if not this.IsBatchMode()
+			cFileDir = This.GetDirectoryPath(cFile)
+			This.GoTo(cFileDir)
+		ok
+
+		return @FileOverwrite(cFile, cNewContent)
+
+	
+		def OverwriteFile(cFile, cNewContent)
+			return This.FileOverwrite(cFile, cNewContent)
+
+		def FileOverwriteQ(cFile, cNewContent)
+
+			if CheckParams()
+				if NOT ( isString(cFile) and trim(cFile) != "" )
+					StzRaise("Incorrect param type! cFile must be a non-empty string.")
+				ok
+			ok
+	
+			cFile = This.NormaliseFilePathXT(cFile)
+	
+			if NOT This.Inside(cFile)
+				raise("Can't navigate outside the folder!")
+			ok
+	
+			if NOT This.Exists(cFile)
+				raise("Can't overwrite this file! cFile does not exist in the folder.")
+			ok
+	
+			# Navigate to file's folder (intelligent navigation)
+			if not this.IsBatchMode()
+				cFileDir = This.GetDirectoryPath(cFile)
+				This.GoTo(cFileDir)
+			ok
+	
+			return @FileOverwriteQ(cFile, cNewContent)
+
+			def OverwriteFileQ(cFile, cNewContent)
+				return This.FileOverwriteQ(cFile, cNewContent)
+	
+	
+	def FileErase(cFile)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
+		cFile = This.NormaliseFilePathXT(cFile)
+
+		if NOT This.Inside(cFile)
+			raise("Can't navigate outside the folder!")
+		ok
+
+		if NOT This.Exists(cFile)
+			raise("Can't erase this file! cFile does not exist in the folder.")
+		ok
+
+		# Navigate to file's folder before erasing (intelligent navigation)
+		if not this.IsBatchMode()
+			cFileDir = This.GetDirectoryPath(cFile)
+			This.GoTo(cFileDir)
+		ok
+
+		return @FileErase(cFile)
+
+		def EraseFile(cFile)
+			return This.FileErase(cFile)
+
+
+		def FileEraseQ(cFile)
+
+			if CheckParams()
+				if NOT ( isString(cFile) and trim(cFile) != "" )
+					StzRaise("Incorrect param type! cFile must be a non-empty string.")
+				ok
+			ok
+
+			cFile = This.NormaliseFilePathXT(cFile)
+	
+			if NOT This.Inside(cFile)
+				raise("Can't navigate outside the folder!")
+			ok
+	
+			if NOT This.Exists(cFile)
+				raise("Can't erase this file! cFile does not exist in the folder.")
+			ok
+
+			# Navigate to file's folder before erasing (intelligent navigation)
+			if not this.IsBatchMode()
+				cFileDir = This.GetDirectoryPath(cFile)
+				This.GoTo(cFileDir)
+			ok
+
+			return @FileEraseQ(cFile)  # Fixed: was This.cFile
+
+
+			def EraseFileQ(cFile)
+				return This.FileEraseQ(cFile)
+
+
+	def FileSafeErase(cFile)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
+		cFile = This.NormaliseFilePathXT(cFile)
+
+		if NOT This.Inside(cFile)
+			raise("Can't navigate outside the folder!")
+		ok
+
+		if NOT This.Exists(cFile)
+			raise("Can't safe-erase this file! cFile does not exist in the folder.")
+		ok
+
+		# Navigate to file's folder before safe-erasing (intelligent navigation)
+		if not this.IsBatchMode()
+			cFileDir = This.GetDirectoryPath(cFile)
+			This.GoTo(cFileDir)
+		ok
+
+		return @FileSafeErase(cFile)
+
+
+		def FileSafeEraseQ(cFile)
+
+			if CheckParams()
+				if NOT ( isString(cFile) and trim(cFile) != "" )
+					StzRaise("Incorrect param type! cFile must be a non-empty string.")
+				ok
+			ok
+
+			cFile = This.NormaliseFilePathXT(cFile)
+	
+			if NOT This.Inside(cFile)
+				raise("Can't navigate outside the folder!")
+			ok
+	
+			if NOT This.Exists(cFile)
+				raise("Can't safe-erase this file! cFile does not exist in the folder.")
+			ok
+
+			# Navigate to file's folder before safe-erasing (intelligent navigation)
+			if not this.IsBatchMode()
+				cFileDir = This.GetDirectoryPath(cFile)
+				This.GoTo(cFileDir)
+			ok
+
+			return @FileSafeEraseQ(cFile)
+	
+		def SafeEraseFile(cFile)
+			return This.FileSafeErase(cFile)
+
+		def SafeEraseFileQ(cFile)
+			return This.FileSafeEraseQ(cFile)
+
+
+	def FileRemove(cFile)
+
+	    if CheckParams()
+	        if NOT ( isString(cFile) and trim(cFile) != "" )
+	            StzRaise("Incorrect param type! cFile must be a non-empty string.")
+	        ok
+	    ok
+	
+	    # Resolve relative paths against current position
+	    if not @oQDir.isAbsolutePath(cFile)
+	        cFile = This.CurrentPath() + cFile
+	    ok
+	
+	    cFile = This.NormaliseFilePathXT(cFile)
+	
+	    if This.IsPathOutside(cFile)
+	        raise("Can't navigate outside the folder!")
+	    ok
+	
+	    if not This.Exists(cFile)
+	        raise("cFile does not exist in the folder.")
+	    ok
+	
+	    # Delete the file first
+	    bResult = @FileRemove(cFile)
+	    
+	    # Then navigate to file's containing folder (intelligent navigation)
+	    if not this.IsBatchMode()
+	        cFileDir = This.GetDirectoryPath(cFile)
+	        This.GoTo(cFileDir)
+	    ok
+	
+	    return bResult
+
+		def FileDelete(cFile)
+			return This.FileRemove(cFile)
+
+		def RemoveFile(cFile)
+			return This.FileRemove(cFile)
+
+		def DeleteFile(cFile)
+			return This.FileRemove(cFile)
+
+
+	def FileBackup(cFile)
+
+	    if CheckParams()
+	        if NOT ( isString(cFile) and trim(cFile) != "" )
+	            StzRaise("Incorrect param type! cFile must be a non-empty string.")
+	        ok
+	    ok
+	
+	    # Resolve relative paths against current position
+	    if not @oQDir.isAbsolutePath(cFile)
+	        cFile = This.CurrentPath() + cFile
+	    ok
+	
+	    cFile = This.NormaliseFilePathXT(cFile)
+	
+	    if This.IsPathOutside(cFile)
+	        raise("Can't navigate outside the folder!")
+	    ok
+	
+	    if not This.Exists(cFile)
+	        raise("cFile does not exist in the folder.")
+	    ok
+	
+	    # Create backup first
+	    cBackupFile = cFile + ".bak"
+	    bResult = @FileBackup(cFile, cBackupFile)
+	    
+	    # Then navigate to file's folder (intelligent navigation)
+	    if not this.IsBatchMode()
+	        cFileDir = This.GetDirectoryPath(cFile)
+	        This.GoTo(cFileDir)
+	    ok
+	
+	    return bResult
+
+
+		def BackupFile(cFile)
+			return This.FileBackup(cFile)
+
+
+	def FileSafeOverwrite(cFile, cNewContent)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
+		cFile = This.NormaliseFilePathXT(cFile)
+
+		if NOT This.Inside(cFile)
+			raise("Can't navigate outside the folder!")
+		ok
+
+		if NOT This.Exists(cFile)
+			raise("Can't safe-overwirte this file! cFile does not exist in the folder.")
+		ok
+
+		# Navigate to file's folder (intelligent navigation)
+		if not this.IsBatchMode()
+			cFileDir = This.GetDirectoryPath(cFile)
+			This.GoTo(cFileDir)
+		ok
+
+		return @FileSafeOverwrite(cFile, cNewContent)
+
+		def SafeOverwriteFile(cFile, cNewContent)
+			return This.FileSafeOverwrite(cFile, cNewContent)
+
+
+	def FileModify(cFile, cOldContent, cNewContent)
+
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
+		cFile = This.NormaliseFilePathXT(cFile)
+
+		if NOT This.Inside(cFile)
+			raise("Can't navigate outside the folder!")
+		ok
+
+		if NOT This.Exists(cFile)
+			raise("Can't modify this file! cFile does not exist in the folder.")
+		ok
+
+		# Navigate to file's folder (intelligent navigation)
+		if not this.IsBatchMode()
+			cFileDir = This.GetDirectoryPath(cFile)
+			This.GoTo(cFileDir)
+		ok
+
+		return @FileModify(cFile, cOldContent, cNewContent)
+
+		def ModifyFile(cFile, cOldContent, cNewContent)
+			return This.FileModify(cFile, cOldContent, cNewContent)
+
+
+	def FileCopy(cSourceFile, cDestFile)
+	    if CheckParams()
+	        if NOT ( isString(cSourceFile) and trim(cSourceFile) != "" )
+	            StzRaise("Incorrect param type! cSourceFile must be a non-empty string.")
+	        ok
+	        if NOT ( isString(cDestFile) and trim(cDestFile) != "" )
+	            StzRaise("Incorrect param type! cDestFile must be a non-empty string.")
+	        ok
+	    ok
+	
+	    # Resolve relative paths against current position
+	    if not @oQDir.isAbsolutePath(cSourceFile)
+	        cSourceFile = This.CurrentPath() + cSourceFile
+	    ok
+	    if not @oQDir.isAbsolutePath(cDestFile)
+	        cDestFile = This.CurrentPath() + cDestFile
+	    ok
+	
+	    cSourceFile = This.NormaliseFilePathXT(cSourceFile)
+	    cDestFile = This.NormaliseFilePathXT(cDestFile)
+	
+	    if This.IsPathOutside(cSourceFile) or This.IsPathOutside(cDestFile)
+	        raise("Can't navigate outside the folder!")
+	    ok
+	
+	    if not This.Exists(cSourceFile)
+	        raise("Source file does not exist in the folder.")
+	    ok
+	
+	    # Copy the file first
+	    bResult = @FileCopy(cSourceFile, cDestFile)
+	    
+	    # Then navigate to destination folder (intelligent navigation)
+	    if not this.IsBatchMode()
+	        cDestDir = This.GetDirectoryPath(cDestFile)
+	        This.GoTo(cDestDir)
+	    ok
+	
+	    return bResult
+
+
+		def CopyFile(cSource, cDest)
+			return this.FileCopy(cSource, cDest)
+
+
+	def FileMove(cSourceFile, cDestFile)
+	    if CheckParams()
+	        if NOT ( isString(cSourceFile) and trim(cSourceFile) != "" )
+	            StzRaise("Incorrect param type! cSourceFile must be a non-empty string.")
+	        ok
+	        if NOT ( isString(cDestFile) and trim(cDestFile) != "" )
+	            StzRaise("Incorrect param type! cDestFile must be a non-empty string.")
+	        ok
+	    ok
+	
+	    # Resolve relative paths against current position
+	    if not @oQDir.isAbsolutePath(cSourceFile)
+	        cSourceFile = This.CurrentPath() + cSourceFile
+	    ok
+	    if not @oQDir.isAbsolutePath(cDestFile)
+	        cDestFile = This.CurrentPath() + cDestFile
+	    ok
+	
+	    cSourceFile = This.NormaliseFilePathXT(cSourceFile)
+	    cDestFile = This.NormaliseFilePathXT(cDestFile)
+	
+	    if This.IsPathOutside(cSourceFile) or This.IsPathOutside(cDestFile)
+	        raise("Can't navigate outside the folder!")
+	    ok
+	
+	    if not This.Exists(cSourceFile)
+	        raise("Source file does not exist in the folder.")
+	    ok
+	
+	    # Move the file first
+	    bResult = @FileMove(cSourceFile, cDestFile)
+	    
+	    # Then navigate to destination folder (intelligent navigation)
+	    if not this.IsBatchMode()
+	        cDestDir = This.GetDirectoryPath(cDestFile)
+	        This.GoTo(cDestDir)
+	    ok
+	
+	    return bResult
+
+
+		def MoveFile(cSource, cDestination)
+			return this.FileMove(cSource, cDestination)
+
+	#--
+
+	def FileSize(cFile)
+		if CheckParams()
+			if NOT ( isString(cFile) and trim(cFile) != "" )
+				StzRaise("Incorrect param type! cFile must be a non-empty string.")
+			ok
+		ok
+
+		cFile = This.NormaliseFilePathXT(cFile)
+
+		if NOT This.Inside(cFile)
+			raise("Can't navigate outside the folder!")
+		ok
+
+		if NOT This.Exists(cFile)
+			raise("Can't get size of this file! cFile does not exist in the folder.")  # Fixed: was "modify"
+		ok
+
+		# Navigate to file's folder (intelligent navigation)
+		if not this.IsBatchMode()
+			cFileDir = This.GetDirectoryPath(cFile)
+			This.GoTo(cFileDir)
+		ok
+
+		return @FileSize(cFile)
+
+		def FileSizeInBytes(cFile)
+			return this.FileSize(cFile)
 
 	def FileInfo(cFile)
 
@@ -1926,6 +2616,12 @@ class stzFolder from stzObject
 			raise("Can't read this file! cFile does not exist in the folder.")
 		ok
 
+		# Navigate to file's folder (intelligent navigation)
+		if not this.IsBatchMode()
+			cFileDir = This.GetDirectoryPath(cFile)
+			This.GoTo(cFileDir)
+		ok
+
 		return @FileInfo(cFile)
 
 		def FileInfoQ(cFile)
@@ -1937,6 +2633,12 @@ class stzFolder from stzObject
 	
 			if NOT This.Exists(cFile)
 				raise("Can't read this file! cFile does not exist in the folder.")
+			ok
+
+			# Navigate to file's folder (intelligent navigation)
+			if not this.IsBatchMode()
+				cFileDir = This.GetDirectoryPath(cFile)
+				This.GoTo(cFileDir)
 			ok
 
 			return @FileInfoQ(cFile)
@@ -1959,444 +2661,13 @@ class stzFolder from stzObject
 			raise("Can't read this file! cFile does not exist in the folder.")
 		ok
 
+		# Navigate to file's folder (intelligent navigation)
+		if not this.IsBatchMode()
+			cFileDir = This.GetDirectoryPath(cFile)
+			This.GoTo(cFileDir)
+		ok
+
 		return @FileInfoXT(cFile)
-
-	#--
-
-	def FileAppend(cFile, cAdditionalText)
-
-		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
-				StzRaise("Incorrect param type! cFile must be a non-empty string.")
-			ok
-		ok
-
-
-		cFile = This.NormaliseFilePathXT(cFile)
-
-		if NOT This.Inside(cFile)
-			raise("Can't navigate outside the folder!")
-		ok
-
-		if NOT This.Exists(cFile)
-			raise("Can't append this file! cFile does not exist in the folder.")
-		ok
-
-		return @FileAppend(cFile, cAdditionalText)
-
-
-
-		def FileAppendQ(cFile, cAdditionalText)
-
-			if CheckParams()
-				if NOT ( isString(cFile) and trim(cFile) != "" )
-					StzRaise("Incorrect param type! cFile must be a non-empty string.")
-				ok
-			ok
-
-			cFile = This.NormaliseFilePathXT(cFile)
-	
-			if NOT This.Inside(cFile)
-				raise("Can't navigate outside the folder!")
-			ok
-	
-			if NOT This.Exists(cFile)
-				raise("Can't append this file! cFile does not exist in the folder.")
-			ok
-
-			return @FileAppendQ(cFile, cAdditionalText)
-
-		def AppendFile(cFile, cAdditionalText)
-			return FileAppend(cFile, cAdditionalText)
-
-			def AppendFileQ(cFile, cAdditionalText)
-				return FileAppendQ(cFile, cAdditionalText)
-
-	#--
-
-	def FileCreate(cFile)
-
-		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
-				StzRaise("Incorrect param type! cFile must be a non-empty string.")
-			ok
-		ok
-
-		cFile = This.NormaliseFilePathXT(cFile)
-
-		if This.IsPathOutside(cFile)
-			raise("Can't navigate outside the folder!")
-		ok
-
-		if This.Exists(cFile)
-			raise("Can't create this file! cFile already exists in the folder.")
-		ok
-
-		return @FileCreate(cFile)
-
-		def FileCreateQ(cFile)
-	
-			if CheckParams()
-				if NOT ( isString(cFile) and trim(cFile) != "" )
-					StzRaise("Incorrect param type! cFile must be a non-empty string.")
-				ok
-			ok
-
-			cFile = This.NormaliseFilePathXT(cFile)
-	
-			if This.IsPathOutside(cFile)
-				raise("Can't navigate outside the folder!")
-			ok
-	
-			if This.Exists(cFile)
-				raise("Can't create this file! cFile already exists in the folder.")
-			ok
-
-			return @FileCreateQ(This.ResolvePath(cFile))
-	
-		def CreateFile(cFile)
-			return This.FileCreate(cFile)
-
-			def CreateFileQ(cFile)
-				return This.FileCreateQ(cFile)
-
-	def FilesCreate(acFileNames)
-
-		if CheckParams()
-			if NOT (isList(acFileNames) and @IsListOfStrings(acFileNames))
-				StzRaise("Incorrect param type! acFileNames must be a list of strings.")
-			ok
-		ok
-
-		acCreated = []
-		acFailed = []
-
-		for cFileName in acFileNames
-			try
-				This.CreateFile(cFileName)
-				acCreated + cFileName
-			catch
-				acFailed + [cFileName, CatchError()]
-			end
-		next
-
-		return [
-			:Created = acCreated,
-			:Failed = acFailed
-		]
-
-		def CreateFiles(acFileNames)
-			return This.FilesCreate(acFileNames)
-
-	def FileOverwrite(cFile, cNewContent)
-
-		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
-				StzRaise("Incorrect param type! cFile must be a non-empty string.")
-			ok
-		ok
-
-		cFile = This.NormaliseFilePathXT(cFile)
-
-		if NOT This.Inside(cFile)
-			raise("Can't navigate outside the folder!")
-		ok
-
-		if NOT This.Exists(cFile)
-			raise("Can't overwrite this file! cFile does not exist in the folder.")
-		ok
-
-		return @FileOverwrite(cFile, cNewContent)
-
-
-		def FileOverwriteQ(cFile, cNewContent)
-
-			if CheckParams()
-				if NOT ( isString(cFile) and trim(cFile) != "" )
-					StzRaise("Incorrect param type! cFile must be a non-empty string.")
-				ok
-			ok
-
-			cFile = This.NormaliseFilePathXT(cFile)
-	
-			if NOT This.Inside(cFile)
-				raise("Can't navigate outside the folder!")
-			ok
-	
-			if NOT This.Exists(cFile)
-				raise("Can't overwrite this file! cFile does not exist in the folder.")
-			ok
-
-			return @FileOverwriteQ(cFile, cNewContent)
-
-		def OverwriteFile(cFile, cNewContent)
-			return This.FileOverwrite(cFile, cNewContent)
-
-		def OverwriteFileQ(cFile, cNewContent)
-			return This.FileOverwriteQ(cFile, cNewContent)
-
-	def FileErase(cFile)
-
-		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
-				StzRaise("Incorrect param type! cFile must be a non-empty string.")
-			ok
-		ok
-
-		cFile = This.NormaliseFilePathXT(cFile)
-
-		if NOT This.Inside(cFile)
-			raise("Can't navigate outside the folder!")
-		ok
-
-		if NOT This.Exists(cFile)
-			raise("Can't erase this file! cFile does not exist in the folder.")
-		ok
-
-		return @FileErase(cFile)
-
-
-		def FileEraseQ(cFile)
-
-			if CheckParams()
-				if NOT ( isString(cFile) and trim(cFile) != "" )
-					StzRaise("Incorrect param type! cFile must be a non-empty string.")
-				ok
-			ok
-
-			cFile = This.NormaliseFilePathXT(cFile)
-	
-			if NOT This.Inside(cFile)
-				raise("Can't navigate outside the folder!")
-			ok
-	
-			if NOT This.Exists(cFile)
-				raise("Can't erase this file! cFile does not exist in the folder.")
-			ok
-
-			return @FileEraseQ(This.cFile)
-
-		def EraseFile(cFile)
-			return This.FileErase(cFile)
-
-		def EraseFileQ(cFile)
-			return This.FileEraseQ(cFile)
-
-	def FileSafeErase(cFile)
-
-		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
-				StzRaise("Incorrect param type! cFile must be a non-empty string.")
-			ok
-		ok
-
-		cFile = This.NormaliseFilePathXT(cFile)
-
-		if NOT This.Inside(cFile)
-			raise("Can't navigate outside the folder!")
-		ok
-
-		if NOT This.Exists(cFile)
-			raise("Can't safe-erase this file! cFile does not exist in the folder.")
-		ok
-
-		return @FileSafeErase(This.cFile)
-
-
-
-		def FileSafeEraseQ(cFile)
-
-			if CheckParams()
-				if NOT ( isString(cFile) and trim(cFile) != "" )
-					StzRaise("Incorrect param type! cFile must be a non-empty string.")
-				ok
-			ok
-
-			cFile = This.NormaliseFilePathXT(cFile)
-	
-			if NOT This.Inside(cFile)
-				raise("Can't navigate outside the folder!")
-			ok
-	
-			if NOT This.Exists(cFile)
-				raise("Can't safe-erase this file! cFile does not exist in the folder.")
-			ok
-
-			return @FileSafeEraseQ(cFile)
-	
-		def SafeEraseFile(cFile)
-			return This.FileSafeErase(cFile)
-
-		def SafeEraseFileQ(cFile)
-			return This.FileSafeEraseQ(cFile)
-
-	def FileRemove(cFile)
-
-		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
-				StzRaise("Incorrect param type! cFile must be a non-empty string.")
-			ok
-		ok
-
-		cFile = This.NormaliseFilePathXT(cFile)
-
-		if NOT This.Inside(cFile)
-			raise("Can't navigate outside the folder!")
-		ok
-
-		if NOT This.Exists(cFile)
-			raise("Can't delete this file! cFile does not exist in the folder.")
-		ok
-
-		bSuccess = @oQDir.remove(cFile)
-		return bSuccess
-
-		def FileDelete(cFile)
-			return This.FileRemove(cFile)
-
-		def RemoveFile(cFile)
-			return This.FileRemove(cFile)
-
-		def DeleteFile(cFile)
-			return This.FileRemove(cFile)
-
-	def FileBackup(cFile)
-
-		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
-				StzRaise("Incorrect param type! cFile must be a non-empty string.")
-			ok
-		ok
-
-		cFile = This.NormaliseFilePathXT(cFile)
-
-		if NOT This.Inside(cFile)
-			raise("Can't navigate outside the folder!")
-		ok
-
-		if NOT This.Exists(cFile)
-			raise("Can't backup this file! cFile does not exist in the folder.")
-		ok
-
-		return @FileBackup(cFile)
-
-		def BackupFile(cFile)
-			return This.FileBackup(cfile)
-
-	def FileSafeOverwrite(cFile, cNewContent)
-
-		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
-				StzRaise("Incorrect param type! cFile must be a non-empty string.")
-			ok
-		ok
-
-		cFile = This.NormaliseFilePathXT(cFile)
-
-		if NOT This.Inside(cFile)
-			raise("Can't navigate outside the folder!")
-		ok
-
-		if NOT This.Exists(cFile)
-			raise("Can't safe-overwirte this file! cFile does not exist in the folder.")
-		ok
-
-		return @FileSafeOverwrite(cFile, cNewContent)
-
-		def SafeOverwriteFile(cFile, cNewContent)
-			return This.FileSafeOverwrite(cFile, cNewContent)
-
-	def FileModify(cFile, cOldContent, cNewContent)
-
-		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
-				StzRaise("Incorrect param type! cFile must be a non-empty string.")
-			ok
-		ok
-
-
-		cFile = This.NormaliseFilePathXT(cFile)
-
-		if NOT This.Inside(cFile)
-			raise("Can't navigate outside the folder!")
-		ok
-
-		if NOT This.Exists(cFile)
-			raise("Can't modify this file! cFile does not exist in the folder.")
-		ok
-
-		return @FileModify(cFile, cOldContent, cNewContent)
-
-		def ModifyFile(cFile, cOldContent, cNewContent)
-			return This.FileModify(cFile, cOldContent, cNewContent)
-
-	def FileCopy(cSource, cDest)
-
-		cSource = This.NormaliseFilePathXT(cSource)
-		cDest = This.NormaliseFilePathXT(cDest)
-
-		if NOT ( This.Inside(cSource) and This.Inside(cDest) )
-			raise("Can't navigate outside the folder! Check that cSource and cDest are both inside.")
-		ok
-
-		if NOT This.Exists(cSource)
-			raise("Can't copy the file! cSource does not exist in the folder.")
-		ok
-
-		if NOT This.Exists(cDest)
-			raise("Can't copy the file! cDest does not exist in the folder.")
-		ok
-
-		return @FileCopy(cSource, cDest)
-
-		def CopyFile(cSource, cDest)
-			return this.FileCopy(cSource, cDest)
-
-	def FileMove(cSource, cDest)
-
-		cFile = This.NormaliseFilePathXT(csource)
-		cDest = This.NormaliseFilePathXT(cDest)
-
-		if NOT ( This.Inside(cSource) and This.Inside(cDest) )
-			raise("Can't navigate outside the folder! Check that cSource and cDest are both inside.")
-		ok
-
-		if NOT This.Exists(cSource)
-			raise("Can't move the file! cSource does not exist in the folder.")
-		ok
-
-		if NOT This.Exists(cDest)
-			raise("Can't move the file! cDest does not exist in the folder.")
-		ok
-
-		return @FileMove(cSource, cDest)
-
-		def MoveFile(cSource, cDestination)
-			return this.FileMove(cSource, cDestination)
-
-	#--
-
-	def FileSize(cFile)
-		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
-				StzRaise("Incorrect param type! cFile must be a non-empty string.")
-			ok
-		ok
-
-		cFile = This.NormaliseFilePathXT(cFile)
-
-		if NOT This.Inside(cFile)
-			raise("Can't navigate outside the folder!")
-		ok
-
-		if NOT This.Exists(cFile)
-			raise("Can't modify this file! cFile does not exist in the folder.")
-		ok
-
-		return @FileSize(cFile)
-
-		def FileSizeInBytes(cFile)
-			return this.FileSize(cFile)
 
 	#======================#
 	#  Finding Operations  #
