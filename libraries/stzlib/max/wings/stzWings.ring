@@ -57,3 +57,7 @@
 		load "security-wings/krypto/stzCrypto.ring"
 		load "security-wings/krypto/stzCryptoString.ring"
 		load "security-wings/krypto/stzCryptoFile.ring"
+
+	#-- Loading files related to COBOL wings modules
+
+		load "cobol-wings/stzCobolReader.ring"

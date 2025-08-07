@@ -24,7 +24,7 @@ Main thematic sections of this test file:
 #================================#
 
 /*--- Basic Folder Creation and Information
-
+*/
 pr()
 
 o1 = new stzFolder("C:\MyTestFolder")
