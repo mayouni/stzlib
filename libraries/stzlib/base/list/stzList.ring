@@ -139,16 +139,20 @@ func First3(aList)
 	#>
 
 #===
-
+		
 func HasKey(paList, pcKey)
 	if CheckParams()
 		if NOT isString(pcKey)
 			StzRaise("Incorrect param type! pcKey must be a string.")
 		ok
 
-		if NOT (isList(paList) and IsHashList(paList))
-			StzRaise("Incorrect param type! paList must be a hashlist.")
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
 		ok
+	ok
+
+	if not IsHashList(paList)
+		return FALSE
 	ok
 
 	nLen = len(paList)

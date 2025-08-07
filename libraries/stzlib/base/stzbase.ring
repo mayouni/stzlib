@@ -139,3 +139,16 @@
 	load "error/stzHexNumberError.ring"
 	load "error/stzOctalNumberError.ring"
 	load "error/stzDecimalToBinaryError.ring"
+
+# Loading files related to the NEtwORK module
+
+	load "network/stzNetwork.ring"
+	load "network/stzHttpClient.ring"
+	load "network/stzWebSocket.ring"
+	load "network/stzTcpClient.ring"
+	load "network/stzTcpServer.ring"
+	load "network/stzNetworkUtils.ring"
+
+# Loading files related to the REACTIVE module
+
+	load "reactive/stzReactive.ring"
