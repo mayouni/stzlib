@@ -5,9 +5,9 @@
 Imagine you're building an application that needs to perform three independent calculations: adding two numbers, squaring a value, and summing an array. Your first instinct is to write straightforward sequential code:
 
 ```ring
-result1 = add(5, 3)      # Wait for addition
-result2 = square(7)      # Wait for squaring  
-result3 = sum(1:100)     # Wait for summation
+add(5, 3)      # Wait for addition
+square(7)      # Wait for squaring  
+sum(1:100)     # Wait for summation
 ```
 
 This works, but creates a fundamental bottleneck: each function blocks the next, even though they're completely independent. Your program wastes time waiting when it could be working.
