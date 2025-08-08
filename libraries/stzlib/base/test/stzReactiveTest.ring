@@ -26,12 +26,10 @@ load "../stzbase.ring"
 
 pr()
 
-# Instantiating a reactive system
+# Initializing the system (connects to libuv event loop infrastructure)
+
 oRs = new stzReactive()
 oRs {
-
-    # Initializing the system (connects to libuv event loop infrastructure)
-    Init()
 
     # Declaring simple functions
 
@@ -101,27 +99,29 @@ pr()
 
 oRs = new stzReactive()
 oRs {
-    Init()
 
     # A more complex function that processes arrays
-    fProcessArray = func arr {
-        sum = 0
-	nLen = len(arr)
+    f1 = func aArr {
+
+        nSum = 0
+        nLen = len(aArr)
+
         for i = 1 to nLen
-            sum += arr[i]
+            nSum += aArr[i]
         next
-        return sum / nLen # Calculate average
+
+        return nSum / nLen # Calculate average
     }
 
-    RfProcessArray = MakeReactive(fProcessArray)
+    Rf1 = MakeReactive(f1)
 
     # Process large dataset asynchronously
-    largeData = 1:1000 # Array of numbers 1 to 1000
+    aLargeData = 1:1000 # Array of numbers 1 to 1000
     
-    RfProcessArray.CallAsync(
-        [largeData],
-        func result { ? "Average of 1000 numbers: " + result },
-        func error { ? "Processing error: " + error }
+    Rf1.CallAsync(
+        [aLargeData],
+        func cResult { ? "Average of 1000 numbers: " + cResult },
+        func cError { ? "Processing error: " + cError }
     )
 
     Start()
@@ -129,14 +129,13 @@ oRs {
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in almost 0 second(s) in Ring 1.23
 
 #========================================#
 #  REACTIVE STREAMS - DATA FLOW CONTROL  #
 #========================================#
 
 /*--- Basic stream creation and consumption
-*/
 
 # Streams represent continuous data flows that can be processed reactively.
 # They support backpressure, filtering, and transformation operations.
@@ -146,33 +145,45 @@ pr()
 
 oRs = new stzReactive()
 oRs {
-    Init()
-
+    
     # Creating a basic reactive stream
-    stream = CreateStream("data-stream", "manual")
-
-    # Setting up stream processing pipeline
-    stream.Subscribe(func data {
+    St = CreateStream("data-stream", "manual")
+    
+    # Setting up stream processing pipeline (note lowercase method names)
+    St.Subscribe(func data {		# You can also sya OnData() instead of Subscribe()
         ? "Received: " + data
     })
-
-    stream.OnError(func error {
-        ? "Stream error: " + error
+    
+    St.OnError(func cError {
+        ? "Stream error: " + cError
     })
-
-    stream.OnComplete(func() {
-        ? "Stream ended"
+    
+    St.OnComplete(func() {
+        ? "Stream completed"
     })
-
+    
+    # Start the stream
+    St.Start()
+    
     # Emitting data to the stream
-    stream.Emit("Hello")
-    stream.Emit("World")
-    stream.Emit("Reactive")
-    stream.Stop()
-
+    St.Emit("Hello")
+    St.Emit("World")
+    St.Emit("Reactive")
+    
+    # Complete the stream
+    St.Complete()
+    
     Start()
-}
+    #-->
+    # Received: Hello
+    # Received: World
+    # Received: Reactive
+    # Stream completed
 
+ }
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Stream transformation and filtering
 
@@ -183,33 +194,51 @@ pr()
 
 oRs = new stzReactive()
 oRs {
-    Init()
 
     # Create source stream
-    numberStream = CreateStream()
 
-    # Transform stream: multiply by 2, then filter even numbers > 10
-    processedStream = numberStream
-        .Map(func x { return x * 2 })
-        .Filter(func x { return x > 10 and x % 2 = 0 })
+    St = CreateStream("number-stream", "manual")
+    St.Start()
 
-    processedStream.OnData(func data {
-        ? "Processed number: " + data
-    })
+    # Transform stream and add subscriber in one block
+
+    St {
+
+        Map(func x { return x * 2 })
+        Filter(func x { return x > 10 and x % 2 = 0 })
+
+        OnData(func data {			# You can also say Subscribe() instead of OnData()
+            ? "Processed number: " + data
+        })
+    }
 
     # Feed data to the stream
+
     for i = 1 to 10
-        numberStream.Emit(i)
+        St.Emit(i)
     next
-    numberStream.End()
+
+    # Finish the stream
+
+    St.Complete()
+
+    # Launch the tasks
 
     Start()
+    #-->
+    # Processed number: 12
+    # Processed number: 14
+    # Processed number: 16
+    # Processed number: 18
+    # Processed number: 20
+
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Combining multiple streams
-
+*/
 # Stream merging allows combining data from multiple sources.
 # Useful for aggregating data from different APIs or user inputs.
 
@@ -217,26 +246,25 @@ pr()
 
 oRs = new stzReactive()
 oRs {
-    Init()
 
     # Create multiple source streams
-    stream1 = CreateStream()
-    stream2 = CreateStream()
+    St1 = CreateStream("stream1", "manual")
+    St2 = CreateStream("stream2", "manual")
 
     # Merge streams into one
-    mergedStream = MergeStreams([stream1, stream2])
+    mergedStream = MergeStreams([ St1, St2 ])
 
     mergedStream.OnData(func data {
         ? "Merged data: " + data
     })
 
     # Emit data from different sources
-    stream1.Emit("From Stream 1")
-    stream2.Emit("From Stream 2")
-    stream1.Emit("More from Stream 1")
+    St1.Emit("From Stream 1")
+    St2.Emit("From Stream 2")
+    St1.Emit("More from Stream 1")
     
-    stream1.End()
-    stream2.End()
+    St1.Complete()
+    St2.Complete()
 
     Start()
 }

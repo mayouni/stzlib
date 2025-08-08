@@ -112,49 +112,111 @@ class stzReactiveStream from ObjectControllerParent
 
     streamId = ""
     sourceFunc = NULL
-    transformFunc = NULL
+    dataBuffer = []
     subscribers = []
+    errorHandlers = []
+    completeHandlers = []
     engine = NULL
     isActive = false
+    
+    # Transformation functions to apply at completion
+    transforms = []
     
     def init(id, source, engine)
         streamId = id
         sourceFunc = source
         this.engine = engine
+        dataBuffer = []
         subscribers = []
+        errorHandlers = []
+        completeHandlers = []
+        transforms = []
         isActive = false
         
-    def transform(f)
-        transformFunc = f
+    # Store map transformation (Ring syntax: Map(list, function))
+    def Map(mapFunction)
+        transforms + [:map, mapFunction]
         return self
         
-    def subscribe(subscriber)
+    # Store filter transformation (Ring syntax: Filter(list, function))
+    def Filter(filterFunction)
+        transforms + [:filter, filterFunction]
+        return self
+        
+    # Store reduce transformation (Ring syntax: Reduce(list, function, initial))
+    def Reduce(reduceFunction, initialValue)
+        transforms + [:reduce, reduceFunction, initialValue]
+        return self
+        
+    def Subscribe(subscriber)
         subscribers + subscriber
         return self
         
-    def emit(data)
-        processedData = data
-        if transformFunc != NULL
-            processedData = call transformFunc(data)
-        ok
+    def OnData(subscriber)
+        return Subscribe(subscriber)
         
-        for subscriber in subscribers
-            if isString(subscriber)
-                call subscriber(processedData)
-            else
-                call subscriber(processedData) 
-            ok
+    def OnError(errorHandler)
+        errorHandlers + errorHandler
+        return self
+        
+    def OnComplete(completeHandler)
+        completeHandlers + completeHandler
+        return self
+        
+    def Emit(data)
+        if not isActive
+            return
+        ok
+        dataBuffer + data
+        
+    def Complete()
+        try
+            processedData = dataBuffer
+            
+            # Apply transforms in order using Ring's native functions
+            for transform in transforms
+                transformType = transform[1]
+                switch transformType
+                case :map
+                    mapFunc = transform[2]
+                    processedData = @Map(processedData, mapFunc)  # Ring's Softanzified Map(list, func)
+                case :filter
+                    filterFunc = transform[2]
+                    processedData = @Filter(processedData, filterFunc)  # Ring's Softanzified Filter(list, func)
+                case :reduce
+                    reduceFunc = transform[2]
+                    initialValue = transform[3]
+                    processedData = [ @Reduce(processedData, reduceFunc, initialValue)]  # Ring's Softanzified Reduce(list, func, initial)
+                end
+            next
+
+            # Emit results to subscribers
+	  for subscriber in subscribers
+	    for item in processedData
+	        call subscriber(item)
+	    next
+	  next
+            
+        catch
+            for errorHandler in errorHandlers
+                call errorHandler("Error processing stream")
+            next
+        done
+        
+        # Call completion handlers
+        for completeHandler in completeHandlers
+            call completeHandler()
         next
         
-    def start
+        Stop()
+        
+    def Start()
         isActive = true
+        return self
         
-    def stop
+    def Stop()
         isActive = false
-        
-    def cleanup
-        stop()
-        subscribers = []
+        return self
 
 # =============================================================================
 # REACTIVE TIMER - For time-based operations
