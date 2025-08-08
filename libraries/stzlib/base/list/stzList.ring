@@ -26,6 +26,119 @@ func StzListQ(paList)
 
 #===
 
+#NOTE the next 3 fucntions are based on the implementation made for them
+# by Mahloud in the Ring StdLib. Here I rewrote them for better efficiency
+#TODO // We may need more performant C-based implementation for large data!
+
+# Executing a function on each list item
+
+func @Map(aList, cFunc)
+
+	if CheckParams()
+		if not isList( aList )
+			raise( "Incorrect param type! aList must be a list.")
+		ok
+		If not isFunction(cFunc)
+			raise("Incorrect param type! cFunc must be a function.")
+		ok
+	ok
+
+	aListCopy = aList
+	nLen = len(aList)
+
+	for i = 1 to nLen
+		aListCopy[i] = call cFunc(aListCopy[i])
+	next
+	return aListCopy
+
+# Executing a function on each item of the listinorder to filter items
+
+func @Filter(aList, cFunc)
+	if CheckParams()
+		if not isList( aList )
+			raise( "Incorrect param type! aList must be a list.")
+		ok
+		If not isFunction(cFunc)
+			raise("Incorrect param type! cFunc must be a function.")
+		ok
+	ok
+
+	nLen = len(aList)
+	aList2 = []
+
+	for i = 1 to nLen
+
+		if call cFunc(aList[i])
+			aList2 + aList[i]
+		ok
+	next
+
+	return aList2
+
+
+# Applying function cFunc to each result xResult from a list aList,
+# and return an accumulated value xResult
+
+func @Reduce(aList, cFunc, xInitial)
+
+	if CheckParams()
+		if not isList( aList )
+			raise( "Incorrect param type! aList must be a list.")
+		ok
+		If not isFunction(cFunc)
+			raise("Incorrect param type! cFunc must be a function.")
+		ok
+	ok
+
+	nNthElement = 0
+	xNthElement = NULL
+	nStart = 1
+	nLength = 0
+	sNthElementType = NULL
+	sElementType = NULL
+
+
+	nLength = Len(aList)
+
+
+
+	if IsNULL(xInitial)
+		// If the list is non-empty, then default xInitial to its first element
+		if nLength > 0
+			xInitial = aList[1]
+			nStart = 2
+			sElementType = type(xInitial)
+		else
+			raise("if xInitial is NULL, then Reduce() requires a non-empty list aList!")
+		Ok
+	else
+		// If the List doesn't have at least one member, then return xInitial
+		if nLength < 1
+			xResult = xInitial
+			return xResult
+		Ok
+	Ok
+
+	sElementType = type(xInitial)
+	xResult = xInitial
+
+	// Loop through all of aList, and return an accumulated value after successfully applying cFunc to each result.
+	for nElement = nStart to nLength
+
+		xNthElement = aList[nElement]
+		sNthElementType = type(xNthElement)
+
+		If not sNthElementType = sElementType
+			raise( "At least one of the elements in aList is " + sNthElementType + ".  It should be " + sElementType )
+		ok
+
+		xResult = call cFunc(xResult, xNthElement)
+	next
+
+	return xResult
+
+#===
+
 func ListEqualsCS(paList1, paList2, pCaseSensitive)
 	return StzListQ(paList1).IsEqualToCS(paList2, pCaseSensitive)
 

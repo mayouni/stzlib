@@ -31,3 +31,14 @@ func ring_exefolder()
 
 func ring_fexists(cFile)
 	return fexists(cFile)
+
+#---
+
+func ring_map(aList, f)
+	return map(aList, f)
+
+func ring_filter(aList, f)
+	return filter(aList, f)
+
+func ring_reduce(aList, f1, initialVal)
+	return reduce(aList, f1, initialVal)
