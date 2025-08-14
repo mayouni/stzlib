@@ -103,7 +103,7 @@ Stopping timer after 3 ticks...
 #------------------------------#
 
 /*--- Multiple timers working together
-*/
+
 # You can have multiple timers running simultaneously
 # Each timer operates independently
 
@@ -162,7 +162,7 @@ func StopAllTimers()
 #========================================#
 
 /*--- Using timers to create reactive data streams
-
+*/
 # Timers can drive reactive streams, creating time-based data sources
 # Perfect for simulating sensors, stock prices, or any real-time data
 
