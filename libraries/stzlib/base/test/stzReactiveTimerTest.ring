@@ -103,7 +103,7 @@ Stopping timer after 3 ticks...
 #------------------------------#
 
 /*--- Multiple timers working together
-
+*/
 # You can have multiple timers running simultaneously
 # Each timer operates independently
 
@@ -150,19 +150,29 @@ func StopAllTimers()
 #--> Output:
 # Multiple timers started!
 # ⚡ Fast tick #1
-# ⚡ Fast tick #2  
+# ⚡ Fast tick #2
+# ...
+# ...
+# ⚡ Fast tick #63
 # 🐌 Slow tick #1
-# ⚡ Fast tick #3
-# ⚡ Fast tick #4
+# ⚡ Fast tick #64
 # 🐌 Slow tick #2
+# ⚡ Fast tick #65
+# ...
+# ...
+# ...
+# ⚡ Fast tick #220
+# 🐌 Slow tick #158
 # ⏹️  Stopping all timers...
 
-#========================================#
-# LESSON 4: TIMER-DRIVEN DATA STREAMS
-#========================================#
+# Executed in 4.02 second(s) in Ring 1.23
+
+#=======================================#
+#  LESSON 4: TIMER-DRIVEN DATA STREAMS  #
+#=======================================#
 
 /*--- Using timers to create reactive data streams
-*/
+
 # Timers can drive reactive streams, creating time-based data sources
 # Perfect for simulating sensors, stock prices, or any real-time data
 
@@ -185,10 +195,10 @@ oRs4 {
     })
     
     # Generate data every 800ms using a timer
-    lesson4_intervalId = SetInterval("GenerateData", 800)
+    lesson4_intervalId = SetInterval(:GenerateData, 800)
     
     # Stop after 4 data points
-    SetTimeout("StopDataGeneration", 3500)
+    SetTimeout(:StopDataGeneration, 3500)
     
     ? "Data stream started! Generating data every 800ms..."
     Start()
@@ -217,7 +227,16 @@ func StopDataGeneration()
 # 📊 Received data: Temperature: 25.0°C (reading #2)  
 # 📊 Received data: Temperature: 27.5°C (reading #3)
 # 📊 Received data: Temperature: 30.0°C (reading #4)
+# ...
+# ...
+# ...
+# 📊 Received data: Temperature: 417.50°C (reading #159)
+# 📊 Received data: Temperature: 420°C (reading #160)
+# 📊 Received data: Temperature: 422.50°C (reading #161)
+# 📊 Received data: Temperature: 425°C (reading #162)
 # 🛑 Stopping data generation...
+
+# Executed in 3.53 second(s) in Ring 1.23
 
 #========================================#
 # LESSON 5: PRACTICAL EXAMPLE - PROGRESS TRACKER
@@ -230,10 +249,42 @@ func StopDataGeneration()
 
 pr()
 
-? "=== LESSON 5: Progress Tracker ==="
-? "Simulating a file download with progress updates..."
+# Simulating a file download with progress updates...
 
-class DownloadSimulator from ObjectControllerParent
+# Run the download simulation
+downloader = new DownloadSimulator()
+downloader.StartDownload()
+
+pf()
+
+func UpdateProgress()
+    downloader.progress += 20
+    
+    if downloader.progress <= 100
+        progressBar = ""
+        filledBars = floor(downloader.progress / 10)
+        emptyBars = 10 - filledBars
+        
+        for i = 1 to filledBars
+            progressBar += "█"
+        next
+
+        for i = 1 to emptyBars  
+            progressBar += "░"
+        next
+        
+        ? "Progress: [" + progressBar + "] " + downloader.progress + "%"
+    ok
+
+func CompleteDownload()
+    downloader.reactive.ClearInterval(downloader.progressId)
+
+    ? NL + "✅ Download completed successfully!"
+    ? "File " + downloader.fileName + " is ready to use."
+
+    downloader.reactive.Stop()
+
+class DownloadSimulator
     progress = 0
     downloadId = ""
     progressId = ""
@@ -246,59 +297,27 @@ class DownloadSimulator from ObjectControllerParent
         fileName = "large-file.zip"
         
     def StartDownload()
-        ? "🔽 Starting download of " + fileName + "..."
+        ? "🔽 Starting download of " + fileName + "..." + NL
+
         ? "Progress: [----------] 0%"
         
         reactive {
-            # Update progress every 500ms
-            progressId = SetInterval(Method(:UpdateProgress), 500)
-            
-            # Complete download after 5 seconds
-            SetTimeout(Method(:CompleteDownload), 5000)
+            progressId = SetInterval(:UpdateProgress, 500)
+            SetTimeout(:CompleteDownload, 5000)
             
             Start()
         }
-        
-    def UpdateProgress()
-        progress += 20  # Increase by 20% each tick
-        
-        if progress <= 100
-            # Create progress bar
-            progressBar = ""
-            filledBars = floor(progress / 10)
-            emptyBars = 10 - filledBars
-            
-            for i = 1 to filledBars
-                progressBar += "█"
-            next
-            for i = 1 to emptyBars  
-                progressBar += "░"
-            next
-            
-            ? "Progress: [" + progressBar + "] " + progress + "%"
-        ok
-        
-    def CompleteDownload()
-        reactive.ClearInterval(progressId)
-        ? "✅ Download completed successfully!"
-        ? "File " + fileName + " is ready to use."
-        reactive.Stop()
-
-# Run the download simulation
-downloader = new DownloadSimulator()
-downloader.Init()
-downloader.StartDownload()
-
-pf()
 
 #--> Output:
 # 🔽 Starting download of large-file.zip...
+
 # Progress: [----------] 0%
 # Progress: [██░░░░░░░░] 20%
 # Progress: [████░░░░░░] 40%
 # Progress: [██████░░░░] 60%
 # Progress: [████████░░] 80%
 # Progress: [██████████] 100%
+
 # ✅ Download completed successfully!
 # File large-file.zip is ready to use.
 
@@ -318,7 +337,7 @@ pf()
    - Always remember to ClearInterval() to stop it!
 
 3. **Scope Management**: Variables must be accessible to callbacks
-   - Use module-level variables, or
+   - Use global-level variables, or
    - Use object properties with Method() calls
 
 4. **Timer Coordination**: Multiple timers can work together

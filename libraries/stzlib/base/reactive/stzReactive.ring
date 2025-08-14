@@ -2,13 +2,104 @@
 # A simple, learnable reactive system using Ring's LibUV capabilities
 
 load "libuv.ring"
-load "objectslib.ring"
+
+# =============================================================================
+# MAIN REACTIVE API - Simple interface for common patterns (IMPROVED)
+# =============================================================================
+
+class stzReactive
+
+	engine = NULL
+	http = NULL
+	fs = NULL
+	dataStream = NULL
+
+	def Init()
+	        engine = new stzReactiveEngine()
+	        engine.Init()
+	        http = new stzReactiveHttp(engine)
+	        fs = new stzReactiveFileSystem(engine)
+			
+	def Start()
+		engine.Start()
+		
+	def Stop()
+	    engine.timerManager.isRunning = false
+	    engine.Stop()
+		
+	# Make any function reactive
+	def MakeReactive(f)
+		return new stzReactiveFuncWrapper(f, engine)
+		
+		def Reactivate(f)
+			return new stzReactiveFuncWrapper(f, engine)
+
+	# Create a reactive stream (IMPROVED)
+	def CreateStream(id, sourceType)
+		if sourceType = NULL
+			sourceType = "manual"
+		ok
+		
+		stream = new stzReactiveStream(id, sourceType, engine)
+		stream.Start()
+		engine.AddStream(stream)
+		return stream
+		
+	# Create a timer
+	def CreateTimer(id, interval, callback)
+		timer = new stzReactiveTimer(id, interval, callback, engine)
+		engine.AddTimer(timer)
+		return timer
+		
+	# Create a task
+	def CreateTask(id, f)
+		task = new stzReactiveTask(id, f, engine)
+		engine.AddTask(task)
+		return task
+
+	# HTTP shortcuts
+	def HttpGet(url, onSuccess, onError)
+		return http.Get_(url, onSuccess, onError)
+		
+	def HttpPost(url, data, onSuccess, onError)
+		return http.Post(url, data, onSuccess, onError)
+		
+	# File system shortcuts
+	def ReadFile(path, onSuccess, onError)
+		return fs.ReadFile(path, onSuccess, onError)
+		
+	def WriteFile(path, content, onSuccess, onError)
+		return fs.WriteFile(path, content, onSuccess, onError)
+		
+	def WatchFile(path, onChange)
+		return fs.WatchFile(path, onChange)
+
+	def SetTimeout(callback, delay)
+	    timerId = "timeout_" + string(random(999999))
+	    timer = new stzRingTimer(timerId, delay, callback, engine, true, self)  # Add self
+	    timer.Start()
+	    engine.AddTimer(timer)
+	    return timerId
+
+	def SetInterval(callback, interval)
+	    timerId = "interval_" + string(random(999999))
+	    timer = new stzRingTimer(timerId, interval, callback, engine, false, self)  # Add self
+	    timer.Start()
+	    engine.AddTimer(timer)
+	    return timerId
+
+	def ClearInterval(timerId)
+		engine.timerManager.RemoveTimer(timerId)
+		# If no more timers, stop the engine
+		if len(engine.timerManager.timers) = 0
+			Stop()
+		ok
 
 # =============================================================================
 # CORE REACTIVE ENGINE
 # =============================================================================
 
-class stzReactiveEngine from ObjectControllerParent
+class stzReactiveEngine
 
 	# Core engine state
 	timerManager = NULL
@@ -56,7 +147,7 @@ class stzReactiveEngine from ObjectControllerParent
 # REACTIVE TASK - Core abstraction for async operations
 # =============================================================================
 
-class stzReactiveTask from ObjectControllerParent
+class stzReactiveTask
 
 	# Task properties
 	taskId = ""
@@ -107,7 +198,7 @@ class stzReactiveTask from ObjectControllerParent
 # REACTIVE STREAM - For continuous data flow (IMPROVED)
 # =============================================================================
 
-class stzReactiveStream from ObjectControllerParent
+class stzReactiveStream
 
 	streamId = ""
 	sourceType = "manual"  # manual, libuv, timer
@@ -268,23 +359,27 @@ class stzReactiveStream from ObjectControllerParent
 # REACTIVE TIMER - For time-based operations
 # =============================================================================
 
-# Pure Ring timer using clock() - no LibUV dependencies
-class stzRingTimer from ObjectControllerParent
+# Pure Ring timer using clock()
+# Direct object method access, handles timing logic in Ring's native paradigm
+
+class stzRingTimer
 
 	timerId = ""
 	interval = 1000  # milliseconds
 	callback = NULL
 	engine = NULL
+	obj = NULL
 	isActive = false
 	isOneTime = false
 	startTime = 0
 	lastTick = 0
 	
-	def Init(id, intervalMs, f, engine, oneTime)
+	def Init(id, intervalMs, f, engine, oneTime, obj)
 		timerId = id
 		interval = intervalMs
 		callback = f
 		this.engine = engine
+		this.obj = obj
 		isOneTime = oneTime
 		if isOneTime = NULL
 			isOneTime = false
@@ -307,7 +402,7 @@ class stzRingTimer from ObjectControllerParent
 	    ok
 	    
 	    currentTime = clock()
-	    elapsed = (currentTime - lastTick) * 1000 / clocksPerSecond()  # Fixed calculation
+	    elapsed = (currentTime - lastTick) * 1000 / clocksPerSecond()
 	    
 	    if elapsed >= interval
 	        if callback != NULL
@@ -328,7 +423,8 @@ class stzRingTimer from ObjectControllerParent
 		Stop()
 
 # Timer manager to check all active timers
-class stzTimerManager from ObjectControllerParent
+
+class stzTimerManager
 
 	timers = []
 	isRunning = false
@@ -397,7 +493,13 @@ class stzTimerManager from ObjectControllerParent
 			timer.Stop()
 		next
 
-class stzReactiveTimer from ObjectControllerParent
+#---
+
+# Thin wrapper around libuv timer system
+# ~> Delegates to Ring callbacks but leverages
+# libuv's event loop integration
+
+class stzReactiveTimer
 
 	timerId = ""
 	interval = 1000  # milliseconds
@@ -443,7 +545,7 @@ class stzReactiveTimer from ObjectControllerParent
 # REACTIVE HTTP CLIENT - For web requests
 # =============================================================================
 
-class stzReactiveHttp from ObjectControllerParent
+class stzReactiveHttp
 
 	engine = NULL
 	
@@ -512,7 +614,7 @@ class stzHttpTask from stzReactiveTask
 # REACTIVE FILE SYSTEM - For file operations
 # =============================================================================
 
-class stzReactiveFileSystem from ObjectControllerParent
+class stzReactiveFileSystem
 
 	engine = NULL
 	
@@ -599,7 +701,7 @@ class stzFileWatcher from stzReactiveStream
 # REACTIVE FUNCTION WRAPPER - Makes any function reactive
 # =============================================================================
 
-class stzReactiveFuncWrapper from ObjectControllerParent
+class stzReactiveFuncWrapper
 
 	originalFunc = NULL
 	engine = NULL
@@ -660,94 +762,3 @@ class stzFunctionTask from stzReactiveTask
 				call onError("Function execution failed")
 			ok
 		done
-
-# =============================================================================
-# MAIN REACTIVE API - Simple interface for common patterns (IMPROVED)
-# =============================================================================
-
-class stzReactive from ObjectControllerParent
-
-	engine = NULL
-	http = NULL
-	fs = NULL
-	
-	def Init()
-	        engine = new stzReactiveEngine()
-	        engine.Init()
-	        http = new stzReactiveHttp(engine)
-	        fs = new stzReactiveFileSystem(engine)
-			
-	def Start()
-		engine.Start()
-		
-	def Stop()
-	    engine.timerManager.isRunning = false
-	    engine.Stop()
-		
-	# Make any function reactive
-	def MakeReactive(f)
-		return new stzReactiveFuncWrapper(f, engine)
-		
-		def Reactivate(f)
-			return new stzReactiveFuncWrapper(f, engine)
-
-	# Create a reactive stream (IMPROVED)
-	def CreateStream(id, sourceType)
-		if sourceType = NULL
-			sourceType = "manual"
-		ok
-		
-		stream = new stzReactiveStream(id, sourceType, engine)
-		stream.Start()
-		engine.AddStream(stream)
-		return stream
-		
-	# Create a timer
-	def CreateTimer(id, interval, callback)
-		timer = new stzReactiveTimer(id, interval, callback, engine)
-		engine.AddTimer(timer)
-		return timer
-		
-	# Create a task
-	def CreateTask(id, f)
-		task = new stzReactiveTask(id, f, engine)
-		engine.AddTask(task)
-		return task
-
-	# HTTP shortcuts
-	def HttpGet(url, onSuccess, onError)
-		return http.Get_(url, onSuccess, onError)
-		
-	def HttpPost(url, data, onSuccess, onError)
-		return http.Post(url, data, onSuccess, onError)
-		
-	# File system shortcuts
-	def ReadFile(path, onSuccess, onError)
-		return fs.ReadFile(path, onSuccess, onError)
-		
-	def WriteFile(path, content, onSuccess, onError)
-		return fs.WriteFile(path, content, onSuccess, onError)
-		
-	def WatchFile(path, onChange)
-		return fs.WatchFile(path, onChange)
-
-	def SetTimeout(callback, delay)
-		timerId = "timeout_" + string(random(999999))
-		timer = new stzRingTimer(timerId, delay, callback, engine, true)  # true = one-time
-		timer.Start()  # Start the timer first
-		engine.AddTimer(timer)  # Then add to manager
-		return timerId
-		
-	def SetInterval(callback, interval)
-		timerId = "interval_" + string(random(999999))
-		timer = new stzRingTimer(timerId, interval, callback, engine, false)  # false = repeating
-		timer.Start()  # Start the timer first
-		engine.AddTimer(timer)  # Then add to manager
-		return timerId
-		
-	def ClearInterval(timerId)
-		engine.timerManager.RemoveTimer(timerId)
-		# If no more timers, stop the engine
-		if len(engine.timerManager.timers) = 0
-			Stop()
-		ok
