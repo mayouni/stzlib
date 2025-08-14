@@ -1,4 +1,3 @@
-
 # Softanza Reactive Programming System
 # A simple, learnable reactive system using Ring's LibUV capabilities
 
@@ -280,8 +279,7 @@ class stzRingTimer from ObjectControllerParent
 	isOneTime = false
 	startTime = 0
 	lastTick = 0
-	tickCounter = null
-
+	
 	def Init(id, intervalMs, f, engine, oneTime)
 		timerId = id
 		interval = intervalMs
@@ -302,17 +300,16 @@ class stzRingTimer from ObjectControllerParent
 		
 	def Stop()
 		isActive = false
-	
+		
 	def CheckAndTick()
 	    if not isActive
 	        return false
 	    ok
 	    
 	    currentTime = clock()
-	    # Convert to milliseconds properly
-	    elapsedMs = (currentTime - lastTick) * 1000.0 / clocksPerSecond()
+	    elapsed = (currentTime - lastTick) * 1000 / clocksPerSecond()  # Fixed calculation
 	    
-	    if elapsedMs >= interval
+	    if elapsed >= interval
 	        if callback != NULL
 	            call callback()
 	        ok
@@ -321,44 +318,12 @@ class stzRingTimer from ObjectControllerParent
 	            Stop()
 	            return false
 	        else
-	            # Reset properly to current time
 	            lastTick = currentTime
 	        ok
 	    ok
 	    
 	    return isActive
-/*	
-	# Use a tick counter approach instead of time calculation
-	def CheckAndTick()
-	    if not isActive
-	        return false
-	    ok
-	    
-	    # Simple counter-based approach
-	    if isNull(tickCounter)
-	        tickCounter = 0
-	    ok
-	    
-	    tickCounter++
-	    
-	    # Calculate how many 10ms periods equal our interval
-	    checksNeeded = interval / 10 # Since RunLoop sleeps 0.1s = 1ms
-	    
-	    if tickCounter >= checksNeeded
-	        if callback != NULL
-	            call callback()
-	        ok
-	        
-	        if isOneTime
-	            Stop()
-	            return false
-	        else
-	            tickCounter = 0  # Reset counter
-	        ok
-	    ok
-	    
-	    return isActive
-*/		
+		
 	def Cleanup()
 		Stop()
 

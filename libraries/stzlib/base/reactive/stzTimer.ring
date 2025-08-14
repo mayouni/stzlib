@@ -4,26 +4,13 @@
 	Supports reactive programming patterns and fluent interface design
 */
 
-# Factory Functions for Quick Timer Creation
-
-func stzRepeatingTimer(nInterval, cHandler)
-	return new stzTimer(NULL).createRepeatingTimer(nInterval, cHandler)
-
-func stzSingleShotTimer(nInterval, cHandler)  
-	return new stzTimer(NULL).createSingleShotTimer(nInterval, cHandler)
-
-func stzReactiveTimer(nInterval)
-	return new stzTimer(NULL).setInterval(nInterval).makeReactive()
-
+func CurrentTime() #TODO // Move it inside stzTime.ring when made
+	return time() # Ring function
 
 class stzTimer from stzObject
 
 	@oQTimer		# Internal QTimer object
 	@cTimeoutEvent		# Timeout event handler
-	@lReactive		# Reactive mode flag
-	@aObservers		# List of reactive observers
-	@nTickCount		# Count of timer ticks
-	@lAutoReset		# Auto-reset tick count
 
 	def init(p)
 		if isObject(p) and classname(p) = "qobject"
@@ -33,10 +20,6 @@ class stzTimer from stzObject
 		ok
 		
 		@cTimeoutEvent = ""
-		@lReactive = FALSE
-		@aObservers = []
-		@nTickCount = 0
-		@lAutoReset = FALSE
 		
 		# Connect timeout signal to internal handler
 		@oQTimer.settimeoutEvent("timeoutHandler()")
@@ -49,7 +32,6 @@ class stzTimer from stzObject
 		oResult.setInterval(this.interval())
 		oResult.setSingleShot(this.isSingleShot())
 		oResult.setTimeoutEvent(this.timeoutEvent())
-		oResult.setReactive(this.isReactive())
 		return oResult
 
 	# Core Timer Methods
@@ -60,7 +42,6 @@ class stzTimer from stzObject
 
 	def stop()
 		@oQTimer.stop()
-		@nTickCount = 0
 		return this
 
 	def restart()
@@ -118,41 +99,6 @@ class stzTimer from stzObject
 	def onTimeout(cHandler)
 		return this.setTimeoutEvent(cHandler)
 
-	# Internal timeout handler for reactive support
-	def timeoutHandler()
-		@nTickCount++
-		
-		# Execute original timeout event if set
-		if @cTimeoutEvent != ""
-			eval(@cTimeoutEvent)
-		ok
-		
-		# Notify reactive observers
-		if @lReactive
-			this.notifyObservers("timeout", @nTickCount)
-		ok
-		
-		# Auto-reset tick count if enabled
-		if @lAutoReset and @nTickCount >= 1000
-			@nTickCount = 0
-		ok
-
-	# Tick Management
-
-	def tickCount()
-		return @nTickCount
-
-	def resetTickCount()
-		@nTickCount = 0
-		return this
-
-	def setAutoResetTickCount(bAutoReset)
-		@lAutoReset = bAutoReset
-		return this
-
-	def autoResetTickCount()
-		return @lAutoReset
-
 	# Fluent Configuration Methods
 
 	def everyMilliseconds(nMs)
@@ -181,42 +127,6 @@ class stzTimer from stzObject
 	def createSingleShotTimer(nInterval, cHandler)
 		return this.setInterval(nInterval).setSingleShot(TRUE).onTimeout(cHandler)
 
-	# Reactive Programming Support
-
-	def setReactive(bReactive)
-		@lReactive = bReactive
-		return this
-
-	def isReactive()
-		return @lReactive
-
-	def makeReactive()
-		return this.setReactive(TRUE)
-
-	def subscribe(oObserver)
-		if isObject(oObserver)
-			@aObservers + oObserver
-		ok
-		return this
-
-	def unsubscribe(oObserver)
-		@aObservers = ListWithoutItem(@aObservers, oObserver)
-		return this
-
-	def notifyObservers(cEvent, xData)
-		for oObserver in @aObservers
-			if isObject(oObserver) and HasMethod(oObserver, "onTimerEvent")
-				oObserver.onTimerEvent(cEvent, xData)
-			ok
-		next
-
-	def observers()
-		return @aObservers
-
-	def clearObservers()
-		@aObservers = []
-		return this
-
 	# Timer State Queries
 
 	def isRunning()
@@ -236,22 +146,6 @@ class stzTimer from stzObject
 			return 0
 		ok
 
-	# Utility Methods
-
-	def wait()
-		if this.isSingleShot()
-			this.start()
-			while this.isActive()
-				# Allow event processing
-			end
-		ok
-		return this
-
-	def waitFor(nMs)
-		oTempTimer = new stzTimer(NULL)
-		oTempTimer.onceAfterMilliseconds(nMs).start().wait()
-		return this
-
 	# String Representation
 
 	def toString()
@@ -270,15 +164,14 @@ class stzTimer from stzObject
 		ok
 		
 		cResult = "stzTimer(" + cActive + ", " + cType + 
-			  ", interval=" + this.interval() + "ms" +
-			  ", ticks=" + this.tickCount() + ")"
+			  ", interval=" + this.interval() + "ms" + ")"
 			  
 		return cResult
 
 	# Comparison and Equality
 
 	def isEqualTo(oOther)
-		if NOT isObject(oOther) or classname(oOther) != "stztimer"
+		if NOT isObject(oOther) or ring_classname(oOther) != "stztimer"
 			return FALSE
 		ok
 		
