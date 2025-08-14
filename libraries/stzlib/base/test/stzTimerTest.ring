@@ -79,7 +79,6 @@ oSingleTimer2.onceAfterMinutes(1)
 
 pf()
 
-
 /*--- Timer comparison and equality
 
 # Timers can be compared for equality based on their configuration.

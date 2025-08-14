@@ -1,3 +1,4 @@
+
 load "../stzbase.ring"
 
 
@@ -187,7 +188,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Stream transformation and filtering
-
+*/
 # Streams can be transformed using operators like Map, Filter, and Reduce.
 # This enables powerful data processing pipelines with minimal code.
 
@@ -281,7 +282,15 @@ func RepeatCallback()
         oRs.Stop()  # Stop the entire reactive engine
     ok
 
+#-->
+# Repeating timer: 1 at 3782
+# Repeating timer: 2 at 3797
+# Repeating timer: 3 at 3814
+# Repeating timer: 4 at 3830
+# Repeating timer: 5 at 3846
+# Interval cancelled after 5 executions
 
+# Executed in 0.58 second(s) in Ring 1.23
 
 /*--- Timer-based data generation
 
