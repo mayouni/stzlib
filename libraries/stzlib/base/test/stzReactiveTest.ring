@@ -1,5 +1,6 @@
 load "../stzbase.ring"
 
+
 #========================================#
 #  REACTIVE FUNCTIONS - BASIC CONCEPTS   #
 #========================================#
@@ -24,9 +25,9 @@ load "../stzbase.ring"
 #                                    
 #                                     Start() ← Process all in parallel
 
-pr()
-
 # Initializing the system (connects to libuv event loop infrastructure)
+
+pr()
 
 oRs = new stzReactive()
 oRs {
@@ -42,9 +43,9 @@ oRs {
     }
 
     # Making them reactive (wraps functions in async infrastructure)
-    Rf1 = MakeReactive(f1)
-    Rf2 = MakeReactive(f2) 
-    Rf3 = MakeReactive(f3)
+    Rf1 = Reactivate(f1) # Or MakeReactive(f1)
+    Rf2 = Reactivate(f2) 
+    Rf3 = Reactivate(f3)
 
     # Launch them simultaneously - none blocks the others!
     # Each function is an asynchronous task to which we specify:
@@ -113,7 +114,7 @@ oRs {
         return nSum / nLen # Calculate average
     }
 
-    Rf1 = MakeReactive(f1)
+    Rf1 = Reactivate(f1) # Or MakeReactive(f1)
 
     # Process large dataset asynchronously
     aLargeData = 1:1000 # Array of numbers 1 to 1000
@@ -149,7 +150,7 @@ oRs {
     # Creating a basic reactive stream
     St = CreateStream("data-stream", "manual")
     
-    # Setting up stream processing pipeline (note lowercase method names)
+    # Setting up stream processing pipeline
     St.Subscribe(func data {		# You can also sya OnData() instead of Subscribe()
         ? "Received: " + data
     })
@@ -207,7 +208,7 @@ oRs {
         Map(func x { return x * 2 })
         Filter(func x { return x > 10 and x % 2 = 0 })
 
-        OnData(func data {			# You can also say Subscribe() instead of OnData()
+        OnData(func data {	# You can also say Subscribe() instead of OnData()
             ? "Processed number: " + data
         })
     }
@@ -237,77 +238,50 @@ oRs {
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
-/*--- Combining multiple streams
-*/
-# Stream merging allows combining data from multiple sources.
-# Useful for aggregating data from different APIs or user inputs.
-
-pr()
-
-oRs = new stzReactive()
-oRs {
-
-    # Create multiple source streams
-    St1 = CreateStream("stream1", "manual")
-    St2 = CreateStream("stream2", "manual")
-
-    # Merge streams into one
-    mergedStream = MergeStreams([ St1, St2 ])
-
-    mergedStream.OnData(func data {
-        ? "Merged data: " + data
-    })
-
-    # Emit data from different sources
-    St1.Emit("From Stream 1")
-    St2.Emit("From Stream 2")
-    St1.Emit("More from Stream 1")
-    
-    St1.Complete()
-    St2.Complete()
-
-    Start()
-}
-
-pf()
-
 #========================================#
 #  REACTIVE TIMERS - TIME-BASED EVENTS   #
 #========================================#
 
 /*--- Basic timer operations
-
+*/
 # Reactive timers execute callbacks after specified delays without blocking.
 # They integrate with the event loop for precise timing control.
 # Essential for animations, polling, and time-based operations.
 
 pr()
 
+# Define counter and intervalId at the module level or use object properties
+counter = 0
+intervalId = ""
+
 oRs = new stzReactive()
 oRs {
-    Init()
-
-    # One-time timer (setTimeout equivalent)
+    # One-time timer
     SetTimeout(func() {
         ? "Timer fired after 1000ms"
     }, 1000)
 
-    # Repeating timer (setInterval equivalent)
-    intervalId = SetInterval(func() {
-        ? "Repeating timer: " + clock()
-    }, 500)
-
-    # Cancel the interval after 5 executions
-    counter = 0
-    SetTimeout(func() {
-        ClearInterval(intervalId)
-        ? "Interval cancelled"
-    }, 2500)
+    # Repeating timer - use global counter
+    intervalId = SetInterval(:RepeatCallback, 500)
 
     Start()
 }
 
 pf()
+
+# Define the callback function separately
+func RepeatCallback()
+    counter++
+    ? "Repeating timer: " + counter + " at " + clock()
+    
+    # Stop after 5 executions
+    if counter >= 5
+        oRs.ClearInterval(intervalId)
+        ? "Interval cancelled after 5 executions"
+        oRs.Stop()  # Stop the entire reactive engine
+    ok
+
+
 
 /*--- Timer-based data generation
 
@@ -321,7 +295,7 @@ oRs {
     Init()
 
     # Create a stream fed by timer
-    dataStream = CreateStream()
+    dataStream = CreateStream("timer-stream", "manual")
     
     dataStream.OnData(func data {
         ? "Time-based data: " + data
@@ -335,7 +309,7 @@ oRs {
         
         if counter >= 5
             ClearInterval(intervalId)
-            dataStream.End()
+            dataStream.End_()
         ok
     }, 300)
 
@@ -383,8 +357,12 @@ oRs {
 
     Start()
 }
+#-->
+# GET Response received: 54 characters
+# POST Response: Success
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- HTTP request pipeline with stream processing
 
@@ -401,12 +379,13 @@ oRs {
     httpStream = CreateStream()
 
     # Process HTTP responses
-    httpStream
-        .Map(func response { return len(response) }) # Extract response length
-        .Filter(func length { return length > 100 })  # Only large responses
-        .OnData(func length {
+    httpStream {
+        Map(func response { return len(response) }) # Extract response length
+        Filter(func length { return length > 100 })  # Only large responses
+        OnData(func length {
             ? "Large response received: " + length + " bytes"
         })
+   }
 
     # Make multiple requests
     urls = [
@@ -444,7 +423,6 @@ pr()
 
 oRs = new stzReactive()
 oRs {
-    Init()
 
     # Write file asynchronously
     WriteFile("test.txt", "Hello Reactive World!",
@@ -480,23 +458,23 @@ pr()
 
 oRs = new stzReactive()
 oRs {
-    Init()
 
     # Create file read stream
-    fileStream = CreateFileReadStream("large_data.txt")
+    fs = CreateFileReadStream("large_data.txt")
 
     lineCount = 0
-    fileStream
-        .OnData(func chunk {
+    fs.OnData(func chunk {
             # Process file chunks
             lines = split(chunk, nl)
             lineCount += len(lines)
             ? "Processed " + len(lines) + " lines, total: " + lineCount
         })
-        .OnEnd(func() {
+
+    fs.OnEnd(func() {
             ? "File processing complete. Total lines: " + lineCount
         })
-        .OnError(func error {
+
+    fs.OnError(func error {
             ? "File stream error: " + error
         })
 
@@ -543,7 +521,7 @@ oRs {
         return [avg, min_val, max_val]
     }
 
-    RfCalculateStats = MakeReactive(fCalculateStats)
+    RfCalculateStats = Reactivate(fCalculateStats)
 
     # Data collection stream
     dataStream = CreateStream()
@@ -641,7 +619,7 @@ oRs {
         ok
     }
 
-    RfProblematic = MakeReactive(fProblematic)
+    RfProblematic = Reactivate(fProblematic)
 
     # Test error handling
     testValues = [10, 5, 0, 2]

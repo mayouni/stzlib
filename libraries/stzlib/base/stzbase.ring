@@ -152,3 +152,4 @@
 # Loading files related to the REACTIVE module
 
 	load "reactive/stzReactive.ring"
+	load "reactive/stzTimer.ring"
