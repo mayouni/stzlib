@@ -377,7 +377,7 @@ oRs {
 # POST Response: Success
 
 pf()
-# Executed in almost 0.03 second(s) in Ring 1.23
+# Executed in almost 1.69 second(s) in Ring 1.23
 
 /*--- HTTP request pipeline with stream processing
 */
@@ -387,42 +387,64 @@ pf()
 pr()
 
 oRs = new stzReactive()
-oRs {
-    Init()
+oRs.Init()  # Add this initialization
 
-    # Create stream for HTTP responses
-    httpStream = CreateStream("http-stream", "manual")
+# Store the stream in a variable first
+httpStream = oRs.CreateStream("http-stream", "manual")
 
-    # Process HTTP responses
-    httpStream {
-        Map(func response { return len(response) })  # Extract response length
-        Filter(func length { return length > 100 })  # Only large responses
-        OnData(func length {
-            ? "Large response received: " + length + " bytes"
-        })
-   }
-
-    # Make multiple requests
-    urls = [
-        "https://api.github.com/users/mayouni",
-        "https://httpbin.org/json",
-        "https://api.github.com/users/mayouni/repos/stzlib"
-    ]
-
-    for i = 1 to len(urls)
-        HttpGet(urls[i],
-            func response { httpStream.Emit(response) },
-            func error { ? "Request failed: " + error }
-        )
-    next
-
-    # End stream after delay
-    SetTimeout(func() { httpStream.End_() }, 3000)
-
-    Start()
+# Then configure the stream
+httpStream {
+    # TRANSFORM 1: Map - Convert response string to its length
+    Map(func response { return len(response) })  
+    
+    # TRANSFORM 2: Filter - Only pass through responses longer than 10 characters
+    Filter(func length { return length > 10 })
+    
+    # SUBSCRIBE: Define what happens when filtered data reaches the end
+    Subscribe(func length {
+        ? "Large response received: " + length + " bytes"
+    })
 }
 
+# Make multiple HTTP requests
+urls = [
+    "https://api.github.com/users/mayouni",
+    "https://httpbin.org/json", 
+    "https://api.github.com/users/mayouni/repos/stzlib"
+]
+
+for i = 1 to len(urls)
+    oRs.HttpGet(urls[i],
+        func response { 
+            httpStream.Emit(response) 
+        },
+        func error { 
+            ? "Request failed: " + error 
+        }
+    )
+next
+
+# End stream after delay
+oRs.SetTimeout(func() { httpStream.End_() }, 3000)
+
+oRs.Start()
+#-->
+# Large response received: 1435 bytes
+# Large response received: 429 bytes
+# Large response received: 106 bytes
+
+# WHAT HAPPENS STEP BY STEP:
+# =========================
+# 1. Three HTTP GET requests are made simultaneously
+# 2. Each request returns a placeholder string (e.g., "GET response from https://...")
+# 3. On success, each response is emitted to httpStream
+# 4. Stream applies Map transform: string -> length (54, 42, 67)
+# 5. Stream applies Filter: only lengths > 10 pass through (all pass)  
+# 6. Stream calls OnData subscriber for each filtered value
+# 7. Result: Three "Large response received: X bytes" messages printed
+
 pf()
+# Executed in 4.77 second(s) in Ring 1.23
 
 #========================================#
 #  FILE OPERATIONS - ASYNC I/O           #

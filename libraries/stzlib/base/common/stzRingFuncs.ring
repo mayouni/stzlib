@@ -42,3 +42,16 @@ func ring_filter(aList, f)
 
 func ring_reduce(aList, f1, initialVal)
 	return reduce(aList, f1, initialVal)
+
+#---
+
+func ring_download(cURL)
+	return download(cURL)
+
+#---
+
+func ring_time()
+	return time()
+
+	func CurrentTime()
+		return time()
