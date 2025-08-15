@@ -5,12 +5,13 @@ load "../stzbase.ring"
 #  REACTIVE TIMERS - TIME-BASED EVENTS  #
 #=======================================#
 
-# Welcome to Reactive Timers! This tutorial teaches you step-by-step
-# how to work with time-based events in a non-blocking way.
+# Welcome to Reactive Timers in Softanza library for Ring (StzLib)!
+# This tutorial teaches you step-by-step how to work with time-based
+# events in a non-blocking way.
 
-#------------------------------#
-#  LESSON 1: YOUR FIRST TIMER  #
-#------------------------------#
+#-------------------------------#
+#  EXAMPLE 1: YOUR FIRST TIMER  #
+#-------------------------------#
 
 /*--- Understanding setTimeout - One-time delayed execution
 
@@ -47,9 +48,9 @@ pf()
 # ⏰ DING! Timer went off after 2000ms (2 seconds)
 # This message appears exactly once
 
-#------------------------------#
-#  LESSON 2: REPEATING TIMERS  #
-#------------------------------#
+#-------------------------------#
+#  EXAMPLE 2: REPEATING TIMERS  #
+#-------------------------------#
 
 /*--- Understanding setInterval - Repeating execution
 
@@ -77,11 +78,13 @@ pf()
 
 # The callback function - defined separately so variables are accessible
 func Lesson2Callback()
+    ? "DEBUG: In callback, counter=" + lesson2_counter
     lesson2_counter++
     ? "🔔 Tick #" + lesson2_counter + " at time " + clock()
     
     # Stop after 3 ticks
     if lesson2_counter >= 3
+        ? "DEBUG: About to stop..."
         ? "Stopping timer after 3 ticks..."
         oRs2.ClearInterval(lesson2_intervalId)
         oRs2.Stop()
@@ -98,12 +101,12 @@ Stopping timer after 3 ticks...
 
 # Executed in 1.06 second(s) in Ring 1.23
 
-#------------------------------#
-#  LESSON 3: COMBINING TIMERS  #
-#------------------------------#
+#-------------------------------#
+#  EXAMPLE 3: COMBINING TIMERS  #
+#-------------------------------#
 
 /*--- Multiple timers working together
-*/
+
 # You can have multiple timers running simultaneously
 # Each timer operates independently
 
@@ -145,7 +148,7 @@ func StopAllTimers()
     ? "⏹️  Stopping all timers..."
     oRs3.ClearInterval(lesson3_fastId)
     oRs3.ClearInterval(lesson3_slowId)
-    oRs3.Stop()
+    oRs3.Stop()  # This should now properly exit
 
 #--> Output:
 # Multiple timers started!
@@ -167,9 +170,9 @@ func StopAllTimers()
 
 # Executed in 4.02 second(s) in Ring 1.23
 
-#=======================================#
-#  LESSON 4: TIMER-DRIVEN DATA STREAMS  #
-#=======================================#
+#----------------------------------------#
+#  EXAMPLE 4: TIMER-DRIVEN DATA STREAMS  #
+#----------------------------------------#
 
 /*--- Using timers to create reactive data streams
 
@@ -178,7 +181,7 @@ func StopAllTimers()
 
 pr()
 
-? "=== LESSON 4: Timer-Driven Data Stream ==="
+? "=== EXAMPLE 4: Timer-Driven Data Stream ==="
 ? "Creating a data stream that generates values every 800ms..."
 
 lesson4_dataCounter = 0
@@ -238,9 +241,9 @@ func StopDataGeneration()
 
 # Executed in 3.53 second(s) in Ring 1.23
 
-#========================================#
-# LESSON 5: PRACTICAL EXAMPLE - PROGRESS TRACKER
-#========================================#
+#---------------------------------------------------#
+#  EXAMPLE 5: PRACTICAL EXAMPLE - PROGRESS TRACKER  #
+#---------------------------------------------------#
 
 /*--- Real-world example: Simulating a download progress
 
@@ -321,11 +324,13 @@ class DownloadSimulator
 # ✅ Download completed successfully!
 # File large-file.zip is ready to use.
 
-#========================================#
-# KEY CONCEPTS SUMMARY
-#========================================#
+# Executed in 5.02 second(s) in Ring 1.23
 
-/*--- What you learned:
+#------------------------#
+#  KEY CONCEPTS SUMMARY  #
+#------------------------#
+
+/*--- What you learned with these examples:
 
 1. **setTimeout**: One-time execution after delay
    - SetTimeout(function, milliseconds)
@@ -354,7 +359,7 @@ class DownloadSimulator
    - reactive.Stop() to shut down the engine
    - Proper cleanup prevents resource leaks
 
-Next steps: Try creating your own timer-based applications like:
+Other timer-based applications can be:
 - A digital clock display
 - A countdown timer
 - A simple animation system

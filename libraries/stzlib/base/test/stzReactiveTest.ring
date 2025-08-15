@@ -188,7 +188,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Stream transformation and filtering
-*/
+
 # Streams can be transformed using operators like Map, Filter, and Reduce.
 # This enables powerful data processing pipelines with minimal code.
 
@@ -244,7 +244,7 @@ pf()
 #========================================#
 
 /*--- Basic timer operations
-*/
+
 # Reactive timers execute callbacks after specified delays without blocking.
 # They integrate with the event loop for precise timing control.
 # Essential for animations, polling, and time-based operations.
@@ -279,7 +279,7 @@ func RepeatCallback()
     if counter >= 5
         oRs.ClearInterval(intervalId)
         ? "Interval cancelled after 5 executions"
-        oRs.Stop()  # Stop the entire reactive engine
+        oRs.StopSafe() # Use safe stop to avoid self-reference destruction
     ok
 
 #-->
@@ -301,7 +301,6 @@ pr()
 
 oRs = new stzReactive()
 oRs {
-    Init()
 
     # Create a stream fed by timer
     dataStream = CreateStream("timer-stream", "manual")
@@ -312,27 +311,35 @@ oRs {
 
     # Generate data every 300ms
     counter = 0
-    intervalId = SetInterval(func() {
+    intervalTimer = SetInterval( func() {
         counter++
-        dataStream.Emit("Data point #" + counter)
+        # Access dataStream through the oRs object
+        oRs.dataStream.Emit("Data point #" + counter)
         
         if counter >= 5
-            ClearInterval(intervalId)
-            dataStream.End_()
+            oRs.ClearInterval(intervalTimer)
+            oRs.dataStream.End_()
         ok
     }, 300)
 
     Start()
 }
+#-->
+# Time-based data: Data point #1
+# Time-based data: Data point #2
+# Time-based data: Data point #3
+# Time-based data: Data point #4
+# Time-based data: Data point #5
 
 pf()
+# Executed in 0.40 second(s) in Ring 1.23
 
 #========================================#
 #  HTTP REQUESTS - NETWORK OPERATIONS    #
 #========================================#
 
 /*--- Basic HTTP requests
-
+*/
 # Reactive HTTP requests prevent blocking during network operations.
 # They provide clean error handling and response processing.
 # Support for all HTTP methods with customizable headers and data.
