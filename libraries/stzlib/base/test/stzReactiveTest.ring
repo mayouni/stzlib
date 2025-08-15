@@ -339,7 +339,7 @@ pf()
 #========================================#
 
 /*--- Basic HTTP requests
-*/
+
 # Reactive HTTP requests prevent blocking during network operations.
 # They provide clean error handling and response processing.
 # Support for all HTTP methods with customizable headers and data.
@@ -348,10 +348,9 @@ pr()
 
 oRs = new stzReactive()
 oRs {
-    Init()
 
     # Simple GET request
-    HttpGet("https://api.github.com/users/octocat", 
+    HttpGet("https://api.github.com/users/mayouni", 
         func response {
             ? "GET Response received: " + len(response) + " characters"
         },
@@ -378,10 +377,10 @@ oRs {
 # POST Response: Success
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in almost 0.03 second(s) in Ring 1.23
 
 /*--- HTTP request pipeline with stream processing
-
+*/
 # Combining HTTP requests with streams creates powerful data processing pipelines.
 # Results can be transformed and filtered before reaching the application.
 
@@ -392,11 +391,11 @@ oRs {
     Init()
 
     # Create stream for HTTP responses
-    httpStream = CreateStream()
+    httpStream = CreateStream("http-stream", "manual")
 
     # Process HTTP responses
     httpStream {
-        Map(func response { return len(response) }) # Extract response length
+        Map(func response { return len(response) })  # Extract response length
         Filter(func length { return length > 100 })  # Only large responses
         OnData(func length {
             ? "Large response received: " + length + " bytes"
@@ -405,9 +404,9 @@ oRs {
 
     # Make multiple requests
     urls = [
-        "https://api.github.com/users/octocat",
+        "https://api.github.com/users/mayouni",
         "https://httpbin.org/json",
-        "https://api.github.com/repos/octocat/Hello-World"
+        "https://api.github.com/users/mayouni/repos/stzlib"
     ]
 
     for i = 1 to len(urls)
@@ -418,7 +417,7 @@ oRs {
     next
 
     # End stream after delay
-    SetTimeout(func() { httpStream.End() }, 3000)
+    SetTimeout(func() { httpStream.End_() }, 3000)
 
     Start()
 }
