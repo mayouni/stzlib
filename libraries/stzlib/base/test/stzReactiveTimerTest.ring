@@ -53,7 +53,7 @@ pf()
 #-------------------------------#
 
 /*--- Understanding setInterval - Repeating execution
-
+*/
 # SetInterval executes a function REPEATEDLY at regular intervals
 # Like a metronome that keeps ticking until you stop it
 

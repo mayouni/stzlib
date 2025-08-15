@@ -13,6 +13,7 @@ class stzReactive
 	http = NULL
 	fs = NULL
 	dataStream = NULL
+	httpStream = NULL
 
 	def Init()
 	        engine = new stzReactiveEngine()
@@ -602,34 +603,70 @@ class stzHttpTask from stzReactiveTask
 		this.data = data
 		
 	def Execute()
-		# Use Ring's built-in HTTP capabilities or curl integration
-		try
-			status = "running"
-			# Simulate HTTP request - in real implementation, use actual HTTP
-			if method = "GET"
-				result = PerformHttpGet(url)
-			else
-				result = PerformHttpPost(url, data)
-			ok
-			status = "completed"
-			if onComplete != NULL
-				call onComplete(result)
-			ok
-		catch
-			status = "error"
-			if onError != NULL
-				call onError("HTTP request failed")
-			ok
-		done
-		
+	    status = "running"
+	    
+	    # Use Ring's built-in HTTP capabilities
+	    if method = "GET"
+	        result = PerformHttpGet(url)
+	    else
+	        result = PerformHttpPost(url, data)
+	    ok
+	    
+	    # Check if we got a valid result
+	    if result != NULL and result != ""
+	        status = "completed"
+	        if onComplete != NULL
+	            call onComplete(result)
+	        ok
+	    else
+	        status = "error"
+	        if onError != NULL
+	            call onError("HTTP request failed")
+	        ok
+	    ok
+			
 	# Helper methods for HTTP operations
 	def PerformHttpGet(url)
-		# Placeholder - implement with actual HTTP library
-		return "GET response from " + url
-		
+	    result = download(url)
+	    if result = NULL
+	        result = ""
+	    ok
+	    return result
+
 	def PerformHttpPost(url, data)
-		# Placeholder - implement with actual HTTP library  
-		return "POST response from " + url
+	    # Initialize curl
+	    curl = curl_easy_init()
+	    if curl = NULL
+	        return ""
+	    ok
+	    
+	    # Set basic options
+	    curl_easy_setopt(curl, CURLOPT_USERAGENT, "stzReactive/1.0")
+	    curl_easy_setopt(curl, CURLOPT_URL, url)
+	    
+	    # Set POST data
+	    if data != NULL and data != ""
+	        if isString(data)
+	            postData = data
+	        else
+	            # Convert list/object to query string format
+	            postData = ""
+	            # Simple conversion - extend as needed
+	        ok
+	        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData)
+	    ok
+	    
+	    # Perform request and get response content
+	    result = curl_easy_perform_silent(curl)
+	    
+	    # Cleanup
+	    curl_easy_cleanup(curl)
+	    
+	    # Return result or empty string on failure
+	    if result = NULL
+	        result = ""
+	    ok
+	    return result
 
 # =============================================================================
 # REACTIVE FILE SYSTEM - For file operations
