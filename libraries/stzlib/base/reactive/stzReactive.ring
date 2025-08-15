@@ -24,9 +24,17 @@ class stzReactive
 		engine.Start()
 		
 	def Stop()
-	    engine.timerManager.isRunning = false
-	    engine.Stop()
-		
+		if engine != NULL and engine.isRunning
+			engine.timerManager.isRunning = false
+			engine.Stop()
+		ok
+
+	def StopSafe()
+		# Schedule stop for next tick to avoid self-reference issues
+		SetTimeout(func() {
+			Stop()
+		}, 1)
+	
 	# Make any function reactive
 	def MakeReactive(f)
 		return new stzReactiveFuncWrapper(f, engine)
@@ -83,17 +91,21 @@ class stzReactive
 
 	def SetInterval(callback, interval)
 	    timerId = "interval_" + string(random(999999))
-	    timer = new stzRingTimer(timerId, interval, callback, engine, false, self)  # Add self
+	    timer = new stzRingTimer(timerId, interval, callback, engine, false, self)
 	    timer.Start()
 	    engine.AddTimer(timer)
-	    return timerId
+	    return timer  # Return timer object instead of just ID
 
-	def ClearInterval(timerId)
-		engine.timerManager.RemoveTimer(timerId)
-		# If no more timers, stop the engine
-		if len(engine.timerManager.timers) = 0
-			Stop()
+	def ClearInterval(timer)
+		if isString(timer)
+			# Handle string ID case
+			engine.timerManager.RemoveTimer(timer)
+		else
+			# Handle timer object case
+			timer.Stop()
+			engine.timerManager.RemoveTimer(timer.timerId)
 		ok
+		# Don't auto-stop engine here - let it be done explicitly
 
 # =============================================================================
 # CORE REACTIVE ENGINE
@@ -339,6 +351,12 @@ class stzReactiveStream
 		
 		Stop()
 
+		def End_()
+			This.Complete()
+
+		def Close()
+			This.Complete()
+
 	def Start()
 		isActive = true
 		isCompleted = false
@@ -428,11 +446,13 @@ class stzTimerManager
 
 	timers = []
 	isRunning = false
-	
+	shouldStop = false
+
 	def Init()
 		timers = []
 		isRunning = false
-		
+		shouldStop = false
+
 	def AddTimer(timer)
 		timers + timer
 		
@@ -452,7 +472,7 @@ class stzTimerManager
 
 	def RunLoop()
 	    isRunning = true
-	    while isRunning
+	    while isRunning and not shouldStop  # Check shouldStop flag
 	        activeCount = 0
 	        
 	        # Process timers safely by collecting completed ones first
@@ -481,8 +501,8 @@ class stzTimerManager
 	        # Small delay to prevent CPU spinning
 	        sleep(0.01)
 	        
-	        # Exit if no active timers
-	        if len(timers) = 0
+	        # Exit if no active timers or shouldStop flag is set
+	        if len(timers) = 0 or shouldStop
 	            isRunning = false
 	        ok
 	    end
@@ -492,6 +512,7 @@ class stzTimerManager
 		for timer in timers
 			timer.Stop()
 		next
+
 
 #---
 

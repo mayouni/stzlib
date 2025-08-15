@@ -530,44 +530,6 @@ Beyond basic path creation and finding, `stzGrid` offers sophisticated tools to 
 
 ### Understanding Path Complexity
 
-The `PathComplexity()` method counts the number of direction changes or "turns" in a path:
-
-```ring
-StzGridQ([8, 6]) {
-  # Create a simple path with several turns
-  AddPath([
-    [1, 1], [2, 1], [3, 1],  # Move right
-    [3, 2], [3, 3],          # Move down
-    [4, 3], [5, 3], [6, 3],  # Move right again
-    [6, 4], [6, 5]           # Move down again
-  ])
-  
-  # Check path complexity
-  ? PathComplexity()  #--> 3  (Three turns in the path)
-  Show()
-}
-```
-
-This creates a path with distinct turns:
-
-```
-    1 2 3 4 5 6 7 8 
-  ╭─v───────────────╮
-1 > ○ ○ ○ · · · · · │
-2 │ · · ○ · · · · · │  ← First turn (right to down)
-3 │ · · ○ ○ ○ ○ · · │  ← Second turn (down to right)
-4 │ · · · · · ○ · · │  ← Third turn (right to down)
-5 │ · · · · · ○ · · │
-6 │ · · · · · · · · │
-  ╰─────────────────╯
-```
-
-## Path Complexity Analysis: Measuring Path Quality
-
-Beyond basic path creation and finding, `stzGrid` offers sophisticated tools to analyze path characteristics, helping you evaluate and optimize your navigation solutions.
-
-### Understanding Path Complexity
-
 The `PathComplexity()` method counts the number of direction changes or "turns" in a path, providing a quantitative measure of navigational complexity:
 
 ```ring

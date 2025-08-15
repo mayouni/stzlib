@@ -15,7 +15,7 @@ func StzGridQ(panColRow)
 	func StzGrid(panColRow)
 		return new stzGrid(panColRow)
 
-Class stzGrid From stzObject
+class stzGrid From stzObject
 	/*
 	The stzGrid class is a positional construct for navigating
 	# grid-like objects. It doesn't host data itself but provides
