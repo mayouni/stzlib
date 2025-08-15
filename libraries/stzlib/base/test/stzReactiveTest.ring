@@ -380,7 +380,7 @@ pf()
 # Executed in almost 1.69 second(s) in Ring 1.23
 
 /*--- HTTP request pipeline with stream processing
-*/
+
 # Combining HTTP requests with streams creates powerful data processing pipelines.
 # Results can be transformed and filtered before reaching the application.
 
@@ -451,7 +451,7 @@ pf()
 #========================================#
 
 /*--- Basic file operations
-
+*/
 # Reactive file operations prevent I/O blocking in applications.
 # They handle large files efficiently with progress callbacks.
 # Support for reading, writing, and monitoring file changes.
