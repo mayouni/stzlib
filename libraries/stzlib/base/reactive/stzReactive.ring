@@ -842,9 +842,16 @@ class stzFunctionTask from stzReactiveTask
 			if onComplete != NULL
 				call onComplete(result)
 			ok
+
 		catch
 			status = "error"
 			if onError != NULL
-				call onError("Function execution failed")
+				# Pass the actual error message instead of generic text
+				errorMsg = CatchError()
+				if isString(errorMsg) and errorMsg != ""
+					call onError(errorMsg)
+				else
+					call onError("Function execution failed")
+				ok
 			ok
 		done

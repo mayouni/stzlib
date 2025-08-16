@@ -390,7 +390,6 @@ pf()
 pr()
 
 Rs = new stzReactive()
-Rs.Init()  # Add this initialization
 
 # Store the stream in a variable first
 oHttpStream = Rs.CreateStream("http-stream", "manual")
@@ -454,7 +453,7 @@ pf()
 #========================================#
 
 /*--- Basic file operations
-*/
+
 # Reactive file operations prevent I/O blocking in applications.
 # They handle large files efficiently with progress callbacks.
 # Support for reading, writing, and monitoring file changes.

@@ -110,7 +110,7 @@ oRs {
 
 
     # Launch all three simultaneously
-    ? "Starting three heavy calculations in parallel..."
+    ? "Starting three heavy calculations in parallel..." + NL
     
     RFib.CallAsync([35], func result { 
         ? "Fibonacci(35): " + result 
@@ -135,14 +135,14 @@ oRs {
 }
 
 pf()
-# Executed in 0.93 second(s) in Ring 1.23
+# Executed in 0.92 second(s) in Ring 1.23
 
-#-----------------------------------#
-#  EXAMPLE 3: ERROR HANDLING        #
-#-----------------------------------#
+#-----------------------------#
+#  EXAMPLE 3: ERROR HANDLING  #
+#-----------------------------#
 
 /*--- Robust error handling with reactive functions
-*/
+
 # Reactive functions can fail - network issues, invalid data, etc.
 # Always provide error handlers to gracefully handle failures
 
@@ -216,7 +216,6 @@ pr()
 
 oRs = new stzReactive()
 oRs {
-    Init()
 
     # Step 1: Fetch user data
     fetchUser = func userId {
@@ -286,7 +285,7 @@ oRs {
 }
 
 pf()
-# Executed in 0.12 second(s) in Ring 1.23
+# Executed in 1.04 second(s) in Ring 1.23
 
 #-----------------------------------#
 #  EXAMPLE 5: BATCH PROCESSING      #
@@ -360,88 +359,14 @@ oRs {
 }
 
 pf()
-# Executed in 0.76 second(s) in Ring 1.23
+# Executed in 1.72 second(s) in Ring 1.23
 
 #-----------------------------------#
-#  EXAMPLE 6: REACTIVE WITH TIMERS  #
-#-----------------------------------#
-
-/*--- Combining reactive functions with timers for scheduled operations
-
-# Sometimes you need functions to run at specific intervals
-# Reactive functions + timers = powerful scheduled processing
-
-pr()
-
-oRs = new stzReactive()
-oRs {
-
-    # Function that processes current state
-    processMetrics = func currentTime {
-        metrics = "System metrics at " + currentTime + ": " + 
-                 "CPU=" + random(100) + "% " +
-                 "Memory=" + random(8192) + "MB"
-        return metrics
-    }
-
-    RMetrics = MakeReactive(processMetrics)
-    
-    counter = 0
-    maxRuns = 5
-
-    # Create a timer that triggers reactive function every 2 seconds
-    metricsTimer = SetInterval(func {
-        counter++
-        currentTime = timeList()[4] + ":" + timeList()[5] + ":" + timeList()[6]
-        
-        ? "Timer tick " + counter + " - triggering metrics collection..."
-        
-        # Each timer tick launches an async metrics calculation
-        RMetrics.CallAsync(
-            [currentTime],
-            func result { 
-                ? "  → " + result
-                
-                # Stop after 5 runs
-                if counter >= maxRuns
-                    ? "Metrics collection complete - stopping timer"
-                    ClearInterval(metricsTimer)
-                    Stop()
-                ok
-            },
-            func error { 
-                ? "  → Metrics error: " + error 
-            }
-        )
-        
-    }, 2000)  # Every 2 seconds
-
-    ? "Starting scheduled metrics collection..."
-    Start()
-    #-->
-    # Starting scheduled metrics collection...
-    # Timer tick 1 - triggering metrics collection...
-    #   → System metrics at 14:23:15: CPU=67% Memory=3421MB
-    # Timer tick 2 - triggering metrics collection...
-    #   → System metrics at 14:23:17: CPU=89% Memory=1247MB
-    # Timer tick 3 - triggering metrics collection...
-    #   → System metrics at 14:23:19: CPU=34% Memory=6891MB
-    # Timer tick 4 - triggering metrics collection...
-    #   → System metrics at 14:23:21: CPU=56% Memory=2134MB
-    # Timer tick 5 - triggering metrics collection...
-    #   → System metrics at 14:23:23: CPU=78% Memory=4567MB
-    # Metrics collection complete - stopping timer
-}
-
-pf()
-# Executed in 10.05 second(s) in Ring 1.23
-
-#-----------------------------------#
-#  EXAMPLE 7: ADVANCED PATTERNS     #
+#  EXAMPLE 6: ADVANCED PATTERNS     #
 #-----------------------------------#
 
 /*--- Advanced reactive patterns for real-world applications
-
+*/
 # Combining reactive functions with conditional logic,
 # result transformation, and complex coordination
 
@@ -449,15 +374,14 @@ pr()
 
 oRs = new stzReactive()
 oRs {
-    Init()
 
     # Simulate database query
     queryDatabase = func table, filter {
         sleep(0.1)  # Simulate DB latency
         if table = "users"
-            return ["John", "Jane", "Bob", "Alice"]
+            return [ "John", "Jane", "Bob", "Alice" ]
         but table = "products"
-            return ["Laptop", "Phone", "Tablet"]
+            return [ "Laptop", "Phone", "Tablet" ]
         else
             raise("Unknown table: " + table)
         ok
@@ -529,117 +453,29 @@ oRs {
     Start()
     #-->
     # Starting complex data processing workflow...
+
     # Query 1 completed for table
     # Data transformed: 4 items
+
     # Query 2 completed for table  
     # Data transformed: 3 items
+
     # Query 3 failed: Query 3 failed: Unknown table: invalid_table
+
     # Validation: Validated 4 items successfully
     # Validation: Validated 3 items successfully
     # Processing complete! Total items: 43
 }
 
 pf()
-# Executed in 0.35 second(s) in Ring 1.23
+# Executed in 1.27 second(s) in Ring 1.23
 
 #-----------------------------------#
-#  EXAMPLE 8: PERFORMANCE BENEFITS  #
-#-----------------------------------#
-
-/*--- Measuring the performance difference
-
-# Compare blocking vs reactive execution to see the time savings
-# This demonstrates why reactive functions matter for real applications
-
-pr()
-
-# First, test blocking (traditional) approach
-? "=== BLOCKING APPROACH ==="
-startTime = clock()
-
-heavyTask = func x {
-    result = 0
-    for i = 1 to x * 100
-        result += sqrt(i)
-    next
-    return result
-}
-
-# Run three tasks sequentially (blocking)
-result1 = heavyTask(1000)
-? "Task 1 done: " + result1
-result2 = heavyTask(800) 
-? "Task 2 done: " + result2
-result3 = heavyTask(1200)
-? "Task 3 done: " + result3
-
-blockingTime = (clock() - startTime) / clocksPerSecond()
-? "Blocking total time: " + blockingTime + " seconds"
-
-? ""
-? "=== REACTIVE APPROACH ==="
-
-oRs = new stzReactive()
-oRs {
-    Init()
-    
-    startTime = clock()
-    RHeavy = MakeReactive(heavyTask)
-    tasksCompleted = 0
-    
-    # Launch all three tasks simultaneously (non-blocking)
-    RHeavy.CallAsync([1000], func result {
-        tasksCompleted++
-        ? "Reactive Task 1 done: " + result
-        checkComplete()
-    }, NULL)
-    
-    RHeavy.CallAsync([800], func result {
-        tasksCompleted++
-        ? "Reactive Task 2 done: " + result  
-        checkComplete()
-    }, NULL)
-    
-    RHeavy.CallAsync([1200], func result {
-        tasksCompleted++
-        ? "Reactive Task 3 done: " + result
-        checkComplete()
-    }, NULL)
-    
-    func checkComplete {
-        if tasksCompleted = 3
-            reactiveTime = (clock() - startTime) / clocksPerSecond()
-            ? "Reactive total time: " + reactiveTime + " seconds"
-            improvement = ((blockingTime - reactiveTime) / blockingTime) * 100
-            ? "Performance improvement: " + improvement + "%"
-        ok
-    }
-
-    Start()
-    #-->
-    # === BLOCKING APPROACH ===
-    # Task 1 done: 21081851.064746
-    # Task 2 done: 14907161.943734  
-    # Task 3 done: 25580781.643291
-    # Blocking total time: 0.89 seconds
-    # 
-    # === REACTIVE APPROACH ===
-    # Reactive Task 1 done: 21081851.064746
-    # Reactive Task 2 done: 14907161.943734
-    # Reactive Task 3 done: 25580781.643291
-    # Reactive total time: 0.32 seconds
-    # Performance improvement: 64%
-}
-
-pf()
-# Executed in 1.23 second(s) in Ring 1.23
-
-#-----------------------------------#
-#  EXAMPLE 9: REAL-WORLD USAGE      #
+#  EXAMPLE 7: REAL-WORLD USAGE      #
 #-----------------------------------#
 
 /*--- Practical example: Image processing pipeline
-*/
+
 # Real applications often involve multiple processing steps
 # This example shows a complete image processing workflow
 
@@ -720,25 +556,27 @@ oRs {
     next
 
     Start()
-    #-->
-    # Starting pipeline for: photo1.jpg
-    # Starting pipeline for: photo2.png
-    # Starting pipeline for: document.pdf
-    #   ✓ Loaded: photo1.jpg
-    #   ✓ Loaded: photo2.png
-    #   ✗ Load failed for document.pdf: Invalid image format
-    #   ✓ Resized: photo1.jpg
-    #   ✓ Resized: photo2.png
-    #   ✓ Filtered: photo1.jpg
-    #   ✓ Filtered: photo2.png
-    #   ✓ SAVED: output_photo1.jpg (42 bytes)
-    #   ✓ SAVED: output_photo2.png (42 bytes)
-    # Pipeline complete for: photo1.jpg
-    # Pipeline complete for: photo2.png
 }
+#-->
+# Starting pipeline for: photo1.jpg
+#   ✓ Loaded: photo1.jpg
+#   ✓ Resized: photo1.jpg
+#   ✓ Filtered: photo1.jpg
+#   ✓ SAVED: output_photo1.jpg (57 bytes)
+# Pipeline complete for: photo1.jpg
+#
+# Starting pipeline for: photo2.png
+#   ✓ Loaded: photo2.png
+#   ✓ Resized: photo2.png
+#   ✓ Filtered: photo2.png
+#   ✓ SAVED: output_photo2.png (57 bytes)
+# Pipeline complete for: photo2.png
+#
+# Starting pipeline for: document.pdf
+#   ✗ Load failed for document.pdf: Function execution failed
 
 pf()
-# Executed in 0.50 second(s) in Ring 1.23
+# Executed in 1.42 second(s) in Ring 1.23
 
 #=========================================#
 #  KEY TAKEAWAYS - REACTIVE FUNCTIONS    #

@@ -106,7 +106,7 @@ Stopping timer after 3 ticks...
 #-------------------------------#
 
 /*--- Multiple timers working together
-
+*/
 # You can have multiple timers running simultaneously
 # Each timer operates independently
 
