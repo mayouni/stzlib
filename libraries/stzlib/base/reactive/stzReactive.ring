@@ -16,10 +16,11 @@ class stzReactive
 	httpStream = NULL
 
 	def Init()
-	        engine = new stzReactiveEngine()
-	        engine.Init()
-	        http = new stzReactiveHttp(engine)
-	        fs = new stzReactiveFileSystem(engine)
+	    engine = new stzReactiveEngine()
+	    engine.mainReactive = self
+	    engine.Init()
+	    http = new stzReactiveHttp(engine)
+	    fs = new stzReactiveFileSystem(engine)
 			
 	def Start()
 		engine.Start()
@@ -119,7 +120,8 @@ class stzReactiveEngine
 	tasks = []
 	streams = []
 	isRunning = false
-	
+	mainReactive = NULL
+
 	def Init()
 		timerManager = new stzTimerManager()
 		timerManager.Init()
@@ -129,9 +131,19 @@ class stzReactiveEngine
 		
 	def Start()
 		if not isRunning
+
 			isRunning = true
+
 			# Give a moment for timers to be set up before starting the loop
-			sleep(0.01)
+			sleep(0.1)
+
+			# Execute any pending chunked tasks
+			for task in tasks
+			    if task.status = "pending"
+			        task.Execute()
+			    ok
+			next
+
 			timerManager.RunLoop()
 			isRunning = false
 		ok
@@ -473,7 +485,9 @@ class stzTimerManager
 
 	def RunLoop()
 	    isRunning = true
-	    while isRunning and not shouldStop  # Check shouldStop flag
+	    emptyLoopCount = 0
+	    
+	    while isRunning and not shouldStop
 	        activeCount = 0
 	        
 	        # Process timers safely by collecting completed ones first
@@ -502,8 +516,18 @@ class stzTimerManager
 	        # Small delay to prevent CPU spinning
 	        sleep(0.01)
 	        
-	        # Exit if no active timers or shouldStop flag is set
-	        if len(timers) = 0 or shouldStop
+	        # Don't exit immediately if no timers - wait for potential new ones
+	        if len(timers) = 0
+	            emptyLoopCount++
+	            if emptyLoopCount > 50  # Wait about 0.5 seconds for new timers
+	                isRunning = false
+	            ok
+	        else
+	            emptyLoopCount = 0  # Reset counter when we have timers
+	        ok
+	        
+	        # Exit if shouldStop flag is set
+	        if shouldStop
 	            isRunning = false
 	        ok
 	    end
@@ -773,6 +797,10 @@ class stzReactiveFuncWrapper
 		engine.AddTask(task)
 		return task
 		
+	# CallAsync() for normal operations
+	# CallAsyncChunked() when they know they have heavy
+	# computations that should yield control to other operations
+
 	def CallAsync(params, onComplete, onError)
 		task = new stzFunctionTask("func_call_async", originalFunc, params, engine)
 		task.Then_(onComplete)

@@ -23,7 +23,7 @@ oRs = new stzReactive()
 oRs {
 
     # A simple function that takes time to execute
-    slowCalculation = func x {
+    fSlowCalculation = func x {
         # Simulate heavy computation
         result = 0
         for i = 1 to x * 1000
@@ -33,25 +33,25 @@ oRs {
     }
 
     # Make it reactive - now it won't block!
-    ReactiveCalc = MakeReactive(slowCalculation) # Or Reactivate()
+    fReactiveCalc = MakeReactive(fSlowCalculation) # Or Reactivate()
+
+    ? "This prints immediately while calculation runs in background..." + NL
 
     # Call it asynchronously - execution continues immediately
-    ReactiveCalc.CallAsync(
-        [500],  # Parameter: calculate sum up to 500,000
+    fReactiveCalc.CallAsync(
+        [50000],  # Parameter: calculate sum up to 50 million iterations
         func result { ? "Heavy calculation done: " + result },
         func error { ? "Calculation failed: " + error }
     )
-
-    ? "This prints immediately while calculation runs in background"
     
     Start() # Process all queued reactive tasks
     #-->
-    # This prints immediately while calculation runs in background
-    # Heavy calculation done: 125250500000
+    # This prints immediately while calculation runs in background...
+    # Heavy calculation done: 1250000025000000
 }
 
 pf()
-# Executed in 0.12 second(s) in Ring 1.23
+# Executed in 8.76 second(s) in Ring 1.23
 
 #-----------------------------------#
 #  EXAMPLE 2: MULTIPLE FUNCTIONS    #
@@ -69,7 +69,7 @@ oRs = new stzReactive()
 oRs {
 
     # Three different CPU-intensive functions
-    fibonacci = func n {
+    fFibonacci = func n {
         if n <= 1 return n ok
         a = 0  b = 1
         for i = 2 to n
@@ -80,7 +80,7 @@ oRs {
         return b
     }
     
-    factorial = func n {
+    fFactorial = func n {
         result = 1
         for i = 2 to n
             result *= i
@@ -88,7 +88,7 @@ oRs {
         return result
     }
     
-    primeCount = func limit {
+    fPrimeCount = func limit {
         count = 0
         for num = 2 to limit
             isPrime = true
@@ -104,9 +104,10 @@ oRs {
     }
 
     # Make all functions reactive
-    RFib = Reactivate(fibonacci) # Or MakeReactive()
-    RFact = Reactivate(factorial) 
-    RPrime = Reactivate(primeCount)
+    RFib = Reactivate(fFibonacci) # Or MakeReactive()
+    RFact = Reactivate(fFactorial) 
+    RPrime = Reactivate(fPrimeCount)
+
 
     # Launch all three simultaneously
     ? "Starting three heavy calculations in parallel..."
@@ -123,25 +124,25 @@ oRs {
         ? "Primes up to 1000: " + result 
     }, NULL)
 
-    ? "All tasks queued - processing now..."
+    # All tasks queued - processing now
     Start()
     #-->
     # Starting three heavy calculations in parallel...
-    # All tasks queued - processing now...
     # Factorial(15): 1307674368000
     # Fibonacci(35): 9227465
     # Primes up to 1000: 168
+
 }
 
 pf()
-# Executed in 0.15 second(s) in Ring 1.23
+# Executed in 0.93 second(s) in Ring 1.23
 
 #-----------------------------------#
 #  EXAMPLE 3: ERROR HANDLING        #
 #-----------------------------------#
 
 /*--- Robust error handling with reactive functions
-
+*/
 # Reactive functions can fail - network issues, invalid data, etc.
 # Always provide error handlers to gracefully handle failures
 
@@ -151,7 +152,7 @@ oRs = new stzReactive()
 oRs {
 
     # Function that might fail
-    riskyDivision = func x, y {
+    fRiskyDivision = func x, y {
         if y = 0
             raise("Division by zero!")
         ok
@@ -159,7 +160,7 @@ oRs {
     }
     
     # Function that processes files
-    processFile = func filename {
+    fProcessFile = func filename {
         if not fexists(filename)
             raise("File not found: " + filename)
         ok
@@ -167,8 +168,8 @@ oRs {
         return "Processed " + len(content) + " characters"
     }
 
-    RDiv = Reactivate(riskyDivision)
-    RFile = Reactivate(processFile)
+    RDiv = Reactivate(fRiskyDivision)
+    RFile = Reactivate(fProcessFile)
 
     # Test successful operation
     RDiv.CallAsync(

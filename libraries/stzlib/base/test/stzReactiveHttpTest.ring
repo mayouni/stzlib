@@ -57,8 +57,7 @@ Rs {
 # }
 
 pf()
-# Executed in 0.23 seconds depending on network
-
+# Executed in 1.10 seconds depending on network
 
 #--------------------------------#
 #  EXAMPLE 2: HTTP POST REQUEST  #
@@ -116,7 +115,7 @@ Rs {
 # }
 
 pf()
-# Executed in 0.28 second(s) in Ring 1.23
+# Executed in 1.44 second(s) in Ring 1.23
 
 #----------------------------------#
 #  EXAMPLE 3: HTTP REQUEST STREAM  #
@@ -326,7 +325,7 @@ func StopPolling()
 #-------------------------------------------------#
 
 /*--- Real-world example: Fetching and combining data from multiple APIs
-*/
+
 # This shows how to coordinate multiple HTTP requests and combine results
 # Common pattern for dashboards, data analysis, or API mashups
 
@@ -480,9 +479,7 @@ class DataAggregator
 #    Total items: ~1908
 #    Total data: 190910 bytes
 
-# Executed in 0.84 second(s) in Ring 1.23
-
-# Executed in 0.66 second(s) in Ring 1.23
+# Executed in 1.95 second(s) in Ring 1.23
 
 #------------------------#
 #  KEY CONCEPTS SUMMARY  #

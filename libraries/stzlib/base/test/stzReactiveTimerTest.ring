@@ -22,8 +22,8 @@ pr()
 
 # Creating a timer that fires once after 2 seconds
 
-oRs = new stzReactive()
-oRs {
+Rs = new stzReactive()
+Rs {
     # SetTimeout(function, delay_in_milliseconds)
     SetTimeout( func() {
         ? "⏰ DING! Timer went off after 2000ms (2 seconds)"
@@ -53,7 +53,7 @@ pf()
 #-------------------------------#
 
 /*--- Understanding setInterval - Repeating execution
-*/
+
 # SetInterval executes a function REPEATEDLY at regular intervals
 # Like a metronome that keeps ticking until you stop it
 
@@ -62,13 +62,13 @@ pr()
 # Creating a timer that fires every 1 second, 3 times total
 
 # We need these variables at global level so the callback can access them
-lesson2_counter = 0
-lesson2_intervalId = ""
+nCounter = 0
+cIntervalID = ""
 
-oRs2 = new stzReactive()
-oRs2 {
+Rs = new stzReactive()
+Rs {
     # SetInterval(function_name, interval_in_milliseconds)
-    lesson2_intervalId = SetInterval(:Lesson2Callback, 1000)
+    cIntervalID = SetInterval(:fCallback, 1000)
     
     ? "Repeating timer set! Starting..."
     Start()
@@ -77,17 +77,17 @@ oRs2 {
 pf()
 
 # The callback function - defined separately so variables are accessible
-func Lesson2Callback()
-    ? "DEBUG: In callback, counter=" + lesson2_counter
-    lesson2_counter++
-    ? "🔔 Tick #" + lesson2_counter + " at time " + clock()
+func fCallback()
+    ? "DEBUG: In callback, counter=" + nCounter
+    nCounter++
+    ? "🔔 Tick #" + nCounter + " at time " + clock()
     
     # Stop after 3 ticks
-    if lesson2_counter >= 3
+    if nCounter >= 3
         ? "DEBUG: About to stop..."
         ? "Stopping timer after 3 ticks..."
-        oRs2.ClearInterval(lesson2_intervalId)
-        oRs2.Stop()
+        Rs.ClearInterval(cIntervalID)
+        Rs.Stop()
     ok
 
 #-->
@@ -114,21 +114,21 @@ pr()
 
 # Running fast timer (every 500ms) and slow timer (every 1500ms)
 
-lesson3_fastCount = 0
-lesson3_slowCount = 0
-lesson3_fastId = ""
-lesson3_slowId = ""
+nFastCount = 0
+nSlowCount = 0
+cFastId = ""
+cSowId = ""
 
-oRs3 = new stzReactive()
-oRs3 {
+Rs = new stzReactive()
+Rs {
     # Fast timer - every 500ms
-    lesson3_fastId = SetInterval(:FastTick, 500)
+    cFastId = SetInterval(:fFastTick, 500)
     
     # Slow timer - every 1500ms  
-    lesson3_slowId = SetInterval(:SlowTick, 1500)
+    cSowId = SetInterval(:fSlowTick, 1500)
     
     # Stop everything after 4 seconds
-    SetTimeout(:StopAllTimers, 4000)
+    SetTimeout(:fStopAllTimers, 4000)
     
     ? "Multiple timers started!"
     Start()
@@ -136,19 +136,19 @@ oRs3 {
 
 pf()
 
-func FastTick()
-    lesson3_fastCount++
-    ? "⚡ Fast tick #" + lesson3_fastCount
+func fFastTick()
+    nFastCount++
+    ? "⚡ Fast tick #" + nFastCount
 
-func SlowTick()
-    lesson3_slowCount++
-    ? "🐌 Slow tick #" + lesson3_slowCount
+func fSlowTick()
+    nSlowCount++
+    ? "🐌 Slow tick #" + nSlowCount
     
-func StopAllTimers()
+func fStopAllTimers()
     ? "⏹️  Stopping all timers..."
-    oRs3.ClearInterval(lesson3_fastId)
-    oRs3.ClearInterval(lesson3_slowId)
-    oRs3.Stop()  # This should now properly exit
+    Rs.ClearInterval(cFastId)
+    Rs.ClearInterval(cSowId)
+    Rs.Stop()  # This should now properly exit
 
 #--> Output:
 # Multiple timers started!
@@ -175,33 +175,33 @@ func StopAllTimers()
 #----------------------------------------#
 
 /*--- Using timers to create reactive data streams
-
+*/
 # Timers can drive reactive streams, creating time-based data sources
-# Perfect for simulating sensors, stock prices, or any real-time data
+# Perfect for simulating sensRs, stock prices, or any real-time data
 
 pr()
 
-? "=== EXAMPLE 4: Timer-Driven Data Stream ==="
 ? "Creating a data stream that generates values every 800ms..."
 
-lesson4_dataCounter = 0
-lesson4_intervalId = ""
+nDtaCounter = 0
+cItervalId = ""
 
-oRs4 = new stzReactive()
-oRs4 {
+Rs = new stzReactive()
+Rs {
     # Create a stream for our time-based data
     dataStream = CreateStream("sensor-data", "manual")
-    
+    #TODO // dataStram is an attribue! think of a better API!
+
     # Subscribe to the stream - this function receives each data point
     dataStream.Subscribe(func data {
         ? "📊 Received data: " + data
     })
     
     # Generate data every 800ms using a timer
-    lesson4_intervalId = SetInterval(:GenerateData, 800)
+    cItervalId = SetInterval(:fGenerateData, 800)
     
     # Stop after 4 data points
-    SetTimeout(:StopDataGeneration, 3500)
+    SetTimeout(:fStopDataGeneration, 3500)
     
     ? "Data stream started! Generating data every 800ms..."
     Start()
@@ -209,20 +209,20 @@ oRs4 {
 
 pf()
 
-func GenerateData()
-    lesson4_dataCounter++
+func fGenerateData()
+    nDtaCounter++
     # Simulate sensor reading with random-ish data
-    temperature = 20 + (lesson4_dataCounter * 2.5)
-    dataPoint = "Temperature: " + temperature + "°C (reading #" + lesson4_dataCounter + ")"
+    temperature = 20 + (nDtaCounter * 2.5)
+    dataPoint = "Temperature: " + temperature + "°C (reading #" + nDtaCounter + ")"
     
     # Emit the data to the stream
-    oRs4.dataStream.Emit(dataPoint)
+    Rs.dataStream.Emit(dataPoint)
 
-func StopDataGeneration()
+func fStopDataGeneration()
     ? "🛑 Stopping data generation..."
-    oRs4.ClearInterval(lesson4_intervalId)
-    oRs4.dataStream.Complete()  # Properly end the stream
-    oRs4.Stop()
+    Rs.ClearInterval(cItervalId)
+    Rs.dataStream.Complete()  # Properly end the stream
+    Rs.Stop()
 
 #--> Output:
 # Data stream started! Generating data every 800ms...
