@@ -37,10 +37,10 @@ oRs {
 
     f1 = func x, y { return x + y }
     f2 = func x { return x * x }
-    f3 = func arr { 
-        sum = 0
-        for i = 1 to len(arr) sum += arr[i] next
-        return sum
+    f3 = func aList { 
+        nSum = 0
+        for i = 1 to len(aList) nSum += aList[i] next
+        return nSum
     }
 
     # Making them reactive (wraps functions in async infrastructure)
@@ -54,26 +54,28 @@ oRs {
     # and error function (executed when the task fails).
 
     # Success and failer functions are also called "handlers".
-    
+
     Rf1.CallAsync(
         [5, 3],     # Add 5 + 3
-        func result { ? "Addition result: " + result },
-        func error { ? "Addition error: " + error }
-    )
-    
-    Rf2.CallAsync(
-        [7],        # Square of 7
-        func result { ? "Square result: " + result },
-        func error { ? "Square error: " + error }
-    )
-    
-    Rf3.CallAsync(
-        [1:100],    # Sum of 1 to 100
-        func result { ? "Sum result: " + result },
-        func error { ? "Sum error: " + error }
+        func cResult { ? "Addition result: " + cResult },
+        func cError { ? "Addition error: " + cError }
     )
 
-    # All three functions (actually: tasks) are now queued and will execute concurrently
+    Rf2.CallAsync(
+        [7],        # Square of 7
+        func cResult { ? "Square result: " + cResult },
+        func cError { ? "Square error: " + cError }
+    )
+
+    Rf3.CallAsync(
+        [1:100],    # Sum of 1 to 100
+        func cResult { ? "Sum result: " + cResult },
+        func cError { ? "Sum error: " + cError }
+    )
+
+    # All three functions (actually: tasks) are now queued and
+    # will execute concurrently 
+
     # Start the reactive system to process all queued tasks
 
     Start()
@@ -99,17 +101,17 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
-oRs {
+Rs = new stzReactive()
+Rs {
 
     # A more complex function that processes arrays
-    f1 = func aArr {
+    f1 = func aList {
 
         nSum = 0
-        nLen = len(aArr)
+        nLen = len(aList)
 
         for i = 1 to nLen
-            nSum += aArr[i]
+            nSum += aList[i]
         next
 
         return nSum / nLen # Calculate average
@@ -145,15 +147,15 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
-oRs {
+Rs = new stzReactive()
+Rs {
     
     # Creating a basic reactive stream
     St = CreateStream("data-stream", "manual")
     
     # Setting up stream processing pipeline
-    St.Subscribe(func data {		# You can also sya OnData() instead of Subscribe()
-        ? "Received: " + data
+    St.Subscribe(func cData { # You can also sya OnData() instead of Subscribe()
+        ? "Received: " + cData
     })
     
     St.OnError(func cError {
@@ -194,8 +196,8 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
-oRs {
+Rs = new stzReactive()
+Rs {
 
     # Create source stream
 
@@ -209,8 +211,8 @@ oRs {
         Map(func x { return x * 2 })
         Filter(func x { return x > 10 and x % 2 = 0 })
 
-        OnData(func data {	# You can also say Subscribe() instead of OnData()
-            ? "Processed number: " + data
+        OnData(func cData { # You can also say Subscribe() instead of OnData()
+            ? "Processed number: " + cData
         })
     }
 
@@ -252,18 +254,18 @@ pf()
 pr()
 
 # Define counter and intervalId at the module level or use object properties
-counter = 0
-intervalId = ""
+nCounter = 0
+cIntervalId = ""
 
-oRs = new stzReactive()
-oRs {
+Rs = new stzReactive()
+Rs {
     # One-time timer
     SetTimeout(func() {
         ? "Timer fired after 1000ms"
     }, 1000)
 
     # Repeating timer - use global counter
-    intervalId = SetInterval(:RepeatCallback, 500)
+    intervalId = SetInterval(:fRepeatCallback, 500)
 
     Start()
 }
@@ -271,15 +273,15 @@ oRs {
 pf()
 
 # Define the callback function separately
-func RepeatCallback()
-    counter++
-    ? "Repeating timer: " + counter + " at " + clock()
+func fRepeatCallback()
+    nCounter++
+    ? "Repeating timer: " + nCounter + " at " + clock()
     
     # Stop after 5 executions
-    if counter >= 5
-        oRs.ClearInterval(intervalId)
+    if nCounter >= 5
+        Rs.ClearInterval(cIntervalId)
         ? "Interval cancelled after 5 executions"
-        oRs.StopSafe() # Use safe stop to avoid self-reference destruction
+        Rs.Stop()
     ok
 
 #-->
@@ -299,26 +301,26 @@ func RepeatCallback()
 
 pr()
 
-oRs = new stzReactive()
-oRs {
+Rs = new stzReactive()
+Rs {
 
     # Create a stream fed by timer
-    dataStream = CreateStream("timer-stream", "manual")
+    oDataStream = CreateStream("timer-stream", "manual")
     
-    dataStream.OnData(func data {
-        ? "Time-based data: " + data
+    oDataStream.OnData(func cData {
+        ? "Time-based data: " + cData
     })
 
     # Generate data every 300ms
-    counter = 0
-    intervalTimer = SetInterval( func() {
-        counter++
+    nCounter = 0
+    oIntervalTimer = SetInterval( func() {
+        nCounter++
         # Access dataStream through the oRs object
-        oRs.dataStream.Emit("Data point #" + counter)
+        Rs.oDataStream.Emit("Data point #" + nCounter)
         
-        if counter >= 5
-            oRs.ClearInterval(intervalTimer)
-            oRs.dataStream.End_()
+        if nCounter >= 5
+            Rs.ClearInterval(oIntervalTimer)
+            Rs.oDataStream.End_()
         ok
     }, 300)
 
@@ -346,27 +348,28 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
-oRs {
+Rs = new stzReactive()
+Rs {
 
     # Simple GET request
     HttpGet("https://api.github.com/users/mayouni", 
-        func response {
-            ? "GET Response received: " + len(response) + " characters"
+        func cResponse {
+            ? "GET Response received: " + len(cResponse) + " characters"
         },
-        func error {
-            ? "GET Error: " + error
+        func cError {
+            ? "GET Error: " + cError
         }
     )
 
     # POST request with data
-    postData = '{"name": "test", "value": 123}'
-    HttpPost("https://httpbin.org/post", postData,
-        func response {
+    cPostData = '{"name": "test", "value": 123}'
+    HttpPost("https://httpbin.org/post",
+	cPostData,
+        func cResponse {
             ? "POST Response: Success"
         },
-        func error {
-            ? "POST Error: " + error
+        func cError {
+            ? "POST Error: " + cError
         }
     )
 
@@ -386,48 +389,48 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
-oRs.Init()  # Add this initialization
+Rs = new stzReactive()
+Rs.Init()  # Add this initialization
 
 # Store the stream in a variable first
-httpStream = oRs.CreateStream("http-stream", "manual")
+oHttpStream = Rs.CreateStream("http-stream", "manual")
 
 # Then configure the stream
-httpStream {
+oHttpStream {
     # TRANSFORM 1: Map - Convert response string to its length
-    Map(func response { return len(response) })  
+    Map(func cResponse { return len(cResponse) })  
     
     # TRANSFORM 2: Filter - Only pass through responses longer than 10 characters
-    Filter(func length { return length > 10 })
+    Filter(func nLength { return nLength > 10 })
     
     # SUBSCRIBE: Define what happens when filtered data reaches the end
-    Subscribe(func length {
-        ? "Large response received: " + length + " bytes"
+    Subscribe(func nLength {
+        ? "Large response received: " + nLength + " bytes"
     })
 }
 
 # Make multiple HTTP requests
-urls = [
+acUrls = [
     "https://api.github.com/users/mayouni",
     "https://httpbin.org/json", 
     "https://api.github.com/users/mayouni/repos/stzlib"
 ]
 
-for i = 1 to len(urls)
-    oRs.HttpGet(urls[i],
-        func response { 
-            httpStream.Emit(response) 
+for i = 1 to len(acUrls)
+    Rs.HttpGet(acUrls[i],
+        func cResponse { 
+            oHttpStream.Emit(cResponse) 
         },
-        func error { 
-            ? "Request failed: " + error 
+        func cError { 
+            ? "Request failed: " + cError 
         }
     )
 next
 
 # End stream after delay
-oRs.SetTimeout(func() { httpStream.End_() }, 3000)
+Rs.SetTimeout(func() { oHttpStream.End_() }, 3000)
 
-oRs.Start()
+Rs.Start()
 #-->
 # Large response received: 1435 bytes
 # Large response received: 429 bytes
@@ -462,12 +465,12 @@ oRs = new stzReactive()
 oRs {
 
     # Write file asynchronously
-    WriteFile("test.txt", "Hello Reactive World!",
+    WriteFile("reactive.txt", "Hello Reactive World!",
         func() {
             ? "File written successfully"
             
             # Read the file back
-            ReadFile("test.txt",
+            ReadFile("reactive.txt",
                 func content {
                     ? "File content: " + content
                 },

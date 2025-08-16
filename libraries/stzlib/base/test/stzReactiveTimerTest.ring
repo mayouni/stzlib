@@ -175,7 +175,7 @@ func fStopAllTimers()
 #----------------------------------------#
 
 /*--- Using timers to create reactive data streams
-*/
+
 # Timers can drive reactive streams, creating time-based data sources
 # Perfect for simulating sensRs, stock prices, or any real-time data
 
@@ -255,57 +255,57 @@ pr()
 # Simulating a file download with progress updates...
 
 # Run the download simulation
-downloader = new DownloadSimulator()
-downloader.StartDownload()
+ds = new DownloadSimulator()
+ds.StartDownload()
 
 pf()
 
 func UpdateProgress()
-    downloader.progress += 20
+    ds.nProgress += 20
     
-    if downloader.progress <= 100
-        progressBar = ""
-        filledBars = floor(downloader.progress / 10)
-        emptyBars = 10 - filledBars
+    if ds.nProgress <= 100
+        cProgressBar = ""
+        nFilledBars = floor(ds.nProgress / 10)
+        nEmptyBars = 10 - nFilledBars
         
-        for i = 1 to filledBars
-            progressBar += "█"
+        for i = 1 to nFilledBars
+            cProgressBar += "█"
         next
 
-        for i = 1 to emptyBars  
-            progressBar += "░"
+        for i = 1 to nEmptyBars  
+            cProgressBar += "░"
         next
         
-        ? "Progress: [" + progressBar + "] " + downloader.progress + "%"
+        ? "Progress: [" + cProgressBar + "] " + ds.nProgress + "%"
     ok
 
 func CompleteDownload()
-    downloader.reactive.ClearInterval(downloader.progressId)
+    ds.oReactive.ClearInterval(ds.cProgressId)
 
     ? NL + "✅ Download completed successfully!"
-    ? "File " + downloader.fileName + " is ready to use."
+    ? "File " + ds.cFileName + " is ready to use."
 
-    downloader.reactive.Stop()
+    ds.oReactive.Stop()
 
 class DownloadSimulator
-    progress = 0
-    downloadId = ""
-    progressId = ""
-    reactive = NULL
-    fileName = "large-file.zip"
+    nProgress = 0
+    cDownloadId = ""
+    cProgressId = ""
+    oReactive = NULL
+    cFileName = "large-file.zip"
     
     def Init()
-        reactive = new stzReactive()
-        progress = 0
-        fileName = "large-file.zip"
+        oReactive = new stzReactive()
+        nProgress = 0
+        cFileName = "large-file.zip"
         
     def StartDownload()
-        ? "🔽 Starting download of " + fileName + "..." + NL
+        ? "🔽 Starting download of " + cFileName + "..." + NL
 
         ? "Progress: [----------] 0%"
         
-        reactive {
-            progressId = SetInterval(:UpdateProgress, 500)
+        oReactive {
+            cProgressId = SetInterval(:UpdateProgress, 500)
             SetTimeout(:CompleteDownload, 5000)
             
             Start()
