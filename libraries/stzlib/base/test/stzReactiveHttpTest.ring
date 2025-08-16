@@ -72,7 +72,7 @@ pr()
 
 # Creating and sending data via POST request
 
-postData = '{
+cPostData = '{
     "title": "My New Post",
     "body": "This is the content of my post", 
     "userId": 1
@@ -82,18 +82,18 @@ Rs = new stzReactive()
 Rs {
     ? "Sending HTTP POST request with data..." + NL
 
-    ? "Data being sent: " + postData + NL
+    ? "Data being sent: " + cPostData + NL
     
     # HttpPost(url, data, onSuccess_callback, onError_callback)
     HttpPost("https://jsonplaceholder.typicode.com/posts", 
-        postData,
-        func response {
+        cPostData,
+        func cResponse {
             ? "✅ POST SUCCESS! Server response:"
-            ? "Created resource: " + response
+            ? "Created resource: " + cResponse
             Rs.Stop()
         },
-        func error {
-            ? "❌ POST ERROR: " + error
+        func cError {
+            ? "❌ POST ERROR: " + cError
             Rs.Stop()
         }
     )
@@ -129,14 +129,14 @@ pf()
 pr()
 
 # List of URLs to fetch data from
-apiUrls = [
+aApiUrls = [
    "https://jsonplaceholder.typicode.com/posts/1",
    "https://jsonplaceholder.typicode.com/posts/2", 
    "https://jsonplaceholder.typicode.com/posts/3"
 ]
 
-currentIndex = 0
-requestId = ""
+nCurrentIndex = 0
+cRequestId = ""
 
 Rs = new stzReactive()
 Rs {
@@ -144,9 +144,9 @@ Rs {
    Rs.httpStream = CreateStream("http-responses", "manual")
    
    # Subscribe to receive each HTTP response
-   Rs.httpStream.Subscribe(func data {
-       ? " ╰─> Received from stream: Post #" + data["id"] + " - " + 
-         left(data["title"], 30) + "..."
+   Rs.httpStream.Subscribe(func aData {
+       ? " ╰─> Received from stream: Post #" + aData["id"] + " - " + 
+         left(aData["title"], 30) + "..."
    })
    
    # Complete handler - called when stream ends
@@ -156,47 +156,47 @@ Rs {
    })
    
    # Start fetching URLs one by one
-   ? "Creating HTTP request stream for " + len(apiUrls) + " URLs..."
-   requestId = SetInterval(:FetchNextUrl, 1000)  # Every 1 second
+   ? "Creating HTTP request stream for " + len(aApiUrls) + " URLs..."
+   cRequestId = SetInterval(:fFetchNextUrl, 1000)  # Every 1 second
    
    Start()
 }
 
 pf()
 
-func FetchNextUrl()
+func fFetchNextUrl()
 
-   if currentIndex < len(apiUrls)
-       currentIndex++
-       url = apiUrls[currentIndex]
+   if nCurrentIndex < len(aApiUrls)
+       nCurrentIndex++
+       cUrl = aApiUrls[nCurrentIndex]
        
-       ? "🔄 Fetching URL #" + currentIndex + ": " + url
+       ? "🔄 Fetching URL #" + nCurrentIndex + ": " + cUrl
        
        # Make the HTTP request
-       Rs.HttpGet(url,
+       Rs.HttpGet(cUrl,
 
-           func response {
+           func cResponse {
                # Simulate parsing JSON response
-               mockData = [
-                   :id = currentIndex,
-                   :title = "Post Title #" + currentIndex,
+               aMockData = [
+                   :id = nCurrentIndex,
+                   :title = "Post Title #" + nCurrentIndex,
                    :body = "Post body content...",
-                   :response = response
+                   :response = cResponse
                ]
                
                # Emit to stream
-               Rs.httpStream.Emit(mockData)
+               Rs.httpStream.Emit(aMockData)
 
                # Check if we're done with all URLs
-               if currentIndex >= len(apiUrls)
-                   Rs.ClearInterval(requestId)
+               if nCurrentIndex >= len(aApiUrls)
+                   Rs.ClearInterval(cRequestId)
                    Rs.httpStream.Complete()  # End the stream
                ok
            },
 
-           func error {
-               ? "❌ Request failed: " + error
-               Rs.httpStream.EmitError(error)
+           func cError {
+               ? "❌ Request failed: " + cError
+               Rs.httpStream.EmitError(cError)
            }
        )
    ok
@@ -224,72 +224,72 @@ func FetchNextUrl()
 # Common pattern for real-time updates without WebSockets
 
 pr()
-pollCount = 0
-maxPolls = 5
-pollId = ""
-dataHistory = []
+nPollCount = 0
+nMaxPolls = 5
+cPollId = ""
+aDataHistory = []
 
 Rs = new stzReactive()
 Rs {
     ? "Polling server every 2 seconds for updates..." + NL
     
     # Poll every 2 seconds
-    pollId = SetInterval(:PollServer, 2000)
+    cPollId = SetInterval(:fPollServer, 2000)
     
-    # Stop polling after maxPolls attempts
-    SetTimeout(:StopPolling, (maxPolls * 2000) + 500)
+    # Stop polling after nMaxPolls attempts
+    SetTimeout(:fStopPolling, (nMaxPolls * 2000) + 500)
     
     Start()
 }
 pf()
 
-func PollServer()
-    pollCount++
+func fPollServer()
+    nPollCount++
     currenttime = clock()
     
-    ? "Poll #" + pollCount + " at " + currenttime + "..."
+    ? "Poll #" + nPollCount + " at " + currenttime + "..."
     
     # Simulate polling different endpoints or parameters
-    pollUrl = "https://jsonplaceholder.typicode.com/posts/" + (pollCount % 5 + 1)
+    pollUrl = "https://jsonplaceholder.typicode.com/posts/" + (nPollCount % 5 + 1)
     
     Rs.HttpGet(pollUrl,
-        func response {
+        func cResponse {
             # Simulate extracting relevant data
-            dataPoint = [
-                :poll = pollCount,
+            aDataPoint = [
+                :poll = nPollCount,
                 :timestamp = CurrentTime(),
-                :hasUpdate = (pollCount % 3 = 0),  # Simulate occasional updates
-                :dataSize = len(response)
+                :hasUpdate = (nPollCount % 3 = 0),  # Simulate occasional updates
+                :dataSize = len(cResponse)
             ]
             
-            dataHistory + dataPoint
+            aDataHistory + aDataPoint
             
-            if dataPoint[:hasUpdate]
-                ? "   ~> NEW DATA detected! Size: " + dataPoint[:dataSize] + " bytes"
+            if aDataPoint[:hasUpdate]
+                ? "   ~> NEW DATA detected! Size: " + aDataPoint[:dataSize] + " bytes"
             else  
-                ? "   ~> No changes (Size: " + dataPoint[:dataSize] + " bytes)"
+                ? "   ~> No changes (Size: " + aDataPoint[:dataSize] + " bytes)"
             ok
         },
-        func error {
-            ? "   ❌ Poll failed: " + error
+        func cError {
+            ? "   ❌ Poll failed: " + cError
         }
     )
 
-func StopPolling()
-    ? NL + "⏹️  Stopping polling after " + maxPolls + " attempts..."
-    Rs.ClearInterval(pollId)
+func fStopPolling()
+    ? NL + "⏹️  Stopping polling after " + nMaxPolls + " attempts..."
+    Rs.ClearInterval(cPollId)
     
     # Summary of polling session
     ? "Polling Summary:"
-    ? "  - Total polls: " + len(dataHistory)
-    updates = 0
-    for data in dataHistory
-        if data[:hasUpdate]
-            updates++
+    ? "  - Total polls: " + len(aDataHistory)
+    nUpdates = 0
+    for aData in aDataHistory
+        if aData[:hasUpdate]
+            nUpdates++
         ok
     next
-    ? "  - Updates found: " + updates
-    ? "  - Success rate: " + (len(dataHistory) * 100 / maxPolls) + "%"
+    ? "  - Updates found: " + nUpdates
+    ? "  - Success rate: " + (len(aDataHistory) * 100 / nMaxPolls) + "%"
     
     Rs.Stop()
 
@@ -321,7 +321,7 @@ func StopPolling()
 # Executed in 11.22 seconds depending on network
 
 #-------------------------------------------------#
-#  EXAMPLE 5: PRACTICAL - API DATA AGGREGATOR     #
+#  EXAMPLE 5: PRACTICAL - API DATA oAggregator     #
 #-------------------------------------------------#
 
 /*--- Real-world example: Fetching and combining data from multiple APIs
@@ -332,97 +332,96 @@ func StopPolling()
 pr()
 
 # Global variables for callback access
-currentAggregator = NULL
+oCurrentAggregator = NULL
 
-aggregator = new DataAggregator()
-aggregator.StartAggregation()
+oAggregator = new DataAggregator()
+oAggregator.StartAggregation()
 
 pf()
 
 # Global callback functions
-func OnHttpSuccess(response)
-    # Use currentAggregator to process the data
+func OnHttpSuccess(cResponse)
+    # Use oCurrentoAggregator to process the data
     # Note: We need to track which request this is for - simplified version
-    currentAggregator.ProcessSourceData("API", response, 1)
+    oCurrentAggregator.ProcessSourceData("API", cResponse, 1)
 
-func OnHttpError(error)
-    ? "❌ HTTP Error: " + error
-    currentAggregator.ProcessSourceData("API", NULL, 1)
+func OnHttpError(cError)
+    ? "❌ HTTP Error: " + cError
+    oCurrentoAggregator.ProcessSourceData("API", NULL, 1)
 
 # Aggaregator class
 class DataAggregator
-    reactive = NULL
-    aggregatedData = []
-    completedRequests = 0
-    totalRequests = 0
+    oReactive = NULL
+    aAggregatedData = []
+    nCompletedRequests = 0
+    nTotalRequests = 0
     
     def Init()
-       reactive = new stzReactive()
-       reactive.Init()  # Initialize the reactive engine
-       aggregatedData = []
-       completedRequests = 0
-       totalRequests = 3  # Set the expected number of requests
-       currentAggregator = self  # Set global reference
+       oReactive = new stzReactive()
+       aAggregatedData = []
+       nCompletedRequests = 0
+       nTotalRequests = 3  # Set the expected number of requests
+       oCurrentAggregator = self  # Set global reference
         
     def StartAggregation()
-        apiSources = [
-            ["Users", "https://jsonplaceholder.typicode.com/users"],
-            ["Posts", "https://jsonplaceholder.typicode.com/posts"],  
-            ["Comments", "https://jsonplaceholder.typicode.com/comments"]
+        aApiSources = [
+            ["users", "https://jsonplaceholder.typicode.com/users"],
+            ["posts", "https://jsonplaceholder.typicode.com/posts"],  
+            ["comments", "https://jsonplaceholder.typicode.com/comments"]
         ]
         
         ? "🔄 Starting API data aggregation..."
-        ? "Fetching data from " + totalRequests + " different sources..." + NL
+        ? "Fetching data from " + nTotalRequests + " different sources..." + NL
         
         # Fetch from all sources simultaneously (parallel requests)
-        for i = 1 to len(apiSources)
-            source = apiSources[i]
-            name = source[1]
-            url = source[2]
+        for i = 1 to len(aApiSources)
+            aSource = aApiSources[i]
+            cName = aSource[1]
+            cUrl = aSource[2]
             
-            FetchFromSource(name, url, i)
+            FetchFromSource(cName, cUrl, i)
         next
         
-        reactive.Start()
+        oReactive.Start()
         
-    def FetchFromSource(sourceName, sourceUrl, sourceIndex)
-        ? "─> Fetching " + sourceName + " from " + sourceUrl + "..."
+    def FetchFromSource(cSourceName, cSourceUrl, nSourceIndex)
+        ? "─> Fetching " + cSourceName + " from " + cSourceUrl + "..."
         
-        reactive.HttpGet(sourceUrl, :OnHttpSuccess, :OnHttpError)
+        oReactive.HttpGet(cSourceUrl, :OnHttpSuccess, :OnHttpError)
         
-    def ProcessSourceData(sourceName, responseData, sourceIndex)
+    def ProcessSourceData(cSourceName, aResponseData, sourceIndex)
         # Simulate data processing
-        if responseData != NULL
-            dataSize = len(responseData)
+        if aResponseData != NULL
+            nDataSize = len(aResponseData)
             # Extract key metrics (simplified)
-            itemCount = floor(dataSize / 100)  # Rough estimate of items
+            nItemCount = floor(nDataSize / 100)  # Rough estimate of items
             
-            result = [
-                :source = sourceName,
+            aResult = [
+                :source = cSourceName,
                 :status = "success",
-                :itemCount = itemCount,
-                :dataSize = dataSize,
+                :itemCount = nItemCount,
+                :dataSize = nDataSize,
                 :fetchTime = clock()
             ]
             
-            ? "✅ " + sourceName + " loaded: ~" + itemCount + " items (" + dataSize + " bytes)" + NL
+            ? "✅ " + cSourceName + " loaded: ~" + nItemCount + " items (" + nDataSize + " bytes)" + NL
         else
-            result = [
-                :source = sourceName, 
+            aResult = [
+                :source = cSourceName, 
                 :status = "failed",
                 :itemCount = 0,
                 :dataSize = 0,
                 :fetchTime = clock()
             ]
-            ? "⚠️  " + sourceName + " failed to load"
+            ? "⚠️  " +cSourceName + " failed to load"
         ok
 
 
-        aggregatedData + result
-        completedRequests++
+        aAggregatedData + aResult
+        nCompletedRequests++
         
         # Check if all requests completed
-        if completedRequests >= totalRequests
+        if nCompletedRequests >= nTotalRequests
             CompleteAggregation()
         ok
         
@@ -430,29 +429,29 @@ class DataAggregator
         ? "🎉 Data aggregation completed!"
         ? "═══════════════════════════════"
         
-        totalItems = 0
-        totalBytes = 0
-        successCount = 0
+        nTotalItems = 0
+        nTotalBytes = 0
+        nSuccessCount = 0
         
-        for data in aggregatedData
-            ? "📊 " + data[:source] + ": " + data[:status] + 
-              " (" + data[:itemCount] + " items, " + data[:dataSize] + " bytes)"
+        for aData in aAggregatedData
+            ? "📊 " + aData[:source] + ": " + aData[:status] + 
+              " (" + aData[:itemCount] + " items, " + aData[:dataSize] + " bytes)"
               
-            totalItems += data[:itemCount]
-            totalBytes += data[:dataSize]
+            nTotalItems += aData[:itemCount]
+            nTotalBytes += aData[:dataSize]
             
-            if data[:status] = "success"
-                successCount++
+            if aData[:status] = "success"
+                nSuccessCount++
             ok
         next
         
         ? NL + "📈 SUMMARY:"
-        ? "   Sources processed: " + len(aggregatedData) + "/" + totalRequests  
-        ? "   Success rate: " + (successCount * 100 / totalRequests) + "%"
-        ? "   Total items: ~" + totalItems
-        ? "   Total data: " + totalBytes + " bytes"
+        ? "   Sources processed: " + len(aAggregatedData) + "/" + ntotalRequests  
+        ? "   Success rate: " + (nSuccessCount * 100 / nTotalRequests) + "%"
+        ? "   Total items: ~" + nTotalItems
+        ? "   Total data: " + nTotalBytes + " bytes"
         
-        reactive.Stop()
+        oReactive.Stop()
 
 #-->
 # 🔄 Starting API data aggregation...
@@ -517,7 +516,7 @@ class DataAggregator
 
 Common HTTP streaming applications:
 - Real-time dashboards pulling from multiple APIs
-- Social media feed aggregators  
+- Social media feed oAggregators  
 - Stock price monitoring systems
 - Weather data collectors
 - News feed processors

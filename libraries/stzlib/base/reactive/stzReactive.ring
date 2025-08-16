@@ -12,8 +12,8 @@ class stzReactive
 	engine = NULL
 	http = NULL
 	fs = NULL
-	dataStream = NULL
-	httpStream = NULL
+	oDataStream = NULL
+	oHttpStream = NULL
 
 	def Init()
 	    engine = new stzReactiveEngine()
