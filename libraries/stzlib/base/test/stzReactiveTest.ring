@@ -26,8 +26,9 @@ load "../stzbase.ring"
 #                                    
 #                                     Start() ← Process all in parallel
 
-# Initializing the system (connects to libuv event loop infrastructure)
-
+# Initializing Softanza Reactive system
+# (connects to libuv event loop infrastructure)
+*/
 pr()
 
 oRs = new stzReactive()

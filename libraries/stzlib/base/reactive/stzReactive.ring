@@ -1,6 +1,3 @@
-# Softanza Reactive Programming System
-# A simple, learnable reactive system using Ring's LibUV capabilities
-
 load "libuv.ring"
 
 # =============================================================================

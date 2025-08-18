@@ -30,7 +30,7 @@ class stzReactiveObject
 	aAsyncOperations = []      # Pending async property operations
 	
 	# State management
-	lReactiveMode = True
+	bReactiveMode = True
 	lBatchMode = False
 	aPendingChanges = []       # Changes accumulated during batch mode
 	
@@ -46,24 +46,24 @@ class stzReactiveObject
 		aAsyncOperations = []
 		aPendingChanges = []
 		aPropertyValues = []
-		lReactiveMode = True
+		bReactiveMode = True
 		lBatchMode = False
 
 	# Ring's object access hooks - integrate with reactive system
-	def bracestart
-		if lReactiveMode
+	def BraceStart()
+		if bReactiveMode
 			# Object access started - could trigger lazy loading, validation, etc.
 			objectManager.NotifyObjectAccess(self, "start", "")
 		ok
 
-	def braceend
-		if lReactiveMode
+	def BraceEnd()
+		if bReactiveMode
 			# Object update completed - process all accumulated reactions
 			ProcessPendingReactions()
 			objectManager.NotifyObjectAccess(self, "end", "")
 		ok
 
-	def braceerror
+	def BraceError()
 		# Handle reactive errors gracefully
 		cError = cCatchError
 		objectManager.NotifyObjectAccess(self, "error", cError)
@@ -81,13 +81,21 @@ class stzReactiveObject
 		next
 
 	# Universal property setter with full reactive capabilities
-	def setattribute cProperty, newValue
-		cOldValue = GetPropertyValue(cProperty)
-		addattribute(this, cProperty)
+	def SetAttribute(cProperty, newValue)
+		AddAttribute(this, cProperty)
+		
+		# Check cache first, then current value
+		nIndex = FindPropertyInCache(cProperty)
+		if nIndex > 0
+			cOldValue = aPropertyValues[nIndex][2]
+		else
+			cOldValue = GetPropertyValue(cProperty)
+		ok
+		
 		# Set the actual property value
 		eval("this." + cProperty + " = newValue")
 		
-		if lReactiveMode and cOldValue != newValue
+		if bReactiveMode and cOldValue != newValue
 			# Update our property cache
 			UpdatePropertyCache(cProperty, newValue)
 			
@@ -100,10 +108,10 @@ class stzReactiveObject
 			ok
 		ok
 
-	def getattribute cProperty
+	def GetAttribute(cProperty)
 		value = GetPropertyValue(cProperty)
 		
-		if lReactiveMode
+		if bReactiveMode
 			# Could implement access logging, lazy loading, etc.
 			objectManager.NotifyPropertyAccess(self, cProperty, "read")
 		ok
@@ -163,7 +171,7 @@ class stzReactiveObject
 		
 		task.Catch_(func error {
 			# Error - call error handler
-			if fnError != NULL
+			if error != NULL
 				call fnError(error)
 			ok
 		})
@@ -409,7 +417,7 @@ class stzReactiveObjectWrapper from stzReactiveObject
 		wrappedObject = oObject
 		super.Init(reactiveEngine, objectManager)
 
-	def setattribute cProperty, newValue
+	def SetAttribute(cProperty, newValue)
 		# Set property on wrapped object
 		addattribute(wrappedObject, cProperty)
 		eval("wrappedObject." + cProperty + " = newValue")
@@ -417,6 +425,6 @@ class stzReactiveObjectWrapper from stzReactiveObject
 		# Process reactive behavior
 		super.setattribute(cProperty, newValue)
 
-	def getattribute cProperty
+	def GetAttribute(cProperty)
 		# Get from wrapped object
 		return eval("wrappedObject." + cProperty)
