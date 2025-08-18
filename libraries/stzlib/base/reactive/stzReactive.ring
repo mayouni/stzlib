@@ -15,13 +15,20 @@ class stzReactive
 	oDataStream = NULL
 	oHttpStream = NULL
 
+	reactiveObjects = []
+	objectWatchManager = NULL
+
 	def Init()
 	    engine = new stzReactiveEngine()
 	    engine.mainReactive = self
 	    engine.Init()
 	    http = new stzReactiveHttp(engine)
 	    fs = new stzReactiveFileSystem(engine)
-			
+
+	   # Initialize reactive object system
+	   objectWatchManager = new stzReactiveObjectManager(engine)
+	   reactiveObjects = []
+
 	def Start()
 		engine.Start()
 		
@@ -108,6 +115,30 @@ class stzReactive
 			engine.timerManager.RemoveTimer(timer.timerId)
 		ok
 		# Don't auto-stop engine here - let it be done explicitly
+
+	#--- REACTIVE OBJECT
+
+	# Create a reactive object
+	def CreateReactiveObject(className)
+		if className = NULL
+			className = "stzReactiveObject"
+		else
+		 	className = lower(className)
+		ok
+		
+		oReactiveObj = new stzReactiveObject(engine, objectWatchManager)
+		reactiveObjects + oReactiveObj
+		return oReactiveObj
+
+	# Register existing object as reactive
+	def MakeObjectReactive(oObject)
+		oWrapper = new stzReactiveObjectWrapper(oObject, engine, objectWatchManager)
+		reactiveObjects + oWrapper
+		return oWrapper
+
+	# Create reactive property binding between objects
+	def BindObjects(oSource, cSourceProp, oTarget, cTargetProp)
+		objectWatchManager.CreateBinding(oSource, cSourceProp, oTarget, cTargetProp)
 
 # =============================================================================
 # CORE REACTIVE ENGINE
@@ -220,7 +251,7 @@ class stzReactiveTask
 		# Override in subclasses for specific cleanup
 
 # =============================================================================
-# REACTIVE STREAM - For continuous data flow (IMPROVED)
+# REACTIVE STREAM - For continuous data flow
 # =============================================================================
 
 class stzReactiveStream

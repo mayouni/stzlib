@@ -453,7 +453,7 @@ pf()
 #========================================#
 
 /*--- Basic file operations
-
+*/
 # Reactive file operations prevent I/O blocking in applications.
 # They handle large files efficiently with progress callbacks.
 # Support for reading, writing, and monitoring file changes.
@@ -461,30 +461,27 @@ pf()
 pr()
 
 oRs = new stzReactive()
+oRs.Init()
 oRs {
-
-    # Write file asynchronously
     WriteFile("reactive.txt", "Hello Reactive World!",
-        func() {
-            ? "File written successfully"
-            
-            # Read the file back
-            ReadFile("reactive.txt",
-                func content {
-                    ? "File content: " + content
-                },
-                func error {
-                    ? "Read error: " + error
-                }
-            )
-        },
-        func error {
-            ? "Write error: " + error
-        }
+        "WriteSuccess",    # Function name instead of anonymous function
+        "WriteError"       # Function name instead of anonymous function
     )
-
     Start()
 }
+
+func WriteSuccess
+    ? "File written successfully"
+    oRs.ReadFile("reactive.txt", "ReadSuccess", "ReadError")
+
+func WriteError error
+    ? "Write error: " + error
+
+func ReadSuccess content  
+    ? "File content: " + content
+
+func ReadError error
+    ? "Read error: " + error
 
 pf()
 

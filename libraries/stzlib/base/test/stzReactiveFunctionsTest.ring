@@ -366,7 +366,7 @@ pf()
 #-----------------------------------#
 
 /*--- Advanced reactive patterns for real-world applications
-*/
+
 # Combining reactive functions with conditional logic,
 # result transformation, and complex coordination
 
@@ -475,7 +475,7 @@ pf()
 #-----------------------------------#
 
 /*--- Practical example: Image processing pipeline
-
+*/
 # Real applications often involve multiple processing steps
 # This example shows a complete image processing workflow
 
@@ -564,16 +564,14 @@ oRs {
 #   ✓ Filtered: photo1.jpg
 #   ✓ SAVED: output_photo1.jpg (57 bytes)
 # Pipeline complete for: photo1.jpg
-#
 # Starting pipeline for: photo2.png
 #   ✓ Loaded: photo2.png
 #   ✓ Resized: photo2.png
 #   ✓ Filtered: photo2.png
 #   ✓ SAVED: output_photo2.png (57 bytes)
 # Pipeline complete for: photo2.png
-#
 # Starting pipeline for: document.pdf
-#   ✗ Load failed for document.pdf: Function execution failed
+#   ✗ Load failed for document.pdf: Invalid image format
 
 pf()
 # Executed in 1.42 second(s) in Ring 1.23
