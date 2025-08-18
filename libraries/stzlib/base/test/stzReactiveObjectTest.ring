@@ -11,31 +11,31 @@ pr()
 
 	# Create reactive object
 	oUser = Rs.CreateReactiveObject('')
-	oUser.SetAttribute(:name, "")
-	oUser.SetAttribute(:age, 0)
+	oUser.SetAttribute(:@Name, "")
+	oUser.SetAttribute(:@Age, 0)
 
 	# Watch name changes
-	oUser.Watch(:name, func(prop, old, new_val) {
-		? "Name changed from (" + old + ") to (" + new_val + ")"
+	oUser.Watch(:@Name, func(attr, oldval, newval) {
+		? "Name changed from (" + oldval + ") to (" + newval + ")"
 	})
 
 	# Watch age changes
-	oUser.Watch("age", func(prop, old, new_val) {
-		? "Age changed from " + string(old) + " to " + string(new_val)
+	oUser.Watch(:@Age, func(attr, oldval, newval) {
+		? "Age changed from " + string(oldval) + " to " + string(newval)
 	})
 
 	# Test property changes
 	Rs.SetTimeout(func {
 		? "Setting name to 'John'..."
-		oUser.SetAttribute("name", "John")
+		oUser.SetAttribute(:@Name, "John")
 		
 		Rs.SetTimeout(func {
 			? "Setting age to 25..."
-			oUser.SetAttribute("age", 25)
+			oUser.SetAttribute(:@Age, 25)
 			
 			Rs.SetTimeout(func {
 				? "Changing name to 'John Doe'..."
-				oUser.SetAttribute("name", "John Doe")
+				oUser.SetAttribute(:@Name, "John Doe")
 			}, 500)
 		}, 500)
 	}, 100)
@@ -65,48 +65,48 @@ pr()
 	
 	# Create reactive object
 	oUser = Rs.CreateReactiveObject('')
-	oUser.SetAttribute(:firstName, "")
-	oUser.SetAttribute(:lastName, "")
-	oUser.SetAttribute(:fullName, "")
-	oUser.SetAttribute(:email, "")
-	oUser.SetAttribute(:age, 0)
-	oUser.SetAttribute(:isAdult, false)
+	oUser.SetAttribute(:@FirstName, "")
+	oUser.SetAttribute(:@LastName, "")
+	oUser.SetAttribute(:@FullName, "")
+	oUser.SetAttribute(:@Email, "")
+	oUser.SetAttribute(:@Age, 0)
+	oUser.SetAttribute(:@IsAdult, false)
 	
 	# Computed property: fullName depends on firstName and lastName
 
-	oUser.Computed(:fullName,
+	oUser.Computed(:@FullName,
 
 		func {
-			return  oUser.GetAttribute(:firstName) +
-				oUser.GetAttribute(:lastName)
+			return  oUser.GetAttribute(:@FirstName) +
+				oUser.GetAttribute(:@LastName)
 
 		},
 
-		[ :firstName, :lastName ]
+		[ :@FirstName, :@LastName ]
 	)
 	
 	# Computed property: isAdult depends on age
 
-	oUser.Computed(:isAdult,
+	oUser.Computed(:@IsAdult,
 
 		func {
-			return oUser.getattribute(:age) >= 18
+			return oUser.getattribute(:@Age) >= 18
 		},
 
-		[:age]
+		[:@Age]
 	)
 	
 	# Watch computed properties to see auto-updates
 
-	oUser.Watch(:fullName,
-		func(prop, old, new_val) {
-			? "Full name computed: (" + new_val + ")"
+	oUser.Watch(:@FullName,
+		func(attr, oldval, newval) {
+			? "Full name computed: (" + newval + ")"
 		}
 	)
 
-	oUser.Watch(:isAdult,
-		func(prop, old, new_val) {
-			? "Adult status: " + string(new_val)
+	oUser.Watch(:@IsAdult,
+		func(attr, oldval, newval) {
+			? "Adult status: " + string(newval)
 		}
 	)
 	
@@ -115,18 +115,18 @@ pr()
 	Rs.SetTimeout(
 		func {
 		? "Setting firstName to 'Jane'..."
-		oUser.SetAttribute(:firstName, "Jane")
+		oUser.SetAttribute(:@FirstName, "Jane")
 			Rs.SetTimeout(func {
 				? "Setting lastName to 'Smith'..."
-				oUser.SetAttribute(:lastName, "Smith")
+				oUser.SetAttribute(:@LastName, "Smith")
 	
 				Rs.SetTimeout(func {
 					? "Setting age to 17..."
-					oUser.SetAttribute(:age, 17)
+					oUser.SetAttribute(:@Age, 17)
 				
 					Rs.SetTimeout(func {
 						? "Setting age to 21..."
-						oUser.SetAttribute(:age, 21)
+						oUser.SetAttribute(:@Age, 21)
 					}, 500)
 				}, 500)
 			}, 500)
@@ -155,34 +155,34 @@ pr()
 	
 	# Create source object
 	oSource = Rs.CreateReactiveObject(NULL)
-	oSource.SetAttribute(:temperature, 20)
-	oSource.SetAttribute(:status, "normal")
+	oSource.SetAttribute(:@Temperature, 20)
+	oSource.SetAttribute(:@Status, "normal")
 	
 	# Create target objects
 	oDisplay1 = Rs.CreateReactiveObject(NULL)
-	oDisplay1.SetAttribute(:temp, 0)
-	oDisplay1.SetAttribute(:displayName, "Display1")
+	oDisplay1.SetAttribute(:@Temp, 0)
+	oDisplay1.SetAttribute(:@DisplayName, "Display1")
 	
 	oDisplay2 = Rs.CreateReactiveObject(NULL)
-	oDisplay2.SetAttribute(:temp, 0)
-	oDisplay2.SetAttribute(:displayName, "Display2")
+	oDisplay2.SetAttribute(:@Temp, 0)
+	oDisplay2.SetAttribute(:@DisplayName, "Display2")
 	
 	# Watch target objects to see binding updates
 
-	oDisplay1.Watch(:temp, func(prop, old, new_val) {
-		displayName = oDisplay1.GetAttribute(:displayName)
-		? displayName + " received temperature: " + string(new_val) + "°C"
+	oDisplay1.Watch(:@Temp, func(attr, oldval, newval) {
+		displayName = oDisplay1.GetAttribute(:@DisplayName)
+		? displayName + " received temperature: " + string(newval) + "°C"
 	})
 	
-	oDisplay2.Watch(:temp, func(prop, old, new_val) {
-		displayName = oDisplay2.GetAttribute(:displayName)
-		? displayName + " received temperature: " + string(new_val) + "°C"
+	oDisplay2.Watch(:@Temp, func(attr, oldval, newval) {
+		displayName = oDisplay2.GetAttribute(:@DisplayName)
+		? displayName + " received temperature: " + string(newval) + "°C"
 	})
 	
 	# Create bindings
 
-	Rs.BindObjects(oSource, :temperature, oDisplay1, :temp)
-	Rs.BindObjects(oSource, :temperature, oDisplay2, :temp)
+	Rs.BindObjects(oSource, :@Temperature, oDisplay1, :@Temp)
+	Rs.BindObjects(oSource, :@Temperature, oDisplay2, :@Temp)
 	
 	# Test binding updates
 
@@ -213,7 +213,7 @@ pf()
 # Executed in 2.06 second(s) in Ring 1.23
 
 /*--- Batch Updates
-*/
+
 pr()
 
 	# Create reactive system
@@ -228,19 +228,19 @@ pr()
 	
 	# Watch all properties to see update order
 
-	oProduct.Watch(:@Name, func(attr, oldval, newval) {
+	oProduct.Watch(:@Name, func(attr, oldvalval, newval) {
 		? "  Name updated: " + newval
 	})
 	
-	oProduct.Watch(:@Price, func(attr, oldval, newval) {
+	oProduct.Watch(:@Price, func(attr, oldvalval, newval) {
 		? "  Price updated: $" + string(newval)
 	})
 	
-	oProduct.Watch(:@Category, func(attr, oldval, newval) {
+	oProduct.Watch(:@Category, func(attr, oldvalval, newval) {
 		? "  Category updated: " + newval
 	})
 	
-	oProduct.Watch(:@InStock, func(attr, oldval, newval) {
+	oProduct.Watch(:@InStock, func(attr, oldvalval, newval) {
 		? "  Stock status: " + string(newval)
 	})
 	
@@ -274,13 +274,26 @@ pr()
 	Rs.Start()
 	? NL + "✅ Sample completed."
 
+#-->
+# Individual updates (watch each change):
+#   Name updated: Laptop
+#   Price updated: $999.99
+#   Category updated: Electronics
+#   Stock status: 1
+#
+# Batch updates (all changes processed together):
+#   Name updated: Gaming Laptop
+#   Price updated: $1299.99
+#   Category updated: Gaming
+#
+# ✅ Sample completed.
+
 pf()
+# Executed in 2.32 second(s) in Ring 1.23
 
 /*--- Property Streams
-
-func sample_PropertyStreams
-
-	? "=== Property Streams Sample ==="
+*/
+pr()
 	
 	# Create reactive system
 	Rs = new stzReactive()
@@ -288,14 +301,14 @@ func sample_PropertyStreams
 	
 	# Create reactive object
 	oSensor = Rs.CreateReactiveObject(NULL)
-	oSensor.SetAttribute("value", 0)
+	oSensor.SetAttribute(:@Value, 0)
 	
 	# Create stream from property changes
-	valueStream = oSensor.StreamProperty("value")
+	St = oSensor.StreamProperty(:@Value)
 	
 	# Transform the stream with map and filter
-	valueStream
-		.Map(func(data) {
+	St {
+		Map(func(data) {
 			# Extract new value from data array
 			newValue = 0
 			for i = 1 to len(data) step 2
@@ -306,52 +319,68 @@ func sample_PropertyStreams
 			next
 			return "Sensor reading: " + string(newValue)
 		})
-		.Filter(func(message) {
+
+		Filter(func(message) {
 			# Only pass through readings > 50
 			return find(message, "reading: ") > 0 and 
 			       number(substr(message, find(message, ": ") + 2)) > 50
 		})
-		.Subscribe(func(message) {
+
+		OnData(func(message) {
 			? "🌡️ High reading alert: " + message
 		})
-	
-	# Also create a simple subscriber for all changes
-	valueStream.Subscribe(func(data) {
-		newValue = 0
-		for i = 1 to len(data) step 2
-			if data[i] = "newValue"
-				newValue = data[i+1]
-				exit
-			ok
-		next
-		? "📊 Raw sensor data: " + string(newValue)
-	})
-	
+
+		# Also create a simple subscriber for all changes
+		OnData(func(data) {
+			newValue = 0
+			for i = 1 to len(data) step 2
+				if data[i] = "newValue"
+					newValue = data[i+1]
+					exit
+				ok
+			next
+			? "📊 Raw sensor data: " + string(newValue)
+		})
+	}
+
 	# Generate sensor readings
-	readings = [10, 25, 60, 75, 30, 85, 45, 95]
-	currentReading = 1
-	
-	def nextReading()
-		if currentReading <= len(readings)
-			value = readings[currentReading]
-			? "Setting sensor value to: " + string(value)
-			oSensor.SetAttribute("value", value)
-			currentReading++
-			
-			if currentReading <= len(readings)
-				Rs.SetTimeout(func { nextReading() }, 300)
-			else
-				Rs.SetTimeout(func { Rs.StopSafe() }, 500)
-			ok
-		ok
+	anReadings = [10, 25, 60, 75, 30, 85, 45, 95]
+	nCurrentReading = 1
 	
 	Rs.SetTimeout(func {
-		nextReading()
+		fNextReading()
 	}, 100)
 	
 	Rs.Start()
-	? "Sample completed."
-	? ""
+	? NL + "✅ Sample completed."
+
+pf()
+
+func fNextReading()
+	if nCurrentReading <= len(anReadings)
+		value = anReadings[nCurrentReading]
+		? "Setting sensor value to: " + string(value)
+		oSensor.SetAttribute(:@value, value)
+		nCurrentReading++
+
+		if nCurrentReading <= len(anReadings)
+			Rs.SetTimeout(func { fNextReading() }, 300)
+		ok
+	ok
+
+#-->
+# Setting sensor value to: 10
+# Setting sensor value to: 25
+# Setting sensor value to: 60
+# Setting sensor value to: 75
+# Setting sensor value to: 30
+# Setting sensor value to: 85
+# Setting sensor value to: 45
+# Setting sensor value to: 95
+
+# ✅ Sample completed.
+
+# Executed in 6.89 second(s) in Ring 1.23
 
 /*--- Debounced Properties
 
@@ -368,13 +397,13 @@ func sample_DebouncedProperties
 	oSearch.SetAttribute("query", "")
 	
 	# Watch immediate changes
-	oSearch.Watch("query", func(prop, old, new_val) {
-		? "🔍 Search query changed: '" + new_val + "'"
+	oSearch.Watch("query", func(attr, oldval, newval) {
+		? "🔍 Search query changed: '" + newval + "'"
 	})
 	
 	# Set up debounced handler (waits 800ms before firing)
-	oSearch.DebounceProperty("query", 800, func(prop, old, new_val) {
-		? "🎯 Debounced search executed for: '" + new_val + "'"
+	oSearch.DebounceProperty("query", 800, func(attr, oldval, newval) {
+		? "🎯 Debounced search executed for: '" + newval + "'"
 		? "    (This simulates an API call)"
 	})
 	
@@ -423,12 +452,12 @@ func sample_AsyncPropertyUpdates
 	oUser.SetAttribute("profilePicture", "")
 	
 	# Watch property changes
-	oUser.Watch("email", func(prop, old, new_val) {
-		? "✉️ Email updated to: " + new_val
+	oUser.Watch("email", func(attr, oldval, newval) {
+		? "✉️ Email updated to: " + newval
 	})
 	
-	oUser.Watch("profilePicture", func(prop, old, new_val) {
-		? "🖼️ Profile picture updated to: " + new_val
+	oUser.Watch("profilePicture", func(attr, oldval, newval) {
+		? "🖼️ Profile picture updated to: " + newval
 	})
 	
 	Rs.SetTimeout(func {
@@ -511,25 +540,25 @@ func sample_ComplexUserSystem
 	Rs.BindObjects(oUser, "fullName", oDashboard, "currentUser")
 	
 	# Set up watchers
-	oUser.Watch("isValid", func(prop, old, new_val) {
-		if new_val
+	oUser.Watch("isValid", func(attr, oldval, newval) {
+		if newval
 			? "✅ User validation passed"
 		else
 			? "❌ User validation failed"
 		ok
 	})
 	
-	oDashboard.Watch("currentUser", func(prop, old, new_val) {
-		? "📊 Dashboard updated - Current user: " + new_val
-		oDashboard.SetAttribute("lastActivity", "User updated: " + new_val)
+	oDashboard.Watch("currentUser", func(attr, oldval, newval) {
+		? "📊 Dashboard updated - Current user: " + newval
+		oDashboard.SetAttribute("lastActivity", "User updated: " + newval)
 	})
 	
 	# Set up debounced email validation
-	oUser.DebounceProperty("email", 500, func(prop, old, new_val) {
-		if find(new_val, "@") > 0
-			? "📧 Email validation passed: " + new_val
+	oUser.DebounceProperty("email", 500, func(attr, oldval, newval) {
+		if find(newval, "@") > 0
+			? "📧 Email validation passed: " + newval
 		else
-			? "⚠️ Email validation failed: " + new_val
+			? "⚠️ Email validation failed: " + newval
 		ok
 	})
 	
