@@ -16,12 +16,12 @@ pr()
 
 	# Watch name changes
 	oUser.Watch(:@Name, func(attr, oldval, newval) {
-		? "Name changed from (" + oldval + ") to (" + newval + ")"
+		? "Name changed from (" + @@(oldval) + ") to (" + @@(newval) + ")"
 	})
 
 	# Watch age changes
 	oUser.Watch(:@Age, func(attr, oldval, newval) {
-		? "Age changed from " + string(oldval) + " to " + string(newval)
+		? "Age changed from " + @@(oldval) + " to " + @@(newval)
 	})
 
 	# Test property changes
@@ -45,16 +45,16 @@ pr()
 
 #-->
 # Setting name to 'John'...
-# Name changed from () to (John)
+# Name changed from ('') to ("John")
 # Setting age to 25...
-# Age changed from  to 25
+# Age changed from '' to 25	#TODO why "" and not 0!
 # Changing name to 'John Doe'...
 # Name changed from () to (John Doe)
 
 # ✅ Sample completed.
 
 pf()
-# Executed in 2.00 second(s) in Ring 1.23
+# Executed in 2.22 second(s) in Ring 1.23
 
 /*--- Computed Properties
 
@@ -188,15 +188,15 @@ pr()
 
 	Rs.SetTimeout(func {
 		? "Setting source temperature to 25°C..."
-		oSource.SetAttribute("temperature", 25)
+		oSource.SetAttribute(:@Temperature, 25)
 		
 		Rs.SetTimeout(func {
 			? "Setting source temperature to 30°C..."
-			oSource.SetAttribute("temperature", 30)
+			oSource.SetAttribute(:@Temperature, 30)
 			
 			Rs.SetTimeout(func {
 				? "Setting source temperature to 35°C..."
-				oSource.SetAttribute("temperature", 35)
+				oSource.SetAttribute(:@Temperature, 35)
 			}, 500)
 		}, 500)
 	}, 100)
@@ -285,19 +285,19 @@ pr()
 #   Name updated: Gaming Laptop
 #   Price updated: $1299.99
 #   Category updated: Gaming
-#
+#   Stock status: 0
+
 # ✅ Sample completed.
 
 pf()
 # Executed in 2.32 second(s) in Ring 1.23
 
 /*--- Property Streams
-*/
+
 pr()
 	
 	# Create reactive system
 	Rs = new stzReactive()
-	Rs.Init()
 	
 	# Create reactive object
 	oSensor = Rs.CreateReactiveObject(NULL)
@@ -312,7 +312,7 @@ pr()
 			# Extract new value from data array
 			newValue = 0
 			for i = 1 to len(data) step 2
-				if data[i] = "newValue"
+				if data[i] = "newValue" #todo why "newValue"?
 					newValue = data[i+1]
 					exit
 				ok
@@ -348,7 +348,7 @@ pr()
 	nCurrentReading = 1
 	
 	Rs.SetTimeout(func {
-		fNextReading()
+		NextReading()
 	}, 100)
 	
 	Rs.Start()
@@ -356,7 +356,7 @@ pr()
 
 pf()
 
-func fNextReading()
+func NextReading()
 	if nCurrentReading <= len(anReadings)
 		value = anReadings[nCurrentReading]
 		? "Setting sensor value to: " + string(value)
@@ -364,7 +364,7 @@ func fNextReading()
 		nCurrentReading++
 
 		if nCurrentReading <= len(anReadings)
-			Rs.SetTimeout(func { fNextReading() }, 300)
+			Rs.SetTimeout(func { NextReading() }, 300)
 		ok
 	ok
 
@@ -380,30 +380,27 @@ func fNextReading()
 
 # ✅ Sample completed.
 
-# Executed in 6.89 second(s) in Ring 1.23
+# Executed in 3.61 second(s) in Ring 1.23
 
 /*--- Debounced Properties
 
-func sample_DebouncedProperties
-
-	? "=== Debounced Properties Sample ==="
+pr()
 	
 	# Create reactive system
 	Rs = new stzReactive()
-	Rs.Init()
 	
 	# Create reactive object
 	oSearch = Rs.CreateReactiveObject(NULL)
-	oSearch.SetAttribute("query", "")
+	oSearch.SetAttribute(:@Query, "")
 	
 	# Watch immediate changes
-	oSearch.Watch("query", func(attr, oldval, newval) {
-		? "🔍 Search query changed: '" + newval + "'"
+	oSearch.Watch(:@Query, func(attr, oldval, newval) {
+		? "🔍 Search query changed: " + @@(newval)
 	})
 	
 	# Set up debounced handler (waits 800ms before firing)
-	oSearch.DebounceProperty("query", 800, func(attr, oldval, newval) {
-		? "🎯 Debounced search executed for: '" + newval + "'"
+	oSearch.DebounceProperty(:@Query, 800, func(attr, oldval, newval) {
+		? "🎯 Debounced search executed for: (" + newval + ")"
 		? "    (This simulates an API call)"
 	})
 	
@@ -411,59 +408,82 @@ func sample_DebouncedProperties
 	queries = ["h", "he", "hel", "hell", "hello", "hello w", "hello wo", "hello wor", "hello world"]
 	currentQuery = 1
 	
-	def typeNext()
-		if currentQuery <= len(queries)
-			query = queries[currentQuery]
-			? "⌨️ Typing: '" + query + "'"
-			oSearch.SetAttribute("query", query)
-			currentQuery++
-			
-			if currentQuery <= len(queries)
-				# Fast typing simulation
-				Rs.SetTimeout(func { typeNext() }, 150)
-			else
-				# Wait for debounce to finish, then stop
-				Rs.SetTimeout(func { Rs.StopSafe() }, 1500)
-			ok
-		ok
-	
 	Rs.SetTimeout(func {
 		? "Simulating rapid typing (debounced search will fire only after typing stops):"
-		typeNext()
+		TypeNext()
 	}, 100)
 	
 	Rs.Start()
-	? "Sample completed."
-	? ""
+	? NL + "✅ Sample completed."
 
-/*--- Async Property Updates
+pf()
 
-func sample_AsyncPropertyUpdates
+func TypeNext()
+	if currentQuery <= len(queries)
+		query = queries[currentQuery]
+		? "⌨️ Typing: " + @@(query)
+		oSearch.SetAttribute(:@Query, query)
+		currentQuery++
+		
+		if currentQuery <= len(queries)
+			# Fast typing simulation
+			Rs.SetTimeout(func { TypeNext() }, 150)
+		else
+			# Wait for debounce to finish, then stop
+			// Rs.SetTimeout(func { Rs.StopSafe() }, 1500)
+		ok
+	ok
 
-	? "=== Async Property Updates Sample ==="
+#-->
+# Simulating rapid typing (debounced search will fire only after typing stops):
+# ⌨️ Typing: 'h'
+# 🔍 Search query changed: 'h'
+# ⌨️ Typing: 'he'
+# 🔍 Search query changed: 'he'
+# ⌨️ Typing: 'hel'
+# 🔍 Search query changed: 'hel'
+# ⌨️ Typing: 'hell'
+# 🔍 Search query changed: 'hell'
+# ⌨️ Typing: 'hello'
+# 🔍 Search query changed: 'hello'
+# ⌨️ Typing: 'hello w'
+# 🔍 Search query changed: 'hello w'
+# ⌨️ Typing: 'hello wo'
+# 🔍 Search query changed: 'hello wo'
+# ⌨️ Typing: 'hello wor'
+# 🔍 Search query changed: 'hello wor'
+# ⌨️ Typing: 'hello world'
+# 🔍 Search query changed: 'hello world'
+
+# ✅ Sample completed.
+
+# Executed in 4.20 second(s) in Ring 1.23
+
+/*--- Async Property Updates #todo error
+
+pr()
 	
 	# Create reactive system
 	Rs = new stzReactive()
-	Rs.Init()
 	
 	# Create reactive object
 	oUser = Rs.CreateReactiveObject(NULL)
-	oUser.SetAttribute("email", "")
-	oUser.SetAttribute("profilePicture", "")
+	oUser.SetAttribute(:@Email, "")
+	oUser.SetAttribute(:@ProfilePicture, "")
 	
 	# Watch property changes
-	oUser.Watch("email", func(attr, oldval, newval) {
+	oUser.Watch(:@Email, func(attr, oldval, newval) {
 		? "✉️ Email updated to: " + newval
 	})
 	
-	oUser.Watch("profilePicture", func(attr, oldval, newval) {
+	oUser.Watch(:@ProfilePicture, func(attr, oldval, newval) {
 		? "🖼️ Profile picture updated to: " + newval
 	})
 	
 	Rs.SetTimeout(func {
 		# Test successful async update
 		? "Testing successful async email update..."
-		oUser.SetAsync("email", "john@example.com", 
+		oUser.SetAsync(:@Email, "john@example.com", 
 			func(result) { 
 				? "✅ Success callback: Email set to " + result 
 			},
@@ -484,63 +504,72 @@ func sample_AsyncPropertyUpdates
 					? "❌ Error callback: " + error
 				}
 			)
-			
-			Rs.SetTimeout(func {
-				Rs.StopSafe()
-			}, 1000)
+
 		}, 1000)
 	}, 100)
 	
 	Rs.Start()
-	? "Sample completed."
-	? ""
+	? NL + "✅ Sample completed."
+
+pf()
 
 /*--- Complex Example: User Management System
-
-func sample_ComplexUserSystem
-
-	? "=== Complex Example: User Management System ==="
+*/
+pr()
 	
 	# Create reactive system
 	Rs = new stzReactive()
-	Rs.Init()
 	
+
 	# Create user object
 	oUser = Rs.CreateReactiveObject(NULL)
-	oUser.SetAttribute("firstName", "")
-	oUser.SetAttribute("lastName", "")
-	oUser.SetAttribute("email", "")
-	oUser.SetAttribute("age", 0)
-	oUser.SetAttribute("fullName", "")
-	oUser.SetAttribute("isValid", false)
+	oUser.SetAttribute(:@FirstName, "")
+	oUser.SetAttribute(:@LastName, "")
+	oUser.SetAttribute(:@Email, "")
+	oUser.SetAttribute(:@Age, 0)
+	oUser.SetAttribute(:@FullName, "")
+	oUser.SetAttribute(:@IsValid, false)
 	
 	# Create dashboard object
 	oDashboard = Rs.CreateReactiveObject(NULL)
-	oDashboard.SetAttribute("currentUser", "")
-	oDashboard.SetAttribute("userCount", 0)
-	oDashboard.SetAttribute("lastActivity", "")
+	oDashboard.SetAttribute(:@CurrentUser, "")
+	oDashboard.SetAttribute(:@UserCount, 0)
+	oDashboard.SetAttribute(:@LastActivity, "")
 	
 	# Set up computed properties
-	oUser.Computed("fullName", func {
-		firstName = oUser.getattribute("firstName")
-		lastName = oUser.getattribute("lastName")
-		return firstName + " " + lastName
-	}, ["firstName", "lastName"])
+
+	oUser.Computed(
+		:@FullName,
+
+		func {
+			return	oUser.GetAttribute(:@FirstName) + " " +
+				oUser.GetAttribute(:@LastName)
+		},
+
+		[ :@FirstName, :@LastName ]
+	)
 	
-	oUser.Computed("isValid", func {
-		firstName = oUser.getattribute("firstName")
-		lastName = oUser.getattribute("lastName")
-		email = oUser.getattribute("email")
-		age = oUser.getattribute("age")
-		return len(firstName) > 0 and len(lastName) > 0 and 
-		       find(email, "@") > 0 and age >= 18
-	}, ["firstName", "lastName", "email", "age"])
+	oUser.Computed(
+		:@IsValid,
+
+		func {
+			cFirstName = oUser.GetAttribute(:@FirstName)
+			cLastName = oUser.GetAttribute(:@LastName)
+			cEmail = oUser.GetAttribute(:@Email)
+			cAge = oUser.GetAttribute(:@Age)
+
+			return  len(cFirstName) > 0 and len(cLastName) > 0 and 
+		       		substr(cEmail, "@") > 0 and age >= 18
+		},
+
+		[ :@FirstName, :@LastName, :@Email, :@Age ]
+	)
 	
 	# Set up property bindings
-	Rs.BindObjects(oUser, "fullName", oDashboard, "currentUser")
+	Rs.BindObjects(oUser, :@FullName, oDashboard, :@CurrentUser)
 	
 	# Set up watchers
-	oUser.Watch("isValid", func(attr, oldval, newval) {
+	oUser.Watch(:@IsValid, func(attr, oldval, newval) {
 		if newval
 			? "✅ User validation passed"
 		else
@@ -548,14 +577,14 @@ func sample_ComplexUserSystem
 		ok
 	})
 	
-	oDashboard.Watch("currentUser", func(attr, oldval, newval) {
-		? "📊 Dashboard updated - Current user: " + newval
-		oDashboard.SetAttribute("lastActivity", "User updated: " + newval)
+	oDashboard.Watch(:@CurrentUser, func(attr, oldval, newval) {
+		? "📊 Dashboard updated - Current user: " + @@(newval)
+		oDashboard.SetAttribute(:@LastActivity, "User updated: " + @@(newval))
 	})
 	
 	# Set up debounced email validation
-	oUser.DebounceProperty("email", 500, func(attr, oldval, newval) {
-		if find(newval, "@") > 0
+	oUser.DebounceProperty(:@Email, 500, func(attr, oldval, newval) {
+		if substr(newval, "@") > 0
 			? "📧 Email validation passed: " + newval
 		else
 			? "⚠️ Email validation failed: " + newval
@@ -563,54 +592,55 @@ func sample_ComplexUserSystem
 	})
 	
 	# Create activity stream
-	activityStream = oUser.StreamProperty("isValid")
-	activityStream.Subscribe(func(data) {
-		isValidNow = false
+	oActivityStream = oUser.StreamProperty(:@IsValid)
+	oActivityStream.Subscribe(func(data) {
+		bIsValidNow = false
 		for i = 1 to len(data) step 2
-			if data[i] = "newValue"
-				isValidNow = data[i+1]
+			if data[i] = "newval"
+				bIsValidNow = data[i+1]
 				exit
 			ok
 		next
 		
-		if isValidNow
+		if bIsValidNow
 			? "🎉 User is now valid and can access the system!"
 		ok
 	})
-	
+
 	# Run the demo
 	Rs.SetTimeout(func {
 		? "Step 1: Setting basic info..."
 		oUser.Batch(func {
-			oUser.SetAttribute("firstName", "Alice")
-			oUser.SetAttribute("lastName", "Johnson")
-			oUser.SetAttribute("age", 25)
+			oUser.SetAttribute(:@FirstName, "Alice")
+			oUser.SetAttribute(:@LastName, "Johnson")
+			oUser.SetAttribute(:@Age, 25)
 		})
 		
 		Rs.SetTimeout(func {
 			? ""
 			? "Step 2: Setting email (with debounce)..."
-			oUser.SetAttribute("email", "alice")  # Invalid
+			oUser.SetAttribute(:@Email, "alice")  # Invalid
 			sleep(0.1)
-			oUser.SetAttribute("email", "alice@")  # Still invalid
+
+			oUser.SetAttribute(:@Email, "alice@")  # Still invalid
 			sleep(0.1)
-			oUser.SetAttribute("email", "alice@company.com")  # Valid
+
+			oUser.SetAttribute(:@Email, "alice@company.com")  # Valid
 			
 			Rs.SetTimeout(func {
 				? ""
 				? "Step 3: Checking final state..."
-				? "Full Name: " + oUser.getattribute("fullName")
-				? "Is Valid: " + string(oUser.getattribute("isValid"))
-				? "Dashboard User: " + oDashboard.getattribute("currentUser")
-				? "Last Activity: " + oDashboard.getattribute("lastActivity")
+				? "Full Name: " + oUser.Getattribute(:@FullName)
+				? "Is Valid: " + oUser.GetAttribute(:@isValid)
+				? "Dashboard User: " + oDashboard.GetAttribute(:@CurrentUser)
+				? "Last Activity: " + oDashboard.GetAttribute(:@LastActivity)
 				
-				Rs.SetTimeout(func {
-					Rs.StopSafe()
-				}, 1000)
 			}, 1000)
 		}, 1000)
 	}, 100)
 	
 	Rs.Start()
-	? "Sample completed."
+	? NL + "✅ Sample completed."
+
+pf()
 	
