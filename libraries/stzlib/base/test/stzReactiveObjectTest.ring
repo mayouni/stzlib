@@ -28,11 +28,13 @@ pr()
 	Rs.SetTimeout(func {
 		? "Setting name to 'John'..."
 		oUser.SetAttribute(:@Name, "John")
-		
+		? ""
+
 		Rs.SetTimeout(func {
 			? "Setting age to 25..."
 			oUser.SetAttribute(:@Age, 25)
-			
+			? ""
+
 			Rs.SetTimeout(func {
 				? "Changing name to 'John Doe'..."
 				oUser.SetAttribute(:@Name, "John Doe")
@@ -45,16 +47,18 @@ pr()
 
 #-->
 # Setting name to 'John'...
-# Name changed from ('') to ("John")
+# Name changed from ("") to ("John")
+#
 # Setting age to 25...
-# Age changed from '' to 25	#TODO why "" and not 0!
+# Age changed from 0 to 25
+#
 # Changing name to 'John Doe'...
-# Name changed from () to (John Doe)
+# Name changed from ("John") to ("John Doe")
 
 # ✅ Sample completed.
 
 pf()
-# Executed in 2.22 second(s) in Ring 1.23
+# Executed in 2.02 second(s) in Ring 1.23
 
 /*--- Computed Properties
 
@@ -77,9 +81,8 @@ pr()
 	oUser.Computed(:@FullName,
 
 		func {
-			return  oUser.GetAttribute(:@FirstName) +
-				oUser.GetAttribute(:@LastName)
-
+			cResult =  trim(oUser.GetAttribute(:@FirstName) + " " + oUser.GetAttribute(:@LastName))
+			return cResult
 		},
 
 		[ :@FirstName, :@LastName ]
@@ -90,7 +93,7 @@ pr()
 	oUser.Computed(:@IsAdult,
 
 		func {
-			return oUser.getattribute(:@Age) >= 18
+			return oUser.GetAttribute(:@Age) >= 18
 		},
 
 		[:@Age]
@@ -116,14 +119,18 @@ pr()
 		func {
 		? "Setting firstName to 'Jane'..."
 		oUser.SetAttribute(:@FirstName, "Jane")
+		? ""
+
 			Rs.SetTimeout(func {
 				? "Setting lastName to 'Smith'..."
 				oUser.SetAttribute(:@LastName, "Smith")
-	
+				? ""
+
 				Rs.SetTimeout(func {
 					? "Setting age to 17..."
 					oUser.SetAttribute(:@Age, 17)
-				
+					? ""
+
 					Rs.SetTimeout(func {
 						? "Setting age to 21..."
 						oUser.SetAttribute(:@Age, 21)
@@ -137,14 +144,21 @@ pr()
 
 #-->
 # Setting firstName to 'Jane'...
+# Full name computed: (Jane)
+#
 # Setting lastName to 'Smith'...
+# Full name computed: (Jane Smith)
+#
 # Setting age to 17...
+#
 # Setting age to 21...
+#
+# Adult status: 1
 
 # ✅ Sample completed.
 
 pf()
-# Executed in 2.60 second(s) in Ring 1.23
+# Executed in 2.55 second(s) in Ring 1.23
 
 /*--- Property Binding
 
@@ -166,7 +180,7 @@ pr()
 	oDisplay2 = Rs.CreateReactiveObject(NULL)
 	oDisplay2.SetAttribute(:@Temp, 0)
 	oDisplay2.SetAttribute(:@DisplayName, "Display2")
-	
+
 	# Watch target objects to see binding updates
 
 	oDisplay1.Watch(:@Temp, func(attr, oldval, newval) {
@@ -204,7 +218,7 @@ pr()
 	Rs.Start()
 	? NL + "✅ Sample completed."
 
-#-->
+#--> Should return
 # Setting source temperature to 25°C...
 # Setting source temperature to 30°C...
 # Setting source temperature to 35°C...
@@ -559,12 +573,18 @@ pr()
 			cAge = oUser.GetAttribute(:@Age)
 
 			return  len(cFirstName) > 0 and len(cLastName) > 0 and 
-		       		substr(cEmail, "@") > 0 and age >= 18
+		       		substr(cEmail, "@") > 0 and cAge >= 18
 		},
 
 		[ :@FirstName, :@LastName, :@Email, :@Age ]
 	)
 	
+
+? "DEBUG: Computed properties set up:"
+? "  FullName dependencies: " + @@([:@FirstName, :@LastName])
+? "  IsValid dependencies: " + @@([:@FirstName, :@LastName, :@Email, :@Age])
+
+
 	# Set up property bindings
 	Rs.BindObjects(oUser, :@FullName, oDashboard, :@CurrentUser)
 	
@@ -609,6 +629,7 @@ pr()
 
 	# Run the demo
 	Rs.SetTimeout(func {
+
 		? "Step 1: Setting basic info..."
 		oUser.Batch(func {
 			oUser.SetAttribute(:@FirstName, "Alice")
@@ -616,6 +637,11 @@ pr()
 			oUser.SetAttribute(:@Age, 25)
 		})
 		
+? "DEBUG: After batch update:"
+? "  FirstName: " + @@(oUser.GetAttribute(:@FirstName))
+? "  LastName: " + @@(oUser.GetAttribute(:@LastName))
+? "  Age: " + @@(oUser.GetAttribute(:@Age))
+
 		Rs.SetTimeout(func {
 			? ""
 			? "Step 2: Setting email (with debounce)..."
@@ -628,6 +654,13 @@ pr()
 			oUser.SetAttribute(:@Email, "alice@company.com")  # Valid
 			
 			Rs.SetTimeout(func {
+
+? "DEBUG: Triggering manual computation..."
+# Manually trigger computation to test
+for aComputed in oUser.aComputedProperties
+    oUser.ComputeProperty(aComputed[1])
+next
+
 				? ""
 				? "Step 3: Checking final state..."
 				? "Full Name: " + oUser.Getattribute(:@FullName)
@@ -643,4 +676,3 @@ pr()
 	? NL + "✅ Sample completed."
 
 pf()
-	
