@@ -16,6 +16,39 @@
 
 # Fixed Reactive Object System for Softanza Library
 
+# GLOBAL CALLBACK HANDLERS - Outside class scope
+aGlobalAsyncOps = []
+
+func GlobalAsyncSuccessHandler(result)
+	nIndex = len(aGlobalAsyncOps)
+	if nIndex > 0
+		aOp = aGlobalAsyncOps[nIndex]
+		oReactiveObj = aOp[7]  # Object reference
+		cProperty = aOp[1]
+		fnSuccess = aOp[3]
+		
+		oReactiveObj.SetAttribute(cProperty, result)
+		if fnSuccess != NULL
+			call fnSuccess(result)
+		ok
+	ok
+
+func GlobalAsyncErrorHandler(error)
+	nIndex = len(aGlobalAsyncOps)
+	if nIndex > 0
+		aOp = aGlobalAsyncOps[nIndex]
+		fnError = aOp[4]
+		
+		if fnError != NULL
+			call fnError(error)
+		ok
+	ok
+
+func FindReactiveObjectByIndex(nIndex)
+	# This requires a global registry - simplified approach
+	# For now, return NULL and handle in the object methods
+	return NULL
+
 # =============================================================================
 # CORE REACTIVE OBJECT BASE CLASS - FIXED VERSION
 # =============================================================================
@@ -164,31 +197,51 @@ class stzReactiveObject
 		AddAttribute(oTargetObject, cTargetProperty)
 		eval("oTargetObject." + cTargetProperty + " = sourceValue")
 
-	# Async property update
+	# RADICAL: Store callbacks globally and reference by index
 	def SetAsync(cProperty, newValue, fnSuccess, fnError)
 		cProperty = lower(cProperty)
-		taskId = "prop_" + cProperty + "_" + string(random(999999))
+		taskId = string(random(999999))
+		
+		# Store operation in global array
+		aGlobalAsyncOps + [cProperty, newValue, fnSuccess, fnError, taskId, 0, this]
 		
 		task = new stzReactiveTask(taskId, func {
 			return newValue
 		}, engine)
 		
-		task.Then_(func result {
+		# Use global functions that work with the global array
+		task.Then_(func result { 
+			GlobalAsyncSuccessHandler(result)
+		})
+		
+		task.Catch_(func error {
+			GlobalAsyncErrorHandler(error) 
+		})
+		
+		task.Execute()
+		return task
+
+	def AsyncSuccessHandlerByIndex(nIndex, result)
+		if nIndex <= len(aAsyncOperations)
+			aOp = aAsyncOperations[nIndex]
+			cProperty = aOp[1]
+			fnSuccess = aOp[3]
+			
 			SetAttribute(cProperty, result)
 			if fnSuccess != NULL
 				call fnSuccess(result)
 			ok
-		})
-		
-		task.Catch_(func error {
+		ok
+	
+	def AsyncErrorHandlerByIndex(nIndex, error)
+		if nIndex <= len(aAsyncOperations)
+			aOp = aAsyncOperations[nIndex]
+			fnError = aOp[4]
+			
 			if fnError != NULL
 				call fnError(error)
 			ok
-		})
-		
-		aAsyncOperations + [cProperty, newValue, fnSuccess, fnError, task]
-		task.Execute()
-		return task
+		ok
 
 	# FIXED: Batch multiple property updates
 	def Batch(fnUpdates)
@@ -253,7 +306,7 @@ class stzReactiveObject
 			if aComputed[1] = cProperty
 				fnComputer = aComputed[2]
 				try
-					newValue = call fnComputer()
+					newValue = call c()
 					cOldValue = GetPropertyValue(cProperty)
 					
 					# Set the computed value

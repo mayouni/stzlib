@@ -158,7 +158,7 @@ pr()
 # ✅ Sample completed.
 
 pf()
-# Executed in 2.55 second(s) in Ring 1.23
+# Executed in 2.52 second(s) in Ring 1.23
 
 /*--- Property Binding
 
@@ -474,7 +474,7 @@ func TypeNext()
 # Executed in 4.20 second(s) in Ring 1.23
 
 /*--- Async Property Updates #todo error
-
+*/
 pr()
 	
 	# Create reactive system
@@ -528,12 +528,11 @@ pr()
 pf()
 
 /*--- Complex Example: User Management System
-*/
+
 pr()
 	
 	# Create reactive system
 	Rs = new stzReactive()
-	
 
 	# Create user object
 	oUser = Rs.CreateReactiveObject(NULL)
@@ -578,12 +577,10 @@ pr()
 
 		[ :@FirstName, :@LastName, :@Email, :@Age ]
 	)
-	
 
 ? "DEBUG: Computed properties set up:"
 ? "  FullName dependencies: " + @@([:@FirstName, :@LastName])
 ? "  IsValid dependencies: " + @@([:@FirstName, :@LastName, :@Email, :@Age])
-
 
 	# Set up property bindings
 	Rs.BindObjects(oUser, :@FullName, oDashboard, :@CurrentUser)
