@@ -475,7 +475,7 @@ pf()
 #-----------------------------------#
 
 /*--- Practical example: Image processing pipeline
-*/
+
 # Real applications often involve multiple processing steps
 # This example shows a complete image processing workflow
 

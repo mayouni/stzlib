@@ -16,39 +16,6 @@
 
 # Fixed Reactive Object System for Softanza Library
 
-# GLOBAL CALLBACK HANDLERS - Outside class scope
-aGlobalAsyncOps = []
-
-func GlobalAsyncSuccessHandler(result)
-	nIndex = len(aGlobalAsyncOps)
-	if nIndex > 0
-		aOp = aGlobalAsyncOps[nIndex]
-		oReactiveObj = aOp[7]  # Object reference
-		cProperty = aOp[1]
-		fnSuccess = aOp[3]
-		
-		oReactiveObj.SetAttribute(cProperty, result)
-		if fnSuccess != NULL
-			call fnSuccess(result)
-		ok
-	ok
-
-func GlobalAsyncErrorHandler(error)
-	nIndex = len(aGlobalAsyncOps)
-	if nIndex > 0
-		aOp = aGlobalAsyncOps[nIndex]
-		fnError = aOp[4]
-		
-		if fnError != NULL
-			call fnError(error)
-		ok
-	ok
-
-func FindReactiveObjectByIndex(nIndex)
-	# This requires a global registry - simplified approach
-	# For now, return NULL and handle in the object methods
-	return NULL
-
 # =============================================================================
 # CORE REACTIVE OBJECT BASE CLASS - FIXED VERSION
 # =============================================================================
@@ -144,6 +111,9 @@ class stzReactiveObject
 			ok
 		ok
 
+	def @(paAttr)
+		This.SetAttribute(paAttr[1], paAttr[2])
+
 	# FIXED: Get attribute from internal storage first, then object attribute
 	def GetAttribute(cProperty)
 		cProperty = lower(cProperty)
@@ -177,7 +147,7 @@ class stzReactiveObject
 		aComputedProperties + [cProperty, fnComputer, aDependencies]
 		
 		# Initial computation
-		ComputeProperty(cProperty)
+		ComputeAttribute(cProperty)
 		return self
 
 	# Bind property to another reactive object
@@ -197,51 +167,35 @@ class stzReactiveObject
 		AddAttribute(oTargetObject, cTargetProperty)
 		eval("oTargetObject." + cTargetProperty + " = sourceValue")
 
-	# RADICAL: Store callbacks globally and reference by index
+	# Async property update
 	def SetAsync(cProperty, newValue, fnSuccess, fnError)
 		cProperty = lower(cProperty)
-		taskId = string(random(999999))
+		taskId = "prop_" + cProperty + "_" + string(random(999999))
 		
-		# Store operation in global array
-		aGlobalAsyncOps + [cProperty, newValue, fnSuccess, fnError, taskId, 0, this]
+		# Ensure fnError has a value (even if NULL)
+		fnErrorCallback = fnError
+		if fnErrorCallback = NULL
+			fnErrorCallback = func(error) { }  # Empty function
+		ok
 		
 		task = new stzReactiveTask(taskId, func {
 			return newValue
 		}, engine)
 		
-		# Use global functions that work with the global array
-		task.Then_(func result { 
-			GlobalAsyncSuccessHandler(result)
-		})
-		
-		task.Catch_(func error {
-			GlobalAsyncErrorHandler(error) 
-		})
-		
-		task.Execute()
-		return task
-
-	def AsyncSuccessHandlerByIndex(nIndex, result)
-		if nIndex <= len(aAsyncOperations)
-			aOp = aAsyncOperations[nIndex]
-			cProperty = aOp[1]
-			fnSuccess = aOp[3]
-			
+		task.Then_(func result {
 			SetAttribute(cProperty, result)
 			if fnSuccess != NULL
 				call fnSuccess(result)
 			ok
-		ok
-	
-	def AsyncErrorHandlerByIndex(nIndex, error)
-		if nIndex <= len(aAsyncOperations)
-			aOp = aAsyncOperations[nIndex]
-			fnError = aOp[4]
-			
-			if fnError != NULL
-				call fnError(error)
-			ok
-		ok
+		})
+		
+		task.Catch_(func error {
+			call fnErrorCallback(error)
+		})
+		
+		aAsyncOperations + [cProperty, newValue, fnSuccess, task, fnErrorCallback]
+		task.Execute()
+		return task
 
 	# FIXED: Batch multiple property updates
 	def Batch(fnUpdates)
@@ -261,7 +215,7 @@ class stzReactiveObject
 		return self
 
 	# Create reactive stream from property changes
-	def StreamProperty(cProperty)
+	def StreamAttribute(cProperty)
 
 		cProperty = lower(cProperty)
 		
@@ -279,7 +233,7 @@ class stzReactiveObject
 		return stream
 
 	# Debounce property changes
-	def DebounceProperty(cProperty, nDelay, fnCallback)
+	def DebounceAttribute(cProperty, nDelay, fnCallback)
 
 		cProperty = lower(cProperty)
 		
@@ -299,7 +253,7 @@ class stzReactiveObject
 		return self
 
 	# FIXED: Compute property method
-	def ComputeProperty(cProperty)
+	def ComputeAttribute(cProperty)
 		cProperty = lower(cProperty)
 
 		for aComputed in aComputedProperties
@@ -427,7 +381,7 @@ class stzReactiveObject
 			aDependencies = aComputed[3]
 			
 			if find(aDependencies, cChangedProperty) > 0
-				ComputeProperty(cProperty)
+				ComputeAttribute(cProperty)
 			ok
 		next
 
@@ -516,7 +470,7 @@ class stzReactiveObjectWrapper from stzReactiveObject
 		eval("wrappedObject." + cProperty + " = newValue")
 		
 		# Process reactive behavior
-		super.setattribute(cProperty, newValue)
+		super.setAttribute(cProperty, newValue)
 
 	def GetAttribute(cProperty)
 		cProperty = lower(cProperty)

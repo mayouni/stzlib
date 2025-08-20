@@ -28,7 +28,7 @@ load "../stzbase.ring"
 
 # Initializing Softanza Reactive system
 # (connects to libuv event loop infrastructure)
-*/
+
 pr()
 
 oRs = new stzReactive()
@@ -246,7 +246,7 @@ pf()
 #  REACTIVE TIMERS - TIME-BASED EVENTS   #
 #========================================#
 
-/*--- Basic timer operations
+/*--- Basic timer operations #TODO check output
 
 # Reactive timers execute callbacks after specified delays without blocking.
 # They integrate with the event loop for precise timing control.
@@ -453,8 +453,8 @@ pf()
 #  FILE OPERATIONS - ASYNC I/O           #
 #========================================#
 
-/*--- Basic file operations
-*/
+/*--- Basic file operations #TODO Check error
+
 # Reactive file operations prevent I/O blocking in applications.
 # They handle large files efficiently with progress callbacks.
 # Support for reading, writing, and monitoring file changes.
@@ -524,7 +524,7 @@ pf()
 #  INTEGRATED REACTIVE SYSTEM            #
 #========================================#
 
-/*--- Complete reactive application example
+/*--- Complete reactive application example #TODO check error
 
 # Demonstrates integration of all reactive components:
 # - Functions for data processing
@@ -534,8 +534,6 @@ pf()
 # - File I/O for persistence
 
 pr()
-
-? "=== Complete Reactive Application Demo ==="
 
 oRs = new stzReactive()
 oRs {
@@ -620,14 +618,12 @@ oRs {
 
 pf()
 
-/*--- Error handling and system monitoring
+/*--- Error handling and system monitoring #TODO check error
 
 # Comprehensive error handling ensures robust reactive applications.
 # System monitoring provides insights into performance and resource usage.
 
 pr()
-
-? "=== Error Handling & Monitoring Demo ==="
 
 oRs = new stzReactive()
 oRs {

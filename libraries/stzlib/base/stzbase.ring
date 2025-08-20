@@ -152,5 +152,10 @@
 # Loading files related to the REACTIVE module
 
 	load "reactive/stzReactive.ring"
-//	load "reactive/stzReactiveFile.ring"
+	load "reactive/stzReactiveFunc.ring"
 	load "reactive/stzReactiveObject.ring"
+	load "reactive/stzReactiveTimer.ring"
+	load "reactive/stzReactiveStream.ring"
+	load "reactive/stzReactiveHttp.ring"
+	load "reactive/stzReactiveFile.ring"
+
