@@ -4,8 +4,8 @@ load "libuv.ring"
 #  MAIN REACTIVE API - Simple interface for common patterns #
 #-----------------------------------------------------------#
 
-class stzReactiveSystem from stzReactive
-class stzReactive
+class stzReactive from stzReactiveSystem
+class stzReactiveSystem
 
    # Core engine state
    timerManager = NULL
@@ -123,13 +123,29 @@ class stzReactive
 
    # Timing utilities
    def SetTimeout(delay, callback)
+	if CheckParams()
+		if isNumber(callback) and NOT isNumber(delay)
+			tempval = delay
+			delay = callback
+			callback = tempval
+		ok
+	ok
+
    	timerId = "timeout_" + string(random(999999))
    	timer = new stzRingTimer(timerId, delay, callback, self, true, self)
    	timer.Start()
    	AddTimer(timer)
    	return timerId
 
-   def SetInterval(callback, interval)
+   def SetInterval(interval, callback)
+	if CheckParams()
+		if isNumber(callback) and NOT isNumber(interval)
+			tempval = interval
+			interval = callback
+			callback = tempval
+		ok
+	ok
+
    	timerId = "interval_" + string(random(999999))
    	timer = new stzRingTimer(timerId, interval, callback, self, false, self)
    	timer.Start()

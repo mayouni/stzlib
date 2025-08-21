@@ -31,7 +31,7 @@ load "../stzbase.ring"
 
 pr()
 
-oRs = new stzReactive()
+oRs = new stzReactiveSystem()
 oRs {
 
     # Declaring simple functions
@@ -102,7 +102,7 @@ pf()
 
 pr()
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 Rs {
 
     # A more complex function that processes arrays
@@ -148,7 +148,7 @@ pf()
 
 pr()
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 Rs {
     
     # Creating a basic reactive stream
@@ -197,7 +197,7 @@ pf()
 
 pr()
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 Rs {
 
     # Create source stream
@@ -258,7 +258,7 @@ pr()
 nCounter = 0
 cIntervalId = ""
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 Rs {
     # One-time timer
     SetTimeout(func() {
@@ -302,7 +302,7 @@ func fRepeatCallback()
 
 pr()
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 Rs {
 
     # Create a stream fed by timer
@@ -349,7 +349,7 @@ pf()
 
 pr()
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 Rs {
 
     # Simple GET request
@@ -390,7 +390,7 @@ pf()
 
 pr()
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 
 # Store the stream in a variable first
 oHttpStream = Rs.CreateStream("http-stream", "manual")
@@ -461,7 +461,7 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
+oRs = new stzReactiveSystem()
 oRs.Init()
 oRs {
     WriteFile("reactive.txt", "Hello Reactive World!",
@@ -493,7 +493,7 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
+oRs = new stzReactiveSystem()
 oRs {
 
     # Create file read stream
@@ -525,7 +525,7 @@ pf()
 #========================================#
 
 /*--- Complete reactive application example #TODO check error
-
+*/
 # Demonstrates integration of all reactive components:
 # - Functions for data processing
 # - Streams for data flow
@@ -535,7 +535,7 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
+oRs = new stzReactiveSystem()
 oRs {
     Init()
 
@@ -625,7 +625,7 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
+oRs = new stzReactiveSystem()
 oRs {
     Init()
 

@@ -95,7 +95,7 @@ class stzRingTimer
 	    
 	    currentTime = clock()
 	    elapsed = (currentTime - lastTick) * 1000 / clocksPerSecond()
-	    
+
 	    if elapsed >= interval
 	        if callback != NULL
 	            call callback()
