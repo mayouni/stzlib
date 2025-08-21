@@ -86,7 +86,7 @@ class stzReactiveObject from stzReactive
 	def SetAttribute(cAttribute, newValue)
 		cAttribute = lower(cAttribute)
 
-		# Get old value using the appropriate method
+		# Get old value
 		cOldValue = GetAttributeValue(cAttribute)
 		
 		# Set the new value
@@ -195,7 +195,7 @@ class stzReactiveObject from stzReactive
 	# Async Attribute update
 	def SetAsync(cAttribute, newValue, fnSuccess, fnError)
 		cAttribute = lower(cAttribute)
-		taskId = "prop_" + cAttribute + "_" + string(random(999999))
+		taskId = "attr_" + cAttribute + "_" + string(random(999999))
 		
 		# Ensure fnError has a value
 		fnErrorCallback = fnError
@@ -246,9 +246,9 @@ class stzReactiveObject from stzReactive
 		streamId = lower(classname(self)) + "_" + cAttribute + "_" + random(999999)
 		stream = this.engine.CreateStream(streamId, "manual")
 		
-		Watch(cAttribute, func(prop, oldVal, newVal) {
+		Watch(cAttribute, func(attr, oldVal, newVal) {
 			aData = []
-			aData + ["Attribute", prop]
+			aData + ["Attribute", attr]
 			aData + ["oldValue", oldVal] 
 			aData + ["newValue", newVal]
 			stream.Emit(aData)
@@ -262,13 +262,13 @@ class stzReactiveObject from stzReactive
 		
 		currentTimer = NULL
 		
-		Watch(cAttribute, func(prop, oldVal, newVal) {
+		Watch(cAttribute, func(attr, oldVal, newVal) {
 			if currentTimer != NULL
 				ClearInterval(currentTimer)
 			ok
 			
 			currentTimer = SetTimeout(func {
-				call fnCallback(prop, oldVal, newVal)
+				call fnCallback(attr, oldVal, newVal)
 				currentTimer = NULL
 			}, nDelay)
 		})
@@ -287,9 +287,9 @@ class stzReactiveObject from stzReactive
 		cAttribute = lower(cAttribute)
 
 		# Find in internal storage
-		for aProp in aAttributesOfStandaloneObjects
-			if aProp[1] = cAttribute
-				return aProp[2]
+		for aAttr in aAttributesOfStandaloneObjects
+			if aAttr[1] = cAttribute
+				return aAttr[2]
 			ok
 		next
 		
@@ -344,15 +344,15 @@ class stzReactiveObject from stzReactive
 		ok
 
 	def ProcessBatchChanges()
-		aProcessedProps = []
+		aProcessedAttrs = []
 		
 		for aChange in aPendingChanges
 			cAttribute = aChange[1]
 			cOldValue = aChange[2] 
 			newValue = aChange[3]
 			
-			if find(aProcessedProps, cAttribute) = 0
-				aProcessedProps + cAttribute
+			if find(aProcessedAttrs, cAttribute) = 0
+				aProcessedAttrs + cAttribute
 				ProcessAttributeChange(cAttribute, cOldValue, newValue)
 			ok
 		next
@@ -389,13 +389,13 @@ class stzReactiveObject from stzReactive
 	def UpdateBoundAttributes(cAttribute, newValue)
 		cAttribute = lower(cAttribute)
 		for aBinding in aAttributeBindings
-			cSourceProp = aBinding[1]
+			cSourceAttr = aBinding[1]
 			oTargetObj = aBinding[2]
-			cTargetProp = aBinding[3]
+			cTargetAttr = aBinding[3]
 
-			if lower(cSourceProp) = lower(cAttribute)
+			if lower(cSourceAttr) = lower(cAttribute)
 				try
-					oTargetObj.SetAttributeValue(cTargetProp, newValue)
+					oTargetObj.SetAttributeValue(cTargetAttr, newValue)
 				catch
 					# Handle binding error
 				done
