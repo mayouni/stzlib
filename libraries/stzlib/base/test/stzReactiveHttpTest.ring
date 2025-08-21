@@ -8,10 +8,6 @@ load "../stzbase.ring"
 # This tutorial teaches you step-by-step how to work with HTTP requests
 # and responses in a non-blocking way.
 
-#-----------------------------------#
-#  EXAMPLE 1: YOUR FIRST HTTP GET   #
-#-----------------------------------#
-
 /*--- Understanding HttpGet - Simple web request
 
 # HttpGet fetches data from a URL without blocking your program
@@ -57,11 +53,7 @@ Rs {
 # }
 
 pf()
-# Executed in 1.10 seconds depending on network
-
-#--------------------------------#
-#  EXAMPLE 2: HTTP POST REQUEST  #
-#--------------------------------#
+# Executed in 1.07 seconds depending on network
 
 /*--- Understanding HttpPost - Sending data to server #TODO
 
@@ -117,16 +109,12 @@ Rs {
 pf()
 # Executed in 1.44 second(s) in Ring 1.23
 
-#----------------------------------#
-#  EXAMPLE 3: HTTP REQUEST STREAM  #
-#----------------------------------#
-
 /*--- Creating a stream of HTTP responses
+
+pr()
 
 # You can create streams that fetch data from multiple URLs
 # Perfect for aggregating data from different sources
-
-pr()
 
 # List of URLs to fetch data from
 aApiUrls = [
@@ -141,16 +129,16 @@ cRequestId = ""
 Rs = new stzReactive()
 Rs {
    # Create stream as property of Rs object
-   Rs.httpStream = CreateStream("http-responses", "manual")
+   httpStream = CreateStream("http-responses", "manual")
    
    # Subscribe to receive each HTTP response
-   Rs.httpStream.Subscribe(func aData {
+   httpStream.Subscribe(func aData {
        ? " ╰─> Received from stream: Post #" + aData["id"] + " - " + 
          left(aData["title"], 30) + "..."
    })
    
    # Complete handler - called when stream ends
-   Rs.httpStream.OnComplete(func() {
+   httpStream.OnComplete(func() {
        ? NL + "✅ All HTTP requests completed!"
        Rs.Stop()
    })
@@ -185,12 +173,12 @@ func fFetchNextUrl()
                ]
                
                # Emit to stream
-               Rs.httpStream.Emit(aMockData)
+               httpStream.Emit(aMockData)
 
                # Check if we're done with all URLs
                if nCurrentIndex >= len(aApiUrls)
                    Rs.ClearInterval(cRequestId)
-                   Rs.httpStream.Complete()  # End the stream
+                   httpStream.Complete()  # End the stream
                ok
            },
 
@@ -212,18 +200,17 @@ func fFetchNextUrl()
 #
 #✅ All HTTP requests completed!
 
-# Executed in 4.54 second(s) in Ring 1.23
+# Executed in 1.30 second(s) in Ring 1.23
 
 #--------------------------------------#
 #  EXAMPLE 4: HTTP POLLING WITH TIMER  #
 #--------------------------------------#
 
 /*--- Combining HTTP with timers for polling
-
+*/
 # Polling means checking a server repeatedly for new data
 # Common pattern for real-time updates without WebSockets
 
-pr()
 nPollCount = 0
 nMaxPolls = 5
 cPollId = ""
@@ -319,10 +306,6 @@ func fStopPolling()
 #    Success rate: 280%
 
 # Executed in 11.22 seconds depending on network
-
-#-------------------------------------------------#
-#  EXAMPLE 5: PRACTICAL - API DATA oAggregator     #
-#-------------------------------------------------#
 
 /*--- Real-world example: Fetching and combining data from multiple APIs
 
