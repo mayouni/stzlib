@@ -1,12 +1,5 @@
-#---------------------------------------------------------------#
-# 			     SOFTANZA LIBRARY (V0.9)                        #
-#---------------------------------------------------------------#
-#                                                               #
-# 	Description	: The class for managing softanza objects       #
-#	Version		: V1.1.0.6 (2019, 2024)                         #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)         #
-#                                                               #
-#===============================================================#
+
+# SOFTANZA OBJECT CLASS
 
 /*
 	Mainly, this class servers as a parent for the common features
@@ -107,6 +100,84 @@
 
 func StzObjectQ(pObject)
 	return new stzObject(pObject)
+
+func NumberOfAttributes(pObject)
+	return len(attributes(pObject))
+
+	func HowManyAttributes(pObject)
+		return len(attributes(pObject))
+
+	func CountAttributes(pObject)
+		return len(attributes(pObject))
+
+	func @NumberOfAttributes(pObject)
+		return len(attributes(pObject))
+
+	func @HowManyAttributes(pObject)
+		return len(attributes(pObject))
+
+	func @CountAttributes(pObject)
+		return len(attributes(pObject))
+
+func AttributesXT(pObj)
+	if NOT isObject(pObj)
+		StzRaise("Incorrect param type! pObj must be an object.")
+	ok
+
+	aResult = []
+	acAttr = attributes(pObj)
+	nLen = len(acAttr)
+
+	for i = 1 to nLen
+		cCode = "val = pObj." + acAttr[i]
+		eval(cCode)
+		aResult + [ acAttr[i], val ]
+	next
+
+	return aResult
+
+	func AttributesAndValues(pObj)
+		return AttributesXT(pObj)
+
+	func AttributesAndTheirValues(pObj)
+		return AttributesXT(pObj)
+
+	func @AttributesXT(pObj)
+		return AttributesXT(pObj)
+
+	func @AttributesAndValues(pObj)
+		return AttributesXT(pObj)
+
+	func @AttributesAndTheirValues(pObj)
+		return AttributesXT(pObj)
+
+func HasAttribute(pObject, cAttr)
+	if CheckParams()
+		if NOT isObject(pObject)
+			StzRaise("Incorrect param type! pObject must be an object.")
+		ok
+
+		if NoT isString(cAttr)
+			StzRaise("Incorrect param type! cAttr must be a string.")
+		ok
+	ok
+
+	acAttr = attributes(pObject)
+	nPos = find(acAttr, lower(cAttr))
+	if nPos > 0
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func ContainsAttribute(pObject, cAttr)
+		return HasAttribute(pObject, cAttr)
+
+	func @HasAttribute(pObject, cAttr)
+		return HasAttribute(pObject, cAttr)
+
+	func @ContainsAttribute(pObject, cAttr)
+		return HasAttribute(pObject, cAttr)
 
 #TODO Abstract stzNamedObject into the MAX layer
 
@@ -1795,15 +1866,9 @@ class stzObject
 	def Copy()
 		return new stzObject(@content)
 
-	def ObjectClassName() # Depricated, use ClassName()
-		return classname(This)
-
-	def ObjectAttributes() # Depricated, use Attributes() instead
-		return ring_attributes(This)
-
-	def ObjectValues()
+	def Values()
 		aResult = []
-		acAttributes = This.ObjectAttributes()
+		acAttributes = This.Attributes()
 		nLen = len(acAttributes)
 
 		for i = 1 to nLen 
@@ -1813,30 +1878,24 @@ class stzObject
 		return aResult
 
 		def AttributesValues()
-			return This.ObjectValues()
+			return This.Values()
 
-	def ObjectAttributesAndValues()
+		def ObjectValues()
+			return This.Values()
+
+	def AttributesAndValues()
 		aResult = Association([
-				This.ObjectAttributes(),
-				This.ObjectValues()
+				This.Attributes(),
+				This.Values()
 		])
 
 		return aResult
 
 		def AttributesXT()
-			return This.ObjectAttributesAndValues()
-
-		def AttributesAndValues()
-			return This.ObjectAttributesAndValues()
+			return This.AttributesAndValues()
 
 		def AttributesAndTheirValues()
-			return This.ObjectAttributesAndValues()
-
-		def ObjectAttributesAndTheirValues()
-			return This.ObjectAttributesAndValues()
-
-	def ObjectMethods() # Depricated, use Methods() instead
-		return methods(This.Object())
+			return This.AttributesAndValues()
 
 	  #------------------#
 	 #   CHECKING TYPE  #
@@ -4840,8 +4899,26 @@ class stzObject
 	def Methods()
 		return ring_methods(This)
 
+	def NumberOfMethods()
+		return len(ring_methods(This))
+
+		def CountMethods()
+			return len(ring_methods(This))
+
+		def HowManyMethods()
+			return len(ring_methods(This))
+
 	def Attributes()
 		return ring_attributes(This)
+
+	def NumberOfAttribytes()
+		return len(ring_attributes(This))
+
+		def CountAttributes()
+			return len(ring_attributes(This))
+
+		def HowManyAttributes()
+			return len(ring_attributes(This))
 
 	def ClassName()
 		return "stzobject"

@@ -5,32 +5,29 @@
 #  1. Full integration with Softanza's libuv-based reactive system
 #  2. Seamless use of existing timers, tasks, and streams
 #  3. Natural Ring syntax using object access hooks
-#  4. Property watching, computed properties, and object binding
-#  5. Async property updates using Softanza tasks
+#  4. Attribute watching, computed attributes, and object binding
+#  5. Async Attribute updates using Softanza tasks
 #  6. Batch updates for performance
-#  7. Debounced property changes using Softanza timers
-#  8. Property change streams using Softanza streams
+#  7. Debounced attribute changes using Softanza timers
+#  8. Attribute change streams using Softanza streams
 #  9. Comprehensive error handling and recovery
 # 10. Wrapper support for existing objects
 
 
-# Fixed Reactive Object System for Softanza Library
+# Unified Reactive Object System for Softanza Library
+# Single class that handles all reactive object functionality
 
-# =============================================================================
-# CORE REACTIVE OBJECT BASE CLASS - FIXED VERSION
-# =============================================================================
-
-class stzReactiveObject
+class stzReactiveObject from stzReactive
 
 	# Core reactive infrastructure
+	wrappedObject = NULL       # NULL = standalone, not NULL = wrapper mode
 	engine = NULL
-	objectManager = NULL
-	
-	# Property watching system
-	aPropertyWatchers = []     # [property, callback] pairs
-	aComputedProperties = []   # [property, computer_func, dependencies]
-	aPropertyBindings = []     # [source_prop, target_obj, target_prop]
-	aAsyncOperations = []      # Pending async property operations
+
+	# Attribute watching system
+	aAttributeWatchers = []     # [attr, callback] pairs
+	aComputedAttributes = []   # [Attribute, computer_func, dependencies]
+	aAttributeBindings = []     # [source_attr, target_obj, target_attr]
+	aAsyncOperations = []      # Pending async Attribute operations
 	
 	# State management
 	bReactiveMode = True
@@ -38,40 +35,42 @@ class stzReactiveObject
 	aPendingChanges = []       # Changes accumulated during batch mode
 	
 	# Change tracking
-	aPropertyValues = []       # Cache of current property values for change detection
+	aCachedAttributeValues = []       # Cache of current Attribute values for change detection
 	
-	# FIXED: Property storage - use a hash for reliable property storage
-	aProperties = []           # Internal property storage: [name, value] pairs
+	# Attribute storage - for standalone objects
+	aAttributesOfStandaloneObjects = []           # Internal Attribute storage: [name, value] pairs
 
-	def Init(reactiveEngine, objectManager)
-		engine = reactiveEngine
-		this.objectManager = objectManager
-		aPropertyWatchers = []
-		aComputedProperties = []
-		aPropertyBindings = []
-		aAsyncOperations = []
-		aPendingChanges = []
-		aPropertyValues = []
-		aProperties = []        # FIXED: Initialize property storage
-		bReactiveMode = True
-		bBatchMode = False
+	def Init(existingObject, reactiveEngine)
+	    wrappedObject = existingObject
+	    engine = reactiveEngine
+
+   
+	# Initialize attribute cache with wrapped object's current values
+	if wrappedObject != NULL
+	    aObjectAttrs = AttributesXT(wrappedObject)
+	    nLen = len(aObjectAttrs)
+	
+	    for i = 1 to nLen
+	            SetAttributeInStorage(aObjectAttrs[i][1], aObjectAttrs[i][2])
+	            UpdateAttributeCache(aObjectAttrs[i][1], aObjectAttrs[i][2])
+	    next
+	ok
 
 	# Ring's object access hooks - integrate with reactive system
 	def BraceStart()
 		if bReactiveMode
-			objectManager.NotifyObjectAccess(self, "start", "")
+			# Notify reactive system of object access start
 		ok
 
 	def BraceEnd()
 		if bReactiveMode
 			ProcessPendingReactions()
-			objectManager.NotifyObjectAccess(self, "end", "")
 		ok
 
 	def BraceError()
 		cError = cCatchError
-		objectManager.NotifyObjectAccess(self, "error", cError)
 		
+		# Handle errors in async operations
 		for aOperation in aAsyncOperations
 			if len(aOperation) >= 5 and aOperation[5] != NULL
 				try
@@ -83,107 +82,133 @@ class stzReactiveObject
 			ok
 		next
 
-	# FIXED: Universal property setter with reliable property storage
-	def SetAttribute(cProperty, newValue)
-		cProperty = lower(cProperty)
+	# Universal Attribute setter
+	def SetAttribute(cAttribute, newValue)
+		cAttribute = lower(cAttribute)
 
-		# Get old value from internal storage
-		cOldValue = GetPropertyFromStorage(cProperty)
+		# Get old value using the appropriate method
+		cOldValue = GetAttributeValue(cAttribute)
 		
-		# Set in internal storage
-		SetPropertyInStorage(cProperty, newValue)
+		# Set the new value
+		SetAttributeValue(cAttribute, newValue)
 		
-		# Also set as object attribute for compatibility
-		AddAttribute(this, cProperty)
-		eval("this." + cProperty + " = newValue")
-		
-		if bReactiveMode and cOldValue != newValue
-
-			# Update our property cache
-			UpdatePropertyCache(cProperty, newValue)
+		if This.bReactiveMode and cOldValue != newValue
+			# Update Attribute cache
+			This.UpdateAttributeCache(cAttribute, newValue)
 			
-			if bBatchMode
+			if this.bBatchMode
 				# Accumulate change for batch processing
-				aPendingChanges + [cProperty, cOldValue, newValue]
+				this.aPendingChanges + [cAttribute, cOldValue, newValue]
 			else
 				# Process change immediately
-				ProcessPropertyChange(cProperty, cOldValue, newValue)
+				This.ProcessAttributeChange(cAttribute, cOldValue, newValue)
 			ok
 		ok
 
 	def @(paAttr)
 		This.SetAttribute(paAttr[1], paAttr[2])
 
-	# FIXED: Get attribute from internal storage first, then object attribute
-	def GetAttribute(cProperty)
-		cProperty = lower(cProperty)
-
-		# Get from internal storage first
-		value = GetPropertyFromStorage(cProperty)
+	# Universal Attribute getter
+	def GetAttribute(cAttribute)
+		cAttribute = lower(cAttribute)
+		value = GetAttributeValue(cAttribute)
 		
 		if bReactiveMode
-			objectManager.NotifyPropertyAccess(self, cProperty, "read")
+			# Notify reactive system of Attribute access
 		ok
 		
 		return value
 
-	def GetPropertyValue(cProperty)
-		cProperty = lower(cProperty)
-		return GetPropertyFromStorage(cProperty)
+	# Core Attribute access methods
+	def GetAttributeValue(cAttribute)
+	    cAttribute = lower(cAttribute)
+	    
+	    # Check cache first
+	    nIndex = FindAttributeInCache(cAttribute)
+	    if nIndex > 0
+	        return aCachedAttributeValues[nIndex][2]
+	    ok
+	    
+	    if wrappedObject != NULL
+	        # Wrapper mode: get from wrapped object
+	        if hasattribute(wrappedObject, cAttribute)
+	            return eval("wrappedObject." + cAttribute)
+	        else
+	            # Try storage if not on wrapped object
+	            return GetAttributeFromStorage(cAttribute)
+	        ok
+	    else
+	        # Standalone mode: get from internal storage
+	        return GetAttributeFromStorage(cAttribute)
+	    ok
+	
+	def SetAttributeValue(cAttribute, value)
+		cAttribute = lower(cAttribute)
+		
+		if wrappedObject != NULL
+			# Wrapper mode: set on wrapped object
+			addattribute(wrappedObject, cAttribute)
+			eval("wrappedObject." + cAttribute + " = value")
+		ok
+		
+		# Always set in internal storage for consistency
+		SetAttributeInStorage(cAttribute, value)
+		
+		# Also set as object attribute for compatibility
+		AddAttribute(this, cAttribute)
+		eval("this." + cAttribute + " = value")
 
 	#-----------------------#
 	#  PUBLIC REACTIVE API  #
 	#-----------------------#
 
-	# Watch property changes
-	def Watch(cProperty, fnCallback)
-		cProperty = lower(cProperty)
-		aPropertyWatchers + [cProperty, fnCallback]
+	# Watch Attribute changes
+	def Watch(cAttribute, fnCallback)
+		cAttribute = lower(cAttribute)
+		aAttributeWatchers + [cAttribute, fnCallback]
 		return self
 
-	# Create computed property that auto-updates
-	def Computed(cProperty, fnComputer, aDependencies)
-		cProperty = lower(cProperty)
-		aComputedProperties + [cProperty, fnComputer, aDependencies]
+	# Create computed Attribute that auto-updates
+	def Computed(cAttribute, fnComputer, aDependencies)
+		cAttribute = lower(cAttribute)
+		aComputedAttributes + [cAttribute, fnComputer, aDependencies]
 		
 		# Initial computation
-		ComputeAttribute(cProperty)
+		ComputeAttribute(cAttribute)
 		return self
 
-	# Bind property to another reactive object
-	def BindTo(oTargetObject, cSourceProperty, cTargetProperty)
-		if cTargetProperty = NULL
-			cTargetProperty = cSourceProperty
+	# Bind Attribute to another reactive object
+	def BindTo(oTargetObject, cSourceAttribute, cTargetAttribute)
+		if cTargetAttribute = NULL
+			cTargetAttribute = cSourceAttribute
 		ok
 
-		cSourceProperty = lower(cSourceProperty)
-		cTargetProperty = lower(cTargetProperty)
+		cSourceAttribute = lower(cSourceAttribute)
+		cTargetAttribute = lower(cTargetAttribute)
 
-		aPropertyBindings + [cSourceProperty, oTargetObject, cTargetProperty]
+		aAttributeBindings + [cSourceAttribute, oTargetObject, cTargetAttribute]
 		
 		# Initial sync  
-		sourceValue = GetPropertyValue(cSourceProperty)
-		oTargetObject.SetPropertyInStorage(cTargetProperty, sourceValue)
-		AddAttribute(oTargetObject, cTargetProperty)
-		eval("oTargetObject." + cTargetProperty + " = sourceValue")
+		sourceValue = GetAttributeValue(cSourceAttribute)
+		oTargetObject.SetAttributeValue(cTargetAttribute, sourceValue)
 
-	# Async property update
-	def SetAsync(cProperty, newValue, fnSuccess, fnError)
-		cProperty = lower(cProperty)
-		taskId = "prop_" + cProperty + "_" + string(random(999999))
+	# Async Attribute update
+	def SetAsync(cAttribute, newValue, fnSuccess, fnError)
+		cAttribute = lower(cAttribute)
+		taskId = "prop_" + cAttribute + "_" + string(random(999999))
 		
-		# Ensure fnError has a value (even if NULL)
+		# Ensure fnError has a value
 		fnErrorCallback = fnError
 		if fnErrorCallback = NULL
-			fnErrorCallback = func(error) { }  # Empty function
+			fnErrorCallback = func(error) { }
 		ok
 		
 		task = new stzReactiveTask(taskId, func {
 			return newValue
-		}, engine)
+		}, this)
 		
 		task.Then_(func result {
-			SetAttribute(cProperty, result)
+			SetAttribute(cAttribute, result)
 			if fnSuccess != NULL
 				call fnSuccess(result)
 			ok
@@ -193,11 +218,11 @@ class stzReactiveObject
 			call fnErrorCallback(error)
 		})
 		
-		aAsyncOperations + [cProperty, newValue, fnSuccess, task, fnErrorCallback]
+		aAsyncOperations + [cAttribute, newValue, fnSuccess, task, fnErrorCallback]
 		task.Execute()
 		return task
 
-	# FIXED: Batch multiple property updates
+	# Batch multiple Attribute updates
 	def Batch(fnUpdates)
 		bBatchMode = True
 		aPendingChanges = []
@@ -205,7 +230,7 @@ class stzReactiveObject
 		try
 			call fnUpdates()
 		catch
-			objectManager.NotifyObjectAccess(self, "batch_error", CatchError())
+			# Handle batch error
 		done
 		
 		bBatchMode = False
@@ -214,17 +239,16 @@ class stzReactiveObject
 		ProcessBatchChanges()
 		return self
 
-	# Create reactive stream from property changes
-	def StreamAttribute(cProperty)
-
-		cProperty = lower(cProperty)
+	# Create reactive stream from Attribute changes
+	def StreamAttribute(cAttribute)
+		cAttribute = lower(cAttribute)
 		
-		streamId = lower(classname(self)) + "_" + cProperty + "_" + string(random(999999))
-		stream = engine.mainReactive.CreateStream(streamId, "manual")
+		streamId = lower(classname(self)) + "_" + cAttribute + "_" + random(999999)
+		stream = this.engine.CreateStream(streamId, "manual")
 		
-		Watch(cProperty, func(prop, oldVal, newVal) {
+		Watch(cAttribute, func(prop, oldVal, newVal) {
 			aData = []
-			aData + ["property", prop]
+			aData + ["Attribute", prop]
 			aData + ["oldValue", oldVal] 
 			aData + ["newValue", newVal]
 			stream.Emit(aData)
@@ -232,19 +256,18 @@ class stzReactiveObject
 		
 		return stream
 
-	# Debounce property changes
-	def DebounceAttribute(cProperty, nDelay, fnCallback)
-
-		cProperty = lower(cProperty)
+	# Debounce Attribute changes
+	def DebounceAttribute(cAttribute, nDelay, fnCallback)
+		cAttribute = lower(cAttribute)
 		
 		currentTimer = NULL
 		
-		Watch(cProperty, func(prop, oldVal, newVal) {
+		Watch(cAttribute, func(prop, oldVal, newVal) {
 			if currentTimer != NULL
-				engine.mainReactive.ClearInterval(currentTimer)
+				ClearInterval(currentTimer)
 			ok
 			
-			currentTimer = engine.mainReactive.SetTimeout(func {
+			currentTimer = SetTimeout(func {
 				call fnCallback(prop, oldVal, newVal)
 				currentTimer = NULL
 			}, nDelay)
@@ -252,90 +275,68 @@ class stzReactiveObject
 		
 		return self
 
-	# FIXED: Compute property method
-	def ComputeAttribute(cProperty)
-		cProperty = lower(cProperty)
+	# Factory method for creating reactive objects
+	def Reactivate(existingObject)
+		return new stzReactiveObject(existingObject, this)
 
-		for aComputed in aComputedProperties
-			if aComputed[1] = cProperty
-				fnComputer = aComputed[2]
-				try
-					newValue = call c()
-					cOldValue = GetPropertyValue(cProperty)
-					
-					# Set the computed value
-					SetPropertyInStorage(cProperty, newValue)
-					
-					# Set as object attribute too
-					AddAttribute(this, cProperty)
-					# Process the property change to trigger bindings
-					if bReactiveMode and newValue != cOldValue
-					    ProcessPropertyChange(cProperty, cOldValue, newValue)
-					ok
-				catch
-					objectManager.NotifyObjectAccess(self, "computed_error", CatchError())
-				done
-				exit
-			ok
-		next
+	#-------------------#
+	#  UTILITY METHODS  #
+	#-------------------#
 
-	# INTERNAL REACTIVE PROCESSING
-	#-----------------------------
+	def GetAttributeFromStorage(cAttribute)
+		cAttribute = lower(cAttribute)
 
-	private
-
-	def GetPropertyFromStorage(cProperty)
-		cProperty = lower(cProperty)
-
-		for aProp in aProperties
-			if aProp[1] = cProperty
+		# Find in internal storage
+		for aProp in aAttributesOfStandaloneObjects
+			if aProp[1] = cAttribute
 				return aProp[2]
 			ok
 		next
+		
 		return ""  # Default empty value
 
-	def SetPropertyInStorage(cProperty, value)
-		cProperty = lower(cProperty)
+	def SetAttributeInStorage(cAttribute, value)
+		cAttribute = lower(cAttribute)
 
-		# Find existing property
-		for i = 1 to len(aProperties)
-			if aProperties[i][1] = cProperty
-				aProperties[i][2] = value
+		# Find existing Attribute
+		for i = 1 to len(aAttributesOfStandaloneObjects)
+			if aAttributesOfStandaloneObjects[i][1] = cAttribute
+				aAttributesOfStandaloneObjects[i][2] = value
 				return
 			ok
 		next
-		# Property doesn't exist, add it
-		aProperties + [cProperty, value]
+		# Attribute doesn't exist, add it
+		aAttributesOfStandaloneObjects + [cAttribute, value]
 
-	def UpdatePropertyCache(cProperty, value)
-		cProperty = lower(cProperty)
-		nIndex = FindPropertyInCache(cProperty)
-		if nIndex > 0
-			aPropertyValues[nIndex][2] = value
-		else
-			aPropertyValues + [cProperty, value]
-		ok
+	def UpdateAttributeCache(cAttribute, value)
+	    cAttribute = lower(cAttribute)
+	    nIndex = FindAttributeInCache(cAttribute)
+	    if nIndex > 0
+	        aCachedAttributeValues[nIndex][2] = value
+	    else
+	        aCachedAttributeValues + [cAttribute, value]
+	    ok
 
-	def FindPropertyInCache(cProperty)
-		cProperty = lower(cProperty)
-		for i = 1 to len(aPropertyValues)
-			if aPropertyValues[i][1] = cProperty
-				return i
-			ok
-		next
-		return 0
+	def FindAttributeInCache(cAttribute)
+	    cAttribute = lower(cAttribute)
+	    for i = 1 to len(aCachedAttributeValues)
+	        if aCachedAttributeValues[i][1] = cAttribute
+	            return i
+	        ok
+	    next
+	    return 0
 
-	def ProcessPropertyChange(cProperty, oldValue, newValue)
-		cProperty = lower(cProperty)
+	def ProcessAttributeChange(cAttribute, oldValue, newValue)
+		cAttribute = lower(cAttribute)
 
 		# Notify watchers
-		TriggerPropertyWatchers(cProperty, oldValue, newValue)
+		TriggerAttributeWatchers(cAttribute, oldValue, newValue)
 		
-		# Update computed properties
-		UpdateDependentComputedProperties(cProperty)
+		# Update computed Attributes
+		UpdateDependentComputedAttributes(cAttribute)
 		
-		# Update bound properties
-		UpdateBoundProperties(cProperty, newValue)
+		# Update bound Attributes
+		UpdateBoundAttributes(cAttribute, newValue)
 
 	def ProcessPendingReactions()
 		if len(aPendingChanges) > 0
@@ -346,138 +347,88 @@ class stzReactiveObject
 		aProcessedProps = []
 		
 		for aChange in aPendingChanges
-			cProperty = aChange[1]
+			cAttribute = aChange[1]
 			cOldValue = aChange[2] 
 			newValue = aChange[3]
 			
-			if find(aProcessedProps, cProperty) = 0
-				aProcessedProps + cProperty
-				ProcessPropertyChange(cProperty, cOldValue, newValue)
+			if find(aProcessedProps, cAttribute) = 0
+				aProcessedProps + cAttribute
+				ProcessAttributeChange(cAttribute, cOldValue, newValue)
 			ok
 		next
 		
 		aPendingChanges = []
 
-	def TriggerPropertyWatchers(cProperty, oldValue, newValue)
-		cProperty = lower(cProperty)
+	def TriggerAttributeWatchers(cAttribute, oldValue, newValue)
+		cAttribute = lower(cAttribute)
 
-		for aWatcher in aPropertyWatchers
-			if aWatcher[1] = cProperty
+		for aWatcher in aAttributeWatchers
+			if aWatcher[1] = cAttribute
 				try
 					f = aWatcher[2]
-					call f(cProperty, oldValue, newValue)
+					call f(cAttribute, oldValue, newValue)
 				catch
-					objectManager.NotifyObjectAccess(self, "watcher_error", CatchError())
+					# Handle watcher error
 				done
 			ok
 		next
 
-	def UpdateDependentComputedProperties(cChangedProperty)
-		cChangedProperty = lower(cChangedProperty)
+	def UpdateDependentComputedAttributes(cChangedAttribute)
+		cChangedAttribute = lower(cChangedAttribute)
 
-		for aComputed in aComputedProperties
-			cProperty = aComputed[1]
+		for aComputed in aComputedAttributes
+			cAttribute = aComputed[1]
 			fnComputer = aComputed[2]
 			aDependencies = aComputed[3]
 			
-			if find(aDependencies, cChangedProperty) > 0
-				ComputeAttribute(cProperty)
+			if find(aDependencies, cChangedAttribute) > 0
+				ComputeAttribute(cAttribute)
 			ok
 		next
 
-	def UpdateBoundProperties(cProperty, newValue)
-		cProperty = lower(cProperty)
-		for aBinding in aPropertyBindings
+	def UpdateBoundAttributes(cAttribute, newValue)
+		cAttribute = lower(cAttribute)
+		for aBinding in aAttributeBindings
 			cSourceProp = aBinding[1]
 			oTargetObj = aBinding[2]
 			cTargetProp = aBinding[3]
 
-			if lower(cSourceProp) = lower(cProperty)
+			if lower(cSourceProp) = lower(cAttribute)
 				try
-					oTargetObj.SetProperty(cTargetProp, newValue)
+					oTargetObj.SetAttributeValue(cTargetProp, newValue)
 				catch
-					objectManager.NotifyObjectAccess(self, "binding_error", CatchError())
+					# Handle binding error
 				done
 			ok
 		next
 
-# =============================================================================
-# REACTIVE OBJECT MANAGER - FIXED VERSION
-# =============================================================================
+	def ComputeAttribute(cAttribute)
 
-class stzReactiveObjectManager
+		cAttribute = lower(cAttribute)
 
-	engine = NULL
-	aRegisteredObjects = []
-	aGlobalBindings = []
-	
-	def Init(reactiveEngine)
-		engine = reactiveEngine
-		aRegisteredObjects = []
-		aGlobalBindings = []
+		for aComputed in aComputedAttributes
 
-	def RegisterObject(oReactiveObject)
-		aRegisteredObjects + oReactiveObject
+			if aComputed[1] = cAttribute
 
-	# FIXED: Create binding method
-	def CreateBinding(oSource, cSourceProp, oTarget, cTargetProp)
+				fnComputer = aComputed[2]
+				try
+					cOldValue = GetAttributeValue(cAttribute)
+					newValue = call fnComputer()
 
-		cSourceProp = lower(cSourceProp)
-		cTargetProp = lower(cTargetProp)
+					# Set the computed value
+					SetAttributeValue(cAttribute, newValue)
 
-		# Create binding from source to target
-		oSource.BindTo(oTarget, cSourceProp, cTargetProp)
-		aGlobalBindings + [oSource, cSourceProp, oTarget, cTargetProp]
+					# Trigger watchers for computed attributes
+					TriggerAttributeWatchers(cAttribute, cOldValue, newValue)
 
-	def NotifyObjectAccess(oObject, cAccessType, cData)
-		cAccessType = lower(cAccessType)
+					# Process the Attribute change to trigger bindings
+					if bReactiveMode and newValue != cOldValue
+						ProcessAttributeChange(cAttribute, cOldValue, newValue)
+					ok
 
-		switch cAccessType
-		case "start"
-			# Object access started
-		case "end" 
-			# Object access completed
-		case "error"
-			# Error occurred
-		case "watcher_error"
-			# Error in property watcher
-		case "computed_error"
-			# Error in computed property
-		case "binding_error"
-			# Error in property binding
-		end
-
-	def NotifyPropertyAccess(oObject, cProperty, cAccessType)
-		#TODO// Placeholder for future features
-
-# =============================================================================
-# REACTIVE OBJECT WRAPPER - FIXED VERSION
-# =============================================================================
-
-class stzReactiveObjectWrapper from stzReactiveObject
-
-	wrappedObject = NULL
-	
-	def Init(oObject, reactiveEngine, objectManager)
-		wrappedObject = oObject
-		super.Init(reactiveEngine, objectManager)
-
-	def SetAttribute(cProperty, newValue)
-		cProperty = lower(cProperty)
-
-		# Set property on wrapped object
-		addattribute(wrappedObject, cProperty)
-		eval("wrappedObject." + cProperty + " = newValue")
-		
-		# Process reactive behavior
-		super.setAttribute(cProperty, newValue)
-
-	def GetAttribute(cProperty)
-		cProperty = lower(cProperty)
-
-		# Try wrapped object first, then internal storage
-		try
-			return eval("wrappedObject." + cProperty)
-		catch
-			return super.getattribute(cProperty)
-		done
+				catch
+					# Handle computation error
+				done
+				exit
+			ok
+		next
