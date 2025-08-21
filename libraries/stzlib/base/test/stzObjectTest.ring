@@ -1,5 +1,29 @@
 load "../stzbase.ring"
 
+/*--------
+*/
+pr()
+
+o1 = new Person
+? attributes(o1) # A Ring function
+#--> [ "age", "job" ]
+
+# Softanza functions
+
+? HowManyAttributes(o1)
+
+? HasAttribute(o1, "age")
+#--> TRUE
+
+? HasAttribute(o1, "nothing")
+
+pf()
+
+class Person
+	name
+	age
+	job
+
 /*--------------
 
 pr()
@@ -233,7 +257,7 @@ pr()
 pf()
 
 /*-----------------
-*/
+
 pr()
 
 ? Q("2").IsA([ :Number, :String, :List ])
