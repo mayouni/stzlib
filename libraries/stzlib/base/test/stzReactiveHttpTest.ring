@@ -17,7 +17,7 @@ pr()
 
 # Making a simple GET request
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 Rs {
     ? "Making HTTP GET request to API..."
     
@@ -70,7 +70,7 @@ cPostData = '{
     "userId": 1
 }'
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 Rs {
     ? "Sending HTTP POST request with data..." + NL
 
@@ -126,7 +126,7 @@ aApiUrls = [
 nCurrentIndex = 0
 cRequestId = ""
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 Rs {
    # Create stream as property of Rs object
    httpStream = CreateStream("http-responses", "manual")
@@ -207,7 +207,7 @@ func fFetchNextUrl()
 #--------------------------------------#
 
 /*--- Combining HTTP with timers for polling
-*/
+
 # Polling means checking a server repeatedly for new data
 # Common pattern for real-time updates without WebSockets
 
@@ -216,15 +216,15 @@ nMaxPolls = 5
 cPollId = ""
 aDataHistory = []
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 Rs {
     ? "Polling server every 2 seconds for updates..." + NL
     
     # Poll every 2 seconds
-    cPollId = SetInterval(:fPollServer, 2000)
+    cPollId = SetInterval(2000, :fPollServer)
     
     # Stop polling after nMaxPolls attempts
-    SetTimeout(:fStopPolling, (nMaxPolls * 2000) + 500)
+    SetTimeout((nMaxPolls * 2000) + 500, :fStopPolling)
     
     Start()
 }

@@ -22,7 +22,7 @@ pr()
 
 # Creating a timer that fires once after 2 seconds
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 Rs {
     # SetTimeout(function, delay_in_milliseconds)
     SetTimeout( func() {
@@ -65,7 +65,7 @@ pr()
 nCounter = 0
 cIntervalID = ""
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 Rs {
     # SetInterval(function_name, interval_in_milliseconds)
     cIntervalID = SetInterval(:fCallback, 1000)
@@ -106,7 +106,7 @@ Stopping timer after 3 ticks...
 #-------------------------------#
 
 /*--- Multiple timers working together
-*/
+
 # You can have multiple timers running simultaneously
 # Each timer operates independently
 
@@ -119,7 +119,7 @@ nSlowCount = 0
 cFastId = ""
 cSowId = ""
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 Rs {
     # Fast timer - every 500ms
     cFastId = SetInterval(:fFastTick, 500)
@@ -186,23 +186,23 @@ pr()
 nDtaCounter = 0
 cItervalId = ""
 
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 Rs {
     # Create a stream for our time-based data
-    dataStream = CreateStream("sensor-data", "manual")
-    #TODO // dataStram is an attribue! think of a better API!
+    oDataStream = CreateStream("sensor-data", "manual")
+    #TODO // oDataStram is an attribue! think of a better API!
 
     # Subscribe to the stream - this function receives each data point
-    dataStream.Subscribe(func data {
+    oDataStream.Subscribe(func data {
         ? "📊 Received data: " + data
     })
-    
+
     # Generate data every 800ms using a timer
-    cItervalId = SetInterval(:fGenerateData, 800)
-    
+    cItervalId = SetInterval(800, :fGenerateData)
+
     # Stop after 4 data points
-    SetTimeout(:fStopDataGeneration, 3500)
-    
+    SetTimeout(3500, :fStopDataGeneration)
+
     ? "Data stream started! Generating data every 800ms..."
     Start()
 }
@@ -216,12 +216,12 @@ func fGenerateData()
     dataPoint = "Temperature: " + temperature + "°C (reading #" + nDtaCounter + ")"
     
     # Emit the data to the stream
-    Rs.dataStream.Emit(dataPoint)
+    Rs.oDataStream.Emit(dataPoint)
 
 func fStopDataGeneration()
     ? "🛑 Stopping data generation..."
     Rs.ClearInterval(cItervalId)
-    Rs.dataStream.Complete()  # Properly end the stream
+    Rs.oDataStream.Complete()  # Properly end the stream
     Rs.Stop()
 
 #--> Output:

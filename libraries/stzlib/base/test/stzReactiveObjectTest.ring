@@ -11,7 +11,7 @@ load "../stzbase.ring"
 pr()
 
 	# Create reactive system
-	Rs = new stzReactive()
+	Rs = new stzReactiveSystem()
 
 	# Create reactive object
 	oXUser = Rs.ReactiveObject()
@@ -69,7 +69,7 @@ pf()
 pr()
 	
 	# Create a reactive system
-	Rs = new stzReactive()
+	Rs = new stzReactiveSystem()
 	
 	# From inside the reactive system, we create a reactive object
 
@@ -175,7 +175,7 @@ pf()
 pr()
 	
 	# Create reactive system
-	Rs = new stzReactive()
+	Rs = new stzReactiveSystem()
 	
 	# Create source object
 	oXSource = Rs.ReactiveObject()
@@ -247,7 +247,7 @@ pf()
 pr()
 
 	# Create reactive system
-	Rs = new stzReactive()
+	Rs = new stzReactiveSystem()
 	
 	# Create reactive object
 	oXProduct = Rs.ReactiveObject()
@@ -333,7 +333,7 @@ pf()
 pr()
 	
 	# Create reactive system
-	Rs = new stzReactive()
+	Rs = new stzReactiveSystem()
 	
 	# Create reactive object
 	oXSensor = Rs.ReactiveObject()
@@ -423,7 +423,7 @@ func NextReading()
 pr()
 	
 	# Create reactive system
-	Rs = new stzReactive()
+	Rs = new stzReactiveSystem()
 	
 	# Create reactive object
 	oXSearch = Rs.ReactiveObject()
@@ -507,7 +507,7 @@ pr()
 oPerson = new Person("John", 25)
 
 # Initialize reactive system
-Rs = new stzReactive()
+Rs = new stzReactiveSystem()
 
 # Make the existing object reactive
 oXPerson = Rs.Reactivate(oPerson)
@@ -571,7 +571,7 @@ pr()
 	oPerson = new Person("Youssef", 28)
 
 	# Initialize a Softanza reactive system (Rs)
-	Rs = new stzReactive()
+	Rs = new stzReactiveSystem()
 
 	# Making the Person object reactive
 	oXPerson = Rs.ReactivateObject(oPerson)
@@ -646,7 +646,7 @@ class Person
 pr()
 
 	# Create reactive system
-	Rs = new stzReactive()
+	Rs = new stzReactiveSystem()
 
 	# Make bank account reactive
 

@@ -19,7 +19,7 @@ load "../stzbase.ring"
 
 pr()
 
-oRs = new stzReactive()
+oRs = new stzReactiveSystem()
 oRs {
 
     # A simple function that takes time to execute
@@ -65,7 +65,7 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
+oRs = new stzReactiveSystem()
 oRs {
 
     # Three different CPU-intensive functions
@@ -148,7 +148,7 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
+oRs = new stzReactiveSystem()
 oRs {
 
     # Function that might fail
@@ -214,7 +214,7 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
+oRs = new stzReactiveSystem()
 oRs {
 
     # Step 1: Fetch user data
@@ -298,7 +298,7 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
+oRs = new stzReactiveSystem()
 oRs {
     Init()
 
@@ -372,7 +372,7 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
+oRs = new stzReactiveSystem()
 oRs {
 
     # Simulate database query
@@ -481,7 +481,7 @@ pf()
 
 pr()
 
-oRs = new stzReactive()
+oRs = new stzReactiveSystem()
 oRs {
     Init()
 
