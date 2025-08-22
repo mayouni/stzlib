@@ -1,3 +1,4 @@
+
 #-----------------------------------------------------------#
 #  REACTIVE FUNCTION WRAPPER - Makes any function reactive  #
 #-----------------------------------------------------------#
@@ -12,7 +13,7 @@ class stzReactiveFuncWrapper
 		this.engine = engine
 		
 	def Call_(params)
-		task = new stzFunctionTask("func_call", originalFunc, params, engine)
+		task = new stzFunctionTask(FUNC_CALL_SYNC, originalFunc, params, engine)
 		engine.AddTask(task)
 		return task
 		
@@ -21,7 +22,7 @@ class stzReactiveFuncWrapper
 	# computations that should yield control to other operations
 
 	def CallAsync(params, onComplete, onError)
-		task = new stzFunctionTask("func_call_async", originalFunc, params, engine)
+		task = new stzFunctionTask(FUNC_CALL_ASYNC, originalFunc, params, engine)
 		task.Then_(onComplete)
 		task.Catch_(onError)
 		engine.AddTask(task)
@@ -34,14 +35,14 @@ class stzFunctionTask from stzReactiveTask
 	params = []
 	
 	def Init(id, f, params, engine)
-		super.Init(id, NULL, engine)
+		super.Init(id, NULL, engine, DEFAULT_ERROR_HANDLING)
 		this.@f = f
 		this.params = params
 		
 	def Execute()
 		try
-			status = "running"
-			if len(params) = 0
+			status = TASK_RUNNING
+			if len(params) = NO_PARAMS
 				result = call @f()
 			else
 				# Handle parameters - Ring requires individual params
@@ -52,25 +53,38 @@ class stzFunctionTask from stzReactiveTask
 					result = call @f(params[1], params[2])
 				case 3
 					result = call @f(params[1], params[2], params[3])
-				# Add more cases as needed
+				case 4
+					result = call @f(params[1], params[2], params[3], params[4])
+				case 5
+					result = call @f(params[1], params[2], params[3], params[4], params[5])
+				case 6
+					result = call @f(params[1], params[2], params[3], params[4], params[5], params[6])
+				case 7
+					result = call @f(params[1], params[2], params[3], params[4], params[5], params[6], params[7])
+				case 8
+					result = call @f(params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[8])
+				case 9
+					result = call @f(params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[8], params[9])
+				case 10
+					result = call @f(params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[8], params[9], params[10])
 				other
-					result = call @f() # Fallback
+					result = call @f() # Fallback for more than MAX_FUNCTION_PARAMS
 				end
 			ok
-			status = "completed"
+			status = TASK_COMPLETED
 			if onComplete != NULL
 				call onComplete(result)
 			ok
 
 		catch
-			status = "error"
+			status = TASK_ERROR
 			if onError != NULL
 				# Pass the actual error message instead of generic text
 				errorMsg = CatchError()
-				if isString(errorMsg) and errorMsg != ""
+				if isString(errorMsg) and errorMsg != EMPTY_ERROR_MSG
 					call onError(errorMsg)
 				else
-					call onError("Function execution failed")
+					call onError(DEFAULT_ERROR_MSG)
 				ok
 			ok
 		done

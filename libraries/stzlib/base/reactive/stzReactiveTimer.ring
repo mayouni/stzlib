@@ -1,6 +1,3 @@
-#----------------------------------------------#
-#  REACTIVE TIMER - For time-based operations  #
-#----------------------------------------------#
 
 # Thin wrapper around libuv timer system
 # ~> Delegates to Ring callbacks but leverages
@@ -9,7 +6,7 @@
 class stzReactiveTimer
 
 	timerId = ""
-	interval = 1000  # milliseconds
+	interval = ONE_SECOND  # milliseconds
 	callback = NULL
 	engine = NULL
 	timerHandle = NULL
@@ -26,7 +23,7 @@ class stzReactiveTimer
 		if not isActive
 			timerHandle = new_uv_timer_t()
 			uv_timer_init(engine.myLoop, timerHandle)
-			uv_timer_start(timerHandle, Method(:Tick), 0, interval)
+			uv_timer_start(timerHandle, Method(:Tick), TIMER_NO_DELAY, interval)
 			isActive = true
 		ok
 		
@@ -51,13 +48,10 @@ class stzReactiveTimer
 # Pure Ring timer using clock()
 # Direct object method access, handles timing logic in Ring's native paradigm
 
-# Pure Ring timer using clock()
-# Direct object method access, handles timing logic in Ring's native paradigm
-
 class stzRingTimer
 
 	timerId = ""
-	interval = 1000  # milliseconds
+	interval = ONE_SECOND    # milliseconds
 	callback = NULL
 	engine = NULL
 	obj = NULL
@@ -94,7 +88,7 @@ class stzRingTimer
 	    ok
 	    
 	    currentTime = clock()
-	    elapsed = (currentTime - lastTick) * 1000 / clocksPerSecond()
+	    elapsed = (currentTime - lastTick) * CLOCKS_TO_MS_MULTIPLIER / clocksPerSecond()
 
 	    if elapsed >= interval
 	        if callback != NULL
@@ -121,11 +115,21 @@ class stzTimerManager
 	timers = []
 	isRunning = false
 	shouldStop = false
+	checkFrequency = DEFAULT_TIMER_CHECK  # How often to check timers (ms)
+	emptyLoopPatience = DEFAULT_PATIENCE  # How long to wait when no timers
 
 	def Init()
 		timers = []
 		isRunning = false
 		shouldStop = false
+		checkFrequency = DEFAULT_TIMER_CHECK
+		emptyLoopPatience = DEFAULT_PATIENCE
+
+	def SetCheckFrequency(freq)
+		checkFrequency = freq
+
+	def SetPatience(patience)
+		emptyLoopPatience = patience
 
 	def AddTimer(timer)
 		timers + timer
@@ -174,13 +178,14 @@ class stzTimerManager
 	            ok
 	        next
 	        
-	        # Small delay to prevent CPU spinning
-	        sleep(0.01)
+	        # Use configurable check frequency instead of fixed delay
+	        sleepTime = checkFrequency / MS_PER_SECOND  # Convert to seconds
+	        sleep(sleepTime)
 	        
-	        # Don't exit immediately if no timers - wait for potential new ones
+	        # Don't exit immediately if no timers - wait based on patience level
 	        if len(timers) = 0
 	            emptyLoopCount++
-	            if emptyLoopCount > 50  # Wait about 0.5 seconds for new timers
+	            if emptyLoopCount > emptyLoopPatience
 	                isRunning = false
 	            ok
 	        else
@@ -194,6 +199,7 @@ class stzTimerManager
 	    end
 		
 	def Stop()
+		shouldStop = true
 		isRunning = false
 		for timer in timers
 			timer.Stop()

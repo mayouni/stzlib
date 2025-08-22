@@ -175,7 +175,7 @@ func fStopAllTimers()
 #----------------------------------------#
 
 /*--- Using timers to create reactive data streams
-
+*/
 # Timers can drive reactive streams, creating time-based data sources
 # Perfect for simulating sensRs, stock prices, or any real-time data
 

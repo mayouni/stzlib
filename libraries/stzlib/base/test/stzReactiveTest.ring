@@ -28,7 +28,7 @@ load "../stzbase.ring"
 
 # Initializing Softanza Reactive system
 # (connects to libuv event loop infrastructure)
-
+*/
 pr()
 
 oRs = new stzReactiveSystem()
@@ -525,7 +525,7 @@ pf()
 #========================================#
 
 /*--- Complete reactive application example #TODO check error
-*/
+
 # Demonstrates integration of all reactive components:
 # - Functions for data processing
 # - Streams for data flow
@@ -537,7 +537,6 @@ pr()
 
 oRs = new stzReactiveSystem()
 oRs {
-    Init()
 
     # Data processing functions
     fCalculateStats = func numbers {
@@ -559,7 +558,7 @@ oRs {
     RfCalculateStats = Reactivate(fCalculateStats)
 
     # Data collection stream
-    dataStream = CreateStream()
+    dataStream = CreateStream("mystream", "manual")
     collectedData = []
 
     dataStream.OnData(func data {
@@ -587,16 +586,16 @@ oRs {
 
     # Simulate real-time data source
     dataCounter = 0
-    SetInterval(func() {
+    SetInterval(500, func {
         dataCounter++
         randomValue = random(100) + 1  # Random number 1-100
         dataStream.Emit(randomValue)
         
         if dataCounter >= 15
-            dataStream.End()
+           dataStream.End_()
             ? "Data collection complete"
         ok
-    }, 500)
+    })
 
     # Fetch external configuration
     HttpGet("https://httpbin.org/json",
@@ -609,11 +608,12 @@ oRs {
     )
 
     # Cleanup timer
-    SetTimeout(func() {
+    SetTimeout(8000, func {
         ? "=== Reactive Application Demo Complete ==="
-    }, 8000)
+    })
 
-    Start()
+Start()
+
 }
 
 pf()

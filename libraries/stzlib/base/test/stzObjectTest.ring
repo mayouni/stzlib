@@ -4,18 +4,30 @@ load "../stzbase.ring"
 */
 pr()
 
+? Q(5).Inn([ 2, 3, 5, 7 ])
+#--> TRUE
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--------
+
+pr()
+
 o1 = new Person
 ? attributes(o1) # A Ring function
-#--> [ "age", "job" ]
+#--> [ "name", "age", "job" ]
 
 # Softanza functions
 
 ? HowManyAttributes(o1)
+#--> 3
 
 ? HasAttribute(o1, "age")
 #--> TRUE
 
 ? HasAttribute(o1, "nothing")
+#--> 0
 
 pf()
 
@@ -23,6 +35,8 @@ class Person
 	name
 	age
 	job
+
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--------------
 
