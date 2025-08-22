@@ -151,6 +151,7 @@
 
 # Loading files related to the REACTIVE module
 
+	load "reactive/stzReactiveGlobals.ring"
 	load "reactive/stzReactive.ring"
 	load "reactive/stzReactiveFunc.ring"
 	load "reactive/stzReactiveObject.ring"

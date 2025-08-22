@@ -14,13 +14,14 @@
 # 10. Wrapper support for existing objects
 
 
+
 # Unified Reactive Object System for Softanza Library
 # Single class that handles all reactive object functionality
 
 class stzReactiveObject from stzReactive
 
 	# Core reactive infrastructure
-	wrappedObject = NULL       # NULL = standalone, not NULL = wrapper mode
+	wrappedObject = OBJECT_STANDALONE       # OBJECT_STANDALONE = standalone, not OBJECT_STANDALONE = wrapper mode
 	engine = NULL
 
 	# Attribute watching system
@@ -30,8 +31,8 @@ class stzReactiveObject from stzReactive
 	aAsyncOperations = []      # Pending async Attribute operations
 	
 	# State management
-	bReactiveMode = True
-	bBatchMode = False
+	bReactiveMode = DEFAULT_REACTIVE_MODE
+	bBatchMode = DEFAULT_BATCH_MODE
 	aPendingChanges = []       # Changes accumulated during batch mode
 	
 	# Change tracking
@@ -41,12 +42,16 @@ class stzReactiveObject from stzReactive
 	aAttributesOfStandaloneObjects = []           # Internal Attribute storage: [name, value] pairs
 
 	def Init(existingObject, reactiveEngine)
-	    wrappedObject = existingObject
+	    if existingObject != NULL
+	        wrappedObject = existingObject
+	    else
+	        wrappedObject = OBJECT_STANDALONE
+	    ok
 	    engine = reactiveEngine
 
    
 	# Initialize attribute cache with wrapped object's current values
-	if wrappedObject != NULL
+	if wrappedObject != OBJECT_STANDALONE
 	    aObjectAttrs = AttributesXT(wrappedObject)
 	    nLen = len(aObjectAttrs)
 	
@@ -58,12 +63,12 @@ class stzReactiveObject from stzReactive
 
 	# Ring's object access hooks - integrate with reactive system
 	def BraceStart()
-		if bReactiveMode
+		if bReactiveMode = REACTIVE_ON
 			# Notify reactive system of object access start
 		ok
 
 	def BraceEnd()
-		if bReactiveMode
+		if bReactiveMode = REACTIVE_ON
 			ProcessPendingReactions()
 		ok
 
@@ -92,11 +97,11 @@ class stzReactiveObject from stzReactive
 		# Set the new value
 		SetAttributeValue(cAttribute, newValue)
 		
-		if This.bReactiveMode and cOldValue != newValue
+		if This.bReactiveMode = REACTIVE_ON and cOldValue != newValue
 			# Update Attribute cache
 			This.UpdateAttributeCache(cAttribute, newValue)
 			
-			if this.bBatchMode
+			if this.bBatchMode = BATCH_MODE_ON
 				# Accumulate change for batch processing
 				this.aPendingChanges + [cAttribute, cOldValue, newValue]
 			else
@@ -113,7 +118,7 @@ class stzReactiveObject from stzReactive
 		cAttribute = lower(cAttribute)
 		value = GetAttributeValue(cAttribute)
 		
-		if bReactiveMode
+		if bReactiveMode = REACTIVE_ON
 			# Notify reactive system of Attribute access
 		ok
 		
@@ -129,7 +134,7 @@ class stzReactiveObject from stzReactive
 	        return aCachedAttributeValues[nIndex][2]
 	    ok
 	    
-	    if wrappedObject != NULL
+	    if wrappedObject != OBJECT_STANDALONE
 	        # Wrapper mode: get from wrapped object
 	        if hasattribute(wrappedObject, cAttribute)
 	            return eval("wrappedObject." + cAttribute)
@@ -145,7 +150,7 @@ class stzReactiveObject from stzReactive
 	def SetAttributeValue(cAttribute, value)
 		cAttribute = lower(cAttribute)
 		
-		if wrappedObject != NULL
+		if wrappedObject != OBJECT_STANDALONE
 			# Wrapper mode: set on wrapped object
 			addattribute(wrappedObject, cAttribute)
 			eval("wrappedObject." + cAttribute + " = value")
@@ -188,16 +193,18 @@ class stzReactiveObject from stzReactive
 
 		aAttributeBindings + [cSourceAttribute, oTargetObject, cTargetAttribute]
 		
-		# Initial sync  
+		# Initial sync with immediate binding
 		sourceValue = GetAttributeValue(cSourceAttribute)
-		oTargetObject.SetAttributeValue(cTargetAttribute, sourceValue)
+		if DEFAULT_SYNC_MODE = BIND_AUTO_SYNC
+			oTargetObject.SetAttributeValue(cTargetAttribute, sourceValue)
+		ok
 
 	# Async Attribute update
 	def SetAsync(cAttribute, newValue, fnSuccess, fnError)
 		cAttribute = lower(cAttribute)
 		taskId = "attr_" + cAttribute + "_" + string(random(999999))
 		
-		# Ensure fnError has a value
+		# Ensure fnError has a value for error handling
 		fnErrorCallback = fnError
 		if fnErrorCallback = NULL
 			fnErrorCallback = func(error) { }
@@ -224,16 +231,16 @@ class stzReactiveObject from stzReactive
 
 	# Batch multiple Attribute updates
 	def Batch(fnUpdates)
-		bBatchMode = True
+		bBatchMode = BATCH_MODE_ON
 		aPendingChanges = []
 		
 		try
 			call fnUpdates()
 		catch
-			# Handle batch error
+			# Handle batch error with default error handling
 		done
 		
-		bBatchMode = False
+		bBatchMode = BATCH_MODE_OFF
 		
 		# Process all accumulated changes at once
 		ProcessBatchChanges()
@@ -251,6 +258,7 @@ class stzReactiveObject from stzReactive
 			aData + ["Attribute", attr]
 			aData + ["oldValue", oldVal] 
 			aData + ["newValue", newVal]
+			aData + ["changeType", CHANGE_TYPE_VALUE]
 			stream.Emit(aData)
 		})
 		
@@ -329,8 +337,10 @@ class stzReactiveObject from stzReactive
 	def ProcessAttributeChange(cAttribute, oldValue, newValue)
 		cAttribute = lower(cAttribute)
 
-		# Notify watchers
-		TriggerAttributeWatchers(cAttribute, oldValue, newValue)
+		# Notify watchers with immediate processing
+		if DEFAULT_WATCH_MODE = WATCH_IMMEDIATE
+			TriggerAttributeWatchers(cAttribute, oldValue, newValue)
+		ok
 		
 		# Update computed Attributes
 		UpdateDependentComputedAttributes(cAttribute)
@@ -368,7 +378,10 @@ class stzReactiveObject from stzReactive
 					f = aWatcher[2]
 					call f(cAttribute, oldValue, newValue)
 				catch
-					# Handle watcher error
+					# Handle watcher error based on error handling mode
+					if DEFAULT_ERROR_HANDLING = ERROR_LOG
+						# Log the error
+					ok
 				done
 			ok
 		next
@@ -395,9 +408,14 @@ class stzReactiveObject from stzReactive
 
 			if lower(cSourceAttr) = lower(cAttribute)
 				try
-					oTargetObj.SetAttributeValue(cTargetAttr, newValue)
+					if DEFAULT_BINDING_MODE = BIND_ONE_WAY
+						oTargetObj.SetAttributeValue(cTargetAttr, newValue)
+					ok
 				catch
-					# Handle binding error
+					# Handle binding error based on error handling mode
+					if DEFAULT_ERROR_HANDLING = ERROR_LOG
+						# Log binding error
+					ok
 				done
 			ok
 		next
@@ -422,12 +440,15 @@ class stzReactiveObject from stzReactive
 					TriggerAttributeWatchers(cAttribute, cOldValue, newValue)
 
 					# Process the Attribute change to trigger bindings
-					if bReactiveMode and newValue != cOldValue
+					if bReactiveMode = REACTIVE_ON and newValue != cOldValue
 						ProcessAttributeChange(cAttribute, cOldValue, newValue)
 					ok
 
 				catch
-					# Handle computation error
+					# Handle computation error based on error handling mode
+					if DEFAULT_ERROR_HANDLING = ERROR_LOG
+						# Log computation error
+					ok
 				done
 				exit
 			ok

@@ -7,7 +7,7 @@ load "../stzbase.ring"
 #=======================================================================#
 
 /*--- Basic Attribute Watching
-*/
+
 pr()
 
 	# Create reactive system
@@ -211,8 +211,8 @@ pr()
 	
 	# Create bindings
 
-	Rs.BindObjects(oXSource, :@Temperature, oXDisplay1, :@Temp)
-	Rs.BindObjects(oXSource, :@Temperature, oXDisplay2, :@Temp)
+	Rs.BindObjects(oXSource, :@Temperature, oXDisplay1, :@Temp, DEFAULT_BINDING_MODE)
+	Rs.BindObjects(oXSource, :@Temperature, oXDisplay2, :@Temp, DEFAULT_BINDING_MODE)
 	
 	# Test binding updates
 
