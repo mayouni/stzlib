@@ -76,13 +76,14 @@ class stzReactiveObject from stzReactive
 		cError = cCatchError
 		
 		# Handle errors in async operations
-		for aOperation in aAsyncOperations
-			if len(aOperation) >= 5 and aOperation[5] != NULL
+		nLenOp = len(aAsyncOperations)
+		for i = 1 to nLenOp
+			if len(aAsyncOperations[i]) >= 5 and aAsyncOperations[i][5] != NULL
 				try
-					f = aOperation[5]
+					f = aAsyncOperations[i][5]
 					call f(cError)
 				catch
-					# Error in error handler - just log it
+					# Error in error handler - just log it (#tODO)
 				done
 			ok
 		next
@@ -295,9 +296,11 @@ class stzReactiveObject from stzReactive
 		cAttribute = lower(cAttribute)
 
 		# Find in internal storage
-		for aAttr in aAttributesOfStandaloneObjects
-			if aAttr[1] = cAttribute
-				return aAttr[2]
+		nLenAttr = len(aAttributesOfStandaloneObjects)
+
+		for i = 1 to nLenAttr
+			if aAttributesOfStandaloneObjects[i][1] = cAttribute
+				return aAttributesOfStandaloneObjects[i][2]
 			ok
 		next
 		
@@ -307,7 +310,8 @@ class stzReactiveObject from stzReactive
 		cAttribute = lower(cAttribute)
 
 		# Find existing Attribute
-		for i = 1 to len(aAttributesOfStandaloneObjects)
+		nLenAttr = len(aAttributesOfStandaloneObjects)
+		for i = 1 to nLenAttr
 			if aAttributesOfStandaloneObjects[i][1] = cAttribute
 				aAttributesOfStandaloneObjects[i][2] = value
 				return
@@ -327,7 +331,8 @@ class stzReactiveObject from stzReactive
 
 	def FindAttributeInCache(cAttribute)
 	    cAttribute = lower(cAttribute)
-	    for i = 1 to len(aCachedAttributeValues)
+	    nLenCacheAttr = len(aCachedAttributeValues)
+	    for i = 1 to nLenCacheAttr
 	        if aCachedAttributeValues[i][1] = cAttribute
 	            return i
 	        ok
@@ -355,11 +360,12 @@ class stzReactiveObject from stzReactive
 
 	def ProcessBatchChanges()
 		aProcessedAttrs = []
-		
-		for aChange in aPendingChanges
-			cAttribute = aChange[1]
-			cOldValue = aChange[2] 
-			newValue = aChange[3]
+		nLenPend = len(aPendingChanges)
+
+		for i = 1 to nLenPen
+			cAttribute = aPendingChanges[i][1]
+			cOldValue = aPendingChanges[i][2] 
+			newValue = aPendingChanges[i][3]
 			
 			if find(aProcessedAttrs, cAttribute) = 0
 				aProcessedAttrs + cAttribute
@@ -371,11 +377,12 @@ class stzReactiveObject from stzReactive
 
 	def TriggerAttributeWatchers(cAttribute, oldValue, newValue)
 		cAttribute = lower(cAttribute)
+		nLenAttr = len(aAttributeWatchers)
 
-		for aWatcher in aAttributeWatchers
-			if aWatcher[1] = cAttribute
+		for i = 1 to nLenAttr
+			if aAttributeWatchers[i][1] = cAttribute
 				try
-					f = aWatcher[2]
+					f = aAttributeWatchers[i][2]
 					call f(cAttribute, oldValue, newValue)
 				catch
 					# Handle watcher error based on error handling mode
@@ -388,11 +395,12 @@ class stzReactiveObject from stzReactive
 
 	def UpdateDependentComputedAttributes(cChangedAttribute)
 		cChangedAttribute = lower(cChangedAttribute)
+		nLenAttr = len(aComputedAttributes)
 
-		for aComputed in aComputedAttributes
-			cAttribute = aComputed[1]
-			fnComputer = aComputed[2]
-			aDependencies = aComputed[3]
+		for i = 1 to nLenAttr
+			cAttribute = aComputedAttributes[i][1]
+			fnComputer = aComputedAttributes[i][2]
+			aDependencies = aComputedAttributes[i][3]
 			
 			if find(aDependencies, cChangedAttribute) > 0
 				ComputeAttribute(cAttribute)
@@ -401,10 +409,12 @@ class stzReactiveObject from stzReactive
 
 	def UpdateBoundAttributes(cAttribute, newValue)
 		cAttribute = lower(cAttribute)
-		for aBinding in aAttributeBindings
-			cSourceAttr = aBinding[1]
-			oTargetObj = aBinding[2]
-			cTargetAttr = aBinding[3]
+		nLenAttr = len(aAttributeBindings)
+
+		for i = 1 to nLenAttr
+			cSourceAttr = aAttributeBindings[i][1]
+			oTargetObj = aAttributeBindings[i][2]
+			cTargetAttr = aAttributeBindings[i][3]
 
 			if lower(cSourceAttr) = lower(cAttribute)
 				try
@@ -423,12 +433,12 @@ class stzReactiveObject from stzReactive
 	def ComputeAttribute(cAttribute)
 
 		cAttribute = lower(cAttribute)
+		nLenAttr = len(aComputedAttributes)
 
-		for aComputed in aComputedAttributes
+		for i = 1 to nLenAttr
+			if aComputedAttributes[i][1] = cAttribute
 
-			if aComputed[1] = cAttribute
-
-				fnComputer = aComputed[2]
+				fnComputer = aComputedAttributes[i][2]
 				try
 					cOldValue = GetAttributeValue(cAttribute)
 					newValue = call fnComputer()

@@ -49,7 +49,7 @@ class stzHttpTask from stzReactiveTask
 	data = HTTP_RESPONSE_NULL
 	
 	def Init(id, url, method, data, engine)
-		super.Init(id, HTTP_RESPONSE_NULL, engine)
+		super.Init(id, HTTP_RESPONSE_NULL, engine, DEFAULT_ERROR_HANDLING)
 		this.url = url
 		this.method = method
 		this.data = data

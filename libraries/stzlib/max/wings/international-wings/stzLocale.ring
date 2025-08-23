@@ -4,7 +4,7 @@
 #----------------------------------------------------------------#
 #                                                                #
 # 	Description	: The class for managing locales in Softanza     #
-#	Version		: V1.0 (2020-2025)                               #
+#	Version		: V0.9 (2020-2025)                               #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)          #
 #                                                                #
 #----------------------------------------------------------------#

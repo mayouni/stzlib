@@ -1,10 +1,10 @@
 #-------------------------------------------------------------------------#
-# 		   SOFTANZA LIBRARY (V1.0) - STZUNICODEDATA	          #
+# 		   SOFTANZA LIBRARY (V0.9) - STZUNICODEDATA	          #
 # 	An accelerative library for Ring applications, and more!	  #
 #-------------------------------------------------------------------------#
 #									  #
 # 	Description : The class for managing Unicode data in Softanza     #
-#	Version	    : V1.0 (2020-2024)				          #
+#	Version	    : V0.9 (2020-2024)				          #
 #	Author	    : Mansour Ayouni (kalidianow@gmail.com)		  #
 #								          #
 #-------------------------------------------------------------------------#

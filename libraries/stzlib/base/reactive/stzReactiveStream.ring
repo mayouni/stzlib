@@ -99,24 +99,33 @@ class stzReactiveStream
 		
 		# Apply transforms
 		processedData = [data]
-		for transform in transforms
-			transformType = transform[1]
+		nLenTrans = len(transforms)
+
+		for i = 1 to nLenTrans
+			transformType = transforms[i][1]
+
 			switch transformType
 			case TRANSFORM_MAP
-				mapFunc = transform[2]
+				mapFunc = transforms[i][2]
 				processedData = @Map(processedData, mapFunc)
+
 			case TRANSFORM_FILTER
-				filterFunc = transform[2]
+				filterFunc = transforms[i][2]
 				processedData = @Filter(processedData, filterFunc)
+
 			case TRANSFORM_DISTINCT
 				processedData = ApplyDistinct(processedData)
 			end
 		next
 		
 		# Emit to local subscribers
-		for subscriber in subscribers
-			for item in processedData
-				call subscriber(item)
+		nLenSub = len(subscribers)
+		nLenData = len(processedData)
+
+		for i = 1 to nLenSub
+			subscriber = subscribers[i]
+			for j = 1 to nLenData
+				call subscriber(processedData[j])
 			next
 		next
 
@@ -126,10 +135,12 @@ class stzReactiveStream
 		ok
 		
 		# Call error handlers
-		for errorHandler in errorHandlers
+		nLenErr = len(errorHandlers)
+		for i = 1 to nLenErr
+			errorHandler = errorHandlers[i]
 			call errorHandler(error)
 		next
-		
+
 		# Stop the stream on error
 		Stop()
 
@@ -143,13 +154,15 @@ class stzReactiveStream
 		# Apply final transformations to all buffered data if needed
 		processedData = dataBuffer
 		hasReduceTransform = STREAM_STATE_INACTIVE
-		
-		for transform in transforms
-			transformType = transform[1]
+		nLenTrans = len(transforms)
+
+		for i = 1 to nLenTrans
+			transformType = transforms[i][1]
+
 			switch transformType
 			case TRANSFORM_REDUCE
-				reduceFunc = transform[2]
-				initialValue = transform[3]
+				reduceFunc = transforms[i][2]
+				initialValue = transforms[i][3]
 				processedData = [@Reduce(processedData, reduceFunc, initialValue)]
 				hasReduceTransform = STREAM_STATE_ACTIVE
 			end
@@ -157,15 +170,23 @@ class stzReactiveStream
 		
 		# Only emit final reduced result if we had a reduce transform
 		if hasReduceTransform
-			for subscriber in subscribers
-				for item in processedData
-					call subscriber(item)
+			nLenSub = len(subscribers)
+			nLenData = len(processedData)
+
+			for i = 1 to nLenSub
+				subscriber = subscribers[i]
+
+				for j = 1 to nLenData
+					call subscriber(processedData[j])
 				next
 			next
 		ok
 		
 		# Call completion handlers
-		for completeHandler in completeHandlers
+		nLenHand = len(completeHandlers)
+
+		for i = 1 to nLenHand
+			completeHandler = completeHandlers[i]
 			call completeHandler()
 		next
 		
@@ -218,12 +239,15 @@ class stzReactiveStream
 	def ApplyDistinct(data)
 		seen = []
 		result = []
-		for item in data
-			if not (find(seen, item))
-				seen + item
-				result + item
+		nLenData = len(data)
+
+		for i = 1 to nLenData
+			if not (find(seen, data[i]))
+				seen + data[i]
+				result + data[i]
 			ok
 		next
+
 		return result
 		
 	# Configuration methods
