@@ -1,6 +1,6 @@
 #--------------------------------------------------------------#
-#            SOFTANZA LIBRARY (V1.0) - STZLIST                 #
-#	An accelerative library for Ring applications, and more!  #
+#            SOFTANZA LIBRARY (V0.9) - STZLIST                 #
+#   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : The class for managing lists in Softanza    #
@@ -11,7 +11,8 @@
 
 #TODO Centralize all updading features in update() method
 # ~> It's important to have a single entry for this allover
-# the codebase, although it leads to slightly higher perf tax.
+# the codebase, to enbale interesting features like tracing
+# objects history, although it leads to slightly higher perf tax.
 
 #NOTE ~> Same #TODO applies to stzString and stzNumber
 #UPDATE: Mostly done!
@@ -92463,8 +92464,47 @@ fdef
 			return _FALSE_
 		ok
 
+	def IsOnSuccessNamedParam()
 
-#WARNING: All the Is...NamedParam() functions will be moved
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :OnSuccess )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsOnCompleteNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :OnComplete )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsOnErrorNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :OnError )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+	def IsOnUpdateNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :OnUpdate )
+
+			return _TRUE_
+		else
+			return _FALSE_
+		ok
+
+#WARNING #TODO: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.
 
 #~> Once this migration is complete, stzList.ring will be

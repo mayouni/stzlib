@@ -28,7 +28,7 @@ load "../stzbase.ring"
 
 # Initializing Softanza Reactive system
 # (connects to libuv event loop infrastructure)
-*/
+
 pr()
 
 oRs = new stzReactiveSystem()
@@ -57,13 +57,13 @@ oRs {
     # Success and failer functions are also called "handlers".
 
     Rf1.CallAsync(
-        [5, 3],     # Add 5 + 3
+        [ 5, 3 ],     # Add 5 + 3
         func cResult { ? "Addition result: " + cResult },
         func cError { ? "Addition error: " + cError }
     )
 
     Rf2.CallAsync(
-        [7],        # Square of 7
+        [ 7 ],        # Square of 7
         func cResult { ? "Square result: " + cResult },
         func cError { ? "Square error: " + cError }
     )
@@ -79,7 +79,7 @@ oRs {
 
     # Start the reactive system to process all queued tasks
 
-    Start()
+    RunLoop()
     #-->
     # Addition result: 8
     # Square result: 49
@@ -90,10 +90,11 @@ oRs {
     # 2. As each function completed, its result was queued back to main program (thread)
     # 3. The event loop processed results and called the appropriate success/failure function
     # 4. Output appears in completion order (may vary between runs)
-}
+
+} # Ring ends and cleansup the libuv reactive loop automatically
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.92 second(s) in Ring 1.23
 
 /*--- Reactive functions with complex data processing
 
@@ -240,7 +241,7 @@ Rs {
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.91 second(s) in Ring 1.23
 
 #========================================#
 #  REACTIVE TIMERS - TIME-BASED EVENTS   #
@@ -359,7 +360,8 @@ Rs {
         },
         func cError {
             ? "GET Error: " + cError
-        }
+        },
+	DEFAULT_ERROR_HANDLING
     )
 
     # POST request with data
@@ -371,7 +373,8 @@ Rs {
         },
         func cError {
             ? "POST Error: " + cError
-        }
+        },
+	DEFAULT_ERROR_HANDLING
     )
 
     Start()
@@ -387,7 +390,7 @@ pf()
 
 # Combining HTTP requests with streams creates powerful data processing pipelines.
 # Results can be transformed and filtered before reaching the application.
-
+*/
 pr()
 
 Rs = new stzReactiveSystem()
@@ -423,7 +426,8 @@ for i = 1 to len(acUrls)
         },
         func cError { 
             ? "Request failed: " + cError 
-        }
+        },
+	DEFAULT_ERROR_HANDLING
     )
 next
 

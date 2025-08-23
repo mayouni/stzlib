@@ -1,10 +1,10 @@
 #---------------------------------------------------------------#
-# 		    SOFTANZA LIBRARY (V1.0) - StzListOfNumbers          #
+# 		    SOFTANZA LIBRARY (V0.9) - StzListOfNumbers          #
 #		An accelerative library for Ring applications           #
 #---------------------------------------------------------------#
 #                                                               #
 # 	Description	: The class for managing lists of numbers       #
-#	Version		: V1.0 (2020-2024)                              #
+#	Version		: V0.9 (2020-2024)                              #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)         #
 #                                                               #
 #---------------------------------------------------------------#

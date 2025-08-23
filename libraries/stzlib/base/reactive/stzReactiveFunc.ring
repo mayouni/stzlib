@@ -12,16 +12,17 @@ class stzReactiveFuncWrapper
 		originalFunc = f
 		this.engine = engine
 		
-	def Call_(params)
+	def Call_(params) #TODO //#WARNING May confuse user with the normal Ring call() function
 		task = new stzFunctionTask(FUNC_CALL_SYNC, originalFunc, params, engine)
 		engine.AddTask(task)
 		return task
 		
 	# CallAsync() for normal operations
-	# CallAsyncChunked() when they know they have heavy
+	#TODO // CallAsyncChunked() when they know they have heavy
 	# computations that should yield control to other operations
 
 	def CallAsync(params, onComplete, onError)
+
 		task = new stzFunctionTask(FUNC_CALL_ASYNC, originalFunc, params, engine)
 		task.Then_(onComplete)
 		task.Catch_(onError)

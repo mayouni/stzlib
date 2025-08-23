@@ -157,8 +157,9 @@ class stzTimerManager
 	        
 	        # Process timers safely by collecting completed ones first
 	        completedIndices = []
-	        
-	        for i = 1 to len(timers)
+	        nLenTimers = len(timers)
+
+	        for i = 1 to nLenTimers
 	            timer = timers[i]
 	            if timer.CheckAndTick()
 	                activeCount++

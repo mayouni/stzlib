@@ -1,5 +1,5 @@
 #--------------------------------------------------------------#
-#              SOFTANZA LIBRARY (V1.0) - STZSTRING             #
+#              SOFTANZA LIBRARY (V0.9) - STZSTRING             #
 # 	An accelerative library for Ring applications, and more!  #
 #--------------------------------------------------------------#
 #                                                              #

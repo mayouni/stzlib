@@ -36,34 +36,63 @@ class stzReactiveSystem
    		sleep(0.1)
 
    		# Execute any pending chunked tasks
-   		for task in tasks
-   			if task.status = TASK_PENDING
-   				task.Execute()
+		nLenTasks = len(tasks)
+		for i = 1 to nLenTasks
+   			if tasks[i].status = TASK_PENDING
+   				tasks[i].Execute()
    			ok
    		next
 
    		timerManager.RunLoop()
    		isRunning = ENGINE_STOPPED
    	ok
-   	
+
+	def Run()
+		This.Start()
+
+	def RunLoop()
+		This.Start()
+
+	def Execute()
+		This.Start()
+
+	def ExecuteLoop()
+   		This.Start()
+
    def Stop()
    	isRunning = ENGINE_STOPPED
    	timerManager.Stop()
 
    	# Clean up all tasks
-   	for task in tasks
-   		task.Cleanup()
+	nLenTasks = len(tasks)
+   	for i = 1 to nLenTasks
+   		tasks[i].Cleanup()
    	next
 
 	# Clean up streams
-   	for stream in streams  
-   		stream.Cleanup()
+	nLenStreams = len(streams)
+   	for i = 1 to nLenStreams 
+   		streams[i].Cleanup()
    	next
 
 	# Clean up file watchers
-	for watcher in fileWatchers
-	    watcher.Stop()
+	nLenWatchers = len(fileWatchers)
+	for i = 1 to nLenWatchers
+	    fileWatchers[i].Stop()
 	next
+
+	#< @FunctionAlternativeForms
+
+	def StopLoop()
+		This.Stop()
+
+	def StopExecution()
+		This.Stop()
+
+	def StopLoopExecution()
+		This.Stop()
+
+	#>
 
    def StopSafe()
    	# Schedule stop for next tick to avoid self-reference issues
@@ -71,6 +100,27 @@ class stzReactiveSystem
    		Stop()
    	})
    
+	#< @FunctionAlternativeForms
+
+	def SafeStopLoop()
+		This.SafeStop()
+
+	def SafeStopExecution()
+		This.SafeStop()
+
+	def SafeStopLoopExecution()
+		This.SafeStop()
+
+	#--
+
+	def StopNext()
+		This.StopSafe()
+
+	def StopNextLoop()
+		This.SafeStop()
+
+	#>
+
    # Primary factory methods
    def Reactivate(param)
    	if isNull(param) or isObject(param)
@@ -198,7 +248,8 @@ class stzReactiveSystem
    	stream = CreateStream(id, STREAM_MANUAL)
    	
    	# Emit each item with configurable delay
-   	for i = 1 to len(dataList)
+	nLenData = len(dataList)
+   	for i = 1 to nLenData
    		data = dataList[i]
    		SetTimeout(i * emitDelay, func() {
    			if stream.isActive = STREAM_ACTIVE
@@ -248,12 +299,13 @@ class stzReactiveSystem
    	mergedStream = CreateStream(mergedId, STREAM_MANUAL)
    	
    	# Subscribe to all input streams
-   	for stream in streamList
-   		stream.OnData(func(data) {
+	nLenStreams = len(streamList)
+	for i = 1 to nLenStreams
+   		streamList[i].OnData(func(data) {
    			mergedStream.Emit(data)
    		})
    		
-   		stream.OnError(func(error) {
+   		streamList[i].OnError(func(error) {
    			if errorHandling = ERROR_THROW
    				mergedStream.EmitError(error)
    			elseif errorHandling = ERROR_LOG
@@ -262,11 +314,12 @@ class stzReactiveSystem
    			ok
    		})
    		
-   		stream.OnComplete(func() {
+   		streamList[i].OnComplete(func() {
    			# Check if all streams are completed
    			allCompleted = STREAM_COMPLETED
-   			for s in streamList
-   				if s.isCompleted != STREAM_COMPLETED
+			nLenSt = len(streamList)
+			for j = 1 to nLenSt
+   				if streamList[j].isCompleted != STREAM_COMPLETED
    					allCompleted = STREAM_ACTIVE
    					exit
    				ok
@@ -294,20 +347,23 @@ class stzReactiveSystem
    	
    	# Store latest values from each stream
    	latestValues = []
-   	for i = 1 to len(streamList)
+	nLenStreamList = len(streamList)
+   	for i = 1 to nLenStreamList
    		latestValues + NULL
    	next
    	
    	# Subscribe to all streams
-   	for i = 1 to len(streamList)
+   	for i = 1 to nLenStreamList
    		stream = streamList[i]
    		stream.OnData(func(data) {
    			latestValues[i] = data
    			
    			# Check if we have values from all streams
    			allHaveValues = true
-   			for value in latestValues
-   				if value = NULL
+			nLenVal = len(latestValues)
+
+			for j = 1 to nLenVal
+   				if latestValues[j] = NULL
    					allHaveValues = false
    					exit
    				ok
@@ -432,13 +488,13 @@ class stzReactiveSystem
    	if errorHandling = NULL
    		errorHandling = DEFAULT_ERROR_HANDLING
    	ok
-   	return http.Get_(url, onSuccess, onError, errorHandling)
+   	return http.Get_(url, onSuccess, onError)
    	
    def HttpPost(url, data, onSuccess, onError, errorHandling)
    	if errorHandling = NULL
    		errorHandling = DEFAULT_ERROR_HANDLING
    	ok
-   	return http.Post(url, data, onSuccess, onError, errorHandling)
+   	return http.Post(url, data, onSuccess, onError)
    	
    # File system shortcuts with expressive file modes
    def ReadFile(path, onSuccess, onError, mode)
@@ -473,7 +529,8 @@ class stzReactiveSystem
        fileWatchers + watcher
 
    def RemoveFileWatcher(watcherId)
-       for i = 1 to len(fileWatchers)
+	nLenFileWatchers = len(fileWatchers)
+       for i = 1 to nLenFileWatchers
            if fileWatchers[i].watcherId = watcherId
                fileWatchers[i].Stop()
                del(fileWatchers, i)
@@ -496,7 +553,7 @@ class stzReactiveTask
    result = NULL
    engine = NULL
    errorHandling = DEFAULT_ERROR_HANDLING
-   
+
    def Init(id, f, engine, errorMode)
    	taskId = id
    	taskFunc = f

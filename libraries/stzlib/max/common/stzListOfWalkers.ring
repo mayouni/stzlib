@@ -1,5 +1,5 @@
 #---------------------------------------------------------------------------#
-# 		     SOFTANZA LIBRARY (V1.0) - STZLISTOFWALKERS  	    #
+# 		     SOFTANZA LIBRARY (V0.9) - STZLISTOFWALKERS  	    #
 # 	  An accelerative library for Ring applications, and more!	    #
 #---------------------------------------------------------------------------#
 #									    #
