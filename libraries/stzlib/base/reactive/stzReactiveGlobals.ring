@@ -2,6 +2,9 @@
 #  GLOBAL REACTIVE CONSTANTS - Expressive parameter values #
 #----------------------------------------------------------#
 
+DEFAULT_MODE = ""
+DEFAULT = ""
+
 #--------------------#
 #  TIMING CONSTANTS  #
 #--------------------#
@@ -64,6 +67,7 @@ HTTP_TASK_POST = "http_post"
 HTTP_TASK_PUT = "http_put"
 HTTP_TASK_DELETE = "http_delete"
 
+
 #-------------------#
 #  STREAM CONSTANTS #
 #-------------------#
@@ -75,6 +79,11 @@ STREAM_EVENT = "event"
 STREAM_TIMER = "timer"
 STREAM_HTTP = "http"
 STREAM_FILE = "file"
+STREAM_UDP = "udp"
+STREAM_TCP = "tcp"
+STREAM_SIGNAL = "signal"
+STREAM_WORKER = "worker"
+STREAM_DNS = "dns"
 STREAM_LIBUV = "libuv"
 STREAM_NETWORK = "network"
 STREAM_SENSOR = "sensor"
@@ -371,6 +380,52 @@ POLL_INTERVALS = [
     :SLOW = 1000,       # 1s - conservative
     :VERY_SLOW = 5000   # 5s - minimal resource usage
 ]
+
+
+#-----------------#
+#  UDP CONSTANTS  #
+#-----------------#
+
+UDP_REUSE_ADDR_ON = true
+UDP_REUSE_ADDR_OFF = false
+UDP_BROADCAST_ON = 1
+UDP_BROADCAST_OFF = 0
+UDP_MULTICAST_TTL_DEFAULT = 1
+UDP_MULTICAST_LOOP_ON = 1
+UDP_MULTICAST_LOOP_OFF = 0
+
+#-----------------#
+#  TCP CONSTANTS  #
+#-----------------#
+
+TCP_DEFAULT_BACKLOG = 128
+TCP_DEFAULT_TIMEOUT = 30000  # 30 seconds
+TCP_CONNECTED = :connected
+TCP_DATA = :data
+TCP_CLIENT_CONNECTED = :client_connected
+TCP_CLIENT_MODE = :client
+TCP_SERVER_MODE = :server
+
+#-----------------#
+#  SIGNAL VALUES  #
+#-----------------#
+
+SIGNAL_INT = 2   # SIGINT
+SIGNAL_TERM = 15 # SIGTERM
+SIGNAL_USR1 = 30 # SIGUSR1
+SIGNAL_USR2 = 31 # SIGUSR2
+SIGNAL_ONCE = :once
+SIGNAL_CONTINUOUS = :continuous
+
+# Worker Constants
+WORKER_DEFAULT_POOL_SIZE = 4
+
+# DNS Constants
+DNS_RESOLVE_A = "A"
+DNS_RESOLVE_AAAA = "AAAA"
+DNS_RESOLVE_PTR = "PTR"
+
+
 
 #--------------------#
 #  DEFAULT VALUES    #

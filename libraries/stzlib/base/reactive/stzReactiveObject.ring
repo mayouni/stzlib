@@ -362,7 +362,7 @@ class stzReactiveObject from stzReactive
 		aProcessedAttrs = []
 		nLenPend = len(aPendingChanges)
 
-		for i = 1 to nLenPen
+		for i = 1 to nLenPend
 			cAttribute = aPendingChanges[i][1]
 			cOldValue = aPendingChanges[i][2] 
 			newValue = aPendingChanges[i][3]

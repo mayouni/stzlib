@@ -158,5 +158,6 @@
 	load "reactive/stzReactiveTimer.ring"
 	load "reactive/stzReactiveStream.ring"
 	load "reactive/stzReactiveHttp.ring"
-	load "reactive/stzReactiveFile.ring"
+
+
 
