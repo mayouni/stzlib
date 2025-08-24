@@ -57,13 +57,13 @@ oRs {
     # Success and failer functions are also called "handlers".
 
     Rf1.CallAsync(
-        [ 5, 3 ],     # Add 5 + 3
+        [5, 3],     # Add 5 + 3
         func cResult { ? "Addition result: " + cResult },
         func cError { ? "Addition error: " + cError }
     )
 
     Rf2.CallAsync(
-        [ 7 ],        # Square of 7
+        [7],        # Square of 7
         func cResult { ? "Square result: " + cResult },
         func cError { ? "Square error: " + cError }
     )
@@ -79,7 +79,7 @@ oRs {
 
     # Start the reactive system to process all queued tasks
 
-    RunLoop()
+    Start()
     #-->
     # Addition result: 8
     # Square result: 49
@@ -90,11 +90,10 @@ oRs {
     # 2. As each function completed, its result was queued back to main program (thread)
     # 3. The event loop processed results and called the appropriate success/failure function
     # 4. Output appears in completion order (may vary between runs)
-
-} # Ring ends and cleansup the libuv reactive loop automatically
+}
 
 pf()
-# Executed in 0.92 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- Reactive functions with complex data processing
 
@@ -241,7 +240,7 @@ Rs {
 }
 
 pf()
-# Executed in 0.91 second(s) in Ring 1.23
+# Executed in almost 0 second(s) in Ring 1.23
 
 #========================================#
 #  REACTIVE TIMERS - TIME-BASED EVENTS   #
@@ -360,8 +359,7 @@ Rs {
         },
         func cError {
             ? "GET Error: " + cError
-        },
-	DEFAULT_ERROR_HANDLING
+        }
     )
 
     # POST request with data
@@ -373,8 +371,7 @@ Rs {
         },
         func cError {
             ? "POST Error: " + cError
-        },
-	DEFAULT_ERROR_HANDLING
+        }
     )
 
     Start()
@@ -387,10 +384,10 @@ pf()
 # Executed in almost 1.69 second(s) in Ring 1.23
 
 /*--- HTTP request pipeline with stream processing
-
+*/
 # Combining HTTP requests with streams creates powerful data processing pipelines.
 # Results can be transformed and filtered before reaching the application.
-*/
+
 pr()
 
 Rs = new stzReactiveSystem()
@@ -426,8 +423,7 @@ for i = 1 to len(acUrls)
         },
         func cError { 
             ? "Request failed: " + cError 
-        },
-	DEFAULT_ERROR_HANDLING
+        }
     )
 next
 
@@ -452,223 +448,3 @@ Rs.Start()
 
 pf()
 # Executed in 4.77 second(s) in Ring 1.23
-
-#========================================#
-#  FILE OPERATIONS - ASYNC I/O           #
-#========================================#
-
-/*--- Basic file operations #TODO Check error
-
-# Reactive file operations prevent I/O blocking in applications.
-# They handle large files efficiently with progress callbacks.
-# Support for reading, writing, and monitoring file changes.
-
-pr()
-
-oRs = new stzReactiveSystem()
-oRs.Init()
-oRs {
-    WriteFile("reactive.txt", "Hello Reactive World!",
-        "WriteSuccess",    # Function name instead of anonymous function
-        "WriteError"       # Function name instead of anonymous function
-    )
-    Start()
-}
-
-func WriteSuccess
-    ? "File written successfully"
-    oRs.ReadFile("reactive.txt", "ReadSuccess", "ReadError")
-
-func WriteError error
-    ? "Write error: " + error
-
-func ReadSuccess content  
-    ? "File content: " + content
-
-func ReadError error
-    ? "Read error: " + error
-
-pf()
-
-/*--- File streaming for large files
-
-# File streams handle large files without loading everything into memory.
-# Ideal for processing logs, data files, or media content.
-
-pr()
-
-oRs = new stzReactiveSystem()
-oRs {
-
-    # Create file read stream
-    fs = CreateFileReadStream("large_data.txt")
-
-    lineCount = 0
-    fs.OnData(func chunk {
-            # Process file chunks
-            lines = split(chunk, nl)
-            lineCount += len(lines)
-            ? "Processed " + len(lines) + " lines, total: " + lineCount
-        })
-
-    fs.OnEnd(func() {
-            ? "File processing complete. Total lines: " + lineCount
-        })
-
-    fs.OnError(func error {
-            ? "File stream error: " + error
-        })
-
-    Start()
-}
-
-pf()
-
-#========================================#
-#  INTEGRATED REACTIVE SYSTEM            #
-#========================================#
-
-/*--- Complete reactive application example #TODO check error
-
-# Demonstrates integration of all reactive components:
-# - Functions for data processing
-# - Streams for data flow
-# - Timers for scheduling
-# - HTTP for external data
-# - File I/O for persistence
-
-pr()
-
-oRs = new stzReactiveSystem()
-oRs {
-
-    # Data processing functions
-    fCalculateStats = func numbers {
-        if len(numbers) = 0 return [0, 0, 0] ok
-        sum = 0
-        min_val = numbers[1]
-        max_val = numbers[1]
-        
-        for i = 1 to len(numbers)
-            sum += numbers[i]
-            if numbers[i] < min_val min_val = numbers[i] ok
-            if numbers[i] > max_val max_val = numbers[i] ok
-        next
-        
-        avg = sum / len(numbers)
-        return [avg, min_val, max_val]
-    }
-
-    RfCalculateStats = Reactivate(fCalculateStats)
-
-    # Data collection stream
-    dataStream = CreateStream("mystream", "manual")
-    collectedData = []
-
-    dataStream.OnData(func data {
-        add(collectedData, data)
-        ? "Collected data point: " + data + " (total: " + len(collectedData) + ")"
-        
-        # Process data every 5 points
-        if len(collectedData) % 5 = 0
-            RfCalculateStats.CallAsync(
-                [collectedData],
-                func stats {
-                    ? "Statistics - Avg: " + stats[1] + ", Min: " + stats[2] + ", Max: " + stats[3]
-                    
-                    # Save results to file
-                    report = "Stats Report: Avg=" + stats[1] + ", Min=" + stats[2] + ", Max=" + stats[3] + nl
-                    AppendFile("stats_report.txt", report,
-                        func() { ? "Report saved" },
-                        func error { ? "Save error: " + error }
-                    )
-                },
-                func error { ? "Stats calculation error: " + error }
-            )
-        ok
-    })
-
-    # Simulate real-time data source
-    dataCounter = 0
-    SetInterval(500, func {
-        dataCounter++
-        randomValue = random(100) + 1  # Random number 1-100
-        dataStream.Emit(randomValue)
-        
-        if dataCounter >= 15
-           dataStream.End_()
-            ? "Data collection complete"
-        ok
-    })
-
-    # Fetch external configuration
-    HttpGet("https://httpbin.org/json",
-        func response {
-            ? "External config loaded successfully"
-        },
-        func error {
-            ? "Using default configuration due to: " + error
-        }
-    )
-
-    # Cleanup timer
-    SetTimeout(8000, func {
-        ? "=== Reactive Application Demo Complete ==="
-    })
-
-Start()
-
-}
-
-pf()
-
-/*--- Error handling and system monitoring #TODO check error
-
-# Comprehensive error handling ensures robust reactive applications.
-# System monitoring provides insights into performance and resource usage.
-
-pr()
-
-oRs = new stzReactiveSystem()
-oRs {
-    Init()
-
-    # Global error handler
-    OnError(func error {
-        ? "Global error caught: " + error
-        WriteFile("error.log", clock() + ": " + error + nl,
-            func() { ? "Error logged" },
-            func err { ? "Failed to log error: " + err }
-        )
-    })
-
-    # System monitoring
-    SetInterval(func() {
-        ? "System status: " + GetSystemStatus()
-    }, 2000)
-
-    # Intentionally problematic operations for testing
-    fProblematic = func x {
-        if x = 0 
-            raise("Division by zero!")
-        else
-            return 100 / x
-        ok
-    }
-
-    RfProblematic = Reactivate(fProblematic)
-
-    # Test error handling
-    testValues = [10, 5, 0, 2]
-    for i = 1 to len(testValues)
-        RfProblematic.CallAsync(
-            [testValues[i]],
-            func result { ? "Result for " + testValues[i] + ": " + result },
-            func error { ? "Expected error for " + testValues[i] + ": " + error }
-        )
-    next
-
-    Start()
-}
-
-pf()

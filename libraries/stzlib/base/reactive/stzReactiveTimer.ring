@@ -117,6 +117,7 @@ class stzTimerManager
 	shouldStop = false
 	checkFrequency = DEFAULT_TIMER_CHECK  # How often to check timers (ms)
 	emptyLoopPatience = DEFAULT_PATIENCE  # How long to wait when no timers
+	@loop
 
 	def Init()
 		timers = []
