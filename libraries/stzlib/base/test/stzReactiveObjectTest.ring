@@ -47,7 +47,7 @@ pr()
 	})
 	
 	Rs.Start()
-	? NL + "✅ Sample completed."
+	? NL + "✔ Sample completed."
 
 #-->
 # Setting name to 'John'...
@@ -59,7 +59,7 @@ pr()
 # Changing name to 'John Doe'...
 # Name changed from ("John") to ("John Doe")
 
-# ✅ Sample completed.
+# ✔ Sample completed.
 
 pf()
 # Executed in 1.98 second(s) in Ring 1.23
@@ -150,7 +150,7 @@ pr()
 		})
 	
 	Rs.Start()
-	? NL + "✅ Sample completed."
+	? NL + "✔ Sample completed."
 
 #-->
 # Setting firstName to 'Jane'...
@@ -165,7 +165,7 @@ pr()
 #
 # Adult status: 1
 
-# ✅ Sample completed.
+# ✔ Sample completed.
 
 pf()
 # Executed in 2.52 second(s) in Ring 1.23
@@ -232,7 +232,7 @@ pr()
 	})
 	
 	Rs.Start()
-	? NL + "✅ Sample completed."
+	? NL + "✔ Sample completed."
 
 #--> Should return
 # Setting source temperature to 25°C...
@@ -308,7 +308,7 @@ pr()
 	})
 	
 	Rs.Start()
-	? NL + "✅ Sample completed."
+	? NL + "✔ Sample completed."
 
 #-->
 # Individual updates (watch each change):
@@ -323,7 +323,7 @@ pr()
 #   Category updated: Gaming
 #   Stock status: 0
 
-# ✅ Sample completed.
+# ✔ Sample completed.
 
 pf()
 # Executed in 2.32 second(s) in Ring 1.23
@@ -388,7 +388,7 @@ pr()
 	})
 	
 	Rs.Start()
-	? NL + "✅ Sample completed."
+	? NL + "✔ Sample completed."
 
 pf()
 
@@ -414,7 +414,7 @@ func NextReading()
 # Setting sensor value to: 45
 # Setting sensor value to: 95
 
-# ✅ Sample completed.
+# ✔ Sample completed.
 
 # Executed in 3.42 second(s) in Ring 1.23
 
@@ -450,7 +450,7 @@ pr()
 	})
 	
 	Rs.Start()
-	? NL + "✅ Sample completed."
+	? NL + "✔ Sample completed."
 
 pf()
 
@@ -491,7 +491,7 @@ func TypeNext()
 # ⌨️ Typing: 'hello world'
 # 🔍 Search query changed: 'hello world'
 
-# ✅ Sample completed.
+# ✔ Sample completed.
 
 # Executed in 5.25 second(s) in Ring 1.23
 
@@ -535,7 +535,7 @@ oXPerson {
 }
 
 Rs.Start()
-? NL + "✅ Attribute changes completed."
+? NL + "✔ Attribute changes completed."
 
 pf()
 
@@ -555,7 +555,7 @@ class Person
 # ✓ Age chnaged: 25 → 30
 # ✓ Email set: karim@example.com
 # 
-# ✅ Attribute changes completed.
+# ✔ Attribute changes completed.
 
 # Executed in 0.96 second(s) in Ring 1.23
 
@@ -614,7 +614,7 @@ pr()
 	})
 
 	Rs.Start()
-	? NL + "✅ Sample completed."
+	? NL + "✔ Sample completed."
 
 pf()
 
@@ -637,7 +637,7 @@ class Person
 #   Age: 26
 #   Email: john@test.com
 
-# ✅ Sample completed.
+# ✔ Sample completed.
 
 # Executed in 1.48 second(s) in Ring 1.23
 
@@ -657,11 +657,11 @@ pr()
 		? "💰 Balance: $" + oldval + " → $" + newval
 		
 		if newval < 100
-			? "⚠️  Low balance warning!"
+			? "(!)  Low balance warning!"
 		ok
 		
 		if newval > oldval
-			? "✅ Deposit detected: +" + (newval - oldval)
+			? "✔ Deposit detected: +" + (newval - oldval)
 		else
 			? "📉 Withdrawal: -" + (oldval - newval)
 		ok
@@ -691,7 +691,7 @@ pr()
 	})
 
 	Rs.Start()
-	? NL + "✅ Sample completed."
+	? NL + "✔ Sample completed."
 
 pf()
 
@@ -707,16 +707,16 @@ class BankAccount
 #-->
 # Processing deposit...
 # 💰 Balance: $1000 → $1500
-# ✅ Deposit detected: +500
+# ✔ Deposit detected: +500
 #
 # Processing withdrawal...
 # 💰 Balance: $1500 → $50
-# ⚠️  Low balance warning!
+# (!)  Low balance warning!
 # 📉 Withdrawal: -1450
 #
 # Freezing account...
 # 🔄 Account status: active → frozen
 
-# ✅ Sample completed.
+# ✔ Sample completed.
 
 # Executed in 1.99 second(s) in Ring 1.23

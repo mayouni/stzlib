@@ -27,7 +27,7 @@ Rs {
         'https://jsonplaceholder.typicode.com/posts/1',
 
         func response {
-            ? "✅ SUCCESS! Received response:" + NL
+            ? "✔ SUCCESS! Received response:" + NL
             ? response
             Rs.Stop()  # Stop the engine after success
         },
@@ -43,7 +43,7 @@ Rs {
 
 #-->
 # Making HTTP GET request to API...
-# ✅ SUCCESS! Received response:
+# ✔ SUCCESS! Received response:
 #
 # {
 #   "userId": 1,
@@ -80,7 +80,7 @@ Rs {
     HttpPost("https://jsonplaceholder.typicode.com/posts", 
         cPostData,
         func cResponse {
-            ? "✅ POST SUCCESS! Server response:"
+            ? "✔ POST SUCCESS! Server response:"
             ? "Created resource: " + cResponse
             Rs.Stop()
         },
@@ -100,7 +100,7 @@ Rs {
 #    "userId": 1
 # }
 
-# ✅ POST SUCCESS! Server response:
+# ✔ POST SUCCESS! Server response:
 # Created resource: {
 #  "{\n    \"title\": \"My New Post\",\n    \"body\": \"This is the content of my post\", \n    \"userId\": 1\n}": "",
 #  "id": 101
@@ -139,7 +139,7 @@ Rs {
    
    # Complete handler - called when stream ends
    httpStream.OnComplete(func() {
-       ? NL + "✅ All HTTP requests completed!"
+       ? NL + "✔ All HTTP requests completed!"
        Rs.Stop()
    })
    
@@ -198,7 +198,7 @@ func fFetchNextUrl()
 #🔄 Fetching URL #3: https://jsonplaceholder.typicode.com/posts/3
 # ╰─> Received from stream: Post #3 - ...
 #
-#✅ All HTTP requests completed!
+#✔ All HTTP requests completed!
 
 # Executed in 1.30 second(s) in Ring 1.23
 
@@ -387,7 +387,7 @@ class DataAggregator
                 :fetchTime = clock()
             ]
             
-            ? "✅ " + cSourceName + " loaded: ~" + nItemCount + " items (" + nDataSize + " bytes)" + NL
+            ? "✔ " + cSourceName + " loaded: ~" + nItemCount + " items (" + nDataSize + " bytes)" + NL
         else
             aResult = [
                 :source = cSourceName, 
@@ -396,7 +396,7 @@ class DataAggregator
                 :dataSize = 0,
                 :fetchTime = clock()
             ]
-            ? "⚠️  " +cSourceName + " failed to load"
+            ? "(!)  " +cSourceName + " failed to load"
         ok
 
 
@@ -441,13 +441,13 @@ class DataAggregator
 # Fetching data from 3 different sources...
 
 # ─> Fetching Users from https://jsonplaceholder.typicode.com/users...
-# ✅ API loaded: ~56 items (5645 bytes)
+# ✔ API loaded: ~56 items (5645 bytes)
 
 # ─> Fetching Posts from https://jsonplaceholder.typicode.com/posts...
-# ✅ API loaded: ~275 items (27520 bytes)
+# ✔ API loaded: ~275 items (27520 bytes)
 
 # ─> Fetching Comments from https://jsonplaceholder.typicode.com/comments...
-# ✅ API loaded: ~1577 items (157745 bytes)
+# ✔ API loaded: ~1577 items (157745 bytes)
 
 # 🎉 Data aggregation completed!
 # ═══════════════════════════════

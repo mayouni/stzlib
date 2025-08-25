@@ -280,7 +280,7 @@ func UpdateProgress()
 func CompleteDownload()
     ds.oReactive.ClearInterval(ds.cProgressId)
 
-    ? NL + "✅ Download completed successfully!"
+    ? NL + "✔ Download completed successfully!"
     ? "File " + ds.cFileName + " is ready to use."
 
     ds.oReactive.Stop()
@@ -319,7 +319,7 @@ class DownloadSimulator
 # Progress: [████████░░] 80%
 # Progress: [██████████] 100%
 
-# ✅ Download completed successfully!
+# ✔ Download completed successfully!
 # File large-file.zip is ready to use.
 
 # Executed in 5.02 second(s) in Ring 1.23
