@@ -78,13 +78,11 @@ pf()
 
 # The callback function - defined separately so variables are accessible
 func fCallback()
-    ? "DEBUG: In callback, counter=" + nCounter
     nCounter++
     ? "🔔 Tick #" + nCounter + " at time " + clock()
     
     # Stop after 3 ticks
     if nCounter >= 3
-        ? "DEBUG: About to stop..."
         ? "Stopping timer after 3 ticks..."
         Rs.ClearInterval(cIntervalID)
         Rs.Stop()

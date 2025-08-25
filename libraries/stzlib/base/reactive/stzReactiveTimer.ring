@@ -11,18 +11,31 @@ class stzReactiveTimer
 	engine = NULL
 	timerHandle = NULL
 	isActive = false
-	
-	def Init(id, intervalMs, f, engine)
+	isOneTime = false
+
+	def Init(id, intervalMs, f, engine, oneTime)
 		timerId = id
 		interval = intervalMs
 		callback = f
 		this.engine = engine
-		isActive = false
-		
+
+		if isOneTime = NULL
+			isOneTime = false
+		ok
+
+	#NOTE // Internal mechanism regarding isOneTime attribute
+
+	# The timer manager checks isOneTime and automatically
+	# removes completed one-time timers from the active list,
+	# while repeating timers continue running.
+
+	# So it's both - users control it via the CreateTimer() method parameter,
+	# and the system handles cleanup automatically.
+
 	def Start()
 		if not isActive
 			timerHandle = new_uv_timer_t()
-			uv_timer_init(engine.myLoop, timerHandle)
+			uv_timer_init(engine.LibUVLoop(), timerHandle)
 			uv_timer_start(timerHandle, Method(:Tick), TIMER_NO_DELAY, interval)
 			isActive = true
 		ok
@@ -37,7 +50,12 @@ class stzReactiveTimer
 		if callback != NULL
 			call callback()
 		ok
-		
+
+	def CheckAndTick()
+	    # For libuv timers, they handle their own timing
+	    # Just return if still active
+	    return isActive
+
 	def Cleanup()
 		Stop()
 		if timerHandle != NULL
@@ -117,7 +135,6 @@ class stzTimerManager
 	shouldStop = false
 	checkFrequency = DEFAULT_TIMER_CHECK  # How often to check timers (ms)
 	emptyLoopPatience = DEFAULT_PATIENCE  # How long to wait when no timers
-	@loop
 
 	def Init()
 		timers = []
@@ -155,7 +172,7 @@ class stzTimerManager
 	    
 	    while isRunning and not shouldStop
 	        activeCount = 0
-	        
+
 	        # Process timers safely by collecting completed ones first
 	        completedIndices = []
 	        nLenTimers = len(timers)

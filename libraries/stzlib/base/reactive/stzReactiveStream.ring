@@ -1,10 +1,8 @@
-
-
 class stzReactiveStream
 
 	streamId = ""
 	sourceType = STREAM_SOURCE_MANUAL
-	dataBuffer = []
+
 	subscribers = []
 	errorHandlers = []
 	completeHandlers = []
@@ -15,9 +13,9 @@ class stzReactiveStream
 	# Transformation functions to apply
 	transforms = []
 	
-	# Buffer configuration
-	maxBufferSize = BUFFER_STRATEGY_UNLIMITED
-	bufferStrategy = BUFFER_STRATEGY_DROP_OLDEST
+	# Accumulator for reduce operations
+	accumulator = NULL
+	hasReduceTransform = STREAM_STATE_INACTIVE
 
 	# LibUV handle (only for libuv-backed streams)
 	uvHandle = NULL
@@ -36,13 +34,6 @@ class stzReactiveStream
 		
 		this.sourceType = sourceType
 		this.engine = engine
-		dataBuffer = []
-		subscribers = []
-		errorHandlers = []
-		completeHandlers = []
-		transforms = []
-		isActive = STREAM_STATE_ACTIVE
-		isCompleted = STREAM_STATE_RUNNING
 
 	# Store map transformation with expressive constant
 	def Map(mapFunction)
@@ -57,21 +48,8 @@ class stzReactiveStream
 	# Store reduce transformation with expressive constant
 	def Reduce(reduceFunction, initialValue)
 		transforms + [TRANSFORM_REDUCE, reduceFunction, initialValue]
-		return self
-		
-	# Store debounce transformation
-	def Debounce(delayMs)
-		transforms + [TRANSFORM_DEBOUNCE, delayMs]
-		return self
-		
-	# Store throttle transformation  
-	def Throttle(intervalMs)
-		transforms + [TRANSFORM_THROTTLE, intervalMs]
-		return self
-		
-	# Store distinct transformation
-	def Distinct()
-		transforms + [TRANSFORM_DISTINCT]
+		hasReduceTransform = STREAM_STATE_ACTIVE
+		accumulator = initialValue
 		return self
 		
 	def Subscribe(subscriber)
@@ -94,9 +72,6 @@ class stzReactiveStream
 			return
 		ok
 		
-		# Apply buffer strategy if needed
-		ManageBuffer(data)
-		
 		# Apply transforms
 		processedData = [data]
 		nLenTrans = len(transforms)
@@ -113,21 +88,42 @@ class stzReactiveStream
 				filterFunc = transforms[i][2]
 				processedData = @Filter(processedData, filterFunc)
 
-			case TRANSFORM_DISTINCT
-				processedData = ApplyDistinct(processedData)
+			case TRANSFORM_REDUCE
+				# Handle reduce differently - accumulate but don't emit yet
+				reduceFunc = transforms[i][2]
+				nLenData = len(processedData)
+				for j = 1 to nLenData
+					accumulator = call reduceFunc(accumulator, processedData[j])
+				next
+				# Skip emission for reduce - it will emit on Complete()
+				return
 			end
 		next
 		
-		# Emit to local subscribers
-		nLenSub = len(subscribers)
-		nLenData = len(processedData)
+		# Only emit if we didn't encounter a reduce transform
+		if not hasReduceTransform
+			# Emit to local subscribers
+			nLenSub = len(subscribers)
+			nLenData = len(processedData)
 
-		for i = 1 to nLenSub
-			subscriber = subscribers[i]
-			for j = 1 to nLenData
-				call subscriber(processedData[j])
+			for i = 1 to nLenSub
+				subscriber = subscribers[i]
+				for j = 1 to nLenData
+					call subscriber(processedData[j])
+				next
 			next
+		ok
+
+	def EmitMany(paData)
+		if not isList(paData)
+			raise("Incorrect param type! paData must be a list.")
+		ok
+
+		nLen = len(paData)
+		for i = 1 to nLen
+			This.Emit(paData[i])
 		next
+
 
 	def EmitError(error)
 		if not isActive or isCompleted
@@ -151,34 +147,12 @@ class stzReactiveStream
 		
 		isCompleted = STREAM_STATE_COMPLETED
 		
-		# Apply final transformations to all buffered data if needed
-		processedData = dataBuffer
-		hasReduceTransform = STREAM_STATE_INACTIVE
-		nLenTrans = len(transforms)
-
-		for i = 1 to nLenTrans
-			transformType = transforms[i][1]
-
-			switch transformType
-			case TRANSFORM_REDUCE
-				reduceFunc = transforms[i][2]
-				initialValue = transforms[i][3]
-				processedData = [@Reduce(processedData, reduceFunc, initialValue)]
-				hasReduceTransform = STREAM_STATE_ACTIVE
-			end
-		next
-		
-		# Only emit final reduced result if we had a reduce transform
+		# If we have a reduce transform, emit the final accumulated result
 		if hasReduceTransform
 			nLenSub = len(subscribers)
-			nLenData = len(processedData)
-
 			for i = 1 to nLenSub
 				subscriber = subscribers[i]
-
-				for j = 1 to nLenData
-					call subscriber(processedData[j])
-				next
+				call subscriber(accumulator)
 			next
 		ok
 		
@@ -213,54 +187,3 @@ class stzReactiveStream
 			# Clean up LibUV resources
 			uvHandle = NULL
 		ok
-		
-	# Helper method to manage buffer based on strategy
-	def ManageBuffer(data)
-		if maxBufferSize = BUFFER_STRATEGY_UNLIMITED
-			dataBuffer + data
-			return
-		ok
-		
-		if len(dataBuffer) >= maxBufferSize
-			switch bufferStrategy
-			case BUFFER_STRATEGY_DROP_OLDEST
-				del(dataBuffer, 1)
-				dataBuffer + data
-			case BUFFER_STRATEGY_DROP_NEWEST
-				# Don't add new data
-			case BUFFER_STRATEGY_BLOCK
-				# Could implement blocking behavior here
-			end
-		else
-			dataBuffer + data
-		ok
-		
-	# Helper method for distinct transformation
-	def ApplyDistinct(data)
-		seen = []
-		result = []
-		nLenData = len(data)
-
-		for i = 1 to nLenData
-			if not (find(seen, data[i]))
-				seen + data[i]
-				result + data[i]
-			ok
-		next
-
-		return result
-		
-	# Configuration methods
-	def SetBufferSize(size)
-		maxBufferSize = size
-		return self
-		
-	def SetBufferStrategy(strategy)
-		if find([
-			BUFFER_STRATEGY_DROP_OLDEST,
-			BUFFER_STRATEGY_DROP_NEWEST,
-			BUFFER_STRATEGY_BLOCK ], strategy)
-
-			bufferStrategy = strategy
-		ok
-		return self
