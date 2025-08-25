@@ -1,10 +1,6 @@
 
 load "../stzbase.ring"
 
-#-------------------------#
-#  BASIC STREAM EXAMPLES  #
-#-------------------------#
-
 /*--- Basic Stream Operations
 
 # Demonstrates fundamental stream creation, subscription, and lifecycle
@@ -63,7 +59,7 @@ pf()
 # Executed in 0.93 second(s) in Ring 1.23
 
 /*--- Stream Transformations - Map, Filter
-
+*/
 # Shows data transformation capabilities with chaining
 # Key concepts: Map (transform), Filter (predicate)
 
@@ -279,10 +275,6 @@ Rs {
 pf()
 # Executed in 0.94 second(s) in Ring 1.23
 
-#-----------------------------------#
-#  REAL-WORLD INTEGRATION EXAMPLES  #
-#-----------------------------------#
-
 /*--- Chat Message Processing
 
 # Realistic example: Processing chat messages with filtering and formatting
@@ -442,3 +434,468 @@ Rs {
 
 pf()
 # Executed in 0.93 second(s) in Ring 1.23
+
+*--- Timer-Based Streams
+
+# Periodic data generation for monitoring, logging, scheduled tasks
+# Essential for: Heartbeats, polling, periodic updates
+
+pr()
+
+Rs = new stzReactiveSystem()
+Rs {
+    # System monitoring with timer-based stream
+    oTimerStream = CreateStream("system-monitor", STREAM_SOURCE_TIMER)
+    oTimerStream {
+
+        Map(func tick {
+            # Simulate system metrics collection
+            return [
+                :timestamp = clocksPerSecond(),
+                :cpu_usage = random(100),
+                :memory_usage = random(90) + 10,  # 10-100%
+                :disk_space = random(50) + 50     # 50-100%
+            ]
+        })
+
+        Filter(func metrics {
+            # Alert on high resource usage
+            return metrics[:cpu_usage] > 80 or metrics[:memory_usage] > 85
+        })
+
+        OnData(func alert {
+            ? "⚠️ SYSTEM ALERT"
+	    ? "----------------"
+            ? " • CPU    : " + alert[:cpu_usage] + "%"
+            ? " • Memory : " + alert[:memory_usage] + "%"
+            ? " • Disk   : " + alert[:disk_space] + "%"
+        })
+
+        OnComplete(func() {
+            ? NL + "✅ Monitoring session ended"
+        })
+        
+        # Simulate 5 timer ticks
+        for i = 1 to 5
+            Emit(i)  # Timer tick simulation
+        next
+        
+        Complete()
+    }
+    
+    Start()
+    #-->
+    # ⚠️ SYSTEM ALERT
+    # ----------------
+    #  • CPU    : 92%
+    #  • Memory : 60%
+    #  • Disk   : 88%
+    # 
+    # ✅ Monitoring session ended
+}
+
+pf()
+# Executed in 1.04 second(s) in Ring 1.23
+
+/*--- File-Based Streams
+
+# File monitoring, log processing, configuration watching
+# Essential for: Log analysis, file system events, data ingestion
+
+pr()
+
+Rs = new stzReactiveSystem()
+Rs {
+    # Log file processing stream
+    oFileStream = CreateStream("log-processor", STREAM_SOURCE_FILE)
+    oFileStream {
+
+        # Parse log entries
+        Map(func logLine {
+            # Simulate log parsing
+            parts = split(logLine, "|")
+            if len(parts) >= 3
+                return [
+                    :timestamp = parts[1],
+                    :level = parts[2], 
+                    :message = parts[3]
+                ]
+            else
+                return [:level = "INFO", :message = logLine]
+            ok
+        })
+        
+        # Filter critical events
+        Filter(func logEntry {
+            criticalLevels = ["ERROR", "CRITICAL", "FATAL"]
+            return find(criticalLevels, upper(logEntry[:level]))
+        })
+        
+        OnData(func criticalLog {
+            ? "🚨 CRITICAL LOG EVENT"
+            ? " • Level: " + criticalLog[:level]
+            ? " • Message: " + criticalLog[:message] + NL
+        })
+        
+        Start()
+        
+        # Simulate log file content
+        logLines = [
+            "2024-01-15 10:30:15|INFO|User login successful",
+            "2024-01-15 10:31:02|ERROR|Database connection failed",
+            "2024-01-15 10:31:05|CRITICAL|System memory exhausted",
+            "2024-01-15 10:32:10|INFO|Backup completed successfully",
+            "2024-01-15 10:33:22|FATAL|Security breach detected"
+        ]
+        
+        EmitMany(logLines)
+        Complete()
+    }
+    
+    Start()
+    #-->
+    # 🚨 CRITICAL LOG EVENT
+    # • Level: ERROR
+    # • Message: Database connection failed
+    # 
+    # 🚨 CRITICAL LOG EVENT
+    # • Level: CRITICAL
+    # • Message: System memory exhausted
+    # 
+    # 🚨 CRITICAL LOG EVENT
+    # • Level: FATAL
+    # • Message: Security breach detected
+}
+
+pf()
+# Executed in 0.95 second(s) in Ring 1.23
+
+/*--- Network-Based Streams
+
+# HTTP requests, WebSocket connections, API polling
+# Essential for: Real-time data, API integration, network monitoring
+
+pr()
+
+Rs = new stzReactiveSystem()
+Rs {
+    # API data processing stream
+    oNetworkStream = CreateStream("api-monitor", STREAM_SOURCE_NETWORK)
+    oNetworkStream {
+        # Parse API responses
+        Map(func apiResponse {
+            # Simulate JSON parsing
+            return [
+                :endpoint = apiResponse[:url],
+                :status_code = apiResponse[:status],
+                :response_time = apiResponse[:time],
+                :data_size = apiResponse[:size]
+            ]
+        })
+        
+        # Monitor performance issues
+        Filter(func response {
+            return response[:status_code] >= 400 or response[:response_time] > 2000
+        })
+        
+        OnData(func issue {
+
+            issueType = ""
+            if issue[:status_code] >= 500
+                issueType = "🔴 SERVER ERROR"
+
+            but issue[:status_code] >= 400
+                issueType = "🟡 CLIENT ERROR"  
+
+            but issue[:response_time] > 2000
+                issueType = "🐌 SLOW RESPONSE"
+            ok
+            
+            ? issueType
+            ? "• Endpoint: " + issue[:endpoint]
+            ? "• Status: " + issue[:status_code]
+            ? "• Response Time: " + issue[:response_time] + "ms" + NL
+        })
+        
+        # Simulate API responses
+        responses = [
+            [:url = "/api/users", :status = 200, :time = 150, :size = 1024],
+            [:url = "/api/orders", :status = 404, :time = 89, :size = 256],
+            [:url = "/api/products", :status = 500, :time = 3500, :size = 0],
+            [:url = "/api/payments", :status = 200, :time = 2500, :size = 512]
+        ]
+        
+        EmitMany(responses)
+        Complete()
+    }
+    
+    Start()
+    #-->
+    '
+    🟡 CLIENT ERROR
+    • Endpoint: /api/orders
+    • Status: 404
+    • Response Time: 89ms
+
+    🔴 SERVER ERROR
+    • Endpoint: /api/products
+    • Status: 500
+    • Response Time: 3500ms
+
+    🐌 SLOW RESPONSE
+    • Endpoint: /api/payments
+    • Status: 200
+    • Response Time: 2500ms
+    '
+}
+
+pf()
+# Executed in 0.93 second(s) in Ring 1.23
+
+/*--- Sensor-Based Streams
+
+# IoT devices, environmental monitoring, real-time measurements
+# Essential for: IoT applications, monitoring systems, data acquisition
+
+pr()
+
+Rs = new stzReactiveSystem()
+Rs {
+    # Environmental monitoring stream
+    oSensorStream = CreateStream("environment-monitor", STREAM_SOURCE_SENSOR)
+    oSensorStream {
+
+        # Calibrate sensor readings
+        Map(func rawReading {
+            # Simulate sensor data processing
+            return [
+                :sensor_id = rawReading[:id],
+                :temperature = rawReading[:temp] * 0.1,  # Convert to Celsius
+                :humidity = rawReading[:humidity],
+                :air_quality = rawReading[:aqi],
+                :timestamp = clocksPerSecond()
+            ]
+        })
+        
+        # Environmental alerts
+        Filter(func reading {
+            return reading[:temperature] > 30 or 
+                   reading[:humidity] > 80 or
+                   reading[:air_quality] > 150
+        })
+        
+        OnData(func alert {
+            alertTypes = []
+
+            if alert[:temperature] > 30
+                alertTypes + "🌡️ HIGH TEMP"
+            ok
+
+            if alert[:humidity] > 80  
+                alertTypes + "💧 HIGH HUMIDITY"
+            ok
+
+            if alert[:air_quality] > 150
+                alertTypes + "🏭 POOR AIR QUALITY"
+            ok
+            
+            ? "⚠️ ENVIRONMENTAL ALERT: " + JoinXT(alertTypes, " + ")
+            ? "• Sensor: " + alert[:sensor_id] 
+            ? "• Temperature: " + alert[:temperature] + "°C"
+            ? "• Humidity: " + alert[:humidity] + "%"
+            ? "• Air Quality Index: " + alert[:air_quality] + NL
+        })
+        
+        # Simulate sensor readings
+        sensorData = [
+            [:id = "TEMP_01", :temp = 250, :humidity = 45, :aqi = 75],   # Normal
+            [:id = "TEMP_02", :temp = 320, :humidity = 85, :aqi = 180],  # High temp + humidity + AQI
+            [:id = "TEMP_03", :temp = 280, :humidity = 90, :aqi = 120],  # High humidity only
+            [:id = "TEMP_04", :temp = 350, :humidity = 60, :aqi = 95]    # High temp only
+        ]
+        
+        EmitMany(sensorData)
+        Complete()
+    }
+    
+    Start()
+    #-->
+    '
+    ⚠️ ENVIRONMENTAL ALERT: 🌡️ HIGH TEMP + 💧 HIGH HUMIDITY + 🏭 POOR AIR QUALITY
+    • Sensor: TEMP_02
+    • Temperature: 32°C
+    • Humidity: 85%
+    • Air Quality Index: 180
+
+    ⚠️ ENVIRONMENTAL ALERT: 💧 HIGH HUMIDITY
+    • Sensor: TEMP_03
+    • Temperature: 28°C
+    • Humidity: 90%
+    • Air Quality Index: 120
+
+    ⚠️ ENVIRONMENTAL ALERT: 🌡️ HIGH TEMP
+    • Sensor: TEMP_04
+    • Temperature: 35°C
+    • Humidity: 60%
+    • Air Quality Index: 95
+    '
+}
+
+pf()
+# Executed in 1.06 second(s) in Ring 1.23
+
+/*--- LibUV Integration Example
+
+# Low-level system integration using LibUV handles
+# Essential for: High-performance I/O, system-level operations
+
+pr()
+
+Rs = new stzReactiveSystem()
+Rs {
+    # System process monitoring via LibUV
+    oUVStream = CreateStream("process-monitor", STREAM_SOURCE_LIBUV)
+    oUVStream {
+        # Process system events
+        Map(func uvEvent {
+            # Simulate LibUV event processing
+            return [
+                :event_type = uvEvent[:type],
+                :process_id = uvEvent[:pid],
+                :resource_usage = uvEvent[:resources],
+                :event_time = clocksPerSecond()
+            ]
+        })
+        
+        # Filter high-impact events
+        Filter(func processEvent {
+            highImpactEvents = ["process_crash", "memory_leak", "high_cpu"]
+            return find(highImpactEvents, processEvent[:event_type])
+        })
+        
+        OnData(func criticalEvent {
+            ? "🔥 SYSTEM EVENT DETECTED:"
+            ? "• Type: " + criticalEvent[:event_type]
+            ? "• Process ID: " + criticalEvent[:process_id] 
+            ? "• Resource Impact: " + criticalEvent[:resource_usage] + "%" + NL
+        })
+        
+        OnComplete(func() {
+            ? "🛡️ LibUV monitoring stopped - resources cleaned up"
+        })
+        
+        # Simulate LibUV system events
+        systemEvents = [
+            [:type = "process_start", :pid = 1234, :resources = 15],
+            [:type = "process_crash", :pid = 5678, :resources = 85],
+            [:type = "normal_operation", :pid = 9012, :resources = 25],
+            [:type = "memory_leak", :pid = 3456, :resources = 95],
+            [:type = "high_cpu", :pid = 7890, :resources = 90]
+        ]
+        
+        EmitMany(systemEvents)
+        Complete()
+    }
+    
+    Start()
+    #-->
+    '
+    🔥 SYSTEM EVENT DETECTED:
+    • Type: process_crash
+    • Process ID: 5678
+    • Resource Impact: 85%
+
+    🔥 SYSTEM EVENT DETECTED:
+    • Type: memory_leak
+    • Process ID: 3456
+    • Resource Impact: 95%
+
+    🔥 SYSTEM EVENT DETECTED:
+    • Type: high_cpu
+    • Process ID: 7890
+    • Resource Impact: 90%
+
+    🛡️ LibUV monitoring stopped - resources cleaned up
+    '
+}
+
+pf()
+# Executed in 0.93 second(s) in Ring 1.23
+
+/*--- Multi-Source Stream Composition
+
+# Combining different stream sources in complex applications
+# Shows real-world architectural patterns
+
+pr()
+
+Rs = new stzReactiveSystem()
+Rs {
+    # Create multiple specialized streams
+    
+    # 1. User activity stream (manual)
+    oUserStream = CreateStream("user-activity", STREAM_SOURCE_MANUAL)
+    oUserStream {
+        Map(func activity { 
+            activity[:source] = "USER"
+            return activity
+        })
+        OnData(func event { ? "👤 " + event[:action] + " by " + event[:user] })
+        Start()
+    }
+    
+    # 2. System health stream (timer)
+    oHealthStream = CreateStream("system-health", STREAM_SOURCE_TIMER) 
+    oHealthStream {
+        Map(func tick {
+            return [:source = "SYSTEM", :status = "healthy", :load = random(100)]
+        })
+        Filter(func health { return health[:load] > 80 })
+        OnData(func alert { ? "⚙️  System load high: " + alert[:load] + "%" })
+        Start()
+    }
+    
+    # 3. External API stream (network)
+    oApiStream = CreateStream("api-updates", STREAM_SOURCE_NETWORK)
+    oApiStream {
+        Map(func response {
+            response[:source] = "API"  
+            return response
+        })
+        OnData(func update { ? "🌐 API: " + update[:message] })
+        Start()
+    }
+    
+    # Simulate multi-source events
+    oUserStream.EmitMany([
+        [:action = "Login", :user = "alice"],
+        [:action = "Purchase", :user = "bob"]
+    ])
+    
+    # System health checks
+    for i = 1 to 3
+        oHealthStream.Emit(i)
+    next
+    
+    # API updates
+    oApiStream.EmitMany([
+        [:message = "New feature deployed"],
+        [:message = "Maintenance scheduled"]
+    ])
+    
+    # Complete all streams
+    oUserStream.Complete()
+    oHealthStream.Complete() 
+    oApiStream.Complete()
+    
+    Start()
+    #-->
+    # 👤 Login by alice
+    # 👤 Purchase by bob
+    # ⚙️  System load high: 94%
+    # 🌐 API: New feature deployed
+    # 🌐 API: Maintenance scheduled
+}
+
+pf()
+# Executed in 0.95 second(s) in Ring 1.23
