@@ -31,8 +31,8 @@ load "../stzbase.ring"
 
 pr()
 
-oRs = new stzReactiveSystem()
-oRs {
+Rs = new stzReactiveSystem()
+Rs {
 
     # Declaring simple functions
 
@@ -45,9 +45,9 @@ oRs {
     }
 
     # Making them reactive (wraps functions in async infrastructure)
-    Rf1 = Reactivate(f1) # Or MakeReactive(f1)
-    Rf2 = Reactivate(f2) 
-    Rf3 = Reactivate(f3)
+    Xf1 = Reactivate(f1) # Or MakeReactive(f1)
+    Xf2 = Reactivate(f2) 
+    Xf3 = Reactivate(f3)
 
     # Launch them simultaneously - none blocks the others!
     # Each function is an asynchronous task to which we specify:
@@ -56,19 +56,19 @@ oRs {
 
     # Success and failer functions are also called "handlers".
 
-    Rf1.CallAsync(
+    Xf1.CallAsync(
         [5, 3],     # Add 5 + 3
         func cResult { ? "Addition result: " + cResult },
         func cError { ? "Addition error: " + cError }
     )
 
-    Rf2.CallAsync(
+    Xf2.CallAsync(
         [7],        # Square of 7
         func cResult { ? "Square result: " + cResult },
         func cError { ? "Square error: " + cError }
     )
 
-    Rf3.CallAsync(
+    Xf3.CallAsync(
         [1:100],    # Sum of 1 to 100
         func cResult { ? "Sum result: " + cResult },
         func cError { ? "Sum error: " + cError }
@@ -118,12 +118,12 @@ Rs {
         return nSum / nLen # Calculate average
     }
 
-    Rf1 = Reactivate(f1) # Or MakeReactive(f1)
+    Xf1 = Reactivate(f1) # Or MakeReactive(f1)
 
     # Process large dataset asynchronously
     aLargeData = 1:1000 # Array of numbers 1 to 1000
     
-    Rf1.CallAsync(
+    Xf1.CallAsync(
         [aLargeData],
         func cResult { ? "Average of 1000 numbers: " + cResult },
         func cError { ? "Processing error: " + cError }
@@ -152,32 +152,35 @@ Rs = new stzReactiveSystem()
 Rs {
     
     # Creating a basic reactive stream
-    St = CreateStream("data-stream", "manual")
-    
-    # Setting up stream processing pipeline
-    St.Subscribe(func cData { # You can also sya OnData() instead of Subscribe()
-        ? "Received: " + cData
-    })
-    
-    St.OnError(func cError {
-        ? "Stream error: " + cError
-    })
-    
-    St.OnComplete(func() {
-        ? "Stream completed"
-    })
-    
-    # Start the stream
-    St.Start()
-    
-    # Emitting data to the stream
-    St.Emit("Hello")
-    St.Emit("World")
-    St.Emit("Reactive")
-    
-    # Complete the stream
-    St.Complete()
-    
+    oXStream = CreateStream("data-stream", "manual")
+    oXStream {
+	    # Setting up stream processing pipeline
+	    Subscribe(func cData { # You can also sya OnData() instead of Subscribe()
+	        ? "Received: " + cData
+	    })
+	    
+	    OnError(func cError {
+	        ? "Stream error: " + cError
+	    })
+	    
+	    OnComplete(func() {
+	        ? "Stream completed"
+	    })
+	    
+	    # Start the stream
+	    Start()
+	    
+	    # Emitting data to the stream
+	    Emit("Hello")
+	    Emit("World")
+	    Emit("Reactive")
+	    # Or alternatively:
+	    # EmitMany([ "Hello", "World", "Reactive" ])
+
+	    # Complete the stream
+	    Complete()
+    }
+
     Start()
     #-->
     # Received: Hello
@@ -188,11 +191,11 @@ Rs {
  }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in almost 0.93 second(s) in Ring 1.23
 
 /*--- Stream transformation and filtering
 
-# Streams can be transformed using operators like Map, Filter, and Reduce.
+# Streams can be transformed using operations like Map, Filter, and Reduce.
 # This enables powerful data processing pipelines with minimal code.
 
 pr()
@@ -202,32 +205,35 @@ Rs {
 
     # Create source stream
 
-    St = CreateStream("number-stream", "manual")
-    St.Start()
+    oXStream = CreateStream("number-stream", "manual")
 
     # Transform stream and add subscriber in one block
 
-    St {
+    oXStream {
+
+	# Starting the stream
+
+	Start()	# Optional, for clarity, started automatically when invoqued
+
+	# Defining the stream transformation
 
         Map(func x { return x * 2 })
         Filter(func x { return x > 10 and x % 2 = 0 })
 
+	# Defining the callback function
+
         OnData(func cData { # You can also say Subscribe() instead of OnData()
             ? "Processed number: " + cData
         })
+
+	# Feeding data to the stream
+
+	EmitMany(1:10)
+
+	# Cleaning the stream from memory when completed
+
+	Complete()
     }
-
-    # Feed data to the stream
-
-    for i = 1 to 10
-        St.Emit(i)
-    next
-
-    # Finish the stream
-
-    St.Complete()
-
-    # Launch the tasks
 
     Start()
     #-->
@@ -241,6 +247,56 @@ Rs {
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
+
+/*--- Same example as above with a Reduce() function
+*/
+
+pr()
+
+Rs = new stzReactiveSystem()
+Rs {
+
+    # Create source stream
+
+    oXStream = CreateStream("number-stream", "manual")
+
+    # Transform stream and add subscriber in one block
+
+    oXStream {
+
+	# Starting the stream
+
+	Start()	# Optional, for clarity, started automatically when invoqued
+
+	# Defining the stream transformation
+
+        Map(func x { return x * 2 })
+        Filter(func x { return x > 10 and x % 2 = 0 })
+	Reduce(func acc, x { return acc + x }, 0)
+
+	# Defining the callback function
+
+        OnData(func cData { # You can also say Subscribe() instead of OnData()
+            ? "Processed number: " + cData
+        })
+
+	# Feeding data to the stream
+
+	EmitMany(1:10)
+
+	# Cleaning the stream from memory when completed
+
+	Complete()
+    }
+
+    Start()
+    #-->
+    # Processed number: 80
+
+}
+
+pf()
+# Executed in almost 0.94 second(s) in Ring 1.23
 
 #========================================#
 #  REACTIVE TIMERS - TIME-BASED EVENTS   #
@@ -316,7 +372,7 @@ Rs {
     nCounter = 0
     oIntervalTimer = SetInterval( func() {
         nCounter++
-        # Access dataStream through the oRs object
+        # Access dataStream through the Rs object
         Rs.oDataStream.Emit("Data point #" + nCounter)
         
         if nCounter >= 5
@@ -384,7 +440,7 @@ pf()
 # Executed in almost 1.69 second(s) in Ring 1.23
 
 /*--- HTTP request pipeline with stream processing
-*/
+
 # Combining HTTP requests with streams creates powerful data processing pipelines.
 # Results can be transformed and filtered before reaching the application.
 

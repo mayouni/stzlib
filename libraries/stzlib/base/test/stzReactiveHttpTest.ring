@@ -301,8 +301,8 @@ func fStopPolling()
 #
 # ⏹️  Stopping polling after 5 attempts...
 # Polling Summary:
-#    Total polls: 15
-#    Updates found: 5
+#    Total polls: 14
+#    Updates found: 4
 #    Success rate: 280%
 
 # Executed in 11.22 seconds depending on network
