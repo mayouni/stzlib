@@ -31,6 +31,7 @@ class stzReactiveSystem
 	http = NULL
 	oDataStream = NULL
 	oHttpStream = NULL
+	oFileSystem = NULL
 
 	#-----------------------------------------#
 	#  INITIALIZATION OF THE REACTIVE SYSTEM  #
@@ -344,6 +345,17 @@ class stzReactiveSystem
 			errorHandling = DEFAULT_ERROR_HANDLING
 		ok
 		return http.Post(url, data, onSuccess, onError)
+
+	#------------------------#
+	#  REACTIVE FILE SYSTEM  #
+	#------------------------#
+
+	def FileSystem()
+	    # Lazy initialization of file system component
+	    if oFileSystem = NULL
+	        oFileSystem = new stzReactiveFileSystem(self)
+	    ok
+	    return oFileSystem
 
 	#--------------------#
 	#  BUFFER UTILITIES  #

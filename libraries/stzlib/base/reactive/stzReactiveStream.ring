@@ -25,7 +25,7 @@ class stzReactiveStream
 		
 		# Validate source type with expressive constants
 		if not ( find([
-				STREAM_SOURCE_MANUAL, STREAM_SOURCE_LIBUV, 
+			      STREAM_SOURCE_MANUAL, STREAM_SOURCE_LIBUV, 
 		                STREAM_SOURCE_TIMER, STREAM_SOURCE_FILE,
 		                STREAM_SOURCE_NETWORK, STREAM_SOURCE_SENSOR], sourceType ) )
 

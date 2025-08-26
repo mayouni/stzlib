@@ -38,7 +38,7 @@ https://betterprogramming.pub/pandas-illustrated-the-definitive-visual-guide-to-
 #TODO Use Apache Parquet as a storage Format
 
 #TODO // Add support of Excel functions (see at the bottom of the file)
-#UPDATA: These Excel-like functions are now supported:
+#UPDATE: These Excel-like functions are now supported:
 #--> SUM, PRODUCT, AVERAGE, KOUNT, MAX, and MIN
 
 #TODO // Add Paging feature
@@ -47,6 +47,8 @@ https://betterprogramming.pub/pandas-illustrated-the-definitive-visual-guide-to-
 
 #TODO // Add the Join() feature to manage linked tables
 
+#TODO Read this article and get inspiration for making a Distributed/Parallel
+# version of stzTable simular to Julia DTable, Apache Spark, or Pyhton Spark.
 */
 
 func StzTableQ(paTable)
