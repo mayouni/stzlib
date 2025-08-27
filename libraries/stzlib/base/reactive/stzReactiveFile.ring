@@ -1,56 +1,51 @@
-# SOFTANZA REACTIVE FILE SYstEM
+# SOFTANZA REACTIVE FILE SYSTEM
 
-# File system event types (softanzified names)
-FS_EVENT_FILE_CREATED    = 1    # File was created or moved into directory
-FS_EVENT_FILE_MODIFIED   = 2    # File content was changed
-FS_EVENT_FILE_RENAMED    = 3    # File was renamed and content changed
-FS_EVENT_UNKNOWN         = 999  # Unknown or unsupported event
+# File system event types
+FS_EVENT_FILE_CREATED    = 1
+FS_EVENT_FILE_MODIFIED   = 2 
+FS_EVENT_FILE_RENAMED    = 3
+FS_EVENT_UNKNOWN         = 999
 
 # File system watcher states
-FS_WATCHER_INACTIVE      = 0    # Watcher is stopped
-FS_WATCHER_ACTIVE        = 1    # Watcher is running
-FS_WATCHER_ERROR         = 2    # Watcher encountered error
-
-# File system operation types
-FS_OP_CREATE_FILE        = "create_file"
-FS_OP_MODIFY_FILE        = "modify_file"
-FS_OP_DELETE_FILE        = "delete_file"
-FS_OP_RENAME_FILE        = "rename_file"
-FS_OP_CREATE_DIRECTORY   = "create_directory"
-FS_OP_DELETE_DIRECTORY   = "delete_directory"
-
-# File system watcher options
-FS_WATCH_RECURSIVE       = 1    # Watch subdirectories recursively
-FS_WATCH_NON_RECURSIVE   = 0    # Watch only the specified directory
+FS_WATCHER_INACTIVE      = 0
+FS_WATCHER_ACTIVE        = 1
+FS_WATCHER_ERROR         = 2
 
 # File system filter types
-FS_FILTER_ALL            = "all"        # Watch all file types
-FS_FILTER_TEXT           = "text"       # Watch only text files
-FS_FILTER_IMAGES         = "images"     # Watch only image files
-FS_FILTER_CUSTOM         = "custom"     # Use custom extension filter
+FS_FILTER_ALL            = "all"
+FS_FILTER_TEXT           = "text"
+FS_FILTER_IMAGES         = "images"
+FS_FILTER_CUSTOM         = "custom"
 
+# Global watcher registry for LibUV callbacks
+aWatcherRegistry = []  # Will store [handleKey, watcherObject] pairs
 
+# Global callback function for LibUV file system events
+func OnGlobalFileSystemEvent()
+    oCurrentWatcher = uv_get_current_handle()
+    currentKey = ptr2str(oCurrentWatcher, 0, 16)
+    
+    nLen = len(aWatcherRegistry)
+    for i = 1 to nLen
+        if aWatcherRegistry[i][1] = currentKey
+            oRingWatcher = aWatcherRegistry[i][2]
+            oRingWatcher.ProcessFileSystemEvent()
+            exit
+        ok
+    next
 
 class stzReactiveFileSystem
 
-    # Core properties
-    engine = NULL           # Reference to main reactive engine
-    watchers = []          # List of active file watchers
-    filters = []           # List of file filters
+    engine = NULL
+    watchers = []
+    filters = []
 
     def init(reactiveEngine)
         engine = reactiveEngine
         watchers = []
         filters = []
 
-    #--------------------------#
-    #  FILE SYSTEM WATCHING    #
-    #--------------------------#
-
     def WatchFolder(path, options)
-        # Creates a reactive file watcher for the specified path
-        # Returns a file watcher stream that emits file system events
-        
         if options = NULL
             options = new stzFileWatchOptions()
         ok
@@ -63,50 +58,29 @@ class stzReactiveFileSystem
         
         return watcher
 
-        #< @FunctionAlternativeForms
-        def WatchDirectory(path, options)
-            return This.WatchFolder(path, options)
-            
-        def Watch(path, options)
-            return This.WatchFolder(path, options)
-        #>
-
     def WatchFile(filePath, options)
-        # Creates a reactive watcher for a specific file
         if options = NULL
             options = new stzFileWatchOptions()
         ok
         
-        # For single files, disable recursive watching
         options.SetRecursive(FALSE)
-        
         return WatchFolder(filePath, options)
 
     def CreateFileStream(filePath)
-        # Creates a reactive stream for reading file content
         streamId = "file_stream_" + random(999999)
         stream = new stzReactiveFileStream(streamId, filePath, engine)
         engine.AddStream(stream)
         return stream
 
-    #--------------------------#
-    #  FILE SYSTEM OPERATIONS  #
-    #--------------------------#
-
     def CreateReactiveFile(filePath, content)
-        # Creates a file reactively and returns a stream for monitoring it
         if content = NULL
             content = ""
         ok
         
-        # Create the file synchronously first
         write(filePath, content)
-        
-        # Return a watcher stream for the created file
         return WatchFile(filePath, NULL)
 
     def RemoveWatcher(watcherId)
-        # Removes a file watcher by ID
         nLen = len(watchers)
         for i = nLen to 1 step -1
             if watchers[i].GetId() = watcherId
@@ -117,7 +91,6 @@ class stzReactiveFileSystem
         next
 
     def StopAllWatchers()
-        # Stops all active file watchers
         nLen = len(watchers)
         for i = 1 to nLen
             watchers[i].Stop()
@@ -125,7 +98,6 @@ class stzReactiveFileSystem
         watchers = []
 
     def GetActiveWatchers()
-        # Returns list of active watchers
         activeWatchers = []
         nLen = len(watchers)
         for i = 1 to nLen
@@ -135,53 +107,62 @@ class stzReactiveFileSystem
         next
         return activeWatchers
 
+class stzReactiveFileWatcher
 
-
-class stzReactiveFileWatcher from stzReactiveStream
-
-    # Watcher-specific properties
+    # Core properties
+    streamId = ""
     watchPath = ""
     watchOptions = NULL
     uvWatcher = NULL
     watcherState = FS_WATCHER_INACTIVE
+    engine = NULL
     
-    def init(id, path, options, engine)
-        # Initialize the parent stream
+    # Reactive stream properties
+    subscribers = []
+    isCompleted = FALSE
+    errorCallback = NULL
+    completeCallback = NULL
+    
+    def init(id, path, options, reactiveEngine)
         streamId = id
-        sourceType = STREAM_SOURCE_FILE
-      
         watchPath = path
         watchOptions = options
+        engine = reactiveEngine
         uvWatcher = NULL
         watcherState = FS_WATCHER_INACTIVE
+        subscribers = []
+        isCompleted = FALSE
+        errorCallback = NULL
+        completeCallback = NULL
 
     def Start()
         if watcherState = FS_WATCHER_ACTIVE
             return self
         ok
-        
-        # Call parent Start() method
-        super.Start()
-        
+
         # Create LibUV file system event handle
         uvWatcher = new_uv_fs_event_t()
-        uv_fs_event_init(super.engine.LibuvLoop(), uvWatcher)
-        
+        uv_fs_event_init(engine.LibuvLoop(), uvWatcher)
+
+        # Register this watcher in the global registry for callback handling
+        handleKey = ptr2str(uvWatcher, 0, 16)
+	aWatcherRegistry + [handleKey, self]
+
         # Determine watch flags
-        flags = FS_WATCH_NON_RECURSIVE
+        flags = 0  # Non-recursive by default
         if watchOptions != NULL and watchOptions.IsRecursive()
-            flags = FS_WATCH_RECURSIVE
+            flags = 1  # Recursive
         ok
-        
-        # Start watching with callback
-        result = uv_fs_event_start(uvWatcher, "OnFileSystemEvent()", watchPath, flags)
-        
+
+        # Start watching with GLOBAL callback function
+        result = uv_fs_event_start(uvWatcher, "OnGlobalFileSystemEvent()", watchPath, flags)
+
         if result != 0
             watcherState = FS_WATCHER_ERROR
             EmitError("Failed to start file watcher: " + uv_strerror(result))
             return self
         ok
-        
+
         watcherState = FS_WATCHER_ACTIVE
         return self
 
@@ -189,21 +170,31 @@ class stzReactiveFileWatcher from stzReactiveStream
         if watcherState = FS_WATCHER_INACTIVE
             return self
         ok
-        
+
         watcherState = FS_WATCHER_INACTIVE
-        
+
         if uvWatcher != NULL
             uv_fs_event_stop(uvWatcher)
+ 
+            # Remove from global registry
+            nLen = len(aWatcherRegistry)
+	    handleKey = ptr2str(uvWatcher, 0, 16)
+
+	    for i = nLen to 1 step -1
+		    if aWatcherRegistry[i][1] = handleKey
+		        del(aWatcherRegistry, i)
+		        exit
+		    ok
+	    next
+
             destroy_uv_fs_event_t(uvWatcher)
             uvWatcher = NULL
         ok
-        
-        # Call parent Stop() method  
-        stzReactiveStream.Stop()
+
         return self
 
-    def OnFileSystemEvent()
-        # Callback function for LibUV file system events
+    def ProcessFileSystemEvent()
+        # This method is called by the global callback function
         if watcherState != FS_WATCHER_ACTIVE
             return
         ok
@@ -218,12 +209,53 @@ class stzReactiveFileWatcher from stzReactiveStream
         
         # Apply file filters if configured
         if watchOptions != NULL and not watchOptions.PassesFilter(filename)
-            return  # Skip filtered files
+            return
         ok
         
-        # Emit the processed event to subscribers
+        # Emit the event to subscribers
         Emit(fsEvent)
 
+    # Reactive stream methods
+    def Subscribe(callback)
+        if not find(subscribers, callback)
+            subscribers + callback
+        ok
+        return self
+
+    def OnData(callback)
+        return Subscribe(callback)
+
+    def OnError(callback)
+        errorCallback = callback
+        return self
+
+    def OnComplete(callback)
+        completeCallback = callback
+        return self
+
+    def Emit(data)
+        nLen = len(subscribers)
+        for i = 1 to nLen
+            f = subscribers[i]
+            call f(data)
+        next
+        return self
+
+    def EmitError(errorMsg)
+        if errorCallback != NULL
+            call errorCallback(errorMsg)
+        else
+            see "File Watcher Error: " + errorMsg + nl
+        ok
+        return self
+
+    def Complete()
+        if completeCallback != NULL
+            call completeCallback()
+        ok
+        return self
+
+    # Getters
     def IsActive()
         return watcherState = FS_WATCHER_ACTIVE
 
@@ -233,26 +265,25 @@ class stzReactiveFileWatcher from stzReactiveStream
     def GetId()
         return streamId
 
+class stzReactiveFileStream
 
-
-class stzReactiveFileStream from stzReactiveStream
-
+    # Core properties - no inheritance, just composition
+    streamId = ""
     filePath = ""
     fileHandle = NULL
-    readBuffer = NULL
+    engine = NULL
+    subscribers = []
+    isCompleted = FALSE
     
-    def init(id, path, engine)
-        # Initialize the parent stream
+    def init(id, path, reactiveEngine)
         streamId = id
-        sourceType = STREAM_SOURCE_FILE
-        This.Init(id, sourceType, engine)
-        
         filePath = path
+        engine = reactiveEngine
         fileHandle = NULL
-        readBuffer = NULL
+        subscribers = []
+        isCompleted = FALSE
 
     def ReadAll()
-        # Reads entire file content and emits it
         if isFile(filePath)
             content = read(filePath)
             Emit(content)
@@ -263,7 +294,6 @@ class stzReactiveFileStream from stzReactiveStream
         return self
 
     def ReadLines()
-        # Reads file line by line and emits each line
         if isFile(filePath)
             content = read(filePath)
             lines = str2list(content)
@@ -275,7 +305,6 @@ class stzReactiveFileStream from stzReactiveStream
         return self
 
     def WriteContent(content)
-        # Writes content to file and emits success/error
         try
             write(filePath, content)
             Emit("write_success")
@@ -285,7 +314,39 @@ class stzReactiveFileStream from stzReactiveStream
         done
         return self
 
+    # Essential reactive methods
+    def Subscribe(callback)
+        if not find(subscribers, callback)
+            subscribers + callback
+        ok
+        return self
 
+    def Emit(data)
+        if isCompleted
+            return self
+        ok
+        
+        nLen = len(subscribers)
+        for i = 1 to nLen
+	    f = subscribers[i]
+            call f(data)
+        next
+        return self
+
+    def EmitMany(dataList)
+        nLen = len(dataList)
+        for i = 1 to nLen
+            Emit(dataList[i])
+        next
+        return self
+
+    def Complete()
+        isCompleted = TRUE
+        return self
+
+    def EmitError(errorMsg)
+        see "File Stream Error: " + errorMsg + nl
+        return self
 
 class stzFileSystemEvent
 
@@ -302,7 +363,7 @@ class stzFileSystemEvent
         watchPath = basePath
         fullPath = basePath + "/" + filename
         timestamp = Time() + " " + Date()
-        eventTypeText = InterpreteventType(eventCode)
+        eventTypeText = InterpretEventType(eventCode)
 
     def GetFileName()
         return fileName
@@ -337,8 +398,7 @@ class stzFileSystemEvent
 
     private
 
-    def InterpreteventType(eventCode)
-        # Converts numeric event codes to readable text
+    def InterpretEventType(eventCode)
         switch eventCode
         case FS_EVENT_FILE_CREATED
             return "FILE_CREATED"
@@ -349,8 +409,6 @@ class stzFileSystemEvent
         other
             return "UNKNOWN_EVENT"
         end
-
-
 
 class stzFileWatchOptions
 
@@ -394,8 +452,6 @@ class stzFileWatchOptions
         return self
 
     def PassesFilter(fileName)
-        # Check if file passes the configured filters
-        
         # Skip hidden files if configured
         if ignoreHidden and left(fileName, 1) = "."
             return FALSE
@@ -416,7 +472,7 @@ class stzFileWatchOptions
             
         case FS_FILTER_CUSTOM
             if len(fileExtensions) = 0
-                return TRUE  # No custom extensions specified, allow all
+                return TRUE
             ok
             return PassesExtensionFilter(fileName, fileExtensions)
             

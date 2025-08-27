@@ -40,12 +40,18 @@ Philosophy:
 # All the methofs of the class must be wrapped here in global functions
 # because those functions makes it easy to mange files inside a stzFolder object
 
-func FileExists(cFile)
-    oInfo = new stzFileInfo(cFile)
+func FileExists(cFullPath)
+    oInfo = new stzFileInfo(cFullPath)
     return oInfo.Exists()
 
-	func @FileExists(cFile)
-		return FileExists(cFile)
+	func @FileExists(cFullPath)
+		return FileExists(cFullPath)
+
+	func IsFile(cFullPath)
+		return FileExists(cFullPath)
+
+	func @IsFile(cFullPath)
+		return FileExists(cFullPath)
 
 func FileReadQ(cFile)
     # Pure reading intent - read-only access
