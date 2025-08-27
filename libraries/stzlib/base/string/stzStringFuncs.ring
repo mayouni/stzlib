@@ -141,6 +141,43 @@ func @IsAlnum(cStr)
 
 	#>
 
+func IsEmpty(p)
+	if isString(p)
+		return IsNullString(p)
+
+	but isNumber(p)
+		return FALSE
+
+	but isList(p) and len(p) = 0
+		return TRUE
+
+	but isObject(p) and IsNullObject(p)
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+	func @IsEmpty(p)
+		return IsNullString(p)
+
+
+func IsNull(p)
+	if isString(p)
+		return IsNullString(p)
+
+	but isObject(p) and IsNullObject(p)
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+	#--
+
+	func @IsNull(cStr)
+		return IsNull(cStr)
+
 func IsNullString(cStr)
 	if isString(cStr) and cStr = _NULL_
 		return _TRUE_
@@ -171,22 +208,6 @@ func IsNullString(cStr)
 		return IsNullString(cStr)
 
 	func @IsAnEmptyString(cStr)
-		return IsNullString(cStr)
-
-	#==
-
-	func IsNull(cStr)
-		return IsNullString(cStr)
-
-	func IsEmpty(cStr)
-		return IsNullString(cStr)
-
-	#--
-
-	func @IsNull(cStr)
-		return IsNullString(cStr)
-
-	func @IsEmpty(cStr)
 		return IsNullString(cStr)
 
 	#==

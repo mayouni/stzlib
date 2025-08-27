@@ -63,10 +63,10 @@ class stkMemory
 
     def CreatePointerView(cBufferId, cAccessMode, nOffset, nLength)
 
-		oBuffer = @aBuffers[cBufferId]
-		if IsNull(oBuffer)
+	oBuffer = @aBuffers[cBufferId]
+	if IsNull(oBuffer)
             raise("Invalid buffer ID: " + cBufferId)
-        	ok
+        ok
         
         # Validate view bounds
         if nOffset < 0 or nLength <= 0
@@ -84,7 +84,7 @@ class stkMemory
         
         # Create new stkPointer instance with view
 
-		cPointerId = "ptr" + @nNextPointerId
+	cPointerId = "ptr" + @nNextPointerId
         oPointer = new stkPointer(This, cBufferId, cAccessMode, nOffset, nLength, cPointerId)
         
         # Add to managed pointers
@@ -156,7 +156,7 @@ class stkMemory
 			return FALSE
 		ok
          
-        # If it's a write pointer, release the buffer's write lock
+        # If it is a write pointer, release the buffer's write lock
         if oPointer.AccessMode() = "write"
 			oBuffers = @aBuffers[oPointer.BufferId()]
             if not IsNull(oBuffer)
@@ -164,9 +164,9 @@ class stkMemory
             ok
         ok
         
-        # Remove pointer from array
+        # Remove pointer from list
         del(@aPointers, This.FindPointer(cPointerId))
-        
+
         return TRUE
     
     def FindPointer(cPointerId)
@@ -205,9 +205,9 @@ class stkMemory
     
     def PointerInfo(nPointerId)
 
-        # Find pointer in array
+        # Find pointer in list
 
-		nLen = len(@aPointers)
+	nLen = len(@aPointers)
 
         for i = 1 to nLen
             oPointer = @aPointers[i]
@@ -260,8 +260,8 @@ class stkMemory
     
     def Show()
 
-		nLenBuf = len(@aBuffers)
-		nLenPtr = len(@aPointers)
+	nLenBuf = len(@aBuffers)
+	nLenPtr = len(@aPointers)
 
   	  ? "stkMemory Container:"
 	    ? "  Valid: " + @bIsValid
@@ -291,7 +291,7 @@ class stkMemory
 
         # Remove invalid pointers from array
 
-		nLenPtr = len(@aPointers)
+	nLenPtr = len(@aPointers)
         aValidPointers = []
 
         for i = 1 to nLenPtr
@@ -307,7 +307,7 @@ class stkMemory
 
 	    # Destroy all buffers (will invalidate all pointers)
 
-		nLenBuf = len(@aBuffers)
+	    nLenBuf = len(@aBuffers)
 
 	    for i = 1 to nLenBuff
 	        cBufferId = @aBuffers[i][1]
@@ -321,7 +321,7 @@ class stkMemory
 
         # Destroy all pointers
 
-		nLenPtr = len(@aPointers)
+	nLenPtr = len(@aPointers)
 
         for i = 1 to nLenPtr
             This.DestroyPointer(@aPointers[i].PointerId())

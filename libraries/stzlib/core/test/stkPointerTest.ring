@@ -4,7 +4,7 @@ load "../stklib.ring"
 # This demonstrates that all the synchronization issues have been resolved
 
 /*--- Test 1: Basic string pointer creation and conversion
-
+*/
 pr()
 
 o1 = new stkPointer("Hello World")

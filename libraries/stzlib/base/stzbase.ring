@@ -111,6 +111,8 @@
 
 	load "system/stzPointer.ring"
 
+	load "system/stzUUID.ring"
+
 # Loading files related to the FILE module
 
 	load "file/stzFile.ring"
@@ -159,4 +161,5 @@
 	load "reactive/stzReactiveStream.ring"
 	load "reactive/stzReactiveHttp.ring"
 
-	load "reactive/stzReactiveFile.ring"
+//	load "reactive/stzReactiveFile.ring"
+//	load "reactive/stzReactiveFolder.ring"

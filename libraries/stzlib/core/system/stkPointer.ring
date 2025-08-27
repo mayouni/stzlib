@@ -6,6 +6,8 @@ class stkPointer
     @nOffset = 0             # Offset into buffer
     @nLength = 0             # Length of view
     @nPointerId = 0          # Unique pointer ID for tracking
+    @pLowLevelPtr = NULL     # Low-level C pointer for direct access
+    @nBaseAddress = 0        # Base memory address for calculations
 
     #-------------------------------#
     #  INITIALIZATION AND CREATION  #
@@ -44,6 +46,9 @@ class stkPointer
         @nLength = nLength
         @nPointerId = nPointerId
         @bIsValid = TRUE
+        
+        # Initialize low-level pointer operations
+        This.InitializeLowLevelAccess()
 
     #-----------------------#
     #  READING AND WRITING  #
@@ -74,7 +79,6 @@ class stkPointer
         # Delegate to memory container
         return @oMemory.ReadFromBuffer(@cBufferId, nAbsoluteOffset, nLength)
 
-
     def Read0(nOffset, nLength)
         return This.Read(nOffset, nLength)
 
@@ -104,7 +108,37 @@ class stkPointer
     def ReadByte1(nOffset)
         return This.ReadByte(nOffset-1)
 
-
+    # Enhanced: Direct memory reading using low-level pointers
+    def ReadDirect(nOffset, nLength)
+        This.ValidatePointer()
+        
+        if IsNull(nOffset)
+            nOffset = 0
+        ok
+        
+        if IsNull(nLength)
+            nLength = @nLength - nOffset
+        ok
+        
+        if nOffset < 0 or nLength < 0
+            raise("ERROR: Negative offset or length not allowed")
+        ok
+        
+        if nOffset + nLength > @nLength
+            raise("ERROR: Read beyond pointer view bounds")
+        ok
+        
+        if @pLowLevelPtr = NULL
+            # Fallback to regular read
+            return This.Read(nOffset, nLength)
+        ok
+        
+        # Use low-level pointer for direct memory access
+        nTargetAddress = @nBaseAddress + @nOffset + nOffset
+        pTempPtr = setptr(@pLowLevelPtr, nTargetAddress)
+        cResult = ptr2str(pTempPtr, 0, nLength)
+        
+        return cResult
 
     def Write(nOffset, pData)
         
@@ -144,7 +178,6 @@ class stkPointer
 		    raise("ERROR: Buffer not found")
 		ok
 		oBuffer.Write(nAbsoluteOffset, cData)
-
 
     def Write0(nOffset, pData)
         This.Write(nOffset, pData)
@@ -287,7 +320,6 @@ class stkPointer
         # Create new pointer through memory container
         return @oMemory.CreatePointerView(@cBufferId, @cAccessMode, nAbsoluteOffset, nLength)
 
-
     def CreateSubView0(nOffset, nLength)
         return This.CreateSubView(nOffset, nLength)
 
@@ -402,6 +434,135 @@ class stkPointer
     def CopyTo1(oDestPointer, nSourceOffset, nDestOffset, nLength)
         This.CopyTo(oDestPointer, nSourceOffset-1, nDestOffset-1, nLength)
 
+    #----------------------------------#
+    #  LOW-LEVEL POINTER OPERATIONS    #
+    #----------------------------------#
+
+    def GetRawPointer()
+        # Return the low-level C pointer for external use
+        This.ValidatePointer()
+        return @pLowLevelPtr
+
+    def GetMemoryAddress()
+        # Get the actual memory address
+        This.ValidatePointer()
+        if @pLowLevelPtr = NULL
+            return 0
+        ok
+        return getptr(@pLowLevelPtr)
+
+    def GetViewAddress()
+        # Get the memory address of the current view
+        This.ValidatePointer()
+        if @pLowLevelPtr = NULL
+            return 0
+        ok
+        return @nBaseAddress + @nOffset
+
+    def ComparePointer(oOther)
+        # Compare raw pointer addresses
+        if IsNull(oOther) or not IsObject(oOther)
+            return FALSE
+        ok
+        
+        if ClassName(oOther) != "stkpointer"
+            return FALSE
+        ok
+        
+        if @pLowLevelPtr = NULL or oOther.GetRawPointer() = NULL
+            return FALSE
+        ok
+        
+        return ptrcmp(@pLowLevelPtr, oOther.GetRawPointer())
+
+    def IsNullPointer()
+        # Check if this is a null pointer
+        return @pLowLevelPtr = NULL or getptr(@pLowLevelPtr) = 0
+
+    def SetPointerOffset(nNewOffset)
+        # Adjust pointer to new offset within current view
+        This.ValidatePointer()
+        
+        if @cAccessMode != "write"
+            raise("ERROR: Pointer offset modification not allowed - pointer is read-only")
+        ok
+        
+        if nNewOffset < 0 or nNewOffset >= @nLength
+            raise("ERROR: New offset out of view bounds")
+        ok
+        
+        if @pLowLevelPtr != NULL
+            nNewAddress = @nBaseAddress + @nOffset + nNewOffset
+            setptr(@pLowLevelPtr, nNewAddress)
+        ok
+
+    def CreatePointerReference()
+        # Create an object reference that can be passed around
+        This.ValidatePointer()
+        if @pLowLevelPtr = NULL
+            return NULL
+        ok
+        return obj2ptr(This)
+
+    def FromPointerReference(pReference)
+        # Restore pointer from reference (static-like method)
+        if IsNull(pReference) or not isptr(pReference)
+            raise("ERROR: Invalid pointer reference")
+        ok
+        
+        try
+            oPointer = ptr2obj(pReference)
+            if ClassName(oPointer) != "stkpointer"
+                raise("ERROR: Reference does not point to stkPointer")
+            ok
+            return oPointer
+        catch cError
+            raise("ERROR: Cannot restore pointer from reference: " + cError)
+        done
+
+    def ToBinaryString()
+        # Convert pointer view to binary string representation
+        This.ValidatePointer()
+        
+        if @pLowLevelPtr = NULL
+            return This.ReadAll()  # Fallback to regular read
+        ok
+        
+        # Use pointer2string for direct memory access
+        nViewAddress = This.GetViewAddress()
+        pTempPtr = nullptr()
+        setptr(pTempPtr, nViewAddress)
+        
+        try
+            return ptr2str(pTempPtr, 0, @nLength)
+        catch cError
+            # Fallback to regular read if direct access fails
+            return This.ReadAll()
+        done
+
+    def FromBinaryString(cBinaryData, nOffset)
+        # Write binary data directly to pointer location
+        This.ValidatePointer()
+        
+        if @cAccessMode != "write"
+            raise("ERROR: Write operation not allowed - pointer is read-only")
+        ok
+        
+        if IsNull(nOffset)
+            nOffset = 0
+        ok
+        
+        if nOffset < 0
+            raise("ERROR: Negative offset not allowed")
+        ok
+        
+        if nOffset + len(cBinaryData) > @nLength
+            raise("ERROR: Binary data would exceed pointer view bounds")
+        ok
+        
+        # Use regular write method for safety
+        This.Write(nOffset, cBinaryData)
+
     #-----------------------------#
     #  INFORMATION AND METADATA   #
     #-----------------------------#
@@ -458,7 +619,11 @@ class stkPointer
             :length = @nLength,
             :isValid = This.IsValid(),
             :isReadOnly = This.IsReadOnly(),
-            :isWritable = This.IsWritable()
+            :isWritable = This.IsWritable(),
+            :hasLowLevelPtr = (@pLowLevelPtr != NULL),
+            :memoryAddress = This.GetMemoryAddress(),
+            :viewAddress = This.GetViewAddress(),
+            :isNullPointer = This.IsNullPointer()
         ]
 
     def Content()
@@ -510,9 +675,13 @@ class stkPointer
         
         return @cBufferId = oOther.BufferId()
 
-
     def Free()
         if @bIsValid and @oMemory != NULL
+            # Clean up low-level pointer if it exists
+            if @pLowLevelPtr != NULL
+                @pLowLevelPtr = NULL
+            ok
+            
             # Notify memory container to remove this pointer
             @oMemory.DestroyPointer(@nPointerId)
             @bIsValid = FALSE
@@ -520,7 +689,6 @@ class stkPointer
 
     def Destroy()
         This.Free()
-
 
     def Show()
         ? "stkPointer Info:"
@@ -530,6 +698,9 @@ class stkPointer
         ? "  Offset: " + @nOffset
         ? "  Length: " + @nLength
         ? "  Valid: " + This.IsValid()
+        ? "  Has Low-Level Ptr: " + (@pLowLevelPtr != NULL)
+        ? "  Memory Address: " + Upper(hex(This.GetMemoryAddress()))
+        ? "  View Address: " + Upper(hex(This.GetViewAddress()))
         ? "  Content: '" + This.Content() + "'"
 
     #--------------------------------#
@@ -538,6 +709,23 @@ class stkPointer
 
     PRIVATE
 
+    def InitializeLowLevelAccess()
+        # Initialize low-level pointer access if possible
+        try
+            # Try to get buffer data and create pointer to it
+            oBuffer = @oMemory.GetBufferById(@cBufferId)
+            if not IsNull(oBuffer)
+                cBufferData = oBuffer.Content()
+                if len(cBufferData) > 0
+                    @pLowLevelPtr = varptr(:cBufferData, :char)
+                    @nBaseAddress = getptr(@pLowLevelPtr)
+                ok
+            ok
+        catch cError
+            # If low-level access fails, continue without it
+            @pLowLevelPtr = NULL
+            @nBaseAddress = 0
+        done
 
 	def ValidatePointer()
 
