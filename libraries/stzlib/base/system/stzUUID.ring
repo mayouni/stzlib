@@ -3,6 +3,15 @@
 	Provides robust UUID generation using system calls across platforms
 */
 
+func UUID()
+	return StzUUIDQ().Content()
+
+func NullUUID()
+	return "00000000-0000-0000-0000-000000000000"
+
+func StzUUIDQ()
+	return new stzUUID()
+
 class stzUUID
 
 	# Private attributes
@@ -10,35 +19,21 @@ class stzUUID
 	@nVersion = 4
 	@cPlatform = ""
 
-	def init(p)
-		if isNull(p)
-			@cPlatform = DetectPlatform()
-			GenerateUUID()
-
-		but IsValidUUID(p)
-			@cUuid = upper(p)
-
-		else
-			raise("Can't create the stzUUID object. You must provide a valid string format or a null string.")
-		ok
+	def init()
+		@cPlatform = DetectPlatform()
+		GenerateUUID()
 
 	# Public methods
 
 	def Generate()
 		GenerateUUID()
-		return This
 
-	def UUID()
+
+	def Content()
 		return @cUuid
 
-	def ToString()
-		return @cUuid
-
-	def ToLower()
-		return lower(@cUuid)
-
-	def ToUpper() 
-		return upper(@cUuid)
+	def Copy()
+		return new stzUUID(This.UUID())
 
 	def WithoutHyphens()
 		return substr(@cUuid, "-", "")
@@ -55,7 +50,7 @@ class stzUUID
 		ok
 		return @cUuid
 
-	def IsNil()
+	def IsNull()
 		return @cUuid = "00000000-0000-0000-0000-000000000000"
 
 	def Version()
@@ -79,29 +74,7 @@ class stzUUID
 		ok
 		return "Unknown"
 
-	def Equals(oOther)
-		if classname(oOther) = "stzuuid"
-			return This.UUID() = oOther.UUID()
-		ok
-		return This.UUID() = upper(oOther)
-
-	def Compare(oOther)
-		cOtherUUID = ""
-		if classname(oOther) = "stzuuid"
-			cOtherUUID = oOther.UUID()
-		else
-			cOtherUUID = upper(oOther)
-		ok
-		
-		if This.UUID() < cOtherUUID
-			return -1
-		but This.UUID() > cOtherUUID
-			return 1
-		else
-			return 0
-		ok
-
-	def Hash()
+	def Hashed()
 		# Simple hash function for UUID
 		nHash = 0
 		cClean = WithoutHyphens()
@@ -111,8 +84,16 @@ class stzUUID
 		next
 		return nHash
 
+		def Hash()
+			return This.Hashed()
+
+		def ToHash()
+			return This.Hashed()
+
 	def ToBytes()
+
 		# Convert UUID to byte array (32 hex chars = 16 bytes)
+
 		cHex = WithoutHyphens()
 		nLen = len(cHex)
 		aBytes = []
@@ -121,62 +102,6 @@ class stzUUID
 			add(aBytes, number("0x" + cByte))
 		next
 		return aBytes
-
-	def Copy()
-		return new stzUUID(This.UUID())
-
-	# Static methods
-
-	def NewUUID()
-		return new stzUUID(NULL)
-
-	def FromString(cUUID)
-		return new stzUUID(cUUID)
-
-	def FromBytes(aBytes)
-		nLen = len(aBytes)
-		if nLen != 16
-			raise("Invalid byte array length for UUID")
-		ok
-		
-		cHex = ""
-
-		for i = 1 to nLen
-			nByte = aBytes[i]
-			cByteHex = hex(nByte)
-
-			if len(cByteHex) = 1
-				cByteHex = "0" + cByteHex
-			ok
-			cHex += cByteHex
-		next
-		
-		# Format with hyphens
-		cUUID = @substr(cHex, 1, 8) + "-" +
-		        @substr(cHex, 9, 4) + "-" +
-		        @substr(cHex, 13, 4) + "-" +
-		        @substr(cHex, 17, 4) + "-" +
-		        @substr(cHex, 21, 12)
-		
-		return new stzUUID(upper(cUUID))
-
-	def Nil()
-		return new stzUUID("00000000-0000-0000-0000-000000000000")
-
-	def Parse(cUUID)
-		if IsValidUUID(cUUID)
-			return new stzUUID(cUUID)
-		else
-			raise("Cannot parse invalid UUID: " + cUUID)
-		ok
-
-	def TryParse(cUUID)
-		# Returns [success, uuid_object]
-		if IsValidUUID(cUUID)
-			return [True, new stzUUID(cUUID)]
-		else
-			return [False, NULL]
-		ok
 
 	# Private methods
 
@@ -350,3 +275,6 @@ class stzUUID
 		next
 		
 		return True
+
+		def IsValid()
+			return This.IsValidUUID()
