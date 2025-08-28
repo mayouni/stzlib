@@ -1,5 +1,6 @@
 load "libuv.ring"
 
+
 #=====================#
 #  MAIN REACTIVE API  #
 #=====================#
@@ -31,7 +32,6 @@ class stzReactiveSystem
 	http = NULL
 	oDataStream = NULL
 	oHttpStream = NULL
-	oFileSystem = NULL
 
 	#-----------------------------------------#
 	#  INITIALIZATION OF THE REACTIVE SYSTEM  #
@@ -66,22 +66,23 @@ class stzReactiveSystem
 	# execution and cleanup of asynchronous operations.
 
 	def Start()
-		# Initiates the reactive system and runs the event loop.
-		if isRunning = ENGINE_STOPPED
-			isRunning = ENGINE_RUNNING
-			sleep(0.1)
-
-			# Execute any pending chunked tasks
-			nLenTasks = len(tasks)
-			for i = 1 to nLenTasks
-				if tasks[i].status = TASK_PENDING
-					tasks[i].Execute()
-				ok
-			next
-
-			timerManager.RunLoop()
-			isRunning = ENGINE_STOPPED
-		ok
+	    # Initiates the reactive system and runs the event loop.
+	    if isRunning = ENGINE_STOPPED
+	        isRunning = ENGINE_RUNNING
+	        sleep(0.1)
+	
+	        # Execute any pending chunked tasks
+	        nLenTasks = len(tasks)
+	        for i = 1 to nLenTasks
+	            if tasks[i].status = TASK_PENDING
+	                tasks[i].Execute()
+	            ok
+	        next
+	
+		# Run timer-based loop for other reactive components
+	        timerManager.RunLoop()	        
+	        isRunning = ENGINE_STOPPED
+	    ok
 
 		#< @FunctionAlternativeForms
 		def Run()
@@ -110,7 +111,6 @@ class stzReactiveSystem
 		for i = 1 to nLenStreams 
 			streams[i].Cleanup()
 		next
-
 
 		#< @FunctionAlternativeForms
 
@@ -182,7 +182,7 @@ class stzReactiveSystem
 		if NOT isString(cFuncName)
 			raise("Function name must be a string")
 		ok
-		return new stzReactiveFuncWrapper(cFuncName, self)
+		return new stzReactiveFunc(cFuncName, self)
 
 		#< @FunctionAlternativeForm
 		def MakeFunctionReactive(cFuncName)
@@ -253,18 +253,20 @@ class stzReactiveSystem
 		return This.CreateTimerXT(id, intervalMs, callback, FALSE)
 
 	def CreateTimerXT(id, intervalMs, callback, oneTime) # runs once after 5 seconds
+
 	    if oneTime = NULL
 	        oneTime = false
 	    ok
+
 	    timer = new stzReactiveTimer(id, intervalMs, callback, self, oneTime)
 	    timerManager.AddTimer(timer)
 	    timer.Start()
-	    return timer
 
+	    return timer
 
 	def CreateTask(id, f)
 		# Creates an asynchronous task with a specified function.
-		task = new stzReactiveTask(id, f, self)
+		task = new stzReactiveTask(id, f, self, NULL)
 		AddTask(task)
 		return task
 
@@ -346,17 +348,6 @@ class stzReactiveSystem
 		ok
 		return http.Post(url, data, onSuccess, onError)
 
-	#------------------------#
-	#  REACTIVE FILE SYSTEM  #
-	#------------------------#
-
-	def FileSystem()
-	    # Lazy initialization of file system component
-	    if oFileSystem = NULL
-	        oFileSystem = new stzReactiveFileSystem(self)
-	    ok
-	    return oFileSystem
-
 	#--------------------#
 	#  BUFFER UTILITIES  #
 	#--------------------#
@@ -376,7 +367,7 @@ class stzReactiveSystem
 	#  INTERNAL METHODS  #
 	#--------------------#
 
-	# Manages tasks, streams, and timers watchers
+	# Manages tasks, streams, and timers
 	# for internal system operations.
 
 	def AddTask(task)
@@ -390,80 +381,3 @@ class stzReactiveSystem
 	def AddTimer(timer)
 		# Adds a timer to the timer manager.
 		timerManager.AddTimer(timer)
-
-
-#=================#
-#  REACTIVE TASK  #
-#=================#
-
-# Core Abstraction for Async Operations
-
-# Manages asynchronous tasks with execution, completion,
-# and error handling capabilities.
-
-class stzReactiveTask
-
-	# Task properties
-	#----------------
-	# Stores task metadata, function, status, and
-	# callbacks for asynchronous execution.
-
-	taskId = ""
-	taskFunc = NULL
-	onComplete = NULL
-	onError = NULL
-	status = TASK_PENDING
-	result = NULL
-	engine = NULL
-	errorHandling = DEFAULT_ERROR_HANDLING
-
-	def init(id, f, engine, errorMode)
-		# Initializes a task with an ID, function, and engine reference.
-		taskId = id
-		taskFunc = f
-		this.engine = engine
-		status = TASK_PENDING
-		
-		if errorMode != NULL
-			errorHandling = errorMode
-		ok
-		
-	def Then_(completeFunc)
-		# Sets the callback for task completion.
-		onComplete = completeFunc
-		return self
-		
-	def Catch_(errorFunc)
-		# Sets the callback for task errors.
-		onError = errorFunc
-		return self
-		
-	def Execute()
-		# Executes the task, handling success and error cases.
-		try
-			status = TASK_RUNNING
-			if isString(taskFunc)
-				result = call taskFunc()
-			else
-				result = call taskFunc()
-			ok
-			status = TASK_COMPLETED
-			if onComplete != NULL
-				call onComplete(result)
-			ok
-
-		catch
-			status = TASK_ERROR
-			errorMsg = "Task execution failed"
-			
-			if errorHandling = ERROR_THROW
-				raise(errorMsg)
-			but errorHandling = ERROR_LOG
-				? errorMsg
-			but errorHandling = ERROR_CALLBACK and onError != NULL
-				call onError(errorMsg)
-			ok
-		done
-		
-	def Cleanup()
-		# Cleans up task resources (overridable in subclasses).

@@ -1,11 +1,10 @@
 load "../stzbase.ring"
 
-
 # stzUuid Class Tests
 #--------------------
 	
 /*--- Basic generation
-
+*/
 pr()
 
 # Quick function style
