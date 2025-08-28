@@ -1,3 +1,0 @@
-Softanza libraray is
-now reactive!
-And this is a Reactive File.

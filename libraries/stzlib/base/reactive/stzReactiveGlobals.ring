@@ -50,23 +50,6 @@ PATIENCE_LONG = 100      # Wait 1 second for new timers
 MS_PER_SECOND = 1000
 CLOCKS_TO_MS_MULTIPLIER = MS_PER_SECOND
 
-#-----------------#
-#  TASK CONSTANTS #
-#-----------------#
-
-# Task Status
-TASK_PENDING = "pending"
-TASK_RUNNING = "running"
-TASK_COMPLETED = "completed"
-TASK_ERROR = "error"
-TASK_CANCELLED = "cancelled"
-
-# HTTP Tasks
-HTTP_TASK_GET = "http_get"
-HTTP_TASK_POST = "http_post"
-HTTP_TASK_PUT = "http_put"
-HTTP_TASK_DELETE = "http_delete"
-
 
 #-------------------#
 #  STREAM CONSTANTS #
@@ -133,6 +116,12 @@ BUFFER_STRATEGY_BLOCK = :block
 STREAM_ATTR_CHANGES = "attribute_changes"
 STREAM_ALL_CHANGES = "all"
 STREAM_DISTINCT_CHANGES = "distinct"
+
+# Add these constants to your constants file
+BACKPRESSURE_STRATEGY_BUFFER = "buffer"
+BACKPRESSURE_STRATEGY_DROP = "drop" 
+BACKPRESSURE_STRATEGY_BLOCK = "block"
+BACKPRESSURE_STRATEGY_LATEST = "latest"
 
 #-------------------#
 #  ENGINE CONSTANTS #
@@ -380,7 +369,6 @@ POLL_INTERVALS = [
     :SLOW = 1000,       # 1s - conservative
     :VERY_SLOW = 5000   # 5s - minimal resource usage
 ]
-
 
 #-----------------#
 #  UDP CONSTANTS  #

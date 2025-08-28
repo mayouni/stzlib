@@ -12,7 +12,7 @@ Rs = new stzReactiveSystem()
 Rs {
 
     # Create a manual stream for basic operations
-    oBasicStream = CreateStream("basic-example", STREAM_SOURCE_MANUAL)
+    oBasicStream = CreateStream("basic-example", :MANUAL)
     oBasicStream {
         # Subscribe to data emissions
         OnData(func data {
@@ -28,9 +28,6 @@ Rs {
         OnComplete(func() {
             ? "✅ Stream processing completed"
         })
-
-        # Start processing
-        Start()
 
         # Emit individual data points
         Emit("First message")
@@ -59,7 +56,7 @@ pf()
 # Executed in 0.93 second(s) in Ring 1.23
 
 /*--- Stream Transformations - Map, Filter
-*/
+
 # Shows data transformation capabilities with chaining
 # Key concepts: Map (transform), Filter (predicate)
 
@@ -69,20 +66,18 @@ Rs = new stzReactiveSystem()
 Rs {
     
     # Create stream for data processing pipeline
-    oTransformStream = CreateStream("transform-pipeline", STREAM_SOURCE_MANUAL)
+    oTransformStream = CreateStream("transform-pipeline", :MANUAL)
     oTransformStream {
         # Chain transformations
         Map(func price { return price * 1.20 })		# Add 20% tax
         Filter(func price { return price >= 100 })	# Only expensive items
 
-        OnData(func finalPrice {
+        Subscribe(func finalPrice {
             ? "💰 Final price after tax & filtering: $" + finalPrice
         })
 
-        Start()
-
         # Test data with duplicates and various price ranges
-        testPrices = [80, 90, 100, 120, 150, 200]
+        testPrices = [ 80, 90, 100, 120, 150, 200 ]
         EmitMany(testPrices)
 
         Complete()
@@ -111,7 +106,7 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # Sales data aggregation
-    oSalesStream = CreateStream("sales-aggregation", STREAM_SOURCE_MANUAL)
+    oSalesStream = CreateStream("sales-aggregation", :MANUAL)
     oSalesStream {
         # Calculate total sales using reduce
         Reduce(func(accumulator, sale) {
@@ -125,8 +120,6 @@ Rs {
         OnComplete(func() {
             ? "✅ Sales calculation completed"
         })
-        
-        Start()
         
         # Daily sales data
         salesData = [
@@ -159,7 +152,7 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # Website analytics stream
-    oAnalyticsStream = CreateStream("web-analytics", STREAM_SOURCE_MANUAL)
+    oAnalyticsStream = CreateStream("web-analytics", :MANUAL)
     oAnalyticsStream {
         # Aggregate user session data
         Reduce(func(stats, session) {
@@ -174,7 +167,7 @@ Rs {
             return stats
         }, [:totalUsers = 0, :totalPageViews = 0, :totalSessionTime = 0, :conversions = 0])
         
-        OnData(func analytics {
+        Subscribe(func analytics {
             avgPageViews = analytics["totalPageViews"] / analytics["totalUsers"]
             avgSessionTime = analytics["totalSessionTime"] / analytics["totalUsers"]
             conversionRate = (analytics["conversions"] * 100.0) / analytics["totalUsers"]
@@ -185,8 +178,6 @@ Rs {
             ? "   Avg Session Time: " + avgSessionTime + " minutes"
             ? "   Conversion Rate: " + conversionRate + "%"
         })
-        
-        Start()
         
         # User session data
         sessions = [
@@ -223,7 +214,7 @@ Rs = new stzReactiveSystem()
 Rs {
     
     # Sensor data processing stream
-    oSensorStream = CreateStream("sensor-data", STREAM_SOURCE_MANUAL)
+    oSensorStream = CreateStream("sensor-data", :MANUAL)
     oSensorStream {
 
         # Multi-stage processing pipeline
@@ -242,7 +233,7 @@ Rs {
             return floor(temp * 10) / 10
         })
      
-        OnData(func temperature {
+        Subscribe(func temperature {
             alert = ""
             if temperature > 35
                 alert = " 🔥 HIGH"
@@ -251,8 +242,6 @@ Rs {
             ok
             ? "🌡️  Temperature: " + temperature + "°C" + alert
         })
-        
-        Start()
         
         # Simulate sensor readings (Fahrenheit)
         rawReadings = [ 68, 75, 32, 100, 212, -40, 150 ]
@@ -277,8 +266,8 @@ pf()
 
 /*--- Chat Message Processing
 
-# Realistic example: Processing chat messages with filtering and formatting
-# Demonstrates practical stream usage
+# Realistic example: Processing chat messages with filtering and
+# formatting demonstrates practical stream usage
 
 pr()
 
@@ -286,11 +275,14 @@ Rs = new stzReactiveSystem()
 Rs {
     
     # Chat message processing pipeline
-    oChatStream = CreateStream("chat-messages", STREAM_SOURCE_MANUAL)
+
+    oChatStream = CreateStream("chat-messages", :MANUAL)
     oChatStream {
+
         # Filter out spam and inappropriate content
+
         Filter(func message {
-            spamWords = ["spam", "advertisement", "buy now"]
+            spamWords = [ "spam", "advertisement", "buy now" ]
             text = lower(message)
             
             nLenSpam = len(spamWords)
@@ -304,18 +296,18 @@ Rs {
         })
         
         # Format messages
+
         Map(func message {
             timestamp = "12:34"  # In real app, use actual timestamp
             return "[" + timestamp + "] " + message
         })
         
-        OnData(func formattedMessage {
+        Subscribe(func formattedMessage {
             ? "💬 " + formattedMessage
         })
         
-        Start()
-        
         # Simulate chat messages
+
         messages = [
             "Hello everyone!",
             "How's everyone doing?", 
@@ -338,7 +330,7 @@ Rs {
 }
 
 pf()
-# Executed in 0.93 second(s) in Ring 1.23
+# Executed in 0.94 second(s) in Ring 1.23
 
 /*--- E-commerce Order Processing
 
@@ -351,15 +343,19 @@ Rs = new stzReactiveSystem()
 Rs {
     
     # Order processing stream
-    oOrderStream = CreateStream("order-processing", STREAM_SOURCE_MANUAL)
+
+    oOrderStream = CreateStream("order-processing", :MANUAL)
     oOrderStream {
+
         # Validate orders
+
         Filter(func order {
             # Basic validation
             return order["amount"] > 0 and len(order["customer"]) > 0
         })
         
         # Calculate totals with tax and shipping
+
         Map(func order {
             subtotal = order["amount"]
             tax = subtotal * 0.08  # 8% tax
@@ -373,11 +369,12 @@ Rs {
         })
         
         # Filter high-value orders for special handling
+
         Filter(func order {
             return order["total"] >= 100  # VIP orders only
         })
         
-        OnData(func processedOrder {
+        Subscribe(func processedOrder {
             ? "🛒 VIP Order processed:"
             ? "   Customer: " + processedOrder["customer"]
             ? "   Subtotal: $" + processedOrder["amount"]
@@ -388,9 +385,8 @@ Rs {
             ? ""
         })
         
-        Start()
-        
         # Simulate incoming orders
+
         orders = [
             [ :customer = "John Doe", :amount = 89.99 ],      # Below threshold
             [ :customer = "Jane Smith", :amount = 150.00 ],   # VIP order
@@ -435,7 +431,7 @@ Rs {
 pf()
 # Executed in 0.93 second(s) in Ring 1.23
 
-*--- Timer-Based Streams
+/*--- Timer-Based Streams
 
 # Periodic data generation for monitoring, logging, scheduled tasks
 # Essential for: Heartbeats, polling, periodic updates
@@ -444,8 +440,10 @@ pr()
 
 Rs = new stzReactiveSystem()
 Rs {
+
     # System monitoring with timer-based stream
-    oTimerStream = CreateStream("system-monitor", STREAM_SOURCE_TIMER)
+
+    oTimerStream = CreateStream("system-monitor", :TIMER)
     oTimerStream {
 
         Map(func tick {
@@ -463,12 +461,12 @@ Rs {
             return metrics[:cpu_usage] > 80 or metrics[:memory_usage] > 85
         })
 
-        OnData(func alert {
+        Subscribe(func alert {
             ? "⚠️ SYSTEM ALERT"
 	    ? "----------------"
             ? " • CPU    : " + alert[:cpu_usage] + "%"
             ? " • Memory : " + alert[:memory_usage] + "%"
-            ? " • Disk   : " + alert[:disk_space] + "%"
+            ? " • Disk   : " + alert[:disk_space] + "%" + NL
         })
 
         OnComplete(func() {
@@ -491,11 +489,26 @@ Rs {
     #  • Memory : 60%
     #  • Disk   : 88%
     # 
+    # ⚠️ SYSTEM ALERT
+    # ----------------
+    #  • CPU    : 94%
+    #  • Memory : 19%
+    #  • Disk   : 93%
+    # 
+    # ⚠️ SYSTEM ALERT
+    # ----------------
+    #  • CPU    : 2%
+    #  • Memory : 95%
+    #  • Disk   : 100%
+    # 
     # ✅ Monitoring session ended
 }
 
+#TODO Check why the number of alerts varies if we run the sample
+# several times (1, 2, 3 or even nothing)
+
 pf()
-# Executed in 1.04 second(s) in Ring 1.23
+# Executed in 0.94 second(s) in Ring 1.23
 
 /*--- File-Based Streams
 
@@ -507,7 +520,7 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # Log file processing stream
-    oFileStream = CreateStream("log-processor", STREAM_SOURCE_FILE)
+    oFileStream = CreateStream("log-processor", :FILE)
     oFileStream {
 
         # Parse log entries
@@ -536,8 +549,6 @@ Rs {
             ? " • Level: " + criticalLog[:level]
             ? " • Message: " + criticalLog[:message] + NL
         })
-        
-        Start()
         
         # Simulate log file content
         logLines = [
@@ -580,7 +591,7 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # API data processing stream
-    oNetworkStream = CreateStream("api-monitor", STREAM_SOURCE_NETWORK)
+    oNetworkStream = CreateStream("api-monitor", :NETWORK)
     oNetworkStream {
         # Parse API responses
         Map(func apiResponse {
@@ -598,7 +609,7 @@ Rs {
             return response[:status_code] >= 400 or response[:response_time] > 2000
         })
         
-        OnData(func issue {
+        Subscribe(func issue {
 
             issueType = ""
             if issue[:status_code] >= 500
@@ -650,7 +661,7 @@ Rs {
 }
 
 pf()
-# Executed in 0.93 second(s) in Ring 1.23
+# Executed in 0.94 second(s) in Ring 1.23
 
 /*--- Sensor-Based Streams
 
@@ -662,7 +673,7 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # Environmental monitoring stream
-    oSensorStream = CreateStream("environment-monitor", STREAM_SOURCE_SENSOR)
+    oSensorStream = CreateStream("environment-monitor", :SENSOR)
     oSensorStream {
 
         # Calibrate sensor readings
@@ -684,7 +695,7 @@ Rs {
                    reading[:air_quality] > 150
         })
         
-        OnData(func alert {
+        Subscribe(func alert {
             alertTypes = []
 
             if alert[:temperature] > 30
@@ -754,7 +765,7 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # System process monitoring via LibUV
-    oUVStream = CreateStream("process-monitor", STREAM_SOURCE_LIBUV)
+    oUVStream = CreateStream("process-monitor", :LIBUV)
     oUVStream {
         # Process system events
         Map(func uvEvent {
@@ -773,7 +784,7 @@ Rs {
             return find(highImpactEvents, processEvent[:event_type])
         })
         
-        OnData(func criticalEvent {
+        subscribe(func criticalEvent {
             ? "🔥 SYSTEM EVENT DETECTED:"
             ? "• Type: " + criticalEvent[:event_type]
             ? "• Process ID: " + criticalEvent[:process_id] 
@@ -834,14 +845,13 @@ Rs {
     # Create multiple specialized streams
     
     # 1. User activity stream (manual)
-    oUserStream = CreateStream("user-activity", STREAM_SOURCE_MANUAL)
+    oUserStream = CreateStream("user-activity", :MANUAL)
     oUserStream {
         Map(func activity { 
             activity[:source] = "USER"
             return activity
         })
-        OnData(func event { ? "👤 " + event[:action] + " by " + event[:user] })
-        Start()
+        Subscribe(func event { ? "👤 " + event[:action] + " by " + event[:user] })
     }
     
     # 2. System health stream (timer)
@@ -852,7 +862,6 @@ Rs {
         })
         Filter(func health { return health[:load] > 80 })
         OnData(func alert { ? "⚙️  System load high: " + alert[:load] + "%" })
-        Start()
     }
     
     # 3. External API stream (network)
@@ -863,7 +872,6 @@ Rs {
             return response
         })
         OnData(func update { ? "🌐 API: " + update[:message] })
-        Start()
     }
     
     # Simulate multi-source events
@@ -895,6 +903,455 @@ Rs {
     # ⚙️  System load high: 94%
     # 🌐 API: New feature deployed
     # 🌐 API: Maintenance scheduled
+}
+
+pf()
+# Executed in 0.92 second(s) in Ring 1.23
+
+#----------------------------------#
+#  Backpressure Strategy Examples  #
+#----------------------------------#
+
+#NOTE
+
+# Backpressure occurs when data arrives faster than it can be processed.
+# The producer (emitting data) overwhelms the consumer (subscriber), so
+# the system applies "pressure back" to slow down or block the producer.
+
+/*--- Buffer Strategy - Queue data when subscriber is slow
+
+# The sample shows proper backpressure with BACKPRESSURE_STRATEGY_BUFFER
+# When the buffer is full, new items are blocked/dropped, and only the
+# original buffered items get processed when drained.
+
+pr()
+
+Rs = new stzReactiveSystem()
+Rs {
+
+    # High-frequency data stream with slow subscriber
+
+    oBufferStream = CreateStream("buffer-example", :MANUAL)
+    oBufferStream {
+        # Set buffer strategy with small buffer for demo
+        SetBackpressureStrategy(:BUFFER, 3)
+        
+        # Slow subscriber (simulated)
+        Subscribe(func data {
+            ? "📊 Processing: " + data + " (slow subscriber)"
+            # Simulate slow processing
+        })
+        
+        OnBackpressure(func(current, max) {
+            ? "🚦 Backpressure activated: " + current + "/" + max + " buffer full"
+        })
+        
+        # Rapid data emission
+
+        for i = 1 to 7  # Exceeds buffer size of 3
+            ? "Emitting item " + i
+            Emit("Data-" + i)
+        next
+        
+        ? "Draining buffer..."
+        DrainBuffer()
+        Complete()
+    }
+    
+    Start()
+    #--> (#NOTE I added comments to the output for clarity)
+ 
+    # Phase 1: Filling buffer (capacity: 3)
+    # -------------------------------------
+    # Emitting item 1
+    # Emitting item 2
+    # Emitting item 3
+    # 
+    # Phase 2: Buffer full - backpressure blocks new items
+    # ----------------------------------------------------
+    # Emitting item 4
+    #🚦 Backpressure activated: 3/3 buffer full
+    # ⚠️ Backpressure: Buffering data (buffer full: 3/3)
+    # 
+    # Emitting item 5
+    #🚦 Backpressure activated: 3/3 buffer full
+    #⚠️ Backpressure: Buffering data (buffer full: 3/3)
+    # 
+    # Emitting item 6
+    #🚦 Backpressure activated: 3/3 buffer full
+    #⚠️ Backpressure: Buffering data (buffer full: 3/3)
+    # 
+    # Emitting item 7
+    #🚦 Backpressure activated: 3/3 buffer full
+    #⚠️ Backpressure: Buffering data (buffer full: 3/3)
+    # 
+    # Phase 3: Manual drain processes buffered items
+    #-----------------------------------------------
+    # Draining buffer...
+    # 📊 Processing: Data-1 (slow subscriber)
+    # 📊 Processing: Data-2 (slow subscriber)
+    # 📊 Processing: Data-3 (slow subscriber)
+
+}
+
+#NOTE
+
+# Draining a buffer means processing all queued/stored items
+# in the buffer. Items were temporarily held due to backpressure,
+# and draining releases them for processing.
+
+# In our example above:
+
+# Items 1-3 fill the buffer (capacity: 3)
+# Items 4-7 are blocked by backpressure (buffer full)
+# Draining processes the 3 stored items while blocked items are lost
+
+# It is like a traffic jam: cars (data) back up when the road (processor)
+# can't handle the flow, and draining is like clearing the backed-up cars.
+
+pf()
+# Executed in 0.95 second(s) in Ring 1.23
+
+/*--- Drop Strategy - Discard data when overwhelmed
+
+# The sample shows BACKPRESSURE_STRATEGY_DROP behavior
+# Buffer fills to capacity (3), then excess sensor readings
+# are discarded to prevent system overload - sacrifices data 
+# completeness for stability
+
+pr()
+
+Rs = new stzReactiveSystem()
+Rs {
+    # Real-time sensor stream that can afford to lose some data
+    oDropStream = CreateStream("drop-example", :SENSOR)
+    oDropStream {
+        SetBackpressureStrategy(:DROP, 2)
+        
+        Map(func reading {
+            return "Sensor-" + reading + "°C"
+        })
+        
+        Subscribe(func temperature {
+            ? "🌡️ Current temp: " + temperature
+        })
+        
+        OnBackpressure(func(current, max) {
+            ? "🚨 Sensor overloaded, dropping readings"
+        })
+
+        ? "Simulating high-frequency sensor readings..."
+        
+        # Simulate sensor burst
+        sensorReadings = [23.5, 23.7, 24.1, 24.3, 24.5, 24.8, 25.0]
+        for i = 1 to len(sensorReadings)
+            ? "Reading: " + sensorReadings[i]
+            Emit(sensorReadings[i])
+        next
+        
+        stats = GetBackpressureStats()
+        ? NL + "Final stats - Dropped: " + stats[:droppedCount] + " readings"
+        
+        Complete()
+    }
+    
+    Start()
+    #--> (#NOTE I added some comments to clarify the output)
+    # Simulating high-frequency sensor readings...
+    # 
+    # Phase 1: Buffer fills with initial readings (capacity: 3)
+    # ---------------------------------------------------------
+    # Reading: 23.50
+    # Reading: 23.70
+    # Reading: 24.10
+    # 
+    # Phase 2: Drop strategy - excess readings discarded
+    # --------------------------------------------------
+    # Reading: 24.30
+    # 🚨 Sensor overloaded, dropping readings
+    # ⚠️ Backpressure: Dropping data item (dropped so far: 1)
+    # 
+    # Reading: 24.50
+    # 🚨 Sensor overloaded, dropping readings
+    # ⚠️ Backpressure: Dropping data item (dropped so far: 2)
+    # 
+    # Reading: 24.80
+    # 🚨 Sensor overloaded, dropping readings
+    # ⚠️ Backpressure: Dropping data item (dropped so far: 3)
+    # 
+    # Reading: 25
+    # 🚨 Sensor overloaded, dropping readings
+    # ⚠️ Backpressure: Dropping data item (dropped so far: 4)
+
+    # Result: Only first 3 readings kept, rest dropped
+    # ------------------------------------------------
+    # Final stats - Dropped: 5 readings
+
+}
+
+pf()
+# Executed in 0.92 second(s) in Ring 1.23
+
+/*--- Latest Strategy - Keep most recent data
+
+# The sample shows BACKPRESSURE_STRATEGY_LATEST behavior
+# Buffer maintains fixed size by discarding oldest data when new arrives
+# Ensures most current information is preserved for time-sensitive applications
+
+pr()
+
+Rs = new stzReactiveSystem()
+Rs {
+    # Stock price stream - only latest price matters
+    oLatestStream = CreateStream("latest-price", :NETWORK)
+    oLatestStream {
+        SetBackpressureStrategy(:LATEST, 2)
+        
+        Map(func price {
+            return "AAPL: $" + price
+        })
+        
+        Subscribe(func stockPrice {
+            ? "💰 " + stockPrice
+        })
+        
+        OnBackpressure(func(current, max) {
+            ? "📈 High trading volume - keeping latest prices only"
+        })
+        
+        ? "=== Latest Strategy Demo ==="
+        ? "Simulating rapid stock price updates..."
+        
+        # Rapid price updates
+        prices = [150.25, 150.30, 150.15, 150.45, 150.60, 150.55]
+        for i = 1 to len(prices)
+            ? "Price update: $" + prices[i]
+            Emit(prices[i])
+        next
+        
+        DrainBuffer()
+        Complete()
+    }
+    
+    Start()
+    #--> (#NOTE I added some comments to clarify the output)
+    # 
+    # Simulating rapid stock price updates...
+    # 
+    # Phase 1: Buffer fills with initial price updates (capacity: 3)
+    # --------------------------------------------------------------
+    # Price update: $150.25
+    # Price update: $150.30
+    # Price update: $150.15
+    # 
+    # Phase 2: Latest strategy - keeps newest prices, discards oldest
+    # ---------------------------------------------------------------
+    # Price update: $150.45
+    # 📈 High trading volume - keeping latest prices only
+    # ⚠️ Backpressure: Keeping latest, dropped oldest
+    # 
+    # Price update: $150.60
+    # 📈 High trading volume - keeping latest prices only
+    # ⚠️ Backpressure: Keeping latest, dropped oldest
+    # 
+    # Price update: $150.55
+    # 📈 High trading volume - keeping latest prices only
+    # ⚠️ Backpressure: Keeping latest, dropped oldest
+    # 
+    # Phase 3: Final buffer contains most recent prices
+    # 💰 AAPL: $150.60
+    # 💰 AAPL: $150.55
+}
+
+pf()
+# Executed in 0.93 second(s) in Ring 1.23
+
+/*--- Block Strategy - Simulate producer blocking
+
+# The sample shows BACKPRESSURE_STRATEGY_BLOCK behavior
+# Producer is halted when buffer fills to prevent data loss
+# Maintains data integrity by forcing synchronization
+# between producer and consumer
+
+pr()
+
+Rs = new stzReactiveSystem()
+Rs {
+    # Critical system events - cannot lose data
+    oBlockStream = CreateStream("critical-events", :MANUAL)
+    oBlockStream {
+        SetBackpressureStrategy(:BLOCK, 3)
+        
+        Filter(func event {
+            return event[:severity] = "CRITICAL"
+        })
+        
+        Subscribe(func criticalEvent {
+            ? "🚨 CRITICAL: " + criticalEvent[:message]
+            # Simulate slow processing of critical events
+        })
+        
+        OnBackpressure(func(current, max) {
+            ? "⛔ System overload - would block producer"
+        })
+        
+        ? "Block Strategy Demo..."
+        
+        events = [
+            [:severity = "CRITICAL", :message = "Database failure"],
+            [:severity = "CRITICAL", :message = "Memory exhausted"], 
+            [:severity = "INFO", :message = "User login"],
+            [:severity = "CRITICAL", :message = "Security breach"],
+            [:severity = "CRITICAL", :message = "Disk full"],
+            [:severity = "CRITICAL", :message = "Network down"]
+        ]
+        
+        for i = 1 to len(events)
+            ? "Event: " + events[i][:severity] + " - " + events[i][:message]
+            Emit(events[i])
+        next
+        
+        Complete()
+    }
+    
+    Start()
+    #--> (#NOTE I added some comments to clarify the output)
+    # Block Strategy Demo...
+    # 
+    # Phase 1: Buffer fills with initial events (capacity: 3)
+    # -------------------------------------------------------
+    # Event: CRITICAL - Database failure
+    # Event: CRITICAL - Memory exhausted
+    # Event: INFO - User login
+    # 
+    # Phase 2: Block strategy - producer paused to prevent overflow
+    # -------------------------------------------------------------
+    # Event: CRITICAL - Security breach
+    # ⛔ System overload - would block producer
+    # ⚠️ Backpressure: Would block producer (simulated)
+    # 
+    # Event: CRITICAL - Disk full
+    # ⛔ System overload - would block producer
+    # ⚠️ Backpressure: Would block producer (simulated)
+    # 
+    # Event: CRITICAL - Network down
+    # ⛔ System overload - would block producer
+    # ⚠️ Backpressure: Would block producer (simulated)
+    # 
+    # ~> No processing shown - events remain queued until
+    # consumer catches up
+}
+
+pf()
+# Executed in 0.92 second(s) in Ring 1.23
+
+/*--- Real-World Example: Log Processing with Adaptive Backpressure
+
+# The sample shows adaptive backpressure - system dynamically
+# switches strategies, by chaning from buffer to drop mode under
+# extreme load to maintain stability
+
+# Processes existing buffer before applying new strategy
+
+*/
+pr()
+
+Rs = new stzReactiveSystem()
+Rs {
+    # Log processing system with smart backpressure
+    oLogStream = CreateStream("adaptive-logs", :FILE)
+    oLogStream {
+        # Start with buffer strategy
+        SetBackpressureStrategy(:BUFFER, 5)
+        
+        # Parse and enrich log entries
+        Map(func logLine {
+            parts = split(logLine, "|")
+            return [
+                :timestamp = parts[1],
+                :level = parts[2],
+                :service = parts[3], 
+                :message = parts[4],
+                :processed_at = clocksPerSecond()
+            ]
+        })
+        
+        # Filter for important logs
+        Filter(func log {
+            importantLevels = ["ERROR", "WARN", "CRITICAL"]
+            return find(importantLevels, log[:level])
+        })
+        
+        Subscribe(func importantLog {
+            ? "📋 " + importantLog[:level] + " [" + importantLog[:service] + "] " + importantLog[:message]
+        })
+        
+        # Adaptive backpressure handler
+        OnBackpressure(func(current, max) {
+            ? "🔄 Log processing backpressure: " + current + "/" + max
+            
+            # Switch to drop strategy under extreme load
+            if current >= max
+                ? "⚡ Switching to DROP strategy due to extreme load"
+                oLogStream.SetBackpressureStrategy(BACKPRESSURE_STRATEGY_DROP, 10)
+            ok
+        })
+        
+        ? "Adaptive Log Processing Demo..."
+        
+        # Simulate log burst
+        logEntries = [
+            "2024-01-15 10:30:15|INFO|AUTH|User login successful",
+            "2024-01-15 10:30:16|ERROR|DB|Connection timeout", 
+            "2024-01-15 10:30:17|WARN|CACHE|High memory usage",
+            "2024-01-15 10:30:18|INFO|API|Request processed",
+            "2024-01-15 10:30:19|CRITICAL|SECURITY|Breach detected",
+            "2024-01-15 10:30:20|ERROR|PAYMENT|Transaction failed",
+            "2024-01-15 10:30:21|WARN|DISK|Low space warning",
+            "2024-01-15 10:30:22|ERROR|NETWORK|Connection lost",
+            "2024-01-15 10:30:23|CRITICAL|SYSTEM|Out of memory"
+        ]
+        
+        EmitMany(logEntries)
+        
+        ? "Processing remaining buffer..."
+        DrainBuffer()
+        
+        stats = GetBackpressureStats() 
+        ? "Final processing stats:"
+        ? "  • Strategy: " + stats[:strategy]
+        ? "  • Items dropped: " + stats[:droppedCount]
+        ? "  • Buffer utilization: " + stats[:currentBuffer] + "/" + stats[:bufferSize]
+        
+        Complete()
+    }
+    
+    Start()
+    #-->  (#NOTE I added some comments to clarify the output)
+    # Adaptive Log Processing Demo...
+    # 
+    # Phase 1: Buffer reaches capacity, triggers strategy change
+    # ----------------------------------------------------------
+    # 🔄 Log processing backpressure: 5/5
+    # ⚡ Switching to DROP strategy due to extreme load
+    # ⚠️ Backpressure: Dropping data item (dropped so far: 1)
+    # 
+    # Phase 2: Process buffered logs before strategy switch
+    # -----------------------------------------------------
+    # Processing remaining buffer...
+    # 📋 ERROR [DB] Connection timeout
+    # 📋 WARN [CACHE] High memory usage
+    # 📋 CRITICAL [SECURITY] Breach detected
+    # 📋 WARN [DISK] Low space warning
+    # 📋 ERROR [NETWORK] Connection lost
+    # 📋 CRITICAL [SYSTEM] Out of memory
+    # 
+    # Phase 3: Results after adaptive processing
+    # ------------------------------------------
+    # Final processing stats:
+    # - Strategy: drop
+    # - Items dropped: 1
+    # - Buffer utilization: 0/10
 }
 
 pf()

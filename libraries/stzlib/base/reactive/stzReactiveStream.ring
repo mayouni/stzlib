@@ -1,3 +1,4 @@
+
 class stzReactiveStream
 
 	streamId = ""
@@ -19,6 +20,18 @@ class stzReactiveStream
 
 	# LibUV handle (only for libuv-backed streams)
 	uvHandle = NULL
+
+	# Backpressure configuration
+	bufferSize = 100
+	backpressureStrategy = BACKPRESSURE_STRATEGY_BUFFER
+	currentBufferCount = 0
+	buffer = []
+	isBackpressureActive = STREAM_STATE_INACTIVE
+	droppedCount = 0
+	
+	# Backpressure callbacks
+	backpressureHandlers = []
+	bufferFullHandlers = []
 
 	def Init(id, sourceType, engine)
 		streamId = id
@@ -56,8 +69,8 @@ class stzReactiveStream
 		subscribers + subscriber
 		return self
 
-	def OnData(subscriber)
-		return Subscribe(subscriber)
+		def OnData(subscriber)
+			return Subscribe(subscriber)
 		
 	def OnError(errorHandler)
 		errorHandlers + errorHandler
@@ -66,54 +79,28 @@ class stzReactiveStream
 	def OnComplete(completeHandler)
 		completeHandlers + completeHandler
 		return self
-	        
+	
+	# Override Emit to handle backpressure
 	def Emit(data)
 		if not isActive or isCompleted
 			return
 		ok
 		
-		# Apply transforms
-		processedData = [data]
-		nLenTrans = len(transforms)
-
-		for i = 1 to nLenTrans
-			transformType = transforms[i][1]
-
-			switch transformType
-			case TRANSFORM_MAP
-				mapFunc = transforms[i][2]
-				processedData = @Map(processedData, mapFunc)
-
-			case TRANSFORM_FILTER
-				filterFunc = transforms[i][2]
-				processedData = @Filter(processedData, filterFunc)
-
-			case TRANSFORM_REDUCE
-				# Handle reduce differently - accumulate but don't emit yet
-				reduceFunc = transforms[i][2]
-				nLenData = len(processedData)
-				for j = 1 to nLenData
-					accumulator = call reduceFunc(accumulator, processedData[j])
-				next
-				# Skip emission for reduce - it will emit on Complete()
-				return
-			end
-		next
-		
-		# Only emit if we didn't encounter a reduce transform
-		if not hasReduceTransform
-			# Emit to local subscribers
-			nLenSub = len(subscribers)
-			nLenData = len(processedData)
-
-			for i = 1 to nLenSub
-				subscriber = subscribers[i]
-				for j = 1 to nLenData
-					call subscriber(processedData[j])
-				next
-			next
+		# Check if buffer is at capacity BEFORE adding new data
+		if currentBufferCount >= bufferSize
+			HandleBackpressure(data)
+			return
 		ok
-
+		
+		# Add to buffer
+		buffer + data
+		currentBufferCount++
+		
+		# Process immediately for normal operation
+		# Buffer only accumulates when backpressure
+		# strategies are actively used
+		ProcessBuffer()
+	
 	def EmitMany(paData)
 		if not isList(paData)
 			raise("Incorrect param type! paData must be a list.")
@@ -187,3 +174,134 @@ class stzReactiveStream
 			# Clean up LibUV resources
 			uvHandle = NULL
 		ok
+
+	def SetBackpressureStrategy(strategy, maxBufferSize)
+		if not find([BACKPRESSURE_STRATEGY_BUFFER, BACKPRESSURE_STRATEGY_DROP, 
+		            BACKPRESSURE_STRATEGY_BLOCK, BACKPRESSURE_STRATEGY_LATEST], strategy)
+			strategy = BACKPRESSURE_STRATEGY_BUFFER
+		ok
+		
+		backpressureStrategy = strategy
+		bufferSize = maxBufferSize
+		return self
+
+	def OnBackpressure(handler)
+		backpressureHandlers + handler
+		return self
+		
+	def OnBufferFull(handler)
+		bufferFullHandlers + handler
+		return self
+
+	def HandleBackpressure(data)
+		isBackpressureActive = STREAM_STATE_ACTIVE
+		
+		# Notify backpressure handlers
+		nLenBack = len(backpressureHandlers)
+		for i = 1 to nLenBack
+			handler = backpressureHandlers[i]
+			call handler(currentBufferCount, bufferSize)
+		next
+		
+		switch backpressureStrategy
+		case BACKPRESSURE_STRATEGY_BUFFER
+			# Block until buffer has space (simulate)
+			? "⚠️ Backpressure: Buffering data (buffer full: " + currentBufferCount + "/" + bufferSize + ")"
+			
+		case BACKPRESSURE_STRATEGY_DROP
+			# Drop the new data
+			droppedCount++
+			? "⚠️ Backpressure: Dropping data item (dropped so far: " + droppedCount + ")"
+			
+		case BACKPRESSURE_STRATEGY_LATEST
+			# Drop oldest, keep latest
+			if len(buffer) > 0
+				del(buffer, 1)  # Remove oldest
+				currentBufferCount--
+			ok
+			buffer + data
+			currentBufferCount++
+			? "⚠️ Backpressure: Keeping latest, dropped oldest"
+			
+		case BACKPRESSURE_STRATEGY_BLOCK
+			# In real implementation, this would block the producer
+			? "⚠️ Backpressure: Would block producer (simulated)"
+		end
+
+
+	def ProcessBuffer()
+		if len(buffer) = 0
+			return
+		ok
+		
+		# Get the next item from buffer
+		data = buffer[1]
+		del(buffer, 1)
+		currentBufferCount--
+		
+		# Apply transforms (original Emit logic)
+		processedData = [data]
+		nLenTrans = len(transforms)
+	
+		for i = 1 to nLenTrans
+			transformType = transforms[i][1]
+	
+			switch transformType
+			case TRANSFORM_MAP
+				mapFunc = transforms[i][2]
+				processedData = @Map(processedData, mapFunc)
+	
+			case TRANSFORM_FILTER
+				filterFunc = transforms[i][2]
+				processedData = @Filter(processedData, filterFunc)
+	
+			case TRANSFORM_REDUCE
+				# Handle reduce differently - accumulate but don't emit yet
+				reduceFunc = transforms[i][2]
+				nLenData = len(processedData)
+				for j = 1 to nLenData
+					accumulator = call reduceFunc(accumulator, processedData[j])
+				next
+				# Reset backpressure if buffer is no longer full
+				if currentBufferCount < bufferSize and isBackpressureActive
+					isBackpressureActive = STREAM_STATE_INACTIVE
+				ok
+				return
+			end
+		next
+		
+		# Only emit if we didn't encounter a reduce transform
+		if not hasReduceTransform
+			# Emit to local subscribers
+			nLenSub = len(subscribers)
+			nLenData = len(processedData)
+	
+			for i = 1 to nLenSub
+				subscriber = subscribers[i]
+				for j = 1 to nLenData
+					call subscriber(processedData[j])
+				next
+			next
+		ok
+		
+		# Reset backpressure if buffer is no longer full
+		if currentBufferCount < bufferSize and isBackpressureActive
+			isBackpressureActive = STREAM_STATE_INACTIVE
+		ok
+
+
+	def DrainBuffer()
+		# Process all buffered items
+		while len(buffer) > 0
+			ProcessBuffer()
+		end
+		return self
+		
+	def GetBackpressureStats()
+		return [
+			:bufferSize = bufferSize,
+			:currentBuffer = currentBufferCount,
+			:isBackpressureActive = isBackpressureActive,
+			:droppedCount = droppedCount,
+			:strategy = backpressureStrategy
+		]

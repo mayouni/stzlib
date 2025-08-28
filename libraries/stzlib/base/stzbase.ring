@@ -155,11 +155,11 @@
 
 	load "reactive/stzReactiveGlobals.ring"
 	load "reactive/stzReactive.ring"
+	load "reactive/stzReactiveTask.ring"
+
 	load "reactive/stzReactiveFunc.ring"
 	load "reactive/stzReactiveObject.ring"
+
 	load "reactive/stzReactiveTimer.ring"
 	load "reactive/stzReactiveStream.ring"
 	load "reactive/stzReactiveHttp.ring"
-
-//	load "reactive/stzReactiveFile.ring"
-//	load "reactive/stzReactiveFolder.ring"

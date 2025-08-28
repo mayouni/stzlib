@@ -17,10 +17,8 @@ class stzUUID
 	# Private attributes
 	@cUuid = ""
 	@nVersion = 4
-	@cPlatform = ""
 
 	def init()
-		@cPlatform = DetectPlatform()
 		GenerateUUID()
 
 	# Public methods
@@ -108,16 +106,15 @@ class stzUUID
 	private
 
 	def GenerateUUID()
-		switch @cPlatform
-		on "Windows"
+		if isWindows()
 			GenerateWindowsUUID()
-		on "Linux"
+		but isLinux()
 			GenerateLinuxUUID()
-		on "macOS"
+		but isMacosx()
 			GenerateMacOSUUID()
 		other
 			GenerateFallbackUUID()
-		off
+		ok
 
 	def GenerateWindowsUUID()
 	    # Use temp file to capture PowerShell output
@@ -220,17 +217,6 @@ class stzUUID
 		         @substr(cHex, 13, 4) + "-" +
 		         @substr(cHex, 17, 4) + "-" +
 		         @substr(cHex, 21, 12)
-
-	def DetectPlatform()
-		if iswindows()
-			return "Windows"
-		but islinux()
-			return "Linux"
-		but ismacosx()
-			return "macOS"
-		else
-			return "Unknown"
-		ok
 
 	def SystemCommand(cCommand)
 	    # Execute system command and return output

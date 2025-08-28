@@ -141,7 +141,7 @@ pf()
 #========================================#
 
 /*--- Basic stream creation and consumption
-
+*/
 # Streams represent continuous data flows that can be processed reactively.
 # They support backpressure, filtering, and transformation operations.
 # Ideal for handling real-time data, user inputs, or API responses.
@@ -249,7 +249,6 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Same example as above with a Reduce() function
-*/
 
 pr()
 
