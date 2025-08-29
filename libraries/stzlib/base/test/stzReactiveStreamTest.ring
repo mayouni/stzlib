@@ -472,12 +472,12 @@ Rs {
         OnComplete(func() {
             ? NL + "✅ Monitoring session ended"
         })
-        
+
         # Simulate 5 timer ticks
         for i = 1 to 5
             Emit(i)  # Timer tick simulation
         next
-        
+
         Complete()
     }
     
@@ -1071,17 +1071,21 @@ Rs {
     # 🚨 Sensor overloaded, dropping readings
     # ⚠️ Backpressure: Dropping data item (dropped so far: 1)
     # 
-    # Reading: 24.50
+    # Reading: 24.30
     # 🚨 Sensor overloaded, dropping readings
     # ⚠️ Backpressure: Dropping data item (dropped so far: 2)
     # 
-    # Reading: 24.80
+    # Reading: 24.50
     # 🚨 Sensor overloaded, dropping readings
     # ⚠️ Backpressure: Dropping data item (dropped so far: 3)
     # 
-    # Reading: 25
+    # Reading: 24.80
     # 🚨 Sensor overloaded, dropping readings
     # ⚠️ Backpressure: Dropping data item (dropped so far: 4)
+    # 
+    # Reading: 25
+    # 🚨 Sensor overloaded, dropping readings
+    # ⚠️ Backpressure: Dropping data item (dropped so far: 5)
 
     # Result: Only first 3 readings kept, rest dropped
     # ------------------------------------------------
@@ -1253,7 +1257,6 @@ pf()
 
 # Processes existing buffer before applying new strategy
 
-*/
 pr()
 
 Rs = new stzReactiveSystem()
@@ -1356,3 +1359,42 @@ Rs {
 
 pf()
 # Executed in 0.95 second(s) in Ring 1.23
+
+#=== #TODO #NARRATION
+# # Backpressure Strategies Explained
+
+# What is backpressure?
+
+# When data arrives faster than it can be processed, the system
+# gets overwhelmed. Backpressure is how we handle this mismatch.
+
+# Four Backpressure Strategies:
+
+# 1. BUFFER - Store excess data in memory until processing catches up
+#  - Methaphor: "Queue up messages like people waiting in line"
+#  - Implementation: Currently just logs. In production, would
+#    use actual queues with memory limits
+
+# 2. DROP - Discard new data when overwhelmed
+#  - Methaphor: "Like dropping phone calls when network is busy" 
+#  - Implementation: Already works correctly - increments `droppedCount`
+
+# 3. LATEST - Keep newest data, discard oldest
+#  - Metaphor: "Like a news ticker - always show latest updates"
+#  - Implementation: Already works correctly - manages buffer rotation
+
+# 4. BLOCK - Pause the data source until ready
+#  - Methaphor: "Like telling someone to slow down when they're talking too fast"
+#  - Implementation: Currently just logs. In production, would signal the
+#    data producer to pause
+
+#TODO Documentation Approach:
+# - Lead with simple analogies for educational users
+# - Add technical notes for professional use
+# - Mark simulation vs. production differences clearly
+# - Provide working examples for each strategy
+
+#NOTE
+# - Current Status: DROP and LATEST work fully.
+# - BUFFER and BLOCK are educational demonstrations that show the concept
+#   but don't implement real blocking/queuing mechanisms.
