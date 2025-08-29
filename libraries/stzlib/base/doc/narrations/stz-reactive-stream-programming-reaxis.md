@@ -24,6 +24,8 @@ Reaxis makes these concepts tangible through its declarative syntax while mainta
 
 ## Getting Started: Stream Lifecycle Management
 
+The reactive stream lifecycle follows a predictable pattern: creation, subscription, emission, error handling, and completion. Understanding this lifecycle is crucial because reactive streams are fundamentally different from traditional synchronous data processing—they handle events over time rather than static collections. In Reaxis, every stream must be properly initialized with appropriate callbacks before data can flow through it.
+
 Here's how Reaxis handles the complete reactive lifecycle with transparent error handling:
 
 ```ring
@@ -73,6 +75,8 @@ Rs {
 The beauty here is that while you write declarative code, you can see exactly how the reactive streams specification is implemented—errors stop processing, resources are cleaned up automatically, and the event loop efficiently handles the asynchronous operations.
 
 ## Composable Transformations: Functional Pipeline Design
+
+Stream transformations are the heart of reactive programming, allowing you to compose complex data processing pipelines from simple, pure functions. Each transformation creates a new stage in the processing pipeline while maintaining referential transparency—the same input always produces the same output. This functional approach makes reasoning about data flow predictable and enables powerful optimization opportunities at the underlying C level.
 
 Stream transformations in Reaxis demonstrate functional programming principles while maintaining performance through the C-based foundation:
 
@@ -151,6 +155,8 @@ This example shows how each transformation stage is clearly visible, making it e
 
 ## Advanced Aggregation: Stateful Stream Operations
 
+While most stream operations are stateless, aggregation operations like reduce must maintain internal state across multiple emissions. This presents unique challenges in reactive systems—the state must be managed efficiently without blocking the event loop, and intermediate results should be available for monitoring or debugging. Reaxis handles these complexities transparently while providing full visibility into the aggregation process.
+
 Reaxis handles stateful operations like reduce while maintaining the reactive principles:
 
 ```ring
@@ -198,9 +204,13 @@ The reduce operation maintains state efficiently through the libuv event loop, w
 
 ## Professional-Grade Backpressure Management
 
+In production systems, data producers often outpace consumers, creating the need for sophisticated flow control mechanisms. Backpressure strategies determine how the system behaves when this imbalance occurs—whether to buffer data, drop items, or apply other policies. Reaxis provides multiple strategies that map directly to industry-standard patterns, allowing you to choose the approach that best fits your application's requirements.
+
 Real-world applications need robust flow control. Reaxis provides multiple backpressure strategies that map directly to industry-standard patterns:
 
 ### Buffer Strategy: Resilient Data Preservation
+
+The buffer strategy prioritizes data preservation by temporarily storing excess items when consumers can't keep up with producers. This approach is ideal for financial systems, audit logs, or any scenario where data loss is unacceptable, even at the cost of increased memory usage.
 
 ```ring
 Rs = new stzReactiveSystem()
@@ -245,6 +255,8 @@ Rs {
 ```
 
 ### Drop Strategy: High-Throughput Data Sampling
+
+The drop strategy sacrifices data completeness for system stability and low latency. This approach works well for sensor data, metrics collection, or real-time analytics where missing some data points is acceptable if it prevents system overload.
 
 For IoT sensors or high-frequency trading scenarios where missing some data is acceptable:
 
@@ -296,6 +308,8 @@ Rs {
 ```
 
 ## Complex Real-World Example: Adaptive Log Processing
+
+Enterprise log processing presents unique challenges: varying data volumes, different criticality levels, and the need for adaptive behavior under load. This example demonstrates how Reaxis can start with one backpressure strategy and dynamically switch to another based on system conditions—a common requirement in production monitoring systems.
 
 This example demonstrates how Reaxis handles enterprise-level challenges with adaptive strategies:
 
@@ -418,6 +432,8 @@ func GetRetention(level)
 
 ## Educational Value: Learning Through Visibility
 
+Understanding how stream composition works is fundamental to mastering reactive programming. Unlike imperative approaches where you modify data in-place, reactive streams create immutable transformation pipelines where each stage produces a new stream. This functional approach makes the data flow explicit and predictable, which is perfect for educational purposes.
+
 What makes Reaxis exceptional for educational use is how it reveals the mechanics without overwhelming complexity:
 
 ```ring
@@ -471,6 +487,8 @@ Students can see exactly how functional composition works, how data flows throug
 
 ## Performance and Scalability: The RingLibuv Advantage
 
+Concurrent stream processing tests the limits of any reactive system. The ability to handle multiple simultaneous data flows efficiently while maintaining low latency and predictable resource usage is what separates production-ready frameworks from academic examples. Here's how Reaxis leverages its libuv foundation for true concurrent processing.
+
 The RingLibuv foundation provides several critical advantages:
 
 1. **Event Loop Efficiency**: Built on libuv's proven event loop architecture
@@ -521,22 +539,23 @@ The Softanza Reaxis system succeeds because it:
 
 ## Framework Comparison
 
-| Feature | Softanza Reaxis (Ring) | RxJS (JavaScript) | Reactor (Java) |
-|---------|------------------------|-------------------|----------------|
-| **Learning Curve** | Gentle, visible abstractions | Steep, many operators | Moderate, Spring integration |
-| **Performance** | Excellent (C-based libuv) | Good (V8 optimized) | Excellent (JVM optimized) |
-| **Memory Management** | Automatic (Ring GC + libuv) | Automatic (V8 GC) | Automatic (JVM GC) |
-| **Backpressure** | 4 strategies, adaptive | Complex operator chains | Built-in, sophisticated |
-| **Error Handling** | Explicit, transparent | Try/catch operators | Exception propagation |
-| **Concurrency Model** | Event loop (libuv) | Event loop (Node.js) | Thread pool + NIO |
-| **Educational Value** | High (visible mechanics) | Low (complex abstractions) | Medium (enterprise patterns) |
-| **Production Readiness** | High (C foundation) | High (mature ecosystem) | Very High (enterprise grade) |
-| **Syntax Clarity** | Excellent (declarative Ring) | Good (functional JS) | Good (fluent Java) |
-| **Resource Usage** | Low (efficient C backend) | Medium (JS overhead) | Medium-High (JVM overhead) |
-| **Debugging** | Excellent (clear flow) | Difficult (async stack traces) | Good (tooling support) |
-| **Platform Support** | Cross-platform (libuv) | Cross-platform (Node.js) | JVM platforms |
-| **Stream Types** | 8 built-in types | Many operators | Publishers/Subscribers |
-| **Integration** | Ring ecosystem | NPM ecosystem | Spring/Java ecosystem |
+| Feature | Softanza Reaxis (Ring) | RxJS (JavaScript) | Reactor (Java) | Rx.NET (C#/.NET) |
+|---------|------------------------|-------------------|----------------|------------------|
+| **Learning Curve** | Gentle, visible abstractions | Steep, many operators | Moderate, Spring integration | Moderate, LINQ familiarity helps |
+| **Performance** | Excellent (C-based libuv) | Good (V8 optimized) | Excellent (JVM optimized) | Excellent (CLR optimized) |
+| **Memory Management** | Automatic (Ring GC + libuv) | Automatic (V8 GC) | Automatic (JVM GC) | Automatic (CLR GC) |
+| **Backpressure** | 4 strategies, adaptive | Complex operator chains | Built-in, sophisticated | Built-in, flowable types |
+| **Error Handling** | Explicit, transparent | Try/catch operators | Exception propagation | Exception propagation |
+| **Concurrency Model** | Event loop (libuv) | Event loop (Node.js) | Thread pool + NIO | Task-based async |
+| **Educational Value** | High (visible mechanics) | Low (complex abstractions) | Medium (enterprise patterns) | Medium (LINQ similarity) |
+| **Production Readiness** | High (C foundation) | High (mature ecosystem) | Very High (enterprise grade) | Very High (Microsoft support) |
+| **Syntax Clarity** | Excellent (declarative Ring) | Good (functional JS) | Good (fluent Java) | Excellent (LINQ-like) |
+| **Resource Usage** | Low (efficient C backend) | Medium (JS overhead) | Medium-High (JVM overhead) | Medium (CLR overhead) |
+| **Debugging** | Excellent (clear flow) | Difficult (async stack traces) | Good (tooling support) | Excellent (Visual Studio) |
+| **Platform Support** | Cross-platform (libuv) | Cross-platform (Node.js) | JVM platforms | .NET platforms |
+| **Stream Types** | 8 built-in types | Many operators | Publishers/Subscribers | Observables/Observers |
+| **Integration** | Ring ecosystem | NPM ecosystem | Spring/Java ecosystem | .NET ecosystem |
+| **Async/Await Support** | Event-loop based | Native Promise support | CompletableFuture support | Native async/await |
 
 ## The "Reaxis" Name: Perfect Alignment
 
