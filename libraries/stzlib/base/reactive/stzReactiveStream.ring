@@ -52,39 +52,54 @@ class stzReactiveStream
 		this.engine = engine
 
 	# Store map transformation with expressive constant
-	def Map(mapFunction)
+	def Transform(mapFunction)
 		transforms + [TRANSFORM_MAP, mapFunction]
 		return self
-		
+
+		def Map(mapFunction)
+			return This.Transform(mapFunction)
+
 	# Store filter transformation with expressive constant
 	def Filter(filterFunction)
 		transforms + [TRANSFORM_FILTER, filterFunction]
 		return self
-		
+
+		def Where(filterFunction)
+			return This.Filter(filterFunction)
+
 	# Store reduce transformation with expressive constant
-	def Reduce(reduceFunction, initialValue)
+	def Accumulate(reduceFunction, initialValue)
 		transforms + [TRANSFORM_REDUCE, reduceFunction, initialValue]
 		hasReduceTransform = STREAM_STATE_ACTIVE
 		accumulator = initialValue
 		return self
-		
-	def Subscribe(subscriber)
+
+		def Reduce(reduceFunction, initialValue)
+			return This.Accumulate(reduceFunction, initialValue)
+
+	def OnPassed(subscriber)
 		subscribers + subscriber
 		return self
 
-		def OnData(subscriber)
-			return Subscribe(subscriber)
-		
+		def Subscribe(subscriber)
+			return OnPassed(subscriber)
+
+		def OnNext(subscriber)
+			return OnPassed(subscriber)
+
 	def OnError(errorHandler)
 		errorHandlers + errorHandler
 		return self
 		
-	def OnComplete(completeHandler)
+	def OnNoMore(completeHandler)
 		completeHandlers + completeHandler
 		return self
 
-	# Override Emit to handle backpressure
-	def Emit(data)
+		def OnComplete(completeHandler)
+			return This.OnNoMore(completeHandler)
+
+	# Override Recieve to handle backpressure
+	def Feed(data)
 		if not isActive or isCompleted
 			return
 		ok
@@ -104,7 +119,17 @@ class stzReactiveStream
 		    ProcessBuffer()
 		ok
 
-	def EmitMany(paData)
+
+		def Emit(data)
+			return This.Feed(data)
+
+		def Send(data)
+			return This.Feed(data)
+
+		def Recieve(data)
+			return This.Feed(data)
+
+	def FeedMany(paData)
 		if not isList(paData)
 			raise("Incorrect param type! paData must be a list.")
 		ok
@@ -117,7 +142,16 @@ class stzReactiveStream
 		# Process buffer after batch emission
 		ProcessBuffer()
 
-	def EmitError(error)
+		def SendMany(paData)
+			return This.FeedMany(paData)
+
+		def EmitMany(paData)
+			return This.FeedMany(paData)
+
+		def RecieveMany(paData)
+			return This.FeedMany(paData)
+
+	def CheckErrorHandling(error)
 		if not isActive or isCompleted
 			return
 		ok
@@ -132,7 +166,8 @@ class stzReactiveStream
 		# Stop the stream on error
 		Stop()
 
-	def Complete()
+
+	def Conclude()
 		if isCompleted
 			return
 		ok
@@ -158,11 +193,8 @@ class stzReactiveStream
 		
 		Stop()
 
-	def End_()
-		This.Complete()
-
-	def Close()
-		This.Complete()
+		def Complete()
+			return This.Conclude()
 
 	def Start()
 		isActive = STREAM_STATE_ACTIVE

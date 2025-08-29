@@ -85,6 +85,7 @@ class stzReactiveSystem
 	    ok
 
 		#< @FunctionAlternativeForms
+
 		def Run()
 			This.Start()
 		def RunLoop()
@@ -93,6 +94,15 @@ class stzReactiveSystem
 			This.Start()
 		def ExecuteLoop()
 			This.Start()
+
+		#--
+
+		def RunReactiveLoop()
+			This.Start()
+
+		def ExecuteReactiveLoop()
+			This.Start()
+
 		#>
 
 	def Stop()
