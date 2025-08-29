@@ -1,10 +1,99 @@
 
 load "../stzbase.ring"
 
+/*--- Softanza typical code for programming reactive streams
+
+
+# First, everything must happen inside a ReactiveSystem object.
+# In Softanza, reactive streams (and any other reactive element)
+# cannot exist in a vacuum!
+
+# Create a Reactive System instance
+Rs = new stzReactiveSystem()
+Rs {
+    # Inside the reactive system (which is actually built on the
+    # Libuv infrastructure), we create a reactive stream object to
+    # work with, and begin defining it.
+
+    oPriceStream = CreateStream("my-price-api", :NETWORK)
+    # The stream is defined with type :NETWORK, telling the libuv engine
+    # to prepare for receiving data from the network (e.g., over HTTP).
+
+    # Declarative code that defines the reactive stream
+    # (it will not run until Rs.RunLoop() is reached at the end).
+
+    # When data items arrive in this pipeline called oPriceStream:
+    oPriceStream {
+
+        # Transform each incoming item using this action (a business rule).
+        Transform(func price { return price * 1.20 })
+
+        # Then filter the transformed values to keep only those
+        # that satisfy this condition.
+        Filter(func price { return price >= 120 })
+
+        # If the transformed value successfully passes the filter,
+        # its journey in the pipeline concludes with this final action.
+ 
+        OnPassed(func item { SaveToDatabase(item) NotifyUsersAbout(item) })
+
+        # Then, take the next item in the pipeline and repeat the same process.
+        # Ideally, all items will be transformed, filtered, and concluded properly,
+        # until no more data is available (the pipeline runs dry). At that point,
+        # we can gracefully say goodbye using this action.
+
+        OnNoMore(func() { CloseConnections() SendSummary() })
+
+        # If, however, an error occurs at any stage,
+        # this action ensures the reactive system remains under control.
+        # The reactive loop (and data pipeline) is then interrupted
+        # responsibly with a clear recovery plan.
+
+        OnError(func error { Log(error) AlertTeamAbout(error) })
+
+	# The last step is to define the data the stream will receive.
+	# Here we provide test data, with duplicates and varying price ranges.
+        # Test data: values below 100 will be filtered out after transformation (< 120)
+        # Values 100+ will pass through after transformation (>= 120)
+
+    	anTestPrices = [ 80, 90, 95, 100, 120, 150, 200 ]
+	FeedMany(anTestPrices)
+
+   }
+
+    # Now we leave the static mindset above and fire up the reactive loop.
+    # This engages the libuv loop system—the engine and "dark magic"
+    # that brings the system to life, accepts data, reacts according to
+    # our defined strategy, and produces results through its internal
+    # graph of computation.
+
+     RunLoop()
+}
+
+pf()
+
+func SaveToDatabase(pItem)
+	? "Saving item (" + @@(pItem) + ") to the database..."
+
+func NotifyUsersAbout(pItem)
+	? "Notifying users about item (" + @@(pItem) + ")..." + NL
+
+func CloseConnections()
+	? "Closing all connections..."
+
+func SendSummary()
+	? "Sending summary of the operation..."
+
+func Log(pcError)
+	? "Logging error: " + pcError + "."
+
+func AlertTeamAbout(pcError)
+	? "Alerting team about error: " + pcError + "."
+
 /*--- Basic Stream Operations
 
 # Demonstrates fundamental stream creation, subscription, and lifecycle
-# Essential concepts: Emit, Subscribe, Error handling, Completion
+# Essential concepts: Feed, Subscribe, Error handling, Completion
 
 pr()
 
@@ -15,7 +104,7 @@ Rs {
     oBasicStream = CreateStream("basic-example", :MANUAL)
     oBasicStream {
         # Subscribe to data emissions
-        OnData(func data {
+        OnPassed(func data {
             ? "📊 Data received: " + data
         })
 
@@ -25,24 +114,23 @@ Rs {
         })
 
         # Handle stream completion
-        OnComplete(func() {
+        OnNoMore(func() {
             ? "✅ Stream processing completed"
         })
 
-        # Emit individual data points
-        Emit("First message")
-        Emit("Second message")
+        # Feed individual data points
+        Feed("First message")
+        Feed("Second message")
 
-        # Emit multiple items at once
-        EmitMany(["Third", "Fourth", "Fifth"])
+        # Feed multiple items at once
+        FeedMany(["Third", "Fourth", "Fifth"])
 
-        # Test error handling
-        EmitError("Simulated error")
-
+        # Check that error handling works (when stream errors don't work)
+        CheckErrorHandling("Simulated error")
         # Note: Stream automatically stops after error
     }
 
-    Start()
+    RunLoop()
     #-->
     # 📊 Data received: First message
     # 📊 Data received: Second message  
@@ -69,18 +157,18 @@ Rs {
     oTransformStream = CreateStream("transform-pipeline", :MANUAL)
     oTransformStream {
         # Chain transformations
-        Map(func price { return price * 1.20 })		# Add 20% tax
+        Transform(func price { return price * 1.20 })		# Add 20% tax
         Filter(func price { return price >= 100 })	# Only expensive items
 
-        Subscribe(func finalPrice {
+        OnPassed(func finalPrice {
             ? "💰 Final price after tax & filtering: $" + finalPrice
         })
 
         # Test data with duplicates and various price ranges
         testPrices = [ 80, 90, 100, 120, 150, 200 ]
-        EmitMany(testPrices)
+        FeedMany(testPrices)
 
-        Complete()
+        Conclude()
     }
 
     Start()
@@ -96,55 +184,84 @@ pf()
 # Executed in 0.93 second(s) in Ring 1.23
 
 
-/*--- Data Aggregation with Reduce
+/*--- Data Aggregation with Accumulate
 
-# Shows reduce functionality for calculating totals, averages, etc.
-# Essential for analytics and summary operations
+# Shows how streams handle accumulated data that must be explicitly concluded
+# Essential for analytics, totals, and summary operations
 
 pr()
 
 Rs = new stzReactiveSystem()
 Rs {
-    # Sales data aggregation
+
+    # Sales data aggregation stream
+
     oSalesStream = CreateStream("sales-aggregation", :MANUAL)
     oSalesStream {
-        # Calculate total sales using reduce
-        Reduce(func(accumulator, sale) {
-            return accumulator + sale["amount"]
-        }, 0)  # Start with 0
-        
-        OnData(func totalSales {
+
+        # CRITICAL CONCEPT: Accumulate operations don't emit data immediately
+        # Instead, they collect and combine data internally, waiting for conclusion
+	# with the Conclude() method
+
+        # Think of this as a collection bin that gathers items but doesn't release
+        # the final result until explicitly told to do so
+
+        Accumulate(func(total, sale) {
+            return total + sale["amount"]  # Running total kept internally
+        }, 0)  # Starting value: $0.00
+
+        # The fellowing handler will ONLY execute when accumulated result is finally released
+        # Without Conclude() below, this OnPassed handler never gets called
+
+        OnPassed(func totalSales {
             ? "💰 Total Sales: $" + totalSales
         })
-        
-        OnComplete(func() {
+
+        # Cleanup handler - also requires explicit conclusion to trigger
+
+        OnNoMore(func() {
             ? "✅ Sales calculation completed"
         })
-        
-        # Daily sales data
+
+        # Daily sales transactions
         salesData = [
-            [:amount = 150.00, :product = "Laptop"],
-            [:amount = 89.99, :product = "Mouse"], 
-            [:amount = 299.99, :product = "Monitor"],
-            [:amount = 45.50, :product = "Keyboard"]
+            [ :amount = 150.00, :product = "Laptop" ],
+            [ :amount = 89.99, :product = "Mouse" ], 
+            [ :amount = 299.99, :product = "Monitor" ],
+            [ :amount = 45.50, :product = "Keyboard" ]
         ]
-        
-        EmitMany(salesData)
-        Complete()
+
+        # Feed all sales data into the accumulation pipeline
+        # Each item gets added to the internal accumulator (150 + 89.99 + 299.99 + 45.50)
+        # but no output is generated yet - the total stays trapped inside
+
+        FeedMany(salesData)
+
+        # ESSENTIAL: Force the stream to release accumulated result and finish
+        # Without this line, you get NO output because:
+        # 1. The $585.48 total remains trapped in the internal accumulator
+        # 2. OnPassed handler never executes (no data reaches it)
+        # 3. OnNoMore handler never executes (stream never concludes)
+
+        # Try commenting this line to see the silent failure!
+ 
+        Conclude()
     }
-    
-    Start()
+
+    RunLoop()
     #-->
     # 💰 Total Sales: $585.48
     # ✅ Sales calculation completed
 }
+# Executed in 0.95 second(s) in Ring 1.23
+
 
 pf()
-# Executed in 0.92 second(s) in Ring 1.23
+# Executed in 0.95 second(s) in Ring 1.23
 
 /*--- Analytics Dashboard with Multiple Metrics
-
-# Complex reduce example calculating multiple statistics
+*/
+# Complex accumulate example calculating multiple statistics
 # Shows real-world analytics use case
 
 pr()
@@ -152,33 +269,43 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # Website analytics stream
+
     oAnalyticsStream = CreateStream("web-analytics", :MANUAL)
     oAnalyticsStream {
+
         # Aggregate user session data
-        Reduce(func(stats, session) {
-            stats["totalUsers"] += 1
-            stats["totalPageViews"] += session["pageViews"]
-            stats["totalSessionTime"] += session["duration"]
+
+        Accumulate(func(stats, session) {
+            stats[:totalUsers] += 1
+            stats[:totalPageViews] += session[:pageViews]
+            stats[:totalSessionTime] += session[:duration]
             
-            if session["converted"]
-                stats["conversions"] += 1
+            if session[:converted]
+                stats[:conversions] += 1
             ok
             
             return stats
-        }, [:totalUsers = 0, :totalPageViews = 0, :totalSessionTime = 0, :conversions = 0])
-        
-        Subscribe(func analytics {
-            avgPageViews = analytics["totalPageViews"] / analytics["totalUsers"]
-            avgSessionTime = analytics["totalSessionTime"] / analytics["totalUsers"]
-            conversionRate = (analytics["conversions"] * 100.0) / analytics["totalUsers"]
+
+            },
+	    [
+		:totalUsers = 0,
+		:totalPageViews = 0,
+		:totalSessionTime = 0,
+		:conversions = 0
+	    ])
+
+        OnPassed(func analytics {
+            avgPageViews = analytics[:totalPageViews] / analytics[:totalUsers]
+            avgSessionTime = analytics[:totalSessionTime] / analytics[:totalUsers]
+            conversionRate = (analytics[:conversions] * 100.0) / analytics[:totalUsers]
             
             ? "📊 Website Analytics Summary:"
-            ? "   Total Users: " + analytics["totalUsers"]
+            ? "   Total Users: " + analytics[:totalUsers]
             ? "   Avg Page Views: " + avgPageViews + " pages/user"
             ? "   Avg Session Time: " + avgSessionTime + " minutes"
             ? "   Conversion Rate: " + conversionRate + "%"
         })
-        
+
         # User session data
         sessions = [
             [:pageViews = 5, :duration = 12.5, :converted = true],
@@ -187,12 +314,12 @@ Rs {
             [:pageViews = 2, :duration = 4.1, :converted = false],
             [:pageViews = 9, :duration = 25.3, :converted = true]
         ]
-        
-        EmitMany(sessions)
-        Complete()
+        FeedMany(sessions)
+
+        Conclude()
     }
     
-    Start()
+    RunReactiveLoop()
     #-->
     # 📊 Website Analytics Summary:
     #    Total Users: 5
@@ -218,7 +345,7 @@ Rs {
     oSensorStream {
 
         # Multi-stage processing pipeline
-        Map(func reading {
+        Transform(func reading {
             # Convert raw sensor value to temperature
             return (reading - 32) * 5/9  # Fahrenheit to Celsius
         })
@@ -228,12 +355,12 @@ Rs {
             return temp >= -50 and temp <= 100
         })
 
-        Map(func temp {
+        Transform(func temp {
             # Round to 1 decimal place
             return floor(temp * 10) / 10
         })
      
-        Subscribe(func temperature {
+        OnPassed(func temperature {
             alert = ""
             if temperature > 35
                 alert = " 🔥 HIGH"
@@ -245,9 +372,9 @@ Rs {
         
         # Simulate sensor readings (Fahrenheit)
         rawReadings = [ 68, 75, 32, 100, 212, -40, 150 ]
-        EmitMany(rawReadings)
+        FeedMany(rawReadings)
         
-        Complete()
+        Conclude()
     }
     
     Start()
@@ -297,12 +424,12 @@ Rs {
         
         # Format messages
 
-        Map(func message {
+        Transform(func message {
             timestamp = "12:34"  # In real app, use actual timestamp
             return "[" + timestamp + "] " + message
         })
         
-        Subscribe(func formattedMessage {
+        OnPassed(func formattedMessage {
             ? "💬 " + formattedMessage
         })
         
@@ -317,8 +444,8 @@ Rs {
             "See you later!"
         ]
         
-        EmitMany(messages)
-        Complete()
+        FeedMany(messages)
+        Conclude()
     }
     
     Start()
@@ -356,7 +483,7 @@ Rs {
         
         # Calculate totals with tax and shipping
 
-        Map(func order {
+        Transform(func order {
             subtotal = order["amount"]
             tax = subtotal * 0.08  # 8% tax
             shipping = 15.00  # Flat rate shipping
@@ -374,7 +501,7 @@ Rs {
             return order["total"] >= 100  # VIP orders only
         })
         
-        Subscribe(func processedOrder {
+        OnPassed(func processedOrder {
             ? "🛒 VIP Order processed:"
             ? "   Customer: " + processedOrder["customer"]
             ? "   Subtotal: $" + processedOrder["amount"]
@@ -395,8 +522,8 @@ Rs {
             [ :customer = "Alice Brown", :amount = 0 ]        # Invalid amount
         ]
         
-        EmitMany(orders)
-        Complete()
+        FeedMany(orders)
+        Conclude()
     }
     
     Start()
@@ -446,7 +573,7 @@ Rs {
     oTimerStream = CreateStream("system-monitor", :TIMER)
     oTimerStream {
 
-        Map(func tick {
+        Transform(func tick {
             # Simulate system metrics collection
             return [
                 :timestamp = clocksPerSecond(),
@@ -461,7 +588,7 @@ Rs {
             return metrics[:cpu_usage] > 80 or metrics[:memory_usage] > 85
         })
 
-        Subscribe(func alert {
+        OnPassed(func alert {
             ? "⚠️ SYSTEM ALERT"
 	    ? "----------------"
             ? " • CPU    : " + alert[:cpu_usage] + "%"
@@ -469,16 +596,16 @@ Rs {
             ? " • Disk   : " + alert[:disk_space] + "%" + NL
         })
 
-        OnComplete(func() {
+        OnNoMore(func() {
             ? NL + "✅ Monitoring session ended"
         })
 
         # Simulate 5 timer ticks
         for i = 1 to 5
-            Emit(i)  # Timer tick simulation
+            Feed(i)  # Timer tick simulation
         next
 
-        Complete()
+        Conclude()
     }
     
     Start()
@@ -524,7 +651,7 @@ Rs {
     oFileStream {
 
         # Parse log entries
-        Map(func logLine {
+        Transform(func logLine {
             # Simulate log parsing
             parts = split(logLine, "|")
             if len(parts) >= 3
@@ -544,7 +671,7 @@ Rs {
             return find(criticalLevels, upper(logEntry[:level]))
         })
         
-        OnData(func criticalLog {
+        OnPassed(func criticalLog {
             ? "🚨 CRITICAL LOG EVENT"
             ? " • Level: " + criticalLog[:level]
             ? " • Message: " + criticalLog[:message] + NL
@@ -559,8 +686,8 @@ Rs {
             "2024-01-15 10:33:22|FATAL|Security breach detected"
         ]
         
-        EmitMany(logLines)
-        Complete()
+        FeedMany(logLines)
+        Conclude()
     }
     
     Start()
@@ -594,7 +721,7 @@ Rs {
     oNetworkStream = CreateStream("api-monitor", :NETWORK)
     oNetworkStream {
         # Parse API responses
-        Map(func apiResponse {
+        Transform(func apiResponse {
             # Simulate JSON parsing
             return [
                 :endpoint = apiResponse[:url],
@@ -609,7 +736,7 @@ Rs {
             return response[:status_code] >= 400 or response[:response_time] > 2000
         })
         
-        Subscribe(func issue {
+        OnPassed(func issue {
 
             issueType = ""
             if issue[:status_code] >= 500
@@ -636,8 +763,8 @@ Rs {
             [:url = "/api/payments", :status = 200, :time = 2500, :size = 512]
         ]
         
-        EmitMany(responses)
-        Complete()
+        FeedMany(responses)
+        Conclude()
     }
     
     Start()
@@ -677,7 +804,7 @@ Rs {
     oSensorStream {
 
         # Calibrate sensor readings
-        Map(func rawReading {
+        Transform(func rawReading {
             # Simulate sensor data processing
             return [
                 :sensor_id = rawReading[:id],
@@ -695,7 +822,7 @@ Rs {
                    reading[:air_quality] > 150
         })
         
-        Subscribe(func alert {
+        OnPassed(func alert {
             alertTypes = []
 
             if alert[:temperature] > 30
@@ -725,8 +852,8 @@ Rs {
             [:id = "TEMP_04", :temp = 350, :humidity = 60, :aqi = 95]    # High temp only
         ]
         
-        EmitMany(sensorData)
-        Complete()
+        FeedMany(sensorData)
+        Conclude()
     }
     
     Start()
@@ -768,7 +895,7 @@ Rs {
     oUVStream = CreateStream("process-monitor", :LIBUV)
     oUVStream {
         # Process system events
-        Map(func uvEvent {
+        Transform(func uvEvent {
             # Simulate LibUV event processing
             return [
                 :event_type = uvEvent[:type],
@@ -784,14 +911,14 @@ Rs {
             return find(highImpactEvents, processEvent[:event_type])
         })
         
-        subscribe(func criticalEvent {
+        OnPassed(func criticalEvent {
             ? "🔥 SYSTEM EVENT DETECTED:"
             ? "• Type: " + criticalEvent[:event_type]
             ? "• Process ID: " + criticalEvent[:process_id] 
             ? "• Resource Impact: " + criticalEvent[:resource_usage] + "%" + NL
         })
         
-        OnComplete(func() {
+        OnNoMore(func() {
             ? "🛡️ LibUV monitoring stopped - resources cleaned up"
         })
         
@@ -804,8 +931,8 @@ Rs {
             [:type = "high_cpu", :pid = 7890, :resources = 90]
         ]
         
-        EmitMany(systemEvents)
-        Complete()
+        FeedMany(systemEvents)
+        Conclude()
     }
     
     Start()
@@ -847,54 +974,54 @@ Rs {
     # 1. User activity stream (manual)
     oUserStream = CreateStream("user-activity", :MANUAL)
     oUserStream {
-        Map(func activity { 
+        Transform(func activity { 
             activity[:source] = "USER"
             return activity
         })
-        Subscribe(func event { ? "👤 " + event[:action] + " by " + event[:user] })
+        OnPassed(func event { ? "👤 " + event[:action] + " by " + event[:user] })
     }
     
     # 2. System health stream (timer)
     oHealthStream = CreateStream("system-health", STREAM_SOURCE_TIMER) 
     oHealthStream {
-        Map(func tick {
+        Transform(func tick {
             return [:source = "SYSTEM", :status = "healthy", :load = random(100)]
         })
         Filter(func health { return health[:load] > 80 })
-        OnData(func alert { ? "⚙️  System load high: " + alert[:load] + "%" })
+        OnPassed(func alert { ? "⚙️  System load high: " + alert[:load] + "%" })
     }
     
     # 3. External API stream (network)
     oApiStream = CreateStream("api-updates", STREAM_SOURCE_NETWORK)
     oApiStream {
-        Map(func response {
+        Transform(func response {
             response[:source] = "API"  
             return response
         })
-        OnData(func update { ? "🌐 API: " + update[:message] })
+        OnPassed(func update { ? "🌐 API: " + update[:message] })
     }
     
     # Simulate multi-source events
-    oUserStream.EmitMany([
+    oUserStream.FeedMany([
         [:action = "Login", :user = "alice"],
         [:action = "Purchase", :user = "bob"]
     ])
     
     # System health checks
     for i = 1 to 3
-        oHealthStream.Emit(i)
+        oHealthStream.Feed(i)
     next
     
     # API updates
-    oApiStream.EmitMany([
+    oApiStream.FeedMany([
         [:message = "New feature deployed"],
         [:message = "Maintenance scheduled"]
     ])
     
     # Complete all streams
-    oUserStream.Complete()
-    oHealthStream.Complete() 
-    oApiStream.Complete()
+    oUserStream.Conclude()
+    oHealthStream.Conclude() 
+    oApiStream.Conclude()
     
     Start()
     #-->
@@ -915,7 +1042,7 @@ pf()
 #NOTE
 
 # Backpressure occurs when data arrives faster than it can be processed.
-# The producer (emitting data) overwhelms the consumer (subscriber), so
+# The producer (Feedting data) overwhelms the consumer (subscriber), so
 # the system applies "pressure back" to slow down or block the producer.
 
 /*--- Buffer Strategy - Queue data when subscriber is slow
@@ -937,7 +1064,7 @@ Rs {
         SetBackpressureStrategy(:BUFFER, 3)
         
         # Slow subscriber (simulated)
-        Subscribe(func data {
+        OnPassed(func data {
             ? "📊 Processing: " + data + " (slow subscriber)"
             # Simulate slow processing
         })
@@ -949,13 +1076,13 @@ Rs {
         # Rapid data emission
 
         for i = 1 to 7  # Exceeds buffer size of 3
-            ? "Emitting item " + i
-            Emit("Data-" + i)
+            ? "Feedting item " + i
+            Feed("Data-" + i)
         next
         
         ? "Draining buffer..."
         DrainBuffer()
-        Complete()
+        Conclude()
     }
     
     Start()
@@ -963,25 +1090,25 @@ Rs {
  
     # Phase 1: Filling buffer (capacity: 3)
     # -------------------------------------
-    # Emitting item 1
-    # Emitting item 2
-    # Emitting item 3
+    # Feedting item 1
+    # Feedting item 2
+    # Feedting item 3
     # 
     # Phase 2: Buffer full - backpressure blocks new items
     # ----------------------------------------------------
-    # Emitting item 4
+    # Feedting item 4
     #🚦 Backpressure activated: 3/3 buffer full
     # ⚠️ Backpressure: Buffering data (buffer full: 3/3)
     # 
-    # Emitting item 5
+    # Feedting item 5
     #🚦 Backpressure activated: 3/3 buffer full
     #⚠️ Backpressure: Buffering data (buffer full: 3/3)
     # 
-    # Emitting item 6
+    # Feedting item 6
     #🚦 Backpressure activated: 3/3 buffer full
     #⚠️ Backpressure: Buffering data (buffer full: 3/3)
     # 
-    # Emitting item 7
+    # Feedting item 7
     #🚦 Backpressure activated: 3/3 buffer full
     #⚠️ Backpressure: Buffering data (buffer full: 3/3)
     # 
@@ -1028,11 +1155,11 @@ Rs {
     oDropStream {
         SetBackpressureStrategy(:DROP, 2)
         
-        Map(func reading {
+        Transform(func reading {
             return "Sensor-" + reading + "°C"
         })
         
-        Subscribe(func temperature {
+        OnPassed(func temperature {
             ? "🌡️ Current temp: " + temperature
         })
         
@@ -1046,13 +1173,13 @@ Rs {
         sensorReadings = [23.5, 23.7, 24.1, 24.3, 24.5, 24.8, 25.0]
         for i = 1 to len(sensorReadings)
             ? "Reading: " + sensorReadings[i]
-            Emit(sensorReadings[i])
+            Feed(sensorReadings[i])
         next
         
         stats = GetBackpressureStats()
         ? NL + "Final stats - Dropped: " + stats[:droppedCount] + " readings"
         
-        Complete()
+        Conclude()
     }
     
     Start()
@@ -1111,11 +1238,11 @@ Rs {
     oLatestStream {
         SetBackpressureStrategy(:LATEST, 2)
         
-        Map(func price {
+        Transform(func price {
             return "AAPL: $" + price
         })
         
-        Subscribe(func stockPrice {
+        OnPassed(func stockPrice {
             ? "💰 " + stockPrice
         })
         
@@ -1130,11 +1257,11 @@ Rs {
         prices = [150.25, 150.30, 150.15, 150.45, 150.60, 150.55]
         for i = 1 to len(prices)
             ? "Price update: $" + prices[i]
-            Emit(prices[i])
+            Feed(prices[i])
         next
         
         DrainBuffer()
-        Complete()
+        Conclude()
     }
     
     Start()
@@ -1190,7 +1317,7 @@ Rs {
             return event[:severity] = "CRITICAL"
         })
         
-        Subscribe(func criticalEvent {
+        OnPassed(func criticalEvent {
             ? "🚨 CRITICAL: " + criticalEvent[:message]
             # Simulate slow processing of critical events
         })
@@ -1212,10 +1339,10 @@ Rs {
         
         for i = 1 to len(events)
             ? "Event: " + events[i][:severity] + " - " + events[i][:message]
-            Emit(events[i])
+            Feed(events[i])
         next
         
-        Complete()
+        Conclude()
     }
     
     Start()
@@ -1268,7 +1395,7 @@ Rs {
         SetBackpressureStrategy(:BUFFER, 5)
         
         # Parse and enrich log entries
-        Map(func logLine {
+        Transform(func logLine {
             parts = split(logLine, "|")
             return [
                 :timestamp = parts[1],
@@ -1285,7 +1412,7 @@ Rs {
             return find(importantLevels, log[:level])
         })
         
-        Subscribe(func importantLog {
+        OnPassed(func importantLog {
             ? "📋 " + importantLog[:level] + " [" + importantLog[:service] + "] " + importantLog[:message]
         })
         
@@ -1315,7 +1442,7 @@ Rs {
             "2024-01-15 10:30:23|CRITICAL|SYSTEM|Out of memory"
         ]
         
-        EmitMany(logEntries)
+        FeedMany(logEntries)
         
         ? "Processing remaining buffer..."
         DrainBuffer()
@@ -1326,7 +1453,7 @@ Rs {
         ? "  • Items dropped: " + stats[:droppedCount]
         ? "  • Buffer utilization: " + stats[:currentBuffer] + "/" + stats[:bufferSize]
         
-        Complete()
+        Conclude()
     }
     
     Start()
