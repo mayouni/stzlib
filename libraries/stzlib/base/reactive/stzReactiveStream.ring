@@ -1,4 +1,5 @@
 
+
 class stzReactiveStream
 
 	streamId = ""
@@ -32,6 +33,8 @@ class stzReactiveStream
 	# Backpressure callbacks
 	backpressureHandlers = []
 	bufferFullHandlers = []
+
+	hasBackpressureConfig = STREAM_STATE_INACTIVE
 
 	def Init(id, sourceType, engine)
 		streamId = id
@@ -79,7 +82,7 @@ class stzReactiveStream
 	def OnComplete(completeHandler)
 		completeHandlers + completeHandler
 		return self
-	
+
 	# Override Emit to handle backpressure
 	def Emit(data)
 		if not isActive or isCompleted
@@ -88,19 +91,19 @@ class stzReactiveStream
 		
 		# Check if buffer is at capacity BEFORE adding new data
 		if currentBufferCount >= bufferSize
-			HandleBackpressure(data)
-			return
+		    HandleBackpressure(data)
+		    return
 		ok
 		
 		# Add to buffer
 		buffer + data
 		currentBufferCount++
-		
-		# Process immediately for normal operation
-		# Buffer only accumulates when backpressure
-		# strategies are actively used
-		ProcessBuffer()
-	
+
+		# Process immediately if no backpressure config, otherwise only when buffer has space
+		if not hasBackpressureConfig
+		    ProcessBuffer()
+		ok
+
 	def EmitMany(paData)
 		if not isList(paData)
 			raise("Incorrect param type! paData must be a list.")
@@ -111,6 +114,8 @@ class stzReactiveStream
 			This.Emit(paData[i])
 		next
 
+		# Process buffer after batch emission
+		ProcessBuffer()
 
 	def EmitError(error)
 		if not isActive or isCompleted
@@ -180,7 +185,7 @@ class stzReactiveStream
 		            BACKPRESSURE_STRATEGY_BLOCK, BACKPRESSURE_STRATEGY_LATEST], strategy)
 			strategy = BACKPRESSURE_STRATEGY_BUFFER
 		ok
-		
+		hasBackpressureConfig = STREAM_STATE_ACTIVE
 		backpressureStrategy = strategy
 		bufferSize = maxBufferSize
 		return self
@@ -205,8 +210,8 @@ class stzReactiveStream
 		
 		switch backpressureStrategy
 		case BACKPRESSURE_STRATEGY_BUFFER
-			# Block until buffer has space (simulate)
-			? "⚠️ Backpressure: Buffering data (buffer full: " + currentBufferCount + "/" + bufferSize + ")"
+		    # Block until buffer has space (simulate)
+		    ? "⚠️ Backpressure: Buffering data (buffer full: " + currentBufferCount + "/" + bufferSize + ")"
 			
 		case BACKPRESSURE_STRATEGY_DROP
 			# Drop the new data
