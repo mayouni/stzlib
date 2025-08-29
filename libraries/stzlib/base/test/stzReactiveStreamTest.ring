@@ -171,7 +171,7 @@ Rs {
         Conclude()
     }
 
-    Start()
+    RunLoop()
     #-->
     # 💰 Final price after tax & filtering: $108
     # 💰 Final price after tax & filtering: $120  
@@ -260,7 +260,7 @@ pf()
 # Executed in 0.95 second(s) in Ring 1.23
 
 /*--- Analytics Dashboard with Multiple Metrics
-*/
+
 # Complex accumulate example calculating multiple statistics
 # Shows real-world analytics use case
 
@@ -373,11 +373,10 @@ Rs {
         # Simulate sensor readings (Fahrenheit)
         rawReadings = [ 68, 75, 32, 100, 212, -40, 150 ]
         FeedMany(rawReadings)
-        
-        Conclude()
+
     }
     
-    Start()
+    RunLoop()
     #-->
     # 🌡️  Temperature: 20°C
     # 🌡️  Temperature: 23.8°C
@@ -445,10 +444,10 @@ Rs {
         ]
         
         FeedMany(messages)
-        Conclude()
+
     }
     
-    Start()
+    RunLoop()
     #-->
     # 💬 [12:34] Hello everyone!
     # 💬 [12:34] How's everyone doing?
@@ -523,10 +522,10 @@ Rs {
         ]
         
         FeedMany(orders)
-        Conclude()
+
     }
     
-    Start()
+    RunLoop()
     #-->
     '
 	🛒 VIP Order processed:
@@ -608,7 +607,7 @@ Rs {
         Conclude()
     }
     
-    Start()
+    Run()
     #-->
     # ⚠️ SYSTEM ALERT
     # ----------------
@@ -687,10 +686,10 @@ Rs {
         ]
         
         FeedMany(logLines)
-        Conclude()
+
     }
     
-    Start()
+    RunReactiveLoop()
     #-->
     # 🚨 CRITICAL LOG EVENT
     # • Level: ERROR
@@ -764,10 +763,10 @@ Rs {
         ]
         
         FeedMany(responses)
-        Conclude()
+
     }
     
-    Start()
+    RunLoop()
     #-->
     '
     🟡 CLIENT ERROR
@@ -853,10 +852,10 @@ Rs {
         ]
         
         FeedMany(sensorData)
-        Conclude()
+
     }
     
-    Start()
+    RunLoop()
     #-->
     '
     ⚠️ ENVIRONMENTAL ALERT: 🌡️ HIGH TEMP + 💧 HIGH HUMIDITY + 🏭 POOR AIR QUALITY
@@ -932,10 +931,10 @@ Rs {
         ]
         
         FeedMany(systemEvents)
-        Conclude()
+        Conclude() # Necessary because we use OnNoMore()
     }
     
-    Start()
+    RunLoop()
     #-->
     '
     🔥 SYSTEM EVENT DETECTED:
@@ -1018,12 +1017,14 @@ Rs {
         [:message = "Maintenance scheduled"]
     ])
     
-    # Complete all streams
-    oUserStream.Conclude()
-    oHealthStream.Conclude() 
-    oApiStream.Conclude()
+    # Complete all streams (not necessary, because we
+    # don't use Accumulate() or OnNoMore()
+
+    // oUserStream.Conclude()
+    // oHealthStream.Conclude() 
+    // oApiStream.Conclude()
     
-    Start()
+    RunLoop()
     #-->
     # 👤 Login by alice
     # 👤 Purchase by bob
@@ -1042,7 +1043,7 @@ pf()
 #NOTE
 
 # Backpressure occurs when data arrives faster than it can be processed.
-# The producer (Feedting data) overwhelms the consumer (subscriber), so
+# The producer (Feeding data) overwhelms the consumer (subscriber), so
 # the system applies "pressure back" to slow down or block the producer.
 
 /*--- Buffer Strategy - Queue data when subscriber is slow
@@ -1085,7 +1086,7 @@ Rs {
         Conclude()
     }
     
-    Start()
+    RunLoop()
     #--> (#NOTE I added comments to the output for clarity)
  
     # Phase 1: Filling buffer (capacity: 3)
@@ -1182,7 +1183,7 @@ Rs {
         Conclude()
     }
     
-    Start()
+    RunLoop()
     #--> (#NOTE I added some comments to clarify the output)
     # Simulating high-frequency sensor readings...
     # 
@@ -1264,7 +1265,7 @@ Rs {
         Conclude()
     }
     
-    Start()
+    RunLoop()
     #--> (#NOTE I added some comments to clarify the output)
     # 
     # Simulating rapid stock price updates...
@@ -1345,7 +1346,7 @@ Rs {
         Conclude()
     }
     
-    Start()
+    RunLoop()
     #--> (#NOTE I added some comments to clarify the output)
     # Block Strategy Demo...
     # 
@@ -1456,7 +1457,7 @@ Rs {
         Conclude()
     }
     
-    Start()
+    RunLoop()
     #-->  (#NOTE I added some comments to clarify the output)
     # Adaptive Log Processing Demo...
     # 
