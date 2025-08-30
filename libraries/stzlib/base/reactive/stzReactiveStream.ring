@@ -22,19 +22,19 @@ class stzReactiveStream
 	# LibUV handle (only for libuv-backed streams)
 	uvHandle = NULL
 
-	# Backpressure configuration
+	# Overflow (backpressure) configuration
 	bufferSize = 100
-	backpressureStrategy = BACKPRESSURE_STRATEGY_BUFFER
+	overflowStrategy = OVERFLOW_STRATEGY_BUFFER
 	currentBufferCount = 0
 	buffer = []
-	isBackpressureActive = STREAM_STATE_INACTIVE
+	isOverflowActive = STREAM_STATE_INACTIVE
 	droppedCount = 0
 	
-	# Backpressure callbacks
-	backpressureHandlers = []
+	# Overflow (backpressure) callbacks
+	overflowHandlers = []
 	bufferFullHandlers = []
 
-	hasBackpressureConfig = STREAM_STATE_INACTIVE
+	hasOverflowConfig = STREAM_STATE_INACTIVE
 
 	def Init(id, sourceType, engine)
 		streamId = id
@@ -98,15 +98,15 @@ class stzReactiveStream
 		def OnComplete(completeHandler)
 			return This.OnNoMore(completeHandler)
 
-	# Override Recieve to handle backpressure
-	def Feed(data)
+	# Override Recieve to handle overflow
+	def Recieve(data)
 		if not isActive or isCompleted
 			return
 		ok
 		
 		# Check if buffer is at capacity BEFORE adding new data
 		if currentBufferCount >= bufferSize
-		    HandleBackpressure(data)
+		    HandleOverflow(data)
 		    return
 		ok
 		
@@ -114,22 +114,28 @@ class stzReactiveStream
 		buffer + data
 		currentBufferCount++
 
-		# Process immediately if no backpressure config, otherwise only when buffer has space
-		if not hasBackpressureConfig
+		# Process immediately if no overflow config, otherwise only when buffer has space
+		if not hasOverflowConfig
 		    ProcessBuffer()
 		ok
 
+		#< @FunctionAlternativeForms
+
+		def Feed(data)
+			return This.Recieve(data)
+
+		def FeedWith(data)
+			return This.Recieve(data)
 
 		def Emit(data)
-			return This.Feed(data)
+			return This.Recieve(data)
 
 		def Send(data)
-			return This.Feed(data)
+			return This.Recieve(data)
 
-		def Recieve(data)
-			return This.Feed(data)
+		#>
 
-	def FeedMany(paData)
+	def RecieveMany(paData)
 		if not isList(paData)
 			raise("Incorrect param type! paData must be a list.")
 		ok
@@ -142,14 +148,21 @@ class stzReactiveStream
 		# Process buffer after batch emission
 		ProcessBuffer()
 
+		#< @FunctionAlternativeForms
+
+		def FeedMany(paData)
+			return This.RecieveMany(paData)
+
+		def FeedWithMany(paData)
+			return This.RecieveMany(paData)
+
 		def SendMany(paData)
-			return This.FeedMany(paData)
+			return This.RecieveMany(paData)
 
 		def EmitMany(paData)
-			return This.FeedMany(paData)
+			return This.RecieveMany(paData)
 
-		def RecieveMany(paData)
-			return This.FeedMany(paData)
+		#>
 
 	def CheckErrorHandling(error)
 		if not isActive or isCompleted
@@ -212,45 +225,51 @@ class stzReactiveStream
 			uvHandle = NULL
 		ok
 
-	def SetBackpressureStrategy(strategy, maxBufferSize)
-		if not find([BACKPRESSURE_STRATEGY_BUFFER, BACKPRESSURE_STRATEGY_DROP, 
-		            BACKPRESSURE_STRATEGY_BLOCK, BACKPRESSURE_STRATEGY_LATEST], strategy)
-			strategy = BACKPRESSURE_STRATEGY_BUFFER
+	def SetOverflowStrategy(strategy, maxBufferSize)
+		if not find([OVERFLOW_STRATEGY_BUFFER, OVERFLOW_STRATEGY_DROP, 
+		            OVERFLOW_STRATEGY_BLOCK, OVERFLOW_STRATEGY_LATEST], strategy)
+			strategy = OVERFLOW_STRATEGY_BUFFER
 		ok
-		hasBackpressureConfig = STREAM_STATE_ACTIVE
-		backpressureStrategy = strategy
+		hasOverflowConfig = STREAM_STATE_ACTIVE
+		overflowStrategy = strategy
 		bufferSize = maxBufferSize
 		return self
 
-	def OnBackpressure(handler)
-		backpressureHandlers + handler
+		def SetBackpressureStrategy(strategy, maxBufferSize)
+			return This.SetOverflowStrategy(strategy, maxBufferSize)
+
+	def OnOverflow(handler)
+		overflowHandlers + handler
 		return self
-		
+
+		def OnBackpressure(handler)
+			return This.OnOverflow(handler)
+
 	def OnBufferFull(handler)
 		bufferFullHandlers + handler
 		return self
 
-	def HandleBackpressure(data)
-		isBackpressureActive = STREAM_STATE_ACTIVE
+	def HandleOverflow(data)
+		isOverflowActive = STREAM_STATE_ACTIVE
 		
-		# Notify backpressure handlers
-		nLenBack = len(backpressureHandlers)
+		# Notify overflow handlers
+		nLenBack = len(overflowHandlers)
 		for i = 1 to nLenBack
-			handler = backpressureHandlers[i]
+			handler = overflowHandlers[i]
 			call handler(currentBufferCount, bufferSize)
 		next
 		
-		switch backpressureStrategy
-		case BACKPRESSURE_STRATEGY_BUFFER
+		switch overflowStrategy
+		case OVERFLOW_STRATEGY_BUFFER
 		    # Block until buffer has space (simulate)
-		    ? "⚠️ Backpressure: Buffering data (buffer full: " + currentBufferCount + "/" + bufferSize + ")"
+		    ? "⚠️ Overflow: Buffering data (buffer full: " + currentBufferCount + "/" + bufferSize + ")"
 			
-		case BACKPRESSURE_STRATEGY_DROP
+		case OVERFLOW_STRATEGY_DROP
 			# Drop the new data
 			droppedCount++
-			? "⚠️ Backpressure: Dropping data item (dropped so far: " + droppedCount + ")"
+			? "⚠️ Overflow: Dropping data item (dropped so far: " + droppedCount + ")"
 			
-		case BACKPRESSURE_STRATEGY_LATEST
+		case OVERFLOW_STRATEGY_LATEST
 			# Drop oldest, keep latest
 			if len(buffer) > 0
 				del(buffer, 1)  # Remove oldest
@@ -258,13 +277,15 @@ class stzReactiveStream
 			ok
 			buffer + data
 			currentBufferCount++
-			? "⚠️ Backpressure: Keeping latest, dropped oldest"
+			? "⚠️ Overflow: Keeping latest, dropped oldest"
 			
-		case BACKPRESSURE_STRATEGY_BLOCK
+		case OVERFLOW_STRATEGY_BLOCK
 			# In real implementation, this would block the producer
-			? "⚠️ Backpressure: Would block producer (simulated)"
+			? "⚠️ Overflow: Would block producer (simulated)"
 		end
 
+		def HandleBackpressure(data)
+			return This.HandleOverflow(data)
 
 	def ProcessBuffer()
 		if len(buffer) = 0
@@ -299,9 +320,9 @@ class stzReactiveStream
 				for j = 1 to nLenData
 					accumulator = call reduceFunc(accumulator, processedData[j])
 				next
-				# Reset backpressure if buffer is no longer full
-				if currentBufferCount < bufferSize and isBackpressureActive
-					isBackpressureActive = STREAM_STATE_INACTIVE
+				# Reset oveflow if buffer is no longer full
+				if currentBufferCount < bufferSize and isOverflowActive
+					isOverflowActive = STREAM_STATE_INACTIVE
 				ok
 				return
 			end
@@ -321,9 +342,9 @@ class stzReactiveStream
 			next
 		ok
 		
-		# Reset backpressure if buffer is no longer full
-		if currentBufferCount < bufferSize and isBackpressureActive
-			isBackpressureActive = STREAM_STATE_INACTIVE
+		# Reset overflow if buffer is no longer full
+		if currentBufferCount < bufferSize and isOverflowActive
+			isOverflowActive = STREAM_STATE_INACTIVE
 		ok
 
 
@@ -334,11 +355,14 @@ class stzReactiveStream
 		end
 		return self
 		
-	def GetBackpressureStats()
+	def GetOverflowStats()
 		return [
 			:bufferSize = bufferSize,
 			:currentBuffer = currentBufferCount,
-			:isBackpressureActive = isBackpressureActive,
+			:isOverflowActive = isOverflowActive,
 			:droppedCount = droppedCount,
-			:strategy = backpressureStrategy
+			:strategy = overflowStrategy
 		]
+
+		def GetBackpressureStats()
+			return This.GetOverflowStats()
