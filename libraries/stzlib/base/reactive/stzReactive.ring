@@ -238,10 +238,13 @@ class stzReactiveSystem
 	#  REACTIVE STREAMS  #
 	#--------------------#
 
-	# Creates and manages streams for handling asynchronous data
+	# Creates and manages streams for processing asynchronous data
 	# flows from various sources (timers, network, etc.).
 
-	def CreateStream(id, sourceType)
+	def CreateStream(id)
+		return This.CreateStreamXT(id, :MANUAL)
+
+	def CreateStreamXT(id, sourceType)
 		# Creates a generic stream with a specified ID and source type.
 		if sourceType = NULL
 			sourceType = DEFAULT_STREAM_SOURCE
