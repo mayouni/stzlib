@@ -36,6 +36,10 @@ class stzReactiveStream
 
 	hasOverflowConfig = STREAM_STATE_INACTIVE
 
+	autoConcludeEnabled = STREAM_STATE_ACTIVE
+	pendingDataCount = 0
+	autoCompleteDelay = 100  # milliseconds to wait for more data
+
 	def Init(id, sourceType, engine)
 		streamId = id
 		
@@ -98,11 +102,13 @@ class stzReactiveStream
 		def OnComplete(completeHandler)
 			return This.OnNoMore(completeHandler)
 
-	# Override Recieve to handle overflow
 	def Recieve(data)
 		if not isActive or isCompleted
 			return
 		ok
+		
+		# Increment pending data counter
+		pendingDataCount++
 		
 		# Check if buffer is at capacity BEFORE adding new data
 		if currentBufferCount >= bufferSize
@@ -113,10 +119,15 @@ class stzReactiveStream
 		# Add to buffer
 		buffer + data
 		currentBufferCount++
-
-		# Process immediately if no overflow config, otherwise only when buffer has space
+	
+		# Process immediately if no overflow config
 		if not hasOverflowConfig
 		    ProcessBuffer()
+		ok
+		
+		# Schedule auto-completion check if enabled
+		if autoConcludeEnabled
+			ScheduleAutoComplete()
 		ok
 
 		#< @FunctionAlternativeForms
@@ -139,14 +150,19 @@ class stzReactiveStream
 		if not isList(paData)
 			raise("Incorrect param type! paData must be a list.")
 		ok
-
+	
 		nLen = len(paData)
 		for i = 1 to nLen
 			This.Emit(paData[i])
 		next
-
+	
 		# Process buffer after batch emission
 		ProcessBuffer()
+		
+		# Auto-conclude after processing batch if enabled
+		if autoConcludeEnabled
+			AutoComplete()
+		ok
 
 		#< @FunctionAlternativeForms
 
@@ -164,21 +180,36 @@ class stzReactiveStream
 
 		#>
 
-	def CheckErrorHandling(error)
-		if not isActive or isCompleted
-			return
+	def SetAutoConclude(enabled)
+		autoConcludeEnabled = enabled
+		return self
+	
+		def SetAutoComplete(enabled)
+			return This.SetAutoConclude(enabled)
+
+	def ScheduleAutoConclude()
+		# In a real implementation, this would use a timer
+		# For now, we'll check immediately after processing
+		if pendingDataCount > 0
+			pendingDataCount--
+			
+			# If no more pending data and stream should auto-complete
+			if pendingDataCount = 0
+				AutoConclude()
+			ok
 		ok
-		
-		# Call error handlers
-		nLenErr = len(errorHandlers)
-		for i = 1 to nLenErr
-			errorHandler = errorHandlers[i]
-			call errorHandler(error)
-		next
+	
+		def ScheduleAutoComplete()
+			This.ScheduleAutoConclude()
 
-		# Stop the stream on error
-		Stop()
+	def AutoConclude()
+		# Only auto-complete if we have subscribers that need final results
+		if (hasReduceTransform or len(completeHandlers) > 0) and not isCompleted
+			Conclude()
+		ok
 
+		def AutoComplete()
+			This.AutoConclude()
 
 	def Conclude()
 		if isCompleted
@@ -224,6 +255,21 @@ class stzReactiveStream
 			# Clean up LibUV resources
 			uvHandle = NULL
 		ok
+
+	def CheckErrorHandling(error)
+		if not isActive or isCompleted
+			return
+		ok
+		
+		# Call error handlers
+		nLenErr = len(errorHandlers)
+		for i = 1 to nLenErr
+			errorHandler = errorHandlers[i]
+			call errorHandler(error)
+		next
+
+		# Stop the stream on error
+		Stop()
 
 	def SetOverflowStrategy(strategy, maxBufferSize)
 		if not find([OVERFLOW_STRATEGY_BUFFER, OVERFLOW_STRATEGY_DROP, 
@@ -297,7 +343,7 @@ class stzReactiveStream
 		del(buffer, 1)
 		currentBufferCount--
 		
-		# Apply transforms (original Emit logic)
+		# Apply transforms (existing logic)
 		processedData = [data]
 		nLenTrans = len(transforms)
 	
@@ -314,15 +360,19 @@ class stzReactiveStream
 				processedData = @Filter(processedData, filterFunc)
 	
 			case TRANSFORM_REDUCE
-				# Handle reduce differently - accumulate but don't emit yet
 				reduceFunc = transforms[i][2]
 				nLenData = len(processedData)
 				for j = 1 to nLenData
 					accumulator = call reduceFunc(accumulator, processedData[j])
 				next
-				# Reset oveflow if buffer is no longer full
+				# Reset overflow if buffer is no longer full
 				if currentBufferCount < bufferSize and isOverflowActive
 					isOverflowActive = STREAM_STATE_INACTIVE
+				ok
+				
+				# Decrement pending counter for reduce transforms
+				if pendingDataCount > 0
+					pendingDataCount--
 				ok
 				return
 			end
@@ -330,7 +380,6 @@ class stzReactiveStream
 		
 		# Only emit if we didn't encounter a reduce transform
 		if not hasReduceTransform
-			# Emit to local subscribers
 			nLenSub = len(subscribers)
 			nLenData = len(processedData)
 	
@@ -345,6 +394,11 @@ class stzReactiveStream
 		# Reset overflow if buffer is no longer full
 		if currentBufferCount < bufferSize and isOverflowActive
 			isOverflowActive = STREAM_STATE_INACTIVE
+		ok
+		
+		# Decrement pending counter after successful processing
+		if pendingDataCount > 0
+			pendingDataCount--
 		ok
 
 
