@@ -52,10 +52,6 @@ Other timer-based applications can be:
 
 */
 
-#-------------------------------#
-#  EXAMPLE 1: YOUR FIRST TIMER  #
-#-------------------------------#
-
 /*--- Understanding setTimeout - One-time delayed execution
 
 # SetTimeout executes a function ONCE after a specified delay
@@ -91,9 +87,6 @@ pf()
 # ⏰ DING! Timer went off after 2000ms (2 seconds)
 # This message appears exactly once
 
-#-------------------------------#
-#  EXAMPLE 2: REPEATING TIMERS  #
-#-------------------------------#
 
 /*--- Understanding setInterval - Repeating execution
 
@@ -142,9 +135,6 @@ Stopping timer after 3 ticks...
 
 # Executed in 1.06 second(s) in Ring 1.23
 
-#-------------------------------#
-#  EXAMPLE 3: COMBINING TIMERS  #
-#-------------------------------#
 
 /*--- Multiple timers working together
 
@@ -211,11 +201,8 @@ func fStopAllTimers()
 
 # Executed in 4.02 second(s) in Ring 1.23
 
-#----------------------------------------#
-#  EXAMPLE 4: TIMER-DRIVEN DATA STREAMS  #
-#----------------------------------------#
 
-/*--- Using timers to create reactive data streams
+/*--- Timer-driven data streams: Using timers to create reactive data streams
 
 # Timers can drive reactive streams, creating time-based data sources
 # Perfect for simulating sensRs, stock prices, or any real-time data
@@ -282,9 +269,7 @@ func fStopDataGeneration()
 
 # Executed in 3.53 second(s) in Ring 1.23
 
-#---------------------------------------------------#
-#  EXAMPLE 5: PRACTICAL EXAMPLE - PROGRESS TRACKER  #
-#---------------------------------------------------#
+
 
 /*--- Real-world example: Simulating a download progress
 
@@ -374,9 +359,6 @@ class DownloadSimulator
 # This example demonstrates why Sleep() blocks reactive systems
 # and shows the correct timer-based approach
 
-#----------------------------------------------#
-#  EXAMPLE 1: ❌ WRONG - Sleep() Blocks System  #
-#----------------------------------------------#
 
 /*--- This code BLOCKS and prevents auto-conclude from working!
 
@@ -436,10 +418,6 @@ Rs {
 
 pf()
 
-
-#-----------------------------------------------#
-#  EXAMPLE 2: ✅ CORRECT - Using SetTimeout()   #
-#-----------------------------------------------#
 
 /*--- This works perfectly because timers are non-blocking
 
@@ -508,36 +486,29 @@ Rs {
 pf()
 # Executed in 1.26 second(s) in Ring 1.23
 
-#-------------------------------------------------#
-#  EXAMPLE 3: 🔍 WHY Sleep() BREAKS REACTIVE CODE  #
-#-------------------------------------------------#
 
 /*--- Understanding the technical reason
 
+🔍 WHY Sleep() BREAKS REACTIVE CODE
 The fundamental problem:
 
-1. **Sleep() is BLOCKING**
+1. Sleep() is BLOCKING
    - Pauses the entire thread
    - No other code can execute
    - Timers cannot fire
    - Event loop cannot process
 
-2. **SetTimeout() is NON-BLOCKING**  
+2. SetTimeout() is NON-BLOCKING  
    - Schedules execution for later
    - Event loop continues running
    - Other timers can still fire
    - Auto-conclude timers work properly
 
-3. **Auto-conclude relies on timers**
+3. Auto-conclude relies on timers
    - Uses internal timer to detect data gaps
    - Sleep() prevents this timer from running
    - Result: stream never concludes automatically
 
-*/
-
-#----------------------------#
-#  KEY RULES FOR Rs{} BLOCKS  #
-#----------------------------#
 
 /*--- Critical guidelines for reactive programming:
 
