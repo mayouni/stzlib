@@ -24,7 +24,7 @@ class stzReactiveStream
 
 	# Overflow (backpressure) configuration
 	bufferSize = 100
-	overflowStrategy = OVERFLOW_STRATEGY_BUFFER
+	overflowStrategy = :BUFFER
 	currentBufferCount = 0
 	buffer = []
 	isOverflowActive = STREAM_STATE_INACTIVE
@@ -123,7 +123,7 @@ class stzReactiveStream
 	
 		# Process immediately if no overflow config
 		if not hasOverflowConfig
-		    ProcessBuffer()
+		    ProcessAnItemFromBuffer()
 		ok
 		
 		# Schedule auto-completion check if enabled
@@ -158,7 +158,7 @@ class stzReactiveStream
 		next
 	
 		# Process buffer after batch emission
-		ProcessBuffer()
+		ProcessAnItemFromBuffer()
 		
 		# Auto-conclude after processing batch if enabled
 		if autoConcludeEnabled
@@ -181,6 +181,11 @@ class stzReactiveStream
 
 		#>
 
+
+	def SetAutoConcludeXT(enable, delay)
+		This.SetAutoConclude(enable)
+		This.SetAutoConcludeDelay(delay)
+		return self
 
 	def SetAutoConclude(enabled)
 		autoConcludeEnabled = enabled
@@ -297,9 +302,8 @@ class stzReactiveStream
 		Stop()
 
 	def SetOverflowStrategy(strategy, maxBufferSize)
-		if not find([OVERFLOW_STRATEGY_BUFFER, OVERFLOW_STRATEGY_DROP, 
-		            OVERFLOW_STRATEGY_BLOCK, OVERFLOW_STRATEGY_LATEST], strategy)
-			strategy = OVERFLOW_STRATEGY_BUFFER
+		if not find([:BUFFER, :DROP, :BLOCK, :LATEST], strategy)
+			strategy = :BUFFER
 		ok
 		hasOverflowConfig = STREAM_STATE_ACTIVE
 		overflowStrategy = strategy
@@ -331,16 +335,16 @@ class stzReactiveStream
 		next
 		
 		switch overflowStrategy
-		case OVERFLOW_STRATEGY_BUFFER
+		case :BUFFER
 		    # Block until buffer has space (simulate)
 		    ? "⚠️ Overflow: Buffering data (buffer full: " + currentBufferCount + "/" + bufferSize + ")"
 			
-		case OVERFLOW_STRATEGY_DROP
+		case :DROP
 			# Drop the new data
 			droppedCount++
 			? "⚠️ Overflow: Dropping data item (dropped so far: " + droppedCount + ")"
 			
-		case OVERFLOW_STRATEGY_LATEST
+		case :LATEST
 			# Drop oldest, keep latest
 			if len(buffer) > 0
 				del(buffer, 1)  # Remove oldest
@@ -350,7 +354,7 @@ class stzReactiveStream
 			currentBufferCount++
 			? "⚠️ Overflow: Keeping latest, dropped oldest"
 			
-		case OVERFLOW_STRATEGY_BLOCK
+		case :BLOCK
 			# In real implementation, this would block the producer
 			? "⚠️ Overflow: Would block producer (simulated)"
 		end
@@ -359,7 +363,7 @@ class stzReactiveStream
 			return This.HandleOverflow(data)
 
 
-	def ProcessBuffer()
+	def ProcessAnItemFromBuffer()
 		if len(buffer) = 0
 			return
 		ok
@@ -428,14 +432,17 @@ class stzReactiveStream
 		ok
 
 
-	def DrainBuffer()
+	def ProcessAllInBuffer()
 		# Process all buffered items
 		while len(buffer) > 0
-			ProcessBuffer()
+			ProcessAnItemFromBuffer()
 		end
 		return self
-		
-	def GetOverflowStats()
+
+		def DrainBuffer()
+			return This.ProcessAllInBuffer()
+
+	def OverflowStats()
 		return [
 			:bufferSize = bufferSize,
 			:currentBuffer = currentBufferCount,
@@ -444,5 +451,5 @@ class stzReactiveStream
 			:strategy = overflowStrategy
 		]
 
-		def GetBackpressureStats()
-			return This.GetOverflowStats()
+		def BackpressureStats()
+			return This.OverflowStats()
