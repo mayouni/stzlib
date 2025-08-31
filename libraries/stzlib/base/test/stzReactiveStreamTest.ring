@@ -131,7 +131,7 @@ Rs {
         })
 
         # When there are no more data items to process,
-	# this Rfunction is exuecuted (but we should use Conclude() at the end)
+	# this Rfunction is exuecuted
 
         OnNoMore(func() {
             ? "✅ Stream processing completed"
@@ -187,7 +187,6 @@ Rs {
         testPrices = [ 80, 90, 100, 120, 150, 200 ]
         RecieveMany(testPrices)
 
-        Conclude()
     }
 
     RunLoop()
@@ -218,27 +217,17 @@ Rs {
     oSalesStream = CreateStream("sales-aggregation")
     oSalesStream {
 
-        # CRITICAL CONCEPT: Accumulate operations don't emit data immediately
-        # Instead, they collect and combine data internally, waiting for conclusion
-	# with the Conclude() method
-
-        # Think of this as a collection bin that gathers items but doesn't release
-        # the final result until explicitly told to do so
-
-        Accumulate(func(total, sale) {
+        Accumulate( func(total, sale) {
             return total + sale["amount"]  # Running total kept internally
         }, 0)  # Starting value: $0.00
 
-        # The fellowing Rfunction (reactive function) will ONLY execute when accumulated result is finally released
-        # Without Conclude() below, it never gets called
 
-        OnPassed(func totalSales {
+        OnPassed( func totalSales {
             ? "💰 Total Sales: $" + totalSales
         })
 
-        # Same thing for the fellowing Rfunction - also requires explicit conclusion to trigger
 
-        OnNoMore(func() {
+        OnNoMore( func() {
             ? "✅ Sales calculation completed"
         })
 
@@ -252,19 +241,9 @@ Rs {
 
         # Recieve all sales data into the accumulation pipeline
         # Each item gets added to the internal accumulator (150 + 89.99 + 299.99 + 45.50)
-        # but no output is generated yet - the total stays trapped inside
-
+ 
         RecieveMany(salesData)
 
-        # ESSENTIAL: Force the stream to release accumulated result and finish
-        # Without this line, you get NO output because:
-        # 1. The $585.48 total remains trapped in the internal accumulator
-        # 2. OnPassed Rfunction never executes (no data reaches it)
-        # 3. OnNoMore Rfunction never executes (stream never concludes)
-
-        # Try commenting this line to see the silent failure!
- 
-        Conclude()
     }
 
     RunLoop()
@@ -333,9 +312,9 @@ Rs {
             [:pageViews = 2, :duration = 4.1, :converted = false],
             [:pageViews = 9, :duration = 25.3, :converted = true]
         ]
+
         RecieveMany(sessions)
 
-        Conclude()
     }
     
     RunReactiveLoop()
@@ -623,7 +602,6 @@ Rs {
             Recieve(i)  # Timer tick simulation
         next
 
-        Conclude()
     }
     
     Run()
@@ -910,7 +888,7 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # System process monitoring via LibUV
-    oUVStream = CreateStreamXT("process-monitor", OPTIMISED_FOR_LIBUV_SYSTEM_MESSAGES)
+    oUVStream = CreateStreamXT("process-monitor", OPTIMISED_FOR_LIBUV_MESSAGES)
     oUVStream {
 
         # Process system events
@@ -951,7 +929,7 @@ Rs {
         ]
         
         RecieveMany(systemEvents)
-        Conclude() # Necessary because we use OnNoMore()
+
     }
     
     RunLoop()
@@ -1037,13 +1015,6 @@ Rs {
         [:message = "Maintenance scheduled"]
     ])
     
-    # Complete all streams (not necessary, because we
-    # don't use Accumulate() or OnNoMore()
-
-    // oUserStream.Conclude()
-    // oHealthStream.Conclude() 
-    // oApiStream.Conclude()
-    
     RunLoop()
     #-->
     # 👤 Login by alice
@@ -1103,7 +1074,7 @@ Rs {
         
         ? "Draining buffer..."
         DrainBuffer()
-        Conclude()
+
     }
     
     RunLoop()
@@ -1161,7 +1132,7 @@ pf()
 # Executed in 0.95 second(s) in Ring 1.23
 
 /*--- Drop Strategy - Discard data when overwhelmed
-*/
+
 # The sample shows OVERFLOW_STRATEGY_DROP behavior
 # Buffer fills to capacity (3), then excess sensor readings
 # are discarded to prevent system overload - sacrifices data 
@@ -1199,8 +1170,7 @@ Rs {
         
         stats = GetOverflowStats()
         ? NL + "Final stats - Dropped: " + stats[:droppedCount] + " readings"
-        
-        Conclude()
+
     }
     
     RunLoop()
@@ -1282,7 +1252,7 @@ Rs {
         next
         
         DrainBuffer()
-        Conclude()
+
     }
     
     RunLoop()
@@ -1362,8 +1332,7 @@ Rs {
             ? "Event: " + events[i][:severity] + " - " + events[i][:message]
             Recieve(events[i])
         next
-        
-        Conclude()
+
     }
     
     RunLoop()
@@ -1404,7 +1373,7 @@ pf()
 # extreme load to maintain stability
 
 # Processes existing buffer before applying new strategy
-
+*/
 pr()
 
 Rs = new stzReactiveSystem()
@@ -1473,8 +1442,7 @@ Rs {
         ? "  • Strategy: " + stats[:strategy]
         ? "  • Items dropped: " + stats[:droppedCount]
         ? "  • Buffer utilization: " + stats[:currentBuffer] + "/" + stats[:bufferSize]
-        
-        Conclude()
+
     }
     
     RunLoop()
