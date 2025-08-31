@@ -50,7 +50,7 @@ Rs {
 
         OnError(func error { Log(error) AlertTeamAbout(error) })
 
-	# The last step is to define the data the stream will receive.
+	# The last step is to define the data the stream will Recieve.
 	# Here we provide test data, with duplicates and varying price ranges.
         # Test data: values below 100 will be filtered out after transformation (< 120)
         # Values 100+ will pass through after transformation (>= 120)
@@ -122,7 +122,7 @@ Rs {
         # Each item of data that the stream is fed with
 	# is processed using this Rfunction
         OnPassed(func data {
-            ? "📊 Data received: " + data
+            ? "📊 Data Recieved: " + data
         })
 
         # Potential erros are captured by the fellowing Rfunction
@@ -151,11 +151,11 @@ Rs {
 
     RunLoop()
     #-->
-    # 📊 Data received: First message
-    # 📊 Data received: Second message  
-    # 📊 Data received: Third
-    # 📊 Data received: Fourth
-    # 📊 Data received: Fifth
+    # 📊 Data Recieved: First message
+    # 📊 Data Recieved: Second message  
+    # 📊 Data Recieved: Third
+    # 📊 Data Recieved: Fourth
+    # 📊 Data Recieved: Fifth
     # ❌ Error occurred: Simulated error
 }
 
@@ -1070,7 +1070,7 @@ pf()
 
 /*--- Debounced Auto-Conclude 
 # Best for: Streaming data, network feeds, sensor readings with gaps
-*/
+
 pr()
 
 Rs = new stzReactiveSystem()
@@ -1079,41 +1079,42 @@ Rs {
     oSensorStream {
 
         # Enable debounced auto-conclude - waits for data gaps
-        SetAutoConclude(true)
-        SetAutoConcludeDelay(500)  # Wait 500ms after last reading
-        
-        Accumulate(func(avgTemp, reading) {
+        # SetAutoConclude(true)
+        # SetAutoConcludeDelay(500)  # Wait 500ms after last reading
+        SetAutoConcludeXT(true, 500)
+
+        Accumulate( func(avgTemp, reading) {
             # Simple moving average calculation
             if avgTemp = 0
                 return reading["temp"]
             else
                 return (avgTemp + reading["temp"]) / 2
             ok
-        }, 0)
-        
+        }, 0) # Starting from 0
+
         OnPassed(func finalAvg {
             ? "🌡️  Final Average Temperature: " + finalAvg + "°C"
         })
-        
+ 
         OnNoMore(func {
             ? "✅ Sensor reading session completed (after 500ms delay)"
         })
-        
+
        # Simulate streaming sensor data with gaps
         ? "📡 Receiving temperature readings..."
-        
+
         # Schedule sensor readings using reactive timers instead of Sleep()
         Rs.SetTimeout(0, func {
             oSensorStream.Recieve([:temp = 22.5, :sensor = "A1"])
             oSensorStream.Recieve([:temp = 23.1, :sensor = "A2"])
         })
-        
+
         Rs.SetTimeout(200, func {
             ? "   (200ms gap - still waiting...)"
             oSensorStream.Recieve([:temp = 21.8, :sensor = "A3"])
             oSensorStream.Recieve([:temp = 24.2, :sensor = "A4"])
         })
-        
+
         Rs.SetTimeout(600, func {
             ? "   (600ms gap - will auto-conclude after 500ms...)"
             # No more data - stream will auto-conclude after 500ms delay
@@ -1122,13 +1123,13 @@ Rs {
         Rs.SetTimeOut(1200, func {
 	  ? "   (System kept alive for auto-conclude)"
         })
-        
+
         # Stream automatically concludes here due to 500ms timeout
         # No manual Conclude() needed!
     }
 
     RunLoop()
-    
+
     ? ""
     ? "💡 Key Difference:"
     ? "   • Immediate: Perfect for complete datasets (sales batches)"  
@@ -1136,38 +1137,42 @@ Rs {
 }
 
 pf()
+# Executed in 2.17 second(s) in Ring 1.23
 
 #---------------------------------------------#
-#  Overflow (backpressure) Strategy Examples  #
+#  Overflow (backpresuure) Strategy Examples  #
 #---------------------------------------------#
+*/
 
 #NOTE
 
 # Overflow occurs when data arrives faster than it can be processed.
-# The producer (Recieveing data) overwhelms the consumer (subscriber), so
-# the system applies "pressure back" to slow down or block the producer.
+# The stream Recieves data (from producers) faster than Rfunctions
+# (subscribers) can handle it, so the system applies overflow
+# strategies to manage the excess flow.
 
-/*--- Buffer Strategy - Queue data when subscriber is slow
+/*--- Buffer Strategy - Store data when processing is slow
 
-# The sample shows proper Overflow with OVERFLOW_STRATEGY_BUFFER
-# When the buffer is full, new items are blocked/dropped, and only the
-# original buffered items get processed when drained.
+# The sample shows proper Overflow with BUFFER_NEW_ITEMS strategy
+# (or :BUFFER for short).
+# When the buffer is full, new items are stored temporarily until
+# processing capacity becomes available to drain them.
 
 pr()
 
 Rs = new stzReactiveSystem()
 Rs {
 
-    # High-frequency data stream with slow subscriber
+    # High-frequency data stream with slow processing
 
     oBufferStream = CreateStream("buffer-example")
     oBufferStream {
         # Set buffer strategy with small buffer for demo
-        SetOverflowStrategy(:BUFFER, 3)
-        
-        # Slow subscriber (simulated)
+        SetOverflowStrategy(BUFFER_NEW_ITEMS, 3) # Or simply :BUFFER
+
+        # Slow processing Rfunction (simulated)
         OnPassed(func data {
-            ? "📊 Processing: " + data + " (slow subscriber)"
+            ? "📊 Processing: " + data + " (slow processing)"
             # Simulate slow processing
         })
         
@@ -1178,12 +1183,12 @@ Rs {
         # Rapid data reception
 
         for i = 1 to 7  # Exceeds buffer size of 3
-            ? "Recieveing item " + i
+            ? "Receiving item " + i
             Recieve("Data-" + i)
         next
         
-        ? "Draining buffer..."
-        DrainBuffer()
+        ? "Processing buffer..."
+        ProcessAnItemFromBuffer()
 
     }
     
@@ -1192,58 +1197,59 @@ Rs {
  
     # Phase 1: Filling buffer (capacity: 3)
     # -------------------------------------
-    # Recieveing item 1
-    # Recieveing item 2
-    # Recieveing item 3
+    # Receiving item 1
+    # Receiving item 2
+    # Receiving item 3
     # 
-    # Phase 2: Buffer full - Overflow blocks new items
-    # ----------------------------------------------------
-    # Recieveing item 4
+    # Phase 2: Buffer full - Overflow stores new items
+    # ------------------------------------------------
+    # Receiving item 4
     #🚦 Overflow activated: 3/3 buffer full
     # ⚠️ Overflow: Buffering data (buffer full: 3/3)
     # 
-    # Recieveing item 5
+    # Receiving item 5
     #🚦 Overflow activated: 3/3 buffer full
     #⚠️ Overflow: Buffering data (buffer full: 3/3)
     # 
-    # Recieveing item 6
+    # Receiving item 6
     #🚦 Overflow activated: 3/3 buffer full
     #⚠️ Overflow: Buffering data (buffer full: 3/3)
     # 
-    # Recieveing item 7
+    # Receiving item 7
     #🚦 Overflow activated: 3/3 buffer full
     #⚠️ Overflow: Buffering data (buffer full: 3/3)
     # 
-    # Phase 3: Manual drain processes buffered items
-    #-----------------------------------------------
-    # Draining buffer...
-    # 📊 Processing: Data-1 (slow subscriber)
-    # 📊 Processing: Data-2 (slow subscriber)
-    # 📊 Processing: Data-3 (slow subscriber)
+    # Phase 3: Manual buffer processing handles buffered items
+    #---------------------------------------------------------
+    # Processing buffer...
+    # 📊 Processing: Data-1 (slow processing)
+    # 📊 Processing: Data-2 (slow processing)
+    # 📊 Processing: Data-3 (slow processing)
 
 }
 
 #NOTE
 
-# Draining a buffer means processing all queued/stored items
-# in the buffer. Items were temporarily held due to Overflow,
-# and draining releases them for processing.
+# Processing a buffer means executing Rfunctions on all stored items
+# in the buffer. Items were temporarily held due to overflow,
+# and processing releases them to Rfunctions for execution.
 
 # In our example above:
 
 # Items 1-3 fill the buffer (capacity: 3)
-# Items 4-7 are blocked by Overflow (buffer full)
-# Draining processes the 3 stored items while blocked items are lost
+# Items 4-7 are stored by overflow strategy (buffer extends)
+# Processing executes stored items through Rfunctions in order
 
-# It is like a traffic jam: cars (data) back up when the road (processor)
-# can't handle the flow, and draining is like clearing the backed-up cars.
+# It's like a waiting room: people (data) wait when the
+# service desk (Rfunction) can't handle the flow, and
+# processing is like calling the waiting people forward.
 
 pf()
 # Executed in 0.95 second(s) in Ring 1.23
 
 /*--- Drop Strategy - Discard data when overwhelmed
 
-# The sample shows OVERFLOW_STRATEGY_DROP behavior
+# The sample shows DROP_NEW_ITEMS behavior (or :DROP for short)
 # Buffer fills to capacity (3), then excess sensor readings
 # are discarded to prevent system overload - sacrifices data 
 # completeness for stability
@@ -1255,7 +1261,7 @@ Rs {
     # Real-time sensor stream that can afford to lose some data
     oDropStream = CreateStreamXT("drop-example", :SENSOR)
     oDropStream {
-        SetOverflowStrategy(:DROP, 2)
+        SetOverflowStrategy(DROP_NEW_ITEMS, 2) # Or simply :DROP
         
         Transform(func reading {
             return "Sensor-" + reading + "°C"
@@ -1266,7 +1272,7 @@ Rs {
         })
         
         OnOverflow(func(current, max) {
-            ? "🚨 Sensor overloaded, dropping readings"
+            ? "🚨 Sensor overloaded, discarding readings"
         })
 
         ? "Simulating high-frequency sensor readings..."
@@ -1278,7 +1284,7 @@ Rs {
             Recieve(sensorReadings[i])
         next
         
-        stats = GetOverflowStats()
+        stats = OverflowStats()
         ? NL + "Final stats - Dropped: " + stats[:droppedCount] + " readings"
 
     }
@@ -1287,35 +1293,34 @@ Rs {
     #--> (#NOTE I added some comments to clarify the output)
     # Simulating high-frequency sensor readings...
     # 
-    # Phase 1: Buffer fills with initial readings (capacity: 3)
+    # Phase 1: Buffer fills with initial readings (capacity: 2)
     # ---------------------------------------------------------
     # Reading: 23.50
     # Reading: 23.70
-    # Reading: 24.10
     # 
     # Phase 2: Drop strategy - excess readings discarded
     # --------------------------------------------------
-    # Reading: 24.30
-    # 🚨 Sensor overloaded, dropping readings
+    # Reading: 24.10
+    # 🚨 Sensor overloaded, discarding readings
     # ⚠️ Overflow: Dropping data item (dropped so far: 1)
     # 
     # Reading: 24.30
-    # 🚨 Sensor overloaded, dropping readings
+    # 🚨 Sensor overloaded, discarding readings
     # ⚠️ Overflow: Dropping data item (dropped so far: 2)
     # 
     # Reading: 24.50
-    # 🚨 Sensor overloaded, dropping readings
+    # 🚨 Sensor overloaded, discarding readings
     # ⚠️ Overflow: Dropping data item (dropped so far: 3)
     # 
     # Reading: 24.80
-    # 🚨 Sensor overloaded, dropping readings
+    # 🚨 Sensor overloaded, discarding readings
     # ⚠️ Overflow: Dropping data item (dropped so far: 4)
     # 
     # Reading: 25
-    # 🚨 Sensor overloaded, dropping readings
+    # 🚨 Sensor overloaded, discarding readings
     # ⚠️ Overflow: Dropping data item (dropped so far: 5)
 
-    # Result: Only first 3 readings kept, rest dropped
+    # Result: Only first 2 readings kept, rest dropped
     # ------------------------------------------------
     # Final stats - Dropped: 5 readings
 
@@ -1326,7 +1331,8 @@ pf()
 
 /*--- Latest Strategy - Keep most recent data
 
-# The sample shows OVERFLOW_STRATEGY_LATEST behavior
+# The sample shows ACCEPT_LATEST_DISCARD_OLD_ITEMS behavior
+# (or :LATEST for short)
 # Buffer maintains fixed size by discarding oldest data when new arrives
 # Ensures most current information is preserved for time-sensitive applications
 
@@ -1337,7 +1343,7 @@ Rs {
     # Stock price stream - only latest price matters
     oLatestStream = CreateStreamXT("latest-price", :NETWORK)
     oLatestStream {
-        SetOverflowStrategy(:LATEST, 2)
+        SetOverflowStrategy(ACCEPT_LATEST_DISCARD_OLD_ITEMS, 2) # Or simply :LATEST
         
         Transform(func price {
             return "AAPL: $" + price
@@ -1361,7 +1367,7 @@ Rs {
             Recieve(prices[i])
         next
         
-        DrainBuffer()
+        ProcessAnItemFromBuffer()
 
     }
     
@@ -1370,14 +1376,17 @@ Rs {
     # 
     # Simulating rapid stock price updates...
     # 
-    # Phase 1: Buffer fills with initial price updates (capacity: 3)
+    # Phase 1: Buffer fills with initial price updates (capacity: 2)
     # --------------------------------------------------------------
     # Price update: $150.25
     # Price update: $150.30
-    # Price update: $150.15
     # 
     # Phase 2: Latest strategy - keeps newest prices, discards oldest
     # ---------------------------------------------------------------
+    # Price update: $150.15
+    # 📈 High trading volume - keeping latest prices only
+    # ⚠️ Overflow: Keeping latest, dropped oldest
+    # 
     # Price update: $150.45
     # 📈 High trading volume - keeping latest prices only
     # ⚠️ Overflow: Keeping latest, dropped oldest
@@ -1391,6 +1400,7 @@ Rs {
     # ⚠️ Overflow: Keeping latest, dropped oldest
     # 
     # Phase 3: Final buffer contains most recent prices
+    # -------------------------------------------------
     # 💰 AAPL: $150.60
     # 💰 AAPL: $150.55
 }
@@ -1398,12 +1408,13 @@ Rs {
 pf()
 # Executed in 0.93 second(s) in Ring 1.23
 
-/*--- Block Strategy - Simulate producer blocking
+/*--- Block Strategy - Pause stream when capacity reached
 
-# The sample shows OVERFLOW_STRATEGY_BLOCK behavior
-# Producer is halted when buffer fills to prevent data loss
-# Maintains data integrity by forcing synchronization
-# between producer and consumer
+# The sample shows BLOCK_QUEUE_UNTIL_CAPACITY_AVAILABLE behavior
+# (:BLOCK for short)
+# Stream reception is paused when buffer fills to prevent data loss
+# Maintains data integrity by synchronizing data flow with processing
+# capacity
 
 pr()
 
@@ -1412,7 +1423,7 @@ Rs {
     # Critical system events - cannot lose data
     oBlockStream = CreateStream("critical-events")
     oBlockStream {
-        SetOverflowStrategy(:BLOCK, 3)
+        SetOverflowStrategy(BLOCK_QUEUE_UNTIL_CAPACITY_AVAILABLE, 3) # or simply :BLOCK
         
         Filter(func event {
             return event[:severity] = "CRITICAL"
@@ -1424,7 +1435,7 @@ Rs {
         })
         
         OnOverflow(func(current, max) {
-            ? "⛔ System overload - would block producer"
+            ? "⛔ System overload - pausing stream reception"
         })
         
         ? "Block Strategy Demo..."
@@ -1455,31 +1466,31 @@ Rs {
     # Event: CRITICAL - Memory exhausted
     # Event: INFO - User login
     # 
-    # Phase 2: Block strategy - producer paused to prevent overflow
-    # -------------------------------------------------------------
+    # Phase 2: Block strategy - stream reception paused to prevent overflow
+    # ---------------------------------------------------------------------
     # Event: CRITICAL - Security breach
-    # ⛔ System overload - would block producer
-    # ⚠️ Overflow: Would block producer (simulated)
+    # ⛔ System overload - pausing stream reception
+    # ⚠️ Overflow: Stream reception blocked (simulated)
     # 
     # Event: CRITICAL - Disk full
-    # ⛔ System overload - would block producer
-    # ⚠️ Overflow: Would block producer (simulated)
+    # ⛔ System overload - pausing stream reception
+    # ⚠️ Overflow: Stream reception blocked (simulated)
     # 
     # Event: CRITICAL - Network down
-    # ⛔ System overload - would block producer
-    # ⚠️ Overflow: Would block producer (simulated)
+    # ⛔ System overload - pausing stream reception
+    # ⚠️ Overflow: Stream reception blocked (simulated)
     # 
     # ~> No processing shown - events remain queued until
-    # consumer catches up
+    # processing capacity becomes available
 }
 
 pf()
 # Executed in 0.92 second(s) in Ring 1.23
 
 /*--- Real-World Example: Log Processing with Adaptive Overflow
-
-# The sample shows adaptive Overflow - system dynamically
-# switches strategies, by chaning from buffer to drop mode under
+*/
+# The sample shows adaptive overflow - system dynamically
+# switches strategies, changing from buffer to drop mode under
 # extreme load to maintain stability
 
 # Processes existing buffer before applying new strategy
@@ -1488,7 +1499,7 @@ pr()
 
 Rs = new stzReactiveSystem()
 Rs {
-    # Log processing system with smart Overflow
+    # Log processing system with smart overflow
     oLogStream = CreateStreamXT("adaptive-logs", OPTIMISED_FOR_FILE_SOURCE)
     oLogStream {
         # Start with buffer strategy
@@ -1518,12 +1529,12 @@ Rs {
         
         # Adaptive Overflow Rfunction
         OnOverflow(func(current, max) {
-            ? "🔄 Log processing Overflow: " + current + "/" + max
+            ? "🔄 Log processing overflow: " + current + "/" + max
             
             # Switch to drop strategy under extreme load
             if current >= max
                 ? "⚡ Switching to DROP strategy due to extreme load"
-                oLogStream.SetOverflowStrategy(OVERFLOW_STRATEGY_DROP, 10)
+                oLogStream.SetOverflowStrategy(:DROP, 10)
             ok
         })
         
@@ -1545,9 +1556,9 @@ Rs {
         RecieveMany(logEntries)
         
         ? "Processing remaining buffer..."
-        DrainBuffer()
+        ProcessAnItemFromBuffer()
         
-        stats = GetOverflowStats() 
+        stats = OverflowStats() 
         ? "Final processing stats:"
         ? "  • Strategy: " + stats[:strategy]
         ? "  • Items dropped: " + stats[:droppedCount]
@@ -1561,7 +1572,7 @@ Rs {
     # 
     # Phase 1: Buffer reaches capacity, triggers strategy change
     # ----------------------------------------------------------
-    # 🔄 Log processing Overflow: 5/5
+    # 🔄 Log processing overflow: 5/5
     # ⚡ Switching to DROP strategy due to extreme load
     # ⚠️ Overflow: Dropping data item (dropped so far: 1)
     # 
@@ -1585,42 +1596,3 @@ Rs {
 
 pf()
 # Executed in 0.95 second(s) in Ring 1.23
-
-#=== #TODO #NARRATION
-# # Overflow Strategies Explained
-
-# What is Overflow?
-
-# When data arrives faster than it can be processed, the system
-# gets overwhelmed. Overflow is how we handle this mismatch.
-
-# Four Overflow Strategies:
-
-# 1. BUFFER - Store excess data in memory until processing catches up
-#  - Methaphor: "Queue up messages like people waiting in line"
-#  - Implementation: Currently just logs. In production, would
-#    use actual queues with memory limits
-
-# 2. DROP - Discard new data when overwhelmed
-#  - Methaphor: "Like dropping phone calls when network is busy" 
-#  - Implementation: Already works correctly - increments `droppedCount`
-
-# 3. LATEST - Keep newest data, discard oldest
-#  - Metaphor: "Like a news ticker - always show latest updates"
-#  - Implementation: Already works correctly - manages buffer rotation
-
-# 4. BLOCK - Pause the data source until ready
-#  - Methaphor: "Like telling someone to slow down when they're talking too fast"
-#  - Implementation: Currently just logs. In production, would signal the
-#    data producer to pause
-
-#TODO Documentation Approach:
-# - Lead with simple analogies for educational users
-# - Add technical notes for professional use
-# - Mark simulation vs. production differences clearly
-# - Provide working examples for each strategy
-
-#NOTE
-# - Current Status: DROP and LATEST work fully.
-# - BUFFER and BLOCK are educational demonstrations that show the concept
-#   but don't implement real blocking/queuing mechanisms.

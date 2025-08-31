@@ -125,21 +125,16 @@ EVENT_START = :start
 EVENT_STOP = :stop
 
 # Buffer strategies
-BUFFER_STRATEGY_UNLIMITED = -1
-BUFFER_STRATEGY_DROP_OLDEST = :drop_oldest
-BUFFER_STRATEGY_DROP_NEWEST = :drop_newest
-BUFFER_STRATEGY_BLOCK = :block
+BUFFER_NEW_ITEMS = "buffer"
+DROP_NEW_ITEMS = "drop" 
+ACCEPT_LATEST_DISCARD_OLD_ITEMS = "latest"
+BLOCK_QUEUE_UNTIL_CAPACITY_AVAILABLE = "block"
 
 # Stream processing
 STREAM_ATTR_CHANGES = "attribute_changes"
 STREAM_ALL_CHANGES = "all"
 STREAM_DISTINCT_CHANGES = "distinct"
 
-# Add these constants to your constants file
-OVERFLOW_STRATEGY_BUFFER = "buffer"
-OVERFLOW_STRATEGY_DROP = "drop" 
-OVERFLOW_STRATEGY_BLOCK = "block"
-OVERFLOW_STRATEGY_LATEST = "latest"
 
 #-------------------#
 #  ENGINE CONSTANTS #
