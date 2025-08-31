@@ -7,10 +7,10 @@ class stzReactiveStream
 
 	subscribers = []
 	errorHandlers = []
-	completeHandlers = []
+	concludeHandlers = []
 	engine = NULL
 	isActive = STREAM_STATE_INACTIVE
-	isCompleted = STREAM_STATE_RUNNING
+	isConcluded = STREAM_STATE_RUNNING
 
 	# Transformation functions to apply
 	transforms = []
@@ -38,7 +38,8 @@ class stzReactiveStream
 
 	autoConcludeEnabled = STREAM_STATE_ACTIVE
 	pendingDataCount = 0
-	autoCompleteDelay = 100  # milliseconds to wait for more data
+	autoConcludeDelay = 100  # milliseconds to wait for more data
+	autoConcludeTimer = NULL
 
 	def Init(id, sourceType, engine)
 		streamId = id
@@ -94,16 +95,16 @@ class stzReactiveStream
 	def OnError(errorHandler)
 		errorHandlers + errorHandler
 		return self
-		
-	def OnNoMore(completeHandler)
-		completeHandlers + completeHandler
+
+	def OnNoMore(concludeHandler)
+		concludeHandlers + concludeHandler
 		return self
 
 		def OnComplete(completeHandler)
 			return This.OnNoMore(completeHandler)
 
 	def Recieve(data)
-		if not isActive or isCompleted
+		if not isActive or isConcluded
 			return
 		ok
 		
@@ -127,7 +128,7 @@ class stzReactiveStream
 		
 		# Schedule auto-completion check if enabled
 		if autoConcludeEnabled
-			ScheduleAutoComplete()
+			ScheduleAutoConclude()
 		ok
 
 		#< @FunctionAlternativeForms
@@ -161,7 +162,7 @@ class stzReactiveStream
 		
 		# Auto-conclude after processing batch if enabled
 		if autoConcludeEnabled
-			AutoComplete()
+			AutoConclude()
 		ok
 
 		#< @FunctionAlternativeForms
@@ -180,13 +181,29 @@ class stzReactiveStream
 
 		#>
 
+
 	def SetAutoConclude(enabled)
 		autoConcludeEnabled = enabled
+		
+		# Cancel any pending timer if disabling
+		if not enabled and autoConcludeTimer != NULL
+			engine.TimerManager().RemoveTimer(autoConcludeTimer.timerId)
+			autoConcludeTimer = NULL
+		ok
+		
 		return self
+
 	
 		def SetAutoComplete(enabled)
 			return This.SetAutoConclude(enabled)
 
+	# Set the delay before auto-conclusion triggers
+	def SetAutoConcludeDelay(pnMilliseconds)
+		autoConcludeDelay = pnMilliseconds
+		return self
+
+
+/*
 	def ScheduleAutoConclude()
 		# In a real implementation, this would use a timer
 		# For now, we'll check immediately after processing
@@ -198,13 +215,36 @@ class stzReactiveStream
 				AutoConclude()
 			ok
 		ok
+*/
+
+	# Real-world timer implementation for auto-conclusion
+	def ScheduleAutoConclude()
+		# Cancel existing timer if running
+		if autoConcludeTimer != NULL
+			engine.timerManager.RemoveTimer(autoConcludeTimer.timerId)
+			autoConcludeTimer = NULL
+		ok
+		
+		# Create one-time timer using existing timer system
+		timerId = "autoconclude_" + streamId + "_" + random(9999)
+		autoConcludeTimer = new stzRingTimer(timerId, autoConcludeDelay, func() {
+			# Timer callback - check if we should auto-conclude
+			if pendingDataCount = 0 and autoConcludeEnabled
+				AutoConclude()
+			ok
+			autoConcludeTimer = NULL  # Clean up timer reference
+		}, engine, true, self)  # true = one-time timer
+		
+		engine.timerManager.AddTimer(autoConcludeTimer)
+		autoConcludeTimer.Start()
+
 	
 		def ScheduleAutoComplete()
 			This.ScheduleAutoConclude()
 
 	def AutoConclude()
-		# Only auto-complete if we have subscribers that need final results
-		if (hasReduceTransform or len(completeHandlers) > 0) and not isCompleted
+		# Only auto-conclude if we have subscribers that need final results
+		if (hasReduceTransform or len(concludeHandlers) > 0) and not isConcluded
 			Conclude()
 		ok
 
@@ -212,27 +252,27 @@ class stzReactiveStream
 			This.AutoConclude()
 
 	def Conclude()
-		if isCompleted
+		if isConcluded
 			return
 		ok
 		
-		isCompleted = STREAM_STATE_COMPLETED
+		isConcluded = STREAM_STATE_CONCLUDED
 		
 		# If we have a reduce transform, emit the final accumulated result
 		if hasReduceTransform
 			nLenSub = len(subscribers)
 			for i = 1 to nLenSub
-				subscriber = subscribers[i]
-				call subscriber(accumulator)
+				fSubscriber = subscribers[i]
+				call fSubscriber(accumulator)
 			next
 		ok
 		
 		# Call completion handlers
-		nLenHand = len(completeHandlers)
+		nLenHand = len(concludeHandlers)
 
 		for i = 1 to nLenHand
-			completeHandler = completeHandlers[i]
-			call completeHandler()
+			fConcludeHandler = concludeHandlers[i]
+			call fConcludeHandler()
 		next
 		
 		Stop()
@@ -242,7 +282,7 @@ class stzReactiveStream
 
 	def Start()
 		isActive = STREAM_STATE_ACTIVE
-		isCompleted = STREAM_STATE_RUNNING
+		isConcluded = STREAM_STATE_RUNNING
 		return self
 		
 	def Stop()
@@ -257,15 +297,15 @@ class stzReactiveStream
 		ok
 
 	def CheckErrorHandling(error)
-		if not isActive or isCompleted
+		if not isActive or isConcluded
 			return
 		ok
 		
 		# Call error handlers
 		nLenErr = len(errorHandlers)
 		for i = 1 to nLenErr
-			errorHandler = errorHandlers[i]
-			call errorHandler(error)
+			fErrorHandler = errorHandlers[i]
+			call fErrorHandler(error)
 		next
 
 		# Stop the stream on error
@@ -301,8 +341,8 @@ class stzReactiveStream
 		# Notify overflow handlers
 		nLenBack = len(overflowHandlers)
 		for i = 1 to nLenBack
-			handler = overflowHandlers[i]
-			call handler(currentBufferCount, bufferSize)
+			fHandler = overflowHandlers[i]
+			call fHandler(currentBufferCount, bufferSize)
 		next
 		
 		switch overflowStrategy
@@ -333,23 +373,24 @@ class stzReactiveStream
 		def HandleBackpressure(data)
 			return This.HandleOverflow(data)
 
+
 	def ProcessBuffer()
 		if len(buffer) = 0
 			return
 		ok
-		
+	
 		# Get the next item from buffer
 		data = buffer[1]
 		del(buffer, 1)
 		currentBufferCount--
-		
+	
 		# Apply transforms (existing logic)
 		processedData = [data]
 		nLenTrans = len(transforms)
-	
+
 		for i = 1 to nLenTrans
 			transformType = transforms[i][1]
-	
+
 			switch transformType
 			case TRANSFORM_MAP
 				mapFunc = transforms[i][2]
@@ -358,18 +399,18 @@ class stzReactiveStream
 			case TRANSFORM_FILTER
 				filterFunc = transforms[i][2]
 				processedData = @Filter(processedData, filterFunc)
-	
+
 			case TRANSFORM_REDUCE
-				reduceFunc = transforms[i][2]
+				fReduceFunc = transforms[i][2]
 				nLenData = len(processedData)
 				for j = 1 to nLenData
-					accumulator = call reduceFunc(accumulator, processedData[j])
+					accumulator = call fReduceFunc(accumulator, processedData[j])
 				next
 				# Reset overflow if buffer is no longer full
 				if currentBufferCount < bufferSize and isOverflowActive
 					isOverflowActive = STREAM_STATE_INACTIVE
 				ok
-				
+
 				# Decrement pending counter for reduce transforms
 				if pendingDataCount > 0
 					pendingDataCount--
@@ -384,9 +425,9 @@ class stzReactiveStream
 			nLenData = len(processedData)
 	
 			for i = 1 to nLenSub
-				subscriber = subscribers[i]
+				fSubscriber = subscribers[i]
 				for j = 1 to nLenData
-					call subscriber(processedData[j])
+					call fSubscriber(processedData[j])
 				next
 			next
 		ok

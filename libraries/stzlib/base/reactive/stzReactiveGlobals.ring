@@ -94,13 +94,19 @@ OPTIMIzED_FOR_SENSOR_SOURCE = "sensor"
 # Stream States (unified naming)
 STREAM_ACTIVE = true
 STREAM_INACTIVE = false
+
 STREAM_COMPLETED = "completed"
+STREAM_CONCLUDED = "completed"
+
 STREAM_ERROR = "error"
 
 # Alternative stream state names  
 STREAM_STATE_INACTIVE = false
 STREAM_STATE_ACTIVE = true
+
 STREAM_STATE_COMPLETED = true
+STREAM_STATE_CONCLUDED = true
+
 STREAM_STATE_RUNNING = false
 
 # Transform operations
@@ -207,7 +213,10 @@ BATCH_MANUAL_FLUSH = false
 ASYNC_SUCCESS = "success"
 ASYNC_ERROR = "error"
 ASYNC_PENDING = "pending"
+
 ASYNC_COMPLETED = "completed"
+ASYNC_CONCLUDED = "completed"
+
 ASYNC_TIMEOUT = "timeout"
 
 # Processing modes

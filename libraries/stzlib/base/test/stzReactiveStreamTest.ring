@@ -14,7 +14,7 @@ Rs {
     # Libuv infrastructure), we create a reactive stream object to
     # work with, and begin defining it.
 
-    oPriceStream = CreateStreamXT("my-price-api", OPTIMISED_FRO_NETWORK_SOURCE)
+    oPriceStream = CreateStreamXT("my-price-api", OPTIMISED_FOR_NETWORK_SOURCE)
     # The stream is defined with type :NETWORK, telling the libuv engine
     # to prepare for receiving data from the network (e.g., over HTTP).
 
@@ -339,7 +339,7 @@ Rs = new stzReactiveSystem()
 Rs {
     
     # Sensor data processing stream
-    oSensorStream = CreateStream("sensor-data")
+    oSensorStream = CreateStreamXT("sensor-data", OPTIMISED_FOR_SENSOR_SOURCE)
     oSensorStream {
 
         # Multi-stage processing pipeline
@@ -643,7 +643,7 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # Log file processing stream
-    oFileStream = CreateStream("log-processor", OPTIMISED_FOR_FILE_SOURCE)
+    oFileStream = CreateStreamXT("log-processor", OPTIMISED_FOR_FILE_SOURCE)
     oFileStream {
 
         # Parse log entries
@@ -1027,6 +1027,116 @@ Rs {
 pf()
 # Executed in 0.92 second(s) in Ring 1.23
 
+#==== SETTING STREAM AUTOCONCUDE ON AND OFF
+
+/*--- Immediate Auto-Conclude (Default)
+# Best for: Batch processing, complete datasets, sales reports
+
+pr()
+
+Rs = new stzReactiveSystem()
+Rs {
+    oSalesStream = CreateStream("batch-sales")
+    oSalesStream {
+        # Default: immediate auto-conclude after RecieveMany()
+        SetAutoConclude(true)  # Default behavior
+        SetAutoConcludeDelay(0)  # No delay - conclude immediately
+        
+        Accumulate(func(total, sale) {
+            return total + sale["amount"]
+        }, 0)
+        
+        OnPassed(func totalSales {
+            ? "💰 Batch Total: $" + totalSales + " (concluded immediately)"
+        })
+        
+        OnNoMore(func() {
+            ? "✅ Batch processing completed instantly"
+        })
+        
+        # Complete dataset arrives at once
+        salesData = [
+            [:amount = 150.00, :product = "Laptop"],
+            [:amount = 89.99, :product = "Mouse"], 
+            [:amount = 299.99, :product = "Monitor"]
+        ]
+        
+        RecieveMany(salesData)  # Auto-concludes immediately after processing
+        # No manual Conclude() needed!
+    }
+}
+
+pf()
+
+/*--- Debounced Auto-Conclude 
+# Best for: Streaming data, network feeds, sensor readings with gaps
+*/
+pr()
+
+Rs = new stzReactiveSystem()
+Rs {
+    oSensorStream = CreateStream("temperature-readings")
+    oSensorStream {
+
+        # Enable debounced auto-conclude - waits for data gaps
+        SetAutoConclude(true)
+        SetAutoConcludeDelay(500)  # Wait 500ms after last reading
+        
+        Accumulate(func(avgTemp, reading) {
+            # Simple moving average calculation
+            if avgTemp = 0
+                return reading["temp"]
+            else
+                return (avgTemp + reading["temp"]) / 2
+            ok
+        }, 0)
+        
+        OnPassed(func finalAvg {
+            ? "🌡️  Final Average Temperature: " + finalAvg + "°C"
+        })
+        
+        OnNoMore(func {
+            ? "✅ Sensor reading session completed (after 500ms delay)"
+        })
+        
+       # Simulate streaming sensor data with gaps
+        ? "📡 Receiving temperature readings..."
+        
+        # Schedule sensor readings using reactive timers instead of Sleep()
+        Rs.SetTimeout(0, func {
+            oSensorStream.Recieve([:temp = 22.5, :sensor = "A1"])
+            oSensorStream.Recieve([:temp = 23.1, :sensor = "A2"])
+        })
+        
+        Rs.SetTimeout(200, func {
+            ? "   (200ms gap - still waiting...)"
+            oSensorStream.Recieve([:temp = 21.8, :sensor = "A3"])
+            oSensorStream.Recieve([:temp = 24.2, :sensor = "A4"])
+        })
+        
+        Rs.SetTimeout(600, func {
+            ? "   (600ms gap - will auto-conclude after 500ms...)"
+            # No more data - stream will auto-conclude after 500ms delay
+        })
+
+        Rs.SetTimeOut(1200, func {
+	  ? "   (System kept alive for auto-conclude)"
+        })
+        
+        # Stream automatically concludes here due to 500ms timeout
+        # No manual Conclude() needed!
+    }
+
+    RunLoop()
+    
+    ? ""
+    ? "💡 Key Difference:"
+    ? "   • Immediate: Perfect for complete datasets (sales batches)"  
+    ? "   • Debounced: Handles streaming data with natural gaps (sensors, APIs)"
+}
+
+pf()
+
 #---------------------------------------------#
 #  Overflow (backpressure) Strategy Examples  #
 #---------------------------------------------#
@@ -1373,7 +1483,7 @@ pf()
 # extreme load to maintain stability
 
 # Processes existing buffer before applying new strategy
-*/
+
 pr()
 
 Rs = new stzReactiveSystem()
