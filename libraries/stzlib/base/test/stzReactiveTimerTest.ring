@@ -9,6 +9,49 @@ load "../stzbase.ring"
 # This tutorial teaches you step-by-step how to work with time-based
 # events in a non-blocking way.
 
+#-------------------------#
+#  KEY LEARNINGS SUMMARY  #
+#-------------------------#
+
+/*--- What you learned with these examples:
+
+1. **setTimeout**: One-time execution after delay
+   - SetTimeout(function, milliseconds)
+   - Perfect for delayed actions
+
+2. **setInterval**: Repeated execution at intervals  
+   - SetInterval(function_name, milliseconds)
+   - Perfect for periodic tasks
+   - Always remember to ClearInterval() to stop it!
+
+3. **Scope Management**: Variables must be accessible to callbacks
+   - Use global-level variables, or
+   - Use object properties with Method() calls
+
+4. **Timer Coordination**: Multiple timers can work together
+   - Each timer runs independently
+   - Use setTimeout to stop intervals after a certain time
+
+5. **Reactive Streams + Timers**: Powerful combination
+   - Timers generate data
+   - Streams distribute data to subscribers
+   - Creates real-time data processing pipelines
+
+6. **Always Clean Up**: Prevent infinite loops
+   - ClearInterval() to stop repeating timers
+   - reactive.Stop() to shut down the engine
+   - Proper cleanup prevents resource leaks
+
+7. Never use Ring sleep() function inside the Reactive System
+
+Other timer-based applications can be:
+- A digital clock display
+- A countdown timer
+- A simple animation system
+- A data polling system for APIs
+
+*/
+
 #-------------------------------#
 #  EXAMPLE 1: YOUR FIRST TIMER  #
 #-------------------------------#
@@ -187,7 +230,7 @@ cItervalId = ""
 Rs = new stzReactiveSystem()
 Rs {
     # Create a stream for our time-based data
-    oDataStream = CreateStream("sensor-data", "manual")
+    oDataStream = CreateStream("sensor-data")
     #TODO // oDataStram is an attribue! think of a better API!
 
     # Subscribe to the stream - this function receives each data point
@@ -324,43 +367,196 @@ class DownloadSimulator
 
 # Executed in 5.02 second(s) in Ring 1.23
 
-#------------------------#
-#  KEY CONCEPTS SUMMARY  #
-#------------------------#
+#=======================================#
+#  CRITICAL: NEVER USE Sleep() IN Rs{}  #
+#=======================================#
 
-/*--- What you learned with these examples:
+# This example demonstrates why Sleep() blocks reactive systems
+# and shows the correct timer-based approach
 
-1. **setTimeout**: One-time execution after delay
-   - SetTimeout(function, milliseconds)
-   - Perfect for delayed actions
+#----------------------------------------------#
+#  EXAMPLE 1: ❌ WRONG - Sleep() Blocks System  #
+#----------------------------------------------#
 
-2. **setInterval**: Repeated execution at intervals  
-   - SetInterval(function_name, milliseconds)
-   - Perfect for periodic tasks
-   - Always remember to ClearInterval() to stop it!
+/*--- This code BLOCKS and prevents auto-conclude from working!
 
-3. **Scope Management**: Variables must be accessible to callbacks
-   - Use global-level variables, or
-   - Use object properties with Method() calls
+pr()
 
-4. **Timer Coordination**: Multiple timers can work together
-   - Each timer runs independently
-   - Use setTimeout to stop intervals after a certain time
+? "❌ BROKEN EXAMPLE - Using Sleep() inside Rs{}"
+? "This will NOT work because Sleep() blocks the event loop!"
+? ""
 
-5. **Reactive Streams + Timers**: Powerful combination
-   - Timers generate data
-   - Streams distribute data to subscribers
-   - Creates real-time data processing pipelines
+Rs = new stzReactiveSystem()
+Rs {
+    oSensorStream = CreateStream("temperature-readings")
+    oSensorStream {
+        SetAutoConclude(true)
+        SetAutoConcludeDelay(500)
+        
+        Accumulate(func(avgTemp, reading) {
+            if avgTemp = 0
+                return reading["temp"]
+            else
+                return (avgTemp + reading["temp"]) / 2
+            ok
+        }, 0)
+        
+        OnPassed(func finalAvg {
+            ? "🌡️ Final Average: " + finalAvg + "°C"
+        })
+        
+        OnNoMore(func() {
+            ? "✅ Stream completed"
+        })
+        
+        ? "📡 Receiving readings..."
+        
+        # ❌ PROBLEM: Sleep() blocks the entire event loop!
+        Recieve([:temp = 22.5, :sensor = "A1"])
+        Recieve([:temp = 23.1, :sensor = "A2"])
+        
+        Sleep(200)  # ❌ BLOCKS! No timers can run during this!
+        ? "   (200ms gap - but Sleep() blocked auto-conclude timer!)"
+        
+        Recieve([:temp = 21.8, :sensor = "A3"])
+        Sleep(600)  # ❌ BLOCKS! Auto-conclude timer can't check!
+        
+        # Stream NEVER auto-concludes because Sleep() blocked the timer!
+    }
+    
+    RunLoop()  # This never gets processed data because Sleep() blocked it
+}
 
-6. **Always Clean Up**: Prevent infinite loops
-   - ClearInterval() to stop repeating timers
-   - reactive.Stop() to shut down the engine
-   - Proper cleanup prevents resource leaks
+#-->
+# ❌ BROKEN EXAMPLE - Using Sleep() inside Rs{}
+# This will NOT work because Sleep() blocks the event loop!
+#
+# 📡 Receiving readings...
+# !!!BLOCKS HERE!!!
 
-Other timer-based applications can be:
-- A digital clock display
-- A countdown timer
-- A simple animation system
-- A data polling system for APIs
+pf()
+
+
+#-----------------------------------------------#
+#  EXAMPLE 2: ✅ CORRECT - Using SetTimeout()   #
+#-----------------------------------------------#
+
+/*--- This works perfectly because timers are non-blocking
+
+pr()
+
+? "✅ CORRECT EXAMPLE - Using SetTimeout() for delays"
+? "This properly allows auto-conclude timers to work!"
+? ""
+
+Rs = new stzReactiveSystem()
+Rs {
+    oSensorStream = CreateStream("temperature-readings") 
+    oSensorStream {
+        SetAutoConclude(true)
+        SetAutoConcludeDelay(500)  # Auto-conclude after 500ms of no data
+        
+        Accumulate(func(avgTemp, reading) {
+            if avgTemp = 0
+                return reading["temp"]
+            else
+                return (avgTemp + reading["temp"]) / 2
+            ok
+        }, 0)
+        
+        OnPassed(func finalAvg {
+            ? "🌡️ Final Average: " + finalAvg + "°C"
+        })
+        
+        OnNoMore(func() {
+            ? "✅ Stream completed after natural delay"
+            Rs.Stop()
+        })
+        
+        ? "📡 Receiving readings..."
+    }
+    
+    # ✅ SOLUTION: Schedule data emission using non-blocking timers
+    SetTimeout(func {
+        oSensorStream.Recieve([:temp = 22.5, :sensor = "A1"])
+        oSensorStream.Recieve([:temp = 23.1, :sensor = "A2"])
+    }, 0)
+    
+    SetTimeout(func {
+        ? "   (200ms gap - auto-conclude timer can still run!)"
+        oSensorStream.Recieve([:temp = 21.8, :sensor = "A3"])
+        oSensorStream.Recieve([:temp = 24.2, :sensor = "A4"])
+    }, 200)
+    
+    SetTimeout(func {
+        ? "   (600ms gap - auto-conclude will trigger after 500ms...)"
+        # No more data - stream will auto-conclude naturally
+    }, 800)
+    
+    Start()  # Starts event loop - timers and auto-conclude work perfectly!
+}
+#-->
+# ✅ CORRECT EXAMPLE - Using SetTimeout() for delays
+# This properly allows auto-conclude timers to work!
+# 
+# 📡 Receiving readings...
+#    (200ms gap - auto-conclude timer can still run!)
+#    (600ms gap - auto-conclude will trigger after 500ms...)
+# 🌡️ Final Average: 22.9°C
+# ✅ Stream completed after natural delay
+
+pf()
+# Executed in 1.26 second(s) in Ring 1.23
+
+#-------------------------------------------------#
+#  EXAMPLE 3: 🔍 WHY Sleep() BREAKS REACTIVE CODE  #
+#-------------------------------------------------#
+
+/*--- Understanding the technical reason
+
+The fundamental problem:
+
+1. **Sleep() is BLOCKING**
+   - Pauses the entire thread
+   - No other code can execute
+   - Timers cannot fire
+   - Event loop cannot process
+
+2. **SetTimeout() is NON-BLOCKING**  
+   - Schedules execution for later
+   - Event loop continues running
+   - Other timers can still fire
+   - Auto-conclude timers work properly
+
+3. **Auto-conclude relies on timers**
+   - Uses internal timer to detect data gaps
+   - Sleep() prevents this timer from running
+   - Result: stream never concludes automatically
 
 */
+
+#----------------------------#
+#  KEY RULES FOR Rs{} BLOCKS  #
+#----------------------------#
+
+/*--- Critical guidelines for reactive programming:
+
+✅ DO USE:
+- SetTimeout() for delays
+- SetInterval() for repeated actions  
+- Non-blocking operations
+- Event-driven patterns
+
+❌ NEVER USE:
+- Sleep() - blocks event loop
+- Blocking I/O operations
+- Busy wait loops (while true)
+- Any synchronous delays
+
+💡 REMEMBER:
+- Reactive systems are event-driven
+- Everything happens through timers and callbacks
+- The event loop must stay free to process events
+- Use Start() to begin processing, Stop() to end
+
+
