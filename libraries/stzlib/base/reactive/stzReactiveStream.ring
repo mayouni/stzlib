@@ -202,21 +202,6 @@ class stzReactiveStream
 		autoConcludeDelay = pnMilliseconds
 		return self
 
-
-/*
-	def ScheduleAutoConclude()
-		# In a real implementation, this would use a timer
-		# For now, we'll check immediately after processing
-		if pendingDataCount > 0
-			pendingDataCount--
-			
-			# If no more pending data and stream should auto-complete
-			if pendingDataCount = 0
-				AutoConclude()
-			ok
-		ok
-*/
-
 	# Real-world timer implementation for auto-conclusion
 	def ScheduleAutoConclude()
 		# Cancel existing timer if running
