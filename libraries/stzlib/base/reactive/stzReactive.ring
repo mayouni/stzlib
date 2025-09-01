@@ -54,7 +54,6 @@ class stzReactiveSystem
 		isRunning = ENGINE_STOPPED
 
 
-
 	def LibuvLoop()
 		return @libuvLoop
 
@@ -241,9 +240,6 @@ class stzReactiveSystem
 	# Creates and manages streams for processing asynchronous data
 	# flows from various sources (timers, network, etc.).
 
-	def CreateStream(id)
-		return This.CreateStreamXT(id, :MANUAL)
-
 	def CreateStreamXT(id, sourceType)
 		# Creates a generic stream with a specified ID and source type.
 		if sourceType = NULL
@@ -254,6 +250,24 @@ class stzReactiveSystem
 		stream.Start()
 		AddStream(stream)
 		return stream
+
+	def CreateStream(id)
+		return This.CreateStreamXT(id, "manual")
+
+	def CreateNetworkStream(id)
+		return This.CreateStreamXT(id, "network")
+
+	def CreateSensorStream(id)
+		return This.CreateStreamXT(id, "sensor")
+
+	def CreateFileStream(id)
+		return This.CreateStreamXT(id, "file")
+
+	def CreateTimerStream(id)
+		return This.CreateStreamXT(id, "timer")
+
+	def CreateLibuvStream(id)
+		return This.CreateStreamXT(id, "libuv")
 
 	#-------------------#
 	#  REACTIVE TIMERS  #
@@ -280,10 +294,27 @@ class stzReactiveSystem
 	def CreateTask(id, f)
 		# Creates an asynchronous task with a specified function.
 		task = new stzReactiveTask(id, f, self, NULL)
-		AddTask(task)
+		This.AddTask(task)
 		return task
 
-	def SetTimeout(delay, callback)
+	def RunAfterXT(nDelay, cUnit, callback)
+		if isNull(cUnit)
+			cUnit = "milliseconds"
+		ok
+
+		switch cUnit
+		on "seconds"
+			nDelay = nDelay / 1000
+
+		on "minutes"
+			nDelay = nDelay / 60000
+		off
+
+		return This.RunAfter(nDelay, callback)
+
+		def SetTimeoutXT(nDelay, cUnit, callback)
+
+	def RunAfter(delay, callback)
 		# Sets a one-time timer with a delay and callback.
 		if CheckParams()
 			if isNumber(callback) and NOT isNumber(delay)
@@ -300,10 +331,28 @@ class stzReactiveSystem
 		timerId = "timeout_" + random(999999)
 		timer = new stzRingTimer(timerId, delay, callback, self, true, self)
 		timer.Start()
-		AddTimer(timer)
+		This.AddTimer(timer)
 		return timerId
 
-	def SetInterval(interval, callback)
+		def SetTimeout(delay, callback)
+			return This.RunAfter(delay, callback)
+
+	def RunEveryXT(nInterval, cUnit, callback)
+		if isNull(cUnit)
+			cUnit = "milliseconds"
+		ok
+
+		switch cUnit
+		on "seconds"
+			nInterval = nInterval / 1000
+
+		on "minutes"
+			nInterval = nInterval / 60000
+		off
+
+		return This.RunEvery(nInterval, callback)
+
+	def RunEvery(interval, callback)
 		# Sets a periodic timer with an interval and callback.
 		if CheckParams()
 			if isNumber(callback) and NOT isNumber(interval)
@@ -322,6 +371,9 @@ class stzReactiveSystem
 		timer.Start()
 		AddTimer(timer)
 		return timer
+
+		def SetInterval(interval, callback)
+			return This.RunEvery(interval, callback)
 
 	def ClearInterval(timer)
 		# Clears a periodic timer by ID or object.

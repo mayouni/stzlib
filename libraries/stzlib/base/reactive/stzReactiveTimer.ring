@@ -78,7 +78,7 @@ class stzRingTimer
 	startTime = 0
 	lastTick = 0
 	
-	def Init(id, intervalMs, f, engine, oneTime, obj)
+	def init(id, intervalMs, f, engine, oneTime, obj)
 		timerId = id
 		interval = intervalMs
 		callback = f
@@ -136,7 +136,7 @@ class stzTimerManager
 	checkFrequency = DEFAULT_TIMER_CHECK  # How often to check timers (ms)
 	emptyLoopPatience = DEFAULT_PATIENCE  # How long to wait when no timers
 
-	def Init()
+	def init()
 		timers = []
 		isRunning = false
 		shouldStop = false

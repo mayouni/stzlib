@@ -141,47 +141,47 @@ pf()
 #========================================#
 
 /*--- Basic stream creation and consumption
-*/
+
 # Streams represent continuous data flows that can be processed reactively.
 # They support backpressure, filtering, and transformation operations.
 # Ideal for handling real-time data, user inputs, or API responses.
-
+*/
 pr()
 
 Rs = new stzReactiveSystem()
 Rs {
-    
+
     # Creating a basic reactive stream
-    oXStream = CreateStream("data-stream", "manual")
+    oXStream = CreateStream("data-stream")
     oXStream {
 	    # Setting up stream processing pipeline
-	    Subscribe(func cData { # You can also sya OnData() instead of Subscribe()
+	    OnRecieve( func cData { # You can also sya OnPassed() instead of OnPass()
 	        ? "Received: " + cData
 	    })
-	    
-	    OnError(func cError {
+ 
+	    OnError( func cError {
 	        ? "Stream error: " + cError
 	    })
-	    
-	    OnComplete(func() {
+ 
+	    OnNoMore( func  {
 	        ? "Stream completed"
 	    })
-	    
+
 	    # Start the stream
 	    Start()
-	    
-	    # Emitting data to the stream
-	    Emit("Hello")
-	    Emit("World")
-	    Emit("Reactive")
+
+	    # Recieveting data to the stream
+	    Recieve("Hello")
+	    Recieve("World")
+	    Recieve("Reactive")
 	    # Or alternatively:
-	    # EmitMany([ "Hello", "World", "Reactive" ])
+	    # RecieveMany([ "Hello", "World", "Reactive" ])
 
 	    # Complete the stream
-	    Complete()
+	    Conclude()
     }
 
-    Start()
+    Run()
     #-->
     # Received: Hello
     # Received: World
@@ -205,7 +205,7 @@ Rs {
 
     # Create source stream
 
-    oXStream = CreateStream("number-stream", "manual")
+    oXStream = CreateStream("number-stream")
 
     # Transform stream and add subscriber in one block
 
@@ -217,25 +217,26 @@ Rs {
 
 	# Defining the stream transformation
 
-        Map(func x { return x * 2 })
-        Filter(func x { return x > 10 and x % 2 = 0 })
+        Map( func x { return x * 2 })
+        Filter( func x { return x > 10 and x % 2 = 0 })
 
-	# Defining the callback function
+	# Defining the reactive function to process the item that passes
+	# the Map and Filter stels
 
-        OnData(func cData { # You can also say Subscribe() instead of OnData()
+        OnPassed( func cData {
             ? "Processed number: " + cData
         })
 
-	# Feeding data to the stream
+	# Defining the data that will fire the reactive functions above
 
-	EmitMany(1:10)
+	RecieveMany(1:10)
 
-	# Cleaning the stream from memory when completed
+	# Cleaning the stream from memory by concluding any pending task (OPTIONAL)
 
-	Complete()
+	Conclude()
     }
 
-    Start()
+    RunLoop()
     #-->
     # Processed number: 12
     # Processed number: 14
@@ -257,15 +258,11 @@ Rs {
 
     # Create source stream
 
-    oXStream = CreateStream("number-stream", "manual")
+    oXStream = CreateStream("number-stream")
 
     # Transform stream and add subscriber in one block
 
     oXStream {
-
-	# Starting the stream
-
-	Start()	# Optional, for clarity, started automatically when invoqued
 
 	# Defining the stream transformation
 
@@ -275,23 +272,19 @@ Rs {
 
 	# Defining the callback function
 
-        OnData(func cData { # You can also say Subscribe() instead of OnData()
+        OnPassed(func cData {
             ? "Processed number: " + cData
         })
 
 	# Feeding data to the stream
 
-	EmitMany(1:10)
+	RecieveMany(1:10)
 
-	# Cleaning the stream from memory when completed
-
-	Complete()
     }
 
     Start()
     #-->
     # Processed number: 80
-
 }
 
 pf()
@@ -316,12 +309,12 @@ cIntervalId = ""
 Rs = new stzReactiveSystem()
 Rs {
     # One-time timer
-    SetTimeout(func() {
+    RunAfter(1000, func  {
         ? "Timer fired after 1000ms"
-    }, 1000)
+    })
 
     # Repeating timer - use global counter
-    intervalId = SetInterval(:fRepeatCallback, 500)
+    intervalId = RunEvery(500, :fRepeatCallback)
 
     Start()
 }
@@ -361,22 +354,22 @@ Rs = new stzReactiveSystem()
 Rs {
 
     # Create a stream fed by timer
-    oDataStream = CreateStream("timer-stream", "manual")
+    oDataStream = CreateStream("timer-stream")
     
-    oDataStream.OnData(func cData {
+    oDataStream.OnPassed(func cData {
         ? "Time-based data: " + cData
     })
 
     # Generate data every 300ms
     nCounter = 0
-    oIntervalTimer = SetInterval( func() {
+    oIntervalTimer = RunEvery( func() {
         nCounter++
         # Access dataStream through the Rs object
-        Rs.oDataStream.Emit("Data point #" + nCounter)
+        Rs.oDataStream.Recieve("Data point #" + nCounter)
         
         if nCounter >= 5
-            Rs.ClearInterval(oIntervalTimer)
-            Rs.oDataStream.End_()
+            Rs.ClearInterval(oIntervalTimer) #TODO //Review name
+            Rs.oDataStream.Conclude()
         ok
     }, 300)
 
@@ -448,18 +441,18 @@ pr()
 Rs = new stzReactiveSystem()
 
 # Store the stream in a variable first
-oHttpStream = Rs.CreateStream("http-stream", "manual")
+oHttpStream = Rs.CreateStream("http-stream")
 
 # Then configure the stream
 oHttpStream {
-    # TRANSFORM 1: Map - Convert response string to its length
+    # Map - Convert response string to its length
     Map(func cResponse { return len(cResponse) })  
     
-    # TRANSFORM 2: Filter - Only pass through responses longer than 10 characters
+    # Filter - Only pass through responses longer than 10 characters
     Filter(func nLength { return nLength > 10 })
     
-    # SUBSCRIBE: Define what happens when filtered data reaches the end
-    Subscribe(func nLength {
+    # Define what happens when filtered data reaches the end
+    OnPassed(func nLength {
         ? "Large response received: " + nLength + " bytes"
     })
 }
@@ -474,7 +467,7 @@ acUrls = [
 for i = 1 to len(acUrls)
     Rs.HttpGet(acUrls[i],
         func cResponse { 
-            oHttpStream.Emit(cResponse) 
+            oHttpStream.Recieve(cResponse) 
         },
         func cError { 
             ? "Request failed: " + cError 
@@ -483,7 +476,7 @@ for i = 1 to len(acUrls)
 next
 
 # End stream after delay
-Rs.SetTimeout(func() { oHttpStream.End_() }, 3000)
+Rs.RunAfter(3000, func() { oHttpStream.Conclude() })
 
 Rs.Start()
 #-->
@@ -495,10 +488,10 @@ Rs.Start()
 # =========================
 # 1. Three HTTP GET requests are made simultaneously
 # 2. Each request returns a placeholder string (e.g., "GET response from https://...")
-# 3. On success, each response is emitted to httpStream
+# 3. On success, each response is Recieveted to httpStream
 # 4. Stream applies Map transform: string -> length (54, 42, 67)
 # 5. Stream applies Filter: only lengths > 10 pass through (all pass)  
-# 6. Stream calls OnData subscriber for each filtered value
+# 6. Stream calls OnPassed subscriber for each filtered value
 # 7. Result: Three "Large response received: X bytes" messages printed
 
 pf()
