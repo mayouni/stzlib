@@ -1,6 +1,8 @@
 
 load "../stzbase.ring"
 
+
+
 /*--- Softanza typical code for programming reactive streams
 
 # First, everything must happen inside a ReactiveSystem object.
@@ -14,8 +16,8 @@ Rs {
     # Libuv infrastructure), we create a reactive stream object to
     # work with, and begin defining it.
 
-    oPriceStream = CreateStreamXT("my-price-api", OPTIMISED_FOR_NETWORK_SOURCE)
-    # The stream is defined with type :NETWORK, telling the libuv engine
+    oPriceStream = CreateNetworkStream("my-price-api")
+    # The stream is defined telling the libuv engine
     # to prepare for receiving data from the network (e.g., over HTTP).
 
     # Declarative code that defines the reactive stream
@@ -176,7 +178,7 @@ Rs {
     oTransformStream = CreateStream("transform-pipeline")
     oTransformStream {
         # Chain transformations
-        Transform(func price { return price * 1.20 })		# Add 20% tax
+        Transform(func price { return price * 1.20 })	# Add 20% tax
         Filter(func price { return price >= 100 })	# Only expensive items
 
         OnPassed(func finalPrice {
@@ -201,6 +203,9 @@ Rs {
 pf()
 # Executed in 0.93 second(s) in Ring 1.23
 
+#Note #SemanticPrecision
+# OnPassed() and OnRecieve() are equivalent, but it's more expressive
+# to use the first with Filter() and the second otherwise.
 
 /*--- Data Aggregation with Accumulate
 
@@ -222,7 +227,7 @@ Rs {
         }, 0)  # Starting value: $0.00
 
 
-        OnPassed( func totalSales {
+        OnRecieved( func totalSales {
             ? "💰 Total Sales: $" + totalSales
         })
 
@@ -292,7 +297,7 @@ Rs {
 		:conversions = 0
 	    ])
 
-        OnPassed(func analytics {
+        OnRecieved(func analytics {
             avgPageViews = analytics[:totalPageViews] / analytics[:totalUsers]
             avgSessionTime = analytics[:totalSessionTime] / analytics[:totalUsers]
             conversionRate = (analytics[:conversions] * 100.0) / analytics[:totalUsers]
@@ -339,7 +344,7 @@ Rs = new stzReactiveSystem()
 Rs {
     
     # Sensor data processing stream
-    oSensorStream = CreateStreamXT("sensor-data", OPTIMISED_FOR_SENSOR_SOURCE)
+    oSensorStream = CreateSensorStream("sensor-data")
     oSensorStream {
 
         # Multi-stage processing pipeline
@@ -497,7 +502,10 @@ Rs {
         Filter(func order {
             return order["total"] >= 100  # VIP orders only
         })
-        
+
+	# Here we can also use OnRecieve() but OnPassed() is
+	# more expressive when Filter() is used
+
         OnPassed(func processedOrder {
             ? "🛒 VIP Order processed:"
             ? "   Customer: " + processedOrder["customer"]
@@ -567,7 +575,7 @@ Rs {
 
     # System monitoring with timer-based stream
 
-    oTimerStream = CreateStreamXT("system-monitor", OPTIMISED_FOR_TIMER_SOURCE)
+    oTimerStream = CreateTimerStream("system-monitor")
     oTimerStream {
 
         Transform(func tick {
@@ -643,7 +651,7 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # Log file processing stream
-    oFileStream = CreateStreamXT("log-processor", OPTIMISED_FOR_FILE_SOURCE)
+    oFileStream = CreateFileStream("log-processor")
     oFileStream {
 
         # Parse log entries
@@ -674,7 +682,7 @@ Rs {
         })
         
         # Simulate log file content
-        logLines = [
+        acLogLines = [
             "2024-01-15 10:30:15|INFO|User login successful",
             "2024-01-15 10:31:02|ERROR|Database connection failed",
             "2024-01-15 10:31:05|CRITICAL|System memory exhausted",
@@ -682,7 +690,7 @@ Rs {
             "2024-01-15 10:33:22|FATAL|Security breach detected"
         ]
         
-        RecieveMany(logLines)
+        RecieveMany(acLogLines)
 
     }
     
@@ -714,10 +722,10 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # API data processing stream
-    oNetworkStream = CreateStreamXT("api-monitor", OPTIMISED_FOR_NETWORK_SOURCE)
+    oNetworkStream = CreateNetworkStream("api-monitor")
     oNetworkStream {
         # Parse API responses
-        Transform(func apiResponse {
+        Transform( func apiResponse {
             # Simulate JSON parsing
             return [
                 :endpoint = apiResponse[:url],
@@ -726,13 +734,13 @@ Rs {
                 :data_size = apiResponse[:size]
             ]
         })
-        
+
         # Monitor performance issues
-        Filter(func response {
+        Filter( func response {
             return response[:status_code] >= 400 or response[:response_time] > 2000
         })
-        
-        OnPassed(func issue {
+
+        OnPassed( func issue {
 
             issueType = ""
             if issue[:status_code] >= 500
@@ -752,14 +760,14 @@ Rs {
         })
         
         # Simulate API responses
-        responses = [
-            [:url = "/api/users", :status = 200, :time = 150, :size = 1024],
-            [:url = "/api/orders", :status = 404, :time = 89, :size = 256],
-            [:url = "/api/products", :status = 500, :time = 3500, :size = 0],
-            [:url = "/api/payments", :status = 200, :time = 2500, :size = 512]
+        acResponses = [
+            [ :url = "/api/users", :status = 200, :time = 150, :size = 1024 ],
+            [ :url = "/api/orders", :status = 404, :time = 89, :size = 256 ],
+            [ :url = "/api/products", :status = 500, :time = 3500, :size = 0 ],
+            [ :url = "/api/payments", :status = 200, :time = 2500, :size = 512 ]
         ]
         
-        RecieveMany(responses)
+        RecieveMany(acResponses)
 
     }
     
@@ -796,7 +804,7 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # Environmental monitoring stream
-    oSensorStream = CreateStreamXT("environment-monitor", OPTIMISED_FOR_SENSOR_SOURCE)
+    oSensorStream = CreateSensorStream("environment-monitor")
     oSensorStream {
 
         # Calibrate sensor readings
@@ -880,7 +888,7 @@ pf()
 
 /*--- LibUV Integration Example
 
-# Low-level system integration using LibUV handles (called Rfunctions in Softanza)
+# Low-level system integration using LibUV handles
 # Essential for: High-performance I/O, system-level operations
 
 pr()
@@ -888,7 +896,7 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # System process monitoring via LibUV
-    oUVStream = CreateStreamXT("process-monitor", OPTIMISED_FOR_LIBUV_MESSAGES)
+    oUVStream = CreateLibuvStream("process-monitor")
     oUVStream {
 
         # Process system events
@@ -920,15 +928,15 @@ Rs {
         })
         
         # Simulate LibUV system events
-        systemEvents = [
-            [:type = "process_start", :pid = 1234, :resources = 15],
-            [:type = "process_crash", :pid = 5678, :resources = 85],
-            [:type = "normal_operation", :pid = 9012, :resources = 25],
-            [:type = "memory_leak", :pid = 3456, :resources = 95],
-            [:type = "high_cpu", :pid = 7890, :resources = 90]
+        aSystemEvents = [
+            [ :type = "process_start", :pid = 1234, :resources = 15 ],
+            [ :type = "process_crash", :pid = 5678, :resources = 85 ],
+            [ :type = "normal_operation", :pid = 9012, :resources = 25 ],
+            [ :type = "memory_leak", :pid = 3456, :resources = 95 ],
+            [ :type = "high_cpu", :pid = 7890, :resources = 90 ]
         ]
         
-        RecieveMany(systemEvents)
+        RecieveMany(aSystemEvents)
 
     }
     
@@ -1038,7 +1046,9 @@ Rs = new stzReactiveSystem()
 Rs {
     oSalesStream = CreateStream("batch-sales")
     oSalesStream {
+
         # Default: immediate auto-conclude after RecieveMany()
+	# Those two setting can be removed
         SetAutoConclude(true)  # Default behavior
         SetAutoConcludeDelay(0)  # No delay - conclude immediately
         
@@ -1065,8 +1075,12 @@ Rs {
         # No manual Conclude() needed!
     }
 }
+#-->
+# 💰 Batch Total: $539.98 (concluded immediately)
+# ✅ Batch processing completed instantly
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- Debounced Auto-Conclude 
 # Best for: Streaming data, network feeds, sensor readings with gaps
@@ -1135,14 +1149,23 @@ Rs {
     ? "   • Immediate: Perfect for complete datasets (sales batches)"  
     ? "   • Debounced: Handles streaming data with natural gaps (sensors, APIs)"
 }
+#-->
+# 📡 Receiving temperature readings...
+#    (200ms gap - still waiting...)
+#    (600ms gap - will auto-conclude after 500ms...)
+#    (System kept alive for auto-conclude)
+# 
+# 💡 Key Difference:
+#    • Immediate: Perfect for complete datasets (sales batches)
+#    • Debounced: Handles streaming data with natural gaps (sensors, APIs)
 
 pf()
-# Executed in 2.17 second(s) in Ring 1.23
+# Executed in 2.08 second(s) in Ring 1.23
 
 #---------------------------------------------#
 #  Overflow (backpresuure) Strategy Examples  #
 #---------------------------------------------#
-*/
+
 
 #NOTE
 
@@ -1153,8 +1176,7 @@ pf()
 
 /*--- Buffer Strategy - Store data when processing is slow
 
-# The sample shows proper Overflow with BUFFER_NEW_ITEMS strategy
-# (or :BUFFER for short).
+# The sample shows proper Overflow with BUFFER_EXPAND strategy
 # When the buffer is full, new items are stored temporarily until
 # processing capacity becomes available to drain them.
 
@@ -1168,11 +1190,11 @@ Rs {
     oBufferStream = CreateStream("buffer-example")
     oBufferStream {
         # Set buffer strategy with small buffer for demo
-        SetOverflowStrategy(BUFFER_NEW_ITEMS, 3) # Or simply :BUFFER
+        SetOverflowStrategy(BUFFER_EXPAND, 3)
 
         # Slow processing Rfunction (simulated)
         OnPassed(func data {
-            ? "📊 Processing: " + data + " (slow processing)"
+            ? " 📊 Processing: " + data + " (slow processing)"
             # Simulate slow processing
         })
         
@@ -1204,20 +1226,20 @@ Rs {
     # Phase 2: Buffer full - Overflow stores new items
     # ------------------------------------------------
     # Receiving item 4
-    #🚦 Overflow activated: 3/3 buffer full
+    # 🚦 Overflow activated: 3/3 buffer full
     # ⚠️ Overflow: Buffering data (buffer full: 3/3)
     # 
     # Receiving item 5
-    #🚦 Overflow activated: 3/3 buffer full
-    #⚠️ Overflow: Buffering data (buffer full: 3/3)
+    # 🚦 Overflow activated: 3/3 buffer full
+    # ⚠️ Overflow: Buffering data (buffer full: 3/3)
     # 
     # Receiving item 6
-    #🚦 Overflow activated: 3/3 buffer full
-    #⚠️ Overflow: Buffering data (buffer full: 3/3)
+    # 🚦 Overflow activated: 3/3 buffer full
+    # ⚠️ Overflow: Buffering data (buffer full: 3/3)
     # 
     # Receiving item 7
-    #🚦 Overflow activated: 3/3 buffer full
-    #⚠️ Overflow: Buffering data (buffer full: 3/3)
+    # 🚦 Overflow activated: 3/3 buffer full
+    # ⚠️ Overflow: Buffering data (buffer full: 3/3)
     # 
     # Phase 3: Manual buffer processing handles buffered items
     #---------------------------------------------------------
@@ -1249,7 +1271,7 @@ pf()
 
 /*--- Drop Strategy - Discard data when overwhelmed
 
-# The sample shows DROP_NEW_ITEMS behavior (or :DROP for short)
+# The sample shows BUFFER_REJECT_NEWEST behavior 
 # Buffer fills to capacity (3), then excess sensor readings
 # are discarded to prevent system overload - sacrifices data 
 # completeness for stability
@@ -1259,9 +1281,9 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # Real-time sensor stream that can afford to lose some data
-    oDropStream = CreateStreamXT("drop-example", :SENSOR)
+    oDropStream = CreateSensorStream("drop-example")
     oDropStream {
-        SetOverflowStrategy(DROP_NEW_ITEMS, 2) # Or simply :DROP
+        SetOverflowStrategy(BUFFER_REJECT_NEWEST, 2)
         
         Transform(func reading {
             return "Sensor-" + reading + "°C"
@@ -1331,8 +1353,7 @@ pf()
 
 /*--- Latest Strategy - Keep most recent data
 
-# The sample shows ACCEPT_LATEST_DISCARD_OLD_ITEMS behavior
-# (or :LATEST for short)
+# The sample shows BUFFER_EVICT_OLDEST behavior
 # Buffer maintains fixed size by discarding oldest data when new arrives
 # Ensures most current information is preserved for time-sensitive applications
 
@@ -1341,23 +1362,22 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # Stock price stream - only latest price matters
-    oLatestStream = CreateStreamXT("latest-price", :NETWORK)
+    oLatestStream = CreateNetworkStream("latest-price")
     oLatestStream {
-        SetOverflowStrategy(ACCEPT_LATEST_DISCARD_OLD_ITEMS, 2) # Or simply :LATEST
-        
+        SetOverflowStrategy(BUFFER_EVICT_OLDEST, 2)
+
         Transform(func price {
             return "AAPL: $" + price
         })
-        
+
         OnPassed(func stockPrice {
             ? "💰 " + stockPrice
         })
-        
+
         OnOverflow(func(current, max) {
             ? "📈 High trading volume - keeping latest prices only"
         })
-        
-        ? "=== Latest Strategy Demo ==="
+
         ? "Simulating rapid stock price updates..."
         
         # Rapid price updates
@@ -1370,7 +1390,7 @@ Rs {
         ProcessAnItemFromBuffer()
 
     }
-    
+ 
     RunLoop()
     #--> (#NOTE I added some comments to clarify the output)
     # 
@@ -1410,8 +1430,7 @@ pf()
 
 /*--- Block Strategy - Pause stream when capacity reached
 
-# The sample shows BLOCK_QUEUE_UNTIL_CAPACITY_AVAILABLE behavior
-# (:BLOCK for short)
+# The sample shows BUFFER_BLOCK behavior
 # Stream reception is paused when buffer fills to prevent data loss
 # Maintains data integrity by synchronizing data flow with processing
 # capacity
@@ -1423,7 +1442,7 @@ Rs {
     # Critical system events - cannot lose data
     oBlockStream = CreateStream("critical-events")
     oBlockStream {
-        SetOverflowStrategy(BLOCK_QUEUE_UNTIL_CAPACITY_AVAILABLE, 3) # or simply :BLOCK
+        SetOverflowStrategy(BUFFER_BLOCK, 3)
         
         Filter(func event {
             return event[:severity] = "CRITICAL"
@@ -1441,12 +1460,12 @@ Rs {
         ? "Block Strategy Demo..."
         
         events = [
-            [:severity = "CRITICAL", :message = "Database failure"],
-            [:severity = "CRITICAL", :message = "Memory exhausted"], 
-            [:severity = "INFO", :message = "User login"],
-            [:severity = "CRITICAL", :message = "Security breach"],
-            [:severity = "CRITICAL", :message = "Disk full"],
-            [:severity = "CRITICAL", :message = "Network down"]
+            [ :severity = "CRITICAL", :message = "Database failure" ],
+            [ :severity = "CRITICAL", :message = "Memory exhausted" ], 
+            [ :severity = "INFO", :message = "User login" ],
+            [ :severity = "CRITICAL", :message = "Security breach" ],
+            [ :severity = "CRITICAL", :message = "Disk full" ],
+            [ :severity = "CRITICAL", :message = "Network down" ]
         ]
         
         for i = 1 to len(events)
@@ -1488,7 +1507,7 @@ pf()
 # Executed in 0.92 second(s) in Ring 1.23
 
 /*--- Real-World Example: Log Processing with Adaptive Overflow
-*/
+
 # The sample shows adaptive overflow - system dynamically
 # switches strategies, changing from buffer to drop mode under
 # extreme load to maintain stability
@@ -1500,10 +1519,10 @@ pr()
 Rs = new stzReactiveSystem()
 Rs {
     # Log processing system with smart overflow
-    oLogStream = CreateStreamXT("adaptive-logs", OPTIMISED_FOR_FILE_SOURCE)
+    oLogStream = CreateFileStream("adaptive-logs")
     oLogStream {
-        # Start with buffer strategy
-        SetOverflowStrategy(:BUFFER, 5)
+        # Start with BUFFER_EXPAND strategy
+        SetOverflowStrategy(BUFFER_EXPAND, 5)
         
         # Parse and enrich log entries
         Transform(func logLine {
@@ -1533,15 +1552,15 @@ Rs {
             
             # Switch to drop strategy under extreme load
             if current >= max
-                ? "⚡ Switching to DROP strategy due to extreme load"
-                oLogStream.SetOverflowStrategy(:DROP, 10)
+                ? "⚡ Switching to BUFFER_REJECT_NEWEST strategy due to extreme load"
+                oLogStream.SetOverflowStrategy(BUFFER_REJECT_NEWEST, 10)
             ok
         })
         
         ? "Adaptive Log Processing Demo..."
         
         # Simulate log burst
-        logEntries = [
+        acLogEntries = [
             "2024-01-15 10:30:15|INFO|AUTH|User login successful",
             "2024-01-15 10:30:16|ERROR|DB|Connection timeout", 
             "2024-01-15 10:30:17|WARN|CACHE|High memory usage",
@@ -1553,7 +1572,7 @@ Rs {
             "2024-01-15 10:30:23|CRITICAL|SYSTEM|Out of memory"
         ]
         
-        RecieveMany(logEntries)
+        RecieveMany(acLogEntries)
         
         ? "Processing remaining buffer..."
         ProcessAnItemFromBuffer()
@@ -1573,7 +1592,7 @@ Rs {
     # Phase 1: Buffer reaches capacity, triggers strategy change
     # ----------------------------------------------------------
     # 🔄 Log processing overflow: 5/5
-    # ⚡ Switching to DROP strategy due to extreme load
+    # ⚡ Switching to BUFFER_REJECT_NEWEST strategy due to extreme load
     # ⚠️ Overflow: Dropping data item (dropped so far: 1)
     # 
     # Phase 2: Process buffered logs before strategy switch

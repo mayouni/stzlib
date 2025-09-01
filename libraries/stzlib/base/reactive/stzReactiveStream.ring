@@ -5,7 +5,7 @@ class stzReactiveStream
 	streamId = ""
 	sourceType = STREAM_SOURCE_MANUAL
 
-	subscribers = []
+	aReactiveFuncs = []
 	errorHandlers = []
 	concludeHandlers = []
 	engine = NULL
@@ -82,15 +82,21 @@ class stzReactiveStream
 		def Reduce(reduceFunction, initialValue)
 			return This.Accumulate(reduceFunction, initialValue)
 
-	def OnPassed(subscriber)
-		subscribers + subscriber
+	def OnPassed(Rf)
+		aReactiveFuncs + Rf
 		return self
 
-		def Subscribe(subscriber)
-			return OnPassed(subscriber)
+		def OnRecieved(Rf)
+			return OnPassed(Rf)
 
-		def OnNext(subscriber)
-			return OnPassed(subscriber)
+		def Subscribe(Rf)
+			return OnPassed(Rf)
+
+		def OnNext(Rf)
+			return OnPassed(Rf)
+
+		def OnPass(Rf) # For if we forget it's OnPassed with "ed"
+			return OnPassed(Rf)
 
 	def OnError(errorHandler)
 		errorHandlers + errorHandler
@@ -233,7 +239,7 @@ class stzReactiveStream
 			This.ScheduleAutoConclude()
 
 	def AutoConclude()
-		# Only auto-conclude if we have subscribers that need final results
+		# Only auto-conclude if we have aReactiveFuncs that need final results
 		if (hasReduceTransform or len(concludeHandlers) > 0) and not isConcluded
 			Conclude()
 		ok
@@ -250,10 +256,10 @@ class stzReactiveStream
 		
 		# If we have a reduce transform, emit the final accumulated result
 		if hasReduceTransform
-			nLenSub = len(subscribers)
+			nLenSub = len(aReactiveFuncs)
 			for i = 1 to nLenSub
-				fSubscriber = subscribers[i]
-				call fSubscriber(accumulator)
+				Rf = aReactiveFuncs[i]
+				call Rf(accumulator)
 			next
 		ok
 		
@@ -410,13 +416,13 @@ class stzReactiveStream
 		
 		# Only emit if we didn't encounter a reduce transform
 		if not hasReduceTransform
-			nLenSub = len(subscribers)
+			nLenSub = len(aReactiveFuncs)
 			nLenData = len(processedData)
 	
 			for i = 1 to nLenSub
-				fSubscriber = subscribers[i]
+				Rf = aReactiveFuncs[i]
 				for j = 1 to nLenData
-					call fSubscriber(processedData[j])
+					call Rf(processedData[j])
 				next
 			next
 		ok

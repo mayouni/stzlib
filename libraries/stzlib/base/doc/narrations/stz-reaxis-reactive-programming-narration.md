@@ -81,163 +81,234 @@ We use "overflow"—a natural, immediately comprehensible term. When a container
 
 ```ring
 # Clear, natural overflow management
-SetOverflowStrategy(:QUEUE_EXCESS, 50)
+SetOverflowStrategy(BUFFER_EXPAND)
 OnOverflow(func() { ? "Processing backlog - consider scaling" })
 ```
 
-## The Visual Mental Model That Changes Everything
+## The Conceptual Architecture: Container → Stream → Rfunction
 
-Traditional reactive documentation explains operators and schedulers without ever showing you the complete system architecture. Reaxis provides this missing mental model:
+Traditional reactive documentation never shows you the complete mental model. Here's what Reaxis makes explicit:
 
 ```
-            +------------- Softanza Reaxis ReactiveSystem (Rs) Container -----------------+
-            │                                                                             │
-            │  +-- COMMON SERVICES ----------------------------------------------------+  │
-            │  |      - TimerManager - HTTP Client - CreateTask - Stream Factory       |  │
-            │  +-----------------------------------------------------------------------+  │
-            │                                                                             │
-            │  +-- Stream: "price-processor" -----------------------------------------+   │
-            │  |                                                                      |   │
-            │  |   +-- RECEIVE --+    +-- INTERNAL QUEUE --+    +-- RFUNCTIONS --+    |   │
-            │  |   |             |    | +------v           |    |                |    |   │
-            │  |   |  [100, 80,  |----| | [100][80][90]    |----| Transform(     |    |   │
-  Price ----│--|-->|   90, 95,   |    | |  ^               |    |  OnSuccess(f), |    |   │
-   Data     │  |   |   120, 75]  |    | |  |               |    |  OnError(f)    |    |   │
-            │  |   |             |    | |  |               |    | )              |    |   │
-            │  |   +-------------+    | |  |  Overflow     |    |                |    |   │
-            │  |                      | |  |  when full    |    |   (×1.20)      |    |   │
-            │  |                      | |  |               |    |       v        |    |   │
-            │  |                      | |  |               |    |   Filter()     |    |   │
-            │  |                      | |  |               |    |   (>=120)      |    |   │
-            │  |                      | |  v               |    |   Pass|Drop    |    |   │
-            │  |                      | | OnOverflow() --->|--->|-----|--------->|--->|-->│--> Database
-            │  |                      | |                  |    |     v          |    |   │    & Users
-            │  |                      | +----(Internal)----|<---|<-- OnPassed()  |    |   │
-            │  |                      | Next item in Queue |    |  (Save&Notify) |    |   │
-            │  |                      |                    |    |                |    |   │
-            │  |                      |                    |    |  OnNoMore() -->|--->|-->│--> Summary
-            │  |                      |                    |    |  (Cleanup)     |    |   │
-            │  |                      |                    |    |                |    |   │
-            │  |                      |                    |    |  OnError()     |    |   │
-            │  |                      |                    |    |  Stream-level  |    |   │
-            │  |                      +--------------------+    +----------------+    │   │
-            │  +----------------------------------------------------------------------+   │
-            │                           ^           ^            ^                        │
-            │                           |           |            |                        │
-            │                           v           v            v                        │
-            │  +-- ASYNCHRONOUS I/O LOOP (LibUV, fired with RunLoop) ------------------+  │
-            │  |   Low-level infrastructure: network, timers, file system, processes   |  │
-            │  +-----------------------------------------------------------------------+  │
-            +-----------------------------------------------------------------------------+
+       ╭─────────────────────── REACTIVE SYSTEM CONTAINER ─────────────────────────╮
+       │                                                                                 │
+       │  ┌─ SHARED INFRASTRUCTURE ────────────────────────────────────────────┐    │
+       │  │  TimerManager • HTTPClient • TaskScheduler • StreamFactory             │     │
+       │  └─────────────────────────────────────────────────────────────────┘      │
+       │                                                                                  │
+       │  ┌─ STREAM: "price-processor" ───────────────────────────────────────────┐  │
+       │  │                                                                           │  │
+       │  │  ┌─ RECEIVE ─┐   ┌─ BUFFER ─────┐   ┌─ QUEUE ┐   ┌─ RFUNCTION CHAIN ─┐  │  │
+       │  │  │           │   │ Cap: 1000     │   │ [100]  │   │ Transform()       │  │  │
+ Data ----│--> [100,80,  │-->│ Use: 847      │-->│ [80]   │-->│ ↓ (*1.20)         │---> DB
+       │  │  │ 90,95,    │   │               │   │ [90]   │   │ Filter()          │  │   │
+       │  │  │ 120,75]   │   │ Overflow:     │   │ [95]   │   │ ↓ (≥120)          │  │   │
+       │  │  │           │   │ •EXPAND       │   │ [120]  │   │ OnPassed()        │  │   │
+       │  │  │           │   │ •REJECT       │   │ [75]   │   │ ↓ (Save&Notify)   │  │   │
+       │  │  │           │   │ •EVICT        │   │   ↑    │   │                   │  │   │
+       │  │  │           │   │ •BLOCK        │   │   │    │   │ OnNoMore()        │  │   │
+       │  │  └──────────┘   │               │   │   │    │   │ OnError()         │  │   │
+       │  │                  │ OnOverflow()  │   │   │    │   │ (localized)       │  │   │
+       │  │                  └─────────────┘    └───┼───┘   └─────────────────┘  │   │
+       │  └───────────────────────────────────────┼───────────────────────────┘    │
+       │                                              │                                   │
+       │  ┌─ LIBUV EVENT LOOP ───────────────────────────────────────────────────┐   │
+       │  │  Network I/O • Timers • File System • Process Management                  │   │
+       │  └────────────────────────────────────────────────────────────────────┘   │
+       ╰──────────────────────────────────────────────────────────────────────────╯
 ```
 
-This diagram reveals what mainstream reactive documentation assumes you already know: the complete system architecture, data flow paths, internal versus external boundaries, and container relationships.
+**Key Architectural Insights:**
 
-## Following the Data Journey
+1. **Container Level**: ReactiveSystem provides shared services—all streams share timers, networking, task scheduling
+2. **Stream Level**: Independent data pipelines with four distinct stages
+3. **Rfunction Level**: Sequential processing functions that await activation
+4. **LibUV Foundation**: Asynchronous I/O infrastructure drives the entire system
 
-Let's trace how our price data travels through this mental model. When we execute `ReceiveMany([80, 90, 95, 100, 120, 150, 200])`, each price begins a journey through the reactive pipeline.
+**Data Flow Precision:**
+- **RECEIVE**: Pure intake, no processing
+- **BUFFER**: Traffic spike absorption with overflow strategies
+- **QUEUE**: Small (5-10 items), maintains processing order
+- **RFUNCTIONS**: Sequential pipeline where each stage can transform, filter, or terminate flow
 
-The number 100 enters through the single entry point—the `Receive` section. It gets queued in the internal buffer, then awakens the first Rfunction: `Transform()`. This Rfunction multiplies 100 by 1.20, producing 120, and passes it to the next Rfunction: `Filter()`.
+This three-tier hierarchy (Container → Stream → Rfunction) eliminates the conceptual confusion of traditional reactive systems by making system boundaries and data flow paths explicitly visible.
 
-The `Filter()` Rfunction checks if 120 is greater than or equal to 120. It passes, so the data flows to `OnPassed()`, which saves the item to the database and notifies users. The journey for this data item concludes internally, and the stream automatically processes the next item in the queue.
+# Following the Data Journey Through Reaxis Architecture
 
-Meanwhile, the number 80 follows the same path: transform to 96, filter check (96 < 120), and gets dropped silently. The stream continues with the next item without ceremony.
+Let's trace how our price data travels through the complete Reaxis pipeline. When we execute `ReceiveMany([80, 90, 95, 100, 120, 150, 200])`, each price begins a four-stage journey: **Receive → Buffer → Queue → Rfunctions**.
 
-This natural flow eliminates the mental gymnastics required by traditional reactive programming. There are no "subscribers" to coordinate, no "producers" to manage, no "backpressure" to visualize. Just data flowing through a pipeline of Rfunctions.
+## Stage 1: Reception
 
-## The Container Principle: Why Streams Need Homes
+The number 100 enters through the single entry point—the `Receive` section. This is purely intake, with no processing logic.
 
-Notice something crucial in our visual model: the stream exists inside a `ReactiveSystem` container. This isn't an implementation detail—it's a fundamental architectural insight that mainstream reactive programming often glosses over.
+## Stage 2: Buffer Management
 
-Streams cannot exist in isolation because they need infrastructure: timers for delays, HTTP clients for network data, task managers for concurrency. The ReactiveSystem provides these common services, eliminating the need for each stream to manage its own resources.
+The item moves to the **Buffer**, which handles capacity and traffic spikes. If the buffer is at capacity (say 847/1000 items), overflow strategies activate:
+
+* `BUFFER_EXPAND`: Store excess items beyond original capacity
+* `BUFFER_REJECT_NEWEST`: Reject the incoming 100
+* `BUFFER_EVICT_OLDEST`: Replace oldest with incoming 100
+* `BUFFER_BLOCK`: Block reception until capacity becomes available
+
+In this case, space exists, so 100 is stored.
+
+## Stage 3: Queue Processing
+
+The **Queue** takes items from the buffer in order (FIFO by default) and feeds them one-by-one to the processing pipeline. The queue is small (5-10 items) and focused solely on maintaining processing sequence.
+
+## Stage 4: Rfunction Pipeline
+
+The first Rfunction, `Transform()`, awakens and multiplies 100 by 1.20, producing 120. It passes this to `Filter()`, which checks if 120 ≥ 120. It passes, flowing to `OnPassed()` for database storage and user notification.
+
+Meanwhile, 80 follows the same path: transforms to 96, fails the filter (96 < 120), and gets dropped silently.
+
+This separation eliminates mental gymnastics. No "subscribers" to coordinate, no "backpressure" hydraulics—just natural data flow through distinct, purpose-built stages.
+
+# The Buffer: Managing Traffic Reality
+
+Traditional reactive programming conflates queue overflow with backpressure, creating conceptual confusion. Reaxis separates these concerns cleanly.
+
+## Buffer Purpose
+
+The **Buffer** exists because data rarely arrives at the perfect processing rate. Network bursts, sensor spikes, and batch uploads create traffic mismatches that the buffer absorbs naturally.
 
 ```ring
-# Streams require infrastructure - they cannot exist alone
-Rs = new stzReactiveSystem()  # Container provides services
-Rs {
-    # Multiple streams can coexist and share resources
-    oPriceStream = CreateStreamXT("prices", OPTIMISED_FOR_NETWORK_SOURCE)
-    oLogStream = CreateStreamXT("logs", OPTIMISED_FOR_FILE_SOURCE)
-    oAlertStream = CreateStreamXT("alerts", OPTIMISED_FOR_TIMER_SOURCE)
+oSensorStream = CreateStream("temperature-readings")
+oSensorStream {
+    # Buffer configuration - handles traffic spikes
+    SetBufferSize(2000)
+    SetOverflowStrategy(BUFFER_EXPAND)
     
-    # All streams share the same event loop and services
-    RunLoop()  # Single command activates the entire ecosystem
+    # Queue configuration - handles processing flow  
+    SetQueueSize(10)
+    SetQueueOrder(:FIFO)
+    
+    Transform(func reading { SlowAnalysis(reading) })  # Intentionally slow
+    OnPassed(func result { SaveToDatabase(result) })
 }
 ```
 
-This container principle solves resource management complexity that plagues traditional reactive systems, where stream coordination often becomes an architectural nightmare.
+## Buffer Strategies
 
-## The Declare-Then-Execute Pattern
+When the buffer overflows, clear strategies activate:
 
-Perhaps the most elegant aspect of the Reaxis mental model is how it mirrors natural human planning: we describe what we want to happen, then make it happen.
+* **BUFFER_EXPAND** - Store excess items beyond the original capacity
+* **BUFFER_REJECT_NEWEST** - Reject new items, preserve what's already buffered
+* **BUFFER_EVICT_OLDEST** - Keep newest data, discard oldest
+* **BUFFER_BLOCK** - Block reception until capacity becomes available
+
+## Buffer Monitoring
+
+```ring
+OnBufferOverflow(func(oStats) {
+    ? "Buffer overflow: " + oStats.CurrentSize + "/" + oStats.Capacity
+    ? "Items dropped: " + oStats.DroppedCount + " (strategy: " + oStats.Strategy + ")"
+    
+    # Natural response - scale processing or adjust buffer
+    if oStats.OverflowFrequency > 0.1
+        ScaleProcessingPower()
+    ok
+})
+```
+
+# The Container Principle: Infrastructure as Foundation
+
+Streams cannot exist in isolation—they need infrastructure for timers, HTTP clients, and concurrency management. The ReactiveSystem container provides these shared services.
+
+```ring
+Rs = new stzReactiveSystem()  # Container provides infrastructure
+Rs {
+    # Multiple streams sharing resources
+    oPriceStream = CreateStreamXT("prices", :NETWORK_OPTIMIZED)  
+    oLogStream = CreateStreamXT("logs", :FILE_OPTIMIZED)
+    oAlertStream = CreateStreamXT("alerts", :TIMER_OPTIMIZED)
+    
+    # Single activation command for entire ecosystem
+    RunLoop()
+}
+```
+
+This eliminates resource management complexity that plagues traditional reactive systems where stream coordination becomes architectural chaos.
+
+# The Declare-Then-Execute Pattern
+
+Reaxis mirrors natural human planning: describe desired behavior, then execute it.
 
 ```ring
 Rs = new stzReactiveSystem()
 Rs {
-    # PHASE 1: DECLARE - Describe the desired behavior
+    # PHASE 1: DECLARE - Describe behavior without execution
     
-    oSensorStream = CreateStreamXT("temperature-monitor", :SENSOR)
-    oSensorStream {
+    oMonitorStream = CreateStreamXT("temperature-monitor", :SENSOR)
+    oMonitorStream {
+        # Buffer for sensor bursts
+        SetBufferSize(500)
+        SetOverflowStrategy("latest")  # Accept newest, drop oldest
+        
+        # Processing pipeline
         Transform(func temp { 
             return [temp, CurrentTime(), CalculateHeatIndex(temp)] 
         })
         
-        Filter(func data { 
-            return data[3] > DANGER_THRESHOLD 
-        })
+        Filter(func data { return data[3] > DANGER_THRESHOLD })
         
         OnPassed(func alert { 
             TriggerEmergencyAlert(alert[1], alert[2])
             LogCriticalEvent(alert)
         })
         
-        OnError(func error { 
+        OnBufferOverflow(func(oStats) {
+            ? "Sensor data overflow - possible sensor malfunction"
             SwitchToBackupSensor()
-            NotifyMaintenance(error)
         })
-
-        # Define how to provide data to process
-		currentTemp = ReadSensor()
-    	Receive(currentTemp)  # Stream-level activation
         
-        # Still declaring - no execution yet
+        # Data source
+        Receive(ReadSensorBatch())
     }
     
-    # PHASE 2: EXECUTE - Bring the system to life
-    RunLoop()  # System-level activation
+    # PHASE 2: EXECUTE - Activate the complete system
+    RunLoop()
 }
-
 ```
 
-This pattern eliminates the imperative/declarative confusion that haunts traditional reactive programming. You're never wondering "when does this execute?" because the phases are explicitly separated.
+This explicit separation eliminates the imperative/declarative confusion haunting traditional reactive programming. The execution timing is always clear.
 
-## Overflow: Simplifying Backpressure
+# Overflow vs Backpressure: Natural Terminology
 
-Traditional reactive systems burden programmers with "backpressure strategies"—a hydraulic metaphor that requires understanding pressure differentials and flow dynamics. Reaxis uses "overflow," which every programmer intuitively understands: when a container is full, excess items overflow.
+Traditional systems burden programmers with "backpressure strategies"—hydraulic metaphors requiring understanding of pressure differentials. Reaxis uses "overflow"—intuitive to every programmer.
+
+## Natural Overflow Management
 
 ```ring
 oHighVolumeStream = CreateStream("data-firehose")
 oHighVolumeStream {
-    # Natural overflow management - no hydraulic metaphors needed
-    SetOverflowStrategy(:QUEUE_EXCESS, 1000)
+    # Clear, descriptive overflow handling
+    SetBufferSize(1000) 
+    SetOverflowStrategy("buffer")  # or :BUFFER_NEW_ITEM
     
-    Transform(func item { 
-        ProcessSlowly(item)  # Intentionally slow processing
-        return item
+    Transform(func item { ProcessSlowly(item); return item })
+    
+    OnBufferOverflow(func(oStats) {
+        ? "Buffer overflow: " + oStats.CurrentSize + "/" + oStats.Capacity
+        AutoScaleProcessors()  # Natural response
     })
     
-    OnOverflow(func(currentSize, maxSize) {
-        ? "Queue overflow: " + currentSize + "/" + maxSize + " items"
-        ScaleProcessingPower()  # Natural response to overflow
-    })
-    
-    OnPassed(func result {
-        DeliverResult(result)
-    })
+    OnPassed(func result { DeliverResult(result) })
 }
 ```
 
-When data arrives faster than processing can handle, the queue fills up. When it overflows, the `OnOverflow()` Rfunction activates. Simple, visual, intuitive.
+## Buffer Control Methods
+
+When items accumulate, precise control is available:
+
+* `ProcessNextFromBuffer()` - Process one buffered item
+* `ProcessAllBuffered()` - Process entire buffer contents
+* `DrainBuffer(nCount)` - Process specific number of items
+* `ClearBuffer()` - Empty buffer (emergency situations)
+
+The mental model is visual and intuitive: when containers overflow, excess items spill according to clear strategies. No hydraulic engineering degree required.
+
+
 
 ## Stream Optimization: Performance Without Complexity
 

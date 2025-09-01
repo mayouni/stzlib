@@ -15,12 +15,12 @@ load "../stzbase.ring"
 
 /*--- What you learned with these examples:
 
-1. **setTimeout**: One-time execution after delay
-   - SetTimeout(function, milliseconds)
+1. **RunAfter**: One-time execution after delay
+   - RunAfter(function, milliseconds)
    - Perfect for delayed actions
 
-2. **setInterval**: Repeated execution at intervals  
-   - SetInterval(function_name, milliseconds)
+2. **RunEvery**: Repeated execution at intervals  
+   - RunEvery(function_name, milliseconds)
    - Perfect for periodic tasks
    - Always remember to ClearInterval() to stop it!
 
@@ -30,7 +30,7 @@ load "../stzbase.ring"
 
 4. **Timer Coordination**: Multiple timers can work together
    - Each timer runs independently
-   - Use setTimeout to stop intervals after a certain time
+   - Use RunAfter to stop intervals after a certain time
 
 5. **Reactive Streams + Timers**: Powerful combination
    - Timers generate data
@@ -52,9 +52,9 @@ Other timer-based applications can be:
 
 */
 
-/*--- Understanding setTimeout - One-time delayed execution
+/*--- Understanding RunAfter - One-time delayed execution
 
-# SetTimeout executes a function ONCE after a specified delay
+# RunAfter executes a function ONCE after a specified delay
 # Think of it like setting an alarm clock that goes off only once
 
 pr()
@@ -63,11 +63,11 @@ pr()
 
 Rs = new stzReactiveSystem()
 Rs {
-    # SetTimeout(function, delay_in_milliseconds)
-    SetTimeout( func() {
+
+    RunAfter( 2000, func() {
         ? "⏰ DING! Timer went off after 2000ms (2 seconds)"
         ? "This message appears exactly once"
-    }, 2000)
+    })
     
     ? "Timer set! Now starting the reactive engine..."
     Start()  # This starts the event loop and waits for timers
@@ -88,9 +88,9 @@ pf()
 # This message appears exactly once
 
 
-/*--- Understanding setInterval - Repeating execution
+/*--- Understanding RunEvery - Repeating execution
 
-# SetInterval executes a function REPEATEDLY at regular intervals
+# RunEvery executes a function REPEATEDLY at regular intervals
 # Like a metronome that keeps ticking until you stop it
 
 pr()
@@ -103,8 +103,8 @@ cIntervalID = ""
 
 Rs = new stzReactiveSystem()
 Rs {
-    # SetInterval(function_name, interval_in_milliseconds)
-    cIntervalID = SetInterval(:fCallback, 1000)
+    # RunEvery(function_name, interval_in_milliseconds)
+    cIntervalID = RunEvery(1000, :fCallback)
     
     ? "Repeating timer set! Starting..."
     Start()
@@ -153,15 +153,16 @@ cSowId = ""
 Rs = new stzReactiveSystem()
 Rs {
     # Fast timer - every 500ms
-    cFastId = SetInterval(:fFastTick, 500)
+    cFastId = RunEvery(500, :fFastTick)
     
     # Slow timer - every 1500ms  
-    cSowId = SetInterval(:fSlowTick, 1500)
+    cSowId = RunEvery(1500, :fSlowTick)
     
     # Stop everything after 4 seconds
-    SetTimeout(:fStopAllTimers, 4000)
+    RunAfter(4000, :fStopAllTimers)
     
     ? "Multiple timers started!"
+
     Start()
 }
 
@@ -226,10 +227,10 @@ Rs {
     })
 
     # Generate data every 800ms using a timer
-    cItervalId = SetInterval(800, :fGenerateData)
+    cItervalId = RunEvery(800, :fGenerateData)
 
     # Stop after 4 data points
-    SetTimeout(3500, :fStopDataGeneration)
+    RunAfter(3500, :fStopDataGeneration)
 
     ? "Data stream started! Generating data every 800ms..."
     Start()
@@ -331,8 +332,8 @@ class DownloadSimulator
         ? "Progress: [----------] 0%"
         
         oReactive {
-            cProgressId = SetInterval(:UpdateProgress, 500)
-            SetTimeout(:CompleteDownload, 5000)
+            cProgressId = RunEvery(:UpdateProgress, 500)
+            RunAfter(:CompleteDownload, 5000)
             
             Start()
         }
@@ -423,7 +424,7 @@ pf()
 
 pr()
 
-? "✅ CORRECT EXAMPLE - Using SetTimeout() for delays"
+? "✅ CORRECT EXAMPLE - Using RunAfter() for delays"
 ? "This properly allows auto-conclude timers to work!"
 ? ""
 
@@ -455,18 +456,18 @@ Rs {
     }
     
     # ✅ SOLUTION: Schedule data emission using non-blocking timers
-    SetTimeout(func {
+    RunAfter(func {
         oSensorStream.Recieve([:temp = 22.5, :sensor = "A1"])
         oSensorStream.Recieve([:temp = 23.1, :sensor = "A2"])
     }, 0)
     
-    SetTimeout(func {
+    RunAfter(func {
         ? "   (200ms gap - auto-conclude timer can still run!)"
         oSensorStream.Recieve([:temp = 21.8, :sensor = "A3"])
         oSensorStream.Recieve([:temp = 24.2, :sensor = "A4"])
     }, 200)
     
-    SetTimeout(func {
+    RunAfter(func {
         ? "   (600ms gap - auto-conclude will trigger after 500ms...)"
         # No more data - stream will auto-conclude naturally
     }, 800)
@@ -474,7 +475,7 @@ Rs {
     Start()  # Starts event loop - timers and auto-conclude work perfectly!
 }
 #-->
-# ✅ CORRECT EXAMPLE - Using SetTimeout() for delays
+# ✅ CORRECT EXAMPLE - Using RunAfter() for delays
 # This properly allows auto-conclude timers to work!
 # 
 # 📡 Receiving readings...
@@ -498,7 +499,7 @@ The fundamental problem:
    - Timers cannot fire
    - Event loop cannot process
 
-2. SetTimeout() is NON-BLOCKING  
+2. RunAfter() is NON-BLOCKING  
    - Schedules execution for later
    - Event loop continues running
    - Other timers can still fire
@@ -513,8 +514,8 @@ The fundamental problem:
 /*--- Critical guidelines for reactive programming:
 
 ✅ DO USE:
-- SetTimeout() for delays
-- SetInterval() for repeated actions  
+- RunAfter() for delays
+- RunEvery() for repeated actions  
 - Non-blocking operations
 - Event-driven patterns
 

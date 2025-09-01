@@ -125,10 +125,10 @@ EVENT_START = :start
 EVENT_STOP = :stop
 
 # Buffer strategies
-BUFFER_NEW_ITEMS = "buffer"
-DROP_NEW_ITEMS = "drop" 
-ACCEPT_LATEST_DISCARD_OLD_ITEMS = "latest"
-BLOCK_QUEUE_UNTIL_CAPACITY_AVAILABLE = "block"
+BUFFER_EXPAND = "buffer"
+BUFFER_REJECT_NEWEST = "drop" 
+BUFFER_EVICT_OLDEST = "latest"
+BUFFER_BLOCK = "block"
 
 # Stream processing
 STREAM_ATTR_CHANGES = "attribute_changes"
