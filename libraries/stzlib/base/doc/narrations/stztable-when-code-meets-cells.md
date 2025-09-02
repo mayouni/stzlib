@@ -1,4 +1,6 @@
 # "Code Meets Cells": The Spreadsheet Metaphor in Softanza's stzTable
+![A Wise and Revered Sufi Scholar from Niger Exploring Computer Code in a Traditional Study Room](../images/stz-knowledge-programming.jpg)
+*A Wise and Revered Sufi Scholar from Niger Exploring Computer Code in a Traditional Study Room.*
 
 ## Introduction
 
