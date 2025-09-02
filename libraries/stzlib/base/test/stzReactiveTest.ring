@@ -145,7 +145,7 @@ pf()
 # Streams represent continuous data flows that can be processed reactively.
 # They support backpressure, filtering, and transformation operations.
 # Ideal for handling real-time data, user inputs, or API responses.
-*/
+
 pr()
 
 Rs = new stzReactiveSystem()
@@ -302,9 +302,9 @@ pf()
 
 pr()
 
-# Define counter and intervalId at the module level or use object properties
+# Define counter and cTimerID at the module level or use object properties
 nCounter = 0
-cIntervalId = ""
+cTimerId = ""
 
 Rs = new stzReactiveSystem()
 Rs {
@@ -314,34 +314,30 @@ Rs {
     })
 
     # Repeating timer - use global counter
-    intervalId = RunEvery(500, :fRepeatCallback)
+    intervalId = RunEvery(500, func {
+	    nCounter++
+	    ? "Repeating timer: " + nCounter + " at " + clock()
+	    
+	    # Stop after 5 executions
+	    if nCounter >= 5
+	        Rs.StopTimer(cTimerId)
+	        ? "Interval cancelled after 5 executions"
+		Rs.Stop()
+	    ok
+    })
 
     Start()
 }
-
-pf()
-
-# Define the callback function separately
-func fRepeatCallback()
-    nCounter++
-    ? "Repeating timer: " + nCounter + " at " + clock()
-    
-    # Stop after 5 executions
-    if nCounter >= 5
-        Rs.ClearInterval(cIntervalId)
-        ? "Interval cancelled after 5 executions"
-        Rs.Stop()
-    ok
-
 #-->
-# Repeating timer: 1 at 3782
-# Repeating timer: 2 at 3797
-# Repeating timer: 3 at 3814
-# Repeating timer: 4 at 3830
-# Repeating timer: 5 at 3846
+# Repeating timer: 1 at 3125
+# Repeating timer: 2 at 3141
+# Repeating timer: 3 at 3157
+# Repeating timer: 4 at 3173
+# Repeating timer: 5 at 3189
 # Interval cancelled after 5 executions
 
-# Executed in 0.58 second(s) in Ring 1.23
+pf()
+# Executed in 0.60 second(s) in Ring 1.23
 
 /*--- Timer-based data generation
 

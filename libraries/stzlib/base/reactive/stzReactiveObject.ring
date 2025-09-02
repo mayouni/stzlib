@@ -273,10 +273,10 @@ class stzReactiveObject from stzReactive
 		
 		Watch(cAttribute, func(attr, oldVal, newVal) {
 			if currentTimer != NULL
-				ClearInterval(currentTimer)
+				StopTimer(currentTimer)
 			ok
 			
-			currentTimer = SetTimeout(func {
+			currentTimer = RunAfter(func {
 				call fnCallback(attr, oldVal, newVal)
 				currentTimer = NULL
 			}, nDelay)
