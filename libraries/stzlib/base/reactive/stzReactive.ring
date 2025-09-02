@@ -302,13 +302,12 @@ class stzReactiveSystem
 			cUnit = "milliseconds"
 		ok
 
-		switch cUnit
-		on "seconds"
+		if cUnit = "seconds" or cUnit = "second"
 			nDelay = nDelay / 1000
 
-		on "minutes"
+		but cUnit = "minutes" or cUnit = "minute"
 			nDelay = nDelay / 60000
-		off
+		ok
 
 		return This.RunAfter(nDelay, callback)
 
@@ -342,13 +341,12 @@ class stzReactiveSystem
 			cUnit = "milliseconds"
 		ok
 
-		switch cUnit
-		on "seconds"
+		if cUnit = "seconds" or cUnit = "second"
 			nInterval = nInterval / 1000
 
-		on "minutes"
+		but cUnit = "minutes" or cUnit = "minute"
 			nInterval = nInterval / 60000
-		off
+		ok
 
 		return This.RunEvery(nInterval, callback)
 
@@ -375,13 +373,12 @@ class stzReactiveSystem
 		def SetInterval(interval, callback)
 			return This.RunEvery(interval, callback)
 
-	def ClearInterval(timer)
-		# Clears a periodic timer by ID or object.
+	def StopTimer(timer)
+
 		if isString(timer)
 			timerManager.RemoveTimer(timer)
 		else
 			timer.Stop()
-			timerManager.RemoveTimer(timer.timerId)
 		ok
 
 	#--------------------------#
