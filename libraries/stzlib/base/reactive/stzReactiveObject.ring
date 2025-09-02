@@ -169,9 +169,9 @@ class stzReactiveObject from stzReactive
 	#-----------------------#
 
 	# Watch Attribute changes
-	def Watch(cAttribute, fnCallback)
+	def Watch(cAttribute, fCallback)
 		cAttribute = lower(cAttribute)
-		aAttributeWatchers + [cAttribute, fnCallback]
+		aAttributeWatchers + [cAttribute, fCallback]
 		return self
 
 	# Create computed Attribute that auto-updates
@@ -265,8 +265,8 @@ class stzReactiveObject from stzReactive
 		
 		return stream
 
-	# Debounce Attribute changes
-	def DebounceAttribute(cAttribute, nDelay, fnCallback)
+	# The method waits for the attribute to stop changing (settle) before executing the callback
+	def WaitForAttributetoSettle(cAttribute, nDelay, fCallback)
 		cAttribute = lower(cAttribute)
 		
 		currentTimer = NULL
@@ -277,12 +277,15 @@ class stzReactiveObject from stzReactive
 			ok
 			
 			currentTimer = RunAfter(func {
-				call fnCallback(attr, oldVal, newVal)
+				call fCallback(attr, oldVal, newVal)
 				currentTimer = NULL
 			}, nDelay)
 		})
 		
 		return self
+
+		def DebounceAttribute(cAttribute, nDelay, fCallback)
+			return This.WaitForAttributetoSettle(cAttribute, nDelay, fCallback)
 
 	# Factory method for creating reactive objects
 	def Reactivate(existingObject)

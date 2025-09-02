@@ -730,7 +730,7 @@ Rs {
 
 Rate limiting happens naturally through the timing of `Receive()` calls. No complex operators, no timing abstractions—just straightforward scheduling through system services.
 
-## Natural Timing Operations: Beyond SetInterval Confusion
+## Natural Timing Operations: Beyond SetInterval and Debounce Confusion
 
 Traditional timing functions suffer from the same metaphorical confusion that plagues reactive programming. `SetInterval` and `SetTimeout` force programmers to decode ambiguous terminology when the operations are conceptually simple.
 
@@ -828,6 +828,30 @@ Rs {
 }
 ```
 
+**Natural State Settling with WaitForAttributeToSettle()**
+
+Traditional reactive programming uses "debounce"—borrowed from electronics switch bounce elimination—creating cognitive overhead when the operation is conceptually simple. Developers must decode timing mechanics instead of focusing on business logic.
+
+Consider the mental gymnastics required with traditional debouncing:
+
+```javascript
+// What is "bouncing"? Why 800ms? When does it actually fire?
+searchInput.pipe(
+    debounceTime(800),
+    distinctUntilChanged()
+).subscribe(query => {
+    performSearch(query);
+});
+```
+
+Reaxis eliminates debounce confusion with immediately comprehensible semantics:
+
+```ring
+# Crystal clear: wait for the attribute to stop changing, then act
+oXSearch.WaitForAttributeToSettle(:@Query, 800, func(attr, oldval, newval) {
+    PerformSearch(newval)  # Execute only when user stops typing
+})
+```
 **Semantic Consistency Table**
 
 | Operation | Traditional | Reaxis Natural | Semantic Benefit |
@@ -836,8 +860,10 @@ Rs {
 | Start delayed | `SetTimeout()` | `RunAfter()` | Clear temporal relationship |
 | Stop specific | `ClearInterval()` | `StopTimer()` | Direct action, no ambiguity |
 | Stop all | Multiple clears | `StopAllTimers()` | Batch operation clarity |
+| Wait mechanism | `debounceTime()` | `WaitForAttributeToSettle()` | Describes actual behavior |
+| State change | "bounce elimination" | "attribute settling" | Natural data flow language |
 
-The timing functions follow the same semantic engineering principles as the reactive system: use natural language that describes what actually happens rather than importing metaphors from other domains.
+The timing and settling functions follow the same semantic engineering principles as the reactive system: use natural language that describes what actually happens rather than importing metaphors from other domains.
 
 
 ## The Cognitive Load Revolution
