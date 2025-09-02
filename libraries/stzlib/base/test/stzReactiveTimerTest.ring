@@ -514,7 +514,6 @@ The fundamental problem:
 
 /*--- Simple countdown timer with StopTimer()
 
-*/
 pr()
 
 countdown = 5
@@ -549,46 +548,52 @@ pf()
 # Executed in 0.19 second(s) in Ring 1.23
 
 /*--- Emergency shutdown with StopAllTimers()
+*/
+
+pr()
 
 systemAlert = false
 timer1 = NULL
 timer2 = NULL  
 timer3 = NULL
 
-Rs2 = new stzReactiveSystem()
-Rs2 {
+Rs = new stzReactiveSystem()
+Rs {
     # Multiple concurrent timers
-    timer1 = RunEvery(2, :seconds, func {
+    timer1 = RunEveryXT(2, :seconds, func {
         ? "System monitor check"
     })
     
-    timer2 = RunEvery(3, :seconds, func {
+    timer2 = RunEveryXT(3, :seconds, func {
         ? "Data backup running"
     })
     
-    timer3 = RunEvery(5, :seconds, func {
+    timer3 = RunEveryXT(5, :seconds, func {
         ? "Network heartbeat"
         systemAlert = true  # Trigger emergency
     })
     
     # Emergency shutdown timer
-    RunEvery(1, :seconds, func {
+    RunEveryXT(1, :second, func {
         if systemAlert
             ? "EMERGENCY: Stopping all operations!"
-            StopAllTimers()  # Single call stops everything
-            Stop()
+            Rs.StopAllTimers()  # Single call stops everything
+            Rs.Stop()
         ok
     })
     
-    Start()
+    RunLoop()
 }
 
-#--> Output:
+#-->
 # System monitor check
 # Data backup running  
 # System monitor check
 # Network heartbeat
 # EMERGENCY: Stopping all operations!
+
+pf()
+# Executed in 0.19 second(s) in Ring 1.23
 
 /*=== Critical guidelines for reactive programming:
 
