@@ -159,14 +159,17 @@ cJson = '{"product":["Apple","Orange","Banana"],"price":["$1.50","$1.20","$0.80"
 o1 = new stzTable([])
 o1.FromJson(cJson)
 o1.Show()
-#-->
-# ╭─────────┬───────┬───────╮
-# │ Product │ Price │ Stock │
-# ├─────────┼───────┼───────┤
-# │ Apple   │ $1.50 │   100 │
-# │ Orange  │ $1.20 │   150 │
-# │ Banana  │ $0.80 │   200 │
-# ╰─────────┴───────┴───────╯
+```
+
+Output:
+```
+╭─────────┬───────┬───────╮
+│ Product │ Price │ Stock │
+├─────────┼───────┼───────┤
+│ Apple   │ $1.50 │   100 │
+│ Orange  │ $1.20 │   150 │
+│ Banana  │ $0.80 │   200 │
+╰─────────┴───────┴───────╯
 ```
 
 The `ToJson()` method generates a compact JSON string, preserving column names and data. For a formatted output with newlines and indentation, use `ToJsonXT()`. The `IsJson()` function, available via `stzString` (e.g., `Q(cJson).IsJson()`), validates JSON input before import. These methods facilitate working with APIs or JSON files, streamlining data integration into `stzTable` for further analysis.
@@ -256,16 +259,19 @@ cHtmlStr = '
 o1 = new stzTable([])
 o1.FromHtml(cHtmlStr)
 o1.Show()
-#-->
-# ╭─────────┬───────┬───────╮
-# │ Product │ Price │ Stock │
-# ├─────────┼───────┼───────┤
-# │ Apple   │ $1.50 │   100 │
-# │ Orange  │ $1.20 │   150 │
-# │ Banana  │ $0.80 │   200 │
-# │ Grape   │ $2.00 │    80 │
-# │ Mango   │ $3.00 │    50 │
-# ╰─────────┴───────┴───────╯
+```
+
+Output:
+```
+╭─────────┬───────┬───────╮
+│ Product │ Price │ Stock │
+├─────────┼───────┼───────┤
+│ Apple   │ $1.50 │   100 │
+│ Orange  │ $1.20 │   150 │
+│ Banana  │ $0.80 │   200 │
+│ Grape   │ $2.00 │    80 │
+│ Mango   │ $3.00 │    50 │
+╰─────────┴───────┴───────╯
 ```
 
 The `IsHtmlTable()` method validates the HTML table, and `FromHtml()` creates an `stzTable` object, ready for further manipulation and analysis, ideal for web-scraped data or HTML reports.
@@ -360,13 +366,14 @@ o1 = new stzTable([
 #--> :[ "id", "employee", "salary" ]
 
 ? o1.Rows()             
-#--> [
-#	[ 10,	 "Ali",		35000	],
-#	[ 20,	 "Dania",	28900	],
-#	[ 30,	 "Han",		25982	],
-#	[ 40,	 "Ali",		12870	]
-# ]
-
+#--> '
+[
+	[ 10,	 "Ali",		35000	],
+	[ 20,	 "Dania",	28900	],
+	[ 30,	 "Han",		25982	],
+	[ 40,	 "Ali",		12870	]
+]
+'
 # Checking for specific columns
 
 ? o1.HasColumn(:EMPLOYEE)
@@ -393,15 +400,16 @@ o1 = new stzTable([
 
 o1.Show()
 #-->
-# ╭────┬──────────┬────────╮
-# │ Id │ Employee │ Salary │
-# ├────┼──────────┼────────┤
-# │ 10 │ Ali      │  35000 │
-# │ 20 │ Dania    │  28900 │
-# │ 30 │ Han      │  25982 │
-# │ 40 │ Ali      │  12870 │
-# ╰────┴──────────┴────────╯
-
+'
+ ╭────┬──────────┬────────╮
+ │ Id │ Employee │ Salary │
+ ├────┼──────────┼────────┤
+ │ 10 │ Ali      │  35000 │
+ │ 20 │ Dania    │  28900 │
+ │ 30 │ Han      │  25982 │
+ │ 40 │ Ali      │  12870 │
+ ╰────┴──────────┴────────╯
+'
 # Accessing individual cells
 
 ? o1.Cell(:SALARY, 2)  // Gets the value in the SALARY column, row 2
@@ -434,19 +442,20 @@ o1.Show()
 A unique feature of `stzTable` is its flexible handling of positions and ranges:
 
 ```ring
-# Let's recall our o1 tale object and display it
+# Let's recall our o1 table object and display it
 
 o1.Show()
 #-->
-# ╭────┬──────────┬────────╮
-# │ Id │ Employee │ Salary │
-# ├────┼──────────┼────────┤
-# │ 10 │ Ali      │  35000 │
-# │ 20 │ Dania    │  28900 │
-# │ 30 │ Han      │  25982 │
-# │ 40 │ Ali      │  12870 │
-# ╰────┴──────────┴────────╯
-
+'
+ ╭────┬──────────┬────────╮
+ │ Id │ Employee │ Salary │
+ ├────┼──────────┼────────┤
+ │ 10 │ Ali      │  35000 │
+ │ 20 │ Dania    │  28900 │
+ │ 30 │ Han      │  25982 │
+ │ 40 │ Ali      │  12870 │
+ ╰────┴──────────┴────────╯
+'
 # First, last, and specific positions
 
 ? o1.FirstColName() // Returns the name of the first column
@@ -479,15 +488,16 @@ o1.Show()
 
 o1.Show()
 #-->
-# ╭────┬──────────┬────────╮
-# │ Id │ Employee │ Salary │
-# ├────┼──────────┼────────┤
-# │ 10 │ Ali      │  35000 │
-# │ 20 │ Dania    │  28900 │
-# │ 30 │ Han      │  25982 │
-# │ 40 │ Ali      │  12870 │
-# ╰────┴──────────┴────────╯
-
+'
+ ╭────┬──────────┬────────╮
+ │ Id │ Employee │ Salary │
+ ├────┼──────────┼────────┤
+ │ 10 │ Ali      │  35000 │
+ │ 20 │ Dania    │  28900 │
+ │ 30 │ Han      │  25982 │
+ │ 40 │ Ali      │  12870 │
+ ╰────┴──────────┴────────╯
+'
 # Finding cells by value
 
 ? o1.Find("Ali")  	// Finds all positions where "Ali" appears
@@ -849,37 +859,41 @@ o1 = new stzTable([
 
 o1.Show()
 #-->
-# ╭────┬─────┬────────╮
-# │ Id │ Age │ Salary │
-# ├────┼─────┼────────┤
-# │ 10 │  32 │  35000 │
-# │ 20 │  27 │  28900 │
-# │ 30 │  24 │  25982 │
-# │ 40 │  22 │  12870 │
-# ╰────┴─────┴────────╯
-
+'
+ ╭────┬─────┬────────╮
+ │ Id │ Age │ Salary │
+ ├────┼─────┼────────┤
+ │ 10 │  32 │  35000 │
+ │ 20 │  27 │  28900 │
+ │ 30 │  24 │  25982 │
+ │ 40 │  22 │  12870 │
+ ╰────┴─────┴────────╯
+'
 o1.Transpose()
 o1.Show()
 #-->
-# ╭────────┬───────┬───────┬───────┬───────╮
-# │  Col1  │ Col2  │ Col3  │ Col4  │ Col5  │
-# ├────────┼───────┼───────┼───────┼───────┤
-# │ id     │    10 │    20 │    30 │    40 │
-# │ age    │    32 │    27 │    24 │    22 │
-# │ salary │ 35000 │ 28900 │ 25982 │ 12870 │
-# ╰────────┴───────┴───────┴───────┴───────╯
-
+'
+ ╭────────┬───────┬───────┬───────┬───────╮
+ │  Col1  │ Col2  │ Col3  │ Col4  │ Col5  │
+ ├────────┼───────┼───────┼───────┼───────┤
+ │ id     │    10 │    20 │    30 │    40 │
+ │ age    │    32 │    27 │    24 │    22 │
+ │ salary │ 35000 │ 28900 │ 25982 │ 12870 │
+ ╰────────┴───────┴───────┴───────┴───────╯
+'
 o1.TransposeBack()
 o1.Show()
 #-->
-# ╭────┬─────┬────────╮
-# │ Id │ Age │ Salary │
-# ├────┼─────┼────────┤
-# │ 10 │  32 │  35000 │
-# │ 20 │  27 │  28900 │
-# │ 30 │  24 │  25982 │
-# │ 40 │  22 │  12870 │
-# ╰────┴─────┴────────╯
+'
+ ╭────┬─────┬────────╮
+ │ Id │ Age │ Salary │
+ ├────┼─────┼────────┤
+ │ 10 │  32 │  35000 │
+ │ 20 │  27 │  28900 │
+ │ 30 │  24 │  25982 │
+ │ 40 │  22 │  12870 │
+ ╰────┴─────┴────────╯
+ '
 ```
 
 For cases where you want to include the original column names in the transposition, the `TransposeXT()` method extends this functionality by incorporating the column names as part of the transposed data. This ensures that the table's metadata remains intact, making it ideal for scenarios where preserving column context is crucial for reporting or further processing. The `TransposeBack()` method allows you to revert to the original table structure, providing flexibility to experiment with different data orientations without losing the initial configuration.
@@ -921,14 +935,15 @@ o1 = new stzTable([
 
 o1.Show()
 #-->
-# ╭────┬──────────┬────────┬──────╮
-# │ Id │ Employee │ Salary │ Job  │
-# ├────┼──────────┼────────┼──────┤
-# │ 10 │ Ali      │  35000 │ job1 │
-# │ 20 │ Dan      │  28900 │ job2 │
-# │ 30 │ Ben      │  25982 │ job3 │
-# ╰────┴──────────┴────────┴──────╯
-
+'
+ ╭────┬──────────┬────────┬──────╮
+ │ Id │ Employee │ Salary │ Job  │
+ ├────┼──────────┼────────┼──────┤
+ │ 10 │ Ali      │  35000 │ job1 │
+ │ 20 │ Dan      │  28900 │ job2 │
+ │ 30 │ Ben      │  25982 │ job3 │
+ ╰────┴──────────┴────────┴──────╯
+'
 # Getting the content of the subtable
 
 ? @@NL( o1.SubTable([ :EMPLOYEE, :SALARY ]) ) + NL
@@ -941,13 +956,15 @@ o1.Show()
 
 o1.SubTableQRT([ :EMPLOYEE, :SALARY ], :stzTable).Show()
 #-->
-# ╭──────────┬────────╮
-# │ Employee │ Salary │
-# ├──────────┼────────┤
-# │ Ali      │  35000 │
-# │ Dan      │  28900 │
-# │ Ben      │  25982 │
-# ╰────────┴────────╯
+'
+ ╭──────────┬────────╮
+ │ Employee │ Salary │
+ ├──────────┼────────┤
+ │ Ali      │  35000 │
+ │ Dan      │  28900 │
+ │ Ben      │  25982 │
+ ╰────────┴────────╯
+ '
 ```
 
 This capability is invaluable for isolating specific subsets of your data, returning them as `stzTable` objects ready for further analysis or presentation.
@@ -993,30 +1010,33 @@ o1 = new stzTable([
 o1.AddCalculatedCol(:PERCAPITA, '@(:INCOME) / @(:POPULATION)')
 o1.Show()
 #-->
-# ╭─────────┬────────┬────────────┬───────────╮
-# │ Country │ Income │ Population │ Percapita │
-# ├─────────┼────────┼────────────┼───────────┤
-# │ USA     │  25450 │     340.10 │     74.83 │
-# │ China   │  18150 │    1430.10 │     12.69 │
-# │ Japan   │   5310 │     123.20 │     43.10 │
-# │ Germany │   4490 │      83.30 │     53.90 │
-# │ India   │   3370 │    1430.20 │      2.36 │
-# ╰─────────┴────────┴────────────┴───────────╯
-
+'
+ ╭─────────┬────────┬────────────┬───────────╮
+ │ Country │ Income │ Population │ Percapita │
+ ├─────────┼────────┼────────────┼───────────┤
+ │ USA     │  25450 │     340.10 │     74.83 │
+ │ China   │  18150 │    1430.10 │     12.69 │
+ │ Japan   │   5310 │     123.20 │     43.10 │
+ │ Germany │   4490 │      83.30 │     53.90 │
+ │ India   │   3370 │    1430.20 │      2.36 │
+ ╰─────────┴────────┴────────────┴───────────╯
+'
 # Inserting a calculated column at position 2 (using the `stzCountry` class and its `CurrencyAbbreviation()` method)
 
 o1.InsertCalculatedCol(2, :CURRENCY, 'StzCountryQ(@(:COUNTRY)).CurrencyAbbreviation()')
 ? o1.Show()
 #-->
-# ╭─────────┬──────────┬────────┬────────────┬───────────╮
-# │ Country │ Currency │ Income │ Population │ Percapita │
-# ├─────────┼──────────┼────────┼────────────┼───────────┤
-# │ USA     │ USD      │  25450 │     340.10 │     74.83 │
-# │ China   │ CNY      │  18150 │    1430.10 │     12.69 │
-# │ Japan   │ JPY      │   5310 │     123.20 │     43.10 │
-# │ Germany │ EUR      │   4490 │      83.30 │     53.90 │
-# │ India   │ INR      │   3370 │    1430.20 │      2.36 │
-# ╰─────────┴──────────┴────────┴────────────┴───────────╯
+'
+ ╭─────────┬──────────┬────────┬────────────┬───────────╮
+ │ Country │ Currency │ Income │ Population │ Percapita │
+ ├─────────┼──────────┼────────┼────────────┼───────────┤
+ │ USA     │ USD      │  25450 │     340.10 │     74.83 │
+ │ China   │ CNY      │  18150 │    1430.10 │     12.69 │
+ │ Japan   │ JPY      │   5310 │     123.20 │     43.10 │
+ │ Germany │ EUR      │   4490 │      83.30 │     53.90 │
+ │ India   │ INR      │   3370 │    1430.20 │      2.36 │
+ ╰─────────┴──────────┴────────┴────────────┴───────────╯
+ '
 ```
 
 After adding calculated columns you can find them easily:
@@ -1047,17 +1067,18 @@ o1.AddCalculatedRow([
 
 ? o1.Show()
 #-->
-# ╭─────────┬──────────┬────────┬────────────┬───────────╮
-# │ Country │ Currency │ Income │ Population │ Percapita │
-# ├─────────┼──────────┼────────┼────────────┼───────────┤
-# │ USA     │ USD      │  25450 │     340.10 │     74.83 │
-# │ China   │ CNY      │  18150 │    1430.10 │     12.69 │
-# │ Japan   │ JPY      │   5310 │     123.20 │     43.10 │
-# │ Germany │ EUR      │   4490 │      83.30 │     53.90 │
-# │ India   │ INR      │   3370 │    1430.20 │      2.36 │
-# │         │          │  56770 │    3406.90 │     37.38 │ ~> Here is the row we added
-# ╰─────────┴──────────┴────────┴────────────┴───────────╯
-
+'
+ ╭─────────┬──────────┬────────┬────────────┬───────────╮
+ │ Country │ Currency │ Income │ Population │ Percapita │
+ ├─────────┼──────────┼────────┼────────────┼───────────┤
+ │ USA     │ USD      │  25450 │     340.10 │     74.83 │
+ │ China   │ CNY      │  18150 │    1430.10 │     12.69 │
+ │ Japan   │ JPY      │   5310 │     123.20 │     43.10 │
+ │ Germany │ EUR      │   4490 │      83.30 │     53.90 │
+ │ India   │ INR      │   3370 │    1430.20 │      2.36 │
+ │         │          │  56770 │    3406.90 │     37.38 │ ~> Here is the row we added
+ ╰─────────┴──────────┴────────┴────────────┴───────────╯
+'
 ? @@( o1.FindCalculatedRows() ) + NL
 #--> [ 6 ]
 
@@ -1132,24 +1153,27 @@ o1.SortOnBy(:NAME, 'len(@cell)')
 
 o1.Show()
 #-->
-# ╭────┬────────────┬─────╮
-# │ Id │    Name    │ Age │
-# ├────┼────────────┼─────┤
-# │ 20 │ Hatem      │  46 │
-# │ 30 │ Abraham    │  48 │
-# │ 10 │ Abdelkarim │  52 │
-# ╰────┴────────────┴─────╯
-
+'
+ ╭────┬────────────┬─────╮
+ │ Id │    Name    │ Age │
+ ├────┼────────────┼─────┤
+ │ 20 │ Hatem      │  46 │
+ │ 30 │ Abraham    │  48 │
+ │ 10 │ Abdelkarim │  52 │
+ ╰────┴────────────┴─────╯
+'
 o1.SortOnByDown(:NAME, 'len(@cell)')
 o1.Show()
 #-->
-# ╭────┬────────────┬─────╮
-# │ Id │    Name    │ Age │
-# ├────┼────────────┼─────┤
-# │ 10 │ Abdelkarim │  52 │
-# │ 30 │ Abraham    │  48 │
-# │ 20 │ Hatem      │  46 │
-# ╰────┴────────────┴─────╯
+'
+ ╭────┬────────────┬─────╮
+ │ Id │    Name    │ Age │
+ ├────┼────────────┼─────┤
+ │ 10 │ Abdelkarim │  52 │
+ │ 30 │ Abraham    │  48 │
+ │ 20 │ Hatem      │  46 │
+ ╰────┴────────────┴─────╯
+ '
 ```
 
 ## Grouping and Aggregating Data
