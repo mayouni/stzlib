@@ -418,82 +418,94 @@ func NextReading()
 
 # Executed in 3.42 second(s) in Ring 1.23
 
-/*--- Debounced Attributes
-
+/*--- Reactive Search with Attribute Settling
+    Demonstrates how WaitForAttributeToSettle() provides natural debouncing
+    without confusing electronics metaphors
+*/
 pr()
 	
-	# Create reactive system
+	# Create the reactive container system
 	Rs = new stzReactiveSystem()
 	
-	# Create reactive object
+	# Create a reactive object to track search state
 	oXSearch = Rs.ReactiveObject()
-	oXSearch.SetAttribute(:@Query, "")
+	oXSearch.SetAttribute(:@Query, "")  # Initialize search query attribute
 	
-	# Watch immediate changes
+	# Watch for immediate feedback on every keystroke
+	# This fires instantly on each attribute change
 	oXSearch.Watch(:@Query, func(attr, oldval, newval) {
 		? "🔍 Search query changed: " + @@(newval)
 	})
 	
-	# Set up debounced handler (waits 800ms before firing)
-	oXSearch.DebounceAttribute(:@Query, 800, func(attr, oldval, newval) {
-		? "🎯 Debounced search executed for: (" + newval + ")"
-		? "    (This simulates an API call)"
+	# Wait for the query to "settle" (stop changing) before executing search
+	# This replaces traditional "debounce" with clearer semantics
+	# 800ms = settling period (time to wait after last change)
+	oXSearch.WaitForAttributeToSettle(:@Query, 800, func(attr, oldval, newval) {
+		? "🎯 Query settled at: (" + newval + ") - Executing search API call"
+		? "    (This simulates expensive operations like network requests)"
 	})
 	
-	# Simulate rapid typing
+	# Simulate realistic rapid typing behavior
 	queries = ["h", "he", "hel", "hell", "hello", "hello w", "hello wo", "hello wor", "hello world"]
 	currentQuery = 1
 	
-	Rs.SetTimeout(100, func {
-		? "Simulating rapid typing (debounced search will fire only after typing stops):"
+	# Start the typing simulation after a brief delay
+	Rs.RunAfter(100, func {
+		? "Simulating rapid typing - search will execute only after typing settles:"
+		? ""
 		TypeNext()
 	})
 	
+	# Activate the reactive system
 	Rs.Start()
-	? NL + "✔ Sample completed."
+	? NL + "✔ Reactive search demo completed."
 
 pf()
 
 func TypeNext()
+	# Continue typing simulation until all queries are processed
 	if currentQuery <= len(queries)
 		query = queries[currentQuery]
-		? "⌨️ Typing: " + @@(query)
+		? "⌨️ User types: " + @@(query)
+		
+		# This triggers both immediate Watch() and starts settling timer
 		oXSearch.SetAttribute(:@Query, query)
 		currentQuery++
 		
 		if currentQuery <= len(queries)
-			# Fast typing simulation
-			Rs.SetTimeout(150, func { TypeNext() })
+			# Simulate fast typing (150ms between keystrokes)
+			Rs.RunAfter(150, func { TypeNext() })
 		else
-			# Wait for debounce to finish, then stop
-			Rs.SetTimeout(1500, func { Rs.Stop() })
+			# Allow enough time for final settling (800ms + buffer)
+			Rs.RunAfter(1500, func { Rs.Stop() })
 		ok
 	ok
 
-#-->
-# Simulating rapid typing (debounced search will fire only after typing stops):
-# ⌨️ Typing: 'h'
+#--> Expected Output:
+# Simulating rapid typing - search will execute only after typing settles:
+# 
+# ⌨️ User types: 'h'
 # 🔍 Search query changed: 'h'
-# ⌨️ Typing: 'he'
+# ⌨️ User types: 'he'
 # 🔍 Search query changed: 'he'
-# ⌨️ Typing: 'hel'
+# ⌨️ User types: 'hel'
 # 🔍 Search query changed: 'hel'
-# ⌨️ Typing: 'hell'
+# ⌨️ User types: 'hell'
 # 🔍 Search query changed: 'hell'
-# ⌨️ Typing: 'hello'
+# ⌨️ User types: 'hello'
 # 🔍 Search query changed: 'hello'
-# ⌨️ Typing: 'hello w'
+# ⌨️ User types: 'hello w'
 # 🔍 Search query changed: 'hello w'
-# ⌨️ Typing: 'hello wo'
+# ⌨️ User types: 'hello wo'
 # 🔍 Search query changed: 'hello wo'
-# ⌨️ Typing: 'hello wor'
+# ⌨️ User types: 'hello wor'
 # 🔍 Search query changed: 'hello wor'
-# ⌨️ Typing: 'hello world'
+# ⌨️ User types: 'hello world'
 # 🔍 Search query changed: 'hello world'
-
-# ✔ Sample completed.
-
-# Executed in 5.25 second(s) in Ring 1.23
+# 🎯 Query settled at: (hello world) - Executing search API call
+#     (This simulates expensive operations like network requests)
+# 
+# ✔ Reactive search demo completed.
 
 #===========================================================#
 #  EXAMPLES OF REACTIVE OBJECTS BASEDD ON EXISTING CLASSES  #
