@@ -88,7 +88,7 @@ OnOverflow(func() { ? "Processing backlog - consider scaling" })
 ## The Conceptual Architecture: Container → Stream → Rfunction
 
 Traditional reactive documentation never shows you the complete mental model. Here's what Reaxis makes explicit:
-
+[ 100, 80, 90, ]
 ```
        ╭─────────────────────── REACTIVE SYSTEM CONTAINER ─────────────────────────╮
        │                                                                                 │
@@ -98,18 +98,18 @@ Traditional reactive documentation never shows you the complete mental model. He
        │                                                                                  │
        │  ┌─ STREAM: "price-processor" ───────────────────────────────────────────┐  │
        │  │                                                                           │  │
-       │  │  ┌─ RECEIVE ─┐   ┌─ BUFFER ─────┐   ┌─ QUEUE ┐   ┌─ RFUNCTION CHAIN ─┐  │  │
-       │  │  │           │   │ Cap: 1000     │   │ [100]  │   │ Transform()       │  │  │
- Data ----│--> [100,80,  │-->│ Use: 847      │-->│ [80]   │-->│ ↓ (*1.20)         │---> DB
-       │  │  │ 90,95,    │   │               │   │ [90]   │   │ Filter()          │  │   │
-       │  │  │ 120,75]   │   │ Overflow:     │   │ [95]   │   │ ↓ (≥120)          │  │   │
-       │  │  │           │   │ •EXPAND       │   │ [120]  │   │ OnPassed()        │  │   │
-       │  │  │           │   │ •REJECT       │   │ [75]   │   │ ↓ (Save&Notify)   │  │   │
-       │  │  │           │   │ •EVICT        │   │   ↑    │   │                   │  │   │
-       │  │  │           │   │ •BLOCK        │   │   │    │   │ OnNoMore()        │  │   │
-       │  │  └──────────┘   │               │   │   │    │   │ OnError()         │  │   │
-       │  │                  │ OnOverflow()  │   │   │    │   │ (localized)       │  │   │
-       │  │                  └─────────────┘    └───┼───┘   └─────────────────┘  │   │
+       │  │  ┌─ RECEIVE ─┐   ┌─ BUFFER ───────┐   ┌─ QUEUE ─┐   ┌─ RFUNCTION CHAIN ─┐  │  │
+       │  │  │           │   │ Cap: 1000 items │   │ 1. 100  │   │ Transform()       │  │  │
+ Data ----│--> [100,80,  │-->│ Use: 847        │-->│ 2. 80   │-->│ ↓ (*1.20)         │---> DB
+       │  │  │ 90,95,    │   │                 │   │ 3. 90   │   │ Filter()          │  │   │
+       │  │  │ 120,75]   │   │ Overflow:       │   │ 4. 95   │   │ ↓ (≥120)          │  │   │
+       │  │  │           │   │ •EXPAND         │   │ 5. 120  │   │ OnPassed()        │  │   │
+       │  │  │           │   │ •REJECT         │   │ 6. 75   │   │ ↓ (Save&Notify)   │  │   │
+       │  │  │           │   │ •EVICT          │   │   ↑     │   │                   │  │   │
+       │  │  │           │   │ •BLOCK          │   │   │     │   │ OnNoMore()        │  │   │
+       │  │  └──────────┘   │                 │   │   │     │   │ OnError()         │  │   │
+       │  │                  │ OnOverflow()    │   │   │     │   │ (localized)       │  │   │
+       │  │                  └───────────────┘    └───┼────┘   └─────────────────┘  │   │
        │  └───────────────────────────────────────┼───────────────────────────┘    │
        │                                              │                                   │
        │  ┌─ LIBUV EVENT LOOP ───────────────────────────────────────────────────┐   │
@@ -176,7 +176,7 @@ The **Buffer** exists because data rarely arrives at the perfect processing rate
 oSensorStream = CreateStream("temperature-readings")
 oSensorStream {
     # Buffer configuration - handles traffic spikes
-    SetBufferSize(2000)
+    SetBufferSize(2000) # in number of items
     SetOverflowStrategy(BUFFER_EXPAND)
     
     # Queue configuration - handles processing flow  
@@ -735,14 +735,12 @@ Rate limiting happens naturally through the timing of `Receive()` calls. No comp
 Traditional timing functions suffer from the same metaphorical confusion that plagues reactive programming. `SetInterval` and `SetTimeout` force programmers to decode ambiguous terminology when the operations are conceptually simple.
 
 Consider the cognitive load of this traditional approach:
-
 ```ring
 # What does this actually do? When does it start? How often does it repeat?
 Rs.SetInterval(5000, func() {
     reading = ReadTemperatureSensor()
     oTemperatureMonitor.Receive(reading)
 })
-
 # Is this a one-time delay? A maximum wait time? Initial startup delay?
 Rs.SetTimeout(3000, func() {
     InitializeSystem()
@@ -752,22 +750,40 @@ Rs.SetTimeout(3000, func() {
 **The Reaxis Solution: Natural Timing Language**
 
 Reaxis eliminates timing ambiguity with immediately comprehensible functions:
-
 ```ring
 # Crystal clear: wait 5 seconds, then execute, then wait 5 seconds, repeat
 Rs.RunEvery(5, :Seconds, func() {
     reading = ReadTemperatureSensor()
     oTemperatureMonitor.Receive(reading)
 })
-
 # Unambiguous: wait 3000 milliseconds, then execute once
 Rs.RunAfter(3000, :Milliseconds, func() {
     InitializeSystem()
 })
 ```
 
-This natural timing language integrates seamlessly with stream processing:
+**Natural Timer Control: StopTimer() vs ClearInterval()**
 
+Traditional reactive frameworks inherit browser terminology that creates semantic inconsistency:
+```ring
+# Browser-inherited confusion
+intervalId = Rs.SetInterval(1000, callback)
+Rs.ClearInterval(intervalId)  # "Clear" suggests erasing content, not stopping execution
+```
+
+Reaxis uses natural action verbs that match the timing operations:
+```ring
+# Natural, consistent semantics
+timerId = Rs.RunEvery(1, :Seconds, callback)
+Rs.StopTimer(timerId)  # Clear action: "stop the timer"
+
+# Batch operations for system management
+Rs.StopAllTimers()  # Emergency shutdown of all timing operations
+```
+
+**Integrated Stream Processing with Natural Timing**
+
+This natural timing language integrates seamlessly with stream processing:
 ```ring
 Rs = new stzReactiveSystem()
 Rs {
@@ -789,9 +805,17 @@ Rs {
     }
     
     # Natural timing eliminates mental translation
-    Rs.RunEvery(10, :Seconds, func() {
+    sensorTimer = Rs.RunEvery(10, :Seconds, func() {
         currentReading = ReadSensor()
         oSensorMonitor.Receive(currentReading)
+    })
+    
+    # Conditional timer control with natural semantics
+    Rs.RunAfter(60, :Seconds, func() {
+        if SystemOverloaded()
+            Rs.StopTimer(sensorTimer)  # Natural: stop the specific timer
+            ? "Sensor monitoring paused due to system load"
+        ok
     })
     
     # Delayed initialization with clear semantics
@@ -803,6 +827,15 @@ Rs {
     RunLoop()
 }
 ```
+
+**Semantic Consistency Table**
+
+| Operation | Traditional | Reaxis Natural | Semantic Benefit |
+|-----------|-------------|----------------|------------------|
+| Start repeating | `SetInterval()` | `RunEvery()` | Action verb describes behavior |
+| Start delayed | `SetTimeout()` | `RunAfter()` | Clear temporal relationship |
+| Stop specific | `ClearInterval()` | `StopTimer()` | Direct action, no ambiguity |
+| Stop all | Multiple clears | `StopAllTimers()` | Batch operation clarity |
 
 The timing functions follow the same semantic engineering principles as the reactive system: use natural language that describes what actually happens rather than importing metaphors from other domains.
 
