@@ -381,6 +381,9 @@ class stzReactiveSystem
 			timer.Stop()
 		ok
 
+	def StopAllTimers()
+	   timerManager.StopAllTimers()
+
 	#--------------------------#
 	#  REACTIVE HTTP REQUESTS  #
 	#--------------------------#

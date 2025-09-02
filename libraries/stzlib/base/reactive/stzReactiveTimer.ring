@@ -223,3 +223,12 @@ class stzTimerManager
 		for timer in timers
 			timer.Stop()
 		next
+
+	def StopAllTimers()
+	    # Stop all timers and clear the list
+	    nLen = len(timers)
+	    for i = 1 to nLen
+	        timers[i].Stop()
+	    next
+	    timers = []
+	    isRunning = false
