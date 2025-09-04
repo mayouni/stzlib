@@ -176,12 +176,12 @@ class stzReactiveObject from stzReactive
 
 	# Create computed Attribute that auto-updates
 	def Computed(cAttribute, fnComputer, aDependencies)
-		cAttribute = lower(cAttribute)
-		aComputedAttributes + [cAttribute, fnComputer, aDependencies]
-		
-		# Initial computation
-		ComputeAttribute(cAttribute)
-		return self
+	    cAttribute = lower(cAttribute)
+	    aComputedAttributes + [cAttribute, fnComputer, aDependencies]
+	    
+	    # Initial computation
+	    ComputeAttribute(cAttribute)
+	    return self
 
 	# Bind Attribute to another reactive object
 	def BindTo(oTargetObject, cSourceAttribute, cTargetAttribute)
@@ -252,7 +252,7 @@ class stzReactiveObject from stzReactive
 		cAttribute = lower(cAttribute)
 		
 		streamId = lower(classname(self)) + "_" + cAttribute + "_" + random(999999)
-		stream = this.engine.CreateStream(streamId, "manual")
+		stream = this.engine.CreateStream(streamId)
 		
 		Watch(cAttribute, func(attr, oldVal, newVal) {
 			aData = []
@@ -378,23 +378,25 @@ class stzReactiveObject from stzReactive
 		
 		aPendingChanges = []
 
-	def TriggerAttributeWatchers(cAttribute, oldValue, newValue)
-		cAttribute = lower(cAttribute)
-		nLenAttr = len(aAttributeWatchers)
 
-		for i = 1 to nLenAttr
-			if aAttributeWatchers[i][1] = cAttribute
-				try
-					f = aAttributeWatchers[i][2]
-					call f(cAttribute, oldValue, newValue)
-				catch
-					# Handle watcher error based on error handling mode
-					if DEFAULT_ERROR_HANDLING = ERROR_LOG
-						# Log the error
-					ok
-				done
-			ok
-		next
+	def TriggerAttributeWatchers(cAttribute, oldValue, newValue)
+	    cAttribute = lower(cAttribute)
+	    nLenAttr = len(aAttributeWatchers)
+	
+	    for i = 1 to nLenAttr
+	        if aAttributeWatchers[i][1] = cAttribute
+	            try
+	                f = aAttributeWatchers[i][2]
+	                call f(this, cAttribute, oldValue, newValue)  # Pass 'this' as first parameter
+	            catch
+	                # Handle watcher error based on error handling mode
+	                if DEFAULT_ERROR_HANDLING = ERROR_LOG
+	                    # Log the error
+	                ok
+	            done
+	        ok
+	    next
+
 
 	def UpdateDependentComputedAttributes(cChangedAttribute)
 		cChangedAttribute = lower(cChangedAttribute)
@@ -433,36 +435,35 @@ class stzReactiveObject from stzReactive
 			ok
 		next
 
+
 	def ComputeAttribute(cAttribute)
-
-		cAttribute = lower(cAttribute)
-		nLenAttr = len(aComputedAttributes)
-
-		for i = 1 to nLenAttr
-			if aComputedAttributes[i][1] = cAttribute
-
-				fnComputer = aComputedAttributes[i][2]
-				try
-					cOldValue = GetAttributeValue(cAttribute)
-					newValue = call fnComputer()
-
-					# Set the computed value
-					SetAttributeValue(cAttribute, newValue)
-
-					# Trigger watchers for computed attributes
-					TriggerAttributeWatchers(cAttribute, cOldValue, newValue)
-
-					# Process the Attribute change to trigger bindings
-					if bReactiveMode = REACTIVE_ON and newValue != cOldValue
-						ProcessAttributeChange(cAttribute, cOldValue, newValue)
-					ok
-
-				catch
-					# Handle computation error based on error handling mode
-					if DEFAULT_ERROR_HANDLING = ERROR_LOG
-						# Log computation error
-					ok
-				done
-				exit
-			ok
-		next
+	    cAttribute = lower(cAttribute)
+	    nLenAttr = len(aComputedAttributes)
+	
+	    for i = 1 to nLenAttr
+	        if aComputedAttributes[i][1] = cAttribute
+	            fnComputer = aComputedAttributes[i][2]
+	            try
+	                cOldValue = GetAttributeValue(cAttribute)
+	                newValue = call fnComputer(this)  # Pass 'this' as parameter
+	
+	                # Set the computed value directly without triggering change processing
+	                SetAttributeInStorage(cAttribute, newValue)
+	                UpdateAttributeCache(cAttribute, newValue)
+	                
+	                # Set as object attribute for compatibility
+	                AddAttribute(this, cAttribute)
+	                eval("this." + cAttribute + " = newValue")
+	
+	                # Only trigger watchers for computed attributes (no duplicate processing)
+	                TriggerAttributeWatchers(cAttribute, cOldValue, newValue)
+	
+	            catch
+	                # Handle computation error based on error handling mode
+	                if DEFAULT_ERROR_HANDLING = ERROR_LOG
+	                    # Log computation error
+	                ok
+	            done
+	            exit
+	        ok
+	    next

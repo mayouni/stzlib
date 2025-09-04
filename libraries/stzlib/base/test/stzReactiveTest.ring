@@ -364,7 +364,7 @@ Rs {
         Rs.oDataStream.Recieve("Data point #" + nCounter)
         
         if nCounter >= 5
-            Rs.ClearInterval(oIntervalTimer) #TODO //Review name
+            Rs.StopTimer(oIntervalTimer) #TODO //Review name
             Rs.oDataStream.Conclude()
         ok
     }, 300)

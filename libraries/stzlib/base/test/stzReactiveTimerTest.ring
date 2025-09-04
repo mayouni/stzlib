@@ -22,7 +22,7 @@ load "../stzbase.ring"
 2. **RunEvery**: Repeated execution at intervals  
    - RunEvery(function_name, milliseconds)
    - Perfect for periodic tasks
-   - Always remember to ClearInterval() to stop it!
+   - Always remember to StopTimer() to stop it!
 
 3. **Scope Management**: Variables must be accessible to callbacks
    - Use global-level variables, or
@@ -38,7 +38,7 @@ load "../stzbase.ring"
    - Creates real-time data processing pipelines
 
 6. **Always Clean Up**: Prevent infinite loops
-   - ClearInterval() to stop repeating timers
+   - StopTimer() to stop repeating timers
    - reactive.Stop() to shut down the engine
    - Proper cleanup prevents resource leaks
 
@@ -120,7 +120,7 @@ func fCallback()
     # Stop after 3 ticks
     if nCounter >= 3
         ? "Stopping timer after 3 ticks..."
-        Rs.ClearInterval(cIntervalID)
+        Rs.StopTimer(cIntervalID)
         Rs.Stop()
     ok
 
@@ -178,8 +178,8 @@ func fSlowTick()
     
 func fStopAllTimers()
     ? "⏹️  Stopping all timers..."
-    Rs.ClearInterval(cFastId)
-    Rs.ClearInterval(cSowId)
+    Rs.StopTimer(cFastId)
+    Rs.StopTimer(cSowId)
     Rs.Stop()  # This should now properly exit
 
 #--> Output:
@@ -249,7 +249,7 @@ func fGenerateData()
 
 func fStopDataGeneration()
     ? "🛑 Stopping data generation..."
-    Rs.ClearInterval(cItervalId)
+    Rs.StopTimer(cItervalId)
     Rs.oDataStream.Complete()  # Properly end the stream
     Rs.Stop()
 
@@ -307,7 +307,7 @@ func UpdateProgress()
     ok
 
 func CompleteDownload()
-    ds.oReactive.ClearInterval(ds.cProgressId)
+    ds.oReactive.StopTimer(ds.cProgressId)
 
     ? NL + "✔ Download completed successfully!"
     ? "File " + ds.cFileName + " is ready to use."
