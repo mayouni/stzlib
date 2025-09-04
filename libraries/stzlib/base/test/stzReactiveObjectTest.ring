@@ -19,12 +19,12 @@ pr()
 	oXUser.SetAttribute(:@Age, 0)
 
 	# Watch name changes
-	oXUser.Watch(:@Name, func(attr, oldval, newval) {
+	oXUser.Watch(:@Name, func(oSelf, attr, oldval, newval) {
 		? "╰─> Name changed from (" + @@(oldval) + ") to (" + @@(newval) + ")"
 	})
 
 	# Watch age changes
-	oXUser.Watch(:@Age, func(attr, oldval, newval) {
+	oXUser.Watch(:@Age, func(oSelf, attr, oldval, newval) {
 		? "╰─> Age changed from " + @@(oldval) + " to " + @@(newval)
 	})
 
@@ -64,8 +64,8 @@ pr()
 pf()
 # Executed in 1.98 second(s) in Ring 1.23
 
-/*--- Computed Attributes #TODO Check output
-*/
+/*--- Computed Attributes
+
 pr()
 	
 	# Create a reactive system
@@ -199,12 +199,12 @@ pr()
 
 	# Watch target objects to see binding updates
 
-	oXDisplay1.Watch(:@Temp, func(attr, oldval, newval) {
+	oXDisplay1.Watch(:@Temp, func(oSelf, attr, oldval, newval) {
 		cDisplayName = oXDisplay1.GetAttribute(:@DisplayName)
 		? cDisplayName + " received temperature: " + newval + "°C"
 	})
 	
-	oXDisplay2.Watch(:@Temp, func(attr, oldval, newval) {
+	oXDisplay2.Watch(:@Temp, func(oSelf, attr, oldval, newval) {
 		cDisplayName = oXDisplay2.GetAttribute(:@DisplayName)
 		? cDisplayName + " received temperature: " + newval + "°C"
 	})
@@ -258,20 +258,20 @@ pr()
 	
 	# Watch all attributes to see update order
 
-	oXProduct.Watch(:@Name, func(attr, oldvalval, newval) {
-		? "  Name updated: " + newval
+	oXProduct.Watch(:@Name, func(oSelf, attr, oldval, newval) {
+	    ? "  Name updated: " + newval
 	})
 	
-	oXProduct.Watch(:@Price, func(attr, oldvalval, newval) {
-		? "  Price updated: $" + string(newval)
+	oXProduct.Watch(:@Price, func(oSelf, attr, oldval, newval) {
+	    ? "  Price updated: $" + string(newval)
 	})
 	
-	oXProduct.Watch(:@Category, func(attr, oldvalval, newval) {
-		? "  Category updated: " + newval
+	oXProduct.Watch(:@Category, func(oSelf, attr, oldval, newval) {
+	    ? "  Category updated: " + newval
 	})
 	
-	oXProduct.Watch(:@InStock, func(attr, oldvalval, newval) {
-		? "  Stock status: " + string(newval)
+	oXProduct.Watch(:@InStock, func(oSelf, attr, oldval, newval) {
+	    ? "  Stock status: " + string(newval)
 	})
 	
 	# The three attributes are now under the magic eyies of
@@ -329,7 +329,7 @@ pf()
 # Executed in 2.32 second(s) in Ring 1.23
 
 /*--- Attribute Streams
-*/
+
 pr()
 	
 	# Create reactive system
@@ -433,7 +433,7 @@ pr()
 	
 	# Watch for immediate feedback on every keystroke
 	# This fires instantly on each attribute change
-	oXSearch.Watch(:@Query, func(attr, oldval, newval) {
+	oXSearch.Watch(:@Query, func(oSelf, attr, oldval, newval) {
 		? "🔍 Search query changed: " + @@(newval)
 	})
 	
@@ -526,15 +526,15 @@ oXPerson = Rs.Reactivate(oPerson)
 oXPerson {
 
 	# Add watchers
-	Watch(:name, func(attr, oldval, newval) {
+	Watch(:name, func(oSelf, attr, oldval, newval) {
 		? CheckMark() + " Name changed: " + oldval + " → " + newval
 	})
 
-	Watch(:age, func(attr, oldval, newval) {
+	Watch(:age, func(oSelf, attr, oldval, newval) {
 		? CheckMark() + " Age chnaged: " + oldval + " → " + newval
 	})
 
-	Watch(:email, func(attr, oldval, newval) {
+	Watch(:email, func(oSelf, attr, oldval, newval) {
 		? CheckMark() + " Email set: " + newval
 	})
 
@@ -591,15 +591,15 @@ pr()
 	# Defining the attributes we want to watch and what
 	# would happen when they are changed
 
-	oXPerson.Watch(:name, func(attr, oldval, newval) {
+	oXPerson.Watch(:name, func(oSelf, attr, oldval, newval) {
 		? "✓ Name updated: " + oldval + " → " + newval
 	})
 
-	oXPerson.Watch(:age, func(attr, oldval, newval) {
+	oXPerson.Watch(:age, func(oSelf, attr, oldval, newval) {
 		? "✓ Age updated: " + oldval + " → " + newval
 	})
 
-	oXPerson.Watch(:email, func(attr, oldval, newval) {
+	oXPerson.Watch(:email, func(oSelf, attr, oldval, newval) {
 		? "✓ Email set: " + newval
 	})
 
@@ -665,7 +665,7 @@ pr()
 	oXAccount = Rs.Reactivate(new BankAccount("ACC-001", 1000))
 
 	# Watch balance changes with business logic
-	oXAccount.Watch(:balance, func(attr, oldval, newval) {
+	oXAccount.Watch(:balance, func(oSelf, attr, oldval, newval) {
 		? "💰 Balance: $" + oldval + " → $" + newval
 		
 		if newval < 100
@@ -680,7 +680,7 @@ pr()
 	})
 
 	# Watch status changes
-	oXAccount.Watch(:status, func(attr, oldval, newval) {
+	oXAccount.Watch(:status, func(oSelf, attr, oldval, newval) {
 		? "🔄 Account status: " + oldval + " → " + newval
 	})
 
