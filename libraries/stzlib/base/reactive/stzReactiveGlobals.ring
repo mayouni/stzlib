@@ -56,7 +56,7 @@ CLOCKS_TO_MS_MULTIPLIER = MS_PER_SECOND
 #-------------------#
 
 # Stream Source Types (unified naming)
-STREAM_MANUAL = "manual"
+STREAM_MANUAL = "manual" 
 STREAM_AUTO = "auto"
 STREAM_EVENT = "event"
 STREAM_TIMER = "timer"

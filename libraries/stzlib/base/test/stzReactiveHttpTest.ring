@@ -55,7 +55,7 @@ Rs {
 pf()
 # Executed in 1.07 seconds depending on network
 
-/*--- Understanding HttpPost - Sending data to server #TODO
+/*--- Understanding HttpPost - Sending data to server
 
 # HttpPost sends data to a server and receives a response
 # Like filling out a form and submitting it online
@@ -107,7 +107,7 @@ Rs {
 # }
 
 pf()
-# Executed in 1.44 second(s) in Ring 1.23
+# Executed in 0.60 second(s) in Ring 1.23
 
 /*--- Creating a stream of HTTP responses
 
@@ -129,7 +129,7 @@ cRequestId = ""
 Rs = new stzReactiveSystem()
 Rs {
    # Create stream as property of Rs object
-   httpStream = CreateStream("http-responses", "manual")
+   httpStream = CreateStream("http-responses")
    
    # Subscribe to receive each HTTP response
    httpStream.Subscribe(func aData {
@@ -145,7 +145,7 @@ Rs {
    
    # Start fetching URLs one by one
    ? "Creating HTTP request stream for " + len(aApiUrls) + " URLs..."
-   cRequestId = SetInterval(:fFetchNextUrl, 1000)  # Every 1 second
+   cRequestId = RunEvery(1000, :fFetchNextUrl)  # Every 1 second
    
    Start()
 }
@@ -177,7 +177,7 @@ func fFetchNextUrl()
 
                # Check if we're done with all URLs
                if nCurrentIndex >= len(aApiUrls)
-                   Rs.ClearInterval(cRequestId)
+                   Rs.StopTimer(cRequestId)
                    httpStream.Complete()  # End the stream
                ok
            },
@@ -221,10 +221,10 @@ Rs {
     ? "Polling server every 2 seconds for updates..." + NL
     
     # Poll every 2 seconds
-    cPollId = SetInterval(2000, :fPollServer)
+    cPollId = RunEvery(2000, :fPollServer)
     
     # Stop polling after nMaxPolls attempts
-    SetTimeout((nMaxPolls * 2000) + 500, :fStopPolling)
+    RunAfter((nMaxPolls * 2000) + 500, :fStopPolling)
     
     Start()
 }
@@ -234,7 +234,7 @@ func fPollServer()
     nPollCount++
     currenttime = clock()
     
-    ? "Poll #" + nPollCount + " at " + currenttime + "..."
+    ? "🔄 Poll #" + nPollCount + " at " + currenttime + "..."
     
     # Simulate polling different endpoints or parameters
     pollUrl = "https://jsonplaceholder.typicode.com/posts/" + (nPollCount % 5 + 1)
@@ -252,9 +252,9 @@ func fPollServer()
             aDataHistory + aDataPoint
             
             if aDataPoint[:hasUpdate]
-                ? "   ~> NEW DATA detected! Size: " + aDataPoint[:dataSize] + " bytes"
+                ? " ╰─> NEW DATA detected! Size: " + aDataPoint[:dataSize] + " bytes"
             else  
-                ? "   ~> No changes (Size: " + aDataPoint[:dataSize] + " bytes)"
+                ? " ╰─> No changes (Size: " + aDataPoint[:dataSize] + " bytes)"
             ok
         },
         func cError {
@@ -264,7 +264,7 @@ func fPollServer()
 
 func fStopPolling()
     ? NL + "⏹️  Stopping polling after " + nMaxPolls + " attempts..."
-    Rs.ClearInterval(cPollId)
+    Rs.StopTimer(cPollId)
     
     # Summary of polling session
     ? "Polling Summary:"
@@ -482,7 +482,7 @@ class DataAggregator
    - Apply transformations and filters to responses
 
 4. **HTTP + Timers**: Polling patterns
-   - SetInterval() + HttpGet() for regular data updates
+   - RunEvery() + HttpGet() for regular data updates
    - Common pattern for real-time dashboards
 
 5. **Parallel HTTP Requests**: Fetch multiple sources simultaneously

@@ -2,9 +2,9 @@ load "../stzbase.ring"
 
 # Softanza Reactive Programming System - Reactive Objects Samples
 
-#=======================================================================#
-#  REACTIVE OBJECTS CREATED IN RUNTIME -- Not base on existing classes  #
-#=======================================================================#
+#========================================================================#
+#  REACTIVE OBJECTS CREATED IN RUNTIME -- Not based on existing classes  #
+#========================================================================#
 
 /*--- Basic Attribute Watching
 
@@ -20,26 +20,26 @@ pr()
 
 	# Watch name changes
 	oXUser.Watch(:@Name, func(attr, oldval, newval) {
-		? "Name changed from (" + @@(oldval) + ") to (" + @@(newval) + ")"
+		? "╰─> Name changed from (" + @@(oldval) + ") to (" + @@(newval) + ")"
 	})
 
 	# Watch age changes
 	oXUser.Watch(:@Age, func(attr, oldval, newval) {
-		? "Age changed from " + @@(oldval) + " to " + @@(newval)
+		? "╰─> Age changed from " + @@(oldval) + " to " + @@(newval)
 	})
 
 	# Test Attribute changes
-	Rs.SetTimeout(100, func {
+	Rs.RunAfter(100, func {
 		? "Setting name to 'John'..."
 		oXUser.SetAttribute(:@Name, "John")
 		? ""
 
-		Rs.SetTimeout(500, func {
+		Rs.RunAfter(500, func {
 			? "Setting age to 25..."
 			oXUser.SetAttribute(:@Age, 25)
 			? ""
 
-			Rs.SetTimeout(500, func {
+			Rs.RunAfter(500, func {
 				? "Changing name to 'John Doe'..."
 				oXUser.SetAttribute(:@Name, "John Doe")
 			})
@@ -51,21 +51,21 @@ pr()
 
 #-->
 # Setting name to 'John'...
-# Name changed from ("") to ("John")
+# ╰─> Name changed from ("") to ("John")
 #
 # Setting age to 25...
-# Age changed from 0 to 25
+# ╰─> Age changed from 0 to 25
 #
 # Changing name to 'John Doe'...
-# Name changed from ("John") to ("John Doe")
+# ╰─> Name changed from ("John") to ("John Doe")
 
 # ✔ Sample completed.
 
 pf()
 # Executed in 1.98 second(s) in Ring 1.23
 
-/*--- Computed Attributes
-
+/*--- Computed Attributes #TODO Check output
+*/
 pr()
 	
 	# Create a reactive system
@@ -126,7 +126,7 @@ pr()
 	# SetTimeout is used to givethe reactive loop time to
 	# start and perfom subsequent tasks
 
-	Rs.SetTimeout(100, func {
+	Rs.RunAfter(100, func {
 		? "Setting firstName to 'Jane'..."
 		oXUser.SetAttribute(:@FirstName, "Jane")
 		? ""
@@ -216,15 +216,15 @@ pr()
 	
 	# Test binding updates
 
-	Rs.SetTimeout(100, func {
+	Rs.RunAfter(100, func {
 		? "Setting source temperature to 25°C..."
 		oXSource.SetAttribute(:@Temperature, 25)
 		
-		Rs.SetTimeout(500, func {
+		Rs.RunAfter(500, func {
 			? "Setting source temperature to 30°C..."
 			oXSource.SetAttribute(:@Temperature, 30)
 			
-			Rs.SetTimeout(500, func {
+			Rs.RunAfter(500, func {
 				? "Setting source temperature to 35°C..."
 				oXSource.SetAttribute(:@Temperature, 35)
 			})
@@ -280,7 +280,7 @@ pr()
 	# Let's change them and check how the change is captured,
 	# both when the changes are made indivisually or in bacth!
 
-	Rs.SetTimeout(100, func {
+	Rs.RunAfter(100, func {
 		? "Individual updates (watch each change):"
 
 		oXProduct.SetAttribute(:@Name, "Laptop")
@@ -294,7 +294,7 @@ pr()
 
 		oXProduct.SetAttribute(:@InStock, true)
 		
-		Rs.SetTimeout(1000, func {
+		Rs.RunAfter(1000, func {
 			? ""
 			? "Batch updates (all changes processed together):"
 
@@ -329,7 +329,7 @@ pf()
 # Executed in 2.32 second(s) in Ring 1.23
 
 /*--- Attribute Streams
-
+*/
 pr()
 	
 	# Create reactive system
@@ -362,12 +362,12 @@ pr()
 			       number(substrXT([ message, substr(message, ": ") + 2 ])) > 50
 		})
 
-		OnData(func(message) {
+		OnPassed(func(message) {
 			? "🌡️ High reading alert: " + message
 		})
 
 		# Also create a simple subscriber for all changes
-		OnData(func(data) {
+		OnPassed(func(data) {
 			newValue = 0
 			for i = 1 to len(data) step 2
 				if data[i] = "newValue"
@@ -383,7 +383,7 @@ pr()
 	anReadings = [10, 25, 60, 75, 30, 85, 45, 95]
 	nCurrentReading = 1
 	
-	Rs.SetTimeout(100, func {
+	Rs.RunAfter(100, func {
 		NextReading()
 	})
 	
@@ -400,7 +400,7 @@ func NextReading()
 		nCurrentReading++
 
 		if nCurrentReading <= len(anReadings)
-			Rs.SetTimeout(300, func { NextReading() })
+			Rs.RunAfter(300, func { NextReading() })
 		ok
 	ok
 
@@ -421,7 +421,7 @@ func NextReading()
 /*--- Reactive Search with Attribute Settling
     Demonstrates how WaitForAttributeToSettle() provides natural debouncing
     without confusing electronics metaphors
-*/
+
 pr()
 	
 	# Create the reactive container system
@@ -606,7 +606,7 @@ pr()
 	# Changing the attributes and expecting the reactive system
 	# to watch the change and fire the functions we definded above
 
-	Rs.SetTimeout(100, func {
+	Rs.RunAfter(100, func {
 
 		oXPerson {
 			@(:name = "John Doe")
@@ -614,7 +614,7 @@ pr()
 			@(:email = "john@test.com")
 		}
 		
-		Rs.SetTimeout(500, func {
+		Rs.RunAfter(500, func {
 			? ""
 			? "Current person info:"
 			oXPerson {
@@ -685,16 +685,16 @@ pr()
 	})
 
 	# 
-	Rs.SetTimeout(100, func {
+	Rs.RunAfter(100, func {
 		? "Processing deposit..."
 		oXAccount.SetAttribute("balance", 1500)
 
-		Rs.SetTimeout(500, func {
+		Rs.RunAfter(500, func {
 			? ""
 			? "Processing withdrawal..."
 			oXAccount.SetAttribute("balance", 50)
 
-			Rs.SetTimeout(500, func {
+			Rs.RunAfter(500, func {
 				? ""
 				? "Freezing account..."
 				oXAccount.SetAttribute("status", "frozen")
