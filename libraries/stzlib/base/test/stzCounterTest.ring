@@ -40,7 +40,8 @@ o1 = new stzCounter([
 #--> 3
 
 pf()
-# Executed in 0.05 second(s)
+# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.05 second(s) in Ring 1.21
 
 /*------------
 */
@@ -59,4 +60,5 @@ o1 = new stzCounter([
 #--> 4
 
 pf()
-# Executed in 0.04 second(s)
+# Executed in 0.04 second(s) in Rinhg 1.23
+# Executed in 0.04 second(s) in Rinhg 1.21
