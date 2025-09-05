@@ -1,7 +1,7 @@
-load "../stzmax.ring"
+load "../stzbase.ring"
 
 /*---
-
+*/
 pr()
 
 rx = new stzRegex("@i[+-]\d+|@i")
@@ -12,7 +12,7 @@ rx = new stzRegex("@i[+-]\d+|@i")
 rx = new stzRegex("(?<=@i)([+-]\d+)")
 ? rx.Match("@i-2 @i+1 @i")
 ? @@( rx.Matches() ) + NL
-#--> [ "@i-2", "@i+1", "@i" ]
+#--> [ "-2", "+1" ]
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
