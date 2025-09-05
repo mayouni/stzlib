@@ -347,7 +347,7 @@ class stzCCode
 		# The first check we must do, is that the conditional code must
 		# contain the @i or This[@i] keywords
 
-		#NOTE # If you include sphisticaed keywords like @CurrentItem,
+		#NOTE # If you include sophisticated keywords like @CurrentItem,
 		# @NextItem and so on, they will be ignored. To instruct Softanza
 		# to understand them and apply them, you must use the ..XT()
 		# alternative of this function instead (ExecutableSectionXT())

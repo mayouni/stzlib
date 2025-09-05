@@ -1,7 +1,7 @@
 load "../stzbase.ring"
 
 /*---
-*/
+
 pr()
 
 rx = new stzRegex("@i[+-]\d+|@i")
@@ -25,6 +25,7 @@ pr()
 #--> [ "1" ]
 
 ? @@( Q("@i-2@i+1]").NumbersAfter("@i") )
+#--> [ "-2", "+1" ]
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
@@ -34,9 +35,10 @@ pf()
 pr()
 
 ? StzCCodeQ('{ This[ @i + 3 ] = This[@i + 1] }').ExecutableSection()
-#--> [ 1, -1 ]
+#--> [ 1, -3 ]
 
 pf()
+# Executed in 0.05 second(s) in Ring 1.23
 # Executed in 0.07 second(s) in Ring 1.21
 
 /*-------- #narration BETWEEN vs BOUNDEDBY
@@ -93,7 +95,7 @@ pr()
 
 o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
 ? o1.NumbersAfter("@i")
-#--> [ "-3", "+3", "10" ]
+#--> [ "-3", "+3" ]
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
@@ -101,7 +103,7 @@ pf()
 # Executed in 0.18 second(s) in Ring 1.17
 
 /*----------
-*/
+
 StartProfiler()
 
 o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
@@ -109,6 +111,7 @@ o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
 #--> [4, -3]
 
 StopProfiler()
+# Executed in 0.05 second(s) in Ring 1.23
 # Executed in 0.07 second(s) in Ring 1.22
 # Executed in 0.09 second(s) in Ring 1.21
 # Executed in 0.22 second(s) in ring 1.17
@@ -122,6 +125,7 @@ o1 = new stzString('This[@i] = This[@i + 1] + @i - 2')
 #--> [ "+1", "-2" ]
 
 StopProfiler()
+# Executed in 0.01 second(s) in Ring 1.23
 # Executed in 0.08 second(s) in Ring 1.21
 # Executed in 0.16 second(s) in ring 1.17
 
@@ -142,7 +146,8 @@ StartProfiler()
 # our conditional code above, we can get the correct executable
 # section by using the ...XT() form like this:
 
-	? o1.ExecutableSectionXT()
+
+	? o1.ExecutableSectionXT() #TODO // Check this!
 	#--> [ 1, -1 ]
 
 # We can check this visually by seeing the transpiled code
@@ -156,10 +161,11 @@ StartProfiler()
 	#--> [ 1, -1 ]
 
 StopProfiler()
+# Executed in 0.10 second(s) in Ring 1.23
 # Executed in 0.17 second(s) in ring 1.21
 # Executed in 0.43 second(s) in Ring 1.17
 
-/*----------
+/*---------- #TODO chech output!
 
 StartProfiler()
 
@@ -168,6 +174,7 @@ StartProfiler()
 	#--> [ 2, :Last ]
 
 StopProfiler()
+# Executed in 0.07 second(s) in Ring 1.23
 # Executed in 0.12 second(s) in Ring 1.21
 # Executed in 0.26 second(s) in Ring 1.17
 
@@ -180,6 +187,7 @@ StartProfiler()
 	#--> [ 5, :Last ]
 
 StopProfiler()
+# Executed in 0.06 second(s) in Ring 1.23
 # Executed in 0.09 second(s) in Ring 1.21
 # Executed in 0.14 second(s) in Ring 1.17
 
@@ -198,10 +206,10 @@ StartProfiler()
 	o1 = new stzCCode('{ @number = -@number }')
 	? o1.ExecutableSectionXT()
 	#--> [ 1, :Last ]
-	# Executed in 0.14 second(s)
+	# Executed in 0.07 second(s)
 
 StopProfiler()
-# Executed in 0.12 second(s)
+# Executed in 0.08 second(s) in Ring 1.23
 
 /*----------
 
@@ -215,11 +223,12 @@ StartProfiler()
 	#--> [ 1, :Last ]
 
 StopProfiler()
+# Executed in 0.03 second(s) in Ring 1.23
 # Executed in 0.05 second(s) in Ring 1.21
 # Executed in 0.11 second(s) in Ring 1.20
 # Executed in 0.36 second(s) in Ring 1.17
 
-/*----------
+/*---------- #TODO Check output!
 
 StartProfiler()
 
@@ -228,10 +237,11 @@ StartProfiler()
 	#--> [ 1, -1 ]
 
 StopProfiler()
+# Executed in 0.07 second(s) in Ring 1.23
 # Executed in 0.12 second(s) in Ring 1.21
 # Executed in 0.28 second(s) in Ring 1.17
 
-/*----------
+/*---------- #TODO Check output!
 */
 StartProfiler()
 
@@ -243,5 +253,6 @@ StartProfiler()
 	#--> [ 1, -1 ]
 
 StopProfiler()
+# Executed in 0.07 second(s) in Ring 1.23
 # Executed in 0.13 second(s) in Ring 1.21
 # Executed in 0.29 second(s) in Ring 1.17
