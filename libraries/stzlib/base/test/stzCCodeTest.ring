@@ -242,7 +242,7 @@ StopProfiler()
 # Executed in 0.28 second(s) in Ring 1.17
 
 /*---------- #TODO Check output!
-*/
+
 StartProfiler()
 
 	o1 = new stzCCode('{
