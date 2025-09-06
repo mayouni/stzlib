@@ -4,9 +4,9 @@ load "../stzbase.ring"
 
 pr()
 
-# Softanza knows all the 54 invisible chars available in Unicode:
+# Softanza knows all the 26 invisible chars available in Unicode:
 ? len( InvisibleUnicodes() )
-#--> 54
+#--> 26
 
 # Let's see some of them:
 ? ShowShort( InvisibleUnicodes() )
@@ -29,35 +29,58 @@ anSomeUnicodes = NRandomNumbersIn( 5, InvisibleUnicodes() )
 # ]
 
  pf()
- #--> Executed in 0.28 second(s)
+# Executed in 0.15 second(s) in Ring 1.23
+# Executed in 0.28 second(s) in Ring 1.21
 
 /*-----------
-//[ 9, 4447, 8194, 8201, 10240 ]
-/*-----------
 
-? Q( CircledDigitUnicodes() ).MergedWith( CircledLatinLetterUnicodes() )
+pr()
+
+? ShowShort(
+	Q( CircledDigitUnicodes() ).
+	MergedWith( CircledLatinLetterUnicodes() )
+)
+#--> [ 9312, 9313, 9314, "...", 9447, 9448, 9449 ]
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*------------
 
 # Do you knwo how many punctuation chars are theer in Unicode?
-? NumberOfPunctuationChars() #--> 250
+? NumberOfPunctuationChars()
+#--> 250
 
 # See them all:
-//? PunctuationChars()
+? ShowShort(PunctuationChars()) + NL
+#--> [ " ", " ", " ", "...", "⹽", "⹾", "⹿" ]
 
 # Unciode classifies them in two blocks: General and Supplemental.
 # Let's see...
 
-? NumberOfGeneralPunctuationChars() #--> 111
+? NumberOfGeneralPunctuationChars()
+#--> 111
 
 # They are liste here:
-//? GeneralPunctuationChars()
+? ShowShort(GeneralPunctuationChars()) + NL
+#--> [ " ", " ", " ", "...", "⁭", "⁮", "⁯" ]
 
-? NumberOfSupplementalPunctuationChars() #--> 138
+? NumberOfSupplementalPunctuationChars()
+#--> 138
 
 # You can see them here:
-? SupplementalPunctuationChars()
+? ShowShort(SupplementalPunctuationChars())
+#--> [ "ⷶ", "ⷷ", "ⷸ", "...", "⹽", "⹾", "⹿" ]
+
+pf()
+# Executed in 1.85 second(s) in Ring 1.23
 
 /*--------------
 
+pr()
+
 ? UnicodeDirectionsXT()[5][3]
+#--> europeannumberterminator
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
