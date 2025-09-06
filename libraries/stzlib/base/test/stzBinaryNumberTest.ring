@@ -2,7 +2,7 @@ load "../stzbase.ring"
 
 
 /*-------------------
-*/
+
 pr()
 
 decimals(10)
@@ -36,6 +36,7 @@ o1.FromDecimal(127)
 #--> 0b1111111
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.03 second(s) on Ring 1.21
 # Executed in 0.07 second(s) on Ring 1.20
 
@@ -51,6 +52,7 @@ o1.FromHex("0x127")
 #--> 0b100100111
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.23
 # Executed in 0.04 second(s) on Ring 1.21
 # Executed in 0.11 second(s) on Ring 1.20
 
@@ -66,9 +68,10 @@ o1.FromOctal("0o127")
 #--> 0b1010111
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.23
 
 /*-------------------
-
+*/
 pr()
 
 // Converting a binary number to a decimal form
