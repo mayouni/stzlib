@@ -1,7 +1,7 @@
 load "../stzbase.ring"
 
 /*-----
-*/
+
 pr()
 
 ? StzCharQ("⚝").Name()
@@ -11,7 +11,7 @@ pr()
 #--> ⚝
 
 ? StzCharQ("⚝").Unicode()
-#--> OUTLINED WHITE STAR
+#--> 9885
 
 ? StzCharQ(9885).Content()
 #--> ⚝
@@ -117,8 +117,8 @@ pr()
 #--> ✓
 
 pf()
-# Executed in almost 0 second(s).
-# Executed in 0.02 second(s)
+# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*=========== TODO : LOGICAL ERRORS
 
@@ -146,7 +146,8 @@ pr()
 #--> ҁ
 
 pf()
-# Executed in 1.93 second(s)
+# Executed in 0.28 second(s) in Ring 1.23
+# Executed in 1.93 second(s) in Ring 1.20
 
 /*======== TURNABLE NUMBERS
 
@@ -161,11 +162,12 @@ pr()
 ? @@(TurnableNumbersUnicodes())
 #--> [ 2, 3 ]
 
-? @@(TurnableNumbersXT()) #NOTE: Font in Notepad may not show the turned numbers
+? @@(TurnableNumbersXT()) #NOTE// Font in Notepad may not show the turned numbers
 #--> [ [ 2, "↊" ], [ 3, "↋" ] ]
 
 pf()
-# Executed in 0.11 second(s)
+# Executed in 0.03 second(s) in Ring 1.23
+# Executed in 0.11 second(s) in Ring 1.20
 
 /*------ TURNED NUMBERS
 
@@ -184,7 +186,8 @@ pr()
 #--> [ [ "↊", 8586 ], [ "↋", 8587 ] ]
 
 pf()
-# Executed in 0.51 second(s)
+# Executed in 0.09 second(s) in Ring 1.23
+# Executed in 0.51 second(s) in Ring 1.20
 
 /*------- TURNABLE CHARS
 
@@ -212,7 +215,8 @@ pr()
 #--> [ [ "$", 36 ], [ "&", 38 ], [ "(", 40 ], "...", [ "ꭃ", 43843 ], [ "ꭐ", 43856 ], [ "ꭑ", 43857 ] ]
 
 pf()
-# Executed in 0.30 second(s)
+# Executed in 0.08 second(s) in Ring 1.23
+# Executed in 0.30 second(s) in Ring 1.20
 
 /*=====
 
@@ -227,7 +231,8 @@ o1 = new stzChar("Ɯ")
 #--> M
 
 pf()
-# Executed in 0.08 second(s)
+# Executed in 0.04 second(s) in Ring 1.23
+# Executed in 0.08 second(s) in Ring 1.20
 
 /*---
 
@@ -256,7 +261,8 @@ o1 = new stzChar("M")
 #--> Ɯ
 
 pf()
-# Executed in 0.22 second(s)
+# Executed in 0.08 second(s) in Ring 1.23
+# Executed in 0.22 second(s) in Ring 1.207
 
 /*=====
 
@@ -290,7 +296,8 @@ pr()
 #--> LIFE
 
 pf()
-# Executed in 2.07 second(s)
+# Executed in 0.26 second(s) in Ring 1.23
+# Executed in 2.07 second(s) in Ring 1.20
 
 /*-----------
 
@@ -298,7 +305,15 @@ pr()
 
 # First, this is your name, nicely printed in a rounded box
 
-? Q("GARY").EachCharBoxedRound()
+? Q("GARY").BoxedRounded()
+#-->
+'
+╭──────╮
+│ GARY │
+╰──────╯
+'
+
+? Q("GARY").CharsBoxedRounded()
 #--> ╭───┬───┬───┬───╮
 #    │ G │ A │ R │ Y │
 #    ╰───┴───┴───┴───╯
@@ -310,6 +325,7 @@ pr()
 #--> ⅄RⱯ⅁
 
 pf()
+# Executed in 0.08 second(s) in Ring 1.23
 
 /*---------
 
@@ -333,10 +349,11 @@ pr()
 #--> [ "ı", "ȷ" ]
 
 pf()
-# Executed in 0.74 second(s)
+# Executed in 0.03 second(s) in Ring 1.23
+# Executed in 0.74 second(s) in Ring 1.19
 
 /*---------
-*/
+
 pr()
 
 StzCharQ('U+0649') {
@@ -463,7 +480,8 @@ pr()
 #--> [ [ "ى", "ى" ], [ "ي", "ٮ" ], [ "ح", "ح" ], [ "خ", "ح" ], [ "ج", "ح" ], [ "د", "د" ], [ "ذ", "د" ], [ "ر", "ر" ], [ "ز", "ر" ], [ "س", "س" ], [ "ش", "س" ], [ "ص", "ص" ], [ "ض", "ص" ], [ "ط", "ط" ], [ "ظ", "ط" ], [ "ک", "ک" ], [ "ك", "ک" ], [ "ع", "ع" ], [ "غ", "ع" ], [ "ٮ", "ٮ" ], [ "ب", "ٮ" ], [ "ت", "ٮ" ], [ "ث", "ٮ" ], [ "ٯ", "ٯ" ], [ "ق", "ٯ" ], [ "ف", "ٯ" ], [ "ں", "ں" ], [ "ن", "ں" ], [ "ه", "ه" ], [ "ة", "ه" ] ]
 
 pf()
-# Executed in 0.12 second(s)
+# Executed in 0.03 second(s) in Ring 1.23
+# Executed in 0.12 second(s) in Ring 1.20
 
 /*----- Latin dotless letters
 
@@ -481,8 +499,9 @@ pr()
 ? @@( LatinDotlessLettersXT() ) + NL
 #--> [ [ "ı", "ı" ], [ "i", "ı" ], [ "ȷ", "ȷ" ], [ "j", "ȷ" ] ]
 
-pr()
-# Executed in 0.08 second(s)
+pf()
+# Executed in 0.03 second(s) in Ring 1.23
+# Executed in 0.08 second(s) in Ring 1.20
 
 /*----- Dotless letters
 
@@ -501,7 +520,8 @@ pr()
 #--> [ [ "ى", "ى" ], [ "ي", "ٮ" ], [ "ح", "ح" ], [ "خ", "ح" ], [ "ج", "ح" ], [ "د", "د" ], [ "ذ", "د" ], [ "ر", "ر" ], [ "ز", "ر" ], [ "س", "س" ], [ "ش", "س" ], [ "ص", "ص" ], [ "ض", "ص" ], [ "ط", "ط" ], [ "ظ", "ط" ], [ "ک", "ک" ], [ "ك", "ک" ], [ "ع", "ع" ], [ "غ", "ع" ], [ "ٮ", "ٮ" ], [ "ب", "ٮ" ], [ "ت", "ٮ" ], [ "ث", "ٮ" ], [ "ٯ", "ٯ" ], [ "ق", "ٯ" ], [ "ف", "ٯ" ], [ "ں", "ں" ], [ "ن", "ں" ], [ "ه", "ه" ], [ "ة", "ه" ], [ "ı", "ı" ], [ "i", "ı" ], [ "ȷ", "ȷ" ], [ "j", "ȷ" ] ]
 
 pf()
-# Executed in 0.14 second(s)
+# Executed in 0.03 second(s) in Ring 1.23
+# Executed in 0.14 second(s) in Ring 1.20
 
 /*-----
 
@@ -513,7 +533,11 @@ pr()
 ? UnicodeChar(1114113)
 #--> ERR: Incorrect param type! p must be a number less then 1114112!
 
-/*------------------ !! Check error (not always, run it many times!)
+pf()
+
+/*---
+
+pr()
 
 ? NumberOfUnicodeChars()
 #--> 149186
@@ -524,22 +548,26 @@ pr()
 ? LastUnicodeChar()
 #--> "䛂"
 
-/*------------------ !! Check error (not always, run it many times!)
-*/
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*---
+
 pr()
 
 ? ACharOtherThan("y")
 #--> 
 
-//? ACharOtherThan("䛂")
+? ACharOtherThan("䛂")
 #--> "≜"
 #--> "㎍"
 #--> "⟶"
 #--> "ਭ"
 
 pf()
+# Executed in 1.37 second(s) in Ring 1.23
 
-/*------------------
+/*---
 
 pr()
 
@@ -555,9 +583,12 @@ pr()
 ? Unicode("䛂")
 
 pf()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.04 second(s) in Ring 1.20
 
-/*------------------
+/*---
+
+pr()
 
 ? Q("✓").CharName() 			#--> CHECK MARK
 ? StzCharQ("CHECK MARK").Content() 	#--> ✓
@@ -568,48 +599,92 @@ pf()
 
 ? StzCharQ(" ").CharType() #--> separator_space
 
+pf()
+# Executed in 0.17 second(s) in Ring 1.23
+
 /*------------------
+
+pr()
 
 ? StzCharQ("⸁").Name() #--> RIGHT ANGLE DOTTED SUBSTITUTION MARKER 
 
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
+
 /*------------------
 
+pr()
+
 # There is no an empty char in Unicode
-? Unicode("")	#--> _NULL_
+? Unicode("")	#--> ''
 ? StzCharQ("").Name()	#--> ERROR: Can't create char from empty string!
 
-/*-------------------
+pf()
+
+/*---
+
+pr()
 
 o1 = new stzChar(61)
 ? o1.Content() #--> "="
 ? o1.Name() #--> EQUALS SIGN
 
-/*-------------------
+pf()
+# Executed in 0.03 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 o1 = new stzChar("EQUALS SIGN")
 ? o1.Content() #--> "="
 
-/*-------------------
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 o1 = new stzChar("0x61")
 ? o1.Content() #--> "a"
 ? o1.Name() #--> LATIN SMALL LETTER A
 
-/*-------------------
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 o1 = new stzChar(12500)
 ? o1.Content() #--> ピ
 ? o1.Name() #--> KATAKANA LETTER PI
 
-/*-------------------
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? StzCharQ(" ").UnicodeCategory()	#--> separator_space
 
-/*-------------------
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? IsUnicodeHex("U+33B2") #--> TRUE
 
-/*-------------------
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 o1 = new stzChar("LATIN CAPITAL LETTER N")
 ? o1.Content() #--> N
@@ -617,15 +692,25 @@ o1 = new stzChar("LATIN CAPITAL LETTER N")
 o1 = new stzChar("ARABIC LETTER SEEN")
 ? o1.Content() #--> س
 
-o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO // fix performance lag!
+o1 = new stzChar("ROMAN NUMERAL THREE")
 ? o1.Content() #--> Ⅲ
 
-/*-------------------
+pf()
+# Executed in 0.13 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? Unicode("ↈ") #--> 8584
 ? StzCharQ("ↈ").Name()	#--> ROMAN NUMERAL ONE HUNDRED THOUSAND
 
-/*-------------------
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? StzCharQ("O").Name()	#--> LATIN CAPITAL LETTER O
 ? StzCharQ("0").Name()	#--> DIGIT ZERO
@@ -636,29 +721,48 @@ o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO // fix performance lag!
 ? StzCharQ("꧌").Name()	#--> JAVANESE PADA PISELEH
 ? StzCharQ("س").Name()	#--> ARABIC LETTER SEEN
 
-#NOTE that sometimes the name returned is _NULL_
-
-? StzCharQ("百").Name()	#--> _NULL_
-			#--> inexistant in the unicode list hosted in
-			#     UnicodeNamesHostedInString()
-
 # And we have this fency syntax we can also use
 
-? @("◐").CharName()	#--> CIRCLE WITH LEFT HALF BLACK
-? @("◰").CharName()	#--> WHITE SQUARE WITH UPPER LEFT QUADRANT
-? @("☁").CharName()	#--> CLOUD
+? Q("◐").CharName()	#--> CIRCLE WITH LEFT HALF BLACK
+? Q("◰").CharName()	#--> WHITE SQUARE WITH UPPER LEFT QUADRANT
+? Q("☁").CharName()	#--> CLOUD
 
-/*-------------------
+pf()
+# Executed in 0.30 second(s) in Ring 1.23
 
-? @("◐◰☁").CharsNames()
+/*---
+
+pr()
+
+? StzCharQ("百").Name()
+#--> Can't proceed! The name of this char does not exist in the local unicode database.
+
+pf()
+
+/*---
+
+pr()
+
+? Q("◐◰☁").CharsNames()
 #--> [ "CIRCLE WITH LEFT HALF BLACK", "WHITE SQUARE WITH UPPER LEFT QUADRANT", "CLOUD" ]
 
-/*-------------------
+pf()
+# Executed in 0.09 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 # Also, try this ;)
-? @("⛅⛱☕").CharsNames() # !--> [ "SUN BEHIND CLOUD", "UMBRELLA ON GROUND", "HOT BEVERAGE" ]
+? Q("⛅⛱☕").CharsNames()
+#--> [ "SUN BEHIND CLOUD", "UMBRELLA ON GROUND", "HOT BEVERAGE" ]
 
-/*-------------------
+pf()
+# Executed in 0.08 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? FirstCharOf("Sinus") #--> S
 ? LastCharOf("Sinus") #--> s
@@ -669,40 +773,154 @@ o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO // fix performance lag!
 ? LastLetterOf("Sinus") #--> s
 ? LastLetterOf("Sinus***") #--> s
 
-/*-------------------
+pf()
+# Executed in 0.03 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? StzCharQ("R").IsCharOf("Ring") 	#--> TRUE
 ? StzCharQ("R").IsLetterOf("Ring") 	#--> TRUE
 
-/*-------------------
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? StzCharQ("R").UnicodeCategoryNumber() #--> 14
 
 ? StzStringQ("RiNG").IsLowercase()	#--> FALSE
 ? StzCharQ("R").IsLetter() 		#--> TRUE
 
-/*-------------------
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? StzCharQ("_").IsWordNonLetterChar() #--> TRUE
 ? WordNonLetterChars()
 #--> [ "_", "-", "*", "/", "\", "+", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ]
 
-/*-------------------
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? RemoveDiacritic("ſ") #--> s
 
-/*-------------------
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? StzCharQ("é").DiacriticRemoved() #--> e
 ? StzCharQ("Ŵ").DiacriticRemoved() #--> W
 ? StzCharQ("ſ").DiacriticRemoved() #--> s
 
-/*-------------------
+pf()
+# Executed in 0.03 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? ArabicDiacriticsXT()
-? ArabicDiacriticsUnicodes()
+#-->
+'
+1571
+1569
+Arabic Hamza Kat3ia ontop of Aleef
+أ --> ء
+1572
+1569
+Arabic Hamza Kat3ia ontop of Waw
+ؤ --> ء
+1573
+1569
+Arabic Hamza Kat3ia under Aleef
+إ --> ء
+1574
+1569
+Arabic Hamza Kat3ia ontop of Waw
+ئ --> ء
+1611
 
-/*-------------------
+Arabic Tinween of Fat7ah
+عََ --> ع
+1612
+
+Arabic Tinween of Dhammah
+عُُ --> ع
+1613
+
+Arabic Tinween of Kasrah
+عِِ --> ع
+1614
+
+Arabic Fat7ah
+عَ --> ع
+1615
+
+Arabic Dhammah
+عُ --> ع
+1616
+
+Arabic Kasrah
+عِ --> ع
+1618
+
+Arabic Sukoon
+عْ --> ع
+1617
+
+Arabic Shaddah
+عّ --> ع
+1648
+
+Arabic small Alif Mamdoodah
+لٰكن --> لكن
+1649
+1575
+Arabic Hamzah Wasliah Madhmoomah
+ٱ --> ا
+1570
+1575
+Arabic ََAlif Mamdoodah
+آ --> ا
+'
+
+? ArabicDiacriticsUnicodes()
+#-->
+'
+1569
+1611
+1612
+1613
+1614
+1615
+1616
+1617
+1618
+1648
+1649
+1570
+'
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? StzCharQ("à").IsDiacricised() #--> TRUE
 ? StzCharQ("à").IsLatinDiacritic() #--> TRUE
@@ -710,21 +928,37 @@ o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO // fix performance lag!
 ? StzCharQ(ArabicFat7ah()).IsDiacritic() #--> TRUE
 ? StzCharQ(ArabicFat7ah()).IsArabicDiacritic() #--> TRUE
 
-/*--------------------
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
 
-? LatinDiacriticsXT()
-? LatinDiacriticsUnicodes()
+/*----
+*/
+pr()
+
+? ShowShortXTNL(LatinDiacriticsXT(), 5)
+#-->
+'
+
+'
+
+? ShowShortXT(LatinDiacriticsUnicodes(), 5)
+#-->
+'
+
+'
 	
-/*--------------------
+pf()
+
+/*----
 
 ? StzCharQ("Â").IsLatinDiacritic() #--> TRUE
 
-/*----------------------
+/*------
 
 ? InvertibleUnicodes()
 ? InvertibleChars()
 
-/*----------------------
+/*------
 
 ? StzCharQ("v").IsInvertible() #--> TRUE
 ? StzCharQ("v").Inverted() #--> ʌ
