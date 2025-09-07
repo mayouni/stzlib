@@ -94,6 +94,40 @@ func ComputableShortFormXT(pValue, nItems)
         return FormatShortString(pValue, nItems)
     ok
 
+#--- Short Form Functions ---
+
+func ComputableShortFormNL(pValue)
+    return ComputableShortFormXTNL(pValue, $nDefaultShortFormItems)
+
+func ComputableShortFormXTNL(pValue, nItems)
+    if NOT (isList(pValue) or isString(pValue))
+        raise("Short form only works with lists or strings")
+    ok
+    
+    nLen = GetLength(pValue)
+    
+    if nLen < $nMinValueForShortForm
+        return ComputableFormNL(pValue)
+    ok
+    
+    if NOT isNumber(nItems)
+        raise("Number of items must be a number")
+    ok
+    
+    if nItems * 2 >= nLen
+        return ComputableFormNL(pValue)
+    ok
+    
+    if isList(pValue)
+        return FormatShortListNL(pValue, nItems)
+    else
+        return FormatShortString(pValue, nItems)
+    ok
+
+
+    func ComputableShortFormNLXT(pValue, nItems)
+	return ComputableShortFormXTNL(pValue, nItems)
+
 #--- Display Functions (with output) ---
 
 func Show(pValue)
@@ -105,8 +139,17 @@ func ShowNL(pValue)
 func ShowShort(pValue)
     ? ComputableShortForm(pValue)
 
+func ShowShortNL(pValue)
+    ? ComputableShortFormNL(pValue)
+
 func ShowShortXT(pValue, nItems)
     ? ComputableShortFormXT(pValue, nItems)
+
+func ShowShortXTNL(pValue, nItems)
+    ? ComputableShortFormXTNL(pValue, nItems)
+
+    func ShowShortNLXT(pValue, nItems)
+	return ShowShortXTNL(pValue, nItems)
 
 #--- Helper Functions ---
 
@@ -493,6 +536,25 @@ func FormatList(aList, cSep, cIndent)
     cResult += cSep + "]"
     return cResult
 
+func FormatListNL(aList, cSep, cIndent)
+    if len(aList) = 0
+        return "[ ]"
+    ok
+    
+    cResult = "[" + NL + cIndent
+    nLen = len(aList)
+
+    for i = 1 to nLen
+        cResult += TAB + FormatValue(aList[i], cSep, cIndent)
+        
+        if i < nLen
+            cResult += "," + cSep + NL
+        ok
+    next
+    
+    cResult += NL + "]"
+    return cResult
+
 func FormatShortList(aList, nItems)
     aShort = []
     nLen = len(aList)
@@ -511,6 +573,26 @@ func FormatShortList(aList, nItems)
     next
     
     return FormatList(aShort, " ", "")
+
+
+func FormatShortListNL(aList, nItems)
+    aShort = []
+    nLen = len(aList)
+    
+    # Add first nItems
+    for i = 1 to nItems
+        aShort + aList[i]
+    next
+    
+    # Add ellipsis
+    aShort + "..."
+    
+    # Add last nItems
+    for i = (nLen - nItems + 1) to nLen
+        aShort + aList[i]
+    next
+    
+    return FormatListNL(aShort, " ", "")
 
 func FormatShortString(cStr, nItems)
     oStr = new QString2()

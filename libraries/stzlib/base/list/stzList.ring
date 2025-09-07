@@ -7863,7 +7863,10 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		if n < 0
+		if n > nLen
+			StzRaise("Index outside the list!" + NL +
+			 "Trying to access position " + n + " in a list of "  + nLen + " items!")
+		but n < 0
 			n = nLen + n + 1
 		ok
 

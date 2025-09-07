@@ -95197,14 +95197,11 @@ class stzString from stzObject
 			def BoxifyRoundQ()
 				return This.BoxRoundQ()
 
-	def BoxedRound()
+	def BoxedRounded()
 		return This.Copy().BoxRoundQ().Content()
 
 		def BoxifiedRounded()
-			return This.BoxedRound()
-
-		def BoxedRounded()
-			return This.BoxedRound()
+			return This.BoxedRounded()
 
 	#--
 
@@ -95350,13 +95347,13 @@ class stzString from stzObject
 		return This.Copy().BoxRoundEachCharQ().Content()
 
 		def EachCharBoxifiedRounded()
-			return This.EachCharBoxedRound()
+			return This.EachCharBoxedRounded()
 
 		def CharsBoxedRounded()
-			return This.EachCharBoxedRound()
+			return This.EachCharBoxedRounded()
 
 		def CharsBoxifiedRounded()
-			return This.EachCharBoxedRound()
+			return This.EachCharBoxedRounded()
 
 	#--
 
