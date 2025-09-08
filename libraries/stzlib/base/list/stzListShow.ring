@@ -491,10 +491,10 @@ func ShouldExpandList(aList)
 func FormatValue(pValue, cSep, cIndent)
     if isNumber(pValue)
         return "" + pValue
-        
+
     but isString(pValue)
         return FormatString(pValue)
-        
+
     but isList(pValue)
         return FormatList(pValue, cSep, cIndent)
         
@@ -534,6 +534,7 @@ func FormatList(aList, cSep, cIndent)
     next
     
     cResult += cSep + "]"
+
     return cResult
 
 func FormatListNL(aList, cSep, cIndent)

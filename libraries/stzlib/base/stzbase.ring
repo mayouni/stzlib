@@ -163,3 +163,12 @@
 	load "reactive/stzReactiveTimer.ring"
 	load "reactive/stzReactiveStream.ring"
 	load "reactive/stzReactiveHttp.ring"
+
+# Loading files related to STZAPPSERVER module
+
+	load "appserver/stzAppServer.ring"
+	load "appserver/stzAppRequest.ring"
+	load "appserver/stzAppResponse.ring"
+	load "appserver/stzAppRouter.ring"
+	load "appserver/stzComputeEngine.ring"
+	load "appserver/stzContextPool.ring"

@@ -602,7 +602,7 @@ pr()
 pf()
 # Executed in 0.17 second(s) in Ring 1.23
 
-/*------------------
+/*--------
 
 pr()
 
@@ -611,7 +611,7 @@ pr()
 pf()
 # Executed in 0.04 second(s) in Ring 1.23
 
-/*------------------
+/*--------
 
 pr()
 
@@ -932,38 +932,76 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.23
 
 /*----
-*/
+
 pr()
 
 ? ShowShortXTNL(LatinDiacriticsXT(), 5)
 #-->
 '
-
+[
+	[ "À", "A", "Capital A, grave accent" ], 
+	[ "Á", "A", "Capital A, acute accent" ], 
+	[ "Â", "A", "Capital A, circumflex accent" ], 
+	[ "Ã", "A", "Capital A, tilde" ], 
+	[ "Ä", "A", "Capital A, dieresis or umlaut mark" ], 
+	"...", 
+	[ "ż", "z", "Small Z, dot accent" ], 
+	[ "Ž", "Z", "Capital Z, caron accent" ], 
+	[ "ž", "z", "Small z, caron accent" ], 
+	[ "ſ", "s", "Small long s" ], 
+	[ "ỳ", "y", "Small y" ]
+]
 '
 
 ? ShowShortXT(LatinDiacriticsUnicodes(), 5)
 #-->
 '
-
+[ 192, 193, 194, 195, 196, "...", 380, 381, 382, 383, 7923 ]
 '
 	
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*----
 
+pr()
+
 ? StzCharQ("Â").IsLatinDiacritic() #--> TRUE
 
-/*------
-
-? InvertibleUnicodes()
-? InvertibleChars()
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*------
+
+pr()
+
+anInvertibles = InvertibleUnicodes()
+
+? len(anInvertibles)
+#--> 141
+
+? ShowShort(anInvertibles) #TODO // Remove the NL at the end of the string
+#-- [ 36, 38, 40, "...", 43843, 43856, 43857 ]
+
+? Showshort(InvertibleChars())
+#--> [ "$", "&", "(", "...", "ꭃ", "ꭐ", "ꭑ" ]
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
+
+/*------
+
+pr()
 
 ? StzCharQ("v").IsInvertible() #--> TRUE
 ? StzCharQ("v").Inverted() #--> ʌ
 
-/*-------------
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? StzCharQ("f").Inverted()	#--> "f"
 
@@ -972,18 +1010,32 @@ pf()
 ? StzCharQ("F").Inverted()	#--> "Ⅎ"
 ? StzCharQ("E").Inverted()	#--> "E"
 
-/*-------------
+pf()
+# Executed in 0.06 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? "LIFE"
-? @("LIFE").Inverted() #--> ƎℲI⅂
-? " "
+? Q("LIFE").Inverted()
+#--> ƎℲI⅂
+? ""
 ? "GAYA"
-? @("GAYA").Inverted() #--> Ɐ⅄Ɐ⅁
-? " "
+? Q("GAYA").Inverted()
+#--> Ɐ⅄Ɐ⅁
+? ""
 ? "TELLAVIX (Y908$)"
-? @("TELLAVIX (Y908$)").Inverted() #--> ($806⅄) XIɅⱯ⅂⅂ƎꞱ
+? Q("TELLAVIX (Y908$)").Inverted() #TODO // Fix parenthesis output
+#--> Should be ($806⅄) XIɅⱯ⅂⅂ƎꞱ
+#--> but we get: )$809Y( XIVALLET
 
-/*-------------
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? StzCharQ("V").Inverted()	#--> "Ʌ"
 ? StzCharQ("X").Inverted()	#--> "X"
@@ -994,43 +1046,83 @@ pf()
 ? ""
 ? StzCharQ("꧌").Inverted()		#--> "꧍"
 
-/*-------------
+pf()
+# Executed in 0.06 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? UnicodeToChar(65021) #--> ﷽
 ? StzCharQ("﷽").Name()
 #--> ARABIC LIGATURE BISMILLAH AR-RAHMAN AR-RAHEEM
 
-/*-------------
+pf()
+# Executed in 0.06 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? StringRepresentsNumberInUnicodeHexForm("U+214B")
+#--> TRUE
 
-/*-------------
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? StzCharQ("U+214B").Content() #--> ⅋
 ? StzCharQ("0x214B").Name() #--> TURNED AMPERSAND
 
-/*-------------
+pf()
+# Executed in 0.08 second(s) in Ring 1.23
 
-//? StzCharQ("🌹").Name() #--> ERROR: Can not create char object!
+/*---
+
+pr()
+
+# ? StzCharQ("🌹").Name() #--> ERROR: Can not create char object!
 ? Unicode("🌹") #--> [ 63, 63 ]
-? @("🌹").CharName() # ?--> QUESTION MARK
+? Q("🌹").CharName() # ?--> QUESTION MARK
 
-/*-------------
+pf()
+# Executed in 0.06 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? StzCharQ("k").Name() #--> LATIN SMALL LETTER K
 
-/*-------------
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? StzCharQ("n").IsVisible() #--> TRUE
 
 ? StzCharQ(8207).IsInvisible() #--> TRUE
 ? StzCharQ(8207).Name() #--> RIGHT-TO-LEFT MARK
 
-/*-------------
+pf()
+# Executed in 0.05 second(s) in Ring 1.23
 
-? Arabic7araket()
+/*---
+*/
+pr()
 
-/*-------------
+? @@( Arabic7araket() )
+#o--> [ "ُ", "َ", "ِ", "ْ" ]
+
+pf()
+# Executed in 0.03 second(s) in Ring 1.23
+
+/*---
 
 ? StzCharQ("a").IsAsciiLetter() #--> TRUE
 
@@ -1067,7 +1159,7 @@ pf()
 ? StzCharQ("׳").IsDiacritic() #--> FALSE
 ? StzCharQ("׳").Name() #--> HEBREW PUNCTUATION GERESH
 
-/*-------------
+/*---
 
 ? StzCharQ("é").DiacriticRemoved() #--> "e"
 ? StzCharQ("æ").DiacriticRemoved() #--> "a"
@@ -1076,29 +1168,29 @@ pf()
 
 ? StzCharQ("ſ").RemoveDiacriticQ().Content() #--> "s"
 
-/*-------------
+/*---
 
 ? DiacriticsXT()
 
-/*-------------
+/*---
 
 ? DiacriticDescription("Ķ") #--> Capital K, cedilla accent
 
-/*-------------
+/*---
 
 ? DiacriticsOfAsciiLetter("k") #--> [ "ķ", "ĸ" ]
 
-/*--------------
+/*----
 
 ? TurnedChars() #TODO // This make confusion with InvertedChars: solve it!
 
-/*--------------
+/*----
 
 ? StzCharQ("ʍ").IsTurnedChar() #--> TRUE
 ? StzCharQ("ᴟ").IsTurnedChar() #--> TRUE
 ? StzCharQ("ꟺ").IsTurnedChar() #--> TRUE
 
-/*-------------
+/*---
 
 o1 = new stzChar("-")
 ? o1.IsLetter() #--> FALSE
@@ -1114,7 +1206,7 @@ o1 = new stzChar("j")
 ? o1.ScriptIs(:Latin) #--> TRUE
 ? o1.IsLatinScript()  #--> TRUE
 
-/*-------------
+/*---
 
 ? Unicode("ُ") #--> 1615
 
@@ -1125,14 +1217,14 @@ o1 = new stzChar("ُ")
 ? o1.Name() #--> ARABIC DAMMA
 ? o1.NameIs("ARABIC DAMMA") #--> TRUE
 
-/*-------------
+/*---
 
 ? StzCharQ("،").IsWordSeparator() 	#--> TRUE
 ? StzCharQ(" ").IsWordSeparator() 	#--> TRUE
 ? StzCharQ(".").IsSentenceSeparator() 	#--> TRUE
 ? StzCharQ(NL).IsLineSeparator() 	#--> TRUE
 
-/*-------------
+/*---
 
 o1 = new stzChar("X")
 ? o1.AsciiCode() #--> 88
@@ -1140,12 +1232,12 @@ o1 = new stzChar("X")
 o1 = new stzChar("س")
 ? o1.AsciiCode() #--> ERROR: Can't get ASCII code for this character!
 
-/*-------------
+/*---
 
 o1 = new stzChar(" ")
 ? o1.IsSpace() #--> TRUE
 
-/*-------------
+/*---
 
 o1 = new stzChar("٠")
 ? o1.Script()	#--> arabic
@@ -1194,12 +1286,12 @@ o1 = new stzChar("０")
 ? o1.IsDigit()	#--> TRUE
 ? o1.Name()	#--> FULLWIDTH DIGIT ZERO
 
-/*------------- TODO: Make it possible...
+/*--- TODO: Make it possible...
 
 c1 = new stzChar("1/3") #--> ERROR: Can not create char object! 
 ? c1.Content()
 
-/*-------------
+/*---
 
 c1 = new stzChar("೨")
 ? c1.Unicode() #--> 3304
@@ -1210,11 +1302,11 @@ c1 = new stzChar("೨")
 ? c1.Script() #--> kannada
 ? c1.Name() #--> KANNADA DIGIT TWO
 
-/*-------------
+/*---
 
 ? CurrentUnicodeVersion() #--> 13.0
 
-/*-------------
+/*---
 
 ? LanguagesInScript(:cyrillic)
 #--> 	belarusian
@@ -1231,7 +1323,7 @@ c1 = new stzChar("೨")
 #	serbian
 #	ukrainian
 
-/*-------------
+/*---
 
 ? LanguagesInScript(:arabic)
 #--> 	acehnese, adyghe, afar, afrikaans, algerian, amazigh, arabic, arwi,
@@ -1248,7 +1340,7 @@ c1 = new stzChar("೨")
 #	swahili, tajik, talysh, tatar, tausug, tuareg, tunisian, turkish,
 #	turkmen, urdu, uyghur, 	uzbek, wakhi, wolio, wolof, yoruba, zarma
 
-/*-------------
+/*---
 
 o1 = new stzChar("⅋")
 ? o1.Name() #--> TURNED AMPERSAND
@@ -1256,7 +1348,7 @@ o1 = new stzChar("⅋")
 ? o1.UnicodeCategory() #--> symbol_math
 ? o1.IsTurnedChar() #--> TRUE
 
-/*-------------
+/*---
 
 ? CommonLanguagesInScripts([ :cyrillic, :arabic ]) #TODO // Check the performance lag!
 #--> 	belarusian
@@ -1265,7 +1357,7 @@ o1 = new stzChar("⅋")
 #	kyrgyz
 #	persian
 
-/*-------------
+/*---
 
 ? CommonLanguagesInScripts([ :cyrillic, :latin ]) #TODO // Check the performance lag!
 #--> 	belarusian
@@ -1277,14 +1369,14 @@ o1 = new stzChar("⅋")
 #	montenegrin
 #	serbian
 #	hungarian
-/*-------------
+/*---
 
 ? CommonLanguagesInScripts([ :armenian, :latin ]) #TODO // Check the performance lag!
 #--> 	belarusian
 #	hungarian
 #	serbian
 
-/*-------------
+/*---
 
 ? Languages()
 #--> 	c, :abkhazian, :oromo, :afar, :afrikaans, :albanian, :amharic,
@@ -1337,11 +1429,11 @@ o1 = new stzChar("⅋")
 #	:lojban, :sicilian, :southern_kurdish, :western_balochi, :cebuano, :erzya,
 #	:chickasaw, :muscogee, :silesian
 
-/*-------------
+/*---
 
 ? ScriptsForLanguage(:belarusian) #TODO
 
-/*-------------
+/*---
 
 ? CharScript(",") 	#--> common
 ? CharScript("⅀") 	#--> common
@@ -1354,7 +1446,7 @@ o1 = new stzChar("⅋")
 ? CharScript("Ж") 	#--> cyrillic
 ? CharScript("经") 	#--> han
 
-/*-------------
+/*---
 
 ? StzCharQ(",").Name()	#--> COMMA
 ? StzCharQ("⅀").Name()	#--> DOUBLE-STRUCK N-ARY SUMMATION
@@ -1368,24 +1460,24 @@ o1 = new stzChar("⅋")
 
 ? StzCharQ("经").Name()	#--> _NULL_ (Name inexistant in stzUnicodeData.ring file)
 
-/*-------------
+/*---
 
 o1 = new stzChar(8204)
 ? CharScript( o1.Content() ) # inherited
 
-/*-------------
+/*---
 
 ? LanguagesInScript(CharScript("ض"))
 ? StzScriptQ(CharScript("ض")).Languages()
 
-/*-------------
+/*---
 
 ? CurrentUnicodeVersion() #--> 13.0
 o1 = new stzChar("四")
 ? o1.UnicodeVersion() #--> 1.1
 ? o1.IntroducedInUnicodeVersion() #--> 1.1
 
-/*-------------
+/*---
 
 ? MandarinNumbersXT()
 #--> [ [ "〇", 0 ], [ "一", 1 ], [ "二", 2 ], [ "三", 3 ],
@@ -1393,7 +1485,7 @@ o1 = new stzChar("四")
 #	[ "八", 8 ], [ "九", 9 ], [ "十", 10 ], [ "百", 100 ],
 #	[ "千", 1000 ], [ "万", 10000 ] ]
 
-/*-------------
+/*---
 
 ? RomanNumbersXT()
 #--> [ [ "Ⅰ", 1 ], [ "ⅰ", 1 ], [ "Ⅱ", 2 ], [ "ⅱ", 2 ],
@@ -1408,7 +1500,7 @@ o1 = new stzChar("四")
 #	[ "ↂ", 10000 ], [ "ↅ", 6 ], [ "ↆ", 50 ], [ "ↇ", 50000 ],
 #	[ "ↈ", 100000 ] ]
 
-/*-------------
+/*---
 
 o1 = new stzChar("Ⅺ")
 ? o1.lowercased() #--> ⅺ
@@ -1416,12 +1508,12 @@ o1 = new stzChar("Ⅺ")
 o1 = new stzChar("ⅺ")
 ? o1.UPPERcased() #--> Ⅺ
 
-/*-------------
+/*---
 
 ? CircledDigits() #--> ①, ②, ③, ④, ⑤, ⑥, ⑦, ⑧, ⑨, ⓪
 ? CircledDigitUnicodes() #--> 9312:9320 + 9450
 
-/*-------------
+/*---
 
 o1 = new stzChar("Σ")
 ? o1.IsLowercase() #--> FALSE
@@ -1433,7 +1525,7 @@ o1 = new stzChar("σ")
 ? o1.IsUppercase() #--> FALSE
 ? o1.CharCase() #--> lowercase
 
-/*-------------
+/*---
 
 o1 = new stzChar("ﮘ")
 o1 {
@@ -1448,11 +1540,11 @@ o1 {
 	? IsArabicPresentationFormB()	#--> FALSE
 }
 
-/*-------------
+/*---
 
 ? QuranicSigns()
 
-/*-------------
+/*---
 
 o1 = new stzChar("۩")
 o1 {
@@ -1465,43 +1557,43 @@ o1 {
 	? IsQuranicSign()		#--> TRUE
 }
 
-/*-------------
+/*---
 
 ? ArabicNumberFractions()
 
-/*-------------
+/*---
 
 o1 = new stzChar("⅗")
 ? o1.IsArabicFraction() #--> TRUE
 
-/*-------------
+/*---
 
 o1 = new stzChar("万")
 ? o1.IsMandarinNumber() #--> TRUE
 
-/*-------------
+/*---
 
 ? StzCharQ(12295).Content() #--> 〇
 ? StzCharQ(12295).Name() #--> IDEOGRAPHIC NUMBER ZERO
 
-/*-------------
+/*---
 
 o1 = new stzChar(64544)
 ? o1.Content() #--> "ﰠ"
 
 ? StzCharQ("ﰠ").Name() # ARABIC LIGATURE SAD WITH HAH ISOLATED FORM
 
-/*-------------
+/*---
 
 o1 = new stzChar("ↈ")
 ? o1.Unicode() #--> 8584
 ? o1.IsRomanNumber() #--> TRUE
 
-/*-------------
+/*---
 
 ? RomanToDecimalNumber("ↈ") #TODO
 
-/*-------------
+/*---
 
 o1 = new stzChar("෴")
 ? o1.Unicode() #--> 3572
@@ -1510,7 +1602,7 @@ o1 = new stzChar(3572)
 ? o1.Content() #--> ෴
 ? o1.Name() #--> SINHALA PUNCTUATION KUNDDALIYA
 
-/*-------------
+/*---
 
 ? "۲" = "٢" #--> FALSE
 o1 = new stzChar("۲")
@@ -1525,7 +1617,7 @@ o1 = new stzChar("٢")
 ? o1.UnicodeCategory() #--> number_decimaldigit
 ? o1.IsIndianDigit() #--> TRUE
 
-/*-------------
+/*---
 
 o1 = new stzChar("O")
 ? o1.Name() #--> LATIN CAPITAL LETTER O
@@ -1537,7 +1629,7 @@ o1 = new stzChar("Ο")
 ? o1.Unicode() #--> 927
 ? o1.UnicodeCategory() #--> letter_uppercase
 
-/*-------------
+/*---
 
 _cRightToLeftOverride = "‮"
 // Do you think this is an empty Char?
@@ -1558,7 +1650,7 @@ o1 = new stzChar(_cRightToLeftOverride)
 // What if we see its name!
 ? o1.Name() #--> RIGHT-TO-LEFT OVERRIDE
 
-/*-------------
+/*---
 
 # Be careful: there is a hidden char that inverted the text "freind" and
 # forced it to be written from right to left!
@@ -1579,7 +1671,7 @@ o1 = new stzString(txt)
 ? o1.Content()
 ? o1.Chars()
 
-/*-------------
+/*---
 
 o1 = new stzChar("و")
 //o1 = new stzChar(1606)
@@ -1593,19 +1685,19 @@ o1 = new stzChar("و")
 
 ? o1.Bytes()
 
-/*-------------
+/*---
 
 ostr = new stzString("s㊱m")
 ? ostr.NumberOfChars() #--> 3
 ? ostr[2] #--> ㊱
 
-/*-------------
+/*---
 
 o1 = new stzChar("㊱")
 ? o1.Unicode() #--> 12977
 ? o1.NumberOfBytes() #--> 3
 
-/*-------------
+/*---
 
 o1 = new stzString("s㊱m")
 ? o1.NumberOfBytes() #--> 5
@@ -1616,13 +1708,13 @@ o1 = new stzString("s㊱m")
 ? o1.NumberOfBytesPerChar()
 #-->	[ :s = 1, :㊱ = 3, :m = 1 ]
 
-/*-------------
+/*---
 
 o1 = new stzChar("6")
 ? o1.IsANumber() # -> TRUE
 ? o1.IsDigit()	 # -> TRUE
 
-/*-------------
+/*---
 
 # The "A":"E" syntax is a beautiful feature of Ring:
 
