@@ -50,7 +50,7 @@ class stzAppRequest
 			next
 		ok
 
-	def Query(cKey = NULL)
+	def Query(cKey)
 		if cKey = NULL return aQuery ok
 		
 		for aParam in aQuery
