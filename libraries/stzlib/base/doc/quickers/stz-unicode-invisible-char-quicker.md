@@ -69,7 +69,7 @@ str = "dear " + CharByName("RIGHT-TO-LEFT OVERRIDE") + "freinds!"
 ? str
 #--> dear ‮friends!
 
-Or you can use Unicode() instead
+# Or you can use Unicode() instead
 str = "dear " + Char(Unicode(8238)) + "freinds!"
 ```
 
