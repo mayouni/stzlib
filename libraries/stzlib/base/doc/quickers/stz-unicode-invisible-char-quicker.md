@@ -63,6 +63,14 @@ o1 {
 # Get the Unicode value (decimal, not hex)
 ? Unicode(CharByName("RIGHT-TO-LEFT OVERRIDE"))
 #--> 8238
+
+# Insert the hidden char in a string
+str = "dear " + CharByName("RIGHT-TO-LEFT OVERRIDE") + "freinds!"
+? str
+#--> dear ‮friends!
+
+Or you can use Unicode() instead
+str = "dear " + Char(Unicode(8238)) + "freinds!"
 ```
 
 ## Comprehensive Coverage
