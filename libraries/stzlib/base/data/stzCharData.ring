@@ -375,6 +375,16 @@ Dotless LETTERS
 		[ "13", :Other_NotAssigned ]
 	]
 	
+	# Unicode versions
+
+	_acUnicodeVersions = [ 
+		"0.9", "1.0", "1.2", "1.4", "1.5",
+		"3.2", "3.3", "3.4", "3.5", "3.8",
+		"4.0", "4.2", "4.3", "4.5", "4.8",
+		"5.0", "5.2", "5.3", "5.5", "5.8",
+		"10.0", "12.0", "13.0"
+	] // #TODO Put correct values (see how CurrentUnicodeversion() works)
+
 	  #-----------------#
 	 #   PUNCTUATION   #
 	#-----------------#
@@ -959,7 +969,7 @@ Dotless LETTERS
 	_anInvisibleUnicodes = [
 		9, 160, 8192, 8193, 8194, 8195, 8196, 8197,
 		8198, 8199, 8200, 8201, 8202, 8203, 8204, 8205,
-		8206, 8207, 8232, 8233, 8239, 8287, 12288, 12644,
+		8206, 8207, 8232, 8233, 8238, 8239, 8287, 12288, 12644,
 		4447, 65440
 	]
 
@@ -1345,7 +1355,7 @@ Dotless LETTERS
 	next
 
 	  #----------------------------------#
-	 #  NUMBER OF LETTERS PER LANGAUGE  #
+	 #  NUMBER OF LETTERS PER LANGUAGE  #
 	#----------------------------------#
 
 	_aNumberOfLettersPerLanguage = []
@@ -1370,7 +1380,63 @@ Dotless LETTERS
 	    :Queen = "🂭",
 	    :King = "🂮"
 	]
-	
+
+_cMarquerChar = "#"
+
+	#---------------------------------------
+	#  LIST OF SUPPRTED 
+	_acWorldLanguages = [
+		:c, :abkhazian, :oromo, :afar, :afrikaans, :albanian, :amharic,
+		:arabic, :armenian, :assamese, :aymara, :azerbaijani, :bashkir,
+		:basque, :bengali, :dzongkha, :bislama, :breton, :bulgarian,
+		:burmese, :belarusian, :khmer, :catalan, :chinese, :corsican,
+		:croatian, :czech, :danish, :dutch, :english, :esperanto, :estonian,
+		:faroese, :fijian, :finnish, :french, :western_frisian, :gaelic,
+		:galician, :georgian, :german, :greek, :greenlandic, :guarani,
+		:gujarati, :hausa, :hebrew, :hindi, :hungarian, :icelandic,
+		:indonesian, :interlingua, :interlingue, :inuktitut, :inupiak,
+		:irish, :italian, :japanese, :javanese, :kannada, :kashmiri,
+		:kazakh, :kinyarwanda, :kirghiz, :korean, :kurdish, :rundi,
+		:lao, :latin, :latvian, :lingala, :lithuanian, :macedonian,
+		:malagasy, :malay, :malayalam, :maltese, :maori, :marathi,
+		:marshallese, :mongolian, :nauruan, :nepali, :norwegian_bokmal,
+		:occitan, :oriya, :pashto, :persian, :polish, :portuguese, :punjabi,
+		:quechua, :romansh, :romanian, :russian, :samoan, :sango, :sanskrit,
+		:serbian, :ossetic, :southern_sotho, :tswana, :shona, :sindhi, :sinhala,
+		:swati, :slovak, :slovenian, :somali, :spanish, :sundanese, :swahili,
+		:swedish, :sardinian, :tajik, :tamil, :tatar, :telugu, :thai, :tibetan,
+		:tigrinya, :tongan, :tsonga, :turkish, :turkmen, :tahitian, :uighur,
+		:ukrainian, :urdu, :uzbek, :vietnamese, :volapuk, :welsh, :wolof,
+		:xhosa, :yiddish, :yoruba, :zhuang, :zulu, :norwegian_nynorsk, :bosnian,
+		:divehi, :manx, :cornish, :akan, :konkani, :ga, :igbo, :kamba, :syriac,
+		:blin, :geez, :koro, :sidamo, :atsam, :tigre, :jju, :friulian, :venda,
+		:ewe, :walamo, :hawaiian, :tyap, :nyanja, :filipino, :swiss_german,
+		:sichuan_yi, :kpelle, :low_german, :south_ndebele, :northern_sotho,
+		:northern_sami, :taroko, :gusii, :taita, :fulah, :kikuyu, :samburu,
+		:sena, :north_ndebele, :rombo, :tachelhit, :kabyle, :nyankole, :bena,
+		:vunjo, :bambara, :embu, :cherokee, :mauritian, :makonde, :langi, :ganda,
+		:bemba, :kabuverdianu, :meru, :kalenjin, :nama, :machame, :colognian,
+		:masai, :soga, :luyia, :asu, :teso, :saho, :koyra_chiini, :rwa, :luo,
+		:chiga, :standard_morocco_tamazight, :koyraboro_senni, :shambala, :bodo,
+		:avaric, :chamorro, :chechen, :church, :chuvash, :cree, :haitian, :herero,
+		:hiri_motu, :kanuri, :komi, :kongo, :kwanyama, :limburgish, :luba_katanga,
+		:luxembourgish, :navaho, :ndonga, :ojibwa, :pali, :walloon, :aghem, :basaa,
+		:zarma, :duala, :jola_fonyi, :ewondo, :bafia, :makhuwa_meetto, :mundang,
+		:kwasio, :coptic, :sakha, :sangu, :tasawaq, :vai, :walser, :yangben,
+		:avestan, :ngomba, :kako, :meta, :ngiemboon, :aragonese, :akkadian,
+		:ancient_egyptian, :ancient_greek, :aramaic, :balinese, :bamun, :batak_toba,
+		:buginese, :chakma, :dogri, :gothic, :ingush, :mandingo, :manipuri, :old_irish,
+		:old_norse, :old_persian, :pahlavi, :phoenician, :santali, :saurashtra,
+		:tai_dam, :tai_nua, :ugaritic, :akoose, :lakota, :standard_moroccan_tamazight,
+		:mapuche, :central_kurdish, :lower_sorbian, :upper_sorbian, :kenyang, :mohawk,
+		:nko, :prussian, :kiche, :southern_sami, :lule_sami, :inari_sami, :skolt_sami,
+		:warlpiri, :mende, :maithili, :american_sign_language, :bhojpuri,
+		:literary_chinese, :mazanderani, :newari, :northern_luri, :palauan,
+		:papiamento, :tokelauan, :tok_pisin, :tuvaluan, :cantonese, :osage, :ido,
+		:lojban, :sicilian, :southern_kurdish, :western_balochi, :cebuano, :erzya,
+		:chickasaw, :muscogee, :silesian
+	]
+
   /////////////////////
  ///   FUNCTIONS   ///
 /////////////////////
@@ -1382,10 +1448,13 @@ Dotless LETTERS
 		return _anVowelsUnicodes()
 
 	func WorldLanguages()
-		return _aWorldLanguages
+		return _acWorldLanguages
+
+		func Languages()
+			return _acWorldLanguages
 
 	func LanguagesInScript(cScript)	
-		if NOT isString(cScipt)
+		if NOT isString(cScript)
 			StzRaise("Incorrect param type! cScript must be a string")
 		ok
 
@@ -1414,11 +1483,11 @@ Dotless LETTERS
 			aListOfLists + LanguagesInScript(pacScripts[i])
 		next
 
-		acResult = StzListOfListsQ(aListOfLists).CommonItems()
+		acResult = Common(aListOfLists)
 		return acResult
 
 	func ScriptsForLanguage(pcLang)
-		return StzLangaugeQ(pcLang).Scripts()
+		return StzLanguageQ(pcLang).Scripts()
 
 	func CommonScriptsForLanguages(pacLangs)
 		if NOT ( isList(pacLangs) and Q(pacLangs).IsListOfStrings() )
@@ -1555,6 +1624,9 @@ Dotless LETTERS
 		# Uses the data available in RomanNumbersXT()
 		#TODO // In the future, make a more general algorithm
 		return RomanNumbersXT()[pcRomanNumber]
+
+		func RomanToDecimalNumber(pcRomanNumber)
+			return RomanToArabicNumber(pcRomanNumber)
 
 	func MandarinNumbersUnicodes()
 		return _anMandarinNumbersUnicodes
@@ -2423,6 +2495,15 @@ Dotless LETTERS
 
 	func InvisibleChars()
 		return UnicodesToChars( InvisibleUnicodes() )
+
+		func @InvisibleChars()
+			return InvisibleChars()
+
+	func InvisibleCharsNames()
+		return CharsNames(InvisibleChars())
+
+		func @InvisibleCharsNames()
+			return InvisibleCharsNames()
 
 	func NumberOfCharsInUnicode()
 		return _nNumberOfCharsInUnicode

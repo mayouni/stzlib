@@ -1113,7 +1113,7 @@ pf()
 # Executed in 0.05 second(s) in Ring 1.23
 
 /*---
-*/
+
 pr()
 
 ? @@( Arabic7araket() )
@@ -1124,10 +1124,16 @@ pf()
 
 /*---
 
+pr()
+
 ? StzCharQ("a").IsAsciiLetter() #--> TRUE
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*---------
 
+pr()
 
 ? StzCharQ("ỳ").IsDiacritic() #--> TRUE
 ? StzCharQ("ỳ").Name() #--> LATIN SMALL LETTER Y WITH GRAVE
@@ -1159,7 +1165,12 @@ pf()
 ? StzCharQ("׳").IsDiacritic() #--> FALSE
 ? StzCharQ("׳").Name() #--> HEBREW PUNCTUATION GERESH
 
+pf()
+# Executed in 0.37 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 ? StzCharQ("é").DiacriticRemoved() #--> "e"
 ? StzCharQ("æ").DiacriticRemoved() #--> "a"
@@ -1168,35 +1179,94 @@ pf()
 
 ? StzCharQ("ſ").RemoveDiacriticQ().Content() #--> "s"
 
+pf()
+# Executed in 0.05 second(s) in Ring 1.23
+
 /*---
 
-? DiacriticsXT()
+pr()
+
+? ShowShortNL(DiacriticsXT())
+#-->
+'
+[
+	[ "À", "A", "Capital A, grave accent" ], 
+	[ "Á", "A", "Capital A, acute accent" ], 
+	[ "Â", "A", "Capital A, circumflex accent" ], 
+	"...", 
+	[ 1648, "", "Arabic small Alif Mamdoodah", "لٰكن --> لكن" ], 
+	[ 1649, 1575, "Arabic Hamzah Wasliah Madhmoomah", "ٱ --> ا" ], 
+	[ 1570, 1575, "Arabic ََAlif Mamdoodah", "آ --> ا" ]
+]
+'
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*---
+
+pr()
 
 ? DiacriticDescription("Ķ") #--> Capital K, cedilla accent
 
+pf()
+# Executed in 0.10 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 ? DiacriticsOfAsciiLetter("k") #--> [ "ķ", "ĸ" ]
 
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
 /*----
 
-? TurnedChars() #TODO // This make confusion with InvertedChars: solve it!
+pr()
+
+? ShowShortNL( TurnedChars() ) #TODO // This make confusion with InvertedChars: solve it!
+#-->
+'
+[
+	"I", 
+	"ƍ", 
+	"Ǝ", 
+	"...", 
+	"鶴", 
+	"郞", 
+	"隷"
+]
+'
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
 
 /*----
+
+pr()
 
 ? StzCharQ("ʍ").IsTurnedChar() #--> TRUE
 ? StzCharQ("ᴟ").IsTurnedChar() #--> TRUE
 ? StzCharQ("ꟺ").IsTurnedChar() #--> TRUE
 
+pf()
+# Executed in 0.08 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 o1 = new stzChar("-")
 ? o1.IsLetter() #--> FALSE
 ? o1.Islowercase() #--> FALSE
 
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
 /*------------
+
+pr()
 
 o1 = new stzChar("ح")
 ? o1.ScriptIs(:Arabic) #--> TRUE
@@ -1206,7 +1276,12 @@ o1 = new stzChar("j")
 ? o1.ScriptIs(:Latin) #--> TRUE
 ? o1.IsLatinScript()  #--> TRUE
 
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 ? Unicode("ُ") #--> 1615
 
@@ -1217,27 +1292,46 @@ o1 = new stzChar("ُ")
 ? o1.Name() #--> ARABIC DAMMA
 ? o1.NameIs("ARABIC DAMMA") #--> TRUE
 
+pf()
+# Executed in 0.06 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 ? StzCharQ("،").IsWordSeparator() 	#--> TRUE
 ? StzCharQ(" ").IsWordSeparator() 	#--> TRUE
 ? StzCharQ(".").IsSentenceSeparator() 	#--> TRUE
 ? StzCharQ(NL).IsLineSeparator() 	#--> TRUE
 
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 o1 = new stzChar("X")
 ? o1.AsciiCode() #--> 88
 
 o1 = new stzChar("س")
-? o1.AsciiCode() #--> ERROR: Can't get ASCII code for this character!
+? o1.AsciiCode()
+#--> Can't get ASCII code for this character!
+
+pf()
 
 /*---
+
+pr()
 
 o1 = new stzChar(" ")
 ? o1.IsSpace() #--> TRUE
 
+pf()
+
 /*---
+
+pr()
 
 o1 = new stzChar("٠")
 ? o1.Script()	#--> arabic
@@ -1286,12 +1380,25 @@ o1 = new stzChar("０")
 ? o1.IsDigit()	#--> TRUE
 ? o1.Name()	#--> FULLWIDTH DIGIT ZERO
 
+pf()
+# Executed in 0.28 second(s) in Ring 1.23
+
 /*--- TODO: Make it possible...
 
-c1 = new stzChar("1/3") #--> ERROR: Can not create char object! 
+pr()
+
+c1 = new stzChar("1/3")
 ? c1.Content()
+#--> Error in file stzHexNumber.ring:
+#   What : Can't create the hex number.
+#   Why  : The value you provided is not in correct hex form.
+#   Todo : Provide a hex number in a string prefixed by "0x" and containing only hex characters (from 0 to 9 and from A to F).
+
+pf()
 
 /*---
+
+pr()
 
 c1 = new stzChar("೨")
 ? c1.Unicode() #--> 3304
@@ -1302,11 +1409,21 @@ c1 = new stzChar("೨")
 ? c1.Script() #--> kannada
 ? c1.Name() #--> KANNADA DIGIT TWO
 
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 ? CurrentUnicodeVersion() #--> 13.0
 
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 ? LanguagesInScript(:cyrillic)
 #--> 	belarusian
@@ -1323,7 +1440,12 @@ c1 = new stzChar("೨")
 #	serbian
 #	ukrainian
 
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 ? LanguagesInScript(:arabic)
 #--> 	acehnese, adyghe, afar, afrikaans, algerian, amazigh, arabic, arwi,
@@ -1340,7 +1462,12 @@ c1 = new stzChar("೨")
 #	swahili, tajik, talysh, tatar, tausug, tuareg, tunisian, turkish,
 #	turkmen, urdu, uyghur, 	uzbek, wakhi, wolio, wolof, yoruba, zarma
 
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 o1 = new stzChar("⅋")
 ? o1.Name() #--> TURNED AMPERSAND
@@ -1348,18 +1475,28 @@ o1 = new stzChar("⅋")
 ? o1.UnicodeCategory() #--> symbol_math
 ? o1.IsTurnedChar() #--> TRUE
 
+pf()
+# Executed in 0.07 second(s) in Ring 1.23
+
 /*---
 
-? CommonLanguagesInScripts([ :cyrillic, :arabic ]) #TODO // Check the performance lag!
+pr()
+
+? CommonLanguagesInScripts([ :cyrillic, :arabic ])
 #--> 	belarusian
 #	bosnian
 #	kazakh
 #	kyrgyz
 #	persian
 
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
 /*---
 
-? CommonLanguagesInScripts([ :cyrillic, :latin ]) #TODO // Check the performance lag!
+pr()
+
+? CommonLanguagesInScripts([ :cyrillic, :latin ])
 #--> 	belarusian
 #	bosnian
 #	bulgarian
@@ -1369,14 +1506,195 @@ o1 = new stzChar("⅋")
 #	montenegrin
 #	serbian
 #	hungarian
-/*---
 
-? CommonLanguagesInScripts([ :armenian, :latin ]) #TODO // Check the performance lag!
-#--> 	belarusian
-#	hungarian
-#	serbian
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*---
+
+pr()
+
+aList = [
+	[ "armenian" ],
+	[
+		"acehnese",
+		"adyghe",
+		"afar",
+		"afrikaans",
+		"albanian",
+		"aragonese",
+		"asturian",
+		"aymara",
+		"azeri",
+		"bai",
+		"banjar",
+		"basque",
+		"bearybashe",
+		"belarusian",
+		"belarusian",
+		"betawi",
+		"bislama",
+		"boholano",
+		"bosnian",
+		"breton",
+		"britishlatin",
+		"bulgarian",
+		"catalan",
+		"cebuano",
+		"chamorro",
+		"cherokee",
+		"cornish",
+		"corsican",
+		"cree",
+		"croatian",
+		"czech",
+		"danish",
+		"dayak",
+		"dutch",
+		"english",
+		"esperanto",
+		"estonian",
+		"faroese",
+		"fijian",
+		"filipino",
+		"finnish",
+		"french",
+		"fula",
+		"gaelic",
+		"galician",
+		"gaulish",
+		"german",
+		"gikuyu",
+		"guaraní",
+		"haitiancreole",
+		"hausa",
+		"hawaiian",
+		"hirimotu",
+		"hmong",
+		"hungarian",
+		"hungarian",
+		"icelandic",
+		"ido",
+		"igbo",
+		"ilocano",
+		"indonesian",
+		"innuaimun",
+		"interlingua",
+		"irish",
+		"italian",
+		"javanese",
+		"judeospanish",
+		"kabylian",
+		"kazakh",
+		"khasi",
+		"kinyarwanda",
+		"kirundi",
+		"klingon",
+		"kongo",
+		"konkani",
+		"kurdish",
+		"ladino",
+		"latin",
+		"latvian",
+		"laz",
+		"leonese",
+		"lingala",
+		"lithuanian",
+		"luganda",
+		"luxembourgish",
+		"malagasy",
+		"malay",
+		"maltese",
+		"malé",
+		"manx",
+		"marshallese",
+		"mauritiancreole",
+		"minangkabau",
+		"moldovan",
+		"mongolian",
+		"montenegrin",
+		"māori",
+		"nahuatl",
+		"nauruan",
+		"navaho",
+		"ndebelenorthern",
+		"ngai",
+		"nias",
+		"nobiin",
+		"northfrisian",
+		"norwegian",
+		"occitan",
+		"olddanish",
+		"olddutch",
+		"oldenglish",
+		"oldfrisian",
+		"oldhighgerman",
+		"oldscandinavian",
+		"oromo",
+		"palauan",
+		"picard",
+		"polish",
+		"portuguese",
+		"quechua",
+		"rohingya",
+		"romanian",
+		"romansh",
+		"samoan",
+		"sasak",
+		"saterlandfrisian",
+		"scots",
+		"serbian",
+		"serbian",
+		"seychelloiscreole",
+		"shona",
+		"slovak",
+		"slovene",
+		"somali",
+		"sothonorthern",
+		"sothosouthern",
+		"spanish",
+		"sundanese",
+		"swahili",
+		"swati",
+		"swedish",
+		"tagalog",
+		"tahitian",
+		"tamazight",
+		"tatar",
+		"tetum",
+		"tokpisin",
+		"tongan",
+		"tsonga",
+		"tswana",
+		"tunisianarabic",
+		"turkish",
+		"turkmen",
+		"turoyo",
+		"uzbek",
+		"vastese",
+		"venda",
+		"vietnamese",
+		"volapük",
+		"võro",
+		"walloon",
+		"welsh",
+		"westfrisian",
+		"wolof",
+		"xhosa",
+		"yoruba",
+		"zazaki",
+		"zhuang",
+		"zulu"
+	]
+]
+
+? ShowShort( Unique( Merge(aList) ) )
+
+pf()
+
+/*---
+
+pr()
 
 ? Languages()
 #--> 	c, :abkhazian, :oromo, :afar, :afrikaans, :albanian, :amharic,
@@ -1429,11 +1747,21 @@ o1 = new stzChar("⅋")
 #	:lojban, :sicilian, :southern_kurdish, :western_balochi, :cebuano, :erzya,
 #	:chickasaw, :muscogee, :silesian
 
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
 /*---
 
-? ScriptsForLanguage(:belarusian) #TODO
+pr()
+
+? ScriptsForLanguage(:belarusian) #TODO // See why it returns nothing
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*---
+
+pr()
 
 ? CharScript(",") 	#--> common
 ? CharScript("⅀") 	#--> common
@@ -1446,7 +1774,12 @@ o1 = new stzChar("⅋")
 ? CharScript("Ж") 	#--> cyrillic
 ? CharScript("经") 	#--> han
 
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 ? StzCharQ(",").Name()	#--> COMMA
 ? StzCharQ("⅀").Name()	#--> DOUBLE-STRUCK N-ARY SUMMATION
@@ -1458,74 +1791,176 @@ o1 = new stzChar("⅋")
 ? StzCharQ("Ϡ").Name()	#--> GREEK LETTER SAMPI
 ? StzCharQ("Ж").Name()	#--> CYRILLIC CAPITAL LETTER ZHE
 
-? StzCharQ("经").Name()	#--> _NULL_ (Name inexistant in stzUnicodeData.ring file)
+//? StzCharQ("经").Name()
+#--> Can't proceed! The name of this char does not
+# exist in the local unicode database.
+
+pf()
+# Executed in 0.23 second(s) in Ring 1.23
 
 /*---
+
+pr()
 
 o1 = new stzChar(8204)
 ? CharScript( o1.Content() ) # inherited
 
-/*---
-
-? LanguagesInScript(CharScript("ض"))
-? StzScriptQ(CharScript("ض")).Languages()
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*---
+
+pr()
+
+? ShowShort( LanguagesInScript(CharScript("ض")) ) + NL
+#--> [ "acehnese", "adyghe", "afar", "...", "wolof", "yoruba", "zarma" ]
+
+? ShowShort( StzScriptQ(CharScript("ض")).Languages() )
+#--> [ "acehnese", "adyghe", "afar", "...", "wolof", "yoruba", "zarma" ]
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 ? CurrentUnicodeVersion() #--> 13.0
 o1 = new stzChar("四")
-? o1.UnicodeVersion() #--> 1.1
-? o1.IntroducedInUnicodeVersion() #--> 1.1
+? o1.UnicodeVersion() #--> 0.9
+? o1.IntroducedInUnicodeVersion() #--> 0.9
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*---
 
-? MandarinNumbersXT()
-#--> [ [ "〇", 0 ], [ "一", 1 ], [ "二", 2 ], [ "三", 3 ],
-#	[ "四", 4 ], [ "五", 5 ], [ "六", 6 ], [ "七", 7 ],
-#	[ "八", 8 ], [ "九", 9 ], [ "十", 10 ], [ "百", 100 ],
-#	[ "千", 1000 ], [ "万", 10000 ] ]
+pr()
+
+? @@NL( MandarinNumbersXT() )
+#-->
+'
+[
+	[ "〇", 0 ],
+	[ "一", 1 ],
+	[ "二", 2 ],
+	[ "三", 3 ],
+	[ "四", 4 ],
+	[ "五", 5 ],
+	[ "六", 6 ],
+	[ "七", 7 ],
+	[ "八", 8 ],
+	[ "九", 9 ],
+	[ "十", 10 ],
+	[ "百", 100 ],
+	[ "千", 1000 ],
+	[ "万", 10000 ]
+]
+'
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*---
 
-? RomanNumbersXT()
-#--> [ [ "Ⅰ", 1 ], [ "ⅰ", 1 ], [ "Ⅱ", 2 ], [ "ⅱ", 2 ],
-#	[ "Ⅲ", 3 ], [ "ⅲ", 3 ], [ "Ⅳ", 4 ], [ "ⅳ", 4 ],
-#	[ "Ⅴ", 5 ], [ "ⅴ", 5 ], [ "Ⅵ", 6 ], [ "ⅵ", 6 ],
-#	[ "Ⅶ", 7 ], [ "ⅶ", 7 ], [ "Ⅷ", 8 ], [ "ⅷ", 8 ],
-#	[ "Ⅸ", 9 ], [ "ⅸ", 9 ], [ "Ⅹ", 10 ], [ "ⅹ", 10 ],
-#	[ "Ⅺ", 11 ], [ "ⅺ", 11 ], [ "Ⅻ", 12 ], [ "ⅻ", 12 ],
-#	[ "Ⅼ", 50 ], [ "ⅼ", 50 ], [ "Ⅽ", 100 ], [ "ⅽ", 100 ],
-#	[ "Ↄ", 100 ], [ "ↄ", 100 ], [ "Ⅾ", 500 ], [ "ⅾ", 500 ],
-#	[ "Ⅿ", 1000 ], [ "ⅿ", 1000 ], [ "ↀ", 1000 ], [ "ↁ", 5000 ],
-#	[ "ↂ", 10000 ], [ "ↅ", 6 ], [ "ↆ", 50 ], [ "ↇ", 50000 ],
-#	[ "ↈ", 100000 ] ]
+pr()
+
+? @@NL(RomanNumbersXT())
+#-->
+'
+[
+	[ "Ⅰ", 1 ],
+	[ "ⅰ", 1 ],
+	[ "Ⅱ", 2 ],
+	[ "ⅱ", 2 ],
+	[ "Ⅲ", 3 ],
+	[ "ⅲ", 3 ],
+	[ "Ⅳ", 4 ],
+	[ "ⅳ", 4 ],
+	[ "Ⅴ", 5 ],
+	[ "ⅴ", 5 ],
+	[ "Ⅵ", 6 ],
+	[ "ⅵ", 6 ],
+	[ "Ⅶ", 7 ],
+	[ "ⅶ", 7 ],
+	[ "Ⅷ", 8 ],
+	[ "ⅷ", 8 ],
+	[ "Ⅸ", 9 ],
+	[ "ⅸ", 9 ],
+	[ "Ⅹ", 10 ],
+	[ "ⅹ", 10 ],
+	[ "Ⅺ", 11 ],
+	[ "ⅺ", 11 ],
+	[ "Ⅻ", 12 ],
+	[ "ⅻ", 12 ],
+	[ "Ⅼ", 50 ],
+	[ "ⅼ", 50 ],
+	[ "Ⅽ", 100 ],
+	[ "ⅽ", 100 ],
+	[ "Ↄ", 100 ],
+	[ "ↄ", 100 ],
+	[ "Ⅾ", 500 ],
+	[ "ⅾ", 500 ],
+	[ "Ⅿ", 1000 ],
+	[ "ⅿ", 1000 ],
+	[ "ↀ", 1000 ],
+	[ "ↁ", 5000 ],
+	[ "ↂ", 10000 ],
+	[ "ↅ", 6 ],
+	[ "ↆ", 50 ],
+	[ "ↇ", 50000 ],
+	[ "ↈ", 100000 ]
+]
+'
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*---
 
+pr()
+
+lower("Ⅺ")
 o1 = new stzChar("Ⅺ")
 ? o1.lowercased() #--> ⅺ
 
 o1 = new stzChar("ⅺ")
-? o1.UPPERcased() #--> Ⅺ
+? o1.UPPERcased() #TODO // Ring upper() may be responsible for this!
+ #--> should return Ⅺ but it returned nothing
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*---
 
-? CircledDigits() #--> ①, ②, ③, ④, ⑤, ⑥, ⑦, ⑧, ⑨, ⓪
-? CircledDigitUnicodes() #--> 9312:9320 + 9450
+pr()
+
+? @@(CircledDigits())
+#--> [ "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⓪" ]
+? @@(CircledDigitUnicodes()) #--> [ 9312, 9313, 9314, 9315, 9316, 9317, 9318, 9319, 9320, 9450 ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*---
+
+pr()
 
 o1 = new stzChar("Σ")
 ? o1.IsLowercase() #--> FALSE
 ? o1.IsUPPERcase() #--> TRUE
-? o1.CharCase() #--> uppercase
+? o1.CharCase() + NL #--> uppercase
 
 o1 = new stzChar("σ")
 ? o1.IsLowercase() #--> TRUE
 ? o1.IsUppercase() #--> FALSE
 ? o1.CharCase() #--> lowercase
 
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 o1 = new stzChar("ﮘ")
 o1 {
@@ -1540,11 +1975,48 @@ o1 {
 	? IsArabicPresentationFormB()	#--> FALSE
 }
 
+pf()
+# Executed in 0.03 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 ? QuranicSigns()
+#--
+'
+ۖ
+ۗ
+ۘ
+ۙ
+ۚ
+ۛ
+ۜ
+۝
+۞
+۟
+۠
+ۡ
+ۢ
+ۣ
+ۤ
+ۥ
+ۦ
+ۧ
+ۨ
+۩
+۪
+۫
+۬
+ۭ
+'
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*---
+
+pr()
 
 o1 = new stzChar("۩")
 o1 {
@@ -1557,56 +2029,128 @@ o1 {
 	? IsQuranicSign()		#--> TRUE
 }
 
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 ? ArabicNumberFractions()
+#-->
+'
+¼
+½
+¾
+⅐
+⅑
+⅒
+⅓
+⅔
+⅕
+⅖
+⅗
+⅘
+⅙
+⅚
+⅛
+⅜
+⅝
+⅞
+⅟
+↉
+'
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*---
+
+pr()
 
 o1 = new stzChar("⅗")
 ? o1.IsArabicFraction() #--> TRUE
 
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 o1 = new stzChar("万")
 ? o1.IsMandarinNumber() #--> TRUE
 
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 ? StzCharQ(12295).Content() #--> 〇
 ? StzCharQ(12295).Name() #--> IDEOGRAPHIC NUMBER ZERO
 
+pf()
+# Executed in 0.05 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 o1 = new stzChar(64544)
 ? o1.Content() #--> "ﰠ"
 
 ? StzCharQ("ﰠ").Name() # ARABIC LIGATURE SAD WITH HAH ISOLATED FORM
 
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 o1 = new stzChar("ↈ")
 ? o1.Unicode() #--> 8584
 ? o1.IsRomanNumber() #--> TRUE
 
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
 /*---
 
-? RomanToDecimalNumber("ↈ") #TODO
+pr()
+
+? RomanToDecimalNumber("ↈ") # Or RomanToArabicNumber("ↈ")
+#--> 100000
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*---
+
+pr()
 
 o1 = new stzChar("෴")
-? o1.Unicode() #--> 3572
+? o1.Unicode()
+#--> 3572
 
 o1 = new stzChar(3572)
 ? o1.Content() #--> ෴
 ? o1.Name() #--> SINHALA PUNCTUATION KUNDDALIYA
 
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
+
 /*---
 
+pr()
+
 ? "۲" = "٢" #--> FALSE
+
 o1 = new stzChar("۲")
 ? o1.Name() #--> EXTENDED ARABIC-INDIC DIGIT TWO
+
 ? o1.Unicode() #--> 1778
 ? o1.UnicodeCategory() #--> number_decimaldigit
 ? o1.IsIndianDigit() #--> TRUE
@@ -1617,7 +2161,12 @@ o1 = new stzChar("٢")
 ? o1.UnicodeCategory() #--> number_decimaldigit
 ? o1.IsIndianDigit() #--> TRUE
 
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 o1 = new stzChar("O")
 ? o1.Name() #--> LATIN CAPITAL LETTER O
@@ -1629,28 +2178,76 @@ o1 = new stzChar("Ο")
 ? o1.Unicode() #--> 927
 ? o1.UnicodeCategory() #--> letter_uppercase
 
-/*---
+pf()
+# Executed in 0.06 second(s) in Ring 1.23
+
+/*--- #narration
+
+pr()
 
 _cRightToLeftOverride = "‮"
-// Do you think this is an empty Char?
-// Let's see...
+# Do you think this is an empty Char?
+# Let's see...
 
 o1 = new stzChar(_cRightToLeftOverride)
 ? o1.IsEmpty() # It's not! (returns FALSE)
 
-// Nor it is a whitespace...
+# Nor it is a whitespace...
 ? o1.IsWhitespace() #--> FALSE
 
-// Let's see why?
+# Let's see why?
 ? o1.UnicodeCategory() # it belongs to other_format unicode category
 ? o1.Unicode() # it has a unicode (8238)
 ? o1.IsPrintable() # it's not printable
 ? o1.IsRightToLeftOverride() # it's the RLO unicode Char!
 
-// What if we see its name!
+# What if we see its name!
 ? o1.Name() #--> RIGHT-TO-LEFT OVERRIDE
 
+pf()
+# Executed in 0.03 second(s) in Ring 1.23
+
 /*---
+
+pr()
+
+? CharsNames(InvisibleChars())
+#-->
+'
+<control>
+NO-BREAK SPACE
+EN QUAD
+EM QUAD
+EN SPACE
+EM SPACE
+THREE-PER-EM SPACE
+FOUR-PER-EM SPACE
+SIX-PER-EM SPACE
+FIGURE SPACE
+PUNCTUATION SPACE
+THIN SPACE
+HAIR SPACE
+ZERO WIDTH SPACE
+ZERO WIDTH NON-JOINER
+ZERO WIDTH JOINER
+LEFT-TO-RIGHT MARK
+RIGHT-TO-LEFT MARK
+LINE SEPARATOR
+PARAGRAPH SEPARATOR
+NARROW NO-BREAK SPACE
+MEDIUM MATHEMATICAL SPACE
+IDEOGRAPHIC SPACE
+HANGUL FILLER
+HANGUL CHOSEONG FILLER
+HALFWIDTH HANGUL FILLER
+'
+
+pf()
+# Executed in 0.72 second(s) in Ring 1.23
+
+/*---
+
+pr()
 
 # Be careful: there is a hidden char that inverted the text "freind" and
 # forced it to be written from right to left!
@@ -1658,18 +2255,124 @@ o1 = new stzChar(_cRightToLeftOverride)
 txt = "dear ‮friends!"
 
 ? txt
+#-- dear ‮friends!
+
 
 # Trying to get it in pure Ring
 
 for c in txt
 	? c
 next
+#-->
+'
+d
+e
+a
+r
+ 
+�
+�
+�
+f
+r
+i
+e
+n
+d
+s
+!
+'
 
 # Trying to know it in Softanza
+? ""
+
+pf()
+
+/*---
+
+pr()
+
+
+? @@(trim(" ‮
+"))
+
+
+pf()
+
+#Unicode: 8238
+
+/*---
+*/
+pr()
+
+? Unicode(CharByName("RIGHT-TO-LEFT OVERRIDE"))
+
+pf()
+
+/*---
+*/
+pr()
+
+txt = "dear ‮friends!"
 
 o1 = new stzString(txt)
-? o1.Content()
-? o1.Chars()
+o1 {
+	? Content()
+	#--> dear ‮friends!
+
+	? @@NL(CharsNames()) + NL
+
+	? ContainsInvisibleChars()
+	#-- TRUE
+
+	? @@(o1.FindInvisibleChars())
+	#-- [ 6 ]
+
+	? @@(o1.InvisibleChars())
+	#--> [ "RIGHT-TO-LEFT OVERRIDE" ]
+}
+
+
+# All insible chars
+
+? InvisibleCharsNames()
+#-->
+'
+<control>
+NO-BREAK SPACE
+EN QUAD
+EM QUAD
+EN SPACE
+EM SPACE
+THREE-PER-EM SPACE
+FOUR-PER-EM SPACE
+SIX-PER-EM SPACE
+FIGURE SPACE
+PUNCTUATION SPACE
+THIN SPACE
+HAIR SPACE
+ZERO WIDTH SPACE
+ZERO WIDTH NON-JOINER
+ZERO WIDTH JOINER
+LEFT-TO-RIGHT MARK
+RIGHT-TO-LEFT MARK
+LINE SEPARATOR
+PARAGRAPH SEPARATOR
+RIGHT-TO-LEFT OVERRIDE
+NARROW NO-BREAK SPACE
+MEDIUM MATHEMATICAL SPACE
+IDEOGRAPHIC SPACE
+HANGUL FILLER
+HANGUL CHOSEONG FILLER
+HALFWIDTH HANGUL FILLER
+'
+
+
+# As you see, it's called "RIGHT-TO-LEFT OVERRIDE"
+# It's an inivisble char and turn the text after it right-to-left
+
+pf()
+# Executed in 2.97 second(s) in Ring 1.23
 
 /*---
 

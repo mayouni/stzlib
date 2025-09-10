@@ -193,6 +193,9 @@ func CommonItemsCS(paLists, pCaseSensitive)
 	func IntersectionCS(paLists, pCaseSensitive)
 		return CommonItemsCS(paList, pCaseSensitive)
 
+	func CommonCS(paLists, pCaseSensitive)
+		return CommonItemsCS(paLists, pCaseSensitive)
+
 	#--
 
 	func @CommonItemsCS(paLists, pCaseSensitive)
@@ -205,6 +208,9 @@ func CommonItems(paLists)
 	return CommonItemsCS(paLists, _TRUE_)
 
 	func Intersection(paLists)
+		return CommonItems(paLists)
+
+	func Common(paLists)
 		return CommonItems(paLists)
 
 	#--

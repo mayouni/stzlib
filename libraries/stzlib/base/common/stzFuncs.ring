@@ -4657,7 +4657,7 @@ func Empty(pcStzType)
 		return new stzCountry([])
 
 	on :stzlanguage
-		return new stzLangauge([])
+		return new stzLanguage([])
 
 	on :stzscript
 		return new stzScript([])

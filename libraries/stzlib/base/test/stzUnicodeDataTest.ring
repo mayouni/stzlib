@@ -1,4 +1,4 @@
-load "../stzbase.ring"
+load "../stzmax.ring"
 
 pr()
 
@@ -11,7 +11,7 @@ pr()
 ? Unicode("ﷶ") #--> 65014
 ? Unicode("ﷵ") #--> 65013
 
-# Executed in 0.06 second(s)
+# Executed in 0.06 second(s) nn
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.21
@@ -175,6 +175,7 @@ pf()
 */
 pr()
 
+
 StzUnicodeDataQ() {
 
 	? FindCharByName("CLOUD") + NL
@@ -236,4 +237,3 @@ StzUnicodeDataQ() {
 }
 
 pf()
-

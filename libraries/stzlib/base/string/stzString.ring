@@ -1,6 +1,6 @@
 #--------------------------------------------------------------#
 #              SOFTANZA LIBRARY (V0.9) - STZSTRING             #
-# 	An accelerative library for Ring applications, and more!  #
+#    An accelerative library for Ring applications, and more!  #
 #--------------------------------------------------------------#
 #                                                              #
 #    Description  : The class for managing Unicode strings     #
@@ -5769,21 +5769,21 @@ class stzString from stzObject
 	 #  MANAGING INVISBLE CHARS IN THE STRING  #
 	#=========================================#
 
+
 	def ContainsInvisibleChars()
 
-		_acChars_ = This.Chars()
-		_nLen_ = len(_acChars_)
+		acCharsNames = This.CharsNames()
+		acInvisibleCharsNames = @InvisibleCharsNames()
+		nLen = len(acInvisibleCharsNames)
 
-		_bResult_ = _FALSE_
-
-		for @i = 1 to _nLen_
-			if @IsInvisible(_acChars_[@i])
-				_bResult_ = _TRUE_
-				exit
+		for i = 1 to nLen
+			if ring_find(acCharsNames, acInvisibleCharsNames[i]) > 0
+				return TRUE
 			ok
+
 		next
 
-		return _bResult_
+		return FALSE
 
 		def ContainsInvisible()
 			return This.ContainsInvisibleChars()
@@ -5794,18 +5794,20 @@ class stzString from stzObject
 
 	def InvisibleChars()
 
-		_acChars_ = This.Chars()
-		_nLen_ = len(_acChars_)
+		acCharsNames = This.CharsNames()
+		acInvisibleCharsNames = @InvisibleCharsNames()
+		nLen = len(acInvisibleCharsNames)
 
-		_acResult_ = []
+		acResult = []
 
-		for @i = 1 to _nLen_
-			if @IsInvisible(_acChars_[@i])
-				_acResult_ + _acChars_[@i]
+		for i = 1 to nLen
+			if ring_find(acCharsNames, acInvisibleCharsNames[i]) > 0
+				acResult + acInvisibleCharsNames[i]
 			ok
+
 		next
 
-		return _acResult_
+		return acResult
 
 		def Invisibles()
 			return This.InvisibleChars()
@@ -5816,18 +5818,20 @@ class stzString from stzObject
 
 	def InvisibleCharsNames()
 
-		_acChars_ = This.Chars()
-		_nLen_ = len(_acChars_)
-		
-		_acResult_ = []
+		acCharsNames = This.CharsNames()
+		acInvisibleCharsNames = @InvisibleCharsNames()
+		nLen = len(acInvisibleCharsNames)
 
-		for @i = 1 to _nLen_
-			if @IsInvisible(_acChars_[@i])
-				_acResult_ + CharName(_acChars_[@i])
+		acResult = []
+
+		for i = 1 to nLen
+			if ring_find(acCharsNames, acInvisibleCharsNames[i]) > 0
+				acResult + @CharName(acInvisibleCharsNames[i])
 			ok
+
 		next
 
-		return _acResult_
+		return acResult
 
 		def InvisiblesNames()
 			return This.InvisibleCharsNames()
@@ -5838,18 +5842,21 @@ class stzString from stzObject
 
 	def FindInvisibleChars()
 
-		_acChars_ = This.Chars()
-		_nLen_ = len(_acChars_)
-		
-		_anResult_ = []
+		acCharsNames = This.CharsNames()
+		acInvisibleCharsNames = @InvisibleCharsNames()
+		nLen = len(acInvisibleCharsNames)
 
-		for @i = 1 to _nLen_
-			if @IsInvisible(_acChars_[@i])
-				_anResult_ + @i
+		anResult = []
+
+		for i = 1 to nLen
+			nPos = ring_find(acCharsNames, acInvisibleCharsNames[i])
+			if nPos > 0
+				anResult + nPos
 			ok
+
 		next
 
-		return _anResult_
+		return anResult
 
 		def FindInvisible()
 			return This.FindInvisibleChars()
