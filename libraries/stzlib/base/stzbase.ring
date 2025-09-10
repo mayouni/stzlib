@@ -26,6 +26,7 @@
 
 	load "data/stzCharData.ring"
 	load "data/stzUnicodeData.ring"
+	load "data/stzLocaleData.ring"
 	load "data/stzRegexData.ring"
 	load "data/stzRandomData.ring"
 
@@ -58,7 +59,6 @@
 # Loading files related to the STRING module
 
 	load "string/stzStringFuncs.ring"
-	load "string/stzStringGlobs.ring"
 	load "string/stzString.ring"
 
 	load "string/stzListOfStrings.ring"
@@ -142,6 +142,19 @@
 	load "error/stzOctalNumberError.ring"
 	load "error/stzDecimalToBinaryError.ring"
 
+# Loading files related to the DATETIME module
+
+	load "datetime/stzDate.ring"
+	load "datetime/stzTime.ring"
+
+# Loading files related to the I18N module
+
+	load "i18n/stzCountry.ring"
+	load "i18n/stzCurrency.ring"
+	load "i18n/stzLanguage.ring"
+	load "i18n/stzLocale.ring"
+	load "i18n/stzScript.ring"
+
 # Loading files related to the NEtwORK module
 
 	load "network/stzNetwork.ring"
@@ -164,7 +177,7 @@
 	load "reactive/stzReactiveStream.ring"
 	load "reactive/stzReactiveHttp.ring"
 
-# Loading files related to STZAPPSERVER module
+# Loading files related to APPSERVER module (FUTURE)
 
 	load "appserver/stzAppServer.ring"
 	load "appserver/stzAppRequest.ring"
@@ -172,3 +185,12 @@
 	load "appserver/stzAppRouter.ring"
 	load "appserver/stzComputeEngine.ring"
 	load "appserver/stzContextPool.ring"
+
+# Loading files related to CLUSTER module (FUTURE)
+
+	load "cluster/stzCluster.ring"
+	load "cluster/stzClusterNode.ring"
+	load "cluster/stzRequestClassifier.ring"
+	load "cluster/stzLoadBalancer.ring"
+	load "cluster/stzClusterManager.ring"
+	load "cluster/stzClusterMonitor.ring"

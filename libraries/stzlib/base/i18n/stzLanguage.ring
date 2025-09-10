@@ -354,9 +354,6 @@ func LocaleLanguages()
 
 	return aResult
 
-	func Languages()
-		return LocaleLanguages()
-
 func NumberOfLanguages()
 	return len(_aLocaleLanguagesXT)
 

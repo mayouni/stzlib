@@ -21,17 +21,6 @@
 
 		load "turbo-wings/geo/stzGeoMap.ring"
 
-	#-- Loading files files related to INTERNATIONAL wings modules
-
-		load "international-wings/stzCountry.ring"
-		load "international-wings/stzCurrency.ring"
-		load "international-wings/stzDate.ring"
-		load "international-wings/stzLanguage.ring"
-		load "international-wings/stzLocale.ring"
-		load "international-wings/stzScript.ring"
-		load "international-wings/stzStopWords.ring"
-		load "international-wings/stzTime.ring"
-
 	#-- Loading files files related to NATURAL wings modules
 
 		load "natural-wings/stzEntity.ring"
@@ -50,14 +39,10 @@
 
 	#-- Loading files files related to WEb wings modules
 
-		load "web-wings/stzUrl.ring"
+		//
 
 	#-- Loading files related to SECURITY wings modules
 
 		load "security-wings/krypto/stzCrypto.ring"
 		load "security-wings/krypto/stzCryptoString.ring"
 		load "security-wings/krypto/stzCryptoFile.ring"
-
-	#-- Loading files related to COBOL wings modules
-
-		load "cobol-wings/stzCobolReader.ring"

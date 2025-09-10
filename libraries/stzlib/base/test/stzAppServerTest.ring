@@ -1,16 +1,17 @@
+load "../stzbase.ring"
 
 /*--- Basic web application
-
+*/
 
 app = new stzAppServer()
 
 # Simple route
-app.Get("/hello", func oRequest, oResponse {
+app.Get_("/hello", func oRequest, oResponse {
     oResponse.Text("Hello from Softanza!")
 })
 
 # JSON API with Softanza string processing
-app.Get("/api/process", func oRequest, oResponse {
+app.Get_("/api/process", func oRequest, oResponse {
     cText = oRequest.Query("text")
     if cText = ""
         oResponse.Status(400).Json([:error = "text parameter required"])
@@ -34,9 +35,10 @@ app.Get("/api/process", func oRequest, oResponse {
 # Start the server
 app.Start(3000)
 
+pf()
 
 /*--- Advanced computational API
-*/
+
 app = new stzAppServer()
 
 # Complex text analysis endpoint

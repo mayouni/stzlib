@@ -51,9 +51,9 @@ stzAppServer flips this paradigm completely. Instead of treating computational l
 │   +------------------------------------------------+   │
 │                          ↑                             │
 │                          │                             │
-│  Request 1 -> Parse -> Route -> Execute -> Response    │ ← FAST!
-│  Request 2 -> Parse -> Route -> Execute → Response     │ ← FAST!
-│  Request 3 -> Parse -> Route -> Execute → Response     │ ← FAST!
+│  Request 1 → Parse → Route → Execute → Response        │ ← FAST!
+│  Request 2 → Parse → Route → Execute → Response        │ ← FAST!
+│  Request 3 → Parse → Route → Execute → Response        │ ← FAST!
 │                                                        │
 └───────────────────────────────────────────────────┘
 ```
@@ -63,102 +63,35 @@ stzAppServer flips this paradigm completely. Instead of treating computational l
 stzAppServer consists of four core components working together:
 
 ```
-    ┌-----------------------------------┐
-    │            stzAppServer           │
-    │         (Main Orchestrator)       │
-    └-----------------┬-----------------┘
+    ┌─────────────────────────────────────────────────┐
+    │                stzAppServer                     │
+    │          (Main Orchestrator)                    │
+    └─────────────────┬───────────────────────────────┘
                       │
-    ┌-----------------┼-----------------┐
-    │                 │                 │
-    │   ┌-------------v-------------┐   │
-    │   │      stzComputeEngine     │   │
-    │   │   (Persistent Softanza)   │   │
-    │   └-------------┬-------------┘   │
-    │                 │                 │
-    │   ┌-------------v-------------┐   │
-    │   │      stzContextPool       │   │
-    │   │   (Memory Management)     │   │
-    │   └-------------┬-------------┘   │
-    │                 │                 │
-    │   ┌-------------v-------------┐   │
-    │   │       stzAppRouter        │   │
-    │   │    (Request Routing)      │   │
-    │   └-------------┬-------------┘   │
-    │                 │                 │
-    │   ┌-------------v-------------┐   │
-    │   │     stzReactiveSystem     │   │
-    │   │   (Non-blocking I/O)      │   │
-    │   └---------------------------┘   │
-    │                                   │
-    └-----------------------------------┘
+    ┌─────────────────┼───────────────────────────────┐
+    │                 │                               │
+    │   ┌─────────────▼─────────────┐                 │
+    │   │      stzComputeEngine     │                 │
+    │   │   (Persistent Softanza)   │                 │
+    │   └─────────────┬─────────────┘                 │
+    │                 │                               │
+    │   ┌─────────────▼─────────────┐                 │
+    │   │      stzContextPool       │                 │
+    │   │   (Memory Management)     │                 │
+    │   └─────────────┬─────────────┘                 │
+    │                 │                               │
+    │   ┌─────────────▼─────────────┐                 │
+    │   │       stzAppRouter        │                 │
+    │   │    (Request Routing)      │                 │
+    │   └─────────────┬─────────────┘                 │
+    │                 │                               │
+    │   ┌─────────────▼─────────────┐                 │
+    │   │     stzReactiveSystem     │                 │
+    │   │   (Non-blocking I/O)      │                 │
+    │   └───────────────────────────┘                 │
+    │                                                 │
+    └─────────────────────────────────────────────────┘
 ```
-
-## Understanding Key Concepts
-
-### What is a "Context"?
-
-A **context** is an isolated execution environment where a request gets processed. Think of it as a dedicated workspace that contains:
-
-* Memory space for variables and objects
-* Access to the pre-loaded Softanza engine
-* Isolated state that doesn't interfere with other requests
-* Resource limits (memory, execution time)
-
-ring
-
-```ring
-# Each context works like this:
-oContext = new stzProcessingContext()
-oContext {
-    # Has access to pre-loaded Softanza
-    oStr = new stzString("Hello World")  # Instant access!
-    
-    # Isolated variables - won't affect other contexts
-    cResult = oStr.Reversed()
-    
-    # Clean up happens automatically
-}
-```
-
-**Why contexts matter:**
-
-* **Isolation**: Each request runs independently
-* **Performance**: No library loading overhead
-* **Concurrency**: Multiple requests processed simultaneously
-* **Resource Control**: Memory and CPU limits per request
-
-### What is a "Pool"?
-
-A **context pool** is a collection of pre-created contexts that are reused across requests. Instead of creating/destroying contexts for each request, the pool manages a fixed number of reusable contexts.
-
-```
-Context Pool Management:
-┌-------------------------------------┐
-│  Available Contexts   │  Active     │
-│  +-----+  +-----+     │  +-----+    │
-│  | Ctx |  | Ctx |     │  | Ctx |    │
-│  |  3  |  |  4  |     │  |  1  |    │
-│  +-----+  +-----+     │  +-----+    │
-│                       │             │
-│                       │  +-----+    │
-│                       │  | Ctx |    │
-│                       │  |  2  |    │
-│                       │  +-----+    │
-└-------------------------------------┘
-
-Flow:
-1. Request arrives → Borrow available context
-2. Process request in borrowed context  
-3. Return context to available pool
-```
-
-**Pool benefits:**
-
-* **Performance**: No context creation/destruction overhead
-* **Memory efficiency**: Fixed memory footprint
-* **Resource control**: Limit concurrent processing
-* **Scalability**: Handle thousands of requests with limited resources
-
 
 ### Component Breakdown
 
@@ -176,31 +109,26 @@ oComputeEngine {
 ```
 
 **2. stzContextPool - Smart Memory Management**
-Manages reusable execution contexts:
+Instead of creating/destroying computational contexts, we pool them:
 
-```ring
-oPool = new stzContextPool()
-oPool {
-    CreateContexts(20)           # Pre-create 20 contexts
-    SetContextMemoryLimit("100MB")   # Limit per context
-    SetContextTimeout(30)            # Max 30 seconds per request
-}
 ```
-
-
+Context Pool State:
+┌─────────────────────────────────────┐
+│  Available Contexts    │  Active     │
+│  ┌─────┐  ┌─────┐     │  ┌─────┐    │
+│  │ Ctx │  │ Ctx │     │  │ Ctx │    │
+│  │  3  │  │  4  │     │  │  1  │    │
+│  └─────┘  └─────┘     │  └─────┘    │
+│                       │             │
+│                       │  ┌─────┐    │
+│                       │  │ Ctx │    │
+│                       │  │  2  │    │
+│                       │  └─────┘    │
+└─────────────────────────────────────┘
+```
 
 **3. stzReactiveSystem - Non-blocking Processing**
-Built on event-driven architecture for handling thousands of concurrent requests without blocking:
-
-```ring
-oReactive = new stzReactiveSystem()
-oReactive {
-    SetMaxConcurrentRequests(5000)
-    SetIOThreads(4)
-    EnableKeepAlive()
-}
-```
-
+Built on libuv-style event loops for handling thousands of concurrent requests without blocking.
 
 ## Real-World Usage Examples
 
@@ -274,27 +202,27 @@ app.Start(8080)
 ### Traditional Approach (Per-Request Loading)
 ```
 Request Timeline:
-┌------------------------------------------------------------┐
-│ Load Libs | Init Data | Process | Cleanup |  Response      │
-│   800ms   |   200ms   |  50ms   |  100ms  |    5ms         │
-│           |           |         |         |                │
-│ <--------------------- 1,155ms total --------------------> │
-│                                           │                │
-│ Only 50ms of actual computation!          │                │
-└------------------------------------------------------------┘
+┌──────────────────────────────────────────────────────────┐
+│ Load Libs │ Init Data │ Process │ Cleanup │  Response     │
+│   800ms   │   200ms   │  50ms   │  100ms  │    5ms        │
+│           │           │         │         │               │
+│ ◄─────────── 1,155ms total ──────────────►│               │
+│                                           │               │
+│ Only 50ms of actual computation!          │               │
+└──────────────────────────────────────────────────────────┘
 ```
 
 ### stzAppServer Approach (Persistent Engine)
 ```
 Request Timeline:
-┌-----------------------------------------------------------┐
-│ Parse | Route | Execute |  Response                       │
-│  2ms  |  1ms  |  50ms   |    5ms                          │
-│       |       |         |                                 │
-│ <------------ 58ms total ---------->                      │
-│                         │                                 │
-│ 20x faster response!    │                                 │
-└-----------------------------------------------------------┘
+┌──────────────────────────────────────────────────────────┐
+│ Parse │ Route │ Execute │  Response                       │
+│  2ms  │  1ms  │  50ms   │    5ms                          │
+│       │       │         │                                │
+│ ◄─────── 58ms total ───►│                                │
+│                         │                                │
+│ 20x faster response!    │                                │
+└──────────────────────────────────────────────────────────┘
 ```
 
 ## What Problems Does stzAppServer Solve?
@@ -332,20 +260,20 @@ Powerful libraries become "too expensive" to use in web APIs, forcing developers
 
 ```
 Traditional Server:
-┌-----------------------------------------┐
-│  Request > Load > Process > Unload      │
-│             ^                 ^         │
-│             |                 |         │
-│         EXPENSIVE         WASTEFUL      │
-└-----------------------------------------┘
+┌─────────────────────────────────────────┐
+│  Request → Load → Process → Unload      │
+│           ▲                 ▲           │
+│           │                 │           │
+│        EXPENSIVE         WASTEFUL       │
+└─────────────────────────────────────────┘
 
 stzAppServer:
-┌-----------------------------------------┐
-│     Request > Process (Engine Ready)    │
-│                 ^                       │
-│                 |                       │
-│             EFFICIENT                   │
-└-----------------------------------------┘
+┌─────────────────────────────────────────┐
+│     Request → Process (Engine Ready)    │
+│              ▲                          │
+│              │                          │
+│           EFFICIENT                     │
+└─────────────────────────────────────────┘
 ```
 
 ### vs. Application Servers (Tomcat, .NET, etc.)
@@ -365,15 +293,15 @@ While application servers do keep some components loaded, they're not optimized 
 ### vs. Specialized Solutions (Wolfram, Jupyter, etc.)
 
 ```
-┌------------------┬------------------┬------------------┐
-│      Wolfram     │     Jupyter      │   stzAppServer   │
-├------------------┼------------------┼------------------┤
-│ + Computational  │ + Interactive    │ + Computational  │
-│ x Proprietary    │ x Not for APIs   │ + Open Source    │
-│ x Expensive      │ x Single User    │ + Free           │
-│ x Math-focused   │ x Notebook UI    │ + General Web    │
-│ x Complex        │ x No Scaling     │ + Simple & Fast  │
-└------------------┴------------------┴------------------┘
+┌─────────────────┬─────────────────┬──────────────────┐
+│   Wolfram       │   Jupyter       │   stzAppServer   │
+├─────────────────┼─────────────────┼──────────────────┤
+│ ✓ Computational │ ✓ Interactive   │ ✓ Computational  │
+│ ✗ Proprietary   │ ✗ Not for APIs  │ ✓ Open Source    │
+│ ✗ Expensive     │ ✗ Single User   │ ✓ Free           │
+│ ✗ Math-focused  │ ✗ Notebook UI   │ ✓ General Web    │
+│ ✗ Complex       │ ✗ No Scaling    │ ✓ Simple & Fast  │
+└─────────────────┴─────────────────┴──────────────────┘
 ```
 
 ## Use Cases Where stzAppServer Excels
@@ -413,59 +341,6 @@ Text mining and analysis for:
 - Market research
 - Compliance monitoring
 
-## Configuration and Optimization
-
-### Pool Configuration
-
-ring
-
-```ring
-app = new stzAppServer()
-app.ConfigureContextPool([
-    :size = 50,                    # Number of contexts in pool
-    :memoryLimitPerContext = "200MB",  # Memory limit per context
-    :timeoutSeconds = 60,              # Max execution time
-    :preloadEngines = true             # Pre-initialize Softanza in each context
-])
-```
-
-### Performance Tuning
-
-ring
-
-```ring
-app.ConfigurePerformance([
-    :maxConcurrentRequests = 10000,
-    :ioThreads = 8,
-    :keepAliveTimeout = 30,
-    :compressionEnabled = true,
-    :cachingEnabled = true
-])
-```
-
-### Monitoring and Health Checks
-
-ring
-
-```ring
-app.Get("/health", func oRequest, oResponse {
-    oResponse.Json([
-        :status = "healthy",
-        :uptime = app.Uptime(),
-        :requests_served = app.RequestCount(),
-        :active_connections = app.ActiveConnections(),
-        :context_pool = [
-            :total = app.ContextPool().TotalCount(),
-            :available = app.ContextPool().AvailableCount(),
-            :active = app.ContextPool().ActiveCount()
-        ],
-        :memory_usage = app.MemoryUsage(),
-        :cpu_usage = app.CPUUsage()
-    ])
-})
-```
-
-
 ## Getting Started
 
 ### Basic Setup
@@ -489,32 +364,20 @@ app.Get("/", func oRequest, oResponse {
 app.Start(3000)
 ? "Server running at http://localhost:3000"
 ```
-### Advanced Configuration
 
-ring
+### Health Monitoring
+stzAppServer includes built-in monitoring:
 
 ```ring
-app = new stzAppServer()
-
-# Configure the server for production
-app {
-    SetPort(8080)
-    SetMaxConnections(5000)
-    EnableSSL("cert.pem", "key.pem")
-    SetLogLevel("production")
-    
-    # Configure context pool
-    ConfigureContextPool([
-        :size = 100,
-        :memoryLimit = "500MB",
-        :timeout = 30
+app.Get("/health", func oRequest, oResponse {
+    oResponse.Json([
+        :status = "healthy",
+        :uptime = app.Uptime(),
+        :requests_served = app.RequestCount(),
+        :active_connections = app.ActiveConnections(),
+        :compute_contexts = app.ContextPool().ActiveCount()
     ])
-    
-    # Add middleware
-    UseMiddleware("cors")
-    UseMiddleware("compression")
-    UseMiddleware("logging")
-}
+})
 ```
 
 ## The Future of Computational Web Applications

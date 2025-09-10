@@ -18,7 +18,6 @@
 
 	load "data/stzBoxDrawCharsData.ring"
 	load "data/stzConstraintsData.ring"
-	load "data/stzLocaleData.ring"
 	load "data/stzStopWordsData.ring"
 	load "data/stzStringArtData.ring"
 
@@ -41,6 +40,7 @@
 	load "string/stzMultiString.ring"
 	load "string/stzSringConstraints.ring"
 	load "string/stzTextEncoding.ring"
+	load "string/stzStopWords.ring"
 
 # Loading files related to the LIST module
 

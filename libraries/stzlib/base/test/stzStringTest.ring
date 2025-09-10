@@ -1,5 +1,4 @@
 load "../stzbase.ring"
-load "../../max/number/stzPairOfNumbers.ring" # From the MAX layer, needed by some samples
 
 /*=====
 
@@ -13179,7 +13178,7 @@ pf()
 
 pr()
 
-# The standard (ISO) form of a locale is <langauge>_<script>_<country> where:
+# The standard (ISO) form of a locale is <language>_<script>_<country> where:
 # 	-> <language> is an abbreviation of 2 or 3 lowercase letters
 #	-> <script> is an abbreviation of 4 letters, the 1st beeing capitalised
 #	-> <country> is an abbreviation of 2 or 3 uppercase letters
@@ -16957,14 +16956,15 @@ o1 = new stzLocale("TN-Arab") # TN here means the TswaNa language in South Afric
 ? o1.CountryName()
 #--> south_africa
 
-? o1.Langauge()
+? o1.Language()
 #--> tswana
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.23
 # Executed in 0.05 second(s) in Ring 1.22
 
 /*------------------
-
+*/
 pr()
 
 o1 = new stzString("fr")

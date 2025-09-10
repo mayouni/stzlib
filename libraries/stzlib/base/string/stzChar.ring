@@ -223,6 +223,9 @@ func Apostrophe()
 func CharName(c)
 	return StzCharQ(c).Name()
 
+	func @CharName(c)
+		return CharName(c)
+
 	func Name(c)
 		return CharName(c)
 
@@ -285,7 +288,8 @@ func CurrentUnicodeVersion()
 	if n > 0 and n <= len(_acUnicodeVersions)
 		return _acUnicodeVersions[ n ]
 	else
-		StzRaise(stzCharError(:CanNotDefineUnicodeVersion))
+		StzRaise("Can not define current unicode version!")
+		#TODO // StzRaise(stzCharError(:CanNotDefineUnicodeVersion))
 	ok
 
 // Returns the unicode name of the char in the unicode table
@@ -571,6 +575,14 @@ func StzIsVowel(p) # Can be char, a string or a list of chars or strings
 		return StzIsVowel(p)
 
 	#>
+
+func CharByName(cName)
+	return StzUnicodeDataQ().CharByName(cName)
+	#TODO // stzUnicodeData class contains other interesting methods
+	# that shoould be made available globally like CharByName()
+
+	func @CharByName(cName)
+		return CharByName(cName)
 
   /////////////////
  ///   CLASS   ///
