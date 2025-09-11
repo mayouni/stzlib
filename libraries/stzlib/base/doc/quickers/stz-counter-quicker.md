@@ -2,6 +2,14 @@
 
 Ever struggled with complex loop index calculations? Let's explore how `stzCounter` eliminates the mental gymnastics of modular arithmetic and cycle management.
 
+## Why stzCounter?
+
+**stzCounter** is a small, flexible class that turns tricky loop index logic into simple, declarative configuration.
+
+Instead of wrestling with conditionals, modulo math, or off-by-one errors, you just describe the pattern you want. The counter handles the rest—efficiently, without building unnecessary sequences in memory.
+
+This makes it a handy tool in simulations, games, or data pipelines, where clean looping logic saves both time and frustration.
+
 ## The Problem: Manual Index Management
 
 Picture this scenario: you're building a carousel that cycles through 5 slides, but when it reaches the end, it should restart from slide 2 (skipping the intro slide).
@@ -135,8 +143,8 @@ Softanza embraces semantic flexibility. All these method variations produce iden
 
 ```ring
 # All equivalent - choose what fits your narrative:
-CountTo(15)           # Action-oriented  
-Counting(:To = 15)    # Process-focused
+CountTo(15)       # Action-oriented  
+CountingTo(15)    # Process-focused
 ```
 
 This flexibility lets your code match how you think about the problem. Need a quick result? Use `CountTo()`. Describing a sequence? Use `Counting()`. The method name becomes part of your code's story.
