@@ -201,7 +201,16 @@ func V(p)
 		return V(p)
 
 func VrVl(p)
-	aResult = Association([ p, v(p) ])
+	val = v(p)
+	if isNull(val)
+		val = []
+		nLen = len(p)
+		for i = 1 to nLen
+			val + ""
+		next
+	ok
+		
+	aResult = Association([ p, val ])
 	return aResult
 
 	func VarVal(p)

@@ -496,9 +496,9 @@ pf()
 	# Or you can change it like this:
 	VrVl( :name3 = 30 )
 	? v(:name3)
-
-/*	
-	# We get the name of the variable and its name by
+	#--> 30
+	
+	# We get the name of the variable and its value by
 	# adding the xt extension to the v() small function:
 	
 	? @@( vxt( :name3 ) )
@@ -517,9 +517,10 @@ pf()
 	#    [ "name8", 80 ]
 	#    [ "name9", 90 ]
 	#    [ "name10", 100 ]
-*/	
+	
 pf()
-# Executed in 0.37 second(s)
+# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.37 second(s) in Ring 1.21
 
 /*======== #ERROR #TODO check it
 
