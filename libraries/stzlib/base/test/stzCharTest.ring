@@ -2292,25 +2292,13 @@ pf()
 
 pr()
 
-
-? @@(trim(" ‮
-"))
-
-
-pf()
-
-#Unicode: 8238
-
-/*---
-*/
-pr()
-
 ? Unicode(CharByName("RIGHT-TO-LEFT OVERRIDE"))
+#-- 8238
 
 pf()
 
 /*---
-*/
+
 pr()
 
 txt = "dear ‮friends!"
@@ -2332,6 +2320,8 @@ o1 {
 	#--> [ "RIGHT-TO-LEFT OVERRIDE" ]
 }
 
+# As you see, it's called "RIGHT-TO-LEFT OVERRIDE"
+# It's an inivisble char and turn the text after it right-to-left
 
 # All insible chars
 
@@ -2367,17 +2357,14 @@ HANGUL CHOSEONG FILLER
 HALFWIDTH HANGUL FILLER
 '
 
-
-# As you see, it's called "RIGHT-TO-LEFT OVERRIDE"
-# It's an inivisble char and turn the text after it right-to-left
-
 pf()
-# Executed in 2.97 second(s) in Ring 1.23
+# Executed in 3.97 second(s) in Ring 1.23
 
 /*---
 
+pr()
+
 o1 = new stzChar("و")
-//o1 = new stzChar(1606)
 
 ? o1.Content() #--> و
 ? o1.Unicode() #--> 1608
@@ -2386,38 +2373,65 @@ o1 = new stzChar("و")
 ? o1.UnicodeDirectionNumber() #--> "13"
 ? o1.UnicodeDirection() #--> righttoleftarabic
 
-? o1.Bytes()
+? @@(o1.Bytes())
+#--> [ "�", "�" ]
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
 
 /*---
+
+pr()
 
 ostr = new stzString("s㊱m")
 ? ostr.NumberOfChars() #--> 3
 ? ostr[2] #--> ㊱
 
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 o1 = new stzChar("㊱")
 ? o1.Unicode() #--> 12977
 ? o1.NumberOfBytes() #--> 3
 
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
 /*---
+
+pr()
 
 o1 = new stzString("s㊱m")
-? o1.NumberOfBytes() #--> 5
-? o1.SizeInBytes() #--> 5
+? o1.NumberOfBytes() #--> 624
+? o1.SizeInBytes() #--> 624
 
-? o1.Bytes()
+? @@(o1.Bytes())
+#--> [ "s", "�", "�", "�", "m" ]
 
-? o1.NumberOfBytesPerChar()
-#-->	[ :s = 1, :㊱ = 3, :m = 1 ]
+? @@(o1.NumberOfBytesPerChar())
+#-->	[ [ "s", 33 ], [ "㊱", 35 ], [ "m", 33 ] ]
+
+pf()
+# Executed in 0.12 second(s) in Ring 1.23
 
 /*---
+
+pr()
 
 o1 = new stzChar("6")
-? o1.IsANumber() # -> TRUE
-? o1.IsDigit()	 # -> TRUE
+? o1.IsANumber() #--> TRUE
+? o1.IsDigit()	 #--> TRUE
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*---
+*/
+pr()
 
 # The "A":"E" syntax is a beautiful feature of Ring:
 
@@ -2437,3 +2451,6 @@ o1 = new stzChar("6")
 
 ? StzCharQ("ب").UpTo("ج") 	#--> [ "ب", "ة", "ت", "ث", "ج" ]
 ? StzCharQ("ج").DownTo("ب")	#--> [ "ج", "ث", "ت", "ة", "ب" ]
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
