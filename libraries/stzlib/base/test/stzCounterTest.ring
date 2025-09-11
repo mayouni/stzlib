@@ -1,6 +1,7 @@
 load "../stzbase.ring"
 
 /*----
+*/
 
 pr()
 
@@ -45,7 +46,7 @@ pf()
 # Executed in 0.05 second(s) in Ring 1.21
 
 /*-----
-*/
+
 pr()
 
 o1 = new stzCounter([
