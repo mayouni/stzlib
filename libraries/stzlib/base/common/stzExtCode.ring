@@ -779,6 +779,7 @@ func CREATE_TABLE(pcName)
 
 	oTable = new stzTable([])
 	oTable.SetName(pcName)
+	oTable.@aContent = [] # By default a unique :COL1 is created, remove it.
 
 	Vr(pcName) '=' Vl(oTable)
 

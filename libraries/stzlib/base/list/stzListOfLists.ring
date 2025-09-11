@@ -58,6 +58,8 @@ func ListsMerge(paListOfLists)
 		return ListsMerge(paListOfLists)
 
 func Association(paLists)
+? @@NL(paLists)
+
 	if CheckingParams()
 	
 		if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )

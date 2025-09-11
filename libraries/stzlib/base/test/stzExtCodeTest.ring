@@ -26,7 +26,7 @@ aList = [ "one", "two", "x", "three" ]
 ? @@( del(aList, 3) ) #--> NULL
 ? @@(aList) #--> [ "one", "two", "three" ]
 
-# Softanza alterbative: Modidies the list variable and returns it at the same time()
+# Softanza alternative: Modidies the list variable and returns it at the same time()
 ? ""
 aList = [ "one", "two", "x", "three" ]
 ? @@( ring_del(aList, 3) ) #--> [ "one", "two", "three" ]
@@ -91,7 +91,7 @@ pr()
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
-/*----------
+/*====
 
 pr()
 
@@ -123,14 +123,22 @@ pf()
 
 pr()
 
-? sort([
+? @@NL( sort([
 	[ "Bob",       89 ],
 	[ "Dan",      120 ],
 	[ "Roy",      100 ]
-], 2)
+], 2) )
 
 pf()
+#-->
+'
+[
+	[ "Bob", 89 ],
+	[ "Roy", 100 ],
+	[ "Dan", 120 ]
+]
 
+'
 # Executed in almost 0 second(s) in Ring 1.21
 #--> Executed in 0.03 second(s) in Ring 1.20
 
@@ -138,12 +146,12 @@ pf()
 
 pr()
 
-? StzListOfListsQ([
+? @@NL( StzListOfListsQ([
 	[ "Bob",       89 ],
 	[ "Dan",      120 ],
 	[ "Roy",      100 ]
 
-]).SortedOnDown(2)
+]).SortedOnDown(2) )
 #--> [
 #	[ "Dan",      120 ],
 #	[ "Roy",      100 ],
@@ -183,27 +191,37 @@ o1 = new stzTable([
 
 ? o1.Shwo() 	// #NOTE this is a mispelled form of Show()
 #-->
-# NAME   SCORE
-# ----- ------
-#  Bob      89
-#  Dan     120
-#  Roy     100
+'
+╭──────┬───────╮
+│ Name │ Score │
+├──────┼───────┤
+│ Bob  │    89 │
+│ Dan  │   120 │
+│ Roy  │   100 │
+╰──────┴───────╯
+'
 
 o1.SortOnDown(:SCORE) # Or SortOnInDescending()
 
 ? o1.Show()
 #-->
-# NAME   SCORE
-# ----- ------
-#  Dan     120
-#  Roy     100
-#  Bob      89
+'
+╭──────┬───────╮
+│ Name │ Score │
+├──────┼───────┤
+│ Dan  │   120 │
+│ Roy  │   100 │
+│ Bob  │    89 │
+╰──────┴───────╯
+'
 
 pf()
-# Executed in 0.10 second(s)
+# Executed in 0.05 second(s) in Ring 1.23
+# Executed in 0.10 second(s) in Ring 1.21
+
 
 /*==== #narration SQL SUPPORT IN SOFTANZA EXTERNAL CODE
-*/
+
 pr()
 
 # SQL code to create a table with three columns
@@ -234,8 +252,14 @@ pr()
 	# oject we can call using the small function v() and check its structure:
 
 	v(:persons).Show() + NL
-	#--> :ID    :NAME   :SCORE
-	#     _NULL_   _NULL_    _NULL_
+	#-->
+	'
+	╭────┬──────┬───────╮
+	│ Id │ Name │ Score │
+	├────┼──────┼───────┤
+	│    │      │       │
+	╰────┴──────┴───────╯
+	'
 
 # SQL code to insert data into the table
 
@@ -259,10 +283,16 @@ pr()
 	# Let's check the stzTable object again
 
 	? v(:persons).Show()
-	#--> :ID  :NAME  :SCORE
-	#      1    Bob      89
-	#      2    Dan     120
-	#      3    Tim      56
+	#-->
+	'
+	╭────┬──────┬───────╮
+	│ Id │ Name │ Score │
+	├────┼──────┼───────┤
+	│  1 │ Bob  │    89 │
+	│  2 │ Dan  │   120 │
+	│  3 │ Tim  │    56 │
+	╰────┴──────┴───────╯
+	'
 
 	# Let's add more rows
 
@@ -272,12 +302,18 @@ pr()
 	])
 
 	? v(:persons).Show()
-	#--> :ID  :NAME  :SCORE
-	#      1    Bob      89
-	#      2    Dan     120
-	#      3    Tim      56
-	#      4    Roy     100
-	#      5    Sam      78
+	#--> 
+	'
+	╭────┬──────┬───────╮
+	│ Id │ Name │ Score │
+	├────┼──────┼───────┤
+	│  1 │ Bob  │    89 │
+	│  2 │ Dan  │   120 │
+	│  3 │ Tim  │    56 │
+	│  4 │ Roy  │   100 │
+	│  5 │ Sam  │    78 │
+	╰────┴──────┴───────╯
+	'
 
 # SQL code to select data from the table in a query called sql
 
@@ -312,11 +348,16 @@ pr()
 	# To get the stzTable object you can say:
 
 	? v(:sqlTable).Show() # Or ? v(:sqlObject)
-	#--> :NAME   :SCORE
-	#    ------ -------
-	#     Bob       89
-	#     Dan      120
-	#     Roy      100
+	#-->
+	'
+	╭──────┬───────╮
+	│ Name │ Score │
+	├──────┼───────┤
+	│ Bob  │    89 │
+	│ Dan  │   120 │
+	│ Roy  │   100 │
+	╰──────┴───────╯
+	'
 
 # SQL code to sort the table by score (on the column score of the stzTable object)
 
@@ -339,13 +380,19 @@ pr()
 	])
 
 	? v(:sqlTable).Show()
-	#--> NAME   SCORE
-	#   ----- ------
-	#    Dan     120
-	#    Roy     100
-	#    Bob      89
+	#-->
+	'
+	╭──────┬───────╮
+	│ Name │ Score │
+	├──────┼───────┤
+	│ Dan  │   120 │
+	│ Roy  │   100 │
+	│ Bob  │    89 │
+	╰──────┴───────╯
+	'
 
 pf()
+# Executed in 0.22 second(s) in Ring 1.23
 # Executed in 0.32 second(s) in Ring 1.21
 # Executed in 2.07 second(s) in Ring 1.20
 
@@ -365,6 +412,7 @@ next
 #--> [ [ "x", 3 ], [ "y", 6 ], [ "z", 9 ] ]
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 # Executed in 0.03 second(s) in Ring 1.21
 # Executed in 0.11 second(s) in Ring 1.20
 
@@ -377,6 +425,7 @@ Vr([ :x, :y, :z ]) '=' Vl([ -1, 0, 1 ])
 #--> [ -1, 0, 1 ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.06 second(s) in Ring 1.20
 
@@ -394,7 +443,7 @@ pf()
 
 /*----------- #narration DYNAMIC CONSTRUCTION OF VARIABLE NAMES
 #ERR #TODO check it
-
+*/
 	pr()
 	
 	# Softanza makes it possible to contruct variable
@@ -424,8 +473,8 @@ pf()
 	
 	# As you can see, there is an interesting common pattern between
 	# our variables names and their values:
-	#	- the names end with a dynamic part: the numbers 1 to 10
-	#	- the values are all multiple of 10 by the numbers 1 to 10
+	# 	- the names end with a dynamic part: the numbers 1 to 10
+	# 	- the values are all multiple of 10 by the numbers 1 to 10
 	
 	# And so, we can dynamically use a loop with an index number i,
 	# from 1 to 10, and than construct both the names of the variables
@@ -446,7 +495,9 @@ pf()
 	
 	# Or you can change it like this:
 	VrVl( :name3 = 30 )
-	
+	? v(:name3)
+
+/*	
 	# We get the name of the variable and its name by
 	# adding the xt extension to the v() small function:
 	
@@ -466,7 +517,7 @@ pf()
 	#    [ "name8", 80 ]
 	#    [ "name9", 90 ]
 	#    [ "name10", 100 ]
-	
+*/	
 pf()
 # Executed in 0.37 second(s)
 
