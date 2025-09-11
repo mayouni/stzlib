@@ -2,7 +2,7 @@ load "../stzbase.ring"
 load "../../max/list/stzList2D.ring"
 
 /*---
-*/
+
 pr()
 
 aMyList = [
@@ -104,4 +104,5 @@ Mango;$3.00;50
 '
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.23
 # Executed in 0.11 second(s) in Ring 1.22
