@@ -2030,7 +2030,11 @@ Class stzTable from stzList
 	#--------------------------------#
 
 	def NumberOfRows()
-		return len(@aContent[1][2])
+		if len(@aContent) = 0
+			return 0
+		else
+			return len(@aContent[1][2])
+		ok
 
 		def Size()
 			return NumberOfRows()
@@ -14101,17 +14105,24 @@ Class stzTable from stzList
 
 		if Q(pacColNames).IsListOfStrings()
 			for i = 1 to nLen
-				acColNames + [ pacColNames[i], [_NULL_] ]
+				acColNames + [ pacColNames[i], [ "" ] ]
 			next
 
 		else // IsHashList()
 			for i = 1 to nLen
-				acColNames + [ pacColNames[i][1], [_NULL_] ]
+				acColNames + [ pacColNames[i][1], [ "" ] ]
 			next
 		ok
 
 		This.AddCols(acColNames)
 		This.RemoveCol(1)
+
+		aRow = []
+		for i = 1 to nLen
+			aRow + ""
+		next
+
+		This.AddRow(aRow)
 
 	  #==============================#
 	 #  ADDING A CALCULATED COLUMN  #

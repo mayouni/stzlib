@@ -1,7 +1,6 @@
 load "../stzbase.ring"
 
 /*----
-*/
 
 pr()
 
@@ -64,3 +63,38 @@ o1 = new stzCounter([
 pf()
 # Executed in 0.01 second(s) in Rinhg 1.23
 # Executed in 0.04 second(s) in Rinhg 1.21
+
+/*=== #PERFormance check
+
+# Raw Ring loops (more performant)
+
+pr()
+
+anResults = []
+for i = 1 to 1000000
+    nValue = ((i-1) % 4) + 1  # Cycle 1-4
+    anResults + nValue
+next
+
+pf()
+# Executed in 0.20 second(s) in Ring 1.23
+
+/*---
+
+# Softanza stzCount
+
+pr()
+
+# stzCounter generating complete sequence
+
+oCounter = new stzCounter([
+    :StartAt = 1,
+    :WhenYouReach = 4,
+    :RestartAt = 1
+])
+anCounterResults = oCounter.CountTo(1000000)
+
+pf()
+# Executed in 0.91 second(s) in Ring 1.23
+
+/*---
