@@ -4,7 +4,7 @@ load "../stzbase.ring"
 #--------------------
 	
 /*--- Basic generation
-*/
+
 pr()
 
 # Quick function style
@@ -98,3 +98,21 @@ next
 
 pf()
 # Executed in 0.78 second(s) in Ring 1.23
+
+/*===
+*/
+pr()
+
+o1 = new stzString("Ring")
+? o1.HasUuid()
+#--> FALSE
+
+o1.SetUuid()
+? o1.Uuid()
+#--> 076A1822-F061-4943-A67C-9DD569115B84
+
+? o1.HashedUuid()
+#--> 738121558
+
+pf()
+# Executed in 0.51 second(s) in Ring 1.23
