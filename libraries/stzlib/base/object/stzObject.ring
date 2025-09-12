@@ -1689,6 +1689,8 @@ class stzObject
 	@content
 
 	@cVarName = :@NoName
+	@cUuid = ""
+	@cHashedUuid = ""
 
 	These
 	Those
@@ -1862,6 +1864,24 @@ class stzObject
 			This.SetVarName(pcVarName)
 
 		#>
+
+	def HasUuid()
+		if @cUuid != ""
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def SetUuid()
+		oUuid = new stzUuid()
+		@cUuid = oUuid.Content()
+		@cHashedUuid = ""+ oUuid.Hashed()
+		
+	def Uuid()
+		return @cUuid
+
+	def HashedUuid()
+		return @cHashedUuid
 
 	def Copy()
 		return new stzObject(@content)

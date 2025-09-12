@@ -797,8 +797,27 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.11 second(s) in ring 1.21
 
-/*======
+/*----
 */
+pr()
+
+aList = [1,2,3]
+//p1 = new point { x=10 y=20 z=30 }
+p1 = [ "x", "y", "z"  ]
+? type(ref(p1))
+aList + ref(p1)
+aList + 5
+? find(aList,p1)
+
+pf()
+
+class point x y z
+
+
+
+/*======
+
+
 pr()
 ? @@( split("::2", ":") )
 #--> [ "", '', '2' ]
