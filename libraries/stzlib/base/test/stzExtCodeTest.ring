@@ -676,7 +676,7 @@ pf()
 # Executed in 0.01 second(s).
 
 /*------------ #narration NAMING UNNAMED OBJECTS AND MAKING THEM FINDABLE
-*/
+
 pr()
 
 # By default, a softanza object is created with no name
@@ -777,66 +777,41 @@ o1 = new stzList([ "one", greeting, 12, greeting, Q("two"), hello, 10 , Q(10) ])
 #--
 
 ? @@NL( o1.NamedObjects() ) + NL
-#--> 
-#	@oobject: _NULL_
-#	@cvarname: greeting
-#	...
-#
-#	@oobject: _NULL_
-#	@cvarname: greeting
-#	...
-#
-#	@oobject: _NULL_
-#	@cvarname: hello
-#	...
+#--> [ :greeting, :greeting, :hello ]
 
 ? @@NL( o1.UnamedObjects() )
-#--> 
-#	@oobject: _NULL_
-#	@cvarname: greeting
-#	...
-#
-#	@oobject: _NULL_
-#	@cvarname: hello
-#	...
+#--> [ greeting, hello ]
 
 pf()
-# Executed in 0.09 second(s).
-
-/*=========== TODO
-
-pr()
-# Exploring the possibility of using named vars to make it
-# possible finding objects by name inside a list!
-
-//VrVl( [ :my_name = Q("Mansour"), :my_age = "67" ] )
-
-
-Vr([ :my_name, :my_age ]) '<~' Vl([ Q("Mansour"), Q(67) ])
-? v(:my_name).VarName()
-
-pf()
+# Executed in 0.17 second(s) in Ring 1.23
 
 /*------------
 
 pr()
 
-Vr( "a" : "z" ) '<~' Vl( 1 : NumberOfLatinLetters() )
+Vr( "a" : "z" ) '=<~' Vl( 1 : NumberOfLatinLetters() )
 ? v(:t)
 #--> 20
 
 pf()
-# Executed in 0.11 second(s).
+# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.11 second(s) in ring 1.21
 
 /*======
-
+*/
 pr()
+? @@( split("::2", ":") )
+#--> [ "", '', '2' ]
 
-? @@( Q("::2").SplitAt(":") )
-#--> [ _NULL_, _NULL_, "2" ]
+? @@( @split("::2", ":") )
+#--> [ "", '', '2' ]
+
+? @@( StzStringQ("::2").SplitAt(":") )
+#--> [ "", '', '2' ]
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*==== Using a Python code inside Ring ===
 

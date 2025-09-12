@@ -58077,8 +58077,10 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
 		ok
 
-		acResult = @TrimList( QStringListToList( This.QStringObject().split(pcSubStr, 0, pCaseSensitive) ) )
-		return acResult
+		return @SplitCS(This.Content(), pcSubStr, pCaseSensitive)
+
+//		acResult = @TrimList( QStringListToList( This.QStringObject().split(pcSubStr, 0, pCaseSensitive) ) )
+//		return acResult
 
 		#< @FunctionFluentForm
 

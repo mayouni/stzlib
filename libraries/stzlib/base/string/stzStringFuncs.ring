@@ -1612,6 +1612,28 @@ func SetMarquerChar(c)
 	func @SetMarquer()
 		_cMarquerChar = c
 
+func SplitAtCS(cData, cSubStr, pCaseSensitive)
+	if NOT (isString(cData) and isString(cSubStr))
+		StzRaise("Incorrect param type! cData and cSubStr must both be strings.")
+	ok
+
+	_oQString_ = new QString2()
+	_oQString_.append(cData)
+	bCase = CaseSensitive(pCaseSensitive)
+
+	_acResult_ = QStringListToList( _oQString_.split(cSubStr, 0, bCase) )
+	return _acResult_
+
+	func @SplitAtCS(cData, cSubStr, pCaseSensitive)
+		return SplitAtCS(cData, cSubStr, pCaseSensitive)
+
+	func SplitCS(cData, cSubStr, pCaseSensitive)
+		return SplitAtCS(cData, cSubStr, pCaseSensitive)
+
+	func @SplitCS(cData, cSubStr, pCaseSensitive)
+		return SplitAtCS(cData, cSubStr, pCaseSensitive)
+
+
 func @SplitAt(cData, cSubStr)
 	if NOT (isString(cData) and isString(cSubStr))
 		StzRaise("Incorrect param type! cData and cSubStr must both be strings.")
