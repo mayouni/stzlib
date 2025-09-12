@@ -59623,7 +59623,7 @@ fdef
 		#>
 
 	  #------------------------------------------------------------------#
-	 #  CHECKING IF A CHAIN OF TYPES IS _TRUE_ AGAINST THE LIST OF ITEMS  #
+	 #  CHECKING IF A CHAIN OF TYPES IS TRUE AGAINST THE LIST OF ITEMS  #
 	#==================================================================#
 
 	def Are(p)
@@ -59756,6 +59756,47 @@ fdef
 
 		def ItemsAreXT(p, paEvalDirection)
 			return This.AreXT(p, paEvalDirection)
+
+	  #----------------------------------------------------#
+	 #  CHECKING THAT ALL THE ITEMS ARE OF THE SAME TYPE  #
+	#----------------------------------------------------#
+
+	def AllItemsAreOfType(pcType)
+
+		if CheckParams()
+			if NOT isString(pcType)
+				StzRaise("Incorrect param type! pcType must be a string.")
+			ok
+		ok
+
+		cType = upper(pcType)
+
+		bResult = TRUE
+		nLen = This.NumberOfItems()
+
+		for i = 1 to nLen
+			if ring_type(@aContent[i]) != cType and
+			   stztype(@aContent[i]) != cType
+
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @AlternativeFunctionForms
+
+		def AllItemsAreA(pcType)
+			return This.AllItemsAreOfType(pcType)
+
+		def ItemsAreOfType(pcType)
+			return This.AllItemsAreOfType(pcType)
+
+		def EachItemIsA(pcType)
+			return This.AllItemsAreOfType(pcType)
+
+		#>
 
 	  #================================#
 	 #    USUED FOR NATURAL-CODING    #
