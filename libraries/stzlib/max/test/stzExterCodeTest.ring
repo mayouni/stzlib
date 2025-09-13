@@ -5,12 +5,12 @@ load "../stzmax.ring"
 #======================================#
 
 /*--- Basic example
-
+*/
 pr()
 
 # Create instance for Python
 
-oPyCode = new StzExtCodeXT("python")
+oPyCode = new stzExterCode("python")
 
 # Python code that generates some data
 
@@ -59,7 +59,7 @@ pf()
 
 pr()
 
-oPyCode = new StzExtCodeXT("python")
+oPyCode = new stzExterCode("python")
 
 oPyCode.SetCode('
 res = {
@@ -87,7 +87,7 @@ pf()
 
 pr()
 
-oPyCode = new StzExtCodeXT("python")
+oPyCode = new stzExterCode("python")
 oPyCode.setCode('
 res = {
     "simple": "Hello World",
@@ -116,7 +116,7 @@ pf()
 
 pr()
 
-oPyCode = new StzExtCodeXT("python")
+oPyCode = new stzExterCode("python")
 
 oPyCode.SetCode('
 res = {
@@ -161,7 +161,7 @@ pf()
 
 pr()
 
-oPyCode = new StzExtCodeXT("python")
+oPyCode = new stzExterCode("python")
 
 oPyCode.SetCode('
 res = {
@@ -259,7 +259,7 @@ pf()
 
 pr()
 
-oPyCode = new StzExtCodeXT("python")
+oPyCode = new stzExterCode("python")
 oPyCode.SetCode('
 import pandas as pd
 import numpy as np
@@ -283,7 +283,7 @@ pf()
 
 pr()
 
-oPyCode = new StzExtCodeXT("python")
+oPyCode = new stzExterCode("python")
 oPyCode.SetCode('
 from collections import Counter
 import re
@@ -354,7 +354,7 @@ pf()
 
 pr()
 
-oPyCode = new StzExtCodeXT("python")
+oPyCode = new stzExterCode("python")
 
 oPyCode.SetCode('
 from sklearn.datasets import make_classification
@@ -424,7 +424,7 @@ pf()
 
 pr()
 
-R = new StzExtCodeXT("R")
+R = new stzExterCode("R")
 
 R.SetCode('
 res <- list(
@@ -451,7 +451,7 @@ pf()
 
 pr()
 
-R = new StzExtCodeXT("r")
+R = new stzExterCode("r")
 
 R.SetCode('
 numbers <- c(12, 15, 18, 22, 25)
@@ -494,7 +494,7 @@ pf()
 
 pr()
 
-R = new StzExtCodeXT("r")
+R = new stzExterCode("r")
 
 R.SetCode('
 
@@ -534,7 +534,7 @@ pf()
 
 pr()
 
-R = new stzExtCodeXT(:R)
+R = new stzExterCode(:R)
 
 R.SetCode('
 
@@ -584,7 +584,7 @@ pf()
 
 pr()
 
-R = new stzExtCodeXT(:R)
+R = new stzExterCode(:R)
 
 R.SetCode('
 
@@ -655,7 +655,7 @@ pf()
 */
 pr()
 
-R = new stzExtCodeXT(:R)
+R = new stzExterCode(:R)
 
 R.SetCode('
 
@@ -715,7 +715,7 @@ pf()
 
 pr()
 
-R = new stzExtCodeXT(:R)
+R = new stzExterCode(:R)
 
 R.SetCode('
 
@@ -814,7 +814,7 @@ pf()
 
 pr()
 
-J = new stzExtCodeXT(:julia)
+J = new stzExterCode(:julia)
 J { @('
     # Your Julia code here
     using Statistics
@@ -854,7 +854,7 @@ pf()
 
 pr()
 
-xc = new StzExtCodeXT("c")
+xc = new stzExterCode("c")
 xc.SetCode('
 #include <stdio.h>
 #include <stdlib.h>
@@ -885,7 +885,7 @@ pf()
 
 pr()
 
-xc = new StzExtCodeXT("c")
+xc = new stzExterCode("c")
 xc.SetCode('
 #include <stdio.h>
 #include <stdlib.h>
@@ -928,7 +928,7 @@ pf()
 
 pr()
 
-xc = new StzExtCodeXT("c")
+xc = new stzExterCode("c")
 xc.SetCode('
 #include <stdio.h>
 #include <stdlib.h>
@@ -979,7 +979,7 @@ pf()
 
 pr()
 
-xc = new StzExtCodeXT("c")
+xc = new stzExterCode("c")
 xc.SetCode('
 #include <stdio.h>
 #include <stdlib.h>
@@ -1071,7 +1071,7 @@ pf()
 pr()
 
 # Create a Prolog instance
-oProlog = new StzExtCodeXT(:prolog)
+oProlog = new stzExterCode(:prolog)
 
 # Set the Prolog code that's compatible with the transformation function
 oProlog.SetCode('
@@ -1109,7 +1109,7 @@ pf()
 
 pr()
 
-oProlog = new stzExtCodeXT(:Prolog)
+oProlog = new stzExterCode(:Prolog)
 
 oProlog.SetCode('
 
@@ -1158,7 +1158,7 @@ pf()
 
 pr()
 
-pl = new stzExtCodeXT(:Prolog)
+pl = new stzExterCode(:Prolog)
 
 pl.SetCode('
 
@@ -1211,7 +1211,7 @@ pr()
 
 # All paths from a to e in a graph
 
-oProlog = new stzExtCodeXT(:Prolog)
+oProlog = new stzExterCode(:Prolog)
 oProlog.SetCode('
 
 	% Define a simple graph
@@ -1256,7 +1256,7 @@ pf()
 
 pr()
 
-oProlog = new stzExtCodeXT(:Prolog)
+oProlog = new stzExterCode(:Prolog)
 oProlog.SetCode('
 
 	% Define family relationships
@@ -1338,7 +1338,7 @@ pf()
 
 pr()
 
-oProlog = new stzExtCodeXT(:Prolog)
+oProlog = new stzExterCode(:Prolog)
 
 oProlog.SetCode('
 
@@ -1393,7 +1393,7 @@ pf()
 
 pr()
 
-oProlog = new stzExtCodeXT(:Prolog)
+oProlog = new stzExterCode(:Prolog)
 oProlog.SetCode('
 
 	% Define a simple grammar for English sentences
@@ -1493,7 +1493,7 @@ pf()
 
 pr()
 
-njs = new StzExtCodeXT("nodejs")
+njs = new stzExterCode("nodejs")
 njs.SetCode('
 
 // Create a simple array
@@ -1512,7 +1512,7 @@ pf()
 
 pr()
 
-njs = new StzExtCodeXT("nodejs")
+njs = new stzExterCode("nodejs")
 njs.SetCode('
 
 // Create a complex object with various data types
@@ -1586,7 +1586,7 @@ pf()
 
 pr()
 
-njs = new StzExtCodeXT("nodejs")
+njs = new stzExterCode("nodejs")
 njs.SetCode('
 
 // Create an object with scientific notation numbers
@@ -1613,7 +1613,7 @@ pf()
 
 pr()
 
-njs = new StzExtCodeXT("nodejs")
+njs = new stzExterCode("nodejs")
 njs.SetCode('
 // Asynchronous operations are a core strength of NodeJS
 // This example demonstrates handling multiple async operations
@@ -1703,7 +1703,7 @@ pf()
 
 pr()
 
-njs = new StzExtCodeXT("nodejs")
+njs = new stzExterCode("nodejs")
 njs.SetCode('
 
 // Sample dataset for processing
@@ -1785,7 +1785,7 @@ pf()
 pr()
 
 # Example 3: Basic Web API Concepts (Simplified Further)
-njs = new StzExtCodeXT("nodejs")
+njs = new stzExterCode("nodejs")
 njs.SetCode('
 // Define a simple API with routes
 const routes = [
@@ -2243,7 +2243,7 @@ if (res) {
 }
 '
 
-C = new StzExtCodeXT("c")
+C = new stzExterCode("c")
 C.SetCode(cCCode) 
 
 // Execute the C code and get results
@@ -2379,7 +2379,7 @@ results.append(["matrix", [
 # Return results
 res = results'
 
-py = new stzExtCodeXT(:Python)
+py = new stzExterCode(:Python)
 py.setCode(cPythonCode)
 
 py.Run()
@@ -2508,7 +2508,7 @@ results$matrix <- list(
   time_ms = matrix_time
 )
 
-# Return results in the expected format for StzExtCodeXT
+# Return results in the expected format for stzExterCode
 res <- list(
   list("fibonacci", list(
     list("n", n),
@@ -2525,7 +2525,7 @@ res <- list(
   ))
 )'
 
-R = new stzExtCodeXT(:R)
+R = new stzExterCode(:R)
 R.SetCode(cRCode)
 R.Run()
 ? @@( R.Result() )
@@ -2660,7 +2660,7 @@ res = Dict(
     )
 )'
 
-J = new stzExtCodeXT(:Julia)
+J = new stzExterCode(:Julia)
 J.SetCode(cJuliaCode)
 J.Run()
 ? @@( J.Result() )
@@ -2689,7 +2689,7 @@ pf()
 
 pr()
 
-js = new stzExtCodeXT(:nodejs)
+js = new stzExterCode(:nodejs)
 js.SetCode('
 
 // Fibonacci function
@@ -2837,7 +2837,7 @@ pf()
 
 pr()
 
-plg = new stzExtCodeXT(:Prolog)
+plg = new stzExterCode(:Prolog)
 plg.SetCode('
 
 :- use_module(library(random)).

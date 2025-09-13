@@ -4,8 +4,8 @@ func XJl()
 	func Jl()
 		return new stzJuliaCode
 
-class stzJuliaCode from stzExtCodeXT
-	@ojlCode = new stzExtCodeXT(:Julia)
+class stzJuliaCode from stzExterCode
+	@ojlCode = new stzExterCode(:Julia)
 
 	# Initializing the external code
 
