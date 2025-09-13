@@ -2,7 +2,7 @@ load "../stzbase.ring"
 
 
 /*==== #narration SQL SUPPORT IN SOFTANZA EXTERNAL CODE
-
+*/
 pr()
 
 # SQL code to create a table with three columns
