@@ -798,7 +798,7 @@ pf()
 # Executed in 0.11 second(s) in ring 1.21
 
 /*----
-
+*/
 pr()
 
 oMyPoint = new Point
@@ -834,7 +834,6 @@ pf()
 class Point { x=10 y=10 z=10 }
 
 /*---
-*/
 
 # Create test objects
 

@@ -1,4 +1,4 @@
-# The Unified @Find() Function: Addressing Ring's Fragmented Finding Experience
+# The Unified @Find() Function in Softanza
 
 Ring provides multiple approaches for finding different data types, each effective for its specific use case. However, this fragmented experience requires programmers to navigate different abstraction levels and conceptual domains, creating cognitive overhead and inconsistency. Softanza addresses these challenges with a unified `@Find()` function that maintains consistency across all data types at the same abstraction level.
 
@@ -6,25 +6,30 @@ Ring provides multiple approaches for finding different data types, each effecti
 
 Ring offers several finding approaches that operate at different conceptual levels, each with its own syntax and mental model:
 
-* **High-Level Value Finding**: For primitive types (numbers and strings)
+* **High-Level Value Finding**: For numbers and strings
 
 ```ring
-myList = [10, "hello", 42, "world"]
-? find(myList, "hello")    #--> 2
-? find(myList, 42)         #--> 3
+aMyList = [10, "hello", 42, "world"]
+
+? find(aMyList, "hello")    #--> 2
+? find(aMyList, 42)         #--> 3
 ```
 
-* **Low-Level Reference Management**: For complex types (lists and objects)
+* **Low-Level Reference Management**: For lists and objects
 
 ```ring
 oMyPoint = new Point
 aInnerList = [1, 2, 3]
+
 aList = [ 22, ref(oMyPoint), "B", ref(aInnerList) ]
-? find(aList, 22) 			#--> 1
-? find(aList, "B")			#--> 3
-? find(aList, aInnerList) 	#--> 0  # Fails without ref()
-? find(aList, oMyPoint)		#--> 0  # Fails without ref()
+
+? find(aList, 22) 		#--> 1
+? find(aList, "B")		#--> 3
+? find(aList, aInnerList) 	#--> 2
+? find(aList, oMyPoint)		#--> 4
+
 pf()
+
 class Point { x=10 y=10 z=10 }
 ```
 
@@ -36,7 +41,7 @@ myList1 = [
 	new Company {position=2 name="Bert" symbol="BRT"},
 	new Company {position=1 name="Ring" symbol="RNG"}
 ]
-see find(mylist1,"Bert", 1, "name") #--> 2
+? find(mylist1,"Bert", 1, "name") #--> 2
 #NOTE: The 1 param represents nColumn in find(List,ItemValue,nColumn,cAttribute)
 
 class company position name symbol
@@ -44,7 +49,7 @@ class company position name symbol
 
 There are two main concerns here:
 
-* **Syntactic complexity**: The attribute syntax `find(list, value, nColumn, attribute)` introduces tabular data concepts (`nColumn`) that aren't immediately clear when working with object collections
+* **Syntactic complexity**: The attribute syntax `find(list, value, nColumn, attribute)` introduces tabular data concepts (`nColumn`) that aren't immediately clear
 * **Conceptual inconsistency**: Using application-domain logic (object attributes) to solve a language-level problem (finding objects) violates separation of concerns
 
 ## Softanza's Unified Solution
@@ -52,17 +57,22 @@ There are two main concerns here:
 Softanza eliminates these challenges by maintaining object finding at the language level through named objects, providing a consistent interface across all data types:
 
 ```ring
+
+# Casting the Person object into a named object so it becomes findable
 oFriend = StzNamedObjectQ(:oFriend = new Person("Mahmoud"))
+
+# Create the list made of various items types (number, string, list, object)
 aMyList = [ 10, oFriend, "hello", [1, 2, 3], oFriend, [1, 2, 3], "HELLO" ]
 
+# Performing the finding in the same way using same @Find() function
 ? @@( @Find(aMyList, 10 ) )          # --> [1]
 ? @@( @Find(aMyList, "hello") )      # --> [3]
 ? @@( @Find(aMyList, [1, 2, 3]) )    # --> [4, 6]
 ? @@( @Find(aMyList, oFriend) )      # --> [2, 5]
-? ""
+
+# @Find can be sensitive to case using the CS() prefix
 ? @@( @FindCS(aMyList, "HELLO", FALSE) )  # --> [3, 7]  # Case-insensitive
 ? @@( @FindCS(aMyList, "HELLO", TRUE) )   # --> [7]     # Case-sensitive
-pf()
 
 class Person
     name = ""
@@ -72,7 +82,7 @@ class Person
 
 ### Trade-offs and Design Considerations
 
-In an ideal world, named objects wouldn't be necessary if Ring could apply unified logic to `find()` for all types at the same abstraction level. While Softanza's solution resolves the inconsistency, it requires additional setup work—programmers must define named objects before use, as shown in the first line above.
+In an ideal world, named objects wouldn't be necessary if Ring could apply unified logic to its standard `find()` function for all types at the same abstraction level. While Softanza's solution resolves this, it requires additional setup work—programmers must define named objects before use, as shown in the first line above.
 
 **Best Practice**: Use the same identifier for both the variable name and the named object (`:oFriend` matching the variable `oFriend`). This creates a clear mapping between your code's variable names and their findable representations, maintaining conceptual clarity.
 
