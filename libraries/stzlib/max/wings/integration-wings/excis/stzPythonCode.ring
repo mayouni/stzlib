@@ -6,7 +6,7 @@ func XPy()
 
 class stzPyCode from stzPythonCode
 class stzPythonCode
-	@oPyCode = new stzExtCodeXT(:python)
+	@oPyCode = new stzExterCode(:python)
 
 	# Initializing the external code
 

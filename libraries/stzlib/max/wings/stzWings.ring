@@ -10,8 +10,8 @@
 
 	#-- Loading files files related to INTEGRATION wings modules
 
-		load "integration-wings/excis/stzExtCodeTransFuncs.ring"
-		load "integration-wings/excis/stzExtCodeXT.ring"
+		load "integration-wings/excis/stzExterCodeTransFuncs.ring"
+		load "integration-wings/excis/stzExterCode.ring"
 		load "integration-wings/excis/stzJuliaCode.ring"
 		load "integration-wings/excis/stzPrologCode.ring"
 		load "integration-wings/excis/stzPythonCode.ring"

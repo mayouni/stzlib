@@ -5,7 +5,7 @@ func XR()
 		return new stzRCode
 
 class stzRCode
-	@oRCode = new stzExtCodeXT(:R)
+	@oRCode = new stzExterCode(:R)
 
 	# Initializing the external code
 

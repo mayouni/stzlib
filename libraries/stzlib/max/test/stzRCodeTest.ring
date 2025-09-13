@@ -576,7 +576,7 @@ pf()
 pr()  
 
 pr()  
-R = new stzExtCodeXT(:R)
+R = new stzExterCode(:R)
 R() { 
   @(' 
   # Load necessary packages

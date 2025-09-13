@@ -6,7 +6,7 @@ func isDirectory(cDir)
 #  THE MAIN CLASS  #
 #------------------#
 
-class StzExtCodeXT
+class stzExterCode
 
 	# Configuring supported languages with full paths
 
