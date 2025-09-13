@@ -522,56 +522,6 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 # Executed in 0.37 second(s) in Ring 1.21
 
-/*======== PHP
-
-pr()
-	
-	# In PHP we use indirection to dynamically
-	# call the name of a variable, like this:
-	'
-		$job = "programmer"
-		$var = "job"
-	
-		echo($var) 
-		#--> job
-		echo($$var)
-		#--> programmer
-	'
-	# In Ring, with StzLib, we write quite
-	# the same code:
-	
-		$(:job = "programmer")
-		$(:var = "job")
-	
-		echo( $(:var) )
-		#--> job
-		echo( $$(:var) )
-		#--> programmer
-	
-	# And we can also say (using named variables feature):
-	
-		Vr(:job) '=' Vl("programmer")
-		Vr(:var) '=' Vl("job")
-	
-		echo( v(:var) )
-		#--> job
-		echo( vv(:var) )
-		#--> programmer
-	
-	# Or even say:
-	
-		Vr(:job) '=' Vl("programmer")
-		Vr(:var) '=' Vl("job")
-	
-		echo( v(:var) )
-		#--> job
-		echo( v(v(:var)) )
-		#--> programmer
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-# Executed in 0.11 second(s) in Ring 1.21
-
 /*========
 
 pr()
@@ -798,7 +748,7 @@ pf()
 # Executed in 0.11 second(s) in ring 1.21
 
 /*----
-*/
+
 pr()
 
 oMyPoint = new Point
@@ -815,23 +765,7 @@ pf()
 
 class Point { x=10 y=10 z=10 }
 
-/*---
-
-pr()
-
-oMyPoint = new Point
-aInnerList = [1, 2, 3]
-
-aList = [ 22, oMyPoint, "B", aInnerList ]
-
-? @Find(aList, 22) 		#--> 1
-? @Find(aList, "B")		#--> 3
-? @Find(aList, aInnerList) 	#--> 2
-? @Find(aList, oMyPoint)	#--> 4
-
-pf()
-
-class Point { x=10 y=10 z=10 }
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*---
 
@@ -860,11 +794,12 @@ class Person
     def init(cName)
         name = cName
 
+# Executed in 0.04 second(s) in Ring 1.23
 
 /*======
 
-
 pr()
+
 ? @@( split("::2", ":") )
 #--> [ "", '', '2' ]
 
@@ -893,7 +828,7 @@ pr()
 #--> [ 2, 4, 6, 8 ]
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*------------
 
@@ -911,7 +846,7 @@ range(1, 5)[::-1]
 #--> [ 4, 3, 2, 1 ]
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*============
 
@@ -970,7 +905,7 @@ pr()
 	#--> TRUE
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--------------
 
@@ -1024,7 +959,8 @@ pr()
 #--> 3
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*---------------
 
@@ -1042,6 +978,7 @@ pr()
 #--> a + b + c
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 # Executed in 0.03 second(s) in Ring 1.21
 # Executed in 0.05 second(s) in Ring 1.20
 
@@ -1097,7 +1034,7 @@ pr()
 	#--> 6.71
 
 pf()
-# Executed in almost 0 second(s) in Ring 2.21
+# Executed in almost 0 second(s) in Ring 1.21
 # Executed in 0.03 second(s) in ring 1.20
 
 def euc_dist_(a,b)':' # we put the : char between two ''
@@ -1153,8 +1090,8 @@ def euc_dist_(a,b)':' # we put the : char between two ''
 	# When executed in Python, the code output is:
 	#--> [
 	# 	'=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=',
-	#	'>', '>',
-	#	'<', '<', '<', '<', '<', '<', '<', '<', '<', '<'
+	# 	'>', '>',
+	# 	'<', '<', '<', '<', '<', '<', '<', '<', '<', '<'
 	# ]
 	
 	# Using Softanza External Code facility, we can run quiet the same
@@ -1178,7 +1115,6 @@ def euc_dist_(a,b)':' # we put the : char between two ''
 		#    string cmparaison operators =, < and >
 	
 	pf()
-	#Executed in 0.08 second(s)
 	
 	def diff(old_string, new_string)':' # Here we put : between quotes
 		"""Returns a list of diffs between two strings."""
@@ -1206,6 +1142,9 @@ def euc_dist_(a,b)':' # we put the : char between two ''
 	
 	 	return diffs
 	
+	# Executed in 0.02 second(s) in Ring 1.23
+	# Executed in 0.08 second(s) in Ring 1.201
+
 /*-----------
 
 # range() is used for Pyhton-code compatibility
@@ -1346,6 +1285,7 @@ pr()
 	print( v(:z) )	#--> 30
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.06 second(s) in Ring 1.20
 
@@ -1483,13 +1423,14 @@ vr([ :value ]) '=' vl([ "foo" ]) _if(bSomething) _else([ "bar" ])
 #--> foo
 
 # And if we turn bSomething to FALSE:
-#ERR #todo check it
+
 	bSomething = FALSE
 	vr([ :value ]) '=' vl([ "foo" ]) _if(bSomething) _else([ "bar" ])
 	? v(:value)
 	#--> bar
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.06 second(s) in Ring 1.20
 
@@ -1515,7 +1456,82 @@ pr()
 	#--> negative
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.21
+
+/*======== PHP
+
+pr()
+	
+	# In PHP we use indirection to dynamically
+	# call the name of a variable, like this:
+	'
+		$job = "programmer"
+		$var = "job"
+	
+		echo($var) 
+		#--> job
+		echo($$var)
+		#--> programmer
+	'
+	# In Ring, with StzLib, we write quite
+	# the same code:
+	
+		$(:job = "programmer")
+		$(:var = "job")
+	
+		echo( $(:var) )
+		#--> job
+		echo( $$(:var) )
+		#--> programmer
+	
+	# And we can also say (using named variables feature):
+	
+		Vr(:job) '=' Vl("programmer")
+		Vr(:var) '=' Vl("job")
+	
+		echo( v(:var) )
+		#--> job
+		echo( vv(:var) )
+		#--> programmer
+	
+	# Or even say:
+	
+		Vr(:job) '=' Vl("programmer")
+		Vr(:var) '=' Vl("job")
+	
+		echo( v(:var) )
+		#--> job
+		echo( v(v(:var)) )
+		#--> programmer
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.11 second(s) in Ring 1.21
+
+/*==== Using a PHP code inside Ring  #===
+
+# This code snippet is written in PHP. It calculates the min
+# and max of two lists of numbers:
+"
+	echo(min(0, 150, 30, 20, -8, -200));  #--> -200
+	echo(max(0, 150, 30, 20, -8, -200));  #--> 150
+"
+
+# Nearly the same code can be written in Ring thanks to the
+# Min(), Max() and echo() functions of SoftanzaLib:
+
+pr()
+
+	echo( Min([0, 150, 30, 20, -8, -200]) );   #--> -200	#ERROR #TODO
+	echo( Max([0, 150, 30, 20, -8, -200]) );   #--> 150
+
+	#NOTE that the only difference is to put the numbers in a list
+	# by bounding them by [ and ], inside the min() and max() functions
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*============
 
@@ -1526,41 +1542,28 @@ Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 ? @@( v([ :x, :y, :z ]) )
 #--> [ 1, 2, 3 ]
 
-#ERR #TODO check it
 	bPositive = FALSE
 	Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 	? @@( v([ :x, :y, :z ]) )
 	#--> [ -1, -2, -3 ]
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.12 second(s) in Ring 1.20
 
-/*-------------- #ERR #TODO check it
+/*--------
 
-	pr()
-	
-	bPositive = FALSE
-	V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10 ])
-	
-	? v([:x, :y])
-	#--> [ -10, 20 ]
-	
-	pf()
+pr()
 
-/*-------------- #ERR #TODO check it
+bPositive = FALSE
+Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([ -1 ])  # Only 1 value
+? @@( v([ :x, :y, :z ]) )  #--> [ -1, 2, 3 ]  (replaces only :x; keeps :y/:z from vl())
 
-	pr()
-	
-	bPositive = FALSE
-	V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10, -20 ])
-	
-	? v([:x, :y])
-	#--> [ -10, -20 ]
-	
-	pf()
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
-/*--------------
+/*-----
 
 pr()
 
@@ -1570,10 +1573,13 @@ Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 #--> [ 1, 2, 3 ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.07 second(s) in Ring 1.20
 
 /*===============
+
+pr()
 
 # I asked Bard (Google AI) about a code in Python that returns the
 # uppercase strings from a given list of strings...
@@ -1604,6 +1610,8 @@ pf()
 
 	# Here is the function code
 
+pf()
+
 	def uppercase_strings(list_of_strings)
 		uppercase_strings = []
 	
@@ -1619,29 +1627,7 @@ pf()
 
 	# All the rest is keot unchanged.
 
-/*==== Using a PHP code inside Ring  #=== #ERROR #TODO
-
-# This code snippet is written in PHP. It calculates the min
-# and max of two lists of numbers:
-"
-	echo(min(0, 150, 30, 20, -8, -200));  #--> -200
-	echo(max(0, 150, 30, 20, -8, -200));  #--> 150
-"
-
-# Nearly the same code can be written in Ring thanks to the
-# Min(), Max() and echo() functions of SoftanzaLib:
-
-StartProfiler()
-
-	echo( Min([0, 150, 30, 20, -8, -200]) );   #--> -200	#ERROR #TODO
-	echo( Max([0, 150, 30, 20, -8, -200]) );   #--> 150
-
-	#NOTE that the only difference is to put the numbers in a list
-	# by bounding them by [ and ], inside the min() and max() functions
-
-StopProfiler()
-# Executed in almost 0 second(s) in Ring 1.21
-# Executed in 0.04 second(s) in Ring 1.20
+# Executed in 0.04 second(s) in Ring 1.23
 
 /*==== Using a C# code inside Ring  #===
 
@@ -1661,13 +1647,16 @@ StartProfiler()
 	Console.WriteLine( $("The range of integers is {min} to {max}") );
 	#--> The range of integers is '-999_999_999_999_999' to '999_999_999_999_999'
 
-	#NOTE that the only change made to the original C# code is to bound the string with ()
+	#NOTE // that the only change made to the original C# code is to bound the string with ()
 	
 StopProfiler()
+# Executed in 0.01 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.10 second(s) in Ring 1.20
 
 /*==== USING a JS code inside Ring  #===
+
+pr()
 
 # The following JS code translate some string to
 # uppercase in a locale sensitive way:
@@ -1682,7 +1671,6 @@ StopProfiler()
 	"
 # You can write nearly the same code, with almost the
 # same JS-style, in Ring, using Softanza:
-StartProfiler()
 
 	console.log( Q('tunis').toUpperCase() );
 	#--> TUNIS
@@ -1693,9 +1681,9 @@ StartProfiler()
 	console.log( Q('ß').toLocaleUppercase('de') );
 	#--> SS
 
-	#NOTE hat the only difference is to elevate the string to
+	#NOTE // that the only difference is to elevate the string to
 	# stzString objects using Q()
 
-StopProfiler()
+pf()
 # Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.05 second(s) in Ring 1.20

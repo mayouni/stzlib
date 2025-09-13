@@ -16,15 +16,15 @@
 _aTempVars = []
 _aVars = []	# the list of all temp vars and their values
 
-_bVarReset = _FALSE_
+_bVarReset = 0
 _var = []	# Current temp var and its value
 _oldVar = []	# A copy of the temp var before it is changed
 
 console = new console
-None = _NULL_
+None = ""
 
-_b = _FALSE_ 	# Used for ternary operators in C
-_bv = null	# Idem
+_b = 0 	# Used for ternary operators in C
+_bv = ""	# Idem
 
 say = new say	# Raku / Perl language
 
@@ -332,7 +332,7 @@ func Vr(pacVars)
 		pacVars = aTemp
 	ok
 
-	if NOT ( isList(pacVars) and Q(pacVars).IsListOfStrings() )
+	if NOT ( isList(pacVars) and IsListOfStrings(pacVars) )
 		StzRaise("Incorrect param type! pcVars must be a list of strings.")
 	ok
 
@@ -352,6 +352,9 @@ func Vr(pacVars)
 			_aVars[n][2] = []
 		ok
 	next
+
+	# Set _var to the last one for consistency
+	_var = [ pacVars[nLen], null ]
 
 	func @Vr(pacVars)
 		return Vr(pacVars)
@@ -448,6 +451,11 @@ func Length(p)
 # Used for ternary operator in Python
 
 func _if(pExpressionOrBoolean)
+
+	if len(_aTempVars) = 0
+	    StzRaise("No temp vars defined! Call vr() first.")
+	ok
+
 	_bVarReset = _FALSE_
 	bTemp = _TRUE_
 
@@ -466,6 +474,57 @@ func _if(pExpressionOrBoolean)
 	func if_(pExpressionOrBoolean)
 		return _if(pExpressionOrBoolean)
 
+func _else(value)
+    # Ensure value is a list
+    aValues = []
+    if NOT isList(value)
+        aTemp = []
+        aTemp + value
+        value = aTemp
+    ok
+    aValues = value
+
+    # Only proceed if reset flag is set (condition was FALSE) and temp vars exist
+    if _bVarReset = _TRUE_ and len(_aTempVars) > 0
+        nTempVars = len(_aTempVars)
+        nValues = len(aValues)
+        nLen = Min([ nTempVars, nValues ])  # Bounds: Don't exceed either list
+
+        oHash = new stzHashList(_aVars)
+
+        for i = 1 to nLen
+            cVarName = _aTempVars[i][1]
+            _aTempVars[i][2] = aValues[i]
+
+            # Update global _aVars
+            n = oHash.FindKey(cVarName)
+            if n > 0
+                _aVars[n][2] = aValues[i]
+            else
+                _aVars + [ cVarName, aValues[i] ]
+            ok
+
+            # If StzObject, set var name (from Vl())
+            if ObjectIsStzObject(aValues[i])
+                aValues[i].SetObjectVarNameTo(cVarName)
+            ok
+        next
+
+        # Update current var to the last one processed
+        if nLen > 0
+            _var = [ _aTempVars[nLen][1], aValues[nLen] ]
+        ok
+
+        # If old val was empty, update oldVar (from Vl())
+        if oldval() = ""
+            _oldVar = _var
+        ok
+    ok
+
+    func else_(value)
+        return _else(value)
+
+/*
 func _else(value)
 
 	aValues = []
@@ -489,6 +548,7 @@ func _else(value)
 
 	func else_(value)
 		return _else(value)
+*/
 
 # Used for ternary operator in C
 
