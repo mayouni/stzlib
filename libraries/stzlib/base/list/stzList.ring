@@ -6041,6 +6041,7 @@ func StzListCount(aList, pItem)
 	func ListCount(aList, pItem)
 		return StzListCount(aList, pItem)
 
+
 #=== Enhance Ring+Softanza finding functions #todo #narration
 
 #NOTE
@@ -6060,7 +6061,7 @@ func StzListCount(aList, pItem)
 
 #WARNING Very important! Read the warning in @FindNthOccurrenceCS() function
 
-func @FindAllCS(paList, pItem, pCaseSensitive)
+func @FindAllCS_NbrOrStr(paList, pItem, pCaseSensitive)
 
 	if CheckingParams()
 		if NOT isList(paList)
@@ -6136,14 +6137,10 @@ func @FindAllCS(paList, pItem, pCaseSensitive)
 
 	return _anResult_
 
-	func FindAllCS(aList, pItem, pCaseSensitive)
-		return @FindAllCS(aList, pItem, pCaseSensitive)
 
-func @FindAll(aList, pItem)
-	return @FindAllCS(aList, pItem, _TRUE_)
+func @FindAll_NbrOrStr(aList, pItem)
+	return @FindAllCS_NbrOrStr(aList, pItem, _TRUE_)
 
-	func FindAll(aList, pItem)
-		return @FindAll(aList, pItem)
 
 #---
 
@@ -6156,9 +6153,6 @@ func @FindFirstCS(aList, pStrOrNbr, pCaseSensitive)
 	func FindFirstCS(aList, pStrOrNbr, pCaseSensitive)
 		return @FindFirstCS(aList, pStrOrNbr, pCaseSensitive)
 
-	func @FindCS(aList, pStrOrNbr, pCaseSensitive)
-		return @FindFirstCS(aList, pStrOrNbr, pCaseSensitive)
-
 	#>
 
 func @FindFirst(aList, pStrOrNbr)
@@ -6169,8 +6163,6 @@ func @FindFirst(aList, pStrOrNbr)
 	func FindFirst(aList, pStrOrNbr)
 		return @FindFirst(aList, pStrOrNbr)
 
-	func @Find(aList, pStrOrNbr)
-		return @FindFirst(aList, pStrOrNbr)
 
 	#>
 
@@ -44481,9 +44473,9 @@ fdef
 			ok
 		ok
 
-		anResult = @FindAllCS( aContent, pItem, pCaseSensitive)
+		anResult = @FindAllCS_NbrOrStr( aContent, pItem, pCaseSensitive)
 
-		if isList(anResult) > 0
+		if isList(anResult) and len(anResult) > 0
 			return anResult
 
 		else # the returned value is -1 ~> @FindAll() was not able to compute pItem

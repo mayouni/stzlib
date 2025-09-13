@@ -99,8 +99,40 @@ next
 pf()
 # Executed in 0.78 second(s) in Ring 1.23
 
-/*===
+/*--- #ring
 */
+pr()
+
+oMyPoint = new Point
+aInnerList = [1, 2, 3]
+
+aList = [ 22, ref(oMyPoint), "B", ref(aInnerList) ]
+
+? find(aList, 22) 		#--> 1
+? find(aList, "B")		#--> 3
+? find(aList, aInnerList) 	#--> 2
+? find(aList, oMyPoint)		#--> 4
+
+pf()
+
+class Point { x=10 y=10 z=10 }
+/*--- #ring
+
+pr()
+
+myList1 = [new Company {position=3 name="Mahmoud" symbol="MHD"},
+           new Company {position=2 name="Bert" symbol="BRT"},
+           new Company {position=1 name="Ring" symbol="RNG"}
+          ]
+
+see find(mylist1,"Bert", 1, "name") #--> 2
+
+pf()
+
+class company position name symbol
+
+/*===
+
 pr()
 
 o1 = new stzString("Ring")
@@ -109,10 +141,10 @@ o1 = new stzString("Ring")
 
 o1.SetUuid()
 ? o1.Uuid()
-#--> 076A1822-F061-4943-A67C-9DD569115B84
+#--> "076A1822-F061-4943-A67C-9DD569115B84"
 
 ? o1.HashedUuid()
-#--> 738121558
+#--> "738121558"
 
 pf()
 # Executed in 0.51 second(s) in Ring 1.23

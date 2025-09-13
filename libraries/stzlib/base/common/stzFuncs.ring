@@ -24,20 +24,20 @@ Programming, by Heart! By: M.Ayouni╭
  ///  GLOBALS VARIABLES  ///
 ///////////////////////////
 
-_bInHistoryUpdate = _FALSE_
+_bInHistoryUpdate = 0
 
 $TEMP_LIST = [] # A temp list value used with @() inside objects
 $TEMP_STRING = ""
 $TEMP_NUMBER = 0
-$TEMP_OBJECT = _NULL_
+$TEMP_OBJECT = ""
 
-_bKeepHisto = _FALSE_ // for keeping objec update history
+_bKeepHisto = 0 // for keeping objec update history
 _aHisto = []
 
-_aKeepHistoXT = [ _FALSE_, _NULL_ ]
+_aKeepHistoXT = [ 0, "" ]
 _aHistoXT = []
 
-_bKeepTime = _FALSE_ // for keeping object execution time
+_bKeepTime = 0 // for keeping object execution time
 _nTimeInSeconds = 0
 _nStartTimeInClocks = 0
 
@@ -54,7 +54,7 @@ _aRingTypesXT = [
 @ = 0
 
 # Temporary Truth Statement and Negation (read X as Truth)
-_bXStatement_ = _TRUE_
+_bXStatement_ = 1
 
 _aStzFindableTypes = [
 	:stzListOfNumbers, :stzListOfUnicodes, :stzString, :stzMultiString,
@@ -68,27 +68,27 @@ _aStzFindableTypes = [
 	:stzSection
 ]
 
-_MainValue = _NULL_
-_LastValue = _NULL_
+_MainValue = ""
+_LastValue = ""
 
-_bThese = _FALSE_	     	# Used in case like: Q(1:5) - These(3:5) 	--> [1,2]
-_bTheseQ = _FALSE_     	# Used in case like: Q(1:5) - TheseQ(3:5) 	--> Q([1,2])
+_bThese = 0	     	# Used in case like: Q(1:5) - These(3:5) 	--> [1,2]
+_bTheseQ = 0     	# Used in case like: Q(1:5) - TheseQ(3:5) 	--> Q([1,2])
 
-_bAsObject = _FALSE_	# Used in case like: Q(1:2) + Obj(Q(3:4))	--> [ [1,2], Q([3,4]) ]
-_bAsObjectQ = _FALSE_
+_bAsObject = 0	# Used in case like: Q(1:2) + Obj(Q(3:4))	--> [ [1,2], Q([3,4]) ]
+_bAsObjectQ = 0
 
-_bModifiable = _FALSE_	# Used with operators that modify stz objects
+_bModifiable = 0	# Used with operators that modify stz objects
 
-_bParamCheck = _TRUE_  	# Activates the "# Checking params region" in softanza functions
+_bParamCheck = 1  	# Activates the "# Checking params region" in softanza functions
 		     	#--> Set it to _FALSE_ if the functions are used inside large loops
 		    	# so you can gain performance (the checks can then be made once,
 		     	# by yourself, outside the loop).
 			# Use the SetParamCheckingTo(_FALSE_)
 
-_bEarlyCheck = _TRUE_	# Used for the same reason as _bParamCheck
+_bEarlyCheck = 1	# Used for the same reason as _bParamCheck
 
 cCacheFileName = "stzcache.txt"
-_CacheFileHandler = _NULL_
+_CacheFileHandler = ""
 
 _cCacheMemoryString = ""
 
@@ -438,6 +438,48 @@ _acStzCCKeywords = [
   //////////////////////////
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
+
+func FindCS(pContainer, pVal, pCaseSensitive)
+	if CheckParams()
+		if NOt (isString(pContainer) or isList(pContainer))
+			StzRaise("Incorrect param type! pContainer must be a string or list.")
+		ok
+	ok
+
+	if isString(pContainer)
+		return StzStringQ(pContainer).FindCS(pVal, pCaseSensitive)
+
+	else
+
+		return StzListQ(pContainer).FindCS(pVal, pCaseSensitive)
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func @FindCS(pContainer, pVal, pCaseSensitive)
+		return FindCS(pContainer, pVal, pCaseSensitive)
+
+	func FindAllCS(pContainer, pVal, pCaseSensitive)
+		return FindCS(pContainer, pVal, pCaseSensitive)
+
+	func @FindAllCS(pContainer, pVal, pCaseSensitive)
+		return FindCS(pContainer, pVal, pCaseSensitive)
+	#>
+
+func @Find(pContainer, pVal)
+	return @FindCS(pContainer, pVal, 1)
+
+	#< @FunctionAlternativeForms
+
+	func FindAll(pContainer, pVal)
+		return @Find(pContainer, pVal)
+
+	func @FindAll(pContainer, pVal)
+		return @Find(pContainer, pVal)
+	#>
+
+
+#---
 
 func TruthStatement()
 	return _bXStatement_
