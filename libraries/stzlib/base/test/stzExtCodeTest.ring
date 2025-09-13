@@ -798,21 +798,68 @@ pf()
 # Executed in 0.11 second(s) in ring 1.21
 
 /*----
-*/
+
 pr()
 
-aList = [1,2,3]
-//p1 = new point { x=10 y=20 z=30 }
-p1 = [ "x", "y", "z"  ]
-? type(ref(p1))
-aList + ref(p1)
-aList + 5
-? find(aList,p1)
+oMyPoint = new Point
+aInnerList = [1, 2, 3]
+
+aList = [ 22, ref(oMyPoint), "B", ref(aInnerList) ]
+
+? find(aList, 22) 		#--> 1
+? find(aList, "B")		#--> 3
+? find(aList, aInnerList) 	#--> 2
+? find(aList, oMyPoint)		#--> 4
 
 pf()
 
-class point x y z
+class Point { x=10 y=10 z=10 }
 
+/*---
+
+pr()
+
+oMyPoint = new Point
+aInnerList = [1, 2, 3]
+
+aList = [ 22, oMyPoint, "B", aInnerList ]
+
+? @Find(aList, 22) 		#--> 1
+? @Find(aList, "B")		#--> 3
+? @Find(aList, aInnerList) 	#--> 2
+? @Find(aList, oMyPoint)	#--> 4
+
+pf()
+
+class Point { x=10 y=10 z=10 }
+
+/*---
+*/
+
+# Create test objects
+
+pr()
+
+oFriend = StzNamedObjectQ(:oFriend = new Person("Mahmoud"))
+
+aMyList = [ 10, oFriend, "hello", [1, 2,3 ], oFriend, [1, 2, 3], "HELLO" ]
+
+? @@( @Find(aMyList, 10 ) )          # --> [1]
+? @@( @Find(aMyList, "hello") )      # --> [3]
+? @@( @Find(aMyList, [1, 2, 3]) )    # --> [4, 6]
+? @@( @Find(aMyList, oFriend) )      # --> [2, 5]
+
+? ""
+
+? @@( @FindCS(aMyList, "HELLO", FALSE) )  # --> [3, 7]
+? @@( @FindCS(aMyList, "HELLO", TRUE) )   # --> [7]
+
+pf()
+
+class Person
+    name = ""
+    def init(cName)
+        name = cName
 
 
 /*======
