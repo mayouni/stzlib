@@ -1,5 +1,7 @@
 load "../stzbase.ring"
 
+/*----
+
 pr()
 
 # Getting a char by its unicode codepoint
@@ -11,10 +13,11 @@ pr()
 ? Unicode("ﷶ") #--> 65014
 ? Unicode("ﷵ") #--> 65013
 
-# Executed in 0.06 second(s) nn
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.06 second(s) in Ring 1.19
 
 /*----
 
@@ -26,21 +29,26 @@ pr()
 ? NumberOfUnicodeChars()
 #--> 149_186
 
-? NumberOfLinesInUnicodeDataFile()
-#--> 34_626
+? NumberOfLinesInUnicodeDataFile() + NL
+#--> 34_931
+
+pf()
+
+/*---
+
+pr()
 
 StzUnicodeDataQ() {
 
-	? UnicodesOfCharsContaining("arabic")
-	# 0.22 seconds
+	? ShowShort( UnicodesOfCharsContaining("arabic") )
+	#--> [ 1536, 1537, 1538, "...", 126651, 126704, 126705 ]
 
-	? CharsContaining("arabic")
-	# 0.40 seconds
-
+	? ShowShort( CharsContaining("arabic") )
+	#--> [ "؀", "؁", "؂", "...", "", "", "" ]
 }
 
 pf()
-# Executed in 0.58 second(s)
+# Executed in 0.76 second(s)
 
 /*------ #narration
 
@@ -49,18 +57,18 @@ pr()
 
 # Setting the Some() function to return 3 items (by default it returns 5)
 
-SetSomeTo(3)
+SetSome(3)
 
 # Getting the names of some unicode blocks along with their ranges
 # in term of unicode codepoints (expressed in decimal numbers)
 
-? Some( UnicodeBlocksXT() ) # XT --> ..Along with their ranges
+? @@NL( Some( UnicodeBlocksXT() ) ) # XT --> ..Along with their ranges
 #--> [
 #	[ "Osage", [66736, 66815] ],
 #	[ "Manichaean", [68288, 68351 ] ],
 # 	[ "Dives Akuru", [72272, 72367] ]
 # ]
-
+/*
 # Searching for blocks containg the word "box"
 
 ? UnicodeBlocksContaining("box") # or, to be precise: UnicodeBlocksNamesContaing("box")
@@ -111,7 +119,7 @@ SetSomeTo(9)
 #	[ "╼", "BOX DRAWINGS LIGHT LEFT AND HEAVY RIGHT" ],
 #	[ "☐", "BALLOT BOX" ]
 # ]
-
+*/
 ProfilerOff()
 # Executed in 0.76 second(s)
 

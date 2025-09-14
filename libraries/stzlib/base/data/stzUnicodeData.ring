@@ -442,11 +442,6 @@ func UnicodeData()
 	func StzUnicodeDataQ()
 		return new stzUnicodeData()
 
-	func UnicodeDataAsString()
-		return UnicodeData()
-
-		func UnicodeDataAsStringQ()
-			return new stzUnicodeDataAsString()
 
 func MaxUnicode()
 	return _nMaxUnicode
@@ -633,7 +628,6 @@ func CharsContainingInTheirName(pcPartOfName)
 		return CharsContainingInTheirName(pcPartOfName)
 
 
-class stzUnicodeDataAsString from stzUnicodeData
 
 class stzUnicodeData
 	@oStzStrUnicodeData

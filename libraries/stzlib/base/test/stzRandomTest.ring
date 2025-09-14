@@ -1,5 +1,24 @@
 
 load "../stzbase.ring"
+
+/*====
+
+pr()
+
+aNumbers = [ 12, 9, 10, 7, 25, 12, 9, 8 ]
+? Some(aNumbers)
+#--> [ 12, 10, 7 ]
+
+? DefaultSome()
+0.3
+
+SetSome(0.5)
+? Some(aNumbers)
+#--> [ 10, 25, 7, 9 ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
 /*====
 
 pr()
@@ -25,6 +44,7 @@ o1.RandomizeNumbers()
 #--> [ "A", "B", 30, 50, 60, 40, "A", "B", "C" ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 #--
 
@@ -36,7 +56,8 @@ o1.RandomizeStrings()
 #--> [ 1, 2, 3, 4, "B", "C", "D", "A" ]
 
 pf()
-#--> Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.03 second(s) in Ring 1.20
 
 #--
 
@@ -51,7 +72,8 @@ o1.RandomizeSection(1, 4)
 #--> [ 4, 3, 1, 2, "A", "B", "C", "D" ]
 
 pf()
-#--> Executed in 0.04 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*--
 
@@ -65,7 +87,8 @@ o1.RandomizeSection(5, 8)
 #--> [ 1, 2, 3, 4, "B", "A", "C", "D" ]
 
 pf()
-# Executed in 0.04 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*--
 
@@ -80,7 +103,8 @@ o1.RandomizeSections([ [1,4], [8,10] ])
 #--> [ 2, 3, 4, 1, "A", "B", "C", 9, 8, 10, "D" ]
 
 pf()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.03 second(s) in Ring 1.20
 
 /*--
 
@@ -95,7 +119,8 @@ o1.RandomizeStrings()
 #--> [ 1, 2, "B", "A", "C", 6, 7, "F", "G", "E", "D" ]
 
 pf()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.03 second(s) in Ring 1.20
 
 /*--
 
@@ -109,9 +134,11 @@ o1.RandomiseLists() # Or ShuffleLists()
 #--> [ "A", "B", [ 4, 5 ], [ 6, 7, 8 ], [ 1, 2, 3 ], "C", [ 9, 10 ], [ 11, 12 ] ]
 
 pf()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.03 second(s) in Ring 1.20
 
 /*----
+
 pr()
 
 Q("123456789") {
@@ -141,7 +168,8 @@ Q("123456789") {
 }
 
 pf()
-# Executed in 7.76 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 7.76 second(s) in Ring 1.19
 
 /*---
 
@@ -194,7 +222,7 @@ Q([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ]) {
 }
 
 pf()
-# Executed in 0.05 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*---
 
@@ -210,6 +238,7 @@ Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]) {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*----
 
@@ -250,7 +279,8 @@ Q("SOFTANZA") {
 }
 
 pf()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*-------
 
@@ -291,7 +321,8 @@ Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]) {
 }
 
 pf()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*=====
 
@@ -314,6 +345,7 @@ pr()
 #--> [ 1, 2, 4, 5 ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*----
 
@@ -328,7 +360,7 @@ Them = [ "Andy", "Bill", "Chris" ]
 #--> [ ]
 
 pf()
-# Executed in almost 0.00 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*---
 
@@ -346,6 +378,7 @@ Average = 10
 #--> TRUE
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*-----
@@ -377,7 +410,6 @@ pf()
 
 /*-----
 
-*/
 pr()
 
 
@@ -396,7 +428,6 @@ pr()
 pf()
 # Executed in 0.06 second(s) in Ring 1.22
 
-
 /*-----
 
 pr()
@@ -411,16 +442,18 @@ pr()
 #--> [ 3, 4, 5, 1 ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*-----
-*/
+
 pr()
 
-TheAnnualGain = 20500
-? NPercentOf( 10, TheAnnualGain )
+nAnnualGain = 20500
+? NPercentOf( 10, nAnnualGain )
 #--> 2050
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*=====
 
@@ -436,7 +469,8 @@ pr()
 #--> [ "B", "E", "A" ]
 
 pf()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.03 second(s) in Ring 1.20
 
 /*=====
 
@@ -449,7 +483,8 @@ pr()
 #--> [ 5, 1, 10 ]
 
 pf()
-# Executed in 0.03 second(s)
+# Executed in 0.03 second(s) in Ring 1.20
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*=====
 
@@ -465,7 +500,8 @@ pr()
 #--> -1.00
 
 pf()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.03 second(s) in Ring 1.20
 
 /*=====
 
@@ -475,11 +511,11 @@ pf()
 
 pr()
 
-# If you write this to ask Ring to generate a random number (version 1.19)
+# If you write this to ask Ring to generate a random number (version 1.23)
 
 ? @@( random(9_999_999_999) )
-#--> _NULL_
-# The result will be a _NULL_ string.
+#--> ""
+# The result will be a null string.
 
 # In Softanza, using the alternative StzRandom() function, an error
 # messageis raised:
@@ -488,7 +524,7 @@ pr()
 #--> ERROR: Can't proceed. The maximum value you can provide is 999_999_999.
 
 # It turns our that Softanza is aware of the fact that Ring random()
-# function has a limit. And you get the info it by calling the function :
+# function has a limit. And you get that info by calling the function :
 
 ? RingMaxRandom()
 #--> 999_999_999
@@ -530,7 +566,8 @@ pr()
 #--> 32_438_4546
 
 pf()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.03 second(s) in Ring 1.19
 
 /*---
 
@@ -561,9 +598,10 @@ pr()
 #--> [ [ 102, 3 ], [ 106, 7 ], [ 103, 4 ] ]
 
 pf()
-# Executed in 0.05 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.05 second(s) in Ring 1.20
 
-/*---
+/*--- #ring
 
 pr()
 
@@ -590,29 +628,27 @@ pr()
 #--> [ -10, -7, -3 ]
 
 pf()
-# Executed in 0.01 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.20
 
 /*---
 
 pr()
 
-# Ring random() can't deal with 0 as a paramter:
-
 ? random(0)
-#--> ""
-
-# But Softanza can:
+#--> 0
 
 ? StzRandom(0) + NL
 #--> 0
 
-# And can even generate 0s as random numbers:
+# Generate 0s as random numbers:
 
 ? NRandomNumbersIn(5, 0:3)
-#--> [ 0, 1, 1, 2, 3 ]
+#--> [ 0, 3, 1, 1, 0 ]
 
 pf()
-# Executed in 0.04 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*---
 
@@ -650,10 +686,11 @@ SetRandomRound(5)
 	#--> 0.26434
 
 pf()
-# Executed in 0.15 second(s)
+# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.15 second(s) in Ring 1.20
 
 /*---
-
+*/
 pr()
 
 ? ARandomNumberBetween(1, 2)
@@ -663,3 +700,4 @@ pr()
 #--> -2.45
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
