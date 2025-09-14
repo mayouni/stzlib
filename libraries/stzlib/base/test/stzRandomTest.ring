@@ -2,7 +2,7 @@
 load "../stzbase.ring"
 
 /*====
-
+*/
 pr()
 
 aNumbers = [ 12, 9, 10, 7, 25, 12, 9, 8 ]
