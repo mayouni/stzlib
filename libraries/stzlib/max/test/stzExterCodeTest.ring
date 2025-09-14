@@ -5,7 +5,7 @@ load "../stzmax.ring"
 #======================================#
 
 /*--- Basic example
-*/
+
 pr()
 
 # Create instance for Python

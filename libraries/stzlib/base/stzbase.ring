@@ -20,7 +20,6 @@
 	load "common/stzSplitter.ring"
 
 	load "common/stzCCode.ring"
-	load "common/stzExtinCode.ring"
 
 # Loading files related to the DATA module
 
@@ -154,6 +153,16 @@
 	load "i18n/stzLanguage.ring"
 	load "i18n/stzLocale.ring"
 	load "i18n/stzScript.ring"
+
+# Loading files related to the EXTIN module
+
+	load "extin/stzExtinCode.ring"
+	load "extin/stzExtinCSharp.ring"
+	load "extin/stzExtinPython.ring"
+	load "extin/stzExtinJS.ring"
+	load "extin/stzExtinSql.ring"
+	load "extin/stzExtinPerl.ring"
+	load "extin/stzExtinC.ring"
 
 # Loading files related to the NEtwORK module
 

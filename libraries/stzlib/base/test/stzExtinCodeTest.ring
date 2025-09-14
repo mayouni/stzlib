@@ -2,7 +2,7 @@ load "../stzbase.ring"
 
 
 /*==== #narration SQL SUPPORT IN SOFTANZA EXTERNAL CODE
-*/
+
 pr()
 
 # SQL code to create a table with three columns
@@ -1043,7 +1043,7 @@ pf()
 # Executed in 0.05 second(s)
 
 /*----------------
-
+*/
 pr()
 
 # In Python, we can assign multiple values to many variables:
