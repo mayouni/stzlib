@@ -690,7 +690,7 @@ pf()
 # Executed in 0.15 second(s) in Ring 1.20
 
 /*---
-*/
+
 pr()
 
 ? ARandomNumberBetween(1, 2)
