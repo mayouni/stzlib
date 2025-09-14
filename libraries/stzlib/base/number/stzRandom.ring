@@ -456,6 +456,7 @@ func Some(paList)
 	#>
 
 func SomeXT(paList, nSomeRatio)
+
 	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")

@@ -223,6 +223,7 @@ func CharsToUnicodesXT(paList)
 	#>
 
 func CharsNames(paList)
+
 	return StzListOfCharsQ(paList).Names()
 
 	func CharsToNames(paList)
@@ -539,6 +540,8 @@ class stzListOfChars from stzListOfStrings
 			cName = StzCharQ(acContent[i]).Name()
 			acResult + cName
 		next
+
+		#TODO #PERF // Avoid using StzCharQ() inside the loop
 
 		return acResult
 

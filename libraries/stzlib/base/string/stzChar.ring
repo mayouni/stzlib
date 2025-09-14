@@ -790,7 +790,7 @@ class stzChar from stzObject
 		cHex = DecimalToHex( This.Unicode() )
 		cResult = StzUnicodeDataQ().CharNameByHexCode(cHex)
 		if cResult = ""
-			StzRaise("Can't proceed! The name of this char does not exist in the local unicode database.")
+			StzRaise("Can't proceed! The name of this char (" + This.Content() + ") does not exist in the local unicode database.")
 		ok
 
 		return cResult

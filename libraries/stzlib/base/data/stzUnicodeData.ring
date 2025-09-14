@@ -613,6 +613,7 @@ func UnicodeBlocksContainingXT(pcStr)
 
 	#>
 
+
 func CharsContainingInTheirName(pcPartOfName)
 	oUnicodeData = new stzUnicodeData()
 	acResult = oUnicodeData.CharsContaining(pcPartOfName)
@@ -621,12 +622,27 @@ func CharsContainingInTheirName(pcPartOfName)
 	func CharsContaining(pcPartOfName)
 		return CharsContainingInTheirName(pcPartOfName)
 
+
 	func @CharsContainingInTheirName(pcPartOfName)
 		return CharsContainingInTheirName(pcPartOfName)
 
 	func @CharsContaining(pcPartOfName)
 		return CharsContainingInTheirName(pcPartOfName)
 
+
+func CharsNamesContaining(pcPartOfName)
+	oUnicodeData = new stzUnicodeData()
+	acResult = oUnicodeData.CharsNamesContaining(pcPartOfName)
+	return acResult
+
+	func CharNamesContaining(pcPartOfName)
+		return CharsContainingInTheirName(pcPartOfName)
+
+	func @CharsNamesContaining(pcPartOfName)
+		return CharsContainingInTheirName(pcPartOfName)
+
+	func @CharNamesContaining(pcPartOfName)
+		return CharsContainingInTheirName(pcPartOfName)
 
 
 class stzUnicodeData
@@ -820,6 +836,13 @@ class stzUnicodeData
 	def CharsContaining(cPartOfName)
 		acResult = UnicodesToChars( This.UnicodesOfCharsContaining(cPartOfName) )
 		return acResult
+
+	def CharsNamesContaining(pcPartOfName)
+		acResult = @CharsNames( This.CharsContaining(pcPartOfName) )
+		return acResult
+
+		def CharNamesContaining(pcPartOfName)
+			return This.CharsNamesContaining(pcPartOfName)
 
 	#==
 

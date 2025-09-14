@@ -52,47 +52,46 @@ pf()
 
 /*------ #narration
 
-*/
 pr()
 
-# Setting the Some() function to return 3 items (by default it returns 5)
-
-SetSome(3)
 
 # Getting the names of some unicode blocks along with their ranges
 # in term of unicode codepoints (expressed in decimal numbers)
 
-? @@NL( Some( UnicodeBlocksXT() ) ) # XT --> ..Along with their ranges
+? ShowShortNL( UnicodeBlocksXT() ) # XT --> ..Along with their ranges
 #--> [
-#	[ "Osage", [66736, 66815] ],
-#	[ "Manichaean", [68288, 68351 ] ],
-# 	[ "Dives Akuru", [72272, 72367] ]
+#	[ "Basic Latin", [ 0, 127 ] ], 
+#	[ "Latin-1 Supplement", [ 128, 255 ] ], 
+#	[ "Latin Extended-A", [ 256, 383 ] ], 
+#	"...", 
+#	[ "Variation Selectors Supplement", [ 917760, 917999 ] ], 
+#	[ "Supplementary Private Use Area-A", [ 983040, 1048575 ] ], 
+#	[ "Supplementary Private Use Area-B", [ 1048576, 1114111 ] ]
 # ]
-/*
+
+
 # Searching for blocks containg the word "box"
 
-? UnicodeBlocksContaining("box") # or, to be precise: UnicodeBlocksNamesContaing("box")
+? @@( UnicodeBlocksContaining("box") ) # or, to be precise: UnicodeBlocksNamesContaing("box")
 #--> [ "Box Drawing" ]
 
 # Getting the ranges of those boxes (only one range, since there is one block)
 
-? UnicodeBlocksContainingXT("box")
+? @@( UnicodeBlocksContainingXT("box") )
 #-->[ "Box Drawing", [9472, 9599] ]
 
-# Setting the default number of items returned by some() function to 9
-
-SetSomeTo(9)
 
 # Transforming some of the unicode codepoints of the chars belonging to
 # block "Box Drawing" to chars, so we can see them on screen()
 
-? Some( UnicodesToChars(9472:9599) )
-#--> [ "┆", "┒", "┣", "┮", "╇", "╚", "╝", "╻", "╿", "┖" ]
+acBoxChars = UnicodesToChars(9472:9599)
+? ShowShort( acBoxChars )
+#--> [ "─", "━", "│", "...", "╽", "╾", "╿" ]
 
 # Getting the names of 5 randoms chars of them (along their unicode codepoints ~> XT),
 # and we want them to be unique (the same char is not displayed twice ~> U)
 
-? CharsAndNames( NRandomItemsInU(5, [ "┆", "┒", "┣", "┮", "╇", "╚", "╝", "╻", "╿", "┖" ]) )
+? @@NL( CharsAndNames( NRandomItemsInU(5, acBoxChars) ) )
 #--> [
 # 	[ "┖", "BOX DRAWINGS UP HEAVY AND RIGHT LIGHT" ],
 # 	[ "╸", "BOX DRAWINGS HEAVY LEFT" ],
@@ -105,12 +104,13 @@ SetSomeTo(9)
 # (Note that we are searching directly the chars and not
 # the blocks of chars as above)
 
-# Here we take randsomly 6 of them:
+# Here we take randomly 6 of them:
+? ""
 
 ? NItemsIn(6, CharsContainingInTheirName("box") )
 #--> [ "␣", "┌", "┞", "╬", "╼", "☐" ]
 
-? CharsAndTheirNames([ "␣", "┌", "┞", "╬", "╼", "☐" ])
+? @@NL( CharsAndTheirNames([ "␣", "┌", "┞", "╬", "╼", "☐" ]) )
 #--> [
 #	[ "␣", "OPEN BOX" ],
 #	[ "┌", "BOX DRAWINGS LIGHT DOWN AND RIGHT" ],
@@ -119,43 +119,62 @@ SetSomeTo(9)
 #	[ "╼", "BOX DRAWINGS LIGHT LEFT AND HEAVY RIGHT" ],
 #	[ "☐", "BALLOT BOX" ]
 # ]
-*/
+
 ProfilerOff()
-# Executed in 0.76 second(s)
+# Executed in 0.68 second(s) in Ring 1.23
+# Executed in 0.76 second(s) in Ring 1.20
 
 /*-----------------
 
 pr()
 
-? Some( UnicodeBlocks() ) # By default, Some() function returns 10 items
+? ShowShortXTNL( UnicodeBlocks(), 5 )
 
-#--> [ "Basic Latin", "Block Elements", "Tai Viet",
-# 	"Arabic Presentation Forms-A", "CJK Compatibility Forms",
-# 	"Ancient Greek Numbers", "Bhaiksuki", "Adlam",
-# 	"Mahjong Tiles", "Enclosed Alphanumeric Supplement"
-# ]
+#-->
+'
+[
+	"Basic Latin", 
+	"Latin-1 Supplement", 
+	"Latin Extended-A", 
+	"Latin Extended-B", 
+	"IPA Extensions", 
+	"...", 
+	"CJK Unified Ideographs Extension G", 
+	"Tags", 
+	"Variation Selectors Supplement", 
+	"Supplementary Private Use Area-A", 
+	"Supplementary Private Use Area-B"
+]
+'
 
-# Let's change the default number of items returned by Some() function:
-SetDefaultSome(3)
-
-? Some( UnicodeBlocksAndTheirRanges() )
-#--> [
-# 	[ "Combining Diacritical Marks", [768, 879] ],
-# 	[ "Mro", [92704, 92767] ],
-# 	[ "Adlam", [123904, 123951] ]
-# ]
+? ShowShortNL( UnicodeBlocksAndTheirRanges() )
+#-->
+'
+[
+	[ "Basic Latin", [ 0, 127 ] ], 
+	[ "Latin-1 Supplement", [ 128, 255 ] ], 
+	[ "Latin Extended-A", [ 256, 383 ] ], 
+	"...", 
+	[ "Variation Selectors Supplement", [ 917760, 917999 ] ], 
+	[ "Supplementary Private Use Area-A", [ 983040, 1048575 ] ], 
+	[ "Supplementary Private Use Area-B", [ 1048576, 1114111 ] ]
+]
+'
 
 pf()
-# Executed in 0.04 second(s)
+# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*-----------------
 
 pr()
 
 ? StzUnicodeDataQ().CharUnicodeByName("CHECK MARK")
+#--> 10003
 
 pf()
-#--> Executed in 0.33 second(s)
+# Executed in 0.06 second(s) in Ring 1.23
+#--> Executed in 0.33 second(s) in Ring 1.20
 
 /*-----------------
 
@@ -177,12 +196,12 @@ pr()
 #--> ピ
 
 pf()
-# Executed in 0.38 second(s)
+# Executed in 0.07 second(s) in Ring 1.23
+# Executed in 0.38 second(s) in Ring 1.20
 
 /*-----------------
-*/
-pr()
 
+pr()
 
 StzUnicodeDataQ() {
 
@@ -192,16 +211,11 @@ StzUnicodeDataQ() {
 	? SearchCharByName("CLOUD") #ERROR : logical error! See next...
 	#--> [ 506499, 514585, 514690, 1751988, 1752036, 1752084, 1752125, 1752166, 1752207, 1752253 ]
 
-	? @@( CharsContaining("CLOUD") ) #ERROR: Error bur related to SearCharByName()
-	#--> [ "몄", "?", "?", "뮵", "믥", "박", "밾", "뱧", "벐", "벾" ]
+	? @@( First3(CharsContaining("CLOUD")) )
+	#--> [ "☁", "⛅", "⛈" ]
 
-	? @@( CharsNamesContaining("CLOUD") ) #ERROR: Idem
-	#--> [ "LATIN CAPITAL LETTER N", "LATIN CAPITAL LETTER U", "LATIN CAPITAL LETTER L", "LATIN CAPITAL LETTER L" ]
-
-	? @@( CharsNamesContaining("LATIN") )
-	#--> [ "LATIN CAPITAL LETTER N", "LATIN CAPITAL LETTER U", "LATIN CAPITAL LETTER L", "LATIN CAPITAL LETTER L" ]
-	
-	#--
+	//? @@( First3(CharsNamesContaining("CLOUD")) ) #ERROR: Idem
+	#--> ERR: Can't proceed! The name of this char () does not exist in the local unicode database.
 
 	? ContainsCharName("LATIN LETTER SMALL CAPITAL G")
 	#--> TRUE
@@ -245,3 +259,4 @@ StzUnicodeDataQ() {
 }
 
 pf()
+# Executed in 0.53 second(s) in Ring 1.23
