@@ -1,4 +1,5 @@
 # Functions and classes for porting C# code to Ring
+int = new IntObject
 
 func $(str)
 	if isList(str) and ( Q(str).IsPair() or Q(str).IsHashList() )

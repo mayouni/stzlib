@@ -9,11 +9,6 @@
 #								          #
 #-------------------------------------------------------------------------#
 
-load "stzUnicodeDataInString.ring"
-#NOTE I turned back to putting uncide data in a string not a text file
-# because the path in load "../data/stzUnicodeData.txt" made me a
-# a headake when I refactored the library architecture into 3 layers
-# TODO: fix that!
 
 /* GENERAL NOTES
 
@@ -78,7 +73,7 @@ _nMaxUnicode = 1_114_112
 
 _nNumberOfLinesInUnicodeDataFile = 34_931
 
-_cUnicodeData = UnicodeDataInString()
+_cUnicodeData = read("../data/unicodedata.txt")
 
 _anMathUnicodes = [
 	172, 176, 177, 188, 189, 190, 215, 247, 915, 916, 920, 923,
