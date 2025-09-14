@@ -17,6 +17,7 @@ _bVarReset = 0
 _var = []	# Current temp var and its value
 _oldVar = []	# A copy of the temp var before it is changed
 
+console = new console
 None = ""
 
   ///////////////////

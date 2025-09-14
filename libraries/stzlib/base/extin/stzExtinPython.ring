@@ -126,6 +126,18 @@ func range1(p)
 func print(str)
 	? str
 
+	func echo(str)
+		print(str)
+
+	func WriteLine(str)
+		print(str)
+
+	func println(str)
+		print(str)
+
+	func printf(str)
+		print(str)
+
 func f(str)
 	return Interpoltate(str)
 
