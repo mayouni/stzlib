@@ -26,38 +26,58 @@ _nMaxRandomLoop = 1000 	# How many times Softanza loops to find a given random n
 			#--> Used as a safey featur with while loops inorder to
 			# avoid infite lopps
 
-_nNo = 0
-_nFew = 0.15
-_nSome = 0.30
-_nHalf = 0.50
-_nMany = 0.70
-_nMost = 0.90
-_nAll = 1
+_nNoRatio = 0
+_nFewRatio = 0.15
+_nSomeRatio = 0.30
+_nHalfRatio = 0.50
+_nManyRatio = 0.70
+_nMostRatio = 0.90
+_nAllRatio = 1
 
-_nProbably = 0.50
-_nUnlikely = 0.05
-_nPerhaps = 0.50
-_nAlmost = 0.95
+_nProbablyRatio = 0.50
+_nUnlikelyRatio = 0.05
+_nPerhapsRatio = 0.50
+_nAlmostRatio = 0.95
 
 # Probabilistic functions
 
 func DefaultNo()
-	return _nNo
+	return _nNoRatio
 
 	func DefaultAny()
-		return _nNo
+		return _nNoRatio
 
 	func _No()
-		return _nNo
+		return _nNoRatio
 
 	func _Any()
-		return _nNo
+		return _nNoRatio
 
-func SetNo(n)
-	_nNo = n
+func SetNo(nRatio)
 
-	func SetAny(n)
-		SetNo(n)
+	if CheckParams()
+		if isList(nRatio) and len(nRatio) = 2 and
+		   isString(n[1]) and n[1] = :To
+
+			nRatio = nRatio[2]
+		ok
+
+		if NOT ( isNumber(nRatio) and (nRatio >= 0 and nRatio <= 1) )
+			StzRaise("Incorrect param! nRatio must be a number between 0 and 1.")
+		ok
+	ok
+
+	_nNoRatio = nRatio
+
+	func SetAny(nRatio)
+		SetNo(nRatio)
+
+	func SetNoTo(nRatio)
+		SetNo(nRatio)
+
+	func SetAnyTo(nRatio)
+		SetNo(nRatio)
+
 
 func No(p)
 	return []
@@ -246,13 +266,26 @@ func SomeOneIn(paList)
 #--
 
 func DefaultFew()
-	return _nFew
+	return _nFewRatio
 
 	func _Few()
-		return _nFew
+		return _nFewRatio
 
-func SetFew(n)
-	_nFew = n
+func SetFew(nRatio)
+
+	if CheckParams()
+		if isList(nRatio) and len(nRatio) = 2 and
+		   isString(n[1]) and n[1] = :To
+
+			nRatio = nRatio[2]
+		ok
+
+		if NOT ( isNumber(nRatio) and (nRatio >= 0 and nRatio <= 1) )
+			StzRaise("Incorrect param! nRatio must be a number between 0 and 1.")
+		ok
+	ok
+
+	_nFewRatio = nRatio
 
 func Few(paList)
 	return FewXT(paList, DefaultFew())
@@ -354,12 +387,29 @@ func FewXT(paList, nFewRatio)
 #--
 
 func DefaultSome()
-	return _nSome
+	return _nSomeRatio
 
 	func _Some()
-		return _nSome
-func SetSome(n)
-	_nSome = n
+		return _nSomeRatio
+
+func SetSome(nRatio)
+
+	if CheckParams()
+		if isList(nRatio) and len(nRatio) = 2 and
+		   isString(n[1]) and n[1] = :To
+
+			nRatio = nRatio[2]
+		ok
+
+		if NOT ( isNumber(nRatio) and (nRatio >= 0 and nRatio <= 1) )
+			StzRaise("Incorrect param! nRatio must be a number between 0 and 1.")
+		ok
+	ok
+
+	_nSomeRatio = nRatio
+
+	func SetSomeTo(nRatio)
+		_nSomeRatio = nRatio
 
 func Some(paList)
 	return SomeXT(paList, DefaultSome())
@@ -465,12 +515,26 @@ func SomeXT(paList, nSomeRatio)
 #--
 
 func DefaultHalf()
-	return _nHalf
+	return _nHalfRatio
 
 	func _Half()
-		return _nHalf
-func SetHalf(n)
-	_nHalf = n
+		return _nHalfRatio
+
+func SetHalf(nRatio)
+
+	if CheckParams()
+		if isList(nRatio) and len(nRatio) = 2 and
+		   isString(n[1]) and n[1] = :To
+
+			nRatio = nRatio[2]
+		ok
+
+		if NOT ( isNumber(nRatio) and (nRatio >= 0 and nRatio <= 1) )
+			StzRaise("Incorrect param! nRatio must be a number between 0 and 1.")
+		ok
+	ok
+
+	_nHalfRatio = nRatio
 
 func Half(paList)
 	if CheckingParams()
@@ -519,10 +583,10 @@ func HalfXT(paList)
 #--
 
 func DefaultMany()
-	return _nMany
+	return _nManyRatio
 
 	func _Many()
-		return _nMany
+		return _nManyRatio
 
 func Among(p)
 	if CheckParams()
@@ -542,7 +606,7 @@ func Among(p)
 		return QQ(Among(p))
 
 func SetMany(n)
-	_nMany = n
+	_nManyRatio = n
 
 func Many(paList)
 	return ManyXT(paList, DefaultMany())
@@ -645,13 +709,26 @@ func ManyXT(paList, nManyRatio)
 #--
 
 func DefaultMost()
-	return _nMost
+	return _nMostRatio
 
 	func _Most()
-		return _nMost
+		return _nMostRatio
 
-func SetMost(n)
-	_nMost = n
+func SetMost(nRatio)
+
+	if CheckParams()
+		if isList(nRatio) and len(nRatio) = 2 and
+		   isString(n[1]) and n[1] = :To
+
+			nRatio = nRatio[2]
+		ok
+
+		if NOT ( isNumber(nRatio) and (nRatio >= 0 and nRatio <= 1) )
+			StzRaise("Incorrect param! nRatio must be a number between 0 and 1.")
+		ok
+	ok
+
+	_nMostRatio = nRatio
 
 func Most(paList)
 	return MostXT(paList, DefaultMost())
@@ -718,13 +795,26 @@ func MostXT(paList, nMostRatio)
 #--
 
 func DefaultAll()
-	return _nAll
+	return _nAllRatio
 
 	func _All()
 		return n_All
 
-func SetAll(n)
-	_nAll = n
+func SetAll(nRatio)
+
+	if CheckParams()
+		if isList(nRatio) and len(nRatio) = 2 and
+		   isString(n[1]) and n[1] = :To
+
+			nRatio = nRatio[2]
+		ok
+
+		if NOT ( isNumber(nRatio) and (nRatio >= 0 and nRatio <= 1) )
+			StzRaise("Incorrect param! nRatio must be a number between 0 and 1.")
+		ok
+	ok
+
+	_nAllRatio = nRatio
 
 func All(paList)
 	if CheckingParams()
