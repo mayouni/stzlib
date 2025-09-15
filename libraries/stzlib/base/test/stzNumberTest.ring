@@ -1,15 +1,41 @@
 load "../stzbase.ring"
 
-/*----
+/*---
+
+pr()
+
+nOriginalPrice = 150
+nDiscountRate = 15
+
+nDiscountAmount = NPercentOf(nDiscountRate, nOriginalPrice)
+nFinalPrice = nOriginalPrice - nDiscountAmount
+
+? nFinalPrice
+#--> 127.50
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*---
 */
 pr()
 
+nAnnualGain = 20500
+
+? NPercentOf(10, nAnnualGain)
+#--> 2050
+
+# Or Better
+? 10PercentOf(nAnnualGain)
+
+# Or even more generally
 ? Q(10).PercentOf(nAnnualGain)
 
 ? Q(25).Percent()
 #--> 0.25
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*----
 
