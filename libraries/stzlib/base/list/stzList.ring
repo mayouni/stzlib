@@ -8019,6 +8019,9 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForm
 
+		def FirstN(n)
+			return This.NFirstItems(n)
+
 		def FirstNItems(n)
 			return This.NFirstItems(n)
 

@@ -6252,6 +6252,16 @@ class stzNumber from stzObject
 				StzRaise("Unsupported return type!")
 			off
 
+	  #-------------------#
+	 # PERCENTAGE FORMS  #
+	#-------------------#
+
+	def Percent()
+		return This.NumericValue() / 100
+
+	def PercentOf(n)
+		return This.NumbericValue() * (n/100)
+
 	  #=====================================#
 	 #    INTERNAL KITCHEN OF THE CLASS    #
 	#=====================================#

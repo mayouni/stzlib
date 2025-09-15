@@ -1,8 +1,163 @@
 
 load "../stzbase.ring"
 
-/*====
+/*---
 */
+pr()
+
+nAnnualGain = 20500
+
+? NPercentOf(10, nAnnualGain)
+#--> 2050
+
+# Or Better
+? 10PercentOf(nAnnualGain)
+
+# Or even more generally
+? Q(10).PercentOf(nAnnualGain)
+
+? Q(25).Percent()
+#--> 0.25
+
+pf()
+
+/*---
+
+pr()
+
+nCards = 1:52
+oGameDeck = new stzList(nCards)
+
+oGameDeck.Randomize()
+anPlayerHand = oGameDeck.FirstN(5)
+
+? @@(anPlayerHand)
+#--> #--> [ 48, 20, 6, 51, 35 ]
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*---
+
+pr()
+
+# Full ranomisation of the positions of all the items
+
+aDeck = [ 1, 2, 3, 4, "A", "B", "C", "D" ]
+o1 = new stzList(aDeck)
+o1.Randomize() # Full shuffle
+? @@( o1.Content() )
+#--> [ "D", 4, "A", 3, "C", 2, 1, "B" ]
+
+# Randomising the positions of only numbers
+
+aDeck = [ 1, 2, 3, 4, "A", "B", "C", "D" ]
+o1 = new stzList(aDeck)
+o1.RandomizeNumbers()
+? @@( o1.Content() )
+#--> [ 4, 1, 2, 3, "A", "B", "C", "D" ]
+
+# Randomising the positions of only items in a section
+
+aDeck = [ 1, 2, 3, 4, "A", "B", "C", "D" ]
+o1 = new stzList(aDeck)
+o1.RandomizeSection(5, 8) # Partial shuffle
+? @@( o1.Content() )
+#--> [ 1, 2, 3, 4, "D", "A", "C", "B" ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*---
+
+pr()
+
+cCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+	   "0123456789" + "#!@~_" +
+	   "abcdefghijklmnopqurstuvwxyz"
+	  
+	  
+
+cPassword = ""
+
+for i = 1 to 8
+    cPassword += Q(cCharSet).ARandomChar()
+next
+
+? cPassword
+#--> @3Ond72H
+#--> 2z47AD@Z
+#--> LrmaUo7Z
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*---
+
+pr()
+
+? random01() # Or ARandomNumberBetween(0, 1)
+#--> 0.61
+
+? ARandomNumberBetween(-3.5, 2.8)
+#--> -2.45
+
+SetRandomRound(3)
+? ARandomNumberLessThan(0.7)
+#--> 0.557
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*---
+
+pr()
+
+nTestSeed = 12345
+anUserIds = []
+
+for i = 1 to 1000
+    anUserIds + ARandomNumberXT(nTestSeed + i)
+next
+
+? ShowShort( anUserIds )
+#--> [ 7587, 7590, 7593, "...", 10843, 10846, 10849 ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*---
+
+pr()
+
+? SomeXT(NumbersIn(-5:5), 20/100)
+#--> [ -5, 0, 4 ]
+
+? MostXT(PositiveNumbersIn(-5:5), 90/100)
+#--> [ 3, 4, 5, 1 ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*---
+
+pr()
+
+acTreasureChest = [ "gold", "sword", "potion", "gem", "scroll" ]
+
+acRareItems = Few(acTreasureChest)      # 10% chance items
+? @@(acRareItems)
+#--> [ "gold" ]
+
+acCommonItems = Most(acTreasureChest)   # 70% chance items
+? @@(acCommonItems)
+#--> [ "sword", "gem", "gold", "scroll" ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*====
+
 pr()
 
 aNumbers = [ 12, 9, 10, 7, 25, 12, 9, 8 ]
@@ -651,16 +806,16 @@ pf()
 # Executed in 0.04 second(s) in Ring 1.20
 
 /*---
-
+*
 pr()
 
 # Softanza can generate random real numbers in the range 0 to 1
 
 ? random01() # Or StzRandom01()
-#--> 0.61
+#--> 0.31
 
 ? ARandomNumberLessThan01(0.7)
-#--> 0.08
+#--> 0.52
 
 ? RandomRound()
 #--> 3
