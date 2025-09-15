@@ -20,6 +20,7 @@
 	load "common/stzSplitter.ring"
 
 	load "common/stzCCode.ring"
+	load "common/stzNamedVars.ring"
 
 # Loading files related to the DATA module
 
