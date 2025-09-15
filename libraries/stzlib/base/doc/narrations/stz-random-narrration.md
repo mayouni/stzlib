@@ -1,10 +1,10 @@
-# Softanza Random Features: Practical Randomness for Ring
+# Practical Randomness in Softanza
 
-Softanza extends Ring's C-based random engine with semantic APIs for common randomness needs in programming.
+Softanza builds on Ring’s C-based random engine by offering **semantic APIs** that cover the most common randomness needs in programming. Instead of low-level calls, you get expressive functions for probabilities, list shuffling, string randomization, and reproducible test data.
 
 ## Probabilistic Functions
 
-Control probability distributions for AI simulations and game mechanics:
+Softanza makes it simple to apply probabilities—ideal for AI simulations, statistical modeling, and game mechanics.
 
 ```ring
 aNumbers = [ 12, 9, 10, 7, 25, 12, 9, 8 ]
@@ -21,7 +21,7 @@ aNumbers = [ 12, 9, 10, 7, 25, 12, 9, 8 ]
 #--> [ 1, 5 ]
 ```
 
-**Game Example**: Loot drop system
+### Example: Loot Drop System
 
 ```ring
 acTreasureChest = [ "gold", "sword", "potion", "gem", "scroll" ]
@@ -35,7 +35,7 @@ acCommonItems = Most(acTreasureChest)   # 70% chance items
 #--> [ "sword", "gem", "gold", "scroll" ]
 ```
 
-Custom probabilities (using the eXTended form of `Some()`, `SomeXT()`):
+For finer control, you can specify exact probabilities using the extended forms:
 
 ```ring
 ? SomeXT(NumbersIn(-5:5), 20/100)
@@ -47,34 +47,36 @@ Custom probabilities (using the eXTended form of `Some()`, `SomeXT()`):
 
 ## Configuration Functions
 
-Control randomness behavior globally by setting the probability ratio used by `Some()` function (a value between 0 and 1), along with the decimal precision applied (called `round` in Ring and Softanza semantics):
+You can configure randomness globally: set the probability ratio for `Some()` and control the decimal precision (`round` in Ring/Softanza).
 
 ```ring
-# Configuring randomness for a financial trading simulator
-
+# Default configuration
 ? DefaultSome()
 #--> 0.3
 
-# Change default probability
-SetRandomRound(4)   # 4 decimal places for currency
+# Change decimal precision (e.g., for currency)
+SetRandomRound(4)
 
-# Set decimal precision
-SetSome(0.25)      # 25% market volatility events
+# Set volatility probability (25%)
+SetSome(0.25)
 ```
+
+This is especially useful in domains like financial simulations, where precision and consistency matter.
+
 
 ## Core Random Functions
 
-Essential randomness with seed control:
+For low-level randomness, Softanza provides number generators with **seed control**—perfect for reproducible results.
 
 ```ring
 ? ARandomNumber()
 #--> 133_322_384
 
-? ARandomNumberXT(77)    # With seed for reproducible results
+? ARandomNumberXT(77)
 #--> 32_438_4546
 ```
 
-In practice, you can use this to generate reproducible test data
+Generate test data that can be replayed identically:
 
 ```ring
 nTestSeed = 12345
@@ -84,13 +86,15 @@ for i = 1 to 1000
     anUserIds + ARandomNumberXT(nTestSeed + i)
 next
 
-? ShowShort( anUserIds )
+? ShowShort(anUserIds)
 #--> [ 7587, 7590, 7593, "...", 10843, 10846, 10849 ]
 ```
 
+***
+
 ## Generating Random Numbers
 
-Generate constrained numbers for data simulation:
+Produce numbers within constraints:
 
 ```ring
 ? ARandomNumberLessThan(10)
@@ -99,27 +103,23 @@ Generate constrained numbers for data simulation:
 ? RandomNumberBetween(100, 150)
 #--> 149
 
-? NRandomNumbersBetweenU(3, 100, 110)    # Unique values
+? NRandomNumbersBetweenU(3, 100, 110)
 #--> [ 102, 109, 105 ]
 ```
 
-Real numbers for scientific calculations:
+Softanza also supports negative numbers:
 
 ```ring
-? random01() # Or ARandomNumberBetween(0, 1)
+? random01()
 #--> 0.61
 
 ? ARandomNumberBetween(-3.5, 2.8)
 #--> -2.45
 
 SetRandomRound(3)
-? ARandomNumberLessThan01(0.7) # A random number between 0 and 1 that's less then 0.7
+? ARandomNumberLessThan01(0.7)
 #--> 0.557
-```
 
-Negative range support:
-
-```ring
 ? StzRandom(-10)
 #--> -5
 
@@ -127,9 +127,9 @@ Negative range support:
 #--> [ -10, -10, -4 ]
 ```
 
-## Random String and List Functions
+## Random Strings and Lists
 
-String operations for content generation:
+Randomness isn’t only about numbers—you can generate strings and shuffle lists too.
 
 ```ring
 Q("123456789") {
@@ -152,15 +152,13 @@ Q("SOFTANZA") {
 }
 ```
 
-**Password Generator**: Random character selection
+### Example: Password Generator
 
 ```ring
 cCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
 	   "0123456789" + "#!@~_" +
 	   "abcdefghijklmnopqurstuvwxyz"
 	  
-	  
-
 cPassword = ""
 
 for i = 1 to 8
@@ -173,35 +171,32 @@ next
 #--> LrmaUo7Z
 ```
 
-List randomization for shuffling and sampling:
+### Shuffling and Sampling
 
 ```ring
-# Full ranomisation of the positions of all the items
-
+# Full shuffle
 aDeck = [ 1, 2, 3, 4, "A", "B", "C", "D" ]
 o1 = new stzList(aDeck)
-o1.Randomize() # Full shuffle
-? @@( o1.Content() )
+o1.Randomize()
+? @@(o1.Content())
 #--> [ "D", 4, "A", 3, "C", 2, 1, "B" ]
 
-# Randomising the positions of only numbers
-
+# Shuffle only numbers
 aDeck = [ 1, 2, 3, 4, "A", "B", "C", "D" ]
 o1 = new stzList(aDeck)
 o1.RandomizeNumbers()
-? @@( o1.Content() )
+? @@(o1.Content())
 #--> [ 4, 1, 2, 3, "A", "B", "C", "D" ]
 
-# Randomising the positions of only items in a section
-
+# Shuffle only a section
 aDeck = [ 1, 2, 3, 4, "A", "B", "C", "D" ]
 o1 = new stzList(aDeck)
-o1.RandomizeSection(5, 8) # Partial shuffle
-? @@( o1.Content() )
+o1.RandomizeSection(5, 8)
+? @@(o1.Content())
 #--> [ 1, 2, 3, 4, "D", "A", "C", "B" ]
 ```
 
-**Card Game**: Deck shuffling, again, but now with getting a random player hand
+### Card Game Example
 
 ```ring
 nCards = 1:52
@@ -214,13 +209,13 @@ anPlayerHand = oGameDeck.FirstN(5)
 #--> [ 48, 20, 6, 51, 35 ]
 ```
 
-Item selection in a list:
+And for simple item selection:
 
 ```ring
 ? ARandomItemIn("A":"E")
 #--> B
 
-? NRandomItemsInU(3, "A":"E")     # U ~> Unique samples
+? NRandomItemsInU(3, "A":"E")
 #--> [ "B", "E", "A" ]
 
 acPlayerChoices = [ "rock", "paper", "scissors" ]
@@ -228,76 +223,6 @@ acPlayerChoices = [ "rock", "paper", "scissors" ]
 #--> "paper"
 ```
 
-## Percent Functions
+***
 
-Calculate percentages for business logic:
-
-```ring
-nAnnualGain = 20500
-
-? NPercentOf(10, nAnnualGain)
-#--> 2050
-
-# Or Better
-? 10PercentOf(nAnnualGain)
-
-# Or even more generally
-? Q(10).PercentOf(nAnnualGain)
-```
-
-Discount calculations
-
-```ring
-originalPrice = 150.00
-discountRate = 15
-discountAmount = NPercentOf(discountRate, originalPrice)
-finalPrice = originalPrice - discountAmount
-```
-
-## Real-World Applications
-
-**Game Development**:
-
-```ring
-# Enemy spawn rates
-enemies = [ "goblin", "orc", "dragon" ]
-commonEnemies = Most(enemies)     # 70% spawn rate
-rareEnemies = Few(enemies)        # 10% spawn rate
-
-# Random quest rewards
-goldAmount = RandomNumberBetween(50, 200)
-experiencePoints = NPercentOf(25, goldAmount)
-```
-
-**Data Testing**:
-
-```ring
-# Generate test user ages
-userAges = NRandomNumbersBetweenU(100, 18, 65)
-
-# Random email domains for testing
-domains = [ "gmail.com", "yahoo.com", "hotmail.com" ]
-testEmails = []
-for i = 1 to 50
-    domain = ARandomItemIn(domains)
-    add(testEmails, "user" + i + "@" + domain)
-next
-```
-
-**Scientific Simulation**:
-
-```ring
-# Population sampling
-populationData = 1:10000
-sampleSize = NPercentOf(5, len(populationData))  # 5% sample
-randomSample = NRandomItemsInU(sampleSize, populationData)
-
-# Measurement noise
-SetRandomRound(6)
-measurements = []
-for reading = 1 to 100
-    noise = ARandomNumberBetween(-0.001, 0.001)
-    cleanValue = 23.456789
-    add(measurements, cleanValue + noise)
-next
-```
+✨ With these APIs, randomness in Softanza becomes **predictable when needed, configurable when required, and expressive by design**.
