@@ -23,6 +23,8 @@ The simplest use case is creating a single named variable at runtime and accessi
 
 ### Creating a Single Named Variable
 
+The following example demonstrates the fundamental pattern for creating named variables. We construct a variable name by concatenating a prefix with a dynamic value, then access it using the `v()` function:
+
 ```ring
 # Create one variable with a constructed name
 Vr( 'user_' + 123 ) '=' Vl( "Hussein" )
@@ -35,6 +37,8 @@ Vr( 'user_' + 123 ) '=' Vl( "Hussein" )
 ## Assigning Values to Named Variables
 
 Once named variables are created, you can modify their values using either the original Vr/Vl syntax or the more convenient combined syntax.
+
+Here we show two ways to update an existing named variable - first using the original `Vr/Vl` pattern, then using the more concise `VrVl` combined syntax:
 
 ```ring
 # Change value using Vr/Vl syntax
@@ -52,6 +56,8 @@ VrVl( :user_123 = "Ahmad" )
 
 Beyond simple value retrieval, you often need both the variable name and its value for debugging, logging, or meta-programming purposes.
 
+The `vxt()` function returns both the variable name and its value as a list, which is particularly useful for inspection and debugging:
+
 ```ring
 # Get both name and value
 ? @@( vxt( :user_123 ) )
@@ -63,6 +69,8 @@ Beyond simple value retrieval, you often need both the variable name and its val
 Working with sets of related variables is common in programming. Softanza allows you to assign values to multiple variables simultaneously.
 
 ### Assigning to Multiple Variables at Once
+
+This example shows how to update multiple variables in a single operation. The loop demonstrates how values change with each iteration, and we can retrieve all values together or examine name-value pairs:
 
 ```ring
 # Assign different values to x, y, z in a loop
@@ -80,6 +88,8 @@ next
 ```
 
 ### Creating Multiple Variables in a Loop
+
+Here's a practical example of creating a series of related variables with systematic naming. We generate 10 variables with sequential names and corresponding values, then demonstrate both individual access and bulk inspection:
 
 ```ring
 # Create 10 variables (name1 to name10) with values (10 to 100)
@@ -110,6 +120,8 @@ for i = 1 to 10 { ? @@(vxt( 'name' + i )) }
 
 When you need to create many variables with systematic names, you can use ranges. In Ring, "a":"z" creates a list of letters from "a" to "z", and 1:26 creates a list of numbers from 1 to 26.
 
+This elegant approach creates all 26 letter variables in one line, each mapped to its alphabetical position. The range syntax makes bulk variable creation very concise:
+
 ```ring
 # Create variables a to z with values 1 to 26
 Vr( "a" : "z" ) '=' Vl( 1 : NumberOfLatinLetters() )
@@ -122,6 +134,8 @@ Vr( "a" : "z" ) '=' Vl( 1 : NumberOfLatinLetters() )
 Softanza keeps track of variable assignments and changes, allowing you to inspect the history of modifications. This is valuable for debugging and understanding variable state changes.
 
 ### Temporary Values and History
+
+The following sequence demonstrates how Softanza tracks variable state changes. The `tempval()` and `oldval()` functions provide access to current and previous values, enabling sophisticated debugging and state management:
 
 ```ring
 # Check initial state
@@ -164,6 +178,8 @@ Understanding how NamedVars handles unusual situations helps you write robust co
 
 When you assign to variables with duplicate names, the last assignment takes precedence.
 
+This behavior follows the principle of "last assignment wins" - when duplicate variable names appear in the list, only the final value for each name is retained:
+
 ```ring
 # Last assignment wins with duplicate names
 Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen", "Teeba" ])
@@ -171,9 +187,11 @@ Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen", "Teeba" ])
 #--> Teeba
 ```
 
-### Insufficient Values
+### Providing Insufficient Values
 
 When you don't provide enough values for all variables, Softanza sets missing variables to empty strings.
+
+This demonstrates Softanza's graceful handling of mismatched list lengths. Variables without corresponding values are automatically initialized to empty strings rather than causing errors:
 
 ```ring
 # Missing values default to empty string
@@ -192,6 +210,8 @@ Named objects extend the NamedVars concept to Softanza objects, making them find
 > **Note:** Ring offers multiple finding approaches at different abstraction levels - high-level for values, low-level `ref()` for objects, and attribute-based searching. Named objects provide consistency by keeping object finding at the language level rather than mixing abstraction levels. For a detailed analysis of this design approach, see [The Unified @Find() Function in Softanza](https://claude.ai/chat/LINK_TO_BE_PROVIDED).
 
 ### Creating Named Objects
+
+The following examples show the evolution from unnamed to named objects. Objects can be named during creation or afterward, providing flexibility in object management:
 
 ```ring
 # Default object (unnamed)
@@ -213,6 +233,8 @@ oHello = new stzString(:oHello = "Hello Ring!")
 Once you have named objects, you can search for them in lists by name, which provides a more elegant way to work with object collections than Ring's built-in approaches.
 
 ### Finding Named Objects in Lists
+
+This comprehensive example shows various ways to locate and analyze objects within a list. The different finding methods provide granular control over object discovery based on naming status and specific names:
 
 ```ring
 o1 = new stzList([ "one", oGreeting, 12, oGreeting, Q("two"), oHello, 10 , Q(10) ])
@@ -246,6 +268,8 @@ Object naming can be changed after creation, providing flexibility in how you or
 
 ### Object Name Management
 
+These utility functions help manage object identity and naming. The ability to check naming status and rename objects provides dynamic control over object organization:
+
 ```ring
 # Check if object is named
 o1 = new stzString(:nation = "Niger")
@@ -264,6 +288,8 @@ o1.RenameIt(:country) # Or SetVarName()
 Working with object collections becomes more powerful when you can analyze the distribution and characteristics of named vs unnamed objects.
 
 ### Advanced List Operations with Named Objects
+
+These advanced operations provide statistical and analytical capabilities for object collections. They help understand the naming patterns and distribution within your object lists:
 
 ```ring
 # Get object variable names
