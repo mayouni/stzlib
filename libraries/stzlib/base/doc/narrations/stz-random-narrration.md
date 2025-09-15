@@ -234,11 +234,18 @@ Calculate percentages for business logic:
 
 ```ring
 nAnnualGain = 20500
+
 ? NPercentOf(10, nAnnualGain)
 #--> 2050
+
+# Or Better
+? 10PercentOf(nAnnualGain)
+
+# Or even more generally
+? Q(10).PercentOf(nAnnualGain)
 ```
 
-**E-commerce**: Discount calculations
+Discount calculations
 
 ```ring
 originalPrice = 150.00

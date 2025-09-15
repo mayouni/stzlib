@@ -1402,6 +1402,136 @@ func isWeiferich(p)
 	func @isWeiferich(p)
 		return isWeiferich(p)
 
+#-- Percent functions
+
+func NPercentOf(n, p)
+	if NOT IsNumberOrStringOrList(p)
+		StzRaise("Incorrect param type! p must be number or string or list.")
+	ok
+
+	if isNumber(p)
+		return p * n / 100
+
+	but isList(p)
+		nItems = ceil( len(p) * n / 100 )
+		return NRandomItemsIn(nItems, p)
+
+	but isString(p)
+		oStr = new stzString(p)
+		nLen = ceil( oStr.Size() * n / 100 )
+		return oStr.FirstNChars(nLen)
+
+	ok
+
+	func NPercent(n, p)
+		return NPercentOf(n, p)
+
+func 1PercentOf(p)
+	return NPercentOf(1, p)
+
+	def OnePercentOf(p)
+		return 1PercentOf(p)
+
+	func 1Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 1PercentOf(p)
+
+	def OnePercent(p)
+		return 1Percent(p)
+
+func 10PercentOf(p)
+	return NPercentOf(10, p)
+
+	func 10Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 10PercentOf(p)
+
+func 20PercentOf(p)
+	return NPercentOf(20, p)
+
+	func 20Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 20PercentOf(p)
+
+func 30PercentOf(p)
+	return NPercentOf(30, p)
+
+	func 30Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 30PercentOf(p)
+
+func 40PercentOf(p)
+	return NPercentOf(40, p)
+
+	func 40Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 40PercentOf(p)
+
+func 50PercentOf(p)
+	return NPercentOf(50, p)
+
+	func 50Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 50PercentOf(p)
+
+func 60PercentOf(p)
+	return NPercentOf(60, p)
+
+	func 60Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 60PercentOf(p)
+
+func 70PercentOf(p)
+	return NPercentOf(70, p)
+
+	func 70Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 70PercentOf(p)
+
+func 80PercentOf(p)
+	return NPercentOf(80, p)
+
+	func 80Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 80PercentOf(p)
+
+func 90PercentOf(p)
+	return NPercentOf(90, p)
+
+	func 90Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 90PercentOf(p)
+
+func 100PercentOf(p)
+	return p
+
+	func 100Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 100PercentOf(p)
+
+
   ///////////////////////////
  ///   STZNUMBER CLASS   ///
 ///////////////////////////
