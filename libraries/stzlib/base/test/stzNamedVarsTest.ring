@@ -1,5 +1,14 @@
 load "../stzbase.ring"
 
+pr()
+
+# Last assignment wins with duplicate names
+Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen", "Teeba" ])
+? v(:name2)
+#--> Teeba
+
+pf()
+
 /*==== #narration DYNAMIC CONSTRUCTION OF VARIABLE NAMES
 
 pr()
