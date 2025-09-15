@@ -1,6 +1,17 @@
 load "../stzbase.ring"
 
 /*----
+*/
+pr()
+
+? Q(10).PercentOf(nAnnualGain)
+
+? Q(25).Percent()
+#--> 0.25
+
+pf()
+
+/*----
 
 pr()
 

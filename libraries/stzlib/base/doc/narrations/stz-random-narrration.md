@@ -18,18 +18,24 @@ aNumbers = [ 12, 9, 10, 7, 25, 12, 9, 8 ]
 #--> [ 1, 2, 4, 5 ]
 
 ? Half(OddNumbersIn(-5:5))
-#--> [ -5, 1, 3 ]
+#--> [ 1, 5 ]
 ```
 
 **Game Example**: Loot drop system
 
 ```ring
-treasureChest = [ "gold", "sword", "potion", "gem", "scroll" ]
-rareItems = Few(treasureChest)      # 10% chance items
-commonItems = Most(treasureChest)   # 70% chance items
+acTreasureChest = [ "gold", "sword", "potion", "gem", "scroll" ]
+
+acRareItems = Few(acTreasureChest)      # 10% chance items
+? @@(acRareItems)
+#--> [ "gold" ]
+
+acCommonItems = Most(acTreasureChest)   # 70% chance items
+? @@(acCommonItems)
+#--> [ "sword", "gem", "gold", "scroll" ]
 ```
 
-Custom probabilities:
+Custom probabilities (using the eXTended form of `Some()`, `SomeXT()`):
 
 ```ring
 ? SomeXT(NumbersIn(-5:5), 20/100)
@@ -41,20 +47,18 @@ Custom probabilities:
 
 ## Configuration Functions
 
-Control randomness behavior globally:
+Control randomness behavior globally by setting the probability ratio used by `Some()` function (a value between 0 and 1), along with the decimal precision applied (called `round` in Ring and Softanza semantics):
 
 ```ring
+# Configuring randomness for a financial trading simulator
+
 ? DefaultSome()
 #--> 0.3
 
-SetSome(0.5)        # Change default probability
-SetRandomRound(5)   # Set decimal precision
-```
-
-**Application Example**: Financial trading simulator
-
-```ring
+# Change default probability
 SetRandomRound(4)   # 4 decimal places for currency
+
+# Set decimal precision
 SetSome(0.25)      # 25% market volatility events
 ```
 
@@ -70,17 +74,21 @@ Essential randomness with seed control:
 #--> 32_438_4546
 ```
 
-**Testing Example**: Generate reproducible test data
+In practice, you can use this to generate reproducible test data
 
 ```ring
-testSeed = 12345
-userIds = []
+nTestSeed = 12345
+anUserIds = []
+
 for i = 1 to 1000
-    add(userIds, ARandomNumberXT(testSeed + i))
+    anUserIds + ARandomNumberXT(nTestSeed + i)
 next
+
+? ShowShort( anUserIds )
+#--> [ 7587, 7590, 7593, "...", 10843, 10846, 10849 ]
 ```
 
-## Random Number Functions
+## Generating Random Numbers
 
 Generate constrained numbers for data simulation:
 
@@ -98,25 +106,15 @@ Generate constrained numbers for data simulation:
 Real numbers for scientific calculations:
 
 ```ring
-? random01()
+? random01() # Or ARandomNumberBetween(0, 1)
 #--> 0.61
 
 ? ARandomNumberBetween(-3.5, 2.8)
 #--> -2.45
 
 SetRandomRound(3)
-? ARandomNumberLessThan01(0.7)
+? ARandomNumberLessThan01(0.7) # A random number between 0 and 1 that's less then 0.7
 #--> 0.557
-```
-
-**Weather Simulation**: Temperature generation
-
-```ring
-temperatures = []
-for day = 1 to 30
-    temp = ARandomNumberBetween(15.0, 35.0)
-    add(temperatures, temp)
-next
 ```
 
 Negative range support:
@@ -144,62 +142,89 @@ Q("123456789") {
 
 Q("SOFTANZA") {
     ? ARandomChar()
-    #--> T
+    #--> "T"
     
     ? ARandomCharAfterPosition(4)
-    #--> A
+    #--> "A"
     
     ? ARandomCharExcept("A")
-    #--> S
+    #--> "S"
 }
 ```
 
 **Password Generator**: Random character selection
 
 ```ring
-charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-password = ""
+cCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+	   "0123456789" + "#!@~_" +
+	   "abcdefghijklmnopqurstuvwxyz"
+	  
+	  
+
+cPassword = ""
+
 for i = 1 to 8
-    password += Q(charset).ARandomChar()
+    cPassword += Q(cCharSet).ARandomChar()
 next
+
+? cPassword
+#--> @3Ond72H
+#--> 2z47AD@Z
+#--> LrmaUo7Z
 ```
 
 List randomization for shuffling and sampling:
 
 ```ring
-deck = [ 1, 2, 3, 4, "A", "B", "C", "D" ]
-o1 = new stzList(deck)
+# Full ranomisation of the positions of all the items
 
-o1.Randomize()                    # Full shuffle
-#--> [ 1, "A", 4, 3, "D", "C", "B", 2 ]
+aDeck = [ 1, 2, 3, 4, "A", "B", "C", "D" ]
+o1 = new stzList(aDeck)
+o1.Randomize() # Full shuffle
+? @@( o1.Content() )
+#--> [ "D", 4, "A", 3, "C", 2, 1, "B" ]
 
-o1.RandomizeNumbers()             # Numbers only
-#--> [ "A", "B", 30, 50, 40, 60, "A", "B", "C" ]
+# Randomising the positions of only numbers
 
-o1.RandomizeSection(1, 4)         # Partial shuffle
-#--> [ 2, 1, 3, 4, "A", "B", "C", "D" ]
+aDeck = [ 1, 2, 3, 4, "A", "B", "C", "D" ]
+o1 = new stzList(aDeck)
+o1.RandomizeNumbers()
+? @@( o1.Content() )
+#--> [ 4, 1, 2, 3, "A", "B", "C", "D" ]
+
+# Randomising the positions of only items in a section
+
+aDeck = [ 1, 2, 3, 4, "A", "B", "C", "D" ]
+o1 = new stzList(aDeck)
+o1.RandomizeSection(5, 8) # Partial shuffle
+? @@( o1.Content() )
+#--> [ 1, 2, 3, 4, "D", "A", "C", "B" ]
 ```
 
-**Card Game**: Deck shuffling
+**Card Game**: Deck shuffling, again, but now with getting a random player hand
 
 ```ring
-cards = 1:52
-gameDeck = new stzList(cards)
-gameDeck.Randomize()
-playerHand = gameDeck.FirstN(5)
+nCards = 1:52
+oGameDeck = new stzList(nCards)
+
+oGameDeck.Randomize()
+anPlayerHand = oGameDeck.FirstN(5)
+
+? @@(anPlayerHand)
+#--> [ 48, 20, 6, 51, 35 ]
 ```
 
-Item selection:
+Item selection in a list:
 
 ```ring
 ? ARandomItemIn("A":"E")
 #--> B
 
-? NRandomItemsInU(3, "A":"E")     # Unique samples
+? NRandomItemsInU(3, "A":"E")     # U ~> Unique samples
 #--> [ "B", "E", "A" ]
 
-playerChoices = [ "rock", "paper", "scissors" ]
-? ARandomItemIn(playerChoices)
+acPlayerChoices = [ "rock", "paper", "scissors" ]
+? ARandomItemIn(acPlayerChoices)
 #--> "paper"
 ```
 
