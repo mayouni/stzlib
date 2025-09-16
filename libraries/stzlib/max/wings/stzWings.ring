@@ -21,22 +21,6 @@
 
 		load "turbo-wings/geo/stzGeoMap.ring"
 
-	#-- Loading files files related to NATURAL wings modules
-
-		load "natural-wings/stzEntity.ring"
-		load "natural-wings/stzListOfEntities.ring"
-
-		load "natural-wings/stzAdverb.ring"
-		load "natural-wings/stzChainOfTruth.ring"
-		load "natural-wings/stzChainOfValue.ring"
-		load "natural-wings/stzConstraints.ring"
-
-		load "natural-wings/stzNaturally.ring"
-		load "natural-wings/stzNaturalCode.ring"
-		load "natural-wings/stzPlural.ring"
-		load "natural-wings/stzSingular.ring"
-		load "natural-wings/stzText.ring"
-
 	#-- Loading files files related to WEb wings modules
 
 		//

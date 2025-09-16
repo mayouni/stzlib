@@ -1,7 +1,7 @@
 
-  ///////////////////////////
- ///  GLOBALS VARIABLES  ///
-///////////////////////////
+  //////////////////////////
+ ///  GLOBAL VARIABLES  ///
+//////////////////////////
 
 _aFuture = [] # Stores future actions in natural-coding
 
@@ -21,6 +21,28 @@ _LastValue = NULL
 	]
 
 	_cFutureOrder = :After
+
+#--
+
+func QM(p)
+	obj = Q(p)
+	SetMainObject(obj)
+	return obj
+
+func QRT(p, pcType)
+	if NOT isString(pcType)
+		StzRaise("Invalid param type! pcType should be a string containing the name of a softanza class.")
+	ok
+
+	if Q(pcType).IsStzClassName()
+		cCode = "oResult = new " + pcType + '(' + @@(p) + ')'
+
+		eval(cCode)
+
+		return oResult
+	else
+		StzRaise("Unsupported Softanza type!")
+	ok
 
   //////////////////////////
  ///  GLOBAL FUNCTIONS  ///
@@ -145,7 +167,7 @@ func ExecuteActions(pActions, pStzObj)
 			StzRaise("Incorrect param type! pActions must be a hashlist.")
 		ok
 
-		if isList(pStzObj) and Q(pStzObj).IsOnNamedParam()
+		if isList(pStzObj) and StzListQ(pStzObj).IsOnOrOfNamedParam()
 			pStzObj = pStzObj[2]
 		ok
 
@@ -181,6 +203,48 @@ func ExecuteActions(pActions, pStzObj)
 
 	func @ExecuteActions(pActions, pStzObj)
 		 ExecuteActions(pActions, pStzObj)
+
+	func RunActions(pActions, psTzObj)
+		ExecuteActions(pActions, pStzObj)
+
+	func @RunActions(pActions, psTzObj)
+		ExecuteActions(pActions, pStzObj)
+
+func ExecuteFuture(pStzObj)
+	ExecuteFutureActions(Future(), pStzObj)
+
+	func RunFuture(pStzObj)
+		ExecuteFuture(pStzObj)
+
+	func @ExecuteFuture(pStzObj)
+		ExecuteFuture(pStzObj)
+
+	func @RunFuture(pStzObj)
+		ExecuteFuture(pStzObj)
+
+func ExecuteFutureOn(pStzObj)
+	ExecuteFutureActions(Future(), pStzObj)
+
+	func RunFutureOn(pStzObj)
+		ExecuteFutureOn(pStzObj)
+
+	func @ExecuteFutureOn(pStzObj)
+		ExecuteFutureOn(pStzObj)
+
+	func @RunFutureOn(pStzObj)
+		ExecuteFutureOn(pStzObj)
+
+	#--
+
+	func RunFutureOf(pStzObj)
+		ExecuteFutureOn(pStzObj)
+
+	func @ExecuteFutureOf(pStzObj)
+		ExecuteFutureOn(pStzObj)
+
+	func @RunFutureOf(pStzObj)
+		ExecuteFutureOn(pStzObj)
+
 
 func CleanFuture()
 	_aFuture = []

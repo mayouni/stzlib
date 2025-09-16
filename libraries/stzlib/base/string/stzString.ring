@@ -51,7 +51,7 @@ class stzString from stzObject
 		if CheckingParams()
 
 			if NOT ( isString(pcStr) or @IsQString(pcStr) or
-				 (isList(pcStr) and Q(pcStr).IsPairOfStrings()) )
+				 (isList(pcStr) and StzListQ(pcStr).IsPairOfStrings()) )
 
 				StzRaise("Can't create the stzString object! pcStr must be a string, a QString object, or a pair of strings.")
 			ok
@@ -60,7 +60,7 @@ class stzString from stzObject
 				QStringObject() = pcStr
 				return
 
-			but isList(pcStr) and Q(pcStr).IsPairOfStrings() # Named string
+			but isList(pcStr) and StzListQ(pcStr).IsPairOfStrings() # Named string
 				@cVarName = pcStr[1] # Inherited from stzObject
 				@oQString = new QString2()
 				@oQString.append(pcStr[2])
@@ -357,7 +357,7 @@ class stzString from stzObject
 		#< @FunctionAlternative
 
 		def Append(pcStr)
-			if isList(pcStr) and Q(pcStr).IsWithOrByNamedParam()
+			if isList(pcStr) and StzListQ(pcStr).IsWithOrByNamedParam()
 				pcStr = pcStr[2]
 			ok
 
@@ -382,7 +382,7 @@ class stzString from stzObject
 	#-------------------------------------#
 
 	def Prepend(pcOtherStr)
-		if isList(pcOtherStr) and Q(pcOtherStr).IsWithOrByNamedParam()
+		if isList(pcOtherStr) and StzListQ(pcOtherStr).IsWithOrByNamedParam()
 			pcOtherStr = pcOtherStr[2]
 		ok
 
@@ -498,7 +498,7 @@ class stzString from stzObject
 			but oSubStr.IsOneOfTheseNamedParams([ :Around, :AroundEach ])
 				pcSubStr = pcSubStr[2]
 
-				if isList(pcNewSubStr) and Q(pcNewSubStr).IsPairOfStrings()
+				if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsPairOfStrings()
 					This.ReplaceCS(pcSubStr, (pcNewSubStr[1] + pcSubStr + pcNewSubStr[2]), pCaseSensitive)
 
 				else	
@@ -511,7 +511,7 @@ class stzString from stzObject
 				n = pcSubStr[2][1]
 				pcSubStr = pcSubStr[2][2]
 
-				if isList(pcNewSubStr) and Q(pcNewSubStr).IsPairOfStrings()
+				if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsPairOfStrings()
 					This.ReplaceNthCS(n, pcSubStr, (pcNewSubStr[1] + pcSubStr + pcNewSubStr[2]), pCaseSensitive)
 				else
 					This.ReplaceNthCS(n, pcSubStr, (pcNewSubStr + pcSubStr + pcNewSubStr), pCaseSensitive)
@@ -522,7 +522,7 @@ class stzString from stzObject
 			but oSubStr.IsAroundFirstNamedParam()
 				pcSubStr = pcSubStr[2]
 
-				if isList(pcNewSubStr) and Q(pcNewSubStr).IsPairOfStrings()
+				if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsPairOfStrings()
 					This.ReplaceFirstCS(pcSubStr, (pcNewSubStr[1] + pcSubStr + pcNewSubStr[2]), pCaseSensitive)
 				else
 					This.ReplaceFirstCS(pcSubStr, (pcNewSubStr + pcSubStr + pcNewSubStr), pCaseSensitive)
@@ -533,7 +533,7 @@ class stzString from stzObject
 			but oSubStr.IsAroundLastNamedParam()
 				pcSubStr = pcSubStr[2]
 
-				if isList(pcNewSubStr) and Q(pcNewSubStr).IsPairOfStrings()
+				if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsPairOfStrings()
 					This.ReplaceLastCS(pcSubStr, (pcNewSubStr[1] + pcSubStr + pcNewSubStr[2]), pCaseSensitive)
 				else
 					This.ReplaceLastCS(pcSubStr, (pcNewSubStr + pcSubStr + pcNewSubStr), pCaseSensitive)
@@ -791,7 +791,7 @@ class stzString from stzObject
 
 		def Extend(n)
 			if CheckingParams()
-				if isList(n) and Q(n).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToNChars ])
+				if isList(n) and StzListQ(n).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToNChars ])
 					n = n[2]
 				ok
 			ok
@@ -839,7 +839,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
-			if NOT ( isString(pcChar) and Q(pcChar).IsChar() )
+			if NOT ( isString(pcChar) and StzStringQ(pcChar).IsChar() )
 				StzRaise("Incorrect param type! pcChar must be a char.")
 			ok
 		ok
@@ -1046,7 +1046,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
-			if NOT ( isList(pacChars) and Q(pacChars).IsListOfChars() )
+			if NOT ( isList(pacChars) and StzListQ(pacChars).IsListOfChars() )
 				StzRaise("Incorrect param type! pacChars must be a list or chars.")
 			ok
 		ok
@@ -1122,7 +1122,7 @@ class stzString from stzObject
 	#--------------------------------------------------------------#
 
 	def ExtendToNCharsXT(n, pUsing)
-		if isList(pUsing) and Q(pUsing).IsUsingOrByOrWithNamedParam()
+		if isList(pUsing) and StzListQ(pUsing).IsUsingOrByOrWithNamedParam()
 			pUsing = pUsing[2]
 		ok
 
@@ -2109,7 +2109,7 @@ class stzString from stzObject
 
 	def UppercaseSections(anSections)
 		if CheckingParams()
-			if NOT (isList(anSections) and Q(anSections).IsListOfPairsOfNumbers())
+			if NOT (isList(anSections) and StzListQ(anSections).IsListOfPairsOfNumbers())
 				StzRaise("Incorrect param type: anSections must be a list of pairs of numbers.")
 			ok
 		ok
@@ -2143,7 +2143,7 @@ class stzString from stzObject
 
 	def UppercaseSectionsInLocale(anSections, pLocale)
 		if CheckingParams()
-			if NOT (isList(anSections) and Q(anSections).IsListOfPairsOfNumbers())
+			if NOT (isList(anSections) and StzListQ(anSections).IsListOfPairsOfNumbers())
 				StzRaise("Incorrect param type: anSections must be a list of pairs of numbers.")
 			ok
 		ok
@@ -2243,7 +2243,7 @@ class stzString from stzObject
 
 	def LowercaseSections(paSections)
 		if CheckingParams()
-			if NOT (isList(paSections) and Q(paSections).IsListOfPairsOfNumbers())
+			if NOT (isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers())
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
@@ -2277,7 +2277,7 @@ class stzString from stzObject
 
 	def LowercaseSectionsInLocale(paSections, pLocale)
 		if CheckingParams()
-			if NOT (isList(paSections) and Q(paSections).IsListOfPairsOfNumbers())
+			if NOT (isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers())
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
@@ -3173,15 +3173,15 @@ class stzString from stzObject
 	def IsWord()
 
 		if This.IsEmpty() or This.IsNumberInString()
-			return _FALSE_
+			return 0
 		ok
 
 		_acChars_ = This.Chars()
 		_nLen_ = len(_acChars_)
-		_bResult_ = _TRUE_
+		_bResult_ = 1
 
 		for i = 1 to _nLen_
-			_c_ = _acChars[@i]
+			_c_ = _acChars_[i]
 			_oChar_ = new stzChar(_c_)
 
 			if _oChar_.IsNotLetter() and
@@ -3192,7 +3192,7 @@ class stzString from stzObject
 			   _oChar_.IsNotArabic7arakah() and
 			   _c_ != ArabicTamdeed()
 
-				_bResult_ = _FALSE_
+				_bResult_ = 0
 				exit
 			ok
 
@@ -5358,7 +5358,7 @@ class stzString from stzObject
 			return new stzList(This.LinesCS(pCaseSensitive))
 
 		def LinesCSQRT(pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -5428,7 +5428,7 @@ class stzString from stzObject
 			return This.UniqueLinesCSQRT(pCaseSensitive, :stzList)
 
 		def UniqueLinesCSQRT(pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -7155,7 +7155,7 @@ class stzString from stzObject
 
 	def ReplaceMarquers(pacSubStr)
 		if CheckingParams()
-			if isList(pacSubStr) and Q(pacSubStr).IsWithOrByNamedParam()
+			if isList(pacSubStr) and StzListQ(pacSubStr).IsWithOrByNamedParam()
 				pacSubStr = pacSubStr[2]
 			ok
 		ok
@@ -11409,7 +11409,7 @@ class stzString from stzObject
 			return This.NextNthCharQRT(n, pnStartingAt, :stzString)
 
 		def NextNthCharQRT(n, pnStartingAt, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11569,7 +11569,7 @@ class stzString from stzObject
 			return This.PreviousNthCharQRT(n, pnStartingAt, :stzString)
 
 		def PreviousNthCharQRT(n, pnStartingAt, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11655,7 +11655,7 @@ class stzString from stzObject
 			return This.PreviousCharQRT(pnStartingAt, :stzString)
 
 		def PreviousCharQRT(pnStartingAt, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11700,7 +11700,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -11822,7 +11822,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -12622,7 +12622,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtOrStartingAtPositionNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtOrStartingAtPositionNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -12745,7 +12745,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtOrStartingAtPositionNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtOrStartingAtPositionNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -13420,11 +13420,11 @@ class stzString from stzObject
 				stzRaise("Incorrect param! paHarvest must be a list of 2 items.")
 			ok
 	
-			if isList(paHarvest[1]) and Q(paHarvest[1]).IsNCharsBeforeNamedParam()
+			if isList(paHarvest[1]) and StzListQ(paHarvest[1]).IsNCharsBeforeNamedParam()
 				paHarvest[1] = paHarvest[1][2]
 			ok
 	
-			if isList(paHarvest[2]) and Q(paHarvest[2]).IsNCharsAfterNamedParam()
+			if isList(paHarvest[2]) and StzListQ(paHarvest[2]).IsNCharsAfterNamedParam()
 				paHarvest[2] = paHarvest[2][2]
 			ok
 	
@@ -13680,7 +13680,7 @@ class stzString from stzObject
 		*/
 
 		if CheckingParams()
-			if NOT (isList(paSections) and Q(paSections).IsListOfPairsOfNumbers())
+			if NOT (isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers())
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
@@ -13765,8 +13765,8 @@ class stzString from stzObject
 		# Managing this special syntax:
 		# ? Q("♥").IsBoundedBy([ "-", :In = "-♥-" ])
 
-		if isList(pacBounds) and Q(pacBounds).IsPair() and
-		   isList(pacBounds[2]) and Q(pacBounds[2]).IsPair()
+		if isList(pacBounds) and StzListQ(pacBounds).IsPair() and
+		   isList(pacBounds[2]) StzListand Q(pacBounds[2]).IsPair()
 
 			oParam = new stzList(pacBounds[2])
 
@@ -13832,12 +13832,12 @@ class stzString from stzObject
 			pacBounds = aTemp
 		ok
 
-		if NOT ( isList(pacBounds) and Q(pacBounds).IsPairOfStrings() )
+		if NOT ( isList(pacBounds) and StzListQ(pacBounds).IsPairOfStrings() )
 			StzRaise("Incorrect param type! paBounds must be a pair of strings.")
 		ok
 
 
-		if isList(pIn) and Q(pIn).IsInOrInsideNamedParam()
+		if isList(pIn) and StzListQ(pIn).IsInOrInsideNamedParam()
 			pIn = pIn[2]
 		ok
 
@@ -13852,7 +13852,7 @@ class stzString from stzObject
 			oStr = new stzString(pIn)
 			bResult = oStr.SubStringIsBoundedByCS( This.String(), pacBounds, pCaseSensitive )
 
-		but isList(pIn) and Q(pIn).IsListOfStrings()
+		but isList(pIn) and StzListQ(pIn).IsListOfStrings()
 
 			#TODO
 			StzRaise("Currently, the function works only on one string. List of strings are not supported.")
@@ -13954,7 +13954,7 @@ class stzString from stzObject
 		*/
 
 		if CheckingParams()
-			if isList(pcInStr) and Q(pcInStr).IsInNamedParam()
+			if isList(pcInStr) and StzListQ(pcInStr).IsInNamedParam()
 				pcInStr = pcInStr[2]
 			ok
 
@@ -14062,7 +14062,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pacBounds must be a string or a pair.")
 		ok
 
-		if isList(pacBounds[2]) and Q(pacBounds[2]).IsAndNamedParam()
+		if isList(pacBounds[2]) and StzListQ(pacBounds[2]).IsAndNamedParam()
 			pacBounds[2] = pacBounds[2][2]
 		ok
 
@@ -14070,7 +14070,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! the first item of pacBounds must be a string.")
 		ok
 
-		if isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
+		if isList(pacBounds) and StzListQ(pacBounds).IsPairOfStrings()
 			cBound1 = pacBounds[1]
 			cBound2 = pacBounds[2]
 
@@ -14138,9 +14138,9 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n1 and n2 must be numbers.")
 			ok
 
-			if isList(pacBounds) and Q(pacBounds).IsWithOrUsingOrByNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsWithOrUsingOrByNamedParam()
 				pacBounds = pacBounds[2]
-				if isList(pacBounds[2]) and Q(pacBounds[2]).IsAndNamedParam()
+				if isList(pacBounds[2]) and StzListQ(pacBounds[2]).IsAndNamedParam()
 					pacBounds[2] = pacBounds[2][2]
 				ok
 			ok
@@ -14226,9 +14226,9 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! aSections must be a list of pairs of numbers.")
 			ok
 
-			if isList(pacBounds) and Q(pacBounds).IsWithOrUsingOrByNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsWithOrUsingOrByNamedParam()
 				pacBounds = pacBounds[2]
-				if isList(pacBounds[2]) and Q(pacBounds[2]).IsAndNamedParam()
+				if isList(pacBounds[2]) and StzListQ(pacBounds[2]).IsAndNamedParam()
 					pacBounds[2] = pacBounds[2][2]
 				ok
 			ok
@@ -14913,14 +14913,14 @@ class stzString from stzObject
 		if isList(p1)
 			oP1 = Q(p1)
 			if oP1.IsPositionsNamedParam()
-				if isList(p2) and Q(p2).IsAndNamedParam()
+				if isList(p2) and StzListQ(p2).IsAndNamedParam()
 					p2 = p2[2]
 				ok
 
 				return This.SubStringIsBetweenPositionsCS(pcSubStr, p1[2], p2, pCaseSensitive)
 
 			but oP1.IsSubStringsNamedParam()
-				if isList(p2) and Q(p2).IsAndNamedParam()
+				if isList(p2) and StzListQ(p2).IsAndNamedParam()
 					p2 = p2[2]
 				ok
 
@@ -15016,11 +15016,11 @@ class stzString from stzObject
 		*/
 
 		if CheckingParams()
-			if isList(pcSubStr1) and Q(pcSubStr1).IsSubStringsNamedParam()
+			if isList(pcSubStr1) and StzListQ(pcSubStr1).IsSubStringsNamedParam()
 				pcSubStr1 = pcSubStr1[2]
 			ok
 	
-			if isList(pcSubStr2) and Q(pcSubStr2).IsAndNamedParam()
+			if isList(pcSubStr2) and StzListQ(pcSubStr2).IsAndNamedParam()
 				pcSubStr2 = pcSubStr2[2]
 			ok
 		ok
@@ -19840,7 +19840,7 @@ class stzString from stzObject
 			return This.SubStringFirstBoundsCS(pcSubStr, pCaseSensitive)
 
 		def FirstBoundsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubStr).IsOfOrOfSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfOrOfSubStringNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 
@@ -19888,7 +19888,7 @@ class stzString from stzObject
 		#--
 
 		def LastBoundsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubStr).IsOfOrOfSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfOrOfSubStringNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 
@@ -19943,7 +19943,7 @@ class stzString from stzObject
 			return This.SubStringLeftBoundsCS(pcSubStr, pCaseSensitive)
 
 		def LeftBoundsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubStr).IsOfOrOfSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfOrOfSubStringNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 
@@ -19984,7 +19984,7 @@ class stzString from stzObject
 			return This.SubStringRightBoundsCS(pcSubStr, pCaseSensitive)
 
 		def RightBoundsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubStr).IsOfOrOfSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfOrOfSubStringNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 
@@ -20674,7 +20674,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def RemoveLeftBoundsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubStr).IsOfOrOfSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfOrOfSubStringNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 
@@ -20770,7 +20770,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def RemoveRightBoundsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubStr).IsOfOrOfSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfOrOfSubStringNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 
@@ -20866,7 +20866,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def RemoveFirstBoundsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubStr).IsOfOrOfSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfOrOfSubStringNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 
@@ -20962,7 +20962,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def RemoveLastBoundsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubStr).IsOfOrOfSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfOrOfSubStringNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 
@@ -21400,7 +21400,7 @@ class stzString from stzObject
 
 		aSection = This.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
 
-		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
+		if isList(pcBound2) and StzListQ(pcBound2).IsAndNamedParam()
 			pcBound2 = pcBound2[2]
 		ok
 
@@ -21977,7 +21977,7 @@ class stzString from stzObject
 	#------------------------------------------------------#
 
 	def ContainsTheseBoundsCS(pacBounds, pCaseSensitive)
-		if NOT ( isList(pacBounds) and Q(pacBounds).IsAPairOfStrings() )
+		if NOT ( isList(pacBounds) and StzListQ(pacBounds).IsAPairOfStrings() )
 			StzRaise("Incorrect param type! pacBounds must be a pair of strings.")
 		ok
 
@@ -26616,7 +26616,7 @@ class stzString from stzObject
 				pacBounds = aTemp
 			ok
 				
-			if NOT (isString(pacBounds) or (isList(pacBounds) and Q(pacBounds).IsPairOfStrings()) )
+			if NOT (isString(pacBounds) or (isList(pacBounds) and StzListQ(pacBounds).IsPairOfStrings()) )
 				StzRaise("Incorrect params types! pacBounds must be a string or pair of strings.")
 			ok
 		ok
@@ -27248,7 +27248,7 @@ class stzString from stzObject
 	def BetweenCS(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pSubStrOrPos2) and Q(pSubStrOrPos2).IsAndNamedParam()
+			if isList(pSubStrOrPos2) and StzListQ(pSubStrOrPos2).IsAndNamedParam()
 				pSubStrOrPos2 = pSubStrOrPos2[2]
 			ok
 		ok
@@ -27455,7 +27455,7 @@ class stzString from stzObject
 				pacBounds = aTemp
 			ok
 
-			if NOT ( isString(pacBounds) or (isList(pacBounds) and Q(pacBounds).IsPairOfStrings()) )
+			if NOT ( isString(pacBounds) or (isList(pacBounds) and StzListQ(pacBounds).IsPairOfStrings()) )
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
 	
@@ -27866,7 +27866,7 @@ class stzString from stzObject
 
 	def FindNextNthSubStringBoundedByCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -28161,7 +28161,7 @@ class stzString from stzObject
 
 	def FindPreviousNthSubStringBoundedByCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -29362,7 +29362,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 
@@ -33046,7 +33046,7 @@ class stzString from stzObject
 		#==
 
 		def DeepFindSubStringsCS(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33086,7 +33086,7 @@ class stzString from stzObject
 		#==
 
 		def DeepFindSubStrings(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33155,7 +33155,7 @@ class stzString from stzObject
 		#==
 
 		def DeepFindSubStringsCSZZ(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundsOrBoundedByNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundsOrBoundedByNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33193,7 +33193,7 @@ class stzString from stzObject
 		#==
 
 		def DeepFindSubStringsZZ(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundsOrBoundedByNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundsOrBoundedByNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33224,7 +33224,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def DeepSubStringsCS(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundsOrBoundedByNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundsOrBoundedByNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33243,7 +33243,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def DeepSubStrings(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundsOrBoundedByNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundsOrBoundedByNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33275,7 +33275,7 @@ class stzString from stzObject
 		#==
 
 		def DeepSubStringsCSZ(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33302,7 +33302,7 @@ class stzString from stzObject
 		#==
 
 		def DeepSubStringsZ(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33337,7 +33337,7 @@ class stzString from stzObject
 		#==
 
 		def DeepSubStringsCSZZ(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33364,7 +33364,7 @@ class stzString from stzObject
 		#==
 
 		def DeepSubStringsZZ(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33405,7 +33405,7 @@ class stzString from stzObject
 		#==
 
 		def DeepFindSubStringsCSIBZ(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33437,7 +33437,7 @@ class stzString from stzObject
 		#==
 
 		def DeepFindSubStringsIBZ(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33531,7 +33531,7 @@ class stzString from stzObject
 		#==
 
 		def DeepFindSubStringsCSIBZZ(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33563,7 +33563,7 @@ class stzString from stzObject
 		#==
 
 		def DeepFindSubStringsIBZZ(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33586,7 +33586,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def DeepSubStringsCSIB(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33602,7 +33602,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def DeepSubStringsIB(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33629,7 +33629,7 @@ class stzString from stzObject
 			return This.DeepSubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
 
 		def DeepSubStringsCSIBZ(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33651,7 +33651,7 @@ class stzString from stzObject
 			return This.DeepSubStringsBoundedByIBZ(pacBounds)
 
 		def DeepSubStringsIBZ(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33681,7 +33681,7 @@ class stzString from stzObject
 			return This.DeepSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
 
 		def DeepSubStringsCSIBZZ(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -33703,7 +33703,7 @@ class stzString from stzObject
 			return This.DeepSubStringsBoundedByIBZZ(pacBounds)
 
 		def DeepSubStringsIBZZ(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+			if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
@@ -35562,7 +35562,7 @@ class stzString from stzObject
 
 			#==
 
-			if isList(n2) and Q(n2).IsUpToNCharsNamedParam()
+			if isList(n2) and StzListQ(n2).IsUpToNCharsNamedParam()
 				return This.Range(n1, n2[2])
 			ok
 
@@ -36418,11 +36418,11 @@ class stzString from stzObject
 
 		*/
 
-		if isList(pcSubStr1) and Q(pcSubStr1).IsFromNamedParam()
+		if isList(pcSubStr1) and StzListQ(pcSubStr1).IsFromNamedParam()
 			pcSubStr1 = pcSubStr1[2]
 		ok
 
-		if isList(pcSubStr2) and Q(pcSubStr2).IsToNamedParam()
+		if isList(pcSubStr2) and StzListQ(pcSubStr2).IsToNamedParam()
 			pcSubStr2 = pcSubStr2[2]
 		ok
 
@@ -36896,7 +36896,7 @@ class stzString from stzObject
 	#-------------------------------------------------------------#
 
 	def Insert(pcSubStr, pWhere)
-		if isList(pcSubStr) and Q(pcSubStr).IsStringOrSubStringNamedParam()
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsStringOrSubStringNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -36962,11 +36962,11 @@ class stzString from stzObject
 	 
 	def InsertBeforeCS(nPos, pcSubStr, pCaseSensitive)
 
-		if isList(nPos) and Q(nPos).IsPositionOrSubStringNamedParam()
+		if isList(nPos) and StzListQ(nPos).IsPositionOrSubStringNamedParam()
 			nPos = nPos[2]
 		ok
 
-		if isList(pcSubStr) and Q(pcSubStr).IsPositionOrSubStringNamedParam()
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsPositionOrSubStringNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -37289,11 +37289,11 @@ class stzString from stzObject
 
 	def InsertAfterCS(nPos, pcSubStr, pCaseSensitive)
 
-		if isList(nPos) and Q(nPos).IsPositionOrSubStringNamedParam()
+		if isList(nPos) and StzListQ(nPos).IsPositionOrSubStringNamedParam()
 			nPos = nPos[2]
 		ok
 
-		if isList(pcSubStr) and Q(pcSubStr).IsPositionOrSubStringNamedParam()
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsPositionOrSubStringNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -37976,7 +37976,7 @@ class stzString from stzObject
 				stzRaise("Incorrect param! panPos must be a list of numbers.")
 			ok
 	
-			if isList(pcSubStr) and Q(pcSubStr).IsStringOrSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsStringOrSubStringNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 
@@ -38080,7 +38080,7 @@ class stzString from stzObject
 				stzRaise("Incorrect param! panPos must be a list of numbers.")
 			ok
 	
-			if isList(pcSubStr) and Q(pcSubStr).IsStringOrSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsStringOrSubStringNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 
@@ -39393,7 +39393,7 @@ class stzString from stzObject
 				stzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 			ok
 	
-			if isList(pNewSubStr) and Q(pNewSubStr).IsWithOrByNamedParam()
+			if isList(pNewSubStr) and StzListQ(pNewSubStr).IsWithOrByNamedParam()
 				pNewSubStr = pNewSubStr[2]
 			ok
 	
@@ -39568,7 +39568,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParam()
+			if isList(pacNewSubStr) and StzListQ(pacNewSubStr).IsWithOrByNamedParam()
 				pacNewSubStr = pacNewSubStr[2]
 			ok
 	
@@ -39811,7 +39811,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParam()
+			if isList(pacNewSubStr) and StzListQ(pacNewSubStr).IsWithOrByNamedParam()
 				pacNewSubStr = pacNewSubStr[2]
 			ok
 	
@@ -40049,7 +40049,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 	
-			if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParam()
+			if isList(pacNewSubStr) and StzListQ(pacNewSubStr).IsWithOrByNamedParam()
 				pacNewSubStr = pacNewSubStr[2]
 			ok
 	
@@ -40215,7 +40215,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 	
-			if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParam()
+			if isList(pacNewSubStr) and StzListQ(pacNewSubStr).IsWithOrByNamedParam()
 				pacNewSubStr = pacNewSubStr[2]
 			ok
 	
@@ -40595,7 +40595,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! panPos must be a list of numbers sorted in ascending.")
 			ok
 
-			if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParam()
+			if isList(pacNewSubStr) and StzListQ(pacNewSubStr).IsWithOrByNamedParam()
 				pacNewSubStr = pacNewSubStr[2]
 			ok
 	
@@ -40997,7 +40997,7 @@ class stzString from stzObject
 
 		*/
 
-		if isList(pcDynamicStr) and Q(pcDynamicStr).IsWithOrByNamedParam()
+		if isList(pcDynamicStr) and StzListQ(pcDynamicStr).IsWithOrByNamedParam()
 			pcDynamicStr = pcDynamicStr[2]
 		ok
 
@@ -41549,21 +41549,21 @@ class stzString from stzObject
 	def ReplaceCSXT(p1, p2, p3, pCaseSensitive)
 
 		# Q("/♥♥♥\__/♥\/♥♥\__/♥\__").ReplaceXT("♥", [], :With = "*")
-		if ( isString(p1) or ( isList(p1) and Q(p1).IsEachNamedParam()) ) and
+		if ( isString(p1) or ( isList(p1) and StzListQ(p1).IsEachNamedParam()) ) and
 
 		   ( ( (isList(p2)   and len(p2) = 0) or
 		     ( isString(p2) and p2 = "") or
 		     (isNumber(p2) and p2 = 0) ) ) AND
 
-		   ( isString(p3) or (isList(p3)   and Q(p3).IsWithOrByNamedParam() ) )
+		   ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam() ) )
 
 			This.ReplaceCS(p1, p3, pCaseSensitive)
 			return
 
 		#  Q("*** rin* ***").ReplaceXT("*", :In = "rin*", :With = "g")
-		but ( isString(p1) or ( isList(p1) and Q(p1).IsEachNamedParam()) ) and
-		    ( isList(p2) and Q(p2).IsInOrInSideNamedParam() )
-		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam() ) )
+		but ( isString(p1) or ( isList(p1) and StzListQ(p1).IsEachNamedParam()) ) and
+		    ( isList(p2) and StzListQ(p2).IsInOrInSideNamedParam() )
+		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam() ) )
 
 			if isList(p1)
 				p1 = p1[2] // "*"
@@ -41582,9 +41582,9 @@ class stzString from stzObject
 
 
 		# Q("/♥♥♥\__/♥\/♥♥\__/♥\__").ReplaceXT("♥", :With = "*", [])
-		but ( isString(p1) or ( isList(p1) and Q(p1).IsEachNamedParam()) ) and
+		but ( isString(p1) or ( isList(p1) and StzListQ(p1).IsEachNamedParam()) ) and
 
-		    ( isString(p2) or (isList(p2) and Q(p2).IsWithOrByNamedParam() ) ) AND
+		    ( isString(p2) or (isList(p2) and StzListQ(p2).IsWithOrByNamedParam() ) ) AND
 
 		    ( ( (isList(p3)   and len(p3) = 0) or
 		      (isString(p3) and p3 = "") or
@@ -41595,13 +41595,13 @@ class stzString from stzObject
 
 		# Q("_/♥\__/♥\__/♥♥__/♥\_").ReplaceXT(:Nth = 4, "♥", :With = "\")
 		but ( isNumber(p1) or
-		    ( isList(p1) and Q(p1).IsNthNamedParam() ) ) and
+		    ( isList(p1) and StzListQ(p1).IsNthNamedParam() ) ) and
 
-		    ( isString(p2) or ( isList(p2) and Q(p2).IsEachNamedParam()) ) and
+		    ( isString(p2) or ( isList(p2) and StzListQ(p2).IsEachNamedParam()) ) and
 
-		    ( isString(p3) or ( isList(p3) and Q(p3).IsWithOrByNamedParam() ) )
+		    ( isString(p3) or ( isList(p3) and StzListQ(p3).IsWithOrByNamedParam() ) )
 
-			if isList(p1) and Q(p1).IsNthNamedParam()
+			if isList(p1) and StzListQ(p1).IsNthNamedParam()
 				p1 = p1[2]
 			ok
 
@@ -41609,25 +41609,25 @@ class stzString from stzObject
 
 		# Q("_/♥\__/♥\__/♥♥__/♥\_").ReplaceXT(:First, "♥", :With = "\")
 		but ( isString(p1) and p1 = :First) and
-		    ( isString(p2) or ( isList(p2) and Q(p2).IsEachNamedParam()) ) and
-		    ( isString(p3) or ( isList(p3) and Q(p3).IsWithOrByNamedParam() ) )
+		    ( isString(p2) or ( isList(p2) and StzListQ(p2).IsEachNamedParam()) ) and
+		    ( isString(p3) or ( isList(p3) and StzListQ(p3).IsWithOrByNamedParam() ) )
 
 			This.ReplaceCSXT(1, p2, p3, pCaseSensitive)
 
 		# Q("_/♥\__/♥\__/♥♥__/♥\_").ReplaceXT(:Last, "♥", :With = "\")
 		but ( isString(p1) and p1 = :Last) and
-		    ( isString(p2) or ( isList(p2) and Q(p2).IsEachNamedParam()) ) and
-		    ( isString(p3) or ( isList(p3) and Q(p3).IsWithOrByNamedParam() ) )
+		    ( isString(p2) or ( isList(p2) and StzListQ(p2).IsEachNamedParam()) ) and
+		    ( isString(p3) or ( isList(p3) and StzListQ(p3).IsWithOrByNamedParam() ) )
 
 			n = This.NumberOfOccurrenceCS(p2, pCaseSensitive)
 			This.ReplaceCSXT(n, p2, p3, pCaseSensitive)
 
 		# Q("_♥/♥\__").ReplaceXT("♥", :AtPosition = 2, :With = "_")
 		but ( isString(p1) ) and
-		    ( isNumber(p2) or (isList(p2) and Q(p2).IsAtPositionNamedParam()) ) and
-		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+		    ( isNumber(p2) or (isList(p2) and StzListQ(p2).IsAtPositionNamedParam()) ) and
+		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
 
-			if isList(p2) and Q(p2).IsAtPositionNamedParam()
+			if isList(p2) and StzListQ(p2).IsAtPositionNamedParam()
 				p2 = p2[2]
 			ok
 			
@@ -41636,12 +41636,12 @@ class stzString from stzObject
 		# Q("_♥/♥\__").ReplaceXT("♥", :AtPositions = [2, 7], :With = "~")
 		but ( isString(p1) ) and
 
-		    ( (isList(p2) and Q(p2).IsListOfNumbers() ) or
-		      (isList(p2) and Q(p2).IsAtPositionsNamedParam()) ) and
+		    ( (isList(p2) and StzListQ(p2).IsListOfNumbers() ) or
+		      (isList(p2) and StzListQ(p2).IsAtPositionsNamedParam()) ) and
 
-		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
 
-			if isList(p2) and Q(p2).IsAtPositionsNamedParam()
+			if isList(p2) and StzListQ(p2).IsAtPositionsNamedParam()
 				p2 = p2[2]
 			ok
 
@@ -41649,31 +41649,31 @@ class stzString from stzObject
 
 		# Q("_♥/♥\__").ReplaceXT("♥", :At = [2, 7], :With = "~")
 		but ( isString(p1) ) and
-		    ( isNumber(p2) or (isList(p2) and Q(p2).IsAtNamedParam()) ) and
-		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+		    ( isNumber(p2) or (isList(p2) and StzListQ(p2).IsAtNamedParam()) ) and
+		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
 
-			if isList(p2) and Q(p2).IsAtNamedParam()
+			if isList(p2) and StzListQ(p2).IsAtNamedParam()
 				p2 = p2[2]
 			ok
 
 			if isNumber(p2)
 				This.ReplaceSubStringAtPositionCS(p2, p1, p3, pCaseSensitive)
 
-			but isList(p2) and Q(p2).isListOfNumbers()
+			but isList(p2) and StzListQ(p2).isListOfNumbers()
 				This.ReplaceSubStringAtPositionsCS(p2, p1, p3, pCaseSensitive)
 			ok
 
 		# Q("Bla bla <<♥♥♥>>, and bla!").ReplaceXT([], :Between = ["<<",">>"], :With = "bla")
 		but ( (isList(p1) and len(p1) = 0) or (isString(p1) and p1 = "") or (isNumber(p1) and p1 = 0) ) and
-		    ( isList(p2) and Q(p2).IsBetweenNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+		    ( isList(p2) and StzListQ(p2).IsBetweenNamedParam() ) and
+		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
 
 			p2 = p2[2]
 			
-			if isList(p2) and Q(p2).IsPairOfNumbers()
+			if isList(p2) and StzListQ(p2).IsPairOfNumbers()
 				This.ReplaceSection(p2[1], p2[2], p3)
 
-			but isList(p2) and Q(p2).IsPairOfStrings()
+			but isList(p2) and StzListQ(p2).IsPairOfStrings()
 				This.ReplaceAnyBetweenCS(p2[1], p2[2], p3, pCaseSensitive)
 
 			else
@@ -41682,8 +41682,8 @@ class stzString from stzObject
 			
 		# Q("Bla bla /♥♥♥/, and bla!").ReplaceXT([], :BoundedBy = "/", :With = "bla")
 		but ( (isList(p1) and len(p1) = 0) or (isString(p1) and p1 = "") or (isNumber(p1) and p1 = 0) ) and
-		    ( isList(p2) and Q(p2).IsBoundedByNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+		    ( isList(p2) and StzListQ(p2).IsBoundedByNamedParam() ) and
+		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
 
 			p2 = p2[2]
 			
@@ -41691,15 +41691,15 @@ class stzString from stzObject
 
 		# Q("Bla bla <<♥♥♥>>, and bla!").ReplaceXT([], :BetweenIB = ["<<",">>"], :With = "bla")
 		but ( (isList(p1) and len(p1) = 0) or (isString(p1) and p1 = "") or (isNumber(p1) and p1 = 0) ) and
-		    ( isList(p2) and Q(p2).IsBetweenIBNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+		    ( isList(p2) and StzListQ(p2).IsBetweenIBNamedParam() ) and
+		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
 
 			p2 = p2[2]
 			
-			if isList(p2) and Q(p2).IsPairOfNumbers()
+			if isList(p2) and StzListQ(p2).IsPairOfNumbers()
 				This.ReplaceSection(p2[1], p2[2], p3)
 
-			but isList(p2) and Q(p2).IsPairOfStrings()
+			but isList(p2) and StzListQ(p2).IsPairOfStrings()
 				This.ReplaceAnyBetweenCSIB(p2[1], p2[2], p3, pCaseSensitive)
 
 			else
@@ -41708,8 +41708,8 @@ class stzString from stzObject
 
 		# Q("Bla bla /♥♥♥/, and bla!").ReplaceXT([], :BoundedByIB = "/", :With = "bla")
 		but ( (isList(p1) and len(p1) = 0) or (isString(p1) and p1 = "") or (isNumber(p1) and p1 = 0) ) and
-		    ( isList(p2) and Q(p2).IsBoundedByIBNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+		    ( isList(p2) and StzListQ(p2).IsBoundedByIBNamedParam() ) and
+		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
 
 			p2 = p2[2]
 			
@@ -41717,12 +41717,12 @@ class stzString from stzObject
 
 		# Q("Bla bla <<♥♥♥>>, and bla!").ReplaceXT("♥♥♥", :Between = ["<<",">>"], :With = "bla")
 		but isString(p1) and
-		    ( isList(p2) and Q(p2).IsBetweenNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+		    ( isList(p2) and StzListQ(p2).IsBetweenNamedParam() ) and
+		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
 
 			p2 = p2[2]
 			
-			if isList(p2) and Q(p2).IsPairOfStrings()
+			if isList(p2) and StzListQ(p2).IsPairOfStrings()
 				This.ReplaceSubstringBetweenCS(p1, p2[1], p2[2], p3, pCaseSensitive)
 
 			else
@@ -41731,8 +41731,8 @@ class stzString from stzObject
 			
 		# Q("Bla bla /♥♥♥/, and bla!").ReplaceXT("♥♥♥", :BoundedBy = "/", :With = "bla")
 		but isString(p1) and
-		    ( isList(p2) and Q(p2).IsBoundedByNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+		    ( isList(p2) and StzListQ(p2).IsBoundedByNamedParam() ) and
+		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
 
 			p2 = p2[2]
 			
@@ -41740,12 +41740,12 @@ class stzString from stzObject
 
 		# Q("Bla bla <<♥♥♥>>, and bla!").ReplaceXT([], :BetweenIB = ["<<",">>"], :With = "bla")
 		but isString(p1) and
-		    ( isList(p2) and Q(p2).IsBetweenIBNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+		    ( isList(p2) and StzListQ(p2).IsBetweenIBNamedParam() ) and
+		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
 
 			p2 = p2[2]
 			
-			if isList(p2) and Q(p2).IsPairOfStrings()
+			if isList(p2) and StzListQ(p2).IsPairOfStrings()
 				This.ReplaceSubstringBetweenCSIB(p1, p2[1], p2[2], p3, pCaseSensitive)
 
 			else
@@ -41754,40 +41754,40 @@ class stzString from stzObject
 
 		# Q("Bla bla /♥♥♥/, and bla!").ReplaceXT([], :BoundedByIB = "/", :With = "bla")
 		but isString(p1) and
-		    ( isList(p2) and Q(p2).IsBoundedByIBNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+		    ( isList(p2) and StzListQ(p2).IsBoundedByIBNamedParam() ) and
+		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
 
 			p2 = p2[2]
 			
 			This.ReplaceSubStringBoundedByCSIB(p1, p2, p3, pCaseSensitive)
 
 		#--
-		but ( (isList(p1) and Q(p1).IsBetweenNamedParam() ) and
-		      (isString(p2) or (isList(p2) and Q(p2).IsWithOrByNamedParam())) and
+		but ( (isList(p1) and StzListQ(p1).IsBetweenNamedParam() ) and
+		      (isString(p2) or (isList(p2) and StzListQ(p2).IsWithOrByNamedParam())) and
 		      ((isList(p3) and len(p3) = 0) or (isString(p3) and p3 = "") or (isNumber(p3) and p3 = 0)) )
 
 			p1 = p1[2]
 
-			if isList(p1) and Q(p1).IsPairOfNumbers()
+			if isList(p1) and StzListQ(p1).IsPairOfNumbers()
 				This.ReplaceSection(p1[1], p1[2], p2)
 
-			but isList(p1) and Q(p1).IsPairOfStrings()
+			but isList(p1) and StzListQ(p1).IsPairOfStrings()
 				This.ReplaceAnyBetweenCS(p1[1], p1[2], p2, pCaseSensitive)
 
 			else
 				StzRaise("Incorrect param type! p1 must be a pair of strings or numbers.")
 			ok
 	
-		but ( (isList(p1) and Q(p1).IsBetweenNamedParam()) and
+		but ( (isList(p1) and StzListQ(p1).IsBetweenNamedParam()) and
 		      ((isList(p2) and len(p2) = 0) or (isString(p2) and p2 = "") or (isNumber(p2) and p2 = 0))) and
-		      (isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+		      (isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
 
 			p1 = p1[2]
 
-			if isList(p1) and Q(p1).IsPairOfNumbers()
+			if isList(p1) and StzListQ(p1).IsPairOfNumbers()
 				This.ReplaceSection(p1[1], p1[2], p3)
 
-			but isList(p1) and Q(p1).IsPairOfStrings()
+			but isList(p1) and StzListQ(p1).IsPairOfStrings()
 				This.ReplaceAnyBetweenCS(p1[1], p1[2], p3, pCaseSensitive)
 
 			else
@@ -41797,15 +41797,15 @@ class stzString from stzObject
 		#-- Allowing :BoundedBy along with :Between
 
 		but ( (isList(p1) and len(p1) = 0) or (isString(p1) and p1 = "") or (isNumber(p1) and p1 = 0) ) and
-		    ( isList(p2) and Q(p2).IsBoundedByNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+		    ( isList(p2) and StzListQ(p2).IsBoundedByNamedParam() ) and
+		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
 
 			p2 = p2[2]
 			
-			if isList(p2) and Q(p2).IsPairOfNumbers()
+			if isList(p2) and StzListQ(p2).IsPairOfNumbers()
 				This.ReplaceSection(p2[1], p2[2], p3)
 
-			but isList(p2) and Q(p2).IsPairOfStrings()
+			but isList(p2) and StzListQ(p2).IsPairOfStrings()
 				This.ReplaceAnyBetweenCS(p2[1], p2[2], p3, pCaseSensitive)
 
 			but isString(p2)
@@ -41816,16 +41816,16 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! p2 must be a string, or a pair of strings or numbers.")
 			ok
 			
-		but ( (isList(p1) and Q(p1).IsBoundedByNamedParam() ) and
-		      (isString(p2) or (isList(p2) and Q(p2).IsWithOrByNamedParam())) and
+		but ( (isList(p1) and StzListQ(p1).IsBoundedByNamedParam() ) and
+		      (isString(p2) or (isList(p2) and StzListQ(p2).IsWithOrByNamedParam())) and
 		      ((isList(p3) and len(p3) = 0) or (isString(p3) and p3 = "") or (isNumber(p3) and p3 = 0)) )
 
 			p1 = p1[2]
 
-			if isList(p1) and Q(p1).IsPairOfNumbers()
+			if isList(p1) and StzListQ(p1).IsPairOfNumbers()
 				This.ReplaceSection(p1[1], p1[2], p2)
 
-			but isList(p1) and Q(p1).IsPairOfStrings()
+			but isList(p1) and StzListQ(p1).IsPairOfStrings()
 				This.ReplaceAnyBetweenCS(p1[1], p1[2], p2, pCaseSensitive)
 
 			but isString(p1)
@@ -41835,16 +41835,16 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! p1 must be a string, or a pair of strings or numbers.")
 			ok
 	
-		but ( (isList(p1) and Q(p1).IsBoundedByNamedParam()) and
+		but ( (isList(p1) and StzListQ(p1).IsBoundedByNamedParam()) and
 		      ((isList(p2) and len(p2) = 0) or (isString(p2) and p2 = "") or (isNumber(p2) and p2 = 0))) and
-		      (isString(p3) or (isList(p3) and Q(p3).IsWithOrByNamedParam()) )
+		      (isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
 
 			p1 = p1[2]
 
-			if isList(p1) and Q(p1).IsPairOfNumbers()
+			if isList(p1) and StzListQ(p1).IsPairOfNumbers()
 				This.ReplaceSection(p1[1], p1[2], p3)
 
-			but isList(p1) and Q(p1).IsPairOfStrings()
+			but isList(p1) and StzListQ(p1).IsPairOfStrings()
 				This.ReplaceAnyBetweenCS(p1[1], p1[2], p3, pCaseSensitive)
 
 			but isString(p1)
@@ -42314,7 +42314,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def ReplaceCharAt(n, pcNewSubStr)
-			if isList(n) and Q(n).IsPositionNamedParam()
+			if isList(n) and StzListQ(n).IsPositionNamedParam()
 				n = n[2]
 			ok
 
@@ -42348,7 +42348,7 @@ class stzString from stzObject
 				return This
 
 		def ReplaceAnyCharAt(n, pcNewSubStr)
-			if isList(n) and Q(n).IsPositionNamedParam()
+			if isList(n) and StzListQ(n).IsPositionNamedParam()
 				n = n[2]
 			ok
 
@@ -43522,7 +43522,7 @@ class stzString from stzObject
 	def ReplaceAllChars(pcSubStr)
 
 		if CheckingParam()
-			if isList(pcSubStr) and Q(pcSubStr).IsWithOrByNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsWithOrByNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 		ok
@@ -43755,7 +43755,7 @@ class stzString from stzObject
 	#------------------------------------------#
 
 	def AddChar(c)
-		if isString(c) and Q(c).IsChar()
+		if isString(c) and StzListQ(c).IsChar()
 			This.AddSubString(c)
 		else
 			stzRaise("Incorrect param type! c must be a char.")
@@ -43790,7 +43790,7 @@ class stzString from stzObject
 	    #< QtBased | Uses QString.clear() and QString.append() >
 	
 	    if CheckingParams() = _TRUE_
-	        if isList(pcNewStr) and Q(pcNewStr).IsWithOrByOrUsingNamedParam()
+	        if isList(pcNewStr) and StzListQ(pcNewStr).IsWithOrByOrUsingNamedParam()
 	            pcNewStr = pcNewStr[2]
 	        ok
 	    ok
@@ -44204,7 +44204,7 @@ class stzString from stzObject
 	#--------------------------------------------------------------------#
 
 	def StartsWithEitherCS(pSubStr1, pSubStr2, pCaseSensitive)
-		if isList(pSubStr2) and Q(pSubStr2).IsOrNamedParam()
+		if isList(pSubStr2) and StzListQ(pSubStr2).IsOrNamedParam()
 			pSubStr2 = pSubStr2[2]
 		ok
 
@@ -44395,7 +44395,7 @@ class stzString from stzObject
 	#------------------------------------------------------------------#
 
 	def EndsWithEitherCS(pSubStr1, pSubStr2, pCaseSensitive)
-		if isList(pSubStr2) and Q(pSubStr2).IsOrNamedParam()
+		if isList(pSubStr2) and StzListQ(pSubStr2).IsOrNamedParam()
 			pSubStr2 = pSubStr2[2]
 		ok
 
@@ -44453,7 +44453,7 @@ class stzString from stzObject
 
 		# Resolving pCaseSensitive
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -45152,7 +45152,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -45649,7 +45649,7 @@ class stzString from stzObject
 				stzRaise("Incorrect param type! pcSubStr must be a string.")
 			ok
 	
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -45718,7 +45718,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -46271,7 +46271,7 @@ class stzString from stzObject
 	
 		# Enabling the syntax :BoundedBy = "*"
 
-		if NOT ( isList(paOption) and Q(paOption).IsPair() and isString(paOption[1]))
+		if NOT ( isList(paOption) and StzListQ(paOption).IsPair() and isString(paOption[1]))
 			StzRaise("Incorrect param type! paOption must ne a pair starting with a string.")
 		ok
 
@@ -46706,7 +46706,7 @@ class stzString from stzObject
 	#TODO // Add other alternatives
 
 	def FindNthDCS(n, pcSubStr, pcDirection, pCaseSensitive)
-		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -47098,7 +47098,7 @@ class stzString from stzObject
 
 			nLen = len(panOccurr)
 
-			if isList(panOccurr[nLen]) and Q(panOccurr[nLen]).IsAndNamedParam()
+			if isList(panOccurr[nLen]) and StzListQ(panOccurr[nLen]).IsAndNamedParam()
 				panOccurr[nLen] = panOccurr[nLen][2]
 			ok
 
@@ -47116,7 +47116,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! panOccurr must be a list of numbers.")
 			ok
 
-			if isList(pcSubStr) and Q(pcSubStr).IsOneTheseNamedParams([ :Of, :OfSubString ])
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOneTheseNamedParams([ :Of, :OfSubString ])
 				#NOTE
 				# that IsOneTheseNamedParams() is a misspelled form of
 				# IsOneOfTheseNamedParams(). I forgot "These" but hopefully
@@ -47226,7 +47226,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcSubStr) and Q(pcSubStr).IsOneOfTheseNamedParams([ :Of, :OfSubString ])
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOneOfTheseNamedParams([ :Of, :OfSubString ])
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -47234,11 +47234,11 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! pcSubStr must be a string.")
 			ok
 	
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
-			if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+			if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 				pcDirection = pcDirection[2]
 			ok
 
@@ -47392,15 +47392,15 @@ class stzString from stzObject
 	def FindTheseOccurrencesDCS(panOccurr, pcSubStr, pcDirection, pCaseSensitive)
 
 		if CheckingParams() = _TRUE_
-			if NOT ( isList(panOccurr) and Q(panOccurr).IsListOfNumbers() )
+			if NOT ( isList(panOccurr) and StzListQ(panOccurr).IsListOfNumbers() )
 				StzRaise("Incorrect param type! pabOccurr must be a list of numbers.")
 			ok
 	
-			if isList(pcSubStr) and Q(pcSubStr).IsOfOrOfSubString()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfOrOfSubString()
 				pcSubStr = pcSubStr[2]
 			ok
 	
-			if isList(pcDirection) and Q(pcDirection).IsDirectionNamedParam()
+			if isList(pcDirection) and StzListQ(pcDirection).IsDirectionNamedParam()
 				pcDirection = pcDirection[2]
 			ok
 		ok
@@ -47440,7 +47440,7 @@ class stzString from stzObject
 	#-----------------------------------------------------------------------------#
 
 	def FindTheseOccurrencesAsSectionsDCS(panOccurr, pcSubStr, pcDirection, pCaseSensitive)
-		if isList(pcSubStr) and Q(pcSubStr).IsOneOfTheseNamedParams([ :Of, :OfSubString ])
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOneOfTheseNamedParams([ :Of, :OfSubString ])
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -47579,11 +47579,11 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 	
-			if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
+			if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
 				nStart = nStart[2]
 			ok
 	
@@ -47731,11 +47731,11 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 	
-			if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
+			if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
 				nStart = nStart[2]
 			ok
 	
@@ -47964,7 +47964,7 @@ class stzString from stzObject
 
 			# Resolving pcSubStr param
 
-			if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -47974,7 +47974,7 @@ class stzString from stzObject
 	
 			# Resolving nStart param
 
-			if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
+			if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
 				nStart = nStart[2]
 			ok
 	
@@ -48064,7 +48064,7 @@ class stzString from stzObject
 	def FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		if CheckingParams()
 
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -48095,7 +48095,7 @@ class stzString from stzObject
 	def FindNextOccurrencesCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
 		if CheckingParams()
 
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -48141,7 +48141,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -48225,7 +48225,7 @@ class stzString from stzObject
 	def FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		if CheckingParams()
 
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -48250,7 +48250,7 @@ class stzString from stzObject
 	def FindPreviousOccurrencesCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
 		if CheckingParams()
 
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -48348,7 +48348,7 @@ class stzString from stzObject
 				return This.FindCSQRT(pcSubStr, pCaseSensitive, :stzList)
 			
 		def FindCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -48404,7 +48404,7 @@ class stzString from stzObject
 	#===========================================#
 
 	def SubStringCSZ(pcSubStr, pCaseSensitive)
-		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -48431,7 +48431,7 @@ class stzString from stzObject
 
 	def SubStringCSZZ(pcSubStr, pCaseSensitive)
 
-		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -48488,7 +48488,7 @@ class stzString from stzObject
 
 	def FindDCS(pcSubStr, pcDirection, pCaseSensitive)
 		
-		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -48516,7 +48516,7 @@ class stzString from stzObject
 				return This.FindDCSQRT(pcSubStr, pcDirection, pCaseSensitive, :stzList)
 			
 		def FindDCSQRT(pcSubStr, pcDirection, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -48602,7 +48602,7 @@ class stzString from stzObject
 
 	def SubStringDCSZ(pcSubStr, pcDirection, pCaseSensitive)
 
-		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -48620,7 +48620,7 @@ class stzString from stzObject
 				return This.SubStringDCSZQRT(pcSubStr, pcDirection, pCaseSensitive, :stzList)
 			
 		def SubStringDCSZQRT(pcSubStr, pcDirection, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -48666,7 +48666,7 @@ class stzString from stzObject
 
 		# Checking params
 
-		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -48674,7 +48674,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -48705,7 +48705,7 @@ class stzString from stzObject
 				return This.SubStringDCSZZQRT(pcSubStr, pcDirection, pCaseSensitive, :stzList)
 			
 		def SubStringDCSZZQRT(pcSubStr, pcDirection, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -48755,7 +48755,7 @@ class stzString from stzObject
 		# Checking pnStartingAt param
 
 		if CheckingParams()
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -48794,7 +48794,7 @@ class stzString from stzObject
 				return This.FindSTCSQRT(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
 			
 		def FindSTCSQRT(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -48854,7 +48854,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -48874,7 +48874,7 @@ class stzString from stzObject
 				return This.SubStringSTCSZQRT(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
 			
 		def SubStringSTCSZQRT(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -48918,7 +48918,7 @@ class stzString from stzObject
 
 	def SubStringSTCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
 		if CheckingParams()
-			if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -48937,7 +48937,7 @@ class stzString from stzObject
 				return This.SubStringSTCSZZQRT(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
 			
 		def SubStringSTCSZZQRT(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -48983,7 +48983,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+			if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 				pcDirection = pcDirection[2]
 			ok
 	
@@ -49006,7 +49006,7 @@ class stzString from stzObject
 
 		else // pcDirection = :Backward
 
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 
@@ -50061,7 +50061,7 @@ class stzString from stzObject
 	def FindTheseCharsCS(pacChars, pCaseSensitive)
 
 		if CheckingParams()
-			if NOT ( isList(pacChars) and Q(pacChars).IsListOfChars() )
+			if NOT ( isList(pacChars) and StzListQ(pacChars).IsListOfChars() )
 				StzRaise("Incorrect param type! pacChars must be a list of chars.")
 			ok
 		ok
@@ -50108,7 +50108,7 @@ class stzString from stzObject
 
 	def FindCSXT(p1, p2, pCaseSensitive)
 
-		if ( isString(p1) OR ( isList(p1) and Q(p1).IsSubStringNamedParam() ) ) AND
+		if ( isString(p1) OR ( isList(p1) and StzListQ(p1).IsSubStringNamedParam() ) ) AND
 		   ( isList(p2) )
 
 			oP2 = Q(p2)
@@ -50178,8 +50178,8 @@ class stzString from stzObject
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
-			    isList(p2) and Q(p2).IsBetweenNamedParam() and
-			    isList(p2[2]) and Q(p2[2]).IsPair()
+			    isList(p2) and StzListQ(p2).IsBetweenNamedParam() and
+			    isList(p2[2]) and StzListQ(p2[2]).IsPair()
 
 				n = 0+ Q(p1[1]).FirstNumber()
 				return This.FindNthBetweenCS(n, p1[2], p2[1], p2[2], pCaseSensitive)
@@ -50190,7 +50190,7 @@ class stzString from stzObject
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
-			    isList(p2) and Q(p2).IsBoundedByNamedParam()
+			    isList(p2) and StzListQ(p2).IsBoundedByNamedParam()
 
 				n = 0+ Q(p1[1]).FirstNumber()
 				return This.FindNthBoundedByCS(n, p1[2], p2, pCaseSensitive)
@@ -50201,8 +50201,8 @@ class stzString from stzObject
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
-			    isList(p2) and Q(p2).IsInSectionNamedParam() and
-			    isList(p2[2]) and Q(p2[2]).IsPair()
+			    isList(p2) and StzListQ(p2).IsInSectionNamedParam() and
+			    isList(p2[2]) and StzListQ(p2[2]).IsPair()
 
 				n = 0+ Q(p1[1]).FirstNumber()
 				nPos = This.SectionQ(p2[2][1], p2[2][2]).FindNthCS(n, p1[2], pCaseSensitive)
@@ -50216,7 +50216,7 @@ class stzString from stzObject
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
-			    isList(p2) and Q(p2).IsBeforeNamedParam()
+			    isList(p2) and StzListQ(p2).IsBeforeNamedParam()
 
 				if isString(p2[2])
 					return This.FindBeforeSubStringCS( p1[2], p2[2], pCaseSensitive )
@@ -50235,7 +50235,7 @@ class stzString from stzObject
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
-			    isList(p2) and Q(p2).IsBeforePositionNamedParam()
+			    isList(p2) and StzListQ(p2).IsBeforePositionNamedParam()
 
 				return This.FindBeforePosirtionCS( p1[2], p2[2], pCaseSensitive )
 
@@ -50246,7 +50246,7 @@ class stzString from stzObject
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
-			    isList(p2) and Q(p2).IsAfterNamedParam()
+			    isList(p2) and StzListQ(p2).IsAfterNamedParam()
 
 				if isString(p2[2])
 					return This.FindAfterSubStringCS(p1[2], p2[2], pCaseSensitive)
@@ -50264,25 +50264,25 @@ class stzString from stzObject
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
-			    isList(p2) and Q(p2).IsAfterPositionNamedParam()
+			    isList(p2) and StzListQ(p2).IsAfterPositionNamedParam()
 
 				return This.FindAfterPositionCS( p1[2], p2[2], pCaseSensitive )
 
 			# FindXT( :AnySubString, :Between = ["<<", ">>" )
 			but isString(p1) and ring_find([ :Any, :AnySubString ], p1) > 0 and
-			    isList(p2) and Q(p2).IsBetweenNamedParam() and
-			    isList(p2[2]) and Q(p2[2]).IsPairOfStrings()
+			    isList(p2) and StzListQ(p2).IsBetweenNamedParam() and
+			    isList(p2[2]) and StzListQ(p2[2]).IsPairOfStrings()
 
 				return This.FindAnyBetweenCS(p2[2][1], p2[2][1], pCaseSensitive)
 
 			# FindXT( :Any, :BoundedBy = '"' )
 			but isString(p1) and ring_find([ :Any, :AnySubString ], p1) > 0 and
-			    isList(p2) and Q(p2).IsBoundedByNamedParam()
+			    isList(p2) and StzListQ(p2).IsBoundedByNamedParam()
 
 				return This.FindAnyBoundedByCS(p2[2], pCaseSensitive)
 
 			# FindXT( "*", :InSection = [5, 24] )
-			but isList(p2) and Q(p2).IsInSectionNamedParam() and Q(p2).IsPairOfNumbers()
+			but isList(p2) and StzListQ(p2).IsInSectionNamedParam() and StzListQ(p2).IsPairOfNumbers()
 
 				nPos = This.SectionQ(p2[1], p2[2]).FindCS(p1, pCaseSensitive)
 				nResult = nPos + p2[1]
@@ -50323,7 +50323,7 @@ class stzString from stzObject
 
 	def FindAsSectionsCSXT(p1, p2, pCaseSensitive)
 
-		if ( isString(p1) OR ( isList(p1) and Q(p1).IsSubStringNamedParam() ) ) AND
+		if ( isString(p1) OR ( isList(p1) and QStzList(p1).IsSubStringNamedParam() ) ) AND
 		   ( isList(p2) )
 
 			oP2 = Q(p2)
@@ -50412,8 +50412,8 @@ class stzString from stzObject
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
-			    isList(p2) and Q(p2).IsBetweenNamedParam() and
-			    isList(p2[2]) and Q(p2[2]).IsPair()
+			    isList(p2) and QStzList(p2).IsBetweenNamedParam() and
+			    isList(p2[2]) and StzListQ(p2[2]).IsPair()
 
 				n = 0+ Q(p1[1]).FirstNumber()
 				return This.FindNthBetweenAsSectionCS(n, p1[2], p2[1], p2[2], pCaseSensitive)
@@ -50424,7 +50424,7 @@ class stzString from stzObject
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
-			    isList(p2) and Q(p2).IsBoundedByNamedParam()
+			    isList(p2) and StzListQ(p2).IsBoundedByNamedParam()
 
 				n = 0+ Q(p1[1]).FirstNumber()
 				return This.FindNthBoundedAsSectionByCS(n, [ p1[2], p2 ], pCaseSensitive)
@@ -50435,8 +50435,8 @@ class stzString from stzObject
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
-			    isList(p2) and Q(p2).IsInSectionNamedParam() and
-			    isList(p2[2]) and Q(p2[2]).IsPair()
+			    isList(p2) and StzListQ(p2).IsInSectionNamedParam() and
+			    isList(p2[2]) and StzListQ(p2[2]).IsPair()
 
 				n = 0+ Q(p1[1]).FirstNumber()
 				nPos = This.SectionQ(p2[2][1], p2[2][2]).FindNthAsSectionCS(n, p1[2], pCaseSensitive)
@@ -50450,7 +50450,7 @@ class stzString from stzObject
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
-			    isList(p2) and Q(p2).IsBeforeNamedParam()
+			    isList(p2) and StzListQ(p2).IsBeforeNamedParam()
 
 				if isString(p2[2])
 					n = This.FindFirstCS(p2[2], pCaseSensitive)
@@ -50469,7 +50469,7 @@ class stzString from stzObject
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
-			    isList(p2) and Q(p2).IsBeforePositionNamedParam()
+			    isList(p2) and StzListQ(p2).IsBeforePositionNamedParam()
 
 				return This.FindAsSectionsCSXT( p1[2], :InSection = [ 1, p2[2] ], pCaseSensitive )
 
@@ -50480,7 +50480,7 @@ class stzString from stzObject
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
-			    isList(p2) and Q(p2).IsAfterNamedParam()
+			    isList(p2) and StzListQ(p2).IsAfterNamedParam()
 
 				if isString(p2[2])
 					n = This.FindLastCS(p2[2], pCaseSensitive)
@@ -50501,25 +50501,25 @@ class stzString from stzObject
 			    Q(p1[1]).StartsWithANumber() and
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
-			    isList(p2) and Q(p2).IsAfterPositionNamedParam()
+			    isList(p2) and StzListQ(p2).IsAfterPositionNamedParam()
 				nLen = This.NumberOfChars()
 				return This.FindAsSectionsCSXT( p1[2], :InSection = [ p2[2], nLen ], pCaseSensitive )
 
 			# FindAsSectionsXT( :AnySubString, :Between = ["<<", ">>" )
 			but isString(p1) and ring_find([ :Any, :AnySubString ], p1) > 0 and
-			    isList(p2) and Q(p2).IsBetweenNamedParam() and
-			    isList(p2[2]) and Q(p2[2]).IsPairOfStrings()
+			    isList(p2) and StzListQ(p2).IsBetweenNamedParam() and
+			    isList(p2[2]) and StzListQ(p2[2]).IsPairOfStrings()
 
 				return This.FindAnyBetweenAsSectionsCS(p2[2][1], p2[2][1], pCaseSensitive)
 
 			# FindAsSectionsXT( :Any, :BoundedBy = '"' )
 			but isString(p1) and ring_find([ :Any, :AnySubString ], p1) > 0 and
-			    isList(p2) and Q(p2).IsBoundedByNamedParam()
+			    isList(p2) and StzListQ(p2).IsBoundedByNamedParam()
 
 				return This.FindAnyBoundedByAsSectionsCS(p2[2], pCaseSensitive)
 
 			# FindAsSectionsXT( "*", :InSection = [5, 24] )
-			but isList(p2) and Q(p2).IsInSectionNamedParam() and Q(p2).IsPairOfNumbers()
+			but isList(p2) and StzListQ(p2).IsInSectionNamedParam() and StzListQ(p2).IsPairOfNumbers()
 
 				aSections = This.SectionQ(p2[1], p2[2]).FindAsSectionsCS(p1, pCaseSensitive)
 				nLen = len(aSections)
@@ -50564,7 +50564,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :From, :FromPosition, :FromPositionOf ])
+			if isList(n1) and StzListQ(n1).IsOneOfTheseNamedParams([ :From, :FromPosition, :FromPositionOf ])
 				n1 = n1[2]
 			ok
 	
@@ -52251,7 +52251,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! pcSubStr must be a string.")
 			ok
 
-			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
@@ -52338,7 +52338,7 @@ class stzString from stzObject
 		# Resolving the n1 and n2 params
 
 		if CheckingParams()
-			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :From, :FromPosition, :FromPositionOf ])
+			if isList(n1) and StzListQ(n1).IsOneOfTheseNamedParams([ :From, :FromPosition, :FromPositionOf ])
 				n1 = n1[2]
 			ok
 	
@@ -52619,7 +52619,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! pcSubStr must be a string.")
 			ok
 
-			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
@@ -52843,7 +52843,7 @@ class stzString from stzObject
 
 	def FindFirstInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		if CheckingParams()
-			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
@@ -52922,7 +52922,7 @@ class stzString from stzObject
 
 	def FindFirstInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
 		if CheckingParams()
-			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
@@ -53079,7 +53079,7 @@ class stzString from stzObject
 
 	def FindLastInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 		if CheckingParams()
-			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
@@ -53158,7 +53158,7 @@ class stzString from stzObject
 
 	def FindLastInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
 		if CheckingParams()
-			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
@@ -53310,7 +53310,7 @@ class stzString from stzObject
 			return This.FindAsSectionsCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
 		def FindAsSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -53503,7 +53503,7 @@ class stzString from stzObject
 
 		# Checking the pcDirection param
 
-		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -53556,7 +53556,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! pcSubStr must be a string.")
 			ok
 	
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -53617,7 +53617,7 @@ class stzString from stzObject
 
 		# Checking the pcSubStr param (because we will use it below)
 
-		if isList(pcSubStr) and Q(pcSubStr).IsSubStringNamedParam()
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsSubStringNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -53706,7 +53706,7 @@ class stzString from stzObject
 			return This.FindAsAntiSectionsCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
 		def FindAsAntiSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -53819,14 +53819,14 @@ class stzString from stzObject
 		ok
 
 		if cOption = :Between
-			if isList(pOption) and Q(pOption).IsPairOfStrings()
+			if isList(pOption) and StzListQ(pOption).IsPairOfStrings()
 				return This.NthSubStringBetween(n, pOption[1], pOption[2])
 			else
 				stzRaise("Incorrect param type! pOption must be a pair of strings.")
 			ok
 
 		but cOption = :BetweenCS
-			if isList(pOption) and Q(pOption).IsPairOfStrings()
+			if isList(pOption) and StzListQ(pOption).IsPairOfStrings()
 				return This.NthSubStringBetweenCS(n, pOption[1], pOption[2])
 			else
 				stzRaise("Incorrect param type! pOption must be a pair of strings.")
@@ -53835,7 +53835,7 @@ class stzString from stzObject
 		but cOption = :BoundedBy
 			
 			if isString(pOption) or
-			    ( isList(pOption) and Q(pOption).IsPairOfStrings() )
+			    ( isList(pOption) and StzListQ(pOption).IsPairOfStrings() )
 
 				return This.NthSubStringBoundedBy(n, pOption)
 			else
@@ -54420,7 +54420,7 @@ class stzString from stzObject
 
 	def DistanceToCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -54458,7 +54458,7 @@ class stzString from stzObject
 				   isString(pcSubStr[1]) and
 				   ring_find([ :NextNth, :NthNext ], pcSubStr[1]) > 0 and
 
-				   isList(pcSubStr[2]) and Q(pcSubStr[2]).IsPair()
+				   isList(pcSubStr[2]) and StzListQ(pcSubStr[2]).IsPair()
 				   isNumber(pcSubStr[2][1]) and isString(pcSubStr[2][2])
 
 					n2 = This.FindNextNthCS(pcSubStr[2][1], pcSubStr[2][2], pnStartingAt, pCaseSensitive)
@@ -54926,7 +54926,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		if isList(p) and Q(p).IsOneOfTheseNamedParams([ :Position, :SubString ])
+		if isList(p) and StzListQ(p).IsOneOfTheseNamedParams([ :Position, :SubString ])
 			p = p[2]
 		ok
 
@@ -54958,7 +54958,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		if isList(p) and Q(p).IsOneOfTheseNamedParams([ :Position, :SubString ])
+		if isList(p) and StzListQ(p).IsOneOfTheseNamedParams([ :Position, :SubString ])
 			p = p[2]
 		ok
 
@@ -55233,16 +55233,16 @@ class stzString from stzObject
 			ok
 	
 			if oP2.IsOneOfTheseNamedParams([ :At, :AtPositions ]) and
-			   isList(p2[2]) and Q(p2[2]).IsListOfNumbers()
+			   isList(p2[2]) and StzListQ(p2[2]).IsListOfNumbers()
 	
 				return This.ContainsAtPositions(p2[2], cString)
 			ok
 	
-			if oP2.IsBeforeNamedParam() and Q(p2[2]).IsStringOrNumber()
+			if oP2.IsBeforeNamedParam() and StzListQ(p2[2]).IsStringOrNumber()
 				return This.ContainsBefore(cString, p2[2])
 			ok
 	
-			if oP2.IsAfterNamedParam() and Q(p2[2]).IsStringOrNumber()
+			if oP2.IsAfterNamedParam() and StzListQ(p2[2]).IsStringOrNumber()
 				return This.ContainsAfter(cString, p2[2])
 			ok
 	
@@ -55389,7 +55389,7 @@ class stzString from stzObject
 	#================================================#
 
 	def ContainsBothCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		if isList(pcSubStr2) and Q(pcSubStr2).IsAndNamedParam()
+		if isList(pcSubStr2) and StzListQ(pcSubStr2).IsAndNamedParam()
 			pcSubStr2 = pcSubStr2[2]
 		ok
 
@@ -55405,7 +55405,7 @@ class stzString from stzObject
 	#----------------------------------------------------------------#
 
 	def ContainsEitherCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		if isList(pcSubStr2) and Q(pcSubStr2).IsOrNamedParam()
+		if isList(pcSubStr2) and StzListQ(pcSubStr2).IsOrNamedParam()
 			pcSubStr2 = pcSubStr2[2]
 		ok
 
@@ -55476,7 +55476,7 @@ class stzString from stzObject
 		# Ckecking params
 
 		if CheckingParams()
-			if NOT ( isString(p) or ( isList(p) and Q(p).IsListOfStrings() ) )
+			if NOT ( isString(p) or ( isList(p) and StzListQ(p).IsListOfStrings() ) )
 				StzRaise("Incorrect param type! p must be a string or list of strings.")
 			ok
 		ok
@@ -55568,7 +55568,7 @@ class stzString from stzObject
 		# Ckecking params
 
 		if CheckingParams()
-			if NOT ( isString(p) or ( isList(p) and Q(p).IsListOfStrings() ) )
+			if NOT ( isString(p) or ( isList(p) and StzListQ(p).IsListOfStrings() ) )
 				StzRaise("Incorrect param type! p must be a string or list of strings.")
 			ok
 		ok
@@ -55950,11 +55950,11 @@ class stzString from stzObject
 
 	def ContainsAtCS(n, pcSubStr, pCaseSensitive)
 
-		if isList(n) and Q(n).IsOneOfTheseNamedParams([ :Position, :SubString ])
+		if isList(n) and StzListQ(n).IsOneOfTheseNamedParams([ :Position, :SubString ])
 			n = n[2]
 		ok
 
-		if isList(pcSubStr) and Q(pcSubStr).IsOneOfTheseNamedParams([ :Position, :SubString ])
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOneOfTheseNamedParams([ :Position, :SubString ])
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -55963,8 +55963,8 @@ class stzString from stzObject
 
 			return This.ContainsAtPositionCS(n, pcSubStr, pCaseSensitive)
 
-		but ( isList(n) and Q(n).IsListOfNumbers() and isString(pcSubStr) ) or
-		    ( isString(n) and isList(pcSubStr) and Q(pcSubStr).IsListOfNumbers() )
+		but ( isList(n) and StzListQ(n).IsListOfNumbers() and isString(pcSubStr) ) or
+		    ( isString(n) and isList(pcSubStr) and StzListQ(pcSubStr).IsListOfNumbers() )
 
 			return This.ContainsAtPositionsCS(n, pcSubStr, pCaseSensitive)
 
@@ -55987,11 +55987,11 @@ class stzString from stzObject
 
 	def ContainsAtPositionCS(n, pcSubStr, pCaseSensitive)
 
-		if isList(n) and Q(n).IsOneOfTheseNamedParams([ :Position, :SubString ])
+		if isList(n) and StzListQ(n).IsOneOfTheseNamedParams([ :Position, :SubString ])
 			n = n[2]
 		ok
 
-		if isList(pcSubStr) and Q(pcSubStr).IsOneOfTheseNamedParams([ :Position, :SubString ])
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOneOfTheseNamedParams([ :Position, :SubString ])
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -56061,7 +56061,7 @@ class stzString from stzObject
 			pcSubStr = pcSubStr[2]
 		ok
 
-		if isString(panPos) and isList(pcSubStr) and Q(pcSubStr).IsListOfNumbers()
+		if isString(panPos) and isList(pcSubStr) and StzListQ(pcSubStr).IsListOfNumbers()
 			temp = pcSubStr
 			pcSubStr = panPos
 			panPos = temp
@@ -56072,7 +56072,7 @@ class stzString from stzObject
 			stzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
-		if isList(pcSubStr) and Q(pcSubStr).IsListOfStrings()
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsListOfStrings()
 			return This.ContainsSubStringsAtPositionsCS(panPos, pcSubStr, pCaseSensitive)
 		ok
 
@@ -56710,13 +56710,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.SplitAtPosition(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.SplitAtPositions(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.SplitAtSection(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.SplitAtSections(pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -56803,7 +56803,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pSubStrOrPos) and len(pSubStrOrPos) = 2
 				
-				if isList(pSubStrOrPos[2]) and Q(pSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pSubStrOrPos[2]) and StzListQ(pSubStrOrPos[2]).IsAndNamedParam()
 					pSubStrOrPos[2] = pSubStrOrPos[2][2]
 				ok
 
@@ -56960,13 +56960,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.SplitAtPositionZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.SplitAtPositionsZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.SplitAtSectionZ(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.SplitAtSectionsZ(pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -57053,7 +57053,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and Q(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -57141,13 +57141,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.SplitAtPositionZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.SplitAtPositionsZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.SplitAtSectionZZ(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.SplitAsSectionsZZ(pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -57234,7 +57234,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and Q(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -57501,16 +57501,16 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.SplitAtPosition(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.SplitAtPositions(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfStrings()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfStrings()
 			return This.SplitAtSubStrings(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.SplitAtSection(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.SplitAsSections(pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -57939,7 +57939,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -58059,7 +58059,7 @@ class stzString from stzObject
 				return []
 			ok
 	
-			if isList(pcSubStr) and Q(pcSubStr).IsListOfStrings()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsListOfStrings()
 				return This.SplitAtSubStringsCS(pcSubStr, pCaseSensitive)
 			ok
 	
@@ -58069,7 +58069,7 @@ class stzString from stzObject
 	
 		ok
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -58116,7 +58116,7 @@ class stzString from stzObject
 				return This.SplitAtSubStringCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitAtThisSubStringCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -58242,7 +58242,7 @@ class stzString from stzObject
 				return This.SplitAtSubStringCSZQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitAtThisSubStringCSz(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -58336,7 +58336,7 @@ class stzString from stzObject
 				return This.SplitAtSubStringCSZZQRT(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitAtThisSubStringCSZZ(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -58786,7 +58786,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -58862,7 +58862,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -59150,7 +59150,7 @@ class stzString from stzObject
 	def SplitBeforePositions(anPos)
 
 		if CheckingParams()
-			if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+			if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 				StzRaise("Incorrect param type! anPos must be a list of numbers.")
 			ok
 		ok
@@ -59716,7 +59716,7 @@ class stzString from stzObject
 	#------------------------------------#
 
 	def SplitBeforeSections(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -59815,7 +59815,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -60120,7 +60120,7 @@ class stzString from stzObject
 	#-------------------------------------#
 
 	def SplitAfterPositions(anPos)
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -60645,7 +60645,7 @@ class stzString from stzObject
 	#-----------------------------------#
 
 	def SplitAfterSections(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -60700,7 +60700,7 @@ class stzString from stzObject
 	#------------------------------------------------------#
 
 	def SplitAfterSectionsIB(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -64193,13 +64193,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.FindSplitsAtPosition(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindSplitsAtPositions(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindSplitsAtSection(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindSplitsAtSections(pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -64286,7 +64286,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and Q(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -64385,13 +64385,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.FindSplitsAtPosition(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindSplitsAtPositions(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindSplitsAtSection(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindSplits(pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -64486,7 +64486,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -64544,14 +64544,14 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindSplitsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
 			return This.FindSplitsAtSubStringCS(pcSubStr, pCaseSensitive)
 
 		def FindSplitsAtThisSubStringCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -64563,14 +64563,14 @@ class stzString from stzObject
 			return This.FindSplitsAtSubStringCS(pcSubStr, pCaseSensitive)
 
 		def FindSplitsCSZ(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
 			return This.FindSplitsAtSubStringCS(pcSubStr, pCaseSensitive)
 
 		def FindSplitsAtThisSubStringCSZ(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -64821,7 +64821,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 
@@ -64878,7 +64878,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 	
@@ -64936,19 +64936,19 @@ class stzString from stzObject
 		if isString(pSubStrOrPos)
 			return This.FindSplitsBeforeSubStringCS(pSubStrOrPos, pCaseSensitive)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfStrings()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfStrings()
 			return This.FindSplitsBeforeSubStringsCS(pSubStrOrPos, pCaseSensitive)
 
 		but isNumber(pSubStrOrPos)
 			return This.FindSplitsBeforePosition(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindSplitsBeforePositions(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindSplitsBeforeSection(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindSplitsBeforeSections(pSubStrOrPos[1], pSubStrOrPos[2])
 
 		but isList(pSubStrOrPos)
@@ -65071,7 +65071,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+			if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 				StzRaise("Incorrect param type! anPos must be a list of numbers.")
 			ok
 
@@ -65314,7 +65314,7 @@ class stzString from stzObject
 	#-----------------------------------------#
 
 	def FindSplitsBeforeSections(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -65351,7 +65351,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -65487,7 +65487,7 @@ class stzString from stzObject
 	#------------------------------------------#
 
 	def FindSplitsAfterPositions(anPos)
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -65685,7 +65685,7 @@ class stzString from stzObject
 	#----------------------------------------#
 
 	def FindSplitsAfterSections(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -65712,7 +65712,7 @@ class stzString from stzObject
 	#-----------------------------------------------------------#
 
 	def FindSplitsAfterSectionsIB(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -65980,7 +65980,7 @@ class stzString from stzObject
 
 	def FindSplitsAtWCS(pcCondition, pCaseSensitive)
 		if CheckingParams()
-			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParam()
 				pcCondition = pcCondition[2]
 			ok
 	
@@ -66019,7 +66019,7 @@ class stzString from stzObject
 
 	def FindSplitsAtWCSXT(pcCondition, pCaseSensitive)
 		if CheckingParams()
-			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParam()
 				pcCondition = pcCondition[2]
 			ok
 	
@@ -66300,13 +66300,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.FindSplitsAtPositionZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindSplitsAtPositionsZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindSplitsAtSectionZZ(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindSplitsAtSectionsZZ(pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -66414,7 +66414,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and Q(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -66507,13 +66507,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.FindSplitsAtPositionZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindSplitsAtPositionsZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindSplitsAtSectionZZ(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindSplitsAsSectionsZZ(pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -66622,7 +66622,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+			if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 				StzRaise("Incorrect param type! anPos must be a list of numbers.")
 			ok
 		ok
@@ -66704,14 +66704,14 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindSplitsCSZZ(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
 			return This.FindSplitsAtSubStringCSZZ(pcSubStr, pCaseSensitive)
 
 		def FindSplitsAtThisSubStringCSZZ(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -66723,14 +66723,14 @@ class stzString from stzObject
 			return This.FindSplitsAtSubStringCSZZ(pcSubStr, pCaseSensitive)
 
 		def FindSplitsAsSectionsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
 			return This.FindSplitsAtSubStringCSZZ(pcSubStr, pCaseSensitive)
 
 		def FindSplitsAtThisSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -66990,7 +66990,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 
@@ -67048,19 +67048,19 @@ class stzString from stzObject
 		if isString(pSubStrOrPos)
 			return This.FindSplitsBeforeSubStringCSZZ(pSubStrOrPos, pCaseSensitive)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfStrings()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfStrings()
 			return This.FindSplitsBeforeSubStringsCSZZ(pSubStrOrPos, pCaseSensitive)
 
 		but isNumber(pSubStrOrPos)
 			return This.FindSplitsBeforePositionZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindSplitsBeforePositionsZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindSplitsBeforeSectionZZ(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindSplitsBeforeSectionsZZ(pSubStrOrPos[1], pSubStrOrPos[2])
 
 		but isList(pSubStrOrPos)
@@ -67182,7 +67182,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+			if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 				StzRaise("Incorrect param type! anPos must be a list of numbers.")
 			ok
 
@@ -67490,7 +67490,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 
@@ -67558,7 +67558,7 @@ class stzString from stzObject
 		ok
 
 		if CheckingParams()
-			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
@@ -67753,7 +67753,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+			if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 				StzRaise("Incorrect param type! anPos must be a list of numbers.")
 			ok
 		ok
@@ -68060,7 +68060,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
@@ -68117,7 +68117,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+			if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
@@ -68731,13 +68731,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.FindNthSplitAtPositionCS(n, pSubStrOrPos, pCaseSensitive)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindNthSplitAtPositionsCS(n, pSubStrOrPos, pCaseSensitive)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindNthSplitAtSectionCS(n, pSubStrOrPos[1], pSubStrOrPos[2], pCaseSensitive)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindNthSplitAtSectionsCS(n, pSubStrOrPos, pCaseSensitive)
 
 		but isList(pSubStrOrPos)
@@ -68824,7 +68824,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and Q(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -68923,13 +68923,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.FindNthSplitAtPositionCS(n, pSubStrOrPos, pCaseSensitive)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindNthSplitAtPositionsCS(n, pSubStrOrPos, pCaseSensitive)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindNthSplitAtSectionCS(n, pSubStrOrPos[1], pSubStrOrPos[2], pCaseSensitive)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindNthSplitCS(n, pSubStrOrPos, pCaseSensitive)
 
 		but isList(pSubStrOrPos)
@@ -69047,7 +69047,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n must be a number greater then 0.")
 			ok
 
-			if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+			if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 				StzRaise("Incorrect param type! anPos must be a list of numbers.")
 			ok
 
@@ -69126,14 +69126,14 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindNthSplitCS(n, pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
 			return This.FindNthSplitAtSubStringCS(n, pcSubStr, pCaseSensitive)
 
 		def FindNthSplitAtThisSubStringCS(n, pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -69145,14 +69145,14 @@ class stzString from stzObject
 			return This.FindNthSplitAtSubStringCS(n, pcSubStr, pCaseSensitive)
 
 		def FindNthSplitCSZ(n, pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
 			return This.FindNthSplitAtSubStringCS(n, pcSubStr, pCaseSensitive)
 
 		def FindNthSplitAtThisSubStringCSZ(n, pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -69347,7 +69347,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -69380,19 +69380,19 @@ class stzString from stzObject
 		if isString(pSubStrOrPos)
 			return This.FindNthSplitBeforeSubStringCS(n, pSubStrOrPos, pCaseSensitive)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfStrings()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfStrings()
 			return This.FindNthSplitBeforeSubStringsCS(n, pSubStrOrPos, pCaseSensitive)
 
 		but isNumber(pSubStrOrPos)
 			return This.FindNthSplitBeforePosition(n, pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindNthSplitBeforePositions(n, pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindNthSplitBeforeSection(n, pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindNthSplitBeforeSections(n, pSubStrOrPos[1], pSubStrOrPos[2])
 
 		but isList(pSubStrOrPos)
@@ -69489,7 +69489,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -69702,7 +69702,7 @@ class stzString from stzObject
 	#--------------------------------------------#
 
 	def FindNthSplitBeforeSections(n, paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -69739,7 +69739,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -69875,7 +69875,7 @@ class stzString from stzObject
 	#---------------------------------------------#
 
 	def FindNthSplitAfterPositions(n, anPos)
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -70073,7 +70073,7 @@ class stzString from stzObject
 	#-------------------------------------------#
 
 	def FindNthSplitAfterSections(n, paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -70100,7 +70100,7 @@ class stzString from stzObject
 	#--------------------------------------------------------------#
 
 	def FindNthSplitAfterSectionsIB(n, paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -70377,13 +70377,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.FindNthSplitAtPositionZZ(n, pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindNthSplitAtPositionsZZ(n, pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindNthSplitAtSectionZZ(n, pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindNthSplitAtSectionsZZ(n, pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -70470,7 +70470,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and Q(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -70540,13 +70540,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.FindNthSplitAtPositionZZ(n, pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindNthSplitAtPositionsZZ(n, pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindNthSplitAtSectionZZ(n, pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindNthSplitAsSectionsZZ(n, pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -70635,7 +70635,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -70683,14 +70683,14 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindNthSplitCSZZ(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
 			return This.FindNthSplitAtSubStringCSZZ(n, pcSubStr, pCaseSensitive)
 
 		def FindNthSplitAtThisSubStringCSZZ(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -70702,14 +70702,14 @@ class stzString from stzObject
 			return This.FindNthSplitAtSubStringCSZZ(n, pcSubStr, pCaseSensitive)
 
 		def FindNthSplitAsSectionsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
 			return This.FindNthSplitAtSubStringCSZZ(n, pcSubStr, pCaseSensitive)
 
 		def FindNthSplitAtThisSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -70866,7 +70866,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -70900,19 +70900,19 @@ class stzString from stzObject
 		if isString(pSubStrOrPos)
 			return This.FindNthSplitBeforeSubStringCSZZ(n, pSubStrOrPos, pCaseSensitive)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfStrings()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfStrings()
 			return This.FindNthSplitBeforeSubStringsCSZZ(n, pSubStrOrPos, pCaseSensitive)
 
 		but isNumber(pSubStrOrPos)
 			return This.FindNthSplitBeforePositionZZ(n, pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindNthSplitBeforePositionsZZ(n, pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindNthSplitBeforeSectionZZ(n, pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindNthSplitBeforeSectionsZZ(n, pSubStrOrPos[1], pSubStrOrPos[2])
 
 		but isList(pSubStrOrPos)
@@ -71009,7 +71009,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -71222,7 +71222,7 @@ class stzString from stzObject
 	#---------------------------------------------------------#
 
 	def FindNthSplitBeforeSectionsZZ(n, paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -71259,7 +71259,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -71392,7 +71392,7 @@ class stzString from stzObject
 	#----------------------------------------------------------#
 
 	def FindNthSplitAfterPositionsZZ(n, anPos)
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -71589,7 +71589,7 @@ class stzString from stzObject
 	#--------------------------------------------------------#
 
 	def FindNthSplitAfterSectionsZZ(n, paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -71616,7 +71616,7 @@ class stzString from stzObject
 	#---------------------------------------------------------------------------#
 
 	def FindNthSplitAfterSectionsIBZZ(n, paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -71890,13 +71890,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.FindLastSplitAtPosition(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindLastSplitAtPositions(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindLastSplitAtSection(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindLastSplitAtSections(pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -71983,7 +71983,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and Q(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -72082,13 +72082,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.FindLastSplitAtPosition(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindLastSplitAtPositions(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindLastSplitAtSection(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindLastSplit(pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -72183,7 +72183,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -72231,14 +72231,14 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindLastSplitCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
 			return This.FindLastSplitAtSubStringCS(pcSubStr, pCaseSensitive)
 
 		def FindLastSplitAtThisSubStringCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -72250,14 +72250,14 @@ class stzString from stzObject
 			return This.FindLastSplitAtSubStringCS(pcSubStr, pCaseSensitive)
 
 		def FindLastSplitCSZ(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
 			return This.FindLastSplitAtSubStringCS(pcSubStr, pCaseSensitive)
 
 		def FindLastSplitAtThisSubStringCSZ(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -72414,7 +72414,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -72445,7 +72445,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -72479,19 +72479,19 @@ class stzString from stzObject
 		if isString(pSubStrOrPos)
 			return This.FindLastSplitBeforeSubStringCS(pSubStrOrPos, pCaseSensitive)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfStrings()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfStrings()
 			return This.FindLastSplitBeforeSubStringsCS(pSubStrOrPos, pCaseSensitive)
 
 		but isNumber(pSubStrOrPos)
 			return This.FindLastSplitBeforePosition(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindLastSplitBeforePositions(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindLastSplitBeforeSection(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindLastSplitBeforeSections(pSubStrOrPos[1], pSubStrOrPos[2])
 
 		but isList(pSubStrOrPos)
@@ -72588,7 +72588,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -72801,7 +72801,7 @@ class stzString from stzObject
 	#---------------------------------------------#
 
 	def FindLastSplitBeforeSections(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -72838,7 +72838,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -72974,7 +72974,7 @@ class stzString from stzObject
 	#----------------------------------------------#
 
 	def FindLastSplitAfterPositions(anPos)
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -73172,7 +73172,7 @@ class stzString from stzObject
 	#--------------------------------------------#
 
 	def FindLastSplitAfterSections(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -73199,7 +73199,7 @@ class stzString from stzObject
 	#---------------------------------------------------------------#
 
 	def FindLastSplitAfterSectionsIB(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -73588,13 +73588,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.FindFirstSplitAtPositionZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindFirstSplitAtPositionsZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindFirstSplitAtSectionZZ(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindFirstSplitAtSectionsZZ(pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -73681,7 +73681,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and Q(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -73780,13 +73780,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.FindFirstSplitAtPositionZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindFirstSplitAtPositionsZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindFirstSplitAtSectionZZ(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindFirstSplitAsSectionsZZ(pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -73875,7 +73875,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -73923,14 +73923,14 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindFirstSplitCSZZ(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
 			return This.FindFirstSplitAtSubStringCSZZ(pcSubStr, pCaseSensitive)
 
 		def FindFirstSplitAtThisSubStringCSZZ(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -73942,14 +73942,14 @@ class stzString from stzObject
 			return This.FindFirstSplitAtSubStringCSZZ(pcSubStr, pCaseSensitive)
 
 		def FindFirstSplitAsSectionsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
 			return This.FindFirstSplitAtSubStringCSZZ(pcSubStr, pCaseSensitive)
 
 		def FindFirstSplitAtThisSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -74106,7 +74106,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -74140,19 +74140,19 @@ class stzString from stzObject
 		if isString(pSubStrOrPos)
 			return This.FindFirstSplitBeforeSubStringCSZZ(pSubStrOrPos, pCaseSensitive)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfStrings()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfStrings()
 			return This.FindFirstSplitBeforeSubStringsCSZZ(pSubStrOrPos, pCaseSensitive)
 
 		but isNumber(pSubStrOrPos)
 			return This.FindFirstSplitBeforePositionZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindFirstSplitBeforePositionsZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindFirstSplitBeforeSectionZZ(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindFirstSplitBeforeSectionsZZ(pSubStrOrPos[1], pSubStrOrPos[2])
 
 		but isList(pSubStrOrPos)
@@ -74249,7 +74249,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -74462,7 +74462,7 @@ class stzString from stzObject
 	#-----------------------------------------------------------#
 
 	def FindFirstSplitBeforeSectionsZZ(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -74499,7 +74499,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -74632,7 +74632,7 @@ class stzString from stzObject
 	#------------------------------------------------------------#
 
 	def FindFirstSplitAfterPositionsZZ(anPos)
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -74829,7 +74829,7 @@ class stzString from stzObject
 	#----------------------------------------------------------#
 
 	def FindFirstSplitAfterSectionsZZ(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -74856,7 +74856,7 @@ class stzString from stzObject
 	#-----------------------------------------------------------------------------#
 
 	def FindFirstSplitAfterSectionsIBZZ(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -75215,13 +75215,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.FindLastSplitAtPositionZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindLastSplitAtPositionsZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindLastSplitAtSectionZZ(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindLastSplitAtSectionsZZ(pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -75308,7 +75308,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and Q(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -75407,13 +75407,13 @@ class stzString from stzObject
 		but isNumber(pSubStrOrPos)
 			return This.FindLastSplitAtPositionZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindLastSplitAtPositionsZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindLastSplitAtSectionZZ(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindLastSplitAsSectionsZZ(pSubStrOrPos)
 
 		but isList(pSubStrOrPos)
@@ -75502,7 +75502,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -75550,14 +75550,14 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindLastSplitCSZZ(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
 			return This.FindLastSplitAtSubStringCSZZ(pcSubStr, pCaseSensitive)
 
 		def FindLastSplitAtThisSubStringCSZZ(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -75569,14 +75569,14 @@ class stzString from stzObject
 			return This.FindLastSplitAtSubStringCSZZ(pcSubStr, pCaseSensitive)
 
 		def FindLastSplitAsSectionsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
 			return This.FindLastSplitAtSubStringCSZZ(pcSubStr, pCaseSensitive)
 
 		def FindLastSplitAtThisSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubstr).IsAtOrAtSubStringNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubstr).IsAtOrAtSubStringNamedParam()
 				pcSubStr = pcSubstr[2]
 			ok
 
@@ -75733,7 +75733,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -75767,19 +75767,19 @@ class stzString from stzObject
 		if isString(pSubStrOrPos)
 			return This.FindLastSplitBeforeSubStringCSZZ(pSubStrOrPos, pCaseSensitive)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfStrings()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfStrings()
 			return This.FindLastSplitBeforeSubStringsCSZZ(pSubStrOrPos, pCaseSensitive)
 
 		but isNumber(pSubStrOrPos)
 			return This.FindLastSplitBeforePositionZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
 			return This.FindLastSplitBeforePositionsZZ(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsPairOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsPairOfNumbers()
 			return This.FindLastSplitBeforeSectionZZ(pSubStrOrPos[1], pSubStrOrPos[2])
 
-		but isList(pSubStrOrPos) and Q(pSubStrOrPos).IsListOfPairsOfNumbers()
+		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfPairsOfNumbers()
 			return This.FindLastSplitBeforeSectionsZZ(pSubStrOrPos[1], pSubStrOrPos[2])
 
 		but isList(pSubStrOrPos)
@@ -75876,7 +75876,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -76089,7 +76089,7 @@ class stzString from stzObject
 	#----------------------------------------------------------#
 
 	def FindLastSplitBeforeSectionsZZ(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -76126,7 +76126,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -76259,7 +76259,7 @@ class stzString from stzObject
 	#-----------------------------------------------------------#
 
 	def FindLastSplitAfterPositionsZZ(anPos)
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
@@ -76456,7 +76456,7 @@ class stzString from stzObject
 	#---------------------------------------------------------#
 
 	def FindLastSplitAfterSectionsZZ(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -76483,7 +76483,7 @@ class stzString from stzObject
 	#----------------------------------------------------------------------------#
 
 	def FindLastSplitAfterSectionsIBZZ(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -77433,7 +77433,7 @@ class stzString from stzObject
 	def PartsAndPartitionersUsingCS(pcPartitionExpr, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
+			if isList(pcPartitionExpr) and StzListQ(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
 				pcPartitionExpr = pcPartitionExpr[2]
 			ok
 
@@ -77529,7 +77529,7 @@ class stzString from stzObject
 	def PartsAndPartitionersUsingCSXT(pcPartitionExpr, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
+			if isList(pcPartitionExpr) and StzListQ(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
 				pcPartitionExpr = pcPartitionExpr[2]
 			ok
 
@@ -77626,7 +77626,7 @@ class stzString from stzObject
 	def PartitionersAndPartsUsingCS(pcPartitionExpr, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
+			if isList(pcPartitionExpr) and StzListQ(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
 				pcPartitionExpr = pcPartitionExpr[2]
 			ok
 
@@ -77723,7 +77723,7 @@ class stzString from stzObject
 	def PartitionersAndPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
+			if isList(pcPartitionExpr) and StzListQ(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
 				pcPartitionExpr = pcPartitionExpr[2]
 			ok
 
@@ -77819,7 +77819,7 @@ class stzString from stzObject
 	def FindPartsUsingCS(pcPartitionExpr, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
+			if isList(pcPartitionExpr) and StzListQ(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
 				pcPartitionExpr = pcPartitionExpr[2]
 			ok
 
@@ -77923,7 +77923,7 @@ class stzString from stzObject
 	def FindPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
+			if isList(pcPartitionExpr) and StzListQ(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
 				pcPartitionExpr = pcPartitionExpr[2]
 			ok
 
@@ -78027,7 +78027,7 @@ class stzString from stzObject
 	def FindPartsAsSectionsUsingCS(pcPartitionExpr, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
+			if isList(pcPartitionExpr) and StzListQ(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
 				pcPartitionExpr = pcPartitionExpr[2]
 			ok
 
@@ -78130,7 +78130,7 @@ class stzString from stzObject
 
 	def FindPartsAsSectionsUsingCSXT(pcPartitionExpr, pCaseSensitive)
 		if CheckingParams()
-			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
+			if isList(pcPartitionExpr) and StzListQ(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
 				pcPartitionExpr = pcPartitionExpr[2]
 			ok
 
@@ -78608,7 +78608,7 @@ class stzString from stzObject
 	#=============================#
 
 	def Divide(paByDividor)
-		if isList(paByDividor) and Q(paByDividor).IsByNamedParam()
+		if isList(paByDividor) and StzListQ(paByDividor).IsByNamedParam()
 			paByDividor = paByDividor[2]
 		ok
 
@@ -79201,11 +79201,11 @@ class stzString from stzObject
 
 	def IsNeitherCS(pcStr1, pcStr2, pCaseSensitive)
 		if CheckingParams()
-			if isList(pcStr1) and Q(pcStr1).IsEqualToNamedParam()
+			if isList(pcStr1) and StzListQ(pcStr1).IsEqualToNamedParam()
 				pcStr1 = pcStr1[2]
 			ok
 
-			if isList(pcStr2) and Q(pcStr2).IsNorNamedParam()
+			if isList(pcStr2) and StzListQ(pcStr2).IsNorNamedParam()
 				pcStr2 = pcStr2[2]
 			ok
 
@@ -79255,7 +79255,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcOtherStr) and Q(pcOtherStr).IsThanNamedParam()
+			if isList(pcOtherStr) and StzListQ(pcOtherStr).IsThanNamedParam()
 				pcOtherStr = pcOtherStr[2]
 			ok
 
@@ -79302,7 +79302,7 @@ class stzString from stzObject
 	def IsLarger(pcOtherStr)
 		if CheckingParams()
 
-			if isList(pcOtherStr) and Q(pcOtherStr).IsThanNamedParam()
+			if isList(pcOtherStr) and StzListQ(pcOtherStr).IsThanNamedParam()
 				pcOtherStr = pcOtherStr[2]
 			ok
 
@@ -80210,7 +80210,7 @@ class stzString from stzObject
 		ok
 
 
-		if isList(p1) and Q(p1).IsEachNamedParam()
+		if isList(p1) and StzListQ(p1).IsEachNamedParam()
 			p1 = p1[2]
 		ok
 
@@ -80224,7 +80224,7 @@ class stzString from stzObject
 				if isNumber(p2)
 					This.RemoveSubStringAtPositionCS(p2, p1, pCaseSensitive)
 
-				but isList(p2) and Q(p2).IsListOfNumbers()
+				but isList(p2) and StzListQ(p2).IsListOfNumbers()
 					This.RemoveSubStringAtPositionsCS(p2, p1, pCaseSensitive)
 
 				else
@@ -80247,7 +80247,7 @@ class stzString from stzObject
 			but oP2.IsAtPositionsNamedParam()
 				p2 = p2[2]
 	
-				if NOT ( isList(p2) and Q(p2).IsListOfNumbers() )
+				if NOT ( isList(p2) and StzListQ(p2).IsListOfNumbers() )
 					stzRaise("Incorrect param type! p2 must be a list of numbers.")
 				ok
 	
@@ -80265,7 +80265,7 @@ class stzString from stzObject
 	
 				# Removing Nth from
 
-				but isList(p1) and Q(p1).IsNthNamedParam()
+				but isList(p1) and StzListQ(p1).IsNthNamedParam()
 					n = p1[2][1]
 					p1 = p1[2][2]
 
@@ -80275,14 +80275,14 @@ class stzString from stzObject
 
 				# Removing first from
 
-				but isList(p1) and Q(p1).IsFirstNamedParam()
+				but isList(p1) and StzListQ(p1).IsFirstNamedParam()
 					p1 = p1[2]
 
 					cNewSubStr = Q(p2).
 							RemoveFirstCSQ(p1, pCaseSensitive).
 							Content()
 
-				but isList(p1) and Q(p1).IslastNamedParam()
+				but isList(p1) and StzListQ(p1).IslastNamedParam()
 					p1 = p1[2]
 
 					cNewSubStr = Q(p2).
@@ -80373,7 +80373,7 @@ class stzString from stzObject
 			but oP2.IsOneOfTheseNamedParams([ :Around, :AroundEach ])
 				p2 = p2[2]
 
-				if isList(p1) and Q(p1).IsPairOfStrings()
+				if isList(p1) and StzListQ(p1).IsPairOfStrings()
 
 					This.ReplaceCS(
 						(p1[1] + p2 + p1[2]),
@@ -80467,7 +80467,7 @@ class stzString from stzObject
 					p2[2] = p2[2][2]
 				ok
 
-				if NOT ( isList(p2) and Q(p2).IsPairOfStrings() )
+				if NOT ( isList(p2) and StzListQ(p2).IsPairOfStrings() )
 					stzRaise("Incorrect param type! p2 must be a pair of strings.")
 				ok
 
@@ -80509,13 +80509,13 @@ class stzString from stzObject
 					cBound1 = p2[2]
 					cBound2 = p2[2]
 
-				but isList(p2[2]) and Q(p2[2]).IsPairOfStrings()
+				but isList(p2[2]) and StzListQ(p2[2]).IsPairOfStrings()
 					cBound1 = p2[2][1]
 					cBound2 = p2[2][2]
 
 				but isList(p2[2]) and len(p2[2]) = 2 and
 				    isString(p2[2][1]) and
-				    isList(p2[2][2]) and Q(p2[2][2]).IsAndNamedParam()
+				    isList(p2[2][2]) and StzListQ(p2[2][2]).IsAndNamedParam()
 
 					cBound1 = p2[2][1]
 					cBound2 = p2[2][2][2]
@@ -82172,9 +82172,9 @@ class stzString from stzObject
 	 #    REMOVING MANY RANGES OF CHARS AT THE SAME TIME   # 
 	#-----------------------------------------------------#
 
-	def RemoveManyRanges(paRanges) #TODO // use for loop instead of for/in
+	def RemoveManyRanges(paRanges)
 
-		if NOT ( isList(paRanges) and Q(paRanges).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paRanges) and StzListQ(paRanges).IsListOfPairsOfNumbers() )
 
 			stzRaise([
 				:Where = "stzString > RemoveManyRanges(paRanges)",
@@ -82408,7 +82408,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n1 must be a number or string.")
 			ok
 
-			if isList(pcNewSubStr) and Q(pcNewSubStr).IsWithOrByNamedParam()
+			if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithOrByNamedParam()
 				pcNewSubStr = pcNewSubStr[2]
 			ok
 
@@ -82491,7 +82491,7 @@ class stzString from stzObject
 		? o1.Content() #--> "_word1_word2_word3_"
 		*/
 
-		if NOT( isList(paListOfSections) and Q(paListOfSections).IsListOfPairsOfNumbers() )
+		if NOT( isList(paListOfSections) and StzListQ(paListOfSections).IsListOfPairsOfNumbers() )
 
 			stzRaise([
 				:Where = "stzString > ReplaceManySections()",
@@ -82995,7 +82995,7 @@ class stzString from stzObject
 	def SwapSections( panSection1, panSection2 )
 
 		if CheckingParam() = _TRUE_
-			if isList(panSection2) and Q(panSection2).IsWithOrAndNamedParams()
+			if isList(panSection2) and StzListQ(panSection2).IsWithOrAndNamedParams()
 				panSection2 = panSection2[2]
 			ok
 	
@@ -83028,7 +83028,7 @@ class stzString from stzObject
 
 	def SwapManyPairsOfSections(paPairsOfSections)
 		if CheckingParam() = _TRUE_
-			if NOT ( isList(paPairsOfSections) and Q(paPairsOfSections).IsListOfPairsOfSections() )
+			if NOT ( isList(paPairsOfSections) and StzListQ(paPairsOfSections).IsListOfPairsOfSections() )
 				StzRaise("Incorrect param type! paPairsOfSections must be a list of pairs of sections, each section being a pair of numbers.")
 			ok
 		ok
@@ -83514,11 +83514,11 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 				pcSubStr = pcSubStr[2]
 			ok
 
-			if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
+			if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
 				nStart = nStart[2]
 			ok
 
@@ -88046,11 +88046,11 @@ class stzString from stzObject
 
 		*/
 
-		if isList(paSections) and Q(paSections).IsSectionsNamedParam()
+		if isList(paSections) and StzListQ(paSections).IsSectionsNamedParam()
 			paSections = paSections[2]
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -88132,15 +88132,15 @@ class stzString from stzObject
 
 		# Checking params
 
-		if isList(pcSeparator) and Q(pcSeparator).IsOneOfTheseNamedParams([ :Using, :Separator ])
+		if isList(pcSeparator) and StzListQ(pcSeparator).IsOneOfTheseNamedParams([ :Using, :Separator ])
 			pcSeparator = pcSeparator[2]
 		ok
 
-		if isList(pnStep) and Q(pnStep).IsOneOfTheseNamedParams([ :Step, :Stepping, :EachNChars ])
+		if isList(pnStep) and StzListQ(pnStep).IsOneOfTheseNamedParams([ :Step, :Stepping, :EachNChars ])
 			pnStep = pnStep[2]
 		ok
 
-		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -88921,7 +88921,7 @@ class stzString from stzObject
 	#----------------------------------------------#
 
 	def SpacifySections(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -88966,7 +88966,7 @@ class stzString from stzObject
 
 	def UnSpacifySubStringCS(pcSubStr, pCaseSensitive)
 
-		if NOT ( isString(pcSubStr) and Q(pcSubStr).ContainsSpaces() )
+		if NOT ( isString(pcSubStr) and StzStringQ(pcSubStr).ContainsSpaces() )
 			StzRaise("Incorrect param! pcSubStr must be a string containing spaces.")
 		ok
 
@@ -89000,7 +89000,7 @@ class stzString from stzObject
 	#------------------------------------------------#
 
 	def UnSpacifySections(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and StzListQ(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
@@ -89624,7 +89624,7 @@ class stzString from stzObject
 	def AlignXT(nWidth, cChar, cDirection)
 		# cChar is the char to fill the 'blanks" with.
 
-		if isList(nWidth) and Q(nWidth).IsWidthNamedParam()
+		if isList(nWidth) and StzListQ(nWidth).IsWidthNamedParam()
 			nWidth = nWidth[2]
 		ok
 
@@ -92797,7 +92797,7 @@ class stzString from stzObject
 		if isString(pDescriptor)
 			return This.AllCharsAreXT([ pDescriptor ], :EvalDirection = :Nothing)
 
-		but isList(pDescriptor) and Q(pDescriptor).IsListOfStrings()
+		but isList(pDescriptor) and StzListQ(pDescriptor).IsListOfStrings()
 			return This.AllCharsAreXT(pDescriptor, :EvalDirection = :Nothing)
 
 		ok	
@@ -93745,7 +93745,7 @@ class stzString from stzObject
 			return This.CharsAtPositionsQRT(panPos, :stzList)
 
 		def CharsAtPositionsQRT(panPos, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnTypeNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnTypeNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -93826,11 +93826,11 @@ class stzString from stzObject
 			return This.SecondCharQRT(:stzString)
 
 		def SecondCharQRT(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNameSpace()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNameSpace()
 				pcReturnType = pcReturnType[2]
 			ok
 
-			if NOT ( isString(pcReturnType) and Q(pcReturnType).IsAStzClassName() )
+			if NOT ( isString(pcReturnType) and StringQ(pcReturnType).IsAStzClassName() )
 				StzRaise("Incorrect param type! pcReturnType must be a string containing a Softanza class name.")
 			ok
 
@@ -94500,7 +94500,7 @@ class stzString from stzObject
 	#----------------------------------------------------------#
 
 	def IsLetterOf(pcOtherStr)
-		if This.IsLetter() and Q(pcOtherStr).ContainsLetter(This.Content())
+		if This.IsLetter() and StzStringQ(pcOtherStr).ContainsLetter(This.Content())
 			return _TRUE_
 		else
 			return _FALSE_
@@ -94774,7 +94774,7 @@ class stzString from stzObject
 	#-----------------#
 
 	def Multiply(pValue)
-		if isList(pValue) and Q(pValue).IsByNamedParam()
+		if isList(pValue) and StzListQ(pValue).IsByNamedParam()
 			pValue = pValue[2]
 		ok
 
@@ -95729,7 +95729,7 @@ class stzString from stzObject
 
 		for i = 1 to nLen
 			item = paList[i]
-			if isString(item) and Q(item).IsEqualToCS( This.String(), pCaseSensitive )
+			if isString(item) and StzStringQ(item).IsEqualToCS( This.String(), pCaseSensitive )
 				bResult = _TRUE_
 				exit
 			ok
@@ -95772,7 +95772,7 @@ class stzString from stzObject
 	// TODO: Add same function to other classes
 
 	def IsEitherCS(pcStr1, pcStr2, pCaseSensitive)
-		if isList(pcStr2) and Q(pcStr2).IsOrNamedParam()
+		if isList(pcStr2) and StzListQ(pcStr2).IsOrNamedParam()
 			pcStr2 = pcStr2[2]
 		ok
 
@@ -95998,7 +95998,7 @@ class stzString from stzObject
 
 		*/
 
-		if isList(pcSubStr2) and Q(pcSubStr2).IsOneOfTheseNamedParams([ :And, :With, :By ])
+		if isList(pcSubStr2) and StzListQ(pcSubStr2).IsOneOfTheseNamedParams([ :And, :With, :By ])
 			pcSubStr2 = pcSubStr2[2]
 		ok
 
@@ -96347,7 +96347,7 @@ class stzString from stzObject
 	#TODO // other algortithms can be added through RingQt
 
 	def Hash(pcHashingAlgo)
-		if isList(pcHashingAlgo) and Q(pcHashingAlgo).IsWithOrUsingOrByNamedParam()
+		if isList(pcHashingAlgo) and StzListQ(pcHashingAlgo).IsWithOrUsingOrByNamedParam()
 			pcHashingAlgo = pcHashingAlgo[2]
 		ok
 
@@ -97548,7 +97548,7 @@ class stzString from stzObject
 				This.AppendWith(pValue.Content())
 				return This
 		
-			but isList(pValue) and Q(pValue).IsListOfStrings()
+			but isList(pValue) and StzListQ(pValue).IsListOfStrings()
 				cExtension = QRT(pValue, :stzListOfStrings).Concatenated()
 				cResult = This.Content() + cExtension
 				return cResult
@@ -97569,7 +97569,7 @@ class stzString from stzObject
 				This.MultiplyBy(pValue.NumericValue())
 				return This
 
-			but isList(pValue) and Q(pValue).IsListOfStrings()
+			but isList(pValue) and StzListQ(pValue).IsListOfStrings()
 				nLen = len(pValue)
 				cResult = ""
 
@@ -97623,7 +97623,7 @@ class stzString from stzObject
 				return Q(This.SplitToNParts(pValue.NumericValue()))
 		
 			# Native Ring list with numbers
-			but isList(pValue) and Q(pValue).IsListOfNumbers()
+			but isList(pValue) and StzListQ(pValue).IsListOfNumbers()
 				acSplitted = This.SplitToPartsOfSizes(pValue)
 				return acSplitted
 		
@@ -97633,7 +97633,7 @@ class stzString from stzObject
 				return Q(acSplitted)
 		
 			# Native Ring list with where condition
-			but isList(pValue) and Q(pValue).IsPairOfStrings() and
+			but isList(pValue) and StzListQ(pValue).IsPairOfStrings() and
 			    pValue[1] = :where
 
 				acSplitted = This.SplitW(pValue[2])
@@ -97647,7 +97647,7 @@ class stzString from stzObject
 				return Q(acSplitted)
 		
 			# Native Ring list with wherext condition
-			but isList(pValue) and Q(pValue).IsPairOfStrings() and
+			but isList(pValue) and StzListQ(pValue).IsPairOfStrings() and
 			    pValue[1] = :wherext
 
 				acSplitted = This.SplitWXT(pValue[2])
@@ -97661,7 +97661,7 @@ class stzString from stzObject
 				return Q(acSplitted)
 		
 			# Native Ring list of strings
-			but isList(pValue) and Q(pValue).IsListOfStrings()
+			but isList(pValue) and StzListQ(pValue).IsListOfStrings()
 				nLen = len(pValue)
 				acSplitted = This.SplitToNParts(nLen)
 				aResult = Association([ pValue, acSplitted ])
@@ -97675,7 +97675,7 @@ class stzString from stzObject
 				return Q(aResult)
 		
 			# Native Ring hash list
-			but isList(pValue) and Q(pValue).IsHashList()
+			but isList(pValue) and StzListQ(pValue).IsHashList()
 				oHashList = new stzHashList(pValue)
 				aValuesExceptLast = oHashList.ValuesQ().LastItemRemoved()
 		
@@ -97810,7 +97810,7 @@ class stzString from stzObject
 
 		*/
 
-		if NOT ( isList(pacItems) and Q(pacItems).IsListOfStrings() )
+		if NOT ( isList(pacItems) and StzListQ(pacItems).IsListOfStrings() )
 			StzRaise("Incorrect param type! pacItems must be a list of strings.")
 		ok
 
@@ -98292,7 +98292,7 @@ class stzString from stzObject
 			return This.NumbersQRT(:stzList)
 
 		def NumbersQRT(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -98521,11 +98521,11 @@ class stzString from stzObject
 			return This.NumbersComingAfterCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
 		def NumbersComingAfterCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
-			if NOT ( isString(pcReturnType) and Q(pcReturnType).IsStzClassName() )
+			if NOT ( isString(pcReturnType) and StzListQ(pcReturnType).IsStzClassName() )
 				stzRaise("Incorrect param type! pcReturnType must be a string containing a softanza class name.")
 			ok
 
@@ -98940,7 +98940,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcOtherStr) and Q(pcOtherStr).IsWithNamedParam()
+			if isList(pcOtherStr) and StzListQ(pcOtherStr).IsWithNamedParam()
 				pcOtherStr = pcOtherStr[2]
 			ok
 	
@@ -99116,7 +99116,7 @@ class stzString from stzObject
 			n1 = pNumberOfCharsToShow
 			n2 = pNumberOfCharsToShow
 
-		but isList(p) and Q(pNumberOfCharsToShow).IsPairOfNumbers()
+		but isList(p) and StzListQ(pNumberOfCharsToShow).IsPairOfNumbers()
 			n1 = pNumberOfCharsToShow[1]
 			n2 = pNumberOfCharsToShow[2]
 
@@ -99479,7 +99479,7 @@ class stzString from stzObject
 	def SubStringsAreWordsCS(acSubStr, pCaseSensitive) #TODO // check for performance!
 
 		if CheckingParams() = _TRUE_
-			if NOT (isList(acSubStr) and Q(acSubStr).IsLIstOfStrings())
+			if NOT (isList(acSubStr) and StzListQ(acSubStr).IsLIstOfStrings())
 				StzRaise("Incorrect param type! acSubStr must be a list pf strings.")
 			ok
 		ok
@@ -101371,7 +101371,7 @@ class stzString from stzObject
 			return This
 
 	def ReplaceAllOccurrencesCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -101405,7 +101405,7 @@ class stzString from stzObject
 			return This
 
 	def ReplaceAllOccurrences(pcSubStr, pcNewSubStr)
-		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
 

@@ -2,12 +2,9 @@
 
 ## Introduction
 
-Softanza's NamedVars feature enables construction of variable names at runtime. This powerful capability is useful for:
+Softanza’s **Named Variables** feature makes it possible to construct variable names dynamically at runtime. This is especially powerful for generating variables with systematic naming patterns (e.g., `name1`, `name2`, …, `name100`), or variables whose names are derived from runtime data such as user IDs or file hashes. Beyond these basics, Named Variables unlock advanced scenarios in interactive applications, game development, ML/AI workflows, and rule engines.
 
-* Creating variables with systematic naming patterns (name1, name2, ..., name100)
-* Variables whose names depend on runtime data (user IDs, file hashes)
-* Advanced scenarios in interactive apps, game development, ML/AI, and rule engines
-* Near Natural Language programming features
+Softanza also leverages this feature in unique ways: to simulate external languages (Python, JavaScript, C#, SQL, etc.) directly within Ring code, to make objects discoverable in lists through the **Named Objects** feature, and to support the **Near Natural Language Programming** paradigm—where executable natural language can be seamlessly embedded in Ring programs.
 
 ## Core Functions
 
@@ -307,7 +304,11 @@ These advanced operations provide statistical and analytical capabilities for ob
 #--> 2
 ```
 
-## Use Cases
+## Running External Code in Ring
+
+## Wrting Near Natural Language Code
+
+## Other Possible Use Cases
 
 NamedVars makes Softanza particularly suitable for applications requiring high flexibility in variable management and runtime adaptability. They can be particularly powerful for:
 

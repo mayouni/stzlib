@@ -133,7 +133,7 @@ Class stzTable from stzList
 			nCols = 1
 			nRows = 1
 
-			if  Q(paTable).IsPairOfNumbers()
+			if  @IsPairOfNumbers(paTable)
 				nCols = paTable[1]
 				nRows = paTable[2]
 			ok
