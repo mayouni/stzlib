@@ -2,6 +2,8 @@
 
 ## Classic vs Future Actions
 
+Programming traditionally forces immediate execution - each action happens as soon as you call it. Future Actions let you plan a sequence first, then execute it all at once with natural timing control.
+
 **Classic approach - immediate execution:**
 ```ring
 oStr = new stzString("ringo")
@@ -12,13 +14,13 @@ oStr.Remove("o")     # Executes now: "RING"
 
 **Future actions - deferred execution:**
 ```ring
-? BeforeQ("ringo").UppercaseFQ().RemoveFFQ("o").Content()
+? BeforeQ("ringo").IsUppercasedFQ().RemoveFFQ("o").Content()
 #--> "RING"
 ```
 
 ## The Future Syntax
 
-Future actions use specific suffixes:
+The power lies in specific suffixes that control when actions happen and how they chain together:
 
 - **`F`** - "Plan this action"
 - **`FQ`** - "Plan this action and continue chaining"  
@@ -30,27 +32,6 @@ Future actions use specific suffixes:
 - `AndThenQ()` - Sequence connector
 - `ReturnIt()` - Get the final result
 
-## Examples
-
-**Simple sequence:**
-```ring
-? BeforeQ("hello").UppercaseFQ().ReverseFFQ().Content()
-#--> "OLLEH"
-```
-
-**Complex flow:**
-```ring
-? BeforeQ("ringo").UppercaseFQ().SpacifyFQ().
-    RemoveFFQ(" O").Content()
-#--> "R I N G"
-```
-
-**Multiple executions:**
-```ring
-? BeforeQ("test").UppercaseFFQ().     # Execute: "TEST"
-    LowercaseFFQ().Content()          # Execute: "test"
-#--> "test"
-```
 
 ## How It Works
 
@@ -65,6 +46,27 @@ BeforeQ("ring").UppercaseFQ().RemoveFFQ("g")
 # 2. Queue the Remove action  
 # 3. Execute all actions on "ring"
 # 4. Return result: "RIN"
+```
+
+Examples:
+
+```ring
+? BeforeQ("ringo").IsUppercasedFQ().
+	RemoveFFQ("o").
+	AndThenQ().ReturnIt()
+#--> RING
+
+? BeforeQ("ringo").IsUppercasedFQ().AndThenQ().SpacifiedFQ().
+	RemoveFFQ(" o").
+	BoundItWithQ([ "<< ", :and = " >>" ]).
+	AndFinallyQ().ReturnIt()
+#--> << R I N G O >>
+
+? BeforeQ('').UppercasingFQ("ringo").
+	RemoveFFQ("o").FromItQ().
+	SpacifyItQ().
+	AndThenQ().ReturnIt()
+#--> R I N G
 ```
 
 ## Why Future Actions?
