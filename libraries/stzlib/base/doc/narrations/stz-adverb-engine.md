@@ -1,11 +1,10 @@
 # From "Quick" to "Quickly": Programmatic Adverb Formation
 
-
 Softanza `Adverb()` function transforms (any)  word into its proper adverbial form, handling English morphology complexities for programmers generating natural language messages. Softanza uses this function in its `Explain()` methods for data models and visualization, producing descriptions like "This data trends _financially_ upward" or "Performance varies _regionally_" with domain-specific intelligence and extensible rules.
 
-## Beyond Simple Suffix Rules
+## When "-ly" Isn't Enough
 
-What seems straightforward:
+This seems straightforward:
 
 ```ring
 ? Adverb("quick")    #--> quickly
