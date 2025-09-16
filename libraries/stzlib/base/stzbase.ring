@@ -72,6 +72,8 @@
 	load "string/stzRegex.ring"
 	load "string/stzRegexMaker.ring"
 
+	load "string/stzText.ring"
+
 # Loading files related to the LIST module
 
 	load "list/stzHashList.ring"
@@ -141,6 +143,7 @@
 	load "error/stzHexNumberError.ring"
 	load "error/stzOctalNumberError.ring"
 	load "error/stzDecimalToBinaryError.ring"
+
 
 # Loading files related to the DATETIME module
 
@@ -217,4 +220,3 @@
 	load "natural/stzNaturally.ring"
 	load "natural/stzPlural.ring"
 	load "natural/stzSingular.ring"
-	load "natural/stzText.ring"
