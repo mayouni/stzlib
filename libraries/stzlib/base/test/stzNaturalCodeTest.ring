@@ -255,7 +255,6 @@ pf()
 # Executed in 0.11 second(s) in Ring 1.23
 
 /*------
-*/
 
  pr()
 
