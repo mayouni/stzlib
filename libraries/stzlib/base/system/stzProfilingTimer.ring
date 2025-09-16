@@ -66,13 +66,13 @@ func StartProfiler()
 	pr() # From Softanza CORE layer
 
 	func ProfilerOn()
-		_time0 = clock()
+		pr()
 
 	func pron()
-		_time0 = clock()
+		pr()
 
 	func profon()
-		_time0 = clock()
+		pr()
 
 
 func EndProfiler()
@@ -94,4 +94,4 @@ func EndProfiler()
 		pf()
 
 	func prf()
-		Proff()
+		Pf()

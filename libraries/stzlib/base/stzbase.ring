@@ -204,3 +204,17 @@
 	load "cluster/stzLoadBalancer.ring"
 	load "cluster/stzClusterManager.ring"
 	load "cluster/stzClusterMonitor.ring"
+
+# Loading files related to NATURAL module
+
+	load "natural/stzAdverb.ring"
+	load "natural/stzChainOfTruth.ring"
+	load "natural/stzChainOfValue.ring"
+	load "natural/stzConstraints.ring"
+	load "natural/stzEntity.ring"
+	load "natural/stzListOfEntities.ring"
+	load "natural/stzNaturalCode.ring"
+	load "natural/stzNaturally.ring"
+	load "natural/stzPlural.ring"
+	load "natural/stzSingular.ring"
+	load "natural/stzText.ring"

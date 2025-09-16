@@ -21,6 +21,9 @@ func Q(p)
 	return oResult
 
 
+	func @Q(p)
+		return Q(p)
+
 	func The(p)
 		return Q(p)
 
@@ -173,27 +176,6 @@ func Stz(cType, pInfo)
 		StzRaise("Unsupported information! Allowed values are :Methods and :Attributes.")
 	off
 
-#--
-
-func QM(p)
-	obj = Q(p)
-	SetMainObject(obj)
-	return obj
-
-func QRT(p, pcType)
-	if NOT isString(pcType)
-		StzRaise("Invalid param type! pcType should be a string containing the name of a softanza class.")
-	ok
-
-	if Q(pcType).IsStzClassName()
-		cCode = "oResult = new " + pcType + '(' + @@(p) + ')'
-
-		eval(cCode)
-
-		return oResult
-	else
-		StzRaise("Unsupported Softanza type!")
-	ok
 
 # This function tries its best to infere a convenient type
 # by analysing a value hosted in a string

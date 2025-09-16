@@ -83,5 +83,5 @@
 
 # Loading files related to WINGS modules
 
-	load "wings/stzwings.ring"
+//	load "wings/stzwings.ring"
 

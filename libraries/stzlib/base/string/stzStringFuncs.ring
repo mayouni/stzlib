@@ -1899,3 +1899,24 @@ func Lines(str)
 	func @Lines(str)
 		return Lines(str)
 		
+func IsLatin(p)
+
+	if IsChar(p)
+		return StzCharQ(p).IsLatin()
+
+	but isString(p)
+		return StzStringQ(p).IsLatin()
+
+	but IsListOfChars(p)
+		return StzListOfCharsQ(p).IsLatin()
+
+	but IsListOfStrings(p)
+		return StzListOfStringsQ(p).IsLatin()
+
+	else
+		StzRaise("Unsupported param type!")
+	ok
+
+	func @IsLatin(p)
+		return IsLatin(p)
+

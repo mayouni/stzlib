@@ -183,7 +183,7 @@ func HasAttribute(pObject, cAttr)
 
 func StzNamedObject(paNamed)
 	if CheckingParams()
-		if NOT (isList(paNamed) and Q(paNamed).IsPairOfStringAndObject())
+		if NOT (isList(paNamed) and StzListQ(paNamed).IsPairOfStringAndObject())
 			StzRaise("Incorrect param type! paNamed must be a pair of string and object.")
 		ok
 	ok
@@ -1832,7 +1832,7 @@ class stzObject
 		#>
 
 	def SetVarName(pcVarName)
-		if isList(pcVarName) and Q(pcVarName).IsToOrAsNamedParams()
+		if isList(pcVarName) and StzListQ(pcVarName).IsToOrAsNamedParams()
 			pcVarName = pcVarName[2]
 		ok
 
@@ -2090,7 +2090,7 @@ class stzObject
 		_nLen_ = len(paTypes)
 
 		for @i = 1 to _nLen_
-			if isList(_aTypes_[@i]) and Q(_aTypes_[@i]).IsOrNamedParam()
+			if isList(_aTypes_[@i]) and StzListQ(_aTypes_[@i]).IsOrNamedParam()
 				_aTypes_[@i] = _aTypes_[@i][2]
 			ok
 		next
@@ -2131,7 +2131,7 @@ class stzObject
 		_nLen_ = len(_aTypes_)
 
 		for @i = 1 to _nLen_
-			if isList(_aTypes_[@i]) and Q(_aTypes_[@i]).IsOrOrAndNamedParam()
+			if isList(_aTypes_[@i]) and StzListQ(_aTypes_[@i]).IsOrOrAndNamedParam()
 				_aTypes_[@i] = _aTypes_[@i][2]
 			ok
 		next
@@ -2516,6 +2516,7 @@ class stzObject
 			return MainObject()
 
 	def Are(pcType)
+
 		/* Example
 
 		? Q([ 10, 20, 30 ]).Are(:Numbers)
@@ -2532,12 +2533,14 @@ class stzObject
 		ok
 
 		cCode = 'bResult = This.IsListOf'+ pcType + '()'
+
 		eval(cCode)
 		return bResult
 
 		#< @FunctionAlternativeForms
 
 		def AreQ(pcType)
+
 			if This.Are(pcType) = _TRUE_
 
 				if pcType = "numbers" or pcType = "stznumbers"
@@ -2603,7 +2606,7 @@ class stzObject
 
 		item1 = This.Content()[1]
 		item2 = This.Content()[2]
-		if isList(item2) and Q(item2).IsAndNamedParam()
+		if isList(item2) and StzListQ(item2).IsAndNamedParam()
 
 			item2 = item2[2]
 		ok
@@ -2622,7 +2625,7 @@ class stzObject
 	
 			item1 = This.Content()[1]
 			item2 = This.Content()[2]
-			if isList(item2) and Q(item2).IsAndNamedParam()
+			if isList(item2) and StzListQ(item2).IsAndNamedParam()
 	
 				item2 = item2[2]
 			ok
@@ -3664,6 +3667,9 @@ class stzObject
 		def _Q(any)
 			return Q( This._(any) )
 
+		def Q(any)
+			return @Q( This._(any) )
+
 		def _QM(any)
 			return MainObject()
 
@@ -3857,7 +3863,7 @@ class stzObject
 	#==
 
 	def IsEitherA(pcType1, pcType2)
-		if isList(pcType2) and Q(pcType2).IsOrNamedParam()
+		if isList(pcType2) and StzListQ(pcType2).IsOrNamedParam()
 			pcType2 = pcType2[2]
 		ok
 
@@ -3892,7 +3898,7 @@ class stzObject
 		#>
 
 	def IsNeitherA(pcType1, pcType2)
-		if isList(pcType2) and Q(pcType2).IsNorNamedParam()
+		if isList(pcType2) and StzListQ(pcType2).IsNorNamedParam()
 			pcType2 = pcType2[2]
 		ok
 
@@ -3932,7 +3938,7 @@ class stzObject
 	#-------------------------#
 
 	def IsEither(pValue1, pValue2)
-		if isList(pValue2) and Q(pValue2).IsOrNamedParam()
+		if isList(pValue2) and StzListQ(pValue2).IsOrNamedParam()
 			pValue2 = pValue2[2]
 		ok
 
@@ -4192,7 +4198,7 @@ class stzObject
 			pnSize = pnSize[2]
 		ok
 
-		if NOT ( isNumber(pnSize) or (isList(pnSize) and Q(pnSize).IsPairOfNumbers()) )
+		if NOT ( isNumber(pnSize) or (isList(pnSize) and StzListQ(pnSize).IsPairOfNumbers()) )
 			StzRaise("Incorrect param type! pnSize must be a number.")
 		ok
 
@@ -4393,7 +4399,7 @@ class stzObject
 
 	def ToNumberW(pcCode)
 
-		if isList(pcCode) and Q(pcCode).IsUsingNamedParam()
+		if isList(pcCode) and StzListQ(pcCode).IsUsingNamedParam()
 			pcCode = pcCode[2]
 		ok
 
@@ -4609,7 +4615,7 @@ class stzObject
 			pStrOrItem = pStrOrItem[2]
 		ok
 
-		if isList(pnStartingAt) and Q(pnstartingAt).IsStartingAtNamedParam()
+		if isList(pnStartingAt) and StzListQ(pnstartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -4811,7 +4817,7 @@ class stzObject
 				pStrOrItem = pStrOrItem[2]
 			ok
 	
-			if isList(pnStartingAt) and Q(pnstartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and StzListQ(pnstartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 		ok
@@ -5018,11 +5024,11 @@ class stzObject
 
 	def @IsNeither(pcType1, pcType2)
 		if CheckingParams()
-			if isList(pcType1) and Q(pcType1).IsOfTypeNamedParam()
+			if isList(pcType1) and StzListQ(pcType1).IsOfTypeNamedParam()
 				pcType1 = pcType1[2]
 			ok
 
-			if isList(pcType2) and Q(pcType2).IsNorNamedParam()
+			if isList(pcType2) and StzListQ(pcType2).IsNorNamedParam()
 				pcType2 = pcType2[2]
 			ok
 
@@ -5124,13 +5130,13 @@ class stzObject
 		*/
 		cBeforeOrAfter = ""
 
-		if isList(pcBeforeOrAfter) and Q(pcBeforeOrAfter).IsBeforeOrAfterNamedParam()
+		if isList(pcBeforeOrAfter) and StzListQ(pcBeforeOrAfter).IsBeforeOrAfterNamedParam()
 			cTemp = pcBeforeOrAfter[1]
 
 			pcBeforeOrAfter = pcBeforeOrAfter[2]
 		ok
 
-		if isList(pIn) and Q(pIn).IsInNamedParam()
+		if isList(pIn) and StzListQ(pIn).IsInNamedParam()
 			pIn = pIn[2]
 		ok
 
@@ -5275,7 +5281,7 @@ class stzObject
 
 	def OccursNTimesCS( n, pIn, pCaseSensitive )
 
-		if isList(pIn) and Q(pIn).IsInNamedParam()
+		if isList(pIn) and StzListQ(pIn).IsInNamedParam()
 			pIn = pIn[2]
 		ok
 
@@ -5342,7 +5348,7 @@ class stzObject
 
 		*/
 
-		if isList(pIn) and Q(pIn).IsInNamedParam()
+		if isList(pIn) and StzListQ(pIn).IsInNamedParam()
 			pIn = pIn[2]
 		ok
 
@@ -5350,7 +5356,7 @@ class stzObject
 			StzRaise("Incorrect param type! pcIn must be a string or list.")
 		ok
 
-		if isList(pnAt) and Q(pnAt).IsAtOrAtPositionNamedParam()
+		if isList(pnAt) and StzListQ(pnAt).IsAtOrAtPositionNamedParam()
 			pnAt = pnAt[2]
 		ok
 	
@@ -5439,7 +5445,7 @@ class stzObject
 	#----------------------------------------------------#
 
 	def OccursForTheLastTimeCS(pIn, pnAt, pCaseSensitive)
-		if isList(pIn) and Q(pIn).IsInNamedParam()
+		if isList(pIn) and StzListQ(pIn).IsInNamedParam()
 			pIn = pIn[2]
 		ok
 
