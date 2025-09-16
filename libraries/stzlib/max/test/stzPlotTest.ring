@@ -2,7 +2,7 @@ load "../stzbase.ring"
 
 
 /*===
-
+*/
 pr()
 
 # Basic compact form

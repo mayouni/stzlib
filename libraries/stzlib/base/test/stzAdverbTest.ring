@@ -116,11 +116,22 @@ pr()
 ? ""
 
 # Vowel+y test
-? Adverb("play")	#--> playily
+? Adverb("play")		#--> playily
 
 # Consonant+y test
-? Adverb("dry")		#--> drily
+? Adverb("dry")			#--> drily
 
 pf()
 # Executed in 0.26 second(s) in Ring 1.23
 # Executed in 0.56 second(s) in Ring 1.22
+
+/*---
+*/
+pr()
+
+# Despite it's flexibility, it can make mistakes
+
+? Adverb("education")	#--> educationally
+? Adverb("payment")	#--> paymently
+
+pf()
