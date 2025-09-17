@@ -44,6 +44,18 @@ class stzNatural
     @aUndefined = []
     @aSemanticActions = []  # Store semantic actions for preprocessing
 
+def getIs
+	addattribute(this, "is")
+	is = "_NULL_"
+
+def getDecorated
+	addAttribute(this, "decorated")
+	decorated = "_NULL_"
+
+def getWith_
+	addAttribute(this, "with_")
+	with_ = "_NULL_"
+
     def braceExprEval(value)
         if NOT( isString(value) and (value = _NULL_ or value = "__@Ignore__") )
             @aValues + value
@@ -239,6 +251,11 @@ class stzNatural
                     nOriginalPos = 0+cPos
                 ok
                 
+                if nOriginalPos > nOccurrences or nOriginalPos < 1
+                    # Ignore invalid positions
+                    loop
+                ok
+                
                 aPositionMap + [:original_pos = nOriginalPos, :action = action]
             next
             
@@ -291,15 +308,15 @@ class stzNatural
            lower(aValues[2]) = "a" and
            lower(aValues[3]) = "stzstring"
             
-            cCode = "oStr = StzStringQ("
-            # Use the extracted cStringValue from AnalyzeSemanticPatterns
-            # Since Analyze already set cStringValue
+            aTransformLines = []
+            aOutputLines = []
+            
             cValue = '""'
             if isString(cStringValue) and lower(cStringValue) != "nothing" and cStringValue != nothing
                 cValue = @@(cStringValue)
             ok  # else empty string
-            cCode += cValue + ")"
-            cCode += NL
+            
+            aTransformLines + ("oStr = StzStringQ(" + cValue + ")")
             
             # Apply semantic actions first (these are preprocessed)
             for action in aSemanticActions
@@ -307,13 +324,17 @@ class stzNatural
                     cOld = @@(action[:old_value])
                     cNew = @@(action[:new_value])
                     cPos = ""+ action[:position]
-                    cCode += "oStr.ReplaceNth(" + cPos + ", " + cOld + ", " + cNew + ")" + NL
+                    aTransformLines + ("oStr.ReplaceNth(" + cPos + ", " + cOld + ", " + cNew + ")")
                 but action[:type] = "global_replace"
                     cOld = @@(action[:old_value])
                     cNew = @@(action[:new_value])
-                    cCode += "oStr.Replace(" + cOld + ", " + cNew + ")" + NL
+                    aTransformLines + ("oStr.Replace(" + cOld + ", " + cNew + ")")
                 ok
             next
+            
+            # Initialize flags for named operations
+            bBoxPending = FALSE
+            bRounded = FALSE
             
             # Process remaining non-replace operations starting from index 5
             i = 5
@@ -338,23 +359,87 @@ class stzNatural
                     loop
                 ok
                 
-                if ring_find(["show", "display", "print"], cOperation) > 0
-                    cCode += "? oStr.Content()" + NL
+                if left(cOperation, 1) = "@"  # Prefix for defining/naming, defer application
+                    cName = substr(cOperation, 2, len(cOperation) - 1)
+                    if ring_find(["box", "frame"], cName) > 0
+                        bBoxPending = TRUE
+                        i++
+                        loop  # Defer, don't add code yet
+                    ok
+                    
+                but right(cOperation, 1) = "@"  # Suffix for recalling and applying with mods
+                    cName = left(cOperation, len(cOperation) - 1)
+                    if ring_find(["box", "frame"], cName) > 0
+                        bRounded = FALSE
+                        j = i + 1
+                        while j <= len(aValues)
+                            cNext = lower(aValues[j])
+                            if cNext = "is"
+                                j++
+                                loop
+                            but cNext = "should" and j+1 <= len(aValues) and lower(aValues[j+1]) = "be"
+                                j += 2
+                                loop
+                            but cNext = "must" and j+1 <= len(aValues) and lower(aValues[j+1]) = "be"
+                                j += 2
+                                loop
+                            but cNext = "with"
+                                j++
+                                if j <= len(aValues) and lower(aValues[j]) = "rounded"
+                                    if j+1 <= len(aValues) and lower(aValues[j+1]) = "corners"
+                                        bRounded = TRUE
+                                        j += 2
+                                    else
+                                        bRounded = TRUE
+                                        j++
+                                    ok
+                                ok
+                                loop
+                            but cNext = "rounded"
+                                if j+1 <= len(aValues) and lower(aValues[j+1]) = "corners"
+                                    bRounded = TRUE
+                                    j += 2
+                                else
+                                    bRounded = TRUE
+                                    j++
+                                ok
+                            else
+                                exit
+                            ok
+                        end
+                        # Apply the box with options
+                        if bRounded
+                            aTransformLines + "oStr.BoxXT([ :Rounded = TRUE ])"
+                        else
+                            aTransformLines + "oStr.BoxXT()"
+                        ok
+                        bBoxPending = FALSE
+                        i = j - 1
+                        # No loop here to avoid infinite if no advance; let outer i++ handle
+                    ok
+                    
+                but ring_find(["box", "frame"], cOperation) > 0  # Plain box, immediate apply without mods
+                    aTransformLines + "oStr.Box()"
+                    i++
+                    loop
+                    
+                but ring_find(["show", "display", "print"], cOperation) > 0
+                    aOutputLines + "? oStr.Content()"
                     
                 but cOperation = "uppercase"
-                    cCode += "oStr.Uppercase()" + NL
+                    aTransformLines + "oStr.Uppercase()"
                     
                 but cOperation = "lowercase"
-                    cCode += "oStr.Lowercase()" + NL
+                    aTransformLines + "oStr.Lowercase()"
                     
                 but cOperation = "spacify"
-                    cCode += "oStr.Spacify()" + NL
+                    aTransformLines + "oStr.Spacify()"
                     
                 but cOperation = "reverse"
-                    cCode += "oStr.Reverse()" + NL
+                    aTransformLines + "oStr.Reverse()"
                     
                 but cOperation = "trim"
-                    cCode += "oStr.Trim()" + NL
+                    aTransformLines + "oStr.Trim()"
                     
                 but ring_find(["append", "add"], cOperation) > 0
                     i++
@@ -364,7 +449,7 @@ class stzNatural
                         ok
                         if i <= len(aValues)
                             cParam = @@(aValues[i])
-                            cCode += "oStr.Append(" + cParam + ")" + NL
+                            aTransformLines + ("oStr.Append(" + cParam + ")")
                         ok
                     ok
                     
@@ -372,7 +457,7 @@ class stzNatural
                     i++
                     if i <= len(aValues)
                         cParam = @@(aValues[i])
-                        cCode += "oStr.Prepend(" + cParam + ")" + NL
+                        aTransformLines + ("oStr.Prepend(" + cParam + ")")
                     ok
                     
                 but cOperation = "insert"
@@ -393,34 +478,23 @@ class stzNatural
                                     else
                                         cPosition = @@(cPosition)
                                     ok
-                                    cCode += "oStr.InsertAt(" + cPosition + ", " + cValue + ")" + NL
+                                    aTransformLines + ("oStr.InsertAt(" + cPosition + ", " + cValue + ")")
                                 ok
                             ok
                         ok
                     ok
                     
-                but ring_find(["box", "frame"], cOperation) > 0
-                    cCode += "oStr.Box()" + NL
-                    
-                but ring_find(["box@", "frame@"], cOperation) > 0
-                    bRounded = FALSE
-                    nLen = len(aValues)
-
-                    for j = i+1 to nLen
-                        if lower(aValues[j]) = "rounded"
-                            bRounded = TRUE
-                        ok
-                    next
-                    if bRounded
-                        cCode += "oStr.BoxXT([ :Rounded = TRUE ])" + NL
-                    else
-                        cCode += "oStr.BoxXT()" + NL
-                    ok
                 ok
                 
                 i++
             end
             
+            # At the end, apply any pending named operations with default
+            if bBoxPending
+                aTransformLines + "oStr.Box()"
+            ok
+            
+            cCode = JoinXT(aTransformLines, NL) + NL + JoinXT(aOutputLines, NL)
             return cCode
         else
             # Fallback to original logic for other patterns
