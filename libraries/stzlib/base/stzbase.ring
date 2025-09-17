@@ -217,6 +217,6 @@
 	load "natural/stzEntity.ring"
 	load "natural/stzListOfEntities.ring"
 	load "natural/stzNaturalCode.ring"
-	load "natural/stzNaturally.ring"
+	load "natural/stzNatural.ring"
 	load "natural/stzPlural.ring"
 	load "natural/stzSingular.ring"

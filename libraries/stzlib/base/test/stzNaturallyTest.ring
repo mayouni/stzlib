@@ -41,7 +41,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*--- CHAINED OPERATIONS
-
+*/
 pr()
 
 Naturally() {
@@ -206,7 +206,7 @@ Naturally() {
     Uppercase it
     Display the result
 }
-#--> should show "ADDED CONTENT"
+#--> "ADDED CONTENT"
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
@@ -229,7 +229,7 @@ Naturally() {
 #    └─────────────────────────────┘
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.02 second(s) in Ring 1.23
 
 /*---
 
@@ -248,6 +248,7 @@ Naturally() {
 #--> ╭─────────────────────────────╮
 #    │ R E F E R E N C E   T E S T │
 #    ╰─────────────────────────────╯
+
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
@@ -348,8 +349,8 @@ pr()
 
 Naturally() {
     Create a stzString with "softanza is great"
-    Uppercase it using spacify and_ also @box it
-    The box@ must be rounded
+    Uppercase it using spacify and_ also @box it # @ to reference the box later
+    The box@ must be rounded # @ to recall the box reference before
     Show the final result
 }
 #--> ╭───────────────────────────────────╮
@@ -357,7 +358,7 @@ Naturally() {
 #    ╰───────────────────────────────────╯
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.02 second(s) in Ring 1.23
 
 /*--- FRAME ALTERNATIVE
 
@@ -374,7 +375,7 @@ Naturally() {
 #    ╰─────────────╯
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.02 second(s) in Ring 1.23
 
 /*--- PRINT ALTERNATIVE
 
@@ -405,7 +406,7 @@ Naturally() {
 #    ╰───────────────────────────────╯
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.02 second(s) in Ring 1.23
 
 /*--- EDGE CASE: NULL VALUES
 
@@ -522,6 +523,268 @@ Naturally() {
     Show the result
 }
 #--> "APPLE1 BANANA APPLE2 cherry apple"
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+#=====================================#
+#  TESTING SEMANTIC REFERENCE WITH @  #
+#=====================================#
+
+/*---
+
+pr()
+
+Naturally() {
+    Make a stzString with "simple box"
+
+    Uppercase it
+    Spacify it
+    @Box it  # Define the box reference without immediate application
+
+    # No modifier here, so should apply default square box later
+    Show the final result
+}
+#--> 
+# ┌─────────────────────┐
+# │ S I M P L E   B O X │
+# └─────────────────────┘
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- Applying rounded box directly since no pending, but semantically references the box entity
+
+pr()
+
+Naturally() {
+    Make a stzString with "modifier only"
+
+    Uppercase it
+    Spacify it
+    The box@ is rounded  # Recall box without prior definition, apply with modifier
+
+    Show the final result
+}
+#--> 
+# ╭───────────────────────────╮
+# │ M O D I F I E R   O N L Y │
+# ╰───────────────────────────╯
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*---
+
+pr()
+
+? Box("SOFTANZA") + NL
+#-->
+'
+┌──────────┐
+│ SOFTANZA │
+└──────────┘
+'
+
+? Box(Box("SOFTANZA")) + NL
+#-->
+'
+┌────────────────────────────────────────┐
+│ ┌──────────┐
+│ SOFTANZA │
+└──────────┘ │
+└────────────────────────────────────────┘
+'
+
+? Box(Box(Box("SOFTANZA")))
+#-->
+'
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ ┌────────────────────────────────────────┐
+│ ┌──────────┐
+│ SOFTANZA │
+└──────────┘ │
+└────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+'
+
+pf()
+
+/*--- Demonstrating why @ is necessary to avoid unintended nesting
+*/
+pr()
+
+Naturally() {
+    Make a stzString with "plain then reference"
+
+    Uppercase it
+    Spacify it
+    Box it  # Plain application (immediate square box)
+    The box@ should be rounded  # Attempt to modify the reference, but since plain was applied, this adds another rounded box (nesting)
+
+    Show the final result
+}
+#--> 
+# ╭─────────────────────────────────────────────╮
+# │ ┌─────────────────────────────────────────┐ │
+# │ │ P L A I N   T H E N   R E F E R E N C E │ │
+# │ └─────────────────────────────────────────┘ │
+# ╰─────────────────────────────────────────────╯
+
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- Showing deferral allowing interleaving of other operations #HERE
+
+pr()
+
+Naturally() {
+    Make a stzString with "deferred with mods"
+
+    Trim it
+is decorated with_
+    Reverse it
+    @Box this_  # Define reference
+    The box@ is decorated with rounded corners  # Recall and apply modifier after other ops
+
+    Display it
+
+? Code()
+? @@(this.decorated)
+}
+#--> 
+# ╭────────────────────╮
+# │ sdom htiw derrefed │
+# ╰────────────────────╯
+
+pf()
+
+/*--- Synonym handling for box/frame
+
+pr()
+
+Naturally() {
+    Make a stzString with "synonym reference"
+
+    Uppercase it
+    @Frame it  # Define using synonym (frame == box)
+    The frame@ must be rounded  # Recall with synonym
+
+    Print the result
+}
+#--> 
+# ╭───────────────────╮
+# │ SYNONYM REFERENCE │
+# ╰───────────────────╯
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*---
+
+pr()
+
+Naturally() {
+    Make a stzString with "mixed ops reference"
+
+    Replace "mixed" with "combined"
+    @Box it  # Define
+    Uppercase that
+    Spacify this_
+    The box@ is rounded  # Recall after transformations
+
+    Show the final result
+}
+#--> 
+# ╭─────────────────────────────────────────────╮
+# │ C O M B I N E D   O P S   R E F E R E N C E │
+# ╰─────────────────────────────────────────────╯
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
+
+/*--- Contrast: No deferral or recall, just direct action
+
+pr()
+
+Naturally() {
+    Make a stzString with "no reference plain"
+
+    Uppercase it
+    Spacify it
+    Box it  # No @, immediate apply
+    # No box@, so no modifier possible later without re-application
+
+    Show it
+}
+#--> 
+# ┌─────────────────────────────────────┐
+# │ N O   R E F E R E N C E   P L A I N │
+# └─────────────────────────────────────┘
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- Showing how system falls back to applying the referenced action directly
+
+pr()
+
+Naturally() {
+    Make a stzString with "invalid recall"
+
+    Uppercase it
+    The box@ is rounded  # Recall without define, still applies as reference
+    # But semantically, this treats box as an entity even without prior @Box
+
+    Display the result
+}
+#--> 
+# ╭────────────────╮
+# │ INVALID RECALL │
+# ╰────────────────╯
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*--- Flexible modifier phrasing like "with rounded corners"
+
+pr()
+
+Naturally() {
+    Make a stzString with "complex modifiers"
+
+    @Frame this_  # Define
+    Append " added"
+    The frame@ with rounded corners  # Recall with phrase variation
+
+    Show the final result
+}
+#--> 
+# ╭─────────────────────────╮
+# │ complex modifiers added │
+# ╰─────────────────────────╯
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*--- Automatic default application for unrecalled references
+
+pr()
+
+Naturally() {
+    Make a stzString with "pending at end"
+
+    Prepend "start "
+    @Box it  # Define, but no recall
+    # System applies default at end due to pending flag
+
+    Show the final result
+}
+#--> 
+# ┌──────────────────────┐
+# │ start pending at end │
+# └──────────────────────┘
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23

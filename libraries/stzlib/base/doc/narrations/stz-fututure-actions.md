@@ -1,4 +1,4 @@
-# Programming the Future: Softanza's Future Actions
+# Programming the Future, Litterally, in Softanza
 
 ## Classic vs Future Actions
 
