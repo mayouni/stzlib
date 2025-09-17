@@ -8,39 +8,6 @@ class stzNatural
     
     nothing = "_NULL_"
 
-    # Basic mappings
-    stzString = "StzStringQ(@)"
-    append = "Append(@)"
-    show = "Print()"
-    
-    # Transformations
-    uppercase = "Uppercase()"
-    lowercase = "Lowercase()"
-    spacify = "Spacify()"
-    reverse = "Reverse()"
-    trim = "Trim()"
-    
-    # Display operations
-    display = "Print()"
-    print = "Print()"
-    box = "Box()"
-    frame = "Box()"
-    
-    # Text operations
-    prepend = "Prepend(@)"
-    insert = "InsertAt(@, @)"
-    add = "Append(@)"
-    
-    # Replacement operations
-    replace = "Replace(@, @)"
-    substitute = "Replace(@, @)"
-    change = "Replace(@, @)"
-    
-    # Box options
-    box@ = "BoxXT(@)"
-    frame@ = "BoxXT(@)"
-    rounded = ["rounded", _TRUE_]
-    
     # Position indicators
     first = "1"
     second = "2" 
@@ -71,6 +38,7 @@ class stzNatural
     using = "↑"
     to_ = "↑"
     by = "↑"
+    containing = "↑"
 
     @aValues = []
     @aUndefined = []
@@ -82,8 +50,8 @@ class stzNatural
 
     def braceError()
         if left(CatchError(), 11) = "Error (R24)"
-            cUndefined = trim(split(CatchError(), ":")[3])
-            @aUndefined + cUndefined
+            cUndefined = trim(@split(CatchError(), ":")[3])
+            @aValues + cUndefined
         ok
 
     def Values()
@@ -118,32 +86,30 @@ class stzNatural
         ok
         
         # Handle "Create a stzString with value" pattern
-        if len(aValues) >= 4 and lower(aValues[1]) = "create" and 
-
+        if len(aValues) >= 3 and ring_find(["create", "make"], lower(aValues[1])) > 0 and 
            lower(aValues[2]) = "a" and
-	   (lower(aValues[3]) = "stzstring") and 
-
-
-           lower(aValues[4]) = "with"
+           lower(aValues[3]) = "stzstring"
             
-            if len(aValues) >= 5
-                cValue = aValues[5]
+            cCode = "oStr = StzStringQ("
+            if len(aValues) >= 4
+                cValue = aValues[4]
                 if cValue = nothing
                     cValue = "_NULL_"
                 else
                     cValue = @@(cValue)
                 ok
-                cCode = "oStr = StzStringQ(" + cValue + ")" + NL
+                cCode += cValue + ")"
             else
-                cCode = "oStr = StzStringQ(_NULL_)" + NL
+                cCode += "_NULL_)"
             ok
+            cCode += NL
             
-            # Process remaining operations starting from index 6
-            i = 6
+            # Process remaining operations starting from index 5
+            i = 5
             while i <= len(aValues)
                 cOperation = lower(aValues[i])
                 
-                if cOperation = "show" or cOperation = "display" or cOperation = "print"
+                if ring_find(["show", "display", "print"], cOperation) > 0
                     cCode += "? oStr.Content()" + NL
                     
                 but cOperation = "uppercase"
@@ -155,46 +121,82 @@ class stzNatural
                 but cOperation = "spacify"
                     cCode += "oStr.Spacify()" + NL
                     
-                but cOperation = "box" or cOperation = "box@"
-                    if cOperation = "box@"
-                        # Look for rounded option in next values
-                        bRounded = _FALSE_
-                        for j = i+1 to len(aValues)
-                            if lower(aValues[j]) = "rounded"
-                                bRounded = _TRUE_
-                                exit
-                            ok
-                        next
-                        if bRounded
-                            cCode += "oStr.BoxXT([ :Rounded = _TRUE_ ])" + NL
-                        else
-                            cCode += "oStr.BoxXT()" + NL
-                        ok
-                    else
-                        cCode += "oStr.Box()" + NL
+                but cOperation = "reverse"
+                    cCode += "oStr.Reverse()" + NL
+                    
+                but cOperation = "trim"
+                    cCode += "oStr.Trim()" + NL
+                    
+                but ring_find(["append", "add"], cOperation) > 0
+                    i++
+                    if i <= len(aValues)
+                        cParam = @@(aValues[i])
+                        cCode += "oStr.Append(" + cParam + ")" + NL
                     ok
                     
-                but cOperation = "append" and i+1 <= len(aValues)
+                but cOperation = "prepend"
                     i++
-                    cParam = @@(aValues[i])
-                    cCode += "oStr.Append(" + cParam + ")" + NL
+                    if i <= len(aValues)
+                        cParam = @@(aValues[i])
+                        cCode += "oStr.Prepend(" + cParam + ")" + NL
+                    ok
                     
-                but cOperation = "prepend" and i+1 <= len(aValues)
+                but cOperation = "insert"
                     i++
-                    cParam = @@(aValues[i])
-                    cCode += "oStr.Prepend(" + cParam + ")" + NL
+                    if i <= len(aValues)
+                        cValue = @@(aValues[i])
+                        i++
+                        if i <= len(aValues) and lower(aValues[i]) = "at"
+                            i++
+                            if i <= len(aValues)
+                                cPosition = @@(aValues[i])
+                                cCode += "oStr.InsertAt(" + cPosition + ", " + cValue + ")" + NL
+                            ok
+                        ok
+                    ok
                     
-                but cOperation = "replace" and i+2 <= len(aValues)
+                but ring_find(["replace", "substitute", "change"], cOperation) > 0
                     i++
-                    cParam1 = @@(aValues[i])
-                    i++
-                    cParam2 = @@(aValues[i])
-                    cCode += "oStr.Replace(" + cParam1 + ", " + cParam2 + ")" + NL
+                    if i <= len(aValues)
+                        cNext = aValues[i]
+                        if isString(cNext) and (IsNumberInString(cNext) or cNext = "-1")
+                            cPosition = cNext
+                            i++
+                            cOld = @@(aValues[i])
+                            i++
+                            cNew = @@(aValues[i])
+                            cCode += "oStr.ReplaceNth(" + cPosition + ", " + cOld + ", " + cNew + ")" + NL
+                        else
+                            cOld = @@(cNext)
+                            i++
+                            cNew = @@(aValues[i])
+                            cCode += "oStr.Replace(" + cOld + ", " + cNew + ")" + NL
+                        ok
+                    ok
+                    
+                but ring_find(["box", "frame"], cOperation) > 0
+                    cCode += "oStr.Box()" + NL
+                    
+                but ring_find(["box@", "frame@"], cOperation) > 0
+                    bRounded = FALSE
+		    nLen = len(aValues)
+
+                    for j = i+1 to nLen
+                        if lower(aValues[j]) = "rounded"
+                            bRounded = TRUE
+                        ok
+                    next
+                    if bRounded
+                        cCode += "oStr.BoxXT([ :Rounded = TRUE ])" + NL
+                    else
+                        cCode += "oStr.BoxXT()" + NL
+                    ok
                 ok
                 
                 i++
             end
             
+            return cCode
         else
             # Fallback to original logic for other patterns
             aValues[1] += "{"
@@ -237,9 +239,10 @@ class stzNatural
             next
 
             cCode += "}"
+            return cCode
         ok
         
-        return cCode
+        
 
     def Run()
         eval(This.Code())
