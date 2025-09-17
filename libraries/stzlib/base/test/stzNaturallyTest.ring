@@ -72,7 +72,7 @@ pf()
 # Executed in 0.03 second(s) in Ring 1.23
 
 /*--- MULTIPLE REPLACEMENTS
-*/
+
 pr()
 
 Naturally() {
@@ -98,7 +98,7 @@ Naturally() {
 }
 
 pf()
-# AbracBdabra
+# Executed in 0.03 second(s) in Ring 1.23
 
 /*--- COMPLEX REPLACEMENTS
 
@@ -109,9 +109,6 @@ Naturally() {
     Replace the first "hello" with "Hi"
     Replace the second "hello" with "Bye"
     Display the result
-
-? @@NL( @aValues )
-
 }
 #--> Hi world Bye
 
@@ -143,8 +140,9 @@ Naturally() {
 #--> hello beautiful world
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
-/*--- INSERTION OPERATIONS
+/*--- INSERTION OPERATIONS #ERR
 
 pr()
 
@@ -153,9 +151,10 @@ Naturally() {
     Insert " beautiful" at position 6
     Show it
 }
-#--> hello beautiful world
+#--> should show "hello beautiful world"
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- TRIMMING OPERATIONS
 
@@ -169,6 +168,7 @@ Naturally() {
 #--> SPACED TEXT
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- REVERSE OPERATIONS
 
@@ -206,7 +206,7 @@ Naturally() {
     Uppercase it
     Display the result
 }
-#--> ADDED CONTENT
+#--> should show "ADDED CONTENT"
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
@@ -231,6 +231,27 @@ Naturally() {
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
+/*---
+
+pr()
+
+Naturally() {
+    Make a stzString with "reference test"
+
+    Uppercase this_
+    Spacify that
+    @Box this_
+    The box@ is rounded
+
+    Show the final result
+}
+#--> ╭─────────────────────────────╮
+#    │ R E F E R E N C E   T E S T │
+#    ╰─────────────────────────────╯
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
 /*--- POSITIONAL REPLACEMENTS
 
 pr()
@@ -245,6 +266,7 @@ Naturally() {
 #--> ONE two UNO three EIN
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- CONNECTOR VARIATIONS
 
@@ -267,7 +289,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "connectors"
+    Create a stzString containing "connectors"
     Uppercase it plus spacify it plus box it
     Show the result
 }
@@ -290,6 +312,7 @@ Naturally() {
 #--> new text new
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- CHANGE OPERATION
 
@@ -303,6 +326,7 @@ Naturally() {
 #--> change this
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- LAST POSITION REFERENCE
 
@@ -316,23 +340,24 @@ Naturally() {
 #--> first middle laSt
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- MULTIPLE MODIFIERS
 
 pr()
 
 Naturally() {
-    Create a stzString with "modifiers test"
+    Create a stzString with "softanza is great"
     Uppercase it using spacify and_ also @box it
     The box@ must be rounded
     Show the final result
 }
-#--> ╭─────────────────────────────╮
-#    │ M O D I F I E R S   T E S T │
-#    ╰─────────────────────────────╯
+#--> ╭───────────────────────────────────╮
+#    │ S O F T A N Z A   I S   G R E A T │
+#    ╰───────────────────────────────────╯
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- FRAME ALTERNATIVE
 
@@ -349,7 +374,7 @@ Naturally() {
 #    ╰─────────────╯
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- PRINT ALTERNATIVE
 
@@ -380,7 +405,7 @@ Naturally() {
 #    ╰───────────────────────────────╯
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- EDGE CASE: NULL VALUES
 
@@ -403,9 +428,9 @@ pr()
 Naturally() {
     Create a stzString with "comprehensive test case"
     Replace "comprehensive" with "complete"
-    Uppercase it and spacify it  
-    Then box it
-    The box should be rounded
+    Uppercase it and_ spacify it  
+    Then @box it
+    The box@ should be rounded
     Display the final result
 }
 #--> ╭─────────────────────────────────────╮
@@ -413,3 +438,90 @@ Naturally() {
 #    ╰─────────────────────────────────────╯
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+#==================================#
+#  SEMANTIC PRE-PROCESSING TESTS   #
+#==================================#
+
+/*--- MIXED OPERATIONS WITH SEMANTIC PREPROCESSING
+
+pr()
+
+Naturally() {
+    Make a stzString with "test case test"
+    Replace the first "test" with "first"
+    Uppercase it
+    Replace the second "TEST" with "SECOND"  # Note: after uppercase
+    Spacify it
+    Display the result
+}
+#--> F I R S T   C A S E   T E S T
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- LAST POSITION HANDLING
+
+pr()
+
+Naturally() {
+    Create a stzString with "one two three one four one"
+    Replace the first "one" with "1st"
+    Replace the last "one" with "LAST"
+    Replace the second "one" with "2nd" 
+    Show it
+}
+#--> "1st two three 2nd four LAST"
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- MULTIPLE TARGET STRINGS
+
+pr()
+
+Naturally() {
+    Make a stzString with "cat dog cat bird cat dog"
+    Replace the first "cat" with "CAT1"
+    Replace the first "dog" with "DOG1" 
+    Replace the second "cat" with "CAT2"
+    Replace the second "dog" with "DOG2"
+    Replace the third "cat" with "CAT3"
+    Display the result
+}
+#--> "CAT1 DOG1 CAT2 bird CAT3 DOG2"
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*--- EDGE CASE: Non-existent positions
+
+pr()
+
+Naturally() {
+    Create a stzString with "only one occurrence"
+    Replace the first "occurrence" with "FIRST"
+    Replace the second "occurrence" with "SECOND"  # Should be ignored
+    Replace the third "occurrence" with "THIRD"    # Should be ignored
+    Show it
+}
+#--> "only one FIRST" (only valid replacements applied)
+
+pf()
+
+/*--- MIXED GLOBAL AND POSITIONAL
+
+pr()
+
+Naturally() {
+    Make a stzString with "apple banana apple cherry apple"
+    Replace "banana" with "BANANA"              # Global replace
+    Replace the first "apple" with "APPLE1"     # Positional  
+    Replace the second "apple" with "APPLE2"    # Positional
+    Show the result
+}
+#--> "APPLE1 BANANA APPLE2 cherry apple"
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
