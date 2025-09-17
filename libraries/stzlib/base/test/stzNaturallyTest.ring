@@ -38,6 +38,7 @@ Naturally() {
 #--> SOFTANZA
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- CHAINED OPERATIONS
 
@@ -68,25 +69,36 @@ Naturally() {
 #    ╰─────────────────────╯
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.23
 
 /*--- MULTIPLE REPLACEMENTS
-
+*/
 pr()
 
 Naturally() {
 
     Create a stzString with "abracadabra"
-    Replace the first 'a' with 'A'
+    Replace the first "a" with "A"
     Replace the second 'a' with 'B' 
     Replace the fourth 'a' with 'C'
     Replace the fifth 'a' with 'D'
+
     Show it
-? Code() + NL
+    #--> AbracBdCbrD
+
+    # You can debug the internal code generated using
+    ? Code()
+    # oStr = StzStringQ("abracadabra")
+    # oStr.ReplaceNth(1, "a", "A")
+    # oStr.ReplaceNth(2, "a", "B")
+    # oStr.ReplaceNth(4, "a", "C")
+    # oStr.ReplaceNth(5, "a", "D")
+    # ? oStr.Content()
 
 }
-#--> AbracBdCbrD
 
 pf()
+# AbracBdabra
 
 /*--- COMPLEX REPLACEMENTS
 
@@ -97,6 +109,9 @@ Naturally() {
     Replace the first "hello" with "Hi"
     Replace the second "hello" with "Bye"
     Display the result
+
+? @@NL( @aValues )
+
 }
 #--> Hi world Bye
 
