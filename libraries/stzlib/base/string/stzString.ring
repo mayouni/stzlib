@@ -39134,7 +39134,7 @@ class stzString from stzObject
 			ok
 	
 			if NOT isString(pcSubstr)
-				stzRaise("Incorrect param typs! pcSubstr must be a string.")
+				stzRaise("Incorrect param type! pcSubstr must be a string.")
 			ok
 	
 			# Checking the correctness of pcNewSubStr param
