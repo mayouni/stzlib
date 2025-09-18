@@ -117,7 +117,7 @@ proff()
 # Executed in 0.01 second(s)
 
 /*======= #natural-coding #semantic-eloquence
-
+*/
 pr()
 
 ? Q("ring").IsAString()
@@ -146,7 +146,7 @@ pr()
 #--> TRUE
 
 ? TheWordQM("ring").IsAQ([ :Lowercase, :Latin, :Word ]).
-  WithQ().ALengthQ().OfQ(4).Q(:Letters).AndQ().OnlyQM(1).VowelNB()
+  WithQ().ALengthQ().OfQ(4)._Q(:Letters).AndQ().OnlyQM(1).VowelNB()
 #--> TRUE
 
 ? TheWordQ("ring").HasNQ(4).LettersNB()

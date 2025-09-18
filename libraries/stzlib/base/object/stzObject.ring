@@ -3667,9 +3667,6 @@ class stzObject
 		def _Q(any)
 			return Q( This._(any) )
 
-		def Q(any)
-			return @Q( This._(any) )
-
 		def _QM(any)
 			return MainObject()
 

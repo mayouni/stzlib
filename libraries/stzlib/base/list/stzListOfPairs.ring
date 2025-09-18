@@ -119,7 +119,7 @@ class stzListOfPairs from stzListOfLists
 		return This.Content()
 
 	def UpdateWith(paListOfPairs)
-		if isList(paListOfPairs) and Q(paListOfPairs).IsListOfPairs()
+		if isList(paListOfPairs) and StzListQ(paListOfPairs).IsListOfPairs()
 			@aContent = paListOfPairs
 
 		else
@@ -524,7 +524,7 @@ class stzListOfPairs from stzListOfLists
 	#====================#
 
 	def ReplacePair(n, paNewPair)
-		if isList(paNewPair) and Q(paNewPair).IsPair()
+		if isList(paNewPair) and StzListQ(paNewPair).IsPair()
 			This.UpdateNthPairWith(n, paNewPair)
 		ok
 
@@ -839,7 +839,7 @@ class stzListOfPairs from stzListOfLists
 			return This.ExpandedIfPairsOfNumbersQRT(:stzList)
 
 		def ExpandedIfPairsOfNumbersQRT(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and stzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
