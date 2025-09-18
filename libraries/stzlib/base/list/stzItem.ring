@@ -81,7 +81,7 @@ func AnItemCS(paList, pCaseSensitive)
 	return oResult
 
 func AnItem(paList)
-	return AnItemCS(paList, _TRUE_)
+	return AnItemCS(paList, 1)
 
 #--
 
@@ -119,7 +119,7 @@ class stzItem from stzItemCS
 
 		@Item = pItem
 		@aList = paList
-		@pCaseSensitive = _TRUE_
+		@pCaseSensitive = 1
 
 class stzItemCS
 	@Item
@@ -195,7 +195,7 @@ class stzItemCS
 			return This.NumberOfOccurrenceCS(pCaseSensitive)
 
 	def NumberOfOccurrence()
-		return This.NumberOfOccurrenceCS(_TRUE_)
+		return This.NumberOfOccurrenceCS(1)
 
 		def NumberOfOccurrences()
 			return This.NumberOfOccurrence()
@@ -210,7 +210,7 @@ class stzItemCS
 		return anResult
 
 	def Positions()
-		return This.PositionsCS(_TRUE_)
+		return This.PositionsCS(1)
 
 		def Occurrences()
 			return This.Positions()
@@ -225,7 +225,7 @@ class stzItemCS
 			return This.SectionsCS(pCaseSensitive)
 
 	def Sections()
-		return This.SectionsCS(:CaseSenstive = _TRUE_)
+		return This.SectionsCS(:CaseSenstive = 1)
 
 		def PositionsAsSections()
 			return This.Sections()
@@ -252,10 +252,10 @@ class stzItemCS
 			return new stzOccurrencesCS(anOccurrences, This.Item(), This.List(), pCaseSensitive)
 
 	def OccurrencesXT(anOccurrences)
-		return This.OccurrencesCSXT(anOccurrences, _TRUE_)
+		return This.OccurrencesCSXT(anOccurrences, 1)
 
 		def OccurrencesXTQ(anOccurrences)
-			return This.OccurrencesCSXTQ(anOccurrences, _TRUE_)
+			return This.OccurrencesCSXTQ(anOccurrences, 1)
 
 	#--
 
@@ -264,21 +264,21 @@ class stzItemCS
 		return nResult
 
 	def NthPosition(n)
-		return This.NthPositionCS(n, _TRUE_)
+		return This.NthPositionCS(n, 1)
 
 	def FirstPositionCS(pCaseSensitive)
 		nResult = This.ListQ().FindFirstCS(This.Item(), pCaseSensitive)
 		return nResult
 
 	def FirstPosition()
-		return This.FirstPositionCS(_TRUE_)
+		return This.FirstPositionCS(1)
 
 	def LastPositionCS(pCaseSensitive)
 		nResult = This.ListQ().FindLastCS(This.Item(), pCaseSensitive)
 		return nResult
 
 	def LastPosition()
-		return This.LastPositionCS(_TRUE_)
+		return This.LastPositionCS(1)
 
 	#--
 
@@ -287,7 +287,7 @@ class stzItemCS
 		return bResult
 
 	def IsBoundedBy(paBounds)
-		return This.IsBoundedByCS(paBounds, _TRUE_)
+		return This.IsBoundedByCS(paBounds, 1)
 
 	#--
 
@@ -296,7 +296,7 @@ class stzItemCS
 		return bResult
 
 	def IsBetween(pBound1, pBound2)
-		return This.IsBetweenCS(pBound1, pBound2, _TRUE_)
+		return This.IsBetweenCS(pBound1, pBound2, 1)
 
 	#--
 
@@ -305,7 +305,7 @@ class stzItemCS
 		return bResult
 
 	def BoundedBy(paBounds)
-		return This.BoundedByCS(paBounds, _TRUE_)
+		return This.BoundedByCS(paBounds, 1)
 
 	#--
 
@@ -320,7 +320,7 @@ class stzItemCS
 			return This.ReplacedWithCS(pcOtherItem, pCaseSensitive)
 
 	def ReplacedWith(pcOtherItem)
-		return This.ReplacedWithCs(pcOtherItem, _TRUE_)
+		return This.ReplacedWithCs(pcOtherItem, 1)
 
 		def Replaced(pcOtherItem)
 			return This.ReplacedWith(pcOtherItem)
@@ -335,7 +335,7 @@ class stzItemCS
 		return cResult
 
 	def Removed()
-		return This.RemovedCS(_TRUE_)
+		return This.RemovedCS(1)
 
 	#--
 
@@ -343,9 +343,9 @@ class stzItemCS
 		if This.ItemQ().IsLowercased() and
 		   This.ListQ().Contains(This.Item())
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInLowercase()
@@ -355,9 +355,9 @@ class stzItemCS
 		if This.ItemQ().IsUppercased() and
 		   This.ListQ().Contains(This.Item())
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInUppercase()
@@ -369,7 +369,7 @@ class stzItemCS
 		return cResult
 
 	def Uppercased()
-		return This.UppercasedCS(_TRUE_)
+		return This.UppercasedCS(1)
 
 	#--
 
@@ -378,7 +378,7 @@ class stzItemCS
 		return cResult
 
 	def Lowercased()
-		return This.LowercasedCS(_TRUE_)
+		return This.LowercasedCS(1)
 
 
 	#==
@@ -391,7 +391,7 @@ class stzItemCS
 			return This.InstertedBeforeCS(p, pCaseSensitive)
 
 	def InsertedBefore(p)
-		return This.InsertedBeforeCS(p, _TRUE_)
+		return This.InsertedBeforeCS(p, 1)
 
 		def InsertedBAt(p)
 			return This.InsertedBefore(p)
@@ -425,7 +425,7 @@ class stzItemCS
 		return cResult
 
 	def InsertedBeforeItem(pItem)
-		return This.InsertedBeforeItemCS(pItem, _TRUE_)
+		return This.InsertedBeforeItemCS(pItem, 1)
 
 	#--
 
@@ -437,7 +437,7 @@ class stzItemCS
 			return This.InsertedBeforeItemsCS(pacItems, pCaseSensitive)
 
 	def InsertedBeforeItems(pacItems)
-		return This.InsertedBeforeItemsCS(pacItems, _TRUE_)
+		return This.InsertedBeforeItemsCS(pacItems, 1)
 
 		def InsertedBeforeManyItems(pacItems)
 			return This.InsertedBeforeItems(pacItems)
@@ -456,7 +456,7 @@ class stzItemCS
 		return cResult
 
 	def InsertedAfter(p)
-		return This.InsertedAfterCS(p, _TRUE_)
+		return This.InsertedAfterCS(p, 1)
 
 	#--
 
@@ -478,7 +478,7 @@ class stzItemCS
 		return cResult
 
 	def InsertedAfterItem(pItem)
-		return This.InsertedAfterItemCS(pItem, _TRUE_)
+		return This.InsertedAfterItemCS(pItem, 1)
 
 	#--
 
@@ -490,7 +490,7 @@ class stzItemCS
 			return This.InsertedAfterItemsCS(pacItems, pCaseSensitive)
 
 	def InsertedAfterItems(pacItems)
-		return This.InsertedAfterItemsCS(pacItems, _TRUE_)
+		return This.InsertedAfterItemsCS(pacItems, 1)
 
 		def InsertedAfterManyItems(pacItems)
 			return This.InsertedAfterItems(pacItems)

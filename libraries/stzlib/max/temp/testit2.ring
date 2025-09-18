@@ -4,7 +4,7 @@ QmlApp() {
 	# Setting the window size
     	width = 400
     	height = 400
-    	visible = _TRUE_
+    	visible = 1
 
 	# Creating a button
 
@@ -39,35 +39,35 @@ load "../stzlib.ring"
 /*------- CONTAINING A SUBSTRING BOUNDED BY A GIVEN SUBSTRING
 
 	o1 = new stzString("lorem__ipsum__lorem")
-	? o1. ContainsSubStringBoundedBy("ipsum", "__") 		#--> _TRUE_
-	? o1.ContainsSubStringBoundedByCS("IPSUM", "__", :CS = _FALSE_) 	#--> _TRUE_
+	? o1. ContainsSubStringBoundedBy("ipsum", "__") 		#--> TRUE
+	? o1.ContainsSubStringBoundedByCS("IPSUM", "__", :CS = 0) 	#--> TRUE
 
 	o1 = new stzString("lore_mmmipsuMmM_lorem")
-	? o1.ContainsSubStringBoundedByCS("ipsu", "mmm", :CS = _FALSE_)	#--> _TRUE_
-	? o1.ContainsSubStringBoundedByCS("IPSU", "mmm", :CS = _FALSE_)	#--> _TRUE_
+	? o1.ContainsSubStringBoundedByCS("ipsu", "mmm", :CS = 0)	#--> TRUE
+	? o1.ContainsSubStringBoundedByCS("IPSU", "mmm", :CS = 0)	#--> TRUE
 	
 /*------- CONTAINING A SUBSTRING AT A GIVEN POSITION INSIDE THE STRING
 
 	o1 = new stzString("123x567x901")
 
-	? o1.ContainsSubStringAtPosition(1, "123") #--> _TRUE_
-	? o1.ContainsSubStringAtPosition(5, "567") #--> _TRUE_
-	? o1.ContainsSubStringAtPosition(9, "901") #--> _TRUE_
+	? o1.ContainsSubStringAtPosition(1, "123") #--> TRUE
+	? o1.ContainsSubStringAtPosition(5, "567") #--> TRUE
+	? o1.ContainsSubStringAtPosition(9, "901") #--> TRUE
 
 	# Short form:
 	#------------
 
-	? o1.ContainsAt(1, "123") #--> _TRUE_
+	? o1.ContainsAt(1, "123") #--> TRUE
 
 /*------- CONTAINING A SUBSTRING AT GIVEN POSITIONS
 
 	o1 = new stzString("123x123x123")
-	? o1.ContainsSubStringAtPositions([1, 5, 9], "123") #--> _TRUE_
+	? o1.ContainsSubStringAtPositions([1, 5, 9], "123") #--> TRUE
 
 	# Short form:
 	#------------
 
-	? o1.ContainsAtPositions([1, 5, 9], "123") #--> _TRUE_
+	? o1.ContainsAtPositions([1, 5, 9], "123") #--> TRUE
 
 /*------- CONTAINING SUBSTRINGS AT GIVEN POSITIONS
 
@@ -117,7 +117,7 @@ load "../stzlib.ring"
 	o1 = new stzString("123x567x901")
 
 	o1.RemoveSubStringAtXT(5, "567",
-		[ :RemoveThisSubStringBefore = "X", :RemoveThisSubStringAfter = "X", :CS = _FALSE_ ] )
+		[ :RemoveThisSubStringBefore = "X", :RemoveThisSubStringAfter = "X", :CS = 0 ] )
 
 	? o1.Content() #--> 123901
 
@@ -127,7 +127,7 @@ load "../stzlib.ring"
 	o1 = new stzString("123xyz567xYZ901")
 
 	o1.RemoveSubStringAtXT(7, "567",
-		[ :RemoveThisBound = "XyZ", :CS = _FALSE_ ] )
+		[ :RemoveThisBound = "XyZ", :CS = 0 ] )
 
 	? o1.Content() #--> 123901
 
@@ -147,7 +147,7 @@ profon()
 		"Mabrooka!"
 	])
 
-	? @@( o1.FindSubstringCS("name", _TRUE_) )
+	? @@( o1.FindSubstringCS("name", 1) )
 	#--> [ [ 1, [ 13 ] ], [ 3, [ 6, 18 ] ] ]
 
 proff()
@@ -184,7 +184,7 @@ profon()
 	#-- CS
 
 	o1 = new stzList([ "ring", "Ring", "RING" ])
-	o1.ReplaceCS(:ring, :By@ = 'upper("ring")', :CaseSensitive = _FALSE_)
+	o1.ReplaceCS(:ring, :By@ = 'upper("ring")', :CaseSensitive = 0)
 	? o1.Content() #--> [ "RING", "RING", "RING" ]
 
 proff()
@@ -199,7 +199,7 @@ profon()
 	#-- CS
 
 	o1 = new stzList([ "Tunis", "CAIRO", "Bagdad" ])
-	o1.ReplaceManyCS([ :tunis, :cairo, :bagdad ], :With = "♥", :CS = _FALSE_)
+	o1.ReplaceManyCS([ :tunis, :cairo, :bagdad ], :With = "♥", :CS = 0)
 	? @@( o1.Content() ) #--> [ "♥", "♥", "♥" ]
 proff()
 # Executed in 0.02 second(s)
@@ -212,7 +212,7 @@ profon()
 	o1.ReplaceMany([ "Tunis", "Cairo", "Bagdad" ], :With = "♥")
 	? @@( o1.Content() ) #--> [ "Tunis", "CAIRO", "Bagdad" ]
 
-	o1.ReplaceManyCS([ "Tunis", "Cairo", "Bagdad" ], :With = "♥", :CS = _FALSE_)
+	o1.ReplaceManyCS([ "Tunis", "Cairo", "Bagdad" ], :With = "♥", :CS = 0)
 	? @@( o1.Content() ) #--> [ "♥", "♥", "♥" ]
 
 proff()

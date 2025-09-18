@@ -81,11 +81,11 @@ func AllMatches(cInput, cPattern)
 
 class stzRegex
 	
-	@oQRegex = _NULL_
-	@oQMatchObject = _NULL_
-	@cMatchType = _NULL_
-	@cPattern = _NULL_
-	@cStr = _NULL_
+	@oQRegex = ""
+	@oQMatchObject = ""
+	@cMatchType = ""
+	@cPattern = ""
+	@cStr = ""
 
 	@nQPatternOptions = 0
 	@acMatchOptions = []
@@ -388,12 +388,12 @@ class stzRegex
 			StzRaise("Incorrect param type! pacStr must be a list of strings.")
 		ok
 
-		_bResult_ = _TRUE_
+		_bResult_ = 1
 		_nLen_ = len(pacStr)
 		
 		for @i = 1 to _nLen_
 			if NOT This.Match(pacStr[@i])
-				_bResult_ = _FALSE_
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -1165,12 +1165,12 @@ class stzRegex
 			StzRaise("Incorrect param type! pacStr must be a list of strings.")
 		ok
 
-		_bResult_ = _TRUE_
+		_bResult_ = 1
 		_nLen_ = len(pacStr)
 		
 		for @i = 1 to _nLen_
 			if NOT This.MatchRecursive(pacStr[@i])
-				_bResult_ = _FALSE_
+				_bResult_ = 0
 				exit
 			ok
 		next

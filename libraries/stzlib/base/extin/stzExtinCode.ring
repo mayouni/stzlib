@@ -41,7 +41,7 @@ func iif(pCondition, pTrue, pFalse)
 
 	if isNumber(pCondition)
 
-		if pCondition = _TRUE_
+		if pCondition = 1
 			return pTrue
 		else
 			return pFalse

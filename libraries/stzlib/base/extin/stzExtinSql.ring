@@ -146,7 +146,7 @@ func FROM_(pcTableName)
 		if NOT isString(pcTableName)
 			StzRaise("Incorrect param type! pcTableName must be a string.")
 		ok
-		if isString(v(pcTableName)) and v(pcTableName) = _NULL_
+		if isString(v(pcTableName)) and v(pcTableName) = ""
 			StzRaise("Incorrect type! The stzTable object managed by the SQL statement is not defined as a global named variable.")
 		ok
 		if NOT @IsStzTable(v(pcTableName))
@@ -182,7 +182,7 @@ func WHERE_(pcCondition)
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
-		if NOT Q(pcCondition).ContainsOneOfTheseCS(_oIntermediateTable.ColsNames(), _FALSE_)
+		if NOT Q(pcCondition).ContainsOneOfTheseCS(_oIntermediateTable.ColsNames(), 0)
 			StzRaise("Incorrect param type! The pcCondition must contain columns names of the stzTable object managed by the SQL statement.")
 		ok
 	ok

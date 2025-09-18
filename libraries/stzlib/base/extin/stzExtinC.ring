@@ -8,7 +8,7 @@ func b(e)
 
 func bv(val1, val2)
 	nLen = len(_aVars)
-	if _b = _TRUE_
+	if _b = 1
 		_aVars[nLen][2] = val1
 	else
 		_aVars[nLen][2] = val2
@@ -16,12 +16,12 @@ func bv(val1, val2)
 
 func bt(val)
 	nLen = len(_aVars)
-	if _b = _TRUE_
+	if _b = 1
 		_aVars[nLen][2] = val
 	ok
 
 func bf(val)
 	nLen = len(_aVars)
-	if _b = _FALSE_
+	if _b = 0
 		_aVars[nLen][2] = val
 	ok

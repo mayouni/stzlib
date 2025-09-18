@@ -79,7 +79,7 @@ func TempVar()
 
 func TempVal()
 	if len(_var) = 0
-		return _NULL_
+		return ""
 	else
 		return _var[2]
 	ok
@@ -259,12 +259,12 @@ func Vr(pacVars)
 
 	for i = 1 to nLen
 
-		_aTempVars + [ pacVars[i], _NULL_ ]
+		_aTempVars + [ pacVars[i], "" ]
 
 		oHash = StzHashListQ(_aVars)
 		n = oHash.FindKey(pacVars[i])
 		if n = 0
-			_aVars + [ pacVars[i], _NULL_ ]
+			_aVars + [ pacVars[i], "" ]
 		else
 			_aVars[n][2] = []
 		ok

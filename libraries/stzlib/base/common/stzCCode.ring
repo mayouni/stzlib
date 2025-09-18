@@ -76,7 +76,7 @@ class stzCCode
 	#--------------------------------------#
 
 	def Update(cNewCode)
-		if CheckingParams() = _TRUE_
+		if CheckingParams() = 1
 			if isList(cNewCode) and Q(cNewCode).IsWithOrByOrUsingNamedParam()
 				cNewCode = cNewCode[2]
 			ok
@@ -226,7 +226,7 @@ class stzCCode
 			"@PreviousSplit",
 			"@PreviousObject"
 			
-		], _FALSE_)
+		], 0)
 
 		oResult = StzStringQ(" " + cCode + " ")
 
@@ -245,14 +245,14 @@ class stzCCode
 			
 			" @objects ","@allObjects" ],
 
-			" This.Content() ", _FALSE_)
+			" This.Content() ", 0)
 
 		oResult.ReplaceManyCS([
 			" @position ", " @CurrentPosition ",
 			" @Current@i ", " @CurrentI ",
 			" @EachPosition ", " @EachI " ],
 
-			" @i ", _FALSE_)
+			" @i ", 0)
 
 		oResult.ReplaceManyCS([				
 			" @item ", " @EachItem ", " @CurrentItem ",
@@ -271,14 +271,14 @@ class stzCCode
 
 			" @object ", " @EachObject ", " @CurrentObject " ],
 
-			" This[@i] ", _FALSE_ )
+			" This[@i] ", 0 )
 			
-		oResult.ReplaceCS(" -@Number ", " - This[@i] ", _FALSE_)
+		oResult.ReplaceCS(" -@Number ", " - This[@i] ", 0)
 
 		oResult.ReplaceManyCS([
 			" @NextPosition ", " @NextI "],
 
-			" @i + 1 ", _FALSE_)
+			" @i + 1 ", 0)
 			
 		oResult.ReplaceManyCS([
 			" @NextItem ",
@@ -290,12 +290,12 @@ class stzCCode
 			" @NextSplit ",
 			" @NextObject " ],
 
-			" This[@i + 1] ", _FALSE_)
+			" This[@i + 1] ", 0)
 
 		oResult.ReplaceManyCS([
 			" @PreviousPosition ", " @PreviousI "],
 
-			" @i - 1 ", _FALSE_)
+			" @i - 1 ", 0)
 
 		oResult.ReplaceManyCS([
 			" @PreviousItem ",
@@ -309,7 +309,7 @@ class stzCCode
 			" @PreviousObject "
 			],
 
-			" This[@i - 1] ", _FALSE_)
+			" This[@i - 1] ", 0)
 
 		cResult = oResult.Trimmed()
 
@@ -352,7 +352,7 @@ class stzCCode
 		# to understand them and apply them, you must use the ..XT()
 		# alternative of this function instead (ExecutableSectionXT())
 
-		if NOT _oCode_.Copy().RemoveSpacesQ().ContainsOneOfTheseCS([ "@i", "This[@i]" ], _FALSE_)
+		if NOT _oCode_.Copy().RemoveSpacesQ().ContainsOneOfTheseCS([ "@i", "This[@i]" ], 0)
 			StzRaise("Can't proceed! The conditional code provided does not contain @i or This[@i] keywords.")
 		ok
 
@@ -455,7 +455,7 @@ class stzCCode
 	
 		# Doing the job to get the borners of the executable section
 
-		if NOT _oCode_.Copy().RemoveSpacesQ().ContainsOneOfTheseCS([ "@i", "This[@i]" ], _FALSE_)
+		if NOT _oCode_.Copy().RemoveSpacesQ().ContainsOneOfTheseCS([ "@i", "This[@i]" ], 0)
 			StzRaise("Can't proceed! The conditional code provided does not contain @i or This[@i] keywords.")
 		ok
 

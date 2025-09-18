@@ -309,7 +309,7 @@ func ReducePaths(paPaths)
 	for @i = 1 to _nLenPaths_
 
 		_aPath_ = paPaths[@i]
-        	_bShouldAdd_ = _TRUE_
+        	_bShouldAdd_ = 1
         
 		for @j = 1 to _nLenPaths_
 
@@ -321,7 +321,7 @@ func ReducePaths(paPaths)
                 	   # If we find a shorter path that is a prefix of
                 	   # our current path, we skip the current path
 
-                		_bShouldAdd_ = _FALSE_
+                		_bShouldAdd_ = 0
                 			exit
             		ok
         	next
@@ -418,16 +418,16 @@ func IsSubPathOf(paShortPath, paLongPath)
 
     	if _nLenShort_ >= len(paLongPath)
 
-        	return _FALSE_
+        	return 0
     	ok
     
     	for @i = 1 to _nLenShort_
         	if paShortPath[@i] != paLongPath[@i]
-            		return _FALSE_
+            		return 0
         	ok
     	next
     
-    	return _TRUE_
+    	return 1
 
 	func @IsSubPathOf(paShortPath, paLongPath)
 		return IsSubPathOf(paShortPath, paLongPath)

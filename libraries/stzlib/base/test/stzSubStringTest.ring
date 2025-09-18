@@ -219,7 +219,7 @@ o1 = new stzString("ring")
 #--> ring
 
 ? @@( o1.SubStringIn("bla bla bla") )
-#--> _NULL_
+#-->NULL
 
 ? o1.SubstringInQ("I LOVE THE ring LANGUAGE!").Uppercased()
 #--> I LOVE THE RING LANGUAGE!
@@ -237,7 +237,7 @@ o1 = new stzString("I LOVE THE ring LANGUAGE!")
 #--> ring
 
 ? @@( o1.SubString("python") )
-#--> _NULL_
+#-->NULL
 
 ? o1.SubStringQ("ring").Uppercased()
 #--> I LOVE THE RING LANGUAGE!

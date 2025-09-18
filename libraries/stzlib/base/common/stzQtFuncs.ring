@@ -21,9 +21,9 @@ func QtToRingPosition(n)
 
 func IsQChar(p)
 	if isObject(p) and classname(p) = "qchar"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @fUNCtionAlternativeForms
@@ -86,9 +86,9 @@ func QCharToStzString(oQChar)
 
 func IsQByteArray(p)
 	if isObject(p) and classname(p) = :QByteArray
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @functionAlternativeForms
@@ -202,9 +202,9 @@ func QByteArrayToListOfUnicodesPerChar(oQByteArray)
 
 func IsQStringList(p)
 	if isObject(p) and classname(p) = "qstringlist"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func IsQStringListObject(p)
@@ -257,9 +257,9 @@ func QStringListToStzListOfStrings(oQStrList)
 
 func IsQLocale(p)
 	if isObject(p) and classname(p) = "qlocale"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func IsQLocaleObject(p)
@@ -310,9 +310,9 @@ func SystemLocale() # Returned as a string
 func IsQString(p)
 
 	if isObject(p) and ( classname(p) = "qstring" or classname(p) = "qstring2" )
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @functionAlternativeForms
@@ -422,9 +422,9 @@ func QStringToStzString(oQString)
 
 func IsQTime(p)
 	if isObject(p) and classname(p) = "qtime"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -468,7 +468,7 @@ func QTimeToString(oQTime, cFormat)
 
 func IsQObject(p)
 	if not isObject(p)
-		return _FALSE_
+		return 0
 	ok
 
 	return StzStringQ( classname(p) ).ExistsIn( RingQtClasses() )

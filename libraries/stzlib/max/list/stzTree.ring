@@ -21,12 +21,12 @@ func IsListOfValidNodesPaths(pacList)
 		ok
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 
 	nLen = len(pacList)
 	for i = 1 to nLen
 		if NOT IsValidNodePath(pacList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -72,12 +72,12 @@ func IsListOfValidItemsPaths(pacList)
 		ok
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 
 	nLen = len(pacList)
 	for i = 1 to nLen
 		if NOT IsValidItemPath(pacList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -342,7 +342,7 @@ class stzTree from stzList
 			return This.ItemsCS(pCaseSensitive)
 
 	def Items()
-		return This.ItemsCS(_TRUE_)
+		return This.ItemsCS(1)
 
 		def AllItems()
 			return This.Items()
@@ -409,7 +409,7 @@ class stzTree from stzList
 		#>
 
 	def ItemsZ()
-		return This.ItemsXTCS(_TRUE_)
+		return This.ItemsXTCS(1)
 
 		def ItemsAndTheirPaths()
 			return This.ItemsZ()
@@ -454,7 +454,7 @@ class stzTree from stzList
 		next
 
 	def _MapItemsToPaths(paContent, cCurrentPath, aItems, aItemPaths)
-		return This._MapItemsToPathsCS(paContent, cCurrentPath, aItems, aItemPaths, _TRUE_)
+		return This._MapItemsToPathsCS(paContent, cCurrentPath, aItems, aItemPaths, 1)
 
 	  #-----------------#
 	 #  FINDING ITEMS  #
@@ -486,7 +486,7 @@ class stzTree from stzList
 			return This.FindItemCS(pItem, pCaseSensitive)
 
 	def FindItem(pItem)
-		return This.FindItemCS(pItem, _TRUE_)
+		return This.FindItemCS(pItem, 1)
 
 		def FindThisItem(pItem)
 			This.FindItem(pItem)
@@ -501,7 +501,7 @@ class stzTree from stzList
 			nPos = 0
 			
 			for j = 1 to len(aNodeContent)
-				if pCaseSensitive = _TRUE_
+				if pCaseSensitive = 1
 					if aNodeContent[j] = pItem
 						nPos = j
 						exit
@@ -531,7 +531,7 @@ class stzTree from stzList
 		nPos = 0
 		
 		for i = 1 to len(aNodeContent)
-			if pCaseSensitive = _TRUE_
+			if pCaseSensitive = 1
 				if aNodeContent[i] = pItem
 					nPos = i
 					exit
@@ -568,7 +568,7 @@ class stzTree from stzList
 		return aResult
 	
 	def FindTheseItems(paItems)
-		return This.FindTheseItemsCS(paItems, _TRUE_)
+		return This.FindTheseItemsCS(paItems, 1)
 
 	#--
 
@@ -595,7 +595,7 @@ class stzTree from stzList
 			return This.FindItemsCS(pCaseSensitive)
 
 	def FindItems()
-		return This.FindItemsCS(_TRUE_)
+		return This.FindItemsCS(1)
 
 	#--
 
@@ -754,7 +754,7 @@ class stzTree from stzList
 		def RemoveThisItemCS(pItem, pCaseSensitive)
 
 	def RemoveItem(pItem) #TODO
-    		This.RemoveItemCS(pItem, _TRUE_)
+    		This.RemoveItemCS(pItem, 1)
 
 	#--
 
@@ -762,7 +762,7 @@ class stzTree from stzList
 		stzraise("Not yet implemented!")
 
 	def RemoveTheseItems(paItems)
-		This.RemoveTheseItemsCS(paItems, _TRUE_)
+		This.RemoveTheseItemsCS(paItems, 1)
 
 	#--
 

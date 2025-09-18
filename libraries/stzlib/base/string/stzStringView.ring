@@ -63,7 +63,7 @@ class stzStringView from stzObject
 
 	def StringCase()
 		if NOT This.ContainsLatinLetters()
-			return _NULL_
+			return ""
 
 		ok
 
@@ -81,7 +81,7 @@ class stzStringView from stzObject
 
 	def IsHybridcase()
 		if NOT This.ContainsLatinLetters()
-			return _NULL_
+			return ""
 
 		ok
 
@@ -95,17 +95,17 @@ class stzStringView from stzObject
 
 	def IsPalindromeCS(pCaseSensitive)
 		if This.NumberOfChars() < 2
-			return _FALSE_
+			return 0
 		ok
 
 		cReversed = This.Reversed()
-		if This.IsEqualtToCS( cReversed, pCaseSensitive) = _TRUE_
-			return _TRUE_
+		if This.IsEqualtToCS( cReversed, pCaseSensitive) = 1
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsPalindrome()
-		return This.IsPalindromeCS(_TRUE_)
+		return This.IsPalindromeCS(1)

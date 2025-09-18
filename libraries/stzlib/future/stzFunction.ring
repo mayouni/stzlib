@@ -54,9 +54,9 @@ def FunctionNameFinishesWithOneOfThese( pcFunctionCall, paSubStr )
 	cLast2Chars = StzStringQ(FunctionName(pcFunctionCall)).NLastCharsQ(2).Lowercased()
 
 	if cLast2Chars = "in" or cLast2Chars = "of"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 
@@ -81,7 +81,7 @@ def FunctionParamTypeIsOneOfThese(pcFunctionCall, paSubStr)
 
 	cType = FunctionParamType(pcFunctionCall)
 	if cType = ""
-		return _FALSE_
+		return 0
 	ok
 
 	cTypeLow = lower(cType)
@@ -94,9 +94,9 @@ def FunctionParamTypeIsOneOfThese(pcFunctionCall, paSubStr)
 	next
 
 	if ring_find(acSubStrLow, cTypeLow) > 0
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 
@@ -107,7 +107,7 @@ class stzFunction from stzObject
 	cReturn
 	cFuncOrDef = "func"
 
-	bStartedUp = _FALSE_
+	bStartedUp = 0
 
 	def Name()
 		return cName
@@ -168,7 +168,7 @@ class stzFunction from stzObject
 
 	def Startup()
 		eval( DesignCode() )
-		bStartedUp = _TRUE_
+		bStartedUp = 1
 
 	def IsStartedUp()
 		return bStartedUp
@@ -201,4 +201,4 @@ class stzFunction from stzObject
 	#-----------#
 
 	def IsFunction() # required by stzChainOfTruth
-		return _TRUE_
+		return 1

@@ -1234,7 +1234,7 @@ o1 = new stzNumber(12590)
 	:ThousandsSeparator = ".",
 	:FractionalSeparator = ",",
 
-	:Suffix = _NULL_,
+	:Suffix = NULL,
 
 	# Conversion
 	:ToPercentage = FALSE,

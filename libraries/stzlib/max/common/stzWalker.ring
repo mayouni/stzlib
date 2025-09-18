@@ -34,9 +34,9 @@ func WhileWalking(cWalker)
 
 func IsWalker(pObject)
 	if isObject(pObject) and classname(pObject) = "stzwalker"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func @IsWalker(pObject)
@@ -51,7 +51,7 @@ class stzWalker
 	@nStart
 	@nEnd
 	@Steps   # Can be a number or a list of numbers
-	@bIsVariantSteps = _FALSE_  # TRUE if steps vary, FALSE if constant step
+	@bIsVariantSteps = 0  # TRUE if steps vary, FALSE if constant step
 
 	@anWalkables = []
 	@nCurrentPos
@@ -1178,9 +1178,9 @@ class stzWalker
 		ok
 
 		if ring_find(This.Walkables(), n) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -1208,11 +1208,11 @@ class stzWalker
 
 		anPos = U(anPos)
 		nLen = len(anPos)
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if ring_find(anWalkables, anPos[i]) = 0
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -1235,9 +1235,9 @@ class stzWalker
 		ok
 
 		if ring_find(This.Unwalkables(), n) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -1265,11 +1265,11 @@ class stzWalker
 
 		anPos = U(anPos)
 		nLen = len(anPos)
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if ring_reverse(anUnwalkables, anPos[i]) = 0
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -1457,25 +1457,25 @@ class stzWalker
 			# In a forward walk (start < end)
 
 			if n < @nStart
-				return [ _FALSE_, "Position " + n + " goes before the start boundary (" + @nStart + ")" ]
+				return [ 0, "Position " + n + " goes before the start boundary (" + @nStart + ")" ]
 
 			but n > @nEnd
-				return [ _TRUE_, "Position " + n + " goes beyond the end boundary (" + @nEnd + "), ignoring" ]
+				return [ 1, "Position " + n + " goes beyond the end boundary (" + @nEnd + "), ignoring" ]
 
 			else
-				return [ _TRUE_, "" ]  # Valid position
+				return [ 1, "" ]  # Valid position
 			ok
 
 		else
 			# In a backward walk (start > end)
 
 			if n > @nStart
-				return [ _FALSE_, "Position " + n + " goes before the start boundary (" + @nStart + ")" ]
+				return [ 0, "Position " + n + " goes before the start boundary (" + @nStart + ")" ]
 
 			but n < @nEnd
-				return [ _TRUE_, "Position " + n + " goes beyond the end boundary (" + @nEnd + "), ignoring" ]
+				return [ 1, "Position " + n + " goes beyond the end boundary (" + @nEnd + "), ignoring" ]
 			else
-				return [ _TRUE_, "" ]  # Valid position
+				return [ 1, "" ]  # Valid position
 			ok
 
 		ok
@@ -1488,7 +1488,7 @@ class stzWalker
 		nNextPos = nCurrentPos + nStep
 		aCheck = This.CheckBoundary(nNextPos)
 
-		if aCheck[1] = _FALSE_
+		if aCheck[1] = 0
 			# Don't silently skip - raise the error
 			StzRaise(aCheck[2])
 		ok
@@ -1500,13 +1500,13 @@ class stzWalker
 
 			# This is a valid but end-exceeding position
 
-			return [ _TRUE_, nNextPos, _TRUE_ ]
+			return [ 1, nNextPos, 1 ]
 			# Third element indicates "beyond end"
 		ok
 
 		# Valid position within boundaries
 
-		return [ _TRUE_, nNextPos, _FALSE_ ]
+		return [ 1, nNextPos, 0 ]
 		# Third element indicates "within boundaries"
 
 	  #-----------#

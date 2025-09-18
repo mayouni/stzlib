@@ -2592,12 +2592,12 @@ pr()
 o1 = new stzTable([
 	[ :ID,	:NAME 	],
 	#---------------#
-	[ _NULL_,	_NULL_ 	],
-	[ _NULL_,	_NULL_ 	],
-	[ _NULL_,	_NULL_ 	]
+	[ NULL,	NULL 	],
+	[ NULL,	NULL 	],
+	[ NULL,	NULL 	]
 ])
 
-// A table is empty when all its cells are _NULL_
+// A table is empty when all its cells are NULL
 
 ? o1.IsEmpty()
 #--> TRUE
@@ -3002,9 +3002,9 @@ o1.Show()
 #-->
 #  ID    EMPLOYEE  SALARY
 #  --- ---------- -------
-#  _NULL_  _NULL_	     _NULL_
-#  _NULL_  _NULL_	     _NULL_
-#  _NULL_  _NULL_	     _NULL_
+#  NULL  NULL	     NULL
+#  NULL  NULL	     NULL
+#  NULL  NULL	     NULL
 
 pf()
 # Executed in 0.09 second(s) in Ring 1.20
@@ -3059,7 +3059,7 @@ o1 = new stzTable([
 o1.EraseCell(2, 3)
 
 ? @@( o1.Cell(2, 3) )
-#--> _NULL_
+#-->NULL
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.20
@@ -4861,7 +4861,7 @@ o1 = new stzTable([
 	[ 30,	"Ben",		25982	]
 ])
 
-o1.AddCol( :TEMPO = [ _NULL_, _NULL_, _NULL_ ])
+o1.AddCol( :TEMPO = [ NULL, NULL, NULL ])
 
 ? o1.LastColName()
 #--> "tempo"

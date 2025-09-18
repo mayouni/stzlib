@@ -136,25 +136,25 @@ Class UnifiedSystem
 //		@ = This.Task(@)
 
 		if NOT isList(@)
-			return _FALSE_
+			return 0
 		ok
 
 		if NOT len(@) >= 3
-			return _FALSE_
+			return 0
 		ok
 
 		if NOT IsHashList(@)
-			return _FALSE_
+			return 0
 		ok
 
 		if NOT ( IsStzObject(@[:object]) and
-			 isString(@[:name]) and @[:name] != _NULL_ and
-			 isString(@[:action]) and @[:action] != _NULL_ )
+			 isString(@[:name]) and @[:name] != "" and
+			 isString(@[:action]) and @[:action] != "" )
 
 			StzRaise("Invalid task format. The task must include 'object', 'name' and 'code' fields.")
 		ok
 
-		return _TRUE_
+		return 1
 
 	def IsNovelTask(@) # @ abbreviation of a task
 
@@ -164,11 +164,11 @@ Class UnifiedSystem
 
 		for Skill in skills
 			if @[:name] = Skill[:name]
-				return _FALSE_
+				return 0
 			ok
 		next
 
-		return _TRUE_
+		return 1
 
 		def IsNovel(@)
 			return This.IsNovelTask(@)
@@ -181,7 +181,7 @@ Class UnifiedSystem
 
 		@ = Task(@)
 
-		result = _NULL_
+		result = ""
 
 		if This.isNovel(@)
 			skills + [
@@ -218,7 +218,7 @@ Class UnifiedSystem
 
 		# Executing the pool of tasks
 
-		while _TRUE_
+		while 1
 
 			_nLen_ = len(aPool)
 
@@ -279,7 +279,7 @@ Class UnifiedSystem
 		on :ON
 			// Just do normal processing
 		on :OFF
-			return _NULL_
+			return ""
 
 		on :ERR
 			raise(This.Error())

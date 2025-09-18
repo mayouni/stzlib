@@ -2684,7 +2684,7 @@ pr()
 ? isNull("")
 #--> TRUE
 
-? isNull(_NULL_)
+? isNull(NULL)
 
 //? isTrue("") #TODO // Should rerurn TRUE
 

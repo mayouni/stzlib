@@ -5,9 +5,9 @@ func StzPairQ(paList)
 
 func IsPair(paList)
 	if isList(paList) and len(paList) = 2
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func @IsPair(paList)
@@ -29,7 +29,7 @@ class stzPair from stzList
 			@aContent + item
 		next
 
-		if KeepingHistory() = _TRUE_
+		if KeepingHistory() = 1
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -54,7 +54,7 @@ class stzPair from stzList
 
 		@aContent = paPair
 
-		if KeepingHisto() = _TRUE_
+		if KeepingHisto() = 1
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -94,31 +94,31 @@ class stzPair from stzList
 
 	def BothAreNumbers()
 		if isNumber(This.Item1()) and isNumber(This.Item2())
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def BothAreStrings()
 		if isString(This.Item1()) and isString(This.Item2())
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def BothAreLists()
 		if isList(This.Item1()) and isList(This.Item2())
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def BothAreObjects()
 		if isObject(This.Item1()) and isObject(This.Item2())
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStzPair()
-		return _TRUE_
+		return 1

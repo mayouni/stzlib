@@ -642,13 +642,13 @@ o1 = new stzListOfNumbers([ 2, 7, 18, 18, 10, 25, 4 ])
 #--> [ 7, 18 ]
 
 ? @@( o1.Neighbors(25) )
-#--> [18, _NULL_ ]
+#--> [18, NULL ]
 
 ? @@( o1.Neighbors(2) )
-#--> [ _NULL_, 4 ]
+#--> [ NULL, 4 ]
 
 ? @@( o1.Neighbors(88) )
-#--> [ 25, _NULL_ ]
+#--> [ 25, NULL ]
 
 ? @@( o1.FarthestNighbors(10) ) # Misspelled form of FarthestNeighbors()
 				# You can use the short form FNeighbors()
@@ -718,16 +718,16 @@ pr()
 o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
 
 ? @@( o1.NeighborsOf(5) )
-#--> [ _NULL_, _NULL_ ]
+#--> [ NULL, NULL ]
 
 ? @@( o1.Neighbors(11) )
 #--> [ 6, 18 ]
 
 ? @@( o1.Neighbors(1) )
-#--> [ _NULL_, 4 ]
+#--> [ NULL, 4 ]
 
 ? @@( o1.Neighbors(22) )
-#--> [ 18, _NULL_ ]
+#--> [ 18, NULL ]
 
 pf()
 # Executed in 0.10 second(s)
@@ -739,16 +739,16 @@ pr()
 o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
 
 ? @@( o1.FarthestNeighborsOf(5) ) # or FNeighborsOf(5)
-#--> [ _NULL_, _NULL_ ]
+#--> [ NULL, NULL ]
 
 ? @@( o1.FNeighbors(11) )
 #--> [ 1, 18 ]
 
 ? @@( o1.FNeighbors(1) )
-#--> [ _NULL_, 18 ]
+#--> [ NULL, 18 ]
 
 ? @@( o1.FNeighbors(18) )
-#--> [ 1, _NULL_ ]
+#--> [ 1, NULL ]
 
 pf()
 # Executed in 0.10 second(s)
@@ -766,13 +766,13 @@ o1 = new stzListOfNumbers([ 2, 4, 7, 10, 12, 15, 18, 25 ])
 #--> 25
 
 ? @@( o1.FarthestXT( :To = 2, :Before) )
-#--> _NULL_
+#-->NULL
 
 ? @@( o1.FarthestToXT(17, :ComingAfterIt) )
-#--> _NULL_
+#-->NULL
 
 ? @@( o1.FarthestToXT(25, :ComingAfterIt) )
-#--> _NULL_
+#-->NULL
 
 pf()
 # Executed in 0.30 second(s)
@@ -790,13 +790,13 @@ o1 = new stzListOfNumbers([ 2, 4, 7, 10, 12, 15, 18, 25 ])
 #--> 25
 
 ? @@( o1.NearestXT( :To = 2, :Before) )
-#--> _NULL_
+#-->NULL
 
 ? @@( o1.NearestToXT(17, :ComingAfterIt) )
-#--> _NULL_
+#-->NULL
 
 ? @@( o1.NearestToXT(25, :ComingAfterIt) )
-#--> _NULL_
+#-->NULL
 
 pf()
 # Executed in 0.30 second(s)

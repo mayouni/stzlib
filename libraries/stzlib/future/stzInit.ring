@@ -4,8 +4,8 @@ sqlite_open(oSQLite,"stz.db")
 
 cSQL = "
 	CREATE TABLE FUNCACHE (
-	ID INT PRIMARY 	KEY	NOT _NULL_,
-	TIMESTAMP	TEXT	NOT _NULL_,
+	ID INT PRIMARY 	KEY	NOT "",
+	TIMESTAMP	TEXT	NOT "",
 	
 	)
 "

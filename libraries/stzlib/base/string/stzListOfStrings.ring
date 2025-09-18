@@ -191,7 +191,7 @@ class stzListOfStrings from stzList
 			done
 		ok
 
-		if KeepingHistory() = _TRUE_
+		if KeepingHistory() = 1
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -426,7 +426,7 @@ class stzListOfStrings from stzList
 	
 		ok
 
-		if KeepingHistory() = _TRUE_
+		if KeepingHistory() = 1
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -651,7 +651,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def Filter(pcSubStr)
-		return This.FilterCS(pcSubStr, _TRUE_)
+		return This.FilterCS(pcSubStr, 1)
 
 		#< @FunctionfluentForm
 
@@ -758,7 +758,7 @@ class stzListOfStrings from stzList
 
 			aResult = []
 
-			if paBoxOptions[ :EachChar ] = _TRUE_
+			if paBoxOptions[ :EachChar ] = 1
 
 				for str in This.ListOfStrings()
 					aResult + StzListOfCharsQ(str).BoxXT(paBoxOptions)
@@ -1614,7 +1614,7 @@ class stzListOfStrings from stzList
 	#------------#
 
 	def IsStzListOfStrings()
-		return _TRUE_
+		return 1
 
 	def stzType()
 		return :stzListOfStrings
@@ -1782,7 +1782,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStrongs()
-		return This.SubStrongsCS(_TRUE_)
+		return This.SubStrongsCS(1)
 
 	  #-----------------------------------------------#
 	 #  GETTING THE LIST OF SUBSTREACKS IN THE LIST  #
@@ -1824,7 +1824,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStrinks()
-		return This.SubStrinksCS(_TRUE_)
+		return This.SubStrinksCS(1)
 
 	  #-----------------------------------#
 	 #  SUBSTRONGS AND THEIR SubStrinkS  #TODO
@@ -1839,7 +1839,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStrongsAndTheirSubStrinks()
-		return This.SubStrongsAndTheirSubStrinksCS(_TRUE_)
+		return This.SubStrongsAndTheirSubStrinksCS(1)
 
 		def SubStrongsAndSubStrinks()
 			return This.SubStrongsAndTheirSubStrinks()
@@ -1857,7 +1857,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStrinksAndTheirSubStrongs()
-		return This.SubStrinksAndTheirSubStrongsCS(_TRUE_)
+		return This.SubStrinksAndTheirSubStrongsCS(1)
 
 		def SubStrinksAndSubStrongs()
 			return This.SubStrinksAndTheirSubStrongs()
@@ -1924,7 +1924,7 @@ class stzListOfStrings from stzList
 
 		for i = 2 to nLen
 			if NOT acContent[i].FirstCharQ().IsEqualToCS(cResult, pCaseSensitive)
-				return _NULL_
+				return ""
 			ok 
 		next
 
@@ -1942,10 +1942,10 @@ class stzListOfStrings from stzList
 			return @MainObject()
 
 	def FirstChar()
-		return This.FirstCharCS(_TRUE_)
+		return This.FirstCharCS(1)
 
 		def FirstCharQ()
-			return This.FirstCharCSQ(_TRUE_)
+			return This.FirstCharCSQ(1)
 
 		def FirstCharQM()
 			return @MainObject()
@@ -1968,7 +1968,7 @@ class stzListOfStrings from stzList
 
 		for i = 2 to nLen
 			if NOT acContent[i].LastCharQ().IsEqualToCS(cResult, pCaseSensitive)
-				return _NULL_
+				return ""
 			ok 
 		next
 
@@ -1986,10 +1986,10 @@ class stzListOfStrings from stzList
 			return @MainObject()
 
 	def LastChar()
-		return This.LastCharCS(_TRUE_)
+		return This.LastCharCS(1)
 
 		def LastCharQ()
-			return This.LastCharCSQ(_TRUE_)
+			return This.LastCharCSQ(1)
 
 		def LastCharQM()
 			return @MainObject()
@@ -2109,14 +2109,14 @@ class stzListOfStrings from stzList
 	#==========================================#
 
 	def Matches(pcRegexPatt)
-		_bResult_ = _TRUE_
+		_bResult_ = 1
 
 		_acContent_ = This.Content()
 		_nLen_ = len(_acContent_)
 
 		for @i = 1 to _nLen_
-			if rx(pcRegexPatt).Match(_acContent_[@i]) = _FALSE_
-				_bResult_ = _FALSE_
+			if rx(pcRegexPatt).Match(_acContent_[@i]) = 0
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -2132,20 +2132,20 @@ class stzListOfStrings from stzList
 	
 			bTruth = TruthStatement()
 	
-			if bTruth = _TRUE_
+			if bTruth = 1
 	
 				return This.Matches(pcRegexPatt)
 	
 			else
 	
-				_bResult_ = _TRUE_
+				_bResult_ = 1
 		
 				_acContent_ = This.Content()
 				_nLen_ = len(_acContent_)
 		
 				for @i = 1 to _nLen_
-					if rx(pcRegexPatt).Match(_acContent_[@i]) = _TRUE_
-						_bResult_ = _FALSE_
+					if rx(pcRegexPatt).Match(_acContent_[@i]) = 1
+						_bResult_ = 0
 						exit
 					ok
 				next

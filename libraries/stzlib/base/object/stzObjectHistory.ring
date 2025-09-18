@@ -1,5 +1,5 @@
 # Global flag to prevent recursive history tracking
-//_bInHistoryUpdate = _FALSE_
+//_bInHistoryUpdate = 0
 
 
 func KeepingHistory()
@@ -36,55 +36,55 @@ func KeepingHistoryXT()
 #-- Enhanced History Control Functions
 
 func KeepHistoryON()
-	_bKeepHisto = _TRUE_
+	_bKeepHisto = 1
 
 	func KeepHistory()
-		_bKeepHisto = _TRUE_
+		_bKeepHisto = 1
 
 	func KeepHistoON()
-		_bKeepHisto = _TRUE_
+		_bKeepHisto = 1
 
 	func KeepHisto()
-		_bKeepHisto = _TRUE_
+		_bKeepHisto = 1
 
 func KeepHistoryOFF()
-	_bKeepHisto = _FALSE_
+	_bKeepHisto = 0
 
 	func DontKeepHistory()
-		_bKeepHisto = _FALSE_
+		_bKeepHisto = 0
 
 	func KeepHistoOFF()
-		_bKeepHisto = _FALSE_
+		_bKeepHisto = 0
 
 	func DontKeepHisto()
-		_bKeepHisto = _FALSE_
+		_bKeepHisto = 0
 
 #-- Enhanced TraceObjectHistory with Recursion Prevention
 
 func TraceObjectHistory(poStzObj)
 	# CRITICAL: Prevent recursive calls
-	if _bInHistoryUpdate = _TRUE_
+	if _bInHistoryUpdate = 1
 		return
 	ok
 
 	# Check if history tracking is enabled
-	if KeepingHistory() = _FALSE_ and KeepingHistoryXT() = _FALSE_
+	if KeepingHistory() = 0 and KeepingHistoryXT() = 0
 		return
 	ok
 
 	_obj_ = poStzObj
 	
 	# Set flag to prevent recursion
-	_bInHistoryUpdate = _TRUE_
+	_bInHistoryUpdate = 1
 
 	try
 		# Basic history tracking
-		if KeepingHistory() = _TRUE_
+		if KeepingHistory() = 1
 			_obj_.AddHistoricValueInternal(_obj_.Content())
 		ok
 
 		# Extended history tracking
-		if KeepingHistoryXT() = _TRUE_
+		if KeepingHistoryXT() = 1
 			_cDisp_ = _aKeepHistoXT[2]
 			_aHistoryData_ = []
 
@@ -168,7 +168,7 @@ func TraceObjectHistory(poStzObj)
 	done
 
 	# Always reset the flag
-	_bInHistoryUpdate = _FALSE_
+	_bInHistoryUpdate = 0
 
 	func @TraceObjectHistory(pStzObj)
 		TraceObjectHistory(pStzObj)
@@ -189,7 +189,7 @@ func GetHistoryUpdateState()
 	return _bInHistoryUpdate
 
 func ResetHistoryUpdateState()
-	_bInHistoryUpdate = _FALSE_
+	_bInHistoryUpdate = 0
 
 #-- Enhanced Error Handling
 
@@ -199,7 +199,7 @@ func SafeTraceObjectHistory(poStzObj)
 		return
 	ok
 	
-	if _bInHistoryUpdate = _TRUE_
+	if _bInHistoryUpdate = 1
 		return
 	ok
 	
@@ -208,5 +208,5 @@ func SafeTraceObjectHistory(poStzObj)
 	catch
 		# Log error and continue
 		# Could add proper error logging here
-		_bInHistoryUpdate = _FALSE_
+		_bInHistoryUpdate = 0
 	done

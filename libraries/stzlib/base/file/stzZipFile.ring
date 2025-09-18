@@ -210,10 +210,10 @@ class stzZipFile from stzObject
         nLen = len(aContents)
         for i = 1 to nLen
             if aContents[i] = cFileName
-                return _TRUE_
+                return 1
             ok
         next
-        return _FALSE_
+        return 0
     
     def IsEmpty()
         # Check if zip is empty

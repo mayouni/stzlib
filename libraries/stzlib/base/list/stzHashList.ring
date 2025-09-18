@@ -284,7 +284,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 
 
-		if KeepingHistory() = _TRUE_
+		if KeepingHistory() = 1
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -493,15 +493,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_nLen_ = This.NumberOfValues()
 
 		if _nLen_ = 1
-			return _TRUE_
+			return 1
 		ok
 
 		_nSize_ = len(_aContent_[1][2])
-		_bResult_ = _TRUE_
+		_bResult_ = 1
 
 		for @i = 2 to _nLen_
 			if len(_aContent_[@i][2]) != _nSize_
-				_bResult_ = _FALSE_
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -819,7 +819,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#---------------------------#
 
 	def Update(paNewHashList)
-		if CheckingParams() = _TRUE_
+		if CheckingParams() = 1
 			if isList(paNewHashList) and Q(paNewHashList).IsWithOrByOrUsingNamedParam()
 				paNewHashList = paNewHashList[2]
 			ok
@@ -831,7 +831,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		@aContent = paNewHashList
 
-		if KeepingHisto() = _TRUE_
+		if KeepingHisto() = 1
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 	
@@ -1316,9 +1316,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def HasKey(pcKey)
 
 		if isString(pcKey) and This.FindKey(pcKey) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def ContainsKey(pcKey)
@@ -1330,9 +1330,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		if oKeys.IsListOfStrings() and
 		   oKeys.IsEqualTo(This.Keys())
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def ContainsKeys(pacKeys)
@@ -1371,9 +1371,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def ContainsPair(paPair)
 
 		if FindPair(paPair) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	  #-----------------------------------------------------#
@@ -1383,9 +1383,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def ContainsValueCS(pValue, pCaseSensitive)
 
 		if len( This.FindValueCS(pValue, pCaseSensitive) ) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -1404,7 +1404,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-- WITHOUT CASESENSITIVE
 
 	def ContainsValue(pValue)
-		return This.ContainsValueCS(pValue, _TRUE_)
+		return This.ContainsValueCS(pValue, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -1443,7 +1443,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-- WITHOUT CASESENSITIVE
 
 	def ContainsValues(paValues)
-		return This.ContainsValuesCS(paValues, _TRUE_)
+		return This.ContainsValuesCS(paValues, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -1479,7 +1479,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindValue(pValue)
-		return This.FindValueCS(pValue, _TRUE_)
+		return This.FindValueCS(pValue, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -1519,7 +1519,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindValues(paValues)
-		return This.FindValuesCS(paValues, _TRUE_)
+		return This.FindValuesCS(paValues, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -1572,7 +1572,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthOccurrenceOfValue(n, pValue)
-		return This.FindNthOccurrenceOfValueCS(n, pValue, _TRUE_)
+		return This.FindNthOccurrenceOfValueCS(n, pValue, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -2303,7 +2303,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			:Negative	= :NONE
 		])
 	
-		? o1.ContainsItem(:nice) #--> _TRUE_
+		? o1.ContainsItem(:nice) #--> TRUE
 		*/
 
 		# See EXAMPLE in FindItemInList()
@@ -2311,7 +2311,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult = _FALSE_
+		bResult = 0
 
 		for i = 1 to nLen
 
@@ -2319,7 +2319,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 				oStzList = new stzList(aContent[i][2])
 				if oStzList.Contains(pItem)
-					bResult = _TRUE_
+					bResult = 1
 					exit
 				ok
 			ok
@@ -2907,7 +2907,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-----------------------------------------------------#
 
 	def ContainsClass(pcClass)
-		bResult = This.ContainsValueCS(pcClass, _FALSE_)
+		bResult = This.ContainsValueCS(pcClass, 0)
 		return bResult
 
 		#< @FunctionAlternativeForms
@@ -2942,7 +2942,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-------------------------------------------------------#
 
 	def ContainsClasses(pacClasses)
-		bResult = This.ContainsValuesCS(pacClasses, _FALSE_)
+		bResult = This.ContainsValuesCS(pacClasses, 0)
 		return bResult
 
 		#< @FunctionAlternativeForms
@@ -4237,7 +4237,7 @@ this: lefttoright
 		return :stzHashList
 
 	def IsHashList() # required by stzChainOfTruth
-		return _TRUE_
+		return 1
 
 	def ToCode()
 		aPairs = This.Content()

@@ -18,7 +18,7 @@ pr()
 
 pState1 = ring_state_init()
 pState2 = ring_state_init()
-pNotAState = _NULL_
+pNotAState = NULL
 
 ? isPointer(pstate1)
 #--> TRUE

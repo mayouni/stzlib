@@ -2,9 +2,9 @@
 func IsSection(n1, n2, nSize)
 	try
 		new stzSection(n1, n2, nSize)
-		return _TRUE_
+		return 1
 	catch
-		return _FALSE_
+		return 0
 	done
 
 	func @IsSection(n1, n2, nSize)

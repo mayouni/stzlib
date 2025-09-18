@@ -19,7 +19,7 @@
 
 _nRingMaxRandom = 999_999_999 # Based on my testing of Ring random() function
 			      #NOTE// if you seed the Ring random() function
-			      # with a value greater than that, you will get _NULL_
+			      # with a value greater than that, you will get ""
 			      # as a result! Example : random(9_999_999_999)
 
 _nRingMaxSeed = 1_999_999_999 # Idem
@@ -192,7 +192,7 @@ func No(p)
 	#< @FunctionStatementForm
 
 	func NothingInQQX(p)
-		_bXStatement_ = _FALSE_
+		_bXStatement_ = 0
 		return QQ(p)
 
 		func NoNumberInQQX(p)
@@ -920,7 +920,7 @@ func All(paList)
 	#< @FunctionStatementForm
 
 	func EveryThingInQQX(p)
-		_bXStatement_ = _TRUE_
+		_bXStatement_ = 1
 		return QQ(p)
 
 	#>
@@ -1007,7 +1007,7 @@ func AllNumbers(panList)
 	#< @FunctionStatementForm
 
 	func AllNumbersQQX(panList)
-		_bXStatement_ = _TRUE_
+		_bXStatement_ = 1
 		return QQ(panList)
 
 		func AllNumbersInQQX(panList)
@@ -1243,7 +1243,7 @@ func RandomNumberLessThan(n)
 	
 		i = 0
 		nRandom = 0
-		while _TRUE_
+		while 1
 			i++
 			nRandom = StzRandom01()
 			if nRandom < n or i = MaxRandomLoop()
@@ -1323,7 +1323,7 @@ func RandomNumberLessThanXT(n, nSeed)
 	
 		i = 0
 		nRandom = 0
-		while _TRUE_
+		while 1
 			i++
 			nRandom = StzRandom01XT(nSeed)
 			if nRandom < n or i = MaxRandomLoop()
@@ -1421,7 +1421,7 @@ func RandomNumberGreaterThan(n)
 	
 		i = 0
 		nRandom = 0
-		while _TRUE_
+		while 1
 			i++
 			nRandom = StzRandom01()
 			if nRandom > n or i = MaxRandomLoop()
@@ -1525,7 +1525,7 @@ func RandomNumberGreaterThanXT(n, nSeed)
 	
 		i = 0
 		nRandom = 0
-		while _TRUE_
+		while 1
 			i++
 			nRandom = StzRandom01XT(nSeed)
 			if nRandom > n or i = MaxRandomLoop()
@@ -1632,7 +1632,7 @@ func RandomNumberOtherThan(n)
 	
 		i = 0
 		nRandom = 0
-		while _TRUE_
+		while 1
 			i++
 			nRandom = StzRandom01()
 			if nRandom != n or i = MaxRandomLoop()
@@ -1723,7 +1723,7 @@ func RandomNumberOtherThanXT(n, nSeed)
 		ok
 
 		i = 0
-		while _TRUE_
+		while 1
 			i++
 			nRandom = ARandomNumber01XT(nSeed)
 			if nRandom != n or i = MaxRandomLoop()
@@ -1999,7 +1999,7 @@ func SomeRandomNumbersGreaterThanU(n)
 		nSome = RandomNumberLessThan( floor(_Some() * 10) )
 		anResult = []
 	
-		while _TRUE_
+		while 1
 			nRandom = RandomNumberGreaterThan01(n)
 			if ring_find(anResult, nRandom) = 0
 				anResult + nRandom
@@ -2138,7 +2138,7 @@ func SomeRandomNumbersGreaterThanXTU(n, nValue, nSeed)
 		nSome = RandomNumberLessThan(floor(_Some() * 10))
 		anResult = []
 	
-		while _TRUE_
+		while 1
 			nRandom = RandomNumberGreaterThan01XT(n, nSeed)
 			if ring_find(anResult, nRandom) = 0
 				anResult + nRandom
@@ -2371,7 +2371,7 @@ func NRandomNumbersGreaterThanU(n, nValue)
 
 	anResult = []
 
-	while _TRUE_
+	while 1
 
 		nRandom = ARandomNumberGreaterThan(nValue)
 
@@ -2443,7 +2443,7 @@ func NRandomNumbersGreaterThanU(n, nValue)
 
 		anResult = []
 
-		while _TRUE_
+		while 1
 
 			nRandom = ARandomNumberGreaterThan01(nValue)
 
@@ -2566,7 +2566,7 @@ func NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
 
 		anResult = []
 
-		while _TRUE_
+		while 1
 
 			nRandom = ARandomNumberGreaterThan01XT(nValue, nSeed)
 
@@ -2765,7 +2765,7 @@ func NRandomNumbersLessThanU(n, nValue)
 
 	anResult = []
 
-	while _TRUE_
+	while 1
 
 		nRandom = ARandomNumberLessThan(nValue)
 
@@ -2821,7 +2821,7 @@ func NRandomNumbersLessThanU(n, nValue)
 		anResult = []
 
 		i = 0
-		while _TRUE_
+		while 1
 			i++
 			nRandom = ARandomNumberLessthan01(n, nValue)
 
@@ -2914,7 +2914,7 @@ func NRandomNumbersLessThanXTU(n, nValue, nSeed)
 		anResult = []
 
 		i = 0
-		while _TRUE_
+		while 1
 			i++
 			nRandom = ARandomNumberLessthanXT01(n, nValue, nSeed)
 
@@ -3905,7 +3905,7 @@ func NRandomNumbersIn(n, panNumbers)
 
 	anResult = []
 
-	while _TRUE_
+	while 1
 		nPos = ARandomNumberIn(1 : nLen)
 		anResult + panNumbers[nPos]
 		if len(anResult) = n
@@ -3970,7 +3970,7 @@ func NRandomNumbersInZ(n, panNumbers)
 	anNumbers = []
 	anPos = []
 
-	while _TRUE_
+	while 1
 		nPos = ARandomNumberIn(1 : nLen)
 		anNumbers + panNumbers[nPos]
 		anPos + nPos
@@ -4142,7 +4142,7 @@ func NRandomNumbersInU(n, panNumbers)
 
 	anResult = []
 
-	while _TRUE_
+	while 1
 
 		nRandom = ARandomNumberIn(panNumbers)
 		
@@ -4251,7 +4251,7 @@ func NRandomNumbersInUZ(n, panNumbers)
 	anNumbers = []
 	anPos = []
 
-	while _TRUE_
+	while 1
 
 		anRandomZ = ARandomNumberInZ(panNumbers)
 		
@@ -4623,7 +4623,7 @@ func NRandomItemsInU(n, paList)
 
 	aResult = []
 
-	while _TRUE_
+	while 1
 		item = ARandomItemIn(paList)
 		if ring_find(aResult, item) = 0
 			aResult + item

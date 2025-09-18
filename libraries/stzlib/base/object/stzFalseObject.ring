@@ -4,7 +4,7 @@
 func StzFalseObjectQ()
 	return new stzFalseObject
 
-	func _FALSE_Object()
+	func 0Object()
 		return new stzFalseObject
 
 	func AFalseObject()
@@ -13,10 +13,10 @@ func StzFalseObjectQ()
 	func FalseObject()
 		return new stzFalseObject
 
-	func _FALSE_()
+	func FALSE()
 		return new stzFalseObject
 
-	func _FALSE_Q()
+	func FALSEQ()
 		return new stzFalseObject
 
 	func StzFalseQ()
@@ -35,7 +35,7 @@ class stzFalseObject from stzObject
 	@cVarName = :@falseobject
 
 	def Content()
-		return _FALSE_
+		return 0
 
 		def Value()
 			return Content()
@@ -46,15 +46,15 @@ class stzFalseObject from stzObject
 	#--
 
 	def Where(pcCondition)
-		return _FALSE_
+		return 0
 
 		def W(pcCondition)
-			return _FALSE_
+			return 0
 
 	#--
 
 	def IsEqualToCS(p, pCaseSensitive)
-		return _FALSE_
+		return 0
 
 		#< @FunctionFluentForm
 
@@ -66,13 +66,13 @@ class stzFalseObject from stzObject
 		#< @FunctionAlternativeForms
 
 		def EqualToCS(p, pCaseSensitive)
-			return _FALSE_
+			return 0
 
 			def EqualToCSQ(p, pCaseSensitive)
 				return This
 
 		def EqualsCS(p, pCaseSensitive)
-			return _FALSE_
+			return 0
 
 			def EqualCSQ(p, pCaseSensitive)
 				return This
@@ -82,7 +82,7 @@ class stzFalseObject from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsEqualTo(p)
-		return _FALSE_
+		return 0
 
 		#< @FunctionFluentForm
 
@@ -94,13 +94,13 @@ class stzFalseObject from stzObject
 		#< @FunctionAlternativeForms
 
 		def EqualTo(p)
-			return _FALSE_
+			return 0
 
 			def EqualToQ(p)
 				return This
 
 		def Equals(p)
-			return _FALSE_
+			return 0
 
 			def EqualQ(p)
 				return This
@@ -108,25 +108,25 @@ class stzFalseObject from stzObject
 		#>
 
 	def IsDividableBy(n)
-		return _FALSE_
+		return 0
 
 		def IsDividableByQ(n)
 			return This
 
 		def DividableBy(n)
-			return _FALSE_
+			return 0
 
 			def DividableByQ(n)
 				return This
 
 		def IsDivisibleBy(n)
-			return _FALSE_
+			return 0
 
 			def IsDivisibleByQ()
 				return This
 
 		def DivisibleBy(n)
-			return _FALSE_
+			return 0
 
 			def DivisibleByQ(n)
 				return This

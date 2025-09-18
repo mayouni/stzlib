@@ -102,7 +102,7 @@ func FileAppend(cFileName, cAdditionalText)
 
 	oFileAppender = new stzFileAppender(cFileName)
 	oFileAppender.Append(cAdditionalText)
-	return _TRUE_
+	return 1
 
 	#< @FunctionFluentForm
 
@@ -147,7 +147,7 @@ func FileCreate(cFileName)
 	ok
 	oFile = new stzFileCreator(cFileName)
 	oFile.Close()
-	return _TRUE_
+	return 1
 
 	#< @FunctionFluentForm
 
@@ -183,7 +183,7 @@ func FileCreate(cFileName)
 func FileOverwrite(cFileName, cNewContent)
     oFile = FileOverwite(cFileName, cNewContent)
 	oFile.Close()
-	return _TRUE_
+	return 1
 
 	#< @FunctionAlternativeForms
 
@@ -253,7 +253,7 @@ func FileErase(cFileName)
     ok
 	oFile = new stzFileEraser(cFileName)
 	oFile.Erase()
-	return _TRUE_
+	return 1
 
 	#< @FunctionFluentForm
 
@@ -301,7 +301,7 @@ func FileSafeErase(cFileName)
 
 	oFile = new stzFileEraser(cFileName)
 	oFile.Erase()
-	return _TRUE_
+	return 1
 
 	#< @FunctionFluentForm
 
@@ -349,7 +349,7 @@ func FileBackup(cFileName)
 
     ofileManager = new stz FileManager(cFileName)
 	oFileManager.Backup()
-	return _TRUE_
+	return 1
 
 	func BackupFile(cFileName)
 		return FileBackup(cFileName)
@@ -364,7 +364,7 @@ func FileSafeOverwrite(cFileName, cNewContent)
     # Creates timestamped backup before overwriting
 	FileBackup(cFileName)
     FileOverwrite(cFileName, cNewContent)
-	return _TRUE_
+	return 1
 
 	#< @FunctionAlternativeForms
 
@@ -400,7 +400,7 @@ func FileModify(cFileName, cOldContent, cNewContent)
 
 	oFileModifier = new stzFileModifier(cFileName)
 	oFileModifier.Modify(cOldContent, cNewContent)
-	return _TRUE_
+	return 1
 
 	func ModifyFile(cFileName, cOldContent, cNewContent)
 		return FileModify(cFileName, cOldContent, cNewContent)
@@ -836,7 +836,7 @@ class stzFileAppender from stzFileReadingMixin
     # WRITE METHODS (intent-specific)
     def Write(cText)
         @oQFile.write(cText, len(cText))
-		return _TRUE_
+		return 1
 
 		def WrtiteQ(cText)
 			This.Write(cText)
@@ -844,7 +844,7 @@ class stzFileAppender from stzFileReadingMixin
     
     def WriteLine(cText)
         This.Write(cText + NL)
-    	return _TRUE_
+    	return 1
 
 		def WriteLineQ(cText)
 			This.WriteLine(cText)
@@ -855,7 +855,7 @@ class stzFileAppender from stzFileReadingMixin
         for i = 1 to nlen
             This.WriteLine(aLines[i])
         next
-        return _TRUE_
+        return 1
 
 	   def WrtiteLinesQ(aLines)
 			This.WriteLines(aLines)
@@ -864,7 +864,7 @@ class stzFileAppender from stzFileReadingMixin
     def WriteTimestamp()
         cTimeStamp = TimeStamp()
         This.Write(cTimeStamp + ": ")
-    	return _TRUE_
+    	return 1
 
 	   def WriteTimeStampQ()
 		This.WriteTimeStamp()
@@ -873,7 +873,7 @@ class stzFileAppender from stzFileReadingMixin
     def WriteLogEntry(cMessage)
         cTimeStamp = TimeStamp()
         This.WriteLine(cTimeStamp + " - " + cMessage)
-    	return _TRUE_
+    	return 1
 
 	   def WriteLogEntryQ(cMessage)
 		This.WriteLogEntryQ(cMessage)
@@ -884,7 +884,7 @@ class stzFileAppender from stzFileReadingMixin
             cChar = "-"
         ok
         This.WriteLine(@Copy(cChar, 50))
-    	return _TRUE_
+    	return 1
 
 	   def WriteSeparatorQ(cChar)
 		This.WriteSeparator(cChar)
@@ -892,7 +892,7 @@ class stzFileAppender from stzFileReadingMixin
 
     def WriteBlankLine()
         This.WriteLine("")
-    	return _TRUE_
+    	return 1
 
 	   def WriteBlankLineQ()
 		This.WriteBlankLine()
@@ -910,7 +910,7 @@ class stzFileAppender from stzFileReadingMixin
     
     def Close()
         @oQFile.close()
-		return _TRUE_
+		return 1
 
 #=======================================#
 # CREATOR CLASS - READ + CREATE INTENT  #
@@ -957,7 +957,7 @@ class stzFileCreator from stzFileReadingMixin
     # WRITE METHODS (intent-specific)
     def Write(cText)
         @oQFile.write(cText, len(cText))
-		return _TRUE_
+		return 1
 
 	   def WriteQ(cText)
 		This.Write(cText)
@@ -965,7 +965,7 @@ class stzFileCreator from stzFileReadingMixin
     
     def WriteLine(cText)
         This.Write(cText + NL)
-    	return _TRUE_
+    	return 1
 
 	   def WriteLineQ(cText)
 		This.WriteLine(cText)
@@ -976,7 +976,7 @@ class stzFileCreator from stzFileReadingMixin
         for i = 1 to nLen
             This.WriteLine(aLines[i])
         next
-		return _TRUE_
+		return 1
 
 	  def WriteLinesQ(aLines)
 		This.WriteLines(aLines)
@@ -987,7 +987,7 @@ class stzFileCreator from stzFileReadingMixin
         This.WriteLine("# Created: " + TimeStamp())
         This.WriteLine("#" + @Copy("=", len(cTitle) + 2))
         This.WriteBlankLine()
-    	return _TRUE_
+    	return 1
 
 	  def WriteHeaderQ(cTitle)
 		This.WriteHeader(cTitle)
@@ -995,7 +995,7 @@ class stzFileCreator from stzFileReadingMixin
 
     def WriteBlankLine()
         This.WriteLine("")
-    	return _TRUE_
+    	return 1
 
 	   def WriteBlankLineQ()
 		This.WriteBlankLine()
@@ -1008,19 +1008,19 @@ class stzFileCreator from stzFileReadingMixin
             This.WriteHeader("Log File")
             This.WriteLine("# Log entries will appear below")
             This.WriteBlankLine()
-			return _TRUE_
+			return 1
 
         on "config"
             This.WriteHeader("Configuration File")
             This.WriteLine("# Add your configuration settings below")
             This.WriteBlankLine()
-			return _TRUE_
+			return 1
 
         on "data"
             This.WriteHeader("Data File")
             This.WriteLine("# Data entries will appear below")
             This.WriteBlankLine()
-			return _TRUE_
+			return 1
 
         other
             This.WriteHeader("File: " + This.cFileName)
@@ -1118,7 +1118,7 @@ class stzFileOverwriter from stzFileReadingMixin
 		ok
 
         @oQFile.write(cText, len(cText))
-		return _TRUE_
+		return 1
 
 		def WriteQ(cText)
 			This.Write(cText)
@@ -1126,7 +1126,7 @@ class stzFileOverwriter from stzFileReadingMixin
     
     def WriteLine(cText)
         This.Write(cText + NL)
-    	return _TRUE_
+    	return 1
 
 		def WriteLineQ(cText)
 			This.WriteLine(cText)
@@ -1137,7 +1137,7 @@ class stzFileOverwriter from stzFileReadingMixin
         for i = 1 to nLen
             This.WriteLine(aLines[i])
         next
-		return _TRUE_
+		return 1
 
 		def WriteLinesQ(aLines)
 			This.WriteLines(aLines)
@@ -1148,7 +1148,7 @@ class stzFileOverwriter from stzFileReadingMixin
         This.WriteLine("# Updated: " + TimeStamp())
         This.WriteLine("#" + @Copy("=", len(cTitle) + 2))
         This.WriteBlankLine()
-    	return _TRUE_
+    	return 1
 
 		def WriteHeaderQ(cTile)
 			This.WriteHeader(cTitle)
@@ -1156,7 +1156,7 @@ class stzFileOverwriter from stzFileReadingMixin
 
     def WriteBlankLine()
         This.WriteLine("")
-    	return _TRUE_
+    	return 1
 
 		def WriteBlankLineQ()
 			This.WriteBlankLine()
@@ -1166,7 +1166,7 @@ class stzFileOverwriter from stzFileReadingMixin
         # Write original content back, then add modification
         This.Write(This.cOriginalContent)
         This.Write(cModification)
-		return _TRUE_
+		return 1
 
 		def PreserveAndModifyQ(cModification)
 			This.PreserveAndModify(cModification)
@@ -1245,7 +1245,7 @@ class stzEaraser from stzObject
 
     def Erase()
         @oQFile.write("", 0)
-		return _TRUE_
+		return 1
 
 		def EraseQ(cText)
 			This.Erase()
@@ -1340,7 +1340,7 @@ class stzFileModifier from stzFileReadingMixin
         @oQFile.resize(@cFileName, 0)  # Truncate to zero using filename
         @oQFile.write(cNewContent, len(cNewContent))
         # Remo	ve the flush() call - it expects no parameters in RingQt
-		return _TRUE_
+		return 1
 
 	    def ModifyAllContentQ(cNewContent)
 	        This.ModifyAllContent(cNewContent)
@@ -1357,7 +1357,7 @@ class stzFileModifier from stzFileReadingMixin
         aLines[nLineNumber] = cNewLine
         cNewContent = JoinXT(aLines, NL)
         This.ModifyAllContent(cNewContent)
-    	return _TRUE_
+    	return 1
 
 	    def ModifyLineQ(nLineNumber, cNewLine)
 	        This.ModifyLine(nLineNumber, cNewLine)
@@ -1386,7 +1386,7 @@ class stzFileModifier from stzFileReadingMixin
 	    
 	    cNewContent = JoinXT(aLines, NL)  # Add newline separator
 	    This.ModifyAllContent(cNewContent)
-		return _TRue_
+		return 1
 
 	    def InsertLineAtQ(nPos, cNewLine)
 	        This.InsertLineAt(nPos, cNewLine)
@@ -1401,7 +1401,7 @@ class stzFileModifier from stzFileReadingMixin
 
     def InsertLineAtStart(cNewLine)
         This.InsertLineAt(1, cNewLine)
-    	return _TRUE_
+    	return 1
 
 	    def InsertLineAtStartQ(cNewLine)
 	        This.InsertLineAtStart(cNewLine)
@@ -1416,7 +1416,7 @@ class stzFileModifier from stzFileReadingMixin
 	    ok
 	    
 	    This.InsertLineAt(len(aLines) + 1, cNewLine)
-		return _TRUE_
+		return 1
 
 		#< @FunctionFluentForm
 
@@ -1429,7 +1429,7 @@ class stzFileModifier from stzFileReadingMixin
 
 		def AppendWithLine(cNewLine)
 			This.InsertLineAtEnd(cNewLine)
-			return _TRUE_
+			return 1
 
 			def AppendWithLineQ(cNewLine)
 				return This.InsertLineAtEndQ(cNewLine)
@@ -1438,7 +1438,7 @@ class stzFileModifier from stzFileReadingMixin
 
     def InsertAfterLine(nLineNumber, cNewLine)
         This.InsertLineAt(nLineNumber + 1, cNewLine)
-    	return _TRUE_
+    	return 1
 
 	    def InsertAfterLineQ(nLineNumber, cNewLine)
 	        This.InsertAfterLine(nLineNumber, cNewLine)
@@ -1446,7 +1446,7 @@ class stzFileModifier from stzFileReadingMixin
 
     def InsertBeforeLine(nLineNumber, cNewLine)
         This.InsertLineAt(nLineNumber, cNewLine)
-    	return _TRUE_
+    	return 1
 
 	    def InsertBeforeLineQ(nLineNumber, cNewLine)
 	        This.InsertBeforeLine(nLineNumber, cNewLine)
@@ -1458,9 +1458,9 @@ class stzFileModifier from stzFileReadingMixin
             del(aLines, nLineNumber)
             cNewContent = JoinXT(aLines, NL)
             This.ModifyAllContent(cNewContent)
-			return _TRUE_
+			return 1
         ok
-    	return _False_
+    	return 0
 
 	    def RemoveLineQ(nLineNumber)
 	        This.RemoveLine(nLineNumber)
@@ -1474,7 +1474,7 @@ class stzFileModifier from stzFileReadingMixin
 
     def RemoveFirstLine()
         This.RemoveLine(1)
-	    return _TRUE_
+	    return 1
 
 	    def RemoveFirstLineQ()
 	        This.RemoveFirstLine()
@@ -1488,7 +1488,7 @@ class stzFileModifier from stzFileReadingMixin
 
     def RemoveLastLine()
         This.RemoveLine(len(@aOriginalLines))
-    	return _TRUE_
+    	return 1
 
 	    def RemoveLastLineQ()
 	        This.RemoveLastLine()
@@ -1540,7 +1540,7 @@ class stzFileModifier from stzFileReadingMixin
 
         cNewContent = JoinLines(aNewLines)
         This.ModifyAllContent(cNewContent)
-    	return _TRUE_
+    	return 1
 
 	    def RemoveLinesContainingQ(cSearchText)
 	        This.RemoveLinesContaining(cSearchText)
@@ -1569,7 +1569,7 @@ class stzFileModifier from stzFileReadingMixin
 
         cNewContent = substr(@cOriginalContent, cOldText, cNewText)
         This.ModifyAllContent(cNewContent)
-		return _TRUE_
+		return 1
 
 	    def ModifyQ(cOldText, cNewText)
 	        This.Modify(cOldText, cNewText)
@@ -1577,7 +1577,7 @@ class stzFileModifier from stzFileReadingMixin
 
 		def ModifyText(cOldText, cNewText)
 			This.Modify(cOldText, cNewText)
-			return _TRUE_
+			return 1
 
 
     def ReplaceInLine(nLineNumber, cOldText, cNewText)
@@ -1748,7 +1748,7 @@ class stzFileManager from stzObject
 	def Backup()
         cBackup = @cFileName + ".backup." + TimeStamp()
         FileCopy(@cFileName, cBackup) #TODO // use internal methods to the object
-		return _TRUE_
+		return 1
 
     # SPLIT OPERATIONS
 
@@ -2070,4 +2070,4 @@ class stzFileManager from stzObject
     
     def Close()
 		@oQFile.close()
-        return _TRUE_
+        return 1

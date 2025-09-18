@@ -2,7 +2,7 @@ load "../stzlib.ring"
 
 /*==== CREATING CONTIGUOUS LISTS USING A SHORT FORM OF A LIST PROVIDED IN A STRING
 
-	? BothAreStringsInComputableForm("'str1'" , '"str2"') #--> _TRUE_
+	? BothAreStringsInComputableForm("'str1'" , '"str2"') #--> TRUE
 	
 	? StzStringQ(' 2 : 5 ').ToList()
 	#--> [ 2, 3, 4, 5 ]
@@ -404,4 +404,4 @@ load "../stzlib.ring"
 
 	def ReplaceSubStringsW(pcCondition, pcNewStr)
 
-? StzListQ([ [2,5], [7, 10], [12, 15] ]).IsListOfPairsOfNumbers() #--> _TRUE_
+? StzListQ([ [2,5], [7, 10], [12, 15] ]).IsListOfPairsOfNumbers() #--> TRUE

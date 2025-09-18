@@ -100,7 +100,7 @@ func GenConstraint(pcConstraintName, pcStzClass)
 
 		cResult = Constraints()["on" + pcStzClass][ pcConstraintName ]
 
-		if StzStringQ(cResult).WithoutSpaces() = _NULL_
+		if StzStringQ(cResult).WithoutSpaces() = NULL
 			StzRaise("Undefined constraint!")
 		ok
 

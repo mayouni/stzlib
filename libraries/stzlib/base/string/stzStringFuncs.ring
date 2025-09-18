@@ -65,11 +65,11 @@ func IsInvisibleString(str)
 	_acChars_ = Chars(str)
 	_nLen_ = len(_acChars_)
 
-	_bResult_ = _TRUE_
+	_bResult_ = 1
 
 	for @i = 1 to _nLen_
 		if NOT IsInvisibleChar(_acChars_[@i])
-			_bResult_ = _FALSE_
+			_bResult_ = 0
 			exit
 		ok
 	next
@@ -179,10 +179,10 @@ func IsNull(p)
 		return IsNull(cStr)
 
 func IsNullString(cStr)
-	if isString(cStr) and cStr = _NULL_
-		return _TRUE_
+	if isString(cStr) and cStr = ""
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -284,9 +284,9 @@ func StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	but isList(pStrOrList)
 		nPos = @FindFirstCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 		if nPos > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 	else
 		StzRaise("Can't proceed! pStrOrList must be a string or list.")
@@ -299,7 +299,7 @@ func StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 		return StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 func StzContains(pStrOrList, pSubStrOrItem)
-	return StzContainsCS(pStrOrList, pSubStrOrItem, _TRUE_)
+	return StzContainsCS(pStrOrList, pSubStrOrItem, 1)
 
 	func Contains(pStrOrList, pSubStrOrItem)
 		return StzContains(pStrOrList, pSubStrOrItem)
@@ -358,25 +358,25 @@ func StzEndsWith(pStrOrList, pSubStrOrItem) # endsWith() seems to be reserved by
 func StringContainsCS(pcStr, pcSubStr, pCaseSensitive)
 	if pcStr = "" or
 	   pcSubStr = ""
-		return _FALSE_
+		return 0
 	ok
 
 	bCase = CaseSensitive(pCaseSensitive)
 
-	if bCase = _TRUE_
+	if bCase = 1
 		if ring_substr1(pcStr, pcSubStr) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 	else
 		cStrLow = lower(pcStr)
 		cSubStrLow = lower(pcSubStr)
 
 		if ring_substr1(cStrLow, cSubStrLow) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	ok
@@ -395,7 +395,7 @@ func StringContainsCS(pcStr, pcSubStr, pCaseSensitive)
 	#>
 
 func StringContains(pcStr, pcSubStr)
-	return StringContainsCS(pcStr, pcSubStr, _TRUE_)
+	return StringContainsCS(pcStr, pcSubStr, 1)
 
 	func @StringContains(pcStr, pcSubStr)
 		return StringContains(pcStr, pcSubStr)
@@ -438,7 +438,7 @@ func StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
 	#>
 
 func StzReplace(cStr, cSubStr, cNewSubStr)
-	return StzReplaceCS(cStr, cSubStr, cNewSubStr, _TRUE_)
+	return StzReplaceCS(cStr, cSubStr, cNewSubStr, 1)
 
 	func @Replace(cStr, cSubStr, cNewSubStr)
 		return StzReplace(cStr, cSubStr, cNewSubStr)
@@ -782,9 +782,9 @@ func StringTitlecased(cStr)
 
 func IsSorted(pcStrOrList)
 	if IsSortedString(pcStrOrList) or IsSortedList(pcStrOrList)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func @IsSorted(pcStrOrList)
@@ -792,9 +792,9 @@ func IsSorted(pcStrOrList)
 
 func IsSortedInAscending(pcStrOrList)
 	if IsSortedStringInAscending(pcStrOrList) or IsSortedListInAscending(pcStrOrList)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -814,9 +814,9 @@ func IsSortedInAscending(pcStrOrList)
 
 func IsSortedInDescending(pcStrOrList)
 	if IsSortedStringInDescending(pcStrOrList) or IsSortedListInDescending(pcStrOrList)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -836,9 +836,9 @@ func IsSortedInDescending(pcStrOrList)
 
 func IsSortedString(pcStr)
 	if IsSortedStringInAscending(pcStr) or IsSortedStringInDescending(pcStr)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -858,7 +858,7 @@ func IsSortedString(pcStr)
 
 func IsSortedStringInAscending(pcStr)
 	if NOT isString(pcStr)
-		return _FALSE_
+		return 0
 	ok
 
 	return StzStringQ(pcStr).IsSortedInAscending()
@@ -903,7 +903,7 @@ func IsSortedStringInAscending(pcStr)
 func IsSortedStringInDescending(pcStr)
 
 	if NOT isString(pcStr)
-		return _FALSE_
+		return 0
 	ok
 
 	return StzStringQ(pcStr).IsSortedInDescending()
@@ -1088,7 +1088,7 @@ func CountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
 		return CountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
 
 func Count(pStrOrList, pSubStrOrItem)
-	return CountCS(pstrOrList, pSubStrOrItem, _TRUE_)
+	return CountCS(pstrOrList, pSubStrOrItem, 1)
 
 	func StzCount(pStrOrList, pSubStrOrItem)
 		return Count(pStrOrList, pSubStrOrItem)
@@ -1113,7 +1113,7 @@ func StringCountCS(pcStr, pcSubStr, pCaseSensitive)
 	_cTempStr_ = pcStr
 	_cSubStr_ = pcSubStr
 
-	if bCase = _FALSE_
+	if bCase = 0
 		_cTempStr_ = ring_lower(_cTempStr_)
 		_cSubStr_  = ring_lower(_cSubStr_)
 	ok
@@ -1140,7 +1140,7 @@ func StringCountCS(pcStr, pcSubStr, pCaseSensitive)
 		return StringCountCS(pcStr, pcSubStr, pCaseSensitive)
 
 func StringCount(pcStr, pcSubStr)
-	return StringCount(pcStr, pcSubStr, _TRUE_)
+	return StringCount(pcStr, pcSubStr, 1)
 
 	func StzStringCount(pcStr, pcSubStr)
 		return StringCount(pcStr, pcSubStr)
@@ -1238,7 +1238,7 @@ func BothStringsAreEqualCS(pcStr1, pcStr2, pCaseSensitive)
 	return StringsAreEqualCS( [ pcStr1, pcStr2 ], pCaseSensitive )
 
 func BothStringsAreEqual(pcStr1, pcStr2)
-	return BothStringsAreEqualCS(pcStr1, pcStr2, _TRUE_)
+	return BothStringsAreEqualCS(pcStr1, pcStr2, 1)
 
 func StringsAreEqualCS(pacStr, pCaseSensitive)
 
@@ -1258,16 +1258,16 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 
 	# Doing the job
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(pacStr)
 
-	if _bCase_ = _TRUE_
+	if _bCase_ = 1
 		
 		cFirstStr = StzStringQ(pacStr[1]).Lowercased()
 		
 		for i = 2 to nLen
 			if StzStringQ(pacStr[i]).Lowercased() != cFirstStr
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok 
 		next
@@ -1279,7 +1279,7 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 		
 		for i = 1 to nLen
 			if pacStr[i] != cFirstStr
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -1289,7 +1289,7 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 	return bResult
 
 func StringsAreEqual(paStr)
-	return StringsAreEqualCS(paStr, _TRUE_)
+	return StringsAreEqualCS(paStr, 1)
 
 func RemoveDiacritics(pcStr)
 	return StzStringQ(pcStr).DiacriticsRemoved()
@@ -1456,9 +1456,9 @@ func BothAreMarquers(pcStr1, pcStr2)
 	if BothAreStrings(pcStr1, pcStr2) and
 	   Q(pcStr1).IsMarquer() and Q(pcStr2).IsMarquer()
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func @BothAreMarquers(pcStr1, pcStr2)
@@ -1536,7 +1536,7 @@ func IsRealInString(str)
 func @IsPalindrome(p)
 	if isList(p)
 		if len(p) < 2
-			return _FALSE_
+			return 0
 		ok
 
 		return StzListQ(p).IsPalindrome()
@@ -1544,7 +1544,7 @@ func @IsPalindrome(p)
 	but isString(p)
 		oStr = new stzString(p)
 		if oStr.NumberOfChars() < 2
-			return _FALSE_
+			return 0
 		ok
 
 		return StzStringQ(p).IsPalindrome()

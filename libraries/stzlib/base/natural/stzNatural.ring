@@ -6,7 +6,7 @@ func Naturally()
 
 class stzNatural
     
-    nothing = "_NULL_"
+    nothing = ""
 
     # Position indicators
     first = "1"
@@ -46,18 +46,18 @@ class stzNatural
 
 def getIs
 	addattribute(this, "is")
-	is = "_NULL_"
+	is = ""
 
 def getDecorated
 	addAttribute(this, "decorated")
-	decorated = "_NULL_"
+	decorated = ""
 
 def getWith_
 	addAttribute(this, "with_")
-	with_ = "_NULL_"
+	with_ = ""
 
     def braceExprEval(value)
-        if NOT( isString(value) and (value = _NULL_ or value = "__@Ignore__") )
+        if NOT( isString(value) and (value = "" or value = "__@Ignore__") )
             @aValues + value
         ok
 
@@ -517,8 +517,8 @@ def getWith_
                     cParams = ""
                     for j = 1 to nLen@
 
-                        if aValues[i+j] = "_NULL_"
-                            cParam = "_NULL_"
+                        if aValues[i+j] = ""
+                            cParam = ""
                         else
                             cParam = @@(aValues[i+j])
                         ok

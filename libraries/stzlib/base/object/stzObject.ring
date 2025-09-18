@@ -71,7 +71,7 @@
 	- we can serialize the state of the object at a given time, or many times, in a string
 	or text file or binary file or database
 
-	- we can tell it to be instanciated only once using bIsSingleton = _TRUE_
+	- we can tell it to be instanciated only once using bIsSingleton = 1
 
 	- we can define its job in the program by defining its type using cObjectJob
 
@@ -252,9 +252,9 @@ func ObjectVarName(pObject)
 
 func ObjectIsNamed(pObject)
 	if ObjectVarName(pObject) != :@NoName
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func @ObjectIsNamed(pObject)
@@ -322,11 +322,11 @@ func IsPluralOfRingType(cPlural)
 	acRingTypesPlurals = RingTypesPlurals()
 	nLen = len(acRingTypesPlurals)
 
-	bResult = _FALSE_
+	bResult = 0
 
 	for i = 1 to nLen
 		if acRingTypesPlurals[i] = cPlural
-			bResult = _TRUE_
+			bResult = 1
 			exit
 		ok
 	next
@@ -470,9 +470,9 @@ func IsPluralOfAStzType(cPlural)
 	nLen = len(acPlurals)
 
 	if find(acPlurals, cPlural) > 0
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -589,9 +589,9 @@ func PluralToStzType(cPlural)
 func IsStzObject(pObject)
 
 	if isObject(pObject) and Q(classname(pObject)).ExistsIn( StzTypes() )
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -617,10 +617,10 @@ func IsStzObject(pObject)
 
 func IsNamedObject(pObject) 
 	if isObject(pObject) and @IsStzObject(pObject) and pObject.IsNamed()
-		return _TRUE_
+		return 1
 
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -669,9 +669,9 @@ func AreEqualObjects(paObjects)
 
 	acNames = ObjectsNames(paObjects)
 	if len(U(acNames)) = 1	# A bit of magic sometimes ;)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -689,19 +689,19 @@ func AreEqualObjects(paObjects)
 
 func AreNamedObjects(paObjects) 
 	if isList(paObjects) and IsListOfObjects(paObjects)
-		bResult = _TRUE_
+		bResult = 1
 
 		nLen = len(paObjects)
 		for i = 1 to nLen
 			if NOT IsNamedObject(paObjects[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
 
 		return bResult
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -764,9 +764,9 @@ func ObjectsNames(paObjects)
 
 func IsStzNaturalCode(pObject)
 	if isObject(pObject) and classname(pObject) = "stznaturalcode"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzNaturalCode(pObject)
@@ -786,9 +786,9 @@ func IsStzNaturalCode(pObject)
 
 func IsStzChainOfValue(pObject)
 	if isObject(pObject) and classname(pObject) = "stzchainofvalue"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzchainofvalue(pObject)
@@ -807,9 +807,9 @@ func IsStzChainOfValue(pObject)
 
 func IsStzchainofTruth(pObject)
 	if isObject(pObject) and classname(pObject) = "stzchainoftruth"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzchainoftruth(pObject)
@@ -828,9 +828,9 @@ func IsStzchainofTruth(pObject)
 
 func IsStzChainOfCode(pObject)
 	if isObject(pObject) and classname(pObject) = "stzchainofcode"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzchainofcode(pObject)
@@ -849,9 +849,9 @@ func IsStzChainOfCode(pObject)
 
 func IsStzTransform(pObject)
 	if isObject(pObject) and classname(pObject) = "stztransform"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStztransform(pObject)
@@ -870,9 +870,9 @@ func IsStzTransform(pObject)
 
 func IsStzDecimalToBinary(pObject)
 	if isObject(pObject) and classname(pObject) = "stzdecimaltobinary"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzdecimaltobinary(pObject)
@@ -891,9 +891,9 @@ func IsStzDecimalToBinary(pObject)
 
 func IsStzListOfNumbers(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlistofnumbers"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzlistofnumbers(pObject)
@@ -912,9 +912,9 @@ func IsStzListOfNumbers(pObject)
 
 func IsStzListOfUnicodes(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlistofunicodes"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzlistofunicodes(pObject)
@@ -933,9 +933,9 @@ func IsStzListOfUnicodes(pObject)
 
 func IsStzBinaryNumber(pObject)
 	if isObject(pObject) and classname(pObject) = "stzbinarynumber"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzBinaryNumber(pObject)
@@ -954,9 +954,9 @@ func IsStzBinaryNumber(pObject)
 
 func IsStzHexNumber(pObject)
 	if isObject(pObject) and classname(pObject) = "stzhexnumber"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzhexnumber(pObject)
@@ -975,9 +975,9 @@ func IsStzHexNumber(pObject)
 
 func IsStzOctalNumber(pObject)
 	if isObject(pObject) and classname(pObject) = "stzoctalnumber"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzoctalnumber(pObject)
@@ -996,9 +996,9 @@ func IsStzOctalNumber(pObject)
 
 func IsStzString(pObject)
 	if isObject(pObject) and classname(pObject) = "stzstring"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzstring(pObject)
@@ -1017,9 +1017,9 @@ func IsStzString(pObject)
 
 func IsStzlistOfStrings(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlistofstrings"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzlistofstrings(pObject)
@@ -1038,9 +1038,9 @@ func IsStzlistOfStrings(pObject)
 
 func IsStzlistInString(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlistinstring"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzlistinstring(pObject)
@@ -1059,9 +1059,9 @@ func IsStzlistInString(pObject)
 
 func IsStzListOfBytes(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlistofbytes"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzlistofbytes(pObject)
@@ -1080,9 +1080,9 @@ func IsStzListOfBytes(pObject)
 
 func IsStzMultilingualString(pObject)
 	if isObject(pObject) and classname(pObject) = "stzmultistring"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzmultilingualstring(pObject)
@@ -1123,9 +1123,9 @@ func IsStzMultilingualString(pObject)
 
 func IsStzchar(pObject)
 	if isObject(pObject) and classname(pObject) = "stzchar"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzchar(pObject)
@@ -1147,9 +1147,9 @@ func IsStzchar(pObject)
 
 func IsStzlistofchars(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlistofchars"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzlistofchars(pObject)
@@ -1171,9 +1171,9 @@ func IsStzlistofchars(pObject)
 
 func IsStzlist(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlist"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzlist(pObject)
@@ -1195,9 +1195,9 @@ func IsStzlist(pObject)
 
 func IsStzHashlist(pObject)
 	if isObject(pObject) and classname(pObject) = "stzhashlist"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -1245,9 +1245,9 @@ func IsStzHashlist(pObject)
 
 func IsStzlistofhashlists(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlistofhashlists"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -1296,9 +1296,9 @@ func IsStzlistofhashlists(pObject)
 
 func IsStzset(pObject)
 	if isObject(pObject) and classname(pObject) = "stzset"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzset(pObject)
@@ -1320,9 +1320,9 @@ func IsStzset(pObject)
 
 func IsStzlistofsets(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlistofsets"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzlistofsets(pObject)
@@ -1344,9 +1344,9 @@ func IsStzlistofsets(pObject)
 
 func IsStzlistoflists(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlistoflists"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzlistoflists(pObject)
@@ -1368,9 +1368,9 @@ func IsStzlistoflists(pObject)
 
 func IsStzlistofpairs(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlistofpairs"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzlistofpairs(pObject)
@@ -1392,9 +1392,9 @@ func IsStzlistofpairs(pObject)
 
 func IsStztree(pObject)
 	if isObject(pObject) and classname(pObject) = "stztree"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStztree(pObject)
@@ -1416,9 +1416,9 @@ func IsStztree(pObject)
 
 func IsStzwalker(pObject)
 	if isObject(pObject) and classname(pObject) = "stzwalker"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzwalker(pObject)
@@ -1440,9 +1440,9 @@ func IsStzwalker(pObject)
 
 func IsStztable(pObject)
 	if isObject(pObject) and classname(pObject) = "stztable"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStztable(pObject)
@@ -1464,9 +1464,9 @@ func IsStztable(pObject)
 
 func IsStzlocale(pObject)
 	if isObject(pObject) and classname(pObject) = "stzlocale"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzlocale(pObject)
@@ -1488,9 +1488,9 @@ func IsStzlocale(pObject)
 
 func IsStzgrid(pObject)
 	if isObject(pObject) and classname(pObject) = "stzgrid"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ObjectIsStzgrid(pObject)
@@ -1512,9 +1512,9 @@ func IsStzgrid(pObject)
 
 func IsStzNullObject(pObject)
 	if isObject(pObject) and classname(pObject) = "stznullobject"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -1562,9 +1562,9 @@ func IsStzNullObject(pObject)
 
 func IsStzFalseObject(pObject)
 	if isObject(pObject) and classname(pObject) = "stzfalseobject"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -1612,9 +1612,9 @@ func IsStzFalseObject(pObject)
 
 func IsStzTrueObject(pObject)
 	if isObject(pObject) and classname(pObject) = "stzfalseobject"
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -1722,7 +1722,7 @@ class stzObject
 			StzRaise("Type error: you must provide an object or an object varname inside a string!")
 		ok
 
-		if ObjectKeepingTime() = _TRUE_
+		if ObjectKeepingTime() = 1
 			StartObjectTime()
 		ok
 
@@ -1781,9 +1781,9 @@ class stzObject
 
 	def IsUnnamed()
 		if This.VarName() = :@NoName
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -1810,9 +1810,9 @@ class stzObject
 
 	def IsNamed()
 		if This.Name() != "" and This.Name() != :@NoName
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -1943,9 +1943,9 @@ class stzObject
 
 	def IsStzNumber()
 		if This.StzType() = :stzNumber
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForm
@@ -1968,9 +1968,9 @@ class stzObject
 	def IsStzString()
 
 		if This.StzType() = :stzString
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForm
@@ -1992,9 +1992,9 @@ class stzObject
 	
 	def IsStzList()
 		if This.StzType() = :stzList
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForm
@@ -2016,9 +2016,9 @@ class stzObject
 	
 	def IsStzGrid()
 		if This.StzType() = :stzgrid
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForm
@@ -2039,19 +2039,19 @@ class stzObject
 		#>
 
 	def IsStzObject()
-		return _TRUE_
+		return 1
 
 		#< @FunctionAlternativeForm
 
 		def IsAStzObject()
-			return _TRUE_
+			return 1
 
 		#>
 
 		#< @FunctionNegativeForm
 
 		def IsNotStzObject()
-			return _FALSE_
+			return 0
 	
 		def IsNotAStzObject()
 			return This.IsNotAnObject()
@@ -2065,9 +2065,9 @@ class stzObject
 		if isObject(p) and Q(p).IsStzType() and
 		   Q(p).StzType() = This.StzType()
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOneOfTheseTypes(paTypes)
@@ -2075,11 +2075,11 @@ class stzObject
 		/* EXAMPLE
 
 		? Q("2").IsOneOfTheseTypes([ :Number, :String, :List ])
-		#--> _TRUE_
+		#--> TRUE
 
 		# can also be written use :Or = ...
 		? Q("2").IsOneOfTheseTypes([ :Number, :Or = :String, :Or = :List ])
-		#--> _TRUE_
+		#--> TRUE
 		*/
 
 		if NOT isList(paTypes)
@@ -2095,7 +2095,7 @@ class stzObject
 			ok
 		next
 
-		_bResult_ = _FALSE_
+		_bResult_ = 0
 
 		for @i = 1 to _nLen_
 
@@ -2109,7 +2109,7 @@ class stzObject
 			ok
 
 			if (This.IsA(_cType_) or This.Is(_cType_))
-				_bResult_ = _TRUE_
+				_bResult_ = 1
 				exit
 			ok
 		next
@@ -2136,12 +2136,12 @@ class stzObject
 			ok
 		next
 
-		_bResult_ = _TRUE_
+		_bResult_ = 1
 
 		for @i = 1 to _nLen_
 
 			if NOT (This.IsA(_aTypes_[@i]) or This.Is(_aTypes_[@i]))
-				_bResult_ = _FALSE_
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -2151,9 +2151,9 @@ class stzObject
 	def IsNumberOrString()
 		content = This.Content()
 		if isNumber(content) or isString(content)
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsStringOrNumber()
@@ -2163,9 +2163,9 @@ class stzObject
 		content = This.Content()
 
 		if isString(content) or isList(content)
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsListOrString()
@@ -2175,9 +2175,9 @@ class stzObject
 
 	def IsFalseObject()
 		if This.StzType() = :stzFlaseObject
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#-- @Misspelled
@@ -2187,16 +2187,16 @@ class stzObject
 
 	def IsTrueObject()
 		if This.StzType() = :stzFlaseObject
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNullObject()
 		if This.StzType() = :stzNullObject
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#=====
@@ -2222,16 +2222,16 @@ class stzObject
 
 		nLen = len(pacStr)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			cCode = 'bResult = @is' + pacStr[i] + '(' + @@(this.Content()) + ')'
 
 			eval(cCode)
-			if bResult = _FALSE_
+			if bResult = 0
 				exit
 			ok
 		next
@@ -2241,7 +2241,7 @@ class stzObject
 		#-- @FunctionluentForm
 
 		def IsAXTQ(pcType)
-			if this.IsAXT(pcType) = _TRUE_
+			if this.IsAXT(pcType) = 1
 
 				content = This.Content()
 		
@@ -2297,7 +2297,7 @@ class stzObject
 		/* Example
 
 		? Q([ :name = "mio", :age = 12 ]).IsA(:HashList)
-		--> _TRUE_
+		--> 1
 
 		? Q("ring").IsA([ :Lowercase, :Latin, :String ])
 
@@ -2317,7 +2317,7 @@ class stzObject
 				return This.IsAXTQ(pcType)
 			ok
 	
-			if This.IsA(pcType) = _TRUE_
+			if This.IsA(pcType) = 1
 
 				if pcType = "number" or pcType = "stznumber"
 					return This.ToStzNumber()
@@ -2474,7 +2474,7 @@ class stzObject
 		return This.IsA(pcType)
 
 		def IsQ(pcType)
-			if This.Is(pcType) = _TRUE_
+			if This.Is(pcType) = 1
 
 				if pcType = "number" or pcType = "stznumber" or
 				   pcType = "anumber" or pcType = "astznumber"
@@ -2521,11 +2521,11 @@ class stzObject
 
 		? Q([ 10, 20, 30 ]).Are(:Numbers)
 
-		--> _TRUE_
+		--> 1
 		*/
  
 		if NOT This.IsAList()
-			return _FALSE_
+			return 0
 		ok
 
 		if NOT ( @IsRingTypeInPlural(pcType) or @IsStzTypeInPlural(pcType) )
@@ -2541,7 +2541,7 @@ class stzObject
 
 		def AreQ(pcType)
 
-			if This.Are(pcType) = _TRUE_
+			if This.Are(pcType) = 1
 
 				if pcType = "numbers" or pcType = "stznumbers"
 					return This.ToStzListOfNumbers()
@@ -3701,16 +3701,16 @@ class stzObject
 			return This.OfCSQ(n, pCaseSensitive)
 
 	def Of(n)
-		return This.OfCS(n, _TRUE_)
+		return This.OfCS(n, 1)
 
 		def OfM(n)
-			return This.OfCSM(n, _TRUE_)
+			return This.OfCSM(n, 1)
 
 		def OfMM(n)
-			return This.OfCSMM(n, _TRUE_)
+			return This.OfCSMM(n, 1)
 
 		def OfQ(n)
-			return This.OfCSQ(n, _TRUE_)
+			return This.OfCSQ(n, 1)
 
 		def OfQM(n)
 			return MainObject()
@@ -3745,31 +3745,31 @@ class stzObject
 			return This.OfCS(n, pCaseSensitive)
 
 	def OfXT(n, cIgnored)
-		return This.OfCS(n, _TRUE_)
+		return This.OfCS(n, 1)
 
 		def OfXTM(n, cIgnored)
-			return This.OfCSM(n, _TRUE_)
+			return This.OfCSM(n, 1)
 
 		def OfXTMM(n, cIgnored)
-			return This.OfCSMM(n, _TRUE_)
+			return This.OfCSMM(n, 1)
 
 		def OfXTQ(n, cIgnored)
-			return This.OfCSQ(n, _TRUE_)
+			return This.OfCSQ(n, 1)
 
 		def OfXTQM(n, cIgnored)
-			return This.OfCSXTQM(n, _TRUE_)
+			return This.OfCSXTQM(n, 1)
 
 		def OfXTMQ(n, cIgnored)
-			return This.OfCSXTMQ(n, _TRUE_)
+			return This.OfCSXTMQ(n, 1)
 
 	#==
 
 	def OfCSB(n, pCaseSensitive)
 		if Q(n).IsEqualToCS(LastValue(), pCaseSensitive)
 			
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def OfCSBM(n, pCaseSensitive)
@@ -3784,7 +3784,7 @@ class stzObject
 			return This.OfCSB(n, pCaseSensitive)
 
 		def OfCSBQ(n, pCaseSensitive)
-			if This.OfCSB(n, pCaseSensitive) = _TRUE_
+			if This.OfCSB(n, pCaseSensitive) = 1
 				return This
 			else
 				return AFalseObject()
@@ -3805,13 +3805,13 @@ class stzObject
 			return MainObject()
 
 		def OfMB(n)
-			return This.OfCSMB(n, _TRUE_)
+			return This.OfCSMB(n, 1)
 
 		def OfBQ(n)
-			return This.OfCSBQ(n, _TRUE_)
+			return This.OfCSBQ(n, 1)
 
 		def OfBQM(n)
-			return This.OfCSBQM(n, _TRUE_)
+			return This.OfCSBQM(n, 1)
 
 		def OfBQMM(n)
 			return MainObject()
@@ -3840,19 +3840,19 @@ class stzObject
 			return MainObject()
 
 	def OfXTBM(n)
-		return This.OfXTCSB(n, cIgnored, _TRUE_)
+		return This.OfXTCSB(n, cIgnored, 1)
 
 		def OfXTBMM(n)
 			return MainObject()
 
 		def OfXTMB(n)
-			return This.OfXTCSMB(n, _TRUE_)
+			return This.OfXTCSMB(n, 1)
 
 		def OfXTBQ(n)
-			return This.OfXTCSBQ(n, _TRUE_)
+			return This.OfXTCSBQ(n, 1)
 
 		def OfXTBQM(n)
-			return This.OfXTCSBQM(n, _TRUE_)
+			return This.OfXTCSBQM(n, 1)
 
 		def OfXTBQMM(n)
 			return MainObject()
@@ -3869,9 +3869,9 @@ class stzObject
 		ok
 
 		if This.IsA(pcType1) or This.IsA(pcType2)
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -3906,9 +3906,9 @@ class stzObject
 		if NOT This.IsA(pcType1) and
 		   NOT This.IsA(pcType2)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @functionAlternativeForms
@@ -3943,20 +3943,20 @@ class stzObject
 			if BothAreStrings(pValue1, pValue2) and
 			   ( This.String() = pValue1 or This.String() = pValue2 )
 
-				return _TRUE_
+				return 1
 			ok
 
 		but This.IsANumber()
 
 			if BothAreNumbers(pValue1, pValue2) and
 			   ( This.Number() = pValue1 or This.Number() = pValue2 )
-				return _TRUE_
+				return 1
 			ok
 
 		but This.IsAList()
 			if isList(pValue1) and isList(pValue2) and
 			   ( This.ListQ() = pValue1 or This.ListQ() = pValue2 )
-				return _TRUE_
+				return 1
 			ok
 
 		but This.IsAnObject() #TODO
@@ -3979,19 +3979,19 @@ class stzObject
 	#--
 
 	def IsAnObject()
-		return _TRUE_
+		return 1
 
 		def IsAObject()
-			return _TRUE_
+			return 1
 
 	def IsANumber()
-		return _FALSE_
+		return 0
 
 	def IsAString()
-		return _FALSE_
+		return 0
 
 	def IsAList()
-		return _FALSE_
+		return 0
 	
 	  #======================================#
 	 #  REPEATING THE OBJECT VALUE N TIMES  #
@@ -4181,7 +4181,7 @@ class stzObject
 					:InAString, :InAList, :InAPair, :InAListOfNumbers, :InAListOfStrings,
 					:InAListOfLists, :InAListOfPairs, :InAGrid, :InATable, :InAStzTable
 
-				], _FALSE_) )
+				], 0) )
 
 			StzRaise("Incorrect param! pIn must be a string representing one of" +
 				 "these Softanza types: :String, :List, :Pair, :ListOfNumbers, :ListOfStrings, " +
@@ -4416,12 +4416,12 @@ class stzObject
 			Trimmed()
 		
 		if NOT Q(cCode).StartsWithOneOfTheseCS([
-			"@number =", "@number +=", "@number=", "@number+=" ], _FALSE_ )
+			"@number =", "@number +=", "@number=", "@number+=" ], 0 )
 
 			StzRaise("Syntax error! pcCode must start with '@number =' or '@number +='.")
 		ok
 
-		if Q(cCode).StartsWithEitherCS( "@number=", :Or = "@number =", _FALSE_ )
+		if Q(cCode).StartsWithEitherCS( "@number=", :Or = "@number =", 0 )
 			# EXAMPLE
 			# ? Q([ "a", "b", "c" ]).ToNumberW('{ @number = len(@list) }')
 			#--> 3
@@ -4558,7 +4558,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstNOccurrences(n, pStrOrItem)
-		return This.FindFirstNOccurrencesCS(n, pStrOrItem, _TRUE_)
+		return This.FindFirstNOccurrencesCS(n, pStrOrItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -4668,7 +4668,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstNOccurrencesST(n, pcStr, pnStartingAt)
-		return This.FindFirstNOccurrencesSTCS(n, pcStr, pnStartingAt, _TRUE_)
+		return This.FindFirstNOccurrencesSTCS(n, pcStr, pnStartingAt, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -4760,7 +4760,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastNOccurrences(n, pStrOrItem)
-		return This.FindLastNOccurrencesCS(n, pStrOrItem, _TRUE_)
+		return This.FindLastNOccurrencesCS(n, pStrOrItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -4868,7 +4868,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastNOccurrencesST(n, pcStr, pnStartingAt)
-		return This.FindLastNOccurrencesSTCS(n, pcStr, pnStartingAt, _TRUE_)
+		return This.FindLastNOccurrencesSTCS(n, pcStr, pnStartingAt, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -4953,7 +4953,7 @@ class stzObject
 			return This.ClassName()
 
 	def IsText()
-		return _FALSE_
+		return 0
 
 	def ToPointer()
 		return object2pointer(This.Object())
@@ -4986,9 +4986,9 @@ class stzObject
 
 	def IsSingle()
 		if This.IsAList() and This.Size() = 1
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	# Swapping the content of the stzObject with an other stzObject
@@ -5036,8 +5036,8 @@ class stzObject
 
 		#TODO // Add other Stz types
 
-		bOfType1 = _FALSE_
-		bOfType2 = _FALSE_
+		bOfType1 = 0
+		bOfType2 = 0
 
 		if pcType1 = :String or pcType1 = :AString
 			bOfTyep1 = This.IsStzString()
@@ -5072,9 +5072,9 @@ class stzObject
 		ok
 
 		if NOT bOfType1 and NOT bOfType2
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def @IsNeitheOfType(pcType1, pcType2)
@@ -5116,13 +5116,13 @@ class stzObject
 
 		o1 = new stzString("ONE")
 
-		? o1.Occurs( :Before = "TWO", :In = "***ONE***TWO***")	#--> _TRUE_
-		? o1.Occurs( :After = "TWO", :In = "***ONE***TWO***")	#--> _FALSE_
+		? o1.Occurs( :Before = "TWO", :In = "***ONE***TWO***")	#--> TRUE
+		? o1.Occurs( :After = "TWO", :In = "***ONE***TWO***")	#--> FALSE
 
 		? o1.Occurs( :Before = "two", :In = [ "***", "ONE", "***", "TWO", "***" ])
-		#--> _TRUE_
+		#--> TRUE
 		? o1.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***" ])
-		#--> _FALSE_
+		#--> FALSE
 
 		*/
 		cBeforeOrAfter = ""
@@ -5157,7 +5157,7 @@ class stzObject
 				nOther = oListStr.FindFirstCS( pcBeforeOrAfter, bCaseSensitive )
 			else
 
-				if bCaseSensitive = _TRUE_
+				if bCaseSensitive = 1
 					oList = new stzList(pIn)
 	
 					nThis  = oList.FindFirst( This.Content() )
@@ -5175,7 +5175,7 @@ class stzObject
 
 		ok
 
-		bResult = _FALSE_
+		bResult = 0
 
 		if cTemp = :After
 			bResult = nThis > nOther
@@ -5207,7 +5207,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVTY
 
 	def Occurs(pcBeforeOrAfter, pIn)
-		return This.OccursCS(pcBeforeOrAfter, pIn, _TRUE_)
+		return This.OccursCS(pcBeforeOrAfter, pIn, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -5237,7 +5237,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVTY
 
 	def OccursBefore(pcSubStr, pIn)
-		return This.OccursBeforeCS( pcSubStr, pIn, _TRUE_ )
+		return This.OccursBeforeCS( pcSubStr, pIn, 1 )
 
 	   #----------------------------------------------#
 	  #   CHECKING IF OBJECT OCCURES َAFTER A GIVEN   #
@@ -5250,7 +5250,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVTY
 
 	def OccursAfter(pcSubStr, pIn)
-		return This.OccursAfterCS( pcSubStr, pIn, _TRUE_ )
+		return This.OccursAfterCS( pcSubStr, pIn, 1 )
 
 	   #---------------------------------------------------------#
 	  #   CHECKING IF OBJECT OCCURES BETWEEN TWO GIVEN VALUES   #
@@ -5262,15 +5262,15 @@ class stzObject
 		if This.OccursCS( :After = pValue1, pIn, pCaseSensitive) and
 		   This.OccursCS( :Before = pValue2, pIn, pCaseSensitive)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#-- WITHOUT CASESENSITIVTY
 
 	def OccursBetween( pValue1, pValue2, pIn )
-		return This.OccursBetweenCS( pValue1, pValue2, pIn, _TRUE_ )
+		return This.OccursBetweenCS( pValue1, pValue2, pIn, 1 )
 
 	  #-------------------------------------------------------------------#
 	 #   CHECKING IF OBJECT OCCURES N TIMES IN AN OTHER STRING OR LIST   #
@@ -5300,7 +5300,7 @@ class stzObject
 				nOccurrence  = oListStr.NumberOfOccurrenceCS( This.Content(), bCaseSensitive )
 
 			else
-				if bCaseSensitive = _TRUE_
+				if bCaseSensitive = 1
 					oList = new stzList(pIn)
 					nOccurrence  = oList.NumberOfOccurrence( This.Content() )
 		
@@ -5316,10 +5316,10 @@ class stzObject
 
 		ok
 
-		bResult = _FALSE_
+		bResult = 0
 
 		if nOccurrence = n
-			bResult = _TRUE_
+			bResult = 1
 		ok
 
 		return bResult
@@ -5327,7 +5327,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def OccursNTimes( n, pIn )
-		return This.OccursNTimesCS( n, pIn, _TRUE_ )
+		return This.OccursNTimesCS( n, pIn, 1 )
 
 	   #----------------------------------------------------#
 	  #  CHECKING IF STRING OCCURS FOR THE NTH TIME,       #
@@ -5338,10 +5338,10 @@ class stzObject
 		/* EXAMPLE
 
 		? Q("*").OccursForTheNthTime( 1, :In = "a*b*c*d", :AtPosition = 2 )
-		#--> _TRUE_
+		#--> TRUE
 
 		? Q("*").OccursForTheNthTime( 3, :In = "a*b*c*d", :AtPosition = 6 )
-		#--> _TRUE_
+		#--> TRUE
 
 		*/
 
@@ -5375,7 +5375,7 @@ class stzObject
 				nNthOccurrence  = oListStr.NthOccurrenceCS( n, This.String(), bCaseSensitive )
 
 			else
-				if bCaseSensitive = _TRUE_
+				if bCaseSensitive = 1
 					oList = new stzList(pIn)
 					nNthOccurrence  = oList.NthOccurrence( n, This.String() )
 		
@@ -5392,10 +5392,10 @@ class stzObject
 
 
 		if nNthOccurrence = pnAt
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForm
@@ -5408,7 +5408,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def OccursForTheNthTime(n, pIn, pnAt)
-		return This.OccursForTheNthTimeCS(n, pIn, pnAt, _TRUE_)
+		return This.OccursForTheNthTimeCS(n, pIn, pnAt, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -5431,7 +5431,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def OccursForTheFirstTime(pIn, pnAt)
-		return This.OccursForTheFirstTimeCS(pIn, pnAt, _TRUE_)
+		return This.OccursForTheFirstTimeCS(pIn, pnAt, 1)
 
 		def OccursForTheFirstTimeAt(pIn, pnAt)
 			return This.OccursForTheFirstTime(pIn, pnAt)
@@ -5458,7 +5458,7 @@ class stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def OccursForTheLastTime(pIn, pnAt)
-		return This.OccursForTheLastTimeCS(pIn, pnAt, _TRUE_)
+		return This.OccursForTheLastTimeCS(pIn, pnAt, 1)
 
 		def OccursForTheLastTimeAt(pIn, pnAt)
 			return This.OccursForTheLastTime(pIn, pnAt)
@@ -5721,16 +5721,16 @@ class stzObject
 	def IsEqualTo(pOtherObject)
 
 		if NOT isObject(pOtherObject)
-			return _FALSE_
+			return 0
 		ok
 
 		if @IsNamedObject(pOtherObject) and @IsNamedObject(pOtherObject) and
 		   This.VarName() = pOtherObject.VarName()
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -5776,7 +5776,7 @@ class stzObject
 			AddHistoricValue(value)
 
 	def HistoricValues()
-		if KeepingObjectHistoryXT() = _TRUE_
+		if KeepingObjectHistoryXT() = 1
 			return This.HistoricValuesXT()
 		ok
 
@@ -5846,7 +5846,7 @@ class stzObject
 
 
 	def ExecutionTime()
-		if KeepingExecutionTime() = _FALSE_
+		if KeepingExecutionTime() = 0
 			StzRaise("Can't proceed! Keeping object execution time must be turned ON.")
 		ok
 

@@ -570,7 +570,7 @@ class stzText from stzString
 		@oQString = new QString2()
 		@oQString.append(pcStr)
 
-		if KeepingHisto() = _TRUE_
+		if KeepingHisto() = 1
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -712,7 +712,7 @@ class stzText from stzString
 
 	def ScriptIs(cScript)
 		/*
-		Example: all these return _TRUE_:
+		Example: all these return 1:
 
 		StzTextQ("سلام").ScriptIs(:Arabic)
 		StzTextgQ("Peace").ScriptIs(:Latin)
@@ -1278,9 +1278,9 @@ class stzText from stzString
 
 	def IsArabicWord()
 		if This.IsWord() and This.ScriptIs(:Arabic)
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAnArabicWord()
@@ -1292,9 +1292,9 @@ class stzText from stzString
 
 	def IsLatinWord()
 		if This.IsWord() and This.ScriptIs(:Latin)
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsALatinWord()
@@ -2003,7 +2003,7 @@ class stzText from stzString
 		aResult = []
 
 		for cWord in This.UniqueWords()
-			aResult + [ cWord, This.FindAllCS(cWord, _FALSE_) ]
+			aResult + [ cWord, This.FindAllCS(cWord, 0) ]
 		next
 
 		return aResult
@@ -2085,7 +2085,7 @@ class stzText from stzString
 		aResult = []
 
 		for cWord in This.UniqueWords()
-			aResult + [ cWord, This.NumberOfOccurrencesCS(cWord, _FALSE_) ]
+			aResult + [ cWord, This.NumberOfOccurrencesCS(cWord, 0) ]
 		next
 
 		return aResult
@@ -3010,9 +3010,9 @@ class stzText from stzString
 		ok
 
 		if This.SetOfWordsQ().Contains( ring_lower(pcWord) )
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionNegativeForm
@@ -3027,11 +3027,11 @@ class stzText from stzString
 	#------------------------------------------------------------------#
 
 	def ContainsEachWord(pacWords)
-		bResult = _TRUE_
+		bResult = 1
 	
 		for cWord in pacWords
 			if This.ContainsNoWord(cWord)
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -3045,9 +3045,9 @@ class stzText from stzString
 	def ContainsNTimesTheWord(n, pcWord)
 		
 		if This.WordsQ().FindAll(pcWord) = n
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def ContainsNOccurrencesOfTheWord(n, pcWord)
@@ -3095,9 +3095,9 @@ class stzText from stzString
 
 		oOtherWord = new stzWord(pcOtherStr)
 		if oOtherWord.WordsSortingOrder() = This.WordsSortingOrder()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def HasSameWordsOrderAs(pcOtherStr)
@@ -3110,9 +3110,9 @@ class stzText from stzString
 	def WordsAreSorted()
 		if This.WordsAreSortedInAscending() or
 		   This.WordsAreSortedInDescending()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	  #-------------------------------------------------------------#
@@ -3133,10 +3133,10 @@ class stzText from stzString
 		oSortedCopy = This.WordsQRT(:stzList).SortInAscendingQ()
 
 		if oSortedCopy.IsStrictlyEqualTo( This.Words() )
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	  #--------------------------------------------------------------#
@@ -3147,10 +3147,10 @@ class stzText from stzString
 		oSortedCopy = This.WordsQRT(:stzList).SortInDescendingQ()
 
 		if oSortedCopy.IsStrictlyEqualTo( This.Words() )
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	  #------------------------------------------#
@@ -3364,7 +3364,7 @@ class stzText from stzString
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceWord(pcWord, pcNewWord)
-		This.ReplaceWordsCS(pcWord, pcNewWord, _TRUE_)
+		This.ReplaceWordsCS(pcWord, pcNewWord, 1)
 
 		#< @FunctionFluentForm
 
@@ -3513,12 +3513,12 @@ class stzText from stzString
 		# Checking the range of possible values for nStart param
 
 		if nStart < 1 or nStart > This.NumberOfChars()
-			return _NULL_
+			return ""
 		ok
 
 		# Computing the rest of the word
 
-		bInside = _TRUE_
+		bInside = 1
 		cResult = ""
 		i = nStart - 1
 
@@ -3528,7 +3528,7 @@ class stzText from stzString
 			if i = This.NumberOfChars() or
 			   This.CharAtQ(i).IsWordSeparator()
 
-				bInside = _FALSE_
+				bInside = 0
 			
 			else
 				cResult += This.NthChar(i)
@@ -3588,7 +3588,7 @@ class stzText from stzString
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveAllWord(pcWord)
-		This.RemoveAllWordCS(pcWord, _TRUE_)
+		This.RemoveAllWordCS(pcWord, 1)
 
 		#< @FunctionFluentForm
 
@@ -3706,12 +3706,12 @@ class stzText from stzString
 		# Checking the range of possible values for nStart param
 
 		if nStart < 1 or nStart > This.NumberOfChars()
-			return _NULL_
+			return ""
 		ok
 
 		# Computing the rest of the word
 
-		bInside = _TRUE_
+		bInside = 1
 		cResult = ""
 		i = nStart + 1
 
@@ -3720,7 +3720,7 @@ class stzText from stzString
 					 
 			if i = 0 or This.CharAtQ(i).IsWordSeparator()
 
-				bInside = _FALSE_
+				bInside = 0
 			
 			else
 				cResult += This.NthChar(i)
@@ -3761,7 +3761,7 @@ class stzText from stzString
 		#>
 
 	def FindAllOccurrencesOfWord(pcWord)
-		return This.FindAllOccurrencesOfWordCS(pcWord, _TRUE_)
+		return This.FindAllOccurrencesOfWordCS(pcWord, 1)
 	
 		#< @FunctionAlternativeForms
 
@@ -3824,7 +3824,7 @@ class stzText from stzString
 			return This.FindNthOccurrenceOfWordCS(n, pcWord, pCaseSensitive)
 
 	def FindNthOccurrenceOfWord(n, pcWord)
-		nResult = This.FindNthOccurrenceOfWordCS(n, pcWord, _FALSE_)
+		nResult = This.FindNthOccurrenceOfWordCS(n, pcWord, 0)
 
 		#< @FunctionAlternativeForm
 
@@ -3860,7 +3860,7 @@ class stzText from stzString
 			return This.FindFirstOccurrenceOfWordCS(pcWord, pCaseSensitive)
 
 	def FindFirstOccurrenceOfWord(pcWord)
-		return This.FindFirstOccurrenceOfWordCS(pcWord, _FALSE_)
+		return This.FindFirstOccurrenceOfWordCS(pcWord, 0)
 
 		#< @FunctionAlternativeForms
 
@@ -3900,7 +3900,7 @@ class stzText from stzString
 
 
 	def FindLastOccurrenceOfWord(pcWord)
-		return This.FindLastOccurrenceOfWordCS(pcWord, _FALSE_)
+		return This.FindLastOccurrenceOfWordCS(pcWord, 0)
 
 		#< @FunctionAlternativeForms
 
@@ -3929,10 +3929,10 @@ class stzText from stzString
 		ok
 
 		if nStart < 1 or nStart > This.ToStzString().NumberOfChars()
-			return _NULL_
+			return ""
 		ok
 
-		bInside = _TRUE_
+		bInside = 1
 		cResult = ""
 		i = nStart - 1
 
@@ -3942,17 +3942,17 @@ class stzText from stzString
 			if i = This.NumberOfChars() or
 			   This.CharAtQ(i).IsSentenceSeparator()
 			   
-				bInside = _FALSE_
+				bInside = 0
 
 			else
 				cResult += This.NthChar(i)
 			ok	
 		end
 
-		if cResult != _NULL_
+		if cResult != ""
 			return cResult + This.NthChar(i)
 		else
-			return _NULL_
+			return ""
 		ok
 
 		#< @FunctionFluentForm
@@ -3991,7 +3991,7 @@ class stzText from stzString
 		# Check out of range value of nStart
 
 		if nStart < 1 or nStart > This.NumberOfChars()
-			return _NULL_
+			return ""
 		ok
 
 		# If the counting starts at a sentence separator
@@ -4007,7 +4007,7 @@ class stzText from stzString
 		# Now, we start parsing from the nStart position
 		# back to the start of sentence
 
-		bInside = _TRUE_
+		bInside = 1
 		cResult = ""
 		i = nStart + 1
 
@@ -4015,7 +4015,7 @@ class stzText from stzString
 			i--
 					 
 			if i = 0 or This.CharAtQ(i).IsSentenceSeparator()
-				bInside = _FALSE_
+				bInside = 0
 		
 			else
 				cResult += oStringCopy.NthChar(i)
@@ -4089,12 +4089,12 @@ class stzText from stzString
 			return This.Letters()
 		ok
 
-		if paOptions[ :ManageArabicShaddah ] = _TRUE_
+		if paOptions[ :ManageArabicShaddah ] = 1
 
 			# MANAGING THE SPECIAL CASE OF ARABIC SHADDAH ("ّ ")
 	
 			# In fact, arabic shaddah is a letter (and so isLetter()
-			# should return _TRUE_), but the shaddah should'nt appear in
+			# should return 1), but the shaddah should'nt appear in
 			# the list of letters as sutch ("ّ ") but as the letter that
 			# comes right before it!
 	
@@ -4739,11 +4739,11 @@ class stzText from stzString
 		aoStzChars = This.ToListOfStzChars()
 		nLen = len(aoStzChars)
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT aoStzChars[i].IsDiacritic()
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -4755,11 +4755,11 @@ class stzText from stzString
 		aoStzChars = This.ToListOfStzChars()
 		nLen = len(aoStzChars)
 
-		bResult = _FALSE_
+		bResult = 0
 
 		for i = 1 to nLen
 			if aoStzChars[i].IsDiacritic() or aoStzChars[i].IsDiacricised()
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next
@@ -4870,11 +4870,11 @@ class stzText from stzString
 	# Arabic diacritics
 
 	def IsArabicDiacritic()
-		bResult = _TRUE_
+		bResult = 1
 
 		for oStzChar in This.ToListOfStzChars()
 			if NOT oStzChar.IsArabicDiacritic()
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -4882,11 +4882,11 @@ class stzText from stzString
 		return bResult
 
 	def ContainsArabicDiacritics()
-		bResult = _FALSE_
+		bResult = 0
 
 		for oStzChar in This.ToListOfStzChars()
 			if oStzChar.IsArabicDiacritic()
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next
@@ -5039,13 +5039,13 @@ class stzText from stzString
 
 	def IsEmpty()
 		if This.ContainsOnlySpaces()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsText()
-		return _TRUE_
+		return 1
 
 	def StzType()
 		return :stzText
