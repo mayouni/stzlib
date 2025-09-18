@@ -1777,6 +1777,39 @@ func BoxifyRound(str)
 
 	#>
 
+func BoxRoundChars(str)
+
+	_oTempStr_ = new stzString(str)
+	_oTempStr_.BoxRoundEachChar()
+	return _oTempStr_.Content()
+
+	#< @FunctionAlternativeForms
+
+	func BoxRoundedChars(str)
+		return BoxRoundChars(str)
+
+	func BoxedRoundChars(str)
+		return BoxRoundChars(str)
+
+	func BoxedRoundedChars(str)
+		return BoxRoundChars(str)
+
+	#--
+
+	func @BoxRoundChars(str)
+		return BoxRoundChars(str)
+
+	func @BoxRoundedChars(str)
+		return BoxRoundChars(str)
+
+	func @BoxedRoundChars(str)
+		return BoxRoundChars(str)
+
+	func @BoxedRoundedChars(str)
+		return BoxRoundChars(str)
+
+	#>
+
 func @substr(str, p1, p2) #TODO // Move to stzExtCode
 
 	if isNumber(p1) and isNumber(p2)

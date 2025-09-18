@@ -2034,18 +2034,22 @@ aList = 1:20
 
 /*======
 
+pr()
+
 Q("PROGRAMMING") {
 
    ? Boxed()
 
    ? BoxedRound()
 
-   ? BoxEachChar()
+   ? EachCharBoxed()
 
-   ? BoxEachCharRound()
+   ? EachCharBoxRounded()
 
 }
 
+pf()
+# Executed in 0.07 second(s) in Ring 1.23
 #-->
 # ┌─────────────┐
 # │ PROGRAMMING │
@@ -2059,6 +2063,81 @@ Q("PROGRAMMING") {
 # ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
 # │ P │ R │ O │ G │ R │ A │ M │ M │ I │ N │ G │
 # ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+
+/*---
+
+pr()
+
+? BoxRound("SOFTANZA")
+#-->
+'
+╭───┬───┬───┬───┬───┬───┬───┬───╮
+│ S │ O │ F │ T │ A │ N │ Z │ A │
+╰───┴───┴───┴───┴───┴───┴───┴───╯
+'
+
+? BoxRound(
+	BoxRoundChars("SOFTANZA") + NL +
+	BoxRound(Spacify("IS GREAT!")) + NL +
+	"ACTUALLY, IT'S..." + NL +
+	Box("AWOSME!")
+)
+#-->
+'
+╭───────────────────────────────────╮
+│ ╭───┬───┬───┬───┬───┬───┬───┬───╮ │
+│ │ S │ O │ F │ T │ A │ N │ Z │ A │ │
+│ ╰───┴───┴───┴───┴───┴───┴───┴───╯ │
+│       ╭───────────────────╮       │
+│       │ I S   G R E A T ! │       │
+│       ╰───────────────────╯       │
+│         ACTUALLY, IT'S...         │
+│            ┌─────────┐            │
+│            │ AWOSME! │            │
+│            └─────────┘            │
+╰───────────────────────────────────╯
+'
+
+pf()
+# Executed in 0.06 second(s) in Ring 1.23
+
+/*---
+
+pr()
+
+
+? Box("SOFTANZA") + NL
+#-->
+'
+┌──────────┐
+│ SOFTANZA │
+└──────────┘
+'
+
+? Box(Box("SOFTANZA")) + NL
+#-->
+'
+┌──────────────┐
+│ ┌──────────┐ │
+│ │ SOFTANZA │ │
+│ └──────────┘ │
+└──────────────┘
+'
+
+? BoxRound(BoxRound(Box("SOFTANZA")))
+#-->
+'
+╭──────────────────╮
+│ ╭──────────────╮ │
+│ │ ┌──────────┐ │ │
+│ │ │ SOFTANZA │ │ │
+│ │ └──────────┘ │ │
+│ ╰──────────────╯ │
+╰──────────────────╯
+'
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
 
 /*-----
 
@@ -2085,7 +2164,8 @@ Q("Thank you Irwin Rodriguez!") {
 #    ╰────────────────────────────────╯
 
 pf()
-#--> Executed in 0.14 second(s)
+# Executed in 0.03 second(s) in Ring 1.23
+# Executed in 0.14 second(s) in Ring 1.18
 
 /*====
 
@@ -15162,15 +15242,21 @@ pr()
 #    └─────────────────────╯
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.02 second(s) in Ring 1.20
 
 /*------------------
 
 pr()
 
-? StzStringQ("RING").BoxXT([ ])
+? StzStringQ("RING").BoxedXT([ ])
+#-->
+# ┌──────┐
+# │ RING │
+# └──────┘
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*------------------
 
@@ -15186,7 +15272,7 @@ StzStringQ("RING") {
 	? EachCharBoxed()
 	? EachCharboxedRounded()
 
-	? VizFindBoxed("I")	#--> TODO: Add VizFindBoxed()
+	? VizFindBoxedRounded("I")
 }
 
 #--> RING
@@ -15205,12 +15291,12 @@ StzStringQ("RING") {
 #   ╭───┬───┬───┬───╮
 #   │ R │ I │ N │ G │
 #   ╰───┴───┴───┴───╯
-#   ┌───┬───┬───┬───┐
+#   ╭───┬───┬───┬───╮
 #   │ R │ I │ N │ G │
-#   └───┴─•─┴───┴───┘
+#   ╰───┴─•─┴───┴───╯
 
 pf()
-# Executed in 0.11 second(s) in Ring 1.22
+# Executed in 0.10 second(s) in Ring 1.23
 
 /*------------------
 
@@ -15226,7 +15312,7 @@ StzStringQ("RING IS NICE") {
 	? EachCharBoxed()
 	? EachCharBoxedRounded()
 
-	// ? VizFindBoxed("I")	#TODO // Add it
+	? VizFindBoxed("I")
 
 	? BoxedDashed()
 	? BoxedDashedRounded()
@@ -15254,6 +15340,9 @@ StzStringQ("RING IS NICE") {
 #   ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
 #   │ R │ I │ N │ G │   │ I │ S │   │ N │ I │ C │ E │
 #   ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+#   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+#   │ R │ I │ N │ G │   │ I │ S │   │ N │ I │ C │ E │
+#   └───┴─•─┴───┴───┴───┴─•─┴───┴───┴───┴─•─┴───┴───┘
 #   ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
 #   ┊ RING IS NICE ┊
 #   └╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
@@ -15265,7 +15354,7 @@ StzStringQ("RING IS NICE") {
 #   └──────────────╯
 
 pf()
-# Executed in 0.12 second(s) in Ring 1.22
+# Executed in 0.14 second(s) in Ring 1.23
 
 /*-----------------
 
@@ -15312,7 +15401,7 @@ pr()
 # ╰────────────────────╯
 
 pf()
-# Executed in 0.07 second(s).
+# Executed in 0.05 second(s) in Ring 1.23
 
 /*---------------------
 
@@ -15335,7 +15424,7 @@ pr()
 # └───┴───┴───┴───┴───┴───┴───┴───┘
 
 pf()
-# Executed in 0.05 second(s).
+# Executed in 0.04 second(s) in Ring 1.23
 
 /*--------------------- TODO
 
@@ -15377,7 +15466,8 @@ pr()
 # └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
 
 pf()
-# Executed in 0.03 second(s).
+# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.03 second(s) in Ring 1.20
 
 /*==================
 
@@ -18766,7 +18856,7 @@ pf()
 # Executed in 0.10 second(s).
 
 /*=====
-
+*/
 pr()
 
 o1 = new stzString("..STZ..STZ..STZ")

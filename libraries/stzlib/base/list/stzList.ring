@@ -20435,7 +20435,7 @@ class stzList from stzObject
 		#>
 
 	def ContainsKey(pcKey)
-		return @HasLey(This.Content(), pcKey)
+		return @HasKey(This.Content(), pcKey)
 
 		def HasKey(pcKey)
 			return This.ContainsKey(pcKey)
