@@ -143,17 +143,17 @@ pf()
 	# A diffence worh noting here, between updating things in Softanza using
 	# normal update functions and plugin-based functions (XfU()), is that the
 	# first just makes the update and returns nothing, but the XfU() makes tries
-	# to make the update and returns _TRUE_ or _FALSE_, depending whethe the update
+	# to make the update and returns 1 or 0, depending whethe the update
 	# has neen successful or not.
 
 	# This is normal because the first happens in a managed environment, but the
 	# second happens in an external plugin-ebvironmend involving unmaneged fatures
 	# like reading and closing files (made by the operation system).
 
-	# To Chek it, write this to get _TRUE_:
+	# To Chek it, write this to get TRUE:
 
 	? o1.XfU(:replace = [ "Hello", "Embedding" ])
-	#--> _TRUE_
+	#--> TRUE
 
 	# In this case, the XFunction has been executed and the
 	# main object has been succefully replaced
@@ -161,10 +161,10 @@ pf()
 	? o1.Content() + NL
 	#--> Embedding Ring in Ring!
 
-	# Or write this and get _FALSE_:
+	# Or write this and get 0:
 
 	? o1.XfU(:doStaff) + NL
-	#--> _FALSE_
+	#--> FALSE
 
 	# Hence you are able to opt for a protective-style to check
 	# plugin-based functions in a conditional code like this:
@@ -418,7 +418,7 @@ pf()
 
 	# Alternatively, we can check this manually using the function:
 
-	? XHasChanged(:plugin-func-name) # returns _TRUE_ or _FALSE_
+	? XHasChanged(:plugin-func-name) # returns 1 or 0
 
 	# Addiionnaly, we can get when the ctime of last hange:
 
@@ -454,7 +454,7 @@ pf()
 	   |   |   |   |   |
 	   |   |   |   |   |-- Create new instance of plugin file
 	   |   |   |   |   |-- Compare params/output with cached value; update cache if different
-	   |   |   |   |   |-- Reset instance variables to _NULL_ (clean instance); retain in memory
+	   |   |   |   |   |-- Reset instance variables to NULL (clean instance); retain in memory
 	   |   |
 	   |   |-- If match NOT found in memory cache:
 	   |   |   | 
@@ -815,7 +815,7 @@ pf()
 	#--> V2
 
 	? HasVersion(:reverse, :V5)
-	#--> _FALSE_
+	#--> FALSE
 */
 	# Defining the compatible plugins versions with the main program
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -839,7 +839,7 @@ pf()
 	# the main program by:
 
 	? XIsCompatible(:reverse, :V2)
-	#--> _TRUE_
+	#--> TRUE
 
 	# This enable writing a robust code like this:
 

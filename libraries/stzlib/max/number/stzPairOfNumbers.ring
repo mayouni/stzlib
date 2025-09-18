@@ -145,9 +145,9 @@ class stzPairOfNumbers from stzPair
 		if ( @aContent[1] >= n1 and @aContent[2] <= n2 ) and
 		   ( @aContent[2] >= n1 and @aContent[2] <= n2 )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def AreBothBetween(n1, n2)

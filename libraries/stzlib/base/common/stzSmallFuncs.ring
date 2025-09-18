@@ -37,7 +37,7 @@ func QH(p)
 	#~> // Use a copy on which the loop is used and then update
 	# the main object in on UpdateWith() call
 
-	SetKeepingHistoryTo(_TRUE_)
+	SetKeepingHistoryTo(1)
 	_aHisto + p
 
 	return Q(p)
@@ -46,8 +46,8 @@ func QH(p)
 		return QHH(p)
 
 func QHH(p)
-	SetKeepingTimeTo(_TRUE_)
-	SetKeepingHistoryToXT(_TRUE_, :VTMS)
+	SetKeepingTimeTo(1)
+	SetKeepingHistoryToXT(1, :VTMS)
 
 	return Q(p)
 
@@ -55,56 +55,56 @@ func QHH(p)
 		return QHH(p)
 
 func QHHVT(p) # Tracing Value and Type
-	SetKeepingTimeTo(_TRUE_)
-	SetKeepingHistoryToXT(_TRUE_, :VT)
+	SetKeepingTimeTo(1)
+	SetKeepingHistoryToXT(1, :VT)
 
 	return Q(p)
 
 func QHHVM(p) # Tacing Value and Time
-	SetKeepingTimeTo(_TRUE_)
-	SetKeepingHistoryToXT(_TRUE_, :VM)
+	SetKeepingTimeTo(1)
+	SetKeepingHistoryToXT(1, :VM)
 
 	return Q(p)
 
 func QHHVS(p) # Tracing Value and Size
-	SetKeepingTimeTo(_TRUE_)
-	SetKeepingHistoryToXT(_TRUE_, :VS)
+	SetKeepingTimeTo(1)
+	SetKeepingHistoryToXT(1, :VS)
 
 	return Q(p)
 
 func QHHTM(p) # Tracing Type and Time
-	SetKeepingTimeTo(_TRUE_)
-	SetKeepingHistoryToXT(_TRUE_, :TM)
+	SetKeepingTimeTo(1)
+	SetKeepingHistoryToXT(1, :TM)
 
 	return Q(p)
 
 func QHHTS(p) # Tacing Type and Size
-	SetKeepingTimeTo(_TRUE_)
-	SetKeepingHistoryToXT(_TRUE_, :TS)
+	SetKeepingTimeTo(1)
+	SetKeepingHistoryToXT(1, :TS)
 
 	return Q(p)
 
 func QHHMS(p) # Tracing Time and Size
-	SetKeepingTimeTo(_TRUE_)
-	SetKeepingHistoryToXT(_TRUE_, :MS)
+	SetKeepingTimeTo(1)
+	SetKeepingHistoryToXT(1, :MS)
 
 	return Q(p)
 
 func QHHVTM(p) # Tracing Value, Type nad Time
-	SetKeepingTimeTo(_TRUE_)
-	SetKeepingHistoryToXT(_TRUE_, :TM)
+	SetKeepingTimeTo(1)
+	SetKeepingHistoryToXT(1, :TM)
 
 	return Q(p)
 
 func QHHVTS(p) # Tracing Value, Type and Size
-	SetKeepingTimeTo(_TRUE_)
-	SetKeepingHistoryToXT(_TRUE_, :VTS)
+	SetKeepingTimeTo(1)
+	SetKeepingHistoryToXT(1, :VTS)
 
 	return Q(p)
 
 func QHHTMS(p) # Tracing Type, Time and Size
-	SetKeepingTimeTo(_TRUE_)
-	SetKeepingHistoryToXT(_TRUE_, :TMS)
+	SetKeepingTimeTo(1)
+	SetKeepingHistoryToXT(1, :TMS)
 
 	return Q(p)
 
@@ -125,7 +125,7 @@ func StzW(cType, paMethodAndFilter)
 
 	aTempList = Stz(cType, paMethodAndFilter[1])
 	cCondition = Q(paMethodAndFilter[2][2]).
-			ReplaceCSQ("@Method", "@Item", _FALSE_).
+			ReplaceCSQ("@Method", "@Item", 0).
 			Content()
 	
 	aResult = QRT(aTempList, :stzListOfStrings).StringsW(ccondition)
@@ -186,19 +186,19 @@ func QQ(p)
 
 	? QQ("19")		# stzNumber
 	#--> Note that this is a number in string:
-	? Q("19").IsNumberInString() #--> _TRUE_
+	? Q("19").IsNumberInString() #--> TRUE
 
 	EXAMPLE 2
 
 	? QQ("[1, 2, 3]")	#--> stzListOfNumbers
 	#--> Note that this is a list in string:
-	? Q("[1, 2, 3]").IsListOfNumbersInString() #--> _TRUE_
+	? Q("[1, 2, 3]").IsListOfNumbersInString() #--> TRUE
 
 	EXAMPLE 3
 
 	? QQ(' [ "one", "two", "three" ] ')	#--> stzListOfStrings
 	#--> Note that this is a list of strings in a string:
-	? Q(' [ "one", "two", "three" ] ').IsListOfStringsInString #--> _TRUE_
+	? Q(' [ "one", "two", "three" ] ').IsListOfStringsInString #--> TRUE
 
 	*/
 
@@ -380,7 +380,7 @@ func L(p)
 	but isNumber(p)
 		aResult = []
 		for i = 1 to p
-			aResult + _NULL_
+			aResult + ""
 		next
 
 		return aResult

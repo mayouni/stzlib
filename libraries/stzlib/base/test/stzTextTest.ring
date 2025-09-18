@@ -3,7 +3,7 @@ load "../stzmax.ring"
 profon()
 
 o1 = new stzText("ring programming, best of programming!")
-? o1.FindAllCS("programming", _FALSE_)
+? o1.FindAllCS("programming", 0)
 #--> [ 6, 27 ]
 
 proff()
@@ -27,7 +27,7 @@ proff()
 # say a special vocal sign that decorates the consonent letters like
 # a, e, and i in latin languages.
 
-? StzCharQ(ArabicShaddah()).IsArabicDiacritic() #--> _TRUE_
+? StzCharQ(ArabicShaddah()).IsArabicDiacritic() #--> TRUE
 
 # Which is not correct. In fact, diacrirtcs in arabic are:
 ? @@( Arabic7araket() ) # [ "ُ ", "َ ", "ِ ", "ْ " ]
@@ -35,7 +35,7 @@ proff()
 # As you see, ("ّ ") is not one of them. That's because the Shaddah
 # is actually a letter and NOT a diacritic:
 
-? StzCharQ(ArabicShaddah()).IsLetter() #--> _TRUE_
+? StzCharQ(ArabicShaddah()).IsLetter() #--> TRUE
 
 # In fact, Arabs use it as a short form for a stressed letter like the "د" in
 # the word "مودّتي" (that we read as "mawaDDati" --> with a stressed D)
@@ -50,7 +50,7 @@ txt = "مودّتي"
 # Bua more explicit result, by replacing the shaddach char by the letter it
 # actually represents:
 
-? @@( TQ(txt).LettersXT([ :ManageArabicShaddah = _TRUE_ ]) )
+? @@( TQ(txt).LettersXT([ :ManageArabicShaddah = 1 ]) )
 #o--> [ "م", "و", "د", "د", "ت", "ي" ]
 
 /*------------------ // Retest after adding ReplaceAllCharsW() in stzString
@@ -86,15 +86,15 @@ txt = "مودّتي"
 
 /*------------------
 
-? StzStringQ("سلام").ScriptIs(:Arabic) #--> _TRUE_
-? StzStringQ("Peace").ScriptIs(:Latin) #--> _TRUE_
-? StzStringQ("和平").ScriptIs(:Han) #--> _TRUE_ (China)
-? StzStringQ("શાંતિ").ScriptIs(:Gujarati) #--> _TRUE_ (India, Pakistan)
+? StzStringQ("سلام").ScriptIs(:Arabic) #--> TRUE
+? StzStringQ("Peace").ScriptIs(:Latin) #--> TRUE
+? StzStringQ("和平").ScriptIs(:Han) #--> TRUE (China)
+? StzStringQ("શાંતિ").ScriptIs(:Gujarati) #--> TRUE (India, Pakistan)
 
 /*--------------------
 
 # Is this arabic word diacriticized?
-? StzStringQ("سَلَامُُ").ContainsDiacritics() # _TRUE_
+? StzStringQ("سَلَامُُ").ContainsDiacritics() # 1
 
 # The word contains some letters and diacritics
 # Let's see what is the script of one letter
@@ -140,9 +140,9 @@ txt = "مودّتي"
 
 /*-------------------
 
-? StzStringQ(" 4  ُ  ").IsScript(:Hybrid) #--> _TRUE_
-? StzStringQ("  ").IsScript(:Common) #--> _TRUE_
-? StzStringQ(ArabicDhammah()).IsScript(:Inherited) #--> _TRUE_
+? StzStringQ(" 4  ُ  ").IsScript(:Hybrid) #--> TRUE
+? StzStringQ("  ").IsScript(:Common) #--> TRUE
+? StzStringQ(ArabicDhammah()).IsScript(:Inherited) #--> TRUE
 
 /*-------------------
 
@@ -352,7 +352,7 @@ o1.ReplaceWord("Tunis", :With = "Cairo")
 // --> ReplaceWordCS
 StzTextQ("mahmoud, ahmed, mohamed, Mahmoud, mahmoud, ahmed.") {
 	ReplaceWordsWithMarquers()
-	//ReplaceWordsCS(["mahmoud"], :With = ["Mansour"], _FALSE_)
+	//ReplaceWordsCS(["mahmoud"], :With = ["Mansour"], 0)
 	//? Content()
 }
 
@@ -370,7 +370,7 @@ StzTextQ("mahmoud, ahmed, mohamed, Mahmoud, mahmoud, ahmed.") {
 /*------------
 
 o1 = new stzText("Ring is not the Ring you ware but the Ring you program with!")
-o1.ReplaceWordsCS( [ :ring ], [ :Watch ], _FALSE_ )
+o1.ReplaceWordsCS( [ :ring ], [ :Watch ], 0 )
 ? o1.Content()
 
 /*
@@ -482,13 +482,13 @@ StzTextQ(cText) {
 /*----------------------
 
 # ? StopWordsIn(:english)
-? Q("that").IsStopWordIn(:english) #--> _TRUE_
+? Q("that").IsStopWordIn(:english) #--> TRUE
 
 # ? StopWordsIn(:arabic)
-? Q("في").IsStopWordIn(:arabic) #--> _TRUE_
+? Q("في").IsStopWordIn(:arabic) #--> TRUE
 
-? Q("that").IsStopWord() #--> _TRUE_
-? Q("في").IsStopWord() #--> _TRUE_
+? Q("that").IsStopWord() #--> TRUE
+? Q("في").IsStopWord() #--> TRUE
 
 /*----------------------
 
@@ -557,10 +557,10 @@ o1 = new stzString("this is just عربي latin script")
 /*-------------- ERROR: FIXING IN PROGRESS
 
 o1 = new stzText("Ring 17")
-? o1.IsWord() #--> _TRUE_
+? o1.IsWord() #--> TRUE
 
 o1 = new stzText("Ring_17")
-? o1.IsWord() #--> _TRUE_
+? o1.IsWord() #--> TRUE
 
 o1 = new stzText("حُسَيْــــنْ")
 ? o1.IsArabicWord()
@@ -570,7 +570,7 @@ o1 = new stzText("حُسَيْــــنْ")
 /*-------------
 
 o1 = new stzText("softanza")
-? o1.ContainsOnlyLetters() #--> _TRUE_
+? o1.ContainsOnlyLetters() #--> TRUE
 
 /*--------------
 

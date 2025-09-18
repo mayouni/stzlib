@@ -20,7 +20,7 @@ func OctalPrefix()
 		return OctalPrefix()
 
 func SetOctalPrefix(cPrefix)
-	if StzListQ( OctalPrefixes() ).ContainsCS(cPrefix, _FALSE_)
+	if StzListQ( OctalPrefixes() ).ContainsCS(cPrefix, 0)
 		_cOctalPrefix = cPrefix
 	else
 		StzRaise("Incorrect octal prefix!")

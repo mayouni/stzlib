@@ -61,33 +61,33 @@ func StzListOfNumbersQ(paListOfNumbers)
 
 func IsListOfPositiveNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
 
 	for i = 1 to nLen
 		if not (isNumber(paList[i]) and paList[i] >= 0)
-			return _FALSE_
+			return 0
 		ok
 	next
 
-	return _TRUE_
+	return 1
 
 func IsListOfNegativeNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
 
 	for i = 1 to nLen
 		if not (isNumber(paList[i]) and paList[i] <= 0)
-			return _FALSE_
+			return 0
 		ok
 	next
 
-	return _TRUE_
+	return 1
 
 func NumbersUnicodes(anNumbers)
 	return StzListOfNumbersQ(anNumbers).Unicodes()
@@ -103,18 +103,18 @@ def HaveSameDifference(anNumbers)
 	# to determine a true pattern of constant difference
 
 	if nLen < 3
-		return _FALSE_
+		return 0
 	ok
 
 	nDiff = anNumbers[2] - anNumbers[1]
 
 	for i = 2 to nLen -1 
 		if anNumbers[i+1] - anNumbers[i] != nDiff
-			return _FALSE_
+			return 0
 		ok
 	next
 
-	return _TRUE_
+	return 1
 
 	func @HaveSameDifference(anNumbers)
 		return HaveSameDifference(anNumbers)
@@ -1460,7 +1460,7 @@ func FirstNPrimesWXT(n, pcCondition)
 
 	ok
 
-	if StzStringQ(pcCondition).ContainsCS("@prime", _FALSE_) = _FALSE_
+	if StzStringQ(pcCondition).ContainsCS("@prime", 0) = 0
 		StzRaise("Incorrect syntax! pcCondition must be a string containg Ring conditional code.")
 	ok
 
@@ -1473,7 +1473,7 @@ func FirstNPrimesWXT(n, pcCondition)
 	@prime = 0
 	j = 0
 
-	while _TRUE_
+	while 1
 		j++
 		if j > nMax
 			StzRaise("Can't proceed! Maximum Ring number exceeded.")
@@ -1514,22 +1514,22 @@ func PrimesUnder(n)
 func PrimesUnderIB(n)
 	if n < 2 return [] ok
     
-	# Create a list of boolean values, initially all set to _TRUE_
+	# Create a list of boolean values, initially all set to 1
 	# Index i represents whether number i is prime
 	sieve = list(n+1)
 	for i = 1 to n+1
-		sieve[i] = _TRUE_
+		sieve[i] = 1
 	next
     
 	# 0 and 1 are not prime
-	sieve[1] = _FALSE_
+	sieve[1] = 0
     
 	# Implement Sieve of Eratosthenes
 	for i = 2 to floor(sqrt(n))
 		if sieve[i]
 			# Mark all multiples of i as non-prime
 			for j = i * i to n step i
-				sieve[j] = _FALSE_
+				sieve[j] = 0
 			next
 		ok
 	next
@@ -1560,14 +1560,14 @@ func IsListOfNonZeroPositiveNumbers(paList)
 
 	nLen = len(paList)
 	if nLen = 0
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT ( isNumber(paList[i]) and paList[i] > 0 )
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -1617,7 +1617,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Can't create a stzListOfNumbers object!")
 		ok
 
-		if KeepingHistory() = _TRUE_
+		if KeepingHistory() = 1
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -2692,11 +2692,11 @@ class stzListOfNumbers from stzList
 			nLen = len(anSorted)
 			
 			if nLen = 0
-				return _NULL_
+				return ""
 
 			but nLen = 1
 				if anSorted[1] = n
-					return _NULL_
+					return ""
 
 				else
 					return anSorted[1]
@@ -2719,7 +2719,7 @@ class stzListOfNumbers from stzList
 					ok
 
 				else
-					return _NULL_
+					return ""
 				ok
 
 			ok
@@ -2733,11 +2733,11 @@ class stzListOfNumbers from stzList
 			nLen = len(anSorted)
 
 			if nLen = 0
-				return _NULL_
+				return ""
 
 			but nLen = 1
 				if anSorted[1] = n
-					return _NULL_
+					return ""
 
 				else
 					return anSorted[1]
@@ -2760,7 +2760,7 @@ class stzListOfNumbers from stzList
 					ok
 
 				else
-					return _NULL_
+					return ""
 				ok
 
 			ok		
@@ -2828,11 +2828,11 @@ class stzListOfNumbers from stzList
 		# (even if duplicated, like in [ 2, 2, 2 ])
 
 		if nLen = 0
-			return _NULL_
+			return ""
 
 		but nLen = 1
 			if anSorted[1] = n
-				return _NULL_
+				return ""
 			else
 				return anSorted[1]
 			ok
@@ -2949,11 +2949,11 @@ class stzListOfNumbers from stzList
 		# (even if duplicated, like in [ 2, 2, 2 ])
 
 		if nLen = 0
-			return _NULL_
+			return ""
 
 		but nLen = 1
 			if anSorted[1] = n
-				return _NULL_
+				return ""
 			else
 				return anSorted[1]
 			ok
@@ -3214,23 +3214,23 @@ class stzListOfNumbers from stzList
 		nLen = len(anSorted)
 			
 		if nLen = 0
-			return [ _NULL_, _NULL_ ]
+			return [ "", "" ]
 		ok
 
 		nPos = ring_find( anSorted, n )
 
 		if nPos = 0
-			return [ _NULL_, _NULL_ ]
+			return [ "", "" ]
 		ok
 
 		n1 = anSorted[1]
 		n2 = anSorted[nLen]
 
 		if nPos = 1
-			n1 = _NULL_
+			n1 = ""
 
 		but nPos = nLen
-			n2 = _NULL_
+			n2 = ""
 		ok
 
 		anResult = [ n1, n2 ]
@@ -3491,12 +3491,12 @@ class stzListOfNumbers from stzList
 
 			# Check if this pattern repeats throughout
 
-			bMatches = _TRUE_
+			bMatches = 1
 			nLenPattern = len(anPattern)
 
 			for j = 1 to nLen
 				if anDiffs[j] != anPattern[(j-1) % nLenPattern + 1]
-					bMatches = _FALSE_
+					bMatches = 0
 					exit
   				ok
 			next
@@ -3763,9 +3763,9 @@ class stzListOfNumbers from stzList
 		oNumber = new stzNumber( This.Product() )
 
 		if oNumber.IsDividableBy(n)
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	  #----------------------------------------------------#
@@ -4680,7 +4680,7 @@ class stzListOfNumbers from stzList
 
 	def Update(panNewListOfNumbers)
 
-		if CheckingParams() = _TRUE_
+		if CheckingParams() = 1
 			if isList(panNewListOfNumbers) and Q(panNewListOfNumbers).IsWithOrByOrUsingNamedParam()
 				panNewListOfNumbers = panNewListOfNumbers[2]
 			ok
@@ -4695,7 +4695,7 @@ class stzListOfNumbers from stzList
 
 		@aContent = panNewListOfNumbers
 
-		if KeepingHisto() = _TRUE_
+		if KeepingHisto() = 1
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -4885,7 +4885,7 @@ class stzListOfNumbers from stzList
 		#>
 
 	def IsStzListOfNumbers()
-		return _TRUE_
+		return 1
 
 	def stzType()
 		return :stzListOfNumbers
@@ -4905,14 +4905,14 @@ class stzListOfNumbers from stzList
 		nLen = This.NumberOfNumbers()
 
 		if nLen = 0 or nLen = 1
-			return _FALSE_
+			return 0
 		ok
 
 		aContent = This.Content()
 
 		if nLen = 2
 			if aContent[1] = aContent[2]
-				return _FALSE_
+				return 0
 			ok
 		ok
 
@@ -4921,18 +4921,18 @@ class stzListOfNumbers from stzList
 		n1 = aContent[1]
 		n2 = aContent[2]
 
-		bResult = _TRUE_
+		bResult = 1
 		if n1 < n2
 			for i = 3 to nLen
 				if aContent[i] != aContent[i-1] + 1
-					bResult = _FALSE_
+					bResult = 0
 					exit
 				ok
 			next
 		else // n1 > n2
 			for i = 3 to nLen
 				if aContent[i] != aContent[i-1] - 1
-					bResult = _FALSE_
+					bResult = 0
 					exit
 				ok
 			next
@@ -7748,11 +7748,11 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT (0+ anContent[i]) < 0
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -7787,16 +7787,16 @@ class stzListOfNumbers from stzList
 	
 			bTruth = TruthStatement()
 	
-			if bTruth = _TRUE_
+			if bTruth = 1
 	
 				return This.AreNegative()
 	
 			else
 	
 				if This.ContainsNegativeNumbers()
-					return _FALSE_
+					return 0
 				else
-					return _TRUE_
+					return 1
 				ok
 	
 			ok
@@ -7811,11 +7811,11 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT (0+ anContent[i]) > 0
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -7850,16 +7850,16 @@ class stzListOfNumbers from stzList
 	
 			bTruth = TruthStatement()
 	
-			if bTruth = _TRUE_
+			if bTruth = 1
 	
 				return This.ArePositive()
 	
 			else
 
 				if This.ContainsPositiveNumbers()
-					return _FALSE_
+					return 0
 				else
-					return _TRUE_
+					return 1
 				ok
 	
 			ok
@@ -7870,14 +7870,14 @@ class stzListOfNumbers from stzList
 		#>
 
 	def ContainsPositiveNumbers()
-		_bResult_ = _FALSE_
+		_bResult_ = 0
 
 		_anContent_ = This.Content()
 		_nLen_ = len(_anContent_)
 
 		for @i = 1 to _nLen_
 			if _anContent_[@i] > 0
-				_bResult_ = _TRUE_
+				_bResult_ = 1
 				exit
 			ok
 		next
@@ -7885,14 +7885,14 @@ class stzListOfNumbers from stzList
 		return _bResult_
 
 	def ContainsNegativeNumbers()
-		_bResult_ = _FALSE_
+		_bResult_ = 0
 
 		_anContent_ = This.Content()
 		_nLen_ = len(_anContent_)
 
 		for @i = 1 to _nLen_
 			if _anContent_[@i] < 0
-				_bResult_ = _TRUE_
+				_bResult_ = 1
 				exit
 			ok
 		next
@@ -7906,14 +7906,14 @@ class stzListOfNumbers from stzList
 			ok
 		ok
 
-		_bResult_ = _TRUE_
+		_bResult_ = 1
 
 		_anContent_ = This.Content()
 		_nLen_ = len(_anContent_)
 
 		for @i = 1 to _nLen_
 			if _anContent_[@i] < n
-				_bResult_ = _FALSE_
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -7930,14 +7930,14 @@ class stzListOfNumbers from stzList
 			ok
 		ok
 
-		_bResult_ = _TRUE_
+		_bResult_ = 1
 
 		_anContent_ = This.Content()
 		_nLen_ = len(_anContent_)
 
 		for @i = 1 to _nLen_
 			if _anContent_[@i] > n
-				_bResult_ = _FALSE_
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -7952,11 +7952,11 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT ( (0+ anContent[i]) % n = 0 )
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -8329,7 +8329,7 @@ class stzListOfNumbers from stzList
  
 	def SortBy(pcExpr)
 
-		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@number", _FALSE_))
+		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@number", 0))
 			StzRaise("Incorrect param! pcExpr must be a string containing @number keyword.")
 		ok
 
@@ -8577,12 +8577,12 @@ class stzListOfNumbers from stzList
 	#------------------------------------------#
 
 	def ArePrimes()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT ring_isprime(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -8594,12 +8594,12 @@ class stzListOfNumbers from stzList
 	#---------------------------------------------#
 
 	def AreWeiferich()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsWeiferich(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -8614,7 +8614,7 @@ class stzListOfNumbers from stzList
 
 		_nLen_ = len(@aContent)
 		if _nLen_ < 2
-			return _FALSE_
+			return 0
 		ok
 
 		for @i = 2 to _nLen_
@@ -8622,11 +8622,11 @@ class stzListOfNumbers from stzList
 			if (@aContent[1] > 0 and @aContent[@i] < 0) or
 			   (@aContent[1] < 0 and @aContent[@i] > 0)
 
-				return _TRUE_
+				return 1
 			ok
 		next
 
-		return _FALSE_
+		return 0
 
 		#< @FunctionAlternativeForms
 

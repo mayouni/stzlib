@@ -1,7 +1,7 @@
 
 # stzString = stzStringView + all updating methods
 
-$bUSE_ALT_FORM 		= _FALSE_
+$bUSE_ALT_FORM 		= 0
 
 
   /////////////////

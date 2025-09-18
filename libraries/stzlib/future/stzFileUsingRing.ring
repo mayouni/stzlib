@@ -43,7 +43,7 @@ class stzFile from stzObject
 		try
 			hFile = freopen(cFile, InMode(pcOpenMode), hFile)
 			cOpeningMode = pcOpenMode
-			return _TRUE_
+			return 1
 		catch
 			StzRaise(stzFileError(:CanNotChangeFileOpeneningMode2))
 		done
@@ -55,9 +55,9 @@ class stzFile from stzObject
 	def Close()
 		try
 			fclose(This.Handle())
-			return _TRUE_
+			return 1
 		catch
-			return _FALSE_
+			return 0
 		done
 
 	  #---------------#
@@ -85,16 +85,16 @@ class stzFile from stzObject
 	def IsTextFile()	#TODO // check if QMimeData() class could help
 				# NB : QMimeType() is better but not supported in Ring 1.14
 		if This.ContainsEndOfFile()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBinaryFile()	# Idem
 		if NOT This.ContainsEndOfFile()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	  #------------------#
@@ -145,7 +145,7 @@ class stzFile from stzObject
 	def ChangeContent(pcContent)
 		try
 			write(cFile, pcContent)
-			return _TRUE_
+			return 1
 		catch
 			StzRaise( stzFileError(:CanNotWriteContentToFile) )
 		done
@@ -232,7 +232,7 @@ class stzFile from stzObject
 			if the file exists
 				Open it for reading only
 			else
-				return _NULL_
+				return ""
 			ok
 			*/
 			return "r"
@@ -262,7 +262,7 @@ class stzFile from stzObject
 			if the file exists
 				Open it for reading and writing
 			else
-				return _NULL_
+				return ""
 			ok
 			*/
 			return "r+"

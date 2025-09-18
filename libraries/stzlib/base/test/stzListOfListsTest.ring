@@ -218,7 +218,7 @@ aLists = [
 
 # As you can see, the list is sorted with two notable modifications:
 # all the lists are adjusted to the lengh of the largest list
-# using _NULL_s, and if the nth column contains lists then those
+# using NULLs, and if the nth column contains lists then those
 # lists are stringified.
 
 # These modifications are made to make it possible the use of
@@ -283,7 +283,7 @@ o1 = new stzListOfLists([
 #	[ ]
 # ]
 
-# ColXT adds _NULL_s to lines corresponding to inner lists
+# ColXT adds NULLs to lines corresponding to inner lists
 # with smaller size then n
 
 ? @@NL( o1.ColXT(3) )
@@ -1055,7 +1055,7 @@ o1 = new stzLists([
 #--> FALSE
 
 o1.ExtendTo(4)
-# By default, the items are extended using the _NULL_ char
+# By default, the items are extended using the NULL char
 # Use ExtendToXT(n, char) to specify your own (next example)
 
 ? @@( o1.Content() )

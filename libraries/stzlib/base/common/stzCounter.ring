@@ -1,6 +1,6 @@
 func IsCounterNamedParamList(paParams)
 	if NOT isList(paParams)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paParams)
@@ -8,9 +8,9 @@ func IsCounterNamedParamList(paParams)
 	   IsHashList(paParams) and
 	   StzHashListQ(paParams).KeysQ().IsMadeOfSome([ :StartAt, :AfterYouSkip, :RestartAt, :Step ])
 	
-			return _TRUE_
+			return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func @IsCounterNamedParamList(paParams)
@@ -31,24 +31,24 @@ class stzCounter from stzObject
 		if isList(paParams) and
 		   IsCounterNamedParamList(paParams)
 
-			if paParams[ :StartAt ] != _NULL_
+			if paParams[ :StartAt ] != ""
 				@nStartAt = paParams[ :StartAt ]
 			ok
 
-			if paParams[ :AfterYouSkip ] != _NULL_
+			if paParams[ :AfterYouSkip ] != ""
 				@nAfterYouSkip = paParams[ :AfterYouSkip ]
 			ok
 	
-			if paParams[ :WhenYouReach ] != _NULL_
+			if paParams[ :WhenYouReach ] != ""
 
 				@nWhenYouReach = paParams[ :WhenYouReach ]
 			ok
 
-			if paParams[ :RestartAt ] != _NULL_
+			if paParams[ :RestartAt ] != ""
 				@nRestartAt = paParams[ :RestartAt ]
 			ok
 	
-			if paParams[ :Step ] != _NULL_
+			if paParams[ :Step ] != ""
 				@nStep = paParams[ :Step ]
 			else
 				@nStep = 1

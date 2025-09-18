@@ -10,7 +10,7 @@
 	#---------------------------------------------#
 
 	def ItemsThatAre_Duplicated()
-		oQuery.SelectWhere( :CurrentItem, :IsDuplicated, _TRUE_ )
+		oQuery.SelectWhere( :CurrentItem, :IsDuplicated, 1 )
 
 		def AllItemsAre_Duplicated()		def ContainsOnly_ItemsThatAre_Duplicated()
 		def SomeItemsAre_Duplicated()		def ContainsSome_ItemsThatAre_Duplicated()
@@ -39,9 +39,9 @@
 		def AllItemsAre_OfTheSameType()
 			aTemp = oQuery.SelectWhere( :CurrentItem, :HasSameTypeAs, :FirstItem )
 			if len(aTemp) = This.NumberOfItems()
-				return _TRUE_
+				return 1
 			else
-				return _FALSE_
+				return 0
 			ok
 
 							def ContainsOnlyItems_OfTheSameType()	# IsPureList()

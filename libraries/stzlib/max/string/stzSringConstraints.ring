@@ -16,7 +16,7 @@ class stzStringConstraints
 
 		cCondition = Constraints()[ :OnStzString ][ pcConstraintName ]
 
-		if cCondition = _NULL_
+		if cCondition = ""
 			stzRaise("Inexsitant contraint!")
 		ok
 
@@ -24,7 +24,7 @@ class stzStringConstraints
 
 		StzStringQ(cCondition) {
 
-			ReplaceCS("@string", @str,  _FALSE_)
+			ReplaceCS("@string", @str,  0)
 			Simplify()
 			RemoveTheseBounds("{", "}")
 
@@ -34,7 +34,7 @@ class stzStringConstraints
 		cCode  = 'bResult = ""+ (' + cCondition + ')'
 		eval(cCode)
 
-		if bResult = _FALSE_
+		if bResult = 0
 			stzRaise([
 				:Where = "stzString.ring > VerifyCondition()",
 				:What  = "Execution is cancelled by Softanza",
@@ -45,10 +45,10 @@ class stzStringConstraints
 		ok
 
 	def VerifyConstraints()
-		bResult = _TRUE_
+		bResult = 1
 
 		for aPair in This.Constraints()
 			cConstraintName = aPair[1]
-			This.VerifyConstraint(cConstraintName) = _FALSE_
+			This.VerifyConstraint(cConstraintName) = 0
 			
 		next

@@ -18,7 +18,7 @@ class stzPairOfLists from stzListOfLists
 		@aList1 = paList1
 		@aList2 = paList2
 
-		if KeepingHistory() = _TRUE_
+		if KeepingHistory() = 1
 			This.AddHistoricValue(This.Content())
 		ok
 

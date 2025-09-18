@@ -5,9 +5,9 @@
 	
 	func IsActiveItem(pItem)
 		if isObject(pItem) and classname(pItem) = lower("stzActiveItem")
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 	
 		func @IsActiveItem(pItem)

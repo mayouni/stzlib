@@ -48,9 +48,9 @@ func NamesOfInvisibleChars()
 
 func IsUnicode(n)
 	if n >= 0 and n <= 1114111
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForm

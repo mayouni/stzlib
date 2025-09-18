@@ -35,11 +35,11 @@ func range0(p)
 		   oStr.Copy().RemoveManyQ([":", "-"]).IsNumberInString()
 			acNumbers = oStr.SplitAt(":")
 			nLen = len(acNumbers)
-			if acNumbers[2] = _NULL_
+			if acNumbers[2] = ""
 				StzRaise("Incorrect syntax! The second parameter must not be empty.")
 			ok
 			n1 = 0
-			if acNumbers[1] != _NULL_
+			if acNumbers[1] != ""
 				n1 = 0 + acNumbers[1] + 1
 			ok
 			n2 = 0 + acNumbers[2] - 1

@@ -6,28 +6,28 @@ profon()
 #--> "x64"
 
 ? Is64Bit()
-#--> _TRUE_
+#--> TRUE
 
 ? Is32Bit()
-#--> _FALSE_
+#--> FALSE
 
 ? Is32Or54Bit()
 #--> "64"
 
 ? IsARM()
-#--> _FALSE_
+#--> FALSE
 
 ? IsARM32()
-#--> _FALSE_
+#--> FALSE
 
 ? IsARM64()
-#--> _FALSE_
+#--> FALSE
 
 ? IsX86()
-#--> _FALSE_
+#--> FALSE
 
 ? IsX64()
-#--> _TRUE_
+#--> TRUE
 
 ? OperatingSystem() # Same as OS()
 #--> "windows"
@@ -36,46 +36,46 @@ profon()
 #--> [ "windows", "x64" ]
 
 ? IsWindows32()
-#--> _FALSE_
+#--> FALSE
 
 ? IsWindows64()
-#--> _TRUE_
+#--> TRUE
 
 ? IsMSDOS32()
-#--> _FALSE_
+#--> FALSE
 
 ? IsMSDOS64()
-#--> _FALSE_
+#--> FALSE
 
 ? IsUnix32()
-#--> _FALSE_
+#--> FALSE
 
 ? IsUnix64()
-#--> _FALSE_
+#--> FALSE
 
 ? IsLinux32()
-#--> _FALSE_
+#--> FALSE
 
 ? IsLinux64()
-#--> _FALSE_
+#--> FALSE
 
 ? IsFreeBSD32()
-#--> _FALSE_
+#--> FALSE
 
 ? IsFreeBSD64()
-#--> _FALSE_
+#--> FALSE
 
 ? IsMacOS32()
-#--> _FALSE_
+#--> FALSE
 
 ? IsMacOS64()
-#--> _FALSE_
+#--> FALSE
 
 ? IsAndroid32()
-#--> _FALSE_
+#--> FALSE
 
 ? IsAndroid64()
-#--> _FALSE_
+#--> FALSE
 
 proff()
 # Executed in almost 0 second(s) in Ring 1.21

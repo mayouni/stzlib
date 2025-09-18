@@ -106,7 +106,7 @@ class stzMultiString
 			pcLang = StzLanguageQ(pcLang).ShortAbbreviation()
 
 			# If the translation has been provided then it is returned
-			# otherwise _NULL_ is returned
+			# otherwise "" is returned
 			return This.Content()[pcLang]
 
 		def en()

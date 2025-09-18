@@ -751,7 +751,7 @@ pf()
 
 pr()
 
-? random(-10) # Standard Ring function returning _NULL_
+? random(-10) # Standard Ring function returning NULL
 #--> ""
 
 ? StzRandom(-10) + NL

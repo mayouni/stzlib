@@ -21,18 +21,18 @@ func IsSet(paList)
 
 	nLen = len(paList)
 	if nLen = 0
-		return _FALSE_
+		return 0
 	but nLen = 1
-		return _TRUE_
+		return 1
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	aSeen = []
 	for i = 1 to nLen
 		if find(aSeen, paList[i]) = 0
 			aSeen + paList[i]
 		else
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -70,7 +70,7 @@ class stzSet from stzList
 		oTempList = new stzList(paList)
 		@aContent = oTempList.ToSet()	# From StzList		
 
-		if KeepingHistory() = _TRUE_
+		if KeepingHistory() = 1
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -105,7 +105,7 @@ class stzSet from stzList
 
 		@aContent = paOtherSet
 
-		if KeepingHisto() = _TRUE_
+		if KeepingHisto() = 1
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -282,10 +282,10 @@ class stzSet from stzList
 			paOtherSet = oTempSet.ToSet()
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 		for elem in This.Set()
 			if NOT ListExists(elem, paOtherSet)
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		end
@@ -302,10 +302,10 @@ class stzSet from stzList
 			paOtherSet = oTempSet.Content()
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 		for elem in paOtherSet
 			if NOT This.ToStzList().Contains(elem)
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		end

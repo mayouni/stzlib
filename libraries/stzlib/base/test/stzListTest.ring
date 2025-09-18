@@ -1855,7 +1855,7 @@ pf()
 
 pr()
 
-o1 = new stzList([ 0, "", [], 1, 2, 3, [], _NULL_, 0 ])
+o1 = new stzList([ 0, "", [], 1, 2, 3, [], NULL, 0 ])
 
 o1.Trim()
 
@@ -1869,7 +1869,7 @@ pf()
 
 pr()
 
-o1 = new stzList([ 0, "", [], 1, 2, 3, [], _NULL_, 0 ])
+o1 = new stzList([ 0, "", [], 1, 2, 3, [], NULL, 0 ])
 
 o1.TrimLeft()
 o1.TrimRight()
@@ -2134,11 +2134,11 @@ o1 = new stzList([ 1, 1:5, "hi!", StzNullObjectQ(), [ "a", "b" ] ])
 
 ? @@( o1.NListified(3) )
 #--> [
-#	[ 1, _NULL_, _NULL_ ],
+#	[ 1, NULL, NULL ],
 #	[ 1, 2, 3 ],
-#	[ "hi!", _NULL_, _NULL_ ],
-#	[ @noname, _NULL_, _NULL_ ],
-#	[ "a", "b", _NULL_ ]
+#	[ "hi!", NULL, NULL ],
+#	[ @noname, NULL_, NULL ],
+#	[ "a", "b", NULL ]
 # ]
 
 pf()
@@ -2202,8 +2202,8 @@ o1 = new stzList([ 1, 2, [ "a", "b" ], 4, [ "c", "d"], [ "a", "b" ] ])
 
 ? @@( o1.Pairified() )
 #--> [
-#	[ 1, _NULL_ ], [ 2, _NULL_ ], [ "a", "b" ],
-#	[ 4, _NULL_ ], [ "c", "d" ], [ "a", "b" ]
+#	[ 1, NULL ], [ 2, NULL ], [ "a", "b" ],
+#	[ 4, NULL ], [ "c", "d" ], [ "a", "b" ]
 # ]
 
 pf()
@@ -4428,7 +4428,7 @@ pr()
 o1 = new stzList([
 	[ "A", "B", "C" ],
 	[ 1, 2, 3 ],
-	[ _NULL_, _NULL_, [] ]
+	[ NULL, NULL, [] ]
 ])
 
 ? o1.IsMadeOfUniformLists() # Or more precisely: IsMadeOfUnisizeLists()
@@ -8961,16 +8961,16 @@ pf()
 
 pr()
 
-? StzListQ([]).Contains(_NULL_)
+? StzListQ([]).Contains(NULL)
 #--> FALSE
 
-? StzListQ([_NULL_]).Contains(_NULL_)
+? StzListQ([NULL]).Contains(NULL)
 #--> TRUE
 
 ? StzListQ([]).IsListOfStrings()
 #--> FALSE
 
-? StzListQ([ _NULL_, _NULL_, _NULL_]).IsListOfStrings()
+? StzListQ([ NULL, NULL, NULL]).IsListOfStrings()
 #--> TRUE
 
 pf()
@@ -9598,7 +9598,7 @@ pr()
 o1 = new stzList(1:5)
 o1.AddItemAt(8, 9)
 ? @@( o1.Content() )
-#--> [ 1, 2, 3, 4, 5, _NULL_, _NULL_, 9 ]
+#--> [ 1, 2, 3, 4, 5, NULL, NULL, 9 ]
 
 pf()
 # Executed in almost 0 second(s).
@@ -9610,7 +9610,7 @@ pr()
 o1 = new stzList("A":"E")
 o1.AddItemAt(8, "X")
 ? @@( o1.Content() )
-#--> [ "A", "B", "C", "D", "E", _NULL_, _NULL_, "X" ]
+#--> [ "A", "B", "C", "D", "E", NULL, NULL, "X" ]
 
 pf()
 # Executed in almost 0 second(s).
@@ -11083,10 +11083,10 @@ o1 = new stzList([ "a", 1, 3, "b", ["A1", "A2"], obj1, "c", 3, [ "B1", "B2" ], o
 ? o1.OnlyObjects()
 #--> The two objects o1 and o2 printed in the console:
 #
-# @oobject: _NULL_
+# @oobject: NULL
 # @cvarname: @trueobject
 #
-# @oobject: _NULL_
+# @oobject: NULL
 # @cvarname: @falseobject
 
 pf()

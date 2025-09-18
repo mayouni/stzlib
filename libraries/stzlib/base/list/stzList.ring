@@ -629,7 +629,7 @@ func SortListsOn(paLists, n)
 
 	# In all other cases:
 
-	# Adjust the lists to the largest size using _NULL_s
+	# Adjust the lists to the largest size using NULLs
 
 	oLoL = new stzListOfLists(paLists)
 	oLoL.Adjust()
@@ -909,9 +909,9 @@ func TypesXT(paValues)
 
 func IsSortedList(paList)
 	if IsSortedListInAscending(paList) or IsSortedListInDescending(paList)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -931,7 +931,7 @@ func IsSortedList(paList)
 
 func IsSortedListInAscending(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	return StzListQ(palist).IsSortedInAscending()
@@ -975,7 +975,7 @@ func IsSortedListInAscending(paList)
 
 func IsSortedListInDescending(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	return StzListQ(palist).IsSortedInDescending()
@@ -1019,7 +1019,7 @@ func IsSortedListInDescending(paList)
 
 func IsSortedListOfPairsOfNumbers(paList)
 	if NOT IsListOfPairsOfNumbers(paList) and IsSortedList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
@@ -1040,9 +1040,9 @@ func IsSortedListOfPairsOfNumbers(paList)
 	if ( oList1.IsSortedInAscending() and oList2.IsSortedInAscending() ) or
 	   ( oList2.IsSortedInDescending() and oList2.IsSortedInDescending() )
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func @IsSortedListOfPairsOfNumbers(paList)
@@ -1050,7 +1050,7 @@ func IsSortedListOfPairsOfNumbers(paList)
 
 func IsSortedUpListOfPairsOfNumbers(paList)
 	if NOT IsListOfPairsOfNumbers(paList) and IsSortedInAscending(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
@@ -1069,9 +1069,9 @@ func IsSortedUpListOfPairsOfNumbers(paList)
 	oList2 = new stzList(anSecond)
 
 	if oList1.IsSortedInAscending() and oList2.IsSortedInAscending()
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -1104,7 +1104,7 @@ func IsSortedUpListOfPairsOfNumbers(paList)
 func IsSortedDownListOfPairsOfNumbers(paList)
 
 	if NOT IsListOfPairsOfNumbers(paList) and IsSortedInDescending(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
@@ -1123,9 +1123,9 @@ func IsSortedDownListOfPairsOfNumbers(paList)
 	oList2 = new stzList(anSecond)
 
 	if oList1.IsSortedInDescending() and oList2.IsSortedInDescending()
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -1158,18 +1158,18 @@ func IsSortedDownListOfPairsOfNumbers(paList)
 
 func IsListOfNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
 
 	for i = 1 to nLen
 		if not isNumber(paList[i])
-			return _FALSE_
+			return 0
 		ok
 	next
 
-	return _TRUE_
+	return 1
 
 	#< @FunctionAlternativeForms
 
@@ -1186,17 +1186,17 @@ func IsListOfNumbers(paList)
 
 func IsSortedListOfNumbers(paList)
 	if IsListOfNumbers(paList) and IsSorted(paList)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 
 	ok
 
 func IsListOfNumbersSortedInAscending(paList)
 	if IsListOfNumbers(paList) and IsSortedInAscending(paList)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -1214,9 +1214,9 @@ func IsListOfNumbersSortedInAscending(paList)
 
 func IsListOfNumbersSortedInDesending(paList)
 	if IsListOfNumbers(paList) and IsSortedInDescending(paList)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -1234,10 +1234,10 @@ func IsListOfNumbersSortedInDesending(paList)
 
 func IsListOfListsOfNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfNumbers(paList[i])
@@ -1263,14 +1263,14 @@ func IsListOfListsOfNumbers(paList)
 
 func IsListOfDecimalNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsDecimalNumber(paList[i])
@@ -1296,14 +1296,14 @@ func IsListOfDecimalNumbers(paList)
 
 func IsListOfListsOfDecimalNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfDecimalNumbers(paList[i])
@@ -1329,10 +1329,10 @@ func IsListOfListsOfDecimalNumbers(paList)
 
 func IsListOfBinaryNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsBinaryNumber(paList[i])
@@ -1358,10 +1358,10 @@ func IsListOfBinaryNumbers(paList)
 
 func IsListOfListsOfBinaryNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfBinaryNumbers(paList[i])
@@ -1387,10 +1387,10 @@ func IsListOfListsOfBinaryNumbers(paList)
 
 func IsListOfOctalNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsOctalNumber(paList[i])
@@ -1415,10 +1415,10 @@ func IsListOfOctalNumbers(paList)
 	#>
 
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfOctalNumbers(paList[i])
@@ -1444,14 +1444,14 @@ func IsListOfOctalNumbers(paList)
 
 func IsListOfHexNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsHexNumber(paList[i])
@@ -1477,10 +1477,10 @@ func IsListOfHexNumbers(paList)
 
 func IsListOfListsOfHexNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfHexNumbers(paList[i])
@@ -1510,15 +1510,15 @@ func IsListOfStrings(paList)
 	# ~> More performant then usign stzObjects
 	
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 
 	for i = 1 to nLen
 		if NOT isString(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -1547,10 +1547,10 @@ func IsListOfStrings(paList)
 
 func IsListOfListsOfStrings(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStrings(paList[i])
@@ -1576,15 +1576,15 @@ func IsListOfListsOfStrings(paList)
 
 func IsListOfLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 
 	for i = 1 to nLen
 		if NOT isList(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -1606,10 +1606,10 @@ func IsListOfLists(paList)
 
 func IsListOfHybridLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsHybridList(paList[i])
@@ -1635,10 +1635,10 @@ func IsListOfHybridLists(paList)
 
 func IsListOfListsOfHybridLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfHybridLists(paList[i])
@@ -1664,7 +1664,7 @@ func IsListOfListsOfHybridLists(paList)
 
 func IsListOfListsOfLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	return StzListQ(paList).IsListOfListsOfLists()
@@ -1684,15 +1684,15 @@ func IsListOfListsOfLists(paList)
 
 func IsListOfObjects(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 
 	for i = 1 to nLen
 		if NOT isObject(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -1716,10 +1716,10 @@ func IsListOfObjects(paList)
 
 func IsListOfListsOfObjects(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfObjects(paList[i])
@@ -1745,10 +1745,10 @@ func IsListOfListsOfObjects(paList)
 
 func IsListOfChars(pacList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsChar(paList[i])
@@ -1774,10 +1774,10 @@ func IsListOfChars(pacList)
 
 func IsListOfListsOfChars(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfChars(paList[i])
@@ -1803,10 +1803,10 @@ func IsListOfListsOfChars(paList)
 
 func IsListOfPairs(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsPair(paList[i])
@@ -1832,10 +1832,10 @@ func IsListOfPairs(paList)
 
 func IsListOfListsOfPairs(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfPairs(paList[i])
@@ -1862,10 +1862,10 @@ func IsListOfListsOfPairs(paList)
 
 func IsListOfListsOfPairsOfNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfPairsOfNumbers(paList[i])
@@ -1879,10 +1879,10 @@ func IsListOfListsOfPairsOfNumbers(paList)
 
 func IsListOfListsOfPairsOfStrings(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfPairsOfStrings(paList[i])
@@ -1896,10 +1896,10 @@ func IsListOfListsOfPairsOfStrings(paList)
 
 func IsListOfListsOfPairsOfLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfPairsOfLists(paList[i])
@@ -1912,22 +1912,22 @@ func IsListOfListsOfPairsOfLists(paList)
 
 func IsPairOfPairs(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	if IsPair(paList[i][1]) and  IsPair(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 
 func IsListOfPairsOfPairs(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsPairOfPairs(paList[i])
@@ -1940,10 +1940,10 @@ func IsListOfPairsOfPairs(paList)
 
 func IsListOfListsOfPairsOfPairs(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfPairsOfPairs(paList[i])
@@ -1957,10 +1957,10 @@ func IsListOfListsOfPairsOfPairs(paList)
 
 func IsListOfListsOfPairsOfObjects(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfPairsOfObjects(paList[i])
@@ -1974,10 +1974,10 @@ func IsListOfListsOfPairsOfObjects(paList)
 
 func IsListOfSets(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsSet(paList[i])
@@ -2003,10 +2003,10 @@ func IsListOfSets(paList)
 
 func IsListOfListsOfSets(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfSets(paList[i])
@@ -2032,10 +2032,10 @@ func IsListOfListsOfSets(paList)
 
 func IsListOfHashLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsHashList(paList[i])
@@ -2061,10 +2061,10 @@ func IsListOfHashLists(paList)
 
 func IsListOfListsOfHashLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfHashLists(paList[i])
@@ -2090,10 +2090,10 @@ func IsListOfListsOfHashLists(paList)
 
 func IsListOfGrids(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsGrid(paList[i])
@@ -2119,10 +2119,10 @@ func IsListOfGrids(paList)
 
 func IsListOfListsOfGrids(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfGrids(paList[i])
@@ -2149,10 +2149,10 @@ func IsListOfListsOfGrids(paList)
 
 func IsListOfListsOfTables(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfTables(paList[i])
@@ -2178,10 +2178,10 @@ func IsListOfListsOfTables(paList)
 
 func IsListOfTrees(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsTree(paList[i])
@@ -2207,10 +2207,10 @@ func IsListOfTrees(paList)
 
 func IsListOfListsOfTrees(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfTrees(paList[i])
@@ -2236,10 +2236,10 @@ func IsListOfListsOfTrees(paList)
 
 func IsListOfStzNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsStzNumber(paList[i])
@@ -2265,10 +2265,10 @@ func IsListOfStzNumbers(paList)
 
 func IsListOfListsOfStzNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzNumbers(paList[i])
@@ -2294,10 +2294,10 @@ func IsListOfListsOfStzNumbers(paList)
 
 func IsListOfStzDecimalNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsStzDecimalNumber(paList[i])
@@ -2323,10 +2323,10 @@ func IsListOfStzDecimalNumbers(paList)
 
 func IsListOfListsOfStzDecimalNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzDecimalNumbers(paList[i])
@@ -2352,10 +2352,10 @@ func IsListOfListsOfStzDecimalNumbers(paList)
 
 func IsListOfStzBinaryNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsStzBinaryNumber(paList[i])
@@ -2381,10 +2381,10 @@ func IsListOfStzBinaryNumbers(paList)
 
 func IsListOfListsOfStzBinaryNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzBinaryNumbers(paList[i])
@@ -2410,10 +2410,10 @@ func IsListOfListsOfStzBinaryNumbers(paList)
 
 func IsListOfStzOctalNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsStzOctalNumber(paList[i])
@@ -2439,10 +2439,10 @@ func IsListOfStzOctalNumbers(paList)
 
 func IsListOfListsOfStzOctalNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzOctalNumbers(paList[i])
@@ -2468,10 +2468,10 @@ func IsListOfListsOfStzOctalNumbers(paList)
 
 func IsListOfStzHexNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if NOT IsStzHexNumber(paList[i])
@@ -2497,10 +2497,10 @@ func IsListOfStzHexNumbers(paList)
 
 func IsListOfListsOfStzHexNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzHexNumbers(paList[i])
@@ -2526,10 +2526,10 @@ func IsListOfListsOfStzHexNumbers(paList)
 
 func IsListOfStzStrings(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsStzString(paList[i])
@@ -2555,10 +2555,10 @@ func IsListOfStzStrings(paList)
 
 func IsListOfListsOfStzStrings(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzStrings(paList[i])
@@ -2584,10 +2584,10 @@ func IsListOfListsOfStzStrings(paList)
 
 func IsListOfStzLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsStzList(paList[i])
@@ -2613,10 +2613,10 @@ func IsListOfStzLists(paList)
 
 func IsListOfListsOfStzLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzLists(paList[i])
@@ -2642,10 +2642,10 @@ func IsListOfListsOfStzLists(paList)
 
 func IsListOfStzObjects(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsStzObject(paList[i])
@@ -2671,10 +2671,10 @@ func IsListOfStzObjects(paList)
 
 func IsListOfListsOfStzObjects(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzObjects(paList[i])
@@ -2700,10 +2700,10 @@ func IsListOfListsOfStzObjects(paList)
 
 func IsListOfStzChars(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsStzChar(paList[i])
@@ -2729,10 +2729,10 @@ func IsListOfStzChars(paList)
 
 func IsListOfListsOfStzChars(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzChars(paList[i])
@@ -2758,10 +2758,10 @@ func IsListOfListsOfStzChars(paList)
 
 func IsListOfStzPairs(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsStzPair(paList[i])
@@ -2787,10 +2787,10 @@ func IsListOfStzPairs(paList)
 
 func IsListOfListsOfStzPairs(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzPairs(paList[i])
@@ -2816,10 +2816,10 @@ func IsListOfListsOfStzPairs(paList)
 
 func IsListOfStzSets(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsStzSet(paList[i])
@@ -2845,10 +2845,10 @@ func IsListOfStzSets(paList)
 
 func IsListOfListsOfStzSets(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzSets(paList[i])
@@ -2874,10 +2874,10 @@ func IsListOfListsOfStzSets(paList)
 
 func IsListOfStzHashLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsStzHashList(paList[i])
@@ -2903,10 +2903,10 @@ func IsListOfStzHashLists(paList)
 
 func IsListOfListsOfStzHashLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzHashLists(paList[i])
@@ -2932,10 +2932,10 @@ func IsListOfListsOfStzHashLists(paList)
 
 func IsListOfStzGrids(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsStzGrid(paList[i])
@@ -2961,10 +2961,10 @@ func IsListOfStzGrids(paList)
 
 func IsListOfListsOfStzGrids(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzGrids(paList[i])
@@ -2990,10 +2990,10 @@ func IsListOfListsOfStzGrids(paList)
 
 func IsListOfStzTables(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsStzTable(paList[i])
@@ -3019,10 +3019,10 @@ func IsListOfStzTables(paList)
 
 func IsListOfListsOfStzTables(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzTables(paList[i])
@@ -3048,10 +3048,10 @@ func IsListOfListsOfStzTables(paList)
 
 func IsListOfStzTrees(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsStzTree(paList[i])
@@ -3077,10 +3077,10 @@ func IsListOfStzTrees(paList)
 
 func IsListOfListsOfStzTrees(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	nLen = len(paList)
 	for i = 1 to nLen
 			if Not IsListOfStzTrees(paList[i])
@@ -3108,14 +3108,14 @@ func IsListOfListsOfStzTrees(paList)
 
 func IsUniformListCS(paList, pCaseSensitive) # Is made of the same item
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
 	if nLen = 0
-		return _FALSE_
+		return 0
 	but nLen = 1
-		return _TRUE_
+		return 1
 	ok
 
 	aStzObjects = []
@@ -3123,10 +3123,10 @@ func IsUniformListCS(paList, pCaseSensitive) # Is made of the same item
 		aStzObects + Q(paList[i])
 	next
 
-	bResult = _TRUE_
+	bResult = 1
 	for i = 2 to nLen
 		if NOT paList[i].IsEqualToCS(paList[1], pCaseSensitive)
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3134,20 +3134,20 @@ func IsUniformListCS(paList, pCaseSensitive) # Is made of the same item
 	return bResult
 
 	func IsUniformList(paList)
-		return IsUniformListCS(paList, _TRUE_)
+		return IsUniformListCS(paList, 1)
 
 
 func IsDeepList(paList) // Contains at least an inner list
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _FALSE_
+	bResult = 0
 	nLen = len(paList)
 
 	for i = 1 to nLen
 		if isList(paList[i])
-			bResult = _TRUE_
+			bResult = 1
 			exit
 		ok
 	next
@@ -3170,7 +3170,7 @@ func IsDeepList(paList) // Contains at least an inner list
 
 func IsHybridList(paList) # Contains at least two different types
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
@@ -3178,7 +3178,7 @@ func IsHybridList(paList) # Contains at least two different types
 		return _FALSE
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	_acTypes_ = []
 
 	for i = 1 to nLen
@@ -3186,9 +3186,9 @@ func IsHybridList(paList) # Contains at least two different types
 	next
 
 	if len( U(_acTypes) ) != nLen
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 
@@ -3207,7 +3207,7 @@ func IsHybridList(paList) # Contains at least two different types
 
 func IsPureList(paList) # Made of itmes of same type
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
@@ -3215,7 +3215,7 @@ func IsPureList(paList) # Made of itmes of same type
 		return _FALSE
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	_acTypes_ = []
 
 	for i = 1 to nLen
@@ -3223,9 +3223,9 @@ func IsPureList(paList) # Made of itmes of same type
 	next
 
 	if len( U(_acTypes) ) = 1
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3243,7 +3243,7 @@ func IsPureList(paList) # Made of itmes of same type
 
 func IsOddList(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	return isOdd(len(paList))
@@ -3277,7 +3277,7 @@ func IsOddList(paList)
 
 func IsEvenList(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	return isEven(len(paList))
@@ -3311,15 +3311,15 @@ func IsEvenList(paList)
 
 func IsListOfBits(paList)
 	if NOT ( isList(paList) and IsListOfNumbers(paList) )
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsBit(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3341,15 +3341,15 @@ func IsListOfBits(paList)
 
 func IsListOfBoleans(paList)
 	if NOT ( isList(paList) and IsListOfNumbers(paList) )
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsBoolean(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3380,15 +3380,15 @@ func IsListOfBoleans(paList)
 
 func IsListOfLetters(paList)
 	if NOT (isList(paList) and IsListOfStrings(paList) )
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsLetter(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3410,15 +3410,15 @@ func IsListOfLetters(paList)
 
 func IsListOfQBytesLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsQByteslist(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3440,15 +3440,15 @@ func IsListOfQBytesLists(paList)
 
 func IsListOfStzBytes(paList)
 	if NOT ( isList(paList) and IsListOfNumbers(paList) )
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsStzByte(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3457,15 +3457,15 @@ func IsListOfStzBytes(paList)
 
 func IsListOfStzListOfBytes(paList)
 	if NOT ( isList(paList) and IsListOfNumbers(paList) )
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsListOfStzBytes(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3487,22 +3487,22 @@ func IsListOfStzListOfBytes(paList)
 
 func IsListOfNumbersInStrings(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	_nLen_ = len(paList)
 
 	for @i = 1 to _nLen
 		if NOT isString(paList[@i])
-			return _FALSE_
+			return 0
 		ok
 
 		if NOT @IsNumberInString(paList[@i])
-			return _FALSE_
+			return 0
 		ok
 	next
 
-	return _TRUE_
+	return 1
 
 	#TODO // Make all functions independent form Softanza classes
 
@@ -3521,15 +3521,15 @@ func IsListOfNumbersInStrings(paList)
 
 func IsListOfNumbersOrStrings(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT (isNumber(paList[i]) or isString(paList[i]))
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3551,12 +3551,12 @@ func IsListOfNumbersOrStrings(paList)
 
 func IsListOfNumbersAndStrings(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
 	if nLen < 2
-		return _FALSE_
+		return 0
 	ok
 
 	_acTypes_ = []
@@ -3570,7 +3570,7 @@ func IsListOfNumbersAndStrings(paList)
 		ring_substr1(_acTypes_, "NUMBER") > 0 and
 		ring_substr1(_acTypes_, "STRING") > 0
 
-			return _TRUE_
+			return 1
 	else
 			return _FALSE
 
@@ -3591,7 +3591,7 @@ func IsListOfNumbersAndStrings(paList)
 
 func IsListOfNumbersOrListOfStrings(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	return IsListOfNumbers(paList) or IsListOfStrings(paList)
@@ -3625,15 +3625,15 @@ func IsListOfNumbersOrListOfStrings(paList)
 
 func IsListOfStringsAndPairsOfStrings(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT (isString(paList[i]) or isPairOfStrings(paList[i]))
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3655,15 +3655,15 @@ func IsListOfStringsAndPairsOfStrings(paList)
 
 func IsListOfNumbersAndPairsOfNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT (isNumber(paList[i]) or isPairOfNumbers(paList[i]))
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3685,15 +3685,15 @@ func IsListOfNumbersAndPairsOfNumbers(paList)
 
 func IsListOfListsAndPairsOfLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT (isList(paList[i]) or IsPairOfLists(paList[i]))
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3715,15 +3715,15 @@ func IsListOfListsAndPairsOfLists(paList)
 
 func IsListOfObjectsAndPairsOfObjects(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT (isObject(paList[i]) or IsPairOfobjects(paList[i]))
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3747,9 +3747,9 @@ func IsPairOfStrings(paPair)
 	if isList(paPair) and len(paPair) = 2 and
 	   isString(paPair[1]) and isString(paPair[2])
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3767,15 +3767,15 @@ func IsPairOfStrings(paPair)
 
 func IsListOfPairsOfStrings(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfStrings(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3799,10 +3799,10 @@ func IsPairOfNumbers(paPair)
 	if isList(paPair) and len(paPair) = 2 and
 	   isNumber(paPair[1]) and isNumber(paPair[2])
 
-		return _TRUE_
+		return 1
 	else
 
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3820,15 +3820,15 @@ func IsPairOfNumbers(paPair)
 
 func IsListOfPairsOfNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfNumbers(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3864,13 +3864,13 @@ func IsListOfPairsOfNumbers(paList)
 
 func IsPairOfSections(paPair)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if IsSection(paPair[1]) and IsSection(paPair[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 
@@ -3889,15 +3889,15 @@ func IsPairOfSections(paPair)
 
 func IsListOfPairsOfSections(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfSections(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3921,10 +3921,10 @@ func IsPairOfLists(paPair)
 	if isList(paList) and len(paList) = 2 and
 	   isList(paList[1]) and isList(paList[2])
 
-		return _TRUE_
+		return 1
 	else
 
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3942,15 +3942,15 @@ func IsPairOfLists(paPair)
 
 func IsListOfPairsOfLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfLists(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -3974,10 +3974,10 @@ func IsPairOfObjects(paPair)
 	if isList(paList) and len(paList) = 2 and
 	   isObject(paList[1]) and isObject(paList[2])
 
-		return _TRUE_
+		return 1
 	else
 
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3995,15 +3995,15 @@ func IsPairOfObjects(paPair)
 
 func IsListOfPairsOfObjects(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfObjects(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4027,10 +4027,10 @@ func IsPairAndKeyIsString(paList)
 	if isList(paList) and len(paList) = 2 and
 	   isString(paList[1])
 
-		return _TRUE_
+		return 1
 	else
 
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4048,13 +4048,13 @@ func IsPairAndKeyIsString(paList)
 
 func IsPairOfStzObjects(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if IsStzObject(paList[1]) and IsStzObject(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 
@@ -4073,15 +4073,15 @@ func IsPairOfStzObjects(paList)
 
 func IsListOfPairsOfStzObjects(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfStzObjects(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4102,13 +4102,13 @@ func IsListOfPairsOfStzObjects(paList)
 
 func IsPairOfStzNumbers(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if IsStzNumber(paList[1]) and IsStzNumber(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4126,15 +4126,15 @@ func IsPairOfStzNumbers(paList)
 
 func IsListOfPairsOfStzNumbers(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfStzNumbers(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4156,13 +4156,13 @@ func IsListOfPairsOfStzNumbers(paList)
 
 func IsPairOfStzStrings(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if IsStzString(paList[1]) and IsStzString(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 
@@ -4182,15 +4182,15 @@ func IsPairOfStzStrings(paList)
 
 func IsListOfPairsOfStzStrings(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfStzStings(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4213,13 +4213,13 @@ func IsListOfPairsOfStzStrings(paList)
 
 func IsPairOfStzLists(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if IsStzList(paList[1]) and IsStzList(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 
@@ -4238,15 +4238,15 @@ func IsPairOfStzLists(paList)
 
 func IsListOfPairsOfStzLists(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfStzLists(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4268,13 +4268,13 @@ func IsListOfPairsOfStzLists(paList)
 
 func IsPairOfNumberAndString(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if isNumber(paList[1]) and isString(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4292,15 +4292,15 @@ func IsPairOfNumberAndString(paList)
 
 func IsListOfPairsOfNumberAndString(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfNumberAndString(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4322,13 +4322,13 @@ func IsListOfPairsOfNumberAndString(paList)
 
 func IsPairOfStringAndNumber(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if isString(paList[1]) and isNumber(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 
@@ -4347,15 +4347,15 @@ func IsPairOfStringAndNumber(paList)
 
 func IsListOfPairsOfStringAndNumber(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfStringAndNumber(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4377,13 +4377,13 @@ func IsListOfPairsOfStringAndNumber(paList)
 
 func IsPairOfNumberAndList(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if isNumber(paList[1]) and isList(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4401,15 +4401,15 @@ func IsPairOfNumberAndList(paList)
 
 func IsListOfPairsOfNumberAndList(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfNumberAndList(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4431,13 +4431,13 @@ func IsListOfPairsOfNumberAndList(paList)
 
 func IsPairOfListAndNumber(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if isList(paList[1]) and isNumber(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4455,15 +4455,15 @@ func IsPairOfListAndNumber(paList)
 
 func IsListOfPairsOfListAndNumber(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfListAndNumber(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4485,13 +4485,13 @@ func IsListOfPairsOfListAndNumber(paList)
 
 func IsPairOfNumberAndObject(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if isNumber(paList[1]) and isObject(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4509,15 +4509,15 @@ func IsPairOfNumberAndObject(paList)
 
 func IsListOfPairsOfNumberAndObject(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfNumberAndObject(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4539,13 +4539,13 @@ func IsListOfPairsOfNumberAndObject(paList)
 
 func IsPairOfObjectAndNumber(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if isObject(paList[1]) and isNumber(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4563,15 +4563,15 @@ func IsPairOfObjectAndNumber(paList)
 
 func IsListOfPairsOfObjectAndNumber(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfObjectAndNumber(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4593,13 +4593,13 @@ func IsListOfPairsOfObjectAndNumber(paList)
 
 func IsPairOfStringAndList(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if isString(paList[1]) and isList(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4617,15 +4617,15 @@ func IsPairOfStringAndList(paList)
 
 func IsListOfPairsOfStringAndList(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfStringAndList(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4647,13 +4647,13 @@ func IsListOfPairsOfStringAndList(paList)
 
 func IsPairOfListAndString(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if isList(paList[1]) and isString(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4671,15 +4671,15 @@ func IsPairOfListAndString(paList)
 
 func IsListOfPairsOfListAndString(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfListAndString(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4701,13 +4701,13 @@ func IsListOfPairsOfListAndString(paList)
 
 func IsPairOfStringAndObject(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if isString(paList[1]) and isObject(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4725,15 +4725,15 @@ func IsPairOfStringAndObject(paList)
 
 func IsListOfPairsOfStringAndObject(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfStringAndObject(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4755,13 +4755,13 @@ func IsListOfPairsOfStringAndObject(paList)
 
 func IsPairOfObjectAndString(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if isObject(paList[1]) and isString(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4779,15 +4779,15 @@ func IsPairOfObjectAndString(paList)
 
 func IsListOfPairsOfObjectAndString(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfObjectAndString(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4809,13 +4809,13 @@ func IsListOfPairsOfObjectAndString(paList)
 
 func IsPairOfListAndObject(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	if isList(paList[1]) and isobject(paList[2])
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 
@@ -4834,15 +4834,15 @@ func IsPairOfListAndObject(paList)
 
 func IsListOfPairsOfListAndObject(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfListAndObject(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4864,7 +4864,7 @@ func IsListOfPairsOfListAndObject(paList)
 
 func IsPairOfChars(paList)
 	if NOT ( isList(paList) and len(paList) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	return StzPairQ(paList).IsPairOfChars()
@@ -4884,15 +4884,15 @@ func IsPairOfChars(paList)
 
 func IsListOfPairsOfChars(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT IsPairOfChars(paList[i])
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -4917,9 +4917,9 @@ func IsPairOfEmptyLists(paList)
 	   isList(paList[1]) and len(paList[1]) = 0 and
 	   isList(paList[2]) and len(paList[2]) = 0
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func IsAPairOfEmptyLists(paList)
@@ -4933,7 +4933,7 @@ func IsPairOfEmptyLists(paList)
 
 func IsPairOf(pcType, paPair)
 	if NOT ( isList(paPair) and len(paPair) = 2 )
-		return _FALSE_
+		return 0
 	ok
 
 	return StzPairQ(paPair).IsPairOf(pcType)
@@ -4953,7 +4953,7 @@ func IsPairOf(pcType, paPair)
 
 func IsListOf(pcType, paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	return StzListQ(paList).IsListOf(pcType)
@@ -4974,7 +4974,7 @@ func IsListOf(pcType, paList)
 
 func IsHashListOrListOfStrings(paList)
 	if NOT isList(paList)
-		return _FALSE_
+		return 0
 	ok
 
 	return IsHashList(paList) or IsListOfStrings(paList)
@@ -5000,14 +5000,14 @@ func IsListOfStringsOrPairsOfStrings(paList)
 
 	nLen = len(paList)
 	if nLen = 0
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 
 	for i = 1 to nLen
 		if NOT ( isString(paList[i]) or @IsPairOfStrings(paList[i]) )
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -5019,7 +5019,7 @@ func IsListOfStringsOrPairsOfStrings(paList)
 
 func IsListOfListsOfSameSize(paList)
 	if NOT ( isList(paList) and IsListOfLists(paList) )
-		return _FALSE_
+		return 0
 	ok
 
 	nLen = len(paList)
@@ -5027,11 +5027,11 @@ func IsListOfListsOfSameSize(paList)
 	for i = 1 to nLen
 		nLenList = len(paList[i])
 		if ring_find(anSizes, nLenList)
-			return _FALSE_
+			return 0
 		ok
 	next
 
-	return _TRUE_
+	return 1
 
 	#< @FunctionAlternativeForms
 
@@ -5312,7 +5312,7 @@ func CallMethod( pcMethod, paOnObjects )
 func AreBothEqualCS(p1, p2, pCaseSensitive)
 
 	if NOT type(p1) = type(p2)
-		return _FALSE_
+		return 0
 	ok
 
 	if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
@@ -5320,7 +5320,7 @@ func AreBothEqualCS(p1, p2, pCaseSensitive)
 	ok
 
 	if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-		StzRaise("Incorrect param! pCaseSensitive must be _TRUE_ or _FALSE_.")
+		StzRaise("Incorrect param! pCaseSensitive must be 1 or FALSE.")
 	ok
 
 	if isNumber(p1)
@@ -5328,7 +5328,7 @@ func AreBothEqualCS(p1, p2, pCaseSensitive)
 
 	but isString(p1)
 
-		if pCaseSensitive = _FALSE_
+		if pCaseSensitive = 0
 			p1 = lower(p1)
 			p2 = lower(p2)
 		ok
@@ -5368,7 +5368,7 @@ func AreBothEqualCS(p1, p2, pCaseSensitive)
 #-- WITHOUT CASESENSITIVITY
 
 func AreBothEqual(p1, p2)
-	return AreBothEqualCS(p1, p2, _TRUE_)
+	return AreBothEqualCS(p1, p2, 1)
 
 	#< @FunctionAlternativeForms
 
@@ -5411,9 +5411,9 @@ func AreEqualCS(paValues, pCaseSensitive)
 	   RemoveDuplicatesCSQ(pCaseSensitive).
 	   NumberOfItems() = 1
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#NOTE //~> I left the old code commented so you can see
@@ -5423,7 +5423,7 @@ func AreEqualCS(paValues, pCaseSensitive)
 	/*--- START OF OLD UNUSED CODE
 
 	if NOT isList(paValues)
-		return _FALSE_
+		return 0
 	ok
 
 	if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
@@ -5431,27 +5431,27 @@ func AreEqualCS(paValues, pCaseSensitive)
 	ok
 
 	if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-		StzRaise("Incorrect param! pCaseSensitive must be _TRUE_ or _FALSE_.")
+		StzRaise("Incorrect param! pCaseSensitive must be 1 or FALSE.")
 	ok
 
 	# Early checks
 
 	nLen = len(paValues)
 	if nLen = 0
-		return _FALSE_
+		return 0
 	but nLen = 1
-		return _TRUE_
+		return 1
 	ok
 
 	# Doing the job
 
-	bResult = _TRUE_
+	bResult = 1
 
 	if IsNumber(paValues[1])
 
 		for i = 2 to nLen
 			if paValues[i] != paValues[1]
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -5459,7 +5459,7 @@ func AreEqualCS(paValues, pCaseSensitive)
 		return bResult
 
 	but isString(paValues[1])
-		if pCaseSensitive = _FALSE_
+		if pCaseSensitive = 0
 			for i = 1 to nLen
 				paValues[i] = lower(paValues[i])
 			next
@@ -5467,7 +5467,7 @@ func AreEqualCS(paValues, pCaseSensitive)
 
 		for i = 2 to nLen
 			if paValues[i] != paValues[1]
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -5482,7 +5482,7 @@ func AreEqualCS(paValues, pCaseSensitive)
 		for i = 2 to nLen
 
 			if NOT Q(paValues[i]).IsEqualToCS(paValues[1], pCaseSensitive)
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -5538,7 +5538,7 @@ func AreEqualCS(paValues, pCaseSensitive)
 #-- WITHOUT CASESENSITIVITY
 
 func AreEqual(paValues)
-	return AreEqualCS(paValues, _TRUE_)
+	return AreEqualCS(paValues, 1)
 
 	#< @FunctionAlternativeForm
 
@@ -5590,17 +5590,17 @@ func HaveSameType(paItems)
 
 	nLen = len(paItems)
 	if nLen = 0
-		return _FALSE_
+		return 0
 	but nLen = 1
-		return _TRUE_
+		return 1
 	ok
 
 	# Case nLen >= 2
 
-	bResult = _TRUE_
+	bResult = 1
 	for i = 2 to nLen
 		if ring_type( paItems[1] ) != ring_type( paItems[i] )
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -5629,14 +5629,14 @@ func HaveSameContent(paItems)
 	ok
 
 	if len(paItems) = 1
-		return _TRUE_
+		return 1
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 	for i = 2 to len(paItems)
 		bOk = Q( @@( paItems[i] ) ).IsEqualTo( @@( paItems[1] ) )
 		if NOT bOk
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -5844,10 +5844,10 @@ func AllTheseAreNull(paList)
 		return AllTheseAreNull(paList)
 
 func AllOfTheseAreNotNull(paList)
-	bResult = _TRUE_
+	bResult = 1
 	for item in paList
 		if isString(item) and isNull(item)
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -5884,10 +5884,10 @@ func BothAreNotNull(p1, p2)
 		return BothAreNotNull(p1, p2)
 
 func NoOneOfTheseIsAString(paList)
-	bResult = _TRUE_
+	bResult = 1
 	for item in paList
 		if isString(item)
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -6008,9 +6008,9 @@ func ObjectsIn(paList)
 func StzListContainsCS(paList, pItem, pCaseSensitive)
 	nPos = @FindFirstCS(paList, pItem, pCaseSensitive)
 	if nPos > 0
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func ListContainsCS(paList, pItem, pCaseSensitive)
@@ -6020,7 +6020,7 @@ func StzListContainsCS(paList, pItem, pCaseSensitive)
 		return StzListContainsCS(paList, pItem, pCaseSensitive)
 
 func StzListContains(paList, pItem)
-	return StzListContainsCS(paList, pItem, _TRUE_)
+	return StzListContainsCS(paList, pItem, 1)
 
 	func ListContains(paList, pItem)
 		return StzListContains(paList, pItem)
@@ -6077,7 +6077,7 @@ func @FindAllCS_NbrOrStr(paList, pItem, pCaseSensitive)
 		ok
 
 		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 	ok
 
@@ -6090,7 +6090,7 @@ func @FindAllCS_NbrOrStr(paList, pItem, pCaseSensitive)
 
 	_item_ = pItem
 
-	if pCaseSensitive = _FALSE_ 
+	if pCaseSensitive = 0 
 		if isString(_item_)
 			pItem = lower(_item_)
 		ok
@@ -6109,7 +6109,7 @@ func @FindAllCS_NbrOrStr(paList, pItem, pCaseSensitive)
 	_anResult_ = []
 	_nPos_ = -1
 
-	while _TRUE_
+	while 1
 
 		# Trying to find the item using Ring find()
 
@@ -6139,7 +6139,7 @@ func @FindAllCS_NbrOrStr(paList, pItem, pCaseSensitive)
 
 
 func @FindAll_NbrOrStr(aList, pItem)
-	return @FindAllCS_NbrOrStr(aList, pItem, _TRUE_)
+	return @FindAllCS_NbrOrStr(aList, pItem, 1)
 
 
 #---
@@ -6156,7 +6156,7 @@ func @FindFirstCS(aList, pStrOrNbr, pCaseSensitive)
 	#>
 
 func @FindFirst(aList, pStrOrNbr)
-	return @FindFirstCS(aList, pStrOrNbr, _TRUE_)
+	return @FindFirstCS(aList, pStrOrNbr, 1)
 
 	#< @FunctionAlternativeForms
 
@@ -6180,7 +6180,7 @@ func @FindLastCS(aList, pStrOrNbr, pCaseSensitive)
 	#>
 
 func @FindLast(aList, pStrOrNbr)
-	return @FindLastCS(aList, pStrOrNbr, _TRUE_)
+	return @FindLastCS(aList, pStrOrNbr, 1)
 
 	#< @FunctionAlternativeForms
 
@@ -6234,11 +6234,11 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 		ok
 
 		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 	ok
 
-	if pCaseSensitive = _FALSE_ 
+	if pCaseSensitive = 0 
 
 		if isString(pItem)
 			pItem = lower(pItem)
@@ -6254,7 +6254,7 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 	nPos = -1
 	n = 0
 
-	while _TRUE_
+	while 1
 		try
 			nPos = find(_aListCopy_, pItem)
 		catch
@@ -6281,7 +6281,7 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 		return @FindNthOccurrenceCS(aList, nth, pItem, pCaseSensitive)
 
 func @FindNthOccurrence(aList, nth, pItem)
-	return @FindNthOccurrenceCS(aList, nth, pItem, _TRUE_)
+	return @FindNthOccurrenceCS(aList, nth, pItem, 1)
 
 	func @FindNth(aList, nth, pItem)
 		return @FindNthOccurrence(aList, nth, pItem)
@@ -6316,11 +6316,11 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 		ok
 
 		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 	ok
 
-	if pCaseSensitive = _FALSE_ 
+	if pCaseSensitive = 0 
 		if isString(pItem)
 			pItem = lower(pItem)
 		ok
@@ -6338,7 +6338,7 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 	nPos = -1
 	n = 0
 
-	while _TRUE_
+	while 1
 		try
 			nPos = find(aContent, pItem)
 		catch
@@ -6388,7 +6388,7 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 #-- CS
 
 func @FindNthST(aList, nth, pItem, nStart)
-	return @FindNthSTCS(aList, nth, pItem, nStart, _TRUE_)
+	return @FindNthSTCS(aList, nth, pItem, nStart, 1)
 
 	#< @FunctionAlternativeForms
 
@@ -6412,7 +6412,7 @@ func @FindNthST(aList, nth, pItem, nStart)
 
 func FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
 
-	if CheckingParams() = _TRUE_
+	if CheckingParams() = 1
 		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
 			nStart = nStart[2]
 		ok
@@ -6460,7 +6460,7 @@ func FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
 #-- CS
 
 func FindNthNext(aList, nth, pItem, nStart)
-	return FindNthNextCS(aList, nth, pItem, nStart, _TRUE_)
+	return FindNthNextCS(aList, nth, pItem, nStart, 1)
 
 	#< @FunctionAlternativeForms
 
@@ -6514,7 +6514,7 @@ func @FindNextCS(aList, pItem, nStart, pCaseSensitive)
 		return @FindNextCS(aList, pItem, nStart, pCaseSensitive)
 
 func @FindNext(aList, pItem, nStart)
-	return @FindNextCS(aList, pItem, nStart, _TRUE_)
+	return @FindNextCS(aList, pItem, nStart, 1)
 
 	func FindNext(aList, pItem, nStart)
 		return @FindNext(aList, pItem, nStart)
@@ -6696,7 +6696,7 @@ func FindStrListInNestedStrList(pcItemProvidedAsStr, pcListProvidedAsStr) #ai #c
 	
 	func ExistsAt(pcSearchStr, pcMainStr, pnStartPos)
 		if pnStartPos + stzlen(pcSearchStr) - 1 > stzlen(pcMainStr)
-			return _FALSE_
+			return 0
 		ok
 	    
 		return ring_substr2(pcMainStr, pnStartPos, stzlen(pcSearchStr)) = pcSearchStr
@@ -6810,7 +6810,7 @@ func IsRingSortable(pListOrString)
 	ok
 
 	if isString(pListOrString)
-		return _TRUE_
+		return 1
 	ok
 
 	# Case of a list
@@ -6819,7 +6819,7 @@ func IsRingSortable(pListOrString)
 	   IsListOfStrings(pListOrString) or
 	   IsListOfNumbersAndStrings(pListOrString)
 
-		return _TRUE_
+		return 1
 
 	but IsListOfLists(pListOrString)
 
@@ -6829,7 +6829,7 @@ func IsRingSortable(pListOrString)
 
 		for i = 1 to nLen
 			if len(pListOrString[i]) = 0
-				return _FALSE_
+				return 0
 			ok
 		next
 
@@ -6847,7 +6847,7 @@ func IsRingSortable(pListOrString)
 
 			# Assuming the current column is Ring sortable
 
-			bColSortable = _TRUE_
+			bColSortable = 1
 
 			# the column must contain only numbers and strings
 			# and should not contain dupplicated items
@@ -6860,20 +6860,20 @@ func IsRingSortable(pListOrString)
 			for j = 1 to nLenCol
 
 				if NOT ( isString(aCol[j]) or isNumber(aCol[j]) )
-					bColSortable = _FALSE_
+					bColSortable = 0
 					exit
 				else
 					if ring_find(aSeen, aCol[j]) = 0
 						aSeen + aCol[j]
 					else
-						bColSortable = _FALSE_
+						bColSortable = 0
 						exit
 					ok
 				ok
 			next
 
 			if bColSortable # We've got a ring-sortable column!
-				return _TRUE_
+				return 1
 			ok
 
 		next
@@ -6881,13 +6881,13 @@ func IsRingSortable(pListOrString)
 		# We parsed all the list of lists, column by column, and
 		# we did not find any ring-sortable column, so:
 
-		return _FALSE_
+		return 0
 
 	ok
 
 	# In any other case
 
-	return _FALSE_
+	return 0
 
 	func @IsRingSortable(pListOrString)
 		return IsRingSortable(pListOrString)
@@ -6903,7 +6903,7 @@ func IsRingSortableOn(paListOfLists, n)
 	#    the sorting result is not accurate - from Softanza point of view)
 
 	if NOT ( isList(paListOfLists) and IsListOfLists(paListOfLists) )
-		return _FALSE_
+		return 0
 	ok
 
 	if NOT isNumber(n)
@@ -6916,7 +6916,7 @@ func IsRingSortableOn(paListOfLists, n)
 
 	for i = 1 to nLen
 		if len(paListOfLists[i]) = 0
-			return _FALSE_
+			return 0
 		ok
 	next
 
@@ -6934,7 +6934,7 @@ func IsRingSortableOn(paListOfLists, n)
 		nLen1 = len(aCol1)
 
 		if nLen != nLen1
-			return _FALSE_
+			return 0
 		ok
 	ok
 
@@ -6942,17 +6942,17 @@ func IsRingSortableOn(paListOfLists, n)
 
 	for i = 1 to nLen
 		if NOT ( isNumber(aCol[i]) or isString(aCol[i]) )
-			return _FALSE_
+			return 0
 		ok
 
 		if ring_find(aSeen, aCol[i]) = 0
 			aSeen + aCol[i]
 		else
-			return _FALSE_
+			return 0
 		ok
 	next
 
-	return _TRUE_
+	return 1
 
 	func @IsRingSortableOn(paListOfLists, n)
 		return IsRingSortableOn(paListOfLists, n)
@@ -7250,13 +7250,13 @@ func ListsHaveSameNumberOfItems(paList)
 				nLenTemp = nLenList
 			else
 				if nLenList != nLenTemp
-					return _FALSE_
+					return 0
 				ok
 			ok
 		ok
 	next
 
-	return _TRUE_
+	return 1
 
 	func AllListsHaveSameNumberOfItems(paList)
 		return ListsHaveSameNumberOfItems(paList)
@@ -7358,16 +7358,16 @@ class stzList from stzObject
 		ok
 	
 		if NOT (pCaseSensitive = 0 or pCaseSensitive = 1)
-			StzRaise("Incorrect param type! pCaseSensitive must be 1 (_TRUE_) or 0 (_FALSE_).")
+			StzRaise("Incorrect param type! pCaseSensitive must be 1 (1) or 0 (0).")
 		ok
 
 		aResult = []
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 			aResult = @aContent
 
 		else
-			aResult = This.WithoutDuplicationCS(_FALSE_)
+			aResult = This.WithoutDuplicationCS(0)
 		
 		ok
 
@@ -7441,7 +7441,7 @@ class stzList from stzObject
 	#--------------------------------------------------------#
 
 	def ContentCSU(pCaseSensitive)
-		return This.WithoutDuplicationCS(_FALSE_)
+		return This.WithoutDuplicationCS(0)
 
 
 		#< @FunctionAlternativeForm
@@ -7524,9 +7524,9 @@ class stzList from stzObject
 
 		def NumberOfItemsCSB(pCaseSensitive)
 			if This.NumberOfItemsCS(pCaseSensitive) = LastValue()
-				return _TRUE_
+				return 1
 			else
-				return _FALSE_
+				return 0
 			ok
 
 			def NumberOfItemsCSBQ(pCaseSensitive)
@@ -7662,9 +7662,9 @@ class stzList from stzObject
 
 		def NumberOfItemsB()
 			if This.NumberOfItems() = LastValue()
-				return _TRUE_
+				return 1
 			else
-				return _FALSE_
+				return 0
 			ok
 
 			def NumberOfItemsBQ()
@@ -8635,7 +8635,7 @@ class stzList from stzObject
 	*/
 
 	def Update(paNewList)
-		if CheckingParams() = _TRUE_
+		if CheckingParams() = 1
 			if isList(paNewList) and StzListQ(paNewList).IsWithOrByOrUsingNamedParam()
 				paNewList = paNewList[2]
 			ok
@@ -8648,7 +8648,7 @@ class stzList from stzObject
 		@aContent = paNewList
 
 	    # Tracing the history of updates (only if not already in history update)
-	    if _bInHistoryUpdate = _FALSE_
+	    if _bInHistoryUpdate = 0
 	        @TraceObjectHistory(This)
 	    ok
 
@@ -8816,7 +8816,7 @@ class stzList from stzObject
 			This.InsertAt(n, pItem)
 
 		else
-			This.ExtendToPositionXT(n - 1, :With = _NULL_)
+			This.ExtendToPositionXT(n - 1, :With = "")
 			This.Add(pItem)
 		ok
 
@@ -9342,7 +9342,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def MoveItem(pItem, n)
-		return This.MoveItemCS(pItem, n, _TRUE_)
+		return This.MoveItemCS(pItem, n, 1)
 
 		def MoveItemQ(pItem, n)
 			This.MoveItem(pItem, n)
@@ -9597,7 +9597,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAllOccurrences(pItem, pNewItem)
-		This.ReplaceAllOccurrencesCS(pItem, pNewItem, _TRUE_)
+		This.ReplaceAllOccurrencesCS(pItem, pNewItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -9644,7 +9644,7 @@ class stzList from stzObject
 				return This
 
 			def ReplaceQC(pItem, pNewItem)
-				return This.ReplaceQC(pItem, pNewItem, _TRUE_)
+				return This.ReplaceQC(pItem, pNewItem, 1)
 
 		#--
 
@@ -9666,7 +9666,7 @@ class stzList from stzObject
 				return This
 
 			def ReplaceThisItemQC(pItem, pNewItem)
-				return This.ReplaceThisItemQC(pItem, pNewItem, _TRUE_)
+				return This.ReplaceThisItemQC(pItem, pNewItem, 1)
 
 		#>
 
@@ -9852,7 +9852,7 @@ class stzList from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def ReplaceMany(paItems, pNewItem)
-		This.ReplaceManyCS( paItems, pNewItem, _TRUE_ )
+		This.ReplaceManyCS( paItems, pNewItem, 1 )
 
 		#< @FunctionFluentFormn
 
@@ -10004,7 +10004,7 @@ class stzList from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def ReplaceManyBy(paItems, pNewItem)
-		This.ReplaceManyByCS( paItems, pNewItem, _TRUE_ )
+		This.ReplaceManyByCS( paItems, pNewItem, 1 )
 
 		#< @FunctionFluentFormn
 
@@ -10155,12 +10155,12 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceByMany(pItem, paNewItems)
-		This.ReplaceByManyCS(pItem, paNewItems, _TRUE_)
+		This.ReplaceByManyCS(pItem, paNewItems, 1)
 
 		#< @FunctionFluentForm
 
 		def ReplaceByManyQ(pItem, paNewItems)
-			return This.ReplaceByManyCSQ(pItem, paNewItems, _TRUE_)
+			return This.ReplaceByManyCSQ(pItem, paNewItems, 1)
 
 		#>
 
@@ -10195,7 +10195,7 @@ class stzList from stzObject
 	#-- @FunctionPassiveForms
 
 	def ReplacedByMany(pItem, paNewItems)
-		return This.ReplacedByManyCS(pItem, paNewItems, _TRUE_)
+		return This.ReplacedByManyCS(pItem, paNewItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -10347,12 +10347,12 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceByManyXT(pItem, paNewItems)
-		This.ReplaceByManyCSXT(pItem, paNewItems, _TRUE_)
+		This.ReplaceByManyCSXT(pItem, paNewItems, 1)
 
 		#< @FunctionFluentForm
 
 		def ReplaceByManyXTQ(pItem, paNewItems)
-			return This.ReplaceByManyCSXTQ(pItem, paNewItems, _TRUE_)
+			return This.ReplaceByManyCSXTQ(pItem, paNewItems, 1)
 
 		#>
 
@@ -10552,7 +10552,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceManyByMany(paItems, paNewItems)
-		This.ReplaceManyByManyCS(paItems, paNewItems, _TRUE_)
+		This.ReplaceManyByManyCS(paItems, paNewItems, 1)
 
 		#< @FunctionFluentForm
 
@@ -10757,7 +10757,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceManyByManyXT(paItems, paNewItems)
-		This.ReplaceManyByManyCSXT(paItems, paNewItems, _TRUE_)
+		This.ReplaceManyByManyCSXT(paItems, paNewItems, 1)
 
 		#< @FunctionFluentForm
 
@@ -10881,7 +10881,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAnyAt(pPos, pNewItem)
-		This.ReplaceAnyAtCS(pPos, pNewItem, _TRUE_)
+		This.ReplaceAnyAtCS(pPos, pNewItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -11006,7 +11006,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAnyItemAtPositionN(n, pNewItem)
-		return This.ReplaceAnyItemAtPositionNCS(n, pNewItem, _TRUE_)
+		return This.ReplaceAnyItemAtPositionNCS(n, pNewItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -11181,7 +11181,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAnyItemAtPositions(panPos, pNewItem)
-		return This.ReplaceAnyItemAtPositionsCS(panPos, pNewItem, _TRUE_)
+		return This.ReplaceAnyItemAtPositionsCS(panPos, pNewItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -11313,7 +11313,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisItemAt(n, pItem, pNewItem)
-		This.ReplaceThisItemAtCS(n, pItem, pNewItem, _TRUE_)
+		This.ReplaceThisItemAtCS(n, pItem, pNewItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -11342,7 +11342,7 @@ class stzList from stzObject
 	#-- @FunctionPassiveForm
 
 	def ThisItemReplacedAt(n, pItem, pNewItem)
-		return This.ThisItemReplacedAtCS(n, pItem, pNewItem, _TRUE_)
+		return This.ThisItemReplacedAtCS(n, pItem, pNewItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -11472,12 +11472,12 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisItemAtPosition(n, pItem, pNewItem)
-		This.ReplaceThisItemAtPositionCS(n, pItem, pNewItem, _TRUE_)
+		This.ReplaceThisItemAtPositionCS(n, pItem, pNewItem, 1)
 
 		#< @FunctionFluentForm
 
 		def ReplaceThisItemAtPositionQ(n, pItem, pNewItem)
-			return This.ReplaceThisItemAtPositionCSQ(n, pItem, pNewItem, _TRUE_)
+			return This.ReplaceThisItemAtPositionCSQ(n, pItem, pNewItem, 1)
 
 		#>
 
@@ -11526,7 +11526,7 @@ class stzList from stzObject
 	#-- @FunctionPassiveForms
 
 	def ThisItemAtPositionNReplaced(n, pItem, pNewItem)
-		cResult = This.Copy().ReplaceThisItemAtPositionNCSQ(n, pItem, pNewItem, _TRUE_).Content()
+		cResult = This.Copy().ReplaceThisItemAtPositionNCSQ(n, pItem, pNewItem, 1).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -11637,7 +11637,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisItemAtPositions(panPos, pItem, pNewItem)
-		This.ReplaceThisItemAtPositionsCS(panPos, pItem, pNewItem, _TRUE_)
+		This.ReplaceThisItemAtPositionsCS(panPos, pItem, pNewItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -11737,7 +11737,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceTheseItemsAtPositions(panPos, paItems, pNewItem)
-		This.ReplaceTheseItemsAtPositionsCS(panPos, paItems, pNewItem, _TRUE_)
+		This.ReplaceTheseItemsAtPositionsCS(panPos, paItems, pNewItem, 1)
 
 	def TheseItemsAtPositionsReplaced(panPos, paItems, pNewItem)
 		cResult = This.Copy().ReplaceTheseItemsAtPositionsQ(panPos, paItems, pNewItem).Content()
@@ -11871,7 +11871,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceTheseItemsAtPositionsByMany(panPos, paItems, pNewItem)
-		This.ReplaceTheseItemsAtPositionsByManyCS(panPos, paItems, pNewItem, _TRUE_)
+		This.ReplaceTheseItemsAtPositionsByManyCS(panPos, paItems, pNewItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -12036,7 +12036,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisItemAtPositionsByMany(panPos, pItem, paNewItems)
-		ReplaceThisItemAtPositionsByManyCS(panPos, pItem, paNewItems, _TRUE_)
+		ReplaceThisItemAtPositionsByManyCS(panPos, pItem, paNewItems, 1)
 	
 		#< @FunctionFluentForm
 
@@ -12211,7 +12211,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceTheseItemsAtPositionsByManyXT(panPos, paItems, pNewItem)
-		This.ReplaceTheseItemsAtPositionsByManyCSXT(panPos, paItems, pNewItem, _TRUE_)
+		This.ReplaceTheseItemsAtPositionsByManyCSXT(panPos, paItems, pNewItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -12408,7 +12408,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAnyItemsAtPositionsByManyXT(panPos, paNewItems)
-		This.ReplaceAnyItemsAtPositionsByManyCSXT(panPos, paNewItems, _TRUE_)
+		This.ReplaceAnyItemsAtPositionsByManyCSXT(panPos, paNewItems, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -12599,7 +12599,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceItemAtPositionsByMany(panPos, pItem, paNewItems)
-		This.ReplaceItemAtPositionsByManyCS(panPos, pItem, paNewItems, _TRUE_)
+		This.ReplaceItemAtPositionsByManyCS(panPos, pItem, paNewItems, 1)
 
 		#< @FunctionFluentForm
 
@@ -12849,7 +12849,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
-		This.ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, _TRUE_)
+		This.ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, 1)
 
 		#< @FunctionFluentForm
 
@@ -12945,7 +12945,7 @@ class stzList from stzObject
 	#-- @FunctionPassiveForm
 
 	def AnyItemAtPositionsReplacedByMany(panPos, paNewItems)
-		return This.AnyItemAtPositionsReplacedByManyCS(panPos, paNewItems, _TRUE_)
+		return This.AnyItemAtPositionsReplacedByManyCS(panPos, paNewItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -13148,7 +13148,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceItemAtPositionsByManyXT(panPos, pItem, paNewItems)
-		This.ReplaceItemAtPositionsByManyCSXT(panPos, pItem, paNewItems, _TRUE_)
+		This.ReplaceItemAtPositionsByManyCSXT(panPos, pItem, paNewItems, 1)
 
 		#< @FunctionFluentForm
 
@@ -13360,7 +13360,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
-		This.ReplaceAnyItemAtPositionsByManyCSXT(panPos, paNewItems, _TRUE_)
+		This.ReplaceAnyItemAtPositionsByManyCSXT(panPos, paNewItems, 1)
 
 		#< @FunctionFluentForm
 
@@ -13464,7 +13464,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceOccurrences(panOccurr, pItem, pNewItem)
-		This.ReplaceOccurrencesCS(panOccurr, pItem, pNewItem, _TRUE_)
+		This.ReplaceOccurrencesCS(panOccurr, pItem, pNewItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -13529,7 +13529,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceOccurrencesByMany(panOccurr, pItem, paNewItems)
-		this.ReplaceOccurrencesByManyCS(panOccurr, pItem, paNewItems, _TRUE_)
+		this.ReplaceOccurrencesByManyCS(panOccurr, pItem, paNewItems, 1)
 
 		#< @FunctionFluentForm
 
@@ -13602,7 +13602,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceOccurrencesByManyXT(panOccurr, pItem, paNewItems)
-		this.ReplaceOccurrencesByManyCSXT(panOccurr, pItem, paNewItems, _TRUE_)
+		this.ReplaceOccurrencesByManyCSXT(panOccurr, pItem, paNewItems, 1)
 
 		#< @FunctionFluentForm
 
@@ -13722,7 +13722,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceItem@(pItem, pDynamicItem)
-		This.ReplaceItemCS@(pItem, pDynamicItem, _TRUE_)
+		This.ReplaceItemCS@(pItem, pDynamicItem, 1)
 
 		def ReplaceItem@Q(pItem, pDynamicItem)
 			This.ReplaceItem@(pItem, pDynamicItem)
@@ -13802,7 +13802,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextOccurrences(pItem, pOtherItem, pnStartingAt)
-		This.ReplaceNextOccurrencesCS(pItem, pOtherItem, pnStartingAt, _TRUE_)
+		This.ReplaceNextOccurrencesCS(pItem, pOtherItem, pnStartingAt, 1)
 
 		#< @FunctionFluentForm
 
@@ -13911,7 +13911,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousOccurrences(pItem, pOtherItem, pnStartingAt)
-		This.ReplacePreviousOccurrencesCS(pItem, pOtherItem, pnStartingAt, _TRUE_)
+		This.ReplacePreviousOccurrencesCS(pItem, pOtherItem, pnStartingAt, 1)
 
 		#< @FunctionFluentForm
 
@@ -14007,7 +14007,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNthOccurrence(n, pItem, pOtherItem)
-		This.ReplaceNthOccurrenceCS(n, pItem, pOtherItem, _TRUE_)
+		This.ReplaceNthOccurrenceCS(n, pItem, pOtherItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -14096,7 +14096,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceFirstOccurrence(pItem, pOtherItem)
-		This.ReplaceFirstOccurrenceCS(pItem, pOtherItem, _TRUE_)
+		This.ReplaceFirstOccurrenceCS(pItem, pOtherItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -14346,7 +14346,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
-		This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, _TRUE_)
+		This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, 1)
 
 		#< @FunctionFluentForm
 
@@ -14434,7 +14434,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextOccurrence(pItem, pNewItem, pnStartingAt)
-		This.ReplaceNextNthOccurrenceCS(1, pItem, pNewItem, pnStartingAt, _TRUE_)
+		This.ReplaceNextNthOccurrenceCS(1, pItem, pNewItem, pnStartingAt, 1)
 
 		def ReplaceNextOccurrenceQ(pItem, pNewItem, pnStartingAt)
 			This.ReplaceNextOccurrence(pItem, pNewItem, pnStartingAt)
@@ -14524,7 +14524,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
-		This.ReplaceNextNthOccurrencesSTCS(panList, pItem, pNewItem, pnStartingAt, _TRUE_)
+		This.ReplaceNextNthOccurrencesSTCS(panList, pItem, pNewItem, pnStartingAt, 1)
 
 		#< @FunctionFluentForm
 
@@ -14551,7 +14551,7 @@ class stzList from stzObject
 		#>
 
 	def NextNthOccurrencesReplacedST(panList, pItem, pNewItem, pnStartingAt)
-		return This.NextNthOccurrencesReplacedSTCS(panList, pItem, pNewItem, pnStartingAt, _TRUE_)
+		return This.NextNthOccurrencesReplacedSTCS(panList, pItem, pNewItem, pnStartingAt, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -14647,7 +14647,7 @@ class stzList from stzObject
 	def NthPreviousOccurrenceReplacedCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
 		aResult =  This.Copy().
-				ReplaceNthPreviousOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, _TRUE_).
+				ReplaceNthPreviousOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, 1).
 				Content()
 
 		return aResult
@@ -14668,7 +14668,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousNthOccurrence(n, pItem, pNewItem, pnStartingAt)
-		This.ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, _TRUE_)
+		This.ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, 1)
 
 		#< @FunctionFuentForm
 
@@ -14739,7 +14739,7 @@ class stzList from stzObject
 	def PreviousOccurrenceReplacedCS(pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
 		aResult =  This.Copy().
-				ReplacePreviousOccurrenceCSQ(pItem, pNewItem, pnStartingAt, _TRUE_).
+				ReplacePreviousOccurrenceCSQ(pItem, pNewItem, pnStartingAt, 1).
 				Content()
 		return aResult
 
@@ -14749,7 +14749,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousOccurrence(pItem, pNewItem, pnStartingAt)
-		This.ReplacePreviousOccurrenceCS(pItem, pNewItem, pnStartingAt, _TRUE_)
+		This.ReplacePreviousOccurrenceCS(pItem, pNewItem, pnStartingAt, 1)
 
 		def ReplacePreviousOccurrenceQ(pItem, pNewItem, pnStartingAt)
 			This.ReplacePreviousOccurrence(pItem, pNewItem, pnStartingAt)
@@ -14826,7 +14826,7 @@ class stzList from stzObject
 
 	def PreviousNthOccurrencesReplacedCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 		aResult =  This.
-			   ReplacePreviousNthOccurrencesCSQ(panList, pItem, pNewItem, pnStartingAt, _TRUE_).
+			   ReplacePreviousNthOccurrencesCSQ(panList, pItem, pNewItem, pnStartingAt, 1).
 			   Content()
 
 		return aResult
@@ -14849,7 +14849,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
-		This.ReplacePreviousNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, _TRUE_)
+		This.ReplacePreviousNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, 1)
 
 		#< @FunctionFluentForm
 
@@ -15011,7 +15011,7 @@ class stzList from stzObject
 	#----------------------------------------------#
 
 	def ReplaceManySections(paSections, pNewItem)
-		if CheckingParams() = _TRUE_
+		if CheckingParams() = 1
 			if NOT ( isList(paSections) and @IsListOfPairsOfNumbers(paSections) )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
@@ -15098,7 +15098,7 @@ class stzList from stzObject
 	#----------------------------------------------------------#
 
 	def ReplaceEachItemInManySections(paSections, pNewItem)
-		if CheckingParams() = _TRUE_
+		if CheckingParams() = 1
 			if NOT (isList(paSections) and @IsListOfPairsOfNumbers(paSections))
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
@@ -15395,7 +15395,7 @@ class stzList from stzObject
 			if i <= len(paOtherListOfItems)
 				item = paOtherListOfItems[i]
 			else
-				item = _NULL_
+				item = ""
 			ok
 
 			_oCopy_.ReplaceAt(n, item)
@@ -15575,7 +15575,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepReplace(pItem, pByValue)
-		This.DeepReplaceCS(pItem, pByValue, _TRUE_)
+		This.DeepReplaceCS(pItem, pByValue, 1)
 
 		def DeepReplaceQ(pItem, pByValue)
 			This.DeepReplace(pItem, pByValue)
@@ -15612,13 +15612,13 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Trim()
-		This.TrimCS(_TRUE_)
+		This.TrimCS(1)
 
 		def TrimQ()
-			return This.TrimCSQ(_TRUE_)
+			return This.TrimCSQ(1)
 
 	def Trimmed()
-		return This.TrimmedCS(_TRUE_)
+		return This.TrimmedCS(1)
 
 	  #---------------------------------------------------------------#
 	 #  TRIMMING THE LIST FROM START (REMOVING LEADING EMPTY ITEMS)  #
@@ -15637,7 +15637,7 @@ class stzList from stzObject
 
 		i = 0
 
-		while _TRUE_
+		while 1
 			i++
 			if i = nLen
 				exit
@@ -15710,7 +15710,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def TrimLeft()
-		This.TrimLeftCS(_TRUE_)
+		This.TrimLeftCS(1)
 
 		#< @FunctionAlternativeForm
 
@@ -15768,7 +15768,7 @@ class stzList from stzObject
 
 		i = 0
 
-		while _TRUE_
+		while 1
 			i++
 			if i = nLen
 				exit
@@ -15843,7 +15843,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def TrimRight()
-		This.TrimRightCS(_TRUE_)
+		This.TrimRightCS(1)
 
 		#< @FunctionAlternativeForm
 
@@ -15931,7 +15931,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepRemove(pItem)
-		This.DeepRemoveCS(pItem, _TRUE_)
+		This.DeepRemoveCS(pItem, 1)
 
 		def DeepRemoveQ(pItem)
 			This.DeepRemove(pItem)
@@ -15996,7 +15996,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepRemoveMany(paItems)
-		This.DeepRemoveManyCS(paItems, _TRUE_)
+		This.DeepRemoveManyCS(paItems, 1)
 
 		def DeepRemoveManyQ(paItems)
 			This.DeepRemoveMany(paItems, pCaseSensitive)
@@ -16090,7 +16090,7 @@ class stzList from stzObject
 	#== WITHOUT CASESENSITIVITY
 
 	def RemoveAll(pItem)
-		This.RemoveAllCS(pItem, _TRUE_)
+		This.RemoveAllCS(pItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -16430,7 +16430,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveMany(paItems)
-		This.RemoveManyCS(paItems, _TRUE_)
+		This.RemoveManyCS(paItems, 1)
 
 		#< @FunctionFluentForm
 
@@ -16541,7 +16541,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveItemsOtherThan(paItems)
-		return This.RemoveItemsOtherThanCS(paItems, _TRUE_)
+		return This.RemoveItemsOtherThanCS(paItems, 1)
 
 		#< @FunctionFluentForm
 
@@ -16631,7 +16631,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNthOccurrence(n, pItem)
-		This.RemoveNthOccurrenceCS(n, pItem, _TRUE_)
+		This.RemoveNthOccurrenceCS(n, pItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -16730,7 +16730,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFirstOccurrence(pItem)
-		This.RemoveFirstOccurrenceCS(pItem, _TRUE_)
+		This.RemoveFirstOccurrenceCS(pItem, 1)
 
 
 		#< @FunctionFluentForm
@@ -16926,7 +16926,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNextNthOccurrence(n, pItem, pnStartingAt)
-		This.RemoveNextNthOccurrenceCS(n, pItem, pnStartingAt, _TRUE_)
+		This.RemoveNextNthOccurrenceCS(n, pItem, pnStartingAt, 1)
 
 		#< @FuntionFluentForm
 
@@ -17183,7 +17183,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNextNthOccurrences(panList, pItem, pnStartingAt)
-		This.RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, _TRUE_)
+		This.RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, 1)
 
 		#< @FunctionFluentForm
 
@@ -17324,7 +17324,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
-		This.RemovePreviousNthOccurrenceCS(n, pItem, pnStartingAt, _TRUE_)
+		This.RemovePreviousNthOccurrenceCS(n, pItem, pnStartingAt, 1)
 
 		def RemovePreviousNthOccurrenceQ(n, pItem, pnStartingAt)
 			This.RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
@@ -17375,7 +17375,7 @@ class stzList from stzObject
 	# WITHOUT CASESENSITIVITY
 
 	def RemovePreviousOccurrence(pItem, pnStartingAt)
-		This.RemovePreviousOccurrenceCS(pItem, pnStartingAt, _TRUE_)
+		This.RemovePreviousOccurrenceCS(pItem, pnStartingAt, 1)
 
 		def RemovePreviousOccurrenceQ(pItem, pnStartingAt)
 			This.RemovePreviousOccurrence(pItem, pnStartingAt)
@@ -17482,7 +17482,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
-		This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, _TRUE_)
+		This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, 1)
 
 		#< @FunctionFluentForm
 
@@ -17863,7 +17863,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisItemAtPosition(pItem, n)
-		This.RemoveThisItemAtPositionCS(pItem, n, _TRUE_)
+		This.RemoveThisItemAtPositionCS(pItem, n, 1)
 
 		#< @FunctionFluentForm
 
@@ -17963,7 +17963,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisItemAtPositions(pItem, panPos)
-		This.RemoveThisItemAtPositionsCS(pItem, panPos, _TRUE_)
+		This.RemoveThisItemAtPositionsCS(pItem, panPos, 1)
 
 		#< @FunctionFluentForm
 
@@ -18047,7 +18047,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveTheseItemsAtPositions(paItems, panPos)
-		This.RemoveTheseItemsAtPositionsCS(paItems, panPos, _TRUE_)
+		This.RemoveTheseItemsAtPositionsCS(paItems, panPos, 1)
 
 		#< @FunctionFluentForm
 
@@ -18082,16 +18082,16 @@ class stzList from stzObject
 
 	def RemoveThisNthItemCS(n, pItem, pCaseSensitive)
 		NthItem = This.NthItem(n)
-		bItemExists = _FALSE_
+		bItemExists = 0
 
 		if isString( pItem )
 			if Q(NthItem).IsEqualToCS(pItem, pCaseSensitive)
-				bItemExists = _TRUE_
+				bItemExists = 1
 			ok
 
 		else
 			if Q(NthItem).IsEqualTo(pItem)
-				bItemExists = _TRUE_
+				bItemExists = 1
 			ok
 		ok
 
@@ -18109,7 +18109,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisNthItem(n, pItem)
-		This.RemoveThisNthItemCS(n, pItem, _TRUE_)
+		This.RemoveThisNthItemCS(n, pItem, 1)
 			
 		def RemoveThisNthItemQ(n, pItem)
 			This.RemoveThisNthItemCS(n, pItem)
@@ -18135,7 +18135,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisFirstItem(pItem)
-		This.RemoveThisNthItemCS(1, pItem, _TRUE_)
+		This.RemoveThisNthItemCS(1, pItem, 1)
 
 		def RemoveThisFirstItemQ(pItem)
 			This.RemoveThisFirstItem(pItem)
@@ -18161,7 +18161,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisLastItem(pItem)
-		This.RemoveThisNthItemCS(1, pItem, _TRUE_)
+		This.RemoveThisNthItemCS(1, pItem, 1)
 
 		def RemoveThisLastItemQ(pItem)
 			This.RemoveThisLastItem(pItem)
@@ -18438,7 +18438,7 @@ class stzList from stzObject
 
 		# Checking params correctness
 
-		if CheckingParams() = _TRUE_
+		if CheckingParams() = 1
 			if isList(n1) and
 				( Q(n1).IsFromNamedParam() or Q(n1).IsFromNamedParam()  or
 				  Q(n1).IsFromPositionNamedParam() )
@@ -18636,7 +18636,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveAnyItemFromStart(c)
-		This.RemoveAnyItemFromStartCS(c, _TRUE_)
+		This.RemoveAnyItemFromStartCS(c, 1)
 		return This
 
 		def RemoveAnyItemFromStartQ(c)
@@ -18644,7 +18644,7 @@ class stzList from stzObject
 			return This
 
 	def AnyItemFromStartRemoved(c)
-		return This.AnyItemFromStartRemovedCS(c, _TRUE_)
+		return This.AnyItemFromStartRemovedCS(c, 1)
 
 	  #---------------------------------#
 	 #   REMOVING ANY ITEM FROM END    #
@@ -18684,7 +18684,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveAnyItemFromEnd(c)
-		This.RemoveAnyItemFromEndCS(c, _TRUE_)
+		This.RemoveAnyItemFromEndCS(c, 1)
 		return This
 
 		def RemoveAnyItemFromEndQ(c)
@@ -18692,7 +18692,7 @@ class stzList from stzObject
 			return This
 
 	def AnyItemFromEndRemoved(c)
-		return This.AnyItemFromEndRemovedCS(c, _TRUE_)
+		return This.AnyItemFromEndRemovedCS(c, 1)
 
 	  #========================================#
 	 #    SWAPPING TWO SECTIONS OF THE LIST   # 
@@ -18823,7 +18823,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIviTY
 
 	def RemoveW(pCondition)
-		This.RemoveWCS(pCondition, _TRUE_)
+		This.RemoveWCS(pCondition, 1)
 
 		#< @FunctionFluentForm
 
@@ -18914,7 +18914,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIviTY
 
 	def RemoveWXT(pCondition)
-		This.RemoveWCSXT(pCondition, _TRUE_)
+		This.RemoveWCSXT(pCondition, 1)
 
 		#< @FunctionFluentForm
 
@@ -18973,7 +18973,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Extract(pItem)
-		return This.ExtractCS(pItem, _TRUE_)
+		return This.ExtractCS(pItem, 1)
 
 		def Pop(pItem)
 			return This.Extract(pItem)
@@ -19027,7 +19027,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractMany(paItems)
-		return This.ExtractManyCS(paItems, _TRUE_)
+		return This.ExtractManyCS(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -19248,7 +19248,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractNthOccurrence(n, pItem)
-		return This.ExtractNthOccurrenceCS(n, pItem, _TRUE_)
+		return This.ExtractNthOccurrenceCS(n, pItem, 1)
 
 		#< @FunctionAlternativeFroms
 
@@ -19323,7 +19323,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractFirst(pItem)
-		return This.ExtractFirstCS(pItem, _TRUE_)
+		return This.ExtractFirstCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -19398,7 +19398,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractLast(pItem)
-		return This.ExtractLastCS(pItem, _TRUE_)
+		return This.ExtractLastCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -19598,7 +19598,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractNextST(item, pnStartingAt)
-		return This.ExtractNextSTCS(item, pnStartingAt, _TRUE_)
+		return This.ExtractNextSTCS(item, pnStartingAt, 1)
 
 		#< @FunctionFluentForm
 
@@ -19781,7 +19781,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractPreviousST(item, pnStartingAt)
-		return This.ExtractPreviousSTCS(item, pnStartingAt, _TRUE_)
+		return This.ExtractPreviousSTCS(item, pnStartingAt, 1)
 
 		#< @FunctionFluentForm
 
@@ -19879,19 +19879,19 @@ class stzList from stzObject
 
 		o1 = new stzList([ "<<", ">>" ])
 		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
-		#--> _TRUE_
+		#--> TRUE
 
 		EXAMPLE 2
 
 		o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
 		? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
-		#--> _TRUE_
+		#--> TRUE
 
 		*/
 
 		# Checking the params
 
-		if CheckingParams() = _TRUE_
+		if CheckingParams() = 1
 
 			if NOT isString(pcSubStr)
 				StzRaise("Incorrect param type! pcSubStr must be a string.")
@@ -19917,14 +19917,14 @@ class stzList from stzObject
 		nLen = len(aContent)
 
 		oSubStr = new stzString(pcSubStr)
-		bResult = _FALSE_
+		bResult = 0
 
 		if This.IsListOfPairs()
-			bResult = _TRUE_
+			bResult = 1
 
 			for i = 1 to nLen
 				bResult = oSubStr.IsBoundedByIn(aContent[i], pIn)
-				if bResult = _FALSE_
+				if bResult = 0
 					exit
 				ok
 			next
@@ -19940,7 +19940,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AreBoundsOf(pItem, pIn)
-		return This.AreBoundsOfCS(pItem, pIn, _TRUE_)
+		return This.AreBoundsOfCS(pItem, pIn, 1)
 
 		def AreBoundsOfXT(pItem, pIn)
 			return This.AreBoundsOf(pItem, pIn)
@@ -19962,13 +19962,13 @@ class stzList from stzObject
 		if This.FirstItemQ().IsEqualToCS(pItem1, pCaseSensitive) and
 		   This.LastItemQ().IsEqualToCS(pItem2, pCaseSensitive)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBoundedBy(paBounds)
-		return This.IsBoundedByCS(paBounds, _TRUE_)
+		return This.IsBoundedByCS(paBounds, 1)
 
 	  #--------------------------------------------#
 	 #  GETTING BOUNDS OF THE LIST UP TO N ITEMS  #
@@ -20073,7 +20073,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Bounds(pItem, pUpTo)
-		return This.BoundsCS(pItem, pUpTo, _TRUE_)
+		return This.BoundsCS(pItem, pUpTo, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -20128,7 +20128,7 @@ class stzList from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def RemoveTheseBounds(pBound1, pBound2)
-		This.RemoveTheseBoundsCS(pBound1, pBound2, _TRUE_)
+		This.RemoveTheseBoundsCS(pBound1, pBound2, 1)
 
 		def RemoveTheseBoundsQ(pBound1, pBound2)
 			This.RemoveTheseBounds(pBound1, pBound2)
@@ -20160,7 +20160,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveManyBounds(paPairsOfBounds)
-		This.RemoveManyBoundsCS(paPairsOfBounds, _TRUE_)
+		This.RemoveManyBoundsCS(paPairsOfBounds, 1)
 
 		def RemoveManyBoundsQ(paPairsOfBounds)
 			This.RemoveManyBounds(paPairsOfBounds)
@@ -20186,7 +20186,7 @@ class stzList from stzObject
 		return aResult
 
 	  #--------------------------------------#
-	 #  CHECKING IF ALL THE ITEMS ARE _NULL_  #
+	 #  CHECKING IF ALL THE ITEMS ARE ""  #
 	#--------------------------------------#
 
 	def AllItemsAreNull()
@@ -20195,14 +20195,14 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 			if NOT isString(@aContent[i])
-				return _FALSE_
+				return 0
 			ok
-			if @aContent[i] != _NULL_
-				return _FALSE_
+			if @aContent[i] != ""
+				return 0
 			ok
 		next
 
-		return _TRUE_
+		return 1
 
 	  #-------------------------------------#
 	 #    CHECKINK LIST CHARACTERISTICS    #
@@ -20213,13 +20213,13 @@ class stzList from stzObject
 		nLen = len(aContent)
 
 		if nLen < 2
-			return _TRUE_
+			return 1
 		ok
 
 		if This.NumberOfOccurrenceCS(aContent[1], pCaseSensitive) = nLen
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -20233,7 +20233,7 @@ class stzList from stzObject
 		#>
 
 	def IsUniform()
-		return This.IsUniformCS(_TRUE_)
+		return This.IsUniformCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -20249,9 +20249,9 @@ class stzList from stzObject
 
 	def IsUnary()
 		if This.NumberOfItems() = 1
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsUnaryList()
@@ -20262,9 +20262,9 @@ class stzList from stzObject
 
 	def IsEmpty()
 		if This.NumberOfItems() = 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsEmptyList()
@@ -20275,9 +20275,9 @@ class stzList from stzObject
 
 	def IsDeepList()	// Contains at least an inner list
 		If This.Depth() > 1
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsADeepList()
@@ -20292,9 +20292,9 @@ class stzList from stzObject
 		   This.ContainsOnlyLists() or
 		   This.ContainsOnlyObjects()
 
-			return _FALSE_
+			return 0
 		else
-			return _TRUE_
+			return 1
 		ok
 
 		def IsAHybridList()
@@ -20306,9 +20306,9 @@ class stzList from stzObject
 		   This.ContainsOnlyLists() or
 		   This.ContainsOnlyObjects()
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAPureList()
@@ -20335,7 +20335,7 @@ class stzList from stzObject
 
 	def IsListOfZerosAndOnes()
 		if This.NumberOfItems() = 0
-			return _FALSE_
+			return 0
 		ok
 
 		return This.IsListOfBits()
@@ -20348,19 +20348,19 @@ class stzList from stzObject
 		nLen = len(aContent)
 
 		if nLen < 2
-			return _FALSE_
+			return 0
 		ok
 
 		if NOT This.AllItemsAreLists()
-			return _FALSE_
+			return 0
 		ok
 
 		nLen1 = len(aContent[1])
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 2 to nLen
 			if len(aContent[i]) != nLen1
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -20380,14 +20380,14 @@ class stzList from stzObject
 		When stzGrid class is fully tested we can use this code:	
 		
 		oTempGrid = new stzGrid( This.List() )
-		bResult = _FALSE_
+		bResult = 0
 
 		if oTempGrid.NumberOfVLines() = 2
 
 			aFirstVLine = oTempGrid.VLine(1)
 
 			if @IsSet(aFirstVLine) and ListItemsAreAllStrings(aFirstVLine)
-				bResult = _TRUE_
+				bResult = 1
 			ok
 		ok
 		return bResult
@@ -20396,7 +20396,7 @@ class stzList from stzObject
 		# All items are list of 2 items, where the 1st beeing string
 		#TODO // The strings in the 1st column (keys of the hashlist) must be unique
 
-		bResult = _TRUE_
+		bResult = 1
 		aTempKeys = []
 
 		nLen = This.NumberOfItems()
@@ -20407,11 +20407,11 @@ class stzList from stzObject
 			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
 				 isString(aContent[i][1]) )
 
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			else
 				if ring_find(aTempKeys, aContent[i][1]) > 0
-					bResult = _FALSE_
+					bResult = 0
 					exit
 				ok
 
@@ -20443,9 +20443,9 @@ class stzList from stzObject
 
 	def IsHashListOrListOfStrings()
 		if This.IsListOfStrings() or This.IsHashList()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsListOfStringsOrHashList()
@@ -20456,23 +20456,23 @@ class stzList from stzObject
 		_nLen_ = This.NumberOfItems()
 
 		if _nLen_ = 0
-			return _FALSE_
+			return 0
 		ok
 
-		_bResult_ = _FALSE_
+		_bResult_ = 0
 
 		if This.AllItemsAreLists()
 
-			_bSame_ = _TRUE_
+			_bSame_ = 1
 
 			for @i = 2 to _nLen_
 				if len(@aContent[@i]) != len(@aContent[@i-1])
-					_bSame_ = _FALSE_
+					_bSame_ = 0
 				ok
 			next
 
-			if _bSame_ = _TRUE_
-				_bResult_ = _TRUE_
+			if _bSame_ = 1
+				_bResult_ = 1
 			ok
 		ok
 
@@ -20563,17 +20563,17 @@ class stzList from stzObject
 
 	def IsListOfHybridLists()
 		if NOT This.IsListOfLists()
-			return _FALSE_
+			return 0
 		ok
 
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsHybridList(aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -20638,11 +20638,11 @@ class stzList from stzObject
 
 		aoStzLists = This.ToStzlists()
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT aoStzLists.IsHybridList()
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -20705,14 +20705,14 @@ class stzList from stzObject
 	def IsListOfNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsNumber(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -20770,14 +20770,14 @@ class stzList from stzObject
 	def IsListOfPositiveNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsNumber(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -20835,14 +20835,14 @@ class stzList from stzObject
 	def IsListOfNonZeroNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT ( @IsNumber(@aContent[i]) and @aContent[i] != 0 )
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -20900,14 +20900,14 @@ class stzList from stzObject
 	def IsListOfNonZeroPositiveNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT ( @IsNumber(@aContent[i]) and @aContent[i] > 0)
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -21018,14 +21018,14 @@ class stzList from stzObject
 	def IsListOfListsOfNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfNumbers(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -21087,14 +21087,14 @@ class stzList from stzObject
 	def IsListOfDecimalNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsDecimalNumber(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -21156,14 +21156,14 @@ class stzList from stzObject
 	def IsListOfListsOfDecimalNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfDecimalNumbers(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -21225,14 +21225,14 @@ class stzList from stzObject
 	def IsListOfBinaryNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsBinaryNumber(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -21294,14 +21294,14 @@ class stzList from stzObject
 	def IsListOfListsOfBinaryNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfBinaryNumbers(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -21363,14 +21363,14 @@ class stzList from stzObject
 	def IsListOfOctalNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsOctalNumber(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -21432,14 +21432,14 @@ class stzList from stzObject
 	def IsListOfListsOfOctalNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfOctalNumbers(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -21501,14 +21501,14 @@ class stzList from stzObject
 	def IsListOfHexNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsHexNumber(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -21570,14 +21570,14 @@ class stzList from stzObject
 	def IsListOfListsOfHexNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfHexNumbers(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -21638,14 +21638,14 @@ class stzList from stzObject
 	def IsListOfQBytesLists()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsQBytesListObject(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -21754,14 +21754,14 @@ class stzList from stzObject
 	def IsListOfStrings()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsString(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -21823,14 +21823,14 @@ class stzList from stzObject
 	def IsListOfStringsOrPairsOfStrings()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT ( isString(@aContent[i]) or @IsPairOfStrings(@aContent[i]) )
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -21892,14 +21892,14 @@ class stzList from stzObject
 	def IsListOfListsOfStrings()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStrings(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -21961,14 +21961,14 @@ class stzList from stzObject
 	def IsListOfLists()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT isList(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -22030,14 +22030,14 @@ class stzList from stzObject
 	def IsListOfListsOfLists()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfLists(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -22099,14 +22099,14 @@ class stzList from stzObject
 	def IsListOfObjects()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsObject(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -22169,14 +22169,14 @@ class stzList from stzObject
 
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfObjects(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -22238,14 +22238,14 @@ class stzList from stzObject
 	def IsListOfChars()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsChar(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -22307,14 +22307,14 @@ class stzList from stzObject
 	def IsListOfListsOfChars()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfChars(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -22376,14 +22376,14 @@ class stzList from stzObject
 	def IsListOfLetters()
 		_nLen_ = len(@aContent)
 		if _nLen_ = 0
-			return _FALSE_
+			return 0
 		ok
 
-		_bResult_ = _TRUE_
+		_bResult_ = 1
 
 		for @i = 1 to _nLen_
 			if NOT @IsLetter(@aContent[@i])
-				_bResult_ = _FALSE_
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -22445,14 +22445,14 @@ class stzList from stzObject
 	def IsListOfPairs()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsPair(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -22514,14 +22514,14 @@ class stzList from stzObject
 	def IsListOfListsOfPairs()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfPairs(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -22581,14 +22581,14 @@ class stzList from stzObject
 	def IsListOfListsOfPairsOfNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfPairsOfNumbers(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -22602,14 +22602,14 @@ class stzList from stzObject
 	def IsListOfSets()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsSet(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -22671,14 +22671,14 @@ class stzList from stzObject
 	def IsListOfListsOfSets()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfSets(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -22740,14 +22740,14 @@ class stzList from stzObject
 	def IsListOfHashLists()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsHashList(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -22809,14 +22809,14 @@ class stzList from stzObject
 	def IsListOfListsOfHashLists()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfHashLists(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -22878,14 +22878,14 @@ class stzList from stzObject
 	def IsListOfGrids()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsGrid(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -22947,14 +22947,14 @@ class stzList from stzObject
 	def IsListOfListsOfGrids()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfGrids(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23016,14 +23016,14 @@ class stzList from stzObject
 	def IsListOfTables()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsTable(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23085,14 +23085,14 @@ class stzList from stzObject
 	def IsListOfListsOfTables()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfTables(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23154,14 +23154,14 @@ class stzList from stzObject
 	def IsListOfTrees()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsTree(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23223,14 +23223,14 @@ class stzList from stzObject
 	def IsListOfListsOfTrees()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfTrees(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23292,14 +23292,14 @@ class stzList from stzObject
 	def IsListOfStzNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzNumber(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23361,14 +23361,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzNumbers(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23430,14 +23430,14 @@ class stzList from stzObject
 	def IsListOfStzDecimalNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzDecimalNumber(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23499,14 +23499,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzDecimalNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzDecimalNumbers(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23568,14 +23568,14 @@ class stzList from stzObject
 	def IsListOfStzBinaryNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzBinaryNumber(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23637,14 +23637,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzBinaryNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzBinaryNumbers(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23706,14 +23706,14 @@ class stzList from stzObject
 	def IsListOfStzOctalNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzOctalNumber(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23775,14 +23775,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzOctalNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzOctalNumbers(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23844,14 +23844,14 @@ class stzList from stzObject
 	def IsListOfStzHexNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzHexNumber(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23913,14 +23913,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzHexNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzHexNumbers(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -23981,14 +23981,14 @@ class stzList from stzObject
 	def IsListOfStzListsOfBytes()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzListOfBytes(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -24050,14 +24050,14 @@ class stzList from stzObject
 	def IsListOfStzStrings()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzString(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -24119,14 +24119,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzStrings()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzStrings(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -24188,14 +24188,14 @@ class stzList from stzObject
 	def IsListOfStzLists()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzList(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -24257,14 +24257,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzLists()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzLists(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -24326,14 +24326,14 @@ class stzList from stzObject
 	def IsListOfStzObjects()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzObject(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -24395,14 +24395,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzObjects()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzObjects(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -24464,14 +24464,14 @@ class stzList from stzObject
 	def IsListOfStzChars()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzChar(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -24533,14 +24533,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzChars()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzChars(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -24602,14 +24602,14 @@ class stzList from stzObject
 	def IsListOfStzPairs()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzPair(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -24671,14 +24671,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzPairs()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzPairs(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -24740,14 +24740,14 @@ class stzList from stzObject
 	def IsListOfStzSets()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzSet(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -24809,14 +24809,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzSets()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzSets(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -24878,14 +24878,14 @@ class stzList from stzObject
 	def IsListOfStzHashLists()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzHashList(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -24947,14 +24947,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzHashLists()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzHashLists(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -25016,14 +25016,14 @@ class stzList from stzObject
 	def IsListOfStzGrids()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzGrid(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -25085,14 +25085,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzGrids()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzGrids(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -25154,14 +25154,14 @@ class stzList from stzObject
 	def IsListOfStzTables()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzTable(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -25223,14 +25223,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzTables()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzTables(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -25292,14 +25292,14 @@ class stzList from stzObject
 	def IsListOfStzTrees()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsStzTree(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -25361,14 +25361,14 @@ class stzList from stzObject
 	def IsListOfListsOfStzTrees()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsListOfStzTrees(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -25428,14 +25428,14 @@ class stzList from stzObject
 	def IsListOfNumbersInStrings()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT @IsNumberInString(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -25489,9 +25489,9 @@ class stzList from stzObject
 		   This.IsListOfStrings() or
 		   This.ISListOfNumbersAndStrings()
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 		#< @FunctionAlternativeForms
 
@@ -25557,10 +25557,10 @@ class stzList from stzObject
 		#>
 
 	def IsListOfNumbersAndStrings()
-		bResult = _TRUE_
+		bResult = 1
 		for item in This.List()
 			if NOT (isString(item) or isNumber(item))
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -25643,9 +25643,9 @@ class stzList from stzObject
 
 	def IsListOfNumbersOrListOfStrings()
 		if This.IsListOfNumbers() or This.IsListOfStrings()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsListOfStringsOrListOfNumbers()
@@ -25658,12 +25658,12 @@ class stzList from stzObject
 			return This.IsListOfNumbersOrListOfStrings()
 
 	def IsListOfStringsAndPairsOfStrings()
-		bResult = _TRUE_
+		bResult = 1
 
 		for item in This.List()
 			if NOT 	( isString(item) or
 					( isList(item) and StzListQ(item).IsPairOfStrings() ) )
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -25692,12 +25692,12 @@ class stzList from stzObject
 		#>
 
 	def IsListOfNumbersAndPairsOfNumbers()
-		bResult = _TRUE_
+		bResult = 1
 
 		for item in This.List()
 			if NOT 	( isNumber(item) or
 					( isList(item) and StzListQ(item).IsPairOfNumbers() ) )
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -25726,12 +25726,12 @@ class stzList from stzObject
 		#>
 
 	def IsListOfListsAndPairsOfLists()
-		bResult = _TRUE_
+		bResult = 1
 
 		for item in This.List()
 			if NOT 	( isList(item) or
 					( isList(item) and StzListQ(item).IsPairOfLists() ) )
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -25760,12 +25760,12 @@ class stzList from stzObject
 		#>
 
 	def IsListOfObjectsAndPairsOfObjects()
-		bResult = _TRUE_
+		bResult = 1
 
 		for item in This.List()
 			if NOT 	( isNumber(item) or
 					( isObject(item) and StzListQ(item).IsPairOfObjects() ) )
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -25820,11 +25820,11 @@ class stzList from stzObject
 		Coud be solved nicely like this:
 
 			if This.IsListOfPairs() and
-			   Check('Q(@EachItem).IsPairOfStrings()' ) = _TRUE_
+			   Check('Q(@EachItem).IsPairOfStrings()' ) = 1
 	
-				return _TRUE_
+				return 1
 			else
-				return _FALSE_
+				return 0
 			ok
 
 		But the following solution is more performant...
@@ -25833,14 +25833,14 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 
 			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
 				 isString(aContent[i][1]) and isString(aContent[i][2]) )
 
-					bResult = _FALSE_
+					bResult = 0
 					exit
 			ok
 		next
@@ -25859,10 +25859,10 @@ class stzList from stzObject
 		nlen = len(aContent)
 
 		if nLen = 2 and isNumber(aContent[1]) and isNumber(aContent[2])
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -25932,14 +25932,14 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 
 			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
 				 isNumber(aContent[i][1]) and isNumber(aContent[i][2]) )
 
-					bResult = _FALSE_
+					bResult = 0
 					exit
 			ok
 		next
@@ -25976,10 +25976,10 @@ class stzList from stzObject
 		   Q(aContent[1]).IsPairOfNumbers() and
 		   Q(aContent[2]).IsPairOfNumbers()
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -26023,11 +26023,11 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT (isList(aContent[i]) and StzListQ(aContent[i]).IsPairOfSections())
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -26045,10 +26045,10 @@ class stzList from stzObject
 		nlen = len(aContent)
 
 		if nLen = 2 and isList(aContent[1]) and isList(aContent[2])
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -26096,10 +26096,10 @@ class stzList from stzObject
 		   isList(aContent[1]) and len(aContent[1]) = 0 and
 		   isList(aContent[2]) and len(aContent[2]) = 0
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -26144,14 +26144,14 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 
 			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
 				 isList(aContent[i][1]) and isList(aContent[i][2]) )
 
-					bResult = _FALSE_
+					bResult = 0
 					exit
 			ok
 		next
@@ -26169,10 +26169,10 @@ class stzList from stzObject
 		nlen = len(aContent)
 
 		if nLen = 2 and isObject(aContent[1]) and isObject(aContent[2])
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -26216,14 +26216,14 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 
 			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
 				 isObject(aContent[i][1]) and isObject(aContent[i][2]) )
 
-					bResult = _FALSE_
+					bResult = 0
 					exit
 			ok
 		next
@@ -26438,16 +26438,16 @@ class stzList from stzObject
 		aContent = This.Content()
 		nlen = len(aContent)
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT isList(aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 
 			if NOT len(aContent[i]) = 0
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -26479,17 +26479,17 @@ class stzList from stzObject
 	#--
 
 	def IsNamedObject()
-		return _FALSE_
+		return 0
 
 	def IsListOfNamedObjects()
-		bResult = _TRUE_
+		bResult = 1
 
 		aContent = This.Content()
 		nLen = len(aContent)
 
 		for i = 1 to nLen
 			if NOT ( isList(aContent[i]) and StzListQ(aContent[i]).IsNamedObject() )
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -26503,9 +26503,9 @@ class stzList from stzObject
 
 	def IsPairOfNumberAndString()
 		if This.NumberOfItems() = 2 and isNumber(This.Item(1)) and isString(This.Item(2))
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForm
@@ -26563,9 +26563,9 @@ class stzList from stzObject
 
 	def IsPairOfStringAndNumber()
 		if This.NumberOfItems() = 2 and isString(This.Item(1)) and isNumber(This.Item(2))
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -26623,9 +26623,9 @@ class stzList from stzObject
 
 	def IsPairOfNumberAndList()
 		if This.NumberOfItems() = 2 and isNumber(This.Item(1)) and isList(This.Item(2))
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -26683,9 +26683,9 @@ class stzList from stzObject
 
 	def IsPairOfListAndNumber()
 		if This.NumberOfItems() = 2 and isList(This.Item(1)) and isNumber(This.Item(2))
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -26743,9 +26743,9 @@ class stzList from stzObject
 
 	def IsPairOfNumberAndObject()
 		if This.NumberOfItems() = 2 and isNumber(This.Item(1)) and isObject(This.Item(2))
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -26803,9 +26803,9 @@ class stzList from stzObject
 
 	def IsPairOfObjectAndNumber()
 		if This.NumberOfItems() = 2 and isObject(This.Item(1)) and isNumber(This.Item(2))
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -26863,9 +26863,9 @@ class stzList from stzObject
 
 	def IsPairOfStringAndList()
 		if This.NumberOfItems() = 2 and isString(This.Item(1)) and isList(This.Item(2))
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -26923,9 +26923,9 @@ class stzList from stzObject
 
 	def IsPairOfListAndString()
 		if This.NumberOfItems() = 2 and isList(This.Item(1)) and isString(This.Item(2))
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -26983,9 +26983,9 @@ class stzList from stzObject
 
 	def IsPairOfStringAndObject()
 		if This.NumberOfItems() = 2 and isString(This.Item(1)) and isObject(This.Item(2))
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -27043,9 +27043,9 @@ class stzList from stzObject
 
 	def IsPairOfObjectAndString()
 		if This.NumberOfItems() = 2 and isObject(This.Item(1)) and isString(This.Item(2))
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -27103,9 +27103,9 @@ class stzList from stzObject
 
 	def IsPairOfListAndObject()
 		if This.NumberOfItems() = 2 and isList(This.Item(1)) and isObject(This.Item(2))
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -27172,7 +27172,7 @@ class stzList from stzObject
 	def IsListOf(pcType)
 		/* EXAMPLES
 
-			Q([ 1, 2, 3 ]).IsListOf(:Number)	#--> _TRUE_
+			Q([ 1, 2, 3 ]).IsListOf(:Number)	#--> TRUE
 
 			pcType should be a string containing the name of:
 				- a string containing one of the 4 Ring types (given by RingTypes() )
@@ -27207,7 +27207,7 @@ class stzList from stzObject
 		ok
 		cCode2 = 'bOk = ( ring_type(item) = "' + upper(pcType) + '" )'
 
-		bResult = _TRUE_
+		bResult = 1
 		aList = This.List()
 		nLen = len(aList)
 
@@ -27222,7 +27222,7 @@ class stzList from stzObject
 			ok
 
 			if NOT bOk
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27235,9 +27235,9 @@ class stzList from stzObject
 
 	def IsStzTree()
 		if This.StzClassName() = "stztree"
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAStzTree()
@@ -27255,12 +27255,12 @@ class stzList from stzObject
 	#=====
 
 	def IsListOfPairsOfStzObjects()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfStzObjects(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27271,12 +27271,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStzObjects()
 
 	def IsListOfPairsOfStzNumbers()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfStzNumbers(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27287,12 +27287,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStzNumbers()
 
 	def IsListOfPairsOfStzStrings()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfStzStrings(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27303,12 +27303,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStzStrings()
 
 	def IsListOfPairsOfStzLists()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfStzLists(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27319,12 +27319,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStzLists()
 
 	def IsListOfPairsOfNumberAndString()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfNumberAndString(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27335,12 +27335,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfNumberAndString()
 
 	def IsListOfPairsOfStringAndNumber()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfStringAndNumber(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27351,12 +27351,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStringAndNumber()
 
 	def IsListOfPairsOfNumberAndList()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfNumberAndlist(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27367,12 +27367,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfNumberAndList()
 
 	def IsListOfPairsOfListAndNumber()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfListAndNumber(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27383,12 +27383,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfListAndNumber()
 
 	def IsListOfPairsOfNumberAndObject()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfNumberAndObject(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27399,12 +27399,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfNumberAndObject()
 
 	def IsListOfPairsOfObjectAndNumber()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfObjectAndNumber(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27415,12 +27415,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfObjectAndNumber()
 
 	def IsListOfPairsOfStringAndList()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfStringAndList(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27431,12 +27431,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStringAndList()
 
 	def IsListOfPairsOfListAndString()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfListAndString(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27447,12 +27447,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfListAndString()
 
 	def IsListOfPairsOfStringAndObject()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOfStringAndObject(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27463,12 +27463,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStringAndObject()
 
 	def IsListOfPairsOfObjectAndString()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPairOdObjectAndString(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27479,12 +27479,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfObjectAndString()
 
 	def IsListOfPairsOfListAndObject()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPAirOfListAndObject(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27495,12 +27495,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfListAndObject()
 
 	def IsListOfPairsOfObjectAndList()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPAirOfObjectAndList(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27511,12 +27511,12 @@ class stzList from stzObject
 			return This.IsListOfPairsOfObjectAndList()
 
 	def IsListOfPairsOfChars()
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsPAirOfChars(@aContent[i])
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27546,12 +27546,12 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult = _TRUE_
+		bResult = 1
 		if This.ItemsHaveSameType()
 			if This.ItemsAreAllNumbers() or This.ItemsAreAllStrings()
 				for i = 2 to nLen		
 					if aContent[i] != aContent[i-1]
-						bResult = _FALSE_
+						bResult = 0
 						exit
 					ok
 				next
@@ -27560,7 +27560,7 @@ class stzList from stzObject
 				for i = 2 to nLen
 					oTempList = new stzList(aContent[i])
 					if oTempList.IsEqualTo(aContent[i-1])
-						bResult = _FALSE_
+						bResult = 0
 						exit
 					ok
 				next
@@ -27572,7 +27572,7 @@ class stzList from stzObject
 				StzRaise("Unsupported type!")
 			ok
 		else
-			bResult = _FALSE_
+			bResult = 0
 		ok
 
 		return bResult
@@ -27594,9 +27594,9 @@ class stzList from stzObject
 
 		nLen = This.NumberOfItems()
 		if nLen = 0
-			return _FALSE_
+			return 0
 		but nLen = 1
-			return _TRUE_
+			return 1
 		ok
 
 		aContent = This.Content()
@@ -27604,24 +27604,24 @@ class stzList from stzObject
 		oFirstItem = Q(aContent[1])
 
 
-		bResult = _TRUE_
+		bResult = 1
 		for i = 2 to nLen
 
 			if isNumber(aContent[i])
 				if NOT aContent[i] = aContent[1]
-					bResult = _FALSE_
+					bResult = 0
 					exit
 				ok
 
 			but isString(aContent[i]) or isList(aContent[i])
 				if NOT oFirstItem.IsEqualToCS(aContent[i], pCaseSensitive)
-					bResult = _FALSE_
+					bResult = 0
 					exit
 				ok
 
 			else // isObject(aContent[i])
 				if NOT oFirstItem.IsEqualTo(aContent[i])
-					bResult = _FALSE_
+					bResult = 0
 					exit
 				ok
 			ok
@@ -27654,7 +27654,7 @@ class stzList from stzObject
 	#-- CASESENSITIVITY
 
 	def ItemsAreAllEqual()
-		return This.ItemsAreAllEqualCS(_TRUE_)
+		return This.ItemsAreAllEqualCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -27714,7 +27714,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsAreEqualTo(pItem)
-		return This.ItemsAreEqualToCS(pItem, _TRUE_)
+		return This.ItemsAreEqualToCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -27749,24 +27749,24 @@ class stzList from stzObject
 		nLen = len(aContent)
 
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
 		if NOT isList(aContent[1])
-			return _FALSE_
+			return 0
 		ok
 
 		nLenFirst = len(aContent[1])
 		if nLenFirst = 1
-			return _TRUE_
+			return 1
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 2 to nLen
 
 			if NOT ( isList(aContent[i]) and len(aContent[i]) = nLen )
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 
@@ -27818,10 +27818,10 @@ class stzList from stzObject
 	#-----------------------------------------------------------------#
 
 	def ContainsOnlyValidRingCodes()
-		bResult = _TRUE_
+		bResult = 1
 
 		if NOT This.IsListOfStrings()
-			return _FALSE_
+			return 0
 		ok
 
 		nLen = This.NumberOfItems()
@@ -27830,7 +27830,7 @@ class stzList from stzObject
 		for i = 1 to nLen
 
 			if NOT Q(aContent[i]).IsValidRingCode()
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27851,10 +27851,10 @@ class stzList from stzObject
 	#---------------------------------------------------------------------#
 
 	def ContainsOnlyStzClassNames()
-		bResult = _TRUE_
+		bResult = 1
 
 		if NOT This.IsListOfStrings()
-			return _FALSE_
+			return 0
 		ok
 
 		nLen = This.NumberOfItems()
@@ -27863,7 +27863,7 @@ class stzList from stzObject
 		for i = 1 to nLen
 
 			if NOT Q(aContent[i]).IsStzClassName()
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -27905,11 +27905,11 @@ class stzList from stzObject
 		_aWalkers_ = This.Walkers()
 		_nLenWalkers_ = len(_aWalkers_)
 
-		_bNewName_ = _TRUE_
+		_bNewName_ = 1
 
 		for i = 1 to _nLenWalkers_
 			if _aWalkers_[i][1] = pcName
-				_bNewName_ = _FALSE_
+				_bNewName_ = 0
 				exit
 			ok
 		next
@@ -28527,12 +28527,12 @@ class stzList from stzObject
 		WalkUntil("isNumber(@item) and @item > 20") #--> 1:9
 		*/
 
-		bWalkBefore = _FALSE_
+		bWalkBefore = 0
 
 		# Checking the params
 
 		if isList(pcCondition) and StzListQ(pcCondition).IsBeforeNamedParam()
-			bWalkBefore = _TRUE_
+			bWalkBefore = 1
 			pcCondition = pcCondition[2]
 		ok
 
@@ -28580,7 +28580,7 @@ class stzList from stzObject
 
 		cCode = 'bOk = ( ' +  StzCCodeQ(pcCondition).Transpiled() + ' )'
 
-		bFound = _FALSE_
+		bFound = 0
 		aList = This.Content()
 		nLen = This.NumberOfItems()
 
@@ -28601,7 +28601,7 @@ class stzList from stzObject
 			eval(cCode)
 
 			if bOk
-				if bWalkBefore = _FALSE_
+				if bWalkBefore = 0
 					anPos + @i
 				ok
 
@@ -29847,7 +29847,7 @@ class stzList from stzObject
 
 		nLen = len(@aContent)
 		if nLen = 0
-			return _NULL_
+			return ""
 		but nLen = 1
 			return @aContent[1]
 		ok
@@ -29949,41 +29949,41 @@ class stzList from stzObject
 
 				return paOtherList
 			else
-				return _FALSE_
+				return 0
 			ok
 		ok
 
 		if NOT isList(paOtherList)
-			return _FALSE_
+			return 0
 		ok
 
 		# Doublechecking for potential performance gain
 
 		if This.NumberOfItems() != len(paOtherList)
-			return _FALSE_
+			return 0
 		ok
 
 		if isList(paOtherList) and
 		   len(paOtherList) = len(This.List()) and
 		   This.HasSameContentAsCS(paOtherList, pCaseSensitive)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionFluentForm
 
 		def IsEqualToCSQ(paOtherList)
 
-			bResult = _FALSE_
+			bResult = 0
 
 			if isList(paOtherList)
 				bResult = This.IsEqualToCS(paOtherList, pCaseSensitive)
 				
 			ok
 
-			if bResult = _TRUE_
+			if bResult = 1
 				return This
 			else
 				return new stzFalsObject
@@ -30022,10 +30022,10 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsEqualTo(paOtherList)
-		return This.IsEqualToCS(paOtherList, _TRUE_)
+		return This.IsEqualToCS(paOtherList, 1)
 
 		def IsEqualToQ(paOtherList)
-			return This.IsEqualToCSQ(paOtherList, _TRUE_)
+			return This.IsEqualToCSQ(paOtherList, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -30075,9 +30075,9 @@ class stzList from stzObject
 		
 		if This.IsEqualToCS(paOtherList, pCaseSensitive) and
 		   This.ItemsHaveSameOrderAs(paOtherList)
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -30104,7 +30104,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsStrictlyEqualTo(paOtherList)
-		return This.IsStrictlyEqualToCS(paOtherList, _TRUE_)
+		return This.IsStrictlyEqualToCS(paOtherList, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -30137,17 +30137,17 @@ class stzList from stzObject
 		ok
 
 		if This.IsEqualTo(paOtherList)
-			return _TRUE_
+			return 1
 		ok
 
 		nDif = abs(This.NumberOfItems() - StzListQ(paOtherList).NumberOfItems())
 		n = nDif / This.NumberOfItems()
 		
 		if n < QuietEqualityRatio() # 0.09 by default, can be changed with SetQuietEqualityRatio(n)
-			return _TRUE_
+			return 1
 		ok
 
-		return _FALSE_
+		return 0
 
 		def IsQuietEqual(paOtherList)
 			return This.IsQuietEqualTo(paOtherList)
@@ -30185,9 +30185,9 @@ class stzList from stzObject
 		bEqualToList2 = This.IsEqualToCS(paList2, pCaseSensitive)
 
 		if NOT bEqualToList1 and NOT bEqualToList2
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsNeitherEqualToCS(paList1, paList2, pCaseSensitive)
@@ -30196,7 +30196,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIIVITY
 
 	def IsNeither(paList1, paList2)
-		return This.IsNeitherCS(paList1, paList2, _TRUE_)
+		return This.IsNeitherCS(paList1, paList2, 1)
 
 		def IsNeitherEqualTo(paList1, paList2)
 			return This.IsNeither(paList1, paList2)
@@ -30218,9 +30218,9 @@ class stzList from stzObject
 		ok
 
 		if This.SortingOrder() = StzListQ(paOtherList).SortingOrder()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -30244,10 +30244,10 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult = _TRUE_
+		bResult = 1
 		for i = 1 to nLen
 			if NOT (isNumber(aContent[i]) or isString(aContent[i]))
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -30301,17 +30301,17 @@ class stzList from stzObject
 		nLen = len(aContent)
 
 		if nLen != 2
-			return _FALSE_
+			return 0
 		ok
 
 		if ( isNumber(acContent[1]) and isString(acContent[2]) ) OR
 		   ( isString(acContent[1]) and isNumber(acContent[2]) )
 
-			return _TRUE_
+			return 1
 
 		else
 
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -30326,14 +30326,14 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bGotANumber = _FALSE_
-		bGotAString = _FALSE_
+		bGotANumber = 0
+		bGotAString = 0
 
 		for i = 1 to nLen
 			if isNumber(aContent[i])
-				bGotANumber = _TRUE_
+				bGotANumber = 1
 			but isString(aContent[i])
-				bGotAString = _TRUE_
+				bGotAString = 1
 			ok
 
 			if isNumber(aContent[i]) and bGotANumber
@@ -30376,9 +30376,9 @@ class stzList from stzObject
 		if This.NumberOfItems() = 2 and
 		   isNumber(This.Item(1)) and isNumber(This.Item(2))
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def ContainsTwoNumbers()
@@ -30395,9 +30395,9 @@ class stzList from stzObject
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and isString(This.Item(2))
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def ContainsTwoStrings()
@@ -30414,9 +30414,9 @@ class stzList from stzObject
 		if This.NumberOfItems() = 2 and
 		   isList(This.Item(1)) and isList(This.Item(2))
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def ContainsTwoLists()
@@ -30433,9 +30433,9 @@ class stzList from stzObject
 		if This.NumberOfItems() = 2 and
 		   isObject(This.Item(1)) and isObject(This.Item(2))
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def ContainsTwoObjects()
@@ -30458,15 +30458,15 @@ class stzList from stzObject
 		nLenOtherList = len(paOtherList)
 
 		if nLen != nLenOtherList
-			return _FALSE_
+			return 0
 		ok
 
 		aContent = This.Content()
 
-		bResult = _TRUE_
+		bResult = 1
 		for i = 1 to nLen
 			if Q(aContent[i]).IsDifferentFrom( paOtherList[ nLenOtherList - i + 1 ] )
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next i
@@ -30588,9 +30588,9 @@ class stzList from stzObject
 		ok
 
 		if This.NumberOfItems() > len(paOtherList)
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -30638,9 +30638,9 @@ class stzList from stzObject
 		ok
 
 		if This.NumberOfItems() < len(paOtherList)
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -30736,7 +30736,7 @@ class stzList from stzObject
 			# The two lists must have same number of items
 
 			if NOT nLen1 = nLen2
-				return _FALSE_
+				return 0
 			ok
 		ok
 
@@ -30744,7 +30744,7 @@ class stzList from stzObject
 
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
-		if bCaseSensitive = _FALSE_
+		if bCaseSensitive = 0
 			acList1 = This.StringifyQ().SortQ().Lowercased()
 			acList2 = StzListQ(paOtherList).StringifyQ().SortQ().Lowercased()
 
@@ -30753,11 +30753,11 @@ class stzList from stzObject
 			acList2 = StzListQ(paOtherList).StringifyQ().Sorted()
 		ok
 
-		bresult = _TRUE_
+		bresult = 1
 
 		for i = 1 to nLen1
 			if NOT acList1[i] = acList2[i]
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -30770,7 +30770,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasSameContent(paOtherList)
-		return This.HasSameContentCS(paOtherList, _TRUE_)
+		return This.HasSameContentCS(paOtherList, 1)
 
 		def HasSameContentAs(paOtherList)
 			return This.HasSameContent(paOtherList)
@@ -30783,16 +30783,16 @@ class stzList from stzObject
 
 		nLen = len(@aContent)
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT isList(item)
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 
 			if StzListQ(item).IsContiguous()
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -31199,7 +31199,7 @@ class stzList from stzObject
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
 		oExpr = new stzString(pcExpr)
-		if NOT oExpr.ContainsOneOfTheseCS([ "@i", "@item" ], _FALSE_)
+		if NOT oExpr.ContainsOneOfTheseCS([ "@i", "@item" ], 0)
 			StzRaise("Cant't proceed! The classifier must contain the keyword @i or @item or both.")
 		ok
 
@@ -31261,15 +31261,15 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ClassifyBy(pcExpr)
-		return This.ClassifyByCS(pcExpr, _TRUE_)
+		return This.ClassifyByCS(pcExpr, 1)
 
 		#< @FunctionFluentForms
 
 		def ClassifyByQ(pcExpr)
-			return This.ClassifyByCSQ(pcExpr, _TRUE_)
+			return This.ClassifyByCSQ(pcExpr, 1)
 
 		def ClassifyByQRT(pcExpr, pcReturnType)
-			return This.ClassifyByCSQRT(pcExpr, _TRUE_, pcReturnType)
+			return This.ClassifyByCSQRT(pcExpr, 1, pcReturnType)
 
 		#>
 
@@ -31296,7 +31296,7 @@ class stzList from stzObject
 
 		# Stringifying the list and reparing it case sensitivity
 
-		if bCaseSensitive = _FALSE_
+		if bCaseSensitive = 0
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -31377,7 +31377,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESESENSITIVITY
 
 	def Parts()
-		return This.PartsCS(_TRUE_)
+		return This.PartsCS(1)
 
 		#< @FunctionFluentForms
 
@@ -31423,7 +31423,7 @@ class stzList from stzObject
 
 		# Stringifying the list and reparing it case sensitivity
 
-		if bCaseSensitive = _FALSE_
+		if bCaseSensitive = 0
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -31461,7 +31461,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESESENSITIVITY
 
 	def FindParts()
-		return This.FindPartsCS(_TRUE_)
+		return This.FindPartsCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -31482,7 +31482,7 @@ class stzList from stzObject
 
 		# Stringifying the list and reparing it case sensitivity
 
-		if bCaseSensitive = _FALSE_
+		if bCaseSensitive = 0
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -31525,7 +31525,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESESENSITIVITY
 
 	def FindPartsAsSections()
-		return This.FindPartsAsSectionsCS(_TRUE_)
+		return This.FindPartsAsSectionsCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -31546,7 +31546,7 @@ class stzList from stzObject
 
 		# Stringifying the list and reparing it case sensitivity
 
-		if bCaseSensitive = _FALSE_
+		if bCaseSensitive = 0
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -31594,7 +31594,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESESENSITIVITY
 
 	def PartsZ()
-		return This.PartsCSZ(_TRUE_)
+		return This.PartsCSZ(1)
 
 		#< @FunctionAlternativeForms
 
@@ -31615,7 +31615,7 @@ class stzList from stzObject
 
 		# Stringifying the list and reparing it case sensitivity
 
-		if bCaseSensitive = _FALSE_
+		if bCaseSensitive = 0
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -31663,7 +31663,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESESENSITIVITY
 
 	def PartsZZ()
-		return This.PartsCSZZ(_TRUE_)
+		return This.PartsCSZZ(1)
 
 		#< @FunctionAlternativeForms
 
@@ -31697,15 +31697,15 @@ class stzList from stzObject
 	Uses the Kase() method in stzString as a PartitionExpr.	
 
 	And because this method returns a string equal to :Uppercase or
-	:Lowercase or _NULL_, then the classification done will return:
+	:Lowercase or NULL, then the classification done will return:
 
 	[
 		[ "TUNIS" ] = :Uppercase,
-		[ " " ] = _NULL_,
+		[ " " ] = "",
 		[ "gafsa" ] = :Lowercase,
-		[ " " ] = _NULL_,
+		[ " " ] = "",
 		[ "NABEUL" ] = :Uppercase,
-		[ " " ] = _NULL_,
+		[ " " ] = "",
 		[ "beja" ] = :Lowercase
 	]
 
@@ -31719,10 +31719,10 @@ class stzList from stzObject
 		
 		? o1.PartsUsing( 'Q(@item).IsLetter()' )
 		#--> [
-		#	[ "A", "b", "c" ] = _TRUE_,
-		#	["28", "5" ] = _FALSE_,
-		# 	[ "X", "Y" ] = _TRUE_,
-		#o	[ "&", "من" ] = _FALSE_
+		#	[ "A", "b", "c" ] = 1,
+		#	["28", "5" ] = 0,
+		# 	[ "X", "Y" ] = 1,
+		#o	[ "&", "من" ] = 0
 		# ]
 		
 		? o1.PartsUsing('Q(@item).Orientation()' )
@@ -31733,19 +31733,19 @@ class stzList from stzObject
 		
 		? o1.PartsUsing( 'Q(@item).IsUppercase()' )
 		#--> [
-		# 	[ "A" ]  = _TRUE_,
-		#	[ "b", "c", "28", "5" ] = _FALSE_,
-		#	[ "X", Y" ] = _TRUE_,
-		#o	[ "&", "من" = _FALSE_
+		# 	[ "A" ]  = 1,
+		#	[ "b", "c", "28", "5" ] = 0,
+		#	[ "X", Y" ] = 1,
+		#o	[ "&", "من" = 0
 		# ]
 		
 		? o1.PartsUsing( 'Q(@item).Kase()' )
 		#--> [
 		#	[ "A" ] = :Uppercase,
 		#	[ "b", "c" ] = :Lowercase,
-		#	[ "28", "5" ] = _NULL_,
+		#	[ "28", "5" ] = "",
 		#	[ "X", "Y" ] = :Uppercase,
-		#o	[ "&", "من" ] = _NULL_
+		#o	[ "&", "من" ] = ""
 		# ]
 
 		*/
@@ -31755,7 +31755,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", _FALSE_)
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", 0)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -31774,18 +31774,18 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive = _FALSE_ and
+		if bCaseSensitive = 0 and
 			StzStringQ(paPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], _FALSE_)
+				"islowercase", "lower(", "upper(" ], 0)
 
 				return [ [ @aContent ] ]
 		ok
 
 		# Preparing the data for case sensitivity
 
-		if bCaseSensitive = _FALSE_
+		if bCaseSensitive = 0
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -31873,7 +31873,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESESENSITIVITY
 
 	def PartsUsing(paPartitionExpr)
-		return This.PartsUsingCS(paPartitionExpr, _TRUE_)
+		return This.PartsUsingCS(paPartitionExpr, 1)
 
 		#< @FunctionFluentForms
 
@@ -31881,7 +31881,7 @@ class stzList from stzObject
 			return This.PartsUsingQRT(paPartitionExpr, :stzList)
 
 		def PartsUsingQRT(paPartitionExpr, pcReturnType)
-			return This.PartsUsingCSQRT(paPartitionExpr, _TRUE_, pcReturnType)
+			return This.PartsUsingCSQRT(paPartitionExpr, 1, pcReturnType)
 
 		#>
 
@@ -31920,10 +31920,10 @@ class stzList from stzObject
 		
 		? o1.PartsUsingXT( 'Q(@item).IsLetter()' )
 		#--> [
-		#	[ "A", "b", "c" ] = _TRUE_,
-		#	["28", "5" ] = _FALSE_,
-		# 	[ "X", "Y" ] = _TRUE_,
-		#o	[ "&", "من" ] = _FALSE_
+		#	[ "A", "b", "c" ] = 1,
+		#	["28", "5" ] = 0,
+		# 	[ "X", "Y" ] = 1,
+		#o	[ "&", "من" ] = 0
 		# ]
 		
 		? o1.PartsUsingXT('Q(@item).Orientation()' )
@@ -31934,19 +31934,19 @@ class stzList from stzObject
 		
 		? o1.PartsUsingXT( 'Q(@item).IsUppercase()' )
 		#--> [
-		# 	[ "A" ]  = _TRUE_,
-		#	[ "b", "c", "28", "5" ] = _FALSE_,
-		#	[ "X", Y" ] = _TRUE_,
-		#o	[ "&", "من" = _FALSE_
+		# 	[ "A" ]  = 1,
+		#	[ "b", "c", "28", "5" ] = 0,
+		#	[ "X", Y" ] = 1,
+		#o	[ "&", "من" = 0
 		# ]
 		
 		? o1.PartsUsingXT( 'Q(@item).Kase()' )
 		#--> [
 		#	[ "A" ] = :Uppercase,
 		#	[ "b", "c" ] = :Lowercase,
-		#	[ "28", "5" ] = _NULL_,
+		#	[ "28", "5" ] = "",
 		#	[ "X", "Y" ] = :Uppercase,
-		#o	[ "&", "من" ] = _NULL_
+		#o	[ "&", "من" ] = ""
 		# ]
 
 		*/
@@ -31956,7 +31956,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", _FALSE_)
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", 0)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -31966,7 +31966,7 @@ class stzList from stzObject
 		nLen = len(@aContent)
 
 		if nLen < 2
-			return [ [ @aContent, _NULL_ ] ]
+			return [ [ @aContent, "" ] ]
 		ok
 
 		# Getting the boolean behind pCaseSensitive
@@ -31975,18 +31975,18 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive = _FALSE_ and
+		if bCaseSensitive = 0 and
 			StzStringQ(paPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], _FALSE_)
+				"islowercase", "lower(", "upper(" ], 0)
 
-				return [ [ @aContent, _NULL_ ] ]
+				return [ [ @aContent, "" ] ]
 		ok
 
 		# Preparing the data for case sensitivity
 
-		if bCaseSensitive = _FALSE_
+		if bCaseSensitive = 0
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -32074,7 +32074,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESESENSITIVITY
 
 	def PartsUsingXT(paPartitionExpr)
-		return This.PartsUsingCSXT(paPartitionExpr, _TRUE_)
+		return This.PartsUsingCSXT(paPartitionExpr, 1)
 
 		#< @FunctionFluentForms
 
@@ -32082,7 +32082,7 @@ class stzList from stzObject
 			return This.PartsUsingXTQRT(paPartitionExpr, :stzList)
 
 		def PartsUsingXTQRT(paPartitionExpr, pcReturnType)
-			return This.PartsUsingCSXTQRT(paPartitionExpr, _TRUE_, pcReturnType)
+			return This.PartsUsingCSXTQRT(paPartitionExpr, 1, pcReturnType)
 
 		#>
 
@@ -32118,7 +32118,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", _FALSE_)
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", 0)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -32137,18 +32137,18 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive = _FALSE_ and
+		if bCaseSensitive = 0 and
 			StzStringQ(paPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], _FALSE_)
+				"islowercase", "lower(", "upper(" ], 0)
 
 				return [ 1 ]
 		ok
 
 		# Preparing the data for case sensitivity
 
-		if bCaseSensitive = _FALSE_
+		if bCaseSensitive = 0
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -32189,7 +32189,7 @@ class stzList from stzObject
 			return This.FindPartsUsingCS(paPartitionExpr, pCaseSensitive)
 
 	def FindPartsUsing(paPartitionExpr)
-		return This.FindPartsUsingCS(paPartitionExpr, _TRUE_)
+		return This.FindPartsUsingCS(paPartitionExpr, 1)
 
 		def FindPartsUsingZ(paPartitionExpr)
 			return This.FindPartsUsing(paPartitionExpr)
@@ -32204,7 +32204,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", _FALSE_)
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", 0)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -32223,18 +32223,18 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive = _FALSE_ and
+		if bCaseSensitive = 0 and
 			StzStringQ(paPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], _FALSE_)
+				"islowercase", "lower(", "upper(" ], 0)
 
 				return [ [ 1, nLen ] ]
 		ok
 
 		# Preparing the data for case sensitivity
 
-		if bCaseSensitive = _FALSE_
+		if bCaseSensitive = 0
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -32276,7 +32276,7 @@ class stzList from stzObject
 			return This.FindPartsAsSectionsUsingCS(paPartitionExpr, pCaseSensitive)
 
 	def FindPartsAsSectionsUsing(paPartitionExpr)
-		return This.FindPartsAsSectionsUsingCS(paPartitionExpr, _TRUE_)
+		return This.FindPartsAsSectionsUsingCS(paPartitionExpr, 1)
 
 		def FindPartsUsingZZ(paPartitionExpr)
 			return This.FindPartsAsSectionsUsing(paPartitionExpr)
@@ -32291,7 +32291,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", _FALSE_)
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", 0)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -32310,18 +32310,18 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive = _FALSE_ and
+		if bCaseSensitive = 0 and
 			StzStringQ(paPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], _FALSE_)
+				"islowercase", "lower(", "upper(" ], 0)
 
 				return [ [ @aContent ] ]
 		ok
 
 		# Preparing the data for case sensitivity
 
-		if bCaseSensitive = _FALSE_
+		if bCaseSensitive = 0
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -32370,7 +32370,7 @@ class stzList from stzObject
 			return This.PartsUsingCSZ(paPartitionExpr, pCaseSensitive)
 
 	def PartsUsingZ(paPartitionExpr)
-		return This.PartsUsingCSZ(paPartitionExpr, _TRUE_)
+		return This.PartsUsingCSZ(paPartitionExpr, 1)
 
 		def PartsAndTheirPositionsUsing(paPartitionExpr)
 			return This.PartsUsingZ(paPartitionExpr)
@@ -32385,7 +32385,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", _FALSE_)
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", 0)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -32404,18 +32404,18 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive = _FALSE_ and
+		if bCaseSensitive = 0 and
 			StzStringQ(paPartitionExpr).
 			ContainsOneOfTheseCS([
 				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], _FALSE_)
+				"islowercase", "lower(", "upper(" ], 0)
 
 				return [ [ @aContent, [1, nLen] ] ]
 		ok
 
 		# Preparing the data for case sensitivity
 
-		if bCaseSensitive = _FALSE_
+		if bCaseSensitive = 0
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
@@ -32464,7 +32464,7 @@ class stzList from stzObject
 			return This.PartsUsingCSZZ(paPartitionExpr, pCaseSensitive)
 
 	def PartsUsingZZ(paPartitionExpr)
-		return This.PartsUsingCSZZ(paPartitionExpr, _TRUE_)
+		return This.PartsUsingCSZZ(paPartitionExpr, 1)
 
 		def PartsAndTheirSectionsUsing(paPartitionExpr)
 			return This.PartsUsingZZ(paPartitionExpr)
@@ -32474,7 +32474,7 @@ class stzList from stzObject
 	#=====================================================#
 
 	def IsContiguous()
-		bResult = _FALSE_
+		bResult = 0
 
 		if This.IsListOfNumbers()
 
@@ -32692,15 +32692,15 @@ class stzList from stzObject
 
 	def ContainsSameItemsAsCS(paOtherList, pCaseSensitive)
 		if len( This.DifferentItemsWithCS(paOtherList, pCaseSensitive) ) = 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSameItemsAs(paOtherList)
-		return This.ContainsSameItemsAsCS(paOtherList, _TRUE_)
+		return This.ContainsSameItemsAsCS(paOtherList, 1)
 
 	   #---------------------------------------------------------#
 	  #  GETTING THE LIST OF ITEMS WHICH ARE DIFFERENT BETWEEN  #
@@ -32719,7 +32719,7 @@ class stzList from stzObject
 		acList = []
 		acOtherList = []
 
-		if bCaseSensitive = _TRUE_
+		if bCaseSensitive = 1
 			acList = This.Stringified()
 			acOtherList = StzListQ(paOtherList).Stringified()
 
@@ -32760,10 +32760,10 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DifferentItemsWith(paOtherList)
-		return This.DifferentItemsWithCS(paOtherList, _TRUE_)
+		return This.DifferentItemsWithCS(paOtherList, 1)
 
 		def DifferentItemsWithQ(paOtherList)
-			return This.DifferentItemsWithCSQ(paOtherList, _TRUE_)
+			return This.DifferentItemsWithCSQ(paOtherList, 1)
 
 		def DifferenceWith(paOtherList)
 			return This.DifferentItemsWith(paOtherList)
@@ -32803,10 +32803,10 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DifferentItemsWithXT(paOtherList)
-		return This.DifferentItemsWithCSXT(paOtherList, _TRUE_)
+		return This.DifferentItemsWithCSXT(paOtherList, 1)
 
 		def DifferentItemsWithXTQ(paOtherList)
-			return This.DifferentItemsWithCSXTQ(paOtherList, _TRUE_)
+			return This.DifferentItemsWithCSXTQ(paOtherList, 1)
 
 		def DifferenceWithXT(paOtherList)
 			return This.DifferentItemsWithXT(paOtherList)
@@ -32845,7 +32845,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def OverItemsComparedTo(paOtherList)
-		return This.OverItemsComparedToCS(paOtherList, _TRUE_)
+		return This.OverItemsComparedToCS(paOtherList, 1)
 
 		def OverItemsComparedToQ(paOtherList)
 			return new stzList( This.OverItemsComparedTo(paOtherList) )
@@ -32874,7 +32874,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LackingItemsComparedTo(paOtherList)
-		return This.LackingItemsComparedToCS(paOtherList, _TRUE_)
+		return This.LackingItemsComparedToCS(paOtherList, 1)
 
 		def LackingItemsComparedToQ(paOtherList)
 			return new stzList( This.LackingItemsComparedTo(paOtherList) )	
@@ -32885,9 +32885,9 @@ class stzList from stzObject
 
 	def HasSameNumberOfItemsAsCS(paOtherList, pCaseSensitive)
 		If len(paOtherList) = This.NumberOfItems()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def HasSameWidthAsCS(paOtherList, pCaseSensitive)
@@ -32902,7 +32902,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasSameNumberOfItemsAs(paOtherList)
-		return This.HasSameNumberOfItemsAsCS(paOtherList, _TRUE_)
+		return This.HasSameNumberOfItemsAsCS(paOtherList, 1)
 
 		def HasSameWidthAs(paOtherList)
 			return HasSameNumberOfItemsAs(paOtherList)
@@ -33006,7 +33006,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def CommonItemsWith(paOtherList)
-		return This.CommonItemsWithCS(paOtherList, _TRUE_)
+		return This.CommonItemsWithCS(paOtherList, 1)
 
 		#< @FunctionFluentForm
 
@@ -33094,7 +33094,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfCommonItemsWith(paItems)
-		return This.NumberOfCommonItemsWithCS(paItems, _TRUE_)
+		return This.NumberOfCommonItemsWithCS(paItems, 1)
 
 		def SizeOfIntersectionWith(paItems)
 			return NumberOfCommonItemsWith(paItems)
@@ -33127,7 +33127,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfDifferentItemsWith(paItems)
-		return This.NumberOfDifferentItemsWithCS(paItems, _TRUE_)
+		return This.NumberOfDifferentItemsWithCS(paItems, 1)
 
 		def CountDifferentItemsWith(paItem)
 			return This.NumberOfDifferentItemsWith(paItems)
@@ -33159,9 +33159,9 @@ class stzList from stzObject
 
 		oTemp = new stzList(paOtherList)
 		if oTemp.SortingOrder() = This.SortingOrder()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def HasSameOrderAs(paOtherList)
@@ -33174,9 +33174,9 @@ class stzList from stzObject
 	def IsSorted()
 		if This.IsSortedInAscending() or
 		   This.IsSortedInDescending()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def ItemsAreSorted()
@@ -33192,14 +33192,14 @@ class stzList from stzObject
 
 		aSorted = @SortList(aContent)
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			cItem   = @@(aContent[i])
 			cSorted = @@(aSorted[i])
 
 			if cItem != cSorted
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -33221,14 +33221,14 @@ class stzList from stzObject
 
 		aSorted = ring_reverse( @SortList(aContent) )
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			cItem   = @@(aContent[i])
 			cSorted = @@(aSorted[i])
 
 			if cItem != cSorted
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -33262,9 +33262,9 @@ class stzList from stzObject
  
 	def IsSortable()
 		if This.SortableItems() = This.NumberOfItems()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	  #-------------------------------------#
@@ -33530,7 +33530,7 @@ class stzList from stzObject
 
 		*/
 
-		if NOT (isString(pcExpr) and StzStringQ(pcExpr).ContainsCS("@item", _FALSE_))
+		if NOT (isString(pcExpr) and StzStringQ(pcExpr).ContainsCS("@item", 0))
 			StzRaise("Incorrect param! pcExpr must be a string containing @item keyword.")
 		ok
 
@@ -33645,7 +33645,7 @@ class stzList from stzObject
 		aContent = This.Content()
 
 		for i = 1 to nLen
-			otherItem = _NULL_
+			otherItem = ""
 			if i <= nLenOtherList
 				otherItem = paOtherList[i]
 			ok
@@ -33671,9 +33671,9 @@ class stzList from stzObject
 		aLead = This.RepeatedLeadingItemsCS(pCaseSensitive)
 
 		if len(aLead) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -33700,7 +33700,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasRepeatedLeadingItems()
-		return This.HasRepeatedLeadingItemsCS(_TRUE_)
+		return This.HasRepeatedLeadingItemsCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -33732,9 +33732,9 @@ class stzList from stzObject
 		aTrail = This.RepeatedTrailingItemsCS(pCaseSensitive)
 
 		if len(aTrail) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -33761,7 +33761,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasRepeatedTrailingItems()
-		return This.HasRepeatedTrailingItemsCS(_TRUE_)
+		return This.HasRepeatedTrailingItemsCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -33807,7 +33807,7 @@ class stzList from stzObject
 		bCase = @CaseSensitive(pCaseSensitive)
 		acList = ""
 
-		if bCase = _TRUE_
+		if bCase = 1
 			acList = This.Stringified()
 		else
 			acList.StringifyQ().Lowercased()
@@ -33856,7 +33856,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedLeadingItems()
-		return This.RepeatedLeadingItemsCS(_TRUE_)
+		return This.RepeatedLeadingItemsCS(1)
 
 		#< @FunctionFluentForm
 
@@ -33919,7 +33919,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedLeadingItem()
-		return This.RepeatedLeadingItem(_TRUE_)
+		return This.RepeatedLeadingItem(1)
 
 		#< @FunctionFluentForm
 
@@ -33993,7 +33993,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfRepeatedLeadingItems()
-		return This.NumberOfRepeatedLeadingItemsCS(_TRUE_)
+		return This.NumberOfRepeatedLeadingItemsCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -34039,11 +34039,11 @@ class stzList from stzObject
 	def RepeatedLeadingItemIsCS(pItem, pCaseSensitive)
 
 		aLead = This.RepeatedLeadingItemsCS(pCaseSensitive)
-		bResult = _FALSE_
+		bResult = 0
 
 		if len(aLead) > 0
 			if Q(aLead[1]).IsEqualToCS(pItem, pCaseSensitive)
-				bResult = _TRUE_
+				bResult = 1
 			ok
 		ok
 
@@ -34062,7 +34062,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedLeadingItemIs(pItem)
-		return This.RepeatedLeadingItemIs(pItem, _TRUE_)
+		return This.RepeatedLeadingItemIs(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -34114,7 +34114,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedTrailingItem()
-		return This.RepeatedTrailingItemCS(_TRUE_)
+		return This.RepeatedTrailingItemCS(1)
 
 		#< @FunctionFluentForm
 
@@ -34172,7 +34172,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedTrailingItems()
-		return This.RepeatedTrailingItemsCS(_TRUE_)
+		return This.RepeatedTrailingItemsCS(1)
 
 		#< @FunctionFluentForm
 
@@ -34245,7 +34245,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfRepeatedTrailingItems()
-		return This.NumberOfRepeatedTrailingItemsCS(_TRUE_)
+		return This.NumberOfRepeatedTrailingItemsCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -34291,11 +34291,11 @@ class stzList from stzObject
 	def RepeatedTrailingItemIsCS(pItem, pCaseSensitive)
 
 		aLead = This.RepeatedTrailingItemsCS(pCaseSensitive)
-		bResult = _FALSE_
+		bResult = 0
 
 		if len(aLead) > 0
 			if Q(aLead[1]).IsEqualToCS(pItem, pCaseSensitive)
-				bResult = _TRUE_
+				bResult = 1
 			ok
 		ok
 
@@ -34314,7 +34314,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedTrailingItemIs(pItem)
-		return This.RepeatedTrailingItemIsCS(pItem, _TRUE_)
+		return This.RepeatedTrailingItemIsCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -34372,7 +34372,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedLEadingItems()
-		This.RemoveRepeatedLeadingItemsCS(_TRUE_)
+		This.RemoveRepeatedLeadingItemsCS(1)
 
 		def RemoveRepeatedLeadingItemsQ()
 			This.RemoveRepeatedLeadingItems()
@@ -34464,7 +34464,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedLeadingItem(pItem)
-		This.RemoveRepeatedLeadingItemCS(pItem, _TRUE_)
+		This.RemoveRepeatedLeadingItemCS(pItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -34560,7 +34560,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedTrailingItems()
-		This.RemoveRepeatedTrailingItemsCS(_TRUE_)
+		This.RemoveRepeatedTrailingItemsCS(1)
 
 		def RemoveRepeatedTrailingItemsQ()
 			This.RemoveRepeatedTrailingItems()
@@ -34650,7 +34650,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedTrailingItem(pItem)
-		This.RemoveRepeatedTrailingItemCS(pItem, _TRUE_)
+		This.RemoveRepeatedTrailingItemCS(pItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -34880,7 +34880,7 @@ class stzList from stzObject
 	#-- WTIHOUT CASESENSITIVITY
 
 	def RemoveRepeatedLeadingAndTrailingItems()
-		This.RemoveRepeatedLeadingAndTrailingItemsCS(_TRUE_)
+		This.RemoveRepeatedLeadingAndTrailingItemsCS(1)
 
 		#< @FunctionFluentForm
 
@@ -35123,7 +35123,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisRepeatedLeadingItem(pItem, pNewItem)
-		This.ReplaceThisRepeatedLeadingItemCS(pItem, pNewItem, _TRUE_)
+		This.ReplaceThisRepeatedLeadingItemCS(pItem, pNewItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -35243,7 +35243,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceRepeatedTrailingItem(pItem)
-		This.ReplaceRepeatedTralingItemCS(pItem, _TRUE_)
+		This.ReplaceRepeatedTralingItemCS(pItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -35356,7 +35356,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisRepeatedTrailingItem(pItem, pNewItem)
-		This.ReplaceThisRepeatedTrailingItemCS(pItem, pNewItem, _TRUE_)
+		This.ReplaceThisRepeatedTrailingItemCS(pItem, pNewItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -35448,7 +35448,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
-		This.ReplaceRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, _TRUE_)
+		This.ReplaceRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, 1)
 
 		#< @FunctionFluentForm
 
@@ -35563,7 +35563,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceRepeatedLeadingAndTrailingItems(pNewItem)
-		This.ReplaceRepeatedLeadingAndTrailingItemsCS(pNewItem, _TRUE_)
+		This.ReplaceRepeatedLeadingAndTrailingItemsCS(pNewItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -35645,12 +35645,12 @@ class stzList from stzObject
 					nLen = len(acNumbers)
 
 					n1 = 1
-					if acNumbers[1] != _NULL_
+					if acNumbers[1] != ""
 						n1 = 0+ acNumbers[1]
 					ok
 
 					n2 = This.NumberOfItems()
-					if acNumbers[2] != _NULL_
+					if acNumbers[2] != ""
 						n2 = 0+ acNumbers[2]
 					ok
 
@@ -35740,13 +35740,13 @@ class stzList from stzObject
 				if _bTheseQ
 
 					aResult = This.ManyAdded(pValue)
-					bTheseQ = _FALSE_
+					bTheseQ = 0
 					return new stzList(aResult)
 
 				but _bThese
 
 					aResult = This.ManyAdded(pValue)
-					_bThese = _FALSE_ # Resets the global flag
+					_bThese = 0 # Resets the global flag
 					return aResult
 
 				else
@@ -35758,22 +35758,22 @@ class stzList from stzObject
 
 				if _bAsObject
 					aResult = This.ItemAdded(pValue)
-					_bAsObject = _FALSE_
+					_bAsObject = 0
 					return aResult
 
 				but _bAsObjectQ
 					aResult = This.ItemAdded(pValue)
-					_bAsObjectQ = _FALSE_
+					_bAsObjectQ = 0
 					return new stzList(aResult)
 
 				but _bTheseQ
 					aResult = This.ManyAdded(pValue.Content())
-					_bTheseQ = _FALSE_ # Resets the global flag
+					_bTheseQ = 0 # Resets the global flag
 					return new stzList(aResult)
 
 				but _bThese
 					aResult = This.Copy().ManyAdded(pValue.Content())
-					_bThese = _FALSE_ # Resets the global flag
+					_bThese = 0 # Resets the global flag
 					return aResult
 				else
 
@@ -35798,14 +35798,14 @@ class stzList from stzObject
 
 				if _bTheseQ
 					aResult = This.ManyRemoved(pValue)
-					bTheseQ = _FALSE_
+					bTheseQ = 0
 
 					return new stzList(aResult)
 
 				but _bThese
 
 					aResult = This.ManyRemoved(pValue)
-					_bThese = _FALSE_ # Resets the global flag
+					_bThese = 0 # Resets the global flag
 
 					return aResult
 
@@ -35819,25 +35819,25 @@ class stzList from stzObject
 				if _bAsObject
 
 					aResult = This.ItemRemoved(pValue)
-					_bAsObject = _FALSE_
+					_bAsObject = 0
 
 					return aResult
 
 				but _bAsObjectQ
 					aResult = This.ItemRemoved(pValue)
-					_bAsObjectQ = _FALSE_
+					_bAsObjectQ = 0
 
 					return new stzList(aResult)
 
 				but _bTheseQ
 					aResult = This.ManyRemoved(pValue.Content())
-					_bTheseQ = _FALSE_ # Resets the global flag
+					_bTheseQ = 0 # Resets the global flag
 
 					return new stzList(aResult)
 
 				but _bThese
 					aResult = This.Copy().ManyRemoved(pValue.Content())
-					_bThese = _FALSE_ # Resets the global flag
+					_bThese = 0 # Resets the global flag
 
 					return aResult
 				else
@@ -35873,13 +35873,13 @@ class stzList from stzObject
 
 				if _bTheseQ
 					aResult = This.ManyMultipliedBy(pValue)
-					bTheseQ = _FALSE_
+					bTheseQ = 0
 					return new stzList(aResult)
 
 				but _bThese
 
 					aResult = This.ManyMultipliedBy(pValue)
-					_bThese = _FALSE_ # Resets the global flag
+					_bThese = 0 # Resets the global flag
 					return aResult
 
 				else
@@ -35891,22 +35891,22 @@ class stzList from stzObject
 
 				if _bAsObject
 					aResult = This.ItemMultipliedBy(pValue)
-					_bAsObject = _FALSE_
+					_bAsObject = 0
 					return aResult
 
 				but _bAsObjectQ
 					aResult = This.ItemMultipliedBy(pValue)
-					_bAsObjectQ = _FALSE_
+					_bAsObjectQ = 0
 					return new stzList(aResult)
 
 				but _bTheseQ
 					aResult = This.ManyMultipliedBy(pValue.Content())
-					_bTheseQ = _FALSE_ # Resets the global flag
+					_bTheseQ = 0 # Resets the global flag
 					return new stzList(aResult)
 
 				but _bThese
 					aResult = This.Copy().ManyMultipliedBy(pValue.Content())
-					_bThese = _FALSE_ # Resets the global flag
+					_bThese = 0 # Resets the global flag
 					return aResult
 				else
 
@@ -36800,7 +36800,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrence(pItem)
-		return This.NumberOfOccurrenceCS(pItem, _TRUE_)
+		return This.NumberOfOccurrenceCS(pItem, 1)
 
 		#< @FucntionAlternativeForms
 
@@ -36950,7 +36950,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceST(pItem, pnStartingAt)
-		return This.NumberOfOccurrenceSTCS(pItem, pnStartingAt, _TRUE_)
+		return This.NumberOfOccurrenceSTCS(pItem, pnStartingAt, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -37062,7 +37062,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsOccurringNTimes(n)
-		return This.ItemsOccurringNTimesCS(n, _TRUE_)
+		return This.ItemsOccurringNTimesCS(n, 1)
 
 		#< @FunctionFluentForm
 
@@ -37177,7 +37177,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsOccurringExactlyNTimes(n)
-		return This.ItemsOccurringExactlyNTimesCS(n, _TRUE_)
+		return This.ItemsOccurringExactlyNTimesCS(n, 1)
 
 		#< @FunctionFluentForm
 
@@ -37286,7 +37286,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsOccurringMoreThanNTimes(n)
-		return This.ItemsOccurringMoreThanNTimesCS(n, _TRUE_)
+		return This.ItemsOccurringMoreThanNTimesCS(n, 1)
 
 		#< @FunctionFluentForm
 
@@ -37375,7 +37375,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsOccurringLessThanNTimes(n)
-		return This.ItemsOccurringLessThanNTimesCS(n, _TRUE_)
+		return This.ItemsOccurringLessThanNTimesCS(n, 1)
 
 		#< @FunctionFluentForm
 
@@ -37448,7 +37448,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsOccurringNTimesOrLess(n)
-		return This.ItemsOccurringNTimesOrLessCS(n, _TRUE_)
+		return This.ItemsOccurringNTimesOrLessCS(n, 1)
 
 		#< @FunctionFluentForm
 
@@ -37478,15 +37478,15 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
 
 		aList = @aContent
 
-		if pCaseSensitive = _FALSE_
+		if pCaseSensitive = 0
 			aList = This.Lowercased()
 		ok
 
@@ -37543,7 +37543,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsAndTheirNumberOfOccurrence()
-		return This.ItemsAndTheirNumberOfOccurrenceCS(_TRUE_)
+		return This.ItemsAndTheirNumberOfOccurrenceCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -37590,15 +37590,15 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
 
 		aList = @aContent
 
-		if pCaseSensitive = _FALSE_
+		if pCaseSensitive = 0
 			aList = This.Lowercased()
 		ok
 
@@ -37674,7 +37674,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def FindItems()
-		return This.FindItemsCS(_TRUE_)
+		return This.FindItemsCS(1)
 
 		#< @FunctionAlternativeForm
 
@@ -37723,15 +37723,15 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
 
 		aList = @aContent
 
-		if pCaseSensitive = _FALSE_
+		if pCaseSensitive = 0
 			aList = This.Lowercased()
 		ok
 
@@ -37797,7 +37797,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfItems()
-		return This.NumberOfOccurrenceOfItemsCS(_TRUE_)
+		return This.NumberOfOccurrenceOfItemsCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -37873,7 +37873,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearest(pItem, pToPositionSectionOrItem)
-		return This.FindNearestCS(pItem, pToPositionSectionOrItem, _TRUE_)
+		return This.FindNearestCS(pItem, pToPositionSectionOrItem, 1)
 
 	  #-----------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO A GIVEN POSITION  #
@@ -37923,7 +37923,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToPosition(pItem, pnPos)
-		return This.FindNearestToPositionCS(pItem, pnPos, _TRUE_)
+		return This.FindNearestToPositionCS(pItem, pnPos, 1)
 	
 	  #------------------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCES OF AN ITEM TO A GIVEN POSITION -- XT  #
@@ -37948,7 +37948,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToPositionXT(pItem, pnPos)
-		return This.FindNearestToPositionCSXT(pItem, pnPos, _TRUE_)
+		return This.FindNearestToPositionCSXT(pItem, pnPos, 1)
 
 	  #----------------------------------------------------------------#
 	 #  FINDING NEAREST OCCURRENCE OF AN ITEM TO THE GIVEN POSITIONS  #
@@ -38002,7 +38002,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToPositions(pItem, panPos)
-		return This.FindNearestToPositionsCS(pItem, panPos, _TRUE_)
+		return This.FindNearestToPositionsCS(pItem, panPos, 1)
 
 	  #----------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO A GIVEN SECTION  #
@@ -38067,7 +38067,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToSection(pItem, n1, n2)
-		return This.FindNearestToSectionCS(pItem, n1, n2, _TRUE_)
+		return This.FindNearestToSectionCS(pItem, n1, n2, 1)
 
 	  #---------------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO A GIVEN SECTION -- XT #
@@ -38125,7 +38125,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToSectionXT(pItem, n1, n2)
-		return This.FindNearestToSectionCSXT(pItem, n1, n2, _TRUE_)
+		return This.FindNearestToSectionCSXT(pItem, n1, n2, 1)
 
 	  #-------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO THE SECTIONS  #
@@ -38174,7 +38174,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToSections(pItem, paSections)
-		return This.FindNearestToSectionsCS(pItem, paSections, _TRUE_)
+		return This.FindNearestToSectionsCS(pItem, paSections, 1)
 
 	  #-------------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO A GIVEN OTHER ITEM  #
@@ -38196,7 +38196,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToItem(pItem, pcOtherSubStr)
-		return This.FindNearestToItemCS(pItem, pcOtherSubStr, _TRUE_)
+		return This.FindNearestToItemCS(pItem, pcOtherSubStr, 1)
 
 	  #------------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO GIVEN OTHER ITEMS  #
@@ -38217,7 +38217,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNearestToItems(pItem, pacOtherItems)
-		return This.FindNearestToItemsCS(pItem, pcOtherSubStr, _TRUE_)
+		return This.FindNearestToItemsCS(pItem, pcOtherSubStr, 1)
 
 	  #==================================================#
 	 #  CHECKING IF AN ITEM IS DUPPLICATED IN THE LIST  #
@@ -38229,15 +38229,15 @@ class stzList from stzObject
 
 		nFindBefore = This.FindPreviousCS(pItem, :StartingAt = nFirstPos, pCaseSensitive)
 		if nFindBefore != 0
-			return _TRUE_
+			return 1
 		ok
 
 		nFindAfter = This.FindNext(pItem, :StartingAt = nFirstPos, pCaseSensitive)
 		if nFindAfter != 0
-			return _TRUE_
+			return 1
 		ok
 
-		return _FALSE_
+		return 0
 
 		#< @FunctionAlternativeForms
 
@@ -38252,7 +38252,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemIsDuplicated(pItem)
-		return This.ItemIsDuplicatedCS(pItem, _TRUE_)
+		return This.ItemIsDuplicatedCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -38274,11 +38274,11 @@ class stzList from stzObject
 		ok
 
 		nLen = len(paItems)
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT This.ItemIsDuplicatedCS(pItem, pCaseSensitive)
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -38291,7 +38291,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsAreDuplicated(paItems)
-		return This.ItemsAreDuplicatedCS(paItems, _TRUE_)
+		return This.ItemsAreDuplicatedCS(paItems, 1)
 		
 		def ItemsAreDuplicates(paItems)
 			return This.ItemsAreDuplicated(paItems)
@@ -38312,8 +38312,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
@@ -38322,7 +38322,7 @@ class stzList from stzObject
 		nLen = len(aContent)
 
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
 		acStr = []
@@ -38335,7 +38335,7 @@ class stzList from stzObject
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 
@@ -38360,7 +38360,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -38389,7 +38389,7 @@ class stzList from stzObject
 
 		# Checking if an item is a duplicate
 
-		bResult = _FALSE_
+		bResult = 0
 		acSeen = []
 
 		for i = 1 to nLen
@@ -38398,7 +38398,7 @@ class stzList from stzObject
 			if n = 0
 				acSeen + acStr[i]
 			else
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 
@@ -38422,7 +38422,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicates()
-		return This.ContainsDuplicatesCS(_TRUE_)
+		return This.ContainsDuplicatesCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -38443,15 +38443,15 @@ class stzList from stzObject
 
 	def ItemIsDuplicatedNTimesCS(n, pItem, pCaseSensitive)
 		if This.NumberOfDuplicatesOfItemCS(pItem, pCaseSensitive) = n
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemIsDuplicatedNTimes(n, pItem)
-		return This.ItemIsDuplicatedNTimesCS(n, pItem, _TRUE_)
+		return This.ItemIsDuplicatedNTimesCS(n, pItem, 1)
 
 	  #----------------------------------------------------#
 	 #  CHECKING IF ALL ITEMS IN THE LIST ARE DUPLICATED  #
@@ -38465,8 +38465,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
@@ -38475,7 +38475,7 @@ class stzList from stzObject
 		nLen = len(aContent)
 
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
 		acStr = []
@@ -38488,7 +38488,7 @@ class stzList from stzObject
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 
@@ -38513,7 +38513,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -38541,7 +38541,7 @@ class stzList from stzObject
 
 		# Checking if an item is a duplicate
 
-		bResult = _TRUE_
+		bResult = 1
 		acSeen = []
 		acNonDuplicated = []
 
@@ -38562,7 +38562,7 @@ class stzList from stzObject
 		next
 
 		if len(acNonDuplicated) > 0
-			bResult = _FALSE_
+			bResult = 0
 		ok
 
 		return bResult
@@ -38570,7 +38570,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AllItemsAreDuplicated()
-		return This.AllItemsAreDuplicatedCS(_TRUE_)
+		return This.AllItemsAreDuplicatedCS(1)
 
 	  #-------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS A SET (CONTAINS NO DUPLICATIONS AT ALL)  #
@@ -38586,8 +38586,8 @@ class stzList from stzObject
 				pCaseSensitive = pCaseSensitive[2]
 			ok
 	
-			if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-				StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+			if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+				StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 			ok
 
 		ok
@@ -38599,7 +38599,7 @@ class stzList from stzObject
 
 		if EarlyCheck()
 			if nLen = 0
-				return _FALSE_
+				return 0
 			ok
 		ok
 
@@ -38612,7 +38612,7 @@ class stzList from stzObject
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 
@@ -38637,7 +38637,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -38666,7 +38666,7 @@ class stzList from stzObject
 
 		# Checking if an item is a duplicate
 
-		bResult = _TRUE_
+		bResult = 1
 		acSeen = []
 		acNonDuplicated = []
 
@@ -38679,7 +38679,7 @@ class stzList from stzObject
 			else
 				nPos = ring_find( acNonDuplicated, acStr[i] )
 				if nPos > 0
-					bResult = _FALSE_
+					bResult = 0
 					exit
 				ok
 	
@@ -38735,7 +38735,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNoDuplicates()
-		return This.ContainsNoDuplicatesCS(_TRUE_)
+		return This.ContainsNoDuplicatesCS(1)
 
 		#< @FunctionAlterativeForms
 
@@ -38835,7 +38835,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfDuplicates()
-		return This.NumberOfDuplicatesCS(_TRUE_)
+		return This.NumberOfDuplicatesCS(1)
 
 		#< @FunctionAlternativeForm
 
@@ -38892,8 +38892,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
@@ -38915,7 +38915,7 @@ class stzList from stzObject
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 	
@@ -38939,7 +38939,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -39023,7 +39023,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesZ()
-		return This.DuplicatesCSZ(_TRUE_)
+		return This.DuplicatesCSZ(1)
 
 		#< @FunctionAlternativeForm
 
@@ -39064,8 +39064,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
@@ -39087,7 +39087,7 @@ class stzList from stzObject
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 	
@@ -39112,7 +39112,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -39176,7 +39176,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicates()
-		return This.FindDuplicatesCS(_TRUE_)
+		return This.FindDuplicatesCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -39204,8 +39204,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
@@ -39227,7 +39227,7 @@ class stzList from stzObject
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 	
@@ -39251,7 +39251,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -39331,7 +39331,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesXTZ()
-		return This.DuplicatesCSXTZ(_TRUE_)
+		return This.DuplicatesCSXTZ(1)
 
 		#< @FunctionAlternativeForm
 
@@ -39368,8 +39368,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
@@ -39391,7 +39391,7 @@ class stzList from stzObject
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 	
@@ -39415,7 +39415,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -39484,7 +39484,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesXT()
-		return This.FindDuplicatesCSXT(_TRUE_)
+		return This.FindDuplicatesCSXT(1)
 
 		#< @FunctionAlternativeForms
 
@@ -39513,8 +39513,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
@@ -39536,7 +39536,7 @@ class stzList from stzObject
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 	
@@ -39560,7 +39560,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -39672,7 +39672,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstDuplicates()
-		return This.FindFirstDuplicatesCS(_TRUE_)
+		return This.FindFirstDuplicatesCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -39787,7 +39787,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDupOrigins()
-		This.RemoveDupOriginsCS(_TRUE_)
+		This.RemoveDupOriginsCS(1)
 
 		#< @FunctionFluentForm
 
@@ -39847,8 +39847,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
@@ -39870,7 +39870,7 @@ class stzList from stzObject
 		# so we can find not onlu numbers and strings, but also lists,
 		# and get relatively beeter performance on larger lists (up to 30K items)
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 	
@@ -39894,7 +39894,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -40005,7 +40005,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Duplicates()
-		return This.DuplicatesCS(_TRUE_)
+		return This.DuplicatesCS(1)
 
 		#< @FunctionFluentForm
 
@@ -40105,7 +40105,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesOfItem(pItem)
-		return This.FindDuplicatesOfItemCS(pItem, _TRUE_)
+		return This.FindDuplicatesOfItemCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -40148,9 +40148,9 @@ class stzList from stzObject
 		nLen = This.NumberOfItems()
 
 		if NOT Q(anPos).IsEqualTo(1:nLen)
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		# Checking params
@@ -40159,8 +40159,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
@@ -40169,7 +40169,7 @@ class stzList from stzObject
 		nLen = len(aContent)
 
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -40212,7 +40212,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNonDuplicatedItems()
-		return This.ContainsItemsThatAreNotDuplicatedCS(_TRUE_)
+		return This.ContainsItemsThatAreNotDuplicatedCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -40263,8 +40263,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
@@ -40273,7 +40273,7 @@ class stzList from stzObject
 		nLen = len(aContent)
 
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
 		
@@ -40287,7 +40287,7 @@ class stzList from stzObject
 		# and get relatively better performance on larger lists (up to 30K items)
 
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 
@@ -40311,7 +40311,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -40388,7 +40388,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NonDuplicatedItems()
-		return This.NonDuplicatedItemsCS(_TRUE_)
+		return This.NonDuplicatedItemsCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -40445,7 +40445,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfNonDuplicatedItems()
-		return This.NumberOfNonDuplicatedItemsCS(_TRUE_)
+		return This.NumberOfNonDuplicatedItemsCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -40493,8 +40493,8 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_ )
-			StzRais("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
@@ -40503,7 +40503,7 @@ class stzList from stzObject
 		nLen = len(aContent)
 
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -40517,7 +40517,7 @@ class stzList from stzObject
 		# and get relatively better performance on larger lists (up to 30K items)
 
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 
@@ -40542,7 +40542,7 @@ class stzList from stzObject
 				acStr + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -40611,7 +40611,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNonDuplicatedItems()
-		return This.FindNonDuplicatedItemsCS(_TRUE_)
+		return This.FindNonDuplicatedItemsCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -40663,7 +40663,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NonDuplicatedItemsAndTheirPositions()
-		return This.NonDuplicatedItemsAndTheirPositionsCS(_TRUE_)
+		return This.NonDuplicatedItemsAndTheirPositionsCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -40825,7 +40825,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicates()
-		This.RemoveDuplicatesCS(_TRUE_)
+		This.RemoveDuplicatesCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -41086,7 +41086,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicatesOfItem(pItem)
-		This.RemoveDuplicatesOfItemCS(pItem, _TRUE_)
+		This.RemoveDuplicatesOfItemCS(pItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -41113,7 +41113,7 @@ class stzList from stzObject
 				return This
 
 		def RemoveDuplicatesOf(pItem)
-			This.RemoveDuplicatesOfCS(pItem, _TRUE_)
+			This.RemoveDuplicatesOfCS(pItem, 1)
 
 			def RemoveDuplicatesOfQ(pItem)
 				This.RemoveDuplicatesOf(pItem)
@@ -41136,7 +41136,7 @@ class stzList from stzObject
 		#>
 
 	def DuplicatesOfItemRemoved(pItem)
-		return This.DuplicatesOfItemRemovedCS(pItem, _TRUE_)
+		return This.DuplicatesOfItemRemovedCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -41296,7 +41296,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicatesOfItems(paItems)
-		This.RemoveDuplicatesOfItemsCS(paItems, _TRUE_)
+		This.RemoveDuplicatesOfItemsCS(paItems, 1)
 
 		#< @FuntionFluentForm
 
@@ -41363,7 +41363,7 @@ class stzList from stzObject
 		#>
 
 	def DuplicatesOfItemsRemoved(paItems)
-		return This.DuplicatesOfItemsRemovedCS(paItems, _TRUE_)
+		return This.DuplicatesOfItemsRemovedCS(paItems, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -41454,7 +41454,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNonDuplicates()
-		This.RemoveNonDuplicatesCS(_TRUE_)
+		This.RemoveNonDuplicatesCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -41513,20 +41513,20 @@ class stzList from stzObject
 		nLen = len(aContent)
 
 		if nLen <= 1
-			return _FALSE_
+			return 0
 		ok
 
 		bCaseSensitive = @CaseSensitive(pCaseSensitive)
-		bResult = _FALSE_
+		bResult = 0
 
-		if bCaseSensitive = _TRUE_
+		if bCaseSensitive = 1
 
 			cLast = Q(aContent[1]).Stringified()
 	
 			for i = 2 to nLen
 				cItem = Q(aContent[i]).Stringified()
 				if cLast = cItem
-					bResult = _TRUE_
+					bResult = 1
 					exit
 				ok
 				cLast = cItem
@@ -41534,14 +41534,14 @@ class stzList from stzObject
 	
 			return bResult
 
-		else // bCaseSensitive = _FALSE_
+		else // bCaseSensitive = 0
 
 			cLast = Q(aContent[1]).StringifyQ().Lowercased()
 
 			for i = 2 to nLen
 				cItem = Q(aContent[i]).StringifyQ().Lowercased()
 				if cLast = cItem
-					bResult = _TRUE_
+					bResult = 1
 					exit
 				ok
 				cLast = cItem
@@ -41556,7 +41556,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDupSecutiveItems()
-		return This.ContainsDupSecutiveItemsCS(_TRUE_)
+		return This.ContainsDupSecutiveItemsCS(1)
 
 		def ContainsDuplicatedConSecutiveItems()
 			return This.ContainsDupSecutiveItems()
@@ -41577,7 +41577,7 @@ class stzList from stzObject
 		bCaseSensitive = @CaseSensitive(pCaseSensitive)
 		acItems = []
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 
@@ -41602,7 +41602,7 @@ class stzList from stzObject
 				acItems + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -41649,7 +41649,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDupSecutiveItems()
-		return This.FindDupSecutiveItemsCS(_TRUE_)
+		return This.FindDupSecutiveItemsCS(1)
 
 		def FindDuplicatedConsecutiveItems()
 			return This.FindDupSecutiveItems()
@@ -41670,7 +41670,7 @@ class stzList from stzObject
 		bCaseSensitive = @CaseSensitive(pCaseSensitive)
 		acItems = []
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 
@@ -41695,7 +41695,7 @@ class stzList from stzObject
 				acItems + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -41747,7 +41747,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DupSecutiveItems()
-		return This.DupSecutiveItemsCS(_TRUE_)
+		return This.DupSecutiveItemsCS(1)
 
 		def DuplicatedConsecutiveItems()
 			return This.DupSecutiveItems()
@@ -41768,7 +41768,7 @@ class stzList from stzObject
 		bCaseSensitive = @CaseSensitive(pCaseSensitive)
 		acItems = []
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 
@@ -41793,7 +41793,7 @@ class stzList from stzObject
 				acItems + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -41847,7 +41847,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DupSecutiveItemsZ()
-		return This.DupSecutiveItemsCSZ(_TRUE_)
+		return This.DupSecutiveItemsCSZ(1)
 
 		def DuplicatedConsecutiveItemsZ()
 			return This.DupSecutiveItemsZ()
@@ -41880,7 +41880,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDupSecutiveItems()
-		This.RemoveDupSecutiveItemsCS(_TRUE_)
+		This.RemoveDupSecutiveItemsCS(1)
 
 		def RemoveDupSecutiveItemsQ()
 			This.RemoveDupSecutiveItems()
@@ -41909,20 +41909,20 @@ class stzList from stzObject
 		nLen = len(aContent)
 
 		if nLen <= 1
-			return _FALSE_
+			return 0
 		ok
 
 		bCaseSensitive = @CaseSensitive(pCaseSensitive)
-		bResult = _FALSE_
+		bResult = 0
 
-		if bCaseSensitive = _TRUE_
+		if bCaseSensitive = 1
 
 			cLast = Q(aContent[1]).Stringified()
 	
 			for i = 2 to nLen
 				cItem = Q(aContent[i]).Stringified()
 				if cLast = cItem
-					bResult = _TRUE_
+					bResult = 1
 					exit
 				ok
 				cLast = cItem
@@ -41930,14 +41930,14 @@ class stzList from stzObject
 	
 			return bResult
 
-		else // bCaseSensitive = _FALSE_
+		else // bCaseSensitive = 0
 
 			cLast = Q(aContent[1]).StringifyQ().Lowercased()
 
 			for i = 2 to nLen
 				cItem = Q(aContent[i]).StringifyQ().Lowercased()
 				if cLast = cItem
-					bResult = _TRUE_
+					bResult = 1
 					exit
 				ok
 				cLast = cItem
@@ -41962,7 +41962,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDupSecutiveOrigins()
-		return This.FindDupSecutiveOriginsCS(_TRUE_)
+		return This.FindDupSecutiveOriginsCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -41993,7 +41993,7 @@ class stzList from stzObject
 		bCaseSensitive = @CaseSensitive(pCaseSensitive)
 		acItems = []
 
-		if pCaseSensitive = _TRUE_
+		if pCaseSensitive = 1
 
 			for i = 1 to nLen
 
@@ -42018,7 +42018,7 @@ class stzList from stzObject
 				acItems + cItem
 			next
 
-		else // pCaseSensitive = _FALSE_
+		else // pCaseSensitive = 0
 
 			for i = 1 to nLen
 	
@@ -42048,7 +42048,7 @@ class stzList from stzObject
 		# Doing the job
 
 		cItem = @@(pItem)
-		if bCaseSensitive = _FALSE_
+		if bCaseSensitive = 0
 			cItem = ring_lower(cItem)
 		ok
 
@@ -42083,7 +42083,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDupSecutiveItem(pItem)
-		return This.FindDupSecutiveItemCS(pItem, _TRUE_)
+		return This.FindDupSecutiveItemCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -42124,7 +42124,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DupSecutiveItemZ(pItem)
-		return This.DupSecutiveItemCSZ(pItem, _TRUE_)
+		return This.DupSecutiveItemCSZ(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -42196,7 +42196,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDupSecutiveItem(pItem)
-		This.RemoveDupSecutiveItemCS(pItem, _TRUE_)
+		This.RemoveDupSecutiveItemCS(pItem, 1)
 
 		#< @FunctionFlunetForm
 
@@ -42250,9 +42250,9 @@ class stzList from stzObject
 	def ContainsCS(pItem, pCaseSensitive)
 
 		if This.FindFirstCS(pItem, pCaseSensitive) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForm
@@ -42296,7 +42296,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Contains(pItem)
-		return This.ContainsCS(pItem, _TRUE_)
+		return This.ContainsCS(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -42370,12 +42370,12 @@ class stzList from stzObject
 		
 		# Evaluating the code against the items
 
-		bResult = _FALSE_
+		bResult = 0
 
 		for @i = 1 to nLen
 			eval(cCode)
 			if bOk
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next
@@ -42423,7 +42423,7 @@ class stzList from stzObject
 		
 		# Evaluating the code against the items
 
-		bResult = _TRUE_
+		bResult = 1
 
 		nLen = len(panPos)
 
@@ -42432,7 +42432,7 @@ class stzList from stzObject
 
 			eval(cCode)
 			if NOT bOk
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -42492,12 +42492,12 @@ class stzList from stzObject
 
 		# Evaluating the code against the list items
 
-		bResult = _FALSE_
+		bResult = 0
 
 		for @i = 1 to nLen
 			eval(cCode)
 			if bOk
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next
@@ -42549,7 +42549,7 @@ class stzList from stzObject
 		
 		# Evaluating the code against the items
 
-		bResult = _TRUE_
+		bResult = 1
 
 		nLen = len(panPos)
 
@@ -42558,7 +42558,7 @@ class stzList from stzObject
 
 			eval(cCode)
 			if NOT bOk
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -42587,16 +42587,16 @@ class stzList from stzObject
 	def IsContainedInCS(p, pCaseSensitive)
 
 		if NOT ( isString(p) or isList(p) )
-			return _FALSE_
+			return 0
 		ok
 
 		anPos = Q(p).FindAllCS(This.Content(), pCaseSensitive)
 		nLen = len(anPos)
 
 		if nLen > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -42614,7 +42614,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsContainedIn(p)
-		return This.IsContainedInCS(p, _TRUE_)
+		return This.IsContainedInCS(p, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -42651,11 +42651,11 @@ class stzList from stzObject
 		_anPos_ = This.FindAllCS(pcSubStr, pCaseSensitive)
 		_nLen_ = len(_anPos_)
 
-		_bResult_ = _TRUE_
+		_bResult_ = 1
 
 		for @i = 1 to _nLen_
 			if NOT ring_find(panPos, _anPos_[@i])
-				_bResult_ = _FALSE_
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -42689,7 +42689,7 @@ class stzList from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def ExistsAt(pcSubStr, panPos)
-		return This.ExistsAtCS(pcSubStr, panPos, _TRUE_)
+		return This.ExistsAtCS(pcSubStr, panPos, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -42729,10 +42729,10 @@ class stzList from stzObject
 		_anPos_ = This.FindAllCS(pcSubStr, pCaseSensitive)
 		
 		if ring_find(_anPos_, n) > 0
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -42742,7 +42742,7 @@ class stzList from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def ExistsAtPosition(pcSubStr, n)
-		return This.ExistsAtCS(pcSubStr, n, _TRUE_)
+		return This.ExistsAtCS(pcSubStr, n, 1)
 
 		def ExistsInPosition(pcSubStr, n)
 			return This.ExistsAtPosition(pcSubStr, n)
@@ -42763,7 +42763,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsBoth(pItem1, pItem2)
-		return This.ContainsBothCS(pItem1, pItem2, _TRUE_)
+		return This.ContainsBothCS(pItem1, pItem2, 1)
 
 	  #-----------------------------------------------------------#
 	 #    CONTAINING ONE GIVEN ITEM OR AN OTHER (BUT NOT BOTH)   #
@@ -42782,15 +42782,15 @@ class stzList from stzObject
 		b2 = This.ContainsCS(pItem2, pCaseSensitive)
 
 		if (b1 = 1 and b2 = 0) or (b1 = 0 and b2 = 1)
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsEither(pItem1, pItem2)
-		return This.ContainsEitherCS(pItem1, pItem2, _TRUE_)
+		return This.ContainsEitherCS(pItem1, pItem2, 1)
 
 	  #--------------------------------------------------------------------#
 	 #  CHECKING IF EACH ONE OF THE GIVEN ITEMS EXISTS IN THE GIVEN LIST  #
@@ -42830,7 +42830,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVI
 
 	def EachItemExistsIn(paOtherList)
-		return This.EachItemExistsInCS(paOtherList, _TRUE_)
+		return This.EachItemExistsInCS(paOtherList, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -42871,7 +42871,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsOneOfThese(paOtherList)
-		return This.IsOneOfTheseCS(paOtherList, _TRUE_)
+		return This.IsOneOfTheseCS(paOtherList, 1)
 
 		def IsNotOneOfThese(paOtherList)
 			return NOT This.IsOneOfThese(paOtherList)
@@ -42889,14 +42889,14 @@ class stzList from stzObject
 		paItems = U(paItems)
 		aContent = paItems
 
-		bResult = _TRUE_
+		bResult = 1
 
 		nLen = len(aContent)
 
 		for i = 1 to nLen
 
 			if NOT This.ContainsCS(aContent[i], pCaseSensitive)
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		end
@@ -42939,7 +42939,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsMany(paItems)
-		return This.ContainsManyCS(paItems, _TRUE_)
+		return This.ContainsManyCS(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -42979,11 +42979,11 @@ class stzList from stzObject
 
 	def ContainsSomeCS(paItems, pCaseSensitive)
 		paItems = U(paItems)
-		bResult = _FALSE_
+		bResult = 0
 
 		for item in paItems
 			if This.ContainsCS(item, pCaseSensitive)
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next
@@ -43009,7 +43009,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSome(paItems)
-		return This.ContainsSomeCS(paItems, _TRUE_)
+		return This.ContainsSomeCS(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -43036,11 +43036,11 @@ class stzList from stzObject
 		aItems = Q(paItems).WithoutDupplication()
 		nLen = len(paItems)
 
-		bResult = _FALSE_
+		bResult = 0
 
 		for i = 1 to nLen
 			if This.ContainsCS( paItems[i],  pCaseSensitive)
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next
@@ -43097,7 +43097,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsOneOfThese(paItems)
-		return This.ContainsOneOfTheseCS(paItems, _TRUE_)
+		return This.ContainsOneOfTheseCS(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -43159,7 +43159,7 @@ class stzList from stzObject
 
 		if EarlyCheck()
 			if len(paItems) = 0
-				return _FALSE_
+				return 0
 			ok
 		ok
 
@@ -43176,15 +43176,15 @@ class stzList from stzObject
 		nZeros = Q(anOccurr).HowMany(0)
 
 		if nOnes = 1 and nZeros = nLen - 1
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#-- WTIHOUT CASESENSITIVITY
 
 	def ContainsOnlyOneOfThese(paItems)
-		return This.ContainsOnlyOneOfTheseCS(paItems, _TRUE_)
+		return This.ContainsOnlyOneOfTheseCS(paItems, 1)
 
 	  #---------------------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS N OF THE PROVIDED ITEMS  #
@@ -43192,13 +43192,13 @@ class stzList from stzObject
 
 	def ContainsNCS(n, paItems, pCaseSensitive)
 		paItems = U(paItems)
-		bResult = _FALSE_
+		bResult = 0
 		m = 0
 		for pItem in paItems
 			if This.ContainsCS(pItem, pCaseSensitive)
 				m++
 				if n = m
-					bResult = _TRUE_
+					bResult = 1
 					exit
 				ok
 			ok
@@ -43234,7 +43234,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsN(n, paItems)
-		return This.ContainsNCS(n, paItems, _TRUE_)
+		return This.ContainsNCS(n, paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -43271,9 +43271,9 @@ class stzList from stzObject
 		ok
 
 		if This.NumberOfOccurrenceCS(pItem, pCaseSensitive) > n
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#-- WITHOUT CASESENSITIVTY
@@ -43291,9 +43291,9 @@ class stzList from stzObject
 		ok
 
 		if This.NumberOfOccurrenceCS(pItem, pCaseSensitive) < n
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#-- WITHOUT CASESENSITIVTY
@@ -43313,30 +43313,30 @@ class stzList from stzObject
 
 		o1 = new stzList([ "ee♥ee", "b♥bbb", "ccc♥", "♥♥" ])
 		? o1.EachContains("♥")
-		#--> _TRUE_
+		#--> TRUE
 		
 		EXAMPLE 2
 
 		o1 = new stzList([ ["ee","♥","ee"], ["♥", "bb"], "ccc♥", "♥♥" ])
 		? o1.EachContains("♥")
-		#--> _TRUE_
+		#--> TRUE
 		
 		EXAMPLE 3
 
 		o1 = new stzList([ "a♥a" ])
 		? o1.EachContains("♥")
-		#--> _TRUE_
+		#--> TRUE
 		
 		EXAMPLE 4
 
 		o1 = new stzList([ 0, "a♥a" ])
 		? o1.EachContains("♥")
-		#--> _FALSE_
+		#--> FALSE
 
 		*/
 
 
-		bResult = _TRUE_
+		bResult = 1
 
 		aContent = This.Content()
 		nLen = len(aContent)
@@ -43344,12 +43344,12 @@ class stzList from stzObject
 		for i = 1 to nLen
 
 			if NOT ( isList(aContent[i]) or isString(aContent[i]) )
-				bResult = _FALSE_
+				bResult = 0
 				exit
 
 			else
 				bResult = Q(aContent[i]).ContainsCS(pItem, pCaseSensitive)
-				if bResult = _FALSE_
+				if bResult = 0
 					exit
 				ok
 			ok
@@ -43367,7 +43367,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def EachContains(pItem)
-		return This.EachContainsCS(pItem, _TRUE_)
+		return This.EachContainsCS(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -43382,7 +43382,7 @@ class stzList from stzObject
 
 	def EachContainsTheseCS(paItems, pCaseSensitive)
 
-		bResult = _TRUE_
+		bResult = 1
 
 		aContent = This.Content()
 		nLen = len(aContent)
@@ -43390,13 +43390,13 @@ class stzList from stzObject
 		for i = 1 to nLen
 
 			if NOT ( isList(aContent[i]) or isString(aContent[i]) )
-				bResult = _FALSE_
+				bResult = 0
 				exit
 
 			else
 
 				bResult = Q(aContent[i]).ContainsTheseCS(paItems, pCaseSensitive)
-				if bResult = _FALSE_
+				if bResult = 0
 					exit
 				ok
 			ok
@@ -43424,7 +43424,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def EachContainsThese(paItems)
-		return This.EachContainsTheseCS(paItems, _TRUE_)
+		return This.EachContainsTheseCS(paItems, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -43447,11 +43447,11 @@ class stzList from stzObject
 	#=========================================#
 
 	def ContainsNumbers()
-		bResult = _FALSE_
+		bResult = 0
 
 		for item in This.List()
 			if isNumber(item)
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next
@@ -43469,12 +43469,12 @@ class stzList from stzObject
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
 
-		_bResult_ = _TRUE_
+		_bResult_ = 1
 
 		for @i = 1 to _nLen_
 
 			if NOT isString(_aContent_[@i])
-				_bResult_ = _FALSE_
+				_bResult_ = 0
 				exit
 			ok
 
@@ -43528,12 +43528,12 @@ class stzList from stzObject
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
 
-		_bResult_ = _FALSE_
+		_bResult_ = 0
 
 		for @i = 1 to _nLen_
 
 			if isString(_aContent_[@i]) and _aContent_[@i] = ""
-				_bResult_ = _TRUE_
+				_bResult_ = 1
 				exit
 			ok
 
@@ -43577,11 +43577,11 @@ fdef
 	#---------------------------------------#
 
 	def ContainsLists()
-		bResult = _FALSE_
+		bResult = 0
 
 		for item in This.List()
 			if isList(item)
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next
@@ -43598,7 +43598,7 @@ fdef
 	def ContainsObjects()
 		for item in This.List()
 			if isObject(item)
-				return _TRUE_
+				return 1
 			ok
 		next
 
@@ -43634,9 +43634,9 @@ fdef
 		   _oCode_.Contains("[,") or
 		   _oCode_.Contains(",]")
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 	
 	def ContainsNoObjectsAtAnyLevel()
@@ -43654,10 +43654,10 @@ fdef
 		   This.ContainsLists() or
 		   This.ContainsObjects()
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -43690,10 +43690,10 @@ fdef
 		   This.ContainsLists() or
 		   This.ContainsObjects()
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -43726,10 +43726,10 @@ fdef
 		   This.ContainsStrings() or
 		   This.ContainsObjects()
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -43762,10 +43762,10 @@ fdef
 		   This.ContainsStrings() or
 		   This.ContainsLists()
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -43796,17 +43796,17 @@ fdef
 	def ContainsOnlyItemsOtherThanStrings()
 
 		if This.ContainsStrings()
-			return _FALSE_
+			return 0
 		ok
 
 		if This.ContainsNumbers() or
 		   This.ContainsLists() or
 		   This.ContainsObjects()
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -43859,17 +43859,17 @@ fdef
 	def ContainsOnlyItemsOtherThanNumbers()
 
 		if This.ContainsNumbers()
-			return _FALSE_
+			return 0
 		ok
 
 		if This.ContainsStrings() or
 		   This.ContainsLists() or
 		   This.ContainsObjects()
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -43922,17 +43922,17 @@ fdef
 	def ContainsOnlyItemsOtherThanLists()
 
 		if This.ContainsLists()
-			return _FALSE_
+			return 0
 		ok
 
 		if This.ContainsNumbers() or
 		   This.ContainsStrings() or
 		   This.ContainsObjects()
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -43984,17 +43984,17 @@ fdef
 
 	def ContainsOnlyItemsOtherThanObjects()
 		if This.ContainsObjects()
-			return _FALSE_
+			return 0
 		ok
 
 		if This.ContainsNumbers() or
 		   This.ContainsStrings() or
 		   This.ContainsLists()
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -44504,7 +44504,7 @@ fdef
 	
 			# Managing case sensitivity
 	
-			if pCaseSensitive = _FALSE_
+			if pCaseSensitive = 0
 				cItem = ring_lower(cItem)
 	
 				for i = 1 to nLen
@@ -44654,7 +44654,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllOccurrences(pItem)
-		aResult = This.FindAllOccurrencesCS(pItem, _TRUE_)
+		aResult = This.FindAllOccurrencesCS(pItem, 1)
 		return aResult
 
 		#< @FunctionFluentForm
@@ -44663,7 +44663,7 @@ fdef
 			return This.FindAllOccurrencesQRT(pItem, :stzList)
 
 		def FindAllOccurrencesQRT(pItem, pcReturnType)
-			return This.FindAllOccurrencesCSQRT(pItem, _TRUE_, pcReturnType)
+			return This.FindAllOccurrencesCSQRT(pItem, 1, pcReturnType)
 		#>
 
 		#< @FunctionAlternativeForms
@@ -44760,7 +44760,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def AntiFind(pItem)
-		return This.AntiFindCS(pItem, _TRUE_)
+		return This.AntiFindCS(pItem, 1)
 
 	  #--------------------------------------------------#
 	 #  FINDING SECTIONS WHERE THE ITEM DOES NOT EXIST  #
@@ -44777,7 +44777,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def AntiFindAsSections(pItem)
-		return This.AntiFindAsSectionsCS(pItem, _TRUE_)
+		return This.AntiFindAsSectionsCS(pItem, 1)
 
 		def AntiFindZZ(pItem)
 			return This.AntiFindAsSections(pItem)
@@ -44943,7 +44943,7 @@ fdef
 	
 			# Managing case sensitivity
 	
-			if pCaseSensitive = _FALSE_
+			if pCaseSensitive = 0
 				cItem = ring_lower(cItem)
 	
 				for i = 1 to nLen
@@ -44992,7 +44992,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthOccurrence(n, pItem) 
-		return This.FindNthOccurrenceCS(n, pItem, _TRUE_) 
+		return This.FindNthOccurrenceCS(n, pItem, 1) 
 
 		#< @FunctionAlternativeForms
 
@@ -45077,7 +45077,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstOccurrence(pItem)
-		return This.FindFirstOccurrenceCS(pItem, _TRUE_)
+		return This.FindFirstOccurrenceCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -45150,7 +45150,7 @@ fdef
 
 	def FindLastOccurrence(pItem)
 
-		return This.FindLastOccurrenceCS(pItem, _TRUE_)
+		return This.FindLastOccurrenceCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -45212,7 +45212,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseOccurrences(panOccurr, pItem)
-		return This.FindTheseOccurrencesCS(panOccurr, pItem, _TRUE_)
+		return This.FindTheseOccurrencesCS(panOccurr, pItem, 1)
 
 		def FindOccurrences(panOccurr, pItem)
 			return This.FindTheseOccurrences(panOccurr, pItem)
@@ -45288,7 +45288,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindMany(paItems)
-		return This.FindManyCS(paItems, _TRUE_)
+		return This.FindManyCS(paItems, 1)
 
 		#< @FunctionFluentForm
 
@@ -45296,7 +45296,7 @@ fdef
 			return new stzList(This.FindMany(paItems))
 
 		def FindManyQRT(paItems, pcReturnType)
-			return This.FindManyCSQRT(paItems, _TRUE_, pcReturnType)
+			return This.FindManyCSQRT(paItems, 1, pcReturnType)
 
 		#>
 
@@ -45356,7 +45356,7 @@ fdef
 	#-- CASESENSITIVITY
 
 	def TheseItemsZ(paItems)
-		return This.TheseItemsCSZ(paItems, _TRUE_)
+		return This.TheseItemsCSZ(paItems, 1)
 
 		#< @FunctionFluentForm
 
@@ -45584,7 +45584,7 @@ fdef
 			return This.FindAllExceptFirstQRT(pItem, :stzList)
 
 		def FindAllExceptFirstQRT(pItem, pcReturnType)
-			return This.FindAllExceptFirstCSQRT(pItem, _TRUE_, pcReturnType)
+			return This.FindAllExceptFirstCSQRT(pItem, 1, pcReturnType)
 
 		#
 
@@ -45596,7 +45596,7 @@ fdef
 			#< @FunctionFluentForm
 	
 			def FindExceptFirstQRT(pItem, pcReturnType)
-				return This.FindExceptFirstCSQRT(pItem, _TRUE_, pcReturType)
+				return This.FindExceptFirstCSQRT(pItem, 1, pcReturType)
 	
 			def FindExceptFirstQ(pItem)
 				return This.FindAllExceptFirstQRT(pItem, :stzList)
@@ -45732,7 +45732,7 @@ fdef
 				return This.FindAllExceptLastQRT(pItem, :stzListOfNumbers)
 
 			def FindExceptLastQRT(pItem, pcReturnType)
-				return This.FindExceptLastCSQRT(pItem, _TRUE_, pcReturnType)
+				return This.FindExceptLastCSQRT(pItem, 1, pcReturnType)
 		
 			#>
 
@@ -45809,7 +45809,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubList(paItems)
-		return This.FindSubListCS(paItems, _TRUE_)
+		return This.FindSubListCS(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -45852,7 +45852,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSubList(paSubList)
-		return This.ContainsSubListCS(paSubList, _TRUE_)
+		return This.ContainsSubListCS(paSubList, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -45872,7 +45872,7 @@ fdef
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		if _bCase_ = _FALSE_
+		if _bCase_ = 0
 			_cList_ = @@Q( This.Content() ).Lowercased()
 			_cItem_ = @@Q(pItem).Lowercased()
 
@@ -45894,20 +45894,20 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContains(pItem)
-		return This.DeepContainsCS(pItem, _TRUE_)
+		return This.DeepContainsCS(pItem, 1)
 
 	  #-----------------------------------------------------------------------------#
 	 #  CHECKING IF THE PROVIDED ITEMS ARE ALL CONTAINED IN THE LIST AT ANY LEVEL  #
 	#-----------------------------------------------------------------------------#
 
 	def DeepContainsManyCS(paItems, pCaseSensitive)
-		bResult = _TRUE_
+		bResult = 1
 		nLen = len(paItems)
 
 		for i = 1 to nLen
 
 			if NOT This.DeepContainsCS(paItems[i], pCaseSensitive)
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 
@@ -45937,7 +45937,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContainsMany(paItems)
-		return This.DeepContainsManyCS(paItems, _TRUE_)
+		return This.DeepContainsManyCS(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -45973,18 +45973,18 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContainsBoth(pItem1, pItem2)
-		return This.DeepContainsBothCS(pItem1, pItem2, _TRUE_)
+		return This.DeepContainsBothCS(pItem1, pItem2, 1)
 
 	  #--------------------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS AT LEAST ONE OF THE PROVIDED ITEMS AT ANY LEVEL  #
 	#--------------------------------------------------------------------------------#
 
 	def DeepContainsOneOfTheseCS(paItems, pCaseSensitive)
-		bResult = _FALSE_
+		bResult = 0
 
 		for i = 1 to len(paItems)
 			if This.DeepContainsCS(paItems[i], pCaseSensitive)
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next
@@ -45994,21 +45994,21 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContainsOneOfThese(paItems)
-		return This.DeepContainsOneOfTheseCS(paItems, _TRUE_)
+		return This.DeepContainsOneOfTheseCS(paItems, 1)
 
 	  #--------------------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS AT LEAST N OF THE PROVIDED ITEMS AT ANY LEVEL  #
 	#--------------------------------------------------------------------------------#
 
 	def DeepContainsNOfTheseCS(n, paItems, pCaseSensitive)
-		bResult = _FALSE_
+		bResult = 0
 		v = 0
 
 		for i = 1 to len(paItems)
 			if This.DeepContainsCS(paItems[i], pCaseSensitive)
 				v++
 				if v = n
-					bResult = _TRUE_
+					bResult = 1
 					exit
 				ok
 			ok
@@ -46023,7 +46023,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContainsNOfThese(n, paItems)
-		return This.DeepContainsNOfTheseCS(n, paItems, _TRUE_)
+		return This.DeepContainsNOfTheseCS(n, paItems, 1)
 
 		def DeepContainsNItemsOfThese(n, paItems)
 			return This.DeepContainsNOfThese(n, paItems)
@@ -46069,7 +46069,7 @@ fdef
 			_cItem_ = @@(pItem)
 			_cContent_ = @@(_aContent_)
 	
-			if _bCase_ = _FALSE_
+			if _bCase_ = 0
 				_cItem_ = lower(_cItem_)
 				_cContent_ = lower(_cContent_)
 			ok
@@ -46078,7 +46078,7 @@ fdef
 
 		but isString(pItem)
 
-			if _bCase_ = _TRUE_
+			if _bCase_ = 1
 				_acStringified_ = This.DeepStringified()
 
 			else
@@ -46109,7 +46109,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepFind(pItem)
-		return This.DeepFindCS(pItem, _TRUE_)
+		return This.DeepFindCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -46162,7 +46162,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepFindMany(paItems)
-		return This.DeepFindManyCS(paItems, _TRUE_)
+		return This.DeepFindManyCS(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -46227,7 +46227,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindIn(pOtherListOrStr)
-		return FindInCS(pOtherListOrStr, _TRUE_)
+		return FindInCS(pOtherListOrStr, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -46257,7 +46257,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInList(paOtherList)
-		return This.FindInListCS(paOtherList, _TRUE_)
+		return This.FindInListCS(paOtherList, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -46288,7 +46288,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInString(pcStr)
-		return This.FindInStringCS(pcStr, _TRUE_)
+		return This.FindInStringCS(pcStr, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -46788,7 +46788,7 @@ fdef
 		#NOTE: // Whe the list contains an empty list at any level, then it
 		# replaced by [NULL] for the path parsing to work correctly
 
-		_aContent_ = This.Copy().DeepReplaceQ([], [_NULL_]).Content()
+		_aContent_ = This.Copy().DeepReplaceQ([], [""]).Content()
 		_cCode_ = '_result_ = _aContent_' + @@Q(paPath).ReplaceQ(",", "][").Content()
 
 		eval(_cCode_)
@@ -47241,7 +47241,7 @@ fdef
 		return _bResult_
 
 	func ItemExistsAtPath(pItem, paPath)
-		return This.ItemExistsAtPathCS(pItem, paPath, _TRUE_)
+		return This.ItemExistsAtPathCS(pItem, paPath, 1)
 
 	#--
 
@@ -47258,11 +47258,11 @@ fdef
 		ok
 
 		_nLen_ = len(paPaths)
-		_bResult_ = _TRUE_
+		_bResult_ = 1
 
 		for @i = 1 to _nLen_
 			if NOT This.ItemExistsAtPathCS(pItem, paPaths[@i], pCaseSensitive)
-				_bResult_ = _FALSE_
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -47270,7 +47270,7 @@ fdef
 		return _bResult_
 
 	def ItemExistsAtPaths(pItem, paPaths)
-		return This.ItemExistsAtPathsCS(pItem, paPaths, _TRUE_)
+		return This.ItemExistsAtPathsCS(pItem, paPaths, 1)
 
 
 	#==
@@ -47308,7 +47308,7 @@ fdef
 		#>
 
 	def FindItemAtPath(pItem, paPath)
-		return This.FindItemAtPathCS(pItem, paPath, _TRUE_)
+		return This.FindItemAtPathCS(pItem, paPath, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -47389,7 +47389,7 @@ fdef
 		#>
 
 	def FindAnyItemsAtPath(paItems, paPath)
-		return This.FindItemsAtPathCS(paItems, paPath, _TRUE_)
+		return This.FindItemsAtPathCS(paItems, paPath, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -47465,7 +47465,7 @@ fdef
 		#>
 
 	def FindItemAtPaths(pItem, paPaths)
-		return This.FindItemAtPathsCS(pItem, paPaths, _TRUE_)
+		return This.FindItemAtPathsCS(pItem, paPaths, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -47529,7 +47529,7 @@ fdef
 		#>
 
 	def FindItemsAtPaths(paItems, paPaths)
-		return This.FindItemsAtPathsCS(paItems, paPaths, _TRUE_)
+		return This.FindItemsAtPathsCS(paItems, paPaths, 1)
 
 		
 		#< @FunctionAlternativeForms
@@ -47677,16 +47677,16 @@ fdef
 		_aPath_ = This.FindItemInPathCS(pItem, paPath, pCaseSensitive)
 
 		if len(_aPath_) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def ContainsItemInPathCS(pItem, paPath, pCaseSensitive)
 			return This.ItemExistsInPathCS(pItem, paPath, pCaseSensitive)
 
 	func ItemExistsInPath(pItem, paPath)
-		return This.ItemExistsInPathCS(pItem, paPath, _TRUE_)
+		return This.ItemExistsInPathCS(pItem, paPath, 1)
 
 		def ContainsItemInPath(pItem, paPath)
 			return This.ItemExistsInPath(pItem, paPath)
@@ -47702,7 +47702,7 @@ fdef
 			return This.ItemExistsInAllNodesPathCS(pItem, paPath, pCaseSensitive)
 
 	func ItemExistsInAllNodesOfPath(pItem, paPath)
-		return This.ItemExistsInAllNodesOfPathCS(pItem, paPath, _TRUE_)
+		return This.ItemExistsInAllNodesOfPathCS(pItem, paPath, 1)
 
 		def ContainsItemInAllNodesOfPath(pItem, paPath)
 			return This.ItemExistsInAllNodesOfPath(pItem, paPath)
@@ -47714,16 +47714,16 @@ fdef
 		_aPath_ = This.FindItemInPathsCS(pItem, paPaths, pCaseSensitive)
 
 		if len(_aPath_) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def ContainsItemInPathsCS(pItem, paPaths, pCaseSensitive)
 			return This.ItemExistsInPathsCS(pItem, paPaths, pCaseSensitive)
 
 	func ItemExistsInPaths(pItem, paPaths)
-		return This.ItemExistsInPathsCS(pItem, paPaths, _TRUE_)
+		return This.ItemExistsInPathsCS(pItem, paPaths, 1)
 
 		def ContainsItemInPaths(pItem, paPaths)
 			return This.ItemExistsInPaths(pItem, paPaths)
@@ -47739,7 +47739,7 @@ fdef
 			return This.ItemExistsInAllNodesPathsCS(pItem, paPaths, pCaseSensitive)
 
 	func ItemExistsInAllNodesOfPaths(pItem, paPaths)
-		return This.ItemExistsInAllNodesOfPathsCS(pItem, paPaths, _TRUE_)
+		return This.ItemExistsInAllNodesOfPathsCS(pItem, paPaths, 1)
 
 		def ContainsItemInAllNodesOfPaths(pItem, paPaths)
 			return This.ItemExistsInAllNodesOfPaths(pItem, paPaths)
@@ -47751,16 +47751,16 @@ fdef
 		_aPath_ = This.FindItemsInPathCS(paItems, paPath, pCaseSensitive)
 
 		if len(_aPath_) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def ContainsItemsInPathCS(paItems, paPath, pCaseSensitive)
 			return This.ItemsExistInPathCS(paItems, paPath, pCaseSensitive)
 
 	func ItemsExistInPath(paItems, paPath)
-		return This.ItemsExistInPathCS(paItems, paPath, _TRUE_)
+		return This.ItemsExistInPathCS(paItems, paPath, 1)
 
 		def ContainsItemsInPath(paItems, paPath)
 			return This.ItemsExistInPath(paItems, paPath)
@@ -47772,16 +47772,16 @@ fdef
 		_aPath_ = This.FindItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 
 		if len(_aPath_) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def ContainsItemsInPathsCS(paItems, paPaths, pCaseSensitive)
 			return This.ItemsExistInPathsCS(paItems, paPaths, pCaseSensitive)
 
 	func ItemsExistInPaths(paItems, paPaths)
-		return This.ItemsExistInPathsCS(paItems, paPaths, _TRUE_)
+		return This.ItemsExistInPathsCS(paItems, paPaths, 1)
 
 		def ContainsItemsInPaths(paItems, paPaths)
 			return This.ItemsExistInPaths(paItems, paPaths)
@@ -47869,7 +47869,7 @@ fdef
 		#>
 
 	def FindItemInPath(pItem, paPath)
-		return This.FindItemInPathCS(pItem, paPath, _TRUE_)
+		return This.FindItemInPathCS(pItem, paPath, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -47944,7 +47944,7 @@ fdef
 		#>
 
 	def FindItemsInPath(paItems, paPath)
-		return This.FindItemsInPathCS(paItems, paPath, _TRUE_)
+		return This.FindItemsInPathCS(paItems, paPath, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -47996,7 +47996,7 @@ fdef
 		#>
 
 	def FindItemInPaths(pItem, paPaths)
-		return This.FindItemInPathsCS(pItem, paPaths, _TRUE_)
+		return This.FindItemInPathsCS(pItem, paPaths, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -48046,7 +48046,7 @@ fdef
 		#>
 
 	def FindItemsInPaths(paItems, paPaths)
-		return This.FindItemsInPathsCS(paItems, paPaths, _TRUE_)
+		return This.FindItemsInPathsCS(paItems, paPaths, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -48122,7 +48122,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveItemInPath(pItem, paPath)
-		return This.RemoveItemInPathCS(pItem, paPath, _TRUE_)
+		return This.RemoveItemInPathCS(pItem, paPath, 1)
 
 		#< @FunctionFluentForm
 
@@ -48221,7 +48221,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveItemsInPath(paItems, paPath)
-		return This.RemoveItemsInPathCS(paItems, paPath, _TRUE_)
+		return This.RemoveItemsInPathCS(paItems, paPath, 1)
 
 		#< @FunctionFluentForm
 
@@ -48322,7 +48322,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveItemAtPath(pItem, paPath)
-		This.RemoveItemAtPathCS(pItem, paPAth, _TRUE_)
+		This.RemoveItemAtPathCS(pItem, paPAth, 1)
 
 		#< @FunctionFluentForm
 
@@ -48480,7 +48480,7 @@ fdef
 	#-- WITHOUT CASESENSItiviTY
 
 	def RemoveItemsAtPath(paItems, paPath)
-		This.RemoveItemsAtPathCS(paItems, paPath, _TRUE_)
+		This.RemoveItemsAtPathCS(paItems, paPath, 1)
 
 		#< @FunctionFluentForm
 
@@ -48639,7 +48639,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveItemAtPaths(pItem, paPaths)
-		This.RemoveItemAtPathsCS(pItem, paPaths, _TRUE_)
+		This.RemoveItemAtPathsCS(pItem, paPaths, 1)
 
 		#< @FunctionFluentForm
 
@@ -48749,7 +48749,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveItemsAtPaths(paItems, paPaths)
-		This.RemoveItemsAtPathsCS(paItems, paPaths, _TRUE_)
+		This.RemoveItemsAtPathsCS(paItems, paPaths, 1)
 
 		#< @FunctionFluentForm
 
@@ -48826,7 +48826,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveItemInPaths(pItem, paPaths)
-		return This.RemoveItemInPathCS(pItem, paPaths, _TRUE_)
+		return This.RemoveItemInPathCS(pItem, paPaths, 1)
 
 		#< @FunctionFluentForm
 
@@ -49002,7 +49002,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveItemsInPaths(paItems, paPaths)
-		return This.RemoveItemsInPathCS(paItems, paPaths, _TRUE_)
+		return This.RemoveItemsInPathCS(paItems, paPaths, 1)
 
 		#< @FunctionFluentForm
 
@@ -49250,11 +49250,11 @@ fdef
 
 	def IsPath(paPath)
 		if NOT isList(paPath)
-			return _FALSE_
+			return 0
 		ok
 
 		if NOT @IsListOfNumbers(paPath)
-			return _FALSE_
+			return 0
 		ok
 
 		_bResult_ = This.PathsQ().Contains(paPath)
@@ -49277,19 +49277,19 @@ fdef
 
 	def ArePaths(paPaths)
 		if NOT isList(paPaths)
-			return _FALSE_
+			return 0
 		ok
 
 		if NOT @IsListOfListsOfNumbers(paPaths)
-			return _FALSE_
+			return 0
 		ok
 
-		_bResult_ = _TRUE_
+		_bResult_ = 1
 		_nLen_ = len(paPaths)
 
 		for @i = 1 to _nLen_
 			if NOT This.ContainsPath(paPaths[@i])
-				_bResult_ = _FALSE_
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -49448,7 +49448,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def VizFindAllOccurrences(pItem)
-		return This.VizFindAllOccurrencesCS(pItem, _TRUE_)
+		return This.VizFindAllOccurrencesCS(pItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -49733,7 +49733,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthNextOccurrence( n, pItem, nStart )
-		return This.FindNthNextOccurrenceCS( n, pItem, nStart, _TRUE_ )
+		return This.FindNthNextOccurrenceCS( n, pItem, nStart, 1 )
 
 		#< @FunctionAlternativeForms
 
@@ -49858,7 +49858,7 @@ fdef
 		nFound = 0
 		i = 0
 
-		while _TRUE_
+		while 1
 			i++
 			if i > nLen
 				exit
@@ -49921,7 +49921,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthPreviousOccurrence(n, pItem, nStart)
-		return This.FindNthPreviousOccurrenceCS(n, pItem, nStart, _TRUE_)
+		return This.FindNthPreviousOccurrenceCS(n, pItem, nStart, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -50034,7 +50034,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNextOccurrence(pItem, nStart)
-		nResult = This.FindNextOccurrenceCS(pItem, nStart, _TRUE_)
+		nResult = This.FindNextOccurrenceCS(pItem, nStart, 1)
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -50130,7 +50130,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindPreviousOccurrence(pItem, pnStartingAt)
-		return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, _TRUE_)
+		return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -50222,7 +50222,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNextOccurrences(pItem, pnStartingAt)
-		return This.FindNextOccurrencesCS(pItem, pnStartingAt, _TRUE_)
+		return This.FindNextOccurrencesCS(pItem, pnStartingAt, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -50291,7 +50291,7 @@ fdef
 		#>
 
 	def FindPreviousOccurrences(pcSubStr, pnStartingAt)
-		return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, _TRUE_)
+		return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -50343,7 +50343,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNextNthOccurrences(panPos, pItem, pnStartingAt)
-		return This.FindNextNthOccurrencesCS(panPos, pItem, pnStartingAt, _TRUE_)
+		return This.FindNextNthOccurrencesCS(panPos, pItem, pnStartingAt, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -50395,7 +50395,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindPreviousNthOccurrences(panPos, pItem, pnStartingAt)
-		return This.FindPreviousNthOccurrencesCS(panPos, pItem, pnStartingAt, _TRUE_)
+		return This.FindPreviousNthOccurrencesCS(panPos, pItem, pnStartingAt, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -50489,13 +50489,13 @@ fdef
 
 		# 4) ~>  Preparing the list for casesensitivity
 
-		if @CaseSensitive(pCaseSensitive) = _TRUE_
+		if @CaseSensitive(pCaseSensitive) = 1
 			_oCopy_ = This.Copy()
 		else
 			_oCopy_ = This.Copy().LowercaseQ()
 		ok
 
-		cCode = StzStringQ(cCode).ReplaceCSQ("This", "_oCopy_", _FALSE_).Content()
+		cCode = StzStringQ(cCode).ReplaceCSQ("This", "_oCopy_", 0).Content()
 
 		# 5) ~>  Doing the job
 
@@ -50564,7 +50564,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllItemsW(pcCondition)
-		return This.FindAllItemsWCS(pcCondition, _TRUE_)
+		return This.FindAllItemsWCS(pcCondition, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -50689,13 +50689,13 @@ fdef
 
 		# 4) ~>  Preparing the list for casesensitivity
 
-		if @CaseSensitive(pCaseSensitive) = _TRUE_
+		if @CaseSensitive(pCaseSensitive) = 1
 			_oCopy_ = This.Copy()
 		else
 			_oCopy_ = This.Copy().LowercaseQ()
 		ok
 
-		cCode = @ReplaceCS(cCode, "This", "_oCopy_", _FALSE_)
+		cCode = @ReplaceCS(cCode, "This", "_oCopy_", 0)
 		# 5) ~>  Doing the job
 
 		anResult = []
@@ -50764,7 +50764,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllItemsWXT(pcCondition)
-		return This.FindAllItemsWCSXT(pcCondition, _TRUE_)
+		return This.FindAllItemsWCSXT(pcCondition, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -51207,7 +51207,7 @@ fdef
 		return bResult
 
 	def ItemsHave(pcCondition)
-		return This.ItemsHaveCS(pcCondition, _TRUE_)
+		return This.ItemsHaveCS(pcCondition, 1)
 
 	#-- XTendedForm
 
@@ -51216,7 +51216,7 @@ fdef
 		return bResult
 
 	def ItemsHaveXT(pcCondition)
-		return This.ItemsHaveCSXT(pcCondition, _TRUE_)
+		return This.ItemsHaveCSXT(pcCondition, 1)
 
 	  #===============================================#
 	 #   GETTING ITEMS VERIFYING A GIVEN CONDITION   #
@@ -51683,7 +51683,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def AllItemsExcept(pItem)
-		return This.AllItemsExceptCS(pItem, _TRUE_)
+		return This.AllItemsExceptCS(pItem, 1)
 
 	  #================================================================================#
 	 #   GETTING UNIQUE ITEMS VERIFYING A GIVEN CONDITION ALONG WITH THEIR POSITIONS  #
@@ -53333,10 +53333,10 @@ fdef
 
 
 	def ListsHaveSameNumberOfItems()
-		bResult = _TRUE_
+		bResult = 1
 		for i=2 to len( This.Sublists() )
 			if len( This.Sublists()[i] ) != len( This.Sublists()[i-1] )
-				bResult = _FALSE_
+				bResult = 0
 			ok
 		next
 		return bResult
@@ -53345,10 +53345,10 @@ fdef
 			return This.ListsHaveSameNumberOfItems()
 
 	def ListsAtAnyLevelHaveSameNumberOfItems()
-		bResult = _TRUE_
+		bResult = 1
 		for i=2 to len( This.listsAtAnyLevel() )
 			if len( This.listsAtAnyLevel()[i] ) != len( This.listsAtAnyLevel()[i-1] )
-				bResult = _FALSE_
+				bResult = 0
 			ok
 		next
 		return bResult
@@ -54858,7 +54858,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def Section(n1, n2)
-		return This.SectionCS(n1, n2, _TRUE_)
+		return This.SectionCS(n1, n2, 1)
 
 		def SectionQ(n1, n2)
 			return new stzList(This.Section(n1, n2))
@@ -54893,7 +54893,7 @@ fdef
 	#-- WITHOUT CASESENSITIVE
 
 	def SectionZ(n1, n2)
-		return This.SectionCSZ(n1, n2, _TRUE_)
+		return This.SectionCSZ(n1, n2, 1)
 
 		def SliceZ(n1, n2)
 			return SectionZ(n1, n2)
@@ -54934,7 +54934,7 @@ fdef
 	#-- WITHOUT CASESENSITIVE
 
 	def SectionZZ(n1, n2)
-		return This.SectionCSZZ(n1, n2, _TRUE_)
+		return This.SectionCSZZ(n1, n2, 1)
 
 		def SliceZZ(n1, n2)
 			return SectionZZ(n1, n2)
@@ -55015,7 +55015,7 @@ fdef
 	#-- WITHOUT CASESENSITIIVTY
 
 	def SectionXT(n1, n2)
-		return This.SectionCSXT(n1, n2, _TRUE_)
+		return This.SectionCSXT(n1, n2, 1)
 
 		def SliceXT(n1, n2)
 			return This.SectionXT(n1, n2)
@@ -55051,7 +55051,7 @@ fdef
 	#-- WITHOUT CASESENSITIIVTY
 
 	def SectionXTZ(n1, n2)
-		return This.SectionCSXTZ(n1, n2, _TRUE_)
+		return This.SectionCSXTZ(n1, n2, 1)
 
 		def SliceXTZ(n1, n2)
 			return This.SectionXTZ(n1, n2)
@@ -55098,7 +55098,7 @@ fdef
 	#-- WITHOUT CASESENSITIIVTY
 
 	def SectionXTZZ(n1, n2)
-		return This.SectionCSXTZZ(n1, n2, _TRUE_)
+		return This.SectionCSXTZZ(n1, n2, 1)
 
 		def SliceXTZZ(n1, n2)
 			return This.SectionXTZZ(n1, n2)
@@ -55229,7 +55229,7 @@ fdef
 	#-- WTHOUT CASESENSITIVITY
 
 	def SectionsBetween(pItem1, pItem2)
-		return This.SectionsBetweenCS(pItem1, pItem2, _TRUE_)
+		return This.SectionsBetweenCS(pItem1, pItem2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -55281,7 +55281,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def SectionsOfSameItems()
-		return This.SectionsOfSameItemsCS(_TRUE_)
+		return This.SectionsOfSameItemsCS(1)
 
 	   #--------------------------------------------------------------#
 	  #   FINDING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS AND   #
@@ -55323,12 +55323,12 @@ fdef
 		n1 = 1
 
 		i = 0
-		bLastPair = _FALSE_
+		bLastPair = 0
 
 		for i = 1 to nLen
 
 			if i = nLen
-				bLastPair = _TRUE_
+				bLastPair = 1
 			ok
 
 			aPair = aSorted[i]
@@ -55471,12 +55471,12 @@ fdef
 		n1 = 1
 
 		i = 0
-		bLastPair = _FALSE_
+		bLastPair = 0
 
 		for i = 1 to nLen
 
 			if i = nLen
-				bLastPair = _TRUE_
+				bLastPair = 1
 			ok
 
 			aPair = aSorted[i]
@@ -55659,7 +55659,7 @@ fdef
 		ok
 
 		if pnStart = 0 or pnRange = 0
-			return _NULL_
+			return ""
 		ok
 
 		aResult = []
@@ -55841,17 +55841,17 @@ fdef
 	def AreLanguageAbbreviations()
 		
 		if NOT @IsListOfStrings(@aContent)
-			return _FALSE_
+			return 0
 		ok
 
 		nLen = len(@aContent)
 		aoStzStr = This.ToListOfStzStrings()
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for i = 1 to nLen
 			if NOT aoStzStr[i].IsLanguageAbbreviation()
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -55876,7 +55876,7 @@ fdef
 		# The MultilingualString must be a hashlist!
 
 		if NOT This.IsHashlist()
-			return _FALSE_
+			return 0
 		ok
 
 		nLen = len(@aContent)
@@ -55888,7 +55888,7 @@ fdef
 
 		for i = 1 to nLen
 			if NOT isString(@aContent[i][2])
-				return _FALSE_
+				return 0
 			ok
 		next
 
@@ -55900,13 +55900,13 @@ fdef
 
 		for i = 1 to nLen
 			if NOT aoKeys[i].IsLanguageNameOrAbbreviation()
-				return _FALSE_
+				return 0
 			ok
 		next
 
 		# Otherwise, we are confident the list a multilingual string
 
-		return _TRUE_
+		return 1
 
 	def IsLocaleList()
 
@@ -55920,19 +55920,19 @@ fdef
 
 		   ], @aContent[1]) > 0
 
-			return _TRUE_
+			return 1
 		ok
 
 		# The list should not exceed 3 items
 
 		if nLen > 3
-			return _FALSE_
+			return 0
 		ok
 
 		# It must be a hashlist
 
 		if NOT This.IsHashList()
-			return _FALSE_
+			return 0
 		ok
 
 		# The Hashlist must take the form:
@@ -55950,7 +55950,7 @@ fdef
 		bCountry = ring_find(acKeys, "country")
 
 		if bLanguage = 0 and bScript = 0 and bCountry = 0
-			return _FALSE_
+			return 0
 		ok
 
 		cLanguage = @aContent[ :Language ]
@@ -55958,30 +55958,30 @@ fdef
 		cCountry  = @aContent[ :Country  ]
 
 		if NOT ( isString(cLanguage) and isString(cScript) and isString(cCountry) )
-			return _FALSE_
+			return 0
 		ok
 
-		if cLanguage = _NULL_ and cScript = _NULL_ and cCountry = _NULL_
-			return _FALSE_
+		if cLanguage = "" and cScript = "" and cCountry = ""
+			return 0
 		ok
 
-		if cLanguage != _NULL_ and
+		if cLanguage != "" and
 		   NOT StzStringQ(cLanguage).IsLanguageIdentifier()
-			return _FALSE_
+			return 0
 		ok
 
-		if cScript != _NULL_ and
+		if cScript != "" and
 		   NOT StzStringQ(cScript).IsScriptIdentifier()
-			return _FALSE_
+			return 0
 		ok
 
-		if cCountry != _NULL_ and
+		if cCountry != "" and
 		   NOT StzStringQ(cCountry).IsCountryIdentifier()
-			return _FALSE_
+			return 0
 		ok
 
 		# At this level we are sure it is a language identification list
-		return _TRUE_
+		return 1
 
 	  #----------------------------------------#
 	 #   DISTRIBUTING THE ITEMS OF THE LIST   #
@@ -56107,7 +56107,7 @@ fdef
 	# Deeling wuth the list itself
 
 	def IsStzList()
-		return _TRUE_
+		return 1
 
 	def StzType()
 		return :stzList
@@ -56222,7 +56222,7 @@ fdef
 	  #-------------------------------------------------------#
 	 #  GETTING THE SOFTANZA TYPES OF EACH ITEM IN THE LIST  #
 	#-------------------------------------------------------#
-	# For non softanza objects a _NULL_ is returned
+	# For non softanza objects a "" is returned
 
 	def StzTypes()
 		aContent = This.Content()
@@ -56233,7 +56233,7 @@ fdef
 			if isObject(aContent[i]) and aContent[i].IsStzObject()
 				aResult + aContent[i].StzType()
 			else
-				aResult + _NULL_
+				aResult + ""
 			ok
 		next
 
@@ -56278,19 +56278,19 @@ fdef
 		nLenItems = len(paItems)
 
 		if nLenItems > nLen
-			return _FALSE_
+			return 0
 		ok
 
 		if This.IsStrictlyEqualToCS(paItems, pCaseSensitive)
-			return _TRUE_
+			return 1
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 		aContent = This.Content()
 
 		for i = 1 to nLenItems
 			if NOT Q(aContent[i]).IsEqualToCS(paItems[i], pCaseSensitive)
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -56303,7 +56303,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def StartsWith(paItems)
-		return This.StartsWithCS(paItems, _TRUE_)
+		return This.StartsWithCS(paItems, 1)
 
 		def BeginsWith(paItems)
 			return This.StartsWith()
@@ -56321,14 +56321,14 @@ fdef
 		nLen = This.NumberOfItems()
 
 		if nLenItems > nLen
-			return _FALSE_
+			return 0
 		ok
 
 		if This.IsStrictlyEqualToCS(paItems, pCaseSensitive)
-			return _TRUE_
+			return 1
 		ok
 
-		bResult = _TRUE_
+		bResult = 1
 		
 		aLastItems = This.NLastItems( nLenItems )
 		nLenLastItems = len(aLastItems)
@@ -56337,7 +56337,7 @@ fdef
 		for i = 1 to nLenLastItems
 
 			if NOT Q(aContent[i]).IsEqualToCS(aLastItems[i], pCaseSensitive)
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -56350,7 +56350,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def EndsWith(paItems)
-		return This.EndsWithCS(paItems, _TRUE_)
+		return This.EndsWithCS(paItems, 1)
 
 		def FinishesWith(paItems)
 			return This.EndsWith(paItems)
@@ -56361,13 +56361,13 @@ fdef
 
 	def StartsWithList()
 		if len(@aContent) = 0
-			return _FALSE_
+			return 0
 		ok
 
 		if isList(@aContent[1])
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def StartsWithAList()
@@ -56379,13 +56379,13 @@ fdef
 
 	def StartsWithNumber()
 		if len(@aContent) = 0
-			return _FALSE_
+			return 0
 		ok
 
 		if isNumber(@aContent[1])
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def StartsWithANumber()
@@ -56397,13 +56397,13 @@ fdef
 
 	def StartsWithString()
 		if len(@aContent) = 0
-			return _FALSE_
+			return 0
 		ok
 
 		if isString(@aContent[1])
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def StartsWithAString()
@@ -56415,13 +56415,13 @@ fdef
 
 	def StartsWithObject()
 		if len(@aContent) = 0
-			return _FALSE_
+			return 0
 		ok
 
 		if isObject(@aContent[1])
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def StartsWithAnObject()
@@ -56434,13 +56434,13 @@ fdef
 	def EndsWithList()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
 		if isList(@aContent[nLen])
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def EndsWithAList()
@@ -56453,13 +56453,13 @@ fdef
 	def EndsWithNumber()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
 		if isNumber(@aContent[nLen])
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def EndsWithANumber()
@@ -56472,13 +56472,13 @@ fdef
 	def EndsWithString()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
 		if isString(@aContent[nLen])
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def EndsWithAString()
@@ -56491,13 +56491,13 @@ fdef
 	def EndsWithObject()
 		nLen = len(@aContent)
 		if nLen = 0
-			return _FALSE_
+			return 0
 		ok
 
 		if isObject(@aContent[nLen])
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def EndsWithAnObject()
@@ -56868,7 +56868,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindXT(p1, p2)
-		return This.FindCSXT(p1, p2, _TRUE_)
+		return This.FindCSXT(p1, p2, 1)
 
 	  #=====================================================#
 	 #  FINDING OCCURRENCES OF AN ITEM IN A GIVEN SECTION  #
@@ -56940,7 +56940,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInSection(pItem, n1, n2)
-		return This.FindInSectionCS(pItem, n1, n2, _TRUE_)
+		return This.FindInSectionCS(pItem, n1, n2, 1)
 		
 		#< @FunctionAlternativeForm
 
@@ -57005,7 +57005,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInSections(pItem, paSections)
-		return This.FindInSectionsCS(pItem, paSections, _TRUE_)
+		return This.FindInSectionsCS(pItem, paSections, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -57097,7 +57097,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInSection(n, pItem, n1, n2)
-		return This.FindNthInSectionCS(n, pItem, n1, n2, _TRUE_)
+		return This.FindNthInSectionCS(n, pItem, n1, n2, 1)
 		
 		#< @FunctionAlternativeForm
 
@@ -57153,7 +57153,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInSections(n, pItem, paSections)
-		return This.FindNthInSectionsCS(n, pItem, paSections, _TRUE_)
+		return This.FindNthInSectionsCS(n, pItem, paSections, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -57198,7 +57198,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInSection(pItem, n1, n2)
-		return This.FindFirstInSectionCS(pItem, n1, n2, _TRUE_)
+		return This.FindFirstInSectionCS(pItem, n1, n2, 1)
 		
 		#< @FunctionAlternativeForm
 
@@ -57272,7 +57272,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInSections(pItem, paSections)
-		return This.FindFirstInSectionsCS(pItem, paSections, _TRUE_)
+		return This.FindFirstInSectionsCS(pItem, paSections, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -57325,7 +57325,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInSection(pItem, n1, n2)
-		return This.FindLastInSectionCS(pItem, n1, n2, _TRUE_)
+		return This.FindLastInSectionCS(pItem, n1, n2, 1)
 		
 		#< @FunctionAlternativeForm
 
@@ -57371,7 +57371,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInSections(pItem, paSections)
-		return This.FindLastInSectionsCS(pItem, paSections, _TRUE_)
+		return This.FindLastInSectionsCS(pItem, paSections, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -57427,7 +57427,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindBefore(pItem, pPosOrItem)
-		return This.FindBeforeCS(pItem, pPosOrItem, _TRUE_)
+		return This.FindBeforeCS(pItem, pPosOrItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -57489,7 +57489,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindBeforePosition(pItem, pnPos)
-		return This.FindBeforePositionCS(pItem, pnPos, _TRUE_)
+		return This.FindBeforePositionCS(pItem, pnPos, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -57555,7 +57555,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindBeforeItem(pItem, pcOtherSubStr)
-		return This.FindBeforeItemCS(pItem, pcOtherSubStr, _TRUE_)
+		return This.FindBeforeItemCS(pItem, pcOtherSubStr, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -57614,7 +57614,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAfter(pItem, pPosOrItem)
-		return This.FindAfterCS(pItem, pPosOrItem, _TRUE_)
+		return This.FindAfterCS(pItem, pPosOrItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -57674,7 +57674,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAfterPosition(pItem, pnPos)
-		return This.FindAfterPositionCS(pItem, pnPos, _TRUE_)
+		return This.FindAfterPositionCS(pItem, pnPos, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -57739,7 +57739,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAfterItem(pItem, pcOtherSubStr)
-		return This.FindAfterItemCS(pItem, pcOtherSubStr, _TRUE_)
+		return This.FindAfterItemCS(pItem, pcOtherSubStr, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -57818,7 +57818,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceInSections(pItem, paSections)
-		return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, _TRUE_)
+		return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, 1)
 
 		#< @FunctionalternativeForms
 
@@ -57997,7 +57997,7 @@ fdef
 
 	def TheseObjectsZ(paoObjects)
 
-		if CheckingParams() = _TRUE_
+		if CheckingParams() = 1
 			if NOT ( isList(paoObjects) and StzListQ(paoObjects).EachItemIsEitherA(:String, :Or, :Object) )
 				StzRaise("Incorrect param type! paoObjects must be a list of strings and objects.")
 			ok
@@ -58412,11 +58412,11 @@ fdef
 		   	acContent = This.ToListOfStzStrings()
 			nLen = len(acContent)
 
-			bResult = _TRUE_
+			bResult = 1
 
 			for i = 1 to nLen
-				if acContent[i].IsUppercase() = _FALSE_
-					bResult = _FALSE_
+				if acContent[i].IsUppercase() = 0
+					bResult = 0
 					exit
 				ok
 			next
@@ -58424,7 +58424,7 @@ fdef
 			return bResult
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionFluentForm
@@ -58481,11 +58481,11 @@ fdef
 		   	acContent = This.ToListOfStzStrings()
 			nLen = len(acContent)
 
-			bResult = _TRUE_
+			bResult = 1
 
 			for i = 1 to nLen
-				if acContent[i].IsLowercase() = _FALSE_
-					bResult = _FALSE_
+				if acContent[i].IsLowercase() = 0
+					bResult = 0
 					exit
 				ok
 			next
@@ -58493,7 +58493,7 @@ fdef
 			return bResult
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionFluentForm
@@ -58813,8 +58813,8 @@ fdef
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT (pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_)
-			StzRaise("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT (pCaseSensitive = 1 or pCaseSensitive = 0)
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
@@ -58839,9 +58839,9 @@ fdef
 				oQStr = new QString2()
 				oQStr.append(item)
 
-				bExtend = _FALSE_
+				bExtend = 0
 				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
-					bExtend = _TRUE_
+					bExtend = 1
 				ok
 
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
@@ -58861,9 +58861,9 @@ fdef
 				oQStr = new QString2()
 				oQStr.append(item)
 
-				bExtend = _FALSE_
+				bExtend = 0
 				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
-					bExtend = _TRUE_
+					bExtend = 1
 				ok
 
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
@@ -58913,7 +58913,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringifyAndReplaceXT(pcSubStr, pcOtherSubStr)
-		This.StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, _TRUE_)
+		This.StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, 1)
 
 		#< @FunctionFluentForm
 
@@ -58974,7 +58974,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringifyAndReplace(pcSubStr, pcOtherSubStr)
-		This.StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, _TRUE_)
+		This.StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, 1)
 
 		#< @FunctionFluentForm
 
@@ -59034,8 +59034,8 @@ fdef
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT (pCaseSensitive = _TRUE_ or pCaseSensitive = _FALSE_)
-			StzRaise("Incorrect param! pCaseSensitive must be a boolean (_TRUE_ or _FALSE_).")
+		if NOT (pCaseSensitive = 1 or pCaseSensitive = 0)
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
 		# Doing the job
@@ -59062,9 +59062,9 @@ fdef
 				oQStr.append(item)
 
 
-				bExtend = _FALSE_
+				bExtend = 0
 				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
-					bExtend = _TRUE_
+					bExtend = 1
 				ok
 
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
@@ -59084,9 +59084,9 @@ fdef
 				oQStr = new QString2()
 				oQStr.append(item)
 
-				bExtend = _FALSE_
+				bExtend = 0
 				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
-					bExtend = _TRUE_
+					bExtend = 1
 				ok
 
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
@@ -59138,7 +59138,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringifyLowercaseAndReplaceXT(pcSubStr, pcOtherSubStr)
-		This.StringifyLowercaseAndReplaceCSXT(pcSubStr, pcOtherSubStr, _TRUE_)
+		This.StringifyLowercaseAndReplaceCSXT(pcSubStr, pcOtherSubStr, 1)
 
 		#< @FunctionFluentForm
 
@@ -59200,7 +59200,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringifyLowercaseAndReplace(pcSubStr, pcOtherSubStr)
-		This.StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, _TRUE_)
+		This.StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, 1)
 
 		#< @FunctionFluentForm
 
@@ -59411,7 +59411,7 @@ fdef
 	#=============================================#
 
 	def ContainsCCode()
-		bResult = _FALSE_
+		bResult = 0
 
 		aTempList = This.List()
 		nLen = len(aTempList)
@@ -59426,7 +59426,7 @@ fdef
 
 			if isString(item) and
 			   Q(item).TrimQ().IsBoundedBy(["{","}"])
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next
@@ -59448,13 +59448,13 @@ fdef
 
 		o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
 		? o1.EachItemIsEitherA( :Number, :Or, :String )
-		#--> _TRUE_
+		#--> TRUE
 
 		SYNTAX 2
 
 		o1 = new stzList([ 6, -2, 9, 5, -10 ])
 		? o1.EachItemIsEither(:Positive, :Or = :Negative, :Number )
-		#--> _TRUE_
+		#--> TRUE
 
 		*/
 
@@ -59510,7 +59510,7 @@ fdef
 		but cSyntax = "2"
 
 			if NOT This.AllItemsAre(p3)
-				return _FALSE_
+				return 0
 			ok
 	
 			if p1 = :Object
@@ -59546,14 +59546,14 @@ fdef
 
 		nLen = This.NumberOfItems()
 
-		bResult = _TRUE_
+		bResult = 1
 
 		for @i = 1 to nLen
 			@item = @aContent[@i]
 			eval(cCode)
 
 			if NOT bOk
-				bResult = _FALSE_
+				bResult = 0
 				exit
 			ok
 		next
@@ -59590,9 +59590,9 @@ fdef
 		if This.AllItemsAreXT([p1, p3], paEvalDirection) or
 		   This.AllItemsAreXT([p2, p3], paEvalDirection)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -59633,7 +59633,7 @@ fdef
 		# Managing the params
 
 		if isString(p) and p = ""
-			return _FALSE_
+			return 0
 		ok
 
 		if NOT isList(p)
@@ -59643,7 +59643,7 @@ fdef
 		ok
 
 		if len(p) = 0
-			return _FALSE_
+			return 0
 		ok
 
 		if isList(paEvalDirection) and
@@ -59696,14 +59696,14 @@ fdef
 
 			cType = @InfereType(p[1])
 
-			bResult = _TRUE_
+			bResult = 1
 			nLen = len(@aContent)
 
 			for i = 1 to nLen
 				cCode = 'bOk = is' + cType + '(' + @@(@aContent[i]) + ')'
 				eval(cCode)
 				if NOT bOk
-					bResult = _FALSE_
+					bResult = 0
 					return bResult
 				ok
 			next
@@ -59719,7 +59719,7 @@ fdef
 			next
 
 			if isString(p) and p = ""
-				return _FALSE_
+				return 0
 			ok
 
 			cMainClass = 'stz' + Q(p[1]).InfereStzClass()
@@ -59728,7 +59728,7 @@ fdef
 			aContent = This.Content()
 			nLenList = len(aContent)
 
-			bResult = _TRUE_
+			bResult = 1
 
 			for i = 1 to nLenList
 				@item = aContent[i]
@@ -59750,7 +59750,7 @@ fdef
 
 					eval(cCode)
 					if NOT bOk
-						bResult = _FALSE_
+						bResult = 0
 						exit 2
 					ok
 				next j
@@ -59808,30 +59808,30 @@ fdef
 	#================================#
 
 	def IsAString()
-		return _FALSE_
+		return 0
 
 		def IsNotAString()
-			return _TRUE_
+			return 1
 
 	def IsAList()
-		return _TRUE_
+		return 1
 
 		def IsNotAList()
-			return _FALSE_
+			return 0
 
 	def IsAnObject()
-		return _TRUE_
+		return 1
 
 		def IsAObject()
-			return _TRUE_
+			return 1
 
 		def IsNotAnObject()
-			return _FALSE_
+			return 0
 
 	#--- ITEM
 
 	def IsItem()
-		return _TRUE_
+		return 1
 
 		def IsAnItem()
 			return This.IsItem()
@@ -59851,7 +59851,7 @@ fdef
 	#--
 
 	def IsMember()
-		return _TRUE_
+		return 1
 
 		def IsAMember()
 			return This.IsMember()
@@ -59872,54 +59872,54 @@ fdef
 	#--- NUMBER
 
 	def IsANumber()
-		return _FALSE_
+		return 0
 
 		def IsNotANumber()
-			return _TRUE_
+			return 1
 
 	def IsNumberOf(paList)
-		return _FALSE_
+		return 0
 
 		def IsANumberOf(paList)
-			return _FALSE_
+			return 0
 	
 	def IsNumberIn(paList)
-		return _FALSE_
+		return 0
 	
 		def IsANumberIn(paList)
-			return _FALSE_
+			return 0
 
 	#--- ITEM
 
 	def IsLetter()
-		return _FALSE_
+		return 0
 
 		def IsALetter()
-			return _FALSE_
+			return 0
 	
 	def IsLetterOf(pStrOrListOfChars)
-		return _FALSE_
+		return 0
 
 		def IsALetterOf(pcStr)
-			return _FALSE_
+			return 0
 	
 	def IsLetterIn(pcStr)
-		return _FALSE_
+		return 0
 
 		def IsALetterIn(pcStr)
 			FALSE
 
 	def IsCharOf(pStrOrListOfChars)
-		return _FALSE_
+		return 0
 
 		def IsACharOf(pcStr)
-			return _FALSE_
+			return 0
 
 	def IsCharIn(pcStr)
-		return _FALSE_
+		return 0
 
 		def IsACharIn(pcStr)
-			return _FALSE_
+			return 0
 
 	def Methods()
 		return ring_methods(This)
@@ -60696,7 +60696,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomItemAfter(pItem)
-		return This.RandomItemAfterCS(pItem, _TRUE_)
+		return This.RandomItemAfterCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -60755,7 +60755,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomItemAfterZ(pItem)
-		return This.RandomItemAfterCSZ(pItem, _TRUE_)
+		return This.RandomItemAfterCSZ(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -60867,7 +60867,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomItemBefore(pItem)
-		return This.RandomItemBeforeCS(pItem, _TRUE_)
+		return This.RandomItemBeforeCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -60926,7 +60926,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomItemBeforeZ(pItem)
-		return This.RandomItemBeforeCSZ(pItem, _TRUE_)
+		return This.RandomItemBeforeCSZ(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -60987,7 +60987,7 @@ fdef
 	#-- WITHOUT CASESENSITIIVTY
 
 	def RandomItemExcept(pItem)
-		return This.RandomItemExceptCS(pItem, _TRUE_)
+		return This.RandomItemExceptCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -61052,7 +61052,7 @@ fdef
 	#-- WITHOUT CASESENSITIIVTY
 
 	def RandomItemExceptZ(pItem)
-		return This.RandomItemExceptCSZ(pItem, _TRUE_)
+		return This.RandomItemExceptCSZ(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -61583,7 +61583,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def AnItemOtherThan(pItem)
-		return This.AnItemOtherThanCS(pItem, _TRUE_)
+		return This.AnItemOtherThanCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 	
@@ -61734,7 +61734,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def AnItemOtherThanZ(pItem)
-		return This.AnItemOtherThanCSZ(pItem, _TRUE_)
+		return This.AnItemOtherThanCSZ(pItem, 1)
 
 		#< @FunctionAlternativeForms
 	
@@ -61873,7 +61873,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def AnyRandomItemOtherThanMany(paItems)
-		return This.AnyRandomItemOtherThanManyCS(paItems, _TRUE_)
+		return This.AnyRandomItemOtherThanManyCS(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -62005,7 +62005,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def AnyRandomItemOtherThanManyZ(paItems)
-		return This.AnyRandomItemOtherThanManyCSZ(paItems, _TRUE_)
+		return This.AnyRandomItemOtherThanManyCSZ(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -62118,7 +62118,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsOtherThanS(pItem)
-		return This.NRandomItemsOtherThanCS(pItem, _TRUE_)
+		return This.NRandomItemsOtherThanCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -62212,7 +62212,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsOtherThanZ(pItem)
-		return This.NRandomItemsOtherThanCSZ(pItem, _TRUE_)
+		return This.NRandomItemsOtherThanCSZ(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -62301,7 +62301,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def SomeRandomItemsOtherThanpItem(pItem)
-		return This.SomeRandomItemsOtherThanCS(pItem, _TRUE_)
+		return This.SomeRandomItemsOtherThanCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -62362,7 +62362,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def SomeRandomItemsOtherThanZ(pItem)
-		return This.SomeRandomItemsOtherThanCSZ(pItem, _TRUE_)
+		return This.SomeRandomItemsOtherThanCSZ(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -62408,7 +62408,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsOtherThanMany(paItems)
-		return This.NRandomItemsOtherThanManyCS(paItems, _TRUE_)
+		return This.NRandomItemsOtherThanManyCS(paItems, 1)
 
 	  #---------------------------------------------------------------------#
 	 #  GETTING N RANDOM ITEMS OTHER THAN MANY GIVEN ITEMS  -- Z/EXTENDED  #
@@ -62421,7 +62421,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsOtherThanManyZ(paItems)
-		return This.NRandomItemsOtherThanManyCSZ(paItems, _TRUE_)
+		return This.NRandomItemsOtherThanManyCSZ(paItems, 1)
 
 	#-- U/EXTENDED FORM
 
@@ -62986,7 +62986,7 @@ fdef
 	#----------------------------------------------------------------------#
 
 	def RandomizeSections(panSections)
-		if CheckingParams() = _TRUE_ # Generalise this all over the library
+		if CheckingParams() = 1 # Generalise this all over the library
 			if NOT ( isList(panSections) and @IsListOfPairsOfNumbers(panSections) )
 				StzRaise("Incorrect param type! panSections must be a list of pairs of numbers.")
 			ok
@@ -63114,7 +63114,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomizeBetween(p1, p2)
-		This.RandomizeBetweenCS(p1, p2, _TRUE_)
+		This.RandomizeBetweenCS(p1, p2, 1)
 
 		#< @FunctionFluentForm
 
@@ -63190,7 +63190,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomizeBetweenItems(p1, p2)
-		This.RandomizeBetweenItemsCS(p1, p2, _TRUE_)
+		This.RandomizeBetweenItemsCS(p1, p2, 1)
 
 		#< @FunctionFluentForm
 
@@ -63273,7 +63273,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomizeNotBetween(p1, p2)
-		This.RandomizeNotBetweenCS(p1, p2, _TRUE_)
+		This.RandomizeNotBetweenCS(p1, p2, 1)
 
 		#< @FunctionFluentForm
 
@@ -63349,7 +63349,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomizeNotBetweenItems(p1, p2)
-		This.RandomizeNotBetweenItemsCS(p1, p2, _TRUE_)
+		This.RandomizeNotBetweenItemsCS(p1, p2, 1)
 
 		#< @FunctionFluentForm
 
@@ -63667,7 +63667,7 @@ fdef
 
 		o1 = new stzList([ :StartingAt, 5 ])
 		? o1.IsAPairQ().Where('{ isString(@pair[1]) and isNumber(@pair[2]) }')
-		#--> _TRUE_
+		#--> TRUE
 
 		*/
 
@@ -63678,7 +63678,7 @@ fdef
 		cCondition = StzStringQ(pcCondition).
 				TrimQ().
 				RemoveTheseBoundsQ("{","}").
-				ReplaceManyCSQ([ "@list", "@pair" ], "This", _FALSE_).
+				ReplaceManyCSQ([ "@list", "@pair" ], "This", 0).
 				Content()
 
 		cCode = 'bOk = (' + cCondition + ')'
@@ -63889,11 +63889,11 @@ fdef
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
 
-		_bResult_ = _FALSE_
+		_bResult_ = 0
 
 		for i@ = 1 to _nLen_
 			if isList(_aContent_[@i]) and @IsPair(_aContent_[@i])
-				_bResult_ = _TRUE_
+				_bResult_ = 1
 				exit
 			ok
 		next
@@ -63901,7 +63901,7 @@ fdef
 		return _bResult_
 
 		def ContainsParsQ()
-			if This.ContainsPairs() = _TRUE_
+			if This.ContainsPairs() = 1
 				return This
 			else
 				return AFalseObject()
@@ -64041,10 +64041,10 @@ fdef
 
 				nLenTemp = len(aContent[i])
 				if nLenTemp = 0
-					aPair + _NULL_ + _NULL_
+					aPair + "" + ""
 
 				but nLenTemp = 1
-					aPair + aContent[i][1] + _NULL_
+					aPair + aContent[i][1] + ""
 
 				but nLenTemp = 2
 					aPair = aContent[i]
@@ -64054,7 +64054,7 @@ fdef
 				ok
 			
 			else
-				aPair + aContent[i] + _NULL_
+				aPair + aContent[i] + ""
 			ok
 
 			aResult + aPair
@@ -64078,12 +64078,12 @@ fdef
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		bResult = _FALSE_
+		bResult = 0
 
 		for i = 1 to nLen
 			item = aContent[i]
 			if isList(item) and StzListQ(item).IsSingle()
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next
@@ -64199,7 +64199,7 @@ fdef
 
 				nLenTemp = len(aContent[i])
 				if nLenTemp = 0
-					aSingle + _NULL_
+					aSingle + ""
 
 				else
 					aSingle + aContent[i][1]
@@ -64275,7 +64275,7 @@ fdef
 				aList + aContent[i]
 				if n > 1
 					for j = 1 to n-1
-						aList + _NULL_
+						aList + ""
 					next
 				ok
 			else
@@ -64288,7 +64288,7 @@ fdef
 				but n > nLenList
 					aList = aContent[i]
 					for j = 1 to n - nLenList
-						aList + _NULL_
+						aList + ""
 					next
 
 				but n < nLenList
@@ -64693,7 +64693,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def Split(pItemOrPos)
-		return This.SplitCS(pItemOrPos, _TRUE_)
+		return This.SplitCS(pItemOrPos, 1)
 
 		#< @FunctionFluentForm
 
@@ -64795,7 +64795,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitAt(pItem)
-		This.SplitAtCS(pItem, _TRUE_)
+		This.SplitAtCS(pItem, 1)
 
 		#< @FunctionFluentForm
 
@@ -64936,7 +64936,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitAtAsSections(pItem)
-		return This.SplitAtAsSectionsCS(pItem, _TRUE_)
+		return This.SplitAtAsSectionsCS(pItem, 1)
 
 		def SplitAtAsSectionsQ(pItem)
 			This.SplitAtAsSections(pItem)
@@ -66898,7 +66898,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsXT(pItem)
-		return This.FindSplitsCSXT(pItem, _TRUE_)
+		return This.FindSplitsCSXT(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -66963,7 +66963,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAt(pItem)
-		return This.FindSplitsAtCS(pItem, _TRUE_)
+		return This.FindSplitsAtCS(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -67100,25 +67100,25 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtItem(pItem)
-		return This.FindSplitsAtItemCS(pItem, _TRUE_)
+		return This.FindSplitsAtItemCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
 		def FindSplits(pItem)
-			return This.FindSplitsCS(pItem, _TRUE_)
+			return This.FindSplitsCS(pItem, 1)
 
 		def FindSplitsAtThisItem(pItem)
-			return This.FindSplitsAtThisItemCS(pItem, _TRUE_)
+			return This.FindSplitsAtThisItemCS(pItem, 1)
 		#--
 
 		def FindSplitsAtItemZ(pItem)
-			return This.FindSplitsAtItemCS(pItem, _TRUE_)
+			return This.FindSplitsAtItemCS(pItem, 1)
 
 		def FindSplitsZ(pItem)
-			return This.FindSplitsCS(pItem, _TRUE_)
+			return This.FindSplitsCS(pItem, 1)
 
 		def FindSplitsAtThisItemZ(pItem)
-			return This.FindSplitsAtThisItemCS(pItem, _TRUE_)
+			return This.FindSplitsAtThisItemCS(pItem, 1)
 
 		#>
 
@@ -67160,7 +67160,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtItems(paItems)
-		return This.FindSplitsAtItemsCS(paItems, _TRUE_)
+		return This.FindSplitsAtItemsCS(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -67215,7 +67215,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSection(n1, n2)
-		return This.FindSplitsAtSectionCS(n1, n2, _TRUE_)
+		return This.FindSplitsAtSectionCS(n1, n2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -67264,7 +67264,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSectionIB(n1, n2)
-		return This.FindSplitsAtSectionCSIB(n1, n2, _TRUE_)
+		return This.FindSplitsAtSectionCSIB(n1, n2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -67321,7 +67321,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSections(paSections)
-		return This.FindSplitsAtSectionsCS(paSections, _TRUE_)
+		return This.FindSplitsAtSectionsCS(paSections, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -67378,7 +67378,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSectionsIB(paSections)
-		return This.FindSplitsAtSectionsCSIB(paSections, _TRUE_)
+		return This.FindSplitsAtSectionsCSIB(paSections, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -67450,7 +67450,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBefore(pItem)
-		return This.FindSplitsBeforeCS(pItem, _TRUE_)
+		return This.FindSplitsBeforeCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -67498,7 +67498,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforePosition(n)
-		return This.FindSplitsBeforePositionCS(n, _TRUE_)
+		return This.FindSplitsBeforePositionCS(n, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -67561,7 +67561,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforePositions(anPos)
-		return This.FindSplitsBeforePositionsCS(anPos, _TRUE_)
+		return This.FindSplitsBeforePositionsCS(anPos, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -67620,7 +67620,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeItem(pItem)
-		return This.FindSplitsBeforeItemCS(pItem, _TRUE_)
+		return This.FindSplitsBeforeItemCS(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -67679,7 +67679,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeItems(paItems)
-		return This.FindSplitsBeforeItemsCS(paItems, _TRUE_)
+		return This.FindSplitsBeforeItemsCS(paItems, 1)
 	
 		#< @FunctionAlternativeForms
 
@@ -67886,7 +67886,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfter(pItem)
-		return This.FindSplitsAfterCS(pItem, _TRUE_)
+		return This.FindSplitsAfterCS(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -67981,7 +67981,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterItem(pItem)
-		return This.FindSplitsAfterItemCS(pItem, _TRUE_)
+		return This.FindSplitsAfterItemCS(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -68032,7 +68032,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterItems(paItems)
-		return This.FindSplitsAfterItemsCS(paItems, _TRUE_)
+		return This.FindSplitsAfterItemsCS(paItems, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -68181,7 +68181,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetween(pItem1, pItem2)
-		return This.FindSplitsBetweenCS(pItem1, pItem2, _TRUE_)
+		return This.FindSplitsBetweenCS(pItem1, pItem2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -68226,7 +68226,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenIB(pItem1, pItem2)
-		return This.FindSplitsBetweenCSIB(pItem1, pItem2, _TRUE_)
+		return This.FindSplitsBetweenCSIB(pItem1, pItem2, 1)
 
 
 		#< @FunctionAlternativeForm
@@ -68307,7 +68307,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenItems(paItems)
-		return This.FindSplitsBetweenItemsCS(paItems, _TRUE_)
+		return This.FindSplitsBetweenItemsCS(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -68712,7 +68712,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsXTZZ(pItem)
-		return This.FindSplitsCSXTZZ(pItem, _TRUE_)
+		return This.FindSplitsCSXTZZ(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -68777,7 +68777,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtZZ(pItem)
-		return This.FindSplitsAtCSZZ(pItem, _TRUE_)
+		return This.FindSplitsAtCSZZ(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -68818,7 +68818,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtPositionZZ(n)
-		return This.FindSplitsAtPositionCSZZ(n, _TRUE_)
+		return This.FindSplitsAtPositionCSZZ(n, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -68872,7 +68872,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtPositionsZZ(anPos)
-		return This.FindSplitsAtPositionsCSZZ(anPos, _TRUE_)
+		return This.FindSplitsAtPositionsCSZZ(anPos, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -68949,25 +68949,25 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtItemZZ(pItem)
-		return This.FindSplitsAtItemCSZZ(pItem, _TRUE_)
+		return This.FindSplitsAtItemCSZZ(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
 		def FindSplitsZZ(pItem)
-			return This.FindSplitsCSZZ(pItem, _TRUE_)
+			return This.FindSplitsCSZZ(pItem, 1)
 
 		def FindSplitsAtThisItemZZ(pItem)
-			return This.FindSplitsAtThisItemCSZZ(pItem, _TRUE_)
+			return This.FindSplitsAtThisItemCSZZ(pItem, 1)
 		#--
 
 		def FindSplitsAtItemAsSectionsZZ(pItem)
-			return This.FindSplitsAtItemAsSectionsCSZZ(pItem, _TRUE_)
+			return This.FindSplitsAtItemAsSectionsCSZZ(pItem, 1)
 
 		def FindSplitsAsSections(pItem)
-			return This.FindSplitsAsSectionsCS(pItem, _TRUE_)
+			return This.FindSplitsAsSectionsCS(pItem, 1)
 
 		def FindSplitsAtThisItemAsSections(pItem)
-			return This.FindSplitsAtThisItemAsSectionsCS(pItem, _TRUE_)
+			return This.FindSplitsAtThisItemAsSectionsCS(pItem, 1)
 
 		#>
 
@@ -69009,7 +69009,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtItemsZZ(paItems)
-		return This.FindSplitsAtItemsCSZZ(paItems, _TRUE_)
+		return This.FindSplitsAtItemsCSZZ(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -69064,7 +69064,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSectionZZ(n1, n2)
-		return This.FindSplitsAtSectionCSZZ(n1, n2, _TRUE_)
+		return This.FindSplitsAtSectionCSZZ(n1, n2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -69119,7 +69119,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSectionIBZZ(n1, n2)
-		return This.FindSplitsAtSectionCSIBZZ(n1, n2, _TRUE_)
+		return This.FindSplitsAtSectionCSIBZZ(n1, n2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -69248,7 +69248,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeZZ(pItem)
-		return This.FindSplitsBeforeCSZZ(pItem, _TRUE_)
+		return This.FindSplitsBeforeCSZZ(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -69297,7 +69297,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforePositionZZ(n)
-		return This.FindSplitsBeforePositionCSZZ(n, _TRUE_)
+		return This.FindSplitsBeforePositionCSZZ(n, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -69360,7 +69360,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforePositionsZZ(anPos)
-		return This.FindSplitsBeforePositionsCSZZ(anPos, _TRUE_)
+		return This.FindSplitsBeforePositionsCSZZ(anPos, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -69416,7 +69416,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeItemZZ(pItem)
-		return This.FindSplitsBeforeItemCSZZ(pItem, _TRUE_)
+		return This.FindSplitsBeforeItemCSZZ(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -69472,7 +69472,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeItemsZZ(paItems)
-		return This.FindSplitsBeforeItemsCSZZ(paItems, _TRUE_)
+		return This.FindSplitsBeforeItemsCSZZ(paItems, 1)
 	
 		#< @FunctionAlternativeForms
 
@@ -69535,7 +69535,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSectionZZ(n1, n2)
-		return This.FindSplitsBeforeSectionCSZZ(n1, n2, _TRUE_)
+		return This.FindSplitsBeforeSectionCSZZ(n1, n2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -69592,7 +69592,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSectionIBZZ(n1, n2)
-		return This.FindSplitsBeforeSectionCSIBZZ(n1, n2, _TRUE_)
+		return This.FindSplitsBeforeSectionCSIBZZ(n1, n2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -69652,7 +69652,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSectionsZZ(paSections)
-		return This.FindSplitsBeforeSectionsCSZZ(paSections, _TRUE_)
+		return This.FindSplitsBeforeSectionsCSZZ(paSections, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -69719,7 +69719,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSectionsIBZZ(paSections)
-		return This.FindSplitsBeforeSectionsCSIBZZ(paSections, _TRUE_)
+		return This.FindSplitsBeforeSectionsCSIBZZ(paSections, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -69807,7 +69807,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterZZ(pItem)
-		return This.FindSplitsAfterCSZZ(pItem, _TRUE_)
+		return This.FindSplitsAfterCSZZ(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -69852,7 +69852,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterPositionZZ(n)
-		return This.FindSplitsAfterPositionCSZZ(n, _TRUE_)
+		return This.FindSplitsAfterPositionCSZZ(n, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -69910,7 +69910,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterPositionsZZ(anPos)
-		return This.FindSplitsAfterPositionsCSZZ(anPos, _TRUE_)
+		return This.FindSplitsAfterPositionsCSZZ(anPos, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -69966,7 +69966,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterItemZZ(pItem)
-		return This.FindSplitsAfterItemCSZZ(pItem, _TRUE_)
+		return This.FindSplitsAfterItemCSZZ(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -70022,7 +70022,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterItemsZZ(paItems)
-		return This.FindSplitsAfterItemsCSZZ(paItems, _TRUE_)
+		return This.FindSplitsAfterItemsCSZZ(paItems, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -70084,7 +70084,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterSectionZZ(n1, n2)
-		return This.FindSplitsAfterSectionCSZZ(n1, n2, _TRUE_)
+		return This.FindSplitsAfterSectionCSZZ(n1, n2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -70140,7 +70140,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterSectionIBZZ(n1, n2)
-		return This.FindSplitsAfterSectionCSIBZZ(n1, n2, _TRUE_)
+		return This.FindSplitsAfterSectionCSIBZZ(n1, n2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -70197,7 +70197,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterSectionsZZ(paSections)
-		return This.FindSplitsAfterSectionsCSZZ(paSections, _TRUE_)
+		return This.FindSplitsAfterSectionsCSZZ(paSections, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -70255,7 +70255,7 @@ fdef
 	#-- WITHOUT CASESNSITIVITY
 
 	def FindSplitsAfterSectionsIBZZ(paSections)
-		return This.FindSplitsAfterSectionsCSIBZZ(paSections, _TRUE_)
+		return This.FindSplitsAfterSectionsCSIBZZ(paSections, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -70310,7 +70310,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenZZ(pItem1, pItem2)
-		return This.FindSplitsBetweenCS(pItem1, pItem2, _TRUE_)
+		return This.FindSplitsBetweenCS(pItem1, pItem2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -70356,7 +70356,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenIBZZ(pItem1, pItem2)
-		return This.FindSplitsBetweenCSIBZZ(pItem1, pItem2, _TRUE_)
+		return This.FindSplitsBetweenCSIBZZ(pItem1, pItem2, 1)
 
 
 		#< @FunctionAlternativeForm
@@ -70391,7 +70391,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenPositionsZZ(n1, n2)
-		return This.FindSplitsAtSectionCSZZ(n1, n2, _TRUE_)
+		return This.FindSplitsAtSectionCSZZ(n1, n2, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -70433,7 +70433,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenPositionsIBZZ(n1, n2)
-		return This.FindSplitsAtSectionCSIBZZ(n1, n2, _TRUE_)
+		return This.FindSplitsAtSectionCSIBZZ(n1, n2, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -70481,7 +70481,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenItemsZZ(paItems)
-		return This.FindSplitsBetweenItemsCSZZ(paItems, _TRUE_)
+		return This.FindSplitsBetweenItemsCSZZ(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -70523,7 +70523,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsToNPartsZZ(n)
-		return This.FindSplitsToNPartsCSZZ(n, _TRUE_)
+		return This.FindSplitsToNPartsCSZZ(n, 1)
 
 		def FindSplitsToNPartsAsSections(n)
 			return This.FindSplitsToNPartsZZ(n)
@@ -70566,7 +70566,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsToPartsOfNItemsZZ(n)
-		return This.FindSplitsToPartsOfNItemsCSZZ(n, _TRUE_)
+		return This.FindSplitsToPartsOfNItemsCSZZ(n, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -70613,7 +70613,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY()
 
 	def FindSplitsToPartsOfNItemsXTZZ(n)
-		return This.FindSplitsToPartsOfNItemsCSXTZZ(n, _TRUE_)
+		return This.FindSplitsToPartsOfNItemsCSXTZZ(n, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -70663,7 +70663,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsWZZ(pcCondition)
-		return This.FindSplitsWCSZZ(pcCondition, _TRUE_)
+		return This.FindSplitsWCSZZ(pcCondition, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -70698,7 +70698,7 @@ fdef
 
 		pcCondition = StzStringQ(pcCondition).TrimQ().TheseBoundsRemoved( "{","}" )
 
-		if Q(pcCondition).ContainsCS("@Item", _FALSE_)
+		if Q(pcCondition).ContainsCS("@Item", 0)
 
 			aSections = This.FindItemsAsSectionsWCS(pcCondition, pCaseSensitive)
 			aResult = This.FindSplitsAtSectionsCSZZ(aSections, pCaseSensitive)
@@ -70729,7 +70729,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtWZZ(pcCondition)
-		return This.FindSplitsAtWCSZZ(pcCondition, _TRUE_)
+		return This.FindSplitsAtWCSZZ(pcCondition, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -70760,7 +70760,7 @@ fdef
 
 		oCondition = new stzString(pcCondition)
 
-		if oCondition.ContainsCS("@Item",  _FALSE_)
+		if oCondition.ContainsCS("@Item",  0)
 			anPos = This.FindItemsWCS(pcCondition, pCaseSensitive)
 
 		else
@@ -70781,7 +70781,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeWZZ(pcCondition)
-		return This.FindSplitsBeforeWCSZZ(pcCondition, _TRUE_)
+		return This.FindSplitsBeforeWCSZZ(pcCondition, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -70811,7 +70811,7 @@ fdef
 
 		oCondition = new stzString(pcCondition)
 
-		if oCondition.ContainsCS("@Item",  _FALSE_)
+		if oCondition.ContainsCS("@Item",  0)
 			anPos = This.FindItemsWCS(pcCondition, pCaseSensitive)
 
 		else
@@ -70832,7 +70832,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterWZZ(pcCondition)
-		return This.FindSplitsAfterWCSZZ(pcCondition, _TRUE_)
+		return This.FindSplitsAfterWCSZZ(pcCondition, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -70982,7 +70982,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitXT(n, pItem)
-		return This.FindNthSplitCSXT(n, pItem, _TRUE_)
+		return This.FindNthSplitCSXT(n, pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -71047,7 +71047,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAt(n, pItem)
-		return This.FindNthSplitAtCS(n, pItem, _TRUE_)
+		return This.FindNthSplitAtCS(n, pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -71235,25 +71235,25 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtItem(n, pItem)
-		return This.FindNthSplitAtItemCS(n, pItem, _TRUE_)
+		return This.FindNthSplitAtItemCS(n, pItem, 1)
 
 		#< @FunctionAlternativeForms
 
 		def FindNthSplit(n, pItem)
-			return This.FindNthSplitCS(n, pItem, _TRUE_)
+			return This.FindNthSplitCS(n, pItem, 1)
 
 		def FindNthSplitAtThisItem(n, pItem)
-			return This.FindNthSplitAtThisItemCS(n, pItem, _TRUE_)
+			return This.FindNthSplitAtThisItemCS(n, pItem, 1)
 		#--
 
 		def FindNthSplitAtItemZ(n, pItem)
-			return This.FindNthSplitAtItemCS(n, pItem, _TRUE_)
+			return This.FindNthSplitAtItemCS(n, pItem, 1)
 
 		def FindNthSplitZ(n, pItem)
-			return This.FindNthSplitCS(n, pItem, _TRUE_)
+			return This.FindNthSplitCS(n, pItem, 1)
 
 		def FindNthSplitAtThisItemZ(pItem)
-			return This.FindNthSplitAtThisItemCS(n, pItem, _TRUE_)
+			return This.FindNthSplitAtThisItemCS(n, pItem, 1)
 
 		#>
 
@@ -71318,7 +71318,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtItems(n, paItems)
-		return This.FindNthSplitAtItemsCS(n, paItems, _TRUE_)
+		return This.FindNthSplitAtItemsCS(n, paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -71496,7 +71496,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBefore(n, pItem)
-		return This.FindNthSplitBeforeCS(n, pItem, _TRUE_)
+		return This.FindNthSplitBeforeCS(n, pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -71605,7 +71605,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeItem(n, pItem)
-		return This.FindNthSplitBeforeItemCS(n, pItem, _TRUE_)
+		return This.FindNthSplitBeforeItemCS(n, pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -71660,7 +71660,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeItems(n, paItems)
-		return This.FindNthSplitBeforeItemsCS(n, paItems, _TRUE_)
+		return This.FindNthSplitBeforeItemsCS(n, paItems, 1)
 	
 		#< @FunctionAlternativeForms
 
@@ -71868,7 +71868,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfter(n, pItem)
-		return This.FindNthSplitAfterCS(n, pItem, _TRUE_)
+		return This.FindNthSplitAfterCS(n, pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -71963,7 +71963,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterItem(n, pItem)
-		return This.FindNthSplitAfterItemCS(n, pItem, _TRUE_)
+		return This.FindNthSplitAfterItemCS(n, pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -72014,7 +72014,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterItems(n, paItems)
-		return This.FindNthSplitAfterItemsCS(n, paItems, _TRUE_)
+		return This.FindNthSplitAfterItemsCS(n, paItems, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -72178,7 +72178,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetween(n, pItem1, pItem2)
-		return This.FindNthSplitBetweenCS(n, pItem1, pItem2, _TRUE_)
+		return This.FindNthSplitBetweenCS(n, pItem1, pItem2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -72223,7 +72223,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenIB(n, pItem1, pItem2)
-		return This.FindNthSplitBetweenCSIB(n, pItem1, pItem2, _TRUE_)
+		return This.FindNthSplitBetweenCSIB(n, pItem1, pItem2, 1)
 
 
 		#< @FunctionAlternativeForm
@@ -72304,7 +72304,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenItems(n, paItems)
-		return This.FindNthSplitBetweenItemsCS(n, paItems, _TRUE_)
+		return This.FindNthSplitBetweenItemsCS(n, paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -72690,7 +72690,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitXTZZ(n, pItem)
-		return This.FindNthSplitCSXTXT(n, pItem, _TRUE_)
+		return This.FindNthSplitCSXTXT(n, pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -72753,7 +72753,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtZZ(n, pItem)
-		return This.FindNthSplitAtCSZZ(n, pItem, _TRUE_)
+		return This.FindNthSplitAtCSZZ(n, pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -72877,25 +72877,25 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtItemZZ(pItem)
-		return This.FindNthSplitAtItemCSZZ(n, pItem, _TRUE_)
+		return This.FindNthSplitAtItemCSZZ(n, pItem, 1)
 
 		#< @FunctionAlternativeForms
 
 		def FindNthSplitZZ(pItem)
-			return This.FindNthSplitAtItemZZ(n, pItem, _TRUE_)
+			return This.FindNthSplitAtItemZZ(n, pItem, 1)
 
 		def FindNthSplitAtThisItemZZ(pItem)
-			return This.FindNthSplitAtItemZZ(n, pItem, _TRUE_)
+			return This.FindNthSplitAtItemZZ(n, pItem, 1)
 		#--
 
 		def FindNthSplitAtItemAsSectionZZ(pItem)
-			return This.FindNthSplitAtItemZZ(n, pItem, _TRUE_)
+			return This.FindNthSplitAtItemZZ(n, pItem, 1)
 
 		def FindNthSplitAsSection(pItem)
-			return This.FindNthSplitAtItemZZ(n, pItem, _TRUE_)
+			return This.FindNthSplitAtItemZZ(n, pItem, 1)
 
 		def FindNthSplitAtThisItemAsSection(pItem)
-			return This.FindNthSplitAtItemZZ(n, pItem, _TRUE_)
+			return This.FindNthSplitAtItemZZ(n, pItem, 1)
 
 		#>
 
@@ -72937,7 +72937,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtItemsZZ(n, paItems)
-		return This.FindNthSplitAtItemsCSZZ(n, paItems, _TRUE_)
+		return This.FindNthSplitAtItemsCSZZ(n, paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -73100,7 +73100,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeZZ(n, pItem)
-		return This.FindNthSplitBeforeCSZZ(n, pItem, _TRUE_)
+		return This.FindNthSplitBeforeCSZZ(n, pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -73213,7 +73213,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeItemZZ(n, pItem)
-		return This.FindNthSplitBeforeItemCSZZ(n, pItem, _TRUE_)
+		return This.FindNthSplitBeforeItemCSZZ(n, pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -73272,7 +73272,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeItemsZZ(n, paItems)
-		return This.FindNthSplitBeforeItemsCSZZ(n, paItems, _TRUE_)
+		return This.FindNthSplitBeforeItemsCSZZ(n, paItems, 1)
 	
 		#< @FunctionAlternativeForms
 
@@ -73479,7 +73479,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterZZ(n, pItem)
-		return This.FindNthSplitAfterCSZZ(n, pItem, _TRUE_)
+		return This.FindNthSplitAfterCSZZ(n, pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -73574,7 +73574,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterItemZZ(n, pItem)
-		return This.FindNthSplitAfterItemCSZZ(n, pItem, _TRUE_)
+		return This.FindNthSplitAfterItemCSZZ(n, pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -73628,7 +73628,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterItemsZZ(n, paItems)
-		return This.FindNthSplitAfterItemsCSZZ(n, paItems, _TRUE_)
+		return This.FindNthSplitAfterItemsCSZZ(n, paItems, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -73799,7 +73799,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenZZ(n, pItem1, pItem2)
-		return This.FindNthSplitBetweenCS(n, pItem1, pItem2, _TRUE_)
+		return This.FindNthSplitBetweenCS(n, pItem1, pItem2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -73852,7 +73852,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenIBZZ(n, pItem1, pItem2)
-		return This.FindNthSplitBetweenCSIBZZ(n, pItem1, pItem2, _TRUE_)
+		return This.FindNthSplitBetweenCSIBZZ(n, pItem1, pItem2, 1)
 
 
 		#< @FunctionAlternativeForm
@@ -73933,7 +73933,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenItemsZZ(n, paItems)
-		return This.FindNthSplitBetweenItemsCSZZ(n, paItems, _TRUE_)
+		return This.FindNthSplitBetweenItemsCSZZ(n, paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -74278,7 +74278,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitXT(pItem)
-		return This.FindLastSplitCSXT(pItem, _TRUE_)
+		return This.FindLastSplitCSXT(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -74343,7 +74343,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAt(pItem)
-		return This.FindLastSplitAtCS(pItem, _TRUE_)
+		return This.FindLastSplitAtCS(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -74477,25 +74477,25 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtItem(pItem)
-		return This.FindLastSplitAtItemCS(pItem, _TRUE_)
+		return This.FindLastSplitAtItemCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
 		def FindLastSplit(pItem)
-			return This.FindLastSplitCS(pItem, _TRUE_)
+			return This.FindLastSplitCS(pItem, 1)
 
 		def FindLastSplitAtThisItem(pItem)
-			return This.FindLastSplitAtThisItemCS(pItem, _TRUE_)
+			return This.FindLastSplitAtThisItemCS(pItem, 1)
 		#--
 
 		def FindLastSplitAtItemZ(pItem)
-			return This.FindLastSplitAtItemCS(pItem, _TRUE_)
+			return This.FindLastSplitAtItemCS(pItem, 1)
 
 		def FindLastSplitZ(pItem)
-			return This.FindLastSplitCS(pItem, _TRUE_)
+			return This.FindLastSplitCS(pItem, 1)
 
 		def FindLastSplitAtThisItemZ(pItem)
-			return This.FindLastSplitAtThisItemCS(pItem, _TRUE_)
+			return This.FindLastSplitAtThisItemCS(pItem, 1)
 
 		#>
 
@@ -74537,7 +74537,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtItems(paItems)
-		return This.FindLastSplitAtItemsCS(paItems, _TRUE_)
+		return This.FindLastSplitAtItemsCS(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -74731,7 +74731,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBefore(pItem)
-		return This.FindLastSplitBeforeCS(pItem, _TRUE_)
+		return This.FindLastSplitBeforeCS(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -74844,7 +74844,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeItem(pItem)
-		return This.FindLastSplitBeforeItemCS(pItem, _TRUE_)
+		return This.FindLastSplitBeforeItemCS(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -74903,7 +74903,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeItems(paItems)
-		return This.FindLastSplitBeforeItemsCS(paItems, _TRUE_)
+		return This.FindLastSplitBeforeItemsCS(paItems, 1)
 	
 		#< @FunctionAlternativeForms
 
@@ -75111,7 +75111,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfter(pItem)
-		return This.FindLastSplitAfterCS(pItem, _TRUE_)
+		return This.FindLastSplitAfterCS(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -75209,7 +75209,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterItem(pItem)
-		return This.FindLastSplitAfterItemCS(pItem, _TRUE_)
+		return This.FindLastSplitAfterItemCS(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -75263,7 +75263,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterItems(paItems)
-		return This.FindLastSplitAfterItemsCS(paItems, _TRUE_)
+		return This.FindLastSplitAfterItemsCS(paItems, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -75435,7 +75435,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetween(pItem1, pItem2)
-		return This.FindLastSplitBetweenCS(pItem1, pItem2, _TRUE_)
+		return This.FindLastSplitBetweenCS(pItem1, pItem2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -75488,7 +75488,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenIB(pItem1, pItem2)
-		return This.FindLastSplitBetweenCSIB(pItem1, pItem2, _TRUE_)
+		return This.FindLastSplitBetweenCSIB(pItem1, pItem2, 1)
 
 
 		#< @FunctionAlternativeForm
@@ -75569,7 +75569,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenItems(paItems)
-		return This.FindLastSplitBetweenItemsCS(paItems, _TRUE_)
+		return This.FindLastSplitBetweenItemsCS(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -75955,7 +75955,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitXTZZ(pItem)
-		return This.FindLastSplitCSXTZZ(pItem, _TRUE_)
+		return This.FindLastSplitCSXTZZ(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -76020,7 +76020,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtZZ(pItem)
-		return This.FindLastSplitAtCSZZ(pItem, _TRUE_)
+		return This.FindLastSplitAtCSZZ(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -76144,25 +76144,25 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtItemZZ(pItem)
-		return This.FindLastSplitAtItemCSZZ(pItem, _TRUE_)
+		return This.FindLastSplitAtItemCSZZ(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
 		def FindLastSplitZZ(pItem)
-			return This.FindLastSplitAtItemZZ(pItem, _TRUE_)
+			return This.FindLastSplitAtItemZZ(pItem, 1)
 
 		def FindLastSplitAtThisItemZZ(pItem)
-			return This.FindLastSplitAtItemZZ(pItem, _TRUE_)
+			return This.FindLastSplitAtItemZZ(pItem, 1)
 		#--
 
 		def FindLastSplitAtItemAsSectionZZ(pItem)
-			return This.FindLastSplitAtItemZZ(pItem, _TRUE_)
+			return This.FindLastSplitAtItemZZ(pItem, 1)
 
 		def FindLastSplitAsSection(pItem)
-			return This.FindLastSplitAtItemZZ(pItem, _TRUE_)
+			return This.FindLastSplitAtItemZZ(pItem, 1)
 
 		def FindLastSplitAtThisItemAsSection(pItem)
-			return This.FindLastSplitAtItemZZ(pItem, _TRUE_)
+			return This.FindLastSplitAtItemZZ(pItem, 1)
 
 		#>
 
@@ -76204,7 +76204,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtItemsZZ(paItems)
-		return This.FindLastSplitAtItemsCSZZ(paItems, _TRUE_)
+		return This.FindLastSplitAtItemsCSZZ(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -76367,7 +76367,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeZZ(pItem)
-		return This.FindLastSplitBeforeCSZZ(pItem, _TRUE_)
+		return This.FindLastSplitBeforeCSZZ(pItem, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -76480,7 +76480,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeItemZZ(pItem)
-		return This.FindLastSplitBeforeItemCSZZ(pItem, _TRUE_)
+		return This.FindLastSplitBeforeItemCSZZ(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -76539,7 +76539,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeItemsZZ(paItems)
-		return This.FindLastSplitBeforeItemsCSZZ(paItems, _TRUE_)
+		return This.FindLastSplitBeforeItemsCSZZ(paItems, 1)
 	
 		#< @FunctionAlternativeForms
 
@@ -76747,7 +76747,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterZZ(pItem)
-		return This.FindLastSplitAfterCSZZ(pItem, _TRUE_)
+		return This.FindLastSplitAfterCSZZ(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -76842,7 +76842,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterItemZZ(pItem)
-		return This.FindLastSplitAfterItemCSZZ(pItem, _TRUE_)
+		return This.FindLastSplitAfterItemCSZZ(pItem, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -76896,7 +76896,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterItemsZZ(paItems)
-		return This.FindLastSplitAfterItemsCSZZ(paItems, _TRUE_)
+		return This.FindLastSplitAfterItemsCSZZ(paItems, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -77067,7 +77067,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenZZ(pItem1, pItem2)
-		return This.FindLastSplitBetweenCS(pItem1, pItem2, _TRUE_)
+		return This.FindLastSplitBetweenCS(pItem1, pItem2, 1)
 
 		#< @FunctionAlternativeForm
 
@@ -77120,7 +77120,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenIBZZ(pItem1, pItem2)
-		return This.FindLastSplitBetweenCSIBZZ(pItem1, pItem2, _TRUE_)
+		return This.FindLastSplitBetweenCSIBZZ(pItem1, pItem2, 1)
 
 
 		#< @FunctionAlternativeForm
@@ -77201,7 +77201,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenItemsZZ(paItems)
-		return This.FindLastSplitBetweenItemsCSZZ(paItems, _TRUE_)
+		return This.FindLastSplitBetweenItemsCSZZ(paItems, 1)
 
 		#< @FunctionAlternativeForms
 
@@ -77590,13 +77590,13 @@ fdef
 
 	def IsPalindromeCS(pCaseSensitive)
 		if This.NumberOfChars() < 2
-			return _FALSE_
+			return 0
 		ok
 
-		if This.IsEqualtToCS( ring_reverse(This.Content()), pCaseSensitive) = _TRUE_
-			return _TRUE_
+		if This.IsEqualtToCS( ring_reverse(This.Content()), pCaseSensitive) = 1
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -77612,7 +77612,7 @@ fdef
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsPalindrome()
-		return This.IsPalindromeCS(_TRUE_)
+		return This.IsPalindromeCS(1)
 
 		#< @FunctionAlternativeForms
 
@@ -77630,16 +77630,16 @@ fdef
 
 	def CheckW(pcCondition)
 		if NOT This.ContainsItemsW(pcCondition)
-			return _FALSE_
+			return 0
 		ok
 
 		anPos = This.FindItemsW(pcCondition)
 		_nLen_ = len(anPos)
 
 		if _nLen_ = This.NumberOfItems()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionFluentForm
@@ -77665,9 +77665,9 @@ fdef
 		_nLen_ = len(anPos)
 
 		if _nLen_ = This.NumberOfItems()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionFluentForm
@@ -77692,7 +77692,7 @@ fdef
 	def CheckAtW(panPos, pcCondition)
 
 		if NOT This.ContainsItemsAtW(panPos, pcCondition)
-			return _FALSE_
+			return 0
 		ok
 
 		_bResult_ = This.ItemsAtPositionsQ(panPos).CheckW(pcCondition)
@@ -77721,7 +77721,7 @@ fdef
 	def CheckAtWXT(panPos, pcCondition)
 
 		if NOT This.ContainsItemsAtWXT(panPos, pcCondition)
-			return _FALSE_
+			return 0
 		ok
 
 		_bResult_ = This.ItemsAtPositionsQ(panPos).CheckWXT(pcCondition)
@@ -77966,18 +77966,18 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OnPosition)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInPositionNamedParam()
 			if This.NumberOfItems() = 2 and
 			   ( isString(This.Item(1)) and This.Item(1) = :InPosition)
 	
-				return _TRUE_
+				return 1
 			else
-				return _FALSE_
+				return 0
 			ok
 	
 		// def IsAtPositionNamedParam() --> Exists below in the file
@@ -77987,126 +77987,126 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OnPositions)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInPositionsNamedParam()
 			if This.NumberOfItems() = 2 and
 			   ( isString(This.Item(1)) and This.Item(1) = :InPositions)
 	
-				return _TRUE_
+				return 1
 			else
-				return _FALSE_
+				return 0
 			ok
 
 	def IsOnSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OnSection)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnSectionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OnSectionIB)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OnSections)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnSectionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OnSectionsIB)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsHarvestNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Harvest)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndHarvestNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndHarvest)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndThenHarvestNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndThenHarvest)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThenHarvestNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ThenHarvest)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsYieldNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Yield)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndYieldNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndYield)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndThenYieldNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndThenYield)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThenYieldNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ThenYield)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -78115,72 +78115,72 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :HarvestSection)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndHarvestSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndHarvestSection)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndThenHarvestSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndThenHarvestSection)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThenHarvestSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ThenHarvestSection)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsYieldSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :YieldSection)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndYieldSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndYieldSection)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndThenYieldSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndThenYieldSection)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThenYieldSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ThenYieldSection)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -78189,72 +78189,72 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :HarvestSections)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndHarvestSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndHarvestSections)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndThenHarvestSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndThenHarvestSections)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThenHarvestSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ThenHarvestSections)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsYieldSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :YieldSections)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndYieldSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndYieldSections)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndThenYieldSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndThenYieldSections)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThenYieldSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ThenYieldSections)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 	#--
 
@@ -78262,18 +78262,18 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :NCharsBefore)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNCharsAfterNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :NCharsAfter)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -78282,54 +78282,54 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToNParts)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPartsOfNCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNChars)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPartsOfNItemsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNItems)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPartsOfNItemsXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNItemsXT)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPartsOfNStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNStrings)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPartsOfNSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNSubStringss)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#==
@@ -78338,37 +78338,37 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AtWhere)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWhereOrAtWhereNamedParam()
 		if This.IsWhereNamedParam() or This.IsAtWhereNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtWhereOrWhereNamedParam()
 		if This.IsWhereNamedParam() or This.IsAtWhereNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWhereOrAtWhereNamedParams()
 		if This.IsWhereNamedParam() or This.IsAtWhereNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtWhereOrWhereNamedParams()
 		if This.IsWhereNamedParam() or This.IsAtWhereNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -78377,37 +78377,37 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AtWhereXT)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWhereXTOrAtWhereXTNamedParam()
 		if This.IsWhereXTNamedParam() or This.IsAtWhereXTNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtWhereXTOrWhereXTNamedParam()
 		if This.IsWhereXTNamedParam() or This.IsAtWhereXTNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWhereXTOrAtWhereXTNamedParams()
 		if This.IsWhereXTNamedParam() or This.IsAtWhereXTNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtWhereXTOrWhereXTNamedParams()
 		if This.IsWhereXTNamedParam() or This.IsAtWhereXTNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#==
@@ -78416,16 +78416,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeWhere)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeOrBeforeWhereNamedParam()
 		if This.IsBeforeNamedParam() or This.IsBeforeWhereNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBeforeWhereOrBeforeNamedParam()
@@ -78443,16 +78443,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeWhereXT)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeOrBeforeWhereXTNamedParam()
 		if This.IsBeforeNamedParam() or This.IsBeforeWhereXTNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBeforeWhereXTOrBeforeNamedParam()
@@ -78472,16 +78472,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterWhere)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterOrAfterWhereNamedParam()
 		if This.IsAfterNamedParam() or This.IsAfterWhereNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAfterWhereOrAfterNamedParam()
@@ -78499,16 +78499,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterWhereXT)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterOrAfterWhereXTNamedParam()
 		if This.IsAfterNamedParam() or This.IsAfterWhereXTNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAfterWhereXTOrAfterNamedParam()
@@ -78526,36 +78526,36 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfExactlyNItems)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPartsOfExactlyNCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfExactlyNChars)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPartsOfExactlyNStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfExactlyNStrings)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPartsOfExactlyNSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfExactlyNSubStrings)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -78564,36 +78564,36 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNItemsXT)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPartsOfNCharsXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNCharsXT)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPartsOfNStringsXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNStringsXT)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPartsOfNSubStringsXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNSubStringsXT)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#==
@@ -78602,36 +78602,36 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToItem)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToItemsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToItems)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUntilItemNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UntilItem)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUpToItemNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UpToItem)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -78640,63 +78640,63 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :DownTo)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsDownToItemNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :DownToItem)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsDownToItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :DownToItemAt)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsDownToItemAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :DownToItemAtPosition)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsDownToCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :DownToChar)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsDownToCharAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :DownToCharAt)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsDownToCharAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :DownToCharAtPosition)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -78707,18 +78707,18 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UntilChar)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUpToCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UpToChar)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -78729,18 +78729,18 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UntilSubString)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUpToSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UpToSubString)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -78751,18 +78751,18 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UntilString)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUpToStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UpToString)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -78773,18 +78773,18 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UntilNumber)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUpToNumberNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UpToNumber)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -78795,18 +78795,18 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UntilList)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUpToListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UpToList)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -78817,18 +78817,18 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UntilObject)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUpToObjectNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UpToObject)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -78841,13 +78841,13 @@ fdef
 		ok
 
 		nLen = len(pacParamNames)
-		bResult = _FALSE_
+		bResult = 0
 
 		for i = 1 to nLen
 			cCode = 'bFound = This.Is' + pacParamNames[i] + 'NamedParam()'
 			eval(cCode)
 			if bFound
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next
@@ -78862,7 +78862,7 @@ fdef
 		#>
 
 	def IsRemoveAtOptionsNamedParam()
-		bResult = _FALSE_
+		bResult = 0
 
 		if This.IsHashList() and
 
@@ -78878,55 +78878,55 @@ fdef
 
 			if This.ToStzHashList().
 				KeysQRT(:stzListOfStrings).
-				ContainsBothCS(:CaseSensitive, :CS, _FALSE_)
+				ContainsBothCS(:CaseSensitive, :CS, 0)
 
 				StzRaise("Incorrect format! :CaseSensitive and :CS can not be used both in the same time")
 			ok
 
 			if This.ToStzHashList().
 				KeysQRT(:stzListOfStrings).
-				ContainsBothCS(:RemoveThisBound, :RemoveThisBoundingSubString, _FALSE_)
+				ContainsBothCS(:RemoveThisBound, :RemoveThisBoundingSubString, 0)
 
 				StzRaise("Incorrect format! :RemoveThisBound and :RemoveThisBoundingSubString can not be used both in the same time")
 			ok
 
-			bOk1 = _FALSE_
+			bOk1 = 0
 			nRemoveNCharsBefore = This.Content()[ :RemoveNCharsBefore ]
 			cType = ring_type(nRemoveNCharsBefore)
-		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsBefore = _NULL_ )
-				bOk1 = _TRUE_
+		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsBefore = "" )
+				bOk1 = 1
 			ok
 
-			bOk2 = _FALSE_
+			bOk2 = 0
 			nRemoveNCharsAfter = This.Content()[ :RemoveNCharsAfter ]
 			cType = ring_type(nRemoveNCharsAfter)
-		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsAfter = _NULL_ )
-				bOk2 = _TRUE_
+		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsAfter = "" )
+				bOk2 = 1
 			ok
 
-			bOk3 = _FALSE_
+			bOk3 = 0
 			cRemoveSubStringBefore = This.Content()[ :RemoveSubStringBefore ]
 			cType = ring_type(cRemoveSubStringBefore)
 		   	if cType = "STRING"
-				bOk3 = _TRUE_
+				bOk3 = 1
 			ok
 
-			bOk4 = _FALSE_
+			bOk4 = 0
 			cRemoveSubStringAfter = This.Content()[ :RemoveSubStringAfter ]
 			cType = ring_type(cRemoveSubStringAfter)
 		   	if cType = "STRING"
-				bOk4 = _TRUE_
+				bOk4 = 1
 			ok
 
-			bOk5 = _FALSE_
+			bOk5 = 0
 			cRemoveThisBound = This.Content()[ :cRemoveThisBound ]
 			cType = ring_type(cRemoveThisBound)
 		   	if cType = "STRING"
-				bOk5 = _TRUE_
+				bOk5 = 1
 			ok
 
 			if bOk1 and bOk2 and bOk3 and bOk4 and bOk5
-				bResult = _TRUE_
+				bResult = 1
 			ok
 		ok
 
@@ -78945,15 +78945,15 @@ fdef
 			:Width = 17,
 			:TextAdjustedTo = :Center # or :Left or :Right or :Justified,
 			
-			:EachChar = _FALSE_ # _TRUE_,
+			:EachChar = 0 # 1,
 			:Hilighted = [ 1, 3 ] # Hilight the 1st and 3rd chars,
 
-			:Numbered = _TRUE_
+			:Numbered = 1
 		])
 		*/
 
 		if This.IsEmpty()
-			return _TRUE_
+			return 1
 		ok
 
 		aListOfBoxOptions = [
@@ -78986,17 +78986,17 @@ fdef
 			if This.IsHashList() and
 			   StzHashListQ(This.Content()).KeysQ().IsMadeOfSome(aListOfBoxOptions)
 
-				return _TRUE_
+				return 1
 			ok
 
 		ok
 
-		return _FALSE_
+		return 0
 
 	def IsBoxOptionsNamedParam()
 
 		if This.IsEmpty()
-			return _TRUE_
+			return 1
 		ok
 
 		aListOfBoxOptions = [
@@ -79025,10 +79025,10 @@ fdef
 		   This.IsHashList() and
 		   StzHashListQ(This.Content()).KeysQ().IsMadeOfSome(aListOfBoxOptions)
 		
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsConstraintsOptionsNamedParam()
@@ -79037,7 +79037,7 @@ fdef
 			:OnStzString = [
 				:MustBeUppercase 	= '{ Q(@str).IsUppercase() }',
 				:MustNotExceed@n@Chars 	= '{ Q(@str).NumberOfChars() <= n }',
-				:MustBeginWithLetter@c@	= '{ Q(@str).BeginsWithCS(c, _FALSE_) }'
+				:MustBeginWithLetter@c@	= '{ Q(@str).BeginsWithCS(c, 0) }'
 			],
 		
 			:OnStzNumber = [
@@ -79057,10 +79057,10 @@ fdef
 				:ValuesMustBeRingCodeInStrings
 			])
 
-			return _TRUE_
+			return 1
 
 		catch
-			return _FALSE_
+			return 0
 		done
 
 	#--
@@ -79069,99 +79069,99 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Cell)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfCellNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfCell)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsCellsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Cells)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfCellsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfCells)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInCellNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InCell)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInCellsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InCells)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsCellValueNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :CellValue)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfCellValueNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfCellValue)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsCellPartNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :CellPart)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsPartNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Part)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSubPartNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :SubPart)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 	#--
 
@@ -79169,36 +79169,36 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :SubValue)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfSubValueNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfSubValue)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSubValuesNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :SubValues)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfSubValuesNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfSubValues)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -79207,27 +79207,27 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfCellPart)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfPartNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfPart)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfSubPartNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfSubPart)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -79236,9 +79236,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :Col or This.Item(1) = :Column) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsColumnNamedParam()
@@ -79248,9 +79248,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :ColNumber or This.Item(1) = :ColumnNumber) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsColumnNumberNamedParam()
@@ -79258,9 +79258,9 @@ fdef
 
 	def IsColOrColNumberNamedParam()
 		if This.IsColNumberNamedParam() or This.IsColNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsColOrColNumberNamedParams()
@@ -79278,9 +79278,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :OfCol or This.Item(1) = :OfColumn) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfColumnNamedParam()
@@ -79288,10 +79288,10 @@ fdef
 
 	def IsOfColOrColumnNamedParam()
 		if This.IsOfColNamedParam() or This.IsOfColumnNamedParam()
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfColumnOrColNamedParam()
@@ -79323,9 +79323,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :InCol or This.Item(1) = :InColumn) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInColumnNamedParam()
@@ -79333,10 +79333,10 @@ fdef
 
 	def IsInColOrColumnNamedParam()
 		if This.IsInColNamedParam() or This.IsInColumnNamedParam()
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInColumnOrColNamedParam()
@@ -79368,9 +79368,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :Cols or This.Item(1) = :Columns) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsColumnsNamedParam()
@@ -79380,9 +79380,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :ColsNumbers or This.Item(1) = :ColumnsNumbers) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsColumnsNumbersNamedParam()
@@ -79390,9 +79390,9 @@ fdef
 
 	def IsColsOrColsNumberNamedParam()
 		if This.IsColsNumbersNamedParam() or This.IsColsNumbersNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsColsNumbersOrColsNamedParam()
@@ -79410,9 +79410,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :OfCols or This.Item(1) = :OfColumns) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfColumnsNamedParam()
@@ -79420,10 +79420,10 @@ fdef
 
 	def IsOfColsOrColumnsNamedParam()
 		if This.IsOfColsNamedParam() or This.IsOfColumnsNamedParam()
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfColumnsOrColsNamedParam()
@@ -79455,9 +79455,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :InCols or This.Item(1) = :InColumns) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInColumnsNamedParam()
@@ -79465,10 +79465,10 @@ fdef
 
 	def IsInColsOrColumnsNamedParam()
 		if This.IsInColsNamedParam() or This.IsInColumnsNamedParam()
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInColumnsOrColNamedParam()
@@ -79500,9 +79500,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :ByColNumber or This.Item(1) = :ByColumnNumber) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsByColumnNumberNamedParam()
@@ -79510,9 +79510,9 @@ fdef
 
 	def IsByColOrByColNumberNamedParam()
 		if This.IsByColNumberNamedParam() or This.IsByColNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsByColOrByColNumberNamedParams()
@@ -79528,9 +79528,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :ByColsNumbers or This.Item(1) = :ByColumnsNumbers) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsByColumnsNumbersNamedParam()
@@ -79538,9 +79538,9 @@ fdef
 
 	def IsByColsOrByColsNumbersNamedParam()
 		if This.IsByColsNumbersNamedParam() or This.IsByColsNumbersNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsByColsOrByColsNumbersNamedParams()
@@ -79558,9 +79558,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :InColNumber or This.Item(1) = :InColumnNumber) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInColumnNumberNamedParam()
@@ -79568,9 +79568,9 @@ fdef
 
 	def IsInColOrInColNumberNamedParam()
 		if This.IsInColNumberNamedParam() or This.IsInColNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInColOrInColNumberNamedParams()
@@ -79586,9 +79586,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :InColsNumbers or This.Item(1) = :InColumnsNumbers) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInColumnsNumbersNamedParam()
@@ -79596,9 +79596,9 @@ fdef
 
 	def IsInColsOrInColsNumbersNamedParam()
 		if This.IsInColsNumbersNamedParam() or This.IsInColsNumbersNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInColsOrInColsNumbersNamedParams()
@@ -79616,9 +79616,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :OfColNumber or This.Item(1) = :OfColumnNumber) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfColumnNumberNamedParam()
@@ -79626,9 +79626,9 @@ fdef
 
 	def IsOfColOrOfColNumberNamedParam()
 		if This.IsOfColNumberNamedParam() or This.IsOfColNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfColOrOfColNumberNamedParams()
@@ -79644,9 +79644,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :OfColsNumbers or This.Item(1) = :OfColumnsNumbers) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfColumnsNumbersNamedParam()
@@ -79654,9 +79654,9 @@ fdef
 
 	def IsOfColsOrOfColsNumbersNamedParam()
 		if This.IsOfColsNumbersNamedParam() or This.IsOfColsNumbersNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfColsOrOfColsNumbersNamedParams()
@@ -79674,9 +79674,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :ToColNumber or This.Item(1) = :ToColumnNumber) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToColumnNumberNamedParam()
@@ -79684,9 +79684,9 @@ fdef
 
 	def IsToColOrToColNumberNamedParam()
 		if This.IsToColNumberNamedParam() or This.IsToColNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToColOrToColNumberNamedParams()
@@ -79702,9 +79702,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :ToColsNumbers or This.Item(1) = :ToColumnsNumbers) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToColumnsNumbersNamedParam()
@@ -79712,9 +79712,9 @@ fdef
 
 	def IsToColsOrToColsNumbersNamedParam()
 		if This.IsToColsNumbersNamedParam() or This.IsToColsNumbersNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToColsOrToColsNumbersNamedParams()
@@ -79732,9 +79732,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :UsingColNumber or This.Item(1) = :UsingColumnNumber) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsUsingColumnNumberNamedParam()
@@ -79742,9 +79742,9 @@ fdef
 
 	def IsUsingColOrUsingColNumberNamedParam()
 		if This.IsUsingColNumberNamedParam() or This.IsUsingColNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsUsingColOrUsingColNumberNamedParams()
@@ -79760,9 +79760,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :UsingColsNumbers or This.Item(1) = :UsingColumnsNumbers) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsUsingColumnsNumbersNamedParam()
@@ -79770,9 +79770,9 @@ fdef
 
 	def IsUsingColsOrUsingColsNumbersNamedParam()
 		if This.IsUsingColsNumbersNamedParam() or This.IsUsingColsNumbersNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsUsingColsOrUsingColsNumbersNamedParams()
@@ -79790,9 +79790,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :WithColNumber or This.Item(1) = :WithColumnNumber) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithColumnNumberNamedParam()
@@ -79800,9 +79800,9 @@ fdef
 
 	def IsWithColOrWithColNumberNamedParam()
 		if This.IsWithColNumberNamedParam() or This.IsWithColNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithColOrWithColNumberNamedParams()
@@ -79818,9 +79818,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :WithColsNumbers or This.Item(1) = :WithColumnsNumbers) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithColumnsNumbersNamedParam()
@@ -79828,9 +79828,9 @@ fdef
 
 	def IsWithColsOrWithColsNumbersNamedParam()
 		if This.IsWithColsNumbersNamedParam() or This.IsWithColsNumbersNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithColsOrWithColsNumbersNamedParams()
@@ -79848,17 +79848,17 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ByRowNumber )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
 	def IsByRowOrByRowNumberNamedParam()
 		if This.IsByRowNumberNamedParam() or This.IsByRowNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsByRowOrByRowNumberNamedParams()
@@ -79874,16 +79874,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ByRowsNumbers )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsByRowsOrByRowsNumbersNamedParam()
 		if This.IsByRowsNumbersNamedParam() or This.IsByRowsNumbersNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsByRowsOrByRowsNumbersNamedParams()
@@ -79901,16 +79901,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InRowNumber )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInRowOrInRowNumberNamedParam()
 		if This.IsInRowNumberNamedParam() or This.IsInRowNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInRowOrInRowNumberNamedParams()
@@ -79926,16 +79926,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InRowsNumbers )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInRowsOrInRowsNumbersNamedParam()
 		if This.IsInRowsNumbersNamedParam() or This.IsInRowsNumbersNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInRowsOrInRowsNumbersNamedParams()
@@ -79953,16 +79953,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfRowNumber )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfRowOrOfRowNumberNamedParam()
 		if This.IsOfRowNumberNamedParam() or This.IsOfRowNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfRowOrOfRowNumberNamedParams()
@@ -79978,16 +79978,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfRowsNumbers )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfRowsOrOfRowsNumbersNamedParam()
 		if This.IsOfRowsNumbersNamedParam() or This.IsOfRowsNumbersNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfRowsOrOfRowsNumbersNamedParams()
@@ -80005,16 +80005,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToRowNumber )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToRowOrToRowNumberNamedParam()
 		if This.IsToRowNumberNamedParam() or This.IsToRowNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToRowOrToRowNumberNamedParams()
@@ -80030,16 +80030,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToRowsNumbers )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToRowsOrToRowsNumbersNamedParam()
 		if This.IsToRowsNumbersNamedParam() or This.IsToRowsNumbersNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToRowsOrToRowsNumbersNamedParams()
@@ -80057,16 +80057,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UsingRowNumber )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingRowOrUsingRowNumberNamedParam()
 		if This.IsUsingRowNumberNamedParam() or This.IsUsingRowNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsUsingRowOrUsingRowNumberNamedParams()
@@ -80082,16 +80082,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UsingRowsNumbers )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingRowsOrUsingRowsNumbersNamedParam()
 		if This.IsUsingRowsNumbersNamedParam() or This.IsUsingRowsNumbersNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsUsingRowsOrUsingRowsNumbersNamedParams()
@@ -80109,16 +80109,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :WithRowNumber )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithRowOrWithRowNumberNamedParam()
 		if This.IsWithRowNumberNamedParam() or This.IsWithRowNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithRowOrWithRowNumberNamedParams()
@@ -80134,16 +80134,16 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :WithRowsNumbers )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithRowsOrWithRowsNumbersNamedParam()
 		if This.IsWithRowsNumbersNamedParam() or This.IsWithRowsNumbersNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithRowsOrWithRowsNumbersNamedParams()
@@ -80161,54 +80161,54 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Row)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfRowNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfRow)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInRowNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InRow)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsRowsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Rows)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfRowsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfRows)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInRowsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InRows)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -80217,36 +80217,36 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Occurrence)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNthNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Nth)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNthOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :NthOccurrence)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :N)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 	#--
 
@@ -80255,41 +80255,41 @@ fdef
 		nLen = len(aContent)
 
 		if NOT nLen = 2
-			return _FALSE_
+			return 0
 		ok
 
 		if NOT isString(aContent[1])
-			return _FALSE_
+			return 0
 		ok
 
 		if NOT isNumber(aContent[2])
-			return _FALSE_
+			return 0
 		ok
 
 		if NOT ( aContent[1] = :CaseSensitive or aContent[1] = :CS )
-			return _FALSE_
+			return 0
 		ok
 
 		if NOT ( aContent[2] = 0 or aContent[2] = 1 )
-			return _FALSE_
+			return 0
 		ok
 
-		return _TRUE_
+		return 1
 
 	def IsRangeNamedParam()
 
 		if This.IsEmpty()
-			return _TRUE_
+			return 1
 		ok
 
 		if NOT (This.IsHashList() and This.NumberOfItems() <= 2)
-			return _FALSE_
+			return 0
 		ok
 
 		if This.NumberOfItems() = 1
 
 			if This.Item(1)[1] = :Start or This.Item(1)[1] = :Range
-				return _TRUE_
+				return 1
 			ok
 		ok
 
@@ -80298,11 +80298,11 @@ fdef
 			if StzHashListQ( This.List() ).KeysQ().IsEqualTo([ :Start, :Range ]) and
 			   StzHashListQ( This.List() ).ValuesQ().BothAreNumbers()
 
-				return _TRUE_
+				return 1
 
 			else
 
-				return _FALSE_
+				return 0
 			ok
 		ok
 
@@ -80313,20 +80313,20 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StartingAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartingAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StartingAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartingAtOrStartingAtPositionNamedParam()
@@ -80335,10 +80335,10 @@ fdef
 			(This.Item(1) = :StartingAtPosition or
 			 This.Item(1) = :StartingAt) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsStartingAtPositionOrStartingAtNamedParam()
@@ -80348,70 +80348,70 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StartingAtOccurrence )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StartAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StartAts )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StartAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StartsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartAtOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StartAtOccurrence )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartsAtOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StartsAtOccurrence )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -80420,40 +80420,40 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EndAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEndsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EndsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEndingAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EndingAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEndAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EndAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -80462,90 +80462,90 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EndsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEndingAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EndingAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEndingAtOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EndingAtOccurrence )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStopAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StopAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStopsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StopsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStopAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StopAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStopsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StopsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEndiingAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EndingAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStoppingAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StoppingAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -80554,60 +80554,60 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StoppingAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStoppingAtOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StoppingAtOccurrence )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStopAtOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StopAtOccurrence )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStopsAtOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StopsAtOccurrence )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsendAtOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EndAtOccurrence )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsendsAtOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EndsAtOccurrence )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -80621,10 +80621,10 @@ fdef
 			:inStringAtPosition,
 			:InStringN ], This.Item(1)) > 0 )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInStringAtPositionNNamedParam()
@@ -80640,57 +80640,57 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Except )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :As )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThenNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  (This.Item(1) = :Then or This.Item(1) = :Then@) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndThenNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  (This.Item(1) = :AndThen or This.Item(1) = :AndThen@) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  (This.Item(1) = :From or This.Item(1) = :FromPosition)  )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromOrOfNamedParam()
 		if This.IsFromNamedParam() or This.IsOfNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsFromOrOfNamedParams()
@@ -80708,60 +80708,60 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromCell )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromCellAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromCellAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromCellAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromCellAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromCellsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromCells )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromCellsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromCellsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromCellsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromCellsAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -80770,60 +80770,60 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToCell )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToCellAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToCellAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToCellAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToCellAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToCellsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToCells )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToCellsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToCellsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToCellsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToCellsAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -80832,37 +80832,37 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Value )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfValueNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OfValue )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsValuesNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Values )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStringOrSubStringNamedParam()
 		if This.IsStringNamedPAram() or This.IsSubStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsStringOrSubStringNamedParams()
@@ -80878,10 +80878,10 @@ fdef
 
 	def IsToOrOfNamedParam()
 		if This.IsToNamedParam() or This.IsOfNamedParam()
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToOrOfNamedParams()
@@ -80899,139 +80899,139 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToNumber )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToNumbers )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToSubString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToSubStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToListsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPairNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToPair )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToHashListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToHashList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToSetNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToSet )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToObjectNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToObject )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToObjects )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
 
 	def IsToOrToNumberNamedParam()
 		if This.IsToNamedParam() or This.IsToNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToNumberOrToNamedParam()
@@ -81045,9 +81045,9 @@ fdef
 
 	def IsToOrToCharNamedParam()
 		if This.IsToNamedParam() or This.IsToCharNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToCharOrToNamedParam()
@@ -81061,9 +81061,9 @@ fdef
 
 	def IsToOrToStringNamedParam()
 		if This.IsToNamedParam() or This.IsToStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToStringOrToNamedParam()
@@ -81077,9 +81077,9 @@ fdef
 
 	def IsToOrToSubStringNamedParam()
 		if This.IsToNamedParam() or This.IsToSubStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToSubStringOrToNamedParam()
@@ -81093,9 +81093,9 @@ fdef
 
 	def IsToOrToListNamedParam()
 		if This.IsToNamedParam() or This.IsToListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToListOrToNamedParam()
@@ -81109,9 +81109,9 @@ fdef
 
 	def IsToOrToHashListNamedParam()
 		if This.IsToNamedParam() or This.IsToHashListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToHashListOrToNamedParam()
@@ -81125,9 +81125,9 @@ fdef
 
 	def IsToOrToPairNamedParam()
 		if This.IsToNamedParam() or This.IsToPairNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToPairOrToNamedParam()
@@ -81141,9 +81141,9 @@ fdef
 
 	def IsToOrToSetNamedParam()
 		if This.IsToNamedParam() or This.IsToSetNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToSetOrToNamedParam()
@@ -81157,9 +81157,9 @@ fdef
 
 	def IsToOrToObjectNamedParam()
 		if This.IsToNamedParam() or This.IsToObjectNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToStringOrToObjectParam()
@@ -81177,99 +81177,99 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OfNumber )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OfString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OfSubString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OfChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OfList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfPairNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OfPair )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfHashListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OfHashList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfSetNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OfSet )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfObjectNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OfObject )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
 
 	def IsOfOrOfNumberNamedParam()
 		if This.IsOfNamedParam() or This.IsOfNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfNumberOrOfNamedParam()
@@ -81283,9 +81283,9 @@ fdef
 
 	def IsOfOrOfCharNamedParam()
 		if This.IsOfNamedParam() or This.IsOfCharNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfCharOrOfNamedParam()
@@ -81299,9 +81299,9 @@ fdef
 
 	def IsOfOrOfStringNamedParam()
 		if This.IsOfNamedParam() or This.IsOfStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfStringOrOfNamedParam()
@@ -81315,9 +81315,9 @@ fdef
 
 	def IsOfOrOfSubStringNamedParam()
 		if This.IsOfNamedParam() or This.IsOfSubStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfSubStringOrOfNamedParam()
@@ -81331,9 +81331,9 @@ fdef
 
 	def IsOfOrOfListNamedParam()
 		if This.IsOfNamedParam() or This.IsOfListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfListOrOfNamedParam()
@@ -81347,9 +81347,9 @@ fdef
 
 	def IsOfOrOfHashListNamedParam()
 		if This.IsOfNamedParam() or This.IsOfHashListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfHashListOrOfNamedParam()
@@ -81363,9 +81363,9 @@ fdef
 
 	def IsOfOrOfPairNamedParam()
 		if This.IsOfNamedParam() or This.IsOfPairNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfPairOrOfNamedParam()
@@ -81379,9 +81379,9 @@ fdef
 
 	def IsOfOrOfSetNamedParam()
 		if This.IsOfNamedParam() or This.IsOfSetNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfSetOrOfNamedParam()
@@ -81395,9 +81395,9 @@ fdef
 
 	def IsOfOrOfObjectNamedParam()
 		if This.IsOfNamedParam() or This.IsOfObjectNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfStringOrOfObjectParam()
@@ -81415,99 +81415,99 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ByNumber )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsByStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ByString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBySubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BySubString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsByCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ByChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsByListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ByList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsByPairNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ByPair )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsByHashListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ByHashList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBySetNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BySet )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsByObjectNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ByObject )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
 
 	def IsByOrByNumberNamedParam()
 		if This.IsByNamedParam() or This.IsByNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsByNumberOrByNamedParam()
@@ -81521,9 +81521,9 @@ fdef
 
 	def IsByOrByCharNamedParam()
 		if This.IsByNamedParam() or This.IsByCharNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsByCharOrByNamedParam()
@@ -81537,9 +81537,9 @@ fdef
 
 	def IsByOrByStringNamedParam()
 		if This.IsByNamedParam() or This.IsByStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsByStringOrByNamedParam()
@@ -81553,9 +81553,9 @@ fdef
 
 	def IsByOrBySubStringNamedParam()
 		if This.IsByNamedParam() or This.IsBySubStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBySubStringOrByNamedParam()
@@ -81569,9 +81569,9 @@ fdef
 
 	def IsByOrByListNamedParam()
 		if This.IsByNamedParam() or This.IsByListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsByListOrByNamedParam()
@@ -81585,9 +81585,9 @@ fdef
 
 	def IsByOrByHashListNamedParam()
 		if This.IsByNamedParam() or This.IsByHashListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsByHashListOrByNamedParam()
@@ -81601,9 +81601,9 @@ fdef
 
 	def IsByOrByPairNamedParam()
 		if This.IsByNamedParam() or This.IsByPairNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsByPairOrByNamedParam()
@@ -81617,9 +81617,9 @@ fdef
 
 	def IsByOrBySetNamedParam()
 		if This.IsByNamedParam() or This.IsBySetNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBySetOrByNamedParam()
@@ -81633,9 +81633,9 @@ fdef
 
 	def IsByOrByObjectNamedParam()
 		if This.IsByNamedParam() or This.IsByObjectNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsByStringOrByObjectParam()
@@ -81653,70 +81653,70 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ListOfLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsGridNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Grid )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsTableNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Table )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsHashListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :HashList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsPairNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Pair )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :List )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsObjectNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Object )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#==
@@ -81725,99 +81725,99 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InNumber )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InSubString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInPairNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InPair )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInHashListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InHashList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInSetNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InSet )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInObjectNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InObject )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
 
 	def IsInOrInNumberNamedParam()
 		if This.IsInNamedParam() or This.IsInNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInNumberOrInNamedParam()
@@ -81831,9 +81831,9 @@ fdef
 
 	def IsInOrInCharNamedParam()
 		if This.IsInNamedParam() or This.IsInCharNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInCharOrInNamedParam()
@@ -81847,9 +81847,9 @@ fdef
 
 	def IsInOrInStringNamedParam()
 		if This.IsInNamedParam() or This.IsInStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInStringOrInNamedParam()
@@ -81863,9 +81863,9 @@ fdef
 
 	def IsInOrInSubStringNamedParam()
 		if This.IsInNamedParam() or This.IsInSubStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInSubStringOrInNamedParam()
@@ -81879,9 +81879,9 @@ fdef
 
 	def IsInOrInListNamedParam()
 		if This.IsInNamedParam() or This.IsInListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInListOrInNamedParam()
@@ -81895,9 +81895,9 @@ fdef
 
 	def IsInOrInHashListNamedParam()
 		if This.IsInNamedParam() or This.IsInHashListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInHashListOrInNamedParam()
@@ -81911,9 +81911,9 @@ fdef
 
 	def IsInOrInPairNamedParam()
 		if This.IsInNamedParam() or This.IsInPairNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInPairOrInNamedParam()
@@ -81927,9 +81927,9 @@ fdef
 
 	def IsInOrInSetNamedParam()
 		if This.IsInNamedParam() or This.IsInSetNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInSetOrInNamedParam()
@@ -81943,9 +81943,9 @@ fdef
 
 	def IsInOrInObjectNamedParam()
 		if This.IsInNamedParam() or This.IsInObjectNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInObjectOrInNamedParam()
@@ -81963,99 +81963,99 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :WithNumber )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :WithString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :WithSubString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :WithChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :WithList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithPairNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :WithPair )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithHashListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :WithHashList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithSetNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :WithSet )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithObjectNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :WithObject )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
 
 	def IsWithOrToNamedParam()
 		if This.IsWithNamedParam() or This.IsToNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToOrWithNamedParam()
@@ -82064,9 +82064,9 @@ fdef
 
 	def IsWithOrWithNumberNamedParam()
 		if This.IsWithNamedParam() or This.IsWithNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithNumberOrWithNamedParam()
@@ -82080,9 +82080,9 @@ fdef
 
 	def IsWithOrWithCharNamedParam()
 		if This.IsWithNamedParam() or This.IsWithCharNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithCharOrWithNamedParam()
@@ -82096,9 +82096,9 @@ fdef
 
 	def IsWithOrWithStringNamedParam()
 		if This.IsWithNamedParam() or This.IsWithStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithStringOrWithNamedParam()
@@ -82112,9 +82112,9 @@ fdef
 
 	def IsWithOrWithSubStringNamedParam()
 		if This.IsWithNamedParam() or This.IsWithSubStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithSubStringOrWithNamedParam()
@@ -82128,9 +82128,9 @@ fdef
 
 	def IsWithOrWithListNamedParam()
 		if This.IsWithNamedParam() or This.IsWithListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithListOrWithNamedParam()
@@ -82144,9 +82144,9 @@ fdef
 
 	def IsWithOrWithHashListNamedParam()
 		if This.IsWithNamedParam() or This.IsWithHashListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithHashListOrWithNamedParam()
@@ -82160,9 +82160,9 @@ fdef
 
 	def IsWithOrWithPairNamedParam()
 		if This.IsWithNamedParam() or This.IsWithPairNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithPairOrWithNamedParam()
@@ -82176,9 +82176,9 @@ fdef
 
 	def IsWithOrWithSetNamedParam()
 		if This.IsWithNamedParam() or This.IsWithSetNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithSetOrWithNamedParam()
@@ -82192,9 +82192,9 @@ fdef
 
 	def IsWithOrWithObjectNamedParam()
 		if This.IsWithNamedParam() or This.IsWithObjectNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithObjectOrWithNamedParam()
@@ -82212,99 +82212,99 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InsideNumber )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInsideStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InsideString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInsideSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InsideSubString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInsideCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InsideChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInsideListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InsideList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInsidePairNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InsidePair )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInsideHashListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InsideHashList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInsideSetNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InsideSet )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInsideObjectNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InsideObject )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
 
 	def IsInsideOrInsideNumberNamedParam()
 		if This.IsInsideNamedParam() or This.IsInsideNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInsideNumberOrInsideNamedParam()
@@ -82318,9 +82318,9 @@ fdef
 
 	def IsInsideOrInsideCharNamedParam()
 		if This.IsInsideNamedParam() or This.IsInsideCharNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInsideCharOrInsideNamedParam()
@@ -82334,9 +82334,9 @@ fdef
 
 	def IsInsideOrInsideStringNamedParam()
 		if This.IsInsideNamedParam() or This.IsInsideStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInsideStringOrInsideNamedParam()
@@ -82350,9 +82350,9 @@ fdef
 
 	def IsInsideOrInsideSubStringNamedParam()
 		if This.IsInsideNamedParam() or This.IsInsideSubStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInsideSubStringOrInsideNamedParam()
@@ -82366,9 +82366,9 @@ fdef
 
 	def IsInsideOrInsideListNamedParam()
 		if This.IsInsideNamedParam() or This.IsInsideListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInsideListOrInsideNamedParam()
@@ -82382,9 +82382,9 @@ fdef
 
 	def IsInsideOrInsideHashListNamedParam()
 		if This.IsInsideNamedParam() or This.IsInsideHashListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInsideHashListOrInsideNamedParam()
@@ -82398,9 +82398,9 @@ fdef
 
 	def IsInsideOrInsidePairNamedParam()
 		if This.IsInsideNamedParam() or This.IsInsidePairNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInsidePairOrInsideNamedParam()
@@ -82414,9 +82414,9 @@ fdef
 
 	def IsInsideOrInsideSetNamedParam()
 		if This.IsInsideNamedParam() or This.IsInsideSetNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInsideSetOrInsideNamedParam()
@@ -82430,9 +82430,9 @@ fdef
 
 	def IsInsideOrInsideObjectNamedParam()
 		if This.IsInsideNamedParam() or This.IsInsideObjectNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInsideObjectOrInsideNamedParam()
@@ -82450,99 +82450,99 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OnNumber )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OnString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OnSubString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OnChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OnList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnPairNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OnPair )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnHashListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OnHashList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnSetNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OnSet )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnObjectNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OnObject )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
 
 	def IsOnOrOnNumberNamedParam()
 		if This.IsOnNamedParam() or This.IsOnNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOnNumberOrOnNamedParam()
@@ -82556,9 +82556,9 @@ fdef
 
 	def IsOnOrOnCharNamedParam()
 		if This.IsOnNamedParam() or This.IsOnCharNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOnCharOrOnNamedParam()
@@ -82572,9 +82572,9 @@ fdef
 
 	def IsOnOrOnStringNamedParam()
 		if This.IsOnNamedParam() or This.IsOnStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOnStringOrOnNamedParam()
@@ -82588,9 +82588,9 @@ fdef
 
 	def IsOnOrOnSubStringNamedParam()
 		if This.IsOnNamedParam() or This.IsOnSubStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOnSubStringOrOnNamedParam()
@@ -82604,9 +82604,9 @@ fdef
 
 	def IsOnOrOnListNamedParam()
 		if This.IsOnNamedParam() or This.IsOnListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOnListOrOnNamedParam()
@@ -82620,9 +82620,9 @@ fdef
 
 	def IsOnOrOnHashListNamedParam()
 		if This.IsOnNamedParam() or This.IsOnHashListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOnHashListOrOnNamedParam()
@@ -82636,9 +82636,9 @@ fdef
 
 	def IsOnOrOnPairNamedParam()
 		if This.IsOnNamedParam() or This.IsOnPairNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOnPairOrOnNamedParam()
@@ -82652,9 +82652,9 @@ fdef
 
 	def IsOnOrOnSetNamedParam()
 		if This.IsOnNamedParam() or This.IsOnSetNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOnSetOrOnNamedParam()
@@ -82668,9 +82668,9 @@ fdef
 
 	def IsOnOrOnObjectNamedParam()
 		if This.IsOnNamedParam() or This.IsOnObjectNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOnObjectOrOnNamedParam()
@@ -82688,99 +82688,99 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverNumber )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOverStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOverSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverSubString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOverCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOverListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOverPairNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverPair )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOverHashListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverHashList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOverSetNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverSet )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOverObjectNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverObject )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
 
 	def IsOverOrOverNumberNamedParam()
 		if This.IsOverNamedParam() or This.IsOverNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOverNumberOrOverNamedParam()
@@ -82794,9 +82794,9 @@ fdef
 
 	def IsOverOrOverCharNamedParam()
 		if This.IsOverNamedParam() or This.IsOverCharNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOverCharOrOverNamedParam()
@@ -82810,9 +82810,9 @@ fdef
 
 	def IsOverOrOverStringNamedParam()
 		if This.IsOverNamedParam() or This.IsOverStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOverStringOrOverNamedParam()
@@ -82826,9 +82826,9 @@ fdef
 
 	def IsOverOrOverSubStringNamedParam()
 		if This.IsOverNamedParam() or This.IsOverSubStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOverSubStringOrOverNamedParam()
@@ -82842,9 +82842,9 @@ fdef
 
 	def IsOverOrOverListNamedParam()
 		if This.IsOverNamedParam() or This.IsOverListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOverListOrOverNamedParam()
@@ -82858,9 +82858,9 @@ fdef
 
 	def IsOverOrOverHashListNamedParam()
 		if This.IsOverNamedParam() or This.IsOverHashListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOverHashListOrOverNamedParam()
@@ -82874,9 +82874,9 @@ fdef
 
 	def IsOverOrOverPairNamedParam()
 		if This.IsOverNamedParam() or This.IsOverPairNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOverPairOrOverNamedParam()
@@ -82890,9 +82890,9 @@ fdef
 
 	def IsOverOrOverSetNamedParam()
 		if This.IsOverNamedParam() or This.IsOverSetNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOverSetOrOverNamedParam()
@@ -82906,9 +82906,9 @@ fdef
 
 	def IsOverOrOverObjectNamedParam()
 		if This.IsOverNamedParam() or This.IsOverObjectNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOverObjectOrOverNamedParam()
@@ -82926,99 +82926,99 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverNumber )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAgainstStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAgainstSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverSubString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAgainstCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAgainstListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAgainstPairNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverPair )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAgainstHashListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverHashList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAgainstSetNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverSet )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAgainstObjectNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OverObject )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
 
 	def IsAgainstOrAgainstNumberNamedParam()
 		if This.IsAgainstNamedParam() or This.IsAgainstNumberNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAgainstNumberOrAgainstNamedParam()
@@ -83032,9 +83032,9 @@ fdef
 
 	def IsAgainstOrAgainstCharNamedParam()
 		if This.IsAgainstNamedParam() or This.IsAgainstCharNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAgainstCharOrAgainstNamedParam()
@@ -83048,9 +83048,9 @@ fdef
 
 	def IsAgainstOrAgainstStringNamedParam()
 		if This.IsAgainstNamedParam() or This.IsAgainstStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAgainstStringOrAgainstNamedParam()
@@ -83064,9 +83064,9 @@ fdef
 
 	def IsAgainstOrAgainstSubStringNamedParam()
 		if This.IsAgainstNamedParam() or This.IsAgainstSubStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAgainstSubStringOrAgainstNamedParam()
@@ -83080,9 +83080,9 @@ fdef
 
 	def IsAgainstOrAgainstListNamedParam()
 		if This.IsAgainstNamedParam() or This.IsAgainstListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAgainstListOrAgainstNamedParam()
@@ -83096,9 +83096,9 @@ fdef
 
 	def IsAgainstOrAgainstHashListNamedParam()
 		if This.IsAgainstNamedParam() or This.IsAgainstHashListNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAgainstHashListOrAgainstNamedParam()
@@ -83112,9 +83112,9 @@ fdef
 
 	def IsAgainstOrAgainstPairNamedParam()
 		if This.IsAgainstNamedParam() or This.IsAgainstPairNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAgainstPairOrAgainstNamedParam()
@@ -83128,9 +83128,9 @@ fdef
 
 	def IsAgainstOrAgainstSetNamedParam()
 		if This.IsAgainstNamedParam() or This.IsAgainstSetNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAgainstSetOrAgainstNamedParam()
@@ -83144,9 +83144,9 @@ fdef
 
 	def IsAgainstOrAgainstObjectNamedParam()
 		if This.IsAgainstNamedParam() or This.IsAgainstObjectNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAgainstObjectOrAgainstNamedParam()
@@ -83164,10 +83164,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Respectively )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#==
@@ -83176,10 +83176,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Seed )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 	
 	#==
@@ -83188,20 +83188,20 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EqualTo )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEqualsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Equals )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#==
@@ -83210,59 +83210,59 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :To )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToTheseNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToThis )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToManyNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToMany )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPositionOfNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToPositionOf )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToOrToPositionNamedParam()
 
 		if This.IsToNamedParam() or This.IsToPositionNamedParam()
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -83282,30 +83282,30 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToPositionOfItem )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPositionOfStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToPositionOfString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPositionOfCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToPositionOfChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -83314,20 +83314,20 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromOrFromPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  (This.Item(1) = :FromPosition or This.Item(1) = :From)  )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -83347,30 +83347,30 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromPositionOfItem )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromPositionOfStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromPositionOfString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromPositionOfCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromPositionOfChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -83379,40 +83379,40 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Of )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :On )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :In )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInANamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :InA )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -83422,10 +83422,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :InSide or This.Item(1) = :Inside@) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInSideANamedParam()
@@ -83433,18 +83433,18 @@ fdef
 		   ( isString(This.Item(1)) and 
 			(This.Item(1) = :InSideA or This.Item(1) = :InsideA@) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInOrInsideNamedParam()
 		if This.IsInNamedParam() or This.IsInsideNamedParam()
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInOrInsideNamedParams()
@@ -83461,10 +83461,10 @@ fdef
 		   ( isString(This.Item(1)) and  This.Item(1) = :Where ) and
 		   isString( This.Item(2) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWhereXTNamedParam()
@@ -83472,10 +83472,10 @@ fdef
 		   ( isString(This.Item(1)) and  This.Item(1) = :WhereXT ) and
 		   isString( This.Item(2) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThatNamedParam()
@@ -83483,17 +83483,17 @@ fdef
 		   ( isString(This.Item(1)) and  This.Item(1) = :That ) and
 		   isString( This.Item(2) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThatOrWhereNamedParam()
 		if This.IsThatNamedParam() or This.IsWhereNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsThatOrWhereNamedParams()
@@ -83507,9 +83507,9 @@ fdef
 
 	def IsThatXTOrWhereXTNamedParam()
 		if This.IsThatXTNamedParam() or This.IsWhereXTNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsThatXTOrWhereXTNamedParams()
@@ -83525,87 +83525,87 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Position )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsPositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :PositionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThisPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThisPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThisPositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThisPositionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Positions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsPositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :PositionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThesePositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThesePositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThesePositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThesePositionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsPositionOrPositionsNamedParam()
 		if This.IsPositionNamedParam() or This.IsPositionsNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsPositionOrPositionsNamedParams()
@@ -83613,9 +83613,9 @@ fdef
 
 	def IsPositionIBOrPositionsibNamedParam()
 		if This.IsPositionIBNamedParam() or This.IsPositionsIBNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsPositionIBOrPositionsIBNamedParams()
@@ -83625,27 +83625,27 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  (This.Item(1) = :AlongWith or This.Item(1) = :AlongWith@)  )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAlongWithTheirNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  (This.Item(1) = :AlongWithTheir or This.Item(1) = :AlongWithTheir@)  )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOrOrAndNamedParam()
 		if This.IsOrNamedParam() or This.AndNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAndOrOrNamedParam()
@@ -83655,110 +83655,110 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  (This.Item(1) = :And or This.Item(1) = :And@)  )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndTheirNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  (This.Item(1) = :AndTheir or This.Item(1) = :AndTheir@)  )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndItemNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndItem )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndItemAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndItemAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndItemAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndStringAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndStringAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndStringAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -83767,30 +83767,30 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Or )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOrANamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OrA )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOrAnNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OrAn )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -83799,30 +83799,30 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Nor )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWhileNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :While )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNotNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Not )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsIfNamedParam()
@@ -83830,10 +83830,10 @@ fdef
 		   This.Item(1) = :If and
 		   isString(This.Item(2))
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsIfOrWhereNamedParam()
@@ -83864,27 +83864,27 @@ fdef
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :With or This.Item(1) = :With@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithManyNamedParam()
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :WithMany or This.Item(1) = :WithMany@ ) )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithOrAndNamedParam()
 		if This.IsWithNamedParam() or This.IsAndNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithOrAndNamedParams()
@@ -83900,20 +83900,20 @@ fdef
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :By or This.Item(1) = :By@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithCharsInNamedParam() 
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :WithCharsIn or This.Item(1) = :WithCharsIn@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#==
@@ -83922,36 +83922,36 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UsingItem)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingThisItemNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UsingThisItem)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingItemsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UsingItems)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingTheseItemsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UsingTheseItems)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -83960,36 +83960,36 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UsingString)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingThisStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UsingThisString)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UsingStrings)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingTheseStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UsingTheseStrings)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -83998,36 +83998,36 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UsingSubString)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingThisSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UsingThisSubString)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UsingSubStrings)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingTheseSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UsingTheseSubStrings)
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#==
@@ -84036,89 +84036,89 @@ fdef
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :ByItemsIn or This.Item(1) = :ByItemsIn@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingItemsInNamedParam()
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :UsingItemsIn or This.Item(1) = :UsingItemsIn@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithTheirNamedParam()
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :WithTheir or This.Item(1) = :WithTheir@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsByNamedParam()
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :By or This.Item(1) = :By@ ) )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsByManyNamedParam()
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :ByMany or This.Item(1) = :ByMany@ ) )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsByManyXTNamedParam()
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :ByManyXT or This.Item(1) = :ByManyXT@ ) )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingManyXTNamedParam()
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :UsingManyXT or This.Item(1) = :UsingManyXT@ ) )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithManyXTNamedParam()
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :WithManyXT or This.Item(1) = :WithManyXT@ ) )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
 
 	def IsByOrUsingNamedParam()
 		if This.IsByNamedParam() or This.IsUsingNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsByOrUsingNamedParams()
@@ -84138,10 +84138,10 @@ fdef
 			( This.Item(1) = :ByMany or This.Item(1) = :UsingMany or
 			This.Item(1) = :WithMany ) )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -84189,9 +84189,9 @@ fdef
 		   This.IsWithXTNamedParam() or
 		   This.IsUsingXTNamedParam()
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#--
@@ -84238,10 +84238,10 @@ fdef
 		   ( isString(This.Item(1)) and
 		     ring_find([ :ByCol, :ByCol@ ], This.Item(1)) > 0 )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsByColumnNamedParam()
@@ -84249,10 +84249,10 @@ fdef
 		   ( isString(This.Item(1)) and
 		     ring_find([ :ByColumn, :ByColumn@ ], This.Item(1)) > 0 )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingColNamedParam()
@@ -84260,10 +84260,10 @@ fdef
 		   ( isString(This.Item(1)) and
 		     ring_find([ :UsingCol, :UsingCol@ ], This.Item(1)) > 0 )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingColumnNamedParam()
@@ -84271,10 +84271,10 @@ fdef
 		   ( isString(This.Item(1)) and
 		     ring_find([ :UsingColumn, :UsingColumn@ ], This.Item(1)) > 0 )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithColNamedParam()
@@ -84282,10 +84282,10 @@ fdef
 		   ( isString(This.Item(1)) and
 		     ring_find([ :WithCol, :WithCol@ ], This.Item(1)) > 0 )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithColumnNamedParam()
@@ -84293,70 +84293,70 @@ fdef
 		   ( isString(This.Item(1)) and
 		     ring_find([ :WithColumn, :WithColumn@ ], This.Item(1)) > 0 )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsByRowNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ByRow )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithRowNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :WithRow )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingRowNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UsingRow )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsByCellNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ByCell )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithCellNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :WithCell )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingCellNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UsingCell )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithOrByNamedParam()
@@ -84375,45 +84375,45 @@ fdef
 		if len(This.Content()) = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :Using or This.Item(1) = :Using@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUsingManyNamedParam()
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :UsingMany or This.Item(1) = :UsingMany@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and This.Item(1) = :At
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and This.Item(1) = :AtIB
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtOrUsingNamedParam()
 		if This.IsAtNamedParam() or This.IsUsingNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsUsingOrAtNamedParam()
@@ -84431,100 +84431,100 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtPositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtPositionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisPositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisPositionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtPositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtPositionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThesePositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThesePositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThesePositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThesePositionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyPositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyPositionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -84533,10 +84533,10 @@ fdef
 		if This.IsAtNamedParam() or
 		   This.IsAtPositionNamedParam()
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAtPositionOrAtNamedParam()
@@ -84552,10 +84552,10 @@ fdef
 		if This.IsAtNamedParam() or
 		   This.IsAtPositionsNamedParam()
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAtPositionsOrAtNamedParam()
@@ -84573,50 +84573,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtItem )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisItemNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisItem )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtItemsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtItems )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseItemsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseItems )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyItemsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyItems )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -84625,50 +84625,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisStringNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -84677,27 +84677,27 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtSubString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtSubStringIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtSubStringIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtOrAtSubStringNamedParam()
 		if This.IsAtNamedParam() or This.IsAtSubStringNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IfAtSubStringOrAtNamedParam()
@@ -84713,80 +84713,80 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisSubString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisSubStringIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisSubStringIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtSubStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtSubStringsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseSubStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseSubStringsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManySubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManySubStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManySubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManySubStringsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -84795,50 +84795,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforeIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisCharNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -84847,20 +84847,20 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtItemIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtItemsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtItemsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -84869,130 +84869,130 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforePositionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeThisPositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforeThisPositionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforePositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforePositionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeManyPositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforeManyPositionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeThesePositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforeThesePositionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeSubStringIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforeSubStringIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeThisSubStringIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforeThisSubStringIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforeSubStringsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeTheseSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforeTheseSubStringsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeItemIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforeItemIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeThisItemIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforeThisItemIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeItemsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforeItemsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeTheseItemsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforeTheseItemsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 #--
@@ -85001,240 +85001,240 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterPositionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterThisPositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterThisPositionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterPositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterPositionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterThesePositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterThesePositionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterSubStringIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterSubStringIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterThisSubStringIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterThisSubStringIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterSubStringsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterTheseSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterTheseSubStringsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterItemIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterItemIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterThisItemIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterThisItemIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterItemsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterItemsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterTheseItemsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterTheseItemsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundPositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundPositionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundThisPositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundThisPositionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundPositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundPositionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundThesePositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundThesePositionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundSubStringIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundSubStringIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundThisSubStringIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundThisSubStringIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundSubStringsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundTheseSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundTheseSubStringsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundItemIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundItemIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundThisItemIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundThisItemIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundItemsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundItemsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundTheseItemsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundtheseItemsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -85243,30 +85243,30 @@ fdef
 		if This.NumberOfItems() = 2 and
 		    isString(This.Item(1)) and  This.Item(1) = :AtChars
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and  This.Item(1) = :AtTheseChars
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and  This.Item(1) = :AtManyChars
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -85275,50 +85275,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and  This.Item(1) = :AtNumber
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisNumberNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and  This.Item(1) = :AtThisNumber
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and  This.Item(1) = :AtNumbers
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and  This.Item(1) = :AtTheseNumbers
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and  This.Item(1) = :AtManyNumbers
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -85327,50 +85327,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and  This.Item(1) = :AtList
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and  This.Item(1) = :AtThisList
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -85379,50 +85379,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtSubList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisSubListNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisSubList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtSubLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseSubLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManySubListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManySubLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -85431,50 +85431,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtPair )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisPairNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisPair )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtPairsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtPairs )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThesePairsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThesePairs )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyPairsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyPairs )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -85483,50 +85483,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListOfNumbers )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisListOfNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfNumbers )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtListsOfNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfNumbers )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseListsOfNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfNumbers )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyListsOfNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfNumbers )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -85535,50 +85535,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListOfChars )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisListOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfChars )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtListsOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfChars )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseListsOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfChars )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyListsOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfChars )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -85587,50 +85587,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListOfStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisListOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtListsOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseListsOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyListsOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -85639,50 +85639,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListOfLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisListOfListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtListsOfListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseListsOfListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyListsOfListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -85691,50 +85691,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListOfSubLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisListOfSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfSubLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtListsOfSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfSubLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseListsOfSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfSubLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyListsOfSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfSubLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -85743,49 +85743,49 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListOfPairs )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisListOfPairsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfPairs )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 	def IsAtListsOfPairsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfPairs )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseListsOfPairsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfPairs )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyListsOfPairsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfPairs )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -85794,50 +85794,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListOfHashLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisListOfHashListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfHashLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtListsOfHashListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfHashLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseListsOfHashListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfHashLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyListsOfHashListsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfHashLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -85846,50 +85846,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtObject )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisObjectNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisObject )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtObjects )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseObjects )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyObjects )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -85898,100 +85898,100 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtSection )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtSectionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtSectionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisSection )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisSectionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisSectionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtSections )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtSectionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtSectionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseSections )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseSectionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseSectionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManySectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManySections )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManySectionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManySectionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -86000,100 +86000,100 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListOfSections )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtListOfSectionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListOfSectionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisListOfSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfSections )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisListOfSectionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfSectionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtListsOfSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfSections )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtListsOfSectionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfSectionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseListsOfSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfSections )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseListsOfSectionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfSectionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyListsOfSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfSections )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyListsOfSectionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfSectionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -86104,20 +86104,20 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforeSectionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeSectionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :BeforeSectionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -86128,20 +86128,20 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterSectionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterSectionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AfterSectionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -86150,40 +86150,40 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundSection )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundSectionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundSectionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundSections )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundSectionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AroundSectionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -86192,50 +86192,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtRange )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisRangeNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisRange )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtRangesNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtRanges )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseRangesNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseRanges )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyRangesNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyRanges )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -86244,50 +86244,50 @@ fdef
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListOfRanges )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtThisListOfRangesNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfRanges )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtListsOfRangesNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfRanges )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtTheseListsOfRangesNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfRanges )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtManyListsOfRangesNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfRanges )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -86300,9 +86300,9 @@ fdef
 		   This.IsAtNamedParam() or
 		   This.IsWhereNamedParam()
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -86351,9 +86351,9 @@ fdef
 		   This.IsAtNamedParam() or
 		   This.IsWhereXTNamedParam()
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -86403,10 +86403,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :Step
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNameNamedParam()
@@ -86414,10 +86414,10 @@ fdef
 		   ( isString(This.Item(1)) and  This.Item(1) = :Name ) and
 		   isString(This.Item(2))
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNamedNamedParam()
@@ -86425,10 +86425,10 @@ fdef
 		   ( isString(This.Item(1)) and  This.Item(1) = :Named ) and
 		   isString(This.Item(2))
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNamedAsNamedParam()
@@ -86436,202 +86436,202 @@ fdef
 		   ( isString(This.Item(1)) and  This.Item(1) = :NamedAs ) and
 		   isString(This.Item(2))
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsRaiseNamedParam()
 		if This.NumberOfItems() <= 4 and
 		   This.IsHashList() and
 		   This.ToStzHashList().KeysQ().IsMadeOfSome([ :Where, :What, :Why, :Todo ]) and
-		   This.ToStzHashList().ValuesQ().CheckWXT("isString(@item) and @item != _NULL_")
+		   This.ToStzHashList().ValuesQ().CheckWXT("isString(@item) and @item != ''")
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsReturnedAsNamedParam()
 
 		if This.NumberOfItems() = 2 and This.Item(1) = :ReturnedAs
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndReturnedAsNamedParam()
 
 		if This.NumberOfItems() = 2 and This.Item(1) = :AndReturnedAs
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsReturnNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and This.Item(1) = :Return
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsReturnAsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and This.Item(1) = :ReturnAs
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndReturnAsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and This.Item(1) = :AndReturnAs
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsReturnItAsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and This.Item(1) = :ReturnItAs
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndReturnItAsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and This.Item(1) = :AndReturnItAs
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsReturnThemAsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and This.Item(1) = :ReturnThemAs
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndReturnThemAsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and This.Item(1) = :AndReturnThemAs
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsReturningNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and stzStringQ(This.Item(1)).IsEqualToCS(:Returning, _FALSE_)
+		   isString(This.Item(1)) and stzStringQ(This.Item(1)).IsEqualToCS(:Returning, 0)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndReturnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:AndReturn, _FALSE_)
+		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:AndReturn, 0)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndReturningNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:AndReturning, _FALSE_)
+		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:AndReturning, 0)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsReturnNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and stzStringQ(This.Item(1)).IsEqualToCS(:ReturnNth, _FALSE_)
+		   isString(This.Item(1)) and stzStringQ(This.Item(1)).IsEqualToCS(:ReturnNth, 0)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsReturningNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:ReturningNth, _FALSE_)
+		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:ReturningNth, 0)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndReturnNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:AndReturnNth, _FALSE_)
+		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:AndReturnNth, 0)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndReturningNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:AndReturningNth, _FALSE_)
+		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:AndReturningNth, 0)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUpToNCharsNamedParam()
 		if This.NumberOfItems() = 2 and
  		   isString(This.Item(1)) and  This.Item(1) = :UpToNChars
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUpToNItemsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
  		   ( isString(This.Item(1)) and  This.Item(1) = :UpToNItems )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUpToOrUpToNItemsNamedParam()
@@ -86639,10 +86639,10 @@ fdef
  		   ( isString(This.Item(1)) and
 			(This.Item(1) = :UpToNItems or This.Item(1) = :UpTo) )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsUpToOrUpToNItemsNamedParams()
@@ -86659,10 +86659,10 @@ fdef
  		   ( isString(This.Position(1)) and
 			(This.Position(1) = :UpToNPositions or This.Position(1) = :UpTo) )
 		  
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsUpToOrUpToNPositionsNamedParams()
@@ -86678,45 +86678,45 @@ fdef
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :Before )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeItemNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeItem )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeItemsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeItems )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeThisItemNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeThisItem )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeTheseItemsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeTheseItems )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -86725,45 +86725,45 @@ fdef
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforePosition )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeThisPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeThisPosition )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforePositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforePositions )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeManyPositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeManyPositions )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeThesePositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeThesePositions )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -86772,72 +86772,72 @@ fdef
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeThisSubStringNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeThisSubString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeSubStringsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubStrings )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeTheseSubStringsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeTheseSubStrings )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeSubStringPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubStringPosition )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeThisSubStringPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeThisSubStringPosition )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeSubStringsPositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubStringsPositions )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeTheseSubStringsPositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeTheseSubStringsPositions )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -86846,72 +86846,72 @@ fdef
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterSubString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterThisSubStringNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterThisSubString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterSubStringsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterSubStrings )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterTheseSubStringsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterTheseSubStrings )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterSubStringPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterSubStringPosition )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterThisSubStringPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterThisSubStringPosition )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterSubStringsPositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterSubStringsPositions )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterTheseSubStringsPositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterTheseSubStringsPositions )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -86920,36 +86920,36 @@ fdef
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSection )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeThisSectionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeThisSection )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeSectionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSections )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeTheseSectionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeTheseSections )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -86958,45 +86958,45 @@ fdef
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterSection )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterThisSectionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterThisSection )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterSectionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterSections )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterTheseSectionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterTheseSections )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
 
 	def IsBeforeOrAtNamedParam()
 		if This.IsBeforeNamedParam() or This.IsAtNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAtOrBeforeNamedParam()
@@ -87006,106 +87006,106 @@ fdef
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :After )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterTheseNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterThese )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterManyNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterMany )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterItemNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterItem )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterItemsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterItems )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterThisItemNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterThisItem )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterTheseItemsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterTheseItems )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterPosition )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterThisPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterThisPosition )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterPositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterPositions )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterThesePositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterThesePositions )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterOrAtNamedParam()
 		if This.IsAfterNamedParam() or This.IsAtNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAtOrAfterNamedParam()
@@ -87113,9 +87113,9 @@ fdef
 
 	def IsBeforeOrAfterNamedParam()
 		if This.IsBeforeNamedPAram() or This.IsAfterNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAfterOrBeforeNamedParam()
@@ -87125,17 +87125,17 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Width )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWithOrUsingNamedParam()
 		if This.IsWithNamedParam() or This.IsUsingNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithOrUsingNamedParams()
@@ -87151,90 +87151,90 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :MadeOf )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNthTofirstNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :NthToFirst )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNthToFirstCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :NthToFirstChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNthToFirstItemNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :NthToFirstItem )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNthToLastNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :NthToLast )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNthToLastCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :NthToLastChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNthToLastItemNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :NthToLastItem )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :String )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThisStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThisString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -87243,40 +87243,40 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Number )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThisNumberNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThisNumber )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Numbers )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsTheseNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :TheseNumbers )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -87285,40 +87285,40 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Char )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThisCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThisChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Chars )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsTheseCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :TheseChars )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -87327,60 +87327,60 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThisItem )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsTheseItemsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :TheseItems )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThisListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThisList )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsTheseListsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :TheseLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThisObjectNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThisObject )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsTheseObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :TheseObjects )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -87389,320 +87389,320 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Item )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsItemsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Items )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ItemAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsItemsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Items )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsItemAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ItemAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsItemsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ItemsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStringsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Strings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsTheseStringsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :TheseStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StringAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThisStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThisStringAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStringAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StringAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStringAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StringAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsItemAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ItemAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsItemsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ItemsAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsCharAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :CharAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsCharsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :CharsAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSubStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :SubStringAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThisSubStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThisSubStringAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSubStringsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :SubStringsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsTheseSubStringsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :TheseSubStringsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSubStringAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :SubStringAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSubStringsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :SubStringsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Between )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenXT )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok	
 
 	def IsBetweenIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenIBSNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenIBS )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenSNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenS )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenCSNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCS )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenPositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenPositionIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenPositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenPositionsIB )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -87711,70 +87711,70 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenRow )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenRowAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenRowAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenRowAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenRowAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenRowsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenRowsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenRowsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenRowsAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenRowsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenRows )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenRowsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenRowsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -87783,140 +87783,140 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCol )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBetweenColumnNamedParam()
 			if This.NumberOfItems() = 2 and
 			   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColumn )
 	
-				return _TRUE_
+				return 1
 	
 			else
-				return _FALSE_
+				return 0
 			ok
 
 	def IsBetweenColAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBetweenColumnAtNamedParam()
 			if This.NumberOfItems() = 2 and
 			   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColumnAt )
 	
-				return _TRUE_
+				return 1
 	
 			else
-				return _FALSE_
+				return 0
 			ok
 
 	def IsBetweenColAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBetweenColumnAtPositionNamedParam()
 			if This.NumberOfItems() = 2 and
 			   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColumnAtPosition )
 	
-				return _TRUE_
+				return 1
 	
 			else
-				return _FALSE_
+				return 0
 			ok
 	
 	def IsBetweenColsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBetweenColumnsAtPositionNamedParam()
 			if This.NumberOfItems() = 2 and
 			   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColumnsAtPosition )
 	
-				return _TRUE_
+				return 1
 	
 			else
-				return _FALSE_
+				return 0
 			ok
 
 	def IsBetweenColsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColsAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBetweenColumnsAtPositionsNamedParam()
 			if This.NumberOfItems() = 2 and
 			   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColumnsAtPositions )
 	
-				return _TRUE_
+				return 1
 	
 			else
-				return _FALSE_
+				return 0
 			ok
 
 	def IsBetweenColsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCols )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBetweenColumnsNamedParam()
 			if This.NumberOfItems() = 2 and
 			   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColumns )
 	
-				return _TRUE_
+				return 1
 	
 			else
-				return _FALSE_
+				return 0
 			ok
 
 	def IsBetweenColsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBetweenColumnsAtNamedParam()
 			if This.NumberOfItems() = 2 and
 			   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColumnsAt )
 	
-				return _TRUE_
+				return 1
 	
 			else
-				return _FALSE_
+				return 0
 			ok
 
 	#--
@@ -87925,20 +87925,20 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -87948,10 +87948,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ItemFromPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsItemsFromPositionNamedParam()
@@ -87959,10 +87959,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ItemsFromPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsItemFromNamedParam()
@@ -87970,10 +87970,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ItemFrom )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsItemsFromNamedParam()
@@ -87981,70 +87981,70 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ItemsFrom )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenItemAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromItemAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToItemAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenItemsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenItemsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromItemsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromItemsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToItemsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToItemsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenItemAtPositionNamedParam()
@@ -88052,10 +88052,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenItemAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenItemsAtPositionNamedParam()
@@ -88063,10 +88063,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenItemsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromItemAtPositionNamedParam()
@@ -88074,10 +88074,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromItemAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromItemsAtPositionNamedParam()
@@ -88085,10 +88085,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromItemsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToItemAtPositionNamedParam()
@@ -88096,10 +88096,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToItemAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToItemsAtPositionNamedParam()
@@ -88107,10 +88107,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToItemsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -88119,10 +88119,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenItem )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenItemsNamedParam()
@@ -88130,10 +88130,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenItems )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenItemAtPositionsNamedParam()
@@ -88141,10 +88141,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenItemAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToItemAtPositionsNamedParam()
@@ -88152,10 +88152,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToItemAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromItemAtPositionsNamedParam()
@@ -88163,10 +88163,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromItemAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromItemPositionNamedParam()
@@ -88174,10 +88174,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromItemPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -88187,10 +88187,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StringFromPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStringsFromPositionNamedParam()
@@ -88198,10 +88198,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StringsFromPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStringFromNamedParam()
@@ -88209,10 +88209,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StringFrom )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStringsFromNamedParam()
@@ -88220,10 +88220,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StringsFrom )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromStringPositionNamedParam()
@@ -88231,10 +88231,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenStringNamedParam()
@@ -88242,10 +88242,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenString )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenStringsNamedParam()
@@ -88253,40 +88253,40 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenStringAtPositionNamedParam()
@@ -88294,10 +88294,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromStringAtPositionNamedParam()
@@ -88305,10 +88305,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToStringAtPositionNamedParam()
@@ -88316,10 +88316,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenStringAtPositionsNamedParam()
@@ -88327,10 +88327,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromStringAtPositionsNamedParam()
@@ -88338,10 +88338,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToStringAtPositionsNamedParam()
@@ -88349,10 +88349,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -88362,10 +88362,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :CharFromPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsCharsFromPositionNamedParam()
@@ -88373,10 +88373,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :CharsFromPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsCharFromNamedParam()
@@ -88384,10 +88384,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :CharFrom )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsCharsFromNamedParam()
@@ -88395,10 +88395,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :CharsFrom )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromCharPositionNamedParam()
@@ -88406,140 +88406,140 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromCharPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsCharAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :CharAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsCharAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :CharAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenChar )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenChars )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenCharAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCharAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromCharAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromCharAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFirstPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FirstPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsLastPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :LastPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToCharAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToCharAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenCharsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCharsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenCharsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCharsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromCharsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromCharsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToCharsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToCharsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenCharAtPositionNamedParam()
@@ -88547,10 +88547,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCharAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromCharAtPositionNamedParam()
@@ -88558,10 +88558,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromCharAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToCharAtPositionNamedParam()
@@ -88569,10 +88569,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToCharAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenCharAtPositionsNamedParam()
@@ -88580,10 +88580,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCharAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToCharAtPositionsNamedParam()
@@ -88591,10 +88591,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToCharAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromCharAtPositionsNamedParam()
@@ -88602,10 +88602,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromCharAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -88614,20 +88614,20 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Strings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsTheseStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :TheseStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStringsAtPositionNamedParam()
@@ -88635,10 +88635,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StringsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsTheseStringsAtPositionNamedParam()
@@ -88646,10 +88646,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :theseStringsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStringsAtPositionsNamedParam()
@@ -88657,10 +88657,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StringsAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsTheseStringsAtPositionsNamedParam()
@@ -88668,10 +88668,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :TheseStringsAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromStringsNamedParam()
@@ -88679,10 +88679,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToStringsNamedParam()
@@ -88690,10 +88690,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenStringsAtNamedParam()
@@ -88701,10 +88701,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromStringsAtNamedParam()
@@ -88712,10 +88712,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToStringsAtNamedParam()
@@ -88723,10 +88723,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenStringsAtPositionNamedParam()
@@ -88734,10 +88734,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromStringsAtPositionNamedParam()
@@ -88745,10 +88745,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToStringsAtPositionNamedParam()
@@ -88756,10 +88756,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenStringsAtPositionsNamedParam()
@@ -88767,10 +88767,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringsAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromStringsAtPositionsNamedParam()
@@ -88778,10 +88778,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringsAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToStringsAtPositionsNamedParam()
@@ -88789,10 +88789,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringsAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -88801,140 +88801,140 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndCol )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndColumnNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndColumn )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndColAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndColat )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndColumnAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndColumnAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndColAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndColAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndColumnAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndColumnAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndColNamedNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndColNamed )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndColumnNamedNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndColumnNamed )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsColsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Cols )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsColumnsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Columns )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsColsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ColsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsColumnsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ColumnsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsColsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ColsAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsColumnsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ColumnsAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -88943,60 +88943,60 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndRow )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndRowAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndRowAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndRowAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndRowAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsRowsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :RowsAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsRowsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :RowsAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsRowsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :RowsAtPositions )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -89005,30 +89005,30 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :This )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndThisNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndThis )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndThatNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndThat )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -89037,80 +89037,80 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Eval )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEvaluateNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Evaluate )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEvalFromNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EvalFrom )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEvaluateFromNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EvaluateFrom )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEvalDirectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EvalDirection )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEvaluationDirectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EvaluationDirection )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOrThisNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OrThis )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOrThatNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OrThat )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -89119,18 +89119,18 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :SubString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSubstringOrSubstringsNamedParam()
 		if This.IsSubStringNamedParam() or
 		   This.IsSubStringsNamedParam()
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsSubStringsOrSubStringNamedParam()
@@ -89149,118 +89149,118 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ThisSubString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndSubString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BetweenSubString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBoundedBySubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BoundedBySubString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :SubStrings )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsTheseSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :TheseSubStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndSubStrings )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfSubStrings )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InSubStrings )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BetweenSubStrings )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BetweenSubStringsIB )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBoundedBySubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BoundedBySubStrings )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBoundedBySubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BoundedBySubStringsIB )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -89269,18 +89269,18 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BoundedBy )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBoundedByIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BoundedByIB )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -89288,9 +89288,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :IsBoundedBy )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -89299,18 +89299,18 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Bounds )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBoundsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BoundsIB )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBoundedByOrBoundsNamedParam()
@@ -89318,9 +89318,9 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Bounds or This.Item(1) = :BoundedBy) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBoundsOrBoundedByNamedParam()
@@ -89328,9 +89328,9 @@ fdef
 
 	def IsBoundedByIBOrBoundsIBNamedParam()
 		if This.IsBoundedByIBNamedParam() or This.IsBoundsIBNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBoundsIBOrBoundedByIBNamedParam()
@@ -89342,144 +89342,144 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Section )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThisSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ThisSection )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSectionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :SectionIB )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsThisSectionIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ThisSectionIB )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndSection )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfSection )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InSection )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Sections )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsTheseSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :TheseSections )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSectionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :SectionsIB )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsTheseSectionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :TheseSectionsIB )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndSections )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfSubSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OfSections )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InSections )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSectionOrInSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :Section or This.Item(1) = :InSection) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSectionsOrInSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :Sections or This.Item(1) = :InSections) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsSectionsOrInSectionsNamedParams()
@@ -89489,18 +89489,18 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToSection )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToSections )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#==
@@ -89509,162 +89509,162 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ListSize )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStringSizeNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :StringSize )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNumberOfItemsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :NumberOfItems )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNumberOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :NumberOfChars )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInAListOfNItemsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InAListOfNItems )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInAListOfSizeNNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InAListOfSizeN )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInAListOfSizeNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InAListOfSize )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInAListOfNNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InAListOfN )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInAListOfNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InAListOf )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInAStringOfNCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InAStringOfN )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInAStringOfSizeNNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InAStringOfSizeN )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInListOfNItemsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InListOfNItems )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInListOfSizeNNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InListOfSizeN )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInListOfSizeNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InListOfSize )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInListOfNNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InListOfN )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInListOfNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InListOf )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInStringOfNCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InStringOf )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInStringOfSizeNNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InStringOfSizeN )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#==
@@ -89673,90 +89673,90 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Start )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartOfStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :StartOfString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartOfListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :StartOfList )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartFromNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :StartFrom )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartsFromNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :StartsFrom )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartingFromNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :StartingFrom )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEndNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :End )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStopNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Stop )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEndOfListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :EndOfList )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEndOfStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :EndOfString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -89765,27 +89765,27 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromStart )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromStartOfStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromStartOfString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromStartOfListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromStartOfList )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -89793,27 +89793,27 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromEnd )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromEndOfListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromEndOfList )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromEndOfStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromEndOfString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -89822,54 +89822,54 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :StartingAtChar )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartingAtCharAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :StartingAtCharAt )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartingAtCharAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :StartingAtCharAtPosition )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartingAtItemNamedPAram()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :StartingAtItem )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartingAtItemAtNamedPAram()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :StartingAtItemAt )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStartingAtItemAtPositionNamedPAram()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :StartingAtItemAtPosition )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -89878,54 +89878,54 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToEnd )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToEndOfStringNamedPAram()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToEndOfString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToEndOfListNamedPAram()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToEndOfList )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToStartNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToStart )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToStartofListNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToStartOfList )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToStartofStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToStartOfString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#==
@@ -89935,10 +89935,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :OfSize )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSizeNamedParam()
@@ -89946,80 +89946,80 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Size )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsDoNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Do )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUntilNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Until )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUntilPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UntilPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUntilCharAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UntilCharAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUntilCharAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UntilCharAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUntilItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UntilItemAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUntilItemAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UntilItemAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -90027,30 +90027,30 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UntilXT )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUptoNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UpTo )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUptoPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UpToPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		# Misspelled form
@@ -90063,130 +90063,130 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :UpToN or This.Item(1) = :UpToN@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUpToCharAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UpToCharAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUpToCharAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UpToCharAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUpToItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UpToItemAt )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUpToItemAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UpToItemAtPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsUnderNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Under )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsExpressionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Expression )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToNCharsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToNChars )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToNItemsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToNItems )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToNStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToNStrings )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToNNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToNNumbers )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToNListsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToNLists )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToNObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToNObjects )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsLastSepNamedParam()
@@ -90194,10 +90194,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :LastSep or This.Item(1) = :LastSep@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToEachNamedParam()
@@ -90205,10 +90205,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :ToEach or This.Item(1) = :ToEach@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeEachNamedParam()
@@ -90216,10 +90216,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :BeforeEach or This.Item(1) = :BeforeEach@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterEachNamedParam()
@@ -90227,10 +90227,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :AfterEach or This.Item(1) = :AfterEach@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToNthNamedParam()
@@ -90238,10 +90238,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :ToNth or This.Item(1) = :ToNth@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToFirstNamedParam()
@@ -90249,10 +90249,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :ToFirst or This.Item(1) = :ToFirst@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToLastNamedParam()
@@ -90260,10 +90260,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :ToLast or This.Item(1) = :ToLast@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterNthNamedParam()
@@ -90271,10 +90271,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :AfterNth or This.Item(1) = :AfterNth@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterFirstNamedParam()
@@ -90282,10 +90282,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :AfterFirst or This.Item(1) = :AfterFirst@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterLastNamedParam()
@@ -90293,10 +90293,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :AfterLast or This.Item(1) = :AfterLast@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeNthNamedParam()
@@ -90304,28 +90304,28 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :BeforeNth or This.Item(1) = :BeforeNth@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeTheseNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeThese )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeManyNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeMany )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -90334,10 +90334,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :BeforeFirst or This.Item(1) = :BeforeFirst@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeLastNamedParam()
@@ -90345,10 +90345,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :BeforeLast or This.Item(1) = :BeforeLast@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundNamedParam()
@@ -90356,10 +90356,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Around or This.Item(1) = :Around@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundPositionNamedParam()
@@ -90367,10 +90367,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :AroundPosition or This.Item(1) = :AroundPosition@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundPositionsNamedParam()
@@ -90378,10 +90378,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :AroundPositions or This.Item(1) = :AroundPositions@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundSubStringNamedParam()
@@ -90389,10 +90389,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :AroundSubString or This.Item(1) = :AroundSubString@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundSubStringsNamedParam()
@@ -90400,28 +90400,28 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :AroundSubStrings or This.Item(1) = :AroundSubStrings@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundTheseNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AroundThese )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundManyNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AroundMany )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundEachNamedParam()
@@ -90429,10 +90429,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :AroundEach or This.Item(1) = :AroundEach@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundNthNamedParam()
@@ -90440,10 +90440,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :AroundNth or This.Item(1) = :AroundNth@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundFirstNamedParam()
@@ -90451,10 +90451,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :AroundFirst or This.Item(1) = :AroundFirst@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundLastNamedParam()
@@ -90462,10 +90462,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :AroundLast or This.Item(1) = :AroundLast@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEachNamedParam()
@@ -90473,10 +90473,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Each or This.Item(1) = :Each@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFirstNamedParam()
@@ -90484,10 +90484,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :First or This.Item(1) = :First@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsLastNamedParam()
@@ -90495,10 +90495,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Last or This.Item(1) = :Last@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsConcatenatedNamedParam()
@@ -90506,10 +90506,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Concatenated or This.Item(1) = :Concatenated@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsConcatenatedUsingNamedParam()
@@ -90517,10 +90517,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :ConcatenatedUsing or This.Item(1) = :ConcatenatedUsing@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsConcatenatedWithNamedParam()
@@ -90528,10 +90528,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :ConcatenatedWith or This.Item(1) = :ConcatenatedWith@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEachNCharsNamedParam()
@@ -90539,10 +90539,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :EachNChars or This.Item(1) = :EachNChars@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEachNItemsNamedParam()
@@ -90550,10 +90550,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :EachNItems or This.Item(1) = :EachNItems@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEachNStringsNamedParam()
@@ -90561,10 +90561,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :EachNStrings or This.Item(1) = :EachNStrings@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEachNNumbersNamedParam()
@@ -90572,10 +90572,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :EachNNumbers or This.Item(1) = :EachNNumbers@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEachNListsNamedParam()
@@ -90583,10 +90583,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :EachNLists or This.Item(1) = :EachNLists@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEachNPairsNamedParam()
@@ -90594,10 +90594,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :EachNPairs or This.Item(1) = :EachNPairs@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEachNObjectsNamedParam()
@@ -90605,10 +90605,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :EachNObjects or This.Item(1) = :EachNObjects@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsDirectionNamedParam()
@@ -90616,10 +90616,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Direction or This.Item(1) = :Direction@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsGoingNamedParam()
@@ -90627,17 +90627,17 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Going or This.Item(1) = :Going@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsDirectionOrGoingNamedParam()
 		if This.IsDirectionNamedParam() or This.IsGoingNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsGoingOrDirectionNamedParam()
@@ -90656,10 +90656,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Coming or This.Item(1) = :Coming@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSteppingNamedParam()
@@ -90667,10 +90667,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Stepping or This.Item(1) = :Stepping@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	
@@ -90680,10 +90680,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Using or This.Item(1) = :With or This.Item(1) = :By ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -90727,9 +90727,9 @@ fdef
 
 	def IsUsingOrWithOrByOrWhereNamedParam()
 		if This.IsUsingOrWithOrByNamedParam() or This.IsWhereNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsUsingOrWithOrByOrWhereNamedParams()
@@ -90741,10 +90741,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Using or This.Item(1) = :With or This.Item(1) = :In ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsWithOrInOrUsingNamedParam()
@@ -90767,10 +90767,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Next or This.Item(1) = :Next@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNextNthNamedParam()
@@ -90779,10 +90779,10 @@ fdef
 			(This.Item(1) = :NextNth or This.Item(1) = :NextNth@  or 
 			 This.Item(1) = :NthNext or This.Item(1) = :NthNext@) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsNthNextNamedParam()
@@ -90793,10 +90793,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Previous or This.Item(1) = :Previous@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsPreviousNthNamedParam()
@@ -90805,10 +90805,10 @@ fdef
 			(This.Item(1) = :PreviousNth or This.Item(1) = :PreviousNth@  or 
 			 This.Item(1) = :NthPrevious or This.Item(1) = :NthPrevious@) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsNthPreviousNamedParam()
@@ -90821,10 +90821,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Exactly or This.Item(1) = :Exactly@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsMoreThenNamedParam()
@@ -90832,10 +90832,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :MoreThen or This.Item(1) = :MoreThen@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsLessThenNamedParam()
@@ -90843,10 +90843,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :LessThen or This.Item(1) = :LessThen@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfTheseNamedParam()
@@ -90854,10 +90854,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :OfThese or This.Item(1) = :OfThese@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfTheseSubStringsNamedParam()
@@ -90865,10 +90865,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :OfTheseSubStrings or This.Item(1) = :OfTheseSubStrings@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfTheseNumbersNamedParam()
@@ -90876,10 +90876,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :OfTheseNumbers or This.Item(1) = :OfTheseNumbers@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfTheseListsNamedParam()
@@ -90887,10 +90887,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :OfTheseLists or This.Item(1) = :OfTheseLists@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfTheseObjectsNamedParam()
@@ -90898,10 +90898,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :OfTheseObjects or This.Item(1) = :OfTheseObjects@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfTheseCharsNamedParam()
@@ -90909,10 +90909,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :OfTheseChars or This.Item(1) = :OfTheseChars@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOfTheseLettersNamedParam()
@@ -90920,10 +90920,10 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :OfTheseLetters or This.Item(1) = :OfTheseLetters@ ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -90933,9 +90933,9 @@ fdef
 		   This.IsAndPositionNamedParam() or
 		   This.IsAndSubstringNamedParam()
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAndOrAndSubStringOrAndPositionNamedParam()
@@ -90955,80 +90955,80 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AtCharsWhere )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtCharsWNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AtCharsW )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtCharsWhereXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AtCharsWhereXT )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtCharsWXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AtCharsWXT )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtSubStringsWhereNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AtSubStringsWhere )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtSubStringsWNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AtSubStringsW )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtSubStringsWhereXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AtSubStringsWherexT )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAtSubStringsWXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AtSubStringsWXT )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -91037,80 +91037,80 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeCharsWhere )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeCharsWNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeCharsW )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeCharsWhereXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeCharsWhereXT )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeCharsWXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeCharsWXT )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeSubStringsWhereNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubStringsWhere )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeSubStringsWNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubStringsW )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeSubStringsWhereXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubStringsWhereXT )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeSubStringsWXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubStringsWXT )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -91119,89 +91119,89 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterCharsWhere )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterCharsWNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterCharsW )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterCharsWhereXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterCharsWhereXT )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterCharsWXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterCharsWXT )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterSubStringsWhereNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AftersubStringsWhere )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterSubStringsWNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AftersubStringsW )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterSubStringsWhereXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AftersubStringsWhereXT )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterSubStringsWXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AftersubStringsWXT )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
 
 	def IsAtCharsWhereXTOrAtCharsWXTNamedParam()
 		if This.IsAtCharsWhereXTNamedParam() or This.IsAtCharsWXTNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAtCharsWXTOrAtCharsWhereXTNamedParam()
@@ -91218,9 +91218,9 @@ fdef
 
 	def IsBeforeCharsWhereXTOrBeforeCharsWXTNamedParam()
 		if This.IsBeforeCharsWhereXTNamedParam() or This.IsBeforeCharsWXTNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBeforeCharsWXTOrBeforeCharsWhereXTNamedParam()
@@ -91236,9 +91236,9 @@ fdef
 
 	def IsAfterCharsWhereXTOrAfterCharsWXTNamedParam()
 		if This.IsAfterCharsWhereXTNamedParam() or This.IsAfterCharsWXTNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAfterCharsWXTOrAfterCharsWhereXTNamedParam()
@@ -91254,9 +91254,9 @@ fdef
 
 	def IsAtSubStringsWhereXTOrAtCharsWXTNamedParam()
 		if This.IsAtSubstringsWhereXTNamedParam() or This.IsAtSubstringsWXTNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAtSubstringsWXTOrAtSubstringsWhereXTNamedParam()
@@ -91272,9 +91272,9 @@ fdef
 
 	def IsBeforeSubStringsWhereXTOrBeforSubStringsWXTNamedParam()
 		if This.IsBeforeSubstringsWhereXTNamedParam() or This.IsBeforeSubstringsWXTNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsBeforeSubstringsWXTOrBeforeSubstringsWhereXTNamedParam()
@@ -91290,9 +91290,9 @@ fdef
 
 	def IsAfterSubStringsWhereXTOrAfterSubstringsWXTNamedParam()
 		if This.IsAfterSubstringsWhereXTNamedParam() or This.IsAfterSubstringsWXTNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAfterSubstringsWXTOrAfterSubstringsWhereXTNamedParam()
@@ -91312,25 +91312,25 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Forward )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBackwardNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Backward )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsForwardOrBackwardNamedParam()
 		if This.IsForwardNamedParam() or This.IsBackwardNamedParam()
-			return _TRUE_
+			return 1
 		else
 			return FALE
 		ok
@@ -91348,17 +91348,17 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Jump )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInOrOfNamedParam()
 		if This.IsInNamedParam() or This.IsOfNamedParam()
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfOrInNamedParam()
@@ -91375,10 +91375,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :Name or This.Item(1) = :Named ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsNameOrNamedNamedParams()
@@ -91391,10 +91391,10 @@ fdef
 			(This.Item(1) = :Start or This.Item(1) = :StartAt or This.Item(1) = :StartingAt )
 		    )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsStartOrStartAtOrStaringAtNamedParams()
@@ -91407,10 +91407,10 @@ fdef
 			(This.Item(1) = :End or This.Item(1) = :EndAt or This.Item(1) = :EndingAt )
 		    )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsEndOrEndAtOrEndingAtNamedParams()
@@ -91421,10 +91421,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :NStep )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsNStepsNamedParam()
@@ -91432,10 +91432,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :NStep )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -91444,10 +91444,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Steps )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsStepOrNSetpNamedParam()
@@ -91456,10 +91456,10 @@ fdef
 
 		   ( This.Item(1) = :End or This.Item(1) = :Step or This.Item(1) = :NStep )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsStepOrNSetpNamedParams()
@@ -91470,10 +91470,10 @@ fdef
 		   isString(This.Item(1) and
 		   ( This.Item(1) = :End or This.Item(1) = :Steps or This.Item(1) = :NSteps ) )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsStepsOrNSetpsNamedParams()
@@ -91488,10 +91488,10 @@ fdef
 		     This.Item(1) = :NStep or
 		     This.Item(1) = :NSteps )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsStepOtNStepOrStepsOrNStepsNamedParam()
@@ -91510,10 +91510,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and This.Item(1) = :Than
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSeparatorNamedParam()
@@ -91521,10 +91521,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and This.Item(1) = :Separator
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -91535,10 +91535,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :FirstChars
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFirstNCharsNamedParam()
@@ -91547,10 +91547,10 @@ fdef
 		   isString(This.Item(1)) and
 		   ( This.Item(1) = :FirstNChars or This.Item(1) = :NFirstChars )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsNFirstCharsNamedParam()
@@ -91562,10 +91562,10 @@ fdef
 		   isString(This.Item(1)) and
 		   ( This.Item(1) = :FirstNChars or This.Item(1) = :NFirstItems )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsNFirstItemsNamedParam()
@@ -91579,10 +91579,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :LastChars
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsLastNCharsNamedParam()
@@ -91591,10 +91591,10 @@ fdef
 		   isString(This.Item(1)) and
 		   ( This.Item(1) = :LastNChars or This.Item(1) = :NLastChars )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsNLastCharsNamedParam()
@@ -91606,10 +91606,10 @@ fdef
 		   isString(This.Item(1)) and
 		   ( This.Item(1) = :LastNChars or This.Item(1) = :NLastItems )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsNLastItemsNamedParam()
@@ -91621,10 +91621,10 @@ fdef
 		   isString(This.Item(1)) and
 		   ( This.Item(1) = :StartingAt or This.Item(1) = :After )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsStartingAtOrAfterNamedParams()
@@ -91642,10 +91642,10 @@ fdef
 		   isString(This.Item(1)) and
 		   ( This.Item(1) = :StartingAt or This.Item(1) = :Before )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsStartingAtOrBeforeNamedParams()
@@ -91662,10 +91662,10 @@ fdef
 		   isString(This.Item(1)) and
 		   ( This.Item(1) = :At or This.Item(1) = :AthThisPosition )
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsAtThisPositionOrAtNamedParam()
@@ -91676,10 +91676,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :AfterManyPositions
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterManyPositionsIBNamedParam()
@@ -91687,10 +91687,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :AfterManyPositionsIB
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	#--
@@ -91700,10 +91700,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :ToEndOfWord
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEndOfWordNamedParam()
@@ -91711,10 +91711,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :EndOfWord
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToEndOfLineNamedParam()
@@ -91722,10 +91722,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :ToEndOfLine
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEndOfLineNamedParam()
@@ -91733,10 +91733,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :EndOfLine
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToEndOfSentenceNamedParam()
@@ -91744,10 +91744,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :ToEndOfSentence
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsEndOfSentenceNamedParam()
@@ -91755,10 +91755,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :EndOfSentence
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 #~~~~~~~~
@@ -91768,10 +91768,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :UpToNBounds
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsIsBoundOfNamedParam()
@@ -91779,10 +91779,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :IsBoundOf
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsIsFirstBoundOfNamedParam()
@@ -91790,10 +91790,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :IsFirstBoundOf
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsIsLastBoundOfNamedParam()
@@ -91801,10 +91801,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :IsLastBoundOf
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsIsLeftBoundOfNamedParam()
@@ -91812,10 +91812,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :IsLeftBoundOf
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsIsRightBoundOfNamedParam()
@@ -91823,10 +91823,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :IsRightBoundOf
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 #--
@@ -91836,10 +91836,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :BeforeChar
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBeforeCharsNamedParam()
@@ -91847,10 +91847,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :BeforeChars
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterCharNamedParam()
@@ -91858,10 +91858,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :AfterChar
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAfterCharsNamedParam()
@@ -91869,10 +91869,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :AfterChars
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundCharNamedParam()
@@ -91880,10 +91880,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :AroundChar
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAroundCharsNamedParam()
@@ -91891,10 +91891,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :AroundChars
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 #--
@@ -91904,10 +91904,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :BeforePosition
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 #--
@@ -91917,10 +91917,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :BeforeSubStrings
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 #-
@@ -91930,10 +91930,10 @@ fdef
 		   isString(This.Item(1)) and
 		   (This.Item(1) = :Position or This.Item(1) = :SubString)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok	
 
 		def IsSubStringOrPositionNamedParam()
@@ -91947,10 +91947,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :FromPath
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToPathNamedParam()
@@ -91958,10 +91958,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :ToPath
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromOrFromPathNamedParam()
@@ -91969,10 +91969,10 @@ fdef
 		   isString(This.Item(1)) and
 		   ( This.Item(1) = :FromPath or This.Item(1) = :From)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToOrToPathNamedParam()
@@ -91980,10 +91980,10 @@ fdef
 		   isString(This.Item(1)) and
 		   ( This.Item(1) = :ToPath or This.Item(1) = :To)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsAmongNamedParam()
@@ -91991,10 +91991,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :Among
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsBetweenOrFromNamedParam()
@@ -92002,10 +92002,10 @@ fdef
 		   isString(This.Item(1)) and
 		   ( This.Item(1) = :Between or This.Item(1) = :From)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsFromOrBetweenNamedParam()
@@ -92016,10 +92016,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :Like
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsPatternNamedParam()
@@ -92027,10 +92027,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :Pattern
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsGroupNamedParam()
@@ -92038,10 +92038,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :Group
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWhenNamedParam()
@@ -92049,10 +92049,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :When
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsForNamedParam()
@@ -92060,10 +92060,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :For
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsForEachNamedParam()
@@ -92071,10 +92071,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :ForEach
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsWhenOrIfNamedParam()
@@ -92082,10 +92082,10 @@ fdef
 		   isString(This.Item(1)) and
 		   (This.Item(1) = :When or This.Item(1) = :If)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsIfOrWhenNamedParam()
@@ -92096,10 +92096,10 @@ fdef
 		   isString(This.Item(1)) and
 		   (This.Item(1) = :When or This.Item(1) = :For)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsForOrWhenNamedParam()
@@ -92110,10 +92110,10 @@ fdef
 		   isString(This.Item(1)) and
 		   (This.Item(1) = :If or This.Item(1) = :For)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsForOrIfNamedParam()
@@ -92124,10 +92124,10 @@ fdef
 		   isString(This.Item(1)) and
 		   (This.Item(1) = :If or This.Item(1) = :For or This.Item(1) = :When)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsIfOrWhenOrForNamedParam()
@@ -92150,10 +92150,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :ToCol
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToColsNamedParam()
@@ -92161,10 +92161,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :ToCols
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToRowNamedParam()
@@ -92172,10 +92172,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :ToRow
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsToRowsNamedParam()
@@ -92183,10 +92183,10 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :ToRows
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsByOrInColNamedParam()
@@ -92194,10 +92194,10 @@ fdef
 		   isString(This.Item(1)) and
 		   (This.Item(1) = :By or This.Item(1) = :InCol)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInColOrByNamedParam()
@@ -92208,10 +92208,10 @@ fdef
 		   isString(This.Item(1)) and
 		   (This.Item(1) = :By or This.Item(1) = :ToCol)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToColOrByNamedParam()
@@ -92222,10 +92222,10 @@ fdef
 		   isString(This.Item(1)) and
 		   (This.Item(1) = :By or This.Item(1) = :InRow)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsInRowOrByNamedParam()
@@ -92236,10 +92236,10 @@ fdef
 		   isString(This.Item(1)) and
 		   (This.Item(1) = :By or This.Item(1) = :ToRow)
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsToRowOrByNamedParam()
@@ -92250,28 +92250,28 @@ fdef
 		   isString(This.Item(1)) and
 		   This.Item(1) = :ByXT
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsItNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :It )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSayNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Say )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSayOrReturnNamedParam()
@@ -92279,9 +92279,9 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Say or This.Item(1) = :Return) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsReturnOrSayNamedParam()
@@ -92292,9 +92292,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Otherwise )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsElseNamedParam()
@@ -92302,9 +92302,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Else )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsElseOrOtherwiseNamedParam()
@@ -92312,9 +92312,9 @@ fdef
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :Else or This.Item(1) = :Otherwise) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOtherwiseOrElseNamedParam()
@@ -92325,9 +92325,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Rings )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsInterTotalNamedParam()
@@ -92335,9 +92335,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InterTotal )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsSubTotalNamedParam()
@@ -92345,9 +92345,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :SubTotal )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsGrandTotalNamedParam()
@@ -92355,9 +92355,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :GrandTotal )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 
@@ -92365,10 +92365,10 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and  This.Item(1) = :FromFile
 
-			return _TRUE_
+			return 1
 
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromCSVFileNamedParam()
@@ -92376,9 +92376,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromCSVFile )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromHtmlFileNamedParam()
@@ -92386,9 +92386,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromHtmlFile )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromJsonFileNamedParam()
@@ -92396,9 +92396,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromJsonFile )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromCSVNamedParam()
@@ -92406,9 +92406,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromCSV )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromHtmlNamedParam()
@@ -92416,9 +92416,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromHtml )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromJsonNamedParam()
@@ -92426,9 +92426,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromJson )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromCSVStringNamedParam()
@@ -92436,9 +92436,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromCSVString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromHtmlStringNamedParam()
@@ -92446,9 +92446,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromHtmlString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromJsonStringNamedParam()
@@ -92456,9 +92456,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :FromJsonString )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFromCSVOrCSVStringNamedParam()
@@ -92467,9 +92467,9 @@ fdef
 		   ( isString(This.Item(1)) and
 		   ( This.Item(1) = :FromCSV or This.Item(1) = :FromCSVString ) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def FromCSVStringORCSVNamedParam()
@@ -92481,9 +92481,9 @@ fdef
 		   ( isString(This.Item(1)) and
 		   ( This.Item(1) = :FromHTML or This.Item(1) = :FromHTMLString ) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsFromHtmlStringOrHtmlNamedParam()
@@ -92495,9 +92495,9 @@ fdef
 		   ( isString(This.Item(1)) and
 		   ( This.Item(1) = :FromJSON or This.Item(1) = :FromJSONString ) )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsFromJsonStringOrJsonNamedParam()
@@ -92508,9 +92508,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :IsOfItem )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnSuccessNamedParam()
@@ -92518,9 +92518,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OnSuccess )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnCompleteNamedParam()
@@ -92528,9 +92528,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OnComplete )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnErrorNamedParam()
@@ -92538,9 +92538,9 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OnError )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnUpdateNamedParam()
@@ -92548,18 +92548,18 @@ fdef
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :OnUpdate )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsOnOrOfNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and ring_find([:On, :Of], This.Item(1)) > 0 )
 
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 		def IsOfOrOnNamedParam()

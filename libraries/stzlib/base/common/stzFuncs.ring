@@ -80,10 +80,10 @@ _bAsObjectQ = 0
 _bModifiable = 0	# Used with operators that modify stz objects
 
 _bParamCheck = 1  	# Activates the "# Checking params region" in softanza functions
-		     	#--> Set it to _FALSE_ if the functions are used inside large loops
+		     	#--> Set it to FALSE if the functions are used inside large loops
 		    	# so you can gain performance (the checks can then be made once,
 		     	# by yourself, outside the loop).
-			# Use the SetParamCheckingTo(_FALSE_)
+			# Use the SetParamCheckingTo(FALSE)
 
 _bEarlyCheck = 1	# Used for the same reason as _bParamCheck
 
@@ -504,7 +504,7 @@ func SetKeepingTimeTo(bTrueOrFalse)
 			StzRaise("Incorrect param type! bTrueOrFalse must be a number.")
 		ok
 	
-		if NOT ( bTrueOrFalse = _FALSE_ or bTrueOrFalse = _TRUE_ )
+		if NOT ( bTrueOrFalse = 0 or bTrueOrFalse = 1 )
 			StzRaise("Incorrect param value! bTrueOrFalse must be 0 or 1.")
 		ok
 	ok
@@ -562,7 +562,7 @@ func SetTempString(cStr)
 	$TEMP_STRING = cStr
 
 func EraseTempString()
-	$TEMP_STRING = _NULL_
+	$TEMP_STRING = ""
 
 #--
 
@@ -592,7 +592,7 @@ func SetTempObject(pObj)
 	$TEMP_OBJECt = pObj
 
 func EraseTempObject()
-	$TEMP_STRING = _NULL_
+	$TEMP_STRING = ""
 
 #===
 
@@ -848,12 +848,12 @@ func Obj(pObject)
 		ok
 	ok
 
-	_bAsObject = _TRUE_
-	_bAsObjectQ = _FALSE_
+	_bAsObject = 1
+	_bAsObjectQ = 0
 
 	return pObject
 
-	# Must be reset to _FALSE_ everytime These() is used.
+	# Must be reset to FALSE everytime These() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -875,12 +875,12 @@ func ObjQ(pObject)
 		ok
 	ok
 
-	_bAsObjectQ = _TRUE_
-	_bAsObject = _FALSE_
+	_bAsObjectQ = 1
+	_bAsObject = 0
 
 	return pObject
 
-	# Must be reset to _FALSE_ everytime These() is used.
+	# Must be reset to FALSE everytime These() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -903,7 +903,7 @@ func M(poStzObject)
 		ok
 	ok
 
-	_bModifiable = _TRUE_
+	_bModifiable = 1
 	return poStzObject
 
 func These(p)
@@ -927,11 +927,11 @@ func These(p)
 		ok
 	ok
 
-	_bThese = _TRUE_
-	_bTheseQ = _FALSE_
+	_bThese = 1
+	_bTheseQ = 0
 
 	return p
-	# Must be reset to _FALSE_ everytime These() is used.
+	# Must be reset to FALSE everytime These() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1023,8 +1023,8 @@ func These(p)
 	#>
 
 func TheseNumbers(p)
-	_bThese = _TRUE_
-	_bTheseQ = _FALSE_
+	_bThese = 1
+	_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1042,7 +1042,7 @@ func TheseNumbers(p)
 	next
 
 	return anResult
-	# Must be reset to _FALSE_ everytime TheseNumbers() is used.
+	# Must be reset to FALSE everytime TheseNumbers() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1079,8 +1079,8 @@ func TheseNumbers(p)
 	#>
 
 func TheseChars(p)
-	_bThese = _TRUE_
-	_bTheseQ = _FALSE_
+	_bThese = 1
+	_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1098,7 +1098,7 @@ func TheseChars(p)
 	next
 
 	return acResult
-	# Must be reset to _FALSE_ everytime TheseChars() is used.
+	# Must be reset to FALSE everytime TheseChars() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1135,8 +1135,8 @@ func TheseChars(p)
 	#>
 
 func TheseStrings(p)
-	_bThese = _TRUE_
-	_bTheseQ = _FALSE_
+	_bThese = 1
+	_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1154,7 +1154,7 @@ func TheseStrings(p)
 	next
 
 	return acResult
-	# Must be reset to _FALSE_ everytime TheseStrings() is used.
+	# Must be reset to FALSE everytime TheseStrings() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1191,8 +1191,8 @@ func TheseStrings(p)
 	#>
 
 func TheseLists(p)
-	_bThese = _TRUE_
-	_bTheseQ = _FALSE_
+	_bThese = 1
+	_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1210,7 +1210,7 @@ func TheseLists(p)
 	next
 
 	return aResult
-	# Must be reset to _FALSE_ everytime TheseLists() is used.
+	# Must be reset to FALSE everytime TheseLists() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1247,8 +1247,8 @@ func TheseLists(p)
 	#>
 
 func TheseObjects(p)
-	_bThese = _TRUE_
-	_bTheseQ = _FALSE_
+	_bThese = 1
+	_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isObject(p)
@@ -1266,7 +1266,7 @@ func TheseObjects(p)
 	next
 
 	return aoResult
-	# Must be reset to _FALSE_ everytime TheseObjects() is used.
+	# Must be reset to FALSE everytime TheseObjects() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1305,8 +1305,8 @@ func TheseObjects(p)
 #--
 
 func TheseStzNumbers(p)
-	_bThese = _TRUE_
-	_bTheseQ = _FALSE_
+	_bThese = 1
+	_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1324,7 +1324,7 @@ func TheseStzNumbers(p)
 	next
 
 	return aoResult
-	# Must be reset to _FALSE_ everytime TheseStzNumbers() is used.
+	# Must be reset to FALSE everytime TheseStzNumbers() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1361,8 +1361,8 @@ func TheseStzNumbers(p)
 	#>
 
 func TheseStzChars(p)
-	_bThese = _TRUE_
-	_bTheseQ = _FALSE_
+	_bThese = 1
+	_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1380,7 +1380,7 @@ func TheseStzChars(p)
 	next
 
 	return aoResult
-	# Must be reset to _FALSE_ everytime TheseStzChars() is used.
+	# Must be reset to FALSE everytime TheseStzChars() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1417,8 +1417,8 @@ func TheseStzChars(p)
 	#>
 
 func TheseStzStrings(p)
-	_bThese = _TRUE_
-	_bTheseQ = _FALSE_
+	_bThese = 1
+	_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1436,7 +1436,7 @@ func TheseStzStrings(p)
 	next
 
 	return aoResult
-	# Must be reset to _FALSE_ everytime TheseStzStrings() is used.
+	# Must be reset to FALSE everytime TheseStzStrings() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1473,8 +1473,8 @@ func TheseStzStrings(p)
 	#>
 
 func TheseStzLists(p)
-	_bThese = _TRUE_
-	_bTheseQ = _FALSE_
+	_bThese = 1
+	_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1492,7 +1492,7 @@ func TheseStzLists(p)
 	next
 
 	return aoResult
-	# Must be reset to _FALSE_ everytime TheseStzLists() is used.
+	# Must be reset to FALSE everytime TheseStzLists() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1529,8 +1529,8 @@ func TheseStzLists(p)
 	#>
 
 func TheseStzObjects(p)
-	_bThese = _TRUE_
-	_bTheseQ = _FALSE_
+	_bThese = 1
+	_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1548,7 +1548,7 @@ func TheseStzObjects(p)
 	next
 
 	return aoResult
-	# Must be reset to _FALSE_ everytime TheseStzObjects() is used.
+	# Must be reset to FALSE everytime TheseStzObjects() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1585,8 +1585,8 @@ func TheseStzObjects(p)
 	#>
 
 func TheseQtObjects(p)
-	_bThese = _TRUE_
-	_bTheseQ = _FALSE_
+	_bThese = 1
+	_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1604,7 +1604,7 @@ func TheseQtObjects(p)
 	next
 
 	return aoResult
-	# Must be reset to _FALSE_ everytime TheseStzObjects() is used.
+	# Must be reset to FALSE everytime TheseStzObjects() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1651,11 +1651,11 @@ func TheseQ(p)
 		ok
 	ok
 
-	_bTheseQ = _TRUE_
-	_bThese = _FALSE_
+	_bTheseQ = 1
+	_bThese = 0
 
 	return p
-	# _bTheseQ Must be reset to _FALSE_ everytime These() is used.
+	# _bTheseQ Must be reset to FALSE everytime These() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1754,8 +1754,8 @@ func TheseNumbersQ(p)
 		ok
 	ok
 
-	_bTheseQ = _TRUE_
-	_bThese = _FALSE_
+	_bTheseQ = 1
+	_bThese = 0
 
 	nLen = len(p)
 	anResult = []
@@ -1767,7 +1767,7 @@ func TheseNumbersQ(p)
 	next
 
 	return new stzListOfNumbers(anResult)
-	# _bTheseQ must be reset to _FALSE_ everytime TheseNumbers() is used.
+	# _bTheseQ Must be reset to FALSE everytime TheseNumbers() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1810,8 +1810,8 @@ func TheseCharsQ(p)
 		ok
 	ok
 
-	_bTheseQ = _TRUE_
-	_bThese = _FALSE_
+	_bTheseQ = 1
+	_bThese = 0
 
 	nLen = len(p)
 	acResult = []
@@ -1823,7 +1823,7 @@ func TheseCharsQ(p)
 	next
 
 	return new stzListOfChars(acResult)
-	# _bTheseQ must be reset to _FALSE_ everytime TheseChars() is used.
+	# _bTheseQ Must be reset to FALSE everytime TheseChars() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1866,8 +1866,8 @@ func TheseStringsQ(p)
 		ok
 	ok
 
-	_bTheseQ = _TRUE_
-	_bThese = _FALSE_
+	_bTheseQ = 1
+	_bThese = 0
 
 	nLen = len(p)
 	acResult = []
@@ -1879,7 +1879,7 @@ func TheseStringsQ(p)
 	next
 
 	return new stzListOfStrings(acResult)
-	# _bTheseQ must be reset to _FALSE_ everytime TheseStrings() is used.
+	# _bTheseQ Must be reset to FALSE everytime TheseStrings() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1922,8 +1922,8 @@ func TheseListsQ(p)
 		ok
 	ok
 
-	_bTheseQ = _TRUE_
-	_bThese = _FALSE_
+	_bTheseQ = 1
+	_bThese = 0
 
 	nLen = len(p)
 	aResult = []
@@ -1935,7 +1935,7 @@ func TheseListsQ(p)
 	next
 
 	return new stzListOfLists(aResult)
-	# _bTheseQ must be reset to _FALSE_ everytime TheseLists() is used.
+	# _bTheseQ Must be reset to FALSE everytime TheseLists() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -1978,8 +1978,8 @@ func TheseObjectsQ(p)
 		ok
 	ok
 
-	_bTheseQ = _TRUE_
-	_bThese = _FALSE_
+	_bTheseQ = 1
+	_bThese = 0
 
 	nLen = len(p)
 	aoResult = []
@@ -1991,7 +1991,7 @@ func TheseObjectsQ(p)
 	next
 
 	return new stzListOfObjects(aoResult)
-	# _bTheseQ must be reset to _FALSE_ everytime TheseObjects() is used.
+	# _bTheseQ Must be reset to FALSE everytime TheseObjects() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -2034,8 +2034,8 @@ func TheseStzNumbersQ(p)
 		ok
 	ok
 
-	_bTheseQ = _TRUE_
-	_bThese = _FALSE_
+	_bTheseQ = 1
+	_bThese = 0
 
 	nLen = len(p)
 	aoResult = []
@@ -2047,7 +2047,7 @@ func TheseStzNumbersQ(p)
 	next
 
 	return new stzListOfNumbers(aoResult)
-	# _bTheseQ must be reset to _FALSE_ everytime TheseStzNumbers() is used.
+	# _bTheseQ Must be reset to FALSE everytime TheseStzNumbers() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -2090,8 +2090,8 @@ func TheseStzCharsQ(p)
 		ok
 	ok
 
-	_bTheseQ = _TRUE_
-	_bThese = _FALSE_
+	_bTheseQ = 1
+	_bThese = 0
 
 	nLen = len(p)
 	aoResult = []
@@ -2103,7 +2103,7 @@ func TheseStzCharsQ(p)
 	next
 
 	return aoResult
-	# _bTheseQ must be reset to _FALSE_ everytime TheseStzChars() is used.
+	# _bTheseQ Must be reset to FALSE everytime TheseStzChars() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -2146,8 +2146,8 @@ func TheseStzStringsQ(p)
 		ok
 	ok
 
-	_bTheseQ = _TRUE_
-	_bThese = _FALSE_
+	_bTheseQ = 1
+	_bThese = 0
 
 	nLen = len(p)
 	aoResult = []
@@ -2159,7 +2159,7 @@ func TheseStzStringsQ(p)
 	next
 
 	return new stzListOfStrings(aoResult)
-	# Must be reset to _FALSE_ everytime TheseStzStrings() is used.
+	# Must be reset to FALSE everytime TheseStzStrings() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -2202,8 +2202,8 @@ func TheseStzListsQ(p)
 		ok
 	ok
 
-	_bTheseQ = _TRUE_
-	_bThese = _FALSE_
+	_bTheseQ = 1
+	_bThese = 0
 
 	nLen = len(p)
 	aoResult = []
@@ -2215,7 +2215,7 @@ func TheseStzListsQ(p)
 	next
 
 	return new stzListOfLists(aoResult)
-	# _bTheseQ must be reset to _FALSE_ everytime TheseStzLists() is used.
+	# _bTheseQ Must be reset to FALSE everytime TheseStzLists() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -2258,8 +2258,8 @@ func TheseStzObjectsQ(p)
 		ok
 	ok
 
-	_bTheseQ = _TRUE_
-	_bThese = _FALSE_
+	_bTheseQ = 1
+	_bThese = 0
 
 	nLen = len(p)
 	aoResult = []
@@ -2271,7 +2271,7 @@ func TheseStzObjectsQ(p)
 	next
 
 	return new stzListOfObjects(aoResult)
-	# _bTheseQ = _TRUE_ must be reset to _FALSE_ everytime TheseStzObjects() is used.
+	# _bTheseQ = 1 must be reset to FALSE everytime TheseStzObjects() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -2315,8 +2315,8 @@ func TheseQtObjectsQ(p)
 		ok
 	ok
 
-	_bTheseQ = _TRUE_
-	_bThese = _FALSE_
+	_bTheseQ = 1
+	_bThese = 0
 
 	nLen = len(p)
 	aoResult = []
@@ -2328,7 +2328,7 @@ func TheseQtObjectsQ(p)
 	next
 
 	return new stzListOfObjects(aoResult)
-	# _bTheseQ must be reset to _FALSE_ everytime TheseStzObjects() is used.
+	# _bTheseQ Must be reset to FALSE everytime TheseStzObjects() is used.
 
 	#< @FunctionAlternativeForms
 
@@ -2461,7 +2461,7 @@ func SetParamCheckingTo(bTrueOrFalse) #TODO // Test it!
 	#>
 
 func ActivateParamChecking()
-	_bParamCheck = _TRUE_
+	_bParamCheck = 1
 
 	#< FunctionAlternativeForms
 
@@ -2502,7 +2502,7 @@ func ActivateParamChecking()
 	#>
 
 func DesactivateParamChecking()
-	_bParamCheck = _FALSE_
+	_bParamCheck = 0
 
 	#< @FunctionAlternativeForms
 
@@ -2608,33 +2608,33 @@ func EarlyCheck()
 		return _bEarlyCheck
 
 func EarlyCheckOn()
-	_bEarlyCheck = _TRUE_
+	_bEarlyCheck = 1
 
 	func ActivateEarlyCheck()
-		_bEarlyCheck = _TRUE_
+		_bEarlyCheck = 1
 
 	func EarlyChecksOn()
-		_bEarlyCheck = _TRUE_
+		_bEarlyCheck = 1
 
 	func ActivateEarlyChecks()
-		_bEarlyCheck = _TRUE_
+		_bEarlyCheck = 1
 
 func EarlyCheckOff()
-	_bEarlyCheck = _FALSE_
+	_bEarlyCheck = 0
 
 	func DeactivateEarlyCheck()
-		_bEarlyCheck = _FALSE_
+		_bEarlyCheck = 0
 
 	func EarlyChecksOff()
-		_bEarlyCheck = _FALSE_
+		_bEarlyCheck = 0
 
 	func DectivateEarlyChecks()
-		_bEarlyCheck = _FALSE_
+		_bEarlyCheck = 0
 
 func SetEarlyCheck(b)
 	if CheckingParams()
 		if NOT (isNumber(b) and (b = 0 or b = 1) )
-			StzRaise("Incorrect param! b must be a boolean (_TRUE_ or _FALSE_).")
+			StzRaise("Incorrect param! b must be a boolean (1 or FALSE).")
 		ok
 	ok
 
@@ -2787,15 +2787,15 @@ func IsCaseSensitive(p)
 	if (isNumber(p) and p = 1) or
 	   (isList(p) and Q(p).IsCaseSensitiveNamedParam() and p[2] = 1)
 
-		return _TRUE_
+		return 1
 
 	but (isNumber(p) and p = 0) or
 	   (isList(p) and Q(p).IsCaseSensitiveNamedParam() and p[2] = 0)
 
-		return _FALSE_
+		return 0
 
 	else
-		StzRaise("Incorrect param! p must be _TRUE_ or _FALSE_.")
+		StzRaise("Incorrect param! p must be 1 or FALSE.")
 	ok
 
 	func @IsCaseSensitive(p)
@@ -2805,9 +2805,9 @@ func CaseSensitive(p)
 
 	if isNumber(p)
 		if p = 1
-			return _TRUE_
+			return 1
 		but p = 0
-			return _FALSE_
+			return 0
 		ok
 
 	but isList(p) and StzListQ(p).IsCaseSensitiveNamedParam()
@@ -2815,14 +2815,14 @@ func CaseSensitive(p)
 
 		if isNumber(p)
 			if p = 1
-				return _TRUE_
+				return 1
 			but p = 0
-				return _FALSE_
+				return 0
 			ok
 		ok
 
 	else
-		StzRaise("Incorrect param type! p must be a bolean (_TRUE_ or _FALSE_).")
+		StzRaise("Incorrect param type! p must be a bolean (1 or FALSE).")
 	ok
 
 
@@ -2939,15 +2939,15 @@ func StzRaise(paMessage)
 	
 		cErrorMsg = "in file " + paMessage[:Where] + ":" + NL
 	
-		if cWhat != _NULL_
+		if cWhat != ""
 			cErrorMsg += "   What : " + paMessage[:What] + NL
 		ok
 	
-		if cWhy != _NULL_
+		if cWhy != ""
 			cErrorMsg += "   Why  : " + paMessage[:Why]  + NL
 		ok
 	
-		if cTodo != _NULL_
+		if cTodo != ""
 			cErrorMsg += "   Todo : " + paMessage[:Todo] + NL
 		ok
 
@@ -3030,9 +3030,9 @@ func StzFind(pThing, paIn)
 
 func IsNumberOrNumberInString(p)
 	if isNumber(p) or IsNumberInString(p)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func @IsNumberOrNumberInString(p)
@@ -3046,9 +3046,9 @@ func IsNumberOrNumberInString(p)
 
 func IsNumberOrString(p)
 	if isNumber(p) or isString(p)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3097,9 +3097,9 @@ func IsNumberOrString(p)
 
 func IsNumberOrList(p)
 	if isNumber(p) or isList(p)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3144,9 +3144,9 @@ func IsNumberOrList(p)
 
 func IsNumberOrObject(p)
 	if isNumber(p) or isObject(p)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3191,9 +3191,9 @@ func IsNumberOrObject(p)
 
 func IsStringOrList(p)
 	if isString(p) or isList(p)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	def IsListOrString(p)
@@ -3207,9 +3207,9 @@ func IsStringOrList(p)
 
 func IsStringOrListOfStrings(p)
 	if isString(p) or IsListOfStrings(p)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	def IsListOfStringsOrString(p)
@@ -3223,9 +3223,9 @@ func IsStringOrListOfStrings(p)
 
 func IsStringOrObject(p)
 	if isString(p) or isObject(p)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3270,9 +3270,9 @@ func IsStringOrObject(p)
 
 func IsListOrObject(p)
 	if isList(p) or isObject(p)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3317,9 +3317,9 @@ func IsListOrObject(p)
 
 func IsNumberOrStringOrList(p)
 	if isNumber(p) or isString(p) or isList(p)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#<@FunctionAlternativeForms
@@ -3365,9 +3365,9 @@ func IsNumberOrStringOrList(p)
 
 func IsCharOrNumber(p)
 	if isNumber(p) or IsChar(p)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3412,9 +3412,9 @@ func IsCharOrNumber(p)
 
 func IsCharOrString(p)
 	if isString(p)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3459,9 +3459,9 @@ func IsCharOrString(p)
 
 func IsCharOrList(p)
 	if isList(p) or IsChar(p)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3506,9 +3506,9 @@ func IsCharOrList(p)
 
 func IsCharOrObject(p)
 	if isObject(p) or IsChar(p)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3574,9 +3574,9 @@ func BothAreNumbers(p1, p2)
 	ok
 
 	if isNumber(p1) and isNumber(p2)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func AreBothNumbers(p1, p2)
@@ -3601,9 +3601,9 @@ func BothAreNumbersInStrings(p1, p2)
 	   Q(p1).IsNumberInString() and
 	   Q(p2).IsNumberInString()
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3639,9 +3639,9 @@ func BothAreIntegers(p1, p2)
 	ok
 
 	if isNumber(p1) and isNumber(p2) and Q(p1).IsInteger() and Q(p2).IsInteger()
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func AreBothIntegers(p1, p2)
@@ -3661,9 +3661,9 @@ func BothAreIntegersInStrings(p1, p2)
 	if isString(p1) and isString(p2) and
 	   Q(p1).IsIntegerInString() and Q(p2).IsIntegerInString()
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3699,9 +3699,9 @@ func BothAreReals(p1, p2)
 	ok
 
 	if isNumber(p1) and isNumber(p2) and Q(p1).IsReal() and Q(p2).IsReal()
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3739,9 +3739,9 @@ func BothAreRealsInStrings(p1, p2)
 	if isString(p1) and isString(p2) and
 	   Q(p1).IsRealInString() and Q(p2).IsRealInString()
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3804,9 +3804,9 @@ func BothArePairsOfNumbers(p1, p2)
 	   isList(p1) and Q(p1).IsPairOfNumbers() and
 	   isList(p2) and Q(p2).IsPairOfNumbers()
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3866,9 +3866,9 @@ func BothArePairsOfStrings(p1, p2)
 	   isList(p1) and Q(p1).IsPairOfStrings() and
 	   isList(p2) and Q(p2).IsPairOfStrings()
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3926,9 +3926,9 @@ func BothArePairsOfLists(p1, p2)
 	   isList(p1) and Q(p1).IsPairOfLists() and
 	   isList(p2) and Q(p2).IsPairOfLists()
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -3987,9 +3987,9 @@ func BothArePairsOfObjects(p1, p2)
 	   isList(p1) and Q(p1).IsPairOfObjects() and
 	   isList(p2) and Q(p2).IsPairOfObjects()
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4048,7 +4048,7 @@ func BothAreCharsInComputableForm(p1, p2)
 		p2 = p2[2]
 	ok
 
-	bResult = _FALSE_
+	bResult = 0
 
 	if BothAreStringsInComputableForm(p1, p2)
 		c1 = '"'
@@ -4058,7 +4058,7 @@ func BothAreCharsInComputableForm(p1, p2)
 		bOk2 = StzStringQ(p2).RemoveManyQ([ c1, c2 ]).IsAChar()
 
 		if bOk1 and bOk2
-			bResult = _TRUE_
+			bResult = 1
 		ok
 	ok
 
@@ -4093,10 +4093,10 @@ func BothAreStringsInComputableForm(p1, p2)
 	   ( ( Q(p2).FirstChar() = c1 and Q(p2).LastChar() = c1 ) or
 	     ( Q(p2).LastChar()  = c2 and Q(p2).LastChar() = c2 ) )
 
-		return _TRUE_
+		return 1
 
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func AreBothStringsInComputableForm(p1, p2)
@@ -4118,9 +4118,9 @@ func BothAreStzNumbers(p1, p2)
 	ok
 
 	if IsStzNumber(p1) and IsStzNumber(p2)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func AreBothStzNumbers(p1, p2)
@@ -4142,9 +4142,9 @@ func BothAreStrings(p1, p2)
 	ok
 
 	if isString(p1) and isString(p2)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func AreBothStrings(p1, p2)
@@ -4166,9 +4166,9 @@ func BothAreStzStrings(p1, p2)
 	ok
 
 	if IsStzString(p1) and IsStzString(p2)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func AreBothStzStrings(p1, p2)
@@ -4190,9 +4190,9 @@ func BothAreLists(p1, p2)
 	ok
 
 	if isList(p1) and isList(p2)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func AreBothLists(p1, p2)
@@ -4214,9 +4214,9 @@ func BothAreStzLists(p1, p2)
 	ok
 
 	if IsStzList(p1) and IsStzList(p2)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func AreBothStzLists()
@@ -4238,9 +4238,9 @@ func BothAreObjects(p1, p2)
 	ok
 
 	if isObject(p1) and isObject(p2)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func AreBothObjects(p1, p2)
@@ -4262,9 +4262,9 @@ func BothAreStzObjects(p1, p2)
 	ok
 
 	if ObjectIsStzObject(p1) and IsStzObject(p2)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func AreBothStzObjects(p1, p2)
@@ -4285,9 +4285,9 @@ func BothHaveSameStzType(p1, p2)
 	if BothAreObjects(p1, p2) and
 	   p1.StzType() = p2.StzType()
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 # ARE TWO OBJECTS THE SAME?
@@ -4311,9 +4311,9 @@ func IsStzType(pcStr)
 	acTypes = StzTypes() # Assumes they are lowercase strings
 
 	if find(acTypes, pcStr) > 0
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4368,9 +4368,9 @@ func IsRingType(pcStr)
 	acRingTypes = RingTypes()
 
 	if find( RingTypes(), pcStr) > 0
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	#< @FunctionAlternativeForms
@@ -4388,9 +4388,9 @@ func IsRingType(pcStr)
 
 func IsRingOrStzType(pcStr)
 	if IsRingType(pcStr) or IsStzType(pcStr)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	def IsStzOrRingType(pcStr)
@@ -4897,10 +4897,10 @@ func AreBothListsOfNumbers(aList1, aList2)
 	   Q(aList1).IsListOfNumbers() and
 	   Q(aList2).IsListOfNumbers()
 
-		return _TRUE_
+		return 1
 
 	else
-		return _FALSE_
+		return 0
 	ok
 
 func AreBothListsOfStrings(aList1, aList2)
@@ -4909,10 +4909,10 @@ func AreBothListsOfStrings(aList1, aList2)
 	   Q(aList1).IsListOfStrings() and
 	   Q(aList2).IsListOfStrings()
 
-		return _TRUE_
+		return 1
 
 	else
-		return _FALSE_
+		return 0
 	ok
 
 func AreBothListsOfLists(aList1, aList2)
@@ -4921,10 +4921,10 @@ func AreBothListsOfLists(aList1, aList2)
 	   Q(aList1).IsListOfLists() and
 	   Q(aList2).IsListOfLists()
 
-		return _TRUE_
+		return 1
 
 	else
-		return _FALSE_
+		return 0
 	ok
 
 func AreBothListsOfPairs(aList1, aList2)
@@ -4933,10 +4933,10 @@ func AreBothListsOfPairs(aList1, aList2)
 	   Q(aList1).IsListOfPairs() and
 	   Q(aList2).IsListOfPairs()
 
-		return _TRUE_
+		return 1
 
 	else
-		return _FALSE_
+		return 0
 	ok
 
 func AreBothListsOfSets(aList1, aList2)
@@ -4945,10 +4945,10 @@ func AreBothListsOfSets(aList1, aList2)
 	   Q(aList1).IsListOfSets() and
 	   Q(aList2).IsListOfSets()
 
-		return _TRUE_
+		return 1
 
 	else
-		return _FALSE_
+		return 0
 	ok
 
 func AreBothListsOfHashLists(aList1, aList2)
@@ -4957,10 +4957,10 @@ func AreBothListsOfHashLists(aList1, aList2)
 	   Q(aList1).IsListOfHashLists() and
 	   Q(aList2).IsListOfHashLists()
 
-		return _TRUE_
+		return 1
 
 	else
-		return _FALSE_
+		return 0
 	ok
 
 func AreBothListsOfObjects(aList1, aList2)
@@ -4969,10 +4969,10 @@ func AreBothListsOfObjects(aList1, aList2)
 	   Q(aList1).IsListOfObjects() and
 	   Q(aList2).IsListOfObjects()
 
-		return _TRUE_
+		return 1
 
 	else
-		return _FALSE_
+		return 0
 	ok
 
 func EuclideanDistance(anNumbers1, anNumbers2)
@@ -5018,9 +5018,9 @@ func euc_dist(a,b)
 
 func @IsList(paList)
 	if isList(paList)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func IsAList(paList)
@@ -5031,9 +5031,9 @@ func @IsList(paList)
 
 func @IsNumber(n)
 	if isNumber(n)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func IsANumber(n)
@@ -5044,9 +5044,9 @@ func @IsNumber(n)
 
 func @IsString(str)
 	if isString(str)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func IsAString(str)
@@ -5057,9 +5057,9 @@ func @IsString(str)
 
 func @IsObject(obj)
 	if isObject(obj)
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func IsAnObject(obj)
@@ -5089,16 +5089,16 @@ func BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
 	if Q(pStrOrList1).StartsWithCS(pSubStrOrSubList, pCaseSensitive) and
 	   Q(pStrOrList2).StartsWithCS(pSubStrOrSubList, pCaseSensitive)
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func @BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
 		return BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
 
 func BothStartWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
-	return BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, _TRUE_)
+	return BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, 1)
 
 	func @BothStartWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
 		return BothStartWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
@@ -5110,16 +5110,16 @@ func BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
 	if Q(pStrOrList1).endsWithCS(pSubStrOrSubList, pCaseSensitive) and
 	   Q(pStrOrList2).EndsWithCS(pSubStrOrSubList, pCaseSensitive)
 
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func @BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
 		return BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
 
 func BothEndWith(pStrOrList1, pStrOrList2)
-	return BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, _TRUE_)
+	return BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, 1)
 
 	func @BothEndWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
 		return BothEndWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
@@ -5128,16 +5128,16 @@ func BothEndWith(pStrOrList1, pStrOrList2)
 
 func BothStartWithANumber(p1, p2)
 	if Q(p1).StartsWithANumber() and Q(p2).StartsWithANumber()
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 func BothEndWithANumber(p1, p2)
 	if Q(p1).EndsWithANumber() and Q(p2).EndsWithANumber()
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 func NewLine()
@@ -5159,9 +5159,9 @@ func IsStzFindableType(cType)
 
 	cType = lower(cType)
 	if ring_find( StzFindableTypes(), cType) > 0
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func IsAStzFindableType(cType)
@@ -5178,14 +5178,14 @@ func StzFindableTypes()
 
 func IsStzFindable(p)
 	if NOT ( isObject(p) and IsStzObject(p) )
-		return _FALSE_
+		return 0
 	ok
 
 	cStzType = p.StzType()
 	if ring_find( StzFindableTypes(), cStzType ) > 0
-		return _TRUE_
+		return 1
 	else
-		return _FALSE_
+		return 0
 	ok
 
 	func @IsStzFindable(p)

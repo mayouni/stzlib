@@ -52,7 +52,7 @@ class stzOccurrences
 		return cResult
 
 	def Removed()
-		return This.RemovedCS(_TRUE_)
+		return This.RemovedCS(1)
 
 
 	#--

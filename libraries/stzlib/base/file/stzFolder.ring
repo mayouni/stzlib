@@ -100,12 +100,12 @@ class stzFolder from stzObject
 
 	@cDisplayOrder = :FileFirstAscending
 
-	@bExpand = _FALSE_
-	@bDeepExpandAll = _FALSE_
+	@bExpand = 0
+	@bDeepExpandAll = 0
 	@acDeepExpandFolders = []
 	@acExpandFolders = []
 
-	@bCollapseAll = _FALSE_
+	@bCollapseAll = 0
 	@acCollapseFolders = []
 
 	@acDisplayChars = [
@@ -253,9 +253,9 @@ class stzFolder from stzObject
 	    cNormalizedPath = This.NormalizePathXT(cPath)
 	
 		if ring_find(This.FilesXT(), cNormalizedPath) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 	
 	    def IsValidFile(cPath)
@@ -274,9 +274,9 @@ class stzFolder from stzObject
 		cPath = This.NormalizeFolderPath(cPath)
 	
 		if ring_find(This.Folders(), cPath) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 	
 	    def IsValidFolder(cPath)
@@ -312,9 +312,9 @@ class stzFolder from stzObject
 		cPath = This.NormaliseFolderPath(cPath)
 	
 		if ring_find( This.Files(), cPath ) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsFolderPath(cPath)
@@ -332,16 +332,16 @@ class stzFolder from stzObject
 		ok
 		
 		if ring_find( This.Folders(), cPath ) > 0
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def IsDeep(cPath)
 		if This.IsDeepFile(cPath) or This.IsDeepFolder(cPath)
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 	
 		def IsDeepPath(cPath)
@@ -352,13 +352,13 @@ class stzFolder from stzObject
 		cSep = This.Separator()
 	
 		if right(cPath, 1) = cSep # It's a folder not a file!
-			return _FALSE_
+			return 0
 		ok
 	
 		if StzStringQ(cpath).NumberOfOccurrence(cSep) > 1
-			return _true_
+			return 1
 		else
-			return _false_
+			return 0
 		ok
 	
 		def IsDeepFilePath(cPath)
@@ -369,13 +369,13 @@ class stzFolder from stzObject
 		cSep = This.Separator()
 	
 		if right(cPath, 1) != cSep # It's a file not a folder!
-			return _FALSE_
+			return 0
 		ok
 	
 		if StzStringQ(cpath).NumberOfOccurrence(cSep) > 2
-			return _true_
+			return 1
 		else
-			return _false_
+			return 0
 		ok
 	
 		def IsDeepFolderPath(cPath)
@@ -3325,7 +3325,7 @@ class stzFolder from stzObject
 	def Matches(cPattern, cName)
 
 		if cPattern = "*"
-			return _TRUE_
+			return 1
 		ok
 
 		cRegexPattern = cPattern
@@ -3650,7 +3650,7 @@ class stzFolder from stzObject
 			cFolderName = This.Path()
 		end
 		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + nTotalMatches + " matches for '" + cPattern + "')" + nl
-		cResult += This.GenerateVizTreeString(This.Path(), '', _TRUE_, cPattern, "both", 0, 1)
+		cResult += This.GenerateVizTreeString(This.Path(), '', 1, cPattern, "both", 0, 1)
 		return cResult
 
 	def VizFindFiles(cPattern)
@@ -3660,7 +3660,7 @@ class stzFolder from stzObject
 			cFolderName = This.Path()
 		end
 		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + nTotalMatches + " file matches for '" + cPattern + "')" + nl
-		cResult += This.GenerateVizTreeString(This.Path(), "", _TRUE_, cPattern, "files", 0, 1)
+		cResult += This.GenerateVizTreeString(This.Path(), "", 1, cPattern, "files", 0, 1)
 		return cResult
 
 	def VizFindFolders(cPattern)
@@ -3670,7 +3670,7 @@ class stzFolder from stzObject
 			cFolderName = This.Path()
 		end
 		cResult = @acDisplayChars[:FolderRootXT] + " " + cFolderName + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + nTotalMatches + " folder matches for '" + cPattern + "')" + nl
-		cResult += This.GenerateVizTreeString(This.Path(), "", _TRUE_, cPattern, "folders", 0, 1)
+		cResult += This.GenerateVizTreeString(This.Path(), "", 1, cPattern, "folders", 0, 1)
 		return cResult
 
 		def VizSearchDirs(cPattern)
@@ -3685,7 +3685,7 @@ class stzFolder from stzObject
 			cFolderName = This.Path()
 		end
 		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName + " (" + @acDisplayChars[:FolderRootSearchSymbol] + "" + nTotalMatches + " matches for '" + cPattern + "')" + nl
-		cResult += This.GenerateVizTreeString(This.Path(), '', _TRUE_, cPattern, "both", 0, This.MaxDisplayLevel())
+		cResult += This.GenerateVizTreeString(This.Path(), '', 1, cPattern, "both", 0, This.MaxDisplayLevel())
 		return cResult
 
 		def VizDeepFindFilesAndFolders(cPattern)
@@ -3703,7 +3703,7 @@ class stzFolder from stzObject
 		if len(acFoldersWithMatches) > 0
 			This.ExpandFolders(acFoldersWithMatches)
 		end
-		cResult += This.GenerateVizTreeString(This.Path(), "", _TRUE_, cPattern, "files", 0, This.MaxDisplayLevel())
+		cResult += This.GenerateVizTreeString(This.Path(), "", 1, cPattern, "files", 0, This.MaxDisplayLevel())
 		return cResult
 
 	def VizDeepFindFolders(cPattern)
@@ -3713,7 +3713,7 @@ class stzFolder from stzObject
 			cFolderName = This.Path()
 		end
 		cResult = @acDisplayChars[:FolderRootXT] + " " + cFolderName + " (" + @acDisplayChars[:FolderRootSearchSymbol] + + "  " + nTotalMatches + " folder matches for '" + cPattern + "')" + nl
-		cResult += This.GenerateVizTreeString(This.Path(), "", _TRUE_, cPattern, "folders", 0, This.MaxDisplayLevel())
+		cResult += This.GenerateVizTreeString(This.Path(), "", 1, cPattern, "folders", 0, This.MaxDisplayLevel())
 		return cResult
 
 		def VizDeepSearchDirs(cPattern)
@@ -3724,7 +3724,7 @@ class stzFolder from stzObject
 		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName + NL
 
 		cResult += This.GenerateVizTreeString(
-			This.Path(), '', _TRUE_,
+			This.Path(), '', 1,
 			'', "", 0, This.MaxDisplayLevel()
 		)
 
@@ -3745,7 +3745,7 @@ class stzFolder from stzObject
 		cResult = @acDisplayChars[:FolderRootXT] + " " + cFolderName + " " + cStats + NL
 
 		cResult += This.GenerateVizTreeString(
-			This.Path(), '', _TRUE_, cStatPattern,
+			This.Path(), '', 1, cStatPattern,
 			"showxt", 0, This.MaxDisplayLevel()
 		)
 
@@ -3759,11 +3759,11 @@ class stzFolder from stzObject
 	#-------------------------#
 
 	def Expand()
-		@bExpand = _TRUE_
-		@bDeepExpandAll = _FALSE_
+		@bExpand = 1
+		@bDeepExpandAll = 0
 		@acDeepExpandFolders = []
 
-		@bCollapseAll = _FALSE_
+		@bCollapseAll = 0
 		@acCollapseFolders = []
 
 		def ExpandAll()
@@ -3796,7 +3796,7 @@ class stzFolder from stzObject
 			ok
 		next
 
-	    @bCollapseAll = _FALSE_
+	    @bCollapseAll = 0
 	
 		def ExpandTheseFolders(acFolders)
 			This.ExpandFolders(acFolders)
@@ -3807,11 +3807,11 @@ class stzFolder from stzObject
 	#--
 
 	def DeepExpandAll()
-		@bExpand = _FALSE_
-		@bDeepExpandAll = _TRUE_
+		@bExpand = 0
+		@bDeepExpandAll = 1
 		@acDeepExpandFolders = []
 
-		@bCollapseAll = _FALSE_
+		@bCollapseAll = 0
 		@acCollapseFolders = []
 
 		def DeepExpand()
@@ -3832,8 +3832,8 @@ class stzFolder from stzObject
 		else
 			@acDeepExpandFolders = acFolders
 		end
-		@bCollapseAll = _FALSE_
-		@bDeepExpandAll = _FALSE_
+		@bCollapseAll = 0
+		@bDeepExpandAll = 0
 
 		def DeepExpandTheseFolders(acFolders)
 			This.DeepExpandFolders(acFolders)
@@ -3844,9 +3844,9 @@ class stzFolder from stzObject
 	#--
 
 	def CollapseAll()
-		@bCollapseAll = _TRUE_
-		@bExpand = _FALSE_
-		@bDeepExpandAll = _FALSE_
+		@bCollapseAll = 1
+		@bExpand = 0
+		@bDeepExpandAll = 0
 
 		@acExpandFolders = []
 		@acDeepExpandFolders = []
@@ -3860,8 +3860,8 @@ class stzFolder from stzObject
 		else
 			@acCollapseFolders = acFolders
 		end
-		@bExpand = _FALSE_
-		@bDeepExpandAll = _FALSE_
+		@bExpand = 0
+		@bDeepExpandAll = 0
 
 		def CollapseTheseFolders(acFolders)
 			This.CollapseFolders(acFolders)
@@ -3905,17 +3905,17 @@ class stzFolder from stzObject
 
 	def IsStatPattern(cPattern)
 		if Not isString(cPattern)
-			return _FALSE_
+			return 0
 		ok
 
 		cPattern = lower(cpattern)
 		acKeywords = This.StatKeywords()
 		nLen = len(acKeywords)
-		bResult = _FALSE_
+		bResult = 0
 
 		for i = 1 to nLen
 			if substr(cPattern, acKeywords[i]) > 0
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next
@@ -4006,13 +4006,13 @@ class stzFolder from stzObject
 	def CollectFoldersWithFileMatches(cPath, cPattern, aFoldersWithMatches)
 
 		_aList_ = @dir(cPath)
-		bHasFileMatches = _FALSE_
+		bHasFileMatches = 0
 		nLen = len(_aList_)
 
 		for i = 1 to nLen
 			if _aList_[i][2] = 0
 				if This.Matches(cPattern, _aList_[i][1])
-					bHasFileMatches = _TRUE_
+					bHasFileMatches = 1
 					exit
 				end
 			end
@@ -4455,7 +4455,7 @@ class stzFolder from stzObject
 	def ShouldExpandFolder(cFolderName)
 
 		if @bCollapseAll
-			return _FALSE_
+			return 0
 		end
 
 		cFolderName = This.NormalizeFolderPath(cFolderName)
@@ -4465,9 +4465,9 @@ class stzFolder from stzObject
 		if @bDeepExpandAll
 
 			if This.IsFolderEmpty(cFolderName)
-				return _FALSE_
+				return 0
 			else
-				return _TRUE_
+				return 1
 			end
 
 		end
@@ -4477,14 +4477,14 @@ class stzFolder from stzObject
 			nLen = len(@acCollapseFolders)
 			for i = 1 to nLen
 				if This.Matches(@acCollapseFolders[i], cFolderName)
-					return _FALSE_
+					return 0
 				end
 			next
 
 			if This.IsFolderEmpty(cFolderName)
-				return _FALSE_
+				return 0
 			else
-				return _TRUE_
+				return 1
 			end
 
 		end
@@ -4492,11 +4492,11 @@ class stzFolder from stzObject
 		nLen = len(@acExpandFolders)
 		for i = 1 to nLen 
 			if This.Matches(@acExpandFolders[i], cFolderName)
-				return _TRUE_
+				return 1
 			end
 		next
 
-		return _FALSE_
+		return 0
 
 
 	def GetFolderIconForExpanded(bSubfolderHasMatches, bIsEmpty)
@@ -4559,7 +4559,7 @@ class stzFolder from stzObject
 	        
 	        if cItemType = "file"
 	            # Check if file matches the search pattern
-	            bFileMatches = _FALSE_
+	            bFileMatches = 0
 	            if cSearchType = "files" or cSearchType = "both"
 	                bFileMatches = This.Matches(cPattern, cItemName)
 	            end
@@ -4584,7 +4584,7 @@ class stzFolder from stzObject
 	            oSubFolder = new stzFolder(cItemPath)
 	            
 	            # Check if folder matches the search pattern
-	            bFolderMatches = _FALSE_
+	            bFolderMatches = 0
 	            if cSearchType = "folders" or cSearchType = "both"
 	                bFolderMatches = This.Matches(cPattern, cItemName)
 	            end
@@ -4592,19 +4592,19 @@ class stzFolder from stzObject
 	            # Check if subfolder contains matches
 	            nSubfolderFileMatches = 0
 	            nSubfolderFolderMatches = 0
-	            bSubfolderHasMatches = _FALSE_
+	            bSubfolderHasMatches = 0
 	            
 	            if cSearchType = "files" or cSearchType = "both"
 	                nSubfolderFileMatches = This.CountFileMatchesRecursive(cItemPath, cPattern)
 	                if nSubfolderFileMatches > 0
-	                    bSubfolderHasMatches = _TRUE_
+	                    bSubfolderHasMatches = 1
 	                end
 	            end
 	            
 	            if cSearchType = "folders" or cSearchType = "both"
 	                nSubfolderFolderMatches = This.CountFolderMatchesRecursive(cItemPath, cPattern)
 	                if nSubfolderFolderMatches > 0
-	                    bSubfolderHasMatches = _TRUE_
+	                    bSubfolderHasMatches = 1
 	                end
 	            end
 	            
@@ -4650,7 +4650,7 @@ class stzFolder from stzObject
 	            
 	            # Recurse into subfolder if should be expanded
 	            if bShouldExpand and nCurrentLevel + 1 < nMaxLevels
-	                cResult += This.GenerateVizTreeString(cItemPath, cNewPrefix, _FALSE_, cPattern, cSearchType, nCurrentLevel + 1, nMaxLevels)
+	                cResult += This.GenerateVizTreeString(cItemPath, cNewPrefix, 0, cPattern, cSearchType, nCurrentLevel + 1, nMaxLevels)
 	            end
 	        end
 	    next
@@ -4662,11 +4662,11 @@ class stzFolder from stzObject
 
 		# If DeepExpandAll is enabled, expand all folders
 		if @bDeepExpandAll
-			return _TRUE_
+			return 1
 		end
 		
 		if @acDeepExpandFolders = NULL
-			return _FALSE_
+			return 0
 		end
 		
 		nLen = len(@acDeepExpandFolders)
@@ -4674,8 +4674,8 @@ class stzFolder from stzObject
 		for i = 1 to nLen
 			# Check if current folder is under a deep expand folder
 			if This.IsSubfolderOf(cFolderPath, @acDeepExpandFolders[i])
-				return _TRUE_
+				return 1
 			end
 		next
 		
-		return _FALSE_
+		return 0

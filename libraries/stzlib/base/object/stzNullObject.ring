@@ -1,5 +1,5 @@
 #------------------------#
-#  STZ_NULL_OBJECT CLASS   #
+#  STZ""OBJECT CLASS   #
 #------------------------#
 
 # Made firstly, just to be used in instanciating objects
@@ -56,16 +56,16 @@ class stzNullObject from stzObject
 	@cVarName = :@nullobject
 
 	def Content()
-		return _NULL_
+		return ""
 
 		def Value()
 			return Content()
 
 	def Where(pcCondition)
-		return _NULL_
+		return ""
 
 		def W(pcCondition)
-			return _NULL_
+			return ""
 
 	def IsEqualToCSQ(p, pCaseSensitie)
 		return This
@@ -77,13 +77,13 @@ class stzNullObject from stzObject
 			return This
 
 	def IsEqualToCS(p, pCaseSensitive)
-		return _FALSE_
+		return 0
 
 		def IsEqualTo(p)
-			return _FALSE_
+			return 0
 
 		def Equals(p)
-			return _FALSE_
+			return 0
 
 	def StzType()
 		return :stzNullObject

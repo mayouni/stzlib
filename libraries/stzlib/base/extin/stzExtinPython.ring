@@ -37,11 +37,11 @@ func range0(p)
 		   oStr.Copy().RemoveManyQ([":", "-"]).IsNumberInString()
 			acNumbers = oStr.SplitAt(":")
 			nLen = len(acNumbers)
-			if acNumbers[2] = _NULL_
+			if acNumbers[2] = ""
 				StzRaise("Incorrect syntax! The second parameter must not be empty.")
 			ok
 			n1 = 0
-			if acNumbers[1] != _NULL_
+			if acNumbers[1] != ""
 				n1 = 0 + acNumbers[1] + 1
 			ok
 			n2 = 0 + acNumbers[2] - 1
@@ -94,11 +94,11 @@ func range1(p)
 		   oStr.Copy().RemoveManyQ([":", "-"]).IsNumberInString()
 			acNumbers = oStr.SplitAt(":")
 			nLen = len(acNumbers)
-			if acNumbers[2] = _NULL_
+			if acNumbers[2] = ""
 				StzRaise("Incorrect syntax! The second parameter must not be empty.")
 			ok
 			n1 = 1
-			if acNumbers[1] != _NULL_
+			if acNumbers[1] != ""
 				n1 = 0 + acNumbers[1]
 			ok
 			n2 = 0 + acNumbers[2]
@@ -148,16 +148,16 @@ func _if(pExpressionOrBoolean)
 	if len(_aTempVars) = 0
 	    StzRaise("No temp vars defined! Call vr() first.")
 	ok
-	_bVarReset = _FALSE_
-	bTemp = _TRUE_
+	_bVarReset = 0
+	bTemp = 1
 	if isString(pExpressionOrBoolean)
 		cCode = 'bTemp = (' + pExpressionOrBoolean + ')'
 		eval(cCode)
 	but ( isNumber(pExpressionOrBoolean) and (pExpressionOrBoolean = 0 or pExpressionOrBoolean = 1) )
 		bTemp = pExpressionOrBoolean
 	ok
-	if bTemp = _FALSE_
-		_bVarReset = _TRUE_
+	if bTemp = 0
+		_bVarReset = 1
 	ok
 	func if_(pExpressionOrBoolean)
 		return _if(pExpressionOrBoolean)
@@ -170,7 +170,7 @@ func _else(value)
         value = aTemp
     ok
     aValues = value
-    if _bVarReset = _TRUE_ and len(_aTempVars) > 0
+    if _bVarReset = 1 and len(_aTempVars) > 0
         nTempVars = len(_aTempVars)
         nValues = len(aValues)
         nLen = Min([ nTempVars, nValues ])

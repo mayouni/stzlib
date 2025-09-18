@@ -3,7 +3,7 @@
 func StzTrueObjectQ()
 	return new stzTrueObject
 
-	func _TRUE_Object()
+	func 1Object()
 		return new stzTrueObject
 
 	func ATrueObject()
@@ -15,10 +15,10 @@ func StzTrueObjectQ()
 	func StzTrueQ()
 		return new stzTrueObject
 
-	func _TRUE_()
+	func TRUE()
 		return new stzTrueObject
 
-	func _TRUE_Q()
+	func TRUEQ()
 		return new stzTrueObject
 
 class stzTrue from stzTrueObject
@@ -28,16 +28,16 @@ class stzTrueObject from stzObject
 	@cVarName = :@trueobject
 
 	def Content()
-		return _TRUE_
+		return 1
 
 		def Value()
 			return Content()
 
 	def Where(pcCondition)
-		return _FALSE_
+		return 0
 
 		def W(pcCondition)
-			return _FALSE_
+			return 0
 
 	def IsEqualToCSQ(p, pCaseSensitie)
 		return This
@@ -49,13 +49,13 @@ class stzTrueObject from stzObject
 			return This
 
 	def IsEqualToCS(p, pCaseSensitive)
-		return _TRUE_
+		return 1
 
 		def IsEqualTo(p)
-			return _TRUE_
+			return 1
 
 		def Equals(p)
-			return _TRUE_
+			return 1
 
 	def StzType()
 		return :stzTrueObject

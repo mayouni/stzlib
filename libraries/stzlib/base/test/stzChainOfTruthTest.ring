@@ -56,7 +56,7 @@ proff()
 
 /*----------------- ok
 
-# All these return _TRUE_:
+# All these return 1:
 
 ? _(1234).IsA(:Number).Which(:IsEven)._
 ? _("ring").IsA(:String).Which(:IsLowercase)._
@@ -65,7 +65,7 @@ proff()
 
 /*----------------- ok
 
-# All these are _FALSE_:
+# All these are 0:
 
 ? _(1234).IsA(:String).Which(:IsEven)._
 ? _("ring").IsA(:Number).Which(:IsUppercase)._
@@ -74,7 +74,7 @@ proff()
 
 /*----------------- ERROR
 
-# All these return _TRUE_:
+# All these return 1:
 
 ? _("Ring").IsA(:String).Where('NumberOfChars() = 4')._
 ? _("Ring").IsA(:String).Having('FirstChar() = "R"')._
@@ -83,35 +83,35 @@ proff()
 
 /*----------------- ok
 */
-# This returns _FALSE_:
+# This returns 0:
 /*
 ? _(1854).IsA(:String).Containing('in')._
 
 /*----------------- ok
 
-# All these return _TRUE_
+# All these return 1
 
 ? _("ring").IsA(:String)._
 ? _("f").IsA(:Letter)._
 
 /*------------------- ok!
 
-? _([]).IsA(:List)._	#--> _TRUE_
-? _(12).IsA(:Number)._	#--> _TRUE_
+? _([]).IsA(:List)._	#--> TRUE
+? _(12).IsA(:Number)._	#--> TRUE
 
-? _("g").IsA(:Letter)._	#--> _TRUE_
-? _([ :name = "mio", :age = 12 ]).IsA(:HashList)._	#--> _TRUE_
-? _([ "Tunis", "Cairo", "Prag" ]).IsA(:ListOfStrings)._	#--> _TRUE_
+? _("g").IsA(:Letter)._	#--> TRUE
+? _([ :name = "mio", :age = 12 ]).IsA(:HashList)._	#--> TRUE
+? _([ "Tunis", "Cairo", "Prag" ]).IsA(:ListOfStrings)._	#--> TRUE
 
 o1 = new person { name = "ali" }
-? _(:o1).IsAn(:Object)._ #--> ERRO: should return _TRUE_
+? _(:o1).IsAn(:Object)._ #--> ERRO: should return 1
 
 class Person
 	name
 
 /*-----------------
 
-# These return _TRUE_
+# These return 1
 
 ? _("ring").IsA(:String).Which(:IsLowercase).Containing(TheLetter("g"))._
 ? _("ring").IsA(:String).Which(:IsLowercase).Containing(TheLetter("g")).Having('FirstChar() = "r"')._
@@ -123,7 +123,7 @@ class Person
 
 /*----------------- ok
 
-# All these return _TRUE_
+# All these return 1
 
 ? _(8).Is('DoubleOf(4)')._
 ? _("ring").Is('Lowercase()')._
@@ -131,7 +131,7 @@ class Person
 
 /*----------------- ERRO
 
-# These return _TRUE_
+# These return 1
 */
 ? Q("ring").IsQ().InLowercaseQ().Containing("in")
 ? _("ring").Is('Lowercase()').Having('NumberOfchars() = 4')._
@@ -142,11 +142,11 @@ class Person
 
 /*----------------- ok
 
-? _("ring").Is(:Lowercase).Is(:Even)._ #--> _FALSE_
+? _("ring").Is(:Lowercase).Is(:Even)._ #--> FALSE
 
 /*-----------------
 
-# All these return _TRUE_
+# All these return 1
 
 ? _(8).IsA(:Number).Which('IsDoubleOf(4)')._
 ? _(8).IsA(:Number).Which('IsEven()')._
@@ -155,7 +155,7 @@ class Person
 
 /*----------------- ERROR
 
-# All these return _TRUE_
+# All these return 1
 
 ? _(9).IsNot('DoubleOf(4)')._
 ? _(9).IsA(:Number).Which('IsNotEven')._
@@ -163,13 +163,13 @@ class Person
 
 /*----------------- ERROR
 
-? _("ring").IsNotA(:String)._	#--> _FALSE_
-? _("ring").IsNotA(:String).Which('Contains("x")')._	#--> _TRUE_
-? _("ring").IsNotA(:String).Which('Contains("i")')._	#--> _FALSE_
+? _("ring").IsNotA(:String)._	#--> FALSE
+? _("ring").IsNotA(:String).Which('Contains("x")')._	#--> TRUE
+? _("ring").IsNotA(:String).Which('Contains("i")')._	#--> FALSE
 
 /*----------------- ERROR
 
-# All these return _TRUE_
+# All these return 1
 
 # Well, nothing prevents you from saying
 ? _("ring").Containing("i")._
@@ -181,7 +181,7 @@ class Person
 /*----------------- ERROR
 
 
-# All these are semantically equivalent and return _TRUE_
+# All these are semantically equivalent and return 1
 
 ? _("ring").ContainingNo("x")._
 ? _("ring").IsContainingNo("x")._
@@ -191,7 +191,7 @@ class Person
 
 /*-----------------
 
-# All these return _TRUE_
+# All these return 1
 
 ? _("ring").ContainsNo("x").ContainsNo("y")._
 ? _("ring").ContainsNo("x").Nor("y")._
@@ -199,8 +199,8 @@ class Person
 
 /*-----------------
 
-? _([]).IsNotA(:String)._	#--> _FALSE_
-? _([]).IsNot(:AString)._	#--> _FALSE_
+? _([]).IsNotA(:String)._	#--> FALSE
+? _([]).IsNot(:AString)._	#--> FALSE
 
 /*-----------------
 

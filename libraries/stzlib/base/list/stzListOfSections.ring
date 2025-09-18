@@ -21,7 +21,7 @@ class stzListOfSections from stzLists
 
 		@aContent = paSections
 
-		if KeepingHistory() = _TRUE_
+		if KeepingHistory() = 1
 			This.AddHistoricValue(This.Content())
 		ok
 
@@ -44,7 +44,7 @@ class stzListOfSections from stzLists
 
 		@aContent = paNewSections
 
-		if KeepingHisto() = _TRUE_
+		if KeepingHisto() = 1
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -290,19 +290,19 @@ class stzListOfSections from stzLists
 	#------------------------------#
 
 	func pvtIsInclusive(aSection1, aSection2)
-		# Returns _TRUE_ if one section includes the other	
+		# Returns 1 if one section includes the other	
 	
 		# Check if section1 includes section2
 		if aSection1[1] <= aSection2[1] and aSection1[2] >= aSection2[2]
-			return _TRUE_
+			return 1
 		ok
 		
 		# Check if section2 includes section1
 		if aSection2[1] <= aSection1[1] and aSection2[2] >= aSection1[2]
-			return _TRUE_
+			return 1
 		ok
 		
-		return _FALSE_
+		return 0
 	
 	func pvtMergeInclusiveSections(aSection1, aSection2)
 		# Returns a new section that spans both input sections
@@ -325,13 +325,13 @@ class stzListOfSections from stzLists
 		return n2
 
 	def pvtDoOverlap(aSection1, aSection2)
-		# Returns _TRUE_ if one section overlaps the other	
+		# Returns 1 if one section overlaps the other	
 	
 		# Check if section1 overlaps section2
 		if ( aSection2[1] >= aSection1[1] and aSection2[1] <= aSection1[2] ) or
 		   ( aSection2[2] >= aSection1[1] and aSection2[2] <= aSection1[2] )
 
-			return _TRUE_
+			return 1
 		ok	
 	
 		# Check if section2 overlaps section1
@@ -339,10 +339,10 @@ class stzListOfSections from stzLists
 		if ( aSection1[1] >= aSection2[1] and aSection1[1] <= aSection2[2] ) or
 		   ( aSection1[2] >= aSection2[1] and aSection1[2] <= aSection2[2] )
 
-			return _TRUE_
+			return 1
 		ok
 
-		return _FALSE_
+		return 0
 	
 	def pvtMergeOverlappingSections(aSection1, aSection2)
 		# Returns a new section that spans both input sections

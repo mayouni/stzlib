@@ -23,9 +23,9 @@ func OnlyWhen(p)
 	$cValueInitiator = :OnlyWhen
 
 	$cOneOrManyLoops = :One
-	$bRequiresStopValue = _FALSE_
+	$bRequiresStopValue = 0
 
-	$bExecuteCode = _TRUE_
+	$bExecuteCode = 1
 
 	return new stzChainOfValue(p)
 
@@ -33,9 +33,9 @@ func Until(p)
 	$cValueInitiator = :Until
 
 	$cOneOrManyLoops = :Many
-	$bRequiresStopValue = _FALSE_
+	$bRequiresStopValue = 0
 
-	$bExecuteCode = _TRUE_
+	$bExecuteCode = 1
 
 	return new stzChainOfValue(p)
 
@@ -44,8 +44,8 @@ func Since(p)
 
 	$cOneOrManyLoops = :Many
 
-	$bRequiresStopValue = _TRUE_
-	$bExecuteCode = _FALSE_
+	$bRequiresStopValue = 1
+	$bExecuteCode = 0
 
 	return new stzChainOfValue(p)
 
@@ -53,11 +53,11 @@ func SometimesWhen(p)
 	$cValueInitiator = :SometimesWhen
 
 	$cOneOrManyLoops = :One
-	$bRequiresStopValue = _FALSE_
+	$bRequiresStopValue = 0
 
 	$bRandomPass = random(1)
 
-	$bExecuteCode = _TRUE_
+	$bExecuteCode = 1
 
 	return new stzChainOfValue(p)
 
@@ -76,21 +76,21 @@ class stzChainOfValue from stzObject
 	Execute
 	Becomes
 
-	@bChainStopped = _FALSE_
+	@bChainStopped = 0
 	@aWhyChainStopped = [ "Because..." ]
 
-	@cCode = _NULL_
-	@bCodeHasBeenCalled = _FALSE_
+	@cCode = ""
+	@bCodeHasBeenCalled = 0
 
 	@cCodeStatus = :NotYetExecuted # :HasBeenExecuted
 	@aWhyCodeNotExecuted = [ "Because..." ]
 
-	@cCodeCaller = _NULL_
-	@cCodeExecutor = _NULL_
+	@cCodeCaller = ""
+	@cCodeExecutor = ""
 
-	@bNegateNext = _FALSE_
+	@bNegateNext = 0
 
-	@bBecomesIsUsedBeforeDoThis = _FALSE_
+	@bBecomesIsUsedBeforeDoThis = 0
 
 	#----------------------
 
@@ -129,7 +129,7 @@ class stzChainOfValue from stzObject
 	#-------------------------------#
 
 	def Update(pValue)
-		if CheckingParams() = _TRUE_
+		if CheckingParams() = 1
 			if isList(pValue) and Q(pValue).IsWithOrByOrUsingNamedParam()
 				cNewCode = cNewCode[2]
 			ok
@@ -137,7 +137,7 @@ class stzChainOfValue from stzObject
 
 		@pValue = pValue
 
-		if KeepingHisto() = _TRUE_
+		if KeepingHisto() = 1
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -200,25 +200,25 @@ class stzChainOfValue from stzObject
 	#----------------------
 
 	def getIs()
-		@bNegateNext = _FALSE_
+		@bNegateNext = 0
 		@cOneOrManyLoops = :One
 
 		return This
 
 	def getIsNot()
-		@bNegateNext = _TRUE_
+		@bNegateNext = 1
 		@cOneOrManyLoops = :One
 
 		return This
 
 	def get_Not()
-		@bNegateNext = _TRUE_
+		@bNegateNext = 1
 		@cOneOrManyLoops = :One
 
 		return This
 
 	def getBecomes()
-		@bNegateNext = _FALSE_
+		@bNegateNext = 0
 		$cOneOrManyLoops = :Many
 
 		return This
@@ -286,7 +286,7 @@ class stzChainOfValue from stzObject
 				return This
 			ok
 
-			if $bRandomPass = _FALSE_
+			if $bRandomPass = 0
 				This.StopChain([ "Well, because values are equal but, you'r not lucky ;)!" ])
 				return This
 			ok
@@ -297,7 +297,7 @@ class stzChainOfValue from stzObject
 				return This
 			ok
 
-			$bExecuteCode = _FALSE_		
+			$bExecuteCode = 0		
 		off
 
 		return This
@@ -314,9 +314,9 @@ class stzChainOfValue from stzObject
 
 	def Becomes(pValue)
 		if This.CodeHasBeenCalled()
-			@bBecomesIsUsedBeforeDoThis = _FALSE_
+			@bBecomesIsUsedBeforeDoThis = 0
 		else
-			@bBecomesIsUsedBeforeDoThis = _TRUE_
+			@bBecomesIsUsedBeforeDoThis = 1
 		ok
 
 		$pStopValue = pValue
@@ -339,7 +339,7 @@ class stzChainOfValue from stzObject
 
 			if This.ValueInitiator() = :Since
 
-				$bExecuteCode = _TRUE_
+				$bExecuteCode = 1
 				@cCodeExecutor = :Becomes
 
 				@cCode = 'if ' + This.VarName() + ' = This.StopValue()' + NL +
@@ -376,18 +376,18 @@ class stzChainOfValue from stzObject
 	def DoThis(pcCode)
 		@cCode = StzStringQ(pcCode).TrimQ().TheseBoundsRemoved("{","}")
 
-		@bCodeHasBeenCalled = _TRUE_
+		@bCodeHasBeenCalled = 1
 		@cCodeCaller = :Dothis
 
 		if This.ChainStatus() = :Ongoing
 
-			if $bExecuteCode = _TRUE_
+			if $bExecuteCode = 1
 	
 				if $cOneOrManyLoops = :One
 					eval(This.Code())
 					@cCodeStatus = :HasBeenExecuted
 					@cCodeExecutor = :DoThis
-					$bExecuteCode = _FALSE_
+					$bExecuteCode = 0
 					
 				else
 					
@@ -400,7 +400,7 @@ class stzChainOfValue from stzObject
 					end
 				ok
 
-			else #  $bExecuteCode = _FALSE_
+			else #  $bExecuteCode = 0
 
 				 @aWhyCodeNotExecuted = [ 'Because "Since(:v)" requires "DoThis(:v)" not to execute until it knows where it should stop, using "StopWhen().Becomes()"!' ]
 
@@ -418,7 +418,7 @@ class stzChainOfValue from stzObject
 		#>
 
 	def GetDo_()
-		$bExecuteCode = _TRUE_
+		$bExecuteCode = 1
 		return This
 
 		#< @FunctionAlternativeForm
@@ -439,11 +439,11 @@ class stzChainOfValue from stzObject
 		return $cValueInitiator
 
 	def StopChain( paStopInfo )
-		@bChainStopped = _TRUE_
+		@bChainStopped = 1
 		@aWhyChainStopped = paStopInfo
 
 	def ChainStatus()
-		if @bChainStopped = _TRUE_
+		if @bChainStopped = 1
 			return :Stopped
 		else
 			return :Ongoing
@@ -487,16 +487,16 @@ class stzChainOfValue from stzObject
 
 	def CodeHasBeenExecuted()
 		if This.CodeStatus() = :HasBeenExecuted
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 	def CodeIsStillWaitingForExecution()
 		if This.CodeHasBeenExecuted()
-			return _FALSE_
+			return 0
 		else
-			return _TRUE_
+			return 1
 		ok
 
 	#-------------------
@@ -528,7 +528,7 @@ class stzChainOfValue from stzObject
 
 		def IsANumberQ()
 
-			if $bRandomPass = _FALSE_
+			if $bRandomPass = 0
 				This.StopChain()
 				return This
 			ok
@@ -597,9 +597,9 @@ class stzChainOfValue from stzObject
 
 	def IsAString()
 		if upper(This._Type()) = "STRING"
-			return _TRUE_
+			return 1
 		else
-			return _FALSE_
+			return 0
 		ok
 
 

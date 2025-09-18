@@ -9,15 +9,15 @@
 
 func IsListOfConstraints(pObject, paConstraints)
 	if NOT @IsHashList(paConstraints)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 
 	for aConstraint in paConstraints
 		cConstraint = aConstraint[2]
 		if NOT IsConstraint(pObject, cConstraint)
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next
@@ -29,14 +29,14 @@ func IsListOfConstraints(pObject, paConstraints)
 
 func IsListOfNamedConstraints(pObject, paConstraints)
 	if NOT IsListOfPairs(paConstraints)
-		return _FALSE_
+		return 0
 	ok
 
-	bResult = _TRUE_
+	bResult = 1
 
 	for aPair in paConstraints
 		if NOT IsNamedConstaint(pObject, aPair)
-			bResult = _FALSE_
+			bResult = 0
 			exit
 		ok
 	next

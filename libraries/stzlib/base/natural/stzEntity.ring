@@ -5,9 +5,9 @@ func StzEntityQ(pcStr)
 func IsEntity(p)
 	try
 		new stzEntity(p)
-		return _TRUE_
+		return 1
 	catch
-		return _FALSE_
+		return 0
 	end
 	#TODO : Replace this implementation
 	# Use the code in the init() function inside the class
@@ -49,7 +49,7 @@ class stzEntity
 
 				else
 				# but when it is provided, it must be a valid word
-				# (if it is _NULL_ string then it is set to 'undefined'
+				# (if it is NULL string then it is set to 'undefined'
 
 					if isString(aEntity[:type]) and aEntity[:type] = ""
 						aEntity[:type] = 'undefined'
@@ -94,14 +94,14 @@ class stzEntity
 			StzRaise("Incorrect param type! pcProp must be a string.")
 		ok
 
-		bResult = _FALSE_
+		bResult = 0
 
 		aPairs = This.Entity()
 		nLen = len(aPairs)
 
 		for i = 1 to nLen
 			if aPairs[i][1] = ring_lower(pcProp)
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next
@@ -109,10 +109,10 @@ class stzEntity
 		return bResult
 
 	def ContainsValue(pValue)
-		bResult = _FALSE_
+		bResult = 0
 		for aPair in This.Entity()
 			if AreEqual(aPair[1], pValue)
-				bResult = _TRUE_
+				bResult = 1
 				exit
 			ok
 		next

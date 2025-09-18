@@ -10557,11 +10557,11 @@ pr()
 o1 = new stzString("How many <<many>> are there in (many <<<many>>>): so <many>>!")
 
 ? @@(o1.BoundsXT(:Of = "many", :UpToNChars = [ 0, 2, 0, 3, [1,2] ])) + NL
-#--> [ [ _NULL_, _NULL_ ], [ "<<", ">>" ], [ _NULL_, _NULL_ ], [ "<<<", ">>>" ], [ "<", ">>" ] ]
+#--> [ [ NULL, NULL ], [ "<<", ">>" ], [ NULL, NULL ], [ "<<<", ">>>" ], [ "<", ">>" ] ]
 
 //Same as:
 ? @@(o1.BoundsXT(:Of = "many", :UpToNChars = [ [0,0], [2, 2], [0,0], [3,3], [1,2] ]))
-#--> [ [ _NULL_, _NULL_ ], [ "<<", ">>" ], [ _NULL_, _NULL_ ], [ "<<<", ">>>" ], [ "<", ">>" ] ]
+#--> [ [ NULL, NULL ], [ "<<", ">>" ], [ NULL, NULL ], [ "<<<", ">>>" ], [ "<", ">>" ] ]
 
 pf()
 
@@ -10922,9 +10922,9 @@ o1 = new stzString("what a <<nice>>> day!")
 
 # All these return an error message:
 
-? o1.Section(50, 0)	#--> _NULL_
-? o1.Section(0, 0)	#--> _NULL_
-? o1.Section(-20, 10)	#--> _NULL_
+? o1.Section(50, 0)	#-->NULL
+? o1.Section(0, 0)	#-->NULL
+? o1.Section(-20, 10)	#-->NULL
 
 #--> ERROR MESSAGE:
 #--> Indexes out of range! n1 and n2 must be inside the string.
@@ -14183,7 +14183,7 @@ o1 = new stzString('"name"')
 ? o1.IsBoundedBy([ '"','"' ])	#--> TRUE
 
 o1 = new stzString(':name')
-? o1.IsBoundedBy([ ':', _NULL_ ])	#--> TRUE
+? o1.IsBoundedBy([ ':', NULL ])	#--> TRUE
 
 pf()
 # Executed in 0.01 second(s).
@@ -15059,7 +15059,7 @@ o1 = new stzString("Abc285XY&من")
 
 ? @@( o1.Parts2Using("CharQ(@i).CharCase()") )
 #--> Gives:
-# [ "A" = :Uppercase, "bc" = :Lowercase, "285" = _NULL_, "XY" = :Uppercase, "&من" = _NULL_ ]
+# [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
 
 pf()
 # Executed in 0.35 second(s).
@@ -15470,7 +15470,7 @@ pf()
 # Executed in 0.03 second(s) in Ring 1.20
 
 /*==================
-
+*/
 pr()
 
 ? StzStringQ("ar_TN-tun").ContainsEachCS(["_", "-"],TRUE)
@@ -19543,7 +19543,7 @@ StzListQ(aList) {
 	? NumberOfItems() <= 4 #--> TRUE
 	? IsHashList() #--> TRUE
 	? ToStzHashList().KeysQ().IsMadeOfSomeOfThese([ :Where, :What, :Why, :Todo ]) #--> TRUE
-	? ToStzHashList().ValuesQ().AllItemsVerifyW("isString(@item) and @item != _NULL_") #--> TRUE
+	? ToStzHashList().ValuesQ().AllItemsVerifyW("isString(@item) and @item != NULL") #--> TRUE
 }
 
 # In a better world, those conditions could be expressed as
