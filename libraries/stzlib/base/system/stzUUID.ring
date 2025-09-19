@@ -3,6 +3,8 @@
 	Provides robust UUID generation using system calls across platforms
 */
 
+#TODO Study the additon of ULID, KSUID, and SnowFlakeID
+
 func UUID()
 	return StzUUIDQ().Content()
 

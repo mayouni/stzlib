@@ -1,61 +1,260 @@
+# Enhanced Dynamic Softanza Natural Programming System
+# Completely data-driven with zero hardcoded object/method knowledge
+
+# Global configuration - completely configurable
+$aWordsToIgnore = [
+    "is", "are", "should", "must", "can", "will", "the",
+    "this_", "that", "these", "those", "it", "and_", "then", "also", 
+    "plus", "with", "using", "to_", "by", "containing", "be", "being",
+    "decorated", "final", "result", "object", "substring", "at", "position",
+    "a"
+]
+
+$aPositionIndicators = [
+    "first", "second", "third", "fourth", "fifth", "sixth", 
+    "seventh", "eighth", "ninth", "tenth", "last"
+]
+
+# Enhanced Softanza Objects Registry - Complete metadata-driven approach
+$aSoftanzaObjects = [
+    [
+        :name = "stzstring",
+        :constructor = "StzStringQ(@)",
+        :variable = "oStr",
+        :creation_patterns = [
+            [:trigger_words = ["create", "make", "new"], :value_position = "after"]
+        ],
+        :methods = [
+            [
+                :name = "replace",
+                :alternatives = ["substitute", "change", "swap"],
+                :ring_method = "Replace",
+                :type = "global_replacement",
+                :patterns = [
+                    [
+                        :template = "{method} {old_value} with {new_value}",
+                        :params = [
+                            [:name = "old_value", :type = "string", :position = 1],
+                            [:name = "new_value", :type = "string", :position = 2]
+                        ],
+                        :ring_signature = "@var.Replace(@old_value, @new_value)"
+                    ]
+                ],
+                :semantic_triggers = ["replace", "substitute", "change", "swap"]
+            ],
+            [
+                :name = "replacenth",
+                :alternatives = ["substituenth", "changenth"],
+                :ring_method = "ReplaceNth", 
+                :type = "positional_replacement",
+                :patterns = [
+                    [
+                        :template = "{method} the {position} {old_value} with {new_value}",
+                        :params = [
+                            [:name = "position", :type = "position", :position = 1],
+                            [:name = "old_value", :type = "string", :position = 2],
+                            [:name = "new_value", :type = "string", :position = 3]
+                        ],
+                        :ring_signature = "@var.ReplaceNth(@position, @old_value, @new_value)"
+                    ]
+                ],
+                :semantic_triggers = ["replace", "substitute", "change"],
+                :position_indicators = $aPositionIndicators
+            ],
+            [
+                :name = "uppercase",
+                :alternatives = ["toupper", "caps", "capitalize"],
+                :ring_method = "Uppercase",
+                :type = "simple_transformation",
+                :patterns = [
+                    [
+                        :template = "{method} it",
+                        :params = [],
+                        :ring_signature = "@var.Uppercase()"
+                    ]
+                ],
+                :semantic_triggers = ["uppercase", "toupper", "caps", "capitalize"]
+            ],
+            [
+                :name = "lowercase", 
+                :alternatives = ["tolower", "downcase"],
+                :ring_method = "Lowercase",
+                :type = "simple_transformation", 
+                :patterns = [
+                    [
+                        :template = "{method} it",
+                        :params = [],
+                        :ring_signature = "@var.Lowercase()"
+                    ]
+                ],
+                :semantic_triggers = ["lowercase", "tolower", "downcase"]
+            ],
+            [
+                :name = "spacify",
+                :alternatives = ["addspaces", "space"],
+                :ring_method = "Spacify",
+                :type = "simple_transformation",
+                :patterns = [
+                    [
+                        :template = "{method} it", 
+                        :params = [],
+                        :ring_signature = "@var.Spacify()"
+                    ]
+                ],
+                :semantic_triggers = ["spacify", "addspaces", "space"]
+            ],
+            [
+                :name = "reverse",
+                :alternatives = ["flip", "backwards"],
+                :ring_method = "Reverse", 
+                :type = "simple_transformation",
+                :patterns = [
+                    [
+                        :template = "{method} it",
+                        :params = [],
+                        :ring_signature = "@var.Reverse()"
+                    ]
+                ],
+                :semantic_triggers = ["reverse", "flip", "backwards"]
+            ],
+            [
+                :name = "box",
+                :alternatives = ["frame", "border"], 
+                :ring_method = "Box",
+                :type = "special_formatting",
+                :patterns = [
+                    [
+                        :template = "{method} it",
+                        :params = [],
+                        :ring_signature = "@var.Box()",
+                        :modifiers = [
+                            [:name = "rounded", :trigger = "rounded", :ring_param = ":Rounded = TRUE", :method = "BoxXT"]
+                        ]
+                    ]
+                ],
+                :semantic_triggers = ["box", "frame", "border"],
+                :supports_define_recall = TRUE
+            ],
+            [
+                :name = "show",
+                :alternatives = ["display", "print", "output"],
+                :ring_method = "Content", 
+                :type = "output",
+                :patterns = [
+                    [
+                        :template = "{method} it",
+                        :params = [],
+                        :ring_signature = "? @var.Content()"
+                    ]
+                ],
+                :semantic_triggers = ["show", "display", "print", "output"]
+            ],
+            [
+                :name = "prepend",
+                :alternatives = ["prefix", "addfront"],
+                :ring_method = "Prepend",
+                :type = "insertion",
+                :patterns = [
+                    [
+                        :template = "{method} {value}",
+                        :params = [
+                            [:name = "value", :type = "string", :position = 1]
+                        ],
+                        :ring_signature = "@var.Prepend(@value)"
+                    ]
+                ],
+                :semantic_triggers = ["prepend", "prefix", "addfront"]
+            ],
+            [
+                :name = "append", 
+                :alternatives = ["suffix", "addend"],
+                :ring_method = "Append",
+                :type = "insertion",
+                :patterns = [
+                    [
+                        :template = "{method} {value}",
+                        :params = [
+                            [:name = "value", :type = "string", :position = 1]
+                        ],
+                        :ring_signature = "@var.Append(@value)"
+                    ]
+                ],
+                :semantic_triggers = ["append", "suffix", "addend"]
+            ],
+            [
+                :name = "insert",
+                :alternatives = ["place", "put"],
+                :ring_method = "InsertAt", 
+                :type = "positional_insertion",
+                :patterns = [
+                    [
+                        :template = "{method} {value} at {position}",
+                        :params = [
+                            [:name = "value", :type = "string", :position = 1],
+                            [:name = "position", :type = "position", :position = 2]
+                        ],
+                        :ring_signature = "@var.InsertAt(@position, @value)"
+                    ]
+                ],
+                :semantic_triggers = ["insert", "place", "put"]
+            ]
+        ]
+    ]
+    # More Softanza objects would be added here following the same pattern
+]
+
+# Position conversion mapping - also data-driven
+$aPositionMappings = [
+    [:natural = "first", :numeric = "1"],
+    [:natural = "second", :numeric = "2"], 
+    [:natural = "third", :numeric = "3"],
+    [:natural = "fourth", :numeric = "4"],
+    [:natural = "fifth", :numeric = "5"],
+    [:natural = "sixth", :numeric = "6"],
+    [:natural = "seventh", :numeric = "7"],
+    [:natural = "eighth", :numeric = "8"],
+    [:natural = "ninth", :numeric = "9"],
+    [:natural = "tenth", :numeric = "10"],
+    [:natural = "last", :numeric = "-1"]
+]
+
+# Global interface functions
 func StzNaturalQ()
-    return new stzNatural
+    return new stzNaturalEngine
 
 func Naturally()
-    return new stzNatural
+    return new stzNaturalEngine
 
-class stzNatural
+class stzNaturalEngine
     
+    @aValues = []
+    @aSemanticActions = []
+    @cCurrentObject = ""
+    @cCurrentVariable = ""
+    @aDefineRecallState = []  # Track @method@ patterns
     nothing = ""
 
-    # Position indicators
-    first = "1"
-    second = "2" 
-    third = "3"
-    fourth = "4"
-    fifth = "5"
-    sixth = "6"
-    seventh = "7"
-    eighth = "8"
-    ninth = "9"
-    tenth = "10"
-    last = "-1"
-
-    # Reference words  
-    the = "→"
-    this_ = "→"
-    that = "→"
-    these = "→" 
-    those = "→"
-    it = "→"
+    def init()
+        CreateIgnoreWordAttributes()
     
-    # Enhanced connectors
-    and_ = "→"
-    then = "→"
-    also = "→"
-    plus = "→"
-    with = "→"
-    using = "→"
-    to_ = "→"
-    by = "→"
-    containing = "→"
-
-    @aValues = []
-    @aUndefined = []
-    @aSemanticActions = []  # Store semantic actions for preprocessing
-
-def getIs
-	addattribute(this, "is")
-	is = ""
-
-def getDecorated
-	addAttribute(this, "decorated")
-	decorated = ""
-
-def getWith_
-	addAttribute(this, "with_")
-	with_ = ""
-
+    def CreateIgnoreWordAttributes()
+        # Dynamically create attributes for ignore words - completely data-driven
+        for cWord in $aWordsToIgnore
+            addAttribute(this, cWord)
+            eval("this." + cWord + ' = ""')
+            
+            # Create getter method dynamically
+            cMethodName = "get" + cWord
+            cMethodCode = 'def ' + cMethodName + NL +
+                         'addAttribute(this, "' + cWord + '")' + NL +
+                         cWord + ' = ""'
+            try
+                eval(cMethodCode)
+            catch
+                # Ignore errors for duplicate methods
+            done
+        next
+    
     def braceExprEval(value)
         if NOT( isString(value) and (value = "" or value = "__@Ignore__") )
             @aValues + value
@@ -63,487 +262,522 @@ def getWith_
 
     def braceError()
         if left(CatchError(), 11) = "Error (R24)"
-            cUndefined = trim(@split(CatchError(), ":")[3])
+            cUndefined = trim(split(CatchError(), ":")[3])
             @aValues + cUndefined
         ok
 
-    def Values()
+    def braceEnd()
+        ProcessNaturalCode()
+ 
+    def ProcessNaturalCode()
+        aFilteredValues = FilterValues()
+        if len(aFilteredValues) > 0
+            @aSemanticActions = AnalyzeAndGenerateActions(aFilteredValues)
+        else
+            @aSemanticActions = []
+        ok
+        
+        # Execute the generated code
+        Run()
+    
+    def FilterValues()
         aResult = []
-        nLen = len(@aValues)
-        for i = 1 to nLen
-
-            if i > 3
-                if @aValues[i-1] = "→" and
-                   @aValues[i] = @aValues[i-2]
-                    loop
+        for cValue in @aValues
+            cLowerValue = lower("" + cValue)
+            
+            # Skip ignore words - completely data-driven
+            bIgnore = false
+            for cIgnoreWord in $aWordsToIgnore
+                if cLowerValue = cIgnoreWord
+                    bIgnore = true
+                    exit
                 ok
-            ok
-
-            if @aValues[i] != "→"
-                aResult + @aValues[i]
+            next
+            
+            if not bIgnore
+                aResult + cValue
             ok
         next
-
         return aResult
-
-    def Undefined()
-        return @aUndefined
-
-    def braceEnd()
-        Run()
-
-    # New method to analyze semantic patterns
-    def AnalyzeSemanticPatterns(aValues)
-        @aSemanticActions = []
-        aOriginalActions = []
-        
-        # Extract all replace operations with their original positions
-        i = 1
-        cStringValue = ""
-        
-        # Find the initial string value
+    
+    def AnalyzeAndGenerateActions(aValues)
+        aActions = []
         nLen = len(aValues)
-        for j = 1 to nLen
-            if ring_find(["create", "make"], lower(aValues[j])) > 0 and 
-               j+1 <= nLen and lower(aValues[j+1]) = "a" and
-               j+2 <= nLen and lower(aValues[j+2]) = "stzstring"
-                
-                # Flexible value extraction
-                k = j+3
-                cStringValue = nothing
-                
-                if k <= nLen and isString(aValues[k]) and lower(aValues[k]) = "object"
-                    k++
-                ok
-                
-                if k <= nLen and isString(aValues[k]) and ring_find(["with", "containing"], lower(aValues[k])) > 0
-                    k++
-                    if k <= nLen
-                        cStringValue = aValues[k]
-                        if lower(cStringValue) = "nothing" and k+1 <= nLen and lower(aValues[k+1]) = "inside"
-                            # Skip "inside", keep "nothing"
-                            # Value remains "nothing"
-                        ok
+        i = 1
+        
+        while i <= nLen
+            cCurrent = lower("" + aValues[i])
+            
+            # Detect object creation - data-driven
+            aCreationResult = HandleObjectCreation(aValues, i)
+            if len(aCreationResult) > 0
+                aActions + aCreationResult[:action]
+                i = aCreationResult[:next_index]
+            else
+                # Detect method calls - completely data-driven
+                aMethodResult = HandleMethodCall(aValues, i)
+                if len(aMethodResult) > 0
+                    if len(aMethodResult[:action]) > 0
+                        aActions + aMethodResult[:action]
                     ok
+                    i = aMethodResult[:next_index]
                 else
-                    if k <= nLen
-                        cStringValue = aValues[k]
-                    ok
+                    i++
                 ok
-                
+            ok
+        end
+        
+        # Debug: Check what's in actions
+        see "Actions array contents:" + nl
+        for j = 1 to len(aActions)
+            see "Action " + j + " type: "
+            if islist(aActions[j]) and len(aActions[j]) > 0
+                if isstring(aActions[j][:type])
+                    see aActions[j][:type] + nl
+                else
+                    see "NO TYPE FIELD" + nl
+                ok
+            else
+                see "INVALID ACTION" + nl
+            ok
+        next
+        
+        return aActions
+    
+    def HandleObjectCreation(aValues, nStartIndex)
+        nLen = len(aValues)
+        
+        # Search through all registered objects - data-driven
+        for aObjInfo in $aSoftanzaObjects
+            for aPattern in aObjInfo[:creation_patterns]
+                for cTrigger in aPattern[:trigger_words]
+                    if lower("" + aValues[nStartIndex]) = cTrigger
+                        
+                        # Look for object type
+                        for j = nStartIndex+1 to nLen
+                            cValue = lower("" + aValues[j])
+                            if cValue = aObjInfo[:name]
+                                @cCurrentObject = aObjInfo[:name]
+                                @cCurrentVariable = aObjInfo[:variable]
+                                
+                                # Extract value - look for next non-ignored word after object type
+                                cObjectValue = ""
+                                nValueIndex = j + 1
+                                for k = j+1 to nLen
+                                    cNextValue = lower("" + aValues[k])
+                                    if not ring_find($aWordsToIgnore, cNextValue)
+                                        cObjectValue = aValues[k]
+                                        nValueIndex = k
+                                        exit
+                                    ok
+                                next
+                                
+                                aAction = [
+                                    :type = "create_object",
+                                    :object_type = @cCurrentObject,
+                                    :variable = @cCurrentVariable,
+                                    :value = cObjectValue,
+                                    :constructor = aObjInfo[:constructor]
+                                ]
+                                
+                                # Return next index after the value
+                                return [:action = aAction, :next_index = nValueIndex + 1]
+                            ok
+                        next
+                    ok
+                next
+            next
+        next
+        
+        return []
+    
+def HandleMethodCall(aValues, nIndex)
+    if @cCurrentObject = ""
+        see "No current object set" + nl
+        return []
+    ok
+    
+    cMethodName = lower("" + aValues[nIndex])
+    see "Looking for method: " + cMethodName + " in object: " + @cCurrentObject + nl
+    
+    # Handle define/recall patterns (@method@)
+    bDefine = left(cMethodName,1) = "@"
+    bRecall = right(cMethodName,1) = "@"
+    cCleanMethod = cMethodName
+    if bDefine
+        cCleanMethod = substr(cCleanMethod, 2)
+    elseif bRecall
+        cCleanMethod = left(cCleanMethod, len(cCleanMethod)-1)
+    ok
+    
+    # Find method in current object - completely data-driven
+    aObjectInfo = GetObjectInfo(@cCurrentObject)
+    aMethodInfo = FindMethodBySemanticTrigger(aObjectInfo, cCleanMethod)
+    
+    see "Method info found: " + (len(aMethodInfo) > 0) + nl
+    if len(aMethodInfo) > 0
+        see "Method name: " + aMethodInfo[:name] + nl
+    ok
+    
+    if len(aMethodInfo) = 0
+        return []
+    ok
+    
+    # Handle define/recall for methods that support it
+    bSupportsDefineRecall = FALSE
+    if len(aMethodInfo) > 0
+        for key in keys(aMethodInfo)
+            if key = "supports_define_recall" and aMethodInfo[:supports_define_recall] = TRUE
+                bSupportsDefineRecall = TRUE
                 exit
             ok
         next
+    ok
+    
+    if bSupportsDefineRecall
+        if bDefine
+            @aDefineRecallState + [
+                :method = aMethodInfo,
+                :pending = TRUE,
+                :define_index = nIndex
+            ]
+            return [:action = [], :next_index = nIndex + 1]
+        elseif bRecall
+            return ProcessRecallMethod(aValues, nIndex, aMethodInfo)
+        ok
+    ok
+    
+    # Process method based on its patterns - data-driven
+    aResult = ProcessMethodByPattern(aValues, nIndex, aMethodInfo)
+    see "ProcessMethodByPattern returned: " + len(aResult) + " items" + nl
+    return aResult
+    
+    def ProcessMethodByPattern(aValues, nIndex, aMethodInfo)
+        # Try each pattern until one matches
+        for aPattern in aMethodInfo[:patterns]
+            aResult = TryMatchPattern(aValues, nIndex, aMethodInfo, aPattern)
+            if len(aResult) > 0
+                see "Pattern matched successfully" + nl
+                return aResult
+            ok
+        next
         
-        # Collect all replace operations
-        i = 1
+        # If no pattern matched, create a simple action for methods with no parameters
+        see "No pattern matched, creating simple action" + nl
+        aAction = [
+            :type = "method_call",
+            :method_info = aMethodInfo,
+            :pattern = aMethodInfo[:patterns][1], # Use first pattern
+            :params = [],
+            :modifiers = []
+        ]
+        
+        return [:action = aAction, :next_index = nIndex + 1]
+    
+def TryMatchPattern(aValues, nIndex, aMethodInfo, aPattern)
+    nLen = len(aValues)
+    aExtractedParams = []
+    i = nIndex + 1
+    
+    # Extract parameters based on pattern definition
+    for aParamDef in aPattern[:params]
+        cParamValue = ExtractParameterValue(aValues, i, nLen, aParamDef)
+        if cParamValue != ""
+            aExtractedParams + cParamValue
+            i = FindNextNonIgnoreWord(aValues, i + 1, nLen)
+        else
+            exit
+        ok
+    next
+    
+    # Extract modifiers if any
+    aModifiers = []
+    if len(aPattern[:modifiers]) > 0
+        aModifiers = ExtractModifiers(aValues, i, nLen, aPattern[:modifiers])
+    ok
+    
+    aAction = [
+        :type = "method_call",
+        :method_info = aMethodInfo,
+        :pattern = aPattern,
+        :params = aExtractedParams,
+        :modifiers = aModifiers
+    ]
+    
+    return [:action = aAction, :next_index = nIndex + 1]  # Change this line
+    
+    def ExtractParameterValue(aValues, nStartIndex, nLen, aParamDef)
+        i = nStartIndex
         while i <= nLen
-            cOperation = lower(aValues[i])
-            
-            if ring_find(["replace", "substitute", "change"], cOperation) > 0
-                i++
-                if i <= nLen
-                    cNext = aValues[i]
-                    if NOT isString(cNext)
-                        cNext = "" + cNext
-                    ok
-                    
-                    if isString(cNext) and (IsNumberInString(cNext) or cNext = "-1" or ring_find(This.PositionIndicators(), lower(cNext)) > 0)
-                        # Positional replace: "replace the second 'hello' with 'Hi'"
-                        cPosition = cNext
-                        i++
-                        if i <= nLen
-                            cOld = aValues[i]
-                            i++
-                            if i <= nLen
-                                cNew = aValues[i]
-                                
-                                # Store semantic action
-                                aAction = [:type = "positional_replace", 
-                                          :original_position = cPosition,
-                                          :old_value = cOld, 
-                                          :new_value = cNew,
-                                          :original_string = cStringValue]
-                                aOriginalActions + aAction
-                            ok
-                        ok
-                    else
-                        # Global replace: "replace 'hello' with 'Hi'"
-                        cOld = cNext
-                        i++
-                        if i <= nLen
-                            cNew = aValues[i]
-                            aAction = [:type = "global_replace", 
-                                      :old_value = cOld, 
-                                      :new_value = cNew,
-                                      :original_string = cStringValue]
-                            aOriginalActions + aAction
-                        ok
-                    ok
+            cValue = lower("" + aValues[i])
+            if not ring_find($aWordsToIgnore, cValue)
+                cActualValue = aValues[i]
+                
+                # Convert based on parameter type
+                if aParamDef[:type] = "position"
+                    return ConvertPositionToNumber(cActualValue)
+                elseif aParamDef[:type] = "string"
+                    return cActualValue
+                elseif aParamDef[:type] = "number"
+                    return cActualValue
                 ok
             ok
             i++
         end
-        
-        # Now compute the correct execution sequence
-        @aSemanticActions = ComputeExecutionSequence(aOriginalActions, cStringValue)
-        
-        return [ @aSemanticActions, cStringValue ]
-
-    def PositionIndicators()
-        return ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "last"]
-
-    # Compute correct execution sequence based on semantic intent
-    def ComputeExecutionSequence(aOriginalActions, cOriginalString)
-        aExecutionActions = []
-        cCurrentString = cOriginalString
-        
-        # Group positional replaces by target string
-        aPositionalGroups = []
-        for action in aOriginalActions
-            if action[:type] = "positional_replace"
-                cTarget = action[:old_value]
-                nFound = 0
-                for group in aPositionalGroups
-                    if group[:target] = cTarget
-                        group[:actions] + action
-                        nFound = 1
-                        exit
-                    ok
-                next
-                if nFound = 0
-                    aNewGroup = [:target = cTarget, :actions = [action]]
-                    aPositionalGroups + aNewGroup
+        return ""
+    
+    def ExtractModifiers(aValues, nStartIndex, nLen, aModifierDefs)
+        aResult = []
+        for aModDef in aModifierDefs
+            for i = nStartIndex to nLen
+                if lower("" + aValues[i]) = aModDef[:trigger]
+                    aResult + aModDef
+                    exit
                 ok
-            else
-                aExecutionActions + action
+            next
+        next
+        return aResult
+    
+def ProcessRecallMethod(aValues, nIndex, aMethodInfo)
+    for i = 1 to len(@aDefineRecallState)
+        if @aDefineRecallState[i][:method][:name] = aMethodInfo[:name] and @aDefineRecallState[i][:pending]
+            @aDefineRecallState[i][:pending] = FALSE
+            # Process the recall with modifiers
+            return ProcessMethodByPattern(aValues, nIndex, aMethodInfo)
+        ok
+    next
+    return []
+    
+def ProcessDefineRecallState()
+    # Clear state without creating duplicate actions
+    @aDefineRecallState = []
+    return []
+    
+    def FindMethodBySemanticTrigger(aObjectInfo, cMethodName)
+        for aMethod in aObjectInfo[:methods]
+            for cTrigger in aMethod[:semantic_triggers]
+                if cTrigger = cMethodName
+                    return aMethod
+                ok
+            next
+        next
+        return []
+    
+    def GetObjectInfo(cObjectName)
+        for aObj in $aSoftanzaObjects
+            if aObj[:name] = cObjectName
+                return aObj
+            ok
+        next
+        return []
+    
+    def ConvertPositionToNumber(cPosition)
+        cPos = lower("" + cPosition)
+        
+        # Use data-driven position mapping
+        for aMapping in $aPositionMappings
+            if aMapping[:natural] = cPos
+                return aMapping[:numeric]
             ok
         next
         
-        # For each group of positional replaces, compute correct positions
-        for group in aPositionalGroups
-            cTarget = group[:target]
-            aActions = group[:actions]
-            
-            # Count occurrences of target in original string
-            oStr = new stzString(cOriginalString)
-            nOccurrences = oStr.NumberOfOccurrence(cTarget)
-            
-            # Create position mapping
-            aPositionMap = []
-            for action in aActions
-                cPos = action[:original_position]
-                nOriginalPos = 0
-                
-                if cPos = "1" or lower(cPos) = "first"
-                    nOriginalPos = 1
-                but cPos = "2" or lower(cPos) = "second"  
-                    nOriginalPos = 2
-                but cPos = "3" or lower(cPos) = "third"
-                    nOriginalPos = 3
-                but cPos = "4" or lower(cPos) = "fourth"
-                    nOriginalPos = 4
-                but cPos = "5" or lower(cPos) = "fifth"
-                    nOriginalPos = 5
-                but cPos = "-1" or lower(cPos) = "last"
-                    nOriginalPos = nOccurrences
-                but isNumber(0+cPos)
-                    nOriginalPos = 0+cPos
-                ok
-                
-                if nOriginalPos > nOccurrences or nOriginalPos < 1
-                    # Ignore invalid positions
-                    loop
-                ok
-                
-                aPositionMap + [:original_pos = nOriginalPos, :action = action]
-            next
-            
-            # Sort by original position (descending to handle from end)
-            aPositionMap = SortByOriginalPosition(aPositionMap)
-            
-            # Add to execution actions in correct order
-            for item in aPositionMap
-                action = item[:action]
-                nPos = item[:original_pos]
-                
-                # Create execution action with correct position
-                aExecAction = [:type = "positional_replace",
-                              :position = nPos,
-                              :old_value = action[:old_value],
-                              :new_value = action[:new_value]]
-                aExecutionActions + aExecAction
-            next
-        next
+        # If it's already a number
+        if IsNumberInString(cPos)
+            return cPos
+        ok
         
-        return aExecutionActions
-
-    # Helper to sort position map by original position (descending)
-    def SortByOriginalPosition(aPositionMap)
-        nLen = len(aPositionMap)
-        for i = 1 to nLen-1
-            for j = i+1 to nLen
-                if aPositionMap[i][:original_pos] < aPositionMap[j][:original_pos]
-                    temp = aPositionMap[i]
-                    aPositionMap[i] = aPositionMap[j] 
-                    aPositionMap[j] = temp
-                ok
-            next
-        next
-        return aPositionMap
-
-    def Code()
-        aValues = This.Values()
-        if len(aValues) = 0
+        return "1"  # Default fallback
+    
+def GenerateCode()
+    if len(@aSemanticActions) = 0
+        return ""
+    ok
+    
+    aCodeLines = []
+    
+    for aAction in @aSemanticActions
+        cCodeLine = This.GenerateCodeLine(aAction)
+        if cCodeLine != ""
+            aCodeLines + cCodeLine
+        ok
+    next
+    
+    return JoinXT(aCodeLines, NL)
+    
+def GenerateCodeLine(aAction)
+    # Check if aAction is valid
+    if NOT isList(aAction) or len(aAction) = 0
+        see "Invalid action passed to GenerateCodeLine" + nl
+        return ""
+    ok
+    
+    # Safely get the type
+    cActionType = ""
+    if len(aAction[:type]) > 0 and isString(aAction[:type])
+        cActionType = aAction[:type]
+    else
+        see "No valid type in action" + nl
+        return ""
+    ok
+    
+    see "GenerateCodeLine processing type: " + cActionType + nl
+    
+    if cActionType = "create_object"
+        cValue = '""'
+        if len(aAction[:value]) > 0 and aAction[:value] != "" and aAction[:value] != nothing
+            if lower("" + aAction[:value]) != "nothing"
+                cValue = @@(aAction[:value])
+            ok
+        ok
+        
+        # Use constructor template from metadata
+        cConstructor = aAction[:constructor]
+        cConstructor = substr(cConstructor, "@", cValue)
+        return aAction[:variable] + " = " + cConstructor
+        
+    elseif cActionType = "method_call"
+        see "Processing method call" + nl
+        
+        # Safely extract method info
+        if NOT len(aAction[:method_info]) > 0
+            see "No method_info in action" + nl
             return ""
         ok
         
-        # Analyze semantic patterns first
-        aResult = AnalyzeSemanticPatterns(aValues)
-        aSemanticActions = aResult[1]
-        cStringValue = aResult[2]
+        aMethodInfo = aAction[:method_info]
+        aPattern = aAction[:pattern]
+        aParams = aAction[:params]
+        aModifiers = aAction[:modifiers]
         
-        # Handle "Create a stzString with value" pattern
-        if len(aValues) >= 3 and ring_find(["create", "make"], lower(aValues[1])) > 0 and 
-           lower(aValues[2]) = "a" and
-           lower(aValues[3]) = "stzstring"
-            
-            aTransformLines = []
-            aOutputLines = []
-            
-            cValue = '""'
-            if isString(cStringValue) and lower(cStringValue) != "nothing" and cStringValue != nothing
-                cValue = @@(cStringValue)
-            ok  # else empty string
-            
-            aTransformLines + ("oStr = StzStringQ(" + cValue + ")")
-            
-            # Apply semantic actions first (these are preprocessed)
-            for action in aSemanticActions
-                if action[:type] = "positional_replace"
-                    cOld = @@(action[:old_value])
-                    cNew = @@(action[:new_value])
-                    cPos = ""+ action[:position]
-                    aTransformLines + ("oStr.ReplaceNth(" + cPos + ", " + cOld + ", " + cNew + ")")
-                but action[:type] = "global_replace"
-                    cOld = @@(action[:old_value])
-                    cNew = @@(action[:new_value])
-                    aTransformLines + ("oStr.Replace(" + cOld + ", " + cNew + ")")
-                ok
-            next
-            
-            # Initialize flags for named operations
-            bBoxPending = FALSE
-            bRounded = FALSE
-            
-            # Process remaining non-replace operations starting from index 5
-            i = 5
-            while i <= len(aValues)
-                cOperation = lower(aValues[i])
-                
-                # Skip replace operations (already handled by semantic preprocessing)
-                if ring_find(["replace", "substitute", "change"], cOperation) > 0
-                    # Skip this operation and its parameters
-                    i++
-                    if i <= len(aValues)
-                        cNext = aValues[i]
-                        if NOT isString(cNext)
-                            cNext = "" + cNext
-                        ok
-                        if isString(cNext) and (IsNumberInString(cNext) or cNext = "-1" or ring_find(This.PositionIndicators(), lower(cNext)) > 0)
-                            i += 3  # Skip position, old, new
-                        else
-                            i += 2  # Skip old, new
-                        ok
-                    ok
-                    loop
-                ok
-                
-                if left(cOperation, 1) = "@"  # Prefix for defining/naming, defer application
-                    cName = substr(cOperation, 2, len(cOperation) - 1)
-                    if ring_find(["box", "frame"], cName) > 0
-                        bBoxPending = TRUE
-                        i++
-                        loop  # Defer, don't add code yet
-                    ok
-                    
-                but right(cOperation, 1) = "@"  # Suffix for recalling and applying with mods
-                    cName = left(cOperation, len(cOperation) - 1)
-                    if ring_find(["box", "frame"], cName) > 0
-                        bRounded = FALSE
-                        j = i + 1
-                        while j <= len(aValues)
-                            cNext = lower(aValues[j])
-                            if cNext = "is"
-                                j++
-                                loop
-                            but cNext = "should" and j+1 <= len(aValues) and lower(aValues[j+1]) = "be"
-                                j += 2
-                                loop
-                            but cNext = "must" and j+1 <= len(aValues) and lower(aValues[j+1]) = "be"
-                                j += 2
-                                loop
-                            but cNext = "with"
-                                j++
-                                if j <= len(aValues) and lower(aValues[j]) = "rounded"
-                                    if j+1 <= len(aValues) and lower(aValues[j+1]) = "corners"
-                                        bRounded = TRUE
-                                        j += 2
-                                    else
-                                        bRounded = TRUE
-                                        j++
-                                    ok
-                                ok
-                                loop
-                            but cNext = "rounded"
-                                if j+1 <= len(aValues) and lower(aValues[j+1]) = "corners"
-                                    bRounded = TRUE
-                                    j += 2
-                                else
-                                    bRounded = TRUE
-                                    j++
-                                ok
-                            else
-                                exit
-                            ok
-                        end
-                        # Apply the box with options
-                        if bRounded
-                            aTransformLines + "oStr.BoxXT([ :Rounded = TRUE ])"
-                        else
-                            aTransformLines + "oStr.BoxXT()"
-                        ok
-                        bBoxPending = FALSE
-                        i = j - 1
-                        # No loop here to avoid infinite if no advance; let outer i++ handle
-                    ok
-                    
-                but ring_find(["box", "frame"], cOperation) > 0  # Plain box, immediate apply without mods
-                    aTransformLines + "oStr.Box()"
-                    i++
-                    loop
-                    
-                but ring_find(["show", "display", "print"], cOperation) > 0
-                    aOutputLines + "? oStr.Content()"
-                    
-                but cOperation = "uppercase"
-                    aTransformLines + "oStr.Uppercase()"
-                    
-                but cOperation = "lowercase"
-                    aTransformLines + "oStr.Lowercase()"
-                    
-                but cOperation = "spacify"
-                    aTransformLines + "oStr.Spacify()"
-                    
-                but cOperation = "reverse"
-                    aTransformLines + "oStr.Reverse()"
-                    
-                but cOperation = "trim"
-                    aTransformLines + "oStr.Trim()"
-                    
-                but ring_find(["append", "add"], cOperation) > 0
-                    i++
-                    if i <= len(aValues)
-                        if isString(aValues[i]) and lower(aValues[i]) = "substring"
-                            i++
-                        ok
-                        if i <= len(aValues)
-                            cParam = @@(aValues[i])
-                            aTransformLines + ("oStr.Append(" + cParam + ")")
-                        ok
-                    ok
-                    
-                but cOperation = "prepend"
-                    i++
-                    if i <= len(aValues)
-                        cParam = @@(aValues[i])
-                        aTransformLines + ("oStr.Prepend(" + cParam + ")")
-                    ok
-                    
-                but cOperation = "insert"
-                    i++
-                    if i <= len(aValues)
-                        cValue = @@(aValues[i])
-                        i++
-                        if i <= len(aValues) and lower(aValues[i]) = "at"
-                            i++
-                            if i <= len(aValues)
-                                if isString(aValues[i]) and lower(aValues[i]) = "position"
-                                    i++
-                                ok
-                                if i <= len(aValues)
-                                    cPosition = aValues[i]
-                                    if isNumber(cPosition)
-                                        cPosition = "" + cPosition
-                                    else
-                                        cPosition = @@(cPosition)
-                                    ok
-                                    aTransformLines + ("oStr.InsertAt(" + cPosition + ", " + cValue + ")")
-                                ok
-                            ok
-                        ok
-                    ok
-                    
-                ok
-                
-                i++
-            end
-            
-            # At the end, apply any pending named operations with default
-            if bBoxPending
-                aTransformLines + "oStr.Box()"
+        # Generate Ring method call from signature template
+        cSignature = aPattern[:ring_signature]
+        cSignature = substr(cSignature, "@var", @cCurrentVariable)
+        
+        # Replace parameter placeholders
+        for i = 1 to len(aParams)
+            if i <= len(aPattern[:params])
+                cParamPlaceholder = "@" + aPattern[:params][i][:name]
+                cParamValue = @@(aParams[i])
+                cSignature = substr(cSignature, cParamPlaceholder, cParamValue)
             ok
+        next
+        
+        # Handle modifiers if any
+	if len(aModifiers) > 0
+	    for aMod in aModifiers
+	        if len(aMod[:method]) > 0 and aMod[:method] != ""
+	            cSignature = substr(cSignature, aMethodInfo[:ring_method], aMod[:method])
+	            if len(aMod[:ring_param]) > 0
+	                cSignature = substr(cSignature, "()", "([" + aMod[:ring_param] + "])")
+	            ok
+	        ok
+	    next
+	ok
+        
+        return cSignature
+    ok
+    
+    return ""
+    
+def SortActionsByType(aActions)
+    aCreation = []
+    aMethods = []
+    aOutput = []
+    
+    for aAction in aActions
+        if NOT isList(aAction) or len(aAction) = 0
+            loop
+        ok
+        
+        cActionType = aAction[:type]
+        
+        if cActionType = "create_object"
+            aCreation + aAction
+        elseif cActionType = "method_call"
+            aMethods + aAction
+        elseif cActionType = "output"
+            aOutput + aAction
+        ok
+    next
+    
+    return aCreation + aMethods + aOutput
+
+ 
+    def SortPositionalReplacements(aMethods)
+        aPositional = []
+        aOther = []
+        
+        for aAction in aMethods
+            if len(aAction[:method_info]) > 0 and aAction[:method_info][:type] = "positional_replacement"
+                aPositional + aAction
+            else
+                aOther + aAction
+            ok
+        next
+        
+        # Sort positional by position number (descending)
+        if len(aPositional) > 0
+            aTemp = []
+            for aAction in aPositional
+                nPos = number(aAction[:params][1])
+                if nPos < 0  # Handle "last" (-1)
+                    nPos = 1000000 + nPos
+                ok
+                aTemp + [nPos, aAction]
+            next
+            aTemp = sort(aTemp, 1)
+            aTemp = reverse(aTemp)  # Highest position first
             
-            cCode = JoinXT(aTransformLines, NL) + NL + JoinXT(aOutputLines, NL)
-            return cCode
-        else
-            # Fallback to original logic for other patterns
-            aValues[1] += "{"
-            cCode = ""
-            nLenValues = len(aValues)
-
-            for i = 1 to nLenValues
-                
-                oValue = new stzString(aValues[i])
-
-                if NOT oValue.Contains("@")
-                    # Adding the line to the code
-                    cCode += oValue.Content()
-                else
-                    # Composing the params
-                    nLen@ = oValue.NumberOfOccurrence("@")
-                    c@ = ""
-
-                    cParams = ""
-                    for j = 1 to nLen@
-
-                        if aValues[i+j] = ""
-                            cParam = ""
-                        else
-                            cParam = @@(aValues[i+j])
-                        ok
-
-                        cParams += cParam + ","
-                        c@ += "@"
-                    next
-                    cParams = StzStringQ(cParams).LastCharRemoved()
-                
-                    # Replacing the params inside the line
-                    oValue.Replace(c@, cParams)
-
-                    # Adding the line to the code
-                    cCode += oValue.Content()
-                    i += j-1
+            aPositional = []
+            for item in aTemp
+                aPositional + item[2]
+            next
+        ok
+        
+        return aPositional + aOther
+    
+    def FindNextNonIgnoreWord(aValues, nStartIndex, nLen)
+        for i = nStartIndex to nLen
+            cValue = lower("" + aValues[i])
+            if not ring_find($aWordsToIgnore, cValue)
+                return i
+            ok
+        next
+        return nLen + 1
+    
+    def ExtractValueForPattern(aValues, nStartIndex, nLen, cPosition)
+        if cPosition = "after"
+            for i = nStartIndex to nLen
+                cValue = lower("" + aValues[i])
+                if not ring_find($aWordsToIgnore, cValue)
+                    return aValues[i]
                 ok
             next
-
-            cCode += "}"
-            return cCode
         ok
-
+        return ""
+    
+    # Public interface methods
+    def Code()
+        return GenerateCode()
+    
     def Run()
-        eval(This.Code())
-
-    # Debug method to show semantic actions
+        cCode = GenerateCode()
+        if cCode != ""
+            see "Generated code: " + cCode + nl
+            eval(cCode)
+        else
+            see "No code generated" + nl
+        ok
+    
+    def Values()
+        aResult = []
+        for cValue in @aValues
+            cLowerValue = lower("" + cValue)
+            if not ring_find($aWordsToIgnore, cLowerValue)
+                aResult + cValue
+            ok
+        next
+        return aResult
+    
     def SemanticActions()
-        return @aSemanticActions
+        return @aSemanticActi

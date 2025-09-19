@@ -14,7 +14,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*--- OBJECT CREATION VARIATIONS
-
+*/
 pr()
 
 Naturally() {
@@ -33,7 +33,7 @@ pr()
 Naturally() {
     Create a stzString with "softanza"
     Uppercase it
-    Show the result
+    Display the result
 }
 #--> SOFTANZA
 
@@ -55,7 +55,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*--- BOXING WITH OPTIONS
-
+*/
 pr()
 
 Naturally() {
@@ -71,11 +71,12 @@ Naturally() {
 pf()
 # Executed in 0.03 second(s) in Ring 1.23
 
-/*--- MULTIPLE REPLACEMENTS
-
+/*--- MULTIPLE REPLACEMENTS #ERR
+*/
 pr()
 
-Naturally() {
+o1 = Naturally()
+o1 {
 
     Create a stzString with "abracadabra"
     Replace the first "a" with "A"
@@ -84,33 +85,48 @@ Naturally() {
     Replace the fifth 'a' with 'D'
 
     Show it
-    #--> AbracBdCbrD
+    #--> Should display: "AbracBdCbrD"
+    #--> But it displayed: "abracadabra"
 
-    # You can debug the internal code generated using
-    ? Code()
+}
+
+# You can debug the internal code generated using
+? o1.Code()
+# Shhloud be:
     # oStr = StzStringQ("abracadabra")
     # oStr.ReplaceNth(1, "a", "A")
     # oStr.ReplaceNth(2, "a", "B")
     # oStr.ReplaceNth(4, "a", "C")
     # oStr.ReplaceNth(5, "a", "D")
-    # ? oStr.Content()
 
-}
+# But it was:
+    # oStr = StzStringQ("abracadabra")
+    # oStr.ReplaceNth(1, "replace", 1000)
+    # oStr.ReplaceNth(4, "C", "replace")
+    # ? oStr.Content()
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.23
 
-/*--- COMPLEX REPLACEMENTS
+/*--- COMPLEX REPLACEMENTS #ERR
 
 pr()
 
-Naturally() {
+o1 = Naturally() {
     Make a stzString with "hello world hello"
     Replace the first "hello" with "Hi"
     Replace the second "hello" with "Bye"
     Display the result
+
 }
-#--> Hi world Bye
+#--> should return: "Hi world Bye"
+# But it returned "Hi world hello"
+
+? o1.Code()
+# oStr = StzStringQ("hello world hello")
+# oStr.ReplaceNth(1000, "hello", "Bye")
+# oStr.ReplaceNth(1, "hello", "Hi")
+# ? oStr.Content()
 
 pf()
 
@@ -123,12 +139,13 @@ Naturally() {
     Prepend it with "hello "
     Show it
 }
-#--> hello world
+#--> "hello world"
+
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
-/*--- APPEND OPERATIONS  
+/*--- APPEND OPERATIONS
 
 pr()
 
@@ -137,12 +154,12 @@ Naturally() {
     Append " beautiful world" to_ it
     Display the result
 }
-#--> hello beautiful world
+#--> "hello beautiful world"
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
-/*--- INSERTION OPERATIONS #ERR
+/*--- INSERTION OPERATIONS
 
 pr()
 
@@ -151,21 +168,23 @@ Naturally() {
     Insert " beautiful" at position 6
     Show it
 }
-#--> should show "hello beautiful world"
+#--> "hello beautiful world"
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*--- TRIMMING OPERATIONS
-
+*/
 pr()
 
-Naturally() {
+o1 = Naturally() {
     Make a stzString with "  spaced text  "
     Trim it and_ uppercase it
     Display the result
 }
 #--> SPACED TEXT
+
+? o1.Code()
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23

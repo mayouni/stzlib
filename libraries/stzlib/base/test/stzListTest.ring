@@ -5,9 +5,9 @@ load "../stzbase.ring"
 #TODO Add Check() Yield() Perform()
 
 /*---
-
+*/
 pr()
-
+? "========================================================"
 o1 = new stzList([ 2, 4, 8 ])
 ? o1.EachItemIsA(:Number)
 #--> TRUE
