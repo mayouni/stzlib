@@ -53,10 +53,22 @@ func IsHashList(paList)
 		return IsHashList(paList)
 
 	func IsAHashList(paList)
-		return @IsHashList(paList)
+		return IsHashList(paList)
 
 	func @IsAHashList(paList)
-		return @IsHashList(paList)
+		return IsHashList(paList)
+
+	func IsHash(paList)
+		return IsHashList(paList)
+
+	func @IsHash(paList)
+		return IsHashList(paList)
+
+	func IsAHash(paList)
+		return IsHashList(paList)
+
+	func @IsAHash(paList)
+		return IsHashList(paList)
 
 	#>
 

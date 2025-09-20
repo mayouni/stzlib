@@ -60,7 +60,7 @@ class stzSection
 				:Between, :BetweenPosition, :BetweenCharAt,
 				:BetweenCharAtPosition,
 
-				:BetweenPositions, :BetweeCharsAtPosition,
+				:BetweenPositions, :BetweenCharsAtPosition,
 
 				#-- Item instead of Char
 

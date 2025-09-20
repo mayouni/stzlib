@@ -379,6 +379,9 @@ class stzRegex
 		def MacthString(pcStr)
 			return This.Match(pcStr)
 
+		def IsMatched(pcStr)
+			return This.Match(pcStr)
+
 		#TODO // Add this misspelled form to all "Match" functions
 
 		#>
