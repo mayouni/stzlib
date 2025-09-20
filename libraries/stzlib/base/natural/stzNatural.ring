@@ -7,7 +7,7 @@ $aWordsToIgnore = [
     "this_", "that", "these", "those", "it", "and_", "then", "also", 
     "plus", "with", "using", "to_", "by", "containing", "be", "being",
     "decorated", "final", "result", "object", "substring", "at", "position",
-    "a"
+    "a", "it"
 ]
 
 $aPositionIndicators = [
@@ -443,37 +443,55 @@ class stzNaturalEngine
         return [:action = aAction, :next_index = nIndex + 1]
 
 
-    def TryMatchPattern(aValues, nIndex, aMethodInfo, aPattern)
-	    nLen = len(aValues)
-	    aExtractedParams = []
-	    i = nIndex + 1
-	    
-	    # Extract parameters based on pattern definition
-	    for aParamDef in aPattern[:params]
-	        cParamValue = ExtractParameterValue(aValues, i, nLen, aParamDef)
-	        if cParamValue != ""
-	            aExtractedParams + cParamValue
-	            i = FindNextNonIgnoreWord(aValues, i + 1, nLen)
-	        else
-	            exit
-	        ok
-	    next
-	    
-	    # Extract modifiers if any
-	    aModifiers = []
-	    if len(aPattern[:modifiers]) > 0
-	        aModifiers = ExtractModifiers(aValues, i, nLen, aPattern[:modifiers])
-	    ok
-	    
-	    aAction = [
-	        :type = "method_call",
-	        :method_info = aMethodInfo,
-	        :pattern = aPattern,
-	        :params = aExtractedParams,
-	        :modifiers = aModifiers
-	    ]
-	    
-	    return [:action = aAction, :next_index = nIndex + 1]  # Change this line
+def TryMatchPattern(aValues, nIndex, aMethodInfo, aPattern)
+    nLen = len(aValues)
+    aExtractedParams = []
+    i = nIndex + 1
+    nLastConsumedIndex = nIndex  # Track the last index we actually used
+
+    # Extract parameters based on pattern definition
+    for aParamDef in aPattern[:params]
+        cParamValue = ExtractParameterValue(aValues, i, nLen, aParamDef)
+        if cParamValue != ""
+            aExtractedParams + cParamValue
+            # Find where this parameter was actually found
+            for j = i to nLen
+                cValue = lower("" + aValues[j])
+                if not ring_find($aWordsToIgnore, cValue)
+                    nLastConsumedIndex = j
+                    i = j + 1
+                    exit
+                ok
+            next
+        else
+            exit
+        ok
+    next
+
+    # Extract modifiers if any
+    aModifiers = []
+    if len(aPattern[:modifiers]) > 0
+        aModifiers = ExtractModifiers(aValues, nLastConsumedIndex + 1, nLen, aPattern[:modifiers])
+        # Update nLastConsumedIndex if modifiers were found
+        for aMod in aModifiers
+            for j = nLastConsumedIndex + 1 to nLen
+                if lower("" + aValues[j]) = aMod[:trigger]
+                    nLastConsumedIndex = j
+                    exit
+                ok
+            next
+        next
+    ok
+
+    aAction = [
+        :type = "method_call",
+        :method_info = aMethodInfo,
+        :pattern = aPattern,
+        :params = aExtractedParams,
+        :modifiers = aModifiers
+    ]
+    
+    return [:action = aAction, :next_index = nLastConsumedIndex + 1]
 	    
     def ExtractParameterValue(aValues, nStartIndex, nLen, aParamDef)
         i = nStartIndex
@@ -496,28 +514,54 @@ class stzNaturalEngine
         return ""
 
 
-    def ExtractModifiers(aValues, nStartIndex, nLen, aModifierDefs)
-        aResult = []
+def ExtractModifiers(aValues, nStartIndex, nLen, aModifierDefs)
+    aResult = []
+    nCurrentIndex = nStartIndex
+    
+    # Look ahead for modifiers
+    while nCurrentIndex <= nLen
+        cValue = lower("" + aValues[nCurrentIndex])
+        
+        # Skip ignored words
+        if ring_find($aWordsToIgnore, cValue)
+            nCurrentIndex++
+            loop
+        ok
+        
+        # Check if current word matches any modifier trigger
+        bFoundModifier = false
         for aModDef in aModifierDefs
-            for i = nStartIndex to nLen
-                if lower("" + aValues[i]) = aModDef[:trigger]
-                    aResult + aModDef
-                    exit
-                ok
-            next
+            if cValue = aModDef[:trigger]
+                aResult + aModDef
+                bFoundModifier = true
+                exit
+            ok
         next
-        return aResult
+        
+        # If we found a modifier, continue looking for more
+        # If not, we've consumed all relevant tokens for this method
+        if bFoundModifier
+            nCurrentIndex++
+        else
+            exit
+        ok
+    end
+    
+    return aResult
 
 
-    def ProcessRecallMethod(aValues, nIndex, aMethodInfo)
-	    for i = 1 to len(@aDefineRecallState)
-	        if @aDefineRecallState[i][:method][:name] = aMethodInfo[:name] and @aDefineRecallState[i][:pending]
-	            @aDefineRecallState[i][:pending] = FALSE
-	            # Process the recall with modifiers
-	            return ProcessMethodByPattern(aValues, nIndex, aMethodInfo)
-	        ok
-	    next
-	    return []
+def ProcessRecallMethod(aValues, nIndex, aMethodInfo)
+    for i = 1 to len(@aDefineRecallState)
+        if @aDefineRecallState[i][:method][:name] = aMethodInfo[:name] and @aDefineRecallState[i][:pending]
+            @aDefineRecallState[i][:pending] = FALSE
+            # Process the recall with modifiers
+            aResult = ProcessMethodByPattern(aValues, nIndex, aMethodInfo)
+            # Clear the define/recall state after successful recall
+            @aDefineRecallState = []
+            return aResult
+        ok
+    next
+    return []
 
 
     def ProcessDefineRecallState()

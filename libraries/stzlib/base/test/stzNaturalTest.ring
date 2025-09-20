@@ -1,5 +1,7 @@
 load "../stzbase.ring"
 
+
+
 /*--- BASIC OBJECT CREATION
 
 pr()
@@ -52,7 +54,7 @@ Naturally() {
 #--> R I N G   L A N G U A G E
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.02 second(s) in Ring 1.23
 
 /*--- BOXING WITH OPTIONS
 
@@ -69,7 +71,7 @@ Naturally() {
 #    ╰─────────────────────╯
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.23
+# Executed in 0.04 second(s) in Ring 1.23
 
 /*--- PREPEND OPERATIONS
 
@@ -122,7 +124,7 @@ oStr.Uppercase()
 '
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.02 second(s) in Ring 1.23
 
 /*--- REVERSE OPERATIONS
 
@@ -136,6 +138,7 @@ Naturally() {
 #--> desserts
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- CASE TRANSFORMATIONS
 
@@ -149,6 +152,7 @@ Naturally() {
 #--> mixed case
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*---
 
@@ -211,7 +215,7 @@ Naturally() {
 '
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.03 second(s) in Ring 1.23
 
 /*--- CONNECTOR VARIATIONS
 
@@ -227,7 +231,7 @@ Naturally() {
 #    └─────────┘
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.03 second(s) in Ring 1.23
 
 /*--- ALTERNATIVE CONNECTORS
 
@@ -243,7 +247,7 @@ Naturally() {
 #    └─────────────────────┘
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.03 second(s) in Ring 1.23
 
 /*--- SUBSTITUTE OPERATION
 
@@ -288,14 +292,14 @@ Naturally() {
 #    ╰───────────────────────────────────╯
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.04 second(s) in Ring 1.23
 
 /*--- FRAME ALTERNATIVE
 
 pr()
 
 Naturally() {
-    Make a stzString with "natural"
+    Make a stzString containing "natural"
     Uppercase it and_ spacify it
     Frame it with rounded corners
     Display the result
@@ -308,7 +312,7 @@ Naturally() {
 '
 
 pf()
-# Executed in 0.04 second(s) in Ring 1.23
+# Executed in 0.03 second(s) in Ring 1.23
 
 /*--- PRINT ALTERNATIVE
 
@@ -322,10 +326,10 @@ Naturally() {
 #--> PRINT TEST
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- COMPLEX CHAINING
-
+*/
 pr()
 
 Naturally() {
@@ -339,5 +343,5 @@ Naturally() {
 #    ╰───────────────────────────────╯
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.03 second(s) in Ring 1.23
 
