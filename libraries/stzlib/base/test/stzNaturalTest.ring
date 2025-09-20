@@ -14,7 +14,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*--- OBJECT CREATION VARIATIONS
-*/
+
 pr()
 
 Naturally() {
@@ -55,7 +55,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*--- BOXING WITH OPTIONS
-*/
+
 pr()
 
 Naturally() {
@@ -70,65 +70,6 @@ Naturally() {
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.23
-
-/*--- MULTIPLE REPLACEMENTS #ERR
-*/
-pr()
-
-o1 = Naturally()
-o1 {
-
-    Create a stzString with "abracadabra"
-    Replace the first "a" with "A"
-    Replace the second 'a' with 'B' 
-    Replace the fourth 'a' with 'C'
-    Replace the fifth 'a' with 'D'
-
-    Show it
-    #--> Should display: "AbracBdCbrD"
-    #--> But it displayed: "abracadabra"
-
-}
-
-# You can debug the internal code generated using
-? o1.Code()
-# Shhloud be:
-    # oStr = StzStringQ("abracadabra")
-    # oStr.ReplaceNth(1, "a", "A")
-    # oStr.ReplaceNth(2, "a", "B")
-    # oStr.ReplaceNth(4, "a", "C")
-    # oStr.ReplaceNth(5, "a", "D")
-
-# But it was:
-    # oStr = StzStringQ("abracadabra")
-    # oStr.ReplaceNth(1, "replace", 1000)
-    # oStr.ReplaceNth(4, "C", "replace")
-    # ? oStr.Content()
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.23
-
-/*--- COMPLEX REPLACEMENTS #ERR
-
-pr()
-
-o1 = Naturally() {
-    Make a stzString with "hello world hello"
-    Replace the first "hello" with "Hi"
-    Replace the second "hello" with "Bye"
-    Display the result
-
-}
-#--> should return: "Hi world Bye"
-# But it returned "Hi world hello"
-
-? o1.Code()
-# oStr = StzStringQ("hello world hello")
-# oStr.ReplaceNth(1000, "hello", "Bye")
-# oStr.ReplaceNth(1, "hello", "Hi")
-# ? oStr.Content()
-
-pf()
 
 /*--- PREPEND OPERATIONS
 
@@ -159,22 +100,8 @@ Naturally() {
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
-/*--- INSERTION OPERATIONS
-
-pr()
-
-Naturally() {
-    Create a stzString with "hello world"
-    Insert " beautiful" at position 6
-    Show it
-}
-#--> "hello beautiful world"
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-
 /*--- TRIMMING OPERATIONS
-*/
+
 pr()
 
 o1 = Naturally() {
@@ -184,7 +111,15 @@ o1 = Naturally() {
 }
 #--> SPACED TEXT
 
+? ""
 ? o1.Code()
+#-->
+'
+oStr = StzStringQ("  spaced text  ")
+oStr.Trim()
+oStr.Uppercase()
+? oStr.Content()
+'
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
@@ -215,20 +150,25 @@ Naturally() {
 
 pf()
 
-/*--- EMPTY OBJECT HANDLING
+/*---
 
 pr()
 
 Naturally() {
-    Create a stzString object with nothing inside
-    Append it with the substring "added content"
-    Uppercase it
+    Create a stzString object with "Softanza" inside
+    Append it with the substring " Semantics"
+    Uppercase it andu then @box it a box@ that is rounded
     Display the result
 }
-#--> "ADDED CONTENT"
+#-->
+'
+╭────────────────────╮
+│ SOFTANZA SEMANTICS │
+╰────────────────────╯
+'
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.04 second(s) in Ring 1.23
 
 /*--- REFERENCE VARIATIONS
 
@@ -255,35 +195,20 @@ pf()
 pr()
 
 Naturally() {
-    Make a stzString with "reference test"
+    Make a stzString with "Softanza ♥ Ring"
 
     Uppercase this_
     Spacify that
     @Box this_
     The box@ is rounded
-
     Show the final result
 }
-#--> ╭─────────────────────────────╮
-#    │ R E F E R E N C E   T E S T │
-#    ╰─────────────────────────────╯
-
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-
-/*--- POSITIONAL REPLACEMENTS
-
-pr()
-
-Naturally() {
-    Create a stzString with "one two one three one"
-    Replace the first "one" with "ONE"
-    Replace the second "one" with "UNO" 
-    Replace the third "one" with "EIN"
-    Show it
-}
-#--> ONE two UNO three EIN
+#-->
+'
+╭───────────────────────────────╮
+│ S O F T A N Z A   ♥   R I N G │
+╰───────────────────────────────╯
+'
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
@@ -348,22 +273,8 @@ Naturally() {
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
-/*--- LAST POSITION REFERENCE
-
-pr()
-
-Naturally() {
-    Make a stzString with "first middle last"
-    Replace the last "s" with "S"
-    Display it
-}
-#--> first middle laSt
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-
 /*--- MULTIPLE MODIFIERS
-*/
+
 pr()
 
 Naturally() {
@@ -384,17 +295,20 @@ pf()
 pr()
 
 Naturally() {
-    Make a stzString with "framed"
+    Make a stzString with "natural"
     Uppercase it and_ spacify it
-    Frame@ it with rounded corners
+    Frame it with rounded corners
     Display the result
 }
-#--> ╭─────────────╮
-#    │ F R A M E D │
-#    ╰─────────────╯
+#-->
+'
+╭───────────────╮
+│ N A T U R A L │
+╰───────────────╯
+'
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.04 second(s) in Ring 1.23
 
 /*--- PRINT ALTERNATIVE
 
@@ -408,7 +322,7 @@ Naturally() {
 #--> PRINT TEST
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.02 second(s) in Ring 1.23
 
 /*--- COMPLEX CHAINING
 
@@ -427,347 +341,3 @@ Naturally() {
 pf()
 # Executed in 0.02 second(s) in Ring 1.23
 
-/*--- EDGE CASE: NULL VALUES
-
-pr()
-
-Naturally() {
-    Make a stzString with nothing
-    Append "from nothing" to_ it
-    Show it
-}
-#--> from nothing
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-
-/*--- COMPREHENSIVE TEST
-
-pr()
-
-Naturally() {
-    Create a stzString with "comprehensive test case"
-    Replace "comprehensive" with "complete"
-    Uppercase it and_ spacify it  
-    Then @box it
-    The box@ should be rounded
-    Display the final result
-}
-#--> ╭─────────────────────────────────────╮
-#    │ C O M P L E T E   T E S T   C A S E │
-#    ╰─────────────────────────────────────╯
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.23
-
-#==================================#
-#  SEMANTIC PRE-PROCESSING TESTS   #
-#==================================#
-
-/*--- MIXED OPERATIONS WITH SEMANTIC PREPROCESSING
-
-pr()
-
-Naturally() {
-    Make a stzString with "test case test"
-    Replace the first "test" with "first"
-    Uppercase it
-    Replace the second "TEST" with "SECOND"  # Note: after uppercase
-    Spacify it
-    Display the result
-}
-#--> F I R S T   C A S E   T E S T
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-
-/*--- LAST POSITION HANDLING
-
-pr()
-
-Naturally() {
-    Create a stzString with "one two three one four one"
-    Replace the first "one" with "1st"
-    Replace the last "one" with "LAST"
-    Replace the second "one" with "2nd" 
-    Show it
-}
-#--> "1st two three 2nd four LAST"
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-
-/*--- MULTIPLE TARGET STRINGS
-
-pr()
-
-Naturally() {
-    Make a stzString with "cat dog cat bird cat dog"
-    Replace the first "cat" with "CAT1"
-    Replace the first "dog" with "DOG1" 
-    Replace the second "cat" with "CAT2"
-    Replace the second "dog" with "DOG2"
-    Replace the third "cat" with "CAT3"
-    Display the result
-}
-#--> "CAT1 DOG1 CAT2 bird CAT3 DOG2"
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.23
-
-/*--- EDGE CASE: Non-existent positions
-
-pr()
-
-Naturally() {
-    Create a stzString with "only one occurrence"
-    Replace the first "occurrence" with "FIRST"
-    Replace the second "occurrence" with "SECOND"  # Should be ignored
-    Replace the third "occurrence" with "THIRD"    # Should be ignored
-    Show it
-}
-#--> "only one FIRST" (only valid replacements applied)
-
-pf()
-
-/*--- MIXED GLOBAL AND POSITIONAL
-
-pr()
-
-Naturally() {
-    Make a stzString with "apple banana apple cherry apple"
-    Replace "banana" with "BANANA"              # Global replace
-    Replace the first "apple" with "APPLE1"     # Positional  
-    Replace the second "apple" with "APPLE2"    # Positional
-    Show the result
-}
-#--> "APPLE1 BANANA APPLE2 cherry apple"
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-
-#=====================================#
-#  TESTING SEMANTIC REFERENCE WITH @  #
-#=====================================#
-
-/*---
-
-pr()
-
-Naturally() {
-    Make a stzString with "simple box"
-
-    Uppercase it
-    Spacify it
-    @Box it  # Define the box reference without immediate application
-
-    # No modifier here, so should apply default square box later
-    Show the final result
-}
-#--> 
-# ┌─────────────────────┐
-# │ S I M P L E   B O X │
-# └─────────────────────┘
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-
-/*--- Applying rounded box directly since no pending, but semantically references the box entity
-
-pr()
-
-Naturally() {
-    Make a stzString with "modifier only"
-
-    Uppercase it
-    Spacify it
-    The box@ is rounded  # Recall box without prior definition, apply with modifier
-
-    Show the final result
-}
-#--> 
-# ╭───────────────────────────╮
-# │ M O D I F I E R   O N L Y │
-# ╰───────────────────────────╯
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.23
-
-/*--- Demonstrating why @ is necessary to avoid unintended nesting
-
-pr()
-
-Naturally() {
-    Make a stzString with "plain then reference"
-
-    Uppercase it
-    Spacify it
-    Box it  # Plain application (immediate square box)
-    The box@ should be rounded  # Attempt to modify the reference, but since plain was applied, this adds another rounded box (nesting)
-
-    Show the final result
-}
-#--> 
-# ╭─────────────────────────────────────────────╮
-# │ ┌─────────────────────────────────────────┐ │
-# │ │ P L A I N   T H E N   R E F E R E N C E │ │
-# │ └─────────────────────────────────────────┘ │
-# ╰─────────────────────────────────────────────╯
-
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-
-/*--- Showing deferral allowing interleaving of other operations #HERE
-
-pr()
-
-Naturally() {
-    Make a stzString with "deferred with mods"
-
-    Trim it
-is decorated with_
-    Reverse it
-    @Box this_  # Define reference
-    The box@ is decorated with rounded corners  # Recall and apply modifier after other ops
-
-    Display it
-
-? Code()
-? @@(this.decorated)
-}
-#--> 
-# ╭────────────────────╮
-# │ sdom htiw derrefed │
-# ╰────────────────────╯
-
-pf()
-
-/*--- Synonym handling for box/frame
-
-pr()
-
-Naturally() {
-    Make a stzString with "synonym reference"
-
-    Uppercase it
-    @Frame it  # Define using synonym (frame == box)
-    The frame@ must be rounded  # Recall with synonym
-
-    Print the result
-}
-#--> 
-# ╭───────────────────╮
-# │ SYNONYM REFERENCE │
-# ╰───────────────────╯
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.23
-
-/*---
-
-pr()
-
-Naturally() {
-    Make a stzString with "mixed ops reference"
-
-    Replace "mixed" with "combined"
-    @Box it  # Define
-    Uppercase that
-    Spacify this_
-    The box@ is rounded  # Recall after transformations
-
-    Show the final result
-}
-#--> 
-# ╭─────────────────────────────────────────────╮
-# │ C O M B I N E D   O P S   R E F E R E N C E │
-# ╰─────────────────────────────────────────────╯
-
-pf()
-# Executed in 0.04 second(s) in Ring 1.23
-
-/*--- Contrast: No deferral or recall, just direct action
-
-pr()
-
-Naturally() {
-    Make a stzString with "no reference plain"
-
-    Uppercase it
-    Spacify it
-    Box it  # No @, immediate apply
-    # No box@, so no modifier possible later without re-application
-
-    Show it
-}
-#--> 
-# ┌─────────────────────────────────────┐
-# │ N O   R E F E R E N C E   P L A I N │
-# └─────────────────────────────────────┘
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-
-/*--- Showing how system falls back to applying the referenced action directly
-
-pr()
-
-Naturally() {
-    Make a stzString with "invalid recall"
-
-    Uppercase it
-    The box@ is rounded  # Recall without define, still applies as reference
-    # But semantically, this treats box as an entity even without prior @Box
-
-    Display the result
-}
-#--> 
-# ╭────────────────╮
-# │ INVALID RECALL │
-# ╰────────────────╯
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.23
-
-/*--- Flexible modifier phrasing like "with rounded corners"
-
-pr()
-
-Naturally() {
-    Make a stzString with "complex modifiers"
-
-    @Frame this_  # Define
-    Append " added"
-    The frame@ with rounded corners  # Recall with phrase variation
-
-    Show the final result
-}
-#--> 
-# ╭─────────────────────────╮
-# │ complex modifiers added │
-# ╰─────────────────────────╯
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.23
-
-/*--- Automatic default application for unrecalled references
-
-pr()
-
-Naturally() {
-    Make a stzString with "pending at end"
-
-    Prepend "start "
-    @Box it  # Define, but no recall
-    # System applies default at end due to pending flag
-
-    Show the final result
-}
-#--> 
-# ┌──────────────────────┐
-# │ start pending at end │
-# └──────────────────────┘
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23

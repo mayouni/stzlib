@@ -7,7 +7,7 @@ load "../stzbase.ring"
 /*---
 */
 pr()
-? "========================================================"
+
 o1 = new stzList([ 2, 4, 8 ])
 ? o1.EachItemIsA(:Number)
 #--> TRUE
