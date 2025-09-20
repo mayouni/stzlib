@@ -1,4 +1,4 @@
-# Enhanced Dynamic Softanza Natural Programming System
+# Dynamic Softanza Natural Programming System
 # Completely data-driven with zero hardcoded object/method knowledge
 
 # Global configuration - completely configurable
@@ -17,19 +17,24 @@ $aPositionIndicators = [
 
 # Enhanced Softanza Objects Registry - Complete metadata-driven approach
 $aSoftanzaObjects = [
+
     [
         :name = "stzstring",
         :constructor = "StzStringQ(@)",
         :variable = "oStr",
+
         :creation_patterns = [
             [:trigger_words = ["create", "make", "new"], :value_position = "after"]
         ],
+
         :methods = [
+
             [
                 :name = "replace",
                 :alternatives = ["substitute", "change", "swap"],
                 :ring_method = "Replace",
                 :type = "global_replacement",
+
                 :patterns = [
                     [
                         :template = "{method} {old_value} with {new_value}",
@@ -40,27 +45,10 @@ $aSoftanzaObjects = [
                         :ring_signature = "@var.Replace(@old_value, @new_value)"
                     ]
                 ],
+
                 :semantic_triggers = ["replace", "substitute", "change", "swap"]
             ],
-            [
-                :name = "replacenth",
-                :alternatives = ["substituenth", "changenth"],
-                :ring_method = "ReplaceNth", 
-                :type = "positional_replacement",
-                :patterns = [
-                    [
-                        :template = "{method} the {position} {old_value} with {new_value}",
-                        :params = [
-                            [:name = "position", :type = "position", :position = 1],
-                            [:name = "old_value", :type = "string", :position = 2],
-                            [:name = "new_value", :type = "string", :position = 3]
-                        ],
-                        :ring_signature = "@var.ReplaceNth(@position, @old_value, @new_value)"
-                    ]
-                ],
-                :semantic_triggers = ["replace", "substitute", "change"],
-                :position_indicators = $aPositionIndicators
-            ],
+
             [
                 :name = "uppercase",
                 :alternatives = ["toupper", "caps", "capitalize"],
@@ -75,6 +63,7 @@ $aSoftanzaObjects = [
                 ],
                 :semantic_triggers = ["uppercase", "toupper", "caps", "capitalize"]
             ],
+
             [
                 :name = "lowercase", 
                 :alternatives = ["tolower", "downcase"],
@@ -89,6 +78,7 @@ $aSoftanzaObjects = [
                 ],
                 :semantic_triggers = ["lowercase", "tolower", "downcase"]
             ],
+
             [
                 :name = "spacify",
                 :alternatives = ["addspaces", "space"],
@@ -103,6 +93,22 @@ $aSoftanzaObjects = [
                 ],
                 :semantic_triggers = ["spacify", "addspaces", "space"]
             ],
+
+            [
+                :name = "trim",
+                :alternatives = [],
+                :ring_method = "Trim",
+                :type = "simple_transformation",
+                :patterns = [
+                    [
+                        :template = "{method} it", 
+                        :params = [],
+                        :ring_signature = "@var.Trim()"
+                    ]
+                ],
+                :semantic_triggers = ["trim"]
+            ],
+
             [
                 :name = "reverse",
                 :alternatives = ["flip", "backwards"],
@@ -117,6 +123,7 @@ $aSoftanzaObjects = [
                 ],
                 :semantic_triggers = ["reverse", "flip", "backwards"]
             ],
+
             [
                 :name = "box",
                 :alternatives = ["frame", "border"], 
@@ -135,6 +142,7 @@ $aSoftanzaObjects = [
                 :semantic_triggers = ["box", "frame", "border"],
                 :supports_define_recall = TRUE
             ],
+
             [
                 :name = "show",
                 :alternatives = ["display", "print", "output"],
@@ -149,6 +157,7 @@ $aSoftanzaObjects = [
                 ],
                 :semantic_triggers = ["show", "display", "print", "output"]
             ],
+
             [
                 :name = "prepend",
                 :alternatives = ["prefix", "addfront"],
@@ -165,6 +174,7 @@ $aSoftanzaObjects = [
                 ],
                 :semantic_triggers = ["prepend", "prefix", "addfront"]
             ],
+
             [
                 :name = "append", 
                 :alternatives = ["suffix", "addend"],
@@ -180,23 +190,6 @@ $aSoftanzaObjects = [
                     ]
                 ],
                 :semantic_triggers = ["append", "suffix", "addend"]
-            ],
-            [
-                :name = "insert",
-                :alternatives = ["place", "put"],
-                :ring_method = "InsertAt", 
-                :type = "positional_insertion",
-                :patterns = [
-                    [
-                        :template = "{method} {value} at {position}",
-                        :params = [
-                            [:name = "value", :type = "string", :position = 1],
-                            [:name = "position", :type = "position", :position = 2]
-                        ],
-                        :ring_signature = "@var.InsertAt(@position, @value)"
-                    ]
-                ],
-                :semantic_triggers = ["insert", "place", "put"]
             ]
         ]
     ]
@@ -327,21 +320,6 @@ class stzNaturalEngine
             ok
         end
         
-        # Debug: Check what's in actions
-        see "Actions array contents:" + nl
-        for j = 1 to len(aActions)
-            see "Action " + j + " type: "
-            if islist(aActions[j]) and len(aActions[j]) > 0
-                if isstring(aActions[j][:type])
-                    see aActions[j][:type] + nl
-                else
-                    see "NO TYPE FIELD" + nl
-                ok
-            else
-                see "INVALID ACTION" + nl
-            ok
-        next
-        
         return aActions
     
     def HandleObjectCreation(aValues, nStartIndex)
@@ -391,79 +369,69 @@ class stzNaturalEngine
         
         return []
     
-def HandleMethodCall(aValues, nIndex)
-    if @cCurrentObject = ""
-        see "No current object set" + nl
-        return []
-    ok
+    def HandleMethodCall(aValues, nIndex)
+	    if @cCurrentObject = ""
+	        return []
+	    ok
+	    
+	    cMethodName = lower("" + aValues[nIndex])
+	     
+	    # Handle define/recall patterns (@method@)
+	    bDefine = left(cMethodName,1) = "@"
+	    bRecall = right(cMethodName,1) = "@"
+	    cCleanMethod = cMethodName
+	    if bDefine
+	        cCleanMethod = substr(cCleanMethod, 2)
+	    elseif bRecall
+	        cCleanMethod = left(cCleanMethod, len(cCleanMethod)-1)
+	    ok
+	    
+	    # Find method in current object - completely data-driven
+	    aObjectInfo = GetObjectInfo(@cCurrentObject)
+	    aMethodInfo = FindMethodBySemanticTrigger(aObjectInfo, cCleanMethod)
+	    
+	    if len(aMethodInfo) = 0
+	        return []
+	    ok
+	    
+	    # Handle define/recall for methods that support it
+	    bSupportsDefineRecall = FALSE
+	    if len(aMethodInfo) > 0
+	        for key in keys(aMethodInfo)
+	            if key = "supports_define_recall" and aMethodInfo[:supports_define_recall] = TRUE
+	                bSupportsDefineRecall = TRUE
+	                exit
+	            ok
+	        next
+	    ok
+	    
+	    if bSupportsDefineRecall
+	        if bDefine
+	            @aDefineRecallState + [
+	                :method = aMethodInfo,
+	                :pending = TRUE,
+	                :define_index = nIndex
+	            ]
+	            return [:action = [], :next_index = nIndex + 1]
+	        elseif bRecall
+	            return ProcessRecallMethod(aValues, nIndex, aMethodInfo)
+	        ok
+	    ok
     
-    cMethodName = lower("" + aValues[nIndex])
-    see "Looking for method: " + cMethodName + " in object: " + @cCurrentObject + nl
-    
-    # Handle define/recall patterns (@method@)
-    bDefine = left(cMethodName,1) = "@"
-    bRecall = right(cMethodName,1) = "@"
-    cCleanMethod = cMethodName
-    if bDefine
-        cCleanMethod = substr(cCleanMethod, 2)
-    elseif bRecall
-        cCleanMethod = left(cCleanMethod, len(cCleanMethod)-1)
-    ok
-    
-    # Find method in current object - completely data-driven
-    aObjectInfo = GetObjectInfo(@cCurrentObject)
-    aMethodInfo = FindMethodBySemanticTrigger(aObjectInfo, cCleanMethod)
-    
-    see "Method info found: " + (len(aMethodInfo) > 0) + nl
-    if len(aMethodInfo) > 0
-        see "Method name: " + aMethodInfo[:name] + nl
-    ok
-    
-    if len(aMethodInfo) = 0
-        return []
-    ok
-    
-    # Handle define/recall for methods that support it
-    bSupportsDefineRecall = FALSE
-    if len(aMethodInfo) > 0
-        for key in keys(aMethodInfo)
-            if key = "supports_define_recall" and aMethodInfo[:supports_define_recall] = TRUE
-                bSupportsDefineRecall = TRUE
-                exit
-            ok
-        next
-    ok
-    
-    if bSupportsDefineRecall
-        if bDefine
-            @aDefineRecallState + [
-                :method = aMethodInfo,
-                :pending = TRUE,
-                :define_index = nIndex
-            ]
-            return [:action = [], :next_index = nIndex + 1]
-        elseif bRecall
-            return ProcessRecallMethod(aValues, nIndex, aMethodInfo)
-        ok
-    ok
-    
-    # Process method based on its patterns - data-driven
-    aResult = ProcessMethodByPattern(aValues, nIndex, aMethodInfo)
-    see "ProcessMethodByPattern returned: " + len(aResult) + " items" + nl
-    return aResult
+	    # Process method based on its patterns - data-driven
+	    aResult = ProcessMethodByPattern(aValues, nIndex, aMethodInfo)
+	    return aResult
     
     def ProcessMethodByPattern(aValues, nIndex, aMethodInfo)
         # Try each pattern until one matches
         for aPattern in aMethodInfo[:patterns]
             aResult = TryMatchPattern(aValues, nIndex, aMethodInfo, aPattern)
             if len(aResult) > 0
-                see "Pattern matched successfully" + nl
                 return aResult
             ok
         next
         
         # If no pattern matched, create a simple action for methods with no parameters
-        see "No pattern matched, creating simple action" + nl
         aAction = [
             :type = "method_call",
             :method_info = aMethodInfo,
@@ -473,39 +441,40 @@ def HandleMethodCall(aValues, nIndex)
         ]
         
         return [:action = aAction, :next_index = nIndex + 1]
-    
-def TryMatchPattern(aValues, nIndex, aMethodInfo, aPattern)
-    nLen = len(aValues)
-    aExtractedParams = []
-    i = nIndex + 1
-    
-    # Extract parameters based on pattern definition
-    for aParamDef in aPattern[:params]
-        cParamValue = ExtractParameterValue(aValues, i, nLen, aParamDef)
-        if cParamValue != ""
-            aExtractedParams + cParamValue
-            i = FindNextNonIgnoreWord(aValues, i + 1, nLen)
-        else
-            exit
-        ok
-    next
-    
-    # Extract modifiers if any
-    aModifiers = []
-    if len(aPattern[:modifiers]) > 0
-        aModifiers = ExtractModifiers(aValues, i, nLen, aPattern[:modifiers])
-    ok
-    
-    aAction = [
-        :type = "method_call",
-        :method_info = aMethodInfo,
-        :pattern = aPattern,
-        :params = aExtractedParams,
-        :modifiers = aModifiers
-    ]
-    
-    return [:action = aAction, :next_index = nIndex + 1]  # Change this line
-    
+
+
+    def TryMatchPattern(aValues, nIndex, aMethodInfo, aPattern)
+	    nLen = len(aValues)
+	    aExtractedParams = []
+	    i = nIndex + 1
+	    
+	    # Extract parameters based on pattern definition
+	    for aParamDef in aPattern[:params]
+	        cParamValue = ExtractParameterValue(aValues, i, nLen, aParamDef)
+	        if cParamValue != ""
+	            aExtractedParams + cParamValue
+	            i = FindNextNonIgnoreWord(aValues, i + 1, nLen)
+	        else
+	            exit
+	        ok
+	    next
+	    
+	    # Extract modifiers if any
+	    aModifiers = []
+	    if len(aPattern[:modifiers]) > 0
+	        aModifiers = ExtractModifiers(aValues, i, nLen, aPattern[:modifiers])
+	    ok
+	    
+	    aAction = [
+	        :type = "method_call",
+	        :method_info = aMethodInfo,
+	        :pattern = aPattern,
+	        :params = aExtractedParams,
+	        :modifiers = aModifiers
+	    ]
+	    
+	    return [:action = aAction, :next_index = nIndex + 1]  # Change this line
+	    
     def ExtractParameterValue(aValues, nStartIndex, nLen, aParamDef)
         i = nStartIndex
         while i <= nLen
@@ -525,7 +494,8 @@ def TryMatchPattern(aValues, nIndex, aMethodInfo, aPattern)
             i++
         end
         return ""
-    
+
+
     def ExtractModifiers(aValues, nStartIndex, nLen, aModifierDefs)
         aResult = []
         for aModDef in aModifierDefs
@@ -537,32 +507,35 @@ def TryMatchPattern(aValues, nIndex, aMethodInfo, aPattern)
             next
         next
         return aResult
-    
-def ProcessRecallMethod(aValues, nIndex, aMethodInfo)
-    for i = 1 to len(@aDefineRecallState)
-        if @aDefineRecallState[i][:method][:name] = aMethodInfo[:name] and @aDefineRecallState[i][:pending]
-            @aDefineRecallState[i][:pending] = FALSE
-            # Process the recall with modifiers
-            return ProcessMethodByPattern(aValues, nIndex, aMethodInfo)
-        ok
-    next
-    return []
-    
-def ProcessDefineRecallState()
-    # Clear state without creating duplicate actions
-    @aDefineRecallState = []
-    return []
-    
-    def FindMethodBySemanticTrigger(aObjectInfo, cMethodName)
-        for aMethod in aObjectInfo[:methods]
-            for cTrigger in aMethod[:semantic_triggers]
-                if cTrigger = cMethodName
-                    return aMethod
-                ok
-            next
-        next
-        return []
-    
+
+
+    def ProcessRecallMethod(aValues, nIndex, aMethodInfo)
+	    for i = 1 to len(@aDefineRecallState)
+	        if @aDefineRecallState[i][:method][:name] = aMethodInfo[:name] and @aDefineRecallState[i][:pending]
+	            @aDefineRecallState[i][:pending] = FALSE
+	            # Process the recall with modifiers
+	            return ProcessMethodByPattern(aValues, nIndex, aMethodInfo)
+	        ok
+	    next
+	    return []
+
+
+    def ProcessDefineRecallState()
+	    # Clear state without creating duplicate actions
+	    @aDefineRecallState = []
+	    return []
+	    
+	    def FindMethodBySemanticTrigger(aObjectInfo, cMethodName)
+	        for aMethod in aObjectInfo[:methods]
+	            for cTrigger in aMethod[:semantic_triggers]
+	                if cTrigger = cMethodName
+	                    return aMethod
+	                ok
+	            next
+	        next
+	        return []
+
+
     def GetObjectInfo(cObjectName)
         for aObj in $aSoftanzaObjects
             if aObj[:name] = cObjectName
@@ -570,7 +543,8 @@ def ProcessDefineRecallState()
             ok
         next
         return []
-    
+
+
     def ConvertPositionToNumber(cPosition)
         cPos = lower("" + cPosition)
         
@@ -587,121 +561,118 @@ def ProcessDefineRecallState()
         ok
         
         return "1"  # Default fallback
-    
-def GenerateCode()
-    if len(@aSemanticActions) = 0
-        return ""
-    ok
-    
-    aCodeLines = []
-    
-    for aAction in @aSemanticActions
-        cCodeLine = This.GenerateCodeLine(aAction)
-        if cCodeLine != ""
-            aCodeLines + cCodeLine
-        ok
-    next
-    
-    return JoinXT(aCodeLines, NL)
-    
-def GenerateCodeLine(aAction)
-    # Check if aAction is valid
-    if NOT isList(aAction) or len(aAction) = 0
-        see "Invalid action passed to GenerateCodeLine" + nl
-        return ""
-    ok
-    
-    # Safely get the type
-    cActionType = ""
-    if len(aAction[:type]) > 0 and isString(aAction[:type])
-        cActionType = aAction[:type]
-    else
-        see "No valid type in action" + nl
-        return ""
-    ok
-    
-    see "GenerateCodeLine processing type: " + cActionType + nl
-    
-    if cActionType = "create_object"
-        cValue = '""'
-        if len(aAction[:value]) > 0 and aAction[:value] != "" and aAction[:value] != nothing
-            if lower("" + aAction[:value]) != "nothing"
-                cValue = @@(aAction[:value])
-            ok
-        ok
-        
-        # Use constructor template from metadata
-        cConstructor = aAction[:constructor]
-        cConstructor = substr(cConstructor, "@", cValue)
-        return aAction[:variable] + " = " + cConstructor
-        
-    elseif cActionType = "method_call"
-        see "Processing method call" + nl
-        
-        # Safely extract method info
-        if NOT len(aAction[:method_info]) > 0
-            see "No method_info in action" + nl
-            return ""
-        ok
-        
-        aMethodInfo = aAction[:method_info]
-        aPattern = aAction[:pattern]
-        aParams = aAction[:params]
-        aModifiers = aAction[:modifiers]
-        
-        # Generate Ring method call from signature template
-        cSignature = aPattern[:ring_signature]
-        cSignature = substr(cSignature, "@var", @cCurrentVariable)
-        
-        # Replace parameter placeholders
-        for i = 1 to len(aParams)
-            if i <= len(aPattern[:params])
-                cParamPlaceholder = "@" + aPattern[:params][i][:name]
-                cParamValue = @@(aParams[i])
-                cSignature = substr(cSignature, cParamPlaceholder, cParamValue)
-            ok
-        next
-        
-        # Handle modifiers if any
-	if len(aModifiers) > 0
-	    for aMod in aModifiers
-	        if len(aMod[:method]) > 0 and aMod[:method] != ""
-	            cSignature = substr(cSignature, aMethodInfo[:ring_method], aMod[:method])
-	            if len(aMod[:ring_param]) > 0
-	                cSignature = substr(cSignature, "()", "([" + aMod[:ring_param] + "])")
-	            ok
+
+
+    def GenerateCode()
+	    if len(@aSemanticActions) = 0
+	        return ""
+	    ok
+	    
+	    aCodeLines = []
+	    
+	    for aAction in @aSemanticActions
+	        cCodeLine = This.GenerateCodeLine(aAction)
+	        if cCodeLine != ""
+	            aCodeLines + cCodeLine
 	        ok
 	    next
-	ok
-        
-        return cSignature
-    ok
-    
-    return ""
-    
-def SortActionsByType(aActions)
-    aCreation = []
-    aMethods = []
-    aOutput = []
-    
-    for aAction in aActions
-        if NOT isList(aAction) or len(aAction) = 0
-            loop
-        ok
-        
-        cActionType = aAction[:type]
-        
-        if cActionType = "create_object"
-            aCreation + aAction
-        elseif cActionType = "method_call"
-            aMethods + aAction
-        elseif cActionType = "output"
-            aOutput + aAction
-        ok
-    next
-    
-    return aCreation + aMethods + aOutput
+	    
+	    return JoinXT(aCodeLines, NL)
 
+
+    def GenerateCodeLine(aAction)
+	    # Check if aAction is valid
+	    if NOT isList(aAction) or len(aAction) = 0
+	        return ""
+	    ok
+	    
+	    # Safely get the type
+	    cActionType = ""
+	    if len(aAction[:type]) > 0 and isString(aAction[:type])
+	        cActionType = aAction[:type]
+	    else
+	        return ""
+	    ok
+	    
+	    if cActionType = "create_object"
+	        cValue = '""'
+	        if len(aAction[:value]) > 0 and aAction[:value] != "" and aAction[:value] != nothing
+	            if lower("" + aAction[:value]) != "nothing"
+	                cValue = @@(aAction[:value])
+	            ok
+	        ok
+	        
+	        # Use constructor template from metadata
+	        cConstructor = aAction[:constructor]
+	        cConstructor = substr(cConstructor, "@", cValue)
+	        return aAction[:variable] + " = " + cConstructor
+	        
+	    elseif cActionType = "method_call"
+	        
+	        # Safely extract method info
+	        if NOT len(aAction[:method_info]) > 0
+	            return ""
+	        ok
+	        
+	        aMethodInfo = aAction[:method_info]
+	        aPattern = aAction[:pattern]
+	        aParams = aAction[:params]
+	        aModifiers = aAction[:modifiers]
+	        
+	        # Generate Ring method call from signature template
+	        cSignature = aPattern[:ring_signature]
+	        cSignature = substr(cSignature, "@var", @cCurrentVariable)
+	        
+	        # Replace parameter placeholders
+	        for i = 1 to len(aParams)
+	            if i <= len(aPattern[:params])
+	                cParamPlaceholder = "@" + aPattern[:params][i][:name]
+	                cParamValue = @@(aParams[i])
+	                cSignature = substr(cSignature, cParamPlaceholder, cParamValue)
+	            ok
+	        next
+	        
+	        # Handle modifiers if any
+		if len(aModifiers) > 0
+		    for aMod in aModifiers
+		        if len(aMod[:method]) > 0 and aMod[:method] != ""
+		            cSignature = substr(cSignature, aMethodInfo[:ring_method], aMod[:method])
+		            if len(aMod[:ring_param]) > 0
+		                cSignature = substr(cSignature, "()", "([" + aMod[:ring_param] + "])")
+		            ok
+		        ok
+		    next
+		ok
+	        
+	        return cSignature
+	    ok
+	    
+	    return ""
+
+
+    def SortActionsByType(aActions)
+	    aCreation = []
+	    aMethods = []
+	    aOutput = []
+	    
+	    for aAction in aActions
+	        if NOT isList(aAction) or len(aAction) = 0
+	            loop
+	        ok
+	        
+	        cActionType = aAction[:type]
+	        
+	        if cActionType = "create_object"
+	            aCreation + aAction
+	        elseif cActionType = "method_call"
+	            aMethods + aAction
+	        elseif cActionType = "output"
+	            aOutput + aAction
+	        ok
+	    next
+	    
+	    return aCreation + aMethods + aOutput
+	
  
     def SortPositionalReplacements(aMethods)
         aPositional = []
@@ -763,10 +734,7 @@ def SortActionsByType(aActions)
     def Run()
         cCode = GenerateCode()
         if cCode != ""
-            see "Generated code: " + cCode + nl
             eval(cCode)
-        else
-            see "No code generated" + nl
         ok
     
     def Values()
