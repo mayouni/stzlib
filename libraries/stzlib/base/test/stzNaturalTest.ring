@@ -1,7 +1,6 @@
 load "../stzbase.ring"
 
 
-
 /*--- BASIC OBJECT CREATION
 
 pr()
@@ -161,7 +160,7 @@ pr()
 Naturally() {
     Create a stzString object with "Softanza" inside
     Append it with the substring " Semantics"
-    Uppercase it andu then @box it a box@ that is rounded
+    Uppercase it and_ then @box it a box@ that is rounded
     Display the result
 }
 #-->
@@ -329,13 +328,13 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*--- COMPLEX CHAINING
-*/
+
 pr()
 
 Naturally() {
     Create a stzString with "complex example"
     Uppercase it and_ spacify it
-    Then box@ it with rounded corners
+    Then box it with rounded corners
     Also show the final result
 }
 #--> ╭───────────────────────────────╮
@@ -345,3 +344,236 @@ Naturally() {
 pf()
 # Executed in 0.03 second(s) in Ring 1.23
 
+/*--- COMMAND CHAINING
+
+pr()
+
+Naturally() {
+    Create a stzString with "hello world"
+    Replace "hello" with "goodbye"
+    Uppercase it
+    Show it
+}
+#--> GOODBYE WORLD
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*--- MULTIPLE PARAMETER CONSUMPTION
+
+pr()
+
+Naturally() {
+    Create a stzString with "one two three"
+    Replace "two" with "TWO"
+    Replace "three" with "THREE" 
+    Show it
+}
+#--> one TWO THREE
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*--- DEFINE/RECALL STATE CLEANUP
+
+pr()
+
+Naturally() {
+    Create a stzString with "test"
+    @box
+    Uppercase it
+    box@
+    Show it
+}
+#--> ┌──────┐
+#    │ TEST │
+#    └──────┘
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*--- MULTIPLE DEFINE/RECALL CYCLES
+*/
+pr()
+
+Naturally() {
+    Create a stzString with "hello"
+    @box
+    box@
+    @uppercase
+    uppercase@
+    Show it
+}
+#--> ┌───────┐
+#    │ HELLO │
+#    └───────┘
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*--- MODIFIER DETECTION ENHANCEMENT
+
+pr()
+
+Naturally() {
+    Create a stzString with "test"
+    Box it rounded
+    Show it
+}
+#--> ╭──────╮
+#    │ test │
+#    ╰──────╯
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*--- MODIFIERS WITH CHAINING
+
+pr()
+
+Naturally() {
+    Create a stzString with "hello"
+    Uppercase it
+    Box it rounded
+    Show it  
+}
+#--> ╭───────╮
+#    │ HELLO │
+#    ╰───────╯
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- METHOD ALIAS RESOLUTION
+
+pr()
+
+Naturally() {
+    Create a stzString with "test"
+    Caps it
+    Show it
+}
+#--> TEST
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- MIXED ALIASES
+
+pr()
+
+o1 = Naturally() {
+    Create a stzString with "Hello World"
+    Lowercase it
+    Capitalize it
+    Display it
+
+}
+#--> Hello World
+
+? ""
+? o1.Code()
+#-->
+# oStr = StzStringQ("Hello World")
+# oStr.Lowercase()
+# oStr.Capitalize()
+# ? oStr.Content()
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*--- EMPTY VALUE PROTECTION
+
+pr()
+
+o1 = Naturally() {
+    Create a stzString with ""
+    Uppercase it
+    Show it
+}
+#--> should return ""
+
+? o1.Code()
+# oStr = StzStringQ("")
+# ? oStr.Content()
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- NULL VALUE HANDLING #ERR #Idem
+
+pr()
+
+Naturally() {
+    Create a stzString with nothing
+    Spacify it
+	Box it
+    Show it
+}
+#--> 
+# ┌──┐
+# │  │
+# └──┘
+
+pf()
+# Executed in 0.012 second(s) in Ring 1.23
+
+/*--- DEBUG MODE TESTING
+
+pr()
+
+Nt = Naturally()
+Nt.EnableDebug()
+Nt {
+    Create a stzString with "test"
+    NonExistentMethod it
+    Show it
+}
+
+
+? @@( Nt.Errors() )
+
+#--> Errors:
+#--> [ "Method 'nonexistentmethod' not found for object 'stzstring'" ]
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- ERROR CLEARING
+
+pr()
+
+Nt = Naturally()
+Nt.EnableDebug()
+Nt {
+    BadMethod it
+}
+? "Before clear: " + len(Nt.Errors())
+Nt.ClearErrors()
+? "After clear: " + len(Nt.Errors())
+
+#--> Before clear: 1
+#--> After clear: 0
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*--- TYPE VALIDATION ENHANCEMENT
+
+pr()
+
+Nt = Naturally()
+Nt.EnableDebug()
+
+Nt {
+    Create a stzString with "hello world test"
+    Replace "invalid_position" with "X"
+    Show it
+}
+#--> hello world test
+
+? @@NL( Nt.Errors() )
+#--> []
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23

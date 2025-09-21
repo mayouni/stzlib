@@ -2305,6 +2305,7 @@ class stzObject
 
 		if isList(pcType)
 			return This.IsAXT(pcType)
+	
 		else
 			return This.IsAXT([ pcType ])
 		ok
@@ -2316,7 +2317,7 @@ class stzObject
 			if isList(pcType)
 				return This.IsAXTQ(pcType)
 			ok
-	
+
 			if This.IsA(pcType) = 1
 
 				if pcType = "number" or pcType = "stznumber"
@@ -2334,6 +2335,7 @@ class stzObject
 				but pctype = "object" or pcType = "stzobject"
 					return This
 				ok
+
 			else
 				return AFalseObject()
 			ok

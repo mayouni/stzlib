@@ -1,10 +1,13 @@
 # Dynamic Softanza Natural Programming System
 # Completely data-driven with zero hardcoded object/method knowledge
 
+@aErrors = []
+@bDebugMode = 0
+
 # Global configuration - completely configurable
 $aWordsToIgnore = [
     "is", "are", "should", "must", "can", "will", "the",
-    "this_", "that", "these", "those", "it", "and_", "then", "also", 
+    "this_", "that", "these", "those", "and_", "then", "also", 
     "plus", "with", "using", "to_", "by", "containing", "be", "being",
     "decorated", "final", "result", "object", "substring", "at", "position",
     "a", "it"
@@ -51,7 +54,7 @@ $aSoftanzaObjects = [
 
             [
                 :name = "uppercase",
-                :alternatives = ["toupper", "caps", "capitalize"],
+                :alternatives = ["toupper", "caps"],
                 :ring_method = "Uppercase",
                 :type = "simple_transformation",
                 :patterns = [
@@ -61,7 +64,22 @@ $aSoftanzaObjects = [
                         :ring_signature = "@var.Uppercase()"
                     ]
                 ],
-                :semantic_triggers = ["uppercase", "toupper", "caps", "capitalize"]
+                :semantic_triggers = ["uppercase", "toupper", "caps"]
+            ],
+
+            [
+                :name = "capitalize",
+                :alternatives = ["capitalise"],
+                :ring_method = "Capitalize",
+                :type = "simple_transformation",
+                :patterns = [
+                    [
+                        :template = "{method} it",
+                        :params = [],
+                        :ring_signature = "@var.Capitalize()"
+                    ]
+                ],
+                :semantic_triggers = ["capitalize", "capitalise"]
             ],
 
             [
@@ -135,12 +153,12 @@ $aSoftanzaObjects = [
                         :params = [],
                         :ring_signature = "@var.Box()",
                         :modifiers = [
-                            [:name = "rounded", :trigger = "rounded", :ring_param = ":Rounded = TRUE", :method = "BoxXT"]
+                            [:name = "rounded", :trigger = "rounded", :ring_param = ":Rounded = 1", :method = "BoxXT"]
                         ]
                     ]
                 ],
                 :semantic_triggers = ["box", "frame", "border"],
-                :supports_define_recall = TRUE
+                :supports_define_recall = 1
             ],
 
             [
@@ -190,7 +208,8 @@ $aSoftanzaObjects = [
                     ]
                 ],
                 :semantic_triggers = ["append", "suffix", "addend"]
-            ]
+            ],
+
         ]
     ]
     # More Softanza objects would be added here following the same pattern
@@ -273,25 +292,59 @@ class stzNaturalEngine
         # Execute the generated code
         Run()
     
-    def FilterValues()
-        aResult = []
-        for cValue in @aValues
+def FilterValues()
+    aResult = []
+    for i = 1 to len(@aValues)
+        cValue = @aValues[i]
+        
+        if isString(cValue)
+            cLowerValue = lower(cValue)
+        else
             cLowerValue = lower("" + cValue)
-            
-            # Skip ignore words - completely data-driven
-            bIgnore = false
+        ok
+        
+        # Check if this is a parameter following "with"
+        bIsParameterAfterWith = false
+        if i > 1 and isString(@aValues[i-1]) and lower(@aValues[i-1]) = "with"
+            bIsParameterAfterWith = true
+        ok
+        
+        # Skip ignore words unless they're parameters after "with"
+        bIgnore = false
+        if not bIsParameterAfterWith
             for cIgnoreWord in $aWordsToIgnore
                 if cLowerValue = cIgnoreWord
                     bIgnore = true
                     exit
                 ok
             next
-            
-            if not bIgnore
-                aResult + cValue
-            ok
-        next
-        return aResult
+        ok
+        
+        if not bIgnore and cValue != "" and cValue != nothing
+            aResult + cValue
+        ok
+    next
+    return aResult
+
+def ResolveMethodAlias(cMethodName)
+    for aObj in $aSoftanzaObjects
+        if aObj[:name] = @cCurrentObject
+            for aMethod in aObj[:methods]
+                # Check main name
+                if aMethod[:name] = cMethodName
+                    return aMethod[:name]
+                ok
+                # Check alternatives
+                for cAlias in aMethod[:alternatives]
+                    if cAlias = cMethodName
+                        return aMethod[:name]
+                    ok
+                next
+            next
+            exit
+        ok
+    next
+    return cMethodName
     
     def AnalyzeAndGenerateActions(aValues)
         aActions = []
@@ -322,105 +375,199 @@ class stzNaturalEngine
         
         return aActions
     
-    def HandleObjectCreation(aValues, nStartIndex)
-        nLen = len(aValues)
-        
-        # Search through all registered objects - data-driven
-        for aObjInfo in $aSoftanzaObjects
-            for aPattern in aObjInfo[:creation_patterns]
-                for cTrigger in aPattern[:trigger_words]
-                    if lower("" + aValues[nStartIndex]) = cTrigger
-                        
-                        # Look for object type
-                        for j = nStartIndex+1 to nLen
-                            cValue = lower("" + aValues[j])
-                            if cValue = aObjInfo[:name]
-                                @cCurrentObject = aObjInfo[:name]
-                                @cCurrentVariable = aObjInfo[:variable]
-                                
-                                # Extract value - look for next non-ignored word after object type
-                                cObjectValue = ""
-                                nValueIndex = j + 1
+def HandleObjectCreation(aValues, nStartIndex)
+    nLen = len(aValues)
+    
+    # Search through all registered objects - data-driven
+    for aObjInfo in $aSoftanzaObjects
+        for aPattern in aObjInfo[:creation_patterns]
+            for cTrigger in aPattern[:trigger_words]
+                if lower("" + aValues[nStartIndex]) = cTrigger
+                    
+                    # Look for object type
+                    for j = nStartIndex+1 to nLen
+                        cValue = lower("" + aValues[j])
+                        if cValue = aObjInfo[:name]
+                            @cCurrentObject = aObjInfo[:name]
+                            @cCurrentVariable = aObjInfo[:variable]
+                            
+                            # Extract value - look for next non-ignored word after object type
+                            cObjectValue = ""
+                            nValueIndex = j
+                            
+                            # Look for "with" keyword followed by the actual value
+                            bFoundWith = false
+                            for k = j+1 to nLen
+                                cNextValue = lower("" + aValues[k])
+                                if cNextValue = "with"
+                                    bFoundWith = true
+                                    # Get the value after "with"
+                                    for m = k+1 to nLen
+                                        cCheckValue = lower("" + aValues[m])
+                                        if not ring_find($aWordsToIgnore, cCheckValue)
+                                            # Check if this is a method name - if so, use empty string
+                                            bIsMethod = false
+                                            for aMethod in aObjInfo[:methods]
+                                                for cTrigger in aMethod[:semantic_triggers]
+                                                    if cCheckValue = cTrigger
+                                                        bIsMethod = true
+                                                        exit 2
+                                                    ok
+                                                next
+                                                if bIsMethod
+                                                    exit
+                                                ok
+                                            next
+                                            
+                                            if not bIsMethod
+                                                cObjectValue = aValues[m]
+                                                nValueIndex = m
+                                            ok
+                                            exit
+                                        ok
+                                    next
+                                    exit
+                                ok
+                            next
+                            
+                            # If no "with" found or no value after "with", check if next non-ignored word is a method
+                            if not bFoundWith or cObjectValue = ""
                                 for k = j+1 to nLen
                                     cNextValue = lower("" + aValues[k])
                                     if not ring_find($aWordsToIgnore, cNextValue)
-                                        cObjectValue = aValues[k]
-                                        nValueIndex = k
+                                        # Check if this is a method name
+                                        bIsMethod = false
+                                        for aMethod in aObjInfo[:methods]
+                                            for cTrigger in aMethod[:semantic_triggers]
+                                                if cNextValue = cTrigger
+                                                    bIsMethod = true
+                                                    exit 2
+                                                ok
+                                            next
+                                            if bIsMethod
+                                                exit
+                                            ok
+                                        next
+                                        
+                                        if not bIsMethod
+                                            cObjectValue = aValues[k]
+                                            nValueIndex = k
+                                        else
+                                            # It's a method, so use empty string for object value
+                                            cObjectValue = ""
+                                            nValueIndex = k - 1
+                                        ok
                                         exit
                                     ok
                                 next
-                                
-                                aAction = [
-                                    :type = "create_object",
-                                    :object_type = @cCurrentObject,
-                                    :variable = @cCurrentVariable,
-                                    :value = cObjectValue,
-                                    :constructor = aObjInfo[:constructor]
-                                ]
-                                
-                                # Return next index after the value
-                                return [:action = aAction, :next_index = nValueIndex + 1]
                             ok
-                        next
-                    ok
-                next
+                            
+                            aAction = [
+                                :type = "create_object",
+                                :object_type = @cCurrentObject,
+                                :variable = @cCurrentVariable,
+                                :value = cObjectValue,
+                                :constructor = aObjInfo[:constructor]
+                            ]
+                            
+                            # Return next index after the value (or at the method if value was empty)
+                            return [:action = aAction, :next_index = nValueIndex + 1]
+                        ok
+                    next
+                ok
             next
         next
-        
+    next
+    
+    return []
+    
+def HandleMethodCall(aValues, nIndex)
+    if @cCurrentObject = ""
+        if @bDebugMode
+            @aErrors + ("No current object for method call at index " + nIndex)
+        ok
         return []
+    ok
     
-    def HandleMethodCall(aValues, nIndex)
-	    if @cCurrentObject = ""
-	        return []
-	    ok
-	    
-	    cMethodName = lower("" + aValues[nIndex])
-	     
-	    # Handle define/recall patterns (@method@)
-	    bDefine = left(cMethodName,1) = "@"
-	    bRecall = right(cMethodName,1) = "@"
-	    cCleanMethod = cMethodName
-	    if bDefine
-	        cCleanMethod = substr(cCleanMethod, 2)
-	    elseif bRecall
-	        cCleanMethod = left(cCleanMethod, len(cCleanMethod)-1)
-	    ok
-	    
-	    # Find method in current object - completely data-driven
-	    aObjectInfo = GetObjectInfo(@cCurrentObject)
-	    aMethodInfo = FindMethodBySemanticTrigger(aObjectInfo, cCleanMethod)
-	    
-	    if len(aMethodInfo) = 0
-	        return []
-	    ok
-	    
-	    # Handle define/recall for methods that support it
-	    bSupportsDefineRecall = FALSE
-	    if len(aMethodInfo) > 0
-	        for key in keys(aMethodInfo)
-	            if key = "supports_define_recall" and aMethodInfo[:supports_define_recall] = TRUE
-	                bSupportsDefineRecall = TRUE
-	                exit
-	            ok
-	        next
-	    ok
-	    
-	    if bSupportsDefineRecall
-	        if bDefine
-	            @aDefineRecallState + [
-	                :method = aMethodInfo,
-	                :pending = TRUE,
-	                :define_index = nIndex
-	            ]
-	            return [:action = [], :next_index = nIndex + 1]
-	        elseif bRecall
-	            return ProcessRecallMethod(aValues, nIndex, aMethodInfo)
-	        ok
-	    ok
+    cMethodName = lower("" + aValues[nIndex])
     
-	    # Process method based on its patterns - data-driven
-	    aResult = ProcessMethodByPattern(aValues, nIndex, aMethodInfo)
-	    return aResult
+    # Resolve aliases first
+    cResolvedMethod = ResolveMethodAlias(cMethodName)
+    
+    # Handle define/recall patterns (@method@)
+    bDefine = left(cMethodName,1) = "@"
+    bRecall = right(cMethodName,1) = "@"
+    cCleanMethod = cMethodName
+    if bDefine
+        cCleanMethod = substr(cCleanMethod, 2)
+    elseif bRecall
+        cCleanMethod = left(cCleanMethod, len(cCleanMethod)-1)
+    ok
+    
+    # Find method in current object - completely data-driven
+    aObjectInfo = ObjectInfo(@cCurrentObject)
+    aMethodInfo = FindMethodBySemanticTrigger(aObjectInfo, cCleanMethod)
+    
+    if len(aMethodInfo) = 0
+        if @bDebugMode
+            @aErrors + ("Method '" + cCleanMethod + "' not found for object '" + @cCurrentObject + "'")
+        ok
+        return [:action = [], :next_index = nIndex + 1]  # Skip this token and continue
+    ok
+    
+    # Handle define/recall for methods that support it
+    bSupportsDefineRecall = FALSE
+    if len(aMethodInfo) > 0
+        for key in keys(aMethodInfo)
+            if key = "supports_define_recall" and aMethodInfo[:supports_define_recall] = TRUE
+                bSupportsDefineRecall = TRUE
+                exit
+            ok
+        next
+    ok
+    
+    if bSupportsDefineRecall
+        if bDefine
+            @aDefineRecallState + [
+                :method = aMethodInfo,
+                :pending = TRUE,
+                :define_index = nIndex
+            ]
+            return [:action = [], :next_index = nIndex + 1]
+        elseif bRecall
+            return ProcessRecallMethod(aValues, nIndex, aMethodInfo)
+        ok
+    ok
+
+    # Process method based on its patterns - data-driven
+    aResult = ProcessMethodByPattern(aValues, nIndex, aMethodInfo)
+    return aResult
+
+
+def ConvertValueByContext(cValue, cExpectedType)
+    if cExpectedType = "string"
+        return cValue
+    elseif cExpectedType = "number"
+        if IsNumberInString(cValue)
+            return number(cValue)
+        else
+            return 0
+        ok
+    elseif cExpectedType = "position"
+        return ConvertPositionToNumber(cValue)
+    ok
+    return cValue
+
+def EnableDebug()
+    @bDebugMode = TRUE
+    
+def Errors()
+    return @aErrors
+    
+def ClearErrors()
+    @aErrors = []
+
+
     
     def ProcessMethodByPattern(aValues, nIndex, aMethodInfo)
         # Try each pattern until one matches
@@ -493,25 +640,87 @@ def TryMatchPattern(aValues, nIndex, aMethodInfo, aPattern)
     
     return [:action = aAction, :next_index = nLastConsumedIndex + 1]
 	    
-    def ExtractParameterValue(aValues, nStartIndex, nLen, aParamDef)
-        i = nStartIndex
-        while i <= nLen
-            cValue = lower("" + aValues[i])
-            if not ring_find($aWordsToIgnore, cValue)
-                cActualValue = aValues[i]
-                
-                # Convert based on parameter type
-                if aParamDef[:type] = "position"
-                    return ConvertPositionToNumber(cActualValue)
-                elseif aParamDef[:type] = "string"
-                    return cActualValue
-                elseif aParamDef[:type] = "number"
-                    return cActualValue
-                ok
+	    # Extract modifiers if any
+	    aModifiers = []
+	    if len(aPattern[:modifiers]) > 0
+	        aModifiers = ExtractModifiers(aValues, i, nLen, aPattern[:modifiers])
+	    ok
+	    
+	    aAction = [
+	        :type = "method_call",
+	        :method_info = aMethodInfo,
+	        :pattern = aPattern,
+	        :params = aExtractedParams,
+	        :modifiers = aModifiers
+	    ]
+	    
+	    return [:action = aAction, :next_index = nIndex + 1]  # Change this line
+	    
+
+def ExtractParameterValue(aValues, nStartIndex, nLen, aParamDef)
+    i = nStartIndex
+    while i <= nLen
+        cActualValue = aValues[i]
+        cValue = lower("" + cActualValue)
+        
+        # For string parameters, check if this looks like a quoted value or actual content
+        if aParamDef[:type] = "string"
+            # If it's quoted, use it regardless of ignore list
+            if (left(cActualValue, 1) = '"' and right(cActualValue, 1) = '"') or
+               (left(cActualValue, 1) = "'" and right(cActualValue, 1) = "'")
+                return cActualValue
             ok
-            i++
-        end
-        return ""
+            
+            # For unquoted strings, check if it's in context of "with" keyword
+            if i > 1 and lower("" + aValues[i-1]) = "with"
+                return cActualValue  # Use it even if it's normally ignored
+            ok
+        ok
+        
+        # For other types or normal processing
+        if not ring_find($aWordsToIgnore, cValue)
+            if aParamDef[:type] = "position"
+                return ConvertPositionToNumber(cActualValue)
+            elseif aParamDef[:type] = "number"
+                if IsNumberInString(cActualValue)
+                    return cActualValue
+                else
+                    if @bDebugMode
+                        @aErrors + "Expected number but got: " + cActualValue
+                    ok
+                    return "0"
+                ok
+            else
+                return cActualValue
+            ok
+        ok
+        i++
+    end
+    return ""
+
+
+def DetectMethodChaining(aValues)
+    # Simple heuristic: if we have more semantic triggers after processing one method
+    aSemanticWords = []
+    for aObj in $aSoftanzaObjects
+        for aMethod in aObj[:methods]
+            for cTrigger in aMethod[:semantic_triggers]
+                if not ring_find(aSemanticWords, cTrigger)
+                    aSemanticWords + cTrigger
+                ok
+            next
+        next
+    next
+    
+    nSemanticCount = 0
+    for cValue in aValues
+        cLower = lower("" + cValue)
+        if ring_find(aSemanticWords, cLower)
+            nSemanticCount++
+        ok
+    next
+    
+    return nSemanticCount > 1
 
 
 def ExtractModifiers(aValues, nStartIndex, nLen, aModifierDefs)
@@ -529,11 +738,11 @@ def ExtractModifiers(aValues, nStartIndex, nLen, aModifierDefs)
         ok
         
         # Check if current word matches any modifier trigger
-        bFoundModifier = false
+        bFoundModifier = 0
         for aModDef in aModifierDefs
             if cValue = aModDef[:trigger]
                 aResult + aModDef
-                bFoundModifier = true
+                bFoundModifier = 1
                 exit
             ok
         next
@@ -553,7 +762,7 @@ def ExtractModifiers(aValues, nStartIndex, nLen, aModifierDefs)
 def ProcessRecallMethod(aValues, nIndex, aMethodInfo)
     for i = 1 to len(@aDefineRecallState)
         if @aDefineRecallState[i][:method][:name] = aMethodInfo[:name] and @aDefineRecallState[i][:pending]
-            @aDefineRecallState[i][:pending] = FALSE
+            @aDefineRecallState[i][:pending] = 0
             # Process the recall with modifiers
             aResult = ProcessMethodByPattern(aValues, nIndex, aMethodInfo)
             # Clear the define/recall state after successful recall
@@ -580,7 +789,7 @@ def ProcessRecallMethod(aValues, nIndex, aMethodInfo)
 	        return []
 
 
-    def GetObjectInfo(cObjectName)
+    def ObjectInfo(cObjectName)
         for aObj in $aSoftanzaObjects
             if aObj[:name] = cObjectName
                 return aObj
