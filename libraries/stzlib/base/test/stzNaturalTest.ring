@@ -1,6 +1,5 @@
 load "../stzbase.ring"
 
-
 /*--- BASIC OBJECT CREATION
 
 pr()
@@ -193,24 +192,39 @@ Naturally() {
 pf()
 # Executed in 0.02 second(s) in Ring 1.23
 
-/*---
-
+/*--- #todo #Narration
+*/
 pr()
 
-Naturally() {
-    Make a stzString with "Softanza ♥ Ring"
+Nt = Naturally() {
+    Make a stzString with "Softanza ♥ Ring" inside '.'
 
-    Uppercase this_
-    Spacify that
-    @Box this_
-    The box@ is rounded
-    Show the final result
+    Uppercase it ',' spacify it ',' and then @box it '.'
+    The box@ must be rounded '!'
+
+	You knwow what ':' @Box it again_ '!'
+	Yes ',' this_ second box@ must also be rounded '.'
+
+    Show the final result '...'
 }
 #-->
 '
-╭───────────────────────────────╮
-│ S O F T A N Z A   ♥   R I N G │
-╰───────────────────────────────╯
+╭───────────────────────────────────╮
+│ ╭───────────────────────────────╮ │
+│ │ S O F T A N Z A   ♥   R I N G │ │
+│ ╰───────────────────────────────╯ │
+╰───────────────────────────────────╯
+'
+
+? NL + Nt.Code()
+#-->
+'
+oStr = StzStringQ("Softanza ♥ Ring")
+oStr.Uppercase()
+oStr.Spacify()
+oStr.BoxXT([:Rounded = 1])
+oStr.BoxXT([:Rounded = 1])
+? oStr.Content()
 '
 
 pf()
@@ -496,7 +510,7 @@ o1 = Naturally() {
     Uppercase it
     Show it
 }
-#--> should return ""
+#--> ""
 
 ? o1.Code()
 # oStr = StzStringQ("")
