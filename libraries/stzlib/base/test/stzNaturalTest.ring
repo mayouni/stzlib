@@ -332,14 +332,14 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "complex example"
+    Create a stzString with "train of thoughts"
     Uppercase it and_ spacify it
     Then box it with rounded corners
     Also show the final result
 }
-#--> ╭───────────────────────────────╮
-#    │ C O M P L E X   E X A M P L E │
-#    ╰───────────────────────────────╯
+#--> ╭───────────────────────────────────╮
+#    │ T R A I N   O F   T H O U G H T S │
+#    ╰───────────────────────────────────╯
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.23
@@ -393,7 +393,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.23
 
 /*--- MULTIPLE DEFINE/RECALL CYCLES
-*/
+
 pr()
 
 Naturally() {
@@ -411,19 +411,24 @@ Naturally() {
 pf()
 # Executed in 0.02 second(s) in Ring 1.23
 
-/*--- MODIFIER DETECTION ENHANCEMENT
+/*---
 
 pr()
 
-Naturally() {
-    Create a stzString with "test"
+# You can't use "it" as a value for object creation
+# or any other ignore keyword (in @aWordsToIgnore)
+# and if you don you will get it replace by "":
+
+o1 = Naturally() {
+    Create a stzString with "it"
     Box it rounded
     Show it
 }
-#--> ╭──────╮
-#    │ test │
-#    ╰──────╯
+#--> ╭──╮
+#    │  │
+#    ╰──╯
 
+? o1.Code()
 pf()
 # Executed in 0.02 second(s) in Ring 1.23
 
