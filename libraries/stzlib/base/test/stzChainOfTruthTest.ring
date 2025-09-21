@@ -1,28 +1,30 @@
-load "../stzmax.ring"
+load "../stzbase.ring"
+
+/*---
 
 profon()
 
-	_("Apple").IsA(:Fruit)_
+	Q("Apple").IsA(:Fruit)
 		? WhatIs(:Apple) #--> :Fruit
 		? WhatIs(:Fruit) #--> :Undefined
 
-	_(:Fruit).Is("the means by which flowering plants disseminate their seeds")
+Q(:Fruit).Is("the means by which flowering plants disseminate their seeds")
 		? WhatIs(:Fruit) #--> the means by which flowering plants disseminate their seeds
 
-	_("Apple").IsA(:Company)_
+	Q("Apple").IsA(:Company)
 		? WhatIs(:Apple) #--> [ :Fruit, :Company ]
 
-	_("Steve Jobs").IsThe(:Owner).Of(:Apple)_
+	Q("Steve Jobs").IsThe(:Owner).Of(:Apple)
 		? WhoIs("Steve Jobs") #--> _('Steve Jobs").IsThe(:Owner).Of(:Apple)
 		? WhatIs("Steve Jobs") #--> :Undefined
 
-	_(:Owner).IsA(:Person)_
+	Q(:Owner).IsA(:Person)
 		? WhatIs("Steve Jobs") #--> :Person
 
-	_(:Person).And(:Fruit).CanBeRelatedBy(:Eats).AndAskedUsing(:What)_
-	_(:Person).And(:Company).CanBeRelatedBy(:WorksAt).AndAskedUsing(:Where)_
-	_("Steve Jobs").Eats(:Apple)_
-	_("Steve Jobs").WorksAt(:Apple)_
+ Q(:Person).AndQ(:Fruit).CanBeRelatedByQ(:Eats).AndAskedUsing(:What)
+	Q(:Person).AndQ(:Company).CanBeRelatedByQ(:WorksAt).AndAskedUsingQ(:Where)_
+	Q("Steve Jobs").Eats(:Apple)
+	Q("Steve Jobs").WorksAt(:Apple)
 		? What("Steve Jobs").Eats() 	#--> :Apple
 		? Where("Steve Jobs").WorksAt() #--> :Apple
 
@@ -43,25 +45,29 @@ proff()
 profon()
 
 if Q("SOFTANZA").
-	IsAMQ(:String).WhichIsQ().InUppercaseQ().
-	WhileQ().ContainingQ( TheLetters([ "F", :And = "Z" ]) ).
-	TheLetterQ("A").//TwiceQ().
-	AndQ().HavingQ().ItsQM().FirstCharQ().EqualTo("S")
+	  IsAMQ(:String).WhichIsQ().InUppercaseQ().
+  	WhileQ().ContainingQ( TheLetters([ "F", :And = "Z" ]) ).
+	  TheLetterQ("A").TwiceQ().
+	  AndQ().HavingQ().ItsQM().FirstCharQ().EqualTo("S")
 
 	? "It's me, Softanza!"
 ok
 
 proff()
-# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.23
 
 /*----------------- ok
 
+pr()
+
 # All these return 1:
 
-? _(1234).IsA(:Number).Which(:IsEven)._
-? _("ring").IsA(:String).Which(:IsLowercase)._
-? _([]).IsA(:List).Which(:IsEmpty)._
+? Q(1234).IsAQ(:Number).StzType()//WhichQ().IsEven()
+? Q("ring").IsAQ(:String).WhichQ().IsLowercase()
+? Q([]).IsAQ(:List).WhichQ().IsEmpty()
 #TODO // an example for objects
+
+pf()
 
 /*----------------- ok
 
