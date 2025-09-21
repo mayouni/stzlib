@@ -13,6 +13,8 @@ $aWordsToIgnore = [
     "a", "it"
 ]
 
+$aTempWordsToIgnore = [ "it" ]
+
 $aPositionIndicators = [
     "first", "second", "third", "fourth", "fifth", "sixth", 
     "seventh", "eighth", "ninth", "tenth", "last"
@@ -266,7 +268,7 @@ class stzNaturalEngine
                 # Ignore errors for duplicate methods
             done
         next
-    
+
     def braceExprEval(value)
         if NOT( isString(value) and (value = "" or value = "__@Ignore__") )
             @aValues + value
@@ -1001,4 +1003,4 @@ def ProcessRecallMethod(aValues, nIndex, aMethodInfo)
         return aResult
     
     def SemanticActions()
-        return @aSemanticActi
+        return @aSemanticActions
