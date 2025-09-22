@@ -433,9 +433,6 @@ func UnicodesOfBoxChars()
 func UnicodeBoxChars()
 	return UnicodesToChars(_anUnicodesOfBoxChars)
 
-	func BoxChars()
-		return UnicodeBoxChars()
-
 func UnicodeData()
 	return _cUnicodeData
 	

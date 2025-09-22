@@ -95386,6 +95386,85 @@ class stzString from stzObject
 		def CharsBoxifiedRounded()
 			return This.EachCharBoxedRounded()
 
+
+#######################################
+
+
+	def BoxDashEachChar()
+
+		This.BoxXT([ :AllCorners = :Rectangular, :Line = :Dashed, :EachChar = 1 ])
+
+		#< @FunctionFluentForm
+
+		def BoxDashEachCharQ()
+			This.BoxDashEachChar()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def BoxDashChars()
+			This.BoxDashEachChar()
+
+			def BoxDashCharQ()
+				return This.BoxDashEachCharQ()
+
+		#>
+
+	def EachCharBoxedDashed()
+		return This.Copy().BoxDashEachCharQ().Content()
+
+		def CharsBoxedDashed()
+			return This.EachCharBoxedDashed()
+
+		def EachCharBoxifiedDashed()
+			return This.EachCharBoxedDashed()
+
+		def CharsBoxifiedDashed()
+			return This.EachCharBoxedDashed()
+
+	#--
+
+	def BoxRoundDashEachChar()
+
+		This.BoxXT([ :AllCorners = :Round, :Line = :Dashed, :EachChar = 1 ])
+
+		#< @FunctionFluentForm
+
+		def BoxRoundDashEachCharQ()
+			This.BoxRoundDashEachChar()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def BoxRoundDashChars()
+			This.BoxRoundDashEachChar()
+
+			def BoxRoundDashCharQ()
+				return This.BoxRoundDashEachCharQ()
+
+		#>
+
+	def EachCharBoxedRoundedDashed()
+		return This.Copy().BoxRoundDashEachCharQ().Content()
+
+		def CharsBoxedRoundedDashed()
+			return This.EachCharBoxedRoundedDashed()
+
+		def EachCharBoxifiedRoundedDashed()
+			return This.EachCharBoxedRoundedDashed()
+
+		def CharsBoxifiedRoundedDashed()
+			return This.EachCharBoxedRoundedDashed()
+
+
+#######################################
+
+
+
 	#--
 
 	def BoxEachCharXT(paBoxOptions)

@@ -170,7 +170,10 @@ $aSoftanzaObjects = [
 						:ring_signature = "? @var.Content()"
 					]
 				],
-				:semantic_triggers = ["show", "display", "print", "output"]
+				:semantic_triggers = [
+					"show", "display", "print", "output",
+					"showan", "displayed", "printed"
+				]
 			],
 
 			[
