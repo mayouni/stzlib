@@ -220,3 +220,17 @@
 	load "natural/stzNatural.ring"
 	load "natural/stzPlural.ring"
 	load "natural/stzSingular.ring"
+
+# Loading files related to STATS module
+
+	load "stats/stzDataSet.ring"
+	load "stats/stzBarPlot.ring"
+	load "stats/stzHBarPlot.ring"
+	load "stats/stzMBarPlot.ring"
+	load "stats/stzSurfacePlot.ring"
+	load "stats/stzScatterPlot.ring"
+	load "stats/stzHistogram.ring"
+	load "stats/stzDataWRangler.ring"
+	load "stats/stzCoeffExtractor.ring"
+	load "stats/stzLinearSolver.ring"
+
