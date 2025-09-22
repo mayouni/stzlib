@@ -78,10 +78,11 @@ load "../stzbase.ring"
 '
 ╭───┬───┬───┬───╮
 │ T │ E │ X │ T │
-		╰───┴───┴─•─┴───╯	
+╰─•─┴───┴─•─┴───╯	
 '
 
 pf()
+# Executed in 3.31 second(s) in Ring 1.23
 
 /*--- BASIC OBJECT CREATION
 

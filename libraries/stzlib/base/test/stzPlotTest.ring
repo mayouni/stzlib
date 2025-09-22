@@ -2,7 +2,7 @@ load "../stzbase.ring"
 
 
 /*===
-*/
+
 pr()
 
 # Basic compact form
@@ -20,6 +20,7 @@ oNum = new stzNumber(1_290_800_280)
 #--> 1.3B
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.23
 # Executed in 0.07 second(s) in Ring 1.22
 
 
@@ -41,9 +42,9 @@ aMyList = [
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
-#----------------------------------------------------#
+#--------------------------------------------------#
 #  Test Suite for stzVBarPlot (Vertical Bar Plot)  #
-#----------------------------------------------------#
+#--------------------------------------------------#
 
 /*---
 
@@ -67,14 +68,14 @@ pf()
 
 pr()
 
-StzPlotQ(:VBar, [ 5, 4, 2, 5, 3, 2, 4 ]) {
+StzChartQ(:VBar, [ 5, 4, 2, 5, 3, 2, 4 ]) {
 
 	# Default chart
 	Show()
 
 	# Personalized chart
 
-	SetTopChar("●")
+	SetTopChar("●") #TODO // 3ERR Check why it's not displayed
 	SetBarChar("┃")
 	SetBarWidth(1)
 	
@@ -200,7 +201,7 @@ oPlot {
 	Show()
 	? ""
 
-	WithoutAxies()
+	WithoutAxies() #TODO #ERR // See why lables are displayed
 	Show()
 
 	# Try with
@@ -258,6 +259,7 @@ oPlot {
 '
 
 pf()
+# Executed in 0.15 second(s) in Ring 1.23
 # Executed in 0.32 second(s) in Ring 1.22
 
 /*--- Custom width and Hight
@@ -290,6 +292,7 @@ oPlot.Show()
 '
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Custom bar character
@@ -315,6 +318,7 @@ oPlot.Show()
 '
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*--- X-axis disabled
@@ -338,6 +342,7 @@ oPlot.Show()
 '
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Y-axis disabled
@@ -385,6 +390,7 @@ oPlot.Show()
 '
 
 pf()
+# Etxecued in 0.02 second(s) in Ring 1.23
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Average line enabled
@@ -428,6 +434,7 @@ oPlot.Show()
 '
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.23
 # Executed in 0.15 second(s) in Ring 1.22
 
 /*--- Values displayed
@@ -507,6 +514,7 @@ pf()
 '
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.23
 # Executed in 0.17 second(s) in Ring 1.22
 
 /*--- Custom bar width with long label
@@ -532,6 +540,7 @@ oPlot.Show()
 '
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.05 second(s) in Ring 1.22
 
 /*--- Multiple bars with varying values
@@ -555,7 +564,7 @@ oPlot.Show()
 '
 
 oPlot.SetBarWidth(1)
-ochart.SetBarInterSpace(0) #TODO has no effect
+oPlot.SetBarInterSpace(0) #TODO has no effect
 oPlot.Show()
 #-->
 '
@@ -595,6 +604,7 @@ oPlot.Show()
 '
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Single bar
@@ -619,10 +629,11 @@ oPlot.Show()
 '
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Large values with scaling
-*
+
 pr()
 
 oPlot = new stzVBarPlot([ :Small = 1, :Large = 1000 ])
@@ -643,6 +654,7 @@ oPlot.Show()
 '
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.03 second(s) in Ring 1.22
 
 #------------------------------------------------------#
@@ -692,10 +704,11 @@ Yessmina │ ▇▇▇▇▇▇▇▇▇▇ 50%
 '
 
 pf()
+# Executed in 0.14 second(s) in Ring 1.23
 # Executed in 0.28 second(s) in Ring 1.22
 
 /*--- Test 2: Custom width
-
+*/
 pr()
 
 oPlot = new stzHBarPlot([ :A = 5, :B = 8, :C = 3, :D = 2, :E = 4 ])
@@ -732,6 +745,7 @@ C │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
 '
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Test 3: Custom bar character
