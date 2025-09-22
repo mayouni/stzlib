@@ -4,10 +4,6 @@ func BoxedString(str)
 	oStr = new stkBoxedString(str)
 	return oStr.Boxed()
 
-func BoxedChars(str)
-	oStr = new stkBoxedString(str)
-	return oStr.BoxedChars()
-
 class stzBoxedString
 	@content
 

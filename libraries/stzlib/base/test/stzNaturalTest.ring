@@ -1,5 +1,88 @@
 load "../stzbase.ring"
 
+? Box("SOFTANZA")
+'
+┌──────────┐
+│ SOFTANZA │
+└──────────┘
+'
+
+? BoxRound("SOFTANZA")
+'
+╭──────────╮
+│ SOFTANZA │
+╰──────────╯
+'
+? Box(Box("SOFTANZA"))
+'
+┌──────────────┐
+│ ┌──────────┐ │
+│ │ SOFTANZA │ │
+│ └──────────┘ │
+└──────────────┘
+'
+
+? BoxDash("SOFTANZA")
+'
+┌╌╌╌╌╌╌╌╌╌╌┐
+┊ SOFTANZA ┊
+└╌╌╌╌╌╌╌╌╌╌┘
+'
+
+? BoxDashRound("SOFTANZA")
+'
+╭╌╌╌╌╌╌╌╌╌╌╮
+┊ SOFTANZA ┊
+╰╌╌╌╌╌╌╌╌╌╌╯
+'
+
+? BoxChars("SOFTANZA")
+'
+╭───┬───┬───┬───┬───┬───┬───┬───╮
+│ S │ O │ F │ T │ A │ N │ Z │ A │
+╰───┴───┴───┴───┴───┴───┴───┴───╯
+'
+
+? BoxRoundChars("SOFTANZA")
+'
+╭───┬───┬───┬───┬───┬───┬───┬───╮
+│ S │ O │ F │ T │ A │ N │ Z │ A │
+╰───┴───┴───┴───┴───┴───┴───┴───╯
+'
+
+? BoxDashChars("SOFTANZA")
+'
+┌╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┐
+┊ S ┊ O ┊ F ┊ T ┊ A ┊ N ┊ Z ┊ A ┊
+└╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┘
+'
+? BoxRoundDashChars("SOFTANZA")
+'
+╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
+┊ S ┊ O ┊ F ┊ T ┊ A ┊ N ┊ Z ┊ A ┊
+╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌╯
+'
+
+? StzListOfCharsQ("TEXT").BoxXT([
+	:Line = :Solid,	# or :Dashed
+
+	:AllCorners = :Round, # can also be :Rectangualr
+
+	# Or you can specify evey corner like this:
+	# :Corners = [ :Round, :Rectangular, :Round, :Rectangular ],
+
+	:Hilighted = [ 1, 3 ] # The 3rd char is hilighted
+
+])
+
+'
+╭───┬───┬───┬───╮
+│ T │ E │ X │ T │
+		╰───┴───┴─•─┴───╯	
+'
+
+pf()
+
 /*--- BASIC OBJECT CREATION
 
 pr()
@@ -193,7 +276,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.23
 
 /*--- #todo #Narration
-*/
+
 pr()
 
 Nt = Naturally() {
@@ -596,3 +679,128 @@ Nt {
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
+
+#------------------------#
+#  REAL-WORLD USE CASES  #
+#------------------------#
+
+/*-- 1. Data Sanitization for User Input
+
+# Clean and validate user registration data
+
+Naturally() {
+    Create a stzString with "  John@EXAMPLE.com  "
+    
+    Trim it
+    Lowercase it
+    Replace "@" with " at "
+    Capitalize it
+    
+    Show the final result
+}
+#--> John At Example.com
+
+pf()
+# Executed in 2.09 second(s) in Ring 1.23
+
+/*-- 2. Report Header Generation
+
+pr()
+
+# Generate formatted headers for business reports
+ReportFormatter = Naturally() {
+    Make a stzString with "QUARTERLY SALES REPORT 2024"
+    
+    Lowercase it
+    Capitalize it
+    Spacify it
+    Box it with rounded corners
+    The box@ should be displayed
+}
+#-->
+'
+╭─────────────────────────────────────────────────────────╮
+│ Q u a r t e r l y   S a l e s   R e p o r t   2 0 2 4 │
+╰─────────────────────────────────────────────────────────╯
+'
+pf()
+# Executed in 0.06 second(s) in Ring 1.23
+
+```
+
+/*-- 3. API Response Processing
+*/
+pr()
+
+# Process and format API response data
+APIProcessor = Naturally() {
+    Create a stzString with "user_profile_data_2024"
+    
+    Replace "_" with " "
+    Capitalize it
+    Prepend it with "Processing: "
+    Append it with " - Complete"
+    
+    Show it
+}
+#--> Processing: User Profile Data 2024 - Complete
+
+pf()
+
+
+/*-- 4. Configuration Validation with Error Handling
+```ring
+# Validate system configuration with debug output
+ConfigValidator = Naturally()
+ConfigValidator.EnableDebug()
+
+ConfigValidator {
+    Create a stzString with "database.connection.timeout"
+    
+    Replace "." with "_"
+    Uppercase it
+    ValidateConfig it  # This method doesn't exist - will trigger error
+    
+    Show it
+}
+
+? "Generated Code:"
+? ConfigValidator.Code()
+#-->
+oStr = StzStringQ("database.connection.timeout")
+oStr.Replace(".", "_")
+oStr.Uppercase()
+? oStr.Content()
+
+? "Validation Errors:"
+? @@( ConfigValidator.Errors() )
+#--> [ "Method 'validateconfig' not found for object 'stzstring'" ]
+```
+
+/*-- 5. Document Template Processor
+```ring
+# Process document templates with multiple transformations
+DocProcessor = Naturally() {
+    Make a stzString with "template_invoice_draft"
+    
+    Replace "_" with " "
+    Capitalize it
+    @Frame it as a document header
+    
+    Append " - Ready for Review"
+    The frame@ should be presented with rounded borders
+}
+#-->
+╭─────────────────────────────────────────────╮
+│ Template Invoice Draft - Ready for Review │
+╰─────────────────────────────────────────────╯
+
+? DocProcessor.Code()
+#-->
+oStr = StzStringQ("template_invoice_draft")
+oStr.Replace("_", " ")
+oStr.Capitalize()
+oStr.BoxXT([:Rounded = 1])
+oStr.Append(" - Ready for Review")
+? oStr.Content()
+```

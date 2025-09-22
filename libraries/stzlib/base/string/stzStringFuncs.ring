@@ -1712,6 +1712,7 @@ func IsHtmlTableString(pcStr)
 	return StzStringQ(pcStr).IsHtmlTable()
 
 
+
 func Boxify(str)
 	oTempStr = new stzString(str)
 	oTempStr.Boxify()
@@ -1777,6 +1778,85 @@ func BoxifyRound(str)
 
 	#>
 
+func BoxifyDash(str)
+	oTempStr = new stzString(str)
+	oTempStr.BoxifyDash()
+	return otempStr.Content()
+
+	#< @FunctionAlternativeForms
+
+	func BoxDash(str)
+		return BoxifyDash(str)
+
+	func BoxDashed(str)
+		return BoxifyDash(str)
+
+	func BoxedDash(str)
+		return BoxifyDash(str)
+
+	func BoxedDashed(str)
+		return BoxifyDash(str)
+
+	func BoxifiedDash(str)
+		return BoxifyDash(str)
+
+	func BoxifiedDashed(str)
+		return BoxifyDash(str)
+
+	#--
+
+	func @BoxifyDash(str)
+		return BoxifyDash(str)
+
+	func @BoxDash(str)
+		return BoxifyDash(str)
+
+	func @BoxDashed(str)
+		return BoxifyDash(str)
+
+	func @BoxedDash(str)
+		return BoxifyDash(str)
+
+	func @BoxedDashed(str)
+		return BoxifyDash(str)
+
+	func @BoxifiedDash(str)
+		return BoxifyDash(str)
+
+	func @BoxifiedDashed(str)
+		return BoxifyDash(str)
+
+	#>
+
+func BoxDashRound(str)
+	oTempStr = new stzString(str)
+	oTempStr.BoxifyDashRound()
+	return oTempStr.Content()
+
+	func @BoxDashRound(str)
+		return BoxDashRound(str)
+
+func BoxChars(str)
+
+	_oTempStr_ = new stzString(str)
+	_oTempStr_.BoxEachChar()
+	return _oTempStr_.Content()
+
+	#< @FunctionAlternativeForms
+
+	func BoxedChars(str)
+		return BoxChars(str)
+
+	#--
+
+	func @BoxChars(str)
+		return BoxChars(str)
+
+	func @BoxedChars(str)
+		return BoxChars(str)
+
+	#>
+
 func BoxRoundChars(str)
 
 	_oTempStr_ = new stzString(str)
@@ -1807,6 +1887,73 @@ func BoxRoundChars(str)
 
 	func @BoxedRoundedChars(str)
 		return BoxRoundChars(str)
+
+	#>
+
+
+func BoxDashChars(str)
+
+	_oTempStr_ = new stzString(str)
+	_oTempStr_.BoxDashEachChar()
+	return _oTempStr_.Content()
+
+	#< @FunctionAlternativeForms
+
+	func BoxedDashChars(str)
+		return BoxDashChars(str)
+
+	func BoxedDashedChars(str)
+		return BoxDashChars(str)
+
+	func BoxDashedChars(str)
+		return BoxDashChars(str)
+
+	#--
+
+	func @BoxDashChars(str)
+		return BoxDashChars(str)
+
+	func @BoxedDashChars(str)
+		return BoxDashChars(str)
+
+	func @BoxedDashedChars(str)
+		return BoxDashChars(str)
+
+	func @BoxDashedChars(str)
+		return BoxDashChars(str)
+
+	#>
+
+func BoxRoundDashChars(str)
+
+	_oTempStr_ = new stzString(str)
+	_oTempStr_.BoxRoundDashEachChar()
+	return _oTempStr_.Content()
+
+	#< @FunctionAlternativeForms
+
+	func BoxedRoundDashChars(str)
+		return BoxRoundDashChars(str)
+
+	func BoxedRoundedDashedChars(str)
+		return BoxRoundDashChars(str)
+
+	func BoxRoundDashedChars(str)
+		return BoxRoundDashChars(str)
+
+	#--
+
+	func @BoxRoundDashChars(str)
+		return BoxRoundDashChars(str)
+
+	func @BoxedRoundDashChars(str)
+		return BoxRoundDashChars(str)
+
+	func @BoxedRoundedDashedChars(str)
+		return BoxRoundDashChars(str)
+
+	func @BoxRoundDashedChars(str)
+		return BoxRoundDashChars(str)
 
 	#>
 
