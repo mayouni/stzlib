@@ -75,7 +75,7 @@ StzChartQ(:VBar, [ 5, 4, 2, 5, 3, 2, 4 ]) {
 
 	# Personalized chart
 
-	SetTopChar("●") #TODO // 3ERR Check why it's not displayed
+	SetTopChar("●") #TODO #ERR //Check why it's not displayed
 	SetBarChar("┃")
 	SetBarWidth(1)
 	
@@ -708,7 +708,7 @@ pf()
 # Executed in 0.28 second(s) in Ring 1.22
 
 /*--- Test 2: Custom width
-*/
+
 pr()
 
 oPlot = new stzHBarPlot([ :A = 5, :B = 8, :C = 3, :D = 2, :E = 4 ])
@@ -1004,6 +1004,7 @@ StzPlotQ(:MultiBar, [
 '
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*---
@@ -1034,6 +1035,7 @@ oPlot.Show()
 '
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*---
@@ -1043,8 +1045,8 @@ pr()
 # Test 2: Customized Bar Width and Spacing
 
 oPlot = new stzMultiBarPlot([
-  :Sales = [ :Q1=25, :Q2=35, :Q3=30, :Q4=40 ],
-  :Costs = [ :Q1=15, :Q2=20, :Q3=18, :Q4=22 ],
+  :Sales  = [ :Q1=25, :Q2=35, :Q3=30, :Q4=40 ],
+  :Costs  = [ :Q1=15, :Q2=20, :Q3=18, :Q4=22 ],
   :Profit = [ :Q1=10, :Q2=15, :Q3=12, :Q4=14 ]
 ])
 
@@ -1088,7 +1090,8 @@ oPlot {
    Q1      Q2      Q3      Q4    
 '
 pf()
-# # Executed in 0.08 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.23
+# Executed in 0.08 second(s) in Ring 1.22
 
 /*---
 
@@ -1097,8 +1100,8 @@ pr()
 # Test 2: Customized Bar Width and Spacing
 
 oPlot = new stzMultiBarPlot([
-  :Sales = [ :Q1=25, :Q2=35, :Q3=30, :Q4=40 ],
-  :Costs = [ :Q1=15, :Q2=20, :Q3=18, :Q4=22 ],
+  :Sales  = [ :Q1=25, :Q2=35, :Q3=30, :Q4=40 ],
+  :Costs  = [ :Q1=15, :Q2=20, :Q3=18, :Q4=22 ],
   :Profit = [ :Q1=10, :Q2=15, :Q3=12, :Q4=14 ]
 ])
 
@@ -1152,6 +1155,7 @@ oPlot {
 ██ Sales   ▒▒ Costs   ▓▓ Profit 
 '
 pf()
+# Executed in 0.30 second(s) in Ring 1.23
 # Executed in 0.51 second(s) in Ring 1.22
 
 /*---
@@ -1189,6 +1193,7 @@ oPlot {
 '
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*---
@@ -1243,18 +1248,18 @@ oPlot {
 	SetBarWidth(1)
 	Show()
 }
-#--> #TODO: better automatic spacing
+#-->
 '
-↑                       
+▲                       
 │21.7%  19.3%           
-│  █      █    1716.0%  
-│  █      14.0%  █ ▒    
+│  █      █    17.16%   
+│  █      █14%   █ ▒    
 │  11.7%  █ ▒    █ ▒    
 │  █ ▒    █ ▒    █ ▒    
 │  █ ▒    █ ▒    █ ▒    
 │  █ ▒    █ ▒    █ ▒    
 │  █ ▒    █ ▒    █ ▒    
-╰──────────────────────>
+╰──────────────────────►
   2021   2022   2023    
                         
 ██ Desktop   ▒▒ Mobile  
@@ -1322,6 +1327,7 @@ oPlot {
 '
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*---
@@ -1357,6 +1363,7 @@ oPlot {
 '
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*---
@@ -1396,6 +1403,7 @@ oPlot {
 '
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.23
 # Executed in 0.06 second(s) in Ring 1.22
 
 /*---
@@ -1433,6 +1441,7 @@ oPlot {
 '
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.05 second(s) in Ring 1.22
 
 /*---
@@ -1470,11 +1479,12 @@ oPlot {
 '
 
 pf()
+# Executed in 0.21 second(s) in Ring 1.23
 # Executed in 0.38 second(s) in Ring 1.22
 
 /*====
 
-// Setting the legend layout to :Vertical
+# Setting the legend layout to :Vertical
 pr()
 
 oPlot = new stzMultiBarPlot([
@@ -1515,13 +1525,12 @@ oPlot {
 XX Tablet   
 '
 pf()
+#--> Executed in 0.02 second(s) in Ring 1.23
 #--> Executed in 0.05 second(s) in Ring 1.22
-
 
 #--------------------------------------#
 #  TEST SAMPLE OF THE HISTOGRAM CHART  #
 #--------------------------------------#
-
 
 /*--- Basic histogram with student test scores
 
@@ -1562,7 +1571,10 @@ oPlot {
    81     84     87     90     93     96  
 '
 
+#TODO #ERR See why lables are not displayed
+
 pf()
+# Executed in 0.24 second(s) in Ring 1.23
 # Executed in 0.48 second(s) in Ring 1.22
 
 /*--- Histogram with frequency display and statistics
@@ -1604,11 +1616,14 @@ Median: 76
 Count: 20
 '
 
+#TODO #ERR See why lables are not displayed
+
 pf()
+# Executed in 0.27 second(s) in Ring 1.23
 # Executed in 0.56 second(s) in Ring 1.22
 
 /*--- Histogram with percentage display
-*/
+
 pr()
 
 aSalaries = [
@@ -1642,6 +1657,7 @@ oPlot {
 # Note how Softanza transforms thousands to Ks for better radability
 
 pf()
+# Executed in 0.67 second(s) in Ring 1.23
 # Executed in 0.95 second(s) in Ring 1.22
 
 /*--- Simple histogram without axes
@@ -1661,8 +1677,8 @@ oPlot {
 	UseFrequency()
 	IncludeValues()
 
-    WithoutXAxis()
-    WithoutYAxis()
+    WithoutVAxis()
+    WithoutHAxis()
     SetBarChar("■")
     SetBarWidth(4)
 
@@ -1681,7 +1697,11 @@ oPlot {
   25    30    36    41  
   30    36    41    46   
 '
+
+#TODO #ERR See why lables are not displayed
+
 pf()
+# Executed in 0.25 second(s) in Ring 1.23
 # Executed in 0.54 second(s) in Ring 1.22
 
 /*--- Compact histogram with custom bin width
@@ -1723,12 +1743,14 @@ oPlot {
    152   155   158   162   165   168  
 '
 
-pf()
-# Executed in 0.60 second(s) in Ring 1.22
+#TODO #ERR See why lables are not displayed
 
-#==============================#
+pf()
+# Executed in 0.29 second(s) in Ring 1.23
+
+#===============================#
 #  TEST OF Surface CHART CLASS  #
-#==============================#
+#===============================#
 
 /*--- Basic 4-item test with percentages
 
@@ -1758,17 +1780,18 @@ oPlot.AddPercent().AddLegend().AddValues().Show()
 '
 
 pf()
+# Executed in 0.05 second(s) in Ring 1.23
 # Executed in 0.10 second(s) in Ring 1.22
 
 /*--- 2-item comparison test
 
 pr()
 
-oPlot2 = new stzSurfacePlot([
+oPlot = new stzSurfacePlot([
     :Desktop = 75,
     :Mobile = 25
 ])
-oPlot2.AddPercent().Show()
+oPlot.AddPercent().Show()
 #-->
 '
 ╭────────────────────────────┬─────────╮
@@ -1786,6 +1809,7 @@ oPlot2.AddPercent().Show()
 '
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*--- 3-item test with values and percentages
@@ -1815,6 +1839,7 @@ oPlot3.AddValues().AddPercent().Show()
 '
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.23
 # Executed in 0.09 second(s) in Ring 1.22
 
 /*--- 5-item test (recursive division)
@@ -1846,6 +1871,7 @@ oPlot4.AddPercent().Show()
 '
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.23
 # Executed in 0.08 second(s) in Ring 1.22
 
 /*--- Large dataset (6 items)
@@ -1878,6 +1904,7 @@ oPlot5.AddPercent().Show()
 '
 
 pf()
+# Executed in 0.06 second(s) in Ring 1.23
 # Executed in 0.14 second(s) in Ring 1.22
 
 /*--- Equal values test
@@ -1911,6 +1938,7 @@ oPlot6 {
 '
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.23
 # Executed in 0.06 second(s) in Ring 1.22
 
 /*--- Custom size test
@@ -1943,6 +1971,7 @@ oPlot7.SetSize(60, 16).AddPercent().Show()
 ╰─────────────────────────────┴────────────────────────────╯
 '
 pf()
+# Executed in 0.03 second(s) in Ring 1.23
 # Executed in 0.05 second(s) in Ring 1.22
 
 /*--- Values only (no percentages)
@@ -1973,6 +2002,7 @@ oPlot9.AddValues().Show()
 '
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.23
 # Executed in 0.06 second(s) in Ring 1.22
 
 /*--- Single item test
@@ -2000,6 +2030,7 @@ oPlot10.AddPercent().Show()
 '
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Large numbers test
@@ -2029,6 +2060,7 @@ oPlot11.AddValues().AddPercent().Show()
 '
 
 pf()
+# Executed in 0.05 second(s) in Ring 1.23
 # Executed in 0.09 second(s) in Ring 1.22
 
 /*--- 8-item complex test
@@ -2070,12 +2102,13 @@ oPlot12.AddPercent().SetSize(80, 20).Show()
 ╰────────────────────────────────────────────────────────────────┴─────────┴─┴─╯
 '
 pf()
+# Executed in 0.05 second(s) in Ring 1.23
 # Executed in 0.09 second(s) in Ring 1.22
 
 
-#----------------------------------#
+#---------------------------------#
 # Test Suite for stzScatterPlot   #
-#----------------------------------#
+#---------------------------------#
 
 /*--- Test 1: Basic scatter plot with coordinate pairs
 
@@ -2103,6 +2136,8 @@ oPlot.Show()
    ╰┬───────┬────────┬───┬────┬────────┬──► Y 
     1       3        5   6    7        9  
 '
+
+#TODO #ERR See why two Xs and two Ys are displayed
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.22
@@ -2139,11 +2174,14 @@ oPlot.Show()
     10       15       20        25       
 '
 
+#TODO #ERR See why two Xs and two Ys are displayed
+
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.04 second(s) in Ring 1.22
 
 
-/*--- Test 4: X,Y array format with coordinate values
+/*--- Test 4: X,Y hashlist format with coordinate values
 
 pr()
 
@@ -2169,8 +2207,10 @@ oPlot.Show()
     1         3          5          7     
 '
 
+#TODO #ERR See why two Xs and two Ys are displayed
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.03 second(s) in Ring 1.22
 
 
@@ -2216,6 +2256,7 @@ o1.ReversePairs()
 #--> [ [ 12, 1 ], [ 14, 1 ], [ 16, 1 ], [ 18, 1 ], [ 20, 1 ], [ 22, 1 ], [ 24, 1 ], [ 26, 1 ], [ 30, 1 ] ]
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.03 second(s) in Ring 1.22
 
 /*--- In the Name of Allah
@@ -2247,7 +2288,7 @@ oPlot = new stzScatterPlot([
 
 oPlot.WithoutXYAxis()
 oPlot.Show()
-
+#-->
 '                                    
                  ●     ●    ●             
                  ●  ●  ●  ● ●             
@@ -2261,7 +2302,9 @@ oPlot.Show()
            ●           ●          ●    ●  
              ● ●  ●  ●  ●  ●  ●  ●     ●  
 '
+
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*--- Test 7: Performance data visualization
@@ -2295,7 +2338,10 @@ oPlot.Show()
     100    110    120           140         
 '
 
+#TODO #ERR See why two Xs and two Ys are displayed
+
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.03 second(s) in Ring 1.22
 
 /*===
@@ -2303,14 +2349,14 @@ pf()
 pr()
 
 str = "    ╰┬──┬─────┬──────┬─────┬───────┬►     "
-? @trimend(str)
+? @trimEnd(str)
 #--> "    ╰┬──┬─────┬──────┬─────┬───────┬►"
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Test 8: Temperature correlation study
-
+*/
 pr()
 
 aData = [
@@ -2343,7 +2389,11 @@ oPlot.Show()
      5  8    12     18    22      28                                         
 '
 
+#TODO #ERR See why two Xs and two Ys are displayed
+#TODO #ERR See why vertrical axis is not alligned
+
 pf()
+# Executed in 0.02 second(s) in Ring 1.23
 # Executed in 0.05 second(s) in Ring 1.22
 
 

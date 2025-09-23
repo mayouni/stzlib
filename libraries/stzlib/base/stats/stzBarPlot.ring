@@ -18,12 +18,15 @@ func StzPlotQ(pcChartType, paDataSet)
 
 	on :MBar
 		return new stzMBarPlot(paDataSet)
+	on :MultiBar
+		return new stzMBarPlot(paDataSet)
 
 	on :Scatter
 		return new stzScatterPlot(paDataSet)
 
 	on :Surface
 		return new stzSurfacePlot(paDataSet)
+
 	on :Square
 		return new stzSquarePlot(paDataSet)
 
