@@ -1,6 +1,21 @@
 load "../stzbase.ring"
 
 /*---
+*/
+pr()
+
+o1 = new stzString("__Ri__ng__")
+? o1.@("__").
+    @RemoveItQ().
+    AndThenQ().
+    UppercaseQ().TheString()
+
+    #--> RING
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.23
+
+/*---
 
 ? Box("SOFTANZA")
 '
