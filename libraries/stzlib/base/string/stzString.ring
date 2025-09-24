@@ -92647,6 +92647,9 @@ class stzString from stzObject
 	def ToStzListOfChars()
 		return new stzListOfChars(This.Chars())
 
+		def ToStzListOfCharsQ()
+			return This.ToStzListOfChars()
+
 	  #=====================================================#
 	 #  CHECKING IF THE STRING IS THE NAME OF A FUNCTION   #
 	#=====================================================#
