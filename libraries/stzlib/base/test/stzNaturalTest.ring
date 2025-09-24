@@ -1,5 +1,7 @@
 load "../stzbase.ring"
 
+/*---
+
 ? Box("SOFTANZA")
 '
 ┌──────────┐
@@ -88,11 +90,13 @@ pf()
 
 pr()
 
-Naturally() {
-    Create a stzString with "hello"
+Nt = Naturally() {
+    Create a string with "hello"
     Show it
 }
 #--> hello
+
+? Nt.Code()
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
@@ -102,7 +106,7 @@ pf()
 pr()
 
 Naturally() {
-    Make a stzString containing "world"
+    Make a string containing "world"
     Display it
 }
 #--> world
@@ -115,7 +119,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "softanza"
+    Create a string with "softanza"
     Uppercase it
     Display the result
 }
@@ -129,7 +133,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "ring language"
+    Create a string with "ring language"
     Uppercase it and_ spacify it
     Show it
 }
@@ -143,7 +147,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "boxed text"
+    Create a string with "boxed text"
     Uppercase it spacify it and_ @box it
     The box@ should be rounded
     Display the final result
@@ -160,7 +164,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "world"
+    Create a string with "world"
     Prepend it with "hello "
     Show it
 }
@@ -175,7 +179,7 @@ pf()
 pr()
 
 Naturally() {
-    Make a stzString with "hello"
+    Make a string with "hello"
     Append " beautiful world" to_ it
     Display the result
 }
@@ -189,7 +193,7 @@ pf()
 pr()
 
 o1 = Naturally() {
-    Make a stzString with "  spaced text  "
+    Make a string with "  spaced text  "
     Trim it and_ uppercase it
     Display the result
 }
@@ -199,7 +203,7 @@ o1 = Naturally() {
 ? o1.Code()
 #-->
 '
-oStr = StzStringQ("  spaced text  ")
+oStr = stringQ("  spaced text  ")
 oStr.Trim()
 oStr.Uppercase()
 ? oStr.Content()
@@ -213,7 +217,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "stressed"
+    Create a string with "stressed"
     Reverse it
     Show the result
 }
@@ -227,7 +231,7 @@ pf()
 pr()
 
 Naturally() {
-    Make a stzString with "MiXeD cAsE"
+    Make a string with "MiXeD cAsE"
     Lowercase it
     Show it
 }
@@ -241,7 +245,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString object with "Softanza" inside
+    Create a string with "Softanza" inside
     Append it with the substring " Semantics"
     Uppercase it and_ then @box it a box@ that is rounded
     Display the result
@@ -261,7 +265,7 @@ pf()
 pr()
 
 Naturally() {
-    Make a stzString with "reference test"
+    Make a string with "reference test"
 
     Uppercase this_
     Spacify that
@@ -281,7 +285,7 @@ pf()
 pr()
 
 Nt = Naturally() {
-    Make a stzString with "Softanza ♥ Ring" inside '.'
+    Make a string with "Softanza ♥ Ring" inside '.'
 
     Uppercase it ',' spacify it ',' and then @box it '.'
     The box@ must be rounded '!'
@@ -303,7 +307,7 @@ Nt = Naturally() {
 ? NL + Nt.Code()
 #-->
 '
-oStr = StzStringQ("Softanza ♥ Ring")
+oStr = stringQ("Softanza ♥ Ring")
 oStr.Uppercase()
 oStr.Spacify()
 oStr.BoxXT([:Rounded = 1])
@@ -319,7 +323,7 @@ pf()
 pr()
 
 Naturally() {
-    Make a stzString with "test"
+    Make a string with "test"
     Uppercase it then_ spacify it then_ box it
     Display the result
 }
@@ -335,7 +339,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString containing "connectors"
+    Create a string containing "connectors"
     Uppercase it plus spacify it plus box it
     Show the result
 }
@@ -351,7 +355,7 @@ pf()
 pr()
 
 Naturally() {
-    Make a stzString with "old text old"
+    Make a string with "old text old"
     Substitute "old" with "new"
     Display it
 }
@@ -365,7 +369,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "change me"
+    Create a string with "change me"
     Change "me" to_ "this"
     Show the result
 }
@@ -379,7 +383,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "softanza is great"
+    Create a string with "softanza is great"
     Uppercase it using spacify and_ also @box it # @ to reference the box later
     The box@ must be rounded # @ to recall the box reference before
     Show the final result
@@ -396,7 +400,7 @@ pf()
 pr()
 
 Naturally() {
-    Make a stzString containing "natural"
+    Make a string containing "natural"
     Uppercase it and_ spacify it
     Frame it with rounded corners
     Display the result
@@ -416,7 +420,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "print test"
+    Create a string with "print test"
     Uppercase it
     Print the result
 }
@@ -426,11 +430,11 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*--- COMPLEX CHAINING
-
+*/
 pr()
 
 Naturally() {
-    Create a stzString with "train of thoughts"
+    Create a string with "train of thoughts"
     Uppercase it and_ spacify it
     Then box it with rounded corners
     Also show the final result
@@ -447,7 +451,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "hello world"
+    Create a string with "hello world"
     Replace "hello" with "goodbye"
     Uppercase it
     Show it
@@ -462,7 +466,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "one two three"
+    Create a string with "one two three"
     Replace "two" with "TWO"
     Replace "three" with "THREE" 
     Show it
@@ -477,7 +481,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "test"
+    Create a string with "test"
     @box
     Uppercase it
     box@
@@ -495,7 +499,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "hello"
+    Create a string with "hello"
     @box
     box@
     @uppercase
@@ -518,7 +522,7 @@ pr()
 # and if you don you will get it replace by "":
 
 o1 = Naturally() {
-    Create a stzString with "it"
+    Create a string with "it"
     Box it rounded
     Show it
 }
@@ -535,7 +539,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "hello"
+    Create a string with "hello"
     Uppercase it
     Box it rounded
     Show it  
@@ -552,7 +556,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with "test"
+    Create a string with "test"
     Caps it
     Show it
 }
@@ -566,7 +570,7 @@ pf()
 pr()
 
 o1 = Naturally() {
-    Create a stzString with "Hello World"
+    Create a string with "Hello World"
     Lowercase it
     Capitalize it
     Display it
@@ -577,7 +581,7 @@ o1 = Naturally() {
 ? ""
 ? o1.Code()
 #-->
-# oStr = StzStringQ("Hello World")
+# oStr = stringQ("Hello World")
 # oStr.Lowercase()
 # oStr.Capitalize()
 # ? oStr.Content()
@@ -590,14 +594,14 @@ pf()
 pr()
 
 o1 = Naturally() {
-    Create a stzString with ""
+    Create a string with ""
     Uppercase it
     Show it
 }
 #--> ""
 
 ? o1.Code()
-# oStr = StzStringQ("")
+# oStr = stringQ("")
 # ? oStr.Content()
 
 pf()
@@ -608,7 +612,7 @@ pf()
 pr()
 
 Naturally() {
-    Create a stzString with nothing
+    Create a string with nothing
     Spacify it
 	Box it
     Show it
@@ -628,7 +632,7 @@ pr()
 Nt = Naturally()
 Nt.EnableDebug()
 Nt {
-    Create a stzString with "test"
+    Create a string with "test"
     NonExistentMethod it
     Show it
 }
@@ -637,7 +641,7 @@ Nt {
 ? @@( Nt.Errors() )
 
 #--> Errors:
-#--> [ "Method 'nonexistentmethod' not found for object 'stzstring'" ]
+#--> [ "Method 'nonexistentmethod' not found for object 'string'" ]
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
@@ -669,7 +673,7 @@ Nt = Naturally()
 Nt.EnableDebug()
 
 Nt {
-    Create a stzString with "hello world test"
+    Create a string with "hello world test"
     Replace "invalid_position" with "X"
     Show it
 }
@@ -690,7 +694,7 @@ pf()
 # Clean and validate user registration data
 
 Naturally() {
-    Create a stzString with "  John@EXAMPLE.com  "
+    Create a string with "  John@EXAMPLE.com  "
     
     Trim it
     Lowercase it
@@ -710,7 +714,7 @@ pr()
 
 # Generate formatted headers for business reports
 ReportFormatter = Naturally() {
-    Make a stzString with "QUARTERLY SALES REPORT 2024"
+    Make a string with "QUARTERLY SALES REPORT 2024"
     
     Lowercase it
     Capitalize it
@@ -730,12 +734,12 @@ pf()
 ```
 
 /*-- 3. API Response Processing
-*/
+
 pr()
 
 # Process and format API response data
 APIProcessor = Naturally() {
-    Create a stzString with "user_profile_data_2024"
+    Create a string with "user_profile_data_2024"
     
     Replace "_" with " "
     Capitalize it
@@ -756,7 +760,7 @@ ConfigValidator = Naturally()
 ConfigValidator.EnableDebug()
 
 ConfigValidator {
-    Create a stzString with "database.connection.timeout"
+    Create a string with "database.connection.timeout"
     
     Replace "." with "_"
     Uppercase it
@@ -768,21 +772,21 @@ ConfigValidator {
 ? "Generated Code:"
 ? ConfigValidator.Code()
 #-->
-oStr = StzStringQ("database.connection.timeout")
+oStr = stringQ("database.connection.timeout")
 oStr.Replace(".", "_")
 oStr.Uppercase()
 ? oStr.Content()
 
 ? "Validation Errors:"
 ? @@( ConfigValidator.Errors() )
-#--> [ "Method 'validateconfig' not found for object 'stzstring'" ]
+#--> [ "Method 'validateconfig' not found for object 'string'" ]
 ```
 
 /*-- 5. Document Template Processor
 ```ring
 # Process document templates with multiple transformations
 DocProcessor = Naturally() {
-    Make a stzString with "template_invoice_draft"
+    Make a string with "template_invoice_draft"
     
     Replace "_" with " "
     Capitalize it
@@ -792,16 +796,17 @@ DocProcessor = Naturally() {
     The frame@ should be presented with rounded borders
 }
 #-->
-╭─────────────────────────────────────────────╮
+╭───────────────────────────────────────────╮
 │ Template Invoice Draft - Ready for Review │
-╰─────────────────────────────────────────────╯
+╰───────────────────────────────────────────╯
 
 ? DocProcessor.Code()
 #-->
-oStr = StzStringQ("template_invoice_draft")
+oStr = stringQ("template_invoice_draft")
 oStr.Replace("_", " ")
 oStr.Capitalize()
 oStr.BoxXT([:Rounded = 1])
 oStr.Append(" - Ready for Review")
 ? oStr.Content()
 ```
+
