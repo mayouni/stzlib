@@ -1,7 +1,7 @@
 load "../stzbase.ring"
 
 /*---
-*/
+
 pr()
 
 o1 = new stzString("__Ri__ng__")
@@ -99,19 +99,68 @@ pf()
 '
 
 pf()
-# Executed in 3.31 second(s) in Ring 1.23
+# Executed in 3.311.01 second(s) in Ring 1.23
 
 /*--- BASIC OBJECT CREATION
 
 pr()
 
-Nt = Naturally() {
+Nt = Naturally()
+
+Nt {
     Create a string with "hello"
     Show it
 }
 #--> hello
 
-? Nt.Code()
+? @@(Nt.Errors())
+
+#--> DEBUG OUTPUT
+# braceError captured: 'create'
+# braceError captured: 'string'
+# braceError captured: 'with'
+# braceError captured: 'show'
+# === braceEnd called ===
+# Values before processing: 5
+#  [1]: create
+#  [2]: string
+#  [3]: with
+#  [4]: hello
+#  [5]: show
+# Processing values: 
+# create
+# string
+# with
+# hello
+# show
+
+# === Split into 2 commands ===
+# Command 1: 4 words
+#  [1]: 'create'
+#  [2]: 'string'
+#  [3]: 'with'
+#  [4]: 'hello'
+# Command 2: 1 words
+#  [1]: 'show'
+# === ExecuteNaturalCommand ===
+# Values received: 4
+#  [1]: 'create'
+#  [2]: 'string'
+#  [3]: 'with'
+#  [4]: 'hello'
+# Pattern matching: 'create' + 'string' + 'with'
+# Creating string with value: 'hello'
+# String created successfully
+# === ExecuteNaturalCommand ===
+# Values received: 1
+#  [1]: 'show'
+# Show patter object: 1
+# About to show content: 'hello'
+# hello
+# === After ProcessNaturalCode ===
+# Created object: 1
+# Object conten check: 'show'
+# Has creatednt: hello
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
@@ -119,8 +168,9 @@ pf()
 /*--- OBJECT CREATION VARIATIONS
 
 pr()
+Nt = Naturally()
 
-Naturally() {
+Nt {
     Make a string containing "world"
     Display it
 }
@@ -133,7 +183,10 @@ pf()
 
 pr()
 
-Naturally() {
+Nt = Naturally()
+//Nt.EnableDebug()
+
+Nt {
     Create a string with "softanza"
     Uppercase it
     Display the result
@@ -175,7 +228,7 @@ pf()
 # Executed in 0.04 second(s) in Ring 1.23
 
 /*--- PREPEND OPERATIONS
-
+*/
 pr()
 
 Naturally() {

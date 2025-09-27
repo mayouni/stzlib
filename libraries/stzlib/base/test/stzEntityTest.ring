@@ -1,53 +1,244 @@
-load "../stzmax.ring"
+load "../stzbase.ring"
 
+/*--- Creating basic entities
 
-/*---------------
+pr()
+
+oEntity1 = new stzEntity([
+    :name = "john",
+    :type = "person"
+])
+
+? oEntity1.Name()
+#--> john
+
+? oEntity1.Type()
+#--> person
+
+? oEntity1.Created()
+#--> 2025-09-26 14:30:15 (timestamp)
+
+pf()
+
+/*--- Entity with custom properties
+
+pr()
+
+oEntity2 = new stzEntity([
+    :name = "toyota",
+    :type = "car",
+    :model = "camry",
+    :year = 2023,
+    :color = "blue"
+])
+
+? oEntity2.Property("model")
+#--> camry
+
+? @@(oEntity2.Properties())
+#--> ["name", "type", "created", "model", "year", "color"]
+
+? oEntity2.ContainsProperty("year")
+#--> 1
+
+pf()
+
+/*--- Modifying entity properties
 */
-# If type is provided NULL then it is auttmatically set to "undefined"
+pr()
 
-o1 = new stzEntity([ :name = "Avionav", :type = "" ])
-? o1.content()
+oEntity = new stzEntity([
+    :name = "toyota",
+    :type = "car",
+    :model = "camry",
+    :year = 2023,
+    :color = "blue"
+])
 
-/*---------------
+oEntity.SetProperty("price", 25000)
+? oEntity.Property("price")
+#--> 25000
 
-# You must provide a name property while creating an entity
+oEntity.SetName("honda")
+? oEntity.Name()
+#--> honda
 
-StzEntityQ([ :type = "Company", :domain = "Technology" ])
-#--> ERROR: Can't create the entity object!
+oEntity.RemoveProperty("color")
+? oEntity.ContainsProperty("color")
+#--> 0
 
-/*---------------
+pf()
 
-# If :type is not provided, then it is automatically
-# added and set to :undefined
+/*--- Entity type checking
 
-o1 = new stzEntity([ :Name = "Tahar", :Company = "COALA" ])
+? oEntity1.IsOfType("person")
+#--> 1
 
-? o1.Name() #--> "Tahar"
-? o1.Type() #--> :Undefined
-? "--"
-? o1.Properties() # Or if you want o1.Props()
-#--> [ :name, :type, :company ]
-? o1.Values()
-#--> [ "Tahar", "undefined", "COALA" ]
+? oEntity1.HasName("john")
+#--> 1
 
-/*---------------
+? oEntity2.Size()
+#--> 5
 
-# names and types must be valid words!
-# otherwide Softanza will raise an error:
+oEntity2.Show()
+#-->
+# Entity: honda (Type: car)
+#   created: 2025-09-26 14:30:15
+#   model: camry
+#   year: 2023
+#   price: 25000
 
-StzEntityQ([ :name = "", :type = "Company", :domain = "Technology" ])
-StzEntityQ([ :name = "*__!", :type = "Company", :domain = "Technology" ])
-? StzEntityQ([ :name = "Sun", :type = "*__!" ]).Content()
+/*--- Creating list of entities
 
-/*---------------
+aEntities = [
+    [ :name = "alice", :type = "person", :age = 30 ],
+    [ :name = "bob", :type = "person", :age = 25 ],
+    [ :name = "ferrari", :type = "car", :brand = "ferrari" ],
+    [ :name = "laptop", :type = "device", :brand = "dell" ]
+]
 
-#NOTE that if your provide properties in uppercase,
-# they are automatically lowercased
+oList = new stzListOfEntities(aEntities)
 
-? StzEntityQ([ ["NAME" , "Apple"], [ "TYPE", "Company" ] ]).Content()
-#--> [ ["name" , "Apple"], [ "type", "Company" ] ]
+? oList.NumberOfEntities()
+#--> 4
 
-# which is equivalent to the usual form we use for hashlist:
-# -> [ :name = "Apple", :type = "Company" ]
+? oList.Names()
+#--> ["alice", "bob", "ferrari", "laptop"]
 
+? oList.Types()
+#--> ["person", "person", "car", "device"]
 
+/*--- Finding entities
+
+? oList.FindEntityByName("alice")
+#--> 1
+
+? oList.ContainsType("car")
+#--> 1
+
+? oList.CountByType("person")
+#--> 2
+
+? oList.FindEntitiesByType("person")
+#--> [1, 2]
+
+/*--- Getting specific entities
+
+? oList.FirstEntity()[:name]
+#--> alice
+
+? oList.LastEntity()[:name]
+#--> laptop
+
+aPersons = oList.EntitiesOfType("person")
+? len(aPersons)
+#--> 2
+
+/*--- Adding entities
+
+oList.AddEntity([ :name = "truck", :type = "vehicle", :wheels = 6 ])
+
+? oList.NumberOfEntities()
+#--> 5
+
+? oList.HasEntity("truck")
+#--> 1
+
+/*--- Removing entities
+
+oList.RemoveEntity("ferrari")
+? oList.NumberOfEntities()
+#--> 4
+
+? oList.ContainsName("ferrari")
+#--> 0
+
+/*--- Filtering and sorting
+
+oPersonsList = oList.FilterByType("person")
+? oPersonsList.NumberOfEntities()
+#--> 2
+
+oList.SortByName()
+? oList.Names()
+#--> ["alice", "bob", "laptop", "truck"]
+
+oList.SortByType()
+? oList.Types()
+#--> ["device", "person", "person", "vehicle"]
+
+/*--- List operations
+
+? oList.IsEmpty()
+#--> 0
+
+? oList.UniqueTypes()
+#--> ["device", "person", "vehicle"]
+
+oList.Show()
+#-->
+# List of Entities (4 entities):
+# ================================================
+# 1. laptop (device)
+# 2. alice (person)
+# 3. bob (person)
+# 4. truck (vehicle)
+
+/*--- Copying and clearing
+
+oListCopy = oList.Copy()
+? oListCopy.NumberOfEntities()
+#--> 4
+
+oList.Clear()
+? oList.IsEmpty()
+#--> 1
+
+? oListCopy.IsEmpty()
+#--> 0
+
+/*--- Error handling examples
+
+// This will raise an error
+try
+    oWrong = new stzEntity([ :type = "person" ])  # Missing name
+catch
+    ? "Error: Entity must have a name"
+end
+#--> Error: Entity must have a name
+
+// This will raise an error
+try
+    oEntity1.RemoveProperty("name")  # Can't remove core property
+catch
+    ? "Error: Cannot remove core property"
+end
+#--> Error: Cannot remove core property
+
+/*--- Complex entity with metadata
+
+oComplexEntity = new stzEntity([
+    :name = "server01",
+    :type = "computer",
+    :ip = "192.168.1.100",
+    :os = "linux",
+    :memory = "32GB",
+    :status = "active",
+    :owner = "IT Department"
+])
+
+? oComplexEntity.Size()
+#--> 8
+
+? oComplexEntity.ContainsValue("linux")
+#--> 1
+
+oComplexEntity.Show()
+#-->
+# Entity: server01 (Type: computer)
+#   created: 2025-09-26 14:30:15
+#   ip: 192.168.1.100
+#   os: linux
+#   memory: 32GB
+#   status: active
+#   owner: IT Department

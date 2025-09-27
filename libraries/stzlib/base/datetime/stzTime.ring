@@ -1,63 +1,140 @@
-
-#NOTE // Get insipration from Time&Money library design
-// Link: https://timeandmoney.sourceforge.net/
-
-_cDefaultTimeFormat = "hh:mm:ss"
-
-func StzTimeQ(pTime)
-	return new stzTime(pTime)
-
-// TODO: Change it with the method TimeStamp after completing the class
-func TimeStamp()
-	return date() + "-" + time()
-
 class stzTime from stzObject
-	oQTime
+    oQTime
+    
+    def init(pTime)
+        oQTime = new QTime()
+        
+        if IsNull(pTime) or pTime = ""
+            # Current time
+            oQTime = oQTime.currentTime()
+            
+        but isString(pTime)
+            This.ParseStringTime(pTime)
+            
+        but isNumber(pTime)
+            # Seconds since midnight
+            nHours = pTime / 3600
+            nMinutes = (pTime % 3600) / 60
+            nSeconds = pTime % 60
+            oQTime.setHMS(nHours, nMinutes, nSeconds, 0)
+            
+        but isList(pTime) and IsHashList(pTime)
+            # Hash format [:Hour = 14, :Minute = 30, :Second = 45]
+            nHour   = 0
+            nMinute = 0
+            nSecond = 0
+            nMs     = 0
 
-	def init()
-		oQTime = new QTime()
-		
+            if pTime[:Hour] != NULL
+                nHour = 0+ pTime[:Hour]
+            ok
+            if pTime[:Minute] != NULL
+                nMinute = 0+ pTime[:Minute]
+            ok
+            if pTime[:Second] != NULL
+                nSecond = 0+ pTime[:Second]
+            ok
+            if pTime[:Millisecond] != NULL
+                nMs = 0+ pTime[:Millisecond]
+            ok
+
+            oQTime.setHMS(nHour, nMinute, nSecond, nMs)
+        ok
+        
+        if not oQTime.isValid()
+            StzRaise("Invalid time provided!")
+        ok
+    
+    def ParseStringTime(cTime)
+        aFormats = [ "hh:mm:ss", "hh:mm", "h:mm:ss", "h:mm",
+                    "hh:mm:ss.zzz", "h:mm:ss AP", "hh:mm AP" ]
+        
+        for cFormat in aFormats
+            oTemp = oQTime.fromString(cTime, cFormat)
+            if oTemp.isValid()
+                oQTime = oTemp
+                return
+            ok
+        next
+        
+        StzRaise("Cannot parse time string: " + cTime)
+    
+    #--- ARITHMETIC OPERATIONS ---#
+    
+    def AddSeconds(nSeconds)
+        oQTime = oQTime.addSecs(nSeconds)
+        return This
+    
+    def AddMinutes(nMinutes)
+        return This.AddSeconds(nMinutes * 60)
+    
+    def AddHours(nHours)
+        return This.AddSeconds(nHours * 3600)
+    
+    def AddMilliseconds(nMs)
+        oQTime = oQTime.addMSecs(nMs)
+        return This
+    
+    #--- GETTERS ---#
+    
+    def Hour()
+        return oQTime.hour()
+    
+    def Minute()
+        return oQTime.minute()
+    
+    def Second()
+        return oQTime.second()
+    
+    def Millisecond()
+        return oQTime.msec()
+    
+    def SecsTo(oOtherTime)
+        return oQTime.secsTo(oOtherTime.QTimeObject())
+    
+    def MSecsTo(oOtherTime)
+        return oQTime.msecsTo(oOtherTime.QTimeObject())
+    
+    #--- FORMATTING ---#
+    
 	def Content()
-		return oQTime
+		return This.ToStringXT("")
 
-		def Value()
-			return Content()
+	def ToString()
+		return This.ToStringXT("")
 
-	def QTimeObject()
-		return oQTime
-
-	def CurrentTime()
-		return oQTime.currentTime().tostring(_cDefaultTimeFormat)
-
-	def ToString(cFormat)
-		if cFormat = "" or cFormat = :Default
-			cFormat = _cDefaultTimeFormat
-		ok
-
-		return oQTime.toString(cFormat)
-		/*
-		By default, cFormat take the value hosted in the global variable
-		_cDefaultTimeFormat = "hh:mm:ss"
-
-		Or cFormat can be defined freely like in these examples:
-			"hh:mm:ss", "h:m:ss", "HH:MM:SS", "hh:mm:ss.zzz", etc.
-
-		Hence, Possible expressions you can include are:
-
-		h 	: the hour without a leading zero (0 to 23 or 1 to 12 if AM/PM display)
-		hh 	: the hour with a leading zero (00 to 23 or 01 to 12 if AM/PM display)
-		H 	: the hour without a leading zero (0 to 23, even with AM/PM display)
-		HH 	: the hour with a leading zero (00 to 23, even with AM/PM display)
-		m 	: the minute without a leading zero (0 to 59)
-		mm 	: the minute with a leading zero (00 to 59)
-		s 	: the second without a leading zero (0 to 59)
-		ss 	: the second with a leading zero (00 to 59)
-		z 	: the milliseconds without leading zeroes (0 to 999)
-		zzz 	: the milliseconds with leading zeroes (000 to 999)
-		AP or A : use AM/PM display. AP will be replaced by either "AM" or "PM".
-		ap or a : use am/pm display. ap will be replaced by either "am" or "pm".
-		t 	: the timezone (for example "CEST")
-		*/
-
-	def TimeStamp()
-		return date() + " " + time()
+    def ToStringXT(cFormat)
+        if cFormat = NULL or cFormat = ""
+            cFormat = _cDefaultTimeFormat
+        ok
+        
+        # Handle named formats
+        if isString(cFormat) and substr(cFormat, 1, 1) = ":"
+            cFormatName = substr(cFormat, 2, len(cFormat)-1)
+            for aFormat in _aTimeFormats
+                if lower(aFormat[1]) = lower(cFormatName)
+                    cFormat = aFormat[2]
+                    exit
+                ok
+            next
+        ok
+        
+        return oQTime.toString(cFormat)
+    
+    def To12Hour()
+        return This.ToString("h:mm:ss AP")
+    
+    def To24Hour()
+        return This.ToString("HH:mm:ss")
+    
+    #--- UTILITY METHODS ---#
+    
+    def SetQTime(oNewQTime)
+        oQTime = oNewQTime
+        return This
+    
+    def QTimeObject()
+        return oQTime
+    
+    def IsValid()
+        return oQTime.isValid()

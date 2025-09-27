@@ -9938,7 +9938,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 #== @FunctionPartialForm #TODO #NARRATION
-
+*/
 pr()
 
 o1 = new stzString("__Ri__ng__")
