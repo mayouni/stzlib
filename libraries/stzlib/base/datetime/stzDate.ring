@@ -1,82 +1,5 @@
-/*
-#TODO: Implement it with QDate and QDateTime()
-#TODO review the class design to be consistent with all other classes
 
-*/
-
-/*
-d1 = new stzDate([ :Year = 2020, :Day = "12", :Month = "12"  ])
-d2 = new stzDate("10/12/2020")
-d3 = new stzDate(10122020)
-
-? d + "28 days"
-? d + "11 months"
-? d + "3 years"
-*/
-
-/*
-
-Read this nice article about dates and times:
-https://www.infoq.com/articles/java.time
-By Stephen Colebourne
-Here is an abstract:
-
-	The truth is that when today’s applications are examined, most code
-	that tries to operate in a calendar system neutral manner is broken.
-	For example, you cannot assume that there are 12 months in a year,
-	yet developers do and add 12 months assuming that they have added
-	a whole year. You cannot assume that all months are roughly the
-	same length - the Coptic calendar system has 12 months of 30 days
-	and one month of five or six days. Nor can you assume that the next
-	year has a number one larger than the current year, as calendars like
-	the Japanese restart year numbering when the Emperor changes, which
-	is typically mid-year (you can’t even assume that two days in the
-	same month have the same year!).
-
-Also, read about these false assumptions about dates and think of avoiding them
-in softanza (taken from JavaDoc here:
-https://bit.ly/2S9y7dU
-
-	These false assumptions cause  bugs in multi-calendar system code:
-
-	Code that queries the day-of-month and assumes that the value will
-	never be more than 31 is invalid. Some calendar systems have more
-	than 31 days in some months.
-	
-	Code that adds 12 months to a date and assumes that a year has been
-	added is invalid. Some calendar systems have a different number of
-	months, such as 13 in the Coptic or Ethiopic.
-	
-	Code that adds one month to a date and assumes that the month-of-year
-	value will increase by one or wrap to the next year is invalid.
-	Some calendar systems have a variable number of months in a year,
-	such as the Hebrew.
-	
-	Code that adds one month, then adds a second one month and assumes
-	that the day-of-month will remain close to its original value is invalid.
-	Some calendar systems have a large difference between the length of the
-	longest month and the length of the shortest month. For example, the Coptic or Ethiopic have 12 months of 30 days and 1 month of 5 days.
-	
-	Code that adds seven days and assumes that a week has been added is
-	invalid. Some calendar systems have weeks of other than seven days,
-	such as the French Revolutionary.
-	
-	Code that assumes that because the year of date1 is greater than the
-	year of date2 then date1 is after date2 is invalid. This is invalid
-	for all calendar systems when referring to the year-of-era, and
-	especially untrue of the Japanese calendar system where the
-	year-of-era restarts with the reign of every new Emperor.
-	
-	Code that treats month-of-year one and day-of-month one as the start
-	of the year is invalid. Not all calendar systems start the year when
-	the month value is one.
-
-#NOTE // Get insipration from Time&Money library design
-// Link: https://timeandmoney.sourceforge.net/
-
-*/
-
-_aDaysOfWeek = [
+$aDaysOfWeek = [
 	[ "1", :Monday ],
 	[ "2", :Tuesday ],
 	[ "3", :Wednesday ],
@@ -86,214 +9,438 @@ _aDaysOfWeek = [
 	[ "7", :Sunday ]
 ]
 
-func StzDate(pDat)
-	return new stzDate(pDate)
+# Multi-language day names
+$aDayNames = [
+    [ :English, [ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" ] ],
+    [ :French, [ "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche" ] ],
+    [ :Arabic, [ "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد" ] ]
+]
 
-func StzDateQ(pDat)
-	return new stzDate(pDate)
+# Multi-language month names  
+$aMonthNames = [
+    [ :English, [ "January", "February", "March", "April", "May", "June", 
+                 "July", "August", "September", "October", "November", "December" ] ],
+    [ :French, [ "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre" ] ],
+    [ :Arabic, [ "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+                "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر" ] ]
+]
 
-func DefaultDaysOfWeek()
-	return _aDaysOfWeek
+# Default language
+$cCurrentLanguage = :English
+
+$cDefaultDateFormat = "dd/MM/yyyy"
+$cDefaultTimeFormat = "hh:mm:ss"
+$cDefaultDateTimeFormat = "dd/MM/yyyy hh:mm:ss"
+
+$aDateFormats = [
+    [ :ISO8601, "yyyy-MM-dd" ],
+    [ :European, "dd/MM/yyyy" ],
+    [ :American, "MM/dd/yyyy" ],
+    [ :Compact, "ddMMyyyy" ],
+    [ :Long, "dddd, MMMM d, yyyy" ]
+]
+
+$aTimeFormats = [
+    [ :Standard, "hh:mm:ss" ],
+    [ :Short, "hh:mm" ],
+    [ :WithMs, "hh:mm:ss.zzz" ],
+    [ :AmPm, "h:mm:ss AP" ],
+    [ :Military, "HH:mm:ss" ]
+]
+
+#=== UTILITY FUNCTIONS ===#
+
+func DaysOfWeek()
+	return $aDaysOfWeek
+
+func SetLanguage(cLanguage)
+    $cCurrentLanguage = cLanguage
+
+
+func GetDayByName(nDayOfWeek)
+	return GetDayByNameXT(nDayOfWeek, :English)
+
+func GetDayName(nDayOfWeek)
+	return GetDayNameXT(nDayOfWeek, :English)
+
+func GetDayNameXT(nDayOfWeek, cLanguage)
+    if cLanguage = NULL
+        cLanguage = $cCurrentLanguage
+    ok
+    
+    for aLang in $aDayNames
+        if aLang[1] = cLanguage
+            return aLang[2][nDayOfWeek]
+        ok
+    next
+    
+    # Fallback to English
+    for aLang in $aDayNames
+        if aLang[1] = :English
+            return aLang[2][nDayOfWeek]
+        ok
+    next
+
+	func GetDayNameInLanguage(nDayOfWeek, cLanguage)
+		return GetDayNameXT(nDayOfWeek, cLanguage)
+
+func GetMonthName(nMonth)
+	return GetMonthNameInLanguage(nMonth, :English)
+
+func GetMonthNameInLanguage(nMonth, cLanguage)
+    if cLanguage = NULL
+        cLanguage = $cCurrentLanguage
+    ok
+    
+    for aLang in $aMonthNames
+        if aLang[1] = cLanguage
+            return aLang[2][nMonth]
+        ok
+    next
+    
+    # Fallback to English
+    for aLang in $aMonthNames
+        if aLang[1] = :English
+            return aLang[2][nMonth]
+        ok
+    next
+
+	func GetMonthNameXT(nMonth, cLanguage)
+		return GetMonthNameInLanguage(nMonth, cLanguage)
 
 func SysDate()
 	return date()
 
+	func DateSys()
+		return date()
+
 func ring_addDays(cDate, n)
 	return addDays(cDate, n)
 
+func StzDateQ(pDate)
+    return new stzDate(pDate)
+
+func Now()
+	return Date() + " " + Time()
+
+func TodayQ()
+    return StzDateQ(DateSys())
+
+	func Today()
+		return TodayQ().ToString()
+
+#=== ENHANCED stzDate CLASS ===#
+
 class stzDate from stzObject
-	cDate
-	cDay
-	cMonth
-	cYear
+    oQDate
+    
+    def init(pDate)
+        oQDate = new QDate()
+        
+        if pDate = NULL or pDate = ""
+            oQDate = oQDate.currentDate()
+        else
+            # Always expect string input
+            if not isString(pDate)
+                pDate = ""+ pDate
+            ok
+            This.ParseStringDate(pDate)
+        ok
+        
+        if not oQDate.isValid()
+            StzRaise("Invalid date provided!")
+        ok
+    
+    def ParseStringDate(cDate)
+        # Try common formats
+        aFormats = [ "dd/MM/yyyy", "MM/dd/yyyy", "yyyy-MM-dd", 
+                    "dd-MM-yyyy", "yyyy/MM/dd", "ddMMyyyy" ]
+        
+        for cFormat in aFormats
+            oTemp = oQDate.fromString(cDate, cFormat)
+            if oTemp.isValid()
+                oQDate = oTemp
+                return
+            ok
+        next
+        
+        StzRaise("Cannot parse date string: " + cDate)
+    
+    #--- ARITHMETIC OPERATIONS (Mutable Softanza Style) ---#
+    
+    def AddDays(nDays)
+        oQDate = oQDate.addDays(nDays)
+        return This.ToString()
+ 
+		def AddDaysQ(nDays)
+			This.AddDays(nDays)
+			return This
 
-	oQDate = new QDate()
+    def AddMonths(nMonths)
+        oQDate = oQDate.addMonths(nMonths)
+        return This.ToString()
 
-	def init(pDate)
-		/*
-		pDate can be a Number, a String, or a Hash list
-		In other terms, you can write:
-			new stzDate(10102020), or
-			new stzDate("10/10/2020"), or
-			new stzDate([ :Day = 10, :Month = 10, :Year = 2020 ])
-		In all cases, you get the date "10/10/2020"
+		def AddMonthsQ(nMonths)
+			This.AddMonths(nMonths)
+			return This
 
-		So, first of all we will transform any input to a String.
-		Then, we will verify if the input corresponds to a valid date.
-		Only then, we take it, otherwise we reject it.
-		*/
+    def AddYears(nYears)
+        oQDate = oQDate.addYears(nYears)
+        return This.ToString()
 
-		if isString(pDate)
-			
-			This.cDate = ""+ pDate
+		def AddYearsQ(nYears)
+			This.AddYears(nYears)
+			return This
 
-		but isNumber(pDate)
-			oTemp = new stzString(""+ pDate)
-			This.cDate =	oTemp.NLeftChars(2)   + "/"   +
-				  	oTemp.Section(3,4) + "/"   +
-				  	oTemp.NRightChars(4)
+    def SubtractDays(nDays)
+        oQDate = oQDate.addDays(-nDays)
+        return This.ToString()
 
-		but isList(pDate) 
-			This.cDate = ""+ pDate[:Day] +   "/"  +
-				         pDate[:Month] + "/"  +
-				         pDate[:Year]
-		ok
-		
-	def operator(op,v)
+		def SubtractDaysQ(nDays)
+			This.SubtractDays(nDays)
+			return This
 
-		n = v
+    def SubtractMonths(nMonths)
+        oQDate = oQDate.addMonths(-nMonths)
+        return This.ToString()
+    
+		def SubtractMonthsQ(nMonths)
+			This.SubtractMonths(nMonths)
+			return This
 
-		if isString(v)
-			oStr = new stzString(v)
-			if oStr.BeginsWithANumber()
+    def SubtractYears(nYears)
+        oQDate = oQDate.addYears(-nYears)
+        return This.ToString()
+    
+		def SubtractYearsQ(nYears)
+			This.SubtractYears(nYears)
+			return This
 
-				n = 0+ oStr.Numbers()[1]
+    #--- OPERATOR OVERLOADING ---#
+    
+    def operator(op, v)
+        if op = "+"
+            if isNumber(v)
+                return This.AddDays(v)
+            but isString(v)
+                return This.ParseOperation(v, "+")
+            ok
+        but op = "-"
+            if isNumber(v)
+                return This.SubtractDays(v)
+            but isString(v)
+                return This.ParseOperation(v, "-")
+            ok
+        ok
+    
+    def ParseOperation(cOperation, cOperator)
+        acWords = @split(cOperation, " ")
+        
+        if len(acWords) != 2
+            StzRaise("Invalid operation format. Use 'n days/months/years'")
+        ok
+        
+        nValue = 0+ acWords[1]
+        cUnit = lower(acWords[2])
+        
+        if cOperator = "-"
+            nValue = -nValue
+        ok
+        
+        if cUnit = "day" or cUnit = "days"
+            return This.AddDays(nValue)
+        but cUnit = "month" or cUnit = "months"
+            return This.AddMonths(nValue)
+        but cUnit = "year" or cUnit = "years"
+            return This.AddYears(nValue)
+        else
+            StzRaise("Invalid unit! Use 'days', 'months', or 'years'.")
+        ok
+    
+    #--- COMPARISON METHODS ---#
+    
+    def DaysTo(oOtherDate)
+        if isString(oOtherDate)
+            oOtherDate = new stzDate(oOtherDate)
+        ok
+        
+        if not isObject(oOtherDate) or not oOtherDate.IsAStzDate()
+            StzRaise("Parameter must be a stzDate object or date string")
+        ok
+        return oQDate.daysTo(oOtherDate.QDateObject())
+    
+    def IsBefore(oOtherDate)
+        return This.DaysTo(oOtherDate) > 0
+    
+    def IsAfter(oOtherDate)
+        return This.DaysTo(oOtherDate) < 0
+    
+    def IsEqual(oOtherDate)
+        return This.DaysTo(oOtherDate) = 0
+    
+    #--- GETTERS (Return strings by default) ---#
+    
+    def Year()
+        return ""+ oQDate.year()
+        
+        def YearInNumber()
+            return oQDate.year()
+            
+        def YearN()
+            return oQDate.year()
+            
+        def YearNumberInString()
+            return ""+ oQDate.year()
+    
+    def Month()
+        return GetMonthName(oQDate.month())
+        
+        def MonthInNumber()
+            return oQDate.month()
+            
+        def MonthN()
+            return oQDate.month()
+            
+        def MonthNumberInString()
+            return ""+ oQDate.month()
+            
+   def MonthInLanguage(cLanguage)
+        return GetMonthNameXT(oQDate.month(), cLanguage)
+    
+		def MonthIn(cLanguage)
+			return This.MonthInLanguage(cLanguage)
 
-				cVType = lower( oStr.RemoveSpacesQ().NumbersRemoved() )
-				if NOT ( cVType = "days" or cVType = "months" or cVType = "years" )
-					Stzraise("Incorrect value! You must provide a string in the form 'n days', 'n months', or 'n years' with n beeing a number.")
-				ok
-			ok
-		ok
+    def Day()
+        return GetDayName(oQDate.dayOfWeek())
+        
+        def DayInNumber()
+            return oQDate.day()
+            
+        def DayN()
+            return oQDate.day()
+            
+        def DayNumberInString()
+            return ""+ oQDate.day()
+            
+    def DayInLanguage(cLanguage)
+        return GetDayNameXT(oQDate.dayOfWeek(), cLanguage)
+ 
+		def DayIn(cLanguage)
+			return DayInLanguage(cLanguage)
 
-		if op = "+"
-			switch cVType
-			on "days"
-				return This.AddDays(n)
+    def DayOfWeek()
+        return ""+ oQDate.dayOfWeek()
+        
+        def DayOfWeekInNumber()
+            return oQDate.dayOfWeek()
+            
+        def DayOfWeekN()
+            return oQDate.dayOfWeek()
+    
+    def DayOfYear()
+        return ""+ oQDate.dayOfYear()
+        
+        def DayOfYearInNumber()
+            return oQDate.dayOfYear()
+            
+        def DayOfYearN()
+            return oQDate.dayOfYear()
+    
+    def WeekNumber()
+        return ""+ oQDate.weekNumber()
+        
+        def WeekNumberInNumber()
+            return oQDate.weekNumber()
+            
+        def WeekNumberN()
+            return oQDate.weekNumber()
+    
+    def DaysInMonth()
+        return ""+ oQDate.daysInMonth()
+        
+        def DaysInMonthInNumber()
+            return oQDate.daysInMonth()
+            
+        def DaysInMonthN()
+            return oQDate.daysInMonth()
+    
+    def DaysInYear()
+        return ""+ oQDate.daysInYear()
+        
+        def DaysInYearInNumber()
+            return oQDate.daysInYear()
+            
+        def DaysInYearN()
+            return oQDate.daysInYear()
+    
+    def IsLeapYear()
+        if oQDate.isLeapYear(This.YearN())
+            return "true"
+        else
+            return "false"
+        ok
+        
+        def IsLeapYearInLogical()
+            return oQDate.isLeapYear(This.YearN())
+            
+        def IsLeapYearL()
+            return oQDate.isLeapYear(This.YearN())
+    
+    #--- FORMATTING ---#
+    
+	def ToString()
+		return This.ToStringXT("")
 
-			on "months"
-				return This.AddMonths(n)
+	def ToStringXT(cFormat)
+	    if cFormat = NULL or cFormat = ""
+	        cFormat = $cDefaultDateFormat
+	    ok
+	    
+	    # Handle named formats (case-insensitive)
+	    cLowerFormat = lower(cFormat)
+	    for aFormat in $aDateFormats
+	        if lower(aFormat[1]) = cLowerFormat
+	            cFormat = aFormat[2]
+	            exit
+	        ok
+	    next
+	    
+	    return oQDate.toString(cFormat)
+    
+    def ToISO8601()
+        return This.ToStringXT("yyyy-MM-dd")
+    
+    def ToEuropean()
+        return This.ToStringXT("dd/MM/yyyy")
+    
+    def ToAmerican()
+        return This.ToStringXT("MM/dd/yyyy")
+    
+    #--- UTILITY METHODS ---#
+    
+    def SetQDate(oNewQDate)
+        oQDate = oNewQDate
 
-			on "years"
-				return This.AddYears(n)
-			off
-
-		but op = "-"
-			switch cVType
-			on "days"
-				return This.SubStructDays(n)
-
-			on "months"
-				return This.SubStructMonths(n)
-
-			on "years"
-				return This.SubStructYears(n)
-			off
-
-		else
-			StzRaise("Can't proceed! Only + and - operators are supported on dates.")
-
-		ok
-
-	def AddDays( nDays )
-
-		// If the number of added days is zero then return the current date
-		if nDays = 0 { return This.cDate }
-
-		// Else, let's do the job
-
-		// Using the Ring standard function for adding days
-		cResult = ring_addDays( This.cDate,(0+ nDays) )
-
-		// Reading the years part and controlling it so it does not exceed 9999
-		nYears = 0+ right(cResult, len(cResult)-6)	
-		if nYears > 9999
-			StzRaise("Can't proceed. The years part ("+ nYears + ") must be under 9999!")
-		ok
-			
-		// Everything is ok, returning the new date
-		return cResult	
-
-
-	def SubstructDays( pDays )
-		nDays = 0- pDays
-		return stzAddDays(nDays)
-	
-		def SubstractDays(pDay)
-			return This.SubstructDays( pDays )
-
-		def Subtract(pDay)
-			return This.SubstructDays( pDays )
-
-		def Subtruct(pDays)
-			return This.SubstructDays( pDays )
-
-	// Adding n months to the current date
-	def AddMonths(pMonths)
-		// If the number of months is zero then return the current date
-		if 0+ pMonths = 0
-			return This.cDate
-		ok
-
-		// Else, let's do the job...
-
-		// Calculating the sum of (existant + new) months
-		n = 0+ pMonths + This.Months()
-
-		// Calculating how many years in this sum of months
-		cTemp = ""+ (n / 12)
-
-		cYearsToAdd = ""
-		for c in cTemp
-			if c = "."
-				exit
-			ok
-			cYearsToAdd += c
-		next
-
-		// Calculating the rest of months less then a year
-		nYearsToAdd = 0+ cYearsToAdd
-		nMonthsToAdd = n - nYearsToAdd * 12
-
-		// Calculating the months part of the new date
-		nMonths = 0+ Months() + nMonthsToAdd
-		cMonths = "" + nMonths
-		if len(cMonths) = 1 { cMonths = "0" + cMonths }
-	
-		// Calculating the years part of the new date
-		nYears = 0+ Years() + nYearsToAdd
-
-		// Checking the maximum number of years allowed (9999)
-		if nYears > 9999
-			StzRaise("Can't proceed. The years part ("+ nYears + ") must be under 9999!")
-		ok
-
-		// Constructing the new date and returning it
-		This.cDate = Days() + "/" + cMonths + "/" + nYears
-		return This.cDate
-
-	def AddYears( pYears )
-		// If the number of years is zero then return the current date
-		if 0+ pYears = 0
-			return This.sDate
-		ok
-
-		// Else, let's do the job...
-
-		// Calculating the sum of (existant + new) years
-		nYears = 0+ pYears + This.Years()
-
-		// Checking the maxim number of years allowed (9999)
-		if nYears > 9999
-			StzRaise("Can't proceed. The years part in stzDate can't exceed 9999!")
-		ok
-
-		// Constructing the new date and returning it
-		This.cDate = Days() + "/" + Months() + "/" + nYears
-		return This.cDate
-
-
-	def Years()
-
-		oTemp = new stzString(This.cDate)
-		return oTemp.NRightCharsAsString(4)
-	
-	def Months()
-		oTemp = new stzString(This.cDate)
-		cTemp = oTemp.OnlyNumbers()
-		oTemp = new stzString(cTemp)
-		return oTemp.Section(3,4)
-
-	def Days()
-		oTemp = new stzString(This.cDate)
-		return oTemp.NLeftCharsAsString(2)
+		def SetQDateQ(oNewQDate)
+			This.SetQDate(oNewQDate)
+        	return This
+    
+    def QDateObject()
+        return oQDate
+    
+    def IsValid()
+        if oQDate.isValid()
+            return "true"
+        else
+            return "false"
+        ok
+        
+        def IsValidInLogical()
+            return oQDate.isValid()
+            
+        def IsValidL()
+            return oQDate.isValid()
+    
+    def IsAStzDate()
+        return TRUE

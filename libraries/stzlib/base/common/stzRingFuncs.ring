@@ -55,3 +55,11 @@ func ring_time()
 
 	func CurrentTime()
 		return time()
+
+#---
+
+func ring_isalpha(c)
+	return isalpha(c)
+
+func ring_isdigit(n)
+	return isdigit(n)

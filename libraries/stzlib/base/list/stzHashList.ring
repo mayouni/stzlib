@@ -240,6 +240,38 @@ func ShowHL(pValue)
 
 	#>
 
+func HashRemove(paHash, cKey)
+	if CheckParams()
+		if NOT (isList(paHash) and IsHashList(paHash))
+			StzRaise("Incorrect param type! paHash must be a hashlist.")
+		ok
+		if NOT isString(cKey)
+			StzRaise("Incorrect param type! cKey must be a string.")
+		ok
+	ok
+
+	nLen = len(paHash)
+	cKey = lower(cKey)
+	n = 0
+
+	for i = 1 to nLen
+		if paHash[i][1] = cKey
+			n = 1
+			exit
+		ok
+	next
+
+	if n > 0
+		del(paHash, n)
+	ok
+
+	return paHash
+
+	func HashDel(paHash, cKey)
+		return HashRemove(paHash, cKey)
+
+	func HashDelete(paHash, cKey)
+		return HashRemove(paHash, cKey)
 
 func StzAssociativeListQ(paList)
 	return new stzAssociativeList(paList)

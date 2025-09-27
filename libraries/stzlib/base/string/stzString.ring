@@ -97922,6 +97922,63 @@ def BoxXT(paBoxOptions)
 		def IsNotAnObject()
 			return 0
 
+
+	  #=========================================#
+	 #  METHODS USED WITH THE SEMANTIC SYSTEM  #
+	#=========================================#
+	
+	def IsValidSemanticName()
+		
+		# Validate that string is a proper semantic identifier
+		
+		# Must not be empty
+		if This.IsEmpty() return FALSE ok
+		
+		# Must start with letter
+		if not This.FirstCharQ().IsLetter() return FALSE ok
+		
+		# Must contain only letters, numbers, underscores, and hyphens
+		acChars = This.Chars()
+		nLen = len(acChars)
+
+		for i = 1 to nLen
+			if not (ring_isalpha(acChars[i]) or ring_isdigit(acChars[i]) or acChars[i] = "_" or acChars[i] = "-")
+				return FALSE
+			end
+		next
+		
+		return TRUE
+	
+	def SimilarityWith(pcOtherString)
+		
+		# Simple similarity calculation based on common characters
+
+		oThis = new stzString(pcOtherString)
+		oThis.Lowercase()
+		cThis = oThis.Content()
+		acThisChars = oThis.Chars()
+		nLenThis = len(acThisChars)
+	
+		oOther = new stzString(pcOtherString)
+		oOther.Lowercase()
+		cOther = oOther.Content()
+		acOtherChars = oOther.Chars()
+		nLenOther = len(acOtherChars)
+		
+		if cThis = cOther return 1 ok
+		
+		nCommon = 0
+		nMax = Max([ nLenThis, nLenOther ])
+		nMen = Min([ nLenThis, nLenOther ])
+
+		for i = 1 to nMin
+			if acThisChars[i] = acOtherChars[i]
+				nCommon++
+			end
+		next
+		
+		return nCommon / nMax
+
 	  #=====================================================#
 	 #  CHECKING IF THE STRING STARTS WITH A GIVEN NUMBER  #
 	#=====================================================#
