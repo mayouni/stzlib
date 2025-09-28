@@ -235,7 +235,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Getting week number
-*/
+
 pr()
 
 oDate = StzDateQ("15/07/2024")
@@ -245,45 +245,10 @@ oDate = StzDateQ("15/07/2024")
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
-/*--- Working with timestamps
-pr()
-? "Current timestamp: " + TimeStamp()
-? "Unix timestamp: " + UnixTimeStamp()
-? "Custom timestamp: " + TimeStamp("yyyy-MM-dd_HH-mm-ss")
-#--> Current timestamp: 27/09/2025 14:30:25
-#--> Unix timestamp: 1759276225
-#--> Custom timestamp: 2025-09-27_14-30-25
-pf()
-# Executed in almost 0 second(s) in Ring 1.23
-
-/*--- Chaining operations with Q methods
-pr()
-oDate = StzDateQ("01/01/2024")
-cResult = oDate.AddDaysQ(30).AddMonthsQ(2).ToString()
-? cResult
-#--> 31/03/2024
-pf()
-# Executed in almost 0 second(s) in Ring 1.23
-
-/*--- Setting and using different languages
-pr()
-SetLanguage(:French)
-oDate = StzDateQ("14/07/2024")
-? "French day: " + oDate.Day()
-? "French month: " + oDate.Month()
-
-SetLanguage(:Arabic)
-? "Arabic day: " + oDate.Day()
-? "Arabic month: " + oDate.Month()
-#--> French day: Dimanche
-#--> French month: Juillet
-#--> Arabic day: الأحد
-#--> Arabic month: يوليو
-pf()
-# Executed in almost 0 second(s) in Ring 1.23
-
 /*--- Date validation
+
 pr()
+
 try
     oDate = StzDateQ("32/13/2024")  # Invalid date
     ? oDate.ToString()
@@ -291,5 +256,6 @@ catch
     ? "Invalid date detected and handled"
 done
 #--> Invalid date detected and handled
+
 pf()
 # Executed in almost 0 second(s) in Ring 1.23

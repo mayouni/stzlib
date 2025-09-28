@@ -54,10 +54,6 @@ $aTimeFormats = [
 func DaysOfWeek()
 	return $aDaysOfWeek
 
-func SetLanguage(cLanguage)
-    $cCurrentLanguage = cLanguage
-
-
 func GetDayByName(nDayOfWeek)
 	return GetDayByNameXT(nDayOfWeek, :English)
 
@@ -347,14 +343,36 @@ class stzDate from stzObject
         def DayOfYearN()
             return oQDate.dayOfYear()
     
-    def WeekNumber()
-        return ""+ oQDate.weekNumber()
-        
-        def WeekNumberInNumber()
-            return oQDate.weekNumber()
-            
-        def WeekNumberN()
-            return oQDate.weekNumber()
+	def WeekNumber()
+		# Calculated manually using ISO standard
+		# because I strugled with the RingQt version signature
+		#TODO // Check it!
+
+	    nYear = oQDate.year()
+	    nMonth = oQDate.month() 
+	    nDay = oQDate.day()
+	    
+	    # ISO week calculation
+		oQDateTemp = new QDate()
+		oQDateTemp.setDate(nYear, 1, 1)
+	    nJan1DayOfWeek = oQDateTemp.dayOfWeek()
+
+	    nDayOfYear = oQDate.dayOfYear()
+	    
+	    nWeek = floor((nDayOfYear + nJan1DayOfWeek - 2) / 7) + 1
+	    
+	    # Handle edge cases for ISO weeks
+	    if nWeek = 0
+	        nWeek = 52
+			oQDateTemp = new QDate()
+			oQDateTemp.setDate(nYear-1, 12, 31)
+	        if oQDateTemp.dayOfWeek() = 4
+	            nWeek = 53
+	        ok
+	    ok
+	    
+	    return nWeek
+	   
     
     def DaysInMonth()
         return ""+ oQDate.daysInMonth()
