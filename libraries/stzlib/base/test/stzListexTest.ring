@@ -1,4 +1,4 @@
-load "../stzmax.ring"
+load "../stzbase.ring"
 
 /*====================================#
 #   LISTEX - TESTING MATCHES CAPTURE  #
@@ -21,8 +21,21 @@ for i = 1 to nLenVal
 next
 
 ? @@NL(aValues)
+#-->
+'
+[
+	8,
+	"tocolsfrom",
+	1,
+	"to",
+	2
+]
+'
 
-/*--- GETTING MATCHED VALUES AFTER MATHCH IS DONE
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- GETTING MATCHED VALUES AFTER MATHCH IS DONE #TODO
 
 pr()
 

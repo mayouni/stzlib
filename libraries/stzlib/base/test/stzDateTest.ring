@@ -9,7 +9,7 @@ pr()
 #--> 27/09/2025
 
 oDate = TodayQ()
-? oDate.ToString()
+? oDate.Content() # Or ToString()
 #--> 27/09/2025
 
 pf()
@@ -20,7 +20,7 @@ pf()
 pr()
 
 oDate = StzDateQ("15/03/2024")
-? oDate.ToString()
+? oDate.Content()
 #--> 15/03/2024
 
 pf()
@@ -42,7 +42,7 @@ pr()
 
 oDate = StzDateQ("01/01/2025")
 oDate.AddDays(30)
-? oDate.ToString()
+? oDate.Content()
 #--> 31/01/2025
 
 pf()
@@ -99,10 +99,12 @@ pr()
 oDate = StzDateQ("27/09/2025")
 
 ? oDate.Day()
-? oDate.DayIn(:French)
-? oDate.DayIn(:Arabic)
 #--> Saturday
+
+? oDate.DayIn(:French)
 #--> Samedi
+
+? oDate.DayIn(:Arabic)
 #o--> السبت
 
 pf()
@@ -115,10 +117,12 @@ pr()
 oDate = StzDateQ("15/03/2024")
 
 ? oDate.Month()
-? oDate.MonthIn(:French)
-? oDate.MonthIn(:Arabic)
 #--> March
+
+? oDate.MonthIn(:French)
 #--> Mars
+
+? oDate.MonthIn(:Arabic)
 #o--> مارس
 
 pf()
@@ -129,17 +133,24 @@ pf()
 pr()
 
 oDate = StzDateQ("15/07/2024")
+oDate {
 
-? "Year: " + oDate.Year()
-? "Month number: " + oDate.MonthNumberInString()
-? "Day number: " + oDate.DayNumberInString()
-? "Day of week: " + oDate.DayOfWeek()
-? "Day of year: " + oDate.DayOfYear()
-#--> Year: 2024
-#--> Month number: 7
-#--> Day number: 15
-#--> Day of week: 1
-#--> Day of year: 197
+	? Year()
+	#--> 2024
+
+	? MonthNumber()
+	#--> 7
+
+	? DayNumber()
+	#--> 15
+
+	? DayOfWeek()
+	#--> 1
+
+	? DayOfYear()
+	#--> 197
+
+}
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -148,13 +159,11 @@ pf()
 
 pr()
 
-oDate1 = StzDateQ("15/02/2024")
-oDate2 = StzDateQ("15/02/2025")
+? StzDateQ("15/02/2024").IsLeapYear()
+#--> TRUE
 
-? "2024 is leap year: " + oDate1.IsLeapYear()
-? "2025 is leap year: " + oDate2.IsLeapYear()
-#--> 2024 is leap year: true
-#--> 2025 is leap year: false
+? StzDateQ("15/02/2025").IsLeap()
+#--> FALSE
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -165,10 +174,11 @@ pr()
 
 oDate = StzDateQ("15/02/2024")
 
-? "Days in February 2024: " + oDate.DaysInMonth()
-? "Days in year 2024: " + oDate.DaysInYear()
-#--> Days in February 2024: 29
-#--> Days in year 2024: 366
+? oDate.DaysInMonth()
+#--> 29
+
+? oDate.DaysInYear()
+#--> 366
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -180,9 +190,11 @@ pr()
 oDate1 = StzDateQ("01/01/2025")
 oDate2 = StzDateQ("31/12/2025")
 
-nDays = oDate1.DaysTo(oDate2)
-? "Days from start to end of 2025: " + nDays
-#--> Days from start to end of 2025: 364
+? oDate1.DaysTo(oDate2)
+#--> 364
+
+# Or better:
+? oDate2 - oDate1
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -190,18 +202,48 @@ pf()
 /*--- Comparing dates
 
 pr()
+
 oDate1 = StzDateQ("15/06/2024")
 oDate2 = StzDateQ("20/06/2024")
 
-? "June 15 is before June 20: " + oDate1.IsBefore(oDate2)
-? "June 20 is after June 15: " + oDate2.IsAfter(oDate1)
-? "June 15 equals June 20: " + oDate1.IsEqual(oDate2)
-#--> June 15 is before June 20: true
-#--> June 20 is after June 15: true
-#--> June 15 equals June 20: false
+? oDate1.IsBefore(oDate2)
+#--> TRUE
+
+? oDate2.IsAfter(oDate1)
+#--> TRUE
+
+? oDate1.IsEqual(oDate2)
+#--> FALSE
+
+# Or Better
+? ""
+
+? oDate1 < oDate2
+? oDate1 < "20/06/2024"
+
+? ""
+
+? oDate1 > oDate2
+? oDate1 > "20/06/2024"
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
+
+/*---
+*/
+pr()
+Rx = new stzRegex(pat(:IsoDate))
+? Rx.Match("20-10-2025")
+
+? IsDate("20/10/20025")
+#--> FALSE
+
+? IsDate("20/10/2025")
+#--> TRUE
+
+//? QQ("20/10/2025") = "20-10-2025"
+
+pf()
 
 /*--- Formatting dates in different styles
 
@@ -251,7 +293,7 @@ pr()
 
 try
     oDate = StzDateQ("32/13/2024")  # Invalid date
-    ? oDate.ToString()
+    ? oDate.Content()
 catch
     ? "Invalid date detected and handled"
 done

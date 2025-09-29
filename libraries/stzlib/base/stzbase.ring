@@ -69,10 +69,13 @@
 	load "string/stzStringArt.ring"
 	load "string/stzSubString.ring"
 
-	load "string/stzRegex.ring"
-	load "string/stzRegexMaker.ring"
-
 	load "string/stzText.ring"
+
+# Loading files related to REGX module
+
+	load "regex/stzRegex.ring"
+	load "regex/stzRegexMaker.ring"
+	load "regex/stzListex.ring"
 
 # Loading files related to the LIST module
 
