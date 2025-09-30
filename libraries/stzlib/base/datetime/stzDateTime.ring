@@ -1,5 +1,6 @@
 #=== NEW stzDateTime CLASS ===#
 
+
 class stzDateTime from stzObject
     oQDateTime
     

@@ -64,6 +64,9 @@ $aRelativeDateKeywords = [
     [ "start of year", "START_OF_YEAR" ]
 ]
 
+func TimeStamp()
+	return Date() + " " + Time()
+
 # Quick date creation functions
 func Yesterday()
     return StzDateQ("").SubtractDaysQ(1).Content()

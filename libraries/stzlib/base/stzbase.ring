@@ -77,6 +77,9 @@
 	load "regex/stzRegexMaker.ring"
 	load "regex/stzListex.ring"
 
+	load "regex/stzListexuter.ring"
+	load "regex/stzRegexuter.ring"
+
 # Loading files related to the LIST module
 
 	load "list/stzHashList.ring"
@@ -162,15 +165,19 @@
 	load "i18n/stzLocale.ring"
 	load "i18n/stzScript.ring"
 
-# Loading files related to the EXTIN module
+# Loading files related to the EXTINCODE module
 
-	load "extin/stzExtinCode.ring"
-	load "extin/stzExtinCSharp.ring"
-	load "extin/stzExtinPython.ring"
-	load "extin/stzExtinJS.ring"
-	load "extin/stzExtinSql.ring"
-	load "extin/stzExtinPerl.ring"
-	load "extin/stzExtinC.ring"
+	load "extincode/stzExtinCode.ring"
+	load "extincode/stzExtinCSharp.ring"
+	load "extincode/stzExtinPython.ring"
+	load "extincode/stzExtinJS.ring"
+	load "extincode/stzExtinSql.ring"
+	load "extincode/stzExtinPerl.ring"
+	load "extincode/stzExtinC.ring"
+
+# Loading files related to the EXERCODE module
+
+	load "extercode/stzExterCode.ring"
 
 # Loading files related to the NEtwORK module
 

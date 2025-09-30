@@ -1,4 +1,4 @@
-load "../stzmax.ring"
+load "../stzbase.ring"
 
 /*=====================================#
 #  PYTHON LANGUAGE EXAMPLES -- PART 1  #
@@ -52,7 +52,7 @@ oPyCode.Execute()
 # ]
 
 pf()
-# Executed in 0.10 second(s) in Ring 1.22
+# Executed in 0.36 second(s) in Ring 1.23
 
 
 /*--- Different number types
@@ -80,8 +80,7 @@ oPyCode.Run()
 # ]
 
 pf()
-#--> Executed in 0.12 second(s) in Ring 1.22
-
+#--> Executed in 0.39 second(s) in Ring 1.23
 
 /*--- String variations with proper escaping
 
@@ -110,7 +109,7 @@ oPyCode.Exec()
 # ]
 
 pf()
-# Executed in 0.12 second(s) in Ring 1.22
+# Executed in 0.40 second(s) in Ring 1.23
 
 /*--- Nested lists and mixed types
 
@@ -155,7 +154,7 @@ oPyCode.Execute()
 # ]
 
 pf()
-# Executed in 0.12 second(s) in Ring 1.22
+# Executed in 0.41 second(s) in Ring 1.23
 
 /*--- Complex nested structure
 
@@ -249,7 +248,7 @@ oPyCode.Execute()
 # ]
 
 pf()
-# Executed in 0.12 second(s) in Ring 1.22
+# Executed in 0.44 second(s) in Ring 1.23
 
 /*======================================#
 #  PYTHON EXAMPLES - PART 2 (ADVANCED)  #
@@ -259,10 +258,12 @@ pf()
 
 pr()
 
+#WARNING For this sample to work, you must install numpy and pandas mibs on pyhton
+
 oPyCode = new stzExterCode("python")
 oPyCode.SetCode('
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 # Create sample of sales data
 res = {
@@ -276,8 +277,7 @@ oPyCode.Execute()
 #--> [ [ "total_revenue", 6612.50 ], [ "average_price", 11.62 ], [ "best_seller", "C" ] ]
 
 pf()
-# Executed in 2.53 second(s) in Ring 1.22 : AFTER FIRST STARTUP
-# Executed in 0.61 second(s) in Ring 1.22 : AFTER WARM-UP
+# Executed in 0.73 second(s) in Ring 1.23
 
 /*--- Text Processing
 
@@ -348,11 +348,13 @@ oPyCode.Execute()
 # ]
 
 pf()
-# Executed in 0.14 second(s) in Ring 1.22
+# Executed in 0.33 second(s) in Ring 1.23
 
 /*--- Machine Learning Integration
 
 pr()
+
+#WARNING For that sample to work 'scikit-learn' must be installed ontop of python
 
 oPyCode = new stzExterCode("python")
 
@@ -413,8 +415,7 @@ oPyCode.Execute()
 # ]
 
 pf()
-# Executed in 7.63 second(s) in Ring 1.22 : AFTER FIRST RUN
-# Executed in 1.87 second(s) in Ring 1.22 : AFTER WARM-UP
+# Executed in 1.77 second(s) in Ring 1.23
 
 /*=======================#
 #  R LANGAUAGE EXAMPLES  #
@@ -441,11 +442,10 @@ R.Execute()
 # ]
 
 ? R.Duration()
-#--> 0.32
+#--> 0.48
 
 pf()
-# Executed in 1.06 second(s) in Ring 1.22 : AFTER FIRST RUN
-# Executed in 0.34 second(s) in Ring 1.22 : AFTER WARM-UP
+# Executed in 0.49 second(s) in Ring 1.23
 
 /*--- Simple nested list with different data types
 
@@ -488,7 +488,7 @@ R.Execute()
 # ]
 
 pf()
-# Executed in 0.32 second(s) in Ring 1.22
+# Executed in 0.46 second(s) in Ring 1.23
 
 /*--- Data analysis with NA handling
 
@@ -528,7 +528,7 @@ R.Execute()
 # ]
 
 pf()
-# Executed in 0.31 second(s) in Ring 1.22
+# Executed in 0.46 second(s) in Ring 1.23
 
 /*--- Statistical calculations
 
@@ -578,7 +578,7 @@ R.Execute()
 # ]
 
 pf()
-# Executed in 0.32 second(s) in Ring 1.22
+# Executed in 0.45 second(s) in Ring 1.23
 
 /*--- Nested calculations with custom functions
 
@@ -649,10 +649,10 @@ R.Execute()
 # ]
 
 pf()
-# Executed in 0.31 second(s) in Ring 1.22
+# Executed in 0.47 second(s) in Ring 1.23
 
 /*--- Time series data with aggregation
-*/
+
 pr()
 
 R = new stzExterCode(:R)
@@ -709,11 +709,14 @@ R.Execute()
 # ]
 
 pf()
-# Executed in 0.32 second(s) in Ring 1.22
+# Executed in 0.49 second(s) in Ring 1.23
 
 /*=== Graphic DataViz - Complex scatter plot with density
 
 pr()
+
+#WARNING Before you can run this sample, you must install 'ggplot2', 'plotly',
+# and 'viridis' libraries ontop of R
 
 R = new stzExterCode(:R)
 
@@ -805,8 +808,7 @@ R.Execute()
 View("output.png")
 
 pf()
-# Executed in 5.32 second(s) in Ring 1.22 : AFTER FRIST RUN
-# Executed in 2.92 second(s) in Ring 1.22 : AFTER WARM-UP
+# Executed in 2.83 second(s) in Ring 1.23
 
 /*==========================#
 #  JULIA LANGUAGE EXAMPLES  #
@@ -844,7 +846,7 @@ J { @('
 # ]
 
 pf()
-# Executed in 1.35 second(s) in Ring 1.22
+# Executed in 1.42 second(s) in Ring 1.23
 
 /*======================#
 #  C LANGUAGE EXAMPLES  #
@@ -879,7 +881,7 @@ xc.Execute()
 #--> [1, 2, 3, 4, 5]
 
 pf()
-# Executed in 0.34 second(s) in Ring 1.22
+# Executed in 0.60 second(s) in Ring 1.23
 
 /*--- Creating structs with key pairs
 
@@ -918,11 +920,11 @@ if (res) {
 
 xc.Execute()
 ? @@( xc.Result() )
-#--> # [ [ "name", "John" ], [ "age", 30 ], [ "isActive", 1 ] ]
+#--> [ [ "name", "John" ], [ "age", 30 ], [ "isActive", 1 ] ]
 
 pf()
 
-# Executed in 1.21 second(s) in Ring 1.22
+# Executed in 0.64 second(s) in Ring 1.23
 
 /*---  Nested Array of Mixed Types
 
@@ -970,10 +972,10 @@ if (res) {
 
 xc.Execute()
 ? @@( xc.Result() )
-#--> [ 42, "hello", 3.14, [ TRUE, 99 ] ]
+#--> [ 42, "hello", 3.14, [ 1, 99 ] ]
 
 pf()
-# Executed in 0.34 second(s) in Ring 1.22
+# Executed in 0.62 second(s) in Ring 1.23
 
 /*--- Complex Nested Structure with Arrays and Structs
 
@@ -1060,7 +1062,7 @@ xc.Execute()
 # ]
 
 pf()
-# Executed in 0.35 second(s) in Ring 1.22
+# Executed in 0.60 second(s) in Ring 1.23
 
 /*===================================#
 #  EXAMPLES FOR THE PROLOG LANGUAGE  #
@@ -1070,10 +1072,8 @@ pf()
 
 pr()
 
-# Create a Prolog instance
 oProlog = new stzExterCode(:prolog)
 
-# Set the Prolog code that's compatible with the transformation function
 oProlog.SetCode('
 % Define a predicate to add 10 to each element
 add_ten([], []).
@@ -1081,29 +1081,23 @@ add_ten([H|T], [H10|T10]) :-
     H10 is H + 10,
     add_ten(T, T10).
 
-% Create an input list and transform it
-process_data(Result) :-
+% Main computation predicate that main/0 will call
+compute_result(Result) :-
     InputList = [1, 2, 3, 4, 5],
     add_ten(InputList, TransformedList),
     Result = [input_list-InputList, transformed_list-TransformedList].
-
-% Define the result variable that will be used by the transform_to_ring function
-res(Result) :- process_data(Result).
 ')
 
-# Run the Prolog code
 oProlog.Run()
 
-# Display the result
-? "Result from Prolog execution:"
 ? @@( oProlog.Result() )
 #--> [
-#	[ "input_list", [ 1, 2, 3, 4, 5 ] ],
-#	[ "transformed_list", [ 11, 12, 13, 14, 15 ] ]
+#     [ "input_list", [ 1, 2, 3, 4, 5 ] ],
+#     [ "transformed_list", [ 11, 12, 13, 14, 15 ] ]
 # ]
 
 pf()
-# Executed in 0.21 second(s) in Ring 1.22
+# Executed in 0.32 second(s) in Ring 1.22
 
 /*--- List of factorials in Prolog
 
@@ -1112,28 +1106,21 @@ pr()
 oProlog = new stzExterCode(:Prolog)
 
 oProlog.SetCode('
+% Compute factorial
+factorial(0, 1).
+factorial(N, F) :-
+    N > 0,
+    N1 is N - 1,
+    factorial(N1, F1),
+    F is N * F1.
 
-	% Compute factorial
-
-	factorial(0, 1).
-	factorial(N, F) :-
-	    N > 0,
-	    N1 is N - 1,
-	    factorial(N1, F1),
-	    F is N * F1.
-	
-	% Create a list with factorials from 1 to 10
-
-	get_factorials(Result) :-
-	    findall(
-	        N-Fact,
-	        (between(1, 10, N), factorial(N, Fact)),
-	        Result
-	    ).
-	
-	% Define the main result - this will be transformed
-
-	res(Result) :- get_factorials(Result).
+% Create a list with factorials from 1 to 10
+get_factorials(Result) :-
+    findall(
+        N-Fact,
+        (between(1, 10, N), factorial(N, Fact)),
+        Result
+    ).
 ')
 
 oProlog.Run()
@@ -1388,6 +1375,7 @@ oProlog.Run()
 # of queens on the chessboard.
 
 pf()
+# Executed in 0.36 second(s) in Ring 1.23
 
 /*--- Natural Language Processing
 
@@ -1483,11 +1471,11 @@ oProlog.Run()
 # ]
 
 pf()
-# Executed in 0.22 second(s) in Ring 1.22
+# Executed in 0.37 second(s) in Ring 1.23
 
-#============================#
-#  NodeJS Langauge Examples  #
-#============================#
+#================================#
+#  Javascript Langauge Examples  #
+#================================#
 
 /*-- A simple array
 
@@ -1506,7 +1494,7 @@ njs.Execute()
 #--> [10, 20, 30, 40, 50]
 
 pf()
-# Executed in 0.14 second(s) in Ring 1.22
+# Executed in 0.34 second(s) in Ring 1.23
 
 /*--- Mixed data types
 
@@ -1580,7 +1568,7 @@ njs.Execute()
 # ]
 
 pf()
-# Executed in 0.15 second(s) in Ring 1.22
+# Executed in 0.34 second(s) in Ring 1.23
 
 /*--- Scientific notation
 
@@ -1601,13 +1589,15 @@ const res = {
 
 njs.Execute()
 ? @@( njs.Result() )
-#--> 	[ "avogadro", "6.02214076e+23" ],
+#-->
+#   [ "avogadro", "6.02214076e+23" ],
 #	[ "planck", "6.62607015e-34" ],
 #	[ "speedOfLight", 299792458 ],
 #	[ "values", [ 10000000000, 0.00, 3500000 ] ]
 # ]
 
 pf()
+# Executed in 0.34 second(s) in Ring 1.23
 
 /*--- Asynchronous Operations with Promises
 
@@ -1697,7 +1687,7 @@ njs.Execute()
 # ]
 
 pf()
-# Executed in 1.09 second(s) in Ring 1.22
+# Executed in 1.30 second(s) in Ring 1.23
 
 /*--- Data Processing with Modern JavaScript
 
@@ -1778,7 +1768,7 @@ njs.Execute()
 # ]
 
 pf()
-# Executed in 0.15 second(s) in Ring 1.22
+# Executed in 0.40 second(s) in Ring 1.23
 
 /*--- Basic Web API Concepts
 
@@ -1898,7 +1888,7 @@ njs.Execute()
 #	]
 # ]
 pf()
-# Executed in 0.15 second(s) in Ring 1.22
+# Executed in 0.34 second(s) in Ring 1.23
 
 /*=============================================#
 #  A BIT OF FUN: THE GRAND PERFORMANCE BATTLE  #
@@ -2013,7 +2003,7 @@ pr()
 # ]
 
 pf()
-# Executed in 37.83 second(s) in Ring 1.22
+# Executed in 25.63 second(s) in Ring 1.23
 
 # Ring fibonacci implementation
 
@@ -2058,17 +2048,14 @@ func ringQuickSort arr, low, high
    ok
 
 /*---------------------------#
-#  BENCHMARK FOR C LANGAUGE  #
+#  BENCHMARK FOR C LANGAUGE  # TODO Check error
 #----------------------------#
 
 pr()
 
 cCCode = '
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+// Need to include time.h for clock functions
 #include <time.h>
-#include <stdint.h>
 
 // Function to calculate fibonacci numbers iteratively
 // Using uint64_t for larger fibonacci numbers
@@ -2112,12 +2099,12 @@ void quicksort(int arr[], int low, int high) {
     }
 }
 
-// Performance benchmark
+// Performance benchmark - this code runs inside main()
 Value* res = create_struct_value(3);
 if (res) {
     // 1. Fibonacci sequence benchmark
     clock_t start = clock();
-    int n = 450;  // Calculate the 450th Fibonacci number (matching Ring)
+    int n = 45;  // Reduced from 450 to avoid overflow
     uint64_t result = fib(n);
     clock_t end = clock();
     double fib_time = ((double)(end - start)) / CLOCKS_PER_SEC * 1000;
@@ -2146,11 +2133,11 @@ if (res) {
     
     // 2. Sorting benchmark
     start = clock();
-    int array_size = 1000000;  // Match Ring 1,000,000 array size
+    int array_size = 100000;  // Reduced from 1,000,000 for faster execution
     int* array = (int*)malloc(array_size * sizeof(int));
     
     // Fill with random numbers
-    srand(42);  // Fixed seed for reproducibility (same as Ring)
+    srand(42);  // Fixed seed for reproducibility
     for (int i = 0; i < array_size; i++) {
         array[i] = rand() % 10000;  // Random numbers between 0-9999
     }
@@ -2181,7 +2168,7 @@ if (res) {
     
     // 3. Matrix multiplication benchmark
     start = clock();
-    int matrix_size = 250;  // Match Ring 250 matrix size
+    int matrix_size = 100;  // Reduced from 250 for faster execution
     int** matrix1 = (int**)malloc(matrix_size * sizeof(int*));
     int** matrix2 = (int**)malloc(matrix_size * sizeof(int*));
     int** result_matrix = (int**)malloc(matrix_size * sizeof(int*));
@@ -2238,17 +2225,24 @@ if (res) {
         free(matrix_struct);
     }
 } else {
-    printf("Failed to create result structure\n");
+    printf("Failed to create result structure\\n");
     res = NULL;
 }
 '
 
+? "Creating C executor..."
 C = new stzExterCode("c")
+
+? "Setting C code..."
 C.SetCode(cCCode) 
 
-// Execute the C code and get results
+? "Executing C code..."
 C.Execute()
+
+? "Getting results..."
 ? @@( C.Result() )
+
+? "Done!"
 #--> [
 #	[
 #	[
@@ -2689,8 +2683,8 @@ pf()
 
 pr()
 
-js = new stzExterCode(:nodejs)
-js.SetCode('
+njs = new stzExterCode(:nodejs)
+njs.SetCode('
 
 // Fibonacci function
 
@@ -2811,8 +2805,8 @@ const res = [
 ];
 ')
 
-js.Run()
-? @@( js.Result() )
+njs.Run()
+? @@( njs.Result() )
 #--> [
 #	[
 #		"fibonacci",
@@ -2961,4 +2955,6 @@ plg.Run()
 # ]
 
 pf()
-# Executed in 7.20 second(s) in Ring 1.22
+# Executed in 5.99 second(s) in Ring 1.23
+
+
