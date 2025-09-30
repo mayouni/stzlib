@@ -357,53 +357,57 @@ class stzDate from stzObject
                 return -This.DaysTo(v)
 
 			else
-				StzRaise("Unsupported value! Only a stzDate or a string can be provided.")
+				StzRaise("Unsupported value! Only a stzDate onject or a date in string can be provided.")
             ok
 
 		but op = "<"
-			if isObject(v) and v.IsAStzDate()
-				return This.IsBefore(v)
+			if (isObject(v) and v.IsAStzDate()) or
+				(isString(v) and IsDate(v))
 
-			but isString(v)
 				return This.IsBefore(v)
 
 			else
-				StzRaise("Unsupported value! Only a stzDate or a string can be provided.")
+				StzRaise("Unsupported value! Only a stzDate onject or a date in string can be provided.")
 			ok
 
 		but op = "<="
-			if isObject(v) and v.IsAStzDate()
-				return This.IsBefore(v) or This.EqualTo(v)
+			if (isObject(v) and v.IsAStzDate()) or
+				(isString(v) and IsDate(v))
 
-			but isString(v)
 				return This.IsBefore(v) or This.EqualTo(v)
 
 			else
-				StzRaise("Unsupported value! Only a stzDate or a string can be provided.")
+				StzRaise("Unsupported value! Only a stzDate onject or a date in string can be provided.")
 			ok
 
 		but op = ">"
-			if isObject(v) and v.IsAStzDate()
-				return This.IsAfter(v)
+			if (isObject(v) and v.IsAStzDate()) or
+				(isString(v) and IsDate(v))
 
-			but isString(v)
 				return This.IsAfter(v)
 
 			else
-				StzRaise("Unsupported value! Only a stzDate or a string can be provided.")
+				StzRaise("Unsupported value! Only a stzDate onject or a date in string can be provided.")
 			ok
 
 		but op = ">="
-			if isObject(v) and v.IsAStzDate()
-				return This.IsAfter(v) or This.EqualTo(v)
+			if (isObject(v) and v.IsAStzDate()) or
+				(isString(v) and IsDate(v))
 
-			but isString(v)
 				return This.IsAfter(v) or This.EqualTo(v)
 
 			else
-				StzRaise("Unsupported value! Only a stzDate or a string can be provided.")
+				StzRaise("Unsupported value! Only a stzDate onject or a date in string can be provided.")
 			ok
 
+		but op = "="
+			if (isObject(v) and v.IsAStzDate()) or
+				(isString(v) and IsDate(v))
+
+				return This.IsEqualTo(v)
+			else
+				StzRaise("Unsupported value! Only a stzDate onject or a date in string can be provided.")
+			ok
         ok
     
     def ParseOperation(cOperation, cOperator)
