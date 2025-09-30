@@ -9,7 +9,7 @@ pr()
 #--> 27/09/2025
 
 oDate = TodayQ()
-? oDate.Content() # Or ToString()
+? oDate.Date() # Or ToString()
 #--> 27/09/2025
 
 pf()
@@ -20,7 +20,7 @@ pf()
 pr()
 
 oDate = StzDateQ("15/03/2024")
-? oDate.Content()
+? oDate.Date()
 #--> 15/03/2024
 
 pf()
@@ -42,7 +42,7 @@ pr()
 
 oDate = StzDateQ("01/01/2025")
 oDate.AddDays(30)
-? oDate.Content()
+? oDate.Date()
 #--> 31/01/2025
 
 pf()
@@ -200,8 +200,22 @@ oDate2 = StzDateQ("31/12/2025")
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
-/*--- Comparing dates
+/*--- Checking if a date is between two other dates
 */
+pr()
+
+oYesterday = new stzDate(:Yesterday)
+oToday = new stzDate(:Today)
+oTomorrow = new stzDate(:Tomorrow)
+
+? oToday.IsBetween(oYesterday, :And = oTomorrow)
+#--> TRUE
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*--- Comparing dates
+
 pr()
 
 oDate1 = StzDateQ("15/06/2024")
@@ -309,7 +323,7 @@ pr()
 
 try
     oDate = StzDateQ("32/13/2024")  # Invalid date
-    ? oDate.Content()
+    ? oDate.Date()
 catch
     ? "Invalid date detected and handled"
 done
@@ -317,3 +331,41 @@ done
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
+
+/*--- Calculating Age
+
+pr()
+
+# Traditional approach requires complex date math
+# stzDate approach
+oBirthday = StzDateQ("15/06/1990")
+? oBirthday.Age()  # Automatic calculation
+#--> 35
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*---
+*/
+pr()
+
+o1 = new stzDate(:Today)
+
+? o1.Date()				#--> 30/09/2025
+? o1.ToHuman()	+ NL	#--> today
+
+o1 + "1 day"
+? o1.Date()				#--> 01/10/2025
+? o1.ToHuman() + NL		#--> tomorrow
+
+o1 - "2 days"
+? o1.Date()				#--> 29/09/2025
+? o1.ToHuman() + NL		#--> yesterday
+
+o1 + "2 weeks"
+? o1.Date()				#--> 13/10/2025
+? o1.ToRelative()		#--> in 1 week
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+

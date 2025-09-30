@@ -44,6 +44,18 @@ func SetDefaultMaxTreeDisplayLevel(n)
 
 #== Global Helper Functions ==#
 
+func CurrentFolder()
+	return currentDir()
+
+	func @CurrentFolder()
+		return currentDir()
+
+func @ExeFolder()
+	return exefolder()
+
+	func ExeDir()
+		return exeFolder()
+
 func IsFolder(cPath)
 	return dirExists(cPath)
 
