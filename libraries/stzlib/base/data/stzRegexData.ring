@@ -62,6 +62,8 @@ _$aRegexPatterns_ = [
 	:time24h = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$",    
 	:dateISO8601 = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|([+-])\\d{2}:\\d{2})?$",
 
+	:date = "\b(?:\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}|\d{1,2}\s+[A-Za-z]{3,9}\s+\d{2,4})\b",
+
 	# Markdown
 
 	:mdHeader = "^#{1,6}\s.+$",
@@ -978,6 +980,28 @@ _$aRegexPatternsExplanations_ = [
 
 		"- Matches: `23:59`, `00:00`, `14:30`" + NL +
 		"- Non-matches: `24:00`, `12:60`, `1:5`"
+	],
+
+	:date = [
+	    "Matches common date formats without time",
+	    
+	    "- `\\b`: Word boundary to avoid matching inside words" + NL +
+	    "- `(?: ... )`: Non-capturing group for alternative formats" + NL +
+	
+	    "- `\\d{1,4}[-/.]\\d{1,2}[-/.]\\d{1,4}`: Numeric date format" + NL +
+	    "    • Examples: `2025-09-30`, `30/09/2025`, `09.30.25`" + NL +
+	
+	    "- `|`: OR (between numeric and text month formats)" + NL +
+	
+	    "- `\\d{1,2}\\s+[A-Za-z]{3,9}\\s+\\d{2,4}`: Day MonthName Year format" + NL +
+	    "    • Examples: `30 Sept 2025`, `1 January 99`" + NL +
+	
+	    "- `[-/.]`: Accepts `-`, `/`, or `.` as separators" + NL +
+	    "- `[A-Za-z]{3,9}`: Matches month names (short or long)" + NL +
+	    "- `\\b`: Word boundary at the end" + NL + NL +
+	
+	    "- Matches: `2025-09-30`, `30/09/2025`, `09.30.25`, `30 Sept 2025`" + NL +
+	    "- Non-matches: `2025-09-30 12:00`, `hello2025-09-30world`, `99/99/9999`"
 	],
 
 	# Markdown

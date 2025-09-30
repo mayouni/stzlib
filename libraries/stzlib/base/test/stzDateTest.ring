@@ -16,7 +16,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Creating a date from string
-
+*
 pr()
 
 oDate = StzDateQ("15/03/2024")
@@ -195,12 +195,13 @@ oDate2 = StzDateQ("31/12/2025")
 
 # Or better:
 ? oDate2 - oDate1
+#--> 364
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Comparing dates
-
+*/
 pr()
 
 oDate1 = StzDateQ("15/06/2024")
@@ -219,20 +220,26 @@ oDate2 = StzDateQ("20/06/2024")
 ? ""
 
 ? oDate1 < oDate2
+#--> TRUE
+
 ? oDate1 < "20/06/2024"
+#--> TRUE
 
 ? ""
 
 ? oDate1 > oDate2
+#--> FALSE
+
 ? oDate1 > "20/06/2024"
+#--> FALSE
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*---
-*/
+
 pr()
-Rx = new stzRegex(pat(:IsoDate))
+Rx = new stzRegex(pat(:Date))
 ? Rx.Match("20-10-2025")
 
 ? IsDate("20/10/20025")
@@ -241,7 +248,11 @@ Rx = new stzRegex(pat(:IsoDate))
 ? IsDate("20/10/2025")
 #--> TRUE
 
-//? QQ("20/10/2025") = "20-10-2025"
+? QQ("20/10/2025").IsEqualTo("20-10-2025")
+#--> TRUE
+
+? QQ("20/10/2025") = "20-10-2025"
+#•-> TRUE
 
 pf()
 
@@ -251,14 +262,17 @@ pr()
 
 oDate = StzDateQ("15/07/2024")
 
-? "European: " + oDate.ToEuropean()
-? "American: " + oDate.ToAmerican()
-? "ISO8601: " + oDate.ToISO8601()
-? "Custom format: " + oDate.ToStringXT("dddd, MMMM d, yyyy")
-#--> European: 15/07/2024
-#--> American: 07/15/2024
-#--> ISO8601: 2024-07-15
-#--> Custom format: Monday, July 15, 2024
+? oDate.ToEuropean()
+#--> 15/07/2024
+
+? oDate.ToAmerican()
+#--> 07/15/2024
+
+? oDate.ToISO8601()
+#--> 2024-07-15
+
+? oDate.ToStringXT("dddd, MMMM d, yyyy") # Custom format
+#-->Monday, July 15, 2024
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -268,10 +282,12 @@ pf()
 pr()
 
 oDate = StzDateQ("25/12/2024")
-? "Long format: " + oDate.ToStringXT(:Long)
-? "Compact format: " + oDate.ToStringXT(:Compact)
-#--> Long format: Wednesday, December 25, 2024
-#--> Compact format: 25122024
+
+? oDate.ToStringXT(:Long)
+#--> Wednesday, December 25, 2024
+
+? oDate.ToStringXT(:Compact)
+#--> 25122024
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -281,8 +297,8 @@ pf()
 pr()
 
 oDate = StzDateQ("15/07/2024")
-? "Week number: " + oDate.WeekNumber()
-#--> Week number: 29
+? oDate.WeekNumber()
+#--> 29
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
