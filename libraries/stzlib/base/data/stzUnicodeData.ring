@@ -1,13 +1,13 @@
-#-------------------------------------------------------------------------#
-# 		   SOFTANZA LIBRARY (V0.9) - STZUNICODEDATA	          #
-# 	An accelerative library for Ring applications, and more!	  #
-#-------------------------------------------------------------------------#
-#									  #
-# 	Description : The class for managing Unicode data in Softanza     #
-#	Version	    : V0.9 (2020-2024)				          #
-#	Author	    : Mansour Ayouni (kalidianow@gmail.com)		  #
-#								          #
-#-------------------------------------------------------------------------#
+#------------------------------------------------------------------#
+#              SOFTANZA LIBRARY (V0.9) - STZUNICODEDATA            #
+#     An accelerative library for Ring applications, and more!     #
+#------------------------------------------------------------------#
+#                                                                  #
+#   Description : Managing Unicode data in Softanza                #
+#   Version     : V0.9 (2020-2025)                                 #
+#	Author      : Mansour Ayouni (kalidianow@gmail.com)            #
+#                                                                  #
+#------------------------------------------------------------------#
 
 
 /* GENERAL NOTES
@@ -67,15 +67,18 @@
 
 */
 
-_nNumberOfUnicodeChars = 149_186
+$nNumberOfUnicodeChars = 149_186
 
-_nMaxUnicode = 1_114_112
+$nMaxUnicode = 1_114_112
 
-_nNumberOfLinesInUnicodeDataFile = 34_931
+$nNumberOfLinesInUnicodeDataFile = 34_931
 
-_cUnicodeData = read("../data/unicodedata.txt")
+$cUnicodeData = read("../data/unicodedata.txt")
+#TODO Read this discussion:
+# https://groups.google.com/g/ring-lang/c/yCGeILp49O4/m/FWC5XWpsAQAJ
 
-_anMathUnicodes = [
+
+$anMathUnicodes = [
 	172, 176, 177, 188, 189, 190, 215, 247, 915, 916, 920, 923,
 	926, 928, 931, 933, 934, 936, 937, 945, 946, 947, 948, 949,
 	950, 951, 952, 953, 954, 955, 956, 957, 958, 959, 960, 961,
@@ -85,7 +88,7 @@ _anMathUnicodes = [
 ]
 
 
-_aUnicodeBlocksXT = [
+$aUnicodeBlocksXT = [
 	[ "Basic Latin", [0, 127] ],
 	[ "Latin-1 Supplement", [128, 255] ],
 	[ "Latin Extended-A", [256, 383] ],
@@ -425,23 +428,23 @@ _aUnicodeBlocksXT = [
 	[ "Supplementary Private Use Area-B", [1048576, 1114111] ]
 ]
 
-_anUnicodesOfBoxChars = 9472:9599
+$anUnicodesOfBoxCharsdeBlocksXT = 9472:9599
 
 func UnicodesOfBoxChars()
-	return _anUnicodesOfBoxChars
+	return $anUnicodesOfBoxCharsdeBlocksXT
 
 func UnicodeBoxChars()
-	return UnicodesToChars(_anUnicodesOfBoxChars)
+	return UnicodesToChars($anUnicodesOfBoxCharsdeBlocksXT)
 
 func UnicodeData()
-	return _cUnicodeData
+	return $cUnicodeData
 	
 	func StzUnicodeDataQ()
 		return new stzUnicodeData()
 
 
 func MaxUnicode()
-	return _nMaxUnicode
+	return $nMaxUnicode
 
 	func LastUnicode()
 		return MaxUnicode()
@@ -450,7 +453,7 @@ func MaxUnicode()
 		return MaxUnicode()
 
 func NumberOfUnicodeChars()
-	return _nNumberOfUnicodeChars
+	return $nNumberOfUnicodeChars
 
 	func NumberOfUnicodes()
 		return NumberOfUnicodeChars1()
@@ -462,13 +465,13 @@ func NumberOfUnicodeChars()
 		return NumberOfUnicodeChars()
 
 func NumberOfLinesInUnicodeDataFile()
-	return _nNumberOfLinesInUnicodeDataFile
+	return $nNumberOfLinesInUnicodeDataFile
 
 func MathUnicodes()
-	return _anMathUnicodes
+	return $anMathUnicodes
 
 func NumberOfMathChars()
-	return len(_anMathUnicodes)
+	return len($anMathUnicodes)
 
 	func HowManyMathChars()
 		return NumberOfMathChars()
@@ -502,17 +505,17 @@ func NumberOfUnicodeBlocks()
 		return NumberOfUnicodeBlocks()
 
 func UnicodeBlocksXT()
-	return _aUnicodeBlocksXT
+	return $aUnicodeBlocksXT
 
 	func UnicodeBlocksAndTheirRanges()
 		return UnicodeBlocksXT()
 
 func UnicodeBlocks()
 	acResult = []
-	nLen = len(_aUnicodeBlocksXT)
+	nLen = len($aUnicodeBlocksXT)
 
 	for i = 1 to nLen
-		acResult + _aUnicodeBlocksXT[i][1]
+		acResult + $aUnicodeBlocksXT[i][1]
 	next
 
 	return acResult
@@ -522,22 +525,22 @@ func UnicodeBlocks()
 
 func UnicodeBlocksRanges()
 	aResult = []
-	nLen = len(_aUnicodeBlocksXT)
+	nLen = len($aUnicodeBlocksXT)
 
 	for i = 1 to nLen
-		aResult + _aUnicodeBlocksXT[i][2]
+		aResult + $aUnicodeBlocksXT[i][2]
 	next
 
 	return aResult
 
 func UnicodeBlocksContaining(pcStr)
 	acResult = []
-	nLen = len(_aUnicodeBlocksXT)
+	nLen = len($aUnicodeBlocksXT)
 
 	for i = 1 to nLen
-		str = lower(_aUnicodeBlocksXT[i][1])
+		str = lower($aUnicodeBlocksXT[i][1])
 		if ring_substr1(str, pcStr) > 0
-			acResult + _aUnicodeBlocksXT[i][1]
+			acResult + $aUnicodeBlocksXT[i][1]
 		ok
 	next
 
@@ -572,12 +575,12 @@ func UnicodeBlocksContaining(pcStr)
 
 func UnicodeBlocksContainingXT(pcStr)
 	aResult = []
-	nLen = len(_aUnicodeBlocksXT)
+	nLen = len($aUnicodeBlocksXT)
 
 	for i = 1 to nLen
-		str = lower(_aUnicodeBlocksXT[i][1])
+		str = lower($aUnicodeBlocksXT[i][1])
 		if ring_substr1(str, pcStr) > 0
-			aResult + _aUnicodeBlocksXT[i]
+			aResult + $aUnicodeBlocksXT[i]
 		ok
 	next
 

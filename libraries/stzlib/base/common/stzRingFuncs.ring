@@ -6,6 +6,12 @@ func ceiling(n)
 func low(str)
 	return lower(str)
 
+func ring_exeFolder()
+	return exeFolder()
+
+func ring_currentDir()
+	return currentDir()
+
 func ring_dir(cFolderPath)
 	return dir(cFolderPath)
 
@@ -25,9 +31,6 @@ func ring_isdir(cPath)
 
 func ring_ChDir(cNewPath)
 	return ChDir(cNewPath)
-
-func ring_exefolder()
-	return ring_exefolder()
 
 func ring_fexists(cFile)
 	return fexists(cFile)

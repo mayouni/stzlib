@@ -188,28 +188,35 @@ class stzDate from stzObject
             # Handle special keywords
             if isString(pDate)
                 cLowerDate = lower(pDate)
+
                 switch cLowerDate
                     on "today"
                         oQDate = oQDate.currentDate()
+
                     on "yesterday"
                         oQDate = oQDate.currentDate().addDays(-1)
+
                     on "tomorrow"
                         oQDate = oQDate.currentDate().addDays(1)
+
                     other
                         This.ParseStringDate(pDate)
                 off
+
             else
+
                 if not isString(pDate)
                     pDate = ""+ pDate
                 ok
+
                 This.ParseStringDate(pDate)
             ok
         ok
-        
+
         if not oQDate.isValid()
             StzRaise("Invalid date provided!")
         ok
-    
+
     def ParseStringDate(cDate)
         # Enhanced parser with more formats
         aFormats = [ 
@@ -339,26 +346,30 @@ class stzDate from stzObject
     #--- ENHANCED OPERATOR OVERLOADING ---#
     
     def operator(op, v)
-        if op = "+"
-            if isNumber(v)
-                return This.AddDays(v)
-            but isString(v)
-                return This.ParseOperation(v, "+")
-            ok
-
-        but op = "-"
-            if isNumber(v)
-                return This.SubtractDays(v)
-
-            but isString(v)
-                return This.ParseOperation(v, "-")
-
-            but isObject(v) and v.IsAStzDate()
-                return -This.DaysTo(v)
-
-			else
-				StzRaise("Unsupported value! Only a stzDate onject or a date in string can be provided.")
-            ok
+	    if op = "+"
+	        if isNumber(v)
+	            This.AddDays(v)
+	            return This
+	        but isString(v)
+	            This.ParseOperation(v, "+")
+	            return This
+	        ok
+	
+	    but op = "-"
+	        if isNumber(v)
+	            This.SubtractDays(v)
+	            return This
+	
+	        but isString(v)
+	            This.ParseOperation(v, "-")
+	            return This
+	
+	        but isObject(v) and v.IsAStzDate()
+	            return This.DaysTo(v)
+	
+	        else
+	            StzRaise("Unsupported value! Only a stzDate object or a date in string can be provided.")
+	        ok
 
 		but op = "<"
 			if (isObject(v) and v.IsAStzDate()) or
@@ -410,44 +421,45 @@ class stzDate from stzObject
 			ok
         ok
     
-    def ParseOperation(cOperation, cOperator)
-        acWords = @split(cOperation, " ")
-        
-        if len(acWords) != 2
-            StzRaise("Invalid operation format. Use 'n days/weeks/months/years'")
-        ok
-        
-        nValue = 0+ acWords[1]
-        cUnit = lower(acWords[2])
-        
-        if cOperator = "-"
-            nValue = -nValue
-        ok
-        
-        switch cUnit
-            on "day"
-                return This.AddDays(nValue)
-			on "days"
-				 return This.AddDays(nValue)
+	 def ParseOperation(cOperation, cOperator)
+	    acWords = @split(cOperation, " ")
+	    
+	    if len(acWords) != 2
+	        StzRaise("Invalid operation format. Use 'n days/weeks/months/years'")
+	    ok
+	    
+	    nValue = 0+ acWords[1]
+	    cUnit = lower(acWords[2])
+	    
+	    if cOperator = "-"
+	        nValue = -nValue
+	    ok
+	    
+	    switch cUnit
+	        on "day"
+	            This.AddDays(nValue)
+	        on "days"
+	            This.AddDays(nValue)
+	
+	        on "week"
+	            This.AddWeeks(nValue)
+	        on "weeks"
+	            This.AddWeeks(nValue)
+	
+	        on "month"
+	            This.AddMonths(nValue)
+	        on "months"
+	            This.AddMonths(nValue)
+	
+	        on "year"
+	            This.AddYears(nValue)
+	        on "years"
+	            This.AddYears(nValue)
+	
+	        other
+	            StzRaise("Invalid unit! Use 'days', 'weeks', 'months', or 'years'.")
+	    off
 
-            on "week"
-                return This.AddWeeks(nValue)
-            on "weeks"
-                return This.AddWeeks(nValue)
-
-            on "month"
-                return This.AddMonths(nValue)
-            on "months"
-                return This.AddMonths(nValue)
-
-            on "year"
-                return This.AddYears(nValue)
-            on "years"
-                return This.AddYears(nValue)
-
-            other
-                StzRaise("Invalid unit! Use 'days', 'weeks', 'months', or 'years'.")
-        off
     
     #--- COMPARISON METHODS ---#
     
@@ -526,7 +538,14 @@ class stzDate from stzObject
     def IsToday()
         oToday = new QDate()
         oToday = oToday.currentDate()
-        return oQDate.daysTo(oToday) = 0
+
+        nDays = oQDate.daysTo(oToday)
+
+		if nDays = 0
+			return 1
+		else
+			return 0
+		ok
 
     def IsYesterday()
         oYesterday = new QDate()
@@ -651,64 +670,71 @@ class stzDate from stzObject
 
     #--- HUMAN-READABLE FORMATTING ---#
     
-    def ToHuman()
-        if This.IsToday()
-            return "today"
+	def ToHuman()
+	    nDays = -This.DaysTo(new stzDate(""))  # Invert the sign
+	    
+	    if nDays = 0
+	        return "today"
+	
+	    but nDays = 1
+	        return "tomorrow"
+	
+	    but nDays = -1
+	        return "yesterday"
+	
+	    but nDays > 0 and nDays <= 7
+	        return "In " + nDays + " day" + Iff(nDays=1, "", "s")
+	
+	    but nDays < 0 and nDays >= -7
+	        return '' + (-nDays) + " day" + Iff(nDays=-1, "", "s") + " ago"
+	
+	    else
+	        return This.ToString()
+	    ok
 
-        but This.IsYesterday()
-            return "yesterday"
-
-        but This.IsTomorrow()
-            return "tomorrow"
-
-        else
-            nDays = This.DaysTo(new stzDate(""))
-
-            if nDays > 0 and nDays <= 7
-                return "In " + nDays + " day" + Iff(nDays=1, "", "s")
-
-            but nDays < 0 and nDays >= -7
-                return '' + (-nDays) + " day" + Iff(nDays=-1, "", "s") + " ago"
-
-            else
-                return This.ToString()
-            ok
-        ok
-
-    def ToRelative()
-        nDays = This.DaysTo(new stzDate(""))
-        
-        if nDays = 0
-            return "today"
-
-        but nDays = 1
-            return "tomorrow"
-
-        but nDays = -1
-            return "yesterday"
-
-        but nDays > 1 and nDays <= 7
-            return "in " + nDays + " days"
-
-        but nDays < -1 and nDays >= -7
-            return '' + (-nDays) + " days ago"
-
-        but nDays > 7 and nDays <= 30
-            nWeeks = floor(nDays / 7)
-            return "in " + nWeeks + " week" + Iff(nWeeks=1, "", "s")
-
-        but nDays < -7 and nDays >= -30
-            nWeeks = floor((-nDays) / 7)
-            return '' + nWeeks + " week" + Iff(nWeeks=1, "", "s") + " ago"
-
-        else
-            return This.ToString()
-        ok
+	def ToRelative()
+	    nDays = -This.DaysTo(new stzDate(""))  # Invert the sign
+	    
+	    if nDays = 0
+	        return "today"
+	
+	    but nDays = 1
+	        return "tomorrow"
+	
+	    but nDays = -1
+	        return "yesterday"
+	
+	    but nDays > 1 and nDays <= 7
+	        return "in " + nDays + " days"
+	
+	    but nDays > 7 and nDays <= 14
+	        return "in 1 week"
+	
+	    but nDays > 14 and nDays <= 30
+	        nWeeks = floor(nDays / 7)
+	        return "in " + nWeeks + " weeks"
+	
+	    but nDays < -1 and nDays >= -7
+	        return '' + (-nDays) + " days ago"
+	
+	    but nDays < -7 and nDays >= -14
+	        return "1 week ago"
+	
+	    but nDays < -14 and nDays >= -30
+	        nWeeks = floor((-nDays) / 7)
+	        return '' + nWeeks + " weeks ago"
+	
+	    else
+	        return This.ToString()
+	    ok
 
     def ToString()
         return This.ToStringXT("")
 
 		def Content()
+			return This.ToString()
+
+		def Date()
 			return This.ToString()
 
     def ToStringXT(cFormat)
@@ -743,7 +769,13 @@ class stzDate from stzObject
 
     #--- BATCH OPERATIONS ---#
     
-    def Between(oStartDate, oEndDate)
+    def IsBetween(oStartDate, oEndDate)
+		if CheckParams()
+			if isList(oEndDate) and StzListQ(oEndDate).IsAndNamedParam()
+				oEndDate = oEndDate[2]
+			ok
+		ok
+
         if isString(oStartDate)
             oStartDate = new stzDate(oStartDate)
         ok
@@ -777,343 +809,6 @@ class stzDate from stzObject
         else
             return 0
         ok
-    
-    def IsAStzDate()
-        return TRUE
-
-/*============================
-
-class stzDate from stzObject
-    oQDate
-    
-    def init(pDate)
-        oQDate = new QDate()
-        
-        if pDate = NULL or pDate = ""
-            oQDate = oQDate.currentDate()
-        else
-            # Always expect string input
-            if not isString(pDate)
-                pDate = ""+ pDate
-            ok
-            This.ParseStringDate(pDate)
-        ok
-        
-        if not oQDate.isValid()
-            StzRaise("Invalid date provided!")
-        ok
-    
-    def ParseStringDate(cDate)
-        # Try common formats
-        aFormats = [ "dd/MM/yyyy", "MM/dd/yyyy", "yyyy-MM-dd", 
-                    "dd-MM-yyyy", "yyyy/MM/dd", "ddMMyyyy" ]
-        
-        for cFormat in aFormats
-            oTemp = oQDate.fromString(cDate, cFormat)
-            if oTemp.isValid()
-                oQDate = oTemp
-                return
-            ok
-        next
-        
-        StzRaise("Cannot parse date string: " + cDate)
-    
-    #--- ARITHMETIC OPERATIONS (Mutable Softanza Style) ---#
-    
-    def AddDays(nDays)
-        oQDate = oQDate.addDays(nDays)
-        return This.ToString()
- 
-		def AddDaysQ(nDays)
-			This.AddDays(nDays)
-			return This
-
-    def AddMonths(nMonths)
-        oQDate = oQDate.addMonths(nMonths)
-        return This.ToString()
-
-		def AddMonthsQ(nMonths)
-			This.AddMonths(nMonths)
-			return This
-
-    def AddYears(nYears)
-        oQDate = oQDate.addYears(nYears)
-        return This.ToString()
-
-		def AddYearsQ(nYears)
-			This.AddYears(nYears)
-			return This
-
-    def SubtractDays(nDays)
-        oQDate = oQDate.addDays(-nDays)
-        return This.ToString()
-
-		def SubtractDaysQ(nDays)
-			This.SubtractDays(nDays)
-			return This
-
-    def SubtractMonths(nMonths)
-        oQDate = oQDate.addMonths(-nMonths)
-        return This.ToString()
-    
-		def SubtractMonthsQ(nMonths)
-			This.SubtractMonths(nMonths)
-			return This
-
-    def SubtractYears(nYears)
-        oQDate = oQDate.addYears(-nYears)
-        return This.ToString()
-    
-		def SubtractYearsQ(nYears)
-			This.SubtractYears(nYears)
-			return This
-
-    #--- OPERATOR OVERLOADING ---#
-    
-    def operator(op, v)
-        if op = "+"
-            if isNumber(v)
-                return This.AddDays(v)
-            but isString(v)
-                return This.ParseOperation(v, "+")
-            ok
-        but op = "-"
-            if isNumber(v)
-                return This.SubtractDays(v)
-            but isString(v)
-                return This.ParseOperation(v, "-")
-            ok
-        ok
-    
-    def ParseOperation(cOperation, cOperator)
-        acWords = @split(cOperation, " ")
-        
-        if len(acWords) != 2
-            StzRaise("Invalid operation format. Use 'n days/months/years'")
-        ok
-        
-        nValue = 0+ acWords[1]
-        cUnit = lower(acWords[2])
-        
-        if cOperator = "-"
-            nValue = -nValue
-        ok
-        
-        if cUnit = "day" or cUnit = "days"
-            return This.AddDays(nValue)
-        but cUnit = "month" or cUnit = "months"
-            return This.AddMonths(nValue)
-        but cUnit = "year" or cUnit = "years"
-            return This.AddYears(nValue)
-        else
-            StzRaise("Invalid unit! Use 'days', 'months', or 'years'.")
-        ok
-    
-    #--- COMPARISON METHODS ---#
-    
-    def DaysTo(oOtherDate)
-        if isString(oOtherDate)
-            oOtherDate = new stzDate(oOtherDate)
-        ok
-        
-        if not isObject(oOtherDate) or not oOtherDate.IsAStzDate()
-            StzRaise("Parameter must be a stzDate object or date string")
-        ok
-        return oQDate.daysTo(oOtherDate.QDateObject())
-    
-    def IsBefore(oOtherDate)
-        return This.DaysTo(oOtherDate) > 0
-    
-    def IsAfter(oOtherDate)
-        return This.DaysTo(oOtherDate) < 0
-    
-    def IsEqual(oOtherDate)
-        return This.DaysTo(oOtherDate) = 0
-    
-    #--- GETTERS (Return strings by default) ---#
-    
-    def Year()
-        return ""+ oQDate.year()
-        
-        def YearInNumber()
-            return oQDate.year()
-            
-        def YearN()
-            return oQDate.year()
-            
-        def YearNumberInString()
-            return ""+ oQDate.year()
-    
-    def Month()
-        return GetMonthName(oQDate.month())
-        
-        def MonthInNumber()
-            return oQDate.month()
-            
-        def MonthN()
-            return oQDate.month()
-            
-        def MonthNumberInString()
-            return ""+ oQDate.month()
-            
-   def MonthInLanguage(cLanguage)
-        return GetMonthNameXT(oQDate.month(), cLanguage)
-    
-		def MonthIn(cLanguage)
-			return This.MonthInLanguage(cLanguage)
-
-    def Day()
-        return GetDayName(oQDate.dayOfWeek())
-        
-        def DayInNumber()
-            return oQDate.day()
-            
-        def DayN()
-            return oQDate.day()
-            
-        def DayNumberInString()
-            return ""+ oQDate.day()
-            
-    def DayInLanguage(cLanguage)
-        return GetDayNameXT(oQDate.dayOfWeek(), cLanguage)
- 
-		def DayIn(cLanguage)
-			return DayInLanguage(cLanguage)
-
-    def DayOfWeek()
-        return ""+ oQDate.dayOfWeek()
-        
-        def DayOfWeekInNumber()
-            return oQDate.dayOfWeek()
-            
-        def DayOfWeekN()
-            return oQDate.dayOfWeek()
-    
-    def DayOfYear()
-        return ""+ oQDate.dayOfYear()
-        
-        def DayOfYearInNumber()
-            return oQDate.dayOfYear()
-            
-        def DayOfYearN()
-            return oQDate.dayOfYear()
-    
-	def WeekNumber()
-		# Calculated manually using ISO standard
-		# because I strugled with the RingQt version signature
-		#TODO // Check it!
-
-	    nYear = oQDate.year()
-	    nMonth = oQDate.month() 
-	    nDay = oQDate.day()
-	    
-	    # ISO week calculation
-		oQDateTemp = new QDate()
-		oQDateTemp.setDate(nYear, 1, 1)
-	    nJan1DayOfWeek = oQDateTemp.dayOfWeek()
-
-	    nDayOfYear = oQDate.dayOfYear()
-	    
-	    nWeek = floor((nDayOfYear + nJan1DayOfWeek - 2) / 7) + 1
-	    
-	    # Handle edge cases for ISO weeks
-	    if nWeek = 0
-	        nWeek = 52
-			oQDateTemp = new QDate()
-			oQDateTemp.setDate(nYear-1, 12, 31)
-	        if oQDateTemp.dayOfWeek() = 4
-	            nWeek = 53
-	        ok
-	    ok
-	    
-	    return nWeek
-	   
-    
-    def DaysInMonth()
-        return ""+ oQDate.daysInMonth()
-        
-        def DaysInMonthInNumber()
-            return oQDate.daysInMonth()
-            
-        def DaysInMonthN()
-            return oQDate.daysInMonth()
-    
-    def DaysInYear()
-        return ""+ oQDate.daysInYear()
-        
-        def DaysInYearInNumber()
-            return oQDate.daysInYear()
-            
-        def DaysInYearN()
-            return oQDate.daysInYear()
-    
-    def IsLeapYear()
-        if oQDate.isLeapYear(This.YearN())
-            return "true"
-        else
-            return "false"
-        ok
-        
-        def IsLeapYearInLogical()
-            return oQDate.isLeapYear(This.YearN())
-            
-        def IsLeapYearL()
-            return oQDate.isLeapYear(This.YearN())
-    
-    #--- FORMATTING ---#
-    
-	def ToString()
-		return This.ToStringXT("")
-
-	def ToStringXT(cFormat)
-	    if cFormat = NULL or cFormat = ""
-	        cFormat = $cDefaultDateFormat
-	    ok
-	    
-	    # Handle named formats (case-insensitive)
-	    cLowerFormat = lower(cFormat)
-	    for aFormat in $aDateFormats
-	        if lower(aFormat[1]) = cLowerFormat
-	            cFormat = aFormat[2]
-	            exit
-	        ok
-	    next
-	    
-	    return oQDate.toString(cFormat)
-    
-    def ToISO8601()
-        return This.ToStringXT("yyyy-MM-dd")
-    
-    def ToEuropean()
-        return This.ToStringXT("dd/MM/yyyy")
-    
-    def ToAmerican()
-        return This.ToStringXT("MM/dd/yyyy")
-    
-    #--- UTILITY METHODS ---#
-    
-    def SetQDate(oNewQDate)
-        oQDate = oNewQDate
-
-		def SetQDateQ(oNewQDate)
-			This.SetQDate(oNewQDate)
-        	return This
-    
-    def QDateObject()
-        return oQDate
-    
-    def IsValid()
-        if oQDate.isValid()
-            return "true"
-        else
-            return "false"
-        ok
-        
-        def IsValidInLogical()
-            return oQDate.isValid()
-            
-        def IsValidL()
-            return oQDate.isValid()
     
     def IsAStzDate()
         return TRUE

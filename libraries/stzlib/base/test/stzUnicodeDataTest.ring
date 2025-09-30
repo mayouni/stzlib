@@ -1,7 +1,7 @@
 load "../stzbase.ring"
 
 /*----
-
+*/
 pr()
 
 # Getting a char by its unicode codepoint
