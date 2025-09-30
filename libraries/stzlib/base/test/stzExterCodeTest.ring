@@ -157,7 +157,7 @@ pf()
 # Executed in 0.41 second(s) in Ring 1.23
 
 /*--- Complex nested structure
-
+*/
 pr()
 
 oPyCode = new stzExterCode("python")
@@ -351,7 +351,7 @@ pf()
 # Executed in 0.33 second(s) in Ring 1.23
 
 /*--- Machine Learning Integration
-
+*/
 pr()
 
 #WARNING For that sample to work 'scikit-learn' must be installed ontop of python
@@ -581,7 +581,7 @@ pf()
 # Executed in 0.45 second(s) in Ring 1.23
 
 /*--- Nested calculations with custom functions
-
+*/
 pr()
 
 R = new stzExterCode(:R)
