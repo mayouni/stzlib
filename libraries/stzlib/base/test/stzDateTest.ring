@@ -201,7 +201,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Checking if a date is between two other dates
-*/
+
 pr()
 
 oYesterday = new stzDate(:Yesterday)
@@ -215,7 +215,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Comparing dates
-
+*/
 pr()
 
 oDate1 = StzDateQ("15/06/2024")
