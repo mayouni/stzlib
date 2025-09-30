@@ -1,14 +1,12 @@
 load "stzExterCodeTransFuncs.ring"
 
+#TODO Ensure temp script and runtime files are all generated in a temp folder
 
 #------------------#
 #  THE MAIN CLASS  #
 #------------------#
 
 class stzExterCode
-
-	@cTempDir = "extertemp"
-
     # Configuring supported languages with full paths
     @aLanguages = [
 
@@ -102,21 +100,15 @@ class stzExterCode
     @nEndTime = 0
     @bVerbose = 0  # Toggle with SetVerbose()
 
-	def Init(cLang)
-	    if NOT This.IsLanguageSupported(cLang)
-	        stzraise("Language '" + cLang + "' is not supported")
-	    ok
-	
-	    @cLanguage = lower(cLang)
-	    
-	    # Create temp directory if it doesn't exist
-	    if NOT isdir(@cTempDir)
-	        system("mkdir " + @cTempDir)
-	    ok
-	    
-	    @cSourceFile = @cTempDir + "/" + "temp" + @aLanguages[@cLanguage][:extension]
-	    @cResultFile = @cTempDir + "/" + @aLanguages[@cLanguage][:ResultFile]
-	    @cLogFile = @cTempDir + "/" + "log.txt"
+    def Init(cLang)
+
+        if NOT This.IsLanguageSupported(cLang)
+            stzraise("Language '" + cLang + "' is not supported")
+        ok
+
+        @cLanguage = lower(cLang)
+        @cSourceFile = "temp" + @aLanguages[@cLanguage][:extension]
+        @cResultFile = @aLanguages[@cLanguage][:ResultFile]
 
     def IsLanguageSupported(cLang)
         return @aLanguages[lower(cLang)] != NULL
@@ -167,7 +159,7 @@ class stzExterCode
 	        cExtraArgs = " " + @aLanguages[@cLanguage][:ExtraArgs]
 	    ok
 	
-	    cScriptFile = @cTempDir + "/" + "run" + @cLanguage
+	    cScriptFile = "run" + @cLanguage
 	
 	    if isWindows()
 	        cScriptFile += ".bat"
@@ -329,7 +321,7 @@ class stzExterCode
         return @bVerbose
 
     def SetLogFile(cFileName)
-        @cLogFile = @cTempDir + "/" + cFileName
+        @cLogFile = cFileName
 
     def LogFile()
         return This.ReadFile(@cLogFile)
@@ -399,67 +391,67 @@ class stzExterCode
             :Mode = cMode
         ]
 
-def PrepareSourceCode()
+    def PrepareSourceCode()
 
-    cTransFunc = @aLanguages[@cLanguage][:TransFunc]
+        cTransFunc = @aLanguages[@cLanguage][:TransFunc]
 
-    #-------------------------
-    if @cLanguage = "python"
-    #-------------------------
+	#-------------------------
+         if @cLanguage = "python"
+	#-------------------------
 
-        return NL + cTransFunc + '
+            return NL + cTransFunc + '
 # Main code
 print("Python script starting...")
 ' + @cCode + '
 print("Data before transformation:", ' + @cResultVar + ')
 transformed = transform_to_ring(' + @cResultVar + ')
 print("Data after transformation:", transformed)
-with open("' + @cTempDir + '/' + @aLanguages[@cLanguage][:ResultFile] + '", "w") as f:
+with open("' + @cResultFile + '", "w") as f:
     f.write(transformed)
 print("Data written to file")
 '
 
-    #---------------------
-    but @cLanguage = "r"
-    #---------------------
+	#---------------------
+         but @cLanguage = "r"
+	#---------------------
 
-        return cTransFunc + '
+            return cTransFunc + '
 # Main code
 cat("R script starting...\n")
 ' + @cCode + '
 transformed <- transform_to_ring(' + @cResultVar + ')
-writeLines(transformed, "' + @cTempDir + '/' + @aLanguages[@cLanguage][:ResultFile] + '")
+writeLines(transformed, "' + @cResultFile + '")
 cat("Data written to file\n")
 '
 
-    #-------------------------
-    but @cLanguage = "julia"
-    #-------------------------
+	#-------------------------
+         but @cLanguage = "julia"
+	#-------------------------
 
-        return cTransFunc + '
+            return cTransFunc + '
 # Main code
 println("Julia script starting...")
 ' + @cCode + '
 transformed = transform_to_ring(' + @cResultVar + ')
 println("Data before transformation: ", ' + @cResultVar + ')
 println("Data after transformation: ", transformed)
-open("' + @cTempDir + '/' + @aLanguages[@cLanguage][:ResultFile] + '", "w") do f
+open("' + @cResultFile + '", "w") do f
     write(f, transformed)
 end
 println("Data written to file")
 '
 
-    #---------------------
-    but @cLanguage = "c"
-    #---------------------
+	#---------------------
+	 but @cLanguage = "c"
+	#---------------------
 
-        return $cCToRingTransFunc + '
+    return $cCToRingTransFunc + '
 
 int main() {
     printf("C program starting...\\n");
 ' + @cCode + '
     if (res != NULL) {
-        transform_to_ring(res, "' + @cTempDir + '/' + @aLanguages[@cLanguage][:ResultFile] + '");
+        transform_to_ring(res, "' + @cResultFile + '");
         printf("Data written to file.\\n");
         free_value(res);
         free(res);
@@ -468,22 +460,24 @@ int main() {
 }
 '
 
-    #---------------------------
-    but @cLanguage = "prolog"
-    #---------------------------
+	#---------------------------
+   	 but @cLanguage = "prolog"
+	#---------------------------
 
-        # Extract the main computation predicate name from user code
-        cMainPredicate = "compute_result"  # default
-        
-        if substr(@cCode, "compute_result(") > 0
-            cMainPredicate = "compute_result"
-        but substr(@cCode, "get_factorials(") > 0
-            cMainPredicate = "get_factorials"
-        but substr(@cCode, "res(") > 0
-            cMainPredicate = "res"
-        ok
+    # Extract the main computation predicate name from user code
+    # Look for a predicate that takes one argument and is likely the main one
+    cMainPredicate = "compute_result"  # default
+    
+    # Try to find a predicate definition in the code
+    if substr(@cCode, "compute_result(") > 0
+        cMainPredicate = "compute_result"
+    but substr(@cCode, "get_factorials(") > 0
+        cMainPredicate = "get_factorials"
+    but substr(@cCode, "res(") > 0
+        cMainPredicate = "res"
+    ok
 
-        return '
+    return '
 ' + $cPrologToRingTransFunc + '
 
 :- use_module(library(lists)).
@@ -497,28 +491,28 @@ main :-
     writeln("SWI-Prolog program starting..."),
     ' + cMainPredicate + '(Res),
     writeln("Transforming result..."),
-    transform_to_ring(Res, "' + @cTempDir + '/' + @aLanguages[@cLanguage][:ResultFile] + '"),
+    transform_to_ring(Res, "' + @cResultFile + '"),
     writeln("Data written to file").
 '
 
-    #------------------------------
-    but @cLanguage = "nodejs"
-    #------------------------------
-    
-        return cTransFunc + '
+	#------------------------------
+	but @cLanguage = "nodejs"
+	#------------------------------
+	
+	    return cTransFunc + '
 // Main code
 console.log("NodeJS script starting...");
 ' + @cCode + '
 console.log("Data before transformation:", ' + @cResultVar + ');
 const transformed = transform_to_ring(' + @cResultVar + ');
 console.log("Data after transformation:", transformed);
-require("fs").writeFileSync("' + @cTempDir + '/' + @aLanguages[@cLanguage][:ResultFile] + '", transformed);
+require("fs").writeFileSync("' + @cResultFile + '", transformed);
 console.log("Data written to file");
 '
 
-    #------
-    else
-    #------
+	#------
+          else
+	#------
 
-        stzraise("Not implemented yet for this language!")
-    ok
+            stzraise("Not implemented yet for this language!")
+        ok

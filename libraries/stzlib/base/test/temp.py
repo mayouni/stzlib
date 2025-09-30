@@ -48,6 +48,6 @@ res = {
 print("Data before transformation:", res)
 transformed = transform_to_ring(res)
 print("Data after transformation:", transformed)
-with open("extertemp/pyresult.txt", "w") as f:
+with open("pyresult.txt", "w") as f:
     f.write(transformed)
 print("Data written to file")
