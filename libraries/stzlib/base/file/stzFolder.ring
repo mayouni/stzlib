@@ -93,6 +93,36 @@ func @dir(cPath) # Same as Ring dir() but in lowercase
 
 	return aResult
 
+def CreateIfInexistant(cPath)
+    # Check if it has an extension (likely a file)
+    if substr(cPath, ".")
+        This.CreateFileIfInexistant(cPath)
+    else
+        This.CreateFolderIfInexistant(cPath)
+    ok
+
+	func @CreateIfInexistant(cPath)
+		CreateIfInexistant(cPath)
+
+def FolderCreateIfInexistant(cFolderPath)
+    if NOT isdir(cFolderPath)
+        if isWindows()
+            system('mkdir "' + cFolderPath + '"')
+        else
+            system('mkdir -p "' + cFolderPath + '"')
+        ok
+    ok
+
+	func CreateFolderIfInexistant(cFolderPath)
+		FolderCreateIfInexistant(cFolderPath)
+
+	func @FolderCreateIfInexistant(cFolderPath)
+		 FolderCreateIfInexistant(cFolderPath)
+
+	func @CreateFolderIfInexistant(cFolderPath)
+		FolderCreateIfInexistant(cFolderPath)
+
+
 class stzFolder from stzObject
 
 	@oQDir

@@ -495,6 +495,22 @@ func FileSize(cFileName)
 		return FileSize(cFileName)
 
 
+func FileCreateIfInexistant(cFilePath)
+    if NOT fexists(cFilePath)
+        fp = fopen(cFilePath, "w")
+        fclose(fp)
+    ok
+
+	func CreateFileIfInexistant(cFilePath)
+		FileCreateIfInexistant(cFilePath)
+
+	func @FileCreateIfInexistant(cFilePath)
+		FileCreateIfInexistant(cFilePath)
+
+	func @CreateFileIfInexistant(cFilePath)
+		FileCreateIfInexistant(cFilePath)
+
+
 #=================================================#
 # META INFORMATION ABOUT FILE WITHOUT OPENING IT  #
 #=================================================#
