@@ -5,7 +5,7 @@ load "../stzbase.ring"
 #======================================#
 
 /*--- Basic example
-
+*/
 pr()
 
 # Create instance for Python

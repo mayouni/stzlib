@@ -6,6 +6,9 @@ load "stzExterCodeTransFuncs.ring"
 #------------------#
 
 class stzExterCode
+
+	@cTempDir = "extertemp"
+
     # Configuring supported languages with full paths
     @aLanguages = [
 
@@ -18,7 +21,7 @@ class stzExterCode
             :ResultFile = "pyresult.txt",
             :CustomPath = "D:/python/python-3.13.7/python.exe",  # Replace with your Python path
             :TransFunc = $cPyToRingTransFunc,
-            :Cleanup = FALSE
+            :Cleanup = 0
         ],
 
         :R = [
@@ -30,7 +33,7 @@ class stzExterCode
             :ResultFile = "rresult.txt",
             :CustomPath = "D:/R/R-4.5.1/bin/Rscript.exe",  # Replace with your R path
             :TransFunc = $cRToRingTransFunc,
-            :Cleanup = FALSE
+            :Cleanup = 0
         ],
 
         :julia = [
@@ -42,7 +45,7 @@ class stzExterCode
             :ResultFile = "jlresult.txt",
             :CustomPath = "D:/Julia/Julia-1.11.7/bin/julia.exe",  # Replace with your Julia path
             :TransFunc = $cJuliaToRingTransFunc,
-            :Cleanup = FALSE
+            :Cleanup = 0
         ],
 
         :C = [
@@ -56,8 +59,8 @@ class stzExterCode
             :ResultFile = "cresult.txt",
             :CustomPath = "D:/mingw64/bin/gcc.exe",  # Replace with your Go path
             :TransFunc = $cCToRingTransFunc,
-            :Cleanup = FALSE,
-            :CaptureBuildErrors = TRUE
+            :Cleanup = 0,
+            :CaptureBuildErrors = 1
         ],
 
         :prolog = [
@@ -69,7 +72,7 @@ class stzExterCode
             :ResultFile = "plresult.txt",
             :CustomPath = "D:/Prolog/swipl-9.9.9/bin/swipl.exe",  # Update to your actual path
             :TransFunc = $cPrologToRingTransFunc,
-            :Cleanup = FALSE,
+            :Cleanup = 0,
             :ExtraArgs = "-q -g main -t halt"   # Quiet mode, call main/0, halt after execution
         ],
 
@@ -82,7 +85,7 @@ class stzExterCode
 	    :ResultFile = "jsresult.txt",
 	    :CustomPath = "D:/nodejs/nodejs-22.20/node.exe",  # Replace with your Node.js path
 	    :TransFunc = $cJSToRingTransFunc,
-	    :Cleanup = FALSE
+	    :Cleanup = 0
 	]
 
     ]
@@ -97,15 +100,23 @@ class stzExterCode
     @cResultVar = "res"  # Configurable with SetResVar()
     @nStartTime = 0
     @nEndTime = 0
-    @bVerbose = FALSE  # Toggle with SetVerbose()
+    @bVerbose = 0  # Toggle with SetVerbose()
 
-    def Init(cLang)
-        if NOT This.IsLanguageSupported(cLang)
-            stzraise("Language '" + cLang + "' is not supported")
-        ok
-        @cLanguage = lower(cLang)
-        @cSourceFile = "temp" + @aLanguages[@cLanguage][:extension]
-        @cResultFile = @aLanguages[@cLanguage][:ResultFile]
+	def Init(cLang)
+	    if NOT This.IsLanguageSupported(cLang)
+	        stzraise("Language '" + cLang + "' is not supported")
+	    ok
+	
+	    @cLanguage = lower(cLang)
+	    
+	    # Create temp directory if it doesn't exist
+	    if NOT isdir(@cTempDir)
+	        system("mkdir " + @cTempDir)
+	    ok
+	    
+	    @cSourceFile = @cTempDir + "/" + "temp" + @aLanguages[@cLanguage][:extension]
+	    @cResultFile = @cTempDir + "/" + @aLanguages[@cLanguage][:ResultFile]
+	    @cLogFile = @cTempDir + "/" + "log.txt"
 
     def IsLanguageSupported(cLang)
         return @aLanguages[lower(cLang)] != NULL
@@ -129,111 +140,111 @@ class stzExterCode
         ok
 
     def Prepare()
-	This.Cleanup()
+		This.Cleanup()
         This.WriteToFile(@cSourceFile, This.PrepareSourceCode())
 
-def Execute()
-    This.Prepare()
-
-    if @cCode = ""
-        return
-    end
-
-    if NOT fexists(@cSourceFile)
-        stzraise("Source file '" + @cSourceFile + "' not found!")
-    ok
-
-    @nStartTime = clock()
-
-    cRuntime = @aLanguages[@cLanguage][:CustomPath]
-    if cRuntime = ""
-        cRuntime = @aLanguages[@cLanguage][:Runtime]
-    ok
-
-    # Get extra args if they exist
-    cExtraArgs = ""
-    if @aLanguages[@cLanguage][:ExtraArgs] != NULL
-        cExtraArgs = " " + @aLanguages[@cLanguage][:ExtraArgs]
-    ok
-
-    cScriptFile = "run" + @cLanguage
-
-    if isWindows()
-        cScriptFile += ".bat"
-        cScriptContent = "@echo off" + NL
-
-        if @aLanguages[@cLanguage][:Type] = "compiled"
-            if @cLanguage = "c"
-                cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
-                                 "if %ERRORLEVEL% EQU 0 " + @aLanguages[@cLanguage][:ExecutableName] + ".exe >> " + @cLogFile + " 2>&1" + NL
-            else
-                cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
-            ok
-        else
-            # Interpreted languages - include extra args
-            cScriptContent += cRuntime + cExtraArgs + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
-        ok
-
-        cScriptContent += "exit %ERRORLEVEL%"
-
-    else
-        cScriptFile += ".sh"
-        cScriptContent = "#!/bin/bash" + NL
-
-        if @aLanguages[@cLanguage][:Type] = "compiled"
-            if @cLanguage = "c"
-                cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
-                                 "if [ $? -eq 0 ]; then ./" + @aLanguages[@cLanguage][:ExecutableName] + " >> " + @cLogFile + " 2>&1; fi" + NL
-            else
-                cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
-            ok
-        else
-            # Interpreted languages - include extra args
-            cScriptContent += cRuntime + cExtraArgs + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
-        ok
-
-        cScriptContent += "exit $?"
-    ok
-
-    This.WriteToFile(cScriptFile, cScriptContent)
-
-    cCmd = cScriptFile
-    system(cCmd)
-
-    @nEndTime = clock()
-
-    cLog = This.ReadFile(@cLogFile)
-
-    if cLog = NULL
-        cLog = "Log file '" + @cLogFile + "' not found or unreadable"
-    ok
-
-    This.RecordExecution(cLog, 0)
-
-    if @bVerbose
-        ? "Command: " + cCmd
-        ? "Log: " + cLog
-        ? "Working Directory: " + currentdir()
-        ? "Source File Exists: " + fexists(@cSourceFile)
-        ? "Result File Exists: " + fexists(@cResultFile)
-    ok
-
-    if NOT fexists(@cResultFile)
-        stzraise("Result file '" + @cResultFile + "' not created. Log: " + cLog)
-    ok
-
-    if fexists(cScriptFile)
-        remove(cScriptFile)
-    ok
+	def Execute()
+	    This.Prepare()
 	
-	#< @FunctionAlternativeForms
-
-    	def Run()
-       		This.Execute()
-
-	def Exec()
-	        This.Execute()
-	#>
+	    if @cCode = ""
+	        return
+	    end
+	
+	    if NOT fexists(@cSourceFile)
+	        stzraise("Source file '" + @cSourceFile + "' not found!")
+	    ok
+	
+	    @nStartTime = clock()
+	
+	    cRuntime = @aLanguages[@cLanguage][:CustomPath]
+	    if cRuntime = ""
+	        cRuntime = @aLanguages[@cLanguage][:Runtime]
+	    ok
+	
+	    # Get extra args if they exist
+	    cExtraArgs = ""
+	    if @aLanguages[@cLanguage][:ExtraArgs] != NULL
+	        cExtraArgs = " " + @aLanguages[@cLanguage][:ExtraArgs]
+	    ok
+	
+	    cScriptFile = @cTempDir + "/" + "run" + @cLanguage
+	
+	    if isWindows()
+	        cScriptFile += ".bat"
+	        cScriptContent = "@echo off" + NL
+	
+	        if @aLanguages[@cLanguage][:Type] = "compiled"
+	            if @cLanguage = "c"
+	                cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
+	                                 "if %ERRORLEVEL% EQU 0 " + @aLanguages[@cLanguage][:ExecutableName] + ".exe >> " + @cLogFile + " 2>&1" + NL
+	            else
+	                cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	            ok
+	        else
+	            # Interpreted languages - include extra args
+	            cScriptContent += cRuntime + cExtraArgs + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	        ok
+	
+	        cScriptContent += "exit %ERRORLEVEL%"
+	
+	    else
+	        cScriptFile += ".sh"
+	        cScriptContent = "#!/bin/bash" + NL
+	
+	        if @aLanguages[@cLanguage][:Type] = "compiled"
+	            if @cLanguage = "c"
+	                cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
+	                                 "if [ $? -eq 0 ]; then ./" + @aLanguages[@cLanguage][:ExecutableName] + " >> " + @cLogFile + " 2>&1; fi" + NL
+	            else
+	                cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	            ok
+	        else
+	            # Interpreted languages - include extra args
+	            cScriptContent += cRuntime + cExtraArgs + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	        ok
+	
+	        cScriptContent += "exit $?"
+	    ok
+	
+	    This.WriteToFile(cScriptFile, cScriptContent)
+	
+	    cCmd = cScriptFile
+	    system(cCmd)
+	
+	    @nEndTime = clock()
+	
+	    cLog = This.ReadFile(@cLogFile)
+	
+	    if cLog = NULL
+	        cLog = "Log file '" + @cLogFile + "' not found or unreadable"
+	    ok
+	
+	    This.RecordExecution(cLog, 0)
+	
+	    if @bVerbose
+	        ? "Command: " + cCmd
+	        ? "Log: " + cLog
+	        ? "Working Directory: " + currentdir()
+	        ? "Source File Exists: " + fexists(@cSourceFile)
+	        ? "Result File Exists: " + fexists(@cResultFile)
+	    ok
+	
+	    if NOT fexists(@cResultFile)
+	        stzraise("Result file '" + @cResultFile + "' not created. Log: " + cLog)
+	    ok
+	
+	    if fexists(cScriptFile)
+	        remove(cScriptFile)
+	    ok
+		
+		#< @FunctionAlternativeForms
+	
+	    	def Run()
+	       		This.Execute()
+	
+		def Exec()
+		        This.Execute()
+		#>
 
     def CleanupFiles()
 	# TODO: does this cover cleaning compiled languages files?
@@ -251,7 +262,7 @@ def Execute()
 
     def CleanupRequired()
         bResult = @aLanguages[@cLanguage][:Cleanup]
-        return isNumber(bResult) and bResult = TRUE
+        return isNumber(bResult) and bResult = 1
 
     def LastCallDuration()
         if len(@aCallTrace) > 0
@@ -318,7 +329,7 @@ def Execute()
         return @bVerbose
 
     def SetLogFile(cFileName)
-        @cLogFile = cFileName
+        @cLogFile = @cTempDir + "/" + cFileName
 
     def LogFile()
         return This.ReadFile(@cLogFile)
@@ -388,67 +399,67 @@ def Execute()
             :Mode = cMode
         ]
 
-    def PrepareSourceCode()
+def PrepareSourceCode()
 
-        cTransFunc = @aLanguages[@cLanguage][:TransFunc]
+    cTransFunc = @aLanguages[@cLanguage][:TransFunc]
 
-	#-------------------------
-         if @cLanguage = "python"
-	#-------------------------
+    #-------------------------
+    if @cLanguage = "python"
+    #-------------------------
 
-            return NL + cTransFunc + '
+        return NL + cTransFunc + '
 # Main code
 print("Python script starting...")
 ' + @cCode + '
 print("Data before transformation:", ' + @cResultVar + ')
 transformed = transform_to_ring(' + @cResultVar + ')
 print("Data after transformation:", transformed)
-with open("' + @cResultFile + '", "w") as f:
+with open("' + @cTempDir + '/' + @aLanguages[@cLanguage][:ResultFile] + '", "w") as f:
     f.write(transformed)
 print("Data written to file")
 '
 
-	#---------------------
-         but @cLanguage = "r"
-	#---------------------
+    #---------------------
+    but @cLanguage = "r"
+    #---------------------
 
-            return cTransFunc + '
+        return cTransFunc + '
 # Main code
 cat("R script starting...\n")
 ' + @cCode + '
 transformed <- transform_to_ring(' + @cResultVar + ')
-writeLines(transformed, "' + @cResultFile + '")
+writeLines(transformed, "' + @cTempDir + '/' + @aLanguages[@cLanguage][:ResultFile] + '")
 cat("Data written to file\n")
 '
 
-	#-------------------------
-         but @cLanguage = "julia"
-	#-------------------------
+    #-------------------------
+    but @cLanguage = "julia"
+    #-------------------------
 
-            return cTransFunc + '
+        return cTransFunc + '
 # Main code
 println("Julia script starting...")
 ' + @cCode + '
 transformed = transform_to_ring(' + @cResultVar + ')
 println("Data before transformation: ", ' + @cResultVar + ')
 println("Data after transformation: ", transformed)
-open("' + @cResultFile + '", "w") do f
+open("' + @cTempDir + '/' + @aLanguages[@cLanguage][:ResultFile] + '", "w") do f
     write(f, transformed)
 end
 println("Data written to file")
 '
 
-	#---------------------
-	 but @cLanguage = "c"
-	#---------------------
+    #---------------------
+    but @cLanguage = "c"
+    #---------------------
 
-    return $cCToRingTransFunc + '
+        return $cCToRingTransFunc + '
 
 int main() {
     printf("C program starting...\\n");
 ' + @cCode + '
     if (res != NULL) {
-        transform_to_ring(res, "' + @cResultFile + '");
+        transform_to_ring(res, "' + @cTempDir + '/' + @aLanguages[@cLanguage][:ResultFile] + '");
         printf("Data written to file.\\n");
         free_value(res);
         free(res);
@@ -457,24 +468,22 @@ int main() {
 }
 '
 
-	#---------------------------
-   	 but @cLanguage = "prolog"
-	#---------------------------
+    #---------------------------
+    but @cLanguage = "prolog"
+    #---------------------------
 
-    # Extract the main computation predicate name from user code
-    # Look for a predicate that takes one argument and is likely the main one
-    cMainPredicate = "compute_result"  # default
-    
-    # Try to find a predicate definition in the code
-    if substr(@cCode, "compute_result(") > 0
-        cMainPredicate = "compute_result"
-    but substr(@cCode, "get_factorials(") > 0
-        cMainPredicate = "get_factorials"
-    but substr(@cCode, "res(") > 0
-        cMainPredicate = "res"
-    ok
+        # Extract the main computation predicate name from user code
+        cMainPredicate = "compute_result"  # default
+        
+        if substr(@cCode, "compute_result(") > 0
+            cMainPredicate = "compute_result"
+        but substr(@cCode, "get_factorials(") > 0
+            cMainPredicate = "get_factorials"
+        but substr(@cCode, "res(") > 0
+            cMainPredicate = "res"
+        ok
 
-    return '
+        return '
 ' + $cPrologToRingTransFunc + '
 
 :- use_module(library(lists)).
@@ -488,28 +497,28 @@ main :-
     writeln("SWI-Prolog program starting..."),
     ' + cMainPredicate + '(Res),
     writeln("Transforming result..."),
-    transform_to_ring(Res, "' + @cResultFile + '"),
+    transform_to_ring(Res, "' + @cTempDir + '/' + @aLanguages[@cLanguage][:ResultFile] + '"),
     writeln("Data written to file").
 '
 
-	#------------------------------
-	but @cLanguage = "nodejs"
-	#------------------------------
-	
-	    return cTransFunc + '
+    #------------------------------
+    but @cLanguage = "nodejs"
+    #------------------------------
+    
+        return cTransFunc + '
 // Main code
 console.log("NodeJS script starting...");
 ' + @cCode + '
 console.log("Data before transformation:", ' + @cResultVar + ');
 const transformed = transform_to_ring(' + @cResultVar + ');
 console.log("Data after transformation:", transformed);
-require("fs").writeFileSync("' + @cResultFile + '", transformed);
+require("fs").writeFileSync("' + @cTempDir + '/' + @aLanguages[@cLanguage][:ResultFile] + '", transformed);
 console.log("Data written to file");
 '
 
-	#------
-          else
-	#------
+    #------
+    else
+    #------
 
-            stzraise("Not implemented yet for this language!")
-        ok
+        stzraise("Not implemented yet for this language!")
+    ok
