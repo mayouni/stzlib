@@ -306,6 +306,18 @@ _aLocaleCountriesXT = [
 
 ]
 
+func Country(p)
+	return StzCountryQ(p).Name()
+
+func CountryNumber(cCountry)
+	return StzCountryQ(cCountry).Number()
+
+func DefaultCountryForLanguage(cLang)
+	return StzLanguageQ(cLang).DefaultCountry()
+
+func DefaultCountryForScript(cScript)
+	return StzScriptQ(cScript).DefaultCountry()
+
 func LocaleCountriesXT()
 	return _aLocaleCountriesXT
 

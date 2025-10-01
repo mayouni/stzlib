@@ -2696,28 +2696,24 @@ class stzString from stzObject
 	#================================#
 
 	def ApplyCapitalcase()
+
 		if This.IsEmpty()
 			return
 		ok
 
-		# Getting the positions of the words in the string
-		#TODO // delegate the work to stzText when ready
+		cContent = This.Content()
+		acWords = @split(cContent, " ")
+		nLen = len(acWords)
 
-		anPos = This.FindAll(" ")
-		if len(anPos) = 0
-			anPos = [1]
-		else
-			anPos = StzListOfNumbersQ(anPos).AddedToEach(1)
-			ring_insert(anPos, 1, 1)
-
-		ok
-
-		nLen = len(anPos)
-
+		cResult = ""
 		for i = 1 to nLen
-			cCapChar = This.CharQ(anPos[i]).Uppercased()
-			This.ReplaceCharAtPosition(anPos[i], cCapChar)
+			cResult += Upper(acWords[i][1]) + ring_right(acWords[i], len(acWords[i])-1)
+			if i < nLen
+				cResult += " "
+			ok
 		next
+
+		This.UpdateWith(cResult)
 
 		#< @FunctionFluentForm
 
@@ -2753,7 +2749,8 @@ class stzString from stzObject
 		#>	
 	
 	def CapitalCased()
-		return This.Copy().ApplyCapitalCaseQ().Content()
+		cResult = This.Copy().ApplyCapitalCaseQ().Content()
+		return cResult
 
 		def CapitalCaseApplied()
 			return This.CapitalCased()

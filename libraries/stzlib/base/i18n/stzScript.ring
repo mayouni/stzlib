@@ -199,6 +199,12 @@ _aLocaleScriptsXT = [
 	[ "141" , 	:Jamo, 			"Jamo", 		:undefined			]  #  Jamo subset of Hangul
 ]
 
+func DefaultScriptForLanguage(cLang)
+		return StzLanguageQ(cLang).DefaultScript()
+
+func DefaultScriptForCountry(cCountry)
+		return StzCountryQ(cCountry).DefaultScript()
+
 func LocaleScriptsXT()
 	return _aLocaleScriptsXT
 
@@ -215,26 +221,7 @@ func Script(p)
 		p = p[2]
 	ok
 
-	if NOT (isString(p) or IsStzString(p) or IsStzText(p) or IsStzChar(p) )
-		StzRaise("Incorrect param type! p must be a char, string, stzChar, stzString, or stzText.")
-	ok
-
-	if isString(p) and IsChar(p)
-		return StzCharQ(p).Script()
-
-	but isString(p)
-		return StzTextQ(p).Script()
-
-	but IsStzChar(p)
-		return p.Script()
-
-	but IsStzString()
-		return p.ToStzText().Script()
-
-	but IsStzText()
-		return p.Script()
-
-	ok
+	return StzScriptQ(p).Name()
 
 	#< @FunctionAlternativeForms
 

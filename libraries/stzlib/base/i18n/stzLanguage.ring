@@ -339,6 +339,12 @@ _aLocaleLanguagesXT = [
 	[ "369", 	:silesian, 		"szl", 			"szl", 			:poland 			]
 ]
 
+func DefaultLanguageForScript(cScript)
+		return StzScriptQ(cScript).DefaultLangauge()
+
+func DefaultLanguageForCountry(cCountry)
+	return StzCountryQ(cCountry).DefaultLangauge()
+
 func LocaleLanguagesXT()
 	return _aLocaleLanguagesXT
 

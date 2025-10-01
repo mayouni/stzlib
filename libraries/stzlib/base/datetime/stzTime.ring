@@ -414,29 +414,34 @@ class stzTime from stzObject
         if cFormat = ""
             cFormat = $cDefaultTimeFormat
         ok
+		cLowerFormat = lower(cFormat)
 
 		cFormat = trim(cFormat)
-		if right(cFormat, 2) = "AP"
+		if right(cFormat, 2) = "ap"
 
 			return This.ToStringXT(left(cFormat, len(cFormat)-2)) +
 				   " " + This.AMPM()
 
-		but cFormat = "AmPm"
+		but cFormat = "ampm"
 			return This.ToString() + " " + This.AMPM()
 
 		ok
 
         # Handle named formats
-        cLowerFormat = lower(cFormat)
+        
         for aFormat in $aTimeFormats
             if lower(aFormat[1]) = cLowerFormat
                 cFormat = aFormat[2]
                 exit
             ok
         next
-        
-        return oQTime.toString(cFormat)
-    
+
+		if cFormat = "long"
+			return This.ToLong()
+		else
+        	return oQTime.toString(cFormat)
+    	ok
+
     def To12Hour()
         return This.ToStringXT("h:mm:ss AP")
     

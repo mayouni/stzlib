@@ -298,13 +298,6 @@ func StzLocaleToQLocale(oLocale)
 	func StzLoclaeToQLocaleObject(oLocale)
 		return StzLocaleToQLocale(oLocale)
 
-func SystemLocale() # Returned as a string
-	oQLocale = new QLocale("C")
-	return oQLocale.system()
-
-	func SystemLocaleAbbreviation()
-		return SystemLocale()
-
 #---
 
 func IsQString(p)
