@@ -410,10 +410,22 @@ class stzTime from stzObject
         return This.ToStringXT("")
 
     def ToStringXT(cFormat)
-        if cFormat = NULL or cFormat = ""
+
+        if cFormat = ""
             cFormat = $cDefaultTimeFormat
         ok
-        
+
+		cFormat = trim(cFormat)
+		if right(cFormat, 2) = "AP"
+
+			return This.ToStringXT(left(cFormat, len(cFormat)-2)) +
+				   " " + This.AMPM()
+
+		but cFormat = "AmPm"
+			return This.ToString() + " " + This.AMPM()
+
+		ok
+
         # Handle named formats
         cLowerFormat = lower(cFormat)
         for aFormat in $aTimeFormats
@@ -449,12 +461,16 @@ class stzTime from stzObject
         
         if nMinute = 0
             return '' + nHour + " o'clock " + cAMPM
+
         but nMinute = 15
             return "Quarter past " + nHour + " " + cAMPM
+
         but nMinute = 30
             return "Half past " + nHour + " " + cAMPM
+
         but nMinute = 45
             return "Quarter to " + (nHour + 1) + " " + cAMPM
+
         else
             return '' + nHour + ":" + PadLeft(''+ nMinute, 2, "0") + " " + cAMPM
         ok
@@ -471,6 +487,7 @@ class stzTime from stzObject
             if nAbsSecs < 3600
                 nMins = floor(nAbsSecs / 60)
                 return '' + nMins + " minute" + Iff(nMins=1, "", "s") + " ago"
+
             else
                 nHours = floor(nAbsSecs / 3600)
                 return '' + nHours + " hour" + Iff(nHours=1, "", "s") + " ago"
@@ -480,7 +497,8 @@ class stzTime from stzObject
             if nSecs < 3600
                 nMins = floor(nSecs / 60)
                 return "in " + nMins + " minute" + Iff(nMins=1, "", "s")
-            else
+ 
+           else
                 nHours = floor(nSecs / 3600)
                 return "in " + nHours + " hour" + Iff(nHours=1, "", "s")
             ok
@@ -489,10 +507,13 @@ class stzTime from stzObject
     def PartOfDay()
         if This.IsMorning()
             return "morning"
+
         but This.IsAfternoon()
             return "afternoon"
+
         but This.IsEvening()
             return "evening"
+
         else
             return "night"
         ok
