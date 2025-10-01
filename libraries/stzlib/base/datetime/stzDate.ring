@@ -1,4 +1,6 @@
 
+#TODO Make a bridge with stzLocale to let the stzDate class be locale-sensitive
+
 # Multi-language day names
 $aDayNames = [
     [ :English, [ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" ] ],
