@@ -1,4 +1,4 @@
-# Beautiful Code, Global Reach: Locale Management the Softanza Way
+# Software Global Reach: Locale Management the Softanza Way
 
 
 The Softanza library for Ring brings a refreshingly intuitive approach to locale management, wrapping Qt's powerful internationalization engine in an API that feels natural and expressive.

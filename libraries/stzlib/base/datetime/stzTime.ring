@@ -1,3 +1,6 @@
+
+#TODO Make a bridge with stzLocale to let the stzTime class be locale-sensitive
+
 # Global time format configurations
 $cDefaultTimeFormat = "hh:mm:ss"
 
