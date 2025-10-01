@@ -424,7 +424,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Custom format strings
-*/
+
 pr()
 
 oTime = new stzTime("14:30:45")
@@ -439,9 +439,12 @@ oTime = new stzTime("14:30:45")
 #--> 14:30:45
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Named format strings
+
 pr()
+
 oTime = new stzTime("14:30:45")
 
 ? oTime.ToStringXT("Standard")
@@ -452,10 +455,14 @@ oTime = new stzTime("14:30:45")
 
 ? oTime.ToStringXT("AmPm")
 #--> 2:30:45 PM
+
 pf()
+Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Human-readable time
+
 pr()
+
 oTime1 = new stzTime("14:00:00")
 ? oTime1.ToHuman()
 #--> 2 o'clock PM
@@ -471,10 +478,14 @@ oTime3 = new stzTime("14:30:00")
 oTime4 = new stzTime("14:45:00")
 ? oTime4.ToHuman()
 #--> Quarter to 3 PM
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Part of day
+
 pr()
+
 oTime1 = new stzTime("09:00:00")
 ? oTime1.PartOfDay()
 #--> morning
@@ -490,10 +501,14 @@ oTime3 = new stzTime("19:00:00")
 oTime4 = new stzTime("23:00:00")
 ? oTime4.PartOfDay()
 #--> night
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Copying time objects
+
 pr()
+
 oTime1 = new stzTime("14:30:00")
 oTime2 = oTime1.Copy()
 oTime2.AddHours(2)
@@ -503,21 +518,31 @@ oTime2.AddHours(2)
 
 ? oTime2.ToString()
 #--> 16:30:00
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Working with milliseconds
+
 pr()
+
 oTime = new stzTime([:Hour = 14, :Minute = 30, :Second = 45, :Millisecond = 123])
 ? oTime.Millisecond()
 #--> 123
 
 ? oTime.ToLong()
 #--> 14:30:45.123
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Chaining operations with Q functions
+
 pr()
+
 oTime = StzTimeQ("10:00:00")
 ? oTime.AddHoursQ(2).AddMinutesQ(30).ToString()
 #--> 12:30:00
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
