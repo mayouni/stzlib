@@ -442,7 +442,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Named format strings
-*/
+
 pr()
 
 oTime = new stzTime("14:30:45")
