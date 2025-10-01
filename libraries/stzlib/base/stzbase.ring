@@ -70,6 +70,7 @@
 	load "string/stzSubString.ring"
 
 	load "string/stzText.ring"
+	load "string/stzStopWords.ring"
 
 # Loading files related to REGX module
 
@@ -150,6 +151,7 @@
 	load "error/stzOctalNumberError.ring"
 	load "error/stzDecimalToBinaryError.ring"
 
+	load "error/stzCountryError.ring"
 
 # Loading files related to the DATETIME module
 
@@ -164,6 +166,7 @@
 	load "i18n/stzLanguage.ring"
 	load "i18n/stzLocale.ring"
 	load "i18n/stzScript.ring"
+	load "i18n/stzCurrency.ring"
 
 # Loading files related to the EXTINCODE module
 

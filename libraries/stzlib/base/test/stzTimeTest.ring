@@ -442,22 +442,25 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Named format strings
-
+*/
 pr()
 
 oTime = new stzTime("14:30:45")
 
-? oTime.ToStringXT("Standard")
+? oTime.ToStringXT(:Standard)
 #--> 14:30:45
 
-? oTime.ToStringXT("Short")
+? oTime.ToStringXT(:Short)
 #--> 14:30
 
-? oTime.ToStringXT("AmPm")
+? oTime.ToStringXT(:Long)
+#--> 14:30:45.000
+
+? oTime.ToStringXT(:AmPm)
 #--> 2:30:45 PM
 
 pf()
-Executed in almost 0 second(s) in Ring 1.23
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Human-readable time
 
@@ -523,7 +526,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Working with milliseconds
-
+*/
 pr()
 
 oTime = new stzTime([:Hour = 14, :Minute = 30, :Second = 45, :Millisecond = 123])
@@ -546,3 +549,12 @@ oTime = StzTimeQ("10:00:00")
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
+
+/*---
+*/
+pr()
+
+o1 = new stzTime("05:08:34")
+? o1.Content()
+
+pf()

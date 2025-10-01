@@ -14,6 +14,27 @@ Nice article about locales:
 https://docs.oracle.com/cd/E19253-01/817-2521/overview-39/index.html
 */
 
+$aDaysOfWeek = [
+	[ "1", :Monday ],
+	[ "2", :Tuesday ],
+	[ "3", :Wednesday ],
+	[ "4", :Thursday ],
+	[ "5", :Friday ],
+	[ "6", :Saturday ],
+	[ "7", :Sunday ]
+]
+
+func SystemLocale() # Returned as a string
+	oQLocale = new QLocale("C")
+	cResult = oQLocale.system().name()
+	return cResult
+
+	func SystemLocaleAbbreviation()
+		return SystemLocale()
+
+func DefaultDaysOfWeek()
+	return $aDaysOfWeek
+
 func StzLocaleQ(p)
 	return new stzLocale(p)
 
@@ -123,12 +144,12 @@ func NamesOfMonths()
 	return NamesOfMonthsIn(:English)
 
 func NamesOfMonthsIn(pcLangOrCountry)
-	
+	oLang = new stzString(pcLangOrCountry)
 	aResult = []
-	if _(pcLangOrCountry).Q.IsLanguageName()
+	if oLang.IsLanguageName()
 		oQLocale = StzLocaleQ([ :Language = pcLangOrCountry ]).QLocaleObject()
 
-	but _(pcLangOrCountry).Q.IsCountryName()
+	but oLang.IsCountryName()
 
 		cAbbr = StzCountryQ(pcLangOrCountry).LanguageAbbreviation() + "_" +
 			StzCountryQ(pcLangOrCountry).Abbreviation()
@@ -172,6 +193,8 @@ class stzLocale from stzObject
 		* by specifying a system locale (by providing a :System string)
 
 		* by scpecifying a default locale (by providing a :Default string)
+
+		* bu providing a country name as a string
 	*/
 
 	def init(pLocale)
@@ -188,6 +211,14 @@ class stzLocale from stzObject
 			but pLocale = :Default or pLocale = :DefaultLocale
 				@oQLocale = new QLocale(DefaultLocaleAbbreviation())
 				@cAbbreviation = @oQLocale.name()
+				return
+
+			but IsCountryName(pLocale)
+				This.Init([ :Country = pLocale ])
+				return
+
+			but IsLanguageName(pLocale)
+				This.Init([ :Language = pLocale ])
 				return
 
 			else
@@ -397,7 +428,7 @@ class stzLocale from stzObject
 
 		for aLangInfo in LocaleLanguagesXT()
 			if lower(aLangInfo[2]) = lower(cLangName)
-				return aCountryInfo[1]
+				return aLangInfo[1]
 			ok
 		next
 
@@ -405,59 +436,10 @@ class stzLocale from stzObject
 			return This.LanguageQtNumber()
  
 	def LanguageName()
-		/*
-		When created, the locale object could contain one or many
-		of these values:
-
-			@cLangAbbreviation
-			@cScriptAbbreviation
-			@cCountryAbbreviation
-
-		depending on how the user created it. For example:
-
-			new stzLocale([ :Country = :Tunisia ])
-
-		--> generates the following:
-
-			@cLangAbbreviation	= NULL
-			@cScriptAbbreviation	= NULL
-			@cCountryAbbreviation	= "TN"
-
-		In this particular case, when you need to retrieve the language
-		of the current locale, for example, the @cLangAbbreviation would
-		not help, because its null!
-
-		This introduces the job done with the code hereafter...
-
-		*/
-		
-		if @cLangAbbreviation = NULL
-			if @cCountryAbbreviation != NULL
-				for aCountryInfo in LocaleCountriesXT()
-					if lower(aCountryInfo[3]) = lower( @cCountryAbbreviation )
-						@cLangAbbreviation = aCountryInfo[6]
-						exit
-					ok
-				next
-
-			but @cScriptAbbreviation != NULL
-				for aScriptInfo in LocaleScriptsXT()
-					if lower(aScriptInfo[3]) = lower( @cScriptAbbreviation )
-						@cLangAbbreviation = aScriptInfo[4]
-						exit
-					ok
-				next
-			ok
+		cCountry = This.CountryName()
+		if cCountry != ""
+			return StzCountryQ(This.CountryName()).Language()
 		ok
-
-		# At this level, we are sure @cLangAbbreviation is not null,
-		# so let's use it to get the language name!
-
-		for aLangInfo in LocaleLanguagesXT()
-			if lower(aLangInfo[3]) = lower(@cLangAbbreviation)
-				return aLangInfo[2]
-			ok
-		next
 
 		def Language()
 			return This.LanguageName()
@@ -472,18 +454,13 @@ class stzLocale from stzObject
 
 
 	def LanguageAbbreviation()
-		return This.LanguageAbbreviation()
+		return StzLanguageQ(This.Language()).Abbreviation()
 		
 	def LanguageShortAbbreviation()
-		return @cLangAbbreviation
+		return StzLanguageQ(This.Language()).ShortAbbreviation()
 
 	def LanguageLongAbbreviation()
-		cLangNumber = This.LanguageNumber()
-		for aLangInfo in LocaleLanguagesXT()
-			if aLangInfo[1] = cLangNumber
-				return aLangInfo[4]
-			ok
-		next
+		return StzLanguageQ(This.Language()).LongAbbreviation()
 
 	  #-----------#
 	 #  SCRIPT   #
@@ -496,7 +473,7 @@ class stzLocale from stzObject
 			return This.ScriptNumber()
 
 	def ScriptName()
-		// TODO
+		return StzScriptQ(This.ScriptNumber()).Name()
 
 	def Script()
 		return This.ScriptName()
@@ -534,8 +511,14 @@ class stzLocale from stzObject
 	def CurrencyAbbreviation()
 		return This.pvtCurrencyXT(:ISOSymbol)
 
+	def CurrencyISOSymbol()
+		return This.pvtCurrencyXT(:ISOSymbol)
+
 	def CurrencySymbol()
-		return This.pvtCurrencyXT(:NativeSymbol)	
+		return This.pvtCurrencyXT(:NativeSymbol)
+
+		def CurrencyNativeSymbol()
+			return This.pvtCurrencyXT(:NativeSymbol)	
 
 	def CurrencyFractionalUnit()
 		for aCountryInfo in LocaleCountriesXT()
@@ -554,9 +537,31 @@ class stzLocale from stzObject
 			ok
 		next
 
-	  #---------#
-	 #  TIME   #	#TODO :Should be used by default in
-	#---------#	# formatting time in stzTime	
+	def CurrencyInfo()
+		aResult = [
+			:Name = This.CurrencyName(),
+			:NativeName = This.CurrencyNativeName(),
+
+			:Abbreviation = This.CurrencyAbbreviation(),
+
+			:Symbol = This.CurrencySymbol(),
+			:NativeSymbol = This.CurrencyNativeSymbol(),
+			:ISOSymbol = This.CurrencyISOSymbol(),
+
+			:FractionalUnit = This.CurrencyFractionalUnit(),
+			:Fraction = This.CurrencyFractionalUnit(),
+
+			:Base = This.CurrencyBase()
+		]
+
+		return aResult
+
+	def CurrencyXT(pcInfo)
+		return This.CurrencyInfo()[lower(pcInfo)]
+
+	  #-----------------------------#
+	 #  LOCALISED TIME MANAGEMENT  #	#TODO :Should be used by default in
+	#-----------------------------#		# formatting time in stzTime	
 
 	def amText()
 		return @oQLocale.amText()
@@ -609,10 +614,10 @@ class stzLocale from stzObject
 		stzTime.ToString() method in stzTime class.
 		*/
 		switch cFormat
-		on :Default		cFormat = _cDefaultTimeFormat
-		on :Long	cFormat = This.TimeFormat(:Long)
-		on :Short	cFormat = This.TimeFormat(:Short)
-		on :Narrow	cFormat = This.TimeFormat(:Narrow)
+		on :Default		cFormat = $cDefaultTimeFormat
+		on :Long		cFormat = This.TimeFormat(:Long)
+		on :Short		cFormat = This.TimeFormat(:Short)
+		on :Narrow		cFormat = This.TimeFormat(:Narrow)
 		off
 
 		return This.ToStzTime(cTime).ToString(:Default)
@@ -695,7 +700,6 @@ class stzLocale from stzObject
 		--> to read the number we use the softanza function NumberInPointer()
 
 		After that, we search for the day string inside the DefaultDaysOfWeek() list
-		defined in the stzDate.ring file.
 		*/
 		
 		//oQLocale = StzLocaleQ([ :Country = This.Country() ]).QLocaleObject()
@@ -919,8 +923,8 @@ class stzLocale from stzObject
 			if This.Language() = :English
 
 				# In english, every word is capitalized in its first letter
-				#NOTE: we are implementing the simplified variant of title
-				# case here (also knowan as start case).
+				#NOTE: we are implementing the simplified variant of titlecase
+				# (also knowan as start case).
 
 				#TODO: Implement the various styles documented in this
 				# Wikipedia article: https://en.wikipedia.org/wiki/Title_case
@@ -930,19 +934,7 @@ class stzLocale from stzObject
 				# "in search of lost time" becomes
 				# "In Search Of Lost Time"
 
-				#TODO: Manage stop-words that we should'nt titlize, like "of" here.
-
-				anWordsPositions = StzTextQ(pcStr).WordsPositions()
-
-				oStr = new stzString(pcStr)
-				cResult = ""
-				for i = 1 to oStr.NumberOfChars()
-					if Q(i).ExistsIn(ComputableForm(anWordsPositions))
-						cResult += Q(oStr.Char(i)).Uppercased()
-					else
-						cResult += oStr.Char(i)
-					ok
-				next
+				return This.StringCapitalised(pcStr)
 
 			else // Including  This.Language() = :French
 

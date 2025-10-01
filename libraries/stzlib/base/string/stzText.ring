@@ -50,7 +50,7 @@ func DefaultLanguage()
 	return _cDefaultLanguage
 
 func Language(cText)
-	return StzTextQ(cText).Language()
+	return DefaultLanguageForScript(StzTextQ(cText).Script())
 
 	func @Language(cText)
 		return Language(Text)

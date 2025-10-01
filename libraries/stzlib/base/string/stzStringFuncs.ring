@@ -627,12 +627,18 @@ func StringIsLocaleAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLocaleAbbreviation()
 	
+	func IsLocaleAbbreviation(cStr)
+		return StringIsLocaleAbbreviation(cStr)
+
 	func @IsLocaleAbbreviation(cStr)
 		return StringIsLocaleAbbreviation(cStr)
 
 func StringIsLanguageAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLanguageAbbreviation()
+
+	func IsLanguageAbbreviation(cStr)
+		return StringIsLanguageAbbreviation(cStr)
 
 	func @IsLanguageAbbreviation(cStr)
 		return StringIsLanguageAbbreviation(cStr)
@@ -648,6 +654,9 @@ func StringIsLongLanguageAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLongLanguageAbbreviation()
 
+	func IsLongLanguageAbbreviation(cStr)
+		return StringIsLongLanguageAbbreviation(cStr)
+
 	func @IsLongLanguageAbbreviation(cStr)
 		return StringIsLongLanguageAbbreviation(cStr)
 
@@ -655,12 +664,25 @@ func StringIsLanguageName(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLanguageName()
 
+	func IsLanguageName(cStr)
+		return StringIsLanguageName(cStr)
+
+
+	func IsLanguage(cStr)
+		return StringIsLanguageName(cStr)
+
 	func @IsLanguageName(cStr)
+		return StringIsLanguageName(cStr)
+
+	func @IsLanguage(cStr)
 		return StringIsLanguageName(cStr)
 
 func StringIsLanguageNumber(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLanguageNumber()
+
+	func IsLanguageNumber(cStr)
+		return StringIsLanguageNumber(cStr)
 
 	func @IsLanguageNumber(cStr)
 		return StringIsLanguageNumber(cStr)
@@ -669,6 +691,9 @@ func StringIsCountryAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsCountryAbbreviation()
 
+	func IsCountryAbbreviation(cStr)
+		return StringIsCountryAbbreviation(cStr)
+
 	func @IsCountryAbbreviation(cStr)
 		return StringIsCountryAbbreviation(cStr)
 
@@ -676,12 +701,24 @@ func StringIsCountryName(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsCountryName()
 
+	func IsCountryName(cStr)
+		return StringIsCountryName(cStr)
+
+	func IsCountry(cStr)
+		return StringIsCountryName(cStr)
+
 	func @IsCountryName(cStr)
+		return StringIsCountryName(cStr)
+
+	func @IsCountry(cStr)
 		return StringIsCountryName(cStr)
 
 func StringIsCountryNumber(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsCountryNumber()
+
+	func IsCountryNumber(cStr)
+		return StringIsCountryNumber(cStr)
 
 	func @IsCountryNumber(cStr)
 		return StringIsCountryNumber(cStr)
@@ -690,12 +727,18 @@ func StringIsShortCountryAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsShortCountryAbbreviation()
 
+	func IsShortCountryAbbreviation(cStr)
+		return StringIsShortCountryAbbreviation(cStr)
+
 	func @IsShortCountryAbbreviation(cStr)
 		return StringIsShortCountryAbbreviation(cStr)
 
 func StringIsLongCountryAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLongCountryAbbreviation()
+
+	func IsLongCountryAbbreviation(cStr)
+		return StringIsLongCountryAbbreviation(cStr)
 
 	func @IsLongCountryAbbreviation(cStr)
 		return StringIsLongCountryAbbreviation(cStr)
@@ -704,6 +747,9 @@ func StringIsScriptAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsScriptAbbreviation()
 
+	func IsScriptAbbreviation(cStr)
+		return StringIsScriptAbbreviation(cStr)
+
 	func @IsScriptAbbreviation(cStr)
 		return StringIsScriptAbbreviation(cStr)
 
@@ -711,12 +757,24 @@ func StringIsScriptName(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsScriptName()
 
+	func IsScriptName(cStr)
+		return StringIsScriptName(cStr)
+
+	func IsScript(cStr)
+		return StringIsScriptName(cStr)
+
 	func @IsScriptName(cStr)
+		return StringIsScriptName(cStr)
+
+	func @IsScript(cStr)
 		return StringIsScriptName(cStr)
 
 func StringIsScriptNumber(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsScriptNumber()
+
+	func IsScriptNumber(cStr)
+		return StringIsScriptNumber(cStr)
 
 	func @IsScriptNumber(cStr)
 		return StringIsScriptNumber(cStr)
@@ -724,11 +782,17 @@ func StringIsScriptNumber(cStr)
 func StringIsLowercase(cStr)
 	return StzStringQ(cStr).IsLowercase()
 
+	func IsLowercase(cStr)
+		return StringIsLowercase(cStr)
+
 	func @IsLowercase(cStr)
 		return StringIsLowercase(cStr)
 
 func StringIsUppercase(cStr)
 	return StzStringQ(cStr).IsUppercase()
+
+	func IsUppercase(cStr)
+		return StringIsUppercase(cStr)
 
 	func @IsUppercase(cStr)
 		return StringIsUppercase(cStr)
@@ -737,6 +801,12 @@ func StringLowercased(cStr)
 	oStr = new stzString(cStr)
 	return oStr.Lowercased()
 	
+	func Lowercased(cStr)
+		return StringLowercased(cStr)
+
+	func Lowercase(cStr)
+		return StringLowercased(cStr)
+
 	func StringLowercase(cStr)
 		return StringLowercased(cStr)
 
@@ -750,6 +820,12 @@ func StringUppercased(cStr)
 	oStr = new stzString(cStr)
 	return oStr.Uppercased()
 	
+	func Uppercase(cStr)
+		return StringUppercased(cStr)
+
+	func Uppercased(cStr)
+		return StringUppercased(cStr)
+
 	func StringUppercase(cStr)
 		return StringUppercased(cStr)
 
@@ -763,13 +839,13 @@ func StringTitlecased(cStr)
 	oStr = new stzString(cStr)
 	return oStr.Titlecased()
 	
-	func StringTitlecase(cStr)
-		return StringTitlecased(cStr)
-
 	func Titlecase(cStr)
 		return StringTitlecased(cStr)
 
 	func Titlecased(cStr)
+		return StringTitlecased(cStr)
+
+	func StringTitlecase(cStr)
 		return StringTitlecased(cStr)
 
 	func @Titlecased(cStr)

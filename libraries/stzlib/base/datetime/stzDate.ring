@@ -1,14 +1,4 @@
 
-$aDaysOfWeek = [
-	[ "1", :Monday ],
-	[ "2", :Tuesday ],
-	[ "3", :Wednesday ],
-	[ "4", :Thursday ],
-	[ "5", :Friday ],
-	[ "6", :Saturday ],
-	[ "7", :Sunday ]
-]
-
 # Multi-language day names
 $aDayNames = [
     [ :English, [ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" ] ],
@@ -93,9 +83,6 @@ func EndOfMonth()
     return StzDateQ('' + nDays + "/" + oDate.MonthNumberInString() + "/" + oDate.Year()).Content()
 
 #=== UTILITY FUNCTIONS ===#
-
-func DaysOfWeek()
-	return $aDaysOfWeek
 
 func GetDayByName(nDayOfWeek)
 	return GetDayByNameXT(nDayOfWeek, :English)
