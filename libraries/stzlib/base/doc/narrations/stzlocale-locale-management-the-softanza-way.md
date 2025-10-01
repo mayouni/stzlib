@@ -1,11 +1,11 @@
 # Beautiful Code, Global Reach: Locale Management the Softanza Way
 
 
-The Softanza library for Ring brings a refreshingly intuitive approach to locale management, wrapping Qt's powerful internationalization engine in an API that feels natural and expressive. By leveraging Qt's deep localization capabilities, Softanza provides Ring developers with high-performance tools for managing everything from date formats to native currency names—all while maintaining a philosophy where locale handling should be both efficient and beautiful.
+The Softanza library for Ring brings a refreshingly intuitive approach to locale management, wrapping Qt's powerful internationalization engine in an API that feels natural and expressive.
 
-## The Core: `stzLocale` and `StzLocaleQ`
+## The Core: `stzLocale` object
 
-Softanza's locale management centers around the object-oriented `stzLocale` class and the convenient `StzLocaleQ` block command, which simplifies dynamic locale configuration. The library offers remarkable flexibility in locale creation using standard IETF language tags, descriptive hash lists, or partial information with smart inference.
+Softanza's locale management centers around the object-oriented `stzLocale` class, which simplifies dynamic locale configuration. The library offers remarkable flexibility in locale creation using standard IETF language tags, descriptive hash lists, or partial information with smart inference.
 
 Using standard language tags:
 
@@ -47,7 +47,7 @@ Different cultures start their week on different days. Softanza correctly handle
 
 ```ring
 StzLocaleQ([ :Country = :Iran ]) {
-    // Iran's week begins on Saturday
+    # Iran's week begins on Saturday
     ? NthDayOfWeek(1)             #--> saturday
     ? NativeNthDayOfWeek(1)       #--> شنبه
     ? NativeNthDayOfWeekSymbol(1) #--> د
@@ -86,17 +86,8 @@ o1 = new stzLocale("en_US")
 International dialing codes are readily available:
 
 ```ring
-? StzLocaleQ("ar_eg").CountryPhoneCode()  #--> "+20"
+? StzLocaleQ("ar_eg").CountryPhoneCode()  #--> +20
 ? StzLocaleQ([ :Country = :Niger ]).CountryPhoneCode()  #--> +227
-```
-
-## Default Locale Configuration
-
-Set application-wide locale defaults:
-
-```ring
-SetDefaultLocale("ar-TN")
-? DefaultLocale()  #--> ar-TN
 ```
 
 ## Days and Months in Native Languages
@@ -169,18 +160,6 @@ StzLocaleQ("fa_IR") {
     ? LanguageName()         #--> persian
     ? LanguageNativeName()   #--> فارسی
 }
-```
-
-## Discovery Functions
-
-Softanza includes powerful query functions for exploring language-country relationships:
-
-```ring
-? CountriesforWhichDefaultLanguageIs(:Arabic)
-#--> [ "algeria", "bahrain", "egypt", "tunisia", ... ]
-
-? LanguagesForWhichDefaultCountryIs(:France)
-#--> [ "breton", "corsican", "french", "occitan" ]
 ```
 
 ## Formatting Symbols
