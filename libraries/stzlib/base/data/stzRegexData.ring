@@ -59,10 +59,33 @@ _$aRegexPatterns_ = [
 	:ddmmyyyy = "^(0[1-9]|[12][0-9]|3[01])[-/.](0[1-9]|1[0-2])[-/.]\d{4}$",
 	:mmddyyyy = "^(0[1-9]|1[0-2])[-/.](0[1-9]|[12][0-9]|3[01])[-/.]\d{4}$",
 
-	:time24h = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$",    
-	:dateISO8601 = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|([+-])\\d{2}:\\d{2})?$",
+	:time24h = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$",
+	:time24hSeconds = "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$",
+	:time12h = "^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM|am|pm)$",
+	:time12hSeconds = "^(0?[1-9]|1[0-2]):[0-5][0-9]:[0-5][0-9]\s?(AM|PM|am|pm)$",
 
+	:dateISO8601 = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|([+-])\\d{2}:\\d{2})?$",
 	:date = "\b(?:\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}|\d{1,2}\s+[A-Za-z]{3,9}\s+\d{2,4})\b",
+
+	# DateTime Combined Patterns
+	
+	:dateTimeSpace = "^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])\s([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$",
+	:dateTimeUS = "^(0[1-9]|1[0-2])[-/.](0[1-9]|[12][0-9]|3[01])[-/.]\d{4}\s([01]?[0-9]|2[0-3]):[0-5][0-9]$",
+	:dateTimeEU = "^(0[1-9]|[12][0-9]|3[01])[-/.](0[1-9]|1[0-2])[-/.]\d{4}\s([01]?[0-9]|2[0-3]):[0-5][0-9]$",
+	
+	:dateTime12h = "^(0[1-9]|1[0-2])[-/.](0[1-9]|[12][0-9]|3[01])[-/.]\d{4}\s(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM|am|pm)$",
+	:dateTimeLong = "^\d{1,2}\s[A-Za-z]{3,9}\s\d{4},?\s([01]?[0-9]|2[0-3]):[0-5][0-9]$",
+	
+	# Timestamp & Unix Patterns
+	
+	:unixTimestamp = "^\d{10}$",
+	:unixTimestampMillis = "^\d{13}$",
+	:timestampWithMillis = "^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.\d{3}Z?$",
+	
+	# Flexible DateTime Patterns
+	
+	:anyDateTime = "\b\d{4}[-/.]\d{1,2}[-/.]\d{1,2}[T\s]\d{1,2}:\d{2}(:\d{2})?(\.\d+)?(Z|[+-]\d{2}:\d{2})?\b",
+	:rfc2822DateTime = "^[A-Za-z]{3},\s\d{1,2}\s[A-Za-z]{3}\s\d{4}\s\d{2}:\d{2}:\d{2}\s[+-]\d{4}$",
 
 	# Markdown
 
@@ -982,6 +1005,46 @@ _$aRegexPatternsExplanations_ = [
 		"- Non-matches: `24:00`, `12:60`, `1:5`"
 	],
 
+	:time24hSeconds = [
+		"Matches 24-hour time format with seconds (HH:MM:SS)",
+	
+		"- `^`: Start of string" + NL +
+		"- `([01]?[0-9]|2[0-3])`: Hours (0-23)" + NL +
+		"- `:[0-5][0-9]`: Minutes (00-59)" + NL +
+		"- `:[0-5][0-9]`: Seconds (00-59)" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `23:59:59`, `00:00:00`, `14:30:45`" + NL +
+		"- Non-matches: `24:00:00`, `12:60:30`"
+	],
+
+	:time12h = [
+		"Matches 12-hour time format with AM/PM (HH:MM AM/PM)",
+	
+		"- `^`: Start of string" + NL +
+		"- `(0?[1-9]|1[0-2])`: Hours (1-12, optional leading zero)" + NL +
+		"- `:[0-5][0-9]`: Minutes (00-59)" + NL +
+		"- `\s?`: Optional whitespace before AM/PM" + NL +
+		"- `(AM|PM|am|pm)`: AM or PM (case insensitive)" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `11:30 PM`, `9:45AM`, `12:00 am`" + NL +
+		"- Non-matches: `13:00 PM`, `00:30 AM`"
+	],
+
+	:time12hSeconds = [
+		"Matches 12-hour time format with seconds and AM/PM",
+	
+		"- `^`: Start of string" + NL +
+		"- `(0?[1-9]|1[0-2])`: Hours (1-12)" + NL +
+		"- `:[0-5][0-9]:[0-5][0-9]`: Minutes and seconds" + NL +
+		"- `\s?(AM|PM|am|pm)`: Optional space before AM/PM" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `11:30:45 PM`, `9:45:00AM`" + NL +
+		"- Non-matches: `13:00:00 PM`"
+	],
+
 	:date = [
 	    "Matches common date formats without time",
 	    
@@ -1002,6 +1065,142 @@ _$aRegexPatternsExplanations_ = [
 	
 	    "- Matches: `2025-09-30`, `30/09/2025`, `09.30.25`, `30 Sept 2025`" + NL +
 	    "- Non-matches: `2025-09-30 12:00`, `hello2025-09-30world`, `99/99/9999`"
+	],
+
+	# DateTime Combined Patterns
+
+	:dateTimeSpace = [
+		"Matches ISO date with 24-hour time separated by space",
+
+		"- `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])`: ISO date" + NL +
+		"- `\s`: Space separator" + NL +
+		"- `([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]`: 24-hour time with seconds" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `2024-01-15 14:30:00`, `2023-12-31 23:59:59`" + NL +
+		"- Non-matches: `2024-01-15T14:30:00`, `2024/01/15 14:30:00`"
+	],
+
+	:dateTimeUS = [
+		"Matches US date format (MM/DD/YYYY) with 24-hour time",
+
+		"- `^(0[1-9]|1[0-2])[-/.](0[1-9]|[12][0-9]|3[01])[-/.]\d{4}`: US date" + NL +
+		"- `\s`: Space separator" + NL +
+		"- `([01]?[0-9]|2[0-3]):[0-5][0-9]`: 24-hour time" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `12/25/2023 14:30`, `01-01-2024 09:00`" + NL +
+		"- Non-matches: `25/12/2023 14:30`, `13/01/2024 14:30`"
+	],
+
+	:dateTimeEU = [
+		"Matches European date format (DD/MM/YYYY) with 24-hour time",
+
+		"- `^(0[1-9]|[12][0-9]|3[01])[-/.](0[1-9]|1[0-2])[-/.]\d{4}`: EU date" + NL +
+		"- `\s`: Space separator" + NL +
+		"- `([01]?[0-9]|2[0-3]):[0-5][0-9]`: 24-hour time" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `25/12/2023 14:30`, `01-01-2024 09:00`" + NL +
+		"- Non-matches: `12/25/2023 14:30`, `32/12/2023 14:30`"
+	],
+
+	:dateTime12h = [
+		"Matches US date with 12-hour time and AM/PM",
+
+		"- `^(0[1-9]|1[0-2])[-/.](0[1-9]|[12][0-9]|3[01])[-/.]\d{4}`: US date" + NL +
+		"- `\s`: Space separator" + NL +
+		"- `(0?[1-9]|1[0-2]):[0-5][0-9]`: 12-hour time" + NL +
+		"- `\s?(AM|PM|am|pm)`: Optional space before AM/PM" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `12/25/2023 2:30 PM`, `01-01-2024 09:00AM`" + NL +
+		"- Non-matches: `25/12/2023 14:30 PM`, `12/25/2023 13:00 PM`"
+	],
+
+	:dateTimeLong = [
+		"Matches long date format with time (D Month YYYY, HH:MM)",
+
+		"- `^\d{1,2}`: Day (1-31)" + NL +
+		"- `\s[A-Za-z]{3,9}\s`: Month name (short or long)" + NL +
+		"- `\d{4}`: Four-digit year" + NL +
+		"- `,?`: Optional comma" + NL +
+		"- `\s([01]?[0-9]|2[0-3]):[0-5][0-9]`: 24-hour time" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `25 December 2023, 14:30`, `1 Jan 2024 09:00`" + NL +
+		"- Non-matches: `December 25 2023, 14:30`, `32 Dec 2023 14:30`"
+	],
+
+	# Timestamp & Unix Patterns
+
+	:unixTimestamp = [
+		"Matches Unix timestamp in seconds (10 digits)",
+
+		"- `^`: Start of string" + NL +
+		"- `\d{10}`: Exactly 10 digits" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `1609459200`, `1672531199`" + NL +
+		"- Non-matches: `160945920`, `16094592000`"
+	],
+
+	:unixTimestampMillis = [
+		"Matches Unix timestamp in milliseconds (13 digits)",
+
+		"- `^`: Start of string" + NL +
+		"- `\d{13}`: Exactly 13 digits" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `1609459200000`, `1672531199999`" + NL +
+		"- Non-matches: `1609459200`, `16094592000000`"
+	],
+
+	:timestampWithMillis = [
+		"Matches ISO 8601 timestamp with milliseconds",
+
+		"- ISO date format (YYYY-MM-DD)" + NL +
+		"- `T`: Time separator" + NL +
+		"- `([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]`: Time" + NL +
+		"- `\.\d{3}`: Dot and exactly 3 millisecond digits" + NL +
+		"- `Z?`: Optional UTC timezone indicator" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `2023-12-25T14:30:00.123Z`, `2024-01-01T00:00:00.000`" + NL +
+		"- Non-matches: `2023-12-25T14:30:00`, `2023-12-25T14:30:00.12Z`"
+	],
+
+	# Flexible DateTime Patterns
+
+	:anyDateTime = [
+		"Matches various datetime formats flexibly",
+
+		"- `\\b`: Word boundary" + NL +
+		"- `\d{4}[-/.]\d{1,2}[-/.]\d{1,2}`: Date part with flexible separators" + NL +
+		"- `[T\s]`: T or space separator" + NL +
+		"- `\d{1,2}:\d{2}`: Hours and minutes" + NL +
+		"- `(:\d{2})?`: Optional seconds" + NL +
+		"- `(\.\d+)?`: Optional fractional seconds" + NL +
+		"- `(Z|[+-]\d{2}:\d{2})?`: Optional timezone" + NL +
+		"- `\\b`: Word boundary" + NL + NL +
+
+		"- Matches: `2023-12-25T14:30`, `2024/01/01 9:00:00.123Z`, `2023.12.25 14:30:00+01:00`" + NL +
+		"- Non-matches: `Hello 2023-12-25T14:30 World` (extracts the datetime)"
+	],
+
+	:rfc2822DateTime = [
+		"Matches RFC 2822 datetime format (email headers)",
+
+		"- `^[A-Za-z]{3}`: Day of week (3 letters)" + NL +
+		"- `,\s\d{1,2}\s`: Comma, space, day (1-2 digits), space" + NL +
+		"- `[A-Za-z]{3}\s`: Month (3 letters), space" + NL +
+		"- `\d{4}\s`: Four-digit year, space" + NL +
+		"- `\d{2}:\d{2}:\d{2}\s`: Time (HH:MM:SS), space" + NL +
+		"- `[+-]\d{4}`: Timezone offset (+/-HHMM)" + NL +
+		"- `$`: End of string" + NL + NL +
+
+		"- Matches: `Mon, 25 Dec 2023 14:30:00 +0000`, `Fri, 1 Jan 2024 09:00:00 -0500`" + NL +
+		"- Non-matches: `25 Dec 2023 14:30:00`, `Mon Dec 25 2023 14:30:00`"
 	],
 
 	# Markdown

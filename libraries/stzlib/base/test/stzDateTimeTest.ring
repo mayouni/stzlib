@@ -274,18 +274,27 @@ oDateTime2 = StzDateTimeQ("2024-03-20 14:30:00")
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
-/*--- Human-readable duration (string param) #TODO #ERR
+/*--- Duration (string param) #TODO #ERR
 
 pr()
 
 oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
-? oDateTime1.DurationTo("2024-03-20 14:30:15")
-#--> 5 days, 4 hours, and 30 minutes
+? @@NL( oDateTime1.DurationTo("2024-03-20 14:30:15") )
+#-->
+'
+[
+	[ "days", 566 ],
+	[ "hours", 0 ],
+	[ "minutes", 4 ],
+	[ "seconds", 53 ],
+	[ "milliseconds", 0 ]
+]
+'
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
-/*--- Human-readable duration (object param)
+/*--- Duration (object param)
 
 pr()
 
@@ -298,7 +307,8 @@ oDateTime2 = StzDateTimeQ("2024-03-20 14:30:15")
 	[ "days", 5 ],
 	[ "hours", 4 ],
 	[ "minutes", 30 ],
-	[ "seconds", 15 ]
+	[ "seconds", 15 ],
+	[ "milliseconds", 0 ]
 ]
 '
 
@@ -438,7 +448,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Human-readable datetime
-*/
+
 pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
@@ -448,49 +458,71 @@ oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 pf()
 
 /*--- Relative time description
+
 pr()
-oDateTime = StzDateTimeQ("") - "2 hours"
+
+oDateTime = StzDateTimeQ('') - "2 hours"
 ? oDateTime.ToRelative()
 #--> 2 hours ago
 
-oFuture = StzDateTimeQ("") + "3 days"
+oFuture = StzDateTimeQ('') + "3 days"
 ? oFuture.ToRelative()
 #--> in 3 days
+
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- Checking if datetime is now/today
+
 pr()
+
 oNow = StzDateTimeQ("")
 ? oNow.IsNow()
 #--> TRUE
 
 ? oNow.IsToday()
 #--> TRUE
+
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- Checking if datetime is tomorrow/yesterday
+
 pr()
-oTomorrow = StzDateTimeQ("") + "1 day"
+
+oTomorrow = StzDateTimeQ('') + "1 day"
 ? oTomorrow.IsTomorrow()
 #--> TRUE
 
-oYesterday = StzDateTimeQ("") - "1 day"
+oYesterday = StzDateTimeQ('') - "1 day"
 ? oYesterday.IsYesterday()
 #--> TRUE
+
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- Working with milliseconds
+
 pr()
+
 oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 ? oDateTime.ToUnixTimeStampMs()
 #--> 1710515445000
 
 ? oDateTime.AddMilliseconds(500)
 #--> 2024-03-15 14:30:45.500
+
+# Or you can also say:
+? oDateTime.ToStringXT("yyyy-MM-dd hh:mm:ss.zzz")
+#--> 2024-03-15 14:30:45.500
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Validating datetime strings
+
 pr()
+
 ? IsDateTime("2024-03-15 10:00:00")
 #--> TRUE
 
@@ -502,69 +534,94 @@ pr()
 
 ? IsValidDateTime("2024-03-15 10:00:00")
 #--> TRUE
-pf()
 
-/*--- Copying datetime objects
-pr()
-oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
-oDateTime2 = oDateTime1.Copy()
-oDateTime2.AddDays(5)
-
-? oDateTime1.ToString()
-#--> 2024-03-15 10:00:00
-
-? oDateTime2.ToString()
-#--> 2024-03-20 10:00:00
 pf()
 
 /*--- Chaining operations with Q methods
+
 pr()
+
 oDateTime = StzDateTimeQ("2024-03-15 10:00:00")
+
 oResult = oDateTime.AddDaysQ(5).AddHoursQ(3).AddMinutesQ(30)
 ? oResult.ToString()
 #--> 2024-03-20 13:30:00
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Complex duration with multiple units
+*/
 pr()
-oDateTime1 = StzDateTimeQ("2024-03-15 10:30:00")
-? oDateTime1.DurationTo("2024-04-20 15:45:30")
-#--> 1 month, 5 days, 5 hours, and 15 minutes
+
+oDateTime1 = StzDateTimeQ("2024-03-15 10:30:00.750")
+
+? @@NL( oDateTime1.DurationTo("2024-04-20 15:45:30") )
+#-->
+'
+[
+	[ "days", 565 ],
+	[ "hours", 23 ],
+	[ "minutes", 36 ],
+	[ "seconds", 44 ],
+	[ "milliseconds", 0 ]
+]
+'
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Operator subtraction to get time difference
+
 pr()
+
 oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 nSecsDiff = oDateTime1 - "2024-03-15 12:30:00"
 ? nSecsDiff
 #--> -9000 (2.5 hours in seconds)
+
 pf()
+# # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Simple datetime formatting
+
 pr()
+
 oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 ? oDateTime.ToSimple()
 #--> 15/03/2024 2:30 PM
 
 ? oDateTime.ToLong()
 #--> Friday, March 15, 2024 2:30:45 PM
+
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- Adding seconds directly with operator
+
 pr()
+
 oDateTime = StzDateTimeQ("2024-03-15 10:00:00")
 oDateTime + 3600 # Add 3600 seconds (1 hour)
 ? oDateTime.ToString()
 #--> 2024-03-15 11:00:00
+
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- Natural language time addition
+*/
 pr()
+
 oDateTime = StzDateTimeQ("2024-03-15 10:00:00")
-oDateTime.AddNatural("2 days 3 hours 30 minutes")
-? oDateTime.ToString()
+? oDateTime.Hours()
+
+oDateTime.AddNatural("2 days 3 hours 30 minutes 28 seconds 540 milliseconds")
+? oDateTime.ToStringXT("yyyy-mm-dd hh-mm-ss.zzz")
 #--> 2024-03-17 13:30:00
+
 pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- Natural language time subtraction
 pr()

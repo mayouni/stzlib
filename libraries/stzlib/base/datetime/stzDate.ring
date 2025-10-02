@@ -539,18 +539,18 @@ class stzDate from stzObject
 		ok
 
     def IsYesterday()
-        oYesterday = new QDate()
-        oYesterday = oYesterday.currentDate().addDays(-1)
-        return oQDate.daysTo(oYesterday) = 0
+        _oYesterday_ = new QDate()
+        _oYesterday_ = _oYesterday_.currentDate().addDays(-1)
+        return oQDate.daysTo(_oYesterday_) = 0
 
     def IsTomorrow()
-        oTomorrow = new QDate()
-        oTomorrow = oTomorrow.currentDate().addDays(1)
-        return oQDate.daysTo(oTomorrow) = 0
+        _oTomorrow_ = new QDate()
+        _oTomorrow_ = _oTomorrow_.currentDate().addDays(1)
+        return oQDate.daysTo(_oTomorrow_) = 0
 
     def Age()
-        oToday = new stzDate("")
-        nYears = This.YearsTo(oToday)
+        _oToday_ = new stzDate("")
+        nYears = This.YearsTo(_oToday_)
         if nYears < 0
             nYears = -nYears
         ok
