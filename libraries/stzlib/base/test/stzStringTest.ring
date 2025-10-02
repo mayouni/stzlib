@@ -9938,7 +9938,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 #== @FunctionPartialForm #TODO #NARRATION
-*/
+
 pr()
 
 o1 = new stzString("__Ri__ng__")
@@ -15470,7 +15470,7 @@ pf()
 # Executed in 0.03 second(s) in Ring 1.20
 
 /*==================
-*/
+
 pr()
 
 ? StzStringQ("ar_TN-tun").ContainsEachCS(["_", "-"],TRUE)
@@ -15480,7 +15480,8 @@ pr()
 #--> TRUE
 
 pf()
-# Executed in 0.03 second(s).
+# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.03 second(s).in Ring 1.20
 
 /*==================
 
@@ -17054,7 +17055,7 @@ pf()
 # Executed in 0.05 second(s) in Ring 1.22
 
 /*------------------
-*/
+
 pr()
 
 o1 = new stzString("fr")
@@ -17069,7 +17070,8 @@ o1 = new stzString("fr-fr")
 # france
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.02 second(s).in ring 1.20
 
 /*------------------
 
@@ -17459,7 +17461,7 @@ o1 = new stzString("MustHave32CharsAnd8Spaces")
 ? @@( o1.SubstringsBoundedBy("@") ) #--> [ ]
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*======== REMOVE XT ================= #todo Write a #narration
 
@@ -19355,7 +19357,7 @@ pf()
 #  "X" :  ----------------- (0)
 
 /*======== #narration #perf CONCATENATING STRINGS IN RING AND SOFTANZA
-
+*/
 StartProfiler()
 
 # In Ring, concatenating 1 million strings takes about 45 seconds:
@@ -19423,7 +19425,7 @@ pf()
 # 0.47 second(s)
 
 /*----- #narration #perf #ring CONCATENATING UNICODE STRINGS IN RING AND SOFTANZA
-
+*/
 pr()
 
 # Ring can concatenate 1 million latin strings in almost 2 seconds:

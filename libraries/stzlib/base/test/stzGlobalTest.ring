@@ -222,6 +222,7 @@ for i = 1 to 5_000_000
 next
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.24
 # Executed in 0.11 second(s) in Ring 1.20
 # Executed in 0.12 second(s) in Ring 1.19
 # Executed in 0.44 second(s) in Ring 1.17

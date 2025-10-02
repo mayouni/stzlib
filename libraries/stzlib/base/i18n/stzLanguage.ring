@@ -1,6 +1,7 @@
 
+$cCurrentLanguage = "en"
 
-_aLocaleLanguagesXT = [
+$aLocaleLanguagesXT = [
 	#     1		 2				3		       4		      5
 	#  QtNumber 	Name 			ShortAbbreviation 	LongAbbreviation 	DefaultCountry
 
@@ -339,6 +340,16 @@ _aLocaleLanguagesXT = [
 	[ "369", 	:silesian, 		"szl", 			"szl", 			:poland 			]
 ]
 
+func CurrentLanguage()
+	return StzLanguageQ($cCurrentLanguage).Name()
+
+func SetCurrentLanguage(cLang)
+	if NOT IsLanguage(cLang)
+		StzRaise("Incorrect param type! cLang must be a valid language identifier.")
+	ok
+
+	$cCurrentLanguage = StzLanguageQ(cLang).ShortAbreviation()
+
 func DefaultLanguageForScript(cScript)
 		return StzScriptQ(cScript).DefaultLangauge()
 
@@ -346,7 +357,7 @@ func DefaultLanguageForCountry(cCountry)
 	return StzCountryQ(cCountry).DefaultLangauge()
 
 func LocaleLanguagesXT()
-	return _aLocaleLanguagesXT
+	return $aLocaleLanguagesXT
 
 	func LanguagesXT()
 		return LocaleLanguagesXT()
@@ -361,7 +372,7 @@ func LocaleLanguages()
 	return aResult
 
 func NumberOfLanguages()
-	return len(_aLocaleLanguagesXT)
+	return len($aLocaleLanguagesXT)
 
 	func HowManyLanguages()
 		return NumberOfLanguages()

@@ -1,18 +1,100 @@
+
+#==========================================================#
+# STZDATETIME CLASS - SOFTANZA LIBRARY - V0.9 (2019-2025)  #
+# BY: MANSOUR AYOUNI - EMAIL: kalidianow@gmail.com         #
+#==========================================================#
+
+/*
+HIERARCHICAL DATETIME FORMAT DESIGN
+-----------------------------------
+
+1. TIME SYSTEM (24h vs 12h)
+   - Default: 24-hour (international standard)
+   - 12-hour: Append "12h" suffix to format name OR use formats with AP marker
+
+2. LOCALIZATION
+   - ISO: Normalized, locale-independent (YYYY-MM-DD format)
+   - Localized: Region-specific (DD/MM/YYYY or MM/DD/YYYY)
+   
+3. PRECISION
+   - Minute: HH:mm
+   - Second: HH:mm:ss  
+   - Millisecond: HH:mm:ss.zzz
+
+4. VERBOSITY
+   - Compact: Minimal characters (2024-03-15 14:30)
+   - Standard: Common readable (15/03/2024 14:30:45)
+   - Verbose: Full text (Friday, March 15, 2024 at 2:30:45 PM)
+
+Qt Format String Rules:
+- h  = hour 0-23 (or 1-12 if AP present)
+- hh = hour 00-23 (or 01-12 if AP present) with leading zero
+- H  = same as h (Qt doesn't distinguish H from h)
+- HH = same as hh
+- AP = AM/PM marker (makes the format 12-hour automatically)
+- ap = am/pm marker (lowercase)
+*/
+
+
 # Global datetime format configurations
-$cDefaultDateTimeFormat = "yyyy-MM-dd hh:mm:ss"
+$cDefaultDateTimeFormat = "yyyy-MM-dd HH:mm:ss"
 
 $aDateTimeFormats = [
-    [ :Standard, "yyyy-MM-dd hh:mm:ss" ],
-    [ :Short, "dd/MM/yyyy hh:mm" ],
-    [ :ISO8601, "yyyy-MM-ddThh:mm:ss" ],
-    [ :ISOWithMs, "yyyy-MM-ddThh:mm:ss.zzz" ],
-    [ :RFC2822, "dd MMM yyyy hh:mm:ss" ],
-    [ :TextDate, "ddd MMM d hh:mm:ss yyyy" ],
-    [ :WithMs, "yyyy-MM-dd hh:mm:ss.zzz" ],
-    [ :Simple, "dd/MM/yyyy h:mm AP" ],
-    [ :Long, "dddd, MMMM d, yyyy h:mm:ss AP" ],
-    [ :European, "dd/MM/yyyy hh:mm:ss" ],
-    [ :American, "MM/dd/yyyy hh:mm:ss" ]
+
+    # ===== ISO/NORMALIZED FORMATS (Locale-independent) =====
+    # These formats are safe for data interchange and storage
+    
+    [ :ISO,           "yyyy-MM-dd HH:mm:ss" ],      # 2024-03-15 14:30:45
+    [ :ISOMinute,     "yyyy-MM-dd HH:mm" ],         # 2024-03-15 14:30
+    [ :ISOWithMs,     "yyyy-MM-dd HH:mm:ss.zzz" ],  # 2024-03-15 14:30:45.123
+    [ :ISO8601,       "yyyy-MM-ddTHH:mm:ss" ],      # 2024-03-15T14:30:45
+    [ :ISO8601Ms,     "yyyy-MM-ddTHH:mm:ss.zzz" ],  # 2024-03-15T14:30:45.123
+    
+    [ :ISO12h,        "yyyy-MM-dd hh:mm:ss AP" ],   # 2024-03-15 02:30:45 PM
+    [ :ISO12hMinute,  "yyyy-MM-dd hh:mm AP" ],      # 2024-03-15 02:30 PM
+    
+    # ===== COMPACT FORMATS (24-hour) =====
+    # Short, efficient formats for logs and displays
+    
+    [ :Compact,       "yyyy-MM-dd HH:mm" ],         # 2024-03-15 14:30
+    [ :CompactSec,    "yyyy-MM-dd HH:mm:ss" ],      # 2024-03-15 14:30:45
+    [ :CompactMs,     "yyyy-MM-dd HH:mm:ss.zzz" ],  # 2024-03-15 14:30:45.123
+    
+    [ :Compact12h,    "yyyy-MM-dd hh:mm AP" ],      # 2024-03-15 02:30 PM
+    [ :Compact12hSec, "yyyy-MM-dd hh:mm:ss AP" ],   # 2024-03-15 02:30:45 PM
+    
+    # ===== STANDARD FORMATS (24-hour, Region-aware) =====
+    # Common readable formats with slashes
+    
+    [ :Standard,      "dd/MM/yyyy HH:mm:ss" ],      # 15/03/2024 14:30:45
+    [ :StandardMinute,"dd/MM/yyyy HH:mm" ],         # 15/03/2024 14:30
+    [ :European,      "dd/MM/yyyy HH:mm:ss" ],      # 15/03/2024 14:30:45 (same as Standard)
+    [ :American,      "MM/dd/yyyy HH:mm:ss" ],      # 03/15/2024 14:30:45
+    
+    [ :Standard12h,   "dd/MM/yyyy hh:mm:ss AP" ],   # 15/03/2024 02:30:45 PM
+    [ :Standard12hMin,"dd/MM/yyyy hh:mm AP" ],      # 15/03/2024 02:30 PM
+    [ :European12h,   "dd/MM/yyyy hh:mm:ss AP" ],   # 15/03/2024 02:30:45 PM
+    [ :American12h,   "MM/dd/yyyy hh:mm:ss AP" ],   # 03/15/2024 02:30:45 PM
+    
+    # ===== VERBOSE FORMATS (Human-readable) =====
+    # Full text representations
+    
+    [ :Verbose,       "dddd, MMMM d, yyyy HH:mm:ss" ],     # Friday, March 15, 2024 14:30:45
+    [ :VerboseMinute, "dddd, MMMM d, yyyy HH:mm" ],        # Friday, March 15, 2024 14:30
+    [ :LongDate,      "dddd, MMMM d, yyyy" ],              # Friday, March 15, 2024
+    
+    [ :Verbose12h,    "dddd, MMMM d, yyyy hh:mm:ss AP" ],  # Friday, March 15, 2024 02:30:45 PM
+    [ :Verbose12hMin, "dddd, MMMM d, yyyy hh:mm AP" ],     # Friday, March 15, 2024 02:30 PM
+    
+    # ===== SPECIAL FORMATS =====
+    # Specific use cases
+    
+    [ :RFC2822,       "dd MMM yyyy HH:mm:ss" ],     # 15 Mar 2024 14:30:45
+    [ :RFC282212h,    "dd MMM yyyy hh:mm:ss AP" ],  # 15 Mar 2024 02:30:45 PM
+    [ :UnixLog,       "MMM d HH:mm:ss" ],           # Mar 15 14:30:45
+    [ :ShortText,     "ddd MMM d HH:mm:ss yyyy" ],  # Fri Mar 15 14:30:45 2024
+    [ :ShortText12h,  "ddd MMM d hh:mm:ss AP yyyy" ] # Fri Mar 15 02:30:45 PM 2024
+
 ]
 
 # Quick datetime creation functions
@@ -33,12 +115,59 @@ func IsDateTime(str)
         return FALSE
     ok
 
-	Rx = new stzRegex("\b\d{4}[-/.]\d{1,2}[-/.]\d{1,2}[T\s]\d{1,2}:\d{2}(:\d{2})?(\.\d+)?(Z|[+-]\d{2}:\d{2})?\b")
-	# Or you can say	Rx = new stzRegex(pat(:AnyDateTime))
+	Rx = new stzRegex(pat(:DateTime) )
 	return Rx.Match(str)
 
     func IsValidDateTime(str)
         return IsDateTime(str)
+
+# Helper function: Get format string by name or return as-is if custom
+func GetDateTimeFormat(cFormatNameOrString)
+    if isString(cFormatNameOrString)
+        # Check if it's a named format
+        for aFormat in $aDateTimeFormats
+            if aFormat[1] = cFormatNameOrString
+                return aFormat[2]
+            ok
+        next
+        # Not a named format, treat as custom format string
+        return cFormatNameOrString
+    ok
+
+    return $cDefaultDateTimeFormat
+
+
+func Is12HourFormat(cFormat)
+    # Get actual format string if it's a name
+    cActualFormat = GetDateTimeFormat(cFormat)
+    
+    # Check for AP/ap marker (definitive 12h indicator)
+    if substr(upper(cActualFormat), "AP") > 0
+        return TRUE
+    ok
+    
+    # Check for explicit 12h suffix in format name
+    if isString(cFormat) and right(lower(cFormat), 3) = "12h"
+        return TRUE
+    ok
+    
+    return FALSE
+
+func ConvertTo12Hour(nHour)
+    nHour12 = nHour % 12
+    if nHour12 = 0
+        nHour12 = 12
+    ok
+    return nHour12
+
+func GetAmPmText(nHour)
+    oLocale = new stzLocale("")
+    if nHour >= 12
+        return oLocale.pmText()
+    else
+        return oLocale.amText()
+    ok
+
 
 class stzDateTime from stzObject
     oQDateTime
@@ -383,9 +512,7 @@ class stzDateTime from stzObject
 
 	    # Don't process if it looks like a datetime string
 
-		Rx = new stzRegex("\b\d{4}[-/.]\d{1,2}[-/.]\d{1,2}[T\s]\d{1,2}:\d{2}(:\d{2})?(\.\d+)?(Z|[+-]\d{2}:\d{2})?\b")
-		# Or you can say	Rx = new stzRegex(pat(:AnyDateTime))
-
+		Rx = new stzRegex(pat(:DateTime))
 	    if Rx.Match(cExpr)
 	        return
 	    ok
@@ -707,40 +834,199 @@ class stzDateTime from stzObject
 		def DateTime()
 			return This.ToStringXT("")
 
-    def ToStringXT(cFormat)
-        if cFormat = ""
-            cFormat = $cDefaultDateTimeFormat
-			if oQDateTime.time().msec() > 0
-				cFormat += ".zzz"
-			ok
-        ok
+	def ToStringXT(cFormat)
+	    if NOT isString(cFormat)
+	        StzRaise("Incorrect param type! cFormat must be a string.")
+	    ok
+	
+	    # Handle empty format
 
-        # Handle named formats
-        if isString(cFormat)
-            cLowerFormat = lower(cFormat)
-            for aFormat in $aDateTimeFormats
-                if lower(aFormat[1]) = cLowerFormat
-                    cFormat = aFormat[2]
-                    exit
-                ok
-            next
-        ok
+	    if cFormat = ""
+	        cFormat = $cDefaultDateTimeFormat
+	        if oQDateTime.time().msec() > 0
+	            cFormat = "yyyy-MM-dd HH:mm:ss.zzz"
+	        ok
+	    ok
+	    
+		# Handle named patterns
 
-        # Handle Qt format constants
-        if isNumber(cFormat)
-            return oQDateTime.toString(cFormat)
-        else
-            return oQDateTime.toString(cFormat)
-        ok
-    
-    def ToISO8601()
-        return oQDateTime.toString("yyyy-MM-ddThh:mm:ss")
+		acNamedPatterns = [
+			"simple", "simple12h", "simple24h",
+			"long", "long12h", "long24h",
+			"short", "short12h", "short24h",
+			"medium", "medium12h", "medium24h",
+		]
 
-        def ToISO()
-            return This.ToISO8601()
-    
-    def ToISOWithMs()
-        return oQDateTime.toString("yyyy-MM-ddThh:mm:ss.zzz")
+		if ring_find(acNamedPatterns, cFormat) > 0
+
+		    # Handle special named formats with 24h/12h variants
+		    # Simple formats (concise, user-friendly)
+		    if cFormat = "simple" or cFormat = "simple12h"
+		        return This.ToSimple()  # Default: 12-hour (dd/MM/yyyy h:mm AM/PM)
+		    
+		    but cFormat = "simple24h"
+		        return oQDateTime.toString("dd/MM/yyyy HH:mm")  # 15/03/2024 14:30
+		    
+		    # Long formats (verbose, fully spelled out)
+		    but cFormat = "long" or cFormat = "long12h"
+		        return This.ToLong()  # Default: 12-hour (dddd, MMMM d, yyyy h:mm:ss AM/PM)
+		    
+		    but cFormat = "long24h"
+		        return oQDateTime.toString("dddd, MMMM d, yyyy HH:mm:ss")  # Friday, March 15, 2024 14:30:45
+		    
+		    # Short formats (minimal, no year sometimes)
+		    but cFormat = "short" or cFormat = "short12h"
+		        nHour = This.Hours()
+		        nHour12 = ConvertTo12Hour(nHour)
+		        cAmPm = GetAmPmText(nHour)
+		        return oQDateTime.toString("dd/MM") + " " + nHour12 + ":" + 
+		               Right("0" + This.Minutes(), 2) + " " + cAmPm  # 15/03 2:30 PM
+		    
+		    but cFormat = "short24h"
+		        return oQDateTime.toString("dd/MM HH:mm")  # 15/03 14:30
+		    
+		    # Medium formats (balanced detail)
+		    but cFormat = "medium" or cFormat = "medium12h"
+		        nHour = This.Hours()
+		        nHour12 = ConvertTo12Hour(nHour)
+		        cAmPm = GetAmPmText(nHour)
+		        return oQDateTime.toString("ddd, MMM d") + " " + nHour12 + ":" + 
+		               Right("0" + This.Minutes(), 2) + " " + cAmPm  # Fri, Mar 15 2:30 PM
+		    
+		    but cFormat = "medium24h"
+		        return oQDateTime.toString("ddd, MMM d HH:mm")  # Fri, Mar 15 14:30
+		    ok
+
+	    ok
+
+	    # Get actual Qt format string
+
+	    cQtFormat = GetDateTimeFormat(cFormat)
+	    
+	    # Check if this is a 12-hour format that needs manual AM/PM handling
+	    if substr(upper(cQtFormat), "AP") > 0
+	        # Remove AP marker from format and format the datetime
+	        cFormatWithout12h = substr(cQtFormat, "AP", "")
+	        cFormatWithout12h = substr(cFormatWithout12h, "ap", "")
+	        cFormatWithout12h = trim(cFormatWithout12h)
+	        
+	        # Replace HH with actual 12-hour value
+	        nHour = This.Hours()
+	        nHour12 = ConvertTo12Hour(nHour)
+	        
+	        # Replace hh in format with actual hour
+	        cFormatFinal = substr(cFormatWithout12h, "hh", "" + nHour12)
+	        if cFormatFinal = cFormatWithout12h
+	            # Try single h
+	            cFormatFinal = substr(cFormatWithout12h, "h", "" + nHour12)
+	        ok
+	        
+	        cResult = oQDateTime.toString(cFormatFinal)
+	        cAmPm = GetAmPmText(nHour)
+	        
+	        return cResult + " " + cAmPm
+	    else
+	        # Standard 24-hour format
+	        return oQDateTime.toString(cQtFormat)
+	    ok
+	
+	# Short formats
+
+	def ToShort()
+	    return This.ToStringXT(:Short)
+	
+	def ToShort12h()
+	    return This.ToStringXT(:Short12h)
+	
+	def ToShort24h()
+	    return This.ToStringXT(:Short24h)
+	
+	# Medium formats
+
+	def ToMedium()
+	    return This.ToStringXT(:Medium)
+	
+	def ToMedium12h()
+	    return This.ToStringXT(:Medium12h)
+	
+	def ToMedium24h()
+	    return This.ToStringXT(:Medium24h)
+	    
+	#--
+
+	def ToISO8601()
+	    return This.ToStringXT(:ISO8601)
+	
+	def ToISOWithMs()
+	    return This.ToStringXT(:ISOWithMs)
+	
+	#--
+
+	def ToCompact()
+	    return This.ToStringXT(:Compact12h)
+	
+		def ToCompact12h()
+			return This.ToStringXT(:Compact12h)
+
+	def ToCompact24h()
+		return This.ToStringXT(:Compact)
+
+	#--
+	
+	def ToStandard()
+	    return This.ToStringXT(:Standard12h)
+	
+		def ToStandard12h()
+			return This.ToStringXT(:Standard12h)
+
+	def ToStandard24h()
+	    return This.ToStringXT(:Standard)
+
+	#--
+
+	def ToEuropean()
+	    return This.ToStringXT(:European12h)
+	
+		def ToEuropean12h()
+			return This.ToStringXT(:European12h)
+
+	def ToEuropean24h()
+	    return This.ToStringXT(:European)
+
+	#--
+
+	def ToAmerican()
+	    return This.ToStringXT(:American12h)
+	
+		def ToAmerican12h()
+			return This.ToStringXT(:American12h)
+
+	def ToAmerican24h()
+	    return This.ToStringXT(:American)
+	
+	#--
+
+	def ToISO()
+	    return This.ToStringXT(:Iso12h)
+	
+		def ToIso12h()
+			return This.ToStringXT(:Iso12h)
+
+	def ToIso24h()
+	    return This.ToStringXT(:ISO)
+
+	# 12-hour variants with automatic AM/PM
+	
+	def ToVerbose()
+		return This.ToStringXT(:Verbose12h)
+
+	def ToVerbose12h()
+	    return This.ToStringXT(:Verbose12h)
+
+	def ToVerbose24h()
+	    return This.ToStringXT(:Verbose)
+
+	#----
 
     def ToRFC2822()
         return This.ToStringXT("dd MMM yyyy hh:mm:ss")
@@ -748,18 +1034,65 @@ class stzDateTime from stzObject
     def ToTextDate()
         return This.ToStringXT("ddd MMM d hh:mm:ss yyyy")
 
-    def ToSimple()
-        return This.ToStringXT("dd/MM/yyyy hh:mm:ss AP")
+	def ToSimple()
+	    oLocale = new stzLocale("")
+	    nHour = This.Hours()
+	    nHour12 = nHour % 12
+	    if nHour12 = 0
+	        nHour12 = 12
+	    ok
+	    
+	    cResult = oQDateTime.toString("dd/MM/yyyy") + " " + nHour12 + ":" + 
+	              Right("0" + This.Minutes(), 2)
+	    
+	    if nHour >= 12
+	        cResult += " " + oLocale.pmText()
+	    else
+	        cResult += " " + oLocale.amText()
+	    ok
+	    return cResult
+	
 
-    def ToLong()
-        return This.ToStringXT("dddd, MMMM d, yyyy h:mm:ss AP")
+		def ToSimple12h()
+			return This.ToSimple()
 
-    def ToEuropean()
-        return This.ToStringXT("dd/MM/yyyy hh:mm:ss")
+		def ToSimple24h()
+		    return This.ToStringXT(:Simple24h)
 
-    def ToAmerican()
-        return This.ToStringXT("MM/dd/yyyy hh:mm:ss")
-    
+	def ToLong()
+	    oLocale = new stzLocale("")
+	    nHour = This.Hours()
+	    nHour12 = nHour % 12
+	    if nHour12 = 0
+	        nHour12 = 12
+	    ok
+	    
+	    cResult = oQDateTime.toString("dddd, MMMM d, yyyy") + " " + nHour12 + ":" + 
+	              Right("0" + This.Minutes(), 2) + ":" + 
+	              Right("0" + This.Seconds(), 2)
+	    
+	    if nHour >= 12
+	        cResult += " " + oLocale.pmText()
+	    else
+	        cResult += " " + oLocale.amText()
+	    ok
+	    return cResult
+
+		def ToLong12h()
+			return This.ToLong()
+
+		def ToLong24h()
+		    return This.ToStringXT(:Long24h)
+
+	def ToString12h()
+	    nHour = This.Hours()
+	    nHour12 = ConvertTo12Hour(nHour)
+	    cAmPm = GetAmPmText(nHour)
+	    
+	    return oQDateTime.toString("yyyy-MM-dd") + " " + nHour12 + ":" +
+	           Right("0" + This.Minutes(), 2) + ":" +
+	           Right("0" + This.Seconds(), 2) + " " + cAmPm
+
     #--- HUMAN-READABLE ---#
 
     def ToHuman()

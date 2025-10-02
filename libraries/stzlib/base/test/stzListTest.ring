@@ -1934,7 +1934,8 @@ next
 #--> 400 times more performant.
 
 pf()
-# Executed in 21.3657 second(s)
+# Executed in 0.03 second(s) in Ring 1.24
+# Executed in 21.3 second(s) in Ring 1.17
 
 /*-------------
 

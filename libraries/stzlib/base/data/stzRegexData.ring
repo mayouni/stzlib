@@ -84,7 +84,7 @@ _$aRegexPatterns_ = [
 	
 	# Flexible DateTime Patterns
 	
-	:anyDateTime = "\b\d{4}[-/.]\d{1,2}[-/.]\d{1,2}[T\s]\d{1,2}:\d{2}(:\d{2})?(\.\d+)?(Z|[+-]\d{2}:\d{2})?\b",
+	:DateTime = "\b\d{4}[-/.]\d{1,2}[-/.]\d{1,2}[T\s]\d{1,2}:\d{2}(:\d{2})?(\.\d+)?(Z|[+-]\d{2}:\d{2})?\b",
 	:rfc2822DateTime = "^[A-Za-z]{3},\s\d{1,2}\s[A-Za-z]{3}\s\d{4}\s\d{2}:\d{2}:\d{2}\s[+-]\d{4}$",
 
 	# Markdown
@@ -1172,7 +1172,7 @@ _$aRegexPatternsExplanations_ = [
 
 	# Flexible DateTime Patterns
 
-	:anyDateTime = [
+	:DateTime = [
 		"Matches various datetime formats flexibly",
 
 		"- `\\b`: Word boundary" + NL +

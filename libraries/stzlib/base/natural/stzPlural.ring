@@ -1,4 +1,3 @@
-
 #TODO Make a bridge with stzLocale to let the stzPlural class be locale-sensitive
 
 // Systematic plural transformation rules
