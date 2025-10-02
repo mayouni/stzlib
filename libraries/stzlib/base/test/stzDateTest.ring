@@ -346,7 +346,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*---
-*/
+
 pr()
 
 o1 = new stzDate(:Today)
@@ -368,4 +368,15 @@ o1 + "2 weeks"
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
+
+/*---
+*/
+pr()
+
+o1 = new stzDate("10/12/2024")
+? o1.Day()
+? o1.Month()
+? o1.ToHuman()
+
+pf()
 

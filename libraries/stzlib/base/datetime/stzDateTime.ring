@@ -507,7 +507,7 @@ class stzDateTime from stzObject
         return floor(This.SecsTo(oOtherDateTime) / 3600)
 
     def DurationTo(oOtherDateTime)
-        # Returns human-readable duration: "2 days, 3 hours, 15 minutes"
+ 
         if isString(oOtherDateTime)
             oOtherDateTime = new stzDateTime(oOtherDateTime)
         ok
@@ -524,34 +524,8 @@ class stzDateTime from stzObject
         nMinutes = floor(nRemainingSecs / 60)
         nSeconds = nRemainingSecs % 60
 
-        aParts = []
-        if nDays > 0
-            aParts + ('' + nDays + " day" + Iff(nDays=1, "", "s"))
-        ok
-        if nHours > 0
-            aParts + ('' + nHours + " hour" + Iff(nHours=1, "", "s"))
-        ok
-        if nMinutes > 0
-            aParts + ('' + nMinutes + " minute" + Iff(nMinutes=1, "", "s"))
-        ok
-        if nSeconds > 0 and len(aParts) < 2
-            aParts + ('' + nSeconds + " second" + Iff(nSeconds=1, "", "s"))
-        ok
+		return [ :Days = nDays, :Hours = nHours, :Minutes = nMinutes, :Seconds = nSeconds ]
 
-        if len(aParts) = 0
-            return "0 seconds"
-        but len(aParts) = 1
-            return aParts[1]
-        but len(aParts) = 2
-            return aParts[1] + " and " + aParts[2]
-        else
-            cResult = ""
-            for i = 1 to len(aParts) - 1
-                cResult += aParts[i] + ", "
-            next
-            cResult += "and " + aParts[len(aParts)]
-            return cResult
-        ok
     
     #--- COMPARISON METHODS ---#
     
@@ -617,23 +591,24 @@ class stzDateTime from stzObject
     
     #--- TIME ZONE OPERATIONS ---#
     
-    def ToUTC()
+    def ToUTCQ()
         oResult = oQDateTime.toUTC()
         oNewDateTime = new stzDateTime("")
         oNewDateTime.SetQDateTime(oResult)
         return oNewDateTime
 
-    def ToUTCQ()
-        return This.ToUTC()
+		def ToUTC()
+			return This.ToUTCQ().Content()
     
-    def ToLocalTime()
+    def ToLocalTimeQ()
         oResult = oQDateTime.toLocalTime()
         oNewDateTime = new stzDateTime("")
         oNewDateTime.SetQDateTime(oResult)
         return oNewDateTime
 
-    def ToLocalTimeQ()
-        return This.ToLocalTime()
+		def ToLocalTime()
+			return This.ToLocalTimeQ().Content()
+
     
     #--- FORMATTING ---#
 
@@ -699,7 +674,7 @@ class stzDateTime from stzObject
     #--- HUMAN-READABLE ---#
 
     def ToHuman()
-        cDateHuman = This.DateQ().ToHuman()
+		cDateHuman = This.DateQ().ToHuman()
         cTimeHuman = This.TimeQ().ToHuman()
         
         return cDateHuman + " at " + cTimeHuman
